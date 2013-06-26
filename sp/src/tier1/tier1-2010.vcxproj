@@ -1,0 +1,287 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>tier1</ProjectName>
+    <ProjectGuid>{EC1C516D-E1D9-BC0A-F79D-E91E954ED8EC}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <TargetName>tier1</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <TargetName>tier1</TargetName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\lib\public\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\win32\</IntDir>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\devtools\vstools;$(ExecutablePath);$(Path)</ExecutablePath>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PreBuildEventUseInBuild>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PreLinkEventUseInBuild>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PostBuildEventUseInBuild>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\lib\public\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\win32\</IntDir>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\devtools\vstools;$(ExecutablePath);$(Path)</ExecutablePath>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PreBuildEventUseInBuild>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PreLinkEventUseInBuild>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions> /MP</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common;..\public;..\public\tier0;..\public\tier1</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;COMPILER_MSVC32;LIBNAME=tier1;RAD_TELEMETRY_DISABLED;BINK_VIDEO;AVI_VIDEO;WMV_VIDEO;TIER1_STATIC_LIB;VPCGAMECAPS=VALVE;PROJECTDIR=D:\dev\games\rel\singleplayer\src\tier1;_DLL_EXT=.dll;VPCGAME=valve</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ExpandAttributedSource>false</ExpandAttributedSource>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)/</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)/</ProgramDataBaseFileName>
+      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>$(IntDir)/</BrowseInformationFile>
+      <ErrorReporting>Prompt</ErrorReporting>
+    </ClCompile>
+    <PreLinkEvent>
+    </PreLinkEvent>
+    <Lib>
+      <UseUnicodeResponseFiles>false</UseUnicodeResponseFiles>
+      <AdditionalDependencies>;Rpcrt4.lib</AdditionalDependencies>
+      <OutputFile>..\lib\public\tier1.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <AdditionalOptions> /ignore:4221</AdditionalOptions>
+    </Lib>
+    <Xdcmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Xdcmake>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)/tier1.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <CustomBuildStep>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions> /MP /d2Zi+</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\common;..\public;..\public\tier0;..\public\tier1</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;COMPILER_MSVC32;LIBNAME=tier1;RAD_TELEMETRY_DISABLED;BINK_VIDEO;AVI_VIDEO;WMV_VIDEO;TIER1_STATIC_LIB;VPCGAMECAPS=VALVE;PROJECTDIR=D:\dev\games\rel\singleplayer\src\tier1;_DLL_EXT=.dll;VPCGAME=valve</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ExpandAttributedSource>false</ExpandAttributedSource>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)/</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)/</ProgramDataBaseFileName>
+      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>$(IntDir)/</BrowseInformationFile>
+      <ErrorReporting>Prompt</ErrorReporting>
+    </ClCompile>
+    <PreLinkEvent>
+    </PreLinkEvent>
+    <Lib>
+      <UseUnicodeResponseFiles>false</UseUnicodeResponseFiles>
+      <AdditionalDependencies>;Rpcrt4.lib</AdditionalDependencies>
+      <OutputFile>..\lib\public\tier1.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <AdditionalOptions> /ignore:4221</AdditionalOptions>
+    </Lib>
+    <Xdcmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Xdcmake>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)/tier1.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <CustomBuildStep>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\public\tier1\bitbuf.h" />
+    <ClInclude Include="..\public\tier1\byteswap.h" />
+    <ClInclude Include="..\public\tier1\callqueue.h" />
+    <ClInclude Include="..\public\tier1\characterset.h" />
+    <ClInclude Include="..\public\tier1\checksum_crc.h" />
+    <ClInclude Include="..\public\tier1\checksum_md5.h" />
+    <ClInclude Include="..\public\tier1\checksum_sha1.h" />
+    <ClInclude Include="..\public\tier1\CommandBuffer.h" />
+    <ClInclude Include="..\public\tier1\convar.h" />
+    <ClInclude Include="..\public\tier1\datamanager.h" />
+    <ClInclude Include="..\public\datamap.h" />
+    <ClInclude Include="..\public\tier1\delegates.h" />
+    <ClInclude Include="..\public\tier1\diff.h" />
+    <ClInclude Include="..\public\tier1\fmtstr.h" />
+    <ClInclude Include="..\public\tier1\functors.h" />
+    <ClInclude Include="..\public\tier1\generichash.h" />
+    <ClInclude Include="..\public\tier1\iconvar.h" />
+    <ClInclude Include="..\public\tier1\ilocalize.h" />
+    <ClInclude Include="..\public\tier1\interface.h" />
+    <ClInclude Include="..\public\tier1\KeyValues.h" />
+    <ClInclude Include="..\public\tier1\kvpacker.h" />
+    <ClInclude Include="..\public\tier1\lzmaDecoder.h" />
+    <ClInclude Include="..\public\tier1\lzss.h" />
+    <ClInclude Include="..\public\tier1\mempool.h" />
+    <ClInclude Include="..\public\tier1\memstack.h" />
+    <ClInclude Include="..\public\tier1\netadr.h" />
+    <ClInclude Include="..\public\tier1\processor_detect.h" />
+    <ClInclude Include="..\public\tier1\rangecheckedvar.h" />
+    <ClInclude Include="..\public\tier1\refcount.h" />
+    <ClInclude Include="..\public\tier1\smartptr.h" />
+    <ClInclude Include="..\public\tier1\snappy-sinksource.h" />
+    <ClInclude Include="..\public\tier1\snappy.h" />
+    <ClInclude Include="..\public\tier1\stringpool.h" />
+    <ClInclude Include="..\public\tier1\strtools.h" />
+    <ClInclude Include="..\public\tier1\tier1.h" />
+    <ClInclude Include="..\public\tier1\tokenreader.h" />
+    <ClInclude Include="..\public\tier1\uniqueid.h" />
+    <ClInclude Include="..\public\tier1\utlbidirectionalset.h" />
+    <ClInclude Include="..\public\tier1\utlblockmemory.h" />
+    <ClInclude Include="..\public\tier1\utlbuffer.h" />
+    <ClInclude Include="..\public\tier1\utlbufferutil.h" />
+    <ClInclude Include="..\public\tier1\utlcommon.h" />
+    <ClInclude Include="..\public\tier1\utldict.h" />
+    <ClInclude Include="..\public\tier1\utlenvelope.h" />
+    <ClInclude Include="..\public\tier1\utlfixedmemory.h" />
+    <ClInclude Include="..\public\tier1\utlhandletable.h" />
+    <ClInclude Include="..\public\tier1\utlhash.h" />
+    <ClInclude Include="..\public\tier1\utlhashtable.h" />
+    <ClInclude Include="..\public\tier1\utllinkedlist.h" />
+    <ClInclude Include="..\public\tier1\utlmap.h" />
+    <ClInclude Include="..\public\tier1\utlmemory.h" />
+    <ClInclude Include="..\public\tier1\utlmultilist.h" />
+    <ClInclude Include="..\public\tier1\utlpriorityqueue.h" />
+    <ClInclude Include="..\public\tier1\utlqueue.h" />
+    <ClInclude Include="..\public\tier1\utlrbtree.h" />
+    <ClInclude Include="..\public\tier1\UtlSortVector.h" />
+    <ClInclude Include="..\public\tier1\utlstack.h" />
+    <ClInclude Include="..\public\tier1\utlstring.h" />
+    <ClInclude Include="..\public\tier1\UtlStringMap.h" />
+    <ClInclude Include="..\public\tier1\utlsymbol.h" />
+    <ClInclude Include="..\public\tier1\utlsymbollarge.h" />
+    <ClInclude Include="..\public\tier1\utlvector.h" />
+    <ClInclude Include="..\common\xbox\xboxstubs.h" />
+    <ClInclude Include="snappy-internal.h" />
+    <ClInclude Include="snappy-stubs-internal.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bitbuf.cpp" />
+    <ClCompile Include="byteswap.cpp" />
+    <ClCompile Include="characterset.cpp" />
+    <ClCompile Include="checksum_crc.cpp" />
+    <ClCompile Include="checksum_md5.cpp" />
+    <ClCompile Include="checksum_sha1.cpp" />
+    <ClCompile Include="commandbuffer.cpp" />
+    <ClCompile Include="convar.cpp" />
+    <ClCompile Include="datamanager.cpp" />
+    <ClCompile Include="diff.cpp" />
+    <ClCompile Include="generichash.cpp" />
+    <ClCompile Include="ilocalize.cpp" />
+    <ClCompile Include="interface.cpp" />
+    <ClCompile Include="KeyValues.cpp" />
+    <ClCompile Include="kvpacker.cpp" />
+    <ClCompile Include="mempool.cpp" />
+    <ClCompile Include="memstack.cpp" />
+    <ClCompile Include="NetAdr.cpp" />
+    <ClCompile Include="newbitbuf.cpp" />
+    <ClCompile Include="processor_detect.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Sync</ExceptionHandling>
+    </ClCompile>
+    <ClCompile Include="rangecheckedvar.cpp" />
+    <ClCompile Include="reliabletimer.cpp" />
+    <ClCompile Include="snappy-sinksource.cpp" />
+    <ClCompile Include="snappy-stubs-internal.cpp" />
+    <ClCompile Include="snappy.cpp" />
+    <ClCompile Include="sparsematrix.cpp" />
+    <ClCompile Include="splitstring.cpp" />
+    <ClCompile Include="stringpool.cpp" />
+    <ClCompile Include="strtools.cpp" />
+    <ClCompile Include="tier1.cpp" />
+    <ClCompile Include="tokenreader.cpp" />
+    <ClCompile Include="uniqueid.cpp" />
+    <ClCompile Include="utlbuffer.cpp" />
+    <ClCompile Include="utlbufferutil.cpp" />
+    <ClCompile Include="utlstring.cpp" />
+    <ClCompile Include="utlsymbol.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

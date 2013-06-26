@@ -1,0 +1,1447 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>Client (HL2)</ProjectName>
+    <ProjectGuid>{09E5D61D-4897-7B98-288B-C87442D14BFF}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <TargetName>client</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <TargetName>client</TargetName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug_mod_hl2\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug_mod_hl2\</IntDir>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\devtools\vstools;$(ExecutablePath);$(Path)</ExecutablePath>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PreBuildEventUseInBuild>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PreLinkEventUseInBuild>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</GenerateManifest>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PostBuildEventUseInBuild>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release_mod_hl2\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release_mod_hl2\</IntDir>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\devtools\vstools;$(ExecutablePath);$(Path)</ExecutablePath>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PreBuildEventUseInBuild>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PreLinkEventUseInBuild>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateManifest>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions> /MP</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\hl2;.\hl2\elements;..\..\game\shared\hl2;.\;..\..\common;..\..\public;..\..\public\tier0;..\..\public\tier1;..\..\game\client\generated_proto_mod_hl2;..\..\thirdparty\protobuf-2.3.0\src;..\..\vgui2\include;..\..\vgui2\controls;..\..\game\shared;.\game_controls;..\..\thirdparty\sixensesdk\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;DLLNAME=client;RAD_TELEMETRY_DISABLED;COMPILER_MSVC32;BINK_VIDEO;AVI_VIDEO;WMV_VIDEO;NO_STRING_T;CLIENT_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead;ENABLE_CHROMEHTMLWINDOW;fopen=dont_use_fopen;HL2_CLIENT_DLL;VPCGAMECAPS=VALVE;PROJECTDIR=D:\dev\games\rel\singleplayer\src\game\client;_DLL_EXT=.dll;VPCGAME=valve</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>cbase.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)/client.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)/</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)/</ProgramDataBaseFileName>
+      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>$(IntDir)/</BrowseInformationFile>
+      <ErrorReporting>Prompt</ErrorReporting>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE</PreprocessorDefinitions>
+      <Culture>1033</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalOptions> /ignore:4221</AdditionalOptions>
+      <AdditionalDependencies>%(AdditionalDependencies);winmm.lib</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)\client.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\lib\common;..\..\lib\public</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libc;libcd;libcmt</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)/$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapFileName>$(IntDir)/$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <BaseAddress> </BaseAddress>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LinkErrorReporting>PromptImmediately</LinkErrorReporting>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Manifest>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Manifest>
+    <Xdcmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Xdcmake>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)/client.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Message>Publishing to ..\..\..\game\mod_hl2\bin</Message>
+      <Command>if not exist &quot;..\..\..\game\mod_hl2\bin&quot; mkdir &quot;..\..\..\game\mod_hl2\bin&quot;&#x0D;&#x0A;copy &quot;$(TargetDir)&quot;$(TargetFileName) &quot;..\..\..\game\mod_hl2\bin\$(TargetFileName)&quot;&#x0D;&#x0A;if ERRORLEVEL 1 goto BuildEventFailed&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;$(TargetName).map copy &quot;$(TargetDir)&quot;$(TargetName).map ..\..\..\game\mod_hl2\bin\$(TargetName).map&#x0D;&#x0A;copy &quot;$(TargetDir)&quot;$(TargetName).pdb ..\..\..\game\mod_hl2\bin\$(TargetName).pdb&#x0D;&#x0A;if ERRORLEVEL 1 goto BuildEventFailed&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***&#x0D;&#x0A;del /q &quot;$(TargetDir)&quot;$(TargetFileName)&#x0D;&#x0A;exit 1&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;</Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions> /MP /d2Zi+</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>.\hl2;.\hl2\elements;..\..\game\shared\hl2;.\;..\..\common;..\..\public;..\..\public\tier0;..\..\public\tier1;..\..\game\client\generated_proto_mod_hl2;..\..\thirdparty\protobuf-2.3.0\src;..\..\vgui2\include;..\..\vgui2\controls;..\..\game\shared;.\game_controls;..\..\thirdparty\sixensesdk\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;DLLNAME=client;RAD_TELEMETRY_DISABLED;COMPILER_MSVC32;BINK_VIDEO;AVI_VIDEO;WMV_VIDEO;NO_STRING_T;CLIENT_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead;ENABLE_CHROMEHTMLWINDOW;fopen=dont_use_fopen;HL2_CLIENT_DLL;VPCGAMECAPS=VALVE;PROJECTDIR=D:\dev\games\rel\singleplayer\src\game\client;_DLL_EXT=.dll;VPCGAME=valve</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>cbase.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)/client.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)/</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)/</ProgramDataBaseFileName>
+      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile>$(IntDir)/</BrowseInformationFile>
+      <ErrorReporting>Prompt</ErrorReporting>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE</PreprocessorDefinitions>
+      <Culture>1033</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalOptions> /DYNAMICBASE /ignore:4221</AdditionalOptions>
+      <AdditionalDependencies>%(AdditionalDependencies);winmm.lib</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)\client.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\lib\common;..\..\lib\public</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libc;libcd;libcmtd</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)/$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapFileName>$(IntDir)/$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <BaseAddress> </BaseAddress>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LinkErrorReporting>PromptImmediately</LinkErrorReporting>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </Link>
+    <Manifest>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Manifest>
+    <Xdcmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Xdcmake>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)/client.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Message>Publishing to ..\..\..\game\mod_hl2\bin</Message>
+      <Command>if not exist &quot;..\..\..\game\mod_hl2\bin&quot; mkdir &quot;..\..\..\game\mod_hl2\bin&quot;&#x0D;&#x0A;copy &quot;$(TargetDir)&quot;$(TargetFileName) &quot;..\..\..\game\mod_hl2\bin\$(TargetFileName)&quot;&#x0D;&#x0A;if ERRORLEVEL 1 goto BuildEventFailed&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;$(TargetName).map copy &quot;$(TargetDir)&quot;$(TargetName).map ..\..\..\game\mod_hl2\bin\$(TargetName).map&#x0D;&#x0A;copy &quot;$(TargetDir)&quot;$(TargetName).pdb ..\..\..\game\mod_hl2\bin\$(TargetName).pdb&#x0D;&#x0A;if ERRORLEVEL 1 goto BuildEventFailed&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***&#x0D;&#x0A;del /q &quot;$(TargetDir)&quot;$(TargetFileName)&#x0D;&#x0A;exit 1&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;</Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Library Include="..\..\lib\win32\release\VS2010\libprotobuf.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\..\lib\win32\debug\VS2010\libprotobuf.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\..\lib\public\bitmap.lib" />
+    <Library Include="..\..\lib\public\choreoobjects.lib" />
+    <Library Include="..\..\lib\public\dmxloader.lib" />
+    <Library Include="..\..\lib\public\mathlib.lib" />
+    <Library Include="..\..\lib\public\matsys_controls.lib" />
+    <Library Include="..\..\lib\public\particles.lib" />
+    <Library Include="..\..\lib\public\steam_api.lib" />
+    <Library Include="..\..\lib\public\tier0.lib" />
+    <Library Include="..\..\lib\public\tier1.lib" />
+    <Library Include="..\..\lib\public\tier2.lib" />
+    <Library Include="..\..\lib\public\tier3.lib" />
+    <Library Include="..\..\lib\public\vgui_controls.lib" />
+    <Library Include="..\..\lib\public\vstdlib.lib" />
+    <Library Include="..\..\lib\public\vtf.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\game\shared\activitylist.h" />
+    <ClInclude Include="..\..\game\shared\ai_activity.h" />
+    <ClInclude Include="..\..\game\shared\ai_debug_shared.h" />
+    <ClInclude Include="..\..\game\shared\ammodef.h" />
+    <ClInclude Include="..\..\game\shared\animation.h" />
+    <ClInclude Include="..\..\game\shared\apparent_velocity_helper.h" />
+    <ClInclude Include="..\..\game\shared\base_playeranimstate.h" />
+    <ClInclude Include="..\..\game\shared\cstrike\basecsgrenade_projectile.h" />
+    <ClInclude Include="..\..\game\shared\baseentity_shared.h" />
+    <ClInclude Include="..\..\game\shared\basegrenade_shared.h" />
+    <ClInclude Include="..\..\game\shared\hl2\basehlcombatweapon_shared.h" />
+    <ClInclude Include="..\..\game\shared\baseparticleentity.h" />
+    <ClInclude Include="..\..\game\shared\baseplayer_shared.h" />
+    <ClInclude Include="..\..\game\shared\baseviewmodel_shared.h" />
+    <ClInclude Include="..\..\game\shared\beam_flags.h" />
+    <ClInclude Include="..\..\game\shared\beam_shared.h" />
+    <ClInclude Include="..\..\game\shared\choreoactor.h" />
+    <ClInclude Include="..\..\game\shared\choreochannel.h" />
+    <ClInclude Include="..\..\game\shared\choreoevent.h" />
+    <ClInclude Include="..\..\game\shared\choreoscene.h" />
+    <ClInclude Include="..\..\game\shared\collisionproperty.h" />
+    <ClInclude Include="..\..\game\shared\death_pose.h" />
+    <ClInclude Include="..\..\game\shared\decals.h" />
+    <ClInclude Include="..\..\game\shared\effect_color_tables.h" />
+    <ClInclude Include="..\..\game\shared\effect_dispatch_data.h" />
+    <ClInclude Include="..\..\game\shared\ehandle.h" />
+    <ClInclude Include="..\..\game\shared\entitydatainstantiator.h" />
+    <ClInclude Include="..\..\game\shared\entitylist_base.h" />
+    <ClInclude Include="..\..\game\shared\entityparticletrail_shared.h" />
+    <ClInclude Include="..\..\game\shared\env_detail_controller.h" />
+    <ClInclude Include="..\..\game\shared\env_wind_shared.h" />
+    <ClInclude Include="..\..\game\shared\eventlist.h" />
+    <ClInclude Include="..\..\game\shared\func_dust_shared.h" />
+    <ClInclude Include="..\..\game\shared\func_ladder.h" />
+    <ClInclude Include="..\..\game\shared\cstrike\fx_cs_shared.h" />
+    <ClInclude Include="..\..\game\shared\gameeventdefs.h" />
+    <ClInclude Include="..\..\game\shared\gamemovement.h" />
+    <ClInclude Include="..\..\game\shared\gamerules.h" />
+    <ClInclude Include="..\..\game\shared\gamerules_register.h" />
+    <ClInclude Include="..\..\game\shared\gamestats.h" />
+    <ClInclude Include="..\..\game\shared\gamestringpool.h" />
+    <ClInclude Include="..\..\game\shared\gamevars_shared.h" />
+    <ClInclude Include="..\..\game\shared\groundlink.h" />
+    <ClInclude Include="..\..\game\shared\hl2\hl2_player_shared.h" />
+    <ClInclude Include="..\..\game\shared\hl2\hl_movedata.h" />
+    <ClInclude Include="..\..\game\shared\ichoreoeventcallback.h" />
+    <ClInclude Include="..\..\game\shared\IEffects.h" />
+    <ClInclude Include="..\..\game\shared\igamemovement.h" />
+    <ClInclude Include="..\..\game\shared\igamesystem.h" />
+    <ClInclude Include="..\..\game\shared\imovehelper.h" />
+    <ClInclude Include="..\..\game\shared\in_buttons.h" />
+    <ClInclude Include="..\..\game\shared\interval.h" />
+    <ClInclude Include="..\..\game\shared\iplayeranimstate.h" />
+    <ClInclude Include="..\..\game\shared\ipredictionsystem.h" />
+    <ClInclude Include="..\..\game\shared\itempents.h" />
+    <ClInclude Include="..\..\game\shared\IVehicle.h" />
+    <ClInclude Include="..\..\game\shared\mapdata_shared.h" />
+    <ClInclude Include="..\..\game\shared\mapentities_shared.h" />
+    <ClInclude Include="..\..\game\shared\movevars_shared.h" />
+    <ClInclude Include="..\..\game\shared\mp_shareddefs.h" />
+    <ClInclude Include="..\..\game\shared\multiplay_gamerules.h" />
+    <ClInclude Include="..\..\game\shared\npcevent.h" />
+    <ClInclude Include="..\..\game\shared\obstacle_pushaway.h" />
+    <ClInclude Include="..\..\game\shared\physics_saverestore.h" />
+    <ClInclude Include="..\..\game\shared\physics_shared.h" />
+    <ClInclude Include="..\..\game\shared\playernet_vars.h" />
+    <ClInclude Include="..\..\game\shared\point_posecontroller.h" />
+    <ClInclude Include="..\..\game\shared\positionwatcher.h" />
+    <ClInclude Include="..\..\game\shared\precache_register.h" />
+    <ClInclude Include="..\..\game\shared\precipitation_shared.h" />
+    <ClInclude Include="..\..\game\shared\predictable_entity.h" />
+    <ClInclude Include="..\..\game\shared\predictableid.h" />
+    <ClInclude Include="..\..\game\shared\predictioncopy.h" />
+    <ClInclude Include="..\..\game\shared\ragdoll_shared.h" />
+    <ClInclude Include="..\..\game\shared\rope_helpers.h" />
+    <ClInclude Include="..\..\game\shared\saverestore.h" />
+    <ClInclude Include="..\..\game\shared\saverestore_bitstring.h" />
+    <ClInclude Include="..\..\game\shared\saverestore_utlclass.h" />
+    <ClInclude Include="..\..\game\shared\saverestore_utlsymbol.h" />
+    <ClInclude Include="..\..\game\shared\saverestore_utlvector.h" />
+    <ClInclude Include="..\..\game\shared\sceneentity_shared.h" />
+    <ClInclude Include="..\..\game\shared\scriptevent.h" />
+    <ClInclude Include="..\..\game\shared\sequence_Transitioner.h" />
+    <ClInclude Include="..\..\game\shared\shared_classnames.h" />
+    <ClInclude Include="..\..\game\shared\shareddefs.h" />
+    <ClInclude Include="..\..\game\shared\sharedInterface.h" />
+    <ClInclude Include="..\..\game\shared\sheetsimulator.h" />
+    <ClInclude Include="..\..\game\shared\shot_manipulator.h" />
+    <ClInclude Include="..\..\game\shared\simtimer.h" />
+    <ClInclude Include="..\..\game\shared\singleplay_gamerules.h" />
+    <ClInclude Include="..\..\game\shared\smoke_fog_overlay_shared.h" />
+    <ClInclude Include="..\..\game\shared\solidsetdefaults.h" />
+    <ClInclude Include="..\..\game\shared\soundenvelope.h" />
+    <ClInclude Include="..\..\game\shared\Sprite.h" />
+    <ClInclude Include="..\..\game\shared\SpriteTrail.h" />
+    <ClInclude Include="..\..\game\shared\sun_shared.h" />
+    <ClInclude Include="..\..\game\shared\takedamageinfo.h" />
+    <ClInclude Include="..\..\game\shared\teamplay_gamerules.h" />
+    <ClInclude Include="..\..\game\shared\teamplayroundbased_gamerules.h" />
+    <ClInclude Include="..\..\game\shared\tempentity.h" />
+    <ClInclude Include="..\..\game\shared\touchlink.h" />
+    <ClInclude Include="..\..\game\shared\usercmd.h" />
+    <ClInclude Include="..\..\game\shared\usermessages.h" />
+    <ClInclude Include="..\..\game\shared\util_shared.h" />
+    <ClInclude Include="..\..\game\shared\vehicle_choreo_generic_shared.h" />
+    <ClInclude Include="..\..\game\shared\vehicle_viewblend_shared.h" />
+    <ClInclude Include="..\..\game\shared\vgui_defaultinputsignal.h" />
+    <ClInclude Include="..\..\game\shared\viewport_panel_names.h" />
+    <ClInclude Include="..\..\game\shared\voice_banmgr.h" />
+    <ClInclude Include="..\..\game\shared\voice_common.h" />
+    <ClInclude Include="..\..\game\shared\voice_gamemgr.h" />
+    <ClInclude Include="..\..\game\shared\voice_status.h" />
+    <ClInclude Include="..\..\game\shared\vphysics_sound.h" />
+    <ClInclude Include="..\..\game\shared\cstrike\weapon_flashbang.h" />
+    <ClInclude Include="..\..\game\shared\cstrike\weapon_hegrenade.h" />
+    <ClInclude Include="..\..\game\shared\weapon_ifmsteadycam.h" />
+    <ClInclude Include="..\..\game\shared\tf2\weapon_objectselection.h" />
+    <ClInclude Include="..\..\game\shared\weapon_parse.h" />
+    <ClInclude Include="..\..\game\shared\weapon_proficiency.h" />
+    <ClInclude Include="game_controls\baseviewport.h" />
+    <ClInclude Include="game_controls\clientscoreboarddialog.h" />
+    <ClInclude Include="game_controls\commandmenu.h" />
+    <ClInclude Include="game_controls\IconPanel.h" />
+    <ClInclude Include="game_controls\imagemouseoverbutton.h" />
+    <ClInclude Include="game_controls\intromenu.h" />
+    <ClInclude Include="game_controls\mapoverview.h" />
+    <ClInclude Include="game_controls\mouseoverhtmlbutton.h" />
+    <ClInclude Include="game_controls\mouseoverpanelbutton.h" />
+    <ClInclude Include="game_controls\spectatorgui.h" />
+    <ClInclude Include="game_controls\teammenu.h" />
+    <ClInclude Include="game_controls\vguitextwindow.h" />
+    <ClInclude Include="animationlayer.h" />
+    <ClInclude Include="baseanimatedtextureproxy.h" />
+    <ClInclude Include="baseclientrendertargets.h" />
+    <ClInclude Include="basepresence.h" />
+    <ClInclude Include="beamdraw.h" />
+    <ClInclude Include="bone_merge_cache.h" />
+    <ClInclude Include="c_ai_basenpc.h" />
+    <ClInclude Include="c_baseanimating.h" />
+    <ClInclude Include="c_baseanimatingoverlay.h" />
+    <ClInclude Include="c_basecombatcharacter.h" />
+    <ClInclude Include="c_basecombatweapon.h" />
+    <ClInclude Include="c_basedoor.h" />
+    <ClInclude Include="c_baseentity.h" />
+    <ClInclude Include="c_baseflex.h" />
+    <ClInclude Include="c_baseplayer.h" />
+    <ClInclude Include="c_basetempentity.h" />
+    <ClInclude Include="c_baseviewmodel.h" />
+    <ClInclude Include="c_breakableprop.h" />
+    <ClInclude Include="c_effects.h" />
+    <ClInclude Include="c_entitydissolve.h" />
+    <ClInclude Include="c_env_fog_controller.h" />
+    <ClInclude Include="c_fire_smoke.h" />
+    <ClInclude Include="c_func_dust.h" />
+    <ClInclude Include="c_func_reflective_glass.h" />
+    <ClInclude Include="c_gib.h" />
+    <ClInclude Include="c_impact_effects.h" />
+    <ClInclude Include="c_physbox.h" />
+    <ClInclude Include="c_physicsprop.h" />
+    <ClInclude Include="c_pixel_visibility.h" />
+    <ClInclude Include="c_playerlocaldata.h" />
+    <ClInclude Include="c_playerresource.h" />
+    <ClInclude Include="c_point_camera.h" />
+    <ClInclude Include="c_prop_vehicle.h" />
+    <ClInclude Include="c_recipientfilter.h" />
+    <ClInclude Include="c_rope.h" />
+    <ClInclude Include="c_rumble.h" />
+    <ClInclude Include="c_sceneentity.h" />
+    <ClInclude Include="c_smoke_trail.h" />
+    <ClInclude Include="c_soundscape.h" />
+    <ClInclude Include="c_sprite.h" />
+    <ClInclude Include="c_sun.h" />
+    <ClInclude Include="c_te_basebeam.h" />
+    <ClInclude Include="c_te_effect_dispatch.h" />
+    <ClInclude Include="c_te_legacytempents.h" />
+    <ClInclude Include="c_te_particlesystem.h" />
+    <ClInclude Include="c_team.h" />
+    <ClInclude Include="c_tesla.h" />
+    <ClInclude Include="c_tracer.h" />
+    <ClInclude Include="c_user_message_register.h" />
+    <ClInclude Include="c_vehicle_jeep.h" />
+    <ClInclude Include="c_vguiscreen.h" />
+    <ClInclude Include="c_weapon__stubs.h" />
+    <ClInclude Include="c_world.h" />
+    <ClInclude Include="cbase.h" />
+    <ClInclude Include="cdll_client_int.h" />
+    <ClInclude Include="cdll_util.h" />
+    <ClInclude Include="cl_animevent.h" />
+    <ClInclude Include="cl_mat_stub.h" />
+    <ClInclude Include="client_factorylist.h" />
+    <ClInclude Include="client_thinklist.h" />
+    <ClInclude Include="clienteffectprecachesystem.h" />
+    <ClInclude Include="cliententitylist.h" />
+    <ClInclude Include="clientleafsystem.h" />
+    <ClInclude Include="clientmode.h" />
+    <ClInclude Include="clientmode_shared.h" />
+    <ClInclude Include="clientsideeffects.h" />
+    <ClInclude Include="colorcorrectionmgr.h" />
+    <ClInclude Include="detailobjectsystem.h" />
+    <ClInclude Include="enginesprite.h" />
+    <ClInclude Include="flashlighteffect.h" />
+    <ClInclude Include="fontabc.h" />
+    <ClInclude Include="functionproxy.h" />
+    <ClInclude Include="fx.h" />
+    <ClInclude Include="fx_blood.h" />
+    <ClInclude Include="cstrike\fx_cs_blood.h" />
+    <ClInclude Include="fx_discreetline.h" />
+    <ClInclude Include="fx_envelope.h" />
+    <ClInclude Include="fx_explosion.h" />
+    <ClInclude Include="fx_fleck.h" />
+    <ClInclude Include="fx_impact.h" />
+    <ClInclude Include="fx_interpvalue.h" />
+    <ClInclude Include="fx_line.h" />
+    <ClInclude Include="fx_quad.h" />
+    <ClInclude Include="fx_sparks.h" />
+    <ClInclude Include="fx_staticline.h" />
+    <ClInclude Include="fx_trail.h" />
+    <ClInclude Include="fx_water.h" />
+    <ClInclude Include="..\..\game\shared\GameEventListener.h" />
+    <ClInclude Include="glow_outline_effect.h" />
+    <ClInclude Include="glow_overlay.h" />
+    <ClInclude Include="..\..\game\shared\hintmessage.h" />
+    <ClInclude Include="..\..\game\shared\hintsystem.h" />
+    <ClInclude Include="history_resource.h" />
+    <ClInclude Include="hltvcamera.h" />
+    <ClInclude Include="hud.h" />
+    <ClInclude Include="hud_basechat.h" />
+    <ClInclude Include="hud_basetimer.h" />
+    <ClInclude Include="hud_bitmapnumericdisplay.h" />
+    <ClInclude Include="hud_chat.h" />
+    <ClInclude Include="hud_closecaption.h" />
+    <ClInclude Include="hud_crosshair.h" />
+    <ClInclude Include="hud_element_helper.h" />
+    <ClInclude Include="hud_lcd.h" />
+    <ClInclude Include="hud_macros.h" />
+    <ClInclude Include="hud_numericdisplay.h" />
+    <ClInclude Include="hud_pdump.h" />
+    <ClInclude Include="cstrike\hud_radar.h" />
+    <ClInclude Include="hud_vehicle.h" />
+    <ClInclude Include="hudelement.h" />
+    <ClInclude Include="hudtexturehandle.h" />
+    <ClInclude Include="iclassmap.h" />
+    <ClInclude Include="icliententityinternal.h" />
+    <ClInclude Include="iclientmode.h" />
+    <ClInclude Include="iclientshadowmgr.h" />
+    <ClInclude Include="iclientvehicle.h" />
+    <ClInclude Include="iconsole.h" />
+    <ClInclude Include="idebugoverlaypanel.h" />
+    <ClInclude Include="ifpspanel.h" />
+    <ClInclude Include="..\..\game\shared\econ\ihasowner.h" />
+    <ClInclude Include="ihudlcd.h" />
+    <ClInclude Include="iinput.h" />
+    <ClInclude Include="iloadingdisc.h" />
+    <ClInclude Include="imessagechars.h" />
+    <ClInclude Include="in_main.h" />
+    <ClInclude Include="inetgraphpanel.h" />
+    <ClInclude Include="initializer.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="interpolatedvar.h" />
+    <ClInclude Include="ipresence.h" />
+    <ClInclude Include="iprofiling.h" />
+    <ClInclude Include="itextmessage.h" />
+    <ClInclude Include="ivieweffects.h" />
+    <ClInclude Include="iviewrender.h" />
+    <ClInclude Include="iviewrender_beams.h" />
+    <ClInclude Include="ivmodemanager.h" />
+    <ClInclude Include="kbutton.h" />
+    <ClInclude Include="..\..\common\language.h" />
+    <ClInclude Include="lerp_functions.h" />
+    <ClInclude Include="menu.h" />
+    <ClInclude Include="movehelper_client.h" />
+    <ClInclude Include="mumble.h" />
+    <ClInclude Include="networkstringtable_clientdll.h" />
+    <ClInclude Include="panelmetaclassmgr.h" />
+    <ClInclude Include="particle_collision.h" />
+    <ClInclude Include="particle_iterators.h" />
+    <ClInclude Include="particle_litsmokeemitter.h" />
+    <ClInclude Include="particle_prototype.h" />
+    <ClInclude Include="particle_simple3d.h" />
+    <ClInclude Include="particle_util.h" />
+    <ClInclude Include="particledraw.h" />
+    <ClInclude Include="particlemgr.h" />
+    <ClInclude Include="particles_attractor.h" />
+    <ClInclude Include="particles_ez.h" />
+    <ClInclude Include="particles_localspace.h" />
+    <ClInclude Include="particles_new.h" />
+    <ClInclude Include="particles_simple.h" />
+    <ClInclude Include="particlesphererenderer.h" />
+    <ClInclude Include="perfvisualbenchmark.h" />
+    <ClInclude Include="physics.h" />
+    <ClInclude Include="physpropclientside.h" />
+    <ClInclude Include="playerandobjectenumerator.h" />
+    <ClInclude Include="playerenumerator.h" />
+    <ClInclude Include="playerspawncache.h" />
+    <ClInclude Include="prediction.h" />
+    <ClInclude Include="prediction_private.h" />
+    <ClInclude Include="proxyentity.h" />
+    <ClInclude Include="ragdoll.h" />
+    <ClInclude Include="ragdollexplosionenumerator.h" />
+    <ClInclude Include="recvproxy.h" />
+    <ClInclude Include="rendertexture.h" />
+    <ClInclude Include="ScreenSpaceEffects.h" />
+    <ClInclude Include="simple_keys.h" />
+    <ClInclude Include="smoke_fog_overlay.h" />
+    <ClInclude Include="splinepatch.h" />
+    <ClInclude Include="..\..\public\steam\steam_api.h" />
+    <ClInclude Include="TeamBitmapImage.h" />
+    <ClInclude Include="tempent.h" />
+    <ClInclude Include="text_message.h" />
+    <ClInclude Include="timedevent.h" />
+    <ClInclude Include="toggletextureproxy.h" />
+    <ClInclude Include="vgui_basepanel.h" />
+    <ClInclude Include="vgui_bitmapbutton.h" />
+    <ClInclude Include="vgui_bitmapimage.h" />
+    <ClInclude Include="vgui_bitmappanel.h" />
+    <ClInclude Include="vgui_entityimagepanel.h" />
+    <ClInclude Include="vgui_entitypanel.h" />
+    <ClInclude Include="vgui_grid.h" />
+    <ClInclude Include="tf2\vgui_healthbar.h" />
+    <ClInclude Include="vgui_helpers.h" />
+    <ClInclude Include="vgui_imagehealthpanel.h" />
+    <ClInclude Include="vgui_int.h" />
+    <ClInclude Include="vgui_schemevisualizer.h" />
+    <ClInclude Include="vgui_video.h" />
+    <ClInclude Include="vgui_video_player.h" />
+    <ClInclude Include="vguicenterprint.h" />
+    <ClInclude Include="view.h" />
+    <ClInclude Include="view_scene.h" />
+    <ClInclude Include="viewangleanim.h" />
+    <ClInclude Include="ViewConeImage.h" />
+    <ClInclude Include="viewrender.h" />
+    <ClInclude Include="weapon_selection.h" />
+    <ClInclude Include="weapons_resource.h" />
+    <ClInclude Include="mp3player.h" />
+    <ClInclude Include="..\..\public\mathlib\amd3dx.h" />
+    <ClInclude Include="..\..\public\vgui_controls\AnimationController.h" />
+    <ClInclude Include="..\..\public\basehandle.h" />
+    <ClInclude Include="..\..\public\tier0\basetypes.h" />
+    <ClInclude Include="..\..\public\tier1\bitbuf.h" />
+    <ClInclude Include="..\..\public\bitvec.h" />
+    <ClInclude Include="..\..\public\bone_accessor.h" />
+    <ClInclude Include="..\..\public\bone_setup.h" />
+    <ClInclude Include="..\..\public\bspfile.h" />
+    <ClInclude Include="..\..\public\bspflags.h" />
+    <ClInclude Include="..\..\public\bsptreedata.h" />
+    <ClInclude Include="..\..\public\mathlib\bumpvects.h" />
+    <ClInclude Include="..\..\public\vgui_controls\Button.h" />
+    <ClInclude Include="..\..\public\cdll_int.h" />
+    <ClInclude Include="..\..\public\tier1\characterset.h" />
+    <ClInclude Include="..\..\public\tier1\checksum_md5.h" />
+    <ClInclude Include="..\..\public\client_class.h" />
+    <ClInclude Include="..\..\public\client_render_handle.h" />
+    <ClInclude Include="..\..\public\client_textmessage.h" />
+    <ClInclude Include="..\..\public\clientstats.h" />
+    <ClInclude Include="..\..\public\cmodel.h" />
+    <ClInclude Include="..\..\public\vphysics\collision_set.h" />
+    <ClInclude Include="..\..\public\collisionutils.h" />
+    <ClInclude Include="..\..\public\Color.h" />
+    <ClInclude Include="..\..\public\vgui_controls\ComboBox.h" />
+    <ClInclude Include="..\..\public\tier0\commonmacros.h" />
+    <ClInclude Include="..\..\public\mathlib\compressed_light_cube.h" />
+    <ClInclude Include="..\..\public\mathlib\compressed_vector.h" />
+    <ClInclude Include="..\..\public\con_nprint.h" />
+    <ClInclude Include="..\..\public\const.h" />
+    <ClInclude Include="..\..\public\vphysics\constraints.h" />
+    <ClInclude Include="..\..\public\vgui_controls\Controls.h" />
+    <ClInclude Include="..\..\public\tier1\convar.h" />
+    <ClInclude Include="..\..\public\coordsize.h" />
+    <ClInclude Include="..\..\public\crtmemdebug.h" />
+    <ClInclude Include="..\..\public\vgui\Cursor.h" />
+    <ClInclude Include="..\..\public\vgui\Dar.h" />
+    <ClInclude Include="..\..\public\datamap.h" />
+    <ClInclude Include="..\..\public\tier0\dbg.h" />
+    <ClInclude Include="..\..\public\dlight.h" />
+    <ClInclude Include="..\..\public\dt_common.h" />
+    <ClInclude Include="..\..\public\dt_recv.h" />
+    <ClInclude Include="..\..\public\dt_send.h" />
+    <ClInclude Include="..\..\public\dt_utlvector_common.h" />
+    <ClInclude Include="..\..\public\dt_utlvector_recv.h" />
+    <ClInclude Include="..\..\public\edict.h" />
+    <ClInclude Include="..\..\public\vgui_controls\EditablePanel.h" />
+    <ClInclude Include="..\..\public\tier0\fasttimer.h" />
+    <ClInclude Include="..\..\public\filesystem.h" />
+    <ClInclude Include="..\..\public\filesystem_helpers.h" />
+    <ClInclude Include="..\..\public\tier1\fmtstr.h" />
+    <ClInclude Include="..\..\public\vgui_controls\FocusNavGroup.h" />
+    <ClInclude Include="..\..\public\vphysics\friction.h" />
+    <ClInclude Include="..\..\public\gamebspfile.h" />
+    <ClInclude Include="..\..\public\gametrace.h" />
+    <ClInclude Include="..\..\public\globalvars_base.h" />
+    <ClInclude Include="..\..\public\haptics\haptic_utils.h" />
+    <ClInclude Include="..\..\public\vgui_controls\HTML.h" />
+    <ClInclude Include="..\..\public\iachievementmgr.h" />
+    <ClInclude Include="..\..\public\appframework\IAppSystem.h" />
+    <ClInclude Include="..\..\public\icliententity.h" />
+    <ClInclude Include="..\..\public\icliententitylist.h" />
+    <ClInclude Include="..\..\public\engine\IClientLeafSystem.h" />
+    <ClInclude Include="..\..\public\iclientnetworkable.h" />
+    <ClInclude Include="..\..\public\vgui\IClientPanel.h" />
+    <ClInclude Include="..\..\public\iclientrenderable.h" />
+    <ClInclude Include="..\..\public\game\client\iclientrendertargets.h" />
+    <ClInclude Include="..\..\public\iclientthinkable.h" />
+    <ClInclude Include="..\..\public\iclientunknown.h" />
+    <ClInclude Include="..\..\public\engine\ICollideable.h" />
+    <ClInclude Include="..\..\public\tier0\icommandline.h" />
+    <ClInclude Include="..\..\public\icvar.h" />
+    <ClInclude Include="..\..\public\iefx.h" />
+    <ClInclude Include="..\..\public\engine\IEngineSound.h" />
+    <ClInclude Include="..\..\public\engine\IEngineTrace.h" />
+    <ClInclude Include="..\..\public\ienginevgui.h" />
+    <ClInclude Include="..\..\public\igameevents.h" />
+    <ClInclude Include="..\..\public\igameresources.h" />
+    <ClInclude Include="..\..\public\IGameUIFuncs.h" />
+    <ClInclude Include="..\..\public\ihandleentity.h" />
+    <ClInclude Include="..\..\public\haptics\ihaptics.h" />
+    <ClInclude Include="..\..\public\vgui\IHTML.h" />
+    <ClInclude Include="..\..\public\vgui\IImage.h" />
+    <ClInclude Include="..\..\public\vgui\IInput.h" />
+    <ClInclude Include="..\..\public\vgui\IInputInternal.h" />
+    <ClInclude Include="..\..\public\vstdlib\IKeyValuesSystem.h" />
+    <ClInclude Include="..\..\public\vgui\ILocalize.h" />
+    <ClInclude Include="..\..\public\vgui_controls\Image.h" />
+    <ClInclude Include="..\..\public\vgui_controls\ImageList.h" />
+    <ClInclude Include="..\..\public\vgui_controls\ImagePanel.h" />
+    <ClInclude Include="..\..\public\imapoverview.h" />
+    <ClInclude Include="..\..\public\materialsystem\imaterial.h" />
+    <ClInclude Include="..\..\public\materialsystem\imaterialproxy.h" />
+    <ClInclude Include="..\..\public\materialsystem\imaterialsystem.h" />
+    <ClInclude Include="..\..\public\materialsystem\imaterialsystemhardwareconfig.h" />
+    <ClInclude Include="..\..\public\materialsystem\imaterialsystemstub.h" />
+    <ClInclude Include="..\..\public\materialsystem\imaterialvar.h" />
+    <ClInclude Include="..\..\public\VGuiMatSurface\IMatSystemSurface.h" />
+    <ClInclude Include="..\..\public\materialsystem\imesh.h" />
+    <ClInclude Include="..\..\public\inetchannelinfo.h" />
+    <ClInclude Include="..\..\public\tier1\interface.h" />
+    <ClInclude Include="..\..\public\interpolatortypes.h" />
+    <ClInclude Include="..\..\public\vgui\IPanel.h" />
+    <ClInclude Include="..\..\public\iprediction.h" />
+    <ClInclude Include="..\..\public\irecipientfilter.h" />
+    <ClInclude Include="..\..\public\isaverestore.h" />
+    <ClInclude Include="..\..\public\vgui\IScheme.h" />
+    <ClInclude Include="..\..\public\iscratchpad3d.h" />
+    <ClInclude Include="..\..\public\iserverentity.h" />
+    <ClInclude Include="..\..\public\iservernetworkable.h" />
+    <ClInclude Include="..\..\public\iserverunknown.h" />
+    <ClInclude Include="..\..\public\engine\ishadowmgr.h" />
+    <ClInclude Include="..\..\public\SoundEmitterSystem\isoundemittersystembase.h" />
+    <ClInclude Include="..\..\public\ispatialpartition.h" />
+    <ClInclude Include="..\..\public\engine\IStaticPropMgr.h" />
+    <ClInclude Include="..\..\public\istudiorender.h" />
+    <ClInclude Include="..\..\public\vgui\ISurface.h" />
+    <ClInclude Include="..\..\public\vgui\ISystem.h" />
+    <ClInclude Include="..\..\public\materialsystem\itexture.h" />
+    <ClInclude Include="..\..\public\engine\ivdebugoverlay.h" />
+    <ClInclude Include="..\..\public\vgui\IVGui.h" />
+    <ClInclude Include="..\..\public\ivguicenterprint.h" />
+    <ClInclude Include="..\..\public\game\client\iviewport.h" />
+    <ClInclude Include="..\..\public\engine\ivmodelinfo.h" />
+    <ClInclude Include="..\..\public\engine\ivmodelrender.h" />
+    <ClInclude Include="..\..\public\ivrenderview.h" />
+    <ClInclude Include="..\..\public\jigglebones.h" />
+    <ClInclude Include="..\..\public\vgui\KeyCode.h" />
+    <ClInclude Include="..\..\public\tier1\KeyValues.h" />
+    <ClInclude Include="..\..\public\tier0\l2cache.h" />
+    <ClInclude Include="..\..\public\vgui_controls\Label.h" />
+    <ClInclude Include="..\..\public\vgui_controls\ListPanel.h" />
+    <ClInclude Include="..\..\public\mathlib\mathlib.h" />
+    <ClInclude Include="..\..\public\tier0\mem.h" />
+    <ClInclude Include="..\..\public\tier0\memalloc.h" />
+    <ClInclude Include="..\..\public\tier0\memdbgoff.h" />
+    <ClInclude Include="..\..\public\tier0\memdbgon.h" />
+    <ClInclude Include="..\..\public\tier1\mempool.h" />
+    <ClInclude Include="..\..\public\vgui_controls\Menu.h" />
+    <ClInclude Include="..\..\public\vgui_controls\MenuItem.h" />
+    <ClInclude Include="..\..\public\vgui_controls\MessageMap.h" />
+    <ClInclude Include="..\..\public\model_types.h" />
+    <ClInclude Include="..\..\public\vgui\MouseCode.h" />
+    <ClInclude Include="..\..\public\mouthinfo.h" />
+    <ClInclude Include="..\..\public\networkstringtabledefs.h" />
+    <ClInclude Include="..\..\public\networkvar.h" />
+    <ClInclude Include="..\..\public\vphysics\object_hash.h" />
+    <ClInclude Include="..\..\public\overlaytext.h" />
+    <ClInclude Include="..\..\public\vgui_controls\Panel.h" />
+    <ClInclude Include="..\..\public\vgui_controls\PanelAnimationVar.h" />
+    <ClInclude Include="..\..\public\vgui_controls\PanelListPanel.h" />
+    <ClInclude Include="..\..\public\vgui_controls\PHandle.h" />
+    <ClInclude Include="..\..\public\pixelwriter.h" />
+    <ClInclude Include="..\..\public\tier0\platform.h" />
+    <ClInclude Include="..\..\public\PlayerState.h" />
+    <ClInclude Include="..\..\public\mathlib\polyhedron.h" />
+    <ClInclude Include="..\..\public\tier1\processor_detect.h" />
+    <ClInclude Include="..\..\public\tier0\protected_things.h" />
+    <ClInclude Include="..\..\public\r_efx.h" />
+    <ClInclude Include="..\..\public\vstdlib\random.h" />
+    <ClInclude Include="..\..\public\tier1\rangecheckedvar.h" />
+    <ClInclude Include="..\..\public\renamed_recvtable_compat.h" />
+    <ClInclude Include="..\..\public\vgui_controls\RichText.h" />
+    <ClInclude Include="..\..\public\rope_physics.h" />
+    <ClInclude Include="..\..\public\rope_shared.h" />
+    <ClInclude Include="..\..\public\saverestoretypes.h" />
+    <ClInclude Include="..\..\public\scratchpad3d.h" />
+    <ClInclude Include="..\..\public\ScratchPadUtils.h" />
+    <ClInclude Include="..\..\public\vgui_controls\ScrollBar.h" />
+    <ClInclude Include="..\..\public\vgui_controls\SectionedListPanel.h" />
+    <ClInclude Include="..\..\public\sentence.h" />
+    <ClInclude Include="..\..\public\server_class.h" />
+    <ClInclude Include="..\..\public\shake.h" />
+    <ClInclude Include="..\..\public\shattersurfacetypes.h" />
+    <ClInclude Include="..\..\public\simple_physics.h" />
+    <ClInclude Include="..\..\public\tier1\smartptr.h" />
+    <ClInclude Include="..\..\public\soundchars.h" />
+    <ClInclude Include="..\..\public\soundflags.h" />
+    <ClInclude Include="..\..\public\soundinfo.h" />
+    <ClInclude Include="..\..\public\string_t.h" />
+    <ClInclude Include="..\..\public\tier1\stringpool.h" />
+    <ClInclude Include="..\..\public\stringregistry.h" />
+    <ClInclude Include="..\..\public\tier1\strtools.h" />
+    <ClInclude Include="..\..\public\studio.h" />
+    <ClInclude Include="..\..\public\surfinfo.h" />
+    <ClInclude Include="..\..\public\vgui_controls\TextEntry.h" />
+    <ClInclude Include="..\..\public\vgui_controls\TextImage.h" />
+    <ClInclude Include="..\..\public\texture_group_names.h" />
+    <ClInclude Include="..\..\public\vgui_controls\TreeView.h" />
+    <ClInclude Include="..\..\public\tier1\utlbidirectionalset.h" />
+    <ClInclude Include="..\..\public\tier1\utlbuffer.h" />
+    <ClInclude Include="..\..\public\tier1\utldict.h" />
+    <ClInclude Include="..\..\public\tier1\utlfixedmemory.h" />
+    <ClInclude Include="..\..\public\tier1\utlhash.h" />
+    <ClInclude Include="..\..\public\tier1\utllinkedlist.h" />
+    <ClInclude Include="..\..\public\tier1\utlmap.h" />
+    <ClInclude Include="..\..\public\tier1\utlmemory.h" />
+    <ClInclude Include="..\..\public\tier1\utlmultilist.h" />
+    <ClInclude Include="..\..\public\tier1\utlpriorityqueue.h" />
+    <ClInclude Include="..\..\public\tier1\utlqueue.h" />
+    <ClInclude Include="..\..\public\tier1\utlrbtree.h" />
+    <ClInclude Include="..\..\public\tier1\utlstack.h" />
+    <ClInclude Include="..\..\public\tier1\utlsymbol.h" />
+    <ClInclude Include="..\..\public\tier1\utlvector.h" />
+    <ClInclude Include="..\..\public\vallocator.h" />
+    <ClInclude Include="..\..\public\vcollide.h" />
+    <ClInclude Include="..\..\public\vcollide_parse.h" />
+    <ClInclude Include="..\..\public\mathlib\vector.h" />
+    <ClInclude Include="..\..\public\mathlib\vector2d.h" />
+    <ClInclude Include="..\..\public\mathlib\vector4d.h" />
+    <ClInclude Include="..\..\public\vgui\VGUI.h" />
+    <ClInclude Include="..\..\public\view_shared.h" />
+    <ClInclude Include="..\..\public\mathlib\vmatrix.h" />
+    <ClInclude Include="..\..\public\vphysics_interface.h" />
+    <ClInclude Include="..\..\public\mathlib\vplane.h" />
+    <ClInclude Include="..\..\public\tier0\vprof.h" />
+    <ClInclude Include="..\..\public\vstdlib\vstdlib.h" />
+    <ClInclude Include="..\..\public\vtf\vtf.h" />
+    <ClInclude Include="..\..\public\vgui_controls\WizardPanel.h" />
+    <ClInclude Include="..\..\public\vgui_controls\WizardSubPanel.h" />
+    <ClInclude Include="..\..\public\worldsize.h" />
+    <ClInclude Include="..\..\public\zip_uncompressed.h" />
+    <ClInclude Include="replay\cdll_replay.h" />
+    <ClInclude Include="replay\replaycamera.h" />
+    <ClInclude Include="achievement_notification_panel.h" />
+    <ClInclude Include="..\..\game\shared\achievement_saverestore.h" />
+    <ClInclude Include="..\..\game\shared\achievementmgr.h" />
+    <ClInclude Include="..\..\game\shared\achievements_and_stats_interface.h" />
+    <ClInclude Include="..\..\game\shared\baseachievement.h" />
+    <ClInclude Include="c_props.h" />
+    <ClInclude Include="c_slideshow_display.h" />
+    <ClInclude Include="c_team_objectiveresource.h" />
+    <ClInclude Include="..\..\game\client\c_vote_controller.h" />
+    <ClInclude Include="..\..\game\shared\cam_thirdperson.h" />
+    <ClInclude Include="cdll_bounded_cvars.h" />
+    <ClInclude Include="client_virtualreality.h" />
+    <ClInclude Include="clientsteamcontext.h" />
+    <ClInclude Include="commentary_modelviewer.h" />
+    <ClInclude Include="..\..\game\shared\particle_parse.h" />
+    <ClInclude Include="..\..\game\shared\particle_property.h" />
+    <ClInclude Include="..\..\game\shared\point_bonusmaps_accessor.h" />
+    <ClInclude Include="studio_stats.h" />
+    <ClInclude Include="vgui_avatarimage.h" />
+    <ClInclude Include="viewdebug.h" />
+    <ClInclude Include="viewpostprocess.h" />
+    <ClInclude Include="game_controls\basemodel_panel.h" />
+    <ClInclude Include="game_controls\basemodelpanel.h" />
+    <ClInclude Include="hl2\c_basehelicopter.h" />
+    <ClInclude Include="hl2\c_basehlcombatweapon.h" />
+    <ClInclude Include="hl2\c_basehlplayer.h" />
+    <ClInclude Include="hl2\c_corpse.h" />
+    <ClInclude Include="hl2\c_hl2_playerlocaldata.h" />
+    <ClInclude Include="hl2\c_prop_combine_ball.h" />
+    <ClInclude Include="hl2\c_vehicle_crane.h" />
+    <ClInclude Include="..\..\game\shared\hl2\citadel_effects_shared.h" />
+    <ClInclude Include="hl2\clientmode_hlnormal.h" />
+    <ClInclude Include="..\..\game\shared\hl2\env_headcrabcanister_shared.h" />
+    <ClInclude Include="..\..\game\shared\hl2\hl2_gamerules.h" />
+    <ClInclude Include="..\..\game\shared\hl2\hl2_shareddefs.h" />
+    <ClInclude Include="..\..\game\shared\hl2\hl_gamemovement.h" />
+    <ClInclude Include="hl2\hud_suitpower.h" />
+    <ClInclude Include="sixense\in_sixense.h" />
+    <ClInclude Include="sixense\in_sixense_gesture_bindings.h" />
+    <ClInclude Include="..\..\game\shared\sixense\sixense_convars_extern.h" />
+    <ClInclude Include="..\..\public\tools\bonelist.h" />
+    <ClInclude Include="toolframework_client.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="mp3player.cpp" />
+    <ClCompile Include="replay\cdll_replay.cpp" />
+    <ClCompile Include="replay\replaycamera.cpp" />
+    <ClCompile Include="achievement_notification_panel.cpp" />
+    <ClCompile Include="..\..\game\shared\achievement_saverestore.cpp" />
+    <ClCompile Include="..\..\game\shared\achievementmgr.cpp" />
+    <ClCompile Include="..\..\game\shared\achievements_hlx.cpp" />
+    <ClCompile Include="..\..\game\shared\activitylist.cpp" />
+    <ClCompile Include="alphamaterialproxy.cpp" />
+    <ClCompile Include="..\..\game\shared\ammodef.cpp" />
+    <ClCompile Include="animatedentitytextureproxy.cpp" />
+    <ClCompile Include="animatedoffsettextureproxy.cpp" />
+    <ClCompile Include="animatedtextureproxy.cpp" />
+    <ClCompile Include="AnimateSpecificTextureProxy.cpp" />
+    <ClCompile Include="..\..\game\shared\animation.cpp" />
+    <ClCompile Include="..\..\game\shared\base_playeranimstate.cpp" />
+    <ClCompile Include="..\..\game\shared\baseachievement.cpp" />
+    <ClCompile Include="baseanimatedtextureproxy.cpp" />
+    <ClCompile Include="baseclientrendertargets.cpp" />
+    <ClCompile Include="..\..\game\shared\basecombatcharacter_shared.cpp" />
+    <ClCompile Include="..\..\game\shared\basecombatweapon_shared.cpp" />
+    <ClCompile Include="..\..\game\shared\baseentity_shared.cpp" />
+    <ClCompile Include="..\..\game\shared\basegrenade_shared.cpp" />
+    <ClCompile Include="..\..\game\shared\baseparticleentity.cpp" />
+    <ClCompile Include="..\..\game\shared\baseplayer_shared.cpp" />
+    <ClCompile Include="basepresence.cpp" />
+    <ClCompile Include="..\..\game\shared\baseviewmodel_shared.cpp" />
+    <ClCompile Include="..\..\game\shared\beam_shared.cpp" />
+    <ClCompile Include="beamdraw.cpp" />
+    <ClCompile Include="..\..\public\bone_accessor.cpp" />
+    <ClCompile Include="bone_merge_cache.cpp" />
+    <ClCompile Include="..\..\public\bone_setup.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="c_ai_basehumanoid.cpp" />
+    <ClCompile Include="c_ai_basenpc.cpp" />
+    <ClCompile Include="c_baseanimating.cpp" />
+    <ClCompile Include="c_baseanimatingoverlay.cpp" />
+    <ClCompile Include="c_basecombatcharacter.cpp" />
+    <ClCompile Include="c_basecombatweapon.cpp" />
+    <ClCompile Include="c_basedoor.cpp" />
+    <ClCompile Include="c_baseentity.cpp" />
+    <ClCompile Include="c_baseflex.cpp" />
+    <ClCompile Include="c_baseplayer.cpp" />
+    <ClCompile Include="c_baseviewmodel.cpp" />
+    <ClCompile Include="c_breakableprop.cpp" />
+    <ClCompile Include="c_colorcorrection.cpp" />
+    <ClCompile Include="c_colorcorrectionvolume.cpp" />
+    <ClCompile Include="c_dynamiclight.cpp" />
+    <ClCompile Include="c_entitydissolve.cpp" />
+    <ClCompile Include="c_entityparticletrail.cpp" />
+    <ClCompile Include="c_env_fog_controller.cpp" />
+    <ClCompile Include="c_env_particlescript.cpp" />
+    <ClCompile Include="c_env_projectedtexture.cpp" />
+    <ClCompile Include="c_env_screenoverlay.cpp" />
+    <ClCompile Include="c_env_tonemap_controller.cpp" />
+    <ClCompile Include="c_fire_smoke.cpp" />
+    <ClCompile Include="c_fish.cpp" />
+    <ClCompile Include="c_func_areaportalwindow.cpp" />
+    <ClCompile Include="c_func_breakablesurf.cpp" />
+    <ClCompile Include="c_func_conveyor.cpp" />
+    <ClCompile Include="c_func_dust.cpp" />
+    <ClCompile Include="c_func_lod.cpp" />
+    <ClCompile Include="hl2\C_Func_Monitor.cpp" />
+    <ClCompile Include="c_func_occluder.cpp" />
+    <ClCompile Include="c_func_reflective_glass.cpp" />
+    <ClCompile Include="c_func_rotating.cpp" />
+    <ClCompile Include="c_func_smokevolume.cpp" />
+    <ClCompile Include="c_func_tracktrain.cpp" />
+    <ClCompile Include="c_gib.cpp" />
+    <ClCompile Include="c_hairball.cpp" />
+    <ClCompile Include="c_info_overlay_accessor.cpp" />
+    <ClCompile Include="c_lightglow.cpp" />
+    <ClCompile Include="C_MaterialModifyControl.cpp" />
+    <ClCompile Include="c_particle_system.cpp" />
+    <ClCompile Include="c_physbox.cpp" />
+    <ClCompile Include="c_physicsprop.cpp" />
+    <ClCompile Include="c_physmagnet.cpp" />
+    <ClCompile Include="c_pixel_visibility.cpp" />
+    <ClCompile Include="c_plasma.cpp" />
+    <ClCompile Include="c_playerresource.cpp" />
+    <ClCompile Include="c_point_camera.cpp" />
+    <ClCompile Include="c_point_commentary_node.cpp" />
+    <ClCompile Include="c_props.cpp" />
+    <ClCompile Include="c_ragdoll_manager.cpp" />
+    <ClCompile Include="c_rope.cpp" />
+    <ClCompile Include="c_rumble.cpp" />
+    <ClCompile Include="c_sceneentity.cpp" />
+    <ClCompile Include="c_shadowcontrol.cpp" />
+    <ClCompile Include="c_slideshow_display.cpp" />
+    <ClCompile Include="c_soundscape.cpp" />
+    <ClCompile Include="c_spotlight_end.cpp" />
+    <ClCompile Include="c_sprite.cpp" />
+    <ClCompile Include="c_sprite_perfmonitor.cpp" />
+    <ClCompile Include="c_sun.cpp" />
+    <ClCompile Include="c_team.cpp" />
+    <ClCompile Include="c_team_objectiveresource.cpp" />
+    <ClCompile Include="c_tesla.cpp" />
+    <ClCompile Include="c_test_proxytoggle.cpp" />
+    <ClCompile Include="c_user_message_register.cpp" />
+    <ClCompile Include="c_vehicle_choreo_generic.cpp" />
+    <ClCompile Include="c_vehicle_jeep.cpp" />
+    <ClCompile Include="c_vguiscreen.cpp" />
+    <ClCompile Include="..\..\game\client\c_vote_controller.cpp" />
+    <ClCompile Include="hl2\c_waterbullet.cpp" />
+    <ClCompile Include="C_WaterLODControl.cpp" />
+    <ClCompile Include="c_world.cpp" />
+    <ClCompile Include="..\..\game\shared\cam_thirdperson.cpp" />
+    <ClCompile Include="camomaterialproxy.cpp" />
+    <ClCompile Include="cdll_bounded_cvars.cpp" />
+    <ClCompile Include="cdll_client_int.cpp" />
+    <ClCompile Include="cdll_util.cpp" />
+    <ClCompile Include="cl_mat_stub.cpp" />
+    <ClCompile Include="classmap.cpp" />
+    <ClCompile Include="..\..\public\client_class.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="client_factorylist.cpp" />
+    <ClCompile Include="client_thinklist.cpp" />
+    <ClCompile Include="client_virtualreality.cpp" />
+    <ClCompile Include="clienteffectprecachesystem.cpp" />
+    <ClCompile Include="cliententitylist.cpp" />
+    <ClCompile Include="clientleafsystem.cpp" />
+    <ClCompile Include="clientmode_shared.cpp" />
+    <ClCompile Include="clientshadowmgr.cpp" />
+    <ClCompile Include="clientsideeffects.cpp" />
+    <ClCompile Include="clientsideeffects_test.cpp" />
+    <ClCompile Include="clientsteamcontext.cpp" />
+    <ClCompile Include="..\..\game\shared\collisionproperty.cpp" />
+    <ClCompile Include="..\..\public\collisionutils.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="colorcorrectionmgr.cpp" />
+    <ClCompile Include="commentary_modelviewer.cpp" />
+    <ClCompile Include="..\..\common\compiledcaptionswap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\public\crtmemdebug.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\death_pose.cpp" />
+    <ClCompile Include="..\..\game\shared\debugoverlay_shared.cpp" />
+    <ClCompile Include="..\..\game\shared\decals.cpp" />
+    <ClCompile Include="detailobjectsystem.cpp" />
+    <ClCompile Include="..\..\public\dt_recv.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\public\dt_utlvector_common.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\public\dt_utlvector_recv.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="dummyproxy.cpp" />
+    <ClCompile Include="..\..\game\shared\effect_dispatch_data.cpp" />
+    <ClCompile Include="EffectsClient.cpp" />
+    <ClCompile Include="..\..\game\shared\ehandle.cpp" />
+    <ClCompile Include="..\..\game\shared\entitylist_base.cpp" />
+    <ClCompile Include="entityoriginmaterialproxy.cpp" />
+    <ClCompile Include="..\..\game\shared\EntityParticleTrail_Shared.cpp" />
+    <ClCompile Include="..\..\game\shared\env_detail_controller.cpp" />
+    <ClCompile Include="..\..\game\shared\env_wind_shared.cpp" />
+    <ClCompile Include="..\..\game\shared\eventlist.cpp" />
+    <ClCompile Include="..\..\public\filesystem_helpers.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="flashlighteffect.cpp" />
+    <ClCompile Include="..\..\game\shared\func_ladder.cpp" />
+    <ClCompile Include="functionproxy.cpp" />
+    <ClCompile Include="fx_blood.cpp" />
+    <ClCompile Include="fx_cube.cpp" />
+    <ClCompile Include="fx_explosion.cpp" />
+    <ClCompile Include="fx_fleck.cpp" />
+    <ClCompile Include="fx_impact.cpp" />
+    <ClCompile Include="fx_interpvalue.cpp" />
+    <ClCompile Include="fx_quad.cpp" />
+    <ClCompile Include="fx_shelleject.cpp" />
+    <ClCompile Include="fx_staticline.cpp" />
+    <ClCompile Include="fx_tracer.cpp" />
+    <ClCompile Include="fx_trail.cpp" />
+    <ClCompile Include="fx_water.cpp" />
+    <ClCompile Include="..\..\game\shared\gamemovement.cpp" />
+    <ClCompile Include="..\..\game\shared\gamerules.cpp" />
+    <ClCompile Include="..\..\game\shared\gamerules_register.cpp" />
+    <ClCompile Include="..\..\game\shared\GameStats.cpp" />
+    <ClCompile Include="..\..\game\shared\gamestringpool.cpp" />
+    <ClCompile Include="gametrace_client.cpp" />
+    <ClCompile Include="..\..\game\shared\gamevars_shared.cpp" />
+    <ClCompile Include="geiger.cpp" />
+    <ClCompile Include="glow_outline_effect.cpp" />
+    <ClCompile Include="glow_overlay.cpp" />
+    <ClCompile Include="..\..\public\haptics\haptic_msgs.cpp" />
+    <ClCompile Include="..\..\public\haptics\haptic_utils.cpp" />
+    <ClCompile Include="..\..\game\shared\hintmessage.cpp" />
+    <ClCompile Include="..\..\game\shared\hintsystem.cpp" />
+    <ClCompile Include="history_resource.cpp" />
+    <ClCompile Include="hltvcamera.cpp" />
+    <ClCompile Include="hud.cpp" />
+    <ClCompile Include="hud_animationinfo.cpp" />
+    <ClCompile Include="hl2\hud_autoaim.cpp" />
+    <ClCompile Include="hud_basechat.cpp" />
+    <ClCompile Include="hud_basetimer.cpp" />
+    <ClCompile Include="hud_bitmapnumericdisplay.cpp" />
+    <ClCompile Include="hud_chat.cpp" />
+    <ClCompile Include="hud_closecaption.cpp" />
+    <ClCompile Include="hud_crosshair.cpp" />
+    <ClCompile Include="hud_element_helper.cpp" />
+    <ClCompile Include="hl2\hud_filmdemo.cpp" />
+    <ClCompile Include="hl2\hud_hdrdemo.cpp" />
+    <ClCompile Include="hud_hintdisplay.cpp" />
+    <ClCompile Include="hud_lcd.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="hud_msg.cpp" />
+    <ClCompile Include="hud_numericdisplay.cpp" />
+    <ClCompile Include="hud_pdump.cpp" />
+    <ClCompile Include="hud_redraw.cpp" />
+    <ClCompile Include="hud_vehicle.cpp" />
+    <ClCompile Include="hud_weapon.cpp" />
+    <ClCompile Include="..\..\game\shared\igamesystem.cpp" />
+    <ClCompile Include="in_camera.cpp" />
+    <ClCompile Include="in_joystick.cpp" />
+    <ClCompile Include="in_main.cpp" />
+    <ClCompile Include="in_mouse.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="initializer.cpp" />
+    <ClCompile Include="interpolatedvar.cpp" />
+    <ClCompile Include="..\..\public\interpolatortypes.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\interval.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IsNPCProxy.cpp" />
+    <ClCompile Include="..\..\public\jigglebones.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="lampbeamproxy.cpp" />
+    <ClCompile Include="lamphaloproxy.cpp" />
+    <ClCompile Include="..\..\common\language.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\mapentities_shared.cpp" />
+    <ClCompile Include="mathproxy.cpp" />
+    <ClCompile Include="matrixproxy.cpp" />
+    <ClCompile Include="..\..\public\tier0\memoverride.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="menu.cpp" />
+    <ClCompile Include="message.cpp" />
+    <ClCompile Include="movehelper_client.cpp" />
+    <ClCompile Include="..\..\game\shared\movevars_shared.cpp" />
+    <ClCompile Include="..\..\game\shared\mp_shareddefs.cpp" />
+    <ClCompile Include="..\..\game\shared\multiplay_gamerules.cpp" />
+    <ClCompile Include="mumble.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\public\networkvar.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\obstacle_pushaway.cpp" />
+    <ClCompile Include="panelmetaclassmgr.cpp" />
+    <ClCompile Include="particle_collision.cpp" />
+    <ClCompile Include="particle_litsmokeemitter.cpp" />
+    <ClCompile Include="..\..\game\shared\particle_parse.cpp" />
+    <ClCompile Include="..\..\game\shared\particle_property.cpp" />
+    <ClCompile Include="particle_proxies.cpp" />
+    <ClCompile Include="particle_simple3d.cpp" />
+    <ClCompile Include="particlemgr.cpp" />
+    <ClCompile Include="particles_attractor.cpp" />
+    <ClCompile Include="particles_ez.cpp" />
+    <ClCompile Include="particles_localspace.cpp" />
+    <ClCompile Include="particles_new.cpp" />
+    <ClCompile Include="particles_simple.cpp" />
+    <ClCompile Include="..\..\game\shared\particlesystemquery.cpp" />
+    <ClCompile Include="perfvisualbenchmark.cpp" />
+    <ClCompile Include="physics.cpp" />
+    <ClCompile Include="physics_main_client.cpp" />
+    <ClCompile Include="..\..\game\shared\physics_main_shared.cpp" />
+    <ClCompile Include="..\..\game\shared\physics_saverestore.cpp" />
+    <ClCompile Include="..\..\game\shared\physics_shared.cpp" />
+    <ClCompile Include="physpropclientside.cpp" />
+    <ClCompile Include="playerandobjectenumerator.cpp" />
+    <ClCompile Include="playerspawncache.cpp" />
+    <ClCompile Include="..\..\game\shared\point_bonusmaps_accessor.cpp" />
+    <ClCompile Include="..\..\game\shared\point_posecontroller.cpp" />
+    <ClCompile Include="..\..\public\posedebugger.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\precache_register.cpp" />
+    <ClCompile Include="..\..\game\shared\predictableid.cpp" />
+    <ClCompile Include="prediction.cpp" />
+    <ClCompile Include="..\..\game\shared\predictioncopy.cpp" />
+    <ClCompile Include="..\..\game\shared\props_shared.cpp" />
+    <ClCompile Include="proxyentity.cpp" />
+    <ClCompile Include="ProxyHealth.cpp" />
+    <ClCompile Include="proxyplayer.cpp" />
+    <ClCompile Include="proxypupil.cpp" />
+    <ClCompile Include="ragdoll.cpp" />
+    <ClCompile Include="..\..\game\shared\ragdoll_shared.cpp" />
+    <ClCompile Include="..\..\common\randoverride.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="recvproxy.cpp" />
+    <ClCompile Include="..\..\public\renamed_recvtable_compat.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="rendertexture.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\rope_helpers.cpp" />
+    <ClCompile Include="..\..\public\rope_physics.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\saverestore.cpp" />
+    <ClCompile Include="..\..\game\shared\sceneentity_shared.cpp" />
+    <ClCompile Include="..\..\public\scratchpad3d.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\public\ScratchPadUtils.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ScreenSpaceEffects.cpp" />
+    <ClCompile Include="..\..\public\sentence.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\sequence_Transitioner.cpp" />
+    <ClCompile Include="..\..\game\shared\sheetsimulator.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="simple_keys.cpp" />
+    <ClCompile Include="..\..\public\simple_physics.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\simtimer.cpp" />
+    <ClCompile Include="..\..\game\shared\singleplay_gamerules.cpp" />
+    <ClCompile Include="..\..\game\shared\SoundEmitterSystem.cpp" />
+    <ClCompile Include="..\..\game\shared\soundenvelope.cpp" />
+    <ClCompile Include="..\..\public\SoundParametersInternal.cpp" />
+    <ClCompile Include="splinepatch.cpp" />
+    <ClCompile Include="..\..\game\shared\Sprite.cpp" />
+    <ClCompile Include="spritemodel.cpp" />
+    <ClCompile Include="..\..\game\shared\SpriteTrail.cpp" />
+    <ClCompile Include="..\..\public\stringregistry.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\public\studio.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\studio_shared.cpp" />
+    <ClCompile Include="studio_stats.cpp" />
+    <ClCompile Include="..\..\game\shared\takedamageinfo.cpp" />
+    <ClCompile Include="..\..\game\shared\teamplay_gamerules.cpp" />
+    <ClCompile Include="..\..\game\shared\teamplayroundbased_gamerules.cpp" />
+    <ClCompile Include="..\..\game\shared\test_ehandle.cpp" />
+    <ClCompile Include="text_message.cpp" />
+    <ClCompile Include="texturescrollmaterialproxy.cpp" />
+    <ClCompile Include="timematerialproxy.cpp" />
+    <ClCompile Include="toggletextureproxy.cpp" />
+    <ClCompile Include="train.cpp" />
+    <ClCompile Include="..\..\game\shared\usercmd.cpp" />
+    <ClCompile Include="..\..\game\shared\usermessages.cpp" />
+    <ClCompile Include="..\..\game\shared\util_shared.cpp" />
+    <ClCompile Include="..\..\public\vallocator.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\game\shared\vehicle_viewblend_shared.cpp" />
+    <ClCompile Include="vgui_avatarimage.cpp" />
+    <ClCompile Include="vgui_basepanel.cpp" />
+    <ClCompile Include="vgui_bitmapbutton.cpp" />
+    <ClCompile Include="vgui_bitmapimage.cpp" />
+    <ClCompile Include="vgui_bitmappanel.cpp" />
+    <ClCompile Include="vgui_centerstringpanel.cpp" />
+    <ClCompile Include="vgui_consolepanel.cpp" />
+    <ClCompile Include="..\..\public\vgui_controls\vgui_controls.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="vgui_debugoverlaypanel.cpp" />
+    <ClCompile Include="vgui_fpspanel.cpp" />
+    <ClCompile Include="vgui_game_viewport.cpp" />
+    <ClCompile Include="vgui_grid.cpp" />
+    <ClCompile Include="vgui_int.cpp" />
+    <ClCompile Include="vgui_loadingdiscpanel.cpp" />
+    <ClCompile Include="vgui_messagechars.cpp" />
+    <ClCompile Include="vgui_netgraphpanel.cpp" />
+    <ClCompile Include="vgui_schemevisualizer.cpp" />
+    <ClCompile Include="vgui_slideshow_display_screen.cpp" />
+    <ClCompile Include="vgui_video.cpp" />
+    <ClCompile Include="vgui_video_player.cpp" />
+    <ClCompile Include="view.cpp" />
+    <ClCompile Include="view_beams.cpp" />
+    <ClCompile Include="view_effects.cpp" />
+    <ClCompile Include="view_scene.cpp" />
+    <ClCompile Include="viewangleanim.cpp" />
+    <ClCompile Include="ViewConeImage.cpp" />
+    <ClCompile Include="viewdebug.cpp" />
+    <ClCompile Include="viewpostprocess.cpp" />
+    <ClCompile Include="viewrender.cpp" />
+    <ClCompile Include="..\..\game\shared\voice_banmgr.cpp" />
+    <ClCompile Include="..\..\game\shared\voice_status.cpp" />
+    <ClCompile Include="warp_overlay.cpp" />
+    <ClCompile Include="WaterLODMaterialProxy.cpp" />
+    <ClCompile Include="..\..\game\shared\weapon_parse.cpp" />
+    <ClCompile Include="..\..\game\shared\weapon_parse_default.cpp" />
+    <ClCompile Include="weapon_selection.cpp" />
+    <ClCompile Include="weapons_resource.cpp" />
+    <ClCompile Include="WorldDimsProxy.cpp" />
+    <ClCompile Include="game_controls\basemodel_panel.cpp" />
+    <ClCompile Include="game_controls\basemodelpanel.cpp" />
+    <ClCompile Include="game_controls\baseviewport.cpp" />
+    <ClCompile Include="game_controls\ClientScoreBoardDialog.cpp" />
+    <ClCompile Include="game_controls\commandmenu.cpp" />
+    <ClCompile Include="game_controls\IconPanel.cpp" />
+    <ClCompile Include="game_controls\intromenu.cpp" />
+    <ClCompile Include="game_controls\MapOverview.cpp" />
+    <ClCompile Include="game_controls\NavProgress.cpp" />
+    <ClCompile Include="game_controls\SpectatorGUI.cpp" />
+    <ClCompile Include="game_controls\teammenu.cpp" />
+    <ClCompile Include="game_controls\vguitextwindow.cpp" />
+    <ClCompile Include="..\..\game\shared\hl2\achievements_hl2.cpp" />
+    <ClCompile Include="..\..\game\shared\hl2\basehlcombatweapon_shared.cpp" />
+    <ClCompile Include="hl2\c_antlion_dust.cpp" />
+    <ClCompile Include="hl2\c_ar2_explosion.cpp" />
+    <ClCompile Include="hl2\c_barnacle.cpp" />
+    <ClCompile Include="hl2\c_barney.cpp" />
+    <ClCompile Include="hl2\c_basehelicopter.cpp" />
+    <ClCompile Include="hl2\c_basehlcombatweapon.cpp" />
+    <ClCompile Include="hl2\c_basehlplayer.cpp" />
+    <ClCompile Include="hl2\c_citadel_effects.cpp" />
+    <ClCompile Include="hl2\c_corpse.cpp" />
+    <ClCompile Include="hl2\c_env_alyxtemp.cpp" />
+    <ClCompile Include="hl2\c_env_headcrabcanister.cpp" />
+    <ClCompile Include="hl2\c_env_starfield.cpp" />
+    <ClCompile Include="hl2\c_func_tankmortar.cpp" />
+    <ClCompile Include="hl2\c_hl2_playerlocaldata.cpp" />
+    <ClCompile Include="hl2\c_info_teleporter_countdown.cpp" />
+    <ClCompile Include="hl2\c_npc_antlionguard.cpp" />
+    <ClCompile Include="hl2\c_npc_combinegunship.cpp" />
+    <ClCompile Include="hl2\c_npc_manhack.cpp" />
+    <ClCompile Include="hl2\c_npc_rollermine.cpp" />
+    <ClCompile Include="hl2\c_plasma_beam_node.cpp" />
+    <ClCompile Include="hl2\c_prop_combine_ball.cpp" />
+    <ClCompile Include="hl2\c_rotorwash.cpp" />
+    <ClCompile Include="hl2\c_script_intro.cpp" />
+    <ClCompile Include="hl2\c_strider.cpp" />
+    <ClCompile Include="hl2\c_te_concussiveexplosion.cpp" />
+    <ClCompile Include="hl2\c_te_flare.cpp" />
+    <ClCompile Include="hl2\c_thumper_dust.cpp" />
+    <ClCompile Include="hl2\c_vehicle_airboat.cpp" />
+    <ClCompile Include="hl2\c_vehicle_cannon.cpp" />
+    <ClCompile Include="hl2\c_vehicle_crane.cpp" />
+    <ClCompile Include="hl2\c_vehicle_prisoner_pod.cpp" />
+    <ClCompile Include="episodic\c_vort_charge_token.cpp" />
+    <ClCompile Include="hl2\c_weapon__stubs_hl2.cpp" />
+    <ClCompile Include="hl2\c_weapon_crossbow.cpp" />
+    <ClCompile Include="hl2\c_weapon_physcannon.cpp" />
+    <ClCompile Include="hl2\c_weapon_stunstick.cpp" />
+    <ClCompile Include="hl2\clientmode_hlnormal.cpp" />
+    <ClCompile Include="death.cpp" />
+    <ClCompile Include="..\..\game\shared\hl2\env_headcrabcanister_shared.cpp" />
+    <ClCompile Include="hl2\fx_antlion.cpp" />
+    <ClCompile Include="hl2\fx_bugbait.cpp" />
+    <ClCompile Include="hl2\fx_hl2_impacts.cpp" />
+    <ClCompile Include="hl2\fx_hl2_tracers.cpp" />
+    <ClCompile Include="hl2\hl2_clientmode.cpp" />
+    <ClCompile Include="..\..\game\shared\hl2\hl2_gamerules.cpp" />
+    <ClCompile Include="..\..\game\shared\hl2\hl2_usermessages.cpp" />
+    <ClCompile Include="..\..\game\shared\hl2\hl_gamemovement.cpp" />
+    <ClCompile Include="hl2\hl_in_main.cpp" />
+    <ClCompile Include="hl2\hl_prediction.cpp" />
+    <ClCompile Include="hl2\hud_ammo.cpp" />
+    <ClCompile Include="hl2\hud_battery.cpp" />
+    <ClCompile Include="hl2\hud_blood.cpp" />
+    <ClCompile Include="hl2\hud_credits.cpp" />
+    <ClCompile Include="hl2\hud_damageindicator.cpp" />
+    <ClCompile Include="hl2\hud_flashlight.cpp" />
+    <ClCompile Include="hl2\hud_health.cpp" />
+    <ClCompile Include="hl2\hud_poisondamageindicator.cpp" />
+    <ClCompile Include="hud_posture.cpp" />
+    <ClCompile Include="hl2\hud_quickinfo.cpp" />
+    <ClCompile Include="hud_squadstatus.cpp" />
+    <ClCompile Include="hl2\hud_suitpower.cpp" />
+    <ClCompile Include="hl2\hud_weaponselection.cpp" />
+    <ClCompile Include="hl2\hud_zoom.cpp" />
+    <ClCompile Include="..\..\game\shared\script_intro_shared.cpp" />
+    <ClCompile Include="hl2\shieldproxy.cpp" />
+    <ClCompile Include="hl2\vgui_rootpanel_hl2.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="sixense\in_sixense.cpp" />
+    <ClCompile Include="sixense\in_sixense_gesture_bindings.cpp" />
+    <ClCompile Include="..\..\game\shared\sixense\sixense_convars.cpp" />
+    <ClCompile Include="c_basetempentity.cpp" />
+    <ClCompile Include="c_effects.cpp" />
+    <ClCompile Include="c_impact_effects.cpp" />
+    <ClCompile Include="c_movie_explosion.cpp" />
+    <ClCompile Include="c_particle_fire.cpp" />
+    <ClCompile Include="c_particle_smokegrenade.cpp" />
+    <ClCompile Include="c_prop_vehicle.cpp" />
+    <ClCompile Include="c_recipientfilter.cpp" />
+    <ClCompile Include="c_smoke_trail.cpp" />
+    <ClCompile Include="c_smokestack.cpp" />
+    <ClCompile Include="c_steamjet.cpp" />
+    <ClCompile Include="c_stickybolt.cpp" />
+    <ClCompile Include="c_te.cpp" />
+    <ClCompile Include="c_te_armorricochet.cpp" />
+    <ClCompile Include="c_te_basebeam.cpp" />
+    <ClCompile Include="c_te_beamentpoint.cpp" />
+    <ClCompile Include="c_te_beaments.cpp" />
+    <ClCompile Include="c_te_beamfollow.cpp" />
+    <ClCompile Include="c_te_beamlaser.cpp" />
+    <ClCompile Include="c_te_beampoints.cpp" />
+    <ClCompile Include="c_te_beamring.cpp" />
+    <ClCompile Include="c_te_beamringpoint.cpp" />
+    <ClCompile Include="c_te_beamspline.cpp" />
+    <ClCompile Include="c_te_bloodsprite.cpp" />
+    <ClCompile Include="c_te_bloodstream.cpp" />
+    <ClCompile Include="c_te_breakmodel.cpp" />
+    <ClCompile Include="c_te_bspdecal.cpp" />
+    <ClCompile Include="c_te_bubbles.cpp" />
+    <ClCompile Include="c_te_bubbletrail.cpp" />
+    <ClCompile Include="c_te_clientprojectile.cpp" />
+    <ClCompile Include="c_te_decal.cpp" />
+    <ClCompile Include="c_te_dynamiclight.cpp" />
+    <ClCompile Include="c_te_effect_dispatch.cpp" />
+    <ClCompile Include="c_te_energysplash.cpp" />
+    <ClCompile Include="c_te_explosion.cpp" />
+    <ClCompile Include="c_te_fizz.cpp" />
+    <ClCompile Include="c_te_footprint.cpp" />
+    <ClCompile Include="c_te_glassshatter.cpp" />
+    <ClCompile Include="c_te_glowsprite.cpp" />
+    <ClCompile Include="c_te_impact.cpp" />
+    <ClCompile Include="c_te_killplayerattachments.cpp" />
+    <ClCompile Include="c_te_largefunnel.cpp" />
+    <ClCompile Include="c_te_legacytempents.cpp" />
+    <ClCompile Include="c_te_muzzleflash.cpp" />
+    <ClCompile Include="c_te_particlesystem.cpp" />
+    <ClCompile Include="c_te_physicsprop.cpp" />
+    <ClCompile Include="c_te_playerdecal.cpp" />
+    <ClCompile Include="c_te_projecteddecal.cpp" />
+    <ClCompile Include="c_te_showline.cpp" />
+    <ClCompile Include="c_te_smoke.cpp" />
+    <ClCompile Include="c_te_sparks.cpp" />
+    <ClCompile Include="c_te_sprite.cpp" />
+    <ClCompile Include="c_te_spritespray.cpp" />
+    <ClCompile Include="c_te_worlddecal.cpp" />
+    <ClCompile Include="c_testtraceline.cpp" />
+    <ClCompile Include="c_tracer.cpp" />
+    <ClCompile Include="fx.cpp" />
+    <ClCompile Include="fx_discreetline.cpp" />
+    <ClCompile Include="fx_envelope.cpp" />
+    <ClCompile Include="fx_line.cpp" />
+    <ClCompile Include="fx_sparks.cpp" />
+    <ClCompile Include="particlesphererenderer.cpp" />
+    <ClCompile Include="smoke_fog_overlay.cpp" />
+    <ClCompile Include="..\..\public\tools\bonelist.cpp" />
+    <ClCompile Include="entity_client_tools.cpp" />
+    <ClCompile Include="toolframework_client.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\public\tier0\pointeroverride.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling pointeroverride.asm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">&quot;$(VCInstallDir)bin\ml.exe&quot; /c /Cp /Zi /Fo&quot;$(IntDir)\%(Filename).obj&quot; &quot;%(FullPath)&quot;</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling pointeroverride.asm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">&quot;$(VCInstallDir)bin\ml.exe&quot; /c /Cp /Zi /Fo&quot;$(IntDir)\%(Filename).obj&quot; &quot;%(FullPath)&quot;</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\%(Filename).obj</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

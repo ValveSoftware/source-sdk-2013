@@ -1,0 +1,1025 @@
+//====== Copyright 1996-2010, Valve Corporation, All rights reserved. =======
+//
+// Purpose: The file defines our Google Protocol Buffers which are used in IPC
+// and inter-thread communcations in the tenfoot UI rendering system.
+//
+//=============================================================================
+
+// We care more about speed than code size
+option optimize_for = SPEED;
+
+// We don't use the service generation functionality
+option cc_generic_services = false;
+
+// 
+// STYLE NOTES:
+//
+// Use CamelCase CMsgMyMessageName style names for messages.
+// 
+// Use lowercase _ delimited names like my_steam_id for field names, this is non-standard for Steam,
+// but plays nice with the Google formatted code generation.  
+// 
+// Try not to use required fields ever. Only do so if you are really really sure you'll never want them removed. 
+// Optional should be preffered as it will make versioning easier and cleaner in the future if someone refactors
+// your message and wants to remove or rename fields.  This is especially important for messages sent from the server
+// to clients.  We may be able to safely remove a field if it's optional even if an old client expects it, but if it 
+// was required we can't remove it.  Using required doesn't really offer any advantages at all as you'll just end up
+// with an empty message with all default values if you receive a message missing a required field, so there is no
+// real advantage to using it ever.
+//
+// Use fixed64 for JobId_t, GID_t, or SteamID or GameID.  This is appropriate for any field that is normally
+// going to be larger than 2^56.  Otherwise use int64 for 64 bit values that are frequently smaller
+// than 2^56 as it will safe space on the wire in those cases.
+//
+// Similar to fixed64, use fixed32 for RTime32 or other 32 bit values that are frequently larger than
+// 2^28.  It will safe space in those cases, otherwise use int32 which will safe space for smaller values.
+// An exception to this rule for RTime32 is if the value will frequently be zero rather than set to an actual 
+// time.
+//
+// Use uint32 with [default = 2] for EResult values in messages.  The default is important since the normal int/uint
+// default of 0 is not a valid EResult value. 2 is k_EResultFail.
+//
+// See: http://code.google.com/apis/protocolbuffers/docs/proto.html for a complete language guide.
+//
+
+
+//
+// key up - eHTMLCommands_KeyUp
+//
+message CMsgKeyUp
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 keyCode = 2;
+	optional uint32 modifiers = 3;
+}
+
+
+//
+// key down - eHTMLCommands_KeyDown
+//
+message CMsgKeyDown
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 keyCode = 2;
+	optional uint32 modifiers = 3;
+}
+
+
+//
+// key unichar - eHTMLCommands_KeyChar 
+//
+message CMsgKeyChar
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 unichar = 2;
+}
+
+
+//
+// mouse down - eHTMLCommands_MouseDown
+//
+message CMsgMouseDown
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 mouse_button = 2;
+}
+
+
+//
+// mouse up - eHTMLCommands_MouseUp
+//
+message CMsgMouseUp
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 mouse_button = 2;
+}
+
+
+//
+// mouse dbl click - eHTMLCommands_MouseDblClick
+//
+message CMsgMouseDblClick
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 mouse_button = 2;
+}
+
+
+//
+// mouse wheel - eHTMLCommands_MouseWheel
+//
+message CMsgMouseWheel
+{
+	optional uint32 browser_handle = 1;
+	optional int32 delta = 2;
+}
+
+
+//
+// mouse move - eHTMLCommands_MouseMove
+//
+message CMsgMouseMove
+{
+	optional uint32 browser_handle = 1;
+	optional int32 x = 2;
+	optional int32 y = 3;
+}
+
+
+//
+// mouse leave - eHTMLCommands_MouseLeave
+//
+message CMsgMouseLeave
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// make a cef control - eHTMLCommands_BrowserCreate
+//
+message CMsgBrowserCreate
+{
+	optional uint32 request_id = 1;
+	optional bool popup = 2 [default = false];
+	optional string useragent = 3;
+}
+
+
+//
+// ack to the main thread a control was made - eHTMLCommands_BrowserCreateResponse
+//
+message CMsgBrowserCreateResponse
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 request_id = 2;
+}
+
+
+//
+// delete a browser - eHTMLCommands_BrowserRemove
+//
+message CMsgBrowserRemove
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// send loc strings over to use for error page - eHTMLCommands_BrowserErrorStrings
+//
+message CMsgBrowserErrorStrings
+{
+	optional uint32 browser_handle = 1;
+	optional string title = 2;
+	optional string header = 3;
+	optional string cache_miss = 4;
+	optional string bad_url = 5;
+	optional string connection_problem = 6;
+	optional string proxy_problem = 7;
+	optional string unknown = 8;
+}
+
+
+//
+// Set a browser to this size - eHTMLCommands_BrowserSize
+//
+message CMsgBrowserSize
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 width = 2;
+	optional uint32 height = 3;
+}	
+
+
+//
+// Set position in the window - eHTMLCommands_BrowserPosition
+//
+message CMsgBrowserPosition
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 x = 2;
+	optional uint32 y = 3;	
+}
+
+
+//
+// load this url - eHTMLCommands_PostURL
+//
+message CMsgPostURL
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+	optional string post = 3;
+	optional uint32 pageserial = 4;
+}
+
+
+//
+// have cef send this html header for all page loads -eHTMLCommands_AddHeader
+//
+message CMsgAddHeader
+{
+	optional uint32 browser_handle = 1;
+	optional string key = 2;
+	optional string value = 3;
+}
+
+
+//
+// stop loading a page - eHTMLCommands_StopLoad
+//
+message CMsgStopLoad
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// reload a page - eHTMLCommands_Reload
+//
+message CMsgReload
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// next page - eHTMLCommands_GoForward
+//
+message CMsgGoForward
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// back a page in the stack - eHTMLCommands_GoBack
+//
+message CMsgGoBack
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// copy the currently selected text - eHTMLCommands_Copy
+//
+message CMsgCopy
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// paste text here from the clipboard - eHTMLCommands_Paste
+//
+message CMsgPaste
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// run this javascript on the current page - eHTMLCommands_ExecuteJavaScript
+//
+message CMsgExecuteJavaScript
+{
+	optional uint32 browser_handle = 1;
+	optional string script = 2;
+}
+
+
+//
+// tell it that it has key focus - eHTMLCommands_SetFocus
+//
+message CMsgSetFocus
+{
+	optional uint32 browser_handle = 1;
+	optional bool focus = 2;
+}
+
+
+//
+// how big is the scroll bar plz - eHTMLCommands_HorizontalScrollBarSize
+//
+message CMsgHorizontalScrollBarSize
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// its this big! - eHTMLCommands_HorizontalScrollBarSizeResponse
+//
+message CMsgHorizontalScrollBarSizeResponse
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 x = 2;
+	optional uint32 y = 3;	
+	optional uint32 wide = 4;
+	optional uint32 tall = 5;
+	optional uint32 scroll_max = 6;
+	optional uint32 scroll = 7;
+	optional float zoom = 8;
+	optional bool visible = 9;
+}
+
+
+//
+// eHTMLCommands_VerticalScrollBarSize
+//
+message CMsgVerticalScrollBarSize
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// eHTMLCommands_VerticalScrollBarSizeResponse
+//
+message CMsgVerticalScrollBarSizeResponse
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 x = 2;
+	optional uint32 y = 3;	
+	optional uint32 wide = 4;
+	optional uint32 tall = 5;
+	optional uint32 scroll_max = 6;
+	optional uint32 scroll = 7;
+	optional float zoom = 8;
+	optional bool visible = 9;
+}
+
+
+//
+// find this string in the page - eHTMLCommands_Find
+//
+message CMsgFind
+{
+	optional uint32 browser_handle = 1;
+	optional string find = 2;
+	optional bool infind = 3;
+	optional bool reverse = 4 [ default = false ];
+}
+
+//
+// done finding - eHTMLCommands_StopFind
+//
+message CMsgStopFind
+{
+	optional uint32 browser_handle = 1;
+}
+
+//
+// scroll here - eHTMLCommands_SetHorizontalScroll
+//
+message CMsgSetHorizontalScroll
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 scroll = 2;
+}
+
+
+//
+// scroll here - eHTMLCommands_SetHorizontalScroll
+//
+message CMsgSetVerticalScroll
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 scroll = 2;
+}
+
+
+//
+// zoom the page this much, 0 to 100 - eHTMLCommands_SetZoomLevel
+//
+message CMsgSetZoomLevel
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 zoom = 2;
+}
+
+
+//
+// look at the page source in notepad - eHTMLCommands_ViewSource
+//
+message CMsgViewSource
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// browser is setup and ready to load pages after a create - eHTMLCommands_BrowserReady
+//
+message CMsgBrowserReady
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// new url loaded - eHTMLCommands_URLChanged
+//
+message CMsgURLChanged
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+	optional string postData = 3;
+	optional bool bIsRedirect = 4;
+	optional string pagetitle = 5;
+	optional bool bNewNavigation = 6;
+}
+
+
+message CHTMLHeader
+{
+	optional string key = 1;
+	optional string value = 2;
+}
+
+message CHTMLPageSecurityInfo
+{
+	optional bool bIsSecure = 1 [default = false];
+	optional bool bHasCertError = 2 [default = false];
+	optional string issuerName = 3 [default = ""];
+	optional string certName = 4 [default = "" ];
+	optional int32 certExpiry = 5 [default = 0];
+	optional int32 nCertBits = 6 [default = 0];
+	optional bool bIsEVCert = 7 [default = false];
+	
+}
+
+//
+// finished loading a page - eHTMLCommands_FinishedRequest
+//
+message CMsgFinishedRequest
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+	optional string pageTitle = 3;
+	optional CHTMLPageSecurityInfo security_info = 4;
+	repeated CHTMLHeader headers = 5;
+}
+
+
+//
+// starting a page load  - eHTMLCommands_StartRequest
+//
+message CMsgStartRequest
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+	optional string target = 3;
+	optional string postData = 4;
+	optional bool bIsRedirect = 5;
+}
+
+
+//
+// do we want to allow this load - eHTMLCommands_StartRequestResponse
+//
+message CMsgStartRequestResponse
+{
+	optional uint32 browser_handle = 1;
+	optional bool bAllow = 2;
+}
+
+
+//
+// a html popup is showing - eHTMLCommands_ShowPopup
+//
+message CMsgShowPopup
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// done with the popup - eHTMLCommands_HidePopup
+//
+message CMsgHidePopup
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// a html popup is changing size - eHTMLCommands_SizePopup
+//
+message CMsgSizePopup
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 x = 2;
+	optional uint32 y = 3;
+	optional uint32 wide = 4;
+	optional uint32 tall = 5;
+}
+
+
+//
+// new tab plz - eHTMLCommands_OpenNewTab
+//
+message CMsgOpenNewTab
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+	optional bool bForeground = 3;
+}
+
+
+//
+// do we allow the tab - eHTMLCommands_OpenNewTabResponse
+//
+message CMsgOpenNewTabResponse
+{
+	optional uint32 browser_handle = 1;
+	optional bool  bAllow = 2;
+}
+
+
+//
+// popup a new page here please - eHTMLCommands_PopupHTMLWindow
+//
+message CMsgPopupHTMLWindow
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+	optional uint32 x = 3;
+	optional uint32 y = 4;
+	optional uint32 wide = 5;
+	optional uint32 tall = 6;
+}
+
+
+//
+// do we allow the popup - eHTMLCommands_PopupHTMLWindowResponse
+//
+message CMsgPopupHTMLWindowResponse
+{
+	optional uint32 browser_handle = 1;
+	optional bool  bAllow = 2;
+}
+
+
+//
+// title for the page - eHTMLCommands_SetHTMLTitle
+//
+message CMsgSetHTMLTitle
+{
+	optional uint32 browser_handle = 1;
+	optional string title = 2;
+}
+
+//
+// loading a url on a page - eHTMLCommands_LoadingResource
+//
+message CMsgLoadingResource
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+}
+
+//
+// status to display - eHTMLCommands_StatusText
+//
+message CMsgStatusText
+{
+	optional uint32 browser_handle = 1;
+	optional string text = 2;
+}
+
+//
+// mouse cursor to this - eHTMLCommands_SetCursor
+//
+message CMsgSetCursor
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 cursor = 2;
+	optional uint32 data = 3;
+	optional uint32 wide = 4;
+	optional uint32 tall = 5;
+	optional uint32 xhotspot = 6;
+	optional uint32 yhotspot = 7;
+}
+
+//
+// let the user pick a file - eHTMLCommands_FileLoadDialog
+//
+message CMsgFileLoadDialog
+{
+	optional uint32 browser_handle = 1;
+	optional string title = 2;
+	optional string initialFile = 3;
+}
+
+//
+// the user picked this - eHTMLCommands_FileLoadDialogResponse 
+//
+message CMsgFileLoadDialogResponse
+{
+	optional uint32 browser_handle = 1;
+	repeated string files = 2;
+}
+
+
+//
+// show a tooltip - eHTMLCommands_ShowToolTip
+//
+message CMsgShowToolTip
+{
+	optional uint32 browser_handle = 1;
+	optional string text = 2;
+}
+
+	
+//
+// update tooltip - eHTMLCommands_UpdateToolTip
+//
+message CMsgUpdateToolTip
+{
+	optional uint32 browser_handle = 1;
+	optional string text = 2;
+}
+
+
+//
+// done with tooltip - eHTMLCommands_HideToolTip
+//
+message CMsgHideToolTip
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// got search answers - eHTMLCommands_SearchResults
+//
+message CMsgSearchResults
+{
+	optional uint32 browser_handle = 1;
+	optional int32 activeMatch = 2;
+	optional int32 results = 3;
+}
+
+
+//
+// close this window plz - eHTMLCommands_Close
+//
+message CMsgClose
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// need image for the page - eHTMLCommands_NeedsPaint
+//
+message CMsgNeedsPaint
+{
+	optional uint32 browser_handle = 1;
+	optional uint64 rgba = 2;
+	optional uint32 wide = 3;
+	optional uint32 tall = 4;
+	optional uint32 textureid = 5;
+	optional uint32 updatex = 6;
+	optional uint32 updatey = 7;
+	optional uint32 updatewide = 8;
+	optional uint32 updatetall = 9;
+	optional uint32 scrollx = 10;
+	optional uint32 scrolly = 11;
+	
+	optional uint64 combobox_rgba = 12 [default = 0];
+	optional uint32 combobox_wide = 13 [default = 0];
+	optional uint32 combobox_tall = 14 [default = 0];
+
+	optional uint32 pageserial = 15;
+}
+
+
+//
+// all done with the paint pointer - eHTMLCommands_NeedsPaintResponse
+//
+message CMsgNeedsPaintResponse
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 textureid = 2;
+}
+
+//
+// what zoom lvl we at? - eHTMLCommands_GetZoom
+//
+message CMsgGetZoom
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// this zoom level! - eHTMLCommands_GetZoomResponse
+//
+message CMsgGetZoomResponse
+{
+	optional uint32 browser_handle = 1;
+	optional float zoom = 2;
+}
+
+
+//
+//  get the link at this x,y - eHTMLCommands_LinkAtPosition
+//
+message CMsgLinkAtPosition
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 x = 2;
+	optional uint32 y = 3;
+}
+
+
+//
+// link at this pos - eHTMLCommands_LinkAtPosition
+//
+message CMsgLinkAtPositionResponse
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 x = 2;
+	optional uint32 y = 3;
+	optional string url = 4;
+	optional bool blivelink = 5;
+	optional bool binput = 6;
+}
+
+
+//
+// scale the page to the element at this position on the page, for at least this size
+//
+message CMsgZoomToElementAtPosition
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 x = 2;
+	optional uint32 y = 3;
+}
+
+//
+// response from the zoom, what rect did we pick and what zoom factor
+//
+message CMsgZoomToElementAtPositionResponse
+{
+	optional uint32 browser_handle = 1;
+	optional sint32 initial_x = 2;
+	optional sint32 initial_y = 3;
+	optional uint32 initial_width = 4;
+	optional uint32 initial_height = 5;
+	optional sint32 final_x = 6;
+	optional sint32 final_y = 7;
+	optional uint32 final_width = 8;
+	optional uint32 final_height = 9;
+	optional float zoom = 10;
+}
+
+
+//
+// increase (or decrease if negative) the page scale factor used on this page
+//
+message CMsgScalePageToValue
+{
+	optional uint32 browser_handle = 1;
+	optional float scale = 2;
+	optional float x = 3;
+	optional float y = 4;
+}
+
+
+//
+// increase (or decrease if negative) the page scale factor used on this page
+//
+message CMsgScalePageToValueResponse
+{
+	optional uint32 browser_handle = 1;
+	optional float zoom = 2;
+	optional int32 width_delta = 3;
+	optional int32 height_delta = 4;
+}
+
+//
+// request a screenshot get written for this loaded url
+//
+message CMsgSavePageToJPEG
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+	optional string filename = 3;
+	optional uint32 width = 4;
+	optional uint32 height = 5;
+}
+
+
+//
+// screenshot taken, tell the main thread we did it
+//
+message CMsgSavePageToJPEGResponse
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+	optional string filename = 3;
+}
+
+
+//
+// web control wants to pop an alert dialog
+//
+message CMsgJSAlert
+{
+	optional uint32 browser_handle = 1;
+	optional string message = 2;
+}
+
+//
+// web control wants to pop an confirmation dialog
+//
+message CMsgJSConfirm
+{
+	optional uint32 browser_handle = 1;
+	optional string message = 2;
+}
+
+
+//
+// done showing the confirmation
+//
+message CMsgJSDialogResponse
+{
+	optional uint32 browser_handle = 1;
+	optional bool result = 2;
+}
+
+//
+// web control telling us the forward and back state
+//
+message CMsgCanGoBackAndForward
+{
+	optional uint32 browser_handle = 1;
+	optional bool bgoback = 2;
+	optional bool bgoforward = 3;
+}
+
+//
+// web control telling us to open a steam dialog
+//
+message CMsgOpenSteamURL
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+}
+
+
+//
+// set a cookie for the cef instance
+//
+message CMsgSetCookie
+{
+	optional string key = 1;
+	optional string value = 2;
+	optional string path = 3;
+	optional string host = 4;
+	optional uint32 expires = 5;
+}
+
+
+//
+// tell cef that html isn't active so run slow
+//
+message CMsgSetTargetFrameRate
+{
+	optional uint32 nTargetFrameRate = 1; // FPS to run the CEF think loop at
+}
+
+
+//
+// request a full repaint of the control
+//
+message CMsgFullRepaint
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// CEF wants to go fullscreen please
+//
+message CMsgRequestFullScreen
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// do we allow fullscreen
+//
+message CMsgRequestFullScreenResponse
+{
+	optional uint32 browser_handle = 1;
+	optional bool ballow = 2;
+}
+
+
+//
+// exit fullscreen if we are in it
+//
+message CMsgExitFullScreen
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// request all the cookies for this url
+//
+message CMsgGetCookiesForURL
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+}
+
+
+message CCookie
+{
+	optional string name = 1;
+	optional string value = 2;
+	optional string domain = 3;
+	optional string path = 4;
+}
+
+
+//
+// return all the cookies for this url
+//
+message CMsgGetCookiesForURLResponse
+{
+	optional uint32 browser_handle = 1;
+	optional string url = 2;
+	repeated CCookie cookies = 3;
+}
+
+
+//
+// sent when a html node gets key focus
+//
+message CMsgNodeHasFocus
+{
+	optional uint32 browser_handle = 1;
+	optional bool bInput = 2;
+	optional string name = 3;
+	optional string elementtagname = 4;
+	optional string searchbuttontext = 5;
+	optional bool bHasMultipleInputs = 6;
+	optional string input_type = 7;			// type of input, if node is input; otherwise unset
+}
+
+
+//
+// zoom the html control to the node with input focus
+//
+message CMsgZoomToFocusedElement
+{
+	optional uint32 browser_handle = 1;
+	optional uint32 leftoffset = 2 [default = 0];
+	optional uint32 topoffset = 3 [default = 0];
+}
+
+
+//
+// ask a fullscreen flash control to close if open
+//
+message CMsgCloseFullScreenFlashIfOpen
+{
+	optional uint32 browser_handle = 1;
+}
+
+//
+// ask a fullscreen flash control to pause itself if open
+//
+message CMsgPauseFullScreenFlashMovieIfOpen
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// get the string currently contained in the focused node
+//
+message CMsgFocusedNodeText
+{
+	optional uint32 browser_handle = 1;
+}
+
+
+//
+// what text is in the focused node
+//
+message CMsgFocusedNodeTextResponse
+{
+	optional uint32 browser_handle = 1;
+	optional string value = 2;
+}

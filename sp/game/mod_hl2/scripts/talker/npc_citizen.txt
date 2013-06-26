@@ -1,0 +1,915 @@
+//============================================================================================================
+// Citizen criteria
+//============================================================================================================
+criterion "IsCitizen" "classname" "npc_citizen" "required"
+criterion "IsRPGUser" "attacking_with_weapon" "weapon_rpg" required
+criterion "EnemyIsSniper" "enemy" "npc_sniper" required
+criterion "EnemyIsStrider" "enemy" "npc_strider" required
+criterion "HurtByFire" "hurt_by_fire" "1" required
+
+
+//============================================================================================================
+// Citizen Hello speech
+//============================================================================================================
+response "CitizenHello"
+{
+	scene "scenes/npc/$gender01/abouttime01.vcd"
+	scene "scenes/npc/$gender01/abouttime02.vcd"
+	scene "scenes/npc/$gender01/ahgordon01.vcd"
+	scene "scenes/npc/$gender01/ahgordon02.vcd"
+	scene "scenes/npc/$gender01/docfreeman01.vcd"
+	scene "scenes/npc/$gender01/docfreeman02.vcd"
+	scene "scenes/npc/$gender01/freeman.vcd"
+	scene "scenes/npc/$gender01/hellodrfm01.vcd"
+	scene "scenes/npc/$gender01/hellodrfm02.vcd"
+	scene "scenes/npc/$gender01/heydoc01.vcd"
+	scene "scenes/npc/$gender01/heydoc02.vcd"
+	scene "scenes/npc/$gender01/hi01.vcd"
+	scene "scenes/npc/$gender01/hi02.vcd"
+}
+
+rule CitizenHello
+{
+	criteria		IsCitizen ConceptTalkHello IsGordonCriminal NPCIdle PlayerNear SeePlayer
+	response		CitizenHello
+}
+
+//============================================================================================================
+// Citizen Idle speech
+//============================================================================================================
+response "CitizenTalkStare"
+{
+ scene "scenes/npc/$gender01/doingsomething.vcd"
+ scene "scenes/npc/$gender01/getgoingsoon.vcd"
+ scene "scenes/npc/$gender01/waitingsomebody.vcd"
+}
+ 
+rule CitizenTalkStare
+{
+ criteria      IsCitizen ConceptTalkStare IsGordonCriminal NPCIdle
+ response  	CitizenTalkStare
+}
+ 
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenTalkPlayerPushed"
+{
+   scene "scenes/npc/$gender01/sorryfm01.vcd"
+   scene "scenes/npc/$gender01/sorryfm02.vcd"
+   scene "scenes/npc/$gender01/sorrydoc01.vcd"
+   scene "scenes/npc/$gender01/sorrydoc02.vcd"
+   scene "scenes/npc/$gender01/sorrydoc04.vcd"
+   scene "scenes/npc/$gender01/excuseme01.vcd"
+   scene "scenes/npc/$gender01/excuseme02.vcd"
+   scene "scenes/npc/$gender01/pardonme01.vcd"
+   scene "scenes/npc/$gender01/pardonme02.vcd"
+   scene "scenes/npc/$gender01/sorry01.vcd"
+   scene "scenes/npc/$gender01/sorry02.vcd"
+   scene "scenes/npc/$gender01/sorry03.vcd"
+   scene "scenes/npc/$gender01/outofyourway01.vcd"
+   scene "scenes/npc/$gender01/outofyourway02.vcd"
+   scene "scenes/npc/$gender01/whoops01.vcd"
+}
+
+rule CitizenTalkPlayerPushed
+{
+	criteria		IsCitizen  ConceptTalkPlayerPushed SeenByPlayer NoRecentCombat
+	response		CitizenTalkPlayerPushed
+}
+
+//============================================================================================================
+// Citizen Questions & Responses speech
+//============================================================================================================
+response "CitizenQuestion"
+{
+	scene "scenes/npc/$gender01/question01.vcd" delay 1
+	scene "scenes/npc/$gender01/question02.vcd" delay 1
+	scene "scenes/npc/$gender01/question03.vcd" delay 1
+	scene "scenes/npc/$gender01/question04.vcd" delay 1
+	scene "scenes/npc/$gender01/question05.vcd" delay 1
+	scene "scenes/npc/$gender01/question06.vcd" delay 1
+	scene "scenes/npc/$gender01/question07.vcd" delay 1
+	scene "scenes/npc/$gender01/question08.vcd" delay 1
+	scene "scenes/npc/$gender01/question09.vcd" delay 1
+	scene "scenes/npc/$gender01/question10.vcd" delay 1
+	scene "scenes/npc/$gender01/question11.vcd" delay 1
+	scene "scenes/npc/$gender01/question12.vcd" delay 1
+	scene "scenes/npc/$gender01/question13.vcd" delay 1
+	scene "scenes/npc/$gender01/question14.vcd" delay 1
+	scene "scenes/npc/$gender01/question15.vcd" delay 1
+	scene "scenes/npc/$gender01/question16.vcd" delay 1
+	scene "scenes/npc/$gender01/question17.vcd" delay 1
+	scene "scenes/npc/$gender01/question18.vcd" delay 1
+	scene "scenes/npc/$gender01/question19.vcd" delay 1
+	scene "scenes/npc/$gender01/question20.vcd" delay 1
+	scene "scenes/npc/$gender01/question21.vcd" delay 1
+	scene "scenes/npc/$gender01/question22.vcd" delay 1
+	scene "scenes/npc/$gender01/question23.vcd" delay 1
+	scene "scenes/npc/$gender01/question25.vcd" delay 1
+	scene "scenes/npc/$gender01/question26.vcd" delay 1
+	scene "scenes/npc/$gender01/question27.vcd" delay 1
+	scene "scenes/npc/$gender01/question28.vcd" delay 1
+	scene "scenes/npc/$gender01/question29.vcd" delay 1
+	scene "scenes/npc/$gender01/question30.vcd" delay 1
+	scene "scenes/npc/$gender01/question31.vcd" delay 1
+}
+
+rule CitizenQuestion
+{
+	criteria		IsCitizen ConceptTalkQuestion IsGordonCriminal PlayerAlive
+	response 		CitizenQuestion
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenAnswer"
+{
+	scene "scenes/npc/$gender01/answer01.vcd" delay 2
+	scene "scenes/npc/$gender01/answer02.vcd" delay 2
+	scene "scenes/npc/$gender01/answer03.vcd" delay 2
+	scene "scenes/npc/$gender01/answer04.vcd" delay 2
+	scene "scenes/npc/$gender01/answer05.vcd" delay 2
+	scene "scenes/npc/$gender01/answer07.vcd" delay 2
+	scene "scenes/npc/$gender01/answer08.vcd" delay 2
+	scene "scenes/npc/$gender01/answer09.vcd" delay 2
+	scene "scenes/npc/$gender01/answer10.vcd" delay 2
+	scene "scenes/npc/$gender01/answer11.vcd" delay 2
+	scene "scenes/npc/$gender01/answer12.vcd" delay 2
+	scene "scenes/npc/$gender01/answer13.vcd" delay 2
+	scene "scenes/npc/$gender01/answer14.vcd" delay 2
+	scene "scenes/npc/$gender01/answer15.vcd" delay 2
+	scene "scenes/npc/$gender01/answer16.vcd" delay 2
+	scene "scenes/npc/$gender01/answer17.vcd" delay 2
+	scene "scenes/npc/$gender01/answer18.vcd" delay 2
+	scene "scenes/npc/$gender01/answer19.vcd" delay 2
+	scene "scenes/npc/$gender01/answer20.vcd" delay 2
+	scene "scenes/npc/$gender01/answer21.vcd" delay 2
+	scene "scenes/npc/$gender01/answer22.vcd" delay 2
+	scene "scenes/npc/$gender01/answer23.vcd" delay 2
+	scene "scenes/npc/$gender01/answer24.vcd" delay 2
+	scene "scenes/npc/$gender01/answer25.vcd" delay 2
+	scene "scenes/npc/$gender01/answer26.vcd" delay 2
+	scene "scenes/npc/$gender01/answer27.vcd" delay 2
+	scene "scenes/npc/$gender01/answer28.vcd" delay 2
+	scene "scenes/npc/$gender01/answer29.vcd" delay 2
+	scene "scenes/npc/$gender01/answer30.vcd" delay 2
+	scene "scenes/npc/$gender01/answer31.vcd" delay 2
+	scene "scenes/npc/$gender01/answer32.vcd" delay 2
+	scene "scenes/npc/$gender01/answer33.vcd" delay 2
+	scene "scenes/npc/$gender01/answer34.vcd" delay 2
+	scene "scenes/npc/$gender01/answer35.vcd" delay 2
+	scene "scenes/npc/$gender01/answer36.vcd" delay 2
+	scene "scenes/npc/$gender01/answer37.vcd" delay 2
+	scene "scenes/npc/$gender01/answer38.vcd" delay 2
+	scene "scenes/npc/$gender01/answer39.vcd" delay 2
+	scene "scenes/npc/$gender01/answer40.vcd" delay 2
+}
+//---------------------
+rule CitizenAnswer
+{
+	criteria		IsCitizen ConceptTalkAnswer IsGordonCriminal PlayerAlive 
+	response		CitizenAnswer
+}
+
+//============================================================================================================
+// Citizen Questions & Responses with Vortigaunts in Scene
+//============================================================================================================
+response "CitizenQuestionVort"
+{
+	scene "scenes/npc/$gender01/vquestion01.vcd" delay 1
+	scene "scenes/npc/$gender01/vquestion02.vcd" delay 1
+	scene "scenes/npc/$gender01/vquestion03.vcd" delay 1
+	scene "scenes/npc/$gender01/vquestion04.vcd" delay 1
+	scene "scenes/npc/$gender01/vquestion05.vcd" delay 1
+	scene "scenes/npc/$gender01/vquestion06.vcd" delay 1
+	scene "scenes/npc/$gender01/vquestion07.vcd" delay 1
+
+}
+
+rule CitizenQuestionVort
+{
+	criteria		IsCitizen ConceptTalkQuestionVort IsGordonCriminal NPCIdle PlayerAlive
+	response 		CitizenQuestionVort
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenAnswerVort"
+{
+	scene "scenes/npc/$gender01/vanswer01.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer02.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer03.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer04.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer05.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer06.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer07.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer08.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer09.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer10.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer11.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer12.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer13.vcd" delay 2
+	scene "scenes/npc/$gender01/vanswer14.vcd" delay 2
+
+}
+
+rule CitizenAnswerVort
+{
+	criteria		IsCitizen ConceptTalkAnswerVort IsGordonCriminal NPCIdle PlayerAlive 
+	response		CitizenAnswerVort
+}
+
+
+//============================================================================================================
+// Citizen Mourning the player's death
+//============================================================================================================
+
+response "CitizenMournQ"
+{
+	scene "scenes/npc/$gender01/gordead_ques01.vcd"
+	scene "scenes/npc/$gender01/gordead_ques02.vcd"
+	scene "scenes/npc/$gender01/gordead_ques03a.vcd"
+	scene "scenes/npc/$gender01/gordead_ques03b.vcd"
+	scene "scenes/npc/$gender01/gordead_ques04.vcd"
+	scene "scenes/npc/$gender01/gordead_ques05.vcd"
+	scene "scenes/npc/$gender01/gordead_ques06.vcd"
+	scene "scenes/npc/$gender01/gordead_ques07.vcd"
+	scene "scenes/npc/$gender01/gordead_ques08.vcd"
+	scene "scenes/npc/$gender01/gordead_ques09.vcd"
+	scene "scenes/npc/$gender01/gordead_ques10.vcd"
+	scene "scenes/npc/$gender01/gordead_ques11.vcd"
+	scene "scenes/npc/$gender01/gordead_ques12.vcd"
+	scene "scenes/npc/$gender01/gordead_ques13.vcd"
+	scene "scenes/npc/$gender01/gordead_ques14.vcd"
+	scene "scenes/npc/$gender01/gordead_ques15.vcd"
+	scene "scenes/npc/$gender01/gordead_ques16.vcd"
+	scene "scenes/npc/$gender01/gordead_ques17.vcd"
+}
+
+rule CitizenMournQ
+{
+	criteria 		IsCitizen ConceptTalkQuestion IsGordonCriminal PlayerDead
+	response 		CitizenMournQ
+	matchonce
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenMournA"
+{
+	scene "scenes/npc/$gender01/gordead_ans01.vcd"
+	scene "scenes/npc/$gender01/gordead_ans02.vcd"
+	scene "scenes/npc/$gender01/gordead_ans03.vcd"
+	scene "scenes/npc/$gender01/gordead_ans04.vcd"
+	scene "scenes/npc/$gender01/gordead_ans05.vcd"
+	scene "scenes/npc/$gender01/gordead_ans06.vcd"
+	scene "scenes/npc/$gender01/gordead_ans07.vcd"
+	scene "scenes/npc/$gender01/gordead_ans08.vcd"
+	scene "scenes/npc/$gender01/gordead_ans09.vcd"
+	scene "scenes/npc/$gender01/gordead_ans10.vcd"
+	scene "scenes/npc/$gender01/gordead_ans11.vcd"
+	scene "scenes/npc/$gender01/gordead_ans12.vcd"
+	scene "scenes/npc/$gender01/gordead_ans13.vcd"
+	scene "scenes/npc/$gender01/gordead_ans14.vcd"
+	scene "scenes/npc/$gender01/gordead_ans15.vcd"
+	scene "scenes/npc/$gender01/gordead_ans16.vcd"
+	scene "scenes/npc/$gender01/gordead_ans17.vcd"
+	scene "scenes/npc/$gender01/gordead_ans18.vcd"
+	scene "scenes/npc/$gender01/gordead_ans19.vcd"
+	scene "scenes/npc/$gender01/gordead_ans20.vcd"
+}
+
+rule CitizenMournA
+{
+	criteria 		IsCitizen ConceptTalkAnswer IsGordonCriminal PlayerDead
+	response 		CitizenMournA
+	matchonce
+}
+
+response "CitizenMournAll"
+{
+   response CitizenMournQ
+   response CitizenMournA
+}
+
+rule CitizenMourn
+{
+	criteria 		IsCitizen ConceptPlayerDead IsGordonCriminal PlayerDead
+	response 		CitizenMournAll
+	matchonce
+}
+
+//-----------------------------------------
+response "CitizenHeal"
+{
+	scene "scenes/npc/$gender01/health01.vcd" delay 1
+	scene "scenes/npc/$gender01/health02.vcd" delay 1
+	scene "scenes/npc/$gender01/health03.vcd" delay 1
+	scene "scenes/npc/$gender01/health04.vcd" delay 1
+	scene "scenes/npc/$gender01/health05.vcd" delay 1
+}
+
+rule CitizenHeal
+{
+	criteria		IsCitizen ConceptTalkHeal
+	response		CitizenHeal
+}
+//---------------------------
+response "CitizenGiveAmmo"
+{
+	scene "scenes/npc/$gender01/ammo01.vcd" delay 1
+	scene "scenes/npc/$gender01/ammo02.vcd" delay 1
+	scene "scenes/npc/$gender01/ammo03.vcd" delay 1
+	scene "scenes/npc/$gender01/ammo04.vcd" delay 1
+	scene "scenes/npc/$gender01/ammo05.vcd" delay 1
+}
+
+rule CitizenGiveAmmo
+{
+	criteria		IsCitizen ConceptTalkGiveAmmo
+	response		CitizenGiveAmmo
+}
+
+//============================================================================================================
+// Citizen Combat speech
+//============================================================================================================
+response "CitizenDanger" 
+{
+	permitrepeats
+	scene "scenes/npc/$gender01/watchout.vcd" weight 1
+	scene "scenes/npc/$gender01/uhoh.vcd" weight 1.1
+	scene "scenes/npc/$gender01/lookoutfm01.vcd" weight .9
+	scene "scenes/npc/$gender01/startle01.vcd" weight 1.1
+	scene "scenes/npc/$gender01/startle02.vcd" weight 1.1
+	scene "scenes/npc/$gender01/getdown02.vcd" weight 1
+}
+
+rule CitizenDanger
+{
+	criteria		IsCitizen ConceptTalkDanger
+	response		CitizenDanger
+}
+
+response CitizenDangerBig
+{
+	permitrepeats
+	scene "scenes/npc/$gender01/strider_run.vcd"
+	scene "scenes/npc/$gender01/gethellout.vcd"
+	response CitizenDanger weight 12 // 6 * 2
+}
+
+rule CitizenDangerBig
+{
+	criteria		IsCitizen ConceptTalkDanger EnemyIsStrider
+	response		CitizenDangerBig
+}
+
+response "CitizenMortarDanger" 
+{
+	scene "scenes/npc/$gender01/watchout.vcd"
+	scene "scenes/npc/$gender01/headsup01.vcd"
+	scene "scenes/npc/$gender01/getdown02.vcd"
+	scene "scenes/npc/$gender01/headsup02.vcd"
+	scene "scenes/npc/$gender01/incoming02.vcd"
+	scene "scenes/npc/$gender01/takecover02.vcd"
+}
+
+rule CitizenMortarDanger
+{
+	criteria		IsCitizen ConceptTalkDanger EnemyIsMortar
+	response		CitizenMortarDanger
+}
+
+response "CitizenSniperDanger" 
+{
+	scene "scenes/npc/$gender01/uhoh.vcd"
+	scene "scenes/npc/$gender01/startle01.vcd"
+	scene "scenes/npc/$gender01/startle02.vcd"
+	scene "scenes/npc/$gender01/getdown02.vcd"
+}
+
+rule CitizenSniperDanger
+{
+	criteria		IsCitizen ConceptTalkDanger EnemyIsSniper
+	response		CitizenSniperDanger
+}
+
+//============================================================================================================
+// Citizen Reloads Weapon
+//============================================================================================================
+response "CitizenHideAndReload" 
+{
+	scene "scenes/npc/$gender01/coverwhilereload01.vcd"
+	scene "scenes/npc/$gender01/coverwhilereload02.vcd"	
+	scene "scenes/npc/$gender01/gottareload01.vcd"
+//   print "Gotta reload!"
+}
+
+rule CitizenHideAndReload
+{
+	criteria		IsCitizen ConceptHideAndReload
+	response		CitizenHideAndReload
+}
+
+//============================================================================================================
+// Citizen Reminds Player to Reload
+//============================================================================================================
+response "CitizenPlayerReload" 
+{
+	scene "scenes/npc/$gender01/dontforgetreload01.vcd"
+	scene "scenes/npc/$gender01/reloadfm01.vcd"
+	scene "scenes/npc/$gender01/reloadfm02.vcd"
+	scene "scenes/npc/$gender01/youdbetterreload01.vcd"
+//   print "You better reload, Doc."
+}
+
+rule CitizenPlayerReload
+{
+	criteria		ConceptPlayerReload IsCitizen PlayerNear SeePlayer
+	response		CitizenPlayerReload
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenNewWeapon"
+{
+	scene "scenes/npc/$gender01/nice.vcd"
+	scene "scenes/npc/$gender01/nice01.vcd"
+	scene "scenes/npc/$gender01/nice02.vcd"
+	scene "scenes/npc/$gender01/thislldonicely.vcd"
+	scene "scenes/npc/$gender01/yeah01.vcd"
+	scene "scenes/npc/$gender01/fantastic01.vcd"
+	scene "scenes/npc/$gender01/fantastic02.vcd"
+	scene "scenes/npc/$gender01/finally.vcd"
+	scene "scenes/npc/$gender01/oneforme.vcd"
+	scene "scenes/npc/$gender01/evenodds.vcd"
+}
+
+rule CitizenNewWeapon
+{
+	criteria		IsCitizen  ConceptNewWeapon
+	response		CitizenNewWeapon
+}
+
+//------------------------------------------------------------------------------------------------------------
+response CitizenOuch
+{
+   permitrepeats
+	scene "scenes/npc/$gender01/ow01.vcd"
+	scene "scenes/npc/$gender01/ow02.vcd"
+	speak npc_citizen.die weight 9   // there are nine waves in there
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response CitizenMortalWound
+{
+	scene "scenes/npc/$gender01/imhurt01.vcd"
+	scene "scenes/npc/$gender01/imhurt02.vcd"
+}
+
+rule CitizenMortalWound
+{
+	criteria		IsCitizen  ConceptTalkMortal
+	response		CitizenMortalWound
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+rule CitizenWound
+{
+	criteria		IsCitizen  ConceptTalkWound
+   response CitizenOuch
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response CitizenWoundFire
+{
+	scene "scenes/npc/$gender01/ow01.vcd"
+	scene "scenes/npc/$gender01/no01.vcd"
+	scene "scenes/npc/$gender01/no02.vcd"
+}
+
+rule CitizenWoundFire
+{
+	criteria	IsCitizen  ConceptTalkWound HurtByFire
+   response CitizenWoundFire
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenShotArm"
+{
+   permitrepeats
+	scene "scenes/npc/$gender01/myarm01.vcd"
+	scene "scenes/npc/$gender01/myarm02.vcd" 
+	response CitizenOuch weight 8
+}
+
+rule CitizenShotArm
+{
+   criteria    IsCitizen ConceptShot ShotInArm
+   response    CitizenShotArm
+}
+
+response "CitizenShotLeg"
+{
+   permitrepeats
+	scene "scenes/npc/$gender01/myleg01.vcd"
+	scene "scenes/npc/$gender01/myleg02.vcd"
+	response  CitizenOuch weight 8
+}
+
+
+rule CitizenShotLeg
+{
+   criteria    IsCitizen ConceptShot ShotInLeg
+   response    CitizenShotLeg
+}
+
+response "CitizenShotGut"
+{
+   permitrepeats
+	scene "scenes/npc/$gender01/mygut01.vcd"
+	scene "scenes/npc/$gender01/mygut02.vcd"
+	scene "scenes/npc/$gender01/hitingut01.vcd"
+	scene "scenes/npc/$gender01/hitingut02.vcd"
+	response  CitizenOuch weight 16
+}
+
+rule CitizenShotGut
+{
+   criteria    IsCitizen ConceptShot ShotInGut
+   response    CitizenShotGut
+}
+
+//------------------------------------------------------------------------------------------------------------
+response CitizenWatchOut
+{
+	scene "scenes/npc/$gender01/lookoutfm01.vcd"
+	scene "scenes/npc/$gender01/lookoutfm02.vcd"
+}
+
+rule CitizenWatchOut
+{
+	criteria		IsCitizen  ConceptTalkWatchout
+	response		CitizenWatchout
+}
+
+response CitizenWatchOutUp
+{
+	scene "scenes/npc/$gender01/upthere01.vcd"
+	scene "scenes/npc/$gender01/upthere02.vcd"
+}
+
+rule CitizenWatchOutUp
+{
+	criteria		IsCitizen  ConceptTalkWatchout
+	"dangerloc" "above" required
+	response		CitizenWatchOutUp
+}
+
+response CitizenWatchOutBehind
+{
+	scene "scenes/npc/$gender01/behindyou01.vcd"
+	scene "scenes/npc/$gender01/behindyou02.vcd"
+}
+
+rule CitizenWatchOutBehind
+{
+	criteria		IsCitizen  ConceptTalkWatchout
+	"dangerloc" "behind" required
+	response		CitizenWatchOutBehind
+}
+
+response CitizenWatchOutFar
+{
+	scene "scenes/npc/$gender01/overthere01.vcd"
+	scene "scenes/npc/$gender01/overthere02.vcd"
+}
+
+rule CitizenWatchOutFar
+{
+	criteria		IsCitizen  ConceptTalkWatchout
+	"dangerloc" "far" required
+	response		CitizenWatchOutFar
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenEnemyDead"
+{
+	scene "scenes/npc/$gender01/gotone01.vcd"
+	scene "scenes/npc/$gender01/gotone02.vcd"
+//	scene "scenes/npc/$gender01/likethemapples.vcd"
+	scene "scenes/npc/$gender01/likethat.vcd"
+}
+
+rule CitizenEnemyDead
+{
+	criteria		IsCitizen ConceptEnemyDead 
+	response		CitizenEnemyDead
+	rescenedelay 		3
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenNoShoot"
+{
+	scene "scenes/npc/$gender01/onyourside.vcd"
+	scene "scenes/npc/$gender01/stopitfm.vcd"
+	scene "scenes/npc/$gender01/watchwhat.vcd"
+
+}
+
+rule CitizenNoShoot
+{
+	criteria		IsCitizen ConceptTalkNoShoot
+	response		CitizenNoShoot
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenBetrayed"
+{
+	scene "scenes/npc/$gender01/heretohelp01.vcd"
+	scene "scenes/npc/$gender01/heretohelp02.vcd"
+	scene "scenes/npc/$gender01/wetrustedyou01.vcd"
+	scene "scenes/npc/$gender01/wetrustedyou02.vcd"
+	scene "scenes/npc/$gender01/notthemanithought01.vcd"
+	scene "scenes/npc/$gender01/notthemanithought02.vcd"
+}
+
+rule CitizenBetrayed
+{
+	criteria		IsCitizen ConceptTalkBetrayed
+	response		CitizenBetrayed
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenAllyKilled"
+{
+	scene "scenes/npc/$gender01/ohno.vcd"
+	scene "scenes/npc/$gender01/goodgod.vcd"
+	scene "scenes/npc/$gender01/startle01.vcd"
+	scene "scenes/npc/$gender01/startle02.vcd"
+	scene "scenes/npc/$gender01/no01.vcd"
+	scene "scenes/npc/$gender01/no02.vcd"
+}
+
+rule CitizenAllyKilled
+{
+	criteria 		IsCitizen ConceptTalkAllyKilled
+	response		CitizenAllyKilled
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response CitizenCombineGroup
+{
+	scene "scenes/npc/$gender01/combine01.vcd"
+	scene "scenes/npc/$gender01/combine02.vcd"
+}
+
+response CitizenCombine
+{
+   response CitizenCombineGroup respeakdelay 300
+}
+
+rule CitizenStartCombatCombine
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_combine_s required
+	response    CitizenCombine
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response CitizenHeadcrabGroup
+{
+	scene "scenes/npc/$gender01/headcrabs01.vcd"
+	scene "scenes/npc/$gender01/headcrabs02.vcd"
+}
+
+response CitizenHeadcrab
+{
+   response CitizenHeadcrabGroup respeakdelay 300
+}
+
+rule CitizenStartCombatHeadcrab
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_headcrab required
+	response    CitizenHeadcrab
+}
+
+rule CitizenStartCombatHeadcrabFast
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_headcrab_fast required
+	response    CitizenHeadcrab
+}
+
+rule CitizenStartCombatHeadcrabBlack
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_headcrab_black required
+	response    CitizenHeadcrab
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response CitizenZombieGroup
+{
+	scene "scenes/npc/$gender01/zombies01.vcd"
+	scene "scenes/npc/$gender01/zombies02.vcd"
+}
+
+response CitizenZombie
+{
+   response CitizenZombieGroup respeakdelay 300
+}
+
+rule CitizenStartCombatZombie
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_zombie required
+	response    CitizenZombie
+}
+
+rule CitizenStartCombatZombieTorso
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_zombie_torso required
+	response    CitizenZombie
+}
+
+rule CitizenStartCombatZombieFast
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_fastzombie required
+	response    CitizenZombie
+}
+
+rule CitizenStartCombatZombiePoison
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_poisonzombie required
+	response    CitizenZombie
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response CitizenScannersGroup
+{
+	scene "scenes/npc/$gender01/scanners01.vcd"
+	scene "scenes/npc/$gender01/scanners02.vcd"
+}
+
+response CitizenScanners
+{
+   response CitizenScannersGroup respeakdelay 300
+}
+
+
+rule CitizenStartCombatScanners
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_cscanner required
+	response    CitizenScanners
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response CitizenStrider
+{
+	scene "scenes/npc/$gender01/strider.vcd" respeakdelay 300
+}
+
+rule CitizenStartCombatStrider
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_strider required
+	response    CitizenStrider
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response CitizenManhacksGroup
+{
+	scene "scenes/npc/$gender01/itsamanhack01.vcd"
+	scene "scenes/npc/$gender01/itsamanhack02.vcd"
+	scene "scenes/npc/$gender01/herecomehacks01.vcd"
+	scene "scenes/npc/$gender01/herecomehacks02.vcd"
+	scene "scenes/npc/$gender01/thehacks01.vcd"
+	scene "scenes/npc/$gender01/thehacks02.vcd"
+	scene "scenes/npc/$gender01/hacks01.vcd"
+	scene "scenes/npc/$gender01/hacks02.vcd"
+}
+
+response CitizenManhacks
+{
+   response CitizenManhacksGroup respeakdelay 300
+}
+
+rule CitizenStartCombatManhacks
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_manhack required
+	response    CitizenManhacks
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+
+response "CitizenMetroGroup"
+{
+	scene "scenes/npc/$gender01/cps01.vcd"
+	scene "scenes/npc/$gender01/cps02.vcd"
+	scene "scenes/npc/$gender01/civilprotection01.vcd"
+	scene "scenes/npc/$gender01/civilprotection02.vcd"
+}
+
+response CitizenMetro
+{
+   response CitizenMetroGroup respeakdelay 300
+}
+
+
+rule CitizenStartCombatMetro
+{
+	criteria    IsCitizen ConceptStartCombat
+	enemy npc_metropolice required
+	response    CitizenMetro
+}
+
+
+//============================================================================================================
+// Citizen misc speech
+//============================================================================================================
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenFiringRPG"
+{
+//
+}
+
+rule CitizenFiringRPG
+{
+	criteria		IsCitizen IsRPGUser
+	response		CitizenFiringRPG
+}
+
+//============================================================================================================
+// Citizen Leader speech (a citizen that's leading the player somewhere)
+//============================================================================================================
+response "CitizenLeadWaitOver"
+{
+	scene "scenes/npc/$gender01/gotone02.vcd"
+}
+
+rule CitizenLeadWaitOver
+{
+	criteria		ConceptLeadWaitOver
+	response		CitizenLeadWaitOver
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenLeadAttractPlayer"
+{
+	scene "scenes/npc/$gender01/overhere01.vcd"
+}
+
+rule CitizenLeadAttractPlayer
+{
+	criteria		IsCitizen ConceptLeadAttractPlayer
+	response		CitizenLeadAttractPlayer
+}
+
+response "CitizenSeeCombine"
+{
+	scene "scenes/npc/$gender01/combine01.vcd"
+}
+
+rule CitizenSeeCombine
+{
+	criteria		IsCitizen ConceptSeeCombine
+	response		CitizenSeeCombine
+	respeakdelay 	45
+}
+
+//============================================================================================================
+// Citizen responding to the player 'attacking' them with a physics object
+//============================================================================================================
+response "CitizenPlayerPhysAttack"
+{
+
+}
+
+rule CitizenPlayerPhysAttack
+{
+	criteria		IsCitizen ConceptTalkPlayerPhysAttack
+	response		CitizenPlayerPhysAttack
+}
+
+//============================================================================================================
+#include "talker/npc_citizen_commandermode.txt"
+#include "talker/npc_citizen_terminal.txt"
+#include "talker/npc_citizen_tenement.txt"
+#include "talker/npc_citizen_coast.txt"
+#include "talker/npc_citizen_canals.txt"
+#include "talker/npc_citizen_c17.txt"

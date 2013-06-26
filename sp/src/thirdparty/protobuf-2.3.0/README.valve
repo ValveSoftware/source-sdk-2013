@@ -1,0 +1,37 @@
+* To build on OSX (32bit)
+
+export CC=/Developer/usr/bin/llvm-gcc
+export CXX=/Developer/usr/bin/llvm-g++
+export CFLAGS="-m32 -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -Os -fvisibility=hidden"
+export CXXFLAGS="$CFLAGS"
+
+$ ./configure --enable-shared=no
+
+Note that in xcode4 beta builds /Developer would be replaced with /Xcode4
+
+* To build on linux x86:
+
+export CC=/path/to/gcc
+export CXX=/path/to/g++
+export CFLAGS=-fvisiblity=hidden
+export CXXFLAGS=-fvisiblity=hidden
+export LDFLAGS="-static-libgcc" 
+./configure --enable-shared=no
+
+* To build on linux x86_64:
+
+export CC=/path/to/gcc
+export CXX=/path/to/g++
+export CFLAGS=-fvisiblity=hidden
+export CXXFLAGS=-fvisiblity=hidden
+export LDFLAGS=-static-libgcc
+./configure --with-pic --enable-shared=no
+
+alternatively, just put all those variables on the configure line (note that LIBS is expressed in terms of the path to g++, not the CXX variable):
+
+./configure CC=/path/to/c-compiler CXX=/path/to/c++-compiler [LDFLAGS=-static-libgcc] [-m32] [--with-pic] --enable-shared=no
+
+This will build src/protoc (the compiler binary) and src/.libs/libprotobuf.a (among others).  
+
+publish protoc into src/devtools/bin/<platform>/
+publish libprotobuf.a gets into src/lib/<platform>/release

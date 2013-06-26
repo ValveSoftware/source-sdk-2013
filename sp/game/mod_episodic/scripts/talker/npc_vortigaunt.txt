@@ -1,0 +1,878 @@
+//============================================================================================================
+// Vortigaunt criteria
+//============================================================================================================
+criterion "IsVortigaunt" "classname" "npc_vortigaunt" required
+criterion "VortigauntCure"  concept" "VORT_CURE" required
+criterion "VortigauntCureStop" "concept" "VORT_CURESTOP" required
+criterion "VortigauntCureInterrupt" "concept" "VORT_CURE_INTERRUPT" required
+criterion "VortigauntAttack" "concept" "VORT_ATTACK" required
+criterion "VortigauntMad" "concept" "VORT_MAD" required
+criterion "VortigauntShot" "concept" "VORT_SHOT" required
+criterion "VortigauntPain" "concept" "VORT_PAIN" required
+criterion "VortigauntDie" "concept" "VORT_DIE" required
+criterion "VortigauntKill" "concept" "VORT_KILL" required
+criterion "VortigauntLineOfFire" "concept" "VORT_LINE_FIRE" required
+criterion "VortigauntPOk" "concept" "VORT_POK" required
+criterion "VortigauntExtractBugbait" "concept" "VORT_EXTRACT_START" required
+criterion "VortigauntExtractBugbaitFinish" "concept" "VORT_EXTRACT_FINISH" required
+criterion "VortNagKeepMovingOutland_11" "concept" "TLK_VortNag_KeepMoving" required
+criterion "NotUsedVortResponse01" "UsedVortResponse01" "!=1" "required" weight 0
+
+//============================================================================================================
+// Vortigaunt Level Plus Use
+//============================================================================================================
+response VortUseEverywhere
+{
+	scene "scenes/npc/vortigaunt/vort_affirmed.vcd"  
+	scene "scenes/npc/vortigaunt/vort_vortigese05.vcd"  
+	scene "scenes/npc/vortigaunt/vort_beofservice.vcd"
+	scene "scenes/npc/vortigaunt/vort_vort_chant21.vcd" 	
+	scene "scenes/npc/vortigaunt/vort_certainly.vcd"  
+	scene "scenes/npc/vortigaunt/vort_vort_chant05.vcd" 
+	scene "scenes/npc/vortigaunt/vort_forthefm.vcd"  
+	scene "scenes/npc/vortigaunt/vort_freeman.vcd"  
+ 	scene "scenes/npc/vortigaunt/vort_vort_mant04.vcd"  
+	scene "scenes/npc/vortigaunt/vort_vort_livetoserve.vcd"  
+}
+
+
+rule VortUseEverywhere
+{
+	criteria IsVortigaunt ConceptTalkUse NotUsedVortResponse NotInCombat
+        applycontext "UsedVortResponse:1:20"
+	response VortUseEverywhere
+}
+
+
+response "VortTalkUse01"
+{
+	scene "scenes/npc/vortigaunt/vort_leadus.vcd"  
+	scene "scenes/npc/vortigaunt/vort_leadon.vcd"  
+	sequential
+	norepeat
+}
+
+rule VortTalkUse01
+{
+
+	criteria		IsVortigaunt ConceptTalkUse IsMap_ep2_outland_01 NotUsedVortResponse01 NotUsedVortResponse NotInCombat
+        applycontext		"UsedVortResponse:1:20,UsedVortResponse01:1:30"
+	response		VortTalkUse01
+}
+
+
+
+
+response "VortLabUsedisable11"
+{
+	scene "scenes\outland_11\vort_silo_maghonor02.vcd"
+	scene "scenes\outland_11\vort_silo_maghonor03.vcd"
+	scene "scenes\eli_lab\vort_elab_goaway.vcd"
+}
+
+rule IsVortLabUseDisable11
+{
+	criteria		ConceptTalkUse IsVortLabUseDisable NPCIdle NotUsedVortResponse IsMap_ep2_outland_11
+        applycontext		"UsedVortResponse:1:20"	
+	response		VortLabUsedisable11
+}
+
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+criterion "IsNotVortNoticedHurt" "VortNoticedHurt" "!=1" required
+
+response "VortNoticeHurt"
+{
+	NOREPEAT
+	scene "scenes/npc/vortigaunt/vort_combat_combined01.vcd"  
+	scene "scenes/npc/vortigaunt/vort_combat_combined02.vcd" 
+}
+
+rule VortNoticeHurt
+{
+	criteria		IsVortigaunt  ConceptTalkPlayerHurt NoRecentCombatShort IsMap_ep3_outland_03 IsNotVortNoticedHurt PlayerWounded
+	applycontext		"VortNoticedHurt:1:300"
+	response		VortNoticeHurt
+}
+
+
+//TLK_VORTIGAUNT_DISPEL
+
+
+response "VortAntlionCombatStart"
+{
+	scene "scenes/npc/vortigaunt/vort_alert_antlions.vcd"  respeakdelay 30
+	scene "scenes/npc/vortigaunt/vort_worry.vcd" respeakdelay 30
+	scene "scenes/npc/vortigaunt/vort_alert.vcd" respeakdelay 0
+	}
+
+rule VortAntlionCombatStart
+{
+	criteria		IsVortigaunt  ConceptStartCombat EnemyIsAntLion 
+	response		VortAntlionCombatStart
+}
+
+response "VortAntlionCombatStart2"
+{
+	scene "scenes/npc/vortigaunt/vort_worry.vcd" respeakdelay 30
+	scene "scenes/npc/vortigaunt/vort_alert.vcd" respeakdelay 30
+	}
+
+rule VortAntlionCombatStart2
+{
+	criteria		IsVortigaunt  ConceptStartCombat 
+	response		VortAntlionCombatStart2
+}
+
+response "VortAntlionAttack"
+{
+	scene "scenes/npc/vortigaunt/vort_vortigese03.vcd" respeakdelay 15
+	scene "scenes/npc/vortigaunt/vort_vortigese05.vcd" respeakdelay 15
+	scene "scenes/npc/vortigaunt/vort_vortigese09.vcd" respeakdelay 15
+}
+
+rule VortAntlionAttack
+{
+	criteria		IsVortigaunt  ConceptTalkAttacking
+	applycontext		"VortKill:1:10"
+	response		VortAntlionAttack
+}
+
+
+response "VortigauntPain"
+{
+	scene "scenes/npc/vortigaunt/vort_vortigese04.vcd" respeakdelay 30
+	scene "scenes/npc/vortigaunt/vort_vortigese07.vcd" respeakdelay 30
+	scene "scenes/npc/vortigaunt/vort_vortigese08.vcd" respeakdelay 30
+}
+
+rule VortigauntPain
+{
+	criteria		IsVortigaunt  VortigauntPain
+	response		VortigauntPain
+}
+
+
+criterion "contextvortkill" "VortKill" "1" required
+response "VortigauntRangedKill"
+{
+	scene "scenes/npc/vortigaunt/vort_returntoall.vcd"  respeakdelay 15
+	scene "scenes/npc/vortigaunt/vort_yes.vcd" respeakdelay 15
+	scene "scenes/npc/vortigaunt/vort_tethercut.vcd" respeakdelay 15
+	scene "scenes/npc/vortigaunt/vort_passon.vcd" respeakdelay 15
+  	scene "scenes/npc/vortigaunt/returnvoid.vcd" respeakdelay 15
+}
+
+rule VortigauntRangedKill
+{
+	criteria		IsVortigaunt  ConceptEnemyDead 
+	applycontext		"VortKill:1:15"
+	response		VortigauntRangedKill
+}
+
+
+criterion "NotVortPostKill" "VortPostKill" "!=1" required
+response "VortCombatFun"
+{
+	NOREPEAT
+	scene "scenes/npc/vortigaunt/vort_prevail.vcd"
+	scene "scenes/npc/vortigaunt/vort_goodfightwithus.vcd"
+	scene "scenes/npc/vortigaunt/vort_killsformidable.vcd"
+	scene "scenes/npc/vortigaunt/vort_goodtogether.vcd"
+
+}
+rule VortCombatFun
+{
+	criteria IsVortigaunt IsMap_ep3_outland_03 ConceptPlayerKilledNPC contextvortkill NotVortPostKill
+        applycontext		"VortPostKill:1:80"
+	response	VortCombatFun	
+}
+
+
+criterion "NotVortCompliment" "VortCompliment" "!=1" required
+response "VortCombatCompliment"
+{
+
+	scene "scenes/npc/vortigaunt/vort_excellent.vcd"
+	scene "scenes/npc/vortigaunt/vort_excellentshooting.vcd"
+	scene "scenes/npc/vortigaunt/vort_excellentshot.vcd"
+	scene "scenes/npc/vortigaunt/vort_exceptional.vcd"
+
+}
+rule VortCombatCompliment
+{
+	criteria IsVortigaunt ConceptPlayerKilledNPC ContextPlayer1Shot NotVortCompliment
+        applycontext	"VortCompliment:1:60"
+	response	VortCombatCompliment
+}
+
+
+
+
+//response "Vort03Test"
+//{
+//	scene "scenes/outland_02/vort_pre_revive_nag01.vcd"
+//	scene "scenes/outland_02/vort_pre_revive_nag02.vcd"
+//	scene "scenes/outland_02/vort_pre_revive_nag03.vcd"
+//	scene "scenes/outland_02/vort_pre_revive_nag04.vcd"
+//	scene "scenes/outland_02/vort_pre_revive_nag05.vcd"
+//}
+//
+//rule Vort03Test
+//{
+//	criteria		IsVortigaunt  IsMap_ep3_outland_03 ConceptTalkLook
+//	response		Vort03Test
+//}
+
+
+
+
+criterion "VortsNagPlayerAlyxHealOutland02" "OUTLAND_02_VORTS_NAG_PLAYER" "1" required
+
+
+
+response "NagPlayerHealAlyxVort"
+{
+	scene "scenes/outland_02/vort_pre_revive_nag01.vcd"
+	scene "scenes/outland_02/vort_pre_revive_nag02.vcd"
+	scene "scenes/outland_02/vort_pre_revive_nag03.vcd"
+	scene "scenes/outland_02/vort_pre_revive_nag04.vcd"
+	scene "scenes/outland_02/vort_pre_revive_nag05.vcd"
+}
+
+rule NagPlayerHealAlyxVort
+{
+	criteria		IsVortigaunt ConceptVortsNagPlayerAlyxHealOutland02
+	response		NagPlayerHealAlyxVort
+}
+
+
+criterion "VortAskingForHelp" "SaidProtectUs" "!=1" "required" weight 0
+response "VortUnderAttackVort" 
+{
+	scene "scenes/outland_02/vort_turret_weneedhelpcometous.vcd"   
+	scene "scenes/outland_02/vort_turret_weareunderattackdefendus.vcd"   
+	scene "scenes/outland_02/vort_turret_defendus.vcd"   
+	scene "scenes/outland_02/vort_turret_protectalyx.vcd"   
+	scene "scenes/outland_02/vort_turret_protectus.vcd"  
+
+}
+
+
+rule VortUnderAttackVort
+{
+	criteria		IsVortigaunt VortigauntPain IsVortHealingAlyx VortAskingForHelp
+	applycontext		"SaidProtectUs:1:2,VortNeedsHelp:1:10"
+	response		VortUnderAttackVort
+}
+
+
+
+
+response "NagPlayerKeepMovingOutland_11Vort"
+{
+	scene "scenes/outland_11/vort_fmadvance.vcd" 
+	scene "scenes/outland_11/vort_hastefm.vcd"
+	scene "scenes/outland_11/vort_fmmustmove.vcd"
+	
+}
+
+
+rule NagPlayerKeepMovingOutland_11Vort
+{
+	criteria		IsVortigaunt PlayerNear VortNagKeepMovingOutland_11
+	response		NagPlayerKeepMovingOutland_11Vort
+}
+
+
+
+//============================================================================================================
+// Vortigaunt Hello speech
+//============================================================================================================
+response "VortigauntHello" 
+{
+//	scene "scenes/npc/vortigaunt/wellmet.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/isitthefm.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/itisthefm.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/thefreeman.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/beofservice.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/greetingsfm.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/neuroprints.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/salute.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/trulyitis.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/takeus.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/webeofuse.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/corporeal.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/seebeforeoureye.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/morethanmeets.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/weknowyou.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/putaside.vcd" delay "3,3.5" speakonce 
+//	scene "scenes/npc/vortigaunt/mystery.vcd" delay "3,3.5" speakonce 
+}
+rule VortigauntTlkHello
+{
+	criteria		IsVortigaunt ConceptTalkHello  PlayerNear SeePlayer
+	response		VortigauntHello
+}
+
+//------------------------------------------------------------------------------------------------------------
+rule VortigauntPlayerHello
+{
+	criteria		IsVortigaunt ConceptTalkPHello
+	response		NullResponse
+}
+
+//============================================================================================================
+// Vortigaunt Questions & Responses speech
+//============================================================================================================
+response "VortigauntQuestion" 
+{
+//	scene "scenes/npc/vortigaunt/vques01.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vques02.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vques03.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vques04.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vques05.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vques06.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vques07.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vques08.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vques09.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vques10.vcd" delay 1
+//
+}
+rule VortigauntTlkQuestion
+{
+	criteria		IsVortigaunt ConceptTalkQuestion
+	response		VortigauntQuestion
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntAnswer" 
+{
+//	scene "scenes/npc/vortigaunt/vanswer01.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer02.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer03.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer04.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer05.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer06.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer07.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer08.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer09.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer10.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer11.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer12.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer13.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer14.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer15.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer16.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer17.vcd" delay 1
+//	scene "scenes/npc/vortigaunt/vanswer18.vcd" delay 1
+}
+
+rule VortigauntTlkAnswer
+{
+	criteria		IsVortigaunt ConceptTalkAnswer
+	response		VortigauntAnswer
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntTalkUse"
+{
+	sequential
+	norepeat
+}
+
+rule VortigauntTalkUse
+{
+	criteria		IsVortigaunt ConceptTalkUse
+	response		VortigauntTalkUse
+}
+
+//============================================================================================================
+// Vortigaunt Combat speech
+//============================================================================================================
+response "VortigauntCure" 
+{
+  	scene "scenes/npc/vortigaunt/allowrecharge.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/wewillcharge.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/fmcanuse.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/here.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/acceptenergy.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/holdstill.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/acceptcharge.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/weshare.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/prepare.vcd" defaultdelay
+}
+
+
+rule VortigauntCure
+{
+	criteria		IsVortigaunt  VortigauntCure
+	response		VortigauntCure
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntCureStop" 
+{
+  	scene "scenes/npc/vortigaunt/allwecanspare.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/allfornow.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/thatisall.vcd" defaultdelay
+    	scene "scenes/npc/vortigaunt/done.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/keepfmsafe.vcd" defaultdelay
+}
+
+rule VortigauntCureStop
+{
+	criteria		IsVortigaunt VortigauntCureStop
+	response		VortigauntCureStop
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntCureInterrupt" 
+{
+  	scene "scenes/npc/vortigaunt/holdorcantcharge.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/hold.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/halt.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/fmstandstill.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/ifyoumove.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/movingtarget.vcd" defaultdelay
+}
+
+rule VortigauntCureInterrupt
+{
+	criteria		IsVortigaunt VortigauntCureInterrupt
+	response		VortigauntCureInterrupt
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntAttack" 
+{
+  	scene "scenes/npc/vortigaunt/tothevoid.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/allinoneinall.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/giveover.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/weclaimyou.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/undeserving.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/satisfaction.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/regrettable.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/allowme.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/livetoserve.vcd" defaultdelay
+  	scene "scenes/npc/vortigaunt/returnvoid.vcd" defaultdelay
+}
+
+
+rule VortigauntAttack
+{
+	criteria		IsVortigaunt VortigauntAttack
+	response		VortigauntAttack
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntMad"
+{
+//	sentence "VORT_MAD" soundlevel "SNDLVL_NORM" delay "4"
+}
+rule VortigauntMad
+{
+	criteria		IsVortigaunt VortigauntMad
+	response		VortigauntMad
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntShot" 
+
+{
+//	sentence "VORT_SHOT" soundlevel "SNDLVL_NORM" delay "4"
+}
+rule VortigauntShot
+{
+	criteria		IsVortigaunt VortigauntShot
+	response		VortigauntShot
+}
+
+//------------------------------------------------------------------------------------------------------------
+//response "VortigauntPain" 
+
+//{
+//	sentence "VORT_PAIN"  defaultdelay
+//}
+
+//rule VortigauntPain
+//{
+//	criteria		IsVortigaunt VortigauntPain
+//	response		VortigauntPain
+//}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntDie"
+
+{
+// sentence "VORT_DIE"  defaultdelay
+
+}
+
+rule VortigauntDie
+{
+	criteria		IsVortigaunt VortigauntDie
+	response		VortigauntDie
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntKill" 
+{
+ scene "scenes/npc/vortigaunt/forthefm.vcd" delay 4
+ scene "scenes/npc/vortigaunt/forfreedom.vcd" delay 4
+ scene "scenes/npc/vortigaunt/tethercut.vcd" delay 4
+ scene "scenes/npc/vortigaunt/troubleus.vcd" delay 4
+ scene "scenes/npc/vortigaunt/dreamed.vcd" delay 4
+ scene "scenes/npc/vortigaunt/energyempower.vcd" delay 4
+ scene "scenes/npc/vortigaunt/empowerus.vcd" delay 4
+ scene "scenes/npc/vortigaunt/surge.vcd" delay 4
+ scene "scenes/npc/vortigaunt/yes.vcd" delay 4
+ scene "scenes/npc/vortigaunt/passon.vcd" delay 4
+ scene "scenes/npc/vortigaunt/nodenexus.vcd" delay 4
+ scene "scenes/npc/vortigaunt/returntoall.vcd" delay 4
+
+}
+
+
+rule VortigauntKill
+{
+	criteria		IsVortigaunt VortigauntKill
+	response		VortigauntKill
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntLineOfFire" 
+{
+ scene "scenes/npc/vortigaunt/cautionfm.vcd" delay 4
+ scene "scenes/npc/vortigaunt/caution.vcd" delay 4
+ scene "scenes/npc/vortigaunt/fmbeware.vcd" delay 4
+ scene "scenes/npc/vortigaunt/ware.vcd" delay 4
+ scene "scenes/npc/vortigaunt/fmmustbeware.vcd" delay 4
+ scene "scenes/npc/vortigaunt/warefm.vcd" delay 4
+ scene "scenes/npc/vortigaunt/fminway.vcd" delay 4
+ scene "scenes/npc/vortigaunt/standclear.vcd" delay 4
+ scene "scenes/npc/vortigaunt/fmmustmove.vcd" delay 4
+ scene "scenes/npc/vortigaunt/warningfm.vcd" delay 4
+ scene "scenes/npc/vortigaunt/cannotfire.vcd" delay 4
+
+}
+
+rule VortigauntLineOfFire
+{
+	criteria		IsVortigaunt VortigauntLineOfFire
+	response		VortigauntLineOfFire
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntPOk" 
+
+{
+//	sentence "VORT_POK" soundlevel "SNDLVL_NORM" delay "2"
+}
+
+rule VortigauntPOk
+{
+	criteria		IsVortigaunt VortigauntPOk
+	response		VortigauntLineOfFire
+}
+
+
+//============================================================================================================
+// Vortigaunt Misc speech
+//============================================================================================================
+response "VortigauntIdle" 
+
+{
+// scene "scenes/npc/vortigaunt/poet.vcd"
+// scene "scenes/npc/vortigaunt/hopeless.vcd"
+// scene "scenes/npc/vortigaunt/alldear.vcd"
+// scene "scenes/npc/vortigaunt/prevail.vcd"
+// scene "scenes/npc/vortigaunt/seenworse.vcd"
+// scene "scenes/npc/vortigaunt/persevere.vcd"
+// scene "scenes/npc/vortigaunt/worthless.vcd"
+// scene "scenes/npc/vortigaunt/whereto.vcd"
+}
+
+rule VortigauntTlkIdle
+{
+	criteria		IsVortigaunt ConceptTalkIdle
+	response		VortigauntIdle
+}
+
+//------------------------------------------------------------------------------------------------------------
+rule VortigauntPlayerIdle
+{
+	criteria		IsVortigaunt ConceptTalkPIdle
+	response		NullResponse
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntStare" 
+
+{
+// scene "scenes/npc/vortigaunt/optical.vcd"
+// scene "scenes/npc/vortigaunt/unclear.vcd"
+// scene "scenes/npc/vortigaunt/opaque.vcd"
+// scene "scenes/npc/vortigaunt/rememberus.vcd"
+// scene "scenes/npc/vortigaunt/stillhere.vcd"
+// scene "scenes/npc/vortigaunt/calm.vcd"
+
+}
+
+
+rule VortigauntTlkStare
+{
+	criteria		IsVortigaunt ConceptTalkStare
+	response		VortigauntStare
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntOk" 
+{
+ scene "scenes/npc/vortigaunt/itishonor.vcd"
+ scene "scenes/npc/vortigaunt/wehonored.vcd"
+ scene "scenes/npc/vortigaunt/ourhonor.vcd"
+ scene "scenes/npc/vortigaunt/honorfollow.vcd"
+ scene "scenes/npc/vortigaunt/accompany.vcd"
+ scene "scenes/npc/vortigaunt/gladly.vcd"
+ scene "scenes/npc/vortigaunt/pleasure.vcd"
+ scene "scenes/npc/vortigaunt/wefollowfm.vcd"
+ scene "scenes/npc/vortigaunt/honorours.vcd"
+ scene "scenes/npc/vortigaunt/gloriousend.vcd"
+ scene "scenes/npc/vortigaunt/bodyyours.vcd"
+ scene "scenes/npc/vortigaunt/allwehave.vcd"
+ scene "scenes/npc/vortigaunt/weareyours.vcd"
+ scene "scenes/npc/vortigaunt/dedicate.vcd"
+ scene "scenes/npc/vortigaunt/mutual.vcd"
+ scene "scenes/npc/vortigaunt/leadus.vcd"
+ scene "scenes/npc/vortigaunt/onward.vcd"
+ scene "scenes/npc/vortigaunt/forward.vcd"
+ scene "scenes/npc/vortigaunt/propitious.vcd"
+ scene "scenes/npc/vortigaunt/leadon.vcd"
+ scene "scenes/npc/vortigaunt/fmhonorsus.vcd"
+ scene "scenes/npc/vortigaunt/fmdoesushonor.vcd"
+ scene "scenes/npc/vortigaunt/yesforward.vcd"
+ scene "scenes/npc/vortigaunt/wewillhelp.vcd"
+ scene "scenes/npc/vortigaunt/assent.vcd"
+}
+
+
+rule VortigauntTlkStartFollow
+{
+	criteria		IsVortigaunt ConceptTalkStartFollow
+	response		VortigauntOk
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntWait" 
+{
+ scene "scenes/npc/vortigaunt/canconvince.vcd"
+ scene "scenes/npc/vortigaunt/fmknowsbest.vcd"
+ scene "scenes/npc/vortigaunt/willremain.vcd"
+ scene "scenes/npc/vortigaunt/fearfailed.vcd"
+ scene "scenes/npc/vortigaunt/servebetterhere.vcd"
+ scene "scenes/npc/vortigaunt/certainly.vcd"
+ scene "scenes/npc/vortigaunt/herewestay.vcd"
+ scene "scenes/npc/vortigaunt/asyouwish.vcd"
+ scene "scenes/npc/vortigaunt/ourplacehere.vcd"
+ scene "scenes/npc/vortigaunt/affirmed.vcd"
+
+}
+
+
+rule VortigauntTlkStopFollow
+{
+	criteria		IsVortigaunt ConceptTalkStopFollow
+	response		VortigauntWait
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntStop" 
+
+{
+//	sentence "VORT_STOP" delay "2,2.5" soundlevel "SNDLVL_NORM"
+}
+
+rule VortigauntTlkStop
+{
+	criteria		IsVortigaunt ConceptTalkStop
+	response		VortigauntStop
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntScared" 
+
+{
+//	sentence "VORT_SCARED" delay "0,0.4"
+}
+
+rule VortigauntTlkNoShoot
+{
+	criteria		IsVortigaunt ConceptTalkNoShoot
+	response		VortigauntScared
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntCureA" 
+
+{
+//	sentence "VORT_CUREA"  defaultdelay speakonce
+}
+
+rule VortigauntPlayerHurt1
+{
+	criteria		IsVortigaunt ConceptTalkPlayerHurt1
+	response		VortigauntCureA
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntCureB" 
+
+{
+//	sentence "VORT_CUREB"  defaultdelay speakonce
+}
+
+rule VortigauntPlayerHurt2
+{
+	criteria		IsVortigaunt ConceptTalkPlayerHurt2
+	response		VortigauntCureB
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntCureC" 
+
+{
+//	sentence "VORT_CUREC"  defaultdelay speakonce
+}
+
+rule VortigauntPlayerHurt3
+{
+	criteria		IsVortigaunt ConceptTalkPlayerHurt3
+	response		VortigauntCureC
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntPQuest" 
+
+{
+//	sentence "VORT_PQUEST" defaultdelay
+}
+
+rule VortigauntPlayerQuestion
+{
+	criteria		IsVortigaunt ConceptTalkPQuestion
+	response		VortigauntPQuest
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntSmell" 
+
+{
+//	sentence "VORT_SMELL" defaultdelay respeakdelay "60"
+}
+
+rule VortigauntTlkSmell
+{
+	criteria		IsVortigaunt ConceptTalkSmell
+	response		VortigauntSmell
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntWound" 
+
+{
+//	sentence "VORT_WOUND" speakonce defaultdelay
+}
+
+rule VortigauntTlkWound
+{
+	criteria		IsVortigaunt ConceptTalkWound
+	response		VortigauntWound
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntMortal" 
+
+{
+//	sentence "VORT_MORTAL"  speakonce defaultdelay
+}
+
+
+rule VortigauntTlkMortal
+{
+	criteria		IsVortigaunt ConceptTalkMortal
+	response		VortigauntMortal
+}
+
+//============================================================================================================
+// Vortigaunt Leader speech (a vortigaunt that's leading the player somewhere)
+//============================================================================================================
+
+response "VortigauntLeadStart"
+{
+	scene "scenes/npc/vortigaunt/fmmustfollow.vcd"
+}
+
+rule VortigauntLeadStart
+{
+	criteria		IsVortigaunt ConceptLeadStart
+	response		VortigauntLeadStart
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntLeadCatchup"
+{
+	scene "scenes/npc/vortigaunt/yesforward.vcd"
+	scene "scenes/npc/vortigaunt/followfm.vcd"
+}
+
+rule VortigauntLeadCatchup
+{
+	criteria		IsVortigaunt ConceptLeadCatchup
+	response		VortigauntLeadCatchup
+}
+
+
+
+//============================================================================================================
+// Vortigaunt coast specific speech
+//============================================================================================================
+response "VortigauntExtractBugbait"
+{
+	scene "scenes/coast/bugbait/vort_extract01.vcd" defaultdelay
+}
+
+rule VortigauntTlkExtractBugbait
+{
+	criteria		IsVortigaunt VortigauntExtractBugbait
+	response		VortigauntExtractBugbait
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntExtractBugbaitFinish"
+{
+	scene "scenes/coast/bugbait/vort_podsforyou01.vcd" defaultdelay
+}
+
+rule VortigauntTlkExtractBugbaitFinish
+{
+	criteria		IsVortigaunt VortigauntExtractBugbaitFinish
+	response		VortigauntExtractBugbaitFinish
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "VortigauntGetBugbait"
+{
+	scene "scenes/coast/bugbait/vort_podnag.vcd" defaultdelay
+}
+
+rule VortigauntTlkLeadGetBugbait
+{
+	criteria		IsVortigaunt ConceptLeadMissingWeapon
+	response		VortigauntGetBugbait
+}
+

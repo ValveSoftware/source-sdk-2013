@@ -1,0 +1,845 @@
+// "act busy name"			This is the name that a mapmaker must specify in the hint node.
+// { 
+//		"busy_anim" 		"Activity Name".
+//		"entry_anim"		"Activity Name"
+//		"exit_anim"			"Activity Name"
+//		"busy_sequence"		"Sequence Name". If specified, this is used over the activity name. Specify it in the hint node.
+//		"entry_sequence" 	"Sequence Name". If specified, this is used over the entry anim.
+//		"exit_sequence" 	"Sequence Name". If specified, this is used over the exit anim.
+//		"min_time"			"Minimum time to spend in this busy anim"
+//		"max_time"			"Maximum time to spend in this busy anim"	0 = only stop when interrupted by external event
+//		"interrupts"		One of:
+//							"BA_INT_NONE"		break out only when time runs out. No external influence will break me out.
+//							"BA_INT_DANGER"		break out of this anim only if threatened
+//							"BA_INT_PLAYER"		break out of this anim if I can see the player, or I'm threatened
+//							"BA_INT_AMBUSH"		someone please define this - I have no idea what it does
+//							"BA_INT_COMBAT"		break out of this anim if combat occurs in my line of sight (bullet hits, grenades, etc), -OR- the max time is reached
+//
+//		"use_automovement"	Set to 1, the NPC navigation system will be used as the actor animates, preventing them moving into solids. Should be used in 
+//					all cases except those where the actor will be interpenetrating another object (such as sitting on a chair).
+// }
+//
+// 
+"ActBusy.txt"
+{
+	"binoculars_idle"
+	{
+		"busy_sequence" 	"binoculars_idle"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_PLAYER"
+	}
+	"d2_coast03_PreBattle_Scan_Skies"
+	{
+		"busy_sequence" 	"d2_coast03_PreBattle_Scan_Skies"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d2_coast03_PreBattle_Scan_Skies02"
+	{
+		"busy_sequence" 	"d2_coast03_PreBattle_Scan_Skies02"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d2_coast03_PreBattle_Scan_Skies03"
+	{
+		"busy_sequence" 	"d2_coast03_PreBattle_Scan_Skies03"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d2_coast03_PreBattle_Kneel_Idle"
+	{
+		"busy_sequence" 	"d2_coast03_PreBattle_Kneel_Idle"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d2_coast03_PreBattle_Stand_Look"
+	{
+		"busy_sequence" 	"d2_coast03_PreBattle_Stand_Look"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"idle_alert_01"
+	{
+		"busy_sequence" 	"idle_alert_01"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"idle_alert_02"
+	{
+		"busy_sequence" 	"idle_alert_02"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"idle_relaxed_01"
+	{
+		"busy_sequence" 	"idle_relaxed_01"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"idle_relaxed_02"
+	{
+		"busy_sequence" 	"idle_relaxed_02"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_town05_Leon_Lean_Table_Idle"
+	{
+		"busy_sequence" 	"d1_town05_Leon_Lean_Table_Idle"
+		"entry_sequence"	"d1_town05_Leon_Lean_Table_Entry"
+		"exit_sequence"	"d1_town05_Leon_Lean_Table_Exit"		
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+
+	"d1_t03_Sit_couch"
+	{
+		"busy_sequence" 	"d1_t03_Sit_couch"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t03_sit_couch_consoling"
+	{
+		"busy_sequence" 	"d1_t03_sit_couch_consoling"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"fear_reaction_Idle"
+	{
+		"busy_sequence" 	"fear_reaction_Idle"
+		"entry_sequence"	"fear_reaction"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"cower_Idle"
+	{
+		"busy_sequence" 	"cower_Idle"
+		"entry_sequence"	"cower"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t03_Sit_Bed"
+	{
+		"busy_sequence" 	"d1_t03_Sit_Bed"
+		"entry_sequence"	"d1_t03_Sit_Bed_Entry"
+		"exit_sequence"		"d1_t03_Sit_Bed_Exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"LineIdle01"
+	{
+		"busy_sequence" 	"LineIdle01"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t01_BreakRoom_WatchBreen"
+	{
+		"busy_sequence" 	"d1_t01_BreakRoom_WatchBreen"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t02_Plaza_Sit01_Idle"
+	{
+		"busy_sequence" 	"d1_t02_Plaza_Sit01_Idle"
+		"entry_sequence"	"Idle_to_d1_t01_BreakRoom_Sit01"
+		"exit_sequence"		"d1_t01_BreakRoom_Sit01_to_Idle"
+		"min_time"		"20.0"
+		"max_time"		"30.0"
+		"interrupts"	"BA_INT_DANGER"
+	}
+	"d1_t02_Plaza_Sit02"
+	{
+		"busy_sequence" 	"d1_t02_Plaza_Sit02"
+		"entry_sequence"	"d1_t01_BreakRoom_Sit02_Entry"
+		"exit_sequence"		"d1_t01_BreakRoom_Sit02_Exit"
+		"min_time"		"20.0"
+		"max_time"		"30.0"
+		"interrupts"	"BA_INT_DANGER"
+	}
+	"d1_t02_Playground_Cit2_Pockets"
+	{
+		"busy_sequence" 	"d1_t02_Playground_Cit2_Pockets"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t02_Playground_Cit1_Arms_Crossed"
+	{
+		"busy_sequence" 	"d1_t02_Playground_Cit1_Arms_Crossed"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t03_LookOutDoor"
+	{
+		"busy_sequence" 	"d1_t03_LookOutDoor"
+		"entry_sequence"	"d1_t03_LookOutDoor_Entry"
+		"exit_sequence"		"d1_t03_LookOutDoor_Exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t03_LookOutWindow"
+	{
+		"busy_sequence" 	"d1_t03_LookOutWindow"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t03_Tenements_Look_Out_Window_Idle"
+	{
+		"busy_sequence" 	"d1_t03_Tenements_Look_Out_Window_Idle"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t03_PreRaid_Peek_Idle"
+	{
+		"busy_sequence" 	"d1_t03_PreRaid_Peek_Idle"
+		"exit_sequence"	"d1_t03_Preraid_Peek_Exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t01_Clutch_Chainlink_Idle"
+	{
+		"busy_sequence" 	"d1_t01_Clutch_Chainlink_Idle"
+		"entry_sequence"	"d1_t01_Clutch_Chainlink_Entry"  
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t01_BreakRoom_Sit01_Idle"
+	{
+		"busy_sequence" 	"d1_t01_BreakRoom_Sit01_Idle"
+		"entry_sequence"	"Idle_to_d1_t01_BreakRoom_Sit01"
+		"exit_sequence"		"d1_t01_BreakRoom_Sit01_to_Idle"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t01_BreakRoom_Sit02"
+	{
+		"busy_sequence" 	"d1_t01_BreakRoom_Sit02"
+		"entry_sequence"	"d1_t01_BreakRoom_Sit02_Entry"
+		"exit_sequence"		"d1_t01_BreakRoom_Sit02_Exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_None"
+	}
+	"d1_t01_BreakRoom_WatchClock_Sit"
+	{
+		"busy_sequence" 	"d1_t01_BreakRoom_WatchClock_Sit"
+		"entry_sequence"	"d1_t01_BreakRoom_WatchClock_Sit_Entry"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"d1_t01_BreakRoom_WatchClock_Sit_MX"
+	{
+		"busy_sequence" 	"d1_t01_BreakRoom_WatchClock_Sit_MX"
+		"entry_sequence"	"d1_t01_BreakRoom_WatchClock_Sit_Entry_MX"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"ACT_BUSY_LEAN_LEFT"
+	{
+		"busy_anim" 	"ACT_BUSY_LEAN_LEFT"
+		"entry_anim"	"ACT_BUSY_LEAN_LEFT_ENTRY"
+		"exit_anim"		"ACT_BUSY_LEAN_LEFT_EXIT"
+		"min_time"		"10.0"
+		"max_time"		"20.0"
+		"interrupts"	"BA_INT_PLAYER"
+	}
+	"Lean_Left"
+	{
+		"busy_sequence" 	"Lean_Left"
+		"entry_anim"	"ACT_BUSY_LEAN_LEFT_ENTRY"
+		"exit_sequence"		"photo_react_startle"
+		"min_time"		"0"
+		"max_time"		"0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"ACT_BUSY_LEAN_BACK"
+	{
+		"busy_anim" 	"ACT_BUSY_LEAN_BACK"
+		"entry_anim"	"ACT_BUSY_LEAN_BACK_ENTRY"
+		"exit_anim"		"ACT_BUSY_LEAN_BACK_EXIT"
+		"min_time"		"10.0"
+		"max_time"		"20.0"
+		"interrupts"	"BA_INT_PLAYER"
+	}
+	"lean_back"
+	{
+		"busy_sequence" 	"lean_back"
+		"entry_anim"	"ACT_BUSY_LEAN_BACK_ENTRY"
+		"exit_anim"		"ACT_BUSY_LEAN_BACK_EXIT"
+		"min_time"		"0"
+		"max_time"		"0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"ACT_BUSY_SIT_GROUND"
+	{
+		"busy_anim" 	"ACT_BUSY_SIT_GROUND"
+		"entry_anim"	"ACT_BUSY_SIT_GROUND_ENTRY"
+		"exit_anim"		"ACT_BUSY_SIT_GROUND_EXIT"
+		"min_time"		"20.0"
+		"max_time"		"30.0"
+		"interrupts"	"BA_INT_DANGER"
+	}
+	"ACT_BUSY_SIT_CHAIR"
+	{
+		"busy_anim" 	"ACT_BUSY_SIT_CHAIR"
+		"entry_anim"	"ACT_BUSY_SIT_CHAIR_ENTRY"
+		"exit_anim"		"ACT_BUSY_SIT_CHAIR_EXIT"
+		"min_time"		"30.0"
+		"max_time"		"40.0"
+		"interrupts"	"BA_INT_DANGER"
+	}
+	"ACT_BUSY_STAND"
+	{
+		"busy_anim" 	"ACT_BUSY_STAND"
+		"min_time"		"10.0"
+		"max_time"		"20.0"
+		"interrupts"	"BA_INT_DANGER"
+	}
+	"ACT_BUSY_QUEUE"
+	{
+		"busy_anim"	"ACT_BUSY_QUEUE"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"food_queue_front"
+	{
+		"busy_sequence"	"lineIdle01"
+		"exit_sequence" "takepackage"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"sitcouchfeet1"
+	{	"busy_sequence"	"sitcouchfeet1"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"sitcouchknees1"
+	{	"busy_sequence"	"sitcouchknees1"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"sitchairtable1"
+	{	"busy_sequence"	"sitchairtable1"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"sitcouch1"
+	{	"busy_sequence"	"sitcouch1"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"sitccouchtv1"
+	{	"busy_sequence"	"sitccouchtv1"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"laycouch1"
+	{	"busy_sequence"	"laycouch1"
+		"exit_sequence" "laycouch1_exit"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"laycouch1"
+	{	
+		"busy_sequence"	"laycouch1"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"Sit_Chair02"
+	{	
+		"busy_sequence"	"Sit_Chair02"
+		"entry_sequence" 	"Idle_to_Sit_Chair02"
+		"exit_sequence" 	"Sit_Chair02_to_Idle"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"Sit_Chair03"
+	{	
+		"busy_sequence"	"Sit_Chair03"
+		"entry_sequence" 	"Idle_to_Sit_Chair03"
+		"exit_sequence" 	"Sit_Chair03_to_Idle"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"drinker_sit_idle"
+	{	
+		"busy_sequence"	"drinker_sit_idle"
+		"entry_sequence" 	"drinker_sit"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"drinker_sit_idle_ss"
+	{	
+		"busy_sequence"	"drinker_sit_idle_ss"
+		"entry_sequence" 	"drinker_sit_ss"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"railing_idle"
+	{	
+		"busy_sequence"	"railing_idle"
+		//"entry_sequence" 	"railing_enter"
+		"exit_sequence" 	"railing_exit"
+		"min_time"	"0.0"
+		"max_time"	"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"D1_C01a_Mary_kneel"
+	{
+		"busy_sequence" 	"canals_mary_postidle"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"D1_C03_Matt_sitground"
+	{
+		"busy_anim" 		"ACT_BUSY_SIT_GROUND"
+		"entry_anim"		"ACT_BUSY_SIT_GROUND_ENTRY"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"Cover_R"
+	{
+		"busy_sequence"		"Cover_R"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"Cover_L"
+	{
+		"busy_sequence"		"Cover_L"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"Coverlow_R"
+	{
+		"busy_sequence"		"Coverlow_R"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+	"Coverlow_L"
+	{
+		"busy_sequence"		"Coverlow_L"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+
+//*****************************************************************************
+//************  Soldier actbusy section   *************************************
+//*****************************************************************************
+
+	
+
+	"Cover_crouch"
+	{
+		"busy_sequence"		"crouchidle_AB"
+		"exit_sequence"		"crouch_to_combat_stand"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+	
+	"Cover_crouch_B"
+	{
+		"busy_sequence"		"crouchidle_AB"
+		"exit_sequence"		"crouchidle_ABexit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"Signal_group"
+	{
+		"busy_sequence"		"signal_group"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"Idle_Alert"
+	{
+		"busy_sequence"		"CombatIdle1"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}	
+
+	"Signal_Advance"
+	{
+		"busy_sequence"		"CombatIdle1"
+		"exit_sequence"		"signal_advance"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"LeanWall_Right"
+	{
+		"busy_sequence"		"leanwall_right_idle"
+		"exit_sequence"		"leanwall_right_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"LeanWall_Corner_Right"
+	{
+		"busy_sequence"		"leanwall_Corner_right_idle"
+		"exit_sequence"		"leanwall_Corner_right_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"LeanWall_Left"
+	{
+		"busy_sequence"		"leanwall_left_idle"
+		"exit_sequence"		"leanwall_left_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"LeanWall_Left_B"
+	{
+		"busy_sequence"		"leanwall_left_b_idle"
+		"exit_sequence"		"leanwall_left_b_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"LeanWall_CrouchLeft_A"
+	{
+		"busy_sequence"		"leanwall_CrouchLeft_A_idle"
+		"exit_sequence"		"leanwall_CrouchLeft_A_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"LeanWall_CrouchLeft_B"
+	{
+		"busy_sequence"		"leanwall_CrouchLeft_B_idle"
+		"exit_sequence"		"leanwall_CrouchLeft_B_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"LeanWall_CrouchLeft_C"
+	{
+		"busy_sequence"		"leanwall_CrouchLeft_C_idle"
+		"exit_sequence"		"leanwall_CrouchLeft_C_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"LeanWall_CrouchLeft_D"
+	{
+		"busy_sequence"		"leanwall_CrouchLeft_D_idle"
+		"exit_sequence"		"leanwall_CrouchLeft_D_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_AMBUSH"
+	}
+
+	"core_control_console_type"
+	{
+		"busy_sequence"		"console_type_loop"
+		"entry_sequence"	"console_type_entry"
+		"exit_sequence"		"console_type_exit"
+		"min_time"		"0.0"
+		"max_time"		"120.0"
+		"interrupts"	"BA_INT_NONE"
+	}
+
+
+//*****************************************************************************
+//************  Metrocop actbusy section   ************************************
+//*****************************************************************************
+
+	"Crouch_idle_pistol_A"
+	{
+		"busy_sequence"		"Crouch_idle_pistol"
+		"exit_sequence"		"Crouch_to_shootpistol"
+		"min_time"		"1.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_COMBAT"
+	}
+
+	"Crouch_idle_smg1_A"
+	{
+		"busy_sequence"		"Crouch_idle_smg1"
+		"exit_sequence"		"Crouch_to_shootsmg1"
+		"min_time"		"1.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_COMBAT"
+	}
+
+	"Idle_harrassidle_A"
+	{
+		"busy_sequence"		"harrassidle"
+		"min_time"		"1.0"
+		"max_time"		"0.0"
+		"interrupts"	"BA_INT_COMBAT"
+	}
+
+//*****************************************************************************
+//************  Zombie actbusy section  *nuugggh* *****************************
+//*****************************************************************************
+
+	"Zombie_Slump_A"
+	{
+		"busy_sequence"		"slump_a"
+		"exit_sequence"		"slumprise_a"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_ZOMBIESLUMP"
+		"use_automovement"	"1"
+	}
+	
+	"Zombie_Slump_A2"
+	{
+		"busy_sequence"		"slump_a"
+		"exit_sequence"		"slumprise_a2"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_ZOMBIESLUMP"
+		"use_automovement"	"1"
+	}
+
+	"Zombie_Slump_B"
+	{
+		"busy_sequence"		"slump_b"
+		"exit_sequence"		"slumprise_b"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_ZOMBIESLUMP"
+		"use_automovement"	"1"
+	}
+
+	"Fastzombie_Slump_a"
+	{
+		"busy_sequence"  "slump_a"
+		"exit_sequence"  "slumprise_a"
+		"min_time"  "0.0"
+		"max_time"  "0.0"
+		"interrupts"  "BA_INT_ZOMBIESLUMP"
+		"use_automovement" "1"
+	}
+
+	"Fastzombie_Slump_b"
+	{
+		"busy_sequence"		"slump_b"
+		"exit_sequence"		"slumprise_b"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_ZOMBIESLUMP"
+		"use_automovement"	"1"
+	}
+
+	"Zombie_Slump_Unbreakable"
+	{
+		"busy_sequence"		"slump_b"
+		"exit_sequence"		"slumprise_b"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_NONE"
+		"use_automovement"	"1"
+	}
+
+
+
+//*****************************************************************************
+//************  Alyx				  *****************************
+//*****************************************************************************
+
+
+
+	"Alyx_fusebox_hack"
+	{
+		"busy_sequence"		"alyx_actBusyPowerbox"
+		"entry_sequence"	"alyx_startPowerBox"
+		"exit_sequence"		"alyx_exitPowerBox"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_DANGER"
+		"use_automovement"	"1"
+	}
+
+	"Alyx_CrouchHide_01"
+	{
+		"busy_sequence"		"CrouchHide_01"
+		"entry_sequence"	"CrouchHide_01_enter"
+		"exit_sequence"		"CrouchHide_01_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_NONE"
+	}
+
+	"Alyx_HideWall_AB"
+	{
+		"busy_sequence"		"alyx_LeanWall"
+		"entry_sequence"	"alyx_HideWall"
+		//"exit_sequence"	"alyx_hackPowerBox"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_NONE"
+	}
+
+	"Alyx_Injured_WallLean"
+	{
+		"busy_sequence"		"injured_rest1_idle"
+		"entry_sequence"	"injured_rest1_in"
+		"exit_sequence"		"injured_rest1_out"
+		"interrupts"		"BA_INT_DANGER"
+	}
+	"Alyx_Blindfire_Left"
+	{
+		"busy_sequence"		"blindfire_left_action"
+		"entry_sequence"	"blindfire_left_entry"
+		"exit_sequence"		"blindfire_left_exit"
+		"min_time"		"12.0"
+		"max_time"		"12.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+	"Alyx_Blindfire_Left_High"
+	{
+		"busy_sequence"		"blindfire_left_high_action"
+		"entry_sequence"	"blindfire_left_entry"
+		"exit_sequence"		"blindfire_left_exit"
+		"min_time"		"12.0"
+		"max_time"		"12.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+	"Alyx_Blindfire_Left_Low"
+	{
+		"busy_sequence"		"blindfire_left_low_action"
+		"entry_sequence"	"blindfire_left_entry"
+		"exit_sequence"		"blindfire_left_exit"
+		"min_time"		"12.0"
+		"max_time"		"12.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+
+	"Alyx_Blindfire_Low"
+	{
+		"busy_sequence"		"blindfire_low_action"
+		"entry_sequence"	"blindfire_low_entry"
+		"exit_sequence"		"blindfire_low_exit"
+		"min_time"		"10.0"
+		"max_time"		"10.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+	"Alyx_Blindfire_Low_High"
+	{
+		"busy_sequence"		"blindfire_low_high_action"
+		"entry_sequence"	"blindfire_low_entry"
+		"exit_sequence"		"blindfire_low_exit"
+		"min_time"		"10.0"
+		"max_time"		"10.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+
+	"Alyx_WallCover_Right"
+	{
+		"busy_sequence"		"cover_right_action"
+		"entry_sequence"	"cover_right_entry"
+		"exit_sequence"		"cover_right_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+	"Alyx_WallCover_Low"
+	{
+		"busy_sequence"		"CrouchHide_01"
+		"entry_sequence"	"CrouchHide_01_enter"
+		"exit_sequence"		"CrouchHide_01_exit"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+	"Alyx_WallCover_Low_Timed"
+	{
+		"busy_sequence"		"CrouchHide_01"
+		"entry_sequence"	"CrouchHide_01_enter"
+		"exit_sequence"		"CrouchHide_01_exit"
+		"min_time"		"0.0"
+		"max_time"		"6.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+	"Alyx_Guard_Low"
+	{
+		"busy_sequence"		"crouch_aim_pistol"
+		"entry_sequence"	"stand_to_crouchshoot"
+		"exit_sequence"		"crouchshoot_to_stand"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+	"Alyx_Guard_Low_Timed"
+	{
+		"busy_sequence"		"crouch_aim_pistol"
+		"entry_sequence"	"stand_to_crouchshoot"
+		"exit_sequence"		"crouchshoot_to_stand"
+		"min_time"		"6.0"
+		"max_time"		"10.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+	"Alyx_Guard"
+	{
+		"busy_sequence"		"pistol_idle_aim"
+		"entry_sequence"	"pistol_idle_aim"
+		"exit_sequence"		"pistol_idle_aim"
+		"min_time"		"0.0"
+		"max_time"		"0.0"
+		"interrupts"		"BA_INT_SIEGE_DEFENSE"
+	}
+}
+
+

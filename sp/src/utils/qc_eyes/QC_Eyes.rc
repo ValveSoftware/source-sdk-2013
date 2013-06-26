@@ -1,0 +1,276 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\QC_Eyes.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\QC_Eyes.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_QC_EYES_DIALOG DIALOGEX 0, 0, 695, 510
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "QC Eyes"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_REFERENCE_FILENAME,87,24,93,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EXPRESSIONS_FILENAME,87,42,93,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MODEL_FILENAME,87,60,93,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RIGHT_EYE_X,19,140,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RIGHT_EYE_Y,83,140,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RIGHT_EYE_Z,147,140,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LEFT_EYE_X,19,205,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LEFT_EYE_Y,83,205,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LEFT_EYE_Z,147,205,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "3D Platform",IDC_STATIC,219,7,126,47
+    GROUPBOX        "Options",IDC_STATIC,219,58,126,47
+    GROUPBOX        "Upper Lid Positions",IDC_STATIC,219,109,126,60
+    EDITTEXT        IDC_UPPER_LID_RAISED,264,118,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_UPPER_LID_NEUTRAL,264,134,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_UPPER_LID_LOWERED,264,150,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOWER_LID_RAISED,264,184,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOWER_LID_NEUTRAL,264,200,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOWER_LID_LOWERED,264,216,74,14,ES_AUTOHSCROLL
+    GROUPBOX        "Iris Color",IDC_STATIC,351,175,75,60
+    GROUPBOX        "Eye White Color",IDC_STATIC,431,175,126,60
+    EDITTEXT        IDC_IRIS_SIZE,469,21,59,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EYEBALL_SIZE,469,43,59,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Create QC Text",IDC_CREATE_QC_TEXT,7,243,93,19
+    PUSHBUTTON      "Copy Text To Clipboard",IDC_COPY_TEXT_TO_CLIPBOARD,109,
+                    243,93,19
+    EDITTEXT        IDC_OUTPUT_TEXT,7,271,681,232,ES_MULTILINE | 
+                    ES_AUTOHSCROLL
+    CONTROL         "Y Axis Up (XSI, Maya)",IDC_Y_AXIS_UP,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,228,21,92,10
+    CONTROL         "Z Axis Up (MAX)",IDC_Z_AXIS_UP,"Button",
+                    BS_AUTORADIOBUTTON,228,36,94,10
+    CONTROL         "Default Controls",IDC_DEFAULT_CONTROLS,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,228,72,92,10
+    CONTROL         "Advanced Controls",IDC_ADVANCED_CONTROLS,"Button",
+                    BS_AUTORADIOBUTTON,228,88,94,10
+    RADIOBUTTON     "Brown Irises",IDC_IRIS_COLOR_BROWN,360,188,55,10,
+                    WS_GROUP
+    RADIOBUTTON     "Green Irises",IDC_IRIS_COLOR_GREEN,360,203,54,10
+    RADIOBUTTON     "Blue Irises",IDC_IRIS_COLOR_BLUE,360,218,54,10
+    RADIOBUTTON     "Light Whites (paler skin tones)",IDC_EYE_COLOR_LIGHT,
+                    438,193,108,10,WS_GROUP
+    RADIOBUTTON     "Dark Whites (darker skin tones)",IDC_EYE_COLOR_DARK,438,
+                    214,112,10
+    RTEXT           "Reference Filename:",IDC_STATIC,13,27,70,8
+    RTEXT           "Expressions Filename:",IDC_STATIC,13,45,70,8
+    RTEXT           "Model Filename:",IDC_STATIC,13,64,70,8
+    LTEXT           ".SMD",IDC_STATIC,184,29,19,8
+    LTEXT           ".VTA",IDC_STATIC,184,47,17,8
+    LTEXT           ".MDL",IDC_STATIC,184,65,18,8
+    GROUPBOX        "Eye Positions",IDC_STATIC,7,95,200,140
+    GROUPBOX        "Right Eye",IDC_STATIC,14,108,185,56
+    LTEXT           "Y Position",IDC_STATIC,85,126,32,8
+    LTEXT           "X Position",IDC_STATIC,21,126,32,8
+    LTEXT           "Z Position",IDC_STATIC,149,126,32,8
+    GROUPBOX        "Left Eye",IDC_STATIC,14,173,185,56
+    LTEXT           "Y Position",IDC_STATIC,85,191,32,8
+    LTEXT           "X Position",IDC_STATIC,21,191,32,8
+    LTEXT           "Z Position",IDC_STATIC,149,191,32,8
+    GROUPBOX        "Filenames",IDC_STATIC,7,7,200,78
+    CONTROL         "",IDC_PICTURES,"Static",SS_BITMAP,352,7,336,162
+    RTEXT           "Raised:",IDC_STATIC,228,122,32,8
+    RTEXT           "Neutral:",IDC_STATIC,227,137,32,8
+    RTEXT           "Lowered:",IDC_STATIC,227,153,32,8
+    GROUPBOX        "Lowered Lid Positions",IDC_STATIC,219,175,126,60
+    RTEXT           "Raised:",IDC_STATIC,228,188,32,8
+    RTEXT           "Neutral:",IDC_STATIC,227,204,32,8
+    RTEXT           "Lowered:",IDC_STATIC,227,220,32,8
+    GROUPBOX        "Eye Detail Control",IDC_EYE_DETAIL_CONTROL_FRAME,414,7,
+                    140,73
+    RTEXT           "Iris Size:",IDC_IRIS_SIZE_LABEL,417,25,48,8
+    RTEXT           "Eyeball Size:",IDC_EYEBALL_SIZE_LABEL,417,47,48,8
+    CTEXT           "",IDC_PICTURE_LABEL,375,162,285,8
+    CONTROL         "Enable Independent Left Lid Control",
+                    IDC_LEFT_LID_CONTROL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,421,62,128,10
+    GROUPBOX        "Upper Left Lid Positions",IDC_UPPER_LEFT_LID_PANEL,562,
+                    7,126,60
+    EDITTEXT        IDC_UPPER_LEFT_LID_RAISED,607,16,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_UPPER_LEFT_LID_NEUTRAL,607,32,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_UPPER_LEFT_LID_LOWERED,607,48,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOWER_LEFT_LID_RAISED,607,82,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOWER_LEFT_LID_NEUTRAL,607,98,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOWER_LEFT_LID_LOWERED,607,114,74,14,ES_AUTOHSCROLL
+    RTEXT           "Raised:",IDC_UPPER_LEFT_LID_RAISED_LABEL,571,20,32,8
+    RTEXT           "Neutral:",IDC_UPPER_LEFT_LID_NEUTRAL_LABEL,570,35,32,8
+    RTEXT           "Lowered:",IDC_UPPER_LEFT_LID_LOWERED_LABEL,570,51,32,8
+    GROUPBOX        "Lowered Left Lid Positions",IDC_LOWER_LEFT_LID_PANEL,
+                    562,73,126,60
+    RTEXT           "Raised:",IDC_LOWER_LEFT_LID_RAISED_LABEL,571,86,32,8
+    RTEXT           "Neutral:",IDC_LOWER_LEFT_LID_NEUTRAL_LABEL,570,102,32,8
+    RTEXT           "Lowered:",IDC_LOWER_LEFT_LID_LOWERED_LABEL,570,118,32,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "QC_Eyes MFC Application"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "QC_Eyes"
+            VALUE "LegalCopyright", "Copyright (C) 2005"
+            VALUE "OriginalFilename", "QC_Eyes.EXE"
+            VALUE "ProductName", "QC_Eyes Application"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_QC_EYES_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 688
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 503
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_EYE_DEFAULT         BITMAP                  "res\\eye_default.bmp"
+IDB_EYE_LOWER_HI        BITMAP                  "res\\eye_lower_hi.bmp"
+IDB_EYE_LOWER_LO        BITMAP                  "res\\eye_lower_lo.bmp"
+IDB_EYE_LOWER_MID       BITMAP                  "res\\eye_lower_mid.bmp"
+IDB_EYE_UPPER_HI        BITMAP                  "res\\eye_upper_hi.bmp"
+IDB_EYE_UPPER_LO        BITMAP                  "res\\eye_upper_lo.bmp"
+IDB_EYE_UPPER_MID       BITMAP                  "res\\eye_upper_mid.bmp"
+IDB_EYE_XY_L            BITMAP                  "res\\eye_xy_l.bmp"
+IDB_EYE_XY_R            BITMAP                  "res\\eye_xy_r.bmp"
+IDB_EYE_Z_L             BITMAP                  "res\\eye_z_l.bmp"
+IDB_EYE_Z_R             BITMAP                  "res\\eye_z_r.bmp"
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\QC_Eyes.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

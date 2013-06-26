@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client (HL2MP)", "game\client\client_hl2mp-2010.vcxproj", "{17BCE59A-9037-EC8D-433E-F81339E2F1BA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server (HL2MP)", "game\server\server_hl2mp-2010.vcxproj", "{33B7DFDC-BECB-3678-1190-6C951E393EB3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{17BCE59A-9037-EC8D-433E-F81339E2F1BA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{17BCE59A-9037-EC8D-433E-F81339E2F1BA}.Debug|Win32.Build.0 = Debug|Win32
+		{17BCE59A-9037-EC8D-433E-F81339E2F1BA}.Release|Win32.ActiveCfg = Release|Win32
+		{17BCE59A-9037-EC8D-433E-F81339E2F1BA}.Release|Win32.Build.0 = Release|Win32
+		{33B7DFDC-BECB-3678-1190-6C951E393EB3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{33B7DFDC-BECB-3678-1190-6C951E393EB3}.Debug|Win32.Build.0 = Debug|Win32
+		{33B7DFDC-BECB-3678-1190-6C951E393EB3}.Release|Win32.ActiveCfg = Release|Win32
+		{33B7DFDC-BECB-3678-1190-6C951E393EB3}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,484 @@
+//============================================================================================================
+// Commander mode criteria
+//============================================================================================================
+criterion "IsOnlySelected" "numselected" "1" required
+criterion "NotOnlySelected" "numselected" ">1" required
+criterion "Is_03_first" "name" "citizen_c17_03_first" required
+
+criterion "UseRadio" "useradio" "1" required
+
+criterion "SquadNearPlayer"            "distancetoplayer"               "<240"   required
+criterion "SquadNotNearPlayer"         "distancetoplayer"               ">=240"  required
+criterion "SquadNearCommandPoint"      "commandpoint_dist_to_npc"       "<240"   required
+criterion "SquadNotNearCommandPoint"   "commandpoint_dist_to_npc"       ">=240"  required
+criterion "CommandPointNearPlayer"     "commandpoint_dist_to_player"    "<144"   required
+criterion "CommandPointNotNearPlayer"   "commandpoint_dist_to_player"   ">=144"  required
+criterion "JoinSquadIndividual"        "numjoining"                     "1"      required
+criterion "JoinSquadMultiple"          "numjoining"                     ">1"     required
+criterion "TrailingReinforcement"      "reinforcement"                  "1"     required
+
+//============================================================================================================
+// Commander mode selection speech
+//============================================================================================================
+response "CitizenSelected"
+{
+	scene "scenes/npc/$gender01/ok01.vcd"
+	scene "scenes/npc/$gender01/ok02.vcd"
+	scene "scenes/npc/$gender01/okimready01.vcd"
+	scene "scenes/npc/$gender01/okimready02.vcd"
+	scene "scenes/npc/$gender01/okimready03.vcd"
+	scene "scenes/npc/$gender01/readywhenyouare01.vcd"
+	scene "scenes/npc/$gender01/readywhenyouare02.vcd"
+
+}
+
+rule CitizenSelected
+{
+	criteria		IsCitizen ConceptTalkSelected
+	response 		CitizenSelected
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenGroupSelectedRadio"
+{
+}
+
+rule CitizenGroupSelectedRadio
+{
+	criteria		IsCitizen ConceptTalkSelected NotOnlySelected UseRadio
+	response 	CitizenGroupSelectedRadio
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenSoloSelectedRadio"
+{
+}
+
+rule CitizenSoloSelectedRadio
+{
+	criteria		IsCitizen ConceptTalkSelected UseRadio
+	response 	CitizenSoloSelectedRadio
+}
+
+
+//============================================================================================================
+// Commander mode orders speech
+//============================================================================================================
+
+response CitizenSquadNearToFarIndividual
+{
+   scene "scenes/npc/$gender01/squad_affirm01.vcd"
+   scene "scenes/npc/$gender01/squad_affirm02.vcd"
+   scene "scenes/npc/$gender01/squad_affirm03.vcd"
+   scene "scenes/npc/$gender01/squad_affirm04.vcd"
+   scene "scenes/npc/$gender01/squad_affirm05.vcd"
+   scene "scenes/npc/$gender01/squad_affirm06.vcd"
+   scene "scenes/npc/$gender01/squad_affirm07.vcd"
+   scene "scenes/npc/$gender01/squad_affirm08.vcd"
+   scene "scenes/npc/$gender01/squad_affirm09.vcd"
+   // speak "npc_citizen.squad_affirm01"
+   // speak "npc_citizen.squad_affirm02"
+   // speak "npc_citizen.squad_affirm03"
+   // speak "npc_citizen.squad_affirm04"
+   // speak "npc_citizen.squad_affirm05"
+   // speak "npc_citizen.squad_affirm06"
+   // speak "npc_citizen.squad_affirm07"
+   // speak "npc_citizen.squad_affirm08"
+   // speak "npc_citizen.squad_affirm09"
+	scene "scenes/npc/$gender01/letsgo01.vcd"
+	scene "scenes/npc/$gender01/letsgo02.vcd"
+	scene "scenes/npc/$gender01/yougotit02.vcd"
+}
+
+response CitizenSquadNearToFarGroup
+{
+   scene "scenes/npc/$gender01/squad_affirm01.vcd"
+   scene "scenes/npc/$gender01/squad_affirm02.vcd"
+   scene "scenes/npc/$gender01/squad_affirm03.vcd"
+   scene "scenes/npc/$gender01/squad_affirm05.vcd"
+   scene "scenes/npc/$gender01/squad_affirm06.vcd"
+   scene "scenes/npc/$gender01/squad_affirm07.vcd"
+   scene "scenes/npc/$gender01/squad_affirm08.vcd"
+   scene "scenes/npc/$gender01/squad_affirm09.vcd"
+   scene "scenes/npc/$gender01/squad_away01.vcd"
+   scene "scenes/npc/$gender01/squad_away02.vcd"
+   scene "scenes/npc/$gender01/squad_away03.vcd"
+   // speak "npc_citizen.squad_affirm01"
+   // speak "npc_citizen.squad_affirm02"
+   // speak "npc_citizen.squad_affirm03"
+   // speak "npc_citizen.squad_affirm05"
+   // speak "npc_citizen.squad_affirm06"
+   // speak "npc_citizen.squad_affirm07"
+   // speak "npc_citizen.squad_affirm08"
+   // speak "npc_citizen.squad_affirm09"
+   // speak "npc_citizen.squad_away01"
+   // speak "npc_citizen.squad_away02"
+   // speak "npc_citizen.squad_away03"
+	scene "scenes/npc/$gender01/letsgo01.vcd"
+	scene "scenes/npc/$gender01/letsgo02.vcd"
+	scene "scenes/npc/$gender01/yougotit02.vcd"
+}
+
+response CitizenSquadFarToNearIndividual
+{
+   scene "scenes/npc/$gender01/squad_affirm01.vcd"
+   scene "scenes/npc/$gender01/squad_affirm02.vcd"
+   scene "scenes/npc/$gender01/squad_affirm03.vcd"
+   scene "scenes/npc/$gender01/squad_affirm07.vcd"
+   scene "scenes/npc/$gender01/squad_affirm08.vcd"
+   scene "scenes/npc/$gender01/squad_affirm09.vcd"
+   //scene "scenes/npc/$gender01/squad_approach04.vcd"
+   // speak "npc_citizen.squad_affirm01"
+   // speak "npc_citizen.squad_affirm02"
+   // speak "npc_citizen.squad_affirm03"
+   // speak "npc_citizen.squad_affirm07"
+   // speak "npc_citizen.squad_affirm08"
+   // speak "npc_citizen.squad_affirm09"
+   // speak "npc_citizen.squad_approach04"
+	scene "scenes/npc/$gender01/yougotit02.vcd"
+}
+
+response CitizenSquadFarToNearGroup
+{
+   scene "scenes/npc/$gender01/squad_affirm01.vcd"
+   scene "scenes/npc/$gender01/squad_affirm02.vcd"
+   scene "scenes/npc/$gender01/squad_affirm03.vcd"
+   scene "scenes/npc/$gender01/squad_affirm07.vcd"
+   scene "scenes/npc/$gender01/squad_affirm08.vcd"
+   scene "scenes/npc/$gender01/squad_affirm09.vcd"
+   scene "scenes/npc/$gender01/squad_approach01.vcd"
+   scene "scenes/npc/$gender01/squad_approach02.vcd"
+   scene "scenes/npc/$gender01/squad_approach03.vcd"
+   scene "scenes/npc/$gender01/squad_approach04.vcd"
+   // speak "npc_citizen.squad_affirm01"
+   // speak "npc_citizen.squad_affirm02"
+   // speak "npc_citizen.squad_affirm03"
+   // speak "npc_citizen.squad_affirm07"
+   // speak "npc_citizen.squad_affirm08"
+   // speak "npc_citizen.squad_affirm09"
+   // speak "npc_citizen.squad_approach01"
+   // speak "npc_citizen.squad_approach02"
+   // speak "npc_citizen.squad_approach03"
+   // speak "npc_citizen.squad_approach04"
+	scene "scenes/npc/$gender01/letsgo01.vcd"
+	scene "scenes/npc/$gender01/letsgo02.vcd"
+	scene "scenes/npc/$gender01/yougotit02.vcd"
+}
+
+response CitizenSquadNearToNear
+{
+   scene "scenes/npc/$gender01/squad_affirm01.vcd"
+   scene "scenes/npc/$gender01/squad_affirm02.vcd"
+   scene "scenes/npc/$gender01/squad_affirm03.vcd"
+   scene "scenes/npc/$gender01/squad_affirm07.vcd"
+   scene "scenes/npc/$gender01/squad_affirm08.vcd"
+   scene "scenes/npc/$gender01/squad_affirm09.vcd"
+   // speak "npc_citizen.squad_affirm01"
+   // speak "npc_citizen.squad_affirm02"
+   // speak "npc_citizen.squad_affirm03"
+   // speak "npc_citizen.squad_affirm07"
+   // speak "npc_citizen.squad_affirm08"
+   // speak "npc_citizen.squad_affirm09"
+	scene "scenes/npc/$gender01/illstayhere01.vcd"
+	scene "scenes/npc/$gender01/holddownspot01.vcd"
+	scene "scenes/npc/$gender01/holddownspot02.vcd"
+	scene "scenes/npc/$gender01/imstickinghere01.vcd"
+	scene "scenes/npc/$gender01/littlecorner01.vcd"
+	scene "scenes/npc/$gender01/yougotit02.vcd"
+}
+
+response CitizenSquadFarToFarIndividual
+{
+   scene "scenes/npc/$gender01/squad_affirm01.vcd"
+   scene "scenes/npc/$gender01/squad_affirm02.vcd"
+   scene "scenes/npc/$gender01/squad_affirm03.vcd"
+   scene "scenes/npc/$gender01/squad_affirm04.vcd"
+   scene "scenes/npc/$gender01/squad_affirm07.vcd"
+   scene "scenes/npc/$gender01/squad_affirm08.vcd"
+   scene "scenes/npc/$gender01/squad_affirm09.vcd"
+   // speak "npc_citizen.squad_affirm01"
+   // speak "npc_citizen.squad_affirm02"
+   // speak "npc_citizen.squad_affirm03"
+   // speak "npc_citizen.squad_affirm04"
+   // speak "npc_citizen.squad_affirm07"
+   // speak "npc_citizen.squad_affirm08"
+   // speak "npc_citizen.squad_affirm09"
+	scene "scenes/npc/$gender01/yougotit02.vcd"
+}
+
+response CitizenSquadFarToFarGroup
+{
+   scene "scenes/npc/$gender01/squad_affirm01.vcd"
+   scene "scenes/npc/$gender01/squad_affirm02.vcd"
+   scene "scenes/npc/$gender01/squad_affirm03.vcd"
+   scene "scenes/npc/$gender01/squad_affirm07.vcd"
+   scene "scenes/npc/$gender01/squad_affirm08.vcd"
+   scene "scenes/npc/$gender01/squad_affirm09.vcd"
+   scene "scenes/npc/$gender01/squad_away01.vcd"
+   scene "scenes/npc/$gender01/squad_away02.vcd"
+   scene "scenes/npc/$gender01/squad_away03.vcd"
+   // speak "npc_citizen.squad_affirm01"
+   // speak "npc_citizen.squad_affirm02"
+   // speak "npc_citizen.squad_affirm03"
+   // speak "npc_citizen.squad_affirm07"
+   // speak "npc_citizen.squad_affirm08"
+   // speak "npc_citizen.squad_affirm09"
+   // speak "npc_citizen.squad_away01"
+   // speak "npc_citizen.squad_away02"
+   // speak "npc_citizen.squad_away03"
+	scene "scenes/npc/$gender01/letsgo01.vcd"
+	scene "scenes/npc/$gender01/letsgo02.vcd"
+	scene "scenes/npc/$gender01/yougotit02.vcd"
+}
+
+response CitizenSquadGeneral
+{
+   scene "scenes/npc/$gender01/squad_affirm01.vcd"
+   scene "scenes/npc/$gender01/squad_affirm02.vcd"
+   scene "scenes/npc/$gender01/squad_affirm03.vcd"
+   scene "scenes/npc/$gender01/squad_affirm05.vcd"
+   scene "scenes/npc/$gender01/squad_affirm06.vcd"
+   scene "scenes/npc/$gender01/squad_affirm07.vcd"
+   scene "scenes/npc/$gender01/squad_affirm08.vcd"
+   scene "scenes/npc/$gender01/squad_affirm09.vcd"
+   // speak "npc_citizen.squad_affirm01"
+   // speak "npc_citizen.squad_affirm02"
+   // speak "npc_citizen.squad_affirm03"
+   // speak "npc_citizen.squad_affirm05"
+   // speak "npc_citizen.squad_affirm06"
+   // speak "npc_citizen.squad_affirm07"
+   // speak "npc_citizen.squad_affirm08"
+   // speak "npc_citizen.squad_affirm09"
+	scene "scenes/npc/$gender01/yougotit02.vcd"
+}
+
+rule CitizenCommanded
+{
+	criteria		IsCitizen ConceptTalkCommanded
+	response		CitizenSquadGeneral
+}
+
+rule CitizenCommandedNearToFarIndividual
+{
+	criteria		IsCitizen ConceptTalkCommanded IsOnlySelected SquadNearPlayer CommandPointNotNearPlayer
+	response		CitizenSquadNearToFarIndividual
+}
+
+rule CitizenCommandedNearToFarGroup
+{
+	criteria		IsCitizen ConceptTalkCommanded NotOnlySelected SquadNearPlayer CommandPointNotNearPlayer
+	response		CitizenSquadNearToFarGroup
+}
+
+rule CitizenCommandedFarToNearIndividual
+{
+	criteria		IsCitizen ConceptTalkCommanded IsOnlySelected SquadNotNearPlayer CommandPointNearPlayer
+	response		CitizenSquadFarToNearIndividual
+}
+
+rule CitizenCommandedFarToNearGroup
+{
+	criteria		IsCitizen ConceptTalkCommanded NotOnlySelected SquadNotNearPlayer CommandPointNearPlayer
+	response		CitizenSquadFarToNearGroup
+}
+
+rule CitizenCommandedNearToNearIndividual
+{
+	criteria		IsCitizen ConceptTalkCommanded SquadNearPlayer CommandPointNearPlayer
+	response		CitizenSquadNearToNear
+}
+
+rule CitizenCommandedFarToFarIndividual
+{
+	criteria		IsCitizen ConceptTalkCommanded IsOnlySelected SquadNotNearPlayer CommandPointNotNearPlayer
+	response		CitizenSquadFarToFarIndividual
+}
+
+rule CitizenCommandedFarToFarGroup
+{
+	criteria		IsCitizen ConceptTalkCommanded NotOnlySelected SquadNotNearPlayer CommandPointNotNearPlayer
+	response		CitizenSquadFarToFarGroup
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenCommandedRadio"
+{
+
+}
+
+rule CitizenCommandedRadio
+{
+	criteria		IsCitizen ConceptTalkCommanded UseRadio
+	response		CitizenCommandedRadio
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenCommandFailedRadio"
+{
+
+}
+
+rule CitizenCommandFailedRadio
+{
+	criteria 		IsCitizen ConceptTalkCommandFailed UseRadio
+	response		CitizenCommandFailedRadio
+}
+
+//============================================================================================================
+// Commander mode follow speech
+//============================================================================================================
+response CitizenFollowGeneral
+{
+	scene "scenes/npc/$gender01/leadtheway01.vcd"
+	scene "scenes/npc/$gender01/leadtheway02.vcd"
+	scene "scenes/npc/$gender01/leadon01.vcd"
+	scene "scenes/npc/$gender01/leadon02.vcd"
+}
+
+response CitizenFollowGroup
+{
+	scene "scenes/npc/$gender01/squad_follow01.vcd"
+	scene "scenes/npc/$gender01/squad_follow02.vcd"
+	scene "scenes/npc/$gender01/squad_follow03.vcd"
+	scene "scenes/npc/$gender01/squad_follow04.vcd"
+	response CitizenFollowGeneral weight 2
+}
+
+rule CitizenFollow
+{
+	criteria		IsCitizen ConceptTalkStartFollow
+	response		CitizenFollowGeneral
+}
+
+rule CitizenFollowGroup
+{
+	criteria		IsCitizen ConceptTalkStartFollow NotOnlySelected
+	response		CitizenFollowGroup
+}
+
+//============================================================================================================
+// Commander mode join speech
+//============================================================================================================
+
+
+// I'm not sure all these lines will play well when not coming up from behind, so I've made a distinction between trailing & non-trailing
+response CitizenJoinIndividual
+{
+	scene "scenes/npc/$gender01/squad_reinforce_single01.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_single02.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_single03.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_single04.vcd"
+}
+
+response CitizenJoinGroup
+{
+	scene "scenes/npc/$gender01/squad_reinforce_group01.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_group02.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_group03.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_group04.vcd"
+}
+
+response CitizenJoinIndividualTrailing
+{
+	scene "scenes/npc/$gender01/squad_reinforce_single01.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_single02.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_single03.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_single04.vcd"
+}
+
+response CitizenJoinGroupTrailing
+{
+	scene "scenes/npc/$gender01/squad_reinforce_group01.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_group02.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_group03.vcd"
+	scene "scenes/npc/$gender01/squad_reinforce_group04.vcd"
+}
+
+rule CitizenJoinIndividual
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadIndividual
+	response		CitizenJoinIndividual
+}
+
+rule CitizenJoinGroup
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadMultiple
+	response		CitizenJoinGroup
+}
+
+rule CitizenJoinIndividualTrailing
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadIndividual TrailingReinforcement
+	response		CitizenJoinIndividualTrailing
+}
+
+rule CitizenJoinGroupTrailing
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadMultiple TrailingReinforcement
+	response		CitizenJoinGroupTrailing
+}
+
+response CitizenJoin_d3_c17_07
+{
+   scene "scenes/Streetwar/tunnel/$gender01/d3_c17_07_tenant.vcd"
+}
+
+rule CitizenJoin_d3_c17_07
+{
+	criteria		IsCitizen ConceptJoinPlayer 
+	"map" "d3_c17_07" required weight 1000
+	response		CitizenJoin_d3_c17_07
+	matchonce
+}
+
+
+//============================================================================================================
+// Commander mode follow speech SPECIAL CASE: first citizen in d3_17_03
+//============================================================================================================
+response "CitizenFollow_First"
+{
+	scene "scenes/npc/$gender01/abouttime01.vcd"
+
+}
+
+rule CitizenFollow_First
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadIndividual Is_03_first
+	response		CitizenFollow_First
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenUnFollow"
+{
+
+	scene "scenes/npc/$gender01/illstayhere01.vcd"
+	scene "scenes/npc/$gender01/holddownspot01.vcd"
+	scene "scenes/npc/$gender01/holddownspot02.vcd"
+	scene "scenes/npc/$gender01/imstickinghere01.vcd"
+	scene "scenes/npc/$gender01/littlecorner01.vcd"
+
+}
+
+rule CitizenUnFollow
+{
+	criteria		IsCitizen ConceptTalkStopFollow
+	response		CitizenUnFollow
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+// For ep1_c17_05
+//------------------------------------------------------------------------------------------------------------
+response "CitizenDenyCommand"
+{
+
+	scene "scenes/npc/$gender01/illstayhere01.vcd"
+	scene "scenes/npc/$gender01/imstickinghere01.vcd"
+}
+
+rule CitizenDenyCommand
+{
+	criteria		IsCitizen ConceptTalkDenyCommand
+	response		CitizenDenyCommand
+}
+

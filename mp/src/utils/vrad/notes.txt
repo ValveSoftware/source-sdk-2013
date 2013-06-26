@@ -1,0 +1,22 @@
+//=============================================================================
+// CHARLIE:
+
+DONE: just rename files from .c to .cpp in source safe so history is kept
+converting files of to .cpp files -- just get stuff recompiling first
+make sure all common files and external dependencies handle .cpp files
+add the dispmap class
+add the dispface class
+get rid of patches.c or patches.cpp as the case may be
+
+DONE: create a parallel array for visited displacement faces
+change the visited array to a flag in the "bsp" ddispface_t structure
+DONE: add reset visited displacement face functionality
+DONE: visited neighbor flags
+DONE: reset visited neighbor flags
+DONE: move the radial_t structure and some of its functionality to a more global scope
+DONE: create a finallightdispface
+DONE: generate luxels for displacement face
+DONE: fix precomplightmapoffsets to take displacement faces into account
+fill in luxel data from sample data
+modify the GetPhongNormal and GatherSampleLight functions to use displacement face normals at "spot"
+make a lightinfo list? -- so we don't regenerate initlightinfo so many times?

@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client (Episodic)", "game\client\client_episodic-2010.vcxproj", "{353A799F-E73F-7A69-07AD-B2AD57F3B775}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server (Episodic)", "game\server\server_episodic-2010.vcxproj", "{7855B476-B6D4-535D-F7A9-D623245F8B07}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{353A799F-E73F-7A69-07AD-B2AD57F3B775}.Debug|Win32.ActiveCfg = Debug|Win32
+		{353A799F-E73F-7A69-07AD-B2AD57F3B775}.Debug|Win32.Build.0 = Debug|Win32
+		{353A799F-E73F-7A69-07AD-B2AD57F3B775}.Release|Win32.ActiveCfg = Release|Win32
+		{353A799F-E73F-7A69-07AD-B2AD57F3B775}.Release|Win32.Build.0 = Release|Win32
+		{7855B476-B6D4-535D-F7A9-D623245F8B07}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7855B476-B6D4-535D-F7A9-D623245F8B07}.Debug|Win32.Build.0 = Debug|Win32
+		{7855B476-B6D4-535D-F7A9-D623245F8B07}.Release|Win32.ActiveCfg = Release|Win32
+		{7855B476-B6D4-535D-F7A9-D623245F8B07}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
