@@ -2172,9 +2172,9 @@ bool AlmostEqual(float a, float b, int maxUlps = 10);
 
 inline bool AlmostEqual( const Vector &a, const Vector &b, int maxUlps = 10)
 {
-	return AlmostEqual( a.x, a.x, maxUlps ) &&
-		AlmostEqual( a.y, a.y, maxUlps ) &&
-		AlmostEqual( a.z, a.z, maxUlps );
+	return AlmostEqual( a.x, b.x, maxUlps ) &&
+		AlmostEqual( a.y, b.y, maxUlps ) &&
+		AlmostEqual( a.z, b.z, maxUlps );
 }
 
 
