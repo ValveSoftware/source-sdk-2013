@@ -869,10 +869,10 @@ FORCEINLINE  ShortVector& ShortVector::operator-=(const ShortVector& v)
 
 FORCEINLINE  ShortVector& ShortVector::operator*=(float fl)	
 {
-	x *= fl;
-	y *= fl;
-	z *= fl;
-	w *= fl;
+	x *= static_cast<short>(fl);
+	y *= static_cast<short>(fl);
+	z *= static_cast<short>(fl);
+	w *= static_cast<short>(fl);
 	return *this;
 }
 
@@ -889,10 +889,10 @@ FORCEINLINE  ShortVector& ShortVector::operator/=(float fl)
 {
 	Assert( fl != 0.0f );
 	float oofl = 1.0f / fl;
-	x *= oofl;
-	y *= oofl;
-	z *= oofl;
-	w *= oofl;
+	x *= static_cast<short>(oofl);
+	y *= static_cast<short>(oofl);
+	z *= static_cast<short>(oofl);
+	w *= static_cast<short>(oofl);
 	return *this;
 }
 
@@ -909,10 +909,10 @@ FORCEINLINE  ShortVector& ShortVector::operator/=(const ShortVector& v)
 FORCEINLINE void ShortVectorMultiply( const ShortVector& src, float fl, ShortVector& res )
 {
 	Assert( IsFinite(fl) );
-	res.x = src.x * fl;
-	res.y = src.y * fl;
-	res.z = src.z * fl;
-	res.w = src.w * fl;
+	res.x = src.x * static_cast<short>(fl);
+	res.y = src.y * static_cast<short>(fl);
+	res.z = src.z * static_cast<short>(fl);
+	res.w = src.w * static_cast<short>(fl);
 }
 
 FORCEINLINE ShortVector ShortVector::operator*(float fl) const
@@ -1019,10 +1019,10 @@ FORCEINLINE  IntVector4D& IntVector4D::operator-=(const IntVector4D& v)
 
 FORCEINLINE  IntVector4D& IntVector4D::operator*=(float fl)	
 {
-	x *= fl;
-	y *= fl;
-	z *= fl;
-	w *= fl;
+	x *= static_cast<int>(fl);
+	y *= static_cast<int>(fl);
+	z *= static_cast<int>(fl);
+	w *= static_cast<int>(fl);
 	return *this;
 }
 
@@ -1039,10 +1039,10 @@ FORCEINLINE  IntVector4D& IntVector4D::operator/=(float fl)
 {
 	Assert( fl != 0.0f );
 	float oofl = 1.0f / fl;
-	x *= oofl;
-	y *= oofl;
-	z *= oofl;
-	w *= oofl;
+	x *= static_cast<int>(oofl);
+	y *= static_cast<int>(oofl);
+	z *= static_cast<int>(oofl);
+	w *= static_cast<int>(oofl);
 	return *this;
 }
 
@@ -1059,10 +1059,10 @@ FORCEINLINE  IntVector4D& IntVector4D::operator/=(const IntVector4D& v)
 FORCEINLINE void IntVector4DMultiply( const IntVector4D& src, float fl, IntVector4D& res )
 {
 	Assert( IsFinite(fl) );
-	res.x = src.x * fl;
-	res.y = src.y * fl;
-	res.z = src.z * fl;
-	res.w = src.w * fl;
+	res.x = src.x * static_cast<int>(fl);
+	res.y = src.y * static_cast<int>(fl);
+	res.z = src.z * static_cast<int>(fl);
+	res.w = src.w * static_cast<int>(fl);
 }
 
 FORCEINLINE IntVector4D IntVector4D::operator*(float fl) const
@@ -1487,28 +1487,28 @@ inline Vector RandomVector( float minVal, float maxVal )
 // Helper debugging stuff....
 //-----------------------------------------------------------------------------
 
-inline bool operator==( float const* f, const Vector& v )
+inline bool operator==( float const* /*f*/, const Vector& /*v*/ )
 {
 	// AIIIEEEE!!!!
 	Assert(0);
 	return false;
 }
 
-inline bool operator==( const Vector& v, float const* f )
+inline bool operator==( const Vector& /*v*/, float const* /*f*/ )
 {
 	// AIIIEEEE!!!!
 	Assert(0);
 	return false;
 }
 
-inline bool operator!=( float const* f, const Vector& v )
+inline bool operator!=( float const* /*f*/, const Vector& /*v*/ )
 {
 	// AIIIEEEE!!!!
 	Assert(0);
 	return false;
 }
 
-inline bool operator!=( const Vector& v, float const* f )
+inline bool operator!=( const Vector& /*v*/, float const* /*f*/ )
 {
 	// AIIIEEEE!!!!
 	Assert(0);
