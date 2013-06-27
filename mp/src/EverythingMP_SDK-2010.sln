@@ -1,23 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client (HL2)", "game\client\client_hl2-2010.vcxproj", "{09E5D61D-4897-7B98-288B-C87442D14BFF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EC1C516D-E1D9-BC0A-F79D-E91E954ED8EC} = {EC1C516D-E1D9-BC0A-F79D-E91E954ED8EC}
-		{F69B3672-C5E8-CD1A-257F-253A25B5B939} = {F69B3672-C5E8-CD1A-257F-253A25B5B939}
-		{BAB92FF0-D72A-D7E5-1988-74628D39B94F} = {BAB92FF0-D72A-D7E5-1988-74628D39B94F}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client (HL2MP)", "game\client\client_hl2mp-2010.vcxproj", "{17BCE59A-9037-EC8D-433E-F81339E2F1BA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EC1C516D-E1D9-BC0A-F79D-E91E954ED8EC} = {EC1C516D-E1D9-BC0A-F79D-E91E954ED8EC}
 		{F69B3672-C5E8-CD1A-257F-253A25B5B939} = {F69B3672-C5E8-CD1A-257F-253A25B5B939}
-		{BAB92FF0-D72A-D7E5-1988-74628D39B94F} = {BAB92FF0-D72A-D7E5-1988-74628D39B94F}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server (HL2)", "game\server\server_hl2-2010.vcxproj", "{C3EE918E-6836-5578-1FA2-5703048552B9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EC1C516D-E1D9-BC0A-F79D-E91E954ED8EC} = {EC1C516D-E1D9-BC0A-F79D-E91E954ED8EC}
 		{BAB92FF0-D72A-D7E5-1988-74628D39B94F} = {BAB92FF0-D72A-D7E5-1988-74628D39B94F}
 	EndProjectSection
 EndProject
@@ -129,28 +116,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vgui_controls", "vgui2\vgui
 		{BAB92FF0-D72A-D7E5-1988-74628D39B94F} = {BAB92FF0-D72A-D7E5-1988-74628D39B94F}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client (Episodic)", "game\client\client_episodic-2010.vcxproj", "{353A799F-E73F-7A69-07AD-B2AD57F3B775}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server (Episodic)", "game\server\server_episodic-2010.vcxproj", "{7855B476-B6D4-535D-F7A9-D623245F8B07}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{09E5D61D-4897-7B98-288B-C87442D14BFF}.Debug|Win32.ActiveCfg = Debug|Win32
-		{09E5D61D-4897-7B98-288B-C87442D14BFF}.Debug|Win32.Build.0 = Debug|Win32
-		{09E5D61D-4897-7B98-288B-C87442D14BFF}.Release|Win32.ActiveCfg = Release|Win32
-		{09E5D61D-4897-7B98-288B-C87442D14BFF}.Release|Win32.Build.0 = Release|Win32
 		{17BCE59A-9037-EC8D-433E-F81339E2F1BA}.Debug|Win32.ActiveCfg = Debug|Win32
 		{17BCE59A-9037-EC8D-433E-F81339E2F1BA}.Debug|Win32.Build.0 = Debug|Win32
 		{17BCE59A-9037-EC8D-433E-F81339E2F1BA}.Release|Win32.ActiveCfg = Release|Win32
 		{17BCE59A-9037-EC8D-433E-F81339E2F1BA}.Release|Win32.Build.0 = Release|Win32
-		{C3EE918E-6836-5578-1FA2-5703048552B9}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C3EE918E-6836-5578-1FA2-5703048552B9}.Debug|Win32.Build.0 = Debug|Win32
-		{C3EE918E-6836-5578-1FA2-5703048552B9}.Release|Win32.ActiveCfg = Release|Win32
-		{C3EE918E-6836-5578-1FA2-5703048552B9}.Release|Win32.Build.0 = Release|Win32
 		{33B7DFDC-BECB-3678-1190-6C951E393EB3}.Debug|Win32.ActiveCfg = Debug|Win32
 		{33B7DFDC-BECB-3678-1190-6C951E393EB3}.Debug|Win32.Build.0 = Debug|Win32
 		{33B7DFDC-BECB-3678-1190-6C951E393EB3}.Release|Win32.ActiveCfg = Release|Win32
@@ -231,14 +206,6 @@ Global
 		{F69B3672-C5E8-CD1A-257F-253A25B5B939}.Debug|Win32.Build.0 = Debug|Win32
 		{F69B3672-C5E8-CD1A-257F-253A25B5B939}.Release|Win32.ActiveCfg = Release|Win32
 		{F69B3672-C5E8-CD1A-257F-253A25B5B939}.Release|Win32.Build.0 = Release|Win32
-		{353A799F-E73F-7A69-07AD-B2AD57F3B775}.Debug|Win32.ActiveCfg = Debug|Win32
-		{353A799F-E73F-7A69-07AD-B2AD57F3B775}.Debug|Win32.Build.0 = Debug|Win32
-		{353A799F-E73F-7A69-07AD-B2AD57F3B775}.Release|Win32.ActiveCfg = Release|Win32
-		{353A799F-E73F-7A69-07AD-B2AD57F3B775}.Release|Win32.Build.0 = Release|Win32
-		{7855B476-B6D4-535D-F7A9-D623245F8B07}.Debug|Win32.ActiveCfg = Debug|Win32
-		{7855B476-B6D4-535D-F7A9-D623245F8B07}.Debug|Win32.Build.0 = Debug|Win32
-		{7855B476-B6D4-535D-F7A9-D623245F8B07}.Release|Win32.ActiveCfg = Release|Win32
-		{7855B476-B6D4-535D-F7A9-D623245F8B07}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
