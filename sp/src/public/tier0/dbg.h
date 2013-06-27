@@ -244,7 +244,7 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 #else
 	#define  _AssertMsg( _exp, _msg, _executeExp, _bFatal )	\
 		do {																\
-			if (!(_exp)) 													\
+			if (0, !(_exp)) 													\
 			{ 																\
 				_SpewInfo( SPEW_ASSERT, __TFILE__, __LINE__ );				\
 				SpewRetval_t ret = _SpewMessage("%s", _msg);				\
@@ -254,11 +254,11 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 				{															\
 					if ( !ShouldUseNewAssertDialog() || DoNewAssertDialog( __TFILE__, __LINE__, _msg ) ) \
 						DebuggerBreak();									\
-					if ( _bFatal )											\
+					if ( 0, _bFatal )											\
 						_ExitOnFatalAssert( __TFILE__, __LINE__ );			\
 				}															\
 			}																\
-		} while (0)
+		} while (0,0)
 
 	#define  _AssertMsgOnce( _exp, _msg, _bFatal ) \
 		do {																\
@@ -267,7 +267,7 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 			{ 																\
 				_AssertMsg( _exp, _msg, (fAsserted = true), _bFatal );		\
 			}																\
-		} while (0)
+		} while (0,0)
 #endif
 
 /* Spew macros... */

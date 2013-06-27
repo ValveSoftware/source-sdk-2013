@@ -77,7 +77,7 @@ public:
 private:
 	unsigned int mOldValues;
 #else
-	FPExceptionEnabler(unsigned int enableBits = 0)
+	FPExceptionEnabler(unsigned int /*enableBits*/ = 0)
 	{
 	}
 	~FPExceptionEnabler()
@@ -204,8 +204,8 @@ public:
 	{
 		m_Plane[i].normal = vecNormal;
 		m_Plane[i].dist = dist;
-		m_Plane[i].type = nType;
-		m_Plane[i].signbits = SignbitsForPlane( &m_Plane[i] );
+		m_Plane[i].type = static_cast<byte>(nType);
+		m_Plane[i].signbits = static_cast<byte>(SignbitsForPlane( &m_Plane[i] ));
 		m_AbsNormal[i].Init( fabs(vecNormal.x), fabs(vecNormal.y), fabs(vecNormal.z) );
 	}
 
@@ -1717,7 +1717,7 @@ void Parabolic_Spline_NormalizeX(
 FORCEINLINE float QuinticInterpolatingPolynomial(float t)
 {
 	// 6t^5-15t^4+10t^3
-	return t * t * t *( t * ( t* 6.0 - 15.0 ) + 10.0 );
+	return static_cast<float>(t * t * t *( t * ( t* 6.0 - 15.0 ) + 10.0 ));
 }
 
 // given a table of sorted tabulated positions, return the two indices and blendfactor to linear
@@ -2013,13 +2013,13 @@ FORCEINLINE float * UnpackNormal_UBYTE4( const unsigned int *pPackedNormal, floa
 	unsigned char cX, cY;
 	if ( bIsTangent )
 	{
-		cX = *pPackedNormal >> 16;					// Unpack Z
-		cY = *pPackedNormal >> 24;					// Unpack W
+		cX = static_cast<unsigned char>(*pPackedNormal >> 16);					// Unpack Z
+		cY = static_cast<unsigned char>(*pPackedNormal >> 24);					// Unpack W
 	}
 	else
 	{
-		cX = *pPackedNormal >>  0;					// Unpack X
-		cY = *pPackedNormal >>  8;					// Unpack Y
+		cX = static_cast<unsigned char>(*pPackedNormal >>  0);					// Unpack X
+		cY = static_cast<unsigned char>(*pPackedNormal >>  8);					// Unpack Y
 	}
 
 	float x = cX - 128.0f;
@@ -2172,9 +2172,9 @@ bool AlmostEqual(float a, float b, int maxUlps = 10);
 
 inline bool AlmostEqual( const Vector &a, const Vector &b, int maxUlps = 10)
 {
-	return AlmostEqual( a.x, a.x, maxUlps ) &&
-		AlmostEqual( a.y, a.y, maxUlps ) &&
-		AlmostEqual( a.z, a.z, maxUlps );
+	return AlmostEqual( a.x, b.x, maxUlps ) &&
+		AlmostEqual( a.y, b.y, maxUlps ) &&
+		AlmostEqual( a.z, b.z, maxUlps );
 }
 
 
