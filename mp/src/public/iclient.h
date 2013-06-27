@@ -12,7 +12,6 @@
 
 #include <inetmsghandler.h>
 #include "tier0/platform.h"
-#include "userid.h"
 
 class IServer;
 class INetMessage;
