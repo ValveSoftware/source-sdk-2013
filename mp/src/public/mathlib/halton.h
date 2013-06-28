@@ -30,7 +30,7 @@ class HaltonSequenceGenerator_t
 public:
 	HaltonSequenceGenerator_t(int base);					//< base MUST be prime, >=2
 
-	float GetElement(int element);
+	float GetElement(int element) const;
 
 	inline float NextValue(void)
 	{
