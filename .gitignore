@@ -15,7 +15,7 @@ build/
 [Bb]in/
 [Oo]bj/
 *.unsuccessfulbuild
-Debug_mod_*/
+*Debug_mod_*/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
