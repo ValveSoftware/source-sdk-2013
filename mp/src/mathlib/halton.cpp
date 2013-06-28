@@ -14,9 +14,9 @@ HaltonSequenceGenerator_t::HaltonSequenceGenerator_t(int b)
 
 }
 
-float HaltonSequenceGenerator_t::GetElement(int elem)
+float HaltonSequenceGenerator_t::GetElement(int elem) const
 {
-	int tmpseed=seed;
+	int tmpseed=elem;
 	float ret=0.0;
 	float base_inv=1.0/fbase;
 	while(tmpseed)
