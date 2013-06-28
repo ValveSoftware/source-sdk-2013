@@ -453,7 +453,7 @@ void inline SinCos( float radians, float *sine, float *cosine )
 	*sine = sin( radians );
 	*cosine = cos( radians );
 #elif defined( POSIX )
-	double __cosr, __sinr;
+	register double __cosr, __sinr;
 	__asm ("fsincos" : "=t" (__cosr), "=u" (__sinr) : "0" (radians));
 
   	*sine = __sinr;
