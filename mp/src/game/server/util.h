@@ -31,6 +31,7 @@
 #include "util_shared.h"
 #include "shareddefs.h"
 #include "networkvar.h"
+#include "utldict.h"
 
 struct levellist_t;
 class IServerNetworkable;
@@ -92,6 +93,9 @@ T *_CreateEntity( T *newClass, const char *className )
 
 
 // This is the glue that hooks .MAP entity class names to our CPP classes
+class IEntityFactory;
+typedef CUtlDict<IEntityFactory*, unsigned short> EntityFactoryDict_t;
+
 abstract_class IEntityFactoryDictionary
 {
 public:
@@ -100,6 +104,7 @@ public:
 	virtual void Destroy( const char *pClassName, IServerNetworkable *pNetworkable ) = 0;
 	virtual IEntityFactory *FindFactory( const char *pClassName ) = 0;
 	virtual const char *GetCannonicalName( const char *pClassName ) = 0;
+	virtual const EntityFactoryDict_t &GetFactoryDictionary() = 0;
 };
 
 IEntityFactoryDictionary *EntityFactoryDictionary();
