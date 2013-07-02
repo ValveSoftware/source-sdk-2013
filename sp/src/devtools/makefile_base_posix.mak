@@ -167,7 +167,7 @@ ifeq ($(OS),Darwin)
 	CCACHE := $(SRCROOT)/devtools/bin/osx32/ccache
 	DEVELOPER_DIR := $(shell /usr/bin/xcode-select -print-path)
 
-	ifeq (,$(findstring 10.7, $(OSXVER))) 
+	ifeq (,$(findstring 10.8, $(OSXVER))) 
 		BUILDING_ON_LION := 0
 		COMPILER_BIN_DIR := $(DEVELOPER_DIR)/usr/bin
 		SDK_DIR := $(DEVELOPER_DIR)/SDKs
