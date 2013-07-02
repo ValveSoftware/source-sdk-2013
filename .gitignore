@@ -30,3 +30,5 @@ config.cfg
 .DS_Store
 *.P
 *.o
+sp/src/TAGS
+*.mak~
