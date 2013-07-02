@@ -28,3 +28,5 @@ config.cfg
 
 #Mac Spacific files
 .DS_Store
+*.P
+*.o
