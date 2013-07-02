@@ -803,8 +803,7 @@ struct ClassNamePrefix_t
 // Add class name prefixes to show in the "give" command autocomplete here
 static ClassNamePrefix_t s_pEntityPrefixes[] =
 {
-	ClassNamePrefix_t("ammo_", true),
-	ClassNamePrefix_t("item_", true),
+	ClassNamePrefix_t("item_", false),
 	ClassNamePrefix_t("weapon_", false),
 };
 
@@ -912,6 +911,13 @@ CON_COMMAND_F_COMPLETION(give, "Give item to player. Syntax: <item name>", FCVAR
 	if(!CanCreateEntityClass(pszClassName))
 	{
 		ClientPrint(pPlayer, HUD_PRINTCONSOLE, UTIL_VarArgs("give: Unknown entity \"%s\"\n", args.Arg(1)));
+		return;
+	}
+
+	// Dirty hack to avoid suit playing its pickup sound
+	if(FStrEq(pszClassName, "item_suit"))
+	{
+		pPlayer->EquipSuit(false);
 		return;
 	}
 
