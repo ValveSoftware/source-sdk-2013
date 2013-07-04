@@ -1,0 +1,3 @@
+*.exe binary
+protoc binary
+ccache binary
