@@ -1,0 +1,24 @@
+
+$Include "$SRCDIR\vpc_scripts\version.vpc"
+$Include "$SRCDIR\vpc_scripts\source_linux_base_project.vpc"
+
+
+$MacroRequired	 "OUTBINNAME"	"$PROJECTNAME"
+
+
+// General configuration info.
+$Configuration
+{
+	$General
+	{
+		$ConfigurationType				"Dynamic Library (.dll)"
+		$OutputFile						"$(OBJ_DIR)/$OUTBINNAME$_DLL_EXT"
+		$GameOutputFile					"$OUTBINDIR/$OUTBINNAME$_DLL_EXT"
+	}
+
+	$Compiler
+	{
+		$PreprocessorDefinitions	"$BASE;RAD_TELEMETRY_DISABLED" [$SOURCESDK ]
+	}
+}
+

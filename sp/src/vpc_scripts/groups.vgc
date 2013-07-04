@@ -1,0 +1,57 @@
+//-----------------------------------------------------------------------------
+//	GROUPS.VGC
+//
+//	Group Configurations for all Source(TM) Projects
+//-----------------------------------------------------------------------------
+
+///////////////////////
+// Group definitions //
+///////////////////////
+
+$Group "gamedlls"
+{
+	"client"
+	"server"
+}
+
+$Group "game"
+{
+	"client"
+	"mathlib"
+	"server"
+	"tier1"
+	"vgui_controls"
+}
+
+$Group "everything"
+{
+	"captioncompiler"
+	"client"
+	"glview"
+	"height2normal"
+	"mathlib"
+	"motionmapper"
+	"phonemeextractor"
+	"qc_eyes"
+	"server"
+	"serverplugin_empty"
+	"tgadiff"
+	"tier1"
+	"vbsp"
+	"vgui_controls"
+	"vice"
+	"vrad_dll"
+	"vrad_launcher"
+	"vtf2tga"
+	"vtfdiff"
+	"vvis_dll"
+	"vvis_launcher"
+}
+
+$Group "dedicated"
+{
+	"mathlib"
+	"server"
+	"tier1"
+}
+

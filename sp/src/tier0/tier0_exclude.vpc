@@ -1,0 +1,18 @@
+//-----------------------------------------------------------------------------
+//	tier0_s_exclude.vpc
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Project
+{
+	$Folder	"Link Libraries"
+	{
+		-$File "$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXtier0$_IMPLIB_EXT" [!$WINDOWS]
+		-$File "$SRCDIR\lib\public\$_IMPLIB_PREFIXtier0$_IMPLIB_EXT" [$WINDOWS]
+	}
+	$Folder	"Source Files"
+	{
+		-$File	"$SRCDIR\public\tier0\memoverride.cpp"
+	}	
+}

@@ -334,6 +334,9 @@ void CPerforceFileListFrame::DoModal( KeyValues *pContextKeys, const char *pMess
 //-----------------------------------------------------------------------------
 void CPerforceFileListFrame::AddFileForOpen( const char *pFullPath )
 {
+	if ( !p4 )
+		return;
+
 	bool bIsInPerforce = p4->IsFileInPerforce( pFullPath );
 	bool bIsOpened = ( p4->GetFileState( pFullPath ) != P4FILE_UNOPENED );
 	switch( m_Action )
@@ -402,6 +405,9 @@ void CPerforceFileListFrame::AddFileForSubmit( const char *pFullPath, P4FileStat
 //-----------------------------------------------------------------------------
 void CPerforceFileListFrame::AddFile( const char *pFullPath )
 {
+	if ( !p4 )
+		return;
+
 	if ( m_Action < PERFORCE_ACTION_FILE_REVERT )
 	{
 		// If the file wasn't found on the disk, then abort
@@ -427,6 +433,9 @@ void CPerforceFileListFrame::AddFile( const char *pFullPath )
 //-----------------------------------------------------------------------------
 void CPerforceFileListFrame::AddFile( const char *pRelativePath, const char *pPathId )
 {
+	if ( !p4 )
+		return;
+
 	// Deal with add, open, edit
 	if ( m_Action < PERFORCE_ACTION_FILE_REVERT )
 	{
@@ -497,6 +506,9 @@ void CPerforceFileListFrame::AddFile( const char *pRelativePath, const char *pPa
 //-----------------------------------------------------------------------------
 bool CPerforceFileListFrame::PerformOperation( )
 {
+	if ( !p4 )
+		return false;
+
 	int nFileCount = GetOperationCount();
 	const char **ppFileNames = (const char**)_alloca( nFileCount * sizeof(char*) );
 	for ( int i = 0; i < nFileCount; ++i )
@@ -583,6 +595,18 @@ bool CPerforceFileListFrame::PerformOperation( )
 //-----------------------------------------------------------------------------
 void ShowPerforceQuery( vgui::Panel *pParent, const char *pFileName, vgui::Panel *pActionSignalTarget, KeyValues *pKeyValues, PerforceAction_t actionFilter )
 {
+	if ( !p4 )
+	{
+		KeyValues *pSpoofKeys = new KeyValues( "PerforceQueryCompleted", "operationPerformed", 1 );
+		if ( pKeyValues )
+		{
+			pSpoofKeys->AddSubKey( pKeyValues );
+		}
+		vgui::ivgui()->PostMessage( pActionSignalTarget->GetVPanel(), pSpoofKeys, 0 );
+
+		return;
+	}
+
 	// Refresh the current perforce settings
 	p4->RefreshActiveClient();
 

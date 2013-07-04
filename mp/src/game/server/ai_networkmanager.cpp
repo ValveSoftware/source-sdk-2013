@@ -576,8 +576,7 @@ void CAI_NetworkManager::LoadNetworkGraph( void )
 		// older node graphs to load for these maps
 		if ( !V_stricmp( szLoweredGameDir, "hl2" ) || !V_stricmp( szLoweredGameDir, "episodic" ) )
 		{
-			if ( filesystem->IsSteam() )
-				bOK = true;
+			bOK = true;
 		}
 		
 		if ( !bOK )
@@ -978,7 +977,6 @@ bool CAI_NetworkManager::IsAIFileCurrent ( const char *szMapName )
 		return true;
 	}
 	
-	//if ( filesystem && filesystem->IsSteam() )
 	{
 		const char *pGameDir = CommandLine()->ParmValue( "-game", "hl2" );		
 		char szLoweredGameDir[256];

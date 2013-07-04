@@ -178,11 +178,13 @@ public:
 
 	virtual void ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValues ) {} 
 
-	// IsConnectedUserInfoChangeAllowed allows to override FCVAR_NOT_CONNECTED rule when
-	// player is on team spectator or team unassigned for example
-	// Default and previous engine implementation will never allow FCVAR_NOT_CONNECTED cvars
-	// to be changed while connected to a game server
-	virtual bool IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer ) { return !IsMultiplayer(); }
+	// IsConnectedUserInfoChangeAllowed allows the clients to change
+	// cvars with the FCVAR_NOT_CONNECTED rule if it returns true
+	virtual bool IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer )
+	{ 
+		Assert( !IsMultiplayer() );
+		return true; 
+	}
 
 #ifdef CLIENT_DLL
 

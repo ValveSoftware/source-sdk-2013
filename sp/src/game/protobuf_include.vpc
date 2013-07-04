@@ -1,0 +1,30 @@
+//-----------------------------------------------------------------------------
+//	protobuf_include.vpc
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$MacroRequired "PLATFORM"
+
+$macro VSLIBDIR  "." [!$VS2010]
+$macro VSLIBDIR  "VS2010" [$VS2010]
+
+$Project
+{
+	$Folder "Libraries"
+	{
+		// Always use the release version of libprotobuf.lib because the debug
+		// version uses iterator debugging, which is incompatible with the rest of
+		// the Valve world.
+		$File "$SRCDIR\lib\$PLATFORM\release\$VSLIBDIR\libprotobuf.lib" [$WINDOWS && $VS2010]
+		$File "$SRCDIR\lib\$PLATFORM\release\$VSLIBDIR\libprotobuf.lib" [$WINDOWS && !$VS2010]
+		{
+			$Configuration "Debug" { $ExcludedFromBuild	"Yes" }
+		}
+		$File "$SRCDIR\lib\$PLATFORM\debug\$VSLIBDIR\libprotobuf.lib" [$WINDOWS && !$VS2010]
+		{
+			$Configuration "Release" { $ExcludedFromBuild "Yes" }
+		}
+		$File "$SRCDIR\lib\$PLATFORM\release\libprotobuf.a"         [$POSIX]
+	}
+}

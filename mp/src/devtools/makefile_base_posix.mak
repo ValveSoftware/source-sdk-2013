@@ -44,6 +44,9 @@ DEFINES += -DVPROF_LEVEL=1 -DGNUC -DNO_HOOK_MALLOC -DNO_MALLOC_OVERRIDE
 LDFLAGS = $(CFLAGS) $(GCC_ExtraLinkerFlags) $(OptimizerLevel)
 GENDEP_CXXFLAGS = -MD -MP -MF $(@:.o=.P) 
 MAP_FLAGS =
+Srv_GAMEOUTPUTFILE = 
+COPY_DLL_TO_SRV = 0
+
 
 ifeq ($(STEAM_BRANCH),1)
 	WARN_FLAGS = -Wall -Wextra -Wshadow -Wno-invalid-offsetof
@@ -76,7 +79,11 @@ ifeq ($(OS),Linux)
 		# If the steam-runtime is available, use it. We should just default to using it when
 		#  buildbot and everyone has a bit of time to get it installed.
 		ifneq "$(wildcard /valve/steam-runtime/bin/)" ""
-			VALVE_BINDIR = /valve/steam-runtime/bin/
+			# The steam-runtime is incompatible with clang at this point, so disable it
+			# if clang is enabled.
+			ifneq ($(CXX),clang++)
+				VALVE_BINDIR = /valve/steam-runtime/bin/
+			endif
 		endif
 		GCC_VER =
 		MARCH_TARGET = pentium4
@@ -143,6 +150,11 @@ ifeq ($(OS),Linux)
 	endif
 	VSIGN ?= true
 
+	ifeq ($(SOURCE_SDK), 1)
+		Srv_GAMEOUTPUTFILE := $(GAMEOUTPUTFILE:.so=_srv.so)
+		COPY_DLL_TO_SRC := 1
+	endif
+
 	LINK_MAP_FLAGS = -Wl,-Map,$(@:.so=).map
 
 	SHLIBLDFLAGS = -shared $(LDFLAGS) -Wl,--no-undefined
@@ -163,64 +175,55 @@ ifeq ($(OS),Linux)
 endif
 
 ifeq ($(OS),Darwin)
-	OSXVER := $(shell sw_vers -productVersion)
 	CCACHE := $(SRCROOT)/devtools/bin/osx32/ccache
-	DEVELOPER_DIR := $(shell /usr/bin/xcode-select -print-path)
+	MAC_SDK_VER ?= 10.6
+	MAC_SDK := macosx$(MAC_SDK_VER)
+	SYSROOT := $(shell xcodebuild -sdk $(MAC_SDK) -version Path)
 
-	ifeq (,$(findstring 10.7, $(OSXVER))) 
-		BUILDING_ON_LION := 0
-		COMPILER_BIN_DIR := $(DEVELOPER_DIR)/usr/bin
-		SDK_DIR := $(DEVELOPER_DIR)/SDKs
-	else
-		BUILDING_ON_LION := 1
-		# Need to figure out which version of XCode you have installed
-		# See if you have the clang compiler in $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
-		ifeq ($(wildcard $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang),)
-		     	# no clang, you're running older Xcode	 
-			COMPILER_BIN_DIR := $(DEVELOPER_DIR)/usr/bin
-			SDK_DIR := $(DEVELOPER_DIR)/SDKs		     
-		else
-			# clang is in the new Toolchain, use it
-			COMPILER_BIN_DIR := $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/bin
-			SDK_DIR := $(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/SDKs
-		endif
+	ifneq ($(origin MAC_SDK_VER), file)
+            $(warning Attempting build with SDK version $(MAC_SDK_VER), only 10.6 is supported and recommended!)
 	endif
 
-	#test to see if you have a compiler in the right place, if you don't abort with an error
-
-        ifeq ($(wildcard $(COMPILER_BIN_DIR)/clang),)
-        $(error Unable to find compiler, install and configure XCode)
-        endif
-
-        ifeq ($(wildcard $(COMPILER_BIN_DIR)/clang++),)
-        $(error Unable to find compiler, install and configure XCode)
-        endif
-
-
-	SDKROOT ?= $(SDK_DIR)/MacOSX10.6.sdk
-
-	ifeq ($(origin AR), default)
-		AR = libtool -static -o
+	ifeq ($(SYSROOT),)
+		FIRSTSDK := $(firstword $(sort $(shell xcodebuild -showsdks | grep macosx | sed 's/.*macosx//')))
+                $(error Could not find SDK version $(MAC_SDK_VER). Install and configure Xcode 4.3, or build with: make MAC_SDK_VER=$(FIRSTSDK))
 	endif
+
 	ifeq ($(origin CC), default)
-		CC = $(CCACHE) $(COMPILER_BIN_DIR)/clang -Qunused-arguments
+                # Test to see if you have a compiler in the right place, if you
+                # don't abort with an error
+		CLANG := $(shell xcrun -sdk $(MAC_SDK) -find clang)
+		ifeq ($(wildcard $(CLANG)),)
+                        $(error Unable to find C compiler, install and configure Xcode 4.3)
+		endif
+
+		CC := $(CCACHE) $(CLANG) -Qunused-arguments
 	endif
+
 	ifeq ($(origin CXX), default)
-		CXX = $(CCACHE) $(COMPILER_BIN_DIR)/clang++ -Qunused-arguments
+		CXXLANG := $(shell xcrun -sdk $(MAC_SDK) -find clang++)
+		ifeq ($(wildcard $(CXXLANG)),)
+                        $(error Unable to find C++ compiler, install and configure Xcode 4.3)
+		endif
+
+		CXX := $(CCACHE) $(CXXLANG) -Qunused-arguments
 	endif
 	LINK ?= $(CXX)
 
-	ifeq (($TARGET_PLATFORM),osx64)
-		ARCH_FLAGS += -arch x86_64 -m64 -march=core2 
+	ifeq ($(origin AR), default)
+		AR := $(shell xcrun -sdk $(MAC_SDK) -find libtool) -static -o
+	endif
+
+	ifeq ($(TARGET_PLATFORM),osx64)
+		ARCH_FLAGS += -arch x86_64 -m64 -march=core2
 	else ifeq (,$(findstring -arch x86_64,$(GCC_ExtraCompilerFlags)))
 		ARCH_FLAGS += -arch i386 -m32 -march=prescott -momit-leaf-frame-pointer -mtune=core2
 	else
 		# dirty hack to build a universal binary - don't specify the architecture
-		ARCH_FLAGS += -arch i386 -Xarch_i386 -march=prescott -Xarch_i386 -mtune=core2 -Xarch_i386 -momit-leaf-frame-pointer -Xarch_x86_64 -march=core2 
+		ARCH_FLAGS += -arch i386 -Xarch_i386 -march=prescott -Xarch_i386 -mtune=core2 -Xarch_i386 -momit-leaf-frame-pointer -Xarch_x86_64 -march=core2
 	endif
 
-	#FIXME: NOTE:Full path specified because the xcode 4.0 preview has a terribly broken dsymutil, so ref the 3.2 one
-	GEN_SYM ?= $(DEVELOPER_DIR)/usr/bin/dsymutil
+	GEN_SYM ?= $(shell xcrun -sdk $(MAC_SDK) -find dsymutil)
 	ifeq ($(CFG),release)
 		STRIP ?= strip -S
 	else
@@ -231,10 +234,9 @@ ifeq ($(OS),Darwin)
 	else
 		VSIGN ?= $(SRCROOT)/devtools/bin/vsign
 	endif
-	
 
-	CPPFLAGS += -I$(SDKROOT)/usr/include/malloc
-	CFLAGS += -isysroot $(SDKROOT) -mmacosx-version-min=10.5 -fasm-blocks
+	CPPFLAGS += -I$(SYSROOT)/usr/include/malloc
+	CFLAGS += -isysroot $(SYSROOT) -mmacosx-version-min=10.5 -fasm-blocks
 
 	LIB_START_EXE = -lm -ldl -lpthread
 	LIB_END_EXE = 
@@ -456,6 +458,13 @@ $(SO_GameOutputFile): $(SO_File)
 	$(QUIET_PREFIX) $(GEN_SYM) $(GAMEOUTPUTFILE); 
 	$(QUIET_PREFIX) -$(STRIP) $(GAMEOUTPUTFILE);
 	$(QUIET_PREFIX) $(VSIGN) -signvalve $(GAMEOUTPUTFILE);
+	$(QUIET_PREFIX) if [ "$(COPY_DLL_TO_SRV)" = "1" ]; then\
+		echo "----" $(QUIET_ECHO_POSTFIX);\
+		echo "---- COPYING TO $(Srv_GAMEOUTPUTFILE) ----";\
+		echo "----" $(QUIET_ECHO_POSTFIX);\
+		cp -v $(GAMEOUTPUTFILE) $(Srv_GAMEOUTPUTFILE) $(QUIET_ECHO_POSTFIX);\
+		cp -v $(GAMEOUTPUTFILE)$(SYM_EXT) $(Srv_GAMEOUTPUTFILE)$(SYM_EXT) $(QUIET_ECHO_POSTFIX);\
+	fi;
 	$(QUIET_PREFIX) if [ "$(IMPORTLIBRARY)" != "" ]; then\
 		echo "----" $(QUIET_ECHO_POSTFIX);\
 		echo "---- COPYING TO IMPORT LIBRARY $(IMPORTLIBRARY) ----";\

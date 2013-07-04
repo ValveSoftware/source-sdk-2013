@@ -936,8 +936,6 @@ void	CUtlCachedFileData<T>::CheckDiskInfo( bool forcerebuild, long cacheFileTime
 	if ( !list.Count() )
 		return;
 
-	bool bSteam = g_pFullFileSystem->IsSteam();
-
 	for ( int listStart = 0, listEnd = 0; listStart < list.Count(); listStart = listEnd+1 )
 	{
 		int pathIndex = g_pFullFileSystem->GetPathIndex( m_Elements[list[listStart].index].handle );
@@ -957,7 +955,7 @@ void	CUtlCachedFileData<T>::CheckDiskInfo( bool forcerebuild, long cacheFileTime
 		{
 			bCheck = false;
 		}
-		else if ( !bSteam )
+		else 
 		{
 			long pathTime = g_pFullFileSystem->GetPathTime( fn, "GAME" );
 			bCheck = (pathTime > cacheFileTime) ? true : false;

@@ -1,0 +1,57 @@
+//-----------------------------------------------------------------------------
+//	SOURCE_EXE_WIN_WIN32.VPC
+//
+//	Base Settings for Source(TM) Projects
+//-----------------------------------------------------------------------------
+
+$Include "$SRCDIR\vpc_scripts\version.vpc"
+
+$MacroRequired				"SRCDIR"
+$MacroRequired				"OUTBINNAME"	"$PROJECTNAME"
+$MacroRequired				"OUTBINDIR"
+$Macro IS_LIB_PROJECT           "1"
+
+$Include "$SRCDIR\vpc_scripts\source_linux_base_project.vpc"
+
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$File	"$SRCDIR\public\tier0\memoverride.cpp"
+		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
+				}
+			}
+		}
+	}
+
+	$Folder	"Link Libraries" [$CLANG]
+	{
+		$File	"$SRCDIR/thirdparty/gperftools-2.0/.libs/libtcmalloc_minimal.so"
+	}
+}
+
+$Configuration
+{
+	$General
+	{
+		$GameOutputFile					"$OUTBINDIR/$OUTBINNAME"
+
+	}
+
+	$Linker
+	{
+			$OutputFile "$OUTBINDIR/$OUTBINNAME"
+			// In order to get the Valve standard allocator memory alignment (16-byte
+			// alignment for objects that are a multiple of 16 bytes) we use tcmalloc.
+			// Using -l will ask the linker to use it, but if there are no references to
+			// malloc/free then it may not actually use it. Wrapping the flag in the
+			// as-needed controls forces it to be pulled in.
+			$GCC_ExtraLinkerFlags		"-Wl,--no-as-needed -ltcmalloc_minimal -Wl,--as-needed" [$CLANG]
+	}
+}

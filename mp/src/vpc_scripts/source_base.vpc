@@ -1,0 +1,17 @@
+//-----------------------------------------------------------------------------
+//	source_base.VPC
+//
+//  This is the base VPC file that is included by all others, on all platforms.
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+// Set which branch we are building out of.
+// This is one file we expect to be different between branches and so it must be merged carefully
+
+// Staging branch:
+//$Macro STAGING_ONLY	"1"
+
+// rel/tf_beta branch:
+//$Macro TF_BETA	"1"
+

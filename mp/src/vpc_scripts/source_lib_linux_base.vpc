@@ -1,0 +1,31 @@
+$Macro IS_LIB_PROJECT           "1"
+$Include 			"$SRCDIR\vpc_scripts\source_linux_base_project.vpc"
+$MacroRequired		"OUTLIBNAME"	"$PROJECTNAME"
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions	"$BASE;LIBNAME=$OUTLIBNAME"
+		$PreprocessorDefinitions		"$BASE;RAD_TELEMETRY_DISABLED" [$SOURCESDK]
+	}
+
+	$General	
+	{
+		$ConfigurationType				"Static Library (.lib)"
+	}
+	
+	$Linker
+	{
+		$OutputFile						"$OUTLIBDIR/$OUTLIBNAME$_STATICLIB_EXT"
+	}
+}
+
+$Project
+{
+	$Folder "Source Files"
+	{
+		$File	"$SRCDIR\common\debug_lib_check.cpp" [!$SOURCESDK]
+	}
+}
+
