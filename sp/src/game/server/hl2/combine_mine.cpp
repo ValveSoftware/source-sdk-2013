@@ -244,7 +244,7 @@ int CBounceBomb::DrawDebugTextOverlays(void)
 	if (m_debugOverlays & OVERLAY_TEXT_BIT) 
 	{
 		char tempstr[512];
-		Q_snprintf(tempstr,sizeof(tempstr), pszMineStateNames[m_iMineState] );
+		Q_snprintf(tempstr,sizeof(tempstr), "%s", pszMineStateNames[m_iMineState] );
 		EntityText(text_offset,tempstr,0);
 		text_offset++;
 	}
