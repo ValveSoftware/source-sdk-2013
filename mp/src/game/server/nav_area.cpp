@@ -53,7 +53,7 @@ uint32 CNavArea::s_nCurrVisTestCounter = 0;
 ConVar nav_coplanar_slope_limit( "nav_coplanar_slope_limit", "0.99", FCVAR_CHEAT );
 ConVar nav_coplanar_slope_limit_displacement( "nav_coplanar_slope_limit_displacement", "0.7", FCVAR_CHEAT );
 ConVar nav_split_place_on_ground( "nav_split_place_on_ground", "0", FCVAR_CHEAT, "If true, nav areas will be placed flush with the ground when split." );
-ConVar nav_area_bgcolor( "nav_area_bgcolor", "0 0 0 30", FCVAR_CHEAT, "RGBA color to draw as the background color for nav areas while editing." );
+ConVar nav_area_bgcolor( "nav_area_bgcolor", "0 0 0 128", FCVAR_CHEAT, "RGBA color to draw as the background color for nav areas while editing." );
 ConVar nav_corner_adjust_adjacent( "nav_corner_adjust_adjacent", "18", FCVAR_CHEAT, "radius used to raise/lower corners in nearby areas when raising/lowering corners." );
 ConVar nav_show_light_intensity( "nav_show_light_intensity", "0", FCVAR_CHEAT );
 ConVar nav_debug_blocked( "nav_debug_blocked", "0", FCVAR_CHEAT );
@@ -2778,7 +2778,7 @@ void CNavArea::Draw( void ) const
 	NavEditColor color;
 	bool useAttributeColors = true;
 
-	const float DebugDuration = NDEBUG_PERSIST_TILL_NEXT_SERVER;
+	const float DebugDuration = 0;
 
 	if ( TheNavMesh->IsEditMode( CNavMesh::PLACE_PAINTING ) )
 	{
@@ -3146,7 +3146,7 @@ void CNavArea::DrawFilled( int r, int g, int b, int a, float deltaT, bool noDept
 //--------------------------------------------------------------------------------------------------------
 void CNavArea::DrawSelectedSet( const Vector &shift ) const
 {
-	const float deltaT = NDEBUG_PERSIST_TILL_NEXT_SERVER;
+	const float deltaT = 0;
 	int r = s_selectedSetColor.r();
 	int g = s_selectedSetColor.g();
 	int b = s_selectedSetColor.b();
@@ -3173,7 +3173,7 @@ void CNavArea::DrawSelectedSet( const Vector &shift ) const
 //--------------------------------------------------------------------------------------------------------
 void CNavArea::DrawDragSelectionSet( Color &dragSelectionSetColor ) const
 {
-	const float deltaT = NDEBUG_PERSIST_TILL_NEXT_SERVER;
+	const float deltaT = 0;
 	int r = dragSelectionSetColor.r();
 	int g = dragSelectionSetColor.g();
 	int b = dragSelectionSetColor.b();
