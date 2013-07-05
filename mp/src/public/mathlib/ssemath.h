@@ -2355,10 +2355,10 @@ FORCEINLINE void StoreUnalignedIntSIMD( int32 * RESTRICT pSIMD, const fltx4 & a 
 FORCEINLINE fltx4 UnsignedIntConvertToFltSIMD( const u32x4 &vSrcA )
 {
 	fltx4 retval;
-	SubFloat( retval, 0 ) = ( (float) SubInt( retval, 0 ) );
-	SubFloat( retval, 1 ) = ( (float) SubInt( retval, 1 ) );
-	SubFloat( retval, 2 ) = ( (float) SubInt( retval, 2 ) );
-	SubFloat( retval, 3 ) = ( (float) SubInt( retval, 3 ) );
+	SubFloat( retval, 0 ) = ( (float) (reinterpret_cast<const uint32 *>(&vSrcA)[0]));
+	SubFloat( retval, 1 ) = ( (float) (reinterpret_cast<const uint32 *>(&vSrcA)[1]));
+	SubFloat( retval, 2 ) = ( (float) (reinterpret_cast<const uint32 *>(&vSrcA)[2]));
+	SubFloat( retval, 3 ) = ( (float) (reinterpret_cast<const uint32 *>(&vSrcA)[3]));
 	return retval;
 }
 
