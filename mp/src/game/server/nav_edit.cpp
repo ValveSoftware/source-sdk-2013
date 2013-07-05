@@ -732,8 +732,10 @@ void CNavMesh::DrawEditMode( void )
 	static ConVarRef host_thread_mode( "host_thread_mode" );
 	host_thread_mode.SetValue( 0 );
 
+#ifdef TERROR
 	static ConVarRef sb_perf_collect( "sb_perf_collect" );
 	sb_perf_collect.SetValue( 0 );
+#endif
 
 	const float maxRange = 1000.0f;		// 500
 
@@ -808,7 +810,7 @@ void CNavMesh::DrawEditMode( void )
 
 		if ( m_climbableSurface )
 		{
-			NDebugOverlay::Cross3D( m_editCursorPos, cursorSize, 0, 255, 0, true, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+			NDebugOverlay::Cross3D( m_editCursorPos, cursorSize, 0, 255, 0, true, 0 );
 		}
 		else
 		{
@@ -823,19 +825,19 @@ void CNavMesh::DrawEditMode( void )
 
 				pos = m_editCursorPos;
 				AddDirectionVector( &pos, NORTH, offset );
-				NDebugOverlay::Text( pos, "N", false, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+				NDebugOverlay::Text( pos, "N", false, 0 );
 
 				pos = m_editCursorPos;
 				AddDirectionVector( &pos, SOUTH, offset );
-				NDebugOverlay::Text( pos, "S", false, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+				NDebugOverlay::Text( pos, "S", false, 0 );
 
 				pos = m_editCursorPos;
 				AddDirectionVector( &pos, EAST, offset );
-				NDebugOverlay::Text( pos, "E", false, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+				NDebugOverlay::Text( pos, "E", false, 0 );
 
 				pos = m_editCursorPos;
 				AddDirectionVector( &pos, WEST, offset );
-				NDebugOverlay::Text( pos, "W", false, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+				NDebugOverlay::Text( pos, "W", false, 0 );
 			}
 		}
 
@@ -908,7 +910,7 @@ void CNavMesh::DrawEditMode( void )
 				{
 					V_snprintf( buffer, sizeof( buffer ), "Ladder #%d\n", m_selectedLadder->GetID() );
 				}
-				NDebugOverlay::ScreenText( 0.5, 0.53, buffer, 255, 255, 0, 128, nav_show_area_info.GetBool() ? 0.1 : 0.5 );
+				NDebugOverlay::ScreenText( 0.5, 0.53, buffer, 255, 255, 0, 128, 0 );
 			}
 
 			// draw the ladder we are pointing at and all connected areas
@@ -1003,7 +1005,7 @@ void CNavMesh::DrawEditMode( void )
 				}
 
 				Q_snprintf( buffer, sizeof( buffer ), "Area #%d %s %s\n", m_selectedArea->GetID(), locName, attrib );
-				NDebugOverlay::ScreenText( 0.5, 0.53, buffer, 255, 255, 0, 128, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+				NDebugOverlay::ScreenText( 0.5, 0.53, buffer, 255, 255, 0, 128, 0 );
 
 				// do "place painting"
 				if ( m_isPlacePainting )

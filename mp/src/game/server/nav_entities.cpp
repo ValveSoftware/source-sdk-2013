@@ -380,7 +380,7 @@ int CFuncNavBlocker::DrawDebugTextOverlays( void )
 			CNavArea *area = collector.m_area[i];
 			Extent areaExtent;
 			area->GetExtent( &areaExtent );
-			debugoverlay->AddBoxOverlay( vec3_origin, areaExtent.lo, areaExtent.hi, vec3_angle, 0, 255, 0, 10, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+			debugoverlay->AddBoxOverlay( vec3_origin, areaExtent.lo, areaExtent.hi, vec3_angle, 0, 255, 0, 10, 0 );
 		}
 	}
 
@@ -614,11 +614,11 @@ int CFuncNavObstruction::DrawDebugTextOverlays( void )
 	{
 		if ( CanObstructNavAreas() )
 		{
-			EntityText( offset++, "Obstructing nav", NDEBUG_PERSIST_TILL_NEXT_SERVER );
+			EntityText( offset++, "Obstructing nav", 0 );
 		}
 		else
 		{
-			EntityText( offset++, "Not obstructing nav", NDEBUG_PERSIST_TILL_NEXT_SERVER );
+			EntityText( offset++, "Not obstructing nav", 0 );
 		}
 	}
 

@@ -21,13 +21,15 @@
 #endif
 #include "functorutils.h"
 
+#ifdef NEXT_BOT
 #include "NextBot/NavMeshEntities/func_nav_prerequisite.h"
+#endif
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
 
-#define DrawLine( from, to, duration, red, green, blue )		NDebugOverlay::Line( from, to, red, green, blue, true, 0.1f )
+#define DrawLine( from, to, duration, red, green, blue )		NDebugOverlay::Line( from, to, red, green, blue, true, 0 )
 
 
 /**
@@ -571,6 +573,7 @@ void CNavMesh::OnServerActivate( void )
 
 
 //--------------------------------------------------------------------------------------------------------------
+#ifdef NEXT_BOT
 class CRegisterPrerequisite
 {
 public:
@@ -587,6 +590,7 @@ public:
 
 	CFuncNavPrerequisite *m_prereq;
 };
+#endif
 
 //--------------------------------------------------------------------------------------------------------------
 /**
@@ -609,6 +613,7 @@ void CNavMesh::OnRoundRestart( void )
 {
 	m_updateBlockedAreasTimer.Start( 1.0f );
 
+#ifdef NEXT_BOT
 	FOR_EACH_VEC( TheNavAreas, pit )
 	{
 		CNavArea *area = TheNavAreas[ pit ];
@@ -626,6 +631,7 @@ void CNavMesh::OnRoundRestart( void )
 
 		ForAllAreasOverlappingExtent( apply, prereqExtent );
 	}
+#endif
 }
 
 
@@ -1420,7 +1426,7 @@ void CNavMesh::DrawPlayerCounts( void ) const
 
 		if (area->GetPlayerCount() > 0)
 		{
-			NDebugOverlay::Text( area->GetCenter(), msg.sprintf( "%d (%d/%d)", area->GetPlayerCount(), area->GetPlayerCount(1), area->GetPlayerCount(2) ), false, 0.1f );
+			NDebugOverlay::Text( area->GetCenter(), msg.sprintf( "%d (%d/%d)", area->GetPlayerCount(), area->GetPlayerCount(1), area->GetPlayerCount(2) ), false, 0 );
 		}
 	}
 }
