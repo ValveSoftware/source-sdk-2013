@@ -289,7 +289,7 @@ void CHudDeathNotice::FireGameEvent( KeyValues * event)
 		if ( !strcmp( killedwith+2, "gauss" ) )
 			Q_strncpy( killedwith, "d_tau cannon", sizeof( killedwith ) );
 
-		Msg( killedwith+2 ); // skip over the "d_" part
+		Msg( "%s", killedwith+2 ); // skip over the "d_" part
 	}
 
 	Msg( "\n" );
