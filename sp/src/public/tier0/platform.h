@@ -661,6 +661,7 @@ typedef void * HINSTANCE;
 #ifdef OSX
 #pragma GCC diagnostic ignored "-Wconversion-null"			// passing NULL to non-pointer argument 1
 #pragma GCC diagnostic ignored "-Wnull-arithmetic"			// NULL used in arithmetic. Ie, vpanel == NULL where VPANEL is uint.
+#pragma GCC diagnostic ignored "-Wswitch"				// enumeration values not handled in switch
 #pragma GCC diagnostic ignored "-Wswitch-enum"				// enumeration values not handled in switch
 #endif
 
