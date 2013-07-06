@@ -631,7 +631,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"  "HL2EP2"
+				"name"  "Trebuchet MS"
 				"tall"			"34"
 				"tall_hidef"	"48"
 				"weight" "0"
