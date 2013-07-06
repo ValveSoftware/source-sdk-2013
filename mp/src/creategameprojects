@@ -1,4 +1,4 @@
 #!/bin/bash
 
-devtools/bin/vpc /hl2 /episodic +game /mksln games
+devtools/bin/vpc /hl2mp +game /mksln games
 

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-devtools/bin/vpc /hl2 /episodic +everything /mksln everything
+devtools/bin/vpc /hl2mp +everything /mksln everything
 
