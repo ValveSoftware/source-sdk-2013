@@ -6347,13 +6347,13 @@ void CNPC_Hunter::FootFX( const Vector &origin )
 CBaseEntity *CNPC_Hunter::GetEnemyVehicle()
 {
 	if ( GetEnemy() == NULL )
-		return false;
+		return NULL;
 
 	CBaseCombatCharacter *pCCEnemy = GetEnemy()->MyCombatCharacterPointer();
 	if ( pCCEnemy != NULL )
 		return pCCEnemy->GetVehicleEntity();
 
-	return false;
+	return NULL;
 }
 
 
