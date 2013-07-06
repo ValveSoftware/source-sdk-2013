@@ -101,7 +101,7 @@ public:
 	void SetColor( int r, int g, int b );
 	void SetBrightness( int brightness );
 	void SetFrame( float frame );
-	void SetScrollRate( int speed );
+	void SetScrollRate( float speed );
 	void SetFireTime( float flFireTime );
 	void SetFrameRate( float flFrameRate ) { m_flFrameRate = flFrameRate; }
 
@@ -351,7 +351,7 @@ inline void CBeam::SetFrame( float frame )
 	m_fStartFrame = frame; 
 }
 
-inline void CBeam::SetScrollRate( int speed )			
+inline void CBeam::SetScrollRate( float speed )
 { 
 	m_fSpeed = speed; 
 }
