@@ -434,8 +434,8 @@ void CVoiceStatus::HandleVoiceMaskMsg(bf_read &msg)
 		if( voice_clientdebug.GetInt())
 		{
 			Msg("CVoiceStatus::HandleVoiceMaskMsg\n");
-			Msg("    - m_AudiblePlayers[%d] = %lu\n", dw, m_AudiblePlayers.GetDWord(dw));
-			Msg("    - m_ServerBannedPlayers[%d] = %lu\n", dw, m_ServerBannedPlayers.GetDWord(dw));
+			Msg("    - m_AudiblePlayers[%lu] = %u\n", dw, m_AudiblePlayers.GetDWord(dw));
+			Msg("    - m_ServerBannedPlayers[%lu] = %u\n", dw, m_ServerBannedPlayers.GetDWord(dw));
 		}
 	}
 
