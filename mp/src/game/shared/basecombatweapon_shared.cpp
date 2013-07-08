@@ -1208,7 +1208,9 @@ bool CBaseCombatWeapon::HasAnyAmmo( void )
 	// If I don't use ammo of any kind, I can always fire
 	if ( !UsesPrimaryAmmo() && !UsesSecondaryAmmo() )
 		return true;
-
+	if ( GetWeaponFlags() & ITEM_FLAG_SELECTONEMPTY ) 
+		return true;
+ 
 	// Otherwise, I need ammo of either type
 	return ( HasPrimaryAmmo() || HasSecondaryAmmo() );
 }
