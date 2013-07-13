@@ -152,7 +152,7 @@ ifeq ($(OS),Linux)
 
 	ifeq ($(SOURCE_SDK), 1)
 		Srv_GAMEOUTPUTFILE := $(GAMEOUTPUTFILE:.so=_srv.so)
-		COPY_DLL_TO_SRC := 1
+		COPY_DLL_TO_SRV := 1
 	endif
 
 	LINK_MAP_FLAGS = -Wl,-Map,$(@:.so=).map

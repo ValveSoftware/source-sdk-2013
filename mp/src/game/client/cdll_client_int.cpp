@@ -173,6 +173,8 @@ const char *COM_GetModDirectory(); // return the mod dir (rather than the comple
 
 extern IClientMode *GetClientModeNormal();
 
+extern INetworkStringTable *g_StringTableGameRules; // Get the GameRules stringtable pointer to reset it in ResetStringTablePointers.
+
 // IF YOU ADD AN INTERFACE, EXTERN IT IN THE HEADER FILE.
 IVEngineClient	*engine = NULL;
 IVModelRender *modelrender = NULL;
@@ -1671,6 +1673,8 @@ void CHLClient::ResetStringTablePointers()
 	g_pStringTableServerPopFiles = NULL;
 	g_pStringTableServerMapCycleMvM = NULL;
 #endif
+
+	g_StringTableGameRules = NULL;
 }
 
 //-----------------------------------------------------------------------------
