@@ -135,8 +135,11 @@ private:
 	typedef char locchar_t;
 
 	#define loc_snprintf	Q_snprintf
+	#define loc_sprintf_safe V_snprintf_safe
 	#define loc_sncat		Q_strncat
+	#define loc_scat_safe	V_strcat_safe
 	#define loc_sncpy		Q_strncpy
+	#define loc_scpy_safe	V_strcpy_safe
 	#define loc_strlen		Q_strlen
 	#define LOCCHAR( x )	x
 
@@ -145,8 +148,11 @@ private:
 	typedef wchar_t locchar_t;
 
 	#define loc_snprintf	V_snwprintf
+	#define loc_sprintf_safe V_snwprintf_safe
 	#define loc_sncat		V_wcsncat
+	#define loc_scat_safe	V_wcscat_safe
 	#define loc_sncpy		Q_wcsncpy
+	#define loc_scpy_safe	V_wcscpy_safe
 	#define loc_strlen		Q_wcslen
 	#define LOCCHAR(x)		L ## x
 

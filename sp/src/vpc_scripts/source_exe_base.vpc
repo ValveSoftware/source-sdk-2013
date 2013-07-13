@@ -1,0 +1,13 @@
+//-----------------------------------------------------------------------------
+//	source_exe_base.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$include "$SRCDIR\vpc_scripts\source_base.vpc"
+
+$include "$SRCDIR\vpc_scripts\source_exe_win_win32_base.vpc"	[$WINDOWS]
+$Include "$SRCDIR\vpc_scripts\source_exe_linux_base.vpc"	[$LINUX]
+$include "$SRCDIR\vpc_scripts\source_exe_posix_base.vpc"	[$POSIX && !$LINUX]
+$include "$SRCDIR\vpc_scripts\source_xex_x360_base.vpc"		[$X360]
+$Include "$SRCDIR\vpc_scripts\source_video_base.vpc"

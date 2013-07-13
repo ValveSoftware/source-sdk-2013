@@ -1,0 +1,18 @@
+
+$Include                "$SRCDIR\vpc_scripts\source_posix_base.vpc"
+$include		"$SRCDIR\tier0\tier0_exclude.vpc" [$POSIX]
+$MacroRequired          "OUTLIBNAME"    "$PROJECTNAME"
+
+$Configuration
+{
+        $General
+        {
+                $ConfigurationType                                      "Static Library (.lib)"
+		$GameOutputFile						"$SRCDIR/lib/$PLATFORM/$OUTLIBNAME$_STATICLIB_EXT"
+	}
+
+	$Linker
+	{
+                $OutputFile                                             "$SRCDIR/lib/$PLATFORM/$OUTLIBNAME$_STATICLIB_EXT"
+        }
+}

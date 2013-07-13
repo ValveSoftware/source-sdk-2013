@@ -360,7 +360,7 @@ static CCLanguage g_CCLanguageLookup[] =
 	{ CC_FRENCH,	"french",		150,	0,		0 },
 	{ CC_GERMAN,	"german",		0,		150,	0 },
 	{ CC_ITALIAN,	"italian",		0,		150,	150 },
-	{ CC_KOREAN,	"korean",		150,	0,		150 },
+	{ CC_KOREAN,	"koreana",		150,	0,		150 },
 	{ CC_SCHINESE,	"schinese",		150,	0,		150 },
 	{ CC_SPANISH,	"spanish",		0,		0,		150 },
 	{ CC_TCHINESE,	"tchinese",		150,	0,		150 },

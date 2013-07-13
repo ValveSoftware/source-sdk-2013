@@ -1,0 +1,64 @@
+//-----------------------------------------------------------------------------
+//	SOURCE_EXE_posix.VPC
+//
+//	Base Settings for Source(TM) Projects
+//-----------------------------------------------------------------------------
+
+$Include "$SRCDIR\vpc_scripts\version.vpc"
+$Include "$SRCDIR\vpc_scripts\source_posix_base.vpc"
+
+$MacroRequired				"SRCDIR"
+$MacroRequired				"OUTBINNAME"	"$PROJECTNAME"
+
+$Include "$SRCDIR\vpc_scripts\loadaddress.vpc"
+
+
+$IgnoreRedundancyWarning	"ON"
+
+$Configuration
+{
+	$General
+	{
+		$ConfigurationType				"Application (.exe)"
+	}
+
+	$Linker
+	{
+			$OutputFile								"$SRCDIR/../game/$OUTBINNAME"
+	}
+}
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$File	"$SRCDIR\public\tier0\memoverride.cpp"
+		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
+				}
+			}
+		}
+	}
+
+
+	$Folder "Resources"
+	{
+		$File	"$ROOTSCRIPT"
+	}
+	
+	
+	$Folder	"Link Libraries"
+	{
+		$ImpLib tier0	[$LINUXALL]
+		$Lib	tier1	[$LINUXALL]
+		$ImpLib vstdlib	[$LINUXALL]
+		$DynamicFile	"$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXtier0$_IMPLIB_EXT"	[!$LINUXALL]
+		$DynamicFile	"$SRCDIR\lib\$PLATFORM\tier1$_STATICLIB_EXT"				[!$LINUXALL]
+		$DynamicFile	"$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXvstdlib$_IMPLIB_EXT"	[!$LINUXALL]
+	}
+}
+

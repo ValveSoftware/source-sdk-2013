@@ -2222,7 +2222,10 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		}
 
 		// let vgui know where to render stuff for the forced-to-framebuffer panels
-		vgui::surface()->SetFullscreenViewport( viewFramebufferX, viewFramebufferY, viewFramebufferWidth, viewFramebufferHeight );
+		if( UseVR() )
+		{
+			vgui::surface()->SetFullscreenViewport( viewFramebufferX, viewFramebufferY, viewFramebufferWidth, viewFramebufferHeight );
+		}
 
 		// clear the render target if we need to
 		if( bClear )

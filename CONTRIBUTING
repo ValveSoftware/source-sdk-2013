@@ -20,3 +20,13 @@ explicitly identifying it as sourced from a third party, stating the details
 of its origin, and informing Valve of any license or other restriction of
 which you are personally aware. 
 
+
+Technical Guidelines for Contributions:
+
+* Please keep your pull requests as granular as possible. Including two or three unrelated things in a single pull request just makes it less likely that the uber-request will be accepted. Two small pull requests are usually bettern than one large pull request.
+* If you are including a pull request with warning fixes, please include the following information about the warning:
+  . The OS and version you are building on
+  . The Compiler and version you are using
+  . The text of the warning (or group of warnings) itself
+
+

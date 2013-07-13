@@ -1,0 +1,20 @@
+//-----------------------------------------------------------------------------
+//	source_dll_base.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$include "$SRCDIR\vpc_scripts\source_base.vpc"
+
+$Macro PLATSUBDIR	"\linux32" [$LINUX32]
+$Macro PLATSUBDIR	"\osx32" [$OSX32]
+$Macro OUTBINDIR	"$OUTBINDIR" [$LINUX32]
+$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR" [$LINUX32]
+$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR" [$LINUX32]
+
+$include "$SRCDIR\vpc_scripts\source_dll_win32_base.vpc"	[$WINDOWS]
+$include "$SRCDIR\vpc_scripts\source_dll_x360_base.vpc"	[$X360]
+$include "$SRCDIR\vpc_scripts\source_dll_posix_base.vpc"	[$OSXALL]
+$Include "$SRCDIR\vpc_scripts\source_dll_linux_base.vpc"	[$LINUX]
+$Include "$SRCDIR\vpc_scripts\source_video_base.vpc"
+

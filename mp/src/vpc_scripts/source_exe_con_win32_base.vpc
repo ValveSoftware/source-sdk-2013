@@ -1,0 +1,24 @@
+//-----------------------------------------------------------------------------
+//	SOURCE_EXE_CON_WIN32_BASE.VPC
+//
+//	Base Settings for all Source(TM) Projects
+//-----------------------------------------------------------------------------
+
+$IgnoreRedundancyWarning	"ON"
+$MacroRequired				"SRCDIR"
+$MacroRequired				"OUTBINDIR"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_win_win32_base.vpc"
+
+$Configuration
+{
+	$General [$VS2010]
+	{
+		$TargetName		"$OUTBINNAME"
+	}
+
+	$Linker
+	{
+		$SubSystem		"Console (/SUBSYSTEM:CONSOLE)"
+	}
+}

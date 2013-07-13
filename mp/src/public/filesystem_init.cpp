@@ -1407,17 +1407,9 @@ void FileSystem_ClearSteamEnvVars()
 void FileSystem_AddSearchPath_Platform( IFileSystem *pFileSystem, const char *szGameInfoPath )
 {
 	char platform[MAX_PATH];
-	if ( pFileSystem->IsSteam() )
-	{
-		// Steam doesn't support relative paths
-		Q_strncpy( platform, "platform", MAX_PATH );
-	}
-	else
-	{
-		Q_strncpy( platform, szGameInfoPath, MAX_PATH );
-		Q_StripTrailingSlash( platform );
-		Q_strncat( platform, "/../platform", MAX_PATH, MAX_PATH );
-	}
+	Q_strncpy( platform, szGameInfoPath, MAX_PATH );
+	Q_StripTrailingSlash( platform );
+	Q_strncat( platform, "/../platform", MAX_PATH, MAX_PATH );
 
 	pFileSystem->AddSearchPath( platform, "PLATFORM" );
 }

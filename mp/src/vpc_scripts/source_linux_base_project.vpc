@@ -1,0 +1,64 @@
+
+
+$MacroRequired				"SRCDIR"
+
+
+$Configuration "Debug"
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions			"DEBUG;_DEBUG"
+		$OptimizerLevel					"-gdwarf-2 -g $(OptimizerLevel_CompilerSpecific)"
+	}
+}
+
+$Configuration "Release"
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"NDEBUG"
+		$PreprocessorDefinitions		"$BASE;RELEASEASSERTS" [$RELEASEASSERTS]
+		$OptimizerLevel				"-gdwarf-2 -g $(OptimizerLevel_CompilerSpecific)"
+	}
+}
+
+$Configuration
+{
+	$General
+	{
+		$ConfigurationType				"Application (.exe)"
+	}
+
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
+		$AdditionalIncludeDirectories	"$BASE;/usr/include/malloc" [$OSX]
+		$PreprocessorDefinitions		"$BASE;POSIX;GNUC"
+		$PreprocessorDefinitions		"$BASE;DEDICATED" [$DEDICATED]
+		$PreprocessorDefinitions		"$BASE;LINUX;_LINUX"		[$LINUXALL]
+		$PreprocessorDefinitions		"$BASE;_OSX;OSX;_DARWIN_UNLIMITED_SELECT;FD_SETSIZE=10240;" [$OSX32 || $OSX64]
+		$PreprocessorDefinitions		"$BASE;_DEMO"			[$DEMO]
+		$SymbolVisibility				"hidden" 		[$POSIX]
+		$GCC_ExtraCompilerFlags			"$BASE -U_FORTIFY_SOURCE" [$LINUXALL]
+		$GCC_ExtraCompilerFlags			"$BASE -faddress-sanitizer" [$ADDRESSSANITIZER && $LINUXALL]
+
+		// Pass on appropriate branch define to preprocessor
+		$PreprocessorDefinitions		"$BASE;STAGING_ONLY" [$STAGING_ONLY]
+		$PreprocessorDefinitions		"$BASE;TF_BETA" [$TF_BETA]
+	}
+	$Linker
+	{
+		$GCC_ExtraLinkerFlags			"$BASE -faddress-sanitizer" [$ADDRESSSANITIZER && $LINUXALL]
+	}
+}
+
+$Project
+{
+	$Folder "Link Libraries"
+	{
+		$ImpLib tier0   [!$IS_LIB_PROJECT]
+		$Lib	tier1     [!$IS_LIB_PROJECT]
+		$ImpLib vstdlib [!$IS_LIB_PROJECT]
+		$Lib	$SRCDIR/thirdparty/clang+llvm-3.1-x86-linux-ubuntu_12.04/lib/clang/3.1/lib/linux/libclang_rt.asan-i386 [$ADDRESSSANITIZER && $LINUXALL]
+	}
+}

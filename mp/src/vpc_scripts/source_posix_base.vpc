@@ -1,0 +1,72 @@
+
+
+$Macro PLATSUBDIR	"\linux32"	[$LINUX32]
+//$Macro PLATSUBDIR	"\linux64"	[$LINUX64]
+$Macro PLATSUBDIR       "\osx32"          [$OSX32]
+$Macro PLATSUBDIR       "\osx64"          [$OSX64]
+
+$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR" [$LINUX]
+$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR" [$LINUX]
+
+
+
+$MacroRequired				"SRCDIR"
+
+
+$Configuration "Debug"
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions			"DEBUG;_DEBUG"
+		$OptimizerLevel					"-gdwarf-2 -g $(OptimizerLevel_CompilerSpecific)"
+	}
+}
+
+$Configuration "Release"
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"NDEBUG"
+		$OptimizerLevel					"-gdwarf-2 -g $(OptimizerLevel_CompilerSpecific)"
+	}
+}
+
+$Configuration
+{
+	$General
+	{
+		$ConfigurationType				"Application (.exe)"
+	}
+
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
+		$PreprocessorDefinitions		"$BASE;GNUC;POSIX"
+		$PreprocessorDefinitions		"$BASE;DEDICATED" [$DEDICATED]
+		// the 10240 in the following line is the output of `sysctl -n kern.maxfilesperproc`
+		$PreprocessorDefinitions		"$BASE;_OSX;OSX;_DARWIN_UNLIMITED_SELECT;FD_SETSIZE=10240;" [$OSX32 || $OSX64]
+		$PreprocessorDefinitions		"$BASE;_LINUX;LINUX;" [$LINUX]
+		$PreprocessorDefinitions		"$BASE;_CYGWIN;CYGWIN;" [$CYGWIN]
+
+		// Pass on appropriate branch define to preprocessor
+		$PreprocessorDefinitions		"$BASE;STAGING_ONLY" [$STAGING_ONLY]
+		$PreprocessorDefinitions		"$BASE;TF_BETA" [$TF_BETA]
+
+		$Create/UsePCHThroughFile	"stdafx.h"
+	}
+}
+
+$Project
+{
+
+	$Folder "Link Libraries"
+	{
+		$ImpLib tier0	[$LINUXALL]
+		$Lib	tier1	[$LINUXALL]
+		$ImpLib vstdlib	[$LINUXALL]
+		$DynamicFile   "$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXtier0$_IMPLIB_EXT"		[!$LINUXALL]
+		$DynamicFile   "$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXvstdlib$_IMPLIB_EXT"	[!$LINUXALL]
+		$DynamicFile   "$SRCDIR\lib\$PLATFORM\tier1$_STATICLIB_EXT"					[!$LINUXALL]
+	}
+}
+

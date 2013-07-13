@@ -1,0 +1,11 @@
+creategameprojects text
+createallprojects text
+vpc text
+*.sh text
+
+vpc_linux binary
+vpc_osx binary
+
+*.exe binary
+protoc binary
+ccache binary
