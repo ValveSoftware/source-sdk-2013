@@ -39,6 +39,13 @@ const char *Py_GetBuildInfo(void) { return ""; }
 const char *_Py_hgversion(void) { return ""; }
 const char *_Py_hgidentifier(void) { return ""; }
 
+extern "C" 
+{
+	char dllVersionBuffer[16] = ""; // a private buffer
+	HMODULE PyWin_DLLhModule = NULL;
+	const char *PyWin_DLLVersionString = dllVersionBuffer;
+}
+
 // For debugging
 ConVar g_debug_python( "g_debug_python", "0", FCVAR_REPLICATED );
 
@@ -181,17 +188,39 @@ void CSrcPython::ExtraShutdown( void )
 	//ShutdownInterpreter();
 }
 
+static void VSPTCheckForParm( bp::list argv, const char *pParmToCheck )
+{
+	if( CommandLine()->FindParm( pParmToCheck ) == 0 )
+		return;
+
+	const char *value = CommandLine()->ParmValue( pParmToCheck, (const char *)0 );
+	Msg("VSPT argument %s: %s\n", pParmToCheck, value ? value : "<null>" );
+	argv.append( pParmToCheck );
+	if( value )
+		argv.append( value );
+}
+
+static void VSPTParmRemove( const char *pParmToCheck )
+{
+	if( CommandLine()->FindParm( pParmToCheck ) == 0 )
+		return;
+
+	CommandLine()->RemoveParm( pParmToCheck );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 bool CSrcPython::InitInterpreter( void )
 {
-	const bool bEnabled = !CommandLine() || CommandLine()->FindParm("-disablepython") == 0;
-	//const bool bToolsMode = !CommandLine() || CommandLine()->FindParm("-tools") != 0;
+	const bool bEnabled = CommandLine() && CommandLine()->FindParm("-disablepython") == 0;
+	const bool bRunInterpreter = CommandLine() && CommandLine()->FindParm("-interpreter") != 0;
+	//const bool bToolsMode = CommandLine() && CommandLine()->FindParm("-tools") != 0;
 
 	/*const char *pGameDir = COM_GetModDirectory();
 	const char *pDevModDir = "hl2wars_asw_dev";
 	if( Q_strncmp( pGameDir, pDevModDir, Q_strlen( pDevModDir ) ) != 0 )*/
+	DevMsg("CommandLine: %s\n", CommandLine()->GetCmdLine());
 	m_bPathProtected = CommandLine() ? CommandLine()->FindParm("-nopathprotection") == 0 : true;
 
 	bool bNoChangeWorkingDirectory = CommandLine() ? CommandLine()->FindParm("-testnochangeworkingdir") != 0 : false;
@@ -225,10 +254,19 @@ bool CSrcPython::InitInterpreter( void )
 
 	double fStartTime = Plat_FloatTime();
 
-	char moddir[_MAX_PATH];
-	filesystem->RelativePathToFullPath("python/Lib", "MOD", moddir, _MAX_PATH);
-	V_FixupPathName(moddir, _MAX_PATH, moddir);
-	::SetEnvironmentVariable( "PYTHONPATH", moddir );
+	char buf[MAX_PATH];
+	char pythonpath[MAX_PATH];
+	pythonpath[0] = '\0';
+
+	filesystem->RelativePathToFullPath("python/Lib", "MOD", buf, _MAX_PATH);
+	V_FixupPathName(buf, MAX_PATH, buf);
+	V_strcat( pythonpath, buf, MAX_PATH );
+	V_strcat( pythonpath, ";", MAX_PATH );
+	filesystem->RelativePathToFullPath("python/Lib/DLLs", "MOD", buf, _MAX_PATH);
+	V_FixupPathName(buf, MAX_PATH, buf);
+	V_strcat( pythonpath, buf, MAX_PATH );
+
+	::SetEnvironmentVariable( "PYTHONPATH", pythonpath );
 
 	// Initialize an interpreter
 	Py_InitializeEx( 0 );
@@ -316,6 +354,81 @@ bool CSrcPython::InitInterpreter( void )
 #endif // CLIENT_DLL
 	DevMsg( "Initialized Python default modules... (%f seconds)\n", Plat_FloatTime() - fStartTime );
 
+	// Support for Visual Studio Python Tools
+	if( bRunInterpreter && CommandLine() )
+	{
+		char interpreterFile[MAX_PATH];
+		interpreterFile[0] = 0;
+		const char *pParmInterpreterFile = CommandLine()->ParmValue( "-interpreter" );
+		if( pParmInterpreterFile )
+			V_strncpy( interpreterFile, pParmInterpreterFile, MAX_PATH );
+
+		if( interpreterFile[0] != 0 )
+		{
+			char vtptpath[MAX_PATH];
+			V_strncpy( vtptpath, interpreterFile, MAX_PATH );
+			V_StripFilename( vtptpath );
+			this->SysAppendPath( vtptpath );
+
+			VSPTParmRemove("-insecure");
+			/*VSPTParmRemove("-dev");
+			VSPTParmRemove("-textmode");
+			VSPTParmRemove("-game");
+			VSPTParmRemove("-interpreter");*/
+
+			//bp::list argv = bp::list();
+			//argv.append( interpreterFile );
+
+			/*
+			int n = CommandLine()->ParmCount();
+			for( int i = 1; i < n; i++ )
+			{
+				Msg("VSPT Parm #%d: %s\n", i, CommandLine()->GetParm( i ) );
+				argv.append( CommandLine()->GetParm( i ) );
+			}*/
+
+			// Check "visualstudio_py_repl.py" from visual studio python tools for all arguments
+			//VSPTCheckForParm( argv, "--port" );
+			//VSPTCheckForParm( argv, "--execution_mode" );
+			//VSPTCheckForParm( argv, "--enable-attach" );
+			//VSPTCheckForParm( argv, "--launch_file" );
+
+			bp::str args( CommandLine()->GetCmdLine() );
+
+			try
+			{
+				bp::str remainder( args.split( "-interpreter", 1 )[1] );
+
+				bp::exec( "import shlex", mainnamespace, mainnamespace );
+				bp::object shlex = Import("shlex");
+
+				bp::str newCmd( /*"\"" + bp::str(interpreterFile) + "\" " +*/ remainder );
+				newCmd = newCmd.replace( "\\\"", "\\\\\"" );
+
+				builtins.attr("print")( newCmd );
+
+				bp::list argv( shlex.attr("split")( newCmd ) );
+				bp::setattr( sys, bp::object("argv"), argv );
+				}
+				catch( bp::error_already_set & ) 
+				{
+					PyErr_Print();
+				}
+
+				DevMsg("New CommandLine: %s\n", CommandLine()->GetCmdLine() );
+
+				// Change working directory	
+				V_SetCurrentDirectory( vtptpath );
+
+				Msg("Running interpreter file: %s\n", interpreterFile );
+				Run("import encodings.idna");
+				this->ExecuteFile( interpreterFile );
+		}
+
+		::TerminateProcess( ::GetCurrentProcess(), 0 );
+		return true;
+	}
+
 	return true;
 }
 
@@ -344,6 +457,10 @@ bool CSrcPython::ShutdownInterpreter( void )
 	m_deleteList.Purge();
 	m_methodTickList.Purge();
 	m_methodPerFrameList.Purge();
+
+	// Disconnect redirecting stdout/stderr
+	sys.attr("stdout") = bp::object();
+	sys.attr("stderr") = bp::object();
 
 	// Clear modules
 	mainmodule = bp::object();

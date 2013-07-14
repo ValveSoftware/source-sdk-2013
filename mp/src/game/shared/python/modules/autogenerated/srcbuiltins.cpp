@@ -19,11 +19,17 @@ BOOST_PYTHON_MODULE(srcbuiltins){
 
     bp::class_< SrcPyStdErr >( "SrcPyStdErr" )    
         .def( 
+            "flush"
+            , (void ( ::SrcPyStdErr::* )(  ) )( &::SrcPyStdErr::flush ) )    
+        .def( 
             "write"
             , (void ( ::SrcPyStdErr::* )( char const * ) )( &::SrcPyStdErr::write )
             , ( bp::arg("msg") ) );
 
     bp::class_< SrcPyStdOut >( "SrcPyStdOut" )    
+        .def( 
+            "flush"
+            , (void ( ::SrcPyStdOut::* )(  ) )( &::SrcPyStdOut::flush ) )    
         .def( 
             "write"
             , (void ( ::SrcPyStdOut::* )( char const * ) )( &::SrcPyStdOut::write )

@@ -18,12 +18,14 @@ class SrcPyStdOut
 {
 public:
 	void write( const char *msg ) { Msg( msg ); }
+	void flush() {}
 };
 
 class SrcPyStdErr 
 {
 public:
 	void write( const char *msg ) { Warning( msg ); }
+	void flush() {}
 };
 
 // Wrappers for Msg, Warning and DevMsg (Python does not use VarArgs)
