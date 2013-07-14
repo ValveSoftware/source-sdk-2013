@@ -11,6 +11,7 @@
 $Games
 {
 	"HL2MP"
+	"PYSOURCE"
 }
 
 // Makes the VPC scripts work in the SDK's context
