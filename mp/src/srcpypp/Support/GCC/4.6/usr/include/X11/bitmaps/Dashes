@@ -1,0 +1,4 @@
+#define Dashes_width 2
+#define Dashes_height 2
+static char Dashes_bits[] = {
+   0x01, 0x02};

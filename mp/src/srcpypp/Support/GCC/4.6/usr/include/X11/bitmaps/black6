@@ -1,0 +1,4 @@
+#define black6_width 6
+#define black6_height 6
+static char black6_bits[] = {
+   0xff, 0xff, 0xff, 0xff, 0xff, 0xff};

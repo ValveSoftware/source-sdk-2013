@@ -1,0 +1,4 @@
+#define grid2_width 2
+#define grid2_height 2
+static char grid2_bits[] = {
+   0x01, 0x00};

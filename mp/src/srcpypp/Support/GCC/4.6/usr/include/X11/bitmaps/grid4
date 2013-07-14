@@ -1,0 +1,4 @@
+#define grid4_width 4
+#define grid4_height 4
+static char grid4_bits[] = {
+   0x05, 0x00, 0x01, 0x00};
