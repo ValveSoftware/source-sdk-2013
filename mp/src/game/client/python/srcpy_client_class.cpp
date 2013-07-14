@@ -17,15 +17,11 @@
 #include "srcpy.h"
 #include "usermessages.h"
 
-//#include "c_hl2wars_player.h"
 #include "basegrenade_shared.h"
-//#include "unit_base_shared.h"
 #include "sprite.h"
 #include "c_smoke_trail.h"
 #include "beam_shared.h"
 #include "basecombatweapon_shared.h"
-//#include "c_wars_weapon.h"
-//#include "wars_func_unit.h"
 //#include "c_basetoggle.h"
 //#include "c_triggers.h"
 
@@ -57,45 +53,12 @@ namespace DT_BasePlayer
 {
 	extern RecvTable g_RecvTable;
 }
-namespace DT_HL2WarsPlayer
-{
-	extern RecvTable g_RecvTable;
-}
 namespace DT_BaseGrenade
-{
-	extern RecvTable g_RecvTable;
-}
-namespace DT_UnitBase
-{
-	extern RecvTable g_RecvTable;
-}
-
-namespace DT_Sprite
-{
-	extern RecvTable g_RecvTable;
-}
-
-namespace DT_SmokeTrail
-{
-	extern RecvTable g_RecvTable;
-}
-
-namespace DT_Beam
 {
 	extern RecvTable g_RecvTable;
 }
 
 namespace DT_BaseCombatWeapon
-{
-	extern RecvTable g_RecvTable;
-}
-
-namespace DT_WarsWeapon
-{
-	extern RecvTable g_RecvTable;
-}
-
-namespace DT_FuncUnit 
 {
 	extern RecvTable g_RecvTable;
 }
@@ -171,31 +134,10 @@ void SetupClientClassRecv( PyClientClassBase *p, int iType  )
 	case PN_BASEGRENADE:
 		p->m_pRecvTable = &(DT_BaseGrenade::g_RecvTable);
 		break;
-	case PN_SPRITE:
-		p->m_pRecvTable = &(DT_Sprite::g_RecvTable);
-		break;	
-	case PN_SMOKETRAIL:
-		p->m_pRecvTable = &(DT_SmokeTrail::g_RecvTable);
-		break;	
-	case PN_BEAM:
-		p->m_pRecvTable = &(DT_Beam::g_RecvTable);
-		break;
 	case PN_BASECOMBATWEAPON:
 		p->m_pRecvTable = &(DT_BaseCombatWeapon::g_RecvTable);
 		break;
 #if 0 // TODO
-	case PN_UNITBASE:
-		p->m_pRecvTable = &(DT_UnitBase::g_RecvTable);
-		break;
-	case PN_HL2WARSPLAYER:
-		p->m_pRecvTable = &(DT_HL2WarsPlayer::g_RecvTable);
-		break;
-	case PN_WARSWEAPON:
-		p->m_pRecvTable = &(DT_WarsWeapon::g_RecvTable);
-		break;
-	case PN_FUNCUNIT:
-		p->m_pRecvTable = &(DT_FuncUnit::g_RecvTable);
-		break;
 	case PN_BASETOGGLE:
 		p->m_pRecvTable = &(DT_BaseToggle::g_RecvTable);
 		break;
@@ -279,29 +221,11 @@ IClientNetworkable *ClientClassFactory( int iType, boost::python::object cls_typ
 		case PN_BASEGRENADE:
 			pResult = CALL_FALLBACK_FACTORY( C_BaseGrenade, entnum, serialNum );
 			break;
-		case PN_SPRITE:
-			pResult = CALL_FALLBACK_FACTORY( C_Sprite, entnum, serialNum );
-			break;
-		case PN_BEAM:
-			pResult = CALL_FALLBACK_FACTORY( C_Beam, entnum, serialNum );
-			break;
 		case PN_BASECOMBATWEAPON:
 			pResult = CALL_FALLBACK_FACTORY( C_BaseCombatWeapon, entnum, serialNum );
 			break;
 
 #if 0 // TODO
-		case PN_UNITBASE:
-			pResult = CALL_FALLBACK_FACTORY( C_UnitBase, entnum, serialNum );
-			break;
-		case PN_HL2WARSPLAYER:
-			pResult = CALL_FALLBACK_FACTORY( C_HL2WarsPlayer, entnum, serialNum );
-			break;
-		case PN_WARSWEAPON:
-			pResult = CALL_FALLBACK_FACTORY( C_WarsWeapon, entnum, serialNum );
-			break;
-		case PN_FUNCUNIT:
-			pResult = CALL_FALLBACK_FACTORY( C_FuncUnit, entnum, serialNum );
-			break;
 		case PN_BASETOGGLE:
 			pResult = CALL_FALLBACK_FACTORY( C_BaseToggle, entnum, serialNum );
 			break;

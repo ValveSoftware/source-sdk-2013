@@ -46,47 +46,12 @@ namespace DT_BaseGrenade
 	extern SendTable g_SendTable;
 }
 
-namespace DT_Sprite
-{
-	extern SendTable g_SendTable;
-}
-
-namespace DT_SmokeTrail
-{
-	extern SendTable g_SendTable;
-}
-
-namespace DT_Beam
-{
-	extern SendTable g_SendTable;
-}
-
 namespace DT_BaseCombatWeapon
 {
 	extern SendTable g_SendTable;
 }
 
 #if 0 // TODO
-namespace DT_UnitBase
-{
-	extern SendTable g_SendTable;
-}
-
-namespace DT_HL2WarsPlayer
-{
-	extern SendTable g_SendTable;
-}
-
-namespace DT_WarsWeapon
-{
-	extern SendTable g_SendTable;
-}
-
-namespace DT_FuncUnit
-{
-	extern SendTable g_SendTable;
-}
-
 namespace DT_BaseToggle
 {
 	extern SendTable g_SendTable;
@@ -140,33 +105,10 @@ void PyServerClass::SetupServerClass( int iType )
 	case PN_BASEGRENADE:
 		m_pTable = &(DT_BaseGrenade::g_SendTable);
 		break;
-
-	case PN_SPRITE:
-		m_pTable = &(DT_Sprite::g_SendTable);
-		break;
-	case PN_SMOKETRAIL:
-		m_pTable = &(DT_SmokeTrail::g_SendTable);
-		break;
-	case PN_BEAM:
-		m_pTable = &(DT_Beam::g_SendTable);
-		break;
 	case PN_BASECOMBATWEAPON:
 		m_pTable = &(DT_BaseCombatWeapon::g_SendTable);
 		break;
-
 #if 0 // TODO
-	case PN_UNITBASE:
-		m_pTable = &(DT_UnitBase::g_SendTable);
-		break;
-	case PN_HL2WARSPLAYER:
-		m_pTable = &(DT_HL2WarsPlayer::g_SendTable);
-		break;
-	case PN_WARSWEAPON:
-		m_pTable = &(DT_WarsWeapon::g_SendTable);
-		break;
-	case PN_FUNCUNIT:
-		m_pTable = &(DT_FuncUnit::g_SendTable);
-		break;
 	case PN_BASETOGGLE:
 		m_pTable = &(DT_BaseToggle::g_SendTable);
 		break;
