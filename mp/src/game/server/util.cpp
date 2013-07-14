@@ -77,6 +77,16 @@ public:
 	virtual void Destroy( const char *pClassName, IServerNetworkable *pNetworkable );
 	virtual const char *GetCannonicalName( const char *pClassName );
 	void ReportEntitySizes();
+	
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	virtual void RemoveFactory( const char *pClassName );
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 private:
 	IEntityFactory *FindFactory( const char *pClassName );
@@ -152,6 +162,23 @@ void CEntityFactoryDictionary::InstallFactory( IEntityFactory *pFactory, const c
 	m_Factories.Insert( pClassName, pFactory );
 }
 
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+//-----------------------------------------------------------------------------
+// DeInstall a new factory
+//-----------------------------------------------------------------------------
+void CEntityFactoryDictionary::RemoveFactory( const char *pClassName )
+{
+	Assert( FindFactory( pClassName ) != NULL );
+	m_Factories.Remove( pClassName );
+}
+
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 //-----------------------------------------------------------------------------
 // Instantiate something using a factory
@@ -540,7 +567,21 @@ void UTIL_RemoveImmediate( CBaseEntity *oldObj )
 	// Entities shouldn't reference other entities in their destructors
 	//  that type of code should only occur in an UpdateOnRemove call
 	g_bDisableEhandleAccess = true;
-	delete oldObj;
+#ifdef ENABLE_PYTHON
+	if( oldObj->GetPyInstance().ptr() != Py_None )
+	{
+		// Remove ourself from the global list, but don't delete
+		// Remove this entity from the ent list (NOTE:  This Makes EHANDLES go NULL)
+		// gEntList.RemoveEntity( oldObj->GetRefEHandle() );
+
+		// Clear our py instance which keeps the entity alive for sure
+		oldObj->DestroyPyInstance();
+	}
+	else
+#endif // ENABLE_PYTHON
+	{
+		delete oldObj;
+	}
 	g_bDisableEhandleAccess = false;
 
 #ifdef PORTAL

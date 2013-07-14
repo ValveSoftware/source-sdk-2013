@@ -18,7 +18,7 @@ $Configuration
 	{
 		// General
 		$WarningLevel						"Level 3 (/W3)"
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\thirdparty\boost;$SRCDIR\thirdparty\python\PC;$SRCDIR\thirdparty\python\Include"
+		$AdditionalIncludeDirectories	"$BASE;"
 		$PreprocessorDefinitions		"$BASE;"
 		
 		// Code Generation

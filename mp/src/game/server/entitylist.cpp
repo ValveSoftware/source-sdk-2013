@@ -323,7 +323,24 @@ void CGlobalEntityList::CleanupDeleteList( void )
 	g_bDisableEhandleAccess = true;
 	for ( int i = 0; i < g_DeleteList.Count(); i++ )
 	{
-		g_DeleteList[i]->Release();
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+		if( g_DeleteList[i]->GetBaseEntity()->GetPyInstance().ptr() != Py_None )
+		{
+			// Clear our py instance which keeps the entity alive for sure
+			g_DeleteList[i]->GetBaseEntity()->DestroyPyInstance();
+		}
+		else
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
+		{
+			g_DeleteList[i]->Release();
+		}
+		
 	}
 	g_bDisableEhandleAccess = false;
 	g_DeleteList.RemoveAll();

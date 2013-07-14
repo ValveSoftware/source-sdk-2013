@@ -44,6 +44,14 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+// =======================================
+// PySource Additions
+// =======================================
+#include "srcpy.h"
+
+// =======================================
+// END PySource Additions
+// =======================================
 
 #ifdef INTERPOLATEDVAR_PARANOID_MEASUREMENT
 	int g_nInterpolatedVarsChanged = 0;
@@ -6318,6 +6326,65 @@ int C_BaseEntity::GetCreationTick() const
 {
 	return m_nCreationTick;
 }
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+void *C_BaseEntity::PyAllocate(PyObject* self_, std::size_t holder_offset, std::size_t holder_size)
+{
+	Assert( holder_size != 0 );				
+	MEM_ALLOC_CREDIT();
+	void *pMem = MemAlloc_Alloc( holder_size );
+	memset( pMem, 0, holder_size );
+	return pMem;			
+}
+
+void C_BaseEntity::PyDeallocate(PyObject* self_, void *storage)
+{
+	// get the engine to free the memory
+	MemAlloc_Free( storage );
+}	
+
+//------------------------------------------------------------------------------
+// Purpose:
+//------------------------------------------------------------------------------
+void C_BaseEntity::PyUpdateNetworkVar( const char *pName, boost::python::object data, bool callchanged )
+{
+	// Set new var
+	try {
+		// Only set if changed.
+		if( hasattr( m_pyInstance, pName ) && getattr( m_pyInstance, pName ) == data )
+			return;
+
+		setattr(m_pyInstance, pName, data);
+	} catch(boost::python::error_already_set &) {
+		PyErr_Print();
+		PyErr_Clear();
+		return;
+	}
+
+	// Mark as data changed
+	AddDataChangeEvent( this, DATA_UPDATE_DATATABLE_CHANGED, &m_DataChangeEventRef );
+
+	// Dispatch changed callback if needed
+	if( callchanged )
+	{
+		try 
+		{
+			getattr( m_pyInstance, (const char *)VarArgs( "__%s__Changed", pName ) )();
+		} 
+		catch( boost::python::error_already_set & ) 
+		{
+			PyErr_Print();
+			PyErr_Clear();
+		}
+	}
+}
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 //------------------------------------------------------------------------------
 void CC_CL_Find_Ent( const CCommand& args )

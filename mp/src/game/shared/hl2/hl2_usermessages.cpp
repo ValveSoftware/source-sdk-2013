@@ -50,4 +50,23 @@ void RegisterUserMessages( void )
 	// NVNT register haptic user messages
 	RegisterHapticMessages();
 #endif
+// =======================================
+// PySource Additions
+// =======================================
+#if ENABLE_PYTHON
+	// Python messages
+	usermessages->Register( "PyMessage", -1 );
+	usermessages->Register( "PyNetworkCls", -1 );	// Import module with class def. Add fallbacks if client class is missing
+	usermessages->Register( "PyNetworkVar", -1 );
+	usermessages->Register( "PyNetworkVarCC", -1 );
+	usermessages->Register( "PyNetworkArrayFull", -1 );
+	usermessages->Register( "PyNetworkArrayFullCC", -1 );
+	usermessages->Register( "PyNetworkDictElement", -1 );
+	usermessages->Register( "PyNetworkDictFull", -1 );
+	usermessages->Register( "PyNetworkDictFullCC", -1 );
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
+
 }

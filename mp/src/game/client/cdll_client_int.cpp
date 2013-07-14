@@ -145,6 +145,16 @@
 #include "fbxsystem/fbxsystem.h"
 #endif
 
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+#include "srcpy.h"
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
+
 extern vgui::IInputInternal *g_InputInternal;
 const char *COM_GetModDirectory(); // return the mod dir (rather than the complete -game param, which can be a path)
 
@@ -1027,6 +1037,16 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 #if defined( CLIENT_DLL ) && defined( COPY_CHECK_STRESSTEST )
 	IGameSystem::Add( GetPredictionCopyTester() );
 #endif
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	IGameSystem::Add( SrcPySystem() );
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 	modemanager->Init( );
 

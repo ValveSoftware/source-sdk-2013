@@ -67,6 +67,14 @@
 #include "tf_gamerules.h"
 #endif
 
+// =======================================
+// PySource Additions
+// =======================================
+#include "srcpy.h"
+// =======================================
+// END PySource Additions
+// =======================================
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -506,6 +514,61 @@ void CBaseEntity::PostConstructor( const char *szClassname )
 
 	CheckHasThinkFunction( false );
 	CheckHasGamePhysicsSimulation();
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	// In case this is not created through a factory in python, retrieve the reference here.
+	if( GetPySelf() && m_pyInstance.ptr() == Py_None )
+	{
+		m_pyInstance = boost::python::object(
+			boost::python::handle<>(
+			boost::python::borrowed(GetPySelf())
+			)
+		);
+	}
+
+	// EVERY entity has a pyhandle. 
+	if( SrcPySystem()->IsPythonRunning() )
+		m_pyHandle = CreatePyHandle();
+
+	// Check the list of Python fields which require initialization
+	if( m_pyInstance.ptr() != Py_None )
+	{
+		boost::python::dict fieldinitmap;
+		try
+		{
+			fieldinitmap = boost::python::dict(m_pyInstance.attr("fieldinitmap"));
+		} 
+		catch( boost::python::error_already_set & )
+		{
+			Warning("Python entity has no field init list!\n");
+			PyErr_Clear();
+		}
+
+		boost::python::object elem;
+		const boost::python::object objectValues = fieldinitmap.values();
+
+		boost::python::ssize_t n = boost::python::len(fieldinitmap);
+		for( boost::python::ssize_t i=0; i < n; i++ ) 
+		{
+			elem = objectValues.attr( "next" )();
+			try 
+			{
+				elem.attr("InitField")(m_pyInstance);
+			}
+			catch( boost::python::error_already_set & )
+			{
+				Warning("Failed to initialize field: \n");
+				PyErr_Print();
+			}
+		}
+	}
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 }
 
 //-----------------------------------------------------------------------------
@@ -7294,6 +7357,34 @@ void CBaseEntity::SetCollisionBoundsFromModel()
 	}
 }
 
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+void *CBaseEntity::PyAllocate(PyObject* self_, std::size_t holder_offset, std::size_t holder_size)
+{
+	// call into engine to get memory
+	Assert( holder_size != 0 );
+	return engine->PvAllocEntPrivateData( holder_size );
+}
+
+void CBaseEntity::PyDeallocate(PyObject* self_, void *storage)
+{
+	// get the engine to free the memory
+	engine->FreeEntPrivateData( storage );
+}	
+
+//------------------------------------------------------------------------------
+// Purpose: Removes the Python instance
+//------------------------------------------------------------------------------
+void CBaseEntity::DestroyPyInstance()
+{
+	m_pyInstance = boost::python::object();
+}
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 //------------------------------------------------------------------------------
 // Purpose: Create an NPC of the given type

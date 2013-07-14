@@ -100,6 +100,16 @@ public:
 	virtual void Destroy( const char *pClassName, IServerNetworkable *pNetworkable ) = 0;
 	virtual IEntityFactory *FindFactory( const char *pClassName ) = 0;
 	virtual const char *GetCannonicalName( const char *pClassName ) = 0;
+	
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	virtual void RemoveFactory( const char *pClassName ) = 0;
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 };
 
 IEntityFactoryDictionary *EntityFactoryDictionary();

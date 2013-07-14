@@ -21,6 +21,14 @@
 #include "shareddefs.h"
 #include "engine/ivmodelinfo.h"
 
+// =======================================
+// PySource Additions
+// =======================================
+#include "srcpy_server_class.h"
+// =======================================
+// END PySource Additions
+// =======================================
+
 class CDamageModifier;
 class CDmgAccumulator;
 
@@ -84,6 +92,13 @@ class CSkyCamera;
 class CEntityMapData;
 class INextBot;
 
+// =======================================
+// PySource Additions
+// =======================================
+class CPythonNetworkVarBase;
+// =======================================
+// END PySource Additions
+// =======================================
 
 typedef CUtlVector< CBaseEntity* > EntityList_t;
 
@@ -1790,6 +1805,50 @@ public:
 	{
 		return s_bAbsQueriesValid;
 	}
+
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+public:
+	DECLARE_PYCLASS( CBaseEntity )
+
+	// TODO/FIXME: Default placement versions of operator new, boost python seems to wants these...
+	inline void* operator new(std::size_t, void* __p) throw() { Assert(0); Error("CBaseEntity new\n");return __p; }
+	inline void* operator new[](std::size_t, void* __p) throw() { Assert(0); Error("CBaseEntity new[]\n");return __p; }
+
+	// Memory allocators for python instances of entities
+	static void *PyAllocate( PyObject* self_, std::size_t holder_offset, std::size_t holder_size );
+	static void PyDeallocate( PyObject* self_, void *storage );
+
+	// This directly returns the PyObject (if any)
+	virtual PyObject *GetPySelf() const { return NULL; }
+
+	// This returns the reference to the Python instance (if any)
+	boost::python::object			GetPyInstance() const;
+	void							SetPyInstance( boost::python::object inst );
+
+	// This returns the entity handle for usage in Python
+	boost::python::object			GetPyHandle() const;
+
+	// This functions destroys the entity
+	virtual void					DestroyPyInstance();
+
+private:
+	boost::python::object m_pyInstance;
+	boost::python::object m_pyHandle;
+
+public:
+	// This is the list of network vars in Python
+	CUtlVector<CPythonNetworkVarBase *> m_utlPyNetworkVars;
+
+	// This bit vector tells to who we may send data
+	CBitVec<ABSOLUTE_PLAYER_LIMIT> m_PyNetworkVarsPlayerTransmitBits;
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 };
 
 // Send tables exposed in this module.
@@ -2595,6 +2654,30 @@ inline void CBaseEntity::FireBullets( int cShots, const Vector &vecSrc,
 
 	FireBullets( info );
 }
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+inline boost::python::object CBaseEntity::GetPyInstance() const 
+{ 
+	return m_pyInstance; 
+}
+
+inline void CBaseEntity::SetPyInstance( boost::python::object inst )
+{
+	Assert( GetRefEHandle() == NULL );
+	m_pyInstance = inst;
+}
+
+inline boost::python::object CBaseEntity::GetPyHandle() const 
+{ 
+	return m_pyHandle; 
+}
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 // Ugly technique to override base member functions
 // Normally it's illegal to cast a pointer to a member function of a derived class to a pointer to a 
