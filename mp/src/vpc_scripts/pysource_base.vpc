@@ -1,0 +1,8 @@
+$Configuration
+{
+	$Compiler
+	{
+		// Pass on appropriate branch define to preprocessor
+		$PreprocessorDefinitions		"$BASE;BOOST_AUTO_LINK_NOMANGLE;BOOST_PYTHON_STATIC_LIB;BOOST_PYTHON_NO_PY_SIGNATURES;BOOST_SERIALIZATION_NO_LIB;BOOST_PYTHON_MAX_ARITY=20;Py_NO_ENABLE_SHARED;Py_BUILD_CORE;ENABLE_PYTHON" [$PYSOURCE]
+	}
+}

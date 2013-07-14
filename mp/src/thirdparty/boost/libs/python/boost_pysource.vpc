@@ -1,0 +1,64 @@
+//-----------------------------------------------------------------------------
+//	BOOST_PYSOURCE.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\..\..\.."
+$Macro GAMENAME 	"pysource"
+
+$Macro OUTLIBDIR	"$SRCDIR\lib\public" [!$LINUX]
+
+$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+$Include "$SRCDIR\vpc_scripts\pysource_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		// General
+		$WarningLevel						"Level 3 (/W3)"
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\thirdparty\boost;$SRCDIR\thirdparty\python\PC;$SRCDIR\thirdparty\python\Include"
+		$PreprocessorDefinitions		"$BASE;"
+		
+		// Code Generation
+		$EnableC++Exceptions				"Yes (/EHsc)"
+	}
+}
+
+$Project "boost_python"
+{
+	$Folder	"Source Files"
+	{
+		$File	"src\converter\arg_to_python_base.cpp"
+		$File	"src\converter\builtin_converters.cpp"
+		$File	"src\converter\from_python.cpp"
+		$File	"src\converter\registry.cpp"
+		$File	"src\converter\type_id.cpp"
+		
+		$File	"src\object\class.cpp"
+		$File	"src\object\enum.cpp"
+		$File	"src\object\function.cpp"
+		$File	"src\object\function_doc_signature.cpp"
+		$File	"src\object\inheritance.cpp"
+		$File	"src\object\iterator.cpp"
+		$File	"src\object\life_support.cpp"
+		$File	"src\object\pickle_support.cpp"
+		$File	"src\object\stl_iterator.cpp"
+		
+		$File	"src\dict.cpp"
+		$File	"src\errors.cpp"
+		$File	"src\exec.cpp"
+		$File	"src\import.cpp"
+		$File	"src\list.cpp"
+		$File	"src\long.cpp"
+		$File	"src\module.cpp"
+		$File	"src\numeric.cpp"
+		$File	"src\object_operators.cpp"
+		$File	"src\object_protocol.cpp"
+		$File	"src\slice.cpp"
+		$File	"src\str.cpp"
+		$File	"src\tuple.cpp"
+		$File	"src\wrapper.cpp"
+	}
+}

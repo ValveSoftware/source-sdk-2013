@@ -13,6 +13,10 @@ $Project "captioncompiler"
 	"utils\captioncompiler\captioncompiler.vpc" [$WIN32]
 }
 
+$Project "boost_python"
+{
+	"thirdparty\boost\libs\python\boost_pysource.vpc"		[($WIN32||$POSIX) && $PYSOURCE]
+}
 
 $Project "client"
 {

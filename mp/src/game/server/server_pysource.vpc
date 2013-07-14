@@ -8,6 +8,7 @@ $Macro SRCDIR		"..\.."
 $Macro GAMENAME 	"pysource"
 
 $Include "$SRCDIR\game\server\server_base.vpc"
+$Include "$SRCDIR\vpc_scripts\pysource_base.vpc"
 
 $Configuration
 {
@@ -289,6 +290,11 @@ $Project "Server (PySource)"
 				$File	"$SRCDIR\game\shared\hl2mp\weapon_smg1.cpp"
 				$File	"$SRCDIR\game\shared\hl2mp\weapon_stunstick.cpp"
 			}
+		}
+		
+		$Folder	"Python"
+		{
+		
 		}
 	}
 }
