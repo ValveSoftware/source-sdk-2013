@@ -36,10 +36,28 @@ END_DATADESC()
 CServerNetworkProperty::CServerNetworkProperty()
 {
 	Init( NULL );
+	m_bDestroyed = false;
 }
 
 
 CServerNetworkProperty::~CServerNetworkProperty()
+{
+	if( !m_bDestroyed )
+	{
+		/* Free our transmit proxy.
+		if ( m_pTransmitProxy )
+		{
+			m_pTransmitProxy->Release();
+		}*/
+
+		engine->CleanUpEntityClusterList( &m_PVSInfo );
+
+		// remove the attached edict if it exists
+		DetachEdict();
+	}
+}
+
+void CServerNetworkProperty::DestroyNetworkProperty()
 {
 	/* Free our transmit proxy.
 	if ( m_pTransmitProxy )
@@ -51,6 +69,8 @@ CServerNetworkProperty::~CServerNetworkProperty()
 
 	// remove the attached edict if it exists
 	DetachEdict();
+
+	m_bDestroyed = true;
 }
 
 

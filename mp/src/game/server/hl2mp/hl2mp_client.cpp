@@ -28,6 +28,14 @@
 
 #include "tier0/vprof.h"
 
+// =======================================
+// PySource Additions
+// =======================================
+#include "srcpy_entities.h"
+// =======================================
+// END PySource Additions
+// =======================================
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -101,6 +109,21 @@ void ClientActive( edict_t *pEdict, bool bLoadGame )
 
 	CHL2MP_Player *pPlayer = ToHL2MPPlayer( CBaseEntity::Instance( pEdict ) );
 	FinishClientPutInServer( pPlayer );
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	// Give a full update of the networked python entities
+	// NOTE: Only dedicated servers and the listened host. Listened and clients are done in ClientConnect
+	if( engine->IsDedicatedServer() || ENTINDEX(pEdict) > 1 )
+	{
+		FullClientUpdatePyNetworkCls( pPlayer );
+	}
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 }
 
 

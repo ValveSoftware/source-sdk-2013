@@ -28,6 +28,7 @@ public:
 public:
 	CServerNetworkProperty();
 	virtual	~CServerNetworkProperty();
+	void DestroyNetworkProperty();
 
 public:
 // IServerNetworkable implementation.
@@ -110,6 +111,8 @@ private:
 	void SetTransmit( CCheckTransmitInfo *pInfo );
 
 private:
+	bool m_bDestroyed;
+
 	CBaseEntity *m_pOuter;
 	// CBaseTransmitProxy *m_pTransmitProxy;
 	edict_t	*m_pPev;
