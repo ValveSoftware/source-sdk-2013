@@ -30,6 +30,7 @@ modules = [
     # Game
     ('_entities', 'Entities'),
     ('_entitiesmisc', 'EntitiesMisc'),
+    ('_gameinterface', 'GameInterface'),
 ]
 
 '''('srcbase', 'SrcBase'),

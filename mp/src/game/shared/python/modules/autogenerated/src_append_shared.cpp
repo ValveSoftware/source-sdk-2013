@@ -14,10 +14,12 @@ using namespace boost::python;
 extern "C" __declspec(dllexport) PyObject* PyInit_srcbuiltins();
 extern "C" __declspec(dllexport) PyObject* PyInit__entities();
 extern "C" __declspec(dllexport) PyObject* PyInit__entitiesmisc();
+extern "C" __declspec(dllexport) PyObject* PyInit__gameinterface();
 #else
 extern "C"  PyObject* PyInit_srcbuiltins();
 extern "C"  PyObject* PyInit__entities();
 extern "C"  PyObject* PyInit__entitiesmisc();
+extern "C"  PyObject* PyInit__gameinterface();
 #endif // _WIN32
 
 // The append function
@@ -26,4 +28,5 @@ void AppendSharedModules()
 	APPEND_MODULE(srcbuiltins)
 	APPEND_MODULE(_entities)
 	APPEND_MODULE(_entitiesmisc)
+	APPEND_MODULE(_gameinterface)
 }
