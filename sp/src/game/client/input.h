@@ -18,7 +18,7 @@
 #include "ehandle.h"
 #include "inputsystem/AnalogCode.h"
 
-typedef unsigned long CRC32_t;
+typedef unsigned int CRC32_t;
 
 //-----------------------------------------------------------------------------
 // Purpose: 

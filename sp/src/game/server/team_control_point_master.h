@@ -36,7 +36,6 @@ public:
 	CTeamControlPointMaster();
 
 	// Used to find game specific entities
-	virtual const char *GetTriggerAreaCaptureName( void ) { return "trigger_capture_area"; }
 	virtual const char *GetControlPointName( void ) { return "team_control_point"; }
 	virtual const char *GetControlPointRoundName( void ) { return "team_control_point_round"; }
 
@@ -182,6 +181,8 @@ private:
 	void InputSetWinner( inputdata_t &inputdata );
 	void InputSetWinnerAndForceCaps( inputdata_t &inputdata );
 	void InputSetCapLayout( inputdata_t &inputdata );
+	void InputSetCapLayoutCustomPositionX( inputdata_t &inputdata );
+	void InputSetCapLayoutCustomPositionY( inputdata_t &inputdata );
 
 	void InternalSetWinner( int iTeam );
 
@@ -190,6 +191,9 @@ private:
 	string_t m_iszTeamBaseIcons[MAX_TEAMS];
 	int m_iTeamBaseIcons[MAX_TEAMS];
 	string_t m_iszCapLayoutInHUD;
+
+	float m_flCustomPositionX;
+	float m_flCustomPositionY;
 
 	int m_iInvalidCapWinner;
 	bool m_bSwitchTeamsOnWin;

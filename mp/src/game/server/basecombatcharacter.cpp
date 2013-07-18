@@ -3522,6 +3522,10 @@ void CBaseCombatCharacter::ChangeTeam( int iTeamNum )
 	// old team member no longer in the nav mesh
 	ClearLastKnownArea();
 
+#ifdef GLOWS_ENABLE
+	RemoveGlowEffect();
+#endif // GLOWS_ENABLE
+
 	BaseClass::ChangeTeam( iTeamNum );
 }
 

@@ -58,6 +58,7 @@ public:
 	int GetPreviousPointForPoint( int index, int team, int iPrevIndex );
 	bool TeamCanCapPoint( int index, int team );
 	void SetCapLayoutInHUD( const char *pszLayout ) { Q_strncpy(m_pszCapLayoutInHUD.GetForModify(), pszLayout, MAX_CAPLAYOUT_LENGTH ); }
+	void SetCapLayoutCustomPosition( float flPositionX, float flPositionY ) { m_flCustomPositionX = flPositionX; m_flCustomPositionY = flPositionY; }
 	void SetWarnOnCap( int index, int iWarnLevel );
 	void SetWarnSound( int index, string_t iszSound );
 	void SetCPGroup( int index, int iCPGroup );
@@ -65,6 +66,7 @@ public:
 	void SetTrackAlarm( int index, bool bAlarm );
 	void SetCPUnlockTime( int index, float flTime );
 	void SetCPTimerTime( int index, float flTime );
+	void SetCPCapTimeScalesWithPlayers( int index, bool bScales );
 
 	// State functions, called many times
 	void SetNumPlayers( int index, int team, int iNumPlayers );
@@ -205,9 +207,14 @@ private:
 
 	// changes when a point is successfully captured
 	CNetworkArray(  int,    m_iOwner,			MAX_CONTROL_POINTS );
+	CNetworkArray(	bool,	m_bCPCapRateScalesWithPlayers, MAX_CONTROL_POINTS );
 
 	// describes how to lay out the cap points in the hud
 	CNetworkString(  m_pszCapLayoutInHUD,		MAX_CAPLAYOUT_LENGTH );
+
+	// custom screen position for the cap points in the hud
+	CNetworkVar( float, m_flCustomPositionX );
+	CNetworkVar( float, m_flCustomPositionY );
 
 	// the groups the points belong to
 	CNetworkArray(	int,	m_iCPGroup,			MAX_CONTROL_POINTS );

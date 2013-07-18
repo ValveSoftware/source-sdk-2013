@@ -365,33 +365,27 @@ bool CTeamControlPointRound::MakePlayable( void )
 		if ( !IsPlayable() )
 		{
 			// we need to try switching the owners of the teams to make this round playable
-			for ( int i = FIRST_GAME_TEAM ; i < GetNumberOfTeams() ; i++ )
+			for ( int iTeam = FIRST_GAME_TEAM ; iTeam < GetNumberOfTeams() ; iTeam++ )
 			{
-				for ( int j = 0 ; j < m_ControlPoints.Count() ; j++ )
+				for ( int iControlPoint = 0 ; iControlPoint < m_ControlPoints.Count() ; iControlPoint++ )
 				{
-					if ( ( !pMaster->IsBaseControlPoint( m_ControlPoints[j]->GetPointIndex() ) ) && // this is NOT the base point for one of the teams (we don't want to assign the base to the wrong team)
-						 ( !WouldNewCPOwnerWinGame( m_ControlPoints[j], i ) ) ) // making this change would make this round playable
+					if ( ( !pMaster->IsBaseControlPoint( m_ControlPoints[iControlPoint]->GetPointIndex() ) ) && // this is NOT the base point for one of the teams (we don't want to assign the base to the wrong team)
+						 ( !WouldNewCPOwnerWinGame( m_ControlPoints[iControlPoint], iTeam ) ) ) // making this change would make this round playable
 					{
 						// need to find the trigger area associated with this point
-						CBaseEntity *pEnt = gEntList.FindEntityByClassname( NULL, pMaster->GetTriggerAreaCaptureName() );
-						while( pEnt )
+						for ( int iObj=0; iObj<ITriggerAreaCaptureAutoList::AutoList().Count(); ++iObj )
 						{
-							CTriggerAreaCapture *pArea = assert_cast<CTriggerAreaCapture*>( pEnt );
-							if ( pArea )
-							{	
-								if ( pArea->TeamCanCap( i ) )
+							CTriggerAreaCapture *pArea = static_cast< CTriggerAreaCapture * >( ITriggerAreaCaptureAutoList::AutoList()[iObj] );	
+							if ( pArea->TeamCanCap( iTeam ) )
+							{
+								CHandle<CTeamControlPoint> hPoint = pArea->GetControlPoint();
+								if ( hPoint == m_ControlPoints[iControlPoint] )
 								{
-									CHandle<CTeamControlPoint> hPoint = pArea->GetControlPoint();
-									if ( hPoint == m_ControlPoints[j] )
-									{
-										// found! 
-										pArea->ForceOwner( i ); // this updates the trigger_area *and* the control_point
-										return true;
-									}
+									// found! 
+									pArea->ForceOwner( iTeam ); // this updates the trigger_area *and* the control_point
+									return true;
 								}
 							}
-
-							pEnt = gEntList.FindEntityByClassname( pEnt, pMaster->GetTriggerAreaCaptureName() );
 						}
 					}
 				}

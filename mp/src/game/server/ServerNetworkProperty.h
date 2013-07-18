@@ -28,7 +28,14 @@ public:
 public:
 	CServerNetworkProperty();
 	virtual	~CServerNetworkProperty();
+
+// =======================================
+// PySource Additions
+// =======================================
 	void DestroyNetworkProperty();
+// =======================================
+// END PySource Additions
+// =======================================
 
 public:
 // IServerNetworkable implementation.

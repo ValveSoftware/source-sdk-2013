@@ -525,7 +525,7 @@ public:
 	virtual void SetGamestatsData( CGamestatsData *pGamestatsData ) = 0;
 	virtual CGamestatsData *GetGamestatsData() = 0;
 
-#if defined( USE_SDL ) || defined( OSX )
+#if defined( USE_SDL )
 	// we need to pull delta's from the cocoa mgr, the engine vectors this for us
 	virtual void GetMouseDelta( int &x, int &y, bool bIgnoreNextMouseDelta = false ) = 0;
 #endif

@@ -1,4 +1,3 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 //	LZMA Decoder. Designed for run time decoding.
 //

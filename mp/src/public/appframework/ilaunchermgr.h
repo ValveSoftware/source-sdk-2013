@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-#if defined( USE_SDL ) || defined( OSX )
+#if defined( USE_SDL )
 
 #include "tier0/threadtools.h"
 #include "appframework/IAppSystem.h"
@@ -29,18 +29,12 @@ class CShowPixelsParams;
 #endif
 
 // if you rev this version also update materialsystem/cmaterialsystem.cpp CMaterialSystem::Connect as it defines the string directly
-#if defined( USE_SDL )
-	#define SDLMGR_INTERFACE_VERSION "SDLMgrInterface001"
-#elif defined( OSX )
-	#define COCOAMGR_INTERFACE_VERSION "CocoaMgrInterface006"
-#endif
+#define SDLMGR_INTERFACE_VERSION "SDLMgrInterface001"
 
 class CCocoaEvent;
 class CStackCrawlParams;
 
-#if defined( USE_SDL )
 typedef struct SDL_Cursor SDL_Cursor;
-#endif
 
 class ILauncherMgr : public IAppSystem
 {
@@ -103,11 +97,9 @@ public:
 	virtual void *GetWindowRef() = 0;
 
 	virtual void SetMouseVisible( bool bState ) = 0;
-#ifdef USE_SDL
 	virtual void SetMouseCursor( SDL_Cursor *hCursor ) = 0;
 	virtual void SetForbidMouseGrab( bool bForbidMouseGrab ) = 0;
 	virtual void OnFrameRendered() = 0;
-#endif
 
 	virtual void SetGammaRamp( const uint16 *pRed, const uint16 *pGreen, const uint16 *pBlue ) = 0;
 
@@ -163,6 +155,6 @@ public:
 	int m_MouseButton; // which of the CocoaMouseButton_t buttons this is for from above
 };
 
-#endif // USE_SDL || OSX
+#endif // defined( USE_SDL )
 
 #endif // ILAUNCHERMGR_H

@@ -10,8 +10,8 @@
 // This is one file we expect to be different between branches and so it must be merged carefully
 
 // Staging branch:
-//$Macro STAGING_ONLY	"1"
+//$Conditional STAGING_ONLY	"1"
 
 // rel/tf_beta branch:
-//$Macro TF_BETA	"1"
+//$Conditional TF_BETA	"1"
 

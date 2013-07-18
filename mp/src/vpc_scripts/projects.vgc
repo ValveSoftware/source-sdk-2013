@@ -24,6 +24,11 @@ $Project "client"
 	"game\client\client_pysource.vpc"		[($WIN32||$POSIX) && $PYSOURCE]
 }
 
+$Project "game_shader_dx9"
+{
+	"materialsystem\stdshaders\game_shader_dx9_hl2mp.vpc" [$HL2MP]
+}
+
 $Project "glview"
 {
 	"utils\glview\glview.vpc" [$WIN32]

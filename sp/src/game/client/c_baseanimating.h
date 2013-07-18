@@ -228,7 +228,7 @@ public:
 	int					GetNumBoneAttachments();
 	C_BaseAnimating*	GetBoneAttachment( int i );
 	virtual void		NotifyBoneAttached( C_BaseAnimating* attachTarget );
-	virtual void		UpdateBoneAttachments( int flags );
+	virtual void		UpdateBoneAttachments( void );
 
 	//bool solveIK(float a, float b, const Vector &Foot, const Vector &Knee1, Vector &Knee2);
 	//void DebugIK( mstudioikchain_t *pikchain );

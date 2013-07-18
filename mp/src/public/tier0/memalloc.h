@@ -535,7 +535,7 @@ inline void MemAlloc_GlobalMemoryStatus( size_t *pusedMemory, size_t *pfreeMemor
 	*pusedMemory = 0;
 	*pfreeMemory = 0;
 }
-#define MemAlloc_MemoryAllocFailed() 1
+#define MemAlloc_MemoryAllocFailed() 0
 
 #define MemAlloc_GetDebugInfoSize() 0
 #define MemAlloc_SaveDebugInfo( pvDebugInfo ) ((void)0)

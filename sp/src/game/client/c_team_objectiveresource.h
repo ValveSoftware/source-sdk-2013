@@ -163,6 +163,7 @@ public:
 	}
 
 	const char *GetCapLayoutInHUD( void ) { return m_pszCapLayoutInHUD; }
+	void GetCapLayoutCustomPosition( float& flCustomPositionX, float& flCustomPositionY ) { flCustomPositionX = m_flCustomPositionX; flCustomPositionY = m_flCustomPositionY; }
 
 	bool PlayingMiniRounds( void ){ return m_bPlayingMiniRounds; }
 	bool IsInMiniRound( int index ) { return m_bInMiniRound[index]; }
@@ -313,6 +314,7 @@ protected:
 	int		m_iTeamInZone[MAX_CONTROL_POINTS];
 	bool	m_bBlocked[MAX_CONTROL_POINTS];
 	int		m_iOwner[MAX_CONTROL_POINTS];
+	bool	m_bCPCapRateScalesWithPlayers[MAX_CONTROL_POINTS];
 
 	// client calculated state
 	float	m_flCapTimeLeft[MAX_CONTROL_POINTS];
@@ -321,6 +323,10 @@ protected:
 	bool	m_bWarnedOnFinalCap[MAX_CONTROL_POINTS];
 	float	m_flLastCapWarningTime[MAX_CONTROL_POINTS];
 	char	m_pszCapLayoutInHUD[MAX_CAPLAYOUT_LENGTH];
+	float	m_flOldCustomPositionX;
+	float	m_flOldCustomPositionY;
+	float	m_flCustomPositionX;
+	float	m_flCustomPositionY;
 
 	// hill data for multi-escort payload maps
 	int		m_nNumNodeHillData[TEAM_TRAIN_MAX_TEAMS];

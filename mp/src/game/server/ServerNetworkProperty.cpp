@@ -42,21 +42,21 @@ CServerNetworkProperty::CServerNetworkProperty()
 
 CServerNetworkProperty::~CServerNetworkProperty()
 {
+// =======================================
+// PySource Additions
+// =======================================
 	if( !m_bDestroyed )
 	{
-		/* Free our transmit proxy.
-		if ( m_pTransmitProxy )
-		{
-			m_pTransmitProxy->Release();
-		}*/
-
-		engine->CleanUpEntityClusterList( &m_PVSInfo );
-
-		// remove the attached edict if it exists
-		DetachEdict();
+		DestroyNetworkProperty();
 	}
+// =======================================
+// END PySource Additions
+// =======================================
 }
 
+// =======================================
+// PySource Additions
+// =======================================
 void CServerNetworkProperty::DestroyNetworkProperty()
 {
 	/* Free our transmit proxy.
@@ -72,7 +72,9 @@ void CServerNetworkProperty::DestroyNetworkProperty()
 
 	m_bDestroyed = true;
 }
-
+// =======================================
+// END PySource Additions
+// =======================================
 
 //-----------------------------------------------------------------------------
 // Initialization

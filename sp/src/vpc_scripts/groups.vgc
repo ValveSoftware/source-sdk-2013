@@ -23,10 +23,16 @@ $Group "game"
 	"vgui_controls"
 }
 
+$Group "shaders"
+{
+	"game_shader_dx9"
+}
+
 $Group "everything"
 {
 	"captioncompiler"
 	"client"
+	"game_shader_dx9"
 	"glview"
 	"height2normal"
 	"mathlib"

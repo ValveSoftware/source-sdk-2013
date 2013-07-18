@@ -425,7 +425,7 @@ void CVoiceStatus::UpdateServerState(bool bForce)
 
 void CVoiceStatus::HandleVoiceMaskMsg(bf_read &msg)
 {
-	unsigned long dw;
+	unsigned int dw;
 	for(dw=0; dw < VOICE_MAX_PLAYERS_DW; dw++)
 	{
 		m_AudiblePlayers.SetDWord(dw, (unsigned long)msg.ReadLong());
@@ -434,8 +434,8 @@ void CVoiceStatus::HandleVoiceMaskMsg(bf_read &msg)
 		if( voice_clientdebug.GetInt())
 		{
 			Msg("CVoiceStatus::HandleVoiceMaskMsg\n");
-			Msg("    - m_AudiblePlayers[%d] = %lu\n", dw, m_AudiblePlayers.GetDWord(dw));
-			Msg("    - m_ServerBannedPlayers[%d] = %lu\n", dw, m_ServerBannedPlayers.GetDWord(dw));
+			Msg("    - m_AudiblePlayers[%d] = %u\n", dw, m_AudiblePlayers.GetDWord(dw));
+			Msg("    - m_ServerBannedPlayers[%d] = %u\n", dw, m_ServerBannedPlayers.GetDWord(dw));
 		}
 	}
 

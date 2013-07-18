@@ -24,6 +24,9 @@ BEGIN_DATADESC( CTeamControlPointMaster )
 
 	DEFINE_KEYFIELD( m_flPartialCapturePointsRate, FIELD_FLOAT, "partial_cap_points_rate" ),
 
+	DEFINE_KEYFIELD( m_flCustomPositionX, FIELD_FLOAT, "custom_position_x" ),
+	DEFINE_KEYFIELD( m_flCustomPositionY, FIELD_FLOAT, "custom_position_y" ),
+
 //	DEFINE_FIELD( m_ControlPoints, CUtlMap < int , CTeamControlPoint * > ),
 //	DEFINE_FIELD( m_bFoundPoints, FIELD_BOOLEAN ),
 //	DEFINE_FIELD( m_ControlPointRounds, CUtlVector < CTeamControlPointRound * > ),
@@ -40,6 +43,8 @@ BEGIN_DATADESC( CTeamControlPointMaster )
 	DEFINE_INPUTFUNC( FIELD_VOID, "RoundSpawn", InputRoundSpawn ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "RoundActivate", InputRoundActivate ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetCapLayout", InputSetCapLayout ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetCapLayoutCustomPositionX", InputSetCapLayoutCustomPositionX ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetCapLayoutCustomPositionY", InputSetCapLayoutCustomPositionY ),
 
 	DEFINE_FUNCTION( CPMThink ),
 
@@ -70,6 +75,8 @@ int ControlPointRoundSort( CTeamControlPointRound* const *p1, CTeamControlPointR
 CTeamControlPointMaster::CTeamControlPointMaster()
 {
 	m_flPartialCapturePointsRate = 0.0f;
+	m_flCustomPositionX = -1.f;
+	m_flCustomPositionY = -1.f;
 }
 
 //-----------------------------------------------------------------------------
@@ -329,6 +336,7 @@ bool CTeamControlPointMaster::FindControlPointRounds( void )
 	{
 		g_pObjectiveResource->SetPlayingMiniRounds( bFoundRounds );
 		g_pObjectiveResource->SetCapLayoutInHUD( STRING(m_iszCapLayoutInHUD) );
+		g_pObjectiveResource->SetCapLayoutCustomPosition( m_flCustomPositionX, m_flCustomPositionY );
 	}
 
 	return bFoundRounds;
@@ -837,15 +845,11 @@ void CTeamControlPointMaster::InputRoundSpawn( inputdata_t &input )
 	// init the ClientAreas
 	int index = 0;
 	
-	CBaseEntity *pEnt = gEntList.FindEntityByClassname( NULL, GetTriggerAreaCaptureName() );
-	while( pEnt )
+	for ( int i=0; i<ITriggerAreaCaptureAutoList::AutoList().Count(); ++i )
 	{
-		CTriggerAreaCapture *pArea = (CTriggerAreaCapture *)pEnt;
-		Assert( pArea );
+		CTriggerAreaCapture *pArea = static_cast< CTriggerAreaCapture * >( ITriggerAreaCaptureAutoList::AutoList()[i] );
 		pArea->SetAreaIndex( index );
 		index++;
-
-		pEnt = gEntList.FindEntityByClassname( pEnt, GetTriggerAreaCaptureName() );
 	}
 	
 	ObjectiveResource()->ResetControlPoints();
@@ -887,6 +891,24 @@ void CTeamControlPointMaster::InputSetCapLayout( inputdata_t &inputdata )
 {
 	m_iszCapLayoutInHUD = inputdata.value.StringID();
 	g_pObjectiveResource->SetCapLayoutInHUD( STRING(m_iszCapLayoutInHUD) );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTeamControlPointMaster::InputSetCapLayoutCustomPositionX( inputdata_t &inputdata )
+{
+	m_flCustomPositionX = inputdata.value.Float();
+	g_pObjectiveResource->SetCapLayoutCustomPosition( m_flCustomPositionX, m_flCustomPositionY );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTeamControlPointMaster::InputSetCapLayoutCustomPositionY( inputdata_t &inputdata )
+{
+	m_flCustomPositionY = inputdata.value.Float();
+	g_pObjectiveResource->SetCapLayoutCustomPosition( m_flCustomPositionX, m_flCustomPositionY );
 }
 
 //-----------------------------------------------------------------------------

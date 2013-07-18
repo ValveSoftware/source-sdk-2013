@@ -95,6 +95,10 @@ public:
 
 	// data accessor for above
 	virtual bool GetShouldVGuiControlSleep() = 0;
+
+	// enables VR mode
+	virtual void SetVRMode( bool bVRMode ) = 0;
+	virtual bool GetVRMode() = 0;
 };
 
 #define VGUI_IVGUI_INTERFACE_VERSION "VGUI_ivgui008"

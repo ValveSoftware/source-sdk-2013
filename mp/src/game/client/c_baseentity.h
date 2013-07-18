@@ -752,6 +752,7 @@ public:
 	virtual void					SetHealth(int iHealth) {}
 	virtual int						GetHealth() const { return 0; }
 	virtual int						GetMaxHealth() const { return 1; }
+	virtual bool					IsVisibleToTargetID( void ) { return false; }
 
 	// Returns the health fraction
 	float							HealthFraction() const;
@@ -1013,6 +1014,7 @@ public:
 	virtual bool					IsBaseObject( void ) const { return false; }
 	virtual bool					IsBaseCombatWeapon( void ) const { return false; }
 	virtual class C_BaseCombatWeapon		*MyCombatWeaponPointer() { return NULL; }
+	virtual bool					IsCombatItem( void ) const { return false; }
 
 	virtual bool					IsBaseTrain( void ) const { return false; }
 

@@ -79,8 +79,8 @@ void NavDrawLine( const Vector& from, const Vector& to, NavEditColor navColor )
 	const Vector offset( 0, 0, 1 );
 
 	Color color = NavColors[navColor];
-	NDebugOverlay::Line( from + offset, to + offset, color[0]/2, color[1]/2, color[2]/2, true, 0.1f );
-	NDebugOverlay::Line( from + offset, to + offset, color[0], color[1], color[2], false, 0.15f );
+	NDebugOverlay::Line( from + offset, to + offset, color[0], color[1], color[2], false, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+	NDebugOverlay::Line( from + offset, to + offset, color[0]/2, color[1]/2, color[2]/2, true, NDEBUG_PERSIST_TILL_NEXT_SERVER );
 }
 
 
@@ -113,8 +113,8 @@ void NavDrawHorizontalArrow( const Vector& from, const Vector& to, float width, 
 	const Vector offset( 0, 0, 1 );
 
 	Color color = NavColors[navColor];
-	NDebugOverlay::HorzArrow( from + offset, to + offset, width, color[0]/2, color[1]/2, color[2]/2, 255, true, NDEBUG_PERSIST_TILL_NEXT_SERVER );
 	NDebugOverlay::HorzArrow( from + offset, to + offset, width, color[0], color[1], color[2], 255, false, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+	NDebugOverlay::HorzArrow( from + offset, to + offset, width, color[0]/2, color[1]/2, color[2]/2, 255, true, NDEBUG_PERSIST_TILL_NEXT_SERVER );
 }
 
 
@@ -142,8 +142,8 @@ void NavDrawDashedLine( const Vector& from, const Vector& to, NavEditColor navCo
 
 		distance += solidLen + gapLen;
 
-		NDebugOverlay::Line( start + offset, end + offset, color[0]/2, color[1]/2, color[2]/2, true, NDEBUG_PERSIST_TILL_NEXT_SERVER );
 		NDebugOverlay::Line( start + offset, end + offset, color[0], color[1], color[2], false, NDEBUG_PERSIST_TILL_NEXT_SERVER );
+		NDebugOverlay::Line( start + offset, end + offset, color[0]/2, color[1]/2, color[2]/2, true, NDEBUG_PERSIST_TILL_NEXT_SERVER );
 	}
 }
 

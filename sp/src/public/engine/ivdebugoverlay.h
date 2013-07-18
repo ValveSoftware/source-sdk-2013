@@ -25,7 +25,7 @@ class Vector;
 
 // When used as a duration by a server-side NDebugOverlay:: call, 
 // causes the overlay to persist until the next server update.
-#define NDEBUG_PERSIST_TILL_NEXT_SERVER (0.01023f)
+#define NDEBUG_PERSIST_TILL_NEXT_SERVER (0.0f)
 
 class OverlayText_t;
 

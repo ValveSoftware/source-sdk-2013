@@ -661,8 +661,9 @@ bool BuildFacesamples( lightinfo_t *pLightInfo, facelight_t *pFaceLight )
 															  pTex->lightmapVecsLuxelsPerWorldUnits[1] ) ) );
 
 	// allocate a large number of samples for creation -- get copied later!
-	char sampleData[sizeof(sample_t)*SINGLE_BRUSH_MAP*2];
-	sample_t *samples = (sample_t*)sampleData; // use a char array to speed up the debug version.
+	CUtlVector<sample_t> sampleData;
+	sampleData.SetCount( SINGLE_BRUSH_MAP * 2 );
+	sample_t *samples = sampleData.Base();
 	sample_t *pSamples = samples;
 
 	// lightmap space winding

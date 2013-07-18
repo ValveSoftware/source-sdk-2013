@@ -44,7 +44,7 @@ $Project "tier1"
 		$File	"interface.cpp"
 		$File	"KeyValues.cpp"
 		$File	"kvpacker.cpp"
-		$File	"lzmaDecoder.cpp" [!$SOURCESDK]
+		$File	"lzmaDecoder.cpp"
 		$File	"lzss.cpp" [!$SOURCESDK]
 		$File	"mempool.cpp"
 		$File	"memstack.cpp"

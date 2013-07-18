@@ -79,6 +79,7 @@ public:
 	void SetStopWatch( bool bState ) { m_bStopWatchTimer = bState; }
 	bool IsStopWatchTimer( void ) { return m_bStopWatchTimer; }
 	float GetStopWatchTotalTime( void ) { return m_flTotalTime; }
+	bool IsRoundMaxTimerSet( void ) { return m_nTimerMaxLength > 0; }
 	
 
 private:

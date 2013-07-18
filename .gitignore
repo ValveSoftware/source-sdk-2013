@@ -54,3 +54,7 @@ config.cfg
 # Python
 *.pyc
 *.pdb
+
+# shader files
+*.tmp
+

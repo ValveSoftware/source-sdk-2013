@@ -313,10 +313,12 @@ public:
 	bool HasAvoidanceObstacle( float maxObstructionHeight = StepHeight ) const; // is there a large, immobile object obstructing this area
 	float GetAvoidanceObstacleHeight( void ) const; // returns the maximum height of the obstruction above the ground
 
+#ifdef NEXT_BOT
 	bool HasPrerequisite( CBaseCombatCharacter *actor = NULL ) const;							// return true if this area has a prerequisite that applies to the given actor
 	const CUtlVector< CHandle< CFuncNavPrerequisite > > &GetPrerequisiteVector( void ) const;	// return vector of prerequisites that must be met before this area can be traversed
 	void RemoveAllPrerequisites( void );
 	void AddPrerequisite( CFuncNavPrerequisite *prereq );
+#endif
 
 	void ClearAllNavCostEntities( void );							// clear set of func_nav_cost entities that affect this area
 	void AddFuncNavCostEntity( CFuncNavCost *cost );				// add the given func_nav_cost entity to the cost of this area
@@ -722,7 +724,9 @@ private:
 
 	void CalcDebugID();
 
+#ifdef NEXT_BOT
 	CUtlVector< CHandle< CFuncNavPrerequisite > > m_prerequisiteVector;		// list of prerequisites that must be met before this area can be traversed
+#endif
 
 	CNavArea *m_prevHash, *m_nextHash;							// for hash table in CNavMesh
 
@@ -764,6 +768,8 @@ extern NavAreaVector TheNavAreas;
 // Inlines
 //
 
+#ifdef NEXT_BOT
+
 //--------------------------------------------------------------------------------------------------------------
 inline bool CNavArea::HasPrerequisite( CBaseCombatCharacter *actor ) const
 {
@@ -790,6 +796,7 @@ inline void CNavArea::AddPrerequisite( CFuncNavPrerequisite *prereq )
 		m_prerequisiteVector.AddToTail( prereq );
 	}
 }
+#endif
 
 //--------------------------------------------------------------------------------------------------------------
 inline float CNavArea::GetDangerDecayRate( void ) const
