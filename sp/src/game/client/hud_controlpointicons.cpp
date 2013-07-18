@@ -1107,7 +1107,23 @@ void CHudControlPointIcons::PerformLayout( void )
 	}
 
 	// Setup the main panel
-	SetBounds( (ScreenWidth() - iWidest) * 0.5, ScreenHeight() - iTall - m_nHeightOffset, iWidest, iTall );
+	float flPositionX = (ScreenWidth() - iWidest) * 0.5;
+	float flPositionY = ScreenHeight() - iTall - m_nHeightOffset;
+	if ( ObjectiveResource() )
+	{
+		float flCustomPositionX = -1.f;
+		float flCustomPositionY = -1.f;
+		ObjectiveResource()->GetCapLayoutCustomPosition( flCustomPositionX, flCustomPositionY );
+		if ( flCustomPositionX != -1.f )
+		{
+			flPositionX = flCustomPositionX * ScreenWidth();
+		}
+		if ( flCustomPositionY != -1.f )
+		{
+			flPositionY = flCustomPositionY * ScreenHeight();
+		}
+	}
+	SetBounds( flPositionX, flPositionY, iWidest, iTall );
 
 	// Now that we know how wide we are, and how many icons are in each line, 
 	// we can lay the icons out, centered in the lines.

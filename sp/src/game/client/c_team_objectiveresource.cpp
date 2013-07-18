@@ -87,7 +87,10 @@ IMPLEMENT_CLIENTCLASS_DT_NOBASE(C_BaseTeamObjectiveResource, DT_BaseTeamObjectiv
 	RecvPropArray3( RECVINFO_ARRAY(m_iTeamInZone),		RecvPropInt( RECVINFO(m_iTeamInZone[0]) ) ),
 	RecvPropArray3( RECVINFO_ARRAY(m_bBlocked),		RecvPropInt( RECVINFO(m_bBlocked[0]) ) ),
 	RecvPropArray3( RECVINFO_ARRAY(m_iOwner),			RecvPropInt( RECVINFO(m_iOwner[0]), 0, RecvProxy_Owner ) ),
+	RecvPropArray3( RECVINFO_ARRAY(m_bCPCapRateScalesWithPlayers), RecvPropBool( RECVINFO(m_bCPCapRateScalesWithPlayers[0]) ) ),
 	RecvPropString( RECVINFO(m_pszCapLayoutInHUD), 0, RecvProxy_CapLayout ),
+	RecvPropFloat( RECVINFO(m_flCustomPositionX) ),
+	RecvPropFloat( RECVINFO(m_flCustomPositionY) ),
 END_RECV_TABLE()
 
 C_BaseTeamObjectiveResource *g_pObjectiveResource = NULL;
@@ -151,6 +154,9 @@ C_BaseTeamObjectiveResource::C_BaseTeamObjectiveResource()
 		m_flNodeHillData[i] = 0;
 	}
 
+	m_flCustomPositionX = -1.f;
+	m_flCustomPositionY = -1.f;
+
 	g_pObjectiveResource = this;
 }
 
@@ -172,6 +178,9 @@ void C_BaseTeamObjectiveResource::OnPreDataChanged( DataUpdateType_t updateType 
 	m_iPrevNumControlPoints = m_iNumControlPoints;
 	m_iOldUpdateCapHudParity = m_iUpdateCapHudParity;
 	m_bOldControlPointsReset = m_bControlPointsReset;
+
+	m_flOldCustomPositionX = m_flCustomPositionX;
+	m_flOldCustomPositionY = m_flCustomPositionY;
 
 	memcpy( m_flOldLazyCapPerc, m_flLazyCapPerc, sizeof(float)*m_iNumControlPoints );
 	memcpy( m_flOldUnlockTimes, m_flUnlockTimes, sizeof(float)*m_iNumControlPoints );
@@ -228,6 +237,11 @@ void C_BaseTeamObjectiveResource::OnDataChanged( DataUpdateType_t updateType )
 				gameeventmanager->FireEventClientSide( event );
 			}
 		}
+	}
+
+	if ( m_flOldCustomPositionX != m_flCustomPositionX || m_flOldCustomPositionY != m_flCustomPositionY )
+	{
+		UpdateControlPoint( "controlpoint_updatelayout" );
 	}
 }
 
@@ -373,7 +387,7 @@ void C_BaseTeamObjectiveResource::ClientThink()
 				if ( iPlayersCapping > 0 )
 				{
 					float flReduction = gpGlobals->curtime - m_flCapLastThinkTime[i];
-					if ( mp_capstyle.GetInt() == 1 )
+					if ( mp_capstyle.GetInt() == 1 && m_bCPCapRateScalesWithPlayers[i] )
 					{
 						// Diminishing returns for successive players.
 						for ( int iPlayer = 1; iPlayer < iPlayersCapping; iPlayer++ )
@@ -423,7 +437,8 @@ void C_BaseTeamObjectiveResource::ClientThink()
 					if ( TeamplayRoundBasedRules() && TeamplayRoundBasedRules()->TeamMayCapturePoint(m_iCappingTeam[i],i) )
 					{
 						float flCapLength = m_flTeamCapTime[ TEAM_ARRAY(i,m_iCappingTeam[i]) ];
-						float flDecrease = (flCapLength / mp_capdeteriorate_time.GetFloat()) * (gpGlobals->curtime - m_flCapLastThinkTime[i]);
+						float flDecreaseScale = m_bCPCapRateScalesWithPlayers[i] ? mp_capdeteriorate_time.GetFloat() : flCapLength;
+						float flDecrease = (flCapLength / flDecreaseScale) * (gpGlobals->curtime - m_flCapLastThinkTime[i]);
 						if ( TeamplayRoundBasedRules() && TeamplayRoundBasedRules()->InOvertime() )
 						{
 							flDecrease *= 6;

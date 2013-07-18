@@ -1223,7 +1223,7 @@ ConVarRef suitcharger( "sk_suitcharger" );
 		{
 			if ( bForceSpew || V_stricmp( szLastResult, pszResult) )
 			{
-				Msg( "Using map cycle file %s.\n", pszResult );
+				Msg( "Using map cycle file '%s'.\n", pszResult );
 				V_strcpy_safe( szLastResult, pszResult );
 			}
 			return;

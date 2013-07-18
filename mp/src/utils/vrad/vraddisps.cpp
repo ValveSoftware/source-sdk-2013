@@ -1135,7 +1135,7 @@ void AddPatchLightToRadial( Vector const &patchOrigin, Vector const &patchNormal
 		if( bNeighborBump )
 		{
 			float flScale = patchNormal.Dot( normals[0] );
-			flScale = clamp( flScale, 0.0f, flScale );
+			flScale = max( 0.0f, flScale );
 			float flBumpInfluence = influence * flScale;
 
 			for( int ndxBump = 0; ndxBump < ( NUM_BUMP_VECTS+1 ); ndxBump++ )
@@ -1148,7 +1148,7 @@ void AddPatchLightToRadial( Vector const &patchOrigin, Vector const &patchNormal
 		else
 		{
 			float flScale = patchNormal.Dot( normals[0] );
-			flScale = clamp( flScale, 0.0f, flScale );
+			flScale = max( 0.0f, flScale );
 			float flBumpInfluence = influence * flScale * 0.05f;
 
 			for( int ndxBump = 0; ndxBump < ( NUM_BUMP_VECTS+1 ); ndxBump++ )
@@ -1162,7 +1162,7 @@ void AddPatchLightToRadial( Vector const &patchOrigin, Vector const &patchNormal
 	else
 	{
 		float flScale = patchNormal.Dot( luxelNormal );
-		flScale = clamp( flScale, 0.0f, flScale );
+		flScale = max( 0.0f, flScale );
 		influence *= flScale;
 		pRadial->light[0][ndxRadial].AddWeighted( pPatchLight[0], influence );
 
@@ -1580,21 +1580,13 @@ bool CVRadDispMgr::BuildDispSamples( lightinfo_t *pLightInfo, facelight_t *pFace
 	//
 	int ndxU, ndxV;
 
-	// NOTE: These allocations are necessary to avoid stack overflow
-	// FIXME: Solve with storing global per-thread temp buffers if there's
-	// a performance problem with this solution...
-	bool bTempAllocationNecessary = ((height + 1) * (width + 1)) > SINGLE_BRUSH_MAP;
+	CUtlVector<sample_t> samples;
+	samples.SetCount( SINGLEMAP );
+	sample_t *pSamples = samples.Base();
 
-	Vector worldPointBuffer[SINGLE_BRUSH_MAP];
-	sample_t sampleBuffer[SINGLE_BRUSH_MAP*2];
-
-	Vector *pWorldPoints = worldPointBuffer;
-	sample_t *pSamples = sampleBuffer;
-	if (bTempAllocationNecessary)
-	{
-		pWorldPoints = new Vector[ SINGLEMAP ];
-		pSamples = new sample_t[ SINGLEMAP ];
-	}
+	CUtlVector<Vector> worldPoints;
+	worldPoints.SetCount( SINGLEMAP );
+	Vector *pWorldPoints = worldPoints.Base();
 
 	for( ndxV = 0; ndxV < ( height + 1 ); ndxV++ )
 	{
@@ -1606,7 +1598,6 @@ bool CVRadDispMgr::BuildDispSamples( lightinfo_t *pLightInfo, facelight_t *pFace
 			pDispTree->DispUVToSurfPoint( uv, pWorldPoints[ndx], 0.0f );
 		}
 	}
-
 
 	for( ndxV = 0; ndxV < height; ndxV++ )
 	{
@@ -1660,7 +1651,7 @@ bool CVRadDispMgr::BuildDispSamples( lightinfo_t *pLightInfo, facelight_t *pFace
 	pFaceLight->numsamples = width * height;
 	pFaceLight->sample = ( sample_t* )calloc( pFaceLight->numsamples, sizeof( *pFaceLight->sample ) );
 	if( !pFaceLight->sample )
-		goto buildDispSamplesError;
+		return false;
 
 	memcpy( pFaceLight->sample, pSamples, pFaceLight->numsamples * sizeof( *pFaceLight->sample ) );
 
@@ -1669,23 +1660,8 @@ bool CVRadDispMgr::BuildDispSamples( lightinfo_t *pLightInfo, facelight_t *pFace
 	{
 		Msg( "BuildDispSamples: WARNING - no samples %d\n", pLightInfo->face - g_pFaces );
 	}
- 
-	if (bTempAllocationNecessary)
-	{
-		delete[] pWorldPoints;
-		delete[] pSamples;
-	}
 
 	return true;
-
-buildDispSamplesError:
-	if (bTempAllocationNecessary)
-	{
-		delete[] pWorldPoints;
-		delete[] pSamples;
-	}
-
-	return false;
 }
 
 

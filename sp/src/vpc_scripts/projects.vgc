@@ -19,6 +19,12 @@ $Project "client"
 	"game\client\client_episodic.vpc"	[($WIN32||$X360||$POSIX) && $EPISODIC]
 }
 
+$Project "game_shader_dx9"
+{
+	"materialsystem\stdshaders\game_shader_dx9_hl2.vpc" [$HL2]
+	"materialsystem\stdshaders\game_shader_dx9_episodic.vpc"  [$EPISODIC]
+}
+
 $Project "glview"
 {
 	"utils\glview\glview.vpc" [$WIN32]

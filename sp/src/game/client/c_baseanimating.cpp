@@ -1543,6 +1543,8 @@ void C_BaseAnimating::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quater
 			ApplyBoneMatrixTransform( GetBoneForWrite( i ) );
 		}
 	}
+	
+	
 }
 
 //-----------------------------------------------------------------------------
@@ -3233,7 +3235,7 @@ int C_BaseAnimating::InternalDrawModel( int flags )
 	if ( !GetModelPtr() )
 		return 0;
 
-	UpdateBoneAttachments( flags );
+	UpdateBoneAttachments( );
 
 	if ( IsEffectActive( EF_ITEM_BLINK ) )
 	{
@@ -6255,7 +6257,7 @@ bool C_BaseAnimating::ShouldResetSequenceOnNewModel( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void C_BaseAnimating::UpdateBoneAttachments( int flags )
+void C_BaseAnimating::UpdateBoneAttachments( void )
 {
 	if ( !m_pAttachedTo )
 		return;

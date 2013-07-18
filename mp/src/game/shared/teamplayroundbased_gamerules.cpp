@@ -38,7 +38,7 @@
 	#if defined(TF_CLIENT_DLL) || defined(TF_DLL)
 		#include "tf_lobby.h"
 		#ifdef GAME_DLL
-			#include "player_vs_environment/tf_populator.h"
+			#include "player_vs_environment/tf_population_manager.h"
 			#include "../server/tf/tf_gc_server.h"
 			#include "../server/tf/tf_objective_resource.h"
 		#else

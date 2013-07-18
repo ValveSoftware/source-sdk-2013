@@ -2633,7 +2633,7 @@ void CAI_NetworkBuilder::InitVisibility(CAI_Network *pNetwork, CAI_Node *pNode)
 
 		if ( DebuggingConnect( pNode->m_iID, testnode ) )
 		{
-			DevMsg( "" ); // break here..
+			DevMsg( " " ); // break here..
 		}
 
 		// We know we can view ourself
@@ -2814,7 +2814,7 @@ void CAI_NetworkBuilder::InitNeighbors(CAI_Network *pNetwork, CAI_Node *pNode)
 	{
 		if ( DebuggingConnect( pNode->m_iID, checknode ) )
 		{
-			DevMsg( "" ); // break here..
+			DevMsg( " " ); // break here..
 		}
 
 		// I'm not a neighbor of myself
@@ -3204,7 +3204,7 @@ void CAI_NetworkBuilder::InitLinks(CAI_Network *pNetwork, CAI_Node *pNode)
 
 			if ( DebuggingConnect( pNode->m_iID, i ) )
 			{
-				DevMsg( "" ); // break here..
+				DevMsg( " " ); // break here..
 			}
 
 			if ( !(pNode->m_eNodeInfo & bits_NODE_FALLEN) && !(pDestNode->m_eNodeInfo & bits_NODE_FALLEN) )

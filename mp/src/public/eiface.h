@@ -407,6 +407,9 @@ public:
 
 	// Server version from the steam.inf, this will be compared to the GC version
 	virtual int GetServerVersion() const = 0;
+
+	// Get sv.GetTime()
+	virtual float GetServerTime() const = 0;
 };
 
 

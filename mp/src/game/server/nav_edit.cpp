@@ -732,9 +732,6 @@ void CNavMesh::DrawEditMode( void )
 	static ConVarRef host_thread_mode( "host_thread_mode" );
 	host_thread_mode.SetValue( 0 );
 
-	static ConVarRef sb_perf_collect( "sb_perf_collect" );
-	sb_perf_collect.SetValue( 0 );
-
 	const float maxRange = 1000.0f;		// 500
 
 #if DEBUG_NAV_NODES
@@ -908,7 +905,7 @@ void CNavMesh::DrawEditMode( void )
 				{
 					V_snprintf( buffer, sizeof( buffer ), "Ladder #%d\n", m_selectedLadder->GetID() );
 				}
-				NDebugOverlay::ScreenText( 0.5, 0.53, buffer, 255, 255, 0, 128, nav_show_area_info.GetBool() ? 0.1 : 0.5 );
+				NDebugOverlay::ScreenText( 0.5, 0.53, buffer, 255, 255, 0, 128, NDEBUG_PERSIST_TILL_NEXT_SERVER );
 			}
 
 			// draw the ladder we are pointing at and all connected areas
