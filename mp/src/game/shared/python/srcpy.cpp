@@ -7,7 +7,7 @@
 
 #include "cbase.h"
 #include "srcpy.h"
-#include "filesystem.h"
+#include <filesystem.h>
 #include "icommandline.h"
 #include "srcpy_usermessage.h"
 // TODO: #include "srcpy_gamerules.h"
@@ -219,7 +219,7 @@ bool CSrcPython::InitInterpreter( void )
 
 	/*const char *pGameDir = COM_GetModDirectory();
 	const char *pDevModDir = "hl2wars_asw_dev";
-	if( Q_strncmp( pGameDir, pDevModDir, Q_strlen( pDevModDir ) ) != 0 )*/
+	if( V_strncmp( pGameDir, pDevModDir, V_strlen( pDevModDir ) ) != 0 )*/
 	DevMsg("CommandLine: %s\n", CommandLine()->GetCmdLine());
 	m_bPathProtected = CommandLine() ? CommandLine()->FindParm("-nopathprotection") == 0 : true;
 
@@ -357,6 +357,13 @@ bool CSrcPython::InitInterpreter( void )
 	// Support for Visual Studio Python Tools
 	if( bRunInterpreter && CommandLine() )
 	{
+		bool bSuccess = false;
+
+#ifndef CLIENT_DLL
+		engine->ServerCommand("log on");
+		engine->ServerExecute();
+#endif // CLIENT_DLL
+
 		char interpreterFile[MAX_PATH];
 		interpreterFile[0] = 0;
 		const char *pParmInterpreterFile = CommandLine()->ParmValue( "-interpreter" );
@@ -409,23 +416,36 @@ bool CSrcPython::InitInterpreter( void )
 
 				bp::list argv( shlex.attr("split")( newCmd ) );
 				bp::setattr( sys, bp::object("argv"), argv );
-				}
-				catch( bp::error_already_set & ) 
-				{
-					PyErr_Print();
-				}
+			}
+			catch( bp::error_already_set & ) 
+			{
+				PyErr_Print();
+			}
 
-				DevMsg("New CommandLine: %s\n", CommandLine()->GetCmdLine() );
+			DevMsg("New CommandLine: %s\n", CommandLine()->GetCmdLine() );
 
-				// Change working directory	
-				V_SetCurrentDirectory( vtptpath );
+			// Change working directory	
+			V_SetCurrentDirectory( vtptpath );
 
-				Msg("Running interpreter file: %s\n", interpreterFile );
-				Run("import encodings.idna");
-				this->ExecuteFile( interpreterFile );
+			Msg("Running interpreter file: %s\n", interpreterFile );
+			Run("import encodings.idna");
+			bSuccess = this->ExecuteFile( interpreterFile );
 		}
 
-		::TerminateProcess( ::GetCurrentProcess(), 0 );
+		// Make sure logs are saved
+#ifndef CLIENT_DLL
+		engine->ServerExecute();
+#endif // CLIENT_DLL
+		filesystem->AsyncFinishAllWrites();
+
+		if( bSuccess )
+		{
+			::TerminateProcess( ::GetCurrentProcess(), 0 );
+		}
+		else
+		{
+			Warning("PySource: Failed to execute interpreter file. Please check log.\n");
+		}
 		return true;
 	}
 
@@ -532,7 +552,7 @@ void CSrcPython::LevelInitPreEntity()
 
 #ifdef CLIENT_DLL
 	char pLevelName[_MAX_PATH];
-	Q_FileBase(engine->GetLevelName(), pLevelName, _MAX_PATH);
+	V_FileBase(engine->GetLevelName(), pLevelName, _MAX_PATH);
 #else
 	const char *pLevelName = STRING(gpGlobals->mapname);
 #endif
@@ -797,29 +817,29 @@ bool CSrcPython::ExecuteFile( const char* pScript )
 	char char_filename[ _MAX_PATH ];
 	char char_output_full_filename[ _MAX_PATH ];
 
-	strcpy( char_filename, pScript);
-	filesystem->RelativePathToFullPath(char_filename,"MOD",char_output_full_filename,sizeof(char_output_full_filename));
+	V_strncpy( char_filename, pScript, sizeof( char_filename ) );
+	filesystem->RelativePathToFullPath( char_filename, "MOD", char_output_full_filename, sizeof( char_output_full_filename ) );
 
 	const char *constcharpointer = reinterpret_cast<const char *>( char_output_full_filename );
 
-	if (!filesystem->FileExists(constcharpointer))
+	if( !filesystem->FileExists( constcharpointer ) )
 	{
-		Warning( "[Python] IFileSystem Cannot find the file: %s\n", constcharpointer);
+		Warning( "[Python] IFileSystem Cannot find the file: %s\n", constcharpointer );
 		return false;
 	}
 
 	try
 	{
-		exec_file(constcharpointer, mainnamespace, mainnamespace );
+		exec_file( constcharpointer, mainnamespace, mainnamespace );
 	}
 	catch( bp::error_already_set & )
 	{
 #ifdef CLIENT_DLL
-		DevMsg("CLIENT: ");
+		DevMsg( "CLIENT: " );
 #else
-		DevMsg("SERVER: ");
+		DevMsg( "SERVER: " );
 #endif // CLIENT_DLL
-		DevMsg("RunPythonFile failed -> file: %s\n", pScript );
+		DevMsg( "RunPythonFile failed -> file: %s\n", pScript );
 		PyErr_Print();
 		return false;
 	}
@@ -838,11 +858,11 @@ void CSrcPython::Reload( const char *pModule )
 	{
 		// import into the main space
 		char command[MAX_PATH];
-		Q_snprintf( command, sizeof( command ), "import %s", pModule );
+		V_snprintf( command, sizeof( command ), "import %s", pModule );
 		exec(command, mainnamespace, mainnamespace );
 
 		// Reload
-		Q_snprintf( command, sizeof( command ), "reload(%s)", pModule );
+		V_snprintf( command, sizeof( command ), "reload(%s)", pModule );
 		exec(command, mainnamespace, mainnamespace );
 	}
 	catch( bp::error_already_set & )
@@ -883,17 +903,17 @@ void CSrcPython::SysAppendPath( const char* path, bool inclsubdirs )
 		char wildcard[MAX_PATH];
 		FileFindHandle_t findHandle;
 		
-		Q_snprintf( wildcard, sizeof( wildcard ), "%s//*", path );
+		V_snprintf( wildcard, sizeof( wildcard ), "%s//*", path );
 		const char *pFilename = filesystem->FindFirstEx( wildcard, "MOD", &findHandle );
 		while ( pFilename != NULL )
 		{
 
-			if( Q_strncmp(pFilename, ".", 1) != 0 &&
-				Q_strncmp(pFilename, "..", 2) != 0 &&
+			if( V_strncmp(pFilename, ".", 1) != 0 &&
+				V_strncmp(pFilename, "..", 2) != 0 &&
 				filesystem->FindIsDirectory(findHandle) ) 
 			{
 				char path2[MAX_PATH];
-				Q_snprintf( path2, sizeof( path2 ), "%s//%s", path, pFilename );
+				V_snprintf( path2, sizeof( path2 ), "%s//%s", path, pFilename );
 				SysAppendPath(path2, inclsubdirs);
 			}
 			pFilename = filesystem->FindNext( findHandle );
@@ -926,13 +946,13 @@ void CSrcPython::ExecuteAllScriptsInPath( const char *pPath )
 	char tempfile[MAX_PATH];
 	char wildcard[MAX_PATH];
 
-	Q_snprintf( wildcard, sizeof( wildcard ), "%s*.py", pPath );
+	V_snprintf( wildcard, sizeof( wildcard ), "%s*.py", pPath );
 
 	FileFindHandle_t findHandle;
 	const char *pFilename = filesystem->FindFirstEx( wildcard, "GAME", &findHandle );
 	while ( pFilename != NULL )
 	{
-		Q_snprintf( tempfile, sizeof( tempfile ), "%s/%s", pPath, pFilename );
+		V_snprintf( tempfile, sizeof( tempfile ), "%s/%s", pPath, pFilename );
 		Msg("Executing %s\n", tempfile);
 		ExecuteFile(tempfile);
 		pFilename = filesystem->FindNext( findHandle );
@@ -1041,7 +1061,7 @@ void CSrcPython::AddToDelayedUpdateList( EHANDLE hEnt, char *name, bp::object da
 {
 	CSrcPython::py_delayed_data_update v;
 	v.hEnt = hEnt;
-	Q_snprintf(v.name, _MAX_PATH, name);
+	V_snprintf(v.name, _MAX_PATH, name);
 	v.data = data;
 	v.callchanged = callchanged;
 	py_delayed_data_update_list.AddToTail( v );
@@ -1276,7 +1296,7 @@ static int PyModuleAutocomplete( char const *partial, char commands[ COMMAND_COM
 
 	// Get command
 	CUtlVector<char*, CUtlMemory<char*, int> > commandandrest;
-	Q_SplitString( partial, " ", commandandrest );
+	V_SplitString( partial, " ", commandandrest );
 	if( commandandrest.Count() == 0 )
 		return numMatches;
 	char *pCommand = commandandrest[0];
@@ -1284,16 +1304,16 @@ static int PyModuleAutocomplete( char const *partial, char commands[ COMMAND_COM
 	char *pRest = "";
 	if( commandandrest.Count() > 1 )
 		pRest = commandandrest[1];
-	bool bEndsWithDot = pRest[Q_strlen(pRest)-1] == '.';
+	bool bEndsWithDot = pRest[V_strlen(pRest)-1] == '.';
 
 	// Get modules typed so far
 	CUtlVector<char*, CUtlMemory<char*, int> > modulesnames;
-	Q_SplitString( pRest, ".", modulesnames );
+	V_SplitString( pRest, ".", modulesnames );
 
 	// Construct path
 	char path[MAX_PATH];
 	path[0] = '\0';
-	Q_strcat( path, "python", MAX_PATH );
+	V_strcat( path, "python", MAX_PATH );
 	char basemodulepath[MAX_PATH];
 	basemodulepath[0] = '\0';
 
@@ -1303,11 +1323,11 @@ static int PyModuleAutocomplete( char const *partial, char commands[ COMMAND_COM
 		if( modulesnames.Count() - 1 == i && !bEndsWithDot )
 			continue;
 
-		Q_strcat( path, "\\", MAX_PATH );
-		Q_strcat( path, modulesnames[i], MAX_PATH );
+		V_strcat( path, "\\", MAX_PATH );
+		V_strcat( path, modulesnames[i], MAX_PATH );
 
-		Q_strcat( basemodulepath, modulesnames[i], MAX_PATH );
-		Q_strcat( basemodulepath, ".", MAX_PATH );
+		V_strcat( basemodulepath, modulesnames[i], MAX_PATH );
+		V_strcat( basemodulepath, ".", MAX_PATH );
 	}
 
 	char finalpath[MAX_PATH];
@@ -1315,7 +1335,7 @@ static int PyModuleAutocomplete( char const *partial, char commands[ COMMAND_COM
 	
 	// Create whildcar
 	char wildcard[MAX_PATH];
-	Q_snprintf( wildcard, MAX_PATH, "%s\\*", finalpath );
+	V_snprintf( wildcard, MAX_PATH, "%s\\*", finalpath );
 
 	// List directories/filenames
 	FileFindHandle_t findHandle;
@@ -1323,9 +1343,9 @@ static int PyModuleAutocomplete( char const *partial, char commands[ COMMAND_COM
 	while ( filename )
 	{
 		char fullpath[MAX_PATH];
-		Q_snprintf( fullpath, MAX_PATH, "%s/%s", finalpath, filename );
+		V_snprintf( fullpath, MAX_PATH, "%s/%s", finalpath, filename );
 
-		if( Q_strncmp( filename, ".", 1 ) == 0 || Q_strncmp( filename, "..", 2 ) == 0 )
+		if( V_strncmp( filename, ".", 1 ) == 0 || V_strncmp( filename, "..", 2 ) == 0 )
 		{
 			filename = filesystem->FindNext( findHandle );
 			continue;
@@ -1336,30 +1356,30 @@ static int PyModuleAutocomplete( char const *partial, char commands[ COMMAND_COM
 			
 			// Add directory if __init__.py inside
 			char initpath[MAX_PATH];
-			Q_snprintf( initpath, MAX_PATH, "%s\\__init__.py", fullpath );
+			V_snprintf( initpath, MAX_PATH, "%s\\__init__.py", fullpath );
 			if( filesystem->FileExists( initpath, "MOD" ) )
 			{
 				
 				
-				Q_snprintf( newmodulepath, MAX_PATH, "%s%s", basemodulepath, filename );
-				if( Q_strncmp( pRest, newmodulepath, Q_strlen(pRest) ) == 0 )
-					Q_snprintf( commands[ numMatches++ ], COMMAND_COMPLETION_ITEM_LENGTH, "%s %s", pCommand, newmodulepath );
+				V_snprintf( newmodulepath, MAX_PATH, "%s%s", basemodulepath, filename );
+				if( V_strncmp( pRest, newmodulepath, V_strlen(pRest) ) == 0 )
+					V_snprintf( commands[ numMatches++ ], COMMAND_COMPLETION_ITEM_LENGTH, "%s %s", pCommand, newmodulepath );
 			}
 		}
 		else
 		{
 			// Check extension. If .py, strip and add
 			char ext[5];
-			Q_ExtractFileExtension( filename, ext, 5 );
+			V_ExtractFileExtension( filename, ext, 5 );
 
-			if( Q_strncmp( ext, "py", 5 ) == 0 )
+			if( V_strncmp( ext, "py", 5 ) == 0 )
 			{
 				char noextfilename[MAX_PATH]; 
-				Q_StripExtension( filename, noextfilename, MAX_PATH );
+				V_StripExtension( filename, noextfilename, MAX_PATH );
 
-				Q_snprintf( newmodulepath, MAX_PATH, "%s%s", basemodulepath, noextfilename );
-				if( Q_strncmp( pRest, newmodulepath, Q_strlen(pRest) ) == 0 )
-					Q_snprintf( commands[ numMatches++ ], COMMAND_COMPLETION_ITEM_LENGTH, "%s %s", pCommand, newmodulepath );
+				V_snprintf( newmodulepath, MAX_PATH, "%s%s", basemodulepath, noextfilename );
+				if( V_strncmp( pRest, newmodulepath, V_strlen(pRest) ) == 0 )
+					V_snprintf( commands[ numMatches++ ], COMMAND_COMPLETION_ITEM_LENGTH, "%s %s", pCommand, newmodulepath );
 			}
 		}
 
@@ -1389,7 +1409,7 @@ CON_COMMAND_F_COMPLETION( cl_py_import, "Import a python module", FCVAR_CHEAT, P
 		return;
 #endif // CLIENT_DLL
 	char command[MAX_PATH];
-	Q_snprintf( command, sizeof( command ), "import %s", args.ArgS() );
+	V_snprintf( command, sizeof( command ), "import %s", args.ArgS() );
 	g_SrcPythonSystem.Run( command, "consolespace" );
 }
 

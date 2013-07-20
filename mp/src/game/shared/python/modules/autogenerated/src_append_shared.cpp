@@ -12,21 +12,27 @@ using namespace boost::python;
 // The init method is in one of the generated files declared
 #ifdef _WIN32
 extern "C" __declspec(dllexport) PyObject* PyInit_srcbuiltins();
+extern "C" __declspec(dllexport) PyObject* PyInit__vmath();
 extern "C" __declspec(dllexport) PyObject* PyInit__entities();
 extern "C" __declspec(dllexport) PyObject* PyInit__entitiesmisc();
 extern "C" __declspec(dllexport) PyObject* PyInit__gameinterface();
+extern "C" __declspec(dllexport) PyObject* PyInit__ndebugoverlay();
 #else
 extern "C"  PyObject* PyInit_srcbuiltins();
+extern "C"  PyObject* PyInit__vmath();
 extern "C"  PyObject* PyInit__entities();
 extern "C"  PyObject* PyInit__entitiesmisc();
 extern "C"  PyObject* PyInit__gameinterface();
+extern "C"  PyObject* PyInit__ndebugoverlay();
 #endif // _WIN32
 
 // The append function
 void AppendSharedModules()
 {
 	APPEND_MODULE(srcbuiltins)
+	APPEND_MODULE(_vmath)
 	APPEND_MODULE(_entities)
 	APPEND_MODULE(_entitiesmisc)
 	APPEND_MODULE(_gameinterface)
+	APPEND_MODULE(_ndebugoverlay)
 }
