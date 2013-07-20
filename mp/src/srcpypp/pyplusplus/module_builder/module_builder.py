@@ -306,3 +306,20 @@ class module_builder_t(object):
                                               , header_dir=header_dir
                                               , header_file=header_file
                                               , recursive=recursive )
+                                              
+    def typedef( self, name=None, function=None, header_dir=None, header_file=None, recursive=None ):
+        """Please see :class:`decl_wrappers.namespace_t` class documentation"""
+        return self.global_ns.typedef( name=name
+                                  , function=function
+                                  , header_dir=header_dir
+                                  , header_file=header_file
+                                  , recursive=recursive)
+
+    def typedefs( self, name=None, function=None, header_dir=None, header_file=None, recursive=None, allow_empty=None ):
+        """Please see :class:`decl_wrappers.namespace_t` class documentation"""
+        return self.global_ns.typedefs( name=name
+                                    , function=function
+                                    , header_dir=header_dir
+                                    , header_file=header_file
+                                    , recursive=recursive
+                                    , allow_empty=allow_empty)
