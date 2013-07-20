@@ -30,7 +30,7 @@ struct CBaseEntity_wrapper : CBaseEntity, bp::wrapper< CBaseEntity > {
 void register_CBaseEntity_class(){
 
     { //::CBaseEntity
-        typedef bp::class_< CBaseEntity_wrapper, boost::noncopyable > CBaseEntity_exposer_t;
+        typedef bp::class_< CBaseEntity_wrapper, bp::bases< IServerEntity >, boost::noncopyable > CBaseEntity_exposer_t;
         CBaseEntity_exposer_t CBaseEntity_exposer = CBaseEntity_exposer_t( "CBaseEntity", bp::no_init );
         bp::scope CBaseEntity_scope( CBaseEntity_exposer );
         CBaseEntity_exposer.def( bp::init< bp::optional< bool > >(( bp::arg("bServerOnly")=(bool)(false) )) );
@@ -588,6 +588,15 @@ void register_CBaseEntity_class(){
                 "Deflected"
                 , Deflected_function_type( &::CBaseEntity::Deflected )
                 , ( bp::arg("pDeflectedBy"), bp::arg("vecDir") ) );
+        
+        }
+        { //::CBaseEntity::DestroyPyInstance
+        
+            typedef void ( ::CBaseEntity::*DestroyPyInstance_function_type )(  ) ;
+            
+            CBaseEntity_exposer.def( 
+                "DestroyPyInstance"
+                , DestroyPyInstance_function_type( &::CBaseEntity::DestroyPyInstance ) );
         
         }
         { //::CBaseEntity::DetectInSkybox
@@ -2399,6 +2408,15 @@ void register_CBaseEntity_class(){
             CBaseEntity_exposer.def( 
                 "IsCombatCharacter"
                 , IsCombatCharacter_function_type( &::CBaseEntity::IsCombatCharacter ) );
+        
+        }
+        { //::CBaseEntity::IsCombatItem
+        
+            typedef bool ( ::CBaseEntity::*IsCombatItem_function_type )(  ) const;
+            
+            CBaseEntity_exposer.def( 
+                "IsCombatItem"
+                , IsCombatItem_function_type( &::CBaseEntity::IsCombatItem ) );
         
         }
         { //::CBaseEntity::IsCurrentlyTouching

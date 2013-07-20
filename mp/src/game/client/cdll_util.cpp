@@ -599,25 +599,6 @@ void ClientPrint( C_BasePlayer *player, int msg_dest, const char *msg_name, cons
 //-----------------------------------------------------------------------------
 // class CFlaggedEntitiesEnum
 //-----------------------------------------------------------------------------
-// enumerate entities that match a set of edict flags into a static array
-class CFlaggedEntitiesEnum : public IPartitionEnumerator
-{
-public:
-	CFlaggedEntitiesEnum( C_BaseEntity **pList, int listMax, int flagMask );
-	// This gets called	by the enumeration methods with each element
-	// that passes the test.
-	virtual IterationRetval_t EnumElement( IHandleEntity *pHandleEntity );
-	
-	int GetCount() { return m_count; }
-	bool AddToList( C_BaseEntity *pEntity );
-	
-private:
-	C_BaseEntity		**m_pList;
-	int				m_listMax;
-	int				m_flagMask;
-	int				m_count;
-};
-
 CFlaggedEntitiesEnum::CFlaggedEntitiesEnum( C_BaseEntity **pList, int listMax, int flagMask )
 {
 	m_pList = pList;

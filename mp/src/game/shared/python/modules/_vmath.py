@@ -3,41 +3,7 @@ from pyplusplus import function_transformers as FT
 from pyplusplus.module_builder import call_policies
 from pyplusplus import messages
 from pygccxml.declarations import matchers, pointer_t, reference_t, declarated_t, const_t, float_t, cpptypes
-
-class calldef_excludetypes(matchers.custom_matcher_t):
-    def __init__(self, excludetypes=None):
-        super(calldef_excludetypes, self).__init__(self.testdecl)
-        
-        self.excludetypes = excludetypes
-        
-    def __compare_types( self, type_or_str, type ):
-        assert type_or_str
-        if type is None:
-            return False
-        if isinstance( type_or_str, cpptypes.type_t ):
-            if type_or_str != type:
-                return False
-        else:
-            if type_or_str != type.decl_string:
-                return False
-        return True
-        
-    def testdecl( self, decl ):
-        if self.excludetypes:
-            if isinstance(self.excludetypes, (list, tuple)):
-                excludetypes = self.excludetypes
-            else:
-                excludetypes = [self.excludetypes]
-                
-            for t in excludetypes:
-                if self.__compare_types( t, decl.return_type ):
-                    return True
-        
-                for arg in decl.arguments:
-                    if self.__compare_types( t, arg.type ):
-                        return True
-        
-        return False
+from srcpy.matchers import calldef_withtypes
 
 class VMath(SharedModuleGenerator):
     module_name = '_vmath'
@@ -478,7 +444,7 @@ class VMath(SharedModuleGenerator):
             pointer_t(float_t()),
             pointer_t(const_t(float_t())),
         ]
-        mb.calldefs( calldef_excludetypes( excludetypes ) ).exclude()
+        mb.calldefs( calldef_withtypes( excludetypes ) ).exclude()
         
         # Silent warnings of generating class wrappers
         mb.classes().disable_warnings( messages.W1027 )

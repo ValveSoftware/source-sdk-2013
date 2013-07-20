@@ -266,6 +266,14 @@ class Entities(SemiSharedModuleGenerator):
         return cls
             
     def ParseClientEntities(self, mb):
+        # Made not virtual so no wrapper code is generated in IClientUnknown and IClientEntity
+        mb.class_('IClientRenderable').mem_funs().virtuality = 'not virtual' 
+        mb.class_('IClientNetworkable').mem_funs().virtuality = 'not virtual' 
+        mb.class_('IClientThinkable').mem_funs().virtuality = 'not virtual' 
+        
+        self.IncludeEmptyClass(mb, 'IClientUnknown')
+        self.IncludeEmptyClass(mb, 'IClientEntity')
+        
         for clsname in self.cliententities:
             cls = self.SetupEntityClass(mb, clsname)
 
@@ -301,6 +309,9 @@ class Entities(SemiSharedModuleGenerator):
             mb.mem_funs('PhysicsAddHalfGravity').exclude()  # No definition on the client!
         
     def ParseServerEntities(self, mb):
+        self.IncludeEmptyClass(mb, 'IServerUnknown')
+        self.IncludeEmptyClass(mb, 'IServerEntity')
+        
         for clsname in self.serverentities:
             cls = self.SetupEntityClass(mb, clsname)
             
@@ -380,6 +391,9 @@ class Entities(SemiSharedModuleGenerator):
     
     def ParseEntities(self, mb):
         self.ParseBaseEntityHandles(mb)
+        
+        self.IncludeEmptyClass(mb, 'IHandleEntity')
+        
         if self.isclient:
             self.ParseClientEntities(mb)
         else:

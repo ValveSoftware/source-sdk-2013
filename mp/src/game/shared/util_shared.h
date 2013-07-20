@@ -589,9 +589,10 @@ int UTIL_StringFieldToInt( const char *szValue, const char **pValueStrings, int 
 //-----------------------------------------------------------------------------
 // Holidays
 //-----------------------------------------------------------------------------
-
+#ifdef USES_ECON_ITEMS
 // Used at level change and round start to re-calculate which holiday is active
 void				UTIL_CalculateHolidays();
+#endif // USES_ECON_ITEMS
 
 bool				UTIL_IsHolidayActive( /*EHoliday*/ int eHoliday );
 /*EHoliday*/ int	UTIL_GetHolidayForString( const char* pszHolidayName );
@@ -600,5 +601,27 @@ bool				UTIL_IsHolidayActive( /*EHoliday*/ int eHoliday );
 // holidays overlapping, the list order will act as priority.
 const char		   *UTIL_GetActiveHolidayString();
 
+//-----------------------------------------------------------------------------
+// class CFlaggedEntitiesEnum
+//-----------------------------------------------------------------------------
+// enumerate entities that match a set of edict flags into a static array
+class CFlaggedEntitiesEnum : public IPartitionEnumerator
+{
+public:
+	CFlaggedEntitiesEnum( CBaseEntity **pList, int listMax, int flagMask );
+
+	// This gets called	by the enumeration methods with each element
+	// that passes the test.
+	virtual IterationRetval_t EnumElement( IHandleEntity *pHandleEntity );
+	
+	int GetCount() { return m_count; }
+	bool AddToList( CBaseEntity *pEntity );
+	
+private:
+	CBaseEntity		**m_pList;
+	int				m_listMax;
+	int				m_flagMask;
+	int				m_count;
+};
 
 #endif // UTIL_SHARED_H

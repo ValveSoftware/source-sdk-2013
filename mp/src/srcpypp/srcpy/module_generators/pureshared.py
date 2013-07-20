@@ -1,6 +1,6 @@
-from . basegenerator import ModuleGenerator
+from . basesource import SourceModuleGenerator
 
-class SharedModuleGenerator(ModuleGenerator):
+class SharedModuleGenerator(SourceModuleGenerator):
     ''' This module generates code for server and client, 
         but only parses once using the server project settings.
         It assumes the output code is the same on server and client.

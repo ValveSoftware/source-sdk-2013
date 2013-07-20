@@ -263,29 +263,6 @@ CBaseEntity *UTIL_FindClientInPVS( const Vector &vecBoxMins, const Vector &vecBo
 
 CBaseEntity *UTIL_EntitiesInPVS( CBaseEntity *pPVSEntity, CBaseEntity *pStartingEntity );
 
-//-----------------------------------------------------------------------------
-// class CFlaggedEntitiesEnum
-//-----------------------------------------------------------------------------
-// enumerate entities that match a set of edict flags into a static array
-class CFlaggedEntitiesEnum : public IPartitionEnumerator
-{
-public:
-	CFlaggedEntitiesEnum( CBaseEntity **pList, int listMax, int flagMask );
-
-	// This gets called	by the enumeration methods with each element
-	// that passes the test.
-	virtual IterationRetval_t EnumElement( IHandleEntity *pHandleEntity );
-	
-	int GetCount() { return m_count; }
-	bool AddToList( CBaseEntity *pEntity );
-	
-private:
-	CBaseEntity		**m_pList;
-	int				m_listMax;
-	int				m_flagMask;
-	int				m_count;
-};
-
 // Pass in an array of pointers and an array size, it fills the array and returns the number inserted
 int			UTIL_EntitiesInBox( const Vector &mins, const Vector &maxs, CFlaggedEntitiesEnum *pEnum  );
 int			UTIL_EntitiesAlongRay( const Ray_t &ray, CFlaggedEntitiesEnum *pEnum  );

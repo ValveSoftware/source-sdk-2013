@@ -13,17 +13,29 @@ using namespace boost::python;
 #ifdef _WIN32
 extern "C" __declspec(dllexport) PyObject* PyInit_srcbuiltins();
 extern "C" __declspec(dllexport) PyObject* PyInit__vmath();
+extern "C" __declspec(dllexport) PyObject* PyInit__animation();
 extern "C" __declspec(dllexport) PyObject* PyInit__entities();
 extern "C" __declspec(dllexport) PyObject* PyInit__entitiesmisc();
 extern "C" __declspec(dllexport) PyObject* PyInit__gameinterface();
+extern "C" __declspec(dllexport) PyObject* PyInit__utils();
+extern "C" __declspec(dllexport) PyObject* PyInit__physics();
+extern "C" __declspec(dllexport) PyObject* PyInit__sound();
+extern "C" __declspec(dllexport) PyObject* PyInit__particles();
 extern "C" __declspec(dllexport) PyObject* PyInit__ndebugoverlay();
+extern "C" __declspec(dllexport) PyObject* PyInit_vprof();
 #else
 extern "C"  PyObject* PyInit_srcbuiltins();
 extern "C"  PyObject* PyInit__vmath();
+extern "C"  PyObject* PyInit__animation();
 extern "C"  PyObject* PyInit__entities();
 extern "C"  PyObject* PyInit__entitiesmisc();
 extern "C"  PyObject* PyInit__gameinterface();
+extern "C"  PyObject* PyInit__utils();
+extern "C"  PyObject* PyInit__physics();
+extern "C"  PyObject* PyInit__sound();
+extern "C"  PyObject* PyInit__particles();
 extern "C"  PyObject* PyInit__ndebugoverlay();
+extern "C"  PyObject* PyInit_vprof();
 #endif // _WIN32
 
 // The append function
@@ -31,8 +43,14 @@ void AppendSharedModules()
 {
 	APPEND_MODULE(srcbuiltins)
 	APPEND_MODULE(_vmath)
+	APPEND_MODULE(_animation)
 	APPEND_MODULE(_entities)
 	APPEND_MODULE(_entitiesmisc)
 	APPEND_MODULE(_gameinterface)
+	APPEND_MODULE(_utils)
+	APPEND_MODULE(_physics)
+	APPEND_MODULE(_sound)
+	APPEND_MODULE(_particles)
 	APPEND_MODULE(_ndebugoverlay)
+	APPEND_MODULE(vprof)
 }

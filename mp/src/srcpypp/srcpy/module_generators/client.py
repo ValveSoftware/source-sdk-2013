@@ -1,6 +1,6 @@
-from . basegenerator import ModuleGenerator
+from . basesource import SourceModuleGenerator
 
-class ClientModuleGenerator(ModuleGenerator):
+class ClientModuleGenerator(SourceModuleGenerator):
     module_type = 'client'
     dll_name = 'Client'
     

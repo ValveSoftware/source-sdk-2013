@@ -2,7 +2,6 @@ from srcpy.module_generators import SemiSharedModuleGenerator
 from pyplusplus.module_builder import call_policies
 from pygccxml.declarations import matchers
 from pyplusplus import code_creators
-import settings
 
 class EntitiesMisc(SemiSharedModuleGenerator):
     module_name = '_entitiesmisc'

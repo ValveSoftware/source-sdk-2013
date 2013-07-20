@@ -2,7 +2,7 @@ import os
 import time
 import codecs
 
-from . basegenerator import ModuleGenerator
+from . basesource import SourceModuleGenerator
 
 from .. src_module_builder import src_module_builder_t
 from pyplusplus import code_creators, file_writers
@@ -145,7 +145,7 @@ tmpl_content_semishared = '''#include "cbase.h"
 #endif
 '''
         
-class SemiSharedModuleGenerator(ModuleGenerator):
+class SemiSharedModuleGenerator(SourceModuleGenerator):
     ''' This module type parses everything twice for client and server, and then produces one file
         containing both the client and server bindings.
     '''
@@ -167,9 +167,25 @@ class SemiSharedModuleGenerator(ModuleGenerator):
     serverfiles = []
     
     def GetFiles(self):
+        # TODO: Remove
         if self.isclient:
-            return self.clientfiles + self.files
-        return self.serverfiles + self.files 
+            allfiles = self.clientfiles + self.files
+        else:
+            allfiles = self.serverfiles + self.files 
+        
+        files = []
+        for filename in allfiles:
+            if not filename:
+                continue
+            if filename.startswith('#'):
+                if self.isserver:
+                    files.append(filename[1:])
+            elif filename.startswith('$'):
+                if self.isclient:
+                    files.append(filename[1:])
+            else:
+                files.append(filename)
+        return files
     
     # Main method
     def Run(self):

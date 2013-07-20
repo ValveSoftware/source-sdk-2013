@@ -487,6 +487,7 @@ bool CSrcPython::ShutdownInterpreter( void )
 	mainnamespace = bp::object();
 
 	builtins = bp::object();
+	srcbuiltins = bp::object();
 	sys = bp::object();
 	types = bp::object();
 	weakref = bp::object();

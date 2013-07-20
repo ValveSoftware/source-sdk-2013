@@ -29,23 +29,21 @@ modules = [
     ('_vmath', 'VMath'),
     
     # Game
+    ('_animation', 'Animation'),
     ('_entities', 'Entities'),
     ('_entitiesmisc', 'EntitiesMisc'),
     ('_gameinterface', 'GameInterface'),
-    
+    ('_utils', 'Utils'),
+    ('_physics', 'Physics'),
+    ('_sound', 'Sound'),
+    ('_particles', 'Particles'),
+
     # Misc
     ('_ndebugoverlay', 'NDebugOverlay'),
+    ('vprof', 'VProf'),
 ]
 
 '''('srcbase', 'SrcBase'),
-('_vmath', 'VMath'),
-('_entities', 'Entities'),
-('_entities_misc', 'EntitiesMisc'),
-('_gameinterface', 'GameInterface'),
-('_utils', 'Utils'),
-('_physics', 'Physics'),
-('_sound', 'Sound'),
-('_particles', 'Particles'),
 ('materials', 'Materials'),
 
 # # Client
@@ -59,8 +57,7 @@ modules = [
 
 # # Misc
 ('_navmesh', 'NavMesh'),
-('_ndebugoverlay', 'NDebugOverlay'),
-('vprof', 'VProf'),
+
 ('_srctests', '_SrcTests'),
 ('matchmaking', 'MatchMaking'),'''
 

@@ -11,25 +11,19 @@ class ModuleGenerator(object):
     # Settings
     module_name = None
     split = False
-    
-    # Choices: client, server, semi_shared and pure_shared
-    # semi_shared: the module is parsed two times, with different preprocessors.
-    #              The output will be added in the same file between #ifdef CLIENT_DLL #else #endif
-    # pure_shared: The generated bindings must match on the client and server.
-    module_type = 'client'  
-    
+
     files = []
     
     # Map some names
     dll_name = None
     path = 'specify a valid path'
     
-    isclient = False
-    isserver = False
-
+    def GetFiles(self):
+        return self.files
+    
     # Main method
     def Run(self):
-        mb = self.CreateBuilder(self.files)
+        mb = self.CreateBuilder(self.GetFiles())
         self.Parse(mb)
         self.FinalOutput(mb)
         
@@ -69,15 +63,19 @@ class ModuleGenerator(object):
         
     def AddProperty(self, cls, propertyname, getter, setter=''):
         cls.mem_funs(getter).exclude()
-        if setter: cls.mem_funs(setter).exclude()
+        if setter: 
+            cls.mem_funs(setter).exclude()
         if setter:
             cls.add_property(propertyname, cls.member_function( getter ), cls.member_function( setter ))
         else:
             cls.add_property(propertyname, cls.member_function( getter ))
             
-    def IncludeEmptyClass(self, mb, clsname):
+    def IncludeEmptyClass(self, mb, clsname, no_init=True, removevirtual=True):
         c = mb.class_(clsname)
         c.include()
+        c.no_init = no_init
+        if removevirtual:
+            c.mem_funs(allow_empty=True).virtuality = 'not virtual' 
         if c.classes(allow_empty=True):
             c.classes(allow_empty=True).exclude()
         if c.mem_funs(allow_empty=True):
@@ -86,24 +84,5 @@ class ModuleGenerator(object):
             c.vars(allow_empty=True).exclude()
         if c.enums(allow_empty=True):
             c.enums(allow_empty=True).exclude()  
-            
-    # Applies common rules to code
-    def ApplyCommonRules(self, mb):
-        # Common function added for getting the "PyObject" of an entity
-        mb.mem_funs('GetPySelf').exclude()
-        
-        # All return values derived from IHandleEntity entity will be returned by value, 
-        # so the converter is called
-        ihandlecls = mb.class_('IHandleEntity')
-        def testInherits(memfun):
-            try:
-                othercls = memfun.return_type.base.declaration
-                for testcls in othercls.recursive_bases:
-                    if ihandlecls == testcls.related_class:
-                        return True
-            except AttributeError:
-                pass
-            return False
-        mb.calldefs(matchers.custom_matcher_t(testInherits)).call_policies = call_policies.return_value_policy(call_policies.return_by_value)
         
             

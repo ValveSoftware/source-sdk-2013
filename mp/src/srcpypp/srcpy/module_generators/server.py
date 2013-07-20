@@ -1,6 +1,6 @@
-from . basegenerator import ModuleGenerator
+from . basesource import SourceModuleGenerator
 
-class ServerModuleGenerator(ModuleGenerator):
+class ServerModuleGenerator(SourceModuleGenerator):
     module_type = 'server'
     dll_name = 'Server'
     

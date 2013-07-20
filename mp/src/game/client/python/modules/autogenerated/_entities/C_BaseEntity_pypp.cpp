@@ -30,7 +30,7 @@ struct C_BaseEntity_wrapper : C_BaseEntity, bp::wrapper< C_BaseEntity > {
 void register_C_BaseEntity_class(){
 
     { //::C_BaseEntity
-        typedef bp::class_< C_BaseEntity_wrapper, boost::noncopyable > C_BaseEntity_exposer_t;
+        typedef bp::class_< C_BaseEntity_wrapper, bp::bases< IClientEntity >, boost::noncopyable > C_BaseEntity_exposer_t;
         C_BaseEntity_exposer_t C_BaseEntity_exposer = C_BaseEntity_exposer_t( "C_BaseEntity", bp::no_init );
         bp::scope C_BaseEntity_scope( C_BaseEntity_exposer );
         bp::scope().attr("SLOT_ORIGINALDATA") = (int)C_BaseEntity::SLOT_ORIGINALDATA;
@@ -2255,6 +2255,15 @@ void register_C_BaseEntity_class(){
                 , IsClientCreated_function_type( &::C_BaseEntity::IsClientCreated ) );
         
         }
+        { //::C_BaseEntity::IsCombatItem
+        
+            typedef bool ( ::C_BaseEntity::*IsCombatItem_function_type )(  ) const;
+            
+            C_BaseEntity_exposer.def( 
+                "IsCombatItem"
+                , IsCombatItem_function_type( &::C_BaseEntity::IsCombatItem ) );
+        
+        }
         { //::C_BaseEntity::IsCurrentlyTouching
         
             typedef bool ( ::C_BaseEntity::*IsCurrentlyTouching_function_type )(  ) const;
@@ -2571,6 +2580,15 @@ void register_C_BaseEntity_class(){
             C_BaseEntity_exposer.def( 
                 "IsVisible"
                 , IsVisible_function_type( &::C_BaseEntity::IsVisible ) );
+        
+        }
+        { //::C_BaseEntity::IsVisibleToTargetID
+        
+            typedef bool ( ::C_BaseEntity::*IsVisibleToTargetID_function_type )(  ) ;
+            
+            C_BaseEntity_exposer.def( 
+                "IsVisibleToTargetID"
+                , IsVisibleToTargetID_function_type( &::C_BaseEntity::IsVisibleToTargetID ) );
         
         }
         { //::C_BaseEntity::IsWorld
