@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ae678089-5bbb-4488-a764-3022d1130aae}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>test</StartupFile>
+    <SearchPath>..\python</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <InterpreterId>{82dc33c3-82f9-4c60-babe-18fb9ce8f3f1}</InterpreterId>
+    <InterpreterVersion>3.3</InterpreterVersion>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments />
+    <InterpreterPath>C:\Steam\SteamApps\common\Source SDK Base 2013 Multiplayer\hl2.exe</InterpreterPath>
+    <InterpreterArguments>-sv -noborder -dev -game "C:\development\source-sdk-2013-sandern\mp\game\pysource"</InterpreterArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <IsWindowsApplication>True</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Compile Include="animation.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="consolespace.py" />
+    <Compile Include="entities.py" />
+    <Compile Include="examples\entity.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="examples\networkedentity.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="examples\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="gamerules.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\fields.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\kvdict.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\networkvar.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\profiler.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\__init__.py" />
+    <Compile Include="input.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ndebugoverlay.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="particles.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="physics.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="sound.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="utils.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="vmath.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="examples\" />
+    <Folder Include="game" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{82dc33c3-82f9-4c60-babe-18fb9ce8f3f1}\3.3" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>
