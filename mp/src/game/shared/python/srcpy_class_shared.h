@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <boost/python.hpp>
+#include "srcpy_boostpython.h"
 
 //-----------------------------------------------------------------------------
 // Shared between server and client class

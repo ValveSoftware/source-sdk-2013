@@ -4,7 +4,7 @@ from . basegenerator import ModuleGenerator
 from .. src_module_builder import src_module_builder_t
 from pyplusplus import code_creators
 from pyplusplus.module_builder import call_policies
-from pygccxml.declarations import matchers, pointer_t, reference_t, declarated_t
+from pygccxml.declarations import matchers, pointer_t, reference_t, declarated_t, void_t
 
 class SourceModuleGenerator(ModuleGenerator):
     # Choices: client, server, semi_shared and pure_shared
@@ -19,7 +19,7 @@ class SourceModuleGenerator(ModuleGenerator):
     
     def GetFiles(self):
         files = []
-        for filename in allfiles:
+        for filename in self.files:
             if not filename:
                 continue
             if filename.startswith('#'):
@@ -31,6 +31,25 @@ class SourceModuleGenerator(ModuleGenerator):
             else:
                 files.append(filename)
         return files
+        
+    def PostCodeCreation(self, mb):
+        ''' Allows modifying mb.code_creator just after the code creation. '''
+        # Remove boost\python.hpp header. This is already included by srcpy.h
+        # and directly including can break debug mode (because it redefines _DEBUG)
+        # TODO: Maybe do this in a nicer way, but it's not too important.
+        header = code_creators.include_t( r'boost\python.hpp' )
+        found = False
+        for creator in mb.code_creator.creators:
+            try:
+                if header.header == creator.header:
+                    found = True
+                    mb.code_creator.remove_creator(creator)
+                    break
+            except:
+                pass
+        
+        if not found:
+            raise Exception('Could not find boost/python.hpp header''')
  
     # Applies common rules to code
     def ApplyCommonRules(self, mb):
@@ -50,3 +69,11 @@ class SourceModuleGenerator(ModuleGenerator):
                 pass
             return False
         mb.calldefs(matchers.custom_matcher_t(testInherits)).call_policies = call_policies.return_value_policy(call_policies.return_by_value)
+        
+        # Anything returning KeyValues should be returned by value so it calls the converter
+        keyvalues = mb.class_('KeyValues')
+        mb.calldefs(matchers.calldef_matcher_t(return_type=pointer_t(declarated_t(keyvalues))), allow_empty=True).call_policies = call_policies.return_value_policy(call_policies.return_by_value) 
+        
+        # Anything returning a void pointer is excluded by default
+        mb.calldefs(matchers.calldef_matcher_t(return_type=pointer_t(declarated_t(void_t()))), allow_empty=True).exclude()
+        

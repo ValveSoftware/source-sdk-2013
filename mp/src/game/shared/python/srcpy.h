@@ -15,7 +15,7 @@
 #error Python is disabled. Don't include this!
 #endif // ENABLE_PYTHON
 
-#include <boost/python.hpp>
+#include "srcpy_boostpython.h"
 
 extern ConVar g_debug_python;
 #define DbgStrPyMsg if ( !g_debug_python.GetBool() ) ; else DevMsg

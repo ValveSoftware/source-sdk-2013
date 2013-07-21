@@ -1813,7 +1813,7 @@ public:
 // =======================================
 #ifdef ENABLE_PYTHON
 public:
-	DECLARE_PYCLASS( CBaseEntity )
+	DECLARE_PYSERVERCLASS( CBaseEntity, PN_BASEENTITY );
 
 	// TODO/FIXME: Default placement versions of operator new, boost python seems to wants these...
 	inline void* operator new(std::size_t, void* __p) throw() { Assert(0); Error("CBaseEntity new\n");return __p; }
@@ -2709,6 +2709,13 @@ class CPointEntity : public CBaseEntity
 {
 public:
 	DECLARE_CLASS( CPointEntity, CBaseEntity );
+// =======================================
+// PySource Additions
+// =======================================
+	DECLARE_PYCLASS( CPointEntity );
+// =======================================
+// END PySource Additions
+// =======================================
 
 	void	Spawn( void );
 	virtual int	ObjectCaps( void ) { return BaseClass::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
@@ -2720,6 +2727,14 @@ private:
 class CServerOnlyEntity : public CBaseEntity
 {
 	DECLARE_CLASS( CServerOnlyEntity, CBaseEntity );
+// =======================================
+// PySource Additions
+// =======================================
+	DECLARE_PYCLASS( CServerOnlyEntity );
+// =======================================
+// END PySource Additions
+// =======================================
+
 public:
 	CServerOnlyEntity() : CBaseEntity( true ) {}
 	
@@ -2730,6 +2745,13 @@ public:
 class CServerOnlyPointEntity : public CServerOnlyEntity
 {
 	DECLARE_CLASS( CServerOnlyPointEntity, CServerOnlyEntity );
+// =======================================
+// PySource Additions
+// =======================================
+	DECLARE_PYCLASS( CServerOnlyPointEntity );
+// =======================================
+// END PySource Additions
+// =======================================
 
 public:
 	virtual bool KeyValue( const char *szKeyName, const char *szValue );
@@ -2739,6 +2761,13 @@ public:
 class CLogicalEntity : public CServerOnlyEntity
 {
 	DECLARE_CLASS( CLogicalEntity, CServerOnlyEntity );
+// =======================================
+// PySource Additions
+// =======================================
+	DECLARE_PYCLASS( CLogicalEntity );
+// =======================================
+// END PySource Additions
+// =======================================
 
 public:
 	virtual bool KeyValue( const char *szKeyName, const char *szValue );

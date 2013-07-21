@@ -1697,7 +1697,7 @@ protected:
 // =======================================
 #ifdef ENABLE_PYTHON
 public:
-	DECLARE_PYCLASS( CBaseEntity )
+	DECLARE_PYCLIENTCLASS( CBaseEntity, PN_BASEENTITY );
 
 	// Memory allocators for python instances of entities
 	static void *PyAllocate( PyObject* self_, std::size_t holder_offset, std::size_t holder_size );

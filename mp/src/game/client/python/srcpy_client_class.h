@@ -124,13 +124,13 @@ public:
 // Implement a python class. For python/c++ handle conversion
 #define DECLARE_PYCLASS( name )																		\
 	public:																							\
-	inline boost::python::object CreatePyHandle( void ) const										\
+	virtual boost::python::object CreatePyHandle( void ) const										\
 {																									\
 	return CreatePyHandleHelper(this, #name "HANDLE");												\
 }
 
 // Implement a networkable python class. Used to determine the right recv/send tables
-#define DECLARE_PYCLIENTCLASS( name )																\
+#define DECLARE_PYCLIENTCLASS( name, networkType )													\
 	DECLARE_PYCLASS( name )																			\
 	public:																							\
 	static int GetPyNetworkType() { return networkType; }

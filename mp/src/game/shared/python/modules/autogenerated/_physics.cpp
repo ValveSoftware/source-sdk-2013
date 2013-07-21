@@ -2,8 +2,6 @@
 
 #include "cbase.h"
 #ifdef CLIENT_DLL
-#include "boost/python.hpp"
-
 #include "cbase.h"
 
 #include "srcpy_physics.h"
@@ -926,8 +924,6 @@ BOOST_PYTHON_MODULE(_physics){
     }
 }
 #else
-#include "boost/python.hpp"
-
 #include "cbase.h"
 
 #include "srcpy_physics.h"

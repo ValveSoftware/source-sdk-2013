@@ -2,8 +2,6 @@
 
 #include "cbase.h"
 #ifdef CLIENT_DLL
-#include "boost/python.hpp"
-
 #include "vprof.h"
 
 #include "srcpy.h"
@@ -165,8 +163,6 @@ BOOST_PYTHON_MODULE(vprof){
     bp::scope().attr("vprofcurrentprofilee") = bp::object( boost::ref( g_VProfCurrentProfile ) );
 }
 #else
-#include "boost/python.hpp"
-
 #include "vprof.h"
 
 #include "srcpy.h"

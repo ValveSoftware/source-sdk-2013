@@ -305,6 +305,7 @@ bool CSrcPython::InitInterpreter( void )
 	srcbuiltins = Import("srcbuiltins");
 	sys.attr("stdout") = srcbuiltins.attr("SrcPyStdOut")();
 	sys.attr("stderr") = srcbuiltins.attr("SrcPyStdErr")();
+	PyErr_Print();
 
 	weakref = Import("weakref");
 	builtins = Import("builtins");
@@ -332,15 +333,13 @@ bool CSrcPython::InitInterpreter( void )
 	SysAppendPath("maps");
 
 	// Default imports
-	// TODO: Run( "import vmath" );
+	Import( "vmath" );
 	types = Import("types");
-	// TODO: Run( "import sound" ); // Import _sound before _entitiesmisc (register converters)
-	Run( "import _entitiesmisc" );
+	Import( "sound" ); // Import _sound before _entitiesmisc (register converters)
 	_entitiesmisc = Import("_entitiesmisc");
-	Run( "import _entities" );
 	_entities = Import("_entities");
-	// TODO: _particles = Import("_particles");
-	// TODO: _physics = Import("_physics");
+	_particles = Import("_particles");
+	_physics = Import("_physics");
 	// TODO: matchmaking = Import("matchmaking");
 #ifdef CLIENT_DLL
 	// TODO: Run( "import input" );		// Registers buttons
@@ -568,8 +567,8 @@ void CSrcPython::LevelInitPreEntity()
 	// Send prelevelinit signal
 	try 
 	{
-		CallSignalNoArgs( Get("prelevelinit", "core.signals", true) );
-		CallSignalNoArgs( Get("map_prelevelinit", "core.signals", true)[STRING(m_LevelName)] );
+		CallSignalNoArgs( Get("prelevelinit", "game.signals", true) );
+		CallSignalNoArgs( Get("map_prelevelinit", "game.signals", true)[STRING(m_LevelName)] );
 	} 
 	catch( bp::error_already_set & ) 
 	{
@@ -589,8 +588,8 @@ void CSrcPython::LevelInitPostEntity()
 	// Send postlevelinit signal
 	try 
 	{
-		CallSignalNoArgs( Get("postlevelinit", "core.signals", true) );
-		CallSignalNoArgs( Get("map_postlevelinit", "core.signals", true)[STRING(m_LevelName)] );
+		CallSignalNoArgs( Get("postlevelinit", "game.signals", true) );
+		CallSignalNoArgs( Get("map_postlevelinit", "game.signals", true)[STRING(m_LevelName)] );
 	} 
 	catch( bp::error_already_set & ) 
 	{
@@ -610,8 +609,8 @@ void CSrcPython::LevelShutdownPreEntity()
 	// Send prelevelshutdown signal
 	try 
 	{
-		CallSignalNoArgs( Get("prelevelshutdown", "core.signals", true) );
-		CallSignalNoArgs( Get("map_prelevelshutdown", "core.signals", true)[STRING(m_LevelName)] );
+		CallSignalNoArgs( Get("prelevelshutdown", "game.signals", true) );
+		CallSignalNoArgs( Get("map_prelevelshutdown", "game.signals", true)[STRING(m_LevelName)] );
 	} 
 	catch( bp::error_already_set & ) 
 	{
@@ -631,8 +630,8 @@ void CSrcPython::LevelShutdownPostEntity()
 	// Send postlevelshutdown signal
 	try 
 	{
-		CallSignalNoArgs( Get("postlevelshutdown", "core.signals", true) );
-		CallSignalNoArgs( Get("map_postlevelshutdown", "core.signals", true)[STRING(m_LevelName)] );
+		CallSignalNoArgs( Get("postlevelshutdown", "game.signals", true) );
+		CallSignalNoArgs( Get("map_postlevelshutdown", "game.signals", true)[STRING(m_LevelName)] );
 	} 
 	catch( bp::error_already_set & ) 
 	{

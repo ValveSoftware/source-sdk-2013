@@ -2,8 +2,6 @@
 
 #include "cbase.h"
 #ifdef CLIENT_DLL
-#include "boost/python.hpp"
-
 #include "bone_setup.h"
 
 #include "eventlist.h"
@@ -286,8 +284,6 @@ BOOST_PYTHON_MODULE(_animation){
     }
 }
 #else
-#include "boost/python.hpp"
-
 #include "bone_setup.h"
 
 #include "eventlist.h"

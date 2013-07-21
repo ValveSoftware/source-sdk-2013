@@ -222,8 +222,10 @@ class SemiSharedModuleGenerator(SourceModuleGenerator):
         mb_server.add_registration_code('bp::docstring_options doc_options( true, true, false );', tail=False)
         
         # Generate code
-        mb_client.build_code_creator( module_name=self.module_name )  
-        mb_server.build_code_creator( module_name=self.module_name )     
+        mb_client.build_code_creator(module_name=self.module_name)
+        self.PostCodeCreation(mb_client)
+        mb_server.build_code_creator(module_name=self.module_name)
+        self.PostCodeCreation(mb_server)
         
         # Misc
         self.isclient = True

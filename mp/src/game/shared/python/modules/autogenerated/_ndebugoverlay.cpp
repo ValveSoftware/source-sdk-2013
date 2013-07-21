@@ -2,8 +2,6 @@
 
 #include "cbase.h"
 #ifdef CLIENT_DLL
-#include "boost/python.hpp"
-
 #include "cbase.h"
 
 #include "debugoverlay_shared.h"
@@ -316,8 +314,6 @@ BOOST_PYTHON_MODULE(_ndebugoverlay){
     }
 }
 #else
-#include "boost/python.hpp"
-
 #include "cbase.h"
 
 #include "debugoverlay_shared.h"

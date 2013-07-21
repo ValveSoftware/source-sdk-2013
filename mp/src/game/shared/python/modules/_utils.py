@@ -138,32 +138,6 @@ class Utils(SemiSharedModuleGenerator):
         mb.free_functions( 'GetVectorInScreenSpace' ).add_transformation( FT.output('iX'), FT.output('iY') )
         mb.free_functions( 'GetTargetInScreenSpace' ).add_transformation( FT.output('iX'), FT.output('iY') )
 
-    def SetupTraceFilterWithNoBase(self, mb, clsname):
-        cls = mb.class_(clsname)
-        cls.include()
-        cls.mem_funs(allow_empty=True).virtuality = 'not virtual'
-        
-        cls.add_wrapper_code('''
-            virtual bool ShouldHitEntity( ::IHandleEntity * pEntity, int contentsMask ) {
-                boost::python::override func_ShouldHitEntity = this->get_override( "ShouldHitEntity" );
-                if( func_ShouldHitEntity.ptr() != Py_None )
-                {
-                    try {
-                        return func_ShouldHitEntity( ConvertIHandleEntity( pEntity ), contentsMask );
-                    } catch(...) {
-                        PyErr_Print();
-                    }
-                }
-                return false;
-            }
-        ''')
-        
-        cls.add_registration_code( '''
-        def( 
-            "ShouldHitEntity"
-            , (bool ( ::%s_wrapper::* )( ::IHandleEntity *,int ) )(&::%s_wrapper::ShouldHitEntity)
-            , ( boost::python::arg("pEntity"), boost::python::arg("contentsMask") ) )''' % (clsname, clsname))
-            
     def RecursiveFindDecl(self, cls, fnname):
         try:
             return cls.mem_fun('ShouldHitEntity')
@@ -178,15 +152,8 @@ class Utils(SemiSharedModuleGenerator):
     def SetupTraceFilter(self, mb, clsname):
         cls = mb.class_(clsname)
         cls.include()
-        #cls.mem_funs(allow_empty=True).virtuality = 'not virtual'
-        
-        '''
-        try:
-            shouldhitentdecl = self.RecursiveFindDecl(cls, 'ShouldHitEntity')#cls.mem_fun('ShouldHitEntity')
-            argname = shouldhitentdecl.arguments[0].name
-            AddWrapReg(mb, clsname, shouldhitentdecl, [CreateIHandleEntityArg(argname), 'contentsMask'])
-        except pygccxml.declarations.matcher.declaration_not_found_t:
-            raise Exception('Must implement ShouldHitEntity for overriding..')'''
+        cls.mem_funs(allow_empty=True).virtuality = 'not virtual'
+        cls.mem_funs('ShouldHitEntity', allow_empty=True).virtuality = 'virtual'
             
     def Parse(self, mb):
         # Exclude everything by default
@@ -253,14 +220,9 @@ class Utils(SemiSharedModuleGenerator):
         cls.calldefs().exclude()
         cls.mem_fun('ShouldHitEntity').virtuality = 'not virtual'
         
-        tracefiltersnobase = [
+        tracefilters = [
             'CTraceFilter',
             'CTraceFilterEntitiesOnly',
-        ]
-        for clsname in tracefiltersnobase:
-            self.SetupTraceFilterWithNoBase(mb, clsname)
-        
-        tracefilters = [
             'CTraceFilterWorldOnly',
             'CTraceFilterWorldAndPropsOnly',
             'CTraceFilterHitAll',

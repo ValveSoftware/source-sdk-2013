@@ -348,11 +348,13 @@ class EntitiesMisc(SemiSharedModuleGenerator):
             mb.free_function('DetachAttachedRagdollsForEntity').include()
         
         # Model
+        cls = mb.class_('CStudioHdr')
         self.IncludeEmptyClass(mb, 'CStudioHdr')
-        mb.class_('CStudioHdr').calldefs('CStudioHdr').exclude()
-        mb.class_('CStudioHdr').no_init = True
-        mb.class_('CStudioHdr').mem_funs('pszName').include()
-
+        cls.calldefs('CStudioHdr').exclude()
+        cls.no_init = True
+        cls.mem_funs('pszName').include()
+        cls.mem_funs('pszName').rename('name')
+        
         # Shared Props
         mb.class_('breakablepropparams_t').include()
         mb.free_functions('GetMassEquivalent').include()

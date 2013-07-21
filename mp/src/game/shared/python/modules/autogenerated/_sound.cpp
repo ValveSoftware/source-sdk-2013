@@ -2,8 +2,6 @@
 
 #include "cbase.h"
 #ifdef CLIENT_DLL
-#include "boost/python.hpp"
-
 #include "__array_1.pypp.hpp"
 
 #include "wchar.h"
@@ -432,8 +430,6 @@ BOOST_PYTHON_MODULE(_sound){
     }
 }
 #else
-#include "boost/python.hpp"
-
 #include "__array_1.pypp.hpp"
 
 #include "wchar.h"

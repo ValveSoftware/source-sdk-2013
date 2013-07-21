@@ -4,8 +4,6 @@
 
 
 
-#include "boost/python.hpp"
-
 #include "__convenience.pypp.hpp"
 
 #include "__call_policies.pypp.hpp"

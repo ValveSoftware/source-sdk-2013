@@ -4,8 +4,6 @@
 
 
 
-#include "boost/python.hpp"
-
 #include "srcpy_srcbuiltins.h"
 
 #include "srcpy.h"

@@ -96,6 +96,14 @@ public:
 	DECLARE_PREDICTABLE();
 	DECLARE_INTERPOLATION();
 
+// =======================================
+// PySource Additions
+// =======================================
+	DECLARE_PYCLIENTCLASS( C_BaseAnimating, PN_BASEANIMATING );
+// =======================================
+// END PySource Additions
+// =======================================
+
 	enum
 	{
 		NUM_POSEPAREMETERS = 24,

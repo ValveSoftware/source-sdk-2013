@@ -2,8 +2,6 @@
 
 #include "cbase.h"
 #ifdef CLIENT_DLL
-#include "boost/python.hpp"
-
 #include "__array_1.pypp.hpp"
 
 #include "cbase.h"
@@ -1960,6 +1958,10 @@ BOOST_PYTHON_MODULE(_entitiesmisc){
         .value("ACT_MP_RELOAD_CROUCH_PRIMARY3_END", ACT_MP_RELOAD_CROUCH_PRIMARY3_END)
         .value("ACT_MP_RELOAD_AIRWALK_PRIMARY3_END", ACT_MP_RELOAD_AIRWALK_PRIMARY3_END)
         .value("ACT_MP_RELOAD_SWIM_PRIMARY3", ACT_MP_RELOAD_SWIM_PRIMARY3)
+        .value("ACT_MP_THROW", ACT_MP_THROW)
+        .value("ACT_THROWABLE_VM_DRAW", ACT_THROWABLE_VM_DRAW)
+        .value("ACT_THROWABLE_VM_IDLE", ACT_THROWABLE_VM_IDLE)
+        .value("ACT_THROWABLE_VM_FIRE", ACT_THROWABLE_VM_FIRE)
         .value("LAST_SHARED_ACTIVITY", LAST_SHARED_ACTIVITY)
         .export_values()
         ;
@@ -2454,7 +2456,7 @@ BOOST_PYTHON_MODULE(_entitiesmisc){
 
     bp::class_< CStudioHdr, boost::noncopyable >( "CStudioHdr", bp::no_init )    
         .def( 
-            "pszName"
+            "name"
             , (char const * ( ::CStudioHdr::* )(  ) const)( &::CStudioHdr::pszName ) );
 
     bp::class_< ClientClass >( "ClientClass", bp::no_init );
@@ -2487,7 +2489,8 @@ BOOST_PYTHON_MODULE(_entitiesmisc){
             , ( bp::arg("pClientClass") ) )    
         .def_readwrite( "m_pyClass", &NetworkedClass::m_pyClass );
 
-    bp::class_< PyEntityFactory >( "EntityFactory", bp::init< char const *, bp::object >(( bp::arg("pClassName"), bp::arg("PyClass") )) );
+    bp::class_< PyEntityFactory >( "EntityFactory", bp::no_init )    
+        .def( bp::init< char const *, bp::object >(( bp::arg("pClassName"), bp::arg("PyClass") )) );
 
     bp::class_< animevent_t_wrapper >( "animevent_t" )    
         .def_readwrite( "cycle", &animevent_t::cycle )    
@@ -2729,8 +2732,6 @@ BOOST_PYTHON_MODULE(_entitiesmisc){
     }
 }
 #else
-#include "boost/python.hpp"
-
 #include "__array_1.pypp.hpp"
 
 #include "cbase.h"
@@ -4937,6 +4938,10 @@ BOOST_PYTHON_MODULE(_entitiesmisc){
         .value("ACT_MP_RELOAD_CROUCH_PRIMARY3_END", ACT_MP_RELOAD_CROUCH_PRIMARY3_END)
         .value("ACT_MP_RELOAD_AIRWALK_PRIMARY3_END", ACT_MP_RELOAD_AIRWALK_PRIMARY3_END)
         .value("ACT_MP_RELOAD_SWIM_PRIMARY3", ACT_MP_RELOAD_SWIM_PRIMARY3)
+        .value("ACT_MP_THROW", ACT_MP_THROW)
+        .value("ACT_THROWABLE_VM_DRAW", ACT_THROWABLE_VM_DRAW)
+        .value("ACT_THROWABLE_VM_IDLE", ACT_THROWABLE_VM_IDLE)
+        .value("ACT_THROWABLE_VM_FIRE", ACT_THROWABLE_VM_FIRE)
         .value("LAST_SHARED_ACTIVITY", LAST_SHARED_ACTIVITY)
         .export_values()
         ;
@@ -5557,7 +5562,7 @@ BOOST_PYTHON_MODULE(_entitiesmisc){
 
     bp::class_< CStudioHdr, boost::noncopyable >( "CStudioHdr", bp::no_init )    
         .def( 
-            "pszName"
+            "name"
             , (char const * ( ::CStudioHdr::* )(  ) const)( &::CStudioHdr::pszName ) );
 
     bp::class_< FireBulletsInfo_t_wrapper >( "FireBulletsInfo_t", bp::init< >() )    
@@ -5649,7 +5654,8 @@ BOOST_PYTHON_MODULE(_entitiesmisc){
             , (void ( ::PyBoneFollowerManager::* )( ::CBaseAnimating * ) )( &::PyBoneFollowerManager::UpdateBoneFollowers )
             , ( bp::arg("pParentEntity") ) );
 
-    bp::class_< PyEntityFactory >( "EntityFactory", bp::init< char const *, bp::object >(( bp::arg("pClassName"), bp::arg("PyClass") )) );
+    bp::class_< PyEntityFactory >( "EntityFactory", bp::no_init )    
+        .def( bp::init< char const *, bp::object >(( bp::arg("pClassName"), bp::arg("PyClass") )) );
 
     bp::class_< PyOutputEvent, bp::bases< CBaseEntityOutput >, boost::noncopyable >( "COutputEvent", bp::init< >() )    
         .def( 

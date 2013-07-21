@@ -42,14 +42,19 @@ class ModuleGenerator(object):
         mb.add_registration_code('bp::docstring_options doc_options( true, true, false );', tail=False)
     
         # Generate code
-        mb.build_code_creator(module_name=self.module_name)      
-
+        mb.build_code_creator(module_name=self.module_name)
+        self.PostCodeCreation(mb)
+        
         # Add precompiled header + other general required stuff and write away
         self.AddAdditionalCode(mb)      
         if self.split:
             written_files = mb.split_module(os.path.join(self.path, self.module_name), on_unused_file_found=lambda file: print('Unused file: %s' % (file)))
         else:
             mb.write_module(os.path.join(os.path.abspath(self.path), self.module_name+'.cpp'))
+            
+    def PostCodeCreation(self, mb):
+        ''' Allows modifying mb.code_creator just after the code creation. '''
+        pass
         
     # Adds precompiled header + other default includes
     def AddAdditionalCode(self, mb):
