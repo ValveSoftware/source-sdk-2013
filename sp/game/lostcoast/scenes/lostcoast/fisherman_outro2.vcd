@@ -1,0 +1,108 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 10.916667 -1.000000
+  param "noaction"
+}
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event speak "lostcoast.fish_gettingfuzzy"
+    {
+      time 0.562500 2.699280
+      param "lostcoast.fish_gettingfuzzy"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ati_2002.fish_otherplaces"
+    {
+      time 3.027779 6.072677
+      param "lostcoast.fish_otherplaces"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "fish_niceknowingya"
+    {
+      time 6.777778 8.594037
+      param "lostcoast.fish_niceknowingya"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "player"
+    {
+      time 0.064238 8.763996
+      param "!player"
+      event_ramp
+      {
+        0.8625 0.7155
+        1.1250 0.8243
+        1.8400 0.8942
+        3.7542 0.8968
+        5.6148 0.8942
+        7.0105 0.8787
+        7.6316 0.8421
+        7.9879 0.7434
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 0.022416 8.785536
+      param "!player"
+      event_ramp
+      {
+        0.6400 0.8462
+        0.8950 0.9712
+        1.1650 1.0000
+        7.1717 1.0000
+        8.7632 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Interrupt"
+  {
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "24"
+  "SceneRampTool" "100"
+  "RampTool" "40"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

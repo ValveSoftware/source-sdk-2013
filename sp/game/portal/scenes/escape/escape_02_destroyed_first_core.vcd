@@ -1,0 +1,123 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "voice"
+  {
+    event speak "Portal.GlaDOS.core_destroy1_01"
+    {
+      time 0.136667 1.168685
+      param "Portal.GlaDOS.core_destroy1_01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy1_02"
+    {
+      time 1.346667 8.308889
+      param "Portal.GlaDOS.core_destroy1_02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy1_03"
+    {
+      time 8.413334 15.698889
+      param "Portal.GlaDOS.core_destroy1_03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy1_04"
+    {
+      time 15.750853 20.678858
+      param "Portal.GlaDOS.core_destroy1_04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy1_05"
+    {
+      time 20.741669 30.853687
+      param "Portal.GlaDOS.core_destroy1_05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy1_06"
+    {
+      time 30.920832 35.326183
+      param "Portal.GlaDOS.core_destroy1_06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event firetrigger "dumb"
+    {
+      time 9.254000 -1.000000
+      param "1"
+    }
+    event firetrigger "whoah"
+    {
+      time 10.017000 -1.000000
+      param "3"
+    }
+    event firetrigger "screwed"
+    {
+      time 15.783333 -1.000000
+      param "4"
+    }
+    event firetrigger "backtorandom2"
+    {
+      time 17.533333 -1.000000
+      param "2"
+    }
+    event firetrigger "poison"
+    {
+      time 25.221001 -1.000000
+      param "5"
+    }
+    event firetrigger "backtorandom4"
+    {
+      time 26.521001 -1.000000
+      param "2"
+    }
+    event firetrigger "poison2"
+    {
+      time 29.445000 -1.000000
+      param "5"
+    }
+    event firetrigger "backtorandom5"
+    {
+      time 31.000000 -1.000000
+      param "2"
+    }
+    event firetrigger "poison3"
+    {
+      time 33.466999 -1.000000
+      param "5"
+    }
+    event firetrigger "backtorandom6"
+    {
+      time 34.400000 -1.000000
+      param "2"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "40"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

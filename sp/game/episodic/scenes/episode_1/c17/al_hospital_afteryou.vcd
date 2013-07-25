@@ -1,0 +1,220 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_hospital_afteryou"
+    {
+      time 0.263889 1.204297
+      param "ep_01.al_hospital_afteryou"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.038333 1.283612
+      param "!player"
+      event_ramp 
+      {
+        0.3272 1.0000
+        0.9363 1.0000
+      }
+    }
+    event lookat "mark_alyx_puzz_2"
+    {
+      time 1.080000 2.957223
+      param "mark_alyx_puzz_2"
+      event_ramp 
+      {
+        0.3272 1.0000
+        1.5683 1.0000
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "A_bg_h_jerkrt"
+    {
+      time 0.020834 2.654167
+      param "A_bg_h_jerkrt"
+      absolutetags playback_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "fga"
+    {
+      time 0.006944 2.819444
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser" combo 
+        {
+          0.4167 0.0000
+        }
+        {
+          0.4167 0.5000
+        }
+        "lid_tightener" combo 
+        {
+          0.4167 0.0000
+        }
+        {
+          0.4167 0.5000
+        }
+        "inner_raiser" combo 
+        {
+          0.4167 0.0590
+        }
+        {
+          0.4167 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.4167 0.0790
+        }
+        {
+          0.4167 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.4167 0.0000
+        }
+        {
+          0.4167 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.4167 0.4150
+        }
+        {
+          0.4167 0.5000
+        }
+        "wrinkler" 
+        {
+          0.4167 0.1980
+        }
+        "upper_raiser" combo 
+        {
+          0.4167 0.0490
+        }
+        {
+          0.4167 0.5000
+        }
+        "corner_puller" combo 
+        {
+          0.4167 0.3660
+        }
+        {
+          0.4167 0.4112
+        }
+        "corner_depressor" combo 
+        {
+          0.4167 0.0000
+        }
+        {
+          0.4167 0.5000
+        }
+        "chin_raiser" 
+        {
+          0.4167 0.0000
+        }
+        "part" combo 
+        {
+          0.4167 0.0000
+        }
+        {
+          0.4167 0.5000
+        }
+        "puckerer" combo 
+        {
+          0.4167 0.0000
+        }
+        {
+          0.4167 0.5000
+        }
+        "funneler" combo range 0.0 2.0 
+        {
+          0.4167 0.0000
+        }
+        {
+          0.4167 0.5000
+        }
+        "stretcher" combo 
+        {
+          0.4167 0.0000
+        }
+        {
+          0.4167 0.5000
+        }
+        "bite" 
+        {
+          0.4167 0.0000
+        }
+        "presser" 
+        {
+          0.4167 0.0000
+        }
+        "tightener" 
+        {
+          0.4167 0.0000
+        }
+        "jaw_clencher" 
+        {
+          0.4167 0.2270
+        }
+        "mouth_sideways" range -1.0 1.0 
+        {
+          0.4167 0.5295
+        }
+      }
+    }
+  }
+  channel "Face to"
+  {
+    event face "!player"
+    {
+      time 0.013889 1.062500
+      param "!player"
+      event_ramp 
+      {
+        0.4912 1.0000 "curve_default_to_curve_hold"
+      }
+    }
+  }
+  channel "moveto"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

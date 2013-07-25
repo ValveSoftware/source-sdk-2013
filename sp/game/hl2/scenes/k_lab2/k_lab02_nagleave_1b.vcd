@@ -1,0 +1,227 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 3.253334 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "You better Hurry"
+    {
+      time 1.440000 2.202336
+      param "k_lab2.al_klab2_exitnag01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 0.080000 3.931113
+      param "!player"
+      event_ramp
+      {
+        0.3614 0.5746
+        2.2569 0.8016
+        3.5212 0.6312
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 0.154590 3.862319
+      param "!player"
+      event_ramp
+      {
+        0.4188 0.2341
+      }
+    }
+  }
+  channel "pose"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.374396
+      param ""
+    }
+    event gesture "pose"
+    {
+      time 0.840579 4.560869
+      param "posture05"
+      event_ramp
+      {
+        0.4938 0.6508
+        2.7338 0.5635
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.194365
+        "loop" 0.417237
+        "end" 0.743523
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.234375
+        "loop" 0.406250
+        "end" 0.640625
+      }
+      sequenceduration 4.300000
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 1.114428 2.738806
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.2619 0.0000
+          0.4083 0.4200
+          0.6178 0.1900
+          0.9066 0.1600
+          1.1121 0.0600
+        }
+        {
+          0.2619 0.5000
+          0.4083 0.5000
+          0.6178 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.2619 0.0000
+          0.4083 0.4300
+          0.6178 0.2000
+          0.9120 0.1600
+          1.1242 0.0600
+        }
+        {
+          0.2619 0.5000
+          0.4083 0.5000
+          0.6178 0.5000
+        }
+        "lowerer"         combo        
+        {
+          0.2619 0.0000
+          0.4083 0.0000
+          0.6178 0.0000
+        }
+        {
+          0.2619 0.5000
+          0.4083 0.5000
+          0.6178 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.2619 0.0000
+          0.4083 0.0800
+          0.6178 0.0800
+        }
+        {
+          0.2619 0.5000
+          0.4083 0.5000
+          0.6178 0.5000
+        }
+        "wrinkler"        
+        {
+          0.2619 0.0000
+          0.4083 0.0000
+          0.6178 0.0000
+        }
+        "upper_raiser"         combo        
+        {
+          0.2619 0.0000
+          0.4083 0.0000
+          0.6178 0.0000
+        }
+        {
+          0.2619 0.5000
+          0.4083 0.5000
+          0.6178 0.5000
+        }
+        "corner_puller"         combo        
+        {
+          0.2619 0.0000
+          0.4083 0.0000
+          0.6178 0.0000
+        }
+        {
+          0.2619 0.5000
+          0.4083 0.5000
+          0.6178 0.5000
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.3009 0.4900
+          0.4083 0.4600
+          0.6124 0.4800
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.3197 0.4800
+          0.4083 0.4300
+          0.6124 0.5000
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.4083 0.5000
+        }
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.888060
+      param ""
+    }
+    event gesture "you"
+    {
+      time 0.995169 3.116425
+      param "A_gesture13"
+      event_ramp
+      {
+        0.5437 0.7063
+        1.3504 0.6071
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.200080
+        "accent" 0.368328
+        "loop" 0.636617
+        "end" 0.795771
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.150000
+        "accent" 0.300000
+        "loop" 0.475000
+        "end" 0.650000
+      }
+      sequenceduration 2.700000
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "69"
+  "RampTool" "64"
+  "ExpressionTool" "154"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

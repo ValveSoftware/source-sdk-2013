@@ -1,0 +1,132 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "question11"
+    {
+      time 0.006667 2.599252
+      param "npc_citizen.question11"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Facial"
+  {
+    event flexanimation "Facial"
+    {
+      time 0.000000 2.613334
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_droop"         combo        
+        {
+          0.1102 0.5500
+          0.2079 0.6400
+          0.8234 0.7400
+          1.1727 0.1200
+          1.5470 0.6700
+          1.7715 0.5300
+          1.8568 0.4700
+          2.0855 0.0700
+        }
+        {
+        }
+        "blink"        
+        {
+          0.2065 0.9300
+          0.3306 0.3100
+          0.4729 0.4800
+          0.5901 0.1800
+          0.7065 0.3300
+          0.8073 0.1400
+        }
+        "inner_raiser"         combo        
+        {
+          0.1102 0.5500
+          0.2079 0.6400
+          0.2495 0.6360
+          0.5328 0.5983
+          0.7095 0.9456
+          0.8785 0.9372
+          1.1306 0.5774
+          1.2320 0.5481
+          1.6452 0.5397
+          1.7715 0.5300
+          1.8568 0.4700
+          2.0855 0.0700
+        }
+        {
+        }
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.0852 0.3000
+          0.1352 0.2800
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.0977 0.3800
+          0.1289 0.3900
+          0.6743 0.3700
+          0.7076 0.3700
+          0.8167 0.5100
+          0.8962 0.5100
+          1.0060 0.5100
+          1.1073 0.6600
+          1.1426 0.6600
+          1.7082 0.6500
+          1.7394 0.6500
+          1.8547 0.4900
+          1.8900 0.4900
+        }
+      }
+    }
+  }
+  channel "Head"
+  {
+    event flexanimation "Head"
+    {
+      time 0.000000 2.633334
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.5926 0.5415
+          0.7641 0.5153
+          1.0370 0.5328
+          1.2595 0.5109
+          1.5131 0.5328
+          1.7362 0.5022
+          2.0377 0.5197
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.2367 0.6744
+          0.3727 0.7077
+          0.7179 0.7207
+          1.8348 0.6937
+          2.0219 0.6676
+          2.4125 0.5223
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "80"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,79 @@
+// Choreo version 1
+event loop "look at loop"
+{
+  time 17.607843 -1.000000
+  param "1.000000"
+  loopcount "-1"
+}
+actor "!Target1"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "Lookat_player"
+    {
+      time 0.066666 18.522223
+      param "!player"
+      event_ramp
+      {
+        0.1200 0.7343
+        0.2567 0.9057
+        0.5133 0.9890
+        17.8267 0.9796
+        18.0800 0.8915
+        18.2600 0.6022
+      }
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+    event face "Faceto_player"
+    {
+      time 0.074510 18.500002
+      param "!player"
+      event_ramp
+      {
+        0.1367 0.2390
+        0.3100 0.5833
+        0.5700 0.6651
+        0.6667 0.6667
+        16.6777 0.6761
+        18.3644 0.6714
+        18.4255 0.6698
+      }
+    }
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "flex anim"
+  {
+  }
+  faceposermodel "U:\HL2\release\dev\hl2\models\Humans\Group01\Female_01.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "34"
+  "ExpressionTool" "38"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

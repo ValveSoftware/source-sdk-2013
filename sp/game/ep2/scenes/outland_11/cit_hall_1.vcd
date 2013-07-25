@@ -1,0 +1,143 @@
+// Choreo version 1
+event section "pause"
+{
+  time 4.666667 -1.000000
+  param "noaction"
+}
+actor "cit_hall_supervisor_1"
+{
+  channel "audio"
+  {
+    event speak "ep1_citizen.cit_remarks03"
+    {
+      time 8.208333 8.788310
+      param "npc_citizen.answer30"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "cit_welder_01a"
+    {
+      time 4.833333 10.791667
+      param "cit_welder_01a"
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_cit_welder_1"
+    {
+      time 0.256944 7.194446
+      param "mark_cit_welder_1"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "cit_welder_01a"
+    {
+      time 4.812500 10.750000
+      param "cit_welder_01a"
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodygestures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "headf"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "eyes"
+  {
+  }
+  channel "Trigger"
+  {
+    active "0"
+  }
+  channel "temp"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "cit_hall_supervisor_2"
+{
+  channel "audio"
+  {
+    event speak "ep1_citizen.cit_remarks05"
+    {
+      time 5.083333 7.381496
+      param "npc_citizen.question07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "cit_welder_01a"
+    {
+      time 4.312500 11.000001
+      param "cit_welder_01a"
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_cit_welder_2"
+    {
+      time 0.152778 7.326390
+      param "mark_cit_welder_2"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "cit_welder_01a"
+    {
+      time 4.791667 11.020834
+      param "cit_welder_01a"
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\Eli.mdl"
+}
+
+mapname "maps\d1_eli\d1_eli_01_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "32"
+  "ExpressionTool" "40"
+  "GestureTool" "100"
+  "RampTool" "42"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

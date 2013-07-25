@@ -1,0 +1,44 @@
+// Choreo version 1
+event loop "loop"
+{
+  time 13.000000 -1.000000
+  param "0.000000"
+  loopcount "0"
+}
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "odessa.nlo_cub_radio"
+    {
+      time 0.074940 7.724940
+      param "odessa.nlo_cub_radio"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  channel "triggers"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "52"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

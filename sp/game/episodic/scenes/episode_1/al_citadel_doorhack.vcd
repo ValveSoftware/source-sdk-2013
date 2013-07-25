@@ -1,0 +1,269 @@
+// Choreo version 1
+event section "pause"
+{
+  time 23.633902 -1.000000
+  param "noaction"
+}
+event section "Face Player Pause"
+{
+  time 5.701428 -1.000000
+  param "noaction"
+}
+event section "goto window pause"
+{
+  time 9.568096 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_postcore_atwindow01"
+    {
+      time 4.606375 4.993495
+      param "ep_01.al_postcore_atwindow01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_postcore_atwindow02"
+    {
+      time 5.180999 5.670794
+      param "ep_01.al_postcore_atwindow02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_postcore_atwindow03"
+    {
+      time 5.987450 7.001872
+      param "ep_01.al_postcore_atwindow03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_postcore_atwindow04"
+    {
+      time 7.376268 9.477674
+      param "ep_01.al_postcore_atwindow04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_postcore_atwindow05"
+    {
+      time 12.257130 13.693865
+      param "ep_01.al_postcore_atwindow05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_postcore_atwindow06"
+    {
+      time 14.063580 15.938591
+      param "ep_01.al_postcore_atwindow06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_postcore_hardpartover"
+    {
+      time 16.941431 19.333086
+      param "ep_01.al_postcore_hardpartover"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_postcore_follow"
+    {
+      time 19.954765 20.443836
+      param "ep_01.al_postcore_follow"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "target_hackingconsole_03"
+    {
+      time 20.844225 21.935621
+      param "target_hackingconsole_03"
+      event_ramp 
+      {
+        0.2885 0.9561
+        0.5269 0.9481
+        0.7423 0.9401
+      }
+    }
+    event lookat "!player"
+    {
+      time 21.031755 23.951105
+      param "!player"
+      event_ramp 
+      {
+        0.8308 0.9561
+        2.3541 0.9421
+      }
+    }
+    event lookat "!player"
+    {
+      time 4.304869 6.312399
+      param "!player"
+      event_ramp 
+      {
+        0.8308 0.9561
+        1.4423 0.9421
+      }
+    }
+    event lookat "target_core"
+    {
+      time 0.171537 4.072400
+      param "target_core"
+      event_ramp 
+      {
+        0.8308 0.9561
+        3.3356 0.9421
+      }
+    }
+    event lookat "!player"
+    {
+      time 11.851538 19.139071
+      param "!player"
+      event_ramp 
+      {
+        0.8308 0.9561
+        6.7223 0.9421
+      }
+    }
+    event lookat "target_core"
+    {
+      time 6.504869 11.365734
+      param "target_core"
+      event_ramp 
+      {
+        0.8308 0.9561
+        4.2956 0.9421
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_dataconsole_1"
+    {
+      time 20.087667 23.779062
+      param "mark_dataconsole_1"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "!player"
+    {
+      time 4.732828 6.924442
+      param "!player"
+      param2 "Run"
+      resumecondition
+      distancetotarget 60.00
+    }
+    event moveto "mark_alyx_watch_core2"
+    {
+      time 7.492828 10.177300
+      param "mark_alyx_watch_core2"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "target_core"
+    {
+      time 7.088096 10.361429
+      param "target_core"
+    }
+    event face "!player"
+    {
+      time 12.514763 15.988097
+      param "!player"
+    }
+    event face "!player"
+    {
+      time 4.136667 5.423335
+      param "!player"
+    }
+    event face "target_core"
+    {
+      time 1.448096 4.077618
+      param "target_core"
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.071429
+      param ""
+    }
+    event gesture "glasswallposture"
+    {
+      time 1.248572 4.511431
+      param "glasswallposture"
+      absolutetags playback_time
+      {
+        "apex" 0.105937
+        "loop" 0.255555
+        "end" 0.751865
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.120370
+        "loop" 0.481481
+        "end" 0.555556
+      }
+      sequenceduration 3.633333
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1 - open shutters"
+    {
+      time 15.956485 -1.000000
+      param "1"
+    }
+    event firetrigger "2 - Pause - Waiting for Player"
+    {
+      time 3.648096 -1.000000
+      param "2"
+    }
+    active "0"
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "56"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

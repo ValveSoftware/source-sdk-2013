@@ -1,0 +1,115 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_antguard_victory"
+    {
+      time 0.173611 1.069031
+      param "ep_01.al_antguard_victory"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "lookit"
+    {
+      time 0.114722 1.179444
+      param "!player"
+      event_ramp 
+      {
+        0.1857 0.9756
+        0.8653 0.9805
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time -0.034722 0.048611
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.006945 2.640278
+      param "A_bg_yell"
+      event_ramp 
+      {
+        0.2184 0.5268
+        0.5551 0.5512
+        1.4878 0.0439
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.102564
+        "extreme" 0.269231
+        "loop" 0.487179
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.102564
+        "extreme" 0.269231
+        "loop" 0.487179
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "face"
+    {
+      time 0.173611 1.236111
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser" combo 
+        {
+          0.3260 1.0000
+        }
+        {
+          0.3260 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.3260 1.0000
+        }
+        {
+          0.3260 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.3260 0.6400
+        }
+        {
+          0.3260 0.5000
+        }
+        "corner_puller" combo 
+        {
+          0.3260 0.4400
+        }
+        {
+          0.3260 0.5000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

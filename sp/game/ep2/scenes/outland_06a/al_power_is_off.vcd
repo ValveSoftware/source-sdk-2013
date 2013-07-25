@@ -1,0 +1,29 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Debug text"
+  {
+  }
+  channel "audio"
+  {
+    event speak "hereitis01"
+    {
+      time 0.146627 3.025901
+      param "ep_02.al_rad_offagain"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

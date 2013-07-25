@@ -1,0 +1,145 @@
+// Choreo version 1
+event section "move pause"
+{
+  time 0.426230 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "destroy02"
+    {
+      time 6.156735 7.839184
+      param "ep_02.al_barn_destroy02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "advisor"
+    {
+      time 0.770492 1.887544
+      param "ep_02.al_barn_advis"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "destroy01"
+    {
+      time 2.728163 6.077460
+      param "ep_02.al_barn_destroy01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vortsaid"
+    {
+      time 7.978836 13.433893
+      param "ep_02.al_barn_vortsaid"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at advisor"
+    {
+      time 0.553560 5.115253
+      param "!target1"
+      event_ramp
+      {
+        0.4684 0.9920
+        4.1789 0.9920
+      }
+    }
+    event lookat "!player"
+    {
+      time 5.000000 9.309524
+      param "!player"
+      event_ramp
+      {
+        0.4316 0.9920
+        3.9332 1.0000
+      }
+    }
+    event lookat "look at advisor"
+    {
+      time 9.072079 13.633772
+      param "!target1"
+      event_ramp
+      {
+        0.4684 0.9920
+        4.1789 0.9920
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "face advisor"
+    {
+      time 0.530054 5.109506
+      param "!target1"
+      event_ramp
+      {
+        0.5211 0.9920
+        4.1526 0.9973
+      }
+    }
+    event face "!player"
+    {
+      time 5.000001 9.261906
+      param "!player"
+      event_ramp
+      {
+        0.5105 0.9973
+        3.8855 0.9920
+      }
+    }
+    event face "face advisor"
+    {
+      time 9.048573 13.628025
+      param "!target1"
+      event_ramp
+      {
+        0.5211 0.9920
+        4.1526 0.9973
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to ramp"
+    {
+      time 0.049181 2.226776
+      param "!target2"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "94"
+  "SceneRampTool" "100"
+  "RampTool" "38"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off

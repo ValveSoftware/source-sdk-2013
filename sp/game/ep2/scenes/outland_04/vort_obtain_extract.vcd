@@ -1,0 +1,300 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.725000 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 27.019121 -1.000000
+  param "noaction"
+}
+event stoppoint "finish"
+{
+  time 28.269119 -1.000000
+  param "noaction"
+}
+event section "pause2"
+{
+  time 27.709595 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 12.090909 -1.000000
+  param "noaction"
+}
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "vort_extract_bounty01"
+    {
+      time 3.833333 7.902358
+      param "ep_02.vort_extract_bounty01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_finequality01"
+    {
+      time 17.509596 20.275787
+      param "ep_02.vort_extract_finequality01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_bounty02"
+    {
+      time 8.011906 11.378686
+      param "ep_02.vort_extract_bounty02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_finequality02"
+    {
+      time 20.390549 24.395424
+      param "ep_02.vort_extract_finequality02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "mark_hive_look"
+    {
+      time 0.106141 4.705075
+      param "mark_hive_look"
+      event_ramp
+      {
+        0.7175 0.3834
+        1.0469 0.4696
+        1.2031 0.4696
+        3.3719 0.4696
+        3.5781 0.4696
+        3.8874 0.3866
+      }
+    }
+    event lookat "!self"
+    {
+      time 12.184091 24.796106
+      param "!self"
+      event_ramp
+      {
+        0.5200 1.0000
+        12.1540 1.0000
+      }
+    }
+    event lookat "!player"
+    {
+      time 4.309524 11.464286
+      param "!player"
+      event_ramp
+      {
+        0.6500 1.0000
+        6.7469 1.0000
+      }
+    }
+    event lookat "!player"
+    {
+      time 27.754570 28.852453
+      param "!player"
+      event_ramp
+      {
+        0.4875 1.0000
+        0.6994 1.0000
+      }
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "mark_hive"
+    {
+      time 0.105701 1.082457
+      param "mark_hive"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "mark_elevator_post_nectar1"
+    {
+      time 25.351013 27.316525
+      param "mark_elevator_post_nectar1"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "mark_elevator_post_nectar"
+    {
+      time 27.354321 27.875387
+      param "mark_elevator_post_nectar"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "vort_exit_elevator"
+    {
+      time 11.045095 12.355184
+      param "vort_exit_elevator"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "mark_hive_look"
+    {
+      time 0.791667 11.477380
+      param "mark_hive_look"
+      event_ramp
+      {
+        0.4400 1.0000
+        10.1698 1.0000
+      }
+    }
+    event face "!self"
+    {
+      time 12.204005 24.909199
+      param "!self"
+      event_ramp
+      {
+        0.4400 1.0000
+        12.1893 1.0000
+      }
+    }
+    event face "!player"
+    {
+      time 27.751923 28.852453
+      param "!player"
+      event_ramp
+      {
+        0.5125 1.0000
+        0.7094 1.0000
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 1.291667 5.159523
+      param "gest_chant"
+      absolutetags playback_time
+      {
+        "apex" 0.208943
+        "accent" 0.261179
+        "loop" 0.304709
+        "end" 0.830769
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.244898
+        "accent" 0.306122
+        "loop" 0.357143
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "3"
+    {
+      time 7.923810 10.757143
+      param "g_palm_mid_both"
+      absolutetags playback_time
+      {
+        "apex" 0.238095
+        "accent" 0.392857
+        "loop" 0.547619
+        "end" 0.666667
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.238095
+        "accent" 0.392857
+        "loop" 0.547619
+        "end" 0.666667
+      }
+      sequenceduration 2.833333
+    }
+    event gesture "1"
+    {
+      time 25.102455 28.866739
+      param "G_hold_nectar"
+      absolutetags playback_time
+      {
+        "apex" 0.168067
+        "accent" 0.302250
+        "loop" 0.391705
+        "end" 0.879747
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.051020
+        "accent" 0.204082
+        "loop" 0.306122
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "g_present"
+    {
+      time 4.969697 8.424242
+      param "g_present"
+      absolutetags playback_time
+      {
+        "apex" 0.175752
+        "accent" 0.322212
+        "loop" 0.449144
+        "end" 0.754386
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.214286
+        "accent" 0.392857
+        "loop" 0.547619
+        "end" 0.666667
+      }
+      sequenceduration 2.833333
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "2 - extract"
+    {
+      time 12.523485 -1.000000
+      param "2"
+    }
+    event firetrigger "1 - chant"
+    {
+      time 4.575000 -1.000000
+      param "1"
+    }
+    event firetrigger "4 - elevator"
+    {
+      time 28.102453 -1.000000
+      param "4"
+    }
+    event firetrigger "3 - glow off"
+    {
+      time 18.590548 -1.000000
+      param "3"
+    }
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "24"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "64"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

@@ -1,0 +1,113 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "npc_vortigaunt.fmaccompany"
+    {
+      time 0.254762 2.580045
+      param "npc_vortigaunt.fmaccompany"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.029950 3.331266
+      param "!player"
+      event_ramp
+      {
+        0.4420 1.0000
+        2.8387 1.0000
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.047619 3.392857
+      param "!player"
+      event_ramp
+      {
+        0.5540 0.4286
+        2.7565 0.4459
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.029762 3.996428
+      param "g_hold_hands"
+      event_ramp
+      {
+        0.8900 1.0000
+        3.1860 1.0000
+      }
+      absolutetags playback_time
+      {
+        "in" 0.313559
+        "loop" 0.576271
+        "end" 0.669492
+        "out" 0.788136
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.313559
+        "loop" 0.576271
+        "end" 0.669492
+        "out" 0.788136
+      }
+      sequenceduration 3.966667
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.065476 3.910715
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "center_lid_tightener" 
+        {
+          0.8844 0.0000
+          1.4261 0.6600
+          2.4499 0.0000
+        }
+        "center_lid_droop" 
+        {
+          0.8844 0.0000
+          1.4261 0.6600
+          2.4499 0.0000
+        }
+      }
+    }
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "112"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

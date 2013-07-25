@@ -1,0 +1,106 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.066667 2.206666
+      param "!player"
+      event_ramp
+      {
+        0.6731 0.9212
+        1.1624 1.0000
+        1.3100 1.0000
+        1.3162 1.0000
+        1.6177 0.8838
+      }
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!target1"
+    {
+      time 0.053333 2.113333
+      param "!target1"
+      event_ramp
+      {
+        0.6038 0.9378
+        0.9846 1.0000
+        1.5692 1.0000
+        2.0600 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.646667
+      param ""
+    }
+    event gesture "A_g_wave_LHand"
+    {
+      time 0.280000 1.913333
+      param "A_g_wave_LHand"
+      absolutetags playback_time
+      {
+        "apex" 0.291667
+        "accent" 0.375000
+        "loop" 0.625000
+        "end" 0.645833
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.291667
+        "accent" 0.375000
+        "loop" 0.625000
+        "end" 0.645833
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "bodyaccents"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "interrupt"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "50"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

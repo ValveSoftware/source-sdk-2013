@@ -1,0 +1,62 @@
+// Choreo version 1
+actor "sheckley"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_chop_nagdoor01"
+    {
+      time 0.055556 1.207574
+      param "ep2_rebel.reb_reload07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.048611 1.741667
+      param "bg_left"
+      absolutetags playback_time
+      {
+        "apex" 0.199912
+        "extreme" 0.379832
+        "loop" 0.528788
+        "end" 0.754241
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153846
+        "extreme" 0.292308
+        "loop" 0.476923
+        "end" 0.723077
+      }
+      sequenceduration 2.200000
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

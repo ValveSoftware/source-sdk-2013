@@ -1,0 +1,55 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "rocksshifted01"
+    {
+      time 0.520833 2.134597
+      param "ep_02.al_rbed_rocksshifted01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "look.mine"
+    {
+      time 0.041666 7.062498
+      param "look.mine"
+      event_ramp
+      {
+        0.6260 1.0000
+        6.3586 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "generic ai"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "32"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

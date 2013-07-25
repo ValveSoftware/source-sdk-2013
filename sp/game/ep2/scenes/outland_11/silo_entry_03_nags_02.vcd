@@ -1,0 +1,104 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.068677 5.230350
+      param "!player"
+      event_ramp
+      {
+        1.0823 0.4058
+        2.7921 0.4307
+        4.6756 0.3932
+      }
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.095254 3.173490
+      param "!player"
+    }
+  }
+}
+
+actor "magnusson"
+{
+  channel "audio"
+  {
+    event speak "ep_02.mag_silo_needyouhere"
+    {
+      time 0.184032 2.366776
+      param "ep_02.mag_silo_needyouhere"
+      param2 "0.680"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.012121 3.375758
+      param "!player"
+    }
+  }
+  channel "faceto"
+  {
+    event face "!player"
+    {
+      time 0.012122 4.533335
+      param "!player"
+      event_ramp
+      {
+        0.4824 0.9895
+        3.6804 0.9930
+      }
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "g_pound_R_hand"
+    {
+      time 0.400000 2.700000
+      param "g_pound_R_hand"
+      absolutetags playback_time
+      {
+        "apex" 0.279412
+        "accent" 0.367647
+        "loop" 0.632353
+        "end" 0.705882
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.279412
+        "accent" 0.367647
+        "loop" 0.632353
+        "end" 0.705882
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "body"
+  {
+  }
+  faceposermodel "models\magnusson.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

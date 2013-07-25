@@ -1,0 +1,66 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "odessa.nlo_citizen_greet03"
+    {
+      time 0.449275 5.734275
+      param "odessa.nlo_citizen_greet03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "player"
+    {
+      time -0.000000 6.612173
+      param "!player"
+      event_ramp
+      {
+        0.3160 0.7660
+        0.3720 0.8191
+        0.4680 0.8457
+        6.0001 0.8404
+        6.0961 0.8032
+        6.1481 0.7606
+      }
+    }
+  }
+  channel "Face to"
+  {
+    event face "face to"
+    {
+      time -0.000000 6.626667
+      param "!player"
+      event_ramp
+      {
+        0.2960 0.0851
+        6.1333 0.1064
+        6.2717 0.0984
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "46"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

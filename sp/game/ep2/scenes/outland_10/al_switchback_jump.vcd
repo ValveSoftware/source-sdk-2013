@@ -1,0 +1,47 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Debug text"
+  {
+    event speak "look out below!!"
+    {
+      time 0.022221 1.626756
+      param "ep_02.al_ambush_jump02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "wahooo yeah!"
+    {
+      time 1.666666 4.717391
+      param "ep_02.al_car_jumpyell05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "90"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

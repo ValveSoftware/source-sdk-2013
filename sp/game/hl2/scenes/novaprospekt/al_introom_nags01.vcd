@@ -1,0 +1,164 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 2.000001 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "You better Hurry"
+    {
+      time 0.266667 1.785941
+      param "novaprospekt.al_goonthru01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time -0.080000 2.606668
+      param "!player"
+      event_ramp
+      {
+        0.5520 0.6857
+        1.2100 0.6909
+        1.5060 0.6104
+        2.2193 0.6078
+        2.5693 0.6312
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.152047 1.997077
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.3123 0.2400
+          0.8067 0.1600
+          1.3072 0.4500
+        }
+        {
+          0.3123 0.5000
+          0.8067 0.5000
+          1.3072 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.3123 0.3400
+          0.8067 0.1300
+          1.3072 0.1300
+        }
+        {
+          0.3123 0.5000
+          0.8067 0.5000
+          1.3072 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.3123 0.2100
+          0.8067 0.0400
+          1.3072 0.0400
+        }
+        {
+          0.3123 0.5000
+          0.8067 0.5000
+          1.3072 0.5000
+        }
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.698830
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.116959 3.150293
+      param "A_bg_hroll"
+      event_ramp
+      {
+        0.6559 0.3373
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.111111
+        "extreme" 0.400000
+        "loop" 0.577778
+        "end" 0.688889
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.111111
+        "extreme" 0.400000
+        "loop" 0.577778
+        "end" 0.688889
+      }
+    }
+  }
+  channel "gestures1"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.687135
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.128655 2.761989
+      param "A_gesture13"
+      event_ramp
+      {
+        0.6500 0.8095
+        1.9176 0.8175
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.230769
+        "accent" 0.384615
+        "loop" 0.512820
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.150000
+        "accent" 0.300000
+        "loop" 0.475000
+        "end" 0.650000
+      }
+      sequenceduration 2.700000
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "57"
+  "RampTool" "68"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

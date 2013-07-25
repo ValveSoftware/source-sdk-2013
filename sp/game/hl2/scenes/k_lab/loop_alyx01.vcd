@@ -1,0 +1,89 @@
+// Choreo version 1
+event loop "loopy"
+{
+  time 12.133334 -1.000000
+  param "1.500000"
+  loopcount "-1"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.116667 13.100001
+      param "!player"
+      event_ramp
+      {
+        0.8303 1.0000
+        12.9833 1.0000
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "Player"
+    {
+      time 2.150000 11.066667
+      param "!player"
+      event_ramp
+      {
+        1.0394 0.9873
+        8.9167 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "posture"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "idle"
+    {
+      time 2.016667 11.350000
+      param "bodystretch01"
+      absolutetags playback_time
+      {
+        "apex" 0.061538
+        "extreme" 0.138462
+        "loop" 0.184615
+        "end" 0.784615
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.264706
+        "loop" 0.352941
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "NULL"
+    {
+      time 0.000000 2.000000
+      param ""
+    }
+  }
+  channel "Response"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "40"
+  "GestureTool" "35"
+  "RampTool" "66"
+  "SceneRampTool" "100"
+  "ExpressionTool" "74"
+}
+fps 60
+snap off

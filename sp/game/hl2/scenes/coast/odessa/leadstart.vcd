@@ -1,0 +1,80 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "nlo_greet_intro"
+    {
+      time 0.323671 1.546007
+      param "odessa.nlo_greet_freeman"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "look at player"
+    {
+      time 0.026666 1.641835
+      param "!player"
+      event_ramp
+      {
+        0.3840 0.9013
+        0.4620 0.9797
+        0.5680 1.0000
+        1.2035 0.9873
+        1.2575 0.9494
+        1.2995 0.8835
+      }
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "face"
+  {
+  }
+  channel "body gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.326087
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 0.019323 1.819323
+      param "b_head_back"
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "138"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

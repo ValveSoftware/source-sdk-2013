@@ -1,0 +1,199 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_hospital_zombiefall"
+    {
+      time 0.409722 1.107772
+      param "ep_01.al_hospital_zombiefall"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.076389 1.638889
+      param "!player"
+      event_ramp 
+      {
+        0.4196 1.0000 "curve_default_to_curve_hold"
+        1.2062 1.0000
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "A_bg_h_jerkleft"
+    {
+      time 0.131945 2.765278
+      param "A_bg_h_jerkleft"
+      event_ramp 
+      {
+        0.0163 0.7679 "curve_default_to_curve_hold"
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "face"
+    {
+      time 0.048611 3.604167
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser" combo 
+        {
+          0.1792 0.2800
+          0.3552 0.2800
+          0.5117 0.2724
+          0.6117 0.2300
+        }
+        {
+          0.1792 0.5000
+          0.3552 0.5000
+          0.5117 0.5000
+          0.6117 0.5000
+        }
+        "lid_closer" combo 
+        {
+          0.0740 0.0100
+          0.1500 0.9900
+          0.2600 0.0300
+          0.5117 0.0000
+          0.6117 0.0000
+        }
+        {
+          0.5117 0.5000
+          0.6117 0.5000
+        }
+        "inner_raiser" combo 
+        {
+          0.1792 0.7600
+          0.3552 0.7600
+          0.5117 0.7393
+          0.6117 0.7200
+        }
+        {
+          0.1792 0.5000
+          0.3552 0.5000
+          0.5117 0.5000
+          0.6117 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.1792 0.7400
+          0.3552 0.7400
+          0.5117 0.7198
+          0.6117 1.0000
+        }
+        {
+          0.1792 0.5000
+          0.3552 0.5000
+          0.5117 0.5000
+          0.6117 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.1792 0.1800
+          0.3552 0.1800
+          0.5117 0.1751
+          0.6117 0.4300
+        }
+        {
+          0.1792 0.5000
+          0.3552 0.5000
+          0.5117 0.5000
+          0.6117 0.5000
+        }
+        "upper_raiser" combo 
+        {
+          0.1792 0.5500
+          0.3552 0.5500
+          0.5117 0.5350
+          0.6117 0.5500
+        }
+        {
+          0.1792 0.5000
+          0.3552 0.5000
+          0.5117 0.5000
+          0.6117 0.5000
+        }
+        "corner_depressor" combo 
+        {
+          0.1792 0.1800
+          0.3552 0.1800
+          0.5117 0.1751
+          0.6117 0.3500
+          1.1520 0.4000
+          1.8560 0.0800
+        }
+        {
+          0.1792 0.5000
+          0.3552 0.5000
+          0.5117 0.5000
+          0.6117 0.5000
+        }
+        "part" combo 
+        {
+          0.1792 0.5500
+          0.3552 0.5500
+          0.5117 0.5350
+          0.6117 0.4100
+        }
+        {
+          0.1792 0.5000
+          0.3552 0.5000
+          0.5117 0.5000
+          0.6117 0.5000
+        }
+        "jaw_drop" range 0.0 2.0 
+        {
+          0.1792 0.1500
+          0.3552 0.1500
+          0.5117 0.1459
+          0.6117 0.1421
+        }
+        "lower_lip" 
+        {
+          0.1792 0.2400
+          0.3552 0.2400
+          0.5117 0.2335
+          0.6117 0.2274
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "50"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

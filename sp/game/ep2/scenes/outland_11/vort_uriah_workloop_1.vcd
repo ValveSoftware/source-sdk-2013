@@ -1,0 +1,279 @@
+// Choreo version 1
+event section "pasu"
+{
+  time 0.300000 -1.000000
+  param "noaction"
+}
+event loop "loop"
+{
+  time 16.019049 -1.000000
+  param "0.700000"
+  loopcount "-1"
+}
+actor "!Target1"
+{
+  channel "Audio"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "mark_vort_Look_uriah_workshop3"
+    {
+      time 13.131546 16.323212
+      param "mark_vort_Look_uriah_workshop3"
+      event_ramp
+      {
+        0.7452 0.8201
+        0.8742 0.9540
+        1.0548 0.9958
+        1.9500 1.0000
+        2.0933 0.9833
+        2.2189 0.9414
+      }
+    }
+    event lookat "mark_vort_Look_uriah_workshop2"
+    {
+      time 2.579166 3.980358
+      param "mark_vort_Look_uriah_workshop2"
+      event_ramp
+      {
+        0.2356 0.2218
+        0.3646 0.2929
+        0.5452 0.3347
+        0.9121 0.3389
+        1.0455 0.3264
+        1.1431 0.2678
+      }
+    }
+    event lookat "mark_vort_Look_uriah_workshop1"
+    {
+      time 0.864880 3.008929
+      param "mark_vort_Look_uriah_workshop1"
+      event_ramp
+      {
+        0.3006 0.2804
+        0.4296 0.3557
+        0.6102 0.3975
+        1.2200 0.4017
+        1.5600 0.3766
+        1.7199 0.3347
+        1.8175 0.2761
+      }
+    }
+    event lookat "mark_vort_Look_uriah_workshop1"
+    {
+      time 6.236308 8.037499
+      param "mark_vort_Look_uriah_workshop1"
+      event_ramp
+      {
+        0.3006 0.2804
+        0.4296 0.3557
+        0.6102 0.3975
+        1.1398 0.4017
+        1.2171 0.3766
+        1.3770 0.3347
+        1.4746 0.2761
+      }
+    }
+    event lookat "mark_vort_Look_uriah_workshop2"
+    {
+      time 4.579166 6.818453
+      param "mark_vort_Look_uriah_workshop2"
+      event_ramp
+      {
+        0.2356 0.2218
+        0.3646 0.2929
+        0.5452 0.3347
+        1.7502 0.3389
+        1.8836 0.3264
+        1.9812 0.2678
+      }
+    }
+    event lookat "mark_vort_Look_uriah_workshop1"
+    {
+      time 3.493451 5.027977
+      param "mark_vort_Look_uriah_workshop1"
+      event_ramp
+      {
+        0.3006 0.2804
+        0.4296 0.3557
+        0.6102 0.3975
+        0.8732 0.4017
+        0.9505 0.3766
+        1.1104 0.3347
+        1.2080 0.2761
+      }
+    }
+    event lookat "mark_vort_Look_uriah_workshop2"
+    {
+      time 7.664880 9.066072
+      param "mark_vort_Look_uriah_workshop2"
+      event_ramp
+      {
+        0.2356 0.2218
+        0.3646 0.2929
+        0.5452 0.3347
+        0.9121 0.3389
+        1.0455 0.3264
+        1.1431 0.2678
+      }
+    }
+    event lookat "mark_vort_Look_uriah_workshop1"
+    {
+      time 8.579165 10.761310
+      param "mark_vort_Look_uriah_workshop1"
+      event_ramp
+      {
+        0.3006 0.2804
+        0.4296 0.3557
+        0.6102 0.3975
+        1.4508 0.4017
+        1.5981 0.3850
+        1.7580 0.3347
+        1.8556 0.2761
+      }
+    }
+    event lookat "mark_vort_Look_uriah_workshop2"
+    {
+      time 10.274404 11.542262
+      param "mark_vort_Look_uriah_workshop2"
+      event_ramp
+      {
+        0.2356 0.2218
+        0.3646 0.2929
+        0.5452 0.3347
+        0.7788 0.3389
+        0.9122 0.3264
+        1.0098 0.2678
+      }
+    }
+    event lookat "mark_vort_Look_uriah_workshop1"
+    {
+      time 11.150593 13.332738
+      param "mark_vort_Look_uriah_workshop1"
+      event_ramp
+      {
+        0.3006 0.2804
+        0.4296 0.3557
+        0.6102 0.3975
+        1.4508 0.4017
+        1.5981 0.3850
+        1.7580 0.3347
+        1.8556 0.2761
+      }
+    }
+  }
+  channel "Face To"
+  {
+    event face "mark_vort_Look_uriah_workshop1"
+    {
+      time 0.579168 15.819048
+      param "mark_vort_Look_uriah_workshop1"
+      event_ramp
+      {
+        0.6323 0.8452
+        0.7392 0.9498
+        0.9026 1.0000
+        1.1323 1.0000
+        15.2399 1.0000
+      }
+    }
+  }
+  channel "Move To"
+  {
+    event moveto "mark_vort_uriah_workshop"
+    {
+      time 0.000000 0.583333
+      param "mark_vort_uriah_workshop"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.793333
+      param ""
+    }
+    event gesture "workb"
+    {
+      time 1.009524 15.585713
+      param "p_LabWorkloop_b"
+      absolutetags playback_time
+      {
+        "apex" 0.055588
+        "loop" 0.069484
+        "end" 0.901961
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.307692
+        "loop" 0.384615
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.673334
+      param ""
+    }
+    event gesture "type"
+    {
+      time 1.142857 15.190475
+      param "g_typing"
+      absolutetags playback_time
+      {
+        "apex" 0.028016
+        "in" 0.038016
+        "accent" 0.048016
+        "loop" 0.067222
+        "end" 0.715000
+        "out" 0.825203
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.164706
+        "in" 0.175000
+        "accent" 0.235294
+        "loop" 0.350000
+        "end" 0.712500
+        "out" 0.725000
+      }
+      sequenceduration 2.700000
+    }
+    event gesture "NULL"
+    {
+      time 2.476190 4.425715
+      param ""
+    }
+  }
+  channel "Flex"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1_Enable ProxTrigger"
+    {
+      time 0.600000 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "C:\VALVE\HL2\hl2\models\vortigaunt.mdl"
+}
+
+mapname "maps\eli01.bsp"
+scalesettings
+{
+  "CChoreoView" "35"
+  "RampTool" "40"
+  "GestureTool" "100"
+  "ExpressionTool" "30"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

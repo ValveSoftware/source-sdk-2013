@@ -1,0 +1,109 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "ep_02.reb_chop_goodluck"
+    {
+      time 0.481481 2.034678
+      param "ep_02.reb_chop_boyfriend"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "Look at alyx"
+    {
+      time 0.096865 2.985385
+      param "alyx"
+      event_ramp
+      {
+        0.2280 0.7621
+        0.4980 1.0000
+        0.5800 1.0000
+        1.7380 1.0000
+        1.7692 1.0000
+        1.9355 0.9678
+        2.3695 0.6367
+      }
+    }
+  }
+  channel "body"
+  {
+    event gesture "hg_turn_r"
+    {
+      time 0.111755 7.394840
+      param "hg_turn_r"
+      event_ramp
+      {
+        0.2300 0.6463
+        6.1055 0.6849
+        6.7335 0.6559
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.023077
+        "extreme" 0.046437
+        "loop" 0.069799
+        "end" 0.857506
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.104167
+        "extreme" 0.208333
+        "loop" 0.312500
+        "end" 0.729167
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "g_weld_down"
+    {
+      time 0.111755 8.328490
+      param "g_weld_down"
+      absolutetags playback_time
+      {
+        "in" 0.040912
+        "loop" 0.102659
+        "end" 0.774266
+        "out" 0.898420
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.147059
+        "loop" 0.367647
+        "end" 0.735294
+        "out" 0.955882
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "1. spark off"
+    {
+      time 0.263533 -1.000000
+      param "1"
+    }
+    event firetrigger "2. spark on"
+    {
+      time 8.114828 -1.000000
+      param "2"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "36"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

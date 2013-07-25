@@ -1,0 +1,69 @@
+// Choreo version 1
+event stoppoint "pow"
+{
+  time 3.553334 -1.000000
+  param "noaction"
+}
+actor "!target1"
+{
+  channel "audio"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "player"
+    {
+      time 0.000000 4.006666
+      param "!player"
+      event_ramp
+      {
+        0.6694 0.5607
+        0.7694 0.5682
+        3.0645 0.5717
+        3.1743 0.5574
+        3.7652 0.0368
+      }
+    }
+  }
+  channel "Face to"
+  {
+    event face "face to"
+    {
+      time 0.006667 4.020000
+      param "!player"
+      event_ramp
+      {
+        0.2960 0.0851
+        1.7080 0.1543
+        2.9120 0.0984
+        3.5200 0.0160
+      }
+    }
+  }
+  channel "Move to"
+  {
+  }
+  channel "Posture"
+  {
+  }
+  channel "Gesture"
+  {
+  }
+  channel "Flex anim"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "50"
+  "SceneRampTool" "100"
+  "ExpressionTool" "38"
+  "GestureTool" "100"
+}
+fps 60
+snap off

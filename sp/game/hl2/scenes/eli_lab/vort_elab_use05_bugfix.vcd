@@ -1,0 +1,115 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "vort_elab_use05"
+    {
+      time 0.266666 3.740340
+      param "eli_lab.vort_elab_use05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.026667 3.720000
+      param "!player"
+      event_ramp
+      {
+        0.5269 0.7490
+        0.7269 0.9331
+        0.9808 1.0000
+        1.1769 1.0000
+        2.2662 1.0000
+        2.7700 1.0000
+        2.9200 0.9874
+        3.1046 0.8954
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "player"
+    {
+      time 2.313334 3.613334
+      param "!player"
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.900000
+      param ""
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.733334
+      param ""
+    }
+    event gesture "accent"
+    {
+      time 0.780000 3.246666
+      param "g_Accent_BothHands01"
+      absolutetags playback_time
+      {
+        "apex" 0.191781
+        "accent" 0.301370
+        "loop" 0.410959
+        "end" 0.616438
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.191781
+        "accent" 0.301370
+        "loop" 0.410959
+        "end" 0.616438
+      }
+      sequenceduration 2.466667
+    }
+  }
+  channel "faceTo"
+  {
+    event face "player"
+    {
+      time 0.113333 3.639999
+      param "!player"
+      event_ramp
+      {
+        0.7577 0.7615
+        0.9000 0.8954
+        1.0885 0.9749
+        1.3154 1.0000
+        2.3423 1.0000
+        3.2346 1.0000
+        3.4000 1.0000
+        3.5267 1.0000
+      }
+    }
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,108 @@
+// Choreo version 1
+event section "wait to get in elev"
+{
+  time 2.816405 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_elev_letsgetout"
+    {
+      time 1.137769 2.358268
+      param "ep_01.al_elev_letsgo"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_elev_letsgetout"
+    {
+      time 0.033603 0.949340
+      param "ep_01.al_elev_itshere"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.856519 2.685741
+      param "!player"
+      event_ramp 
+      {
+        0.2769 0.8927
+        1.4314 0.8362
+      }
+    }
+    event lookat "info_elev_button_inside"
+    {
+      time 0.041706 1.418011
+      param "info_elev_button_inside"
+      event_ramp 
+      {
+        0.0923 0.4463
+        0.3808 0.6780
+        0.7650 0.6271
+        0.9903 0.2373
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "get in elevator"
+    {
+      time 0.268817 3.075941
+      param "info_elev_stand_inside_01"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.458482
+      param "null"
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

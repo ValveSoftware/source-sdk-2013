@@ -1,0 +1,205 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_strider_cantleave"
+    {
+      time 0.145833 5.062659
+      param "ep_01.al_strider_scratch"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.024444 5.373890
+      param "!player"
+      event_ramp 
+      {
+        0.3630 0.6683
+        0.7185 1.0000
+        4.5750 1.0000
+        4.9972 0.6829
+      }
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "head gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.006944 0.229166
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.076389 2.376389
+      param "a_bg_htiltrt"
+      absolutetags playback_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+    }
+    event gesture "1"
+    {
+      time 1.361111 3.994444
+      param "A_bg_h_jerkleft"
+      absolutetags playback_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "1"
+    {
+      time 3.513889 5.813889
+      param "a_bg_htiltrt"
+      absolutetags playback_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "facial flex"
+  {
+    event flexanimation "face"
+    {
+      time 0.041666 5.361110
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser" combo 
+        {
+          0.3109 0.7800
+          1.1479 0.0000
+          1.7363 0.0000
+          1.9311 0.5900
+          2.5838 0.1500
+        }
+        {
+          0.3109 0.5000
+          1.1479 0.5000
+          1.7363 0.5000
+          1.9311 0.5000
+          2.5838 0.5000
+        }
+        "lid_tightener" combo 
+        {
+          0.3109 0.0000
+          1.1479 0.4000
+          1.7363 0.2400
+          1.9311 0.0000
+          2.5838 0.0000
+        }
+        {
+          0.3109 0.5000
+          1.1479 0.5000
+          1.7363 0.5000
+          1.9311 0.5000
+          2.5838 0.5000
+        }
+        "lid_droop" combo 
+        {
+          0.3109 0.0000
+          1.1479 0.4500
+          1.7363 0.2000
+          1.9311 0.0000
+          2.5838 0.0000
+        }
+        {
+          0.3109 0.5000
+          1.1479 0.5000
+          1.7363 0.5000
+          1.9311 0.5000
+          2.5838 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.3109 0.8000
+          1.1479 0.0000
+          1.7363 0.0000
+          1.9311 0.8800
+          2.5838 0.2900
+        }
+        {
+          0.3109 0.5000
+          1.1479 0.5000
+          1.7363 0.5000
+          1.9311 0.5000
+          2.5838 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.3109 0.0000
+          1.1479 0.7000
+          1.7363 0.3600
+          1.9311 0.0000
+          2.5838 0.0000
+        }
+        {
+          0.3109 0.5000
+          1.1479 0.5000
+          1.7363 0.5000
+          1.9311 0.5000
+          2.5838 0.5000
+        }
+        "wrinkler" 
+        {
+          0.3109 0.5500
+          1.1479 0.4600
+          1.7363 0.3000
+          1.9311 0.4000
+          2.5838 0.2400
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "54"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,179 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "excuse"
+    {
+      time 2.717392 3.745487
+      param "npc_citizen.squad_affirm03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "excuse"
+    {
+      time 1.210145 2.406971
+      param "npc_citizen.squad_affirm04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at Magnusson"
+    {
+      time 0.015873 2.992063
+      param "magnusson"
+      event_ramp
+      {
+        0.3313 1.0000
+        2.7036 1.0000
+      }
+    }
+    active "0"
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "begin sequence"
+    {
+      time 1.158730 -1.000000
+      param "1"
+    }
+  }
+  channel "bodyges"
+  {
+    event gesture "salutes Magnusson"
+    {
+      time 2.469634 5.102968
+      param "g_salute"
+      absolutetags playback_time
+      {
+        "apex" 0.256410
+        "accent" 0.641026
+        "loop" 0.666667
+        "end" 0.833333
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.256410
+        "accent" 0.641026
+        "loop" 0.666667
+        "end" 0.833333
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  faceposermodel "models\alyx.mdl"
+}
+
+actor "!target2"
+{
+  channel "look at"
+  {
+    event lookat "look at stickybombroom_cit1"
+    {
+      time 2.730504 5.144928
+      param "stickybombroom_cit1"
+      event_ramp
+      {
+        0.2458 0.8556
+        2.0879 0.9422
+      }
+    }
+    event lookat "look at Magnusson"
+    {
+      time 0.031746 2.691511
+      param "magnusson"
+      event_ramp
+      {
+        0.2458 0.8556
+        2.3332 0.9422
+      }
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  channel "audio"
+  {
+    event speak "npc_citizen.finally"
+    {
+      time 1.086956 2.300244
+      param "npc_citizen.busy02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+actor "!target3"
+{
+  channel "look at"
+  {
+    event lookat "look at stickybombroom_cit1"
+    {
+      time 1.859559 2.571774
+      param "stickybombroom_cit1"
+      event_ramp
+      {
+        0.2542 0.9747
+        0.4173 0.9856
+      }
+    }
+    event lookat "look at Magnusson"
+    {
+      time 0.198413 1.801588
+      param "magnusson"
+      event_ramp
+      {
+        0.2542 0.9747
+        1.3083 0.9856
+      }
+    }
+    event lookat "look at stickybombroom_cit2"
+    {
+      time 2.649415 5.281919
+      param "stickybombroom_cit2"
+      event_ramp
+      {
+        0.2542 0.9747
+        2.3375 0.9856
+      }
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  channel "audio"
+  {
+    event speak "npc_citizen.finally"
+    {
+      time 2.717391 4.579568
+      param "npc_citizen.answer10"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+mapname "maps\ep2_outland_06.bsp"
+scalesettings
+{
+  "CChoreoView" "92"
+  "ExpressionTool" "94"
+  "GestureTool" "100"
+  "RampTool" "166"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

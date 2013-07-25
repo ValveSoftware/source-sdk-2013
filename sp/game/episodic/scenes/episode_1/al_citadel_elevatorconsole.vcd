@@ -1,0 +1,76 @@
+// Choreo version 1
+event section "p"
+{
+  time 0.591398 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event generic "Elevator "
+    {
+      time 1.258065 3.693549
+      param "debugtext Here we go.  Okay - get on the translucent elevator there and I'll send it down."
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Look at console"
+    {
+      time 0.956989 1.908602
+      param "!target2"
+    }
+  }
+  channel "move to"
+  {
+    event moveto "!target1"
+    {
+      time 0.053763 0.725806
+      param "!target1"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+    active "0"
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

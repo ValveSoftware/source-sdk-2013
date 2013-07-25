@@ -1,0 +1,134 @@
+// Choreo version 1
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event speak "lostcoast.fish_takeoutgun"
+    {
+      time 14.978526 20.819569
+      param "lostcoast.fish_takeoutgun"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "lostcoast.fish_wheretheyare"
+    {
+      time 0.266667 3.828277
+      param "lostcoast.fish_wheretheyare"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "lostcoast.fish_wipeouttown01"
+    {
+      time 4.133333 6.193764
+      param "lostcoast.fish_wipeouttown01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "lostcoast.fish_wipeouttown02"
+    {
+      time 6.500000 9.405737
+      param "lostcoast.fish_wipeouttown02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "lostcoast.fish_wipeouttown03"
+    {
+      time 9.566667 14.691338
+      param "lostcoast.fish_wipeouttown03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "lookat player"
+    {
+      time 0.180833 20.775005
+      param "!player"
+      event_ramp
+      {
+        0.8625 0.2875
+        1.1250 0.3963
+        19.3293 0.4351
+        19.5601 0.4507
+        19.6370 0.3374
+        19.6962 0.3016
+        19.8626 0.3058
+        19.8825 0.3071
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_fisherman_monastaryPoint1"
+    {
+      time 0.113304 20.923613
+      param "mark_fisherman_monastaryPoint1"
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Interrupt"
+  {
+    event interrupt "int'"
+    {
+      time 3.420192 4.318909
+      param ""
+    }
+    event interrupt "int'"
+    {
+      time 6.042659 6.639788
+      param ""
+    }
+    event interrupt "int'"
+    {
+      time 9.344246 9.703280
+      param ""
+    }
+    event interrupt "int'"
+    {
+      time 14.562636 15.277993
+      param ""
+    }
+  }
+  channel "Hat Gestures"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\lostcoast\fisherman\Fisherman.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "32"
+  "SceneRampTool" "100"
+  "RampTool" "14"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

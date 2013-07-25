@@ -1,0 +1,157 @@
+// Choreo version 1
+actor "Chell"
+{
+  channel "face"
+  {
+    event flexanimation "facial_animation"
+    {
+      time 0.000000 8.000000
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "frown" 
+        {
+          0.0017 0.6770 "curve_easein_to_curve_easeout"
+          2.8735 0.3685 "curve_easein_to_curve_easeout"
+          3.3735 0.3685
+          4.0341 0.6203 "curve_easein_to_curve_easeout"
+          5.2353 0.0185 "curve_easeout_to_curve_easeout"
+          5.7294 0.0685
+          5.9137 0.6315 "curve_easein_to_curve_easeout"
+          7.9971 0.3685 "curve_easein_to_curve_easeout"
+        }
+        "innerSquint" 
+        {
+          0.0017 0.8114 "curve_easein_to_curve_easeout"
+          3.3797 0.8242 "curve_easein_to_curve_easeout"
+          3.7297 0.0961 "curve_easein_to_curve_easeout"
+          4.3903 0.0714 "curve_easein_to_curve_easeout"
+          5.2353 0.3161 "curve_kochanek_to_curve_kochanek"
+          5.7294 0.3318 "curve_easein_to_curve_easeout"
+          7.9971 0.7389 "curve_easein_to_curve_easeout"
+        }
+        "outerSquint" 
+        {
+          0.0017 0.5000 "curve_easein_to_curve_easeout"
+          2.6563 0.7300 "curve_easein_to_curve_easeout"
+          3.2315 0.7300 "curve_easein_to_curve_easeout"
+          3.8261 0.0856 "curve_easein_to_curve_easein"
+          4.6466 0.0889 "curve_easein_to_curve_easeout"
+          5.2353 0.5000
+          5.7294 0.5000 "curve_easein_to_curve_easeout"
+          5.9137 0.5800 "curve_easein_to_curve_easeout"
+          7.9971 0.5000 "curve_easein_to_curve_easeout"
+        }
+        "pucker" 
+        {
+          0.0017 0.0000 "curve_easein_to_curve_easeout"
+          2.8735 0.0000
+          3.3735 0.0000
+          4.0341 0.0000 "curve_easein_to_curve_easeout"
+          5.2353 0.0000
+          5.7294 0.0000
+          5.9137 0.0000
+          7.9971 0.0000
+        }
+        "smile" 
+        {
+          0.0017 0.1500 "curve_easein_to_curve_easeout"
+          2.8735 0.3500 "curve_easein_to_curve_easeout"
+          3.3878 0.0200
+          4.0412 0.0000 "curve_easein_to_curve_easeout"
+          5.7214 0.0100 "curve_easein_to_curve_easeout"
+          6.0429 0.3700
+          6.7071 0.0800 "curve_bspline_to_curve_bspline"
+          7.9971 0.0340 "curve_easein_to_curve_easein"
+        }
+        "sneer" 
+        {
+          0.0017 0.3000 "curve_easein_to_curve_easeout"
+          2.8735 0.3000 "curve_easein_to_curve_easeout"
+          3.3735 0.3000
+          4.0341 0.3000 "curve_easein_to_curve_easeout"
+          5.2353 0.3000
+          5.7294 0.3000 "curve_easein_to_curve_easeout"
+          5.9137 0.2327 "curve_easein_to_curve_easeout"
+          6.1206 0.3023 "curve_easein_to_curve_easein"
+          7.9971 0.4395 "curve_easein_to_curve_easeout"
+        }
+        "eyes_updown" range 45.0 -45.0 
+        {
+          0.0017 0.5000 "curve_easein_to_curve_easeout"
+          2.8735 0.5000
+          3.3735 0.5000
+          4.0341 0.5000 "curve_easein_to_curve_easeout"
+          5.2353 0.5000 "curve_easein_to_curve_easeout"
+          5.6794 0.4900 "curve_easein_to_curve_easeout"
+          5.7566 0.2200 "curve_easein_to_curve_easeout"
+          6.6321 0.2000 "curve_easein_to_curve_easeout"
+          6.7027 0.3463 "curve_linear_interp_to_curve_linear_interp"
+          7.0437 0.3600 "curve_easein_to_curve_easein"
+          7.2562 0.5200 "curve_easein_to_curve_easein"
+          7.9971 0.5000 "curve_easein_to_curve_easeout"
+        }
+        "eyes_rightleft" range 65.0 -65.0 
+        {
+          0.0017 0.5000 "curve_easein_to_curve_easeout"
+          2.8735 0.5000
+          3.3735 0.5000
+          4.0341 0.5000 "curve_easein_to_curve_easeout"
+          5.2353 0.5000
+          5.6419 0.5000 "curve_easein_to_curve_easein"
+          6.2312 0.4900 "curve_easein_to_curve_easein"
+          6.3199 0.7100 "curve_easein_to_curve_easein"
+          6.5625 0.6900 "curve_easein_to_curve_easeout"
+          6.6375 0.5100 "curve_easein_to_curve_easein"
+          6.7437 0.5100 "curve_linear_interp_to_curve_linear_interp"
+          7.9971 0.5000 "curve_easein_to_curve_easeout"
+        }
+      }
+    }
+  }
+  channel "look"
+  {
+    event lookat "notice_herself"
+    {
+      time 1.000000 6.940000
+      param "!player"
+      event_ramp
+      {
+        0.0562 0.0054 "curve_easein_to_curve_easeout"
+        0.6122 0.0162 "curve_easein_to_curve_easeout"
+        0.8999 0.2486 "curve_easein_to_curve_easeout"
+        1.6032 0.2486 "curve_easeout_to_curve_easeout"
+        1.8425 0.2216 "curve_bspline_to_curve_bspline"
+        2.1000 0.0000 "curve_easein_to_curve_easein"
+        3.0923 0.0108
+        3.7231 0.3784 "curve_easein_to_curve_easeout"
+        5.2846 0.3838 "curve_easein_to_curve_easeout"
+      }
+    }
+  }
+  channel "head"
+  {
+    event lookat "stop_looking"
+    {
+      time 6.940001 7.973334
+      param "!self"
+      event_ramp
+      {
+        0.2375 0.9892
+        1.0333 0.0000
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "32"
+  "RampTool" "26"
+  "CChoreoView" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

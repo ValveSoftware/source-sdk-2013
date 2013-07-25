@@ -1,0 +1,97 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "cit_blocker_getin"
+    {
+      time 0.006667 1.285329
+      param "opening.cit_blocker_getin"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "head flex"
+  {
+    event flexanimation "Head nod"
+    {
+      time 0.233334 1.240000
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.0749 0.6900
+          0.1262 0.7900
+          0.3165 0.7500
+          0.7725 0.7900
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0769 0.7800
+          0.3165 1.0000
+          0.7527 0.8800
+        }
+        {
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.1417 0.4599
+          0.2844 0.4557
+          0.4531 0.2000
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1381 0.2300
+          0.2814 0.3387
+          0.4080 0.8187
+        }
+        "lid_raiser"         combo        
+        {
+          0.1023 0.7500
+          0.8998 0.7300
+        }
+        {
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.1816 0.7500
+          0.5220 0.9500
+        }
+      }
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.020000 2.080001
+      param "!player"
+      event_ramp
+      {
+        0.3900 0.9200
+        0.4580 0.9846
+        1.5500 0.9846
+        1.6060 0.9385
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

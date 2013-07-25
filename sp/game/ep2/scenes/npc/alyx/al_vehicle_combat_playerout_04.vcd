@@ -1,0 +1,48 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Sound"
+  {
+    event speak "ep_02.al_car_playerout04"
+    {
+      time 0.206666 1.506666
+      param "ep_02.al_car_playerout04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "gesture"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.093333 2.526667
+      param "!player"
+      event_ramp
+      {
+        0.4420 0.4675
+        2.0440 0.4647
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

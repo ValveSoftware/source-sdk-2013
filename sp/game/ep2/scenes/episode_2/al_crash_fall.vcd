@@ -1,0 +1,35 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "play sound"
+  {
+    event speak "gordon!"
+    {
+      time 0.014493 0.866376
+      param "ep_01.al_gordon"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "animation"
+  {
+  }
+  channel "text"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "46"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

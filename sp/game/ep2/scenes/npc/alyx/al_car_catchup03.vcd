@@ -1,0 +1,132 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_car_catchup03"
+    {
+      time 0.423611 1.368237
+      param "ep_02.al_car_catchup03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Look at !player"
+    {
+      time -0.000000 2.479167
+      param "!player"
+      event_ramp
+      {
+        0.4673 1.0000
+        1.8802 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.020834 2.486112
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "inner_raiser" combo 
+        {
+          0.3539 0.3300
+          0.5080 0.3700
+          1.9860 0.3900
+          2.1080 0.3600
+        }
+        {
+          0.3539 1.0000
+          1.5200 1.0000
+          1.8760 0.5100
+          1.9400 0.4800
+        }
+        "outer_raiser" combo 
+        {
+          0.3539 0.7500
+          0.4400 0.7700
+          2.0160 0.7600
+          2.1200 0.7200
+        }
+        {
+          0.3539 0.7100
+          0.4440 0.7200
+          1.4760 0.7200
+          1.5740 0.7100
+          1.8940 0.4900
+          1.9500 0.4900
+        }
+        "lowerer" combo 
+        {
+          0.3539 0.3300
+          0.4980 0.3700
+          1.9900 0.3700
+          2.1300 0.3600
+        }
+        {
+          0.3539 0.1800
+          0.4140 0.1800
+          1.5360 0.1900
+          1.6340 0.1800
+          1.8860 0.4800
+          1.9580 0.4900
+        }
+        "corner_puller" combo 
+        {
+          0.3539 0.5400
+          0.4780 0.5500
+          2.0100 0.5600
+          2.1620 0.5300
+        }
+        {
+          0.3539 0.5000
+        }
+        "part" combo 
+        {
+          0.3539 0.1100
+          2.0420 0.1500
+          2.1740 0.1600
+        }
+        {
+          0.3539 0.5000
+        }
+        "mouth_sideways" range -1.0 1.0 
+        {
+          0.3539 0.3600
+          0.4760 0.3600
+          2.0580 0.3700
+          2.1760 0.3800
+        }
+      }
+    }
+  }
+  channel "sequence"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "74"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

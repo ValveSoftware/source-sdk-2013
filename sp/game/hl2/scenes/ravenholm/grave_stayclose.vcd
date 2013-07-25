@@ -1,0 +1,42 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "grave_stayclose"
+    {
+      time 0.066667 2.080250
+      param "ravenholm.grave_stayclose"
+      param2 "90dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.013334 2.073333
+      param "!player"
+      event_ramp
+      {
+        0.1129 0.8553
+        0.1871 0.9649
+        1.9017 0.9737
+        1.9598 0.8246
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

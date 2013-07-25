@@ -1,0 +1,119 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "audio"
+  {
+    event speak "ding_on"
+    {
+      time 0.015152 0.205152
+      param "Portal.ding_on"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "01_part1_get_portal_gun-1"
+    {
+      time 0.253606 7.885624
+      param "Portal.01_part1_get_portal_gun-1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "01_part1_get_portal_gun-2"
+    {
+      time 7.914212 10.808316
+      param "Portal.01_part1_get_portal_gun-2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "01_part1_get_portal_gun-3"
+    {
+      time 10.847546 14.838770
+      param "Portal.01_part1_get_portal_gun-3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "01_part1_get_portal_gun-4"
+    {
+      time 14.871788 16.725712
+      param "Portal.01_part1_get_portal_gun-4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "01_part1_get_portal_gun-5"
+    {
+      time 16.767242 19.752344
+      param "Portal.01_part1_get_portal_gun-5"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "01_part1_get_portal_gun-6"
+    {
+      time 19.791485 23.483549
+      param "Portal.01_part1_get_portal_gun-6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "01_part1_get_portal_gun-7"
+    {
+      time 23.512695 27.022968
+      param "Portal.01_part1_get_portal_gun-7"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "01_part1_get_portal_gun-8"
+    {
+      time 27.067244 31.895294
+      param "Portal.01_part1_get_portal_gun-8"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "ding_off"
+    {
+      time 31.946966 32.136967
+      param "Portal.ding_off"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event firetrigger "trigger_lights_dim"
+    {
+      time 30.348484 -1.000000
+      param "1"
+    }
+    event firetrigger "lights_up"
+    {
+      time 32.030304 -1.000000
+      param "2"
+    }
+  }
+  active "0"
+}
+
+scalesettings
+{
+  "CChoreoView" "88"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

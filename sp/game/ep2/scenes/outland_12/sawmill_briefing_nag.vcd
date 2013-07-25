@@ -1,0 +1,80 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "ep_02.cpt_battle_entrust01"
+    {
+      time 0.465592 1.207610
+      param "ep_02.cpt_battle_comecloser02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.015873 2.535717
+      param "!player"
+      event_ramp
+      {
+        0.3313 1.0000
+        2.2473 1.0000
+      }
+    }
+  }
+  channel "faceTo"
+  {
+    event face "face player"
+    {
+      time 0.021739 2.515567
+      param "!player"
+      event_ramp
+      {
+        0.3857 0.9856
+        2.1983 0.9856
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "g_wave"
+    {
+      time 0.200000 2.500000
+      param "g_wave"
+      absolutetags playback_time
+      {
+        "in" 0.352941
+        "loop" 0.779412
+        "end" 0.794118
+        "out" 0.808824
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.352941
+        "loop" 0.779412
+        "end" 0.794118
+        "out" 0.808824
+      }
+    }
+  }
+  faceposermodel "models\humans\group01\male_07.mdl"
+}
+
+mapname "maps\ep2_outland_06.bsp"
+scalesettings
+{
+  "CChoreoView" "160"
+  "ExpressionTool" "94"
+  "GestureTool" "100"
+  "RampTool" "28"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

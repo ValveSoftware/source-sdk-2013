@@ -1,0 +1,77 @@
+// Choreo version 1
+actor "npc_citizen_opengate_1"
+{
+  channel "audio"
+  {
+  }
+  channel "lookAt"
+  {
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.037036 2.162036
+      param "!player"
+    }
+    event face "target_look_button"
+    {
+      time 1.648147 3.611111
+      param "target_look_button"
+    }
+  }
+  channel "events"
+  {
+    event firetrigger "pause"
+    {
+      time 1.388889 -1.000000
+      param "1"
+    }
+  }
+  channel "bodygesture"
+  {
+    event gesture "push_button"
+    {
+      time 3.571835 5.163233
+      param "g_point_swing"
+      absolutetags playback_time
+      {
+        "apex" 0.127619
+        "accent" 0.329563
+        "loop" 0.666135
+        "end" 0.807495
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.176471
+        "accent" 0.250000
+        "loop" 0.441176
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "gesture"
+  {
+    event generic "target_look_button"
+    {
+      time 3.582589 5.577212
+      param "AI_AIM"
+      param2 "npc_citizen_opengate_1"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "48"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

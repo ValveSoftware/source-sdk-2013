@@ -1,0 +1,45 @@
+// Choreo version 1
+actor "Arlene"
+{
+  channel "audio"
+  {
+    event speak "airboat_go_nag03"
+    {
+      time 0.200000 2.297551
+      param "canals.airboat_go_nag03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "NULL"
+    {
+      time 0.066666 2.255555
+      param "NULL"
+      event_ramp
+      {
+        0.1200 0.1950
+        0.2933 0.2862
+        0.3833 0.2956
+        1.1100 0.3082
+        1.7867 0.2972
+        1.8633 0.2925
+        2.0433 0.2186
+      }
+    }
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

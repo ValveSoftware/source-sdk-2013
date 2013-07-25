@@ -1,0 +1,95 @@
+// Choreo version 1
+event loop "close"
+{
+  time 2.743590 -1.000000
+  param "0.980000"
+  loopcount "-1"
+}
+actor "Alyx"
+{
+  channel "Audio"
+  {
+  }
+  channel "lookAt"
+  {
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "van_breathe"
+    {
+      time 0.076924 4.838463
+      param "van_breathe"
+      event_ramp
+      {
+        0.6840 0.0367
+        4.0820 0.0229
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.028414
+        "accent" 0.056828
+        "loop" 0.071035
+        "end" 0.946092
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.058824
+        "accent" 0.117647
+        "loop" 0.147059
+        "end" 0.661765
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "eyes_closed"
+    {
+      time -0.064103 4.871795
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_closer" combo 
+        {
+          0.0010 0.6500 "curve_easein_to_curve_easeout"
+          4.3507 0.6500 "curve_easein_to_curve_easeout"
+        }
+        {
+          0.7318 0.5000
+        }
+      }
+    }
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "54"
+  "GestureTool" "100"
+  "RampTool" "98"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

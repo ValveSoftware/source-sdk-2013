@@ -1,0 +1,161 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.023148 3.833333
+      param "!player"
+      event_ramp
+      {
+        0.2259 0.6468
+        0.5444 0.9881
+        3.2444 0.9881
+        3.6222 0.6468
+      }
+    }
+  }
+  channel "Audio"
+  {
+    event speak "sandtrap.sandy_youidiot"
+    {
+      time 0.027778 3.799025
+      param "sandtrap.sandy_youidiot"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.027778 3.833333
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.3103 1.0000
+          0.8367 0.0000
+          2.0307 0.0000
+          2.3219 0.0000
+          2.4630 0.0000
+          2.8484 0.0000
+          3.3971 0.0000
+        }
+        {
+          0.3103 0.5000
+          0.8367 0.5000
+          2.0307 0.5000
+          2.3219 0.5000
+          2.4630 0.5000
+          2.8484 0.5000
+          3.3971 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.3103 0.0000
+          0.8367 0.0000
+          2.0307 0.0000
+          2.3219 0.0000
+          2.4630 0.7200
+          2.8484 0.0000
+          3.3971 0.0000
+        }
+        {
+          0.3103 0.5000
+          0.8367 0.5000
+          2.0307 0.5000
+          2.3219 0.5000
+          2.4630 0.5000
+          2.8484 0.5000
+          3.3971 0.5000
+        }
+        "lowerer"         combo        
+        {
+          0.8367 1.0000
+          2.0307 1.0000
+          2.3219 1.0000
+          2.4630 0.2400
+          2.8484 0.7600
+          3.3971 1.0000
+        }
+        {
+          0.8367 0.5000
+          2.0307 0.5000
+          2.3219 0.5000
+          2.4630 0.5000
+          2.8484 0.5000
+          3.3971 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.3103 0.8600
+          0.8367 0.8900
+          2.0307 0.8900
+          2.3219 0.8139
+          2.4630 0.2645
+          2.8484 0.7395
+          3.3971 0.8900
+        }
+        {
+          0.3103 0.5000
+          0.8367 0.5000
+          2.0307 0.5000
+          2.3219 0.5000
+          2.4630 0.5000
+          2.8484 0.5000
+          3.3971 0.5000
+        }
+        "wrinkler"        
+        {
+          0.3103 0.7800
+          0.8367 0.8000
+          2.0307 0.8000
+          2.3219 0.6701
+          2.4630 0.2200
+          2.8484 0.6401
+          3.3971 0.8000
+        }
+      }
+    }
+  }
+  channel "triggers"
+  {
+    event firetrigger "ss_stanleyspreanimations"
+    {
+      time 0.236111 -1.000000
+      param "1"
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.259259
+      param ""
+    }
+  }
+  channel "headgestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.254630
+      param ""
+    }
+  }
+  faceposermodel "U:\hl2\hl2\models\Humans\Group01\male_07.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "144"
+  "SceneRampTool" "100"
+  "ExpressionTool" "66"
+  "GestureTool" "100"
+  "RampTool" "54"
+}
+fps 60
+snap off

@@ -1,0 +1,69 @@
+// Choreo version 1
+actor "Chell"
+{
+  channel "face"
+  {
+    event flexanimation "facial_animation"
+    {
+      time 0.000000 14.166664
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "frown" 
+        {
+          0.1333 0.1304 "curve_easein_to_curve_easein"
+          14.0667 0.1304 "curve_easein_to_curve_easeout"
+        }
+        "innerSquint" 
+        {
+          0.0000 0.0000 "curve_easeout_to_curve_easeout"
+        }
+        "outerSquint" 
+        {
+        }
+        "pucker" 
+        {
+          0.0017 0.0000 "curve_easein_to_curve_easeout"
+        }
+        "smile" 
+        {
+        }
+        "sneer" 
+        {
+        }
+        "eyes_updown" range 45.0 -45.0 
+        {
+          0.1000 0.5000 "curve_easein_to_curve_easeout"
+          0.5333 1.0000 "curve_easeout_to_curve_easeout"
+        }
+        "eyes_rightleft" range 65.0 -65.0 
+        {
+          7.8000 0.3800
+        }
+        "death" 
+        {
+          0.0667 0.9200 "curve_easein_to_curve_easeout"
+          14.1667 0.9100 "curve_easein_to_curve_easeout"
+        }
+      }
+    }
+  }
+  channel "look"
+  {
+  }
+  channel "head"
+  {
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "6"
+  "RampTool" "26"
+  "CChoreoView" "8"
+}
+fps 60
+snap off
+ignorePhonemes off

@@ -1,0 +1,73 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 5.786668 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 4.906667 -1.000000
+  param "noaction"
+}
+actor "Dog"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "mark_dog_movestreet2"
+    {
+      time 2.800001 5.006667
+      param "mark_dog_movestreet2"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "mark_GroundZero1"
+    {
+      time 4.346667 7.326667
+      param "mark_GroundZero1"
+      event_ramp
+      {
+        1.5107 0.9853
+        2.9468 0.9902
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Sequence"
+  {
+    event sequence "pound"
+    {
+      time -0.026667 3.640000
+      param "pound"
+      event_ramp
+      {
+        0.5100 0.9932
+        2.6500 0.9966
+        3.0800 0.0103
+      }
+      fixedlength
+    }
+  }
+  faceposermodel "C:\VALVE\HL2\hl2\models\dog.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "20"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

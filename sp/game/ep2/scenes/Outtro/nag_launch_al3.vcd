@@ -1,0 +1,83 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_launch_allyours"
+    {
+      time 0.076389 0.956389
+      param "ep_02.al_launch_thing01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_launch_allyours"
+    {
+      time 1.499598 2.635607
+      param "ep_02.al_launch_thing02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.080000 3.040555
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204 "curve_bspline_to_curve_bspline"
+        0.5838 0.5525 "curve_bspline_to_curve_bspline"
+        2.4471 0.5580 "curve_bspline_to_curve_bspline"
+        2.7660 0.3481 "curve_bspline_to_curve_bspline"
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+actor "magnusson"
+{
+  channel "lookat"
+  {
+    event lookat "mark.magnusson.camera"
+    {
+      time 0.013889 2.944445
+      param "mark.magnusson.camera"
+      event_ramp
+      {
+        0.0633 0.0267
+        0.3816 0.7701
+        0.5653 0.9840
+        2.2330 1.0000
+        2.3922 0.8663
+        2.7759 0.1123
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

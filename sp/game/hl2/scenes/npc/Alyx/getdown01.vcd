@@ -1,0 +1,83 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "getdown01"
+    {
+      time 0.177778 0.811043
+      param "npc_alyx.getdown01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "NULL"
+    {
+      time 0.044444 0.544444
+      param "NULL"
+    }
+  }
+  channel "move to "
+  {
+    event moveto "NULL"
+    {
+      time 0.022223 0.700000
+      param "NULL"
+    }
+  }
+  channel "face to"
+  {
+    event face "NULL"
+    {
+      time 0.022223 0.522223
+      param "NULL"
+    }
+  }
+  channel "sequence"
+  {
+    event sequence "NULL"
+    {
+      time 0.088888 0.588888
+      param "NULL"
+    }
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.811111
+      param "null1"
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.788889
+      param "NULL"
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "1_NULL"
+    {
+      time 0.511111 -1.000000
+      param "1"
+    }
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

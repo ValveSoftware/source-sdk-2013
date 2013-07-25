@@ -1,0 +1,341 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 9.866668 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "attic_apologize"
+    {
+      time 0.506669 8.682950
+      param "ravenholm.attic_apologize"
+      param2 "90dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.033335 6.266666
+      param "!player"
+      event_ramp
+      {
+        0.0780 0.0597
+        0.4960 0.9748
+        5.5154 0.9748
+        6.1274 0.0440
+      }
+    }
+    event lookat "player"
+    {
+      time 7.406667 9.186664
+      param "!player"
+      event_ramp
+      {
+        0.0780 0.0314
+        0.1620 0.0943
+        0.2320 0.1887
+        0.5580 0.8774
+        0.6020 0.9277
+        1.2180 0.9748
+        1.2601 0.9446
+        1.6740 0.0440
+      }
+    }
+  }
+  channel "Sequence"
+  {
+    event sequence "Apologize"
+    {
+      time 0.500002 8.633335
+      param "Gesture_Apologize"
+      event_ramp
+      {
+        0.0480 0.0000
+        4.8963 0.0000
+        6.0290 0.9601
+        7.6533 0.9906
+        7.7220 0.9560
+        7.7600 0.9151
+      }
+      fixedlength
+    }
+  }
+  channel "Faceto"
+  {
+    event face "player"
+    {
+      time 0.006667 9.073336
+      param "!player"
+      event_ramp
+      {
+        0.0580 0.0472
+        0.4980 0.9906
+        8.3314 0.9717
+        8.9354 0.0723
+      }
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 2.946667
+      param ""
+    }
+    event gesture "p_step_forward"
+    {
+      time 0.000000 8.666668
+      param "p_Step_Forward"
+      absolutetags playback_time
+      {
+        "apex" 0.060243
+        "loop" 0.273120
+        "end" 0.481901
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.126582
+        "loop" 0.411392
+        "end" 0.443038
+      }
+      sequenceduration 5.300000
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.840000
+      param ""
+    }
+    event gesture "g_presenting"
+    {
+      time 0.233333 3.310776
+      param "g_Presenting"
+      event_ramp
+      {
+        0.5620 0.7820
+        1.2100 0.8803
+        1.6160 0.8617
+        2.0000 0.8085
+        2.3419 0.0847
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.000000
+        "accent" 0.132035
+        "loop" 0.404762
+        "end" 0.747316
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.171429
+        "accent" 0.314286
+        "loop" 0.600000
+        "end" 0.671429
+      }
+      sequenceduration 2.366667
+    }
+    event gesture "g_stop"
+    {
+      time 1.813333 5.112502
+      param "g_Stop"
+      event_ramp
+      {
+        0.0020 1.0000
+        1.1419 0.9814
+        2.0000 0.9203
+        2.3484 1.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.218183
+        "accent" 0.288891
+        "loop" 0.480813
+        "end" 0.680074
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.235294
+        "accent" 0.367647
+        "loop" 0.661765
+        "end" 0.735294
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "g_Raise_Gun_Settle"
+    {
+      time 3.446667 5.811117
+      param "g_Raise_Gun_Settle"
+      event_ramp
+      {
+        0.8560 0.3865
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.258134
+        "accent" 0.451977
+        "loop" 0.559322
+        "end" 0.698844
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.310345
+        "accent" 0.413793
+        "loop" 0.517241
+        "end" 0.637931
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "BodyGestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 3.126666
+      param ""
+    }
+    event gesture "g_Stop"
+    {
+      time 3.633333 6.963680
+      param "g_Stop"
+      event_ramp
+      {
+        1.1129 1.0000
+        1.2968 1.0000
+        1.4812 1.0000
+        1.6645 1.0000
+        2.2258 0.0772
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.186000
+        "accent" 0.308000
+        "loop" 0.490000
+        "end" 0.803824
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.235294
+        "accent" 0.367647
+        "loop" 0.661765
+        "end" 0.735294
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "r_raise_gun_settle"
+    {
+      time 5.699999 8.290427
+      param "g_Raise_Gun_Settle"
+      event_ramp
+      {
+        0.5742 0.3389
+        0.7287 0.3777
+        0.9710 0.3423
+        1.4548 0.0302
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.235616
+        "accent" 0.314154
+        "loop" 0.389965
+        "end" 0.669130
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.310345
+        "accent" 0.413793
+        "loop" 0.517241
+        "end" 0.637931
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "NULL"
+    {
+      time 6.660000 8.713333
+      param ""
+    }
+    event gesture "g_Sweep"
+    {
+      time 6.580000 9.413334
+      param "g_Sweep"
+      event_ramp
+      {
+        0.5968 0.0000
+        0.8613 0.0168
+        0.9774 0.0537
+        1.3967 0.5292
+        1.4698 0.5739
+        1.7602 0.5467
+        2.3645 0.0551
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.301176
+        "accent" 0.521182
+        "loop" 0.690107
+        "end" 0.725803
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.227273
+        "accent" 0.522727
+        "loop" 0.659091
+        "end" 0.693182
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "NULL"
+    {
+      time 8.386667 10.533334
+      param ""
+    }
+    event gesture "g_Send_Cart"
+    {
+      time 8.920000 10.886666
+      param "g_Send_Cart"
+      absolutetags playback_time
+      {
+        "apex" 0.172414
+        "accent" 0.258621
+        "loop" 0.517241
+        "end" 0.603448
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.172414
+        "accent" 0.258621
+        "loop" 0.517241
+        "end" 0.603448
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "triggers"
+  {
+    event firetrigger "startled"
+    {
+      time 8.693334 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "U:\hl2\hl2\models\monk.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "62"
+}
+fps 60
+snap off

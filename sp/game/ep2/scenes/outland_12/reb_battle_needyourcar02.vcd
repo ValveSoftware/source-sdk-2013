@@ -1,0 +1,68 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "ep_02.reb_magblasted07"
+    {
+      time 0.170833 3.754847
+      param "ep_02.reb_battle_needyourcar02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.015873 3.852384
+      param "!player"
+      event_ramp
+      {
+        0.3313 1.0000
+        3.5640 1.0000
+      }
+    }
+  }
+  channel "faceTo"
+  {
+    event face "face player"
+    {
+      time 0.021739 3.986401
+      param "!player"
+      event_ramp
+      {
+        0.3857 0.9856
+        3.6691 0.9856
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "MoveTo"
+  {
+    event moveto "player"
+    {
+      time 0.112500 2.141667
+      param "!player"
+    }
+  }
+  faceposermodel "models\humans\group01\male_07.mdl"
+}
+
+mapname "maps\ep2_outland_06.bsp"
+scalesettings
+{
+  "CChoreoView" "160"
+  "ExpressionTool" "94"
+  "GestureTool" "100"
+  "RampTool" "28"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

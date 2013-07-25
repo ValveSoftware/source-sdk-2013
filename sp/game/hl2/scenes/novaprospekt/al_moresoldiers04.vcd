@@ -1,0 +1,144 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "just seconds"
+    {
+      time 0.114851 3.799227
+      param "novaprospekt.al_moresoldiers04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look_player"
+    {
+      time 0.074191 4.454061
+      param "!player"
+      event_ramp
+      {
+        0.1575 0.6548
+        0.5300 0.9841
+        3.8957 0.9762
+        4.2107 0.6468
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.533003
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.085808 2.719142
+      param "A_gesture11"
+      event_ramp
+      {
+        0.5075 0.5516
+        1.8675 0.5516
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.192982
+        "accent" 0.328321
+        "loop" 0.512821
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.230769
+        "accent" 0.384615
+        "loop" 0.512821
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.599010
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.231023 3.129345
+      param "A_bg_chinout"
+      event_ramp
+      {
+        0.4225 0.9008
+        2.4100 0.9405
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.151314
+        "extreme" 0.337545
+        "loop" 0.523777
+        "end" 0.674095
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.156627
+        "extreme" 0.349398
+        "loop" 0.542169
+        "end" 0.662651
+      }
+    }
+    event gesture "2"
+    {
+      time 1.782178 4.435313
+      param "A_bg_hshake"
+      event_ramp
+      {
+        0.5250 0.6230
+        1.8056 0.6032
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.151741
+        "extreme" 0.654229
+        "loop" 0.791079
+        "end" 0.900534
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.132653
+        "extreme" 0.479592
+        "loop" 0.612245
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "101"
+  "SceneRampTool" "100"
+  "RampTool" "72"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

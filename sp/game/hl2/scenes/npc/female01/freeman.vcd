@@ -1,0 +1,79 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "freeman"
+    {
+      time 0.006667 0.382223
+      param "npc_citizen.freeman"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "Lookatplayer"
+    {
+      time 0.000000 0.466667
+      param "!player"
+    }
+  }
+  channel "Head"
+  {
+    event flexanimation "Head"
+    {
+      time 0.013334 0.446667
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.0769 0.7600
+          0.1372 0.9000
+          0.2350 0.3900
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0769 0.7600
+          0.1372 0.9100
+          0.2329 0.3100
+        }
+        {
+        }
+        "wrinkler"        
+        {
+          0.0769 0.3900
+          0.1372 0.5300
+          0.2350 0.1600
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.0358 0.5100
+          0.1680 0.4969
+        }
+        "head_updown"         range 35.0 -30.0        
+        {
+          0.0832 0.5982
+          0.1860 0.6083
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

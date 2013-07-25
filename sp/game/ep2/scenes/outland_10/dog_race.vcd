@@ -1,0 +1,75 @@
+// Choreo version 1
+event section "pause"
+{
+  time 1.126510 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 2.529287 -1.000000
+  param "noaction"
+}
+actor "Dog"
+{
+  channel "audio"
+  {
+    event speak "npc_dog.phrase07"
+    {
+      time 0.104167 0.911060
+      param "npc_dog.phrase07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "mark_dog_base_1"
+    {
+      time 0.024327 1.183057
+      param "mark_dog_base_1"
+      param2 "run_fast"
+      event_ramp
+      {
+        0.6135 1.0000
+        0.8004 1.0000
+      }
+      resumecondition
+    }
+    event moveto "mark_dog_base_2"
+    {
+      time 1.147342 3.111629
+      param "mark_dog_base_2"
+      param2 "run_fast"
+      event_ramp
+      {
+        0.6245 1.0000
+        1.5675 1.0000
+      }
+      resumecondition
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "112"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

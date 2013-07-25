@@ -1,0 +1,98 @@
+// Choreo version 1
+actor "gman"
+{
+  channel "audio"
+  {
+    event generic "TEXT"
+    {
+      time 0.225806 2.440860
+      param "debugtext Gman: HUH?"
+    }
+    event firetrigger "trigger1"
+    {
+      time 3.978494 -1.000000
+      param "1"
+    }
+  }
+  channel "look at"
+  {
+    event lookat "gman_look_02"
+    {
+      time 0.032257 2.241935
+      param "gman_look_02"
+    }
+    event lookat "gman_look_01"
+    {
+      time 4.032256 6.451613
+      param "gman_look_01"
+    }
+    event lookat "alyx_01"
+    {
+      time 2.215054 4.080645
+      param "alyx_01"
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "HG_headback"
+    {
+      time 0.000000 6.440859
+      param "HG_headback"
+      absolutetags playback_time
+      {
+        "apex" 0.118936
+        "extreme" 0.165187
+        "loop" 0.198227
+        "end" 0.383980
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.264706
+        "extreme" 0.367647
+        "loop" 0.441176
+        "end" 0.735294
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,96 @@
+// Choreo version 1
+event section "1234"
+{
+  time 0.419355 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_escape_trainsready"
+    {
+      time 0.569892 2.176967
+      param "ep_01.al_escape_trainsready"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "!player"
+    {
+      time 0.043011 0.478495
+      param "!player"
+      param2 "Run"
+      resumecondition
+      distancetotarget 53.00
+    }
+    event moveto "!player"
+    {
+      time 0.483871 2.145162
+      param "!player"
+      param2 "Run"
+      distancetotarget 53.00
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "Barney"
+{
+  channel "MoveTo"
+  {
+    event moveto "target4"
+    {
+      time 0.278844 1.787178
+      param "!target4"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

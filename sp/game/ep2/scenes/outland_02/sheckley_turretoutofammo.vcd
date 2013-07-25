@@ -1,0 +1,88 @@
+// Choreo version 1
+actor "griggs"
+{
+  channel "play wav"
+  {
+    event speak "ep_02.sheckley_turretbroke"
+    {
+      time 0.483333 3.134535
+      param "ep_02.sheckley_turretbroke"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "fire trigger"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "1"
+    {
+      time 0.072222 1.866667
+      param "bg_up_r"
+      absolutetags playback_time
+      {
+        "apex" 0.184243
+        "extreme" 0.354983
+        "loop" 0.487781
+        "end" 0.677492
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.085106
+        "extreme" 0.276596
+        "loop" 0.425532
+        "end" 0.638298
+      }
+      sequenceduration 1.600000
+    }
+    event gesture "1"
+    {
+      time 1.138888 2.863888
+      param "bg_up_l"
+      absolutetags playback_time
+      {
+        "apex" 0.151403
+        "extreme" 0.329016
+        "loop" 0.467160
+        "end" 0.664508
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.085106
+        "extreme" 0.276596
+        "loop" 0.425532
+        "end" 0.638298
+      }
+      sequenceduration 1.600000
+    }
+  }
+  channel "posture"
+  {
+  }
+  channel "text"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "48"
+  "RampTool" "18"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

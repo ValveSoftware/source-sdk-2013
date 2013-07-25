@@ -1,0 +1,69 @@
+// Choreo version 1
+actor "Citizen_Flee_speaker"
+{
+  channel "audio"
+  {
+    event speak "ep1_citizen.cit_alert_zombie03"
+    {
+      time 0.205552 1.260223
+      param "ep1_citizen.cit_alert_zombie03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep1_citizen.cit_runforit"
+    {
+      time 2.172222 2.986371
+      param "ep1_citizen.cit_runforit"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodyaccent"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  faceposermodel "models\humans\group03\male_04.mdl"
+}
+
+mapname "maps\d2_prison\07_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "120"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

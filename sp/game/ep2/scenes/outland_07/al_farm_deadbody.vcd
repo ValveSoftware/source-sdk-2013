@@ -1,0 +1,49 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "dead_body_2"
+    {
+      time 0.089338 2.529338
+      param "ep_02.al_barn_body02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Look at corpse 1"
+    {
+      time 0.051724 1.528735
+      param "looktarget_corpse1"
+      event_ramp
+      {
+        0.0980 1.0000
+        1.0124 0.9701
+      }
+    }
+    event lookat "Look at corpse 2"
+    {
+      time 1.051724 2.454023
+      param "looktarget_corpse2"
+      event_ramp
+      {
+        0.4470 1.0000
+        1.2926 1.0000
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "116"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "102"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

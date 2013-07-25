@@ -1,0 +1,71 @@
+// Choreo version 1
+actor "tim_larkin"
+{
+  channel "audio"
+  {
+    event speak "glados_destruction-1"
+    {
+      time 0.000000 8.000000
+      param "escape.glados_destruction-1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "glados_destruction-2"
+    {
+      time 8.000000 16.000000
+      param "escape.glados_destruction-2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "glados_destruction-3"
+    {
+      time 16.000000 24.000000
+      param "escape.glados_destruction-3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "glados_destruction-4"
+    {
+      time 24.000000 32.000000
+      param "escape.glados_destruction-4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "glados_destruction-5"
+    {
+      time 32.000000 40.000000
+      param "escape.glados_destruction-5"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "glados_destruction-6"
+    {
+      time 40.000000 49.466667
+      param "escape.glados_destruction-6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

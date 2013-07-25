@@ -1,0 +1,167 @@
+// Choreo version 1
+event stoppoint "end"
+{
+  time 8.192991 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_pb1_HackComment_tier1"
+    {
+      time 0.161314 3.032879
+      param "ep_01.al_pb1_HackComment_tier1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_pb1_HackComment_tier2"
+    {
+      time 4.163024 5.441006
+      param "ep_01.al_pb1_HackComment_tier2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_pb1_HackComment_tier3"
+    {
+      time 7.056050 9.024191
+      param "ep_01.al_pb1_HackComment_tier3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "face_powerbox"
+    {
+      time -0.017544 8.271930
+      param "darkdoor_1_powerbox_furniture"
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "2_sparks"
+    {
+      time 6.883133 -1.000000
+      param "2"
+    }
+    event firetrigger "2_sparks"
+    {
+      time 1.170985 -1.000000
+      param "2"
+    }
+    event firetrigger "2_sparks"
+    {
+      time 2.926993 -1.000000
+      param "2"
+    }
+    event firetrigger "2_sparks"
+    {
+      time 4.970090 -1.000000
+      param "2"
+    }
+    event firetrigger "5_powerboxlights"
+    {
+      time 3.684211 -1.000000
+      param "5"
+    }
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.711996
+      param "NULL"
+    }
+    event gesture "powerbox_examine"
+    {
+      time 0.300000 3.999651
+      param "powerbox_examine"
+      event_ramp 
+      {
+        0.1404 0.5058
+        0.2404 0.9611
+        0.3308 1.0000
+        0.5077 0.9883
+        2.9923 1.0000
+        3.2173 1.0000
+        3.4673 1.0000
+      }
+      absolutetags playback_time
+      {
+        "in" 0.045561
+        "out" 0.943096
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.056818
+        "out" 0.965909
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "powerbox_hack"
+    {
+      time 3.500000 8.203508
+      param "powerbox_hack"
+      absolutetags playback_time
+      {
+        "apex" 0.061470
+        "in" 0.071470
+        "accent" 0.126050
+        "loop" 0.159664
+        "out" 0.921642
+        "end" 1.000000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.084034
+        "in" 0.084746
+        "accent" 0.126050
+        "loop" 0.159664
+        "out" 1.008475
+        "end" 1.016807
+      }
+      sequenceduration 4.000000
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "38"
+  "ExpressionTool" "94"
+  "GestureTool" "100"
+  "RampTool" "104"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,103 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_car_runafter03"
+    {
+      time 0.249999 1.290566
+      param "ep_02.al_car_runafter03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.041666 1.951389
+      param "!player"
+      event_ramp
+      {
+        0.2429 0.7904
+        0.4524 1.0000
+        1.4379 1.0000
+        1.6308 0.8383
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.006945 1.923612
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lid_raiser" combo 
+        {
+          0.2857 0.1900
+          0.4120 0.1900
+          1.6060 0.1600
+          1.6960 0.1700
+        }
+        {
+          0.2857 0.5000
+        }
+        "inner_raiser" combo 
+        {
+          0.2857 0.6000
+          0.4540 0.6600
+          0.9100 0.6600
+          1.3700 0.7200
+          1.7480 0.4900
+        }
+        {
+          0.2857 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.2857 0.1300
+          0.4020 0.1300
+          1.6160 0.1400
+          1.7180 0.1000
+        }
+        {
+          0.2857 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.2857 0.1600
+          0.4380 0.1700
+          1.6220 0.1400
+          1.7140 0.1300
+        }
+        {
+          0.2857 0.5000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "84"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

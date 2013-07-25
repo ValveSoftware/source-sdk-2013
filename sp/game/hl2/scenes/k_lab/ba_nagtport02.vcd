@@ -1,0 +1,45 @@
+// Choreo version 1
+actor "Barney"
+{
+  channel "audio"
+  {
+    event speak "k_lab.ba_getamoveon"
+    {
+      time 0.080000 1.349705
+      param "k_lab.ba_getamoveon"
+      fixedlength
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\Barney.mdl"
+}
+
+actor "Alyx"
+{
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.026667 1.920000
+      param "!player"
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

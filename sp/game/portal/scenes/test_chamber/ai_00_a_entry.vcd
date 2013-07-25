@@ -1,0 +1,109 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "audio"
+  {
+    event speak "ding_on"
+    {
+      time 20.268517 20.458517
+      param "Portal.ding_on"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "00_part1_entry-1"
+    {
+      time 20.371883 26.276917
+      param "Portal.00_part1_entry-1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "00_part1_entry-2"
+    {
+      time 26.378551 30.637600
+      param "Portal.00_part1_entry-2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "00_part1_entry-3"
+    {
+      time 30.698551 35.586807
+      param "Portal.00_part1_entry-3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "00_part1_entry-4"
+    {
+      time 35.631886 45.825989
+      param "Portal.00_part1_entry-4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "00_part1_entry-5"
+    {
+      time 45.871887 51.146854
+      param "Portal.00_part1_entry-5"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "00_part1_entry-6"
+    {
+      time 51.044106 54.054741
+      param "Portal.00_part1_entry-6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "00_part1_entry-7"
+    {
+      time 53.904106 59.645557
+      param "Portal.00_part1_entry-7"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "ding_off"
+    {
+      time 59.855923 60.045921
+      param "Portal.ding_off"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event firetrigger "trigger_lights_dim"
+    {
+      time 51.101852 -1.000000
+      param "1"
+    }
+    event firetrigger "trigger_lights_up"
+    {
+      time 54.214535 -1.000000
+      param "2"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "72"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

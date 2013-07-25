@@ -1,0 +1,47 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Sound"
+  {
+    event speak "ep_02.al_rad_getpoweron02"
+    {
+      time 0.303030 2.977475
+      param "ep_02.al_rad_getpoweron02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "FaceTo"
+  {
+  }
+  channel "lookAt"
+  {
+  }
+  channel "MoveTo"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "24"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

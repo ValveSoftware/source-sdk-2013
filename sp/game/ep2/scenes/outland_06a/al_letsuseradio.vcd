@@ -1,0 +1,75 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Sound"
+  {
+    event speak "elev_relief"
+    {
+      time 0.209938 1.213952
+      param "ep_01.al_elev_relief"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "silo_wow"
+    {
+      time 1.633013 2.377594
+      param "ep_02.al_silo_wow"
+      param2 "0.460"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rad_postkill07"
+    {
+      time 3.722758 5.781443
+      param "ep_02.al_rad_postkill07"
+      param2 "0.650"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rad_thick01"
+    {
+      time 6.222757 8.260104
+      param "ep_02.al_rad_thick01"
+      param2 "0.6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "FaceTo"
+  {
+  }
+  channel "lookAt"
+  {
+  }
+  channel "MoveTo"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "RampTool" "24"
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "CChoreoView" "52"
+}
+fps 60
+snap off
+ignorePhonemes off

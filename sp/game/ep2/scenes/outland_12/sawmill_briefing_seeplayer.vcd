@@ -1,0 +1,227 @@
+// Choreo version 1
+event loop "loop"
+{
+  time 4.604167 -1.000000
+  param "3.500000"
+  loopcount "-1"
+}
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "ep_02.cpt_battle_entrust01"
+    {
+      time 0.671842 1.445039
+      param "npc_citizen.overhere01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.015873 5.390615
+      param "!player"
+      event_ramp
+      {
+        0.3313 1.0000
+        5.1021 1.0000
+      }
+    }
+  }
+  channel "faceTo"
+  {
+    event face "face player"
+    {
+      time 0.021739 5.412526
+      param "!player"
+      event_ramp
+      {
+        0.3857 0.9856
+        5.0952 0.9856
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "g_scan_ID"
+    {
+      time 0.775362 3.234782
+      param "g_scan_ID"
+      absolutetags playback_time
+      {
+        "apex" 0.110148
+        "accent" 0.275369
+        "loop" 0.826108
+        "end" 0.867413
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.126984
+        "accent" 0.317460
+        "loop" 0.952381
+        "end" 1.031746
+      }
+      sequenceduration 2.133333
+    }
+  }
+  faceposermodel "models\humans\group01\male_07.mdl"
+}
+
+actor "!target2"
+{
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 1.859386 5.404762
+      param "!player"
+      event_ramp
+      {
+        0.2458 0.8556
+        3.2188 0.9422
+      }
+    }
+    event lookat "sawmill_citizen_start_1"
+    {
+      time 0.050725 2.173913
+      param "sawmill_citizen_start_1"
+    }
+  }
+  channel "moveto"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "audio"
+  {
+  }
+  channel "face to"
+  {
+    event face "sawmill_citizen_start_1"
+    {
+      time 0.028985 5.398551
+      param "sawmill_citizen_start_1"
+      lockbodyfacing
+    }
+  }
+}
+
+actor "!target3"
+{
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.500496 5.468255
+      param "!player"
+      event_ramp
+      {
+        0.2542 0.9747
+        4.6729 0.9856
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 2.027563 5.447853
+      param "!player"
+      event_ramp
+      {
+        0.5000 0.9783
+        2.8101 0.9747
+      }
+    }
+    event face "sawmill_briefing_stand3"
+    {
+      time 0.013070 2.013071
+      param "sawmill_briefing_stand3"
+      event_ramp
+      {
+        0.5000 0.9783
+        2.0000 1.0000
+      }
+    }
+  }
+  channel "moveto"
+  {
+    event moveto "sawmill_briefing_stand3"
+    {
+      time 0.032157 3.227808
+      param "sawmill_briefing_stand3"
+      param2 "Run"
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  channel "audio"
+  {
+  }
+}
+
+actor "!target4"
+{
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.994758 5.464285
+      param "!player"
+      event_ramp
+      {
+        0.3929 0.9856
+        4.0790 0.9928
+      }
+    }
+    event lookat "sawmill_briefing_stand4"
+    {
+      time -0.014493 1.000000
+      param "sawmill_briefing_stand4"
+    }
+  }
+  channel "face to"
+  {
+    event face "sawmill_briefing_stand4"
+    {
+      time 0.021739 5.442029
+      param "sawmill_briefing_stand4"
+      lockbodyfacing
+    }
+  }
+  channel "moveto"
+  {
+    event moveto "sawmill_briefing_stand4"
+    {
+      time 0.007247 1.463769
+      param "sawmill_briefing_stand4"
+      param2 "Walk"
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "audio"
+  {
+  }
+}
+
+mapname "maps\ep2_outland_06.bsp"
+scalesettings
+{
+  "CChoreoView" "128"
+  "ExpressionTool" "94"
+  "GestureTool" "100"
+  "RampTool" "86"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

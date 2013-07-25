@@ -1,0 +1,37 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "ep_02.cit_loudspeaker_10"
+    {
+      time 0.000000 7.908072
+      param "ep_02.cit_loudspeaker_wedidit"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "ep_02.cit_loudspeaker_10"
+    {
+      time 7.960000 23.112312
+      param "ep_02.cit_loudspeaker_victory"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

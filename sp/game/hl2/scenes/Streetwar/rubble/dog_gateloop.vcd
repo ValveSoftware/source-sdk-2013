@@ -1,0 +1,174 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.473333 -1.000000
+  param "noaction"
+}
+event section "asdf"
+{
+  time 7.739130 -1.000000
+  param "noaction"
+}
+event loop "lewp"
+{
+  time 11.043478 -1.000000
+  param "3.510000"
+  loopcount "-1"
+}
+actor "Dog"
+{
+  channel "audio"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "player"
+    {
+      time 1.213333 2.983768
+      param "!player"
+      event_ramp
+      {
+        0.3160 0.7660
+        0.3720 0.8191
+        0.4680 0.8457
+        1.1584 0.8404
+        1.2544 0.8032
+        1.3064 0.7606
+      }
+    }
+  }
+  channel "Face to"
+  {
+    event face "!player"
+    {
+      time 1.166667 2.945796
+      param "!player"
+      event_ramp
+      {
+        0.2960 0.7443
+        0.4920 0.9327
+        1.2258 1.0000
+        1.7791 1.0000
+      }
+    }
+    event face "mark_dog_wall_Look_01"
+    {
+      time 3.195652 10.916811
+      param "mark_dog_wall_Look_01"
+      event_ramp
+      {
+        0.2960 0.7443
+        0.4920 0.9327
+        7.1678 1.0000
+        7.7211 1.0000
+      }
+    }
+  }
+  channel "Move to"
+  {
+    event moveto "mark_dog_wall_01"
+    {
+      time 0.046667 0.546667
+      param "mark_dog_wall_01"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "mark_dog_wall_01"
+    {
+      time 7.406668 7.822320
+      param "mark_dog_wall_01"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "Posture"
+  {
+  }
+  channel "Gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.640000
+      param ""
+    }
+    event gesture "g_chestpound"
+    {
+      time 1.113333 3.413333
+      param "g_chestpound"
+      absolutetags playback_time
+      {
+        "in" 0.397059
+        "out" 0.838235
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.397059
+        "out" 0.838235
+      }
+    }
+    event gesture "NULL"
+    {
+      time 3.613333 4.113334
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 7.101449 8.011886
+      param ""
+    }
+    event gesture "g_chestpound"
+    {
+      time 4.927536 7.227536
+      param "g_chestpound"
+      absolutetags playback_time
+      {
+        "in" 0.397059
+        "out" 0.838235
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.397059
+        "out" 0.838235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "g_chestpound"
+    {
+      time 8.101449 10.401449
+      param "g_chestpound"
+      absolutetags playback_time
+      {
+        "in" 0.397059
+        "out" 0.838235
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.397059
+        "out" 0.838235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "NULL"
+    {
+      time 10.246377 11.519133
+      param ""
+    }
+  }
+  channel "Flex anim"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "46"
+  "RampTool" "50"
+  "SceneRampTool" "100"
+  "ExpressionTool" "38"
+  "GestureTool" "100"
+}
+fps 60
+snap off

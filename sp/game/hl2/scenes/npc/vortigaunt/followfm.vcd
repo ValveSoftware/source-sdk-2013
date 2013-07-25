@@ -1,0 +1,102 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "followfm"
+    {
+      time 0.486667 1.455261
+      param "npc_vortigaunt.followfm"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look"
+  {
+    event lookat "player"
+    {
+      time 0.026667 3.313333
+      param "!player"
+      event_ramp
+      {
+        0.4740 0.9696
+        2.5840 0.9722
+        3.0800 0.0962
+        3.1620 0.0177
+        3.2460 0.0000
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.113333 3.313333
+      param "!player"
+      event_ramp
+      {
+        0.9640 0.9544
+        2.2640 1.0000
+        2.4200 0.9595
+        2.4920 0.9038
+        2.9300 0.1443
+        3.0340 0.0380
+        3.1260 0.0000
+      }
+    }
+  }
+  channel "Facial"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.786667
+      param ""
+    }
+    event gesture "g_follow_me"
+    {
+      time 0.006667 3.193333
+      param "g_follow_me"
+      event_ramp
+      {
+        0.0000 1.0000
+        1.7040 0.9975
+        1.8880 0.9722
+        2.0040 0.9215
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.190206
+        "accent" 0.295876
+        "loop" 0.634019
+        "end" 0.635220
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.183673
+        "accent" 0.285714
+        "loop" 0.612245
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+  }
+  channel "Head"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

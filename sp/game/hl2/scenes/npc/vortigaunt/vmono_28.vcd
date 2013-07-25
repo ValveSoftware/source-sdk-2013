@@ -1,0 +1,38 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "vmono_28"
+    {
+      time 0.013334 5.544286
+      param "npc_vortigaunt.vmono_28"
+      fixedlength
+    }
+  }
+  channel "Look"
+  {
+    event lookat "player"
+    {
+      time 0.013334 5.533334
+      param "!player"
+    }
+  }
+  channel "Head"
+  {
+  }
+  channel "Facial"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
