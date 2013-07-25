@@ -1,0 +1,114 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.925926 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "move to"
+  {
+    event moveto "move to control room"
+    {
+      time -0.012345 1.203704
+      param "electric_fence_alyx_moveto1"
+      param2 "Walk"
+      resumecondition
+    }
+    event moveto "move to second mark"
+    {
+      time 4.995063 6.211112
+      param "electric_fence_alyx_moveto2"
+      param2 "Walk"
+    }
+  }
+  channel "face to"
+  {
+    event face "face transformer"
+    {
+      time 5.933333 6.766667
+      param "electric_fence_alyx_lookat3"
+    }
+    event face "face tunnel wire"
+    {
+      time 7.500000 9.500000
+      param "electric_fence_alyx_lookat4"
+      event_ramp
+      {
+        0.6980 0.9944
+        1.8778 1.0000
+      }
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look at fence door handle"
+    {
+      time 1.007408 2.033334
+      param "electric_fence_alyx_lookat1"
+    }
+    event lookat "look at fence door handle"
+    {
+      time 3.318519 5.322223
+      param "electric_fence_alyx_lookat2"
+      event_ramp
+      {
+        0.3380 0.9944
+        1.6620 1.0000
+      }
+    }
+    event lookat "look at tunnel wire"
+    {
+      time 7.500000 9.000000
+      param "electric_fence_alyx_lookat4"
+      event_ramp
+      {
+        0.3780 1.0000
+        1.0298 0.9944
+      }
+    }
+    event lookat "look at fence door handle"
+    {
+      time 6.185186 7.188890
+      param "electric_fence_alyx_lookat3"
+      event_ramp
+      {
+        0.4240 0.9887
+        0.8560 0.9887
+      }
+    }
+  }
+  channel "audio"
+  {
+    event speak "ep_01.al_pb1_isee"
+    {
+      time 5.463768 9.923699
+      param "ep_01.al_pb1_isee"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_pb1_whatsthis"
+    {
+      time 1.101449 2.301789
+      param "ep_01.al_pb1_whatsthis"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "46"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

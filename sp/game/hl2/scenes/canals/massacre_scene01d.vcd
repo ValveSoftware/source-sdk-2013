@@ -1,0 +1,58 @@
+// Choreo version 1
+actor "!Target4"
+{
+  channel "audio"
+  {
+    event speak "<Startled>"
+    {
+      time 1.311110 1.600271
+      param "canals.massacre_startle02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at Target1"
+    {
+      time 0.088889 1.855555
+      param "!Target1"
+      event_ramp
+      {
+        0.2133 0.9636
+        1.6100 0.9844
+      }
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

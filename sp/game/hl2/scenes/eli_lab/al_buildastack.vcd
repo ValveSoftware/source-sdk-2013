@@ -1,0 +1,194 @@
+// Choreo version 1
+event stoppoint "1"
+{
+  time 2.880000 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "build a stack"
+    {
+      time 0.186667 2.519003
+      param "eli_lab.al_buildastack"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.080000 9.939999
+      param "!player"
+      event_ramp
+      {
+        0.5923 0.8782
+        8.2379 1.0000
+        9.1518 0.9069
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "face player"
+    {
+      time 0.080000 3.273334
+      param "!player"
+      event_ramp
+      {
+        0.8692 0.9384
+        1.5000 1.0000
+        3.1933 0.9949
+      }
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.873333
+      param ""
+    }
+    event gesture "A_bg_acc_dwn_left"
+    {
+      time 0.080000 2.942614
+      param "A_bg_acc_dwn_left"
+      absolutetags playback_time
+      {
+        "apex" 0.141415
+        "extreme" 0.200339
+        "loop" 0.494955
+        "end" 0.670029
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.204819
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_bg_h_jerkrt"
+    {
+      time 1.626667 4.260001
+      param "A_bg_h_jerkrt"
+      absolutetags playback_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.846667
+      param ""
+    }
+    event gesture "A_bigshrug_g"
+    {
+      time 0.026666 2.993333
+      param "A_bigshrug_g"
+      absolutetags playback_time
+      {
+        "apex" 0.116071
+        "accent" 0.312500
+        "loop" 0.568182
+        "end" 0.681818
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.181818
+        "accent" 0.397727
+        "loop" 0.568182
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "facial"
+    {
+      time 0.053333 4.713334
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          1.0562 0.1000
+          1.2230 0.5700
+          1.3627 0.5500
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          1.0562 0.1000
+          1.2230 0.3200
+          1.3627 0.3000
+        }
+        {
+        }
+        "lowerer"         combo        
+        {
+          0.1583 0.6700
+          0.2994 0.8100
+          0.8366 0.8100
+          0.9816 0.7400
+          1.3242 0.0300
+          1.7237 0.1100
+          1.9140 0.7300
+          2.1022 0.7100
+        }
+        {
+        }
+        "corner_puller"         combo        
+        {
+          0.1497 0.5000
+          0.2887 0.4800
+        }
+        {
+        }
+        "smile"        
+        {
+          0.1518 0.4500
+          0.2973 0.4600
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,47 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_rbed_mindplug"
+    {
+      time 0.020834 1.786888
+      param "ep_02.al_rbed_mindplug"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "lookAt"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "generic ai"
+  {
+  }
+  channel "text"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "32"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

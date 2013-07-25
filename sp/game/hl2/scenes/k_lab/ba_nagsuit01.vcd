@@ -1,0 +1,121 @@
+// Choreo version 1
+actor "Barney"
+{
+  channel "audio"
+  {
+    event speak "k_lab.ba_suitup"
+    {
+      time 0.926667 2.100499
+      param "k_lab.ba_suitup"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.426667
+      param ""
+    }
+    event gesture "g1"
+    {
+      time 0.893334 2.913333
+      param "Gesture06NP"
+      event_ramp
+      {
+        0.0040 0.9916
+        1.1040 1.0000
+        1.2060 0.9156
+        1.3387 0.5190
+        1.4487 0.1392
+        1.5427 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.211221
+        "accent" 0.356436
+        "loop" 0.561056
+        "end" 0.732673
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.133333
+        "accent" 0.200000
+        "loop" 0.366667
+        "end" 0.533333
+      }
+      sequenceduration 2.033333
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "player"
+    {
+      time 0.693333 2.653333
+      param "!player"
+      event_ramp
+      {
+        0.6960 1.0000
+        1.4160 0.9916
+      }
+    }
+  }
+  channel "Flex"
+  {
+    event flexanimation "FA"
+    {
+      time 0.666667 2.840001
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.2649 0.5500
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.2649 0.2500
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.2649 0.6100
+        }
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 0.013334 2.893334
+      param "!player"
+      event_ramp
+      {
+        0.5205 0.2696
+        1.5000 0.9902
+        1.8026 0.9804
+        1.9923 0.5196
+        2.6077 0.4902
+        2.8744 0.4559
+      }
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "RampTool" "78"
+  "ExpressionTool" "100"
+}
+fps 60
+snap off

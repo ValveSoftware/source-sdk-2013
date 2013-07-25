@@ -1,0 +1,80 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.386667 -1.000000
+  param "noaction"
+}
+actor "gman"
+{
+  channel "Audio"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.033333 3.806667
+      param ""
+      flexanimations samples_use_time
+      {
+      }
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "move to intro"
+    {
+      time 0.060000 0.486667
+      param "mark_gman_1"
+      param2 "Walk"
+      resumecondition
+    }
+    event firetrigger "1_intro_ss_start"
+    {
+      time 0.600000 -1.000000
+      param "1"
+    }
+  }
+}
+
+actor "alyx"
+{
+  channel "Audio"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.186667 0.686667
+      param ""
+      flexanimations samples_use_time
+      {
+      }
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  faceposermodel "models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,88 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "firstdays"
+    {
+      time 0.270833 4.491468
+      param "ep_02.al_rbed_firstdays"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "findcover"
+    {
+      time 4.937500 6.218112
+      param "ep_02.al_rbed_findcover"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "shifted"
+    {
+      time 11.791666 14.669625
+      param "ep_02.al_rbed_shifted"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "mineshaft01"
+    {
+      time 15.166666 16.406031
+      param "ep_02.al_rbed_mineshaft01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.208333 5.458332
+      param "!player"
+      event_ramp
+      {
+        0.6260 1.0000
+        4.5879 1.0000
+      }
+    }
+    event lookat "!player"
+    {
+      time 15.187498 18.958334
+      param "!player"
+      event_ramp
+      {
+        0.6260 1.0000
+        3.1087 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "generic ai"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "32"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

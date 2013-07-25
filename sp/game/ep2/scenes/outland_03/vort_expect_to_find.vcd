@@ -1,0 +1,56 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "what did you expect to find"
+    {
+      time 0.141667 3.552098
+      param "ep_02.vort_extract_fallingtrap01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "leaves no path unexplored"
+    {
+      time 4.025001 8.001418
+      param "ep_02.vort_extract_fallingtrap02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "80"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

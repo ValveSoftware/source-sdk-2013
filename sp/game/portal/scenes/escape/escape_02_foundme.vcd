@@ -1,0 +1,95 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "audio"
+  {
+    event speak "Portal.GlaDOS.found_me"
+    {
+      time 0.588889 4.236894
+      param "Portal.GlaDOS.found_me"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.broke_my_heart"
+    {
+      time 4.274815 10.024158
+      param "Portal.GlaDOS.broke_my_heart"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.call_it_a_day"
+    {
+      time 10.077038 13.245043
+      param "Portal.GlaDOS.call_it_a_day"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.not_gonna_happen"
+    {
+      time 13.428144 16.596149
+      param "Portal.GlaDOS.not_gonna_happen"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.supprise_3_2_1"
+    {
+      time 16.650368 22.716875
+      param "Portal.GlaDOS.supprise_3_2_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event firetrigger "_screen_heart"
+    {
+      time 9.163055 -1.000000
+      param "1"
+    }
+    event firetrigger "backtorandom1"
+    {
+      time 9.648612 -1.000000
+      param "2"
+    }
+    event firetrigger "surprise"
+    {
+      time 18.659723 -1.000000
+      param "3"
+    }
+    event firetrigger "backtorandom2"
+    {
+      time 22.648611 -1.000000
+      param "2"
+    }
+    event firetrigger "violent"
+    {
+      time 5.361000 -1.000000
+      param "4"
+    }
+    event firetrigger "backtorandom3"
+    {
+      time 5.800000 -1.000000
+      param "2"
+    }
+
+  }
+}
+
+scalesettings
+{
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "CChoreoView" "96"
+}
+fps 60
+snap off
+ignorePhonemes off

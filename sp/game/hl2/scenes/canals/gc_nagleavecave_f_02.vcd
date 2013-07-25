@@ -1,0 +1,175 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 3.866668 -1.000000
+  param "noaction"
+}
+actor "npc_cit_briefer"
+{
+  channel "audio"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "faceto"
+  {
+    event face "faceto player"
+    {
+      time 0.079998 2.886664
+      param "!player"
+      event_ramp
+      {
+        1.5180 0.9932
+        2.7607 0.9814
+      }
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "look player"
+    {
+      time 0.066666 4.513334
+      param "!player"
+      event_ramp
+      {
+        0.6040 0.9086
+        4.0693 0.9459
+      }
+    }
+  }
+  channel "seq"
+  {
+  }
+  channel "triggers"
+  {
+  }
+}
+
+actor "npc_cit_gate"
+{
+  channel "audio"
+  {
+    event speak "Get goin"
+    {
+      time 0.164442 2.317866
+      param "canals.gunboat_breakcamp"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "moveto"
+  {
+  }
+  channel "faceto"
+  {
+    event face "face player"
+    {
+      time 0.026669 5.286674
+      param "!player"
+      event_ramp
+      {
+        1.5120 0.9848
+        4.0193 0.9797
+      }
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 0.026667 5.073334
+      param "!player"
+      event_ramp
+      {
+        0.6660 0.8991
+        4.3953 0.8103
+      }
+    }
+  }
+  channel "posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.691919
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.272727 3.244444
+      param "P_shiftright"
+      event_ramp
+      {
+        0.5286 0.5437
+        1.9514 0.5397
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.182856
+        "loop" 0.251427
+        "end" 0.782313
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.301887
+        "loop" 0.415094
+        "end" 0.716981
+      }
+      sequenceduration 1.800000
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.924242
+      param ""
+    }
+  }
+  channel "head gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.803030
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.181818 1.481818
+      param "hg_nod_right"
+      event_ramp
+      {
+        0.2771 0.6627
+        0.8629 0.6548
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.236842
+        "extreme" 0.473684
+        "loop" 0.568947
+        "end" 0.578947
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.236842
+        "extreme" 0.473684
+        "loop" 0.578947
+        "end" 0.578947
+      }
+      sequenceduration 1.300000
+    }
+  }
+}
+
+mapname "maps\d1_canals_08a.bsp"
+scalesettings
+{
+  "CChoreoView" "66"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "70"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

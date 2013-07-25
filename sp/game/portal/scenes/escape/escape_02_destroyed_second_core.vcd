@@ -1,0 +1,136 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "voice"
+  {
+    event speak "Portal.GlaDOS.core_destroy2_01"
+    {
+      time 9.797778 18.437778
+      param "Portal.GlaDOS.core_destroy2_01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy2_02"
+    {
+      time 18.466808 25.357489
+      param "Portal.GlaDOS.core_destroy2_02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy2_03"
+    {
+      time 74.881050 83.051727
+      param "Portal.GlaDOS.core_destroy2_03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy2_04"
+    {
+      time 83.370308 88.106316
+      param "Portal.GlaDOS.core_destroy2_04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy2_05"
+    {
+      time 88.279518 94.444870
+      param "Portal.GlaDOS.core_destroy2_05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.escape_02_miscbabble-21"
+    {
+      time 25.916668 30.212360
+      param "Portal.GlaDOS.escape_02_miscbabble-21"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.escape_02_miscbabble-22"
+    {
+      time 30.388889 36.356419
+      param "Portal.GlaDOS.escape_02_miscbabble-22"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.escape_02_miscbabble-23"
+    {
+      time 36.527775 43.052582
+      param "Portal.GlaDOS.escape_02_miscbabble-23"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.escape_02_miscbabble-24"
+    {
+      time 43.138889 49.338615
+      param "Portal.GlaDOS.escape_02_miscbabble-24"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.escape_02_miscbabble-25"
+    {
+      time 49.583332 59.556305
+      param "Portal.GlaDOS.escape_02_miscbabble-25"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.escape_02_miscbabble-26"
+    {
+      time 59.694447 67.333809
+      param "Portal.GlaDOS.escape_02_miscbabble-26"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.escape_02_miscbabble-27"
+    {
+      time 67.444450 70.915833
+      param "Portal.GlaDOS.escape_02_miscbabble-27"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy3_01"
+    {
+      time 0.388890 9.844944
+      param "Portal.GlaDOS.core_destroy3_01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "RampTool" "100"
+  "CChoreoView" "12"
+}
+fps 60
+snap off
+ignorePhonemes off

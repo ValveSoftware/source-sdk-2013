@@ -1,0 +1,100 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 4.445253 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 0.586667 -1.000000
+  param "noaction"
+}
+event section "pause - face-to"
+{
+  time 1.983838 -1.000000
+  param "noaction"
+}
+actor "Dog"
+{
+  channel "audio"
+  {
+    event sequence "pickup"
+    {
+      time 2.081617 4.781617
+      param "fetch"
+      event_ramp
+      {
+        0.3900 0.9948
+        2.3700 0.9921
+      }
+      fixedlength
+    }
+  }
+  channel "look at"
+  {
+    event lookat "mark_dog_grab_look"
+    {
+      time 2.161611 3.621612
+      param "mark_dog_grab_look"
+      event_ramp
+      {
+        0.2500 0.9922
+        1.2000 0.9922
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_dog_grab"
+    {
+      time 0.053333 0.602625
+      param "mark_dog_grab"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "mark_dog_grab_look"
+    {
+      time 0.627071 2.026464
+      param "mark_dog_grab_look"
+      event_ramp
+      {
+        1.1147 1.0000
+        1.3993 1.0000
+      }
+      resumecondition
+    }
+    event face "mark_dog_grab_look"
+    {
+      time 2.033131 4.386059
+      param "mark_dog_grab_look"
+      event_ramp
+      {
+        0.2700 1.0000
+        2.3529 1.0000
+      }
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "spawn box"
+    {
+      time 1.806062 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "C:\VALVE\HL2\hl2\models\dog.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "165"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "20"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

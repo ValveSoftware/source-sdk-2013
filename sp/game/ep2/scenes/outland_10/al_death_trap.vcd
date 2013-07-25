@@ -1,0 +1,49 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Debug text"
+  {
+    event speak "god these hunters are tough"
+    {
+      time 0.037036 2.712773
+      param "ep_02.al_ambush_deathtrap"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.037037 2.722222
+      param "!player"
+      event_ramp
+      {
+        0.3920 0.9964
+        2.4629 0.9856
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "90"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

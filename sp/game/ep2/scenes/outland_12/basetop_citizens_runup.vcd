@@ -1,0 +1,114 @@
+// Choreo version 1
+actor "basetop_cit_01"
+{
+  channel "audio"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.017730 12.780552
+      param "!player"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "Face !player"
+    {
+      time 0.006411 12.782052
+      param "!player"
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "mark_basetop_cit_01"
+    {
+      time 0.018518 12.769073
+      param "mark_basetop_cit_01"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  faceposermodel "models\humans\group03\male_06.mdl"
+}
+
+actor "basetop_cit_02"
+{
+  channel "audio"
+  {
+  }
+  channel "faceto"
+  {
+    event face "Face !player"
+    {
+      time 0.038461 12.782051
+      param "!player"
+    }
+  }
+  channel "moveto"
+  {
+    event moveto "mark_basetop_cit_02"
+    {
+      time 0.022679 12.769978
+      param "mark_basetop_cit_02"
+      param2 "Run"
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  faceposermodel "U:\DEV\main\game\hl2\models\Humans\Group03\Male_01.mdl"
+}
+
+actor "basetop_cit_03"
+{
+  channel "audio"
+  {
+  }
+  channel "faceto"
+  {
+    event face "Face !player"
+    {
+      time 0.157756 12.792373
+      param "!player"
+    }
+  }
+  channel "moveto"
+  {
+    event moveto "mark_basetop_cit_03"
+    {
+      time 0.037967 12.792338
+      param "mark_basetop_cit_03"
+      param2 "Run"
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  faceposermodel "models\humans\group03\male_04.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "104"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

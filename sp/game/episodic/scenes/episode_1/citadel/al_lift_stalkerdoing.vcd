@@ -1,0 +1,268 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "alyx vo"
+    {
+      time 0.750000 2.462358
+      param "ep_01.al_lift_stalkerdoing"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "alyx vo"
+    {
+      time 2.979167 4.113883
+      param "ep_01.al_lift_stalkerdoing02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event gesture "NULL"
+    {
+      time 0.013889 0.513889
+      param ""
+    }
+    event lookat "stalker"
+    {
+      time 0.152777 5.291666
+      param "stalker"
+      event_ramp 
+      {
+        0.5375 0.8559
+        4.5368 0.9110
+      }
+    }
+  }
+  channel "face to"
+  {
+    event gesture "NULL"
+    {
+      time 0.013889 0.513889
+      param ""
+    }
+    event face "stalker"
+    {
+      time 0.402778 5.597222
+      param "stalker"
+      event_ramp 
+      {
+        0.4896 0.8347
+        4.4875 0.8178
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.020833 0.520833
+      param ""
+    }
+    event gesture "chin out"
+    {
+      time 0.083333 4.168055
+      param "a_bg_chinout"
+      event_ramp 
+      {
+        0.4213 1.0000
+        1.0438 1.0000
+        1.6854 0.6695
+        2.4229 0.6525
+        2.4604 0.6525
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.107365
+        "extreme" 0.239505
+        "loop" 0.371646
+        "end" 0.606112
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.156627
+        "extreme" 0.349398
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "accent down chin out"
+    {
+      time 2.680556 5.695834
+      param "a_bg_acctdwn_chinout"
+      event_ramp 
+      {
+        0.6234 1.0000
+        2.0791 1.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.076037
+        "extreme" 0.205069
+        "loop" 0.448105
+        "end" 0.696458
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147059
+        "extreme" 0.294118
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event gesture "NULL"
+    {
+      time 0.013889 0.513889
+      param ""
+    }
+    event flexanimation "facial"
+    {
+      time 0.263889 5.319445
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser" combo 
+        {
+          2.6020 0.0000
+          2.8567 0.4300
+          3.7122 0.6300
+          4.4102 0.5500
+        }
+        {
+          2.8567 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.2884 0.5700
+          0.7248 0.8330
+          1.4796 0.7600
+          2.0531 0.7900
+          2.4470 0.5010
+          2.8567 0.0000
+        }
+        {
+          0.2884 0.5000
+          0.7248 0.5000
+          2.4470 0.5000
+          2.8567 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.2884 0.9000
+          0.7248 1.0000
+          2.2918 1.0000
+          2.8567 1.0000
+          4.4000 1.0000
+        }
+        {
+          0.2884 0.5000
+          0.7248 0.5000
+          2.4470 0.5000
+          2.8567 0.3800
+        }
+        "cheek_raiser" combo 
+        {
+          0.2884 0.3000
+          0.7248 0.4300
+          2.4470 0.4163
+          2.8567 0.3653
+        }
+        {
+          0.2884 0.5000
+          0.7248 0.5000
+          2.4470 0.5000
+          2.8567 0.3100
+        }
+        "corner_depressor" combo 
+        {
+          0.2884 0.2800
+          0.5367 0.2700
+          0.7339 0.0000
+          1.8286 0.0000
+          2.2384 0.1900
+          2.6837 0.1600
+          2.8959 0.0000
+        }
+        {
+          0.2884 0.5000
+          0.7339 0.5000
+          2.4470 0.5000
+          2.8567 0.5000
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+          0.4875 0.3900
+          1.4408 0.3800
+          1.7959 0.4500
+          2.2510 0.5000
+          2.7746 0.5700
+          3.1939 0.5600
+          3.3767 0.4600
+          3.8906 0.5000
+          3.9028 0.5000
+        }
+        "head_tilt" range 15.0 -15.0 
+        {
+          0.4875 0.5600
+          1.4429 0.5700
+          1.8020 0.4800
+          2.7746 0.4100
+          3.2000 0.4200
+          3.3767 0.4700
+          3.8906 0.5000
+          3.9028 0.5000
+        }
+        "blink" 
+        {
+          0.5673 0.0000
+          0.5980 0.9900
+          0.6061 0.9300
+          0.7082 0.0000
+          1.0857 0.0000
+          1.1122 0.9800
+          1.1245 0.9600
+          1.2224 0.0000
+          2.0347 0.0000
+          2.0592 0.9800
+          2.0694 0.9400
+          2.1612 0.0000
+          2.8673 0.0000
+          2.8980 0.9600
+          2.9061 0.9200
+          3.0122 0.0000
+          4.0673 0.0000
+          4.0939 0.9600
+          4.1041 0.9200
+          4.2102 0.0000
+          4.8980 0.0000
+          4.9286 0.9500
+          4.9429 0.8900
+          5.0327 0.0000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "98"
+  "RampTool" "96"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

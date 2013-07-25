@@ -1,0 +1,55 @@
+// Choreo version 1
+actor "vort"
+{
+  channel "play wav"
+  {
+    event speak "vort_extract_dreamsdonotfollow"
+    {
+      time 0.400000 2.917347
+      param "ep_02.vort_extract_dreamsdonotfollow01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_dreamsdonotfollow"
+    {
+      time 3.250000 6.599342
+      param "ep_02.vort_extract_dreamsdonotfollow02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "fire trigger"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "posture"
+  {
+  }
+  channel "text"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "40"
+  "RampTool" "18"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,217 @@
+// Choreo version 1
+event section "get to generator"
+{
+  time 6.433713 -1.000000
+  param "noaction"
+}
+event section "get to gate"
+{
+  time 2.453704 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "move to gate"
+    {
+      time 0.028620 3.429083
+      param "mark_alyx_gate"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "face vort"
+    {
+      time 2.822095 6.998200
+      param "vort"
+      event_ramp
+      {
+        0.6960 1.0000
+        3.7160 1.0000
+      }
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at vort"
+    {
+      time 2.821125 6.996333
+      param "vort"
+      event_ramp
+      {
+        0.5300 1.0000
+        3.7020 1.0000
+      }
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.183712 6.348066
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "corner_puller" combo 
+        {
+          0.2600 0.1700
+          0.3200 0.1700
+          5.5270 0.1700
+          5.5950 0.1700
+        }
+        {
+          0.2600 0.5000
+          0.3200 0.5000
+          5.5270 0.5000
+          5.5950 0.5000
+        }
+      }
+    }
+  }
+  faceposermodel "D:\DEV\main\game\ep2\models\alyx.mdl"
+}
+
+actor "Vort"
+{
+  channel "audio"
+  {
+    event speak "ep_02.vort_guard_movetolift02"
+    {
+      time 0.563674 5.503356
+      param "ep_02.vort_guard_movetolift02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to generator"
+    {
+      time 5.162881 6.975381
+      param "mark_vort_generator"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 0.260365 5.034902
+      param "!player"
+      event_ramp
+      {
+        0.6100 1.0000
+        4.3454 1.0000
+      }
+    }
+    event face "face generator"
+    {
+      time 4.662879 6.975379
+      param "mark_generator"
+      event_ramp
+      {
+        0.6180 1.0000
+        1.8160 1.0000
+      }
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.215009 4.475381
+      param "!player"
+      event_ramp
+      {
+        0.4920 1.0000
+        3.7255 1.0000
+      }
+    }
+    event lookat "look at generator"
+    {
+      time 4.183713 6.996213
+      param "mark_generator"
+      event_ramp
+      {
+        0.4940 1.0000
+        2.4960 1.0000
+      }
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "fire trigger"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "4"
+    {
+      time 0.318183 3.981818
+      param "g_cross_palmout_left"
+      absolutetags playback_time
+      {
+        "apex" 0.253321
+        "accent" 0.521055
+        "loop" 0.677235
+        "end" 0.687235
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.205882
+        "accent" 0.632353
+        "loop" 0.882353
+        "end" 0.897059
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.238638 6.345959
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "center_lid_tightener" 
+        {
+          1.4829 0.5500
+          1.7421 0.0000
+          2.5107 0.6000
+        }
+        "center_lid_droop" 
+        {
+          1.4829 0.4300
+          1.7421 0.0000
+          2.5107 0.5100
+        }
+      }
+    }
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "44"
+  "RampTool" "100"
+  "CChoreoView" "72"
+}
+fps 60
+snap off
+ignorePhonemes off

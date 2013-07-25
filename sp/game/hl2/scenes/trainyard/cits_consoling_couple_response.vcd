@@ -1,0 +1,102 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "!player"
+    {
+      time 0.153333 3.170002
+      param "!player"
+      event_ramp
+      {
+        0.3893 0.5107
+        0.4693 0.5857
+        0.6293 0.6393
+        2.2569 0.6393
+        2.4429 0.5964
+        2.5489 0.5214
+        2.8720 0.0893
+        2.9480 0.0179
+      }
+    }
+  }
+  channel "Face to"
+  {
+  }
+  channel "Move to"
+  {
+  }
+  channel "Posture"
+  {
+  }
+  channel "Gesture"
+  {
+  }
+  channel "Flex anim"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Flex"
+  {
+    event flexanimation "face"
+    {
+      time 0.020000 4.320001
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.5930 0.1500
+          0.7997 0.7000
+          1.0711 0.8600
+          1.7192 0.7800
+          1.8027 0.7200
+          2.9650 0.5500
+          3.8035 0.2700
+        }
+        {
+        }
+        "outer_raiser"         disabled         combo        
+        {
+          0.5930 0.1500
+          0.7997 0.3100
+          1.0711 0.4700
+          1.7192 0.3900
+          1.8027 0.3300
+          2.9650 0.1100
+          3.8035 0.2700
+        }
+        {
+        }
+        "chin_raiser"        
+        {
+          0.5930 0.0700
+          0.7997 0.3000
+          0.9455 0.3200
+          1.0711 0.1800
+          1.2713 0.1700
+          1.7192 0.2500
+          1.8027 0.2500
+          2.1430 0.0700
+          2.3275 0.0500
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "50"
+  "RampTool" "16"
+  "SceneRampTool" "100"
+  "ExpressionTool" "14"
+  "GestureTool" "100"
+}
+fps 60
+snap off

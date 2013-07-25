@@ -1,0 +1,92 @@
+// Choreo version 1
+actor "vort"
+{
+  channel "audio"
+  {
+    event speak "vort_turret_protectus"
+    {
+      time 0.173334 2.543334
+      param "ep_02.vort_turret_protectus"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "alyx"
+    {
+      time 0.051283 2.634359
+      param "alyx"
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.000000
+      param ""
+    }
+  }
+  channel "seq"
+  {
+  }
+  channel "bodygesture"
+  {
+  }
+  channel "headgesture"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "1"
+    {
+      time 0.186667 2.153333
+      param "hg_acc_down"
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "face"
+  {
+  }
+  channel "AI"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+mapname "maps\ep1_citadel_00.bsp"
+scalesettings
+{
+  "CChoreoView" "50"
+  "ExpressionTool" "38"
+  "RampTool" "76"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

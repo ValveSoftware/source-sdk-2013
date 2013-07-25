@@ -1,0 +1,127 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "vort_elab_use05"
+    {
+      time 0.266666 3.740340
+      param "eli_lab.vort_elab_use05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.026667 4.000000
+      param "!player"
+      event_ramp
+      {
+        0.7269 0.7533
+        0.9808 0.8202
+        1.1769 0.8202
+        2.5462 0.8202
+        3.0500 0.8202
+        3.2000 0.8076
+        3.3846 0.7156
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.900000
+      param ""
+    }
+    event gesture "fd"
+    {
+      time 0.006667 4.086667
+      param "g_delivery01"
+      absolutetags playback_time
+      {
+        "apex" 0.124494
+        "accent" 0.165992
+        "loop" 0.248988
+        "end" 0.794118
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.238095
+        "accent" 0.317460
+        "loop" 0.476190
+        "end" 0.571429
+      }
+      sequenceduration 2.133333
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.733334
+      param ""
+    }
+    event gesture "asdf"
+    {
+      time 1.866667 4.166666
+      param "g_accent2hands_01"
+      absolutetags playback_time
+      {
+        "apex" 0.147059
+        "accent" 0.352941
+        "loop" 0.588235
+        "end" 0.661765
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147059
+        "accent" 0.352941
+        "loop" 0.588235
+        "end" 0.661765
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "faceTo"
+  {
+    event face "player"
+    {
+      time 0.113333 3.639999
+      param "!player"
+      event_ramp
+      {
+        0.8692 0.4021
+        1.0385 0.4466
+        1.3154 0.4508
+        2.2192 0.4508
+        2.5884 0.4374
+        2.7538 0.3994
+      }
+    }
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\hl2\HL2\models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

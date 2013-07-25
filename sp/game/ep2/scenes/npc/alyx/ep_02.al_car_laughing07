@@ -1,0 +1,76 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_car_callback01"
+    {
+      time 0.092212 1.735092
+      param "ep_02.al_car_laughing07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.073998 1.880001
+      param "!player"
+      event_ramp
+      {
+        0.3880 0.9499
+        1.3627 0.9471
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+    event gesture "a_p_buggy_look"
+    {
+      time 0.037037 2.032155
+      param "a_p_buggy_look"
+      event_ramp
+      {
+        0.2200 0.9666
+        1.5237 0.9471
+      }
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+    event generic "AI_AIM"
+    {
+      time 0.037037 1.990820
+      param "AI_AIM"
+      param2 "!player"
+    }
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "SceneRampTool" "100"
+  "RampTool" "26"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

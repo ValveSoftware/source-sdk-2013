@@ -1,0 +1,81 @@
+// Choreo version 1
+event section "gordon"
+{
+  time 3.303921 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "sandtrap.sandy_holdstill"
+    {
+      time 0.215687 3.052014
+      param "sandtrap.sandy_holdstill"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "tobias"
+    {
+      time 0.026667 1.892026
+      param "tobias"
+      event_ramp
+      {
+        0.1522 0.8095
+        0.4783 0.9881
+        1.4646 0.9841
+        1.7206 0.5635
+      }
+    }
+    event lookat "look at player"
+    {
+      time 1.213855 3.370719
+      param "!player"
+      event_ramp
+      {
+        0.2893 0.7222
+        0.7781 1.0000
+        2.1569 1.0000
+      }
+    }
+  }
+  channel "Move to"
+  {
+    event moveto "greet gordon"
+    {
+      time 2.777647 3.352288
+      param "it_gordon"
+      param2 "Run"
+      resumecondition
+    }
+    event firetrigger "pause"
+    {
+      time 0.066274 -1.000000
+      param "1"
+    }
+  }
+  channel "Sequence"
+  {
+  }
+  channel "Face to"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "102"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "94"
+}
+fps 60
+snap off

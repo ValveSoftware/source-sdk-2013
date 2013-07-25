@@ -1,0 +1,45 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "audio"
+  {
+    event speak "Portal.escape_01_part1_nag01-1"
+    {
+      time 0.066666 3.299750
+      param "Portal.escape_01_part1_nag01-1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.escape_01_part1_nag02-1"
+    {
+      time 3.866667 6.685351
+      param "Portal.escape_01_part1_nag02-1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.post_escape_bridge_06"
+    {
+      time 8.400000 9.235918
+      param "Portal.post_escape_bridge_06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+  }
+}
+
+scalesettings
+{
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "CChoreoView" "40"
+}
+fps 60
+snap off

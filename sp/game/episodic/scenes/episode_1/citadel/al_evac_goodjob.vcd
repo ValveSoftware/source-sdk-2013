@@ -1,0 +1,94 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_evac_goodjob"
+    {
+      time 0.222222 1.019977
+      param "ep_01.al_evac_goodjob"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "lookit"
+    {
+      time 0.080000 1.228055
+      param "!player"
+      event_ramp 
+      {
+        0.1211 0.3204
+        0.5838 0.5525
+        0.7315 0.5580
+        0.9535 0.3481
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "facial"
+    {
+      time 0.020833 1.333333
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser" combo 
+        {
+          0.2778 0.5600
+        }
+        {
+          0.2778 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.2778 0.5300
+        }
+        {
+          0.2778 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.2778 0.3500
+        }
+        {
+          0.2778 0.5000
+        }
+        "corner_puller" combo 
+        {
+          0.1685 0.5900
+          0.3417 0.0000
+          0.6611 0.0000
+          0.8981 0.5300
+        }
+        {
+          0.2778 0.5000
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+          0.2778 0.3000
+          0.4843 0.5000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "94"
+  "ExpressionTool" "216"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,72 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Audio"
+  {
+    event speak "ep_02.al_turret_pod01"
+    {
+      time 0.066667 2.697529
+      param "ep_02.al_turret_pod01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_turret_pod02"
+    {
+      time 2.525000 4.077403
+      param "ep_02.al_turret_pod02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_turret_pod03"
+    {
+      time 5.100000 9.054263
+      param "ep_02.al_turret_pod03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "32"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

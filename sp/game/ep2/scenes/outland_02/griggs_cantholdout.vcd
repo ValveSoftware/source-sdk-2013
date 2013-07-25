@@ -1,0 +1,85 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "griggs_cantholdout"
+    {
+      time 0.378472 2.255819
+      param "ep_02.griggs_cantholdout"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.062500 2.769489
+      param "!player"
+      event_ramp
+      {
+        0.5091 1.0000
+        2.1606 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+    event face "!player"
+    {
+      time 0.068437 2.822917
+      param "!player"
+      event_ramp
+      {
+        0.7607 0.4675
+        1.9211 0.4502
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+    event gesture "2"
+    {
+      time 0.125000 2.408333
+      param "bg_right"
+      absolutetags playback_time
+      {
+        "apex" 0.184728
+        "extreme" 0.318136
+        "loop" 0.496013
+        "end" 0.733184
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153846
+        "extreme" 0.292308
+        "loop" 0.476923
+        "end" 0.723077
+      }
+      sequenceduration 2.200000
+    }
+  }
+  channel "facial flex"
+  {
+  }
+  channel "triggers"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "RampTool" "66"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

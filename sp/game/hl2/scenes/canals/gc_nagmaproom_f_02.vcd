@@ -1,0 +1,211 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 4.133335 -1.000000
+  param "noaction"
+}
+actor "npc_cit_briefer"
+{
+  channel "audio"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "faceto"
+  {
+    event face "faceto player"
+    {
+      time 0.079998 2.979998
+      param "!player"
+      event_ramp
+      {
+        0.3483 0.9932
+        2.9000 1.0000
+      }
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "look player"
+    {
+      time 0.039999 6.966668
+      param "!player"
+      event_ramp
+      {
+        0.6040 0.9086
+        6.5493 0.9459
+      }
+    }
+  }
+  channel "seq"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  channel "gesture"
+  {
+  }
+}
+
+actor "npc_cit_gate"
+{
+  channel "audio"
+  {
+    event speak "Just in time"
+    {
+      time 0.151109 4.347254
+      param "canals.gunboat_justintime"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "moveto"
+  {
+    event lookat "look player"
+    {
+      time 0.013333 6.940001
+      param "!player"
+      event_ramp
+      {
+        0.6040 0.9086
+        6.5493 0.9459
+      }
+    }
+  }
+  channel "faceto"
+  {
+    event face "face player"
+    {
+      time -0.013331 4.140008
+      param "!player"
+      event_ramp
+      {
+        0.5083 0.9848
+        4.1533 1.0000
+      }
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.886667
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.186667 4.100963
+      param "broadsweepdown"
+      event_ramp
+      {
+        0.4259 0.8333
+        2.8556 0.7302
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155927
+        "accent" 0.251216
+        "loop" 0.294529
+        "end" 0.826748
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.310345
+        "accent" 0.500000
+        "loop" 0.586207
+        "end" 0.655172
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "2"
+    {
+      time 2.949743 5.416410
+      param "urgenthandsweep"
+      event_ramp
+      {
+        0.6037 0.5317
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.191781
+        "accent" 0.301370
+        "loop" 0.547945
+        "end" 0.616438
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.191781
+        "accent" 0.301370
+        "loop" 0.547945
+        "end" 0.616438
+      }
+      sequenceduration 2.466667
+    }
+  }
+  channel "body"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.140000
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.205128 2.837393
+      param "b_accent_fwd"
+      absolutetags playback_time
+      {
+        "apex" 0.129272
+        "extreme" 0.193908
+        "loop" 0.258544
+        "end" 0.767311
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.208333
+        "extreme" 0.312500
+        "loop" 0.416667
+        "end" 0.625000
+      }
+    }
+    event gesture "2"
+    {
+      time 1.884615 3.517948
+      param "b_accent_back"
+      absolutetags playback_time
+      {
+        "apex" 0.208333
+        "extreme" 0.312500
+        "loop" 0.416667
+        "end" 0.625000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.208333
+        "extreme" 0.312500
+        "loop" 0.416667
+        "end" 0.625000
+      }
+      sequenceduration 1.633333
+    }
+  }
+  faceposermodel "U:\hl2\HL2\models\Humans\Female_01.mdl"
+}
+
+mapname "maps\d1_canals_08a.bsp"
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "54"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

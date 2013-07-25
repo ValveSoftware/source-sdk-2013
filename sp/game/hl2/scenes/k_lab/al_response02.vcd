@@ -1,0 +1,34 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "careful there"
+    {
+      time 0.120000 1.233107
+      param "k_lab.al_carefulthere"
+      fixedlength
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at gordon"
+    {
+      time 0.033334 1.326666
+      param "!player"
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

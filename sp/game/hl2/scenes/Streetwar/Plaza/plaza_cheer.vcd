@@ -1,0 +1,66 @@
+// Choreo version 1
+actor "Plaza_takeover_cit_1"
+{
+  channel "audio"
+  {
+    event speak "chee1"
+    {
+      time 0.488888 1.953831
+      param "odessa.nlo_cheer02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "facial"
+  {
+  }
+}
+
+actor "Plaza_takeover_cit_2"
+{
+  channel "audio"
+  {
+    event speak "cheer2"
+    {
+      time 2.444444 3.909388
+      param "odessa.nlo_cheer02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "facial"
+  {
+  }
+}
+
+actor "Plaza_takeover_cit_3"
+{
+  channel "audio"
+  {
+    event speak "chee3"
+    {
+      time 0.999999 3.628684
+      param "odessa.nlo_cheer04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "facial"
+  {
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

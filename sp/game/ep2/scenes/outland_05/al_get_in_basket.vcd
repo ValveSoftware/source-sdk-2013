@@ -1,0 +1,264 @@
+// Choreo version 1
+event section "Get to player"
+{
+  time 0.246032 -1.000000
+  param "noaction"
+}
+event section "wait for vort"
+{
+  time 2.365080 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_guard_thanksg"
+    {
+      time 2.854167 5.712852
+      param "ep_02.al_guard_thanksg"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to basket"
+    {
+      time 0.708333 2.606944
+      param "mark_alyx_basket"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 2.490873 6.246430
+      param "!player"
+      event_ramp
+      {
+        0.5860 0.3377
+        2.9375 0.3506
+      }
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 2.451588 6.250001
+      param "!player"
+      event_ramp
+      {
+        0.5620 1.0000
+        3.2520 1.0000
+      }
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.466666 6.600000
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lid_raiser" combo 
+        {
+          3.3913 0.6500
+          3.9802 0.0000
+        }
+        {
+          3.3913 0.5000
+          3.9802 0.5000
+        }
+        "lid_tightener" combo 
+        {
+          3.1580 0.0000
+          3.3913 0.0000
+          3.9802 0.6300
+        }
+        {
+          3.1580 0.5000
+          3.3913 0.5000
+          3.9802 0.5000
+        }
+        "inner_raiser" combo 
+        {
+          3.1580 0.0000
+          3.3913 0.0000
+          3.9802 0.0000
+        }
+        {
+          3.1580 0.5000
+          3.3913 0.5000
+          3.9802 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          3.1580 0.0000
+          3.3913 0.4400
+          3.9802 0.0000
+        }
+        {
+          3.1580 0.5000
+          3.3913 0.5000
+          3.9802 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          3.1580 0.0000
+          3.3913 0.0000
+          3.9802 0.0000
+        }
+        {
+          3.1580 0.5000
+          3.3913 0.5000
+          3.9802 0.5000
+        }
+        "corner_puller" combo 
+        {
+          0.3812 0.2700
+          0.4112 0.2700
+          3.1580 0.2700
+          3.3913 0.2700
+          3.9802 0.2700
+          5.3060 0.2700
+          5.3920 0.2700
+        }
+        {
+          0.3812 0.5000
+          0.4112 0.5000
+          3.1580 0.5000
+          3.3913 0.5000
+          3.9802 0.5000
+          5.3060 0.5000
+          5.3920 0.5000
+        }
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 3.700000 6.000000
+      param "a_bg_htiltleft_snipe"
+      absolutetags playback_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "1"
+    {
+      time 3.144445 6.611112
+      param "A_g_midhigh_arcout_right"
+      event_ramp
+      {
+        0.7107 0.6970
+        2.2214 0.6407
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.189103
+        "accent" 0.381410
+        "loop" 0.631068
+        "end" 0.728155
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.194175
+        "accent" 0.436893
+        "loop" 0.631068
+        "end" 0.728155
+      }
+      sequenceduration 3.466667
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "Add to counter"
+    {
+      time 0.562500 -1.000000
+      param "1"
+    }
+    event firetrigger "Add to counter"
+    {
+      time 2.645833 -1.000000
+      param "2"
+    }
+  }
+  faceposermodel "D:\DEV\main\game\ep2\models\alyx.mdl"
+}
+
+actor "Vort"
+{
+  channel "audio"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "move to basket"
+    {
+      time 0.007936 2.246032
+      param "mark_vort_basket"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 1.105158 6.142856
+      param "!player"
+      event_ramp
+      {
+        0.8700 0.5628
+        3.8750 0.5758
+      }
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 1.084326 6.166667
+      param "!player"
+      event_ramp
+      {
+        0.7357 1.0000
+        4.2607 1.0000
+      }
+    }
+  }
+  channel "text"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "60"
+  "RampTool" "56"
+  "ExpressionTool" "44"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

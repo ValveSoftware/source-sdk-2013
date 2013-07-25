@@ -1,0 +1,103 @@
+// Choreo version 1
+actor "gman"
+{
+  channel "audio"
+  {
+    event speak "ep_01.gman_wellseeaboutthat"
+    {
+      time 0.967742 3.974703
+      param "ep_01.gman_wellseeaboutthat"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event firetrigger "trigger1"
+    {
+      time 0.752381 -1.000000
+      param "1"
+    }
+    event firetrigger "sound"
+    {
+      time 4.185715 -1.000000
+      param "2"
+    }
+  }
+  channel "look at"
+  {
+    event lookat "gman_look_01"
+    {
+      time 0.021505 13.698926
+      param "gman_look_01"
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "gman_look_01"
+    {
+      time 0.720431 13.725806
+      param "gman_look_01"
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+    event gesture "G_lefthand_punct"
+    {
+      time 0.000000 5.054992
+      param "G_tiefidget"
+      absolutetags playback_time
+      {
+        "apex" 0.737983
+        "accent" 0.792012
+        "extreme" 0.854403
+        "loop" 0.900329
+        "end" 0.954054
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.238636
+        "accent" 0.477273
+        "extreme" 0.367647
+        "loop" 0.488636
+        "end" 0.488636
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "models\gman.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "140"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

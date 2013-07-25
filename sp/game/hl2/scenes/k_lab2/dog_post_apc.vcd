@@ -1,0 +1,153 @@
+// Choreo version 1
+actor "dog"
+{
+  channel "audio"
+  {
+    event speak "NPC_dog.Laugh_1"
+    {
+      time 8.107143 9.202926
+      param "NPC_dog.Laugh_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_dog.Growl_2"
+    {
+      time 2.202381 4.205601
+      param "NPC_dog.Growl_2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "sound_soldiers_die_crash_1"
+    {
+      time -0.000000 5.173810
+      param "sound_soldiers_die_crash_1"
+      event_ramp
+      {
+        0.0940 0.1667
+        0.2300 0.5417
+        0.3460 0.8030
+        0.4160 0.9205
+        0.4980 0.9848
+        1.1600 0.9962
+        4.4640 0.9962
+      }
+    }
+    event lookat "ss_dog_open_gate_1"
+    {
+      time 8.761905 9.923811
+      param "ss_dog_open_gate_1"
+      event_ramp
+      {
+        0.0940 0.1667
+        0.2300 0.5417
+        0.3460 0.8030
+        0.4160 0.9205
+        0.4980 0.9848
+        0.6575 0.9962
+        1.1619 0.9962
+      }
+    }
+    event lookat "!player"
+    {
+      time 9.535714 10.495239
+      param "!player"
+      event_ramp
+      {
+        0.0940 0.1667
+        0.2300 0.7372
+        0.2820 0.8872
+        0.3540 0.9737
+        0.4151 0.9962
+        0.8194 1.0000
+        0.9595 0.9962
+      }
+    }
+  }
+  channel "faceto"
+  {
+    event face "sound_soldiers_die_crash_1"
+    {
+      time 0.000000 5.332858
+      param "sound_soldiers_die_crash_1"
+      event_ramp
+      {
+        0.2260 0.2917
+        0.4200 0.6477
+        0.5340 0.8371
+        0.6720 0.9583
+        0.8400 1.0000
+        5.3328 0.9924
+      }
+    }
+    event face "ss_dog_open_gate_1"
+    {
+      time 8.857144 10.464288
+      param "ss_dog_open_gate_1"
+      event_ramp
+      {
+        0.3060 0.4962
+        0.3940 0.6515
+        0.4720 0.7727
+        0.5800 0.8939
+        0.6740 0.9621
+        0.7700 0.9924
+        1.6072 0.9924
+      }
+    }
+  }
+  channel "moveto"
+  {
+  }
+  channel "posture"
+  {
+    event sequence "excitedpound"
+    {
+      time 1.073333 5.073333
+      param "excitedpound"
+      fixedlength
+    }
+    event gesture "NULL"
+    {
+      time 0.000000 5.321429
+      param ""
+    }
+    event gesture "p_leftlook"
+    {
+      time 4.488095 9.597620
+      param "p_leftlook"
+      absolutetags playback_time
+      {
+        "apex" 0.498591
+        "loop" 0.667620
+        "end" 0.746711
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.426966
+        "loop" 0.617977
+        "end" 0.674157
+      }
+      sequenceduration 5.966667
+    }
+  }
+  channel "gesture"
+  {
+  }
+}
+
+mapname "maps\d3_c17_02.bsp"
+scalesettings
+{
+  "CChoreoView" "56"
+  "ExpressionTool" "100"
+  "RampTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,152 @@
+// Choreo version 1
+event section "pause"
+{
+  time 1.322580 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!target1"
+    {
+      time 0.645161 4.521506
+      param "!target1"
+      event_ramp 
+      {
+        0.1885 1.0000
+        3.6018 0.9830
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_console_up"
+    {
+      time 0.021506 1.930108
+      param "mark_al_console_up"
+      param2 "Run"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "mark_look_console_up_1"
+    {
+      time 1.451612 4.500000
+      param "mark_look_console_up_1"
+      event_ramp 
+      {
+        0.3423 0.9716
+        2.7549 0.9830
+      }
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.351153
+      param ""
+    }
+    event gesture "console1"
+    {
+      time 1.550330 4.901160
+      param "consoleposture"
+      event_ramp 
+      {
+        0.6310 0.9641
+        2.7434 0.9843
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.217312
+        "loop" 0.353908
+        "end" 0.848747
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.306122
+        "loop" 0.408163
+        "end" 0.561224
+      }
+      sequenceduration 3.300000
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "pause"
+    {
+      time 4.193548 -1.000000
+      param "1"
+    }
+    event generic "holster"
+    {
+      time 0.086022 0.586022
+      param "AI_HOLSTER"
+    }
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.371561
+      param ""
+    }
+    event gesture "type"
+    {
+      time 1.938112 4.994275
+      param "A_consoletype_g"
+      event_ramp 
+      {
+        0.0000 0.9913
+        2.4494 0.9812
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.156172
+        "accent" 0.285184
+        "loop" 0.393825
+        "end" 0.801230
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.120370
+        "accent" 0.222222
+        "loop" 0.277778
+        "end" 0.740741
+      }
+      sequenceduration 3.633333
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,157 @@
+// Choreo version 1
+event section "xcgvbv"
+{
+  time 1.110270 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "Audio"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 2.632995 4.433499
+      param "!player"
+      event_ramp
+      {
+        0.1719 0.3559
+        0.2969 0.6577
+        0.5040 0.8993
+        0.8906 0.9685
+        1.3218 0.8893
+        1.4934 0.7072
+        1.6496 0.3108
+      }
+    }
+    event lookat "!player"
+    {
+      time 0.004208 1.691075
+      param "!player"
+      event_ramp
+      {
+        0.1719 0.3559
+        0.2969 0.6577
+        0.5040 0.8993
+        0.8906 0.9685
+        1.2082 0.8893
+        1.3797 0.7072
+        1.5360 0.3108
+      }
+    }
+    event lookat "!target2"
+    {
+      time 1.269360 3.153196
+      param "!target2"
+      event_ramp
+      {
+        0.1719 0.3559
+        0.2969 0.6577
+        0.5040 0.8993
+        1.2449 0.9685
+        1.4051 0.8893
+        1.5766 0.7072
+        1.7329 0.3108
+      }
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "Moveto !target1"
+    {
+      time 0.219711 1.466336
+      param "!target1"
+      param2 "Walk"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 2.562289 4.320706
+      param "!player"
+      event_ramp
+      {
+        0.3313 0.3468
+        0.4756 0.5629
+        0.6969 0.7297
+        1.2251 0.6892
+        1.3977 0.4876
+        1.6439 0.0495
+      }
+    }
+    event face "Face !target2"
+    {
+      time 0.410775 2.184344
+      param "!target2"
+      event_ramp
+      {
+        0.2062 0.5360
+        0.3750 0.8468
+        0.5100 0.9582
+        0.8094 0.9910
+        1.7736 1.0000
+      }
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "keypadpush"
+    {
+      time 1.462121 4.095455
+      param "keypadpush"
+      absolutetags playback_time
+      {
+        "apex" 0.128205
+        "accent" 0.230769
+        "loop" 0.730769
+        "end" 0.769231
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.128205
+        "accent" 0.230769
+        "loop" 0.730769
+        "end" 0.769231
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "1: open door"
+    {
+      time 3.062042 -1.000000
+      param "1"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "88"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "64"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

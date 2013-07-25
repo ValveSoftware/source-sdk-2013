@@ -1,0 +1,164 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_car_comments02"
+    {
+      time 0.425545 6.199151
+      param "ep_02.al_car_comments02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 3.299804 6.041292
+      param "!player"
+      event_ramp
+      {
+        0.6111 0.9499
+        2.2597 0.9471
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.021506 6.564517
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "inner_raiser" combo 
+        {
+          0.3160 0.4600
+          0.6094 0.4800
+          3.4188 0.4700
+          3.5281 0.4600
+          3.7750 0.7000
+          3.9000 0.7100
+          4.4550 0.7100
+          4.5600 0.7100
+          4.7813 0.8600
+          5.3000 0.8600
+          5.5600 0.7215
+          6.1200 0.6700
+        }
+        {
+          0.3160 0.5000
+          4.4350 0.4900
+          4.5550 0.4900
+          4.7813 0.7500
+          5.3150 0.7500
+          5.5600 0.5100
+        }
+        "outer_raiser" combo 
+        {
+          0.3160 0.4700
+          0.4406 0.4800
+          3.4063 0.4900
+          3.5375 0.4900
+          3.7875 0.2100
+          3.8850 0.2100
+          4.4350 0.2000
+          4.5850 0.2000
+          4.7813 0.1872
+          5.3250 0.1700
+          5.5600 0.1429
+          6.1150 0.1300
+        }
+        {
+          0.3160 0.5000
+          4.7813 0.5000
+          5.5600 0.5000
+        }
+        "lowerer" combo 
+        {
+          5.2650 0.0000
+          5.5600 0.4900
+          5.7000 0.5100
+          6.1300 0.4700
+        }
+        {
+          5.5600 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          4.4350 0.0000
+          4.7813 0.4300
+          5.5600 0.2570
+          6.1100 0.2170
+        }
+        {
+          4.7813 0.5000
+          5.5600 0.5000
+        }
+        "head_tilt" range 15.0 -15.0 
+        {
+          0.4895 0.7600
+          0.8158 0.2900
+          1.0842 0.2900
+          1.4158 0.7100
+          1.7105 0.7200
+          2.0421 0.2700
+          2.3053 0.2400
+          2.6105 0.6900
+          2.9368 0.6700
+          3.2789 0.2500
+          3.5158 0.2500
+          3.7842 0.5100
+          3.9789 0.5100
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+          0.4176 0.4800
+          0.6647 0.5900
+          0.9235 0.4800
+          1.2118 0.6000
+          1.5176 0.4000
+          1.8294 0.5800
+          2.1882 0.3900
+          2.4765 0.5800
+          2.7882 0.3800
+          3.0706 0.5700
+          3.3647 0.4000
+          3.6706 0.5100
+          3.7294 0.5100
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "SceneRampTool" "100"
+  "RampTool" "26"
+  "ExpressionTool" "34"
+  "GestureTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

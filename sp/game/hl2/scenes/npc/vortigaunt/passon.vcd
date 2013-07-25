@@ -1,0 +1,34 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "passon"
+    {
+      time 0.026667 1.268118
+      param "npc_vortigaunt.passon"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Look"
+  {
+  }
+  channel "Head"
+  {
+  }
+  channel "Facial"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

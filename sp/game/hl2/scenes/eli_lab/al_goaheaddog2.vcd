@@ -1,0 +1,76 @@
+// Choreo version 1
+event stoppoint "complete"
+{
+  time 1.626667 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_goaheaddog"
+    {
+      time 0.266666 1.394353
+      param "eli_lab.al_goaheaddog"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.080000 0.660000
+      param "!player"
+      event_ramp
+      {
+        0.0615 0.9738
+        0.5192 0.9450
+      }
+    }
+    event lookat "look_dog"
+    {
+      time 0.800000 3.699999
+      param "dog"
+      event_ramp
+      {
+        0.1154 0.7775
+        0.5192 0.8246
+        1.2615 0.8168
+        2.0308 0.8220
+        2.4346 0.7827
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

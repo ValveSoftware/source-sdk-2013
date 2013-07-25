@@ -1,0 +1,52 @@
+// Choreo version 1
+actor "Eli"
+{
+  channel "audio"
+  {
+    event speak "eli_gowithalyx02"
+    {
+      time 0.613331 2.710905
+      param "eli_lab.eli_gowithalyx02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.160000 3.380000
+      param "!player"
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "triggers"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

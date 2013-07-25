@@ -1,0 +1,160 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "almost there"
+    {
+      time 1.600000 2.085351
+      param "novaprospekt.al_shielddoor03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "hmm!"
+    {
+      time 0.213334 0.464604
+      param "Trainyard.al_hmm"
+      param2 "VOL_NORM"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look_player"
+    {
+      time 0.826667 2.606668
+      param "!player"
+      event_ramp
+      {
+        0.4300 0.9610
+        0.6700 0.5792
+        0.9960 0.5429
+        1.4480 0.5273
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.638528
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.112554 3.018615
+      param "posture01"
+      event_ramp
+      {
+        0.8114 0.7659
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.291704
+        "loop" 0.488158
+        "end" 0.681635
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.234375
+        "loop" 0.406250
+        "end" 0.640625
+      }
+      sequenceduration 4.300000
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.664502
+      param ""
+    }
+    event gesture "1"
+    {
+      time 1.038961 3.074892
+      param "A_bg_h_jerkrt"
+      event_ramp
+      {
+        0.4257 0.8770
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.182407
+        "extreme" 0.348231
+        "loop" 0.634043
+        "end" 0.685106
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.103896 2.733766
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1634 0.0000
+          1.1252 0.0000
+        }
+        {
+          0.1634 0.5000
+          1.1252 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.1634 0.3900
+          1.1252 0.1500
+        }
+        {
+          0.1634 1.0000
+          1.1252 0.4800
+        }
+        "corner_puller"         combo        
+        {
+          0.1634 0.7600
+          1.1252 0.2600
+        }
+        {
+          0.1634 1.0000
+          1.1252 0.4600
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "77"
+  "SceneRampTool" "100"
+  "RampTool" "70"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

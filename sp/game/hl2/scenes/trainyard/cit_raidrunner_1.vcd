@@ -1,0 +1,131 @@
+// Choreo version 1
+event stoppoint "pow"
+{
+  time 8.697779 -1.000000
+  param "noaction"
+}
+event section "paws"
+{
+  time 4.013329 -1.000000
+  param "noaction"
+}
+event section "paaas"
+{
+  time 6.320000 -1.000000
+  param "noaction"
+}
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "run"
+    {
+      time 4.991113 6.476805
+      param "npc_citizen.runforyourlife02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "CivProtection"
+    {
+      time 0.288891 1.563812
+      param "npc_citizen.civilprotection02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "cps01"
+    {
+      time 1.706671 2.656467
+      param "npc_citizen.cps02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "run"
+    {
+      time 8.697779 10.355148
+      param "npc_citizen.runforyourlife01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "herecome"
+    {
+      time 3.377780 4.588936
+      param "npc_citizen.heretheycome01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "civilprot"
+    {
+      time 6.880005 8.195085
+      param "npc_citizen.civilprotection02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+  }
+  channel "Face to"
+  {
+  }
+  channel "Move to"
+  {
+    event moveto "mark_RaidRoom_02"
+    {
+      time 0.131111 4.164445
+      param "mark_RaidRoom_02"
+      param2 "run_protected_all"
+      resumecondition
+    }
+    event moveto "mark_RaidRoom_03"
+    {
+      time 4.917778 7.377778
+      param "mark_RaidRoom_03"
+      param2 "run_protected_all"
+      resumecondition
+    }
+  }
+  channel "Posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.453333
+      param ""
+    }
+  }
+  channel "Gesture"
+  {
+    event sequence "cower"
+    {
+      time 3.946667 10.380001
+      param "fear_reaction_Idle"
+    }
+  }
+  channel "Flex anim"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1_start_lcsRaidRunner2"
+    {
+      time 1.146667 -1.000000
+      param ""
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "50"
+  "RampTool" "50"
+  "SceneRampTool" "100"
+  "ExpressionTool" "38"
+  "GestureTool" "100"
+}
+fps 60
+snap off

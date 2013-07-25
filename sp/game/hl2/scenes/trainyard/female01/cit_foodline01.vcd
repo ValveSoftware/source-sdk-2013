@@ -1,0 +1,100 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "cit_foodline01"
+    {
+      time 0.006667 1.520771
+      param "opening.cit_foodline01"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "player"
+    {
+      time 0.000000 1.846665
+      param "!player"
+      event_ramp
+      {
+        0.3160 0.7660
+        0.3720 0.8191
+        0.4680 0.8457
+        1.2346 0.8404
+        1.3306 0.8032
+        1.3826 0.7606
+      }
+    }
+  }
+  channel "Face to"
+  {
+    event face "player"
+    {
+      time 0.106667 1.713333
+      param "!player"
+      event_ramp
+      {
+        0.4100 0.4529
+        0.5900 0.5426
+        0.8220 0.5560
+        1.0540 0.5426
+        1.1840 0.4798
+      }
+    }
+  }
+  channel "head flex"
+  {
+    event flexanimation "head shake"
+    {
+      time 0.086666 1.840000
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1326 0.6100
+          0.3507 0.5900
+          0.8426 0.6900
+          1.0351 0.6700
+          1.1677 0.5900
+        }
+        {
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.1236 0.5527
+          0.2408 0.5394
+          0.6735 0.5231
+          0.9583 0.5800
+          1.1867 0.5664
+          1.4252 0.5242
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.2203 0.5500
+          0.6694 0.5100
+          0.9249 0.4400
+          1.0244 0.4400
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

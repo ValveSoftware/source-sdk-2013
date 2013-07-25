@@ -1,0 +1,162 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_lift_herewego"
+    {
+      time 0.376345 1.101243
+      param "ep_01.al_lift_herewego"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.075269 1.586022
+      param "!player"
+      event_ramp 
+      {
+        0.4462 0.5593
+        1.0154 0.5508
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+    event gesture "NULL"
+    {
+      time 0.010753 0.510753
+      param ""
+    }
+    event flexanimation "facial"
+    {
+      time 0.032258 1.575269
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser" combo 
+        {
+          0.2705 0.0000
+          0.4284 0.5300
+          0.6102 0.5200
+          0.7773 0.0000
+        }
+        {
+        }
+        "inner_raiser" combo 
+        {
+          0.1955 0.0000
+          0.5057 1.0000
+          0.9625 0.0900
+        }
+        {
+          0.1886 0.5400
+          0.5057 0.7500
+        }
+        "outer_raiser" combo 
+        {
+          0.2011 0.0000
+          0.5091 0.7200
+          0.9716 0.0600
+        }
+        {
+          0.1784 0.5300
+          0.5068 0.8100
+        }
+        "lowerer" combo 
+        {
+          0.1909 0.0000
+          0.5091 0.2200
+          1.1261 0.0600
+        }
+        {
+        }
+        "mouth_sideways" range -1.0 1.0 
+        {
+          0.1773 0.6000
+          0.8625 0.5200
+        }
+        "head_rightleft" range 30.0 -30.0 
+        {
+          0.3364 0.3900
+          0.6670 0.3900
+          0.9330 0.4700
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+          0.0909 0.5100
+          0.4841 0.6300
+          0.7011 0.6200
+          0.9364 0.5300
+        }
+        "head_tilt" range 15.0 -15.0 
+        {
+          0.4125 0.2200
+          0.6216 0.2200
+          0.8705 0.4100
+        }
+        "head_forwardback" range 0.2 -0.2 
+        {
+          0.3716 0.7300
+          0.6557 0.7300
+          0.9307 0.5300
+        }
+        "blink" 
+        {
+          0.2648 0.0000
+          0.3045 0.9500
+          0.3182 0.9000
+          0.4125 0.0000
+          1.0250 0.0000
+          1.0443 0.9700
+          1.0614 0.9200
+          1.1750 0.0000
+        }
+      }
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "76"
+  "ExpressionTool" "176"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

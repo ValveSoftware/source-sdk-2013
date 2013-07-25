@@ -1,0 +1,67 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Debug text"
+  {
+    event speak "this place must have been nice once"
+    {
+      time 0.414814 3.671209
+      param "ep_02.al_ambush_niceonce"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "this place must have been nice once"
+    {
+      time 4.207406 6.706839
+      param "ep_02.al_ambush_howlong"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 3.333333 6.715138
+      param "!player"
+      event_ramp
+      {
+        0.5100 0.9944
+        3.2411 1.0000
+      }
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 3.348148 6.725925
+      param "!player"
+      event_ramp
+      {
+        0.3780 1.0000
+        2.8780 0.9944
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "90"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

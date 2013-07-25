@@ -1,0 +1,103 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "question20"
+    {
+      time 0.006667 3.622948
+      param "npc_citizen.question20"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Facial"
+  {
+    event flexanimation "Facial"
+    {
+      time -0.006667 2.486666
+      param ""
+      flexanimations samples_use_time
+      {
+        "eyes_updown"         range 30.0 -30.0        
+        {
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+        }
+        "inner_raiser"         combo        
+        {
+          0.1934 0.8600
+          0.2786 0.9300
+          1.2591 0.8700
+          1.3319 0.8300
+          1.5565 0.2300
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+        }
+        {
+        }
+      }
+    }
+  }
+  channel "Head"
+  {
+    event flexanimation "Head"
+    {
+      time 0.000000 3.620001
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.0520 0.5059
+          0.2687 0.5425
+          0.3633 0.5495
+          1.5975 0.5475
+          1.6737 0.5426
+          2.2138 0.5100
+          2.3880 0.5337
+          2.6325 0.5460
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.3057 0.5521
+          0.8892 0.5508
+          1.0743 0.5402
+          1.4749 0.5074
+          2.2800 0.4900
+          2.4283 0.4450
+          2.7306 0.4750
+          3.4062 0.5000
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.0740 0.5223
+          0.2687 0.5907
+          0.3633 0.6070
+          1.6135 0.6025
+          1.6897 0.5908
+          2.2650 0.5354
+          2.4336 0.5900
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "56"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

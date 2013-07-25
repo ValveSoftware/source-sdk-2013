@@ -1,0 +1,273 @@
+// Choreo version 1
+event section "pause_waitVortReachTarget"
+{
+  time 20.858175 -1.000000
+  param "noaction"
+}
+event section "citizenMovesToStart"
+{
+  time 6.230258 -1.000000
+  param "noaction"
+}
+event section "waitUntilGetToPlayer"
+{
+  time 9.725071 -1.000000
+  param "noaction"
+}
+event section "wait for citizen to reach mark"
+{
+  time 2.653846 -1.000000
+  param "noaction"
+}
+actor "citizen"
+{
+  channel "move to"
+  {
+    event moveto "citizenMoveToSensors"
+    {
+      time 19.787064 21.180397
+      param "!target2"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "citizenMoveToPlayer"
+    {
+      time 5.890771 10.248547
+      param "!player"
+      param2 "Walk"
+      resumecondition
+      distancetotarget 121.00
+    }
+    event moveto "citizenMoveToPlayer"
+    {
+      time 0.672822 2.889572
+      param "!player"
+      param2 "Run"
+      resumecondition
+      distancetotarget 136.00
+    }
+    event moveto "runToTunnelEntrance"
+    {
+      time 31.461540 35.692310
+      param "mark_standOutsideTunnel"
+      param2 "Run"
+      distancetotarget 28.00
+    }
+    active "0"
+  }
+  channel "face to"
+  {
+    event face "citzenFacesPlayer"
+    {
+      time 0.045925 16.555498
+      param "!player"
+      event_ramp 
+      {
+        0.1620 1.0000
+        16.3796 0.9944
+      }
+    }
+    event face "citzenFacesPlayer"
+    {
+      time 29.690407 33.529240
+      param "!player"
+      event_ramp 
+      {
+        0.1620 1.0000
+        3.7089 0.9944
+      }
+    }
+  }
+  channel "turn to"
+  {
+    event lookat "citizenLooksAtSensor"
+    {
+      time 19.779655 21.187063
+      param "!target3"
+      event_ramp 
+      {
+        0.1900 0.9944
+        1.2274 1.0000
+      }
+    }
+    event lookat "citizenLooksAtPlayer"
+    {
+      time -0.702052 5.715442
+      param "!player"
+      event_ramp 
+      {
+        0.1900 0.9944
+        6.2376 1.0000
+      }
+    }
+    event lookat "citizenLooksAtPlayer"
+    {
+      time 5.871209 9.468189
+      param "!player"
+      event_ramp 
+      {
+        0.1900 0.9944
+        3.4170 1.0000
+      }
+    }
+    event lookat "citizenLooksAtPlayer"
+    {
+      time 29.662437 33.665077
+      param "npcBullseye_dummyTargetVort"
+      event_ramp 
+      {
+        0.1900 0.9944
+        3.8226 1.0000
+      }
+    }
+    event lookat "citizenLooksAtPlayer"
+    {
+      time 9.653259 12.878447
+      param "!target2"
+      event_ramp 
+      {
+        0.1900 0.9944
+        2.4412 0.7232
+      }
+    }
+    event lookat "citizenLooksAtPlayer"
+    {
+      time 12.909670 14.993830
+      param "!player"
+      event_ramp 
+      {
+        0.1900 0.9944
+        1.9042 1.0000
+      }
+    }
+  }
+  channel "audio"
+  {
+    event generic "CitizenGreetsPlayer"
+    {
+      time 2.831765 5.817124
+      param "debugtext CITIZEN:  Allright Freeman, let me bring you up to speed"
+    }
+    event generic "CitizenGreetsPlayer"
+    {
+      time 6.362314 8.966427
+      param "debugtext CITIZEN:  This used to be part of the underground railroad in the old days"
+    }
+    event generic "CitizenGreetsPlayer"
+    {
+      time 9.589014 12.680307
+      param "debugtext CITIZEN:  Then the antlions started busting into the tunnels, cleared us out"
+    }
+    event generic "CitizenGreetsPlayer"
+    {
+      time 13.502516 17.514833
+      param "debugtext CITIZEN:  Since the Combine are everywhere up there, we'll have to sit tight down here..."
+    }
+    event generic "CitizenGreetsPlayer"
+    {
+      time 17.893229 20.901443
+      param "debugtext CITIZEN:  Luckily, these old motion detectors still work..."
+    }
+    event generic "CitizenGreetsPlayer"
+    {
+      time 21.581833 25.025946
+      param "debugtext CITIZEN:  The lights show us where they're coming from..."
+    }
+    event generic "CitizenGreetsPlayer"
+    {
+      time 25.309757 28.274628
+      param "debugtext CITIZEN:  and how MANY are coming.  Pretty handy little device."
+    }
+    event generic "CitizenGreetsPlayer"
+    {
+      time 30.750538 33.521271
+      param "debugtext CITIZEN:  Anyway, you get the idea..."
+    }
+    event speak "I HATE bugs"
+    {
+      time 0.153846 1.770059
+      param "ep1_citizen.cit_alert_antlions05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event generic "speak of the devil"
+    {
+      time 33.942844 33.942844
+      param "debugtext CITIZEN:  Speak of the devil.  Here they come."
+    }
+    event generic "speak of the devil"
+    {
+      time 33.917206 36.243591
+      param "debugtext CITIZEN:  Speak of the devil...here they come!"
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "launchAntlionWave"
+    {
+      time 27.479052 -1.000000
+      param "8"
+    }
+    event firetrigger "hitSensor"
+    {
+      time 21.838024 -1.000000
+      param "7"
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "citizenSmacksSensor"
+    {
+      time 21.588316 35.888985
+      param "g_point_swing_across"
+      absolutetags playback_time
+      {
+        "apex" 0.014911
+        "accent" 0.040451
+        "loop" 0.058321
+        "end" 0.071384
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.176471
+        "accent" 0.352941
+        "loop" 0.441176
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+  }
+  faceposermodel "models\humans\group01\male_01.mdl"
+}
+
+actor "citizen_number_2"
+{
+  channel "move to"
+  {
+    event moveto "citizen moves to actor"
+    {
+      time -0.076923 17.743589
+      param "!player"
+      param2 "Walk"
+      distancetotarget 120.00
+    }
+    event moveto "run to tunnel entrance"
+    {
+      time 31.833334 35.897438
+      param "mark_rebelStart"
+      param2 "Run"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "52"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,258 @@
+// Choreo version 1
+actor "magnusson"
+{
+  channel "audio"
+  {
+  }
+  channel "lookat"
+  {
+    event lookat "watch console"
+    {
+      time 0.086478 14.670441
+      param "!self"
+      event_ramp
+      {
+        0.4667 0.9893
+        14.1053 0.9829
+      }
+    }
+  }
+  channel "faceto"
+  {
+    event face "mark_look_rocket_3"
+    {
+      time 0.085557 14.656838
+      param "mark_look_rocket_3"
+      event_ramp
+      {
+        0.8088 0.9686
+        13.3580 1.0000 "curve_easein_to_curve_easeout"
+        13.9153 0.8514
+        14.3947 0.1220
+      }
+    }
+  }
+  channel "posture"
+  {
+    event gesture "p_thinking"
+    {
+      time 3.698009 14.667070
+      param "p_thinking"
+      absolutetags playback_time
+      {
+        "apex" 0.038749
+        "loop" 0.211275
+        "end" 0.887255
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.191176
+        "loop" 0.500000
+        "end" 0.720588
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "p_console"
+    {
+      time 0.046322 4.166760
+      param "p_console"
+      event_ramp
+      {
+        0.4765 0.8518
+        0.9644 0.9932
+        3.6716 0.9893
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.175013
+        "loop" 0.314674
+        "end" 0.848611
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.260274
+        "loop" 0.328767
+        "end" 0.821918
+      }
+      sequenceduration 2.466667
+    }
+  }
+  channel "body"
+  {
+    event gesture "hg_breath"
+    {
+      time 4.206376 14.670568
+      param "hg_breath"
+      event_ramp
+      {
+        0.0000 0.2741
+        2.0620 0.1579
+        10.4642 0.3465
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.050107
+        "extreme" 0.078336
+        "loop" 0.174293
+        "end" 0.882262
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.068493
+        "extreme" 0.136986
+        "loop" 0.205479
+        "end" 0.753425
+      }
+      sequenceduration 2.466667
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "g_thinking_liptouch"
+    {
+      time 4.221034 14.677358
+      param "g_thinking_liptouch"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.4020 0.7259
+        0.6300 0.9298
+        0.9820 0.9715
+        8.9925 0.9539
+        9.5843 0.9474
+        10.0423 0.8377
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.049847
+        "accent" 0.090982
+        "loop" 0.172414
+        "end" 0.883170
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.279412
+        "accent" 0.397059
+        "loop" 0.735294
+        "end" 0.735294
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "g_flipswitch"
+    {
+      time 0.141215 4.210033
+      param "g_flipswitch"
+      event_ramp
+      {
+        0.5015 0.8541
+        0.8593 1.0000
+        3.5890 0.9936
+      }
+      absolutetags playback_time
+      {
+        "in" 0.170455
+        "apex" 0.193182
+        "accent" 0.284091
+        "loop" 0.454545
+        "end" 0.681818
+        "out" 0.852273
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.170455
+        "apex" 0.193182
+        "accent" 0.340909
+        "loop" 0.545455
+        "end" 0.602273
+        "out" 0.852273
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "facial"
+  {
+  }
+  channel "flex_head"
+  {
+    event flexanimation "flex_head"
+    {
+      time 4.219399 14.671772
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lid_closer" combo 
+        {
+          0.9058 0.0600
+          0.9615 0.9500
+          1.0038 0.9400
+          1.0500 0.1000
+          3.1212 0.0400
+          3.2058 0.9200
+          3.3346 0.0600
+          3.3962 0.9400
+          3.4788 0.9500
+          3.5308 0.0900
+          4.7731 0.0500
+          4.8269 0.8300
+          4.8750 0.8700
+          4.9365 0.0700
+          7.2635 0.0500
+          7.3173 0.9700
+          7.3596 0.9400
+          7.4250 0.1200
+        }
+        {
+          2.0609 0.5000
+        }
+        "head_rightleft" range 30.0 -30.0 
+        {
+          1.0180 0.5000 "curve_easein_to_curve_easeout"
+          3.6300 0.5100 "curve_easein_to_curve_easeout"
+          4.1268 0.6500 "curve_easein_to_curve_easeout"
+          4.5059 0.6500 "curve_easein_to_curve_easeout"
+          7.4922 0.6600 "curve_easein_to_curve_easeout"
+          8.0641 0.5100 "curve_easein_to_curve_easeout"
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+        }
+        "eyes_updown" range 30.0 -30.0 
+        {
+        }
+        "eyes_rightleft" range 30.0 -30.0 
+        {
+          0.0259 0.4900 "curve_easein_to_curve_easeout"
+          1.0559 0.5100 "curve_easein_to_curve_easeout"
+          1.1259 0.4100 "curve_easein_to_curve_easeout"
+          3.5404 0.4100 "curve_easein_to_curve_easeout"
+          3.6268 0.5000 "curve_easein_to_curve_easeout"
+          4.1578 0.5000 "curve_easein_to_curve_easeout"
+          7.4923 0.5200 "curve_easein_to_curve_easeout"
+          7.6096 0.3700 "curve_easein_to_curve_easeout"
+          8.0038 0.4600 "curve_easein_to_curve_easeout"
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1 - trigger pause scene"
+    {
+      time 12.619370 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "models\magnusson.mdl"
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "104"
+  "RampTool" "100"
+  "CChoreoView" "124"
+}
+fps 60
+snap off
+ignorePhonemes off

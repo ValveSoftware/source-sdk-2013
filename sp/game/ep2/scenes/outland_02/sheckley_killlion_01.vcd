@@ -1,0 +1,128 @@
+// Choreo version 1
+actor "!target2"
+{
+  channel "audio"
+  {
+    event speak "sheckley_killlion"
+    {
+      time 0.138888 3.349863
+      param "ep_02.sheckley_killlion_01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "griggs"
+    {
+      time 0.114583 4.093750
+      param "griggs"
+      event_ramp
+      {
+        0.4788 1.0000
+        3.4152 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 1.468750 3.841666
+      param "g_plead_01_left"
+      absolutetags playback_time
+      {
+        "apex" 0.228634
+        "accent" 0.371530
+        "loop" 0.571584
+        "end" 0.714480
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.275862
+        "accent" 0.448276
+        "loop" 0.689655
+        "end" 0.862069
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "postures"
+  {
+    event gesture "1"
+    {
+      time 0.229167 2.429167
+      param "bg_right"
+      absolutetags playback_time
+      {
+        "apex" 0.153846
+        "extreme" 0.292308
+        "loop" 0.476923
+        "end" 0.723077
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153846
+        "extreme" 0.292308
+        "loop" 0.476923
+        "end" 0.723077
+      }
+    }
+  }
+  channel "facial flex"
+  {
+    event flexanimation "face"
+    {
+      time 0.104167 4.208333
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lowerer" combo 
+        {
+          0.6308 0.2900
+          0.7028 0.2900
+          3.2153 0.2900
+          3.4560 0.2900
+        }
+        {
+          0.6308 0.5000
+          0.7028 0.5000
+          3.2153 0.5000
+          3.4560 0.5000
+        }
+        "wrinkler" 
+        {
+          0.6308 0.3300
+          0.7028 0.3300
+          3.2153 0.3300
+          3.4560 0.3300
+        }
+        "corner_puller" combo 
+        {
+          0.5838 0.4100
+          0.8135 0.4100
+          3.2811 0.4100
+          3.4216 0.4100
+        }
+        {
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "74"
+  "RampTool" "66"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

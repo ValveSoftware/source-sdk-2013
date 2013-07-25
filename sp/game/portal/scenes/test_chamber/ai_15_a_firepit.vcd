@@ -1,0 +1,81 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "audio"
+  {
+    event speak "ding_on"
+    {
+      time 0.000000 0.190000
+      param "Portal.ding_on"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_into_the_fire-1"
+    {
+      time 0.239667 3.051708
+      param "Portal.15_part1_into_the_fire-1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_into_the_fire-2"
+    {
+      time 3.393000 9.191322
+      param "Portal.15_part1_into_the_fire-2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_into_the_fire-3"
+    {
+      time 9.552999 17.071365
+      param "Portal.15_part1_into_the_fire-3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_into_the_fire-4"
+    {
+      time 17.386333 22.759123
+      param "Portal.15_part1_into_the_fire-4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_into_the_fire-5"
+    {
+      time 22.999668 23.991505
+      param "Portal.15_part1_into_the_fire-5"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "ding_off"
+    {
+      time 24.113335 24.303335
+      param "Portal.ding_off"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

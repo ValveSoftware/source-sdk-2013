@@ -1,0 +1,88 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_car_callback01"
+    {
+      time 0.221244 1.257026
+      param "ep_02.al_car_crash07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.010753 1.478495
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "inner_raiser" combo 
+        {
+          0.2355 0.1400
+          0.3625 0.2100
+          1.0875 0.1400
+          1.2188 0.1300
+        }
+        {
+          0.2355 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.2355 0.4400
+          0.3438 0.4900
+          1.1000 0.4600
+          1.2219 0.4500
+        }
+        {
+          0.2355 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.2355 0.2600
+          0.3469 0.2900
+          1.0906 0.2700
+          1.2781 0.2200
+        }
+        {
+          0.2355 0.5000
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "SceneRampTool" "100"
+  "RampTool" "26"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

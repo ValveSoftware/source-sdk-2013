@@ -1,0 +1,73 @@
+// Choreo version 1
+actor "Dog"
+{
+  channel "audio"
+  {
+    event speak "dsvfsdf"
+    {
+      time 0.960000 2.387710
+      param "NPC_dog.Playful_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.133328 4.313329
+      param "!player"
+      event_ramp
+      {
+        0.3000 0.9948
+        3.9200 0.9948
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 0.080000 4.313333
+      param "!player"
+      event_ramp
+      {
+        0.2400 0.9896
+        4.0700 0.9922
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "gestures"
+  {
+    event sequence "excited_dance"
+    {
+      time 0.080000 4.080000
+      param "excitedpound"
+      event_ramp
+      {
+        0.0700 0.9974
+        3.9200 1.0000
+      }
+      fixedlength
+    }
+  }
+  faceposermodel "C:\VALVE\HL2\hl2\models\dog.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "20"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

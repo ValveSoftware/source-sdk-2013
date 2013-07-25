@@ -1,0 +1,68 @@
+// Choreo version 1
+event loop "lkjflkd"
+{
+  time 25.000000 -1.000000
+  param "0.000000"
+  loopcount "-1"
+}
+actor "!target1"
+{
+  channel "audio"
+  {
+  }
+  channel "lookat"
+  {
+    event generic "look around"
+    {
+      time 0.018519 25.000000
+      param "AI_RANDOMLOOK"
+    }
+  }
+  channel "faceto"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "postures"
+  {
+    event gesture "hg_headshake"
+    {
+      time 6.897436 8.530769
+      param "hg_headshake"
+      absolutetags playback_time
+      {
+        "apex" 0.208333
+        "loop" 0.270833
+        "extreme" 0.416667
+        "end" 0.625000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.208333
+        "loop" 0.270833
+        "extreme" 0.416667
+        "end" 0.625000
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\humans\group03\male_05.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

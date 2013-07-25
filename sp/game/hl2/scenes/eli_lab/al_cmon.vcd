@@ -1,0 +1,62 @@
+// Choreo version 1
+event stoppoint "STOP"
+{
+  time 1.600000 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "come on"
+    {
+      time 0.186666 0.800839
+      param "k_lab.al_comeon"
+      param2 "VOL_NORM"
+      fixedlength
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look_player"
+    {
+      time 0.053333 2.553333
+      param "!player"
+      event_ramp
+      {
+        0.2885 0.8439
+        1.9038 0.7100
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

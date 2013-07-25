@@ -1,0 +1,68 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event generic "This area looks unstable, we should move."
+    {
+      time 0.096774 2.360215
+      param "debugtext This area looks unstable, we should move."
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 1.032258 2.736559
+      param "!player"
+      event_ramp
+      {
+        0.4962 0.9820
+        1.5308 0.9581
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

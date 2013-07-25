@@ -1,0 +1,98 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_lead_catchup03"
+    {
+      time 0.666667 1.214082
+      param "ep_01.al_lead_catchup03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time -0.001461 2.060477
+      param "!player"
+      event_ramp
+      {
+        0.5002 0.9586
+        1.5422 0.9543
+      }
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Body_gestures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.722222
+      param "NULL"
+    }
+    event gesture "A_g_rtthumb_overshould"
+    {
+      time 0.027778 2.564695
+      param "A_g_rtthumb_overshould"
+      absolutetags playback_time
+      {
+        "apex" 0.160804
+        "accent" 0.310645
+        "loop" 0.449521
+        "end" 0.822562
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.204819
+        "accent" 0.397590
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "NULL"
+    {
+      time 2.638889 3.361111
+      param "NULL"
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "head flex"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "72"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

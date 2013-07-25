@@ -1,0 +1,336 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_pbox_nicejobandgun"
+    {
+      time 1.013889 2.343549
+      param "ep_01.al_pbox_nicejobandgun"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_pbox_nicejobandgun02"
+    {
+      time 2.520833 4.137477
+      param "ep_01.al_pbox_nicejobandgun02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "lookit"
+    {
+      time 0.602156 4.734339
+      param "!player"
+      event_ramp 
+      {
+        0.2794 0.4570
+        0.7292 0.6633
+        1.3865 0.6090
+        2.2300 0.2825
+        2.8602 0.6879
+        3.4967 0.6784
+        3.8626 0.4603
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 0.777778 4.500000
+      param "!player"
+      event_ramp 
+      {
+        0.4625 0.6687
+        0.6917 0.7390
+        1.0667 0.7390
+        2.5750 0.7390
+        2.8125 0.7390
+        3.1250 0.6687
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.006944 0.270833
+      param ""
+    }
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.013888 0.277777
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.812500 3.612501
+      param "A_bg_acc_dwn_rt"
+      event_ramp 
+      {
+        0.3917 0.5000
+        1.4542 0.4799
+        2.1333 0.0101
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.144578
+        "extreme" 0.204819
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.204819
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "2"
+    {
+      time 2.236110 5.036111
+      param "A_bg_acc_dwn_left"
+      event_ramp 
+      {
+        0.4042 0.4256
+        0.7167 0.4859
+        1.8875 0.4859
+        2.2083 0.4256
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.144578
+        "extreme" 0.301205
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.301205
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "facial flex"
+  {
+    event flexanimation "face"
+    {
+      time 0.038029 4.925926
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_tightener" combo 
+        {
+          0.3096 0.1297
+          0.4956 0.1297
+          1.1132 0.2500
+          2.3637 0.0000
+          2.6831 0.4800
+          3.0373 0.1600
+          3.5726 0.0150
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+          1.1132 0.5000
+          2.3637 0.5000
+          2.6831 0.5000
+          3.0373 0.5000
+          3.5726 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.4956 0.3666
+          1.1132 0.7400
+          2.3637 0.3300
+          2.6831 0.7000
+          3.0373 0.4100
+          3.4300 0.1900
+          3.6386 0.3200
+          3.8593 0.3300
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+          1.1132 0.5000
+          2.3637 0.5000
+          2.6831 0.5000
+          3.0373 0.5000
+          3.5726 0.5000
+        }
+        "corner_puller" combo 
+        {
+          0.3096 0.2846
+          0.4956 0.2846
+          1.1132 0.5900
+          2.3637 0.4100
+          2.6831 0.5500
+          3.0373 0.3600
+          3.5726 0.2800
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+          1.1132 0.5000
+          2.3637 0.5000
+          2.6831 0.5000
+          3.0373 0.5000
+          3.5726 0.5000
+        }
+        "inner_raiser" combo 
+        {
+          0.0000 0.0000
+          0.4956 0.2100
+          2.3720 0.4100
+          2.6720 0.7200
+          3.0280 0.3800
+          3.4280 0.2100
+          3.6480 0.3900
+          3.8920 0.3800
+          4.2400 0.0700
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+        }
+        "wrinkler" 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        "upper_raiser" combo 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+        }
+        "corner_depressor" combo 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+        }
+        "chin_raiser" 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        "part" combo 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+        }
+        "puckerer" combo 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+        }
+        "funneler" combo range 0.0 2.0 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+        }
+        "stretcher" combo 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        {
+          0.3096 0.5000
+          0.4956 0.5000
+        }
+        "bite" 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        "tightener" 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        "jaw_clencher" 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+        "jaw_drop" range 0.0 2.0 
+        {
+          0.3096 0.0000
+          0.4956 0.0000
+        }
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "player"
+    {
+      time 0.083333 4.861111
+      param "!player"
+      param2 "Run"
+      distancetotarget 80.00
+    }
+    active "0"
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "126"
+  "ExpressionTool" "100"
+  "RampTool" "68"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

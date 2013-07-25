@@ -1,0 +1,200 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_car_beenawhile"
+    {
+      time 0.629846 4.737125
+      param "ep_02.al_car_beenawhile"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.063245 5.353119
+      param "!player"
+      event_ramp
+      {
+        0.8265 1.0000
+        4.5206 1.0000
+      }
+    }
+    active "0"
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "A_g_hflipout"
+    {
+      time 2.010753 5.149462
+      param "A_g_hflipout"
+      absolutetags playback_time
+      {
+        "apex" 0.147272
+        "accent" 0.349343
+        "loop" 0.575389
+        "end" 0.760336
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.136364
+        "accent" 0.329545
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "A_g_rthandtomouth"
+    {
+      time 0.075269 2.794624
+      param "A_g_rthandtomouth"
+      event_ramp
+      {
+        0.3769 0.0000
+        1.1000 1.0000
+        2.7194 1.0000
+      }
+      absolutetags playback_time
+      {
+        "in" 0.111064
+        "loop" 0.336996
+        "end" 0.551354
+        "out" 0.710017
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.181818
+        "loop" 0.340909
+        "end" 0.625000
+        "out" 0.784091
+      }
+      sequenceduration 2.966667
+    }
+    active "0"
+  }
+  channel "Trigger"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.043011 5.392473
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "inner_raiser" combo 
+        {
+          0.3817 0.5500
+          0.7796 0.5500
+          1.1774 0.5500
+          1.4355 0.5500
+          1.7473 0.7500
+          2.1561 0.5700
+          2.2667 0.5600
+          3.8905 0.5000
+          4.0333 0.5500
+          4.2810 0.7600
+          4.5190 0.7300
+          4.9476 0.4500
+        }
+        {
+          0.3817 0.5000
+          0.7796 0.5000
+          1.1774 0.5000
+          1.4355 0.5000
+          1.7473 0.5000
+          1.9656 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.3817 0.1500
+          0.7796 0.1400
+          1.1774 0.1400
+          1.4355 0.1400
+          1.7473 0.1400
+          1.9656 0.3400
+          2.0381 0.3600
+          3.9952 0.3400
+          4.3714 0.1700
+          4.7905 0.3400
+        }
+        {
+          0.3817 0.5000
+          0.7796 0.5000
+          1.1774 0.5000
+          1.4355 0.5000
+          1.7473 0.5000
+          1.9656 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.7796 0.1800
+          1.1774 0.1800
+          1.4355 0.1800
+          1.7473 0.1800
+          1.9656 0.1100
+          2.9000 0.0000
+        }
+        {
+          0.7796 0.5000
+          1.1774 0.5000
+          1.4355 0.5000
+          1.7473 0.5000
+          1.9656 0.5000
+        }
+        "corner_puller" combo 
+        {
+          1.1774 0.0000
+          1.4355 0.5000
+          1.7473 0.5000
+          1.9656 0.5000
+          2.2063 0.0000
+          4.3857 0.0000
+          4.6333 0.2600
+          4.9762 0.2400
+        }
+        {
+          1.1774 0.5000
+          1.4355 0.5000
+          1.7473 0.5000
+          1.9656 0.5000
+        }
+        "mouth_sideways" range -1.0 1.0 
+        {
+          1.4355 0.3500
+          1.7473 0.3500
+          1.9656 0.5000
+          2.0000 0.5000
+        }
+      }
+    }
+  }
+  faceposermodel "models\alyx_ep2.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "GestureTool" "100"
+  "ExpressionTool" "42"
+  "RampTool" "26"
+  "SceneRampTool" "100"
+  "CChoreoView" "62"
+}
+fps 60
+snap off
+ignorePhonemes off

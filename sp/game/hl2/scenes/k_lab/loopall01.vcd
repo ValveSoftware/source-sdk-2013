@@ -1,0 +1,238 @@
+// Choreo version 1
+event loop "Loop"
+{
+  time 39.000000 -1.000000
+  param "5.000000"
+  loopcount "-1"
+}
+event section "pause"
+{
+  time 3.733333 -1.000000
+  param "noaction"
+}
+actor "Kleiner"
+{
+  channel "look at"
+  {
+  }
+  channel "faceto"
+  {
+  }
+  channel "move to "
+  {
+    active "0"
+  }
+  channel "posture"
+  {
+    active "0"
+  }
+  channel "gesture"
+  {
+    active "0"
+  }
+  channel "gesturepose"
+  {
+    active "0"
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+    active "0"
+  }
+  channel "Response"
+  {
+    active "0"
+  }
+}
+
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    active "0"
+  }
+  channel "move to"
+  {
+    active "0"
+  }
+  channel "posture"
+  {
+    active "0"
+  }
+  channel "gesture"
+  {
+    active "0"
+  }
+  channel "Response"
+  {
+    active "0"
+  }
+  channel "head"
+  {
+  }
+  active "0"
+}
+
+actor "Barney"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "monitor"
+    {
+      time 3.911109 25.544451
+      param "look_securitymonitor_a"
+      event_ramp
+      {
+        0.6632 0.8856
+        0.7614 0.8856
+        21.6334 0.8941
+        21.6334 0.8941
+      }
+    }
+    event lookat "monitor"
+    {
+      time 24.622219 40.366669
+      param "look_securitymonitor_a"
+      event_ramp
+      {
+        0.6632 0.8856
+        0.7614 0.8856
+        15.7445 0.8941
+        15.7445 0.8941
+      }
+    }
+  }
+  channel "FaceTo"
+  {
+    event face "faceMonitor"
+    {
+      time 1.944445 4.166667
+      param "look_securitytypea"
+      event_ramp
+      {
+        1.5341 1.0000
+        2.2222 0.9915
+      }
+    }
+    event face "facemonitor"
+    {
+      time 24.488888 27.144449
+      param "look_securitymonitor_a"
+      event_ramp
+      {
+        1.2356 1.0000
+        1.4671 1.0000
+        1.6550 1.0000
+        2.3533 1.0000
+        2.5673 1.0000
+        2.6556 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "monitor"
+    {
+      time 0.133333 4.477777
+      param "mark_b2b"
+      resumecondition
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "posture2"
+    {
+      time 13.244444 40.164230
+      param "Posture01"
+      event_ramp
+      {
+        1.7680 0.7768
+        2.5760 0.7894
+        6.0240 0.8443
+        9.0320 0.7683
+        12.5120 0.7473
+        15.0836 0.7177
+        16.8516 0.7683
+        23.0596 0.7346
+        23.4996 0.6924
+        24.9316 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.052006
+        "loop" 0.338281
+        "end" 0.919975
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.309278
+        "loop" 0.391753
+        "end" 0.536082
+      }
+      sequenceduration 3.266667
+    }
+    event gesture "NULL"
+    {
+      time 0.000000 8.277779
+      param ""
+    }
+  }
+  channel "FlexHead"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.300000
+      param ""
+    }
+    event gesture "Gesture13"
+    {
+      time 13.333334 37.766666
+      param "Gesture13"
+      absolutetags playback_time
+      {
+        "in" 0.029117
+        "loop" 0.068122
+        "end" 0.964550
+        "out" 0.980914
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.171429
+        "loop" 0.600000
+        "end" 0.685714
+        "out" 0.857143
+      }
+      sequenceduration 2.366667
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Response"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "GestureTool" "100"
+  "RampTool" "9"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+}
+fps 60
+snap off

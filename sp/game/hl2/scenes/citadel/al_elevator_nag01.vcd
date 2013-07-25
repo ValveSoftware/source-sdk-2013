@@ -1,0 +1,196 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 2.940478 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "Get in the elevator...."
+    {
+      time 0.976190 2.923151
+      param "citadel.al_letyouin"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.016774 5.196721
+      param "!player"
+      event_ramp
+      {
+        0.5669 0.9586
+        4.6503 0.9513
+      }
+    }
+    event lookat "player"
+    {
+      time 7.897726 11.006244
+      param "!player"
+      event_ramp
+      {
+        0.5669 0.9586
+        2.5789 0.9513
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 0.615361 2.462891
+      param "!player"
+      event_ramp
+      {
+        0.8400 0.9896
+        1.8476 1.0000
+        1.8476 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.178571
+      param ""
+    }
+    event gesture "accentdown_ext"
+    {
+      time 0.559524 3.635112
+      param "accentdown_ext"
+      event_ramp
+      {
+        0.3833 0.4800
+        1.2700 0.6109
+        1.4300 0.5964
+        1.9133 0.0218
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.131623
+        "extreme" 0.230341
+        "loop" 0.460682
+        "end" 0.692879
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.253012
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_bg_acc_dwn_rt"
+    {
+      time 2.083333 5.085714
+      param "A_bg_acc_dwn_rt"
+      event_ramp
+      {
+        0.6042 0.5018
+        0.9208 0.5345
+        1.8458 0.5527
+        2.0833 0.5309
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.202240
+        "extreme" 0.272755
+        "loop" 0.577091
+        "end" 0.685390
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.204819
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.119048
+      param ""
+    }
+    event gesture "A_g_hflipout"
+    {
+      time 0.547619 3.144099
+      param "A_g_hflipout"
+      absolutetags playback_time
+      {
+        "apex" 0.155805
+        "accent" 0.376529
+        "loop" 0.623221
+        "end" 0.636455
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.136364
+        "accent" 0.329545
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "A_g_rthdflipout"
+    {
+      time 1.761904 4.728571
+      param "A_g_rthdflipout"
+      event_ramp
+      {
+        0.2917 0.5164
+        0.4417 0.5673
+        2.0750 0.6218
+        2.2208 0.5709
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.147727
+        "accent" 0.332000
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147727
+        "accent" 0.375000
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "56"
+  "ExpressionTool" "40"
+  "RampTool" "48"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,54 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "voice"
+  {
+    event speak "Portal.GlaDOS.core_destroy1_07"
+    {
+      time 0.041667 6.185680
+      param "Portal.GlaDOS.core_destroy1_07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy1_08"
+    {
+      time 6.208335 15.637677
+      param "Portal.GlaDOS.core_destroy1_08"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy1_09"
+    {
+      time 17.567709 21.365055
+      param "Portal.GlaDOS.core_destroy1_09"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_destroy1_10"
+    {
+      time 21.609373 28.222706
+      param "Portal.GlaDOS.core_destroy1_10"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "128"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

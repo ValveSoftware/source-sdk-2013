@@ -1,0 +1,54 @@
+// Choreo version 1
+event loop "loop"
+{
+  time 3.000000 -1.000000
+  param "2.000000"
+  loopcount "-1"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "citadel.al_dadgordonno"
+    {
+      time 0.318519 1.170401
+      param "ep_01.al_gordon"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look at hunter in window"
+    {
+      time 0.000000 3.318518
+      param "hunter_3"
+      event_ramp
+      {
+        0.3780 1.0000
+        2.8187 0.9944
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "90"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

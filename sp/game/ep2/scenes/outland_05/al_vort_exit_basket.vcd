@@ -1,0 +1,157 @@
+// Choreo version 1
+event section "Get to player"
+{
+  time 0.975199 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "move to top"
+    {
+      time 0.020833 1.555555
+      param "mark_alyx_top"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 1.182539 6.210319
+      param "!player"
+      event_ramp
+      {
+        0.8769 0.3463
+        4.2196 0.3463
+      }
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 1.243373 6.185772
+      param "!player"
+      event_ramp
+      {
+        0.6308 0.9784
+        4.3982 0.9827
+      }
+    }
+  }
+  channel "text"
+  {
+    event generic "unholster"
+    {
+      time 3.437500 5.104166
+      param "AI_UNHOLSTER"
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "Pause"
+    {
+      time 4.645833 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "D:\DEV\main\game\ep2\models\alyx.mdl"
+}
+
+actor "Vort"
+{
+  channel "audio"
+  {
+    event speak "npc_vortigaunt.leadus"
+    {
+      time 2.854167 4.027682
+      param "npc_vortigaunt.leadus"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to top"
+    {
+      time 0.007936 1.391865
+      param "mark_vort_top"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 1.188492 6.142856
+      param "!player"
+      event_ramp
+      {
+        0.6846 0.2900
+        4.0192 0.2900
+      }
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 1.230159 6.166667
+      param "!player"
+      event_ramp
+      {
+        0.7308 0.9697
+        4.2538 0.9697
+      }
+    }
+  }
+  channel "text"
+  {
+    event gesture "1"
+    {
+      time 2.750000 4.716667
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.3769 0.8355
+        1.3769 0.8095
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "32"
+  "RampTool" "52"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

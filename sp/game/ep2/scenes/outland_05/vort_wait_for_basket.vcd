@@ -1,0 +1,73 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.925926 -1.000000
+  param "noaction"
+}
+actor "Vort"
+{
+  channel "Debug text"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "move to near basket"
+    {
+      time -0.012345 1.203704
+      param "mark_vort_wait"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 1.755556 2.781482
+      param "!player"
+      event_ramp
+      {
+        0.3020 0.9697
+        0.7500 0.9654
+      }
+    }
+    event face "face basket"
+    {
+      time 0.951852 1.944760
+      param "basket_brushes"
+      event_ramp
+      {
+        0.2520 1.0000
+        0.7640 0.9697
+      }
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 1.755556 2.788889
+      param "!player"
+      event_ramp
+      {
+        0.2680 0.9740
+        0.7800 0.9610
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "94"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

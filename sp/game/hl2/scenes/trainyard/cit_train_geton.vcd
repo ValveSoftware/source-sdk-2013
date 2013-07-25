@@ -1,0 +1,227 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "cit_train_geton"
+    {
+      time 1.000000 2.113719
+      param "opening.cit_train_geton"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "faceto"
+  {
+    event face "!player"
+    {
+      time 0.006667 5.020000
+      param "!player"
+      event_ramp
+      {
+        0.0740 0.0307
+        0.1340 0.0819
+        0.5138 0.3746
+        0.6458 0.4599
+        0.8298 0.4872
+        2.9185 0.5043
+        3.5566 0.4872
+        3.8708 0.4360
+        4.0578 0.3643
+        4.7591 0.0717
+        4.8861 0.0239
+      }
+    }
+    active "0"
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.006667 5.440001
+      param "!player"
+      event_ramp
+      {
+        0.4320 0.8703
+        0.4920 0.9590
+        0.6200 1.0000
+        4.1949 1.0000
+        4.4826 0.9522
+        4.6308 0.8737
+        5.3510 0.0307
+      }
+    }
+  }
+  channel "body_gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.873333
+      param ""
+    }
+  }
+  channel "head flex"
+  {
+    event flexanimation "head flex"
+    {
+      time 1.260000 5.200000
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.4131 0.7050
+          0.5029 0.7187
+          1.0858 0.7187
+          1.3361 0.4937
+          1.8131 0.4599
+          2.0474 0.4606
+          2.2745 0.6104
+          2.3642 0.6200
+          2.7001 0.6272
+          2.8421 0.6209
+          3.1256 0.5372
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.4131 0.6479
+          0.5029 0.6677
+          1.2275 0.6336
+          1.4158 0.5575
+          1.5862 0.5189
+          2.0047 0.5099
+          2.3727 0.5559
+          2.6271 0.5636
+          3.2283 0.5217
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1920 0.4277
+          0.3439 0.7400
+          0.3957 0.7734
+          0.8114 0.5532
+          1.0317 0.5300
+        }
+      }
+    }
+    event flexanimation "head flex"
+    {
+      time 0.386667 1.126667
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1105 0.6000
+          0.2068 0.6035
+        }
+      }
+    }
+  }
+  channel "eyes flex"
+  {
+    event flexanimation "eyes flex"
+    {
+      time 2.260000 4.993333
+      param ""
+      flexanimations samples_use_time
+      {
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.2769 0.3293
+          0.3676 0.3215
+          0.9240 0.3215
+          0.9713 0.3176
+          1.1786 0.4981
+          1.2149 0.4981
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.2769 0.1589
+          0.3676 0.1589
+          0.9240 0.1589
+          0.9713 0.1589
+          1.1786 0.4981
+          1.2149 0.4981
+        }
+        "blink"        
+        {
+          0.8395 0.0300
+          0.9769 1.0000
+          1.1830 0.0000
+        }
+      }
+    }
+  }
+  channel "face flex"
+  {
+    event flexanimation "face flex"
+    {
+      time 0.273333 5.226666
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.2382 0.8264
+          0.2931 0.8649
+          0.5701 0.8581
+          0.6509 0.8169
+          0.9308 0.0340
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.2382 0.8264
+          0.3011 0.8264
+          0.5541 0.8430
+          0.6509 0.8169
+          0.9308 0.0340
+        }
+        {
+        }
+        "lowerer"         combo        
+        {
+          0.7910 0.0000
+          1.0994 1.0000
+        }
+        {
+        }
+        "lid_raiser"         combo        
+        {
+          0.2382 0.8264
+          0.3011 0.8264
+          0.5541 0.8430
+          0.6509 0.8169
+          0.9308 0.0340
+        }
+        {
+        }
+        "cheek_raiser"         combo        
+        {
+          0.7910 0.0000
+          1.0994 1.0000
+        }
+        {
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "38"
+  "ExpressionTool" "34"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

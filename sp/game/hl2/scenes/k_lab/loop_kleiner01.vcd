@@ -1,0 +1,54 @@
+// Choreo version 1
+event loop "loopy"
+{
+  time 12.133334 -1.000000
+  param "1.500000"
+  loopcount "-1"
+}
+actor "Kleiner"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.116667 13.100001
+      param "!player"
+      event_ramp
+      {
+        0.8303 1.0000
+        12.9833 1.0000
+      }
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "posture"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "Response"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\Kleiner.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "40"
+  "GestureTool" "35"
+  "RampTool" "66"
+  "SceneRampTool" "100"
+  "ExpressionTool" "74"
+}
+fps 60
+snap off

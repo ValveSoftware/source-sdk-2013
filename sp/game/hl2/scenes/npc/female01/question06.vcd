@@ -1,0 +1,131 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "question06"
+    {
+      time 0.006667 3.414150
+      param "npc_citizen.question06"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Facial"
+  {
+    event flexanimation "Facial"
+    {
+      time 0.000000 3.433333
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser"         combo        
+        {
+          1.1893 0.0300
+          1.3266 0.4000
+          1.4430 0.5400
+          1.7071 0.4800
+          1.8921 0.3000
+          1.9961 0.0900
+        }
+        {
+        }
+        "blink"        
+        {
+          0.1775 0.8700
+          0.3303 0.1400
+          0.4075 0.0200
+          1.0224 0.0400
+          1.1550 0.9900
+          1.1893 0.9813
+          1.2969 0.0600
+        }
+        "inner_raiser"         combo        
+        {
+          1.1893 0.0300
+          1.3266 0.5000
+          1.4139 0.5600
+          1.6299 0.4200
+          1.7789 0.0900
+          1.8787 0.0100
+          2.2490 0.0500
+          2.3875 0.4600
+          2.4607 0.5300
+          2.7160 0.4100
+          2.8394 0.1100
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          1.1893 0.0300
+          1.3266 0.5000
+          1.4139 0.5600
+          1.6299 0.4200
+          1.7789 0.0900
+        }
+        {
+        }
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.1393 0.4928
+          0.1580 0.4976
+          0.2421 0.7900
+          0.2566 0.7900
+          1.1438 0.7900
+          1.1688 0.7900
+          1.2262 0.5024
+          1.2491 0.4976
+        }
+      }
+    }
+  }
+  channel "Head"
+  {
+    event flexanimation "Head"
+    {
+      time 0.000000 3.433334
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.1248 0.5374
+          0.4709 0.5395
+          0.6656 0.5216
+          1.0500 0.5216
+          1.2331 0.5113
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1809 0.5512
+          0.3306 0.5657
+          0.4824 0.5683
+          0.7402 0.5707
+          1.1644 0.5634
+          1.2184 0.5560
+          1.3652 0.4925
+          1.4420 0.4802
+          1.8032 0.4746
+          1.9150 0.4893
+          2.2352 0.4950
+          2.5582 0.5251
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "56"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,95 @@
+// Choreo version 1
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event speak "fish_cliffclimb03"
+    {
+      time 0.270833 2.570765
+      param "lostcoast.fish_cliffclimb03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "lookat player"
+    {
+      time 0.055833 2.812500
+      param "!player"
+      event_ramp
+      {
+        0.3550 0.8520
+        2.2800 0.8673
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.750000
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.229167 2.258333
+      param "HG_tiltright"
+      event_ramp
+      {
+        0.2750 0.9949
+        1.5200 1.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.117385
+        "extreme" 0.218001
+        "loop" 0.436003
+        "end" 0.804124
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.145833
+        "extreme" 0.270833
+        "loop" 0.541667
+        "end" 0.791667
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "32"
+  "SceneRampTool" "100"
+  "RampTool" "40"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

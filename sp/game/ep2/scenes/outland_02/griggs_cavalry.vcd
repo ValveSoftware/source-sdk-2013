@@ -1,0 +1,229 @@
+// Choreo version 1
+actor "griggs"
+{
+  channel "audio"
+  {
+    event speak "griggs_calvary"
+    {
+      time 0.447916 3.263925
+      param "ep_02.griggs_calvary"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "sheckley"
+    {
+      time 2.531250 5.770832
+      param "sheckley"
+      event_ramp
+      {
+        0.6970 1.0000
+        2.7039 1.0000
+      }
+    }
+    event lookat "vort_calvary_actor"
+    {
+      time 0.010417 3.020834
+      param "vort_calvary_actor"
+      event_ramp
+      {
+        0.7240 1.0000
+        2.4534 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+    event face "sheckley"
+    {
+      time 2.677083 5.708333
+      param "sheckley"
+      event_ramp
+      {
+        0.7560 0.5152
+        2.2920 0.4892
+      }
+    }
+    event face "vort_calvary_actor"
+    {
+      time 0.020833 3.052083
+      param "vort_calvary_actor"
+      event_ramp
+      {
+        0.7560 0.5152
+        2.2920 0.4892
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 1.385417 3.352084
+      param "bg_down"
+      absolutetags playback_time
+      {
+        "apex" 0.086207
+        "extreme" 0.241379
+        "loop" 0.482759
+        "end" 0.672414
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.086207
+        "extreme" 0.241379
+        "loop" 0.482759
+        "end" 0.672414
+      }
+    }
+  }
+  channel "postures"
+  {
+    event gesture "1"
+    {
+      time 1.208333 3.175000
+      param "g_palm_up_l"
+      absolutetags playback_time
+      {
+        "apex" 0.172414
+        "accent" 0.362069
+        "loop" 0.431034
+        "end" 0.775862
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.172414
+        "accent" 0.362069
+        "loop" 0.431034
+        "end" 0.775862
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+actor "sheckley"
+{
+  channel "audio"
+  {
+    event speak "sheckley_cavalry"
+    {
+      time 2.687500 5.755709
+      param "ep_02.sheckley_cavalry"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "vort_calvary_actor"
+    {
+      time 0.041667 2.583334
+      param "vort_calvary_actor"
+      event_ramp
+      {
+        0.6600 1.0000
+        1.9293 1.0000
+      }
+    }
+    event lookat "griggs"
+    {
+      time 2.104167 5.937500
+      param "griggs"
+      event_ramp
+      {
+        0.6600 1.0000
+        3.2210 1.0000
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "vort_calvary_actor"
+    {
+      time 0.041667 2.625000
+      param "vort_calvary_actor"
+      event_ramp
+      {
+        0.5960 0.5368
+        2.0760 0.4675
+      }
+    }
+    event face "griggs"
+    {
+      time 2.312500 5.906250
+      param "griggs"
+      event_ramp
+      {
+        0.5960 0.5368
+        3.0864 0.4675
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 2.052084 4.385417
+      param "hg_nod_no"
+      event_ramp
+      {
+        0.3520 0.6234
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.072464
+        "extreme" 0.159420
+        "loop" 0.420290
+        "end" 0.913043
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.072464
+        "extreme" 0.159420
+        "loop" 0.420290
+        "end" 0.913043
+      }
+      sequenceduration 2.333333
+    }
+    event gesture "1"
+    {
+      time 3.895833 6.095833
+      param "bg_left"
+      absolutetags playback_time
+      {
+        "apex" 0.153846
+        "extreme" 0.292308
+        "loop" 0.476923
+        "end" 0.723077
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153846
+        "extreme" 0.292308
+        "loop" 0.476923
+        "end" 0.723077
+      }
+      sequenceduration 2.200000
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "RampTool" "50"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

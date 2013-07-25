@@ -1,0 +1,81 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "audio"
+  {
+    event speak "15_part1_partyspeech-1"
+    {
+      time 0.100000 11.824218
+      param "Portal.15_part1_partyspeech-1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_partyspeech-2"
+    {
+      time 12.577778 16.237869
+      param "Portal.15_part1_partyspeech-2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_partyspeech-3"
+    {
+      time 17.103334 21.451248
+      param "Portal.15_part1_partyspeech-3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_partyspeech-4"
+    {
+      time 22.616299 27.593578
+      param "Portal.15_part1_partyspeech-4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_partyspeech-5"
+    {
+      time 28.696669 33.670250
+      param "Portal.15_part1_partyspeech-5"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_partyspeech-6"
+    {
+      time 34.760002 37.938595
+      param "Portal.15_part1_partyspeech-6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "15_part1_partyspeech-7"
+    {
+      time 39.007034 43.237419
+      param "Portal.15_part1_partyspeech-7"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "72"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

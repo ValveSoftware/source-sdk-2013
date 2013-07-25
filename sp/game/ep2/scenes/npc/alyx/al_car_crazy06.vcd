@@ -1,0 +1,100 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_car_callback01"
+    {
+      time 0.500814 1.397594
+      param "ep_02.al_car_crazy06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.084751 2.310108
+      param "!player"
+      event_ramp
+      {
+        0.4880 0.9499
+        1.6667 0.9471
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.043011 2.295699
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "inner_raiser" combo 
+        {
+          0.3961 0.4800
+          0.5781 0.5400
+          1.7188 0.4900
+          1.8688 0.4400
+        }
+        {
+          0.3961 0.7000
+          1.1937 0.5100
+        }
+        "outer_raiser" combo 
+        {
+          0.3961 0.6800
+          0.5313 0.7200
+          1.7594 0.6500
+          1.9000 0.6100
+        }
+        {
+          0.3961 0.6400
+          1.2125 0.4700
+        }
+        "corner_puller" combo 
+        {
+          0.3961 0.2900
+          0.5219 0.2900
+          1.6969 0.2700
+          1.8438 0.2400
+        }
+        {
+          0.3961 0.5000
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "SceneRampTool" "100"
+  "RampTool" "26"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

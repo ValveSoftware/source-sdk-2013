@@ -1,0 +1,136 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_car_callback01"
+    {
+      time 0.350276 2.205900
+      param "ep_02.al_car_crazy04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.041740 2.944517
+      param "!player"
+      event_ramp
+      {
+        0.5034 0.9499
+        2.3056 0.9471
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.064516 2.897850
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lid_raiser" combo 
+        {
+          0.2779 0.3000
+          0.4094 0.3100
+          0.8094 0.3100
+          0.9656 0.2700
+          1.2604 0.0000
+        }
+        {
+          0.2779 0.5000
+          1.2604 0.5000
+        }
+        "inner_raiser" combo 
+        {
+          0.2779 0.7900
+          0.3875 0.8300
+          0.8563 0.8400
+          0.9781 0.8000
+          1.2604 0.1800
+          1.7094 0.4900
+          2.1563 0.4400
+        }
+        {
+          0.2779 0.5000
+          1.2604 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.2779 0.2600
+          1.2604 0.3800
+        }
+        {
+          0.2779 0.5000
+          1.2604 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.9219 0.0000
+          1.2604 0.4700
+          1.4125 0.5200
+          1.8000 0.1900
+          1.9000 0.1800
+        }
+        {
+          1.2604 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.2779 0.1300
+          1.2604 0.1400
+          2.4438 0.0900
+        }
+        {
+          0.2779 0.5000
+          1.2604 0.5000
+        }
+        "corner_puller" combo 
+        {
+          0.2779 0.2900
+          0.4563 0.3400
+          0.8906 0.3300
+          1.2604 0.1800
+          2.5281 0.1200
+        }
+        {
+          0.2779 0.5000
+          1.2604 0.5000
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "SceneRampTool" "100"
+  "RampTool" "26"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

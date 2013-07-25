@@ -1,0 +1,286 @@
+// Choreo version 1
+event section "Movement pause"
+{
+  time 7.026666 -1.000000
+  param "noaction"
+}
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "me?"
+    {
+      time 5.046668 5.770137
+      param "Trainyard.man_me"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "wait a minute"
+    {
+      time 2.226667 3.030522
+      param "Trainyard.man_waitaminute"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "where are you taking me"
+    {
+      time 3.680000 4.725011
+      param "Trainyard.man_whereyoutakingme"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look"
+  {
+    event lookat "Look at target2"
+    {
+      time 0.333333 6.266667
+      param "!target2"
+      event_ramp
+      {
+        0.0579 0.3452
+        0.3895 0.4315
+        1.5263 0.4822
+        3.7579 0.4822
+        5.5368 0.4264
+        5.8789 0.3401
+      }
+    }
+  }
+  channel "Move"
+  {
+    event moveto "Exit"
+    {
+      time 6.659999 7.206667
+      param "!target3"
+      param2 "Walk Close_Distance_Once"
+      resumecondition
+    }
+  }
+  channel "Posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.593333
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 6.613333 7.113333
+      param ""
+    }
+  }
+  channel "BodyGesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.566667
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 6.600000 7.100000
+      param ""
+    }
+    event gesture "bg_accentFwd"
+    {
+      time 3.520000 5.624166
+      param "bg_accentFwd"
+      absolutetags playback_time
+      {
+        "apex" 0.160616
+        "extreme" 0.417602
+        "loop" 0.598812
+        "end" 0.790891
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.138889
+        "extreme" 0.361111
+        "loop" 0.555556
+        "end" 0.694444
+      }
+      sequenceduration 2.433333
+    }
+    event gesture "bg_accentUp"
+    {
+      time 4.880000 7.313333
+      param "bg_accentUp"
+      event_ramp
+      {
+        0.0000 0.5787
+        0.4238 0.5787
+        1.0976 0.5787
+        1.8929 0.5787
+        2.4333 0.5787
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.125000
+        "extreme" 0.305556
+        "loop" 0.555556
+        "end" 0.694444
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.125000
+        "extreme" 0.305556
+        "loop" 0.555556
+        "end" 0.694444
+      }
+    }
+  }
+  channel "Gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.600000
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 6.746667 7.246667
+      param ""
+    }
+    event gesture "g_plead_01"
+    {
+      time 2.146667 4.149196
+      param "g_plead_01"
+      event_ramp
+      {
+        0.0040 0.4112
+        0.3280 0.4112
+        0.8280 0.4112
+        1.1960 0.3858
+        1.5427 0.2487
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.270922
+        "accent" 0.440248
+        "loop" 0.677305
+        "end" 0.864539
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.275862
+        "accent" 0.448276
+        "loop" 0.689655
+        "end" 0.862069
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "G_medpuct_mid"
+    {
+      time 3.426666 5.974758
+      param "G_medpuct_mid"
+      absolutetags playback_time
+      {
+        "apex" 0.177099
+        "accent" 0.300292
+        "loop" 0.436056
+        "end" 0.810541
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.137931
+        "accent" 0.258621
+        "loop" 0.396552
+        "end" 0.517241
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "G_shrug"
+    {
+      time 5.013333 6.920000
+      param "G_shrug"
+      absolutetags playback_time
+      {
+        "apex" 0.251049
+        "accent" 0.377622
+        "loop" 0.496504
+        "end" 0.639860
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.160000
+        "accent" 0.240000
+        "loop" 0.320000
+        "end" 0.440000
+      }
+      sequenceduration 1.700000
+    }
+  }
+  faceposermodel "U:\hl2\hl2\models\Humans\Group01\Male_01.mdl"
+}
+
+actor "!target2"
+{
+  channel "audio"
+  {
+    event speak "you. citizen. come with me."
+    {
+      time 0.026667 1.685329
+      param "Trainyard.ba_youcomewith"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "I said move!"
+    {
+      time 5.426668 6.283562
+      param "Trainyard.ba_move01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "go on"
+    {
+      time 4.286668 4.992496
+      param "Trainyard.ba_goon"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "get in here"
+    {
+      time 2.860000 3.813333
+      param "Trainyard.ba_inhere2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look"
+  {
+    event lookat "Look at target1"
+    {
+      time 0.000000 6.306667
+      param "!target1"
+    }
+  }
+  channel "Move"
+  {
+    event moveto "Exit"
+    {
+      time 6.100000 7.220000
+      param "!target4"
+      param2 "Walk Close_Distance_Once"
+      resumecondition
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "38"
+}
+fps 60
+snap off

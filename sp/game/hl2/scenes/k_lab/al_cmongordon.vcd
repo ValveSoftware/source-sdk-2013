@@ -1,0 +1,70 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "cmon gordon"
+    {
+      time 0.773332 1.549273
+      param "eli_lab.al_comeongord01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look_player"
+    {
+      time 0.080000 2.206667
+      param "!player"
+      event_ramp
+      {
+        0.0462 0.5651
+        0.2308 0.5762
+        1.9282 0.5651
+        2.0359 0.5651
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.000000 1.326667
+      param "!player"
+      event_ramp
+      {
+        1.1731 1.0000
+        1.3267 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

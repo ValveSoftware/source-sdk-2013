@@ -1,0 +1,212 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.100000 -1.000000
+  param "noaction"
+}
+event section "pause_HopDownB"
+{
+  time 6.966667 -1.000000
+  param "noaction"
+}
+event section "Pause_Shelling"
+{
+  time 15.080339 -1.000000
+  param "noaction"
+}
+event stoppoint "end"
+{
+  time 23.520338 -1.000000
+  param "noaction"
+}
+event section "pause_gate"
+{
+  time 23.307009 -1.000000
+  param "noaction"
+}
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event speak "lostcoast.fish_oldleg"
+    {
+      time 0.326667 3.066077
+      param "lostcoast.fish_oldleg"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "lostcoast.fish_lookoutbelow"
+    {
+      time 9.204247 10.433001
+      param "lostcoast.fish_lookoutbelow"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "lostcoast.fish_myback"
+    {
+      time 11.397810 15.256517
+      param "lostcoast.fish_myback"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "fish_holymother"
+    {
+      time 15.904476 18.474113
+      param "lostcoast.fish_holymother"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "fish_bequick"
+    {
+      time 19.091976 22.232634
+      param "lostcoast.fish_bequick"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "lostcoast.fish_hook_grunt03"
+    {
+      time 4.593335 6.964605
+      param "lostcoast.fish_hook_grunt03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "lookat player"
+    {
+      time 18.143644 20.201145
+      param "!player"
+      event_ramp
+      {
+        0.4525 0.7610
+        0.6494 0.8864
+        0.8550 0.9091
+        1.2657 0.9101
+        1.4750 0.8909
+        1.6500 0.7773
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "ss_Fisherman_RockClimbDown"
+    {
+      time 0.013333 0.200000
+      param "ss_Fisherman_RockClimbDown"
+      resumecondition
+    }
+    event moveto "mark_fisherman_gateLead01"
+    {
+      time 14.098645 16.364477
+      param "mark_fisherman_gateLead01"
+      param2 "Walk"
+      resumecondition
+    }
+    event moveto "ss_Fisherman_RockClimbDown_B"
+    {
+      time 6.050224 7.013333
+      param "ss_Fisherman_RockClimbDown_B"
+      resumecondition
+    }
+    event moveto "mark_fisherman_gateLead02"
+    {
+      time 21.885311 23.497810
+      param "mark_fisherman_gateLead02"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 18.177811 19.944477
+      param "!player"
+      event_ramp
+      {
+        0.7350 0.8525
+        0.9050 0.9631
+        1.0847 1.0000
+        1.7667 1.0000
+      }
+    }
+    event face "mark_rockclimbdown02"
+    {
+      time 6.106666 7.000000
+      param "mark_rockclimbdown02"
+      event_ramp
+      {
+        0.6216 1.0000
+        0.8933 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "3_Shelling"
+    {
+      time 15.344479 -1.000000
+      param "3"
+    }
+    event firetrigger "1_ss_Fisherman_RockClimbDown"
+    {
+      time 0.180000 -1.000000
+      param "1"
+    }
+    event firetrigger "2_ss_Fisherman_RockClimbDown_B"
+    {
+      time 7.066666 -1.000000
+      param "2"
+    }
+  }
+  channel "NULL"
+  {
+    event sequence "NULL"
+    {
+      time 0.180000 6.013333
+      param "rockClimbDown"
+      fixedlength
+    }
+    event sequence "NULL"
+    {
+      time 7.066666 13.133333
+      param "rockClimbDown_B"
+      fixedlength
+    }
+  }
+  faceposermodel "U:\hl2\hl2\models\lostcoast\fisherman\Fisherman.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "40"
+  "SceneRampTool" "100"
+  "RampTool" "108"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

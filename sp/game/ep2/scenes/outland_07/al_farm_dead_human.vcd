@@ -1,0 +1,105 @@
+// Choreo version 1
+event loop "dead_loop"
+{
+  time 3.781250 -1.000000
+  param "0.000000"
+  loopcount "-1"
+}
+actor "dead_advisor_human"
+{
+  channel "Flex"
+  {
+    event flexanimation "flex"
+    {
+      time 0.010417 19.854166
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lid_closer" combo 
+        {
+          0.0000 1.0000 "curve_linear_interp_to_curve_linear_interp"
+          0.0258 1.0000 "curve_linear_interp_to_curve_linear_interp"
+          2.9896 1.0000 "curve_linear_interp_to_curve_linear_interp"
+        }
+        {
+          0.0000 0.5000
+          0.0258 0.5000
+          2.9896 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.0000 0.0000
+          2.9896 0.0000
+        }
+        {
+          0.0000 0.5000
+          2.9896 0.5000
+        }
+        "dilator" 
+        {
+          0.0000 0.0000
+          2.9896 0.0000
+        }
+        "chin_raiser" 
+        {
+          0.0000 0.0000
+          2.9896 0.0000
+        }
+        "part" combo 
+        {
+          0.0000 0.7000 "curve_linear_interp_to_curve_linear_interp"
+          2.9896 0.7000 "curve_linear_interp_to_curve_linear_interp"
+        }
+        {
+          0.0000 0.5000
+          2.9896 0.5000
+        }
+        "presser" 
+        {
+          0.0000 0.0000
+          2.9896 0.0000
+        }
+        "tightener" 
+        {
+          0.0000 0.0000
+          2.9896 0.0000
+        }
+        "jaw_clencher" 
+        {
+          0.0000 0.1100 "curve_linear_interp_to_curve_linear_interp"
+          2.9896 0.1100
+        }
+        "jaw_drop" 
+        {
+          0.0000 0.2200 "curve_linear_interp_to_curve_linear_interp"
+          2.9896 0.2200 "curve_linear_interp_to_curve_linear_interp"
+        }
+        "mouth_drop" combo 
+        {
+          0.0000 0.6500 "curve_linear_interp_to_curve_linear_interp"
+          2.9896 0.6500 "curve_linear_interp_to_curve_linear_interp"
+        }
+        {
+          0.0000 0.5000 "curve_linear_interp_to_curve_linear_interp"
+          2.9896 0.5000 "curve_linear_interp_to_curve_linear_interp"
+        }
+        "smile" 
+        {
+          0.0000 0.0000
+          2.9896 0.0000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "RampTool" "100"
+  "ExpressionTool" "26"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

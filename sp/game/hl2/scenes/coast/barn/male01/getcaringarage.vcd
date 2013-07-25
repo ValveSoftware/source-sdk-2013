@@ -1,0 +1,100 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "getcaringarage"
+    {
+      time 0.026667 1.645216
+      param "barn.getcaringarage"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "look at player"
+    {
+      time 0.026666 1.639998
+      param "!player"
+      event_ramp
+      {
+        0.4080 0.8869
+        0.4940 0.9781
+        0.6120 1.0000
+        0.9920 1.0000
+        1.0740 0.9745
+        1.1580 0.8832
+      }
+    }
+  }
+  channel "face"
+  {
+    event face "!player"
+    {
+      time 0.019999 1.619999
+      param "!player"
+      event_ramp
+      {
+        0.5940 0.8394
+        0.7060 0.9416
+        0.8500 1.0000
+        1.4820 1.0000
+        1.6000 1.0000
+      }
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.566667
+      param ""
+    }
+    event gesture "b_OverHere_Right"
+    {
+      time 0.220000 2.020000
+      param "b_OverHere_Right"
+      event_ramp
+      {
+        0.2560 0.7482
+        0.3220 0.8832
+        0.4420 0.9745
+        0.7220 0.9635
+        0.9260 0.7518
+        1.3200 0.1496
+        1.5120 0.0146
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

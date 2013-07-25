@@ -1,0 +1,238 @@
+// Choreo version 1
+actor "vort"
+{
+  channel "play wav"
+  {
+    event speak "ep_02.vort_extract_summoned"
+    {
+      time 0.450000 2.498005
+      param "ep_02.vort_extract_summoned"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Flex"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.020833 3.114583
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "center_lid_raiser" 
+        {
+          0.8333 0.0000
+          1.0156 0.0000
+          1.1823 0.0000
+          1.2240 0.0617
+          1.4167 0.4800
+          1.4531 0.5229
+          1.7969 0.6519
+          1.8542 0.6217
+          2.2188 0.0000
+        }
+        "center_lid_droop" 
+        {
+          0.8333 0.0000
+          0.8333 0.0000
+          1.0104 0.4600
+          1.0104 0.4600
+          1.0156 0.4570
+          1.1823 0.2740
+          1.2240 0.2227
+          1.4167 0.0000
+          1.4531 0.0000
+          1.7969 0.0000
+          1.8542 0.0000
+          2.2188 0.0000
+        }
+        "center_lid_closer" 
+        {
+          0.0298 0.0000
+          0.1006 1.0000
+          0.1779 0.0000
+          0.8333 0.0000
+          0.8333 0.0000
+          1.0104 0.0000
+          1.0104 0.0000
+          1.0156 0.0000
+          1.1823 0.0000
+          1.2240 0.0000
+          1.4167 0.0000
+          1.4531 0.0000
+          1.7969 0.0000
+          1.8542 0.0000
+          2.2188 0.0000
+        }
+        "half_closed" 
+        {
+          0.8333 0.0000
+          0.8333 0.0000
+          1.0104 0.0000
+          1.0104 0.0000
+          1.0156 0.0000
+          1.1823 0.0000
+          1.2240 0.0000
+          1.4167 0.0000
+          1.4531 0.0000
+          1.7969 0.0000
+          1.8542 0.0000
+          2.2188 0.0000
+        }
+        "eyes_updown" range 30.0 -30.0 
+        {
+          0.8333 0.5000
+          1.0156 0.5000
+          1.2240 0.5000
+          1.4531 0.5000
+          1.7969 0.5000
+        }
+        "head_forwardback" range 0.2 -0.2 
+        {
+          1.0156 0.5200
+          1.2240 0.6500
+          1.4531 0.3700
+          1.7969 0.5100
+        }
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "Face !player"
+    {
+      time 0.366667 2.000000
+      param "!player"
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Look at !player"
+    {
+      time 0.116667 2.850001
+      param "!player"
+      event_ramp
+      {
+        0.2577 0.4417
+        0.4308 0.8039
+        0.5423 0.9223
+        0.7038 0.9806
+        0.9077 1.0000
+        1.8038 1.0000
+        1.9846 0.9823
+        2.1731 0.9134
+        2.3038 0.7544
+        2.4615 0.3039
+      }
+    }
+  }
+  channel "fire trigger"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "hg_acc_down"
+    {
+      time 1.200000 3.166667
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.6962 0.2332
+        1.1154 0.2244
+        1.3346 0.1290
+        1.5308 0.0318
+        1.7731 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+    }
+    event gesture "g_palm_whoa"
+    {
+      time 0.583334 2.883333
+      param "g_palm_whoa"
+      event_ramp
+      {
+        0.6462 0.3905
+        1.1192 0.1572
+        1.3500 0.0512
+        1.4962 0.0141
+        1.6615 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.308824
+        "accent" 0.514706
+        "loop" 0.882353
+        "end" 0.897059
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.308824
+        "accent" 0.514706
+        "loop" 0.882353
+        "end" 0.897059
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "g_palm_whoa_Right"
+    {
+      time 0.343750 2.643750
+      param "g_palm_whoa_Right"
+      event_ramp
+      {
+        0.6692 0.3816
+        1.6154 0.3428
+        1.9346 0.1113
+        2.1692 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.308824
+        "accent" 0.514706
+        "loop" 0.882353
+        "end" 0.897059
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.308824
+        "accent" 0.514706
+        "loop" 0.882353
+        "end" 0.897059
+      }
+    }
+  }
+  channel "posture"
+  {
+  }
+  channel "text"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "128"
+  "RampTool" "52"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

@@ -1,0 +1,211 @@
+// Choreo version 1
+actor "Aperture_AI"
+{
+  channel "speech"
+  {
+    event speak "Portal.GlaDOS.core_nag_1"
+    {
+      time 2.725000 8.378333
+      param "Portal.GlaDOS.core_nag_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_2"
+    {
+      time 12.728333 16.984343
+      param "Portal.GlaDOS.core_nag_2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_3"
+    {
+      time 20.693333 25.973333
+      param "Portal.GlaDOS.core_nag_3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_4"
+    {
+      time 31.081665 35.700352
+      param "Portal.GlaDOS.core_nag_4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_5"
+    {
+      time 38.559994 45.599995
+      param "Portal.GlaDOS.core_nag_5"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_6"
+    {
+      time 49.188332 54.073685
+      param "Portal.GlaDOS.core_nag_6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_7"
+    {
+      time 58.575001 65.337677
+      param "Portal.GlaDOS.core_nag_7"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_8"
+    {
+      time 69.281670 74.081673
+      param "Portal.GlaDOS.core_nag_8"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_9"
+    {
+      time 80.763336 85.467346
+      param "Portal.GlaDOS.core_nag_9"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_13"
+    {
+      time 91.513893 93.455231
+      param "Portal.GlaDOS.core_nag_13"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_14"
+    {
+      time 101.722221 105.604897
+      param "Portal.GlaDOS.core_nag_14"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_15"
+    {
+      time 125.371048 127.280388
+      param "Portal.GlaDOS.core_nag_15"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "Portal.GlaDOS.core_nag_16"
+    {
+      time 114.625008 119.137024
+      param "Portal.GlaDOS.core_nag_16"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event interrupt "i1"
+    {
+      time 47.894451 48.727783
+      param ""
+    }
+    event interrupt "i2"
+    {
+      time 56.835522 57.543858
+      param ""
+    }
+    event interrupt "i3"
+    {
+      time 68.335526 68.835526
+      param ""
+    }
+    event interrupt "i4"
+    {
+      time 78.682747 79.807747
+      param ""
+    }
+    event interrupt "i5"
+    {
+      time 100.458336 101.250000
+      param ""
+    }
+    event interrupt "i6"
+    {
+      time 113.458336 113.958336
+      param ""
+    }
+    event interrupt "i7"
+    {
+      time 119.458344 120.639542
+      param ""
+    }
+    event interrupt "Interrupt"
+    {
+      time 37.333336 38.291668
+      param ""
+    }
+    event interrupt "Interrupt"
+    {
+      time 29.055557 29.972223
+      param ""
+    }
+    event interrupt "Interrupt"
+    {
+      time 18.611113 19.069445
+      param ""
+    }
+    event interrupt "Interrupt"
+    {
+      time 9.152779 9.652779
+      param ""
+    }
+    event speak "Portal.GlaDOS.core_nag_16"
+    {
+      time 135.958344 140.470367
+      param "Portal.GlaDOS.core_nag_16"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event interrupt "ilast"
+    {
+      time 127.666664 128.166656
+      param ""
+    }
+
+    event firetrigger "backtorandom1"
+    {
+      time 0.000001 -1.000000
+      param "2"
+    }
+
+  }
+}
+
+scalesettings
+{
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "CChoreoView" "16"
+}
+fps 60
+snap off

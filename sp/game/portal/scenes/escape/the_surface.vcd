@@ -1,0 +1,53 @@
+// Choreo version 1
+actor "tim_larkin"
+{
+  channel "audio"
+  {
+    event speak "the_surface-1"
+    {
+      time 0.000000 4.000000
+      param "escape.the_surface-1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "the_surface-2"
+    {
+      time 4.000000 8.000000
+      param "escape.the_surface-2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "the_surface-3"
+    {
+      time 8.000000 12.000000
+      param "escape.the_surface-3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+    event speak "the_surface-4"
+    {
+      time 12.000000 18.133333
+      param "escape.the_surface-4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+      cc_noattenuate
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

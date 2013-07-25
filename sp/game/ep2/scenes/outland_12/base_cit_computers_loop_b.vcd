@@ -1,0 +1,130 @@
+// Choreo version 1
+event loop "loop scene"
+{
+  time 22.730768 -1.000000
+  param "0.000000"
+  loopcount "-1"
+}
+actor "!target1"
+{
+  channel "lookat"
+  {
+    event lookat "look at monitor"
+    {
+      time 10.572446 15.216454
+      param "cit_computers_lookat_monitor"
+    }
+    event lookat "look at panel"
+    {
+      time 15.288368 22.590353
+      param "cit_computers_lookat_panel"
+    }
+    event lookat "look at panel"
+    {
+      time 0.087302 4.861417
+      param "cit_computers_lookat_panel"
+    }
+    event lookat "look at monitor"
+    {
+      time 5.122710 10.503663
+      param "cit_computers_lookat_monitor"
+    }
+  }
+  channel "faceto"
+  {
+    event face "face monitor"
+    {
+      time 10.572446 15.477615
+      param "cit_computers_lookat_monitor"
+    }
+    event face "face panel"
+    {
+      time 15.513636 22.548841
+      param "cit_computers_lookat_panel"
+    }
+    event face "face panel"
+    {
+      time 0.104192 4.899879
+      param "cit_computers_lookat_panel"
+    }
+    event face "face monitor"
+    {
+      time 5.309166 10.501019
+      param "cit_computers_lookat_monitor"
+    }
+  }
+  channel "moveto"
+  {
+    event moveto "move to monitor"
+    {
+      time 5.504615 10.535409
+      param "cit_computers_moveto_monitor"
+    }
+    event moveto "move to panel"
+    {
+      time 16.073475 22.545786
+      param "cit_computers_moveto_panel"
+    }
+    event moveto "move to panel"
+    {
+      time 0.188858 3.943222
+      param "cit_computers_moveto_panel"
+    }
+  }
+  channel "postures"
+  {
+    event gesture "p_stepin"
+    {
+      time 10.714388 15.285929
+      param "p_stepin"
+      absolutetags playback_time
+      {
+        "apex" 0.134150
+        "loop" 0.305272
+        "end" 0.719769
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.279412
+        "loop" 0.441176
+        "end" 0.735294
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "g_R_type"
+    {
+      time 10.951567 15.209260
+      param "g_R_type"
+      absolutetags playback_time
+      {
+        "apex" 0.120489
+        "accent" 0.259036
+        "loop" 0.433735
+        "end" 0.716867
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.305556
+        "accent" 0.416667
+        "loop" 0.574074
+        "end" 0.833333
+      }
+      sequenceduration 3.633333
+    }
+  }
+  faceposermodel "models\humans\group03\male_02.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

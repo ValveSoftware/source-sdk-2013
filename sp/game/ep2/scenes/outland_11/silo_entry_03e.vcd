@@ -1,0 +1,384 @@
+// Choreo version 1
+event loop "loop"
+{
+  time 21.875290 -1.000000
+  param "20.799999"
+  loopcount "-1"
+}
+event stoppoint "END"
+{
+  time 22.319950 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "Kleiner"
+    {
+      time 1.364424 20.541473
+      param "Kleiner"
+      event_ramp
+      {
+        1.0588 0.9922
+        18.6674 0.9796
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_mossman"
+    {
+      time 0.028647 1.249447
+      param "mark_al_mossman"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "mark_look_console"
+    {
+      time 0.062903 20.647274
+      param "mark_look_console"
+      event_ramp
+      {
+        0.9941 1.0000
+        19.0045 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodygestures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "headf"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "eyes"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "6.  emp_con"
+    {
+      time 2.085367 -1.000000
+      param "6"
+    }
+  }
+  channel "temp"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "Eli"
+{
+  channel "audio"
+  {
+    event speak "hurryizzy"
+    {
+      time 12.720431 13.563606
+      param "ep_02.eli_silo_hurryizzy"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.148637 2.670021
+      param "!player"
+      event_ramp
+      {
+        0.6765 0.9671
+        1.9514 0.9592
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "kleiner"
+    {
+      time 2.255722 5.861427
+      param "kleiner"
+    }
+    event face "Alyx"
+    {
+      time 0.179651 1.232355
+      param "Alyx"
+    }
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.211734 0.712138
+      param ""
+    }
+  }
+  channel "body"
+  {
+    event gesture "NULL"
+    {
+      time 0.164817 0.665220
+      param ""
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.259197 0.759601
+      param ""
+    }
+  }
+  channel "head"
+  {
+    event gesture "NULL"
+    {
+      time 0.196645 0.697048
+      param ""
+    }
+  }
+  channel "facial"
+  {
+    event gesture "NULL"
+    {
+      time 0.206518 0.706924
+      param ""
+    }
+  }
+  channel "triggers"
+  {
+    event gesture "NULL"
+    {
+      time 0.208648 0.709054
+      param ""
+    }
+  }
+  faceposermodel "U:\hl2\hl2\models\Eli.mdl"
+}
+
+actor "Kleiner"
+{
+  channel "audio"
+  {
+    event speak "kl_silo_hm"
+    {
+      time 2.740830 4.192077
+      param "ep_02.kl_silo_hm"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "kl_silo_trove01"
+    {
+      time 4.248076 7.562725
+      param "ep_02.kl_silo_trove01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "kl_silo_trove02"
+    {
+      time 7.677717 13.674271
+      param "ep_02.kl_silo_trove02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "kl_silo_goingover01"
+    {
+      time 13.597773 17.684484
+      param "ep_02.kl_silo_goingover01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "kl_silo_goingover02"
+    {
+      time 18.293427 20.574787
+      param "ep_02.kl_silo_goingover02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "mark_look_console"
+    {
+      time 0.168763 7.451377
+      param "mark_look_console"
+      event_ramp
+      {
+        0.9824 1.0000
+        6.3082 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "mark_look_console"
+    {
+      time 0.180498 20.313160
+      param "mark_look_console"
+      event_ramp
+      {
+        1.0235 1.0000
+        18.7547 1.0000
+      }
+    }
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.288702 0.789106
+      param ""
+    }
+  }
+  channel "body"
+  {
+    event gesture "NULL"
+    {
+      time 0.249828 0.750233
+      param ""
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.222751 0.678711
+      param ""
+    }
+    event gesture "g_emp_carry"
+    {
+      time -0.020774 2.163827
+      param "g_emp_carry"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.6286 1.0000
+        2.0675 1.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.093628
+        "accent" 0.187221
+        "loop" 0.285739
+        "end" 0.729542
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.131579
+        "accent" 0.210526
+        "loop" 0.263158
+        "end" 0.789474
+      }
+      sequenceduration 1.300000
+    }
+    event gesture "g_emp_insert"
+    {
+      time 0.997291 2.958427
+      param "g_emp_insert"
+      absolutetags playback_time
+      {
+        "in" 0.198059
+        "out" 0.960000
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.086207
+        "out" 0.948276
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "typinggesture"
+    {
+      time 2.432999 23.319599
+      param "typinggesture"
+      absolutetags playback_time
+      {
+        "in" 0.019151
+        "loop" 0.044048
+        "end" 0.970119
+        "out" 0.986090
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.138889
+        "loop" 0.305556
+        "end" 0.805556
+        "out" 0.902778
+      }
+      sequenceduration 2.433333
+    }
+  }
+  channel "head"
+  {
+    event gesture "NULL"
+    {
+      time 0.175532 0.675936
+      param ""
+    }
+  }
+  channel "facial"
+  {
+    event gesture "NULL"
+    {
+      time 0.163018 0.663423
+      param ""
+    }
+  }
+  channel "triggers"
+  {
+    event gesture "NULL"
+    {
+      time 0.186105 0.686510
+      param ""
+    }
+    event firetrigger "2 - accept resume"
+    {
+      time 13.642909 -1.000000
+      param "2"
+    }
+    event firetrigger "1. emp switch"
+    {
+      time 2.064516 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "U:\hl2\hl2\models\Eli.mdl"
+}
+
+mapname "maps\d1_eli\d1_eli_01_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "40"
+  "GestureTool" "10"
+  "RampTool" "42"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
