@@ -1,0 +1,148 @@
+// Choreo version 1
+event section "look at player"
+{
+  time 1.913978 -1.000000
+  param "noaction"
+}
+event section "b"
+{
+  time 6.387097 -1.000000
+  param "noaction"
+}
+event section "pN"
+{
+  time 5.962963 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event generic "text"
+    {
+      time 1.866189 3.476703
+      param "debugtext Alyx: did you hear that Gorden? it came from..."
+    }
+    event generic "text"
+    {
+      time 3.651732 4.270012
+      param "debugtext Alyx: whats that?"
+    }
+    event generic "text"
+    {
+      time 5.105436 5.723716
+      param "debugtext Alyx: Zombies!"
+    }
+  }
+  channel "look at"
+  {
+    event lookat "elevator_shaft_look"
+    {
+      time 2.505377 6.368878
+      param "elevator_shaft_look"
+      event_ramp
+      {
+        0.3385 0.9601
+        3.4453 0.9681
+      }
+    }
+    event lookat "player"
+    {
+      time -0.021505 1.925281
+      param "!player"
+      resumecondition
+    }
+  }
+  channel "move to"
+  {
+    event moveto "elevator_shaft_stand"
+    {
+      time 0.000000 2.715055
+      param "elevator_shaft_stand"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "move_back"
+    {
+      time 5.020908 6.379630
+      param "elevator_shaftoutside_stand"
+      param2 "Run"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "face_zombies"
+    {
+      time 4.172043 6.154720
+      param "elevator_shaft_look"
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+    event generic "unholster"
+    {
+      time -0.010753 0.489247
+      param "AI_UNHOLSTER"
+    }
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+    event generic "point"
+    {
+      time 1.913978 6.304359
+      param "AI_AIM"
+      param2 "elevator_shaft_look"
+    }
+    event gesture "point"
+    {
+      time 0.000000 6.379630
+      param "a_g_point"
+      absolutetags playback_time
+      {
+        "in" 0.348837
+        "loop" 0.508721
+        "end" 0.943314
+        "out" 0.986919
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.169811
+        "loop" 0.471698
+        "end" 0.566038
+        "out" 0.716981
+      }
+      sequenceduration 1.800000
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "72"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,65 @@
+// Choreo version 1
+event loop "loop"
+{
+  time 18.000000 -1.000000
+  param "10.000000"
+  loopcount "-1"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "huyjmm"
+    {
+      time 4.573334 9.281610
+      param "eli_lab.al_hums_b"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "huyjmm"
+    {
+      time 0.400000 3.338322
+      param "eli_lab.al_hums"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "TEMP"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

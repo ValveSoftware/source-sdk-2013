@@ -1,0 +1,71 @@
+// Choreo version 1
+actor "alyx"
+{
+  channel "Audio"
+  {
+  }
+  channel "lookAt"
+  {
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.160000
+      param ""
+    }
+    event gesture "postCombat"
+    {
+      time 0.180000 5.166667
+      param "alyx_postCombat"
+      absolutetags playback_time
+      {
+        "apex" 0.054813
+        "loop" 0.141711
+        "end" 0.717914
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.073529
+        "loop" 0.250000
+        "end" 0.573529
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

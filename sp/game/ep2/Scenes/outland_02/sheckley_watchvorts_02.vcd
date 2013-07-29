@@ -1,0 +1,72 @@
+// Choreo version 1
+actor "sheckley"
+{
+  channel "audio"
+  {
+    event speak "sheckley_killlion"
+    {
+      time 0.138888 1.785169
+      param "ep_02.sheckley_watchvorts_02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.072917 2.125000
+      param "!player"
+      event_ramp
+      {
+        0.5121 1.0000
+        1.4483 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.093751 1.870834
+      param "bg_up_l"
+      absolutetags playback_time
+      {
+        "apex" 0.176274
+        "extreme" 0.348682
+        "loop" 0.482777
+        "end" 0.674341
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.085106
+        "extreme" 0.276596
+        "loop" 0.425532
+        "end" 0.638298
+      }
+      sequenceduration 1.600000
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "RampTool" "66"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

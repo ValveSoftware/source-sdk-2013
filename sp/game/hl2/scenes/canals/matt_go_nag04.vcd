@@ -1,0 +1,61 @@
+// Choreo version 1
+actor "matt"
+{
+  channel "audio"
+  {
+    event speak "matt_go_nag04"
+    {
+      time 0.259894 1.022547
+      param "canals.matt_go_nag04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "Lookat_player"
+    {
+      time 0.018246 1.258140
+      param "!player"
+      event_ramp
+      {
+        0.1133 0.7720
+        0.2267 0.9214
+        0.4467 0.9937
+        0.7532 1.0000
+        1.0199 0.9324
+        1.1465 0.7767
+      }
+    }
+  }
+  channel "Face to"
+  {
+  }
+  channel "Move to"
+  {
+  }
+  channel "Posture"
+  {
+  }
+  channel "Gesture"
+  {
+  }
+  channel "Flex anim"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "63"
+  "RampTool" "10"
+  "SceneRampTool" "100"
+  "ExpressionTool" "38"
+  "GestureTool" "100"
+}
+fps 60
+snap off

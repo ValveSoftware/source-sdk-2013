@@ -1,0 +1,109 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "answer33"
+    {
+      time 0.000000 1.267370
+      param "npc_citizen.answer33"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Facial"
+  {
+    event flexanimation "Facial"
+    {
+      time -0.006667 1.280000
+      param ""
+      flexanimations samples_use_time
+      {
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.1167 0.3562
+          0.1453 0.3562
+          0.5931 0.3562
+          0.6253 0.3562
+          0.7353 0.5100
+          0.7678 0.5100
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.1167 0.4487
+          0.1453 0.4500
+          0.5931 0.4500
+          0.6253 0.4518
+          0.7353 0.5100
+          0.7678 0.5100
+        }
+        "inner_raiser"         combo        
+        {
+          0.1934 0.7500
+          0.2786 0.8200
+          0.5671 0.7600
+          0.6399 0.7200
+          0.8296 0.0700
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+        }
+        {
+        }
+      }
+    }
+  }
+  channel "Head"
+  {
+    event flexanimation "Head"
+    {
+      time -0.000000 1.280000
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.0520 0.5059
+          0.2687 0.5489
+          0.3633 0.5550
+          0.5951 0.5530
+          0.6713 0.5490
+          0.9232 0.5111
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.1020 0.5136
+          0.2687 0.5922
+          0.3633 0.6085
+          0.6111 0.6039
+          0.6873 0.5923
+          0.9648 0.5115
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.2687 0.4373
+          0.3633 0.4310
+          0.5951 0.4347
+          0.6713 0.4453
+          0.9419 0.4915
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

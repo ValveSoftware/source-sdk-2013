@@ -1,0 +1,210 @@
+// Choreo version 1
+actor "vort"
+{
+  channel "play wav"
+  {
+    event speak "vemotings01"
+    {
+      time 0.633334 5.542858
+      param "ep_02.vort_rbed_vemotings01"
+      param2 "0.6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "whatharm"
+    {
+      time 10.016666 11.785782
+      param "ep_02.vort_rbed_whatharm"
+      param2 "0.4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_freeman01"
+    {
+      time 14.616667 16.674082
+      param "ep_02.vort_rbed_freeman01"
+      param2 "0.420"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_freeman02"
+    {
+      time 16.850000 20.493855
+      param "ep_02.vort_rbed_freeman02"
+      param2 "0.650"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_freeman03"
+    {
+      time 20.733334 25.468639
+      param "ep_02.vort_rbed_freeman03"
+      param2 "0.450"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_freeman04"
+    {
+      time 27.268517 31.486679
+      param "ep_02.vort_rbed_freeman04"
+      param2 "0.50"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_freeman05"
+    {
+      time 32.027779 34.701271
+      param "ep_02.vort_rbed_freeman05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "thealyx"
+    {
+      time 5.766667 9.260250
+      param "ep_02.vort_rbed_thealyx"
+      param2 "0.450"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_call"
+    {
+      time 35.061108 44.931335
+      param "ep_02.vort_call"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_companions02"
+    {
+      time 52.715279 54.720291
+      param "ep_02.vort_rbed_companions02"
+      param2 "0.6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_companions01"
+    {
+      time 48.402779 52.151939
+      param "ep_02.vort_rbed_companions01"
+      param2 "0.6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_companions03"
+    {
+      time 55.152771 60.016262
+      param "ep_02.vort_rbed_companions03"
+      param2 "0.650"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_intomines01"
+    {
+      time 62.194447 64.320618
+      param "ep_02.vort_rbed_intomines01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rbed_intomines02"
+    {
+      time 64.842606 68.037003
+      param "ep_02.vort_rbed_intomines02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 14.816667 17.349998
+      param "!player"
+    }
+  }
+  channel "look at"
+  {
+    event lookat "alyx"
+    {
+      time 12.533334 14.066667
+      param "alyx"
+    }
+    event lookat "!player"
+    {
+      time 14.250000 19.416666
+      param "!player"
+    }
+    event firetrigger "vort_blast"
+    {
+      time 25.636633 -1.000000
+      param "2"
+    }
+  }
+  channel "fire trigger"
+  {
+    event firetrigger "heal"
+    {
+      time 0.106481 -1.000000
+      param "1"
+    }
+    event firetrigger "pickup"
+    {
+      time 46.009258 -1.000000
+      param "3"
+    }
+    event firetrigger "pause"
+    {
+      time 64.175926 -1.000000
+      param "4"
+    }
+  }
+  channel "gesture"
+  {
+    event sequence "seq"
+    {
+      time 0.066667 12.066667
+      param "fallen_pose_vort"
+      fixedlength
+    }
+    event sequence "Carry_Pickup"
+    {
+      time 46.000000 61.000000
+      param "Carry_Pickup"
+      fixedlength
+    }
+    active "0"
+  }
+  channel "posture"
+  {
+  }
+  channel "text"
+  {
+  }
+  faceposermodel "models\vortigaunt2.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "48"
+  "RampTool" "18"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

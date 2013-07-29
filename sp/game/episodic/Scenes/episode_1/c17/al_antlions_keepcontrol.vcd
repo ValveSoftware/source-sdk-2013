@@ -1,0 +1,108 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_antlions_keepcontrol"
+    {
+      time 0.062500 2.303226
+      param "ep_01.al_antlions_keepcontrol"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "lookit"
+    {
+      time 0.080000 2.853055
+      param "!player"
+      event_ramp 
+      {
+        0.4415 0.3204
+        2.2826 0.3481
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "facial"
+    {
+      time 0.048612 2.729167
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser" combo 
+        {
+          0.3878 0.1400
+          1.1760 0.1500
+          1.7000 0.2500
+          2.2660 0.1800
+        }
+        {
+          0.3878 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.3878 0.6100
+          0.6240 0.6600
+          1.1640 0.7300
+          1.6120 0.5700
+          2.2220 0.6700
+          2.3000 0.6300
+        }
+        {
+          0.3878 0.5000
+        }
+        "head_rightleft" range 30.0 -30.0 
+        {
+          0.2000 0.5200
+          0.8840 0.5300
+          1.6212 0.5200
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+          0.1970 0.6100
+          0.4615 0.2800
+          0.5800 0.2400
+          1.4460 0.2600
+          1.8012 0.4700
+          2.2360 0.5000
+        }
+        "head_tilt" range 15.0 -15.0 
+        {
+          0.1970 0.4600
+          0.4180 0.5500
+          0.7960 0.5600
+          1.5640 0.4800
+          1.9952 0.4900
+        }
+        "head_forwardback" range 0.2 -0.2 
+        {
+          0.1970 0.5500
+          0.3915 0.4800
+          0.9280 0.5600
+          1.6212 0.5000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

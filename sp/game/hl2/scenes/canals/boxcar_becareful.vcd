@@ -1,0 +1,311 @@
+// Choreo version 1
+event stoppoint "1"
+{
+  time 7.500000 -1.000000
+  param "noaction"
+}
+actor "Boxcar_vort"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "Look player"
+    {
+      time 0.028571 7.490477
+      param "!player"
+      event_ramp
+      {
+        0.5867 0.7817
+        1.1000 0.9802
+        6.5400 0.9683
+        7.1067 0.7302
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_boxcar_vort_getoutofway"
+    {
+      time 2.209523 3.157143
+      param "mark_boxcar_vort_getoutofway"
+      param2 "Walk"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "face player"
+    {
+      time 0.019048 7.480952
+      param "!player"
+      event_ramp
+      {
+        0.3800 0.6746
+        0.6667 0.7460
+        1.1800 0.7540
+        6.0267 0.7698
+        6.5600 0.7460
+        6.8533 0.6746
+      }
+    }
+  }
+  channel "seq."
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodygesture"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "Boxcar_human"
+{
+  channel "audio"
+  {
+    event speak "be careful"
+    {
+      time 0.091110 1.007573
+      param "canals.boxcar_becareful"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "We really can't afford "
+    {
+      time 1.168888 3.473695
+      param "canals.boxcar_becareful_b"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "Civil Protection "
+    {
+      time 3.646666 7.252947
+      param "canals.boxcar_becareful_c"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 0.031111 7.444445
+      param "!player"
+      event_ramp
+      {
+        0.4867 1.0000
+        1.0000 1.0000
+        1.6133 0.0000
+        3.2600 0.0000
+        3.8600 0.8969
+        4.2667 0.9603
+        5.7133 0.9563
+        6.5733 0.8850
+        6.9867 0.7302
+        7.1733 0.5714
+        7.3334 0.2460
+      }
+    }
+    event lookat "!player"
+    {
+      time 10.230159 13.158731
+      param "!player"
+      event_ramp
+      {
+        0.5000 0.9821
+        2.4251 0.9929
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_boxcar_human_opendoor"
+    {
+      time 0.123809 1.928572
+      param "mark_boxcar_human_opendoor"
+      param2 "Walk"
+    }
+    active "0"
+  }
+  channel "face to"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.509524
+      param ""
+    }
+    event gesture "G_medurgent_mid"
+    {
+      time 0.055556 2.152381
+      param "G_medurgent_mid"
+      absolutetags playback_time
+      {
+        "apex" 0.140152
+        "accent" 0.272710
+        "loop" 0.450758
+        "end" 0.547464
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.150000
+        "accent" 0.250000
+        "loop" 0.400000
+        "end" 0.533333
+      }
+      sequenceduration 2.033333
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.011111 7.442857
+      param ""
+      flextimingtags
+      {
+        "be" 0.021443 1
+        "carefull" 0.052783 1
+        "we" 0.153400 1
+        "really" 0.209482 1
+        "cant" 0.296079 1
+        "noticed" 0.397521 1
+        "civil" 0.502262 1
+        "catches" 0.579786 1
+        "its" 0.712568 1
+        "bad" 0.754629 1
+        "whole" 0.866793 1
+        "railroad" 0.911328 1
+      }
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.4449 0.0000
+          1.2844 0.0000
+          1.6069 1.0000
+          1.8563 0.0000
+          3.4988 0.0000
+          3.7969 0.9500
+          4.3687 0.4100
+          5.6158 0.1600
+          6.1086 0.2000
+          6.4614 1.0000
+          6.9907 0.0000
+        }
+        {
+          0.4449 0.5000
+          1.2844 0.5000
+          1.6069 0.5000
+          1.8563 0.5000
+          3.4988 0.5000
+          3.7969 0.5000
+          4.3687 0.5000
+          5.6158 0.5000
+          6.4614 0.5000
+          6.9907 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.4449 0.0000
+          1.2844 0.0000
+          1.6069 0.0000
+          1.8563 0.0000
+          3.4988 0.0000
+          3.7969 0.0000
+          4.3687 0.0000
+          5.6158 0.0000
+          6.2059 0.1400
+          6.4614 1.0000
+          6.9907 0.0000
+        }
+        {
+          0.4449 0.5000
+          1.2844 0.5000
+          1.6069 0.5000
+          1.8563 0.5000
+          3.4988 0.5000
+          3.7969 0.5000
+          4.3687 0.5000
+          5.6158 0.5000
+          6.4614 0.5000
+          6.9907 0.5000
+        }
+        "lowerer"         combo        
+        {
+          0.4510 0.8900
+          1.2844 0.0000
+          1.6069 0.0000
+          1.8563 0.0000
+          3.4988 0.0000
+          3.7969 0.0000
+          4.3687 0.0000
+          5.3299 0.2000
+          5.6158 1.0000
+          6.1207 0.5500
+          6.4614 0.0000
+          6.9907 0.0000
+        }
+        {
+          0.4510 0.5000
+          1.2844 0.5000
+          1.6069 0.5000
+          1.8563 0.5000
+          3.4988 0.5000
+          3.7969 0.5000
+          4.3687 0.5000
+          5.6158 0.5000
+          6.4614 0.5000
+          6.9907 0.5000
+        }
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.0366 0.5000
+          0.2011 0.5000
+          7.0876 0.4900
+          7.2521 0.4900
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.0488 0.4900
+          0.2011 0.4900
+          7.0571 0.5000
+          7.2582 0.5000
+        }
+      }
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\Humans\Group01\male_07.mdl"
+}
+
+mapname "maps\d1_trainstation_04.bsp"
+scalesettings
+{
+  "CChoreoView" "84"
+  "ExpressionTool" "34"
+  "GestureTool" "100"
+  "RampTool" "30"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

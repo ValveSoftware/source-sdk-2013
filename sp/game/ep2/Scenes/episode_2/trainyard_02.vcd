@@ -1,0 +1,145 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Debug text"
+  {
+    event generic "We're trying to reach my father. He's with the vorts out here."
+    {
+      time 0.074243 3.636712
+      param "debugtext Alyx: We're trying to reach my father, Eli Vance. "
+    }
+    event generic "Do you guys have a radio we can use?"
+    {
+      time 3.710069 7.716348
+      param "debugtext Alyx: Do you have a radio we can use?"
+    }
+    event generic "Sounds good, thanks."
+    {
+      time 20.422987 23.549265
+      param "debugtext Alyx: Sounds good, thanks."
+    }
+  }
+  channel "Moveto"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "Alyx looks out window"
+    {
+      time 10.750001 18.052084
+      param "!target4"
+    }
+    event lookat "Alyx looks at Nigel"
+    {
+      time 21.010418 26.260418
+      param "!target1"
+    }
+  }
+  channel "Face"
+  {
+  }
+}
+
+actor "!Target1"
+{
+  channel "Debug Text"
+  {
+    event generic "I'm sorry to say we don't."
+    {
+      time 8.041638 11.841012
+      param "debugtext Citizen 1: I'm sorry to say we don't."
+    }
+    event generic "There's an old radio tower over that hill there."
+    {
+      time 11.925032 15.897730
+      param "debugtext Citizen 1: However, there IS an old radio tower over that hill there."
+    }
+    event generic "Light's flashing, still working"
+    {
+      time 15.991697 20.026896
+      param "debugtext Citizen 1: The light on it is still flashing, so I assume it's operational"
+    }
+    event generic "If you can get the trains working, you should be able to ram through it"
+    {
+      time 29.051268 33.023972
+      param "debugtext Citizen 1: If you can get the trains working, you should be able to ram through it."
+    }
+    event generic "We'll try to cover you from here, lots of zombies in the yard, ya know"
+    {
+      time 33.359169 37.218750
+      param "debugtext Citizen 1: We'll try to cover you from here.  Lots of zombies in the yard, ya know."
+    }
+    event generic "dangerous path warning"
+    {
+      time 24.412554 28.418840
+      param "debugtext Nigel: You'll have to get past our old perimeter gate in the railyard"
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "Nigel looks at player"
+    {
+      time 0.041667 3.531250
+      param "!player"
+    }
+    event lookat "Nigel looks at Alyx"
+    {
+      time 3.552084 9.541667
+      param "Alyx"
+    }
+  }
+  channel "Moveto"
+  {
+    event moveto "Nigel moves to window"
+    {
+      time 10.145834 16.499998
+      param "!target3"
+      param2 "Walk"
+    }
+  }
+  channel "Face"
+  {
+    event face "Nigel looks out window"
+    {
+      time 10.093752 16.624998
+      param "!target4"
+    }
+    event face "Nigel looks at Alyx"
+    {
+      time 16.708334 23.239584
+      param "Alyx"
+    }
+    event face "Nigel looks at Alyx"
+    {
+      time 0.000002 9.979165
+      param "Alyx"
+    }
+  }
+}
+
+actor "!Target2"
+{
+  channel "Debug Text"
+  {
+  }
+  channel "Look at"
+  {
+  }
+  channel "Moveto"
+  {
+  }
+  channel "Face"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

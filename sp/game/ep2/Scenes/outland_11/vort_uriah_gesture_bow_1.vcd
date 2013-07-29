@@ -1,0 +1,173 @@
+// Choreo version 1
+event loop "1"
+{
+  time 6.224422 -1.000000
+  param "4.700000"
+  loopcount "-1"
+}
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "vort_extract_bond"
+    {
+      time 0.358974 2.290833
+      param "npc_vortigaunt.wellmet"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time -0.678188 2.396706
+      param "!player"
+      event_ramp
+      {
+        0.6250 1.0000
+        2.6026 1.0000
+      }
+    }
+    event lookat "mark_ur_door_3"
+    {
+      time 2.054726 3.385572
+      param "mark_ur_door_3"
+      event_ramp
+      {
+        0.4211 0.9845
+        1.3308 1.0000
+      }
+    }
+    event lookat "!player"
+    {
+      time 3.716172 6.447196
+      param "!player"
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time -0.501616 2.467606
+      param "!player"
+      event_ramp
+      {
+        0.0000 1.0000
+        2.2601 1.0000
+      }
+      lockbodyfacing
+    }
+    event face "mark_ur_keypad_1"
+    {
+      time 2.474065 3.440299
+      param "mark_ur_keypad_1"
+      event_ramp
+      {
+        0.3158 0.9734
+        0.9662 1.0000
+      }
+    }
+    event face "!player"
+    {
+      time 3.712871 6.443894
+      param "!player"
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_ur_keypad_1"
+    {
+      time 2.702970 4.457096
+      param "mark_ur_keypad_1"
+      param2 "Walk"
+    }
+  }
+  channel "postures"
+  {
+    event gesture "hg_headup"
+    {
+      time 0.074627 2.374627
+      param "hg_headup"
+      event_ramp
+      {
+        0.4077 0.0931
+        1.0154 0.9268
+        1.8308 0.0643
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.264706
+        "extreme" 0.441176
+        "loop" 0.514706
+        "end" 0.661765
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.264706
+        "extreme" 0.441176
+        "loop" 0.514706
+        "end" 0.661765
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "handclasp"
+    {
+      time 0.034826 3.334826
+      param "g_handclasp"
+      event_ramp
+      {
+        1.4615 0.9778
+      }
+      absolutetags playback_time
+      {
+        "in" 0.153061
+        "loop" 0.510204
+        "end" 0.612245
+        "out" 0.816327
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.153061
+        "loop" 0.510204
+        "end" 0.612245
+        "out" 0.816327
+      }
+      sequenceduration 3.300000
+    }
+  }
+  channel "trigger"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "1"
+    {
+      time 4.003300 -1.000000
+      param "1"
+    }
+  }
+  channel "look to"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+mapname "maps\ep2_outland_06.bsp"
+scalesettings
+{
+  "CChoreoView" "202"
+  "SceneRampTool" "100"
+  "RampTool" "76"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off

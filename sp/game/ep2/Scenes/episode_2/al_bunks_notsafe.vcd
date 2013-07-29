@@ -1,0 +1,75 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.925926 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_hiding01"
+    {
+      time 1.240000 2.975691
+      param "ep_01.al_hiding01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_hiding02"
+    {
+      time 5.880000 7.522812
+      param "ep_01.al_hiding02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to fence"
+    {
+      time -0.012345 1.203704
+      param "ep2_03_al_bunks_moveto"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 5.555556 6.388889
+      param "!player"
+    }
+    event face "face bunk area"
+    {
+      time 1.500000 2.500000
+      param "ep2_03_al_bunks_faceto"
+    }
+  }
+  channel "triggers"
+  {
+    event firetrigger "alyx stop scripting"
+    {
+      time 9.683951 -1.000000
+      param "2"
+    }
+    event firetrigger "alyx start scripting"
+    {
+      time 0.981482 -1.000000
+      param "1"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "50"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

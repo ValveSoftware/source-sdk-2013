@@ -1,0 +1,101 @@
+// Choreo version 1
+event stoppoint "done"
+{
+  time 18.253336 -1.000000
+  param "noaction"
+}
+event loop "loop"
+{
+  time 17.906670 -1.000000
+  param "0.500000"
+  loopcount "-1"
+}
+actor "npc_vort_gun"
+{
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.613333 8.099999
+      param "player"
+      event_ramp
+      {
+        0.4620 0.9714
+        3.6660 0.9948
+        5.4806 1.0000
+        6.6786 0.9870
+      }
+    }
+    event lookat "!player"
+    {
+      time 11.253333 15.299998
+      param "!player"
+      event_ramp
+      {
+        0.9840 0.9584
+        3.3873 0.9818
+      }
+    }
+    event lookat "!target2 - boat"
+    {
+      time 15.146667 17.580000
+      param "!target2"
+      event_ramp
+      {
+        0.7260 0.9688
+        1.7440 0.9507
+      }
+    }
+    event lookat "!target2 - boat"
+    {
+      time 8.066668 11.313334
+      param "!target2"
+      event_ramp
+      {
+        0.7300 0.9636
+        2.5113 0.9689
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 12.239999 15.593331
+      param "!player"
+      event_ramp
+      {
+        0.2820 0.0702
+        1.1940 0.0936
+        2.0763 0.0910
+        2.3667 0.0806
+        2.6954 0.0624
+      }
+    }
+    event face "!player"
+    {
+      time 1.346666 8.286666
+      param "!player"
+      event_ramp
+      {
+        0.2820 0.0831
+        1.1940 0.1065
+        2.3000 0.1039
+        4.9480 0.1195
+        6.2820 0.0909
+      }
+    }
+  }
+}
+
+mapname "maps\d1_canals_08a.bsp"
+scalesettings
+{
+  "CChoreoView" "50"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

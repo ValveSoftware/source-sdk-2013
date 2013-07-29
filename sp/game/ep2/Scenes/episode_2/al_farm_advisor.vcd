@@ -1,0 +1,56 @@
+// Choreo version 1
+event loop "stay lying down loop"
+{
+  time 4.000000 -1.000000
+  param "3.000000"
+  loopcount "-1"
+}
+actor "Alyx"
+{
+  channel "debug text"
+  {
+    event generic "Screams"
+    {
+      time 1.876543 2.987654
+      param "debugtext Alyx: It's hurting me!"
+    }
+  }
+  channel "animation"
+  {
+    event sequence "Cower"
+    {
+      time 1.851851 2.685185
+      param "injured_cower_enter"
+      fixedlength
+    }
+    event sequence "Cower Idle"
+    {
+      time 2.679012 4.345679
+      param "injured_cower"
+      fixedlength
+    }
+  }
+  channel "wav"
+  {
+    event speak "Pain"
+    {
+      time 0.283951 1.799053
+      param "ep_01.al_advisor_pain01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    active "0"
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "108"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

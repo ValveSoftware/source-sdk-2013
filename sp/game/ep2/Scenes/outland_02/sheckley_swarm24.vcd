@@ -1,0 +1,41 @@
+// Choreo version 1
+actor "!target2"
+{
+  channel "audio"
+  {
+    event speak "sheckley_swarm24"
+    {
+      time 0.138888 1.583491
+      param "ep_02.sheckley_swarm24"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "RampTool" "66"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

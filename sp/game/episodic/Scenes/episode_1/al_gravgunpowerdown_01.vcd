@@ -1,0 +1,215 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 21.675926 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 1.250000 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_whatswithgravgun"
+    {
+      time 14.687460 16.337528
+      param "ep_01.al_whatswithgravgun"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_postcore_trainrunning01"
+    {
+      time 5.243015 9.486462
+      param "ep_01.al_postcore_trainrunning01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_gravgunlosingpower01"
+    {
+      time 17.409681 18.567776
+      param "ep_01.al_gravgunlosingpower01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_postcore_trainrunning02"
+    {
+      time 9.761534 14.184935
+      param "ep_01.al_postcore_trainrunning02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_gravgunlosingpower02"
+    {
+      time 16.666668 17.227575
+      param "ep_01.al_gravgunlosingpower02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_stillhurry"
+    {
+      time 20.018520 21.298521
+      param "ep_01.al_stillhurry"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 5.137428 21.504921
+      param "!player"
+      event_ramp 
+      {
+        0.2769 0.9586
+        15.8478 0.9543
+      }
+    }
+    event lookat "mark_al_elevatordoors"
+    {
+      time 1.601852 3.731481
+      param "mark_al_elevatordoors"
+      event_ramp 
+      {
+        0.6600 0.9810
+        1.4570 1.0000
+        1.8637 0.9524
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 6.014757 9.439193
+      param "!player"
+      event_ramp 
+      {
+        0.3267 0.9896
+        3.4246 1.0000
+        3.4246 1.0000
+      }
+    }
+    event face "player"
+    {
+      time 14.588829 20.976229
+      param "!player"
+      event_ramp 
+      {
+        0.3267 0.9896
+        6.3875 1.0000
+        6.3875 1.0000
+      }
+    }
+    event face "!player"
+    {
+      time 1.222222 2.907408
+      param "!player"
+      event_ramp 
+      {
+        0.8400 0.6159
+        1.3400 1.0000
+        1.6852 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Body_gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 6.682932
+      param ""
+    }
+    event gesture "A_bg_upchindwn"
+    {
+      time 9.173923 21.564816
+      param "A_bg_upchindwn"
+      absolutetags playback_time
+      {
+        "apex" 0.031443
+        "extreme" 0.055946
+        "loop" 0.103665
+        "end" 0.133497
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.132530
+        "extreme" 0.240964
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 6.610860
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 8.399150 21.564816
+      param ""
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1 - doors"
+    {
+      time 1.888889 -1.000000
+      param "1"
+    }
+    event firetrigger "2 - gravity gun charge down"
+    {
+      time 14.212964 -1.000000
+      param "2"
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_elevator"
+    {
+      time 0.064815 1.444445
+      param "mark_al_elevator"
+      param2 "Walk"
+      resumecondition
+      distancetotarget 32.00
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "head flex"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "72"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

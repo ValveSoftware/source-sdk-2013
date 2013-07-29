@@ -1,0 +1,38 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "warefm"
+    {
+      time 0.013334 1.098323
+      param "npc_vortigaunt.warefm"
+      fixedlength
+    }
+  }
+  channel "Look"
+  {
+    event lookat "player"
+    {
+      time 0.026666 1.093333
+      param "!player"
+    }
+  }
+  channel "Head"
+  {
+  }
+  channel "Facial"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

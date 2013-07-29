@@ -1,0 +1,244 @@
+// Choreo version 1
+event section "1"
+{
+  time 4.857403 -1.000000
+  param "noaction"
+}
+actor "Uriah"
+{
+  channel "audio"
+  {
+    event speak "ep_02.vort_silo_admit"
+    {
+      time 2.055828 6.663833
+      param "ep_02.vort_silo_admit"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_silo_thruhere"
+    {
+      time 6.943624 10.015642
+      param "ep_02.vort_silo_thruhere"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "npc_vortigaunt.freeman"
+    {
+      time 0.513409 1.406516
+      param "npc_vortigaunt.freeman"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.157635 7.312261
+      param "!player"
+      event_ramp
+      {
+        1.4692 1.0000 "curve_easein_to_curve_easeout"
+        5.8987 1.0000 "curve_easein_to_curve_easeout"
+      }
+    }
+    event lookat "mark_look_lab_keypad_1"
+    {
+      time 6.688821 9.462129
+      param "mark_look_lab_keypad_1"
+      event_ramp
+      {
+        0.1047 0.0740
+        0.5744 0.8418
+        0.8884 0.9974 "curve_easein_to_curve_easeout"
+        1.7823 0.9974 "curve_easein_to_curve_easeout"
+        2.0800 0.8393
+        2.5963 0.1020
+      }
+    }
+    event lookat "!player"
+    {
+      time 8.686371 11.197319
+      param "!player"
+      event_ramp
+      {
+        1.0906 1.0000 "curve_easein_to_curve_easeout"
+        1.5113 1.0000 "curve_easein_to_curve_easeout"
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "mark_ur_door_faceto_1"
+    {
+      time 3.931033 10.798850
+      param "mark_ur_door_faceto_1"
+      event_ramp
+      {
+        1.0154 1.0000 "curve_easein_to_curve_easeout"
+        6.8678 1.0000 "curve_easein_to_curve_easeout"
+      }
+    }
+    event face "!player"
+    {
+      time 0.225219 3.920621
+      param "!player"
+      event_ramp
+      {
+        1.0643 1.0000 "curve_easein_to_curve_easeout"
+        3.6954 1.0000 "curve_easein_to_curve_easeout"
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_ur_door_1"
+    {
+      time 3.272577 7.923099
+      param "mark_ur_door_1"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "postures"
+  {
+    event gesture "p_step_R"
+    {
+      time 1.402298 4.368965
+      param "p_step_R"
+      event_ramp
+      {
+        0.5786 1.0000 "curve_easein_to_curve_easeout"
+        2.1143 1.0000 "curve_easein_to_curve_easeout"
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.113636
+        "loop" 0.409091
+        "end" 0.636364
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.113636
+        "loop" 0.409091
+        "end" 0.636364
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "g_refer_left"
+    {
+      time 7.932921 10.808784
+      param "g_refer_left"
+      event_ramp
+      {
+        0.7571 1.0000 "curve_easein_to_curve_easeout"
+        2.1714 1.0000 "curve_easein_to_curve_easeout"
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.176119
+        "accent" 0.340496
+        "loop" 0.457909
+        "end" 0.783872
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.194805
+        "accent" 0.376623
+        "loop" 0.506494
+        "end" 0.636364
+      }
+      sequenceduration 2.600000
+    }
+    event gesture "g_handclasp"
+    {
+      time 1.344828 4.644828
+      param "g_handclasp"
+      event_ramp
+      {
+        0.5571 0.9956 "curve_easein_to_curve_easeout"
+        2.4857 1.0000 "curve_easein_to_curve_easeout"
+      }
+      absolutetags playback_time
+      {
+        "in" 0.153061
+        "loop" 0.510204
+        "end" 0.612245
+        "out" 0.816327
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.153061
+        "loop" 0.510204
+        "end" 0.612245
+        "out" 0.816327
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "hg_headup"
+    {
+      time 5.977012 8.277012
+      param "hg_headup"
+      event_ramp
+      {
+        0.5846 0.2129
+        1.5692 0.1973
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.264706
+        "extreme" 0.441176
+        "loop" 0.514706
+        "end" 0.661765
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.264706
+        "extreme" 0.441176
+        "loop" 0.514706
+        "end" 0.661765
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "trigger"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "look to"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+actor "!Target1"
+{
+  channel "gestures"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+mapname "maps\ep2_outland_06.bsp"
+scalesettings
+{
+  "GestureTool" "100"
+  "ExpressionTool" "64"
+  "RampTool" "86"
+  "SceneRampTool" "100"
+  "CChoreoView" "90"
+}
+fps 60
+snap off
+ignorePhonemes off

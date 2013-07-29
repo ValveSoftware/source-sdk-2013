@@ -1,0 +1,278 @@
+// Choreo version 1
+event stoppoint "1"
+{
+  time 7.387755 -1.000000
+  param "noaction"
+}
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "stn1_cit_keepgoing"
+    {
+      time 3.516055 7.069797
+      param "canals.stn1_cit_keepgoing"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "stn1_cit_keepgoing"
+    {
+      time 0.839864 1.565488
+      param "npc_citizen.overhere01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "Lookat_Player"
+    {
+      time 0.018367 8.379593
+      param "!player"
+      event_ramp
+      {
+        0.0800 0.4827
+        0.2000 0.9199
+        0.6000 1.0000
+        7.7012 0.9969
+        8.0412 0.9308
+        8.1612 0.4921
+      }
+    }
+    event generic "Blink flush"
+    {
+      time 3.251701 7.391157
+      param "AI_BLINK"
+    }
+  }
+  channel "Flex anim"
+  {
+    event flexanimation "Mary Facial Flex"
+    {
+      time 0.775510 1.656462
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser"         combo        
+        {
+          0.2169 0.7500
+        }
+        {
+          0.2169 0.5000
+        }
+        "inner_raiser"         combo        
+        {
+          0.2169 0.8000
+        }
+        {
+          0.2169 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.2169 1.0000
+        }
+        {
+          0.2169 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.2169 1.0000
+        }
+        {
+          0.2169 0.5000
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.2169 0.5400
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.2169 0.6000
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.2169 0.5600
+        }
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.2169 0.5000
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.2169 0.5100
+        }
+      }
+    }
+    event flexanimation "Mary Facial Flex 2"
+    {
+      time 3.421768 7.622449
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_closer"         combo        
+        {
+          0.3103 0.0085
+          0.3504 1.0000
+          0.3976 0.0000
+          1.2190 0.0000
+          1.2626 0.9658
+          1.3065 0.0000
+          1.9164 0.0000
+          1.9407 1.0000
+          1.9858 0.0000
+          2.5171 0.0085
+          2.5727 1.0000
+          2.6116 0.0085
+          3.4246 0.0000
+          3.4987 1.0000
+          3.5320 0.0000
+        }
+        {
+        }
+        "inner_raiser"         combo        
+        {
+          1.6798 0.0000
+          1.9917 0.4200
+          2.7969 0.0000
+        }
+        {
+        }
+        "lowerer"         combo        
+        {
+          0.2465 1.0000
+          1.2626 1.0000
+          1.6798 0.0000
+          2.5142 0.0000
+          2.7756 0.8500
+        }
+        {
+          0.4728 0.5000
+          1.2626 0.5000
+          1.6798 0.5000
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.3727 0.4400
+          1.2626 0.4133
+          1.6798 0.5233
+          1.7354 0.5243
+          2.8641 0.5100
+          2.9364 0.4992
+          3.2312 0.1700
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.3727 0.4000
+          1.2626 0.3555
+          1.6798 0.4755
+          2.8808 0.5275
+          2.9419 0.5300
+          3.2145 0.6200
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.3727 0.3900
+          1.2626 0.3410
+          1.6798 0.5310
+          1.8460 0.5739
+          2.4752 0.5427
+          2.8863 0.5632
+          2.9531 0.5771
+          3.2285 0.9300
+        }
+        "chest_rightleft"         range 30.0 -30.0        
+        {
+          2.7273 0.5100
+          3.0417 0.4992
+          3.3365 0.4300
+        }
+      }
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "sequence"
+  {
+    event sequence "null"
+    {
+      time 0.006803 4.340137
+      param "canals_mary_wave"
+      fixedlength
+    }
+  }
+  channel "body gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.629252
+      param ""
+    }
+    event gesture "b_accent_fwd"
+    {
+      time 4.374150 6.476871
+      param "b_accent_fwd"
+      event_ramp
+      {
+        1.0734 0.9782
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.196658
+        "extreme" 0.296575
+        "loop" 0.399715
+        "end" 0.622110
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.208333
+        "extreme" 0.312500
+        "loop" 0.416667
+        "end" 0.625000
+      }
+      sequenceduration 1.633333
+    }
+    event gesture "NULL"
+    {
+      time 5.775510 6.275510
+      param ""
+    }
+    event gesture "b_accent_back"
+    {
+      time 6.088436 8.014286
+      param "b_accent_back"
+      event_ramp
+      {
+        0.8131 0.5891
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.176690
+        "extreme" 0.265034
+        "loop" 0.353379
+        "end" 0.530069
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.208333
+        "extreme" 0.312500
+        "loop" 0.416667
+        "end" 0.625000
+      }
+      sequenceduration 1.633333
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "98"
+  "RampTool" "68"
+  "SceneRampTool" "100"
+  "ExpressionTool" "38"
+  "GestureTool" "100"
+}
+fps 60
+snap off

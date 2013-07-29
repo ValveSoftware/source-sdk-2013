@@ -1,0 +1,368 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "griggs_coming01"
+    {
+      time 11.848708 12.624899
+      param "ep_02.griggs_coming01"
+      param2 "0.600"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "griggs_whahap01"
+    {
+      time 0.232638 0.964951
+      param "ep_02.griggs_whahap01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "griggs_whahap02"
+    {
+      time 1.097221 2.395044
+      param "ep_02.griggs_whahap02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "griggs_coming02"
+    {
+      time 10.920137 11.603788
+      param "ep_02.griggs_coming02"
+      param2 "0.650"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "vort"
+    {
+      time 0.066111 3.703749
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        3.1443 0.6273
+        3.4431 0.3481
+      }
+    }
+    event lookat "vort"
+    {
+      time 5.545277 9.235001
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        3.1963 0.6273
+        3.4951 0.3481
+      }
+    }
+    event lookat "vort"
+    {
+      time 14.368193 18.950773
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        4.0892 0.6273
+        4.3880 0.3481
+      }
+    }
+    event lookat "sheckley"
+    {
+      time 11.618193 14.162082
+      param "!target2"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        2.0505 0.6273
+        2.3493 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 3.024444 5.891250
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        2.3735 0.6273
+        2.6723 0.3481
+      }
+    }
+    event lookat "self"
+    {
+      time 9.420278 11.245416
+      param "!self"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.3318 0.6273
+        1.6306 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 18.851828 20.604048
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.2589 0.6273
+        1.5577 0.3481
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  channel "triggers"
+  {
+    event firetrigger "they're coming!"
+    {
+      time 9.333333 -1.000000
+      param "4"
+    }
+  }
+}
+
+actor "!target2"
+{
+  channel "audio"
+  {
+    event speak "sheckley_dontcount01"
+    {
+      time 12.819444 13.710442
+      param "ep_02.sheckley_dontcount01"
+      param2 "0.750"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "vort"
+    {
+      time 1.302222 5.002360
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        3.1775 0.5525
+        3.2067 0.5580
+        3.5056 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 4.336945 6.214166
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.3839 0.6273
+        1.6827 0.3481
+      }
+    }
+    event lookat "griggs"
+    {
+      time 0.118194 1.682916
+      param "!target1"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.0713 0.6273
+        1.3701 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 12.711944 14.359999
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.1547 0.6273
+        1.4535 0.3481
+      }
+    }
+    event lookat "vort"
+    {
+      time 5.920276 9.255833
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        2.8421 0.6273
+        3.1409 0.3481
+      }
+    }
+    event lookat "griggs"
+    {
+      time 11.597360 12.964166
+      param "!target1"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        0.8734 0.6273
+        1.1722 0.3481
+      }
+    }
+    event lookat "self"
+    {
+      time 8.795278 10.797499
+      param "!self"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.5089 0.6273
+        1.8077 0.3481
+      }
+    }
+    event lookat "vort"
+    {
+      time 14.113728 17.095119
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        2.4879 0.6273
+        2.7867 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 17.683672 19.322798
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.1457 0.6273
+        1.4445 0.3481
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+actor "!target3"
+{
+  channel "audio"
+  {
+    event speak "vort_struggle01"
+    {
+      time 2.079861 2.858387
+      param "ep_02.vort_struggle01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_struggle02"
+    {
+      time 2.975694 4.099775
+      param "ep_02.vort_struggle02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_struggle03"
+    {
+      time 4.194444 7.311700
+      param "ep_02.vort_struggle03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_struggle04"
+    {
+      time 7.413194 9.570586
+      param "ep_02.vort_struggle04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_myplace01"
+    {
+      time 13.969743 15.508087
+      param "ep_02.vort_myplace01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_myplace02"
+    {
+      time 15.648314 18.891941
+      param "ep_02.vort_myplace02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "56"
+  "ExpressionTool" "100"
+  "RampTool" "66"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

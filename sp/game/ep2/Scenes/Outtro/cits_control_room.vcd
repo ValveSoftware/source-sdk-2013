@@ -1,0 +1,160 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "Look at !target3"
+    {
+      time 0.080000 1.957221
+      param "!target3"
+      event_ramp
+      {
+        0.4680 0.8884 "curve_bspline_to_curve_bspline"
+        1.8772 1.0000 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+      }
+    }
+    event lookat "Look at !target4"
+    {
+      time 2.760554 4.929443
+      param "!target4"
+      event_ramp
+      {
+        0.5007 1.0000
+        2.1689 1.0000
+      }
+    }
+    event lookat "Look at !target5"
+    {
+      time 1.448055 3.193333
+      param "!target5"
+      event_ramp
+      {
+        0.5109 0.9674
+        1.7453 1.0000
+      }
+    }
+    event lookat "Look at !target5"
+    {
+      time 13.517501 14.700278
+      param "!target5"
+      event_ramp
+      {
+        0.5129 1.0000
+        1.1828 1.0000
+      }
+    }
+    event lookat "Look at !target2"
+    {
+      time 4.385556 7.290555
+      param "!target2"
+      event_ramp
+      {
+        0.5109 1.0000
+        2.9050 1.0000
+      }
+    }
+    event lookat "Look at !target3"
+    {
+      time 6.656389 14.075278
+      param "!target3"
+      event_ramp
+      {
+        0.5211 1.0000
+        7.4189 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+actor "!target2"
+{
+  channel "look at"
+  {
+    event lookat "Look at !target3"
+    {
+      time 0.073056 3.637777
+      param "!target3"
+      event_ramp
+      {
+        0.5109 1.0000
+        3.5647 1.0000
+      }
+    }
+    event lookat "Look at !target4"
+    {
+      time 3.204999 5.276667
+      param "!target4"
+      event_ramp
+      {
+        0.4987 1.0000
+        2.0716 1.0000
+      }
+    }
+    event lookat "Look at !target5"
+    {
+      time 9.941112 12.693334
+      param "!target5"
+      event_ramp
+      {
+        0.5048 1.0000
+        2.7522 1.0000
+      }
+    }
+    event lookat "Look at !target1"
+    {
+      time 7.100833 10.561388
+      param "!target1"
+      event_ramp
+      {
+        0.5109 1.0000
+        3.4606 1.0000
+      }
+    }
+    event lookat "Look at !target4"
+    {
+      time 11.878611 14.700278
+      param "!target4"
+      event_ramp
+      {
+        0.5701 1.0000
+        2.8216 1.0000
+      }
+    }
+    event lookat "Look at !target3"
+    {
+      time 4.711945 7.748888
+      param "!target3"
+      event_ramp
+      {
+        0.5129 1.0000
+        3.0370 1.0000
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

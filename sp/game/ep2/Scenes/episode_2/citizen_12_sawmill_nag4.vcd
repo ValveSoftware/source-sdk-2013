@@ -1,0 +1,104 @@
+// Choreo version 1
+actor "base_citizen"
+{
+  channel "audio"
+  {
+    event speak "ep_02.cit_tothesawmill_01"
+    {
+      time 0.372754 3.103434
+      param "ep_02.cit_tothesawmill_01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.020000 2.506666
+      param "!player"
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 0.006667 3.365797
+      param "!player"
+      event_ramp
+      {
+        0.0980 0.9774
+        3.3450 0.9887
+      }
+    }
+  }
+  channel "posture"
+  {
+    event gesture "p_stepleft"
+    {
+      time 0.014493 2.914493
+      param "p_stepleft"
+      absolutetags playback_time
+      {
+        "apex" 0.348837
+        "loop" 0.511628
+        "end" 0.790698
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.348837
+        "loop" 0.511628
+        "end" 0.790698
+      }
+      sequenceduration 2.900000
+    }
+  }
+  channel "body"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "g_pointleft_l"
+    {
+      time 0.478261 2.915941
+      param "g_pointleft_l"
+      absolutetags playback_time
+      {
+        "in" 0.069308
+        "loop" 0.401984
+        "end" 0.540599
+        "out" 0.744823
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.068493
+        "loop" 0.397260
+        "end" 0.534247
+        "out" 0.712329
+      }
+      sequenceduration 2.466667
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  faceposermodel "U:\DEV\main\game\ep2\models\Humans\Group03\Male_04.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "92"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

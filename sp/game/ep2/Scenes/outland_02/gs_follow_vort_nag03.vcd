@@ -1,0 +1,159 @@
+// Choreo version 1
+actor "griggs"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "sheckley"
+    {
+      time 0.100781 4.756032
+      param "sheckley"
+      event_ramp
+      {
+        0.5121 1.0000
+        4.2278 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+    event face "!player"
+    {
+      time 0.224359 4.570513
+      param "!player"
+      event_ramp
+      {
+        0.6455 0.3377
+        3.7818 0.3117
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  channel "triggers"
+  {
+  }
+}
+
+actor "sheckley"
+{
+  channel "Audio"
+  {
+    event speak "ep_02.sheckley_junc_followvortnag04"
+    {
+      time 0.230769 3.985440
+      param "ep_02.sheckley_junc_followvortnag04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.039639 4.748211
+      param "!player"
+      event_ramp
+      {
+        0.5121 1.0000
+        4.2811 1.0000
+      }
+    }
+  }
+  channel "facial"
+  {
+    event face "!player"
+    {
+      time 0.217949 4.467949
+      param "!player"
+      event_ramp
+      {
+        0.5667 0.3939
+        3.5182 0.3939
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.083333 2.283334
+      param "bg_right"
+      absolutetags playback_time
+      {
+        "apex" 0.153846
+        "extreme" 0.292308
+        "loop" 0.476923
+        "end" 0.723077
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153846
+        "extreme" 0.292308
+        "loop" 0.476923
+        "end" 0.723077
+      }
+    }
+    event gesture "1"
+    {
+      time 3.005953 4.605953
+      param "bg_up_r"
+      absolutetags playback_time
+      {
+        "apex" 0.085106
+        "extreme" 0.276596
+        "loop" 0.425532
+        "end" 0.638298
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.085106
+        "extreme" 0.276596
+        "loop" 0.425532
+        "end" 0.638298
+      }
+    }
+    event gesture "1"
+    {
+      time 1.363095 3.645238
+      param "g_palm_up_l"
+      absolutetags playback_time
+      {
+        "apex" 0.197917
+        "accent" 0.450254
+        "loop" 0.509686
+        "end" 0.806846
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.172414
+        "accent" 0.362069
+        "loop" 0.431034
+        "end" 0.775862
+      }
+      sequenceduration 1.966667
+    }
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "RampTool" "66"
+  "ExpressionTool" "50"
+  "CChoreoView" "112"
+}
+fps 60
+snap off
+ignorePhonemes off

@@ -1,0 +1,42 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Audio"
+  {
+    event speak "what"
+    {
+      time 0.240310 2.703485
+      param "ep_02.al_barn_whatwasthat"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.019380 2.829458
+      param "!player"
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.031008 2.837209
+      param "!player"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "172"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

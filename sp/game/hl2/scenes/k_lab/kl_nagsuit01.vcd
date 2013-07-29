@@ -1,0 +1,112 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 3.880000 -1.000000
+  param "noaction"
+}
+actor "Kleiner"
+{
+  channel "audio"
+  {
+    event speak "k_lab.kl_slipin01"
+    {
+      time 0.100000 1.768526
+      param "k_lab.kl_slipin01"
+      fixedlength
+      cctype "cc_master"
+      cctoken "k_lab.kl_slipin01_cc"
+    }
+    event speak "k_lab.kl_slipin02"
+    {
+      time 1.986667 3.396735
+      param "k_lab.kl_slipin02"
+      fixedlength
+      cctype "cc_slave"
+      cctoken "k_lab.kl_slipin01_cc"
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look Player"
+    {
+      time 0.053333 1.506667
+      param "!player"
+      event_ramp
+      {
+        0.2560 0.2937
+        0.3260 0.9740
+        1.0300 0.9703
+      }
+    }
+    event lookat "look Suit"
+    {
+      time 1.366667 3.260000
+      param "look_hevdoora"
+      event_ramp
+      {
+        0.3740 0.9628
+        1.7540 0.9851
+      }
+    }
+    event lookat "look Player"
+    {
+      time 2.980000 5.886667
+      param "!player"
+      event_ramp
+      {
+        0.2560 0.2937
+        0.3260 0.9740
+        2.4833 0.9703
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "face Suit"
+    {
+      time 0.033333 3.846666
+      param "look_hevdoora"
+      event_ramp
+      {
+        0.3020 0.1250
+        1.3760 0.4755
+        1.9840 0.9657
+        3.5920 0.9628
+      }
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\Kleiner.mdl"
+}
+
+actor "Alyx"
+{
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.026667 3.866666
+      param "!player"
+      event_ramp
+      {
+        0.3740 0.9554
+        3.3360 0.9145
+      }
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

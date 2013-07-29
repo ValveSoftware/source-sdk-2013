@@ -1,0 +1,84 @@
+// Choreo version 1
+event section "asdf"
+{
+  time 2.290323 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_pb_anotherlock"
+    {
+      time 0.086022 2.636929
+      param "ep_01.al_pb_anotherlock"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_darkDoor_2"
+    {
+      time 0.215054 2.693548
+      param "mark_al_darkDoor_2"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "darkdoor_2_doortarget"
+    {
+      time 0.376344 2.715054
+      param "darkdoor_2_doortarget"
+      event_ramp
+      {
+        0.7769 0.9834
+        1.8999 1.0000
+        2.3387 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

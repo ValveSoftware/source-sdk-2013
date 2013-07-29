@@ -1,0 +1,62 @@
+// Choreo version 1
+actor "!target2"
+{
+  channel "audio"
+  {
+    event speak "sheckley_twolights"
+    {
+      time 0.138888 1.027754
+      param "ep_02.sheckley_twolights"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.062500 1.662500
+      param "bg_up_r"
+      absolutetags playback_time
+      {
+        "apex" 0.085106
+        "extreme" 0.276596
+        "loop" 0.425532
+        "end" 0.638298
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.085106
+        "extreme" 0.276596
+        "loop" 0.425532
+        "end" 0.638298
+      }
+      sequenceduration 1.600000
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "RampTool" "66"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

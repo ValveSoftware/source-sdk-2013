@@ -1,0 +1,111 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+actor "!target2"
+{
+  channel "look"
+  {
+    event lookat "!player"
+    {
+      time 1.412699 3.626984
+      param "!player"
+      event_ramp
+      {
+        0.4033 0.8316
+        0.4800 0.9259
+        0.5667 0.9764
+        0.7233 1.0000
+        1.2933 1.0000
+        1.4267 0.9562
+        1.4967 0.8889
+        2.0600 0.0505
+        2.1467 0.0135
+      }
+    }
+  }
+  channel "face"
+  {
+  }
+}
+
+actor "!target3"
+{
+  channel "look"
+  {
+    event lookat "!player"
+    {
+      time 0.015873 2.801588
+      param "!player"
+      event_ramp
+      {
+        0.3900 0.8283
+        0.4833 0.9293
+        0.6000 0.9865
+        0.7967 1.0000
+        1.8933 1.0000
+        2.0667 0.9697
+        2.1667 0.8754
+        2.5667 0.1515
+        2.6367 0.0572
+        2.7290 0.0067
+      }
+    }
+    event lookat "warehouse_citizen_jacobs"
+    {
+      time 4.904762 7.103175
+      param "warehouse_citizen_jacobs"
+      event_ramp
+      {
+        0.5533 0.8956
+        0.6467 0.9731
+        0.7900 1.0000
+        1.3967 1.0000
+        1.5333 0.9596
+        1.6100 0.8889
+        2.0733 0.0943
+        2.1433 0.0236
+      }
+    }
+  }
+  channel "face"
+  {
+  }
+}
+
+mapname "maps\d1_town_05.bsp"
+scalesettings
+{
+  "CChoreoView" "42"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

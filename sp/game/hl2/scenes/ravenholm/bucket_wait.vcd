@@ -1,0 +1,63 @@
+// Choreo version 1
+event loop "wait for bucket"
+{
+  time -0.113333 -1.000000
+  param "0.000000"
+  loopcount "0"
+}
+event section "fff"
+{
+  time -0.626667 -1.000000
+  param "noaction"
+}
+event loop "loop"
+{
+  time -0.100000 -1.000000
+  param "1.000000"
+  loopcount "-1"
+}
+event loop "loop"
+{
+  time -0.200000 -1.000000
+  param "1.000000"
+  loopcount "-1"
+}
+actor "!target1"
+{
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.020000 30.000000
+      param "!player"
+    }
+  }
+  channel "face at"
+  {
+    event face "player"
+    {
+      time 0.026666 1.366666
+      param "!player"
+      event_ramp
+      {
+        0.8360 0.9250
+        1.0521 1.0000
+        1.3400 1.0000
+      }
+    }
+  }
+  channel "misc"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

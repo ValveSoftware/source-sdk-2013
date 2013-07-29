@@ -1,0 +1,40 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio_farewell"
+  {
+  }
+  channel "Look_farewell"
+  {
+  }
+  channel "Face_farewell"
+  {
+    active "0"
+  }
+  channel "head anim_farewell"
+  {
+  }
+  channel "postures_farewell"
+  {
+  }
+  channel "gestures_farewell"
+  {
+  }
+  channel "gestures_farewell_2"
+  {
+  }
+  channel "body_gestures_farewell"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "32"
+  "SceneRampTool" "100"
+  "ExpressionTool" "30"
+  "GestureTool" "40"
+  "RampTool" "28"
+}
+fps 60
+snap off

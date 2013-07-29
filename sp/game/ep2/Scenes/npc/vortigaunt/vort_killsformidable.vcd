@@ -1,0 +1,102 @@
+// Choreo version 1
+actor "vort"
+{
+  channel "audio"
+  {
+    event speak "bodyyours"
+    {
+      time 0.229167 2.341480
+      param "npc_vortigaunt.vort_killsformidable"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.031389 2.437019
+      param "!player"
+      event_ramp
+      {
+        0.5100 1.0000
+        1.8895 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.659091 2.625757
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.2633 0.4675
+        1.5267 0.4978
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "postures"
+  {
+    event gesture "1"
+    {
+      time 0.265151 2.890909
+      param "g_cheer"
+      event_ramp
+      {
+        0.3267 0.5238
+        1.8333 0.5238
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.102594
+        "accent" 0.270893
+        "loop" 0.616715
+        "end" 0.714697
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.081633
+        "accent" 0.255102
+        "loop" 0.561224
+        "end" 0.663265
+      }
+      sequenceduration 3.300000
+    }
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "88"
+  "ExpressionTool" "100"
+  "RampTool" "60"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

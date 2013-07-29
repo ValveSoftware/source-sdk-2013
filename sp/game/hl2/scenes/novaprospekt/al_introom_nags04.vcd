@@ -1,0 +1,119 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 1.600001 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "You better hurry."
+    {
+      time 0.266667 1.181452
+      param "novaprospekt.al_gauntlet_exitnag02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time -0.080000 2.606668
+      param "!player"
+      event_ramp
+      {
+        0.5520 0.6857
+        1.2100 0.6909
+        1.5060 0.6104
+        2.2193 0.6078
+        2.5693 0.6312
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face"
+  {
+    event flexanimation "face"
+    {
+      time 0.201058 1.346561
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.4240 0.3600
+          0.7405 0.1000
+        }
+        {
+          0.4240 0.5000
+          0.7405 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.4240 0.5900
+          0.7405 0.1400
+        }
+        {
+          0.4240 0.5000
+          0.7405 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.4240 0.0400
+          0.7405 0.0400
+        }
+        {
+          0.4240 0.5000
+          0.7405 0.5000
+        }
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.648148
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.116402 2.416402
+      param "a_bg_htiltleft"
+      event_ramp
+      {
+        0.3649 0.5079
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "63"
+  "RampTool" "74"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

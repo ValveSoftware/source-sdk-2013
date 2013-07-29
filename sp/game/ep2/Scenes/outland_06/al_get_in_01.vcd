@@ -1,0 +1,100 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_car_callback01"
+    {
+      time 0.597588 1.668155
+      param "ep_02.al_car_callback01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.073998 1.880001
+      param "!player"
+      event_ramp
+      {
+        0.3880 0.9499
+        1.3627 0.9471
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+    event gesture "a_p_buggy_look"
+    {
+      time 0.037037 2.032155
+      param "a_p_buggy_look"
+      event_ramp
+      {
+        0.2200 0.2386
+        1.5237 0.2386
+      }
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "A_g_buggy_lil_wave"
+    {
+      time 0.469011 1.934409
+      param "A_g_buggy_lil_wave"
+      event_ramp
+      {
+        0.1255 0.2159
+        0.3319 0.8693
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.296675
+        "accent" 0.491049
+        "loop" 0.570502
+        "end" 0.580502
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.263158
+        "accent" 0.447368
+        "loop" 0.526316
+        "end" 0.789474
+      }
+      sequenceduration 1.300000
+    }
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+    event generic "AI_AIM"
+    {
+      time 0.037037 1.990820
+      param "AI_AIM"
+      param2 "!player"
+    }
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "166"
+  "SceneRampTool" "100"
+  "RampTool" "94"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off

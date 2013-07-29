@@ -1,0 +1,117 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_croom2_arrival"
+    {
+      time 0.133333 1.332857
+      param "novaprospekt.al_croom2_arrival"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look_player"
+    {
+      time 0.080000 1.486667
+      param "!player"
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.234940
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.032128 1.557028
+      param "A_bg_h_jerkrt"
+      event_ramp
+      {
+        0.2500 0.2302
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.200000
+        "extreme" 0.321053
+        "loop" 0.668421
+        "end" 0.768579
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.024097 1.552209
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.3247 0.2100
+          0.9742 0.0000
+        }
+        {
+          0.3247 0.5000
+          0.9742 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.3247 0.5300
+          0.9742 0.0000
+        }
+        {
+          0.3247 0.5000
+          0.9742 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.3247 0.3600
+          0.9742 0.0000
+        }
+        {
+          0.3247 0.5000
+          0.9742 0.5000
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "83"
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

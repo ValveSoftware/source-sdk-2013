@@ -1,0 +1,40 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "odessa.nlo_greet_nag02"
+    {
+      time 0.043478 3.043478
+      param "odessa.nlo_greet_nag02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "look at player"
+    {
+      time 0.026666 3.028986
+      param "!player"
+    }
+  }
+  channel "triggers"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "46"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

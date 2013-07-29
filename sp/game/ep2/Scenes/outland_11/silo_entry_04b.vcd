@@ -1,0 +1,189 @@
+// Choreo version 1
+event section "magnusson"
+{
+  time 1.312418 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+    active "0"
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodygestures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "headf"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "eyes"
+  {
+  }
+  channel "Trigger"
+  {
+    active "0"
+  }
+  channel "temp"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "Eli"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\Eli.mdl"
+}
+
+actor "Kleiner"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  faceposermodel "models\kleiner.mdl"
+}
+
+actor "Magnusson"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "mark_mag_outsidetraining_1"
+    {
+      time 0.044007 5.057132
+      param "mark_mag_outsidetraining_1"
+      event_ramp
+      {
+        0.4143 0.9526
+        4.7507 0.9443
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_mag_outsidetraining_1"
+    {
+      time 0.063479 5.049376
+      param "mark_mag_outsidetraining_1"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "mark_mag_outsidetraining_1"
+    {
+      time 0.060310 5.040367
+      param "mark_mag_outsidetraining_1"
+      event_ramp
+      {
+        0.4980 1.0000
+        4.3384 1.0000
+      }
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\Eli.mdl"
+}
+
+mapname "maps\ep2_outland_11a_test.bsp"
+scalesettings
+{
+  "CChoreoView" "56"
+  "ExpressionTool" "40"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

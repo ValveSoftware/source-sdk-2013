@@ -1,0 +1,112 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "novaprospekt.al_uhoh_np"
+    {
+      time 0.452136 1.149710
+      param "novaprospekt.al_uhoh_np"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_crank2_onecrank"
+    {
+      time 3.444005 6.183959
+      param "ep_01.al_crank2_onecrank"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_crank2_didntforget"
+    {
+      time 1.183842 3.064658
+      param "ep_01.al_crank2_didntforget"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.010491 6.691451
+      param "!player"
+      event_ramp
+      {
+        0.1692 0.9830
+        6.4711 0.9886
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_cafe1"
+    {
+      time 0.065040 2.914633
+      param "mark_cafe1"
+      param2 "Walk"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.016260 6.638211
+      param "!player"
+      event_ramp
+      {
+        0.5231 0.8838
+        0.7462 1.0000
+        5.8432 1.0000
+        6.2586 1.0000
+        6.2822 1.0000
+        6.6220 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+    event interrupt "int"
+    {
+      time 2.821138 3.532521
+      param ""
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "82"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

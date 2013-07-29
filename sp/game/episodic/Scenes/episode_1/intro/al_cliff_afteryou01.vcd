@@ -1,0 +1,50 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_cliff_afteryou01"
+    {
+      time 0.062500 0.554178
+      param "ep_01.al_cliff_afteryou01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "lookit"
+    {
+      time 0.038333 0.589168
+      param "!player"
+      event_ramp 
+      {
+        0.1211 0.3204
+        0.3496 0.5580
+        0.3562 0.3481
+        0.4045 0.5525
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

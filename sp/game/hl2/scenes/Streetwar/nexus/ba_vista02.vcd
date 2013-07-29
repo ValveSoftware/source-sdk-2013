@@ -1,0 +1,158 @@
+// Choreo version 1
+actor "Barney"
+{
+  channel "audio"
+  {
+    event speak "ba_vista02"
+    {
+      time 0.222223 8.585511
+      param "nexus.ba_vista02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!Player"
+    {
+      time 2.568115 7.633334
+      param "!Player"
+      event_ramp
+      {
+        0.5167 0.8475
+        0.8767 0.9193
+        1.4967 0.9193
+        3.9671 0.8924
+        4.4504 0.8206
+      }
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 2.550724 7.905797
+      param "!player"
+      event_ramp
+      {
+        0.7200 0.7175
+        1.1033 0.8117
+        1.6033 0.8117
+        4.0306 0.8072
+        4.3139 0.7758
+        4.6106 0.6188
+        5.0238 0.1525
+      }
+      lockbodyfacing
+    }
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 7.289855 8.576328
+      param "null1"
+    }
+    event gesture "NULL"
+    {
+      time 0.000000 1.286473
+      param "null1"
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.236232
+      param "NULL"
+    }
+    event gesture "NULL"
+    {
+      time 7.347826 8.584058
+      param "NULL"
+    }
+    event gesture "g_Rifle_LHand"
+    {
+      time 4.855072 7.021739
+      param "g_Rifle_LHand"
+      event_ramp
+      {
+        0.0433 0.8430
+        0.5300 0.8475
+        1.1367 0.8655
+        1.6933 0.8296
+        2.1567 0.8251
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.250000
+        "accent" 0.390625
+        "loop" 0.500000
+        "end" 0.625000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.250000
+        "accent" 0.390625
+        "loop" 0.500000
+        "end" 0.625000
+      }
+      sequenceduration 2.166667
+    }
+  }
+  channel "body gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.818841
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 7.840580 8.557971
+      param ""
+    }
+    event gesture "bg_accentUp_Rifle"
+    {
+      time 0.391305 2.778261
+      param "bg_accentUp_Rifle"
+      absolutetags playback_time
+      {
+        "apex" 0.099439
+        "extreme" 0.284111
+        "loop" 0.596633
+        "end" 0.710278
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.120690
+        "extreme" 0.344828
+        "loop" 0.724138
+        "end" 0.862069
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "trigger"
+  {
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "46"
+  "ExpressionTool" "40"
+  "RampTool" "42"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

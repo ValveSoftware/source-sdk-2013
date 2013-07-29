@@ -1,0 +1,69 @@
+// Choreo version 1
+actor "griggs"
+{
+  channel "audio"
+  {
+    event speak "ep_02.griggs_followme03"
+    {
+      time 4.020123 7.263843
+      param "ep_02.griggs_gunnags02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  channel "triggers"
+  {
+  }
+}
+
+actor "sheckley"
+{
+  channel "Audio"
+  {
+    event speak "sheckley_youtake_12_02"
+    {
+      time 0.070724 2.615939
+      param "ep_02.sheckley_betweenwave_02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "gestures"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "76"
+  "ExpressionTool" "28"
+  "RampTool" "60"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

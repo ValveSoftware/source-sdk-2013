@@ -1,0 +1,65 @@
+// Choreo version 1
+actor "magnusson"
+{
+  channel "Audio"
+  {
+    event speak "dearbreach"
+    {
+      time 0.020833 4.943554
+      param "ep_02.mag_aband_dearbreach"
+      param2 "0.6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "pinpoint"
+    {
+      time 5.145833 15.334700
+      param "ep_02.mag_aband_pinpoint"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,115 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "Audio"
+  {
+    event speak "yes!"
+    {
+      time 0.197917 2.437917
+      param "ep_02.reb_healthcall03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "look at player"
+    {
+      time 0.061600 3.865781
+      param "!player"
+      event_ramp
+      {
+        0.3980 0.7965 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        0.5960 1.0000 "curve_easein_to_curve_easeout"
+        0.7600 1.0000
+        3.8042 1.0000
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+    event gesture "g_ar2_down"
+    {
+      time 0.062500 3.477083
+      param "g_ar2_down"
+      event_ramp
+      {
+        0.4540 1.0000
+        2.4840 1.0000
+        3.1180 0.0000
+      }
+      absolutetags playback_time
+      {
+        "in" 0.131098
+        "loop" 0.394467
+        "end" 0.731807
+        "out" 0.902439
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.061224
+        "loop" 0.408163
+        "end" 0.612245
+        "out" 0.918367
+      }
+      sequenceduration 3.300000
+    }
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "g_palm_out_l"
+    {
+      time 1.041667 3.204167
+      param "g_palm_out_l"
+      absolutetags playback_time
+      {
+        "apex" 0.156022
+        "accent" 0.296442
+        "loop" 0.499272
+        "end" 0.695212
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.121951
+        "accent" 0.231707
+        "loop" 0.390244
+        "end" 0.780488
+      }
+      sequenceduration 2.766667
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

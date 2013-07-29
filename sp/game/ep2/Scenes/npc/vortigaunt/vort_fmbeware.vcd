@@ -1,0 +1,73 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "vort_fmbeware"
+    {
+      time 0.069445 1.589422
+      param "npc_vortigaunt.fmbeware"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "lookit"
+    {
+      time 0.038333 1.866944
+      param "!player"
+      event_ramp
+      {
+        0.3755 0.9870
+        1.5268 0.9827
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.597222 2.563888
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.3633 0.5238
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

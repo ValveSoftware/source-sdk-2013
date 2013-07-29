@@ -1,0 +1,143 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "vort_elab_use04"
+    {
+      time 0.266666 3.916961
+      param "eli_lab.vort_elab_use04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.026667 4.440000
+      param "!player"
+      event_ramp
+      {
+        0.5269 0.7490
+        0.7269 0.9331
+        0.9808 1.0000
+        1.1769 1.0000
+        2.9862 1.0000
+        3.4900 1.0000
+        3.6400 0.9874
+        3.8246 0.8954
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "player"
+    {
+      time 0.026666 4.366666
+      param "!player"
+      event_ramp
+      {
+        0.7577 0.7908
+        0.8692 0.9163
+        1.0385 0.9916
+        3.3515 1.0000
+        3.5169 0.9707
+        3.6515 0.8996
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.733334
+      param ""
+    }
+    event gesture "accent"
+    {
+      time 2.078969 4.566253
+      param "g_Accent_BothHands01"
+      absolutetags playback_time
+      {
+        "apex" 0.273087
+        "accent" 0.381768
+        "loop" 0.490448
+        "end" 0.694224
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.191781
+        "accent" 0.301370
+        "loop" 0.410959
+        "end" 0.616438
+      }
+      sequenceduration 2.466667
+    }
+    event gesture "sdf"
+    {
+      time 1.092783 2.992784
+      param "g_rightfist"
+      absolutetags playback_time
+      {
+        "apex" 0.196429
+        "accent" 0.464286
+        "loop" 0.500000
+        "end" 0.625000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.196429
+        "accent" 0.464286
+        "loop" 0.500000
+        "end" 0.625000
+      }
+      sequenceduration 1.900000
+    }
+    event gesture "sfd"
+    {
+      time 0.006873 2.380283
+      param "g_delivery01"
+      absolutetags playback_time
+      {
+        "apex" 0.214011
+        "accent" 0.285348
+        "loop" 0.409837
+        "end" 0.614780
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.238095
+        "accent" 0.317460
+        "loop" 0.476190
+        "end" 0.571429
+      }
+      sequenceduration 2.133333
+    }
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\hl2\HL2\models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "97"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

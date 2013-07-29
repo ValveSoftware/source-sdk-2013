@@ -1,0 +1,499 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 13.566669 -1.000000
+  param "noaction"
+}
+event section "pause1"
+{
+  time 1.673333 -1.000000
+  param "noaction"
+}
+event section "pause1"
+{
+  time 7.593333 -1.000000
+  param "noaction"
+}
+actor "Barney"
+{
+  channel "Audio"
+  {
+    event speak "Back up"
+    {
+      time 5.893335 6.549049
+      param "Trainyard.ba_backup"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "Need privacy"
+    {
+      time 7.960001 11.075919
+      param "Trainyard.ba_privacy"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "Now..."
+    {
+      time 12.633335 13.289253
+      param "Trainyard.ba_thatbeer01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "Trainyard.ba_noimgood"
+    {
+      time 3.039999 3.902833
+      param "Trainyard.ba_noimgood"
+      param2 "VOL_NORM"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "lookat player"
+    {
+      time 4.873333 7.593333
+      param "!player"
+      event_ramp
+      {
+        0.6840 0.7227
+        1.0260 0.8824
+        1.4185 0.9288
+        1.5953 0.9205
+        1.9145 0.8536
+      }
+    }
+    event lookat "look player"
+    {
+      time 11.140001 13.466669
+      param "!player"
+      event_ramp
+      {
+        0.3584 0.5096
+        0.6143 0.5858
+        1.5100 0.6373
+        1.8210 0.6067
+        1.9531 0.5681
+      }
+    }
+    event lookat "mark_barneyroom_look_monitor_1"
+    {
+      time 6.860001 10.966667
+      param "mark_barneyroom_look_monitor_1"
+      event_ramp
+      {
+        0.6840 0.7227
+        1.0260 0.8824
+        2.3966 0.9678
+        2.8052 0.9623
+        3.1536 0.9029
+      }
+    }
+    event lookat "target1"
+    {
+      time 1.446666 4.700000
+      param "!Target1"
+      event_ramp
+      {
+        0.6840 0.7227
+        1.0260 0.8824
+        1.9518 0.9288
+        2.1286 0.9205
+        2.4478 0.8536
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 4.500000 6.666668
+      param "!player"
+      event_ramp
+      {
+        0.6346 0.8410
+        0.8472 0.9582
+        1.1354 1.0000
+        1.6430 1.0000
+        2.0135 1.0000
+        2.1667 1.0000
+      }
+    }
+    event face "mark_barneyroom_look_monitor_1"
+    {
+      time 7.779998 10.999999
+      param "mark_barneyroom_look_monitor_1"
+      event_ramp
+      {
+        0.8286 0.9331
+        1.0286 1.0000
+        2.3114 1.0000
+        3.2200 1.0000
+      }
+    }
+    event face "face player"
+    {
+      time 11.206668 13.500002
+      param "!player"
+      event_ramp
+      {
+        0.8288 0.8892
+        0.9782 0.9707
+        1.1639 1.0000
+        2.2933 1.0000
+      }
+    }
+    event face "target1"
+    {
+      time 0.953333 3.853334
+      param "!Target1"
+      event_ramp
+      {
+        0.7286 0.8577
+        1.0571 1.0000
+        2.2410 1.0000
+        2.9000 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_barneyroom_inside_door_1"
+    {
+      time 0.013334 2.180000
+      param "mark_barneyroom_inside_door_1"
+      resumecondition
+    }
+    event moveto "mark_barneyroom_monitor_1"
+    {
+      time 4.999999 8.159998
+      param "mark_barneyroom_monitor_1"
+      resumecondition
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "Trigger Door Close"
+    {
+      time 2.540001 -1.000000
+      param "1"
+    }
+    event firetrigger "Trigger cameras"
+    {
+      time 11.260002 -1.000000
+      param "2"
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 8.835555
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 6.616666 7.116666
+      param ""
+    }
+    event gesture "p_console"
+    {
+      time 8.542222 11.848143
+      param "PostureSecbank"
+      event_ramp
+      {
+        0.0200 1.0000
+        1.4077 0.9905
+        1.5029 0.9494
+        1.6115 0.8439
+        1.8657 0.4304
+        2.2143 0.0970
+        2.3457 0.0295
+        2.5857 0.0042
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.217358
+        "loop" 0.378818
+        "end" 0.772643
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.208333
+        "loop" 0.416667
+        "end" 0.979167
+      }
+      sequenceduration 1.633333
+    }
+    event gesture "NULL"
+    {
+      time 12.028888 13.377780
+      param ""
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.353334
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 13.056668 13.463335
+      param ""
+    }
+    event gesture "typing"
+    {
+      time 8.520000 11.929875
+      param "Gesture09"
+      event_ramp
+      {
+        0.0120 0.2277
+        0.1040 0.5648
+        0.2571 0.7553
+        0.4286 0.8734
+        0.7486 1.0000
+        1.5714 1.0000
+        1.7714 0.9372
+        1.9286 0.7615
+        2.1571 0.1423
+        2.3333 0.0042
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.170756
+        "accent" 0.631365
+        "loop" 0.698823
+        "end" 0.867538
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.139785
+        "accent" 0.666667
+        "loop" 0.677419
+        "end" 0.698925
+      }
+      sequenceduration 3.133333
+    }
+    event gesture "NULL"
+    {
+      time 7.240001 9.513335
+      param ""
+    }
+    event gesture "asdf"
+    {
+      time 2.480001 4.704985
+      param "Gesture12"
+      event_ramp
+      {
+        0.0524 0.5523
+        0.2619 0.6192
+        0.5952 0.6192
+        1.1190 0.6192
+        1.3057 0.6192
+        1.8248 0.5523
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.198657
+        "accent" 0.331096
+        "loop" 0.511694
+        "end" 0.654151
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147059
+        "accent" 0.264706
+        "loop" 0.367647
+        "end" 0.514706
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "NULL"
+    {
+      time 9.906670 11.260001
+      param ""
+    }
+    event gesture "backup"
+    {
+      time 5.280000 7.513334
+      param "g_backup"
+      event_ramp
+      {
+        0.4667 0.7741
+        0.8190 0.7741
+        1.0619 0.7741
+        1.7476 0.6653
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.211362
+        "accent" 0.378190
+        "loop" 0.772508
+        "end" 0.969668
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.161290
+        "accent" 0.338710
+        "loop" 0.758065
+        "end" 0.967742
+      }
+      sequenceduration 2.100000
+    }
+    event gesture "Gesture13"
+    {
+      time 3.386667 6.090138
+      param "Gesture13"
+      absolutetags playback_time
+      {
+        "in" 0.203002
+        "loop" 0.536967
+        "end" 0.615788
+        "out" 0.874940
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.171429
+        "loop" 0.600000
+        "end" 0.685714
+        "out" 0.857143
+      }
+      sequenceduration 2.366667
+    }
+    event gesture "Gesture13"
+    {
+      time 10.213332 13.539999
+      param "Gesture13"
+      absolutetags playback_time
+      {
+        "in" 0.121958
+        "loop" 0.426854
+        "end" 0.748063
+        "out" 0.840071
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.171429
+        "loop" 0.600000
+        "end" 0.685714
+        "out" 0.857143
+      }
+      sequenceduration 2.366667
+    }
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "Trainyard.cop_needanyhelp"
+    {
+      time 1.810000 2.850998
+      param "Trainyard.cop_needanyhelp"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 2.833332 4.673333
+      param "!player"
+      event_ramp
+      {
+        0.4961 0.6780
+        0.6667 0.7322
+        1.0095 0.7448
+        1.2476 0.7280
+        1.4095 0.6695
+      }
+    }
+    event lookat "look barney"
+    {
+      time 1.719999 3.493333
+      param "barney"
+      event_ramp
+      {
+        0.5329 0.7107
+        0.8429 0.7992
+        0.9003 0.7943
+        0.9094 0.8117
+        1.0643 0.8243
+        1.1313 0.7206
+      }
+    }
+    event lookat "look player"
+    {
+      time 0.073332 1.913333
+      param "!player"
+      event_ramp
+      {
+        0.4961 0.6780
+        0.6667 0.7322
+        1.0095 0.7448
+        1.2476 0.7280
+        1.4095 0.6695
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "barney"
+    {
+      time 1.793332 3.333332
+      param "Barney"
+      event_ramp
+      {
+        0.7000 0.8201
+        0.7898 0.9205
+        0.9114 0.9833
+        1.2590 1.0000
+        1.5400 1.0000
+      }
+    }
+    event face "player"
+    {
+      time 0.046666 1.866666
+      param "!player"
+      event_ramp
+      {
+        0.7000 0.8201
+        0.9724 0.9205
+        1.1914 0.9833
+        1.5390 1.0000
+        1.8200 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_cop_security_room_leave"
+    {
+      time 3.853334 7.346666
+      param "mark_cop_security_room_leave"
+      param2 "Walk"
+    }
+  }
+}
+
+mapname "maps\security_room_01.bsp"
+scalesettings
+{
+  "CChoreoView" "50"
+  "SceneRampTool" "100"
+  "RampTool" "42"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,149 @@
+// Choreo version 1
+event loop "loop"
+{
+  time 17.370371 -1.000000
+  param "0.000000"
+  loopcount "-1"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "rollermine"
+    {
+      time 0.210523 3.916914
+      param "rollermine"
+      event_ramp 
+      {
+        0.1577 0.9960
+        3.4483 0.9900
+      }
+    }
+    event lookat "rollermine"
+    {
+      time 5.173485 10.842842
+      param "rollermine"
+      event_ramp 
+      {
+        0.1577 0.9960
+        5.4113 0.9900
+      }
+    }
+    event lookat "rollermine"
+    {
+      time 11.821634 17.231730
+      param "rollermine"
+      event_ramp 
+      {
+        0.1577 0.9960
+        5.1520 0.9900
+      }
+    }
+    event lookat "!player"
+    {
+      time 10.692005 12.009508
+      param "!player"
+      event_ramp 
+      {
+        0.1577 0.9960
+        1.0594 0.9900
+      }
+    }
+    event lookat "!player"
+    {
+      time 3.840153 5.231730
+      param "!player"
+      event_ramp 
+      {
+        0.1577 0.9960
+        1.1335 0.9900
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "rollermine"
+    {
+      time 0.592593 2.518518
+      param "rollermine"
+      event_ramp 
+      {
+        0.8692 0.9627
+        1.8385 0.9776
+      }
+    }
+    event face "rollermine"
+    {
+      time 5.388889 6.629629
+      param "rollermine"
+      event_ramp 
+      {
+        0.7190 0.9627
+        1.1533 0.9776
+      }
+    }
+    event face "rollermine"
+    {
+      time 12.037039 13.962965
+      param "rollermine"
+      event_ramp 
+      {
+        0.8692 0.9627
+        1.8385 0.9776
+      }
+    }
+    event face "rollermine"
+    {
+      time 9.092592 10.333334
+      param "rollermine"
+      event_ramp 
+      {
+        0.7190 0.9627
+        1.1533 0.9776
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "36"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

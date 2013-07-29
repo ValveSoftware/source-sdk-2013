@@ -1,0 +1,130 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "Audio"
+  {
+    event speak "coast.vbaittrain_great"
+    {
+      time 0.013334 1.924581
+      param "coast.vbaittrain_great"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+    event flexanimation "head"
+    {
+      time 0.040816 3.323129
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1824 0.5500
+          0.3131 0.4500
+          0.7471 0.4600
+          0.9112 0.5300
+          0.9973 0.5100
+          1.1402 0.4300
+          1.4015 0.4600
+          1.5745 0.5000
+          1.6459 0.5000
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.1824 0.5500
+          0.3131 0.4500
+          0.6311 0.4600
+          0.7952 0.5300
+          0.9617 0.5700
+          1.1433 0.5300
+          1.3202 0.6000
+          1.5315 0.5900
+          1.8165 0.5000
+          1.8879 0.5000
+        }
+      }
+    }
+  }
+  channel "Look"
+  {
+    event lookat "look at player"
+    {
+      time 0.019863 3.306531
+      param "!player"
+      event_ramp
+      {
+        0.0895 0.0405
+        0.6053 0.9646
+        2.4368 0.9696
+        3.1789 0.0354
+      }
+    }
+  }
+  channel "faceto"
+  {
+    event face "!player"
+    {
+      time 0.210884 3.329931
+      param "!player"
+      event_ramp
+      {
+        0.6842 0.8886
+        0.9105 0.9722
+        1.2368 1.0000
+        3.1190 1.0000
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.713333
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.081633 3.381633
+      param "g_handclasp"
+      absolutetags playback_time
+      {
+        "in" 0.153061
+        "loop" 0.510204
+        "end" 0.612245
+        "out" 0.816327
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.153061
+        "loop" 0.510204
+        "end" 0.612245
+        "out" 0.816327
+      }
+      sequenceduration 3.300000
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.860000
+      param ""
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "98"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "38"
+}
+fps 60
+snap off

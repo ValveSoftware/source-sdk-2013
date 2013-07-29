@@ -1,0 +1,52 @@
+// Choreo version 1
+event section "pause"
+{
+  time 2.266666 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_scrapyard_area2_1"
+    {
+      time 0.080000 2.660000
+      param "mark_al_scrapyard_area2_1"
+      param2 "Run "
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

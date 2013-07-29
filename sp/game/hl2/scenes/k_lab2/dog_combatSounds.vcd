@@ -1,0 +1,158 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "<hit>"
+    {
+      time 1.373333 1.785442
+      param "NPC_Combine.WeaponBash"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_CombineS.ElectrocuteScream"
+    {
+      time 1.400001 2.105443
+      param "NPC_CombineS.DissolveScream"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_CombineS.ElectrocuteScream"
+    {
+      time 1.866667 2.865216
+      param "NPC_CombineS.DissolveScream"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_CombineS.ElectrocuteScream"
+    {
+      time 0.346666 1.345215
+      param "NPC_CombineS.ElectrocuteScream"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<hit>"
+    {
+      time 0.239999 0.652108
+      param "NPC_Combine.WeaponBash"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<hit>"
+    {
+      time 2.346666 2.758775
+      param "NPC_Combine.WeaponBash"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "1_ragdoll"
+    {
+      time 0.426666 -1.000000
+      param "1"
+    }
+    event firetrigger "2_ragdoll"
+    {
+      time 1.560000 -1.000000
+      param "2"
+    }
+  }
+}
+
+actor "Dog"
+{
+  channel "audio"
+  {
+    event speak "<dog sfx>"
+    {
+      time 1.333334 3.786032
+      param "NPC_dog.Roll_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<dog voice>"
+    {
+      time 3.866667 5.869887
+      param "NPC_dog.Growl_2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<dog sfx>"
+    {
+      time 0.506666 0.869455
+      param "NPC_dog.PoundGround_hard"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<dog sfx>"
+    {
+      time 3.253334 3.761361
+      param "NPC_dog.Pneumatic_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<dog sfx>"
+    {
+      time 4.213334 4.947665
+      param "NPC_dog.MetalHit_Soft_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<dog sfx>"
+    {
+      time 4.826668 5.630523
+      param "NPC_dog.Servo_dn_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<dog sfx>"
+    {
+      time 0.026667 0.508594
+      param "NPC_dog.Servo_up_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<dog voice>"
+    {
+      time 0.026667 1.542585
+      param "NPC_dog.Growl_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "<dog voice>"
+    {
+      time 5.906667 9.390499
+      param "NPC_dog.Scared_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "50"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

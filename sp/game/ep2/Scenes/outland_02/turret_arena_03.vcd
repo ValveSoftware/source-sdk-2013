@@ -1,0 +1,292 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "griggs_whocarry"
+    {
+      time 4.138888 5.412856
+      param "ep_02.griggs_whocarry"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "griggs_whatsthat"
+    {
+      time 0.232638 0.725291
+      param "ep_02.griggs_whatsthat"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "griggs_alyx"
+    {
+      time 8.659721 9.403576
+      param "ep_02.griggs_alyx"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "vort"
+    {
+      time 0.066111 4.453749
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        3.8943 0.6273
+        4.1931 0.3481
+      }
+    }
+    event lookat "sheckley"
+    {
+      time 5.545277 8.766250
+      param "!target2"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        2.7276 0.6273
+        3.0264 0.3481
+      }
+    }
+    event lookat "vort"
+    {
+      time 11.024444 12.359999
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        0.8422 0.6273
+        1.1410 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 8.576528 10.162083
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.0922 0.6273
+        1.3910 0.3481
+      }
+    }
+    event lookat "sheckley"
+    {
+      time 9.659861 11.422500
+      param "!target2"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.2693 0.6273
+        1.5681 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 3.930694 5.891250
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.4672 0.6273
+        1.7660 0.3481
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark watch elevator"
+    {
+      time 0.333333 0.833333
+      param "!target4"
+      param2 "Run"
+    }
+    event moveto "mark run to elevator"
+    {
+      time 10.416667 10.916667
+      param "!target7"
+      param2 "Run"
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  channel "triggers"
+  {
+  }
+}
+
+actor "!target2"
+{
+  channel "audio"
+  {
+    event speak "sheckley_omgalyx01"
+    {
+      time 5.392362 6.546761
+      param "ep_02.sheckley_omgalyx01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "sheckley_vortback"
+    {
+      time 2.079861 3.377661
+      param "ep_02.sheckley_vortback"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "sheckley_omgalyx02"
+    {
+      time 6.756946 8.440619
+      param "ep_02.sheckley_omgalyx02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "sheckley_needhelp"
+    {
+      time 9.767363 11.250423
+      param "ep_02.sheckley_needhelp"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "vort"
+    {
+      time 1.270972 7.637777
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        5.8442 0.5525
+        5.8734 0.5580
+        6.1722 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 7.378611 9.255833
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.3839 0.6273
+        1.6827 0.3481
+      }
+    }
+    event lookat "griggs"
+    {
+      time 8.930694 10.495416
+      param "!target1"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.0713 0.6273
+        1.3701 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 10.159862 11.755833
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        1.1027 0.6273
+        1.4015 0.3481
+      }
+    }
+    event lookat "vort"
+    {
+      time 11.378610 12.432916
+      param "!target3"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.4649 0.5853
+        0.5609 0.6273
+        0.8597 0.3481
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark watch elevator"
+    {
+      time 3.500000 4.000000
+      param "!target5"
+      param2 "Run"
+    }
+    event moveto "mark run to elevator"
+    {
+      time 10.302084 10.802084
+      param "!target6"
+      param2 "Run"
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+actor "!target3"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "RampTool" "66"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,226 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_lift_warns07"
+    {
+      time 0.589248 1.293103
+      param "ep_01.al_lift_warns07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "mark elevator lookup"
+    {
+      time 0.075269 4.024731
+      param "mark_elevator_lookup"
+      event_ramp 
+      {
+        0.4731 0.4364
+        1.6077 0.4364
+        1.6808 0.4280
+        1.9462 0.1017
+        3.2256 0.0593
+        3.5577 0.4958
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+    event gesture "react to explosion"
+    {
+      time 1.800000 3.573333
+      param "p_reacttoexplosion_01"
+      event_ramp 
+      {
+        0.2115 0.5169
+        1.2979 0.5000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.259399
+        "loop" 0.644931
+        "end" 0.656245
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.148936
+        "loop" 0.553191
+        "end" 0.765957
+      }
+      sequenceduration 1.600000
+    }
+    event gesture "p_CitadelShake_03"
+    {
+      time 0.006667 2.246667
+      param "p_CitadelShake_03"
+      event_ramp 
+      {
+        0.0077 0.3721
+        0.2808 0.4128
+        1.2836 0.4128
+        2.0413 0.4128
+        2.2374 0.3721
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.075645
+        "loop" 0.453869
+        "end" 0.758929
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.083333
+        "loop" 0.500000
+        "end" 0.700000
+      }
+      sequenceduration 2.033333
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.768817
+      param ""
+    }
+    event gesture "g_DangerFromAbove_point"
+    {
+      time 0.360215 2.477588
+      param "g_DangerFromAbove_point"
+      event_ramp 
+      {
+        0.0269 0.9710
+        0.1962 0.9751
+        1.6922 0.9710
+        2.1174 0.0083
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.102264
+        "accent" 0.180937
+        "loop" 0.397282
+        "end" 0.697634
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.125000
+        "accent" 0.208333
+        "loop" 0.437500
+        "end" 0.625000
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+    event gesture "NULL"
+    {
+      time 0.006667 0.506667
+      param ""
+    }
+    event flexanimation "facial"
+    {
+      time 0.300000 3.660000
+      param ""
+      flexanimations samples_use_time
+      {
+        "blink" 
+        {
+          0.0432 0.0000
+          0.0841 0.9700
+          0.0977 0.8500
+          0.1591 0.0000
+          0.6659 0.0000
+          0.6932 0.9300
+          0.7068 0.8600
+          0.7727 0.0000
+          1.0864 0.0000
+          1.1091 0.9600
+          1.1227 0.8900
+          1.1932 0.0000
+          1.7023 0.0000
+          1.7227 0.9400
+          1.7364 0.8700
+          1.8114 0.0000
+          2.4773 0.0000
+          2.4864 0.9000
+          2.5023 0.8300
+          2.5864 0.0000
+          2.8636 0.0500
+          2.8705 0.8900
+          2.8886 0.8400
+          2.9568 0.0600
+        }
+        "inner_raiser" combo 
+        {
+          0.2009 1.0000
+          1.8404 1.0000
+          2.8023 0.7800
+          3.0955 0.1800
+        }
+        {
+          0.2009 0.5000
+          1.8404 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.2009 0.2600
+          1.8404 0.0000
+        }
+        {
+          0.2009 0.5000
+          1.8404 0.5000
+        }
+        "lowerer" combo 
+        {
+          1.5625 0.0000
+          1.8404 0.6400
+          2.1909 0.7100
+          2.8455 0.6300
+        }
+        {
+          1.8404 0.5000
+        }
+      }
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "88"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

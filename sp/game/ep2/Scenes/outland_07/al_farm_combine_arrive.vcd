@@ -1,0 +1,44 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Debug text"
+  {
+    event speak "ep_02.al_barn_soldiers01"
+    {
+      time 0.209150 1.138628
+      param "ep_02.al_barn_soldiers01"
+      param2 ".7"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_barn_soldiers02"
+    {
+      time 1.385251 2.656158
+      param "ep_02.al_barn_soldiers02"
+      param2 ".65"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Trigger"
+  {
+    event generic "unholster"
+    {
+      time 2.507311 3.007311
+      param "AI_UNHOLSTER"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "106"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

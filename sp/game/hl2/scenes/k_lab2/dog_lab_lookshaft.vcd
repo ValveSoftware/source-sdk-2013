@@ -1,0 +1,153 @@
+// Choreo version 1
+event loop "loop"
+{
+  time 28.239998 -1.000000
+  param "0.000000"
+  loopcount "-1"
+}
+actor "Dog"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 0.106667 1.326666
+      param "!player"
+      event_ramp
+      {
+        0.3333 0.9609
+        0.6853 0.9974
+        0.9200 0.8915
+      }
+    }
+    event lookat "mark_dog_look_shaft_1"
+    {
+      time 1.120001 10.580000
+      param "mark_dog_look_shaft_1"
+      event_ramp
+      {
+        0.4100 0.9955
+        8.8734 0.9557
+      }
+    }
+    event lookat "look player"
+    {
+      time 10.266668 12.446669
+      param "!player"
+      event_ramp
+      {
+        0.4000 0.9351
+        0.5200 0.9922
+        1.5934 0.9557
+      }
+    }
+    event lookat "mark_dog_look_shaft_1"
+    {
+      time 12.133335 16.740000
+      param "mark_dog_look_shaft_1"
+      event_ramp
+      {
+        0.4400 0.8545
+        0.6800 0.9669
+        4.0200 0.9557
+      }
+    }
+    event lookat "look player"
+    {
+      time 16.080000 21.193333
+      param "!player"
+      event_ramp
+      {
+        0.3800 0.9325
+        1.0000 1.0000
+        4.5267 0.9557
+      }
+    }
+    event lookat "mark_dog_look_shaft_1"
+    {
+      time 21.013334 23.646666
+      param "mark_dog_look_shaft_1"
+      event_ramp
+      {
+        0.3500 0.8987
+        0.6800 0.9929
+        2.0467 0.9557
+      }
+    }
+    event lookat "look player"
+    {
+      time 23.493332 25.033333
+      param "!player"
+      event_ramp
+      {
+        0.3800 0.9325
+        0.9534 0.9557
+        1.0000 1.0000
+      }
+    }
+    event lookat "mark_dog_look_shaft_1"
+    {
+      time 24.666668 28.180000
+      param "mark_dog_look_shaft_1"
+      event_ramp
+      {
+        0.3500 0.8987
+        0.6800 0.9929
+        2.9267 0.9557
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "mark_dog_look_shaft_1"
+    {
+      time 1.866666 3.700001
+      param "mark_dog_look_shaft_1"
+      event_ramp
+      {
+        0.9348 0.9974
+        1.8002 0.9902
+      }
+    }
+    event face "!player"
+    {
+      time 16.986666 18.900000
+      param "!player"
+      event_ramp
+      {
+        0.8317 0.9974
+        1.8802 0.9902
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Sequence"
+  {
+    event sequence "pound"
+    {
+      time 18.159998 23.159998
+      param "excited_dance"
+      fixedlength
+    }
+  }
+  faceposermodel "C:\VALVE\HL2\hl2\models\dog.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "20"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

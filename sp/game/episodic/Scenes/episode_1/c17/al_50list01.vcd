@@ -1,0 +1,146 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_50list01"
+    {
+      time 0.062500 2.143589
+      param "ep_01.al_50list01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_50list02"
+    {
+      time 2.317130 4.151506
+      param "ep_01.al_50list02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_50list03"
+    {
+      time 4.256944 6.207420
+      param "ep_01.al_50list03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_50list04"
+    {
+      time 6.331018 8.031880
+      param "ep_01.al_50list04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_50list05"
+    {
+      time 8.256945 10.433815
+      param "ep_01.al_50list05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_50list05"
+    {
+      time 10.553240 12.259907
+      param "ep_01.al_50list06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "self"
+    {
+      time 0.968889 4.783611
+      param "!self"
+      event_ramp 
+      {
+        0.1211 0.3204
+        0.5838 0.5525
+        2.9824 0.5580
+        3.6202 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 0.080000 1.302129
+      param "!player"
+      event_ramp 
+      {
+        0.1211 0.3204
+        0.5838 0.5525
+        0.7773 0.5580
+        1.0276 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 9.941112 12.579907
+      param "!player"
+      event_ramp 
+      {
+        0.1211 0.3204
+        0.5838 0.5525
+        1.8065 0.5580
+        2.4443 0.3481
+      }
+    }
+    event lookat "self"
+    {
+      time 6.200371 10.598426
+      param "!self"
+      event_ramp 
+      {
+        0.1211 0.3204
+        0.5838 0.5525
+        3.5657 0.5580
+        4.2035 0.3481
+      }
+    }
+    event lookat "player"
+    {
+      time 4.061481 6.866944
+      param "!player"
+      event_ramp 
+      {
+        0.1211 0.3204
+        0.5838 0.5525
+        1.9731 0.5580
+        2.6109 0.3481
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  channel "triggers"
+  {
+    event firetrigger "start beeping (after 3 sec delay)"
+    {
+      time 9.500000 -1.000000
+      param "1"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "72"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

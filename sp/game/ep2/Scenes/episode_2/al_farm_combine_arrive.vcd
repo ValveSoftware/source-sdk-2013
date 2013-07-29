@@ -1,0 +1,31 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Debug text"
+  {
+    event generic "Uh oh.. time to go!"
+    {
+      time 0.040000 3.002353
+      param "debugtext Alyx: Uh oh.. time to go!"
+    }
+  }
+  channel "Trigger"
+  {
+    event generic "unholster"
+    {
+      time 0.200122 0.700122
+      param "AI_UNHOLSTER"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "102"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

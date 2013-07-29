@@ -1,0 +1,112 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "coast.le_map"
+    {
+      time 0.285715 8.662971
+      param "coast.le_map"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.000001 8.817461
+      param "!player"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.0767 0.0235
+        0.1333 0.0772
+        0.5567 0.9161
+        0.6267 0.9765
+        0.7100 1.0000
+        7.8186 1.0000
+        7.9652 0.9899
+        8.0952 0.9262
+        8.1719 0.8490
+        8.6519 0.1007
+        8.7419 0.0268
+        8.8175 0.0000
+      }
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.015873 9.166667
+      param "!player"
+      event_ramp
+      {
+        0.6567 0.0302
+        0.8467 0.0302
+        7.6182 0.0302
+        7.8727 0.0302
+      }
+    }
+  }
+  channel "sequence"
+  {
+    active "0"
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 2.690476
+      param ""
+    }
+    event gesture "g_Leon_Lean_Table_Map_Respond"
+    {
+      time 0.031746 9.188890
+      param "g_Leon_Lean_Table_Map_Respond"
+      absolutetags playback_time
+      {
+        "apex" 0.048660
+        "accent" 0.098958
+        "loop" 0.157986
+        "end" 0.902778
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.172414
+        "accent" 0.344828
+        "loop" 0.603448
+        "end" 0.775862
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 3.579365
+      param ""
+    }
+  }
+  channel "trigger"
+  {
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "42"
+  "ExpressionTool" "40"
+  "RampTool" "22"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

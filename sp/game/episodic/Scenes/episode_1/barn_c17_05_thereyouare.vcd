@@ -1,0 +1,83 @@
+// Choreo version 1
+actor "Barney"
+{
+  channel "audio"
+  {
+    event generic "Barney: There you are!  I wondered if you were gonna make it in time."
+    {
+      time 0.344086 4.822581
+      param "debugtext There you are!  I wondered if you were gonna make it in time."
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Alyx"
+    {
+      time 0.075269 2.123657
+      param "Alyx"
+      event_ramp
+      {
+        0.4115 0.9401
+        1.9185 0.9501
+      }
+    }
+    event lookat "!player"
+    {
+      time 2.505377 5.166667
+      param "!player"
+      event_ramp
+      {
+        0.4115 0.9401
+        2.5314 0.9501
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "!target1"
+    {
+      time 0.580645 3.112903
+      param "!target1"
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

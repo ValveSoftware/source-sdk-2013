@@ -1,0 +1,45 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "pose"
+  {
+    event sequence "shoot_ar2"
+    {
+      time 0.013333 1.786666
+      param "Idle_SMG1_Aim"
+      event_ramp
+      {
+        0.0100 1.0000
+        1.5000 0.9886
+      }
+    }
+  }
+  channel "aim"
+  {
+    event generic "aim at"
+    {
+      time 0.233333 1.746667
+      param "AI_AIM"
+      param2 "!target2"
+    }
+  }
+  channel "chiggers"
+  {
+    event firetrigger "pause"
+    {
+      time 1.353333 -1.000000
+      param "1"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

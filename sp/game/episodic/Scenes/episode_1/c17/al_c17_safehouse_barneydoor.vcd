@@ -1,0 +1,113 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.946667 -1.000000
+  param "noaction"
+}
+actor "alyx"
+{
+  channel "Audio"
+  {
+    event speak "ill get this"
+    {
+      time 1.066667 1.850340
+      param "ep_01.al_safehouse_illgetthis"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event face "mark_al_lookAt_barneyDoor"
+    {
+      time 0.680000 2.493333
+      param "mark_al_lookAt_barneyDoor"
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "mark_al_barneyDoor"
+    {
+      time 0.100000 1.620000
+      param "mark_al_barneyDoor"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "face mark_al_lookAt_barneyDoor"
+    {
+      time 0.766666 2.486666
+      param "mark_al_lookAt_barneyDoor"
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.486667
+      param "NULL"
+    }
+    event gesture "knock"
+    {
+      time 1.253333 3.926667
+      param "doorpound"
+      absolutetags playback_time
+      {
+        "apex" 0.138557
+        "accent" 0.251921
+        "loop" 0.869128
+        "end" 0.881724
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.112245
+        "accent" 0.204082
+        "loop" 0.704082
+        "end" 0.714286
+      }
+      sequenceduration 3.333333
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+    event generic "AI HOLSTER"
+    {
+      time 0.000000 0.500000
+      param "AI_HOLSTER"
+    }
+    event firetrigger "kill door button"
+    {
+      time 1.006667 -1.000000
+      param "1"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

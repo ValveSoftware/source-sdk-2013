@@ -1,0 +1,50 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_hospital_letsgo"
+    {
+      time 0.062500 1.039461
+      param "ep_01.al_hospital_letsgo"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "lookit"
+    {
+      time 0.038333 1.033612
+      param "!player"
+      event_ramp 
+      {
+        0.1211 0.3204
+        0.7088 0.5525
+        0.7941 0.5580
+        0.8007 0.3481
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

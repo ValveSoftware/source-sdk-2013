@@ -1,0 +1,65 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "Audio"
+  {
+    event speak "yeah waaahhaaaa"
+    {
+      time 0.197917 2.826602
+      param "odessa.nlo_cheer04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "die freakin bug"
+    {
+      time 2.854167 5.755505
+      param "ep_02.reb_striderdown11"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "CChoreoView" "64"
+}
+fps 60
+snap off
+ignorePhonemes off

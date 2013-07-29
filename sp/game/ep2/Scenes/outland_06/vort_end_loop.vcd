@@ -1,0 +1,90 @@
+// Choreo version 1
+actor "vort"
+{
+  channel "trigger"
+  {
+    event firetrigger "1 PAUSE"
+    {
+      time 2.761905 -1.000000
+      param "1"
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.034649 5.128803
+      param "!player"
+      event_ramp
+      {
+        0.1556 0.0645
+        1.1111 0.8817
+        1.3000 0.9642
+        1.5444 1.0000
+        3.6615 1.0000
+        3.9727 0.9642
+        4.1949 0.8495
+        4.9616 0.0466
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.045003 5.439191
+      param "!player"
+      event_ramp
+      {
+        0.1500 0.0609
+        0.9064 0.7634
+        1.2098 0.9247
+        4.0481 1.0000
+        5.3942 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "g_hold_hands"
+    {
+      time 0.144445 5.344445
+      param "g_hold_hands"
+      absolutetags playback_time
+      {
+        "in" 0.239189
+        "loop" 0.439591
+        "end" 0.653846
+        "out" 0.835470
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.313559
+        "loop" 0.576271
+        "end" 0.669492
+        "out" 0.788136
+      }
+      sequenceduration 3.966667
+    }
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "RampTool" "28"
+  "ExpressionTool" "100"
+  "CChoreoView" "60"
+}
+fps 60
+snap off

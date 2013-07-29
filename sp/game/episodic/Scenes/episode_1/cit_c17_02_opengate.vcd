@@ -1,0 +1,201 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.773333 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 1.653334 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "npc_citizen.overhere01"
+    {
+      time 2.728888 3.502085
+      param "npc_citizen.overhere01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 2.133333 4.380000
+      param "!player"
+      event_ramp 
+      {
+        0.3444 0.4711
+        0.8467 1.0000 "curve_easein_to_curve_easeout"
+        2.2467 1.0000 "curve_easein_to_curve_easeout"
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "!target2"
+    {
+      time 0.022222 1.451111
+      param "!target2"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "!target3"
+    {
+      time 1.515555 2.922222
+      param "!target3"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 2.146667 3.708889
+      param "!player"
+      event_ramp 
+      {
+        0.7267 0.9336
+        0.8215 1.0000
+        1.3112 1.0000
+        1.5623 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1_openDoor"
+    {
+      time 0.817778 -1.000000
+      param "1"
+    }
+  }
+  channel "bodyges"
+  {
+    event gesture "b_OverHere_Right"
+    {
+      time 2.520000 4.320000
+      param "b_OverHere_Right"
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.655556
+      param ""
+    }
+    event gesture "g_wave"
+    {
+      time 2.111111 4.411111
+      param "g_wave"
+      absolutetags playback_time
+      {
+        "in" 0.352941
+        "loop" 0.779412
+        "end" 0.794118
+        "out" 0.808824
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.352941
+        "loop" 0.779412
+        "end" 0.794118
+        "out" 0.808824
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "brows"
+    {
+      time 1.671111 4.393333
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser" combo 
+        {
+          1.0622 0.0000
+          1.5200 1.0000
+        }
+        {
+          1.0622 0.5000
+          1.5200 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          1.0622 0.0000
+          1.5200 0.2500
+        }
+        {
+          1.0622 0.5000
+          1.5200 0.5000
+        }
+        "lowerer" combo 
+        {
+          1.0622 0.0000
+          1.5200 0.0000
+        }
+        {
+          1.0622 0.5000
+          1.5200 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          1.0622 0.0000
+          1.5200 0.0000
+        }
+        {
+          1.0622 0.5000
+          1.5200 0.5000
+        }
+      }
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "models\humans\group03\male_02.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "150"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "90"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

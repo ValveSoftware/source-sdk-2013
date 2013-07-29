@@ -1,0 +1,89 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "docfreeman01"
+    {
+      time 0.006667 0.811384
+      param "npc_citizen.docfreeman01"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Look"
+  {
+    event lookat "Lookatplayer"
+    {
+      time -0.000000 1.733334
+      param "!player"
+    }
+  }
+  channel "Expression"
+  {
+    event flexanimation "ah gordon"
+    {
+      time 0.000000 1.433333
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_droop"         combo        
+        {
+          0.2310 0.6700
+          0.6155 0.6700
+        }
+        {
+        }
+        "inner_raiser"         combo        
+        {
+          0.2910 0.9600
+          0.6155 1.0000
+          1.0350 0.6700
+          1.2255 0.1900
+        }
+        {
+          0.1027 0.1900
+          0.2629 0.4900
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.3915 0.5100
+        }
+        "head_updown"         range 35.0 -30.0        
+        {
+          0.3915 0.4600
+          0.9812 0.4699
+        }
+        "part"         combo        
+        {
+        }
+        {
+        }
+        "smile"         disabled        
+        {
+          0.9377 0.0000
+        }
+        "head_tilt"         range 18.0 -18.0        
+        {
+          0.2850 0.4800
+          0.4455 0.4800
+          0.8072 0.4799
+        }
+        "jaw_drop"        
+        {
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

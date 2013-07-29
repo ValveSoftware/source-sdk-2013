@@ -1,0 +1,221 @@
+// Choreo version 1
+event stoppoint "end"
+{
+  time 8.575970 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_pb_mightgivejolt"
+    {
+      time 0.125786 6.375650
+      param "ep_01.al_pb_mightgivejolt"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_pb_crossfingers"
+    {
+      time 7.025157 8.256517
+      param "ep_01.al_pb_crossfingers"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "face_powerbox"
+    {
+      time -0.017544 8.565581
+      param "darkdoor_1_powerbox_furniture"
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "2_sparks"
+    {
+      time 1.859301 -1.000000
+      param "2"
+    }
+    event firetrigger "4_spawn headcrab"
+    {
+      time 5.460076 -1.000000
+      param "4"
+    }
+    event firetrigger "2_sparks"
+    {
+      time 3.780296 -1.000000
+      param "2"
+    }
+    event firetrigger "3_BranchToGenericUponRestart"
+    {
+      time 5.835963 -1.000000
+      param "3"
+    }
+    event firetrigger "5_powerboxlights"
+    {
+      time 3.715847 -1.000000
+      param "5"
+    }
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.116758
+      param "NULL"
+    }
+    event gesture "NULL"
+    {
+      time 3.191257 3.860656
+      param "NULL"
+    }
+    event gesture "powerbox_examine"
+    {
+      time 0.112672 3.999453
+      param "powerbox_examine"
+      event_ramp 
+      {
+        0.1615 0.7938
+        0.3308 0.9844
+        0.5135 1.0000
+        1.5808 1.0000
+        3.1341 1.0000
+        3.4938 1.0000
+        3.7341 1.0000
+        3.8072 0.8171
+      }
+      absolutetags playback_time
+      {
+        "in" 0.069530
+        "out" 0.963453
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.056818
+        "out" 0.965909
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "powerbox_hack"
+    {
+      time 3.650000 8.545238
+      param "powerbox_hack"
+      event_ramp 
+      {
+        0.1423 0.1595
+        0.3154 0.5058
+        0.4942 0.9144
+        0.5846 0.9961
+        0.7135 1.0000
+        4.2827 1.0000
+        4.5038 0.9844
+        4.6385 0.7782
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.035381
+        "in" 0.045381
+        "accent" 0.126050
+        "loop" 0.159664
+        "out" 0.965967
+        "end" 1.000000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.084034
+        "in" 0.084746
+        "accent" 0.126050
+        "loop" 0.159664
+        "out" 1.008475
+        "end" 1.016807
+      }
+      sequenceduration 4.000000
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+    event interrupt "Interrupt1"
+    {
+      time 0.695035 1.741135
+      param ""
+    }
+    event interrupt "Interrupt1"
+    {
+      time 3.701198 4.161319
+      param ""
+    }
+    event interrupt "Interrupt1"
+    {
+      time 5.865133 7.074469
+      param ""
+    }
+    event interrupt "Interrupt1"
+    {
+      time 8.028719 8.521277
+      param ""
+    }
+    event interrupt "Interrupt1"
+    {
+      time 0.014184 0.315603
+      param ""
+    }
+    event interrupt "Interrupt1"
+    {
+      time 3.194745 3.228171
+      param ""
+    }
+    event interrupt "Interrupt1"
+    {
+      time 2.517149 2.556040
+      param ""
+    }
+    event interrupt "Interrupt1"
+    {
+      time 4.790374 4.834729
+      param ""
+    }
+    event interrupt "Interrupt1"
+    {
+      time 4.549936 4.616149
+      param ""
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "84"
+  "ExpressionTool" "94"
+  "GestureTool" "100"
+  "RampTool" "104"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

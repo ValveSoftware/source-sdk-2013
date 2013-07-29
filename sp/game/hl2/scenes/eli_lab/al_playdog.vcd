@@ -1,0 +1,308 @@
+// Choreo version 1
+event section "pause"
+{
+  time 9.573334 -1.000000
+  param "noaction"
+}
+event stoppoint "stop"
+{
+  time 12.186668 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_goaheaddog"
+    {
+      time 6.186666 7.314353
+      param "eli_lab.al_goaheaddog"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_okletsplay"
+    {
+      time 0.266666 2.089931
+      param "eli_lab.al_okletsplay"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_usegravgun"
+    {
+      time 2.959999 4.262154
+      param "eli_lab.al_usegravgun"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look_dog"
+    {
+      time 11.733333 14.046665
+      param "dog"
+      event_ramp
+      {
+        0.3090 0.5978
+        0.4467 0.7775
+        0.5192 0.8246
+        0.7093 0.8440
+        1.4441 0.8220
+        2.2179 0.7962
+        2.3133 0.7827
+      }
+    }
+    event lookat "look at player"
+    {
+      time 1.600000 5.434340
+      param "!player"
+      event_ramp
+      {
+        0.3358 0.6739
+        0.4090 0.7962
+        0.5224 0.8587
+        1.1463 0.8940
+        2.7297 0.8315
+        3.8177 0.8207
+        3.8341 0.8207
+      }
+    }
+    event lookat "look_dog"
+    {
+      time 0.026668 2.233333
+      param "dog"
+      event_ramp
+      {
+        0.4015 0.7228
+        0.5192 0.8246
+        0.6761 0.8397
+        1.2615 0.8168
+        1.3375 0.8220
+        2.1507 0.7853
+        2.2067 0.7827
+      }
+    }
+    event lookat "look_dog"
+    {
+      time 4.693335 6.900000
+      param "dog"
+      event_ramp
+      {
+        0.2522 0.4701
+        0.3582 0.6793
+        0.5192 0.7947
+        0.7910 0.8179
+        1.2615 0.8168
+        1.6853 0.7948
+        2.0821 0.7772
+        2.2067 0.7827
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_scrapyard_sidelines_1"
+    {
+      time 4.826667 9.646667
+      param "mark_al_scrapyard_sidelines_1"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "face_player"
+    {
+      time 1.840001 5.300000
+      param "!player"
+      event_ramp
+      {
+        0.3731 0.5543
+        0.4776 0.7011
+        0.5582 0.7609
+        0.6569 0.7915
+        1.3761 0.7745
+        3.4284 0.6875
+        3.4582 0.6875
+      }
+    }
+    event face "face_dog"
+    {
+      time 0.026667 1.433334
+      param "dog"
+      event_ramp
+      {
+        0.4328 0.7908
+        0.4972 0.8621
+        0.5881 0.9022
+        0.7910 0.9130
+        1.1970 0.9239
+        1.4067 0.8917
+      }
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 1.408805 2.713837
+      param ""
+    }
+    event gesture "dog_call"
+    {
+      time 0.000000 1.667925
+      param "dog_call"
+      event_ramp
+      {
+        0.0015 0.4348
+        0.1389 0.7147
+        0.5579 0.7527
+        0.8291 0.6902
+        0.9056 0.6033
+        1.0653 0.2609
+        1.2420 0.0679
+        1.6248 0.0000
+        1.6553 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.404227
+        "loop" 0.686424
+        "end" 0.831335
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.291262
+        "loop" 0.572816
+        "end" 0.650485
+      }
+      sequenceduration 3.466667
+    }
+    event gesture "A_gesture13"
+    {
+      time 2.452830 5.152830
+      param "A_gesture13"
+      event_ramp
+      {
+        0.1778 0.4565
+        0.2833 0.6875
+        0.4139 0.8152
+        0.5583 0.8696
+        1.2222 0.8342
+        1.3417 0.7364
+        1.7000 0.1957
+        1.9417 0.0571
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.150000
+        "accent" 0.300000
+        "loop" 0.475000
+        "end" 0.650000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.150000
+        "accent" 0.300000
+        "loop" 0.475000
+        "end" 0.650000
+      }
+      sequenceduration 2.700000
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.229560
+      param ""
+    }
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "SS sideline hopup"
+    {
+      time 9.733335 -1.000000
+      param "1"
+    }
+    event firetrigger "trigger_dog_throw_start"
+    {
+      time 5.866667 -1.000000
+      param "2"
+    }
+  }
+  channel "lookat"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "dog"
+{
+  channel "audio"
+  {
+    event speak "NPC_dog.Playful_1"
+    {
+      time 7.232705 8.660415
+      param "NPC_dog.Playful_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_dog.Playful_3"
+    {
+      time 2.176101 2.502496
+      param "NPC_dog.Playful_3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_dog.Playful_4"
+    {
+      time 2.591195 3.156410
+      param "NPC_dog.Playful_4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_dog.Playful_3"
+    {
+      time 2.666667 2.993062
+      param "NPC_dog.Playful_3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_dog.Playful_3"
+    {
+      time 2.477988 2.804383
+      param "NPC_dog.Playful_3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "faceto"
+  {
+  }
+  channel "animation"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "53"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "72"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

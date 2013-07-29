@@ -1,0 +1,171 @@
+// Choreo version 1
+event stoppoint "STOP"
+{
+  time 5.180000 -1.000000
+  param "noaction"
+}
+event section "pauyse"
+{
+  time 6.280000 -1.000000
+  param "noaction"
+}
+actor "Breen"
+{
+  channel "audio"
+  {
+    event speak "whats the meaning"
+    {
+      time 0.133333 1.204172
+      param "k_lab.br_tele_02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "who?"
+    {
+      time 1.700000 2.762902
+      param "k_lab.br_tele_03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "how did you?"
+    {
+      time 2.906667 4.398164
+      param "k_lab.br_tele_05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "triggers"
+  {
+    event firetrigger "1 - teleport FX"
+    {
+      time 3.039999 -1.000000
+      param "1"
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "player1"
+    {
+      time 0.013334 5.166668
+      param "!player"
+      event_ramp
+      {
+        0.1140 0.4561
+        0.2120 0.7412
+        0.3460 0.8904
+        0.5320 0.9474
+        5.1033 0.8947
+        5.1533 0.8947
+      }
+    }
+    event lookat "desk"
+    {
+      time 4.446667 5.520000
+      param "!self"
+      event_ramp
+      {
+        0.4880 0.6140
+        0.6480 0.7675
+        1.0700 0.7763
+      }
+    }
+  }
+  channel "faceto"
+  {
+    event face "breen_looktarget"
+    {
+      time 5.970303 6.811517
+      param "breen_looktarget"
+      event_ramp
+      {
+        0.2099 0.4865
+        0.4460 1.0000
+        0.5060 1.0000
+        0.5538 1.0000
+        0.8025 1.0000
+        0.8398 1.0000
+      }
+    }
+  }
+  channel "seq."
+  {
+    event sequence "startle"
+    {
+      time 0.020000 1.220000
+      param "sit_startle"
+	  playoverscript
+      fixedlength
+    }
+    event sequence "getup"
+    {
+      time 1.033334 3.033334
+      param "get_up"
+	  playoverscript
+      fixedlength
+    }
+    event sequence "console"
+    {
+      time 2.840001 5.506668
+      param "at_console"
+      event_ramp
+      {
+        0.1820 0.9868
+        2.6600 1.0000
+      }
+	  playoverscript
+      fixedlength
+    }
+  }
+  channel "gesture"
+  {
+    event firetrigger "4 - console anim"
+    {
+      time 2.846666 -1.000000
+      param "4"
+    }
+    event firetrigger "2 - startle anim"
+    {
+      time 0.046666 -1.000000
+      param "2"
+    }
+    event firetrigger "3 - getup anim"
+    {
+      time 1.046666 -1.000000
+      param "3"
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "Mark_breen_interface_1"
+    {
+      time 5.446668 6.300000
+      param "Mark_breen_interface_1"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\breen.mdl"
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

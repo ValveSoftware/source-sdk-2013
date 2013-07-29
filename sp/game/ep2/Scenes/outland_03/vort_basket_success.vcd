@@ -1,0 +1,74 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "ep_02.vort_basket_success_01"
+    {
+      time 0.025000 1.666224
+      param "ep_02.vort_basket_success_01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_basket_success_02"
+    {
+      time 1.833333 3.227438
+      param "ep_02.vort_basket_success_02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_basket_success_03"
+    {
+      time 3.358333 4.557925
+      param "ep_02.vort_basket_success_03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.041666 4.741666
+      param "!player"
+      event_ramp
+      {
+        0.6513 1.0000
+        4.1128 1.0000
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "80"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "78"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,48 @@
+// Choreo version 1
+actor "Barney"
+{
+  channel "audio"
+  {
+    event speak "ba_littlehelphere"
+    {
+      time 0.064516 1.527214
+      param "npc_barney.ba_littlehelphere"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "trigger"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+}
+
+mapname "maps\d1_town_05.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,26 @@
+// Choreo version 1
+actor "alyx"
+{
+  channel "talk"
+  {
+    event speak "hey"
+    {
+      time 0.133334 0.707007
+      param "novaprospekt.al_gordon01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

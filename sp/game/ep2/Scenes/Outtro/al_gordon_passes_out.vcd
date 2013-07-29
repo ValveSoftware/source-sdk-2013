@@ -1,0 +1,218 @@
+// Choreo version 1
+actor "alyx"
+{
+  channel "Audio"
+  {
+    event speak "ep_02.al_launch_someone"
+    {
+      time -7.429480 -6.441566
+      param "ep_02.al_launch_someone"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_launch_whatsthat"
+    {
+      time -1.670588 -1.099318
+      param "ep_02.al_launch_whatsthat"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "herewecome01"
+    {
+      time 0.407612 1.655684
+      param "ep_02.al_launch_herewecome01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "herewecome02"
+    {
+      time 1.739017 5.454210
+      param "ep_02.al_launch_herewecome02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_launch_someone"
+    {
+      time 6.762106 7.750020
+      param "ep_02.al_launch_someone"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "signalwweak01"
+    {
+      time 8.257833 9.310033
+      param "ep_02.al_launch_signalwweak01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "channelopen01"
+    {
+      time 12.335177 13.313953
+      param "ep_02.al_launch_channelopen01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "getrest01"
+    {
+      time 16.457117 18.117071
+      param "ep_02.al_launch_getrest01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "signalwweak02"
+    {
+      time 9.501424 11.433646
+      param "ep_02.al_launch_signalwweak02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "channelopen02"
+    {
+      time 13.476203 14.282711
+      param "ep_02.al_launch_channelopen02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "channelopen03"
+    {
+      time 14.335177 15.589644
+      param "ep_02.al_launch_channelopen03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "whatsthat"
+    {
+      time 5.890312 6.461582
+      param "ep_02.al_launch_whatsthat"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "getrest02"
+    {
+      time 18.226347 19.736732
+      param "ep_02.al_launch_getrest02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.085358 5.746098
+      param "!player"
+      event_ramp
+      {
+        0.2300 0.3789
+        0.3720 0.6456
+        0.5320 0.8246
+        0.7960 0.8947
+        0.8200 0.8947
+        4.9774 0.8947
+        5.1994 0.8175
+        5.3754 0.5474
+        5.5494 0.1333
+      }
+    }
+    event lookat "!player"
+    {
+      time 9.794466 15.455207
+      param "!player"
+      event_ramp
+      {
+        0.2300 0.3789
+        0.3720 0.6456
+        0.5320 0.8246
+        0.7960 0.8947
+        0.8200 0.8947
+        4.9774 0.8947
+        5.1994 0.8175
+        5.3754 0.5474
+        5.5494 0.1333
+      }
+    }
+    event lookat "!player"
+    {
+      time 16.170238 21.769085
+      param "!player"
+      event_ramp
+      {
+        0.2300 0.3789
+        0.3720 0.6456
+        0.5320 0.8246
+        0.7960 0.8947
+        0.8200 0.8947
+        4.9156 0.8947
+        5.1376 0.8175
+        5.3136 0.5474
+        5.4876 0.1333
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "transmission"
+    {
+      time 5.025642 -1.000000
+      param "1"
+    }
+    event firetrigger "takeoff"
+    {
+      time 16.371794 -1.000000
+      param "2"
+    }
+    event firetrigger "visionquest"
+    {
+      time 17.089737 -1.000000
+      param "3"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

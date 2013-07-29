@@ -1,0 +1,77 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Sound"
+  {
+    event speak "ep_02.al_car_callback02"
+    {
+      time 0.206666 1.380226
+      param "ep_02.al_car_callback02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "gesture"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.020000 1.966667
+      param "!player"
+      event_ramp
+      {
+        0.3260 0.9499
+        1.6277 0.9471
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.000000 1.973333
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "inner_raiser" combo 
+        {
+          0.2267 0.3300
+          0.7580 0.4700
+          1.5160 0.3100
+          1.6800 0.2600
+        }
+        {
+          0.2267 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.3467 0.4800
+          0.7440 0.6200
+          1.4740 0.4900
+          1.6960 0.4300
+        }
+        {
+          0.2267 0.5000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "82"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

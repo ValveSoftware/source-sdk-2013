@@ -1,0 +1,195 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "Looks like we can get into the mines thru here If we could just get this gate open"
+    {
+      time 0.545783 5.620568
+      param "ep_02.al_rbed_gatenags04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 3.021739 5.855072
+      param "!player"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.1040 0.0675
+        0.6180 0.7182
+        0.8119 0.8968
+        1.0572 1.0000
+        1.9141 1.0000
+        2.0741 0.9524
+        2.2001 0.8214
+        2.7021 0.0675
+        2.8294 0.0000
+      }
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 3.053224 5.901550
+      param "!player"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.1020 0.0873
+        0.4380 0.5635
+        0.6000 0.8135
+        0.7561 0.9365
+        0.9881 1.0000
+        1.9323 1.0000
+        2.1147 0.9444
+        2.2792 0.7897
+        2.7362 0.1190
+        2.8483 0.0000
+      }
+    }
+    event lookat "mark_alyx_gate"
+    {
+      time 0.024238 3.713144
+      param "mark_alyx_gate"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.1020 0.0873
+        0.4380 0.5635
+        0.6000 0.8135
+        0.7561 0.9365
+        0.9881 1.0000
+        2.7729 1.0000
+        2.9553 0.9444
+        3.1198 0.7897
+        3.5768 0.1190
+        3.6889 0.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_alyx_gate"
+    {
+      time 0.449275 2.463768
+      param "mark_alyx_gate"
+      param2 "Walk"
+    }
+  }
+  channel "gesture"
+  {
+    event flexanimation "face"
+    {
+      time 0.028735 5.901799
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lid_closer" combo 
+        {
+          0.0741 0.0000
+          0.1830 1.0000
+          0.2675 1.0000
+          0.3731 0.0000
+          0.8209 0.0000
+          1.4371 0.0000
+          1.7720 0.0000
+          3.0116 0.0000
+          3.1338 1.0000
+          3.2060 1.0000
+          3.3116 0.0000
+        }
+        {
+          0.0747 0.5000
+          0.8209 0.5000
+          1.4371 0.5000
+          1.7720 0.5000
+        }
+        "inner_raiser" combo 
+        {
+          0.0747 0.0000
+          0.3000 0.1400
+          0.5674 0.5300
+          0.8209 0.5300
+          1.4371 0.5300
+          1.7720 0.5300
+          2.7634 0.5500
+          3.0866 0.5100
+          3.2471 0.0400
+        }
+        {
+          0.0747 0.5000
+          0.5674 0.6500
+          0.8209 0.6500
+          1.4371 0.6500
+          1.7720 0.6500
+        }
+        "outer_raiser" combo 
+        {
+          0.0747 0.0000
+          0.3070 0.0500
+          0.5674 0.2100
+          0.8209 0.2100
+          1.4371 0.2100
+          1.7720 0.2100
+          2.7959 0.2700
+          3.0820 0.1900
+          3.2285 0.0600
+        }
+        {
+          0.0747 0.5000
+          0.5674 0.5500
+          0.8209 0.5500
+          1.4371 0.5500
+          1.7720 0.5500
+        }
+        "lowerer" combo 
+        {
+          0.0747 0.0000
+          0.5674 0.0000
+          0.8209 0.0000
+          1.4371 0.0000
+          1.7720 0.0000
+          2.9810 0.0000
+          3.1338 0.4300
+          3.2421 0.4100
+          3.4533 0.0100
+        }
+        {
+          0.0747 0.5000
+          0.5674 0.5000
+          0.8209 0.5000
+          1.4371 0.5000
+          1.7720 0.5000
+        }
+      }
+    }
+  }
+  channel "trigger"
+  {
+  }
+  channel "generic ai"
+  {
+  }
+  channel "text"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "84"
+  "RampTool" "82"
+  "ExpressionTool" "72"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

@@ -1,0 +1,5790 @@
+// Choreo version 1
+event stoppoint "v"
+{
+  time 42.934734 -1.000000
+  param "noaction"
+}
+event section "p1"
+{
+  time 28.799999 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_lookout01"
+    {
+      time 6.970840 7.686917
+      param "npc_alyx.lookout01"
+      param2 "1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_omgdog01"
+    {
+      time 10.529053 11.957080
+      param "ep_01.al_omgdog01"
+      param2 ".85"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_omgdog02"
+    {
+      time 12.174883 12.907037
+      param "ep_01.al_omgdog02"
+      param2 ".85"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_omgdog03"
+    {
+      time 15.394793 16.735744
+      param "ep_01.al_omgdog03"
+      param2 ".85"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "citadel.al_gasp01"
+    {
+      time 6.376956 6.834825
+      param "citadel.al_gasp01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_callingdog01"
+    {
+      time 2.824357 5.750072
+      param "ep_01.al_callingdog01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_chasm_getbackin"
+    {
+      time 29.556652 32.470757
+      param "ep_01.al_chasm_getbackin"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_chasm_noteasy"
+    {
+      time 32.862213 35.369968
+      param "ep_01.al_chasm_noteasy"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_chasm_whatstakinghim"
+    {
+      time 0.607614 2.140131
+      param "ep_01.al_chasm_whatstakinghim"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_chasm_dogallright"
+    {
+      time 18.923660 20.804476
+      param "ep_01.al_chasm_dogallright"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_chasm_scaredhell"
+    {
+      time 22.001104 23.777431
+      param "ep_01.al_chasm_scaredhell"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_chasm_staywithus"
+    {
+      time 24.204807 25.656055
+      param "ep_01.al_chasm_staywithus"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_chasm_staywithus02"
+    {
+      time 25.769623 27.654793
+      param "ep_01.al_chasm_staywithus02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_chasm_dogideas"
+    {
+      time 38.500000 39.869976
+      param "ep_01.al_chasm_dogideas"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_chasm_dogideas02"
+    {
+      time 40.166668 40.979366
+      param "ep_01.al_chasm_dogideas02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_chasm_dogideas03"
+    {
+      time 41.404762 42.387257
+      param "ep_01.al_chasm_dogideas03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Dog"
+    {
+      time 20.807680 28.387094
+      param "Dog"
+      event_ramp 
+      {
+        0.4233 0.3199
+        0.5600 0.4645
+        0.6667 0.5290
+        0.8367 0.5892
+        1.0533 0.6232
+        6.6732 0.6232
+        6.9099 0.5846
+        7.1138 0.4443
+      }
+    }
+    event lookat "mark_look_bigdebris_1"
+    {
+      time 5.439559 12.257624
+      param "mark_look_bigdebris_1"
+      event_ramp 
+      {
+        0.1900 0.4713
+        0.3267 0.7418
+        0.5600 0.9109
+        0.8367 0.9701
+        1.4895 0.9928
+        2.5316 0.9892
+        3.6211 1.0000
+        3.9179 0.9413
+        4.1075 0.0287
+        4.7928 0.0533
+        4.9462 0.2743
+        5.0028 0.3666
+        5.0695 0.4273
+        5.5009 0.4895
+        5.9897 0.4757
+        6.2142 0.4595
+        6.4275 0.3786
+        6.5875 0.2453
+        6.7142 0.0933
+      }
+    }
+    event lookat "mark_dog_climbrubble_1"
+    {
+      time 11.824882 15.006144
+      param "mark_dog_climbrubble_1"
+      event_ramp 
+      {
+        0.1467 0.1973
+        0.3250 0.3661
+        0.6883 0.4590
+        1.1025 0.4657
+        2.4685 0.4480
+        2.7496 0.4341
+        2.8809 0.3840
+        2.9878 0.2998
+        3.0738 0.1601
+      }
+    }
+    event lookat "mark_dog_climbrubble_1"
+    {
+      time 15.172716 19.684320
+      param "mark_dog_climbrubble_1"
+      event_ramp 
+      {
+        0.1065 0.1879
+        0.1522 0.2725
+        0.2283 0.3981
+        0.3021 0.4583
+        0.4237 0.4925
+        3.3211 0.5343
+        3.9302 0.4972
+        4.2086 0.3899
+        4.3698 0.1737
+      }
+    }
+    event lookat "Dog"
+    {
+      time 2.199249 5.870987
+      param "Dog"
+      event_ramp 
+      {
+        0.2800 0.3548
+        0.5600 0.5557
+        0.7733 0.6043
+        1.0600 0.6073
+        1.7526 0.6426
+        2.8158 0.6318
+        2.9656 0.6127
+        3.2562 0.4842
+        3.3970 0.3141
+      }
+    }
+    event lookat "mark_look_cit_sec2_1"
+    {
+      time 27.634993 29.944624
+      param "mark_look_cit_sec2_1"
+      event_ramp 
+      {
+        0.1467 0.1720
+        0.3275 0.4902
+        0.5208 0.6442
+        0.8533 0.7004
+        1.3325 0.6931
+        1.5158 0.6863
+        1.7975 0.6534
+        1.9314 0.5661
+        2.0917 0.2296
+        2.2250 0.0469
+      }
+    }
+    event lookat "!self"
+    {
+      time 18.935499 21.201307
+      param "!self"
+      event_ramp 
+      {
+        0.2167 0.1720
+        0.4200 0.6815
+        0.6233 0.9505
+        1.6655 0.9968
+        1.9017 0.9013
+        2.0496 0.5382
+        2.1817 0.1497
+      }
+    }
+    event lookat "!player"
+    {
+      time 14.752518 15.399445
+      param "!player"
+      event_ramp 
+      {
+        0.0645 0.1720
+        0.1844 0.7704
+        0.2300 0.8940
+        0.2881 0.9570
+        0.3549 0.9599
+        0.4207 0.9083
+        0.4549 0.8539
+        0.4786 0.7647
+        0.5813 0.1497
+        0.6194 0.0401
+      }
+    }
+    event lookat "!player"
+    {
+      time 33.421394 35.950024
+      param "!player"
+      event_ramp 
+      {
+        0.2167 0.1720
+        0.4200 0.3999
+        0.6233 0.5740
+        1.0000 0.6897
+        1.6500 0.7098
+        1.9284 0.6664
+        2.1646 0.5191
+        2.3125 0.3428
+        2.4446 0.1497
+      }
+    }
+    event lookat "!player"
+    {
+      time 0.001933 2.923919
+      param "!player"
+      event_ramp 
+      {
+        0.1515 0.1720
+        0.3461 0.3203
+        0.6773 0.4075
+        1.2773 0.4593
+        2.1500 0.4544
+        2.4092 0.4159
+        2.6285 0.2971
+        2.8379 0.0919
+      }
+    }
+    event lookat "mark_look_cit_sec2_1"
+    {
+      time 35.528862 37.854774
+      param "mark_look_cit_sec2_1"
+      event_ramp 
+      {
+        0.2792 0.3403
+        0.4876 0.4838
+        0.6717 0.5188
+        1.3253 0.5408
+        1.5621 0.5254
+        1.9312 0.4124
+      }
+    }
+    event lookat "mark_look_cit_sec2_3"
+    {
+      time 37.270008 39.279976
+      param "mark_look_cit_sec2_3"
+      event_ramp 
+      {
+        0.1843 0.3147
+        0.3241 0.5090
+        0.5653 0.6103
+        1.1079 0.6245
+        1.3553 0.6173
+        1.7069 0.5187
+        1.8742 0.2890
+      }
+    }
+    event lookat "Dog"
+    {
+      time 38.710361 43.944096
+      param "Dog"
+      event_ramp 
+      {
+        0.2276 0.2435
+        0.4261 0.3887
+        0.7989 0.5128
+        1.7136 0.5702
+        3.9137 0.5616
+        4.5679 0.5330
+        4.7941 0.4837
+        4.9027 0.4269
+        5.0201 0.2952
+      }
+    }
+    event lookat "!self"
+    {
+      time 29.177416 34.190079
+      param "!self"
+      event_ramp 
+      {
+        0.2167 0.1720
+        0.4200 0.6815
+        0.6233 0.8741
+        0.8533 0.9639
+        1.2105 1.0000
+        4.2591 0.9799
+        4.5142 0.7676
+        4.7656 0.4236
+      }
+    }
+  }
+  channel "move to "
+  {
+    event moveto "dog"
+    {
+      time 20.721935 22.115953
+      param "dog"
+      param2 "Walk"
+      distancetotarget 80.00
+    }
+    event moveto "mark_al_path_area2_1"
+    {
+      time 2.392056 5.152796
+      param "mark_al_path_area2_1"
+      param2 "Walk"
+    }
+    event moveto "mark_alyx_ledge_1"
+    {
+      time 28.332403 29.699066
+      param "mark_alyx_ledge_1"
+      param2 "Walk"
+      resumecondition
+      distancetotarget 100.00
+    }
+    event moveto "mark_al_path_area2_1"
+    {
+      time 9.942057 12.702796
+      param "mark_al_path_area2_1"
+      param2 "Run"
+    }
+  }
+  channel "face to"
+  {
+    event face "Dog"
+    {
+      time 15.886509 20.475403
+      param "Dog"
+      event_ramp 
+      {
+        0.1925 0.4691
+        0.3182 0.7109
+        0.4933 0.8773
+        0.7227 0.9655
+        4.0697 1.0000
+        4.5888 1.0000
+      }
+    }
+    event face "mark_look_bigdebris_1"
+    {
+      time 1.942099 14.627662
+      param "mark_look_bigdebris_1"
+      event_ramp 
+      {
+        0.4032 0.3807
+        0.6363 0.5982
+        0.9000 0.7684
+        1.1767 0.8735
+        1.6833 0.9733
+        12.6854 1.0000
+      }
+    }
+    event face "mark_look_cit_sec2_1"
+    {
+      time 27.906141 29.518106
+      param "mark_look_cit_sec2_1"
+      event_ramp 
+      {
+        0.3683 0.5597
+        0.5980 0.8475
+        0.7955 0.9540
+        1.1773 1.0000
+        1.6119 1.0000
+      }
+    }
+    event face "!player"
+    {
+      time 33.634693 34.849228
+      param "!player"
+      event_ramp 
+      {
+        0.3225 0.3935
+        0.5725 0.7870
+        0.8138 0.9593
+        1.0325 0.9928
+        1.2145 1.0000
+      }
+    }
+    event face "!player"
+    {
+      time 0.022949 1.801288
+      param "!player"
+      event_ramp 
+      {
+        0.3533 0.3833
+        0.7368 0.7869
+        0.9911 0.9691
+        1.2086 1.0000
+        1.7783 1.0000
+      }
+    }
+    event face "Dog"
+    {
+      time 38.720821 42.377392
+      param "Dog"
+      event_ramp 
+      {
+        0.3300 0.3249
+        0.5233 0.5661
+        0.7682 0.7822
+        1.0136 0.9112
+        1.4682 0.9914
+        3.6566 1.0000
+      }
+    }
+    event face "mark_look_cit_sec2_1"
+    {
+      time 35.756641 36.767754
+      param "mark_look_cit_sec2_1"
+      event_ramp 
+      {
+        0.3075 0.3971
+        0.4933 0.7271
+        0.6818 0.9138
+        0.8682 0.9885
+        1.0111 1.0000
+      }
+    }
+    event face "!player"
+    {
+      time 14.665298 15.793585
+      param "!player"
+      event_ramp 
+      {
+        0.2364 0.1580
+        0.4364 0.2672
+        0.7031 0.2586
+        0.9366 0.1063
+        1.1282 0.0000
+      }
+      lockbodyfacing
+    }
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+    event gesture "A_P_exposreact_ng"
+    {
+      time 9.058796 11.518055
+      param "A_P_exposreact_ng"
+      absolutetags playback_time
+      {
+        "apex" 0.133885
+        "loop" 0.395095
+        "end" 0.505077
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.100000
+        "loop" 0.371429
+        "end" 0.485714
+      }
+      sequenceduration 2.366667
+    }
+    event gesture "A_p_lft_fwd"
+    {
+      time 6.466200 9.053238
+      param "A_p_lft_fwd"
+      absolutetags playback_time
+      {
+        "apex" 0.390487
+        "loop" 0.585730
+        "end" 0.659498
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.306122
+        "loop" 0.459184
+        "end" 0.561224
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "A_P_left_hiplean"
+    {
+      time 25.060932 28.699858
+      param "A_P_left_hiplean"
+      absolutetags playback_time
+      {
+        "apex" 0.276826
+        "loop" 0.507516
+        "end" 0.745749
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.220588
+        "loop" 0.404412
+        "end" 0.625000
+      }
+      sequenceduration 4.566667
+    }
+    event gesture "A_P_rt_bktiltfwd"
+    {
+      time 17.247086 19.790909
+      param "A_P_rt_bktiltfwd"
+      absolutetags playback_time
+      {
+        "apex" 0.339336
+        "loop" 0.619139
+        "end" 0.666765
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.222222
+        "loop" 0.407407
+        "end" 0.629630
+      }
+      sequenceduration 4.533333
+    }
+  }
+  channel "bodygestures"
+  {
+    event gesture "NULL"
+    {
+      time 5.374889 6.770721
+      param ""
+    }
+    event gesture "A_bg_yell"
+    {
+      time 10.437386 12.783684
+      param "A_bg_yell"
+      event_ramp 
+      {
+        0.0000 0.6800
+        0.8533 0.7533
+        1.2713 0.4867
+        2.0579 0.2933
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.158180
+        "extreme" 0.359501
+        "loop" 0.589733
+        "end" 0.779726
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.102564
+        "extreme" 0.269231
+        "loop" 0.487179
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "NULL"
+    {
+      time 20.823145 23.585049
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 12.809408 15.095121
+      param ""
+    }
+    event gesture "A_bg_lookUp"
+    {
+      time 6.169901 9.247681
+      param "A_bg_lookUp"
+      absolutetags playback_time
+      {
+        "in" 0.131875
+        "loop" 0.329687
+        "end" 0.660661
+        "out" 0.753754
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.176471
+        "loop" 0.441176
+        "end" 0.529412
+        "out" 0.735294
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "A_bg_acctdwn_chinout"
+    {
+      time 7.827312 10.127312
+      param "A_bg_acctdwn_chinout"
+      absolutetags playback_time
+      {
+        "apex" 0.147059
+        "extreme" 0.294118
+        "loop" 0.514706
+        "end" 0.737903
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147059
+        "extreme" 0.294118
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "A_bg_upchindwn"
+    {
+      time 23.177032 25.977032
+      param "A_bg_upchindwn"
+      absolutetags playback_time
+      {
+        "apex" 0.132530
+        "extreme" 0.240964
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.132530
+        "extreme" 0.240964
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_bg_acc_dwn_rt"
+    {
+      time 26.571621 28.556805
+      param "A_bg_acc_dwn_rt"
+      absolutetags playback_time
+      {
+        "apex" 0.233470
+        "extreme" 0.368177
+        "loop" 0.649533
+        "end" 0.663551
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.204819
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_bg_acctdwn_chinout"
+    {
+      time 2.716201 4.927423
+      param "A_bg_acctdwn_chinout"
+      absolutetags playback_time
+      {
+        "apex" 0.152963
+        "extreme" 0.278196
+        "loop" 0.535371
+        "end" 0.675790
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147059
+        "extreme" 0.294118
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "A_bg_acctdwn_chinout"
+    {
+      time 14.919905 16.629835
+      param "A_bg_acctdwn_chinout"
+      event_ramp 
+      {
+        0.0000 0.9914
+        0.6500 0.9885
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.197806
+        "extreme" 0.395613
+        "loop" 0.692322
+        "end" 0.761507
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147059
+        "extreme" 0.294118
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "A_g_yell2"
+    {
+      time 11.620049 14.586716
+      param "A_g_yell2"
+      absolutetags playback_time
+      {
+        "apex" 0.204545
+        "accent" 0.341837
+        "h1" 0.423469
+        "h2" 0.606742
+        "loop" 0.954545
+        "end" 0.988636
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.204545
+        "accent" 0.397727
+        "h1" 0.515722
+        "h2" 0.606960
+        "loop" 0.954545
+        "end" 0.988636
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "accentup_ext"
+    {
+      time 17.389275 20.174126
+      param "accentup_ext"
+      absolutetags playback_time
+      {
+        "apex" 0.145365
+        "extreme" 0.254389
+        "loop" 0.508777
+        "end" 0.625000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.253012
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_G_throwhdsdown"
+    {
+      time 18.637529 22.178787
+      param "A_G_throwhdsdown"
+      event_ramp 
+      {
+        0.0000 0.3811
+        3.5412 0.1261
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.175966
+        "accent" 0.389587
+        "loop" 0.638662
+        "end" 0.733751
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.142857
+        "accent" 0.295918
+        "loop" 0.612245
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "A_bg_acc_dwn_left"
+    {
+      time 29.337997 32.586716
+      param "A_bg_acc_dwn_left"
+      event_ramp 
+      {
+        0.0000 0.4556
+        3.2487 0.9857
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.130459
+        "extreme" 0.291173
+        "loop" 0.467702
+        "end" 0.810277
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.301205
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_bg_acc_dwn_rt"
+    {
+      time 33.940567 36.945694
+      param "A_bg_acc_dwn_rt"
+      absolutetags playback_time
+      {
+        "apex" 0.202969
+        "extreme" 0.277778
+        "loop" 0.539743
+        "end" 0.685678
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.204819
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_g_yell2"
+    {
+      time 4.171329 7.137997
+      param "A_g_yell2"
+      event_ramp 
+      {
+        0.0000 0.7536
+        0.7174 0.4069
+        2.0348 0.4355
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.204545
+        "accent" 0.397727
+        "loop" 0.954545
+        "end" 0.988636
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.204545
+        "accent" 0.397727
+        "loop" 0.954545
+        "end" 0.988636
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "A_bg_lookUp"
+    {
+      time 21.299534 29.022610
+      param "A_bg_lookUp"
+      absolutetags playback_time
+      {
+        "in" 0.052554
+        "loop" 0.131386
+        "end" 0.231764
+        "out" 0.870647
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.176471
+        "loop" 0.441176
+        "end" 0.529412
+        "out" 0.735294
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "A_bg_acc_dwn_rt"
+    {
+      time 40.000000 41.936363
+      param "A_bg_acc_dwn_rt"
+      absolutetags playback_time
+      {
+        "apex" 0.209062
+        "extreme" 0.296171
+        "loop" 0.601563
+        "end" 0.671875
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.204819
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_bg_upchindwn"
+    {
+      time 41.257576 44.057575
+      param "A_bg_upchindwn"
+      absolutetags playback_time
+      {
+        "apex" 0.132530
+        "extreme" 0.240964
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.132530
+        "extreme" 0.240964
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_bg_acc_side_rt"
+    {
+      time 38.727272 40.421211
+      param "A_bg_acc_side_rt"
+      absolutetags playback_time
+      {
+        "apex" 0.119490
+        "extreme" 0.358471
+        "loop" 0.696429
+        "end" 0.741071
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.072289
+        "extreme" 0.216867
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_bg_acctdwn_chinout"
+    {
+      time 15.632026 17.902563
+      param "A_bg_acctdwn_chinout"
+      absolutetags playback_time
+      {
+        "apex" 0.148967
+        "extreme" 0.297935
+        "loop" 0.521384
+        "end" 0.733333
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147059
+        "extreme" 0.294118
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "headgesture"
+  {
+    event gesture "NULL"
+    {
+      time 13.297503 13.797503
+      param ""
+    }
+    event gesture "a_bg_hdaccleft"
+    {
+      time 24.163494 26.463497
+      param "a_bg_hdaccleft"
+      event_ramp 
+      {
+        0.0000 0.9933
+        0.6833 0.9933
+        1.3700 0.0300
+        2.0300 0.0300
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "A_headdroop"
+    {
+      time 18.583916 21.627506
+      param "A_headdroop"
+      event_ramp 
+      {
+        0.0000 0.9971
+        1.6043 0.9828
+        2.3913 0.0315
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.132451
+        "extreme" 0.463577
+        "loop" 0.798319
+        "end" 0.819328
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.093750
+        "extreme" 0.328125
+        "loop" 0.773438
+        "end" 0.781250
+      }
+      sequenceduration 4.300000
+    }
+    event gesture "A_bg_h_jerkrt"
+    {
+      time 26.479023 29.112354
+      param "A_bg_h_jerkrt"
+      absolutetags playback_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "A_bg_hroll"
+    {
+      time 29.350819 32.384148
+      param "A_bg_hroll"
+      event_ramp 
+      {
+        0.0000 0.9828
+        0.5739 0.9943
+        1.1261 0.2722
+        1.2609 0.1547
+        1.5522 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.111111
+        "extreme" 0.400000
+        "loop" 0.577778
+        "end" 0.688889
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.111111
+        "extreme" 0.400000
+        "loop" 0.577778
+        "end" 0.688889
+      }
+      sequenceduration 3.033333
+    }
+    event gesture "A_bg_bighshake"
+    {
+      time 32.796974 36.096970
+      param "A_bg_bighshake"
+      event_ramp 
+      {
+        0.0000 0.3620
+        0.3739 0.4771
+        1.5330 0.3983
+        2.0895 0.0917
+        2.6295 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.132653
+        "extreme" 0.479592
+        "loop" 0.612245
+        "end" 0.714286
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.132653
+        "extreme" 0.479592
+        "loop" 0.612245
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "a_bg_hdaccleft"
+    {
+      time 38.712120 41.012119
+      param "a_bg_hdaccleft"
+      absolutetags playback_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "a_bg_htiltleft"
+    {
+      time 41.090908 43.390907
+      param "a_bg_htiltleft"
+      absolutetags playback_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+    event gesture "A_bg_hroll"
+    {
+      time 0.251515 3.501516
+      param "A_bg_hroll"
+      event_ramp 
+      {
+        0.0000 0.9675
+        1.6105 1.0000
+        2.5158 0.2202
+        2.7368 0.0830
+        2.9053 0.0289
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.153846
+        "extreme" 0.364103
+        "loop" 0.605926
+        "end" 0.709630
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.111111
+        "extreme" 0.400000
+        "loop" 0.577778
+        "end" 0.688889
+      }
+      sequenceduration 3.033333
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "point"
+    {
+      time 6.639801 9.666721
+      param "a_g_point"
+      absolutetags playback_time
+      {
+        "in" 0.116951
+        "loop" 0.266797
+        "end" 0.489297
+        "out" 0.795107
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.169811
+        "loop" 0.471698
+        "end" 0.566038
+        "out" 0.716981
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 5.487985 6.535604
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 15.642740 16.142740
+      param ""
+    }
+    event gesture "A_g_hdsinhead"
+    {
+      time 10.484718 12.992577
+      param "A_g_hdsinhead"
+      absolutetags playback_time
+      {
+        "in" 0.121242
+        "loop" 0.336780
+        "end" 0.509509
+        "out" 0.775510
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.121622
+        "loop" 0.337838
+        "end" 0.621622
+        "out" 0.810811
+      }
+      sequenceduration 2.500000
+    }
+    event gesture "A_g_rthandtomouth"
+    {
+      time 13.653974 16.106140
+      param "A_g_rthandtomouth"
+      absolutetags playback_time
+      {
+        "in" 0.197524
+        "loop" 0.340165
+        "end" 0.438272
+        "h1" 0.512346
+        "out" 0.790123
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.181818
+        "loop" 0.340909
+        "end" 0.625000
+        "h1" 0.711466
+        "out" 0.784091
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "A_bigshrug_g"
+    {
+      time 0.188812 3.538811
+      param "A_bigshrug_g"
+      event_ramp 
+      {
+        0.0000 1.0000
+        1.1652 0.9914
+        1.7842 0.8592
+        2.3474 0.2058
+        2.4842 0.0722
+        2.5105 0.0578
+        2.7105 0.0036
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.164179
+        "accent" 0.407960
+        "loop" 0.617594
+        "end" 0.718227
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.181818
+        "accent" 0.397727
+        "loop" 0.568182
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "A_g_hdclasp"
+    {
+      time 14.991840 18.125175
+      param "A_g_hdclasp"
+      event_ramp 
+      {
+        0.8545 0.9885
+        2.9091 0.9885
+      }
+      absolutetags playback_time
+      {
+        "in" 0.150538
+        "loop" 0.580645
+        "end" 0.709677
+        "out" 0.806452
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.150538
+        "loop" 0.580645
+        "end" 0.709677
+        "out" 0.806452
+      }
+      sequenceduration 3.133333
+    }
+    event gesture "A_g_fingptfwd"
+    {
+      time 21.222610 24.368763
+      param "A_g_fingptfwd"
+      event_ramp 
+      {
+        0.0000 0.0000
+        0.7304 0.9570
+        0.8826 1.0000
+        2.4287 0.4441
+      }
+      absolutetags playback_time
+      {
+        "h1" 0.092812
+        "apex" 0.211538
+        "accent" 0.345423
+        "loop" 0.743929
+        "end" 0.776446
+      }
+      absolutetags shifted_time
+      {
+        "h1" 0.084530
+        "apex" 0.115385
+        "accent" 0.217949
+        "loop" 0.538462
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "A_g_mid_palmpushout"
+    {
+      time 23.786716 26.420048
+      param "A_g_mid_palmpushout"
+      absolutetags playback_time
+      {
+        "apex" 0.230769
+        "accent" 0.384615
+        "loop" 0.512821
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.230769
+        "accent" 0.384615
+        "loop" 0.512821
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "A_g_midhigh_arcout"
+    {
+      time 24.991844 28.227741
+      param "A_g_midhigh_arcout"
+      event_ramp 
+      {
+        1.1652 0.9885
+        2.4171 0.9943
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.186594
+        "accent" 0.396735
+        "loop" 0.604757
+        "end" 0.708769
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.194175
+        "accent" 0.436893
+        "loop" 0.631068
+        "end" 0.728155
+      }
+      sequenceduration 3.466667
+    }
+    event gesture "handhidegesture"
+    {
+      time 29.111069 35.407230
+      param "handhidegesture"
+      absolutetags playback_time
+      {
+        "in" 0.162763
+        "loop" 0.242655
+        "end" 0.616402
+        "out" 0.780423
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.204819
+        "loop" 0.295181
+        "end" 0.536145
+        "out" 0.650602
+      }
+      sequenceduration 5.566667
+    }
+    event gesture "A_g_low2side_palmsout"
+    {
+      time 2.240093 4.940094
+      param "A_g_low2side_palmsout"
+      absolutetags playback_time
+      {
+        "apex" 0.150000
+        "accent" 0.300000
+        "loop" 0.475000
+        "end" 0.650000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.150000
+        "accent" 0.300000
+        "loop" 0.475000
+        "end" 0.650000
+      }
+      sequenceduration 2.700000
+    }
+    event gesture "A_g_low2side_palmsout"
+    {
+      time 41.045460 43.896973
+      param "A_g_low2side_palmsout"
+      absolutetags playback_time
+      {
+        "apex" 0.195164
+        "accent" 0.337194
+        "loop" 0.502895
+        "end" 0.668597
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.150000
+        "accent" 0.300000
+        "loop" 0.475000
+        "end" 0.650000
+      }
+      sequenceduration 2.700000
+    }
+    event gesture "A_g_mid_rtfingflareout"
+    {
+      time 37.999996 41.436359
+      param "A_g_mid_rtfingflareout"
+      event_ramp 
+      {
+        0.0000 0.9885
+        1.3000 0.7106
+        3.4364 0.2350
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.233480
+        "accent" 0.343597
+        "loop" 0.441767
+        "end" 0.766520
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "accent" 0.421687
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_g_mid_palmpushout"
+    {
+      time 16.833332 19.466665
+      param "A_g_mid_palmpushout"
+      event_ramp 
+      {
+        0.5909 0.2865
+        1.2091 0.4040
+        2.6333 0.1862
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.230769
+        "accent" 0.384615
+        "loop" 0.512821
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.230769
+        "accent" 0.384615
+        "loop" 0.512821
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "concentrategesture"
+    {
+      time 35.499996 40.066662
+      param "concentrategesture"
+      event_ramp 
+      {
+        0.0000 1.0000
+        1.6050 1.0000
+      }
+      absolutetags playback_time
+      {
+        "in" 0.286765
+        "loop" 0.360294
+        "end" 0.654412
+        "out" 0.727941
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.286765
+        "loop" 0.360294
+        "end" 0.654412
+        "out" 0.727941
+      }
+      sequenceduration 4.566667
+    }
+  }
+  channel "trigger"
+  {
+    event generic "point"
+    {
+      time 6.719215 9.053196
+      param "AI_AIM"
+      param2 "mark_look_bigdebris_1"
+    }
+    event firetrigger "2 - fall debris"
+    {
+      time 4.296972 -1.000000
+      param "2"
+    }
+  }
+  channel "headflex"
+  {
+    event flexanimation "head"
+    {
+      time 0.299534 43.799538
+      param ""
+      flextimingtags
+      {
+        "h1" 0.981144 1
+      }
+      flexanimations samples_use_time
+      {
+        "head_rightleft" range 30.0 -30.0 
+        {
+          0.7487 0.5000
+          0.7979 0.5000
+          18.8284 0.5000
+          18.8694 0.5000
+          18.9390 0.5000
+          19.1317 0.5000
+          19.3859 0.5000
+          28.7680 0.5000
+          28.8193 0.5000
+          29.8962 0.5000
+          31.9475 0.5000
+          31.9731 0.5000
+          34.8081 0.5000
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+          0.7487 0.5000
+          0.7979 0.5000
+          18.8284 0.5000
+          18.8694 0.5000
+          18.9390 0.5000
+          19.1317 0.5000
+          19.3859 0.5000
+          28.7680 0.5000
+          28.8193 0.5000
+          29.8962 0.8200
+          30.8591 0.7100
+          31.9475 0.5000
+          32.0831 0.4976
+          32.6554 0.5300
+          33.0298 1.0000
+          34.7465 0.5000
+          34.8081 0.4912
+          35.3055 0.5000
+          36.3974 0.7200
+          36.6295 0.7300
+          41.4638 0.7900
+          41.8080 0.8000
+        }
+        "head_tilt" range 15.0 -15.0 
+        {
+          0.7487 0.5000
+          0.7979 0.5000
+          18.8284 0.5000
+          18.8694 0.5000
+          18.9390 0.5000
+          19.1317 0.5000
+          19.3859 0.5000
+          31.9475 0.5000
+          31.9731 0.5000
+          34.8081 0.5000
+        }
+        "head_forwardback" range 0.2 -0.2 
+        {
+          0.7487 0.5000
+          0.7979 0.5000
+          18.8284 0.5001
+          18.8694 0.5001
+          18.9390 0.5001
+          19.1317 0.5001
+          19.3859 0.5001
+          28.7680 0.5025
+          28.8193 0.5025
+          29.8962 0.5025
+          31.9475 0.5025
+          31.9731 0.5025
+          34.8081 0.5020
+        }
+        "lid_closer" combo 
+        {
+          0.1537 0.0100
+          0.2346 0.9300
+          0.4167 0.0000
+          0.7487 0.0000
+          0.7979 0.0000
+          1.8609 0.0300
+          1.9378 0.9500
+          1.9788 0.0900
+          3.9255 0.0500
+          3.9973 0.9800
+          4.0895 0.0300
+          5.0319 0.0300
+          5.1087 0.9500
+          5.2010 0.0100
+          6.0106 0.0100
+          6.0618 0.9600
+          6.1438 0.0400
+          8.8231 0.0500
+          8.9255 0.9500
+          10.0682 0.9700
+          10.1502 0.0400
+          11.4261 0.0400
+          11.4722 0.9800
+          11.5952 0.0100
+          13.0745 0.0400
+          13.1821 0.9800
+          13.2744 0.0400
+          14.4375 0.0300
+          14.4734 0.9700
+          14.5708 0.0300
+          14.8628 0.0100
+          14.8782 0.9600
+          14.9756 0.0400
+          16.4718 0.0500
+          16.5077 0.9800
+          16.6307 0.0500
+          16.9381 0.0400
+          16.9688 1.0000
+          17.0508 0.0500
+          18.1679 0.0400
+          18.1884 0.9900
+          18.2601 0.0500
+          18.8284 0.0000
+          18.8694 0.9900
+          18.9390 0.0000
+          19.1317 0.0000
+          19.3859 0.0000
+          19.5048 1.0000
+          20.0326 0.0100
+          20.3810 0.0300
+          20.4527 1.0000
+          20.4989 0.0300
+          21.6005 0.0100
+          21.6620 0.9800
+          21.7440 0.0100
+          23.7905 0.0200
+          23.9013 1.0000
+          23.9730 0.0600
+          24.6384 0.0400
+          24.6845 0.9700
+          24.7563 0.0300
+          26.3342 0.0200
+          26.3796 0.9500
+          26.4675 0.0400
+          27.2345 0.0400
+          27.3216 0.9900
+          27.3574 0.0500
+          28.9480 0.0000
+          28.9890 0.0000
+          29.2614 0.0000
+          29.3333 0.9400
+          29.5342 0.0000
+          29.7925 0.0000
+          30.0758 0.0000
+          31.0719 0.0000
+          31.9697 0.0000
+          32.0439 0.9400
+          32.1720 0.0500
+          35.0101 0.0600
+          35.1024 0.9400
+          35.1638 0.0400
+          36.0145 0.0400
+          36.1169 0.9700
+          36.1887 0.0400
+          37.1879 0.0300
+          37.2596 0.9800
+          37.3723 0.0300
+          38.4484 0.0300
+          38.5509 0.9900
+          38.6687 0.0700
+          40.6281 0.0600
+          40.7511 0.9700
+          40.8623 0.0600
+          41.8080 0.0000
+        }
+        {
+          0.7487 0.5000
+          0.7979 0.5000
+          18.8284 0.5000
+          18.8694 0.5000
+          18.9390 0.5000
+          19.1317 0.5000
+          19.3859 0.5000
+          28.9480 0.5000
+          28.9890 0.5000
+          29.2514 0.5000
+          29.5342 0.5000
+          29.7925 0.5000
+          30.0758 0.5000
+          31.0719 0.5000
+          31.9697 0.5000
+          41.8080 0.5000
+        }
+        "eyes_updown" range 30.0 -30.0 
+        {
+          0.7487 0.5000
+          0.7979 0.5000
+          1.7992 0.5000
+          18.8284 0.4875
+          18.8694 0.4875
+          18.9390 0.8500
+          19.1317 0.8500
+          19.3285 0.5000
+          19.3859 0.5000
+          29.3130 0.5000
+          29.3540 0.5000
+          29.4767 0.5700
+          29.6614 0.9300
+          29.8992 0.8400
+          30.1575 0.2700
+          30.4408 0.1700
+          31.0719 0.1700
+          31.8595 0.1400
+          31.9697 0.1700
+          32.1582 0.5000
+          32.2033 0.5000
+          35.0505 0.5000
+          35.0751 0.5000
+          35.1939 0.0000
+          36.0302 0.0000
+          36.2311 0.5000
+          36.2844 0.5000
+        }
+        "eyes_rightleft" range 30.0 -30.0 
+        {
+          0.7487 0.5000
+          0.7979 0.5000
+          1.7992 0.5000
+          18.8284 0.5077
+          18.8694 0.5077
+          18.9390 0.4400
+          19.1317 0.3700
+          19.3285 0.5000
+          19.3859 0.5000
+          29.3130 0.5000
+          29.3540 0.5000
+          29.6164 1.0000
+          29.8992 0.5700
+          30.1575 0.2400
+          30.4408 0.5200
+          31.0719 0.5200
+          31.9697 0.5200
+          32.1582 0.5000
+          32.2033 0.5000
+          35.0505 0.5000
+          35.0751 0.5000
+          35.1939 0.2900
+          35.2596 0.2700
+          36.0302 0.2900
+          36.2311 0.5000
+          36.2844 0.5000
+        }
+      }
+    }
+  }
+  channel "face"
+  {
+    event flexanimation "face"
+    {
+      time 0.011656 45.259148
+      param ""
+      flextimingtags
+      {
+        "h1" 0.988377 1
+      }
+      flexanimations samples_use_time
+      {
+        "head_rightleft" range 30.0 -30.0 
+        {
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          8.7645 0.5000
+          8.8312 0.5000
+          9.1260 0.5000
+          9.2272 0.5000
+          9.3156 0.5000
+          9.5421 0.5000
+          9.6829 0.5000
+          9.7855 0.5000
+          9.8676 0.5000
+          9.9189 0.5000
+          10.4378 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.3094 0.5000
+          12.7142 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          21.6366 0.5000
+          22.0465 0.5000
+          22.5708 0.5000
+          23.1652 0.5000
+          23.2789 0.5000
+          23.6930 0.5000
+          24.2018 0.5000
+          26.8187 0.5000
+          29.3254 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.7651 0.5000
+          34.8646 0.5000
+          35.5416 0.5000
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          8.6745 0.5000
+          8.7412 0.5000
+          9.0148 0.2000
+          9.1260 0.5000
+          9.2272 0.8600
+          9.3156 0.5000
+          9.3474 0.9500
+          9.5421 0.5900
+          9.6829 0.5000
+          9.8676 0.5000
+          9.9189 0.5000
+          18.4810 0.4897
+          19.0344 0.4897
+          29.3254 0.4750
+          31.7363 0.4700
+          32.0153 0.4698
+          32.8522 0.4698
+          33.1768 0.4698
+          34.4094 0.4698
+          34.5802 0.4698
+          34.7651 0.4698
+          34.8646 0.4698
+          35.5416 0.4698
+          36.1336 0.4698
+          37.0047 0.4698
+          38.6211 0.4698
+          40.7185 0.4832
+          41.3875 0.4836
+          41.5413 0.4842
+          41.7690 0.4845
+          41.9170 0.4852
+          42.4437 0.4888
+          44.4876 0.4900
+        }
+        "head_tilt" range 15.0 -15.0 
+        {
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          8.7645 0.5000
+          8.8312 0.5000
+          9.1260 0.5000
+          9.2272 0.2900
+          9.3156 0.5000
+          9.5421 0.2600
+          10.2376 0.5000
+          10.2889 0.5000
+          10.4378 0.4767
+          11.1142 0.4520
+          11.2423 0.4520
+          11.8170 0.4520
+          12.3094 0.4522
+          12.7142 0.4523
+          18.2477 0.4592
+          18.4810 0.4595
+          19.0344 0.4595
+          21.6366 0.4637
+          22.0465 0.4637
+          22.5708 0.4640
+          23.1652 0.4641
+          23.2789 0.4638
+          23.6930 0.4638
+          24.2018 0.4638
+          26.8187 0.4664
+          29.3254 0.4690
+          30.7694 0.4732
+          31.4773 0.4732
+          31.7363 0.4732
+          32.0153 0.4732
+          32.8522 0.4732
+          33.1768 0.4732
+          34.4094 0.4732
+          34.5802 0.4732
+          34.7651 0.4732
+          34.8646 0.4732
+          35.5416 0.4732
+          36.1336 0.4732
+          37.0047 0.4732
+          38.6211 0.4732
+          40.7185 0.4851
+          41.3875 0.4855
+          41.5413 0.4860
+          41.7690 0.4863
+          41.9170 0.4868
+          42.4437 0.4900
+          44.4876 0.4911
+        }
+        "head_forwardback" range 0.2 -0.2 
+        {
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          8.7645 0.5000
+          8.8312 0.5000
+          9.1260 0.5000
+          9.2272 0.6700
+          9.3156 0.5000
+          9.5421 0.5100
+          9.6829 0.5000
+          9.7855 0.4964
+          9.8676 0.5000
+          9.9189 0.5000
+          10.4378 0.4711
+          11.1142 0.4625
+          11.2423 0.4625
+          11.8170 0.4625
+          12.3094 0.4626
+          12.7142 0.4627
+          18.2477 0.4680
+          18.4810 0.4681
+          19.0344 0.4681
+          19.4007 0.4680
+          20.2911 0.4680
+          20.7578 0.4680
+          21.0355 0.4680
+          21.6366 0.4680
+          22.0465 0.4680
+          22.5708 0.4682
+          22.7502 0.4682
+          23.1652 0.4682
+          23.2789 0.4682
+          23.6930 0.4682
+          24.2018 0.4682
+          26.8187 0.4704
+          29.3254 0.4727
+          30.7694 0.4764
+          31.4773 0.4764
+          31.7363 0.4764
+          32.0153 0.4764
+          32.8522 0.4764
+          33.1768 0.4764
+          34.4094 0.4764
+          34.5802 0.4764
+          34.7651 0.4764
+          34.8646 0.4764
+          35.5416 0.4764
+          36.1336 0.4764
+          37.0047 0.4764
+          38.6211 0.4764
+          40.7185 0.4869
+          41.3875 0.4872
+          41.5413 0.4877
+          41.7690 0.4879
+          41.9170 0.4884
+          42.4437 0.4912
+          44.4876 0.4922
+        }
+        "lid_raiser" combo 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0000
+          1.2490 0.0000
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.1035
+          3.1054 0.1900
+          3.3308 0.1900
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0000
+          4.9951 0.0000
+          5.1386 0.0000
+          5.5485 0.0000
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.0000
+          6.5845 1.0000
+          6.9534 1.0000
+          7.1071 1.0000
+          7.5273 0.3500
+          8.2447 0.3541
+          8.5163 1.0000
+          9.1260 1.0000
+          9.3156 0.0000
+          10.4378 0.0000
+          10.6428 1.0000
+          11.1142 1.0000
+          11.2423 1.0000
+          11.8170 1.0000
+          12.0327 0.2400
+          12.3094 0.2400
+          12.4477 1.0000
+          12.7142 0.9214
+          13.3291 0.6300
+          13.8261 0.5700
+          14.0464 0.3500
+          14.6716 0.0000
+          14.9995 0.0000
+          15.5581 0.4300
+          16.5265 0.4300
+          17.0235 0.4100
+          17.3156 0.7900
+          17.6231 0.0000
+          17.8639 0.0000
+          18.2477 0.0000
+          18.4810 0.0000
+          19.0344 0.0000
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.0000
+          21.6366 0.0000
+          22.0465 0.0000
+          22.2413 0.0000
+          22.5708 0.0000
+          22.7502 0.6300
+          23.1652 0.4577
+          23.2789 0.0000
+          23.6930 0.0000
+          24.2018 0.0000
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0000
+          25.9374 0.0000
+          26.8187 0.0000
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0000
+          29.7036 0.0000
+          30.2467 0.0000
+          30.4261 0.0000
+          30.7694 0.0000
+          31.4773 0.0000
+          31.7363 0.0000
+          32.0153 0.0000
+          32.8522 0.0000
+          33.1768 0.0000
+          34.4094 0.0000
+          34.5802 0.0000
+          34.7651 0.0000
+          34.8646 0.0000
+          35.5416 0.0000
+          36.1336 0.0000
+          37.0047 0.0000
+          38.6211 0.0000
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.0000
+          40.3999 0.0000
+          40.4804 0.0000
+          40.7185 0.0000
+          41.3875 0.0000
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5000
+          21.6366 0.5000
+          22.0465 0.5000
+          22.2413 0.5000
+          22.5708 0.5000
+          22.7502 0.5000
+          23.1652 0.5000
+          23.2789 0.5000
+          23.6930 0.5000
+          24.2018 0.5000
+          24.3412 0.5000
+          24.7486 0.5000
+          25.3173 0.5000
+          25.7680 0.5000
+          25.9374 0.5000
+          26.8187 0.5000
+          26.9622 0.5000
+          27.5617 0.5000
+          28.2688 0.5000
+          29.3254 0.5000
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.7651 0.5000
+          34.8646 0.5000
+          35.5416 0.5000
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5000
+          40.0127 0.5000
+          40.2160 0.5000
+          40.3999 0.5000
+          40.4804 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "lid_tightener" combo 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0049
+          1.2490 0.2300
+          1.6889 0.2592
+          1.8734 0.2096
+          2.6932 0.0763
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.3800
+          4.9951 0.3761
+          5.1386 0.0000
+          5.5485 0.1400
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.1803
+          6.5845 0.0000
+          6.9534 0.0000
+          7.1071 0.6500
+          7.5273 0.3600
+          8.2447 0.3620
+          8.5163 0.0000
+          9.1260 0.0000
+          9.3156 1.0000
+          10.4378 1.0000
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.6000
+          12.3094 0.6000
+          12.4477 0.0000
+          12.7142 0.0622
+          13.3291 0.1500
+          13.8261 0.0000
+          14.0464 0.8000
+          14.6716 0.7500
+          14.9995 0.3800
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.5600
+          17.6231 0.5600
+          17.8639 0.2500
+          18.2477 0.2337
+          18.4810 0.4900
+          19.0344 0.4900
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.7400
+          21.6366 0.7005
+          22.0465 0.7005
+          22.2413 0.7005
+          22.5708 0.6991
+          22.7502 0.2800
+          22.8375 0.2700
+          23.1652 0.3951
+          23.2789 0.7343
+          23.6930 0.7343
+          24.2018 0.5600
+          24.3412 0.1400
+          24.7486 0.1400
+          25.3173 0.1400
+          25.7680 0.2253
+          25.9374 0.4600
+          26.8187 0.4522
+          26.9622 0.1500
+          27.5617 0.1500
+          28.2688 0.1500
+          29.3254 0.1529
+          29.7036 0.3100
+          30.2467 0.3100
+          30.4261 0.0000
+          30.7694 0.3722
+          31.4773 0.3722
+          31.7363 0.3722
+          32.0153 0.3722
+          32.8522 0.3722
+          33.1768 0.5900
+          34.3323 0.6100
+          34.4094 0.5900
+          34.5802 0.0000
+          34.7651 0.0000
+          34.8646 0.8039
+          34.9144 0.8200
+          35.5416 0.6456
+          36.1336 0.3900
+          37.0047 0.3900
+          38.5464 0.4900
+          38.6211 0.4900
+          38.7545 0.1300
+          39.1217 0.1300
+          39.4605 0.2600
+          40.0127 0.2600
+          40.2160 0.4300
+          40.3999 0.4300
+          40.4804 0.2500
+          40.7185 0.2418
+          41.3875 0.2375
+          41.5413 0.4600
+          41.7690 0.4923
+          41.9170 0.3900
+          42.4437 0.2093
+          44.4876 0.1711
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.4800
+          19.0344 0.4800
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5000
+          21.6366 0.5000
+          22.0465 0.5000
+          22.2413 0.5000
+          22.5708 0.5000
+          22.7502 0.5000
+          23.1652 0.5000
+          23.2789 0.5000
+          23.6930 0.5000
+          24.2018 0.5000
+          24.3412 0.5000
+          24.7486 0.5000
+          25.3173 0.5000
+          25.7680 0.5000
+          25.9374 0.5000
+          26.8187 0.5000
+          26.9622 0.5000
+          27.5617 0.5000
+          28.2688 0.5000
+          29.3254 0.5000
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.7651 0.5000
+          34.8646 0.5000
+          35.5416 0.5000
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5000
+          40.0127 0.5000
+          40.2160 0.5000
+          40.3999 0.5000
+          40.4804 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "inner_raiser" combo 
+        {
+          0.4363 0.2300
+          0.7174 0.2322
+          1.0709 0.2446
+          1.2490 0.8100
+          1.3066 0.8200
+          1.6889 0.8994
+          1.8734 0.9188
+          2.6932 0.6493
+          3.1054 0.4100
+          3.3308 0.4100
+          3.5614 0.3100
+          3.8227 0.3021
+          4.6580 0.5300
+          4.9951 0.5277
+          5.1386 0.7000
+          5.5485 0.5000
+          5.7483 0.4300
+          5.8771 0.4300
+          6.0902 0.3962
+          6.3437 0.4086
+          6.5845 1.0000
+          6.9534 1.0000
+          7.1071 1.0000
+          7.5273 0.7300
+          8.2447 0.7318
+          8.5163 0.7318
+          9.1260 0.7312
+          9.3156 0.6900
+          10.4378 0.6821
+          10.6428 0.9000
+          11.1142 0.9604
+          11.2423 0.9604
+          11.8170 0.9604
+          12.0327 0.9604
+          12.3094 0.9604
+          12.4477 1.0000
+          12.7142 0.9962
+          13.3291 0.8500
+          13.8261 0.7000
+          14.0464 1.0000
+          14.6716 1.0000
+          14.9995 0.8000
+          15.5581 0.8500
+          16.5265 0.8500
+          17.0235 0.8500
+          17.3156 0.7100
+          17.6231 0.7100
+          17.8639 0.5500
+          18.2477 0.5414
+          18.4810 0.6400
+          19.0344 0.6400
+          19.4007 0.5700
+          20.2911 0.5700
+          20.7578 0.5700
+          21.0355 0.0000
+          21.6366 0.0307
+          22.0465 0.0307
+          22.2413 0.0307
+          22.6468 0.0306
+          22.7502 0.3700
+          22.8168 0.6100
+          23.0335 0.6600
+          23.1372 0.6100
+          23.2789 0.3554
+          23.6930 0.2354
+          24.2378 0.0054
+          24.3412 0.4100
+          24.7486 0.8100
+          25.3173 0.8100
+          25.7657 0.7300
+          25.8360 0.6515
+          25.9374 0.2100
+          26.0193 0.1200
+          26.7162 0.1900
+          26.8187 0.2251
+          26.9622 0.6900
+          27.0616 0.7300
+          27.5617 0.6900
+          28.2688 0.0800
+          29.3254 0.0654
+          29.7036 0.3400
+          30.1443 0.3400
+          30.2467 0.3400
+          30.4261 0.8000
+          30.5911 0.8400
+          30.7694 0.2509
+          30.8617 0.2300
+          31.3782 0.2200
+          31.4773 0.2509
+          31.7363 0.7600
+          32.0153 0.6400
+          32.8522 0.6400
+          33.1768 0.5100
+          34.3282 0.5400
+          34.4094 0.5100
+          34.5802 0.8400
+          34.6771 0.8400
+          34.8086 0.7900
+          35.5416 0.7822
+          36.1336 0.6500
+          37.0047 0.6500
+          38.6211 0.6500
+          38.7545 0.7400
+          39.1217 0.7400
+          39.4605 0.7400
+          40.0127 0.7400
+          40.2160 0.7400
+          40.3999 0.7400
+          40.4804 0.8600
+          40.7185 0.7400
+          40.8089 0.7000
+          41.3014 0.6800
+          41.3875 0.6914
+          41.5413 0.8000
+          41.7690 0.8092
+          41.9170 0.6800
+          42.4437 0.4149
+          44.4876 0.3514
+        }
+        {
+          0.4363 1.0000
+          0.7174 1.0000
+          1.0709 0.9916
+          1.2490 0.6100
+          1.3169 0.6000
+          1.6889 0.5225
+          1.8734 0.5119
+          2.6932 0.5394
+          3.1054 0.5700
+          3.3308 0.5700
+          3.5614 0.5700
+          3.8227 0.5700
+          4.6580 0.5700
+          4.9951 0.5700
+          5.1386 0.5000
+          5.5485 0.3600
+          5.7483 0.3000
+          6.0902 0.4900
+          6.3437 0.5700
+          6.5845 0.5700
+          6.9534 0.5699
+          7.1071 0.5699
+          7.5273 0.5699
+          8.2447 0.5699
+          8.5163 0.5699
+          9.1260 0.5698
+          9.3156 0.5698
+          10.4378 0.5697
+          10.6428 0.5697
+          11.1142 0.5696
+          11.2423 0.5696
+          11.8170 0.5696
+          12.0327 0.5696
+          12.3094 0.5696
+          12.4477 0.5696
+          12.7142 0.5696
+          13.3291 0.5696
+          13.8261 0.5696
+          14.0464 0.5696
+          14.6716 0.5696
+          14.9995 0.5696
+          15.5581 0.5696
+          16.5265 0.5696
+          17.0235 0.5696
+          17.3156 0.5696
+          17.6231 0.5696
+          17.8639 0.5696
+          18.2477 0.5696
+          18.4810 0.8000
+          19.0344 0.8000
+          19.4007 0.5696
+          20.2911 0.5696
+          20.7578 0.5696
+          21.0355 0.5696
+          21.6366 0.5696
+          22.0465 0.5696
+          22.2413 0.5696
+          22.5708 0.5695
+          22.7502 0.5695
+          23.1652 0.5695
+          23.2789 0.5696
+          23.6930 0.5696
+          24.2018 0.5696
+          24.3412 0.5696
+          24.7486 0.5696
+          25.3173 0.5696
+          25.7680 0.5697
+          25.9374 0.5696
+          26.8187 0.5696
+          26.9622 0.5696
+          27.5617 0.5696
+          28.2688 0.5100
+          29.3254 0.5081
+          29.7036 0.5100
+          30.2467 0.5100
+          30.4261 0.5100
+          30.7694 0.5100
+          31.4773 0.5100
+          31.7363 0.5100
+          32.0153 0.5100
+          32.8522 0.5100
+          33.1768 0.5100
+          34.4094 0.5100
+          34.5802 0.5100
+          34.6731 0.5100
+          34.8206 0.5000
+          35.5416 0.4995
+          36.1336 0.5100
+          37.0047 0.5100
+          38.6211 0.5100
+          38.7545 0.5100
+          39.1217 0.5100
+          39.4605 0.8000
+          40.0127 0.8000
+          40.2160 0.8000
+          40.3999 0.8000
+          40.4804 0.6500
+          40.7185 0.8023
+          41.3327 0.8400
+          41.3875 0.8214
+          41.5413 0.5500
+          41.7690 0.5037
+          41.9170 0.4904
+          42.4437 0.4787
+          44.4876 0.4787
+        }
+        "outer_raiser" combo 
+        {
+          0.4363 0.1300
+          0.7174 0.1312
+          1.0709 0.1389
+          1.2490 0.4900
+          1.3323 0.5200
+          1.6889 0.5520
+          1.8734 0.3800
+          2.6932 0.2429
+          3.1054 0.2500
+          3.3308 0.2500
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0000
+          4.9951 0.0000
+          5.1386 0.2300
+          5.5485 0.0400
+          5.7483 0.2031
+          6.0902 0.2352
+          6.3437 0.0000
+          6.5845 0.4900
+          6.9534 0.5776
+          7.1071 0.0000
+          7.5273 0.0000
+          8.2447 0.0000
+          8.5163 0.2500
+          9.1260 0.2733
+          9.3156 0.0000
+          10.4378 0.0000
+          10.6428 0.2800
+          11.1142 0.3593
+          11.2423 0.3593
+          11.8170 0.3593
+          12.0327 0.0000
+          12.3094 0.0000
+          12.4477 0.6500
+          12.7142 0.5827
+          13.3291 0.3800
+          13.8261 0.2400
+          14.0464 0.0000
+          14.6716 0.0000
+          14.9995 0.0000
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.0000
+          17.6231 0.0000
+          17.8639 0.2600
+          18.2477 0.2734
+          18.4810 0.1545
+          19.0344 0.1545
+          19.4007 0.5000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.0000
+          21.6366 0.0000
+          22.0465 0.0000
+          22.2413 0.0000
+          22.5708 0.0000
+          22.7502 0.0000
+          23.1652 0.0000
+          23.2789 0.0000
+          23.6930 0.0000
+          24.2378 0.0000
+          24.3412 0.1600
+          24.7486 0.5300
+          25.6253 0.5300
+          25.7698 0.5100
+          25.8360 0.3898
+          25.9374 0.0000
+          26.8187 0.0132
+          26.9622 0.0132
+          27.5617 0.0132
+          28.2688 0.0132
+          29.3254 0.0132
+          29.7036 0.0132
+          30.2467 0.0132
+          30.4261 0.3900
+          30.5706 0.4000
+          30.7694 0.0000
+          31.4773 0.0000
+          31.7363 0.0000
+          32.0153 0.0000
+          32.8522 0.0000
+          33.1768 0.0000
+          34.4094 0.0000
+          34.5802 0.0000
+          34.6771 0.0000
+          34.8086 0.2400
+          34.8734 0.2500
+          35.5416 0.2537
+          36.1336 0.0000
+          37.0047 0.0000
+          38.6211 0.0000
+          38.7545 0.3000
+          39.1217 0.3000
+          39.4605 0.3000
+          40.0127 0.3000
+          40.2160 0.3000
+          40.3999 0.3000
+          40.4804 0.5100
+          40.7185 0.4500
+          41.3875 0.4110
+          41.5413 0.4400
+          41.7690 0.4669
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        {
+          0.4363 1.0000
+          0.7174 1.0000
+          1.0709 0.9923
+          1.2490 0.6400
+          1.3374 0.6300
+          1.6889 0.5402
+          1.8734 0.5170
+          2.6932 0.5260
+          3.1054 0.5500
+          3.3308 0.5500
+          3.5614 0.5500
+          3.8227 0.5500
+          4.6580 0.5500
+          4.9951 0.5500
+          5.1386 0.4800
+          5.5485 0.5100
+          5.7483 0.5200
+          6.0902 0.4726
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 1.0000
+          19.0344 1.0000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5000
+          21.6366 0.5000
+          22.0465 0.5000
+          22.2413 0.5000
+          22.5708 0.5000
+          22.7502 0.5000
+          23.1652 0.5000
+          23.2789 0.5000
+          23.6930 0.5000
+          24.2018 0.5000
+          24.3412 0.5000
+          24.7486 0.5000
+          25.3173 0.5000
+          25.7680 0.5000
+          25.9374 0.5000
+          26.8187 0.5000
+          26.9622 0.5000
+          27.5617 0.5000
+          28.2688 0.5000
+          29.3254 0.5000
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.6891 0.5000
+          34.7886 0.5600
+          35.5416 0.5716
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 1.0000
+          40.0127 1.0000
+          40.2160 1.0000
+          40.3999 1.0000
+          40.4804 1.0000
+          40.7185 1.0000
+          41.3875 1.0000
+          41.5413 0.5700
+          41.7690 0.4968
+          41.9170 0.4760
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.4363 0.3700
+          0.7174 0.6520
+          1.0709 0.6499
+          1.2490 0.3100
+          1.6889 0.1591
+          1.8734 0.9300
+          2.6932 0.7208
+          2.8859 0.8900
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.2900
+          3.8227 0.3124
+          4.6580 0.8100
+          4.9951 0.8050
+          5.1386 0.0000
+          5.5485 0.3200
+          5.7483 0.6358
+          6.0902 0.6655
+          6.3437 0.5531
+          6.5845 0.0000
+          6.9534 0.0000
+          7.1071 0.0000
+          7.5273 0.0000
+          8.2447 0.0000
+          8.5163 0.0000
+          9.1260 0.0000
+          9.3156 0.9600
+          10.4378 1.0000
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.6000
+          12.3094 0.6000
+          12.4477 0.0000
+          12.7142 0.0622
+          13.3291 0.0622
+          13.8261 0.0622
+          14.0464 0.4100
+          14.6716 0.4100
+          14.9995 0.2500
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.4900
+          17.6231 0.4900
+          17.8639 0.0800
+          18.2477 0.0586
+          18.4810 0.4500
+          18.6491 0.5200
+          19.0344 0.4300
+          19.4007 0.0000
+          20.2911 0.6900
+          20.7578 0.0000
+          21.0355 0.7800
+          21.6366 0.7370
+          22.0465 0.7370
+          22.2413 0.7370
+          22.5834 0.7700
+          22.6468 0.7355
+          22.7902 0.5000
+          22.8761 0.4100
+          23.0181 0.4100
+          23.1372 0.4679
+          23.2869 0.7835
+          23.4347 0.7200
+          23.6930 0.6835
+          24.1834 0.5500
+          24.2378 0.4400
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.8360 0.0691
+          25.9374 0.2600
+          26.0603 0.3500
+          26.6916 0.2800
+          26.8187 0.2536
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0103
+          29.7036 0.5600
+          29.7999 0.6000
+          30.1566 0.5800
+          30.2467 0.5600
+          30.4261 0.0000
+          30.6239 0.0800
+          30.7694 0.6741
+          30.8412 0.7200
+          31.3823 0.7300
+          31.4773 0.6741
+          31.7363 0.0000
+          32.0153 0.1000
+          32.7445 0.1000
+          32.8522 0.1000
+          33.1768 0.5300
+          33.2815 0.5700
+          34.2234 0.5600
+          34.4094 0.5300
+          34.5802 0.0000
+          34.6771 0.0000
+          34.8086 0.6211
+          34.8652 0.6400
+          35.5416 0.6467
+          36.1336 0.5000
+          37.0047 0.5000
+          38.5628 0.4900
+          38.6211 0.4300
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.5900
+          40.3999 0.5900
+          40.4804 0.0000
+          40.7185 0.0000
+          41.3875 0.0000
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        {
+          0.4363 0.1000
+          0.7174 0.2300
+          1.0709 0.2384
+          1.2490 0.5100
+          1.3681 0.5100
+          1.6889 0.5612
+          1.8734 0.5674
+          2.6932 0.5657
+          3.1054 0.5600
+          3.3308 0.5600
+          3.5614 0.5600
+          3.8227 0.5600
+          4.6580 0.5600
+          4.9951 0.5600
+          5.1386 0.5100
+          5.5485 0.4400
+          5.7483 0.4189
+          6.0902 0.4500
+          6.3437 0.5400
+          6.5845 0.5600
+          6.9534 0.5600
+          7.1071 0.5600
+          7.5273 0.5600
+          8.2447 0.5600
+          8.5163 0.5600
+          9.1260 0.5600
+          9.3156 0.5600
+          10.4378 0.5599
+          10.6428 0.5599
+          11.1142 0.5599
+          11.2423 0.5599
+          11.8170 0.5599
+          12.0327 0.5599
+          12.3094 0.5599
+          12.4477 0.5599
+          12.7142 0.5599
+          13.3291 0.5599
+          13.8261 0.5599
+          14.0464 0.5599
+          14.6716 0.5599
+          14.9995 0.5599
+          15.5581 0.5599
+          16.5265 0.5599
+          17.0235 0.5599
+          17.3156 0.5599
+          17.6231 0.5599
+          17.8639 0.5599
+          18.2477 0.5599
+          18.4810 0.2200
+          18.6368 0.0200
+          19.0344 0.0000
+          19.4007 0.5599
+          20.2911 0.5599
+          20.7578 0.5599
+          21.0355 0.5599
+          21.6366 0.5599
+          22.0465 0.5599
+          22.2413 0.5599
+          22.5708 0.5598
+          22.7502 0.5598
+          23.1652 0.5598
+          23.2789 0.5599
+          23.6930 0.5599
+          24.2018 0.5599
+          24.3412 0.5599
+          24.7486 0.5000
+          25.3173 0.5000
+          25.7680 0.5000
+          25.9374 0.5000
+          26.8187 0.5000
+          26.9622 0.5000
+          27.5617 0.5000
+          28.2688 0.5000
+          29.3254 0.5000
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.6891 0.4900
+          34.8206 0.2000
+          34.8939 0.1800
+          35.5416 0.1829
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5000
+          40.0127 0.5000
+          40.2160 0.5000
+          40.3999 0.5000
+          40.4804 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.4363 0.2500
+          0.7174 0.2523
+          1.0709 0.2551
+          1.2490 0.3800
+          1.6889 0.4063
+          1.8734 0.3839
+          2.6932 0.1662
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0000
+          4.9951 0.0000
+          5.1386 0.0000
+          5.5485 0.0000
+          5.7483 0.2459
+          6.0902 0.2860
+          6.3437 0.0000
+          6.5845 0.0000
+          6.9534 0.0000
+          7.1071 0.3900
+          7.5273 0.1600
+          8.2447 0.1615
+          8.5163 0.0000
+          9.1260 0.0000
+          9.3156 1.0000
+          10.4378 1.0000
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.7500
+          12.3094 0.7500
+          12.4477 0.0000
+          12.7142 0.0778
+          13.3291 0.0778
+          13.8261 0.0778
+          14.0464 0.4400
+          14.6716 0.4800
+          14.9995 0.1800
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.3300
+          17.6231 0.3300
+          17.8639 0.1600
+          18.2477 0.1511
+          18.4810 0.2333
+          19.0344 0.2333
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.4900
+          21.6366 0.4639
+          22.0465 0.4639
+          22.2413 0.3000
+          22.5708 0.2666
+          22.7502 0.2666
+          23.1652 0.2662
+          23.2789 0.2681
+          23.6930 0.2681
+          24.2018 0.2681
+          24.3412 0.2681
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0957
+          25.9374 0.3600
+          26.8187 0.3512
+          26.9622 0.1900
+          27.5617 0.1900
+          28.2688 0.1900
+          29.3254 0.1918
+          29.7036 0.2900
+          30.2467 0.2900
+          30.4261 0.0000
+          30.7694 0.3479
+          31.4773 0.3479
+          31.7363 0.3479
+          32.0153 0.3479
+          32.8522 0.3479
+          33.1768 0.5000
+          34.3269 0.5600
+          34.4094 0.5000
+          34.5802 0.0600
+          34.7651 0.0600
+          34.8646 0.0600
+          35.5416 0.0600
+          36.1336 0.0600
+          37.0047 0.0600
+          38.6211 0.0600
+          38.7545 0.0600
+          39.1217 0.0600
+          39.4605 0.0600
+          40.0127 0.0600
+          40.2160 0.0600
+          40.3999 0.0600
+          40.4804 0.0600
+          40.7185 0.0600
+          41.3875 0.0592
+          41.5413 0.3300
+          41.7690 0.3719
+          41.9170 0.4000
+          42.4437 0.3500
+          44.4876 0.3193
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5000
+          21.6366 0.5000
+          22.0465 0.5000
+          22.2413 0.5000
+          22.5708 0.5000
+          22.7502 0.5000
+          23.1652 0.5000
+          23.2789 0.5000
+          23.6930 0.5000
+          24.2018 0.5000
+          24.3412 0.5000
+          24.7486 0.5000
+          25.3173 0.5000
+          25.7680 0.5000
+          25.9374 0.5000
+          26.8187 0.5000
+          26.9622 0.5000
+          27.5617 0.5000
+          28.2688 0.5000
+          29.3254 0.5000
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.7651 0.5000
+          34.8646 0.5000
+          35.5416 0.5000
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5000
+          40.0127 0.5000
+          40.2160 0.5000
+          40.3999 0.5000
+          40.4804 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "wrinkler" 
+        {
+          0.4363 0.1900
+          0.7174 0.1918
+          1.0709 0.1918
+          1.2490 0.1915
+          1.6889 0.2003
+          1.8734 0.2049
+          2.6932 0.0951
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0000
+          4.9951 0.0000
+          5.1386 0.0000
+          5.5485 0.0000
+          5.7483 0.1918
+          6.0902 0.2231
+          6.3437 0.0000
+          6.5845 0.0000
+          6.9534 0.0000
+          7.1071 0.0000
+          7.5273 0.0000
+          8.2447 0.0000
+          8.5163 0.0000
+          9.1260 0.0000
+          9.3156 0.9600
+          10.4378 1.0000
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.0000
+          12.3094 0.0000
+          12.4477 0.0000
+          12.7142 0.0000
+          13.3291 0.0000
+          13.8261 0.0000
+          14.0464 0.4900
+          14.6716 0.4900
+          14.9995 0.2400
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.4000
+          17.6231 0.4000
+          17.8639 0.0800
+          18.2477 0.0633
+          18.4810 0.1175
+          19.0344 0.1175
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.6300
+          21.6366 0.5964
+          22.0465 0.5964
+          22.2413 0.1900
+          22.5708 0.1084
+          22.7502 0.1084
+          23.1652 0.1069
+          23.2789 0.1112
+          23.6930 0.1112
+          24.2018 0.1112
+          24.3412 0.1112
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0000
+          25.9374 0.0000
+          26.8187 0.0000
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0000
+          29.7036 0.0000
+          30.2467 0.0000
+          30.4261 0.0000
+          30.7694 0.0000
+          31.4773 0.0000
+          31.7363 0.0000
+          32.0153 0.0000
+          32.8522 0.0000
+          33.1768 0.0000
+          34.4094 0.0000
+          34.5802 0.0000
+          34.7651 0.0000
+          34.8646 0.0000
+          35.5416 0.0000
+          36.1336 0.0000
+          37.0047 0.0000
+          38.6211 0.0000
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.3300
+          40.3999 0.3300
+          40.4804 0.2100
+          40.7185 0.0000
+          41.3875 0.0000
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        "upper_raiser" combo 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0000
+          1.2490 0.0000
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.0000
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0400
+          4.9951 0.0396
+          5.1386 0.0396
+          5.5485 0.0396
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.0190
+          6.5845 0.0190
+          6.9534 0.0190
+          7.1071 0.0190
+          7.5273 0.0190
+          8.2447 0.0190
+          8.5163 0.0190
+          9.1260 0.0189
+          9.3156 0.8000
+          10.4378 0.9358
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.0000
+          12.3094 0.0000
+          12.4477 0.0000
+          12.7142 0.0000
+          13.3291 0.0000
+          13.8261 0.0000
+          14.0464 0.0000
+          14.6716 0.0000
+          14.9995 0.0000
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.0000
+          17.6231 0.0000
+          17.8639 0.0000
+          18.2477 0.0000
+          18.4810 0.0923
+          19.0344 0.0923
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.4100
+          21.6366 0.3881
+          22.0465 0.3881
+          22.2413 0.2400
+          22.5708 0.2099
+          22.7502 0.2099
+          23.1140 0.1900
+          23.1652 0.2095
+          23.2165 0.6900
+          23.2789 0.4811
+          23.3394 0.4900
+          23.6930 0.4811
+          24.2018 0.2111
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0000
+          25.9374 0.0000
+          26.8187 0.0000
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0074
+          29.7036 0.4000
+          30.2467 0.4000
+          30.4261 0.0000
+          30.7694 0.4815
+          31.4773 0.4815
+          31.7363 0.0000
+          32.0153 0.4590
+          32.8522 0.4590
+          33.1768 0.3900
+          34.4094 0.3900
+          34.5802 0.0000
+          34.7651 0.0000
+          34.8646 0.0000
+          35.5416 0.0000
+          36.1336 0.0000
+          37.0047 0.0000
+          38.6211 0.0000
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.0000
+          40.3999 0.0000
+          40.4804 0.0000
+          40.7185 0.0000
+          41.3875 0.0000
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.0000
+          21.6366 0.0267
+          22.0465 0.0267
+          22.2413 0.0267
+          22.5708 0.0276
+          22.7502 0.0276
+          23.1652 0.1273
+          23.2789 0.1270
+          23.6930 0.1270
+          24.2018 0.0270
+          24.3412 0.4900
+          24.7486 0.4900
+          25.3173 0.4900
+          25.7680 0.4900
+          25.9374 0.4900
+          26.8187 0.4900
+          26.9622 0.4900
+          27.5617 0.4900
+          28.2688 0.4900
+          29.3254 0.4810
+          29.7036 0.0000
+          30.2467 0.0000
+          30.4261 0.0000
+          30.7694 0.0000
+          31.4773 0.0000
+          31.7363 0.0000
+          32.0153 0.0000
+          32.8522 0.0000
+          33.1768 0.4100
+          34.4094 0.4100
+          34.5802 0.4100
+          34.7651 0.4100
+          34.8646 0.4900
+          35.5416 0.5000
+          36.1336 0.4100
+          37.0047 0.4100
+          38.6211 0.4100
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5000
+          40.0127 0.5000
+          40.2160 0.5000
+          40.3999 0.5000
+          40.4804 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "corner_puller" combo 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0000
+          1.2490 0.0000
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.0000
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0000
+          4.9951 0.0000
+          5.1386 0.0000
+          5.5485 0.0000
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.0000
+          6.5845 0.0000
+          6.9534 0.0000
+          7.1071 0.0000
+          7.5273 0.0000
+          8.2447 0.0000
+          8.5163 0.0000
+          9.1260 0.0000
+          9.3156 0.0000
+          10.4378 0.0000
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.2900
+          12.3094 0.2900
+          12.4477 0.0000
+          12.7142 0.0301
+          13.3291 0.0301
+          13.8261 0.0301
+          14.0464 0.0301
+          14.6716 0.0301
+          14.9995 0.0301
+          15.5581 0.0301
+          16.5265 0.0301
+          17.0235 0.0301
+          17.3156 0.0301
+          17.6231 0.0301
+          17.8639 0.0301
+          18.2477 0.0301
+          18.4810 0.0169
+          19.0344 0.0169
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.0000
+          21.6366 0.0000
+          22.0465 0.0000
+          22.2413 0.0000
+          22.5708 0.0000
+          22.7502 0.0000
+          23.1652 0.0000
+          23.2789 0.0000
+          23.6930 0.0000
+          24.2018 0.0000
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0000
+          25.9374 0.0000
+          26.8187 0.0000
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0066
+          29.7036 0.3600
+          30.2467 0.3600
+          30.4261 0.3600
+          30.7694 0.3623
+          31.4773 0.3623
+          31.7363 0.0000
+          32.0153 0.3453
+          32.8522 0.3453
+          33.1768 0.0000
+          34.4094 0.0000
+          34.5802 0.0000
+          34.6411 0.0000
+          34.8446 0.5600
+          35.5416 0.5555
+          36.1336 0.0000
+          37.0047 0.0000
+          38.6211 0.0000
+          38.7545 0.3900
+          39.1217 0.3900
+          39.4605 0.4800
+          40.0127 0.4800
+          40.2160 0.8100
+          40.3999 0.8100
+          40.4804 0.8100
+          40.7185 0.4434
+          41.3875 0.3826
+          41.5413 0.5500
+          41.7690 0.5720
+          41.9170 0.7300
+          42.4437 0.7472
+          44.4876 0.6980
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5000
+          21.6366 0.5000
+          22.0465 0.5000
+          22.2413 0.5000
+          22.5708 0.5000
+          22.7502 0.5000
+          23.1652 0.5000
+          23.2789 0.5000
+          23.6930 0.5000
+          24.2018 0.5000
+          24.3412 0.5000
+          24.7486 0.5000
+          25.3173 0.5000
+          25.7680 0.5000
+          25.9374 0.5000
+          26.8187 0.5000
+          26.9622 0.5000
+          27.5617 0.5000
+          28.2688 0.5000
+          29.3254 0.5000
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.7651 0.5000
+          34.8646 0.0000
+          35.5416 0.0925
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.0000
+          40.3999 0.0000
+          40.4804 0.0000
+          40.7185 0.0000
+          41.3875 0.0063
+          41.5413 0.3800
+          41.7690 0.4443
+          41.9170 0.4647
+          42.4437 0.4924
+          44.4876 0.4966
+        }
+        "corner_depressor" combo 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0000
+          1.2490 0.0000
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.0000
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.1600
+          3.8227 0.1723
+          4.6580 0.1723
+          4.9951 0.1724
+          5.1386 0.0000
+          5.5485 0.5000
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.1749
+          6.5845 0.5100
+          6.9534 0.5697
+          7.1071 0.7800
+          7.5273 0.9900
+          8.2447 0.9888
+          8.5163 1.0000
+          9.1260 1.0000
+          9.3156 1.0000
+          10.4378 0.9990
+          10.6428 0.6600
+          11.1142 0.5620
+          11.2423 0.5620
+          11.8170 0.5620
+          12.0327 0.5620
+          12.3094 0.5620
+          12.4477 0.5620
+          12.7142 0.5622
+          13.3291 0.7500
+          13.8261 0.6000
+          14.0464 1.0000
+          14.6716 0.8500
+          14.9995 0.6400
+          15.5581 0.9600
+          16.5265 0.9000
+          17.0235 0.9000
+          17.3156 0.9000
+          17.6231 0.9000
+          17.8639 0.7500
+          18.2477 0.7418
+          18.4810 0.6260
+          19.0344 0.6260
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.4000
+          21.6366 0.3787
+          22.0465 0.3787
+          22.2413 0.2300
+          22.5708 0.1998
+          22.7502 0.1998
+          23.1652 0.1994
+          23.2789 0.2011
+          23.6930 0.2011
+          24.2018 0.2011
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0771
+          25.9374 0.2900
+          26.8187 0.2829
+          26.9622 0.5300
+          27.5617 0.5300
+          28.2688 0.2900
+          29.3254 0.2818
+          29.7036 0.2600
+          30.2467 0.2600
+          30.4261 0.2600
+          30.7694 0.2598
+          31.4773 0.2598
+          31.7363 0.0000
+          32.0153 0.2476
+          32.8522 0.2476
+          33.1768 0.4400
+          34.4094 0.4400
+          34.5802 0.4400
+          34.7651 0.4400
+          34.8646 0.4400
+          35.5416 0.4400
+          36.1336 0.4400
+          37.0047 0.4400
+          38.6211 0.4400
+          38.7545 0.2600
+          39.1217 0.2600
+          39.4605 0.2600
+          40.0127 0.2600
+          40.2160 0.2600
+          40.3999 0.2600
+          40.4804 0.2600
+          40.7185 0.2600
+          41.3875 0.2567
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.0000
+          21.6366 0.0267
+          22.0465 0.0267
+          22.2413 0.0267
+          22.5708 0.0276
+          22.7502 0.0276
+          23.1652 0.0273
+          23.2789 0.0270
+          23.6930 0.0270
+          24.2018 0.0270
+          24.3412 0.4600
+          24.7486 0.4600
+          25.3173 0.4600
+          25.7680 0.4599
+          25.9374 0.4600
+          26.8187 0.4600
+          26.9622 0.4600
+          27.5617 0.4600
+          28.2688 0.5000
+          29.3254 0.5013
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.7651 0.5000
+          34.8646 0.5000
+          35.5416 0.5000
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5000
+          40.0127 0.5000
+          40.2160 0.5000
+          40.3999 0.5000
+          40.4804 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "chin_raiser" 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0000
+          1.2490 0.0000
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.0000
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.3900
+          4.9951 0.3860
+          5.1386 0.0000
+          5.5485 0.1400
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.1850
+          6.5845 0.0000
+          6.9534 0.0000
+          7.1071 0.0000
+          7.5273 0.3500
+          8.2447 0.3478
+          8.5163 0.0000
+          9.1260 0.0000
+          9.3156 0.3900
+          10.4378 0.4578
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.2900
+          12.3094 0.2900
+          12.4477 0.0000
+          12.7142 0.0301
+          13.3291 0.0301
+          13.8261 0.0301
+          14.0464 0.1900
+          14.6716 0.1600
+          14.9995 0.0000
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.4500
+          17.6231 0.4500
+          17.8639 0.0300
+          18.2477 0.0081
+          18.4810 0.1036
+          19.0344 0.1036
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.6600
+          21.6366 0.6248
+          22.0465 0.6248
+          22.2413 0.4000
+          22.5708 0.3542
+          22.7502 0.3542
+          23.1652 0.3536
+          23.2789 0.3562
+          23.6930 0.3562
+          24.2018 0.1400
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0000
+          25.9374 0.0000
+          26.8187 0.0000
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0039
+          29.7036 0.2100
+          30.2467 0.2100
+          30.4261 0.0000
+          30.7694 0.2528
+          31.4773 0.2528
+          31.7363 0.0000
+          32.0153 0.2410
+          32.8522 0.2410
+          33.1768 0.0000
+          34.4094 0.0000
+          34.5802 0.0000
+          34.7651 0.0000
+          34.8646 0.0000
+          35.5416 0.0000
+          36.1336 0.1100
+          37.0047 0.1100
+          38.6211 0.1100
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.0000
+          40.3999 0.0000
+          40.4804 0.0000
+          40.7185 0.0000
+          41.3875 0.0000
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        "part" combo 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0000
+          1.2490 0.0000
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.0000
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0000
+          4.9951 0.0000
+          5.1386 0.0000
+          5.5485 0.0000
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.0000
+          6.5845 0.0000
+          6.9534 0.0000
+          7.1071 0.0000
+          7.5273 0.0000
+          8.2447 0.0000
+          8.5163 0.0000
+          9.1260 0.0000
+          9.3156 0.0000
+          10.4378 0.0000
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.0000
+          12.3094 0.0000
+          12.4477 0.0000
+          12.7142 0.0000
+          13.3291 0.0000
+          13.8261 0.0000
+          14.0464 0.0000
+          14.6716 0.0000
+          14.9995 0.0000
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.0000
+          17.6231 0.0000
+          17.8639 0.0000
+          18.2477 0.0000
+          18.4810 0.0000
+          19.0344 0.0000
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.5900
+          21.6366 0.5585
+          22.0465 0.5585
+          22.2413 0.0000
+          22.5708 0.0000
+          22.7502 0.0000
+          23.1652 0.0000
+          23.2789 1.0000
+          23.6930 1.0000
+          24.2018 0.7300
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0000
+          25.9374 0.0000
+          26.8187 0.0000
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0000
+          29.7036 0.0000
+          30.2467 0.0000
+          30.4261 0.0000
+          30.7694 0.0000
+          31.4773 0.0000
+          31.7363 0.0000
+          32.0153 0.0000
+          32.8522 0.0000
+          33.1768 0.0000
+          34.4094 0.0000
+          34.5802 0.0000
+          34.7651 0.0000
+          34.8646 0.0000
+          35.5416 0.0000
+          36.1336 0.0000
+          37.0047 0.0000
+          38.6211 0.0000
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.0000
+          40.3999 0.0000
+          40.4804 0.0000
+          40.7185 0.0000
+          41.3875 0.0000
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.6300
+          42.4437 0.5500
+          44.4876 0.5016
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.0000
+          21.6366 0.0267
+          22.0465 0.0267
+          22.2413 0.4800
+          22.5708 0.4800
+          22.7502 0.4800
+          23.1652 0.4800
+          23.2789 0.4800
+          23.6930 0.4800
+          24.2018 0.4800
+          24.3412 0.4800
+          24.7486 0.4800
+          25.3173 0.4800
+          25.7680 0.4800
+          25.9374 0.4800
+          26.8187 0.4800
+          26.9622 0.4800
+          27.5617 0.4800
+          28.2688 0.4800
+          29.3254 0.5000
+          29.7036 0.4800
+          30.2467 0.4800
+          30.4261 0.4800
+          30.7694 0.4800
+          31.4773 0.4800
+          31.7363 0.4800
+          32.0153 0.4800
+          32.8522 0.4800
+          33.1768 0.4800
+          34.4094 0.4800
+          34.5802 0.4800
+          34.7651 0.4800
+          34.8646 0.5000
+          35.5416 0.5000
+          36.1336 0.4800
+          37.0047 0.4800
+          38.6211 0.4800
+          38.7545 0.4800
+          39.1217 0.4800
+          39.4605 0.4800
+          40.0127 0.4800
+          40.2160 0.4800
+          40.3999 0.4800
+          40.4804 0.4800
+          40.7185 0.4800
+          41.3875 0.4800
+          41.5413 0.4800
+          41.7690 0.4800
+          41.9170 0.4800
+          42.4437 0.4839
+          44.4876 0.4856
+        }
+        "puckerer" combo 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0000
+          1.2490 0.0000
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.0000
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0000
+          4.9951 0.0000
+          5.1386 0.0000
+          5.5485 0.0000
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.0000
+          6.5845 0.0000
+          6.9534 0.0000
+          7.1071 0.0000
+          7.5273 0.0000
+          8.2447 0.0000
+          8.5163 0.0000
+          9.1260 0.0000
+          9.3156 0.0000
+          10.4378 0.0000
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.0000
+          12.3094 0.0000
+          12.4477 0.0000
+          12.7142 0.0000
+          13.3291 0.0000
+          13.8261 0.0000
+          14.0464 0.0000
+          14.6716 0.0000
+          14.9995 0.0000
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.0000
+          17.6231 0.0000
+          17.8639 0.0000
+          18.2477 0.0000
+          18.4810 0.0000
+          19.0344 0.0000
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.0000
+          21.6366 0.0000
+          22.0465 0.0000
+          22.2413 0.0000
+          22.5708 0.0000
+          22.7502 0.0000
+          23.1652 0.0000
+          23.2789 0.0000
+          23.6930 0.0000
+          24.2018 0.0000
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0000
+          25.9374 0.0000
+          26.8187 0.0000
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0000
+          29.7036 0.0000
+          30.2467 0.0000
+          30.4261 0.0000
+          30.7694 0.0000
+          31.4773 0.0000
+          31.7363 0.0000
+          32.0153 0.0000
+          32.8522 0.0000
+          33.1768 0.0000
+          34.4094 0.0000
+          34.5802 0.0000
+          34.7651 0.0000
+          34.8646 0.0000
+          35.5416 0.0000
+          36.1336 0.0000
+          37.0047 0.0000
+          38.6211 0.0000
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.0000
+          40.3999 0.0000
+          40.4804 0.0000
+          40.7185 0.0000
+          41.3875 0.0000
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5000
+          21.6366 0.5000
+          22.0465 0.5000
+          22.2413 0.5000
+          22.5708 0.5000
+          22.7502 0.5000
+          23.1652 0.5000
+          23.2789 0.5000
+          23.6930 0.5000
+          24.2018 0.5000
+          24.3412 0.5000
+          24.7486 0.5000
+          25.3173 0.5000
+          25.7680 0.5000
+          25.9374 0.5000
+          26.8187 0.5000
+          26.9622 0.5000
+          27.5617 0.5000
+          28.2688 0.5000
+          29.3254 0.5000
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.7651 0.5000
+          34.8646 0.5000
+          35.5416 0.5000
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5000
+          40.0127 0.5000
+          40.2160 0.5000
+          40.3999 0.5000
+          40.4804 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "jaw_clencher" 
+        {
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.0000
+          6.0902 0.0000
+          18.4810 0.0000
+          19.0344 0.0000
+          20.7655 0.0500
+          21.0355 1.0000
+          21.6366 0.9476
+          22.0465 0.9476
+          22.2413 0.0000
+          22.5708 0.0000
+          22.7502 0.0000
+          23.1652 0.0000
+          23.2789 0.0000
+          23.6930 0.0000
+          24.2018 0.0000
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0000
+          25.9374 0.0000
+          26.8187 0.0000
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0000
+          29.7036 0.0000
+          30.2467 0.0000
+          30.4261 0.0000
+          30.7694 0.0000
+          31.4773 0.0000
+          31.7363 0.0000
+          32.0153 0.0000
+          32.8522 0.0000
+          33.1768 0.0000
+          34.4094 0.0000
+          34.5802 0.0000
+          34.7651 0.0000
+          34.8646 0.0000
+          35.5416 0.0000
+          36.1336 0.0000
+          37.0047 0.0000
+          38.6211 0.0000
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.0000
+          40.3999 0.0000
+          40.4804 0.0000
+          40.7185 0.0000
+          41.3875 0.0000
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        "jaw_drop" range 0.0 2.0 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0000
+          1.2490 0.0000
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.0000
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0000
+          4.9951 0.0000
+          5.1386 0.0000
+          5.5485 0.0000
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.0000
+          6.5845 0.3500
+          6.9534 0.4125
+          7.1071 0.2100
+          7.5273 0.4900
+          8.2447 0.4882
+          8.5163 0.6300
+          9.1260 0.6428
+          9.3156 0.0000
+          10.4378 0.0000
+          10.6428 0.0000
+          11.1142 0.3500
+          11.2423 0.3500
+          11.8170 0.3500
+          12.0327 0.0000
+          12.3094 0.0000
+          12.4477 0.2900
+          12.7142 0.2600
+          13.3291 0.3600
+          13.8261 0.4400
+          14.0464 0.0000
+          14.6716 0.0000
+          14.9995 0.0000
+          15.5581 0.3300
+          16.5265 0.2500
+          17.0235 0.5100
+          17.3156 0.0000
+          17.6231 0.0000
+          17.8639 0.2900
+          18.2477 0.3049
+          18.4810 0.1723
+          19.0344 0.1723
+          19.4007 0.4000
+          20.2911 0.1000
+          20.7578 0.0000
+          21.0355 0.0000
+          21.6366 0.0000
+          22.0465 0.0000
+          22.2413 0.4200
+          22.5708 0.5031
+          22.7502 0.1531
+          23.0730 0.1300
+          23.1652 0.1150
+          23.2789 0.0000
+          23.6930 0.0000
+          24.2018 0.5010
+          24.3412 0.2500
+          24.7486 0.3400
+          25.3173 0.3400
+          25.7680 0.2527
+          25.9374 0.0100
+          26.8187 0.0182
+          26.9622 0.0182
+          27.5617 0.0182
+          28.2688 0.0182
+          29.3254 0.0182
+          29.7036 0.0182
+          30.2467 0.0182
+          30.4261 0.0182
+          30.7694 0.0182
+          31.4773 0.0182
+          31.7363 0.0182
+          32.0153 0.0183
+          32.8522 0.0183
+          33.1768 0.0183
+          34.4094 0.0183
+          34.5802 0.0183
+          34.7651 0.0183
+          34.8646 0.0183
+          35.5416 0.0183
+          36.1336 0.0183
+          37.0047 0.0183
+          38.6211 0.0183
+          38.7545 0.0183
+          39.1217 0.0183
+          39.4605 0.0183
+          40.0127 0.0183
+          40.2160 0.0183
+          40.3999 0.0183
+          40.4804 0.0183
+          40.7185 0.0183
+          41.3875 0.0180
+          41.5413 0.0174
+          41.7690 0.0171
+          41.9170 0.0164
+          42.4437 0.0124
+          44.4876 0.0110
+        }
+        "mouth_drop" combo 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0000
+          1.2490 0.0000
+          1.6889 0.0000
+          1.8734 0.0000
+          2.6932 0.0000
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.0000
+          4.9951 0.0000
+          5.1386 0.0000
+          5.5485 0.0000
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.0000
+          6.5845 0.5500
+          6.9534 0.6483
+          7.1071 0.3100
+          7.5273 0.6300
+          8.2447 0.6280
+          8.5163 0.6280
+          9.1260 0.6275
+          9.3156 0.0000
+          10.4378 0.0000
+          10.6428 0.0000
+          11.1142 0.4500
+          11.2423 0.4500
+          11.8170 0.4500
+          12.0327 0.0000
+          12.3094 0.0000
+          12.4477 0.4400
+          12.7142 0.3945
+          13.3291 0.4800
+          13.8261 0.5600
+          14.0464 0.0000
+          14.6716 0.0000
+          14.9995 0.0000
+          15.5581 0.2600
+          16.5265 0.2000
+          17.0235 0.4100
+          17.3156 0.0000
+          17.6231 0.0000
+          17.8639 0.5400
+          18.2477 0.5678
+          18.4810 0.3208
+          19.0344 0.3208
+          19.4007 0.3100
+          20.2911 0.2500
+          20.7578 0.0000
+          21.0355 0.0000
+          21.6366 0.0000
+          22.0465 0.0000
+          22.2413 0.2200
+          22.5708 0.2635
+          22.7502 0.2635
+          23.1652 0.1445
+          23.2789 0.0000
+          23.6930 0.0000
+          24.2018 0.2624
+          24.3412 0.2000
+          24.7486 0.3300
+          25.3173 0.3300
+          25.7680 0.2427
+          25.9374 0.0000
+          26.8187 0.0082
+          26.9622 0.0082
+          27.5617 0.0082
+          28.2688 0.0082
+          29.3254 0.0082
+          29.7036 0.0082
+          30.2467 0.0082
+          30.4261 0.0082
+          30.7694 0.0082
+          31.4773 0.0082
+          31.7363 0.0082
+          32.0153 0.0082
+          32.8522 0.0082
+          33.1768 0.0082
+          34.4094 0.0082
+          34.5802 0.0082
+          34.7651 0.0082
+          34.8646 0.0082
+          35.5416 0.0082
+          36.1336 0.0082
+          37.0047 0.0082
+          38.6211 0.0082
+          38.7545 0.0082
+          39.1217 0.0082
+          39.4605 0.0082
+          40.0127 0.0082
+          40.2160 0.0082
+          40.3999 0.0082
+          40.4804 0.0082
+          40.7185 0.0082
+          41.3875 0.0081
+          41.5413 0.0079
+          41.7690 0.0077
+          41.9170 0.0074
+          42.4437 0.0056
+          44.4876 0.0050
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5000
+          21.6366 0.5000
+          22.0465 0.5000
+          22.2413 0.5000
+          22.5708 0.5000
+          22.7502 0.5000
+          23.1652 0.5000
+          23.2789 0.5000
+          23.6930 0.5000
+          24.2018 0.5000
+          24.3412 0.5000
+          24.7486 0.5000
+          25.3173 0.5000
+          25.7680 0.5000
+          25.9374 0.5000
+          26.8187 0.5000
+          26.9622 0.5000
+          27.5617 0.5000
+          28.2688 0.5000
+          29.3254 0.5000
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.7651 0.5000
+          34.8646 0.5000
+          35.5416 0.5000
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5000
+          40.0127 0.5000
+          40.2160 0.5000
+          40.3999 0.5000
+          40.4804 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "dimpler" combo 
+        {
+          0.4363 0.0000
+          0.7174 0.0000
+          1.0709 0.0030
+          1.2490 0.1400
+          1.6889 0.1578
+          1.8734 0.1276
+          2.6932 0.0465
+          3.1054 0.0000
+          3.3308 0.0000
+          3.5614 0.0000
+          3.8227 0.0000
+          4.6580 0.2400
+          4.9951 0.2376
+          5.1386 0.0000
+          5.5485 0.0000
+          5.7483 0.0000
+          6.0902 0.0000
+          6.3437 0.1139
+          6.5845 0.1139
+          6.9534 0.1137
+          7.1071 0.2100
+          7.5273 0.0000
+          8.2447 0.0013
+          8.5163 0.0013
+          9.1260 0.0013
+          9.3156 0.7800
+          10.4378 0.9154
+          10.6428 0.0000
+          11.1142 0.0000
+          11.2423 0.0000
+          11.8170 0.0000
+          12.0327 0.5900
+          12.3094 0.5900
+          12.4477 0.0000
+          12.7142 0.0612
+          13.3291 0.4400
+          13.8261 0.1500
+          14.0464 0.5900
+          14.6716 0.5900
+          14.9995 0.0000
+          15.5581 0.0000
+          16.5265 0.0000
+          17.0235 0.0000
+          17.3156 0.0000
+          17.6231 0.0000
+          17.8639 0.0000
+          18.2477 0.0000
+          18.4810 0.1363
+          19.0344 0.1363
+          19.4007 0.0000
+          20.2911 0.0000
+          20.7578 0.0000
+          21.0355 0.9000
+          21.6366 0.8520
+          22.0465 0.8520
+          22.2413 0.3500
+          22.5708 0.2489
+          22.7502 0.0000
+          23.1652 0.0664
+          23.2789 0.2729
+          23.6930 0.2729
+          24.2018 0.2729
+          24.3412 0.0000
+          24.7486 0.0000
+          25.3173 0.0000
+          25.7680 0.0000
+          25.9374 0.0000
+          26.8187 0.0000
+          26.9622 0.0000
+          27.5617 0.0000
+          28.2688 0.0000
+          29.3254 0.0000
+          29.7036 0.0000
+          30.2467 0.0000
+          30.4261 0.0000
+          30.7694 0.0000
+          31.4773 0.0000
+          31.7363 0.0000
+          32.0153 0.0000
+          32.8522 0.0000
+          33.1768 0.2900
+          34.3036 0.3300
+          34.4094 0.2900
+          34.5802 0.0000
+          34.7651 0.0000
+          34.8646 1.0000
+          35.5416 0.8100
+          36.1336 0.0000
+          37.0047 0.0000
+          38.6211 0.0000
+          38.7545 0.0000
+          39.1217 0.0000
+          39.4605 0.0000
+          40.0127 0.0000
+          40.2160 0.0000
+          40.3999 0.0000
+          40.4804 0.0000
+          40.7185 0.0000
+          41.3875 0.0000
+          41.5413 0.0000
+          41.7690 0.0000
+          41.9170 0.0000
+          42.4437 0.0000
+          44.4876 0.0000
+        }
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5000
+          21.6366 0.5000
+          22.0465 0.5000
+          22.2413 0.5000
+          22.5708 0.5000
+          22.7502 0.5000
+          23.1652 0.5000
+          23.2789 0.5000
+          23.6930 0.5000
+          24.2018 0.5000
+          24.3412 0.5000
+          24.7486 0.5000
+          25.3173 0.5000
+          25.7680 0.5000
+          25.9374 0.5000
+          26.8187 0.5000
+          26.9622 0.5000
+          27.5617 0.5000
+          28.2688 0.5000
+          29.3254 0.5000
+          29.7036 0.5000
+          30.2467 0.5000
+          30.4261 0.5000
+          30.7694 0.5000
+          31.4773 0.5000
+          31.7363 0.5000
+          32.0153 0.5000
+          32.8522 0.5000
+          33.1768 0.5000
+          34.4094 0.5000
+          34.5802 0.5000
+          34.7651 0.5000
+          34.8646 0.0000
+          35.5416 0.0925
+          36.1336 0.5000
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5000
+          40.0127 0.5000
+          40.2160 0.5000
+          40.3999 0.5000
+          40.4804 0.5000
+          40.7185 0.5000
+          41.3875 0.5000
+          41.5413 0.5000
+          41.7690 0.5000
+          41.9170 0.5000
+          42.4437 0.5000
+          44.4876 0.5000
+        }
+        "mouth_sideways" range -1.0 1.0 
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5700
+          21.6366 0.5663
+          22.0465 0.5663
+          22.2413 0.5663
+          22.5708 0.5661
+          22.7502 0.4800
+          23.1652 0.5036
+          23.2789 0.5033
+          23.6930 0.5033
+          24.2018 0.5733
+          24.3412 0.4800
+          24.7486 0.4800
+          25.3173 0.4800
+          25.7680 0.4800
+          25.9374 0.4800
+          26.8187 0.4800
+          26.9622 0.4800
+          27.5617 0.4800
+          28.2688 0.4800
+          29.3254 0.4820
+          29.7036 0.5900
+          30.2467 0.5900
+          30.4261 0.6800
+          30.7694 0.5729
+          31.4773 0.5729
+          31.7363 0.5729
+          32.0153 0.5730
+          32.8522 0.5730
+          33.1768 0.5000
+          34.4094 0.5600
+          34.6725 0.6700
+          34.8646 0.6800
+          35.5416 0.6765
+          36.1336 0.6800
+          37.0047 0.5000
+          38.6211 0.5000
+          38.7545 0.5000
+          39.1217 0.5000
+          39.4605 0.5300
+          40.0127 0.5300
+          40.2160 0.5300
+          40.3999 0.5300
+          40.4804 0.5300
+          40.7185 0.5302
+          41.3875 0.5299
+          41.5413 0.5289
+          41.7690 0.5284
+          41.9170 0.5271
+          42.4437 0.5206
+          44.4876 0.5183
+        }
+        "jaw_sideways" range -1.0 1.0 
+        {
+          0.4363 0.5000
+          0.7174 0.5000
+          1.0709 0.5000
+          1.2490 0.5000
+          1.6889 0.5000
+          1.8734 0.5000
+          2.6932 0.5000
+          3.1054 0.5000
+          3.3308 0.5000
+          3.5614 0.5000
+          3.8227 0.5000
+          4.6580 0.5000
+          4.9951 0.5000
+          5.1386 0.5000
+          5.5485 0.5000
+          5.7483 0.5000
+          6.0902 0.5000
+          6.3437 0.5000
+          6.5845 0.5000
+          6.9534 0.5000
+          7.1071 0.5000
+          7.5273 0.5000
+          8.2447 0.5000
+          8.5163 0.5000
+          9.1260 0.5000
+          9.3156 0.5000
+          10.4378 0.5000
+          10.6428 0.5000
+          11.1142 0.5000
+          11.2423 0.5000
+          11.8170 0.5000
+          12.0327 0.5000
+          12.3094 0.5000
+          12.4477 0.5000
+          12.7142 0.5000
+          13.3291 0.5000
+          13.8261 0.5000
+          14.0464 0.5000
+          14.6716 0.5000
+          14.9995 0.5000
+          15.5581 0.5000
+          16.5265 0.5000
+          17.0235 0.5000
+          17.3156 0.5000
+          17.6231 0.5000
+          17.8639 0.5000
+          18.2477 0.5000
+          18.4810 0.5000
+          19.0344 0.5000
+          19.4007 0.5000
+          20.2911 0.5000
+          20.7578 0.5000
+          21.0355 0.5300
+          21.6366 0.5284
+          22.0465 0.5284
+          22.2413 0.5284
+          22.5708 0.5283
+          22.7502 0.4800
+          23.1652 0.4932
+          23.2789 0.4923
+          23.6930 0.4923
+          24.2018 0.5323
+          24.3412 0.4800
+          24.7486 0.4800
+          25.3173 0.4800
+          25.7680 0.4800
+          25.9374 0.4800
+          26.8187 0.4800
+          26.9622 0.4800
+          27.5617 0.4800
+          28.2688 0.4800
+          29.3254 0.4800
+          29.7036 0.4800
+          30.2467 0.4800
+          30.4261 0.4800
+          30.7694 0.4800
+          31.4773 0.4800
+          31.7363 0.4800
+          32.0153 0.4800
+          32.8522 0.4800
+          33.1768 0.4800
+          34.4094 0.4800
+          34.5802 0.4800
+          34.7651 0.4800
+          34.8646 0.4800
+          35.5416 0.4800
+          36.1336 0.4800
+          37.0047 0.4800
+          38.6211 0.4800
+          38.7545 0.4800
+          39.1217 0.4800
+          39.4605 0.4800
+          40.0127 0.4800
+          40.2160 0.4800
+          40.3999 0.4800
+          40.4804 0.4800
+          40.7185 0.4800
+          41.3875 0.4802
+          41.5413 0.4809
+          41.7690 0.4813
+          41.9170 0.4821
+          42.4437 0.4864
+          44.4876 0.4879
+        }
+      }
+    }
+  }
+  faceposermodel "models\alyx.mdl"
+}
+
+actor "Dog"
+{
+  channel "audio"
+  {
+    event speak "NPC_dog.Playful_3"
+    {
+      time 21.019508 22.115290
+      param "NPC_dog.Laugh_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_dog.Playful_3"
+    {
+      time 20.456657 21.054663
+      param "NPC_dog.Playful_3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_dog.Straining_3"
+    {
+      time 16.964064 19.503496
+      param "NPC_dog.Straining_3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "NPC_dog.Growl_2"
+    {
+      time 17.854660 19.857880
+      param "NPC_dog.Growl_2"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Alyx"
+    {
+      time 19.554264 22.661209
+      param "Alyx"
+      event_ramp 
+      {
+        0.2957 0.3503
+        0.5400 0.5069
+        1.2739 0.5764
+        1.9000 0.5541
+        2.7559 0.4829
+        2.9217 0.3599
+      }
+    }
+    event lookat "!player"
+    {
+      time 22.204906 25.382359
+      param "!player"
+      event_ramp 
+      {
+        0.2435 0.4586
+        0.5400 0.6471
+        1.1478 0.7261
+        2.1522 0.7197
+        2.8264 0.6231
+        2.9565 0.5350
+      }
+    }
+    event lookat "Alyx"
+    {
+      time 25.643120 30.142689
+      param "Alyx"
+      event_ramp 
+      {
+        0.5400 0.9082
+        4.1486 0.8842
+      }
+    }
+    event lookat "mark_look_cit_sec2_1"
+    {
+      time 29.418209 32.030170
+      param "mark_look_cit_sec2_1"
+      event_ramp 
+      {
+        0.2167 0.0743
+        0.4200 0.2246
+        0.6233 0.4172
+        0.8533 0.4799
+        1.3771 0.4767
+        1.7947 0.4655
+        1.9780 0.4420
+        2.1474 0.3621
+        2.2831 0.1736
+      }
+    }
+    event lookat "mark_look_cit_sec2_1"
+    {
+      time 32.637955 35.942436
+      param "mark_look_cit_sec2_1"
+      event_ramp 
+      {
+        0.5600 0.2216
+        0.8367 0.3781
+        2.1389 0.3958
+        2.7000 0.2213
+      }
+    }
+    event lookat "Alyx"
+    {
+      time 38.996624 44.080746
+      param "Alyx"
+      event_ramp 
+      {
+        0.5600 0.7337
+        0.8367 0.8927
+        1.1143 0.9456
+        4.0667 0.9599
+        4.5044 0.8873
+        4.7667 0.7622
+      }
+    }
+    event lookat "mark_look_cit_sec2_3"
+    {
+      time 31.236673 33.213303
+      param "mark_look_cit_sec2_3"
+      event_ramp 
+      {
+        0.3918 0.3199
+        0.6412 0.4674
+        1.5197 0.4047
+        1.7659 0.1678
+      }
+    }
+    event lookat "mark_look_cit_venthole"
+    {
+      time 35.171288 40.092434
+      param "mark_look_cit_venthole"
+      event_ramp 
+      {
+        0.3368 0.2701
+        0.5600 0.3911
+        0.8367 0.4529
+        3.6851 0.4511
+        4.1135 0.3930
+        4.3061 0.3333
+      }
+    }
+  }
+  channel "move to "
+  {
+    event moveto "SS_dogthrow"
+    {
+      time 25.831547 30.263023
+      param "SS_dogthrow"
+      param2 "Run"
+    }
+  }
+  channel "face to"
+  {
+    event face "alyx"
+    {
+      time 25.773893 30.393126
+      param "alyx"
+      event_ramp 
+      {
+        0.4609 0.4586
+        0.9696 0.7930
+        1.5435 0.9713
+        3.4645 1.0000
+        4.6193 1.0000
+      }
+    }
+    event face "alyx"
+    {
+      time 40.802387 42.757149
+      param "alyx"
+      event_ramp 
+      {
+        0.1786 0.4236
+        0.4119 0.7484
+        0.9690 1.0000
+        1.9548 0.9936
+      }
+    }
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+    event gesture "D_p_sit_think"
+    {
+      time 29.565266 41.035439
+      param "D_p_sit_think"
+      absolutetags playback_time
+      {
+        "apex" 0.079129
+        "loop" 0.146535
+        "end" 0.854881
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.219512
+        "loop" 0.528455
+        "end" 0.569106
+      }
+      sequenceduration 4.133333
+    }
+  }
+  channel "gestures"
+  {
+    event sequence "E1_Dog_peekover"
+    {
+      time 16.856213 26.856213
+      param "E1_Dog_peekover"
+      fixedlength
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "3 - dog digging out FX"
+    {
+      time 14.513775 -1.000000
+      param "3"
+    }
+    event firetrigger "1 - teleport dog (test)"
+    {
+      time 16.882008 -1.000000
+      param "1"
+    }
+  }
+}
+
+actor "Eli"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+  }
+}
+
+mapname "maps\ep1_citadel_00.bsp"
+scalesettings
+{
+  "CChoreoView" "86"
+  "ExpressionTool" "40"
+  "RampTool" "80"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

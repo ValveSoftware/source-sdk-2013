@@ -1,0 +1,84 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Sound"
+  {
+    event speak "ep_01.al_platform_getin"
+    {
+      time 0.506666 2.042675
+      param "ep_02.al_radar_newdetect03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "mark_alyx_radar"
+    {
+      time 0.053333 3.093334
+      param "mark_alyx_radar"
+      event_ramp
+      {
+        0.4980 1.0000
+        2.5887 0.9471
+      }
+    }
+    active "0"
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "buggy_point"
+    {
+      time 0.313333 2.353333
+      param "buggy_point"
+      sequenceduration 1.333333
+    }
+    active "0"
+  }
+  channel "Trigger"
+  {
+    event generic "AI_AIM"
+    {
+      time 0.323704 2.373767
+      param "AI_AIM"
+      param2 "mark_alyx_radar"
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.053333 3.080000
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lowerer" combo 
+        {
+          0.3195 0.3300
+          0.4540 0.3600
+          2.3967 0.3100
+          2.5907 0.2800
+        }
+        {
+          0.3195 0.5000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "88"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

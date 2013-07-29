@@ -1,0 +1,132 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.632184 -1.000000
+  param "noaction"
+}
+event loop "loop"
+{
+  time 13.303922 -1.000000
+  param "1.100000"
+  loopcount "-1"
+}
+actor "Alyx"
+{
+  channel "Audio"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "mark_alyx_look_3"
+    {
+      time 8.201882 13.659779
+      param "mark_alyx_look_3"
+      event_ramp
+      {
+        0.7460 1.0000
+        4.9184 1.0000
+        5.4579 0.0000
+      }
+    }
+    event lookat "mark_alyx_door_look_1"
+    {
+      time 0.910955 3.648641
+      param "mark_alyx_door_look_1"
+      event_ramp
+      {
+        0.5000 0.9936
+        2.3542 1.0000
+      }
+    }
+    event lookat "mark_alyx_door_look_2"
+    {
+      time 3.150451 8.955623
+      param "mark_alyx_door_look_2"
+      event_ramp
+      {
+        0.7040 1.0000
+        5.0768 1.0000
+      }
+    }
+    event lookat "mark_alyx_look_3"
+    {
+      time 0.156862 1.343137
+      param "mark_alyx_look_3"
+      event_ramp
+      {
+        0.4612 0.8039
+        0.9347 0.7395
+      }
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "mark_alyx_door"
+    {
+      time 0.051724 1.057471
+      param "mark_alyx_door"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "van_breathe"
+    {
+      time 0.637255 13.584313
+      param "van_breathe"
+      event_ramp
+      {
+        0.4796 0.2026
+        12.8061 0.0900
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.008062
+        "accent" 0.016124
+        "loop" 0.026124
+        "end" 0.987124
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.058824
+        "accent" 0.117647
+        "loop" 0.147059
+        "end" 0.661765
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "68"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "98"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

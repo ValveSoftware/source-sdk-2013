@@ -1,0 +1,320 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_junc_fallsounds04"
+    {
+      time 0.128205 0.522241
+      param "ep_02.al_junc_fallsounds04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_junc_feltgo01"
+    {
+      time 3.000000 4.019569
+      param "ep_02.al_junc_feltgo01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_junc_feltgo02"
+    {
+      time 4.871795 8.661795
+      param "ep_02.al_junc_feltgo02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_junc_howfeel"
+    {
+      time 13.832168 17.242802
+      param "ep_02.al_junc_howfeel"
+      param2 "0.55"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_junc_combknows01"
+    {
+      time 26.190477 31.220591
+      param "ep_02.al_junc_combknows01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_junc_combknows02"
+    {
+      time 31.444555 33.587570
+      param "ep_02.al_junc_combknows02"
+      param2 ".6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_junc_thenletsgo"
+    {
+      time 42.584412 43.562847
+      param "ep_02.al_junc_thenletsgo"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_junc_trynotslow"
+    {
+      time 54.414253 55.946861
+      param "ep_02.al_junc_trynotslow"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_junc_gordonglad"
+    {
+      time 51.763901 54.134037
+      param "ep_02.al_junc_gordonglad"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_junc_gettingusedto"
+    {
+      time 23.104895 24.863148
+      param "ep_02.al_junc_gettingusedto"
+      param2 ".4"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 41.917747 44.647217
+      param "!player"
+    }
+    event lookat "Vort"
+    {
+      time 0.121212 42.699139
+      param "Vort"
+    }
+    event lookat "Vort"
+    {
+      time 44.038963 51.780586
+      param "Vort"
+    }
+    event lookat "!player"
+    {
+      time 50.740261 57.246723
+      param "!player"
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 42.071960 44.720779
+      param "!player"
+    }
+    event face "Vort"
+    {
+      time 0.151515 42.984848
+      param "Vort"
+    }
+    event face "Vort"
+    {
+      time 44.044144 51.811691
+      param "Vort"
+    }
+    event face "!player"
+    {
+      time 50.891418 57.660172
+      param "!player"
+    }
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "bodygestures"
+  {
+  }
+  channel "headges"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "face"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\alyx.mdl"
+}
+
+actor "vort"
+{
+  channel "audio"
+  {
+    event speak "ep_02.vort_junc_howstrange02"
+    {
+      time 8.643357 13.538776
+      param "ep_02.vort_junc_howstrange02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_junc_ourbond01"
+    {
+      time 17.566433 18.699131
+      param "ep_02.vort_junc_ourbond01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_junc_locknown01"
+    {
+      time 33.586746 39.310463
+      param "ep_02.vort_junc_locknown01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_junc_locknown02"
+    {
+      time 39.488838 42.548069
+      param "ep_02.vort_junc_locknown02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_junc_level01"
+    {
+      time 44.148514 46.006111
+      param "ep_02.vort_junc_level01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_junc_level02"
+    {
+      time 46.789543 50.603420
+      param "ep_02.vort_junc_level02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_junc_ourbond02"
+    {
+      time 19.051281 22.863413
+      param "ep_02.vort_junc_ourbond02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Alyx"
+    {
+      time 0.393940 23.880955
+      param "Alyx"
+    }
+    event lookat "Alyx"
+    {
+      time 30.346321 43.833336
+      param "Alyx"
+    }
+    event lookat "!player"
+    {
+      time 42.645020 52.484398
+      param "!player"
+    }
+    event lookat "!player"
+    {
+      time 22.025972 32.731041
+      param "!player"
+    }
+    event lookat "Alyx"
+    {
+      time 51.917751 58.295311
+      param "Alyx"
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+    event face "Alyx"
+    {
+      time 51.969254 58.581577
+      param "Alyx"
+    }
+    event face "Alyx"
+    {
+      time 0.417754 23.857141
+      param "Alyx"
+    }
+    event face "!player"
+    {
+      time 43.233673 53.469700
+      param "!player"
+    }
+    event face "!player"
+    {
+      time 22.666414 33.803028
+      param "!player"
+    }
+    event face "Alyx"
+    {
+      time 30.359999 44.343475
+      param "Alyx"
+    }
+  }
+  channel "posture"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "bodygesture"
+  {
+  }
+  channel "headgesture"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "face"
+  {
+  }
+  channel "AI"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+mapname "maps\ep1_citadel_00.bsp"
+scalesettings
+{
+  "CChoreoView" "14"
+  "ExpressionTool" "38"
+  "RampTool" "76"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

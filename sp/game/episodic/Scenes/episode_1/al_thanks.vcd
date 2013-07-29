@@ -1,0 +1,134 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_thanksdog"
+    {
+      time 0.426667 1.475919
+      param "ep_01.al_thanksdog"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.040000 2.193333
+      param "!player"
+      event_ramp 
+      {
+        0.6731 0.9212
+        1.6311 0.8838
+      }
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.646667
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.080000 2.733333
+      param "A_bg_acc_side_rt"
+      event_ramp 
+      {
+        0.2923 0.3920
+        0.4577 0.4874
+        0.6231 0.4925
+        1.4226 0.4874
+        1.6187 0.4874
+        1.8456 0.4171
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.076285
+        "extreme" 0.228855
+        "loop" 0.533995
+        "end" 0.699279
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.072289
+        "extreme" 0.216867
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "bodyaccents"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.133333 2.833333
+      param ""
+      flexanimations samples_use_time
+      {
+        "corner_puller" combo 
+        {
+          0.6733 0.5500
+          0.7978 0.5600
+          1.7579 0.5700
+          1.8904 0.5500
+        }
+        {
+          0.6733 0.5000
+        }
+        "stretcher" combo 
+        {
+          0.6733 0.1300
+          1.7574 0.1300
+        }
+        {
+          0.6733 0.5000
+        }
+      }
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "interrupt"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "50"
+  "ExpressionTool" "86"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

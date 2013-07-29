@@ -1,0 +1,132 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "coast.le_overhere"
+    {
+      time 1.340247 2.881381
+      param "coast.le_overhere"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.080000 2.766667
+      param "!player"
+      event_ramp
+      {
+        0.5625 0.9468
+        0.8875 1.0000
+        1.6596 1.0000
+        1.8154 0.9797
+        1.9471 0.8911
+        2.5038 0.0456
+        2.6192 0.0000
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.026666 3.966667
+      param "!player"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.0692 0.0235
+        0.1481 0.0906
+        0.8058 0.7919
+        1.0452 0.9367
+        1.3452 1.0000
+        2.7488 1.0000
+        3.0863 0.9367
+      }
+    }
+    active "0"
+  }
+  channel "move to"
+  {
+  }
+  channel "posture"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.067901
+      param ""
+    }
+    event flexanimation "head"
+    {
+      time 0.962962 4.425926
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.4444 0.4800
+          0.7608 0.5700
+          0.9195 0.5800
+          1.3576 0.5000
+          1.5503 0.4900
+          1.7816 0.5000
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.4444 0.4800
+          0.7419 0.4700
+          0.9005 0.4800
+          1.2955 0.4800
+          1.4881 0.4900
+          1.7816 0.5000
+        }
+      }
+    }
+    event gesture "b_OverHere_Right"
+    {
+      time 1.185185 2.985185
+      param "b_OverHere_Right"
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+  }
+  channel "Response"
+  {
+  }
+  channel "WAV"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\Barney.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "27"
+  "GestureTool" "35"
+  "RampTool" "42"
+  "SceneRampTool" "100"
+  "ExpressionTool" "74"
+}
+fps 60
+snap off

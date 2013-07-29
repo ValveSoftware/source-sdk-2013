@@ -1,0 +1,126 @@
+// Choreo version 1
+event section "asdf"
+{
+  time 1.333333 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!target1"
+    {
+      time 0.050000 1.600000
+      param "!target1"
+      event_ramp
+      {
+        0.4593 0.9668
+        0.6667 0.9959
+        1.0334 0.9917
+        1.2171 0.9585
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "!target2"
+    {
+      time 0.066667 1.683333
+      param "!target2"
+      param2 "walk_all_stealth_p_aim"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!target1"
+    {
+      time 0.050000 2.500000
+      param "!target1"
+      event_ramp
+      {
+        0.4264 0.9378
+        0.6264 1.0000
+        1.2633 1.0000
+        1.9800 1.0000
+        2.4466 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.716667
+      param ""
+    }
+    event gesture "g_stealth_LookBehind_01"
+    {
+      time 1.383333 2.650000
+      param "g_stealth_LookBehind_01"
+      absolutetags playback_time
+      {
+        "apex" 0.162698
+        "accent" 0.298280
+        "loop" 0.433862
+        "end" 0.595497
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.200000
+        "accent" 0.300000
+        "loop" 0.400000
+        "end" 0.625000
+      }
+      sequenceduration 1.366667
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "Aim"
+  {
+    event generic "!target1"
+    {
+      time 0.033333 1.833333
+      param "AI_AIM"
+      param2 "!target1"
+      event_ramp
+      {
+        0.5167 0.9751
+        1.4534 1.0000
+      }
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "82"
+  "SceneRampTool" "100"
+}
+fps 60
+snap on

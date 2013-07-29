@@ -1,0 +1,100 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "uhoh"
+    {
+      time 0.040000 0.527483
+      param "npc_citizen.uhoh"
+      fixedlength
+    }
+  }
+  channel "Expression"
+  {
+    event flexanimation "face"
+    {
+      time 0.006667 0.640000
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.0857 0.6000
+          0.3204 0.9000
+          0.5923 0.6700
+        }
+        {
+          0.0976 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.0976 0.2800
+          0.2068 0.2700
+          0.3219 0.4700
+        }
+        {
+          0.0976 0.5000
+        }
+        "puckerer"         combo        
+        {
+          0.0976 0.3800
+        }
+        {
+          0.0976 0.5000
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+        }
+        "head_updown"         range 35.0 -30.0        
+        {
+          0.2123 0.5700
+          0.3895 0.5900
+          0.5358 0.5300
+        }
+        "head_tilt"         range 18.0 -18.0        
+        {
+          0.2325 0.5300
+          0.3895 0.4800
+        }
+      }
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "Lookatplayer"
+    {
+      time 0.006667 0.693335
+      param "!player"
+      event_ramp
+      {
+        0.0271 0.2064
+        0.0593 0.5317
+        0.1070 0.9166
+        0.1314 0.9921
+        0.3570 1.0000
+        0.5644 1.0000
+        0.6064 0.7897
+        0.6355 0.5198
+        0.6652 0.2024
+      }
+    }
+  }
+  channel "head"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "218"
+  "RampTool" "172"
+  "GestureTool" "100"
+}
+fps 60
+snap off
