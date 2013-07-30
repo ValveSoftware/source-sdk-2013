@@ -1,0 +1,4 @@
+#define box6_width 6
+#define box6_height 6
+static char box6_bits[] = {
+   0x3f, 0x21, 0x21, 0x21, 0x21, 0x3f};

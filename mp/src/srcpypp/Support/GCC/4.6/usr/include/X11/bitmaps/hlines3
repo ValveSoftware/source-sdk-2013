@@ -1,0 +1,4 @@
+#define hlines3_width 1
+#define hlines3_height 3
+static char hlines3_bits[] = {
+   0x00, 0x01, 0x00};

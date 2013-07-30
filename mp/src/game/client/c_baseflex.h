@@ -131,6 +131,14 @@ public:
 	DECLARE_PREDICTABLE();
 	DECLARE_INTERPOLATION();
 
+// =======================================
+// PySource Additions
+// =======================================
+	DECLARE_PYCLIENTCLASS( C_BaseFlex, PN_BASEFLEX );
+// =======================================
+// END PySource Additions
+// =======================================
+
 					C_BaseFlex();
 	virtual			~C_BaseFlex();
 

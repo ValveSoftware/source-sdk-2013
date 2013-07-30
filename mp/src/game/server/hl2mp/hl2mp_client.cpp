@@ -28,6 +28,14 @@
 
 #include "tier0/vprof.h"
 
+// =======================================
+// PySource Additions
+// =======================================
+#include "srcpy_entities.h"
+// =======================================
+// END PySource Additions
+// =======================================
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -63,6 +71,7 @@ void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 		ClientPrint( pPlayer, HUD_PRINTTALK, "You are on team %s1\n", pPlayer->GetTeam()->GetName() );
 	}
 
+#if 0 // DISABLE annoying motd
 	const ConVar *hostname = cvar->FindVar( "hostname" );
 	const char *title = (hostname) ? hostname->GetString() : "MESSAGE OF THE DAY";
 
@@ -75,6 +84,7 @@ void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 	pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 
 	data->deleteThis();
+#endif // 0
 }
 
 /*
@@ -99,6 +109,21 @@ void ClientActive( edict_t *pEdict, bool bLoadGame )
 
 	CHL2MP_Player *pPlayer = ToHL2MPPlayer( CBaseEntity::Instance( pEdict ) );
 	FinishClientPutInServer( pPlayer );
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	// Give a full update of the networked python entities
+	// NOTE: Only dedicated servers and the listened host. Listened and clients are done in ClientConnect
+	if( engine->IsDedicatedServer() || ENTINDEX(pEdict) > 1 )
+	{
+		FullClientUpdatePyNetworkCls( pPlayer );
+	}
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 }
 
 

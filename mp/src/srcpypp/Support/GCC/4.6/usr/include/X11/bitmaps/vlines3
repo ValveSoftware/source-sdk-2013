@@ -1,0 +1,4 @@
+#define vlines3_width 3
+#define vlines3_height 1
+static char vlines3_bits[] = {
+   0x02};

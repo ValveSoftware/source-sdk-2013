@@ -30,6 +30,14 @@ public:
 	DECLARE_CLIENTCLASS();
 	DECLARE_PREDICTABLE();
 
+// =======================================
+// PySource Additions
+// =======================================
+	DECLARE_PYCLIENTCLASS( C_BaseCombatCharacter, PN_BASECOMBATCHARACTER );
+// =======================================
+// END PySource Additions
+// =======================================
+
 					C_BaseCombatCharacter( void );
 	virtual			~C_BaseCombatCharacter( void );
 

@@ -36,6 +36,15 @@
 #include "toolframework/itoolentity.h"
 #include "tier0/threadtools.h"
 
+// =======================================
+// PySource Additions
+// =======================================
+#include "srcpy_client_class.h"
+
+// =======================================
+// END PySource Additions
+// =======================================
+
 class C_Team;
 class IPhysicsObject;
 class IClientVehicle;
@@ -1682,6 +1691,35 @@ protected:
 	RenderMode_t m_PreviousRenderMode;
 	color32 m_PreviousRenderColor;
 #endif
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+public:
+	DECLARE_PYCLIENTCLASS( CBaseEntity, PN_BASEENTITY );
+
+	// Memory allocators for python instances of entities
+	static void *PyAllocate( PyObject* self_, std::size_t holder_offset, std::size_t holder_size );
+	static void PyDeallocate( PyObject* self_, void *storage );
+
+	// This function returns the reference to the Python instance (if any)
+	boost::python::object			GetPyInstance() const;
+	void							SetPyInstance( boost::python::object inst );
+
+	// This returns the entity handle for usage in Python
+	boost::python::object			GetPyHandle() const;
+
+	// Updates a Python network var after receiving
+	void							PyUpdateNetworkVar( const char *pName, boost::python::object data, bool callchanged = false );
+
+private:
+	boost::python::object m_pyInstance;
+	boost::python::object m_pyHandle;
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 };
 
 EXTERN_RECV_TABLE(DT_BaseEntity);
@@ -2190,5 +2228,29 @@ inline bool C_BaseEntity::ShouldRecordInTools() const
 }
 
 C_BaseEntity *CreateEntityByName( const char *className );
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+inline boost::python::object C_BaseEntity::GetPyInstance() const 
+{ 
+	return m_pyInstance; 
+}
+
+inline boost::python::object CBaseEntity::GetPyHandle() const 
+{ 
+	return m_pyHandle; 
+}
+
+inline void C_BaseEntity::SetPyInstance( boost::python::object inst )
+{
+	Assert( GetRefEHandle() == NULL );
+	m_pyInstance = inst;
+}
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 #endif // C_BASEENTITY_H

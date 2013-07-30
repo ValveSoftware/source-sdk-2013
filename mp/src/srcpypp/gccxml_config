@@ -1,0 +1,1 @@
+GCCXML_FLAGS=-D___STUBDEF____='(42)'

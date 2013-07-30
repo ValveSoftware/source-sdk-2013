@@ -13,10 +13,15 @@ $Project "captioncompiler"
 	"utils\captioncompiler\captioncompiler.vpc" [$WIN32]
 }
 
+$Project "boost_python"
+{
+	"thirdparty\boost\libs\python\boost_pysource.vpc"		[($WIN32||$POSIX) && $PYSOURCE]
+}
 
 $Project "client"
 {
 	"game\client\client_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
+	"game\client\client_pysource.vpc"		[($WIN32||$POSIX) && $PYSOURCE]
 }
 
 $Project "game_shader_dx9"
@@ -37,6 +42,7 @@ $Project "height2normal"
 $Project "server"
 {
 	"game\server\server_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
+	"game\server\server_pysource.vpc"		[($WIN32||$POSIX) && $PYSOURCE]
 }
 
 $Project "mathlib"

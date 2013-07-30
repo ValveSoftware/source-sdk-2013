@@ -1,0 +1,228 @@
+"sprites/640_hud"
+{
+	TextureData
+	{
+		"d_crowbar"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"0"
+				"width"		"48"
+				"height"	"16"
+		}
+		"d_9mmhandgun"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"16"
+				"width"		"32"
+				"height"	"16"
+		}
+		"d_357"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"32"
+				"width"		"32"
+				"height"	"16"
+		}
+		"d_9mmAR"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"48"
+				"width"		"48"
+				"height"	"16"
+		}
+		"d_shotgun"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"64"
+				"width"		"48"
+				"height"	"16"
+		}
+		"d_bolt"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"80"
+				"width"		"48"
+				"height"	"16"
+		}
+		"d_crossbow"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"80"
+				"width"		"48"
+				"height"	"16"
+		}
+		"d_rpg_rocket"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"96"
+				"width"		"48"
+				"height"	"16"
+		}
+		"d_gauss"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"112"
+				"width"		"32"
+				"height"	"16"
+		}
+		"d_egon"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"128"
+				"width"		"32"
+				"height"	"16"
+		}
+		"d_hornet"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"144"
+				"width"		"48"
+				"height"	"16"
+		}
+		"d_grenade"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"160"
+				"width"		"32"
+				"height"	"16"
+		}
+		"d_satchel"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"176"
+				"width"		"32"
+				"height"	"16"
+		}
+		"d_tripmine"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"192"
+				"width"		"32"
+				"height"	"16"
+		}
+		"d_snark"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"208"
+				"width"		"32"
+				"height"	"16"
+		}
+		"d_skull"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"224"
+				"width"		"32"
+				"height"	"16"
+		}
+		"d_tracktrain"
+		{
+				"file"		"sprites/640hud1"
+				"x"			"192"
+				"y"			"240"
+				"width"		"32"
+				"height"	"16"
+		}	
+		"death_357"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"."
+		}
+		"death_ar2"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"2"
+		}
+		"death_crossbow_bolt"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"1"
+		}
+		"death_smg1"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"/"
+		}
+		"death_shotgun"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"0"
+		}
+		"death_rpg_missile"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"3"
+		}
+		"death_grenade_frag"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"4"
+		}
+		"death_pistol"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"-"
+		}
+		"death_physics"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"9"
+		}
+		"death_combine_ball"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"8"
+		}
+		"death_smg1_grenade"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"7"
+		}
+		"death_stunstick"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"!"
+		}
+		"death_slam"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"*"
+		}
+		"death_crowbar"
+		{
+				"font"		"HL2MPTypeDeath"
+				"character"	"6"
+		}
+		"voice_player"
+		{
+				"file"		"voice/icntlk_sv"
+				"x"		"0"
+				"y"		"0"
+				"width"		"32"
+				"height"	"32"
+		}
+		"voice_self"
+		{
+				"file"		"voice/icntlk_local"
+				"x"		"0"
+				"y"		"0"
+				"width"		"32"
+				"height"	"32"
+		}
+	}	
+}

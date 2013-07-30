@@ -31,6 +31,17 @@
 #include "engine/IStaticPropMgr.h"
 #include "particle_parse.h"
 #include "globalstate.h"
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	#include "srcpy.h"
+	// TODO: #include "srcpy_gamerules.h"
+	#include "srcpy_entities.h"
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -677,6 +688,18 @@ void CWorld::Precache( void )
 
 	// Call all registered precachers.
 	CPrecacheRegister::Precache();	
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	// Python classes init
+	g_bDoNotInitPythonClasses = false;
+	InitAllPythonEntities();
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 	if ( m_iszChapterTitle != NULL_STRING )
 	{

@@ -36,10 +36,28 @@ END_DATADESC()
 CServerNetworkProperty::CServerNetworkProperty()
 {
 	Init( NULL );
+	m_bDestroyed = false;
 }
 
 
 CServerNetworkProperty::~CServerNetworkProperty()
+{
+// =======================================
+// PySource Additions
+// =======================================
+	if( !m_bDestroyed )
+	{
+		DestroyNetworkProperty();
+	}
+// =======================================
+// END PySource Additions
+// =======================================
+}
+
+// =======================================
+// PySource Additions
+// =======================================
+void CServerNetworkProperty::DestroyNetworkProperty()
 {
 	/* Free our transmit proxy.
 	if ( m_pTransmitProxy )
@@ -51,8 +69,12 @@ CServerNetworkProperty::~CServerNetworkProperty()
 
 	// remove the attached edict if it exists
 	DetachEdict();
-}
 
+	m_bDestroyed = true;
+}
+// =======================================
+// END PySource Additions
+// =======================================
 
 //-----------------------------------------------------------------------------
 // Initialization

@@ -129,6 +129,17 @@ extern ConVar tf_mm_servermode;
 #include "replay/ireplaysystem.h"
 #endif
 
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+#include "srcpy.h"
+#include "srcpy_networkvar.h"
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
+
 extern IToolFrameworkServer *g_pToolFrameworkServer;
 extern IParticleSystemQuery *g_pParticleSystemQuery;
 
@@ -699,6 +710,16 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 #endif
 	// Add sound emitter
 	IGameSystem::Add( SoundEmitterSystem() );
+
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	IGameSystem::Add( SrcPySystem() );
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 	// load Mod specific game events ( MUST be before InitAllSystems() so it can pickup the mod specific events)
 	gameeventmanager->LoadEventsFromFile("resource/ModEvents.res");
@@ -2450,6 +2471,17 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 				CServerNetworkProperty *pEnt = static_cast<CServerNetworkProperty*>( pEdict->GetNetworkable() );
 				if ( !pEnt )
 					break;
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+				// Python networkvars: mark player as transmit
+				pEnt->GetBaseEntity()->m_PyNetworkVarsPlayerTransmitBits.Set( ENTINDEX(pInfo->m_pClientEnt) );
+				PyNetworkVarsUpdateClient(pEnt->GetBaseEntity(), ENTINDEX(pInfo->m_pClientEnt) );
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
 
 				CServerNetworkProperty *pParent = pEnt->GetNetworkParent();
 				if ( !pParent )
@@ -2600,6 +2632,23 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CServerGameClients, IServerGameClients, INTERF
 //-----------------------------------------------------------------------------
 bool CServerGameClients::ClientConnect( edict_t *pEdict, const char *pszName, const char *pszAddress, char *reject, int maxrejectlen )
 {	
+// =======================================
+// PySource Additions
+// =======================================
+#ifdef ENABLE_PYTHON
+	// The client must directly be informed about the python classes to avoid recv/send table mismatches
+	// NOTE: Usermessages don't work here. However it is possible to send client commands
+	// NOTE2: Dedicated servers send the message in the client active. They seem to check against CBaseEntity recv table.
+	if( (!engine->IsDedicatedServer() && ENTINDEX(pEdict) == 1) )
+	{
+		//Msg("CServerGameClients::ClientConnect FullClientUpdatePyNetworkClsByEdict\n");
+		FullClientUpdatePyNetworkClsByEdict(pEdict);
+	}
+#endif // ENABLE_PYTHON
+// =======================================
+// END PySource Additions
+// =======================================
+
 	if ( !g_pGameRules )
 		return false;
 	
