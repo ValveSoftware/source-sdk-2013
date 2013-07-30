@@ -833,8 +833,17 @@ template<typename T> T strip_cv_quals_for_mutex(const T&);
 template<typename T> T strip_cv_quals_for_mutex(volatile T&);
 template<typename T> T strip_cv_quals_for_mutex(const volatile T&);
 
+#if (__cplusplus == 201103L) || defined(__GXX_EXPERIMENTAL_CXX0X__) || defined(__GXX_EXPERIMENTAL_CXX11__)
+
+#define AUTO_LOCK( mutex ) \
+    AUTO_LOCK_( decltype(::strip_cv_quals_for_mutex(mutex)), mutex )
+    
+#else
+
 #define AUTO_LOCK( mutex ) \
     AUTO_LOCK_( typeof(::strip_cv_quals_for_mutex(mutex)), mutex )
+    
+#endif
 
 #else // GNUC
 
