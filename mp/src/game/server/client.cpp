@@ -787,36 +787,150 @@ CON_COMMAND( say_team, "Display player message to team" )
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-CON_COMMAND( give, "Give item to player.\n\tArguments: <item_name>" )
+struct ClassNamePrefix_t
 {
-	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
-	if ( pPlayer 
-		&& (gpGlobals->maxClients == 1 || sv_cheats->GetBool()) 
-		&& args.ArgC() >= 2 )
+	ClassNamePrefix_t(const char *pszPrefix, bool bKeepPrefix) : m_pszPrefix(pszPrefix), m_bKeepPrefix(bKeepPrefix)
 	{
-		char item_to_give[ 256 ];
-		Q_strncpy( item_to_give, args[1], sizeof( item_to_give ) );
-		Q_strlower( item_to_give );
+		m_nLength = strlen(pszPrefix);
+	}
 
-		// Dirty hack to avoid suit playing it's pickup sound
-		if ( !Q_stricmp( item_to_give, "item_suit" ) )
+	const char *m_pszPrefix;
+	size_t m_nLength;
+	bool m_bKeepPrefix;
+};
+
+
+// Add class name prefixes to show in the "give" command autocomplete here
+static ClassNamePrefix_t s_pEntityPrefixes[] =
+{
+	ClassNamePrefix_t("item_", false),
+	ClassNamePrefix_t("weapon_", false),
+};
+
+
+static int StringSortFunc(const void *p1, const void *p2)
+{
+	const char *psz1 = (const char *)p1;
+	const char *psz2 = (const char *)p2;
+
+	return V_stricmp(psz1, psz2);
+}
+
+
+int GiveAutocomplete(const char *partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
+{
+	// Find the first space in our input
+	const char *firstSpace = V_strstr(partial, " ");
+	if(!firstSpace)
+		return 0;
+
+	int commandLength = firstSpace - partial;
+
+	// Extract the command name from the input
+	char commandName[COMMAND_COMPLETION_ITEM_LENGTH];
+	V_StrSlice(partial, 0, commandLength, commandName, sizeof(commandName));
+
+	// Calculate the length of the command string (minus the command name)
+	partial += commandLength + 1;
+	int partialLength = V_strlen(partial);
+
+	// Grab the factory dictionary
+	if(!EntityFactoryDictionary())
+		return 0;
+
+	const EntityFactoryDict_t &factoryDict = EntityFactoryDictionary()->GetFactoryDictionary();
+	int numMatches = 0;
+
+	// Iterate through all entity factories
+	for(int i = factoryDict.First(); i != factoryDict.InvalidIndex() && numMatches < COMMAND_COMPLETION_MAXITEMS; i = factoryDict.Next(i))
+	{
+		const char *pszClassName = factoryDict.GetElementName(i);
+
+		// See if this entity classname has a prefix that we show in the
+		// autocomplete
+		// TODO: optimise by caching all autocompletable classnames into a hash
+		// table on first run
+		int j;
+		const ClassNamePrefix_t *pPrefix = NULL;
+
+		for(j = 0; j < ARRAYSIZE(s_pEntityPrefixes); ++j)
 		{
-			pPlayer->EquipSuit( false );
-			return;
+			pPrefix = &s_pEntityPrefixes[j];
+
+			if(Q_strncmp(pszClassName, pPrefix->m_pszPrefix, pPrefix->m_nLength))
+				continue;
+
+			break;
 		}
 
-		string_t iszItem = AllocPooledString( item_to_give );	// Make a copy of the classname
-		pPlayer->GiveNamedItem( STRING(iszItem) );
+		// If this entity factory had no prefixes, we could not find the prefix, skip this entity
+		if(j == ARRAYSIZE(s_pEntityPrefixes))
+			continue;
+
+		// Skip past the prefix if it shouldn't be kept
+		if(!pPrefix->m_bKeepPrefix)
+			pszClassName += pPrefix->m_nLength;
+
+		// Does this entity match our partial completion?
+		if(Q_strnicmp(pszClassName, partial, partialLength))
+			continue;
+
+		Q_snprintf(commands[numMatches++], COMMAND_COMPLETION_ITEM_LENGTH, "%s %s", commandName, pszClassName);
 	}
+
+	// Sort the commands alphabetically
+	qsort(commands, numMatches, COMMAND_COMPLETION_ITEM_LENGTH, StringSortFunc);
+
+	return numMatches;
+}
+
+CON_COMMAND_F_COMPLETION(give, "Give item to player. Syntax: <item name>", FCVAR_CHEAT, GiveAutocomplete)
+{
+	CBasePlayer *pPlayer = UTIL_GetCommandClient();
+	if(!pPlayer)
+		return;
+
+	if(args.ArgC() != 2)
+		return;
+
+	char pszClassName[64];
+	Q_strncpy(pszClassName, args.Arg(1), sizeof(pszClassName));
+
+	for(int i = 0; i < ARRAYSIZE(s_pEntityPrefixes) && !CanCreateEntityClass(pszClassName); ++i)
+	{
+		// If we keep the prefix in the autocomplete, there's no point
+		// checking this prefix
+		if(s_pEntityPrefixes[i].m_bKeepPrefix)
+			continue;
+
+		Q_snprintf(pszClassName, sizeof(pszClassName), "%s%s", s_pEntityPrefixes[i].m_pszPrefix, args.Arg(1));
+	}
+
+	// If this is class name does not have an entity factory, complain to the
+	// client
+	if(!CanCreateEntityClass(pszClassName))
+	{
+		ClientPrint(pPlayer, HUD_PRINTCONSOLE, UTIL_VarArgs("give: Unknown entity \"%s\"\n", args.Arg(1)));
+		return;
+	}
+
+	// Dirty hack to avoid suit playing its pickup sound
+	if(FStrEq(pszClassName, "item_suit"))
+	{
+		pPlayer->EquipSuit(false);
+		return;
+	}
+
+	pPlayer->GiveNamedItem(pszClassName);
 }
 
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-CON_COMMAND( fov, "Change players FOV" )
+CON_COMMAND_F( fov, "Change players FOV", FCVAR_CHEAT )
 {
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() );
-	if ( pPlayer && sv_cheats->GetBool() )
+	if ( pPlayer )
 	{
 		if ( args.ArgC() > 1 )
 		{
@@ -999,7 +1113,7 @@ void CC_Player_Use( const CCommand &args )
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( pPlayer)
 	{
-		pPlayer->SelectItem((char *)args[1]);
+		pPlayer->SelectItem(args[1]);
 	}
 }
 static ConCommand use("use", CC_Player_Use, "Use a particular weapon\t\nArguments: <weapon_name>");
@@ -1053,9 +1167,6 @@ void EnableNoClip( CBasePlayer *pPlayer )
 
 void CC_Player_NoClip( void )
 {
-	if ( !sv_cheats->GetBool() )
-		return;
-
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( !pPlayer )
 		return;
@@ -1113,9 +1224,6 @@ static ConCommand noclip("noclip", CC_Player_NoClip, "Toggle. Player becomes non
 //------------------------------------------------------------------------------
 void CC_God_f (void)
 {
-	if ( !sv_cheats->GetBool() )
-		return;
-
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( !pPlayer )
 		return;
@@ -1146,9 +1254,6 @@ static ConCommand god("god", CC_God_f, "Toggle. Player becomes invulnerable.", F
 //------------------------------------------------------------------------------
 CON_COMMAND_F( setpos, "Move player to specified origin (must have sv_cheats).", FCVAR_CHEAT )
 {
-	if ( !sv_cheats->GetBool() )
-		return;
-
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( !pPlayer )
 		return;
@@ -1180,9 +1285,6 @@ CON_COMMAND_F( setpos, "Move player to specified origin (must have sv_cheats).",
 //------------------------------------------------------------------------------
 void CC_setang_f (const CCommand &args)
 {
-	if ( !sv_cheats->GetBool() )
-		return;
-
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( !pPlayer )
 		return;
@@ -1221,9 +1323,6 @@ static float GetHexFloat( const char *pStr )
 //------------------------------------------------------------------------------
 CON_COMMAND_F( setpos_exact, "Move player to an exact specified origin (must have sv_cheats).", FCVAR_CHEAT )
 {
-	if ( !sv_cheats->GetBool() )
-		return;
-
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( !pPlayer )
 		return;
@@ -1255,9 +1354,6 @@ CON_COMMAND_F( setpos_exact, "Move player to an exact specified origin (must hav
 
 CON_COMMAND_F( setang_exact, "Snap player eyes and orientation to specified pitch yaw <roll:optional> (must have sv_cheats).", FCVAR_CHEAT )
 {
-	if ( !sv_cheats->GetBool() )
-		return;
-
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( !pPlayer )
 		return;
@@ -1289,9 +1385,6 @@ CON_COMMAND_F( setang_exact, "Snap player eyes and orientation to specified pitc
 //------------------------------------------------------------------------------
 void CC_Notarget_f (void)
 {
-	if ( !sv_cheats->GetBool() )
-		return;
-
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( !pPlayer )
 		return;
@@ -1313,9 +1406,6 @@ ConCommand notarget("notarget", CC_Notarget_f, "Toggle. Player becomes hidden to
 //------------------------------------------------------------------------------
 void CC_HurtMe_f(const CCommand &args)
 {
-	if ( !sv_cheats->GetBool() )
-		return;
-
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( !pPlayer )
 		return;

@@ -75,13 +75,14 @@ public:
 	virtual void InstallFactory( IEntityFactory *pFactory, const char *pClassName );
 	virtual IServerNetworkable *Create( const char *pClassName );
 	virtual void Destroy( const char *pClassName, IServerNetworkable *pNetworkable );
+	virtual IEntityFactory *FindFactory( const char *pClassName );
 	virtual const char *GetCannonicalName( const char *pClassName );
+	virtual const EntityFactoryDict_t &GetFactoryDictionary() { return m_Factories; }
+
 	void ReportEntitySizes();
 
-private:
-	IEntityFactory *FindFactory( const char *pClassName );
 public:
-	CUtlDict< IEntityFactory *, unsigned short > m_Factories;
+	EntityFactoryDict_t m_Factories;
 };
 
 //-----------------------------------------------------------------------------
