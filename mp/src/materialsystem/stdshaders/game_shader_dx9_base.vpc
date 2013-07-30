@@ -53,6 +53,9 @@ $Project
 
 		$File	"example_model_dx9.cpp"
 		$File	"example_model_dx9_helper.cpp"
+
+		$File	"Bloom.cpp"
+		$File	"screenspace_general.cpp"
 	}
 
 	$Folder	"Header Files"
