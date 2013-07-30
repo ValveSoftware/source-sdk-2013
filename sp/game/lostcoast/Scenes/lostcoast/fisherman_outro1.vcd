@@ -1,0 +1,124 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 14.388889 -1.000000
+  param "noaction"
+}
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event speak "lostcoast.fish_youdidit"
+    {
+      time 0.562500 2.111660
+      param "lostcoast.fish_youdidit"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "cometostolga"
+    {
+      time 2.777779 4.700862
+      param "lostcoast.fish_cometostolga"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "fish_feast"
+    {
+      time 4.750000 7.314105
+      param "lostcoast.fish_feast"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "fish_likeleeches"
+    {
+      time 7.694445 11.374740
+      param "lostcoast.fish_likeleeches"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "fish_whereyagoing"
+    {
+      time 12.111112 13.980771
+      param "lostcoast.fish_whereyagoing"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "player"
+    {
+      time 0.064238 14.208441
+      param "!player"
+      event_ramp
+      {
+        0.8625 0.7155
+        1.1250 0.8243
+        1.8400 0.8942
+        3.7542 0.8968
+        9.1286 0.8942
+        12.4550 0.8787
+        13.0761 0.8421
+        13.4324 0.7434
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 0.022416 14.285536
+      param "!player"
+      event_ramp
+      {
+        0.6400 0.8462
+        0.8950 0.9712
+        1.1650 1.0000
+        12.6717 1.0000
+        14.2632 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Interrupt"
+  {
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "24"
+  "SceneRampTool" "100"
+  "RampTool" "40"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

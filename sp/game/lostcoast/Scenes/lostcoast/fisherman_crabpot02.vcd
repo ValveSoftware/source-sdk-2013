@@ -1,0 +1,125 @@
+// Choreo version 1
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event speak "fish_crabpot01"
+    {
+      time 0.020833 3.087409
+      param "lostcoast.fish_crabpot02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "look player"
+    {
+      time 0.020833 3.500000
+      param "!player"
+      event_ramp
+      {
+        0.3600 0.7041
+        3.1000 0.7704
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.946970
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.257576 2.178787
+      param "g_shrug"
+      event_ramp
+      {
+        0.2553 0.7347
+        1.5836 0.7041
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.159405
+        "accent" 0.301098
+        "loop" 0.629921
+        "end" 0.744094
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.187500
+        "accent" 0.354167
+        "loop" 0.625000
+        "end" 0.770833
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.687500
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.272727 1.906061
+      param "HG_tiltright"
+      event_ramp
+      {
+        0.2383 0.8673
+        1.3085 0.8112
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.145833
+        "extreme" 0.270833
+        "loop" 0.541667
+        "end" 0.791667
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.145833
+        "extreme" 0.270833
+        "loop" 0.541667
+        "end" 0.791667
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "88"
+  "SceneRampTool" "100"
+  "RampTool" "94"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

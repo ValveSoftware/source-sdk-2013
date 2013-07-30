@@ -1,0 +1,61 @@
+// Choreo version 1
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event gesture "g_hatDown"
+    {
+      time 0.000000 1.000000
+      param "g_hatDown"
+      sequenceduration 0.966667
+    }
+  }
+  channel "Look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1_pauseMe"
+    {
+      time 0.500000 -1.000000
+      param "1"
+    }
+  }
+  channel "NULL"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\lostcoast\fisherman\Fisherman.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "32"
+  "SceneRampTool" "100"
+  "RampTool" "40"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

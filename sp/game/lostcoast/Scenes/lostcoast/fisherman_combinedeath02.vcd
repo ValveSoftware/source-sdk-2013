@@ -1,0 +1,119 @@
+// Choreo version 1
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event speak "fish_tooclose"
+    {
+      time 0.270833 3.275414
+      param "lostcoast.fish_tooclose"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "lookat player"
+    {
+      time 0.055833 3.520833
+      param "!player"
+      event_ramp
+      {
+        0.3300 0.8622
+        2.9400 0.8776
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.729167
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.229167 2.538889
+      param "HG_shake"
+      event_ramp
+      {
+        0.5100 0.5663
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.044197
+        "extreme" 0.073662
+        "loop" 0.589297
+        "end" 0.896873
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.062500
+        "extreme" 0.104167
+        "loop" 0.833333
+        "end" 0.854167
+      }
+      sequenceduration 1.633333
+    }
+    event gesture "2"
+    {
+      time 2.062500 3.695833
+      param "HG_tiltback"
+      event_ramp
+      {
+        0.2600 0.8776
+        1.2750 0.8622
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.145833
+        "extreme" 0.270833
+        "loop" 0.541667
+        "end" 0.770833
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.145833
+        "extreme" 0.270833
+        "loop" 0.541667
+        "end" 0.770833
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "32"
+  "SceneRampTool" "100"
+  "RampTool" "40"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off
