@@ -168,7 +168,7 @@ void CWeaponBugBait::Drop( const Vector &vecVelocity )
 
 		pSporeExplosion->m_flSpawnRate			= 16.0f;
 		pSporeExplosion->m_flParticleLifetime	= 0.5f;
-		pSporeExplosion->SetRenderColor( 0.0f, 0.5f, 0.25f, 0.15f );
+		pSporeExplosion->SetRenderColor( 0, 128, 64, 38 );
 
 		pSporeExplosion->m_flStartSize			= 32;
 		pSporeExplosion->m_flEndSize			= 48;
