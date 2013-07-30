@@ -1,0 +1,34 @@
+// Choreo version 1
+actor "Barney"
+{
+  channel "audio"
+  {
+    event speak "you're pissin' me off"
+    {
+      time 0.146666 1.608707
+      param "k_lab.ba_pissinmeoff"
+      fixedlength
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.026666 2.460000
+      param "!player"
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

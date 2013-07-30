@@ -18,10 +18,12 @@ extern ConVar mp_capstyle;
 extern ConVar mp_blockstyle;
 extern ConVar mp_capdeteriorate_time;
 
+IMPLEMENT_AUTO_LIST( ITriggerAreaCaptureAutoList );
+
 BEGIN_DATADESC(CTriggerAreaCapture)
 
 	// Touch functions
-	DEFINE_FUNCTION( AreaTouch ),
+	DEFINE_FUNCTION( CTriggerAreaCaptureShim::Touch ),
 
 	// Think functions
 	DEFINE_THINKFUNC( CaptureThink ),
@@ -96,7 +98,7 @@ void CTriggerAreaCapture::Spawn( void )
 
 	m_iAreaIndex = -1;
 
-	SetTouch ( &CTriggerAreaCapture::AreaTouch );		
+	SetTouch ( &CTriggerAreaCaptureShim::Touch );		
 	SetThink( &CTriggerAreaCapture::CaptureThink );
 	SetNextThink( gpGlobals->curtime + AREA_THINK_TIME );
 
@@ -248,6 +250,14 @@ void CTriggerAreaCapture::EndTouch(CBaseEntity *pOther)
 	}
 
 	BaseClass::EndTouch( pOther );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTriggerAreaCapture::CaptureModeScalesWithPlayers() const
+{
+	return mp_capstyle.GetBool();
 }
 
 //-----------------------------------------------------------------------------
@@ -469,7 +479,7 @@ void CTriggerAreaCapture::CaptureThink( void )
 		float flTimeDelta = gpGlobals->curtime - m_flLastReductionTime;
 
 		float flReduction = flTimeDelta;
-		if ( mp_capstyle.GetInt() == 1 )
+		if ( CaptureModeScalesWithPlayers() )
 		{
 			// Diminishing returns for successive players.
 			for ( int i = 1; i < m_TeamData[m_nTeamInZone].iNumTouching; i++ )
@@ -490,7 +500,7 @@ void CTriggerAreaCapture::CaptureThink( void )
 
 			// See if anyone gets credit for the block
 			float flPercentToGo = m_fTimeRemaining / m_flCapTime;
-			if ( mp_capstyle.GetInt() == 1 )
+			if ( CaptureModeScalesWithPlayers() )
 			{
 				flPercentToGo = m_fTimeRemaining / ((m_flCapTime * 2) * m_TeamData[m_nCapturingTeam].iNumRequiredToCap);
 			}
@@ -561,7 +571,7 @@ void CTriggerAreaCapture::CaptureThink( void )
 		}
 
 		float flTotalTimeToCap = m_flCapTime;
-		if ( mp_capstyle.GetInt() == 1 )
+		if ( CaptureModeScalesWithPlayers() )
 		{
 			flTotalTimeToCap = ((m_flCapTime * 2) * m_TeamData[m_nCapturingTeam].iNumRequiredToCap);
 		}
@@ -580,7 +590,8 @@ void CTriggerAreaCapture::CaptureThink( void )
 			// Caps deteriorate over time
 			if ( TeamplayRoundBasedRules() && m_hPoint && TeamplayRoundBasedRules()->TeamMayCapturePoint(m_nCapturingTeam,m_hPoint->GetPointIndex()) )
 			{
-				float flDecrease = (flTotalTimeToCap / mp_capdeteriorate_time.GetFloat()) * flTimeDelta;
+				float flDecreaseScale = CaptureModeScalesWithPlayers() ? mp_capdeteriorate_time.GetFloat() : flTotalTimeToCap;
+				float flDecrease = (flTotalTimeToCap / flDecreaseScale) * flTimeDelta;
 				if ( TeamplayRoundBasedRules() && TeamplayRoundBasedRules()->InOvertime() )
 				{
 					flDecrease *= 6;
@@ -649,7 +660,7 @@ void CTriggerAreaCapture::CaptureThink( void )
 				if ( m_TeamData[i].iNumTouching < m_TeamData[i].iNumRequiredToStartCap )
 					continue;
 
-				if ( mp_capstyle.GetInt() == 0 && m_TeamData[i].iNumTouching < m_TeamData[i].iNumRequiredToCap )
+				if ( !CaptureModeScalesWithPlayers() && m_TeamData[i].iNumTouching < m_TeamData[i].iNumRequiredToCap )
 					continue;
 
 				StartCapture( i, CAPTURE_NORMAL );
@@ -670,7 +681,7 @@ void CTriggerAreaCapture::SetCapTimeRemaining( float flTime )
 	if ( m_nCapturingTeam )
 	{
 		flCapPercentage = m_fTimeRemaining / m_flCapTime;
-		if ( mp_capstyle.GetInt() == 1 )
+		if ( CaptureModeScalesWithPlayers() )
 		{
 			flCapPercentage = m_fTimeRemaining / ((m_flCapTime * 2) * m_TeamData[m_nCapturingTeam].iNumRequiredToCap);
 		}
@@ -762,7 +773,7 @@ void CTriggerAreaCapture::StartCapture( int team, int capmode )
 
 	UpdateNumPlayers();
 
-	if ( mp_capstyle.GetInt() == 1 )
+	if ( CaptureModeScalesWithPlayers() )
 	{
 		SetCapTimeRemaining( ((m_flCapTime * 2) * m_TeamData[team].iNumRequiredToCap) );
 	}
@@ -1017,7 +1028,7 @@ void CTriggerAreaCapture::InputRoundSpawn( inputdata_t &inputdata )
 				ObjectiveResource()->SetCPRequiredCappers( m_hPoint->GetPointIndex(), i, m_TeamData[i].iNumRequiredToCap );
 				ObjectiveResource()->SetTeamCanCap( m_hPoint->GetPointIndex(), i, m_TeamData[i].bCanCap );
 
-				if ( mp_capstyle.GetInt() == 1 )
+				if ( CaptureModeScalesWithPlayers() )
 				{
 					ObjectiveResource()->SetCPCapTime( m_hPoint->GetPointIndex(), i, (m_flCapTime * 2) * m_TeamData[i].iNumRequiredToCap );
 				}
@@ -1025,6 +1036,8 @@ void CTriggerAreaCapture::InputRoundSpawn( inputdata_t &inputdata )
 				{
 					ObjectiveResource()->SetCPCapTime( m_hPoint->GetPointIndex(), i, m_flCapTime );
 				}
+
+				ObjectiveResource()->SetCPCapTimeScalesWithPlayers( m_hPoint->GetPointIndex(), CaptureModeScalesWithPlayers() );
 			}
 		}
 	}
@@ -1125,7 +1138,7 @@ bool CTriggerAreaCapture::CheckIfDeathCausesBlock( CBaseMultiplayerPlayer *pVict
 
 	// break early incase we kill multiple people in the same frame
 	bool bBreakCap = false;
-	if ( mp_capstyle.GetInt() == 1 )
+	if ( CaptureModeScalesWithPlayers() )
 	{
 		bBreakCap = ( m_TeamData[m_nCapturingTeam].iBlockedTouching - 1 ) <= 0;
 	}

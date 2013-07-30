@@ -1,0 +1,228 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 6.896825 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "streetwar.al_okthisisit"
+    {
+      time 0.006667 4.675737
+      param "streetwar.al_okthisisit"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "streetwar.al_readywhenyou"
+    {
+      time 4.813333 6.282970
+      param "streetwar.al_readywhenyou"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 0.013333 7.102539
+      param "!player"
+      event_ramp
+      {
+        0.3914 0.8840
+        0.4600 0.9659
+        0.5712 1.0000
+        6.4270 1.0000
+        6.5714 0.9420
+        6.6559 0.8464
+      }
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "body gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.753968
+      param ""
+    }
+    event gesture "A_bg_h_jerkrt"
+    {
+      time 3.341269 5.974603
+      param "A_bg_h_jerkrt"
+      event_ramp
+      {
+        0.5152 0.8532
+        0.6174 0.9522
+        0.7761 1.0000
+        1.7000 0.9249
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "NULL"
+    {
+      time 3.960317 5.174603
+      param ""
+    }
+    event gesture "A_bg_h_jerkrt"
+    {
+      time 6.000000 8.633335
+      param "A_bg_h_jerkrt"
+      event_ramp
+      {
+        0.6717 0.9522
+        1.6761 0.9454
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "NULL"
+    {
+      time 2.642857 3.142857
+      param ""
+    }
+    event gesture "A_bg_acc_dwn_rt"
+    {
+      time 1.896825 4.696825
+      param "A_bg_acc_dwn_rt"
+      event_ramp
+      {
+        0.0000 0.6280
+        0.2630 0.6621
+        0.9978 0.5904
+        1.7043 0.0853
+        1.8935 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.144578
+        "extreme" 0.204819
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.204819
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "body gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.666667
+      param ""
+    }
+    event gesture "A_bg_stretch"
+    {
+      time 0.166667 4.133333
+      param "A_bg_stretch"
+      event_ramp
+      {
+        0.0000 1.0000
+        1.4891 1.0000
+        2.0605 0.8567
+        2.7583 0.7850
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.110169
+        "extreme" 0.308699
+        "loop" 0.445008
+        "end" 0.689475
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.110169
+        "extreme" 0.398305
+        "loop" 0.542373
+        "end" 0.627119
+      }
+      sequenceduration 3.966667
+    }
+    event gesture "NULL"
+    {
+      time 4.428571 4.928571
+      param ""
+    }
+    event gesture "A_bg_acctdwn_chinout"
+    {
+      time 4.500000 8.315873
+      param "A_bg_acctdwn_chinout"
+      event_ramp
+      {
+        0.6283 0.4710
+        1.3565 0.5563
+        2.8833 0.5392
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.110417
+        "extreme" 0.235392
+        "loop" 0.360153
+        "end" 0.404473
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147059
+        "extreme" 0.294118
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\breen.mdl"
+}
+
+mapname "maps\eli_lab.bsp"
+scalesettings
+{
+  "CChoreoView" "84"
+  "SceneRampTool" "100"
+  "RampTool" "92"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

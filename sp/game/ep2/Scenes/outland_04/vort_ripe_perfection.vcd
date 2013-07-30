@@ -1,0 +1,309 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "hardwork01"
+    {
+      time 0.366667 4.121338
+      param "ep_02.vort_extract_hardwork01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "hardwork02"
+    {
+      time 4.266667 8.042676
+      param "ep_02.vort_extract_hardwork02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "hardwork03"
+    {
+      time 8.071014 12.263033
+      param "ep_02.vort_extract_hardwork03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "hardwork04"
+    {
+      time 12.331884 16.630569
+      param "ep_02.vort_extract_hardwork04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.124481 16.552174
+      param "!player"
+      event_ramp
+      {
+        0.4840 1.0000
+        16.0757 1.0000
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.075000 16.502695
+      param "!player"
+      event_ramp
+      {
+        0.5760 1.0000
+        16.1037 1.0000
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event firetrigger "start vort lead trigger"
+    {
+      time 5.078624 -1.000000
+      param "1"
+    }
+    event gesture "1"
+    {
+      time 0.158333 4.103261
+      param "g_handclasp"
+      absolutetags playback_time
+      {
+        "in" 0.128038
+        "loop" 0.426794
+        "end" 0.631193
+        "out" 0.829358
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.153061
+        "loop" 0.510204
+        "end" 0.612245
+        "out" 0.816327
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "2"
+    {
+      time 3.971015 6.604349
+      param "g_Accent_Right"
+      absolutetags playback_time
+      {
+        "apex" 0.166667
+        "accent" 0.282051
+        "loop" 0.576923
+        "end" 0.769231
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.166667
+        "accent" 0.282051
+        "loop" 0.576923
+        "end" 0.769231
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.256431 16.448912
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "center_lid_raiser" 
+        {
+          0.6897 0.0000
+          0.8077 0.0000
+          4.1151 0.0000
+          4.1907 0.0000
+          4.5281 1.0000
+          5.0136 0.0000
+          5.7093 0.0000
+          5.9371 0.0000
+          6.1835 0.5100
+          6.5531 0.0000
+        }
+        "center_lid_tightener" 
+        {
+          0.6897 1.0000
+          0.8077 1.0000
+          4.1151 1.0000
+          4.1907 1.0000
+          4.5281 0.0000
+          5.0136 0.0000
+          5.7093 0.0000
+          5.9371 0.0000
+          6.1835 0.4400
+          6.5531 0.0000
+        }
+        "center_lid_droop" 
+        {
+          0.6897 1.0000
+          0.8077 1.0000
+          4.1151 1.0000
+          4.1907 1.0000
+          4.5281 0.0000
+          5.0136 0.0000
+          5.7093 0.0000
+          5.9371 0.0000
+          6.1835 0.0000
+          6.5531 0.0000
+        }
+        "outer_raiser" combo 
+        {
+          0.6897 0.0000
+          0.8077 0.0000
+          4.1151 0.0000
+          4.1907 0.0000
+          4.5281 0.0000
+          5.0136 0.0000
+          5.7093 0.0000
+          5.9371 0.0000
+          6.1835 0.0000
+          6.5531 0.0000
+        }
+        {
+          0.6897 0.5000
+          0.8077 0.5000
+          4.1151 0.5000
+          4.1907 0.5000
+          4.5281 0.5000
+          5.0136 0.5000
+          5.7093 0.5000
+          5.9371 0.5000
+          6.1835 0.5000
+          6.5531 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.6897 0.0000
+          0.8077 0.0000
+          4.1151 0.0000
+          4.1907 0.0000
+          4.5281 0.0000
+          5.0136 0.5400
+          5.7093 0.1000
+          5.9371 0.0350
+          6.1835 0.0000
+          6.5531 0.0000
+        }
+        {
+          0.6897 0.5000
+          0.8077 0.5000
+          4.1151 0.5000
+          4.1907 0.5000
+          4.5281 0.5000
+          5.0136 0.5000
+          5.7093 0.5000
+          5.9371 0.5000
+          6.1835 0.5000
+          6.5531 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.6897 0.0000
+          0.8077 0.0000
+          4.1151 0.0000
+          4.1907 0.0000
+          4.5281 0.9800
+          5.0136 0.0000
+          5.7093 0.0000
+          5.9371 0.0000
+          6.1835 0.0000
+          6.5531 0.0000
+        }
+        {
+          0.6897 0.5000
+          0.8077 0.5000
+          4.1151 0.5000
+          4.1907 0.5000
+          4.5281 0.5000
+          5.0136 0.5000
+          5.7093 0.5000
+          5.9371 0.5000
+          6.1835 0.5000
+          6.5531 0.5000
+        }
+        "upper_raiser" combo 
+        {
+          0.6897 0.0000
+          0.8077 0.0000
+          4.1151 0.0000
+          4.1907 0.0000
+          4.5281 0.0000
+          5.0136 0.0000
+          5.7093 0.0000
+          5.9371 0.0000
+          6.1835 0.0000
+          6.5531 0.0000
+        }
+        {
+          0.6897 0.5000
+          0.8077 0.5000
+          4.1151 0.5000
+          4.1907 0.5000
+          4.5281 0.5000
+          5.0136 0.5000
+          5.7093 0.5000
+          5.9371 0.5000
+          6.1835 0.5000
+          6.5531 0.5000
+        }
+        "corner_puller" combo 
+        {
+          0.6897 0.0000
+          0.8077 0.0000
+          4.1151 0.0000
+          4.1907 0.0000
+          4.5281 0.0000
+          5.0136 0.0000
+          5.7093 0.0000
+          5.9371 0.0000
+          6.1835 0.0000
+          6.5531 0.0000
+        }
+        {
+          0.6897 0.5000
+          0.8077 0.5000
+          4.1151 0.5000
+          4.1907 0.5000
+          4.5281 0.5000
+          5.0136 0.5000
+          5.7093 0.5000
+          5.9371 0.5000
+          6.1835 0.5000
+          6.5531 0.5000
+        }
+      }
+    }
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "92"
+  "ExpressionTool" "40"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

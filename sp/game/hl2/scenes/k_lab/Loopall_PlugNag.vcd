@@ -1,0 +1,241 @@
+// Choreo version 1
+event loop "Loop"
+{
+  time 24.119999 -1.000000
+  param "5.000000"
+  loopcount "-1"
+}
+actor "Kleiner"
+{
+  channel "look at"
+  {
+    active "0"
+  }
+  channel "faceto"
+  {
+    active "0"
+  }
+  channel "move to "
+  {
+    active "0"
+  }
+  channel "posture"
+  {
+    active "0"
+  }
+  channel "gesture"
+  {
+    active "0"
+  }
+  channel "gesturepose"
+  {
+    active "0"
+  }
+  channel "head"
+  {
+    active "0"
+  }
+  channel "facial"
+  {
+    active "0"
+  }
+  channel "Response"
+  {
+    active "0"
+  }
+}
+
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    active "0"
+  }
+  channel "move to"
+  {
+    active "0"
+  }
+  channel "posture"
+  {
+    active "0"
+  }
+  channel "gesture"
+  {
+    active "0"
+  }
+  channel "Response"
+  {
+    active "0"
+  }
+  channel "head"
+  {
+  }
+  active "0"
+}
+
+actor "Barney"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "FaceTo"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "FlexHead"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Response"
+  {
+  }
+}
+
+actor "Eli"
+{
+  channel "Lookat"
+  {
+    event lookat "work1"
+    {
+      time -0.022223 15.635555
+      param "marks_eli_look_keyboard"
+    }
+  }
+  channel "FaceTo"
+  {
+  }
+  channel "MoveTo"
+  {
+  }
+  channel "Posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.577778
+      param ""
+    }
+    event gesture "console"
+    {
+      time 0.000000 13.762617
+      param "Posture_Console"
+      absolutetags playback_time
+      {
+        "apex" 0.010496
+        "loop" 0.318137
+        "end" 0.862733
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.170455
+        "loop" 0.454545
+        "end" 0.568182
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "console"
+    {
+      time 9.400001 27.722221
+      param "Posture_Console"
+      absolutetags playback_time
+      {
+        "apex" 0.134998
+        "loop" 0.440580
+        "end" 0.868932
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.170455
+        "loop" 0.454545
+        "end" 0.568182
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "Gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.577778
+      param ""
+    }
+    event gesture "type"
+    {
+      time 0.022222 12.367745
+      param "Gesture_work01"
+      absolutetags playback_time
+      {
+        "apex" 0.010782
+        "accent" 0.036721
+        "loop" 0.354205
+        "end" 0.892009
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.142857
+        "accent" 0.238095
+        "loop" 0.261905
+        "end" 0.738095
+      }
+      sequenceduration 2.833333
+    }
+    event gesture "working"
+    {
+      time 11.022223 27.411112
+      param "Gesture_work01"
+      event_ramp
+      {
+        1.3733 0.9511
+        2.1022 1.0000
+        16.3889 1.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.000000
+        "accent" 0.000000
+        "loop" 0.019544
+        "end" 0.891450
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.142857
+        "accent" 0.238095
+        "loop" 0.261905
+        "end" 0.738095
+      }
+      sequenceduration 2.833333
+    }
+    event gesture "NULL"
+    {
+      time 10.111111 13.055555
+      param ""
+    }
+  }
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "25"
+  "GestureTool" "100"
+  "RampTool" "45"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+}
+fps 60
+snap off

@@ -10,9 +10,6 @@
 #define _WIN32_WINNT 0x0502
 #include <windows.h>
 #endif
-#ifdef OSX
-#include <Carbon/Carbon.h>
-#endif
 #include "cbase.h"
 #include "hud.h"
 #include "cdll_int.h"
@@ -105,12 +102,7 @@ static ConVar m_mousespeed( "m_mousespeed", "1", FCVAR_ARCHIVE, "Windows mouse a
 static ConVar m_mouseaccel1( "m_mouseaccel1", "0", FCVAR_ARCHIVE, "Windows mouse acceleration initial threshold (2x movement).", true, 0, false, 0.0f );
 static ConVar m_mouseaccel2( "m_mouseaccel2", "0", FCVAR_ARCHIVE, "Windows mouse acceleration secondary threshold (4x movement).", true, 0, false, 0.0f );
 
-#if defined( OSX )
-// On OSX, this needs to stick at 0.
-static ConVar m_rawinput( "m_rawinput", "0", FCVAR_ARCHIVE, "Raw Mouse input is unavailable on OSX", true, 0.0, true, 0.0);
-#else
 static ConVar m_rawinput( "m_rawinput", "0", FCVAR_ARCHIVE, "Use Raw Input for mouse input.");
-#endif
 
 #if DEBUG
 ConVar cl_mouselook( "cl_mouselook", "1", FCVAR_ARCHIVE, "Set to 1 to use mouse for look, 0 for keyboard look." );
@@ -604,7 +596,7 @@ void CInput::AccumulateMouse( void )
 		m_flAccumulatedMouseXMovement += current_posx - x;
 		m_flAccumulatedMouseYMovement += current_posy - y;
 		
-#elif defined( USE_SDL ) || defined( OSX )
+#elif defined( USE_SDL )
 		int dx, dy;
 		engine->GetMouseDelta( dx, dy );
 		m_flAccumulatedMouseXMovement += dx;

@@ -1,0 +1,122 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_guard_nevergetpast"
+    {
+      time 0.174603 3.395941
+      param "ep_02.al_guard_nevergetpast"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.023810 3.626984
+      param "!player"
+      event_ramp
+      {
+        0.5100 0.9567
+        3.1766 0.9610
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.246032 3.046031
+      param "A_bg_chinout"
+      absolutetags playback_time
+      {
+        "apex" 0.156627
+        "extreme" 0.349398
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.156627
+        "extreme" 0.349398
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.087301 3.682540
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "outer_raiser" combo 
+        {
+          0.6492 0.3800
+          0.9760 0.4102
+          1.3100 0.0000
+          1.6127 0.0021
+          2.6947 0.0021
+        }
+        {
+          0.6492 0.5000
+          0.9760 0.5000
+          1.3100 0.5000
+          1.6127 0.5000
+          2.6947 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.6492 0.0000
+          0.9760 0.0000
+          1.3100 0.4000
+          1.6127 0.3983
+          2.6947 0.3983
+        }
+        {
+          0.6492 0.5000
+          0.9760 0.5000
+          1.3100 0.5000
+          1.6127 0.5000
+          2.6947 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.6492 0.6100
+          0.9760 0.6585
+          1.3100 0.5000
+          1.6127 0.5012
+          2.6947 0.5012
+        }
+        {
+          0.6492 0.5000
+          0.9760 0.5000
+          1.3100 0.5000
+          1.6127 0.5000
+          2.6947 0.5000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "RampTool" "100"
+  "CChoreoView" "84"
+}
+fps 60
+snap off
+ignorePhonemes off

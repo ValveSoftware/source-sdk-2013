@@ -1,0 +1,210 @@
+// Choreo version 1
+actor "magnusson"
+{
+  channel "Audio"
+  {
+    event speak "ep_02.mag_tutor_notshot"
+    {
+      time 0.666667 6.193107
+      param "ep_02.mag_tutor_notshot"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "look at player"
+    {
+      time 0.031250 7.577563
+      param "!player"
+      event_ramp
+      {
+        0.4820 0.9639
+        6.8848 0.9819 "curve_easein_to_curve_easeout"
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "face player"
+    {
+      time 0.031841 7.582030
+      param "!player"
+      event_ramp
+      {
+        0.5500 0.9892
+        6.4087 0.9747 "curve_easein_to_curve_easeout"
+      }
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+    event gesture "hg_lowerchest"
+    {
+      time 2.364197 4.682716
+      param "hg_lowerchest"
+      event_ramp
+      {
+        0.4820 0.9378 "curve_easein_to_curve_easeout"
+        1.7219 0.9506 "curve_easein_to_curve_easeout"
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.204748
+        "extreme" 0.394872
+        "loop" 0.555745
+        "end" 0.701994
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.241379
+        "extreme" 0.465517
+        "loop" 0.655172
+        "end" 0.827586
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "hg_chest_head_back"
+    {
+      time -0.067902 2.861728
+      param "hg_chest_head_back"
+      event_ramp
+      {
+        0.0840 0.0982
+        0.2940 0.7260
+        0.5060 1.0000
+        2.2580 1.0000
+        2.5180 0.7215
+        2.7160 0.2260
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.162038
+        "extreme" 0.289354
+        "loop" 0.347225
+        "end" 0.824894
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.241379
+        "extreme" 0.431034
+        "loop" 0.517241
+        "end" 0.741379
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "g_front_clasp"
+    {
+      time 0.423611 4.778920
+      param "g_front_clasp"
+      event_ramp
+      {
+        0.1340 0.2534
+        0.2560 0.7169
+        0.5520 1.0000
+        2.8500 0.9954
+        3.6960 0.7055
+        4.1200 0.1233
+      }
+      absolutetags playback_time
+      {
+        "in" 0.054668
+        "loop" 0.210862
+        "end" 0.814634
+        "out" 0.909556
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.142857
+        "loop" 0.551020
+        "end" 0.673469
+        "out" 0.857143
+      }
+      sequenceduration 1.666667
+    }
+    event gesture "g_hands_ease"
+    {
+      time 4.643133 7.103627
+      param "g_hands_ease"
+      event_ramp
+      {
+        0.4520 0.8734 "curve_easein_to_curve_easeout"
+        1.4518 0.8047 "curve_easein_to_curve_easeout"
+        2.2714 0.0000 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.221800
+        "accent" 0.332699
+        "loop" 0.388149
+        "end" 0.675828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.372093
+        "accent" 0.558140
+        "loop" 0.651163
+        "end" 0.697674
+      }
+      sequenceduration 1.466667
+    }
+    event gesture "g_R_hand_ease"
+    {
+      time 4.950232 6.416899
+      param "g_R_hand_ease"
+      event_ramp
+      {
+        0.4700 0.8476 "curve_easein_to_curve_easeout"
+        1.1160 0.7318 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.319149
+        "accent" 0.558140
+        "loop" 0.604651
+        "end" 0.744186
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.372093
+        "accent" 0.558140
+        "loop" 0.651163
+        "end" 0.697674
+      }
+      sequenceduration 1.466667
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

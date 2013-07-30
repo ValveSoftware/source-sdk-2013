@@ -1,0 +1,48 @@
+// Choreo version 1
+event section "pause"
+{
+  time 3.800000 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "!Target2"
+    {
+      time 0.100000 4.000000
+      param "!target2"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1_trigger1"
+    {
+      time 4.000000 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "C:\VALVE\HL2\hl2\models\dog.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "20"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

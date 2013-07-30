@@ -1,0 +1,49 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_smashscanner01"
+    {
+      time 0.062500 2.274201
+      param "ep_01.al_smashscanner01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.298611 2.982142
+      param "!player"
+      event_ramp 
+      {
+        0.3102 0.4350
+        2.0936 0.7119 "curve_easein_to_curve_easeout"
+        2.5345 0.4576 "curve_bspline_to_curve_bspline"
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "98"
+  "ExpressionTool" "100"
+  "RampTool" "80"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

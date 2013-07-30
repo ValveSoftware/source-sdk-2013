@@ -1,0 +1,55 @@
+// Choreo version 1
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+  }
+  channel "Look at"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "mark_fisherman_monastaryPoint1"
+    {
+      time 0.113304 22.361113
+      param "mark_fisherman_monastaryPoint1"
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Interrupt"
+  {
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "8"
+  "SceneRampTool" "100"
+  "RampTool" "40"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

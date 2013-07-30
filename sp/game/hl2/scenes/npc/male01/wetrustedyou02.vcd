@@ -1,0 +1,109 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "trust2"
+    {
+      time 0.040000 1.058209
+      param "npc_citizen.wetrustedyou02"
+      fixedlength
+    }
+  }
+  channel "Expression"
+  {
+    event flexanimation "face"
+    {
+      time 0.006667 1.133334
+      param ""
+      flexanimations samples_use_time
+      {
+        "lowerer"         combo        
+        {
+        }
+        {
+          0.1081 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.1081 0.2600
+          0.9665 0.2700
+        }
+        {
+          0.1081 0.5000
+        }
+        "head_updown"         range 35.0 -30.0        
+        {
+          0.1301 0.5900
+          0.3193 0.5600
+          0.4304 0.6300
+          0.6193 0.5800
+          0.8003 0.5700
+          0.9775 0.5000
+        }
+        "head_tilt"         range 18.0 -18.0        
+        {
+          0.1301 0.5000
+          0.4026 0.5500
+          0.9098 0.5100
+        }
+        "lid_tightener"         combo        
+        {
+        }
+        {
+          0.1083 0.5000
+          0.1083 0.5000
+        }
+        "inner_raiser"         combo        
+        {
+          0.1083 0.5500
+          0.9709 0.6800
+        }
+        {
+          0.1083 0.5000
+        }
+        "wrinkler"        
+        {
+          0.1006 0.3300
+        }
+      }
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "Lookatplayer"
+    {
+      time 0.006667 1.133335
+      param "!player"
+      event_ramp
+      {
+        0.0271 0.2064
+        0.0611 0.5317
+        0.1141 0.9166
+        0.1493 0.9921
+        0.7970 1.0000
+        0.9348 1.0000
+        1.0179 0.7897
+        1.0684 0.5198
+        1.1052 0.2024
+      }
+    }
+  }
+  channel "head"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "168"
+  "RampTool" "112"
+  "GestureTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,75 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "target_hackingconsole_01"
+    {
+      time 0.009638 10.215686
+      param "target_hackingconsole_01"
+      event_ramp
+      {
+        0.1577 0.9960
+        9.9480 0.9900
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "console"
+    {
+      time 0.029034 1.507529
+      param "!target1"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "monitor"
+    {
+      time 0.017013 10.208619
+      param "!target2"
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "68"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,47 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+  }
+  channel "lookat"
+  {
+    event lookat "look at injured 3"
+    {
+      time 1.043177 4.191078
+      param "mark_inj3"
+    }
+    event lookat "look at player"
+    {
+      time 0.034722 1.034722
+      param "!player"
+    }
+  }
+  channel "faceto"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\humans\group03\female_03.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

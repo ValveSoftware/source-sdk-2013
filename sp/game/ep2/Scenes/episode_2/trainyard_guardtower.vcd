@@ -1,0 +1,64 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Debug text"
+  {
+  }
+  channel "Moveto"
+  {
+  }
+  channel "Look at"
+  {
+  }
+  channel "Face"
+  {
+  }
+}
+
+actor "!Target1"
+{
+  channel "Debug Text"
+  {
+    event generic "these poor bastards sure want in.  Fat Chance."
+    {
+      time 0.107498 3.013334
+      param "debugtext Citizen: Man, these poor bastards sure want in.  Fat chance."
+    }
+  }
+  channel "Look at"
+  {
+  }
+  channel "Moveto"
+  {
+  }
+  channel "Face"
+  {
+  }
+}
+
+actor "!Target2"
+{
+  channel "Debug Text"
+  {
+  }
+  channel "Look at"
+  {
+  }
+  channel "Moveto"
+  {
+  }
+  channel "Face"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "150"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

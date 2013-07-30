@@ -1,0 +1,87 @@
+// Choreo version 1
+event section "pause"
+{
+  time 1.800000 -1.000000
+  param "noaction"
+}
+actor "!target1"
+{
+  channel "DebugText"
+  {
+    event speak "ep_02.briefer_01"
+    {
+      time 0.984849 3.483851
+      param "ep_02.briefer_01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.000000 3.652126
+      param "!player"
+      event_ramp
+      {
+        0.7682 0.7458
+        2.9207 0.7514
+        3.1508 0.4746
+        3.2954 0.2090
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to mark"
+    {
+      time 0.000000 2.000000
+      param "mark_alyxStopTalk"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "face map"
+    {
+      time 0.030303 3.590909
+      param "!player"
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "models\alyx.mdl"
+}
+
+mapname "maps\ep2_outland_06.bsp"
+scalesettings
+{
+  "CChoreoView" "44"
+  "ExpressionTool" "94"
+  "GestureTool" "100"
+  "RampTool" "166"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

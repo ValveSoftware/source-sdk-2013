@@ -1,0 +1,42 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "exit_goquickly"
+    {
+      time 0.066667 0.999365
+      param "ravenholm.exit_goquickly"
+      param2 "90dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.013334 0.986667
+      param "!player"
+      event_ramp
+      {
+        0.1129 0.8553
+        0.1871 0.9649
+        0.8151 0.9737
+        0.8732 0.8246
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

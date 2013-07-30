@@ -1,0 +1,50 @@
+// Choreo version 1
+actor "citizen_actor"
+{
+  channel "audio"
+  {
+    event speak "they're coming!"
+    {
+      time 0.326667 1.173356
+      param "ep1_citizen.cit_evac_enemies01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "oh shit"
+    {
+      time 1.713334 2.616259
+      param "ep1_citizen.cit_buddykilled07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "oh shit"
+    {
+      time 3.726668 4.588097
+      param "ep1_citizen.cit_buddykilled06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "oh shit"
+    {
+      time 5.313334 7.137008
+      param "ep1_citizen.cit_evac_casualty11"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

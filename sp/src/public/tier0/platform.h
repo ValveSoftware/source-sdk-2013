@@ -1085,7 +1085,7 @@ PLATFORM_INTERFACE bool				Plat_IsInBenchmarkMode();
 
 
 PLATFORM_INTERFACE double			Plat_FloatTime();		// Returns time in seconds since the module was loaded.
-PLATFORM_INTERFACE unsigned long	Plat_MSTime();			// Time in milliseconds.
+PLATFORM_INTERFACE unsigned int		Plat_MSTime();			// Time in milliseconds.
 PLATFORM_INTERFACE char *			Plat_asctime( const struct tm *tm, char *buf );
 PLATFORM_INTERFACE char *			Plat_ctime( const time_t *timep, char *buf, size_t bufsize );
 PLATFORM_INTERFACE struct tm *		Plat_gmtime( const time_t *timep, struct tm *result );

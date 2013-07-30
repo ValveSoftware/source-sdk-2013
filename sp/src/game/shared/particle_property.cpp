@@ -26,6 +26,12 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef STAGING_ONLY
+#ifdef TF_CLIENT_DLL
+extern ConVar tf_unusual_effect_offset;
+#endif
+#endif
+
 //-----------------------------------------------------------------------------
 // Save/load
 //-----------------------------------------------------------------------------

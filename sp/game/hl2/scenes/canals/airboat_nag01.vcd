@@ -1,0 +1,33 @@
+// Choreo version 1
+actor "Arlene"
+{
+  channel "audio"
+  {
+    event speak "Go ahead and get in the boat, Dr. Freeman"
+    {
+      time 0.200000 1.998277
+      param "canals.airboat_nag01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "face to"
+  {
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

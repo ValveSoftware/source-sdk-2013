@@ -1,0 +1,115 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "audio"
+  {
+    event speak "ep_02.vort_guard_killit_nag04"
+    {
+      time 0.309523 4.962176
+      param "ep_02.vort_guard_killit_nag04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.055556 5.233703
+      param "!player"
+      event_ramp
+      {
+        0.5140 0.9870
+        4.4115 1.0000
+      }
+    }
+  }
+  channel "faceto"
+  {
+    event face "!player"
+    {
+      time 0.080213 5.246032
+      param "!player"
+      event_ramp
+      {
+        0.7294 0.2424
+        1.0529 0.2944
+        1.5471 0.2944
+        3.8444 0.2944
+        4.2915 0.2944
+        4.5856 0.2511
+      }
+    }
+  }
+  channel "head gestures"
+  {
+    event gesture "2"
+    {
+      time 0.111111 2.292063
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.4105 0.4848
+        1.6932 0.4848
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.204380
+        "extreme" 0.440295
+        "loop" 0.844526
+        "end" 0.860074
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "1"
+    {
+      time 2.984127 5.284128
+      param "hg_headup"
+      event_ramp
+      {
+        0.8789 0.1385
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.264706
+        "extreme" 0.441176
+        "loop" 0.514706
+        "end" 0.661765
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.264706
+        "extreme" 0.441176
+        "loop" 0.514706
+        "end" 0.661765
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "gestures"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "84"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

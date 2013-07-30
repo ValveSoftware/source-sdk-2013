@@ -1,0 +1,111 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "cit_denytrain02"
+    {
+      time 0.006667 3.917801
+      param "ep1_citizen.cit_denytrain02"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "!player"
+    {
+      time 0.033333 4.206667
+      param "!player"
+      event_ramp 
+      {
+        0.2460 0.7781
+        0.5060 1.0000
+        3.5480 1.0000 "curve_easein_to_curve_easeout"
+        3.8100 0.7715
+      }
+    }
+  }
+  channel "Facial"
+  {
+    event gesture "bg_accentFwd"
+    {
+      time 0.060000 3.486666
+      param "bg_accentFwd"
+      absolutetags playback_time
+      {
+        "apex" 0.098627
+        "extreme" 0.256431
+        "loop" 0.394509
+        "end" 0.712062
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.138889
+        "extreme" 0.361111
+        "loop" 0.555556
+        "end" 0.694444
+      }
+      sequenceduration 2.433333
+    }
+    event gesture "hg_headshake"
+    {
+      time 0.146666 2.853333
+      param "hg_headshake"
+      absolutetags playback_time
+      {
+        "apex" 0.125718
+        "loop" 0.163434
+        "extreme" 0.251437
+        "end" 0.551724
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.208333
+        "loop" 0.270833
+        "extreme" 0.416667
+        "end" 0.625000
+      }
+      sequenceduration 1.633333
+    }
+    event gesture "b_head_back"
+    {
+      time 2.433333 4.233333
+      param "b_head_back"
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+  }
+  channel "Head"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "56"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

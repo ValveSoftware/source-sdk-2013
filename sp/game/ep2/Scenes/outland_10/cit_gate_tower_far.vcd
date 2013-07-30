@@ -1,0 +1,148 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "ep_02.reb_silo_heretheycome"
+    {
+      time 0.373333 3.333877
+      param "ep_02.reb_silo_heretheycome"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to edge of tower"
+    {
+      time 0.020001 5.053824
+      param "base_gate_tower_citizen_lcs_moveto"
+      param2 "Walk"
+      distancetotarget 16.00
+      forceshortmovement
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 0.119265 5.066913
+      param "!player"
+      event_ramp
+      {
+        0.4220 0.9964
+        4.5016 1.0000
+      }
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "look at player"
+    {
+      time 0.043967 5.066666
+      param "!player"
+      event_ramp
+      {
+        0.4760 1.0000
+        4.5100 1.0000
+        5.0226 0.0000
+      }
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "g_point_l"
+    {
+      time 0.300000 3.240000
+      param "g_point_l"
+      absolutetags playback_time
+      {
+        "in" 0.057619
+        "loop" 0.357236
+        "end" 0.843182
+        "out" 0.922727
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.081967
+        "loop" 0.508197
+        "end" 0.639344
+        "out" 0.836066
+      }
+      sequenceduration 2.066667
+    }
+  }
+  channel "triggers"
+  {
+    event firetrigger "gate citizen stands up"
+    {
+      time 1.906667 -1.000000
+      param "1"
+    }
+  }
+}
+
+actor "!target2"
+{
+  channel "audio"
+  {
+    event speak "ah, gordon freeman"
+    {
+      time 3.500000 4.816825
+      param "npc_citizen.ahgordon02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to "
+  {
+    event face "face player"
+    {
+      time 1.912840 5.094567
+      param "!player"
+      event_ramp
+      {
+        0.7598 0.9783
+        3.1817 0.9819
+      }
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "look at player"
+    {
+      time 1.919078 5.091318
+      param "!player"
+      event_ramp
+      {
+        0.7892 0.9747
+        3.1722 0.9783
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to base_gate_citizen_lcs_moveto1"
+    {
+      time 2.764991 5.014171
+      param "base_gate_citizen_lcs_moveto1"
+      param2 "Walk"
+    }
+  }
+  channel "gesture"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "112"
+  "RampTool" "28"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

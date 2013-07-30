@@ -1,0 +1,150 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "text"
+  {
+  }
+  channel "play sound"
+  {
+    event speak "ep_02.al_transmit_thatworked"
+    {
+      time 2.829502 3.785511
+      param "ep_02.al_transmit_thatworked"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "generic ai"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 2.195403 4.408047
+      param "!player"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.0700 0.0733
+        0.3200 0.6007
+        0.4400 0.8059
+        0.5780 0.9414
+        0.7360 1.0000
+        1.5208 1.0000
+        1.6414 0.9524
+        1.7628 0.8242
+        1.8877 0.5861
+        2.0328 0.2784
+        2.1197 0.1026
+        2.2126 0.0037
+      }
+    }
+    event lookat "look_alyx_gate2"
+    {
+      time 0.000000 2.741379
+      param "look_alyx_gate2"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.0640 0.0989
+        0.3200 0.7985
+        0.4140 0.9304
+        0.4840 0.9890
+        2.1542 1.0000
+        2.2995 0.8938
+        2.4164 0.6630
+        2.6484 0.1026
+        2.7413 0.0037
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 2.014049 4.393999
+      param "!player"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.0820 0.0586
+        0.4220 0.4432
+        0.5320 0.5385
+        0.7120 0.5568 "curve_easein_to_curve_easein"
+        1.7647 0.5568 "curve_easein_to_curve_easeout"
+        1.9139 0.4982
+        2.0300 0.3773
+        2.1539 0.1905
+        2.2627 0.0623 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        2.3799 0.0000 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+      }
+      lockbodyfacing
+    }
+    event face "look_alyx_gate2"
+    {
+      time 0.088762 0.962964
+      param "look_alyx_gate2"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.1120 0.0989
+        0.3940 0.6044
+        0.5160 0.8608
+        0.6420 0.9707
+        0.7400 1.0000
+        0.8742 1.0000
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "g_pistol_aim"
+    {
+      time 0.195402 2.414943
+      param "g_pistol_aim"
+      absolutetags playback_time
+      {
+        "apex" 0.101076
+        "accent" 0.182248
+        "loop" 0.246215
+        "end" 0.673575
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.131579
+        "accent" 0.342105
+        "loop" 0.657895
+        "end" 0.684211
+      }
+      sequenceduration 1.300000
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  channel "audio"
+  {
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "RampTool" "100"
+  "CChoreoView" "116"
+}
+fps 60
+snap off

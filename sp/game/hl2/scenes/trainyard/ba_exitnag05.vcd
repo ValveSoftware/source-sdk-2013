@@ -1,0 +1,152 @@
+// Choreo version 1
+actor "Barney"
+{
+  channel "Audio"
+  {
+    event speak "ba_exitnag05"
+    {
+      time 0.346667 1.394309
+      param "Trainyard.ba_exitnag05"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.187617 1.767619
+      param "!player"
+      event_ramp
+      {
+        0.5176 0.8283
+        0.7238 0.9707
+        0.8654 0.8981
+        0.9116 1.0000
+        0.9399 0.9833
+        0.9857 1.0000
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 0.038096 2.264371
+      param "!player"
+      event_ramp
+      {
+        0.6995 0.8521
+        0.9018 1.0000
+        1.2562 1.0000
+        2.0717 1.0000
+        2.2263 1.0000
+      }
+    }
+  }
+  channel "Posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.465714
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 2.146667 2.612381
+      param ""
+    }
+  }
+  channel "Gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.458096
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 2.146667 2.604763
+      param ""
+    }
+    event gesture "Gesture01NP"
+    {
+      time 0.093333 2.140000
+      param "Gesture01NP"
+      event_ramp
+      {
+        0.0000 0.7324
+        0.5140 0.7324
+        1.3963 0.7324
+        1.9870 0.7324
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.171628
+        "accent" 0.287600
+        "loop" 0.420139
+        "end" 0.536111
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.137931
+        "accent" 0.258621
+        "loop" 0.396552
+        "end" 0.517241
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "body gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.447339
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 2.146667 2.594006
+      param ""
+    }
+    event gesture "bg_accentFwd"
+    {
+      time 0.040000 2.053333
+      param "bg_accentFwd"
+      absolutetags playback_time
+      {
+        "apex" 0.167863
+        "extreme" 0.436442
+        "loop" 0.624585
+        "end" 0.790698
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.138889
+        "extreme" 0.361111
+        "loop" 0.555556
+        "end" 0.694444
+      }
+      sequenceduration 2.433333
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "84"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

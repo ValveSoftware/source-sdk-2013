@@ -1,0 +1,100 @@
+// Choreo version 1
+event section "wd"
+{
+  time 1.259091 -1.000000
+  param "noaction"
+}
+event section "sda"
+{
+  time 0.712121 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "Sound"
+  {
+    event speak "ep_02.al_crane_whatnow"
+    {
+      time 0.111111 3.640544
+      param "ep_02.al_crane_whatnow"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_crane_whatnow"
+    {
+      time 3.688889 10.817415
+      param "ep_02.al_crane_roadcont"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_crane_whatnow"
+    {
+      time 11.972221 14.038797
+      param "ep_02.al_crane_wokelocals"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_crane_whatnow"
+    {
+      time 14.553176 16.503653
+      param "ep_02.al_crane_covered"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "FaceTo"
+  {
+  }
+  channel "lookAt"
+  {
+  }
+  channel "MoveTo"
+  {
+    event moveto "Moveto !target2"
+    {
+      time 0.786364 1.530302
+      param "!target2"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "Moveto !target1"
+    {
+      time 0.045455 0.765656
+      param "!target1"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "gesture"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "1: climb"
+    {
+      time 0.772728 -1.000000
+      param "1"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "60"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "24"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

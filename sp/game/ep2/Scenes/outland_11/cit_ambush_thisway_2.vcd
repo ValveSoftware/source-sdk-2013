@@ -1,0 +1,99 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "npc_citizen.squad_away03 - follow me"
+    {
+      time -6.876812 -6.059601
+      param "npc_citizen.squad_away03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "npc_citizen.startle01"
+    {
+      time 0.608695 1.096178
+      param "npc_citizen.uhoh"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "canals.massacre_runforyourlife01"
+    {
+      time 1.463768 3.121138
+      param "canals.massacre_runforyourlife01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "npc_citizen.pain05"
+    {
+      time 2.565218 2.815649
+      param "d1_canals.citizenpunch_punch_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "npc_citizen.pain08"
+    {
+      time 4.166667 4.811088
+      param "npc_citizen.pain08"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "npc_citizen.pain07"
+    {
+      time 5.434783 6.257005
+      param "npc_citizen.pain07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 3.992754 8.688406
+      param "!player"
+    }
+    event lookat "!player"
+    {
+      time 1.789855 2.971015
+      param "!player"
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "models\humans\group01\male_01.mdl"
+}
+
+mapname "maps\ep1_c17_00.bsp"
+scalesettings
+{
+  "CChoreoView" "92"
+  "SceneRampTool" "100"
+  "RampTool" "84"
+  "ExpressionTool" "66"
+  "GestureTool" "100"
+}
+fps 60
+snap off

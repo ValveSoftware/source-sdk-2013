@@ -1,0 +1,74 @@
+// Choreo version 1
+event stoppoint "donoe"
+{
+  time 1.246377 -1.000000
+  param "noaction"
+}
+actor "barney"
+{
+  channel "Audio"
+  {
+    event speak "rubble.ba_nag_wall01"
+    {
+      time 0.028985 1.302319
+      param "rubble.ba_nag_wall02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "player"
+    {
+      time 0.000000 1.829564
+      param "!player"
+      event_ramp
+      {
+        0.3160 0.7660
+        0.3720 0.8191
+        0.4680 0.8457
+        1.2175 0.8404
+        1.3135 0.8032
+        1.3655 0.7606
+      }
+    }
+  }
+  channel "Face to"
+  {
+    event face "face to"
+    {
+      time 0.000000 1.728117
+      param "!player"
+      event_ramp
+      {
+        0.2960 0.2948
+        1.2348 0.3161
+        1.3732 0.3081
+      }
+    }
+  }
+  channel "sequence"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "46"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "72"
+}
+fps 60
+snap off

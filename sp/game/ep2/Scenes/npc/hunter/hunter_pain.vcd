@@ -1,0 +1,44 @@
+// Choreo version 1
+actor "hunter"
+{
+  channel "audio"
+  {
+    event speak "NPC_Hunter.Pain"
+    {
+      time 0.346667 1.020545
+      param "NPC_Hunter.Pain"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "gesture_pain"
+    {
+      time 0.000000 0.966667
+      param "gesture_pain"
+      absolutetags playback_time
+      {
+        "in" 0.525714
+        "out" 0.535714
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.535714
+        "out" 0.535714
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

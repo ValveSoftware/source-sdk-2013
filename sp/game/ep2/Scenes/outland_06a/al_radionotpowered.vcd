@@ -1,0 +1,153 @@
+// Choreo version 1
+event section "move pause"
+{
+  time 2.313334 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "Sound"
+  {
+    event speak "ep_02.al_rad_powerout"
+    {
+      time 2.358586 3.843937
+      param "ep_02.al_rad_powerout01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_rad_powerout"
+    {
+      time 4.382010 6.526024
+      param "ep_02.al_rad_powerout02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_rad_powerout"
+    {
+      time 6.870976 9.078980
+      param "ep_02.al_rad_powerout03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "FaceTo"
+  {
+    event face "mark_faceto_console"
+    {
+      time 1.479999 6.427245
+      param "mark_faceto_console"
+    }
+    event face "face player"
+    {
+      time 6.012465 9.465797
+      param "!player"
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "look at radio"
+    {
+      time 0.306666 3.482028
+      param "mark_look_radio"
+      event_ramp
+      {
+        0.1583 0.3375
+        0.3917 0.7933
+        0.6083 0.9488
+        0.9833 1.0000
+        2.6754 1.0000
+        2.8254 0.9788
+        2.9004 0.9064
+        2.9879 0.5954
+        3.0420 0.2208
+      }
+    }
+    event lookat "look at player"
+    {
+      time 4.945798 9.439133
+      param "!player"
+      event_ramp
+      {
+        0.2125 0.2615
+        0.3000 0.6731
+        0.3847 0.8675
+        0.5500 0.9788
+        0.7028 0.9982
+        3.5458 0.9982
+        3.8333 0.9505
+        3.9944 0.8463
+        4.1500 0.6201
+        4.2444 0.2473
+      }
+    }
+    event lookat "mark_look_monitor"
+    {
+      time 3.103767 5.271883
+      param "mark_look_monitor"
+      event_ramp
+      {
+        0.1583 0.3375
+        0.3917 0.7933
+        0.5194 0.9488
+        0.8944 1.0000
+        1.6682 1.0000
+        1.8182 0.9788
+        1.8932 0.9064
+        1.9807 0.5954
+        2.0348 0.2208
+      }
+    }
+  }
+  channel "MoveTo"
+  {
+    event moveto "move to console"
+    {
+      time 0.680000 4.203610
+      param "mark_al_controls"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "gesture"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "Touch Button"
+    {
+      time 2.695652 -1.000000
+      param "1"
+    }
+    event generic "AI_HOLSTER to "
+    {
+      time 0.043478 0.543478
+      param "AI_HOLSTER"
+    }
+    event generic "AI_UNHOLSTER to "
+    {
+      time 8.811594 9.311594
+      param "AI_UNHOLSTER"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "88"
+  "GestureTool" "100"
+  "RampTool" "36"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

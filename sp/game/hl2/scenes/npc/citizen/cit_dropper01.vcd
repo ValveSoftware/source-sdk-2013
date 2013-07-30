@@ -1,0 +1,45 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "Audio"
+  {
+    event speak "Hey down there!  Supplies!"
+    {
+      time 0.200000 2.990000
+      param "npc_citizen.cit_dropper01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look"
+  {
+    event lookat "LookPlayer"
+    {
+      time 0.026667 3.266668
+      param "!player"
+      event_ramp
+      {
+        0.1040 0.3664
+        0.1900 0.6431
+        0.4000 0.9324
+        0.6480 1.0000
+        2.5947 1.0000
+        2.8647 0.9198
+        3.0527 0.5252
+      }
+    }
+  }
+  faceposermodel "C:\HL2\hl2\models\Humans\Male_01.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "RampTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

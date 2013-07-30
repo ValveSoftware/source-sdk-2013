@@ -1,0 +1,256 @@
+// Choreo version 1
+actor "cit_class_teacher"
+{
+  channel "audio"
+  {
+    event speak "npc_citizen.question17"
+    {
+      time 0.025641 1.480312
+      param "npc_citizen.question17"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "npc_citizen.answer34"
+    {
+      time 12.123077 12.990969
+      param "npc_citizen.answer34"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "cit_class_1"
+    {
+      time 0.000000 1.503284
+      param "cit_class_1"
+      event_ramp
+      {
+        0.4857 1.0000
+        1.2095 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodygestures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "headf"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "eyes"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "temp"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "cit_class_2"
+{
+  channel "audio"
+  {
+    event speak "npc_citizen.question18"
+    {
+      time 2.730769 4.797322
+      param "npc_citizen.question18"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "cit_class_teacher"
+    {
+      time 0.028736 1.946667
+      param "cit_class_teacher"
+      event_ramp
+      {
+        0.5000 1.0000
+        1.5431 1.0000
+      }
+    }
+    event lookat "cit_class_teacher"
+    {
+      time 3.642070 5.326667
+      param "cit_class_teacher"
+      event_ramp
+      {
+        0.5000 1.0000
+        1.3098 1.0000
+      }
+    }
+    event lookat "cit_class_1"
+    {
+      time 4.942070 11.586666
+      param "cit_class_1"
+      event_ramp
+      {
+        0.5000 1.0000
+        6.2698 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  faceposermodel "U:\dev\main\game\hl2\models\Humans\Group02\Female_04.mdl"
+}
+
+actor "cit_class_1"
+{
+  channel "audio"
+  {
+    event speak "npc_citizen.answer14"
+    {
+      time 4.923077 6.116184
+      param "npc_citizen.answer14"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "cit_class_teacher"
+    {
+      time 0.022989 3.154253
+      param "cit_class_teacher"
+      event_ramp
+      {
+        0.5000 1.0000
+        2.7564 1.0000
+      }
+    }
+    event lookat "cit_class_2"
+    {
+      time 5.088737 10.279998
+      param "cit_class_2"
+      event_ramp
+      {
+        0.5000 1.0000
+        4.8165 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  faceposermodel "U:\dev\main\game\hl2\models\Humans\Group02\Female_04.mdl"
+}
+
+actor "cit_class_3"
+{
+  channel "audio"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "cit_class_teacher"
+    {
+      time 0.025641 1.528925
+      param "cit_class_teacher"
+      event_ramp
+      {
+        0.4857 1.0000
+        1.2095 1.0000
+      }
+    }
+    event lookat "cit_class_2"
+    {
+      time 2.025641 5.008925
+      param "cit_class_2"
+      event_ramp
+      {
+        0.4857 1.0000
+        2.6895 1.0000
+      }
+    }
+    event lookat "cit_class_1"
+    {
+      time 4.658974 10.542258
+      param "cit_class_1"
+      event_ramp
+      {
+        0.4857 1.0000
+        5.5895 1.0000
+      }
+    }
+  }
+}
+
+mapname "maps\d1_eli\d1_eli_01_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "40"
+  "GestureTool" "100"
+  "RampTool" "42"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

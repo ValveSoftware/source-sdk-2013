@@ -1,0 +1,93 @@
+// Choreo version 1
+actor "magnusson"
+{
+  channel "Audio"
+  {
+    event speak "ep_02.mag_silo_laddernags03"
+    {
+      time 1.166667 2.751134
+      param "ep_02.mag_silo_laddernags03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.750001 7.635417
+      param "!player"
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.031251 1.770834
+      param "!player"
+      event_ramp
+      {
+        0.1600 0.1192
+        0.4780 0.4390
+        0.8780 0.9621
+        1.7396 1.0000
+      }
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "g_pound_R_hand"
+    {
+      time 0.875001 3.175000
+      param "g_pound_R_hand"
+      absolutetags playback_time
+      {
+        "apex" 0.279412
+        "accent" 0.367647
+        "loop" 0.632353
+        "end" 0.705882
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.279412
+        "accent" 0.367647
+        "loop" 0.632353
+        "end" 0.705882
+      }
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

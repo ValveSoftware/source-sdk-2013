@@ -1,0 +1,87 @@
+// Choreo version 1
+event stoppoint "END"
+{
+  time 2.625000 -1.000000
+  param "noaction"
+}
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event speak "fish_shootgull02"
+    {
+      time 0.187500 2.870765
+      param "lostcoast.fish_shootgull02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "lookat player"
+    {
+      time 0.180833 3.112504
+      param "!player"
+      event_ramp
+      {
+        0.4617 0.7938
+        0.5999 0.8828
+        0.8700 0.9355
+        1.7750 0.9447
+        2.1900 0.9355
+        2.3742 0.9072
+        2.5350 0.8111
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 0.140832 2.479167
+      param "!player"
+      event_ramp
+      {
+        1.0665 0.9833
+        1.8166 1.0000
+        2.2578 1.0000
+        2.3383 0.9916
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "32"
+  "SceneRampTool" "100"
+  "RampTool" "40"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

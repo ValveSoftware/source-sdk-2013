@@ -39,7 +39,13 @@ ARCH_FLAGS =
 BUILDING_MULTI_ARCH = 0
 CPPFLAGS = $(DEFINES) $(addprefix -I, $(abspath $(INCLUDEDIRS) ))
 CFLAGS = $(ARCH_FLAGS) $(CPPFLAGS) $(WARN_FLAGS) -fvisibility=$(SymbolVisibility) $(OptimizerLevel) -pipe $(GCC_ExtraCompilerFlags) -Usprintf -Ustrncpy -UPROTECTED_THINGS_ENABLE
-CXXFLAGS = $(CFLAGS)
+# In -std=gnu++0x mode we get lots of errors about "error: narrowing conversion". -fpermissive
+# turns these into warnings in gcc, and -Wno-c++11-narrowing suppresses them entirely in clang 3.1+.
+ifeq ($(CXX),clang++)
+	CXXFLAGS = $(CFLAGS) -Wno-c++11-narrowing -Wno-dangling-else
+else
+	CXXFLAGS = $(CFLAGS) -fpermissive
+endif
 DEFINES += -DVPROF_LEVEL=1 -DGNUC -DNO_HOOK_MALLOC -DNO_MALLOC_OVERRIDE
 LDFLAGS = $(CFLAGS) $(GCC_ExtraLinkerFlags) $(OptimizerLevel)
 GENDEP_CXXFLAGS = -MD -MP -MF $(@:.o=.P) 
@@ -152,7 +158,7 @@ ifeq ($(OS),Linux)
 
 	ifeq ($(SOURCE_SDK), 1)
 		Srv_GAMEOUTPUTFILE := $(GAMEOUTPUTFILE:.so=_srv.so)
-		COPY_DLL_TO_SRC := 1
+		COPY_DLL_TO_SRV := 1
 	endif
 
 	LINK_MAP_FLAGS = -Wl,-Map,$(@:.so=).map

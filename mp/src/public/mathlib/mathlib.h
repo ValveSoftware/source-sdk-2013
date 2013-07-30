@@ -97,7 +97,9 @@ private:
 #ifdef DEBUG  // stop crashing edit-and-continue
 FORCEINLINE float clamp( float val, float minVal, float maxVal )
 {
-	if( val < minVal )
+	if ( maxVal < minVal )
+		return maxVal;
+	else if( val < minVal )
 		return minVal;
 	else if( val > maxVal )
 		return maxVal;
@@ -115,8 +117,8 @@ FORCEINLINE float clamp( float val, float minVal, float maxVal )
 				_mm_load_ss(&minVal) ),
 			_mm_load_ss(&maxVal) ) );
 #else
-	val = fpmin(maxVal, val);
 	val = fpmax(minVal, val);
+	val = fpmin(maxVal, val);
 #endif
 	return val;
 }
@@ -128,7 +130,9 @@ FORCEINLINE float clamp( float val, float minVal, float maxVal )
 template< class T >
 inline T clamp( T const &val, T const &minVal, T const &maxVal )
 {
-	if( val < minVal )
+	if ( maxVal < minVal )
+		return maxVal;
+	else if( val < minVal )
 		return minVal;
 	else if( val > maxVal )
 		return maxVal;
@@ -2172,9 +2176,9 @@ bool AlmostEqual(float a, float b, int maxUlps = 10);
 
 inline bool AlmostEqual( const Vector &a, const Vector &b, int maxUlps = 10)
 {
-	return AlmostEqual( a.x, a.x, maxUlps ) &&
-		AlmostEqual( a.y, a.y, maxUlps ) &&
-		AlmostEqual( a.z, a.z, maxUlps );
+	return AlmostEqual( a.x, b.x, maxUlps ) &&
+		AlmostEqual( a.y, b.y, maxUlps ) &&
+		AlmostEqual( a.z, b.z, maxUlps );
 }
 
 

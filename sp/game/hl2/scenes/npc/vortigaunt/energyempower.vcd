@@ -1,0 +1,34 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "energyempower"
+    {
+      time 0.020000 1.393628
+      param "npc_vortigaunt.energyempower"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Look"
+  {
+  }
+  channel "Head"
+  {
+  }
+  channel "Facial"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,59 @@
+// Choreo version 1
+event section "pause_alyxToEMPtarget"
+{
+  time 0.646258 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 0.753623 -1.000000
+  param "noaction"
+}
+actor "npc_citizen_box"
+{
+  channel "audio"
+  {
+    event speak "take_it_down"
+    {
+      time 0.086957 1.476413
+      param "ep1_citizen.cit_alert_gunship03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\ep1_c17_00.bsp"
+scalesettings
+{
+  "CChoreoView" "92"
+  "SceneRampTool" "100"
+  "RampTool" "84"
+  "ExpressionTool" "66"
+  "GestureTool" "100"
+}
+fps 60
+snap off

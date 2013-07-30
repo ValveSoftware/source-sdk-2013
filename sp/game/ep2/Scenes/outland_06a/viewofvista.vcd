@@ -1,0 +1,213 @@
+// Choreo version 1
+event section "get to vista"
+{
+  time 0.483643 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_rad_omgc17"
+    {
+      time 0.679487 5.873546
+      param "ep_02.al_rad_omgc17"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_rad_dreamed"
+    {
+      time 7.820513 10.561488
+      param "ep_02.al_rad_dreamed"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at vista"
+    {
+      time 0.080597 2.198615
+      param "mark_vista"
+      event_ramp
+      {
+        0.3937 0.9965 "curve_default_to_curve_hold"
+      }
+    }
+    event lookat "!player"
+    {
+      time 2.205517 3.910645
+      param "!player"
+      event_ramp
+      {
+        0.4188 0.9756 "curve_default_to_curve_hold"
+      }
+    }
+    event lookat "look at vista"
+    {
+      time 3.914319 6.032337
+      param "mark_vista"
+      event_ramp
+      {
+        0.3937 0.9965 "curve_default_to_curve_hold"
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "face vista"
+    {
+      time 0.075047 10.576397
+      param "mark_vista"
+      event_ramp
+      {
+        0.4813 0.9338 "curve_default_to_curve_hold"
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to vista"
+    {
+      time 0.005748 1.471264
+      param "mark_al_vista"
+      param2 "Run"
+      event_ramp
+      {
+        0.4625 0.9791 "curve_default_to_curve_hold"
+      }
+      resumecondition
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "consoleposture"
+    {
+      time 1.205129 6.536598
+      param "consoleposture"
+      event_ramp
+      {
+        0.4375 0.9756 "curve_default_to_curve_hold"
+        3.3313 0.9721
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.189479
+        "loop" 0.252639
+        "end" 0.625000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.306122
+        "loop" 0.408163
+        "end" 0.561224
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "A_P_rt_leantimid"
+    {
+      time 6.500000 10.800000
+      param "A_P_rt_leantimid"
+      event_ramp
+      {
+        0.5750 0.5610 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        2.7813 0.5749
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.234375
+        "loop" 0.406250
+        "end" 0.640625
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.234375
+        "loop" 0.406250
+        "end" 0.640625
+      }
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "accentup_ext"
+    {
+      time 6.772727 10.603030
+      param "accentup_ext"
+      event_ramp
+      {
+        0.4563 0.4564 "curve_easein_to_curve_easein"
+        2.8866 0.8223
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.105689
+        "extreme" 0.184955
+        "loop" 0.369910
+        "end" 0.762846
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.253012
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_g_hflipout"
+    {
+      time 7.287879 10.254545
+      param "A_g_hflipout"
+      event_ramp
+      {
+        0.5313 0.4843
+        2.3312 0.4355
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.136364
+        "accent" 0.329545
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.136364
+        "accent" 0.329545
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "Trigger"
+  {
+    event generic "AI_HOLSTER"
+    {
+      time 0.525641 1.397436
+      param "AI_HOLSTER"
+      event_ramp
+      {
+        0.3875 0.9756 "curve_default_to_curve_hold"
+      }
+    }
+  }
+  channel "Debug text"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "44"
+  "SceneRampTool" "100"
+  "RampTool" "32"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off

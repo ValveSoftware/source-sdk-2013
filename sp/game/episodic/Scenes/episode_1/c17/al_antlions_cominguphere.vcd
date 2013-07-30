@@ -1,0 +1,159 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_antlions_cominguphere"
+    {
+      time 0.298611 2.600289
+      param "ep_01.al_antlions_cominguphere"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "antlion hole soundscape (directly over hole)"
+    {
+      time 0.027777 2.868055
+      param "soundscape_1"
+      event_ramp 
+      {
+        0.5224 0.5805
+        0.8898 0.1864
+        1.3735 0.1653
+        1.8837 0.7076
+        2.4065 0.6102
+      }
+    }
+    event lookat "player"
+    {
+      time 0.659722 1.770833
+      param "!player"
+      event_ramp 
+      {
+        0.0878 0.0678
+        0.2776 0.7458
+        0.6471 0.8263
+        0.8492 0.6059
+        1.0074 0.0720
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.013889 0.513889
+      param ""
+    }
+    event gesture "BG accent side right"
+    {
+      time 0.166667 2.577778
+      param "a_bg_acc_side_rt"
+      absolutetags playback_time
+      {
+        "apex" 0.083949
+        "extreme" 0.192590
+        "loop" 0.534653
+        "end" 0.712871
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.072289
+        "extreme" 0.216867
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "facial"
+    {
+      time 0.062500 2.875000
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser" combo 
+        {
+          0.2708 0.1300
+          0.8904 0.0900
+          1.5860 0.1400
+          2.3842 0.2000
+        }
+        {
+          0.2708 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.3592 0.2000
+          1.4347 0.2100
+          2.4020 0.2200
+        }
+        {
+        }
+        "lowerer" combo 
+        {
+          0.2708 0.7000
+          0.8680 0.7400
+          1.7420 0.7100
+          2.3802 0.5500
+        }
+        {
+          0.2708 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.2708 0.1400
+          1.3510 0.2000
+          2.4816 0.1500
+        }
+        {
+          0.2708 0.5000
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+          0.2724 0.4100
+          0.4857 0.5300
+          0.7837 0.5700
+          1.0959 0.4100
+          1.5653 0.4600
+        }
+        "head_tilt" range 15.0 -15.0 
+        {
+          0.3061 0.4800
+          0.6939 0.4100
+          1.0878 0.5200
+          1.8224 0.5300
+          2.1245 0.4700
+          2.4020 0.5200
+        }
+        "head_forwardback" range 0.2 -0.2 
+        {
+          0.5098 0.7500
+          0.8918 0.7800
+          1.1551 0.5200
+          1.4438 0.5000
+          1.4663 0.5000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "98"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

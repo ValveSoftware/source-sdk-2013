@@ -21,13 +21,15 @@
 #endif
 #include "functorutils.h"
 
+#ifdef NEXT_BOT
 #include "NextBot/NavMeshEntities/func_nav_prerequisite.h"
+#endif
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
 
-#define DrawLine( from, to, duration, red, green, blue )		NDebugOverlay::Line( from, to, red, green, blue, true, 0.1f )
+#define DrawLine( from, to, duration, red, green, blue )		NDebugOverlay::Line( from, to, red, green, blue, true, NDEBUG_PERSIST_TILL_NEXT_SERVER )
 
 
 /**
@@ -42,6 +44,7 @@ ConVar nav_show_danger( "nav_show_danger", "0", FCVAR_GAMEDLL | FCVAR_CHEAT, "Sh
 ConVar nav_show_player_counts( "nav_show_player_counts", "0", FCVAR_GAMEDLL | FCVAR_CHEAT, "Show current player counts in each area." );
 ConVar nav_show_func_nav_avoid( "nav_show_func_nav_avoid", "0", FCVAR_GAMEDLL | FCVAR_CHEAT, "Show areas of designer-placed bot avoidance due to func_nav_avoid entities" );
 ConVar nav_show_func_nav_prefer( "nav_show_func_nav_prefer", "0", FCVAR_GAMEDLL | FCVAR_CHEAT, "Show areas of designer-placed bot preference due to func_nav_prefer entities" );
+ConVar nav_show_func_nav_prerequisite( "nav_show_func_nav_prerequisite", "0", FCVAR_GAMEDLL | FCVAR_CHEAT, "Show areas of designer-placed bot preference due to func_nav_prerequisite entities" );
 ConVar nav_max_vis_delta_list_length( "nav_max_vis_delta_list_length", "64", FCVAR_CHEAT );
 
 extern ConVar nav_show_potentially_visible;
@@ -301,6 +304,13 @@ void CNavMesh::Update( void )
 	{
 		DrawFuncNavPrefer();
 	}
+
+#ifdef NEXT_BOT
+	if ( nav_show_func_nav_prerequisite.GetBool() )
+	{
+		DrawFuncNavPrerequisite();
+	}
+#endif
 
 	if ( nav_show_potentially_visible.GetBool() )
 	{
@@ -569,6 +579,7 @@ void CNavMesh::OnServerActivate( void )
 	}
 }
 
+#ifdef NEXT_BOT
 
 //--------------------------------------------------------------------------------------------------------------
 class CRegisterPrerequisite
@@ -587,6 +598,8 @@ public:
 
 	CFuncNavPrerequisite *m_prereq;
 };
+
+#endif
 
 //--------------------------------------------------------------------------------------------------------------
 /**
@@ -609,6 +622,7 @@ void CNavMesh::OnRoundRestart( void )
 {
 	m_updateBlockedAreasTimer.Start( 1.0f );
 
+#ifdef NEXT_BOT
 	FOR_EACH_VEC( TheNavAreas, pit )
 	{
 		CNavArea *area = TheNavAreas[ pit ];
@@ -626,6 +640,7 @@ void CNavMesh::OnRoundRestart( void )
 
 		ForAllAreasOverlappingExtent( apply, prereqExtent );
 	}
+#endif
 }
 
 
@@ -1420,7 +1435,7 @@ void CNavMesh::DrawPlayerCounts( void ) const
 
 		if (area->GetPlayerCount() > 0)
 		{
-			NDebugOverlay::Text( area->GetCenter(), msg.sprintf( "%d (%d/%d)", area->GetPlayerCount(), area->GetPlayerCount(1), area->GetPlayerCount(2) ), false, 0.1f );
+			NDebugOverlay::Text( area->GetCenter(), msg.sprintf( "%d (%d/%d)", area->GetPlayerCount(), area->GetPlayerCount(1), area->GetPlayerCount(2) ), false, NDEBUG_PERSIST_TILL_NEXT_SERVER );
 		}
 	}
 }
@@ -1460,6 +1475,26 @@ void CNavMesh::DrawFuncNavPrefer( void ) const
 		}
 	}
 }
+
+
+#ifdef NEXT_BOT
+//--------------------------------------------------------------------------------------------------------------
+/**
+ * Draw bot preference areas from func_nav_prerequisite entities
+ */
+void CNavMesh::DrawFuncNavPrerequisite( void ) const
+{
+	FOR_EACH_VEC( TheNavAreas, it )
+	{
+		CNavArea *area = TheNavAreas[ it ];
+
+		if ( area->HasPrerequisite() )
+		{
+			area->DrawFilled( 0, 0, 255, 255 );
+		}
+	}
+}
+#endif
 
 
 //--------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,82 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event generic "Alyx: Barney!  Over here!"
+    {
+      time 1.376344 3.854839
+      param "debugtext Barney!  Over here!"
+    }
+  }
+  channel "look at"
+  {
+    event lookat "barney"
+    {
+      time 0.075269 3.317205
+      param "barney"
+      event_ramp
+      {
+        0.4115 0.9401
+        3.1120 0.9501
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "Move To Target 1"
+    {
+      time 0.301076 2.650537
+      param "!target1"
+      param2 "Run"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "barney"
+    {
+      time 1.215054 3.887097
+      param "barney"
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

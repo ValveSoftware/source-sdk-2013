@@ -1,0 +1,44 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "Gesture"
+  {
+    event sequence "Point Left"
+    {
+      time 0.013334 2.013334
+      param "motionleft"
+      fixedlength
+    }
+  }
+  channel "Audio"
+  {
+    event speak "GoRight"
+    {
+      time 0.773334 1.632745
+      param "NPC_MetroPolice.Customs.GoLeft"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Face"
+  {
+    event face "Face"
+    {
+      time 0.020000 2.020000
+      param "!target2"
+    }
+  }
+  faceposermodel "D:\HL2\hl2\models\Police.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "112"
+  "RampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+}
+fps 60
+snap off

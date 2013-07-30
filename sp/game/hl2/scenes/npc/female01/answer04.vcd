@@ -1,0 +1,106 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "answer04"
+    {
+      time 0.006667 1.035193
+      param "npc_citizen.answer04"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Facial"
+  {
+    event flexanimation "Facial"
+    {
+      time 0.000000 1.180000
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_droop"         combo        
+        {
+          0.0936 0.2600
+          0.1393 0.3700
+          0.3244 0.4200
+          0.7922 0.4500
+          0.8421 0.4200
+        }
+        {
+        }
+        "inner_raiser"         combo        
+        {
+          0.0998 0.2000
+          0.1767 0.2200
+          0.2932 0.1700
+          0.4495 0.0300
+          0.5486 0.3800
+          0.6213 0.4500
+          0.9003 0.4000
+          0.9334 0.3700
+          1.0521 0.1200
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.4115 0.0300
+          0.5106 0.4100
+          0.5755 0.4900
+          0.8982 0.4800
+          0.9334 0.4600
+          1.0500 0.1300
+        }
+        {
+        }
+      }
+    }
+  }
+  channel "Head"
+  {
+    event flexanimation "Head"
+    {
+      time 0.000000 1.186667
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.3022 0.4803
+          0.4236 0.4783
+          0.6666 0.4811
+          0.8942 0.4922
+        }
+        "head_updown"         range 35.0 -30.0        
+        {
+          0.1842 0.5455
+          0.3456 0.5461
+          0.6406 0.5464
+          0.9102 0.5425
+        }
+        "head_tilt"         range 18.0 -18.0        
+        {
+          0.2242 0.5595
+          0.3456 0.5692
+          0.5886 0.5674
+          0.8582 0.5085
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

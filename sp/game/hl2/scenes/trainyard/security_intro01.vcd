@@ -1,0 +1,209 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 8.853333 -1.000000
+  param "noaction"
+}
+actor "Barney"
+{
+  channel "Audio"
+  {
+    event speak "Get in"
+    {
+      time 7.233333 7.917913
+      param "Trainyard.ba_getin"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "lookat player"
+    {
+      time 6.246666 9.433333
+      param "!player"
+      event_ramp
+      {
+        0.4653 0.7072
+        0.8073 0.8650
+        1.1455 0.9087
+        1.8650 0.9130
+        2.3200 0.8696
+        2.5317 0.7783
+      }
+    }
+    event lookat "mark_BarneyDoorSlot_Look"
+    {
+      time 1.966668 6.779999
+      param "mark_BarneyDoorSlot_Look"
+      event_ramp
+      {
+        0.5174 0.7637
+        0.6485 0.8522
+        3.9194 0.9435
+        3.9643 0.9435
+        4.1351 0.9108
+        4.2667 0.7787
+      }
+    }
+    event lookat "mark_BarneyDoorSlot_Look"
+    {
+      time 0.540000 3.366666
+      param "mark_BarneyDoorSlot_Look"
+      event_ramp
+      {
+        0.5174 0.3028
+        0.6485 0.3565
+        1.3727 0.4478
+        1.9776 0.4174
+        2.1484 0.3847
+        2.2800 0.3352
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "mark_BarneyDoorSlot_Look"
+    {
+      time 3.640000 5.346666
+      param "mark_BarneyDoorSlot_Look"
+      event_ramp
+      {
+        1.1153 0.9590
+        1.4450 1.0000
+        1.7067 1.0000
+      }
+    }
+    event face "face player"
+    {
+      time 5.693333 8.706667
+      param "!player"
+      event_ramp
+      {
+        0.6350 0.9348
+        0.8050 0.9913
+        3.0133 0.9870
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_barney_03"
+    {
+      time 5.866667 7.380000
+      param "mark_barney_03"
+    }
+  }
+  channel "Posture"
+  {
+  }
+  channel "Gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.086667
+      param ""
+    }
+    event gesture "pointright"
+    {
+      time 6.640001 9.126667
+      param "g_pointRight"
+      event_ramp
+      {
+        0.0450 0.9913
+        1.2400 0.9957
+        1.9500 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.164209
+        "accent" 0.287366
+        "loop" 0.457044
+        "end" 0.854942
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.250000
+        "accent" 0.437500
+        "loop" 0.833333
+        "end" 1.000000
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "2_ barney ss 2, doorPound"
+    {
+      time 0.100000 -1.000000
+      param "2"
+    }
+    event firetrigger "3_slot Open"
+    {
+      time 4.113334 -1.000000
+      param "3"
+    }
+    event firetrigger "1_Trigger Door Open"
+    {
+      time 6.573333 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+actor "!Target1"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look barney"
+    {
+      time 0.239999 6.460000
+      param "barney"
+      event_ramp
+      {
+        0.0900 0.6814
+        5.1106 0.8529
+        6.1446 0.7206
+      }
+    }
+    event lookat "look player"
+    {
+      time 6.380001 10.000001
+      param "!player"
+    }
+  }
+  channel "face to"
+  {
+    event face "face barney"
+    {
+      time 3.979999 9.993332
+      param "barney"
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_cop_security_room_door_1"
+    {
+      time 5.166666 7.626666
+      param "mark_cop_security_room_door_1"
+      param2 "Walk "
+    }
+  }
+}
+
+mapname "maps\barneyscene02.bsp"
+scalesettings
+{
+  "CChoreoView" "50"
+  "SceneRampTool" "100"
+  "RampTool" "40"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

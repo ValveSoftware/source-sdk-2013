@@ -1,0 +1,116 @@
+// Choreo version 1
+event section "wait for mark"
+{
+  time 1.148148 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_bridge_nicethinking"
+    {
+      time 1.436508 2.324671
+      param "ep_01.al_bridge_nicethinking"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "target_ball_socket_01"
+    {
+      time 0.018518 1.833333
+      param "target_ball_socket_01"
+      event_ramp 
+      {
+        0.2357 0.9289
+        1.2246 0.8178
+      }
+    }
+    event lookat "!player"
+    {
+      time 3.682539 7.513227
+      param "!player"
+      event_ramp 
+      {
+        0.1643 0.1830
+        0.4536 0.5208
+        3.3421 0.4719
+      }
+    }
+    event lookat "target_ball_socket_01"
+    {
+      time 2.772486 3.888889
+      param "target_ball_socket_01"
+      event_ramp 
+      {
+        0.2357 0.6916
+        0.8798 0.5805
+      }
+    }
+    event lookat "!player"
+    {
+      time 1.468253 3.021163
+      param "!player"
+      event_ramp 
+      {
+        0.1643 0.4711
+        0.4536 0.8089
+        1.0643 0.7600
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_ballsocket"
+    {
+      time 0.037037 1.425925
+      param "mark_al_ballsocket"
+      param2 "Run"
+      resumecondition
+      distancetotarget 4.00
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "84"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "56"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

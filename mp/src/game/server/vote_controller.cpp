@@ -346,6 +346,19 @@ bool CVoteController::CreateVote( int iEntIndex, const char *pszTypeString, cons
 					Assert( nNumVoteOptions >= 2 );
 				}
 
+				// Have the issue start working on it
+				pCurrentIssue->OnVoteStarted();
+
+				// Now the vote handling and UI
+				m_nPotentialVotes = pCurrentIssue->CountPotentialVoters();
+				m_acceptingVotesTimer.Start( sv_vote_timer_duration.GetFloat() );
+
+				// Force the vote holder to agree with a Yes/No vote
+				if ( m_bIsYesNoVote && !bDedicatedServer )
+				{
+					TryCastVote( iEntIndex, "Option1" );
+				}
+
 				// Get the data out to the client
 				CBroadcastRecipientFilter filter;
 				filter.MakeReliable();
@@ -356,16 +369,6 @@ bool CVoteController::CreateVote( int iEntIndex, const char *pszTypeString, cons
 					WRITE_STRING( pCurrentIssue->GetDetailsString() );
 					WRITE_BOOL( m_bIsYesNoVote );
 				MessageEnd();
-
-				// Force the vote holder to agree with a Yes/No vote
-				if ( m_bIsYesNoVote && !bDedicatedServer )
-				{
-					TryCastVote( iEntIndex, "Option1" );
-				}
-
-				m_nPotentialVotes = pCurrentIssue->CountPotentialVoters();
-				m_acceptingVotesTimer.Start( sv_vote_timer_duration.GetFloat() );
-				pCurrentIssue->OnVoteStarted();
 
 				if ( !bDedicatedServer )
 				{

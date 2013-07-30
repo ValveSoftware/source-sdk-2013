@@ -1,0 +1,83 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 3.120370 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_sniper_dontrunout"
+    {
+      time 0.537037 2.017286
+      param "ep_01.al_sniper_dontrunout"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.027778 3.231482
+      param "!player"
+      event_ramp 
+      {
+        0.3733 0.9937
+        2.5767 0.9810
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.296296 2.407407
+      param "!player"
+      event_ramp 
+      {
+        0.8933 0.9873
+        1.9885 0.9683
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Body_gestures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "head flex"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "72"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

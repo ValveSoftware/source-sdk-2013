@@ -1,0 +1,149 @@
+// Choreo version 1
+actor "Fisherman"
+{
+  channel "Audio"
+  {
+    event speak "fish_crabpot04"
+    {
+      time 0.312500 3.762410
+      param "lostcoast.fish_crabpot04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+    event lookat "player"
+    {
+      time 0.062500 4.020833
+      param "!player"
+      event_ramp
+      {
+        0.6250 0.9286
+        3.4500 0.9031
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.791667
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.395834 2.529167
+      param "g_lefthand_smallmotion"
+      event_ramp
+      {
+        0.5850 0.3571
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.190476
+        "accent" 0.317460
+        "loop" 0.476190
+        "end" 0.793651
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.190476
+        "accent" 0.317460
+        "loop" 0.476190
+        "end" 0.793651
+      }
+      sequenceduration 2.133333
+    }
+  }
+  channel "body gesture"
+  {
+  }
+  channel "Head flex"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.708333
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.354167 2.432639
+      param "HG_tiltleft"
+      event_ramp
+      {
+        0.3400 0.8878
+        1.5900 0.9133
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.114601
+        "extreme" 0.212830
+        "loop" 0.425660
+        "end" 0.836285
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.145833
+        "extreme" 0.270833
+        "loop" 0.541667
+        "end" 0.791667
+      }
+      sequenceduration 1.633333
+    }
+    event gesture "2"
+    {
+      time 1.854167 3.487500
+      param "HG_tiltback"
+      event_ramp
+      {
+        0.2850 0.8724
+        1.2600 0.8724
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.145833
+        "extreme" 0.270833
+        "loop" 0.541667
+        "end" 0.770833
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.145833
+        "extreme" 0.270833
+        "loop" 0.541667
+        "end" 0.770833
+      }
+      sequenceduration 1.633333
+    }
+  }
+  channel "Flex Facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\dev\hl2\models\Barney.mdl"
+}
+
+mapname "maps\d2_lostcoast.bsp"
+scalesettings
+{
+  "CChoreoView" "32"
+  "SceneRampTool" "100"
+  "RampTool" "40"
+  "ExpressionTool" "8"
+  "GestureTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,167 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_allright01"
+    {
+      time 0.449816 1.152650
+      param "eli_lab.al_allright01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.014066 2.279927
+      param "!player"
+      event_ramp
+      {
+        0.4731 0.9464
+        1.7514 0.9464
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.617216
+      param ""
+    }
+    event gesture "A_bg_chinout"
+    {
+      time 0.029304 2.829304
+      param "A_bg_chinout"
+      absolutetags playback_time
+      {
+        "apex" 0.156627
+        "extreme" 0.349398
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.156627
+        "extreme" 0.349398
+        "loop" 0.542169
+        "end" 0.662651
+      }
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.653846
+      param ""
+    }
+    event gesture "A_gesture03p"
+    {
+      time 0.021978 2.988645
+      param "A_gesture03p"
+      absolutetags playback_time
+      {
+        "apex" 0.170455
+        "accent" 0.352273
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.170455
+        "accent" 0.352273
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.029304 2.961538
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1283 0.4100
+          0.2759 0.5100
+          0.4331 0.5100
+          2.0424 0.4800
+          2.2455 0.4900
+          2.4677 0.4600
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.1283 0.4100
+          0.2759 0.5100
+          0.4331 0.5100
+          2.0424 0.4800
+          2.2455 0.4900
+          2.4677 0.4600
+        }
+        {
+        }
+        "corner_puller"         combo        
+        {
+          0.1283 0.4100
+          0.2759 0.5100
+          0.4331 0.5100
+          0.9059 0.5100
+          1.0236 0.5100
+          1.2481 0.7500
+          1.3818 0.7700
+          2.2324 0.2800
+          2.4355 0.2000
+          2.6577 0.1000
+        }
+        {
+        }
+        "part"         combo        
+        {
+          0.1283 0.0000
+          0.2759 0.0000
+          0.4331 0.0000
+          0.9059 0.0000
+          1.0236 0.0000
+          1.2481 0.5600
+          1.3818 0.5600
+          2.2324 0.5600
+          2.4355 0.4700
+          2.6577 0.0800
+        }
+        {
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "91"
+  "ExpressionTool" "40"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

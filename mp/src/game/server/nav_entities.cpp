@@ -96,7 +96,7 @@ void CFuncNavCost::Spawn( void )
 
 		for( char *token = strtok( buffer, " " ); token; token = strtok( NULL, " " ) )
 		{
-			m_tags.AddToTail( token );
+			m_tags.AddToTail( CFmtStr( "%s", token ) );
 		}
 
 		delete [] buffer;
@@ -189,6 +189,19 @@ bool CFuncNavCost::IsApplicableTo( CBaseCombatCharacter *who ) const
 				return true;
 			}
 
+			// check custom bomb_carrier tags for this bot
+			for( int i=0; i<m_tags.Count(); ++i )
+			{
+				const char* pszTag = m_tags[i];
+				if ( V_stristr( pszTag, "bomb_carrier" ) )
+				{
+					if ( bot->HasTag( pszTag ) )
+					{
+						return true;
+					}
+				}
+			}
+
 			// the bomb carrier only pays attention to bomb_carrier costs
 			return false;
 		}
@@ -215,6 +228,11 @@ bool CFuncNavCost::IsApplicableTo( CBaseCombatCharacter *who ) const
 			{
 				return true;
 			}
+		}
+
+		if ( bot->HasMission( CTFBot::MISSION_REPROGRAMMED ) )
+		{
+			return false;
 		}
 
 		if ( !bot->IsOnAnyMission() )

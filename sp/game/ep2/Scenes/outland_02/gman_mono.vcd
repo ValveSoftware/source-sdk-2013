@@ -1,0 +1,318 @@
+// Choreo version 1
+actor "Gman"
+{
+  channel "audio"
+  {
+    event speak "gman_mono01"
+    {
+      time 0.618056 4.411616
+      param "ep_02.gman_mono01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono02"
+    {
+      time 4.869949 12.280018
+      param "ep_02.gman_mono02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono03"
+    {
+      time 12.280017 19.919382
+      param "ep_02.gman_mono03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono04"
+    {
+      time 20.336048 21.926615
+      param "ep_02.gman_mono04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono05"
+    {
+      time 22.468283 26.485334
+      param "ep_02.gman_mono05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono06"
+    {
+      time 26.485334 36.713722
+      param "ep_02.gman_mono06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono07"
+    {
+      time 36.713722 41.427372
+      param "ep_02.gman_mono07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono08"
+    {
+      time 41.427372 58.331497
+      param "ep_02.gman_mono08"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono09"
+    {
+      time 58.331501 68.559891
+      param "ep_02.gman_mono09"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono10"
+    {
+      time 68.559898 71.102486
+      param "ep_02.gman_mono10"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono11"
+    {
+      time 71.102486 76.808792
+      param "ep_02.gman_mono11"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono12"
+    {
+      time 76.808792 81.557274
+      param "ep_02.gman_mono12"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono13"
+    {
+      time 81.890610 83.440544
+      param "ep_02.gman_mono13"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono14"
+    {
+      time 83.815544 86.213005
+      param "ep_02.gman_mono14"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono15"
+    {
+      time 86.213005 87.796318
+      param "ep_02.gman_mono15"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono16"
+    {
+      time 87.921318 89.064903
+      param "ep_02.gman_mono16"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono17"
+    {
+      time 89.148239 94.802299
+      param "ep_02.gman_mono17"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono18"
+    {
+      time 95.468971 100.037498
+      param "ep_02.gman_mono18"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono19"
+    {
+      time 100.037498 104.507339
+      param "ep_02.gman_mono19"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono20"
+    {
+      time 104.632339 106.128578
+      param "ep_02.gman_mono20"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono21"
+    {
+      time 106.378578 111.045792
+      param "ep_02.gman_mono21"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono22"
+    {
+      time 111.045792 115.747833
+      param "ep_02.gman_mono22"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono23"
+    {
+      time 116.039497 120.323578
+      param "ep_02.gman_mono23"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono24"
+    {
+      time 120.573578 121.310814
+      param "ep_02.gman_mono24"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono25"
+    {
+      time 121.310814 125.507820
+      param "ep_02.gman_mono25"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono26"
+    {
+      time 125.507820 129.269455
+      param "ep_02.gman_mono26"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono27"
+    {
+      time 129.269455 131.219925
+      param "ep_02.gman_mono27"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono28"
+    {
+      time 131.636581 133.128464
+      param "ep_02.gman_mono28"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono29"
+    {
+      time 133.461761 134.355728
+      param "ep_02.gman_mono29"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono30"
+    {
+      time 135.064056 136.079926
+      param "ep_02.gman_mono30"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono31"
+    {
+      time 136.079926 138.211807
+      param "ep_02.gman_mono31"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono32"
+    {
+      time 138.211807 143.343414
+      param "ep_02.gman_mono32"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono33"
+    {
+      time 143.551743 146.268478
+      param "ep_02.gman_mono33"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_mono34"
+    {
+      time 147.310150 152.514328
+      param "ep_02.gman_mono34"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.413333 32.026669
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204
+        0.5838 0.5525
+        30.7810 0.5580
+        31.4188 0.3481
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  faceposermodel "models\gman.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "16"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

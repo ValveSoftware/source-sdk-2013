@@ -1,0 +1,163 @@
+// Choreo version 1
+actor "citizen1"
+{
+  channel "audio"
+  {
+    event speak "odessa.nlo_greet_freeman"
+    {
+      time 1.859557 3.081893
+      param "odessa.nlo_greet_freeman"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "canals.shanty_hey"
+    {
+      time 0.937938 1.852609
+      param "canals.shanty_hey"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.010154 8.420845
+      param "!player"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.121213 4.119647
+      param "!player"
+      event_ramp
+      {
+        0.5240 0.9872
+        3.9984 1.0000
+      }
+    }
+    event face "mark1"
+    {
+      time 5.818496 8.425544
+      param "mark1"
+      event_ramp
+      {
+        0.1020 0.0663
+        0.4260 0.8291
+        0.6280 1.0000
+        2.6070 1.0000
+      }
+    }
+    event face "mark_tmp"
+    {
+      time 4.132505 5.812630
+      param "mark_tmp"
+      event_ramp
+      {
+        0.1000 0.1046
+        0.3600 0.8163
+        0.5640 1.0000
+        1.6801 1.0000
+      }
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "mark1"
+    {
+      time 0.205128 2.596153
+      param "mark1"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "mark_tmp"
+    {
+      time 3.551414 6.101449
+      param "mark_tmp"
+      param2 "Walk"
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "g_armsout"
+    {
+      time 1.200773 2.505128
+      param "g_armsout"
+      absolutetags playback_time
+      {
+        "apex" 0.171892
+        "accent" 0.289346
+        "loop" 0.568816
+        "end" 0.820340
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.068182
+        "accent" 0.227273
+        "loop" 0.420455
+        "end" 0.761364
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "g_armsout_high"
+    {
+      time 2.032052 4.402564
+      param "g_armsout_high"
+      absolutetags playback_time
+      {
+        "apex" 0.127993
+        "accent" 0.270207
+        "loop" 0.457795
+        "end" 0.750351
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.102273
+        "accent" 0.215909
+        "loop" 0.420455
+        "end" 0.761364
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "g_pumplow"
+    {
+      time 5.715783 8.426684
+      param "g_pumplow"
+      absolutetags playback_time
+      {
+        "apex" 0.187368
+        "accent" 0.801343
+        "loop" 0.811343
+        "end" 0.821343
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.238095
+        "accent" 0.904762
+        "loop" 0.904762
+        "end" 0.904762
+      }
+      sequenceduration 2.133333
+    }
+  }
+  faceposermodel "models\humans\group01\male_06.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "212"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

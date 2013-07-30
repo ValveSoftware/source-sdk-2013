@@ -1,0 +1,159 @@
+// Choreo version 1
+event section "pause"
+{
+  time 1.301077 -1.000000
+  param "noaction"
+}
+event stoppoint "stop"
+{
+  time 8.440861 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_rolleragain"
+    {
+      time 1.451613 5.561545
+      param "ep_01.al_rolleragain"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_morerollers"
+    {
+      time 6.677419 8.072067
+      param "ep_01.al_roll_bring"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 5.756537 9.298151
+      param "!player"
+      event_ramp 
+      {
+        0.3780 0.7205
+        0.5040 0.8384
+        3.0010 0.8865
+        3.0632 0.8723
+        3.1656 0.8543
+      }
+    }
+    event lookat "target_al_look_soldiers_1"
+    {
+      time 1.182796 5.865592
+      param "target_al_look_soldiers_1"
+      event_ramp 
+      {
+        0.7077 0.9714
+        4.1648 0.9365
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "target_al_view_soldiers_1"
+    {
+      time 0.032258 2.456991
+      param "target_al_view_soldiers_1"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "mark_al_wait_roller_1"
+    {
+      time 6.397851 8.779572
+      param "mark_al_wait_roller_1"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 5.462365 9.360216
+      param "!player"
+      event_ramp 
+      {
+        1.4977 0.9714
+        3.8622 0.9619
+      }
+    }
+    event face "target_al_look_soldiers_1"
+    {
+      time 1.860216 2.962366
+      param "target_al_look_soldiers_1"
+      event_ramp 
+      {
+        0.6500 0.9651
+        1.0962 0.9937
+      }
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 6.996315
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 0.000000 13.125794
+      param ""
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 7.016722
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 0.000000 13.146202
+      param ""
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "face to"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,1828 @@
+// Choreo version 1
+event stoppoint "end"
+{
+  time 40.690475 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "odessa.nlo_cub_class02"
+    {
+      time 11.035877 18.328259
+      param "odessa.nlo_cub_class02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "odessa.nlo_cub_class01"
+    {
+      time 0.053541 6.033314
+      param "odessa.nlo_cub_class01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "odessa.nlo_cub_class03"
+    {
+      time 18.387398 28.305061
+      param "odessa.nlo_cub_class03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "odessa.nlo_cub_carry"
+    {
+      time 28.418648 31.778875
+      param "odessa.nlo_cub_carry"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "odessa.nlo_cub_volunteer"
+    {
+      time 35.122677 37.327847
+      param "odessa.nlo_cub_volunteer"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "odessa.nlo_cub_freeman"
+    {
+      time 32.570595 34.880775
+      param "odessa.nlo_cub_freeman"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "odessa.nlo_cub_service"
+    {
+      time 37.968750 41.323238
+      param "odessa.nlo_cub_service"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "odessa.nlo_cub_wherewasi"
+    {
+      time 8.305928 10.979806
+      param "odessa.nlo_cub_wherewasi"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "odessa.nlo_cub_hello"
+    {
+      time 6.083704 8.498874
+      param "odessa.nlo_cub_hello"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "citizen_a_ammo_original"
+    {
+      time 0.050721 11.980780
+      param "citizen_a_ammo_original"
+    }
+    event lookat "!player"
+    {
+      time 5.700868 8.803548
+      param "!player"
+      event_ramp
+      {
+        0.0682 0.0255
+        0.1500 0.0949
+        0.5432 0.8285
+        0.6713 0.9343
+        1.1053 0.9927
+        1.4773 1.0000
+        2.1241 1.0000
+        2.2731 0.9672
+        2.3751 0.8650
+        2.7381 0.1934
+        2.8616 0.0766
+        3.0008 0.0146
+      }
+    }
+    event lookat "citizen_a_medic_original"
+    {
+      time 10.308007 14.238070
+      param "citizen_a_medic_original"
+      event_ramp
+      {
+        0.0909 0.0365
+        0.1727 0.1058
+        0.3841 0.8285
+        0.4667 0.9343
+        0.5734 0.9854
+        3.0696 1.0000
+        3.2186 1.0000
+        3.3206 1.0000
+        3.6836 1.0000
+        3.8072 1.0000
+        3.9300 1.0000
+      }
+    }
+    event lookat "!player"
+    {
+      time 15.266345 18.428549
+      param "!player"
+      event_ramp
+      {
+        0.3318 0.3175
+        0.4775 0.3284
+        2.6439 0.3284
+        2.7931 0.3138
+        3.0603 0.0146
+      }
+    }
+    event lookat "citizen_a_medic_original"
+    {
+      time 20.349678 34.529739
+      param "citizen_a_medic_original"
+      event_ramp
+      {
+        0.0727 0.0255
+        0.1364 0.0876
+        0.3933 0.8285
+        0.4759 0.9343
+        0.6372 0.9927
+        13.2014 1.0000
+        13.3504 0.9672
+        13.4524 0.8650
+        13.8154 0.1934
+        13.9390 0.0766
+        14.0782 0.0146
+      }
+    }
+    event lookat "!player"
+    {
+      time 31.992538 42.220219
+      param "!player"
+      event_ramp
+      {
+        0.0682 0.0255
+        0.1500 0.0949
+        0.4659 0.8285
+        0.5895 0.9379
+        0.9962 0.9927
+        1.3682 1.0000
+        9.5106 1.0000
+        9.6126 1.0000
+        9.9756 1.0000
+        10.0991 1.0000
+        10.2277 1.0000
+      }
+    }
+    event lookat "citizen_a_ammo_original"
+    {
+      time 12.349676 22.529736
+      param "citizen_a_ammo_original"
+      event_ramp
+      {
+        0.0727 0.0255
+        0.1364 0.0876
+        0.3751 0.8285
+        0.4577 0.9343
+        0.6190 0.9854
+        1.0682 1.0000
+        9.2014 1.0000
+        9.3504 0.9672
+        9.4524 0.8650
+        9.8154 0.1934
+        9.9390 0.0766
+        10.0782 0.0146
+      }
+    }
+    event lookat "citizen_a_ammo_original"
+    {
+      time 24.349680 28.821405
+      param "citizen_a_ammo_original"
+      event_ramp
+      {
+        0.0727 0.0255
+        0.1364 0.0876
+        0.4115 0.8285
+        0.5032 0.9343
+        0.6099 0.9854
+        3.6204 1.0000
+        3.8149 0.9672
+        3.9169 0.8650
+        4.1708 0.1934
+        4.2580 0.0766
+        4.3699 0.0146
+      }
+    }
+    event lookat "ss_basement"
+    {
+      time 41.309525 44.428574
+      param "ss_basement"
+      event_ramp
+      {
+        0.2404 0.8785
+        0.2800 0.9468
+        0.3327 0.9848
+        0.4346 1.0000
+        2.9849 1.0000
+        3.0551 1.0000
+        3.1190 1.0000
+      }
+    }
+    event lookat "citizen_a_ammo_original"
+    {
+      time 43.119045 45.428574
+      param "citizen_a_ammo_original"
+      event_ramp
+      {
+        0.2054 0.6633
+        0.2500 0.7316
+        0.2977 0.7645
+        0.3996 0.7848
+        1.7329 0.7848
+        1.8031 0.7620
+        1.8706 0.7089
+      }
+    }
+  }
+  channel "sequence"
+  {
+    event sequence "d2_coast03_Odessa_Stand_RPG"
+    {
+      time 0.010415 37.781250
+      param "d2_coast03_Odessa_Stand_RPG"
+    }
+    event sequence "d2_coast03_Odessa_RPG_Give"
+    {
+      time 35.331409 36.498077
+      param "d2_coast03_Odessa_RPG_Give"
+      fixedlength
+    }
+    event sequence "d2_coast03_Odessa_RPG_Give_Idle"
+    {
+      time 36.474331 37.789146
+      param "d2_coast03_Odessa_RPG_Give_Idle"
+    }
+    event sequence "d2_coast03_Odessa_RPG_Give_Exit"
+    {
+      time 37.780560 38.780560
+      param "d2_coast03_Odessa_RPG_Give_Exit"
+      event_ramp
+      {
+        0.0045 1.0000
+        0.1864 1.0000
+        0.3727 0.9672
+        0.5273 0.8358
+      }
+      fixedlength
+    }
+    event flexanimation "head"
+    {
+      time 41.251114 45.371113
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.2259 0.9420
+          0.2616 0.9783
+          0.3139 1.0000
+          3.7554 0.9493
+        }
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.1815 1.0000
+          3.1802 1.0000
+          3.4224 0.5200
+          3.4749 0.5100
+        }
+      }
+    }
+  }
+  channel "triggers"
+  {
+    event firetrigger "pause"
+    {
+      time 37.726994 -1.000000
+      param "1"
+    }
+    event firetrigger "Pause"
+    {
+      time 37.777122 -1.000000
+      param "2"
+    }
+    event firetrigger "pause"
+    {
+      time 31.979166 -1.000000
+      param "3"
+    }
+    event firetrigger "4"
+    {
+      time 17.072916 -1.000000
+      param "4"
+    }
+  }
+  channel "face"
+  {
+    event face "!player"
+    {
+      time 32.260418 41.260002
+      param "!player"
+      event_ramp
+      {
+        0.6594 0.7873
+        0.8097 0.9081
+        0.9902 0.9797
+        1.2288 1.0000
+        8.3168 1.0000
+        8.5532 1.0000
+        8.8850 1.0000
+        8.9987 1.0000
+      }
+    }
+    event face "ss_basement"
+    {
+      time 41.292801 45.421909
+      param "ss_basement"
+      event_ramp
+      {
+        0.3144 0.8582
+        0.3897 0.9486
+        0.4902 0.9873
+        0.6263 1.0000
+        3.2733 1.0000
+        3.3369 1.0000
+        3.4303 1.0000
+        4.0621 1.0000
+        4.1292 1.0000
+      }
+    }
+    active "0"
+  }
+  channel "facial"
+  {
+    event flexanimation "brows up"
+    {
+      time 5.803032 8.500002
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.7248 0.7700
+          1.2515 0.8000
+          1.5818 0.6200
+          1.8641 0.9300
+          2.2183 0.9200
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6700
+          0.2297 0.9000
+          0.6403 0.7100
+          0.9294 0.0900
+          1.5994 0.0800
+          1.8720 0.3400
+          2.2839 0.2900
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows down"
+    {
+      time 8.770837 10.062503
+      param ""
+      flexanimations samples_use_time
+      {
+        "lowerer"         combo        
+        {
+          0.1217 0.7800
+          0.2178 0.9600
+          0.5663 0.8600
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 9.812501 10.994319
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.7248 0.7700
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6700
+          0.2297 0.9000
+          0.7218 0.7100
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 11.166668 12.287880
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.7248 0.7700
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6700
+          0.2297 0.9000
+          0.7366 0.7100
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 15.666667 16.727272
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.2500
+          0.2337 0.5000
+          0.7248 0.3000
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.2000
+          0.2297 0.4300
+          0.7366 0.2400
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows down"
+    {
+      time 16.416672 17.708338
+      param ""
+      flexanimations samples_use_time
+      {
+        "lowerer"         combo        
+        {
+          0.1217 0.7400
+          0.2178 0.9200
+          0.5663 0.8200
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 13.833333 14.893939
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.7248 0.7700
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6700
+          0.2297 0.9000
+          0.7366 0.7100
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 18.543564 19.664776
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1675 0.5500
+          0.2943 0.5500
+          0.7854 0.5500
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.1477 0.6700
+          0.2903 0.9000
+          0.7972 0.7100
+        }
+        {
+          0.0743 0.9400
+          0.1202 0.9400
+          0.9283 0.9400
+          0.9953 0.9500
+          1.0309 0.9400
+          1.0550 0.9400
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 20.104168 21.229168
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.8026 0.7700
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6700
+          0.2297 0.9000
+          0.7366 0.7100
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows down"
+    {
+      time 21.520842 22.812508
+      param ""
+      flexanimations samples_use_time
+      {
+        "lowerer"         combo        
+        {
+          0.1217 0.7400
+          0.2178 0.9200
+          0.5663 0.8200
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 23.416670 24.416670
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.5500
+          0.2337 0.5500
+          0.7248 0.5500
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6700
+          0.2297 0.9000
+          0.7366 0.7100
+        }
+        {
+          0.0137 0.9400
+          0.0596 0.9400
+          0.8677 0.9400
+          0.9347 0.9500
+          0.9703 0.9400
+          0.9944 0.9400
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 25.833336 26.958336
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.8026 0.7700
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6700
+          0.2297 0.9000
+          0.7366 0.7100
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows down"
+    {
+      time 35.551144 37.630692
+      param ""
+      flexanimations samples_use_time
+      {
+        "lowerer"         combo        
+        {
+          0.1217 0.7400
+          0.2178 0.9200
+          0.5663 0.8200
+          0.8965 0.0000
+        }
+        {
+        }
+        "inner_raiser"         combo        
+        {
+          1.0455 0.0000
+          1.3186 0.3800
+          1.6276 0.3800
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          1.4614 1.0000
+          1.7310 0.8800
+        }
+        {
+          1.4376 0.9900
+          1.9212 0.9200
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 32.257576 35.443184
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.8026 0.7700
+          2.5742 0.8000
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6700
+          0.2297 0.9000
+          0.7366 0.7100
+          1.0230 0.0800
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows down"
+    {
+      time 28.369328 32.630692
+      param ""
+      flexanimations samples_use_time
+      {
+        "lowerer"         combo        
+        {
+          0.1217 0.7400
+          0.2178 0.9200
+          0.5663 0.8200
+          0.8376 0.8100
+          1.0396 0.0600
+          1.3901 0.0700
+          1.5149 0.8200
+          1.6455 0.9100
+          3.3019 0.7100
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 37.803028 40.988636
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.8026 0.7700
+          2.5742 0.8000
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.0000
+          0.2297 0.0000
+          0.7366 0.0000
+          1.0230 0.0800
+        }
+        {
+        }
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          1.2690 0.5100
+          1.3403 0.5200
+          1.5364 0.0000
+          1.5898 0.0000
+          1.9797 0.0000
+          2.0569 0.0000
+          2.2233 0.5600
+          2.2589 0.5500
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 41.303028 47.306820
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.8026 0.9700
+          2.3379 0.8000
+          2.6940 0.0000
+          2.7938 0.0000
+          3.1222 0.6400
+          3.5805 0.3500
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6900
+          0.2297 0.8700
+          2.3157 0.7300
+          2.7322 0.1100
+        }
+        {
+        }
+        "lid_raiser"         combo        
+        {
+          0.0990 0.8800
+          2.3910 0.8700
+          2.8085 0.0100
+          2.9007 0.0800
+          3.1986 0.8400
+          3.7332 0.0900
+        }
+        {
+        }
+        "jaw_drop"        
+        {
+          0.2100 0.9800
+          1.1144 0.9600
+          2.4387 0.0800
+        }
+        "mouth_drop"         combo        
+        {
+          0.3086 0.2000
+          1.1187 0.3600
+          1.1473 0.3400
+          2.2659 0.1500
+        }
+        {
+        }
+        "lid_closer"         combo        
+        {
+          2.4699 0.0000
+          2.6871 0.9700
+          2.7749 0.9800
+          3.0651 0.0500
+        }
+        {
+        }
+        "lowerer"         combo        
+        {
+          2.4699 0.0000
+          2.6871 0.9700
+          2.7749 0.9800
+          3.0651 0.0500
+        }
+        {
+        }
+        "cheek_raiser"         combo        
+        {
+          2.4699 0.0000
+          2.6871 0.9700
+          2.7749 0.9800
+          3.0651 0.0500
+        }
+        {
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.1757 0.5100
+          2.1004 0.4900
+          2.2815 0.5000
+          2.3914 0.5100
+          2.6871 0.7200
+          2.7749 0.7300
+          3.0651 0.5600
+          3.2249 0.5100
+          3.3547 0.5100
+        }
+      }
+    }
+    event flexanimation "brows up"
+    {
+      time 2.681820 5.378789
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1069 0.7200
+          0.2337 0.9700
+          0.7248 0.7700
+          1.2515 0.8000
+          1.5818 0.6200
+          1.8641 0.9300
+          2.2183 0.9200
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0871 0.6700
+          0.2297 0.9000
+          0.6403 0.7100
+          0.9294 0.0900
+          1.5994 0.0800
+          1.8720 0.3400
+          2.2839 0.2900
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "eyes"
+    {
+      time 32.571430 34.119049
+      param ""
+      flexanimations samples_use_time
+      {
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.1248 0.6600
+          0.1782 0.6700
+          0.4277 0.6700
+          0.5109 0.6800
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.1248 0.6600
+          0.1782 0.6700
+          0.4277 0.6700
+          0.5109 0.6800
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+      }
+    }
+    event flexanimation "eyes"
+    {
+      time 28.523809 30.071428
+      param ""
+      flexanimations samples_use_time
+      {
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.1248 0.7700
+          0.1782 0.7800
+          0.4277 0.7800
+          0.5109 0.7900
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.1248 0.2600
+          0.1782 0.2700
+          0.4277 0.2700
+          0.5109 0.2800
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+      }
+    }
+    event flexanimation "eyes"
+    {
+      time 30.523811 31.309528
+      param ""
+      flexanimations samples_use_time
+      {
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.1248 0.6600
+          0.1782 0.6700
+          0.4277 0.6700
+          0.5109 0.6800
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.1248 0.1400
+          0.1782 0.1500
+          0.4277 0.1500
+          0.5109 0.1600
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+      }
+    }
+    event flexanimation "eyes"
+    {
+      time 36.428574 37.214291
+      param ""
+      flexanimations samples_use_time
+      {
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.1248 0.6600
+          0.1782 0.6700
+          0.4277 0.6700
+          0.5109 0.6800
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.1248 0.1400
+          0.1782 0.1500
+          0.4277 0.1500
+          0.5109 0.1600
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+      }
+    }
+    event flexanimation "eyes"
+    {
+      time 34.809528 35.595245
+      param ""
+      flexanimations samples_use_time
+      {
+        "eyes_updown"         range 30.0 -30.0        
+        {
+          0.1248 0.3900
+          0.1782 0.4000
+          0.4277 0.4000
+          0.5109 0.4100
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.1248 0.6400
+          0.1782 0.6500
+          0.4277 0.6500
+          0.5109 0.6600
+          0.5941 0.4900
+          0.6594 0.4900
+        }
+      }
+    }
+    event flexanimation "eyes"
+    {
+      time 42.000000 43.547619
+      param ""
+      flexanimations samples_use_time
+      {
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+          0.1248 0.6600
+          0.1782 0.6700
+          0.2555 0.6700
+          0.3387 0.6800
+          0.4219 0.4900
+          0.4872 0.4900
+          0.6535 0.5000
+          0.7069 0.4800
+          0.8198 0.6400
+          0.8792 0.6500
+          1.0396 0.6400
+          1.1109 0.6400
+          1.1881 0.4900
+          1.2356 0.4900
+        }
+      }
+    }
+  }
+  channel "head anim"
+  {
+    event flexanimation "head"
+    {
+      time 0.033332 43.200001
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_updown"         range 15.0 -15.0        
+        {
+          2.8334 0.5061
+          2.9300 0.5061
+          3.0475 0.6041
+          3.3081 0.5959
+          3.4302 0.4408
+          3.4988 0.4245
+          3.8211 0.4980
+          3.9681 0.4980
+          4.6122 0.5020
+          4.7466 0.4898
+          4.8998 0.4367
+          5.0294 0.4939
+          5.1920 0.3500
+          5.5774 0.4898
+          5.6803 0.4980
+          7.4756 0.5143
+          7.5890 0.5143
+          7.8263 0.3804
+          8.0288 0.5061
+          8.1638 0.5143
+          8.3428 0.5184
+          8.4932 0.5224
+          8.7145 0.5143
+          9.6039 0.5061
+          9.7026 0.5061
+          9.8811 0.6857
+          10.0407 0.7388
+          10.2475 0.6694
+          10.3888 0.3839
+          10.5594 0.3839
+          10.9242 0.4002
+          11.2287 0.4857
+          11.4449 0.5061
+          11.7069 0.5661
+          11.8978 0.5510
+          12.0406 0.4151
+          12.2361 0.3947
+          12.5585 0.5020
+          12.6550 0.5061
+          12.7621 0.4531
+          12.8566 0.4490
+          13.0204 0.5020
+          13.1211 0.4980
+          13.7932 0.5061
+          13.8751 0.5020
+          13.9780 0.6000
+          14.1891 0.5918
+          14.3807 0.5102
+          14.5743 0.4980
+          14.7003 0.4980
+          14.8694 0.4800
+          15.1664 0.3800
+          15.6023 0.5200
+          15.8755 0.5200
+          16.1028 0.3639
+          16.3799 0.5347
+          16.6445 0.5061
+          16.8671 0.4980
+          17.0192 0.4612
+          17.1274 0.4776
+          17.2115 0.4776
+          17.4070 0.3059
+          17.5873 0.2733
+          17.9987 0.4980
+          18.1037 0.4980
+          19.9394 0.5061
+          20.0654 0.5061
+          20.1665 0.6571
+          20.3283 0.7388
+          20.5625 0.7224
+          20.6519 0.6857
+          20.7773 0.6531
+          21.6004 0.6571
+          21.8425 0.6204
+          21.8986 0.5959
+          22.0220 0.4980
+          22.2511 0.4898
+          22.4338 0.5388
+          22.5709 0.5388
+          22.7319 0.5020
+          22.8145 0.5020
+          22.9104 0.5102
+          23.2649 0.4939
+          23.5957 0.5306
+          23.9611 0.5388
+          24.0933 0.3190
+          24.2697 0.2943
+          24.4587 0.3639
+          24.7628 0.5102
+          24.8573 0.4980
+          25.1575 0.5061
+          25.2499 0.5061
+          25.3570 0.4776
+          25.4662 0.4980
+          25.9521 0.5143
+          26.1558 0.3457
+          26.2293 0.3416
+          26.3090 0.3620
+          26.6818 0.4898
+          26.7196 0.4857
+          26.8288 0.5061
+          26.9380 0.6359
+          27.2252 0.6237
+          27.3497 0.4041
+          27.5240 0.4298
+          28.0166 0.6286
+          28.2043 0.6408
+          28.3865 0.6204
+          28.5533 0.4939
+          28.6484 0.4529
+          29.1484 0.5020
+          29.3960 0.5143
+          29.4937 0.4735
+          29.6386 0.4531
+          29.7919 0.4980
+          29.9011 0.4980
+          30.0439 0.4816
+          30.2094 0.4776
+          30.3546 0.5061
+          30.5880 0.6081
+          30.7077 0.6122
+          30.9190 0.4980
+          31.1584 0.5143
+          31.3483 0.3711
+          31.4743 0.3702
+          31.6885 0.4857
+          32.3685 0.5265
+          32.6066 0.6898
+          32.7140 0.7388
+          32.8488 0.7020
+          32.9807 0.5633
+          33.6565 0.5184
+          33.8518 0.4612
+          33.9547 0.3551
+          34.0946 0.2939
+          34.3508 0.3306
+          34.9170 0.3633
+          35.0409 0.3918
+          35.1585 0.5469
+          35.3196 0.6041
+          35.4435 0.5551
+          35.5569 0.4082
+          35.6682 0.3837
+          35.8886 0.4490
+          35.9726 0.4612
+          36.0561 0.4857
+          36.2036 0.5020
+          36.3043 0.6408
+          36.4954 0.6898
+          36.5983 0.6408
+          36.6865 0.5061
+          36.8902 0.5265
+          37.0246 0.4163
+          37.2403 0.5061
+          37.4944 0.4939
+          39.1142 0.9543
+          39.2213 0.9380
+          39.3326 0.6855
+          39.6475 0.9298
+          39.8344 0.9257
+          40.2843 0.9502
+          40.4481 0.9420
+          40.5615 0.7992
+          40.7526 0.9339
+          41.2248 0.5400
+          41.2823 0.5000
+          41.3514 0.5000
+        }
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 35.277779
+      param ""
+    }
+    event gesture "g_present"
+    {
+      time 37.877777 42.357143
+      param "g_present"
+      event_ramp
+      {
+        0.0000 1.0000
+        1.5846 1.0000
+        3.3318 0.9089
+      }
+      absolutetags playback_time
+      {
+        "preapex" 0.142877
+        "apex" 0.191099
+        "apex2" 0.239319
+        "accent" 0.383048
+        "loop" 0.405659
+        "end" 0.499274
+      }
+      absolutetags shifted_time
+      {
+        "preapex" 0.165210
+        "apex" 0.192308
+        "apex2" 0.223105
+        "accent" 0.474359
+        "loop" 0.512821
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "body_gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.690476
+      param ""
+    }
+    event gesture "b_head_forward"
+    {
+      time 4.494962 8.941329
+      param "b_head_forward"
+      event_ramp
+      {
+        0.4434 0.5353
+        3.8692 0.0683
+        4.1369 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.177570
+        "extreme" 0.911256
+        "loop" 0.921256
+        "end" 0.931256
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 5.222223 5.722223
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 5.952137 8.018805
+      param "b_head_back"
+      event_ramp
+      {
+        0.2427 0.8498
+        0.3081 0.9420
+        0.4088 0.9898
+        0.4965 0.9898
+        0.6114 0.9352
+        0.6737 0.8567
+        1.0257 0.0717
+        1.5076 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.193548
+        "a2" 0.452903
+        "extreme" 0.819233
+        "loop" 0.835667
+        "end" 0.852100
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "a2" 0.239881
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 6.031341 8.383193
+      param ""
+    }
+    event gesture "b_head_forward"
+    {
+      time 6.256411 9.697437
+      param "b_head_forward"
+      event_ramp
+      {
+        0.2314 0.0648
+        0.3371 0.1604
+        0.5744 0.3798
+        0.7286 0.4012
+        1.4610 0.4012
+        1.6176 0.3876
+        1.7857 0.3446
+        2.8948 0.0508
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.088763
+        "a2" 0.549786
+        "extreme" 0.890556
+        "loop" 0.920404
+        "end" 0.950253
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "a2" 0.270120
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 9.037037 9.537037
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 9.527066 11.506554
+      param "b_head_back"
+      event_ramp
+      {
+        0.3686 0.8631
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.262244
+        "extreme" 0.811272
+        "loop" 0.828429
+        "end" 0.845586
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 13.000001 13.500001
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 13.666668 15.466668
+      param "b_head_back"
+      event_ramp
+      {
+        0.2439 0.7099
+        0.3426 0.9215
+        0.4825 1.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 10.000000 10.791668
+      param ""
+    }
+    event gesture "b_head_forward"
+    {
+      time 11.289531 15.150429
+      param "b_head_forward"
+      event_ramp
+      {
+        0.5546 0.3234
+        0.7386 0.3783
+        1.5386 0.3885
+        1.7842 0.3544
+        2.5482 0.1223
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.141593
+        "a2" 0.459009
+        "extreme" 0.867252
+        "loop" 0.887164
+        "end" 0.920351
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "a2" 0.326711
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 18.541668 19.041668
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 19.907055 23.681412
+      param "b_head_back"
+      event_ramp
+      {
+        0.2877 0.8430
+        0.3544 0.9386
+        0.5103 1.0000
+        1.7263 0.7850
+        2.2368 0.0410
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.103568
+        "extreme" 0.931043
+        "loop" 0.941043
+        "end" 0.954649
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 21.208336 21.528851
+      param ""
+    }
+    event gesture "b_head_forward"
+    {
+      time 21.630342 24.998718
+      param "b_head_forward"
+      event_ramp
+      {
+        0.3937 0.3942
+        0.6154 0.4562
+        1.9484 0.4308
+        2.1812 0.3723
+        2.8246 0.0803
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.134516
+        "a2" 0.402629
+        "extreme" 0.918782
+        "loop" 0.944162
+        "end" 0.964467
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "a2" 0.336929
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 24.166668 24.666668
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 26.791666 28.591665
+      param "b_head_back"
+      event_ramp
+      {
+        0.3257 0.5137
+        0.3912 0.5631
+        0.4825 0.5802
+        0.6474 0.5461
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 26.907053 28.657053
+      param ""
+    }
+    event gesture "b_head_forward"
+    {
+      time 27.014957 28.898291
+      param "b_head_forward"
+      event_ramp
+      {
+        0.3143 0.5027
+        0.4404 0.5802
+        0.6193 0.5768
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.224579
+        "extreme" 0.801636
+        "loop" 0.819669
+        "end" 0.837703
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 15.239317 15.739318
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 16.432749 16.932749
+      param ""
+    }
+    event gesture "b_head_forward"
+    {
+      time 16.965813 19.577778
+      param "b_head_forward"
+      event_ramp
+      {
+        0.3711 0.4599
+        0.4746 0.5282
+        1.3684 0.5418
+        1.5070 0.4940
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.218376
+        "a2" 0.600000
+        "extreme" 0.924590
+        "loop" 0.947541
+        "end" 0.967213
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "a2" 0.276425
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 27.957266 29.183762
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 28.307692 31.509401
+      param "b_head_back"
+      absolutetags playback_time
+      {
+        "apex" 0.165333
+        "accent" 0.782453
+        "extreme" 0.792453
+        "loop" 0.893925
+        "end" 0.904532
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "accent" 0.792453
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 32.008549 32.508549
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 32.384617 35.663250
+      param "b_head_back"
+      absolutetags playback_time
+      {
+        "apex" 0.229167
+        "accent" 0.782453
+        "extreme" 0.792453
+        "loop" 0.896413
+        "end" 0.906772
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "accent" 0.792453
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 34.863251 35.773506
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 35.025646 37.774364
+      param "b_head_back"
+      absolutetags playback_time
+      {
+        "apex" 0.271028
+        "extreme" 0.864088
+        "loop" 0.876443
+        "end" 0.888799
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 38.111115 38.611115
+      param ""
+    }
+    event gesture "b_head_forward"
+    {
+      time 39.658123 41.697437
+      param "b_head_forward"
+      event_ramp
+      {
+        0.5982 0.3584
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.283888
+        "extreme" 0.816809
+        "loop" 0.833462
+        "end" 0.850116
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 40.452991 40.952991
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 40.752140 42.552139
+      param "b_head_back"
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "b_head_back"
+    {
+      time 15.754388 18.080702
+      param "b_head_back"
+      event_ramp
+      {
+        0.7250 0.6964
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.311019
+        "extreme" 0.727273
+        "loop" 0.750000
+        "end" 0.795455
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 9.625001
+      param ""
+    }
+  }
+  faceposermodel "U:\hl2\hl2\models\odessa.mdl"
+}
+
+mapname "maps\d2_coast_03.bsp"
+scalesettings
+{
+  "CChoreoView" "38"
+  "SceneRampTool" "100"
+  "ExpressionTool" "36"
+  "GestureTool" "100"
+  "RampTool" "32"
+}
+fps 60
+snap off

@@ -1,0 +1,73 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event generic "* Alyx points out that gears are missing. *"
+    {
+      time 2.935485 4.908603
+      param "debugtext * Alyx points out that gears are missing. *"
+    }
+    event generic "* Alyx states that elevator is broken. *"
+    {
+      time 0.096774 2.317204
+      param "debugtext * Alyx states that elevator is broken. *"
+    }
+    event generic "* Alyx directs you to the stairwell. *"
+    {
+      time 8.591399 10.381721
+      param "debugtext * Alyx directs to the stairwell. *"
+    }
+    event generic "* The objective is the bridge on the top floor. *"
+    {
+      time 5.462367 7.930109
+      param "debugtext * The objective is the bridge on the top floor. *"
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

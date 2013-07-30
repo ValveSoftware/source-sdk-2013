@@ -1,0 +1,65 @@
+// Choreo version 1
+event stoppoint "done"
+{
+  time 7.026668 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "On"
+    {
+      time 0.173333 0.247800
+      param "NPC_MetroPolice.Radio.On"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "intro"
+    {
+      time 0.446667 6.137824
+      param "NPC_MetroPolice.Cupcop.Intro"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "Off"
+    {
+      time 6.346667 6.797370
+      param "NPC_MetroPolice.Radio.Off"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look At"
+  {
+  }
+  channel "Face To"
+  {
+  }
+  channel "Move To"
+  {
+  }
+  channel "Posture"
+  {
+  }
+  channel "Gesture"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

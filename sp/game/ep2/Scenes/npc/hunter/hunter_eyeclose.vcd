@@ -1,0 +1,40 @@
+// Choreo version 1
+event loop "loop"
+{
+  time 0.920000 -1.000000
+  param "0.800000"
+  loopcount "-1"
+}
+actor "hunter"
+{
+  channel "gesture"
+  {
+    event gesture "gesture_eyeClose"
+    {
+      time 0.000000 2.000000
+      param "gesture_eyeClose"
+      absolutetags playback_time
+      {
+        "in" 0.283333
+        "out" 0.693333
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.535714
+        "out" 0.535714
+      }
+      sequenceduration 0.966667
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

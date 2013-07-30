@@ -98,14 +98,17 @@
 #include "tf/tf_gc_server.h"
 #include "tf_gamerules.h"
 #include "tf_lobby.h"
-#include "player_vs_environment/tf_populator.h"
+#include "player_vs_environment/tf_population_manager.h"
 
 extern ConVar tf_mm_trusted;
 extern ConVar tf_mm_servermode;
 #endif
 
-#ifdef NEXT_BOT
+#ifdef USE_NAV_MESH
 #include "nav_mesh.h"
+#endif
+
+#ifdef NEXT_BOT
 #include "NextBotManager.h"
 #endif
 
@@ -730,7 +733,7 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	debugoverlay = (IVDebugOverlay *)appSystemFactory( VDEBUG_OVERLAY_INTERFACE_VERSION, NULL );
 
 #ifndef _XBOX
-#ifdef NEXT_BOT
+#ifdef USE_NAV_MESH
 	// create the Navigation Mesh interface
 	TheNavMesh = NavMeshFactory();
 #endif
@@ -776,7 +779,7 @@ void CServerGameDLL::DLLShutdown( void )
 #endif
 
 #ifndef _XBOX
-#ifdef NEXT_BOT
+#ifdef USE_NAV_MESH
 	// destroy the Navigation Mesh interface
 	if ( TheNavMesh )
 	{
@@ -1125,7 +1128,7 @@ void CServerGameDLL::ServerActivate( edict_t *pEdictList, int edictCount, int cl
 	}
 
 #ifndef _XBOX
-#ifdef NEXT_BOT
+#ifdef USE_NAV_MESH
 	// load the Navigation Mesh for this map
 	TheNavMesh->Load();
 	TheNavMesh->OnServerActivate();
@@ -1220,9 +1223,11 @@ void CServerGameDLL::GameFrame( bool simulating )
 	GameStartFrame();
 
 #ifndef _XBOX
-#ifdef NEXT_BOT
+#ifdef USE_NAV_MESH
 	TheNavMesh->Update();
+#endif
 
+#ifdef NEXT_BOT
 	TheNextBots().Update();
 #endif
 
@@ -1388,7 +1393,7 @@ void CServerGameDLL::LevelShutdown( void )
 	g_nCurrentChapterIndex = -1;
 
 #ifndef _XBOX
-#ifdef NEXT_BOT
+#ifdef USE_NAV_MESH
 	// reset the Navigation Mesh
 	if ( TheNavMesh )
 	{

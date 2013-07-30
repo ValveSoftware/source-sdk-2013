@@ -1,0 +1,228 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Audio"
+  {
+    event speak "likeincitadel02"
+    {
+      time 3.629420 5.624091
+      param "ep_02.al_barn_likeincitadel02"
+      param2 ".6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "podslaunched01"
+    {
+      time 0.060314 0.877684
+      param "ep_02.al_barn_podslaunched01"
+      param2 ".6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "podslaunched02"
+    {
+      time 1.105029 3.152966
+      param "ep_02.al_barn_podslaunched02"
+      param2 ".6"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 2.271318 5.615808
+      param "!player"
+      event_ramp
+      {
+        0.7100 1.0000
+        2.6985 1.0000
+      }
+    }
+    event lookat "look at crash"
+    {
+      time 0.042636 2.631784
+      param "!target1"
+      event_ramp
+      {
+        0.7567 1.0000
+        2.1133 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "a_p_buggy_look"
+    {
+      time 2.294199 5.618340
+      param "a_p_buggy_look"
+      event_ramp
+      {
+        0.3750 0.1761
+        0.5867 0.3586
+        0.8500 0.4091
+        2.3021 0.4148
+        2.3854 0.4091
+        2.6156 0.3391
+        2.9021 0.1193
+      }
+    }
+  }
+  channel "generic ai"
+  {
+    event generic "AI_AIM"
+    {
+      time 2.257967 5.632187
+      param "AI_AIM"
+      param2 "!player"
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.031007 5.636982
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lid_tightener" combo 
+        {
+          0.1580 0.3600
+          0.2100 0.3900
+          0.5240 0.4000
+          0.5740 0.3800
+          0.8020 0.0100
+          2.2429 0.0000
+          2.7643 0.2400
+          3.1714 0.2500
+          4.8000 0.2200
+        }
+        {
+          2.1464 0.4900
+          2.2393 0.4900
+          2.7536 0.6000
+          3.0786 0.6400
+          4.3857 0.6300
+        }
+        "lid_closer" combo 
+        {
+          0.1580 0.1500
+          0.2120 0.1500
+          0.8080 0.1300
+          1.0980 0.0000
+          2.8357 0.0000
+          3.1036 0.0900
+          3.3857 0.1300
+          4.5036 0.0700
+        }
+        {
+        }
+        "outer_raiser" combo 
+        {
+          2.2571 0.0000
+          2.7143 0.6200
+          2.9821 0.7100
+          4.4036 0.5100
+        }
+        {
+          2.2107 0.4900
+          2.2857 0.4900
+          2.6964 0.2700
+          2.8143 0.2400
+          4.7250 0.3500
+        }
+        "lowerer" combo 
+        {
+          0.1480 0.4392
+          0.3040 0.5792
+          0.6920 0.6192
+          1.1260 0.5292
+          1.3140 0.2773
+          1.5000 0.2269
+          2.3060 0.2269
+          2.3800 0.2353
+          2.5440 0.4721
+          2.7643 0.5210
+          4.7107 0.4622
+          4.8964 0.3866
+        }
+        {
+        }
+        "corner_depressor" combo 
+        {
+          1.7893 0.0000
+          2.0357 0.2200
+          2.1429 0.2500
+          3.3321 0.2700
+          4.7107 0.2500
+          4.7929 0.2200
+          5.1001 0.0000
+        }
+        {
+        }
+        "part" combo 
+        {
+          1.8643 0.0000
+          2.0964 0.0700
+          2.4214 0.1500
+          2.6964 0.0800
+          2.9107 0.0500
+        }
+        {
+        }
+        "jaw_clencher" 
+        {
+          2.1036 0.0000
+          2.2750 0.1200
+          2.6786 0.1500
+          3.0750 0.0000
+        }
+        "lip_bite" 
+        {
+          2.1107 0.0000
+          2.2536 0.0000
+          2.7393 0.0000
+          3.0107 0.0000
+        }
+        "head_updown" range 15.0 -15.0 
+        {
+          2.5929 0.5400
+          2.6821 0.5500
+          3.1464 0.6600
+          3.7321 0.6300
+          3.8143 0.5900
+          4.1071 0.2700
+          4.2071 0.2400
+          4.7964 0.2600
+        }
+        "head_tilt" range 15.0 -15.0 
+        {
+          2.2179 0.5500
+          2.6500 0.6100
+          3.6857 0.6200
+          3.7679 0.6400
+          4.0857 0.9200
+          4.1750 0.9400
+          4.7821 0.9200
+          4.8607 0.8900
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "164"
+  "RampTool" "60"
+  "ExpressionTool" "48"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

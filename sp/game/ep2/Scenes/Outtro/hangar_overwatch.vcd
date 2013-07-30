@@ -1,0 +1,177 @@
+// Choreo version 1
+actor "alyx"
+{
+  channel "Audio"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "eli"
+    {
+      time 5.896217 7.939560
+      param "eli"
+      event_ramp
+      {
+        0.0280 0.0929
+        0.1580 0.4126
+        0.2860 0.6491
+        0.3860 0.7719
+        0.4740 0.8281
+        0.5700 0.8386
+        2.0434 0.8290
+      }
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "mark_alyx_outdoor"
+    {
+      time 0.272727 3.530303
+      param "mark_alyx_outdoor"
+      param2 "walk_all_moderate"
+    }
+    event moveto "mark_eli_proud_alyx"
+    {
+      time 4.515152 17.742424
+      param "mark_eli_proud_alyx"
+      param2 "walk_all_moderate"
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+    active "0"
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "1: open door"
+    {
+      time 2.334160 -1.000000
+      param "1"
+    }
+  }
+  channel "move to"
+  {
+  }
+}
+
+actor "eli"
+{
+  channel "Audio"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "alyx"
+    {
+      time 0.558716 12.054699
+      param "alyx"
+      event_ramp
+      {
+        0.0280 0.0929
+        0.1580 0.4126
+        11.3980 0.8290
+        11.5040 0.8662
+      }
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "mark_eli_outdoor"
+    {
+      time 0.272727 3.530303
+      param "mark_eli_outdoor"
+      param2 "fwalk_all"
+    }
+    event moveto "mark_eli_proud_eli"
+    {
+      time 4.424242 16.712120
+      param "mark_eli_proud_eli"
+      param2 "fwalk_all"
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "move to"
+  {
+  }
+}
+
+actor "dog"
+{
+  channel "Audio"
+  {
+  }
+  channel "lookAt"
+  {
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+mapname "maps\ep2_outland_12a_bill.bsp"
+scalesettings
+{
+  "CChoreoView" "22"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

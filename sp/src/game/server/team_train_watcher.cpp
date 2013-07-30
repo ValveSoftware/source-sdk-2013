@@ -819,17 +819,15 @@ void CTeamTrainWatcher::WatcherActivate( void )
 	{
 		if ( m_hTrain )
 		{
-			CTriggerAreaCapture *pArea = dynamic_cast<CTriggerAreaCapture *>( gEntList.FindEntityByClassname( NULL, "trigger_capture_area" ) );
-			while( pArea )
+			for ( int i=0; i<ITriggerAreaCaptureAutoList::AutoList().Count(); ++i )
 			{
+				CTriggerAreaCapture *pArea = static_cast< CTriggerAreaCapture * >( ITriggerAreaCaptureAutoList::AutoList()[i] );
 				if ( pArea->GetParent() == m_hTrain.Get() )
 				{
 					// this is the capture area we care about, so let it know that we want updates on the capture numbers
 					pArea->SetTrainWatcher( this );
 					break;
 				}
-
-				pArea = dynamic_cast<CTriggerAreaCapture *>( gEntList.FindEntityByClassname( pArea, "trigger_capture_area" ) );
 			}
 		}
 

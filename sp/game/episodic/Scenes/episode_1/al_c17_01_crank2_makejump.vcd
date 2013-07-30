@@ -1,0 +1,91 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_makejump"
+    {
+      time 0.257014 1.335291
+      param "ep_01.al_makejump"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.010491 1.642670
+      param "!player"
+      event_ramp
+      {
+        0.1692 0.9830
+        1.4223 0.9886
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_cafe1"
+    {
+      time 0.065040 1.597560
+      param "mark_cafe1"
+      param2 "Walk"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.016260 1.630080
+      param "!player"
+      event_ramp
+      {
+        0.5231 0.8838
+        0.7462 1.0000
+        0.8351 1.0000
+        1.2505 1.0000
+        1.2741 1.0000
+        1.6139 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "82"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

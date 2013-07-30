@@ -1,0 +1,278 @@
+// Choreo version 1
+event section "wait for vort"
+{
+  time 1.469247 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "move to vort"
+    {
+      time 0.038462 2.102565
+      param "vort"
+      param2 "Run"
+      distancetotarget 96.00
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.864087 10.416669
+      param "!player"
+      event_ramp
+      {
+        0.5160 1.0000
+        9.1917 1.0000
+      }
+    }
+    event lookat "look at vort"
+    {
+      time 10.200753 15.150180
+      param "vort"
+      event_ramp
+      {
+        0.5300 1.0000
+        4.4762 1.0000
+      }
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 1.520250 15.217367
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "corner_puller" combo 
+        {
+          0.3009 0.3600
+          0.3409 0.3600
+          13.0960 0.3600
+          13.2040 0.3600
+        }
+        {
+          0.3009 0.5000
+          0.3409 0.5000
+          13.0960 0.5000
+          13.2040 0.5000
+        }
+      }
+    }
+  }
+  faceposermodel "D:\DEV\main\game\ep2\models\alyx.mdl"
+}
+
+actor "Vort"
+{
+  channel "audio"
+  {
+    event speak "ep_02.vort_guard_welldone01"
+    {
+      time 1.963243 4.641520
+      param "ep_02.vort_guard_welldone01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_guard_welldone02"
+    {
+      time 4.669592 9.832199
+      param "ep_02.vort_guard_welldone02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_guard_movetolift01"
+    {
+      time 10.135101 14.853559
+      param "ep_02.vort_guard_movetolift01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move to player"
+    {
+      time 0.049603 1.912700
+      param "!player"
+      param2 "Run"
+      resumecondition
+      distancetotarget 128.00
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 1.298342 15.347175
+      param "!player"
+      event_ramp
+      {
+        0.4920 1.0000
+        13.5140 1.0000
+      }
+    }
+  }
+  channel "text"
+  {
+  }
+  channel "fire trigger"
+  {
+    event firetrigger "start follow"
+    {
+      time 2.371212 -1.000000
+      param "1"
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "1"
+    {
+      time 1.560606 6.133333
+      param "g_Accent_BothHands01"
+      absolutetags playback_time
+      {
+        "apex" 0.176129
+        "accent" 0.314846
+        "loop" 0.484656
+        "end" 0.667774
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.166667
+        "accent" 0.282051
+        "loop" 0.576923
+        "end" 0.769231
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "2"
+    {
+      time 5.545455 8.678789
+      param "g_palm_both"
+      absolutetags playback_time
+      {
+        "apex" 0.242718
+        "accent" 0.450491
+        "loop" 0.536689
+        "end" 0.806056
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153846
+        "accent" 0.346154
+        "loop" 0.448718
+        "end" 0.769231
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "3"
+    {
+      time 8.075756 11.096969
+      param "g_rightfist"
+      absolutetags playback_time
+      {
+        "apex" 0.220000
+        "accent" 0.497600
+        "loop" 0.520060
+        "end" 0.598671
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.196429
+        "accent" 0.464286
+        "loop" 0.500000
+        "end" 0.625000
+      }
+      sequenceduration 1.900000
+    }
+    event gesture "5"
+    {
+      time 10.575758 14.913054
+      param "g_Accent_BothHands01"
+      absolutetags playback_time
+      {
+        "apex" 0.238137
+        "accent" 0.402731
+        "loop" 0.595343
+        "end" 0.836981
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.166667
+        "accent" 0.282051
+        "loop" 0.576923
+        "end" 0.769231
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 1.696970 15.254080
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "center_lid_tightener" 
+        {
+          0.6372 0.9800
+          1.0347 1.0000
+          1.6757 0.0000
+          2.8167 0.0000
+          5.2654 0.6300
+          6.9962 0.6682
+          7.5731 0.0000
+          8.4193 0.0000
+          9.1500 0.6100
+          12.4577 0.3600
+        }
+        "center_lid_droop" 
+        {
+          0.6372 0.8000
+          1.0347 1.0000
+          1.6757 0.0000
+          2.8167 0.0000
+          5.2654 0.4400
+          6.9962 0.4667
+          7.5731 0.0000
+          8.4193 0.0000
+          9.1500 0.4100
+          12.4577 0.3400
+        }
+      }
+    }
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "50"
+  "RampTool" "100"
+  "CChoreoView" "44"
+}
+fps 60
+snap off
+ignorePhonemes off

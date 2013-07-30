@@ -1,0 +1,70 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "Audio"
+  {
+    event speak "listen"
+    {
+      time 0.037036 20.711821
+      param "ep_02.over_inne"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+  }
+}
+
+actor "Alyx"
+{
+  channel "Audio"
+  {
+    event speak "they're talking about us"
+    {
+      time 8.054480 9.618176
+      param "ep_02.al_ambush_datapack01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "listen"
+    {
+      time 4.011468 4.745505
+      param "ep_02.al_ambush_listen"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "they're still after the data packet"
+    {
+      time 12.172759 14.266478
+      param "ep_02.al_ambush_datapack02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "62"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

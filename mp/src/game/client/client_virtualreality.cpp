@@ -635,34 +635,6 @@ bool CClientVirtualReality::OverrideStereoView( CViewSetup *pViewMiddle, CViewSe
 	g_pSourceVR->GetEyeProjectionMatrix (  &pViewLeft->m_ViewToProjection, ISourceVirtualReality::VREye_Left,  pViewMiddle->zNear, pViewMiddle->zFar, 1.0f/headtrackFovScale );
 	g_pSourceVR->GetEyeProjectionMatrix ( &pViewRight->m_ViewToProjection, ISourceVirtualReality::VREye_Right, pViewMiddle->zNear, pViewMiddle->zFar, 1.0f/headtrackFovScale );
 
-	static ConVarRef vr_distortion_grow_outside( "vr_distortion_grow_outside" );
-	static ConVarRef vr_distortion_grow_inside( "vr_distortion_grow_inside" );
-	static ConVarRef vr_distortion_grow_above( "vr_distortion_grow_above" );
-	static ConVarRef vr_distortion_grow_below( "vr_distortion_grow_below" );
-
-	float StereoDistortionGrowOutside = vr_distortion_grow_outside.GetFloat();
-	float StereoDistortionGrowInside  = vr_distortion_grow_inside.GetFloat();
-	float StereoDistortionGrowAbove   = vr_distortion_grow_above.GetFloat();
-	float StereoDistortionGrowBelow   = vr_distortion_grow_below.GetFloat();
-	if ( ( StereoDistortionGrowOutside != 0.0f ) || (StereoDistortionGrowInside != 0.0f ) )
-	{
-		float ScaleX = 2.0f / ( StereoDistortionGrowInside + StereoDistortionGrowOutside + 2.0f );
-		float OffsetX = 0.5f * ScaleX * ( StereoDistortionGrowInside - StereoDistortionGrowOutside );
-		pViewLeft ->m_ViewToProjection.m[0][0] *= ScaleX;
-		pViewLeft ->m_ViewToProjection.m[0][2]  = ( pViewLeft ->m_ViewToProjection.m[0][2] * ScaleX )  + OffsetX;
-		pViewRight->m_ViewToProjection.m[0][0] *= ScaleX;
-		pViewRight->m_ViewToProjection.m[0][2]  = ( pViewRight->m_ViewToProjection.m[0][2] * ScaleX )  - OffsetX;
-	}
-	if ( ( StereoDistortionGrowAbove != 0.0f ) || (StereoDistortionGrowBelow != 0.0f ) )
-	{
-		float ScaleY = 2.0f / ( StereoDistortionGrowBelow + StereoDistortionGrowAbove + 2.0f );
-		float OffsetY = -0.5f * ScaleY * ( StereoDistortionGrowBelow - StereoDistortionGrowAbove );		// Why is this -0.5 and not +0.5? I wish I knew.
-		pViewLeft ->m_ViewToProjection.m[1][1] *= ScaleY;
-		pViewLeft ->m_ViewToProjection.m[1][2]  = ( pViewLeft ->m_ViewToProjection.m[1][2] * ScaleY ) + OffsetY;
-		pViewRight->m_ViewToProjection.m[1][1] *= ScaleY;
-		pViewRight->m_ViewToProjection.m[1][2]  = ( pViewRight->m_ViewToProjection.m[1][2] * ScaleY ) + OffsetY;
-	}
-
 	// And bodge together some sort of average for our cyclops friends.
 	pViewMiddle->m_bViewToProjectionOverride = true;
 	for ( int i = 0; i < 4; i++ )

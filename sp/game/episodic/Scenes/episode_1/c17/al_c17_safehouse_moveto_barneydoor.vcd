@@ -1,0 +1,83 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.453333 -1.000000
+  param "noaction"
+}
+actor "alyx"
+{
+  channel "Audio"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "mark_al_lookAt_barneyDoor"
+    {
+      time 0.486667 1.086667
+      param "mark_al_lookAt_barneyDoor"
+      event_ramp
+      {
+        0.0280 0.0929
+        0.1580 0.4126
+        0.5020 0.8290
+        0.6080 0.8662
+      }
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "mark_al_moveTo_barneyDoor"
+    {
+      time 0.033333 1.100000
+      param "mark_al_moveTo_barneyDoor"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event lookat "mark_al_lookAt_barneyDoor"
+    {
+      time 0.546667 1.080000
+      param "mark_al_lookAt_barneyDoor"
+      event_ramp
+      {
+        0.0380 0.0632
+        0.1540 0.3383
+        0.3893 0.7844
+        0.5373 0.8959
+      }
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

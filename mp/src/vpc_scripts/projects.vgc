@@ -19,6 +19,11 @@ $Project "client"
 	"game\client\client_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
 }
 
+$Project "game_shader_dx9"
+{
+	"materialsystem\stdshaders\game_shader_dx9_hl2mp.vpc" [$HL2MP]
+}
+
 $Project "glview"
 {
 	"utils\glview\glview.vpc" [$WIN32]

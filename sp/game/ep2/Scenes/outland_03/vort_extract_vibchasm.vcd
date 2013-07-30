@@ -1,0 +1,63 @@
+// Choreo version 1
+actor "vort"
+{
+  channel "play wav"
+  {
+    event speak "ep_02.vort_extract_vibchasm01"
+    {
+      time 0.400000 3.066667
+      param "ep_02.vort_extract_vibchasm01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_extract_vibchasm02"
+    {
+      time 3.316667 8.842018
+      param "ep_02.vort_extract_vibchasm02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_extract_vibchasm03"
+    {
+      time 8.983334 14.466009
+      param "ep_02.vort_extract_vibchasm03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "fire trigger"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "posture"
+  {
+  }
+  channel "text"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "40"
+  "RampTool" "18"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

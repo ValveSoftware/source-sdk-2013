@@ -1,0 +1,105 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "ep_02.reb_cannon_thanks"
+    {
+      time 2.900795 3.982178
+      param "ep_01.ba_goodjob"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.008454 7.744651
+      param "!player"
+      event_ramp
+      {
+        0.3960 0.9799
+        7.3222 0.9799
+      }
+    }
+  }
+  channel "faceto"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "g_clap"
+    {
+      time 1.388888 4.601587
+      param "g_clap"
+      event_ramp
+      {
+        0.4720 0.9564
+        2.6924 0.9765
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.189318
+        "accent" 0.262940
+        "loop" 0.364230
+        "end" 0.825926
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.246575
+        "accent" 0.342466
+        "loop" 0.506849
+        "end" 0.671233
+      }
+      sequenceduration 2.466667
+    }
+  }
+  channel "trigger"
+  {
+    event gesture "g_fistshake"
+    {
+      time 4.023809 6.490476
+      param "g_fistshake"
+      event_ramp
+      {
+        0.4400 0.9799
+        1.9860 0.9664
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.273973
+        "accent" 0.347267
+        "loop" 0.414791
+        "end" 0.821918
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.273973
+        "accent" 0.410959
+        "loop" 0.547945
+        "end" 0.821918
+      }
+      sequenceduration 2.466667
+    }
+  }
+  faceposermodel "models\humans\group03\male_05.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "168"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

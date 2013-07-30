@@ -1,0 +1,75 @@
+// Choreo version 1
+actor "Barney"
+{
+  channel "audio"
+  {
+    event speak "ba_turretsyoudeal"
+    {
+      time 0.266667 6.864535
+      param "nexus.ba_turretsyoudeal"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 2.044445 6.811112
+      param "!player"
+      event_ramp
+      {
+        0.1417 0.9079
+        0.2750 0.9956
+        4.5000 0.9912
+        4.6182 0.9035
+      }
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 2.011111
+      param "null1"
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 2.033333
+      param "NULL"
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "1_NULL"
+    {
+      time 1.644444 -1.000000
+      param "1"
+    }
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "22"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

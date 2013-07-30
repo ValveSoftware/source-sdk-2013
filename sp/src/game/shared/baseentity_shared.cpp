@@ -48,6 +48,11 @@ ConVar hl2_episodic( "hl2_episodic", "0", FCVAR_REPLICATED );
 	#include "prop_portal_shared.h"
 #endif
 
+#ifdef TF_DLL
+#include "tf_gamerules.h"
+#include "tf_weaponbase.h"
+#endif // TF_DLL
+
 #include "rumble_shared.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -1745,6 +1750,17 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 			if ( !UTIL_Portal_TraceRay_Bullets( pShootThroughPortal, rayBullet, MASK_SHOT, &traceFilter, &tr ) )
 			{
 				pShootThroughPortal = NULL;
+			}
+#elif TF_DLL
+			CTraceFilterIgnoreFriendlyCombatItems traceFilterCombatItem( this, COLLISION_GROUP_NONE, GetTeamNumber() );
+			if ( TFGameRules() && TFGameRules()->GameModeUsesUpgrades() )
+			{
+				CTraceFilterChain traceFilterChain( &traceFilter, &traceFilterCombatItem );
+				AI_TraceLine(info.m_vecSrc, vecEnd, MASK_SHOT, &traceFilterChain, &tr);
+			}
+			else
+			{
+				AI_TraceLine(info.m_vecSrc, vecEnd, MASK_SHOT, &traceFilter, &tr);
 			}
 #else
 			AI_TraceLine(info.m_vecSrc, vecEnd, MASK_SHOT, &traceFilter, &tr);

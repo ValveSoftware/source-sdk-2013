@@ -1,0 +1,79 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 0.580000 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "youmadeit"
+    {
+      time 0.013334 0.563856
+      param "barn.youmadeit"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "look at player"
+    {
+      time -0.000001 1.793331
+      param "!player"
+    }
+  }
+  channel "face"
+  {
+    event face "!player"
+    {
+      time 0.013333 1.793334
+      param "!player"
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.193333
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 0.013333 1.813333
+      param "b_head_back"
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

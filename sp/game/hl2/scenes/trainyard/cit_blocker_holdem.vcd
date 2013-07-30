@@ -1,0 +1,135 @@
+// Choreo version 1
+actor "citizen_DoorBracer"
+{
+  channel "Audio"
+  {
+    event speak "cit_blocker_holdem"
+    {
+      time 0.006667 1.711542
+      param "opening.cit_blocker_holdem"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "head flex"
+  {
+    event flexanimation "Head nod"
+    {
+      time 0.780001 1.340000
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1016 0.5000
+          0.1529 0.6000
+          0.3432 0.5600
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.1016 0.5000
+          0.1529 0.6000
+          0.3432 0.5600
+        }
+        {
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.1684 0.5699
+          0.3111 0.5657
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1648 0.2400
+          0.3081 0.3487
+          0.4127 0.4687
+        }
+        "lid_raiser"         combo        
+        {
+          0.1691 0.8300
+          0.3696 0.8700
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "Head nod"
+    {
+      time 0.233334 0.766667
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.0749 0.5000
+          0.1262 0.6000
+          0.3165 0.5600
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0769 0.0000
+          0.3165 0.0000
+        }
+        {
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.1417 0.4599
+          0.2844 0.4557
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1381 0.2300
+          0.2814 0.3387
+          0.3860 0.4687
+        }
+        "lid_raiser"         combo        
+        {
+          0.1023 0.7500
+          0.3758 0.7300
+        }
+        {
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.1816 0.7500
+        }
+      }
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.020000 1.426668
+      param "!player"
+      event_ramp
+      {
+        0.3340 0.9200
+        0.4020 0.9846
+        0.9567 0.9846
+        1.0127 0.9385
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

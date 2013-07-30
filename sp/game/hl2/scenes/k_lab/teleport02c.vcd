@@ -1,0 +1,413 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 8.733334 -1.000000
+  param "noaction"
+}
+actor "Kleiner"
+{
+  channel "audio"
+  {
+    event speak "Hedy!"
+    {
+      time 7.146666 7.799387
+      param "k_lab.kl_hedyno02"
+      fixedlength
+      cctype "cc_slave"
+      cctoken "k_lab.kl_hedyno02_cc"
+    }
+    event speak "what is it?"
+    {
+      time 3.139999 3.911813
+      param "k_lab.kl_whatisit"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "Lamarr"
+    {
+      time 6.486664 6.967616
+      param "k_lab.kl_hedyno01"
+      fixedlength
+      cctype "cc_master"
+      cctoken "k_lab.kl_hedyno02_cc"
+    }
+    event speak "No!"
+    {
+      time 7.900000 8.528798
+      param "k_lab.kl_hedyno03"
+      fixedlength
+      cctype "cc_slave"
+      cctoken "k_lab.kl_hedyno02_cc"
+    }
+    event speak "final sequence 02"
+    {
+      time 0.000001 0.872155
+      param "k_lab.kl_finalsequence02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "k_lab.teleport_warmup3"
+    {
+      time 0.028572 8.658504
+      param "k_lab.teleport_warmup3"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "k_lab.teleport_buildup"
+    {
+      time 4.542861 8.909301
+      param "k_lab.teleport_buildup"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "k_lab.teleport_warmup1"
+    {
+      time 2.676977 7.282556
+      param "k_lab.teleport_warmup1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look Barney"
+    {
+      time 3.133333 4.413333
+      param "Barney"
+      event_ramp
+      {
+        0.6260 0.9256
+      }
+    }
+    event lookat "look Lamarr"
+    {
+      time 4.373333 9.413333
+      param "lamarr"
+      event_ramp
+      {
+        0.7200 0.9355
+        4.2926 0.9603
+      }
+    }
+  }
+  channel "moveto"
+  {
+    event moveto "console3"
+    {
+      time 4.866666 7.406667
+      param "marks_kleiner_catwalk_3"
+    }
+  }
+  channel "faceto"
+  {
+    event face "lamarr"
+    {
+      time 5.000000 9.673333
+      param "lamarr"
+      event_ramp
+      {
+        0.9111 0.8845
+        3.5033 0.9211
+        3.8589 0.9211
+        4.4867 0.9127
+        4.6733 0.8901
+      }
+    }
+  }
+}
+
+actor "Barney"
+{
+  channel "fire trigger"
+  {
+    event firetrigger "fire teleport"
+    {
+      time 8.519997 -1.000000
+      param "1"
+    }
+    event firetrigger "lamarr_spawn_vent"
+    {
+      time 1.440001 -1.000000
+      param "2"
+    }
+    event firetrigger "trigger_buildup_sound"
+    {
+      time 4.986666 -1.000000
+      param "3"
+    }
+  }
+  channel "audio"
+  {
+    event speak "headhumper"
+    {
+      time 4.140001 6.376736
+      param "k_lab.ba_headhumper01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "what the hell"
+    {
+      time 2.166666 3.043650
+      param "k_lab.ba_whatthehell"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "lookout"
+    {
+      time 7.979998 8.643626
+      param "k_lab.ba_headhumper02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look Lamarr"
+    {
+      time 1.613333 9.646667
+      param "Lamarr"
+      event_ramp
+      {
+        0.1960 0.7533
+        0.5778 0.9677
+        1.0000 0.9816
+        5.7844 0.9724
+        6.6844 0.9585
+        7.2622 0.9117
+        7.5400 0.7650
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "face Lamarr"
+    {
+      time 1.760000 8.753333
+      param "lamarr"
+      event_ramp
+      {
+        0.9773 0.9156
+        6.9667 0.9628
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "move Mach"
+    {
+      time 2.633333 4.646667
+      param "marks_barney_teleport_save_1"
+    }
+    event moveto "move Teleporter"
+    {
+      time 8.573334 9.713333
+      param "marks_barney_teleport_save_1"
+      param2 "Run"
+    }
+  }
+  channel "Posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.153333
+      param ""
+    }
+    event gesture "readyfroaction"
+    {
+      time 4.826667 8.773334
+      param "Posture08"
+      absolutetags playback_time
+      {
+        "apex" 0.206082
+        "loop" 0.293918
+        "end" 0.809627
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.454545
+        "loop" 0.581818
+        "end" 0.763636
+      }
+      sequenceduration 1.866667
+    }
+  }
+  channel "Gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.086667
+      param ""
+    }
+    event gesture "boo"
+    {
+      time 1.426666 3.153333
+      param "gesture_head_02"
+      absolutetags playback_time
+      {
+        "apex" 0.153846
+        "extreme" 0.297196
+        "loop" 0.438462
+        "end" 0.507692
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.289474
+        "extreme" 0.394737
+        "loop" 0.605263
+        "end" 0.789474
+      }
+      sequenceduration 1.300000
+    }
+    event gesture "NULL"
+    {
+      time 2.053333 3.140000
+      param ""
+    }
+  }
+}
+
+actor "Eli"
+{
+  channel "FaceTo"
+  {
+  }
+  channel "Lookat"
+  {
+    event lookat "work1"
+    {
+      time 3.044444 10.008887
+      param "marks_eli_look_keyboard"
+      event_ramp
+      {
+        0.9909 0.9067
+        1.3000 0.9644
+        1.7818 0.9822
+        2.1000 0.9822
+        4.7556 0.9778
+        5.2227 0.9733
+        5.6773 0.9422
+      }
+    }
+    event lookat "teleporter"
+    {
+      time 0.002964 3.830372
+      param "marks_eli_look_teleporter"
+      event_ramp
+      {
+        0.0200 0.3422
+        0.2498 0.3689
+        1.7118 0.3733
+        2.2364 0.3689
+        2.2824 0.3733
+        2.6553 0.3600
+        3.7024 0.3467
+        3.8274 0.3378
+      }
+    }
+  }
+  channel "MoveTo"
+  {
+  }
+  channel "Posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.577778
+      param ""
+    }
+    event gesture "console"
+    {
+      time 0.000000 9.940000
+      param "Posture_Console"
+      absolutetags playback_time
+      {
+        "apex" 0.012072
+        "loop" 0.145054
+        "end" 0.915323
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.170455
+        "loop" 0.454545
+        "end" 0.568182
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "Gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.577778
+      param ""
+    }
+    event gesture "type"
+    {
+      time 3.095555 9.908889
+      param "Gesture_work01"
+      absolutetags playback_time
+      {
+        "apex" 0.101728
+        "accent" 0.187867
+        "loop" 0.289629
+        "end" 0.864971
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.142857
+        "accent" 0.238095
+        "loop" 0.261905
+        "end" 0.738095
+      }
+      sequenceduration 2.833333
+    }
+  }
+  faceposermodel "U:\HL2\HL2\models\Eli.mdl"
+}
+
+actor "Mossman"
+{
+  channel "move to"
+  {
+    event moveto "move Work"
+    {
+      time 1.246667 5.060000
+      param "marks_mossman_work_1"
+      param2 "Walk"
+    }
+  }
+  faceposermodel "U:\HL2\HL2\models\mossman.mdl"
+}
+
+actor "Alyx"
+{
+  channel "move to"
+  {
+    event moveto "move Teleporter"
+    {
+      time 2.700000 8.366666
+      param "marks_alyx_eli_teleporter_1"
+      param2 "Walk"
+    }
+  }
+  faceposermodel "U:\HL2\HL2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "50"
+  "SceneRampTool" "100"
+  "RampTool" "36"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

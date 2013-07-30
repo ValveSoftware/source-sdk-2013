@@ -1,0 +1,114 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_evac_nexttrack"
+    {
+      time 0.062500 1.920096
+      param "ep_01.al_evac_nexttrack"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "lookit"
+    {
+      time 0.038333 2.207223
+      param "!player"
+      event_ramp 
+      {
+        0.5045 0.9427
+        1.6692 0.9108
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time -0.000000 0.104167
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.625000 3.258334
+      param "A_bg_h_jerkleft"
+      absolutetags playback_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.141026
+        "extreme" 0.269231
+        "loop" 0.628205
+        "end" 0.641026
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "face"
+    {
+      time 0.020833 2.562500
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser" combo 
+        {
+          0.4327 0.5900
+          0.8910 0.0000
+          1.1618 0.8100
+        }
+        {
+          0.4327 0.5000
+          0.8910 0.5000
+          1.1618 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.4327 0.6000
+          0.8910 0.0000
+          1.1618 0.9000
+        }
+        {
+          0.4327 0.5000
+          0.8910 0.5000
+          1.1618 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.4327 0.3800
+          0.8910 0.0400
+          1.1618 0.2800
+        }
+        {
+          0.4327 0.5000
+          0.8910 0.5000
+          1.1618 0.5000
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "88"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

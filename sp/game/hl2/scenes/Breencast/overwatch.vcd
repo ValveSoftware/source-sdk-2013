@@ -1,0 +1,157 @@
+// Choreo version 1
+actor "Breen"
+{
+  channel "audio"
+  {
+    event speak "br_overwatch01"
+    {
+      time 0.222222 12.984331
+      param "breencast.br_overwatch01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "br_overwatch02"
+    {
+      time 13.711111 30.406961
+      param "breencast.br_overwatch02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "br_overwatch03"
+    {
+      time 30.711111 46.063629
+      param "breencast.br_overwatch03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "br_overwatch04"
+    {
+      time 46.555557 73.710342
+      param "breencast.br_overwatch04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "br_overwatch05"
+    {
+      time 74.177773 86.459793
+      param "breencast.br_overwatch05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "br_overwatch06"
+    {
+      time 86.866661 115.748589
+      param "breencast.br_overwatch06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "br_overwatch07"
+    {
+      time 116.111115 164.567490
+      param "breencast.br_overwatch07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "br_overwatch08"
+    {
+      time 164.911102 200.125931
+      param "breencast.br_overwatch08"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "br_overwatch09"
+    {
+      time 200.533325 228.839508
+      param "breencast.br_overwatch09"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "NULL"
+    {
+      time 1.444444 1.944444
+      param "NULL"
+    }
+  }
+  channel "move to "
+  {
+    event moveto "NULL"
+    {
+      time 1.466667 1.966667
+      param "NULL"
+    }
+  }
+  channel "face to"
+  {
+    event face "NULL"
+    {
+      time 1.466667 1.966667
+      param "NULL"
+    }
+  }
+  channel "sequence"
+  {
+    event sequence "NULL"
+    {
+      time 1.488888 1.988888
+      param "NULL"
+    }
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 229.628204
+      param "null1"
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 229.628204
+      param "NULL"
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "Camera on"
+    {
+      time 0.290277 -1.000000
+      param "1"
+    }
+    event firetrigger "Camera on"
+    {
+      time 0.290277 -1.000000
+      param "1"
+    }
+    event firetrigger "Camera off"
+    {
+      time 229.115387 -1.000000
+      param "2"
+    }
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

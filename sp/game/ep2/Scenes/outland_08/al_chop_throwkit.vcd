@@ -1,0 +1,98 @@
+// Choreo version 1
+event section "pause"
+{
+  time 0.166667 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "Audio"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.276043 3.317708
+      param "!player"
+      event_ramp
+      {
+        0.2800 0.8774
+        1.3620 0.8997
+      }
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "mark_alyx_throw"
+    {
+      time 0.026041 0.380209
+      param "mark_alyx_throw"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.015625 2.614584
+      param "!player"
+      event_ramp
+      {
+        0.3000 1.0000
+        2.3950 1.0000
+      }
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "g_ep2_08_throwkit"
+    {
+      time 0.291667 1.758334
+      param "g_ep2_08_throwkit"
+      absolutetags playback_time
+      {
+        "in" 0.395349
+        "out" 0.697674
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.395349
+        "out" 0.697674
+      }
+      sequenceduration 1.466667
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "1 - throw kit"
+    {
+      time 1.262731 -1.000000
+      param "1"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "144"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

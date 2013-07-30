@@ -1,0 +1,136 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "crapships"
+    {
+      time 1.333334 3.676917
+      param "barn.crapships"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "dropship1"
+    {
+      time 0.026667 3.680000
+      param "!target2"
+      event_ramp
+      {
+        0.4378 0.8467
+        0.5222 0.9380
+        0.6733 0.9964
+        2.9711 1.0000
+        3.0600 0.9599
+        3.1333 0.8832
+      }
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.520000
+      param ""
+    }
+    event gesture "b_head_back"
+    {
+      time 1.353334 3.153334
+      param "b_head_back"
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+    }
+  }
+  channel "head gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.520000
+      param ""
+    }
+    event gesture "hg_puncuate_down"
+    {
+      time 2.180000 4.173334
+      param "hg_puncuate_down"
+      event_ramp
+      {
+        0.6622 0.6898
+        1.2778 0.6350
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.327759
+        "extreme" 0.575251
+        "loop" 0.795987
+        "end" 0.872910
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.333333
+        "extreme" 0.541667
+        "loop" 0.562500
+        "end" 0.562500
+      }
+      sequenceduration 1.633333
+    }
+    event gesture "hg_puncuate_down"
+    {
+      time 1.346667 3.541345
+      param "hg_puncuate_down"
+      event_ramp
+      {
+        0.4289 0.5036
+        0.9156 0.5474
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.190909
+        "extreme" 0.399414
+        "loop" 0.414776
+        "end" 0.677396
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.333333
+        "extreme" 0.541667
+        "loop" 0.562500
+        "end" 0.562500
+      }
+      sequenceduration 1.633333
+    }
+  }
+}
+
+mapname "maps\d2_coast_10.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "90"
+}
+fps 60
+snap off

@@ -665,8 +665,8 @@ void CVRADDispColl::CreateChildPatchesSub( int iParentPatch )
 	// Split along the longest edge.
 	Vector vecEdges[3];
 	vecEdges[0] = pParentPatch->winding->p[1] - pParentPatch->winding->p[0];
-	vecEdges[1] = pParentPatch->winding->p[2] - pParentPatch->winding->p[0];
-	vecEdges[2] = pParentPatch->winding->p[2] - pParentPatch->winding->p[1];
+	vecEdges[1] = pParentPatch->winding->p[2] - pParentPatch->winding->p[1];
+	vecEdges[2] = pParentPatch->winding->p[0] - pParentPatch->winding->p[2];
 
 	// Find the longest edge.
 	float flEdgeLength = 0.0f;

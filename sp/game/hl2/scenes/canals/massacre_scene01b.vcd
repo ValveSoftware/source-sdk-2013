@@ -1,0 +1,53 @@
+// Choreo version 1
+actor "!Target2"
+{
+  channel "audio"
+  {
+    event speak "run for your life!"
+    {
+      time 1.244445 2.778708
+      param "canals.massacre_runforyourlife01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "2 - cit go to gate"
+    {
+      time 10.244444 -1.000000
+      param "2"
+    }
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

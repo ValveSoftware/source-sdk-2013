@@ -1,0 +1,127 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time -0.086021 1.284948
+      param "!player"
+      event_ramp
+      {
+        0.3385 0.9601
+        0.9528 0.9681
+      }
+    }
+    event lookat "mark_al_gap_1"
+    {
+      time 1.139786 3.155915
+      param "mark_al_gap_1"
+      event_ramp
+      {
+        0.3385 0.9601
+        1.5980 0.9681
+      }
+    }
+    event lookat "!player"
+    {
+      time 3.086022 5.715055
+      param "!player"
+      event_ramp
+      {
+        0.3385 0.9601
+        2.2109 0.9681
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_gap_1"
+    {
+      time 3.268817 4.704301
+      param "mark_al_gap_1"
+      param2 "Walk"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.032257 0.908601
+      param "!player"
+      event_ramp
+      {
+        0.4575 0.5728
+        0.7731 0.6966
+        0.8763 0.7046
+      }
+    }
+    event face "mark_al_gap_1"
+    {
+      time 1.677419 2.811827
+      param "mark_al_gap_1"
+      event_ramp
+      {
+        0.7212 0.5649
+        1.1343 1.0000
+      }
+    }
+    event firetrigger "1 pause"
+    {
+      time 3.053764 -1.000000
+      param "1"
+    }
+    event face "!player"
+    {
+      time 3.612903 5.231183
+      param "!player"
+      event_ramp
+      {
+        0.6334 0.7445
+        1.1219 0.8982
+        1.3480 1.0000
+        1.6182 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

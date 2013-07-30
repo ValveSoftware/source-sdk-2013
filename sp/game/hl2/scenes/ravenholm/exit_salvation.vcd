@@ -1,0 +1,35 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 11.358025 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "BodyGestures"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "54"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "38"
+}
+fps 60
+snap off

@@ -1,0 +1,106 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_guard_stucklift01"
+    {
+      time 0.555555 3.200906
+      param "ep_02.al_guard_stucklift01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "face basket"
+    {
+      time 0.066666 2.003704
+      param "mark_elevator"
+      event_ramp
+      {
+        0.5975 0.9957
+        1.3525 1.0000
+      }
+    }
+  }
+  channel "triggers"
+  {
+    event gesture "1"
+    {
+      time 1.274074 3.574074
+      param "a_bg_htiltleft"
+      absolutetags playback_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at elevator"
+    {
+      time 0.096295 3.492592
+      param "mark_elevator"
+      event_ramp
+      {
+        0.5525 1.0000
+        2.8025 1.0000
+      }
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "1"
+    {
+      time 0.822223 3.788889
+      param "A_bigshrug_g"
+      event_ramp
+      {
+        0.5875 0.5628
+        2.0200 0.5541
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.181818
+        "accent" 0.397727
+        "loop" 0.568182
+        "end" 0.681818
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.181818
+        "accent" 0.397727
+        "loop" 0.568182
+        "end" 0.681818
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "90"
+  "RampTool" "80"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

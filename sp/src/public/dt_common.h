@@ -143,7 +143,7 @@ public:
 					switch ( m_Type )
 					{
 						case DPT_Int : 
-							Q_snprintf( text, sizeof(text), "%ld", m_Int );
+							Q_snprintf( text, sizeof(text), "%i", m_Int );
 							break;
 						case DPT_Float :
 							Q_snprintf( text, sizeof(text), "%.3f", m_Float );
@@ -190,7 +190,7 @@ public:
 	union
 	{
 		float	m_Float;
-		long	m_Int;
+		int		m_Int;
 		const char	*m_pString;
 		void	*m_pData;	// For DataTables.
 #if 0 // We can't ship this since it changes the size of DTVariant to be 20 bytes instead of 16 and that breaks MODs!!!

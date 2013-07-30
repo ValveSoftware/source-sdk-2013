@@ -1,0 +1,91 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 4.500000 -1.000000
+  param "noaction"
+}
+actor "Kleiner"
+{
+  channel "audio"
+  {
+    event speak "k_lab.kl_suitfits01"
+    {
+      time 0.100000 1.462608
+      param "k_lab.kl_suitfits01"
+      fixedlength
+      cctype "cc_master"
+      cctoken "k_lab.kl_suitfits01_cc"
+    }
+    event speak "k_lab.kl_suitfits02"
+    {
+      time 1.706667 4.268186
+      param "k_lab.kl_suitfits02"
+      fixedlength
+      cctype "cc_slave"
+      cctoken "k_lab.kl_suitfits01_cc"
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 0.020000 5.540000
+      param "!player"
+      event_ramp
+      {
+        0.4920 0.9608
+        5.3107 0.9706
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "face suit"
+    {
+      time 0.740000 5.240000
+      param "look_hevdoora"
+      event_ramp
+      {
+        0.4880 0.1814
+        1.5040 0.9657
+        3.9940 0.9510
+      }
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\Kleiner.mdl"
+}
+
+actor "Alyx"
+{
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.026667 4.586666
+      param "!player"
+      event_ramp
+      {
+        0.4940 0.6765
+        0.9880 0.5539
+        1.4920 0.9853
+        4.0700 0.9461
+      }
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

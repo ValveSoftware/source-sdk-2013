@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-typedef unsigned long CRC32_t;
+typedef unsigned int CRC32_t;
 
 void CRC32_Init( CRC32_t *pulCRC );
 void CRC32_ProcessBuffer( CRC32_t *pulCRC, const void *p, int len );

@@ -1,0 +1,75 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_gotwhatineeded02"
+    {
+      time 0.588886 2.170745
+      param "ep_01.al_gotwhatineeded02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.066668 2.166664
+      param "!player"
+      event_ramp
+      {
+        0.4120 0.6724
+        1.5520 0.7960
+        1.8672 0.8132
+        1.9360 0.8017
+        2.0280 0.8017
+        2.1000 0.7902
+      }
+    }
+  }
+  channel "moveto"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodyaccent"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\07_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

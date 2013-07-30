@@ -844,7 +844,11 @@ const char *CHL2MPRules::GetGameDescription( void )
 	return "Deathmatch"; 
 } 
 
-
+bool CHL2MPRules::IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer )
+{
+	return true;
+}
+ 
 float CHL2MPRules::GetMapRemainingTime()
 {
 	// if timelimit is disabled, return 0

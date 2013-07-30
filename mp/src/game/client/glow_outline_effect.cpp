@@ -312,36 +312,19 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 
 void CGlowObjectManager::GlowObjectDefinition_t::DrawModel()
 {
-	C_BaseEntity *pEntity = m_hEntity.Get();
-	if ( !pEntity )
-		return;
-
-	if ( pEntity->GetMoveParent() != NULL )
+	if ( m_hEntity.Get() )
 	{
-		C_BaseAnimating *pBaseAnimating = pEntity->GetBaseAnimating();
-		if ( pBaseAnimating )
-		{
-			pBaseAnimating->InvalidateBoneCache();
-		}
-	}
+		m_hEntity->DrawModel( STUDIO_RENDER );
+		C_BaseEntity *pAttachment = m_hEntity->FirstMoveChild();
 
-	pEntity->DrawModel( STUDIO_RENDER );
-
-	C_BaseEntity *pAttachment = pEntity->FirstMoveChild();
-	while ( pAttachment != NULL )
-	{
-		if ( !g_GlowObjectManager.HasGlowEffect( pAttachment ) && pAttachment->ShouldDraw() )
+		while ( pAttachment != NULL )
 		{
-			C_BaseAnimating *pBaseAnimating = pAttachment->GetBaseAnimating();
-			if ( pBaseAnimating )
+			if ( !g_GlowObjectManager.HasGlowEffect( pAttachment ) && pAttachment->ShouldDraw() )
 			{
-				pBaseAnimating->InvalidateBoneCache();
+				pAttachment->DrawModel( STUDIO_RENDER );
 			}
-
-			pAttachment->DrawModel( STUDIO_RENDER );
+			pAttachment = pAttachment->NextMovePeer();
 		}
-
-		pAttachment = pAttachment->NextMovePeer();
 	}
 }
 

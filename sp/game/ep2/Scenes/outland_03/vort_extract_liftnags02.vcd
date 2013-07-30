@@ -1,0 +1,48 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "vort_extract_liftnags02"
+    {
+      time 0.141667 2.253685
+      param "ep_02.vort_extract_liftnags02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "CChoreoView" "80"
+}
+fps 60
+snap off

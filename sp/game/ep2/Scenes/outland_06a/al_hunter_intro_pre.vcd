@@ -1,0 +1,177 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Sound"
+  {
+    event speak "gordon_hide"
+    {
+      time 1.497596 3.268276
+      param "ep_02.al_rad_hideinhere"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "godogod02"
+    {
+      time -0.000000 1.242268
+      param "ep_01.al_stalk_godogod02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "flex"
+  {
+    event flexanimation "facial"
+    {
+      time 0.022222 4.600000
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "inner_raiser" combo 
+        {
+          1.0111 0.3500
+          1.3333 0.3300
+          2.7778 0.5100
+        }
+        {
+          1.0111 0.5000
+          1.3333 0.5000
+          2.7778 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          1.0111 0.0000
+          1.3333 0.0000
+          2.7778 0.0000
+        }
+        {
+          1.0111 0.5000
+          1.3333 0.5000
+          2.7778 0.5000
+        }
+        "lowerer" combo 
+        {
+          1.0111 0.3600
+          1.3333 0.3500
+          2.7778 0.6500
+        }
+        {
+          1.0111 0.5000
+          1.3333 0.5000
+          2.7778 0.5000
+        }
+      }
+    }
+  }
+  channel "FaceTo"
+  {
+  }
+  channel "lookAt"
+  {
+    event lookat "!self"
+    {
+      time 2.923252 4.612142
+      param "!self"
+      event_ramp
+      {
+        0.1188 0.2825
+        0.2378 0.6725
+        0.4253 0.9225
+        0.6782 1.0000
+        1.6888 1.0000
+      }
+    }
+    event lookat "stalker_4"
+    {
+      time 0.027073 1.503448
+      param "stalker_4"
+      event_ramp
+      {
+        0.1625 0.2300
+        0.3917 0.9300 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        0.4917 1.0000
+        0.6883 1.0000 "curve_easein_to_curve_easeout"
+        0.9252 1.0000
+        1.1069 0.9550
+        1.2131 0.8250
+        1.2903 0.5800
+        1.3653 0.1550
+      }
+    }
+    event lookat "!player"
+    {
+      time 1.149295 3.281226
+      param "!player"
+      event_ramp
+      {
+        0.2292 0.2775
+        0.3750 0.6650
+        0.5417 0.9000
+        0.8167 1.0000
+        1.5424 1.0000
+        1.6792 0.9700
+        1.8016 0.8550
+        1.9437 0.4825
+      }
+    }
+  }
+  channel "MoveTo"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000980 4.588890
+      param "null"
+    }
+    event gesture "a_bg_hdaccleft"
+    {
+      time 1.655555 3.955555
+      param "a_bg_hdaccleft"
+      event_ramp
+      {
+        0.4369 0.4629
+        0.7140 0.4346
+        0.9262 0.2332
+        1.1677 0.0530
+        1.3877 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.294686
+        "extreme" 0.507246
+        "loop" 0.628019
+        "end" 0.739130
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "60"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

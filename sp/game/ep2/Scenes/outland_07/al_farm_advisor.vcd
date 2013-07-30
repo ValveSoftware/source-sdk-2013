@@ -1,0 +1,326 @@
+// Choreo version 1
+event loop "zap_loop"
+{
+  time 19.460258 -1.000000
+  param "10.000000"
+  loopcount "0"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_02.al_barn_handy"
+    {
+      time 12.991489 15.872079
+      param "ep_02.al_barn_handy"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_barn_oneofthose01"
+    {
+      time 31.661396 32.424728
+      param "ep_02.al_barn_oneofthose01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_barn_oneofthose02"
+    {
+      time 32.881252 34.126854
+      param "ep_02.al_barn_oneofthose02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_barn_advis"
+    {
+      time 34.987637 36.242443
+      param "ep_02.al_barn_advis"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_barn_aghno"
+    {
+      time 37.730183 39.236099
+      param "ep_02.al_barn_aghno"
+      param2 "1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_barn_wwcd"
+    {
+      time 3.404558 6.270794
+      param "ep_02.al_barn_wwcd"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_barn_backattower01"
+    {
+      time 21.800402 23.791491
+      param "ep_02.al_barn_backattower01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_barn_backattower02"
+    {
+      time 24.192558 26.510925
+      param "ep_02.al_barn_backattower02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "mark_look_console"
+    {
+      time 12.700767 15.994618
+      param "mark_look_console"
+      event_ramp
+      {
+        0.4154 0.9598
+        2.6877 0.9705
+      }
+    }
+    event lookat "mark_look_al_screen"
+    {
+      time 19.930668 22.957417
+      param "mark_look_al_screen"
+      event_ramp
+      {
+        0.3780 0.7205
+        0.5040 0.8384
+        2.4551 0.8865
+        2.5484 0.8723
+        2.6508 0.8543
+      }
+    }
+    event lookat "mark_al_look_EMP"
+    {
+      time 15.494256 20.314478
+      param "mark_al_look_EMP"
+      event_ramp
+      {
+        0.7178 0.9907 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        4.3585 0.9950 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        4.5000 0.9642 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        4.6119 0.8558 "curve_linear_interp_to_curve_linear_interp"
+      }
+    }
+    event lookat "mark_look_al_screen"
+    {
+      time 8.069267 12.540681
+      param "mark_look_al_screen"
+      event_ramp
+      {
+        0.4923 0.9732
+        3.8897 0.9625
+      }
+    }
+    event lookat "mark_look_advisor"
+    {
+      time 28.523197 34.002728
+      param "mark_look_advisor"
+      event_ramp
+      {
+        0.3780 0.6955
+        0.5625 0.9200
+        0.7478 0.9834 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        4.5891 1.0000
+        4.7188 0.9825 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        4.8813 0.9550 "curve_easein_to_curve_easeout"
+        5.1035 0.7943
+      }
+    }
+    event lookat "mark_look_advisor"
+    {
+      time 2.435897 8.500000
+      param "mark_look_advisor"
+    }
+    event lookat "mark_look_advisor"
+    {
+      time 35.121635 41.803894
+      param "mark_look_advisor"
+      event_ramp
+      {
+        0.3780 0.7205
+        0.5040 0.8384
+        6.1105 0.8865
+        6.2038 0.8723
+        6.3062 0.8543
+      }
+    }
+    event lookat "!player"
+    {
+      time 33.414036 35.443275
+      param "!player"
+      event_ramp
+      {
+        0.3780 0.7205
+        0.5040 0.8384
+        1.4575 0.8865
+        1.5508 0.8723
+        1.6532 0.8543
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "mark_look_advisor"
+    {
+      time 28.569174 43.233711
+      param "mark_look_advisor"
+      event_ramp
+      {
+        0.3660 0.5590
+        0.5440 0.7336
+        0.7880 0.8079
+        13.8679 0.8166
+        14.5659 0.7686
+        14.6646 0.7642
+      }
+    }
+    event face "mark_look_advisor"
+    {
+      time 3.282052 6.833333
+      param "mark_look_advisor"
+    }
+    event face "mark_alyx_console"
+    {
+      time 8.512821 12.833332
+      param "mark_alyx_console"
+    }
+    event face "mark_look_al_screen"
+    {
+      time 11.897436 16.858973
+      param "mark_look_al_screen"
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_alyx_console"
+    {
+      time 9.657320 12.842727
+      param "mark_alyx_console"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "mark_alyx_entrance"
+    {
+      time 0.580396 3.765803
+      param "mark_alyx_entrance"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "A_EMPbig_g"
+    {
+      time 16.931347 22.600002
+      param "A_EMPbig_g"
+      event_ramp
+      {
+        1.0190 0.9820
+        4.5769 0.9920
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.151176
+        "loop" 0.389526
+        "end" 0.442204
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.047619
+        "loop" 0.494048
+        "end" 0.625000
+      }
+      sequenceduration 5.633333
+    }
+    event gesture "NULL"
+    {
+      time 16.210257 17.238831
+      param ""
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 16.210257 68.733337
+      param ""
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1 - Trigger_EMP"
+    {
+      time 19.116213 -1.000000
+      param "1"
+    }
+    event generic "holster"
+    {
+      time 16.244272 16.744272
+      param "AI_HOLSTER"
+    }
+    event firetrigger "drop player/escape"
+    {
+      time 65.377632 -1.000000
+      param "8"
+    }
+    event firetrigger "Trigger_Advisor"
+    {
+      time 28.333334 -1.000000
+      param "2"
+    }
+    event generic "unholster"
+    {
+      time 34.362572 34.862572
+      param "AI_UNHOLSTER"
+    }
+    event firetrigger "Player/Alyx float"
+    {
+      time 37.690281 -1.000000
+      param "3"
+    }
+    event firetrigger "wall slam"
+    {
+      time 45.458096 -1.000000
+      param "4"
+    }
+    event firetrigger "observe object 1"
+    {
+      time 49.469593 -1.000000
+      param "5"
+    }
+    event firetrigger "observe object 2"
+    {
+      time 54.998333 -1.000000
+      param "6"
+    }
+    event firetrigger "observe player"
+    {
+      time 59.710972 -1.000000
+      param "7"
+    }
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d2_prison\06_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "10"
+  "SceneRampTool" "100"
+  "RampTool" "30"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off

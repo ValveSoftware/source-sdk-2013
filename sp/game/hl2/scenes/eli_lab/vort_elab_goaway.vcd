@@ -1,0 +1,106 @@
+// Choreo version 1
+event stoppoint "asdf"
+{
+  time 2.062500 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "Audio"
+  {
+  }
+  channel "Look at"
+  {
+    event lookat "player"
+    {
+      time 0.020834 2.895833
+      param "!player"
+      event_ramp
+      {
+        0.7313 0.3808
+        1.0719 0.4184
+        1.1813 0.4184
+        1.9094 0.4142
+        2.0938 0.3933
+      }
+    }
+  }
+  channel "Face To"
+  {
+  }
+  channel "Move To"
+  {
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.793333
+      param ""
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.673334
+      param ""
+    }
+    event gesture "goAway"
+    {
+      time 0.020834 2.320834
+      param "g_LabWork_goAway"
+      absolutetags playback_time
+      {
+        "apex" 0.147059
+        "extreme" 0.250000
+        "loop" 0.691176
+        "end" 0.735294
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147059
+        "extreme" 0.250000
+        "loop" 0.691176
+        "end" 0.735294
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "Flex"
+  {
+    event flexanimation "flex"
+    {
+      time 0.041667 2.479167
+      param ""
+      flexanimations samples_use_time
+      {
+        "center_lid_closer"        
+        {
+          0.0000 0.9700
+          0.0657 1.0000
+          0.3998 0.6000
+          0.7337 0.5200
+          1.0630 0.5700
+          1.4628 1.0000
+          2.3382 1.0000
+          2.4375 1.0000
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "32"
+  "RampTool" "64"
+  "GestureTool" "100"
+  "ExpressionTool" "44"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,246 @@
+// Choreo version 1
+event section "pause"
+{
+  time 28.746668 -1.000000
+  param "noaction"
+}
+event section "dog pause"
+{
+  time 30.480001 -1.000000
+  param "noaction"
+}
+event loop "loop"
+{
+  time 36.666668 -1.000000
+  param "31.200001"
+  loopcount "-1"
+}
+event stoppoint "stop"
+{
+  time 30.960001 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "what, Dog?"
+    {
+      time 11.493334 12.220885
+      param "eli_lab.al_scanners01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "scanners"
+    {
+      time 13.306667 14.404535
+      param "eli_lab.al_scanners02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "head back to the lab"
+    {
+      time 15.253334 16.091520
+      param "eli_lab.al_scanners03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "Combine sweeping"
+    {
+      time 17.093334 18.927258
+      param "eli_lab.al_scanners06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "head back to the lab"
+    {
+      time 19.306667 21.323492
+      param "eli_lab.al_scanners07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_nodog"
+    {
+      time 5.413333 6.165510
+      param "eli_lab.al_nodog"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "al_noboydown"
+    {
+      time 7.146666 9.724104
+      param "eli_lab.al_noboydown"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 15.013332 16.686666
+      param "!player"
+      event_ramp
+      {
+        0.2038 0.9844
+        1.5000 0.9922
+      }
+    }
+    event lookat "player"
+    {
+      time 30.746666 37.113335
+      param "!player"
+      event_ramp
+      {
+        0.3192 0.9896
+        5.9615 0.9948
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_Airlock_inside"
+    {
+      time 18.426666 28.873331
+      param "mark_al_Airlock_inside"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "towards dog"
+    {
+      time 8.506666 12.633334
+      param "mark_al_move_whatisit"
+      param2 "Run"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "dog"
+    {
+      time 8.213333 12.926666
+      param "Dog"
+      event_ramp
+      {
+        0.9885 0.9974
+        4.7133 1.0000
+      }
+    }
+    event face "player"
+    {
+      time 32.213333 33.966667
+      param "!player"
+      event_ramp
+      {
+        1.0000 0.9870
+        1.7533 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "alyx hop down"
+    {
+      time 5.753334 -1.000000
+      param "2"
+    }
+    event firetrigger "SS dumpster pickup"
+    {
+      time 0.000000 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "Dog"
+{
+  channel "move to"
+  {
+    event moveto "mark_dog_airlock"
+    {
+      time 24.986666 30.579998
+      param "mark_dog_airlock"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "mark_dog_doghouse"
+    {
+      time 17.893332 21.619999
+      param "mark_dog_doghouse"
+      param2 "Run"
+    }
+  }
+  channel "face to"
+  {
+    event face "player"
+    {
+      time 32.213333 33.966667
+      param "!player"
+      event_ramp
+      {
+        1.0000 0.9870
+        1.7533 1.0000
+      }
+    }
+    event face "!player"
+    {
+      time 20.320000 25.060001
+      param "!player"
+      event_ramp
+      {
+        0.8654 0.9688
+        4.2438 0.9610
+      }
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 30.799999 37.166668
+      param "!player"
+      event_ramp
+      {
+        0.3192 0.9896
+        5.9615 0.9948
+      }
+    }
+    event lookat "!enemy"
+    {
+      time 13.306665 18.526667
+      param "!enemy"
+      event_ramp
+      {
+        0.7192 0.9662
+        5.0364 0.9688
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

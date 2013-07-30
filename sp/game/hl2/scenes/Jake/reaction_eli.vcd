@@ -1,0 +1,29 @@
+// Choreo version 1
+actor "Eli"
+{
+  channel "Audio"
+  {
+    event speak "asdf"
+    {
+      time 0.000000 0.943039
+      param "k_lab.eli_didntcomethru"
+      fixedlength
+    }
+    event lookat "gs"
+    {
+      time 0.033334 0.893334
+      param "!player"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

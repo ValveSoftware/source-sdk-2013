@@ -1,0 +1,330 @@
+// Choreo version 1
+actor "alyx"
+{
+  channel "Audio"
+  {
+    event firetrigger "pause 1"
+    {
+      time 4.899630 -1.000000
+      param "1"
+    }
+    event speak "rushoff01"
+    {
+      time 9.732504 13.999170
+      param "ep_02.al_launch_rushoff01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "countingdog01"
+    {
+      time 3.506297 4.426388
+      param "ep_02.al_launch_countingdog01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "countingdog01"
+    {
+      time 4.466388 6.721626
+      param "ep_02.al_launch_countingdog02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "rushoff01"
+    {
+      time 13.999170 13.999170
+      param "ep_02.al_launch_rushoff02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "byedad01"
+    {
+      time 19.176947 20.099939
+      param "ep_02.al_launch_byedad01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "byedad02"
+    {
+      time 20.164757 21.483940
+      param "ep_02.al_launch_byedad02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "younut"
+    {
+      time 6.937653 7.978696
+      param "ep_02.al_launch_younut"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "dog"
+    {
+      time 3.446297 8.730742
+      param "dog"
+      event_ramp
+      {
+        0.0280 0.0929
+        0.1580 0.4126
+        5.1865 0.8290
+        5.2925 0.8662
+      }
+    }
+    event lookat "eli"
+    {
+      time 7.805466 13.836577
+      param "eli"
+      event_ramp
+      {
+        0.2300 0.3789
+        0.3720 0.6456
+        0.5320 0.8246
+        0.7960 0.8947
+        0.8200 0.8947
+        5.3477 0.8947
+        5.5697 0.8175
+        5.7457 0.5474
+        5.9197 0.1333
+      }
+    }
+    event lookat "!player"
+    {
+      time 13.453614 16.401390
+      param "!player"
+      event_ramp
+      {
+        0.2300 0.3789
+        0.3720 0.6456
+        0.5320 0.8246
+        0.7960 0.8947
+        0.8200 0.8947
+        2.2644 0.8947
+        2.4864 0.8175
+        2.6624 0.5474
+        2.8364 0.1333
+      }
+    }
+    event lookat "eli"
+    {
+      time 15.268429 21.910654
+      param "eli"
+      event_ramp
+      {
+        0.2300 0.3789
+        0.3720 0.6456
+        0.5320 0.8246
+        0.7960 0.8947
+        0.8200 0.8947
+        5.9588 0.8947
+        6.1808 0.8175
+        6.3568 0.5474
+        6.5308 0.1333
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "dog chopper"
+    {
+      time 3.129630 -1.000000
+      param "2"
+    }
+  }
+}
+
+actor "Eli"
+{
+  channel "audio"
+  {
+    event speak "takecarenow"
+    {
+      time 8.179170 9.663795
+      param "ep_02.eli_launch_takecarenow"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "soundplan"
+    {
+      time 14.228611 15.913509
+      param "ep_02.eli_launch_soundplan"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "goodluck01"
+    {
+      time 16.450832 17.736637
+      param "ep_02.eli_launch_goodluck01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "goodluck02"
+    {
+      time 17.819971 19.099972
+      param "ep_02.eli_launch_goodluck02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 7.891764 10.854727
+      param "!player"
+      event_ramp
+      {
+        0.4520 1.0000
+        2.9630 0.9927
+      }
+    }
+    event lookat "alyx"
+    {
+      time 3.435187 7.287039
+      param "alyx"
+      event_ramp
+      {
+        0.4520 1.0000
+        3.8518 0.9927
+      }
+    }
+    event lookat "alyx"
+    {
+      time 10.512134 16.113985
+      param "alyx"
+      event_ramp
+      {
+        0.4520 1.0000
+        5.6018 0.9927
+      }
+    }
+    event lookat "!player"
+    {
+      time 15.706580 17.363985
+      param "!player"
+      event_ramp
+      {
+        0.4520 1.0000
+        1.6574 0.9927
+      }
+    }
+    event lookat "alyx"
+    {
+      time 16.641762 18.225096
+      param "alyx"
+      event_ramp
+      {
+        0.4520 1.0000
+        1.5833 0.9927
+      }
+    }
+    event lookat "!player"
+    {
+      time 17.882505 19.780653
+      param "!player"
+      event_ramp
+      {
+        0.4520 1.0000
+        1.8981 0.9927
+      }
+    }
+    event lookat "alyx"
+    {
+      time 19.465837 21.682951
+      param "alyx"
+      event_ramp
+      {
+        0.4520 1.0000
+        2.2171 0.9927
+      }
+    }
+  }
+  channel "moveto"
+  {
+  }
+  channel "faceto"
+  {
+    event face "alyx"
+    {
+      time 3.509259 19.083334
+      param "alyx"
+    }
+  }
+}
+
+actor "Dog"
+{
+  channel "lookat"
+  {
+    event lookat "alyx"
+    {
+      time 0.111111 2.923691
+      param "alyx"
+    }
+    event lookat "alyx"
+    {
+      time 10.389210 14.241061
+      param "alyx"
+      event_ramp
+      {
+        0.4520 1.0000
+        3.8518 0.9927
+      }
+    }
+  }
+  channel "moveto"
+  {
+    event moveto "mark_dog_chopper"
+    {
+      time 0.222223 1.750001
+      param "mark_dog_chopper"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "58"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,168 @@
+// Choreo version 1
+actor "Barney"
+{
+  channel "audio"
+  {
+    event speak "ba_goacross"
+    {
+      time 0.791379 2.029293
+      param "ep_01.ba_goacross"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.194445 3.861112
+      param "!player"
+      event_ramp
+      {
+        0.1025 0.4751
+        0.4800 0.9392
+        2.4808 1.0000
+        3.1898 0.6575
+      }
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.810345
+      param ""
+    }
+    event gesture "a"
+    {
+      time 0.528736 2.962069
+      param "bg_accentFwd"
+      event_ramp
+      {
+        0.3340 0.6480
+        1.7040 0.7704
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.138889
+        "extreme" 0.361111
+        "loop" 0.555556
+        "end" 0.694444
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.138889
+        "extreme" 0.361111
+        "loop" 0.555556
+        "end" 0.694444
+      }
+    }
+  }
+  channel "trigger"
+  {
+  }
+  channel "head"
+  {
+    event flexanimation "face"
+    {
+      time 0.298851 3.672414
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser"         combo        
+        {
+          0.5053 0.0087
+          0.6880 0.3300
+          1.0716 0.1400
+        }
+        {
+          0.5053 0.5000
+          0.6880 0.5000
+          1.0716 0.5000
+        }
+        "inner_raiser"         combo        
+        {
+          0.5053 0.0193
+          0.6880 0.7300
+          1.0716 0.4100
+        }
+        {
+          0.5053 0.5000
+          0.6880 0.5000
+          1.0716 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.5053 0.0265
+          0.6880 1.0000
+          1.0716 0.0900
+        }
+        {
+          0.5053 0.5000
+          0.6880 0.5000
+          1.0716 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.5053 0.0034
+          0.6880 0.1300
+          1.0716 0.0034
+        }
+        {
+          0.5053 0.5000
+          0.6880 0.5000
+          1.0716 0.5000
+        }
+        "wrinkler"        
+        {
+          0.5053 0.0074
+          0.6880 0.2800
+          1.0716 0.0500
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.7607 0.4900
+          1.0078 0.3700
+          1.5491 0.4900
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.7607 0.5400
+          1.0078 0.8400
+          1.5491 0.5200
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.7607 0.4900
+          1.0078 0.6600
+          1.5491 0.4900
+        }
+      }
+    }
+  }
+}
+
+mapname "maps\d1_town_05.bsp"
+scalesettings
+{
+  "CChoreoView" "58"
+  "ExpressionTool" "74"
+  "RampTool" "100"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -60,10 +60,6 @@ $Configuration
 		$PreprocessorDefinitions			"$BASE;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
 		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]
 
-		// The VS 2012 compiler keeps hitting internal compiler errors during /analyze. In order to get these
-		// fixed we need to report them.
-		$AdditionalOptions  "$BASE /errorReport:send" [$ANALYZE]
-
 		// Pass on appropriate branch define to preprocessor
 		$PreprocessorDefinitions		"$BASE;STAGING_ONLY" [$STAGING_ONLY]
 		$PreprocessorDefinitions		"$BASE;TF_BETA" [$TF_BETA]

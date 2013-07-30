@@ -1,0 +1,45 @@
+// Choreo version 1
+actor "base_citizen"
+{
+  channel "audio"
+  {
+    event speak "ep_02.reb_battle_needyourcar02"
+    {
+      time 0.033333 2.786190
+      param "ep_02.reb_battle_needyourcar02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 0.006667 2.846666
+      param "!player"
+      event_ramp
+      {
+        0.0980 0.9774
+        2.8259 0.9887
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gesture"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

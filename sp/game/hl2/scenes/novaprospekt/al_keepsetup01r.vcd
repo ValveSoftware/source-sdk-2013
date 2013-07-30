@@ -1,0 +1,200 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_keepsetup01r"
+    {
+      time 0.133333 3.774081
+      param "novaprospekt.al_keepsetup01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look_player"
+    {
+      time 0.018462 3.925641
+      param "!player"
+      event_ramp
+      {
+        0.2640 0.5635
+        0.6760 0.9841
+        3.1880 0.9683
+        3.6880 0.6389
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.602564
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.082051 3.172072
+      param "A_bg_chinout"
+      event_ramp
+      {
+        0.3520 0.6825
+        2.4600 0.7738
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.141926
+        "extreme" 0.316604
+        "loop" 0.491282
+        "end" 0.694313
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.156627
+        "extreme" 0.349398
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "2"
+    {
+      time 1.856410 4.656409
+      param "A_bg_upchindwn"
+      event_ramp
+      {
+        0.4280 0.6984
+        2.1400 0.7024
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.132530
+        "extreme" 0.240964
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.132530
+        "extreme" 0.240964
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.071795 3.884615
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.3309 0.1283
+          0.6763 0.1300
+          1.1914 0.0000
+          1.6257 0.0000
+          2.3394 0.0000
+          3.4021 0.0000
+        }
+        {
+          0.3309 0.5000
+          0.6763 0.5000
+          1.1914 0.5000
+          1.6257 0.5000
+          2.3394 0.5000
+          3.4021 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.3309 0.4500
+          0.5171 0.4600
+          1.1914 0.4500
+          1.6257 0.0000
+          2.3394 0.5300
+          3.4021 0.0000
+        }
+        {
+          0.3309 0.5000
+          0.6763 0.5000
+          1.1914 0.5000
+          1.6257 0.5000
+          2.3394 0.5000
+          3.4021 0.5000
+        }
+        "lowerer"         combo        
+        {
+          0.3309 0.0927
+          0.6763 0.0927
+          1.1914 0.0927
+          1.6257 0.0927
+          2.3394 0.0927
+          3.4021 0.0927
+        }
+        {
+          0.3309 0.5000
+          0.6763 0.5000
+          1.1914 0.5000
+          1.6257 0.5000
+          2.3394 0.5000
+          3.4021 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.3309 0.4000
+          0.6763 0.7600
+          1.1914 0.0000
+          1.6257 0.0000
+          2.3394 0.0000
+          3.4021 0.0000
+        }
+        {
+          0.3309 0.5000
+          0.6763 0.5000
+          1.1914 0.5000
+          1.6257 0.5000
+          2.3394 0.5000
+          3.4021 0.5000
+        }
+        "chin_raiser"        
+        {
+          0.3309 0.1801
+          0.6763 0.1801
+          1.1914 0.1801
+          1.6257 0.1801
+          2.3394 0.1801
+          3.4021 0.1801
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "65"
+  "SceneRampTool" "100"
+  "RampTool" "50"
+  "ExpressionTool" "58"
+  "GestureTool" "100"
+}
+fps 60
+snap off
