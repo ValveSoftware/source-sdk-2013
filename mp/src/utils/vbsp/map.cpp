@@ -2003,12 +2003,9 @@ void CMapFile::CheckForInstances( const char *pszFileName )
 	char	FDGPath[ MAX_PATH ];
 	if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, "EXECUTABLE_PATH", FDGPath, sizeof( FDGPath ) ) )
 	{
-		if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, "MOD", FDGPath, sizeof( FDGPath ) ) )
+		if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, NULL, FDGPath, sizeof( FDGPath ) ) )
 		{
-			if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, "", FDGPath, sizeof( FDGPath ) ) )
-			{
-				Msg( "Could not locate GameData file %s\n", GameDataFile );
-			}
+			Msg( "Could not locate GameData file %s\n", GameDataFile );
 		}
 	}
 
