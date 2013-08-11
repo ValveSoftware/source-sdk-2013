@@ -1265,21 +1265,25 @@ FORCEINLINE unsigned long RoundFloatToUnsignedLong(float f)
 	}
 	return nRet;
 #else // PLATFORM_WINDOWS_PC64
-	unsigned char nResult[8];
+	union
+	{
+		unsigned char nResult[8];
+		unsigned long ulResult;
+	} u;
 
 	#if defined( _WIN32 )
 		__asm
 		{
 			fld f
-			fistp       qword ptr nResult
+			fistp       qword ptr u.nResult
 		}
 	#elif POSIX
 		__asm __volatile__ (
-			"fistpl %0;": "=m" (nResult): "t" (f) : "st"
+			"fistpl %0;": "=m" (u.nResult): "t" (f) : "st"
 		);
 	#endif
 
-		return *((unsigned long*)nResult);
+		return u.ulResult;
 #endif // PLATFORM_WINDOWS_PC64
 #endif // !X360
 }
