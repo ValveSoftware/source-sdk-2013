@@ -53,7 +53,7 @@ public:
 	static ChunkFileResult_t LoadManifestCordoningPrefsCallback( CChunkFile *pFile, CManifest *pManifest );
 
 	bool			LoadSubMaps( CMapFile *pMapFile, const char *pszFileName );
-	epair_t			*CreateEPair( char *pKey, char *pValue );
+	epair_t			*CreateEPair( const char *pKey, const char *pValue );
 	bool			LoadVMFManifest( const char *pszFileName );
 	const char		*GetInstancePath( ) { return m_InstancePath; }
 
