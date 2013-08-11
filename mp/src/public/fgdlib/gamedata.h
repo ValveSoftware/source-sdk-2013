@@ -18,11 +18,12 @@
 #if defined( _MSC_VER )
 #pragma warning(pop)
 #endif
-#include "TokenReader.h"
-#include "GDClass.h"
-#include "InputOutput.h"
-#include "UtlString.h"
+#include "tokenreader.h"
+#include "gdclass.h"
+#include "inputoutput.h"
+#include "utlstring.h"
 #include "utlvector.h"
+#include "ieditortexture.h"
 
 
 class MDkeyvalue;
