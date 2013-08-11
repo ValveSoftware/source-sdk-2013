@@ -62,7 +62,9 @@ void FileSystem_SetupStandardDirectories( const char *pFilename, const char *pGa
 
 	Q_MakeAbsolutePath( qdir, sizeof( qdir ), pFilename, NULL );
 	Q_StripFilename( qdir );
+#if defined(WIN32)
 	Q_strlower( qdir );
+#endif
 	if ( qdir[0] != 0 )
 	{
 		Q_AppendSlash( qdir, sizeof( qdir ) );
