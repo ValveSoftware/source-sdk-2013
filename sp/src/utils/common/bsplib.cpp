@@ -826,9 +826,10 @@ void AddFileToPak( IZip *pak, const char *relativename, const char *fullpath )
 //			*data - 
 //			length - 
 //-----------------------------------------------------------------------------
-void AddBufferToPak( IZip *pak, const char *pRelativeName, void *data, int length, bool bTextMode )
+void AddBufferToPak( IZip *pak, const char *pRelativeName, const void *data, int length, bool bTextMode )
 {
-	pak->AddBufferToZip( pRelativeName, data, length, bTextMode );
+	// TODO: The IZip interface should accept a const void * here.
+	pak->AddBufferToZip( pRelativeName, (void*) data, length, bTextMode );
 }
 
 //-----------------------------------------------------------------------------
@@ -3087,21 +3088,21 @@ void SetKeyValue(entity_t *ent, const char *key, const char *value)
 	ep->value = copystring(value);
 }
 
-char 	*ValueForKey (entity_t *ent, char *key)
+char 	*ValueForKey (entity_t *ent, const char *key)
 {
 	for (epair_t *ep=ent->epairs ; ep ; ep=ep->next)
 		if (!Q_stricmp (ep->key, key) )
 			return ep->value;
-	return "";
+	return (char *) "";
 }
 
-vec_t	FloatForKey (entity_t *ent, char *key)
+vec_t	FloatForKey (entity_t *ent, const char *key)
 {
 	char *k = ValueForKey (ent, key);
 	return atof(k);
 }
 
-vec_t	FloatForKeyWithDefault (entity_t *ent, char *key, float default_value)
+vec_t	FloatForKeyWithDefault (entity_t *ent, const char *key, float default_value)
 {
 	for (epair_t *ep=ent->epairs ; ep ; ep=ep->next)
 		if (!Q_stricmp (ep->key, key) )
@@ -3111,13 +3112,13 @@ vec_t	FloatForKeyWithDefault (entity_t *ent, char *key, float default_value)
 
 
 
-int		IntForKey (entity_t *ent, char *key)
+int		IntForKey (entity_t *ent, const char *key)
 {
 	char *k = ValueForKey (ent, key);
 	return atol(k);
 }
 
-int		IntForKeyWithDefault(entity_t *ent, char *key, int nDefault )
+int		IntForKeyWithDefault(entity_t *ent, const char *key, int nDefault )
 {
 	char *k = ValueForKey (ent, key);
 	if ( !k[0] )
@@ -3125,7 +3126,7 @@ int		IntForKeyWithDefault(entity_t *ent, char *key, int nDefault )
 	return atol(k);
 }
 
-void 	GetVectorForKey (entity_t *ent, char *key, Vector& vec)
+void 	GetVectorForKey (entity_t *ent, const char *key, Vector& vec)
 {
 
 	char *k = ValueForKey (ent, key);
@@ -3138,7 +3139,7 @@ void 	GetVectorForKey (entity_t *ent, char *key, Vector& vec)
 	vec[2] = v3;
 }
 
-void 	GetVector2DForKey (entity_t *ent, char *key, Vector2D& vec)
+void 	GetVector2DForKey (entity_t *ent, const char *key, Vector2D& vec)
 {
 	double	v1, v2;
 
@@ -3150,7 +3151,7 @@ void 	GetVector2DForKey (entity_t *ent, char *key, Vector2D& vec)
 	vec[1] = v2;
 }
 
-void 	GetAnglesForKey (entity_t *ent, char *key, QAngle& angle)
+void 	GetAnglesForKey (entity_t *ent, const char *key, QAngle& angle)
 {
 	char	*k;
 	double	v1, v2, v3;
