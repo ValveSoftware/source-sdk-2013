@@ -7,7 +7,9 @@
 //=============================================================================//
 // vis.c
 
+#if defined(_WIN32)
 #include <windows.h>
+#endif
 #include "vis.h"
 #include "threads.h"
 #include "stdlib.h"
@@ -418,6 +420,7 @@ void LoadPortals (char *name)
 	{
 		// If we're using MPI, copy off the file to a temporary first. This will download the file
 		// from the MPI master, then we get to use nice functions like fscanf on it.
+#if defined( _WIN32 )
 		char tempPath[MAX_PATH], tempFile[MAX_PATH];
 		if ( GetTempPath( sizeof( tempPath ), tempPath ) == 0 )
 		{
@@ -428,6 +431,7 @@ void LoadPortals (char *name)
 		{
 			Error( "LoadPortals: GetTempFileName failed.\n" );
 		}
+#endif
 
 		// Read all the data from the network file into memory.
 		FileHandle_t hFile = g_pFileSystem->Open(name, "r");
@@ -439,6 +443,7 @@ void LoadPortals (char *name)
 		g_pFileSystem->Read( data.Base(), data.Count(), hFile );
 		g_pFileSystem->Close( hFile );
 
+#if defined( _WIN32 )
 		// Dump it into a temp file.
 		f = fopen( tempFile, "wt" );
 		fwrite( data.Base(), 1, data.Count(), f );
@@ -446,6 +451,13 @@ void LoadPortals (char *name)
 
 		// Open the temp file up.
 		f = fopen( tempFile, "rSTD" ); // read only, sequential, temporary, delete on close
+#endif
+
+#if defined( POSIX )
+		f = tmpfile();
+		fwrite( data.Base(), 1, data.Count(), f );
+		fseeko(f, 0, SEEK_CUR);
+#endif
 	}
 	else
 	{
