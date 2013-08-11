@@ -221,7 +221,7 @@ CTesselateVert::CTesselateVert( CVertIndex const &index, int iNode )
 
 CVertInfo::CVertInfo()
 {
-	int i;
+	size_t i;
 	for( i=0; i < sizeof(m_Dependencies)/sizeof(m_Dependencies[0]); i++ )
 	{
 		m_Dependencies[i].m_iVert = CVertIndex( -1, -1 );
