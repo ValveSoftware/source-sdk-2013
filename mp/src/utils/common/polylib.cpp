@@ -70,7 +70,7 @@ winding_t *AllocWinding (int points)
 
 void FreeWinding (winding_t *w)
 {
-	if (w->numpoints == 0xdeaddead)
+	if ((unsigned int)w->numpoints == 0xdeaddead)
 		Error ("FreeWinding: freed a freed winding");
 	
 	ThreadLock();
