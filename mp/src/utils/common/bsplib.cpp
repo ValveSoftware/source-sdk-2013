@@ -4519,7 +4519,10 @@ bool CompressBSP( CUtlBuffer &inputBuffer, CUtlBuffer &outputBuffer, CompressFun
 			unsigned int newOffset = AlignBuffer( outputBuffer, alignment );
 
 			// only set by compressed lumps, hides the uncompressed size
-			*((unsigned int *)pOutBSPHeader->lumps[lumpNum].fourCC) = 0;
+			pOutBSPHeader->lumps[lumpNum].fourCC[0] = 0;
+			pOutBSPHeader->lumps[lumpNum].fourCC[1] = 0;
+			pOutBSPHeader->lumps[lumpNum].fourCC[2] = 0;
+			pOutBSPHeader->lumps[lumpNum].fourCC[3] = 0;
 
 			CUtlBuffer inputBuffer;
 			inputBuffer.SetExternalBuffer( ((byte *)pInBSPHeader) + pSortedLump->pLump->fileofs, pSortedLump->pLump->filelen, pSortedLump->pLump->filelen );
@@ -4542,7 +4545,16 @@ bool CompressBSP( CUtlBuffer &inputBuffer, CUtlBuffer &outputBuffer, CompressFun
 				if ( bCompressed )
 				{
 					// placing the uncompressed size in the unused fourCC, will decode at runtime
-					*((unsigned int *)pOutBSPHeader->lumps[lumpNum].fourCC) = BigLong( inputBuffer.TellPut() );
+					union
+					{
+						char fourCC[4];
+						unsigned int i;
+					} u;
+					u.i = BigLong( inputBuffer.TellPut() );
+					pOutBSPHeader->lumps[lumpNum].fourCC[0] = u.fourCC[0];
+					pOutBSPHeader->lumps[lumpNum].fourCC[1] = u.fourCC[1];
+					pOutBSPHeader->lumps[lumpNum].fourCC[2] = u.fourCC[2];
+					pOutBSPHeader->lumps[lumpNum].fourCC[3] = u.fourCC[3];
 					pOutBSPHeader->lumps[lumpNum].filelen = compressedBuffer.TellPut();
 					pOutBSPHeader->lumps[lumpNum].fileofs = newOffset;
 					outputBuffer.Put( compressedBuffer.Base(), compressedBuffer.TellPut() );
