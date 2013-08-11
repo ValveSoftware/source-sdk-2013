@@ -1,9 +1,14 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 #include "vbsp.h"
 #include "map_shared.h"
+#include "Color.h"
 #include "fgdlib/fgdlib.h"
 #include "manifest.h"
-#include "windows.h"
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: default constructor
