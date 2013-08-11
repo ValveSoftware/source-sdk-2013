@@ -38,6 +38,10 @@
 #include <direct.h>
 #endif
 
+#if defined(POSIX)
+#include <pthread.h>
+#endif
+
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"
 #endif
@@ -58,8 +62,6 @@ CUtlLinkedList<SpewHookFn, unsigned short> g_ExtraSpewHooks;
 
 bool g_bStopOnExit = false;
 void (*g_ExtraSpewHook)(const char*) = NULL;
-
-#if defined( _WIN32 ) || defined( WIN32 )
 
 void CmdLib_FPrintf( FileHandle_t hFile, const char *pFormat, ... )
 {
@@ -125,6 +127,8 @@ char* CmdLib_FGets( char *pOut, int outSize, FileHandle_t hFile )
 	pOut[iCur] = 0;
 	return pOut;
 }
+
+#if defined( _WIN32 ) || defined( WIN32 )
 
 #if !defined( _X360 )
 #include <wincon.h>
@@ -198,6 +202,37 @@ void RestoreConsoleTextColor( WORD color )
 #endif
 }
 
+#endif
+
+#if defined(POSIX)
+
+// This pauses before exiting if they use -StopOnExit. Useful for debugging.
+class CExitStopper
+{
+public:
+	~CExitStopper()
+	{
+		if ( g_bStopOnExit )
+		{
+			// TODO: Unix programs normally don't do this.
+		}
+	}
+} g_ExitStopper;
+
+static void GetInitialColors( )
+{
+}
+
+WORD SetConsoleTextColor( int /*red*/, int /*green*/, int /*blue*/, int /*intensity*/ )
+{
+	return 0;
+}
+
+void RestoreConsoleTextColor( WORD /*color*/ )
+{
+}
+
+#endif
 
 #if defined( CMDLIB_NODBGLIB )
 
@@ -214,23 +249,33 @@ void Error( char const *pMsg, ... )
 
 #else
 
+#if defined( _WIN32 ) || defined( WIN32 )
 CRITICAL_SECTION g_SpewCS;
 bool g_bSpewCSInitted = false;
+#else
+pthread_mutex_t g_SpewCS = PTHREAD_MUTEX_INITIALIZER;
+#endif
 bool g_bSuppressPrintfOutput = false;
 
 SpewRetval_t CmdLib_SpewOutputFunc( SpewType_t type, char const *pMsg )
 {
+#if defined( _WIN32 ) || defined( WIN32 )
 	// Hopefully two threads won't call this simultaneously right at the start!
 	if ( !g_bSpewCSInitted )
 	{
 		InitializeCriticalSection( &g_SpewCS );
 		g_bSpewCSInitted = true;
 	}
+#endif
 
 	WORD old;
 	SpewRetval_t retVal;
-	
+
+#if defined( _WIN32 ) || defined( WIN32 )
 	EnterCriticalSection( &g_SpewCS );
+#else
+	pthread_mutex_lock( &g_SpewCS );
+#endif
 	{
 		if (( type == SPEW_MESSAGE ) || (type == SPEW_LOG ))
 		{
@@ -292,6 +337,8 @@ SpewRetval_t CmdLib_SpewOutputFunc( SpewType_t type, char const *pMsg )
 			retVal = SPEW_CONTINUE;
 		}
 
+#if defined( _WIN32 ) || defined( WIN32 )
+
 		if ( !g_bSuppressPrintfOutput || type == SPEW_ERROR )
 			printf( "%s", pMsg );
 
@@ -302,6 +349,14 @@ SpewRetval_t CmdLib_SpewOutputFunc( SpewType_t type, char const *pMsg )
 			printf( "\n" );
 			OutputDebugString( "\n" );
 		}
+#endif
+
+#if defined(POSIX)
+		printf( "%s", pMsg );
+
+		if ( type == SPEW_ERROR )
+			printf( "\n" );
+#endif
 
 		if( g_pLogFile )
 		{
@@ -315,7 +370,11 @@ SpewRetval_t CmdLib_SpewOutputFunc( SpewType_t type, char const *pMsg )
 
 		RestoreConsoleTextColor( old );
 	}
+#if defined( _WIN32 ) || defined( WIN32 )
 	LeaveCriticalSection( &g_SpewCS );
+#else
+	pthread_mutex_unlock( &g_SpewCS );
+#endif
 
 	if ( type == SPEW_ERROR )
 	{
@@ -324,7 +383,6 @@ SpewRetval_t CmdLib_SpewOutputFunc( SpewType_t type, char const *pMsg )
 
 	return retVal;
 }
-
 
 void InstallSpewFunction()
 {
@@ -411,12 +469,14 @@ void CmdLib_Cleanup()
 
 void CmdLib_Exit( int exitCode )
 {
+#if defined(WIN32) || defined(_WIN32)
 	TerminateProcess( GetCurrentProcess(), 1 );
+#else
+	exit(exitCode);
+#endif
 }	
 
 
-
-#endif
 
 #endif
 

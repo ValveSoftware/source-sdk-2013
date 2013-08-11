@@ -13,7 +13,12 @@
 
 #define	USED
 
+#if defined(_WIN32)
 #include <windows.h>
+#endif
+#if defined(POSIX)
+#include <pthread.h>
+#endif
 #include "cmdlib.h"
 #define NO_THREAD_NAMES
 #include "threads.h"
@@ -40,7 +45,13 @@ qboolean		pacifier;
 qboolean	threaded;
 bool g_bLowPriorityThreads = false;
 
+#if defined(_WIN32)
 HANDLE g_ThreadHandles[MAX_THREADS];
+#endif
+#if defined(POSIX)
+pthread_t g_ThreadHandles[MAX_THREADS];
+#endif
+
 
 
 
@@ -98,6 +109,7 @@ void RunThreadsOnIndividual (int workcnt, qboolean showpacifier, ThreadWorkerFn 
 }
 
 
+#if defined(WIN32)
 /*
 ===================================================================
 
@@ -218,7 +230,95 @@ void RunThreads_End()
 
 	threaded = false;
 }
-	
+#endif
+
+#if defined(POSIX)
+/*
+===================================================================
+
+POSIX
+
+===================================================================
+*/
+
+int		numthreads = -1;
+pthread_mutex_t		crit = PTHREAD_MUTEX_INITIALIZER;
+static int enter;
+
+void SetLowPriority()
+{
+}
+
+
+void ThreadSetDefault (void)
+{
+	if (numthreads == -1)	// not set manually
+	{
+		if ((numthreads = (int) sysconf(_SC_NPROCESSORS_ONLN)) < 1)
+			numthreads = 1;
+	}
+
+	Msg ("%i threads\n", numthreads);
+}
+
+
+void ThreadLock (void)
+{
+	if (!threaded)
+		return;
+	pthread_mutex_lock (&crit);
+	if (enter)
+		Error ("Recursive ThreadLock\n");
+	enter = 1;
+}
+
+void ThreadUnlock (void)
+{
+	if (!threaded)
+		return;
+	if (!enter)
+		Error ("ThreadUnlock without lock\n");
+	enter = 0;
+	pthread_mutex_unlock (&crit);
+}
+
+
+// This runs in the thread and dispatches a RunThreadsFn call.
+void* InternalRunThreadsFn( void* pParameter )
+{
+	CRunThreadsData *pData = (CRunThreadsData*)pParameter;
+	pData->m_Fn( pData->m_iThread, pData->m_pUserData );
+	return NULL;
+}
+
+
+void RunThreads_Start( RunThreadsFn fn, void *pUserData, ERunThreadsPriority ePriority )
+{
+	Assert( numthreads > 0 );
+	threaded = true;
+
+	if ( numthreads > MAX_TOOL_THREADS )
+		numthreads = MAX_TOOL_THREADS;
+
+	for ( int i=0; i < numthreads ;i++ )
+	{
+		g_RunThreadsData[i].m_iThread = i;
+		g_RunThreadsData[i].m_pUserData = pUserData;
+		g_RunThreadsData[i].m_Fn = fn;
+
+		pthread_create(&g_ThreadHandles[i], NULL, InternalRunThreadsFn, &g_RunThreadsData[i]);
+	}
+}
+
+
+void RunThreads_End()
+{
+	for ( int i=0; i < numthreads; i++ )
+		pthread_join( g_ThreadHandles[i], NULL );
+
+	threaded = false;
+}
+#endif
 
 /*
 =============

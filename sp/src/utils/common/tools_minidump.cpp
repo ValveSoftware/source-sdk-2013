@@ -5,6 +5,8 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#if defined(_WIN32)
+
 #include <windows.h>
 #include <dbghelp.h>
 #include "tier0/minidump.h"
@@ -59,3 +61,15 @@ void SetupToolsMinidumpHandler( ToolsExceptionHandler fn )
 	g_pCustomExceptionHandler = fn;
 	SetUnhandledExceptionFilter( ToolsExceptionFilter_Custom );
 }
+
+#else
+
+void EnableFullMinidumps( bool /*bFull*/ )
+{
+}
+
+void SetupDefaultToolsMinidumpHandler()
+{
+}
+
+#endif

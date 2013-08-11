@@ -16,8 +16,8 @@
 #include "xbox\xbox_win32stubs.h"
 #endif
 #if defined(POSIX)
-#include "../../filesystem/linux_support.h"
 #include <sys/stat.h>
+#include <dirent.h>
 #endif
 /*
 =============================================================================
@@ -1017,15 +1017,15 @@ bool CScriptLib::WriteBufferToFile( const char *pTargetName, CUtlBuffer &buffer,
 	// create path
 	// prime and skip to first seperator
 	strcpy( dirPath, pTargetName );
-	ptr = strchr( dirPath, '\\' );
+	ptr = strchr( dirPath, CORRECT_PATH_SEPARATOR );
 	while ( ptr )
 	{		
-		ptr = strchr( ptr+1, '\\' );
+		ptr = strchr( ptr+1, CORRECT_PATH_SEPARATOR );
 		if ( ptr )
 		{
 			*ptr = '\0';
 			_mkdir( dirPath );
-			*ptr = '\\';
+			*ptr = CORRECT_PATH_SEPARATOR;
 		}
 	}
 
@@ -1087,7 +1087,7 @@ int CScriptLib::CompareFileTime( const char *pFilenameA, const char *pFilenameB 
 char *CScriptLib::MakeTemporaryFilename( char const *pchModPath, char *pPath, int pathSize )
 {
 	char *pBuffer = _tempnam( pchModPath, "mgd_" );
-	if ( pBuffer[0] == '\\' )
+	if ( pBuffer[0] == CORRECT_PATH_SEPARATOR )
 	{
 		pBuffer++;
 	}
@@ -1148,16 +1148,16 @@ int CScriptLib::GetFileList( const char* pDirPath, const char* pPattern, CUtlVec
 	int len = (int)strlen( sourcePath );
 	if ( !len )
 	{
-		strcpy( sourcePath, ".\\" );
+		strcpy( sourcePath, "." CORRECT_PATH_SEPARATOR_S );
 	}
-	else if ( sourcePath[len-1] != '\\' )
+	else if ( sourcePath[len-1] != CORRECT_PATH_SEPARATOR )
 	{
-		sourcePath[len]   = '\\';
+		sourcePath[len]   = CORRECT_PATH_SEPARATOR;
 		sourcePath[len+1] = '\0';
 	}
 
 	strcpy( fullPath, sourcePath );
-	if ( pPattern[0] == '\\' && pPattern[1] == '\0' )
+	if ( pPattern[0] == CORRECT_PATH_SEPARATOR && pPattern[1] == '\0' )
 	{
 		// find directories only
 		bFindDirs = true;
@@ -1211,56 +1211,54 @@ int CScriptLib::GetFileList( const char* pDirPath, const char* pPattern, CUtlVec
 	while ( !_findnext( h, &findData ) );
 
 	_findclose( h );
+
 #elif defined(POSIX)
-	FIND_DATA findData;
 	Q_FixSlashes( fullPath );
-	void *h = FindFirstFile( fullPath, &findData );
-	if ( (int)h == -1 )
+	DIR *dir = opendir( fullPath );
+	if ( dir == NULL )
 	{
 		return 0;
 	}
 
-	do
+	while ( struct dirent* entry = readdir(dir) )
 	{
-		// dos attribute complexities i.e. _A_NORMAL is 0
+		struct stat st;
+		if ( fstatat( dirfd(dir), entry->d_name, &st, 0 ) )
+			continue;
+
 		if ( bFindDirs )
 		{
 			// skip non dirs
-			if ( !( findData.dwFileAttributes & S_IFDIR ) )
+			if ( !S_ISDIR(st.st_mode) )
 				continue;
 		}
 		else
 		{
 			// skip dirs
-			if ( findData.dwFileAttributes & S_IFDIR )
+			if ( S_ISDIR(st.st_mode) )
 				continue;
 		}
 
-		if ( !stricmp( findData.cFileName, "." ) )
+		if ( !strcmp( entry->d_name, "." ) )
 			continue;
 
-		if ( !stricmp( findData.cFileName, ".." ) )
+		if ( !strcmp( entry->d_name, ".." ) )
 			continue;
 
 		char fileName[MAX_PATH];
 		strcpy( fileName, sourcePath );
-		strcat( fileName, findData.cFileName );
+		strcat( fileName, entry->d_name );
 
 		int j = fileList.AddToTail();
 		fileList[j].fileName.Set( fileName );
-		struct stat statbuf;
-		if ( stat( fileName, &statbuf ) )
 #ifdef OSX
-			fileList[j].timeWrite = statbuf.st_mtimespec.tv_sec;
+		fileList[j].timeWrite = st.st_mtimespec.tv_sec;
 #else
-			fileList[j].timeWrite = statbuf.st_mtime;
+		fileList[j].timeWrite = st.st_mtim.tv_sec;
 #endif
-		else
-			fileList[j].timeWrite = 0;
 	}
-	while ( !FindNextFile( h, &findData ) );
 
-	FindClose( h );
+	closedir( dir );
 
 #else
 #error
@@ -1277,7 +1275,7 @@ void CScriptLib::RecurseFileTree_r( const char* pDirPath, int depth, CUtlVector<
 {
 	// recurse from source directory, get directories only
 	CUtlVector< fileList_t > fileList;
-	int dirCount = GetFileList( pDirPath, "\\", fileList );
+	int dirCount = GetFileList( pDirPath, CORRECT_PATH_SEPARATOR_S, fileList );
 	if ( !dirCount )
 	{
 		// add directory name to search tree

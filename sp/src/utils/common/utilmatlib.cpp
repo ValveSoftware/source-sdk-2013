@@ -15,10 +15,16 @@
 #include <cmdlib.h>
 #include "utilmatlib.h"
 #include "tier0/dbg.h"
+#if defined(_WIN32)
 #include <windows.h>
+#endif
 #include "filesystem.h"
 #include "materialsystem/materialsystem_config.h"
-#include "mathlib/Mathlib.h"
+#include "mathlib/mathlib.h"
+
+#define STRINGIFY(x) #x
+#define STRINGIFY_EXPAND(x) STRINGIFY(x)
+#define SHARED_LIBRARY_EXT STRINGIFY_EXPAND(_EXTERNAL_DLL_EXT)
 
 void LoadMaterialSystemInterface( CreateInterfaceFn fileSystemFactory )
 {
@@ -26,12 +32,12 @@ void LoadMaterialSystemInterface( CreateInterfaceFn fileSystemFactory )
 		return;
 	
 	// materialsystem.dll should be in the path, it's in bin along with vbsp.
-	const char *pDllName = "materialsystem.dll";
+	const char *pDllName = "materialsystem" SHARED_LIBRARY_EXT;
 	CSysModule *materialSystemDLLHInst;
 	materialSystemDLLHInst = g_pFullFileSystem->LoadModule( pDllName );
 	if( !materialSystemDLLHInst )
 	{
-		Error( "Can't load MaterialSystem.dll\n" );
+		Error( "Can't load materialsystem" SHARED_LIBRARY_EXT "\n" );
 	}
 
 	CreateInterfaceFn clientFactory = Sys_GetFactory( materialSystemDLLHInst );
@@ -40,17 +46,17 @@ void LoadMaterialSystemInterface( CreateInterfaceFn fileSystemFactory )
 		g_pMaterialSystem = (IMaterialSystem *)clientFactory( MATERIAL_SYSTEM_INTERFACE_VERSION, NULL );
 		if ( !g_pMaterialSystem )
 		{
-			Error( "Could not get the material system interface from materialsystem.dll (" __FILE__ ")" );
+			Error( "Could not get the material system interface from materialsystem" SHARED_LIBRARY_EXT " (" __FILE__ ")" );
 		}
 	}
 	else
 	{
-		Error( "Could not find factory interface in library MaterialSystem.dll" );
+		Error( "Could not find factory interface in library materialsystem" SHARED_LIBRARY_EXT );
 	}
 
-	if (!g_pMaterialSystem->Init( "shaderapiempty.dll", 0, fileSystemFactory ))
+	if (!g_pMaterialSystem->Init( "shaderapiempty" SHARED_LIBRARY_EXT, 0, fileSystemFactory ))
 	{
-		Error( "Could not start the empty shader (shaderapiempty.dll)!" );
+		Error( "Could not start the empty shader (shaderapiempty" SHARED_LIBRARY_EXT ")!" );
 	}
 }
 
