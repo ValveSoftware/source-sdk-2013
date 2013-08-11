@@ -1132,7 +1132,9 @@ void SetSteamAppUser( KeyValues *pSteamInfo, const char *steamInstallPath, CStea
 		char fullFilename[MAX_PATH];
 		Q_strncpy( fullFilename, steamInstallPath, sizeof( fullFilename ) );
 		Q_AppendSlash( fullFilename, sizeof( fullFilename ) );
-		Q_strncat( fullFilename, "config\\SteamAppData.vdf", sizeof( fullFilename ), COPY_ALL_CHARACTERS );
+		Q_strncat( fullFilename, "config", sizeof( fullFilename ), COPY_ALL_CHARACTERS );
+		Q_AppendSlash( fullFilename, sizeof( fullFilename ) );
+		Q_strncat( fullFilename, "SteamAppData.vdf", sizeof( fullFilename ), COPY_ALL_CHARACTERS );
 
 		KeyValues *pSteamAppData = ReadKeyValuesFile( fullFilename );
 		if ( !pSteamAppData || (pTempAppUser = pSteamAppData->GetString( "AutoLoginUser", NULL )) == NULL )
