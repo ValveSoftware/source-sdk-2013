@@ -132,7 +132,7 @@ isstaticprop_ret IsStaticProp( studiohdr_t* pHdr )
 static int AddStaticPropDictLump( char const* pModelName )
 {
 	StaticPropDictLump_t dictLump;
-	strncpy( dictLump.m_Name, pModelName, DETAIL_NAME_LENGTH );
+	Q_strncpy( dictLump.m_Name, pModelName, DETAIL_NAME_LENGTH );
 
 	for (int i = s_StaticPropDictLump.Size(); --i >= 0; )
 	{
@@ -248,7 +248,13 @@ static CPhysCollide* GetCollisionModel( char const* pModelName )
 	// Convert to a common string
 	char* pTemp = (char*)_alloca(strlen(pModelName) + 1);
 	strcpy( pTemp, pModelName );
+#if defined(_WIN32)
 	_strlwr( pTemp );
+#else
+	for (size_t i = 0; pTemp[i]; i++)
+		if (isupper( pTemp[i] ))
+			pTemp[i] = tolower( pTemp[i] );
+#endif
 
 	char* pSlash = strchr( pTemp, '\\' );
 	while( pSlash )

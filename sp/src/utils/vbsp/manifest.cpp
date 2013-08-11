@@ -361,10 +361,15 @@ bool CManifest::LoadSubMaps( CMapFile *pMapFile, const char *pszFileName )
 bool CManifest::LoadVMFManifestUserPrefs( const char *pszFileName )
 {
 	char		UserName[ MAX_PATH ], FileName[ MAX_PATH ], UserPrefsFileName[ MAX_PATH ];
+
+#if defined(_WIN32)
 	DWORD		UserNameSize;
 
 	UserNameSize = sizeof( UserName );
 	if ( GetUserName( UserName, &UserNameSize ) == 0 )
+#else
+	if ( getlogin_r(UserName, sizeof(UserName)) != 0 )
+#endif
 	{
 		strcpy( UserPrefsFileName, "default" );
 	}
