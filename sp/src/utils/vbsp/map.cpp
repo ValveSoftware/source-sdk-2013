@@ -1850,7 +1850,9 @@ void CMapFile::ForceFuncAreaPortalWindowContents()
 
 #define INSTANCE_VARIABLE_KEY			"replace"
 
+#if defined( _WIN32 )
 static GameData	GD;
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: this function will read in a standard key / value file
@@ -2009,7 +2011,9 @@ void CMapFile::CheckForInstances( const char *pszFileName )
 		}
 	}
 
+#if defined( _WIN32 )
 	GD.Load( FDGPath );
+#endif
 
 	// this list will grow as instances are merged onto it.  sub-instances are merged and 
 	// automatically done in this processing.
@@ -2400,6 +2404,7 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 #ifdef MERGE_INSTANCE_DEBUG_INFO
 			Msg( "Remapping class %s\n", pEntity );
 #endif // #ifdef MERGE_INSTANCE_DEBUG_INFO
+#if defined( _WIN32 )
 			GDclass *EntClass = GD.BeginInstanceRemap( pEntity, NameFixup, InstanceOrigin, InstanceAngle );
 			if ( EntClass )
 			{
@@ -2422,6 +2427,7 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 					}
 				}
 			}
+#endif
 
 			if ( strcmpi( pEntity, "func_simpleladder" ) == 0 )
 			{	// hate having to do this, but the key values are so screwed up
@@ -2477,6 +2483,7 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 			extraLen = strlen( pos + 1) + 1;	// for the comma we just null'd
 		}
 
+#if defined( _WIN32 )
 		if ( GD.RemapNameField( origValue, temp, FixupStyle ) )
 		{
 			newValue = new char [ strlen( temp ) + extraLen + 1 ];
@@ -2490,6 +2497,7 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 			Connection->m_Pair->value = newValue;
 			delete oldValue;
 		}
+#endif
 	}
 
 	num_entities += Instance->num_entities;
