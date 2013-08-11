@@ -30,7 +30,9 @@ typedef enum _D3DFORMAT D3DFORMAT;
 //-----------------------------------------------------------------------------
 
 // don't bitch that inline functions aren't used!!!!
+#if defined( _MSC_VER )
 #pragma warning(disable : 4514)
+#endif
 
 enum ImageFormat 
 {

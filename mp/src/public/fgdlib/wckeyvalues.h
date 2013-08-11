@@ -12,10 +12,14 @@
 #include <tier0/dbg.h>
 #include <utlvector.h>
 #include <utldict.h>
+#if defined(_MSC_VER)
 #pragma warning(push, 1)
 #pragma warning(disable:4701 4702 4530)
+#endif
 #include <fstream>
+#if defined(_MSC_VER)
 #pragma warning(pop)
+#endif
 
 
 #define KEYVALUE_MAX_KEY_LENGTH			80

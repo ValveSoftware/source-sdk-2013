@@ -16,7 +16,9 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#if defined(_MSC_VER)
 #pragma warning(disable:4244)
+#endif
 
 
 const int MAX_ERRORS = 5;
