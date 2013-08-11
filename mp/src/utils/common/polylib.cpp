@@ -354,7 +354,9 @@ winding_t *ReverseWinding (winding_t *w)
 
 
 // BUGBUG: Hunt this down - it's causing CSG errors
+#if defined( _MSC_VER )
 #pragma optimize("g", off)
+#endif
 /*
 =============
 ClipWindingEpsilon
@@ -465,7 +467,9 @@ void ClipWindingEpsilon (winding_t *in, const Vector &normal, vec_t dist,
 	if (f->numpoints > MAX_POINTS_ON_WINDING || b->numpoints > MAX_POINTS_ON_WINDING)
 		Error ("ClipWinding: MAX_POINTS_ON_WINDING");
 }
+#if defined( _MSC_VER )
 #pragma optimize("", on)
+#endif
 
 
 // NOTE: This is identical to ClipWindingEpsilon, but it does a pre/post translation to improve precision

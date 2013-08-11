@@ -16,8 +16,10 @@
 
 #define NTAB 32
 
+#if defined( _MSC_VER )
 #pragma warning(push)
 #pragma warning( disable:4251 )
+#endif
 
 //-----------------------------------------------------------------------------
 // A generator of uniformly distributed random numbers
@@ -103,7 +105,9 @@ VSTDLIB_INTERFACE float	RandomGaussianFloat( float flMean = 0.0f, float flStdDev
 VSTDLIB_INTERFACE void	InstallUniformRandomStream( IUniformRandomStream *pStream );
 
 
+#if defined( _MSC_VER )
 #pragma warning(pop)
+#endif
 
 #endif // VSTDLIB_RANDOM_H
 
