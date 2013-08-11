@@ -1713,7 +1713,7 @@ static void SwapPhyscollideLump( byte *pDestBase, byte *pSrcBase, unsigned int &
 		}
 
 		// avoid infinite loop on badly formed file
-		if ( (pSrc - basePtr) > count )
+		if ( pSrc - basePtr > (ptrdiff_t) count )
 			break;
 
 	} while ( pPhysModel->dataSize > 0 );
