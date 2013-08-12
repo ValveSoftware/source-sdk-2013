@@ -2098,7 +2098,7 @@ FileHandle_t pFileSamples[4][4];
 
 void LoadPhysicsDLL( void )
 {
-	PhysicsDLLPath( "VPHYSICS.DLL" );
+	PhysicsDLLPath( "vphysics.dll" );
 }
 
 
