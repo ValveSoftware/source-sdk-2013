@@ -1305,7 +1305,7 @@ void WriteWorld (char *name, int iBump)
 	g_pFileSystem->Close( out );
 }
 
-void WriteRTEnv (char *name)
+void WriteRTEnv (const char *name)
 {
 	FileHandle_t out;
 
