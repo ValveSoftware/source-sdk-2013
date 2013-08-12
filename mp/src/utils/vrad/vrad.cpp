@@ -1758,7 +1758,7 @@ void RadWorld_Start()
 	{
 		// Remember the old lightmap vectors.
 		float oldLightmapVecs[MAX_MAP_TEXINFO][2][4];
-		for (i = 0; i < texinfo.Count(); i++)
+		for (i = 0; i < (unsigned)texinfo.Count(); i++)
 		{
 			for( int j=0; j < 2; j++ )
 			{
@@ -1770,7 +1770,7 @@ void RadWorld_Start()
 		}
 
 		// rescale luxels to be no denser than "luxeldensity"
-		for (i = 0; i < texinfo.Count(); i++)
+		for (i = 0; i < (unsigned)texinfo.Count(); i++)
 		{
 			texinfo_t	*tx = &texinfo[i];
 

@@ -76,7 +76,7 @@ static directlight_t *gAmbient = NULL;
 
 CNormalList::CNormalList() : m_Normals( 128 )
 {
-	for( int i=0; i < sizeof(m_NormalGrid)/sizeof(m_NormalGrid[0][0][0]); i++ )
+	for( size_t i=0; i < sizeof(m_NormalGrid)/sizeof(m_NormalGrid[0][0][0]); i++ )
 	{
 		(&m_NormalGrid[0][0][0] + i)->SetGrowSize( 16 );
 	}
@@ -296,7 +296,7 @@ void PairEdges (void)
 					// add to neighbor list
 					tmpneighbor[m] = vertexface[n][k];
 					numneighbors++;
-					if ( numneighbors > ARRAYSIZE(tmpneighbor) )
+					if ( numneighbors > (int) ARRAYSIZE(tmpneighbor) )
 					{
 						Error("Stack overflow in neighbors\n");
 					}
