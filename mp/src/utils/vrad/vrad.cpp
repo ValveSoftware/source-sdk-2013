@@ -2158,7 +2158,11 @@ void VRAD_LoadBSP( char const *pFilename )
 		// Otherwise, try looking in the BIN directory from which we were run from
 		Msg( "Could not find lights.rad in %s.\nTrying VRAD BIN directory instead...\n", 
 			    global_lights );
+#if defined(_WIN32)
 		GetModuleFileName( NULL, global_lights, sizeof( global_lights ) );
+#else
+		readlink( "/proc/self/exe", global_lights, sizeof( global_lights ) );
+#endif
 		Q_ExtractFilePath( global_lights, global_lights, sizeof( global_lights ) );
 		strcat( global_lights, "lights.rad" );
 	}
@@ -2930,7 +2934,26 @@ int VRAD_Main(int argc, char **argv)
 	return RunVRAD( argc, argv );
 }
 
+#if defined(POSIX)
 
+int main(int argc, char* argv[])
+{
+	bool both = false;
+	for ( int i = 1; i < argc; i++ )
+	{
+		if ( !strcmp( argv[i], "-both" ) )
+		{
+			int result;
+			argv[i] = (char*) "-ldr";
+			if ( (result = VRAD_Main( argc, argv )) )
+				return result;
+			argv[i] = (char*) "-hdr";
+			execvp(argv[0], argv);
+			return 0;
+		}
+	}
 
+	return VRAD_Main( argc, argv );
+}
 
-
+#endif

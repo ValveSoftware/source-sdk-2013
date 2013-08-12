@@ -39,6 +39,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#if defined(_WIN32)
 #if defined(_MSC_VER)
 #pragma warning(disable: 4142 4028)
 #endif
@@ -46,9 +47,16 @@
 #if defined(_MSC_VER)
 #pragma warning(default: 4142 4028)
 #endif
+#endif
+
+#if defined(POSIX)
+#include <stdio.h>
+#endif
 
 #include <fcntl.h>
+#if defined(_WIN32)
 #include <direct.h>
+#endif
 #include <ctype.h>
 
 
