@@ -9,7 +9,7 @@
 #include "utllinkedlist.h"
 #include "utlvector.h"
 #include "iscratchpad3d.h"
-#include "scratchpadutils.h"
+#include "ScratchPadUtils.h"
 
 
 //#define USE_SCRATCHPAD

@@ -11,7 +11,7 @@
 
 #include "vrad.h"
 #include "trace.h"
-#include "Cmodel.h"
+#include "cmodel.h"
 #include "mathlib/vmatrix.h"
 
 
