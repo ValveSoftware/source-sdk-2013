@@ -7,7 +7,7 @@
 //=============================================================================//
 // vis.c
 
-#if defined(_WIN32)
+#if defined( _WIN32 )
 #include <windows.h>
 #endif
 #include "vis.h"
@@ -304,11 +304,13 @@ void CalcPortalVis (void)
 	}
 
 
+#if defined( _WIN32 )
     if (g_bUseMPI) 
 	{
  		RunMPIPortalFlow();
 	}
 	else 
+#endif
 	{
 		RunThreadsOnIndividual (g_numportals*2, true, PortalFlow);
 	}
@@ -333,11 +335,13 @@ void CalcVis (void)
 {
 	int		i;
 
+#if defined( _WIN32 )
 	if (g_bUseMPI) 
 	{
 		RunMPIBasePortalVis();
 	}
 	else 
+#endif
 	{
 	    RunThreadsOnIndividual (g_numportals*2, true, BasePortalVis);
 	}
@@ -382,6 +386,7 @@ void SetPortalSphere (portal_t *p)
 		VectorAdd (total, w->points[i], total);
 	}
 	
+
 	for (i=0 ; i<3 ; i++)
 		total[i] /= w->numpoints;
 
@@ -415,6 +420,7 @@ void LoadPortals (char *name)
 
 	FILE *f;
 
+#if defined( _WIN32 )
 	// Open the portal file.
 	if ( g_bUseMPI )
 	{
@@ -460,6 +466,7 @@ void LoadPortals (char *name)
 #endif
 	}
 	else
+#endif
 	{
 		f = fopen( name, "r" );
 	}
@@ -980,6 +987,7 @@ int ParseCommandLine( int argc, char **argv )
 		{
 			// nothing to do here, but don't bail on this option
 		}
+#if defined( _WIN32 )
 		// NOTE: the -mpi checks must come last here because they allow the previous argument 
 		// to be -mpi as well. If it game before something else like -game, then if the previous
 		// argument was -mpi and the current argument was something valid like -game, it would skip it.
@@ -992,6 +1000,7 @@ int ParseCommandLine( int argc, char **argv )
 			if ( i == argc - 1 )
 				break;
 		}
+#endif
 		else if (argv[i][0] == '-')
 		{
 			Warning("VBSP: Unknown option \"%s\"\n\n", argv[i]);
@@ -1113,6 +1122,7 @@ int RunVVis( int argc, char **argv )
 	start = Plat_FloatTime();
 
 
+#if defined( _WIN32 )
 	if (!g_bUseMPI)
 	{
 		// Setup the logfile.
@@ -1120,6 +1130,7 @@ int RunVVis( int argc, char **argv )
 		_snprintf( logFile, sizeof(logFile), "%s.log", source );
 		SetSpewFunctionLogFile( logFile );
 	}
+#endif
 
 	// Run in the background?
 	if( g_bLowPriority )
@@ -1192,10 +1203,12 @@ int RunVVis( int argc, char **argv )
 		{
 			Error("Invalid cluster trace: %d to %d, valid range is 0 to %d\n", g_TraceClusterStart, g_TraceClusterStop, portalclusters-1 );
 		}
+#if defined( _WIN32 )
 		if ( g_bUseMPI )
 		{
 			Warning("Can't compile trace in MPI mode\n");
 		}
+#endif
 		CalcVisTrace ();
 		WritePortalTrace(source);
 	}
@@ -1226,12 +1239,16 @@ int main (int argc, char **argv)
 	InstallAllocationFunctions();
 	InstallSpewFunction();
 
+#if defined( _WIN32 )
 	VVIS_SetupMPI( argc, argv );
+#endif
 
 	// Install an exception handler.
+#if defined( _WIN32 )
 	if ( g_bUseMPI && !g_bMPIMaster )
 		SetupToolsMinidumpHandler( VMPI_ExceptionFilter );
 	else
+#endif
 		SetupDefaultToolsMinidumpHandler();
 
 	return RunVVis( argc, argv );

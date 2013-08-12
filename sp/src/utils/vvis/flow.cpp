@@ -485,11 +485,13 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 	long		*test, *might, *vis, more;
 	int			pnum;
 
+#if defined(_WIN32)
 	// Early-out if we're a VMPI worker that's told to exit. If we don't do this here, then the
 	// worker might spin its wheels for a while on an expensive work unit and not be available to the pool.
 	// This is pretty common in vis.
 	if ( g_bVMPIEarlyExit )
 		return;
+#endif
 
 	if ( leafnum == g_TraceClusterStop )
 	{
