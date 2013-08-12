@@ -165,7 +165,9 @@ void TestLine( const FourVectors& start, const FourVectors& stop,
 	RayTracingResult rt_result;
 	CCoverageCountTexture coverageCallback;
 
+#if defined(WIN32)
 	g_RtEnv.Trace4Rays(myrays, Four_Zeros, len, &rt_result, TRACE_ID_STATICPROP | static_prop_index_to_ignore, g_bTextureShadows ? &coverageCallback : 0 );
+#endif
 
 	// Assume we can see the targets unless we get hits
 	float visibility[4];
@@ -369,7 +371,9 @@ void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
 	RayTracingResult rt_result;
 	CCoverageCountTexture coverageCallback;
 
+#if defined( _WIN32 )
 	g_RtEnv.Trace4Rays(myrays, Four_Zeros, len, &rt_result, TRACE_ID_STATICPROP | static_prop_to_skip, g_bTextureShadows? &coverageCallback : 0);
+#endif
 
 	if ( bDoDebug )
 	{
@@ -387,8 +391,10 @@ void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
 		     ( rt_result.HitDistance.m128_f32[i] < len.m128_f32[i] ) )
 #endif
 		{
+#if defined( _WIN32 )
 			int id = g_RtEnv.OptimizedTriangleList[rt_result.HitIds[i]].m_Data.m_IntersectData.m_nTriangleID;
 			if ( !( id & TRACE_ID_SKY ) )
+#endif
 				aOcclusion[i] = 1.0f;
 		}
 	}
@@ -536,7 +542,9 @@ void AddBrushToRaytraceEnvironment( dbrush_t *pBrush, const VMatrix &xform )
 				v2 = xform.VMul4x3(w->p[j]);
 				Vector fullCoverage;
 				fullCoverage.x = 1.0f;
+#if defined( _WIN32 )
 				g_RtEnv.AddTriangle(TRACE_ID_OPAQUE, v0, v1, v2, fullCoverage);
+#endif
 			}
 			FreeWinding( w );
 		}
@@ -659,7 +667,9 @@ void AddBrushesForRayTrace( void )
 		{
 			Vector fullCoverage;
 			fullCoverage.x = 1.0f;
+#if defined( _WIN32 )
 			g_RtEnv.AddTriangle ( TRACE_ID_SKY, points[0], points[j - 1], points[j], fullCoverage );
+#endif
 		}
 	}
 }

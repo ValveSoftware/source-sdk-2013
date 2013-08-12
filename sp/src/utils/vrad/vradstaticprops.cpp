@@ -1537,7 +1537,9 @@ void CVradStaticPropMgr::AddPolysForRayTrace( void )
 						queryModel->GetTriangleVerts( nConvex, nTri, verts );
 						for ( int nVert = 0; nVert < 3; ++nVert )
 							verts[nVert] = xform.VMul4x3(verts[nVert]);
+#if defined( _WIN32 )
 						g_RtEnv.AddTriangle ( TRACE_ID_STATICPROP | nProp, verts[0], verts[1], verts[2], fullCoverage );
+#endif
 					}
 				}
 				s_pPhysCollision->DestroyQueryModel( queryModel );
@@ -1546,7 +1548,9 @@ void CVradStaticPropMgr::AddPolysForRayTrace( void )
 			{
 				VectorAdd ( dict.m_Mins, prop.m_Origin, prop.m_mins );
 				VectorAdd ( dict.m_Maxs, prop.m_Origin, prop.m_maxs );
+#if defined( _WIN32 )
 				g_RtEnv.AddAxisAlignedRectangularSolid ( TRACE_ID_STATICPROP | nProp, prop.m_mins, prop.m_maxs, fullCoverage );
+#endif
 			}
 			
 			continue;
@@ -1679,9 +1683,11 @@ void CVradStaticPropMgr::AddPolysForRayTrace( void )
 // 		printf( "gl %6.3f %6.3f %6.3f 1 0 0\n", XYZ(position1));
 // 		printf( "gl %6.3f %6.3f %6.3f 0 1 0\n", XYZ(position2));
 // 		printf( "gl %6.3f %6.3f %6.3f 0 0 1\n", XYZ(position3));
+#if defined( _WIN32 )
 									g_RtEnv.AddTriangle( TRACE_ID_STATICPROP | nProp,
 														 position1, position2, position3,
 														 color, flags, materialIndex);
+#endif
 								}
 							}
 							else

@@ -45,7 +45,9 @@ public:
 
 	FORCEINLINE void TestMakeTransfer( Vector start, Vector stop, int ndxShooter, int ndxReciever )
 	{
+#if defined( _WIN32 )
 		g_RtEnv.AddToRayStream( m_RayStream, start, stop, &m_pResults[m_nTests] );
+#endif
 		m_pShooterPatches[m_nTests] = ndxShooter;
 		m_pRecieverPatches[m_nTests] = ndxReciever;
 		++m_nTests;
@@ -80,7 +82,9 @@ CTransferMaker::~CTransferMaker()
 
 void CTransferMaker::Finish()
 {
+#if defined( _WIN32 )
 	g_RtEnv.FinishRayStream( m_RayStream );
+#endif
 	for ( int i = 0; i < m_nTests; ++i )
 	{
 		if ( m_pResults[i].HitID == -1 || m_pResults[i].HitDistance >= m_pResults[i].ray_length )

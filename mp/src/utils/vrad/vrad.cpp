@@ -2271,7 +2271,9 @@ void VRAD_LoadBSP( char const *pFilename )
 	// Build acceleration structure
 	printf ( "Setting up ray-trace acceleration structure... ");
 	float start = Plat_FloatTime();
+#if defined( _WIN32 )
 	g_RtEnv.SetupAccelerationStructure();
+#endif
 	float end = Plat_FloatTime();
 	printf ( "Done (%.2f seconds)\n", end-start );
 
