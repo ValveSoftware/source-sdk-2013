@@ -584,6 +584,7 @@ static void ThreadComputeLeafAmbient( int iThread, void *pUserData )
 	}
 }
 
+#if defined( _WIN32 )
 void VMPI_ProcessLeafAmbient( int iThread, uint64 iLeaf, MessageBuffer *pBuf )
 {
 	CUtlVector<ambientsample_t> list;
@@ -615,6 +616,7 @@ void VMPI_ReceiveLeafAmbientResults( uint64 leafID, MessageBuffer *pBuf, int iWo
 		pBuf->read(g_LeafAmbientSamples[leafID].Base(), nSamples * sizeof(ambientsample_t) );
 	}
 }
+#endif
 
 
 void ComputePerLeafAmbientLighting()
@@ -642,6 +644,7 @@ void ComputePerLeafAmbientLighting()
 
 	g_LeafAmbientSamples.SetCount(numleafs);
 
+#if defined( _WIN32 )
 	if ( g_bUseMPI )
 	{
 		// Distribute the work among the workers.
@@ -649,6 +652,7 @@ void ComputePerLeafAmbientLighting()
 		DistributeWork( numleafs, VMPI_DISTRIBUTEWORK_PACKETID, VMPI_ProcessLeafAmbient, VMPI_ReceiveLeafAmbientResults );
 	}
 	else
+#endif
 	{
 		RunThreadsOn(numleafs, true, ThreadComputeLeafAmbient);
 	}

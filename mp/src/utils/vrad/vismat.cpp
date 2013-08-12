@@ -467,11 +467,13 @@ BuildVisMatrix
 */
 void BuildVisMatrix (void)
 {
+#if defined( _WIN32 )
 	if ( g_bUseMPI )
 	{
 		RunMPIBuildVisLeafs();
 	}
 	else 
+#endif
 	{
 		RunThreadsOn (dvis->numclusters, true, BuildVisLeafs);
 	}

@@ -961,6 +961,7 @@ void UnserializeDetailPropLighting( int lumpID, int lumpVersion, CUtlVector<Deta
 	buf.Get( lumpData.Base(), lightsize );
 }
 
+#if defined( _WIN32 )
 DetailObjectLump_t *g_pMPIDetailProps = NULL;
 
 void VMPI_ProcessDetailPropWU( int iThread, int iWorkUnit, MessageBuffer *pBuf )
@@ -1003,6 +1004,7 @@ void VMPI_ReceiveDetailPropWU( int iWorkUnit, MessageBuffer *pBuf, int iWorker )
 		pBuf->read( &l->m_Style, sizeof( l->m_Style ) );
 	}
 }
+#endif
 	
 //-----------------------------------------------------------------------------
 // Computes lighting for the detail props

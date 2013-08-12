@@ -2019,12 +2019,14 @@ bool RadWorld_Go()
 	}
 
 	// build initial facelights
+#if defined(WIN32)
 	if (g_bUseMPI) 
 	{
 		// RunThreadsOnIndividual (numfaces, true, BuildFacelights);
 		RunMPIBuildFacelights();
 	}
 	else 
+#endif
 	{
 		RunThreadsOnIndividual (numfaces, true, BuildFacelights);
 	}
@@ -2079,12 +2081,16 @@ bool RadWorld_Go()
 		StaticDispMgr()->EndTimer();
 
 		// blend bounced light into direct light and save
+#if defined(WIN32)
 		VMPI_SetCurrentStage( "FinalLightFace" );
 		if ( !g_bUseMPI || g_bMPIMaster )
+#endif
 			RunThreadsOnIndividual (numfaces, true, FinalLightFace);
 		
+#if defined(WIN32)
 		// Distribute the lighting data to workers.
 		VMPI_DistributeLightData();
+#endif
 			
 		Msg("FinalLightFace Done\n"); fflush(stdout);
 	}
@@ -2141,7 +2147,9 @@ void VRAD_LoadBSP( char const *pFilename )
 	// so we prepend qdir here.
 	strcpy( source, ExpandPath( source ) );
 
+#if defined(_WIN32)
 	if ( !g_bUseMPI )
+#endif
 	{
 		// Setup the logfile.
 		char logFile[512];
@@ -2185,7 +2193,9 @@ void VRAD_LoadBSP( char const *pFilename )
 	GetPlatformMapPath( source, platformPath, 0, MAX_PATH );
 
 	Msg( "Loading %s\n", platformPath );
+#if defined(_WIN32)
 	VMPI_SetCurrentStage( "LoadBSPFile" );
+#endif
 	LoadBSPFile (platformPath);
 	
 	// now, set whether or not static prop lighting is present
@@ -2313,7 +2323,9 @@ void VRAD_Finish()
 	}
 
 	Msg( "Writing %s\n", platformPath );
+#if defined(_WIN32)
 	VMPI_SetCurrentStage( "WriteBSPFile" );
+#endif
 	WriteBSPFile(platformPath);
 
 	if ( g_bDumpPatches )
@@ -2734,6 +2746,7 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 			}
 		}
 #endif
+#if defined(WIN32)
 		// NOTE: the -mpi checks must come last here because they allow the previous argument 
 		// to be -mpi as well. If it game before something else like -game, then if the previous
 		// argument was -mpi and the current argument was something valid like -game, it would skip it.
@@ -2746,6 +2759,7 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 			if ( i == argc - 1 && V_stricmp( argv[i], "-mpi_ListParams" ) != 0 )
 				break;
 		}
+#endif
 		else
 		{
 			break;
@@ -2897,7 +2911,9 @@ int RunVRAD( int argc, char **argv )
 
 	VRAD_Finish();
 
+#if defined(_WIN32)
 	VMPI_SetCurrentStage( "master done" );
+#endif
 
 	DeleteCmdLine( argc, argv );
 	CmdLib_Cleanup();
@@ -2911,15 +2927,17 @@ int VRAD_Main(int argc, char **argv)
 
 	VRAD_Init();
 
+#if defined( _WIN32 )
 	// This must come first.
 	VRAD_SetupMPI( argc, argv );
+#endif
 
 	// Initialize the filesystem, so additional commandline options can be loaded
 	Q_StripExtension( argv[ argc - 1 ], source, sizeof( source ) );
 	CmdLib_InitFileSystem( argv[ argc - 1 ] );
 	Q_FileBase( source, source, sizeof( source ) );
 
-#if !defined( _DEBUG )
+#if !defined( _DEBUG ) && defined( _WIN32 )
 	if ( g_bUseMPI && !g_bMPIMaster )
 	{
 		SetupToolsMinidumpHandler( VMPI_ExceptionFilter );

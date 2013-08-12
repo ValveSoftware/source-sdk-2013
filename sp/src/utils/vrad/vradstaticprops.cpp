@@ -96,11 +96,13 @@ public:
 	void ComputeLighting( int iThread );
 
 private:
+#if defined(_WIN32)
 	// VMPI stuff.
 	static void VMPI_ProcessStaticProp_Static( int iThread, uint64 iStaticProp, MessageBuffer *pBuf );
 	static void VMPI_ReceiveStaticPropResults_Static( uint64 iStaticProp, MessageBuffer *pBuf, int iWorker );
 	void VMPI_ProcessStaticProp( int iThread, int iStaticProp, MessageBuffer *pBuf );
 	void VMPI_ReceiveStaticPropResults( int iStaticProp, MessageBuffer *pBuf, int iWorker );
+#endif
 	
 	// local thread version
 	static void ThreadComputeStaticPropLighting( int iThread, void *pUserData );
@@ -1107,7 +1109,9 @@ void CVradStaticPropMgr::ComputeLighting( CStaticProp &prop, int iThread, int pr
 	if (prop.m_Flags & STATIC_PROP_NO_PER_VERTEX_LIGHTING )
 		return;
 
+#if defined(_WIN32)
 	VMPI_SetCurrentStage( "ComputeLighting" );
+#endif
 	
 	for ( int bodyID = 0; bodyID < pStudioHdr->numbodyparts; ++bodyID )
 	{
@@ -1363,6 +1367,7 @@ void CVradStaticPropMgr::SerializeLighting()
 	}
 }
 
+#if defined(_WIN32)
 void CVradStaticPropMgr::VMPI_ProcessStaticProp_Static( int iThread, uint64 iStaticProp, MessageBuffer *pBuf )
 {
 	g_StaticPropMgr.VMPI_ProcessStaticProp( iThread, iStaticProp, pBuf );
@@ -1423,6 +1428,7 @@ void CVradStaticPropMgr::VMPI_ReceiveStaticPropResults( int iStaticProp, Message
 	// Apply the results.
 	ApplyLightingToStaticProp( m_StaticProps[iStaticProp], &results );
 }
+#endif
 
 
 void CVradStaticPropMgr::ComputeLightingForProp( int iThread, int iStaticProp )
@@ -1464,6 +1470,7 @@ void CVradStaticPropMgr::ComputeLighting( int iThread )
 	// ensure any traces against us are ignored because we have no inherit lighting contribution
 	m_bIgnoreStaticPropTrace = true;
 
+#if defined(_WIN32)
 	if ( g_bUseMPI )
 	{
 		// Distribute the work among the workers.
@@ -1476,6 +1483,7 @@ void CVradStaticPropMgr::ComputeLighting( int iThread )
 			&CVradStaticPropMgr::VMPI_ReceiveStaticPropResults_Static );
 	}
 	else
+#endif
 	{
 		RunThreadsOn(count, true, ThreadComputeStaticPropLighting);
 	}
