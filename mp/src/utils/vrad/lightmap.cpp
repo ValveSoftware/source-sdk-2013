@@ -2534,7 +2534,11 @@ static void GatherSampleLightAt4Points( SSE_SampleInfo_t& info, int sampleIdx, i
 			if (info.m_WarnFace != info.m_FaceNum)
 			{
 				Warning ("\nWARNING: Too many light styles on a face at (%f, %f, %f)\n",
+#if !USE_STDC_FOR_SIMD
+					((float*) &info.m_Points.x)[0], ((float*) &info.m_Points.y)[0], ((float*) &info.m_Points.z)[0] );
+#else
 					info.m_Points.x.m128_f32[0], info.m_Points.y.m128_f32[0], info.m_Points.z.m128_f32[0] );
+#endif
 				info.m_WarnFace = info.m_FaceNum;
 			}
 			continue;

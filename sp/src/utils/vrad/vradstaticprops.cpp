@@ -1020,8 +1020,12 @@ void ComputeDirectLightingAtPoint( Vector &position, Vector &normal, Vector &out
 
 		GatherSampleLightSSE( sampleOutput, dl, -1, adjusted_pos4, &normal4, 1, iThread, nLFlags | GATHERLFLAGS_FORCE_FAST,
 		                      static_prop_id_to_skip, flEpsilon );
-		
+
+#if !USE_STDC_FOR_SIMD
+		VectorMA( outColor, ((float*) &sampleOutput.m_flFalloff)[0] * ((float*) &sampleOutput.m_flDot[0])[0], dl->light.intensity, outColor );
+#else
 		VectorMA( outColor, sampleOutput.m_flFalloff.m128_f32[0] * sampleOutput.m_flDot[0].m128_f32[0], dl->light.intensity, outColor );
+#endif
 	}
 }
 
