@@ -64,7 +64,7 @@ private:
 };
 
 CTransferMaker::CTransferMaker( transfer_t *all_transfers ) :
-	m_AllTransfers( all_transfers ), m_nTests( 0 )
+	m_nTests( 0 ), m_AllTransfers( all_transfers )
 {
 	m_pResults = (RayTracingSingleResult *)calloc( 1, MAX_PATCHES * sizeof ( RayTracingSingleResult ) );
 	m_pShooterPatches = (int *)calloc( 1, MAX_PATCHES * sizeof( int ) );
