@@ -935,7 +935,7 @@ inline T QWordSwapC( T dw )
 
 	#pragma warning(pop)
 
-#elif defined( _LINUX ) || defined( __APPLE__)
+#elif defined( _LINUX ) || defined( __APPLE__ )
 
 	#define WordSwap  WordSwapAsm
 	#define DWordSwap DWordSwapAsm
