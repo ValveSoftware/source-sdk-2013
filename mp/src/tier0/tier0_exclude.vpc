@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-//	tier0_s_exclude.vpc
+//	tier0_exclude.vpc
 //
 //	Project Script
 //-----------------------------------------------------------------------------
@@ -8,8 +8,7 @@ $Project
 {
 	$Folder	"Link Libraries"
 	{
-		-$File "$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXtier0$_IMPLIB_EXT" [!$WINDOWS]
-		-$File "$SRCDIR\lib\public\$_IMPLIB_PREFIXtier0$_IMPLIB_EXT" [$WINDOWS]
+		-$Lib "$LIBPUBLIC\tier0"
 	}
 	$Folder	"Source Files"
 	{

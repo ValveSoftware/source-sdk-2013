@@ -5,11 +5,8 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-
-$macro OUTLIBDIR    "$SRCDIR\lib\public" [!$LINUX && !$OSXALL]
  
 $include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
-$include "$SRCDIR\vstdlib\vstdlib_exclude.vpc" [$OSXALL]
 
 $Configuration
 {

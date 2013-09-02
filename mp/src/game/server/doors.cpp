@@ -340,12 +340,11 @@ void CBaseDoor::Spawn()
 #ifdef TF_DLL
 	if ( TFGameRules() && TFGameRules()->IsMultiplayer() )
 	{
-		if ( !m_flBlockDamage )
-		{
-			// Never block doors in TF2 - to prevent various exploits.
-			m_flBlockDamage = 10.f;
-		}
+		// Never block doors in TF2 - to prevent various exploits.
+		m_bIgnoreNonPlayerEntsOnBlock = true;
 	}
+#else
+	m_bIgnoreNonPlayerEntsOnBlock = false;
 #endif // TF_DLL
 }
 
@@ -1206,6 +1205,11 @@ void CBaseDoor::Blocked( CBaseEntity *pOther )
 		{
 			pOther->TakeDamage( CTakeDamageInfo( this, this, m_flBlockDamage, DMG_CRUSH ) );
 		}
+	}
+	// If set, ignore non-player ents that block us.  Mainly of use in multiplayer to prevent exploits.
+	else if ( pOther && !pOther->IsPlayer() && m_bIgnoreNonPlayerEntsOnBlock )
+	{
+		return;
 	}
 
 	// If we're set to force ourselves closed, keep going

@@ -74,23 +74,9 @@ $Project
 	$Folder	"Link Libraries" [$WIN32]
 	{
 //		$File	"$SRCDIR\dx9sdk\lib\d3dx9.lib"		
-		$DynamicFile	"$SRCDIR\lib\public\mathlib.lib"
-		$DynamicFile	"$SRCDIR\lib\public\shaderlib.lib"
 	}
 
-	$Folder	"Link Libraries" [$X360]
-	{
-		$DynamicFile	"$SRCDIR\lib\public\mathlib_360.lib"	
-		$DynamicFile	"$SRCDIR\lib\public\shaderlib_360.lib"
-	}
-
-	$Folder "Link Libraries" [$POSIX&&!$LINUX]
-	{
-        $DynamicFile   "$SRCDIR\lib\$PLATFORM\mathlib$_STATICLIB_EXT"
-        $DynamicFile   "$SRCDIR\lib\$PLATFORM\shaderlib$_STATICLIB_EXT"
-    }
-
-	$Folder "Link Libraries" [$LINUX]
+	$Folder "Link Libraries"
 	{
         $Lib	mathlib
         $Lib	shaderlib

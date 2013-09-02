@@ -6,18 +6,33 @@
 
 $IgnoreRedundancyWarning	"ON"
 
-$MacroRequired				"PLATSUBDIR"
+// Disable frame pointer omission to allow fast stack walking, necessary for
+// good ETW profiling.
+$Macro  NOFPO  "1"
+
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTBINNAME"
 $MacroRequired				"OUTBINDIR"
+$MacroRequired				"LIBPUBLIC"
+$MacroRequired				"LIBCOMMON"
+$MacroRequired				"PLATSUBDIR"
+$MacroRequiredAllowEmpty	"GAMENAME"
+$MacroRequiredAllowEmpty	"INTERMEDIATESUBDIR"
+$MacroRequiredAllowEmpty	"_UNITYSUBDIR"
+$MacroRequiredAllowEmpty	"_STATICSUBDIR"
+$Macro						"_SUBDIRSUFFIX"		"$INTERMEDIATESUBDIR$_STATICSUBDIR$GAMENAME$PLATSUBDIR$_UNITYSUBDIR"
 
 $Configuration "Release"
 {
 	$General
 	{
 		// General
-		$OutputDirectory						".\Release$PLATSUBDIR"
-		$IntermediateDirectory					".\Release$PLATSUBDIR"
+		$OutputDirectory					".\Release$_SUBDIRSUFFIX"	[!$RETAIL && !$PROFILE]
+		$IntermediateDirectory				".\Release$_SUBDIRSUFFIX"	[!$RETAIL && !$PROFILE]
+		$OutputDirectory					".\Retail$_SUBDIRSUFFIX"	[$RETAIL]
+		$IntermediateDirectory				".\Retail$_SUBDIRSUFFIX"	[$RETAIL]
+		$OutputDirectory					".\Profile$_SUBDIRSUFFIX"	[!$RETAIL && $PROFILE]
+		$IntermediateDirectory				".\Profile$_SUBDIRSUFFIX"	[!$RETAIL && $PROFILE]
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile
 		$InheritedProjectPropertySheets
@@ -29,7 +44,7 @@ $Configuration "Release"
 		$MinimizeCRTUseInATL
 		$CharacterSet							"Use Multi-Byte Character Set"
 		$CommonLanguageRuntimeSupport
-		$WholeProgramOptimization
+		$WholeProgramOptimization				"Use Link Time Code Generation" [$LTCG]
 	}
 
 	$Debugging
@@ -53,7 +68,6 @@ $Configuration "Release"
 		$DebugInformationFormat					"Program Database (/Zi)"
 		$SuppressStartupBanner
 		$WarningLevel							"Level 4 (/W4)"
-		$Detect64bitPortabilityIssues			"Yes (/Wp64)"
 		$TreatWarningsAsErrors
 		$UseUnicodeResponseFiles
 
@@ -67,10 +81,8 @@ $Configuration "Release"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions				"WIN32;_WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
-		// Enable asserts in release builds if /define:releaseasserts is specified on the VPC command line.
-		$PreprocessorDefinitions			"$BASE;RELEASEASSERTS" [$RELEASEASSERTS]
-		$PreprocessorDefinitions		"$BASE;RAD_TELEMETRY_DISABLED" [$SOURCESDK]
+		$PreprocessorDefinitions				"$BASE;WIN32;_WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions				"$BASE;RELEASE_ASSERTS" [$RELEASEASSERTS]
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -83,11 +95,10 @@ $Configuration "Release"
 		$BasicRuntimeChecks
 		$RuntimeLibrary							"Multi-threaded (/MT)"
 		$StructMemberAlignment
-		$BufferSecurityCheck					"Yes"	[$STAGING_ONLY]
-		$BufferSecurityCheck					"No"	[!$STAGING_ONLY]
+		$BufferSecurityCheck					"No"	[$RETAIL]
+		$BufferSecurityCheck					"Yes"	[!$RETAIL]
 		$EnableFunctionLevelLinking				"Yes (/Gy)"
 		$EnableEnhancedInstructionSet
-		$EnableEnhancedInstructionSet				"Streaming SIMD Extensions (/arch:SSE)" [$WIN32]
 		$FloatingPointModel						"Fast (/fp:fast)"
 		$EnableFloatingPointExceptions
 
@@ -126,14 +137,14 @@ $Configuration "Release"
 		$ShowIncludes
 		$UndefinePreprocessorDefinitions
 		$UndefineAllPreprocessorDefinitions
-		$UseFullPaths
+		$UseFullPaths							"Yes (/FC)"
 		$OmitDefaultLibraryNames
 		$ErrorReporting							"Prompt Immediately (/errorReport:prompt)"
 
-		// Command Line
-		$AdditionalOptions						"$BASE /MP"
 		// Enable extra debugging information.
-		$AdditionalOptions						"$BASE /d2Zi+"
+		$AdditionalOptions						"$BASE /d2Zi+"  [$VS2010]
+		// Command Line
+		$AdditionalOptions						"$BASE /Oy-"	[$NOFPO]
 	}
 
 	$Linker
@@ -163,18 +174,16 @@ $Configuration "Release"
 		$AssemblyLinkResource
 
 		// Manifest File
-		$GenerateManifest						"No" [!$VS2010]
-		$GenerateManifest						"Yes" [$VS2010]
+		$GenerateManifest						"Yes"
 		$ManifestFile
 		$AdditionalManifestDependencies
 		$AllowIsolation
+		$UACExecutionLevel
 
 		// Debugging
 		$GenerateDebugInfo						"Yes (/DEBUG)"
 		$GenerateProgramDatabaseFile			"$(IntDir)/$(TargetName).pdb"
 		$StripPrivateSymbols
-		$GenerateMapFile						"No"
-		$MapFileName							"$(IntDir)/$(TargetName).map"
 		$MapExports
 		$DebuggableAssembly
 
@@ -190,9 +199,22 @@ $Configuration "Release"
 		$SwapRunFromNetwork
 		$Driver
 
+		// RandomizeBaseAddress (/DYNAMICBASE, /ASLR) is a hugely important security setting.
+		// However it can cause confusion during development and can make tracking down certain
+		// bugs tricky by making code/stack/heap addresses change between runs. Enable for retail,
+		// but disable for development builds.
+		$RandomizedBaseAddress				"true" [$RETAIL]
+		$RandomizedBaseAddress				"false" [!$RETAIL]
+
 		// Optimization
 		$References							"Eliminate Unreferenced Data (/OPT:REF)"
-		$EnableCOMDATFolding				"Remove Redundant COMDATs (/OPT:ICF)"
+		// COMDAT folding can be very confusing when debugging and profiling because it can
+		// cause execution to go through nonsensical functions (that happen to be binary
+		// equivalent to the logical function). The performance benefit is small enough that
+		// it is not worth enabling in the development builds. It should be enabled on retail
+		// builds.
+		$EnableCOMDATFolding				"Remove Redundant COMDATs (/OPT:ICF)" [$RETAIL]
+		$EnableCOMDATFolding				"No (/OPT:NOICF)" [!$RETAIL]
 		$OptimizeForWindows98
 		$FunctionOrder
 		$ProfileGuidedDatabase
@@ -210,12 +232,13 @@ $Configuration "Release"
 		$NoEntryPoint
 		$SetChecksum
 		$BaseAddress							"$LOADADDRESS_DEVELOPMENT"
-		$BaseAddress							"$LOADADDRESS_RETAIL" [$RETAIL]
+		//$BaseAddress							"$LOADADDRESS_RETAIL" [$RETAIL]
 		$FixedBaseAddress
 		$TurnOffAssemblyGeneration
 		$DelayLoadedDLL
 		$ImportLibrary
 		$MergeSections
+		$TargetMachine						
 		$Profile
 		$CLRThreadAttribute
 		$CLRImageType
@@ -226,7 +249,7 @@ $Configuration "Release"
 		$CLRUnmanagedCodeCheck
 
 		// Command Line
-		$AdditionalOptions					"$BASE /DYNAMICBASE"
+		$AdditionalOptions						
 	}
 
 	$ManifestTool

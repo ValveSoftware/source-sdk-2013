@@ -1,4 +1,9 @@
 
+$Include "$SRCDIR\vpc_scripts\version.vpc"
+$Macro PLATSUBDIR	"\linux32"	[$LINUX32]
+
+$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR"
+$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR"
 
 $MacroRequired				"SRCDIR"
 
@@ -8,7 +13,7 @@ $Configuration "Debug"
 	$Compiler
 	{
 		$PreprocessorDefinitions			"DEBUG;_DEBUG"
-		$OptimizerLevel					"-gdwarf-2 -g $(OptimizerLevel_CompilerSpecific)"
+		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
 	}
 }
 
@@ -18,7 +23,7 @@ $Configuration "Release"
 	{
 		$PreprocessorDefinitions		"NDEBUG"
 		$PreprocessorDefinitions		"$BASE;RELEASEASSERTS" [$RELEASEASSERTS]
-		$OptimizerLevel				"-gdwarf-2 -g $(OptimizerLevel_CompilerSpecific)"
+		$OptimizerLevel				"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
 	}
 }
 
@@ -32,23 +37,14 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
-		$AdditionalIncludeDirectories	"$BASE;/usr/include/malloc" [$OSX]
-		$PreprocessorDefinitions		"$BASE;POSIX;GNUC"
+		$PreprocessorDefinitions		"$BASE;GNUC;POSIX;COMPILER_GCC;MEMOVERRIDE_MODULE=$PROJECTNAME;_DLL_EXT=$_DLL_EXT"
 		$PreprocessorDefinitions		"$BASE;DEDICATED" [$DEDICATED]
-		$PreprocessorDefinitions		"$BASE;LINUX;_LINUX"		[$LINUXALL]
-		$PreprocessorDefinitions		"$BASE;_OSX;OSX;_DARWIN_UNLIMITED_SELECT;FD_SETSIZE=10240;" [$OSX32 || $OSX64]
-		$PreprocessorDefinitions		"$BASE;_DEMO"			[$DEMO]
+		$PreprocessorDefinitions		"$BASE;_LINUX;LINUX"		[$LINUXALL]
 		$SymbolVisibility				"hidden" 		[$POSIX]
-		$GCC_ExtraCompilerFlags			"$BASE -U_FORTIFY_SOURCE" [$LINUXALL]
-		$GCC_ExtraCompilerFlags			"$BASE -faddress-sanitizer" [$ADDRESSSANITIZER && $LINUXALL]
-
-		// Pass on appropriate branch define to preprocessor
-		$PreprocessorDefinitions		"$BASE;STAGING_ONLY" [$STAGING_ONLY]
-		$PreprocessorDefinitions		"$BASE;TF_BETA" [$TF_BETA]
-	}
-	$Linker
-	{
-		$GCC_ExtraLinkerFlags			"$BASE -faddress-sanitizer" [$ADDRESSSANITIZER && $LINUXALL]
+		$PreprocessorDefinitions		"$BASE;POSIX;_POSIX"		[$POSIX]
+		
+		$GCC_ExtraCompilerFlags			"-U_FORTIFY_SOURCE" [$LINUXALL]
+		$Create/UsePCHThroughFile	"stdafx.h"
 	}
 }
 
@@ -56,9 +52,8 @@ $Project
 {
 	$Folder "Link Libraries"
 	{
-		$ImpLib tier0   [!$IS_LIB_PROJECT]
-		$Lib	tier1     [!$IS_LIB_PROJECT]
-		$ImpLib vstdlib [!$IS_LIB_PROJECT]
-		$Lib	$SRCDIR/thirdparty/clang+llvm-3.1-x86-linux-ubuntu_12.04/lib/clang/3.1/lib/linux/libclang_rt.asan-i386 [$ADDRESSSANITIZER && $LINUXALL]
+		$ImpLib "$LIBPUBLIC\tier0"		[!$IS_LIB_PROJECT]
+		$Lib	"$LIBPUBLIC\tier1"		[!$IS_LIB_PROJECT]
+		$ImpLib "$LIBPUBLIC\vstdlib"	[!$IS_LIB_PROJECT]
 	}
 }

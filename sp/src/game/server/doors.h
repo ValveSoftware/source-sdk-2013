@@ -114,6 +114,7 @@ public:
 	bool	m_bDoorGroup;
 	bool	m_bLocked;				// Whether the door is locked
 	bool	m_bIgnoreDebris;
+	bool	m_bIgnoreNonPlayerEntsOnBlock;	// Non-player entities should never block.  This variable needs more letters.
 	
 	FuncDoorSpawnPos_t m_eSpawnPosition;
 

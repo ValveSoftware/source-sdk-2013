@@ -7,7 +7,7 @@
 $Macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$SRCDIR\..\game\bin"
 
-$Include "$SRCDIR\vpc_scripts\source_exe_con_win32_base.vpc"
+$Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
 
 $Configuration
 {
@@ -52,9 +52,9 @@ $Project "Captioncompiler"
 
 	$Folder "Link Libraries"
 	{
-		$DynamicFile	"$SRCDIR\lib\public\appframework.lib"
-		$DynamicFile	"$SRCDIR\lib\public\mathlib.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier2.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier3.lib"
+		$Lib appframework
+		$Lib mathlib
+		$Lib tier2
+		$Lib tier3
 	}
 }

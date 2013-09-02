@@ -877,7 +877,7 @@ unsigned int bf_read::CheckReadUBitLong(int numbits)
 void bf_read::ReadBits(void *pOutData, int nBits)
 {
 #if defined( BB_PROFILING )
-	VPROF( "bf_write::ReadBits" );
+	VPROF( "bf_read::ReadBits" );
 #endif
 
 	unsigned char *pOut = (unsigned char*)pOutData;
@@ -1083,7 +1083,7 @@ unsigned int bf_read::ReadBitLong(int numbits, bool bSigned)
 float bf_read::ReadBitCoord (void)
 {
 #if defined( BB_PROFILING )
-	VPROF( "bf_write::ReadBitCoord" );
+	VPROF( "bf_read::ReadBitCoord" );
 #endif
 	int		intval=0,fractval=0,signbit=0;
 	float	value = 0.0;
@@ -1126,7 +1126,7 @@ float bf_read::ReadBitCoord (void)
 float bf_read::ReadBitCoordMP( bool bIntegral, bool bLowPrecision )
 {
 #if defined( BB_PROFILING )
-	VPROF( "bf_write::ReadBitCoordMP" );
+	VPROF( "bf_read::ReadBitCoordMP" );
 #endif
 	// BitCoordMP float encoding: inbounds bit, integer bit, sign bit, optional int bits, float bits
 	// BitCoordMP integer encoding: inbounds bit, integer bit, optional sign bit, optional int bits.
@@ -1212,7 +1212,7 @@ float bf_read::ReadBitCoordMP( bool bIntegral, bool bLowPrecision )
 unsigned int bf_read::ReadBitCoordBits (void)
 {
 #if defined( BB_PROFILING )
-	VPROF( "bf_write::ReadBitCoordBits" );
+	VPROF( "bf_read::ReadBitCoordBits" );
 #endif
 
 	unsigned int flags = ReadUBitLong(2);
@@ -1231,7 +1231,7 @@ unsigned int bf_read::ReadBitCoordBits (void)
 unsigned int bf_read::ReadBitCoordMPBits( bool bIntegral, bool bLowPrecision )
 {
 #if defined( BB_PROFILING )
-	VPROF( "bf_write::ReadBitCoordMPBits" );
+	VPROF( "bf_read::ReadBitCoordMPBits" );
 #endif
 
 	unsigned int flags = ReadUBitLong(2);

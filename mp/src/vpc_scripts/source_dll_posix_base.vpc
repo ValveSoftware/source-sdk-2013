@@ -13,12 +13,17 @@ $Configuration
 	$General
 	{
 		$ConfigurationType				"Dynamic Library (.dll)"
-		$GameOutputFile					"$OUTBINDIR/$OUTBINNAME$_DLL_EXT"
+		$GameOutputFile					"$OUTBINDIR/$OUTBINNAME$OUTDLLEXT"
+	}
+
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;DLLNAME=$OUTBINNAME"
 	}
 
 	$Linker
 	{
-		$OutputFile					"$(OBJ_DIR)/$OUTBINNAME$_DLL_EXT"
+		$OutputFile					"$(OBJ_DIR)/$OUTBINNAME$OUTDLLEXT"
 	}
 }
 

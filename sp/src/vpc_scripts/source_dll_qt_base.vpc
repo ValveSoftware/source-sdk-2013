@@ -1,0 +1,44 @@
+//===================== Copyright (c) Valve Corporation. All Rights Reserved. ======================
+//
+//==================================================================================================
+
+$Macro	QT_ROOT	"$SRCDIR\thirdparty\lgpl\qt"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+$Include "$SRCDIR\vpc_scripts\qt_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE;.\;$SRCDIR\game\shared;$QT_ROOT\include;.\$QT_TARGET_SUBDIR"
+		$PreprocessorDefinitions			"$BASE;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT"
+		$DisableSpecificWarnings			"4127;4512;$BASE"
+
+		// Causes a bunch of bogus compiler warnings for now; let's disable it
+		$Detect64bitPortabilityIssues	"No"
+	}
+}
+
+$Configuration "Release"
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions			"$BASE;QT_NO_DEBUG"
+	}
+}
+
+$Project
+{
+	$Folder "Link Libraries" [$QTDEBUG]
+	{
+		$Lib								"$QT_ROOT\lib\qtcored4"
+		$Lib								"$QT_ROOT\lib\qtguid4"
+	}
+	
+	$Folder "Link Libraries" [!$QTDEBUG]
+	{
+		$Lib								"$QT_ROOT\lib\qtcore4"
+		$Lib								"$QT_ROOT\lib\qtgui4"
+	}
+}

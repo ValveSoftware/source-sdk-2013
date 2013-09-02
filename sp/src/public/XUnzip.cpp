@@ -3232,10 +3232,12 @@ int unzlocal_GetCurrentFileInfoInternal (unzFile file, unz_file_info *pfile_info
 
 	// we check the magic
 	if (err==UNZ_OK)
+	{
 		if (unzlocal_getLong(s->file,&uMagic) != UNZ_OK)
 			err=UNZ_ERRNO;
 		else if (uMagic!=0x02014b50)
 			err=UNZ_BADZIPFILE;
+	}
 
 	if (unzlocal_getShort(s->file,&file_info.version) != UNZ_OK)
 		err=UNZ_ERRNO;
@@ -3312,10 +3314,12 @@ int unzlocal_GetCurrentFileInfoInternal (unzFile file, unz_file_info *pfile_info
 			uSizeRead = extraFieldBufferSize;
 
 		if (lSeek!=0)
+		{
 			if (lufseek(s->file,lSeek,SEEK_CUR)==0)
 				lSeek=0;
 			else
 				err=UNZ_ERRNO;
+		}
 		if ((file_info.size_file_extra>0) && (extraFieldBufferSize>0))
 			if (lufread(extraField,(uInt)uSizeRead,1,s->file)!=1)
 				err=UNZ_ERRNO;
@@ -3337,10 +3341,12 @@ int unzlocal_GetCurrentFileInfoInternal (unzFile file, unz_file_info *pfile_info
 			uSizeRead = commentBufferSize;
 
 		if (lSeek!=0)
+		{
 			if (lufseek(s->file,lSeek,SEEK_CUR)==0)
 				{} // unused lSeek=0;
 			else
 				err=UNZ_ERRNO;
+		}
 		if ((file_info.size_file_comment>0) && (commentBufferSize>0))
 			if (lufread(szComment,(uInt)uSizeRead,1,s->file)!=1)
 				err=UNZ_ERRNO;
@@ -3490,10 +3496,12 @@ int unzlocal_CheckCurrentFileCoherencyHeader (unz_s *s,uInt *piSizeVar,
 
 
 	if (err==UNZ_OK)
+	{
 		if (unzlocal_getLong(s->file,&uMagic) != UNZ_OK)
 			err=UNZ_ERRNO;
 		else if (uMagic!=0x04034b50)
 			err=UNZ_BADZIPFILE;
+	}
 
 	if (unzlocal_getShort(s->file,&uData) != UNZ_OK)
 		err=UNZ_ERRNO;

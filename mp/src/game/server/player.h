@@ -358,7 +358,7 @@ public:
 
 	bool					IsHLTV( void ) const { return pl.hltv; }
 	bool					IsReplay( void ) const { return pl.replay; }
-	virtual	bool			IsPlayer( void ) const { return true; }			// Spectators return TRUE for this, use IsObserver to seperate cases
+	virtual	bool			IsPlayer( void ) const { return true; }			// Spectators return TRUE for this, use IsObserver to separate cases
 	virtual bool			IsNetClient( void ) const { return true; }		// Bots should return FALSE for this, they can't receive NET messages
 																			// Spectators should return TRUE for this
 
@@ -1500,6 +1500,44 @@ int CollectPlayers( CUtlVector< T * > *playerVector, int team = TEAM_ANY, bool i
 	return playerVector->Count();
 }
 
+template < typename T >
+int CollectHumanPlayers( CUtlVector< T * > *playerVector, int team = TEAM_ANY, bool isAlive = false, bool shouldAppend = false )
+{
+	if ( !shouldAppend )
+	{
+		playerVector->RemoveAll();
+	}
+
+	for( int i=1; i<=gpGlobals->maxClients; ++i )
+	{
+		CBasePlayer *player = UTIL_PlayerByIndex( i );
+
+		if ( player == NULL )
+			continue;
+
+		if ( FNullEnt( player->edict() ) )
+			continue;
+
+		if ( !player->IsPlayer() )
+			continue;
+
+		if ( player->IsBot() )
+			continue;
+
+		if ( !player->IsConnected() )
+			continue;
+
+		if ( team != TEAM_ANY && player->GetTeamNumber() != team )
+			continue;
+
+		if ( isAlive && !player->IsAlive() )
+			continue;
+
+		playerVector->AddToTail( assert_cast< T * >( player ) );
+	}
+
+	return playerVector->Count();
+}
 
 enum
 {

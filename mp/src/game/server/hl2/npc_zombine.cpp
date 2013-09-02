@@ -571,7 +571,7 @@ void CNPC_Zombine::HandleAnimEvent( animevent_t *pEvent )
 				{
 					pNPC = ppAIs[i];
 
-					if( pNPC->Classify() == CLASS_PLAYER_ALLY || pNPC->Classify() == CLASS_PLAYER_ALLY_VITAL && pNPC->FVisible(this) )
+					if( pNPC->Classify() == CLASS_PLAYER_ALLY || ( pNPC->Classify() == CLASS_PLAYER_ALLY_VITAL && pNPC->FVisible(this) ) )
 					{
 						int priority;
 						Disposition_t disposition;

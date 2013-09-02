@@ -9,7 +9,7 @@ $CustomBuildStep "proto"
 	$CommandLine	"mkdir $GENERATED_PROTO_DIR 2> /dev/null;"  \
 					"$SRCDIR/devtools/bin/osx32/protoc --proto_path=$SRCDIR\thirdparty\protobuf-2.3.0\src --proto_path=$(InputDir) --proto_path=$SRCDIR\gcsdk --cpp_out=$GENERATED_PROTO_DIR $(InputPath)" [$OSXALL]
 	$CommandLine	"mkdir $GENERATED_PROTO_DIR 2> /dev/null;"  \
-					"$SRCDIR/gcsdk/bin/linux/protoc --proto_path=$SRCDIR\thirdparty\protobuf-2.3.0\src --proto_path=$(InputDir) --proto_path=$SRCDIR\gcsdk --cpp_out=$GENERATED_PROTO_DIR $(InputPath)" [$LINUX]
+					"$SRCDIR/gcsdk/bin/linux/protoc --proto_path=$SRCDIR\thirdparty\protobuf-2.3.0\src --proto_path=$(InputDir) --proto_path=$SRCDIR\gcsdk --cpp_out=$GENERATED_PROTO_DIR $(InputPath)" [$LINUXALL]
 	$Outputs		"$GENERATED_PROTO_DIR\$(InputName).pb.cc;$GENERATED_PROTO_DIR\$(InputName).pb.h"
 }
 

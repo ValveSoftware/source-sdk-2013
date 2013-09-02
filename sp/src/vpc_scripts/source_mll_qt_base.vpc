@@ -1,0 +1,35 @@
+//====== Copyright (c) 1996-2010, Valve Corporation, All rights reserved. =====
+//
+// Maya Plugin For Win32 - Same As source_dll_qt_win32_base.vpc except:
+//  * QT_ROOT is left unspecified, the part VPC script needs to define it
+//    as it varies with the version of Maya
+//  * QT_NO_DEBUG is always defined.
+//  * Only release versions of Qt libraries are linked
+//    Maya is linked with release Qt libs, linking a plug-in with debug
+//    libs will crash when a Qt widget is created
+//
+//=============================================================================
+
+$MacroRequired "QT_ROOT"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+$Include "$SRCDIR\vpc_scripts\qt_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE;.\;$QT_ROOT\include;.\$QT_TARGET_SUBDIR"
+		$PreprocessorDefinitions			"$BASE;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_NO_DEBUG"
+		$DisableSpecificWarnings			"4127;4512;$BASE"
+	}
+}
+
+$Project
+{
+	$Folder "Link Libraries"
+	{
+		$Lib								"$QT_ROOT\lib\qtcore4"
+		$Lib								"$QT_ROOT\lib\qtgui4"
+	}
+}

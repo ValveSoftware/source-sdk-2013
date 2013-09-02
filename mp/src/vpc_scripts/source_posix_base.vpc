@@ -1,14 +1,8 @@
 
+$Include "$SRCDIR\vpc_scripts\version.vpc"
 
-$Macro PLATSUBDIR	"\linux32"	[$LINUX32]
-//$Macro PLATSUBDIR	"\linux64"	[$LINUX64]
-$Macro PLATSUBDIR       "\osx32"          [$OSX32]
-$Macro PLATSUBDIR       "\osx64"          [$OSX64]
-
-$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR" [$LINUX]
-$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR" [$LINUX]
-
-
+$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR"
+$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR"
 
 $MacroRequired				"SRCDIR"
 
@@ -17,8 +11,8 @@ $Configuration "Debug"
 {
 	$Compiler
 	{
-		$PreprocessorDefinitions			"DEBUG;_DEBUG"
-		$OptimizerLevel					"-gdwarf-2 -g $(OptimizerLevel_CompilerSpecific)"
+		$PreprocessorDefinitions			"$BASE;DEBUG;_DEBUG"
+		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
 	}
 }
 
@@ -26,8 +20,8 @@ $Configuration "Release"
 {
 	$Compiler
 	{
-		$PreprocessorDefinitions		"NDEBUG"
-		$OptimizerLevel					"-gdwarf-2 -g $(OptimizerLevel_CompilerSpecific)"
+		$PreprocessorDefinitions		"$BASE;NDEBUG"
+		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
 	}
 }
 
@@ -41,32 +35,37 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
-		$PreprocessorDefinitions		"$BASE;GNUC;POSIX"
+		$AdditionalLibraryDirectories		"$LIBCOMMON;$LIBPUBLIC" [$OSXALL]
+		$PreprocessorDefinitions		"$BASE;GNUC;POSIX;COMPILER_GCC;_DLL_EXT=$_DLL_EXT"
 		$PreprocessorDefinitions		"$BASE;DEDICATED" [$DEDICATED]
 		// the 10240 in the following line is the output of `sysctl -n kern.maxfilesperproc`
-		$PreprocessorDefinitions		"$BASE;_OSX;OSX;_DARWIN_UNLIMITED_SELECT;FD_SETSIZE=10240;" [$OSX32 || $OSX64]
-		$PreprocessorDefinitions		"$BASE;_LINUX;LINUX;" [$LINUX]
-		$PreprocessorDefinitions		"$BASE;_CYGWIN;CYGWIN;" [$CYGWIN]
+		$PreprocessorDefinitions		"$BASE;_OSX;OSX;_DARWIN_UNLIMITED_SELECT;FD_SETSIZE=10240;" [$OSXALL]
+		$PreprocessorDefinitions		"$BASE;OVERRIDE_V_DEFINES"	  [$OSXALL]						
+		$PreprocessorDefinitions		"$BASE;_LINUX;LINUX;" [$LINUXALL]
+		$SymbolVisibility				"hidden" 					[$POSIX]
+		$PreprocessorDefinitions		"$BASE;POSIX;_POSIX"		[$POSIX]
 
-		// Pass on appropriate branch define to preprocessor
-		$PreprocessorDefinitions		"$BASE;STAGING_ONLY" [$STAGING_ONLY]
-		$PreprocessorDefinitions		"$BASE;TF_BETA" [$TF_BETA]
+		$PreprocessorDefinitions		"$BASE;PLATFORM_64BITS"		[$OSX64]
+		$GCC_ExtraCompilerFlags			"$BASE -arch x86_64"		[$OSX64]
 
 		$Create/UsePCHThroughFile	"stdafx.h"
 	}
+	
+	$Linker
+	{
+		$GCC_ExtraLinkerFlags			"$BASE -arch x86_64"		[$OSX64]
+	}
+
 }
 
 $Project
 {
 
-	$Folder "Link Libraries"
+	$Folder	"Link Libraries"
 	{
-		$ImpLib tier0	[$LINUXALL]
-		$Lib	tier1	[$LINUXALL]
-		$ImpLib vstdlib	[$LINUXALL]
-		$DynamicFile   "$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXtier0$_IMPLIB_EXT"		[!$LINUXALL]
-		$DynamicFile   "$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXvstdlib$_IMPLIB_EXT"	[!$LINUXALL]
-		$DynamicFile   "$SRCDIR\lib\$PLATFORM\tier1$_STATICLIB_EXT"					[!$LINUXALL]
+		$ImpLib "$LIBPUBLIC\tier0"		[!$IS_LIB_PROJECT]
+		$Lib	"$LIBPUBLIC\tier1"		[!$IS_LIB_PROJECT]
+		$ImpLib "$LIBPUBLIC\vstdlib"	[!$IS_LIB_PROJECT]
 	}
 }
-
+	

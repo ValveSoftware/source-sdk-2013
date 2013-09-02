@@ -2178,7 +2178,7 @@ void C_BasePlayer::PlayPlayerJingle()
 	if ( !filesystem->FileExists( fullsoundname ) )
 	{
 		char custname[ 512 ];
-		Q_snprintf( custname, sizeof( custname ), "downloads/%s.dat", soundhex );
+		Q_snprintf( custname, sizeof( custname ), "download/user_custom/%c%c/%s.dat", soundhex[0], soundhex[1], soundhex );
 		// it may have been downloaded but not copied under materials folder
 		if ( !filesystem->FileExists( custname ) )
 			return; // not downloaded yet
