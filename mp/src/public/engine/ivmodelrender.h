@@ -138,8 +138,6 @@ public:
 	// radius of the decal to create.
 	virtual void AddDecal( ModelInstanceHandle_t handle, Ray_t const& ray, 
 		Vector const& decalUp, int decalIndex, int body, bool noPokeThru = false, int maxLODToDecal = ADDDECAL_TO_ALL_LODS ) = 0;
-	virtual void AddColoredDecal( ModelInstanceHandle_t handle, Ray_t const& ray, 
-		Vector const& decalUp, int decalIndex, int body, Color cColor, bool noPokeThru = false, int maxLODToDecal = ADDDECAL_TO_ALL_LODS ) = 0;
 
 	// Removes all the decals on a model instance
 	virtual void RemoveAllDecals( ModelInstanceHandle_t handle ) = 0;
@@ -176,6 +174,9 @@ public:
 	virtual void SuppressEngineLighting( bool bSuppress ) = 0;
 
 	virtual void SetupColorMeshes( int nTotalVerts ) = 0;
+
+	virtual void AddColoredDecal( ModelInstanceHandle_t handle, Ray_t const& ray, 
+		Vector const& decalUp, int decalIndex, int body, Color cColor, bool noPokeThru = false, int maxLODToDecal = ADDDECAL_TO_ALL_LODS ) = 0;
 };
 
 
