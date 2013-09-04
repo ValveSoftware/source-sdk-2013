@@ -8,9 +8,11 @@
 
 static bool SameSign(float a, float b)
 {
-	int32 aa=*((int *) &a);
-	int32 bb=*((int *) &b);
-	return ((aa^bb)&0x80000000)==0;
+	union { float af; int32 ai; } au;
+	union { float bf; int32 bi; } bu;
+	au.af = a;
+	bu.bf = b;
+	return ((au.ai^bu.bi)&0x80000000)==0;
 }
 
 int FourRays::CalculateDirectionSignMask(void) const
