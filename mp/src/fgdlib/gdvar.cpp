@@ -151,7 +151,7 @@ GDinputvariable &GDinputvariable::operator =(GDinputvariable &Other)
 //-----------------------------------------------------------------------------
 trtoken_t GDinputvariable::GetStoreAsFromType(GDIV_TYPE eType)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for (size_t i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
 	{
 		if (TypeMap[i].eType == eType)
 		{
@@ -172,7 +172,7 @@ trtoken_t GDinputvariable::GetStoreAsFromType(GDIV_TYPE eType)
 //-----------------------------------------------------------------------------
 GDIV_TYPE GDinputvariable::GetTypeFromToken(const char *pszToken)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for (size_t i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
 	{
 		if (IsToken(pszToken, TypeMap[i].pszName))
 		{
@@ -189,7 +189,7 @@ GDIV_TYPE GDinputvariable::GetTypeFromToken(const char *pszToken)
 //-----------------------------------------------------------------------------
 const char *GDinputvariable::GetTypeText(void)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for (size_t i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
 	{
 		if (TypeMap[i].eType == m_eType)
 		{
