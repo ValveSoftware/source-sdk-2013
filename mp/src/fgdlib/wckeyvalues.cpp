@@ -139,8 +139,8 @@ WCKeyValuesT<Base>::~WCKeyValuesT(void)
 template<class Base>
 const char *WCKeyValuesT<Base>::GetValue(const char *pszKey, int *piIndex) const
 {
-	int i = FindByKeyName( pszKey );
-	if ( i == GetInvalidIndex() )
+	int i = ((Base*) this)->FindByKeyName( pszKey );
+	if ( i == ((Base*) this)->GetInvalidIndex() )
 	{
 		return NULL;
 	}
@@ -149,7 +149,7 @@ const char *WCKeyValuesT<Base>::GetValue(const char *pszKey, int *piIndex) const
 		if(piIndex)
 			piIndex[0] = i;
 			
-		return m_KeyValues[i].szValue;
+		return ((Base*) this)->m_KeyValues[i].szValue;
 	}
 }
 
@@ -169,7 +169,7 @@ template<class Base>
 void WCKeyValuesT<Base>::SetValue(const char *pszKey, int iValue)
 {
 	char szValue[100];
-	itoa(iValue, szValue, 10);
+	Q_snprintf(szValue, sizeof(szValue), "%i", iValue);
 
 	SetValue(pszKey, szValue);
 }
@@ -233,8 +233,8 @@ void WCKeyValuesT<Base>::SetValue(const char *pszKey, const char *pszValue)
 	StripEdgeWhiteSpace(szTmpKey);
 	StripEdgeWhiteSpace(szTmpValue);
 
-	int i = FindByKeyName( szTmpKey );
-	if ( i == GetInvalidIndex() )
+	int i = ((Base*) this)->FindByKeyName( szTmpKey );
+	if ( i == ((Base*) this)->GetInvalidIndex() )
 	{
 		if ( pszValue )
 		{
@@ -244,21 +244,21 @@ void WCKeyValuesT<Base>::SetValue(const char *pszKey, const char *pszValue)
 			MDkeyvalue newkv;
 			Q_strncpy( newkv.szKey, szTmpKey, sizeof( newkv.szKey ) );
 			Q_strncpy( newkv.szValue, szTmpValue, sizeof( newkv.szValue ) );
-			InsertKeyValue( newkv );
+			((Base*) this)->InsertKeyValue( newkv );
 		}
 	}
 	else
 	{
 		if (pszValue != NULL)
 		{
-			V_strncpy(m_KeyValues[i].szValue, szTmpValue, sizeof(m_KeyValues[i].szValue));
+			V_strncpy(((Base*) this)->m_KeyValues[i].szValue, szTmpValue, sizeof(((Base*) this)->m_KeyValues[i].szValue));
 		}
 		//
 		// If we are setting to a NULL value, delete the key.
 		//
 		else
 		{
-			RemoveKeyAt( i );
+			((Base*) this)->RemoveKeyAt( i );
 		}
 	}
 }
@@ -270,7 +270,7 @@ void WCKeyValuesT<Base>::SetValue(const char *pszKey, const char *pszValue)
 template<class Base>
 void WCKeyValuesT<Base>::RemoveAll(void)
 {
-	m_KeyValues.RemoveAll();
+	((Base*) this)->m_KeyValues.RemoveAll();
 }
 
 

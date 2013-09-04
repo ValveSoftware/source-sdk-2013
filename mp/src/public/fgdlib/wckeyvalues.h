@@ -123,11 +123,11 @@ public:
 	// Special function used for non-unique keyvalue lists.
 	void AddKeyValue(const char *pszKey, const char *pszValue);
 
-protected:
+public /*really protected*/:
 
 	void InsertKeyValue( const MDkeyvalue &kv );
 
-protected:
+public /*really protected*/:
 	CUtlVector<MDkeyvalue> m_KeyValues;
 };
 
@@ -145,10 +145,10 @@ public:
 	int FindByKeyName( const char *pKeyName ) const; // Returns the same value as GetInvalidIndex if not found.
 	void RemoveKeyAt(int nIndex);
 
-protected:
+public /*really protected*/:
 	void InsertKeyValue( const MDkeyvalue &kv );
 
-protected:
+public /*really protected*/:
 	CUtlDict<MDkeyvalue,unsigned short> m_KeyValues;
 };
 
@@ -181,6 +181,7 @@ typedef WCKeyValuesT<WCKVBase_Dict> WCKeyValues;
 typedef WCKeyValuesT<WCKVBase_Vector> WCKeyValuesVector;
 
 
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : nIndex - 
@@ -188,9 +189,8 @@ typedef WCKeyValuesT<WCKVBase_Vector> WCKeyValuesVector;
 template<class Base>
 inline const char *WCKeyValuesT<Base>::GetKey(int nIndex) const
 {
-	return(m_KeyValues.Element(nIndex).szKey);
+	return(((Base*) this)->m_KeyValues.Element(nIndex).szKey);
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -200,9 +200,8 @@ inline const char *WCKeyValuesT<Base>::GetKey(int nIndex) const
 template<class Base>
 inline MDkeyvalue &WCKeyValuesT<Base>::GetKeyValue(int nIndex)
 {
-	return(m_KeyValues.Element(nIndex));
+	return(((Base*) this)->m_KeyValues.Element(nIndex));
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -212,7 +211,7 @@ inline MDkeyvalue &WCKeyValuesT<Base>::GetKeyValue(int nIndex)
 template<class Base>
 inline const MDkeyvalue& WCKeyValuesT<Base>::GetKeyValue(int nIndex) const
 {
-	return(m_KeyValues.Element(nIndex));
+	return(((Base*) this)->m_KeyValues.Element(nIndex));
 }
 
 
@@ -223,7 +222,7 @@ inline const MDkeyvalue& WCKeyValuesT<Base>::GetKeyValue(int nIndex) const
 template<class Base>
 inline const char *WCKeyValuesT<Base>::GetValue(int nIndex) const
 {
-	return(m_KeyValues.Element(nIndex).szValue);
+	return(((Base*) this)->m_KeyValues.Element(nIndex).szValue);
 }
 
 
