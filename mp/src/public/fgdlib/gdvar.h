@@ -130,7 +130,7 @@ class GDinputvariable
 		// for choices/flags:
 		CUtlVector<GDIVITEM> m_Items;
 
-		static char *m_pszEmpty;
+		const static char *m_pszEmpty;
 
 		char m_szName[MAX_IDENT];
 		char m_szLongName[MAX_STRING];
