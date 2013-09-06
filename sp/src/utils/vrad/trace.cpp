@@ -625,7 +625,7 @@ void AddBrushesForRayTrace( void )
 			if ( j >= MAX_POINTS_ON_WINDING )
 				Error( "***** ERROR! MAX_POINTS_ON_WINDING reached!" );
 
-			if ( face->firstedge + j >= ARRAYSIZE( dsurfedges ) )
+			if ( face->firstedge + j >= (int) ARRAYSIZE( dsurfedges ) )
 				Error( "***** ERROR! face->firstedge + j >= ARRAYSIZE( dsurfedges )!" );
 
 			int surfEdge = dsurfedges[face->firstedge + j];

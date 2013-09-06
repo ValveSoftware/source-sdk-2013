@@ -1236,7 +1236,7 @@ int CMapFile::SideIDToIndex( int brushSideID )
 // Input  : *mapent - 
 //			*key - 
 //-----------------------------------------------------------------------------
-void ConvertSideList( entity_t *mapent, char *key )
+void ConvertSideList( entity_t *mapent, const char *key )
 {
 	char *pszSideList = ValueForKey( mapent, key );
 
@@ -1807,7 +1807,7 @@ void CMapFile::ForceFuncAreaPortalWindowContents()
 {
 	// Now go through all areaportal entities and force CONTENTS_WINDOW
 	// on the brushes of the bmodels they point at.
-	char *targets[] = {"target", "BackgroundBModel"};
+	const char *targets[] = {"target", "BackgroundBModel"};
 	int nTargets = sizeof(targets) / sizeof(targets[0]);
 
 	for( int i=0; i < num_entities; i++ )
@@ -3133,7 +3133,7 @@ void CMapFile::TestExpandBrushes (void)
 	side_t	*s;
 	int		i, j, bn;
 	winding_t	*w;
-	char	*name = "expanded.map";
+	const char	*name = "expanded.map";
 	mapbrush_t	*brush;
 	vec_t	dist;
 

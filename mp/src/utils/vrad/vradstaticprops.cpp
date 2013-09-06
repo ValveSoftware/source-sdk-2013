@@ -1333,7 +1333,7 @@ void CVradStaticPropMgr::SerializeLighting()
 			pMesh->m_nOffset   = (unsigned int)pVertexData - (unsigned int)pVhvHdr; 
 
 			// construct vertexes
-			for (int k=0; k<pMesh->m_nVertexes; k++)
+			for (unsigned int k=0; k<pMesh->m_nVertexes; k++)
 			{
 				Vector &vector = m_StaticProps[i].m_MeshData[n].m_Verts[k];
 

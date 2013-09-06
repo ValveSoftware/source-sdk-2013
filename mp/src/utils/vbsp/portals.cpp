@@ -1178,8 +1178,8 @@ void FindPortalsLeadingToArea_R(
 		if( !p->nodes[0]->occupied || !p->nodes[1]->occupied )
 			continue;
 	
-		if( p->nodes[1]->area == iDestArea && p->nodes[0]->area == iSrcArea ||
-			p->nodes[0]->area == iDestArea && p->nodes[1]->area == iSrcArea )
+		if( (p->nodes[1]->area == iDestArea && p->nodes[0]->area == iSrcArea) ||
+			(p->nodes[0]->area == iDestArea && p->nodes[1]->area == iSrcArea) )
 		{
 			// Make sure the plane normals point the same way.
 			plane_t *pMapPlane = &g_MainMap->mapplanes[p->onnode->planenum];

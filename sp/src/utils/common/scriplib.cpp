@@ -63,7 +63,6 @@ Callback stuff
 
 void DefaultScriptLoadedCallback( char const *pFilenameLoaded, char const *pIncludedFromFileName, int nIncludeLineNumber )
 {
-	NULL;
 }
 
 SCRIPT_LOADED_CALLBACK g_pfnCallback = DefaultScriptLoadedCallback;

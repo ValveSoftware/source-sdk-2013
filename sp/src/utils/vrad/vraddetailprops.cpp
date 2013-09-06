@@ -358,7 +358,7 @@ static void ComputeLightmapColorPointSample( dface_t* pFace, directlight_t* pSky
 class CLightSurface : public IBSPNodeEnumerator
 {
 public:
-	CLightSurface(int iThread) : m_pSurface(0), m_HitFrac(1.0f), m_bHasLuxel(false), m_iThread(iThread) {}
+	CLightSurface(int iThread) : m_iThread(iThread), m_pSurface(0), m_HitFrac(1.0f), m_bHasLuxel(false) {}
 
 	// call back with a node and a context
 	bool EnumerateNode( int node, Ray_t const& ray, float f, int context )

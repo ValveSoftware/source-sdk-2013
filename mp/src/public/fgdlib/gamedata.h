@@ -10,10 +10,14 @@
 #pragma once
 #endif
 
+#if defined( _MSC_VER )
 #pragma warning(push, 1)
 #pragma warning(disable:4701 4702 4530)
+#endif
 #include <fstream>
+#if defined( _MSC_VER )
 #pragma warning(pop)
+#endif
 #include "TokenReader.h"
 #include "GDClass.h"
 #include "InputOutput.h"

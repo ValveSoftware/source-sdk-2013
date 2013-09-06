@@ -16,7 +16,9 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#if defined(_MSC_VER)
 #pragma warning(disable:4244)
+#endif
 
 
 const int MAX_ERRORS = 5;
@@ -88,7 +90,7 @@ static bool DoGetToken(TokenReader &tr, char **ppszStore, int nSize, trtoken_t t
 		// We didn't get the expected token type but no expected
 		// string was specified.
 		//
-		char *pszTokenName;
+		const char *pszTokenName;
 		switch (ttexpecting)
 		{
 			case IDENT:

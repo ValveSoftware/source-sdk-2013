@@ -64,7 +64,7 @@ private:
 };
 
 CTransferMaker::CTransferMaker( transfer_t *all_transfers ) :
-	m_AllTransfers( all_transfers ), m_nTests( 0 )
+	m_nTests( 0 ), m_AllTransfers( all_transfers )
 {
 	m_pResults = (RayTracingSingleResult *)calloc( 1, MAX_PATCHES * sizeof ( RayTracingSingleResult ) );
 	m_pShooterPatches = (int *)calloc( 1, MAX_PATCHES * sizeof( int ) );
@@ -207,7 +207,7 @@ Sets vis bits for all patches in the face
 */
 void TestPatchToFace (unsigned patchnum, int facenum, int head, transfer_t *transfers, CTransferMaker &transferMaker, int iThread )
 {
-	if( faceParents.Element( facenum ) == g_Patches.InvalidIndex() || patchnum == g_Patches.InvalidIndex() )
+	if( faceParents.Element( facenum ) == g_Patches.InvalidIndex() || patchnum == (unsigned) g_Patches.InvalidIndex() )
 		return;
 
 	CPatch	*patch = &g_Patches.Element( patchnum );

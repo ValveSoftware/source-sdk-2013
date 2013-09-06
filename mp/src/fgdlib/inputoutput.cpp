@@ -15,11 +15,11 @@
 typedef struct
 {
 	InputOutputType_t eType;	// The enumeration of this type.
-	char *pszName;				// The name of this type.
+	const char *pszName;		// The name of this type.
 } TypeMap_t;
 
 
-char *CClassInputOutputBase::g_pszEmpty = "";
+const char *CClassInputOutputBase::g_pszEmpty = "";
 
 
 //-----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ CClassInputOutputBase::~CClassInputOutputBase(void)
 //-----------------------------------------------------------------------------
 const char *CClassInputOutputBase::GetTypeText(void)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for (size_t i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
 	{
 		if (TypeMap[i].eType == m_eType)
 		{
@@ -94,7 +94,7 @@ const char *CClassInputOutputBase::GetTypeText(void)
 //-----------------------------------------------------------------------------
 InputOutputType_t CClassInputOutputBase::SetType(const char *szType)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for (size_t i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
 	{
 		if (!stricmp(TypeMap[i].pszName, szType))
 		{

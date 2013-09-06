@@ -39,9 +39,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#if defined(_MSC_VER)
 #pragma warning(disable: 4142 4028)
+#endif
 #include <io.h>
+#if defined(_MSC_VER)
 #pragma warning(default: 4142 4028)
+#endif
 
 #include <fcntl.h>
 #include <direct.h>
@@ -393,7 +397,7 @@ void AddBrushesForRayTrace ( void );
 void BaseLightForFace( dface_t *f, Vector& light, float *parea, Vector& reflectivity );
 void CreateDirectLights (void);
 void GetPhongNormal( int facenum, Vector const& spot, Vector& phongnormal );
-int LightForString( char *pLight, Vector& intensity );
+int LightForString( const char *pLight, Vector& intensity );
 void MakeTransfer( int ndxPatch1, int ndxPatch2, transfer_t *all_transfers );
 void MakeScales( int ndxPatch, transfer_t *all_transfers );
 
