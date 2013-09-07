@@ -1937,6 +1937,18 @@ void CDynamicProp::Spawn( )
 	}
 
 	//m_debugOverlays |= OVERLAY_ABSBOX_BIT;
+
+#ifdef TF_DLL
+	const char *pszModelName = modelinfo->GetModelName( GetModel() );
+	if ( pszModelName && pszModelName[0] )
+	{
+		if ( FStrEq( pszModelName, "models/bots/boss_bot/carrier_parts.mdl" ) )
+		{
+			SetModelIndexOverride( VISION_MODE_NONE, modelinfo->GetModelIndex( pszModelName ) );
+			SetModelIndexOverride( VISION_MODE_ROME, modelinfo->GetModelIndex( "models/bots/tw2/boss_bot/twcarrier_addon.mdl" ) );
+		}
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

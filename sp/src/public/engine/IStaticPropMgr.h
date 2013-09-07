@@ -63,7 +63,6 @@ public:
 	// Adds decals to static props, returns point of decal in trace_t
 	virtual void	AddDecalToStaticProp( const Vector& rayStart, const Vector& rayEnd,
 		int staticPropIndex, int decalIndex, bool doTrace, trace_t& tr ) = 0;
-
 	// Adds/removes shadows from static props
 	virtual void	AddShadowToStaticProp( unsigned short shadowHandle, IClientRenderable* pRenderable ) = 0;
 	virtual void	RemoveAllShadowsFromStaticProp( IClientRenderable* pRenderable ) = 0;
@@ -80,6 +79,8 @@ public:
 	//===================================================================
 
 	virtual void DrawStaticProps( IClientRenderable **pProps, int count, bool bShadowDepth, bool drawVCollideWireframe ) = 0;
+	virtual void AddColorDecalToStaticProp( Vector const& rayStart, Vector const& rayEnd,
+		int staticPropIndex, int decalIndex, bool doTrace, trace_t& tr, bool bUseColor, Color cColor ) = 0;
 };
 
 class IStaticPropMgrServer : public IStaticPropMgr

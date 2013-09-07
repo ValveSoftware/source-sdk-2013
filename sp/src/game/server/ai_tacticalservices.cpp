@@ -347,7 +347,7 @@ int CAI_TacticalServices::FindCoverNode(const Vector &vNearPos, const Vector &vT
 
 	MARK_TASK_EXPENSIVE();
 
-	DebugFindCover( g_AIDebugFindCoverNode, GetOuter()->EyePosition(), vThreatEyePos, 0, 255, 255 );
+	DebugFindCover( NO_NODE, GetOuter()->EyePosition(), vThreatEyePos, 0, 255, 255 );
 
 	int iMyNode = GetPathfinder()->NearestNodeToPoint( vNearPos );
 

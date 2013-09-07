@@ -16,12 +16,38 @@
 
 void Test_CreateEntity( const CCommand &args )
 {
+	CBasePlayer *pPlayer = UTIL_GetCommandClient();
+
+	// Require a player entity or that the command was entered from the dedicated server console
+	if ( !pPlayer && UTIL_GetCommandClientIndex() > 0 )
+	{
+		return;
+	}
+
 	if ( args.ArgC() < 2 )
 	{
 		Error( "Test_CreateEntity: requires entity classname argument." );
 	}
 
 	const char *pClassName = args[ 1 ];
+
+	// Don't allow regular users to create point_servercommand entities for the same reason as blocking ent_fire
+	if ( pPlayer && !Q_stricmp( pClassName, "point_servercommand" ) )
+	{
+		if ( engine->IsDedicatedServer() )
+		{
+			// We allow people with disabled autokick to do it, because they already have rcon.
+			if ( pPlayer->IsAutoKickDisabled() == false )
+				return;
+		}
+		else if ( gpGlobals->maxClients > 1 )
+		{
+			// On listen servers with more than 1 player, only allow the host to create point_servercommand.
+			CBasePlayer *pHostPlayer = UTIL_GetListenServerHost();
+			if ( pPlayer != pHostPlayer )
+				return;
+		}
+	}
 
 	if ( !CreateEntityByName( pClassName ) )
 	{

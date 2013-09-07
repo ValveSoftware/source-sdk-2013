@@ -150,7 +150,6 @@ typedef signed char int8;
 
 #if defined(__x86_64__) || defined(_WIN64)
 	#define X64BITS
-	#define PLATFORM_64BITS
 #endif // __x86_64__
 
 #if defined( _WIN32 )
@@ -391,7 +390,7 @@ typedef void * HINSTANCE;
 	// On OSX, SIGTRAP doesn't really stop the thread cold when debugging.
 	// So if being debugged, use INT3 which is precise.
 #ifdef OSX
-#define DebuggerBreak()  if ( Plat_IsInDebugSession() ) __asm ( "int $3" ); else { raise(SIGTRAP); }
+#define DebuggerBreak()  if ( Plat_IsInDebugSession() ) { __asm ( "int $3" ); } else { raise(SIGTRAP); }
 #else
 #define DebuggerBreak()  raise(SIGTRAP)
 #endif
@@ -662,6 +661,7 @@ typedef void * HINSTANCE;
 #pragma GCC diagnostic ignored "-Wconversion-null"			// passing NULL to non-pointer argument 1
 #pragma GCC diagnostic ignored "-Wnull-arithmetic"			// NULL used in arithmetic. Ie, vpanel == NULL where VPANEL is uint.
 #pragma GCC diagnostic ignored "-Wswitch-enum"				// enumeration values not handled in switch
+#pragma GCC diagnostic ignored "-Wswitch"					// enumeration values not handled in switch
 #endif
 
 

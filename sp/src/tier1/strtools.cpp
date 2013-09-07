@@ -1491,14 +1491,34 @@ int V_UCS2ToUTF8( const ucs2 *pUCS2, char *pUTF8, int cubDestSizeInBytes )
 #elif defined(POSIX)
 	iconv_t conv_t = iconv_open( "UTF-8", "UCS-2LE" );
 	size_t cchResult = -1;
-	size_t nLenUnicde = cubDestSizeInBytes;
-	size_t nMaxUTF8 = cubDestSizeInBytes;
+
+	// pUCS2 will be null-terminated so use that to work out the input
+	// buffer size. Note that we shouldn't assume iconv will stop when it
+	// finds a zero, and nLenUnicde should be given in bytes, so we multiply
+	// it by sizeof( ucs2 ) at the end.
+	size_t nLenUnicde = 0;
+	while ( pUCS2[nLenUnicde] )
+	{
+		++nLenUnicde;
+	}
+	nLenUnicde *= sizeof( ucs2 );
+
+	// Calculate number of bytes we want iconv to write, leaving space
+	// for the null-terminator
+	size_t nMaxUTF8 = cubDestSizeInBytes - 1;
 	char *pIn = (char *)pUCS2;
 	char *pOut = (char *)pUTF8;
 	if ( conv_t > 0 )
 	{
 		cchResult = 0;
+		const size_t nBytesToWrite = nMaxUTF8;
 		cchResult = iconv( conv_t, &pIn, &nLenUnicde, &pOut, &nMaxUTF8 );
+
+		// Calculate how many bytes were actually written and use that to
+		// null-terminate our output string.
+		const size_t nBytesWritten = nBytesToWrite - nMaxUTF8;
+		pUTF8[nBytesWritten] = 0;
+
 		iconv_close( conv_t );
 		if ( (int)cchResult < 0 )
 			cchResult = 0;

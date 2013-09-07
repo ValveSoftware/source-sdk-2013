@@ -1,0 +1,2 @@
+// include either the windows base or the currently non-existing ones for other platforms
+$include "$SRCDIR\vpc_scripts\source_lib_qt_win32_base.vpc"

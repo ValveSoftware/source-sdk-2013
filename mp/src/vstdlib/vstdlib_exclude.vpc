@@ -10,8 +10,7 @@ $Project
 {
 	$Folder	"Link Libraries"
 	{
-		-$File "$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXvstdlib$_IMPLIB_EXT" [$OSXALL]
-		-$Implib vstdlib [$LINUX]
+		-$Implib vstdlib [$POSIX]
 		-$File "$SRCDIR\lib\public\$_IMPLIB_PREFIXvstdlib$_IMPLIB_EXT" [$WIN32]
 		-$File "$SRCDIR\lib\public$PLATSUBDIR\$_IMPLIB_PREFIXvstdlib$_IMPLIB_EXT" [$WIN64]
 		-$File "$SRCDIR\lib\public\vstdlib_360.lib"	[$X360]

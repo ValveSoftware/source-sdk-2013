@@ -1,0 +1,4 @@
+#include "base.xcconfig"
+GCC_OPTIMIZATION_LEVEL = 0
+OTHER_CFLAGS = $(derived) $(BASE_CFLAGS)
+

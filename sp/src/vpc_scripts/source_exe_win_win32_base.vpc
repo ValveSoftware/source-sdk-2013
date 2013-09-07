@@ -6,59 +6,71 @@
 
 $Include "$SRCDIR\vpc_scripts\version.vpc"
 
-$Macro NOAPPENDPLATSUBDIR "1" [!$WIN64]
-
-$MacroRequired				"PLATSUBDIR"
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTBINNAME"	"$PROJECTNAME"
 $MacroRequired				"OUTBINDIR"
 
-// These are convenient for adjusting directory paths based on platform
-// but they must be used without absolute consistency to avoid dependency
-// problems. It appears that if VPC compares $LIBPUBLIC to $SRCDIR\lib\public
-// it will decide that they are not equal, even if the *value* of $LIBPUBLIC
-// is $SRCDIR\lib\public. These macros can safely be used in copy commands
-// and other areas that VPC doesn't use for dependency tracking.
-$Macro LIBPUBLIC	"$SRCDIR\lib\public"
-$Macro LIBCOMMON	"$SRCDIR\lib\common"
+$Macro OUTBINDIR	"$OUTBINDIR$PLATSUBDIR"
+$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR"
+$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR"
 
 $Include "$SRCDIR\vpc_scripts\loadaddress.vpc"
 $Include "$SRCDIR\vpc_scripts\source_exe_win_win32_debug.vpc"
 $Include "$SRCDIR\vpc_scripts\source_exe_win_win32_release.vpc"
 $Include "$SRCDIR\vpc_scripts\source_win32_base.vpc"
 
-// Fix up directories for targets like win64
-$Macro OUTBINDIR	"$OUTBINDIR$PLATSUBDIR" [!$NOAPPENDPLATSUBDIR]
-$Macro LIBPUBLIC	"$LIBPUBLIC$PLATSUBDIR" [!$NOAPPENDPLATSUBDIR]
-$Macro LIBCOMMON	"$LIBCOMMON$PLATSUBDIR" [!$NOAPPENDPLATSUBDIR]
-
 $IgnoreRedundancyWarning	"ON"
 
 // Common Configuration
 $Configuration
 {
-	$General [$VS2010]
+	$General	[$VS2010]
 	{
-		$TargetName		"$OUTBINNAME"
+		$TargetName	"$OUTBINNAME"
 	}
 
+
+	$Compiler
+	{
+		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
+		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]		
+		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC;EXENAME=$OUTBINNAME;_DLL_EXT=$_DLL_EXT"
+	}
+
+	$Compiler [$WIN32]
+	{
+		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions 2 (/arch:SSE2)"
+	}
+	
+	$Linker
+	{
+		$AdditionalDependencies				"$BASE shell32.lib user32.lib advapi32.lib gdi32.lib comdlg32.lib ole32.lib" [$WIN32]
+		$TargetMachine						"MachineX86 (/MACHINE:X86)"	[$WIN32]
+		$TargetMachine						"MachineX64 (/MACHINE:X64)"	[$WIN64]
+		// NXCOMPAT (also known as DEP or Data Access Protection) should be enabled for all
+		// executables for security and debugging reasons.
+		$AdditionalOptions					"/NXCOMPAT"
+		// Suppress this pointless warning using the undocumented /ignore linker switch
+		// schemalib.lib(schemaclassinfo.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+		$AdditionalOptions					"$BASE /ignore:4221"
+	}
+	
 	$PreBuildEvent
 	{
 		$CommandLine		"if EXIST $OUTBINDIR\$(TargetFileName) for /f $QUOTEdelims=$QUOTE %%A in ('attrib $QUOTE$OUTBINDIR\$(TargetFileName)$QUOTE') do set valveTmpIsReadOnly=$QUOTE%%A$QUOTE" "\n" \
 							"set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%" "\n" \
 							"if $QUOTE%valveTmpIsReadOnlyLetter%$QUOTE==$QUOTER$QUOTE del /q $QUOTE$(TargetDir)$QUOTE$(TargetFileName)" "\n" \
-							"$CRCCHECK"
+							"$CRCCHECK" "\n" 			
 	}
 
 	$PostBuildEvent [!$ANALYZE]
 	{
-		$CommandLine		"if not exist $QUOTE$OUTBINDIR$QUOTE mkdir $QUOTE$OUTBINDIR$QUOTE" "\n" 
-		$CommandLine		"$BASE" "call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTBINDIR\$(TargetFileName) $SRCDIR" "\n" [! $SOURCESDK ]
-		$CommandLine		"$BASE" "copy $QUOTE$(TargetDir)$QUOTE$(TargetFileName) $OUTBINDIR\$(TargetFileName)" "\n" \
+		$CommandLine		"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTBINDIR\$(TargetFileName) $SRCDIR" "\n" [!$SOURCESDK]
+		$CommandLine		"$BASE"	"copy $QUOTE$(TargetDir)$QUOTE$(TargetFileName) $OUTBINDIR\$(TargetFileName) >nul" "\n" \
 							"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
-							"if exist $QUOTE$(TargetDir)$QUOTE$(TargetName).map copy $QUOTE$(TargetDir)$QUOTE$(TargetName).map $OUTBINDIR\$(TargetName).map" "\n" 
-		$CommandLine		"$BASE" "call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTBINDIR\$(TargetName).pdb $SRCDIR" "\n" [ !$SOURCESDK ]
-		$CommandLine		"$BASE" "copy $QUOTE$(TargetDir)$QUOTE$(TargetName).pdb $OUTBINDIR\$(TargetName).pdb" "\n" \
+							"if exist $QUOTE$(TargetDir)$QUOTE$(TargetName).map copy $QUOTE$(TargetDir)$QUOTE$(TargetName).map $OUTBINDIR\$(TargetName).map >nul" "\n"
+		$CommandLine		"$BASE"	"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTBINDIR\$(TargetName).pdb $SRCDIR" "\n" [!$SOURCESDK]
+		$CommandLine		"$BASE"	"copy $QUOTE$(TargetDir)$QUOTE$(TargetName).pdb $OUTBINDIR\$(TargetName).pdb >nul" "\n" \
 							"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
 							"goto BuildEventOK" "\n" \
 							":BuildEventFailed" "\n" \
@@ -66,28 +78,8 @@ $Configuration
 							"del /q $QUOTE$(TargetDir)$QUOTE$(TargetFileName)" "\n" \
 							"exit 1" "\n" \
 							":BuildEventOK" "\n"
-
-		$CommandLine		"$BASE" "\n" \
-							"call $SRCDIR\devtools\bin\vsign.bat -sign $OUTBINDIR\$(TargetFileName)" "\n" [$RETAIL && !$SOURCESDK ]
-
-		$CommandLine		"$BASE" "\n" \
-							"call $SRCDIR\devtools\bin\vsign.bat -signvalve $OUTBINDIR\$(TargetFileName)" "\n" [!$RETAIL && !$SOURCESDK ]
-
 		$Description		"Publishing to $OUTBINDIR"
 		$ExcludedFromBuild	"No"
-	}
-	
-	$Linker
-	{
-		// NXCOMPAT (also known as DEP or Data Access Protection) should be enabled for all
-		// executables for security and debugging reasons.
-		$AdditionalOptions					"$BASE /NXCOMPAT"
-		// Suppress this warning using the undocumented /ignore linker switch
-		// schemalib.lib(schemaclassinfo.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
-		$AdditionalOptions					"$BASE /ignore:4221"
-		$AdditionalDependencies	"%(AdditionalDependencies)" [$VS2010]
-		$TargetMachine						"MachineX86 (/MACHINE:X86)"	[$WIN32]
-		$TargetMachine						"MachineX64 (/MACHINE:X64)"	[$WIN64]
 	}
 }
 
@@ -106,33 +98,13 @@ $Project
 				}
 			}
 		}
-
-		// Implement __imp__EncodePointer and __imp__DecodePointer so that we can run on XP SP1
-		// when building with VS 2010.
-		$File	"$SRCDIR\public\tier0\pointeroverride.asm" [$WIN32 && $VS2010]
-		{
-			$Configuration
-			{	
-				$CustomBuildStep
-				{
-					// General
-					$CommandLine				"$QUOTE$(VCInstallDir)bin\ml.exe$QUOTE /c /Cp /Zi /Fo$QUOTE$(IntDir)\$(InputName).obj$QUOTE $QUOTE$(InputPath)$QUOTE"
-					$Description				"Compiling pointeroverride.asm"
-					$Outputs					"$(IntDir)\$(InputName).obj"
-				}		
-			}
-		}
 	}
 
 	$Folder	"Link Libraries"
 	{
-		$DynamicFile	"$SRCDIR\lib\public\tier0.lib"		[$NOAPPENDPLATSUBDIR]
-		$DynamicFile	"$SRCDIR\lib\public\tier1.lib"		[$NOAPPENDPLATSUBDIR]
-		$DynamicFile	"$SRCDIR\lib\public\vstdlib.lib"	[$NOAPPENDPLATSUBDIR]
-
-		$DynamicFile	"$SRCDIR\lib\public$PLATSUBDIR\tier0.lib" 		[!$NOAPPENDPLATSUBDIR]
-		$DynamicFile	"$SRCDIR\lib\public$PLATSUBDIR\tier1.lib" 		[!$NOAPPENDPLATSUBDIR]
-		$DynamicFile	"$SRCDIR\lib\public$PLATSUBDIR\vstdlib.lib" 	[!$NOAPPENDPLATSUBDIR]
+		$Implib	"$LIBPUBLIC\tier0"
+		$Lib	"$LIBPUBLIC\tier1"
+		$Implib	"$LIBPUBLIC\vstdlib"
 	}
 }
 

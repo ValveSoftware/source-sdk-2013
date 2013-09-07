@@ -174,6 +174,9 @@ public:
 	virtual void SuppressEngineLighting( bool bSuppress ) = 0;
 
 	virtual void SetupColorMeshes( int nTotalVerts ) = 0;
+
+	virtual void AddColoredDecal( ModelInstanceHandle_t handle, Ray_t const& ray, 
+		Vector const& decalUp, int decalIndex, int body, Color cColor, bool noPokeThru = false, int maxLODToDecal = ADDDECAL_TO_ALL_LODS ) = 0;
 };
 
 

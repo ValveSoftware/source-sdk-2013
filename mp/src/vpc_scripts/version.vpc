@@ -9,4 +9,4 @@
 // file will cause the CRC checking to fail, and thus cause a rebuild.
 
 // DO NOT CHANGE THIS UNLESS YOU !!!REALLY!!! NEED TO FORCE EVERY SINGLE VCPROJ TO REGENERATE
-$Macro "InternalVersion"	"101"
+$Macro "InternalVersion"	"104"

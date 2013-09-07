@@ -24,6 +24,7 @@ Scheme
 	BaseSettings
 	{
 		"FgColor"			"255 220 0 100"
+		"FgColor_vrmode"	"255 220 0 200"
 		"BgColor"			"0 0 0 76"
 
 		"Panel.FgColor"			"255 220 0 100"
