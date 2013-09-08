@@ -9,3 +9,4 @@ vpc_osx binary
 *.exe binary
 protoc binary
 ccache binary
+xcode_ccache_wrapper text
