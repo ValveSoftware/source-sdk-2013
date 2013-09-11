@@ -54,3 +54,5 @@ config.cfg
 # shader files
 *.tmp
 
+# Ignore .DS_Store for MAC developers
+.DS_Store
