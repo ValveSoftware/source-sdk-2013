@@ -595,8 +595,14 @@ void CPropVehiclePrisonerPod::InputEnterVehicle( inputdata_t &inputdata )
 	CBaseCombatCharacter *pPassenger = ToBaseCombatCharacter( inputdata.pActivator );
 	if ( pPassenger == NULL )
 	{
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		// Activator was not a player, just grab the nearest player. 
+pPassenger = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
 		// Activator was not a player, just grab the singleplayer player.
 		pPassenger = UTIL_PlayerByIndex( 1 );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 		if ( pPassenger == NULL )
 			return;
 	}
@@ -622,8 +628,14 @@ void CPropVehiclePrisonerPod::InputEnterVehicleImmediate( inputdata_t &inputdata
 	CBaseCombatCharacter *pPassenger = ToBaseCombatCharacter( inputdata.pActivator );
 	if ( pPassenger == NULL )
 	{
-		// Activator was not a player, just grab the singleplayer player.
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		// Activator was not a player, just grab the nearest player. 
+pPassenger = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+// Activator was not a player, just grab the singleplayer player.
 		pPassenger = UTIL_PlayerByIndex( 1 );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 		if ( pPassenger == NULL )
 			return;
 	}

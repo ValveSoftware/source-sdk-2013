@@ -77,6 +77,10 @@ public:
 	virtual void			GameFrame( bool simulating ); // could be called multiple times before sending data to clients
 	virtual void			PreClientUpdate( bool simulating ); // called after all GameFrame() calls, before sending data to clients
 
+#ifdef Seco7_ENABLE_MAP_BRIEFINGS
+void LoadMapBriefing(void);
+#endif //Seco7_ENABLE_MAP_BRIEFINGS
+
 	virtual ServerClass*	GetAllServerClasses( void );
 	virtual const char     *GetGameDescription( void );      
 	virtual void			CreateNetworkStringTables( void );

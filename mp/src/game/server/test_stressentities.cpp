@@ -26,7 +26,10 @@ CBaseEntity* MoveToRandomSpot( CBaseEntity *pEnt )
 {
 	if ( pEnt )
 	{
-		CBasePlayer *pLocalPlayer = UTIL_GetLocalPlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		UTIL_SetOrigin( pEnt, GetRandomSpot() );
+#else
+CBasePlayer *pLocalPlayer = UTIL_GetLocalPlayer();
 		if ( pLocalPlayer )
 		{			
 			Vector vForward;
@@ -34,6 +37,7 @@ CBaseEntity* MoveToRandomSpot( CBaseEntity *pEnt )
 
 			UTIL_SetOrigin( pEnt, GetRandomSpot() );
 		}
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	}
 
 	return pEnt;

@@ -37,6 +37,138 @@ public:
 
 class CHL2MP_Player : public CHL2_Player
 {
+#ifdef Seco7_USE_PLAYERCLASSES
+enum
+{
+	Unassigned = 0,
+	Assaulter,
+	Supporter,
+	Medic,
+	Heavy,
+	Default,
+};
+#endif //Seco7_USE_PLAYERCLASSES
+
+public:
+
+	#ifdef Seco7_USE_PLAYERCLASSES
+	//Can we change player class?
+	bool PlayerCanChangeClass;
+
+	// Apply a battery
+	bool ApplyBattery( float powerMultiplier = 1.0 );
+	#endif //Seco7_USE_PLAYERCLASSES
+
+	#ifdef Seco7_SAVERESTORE
+	virtual void SaveTransitionFile(void);
+	#endif //Seco7_SAVERESTORE
+
+	#ifdef Seco7_USE_PLAYERCLASSES
+	//4WH - Information: Old ChangeClass vs New spam ver.
+	// Method to change class.
+	//virtual void ChangeClass(int NewClass);
+	void ChangeClass();
+
+	//virtual int GetClass();
+
+	// Initalize the class system
+	void InitClassSystem();
+	
+	// Check our classes convars.
+	void CheckAllClassConVars();
+
+	// On a class being changed.
+	void OnClassChange();
+	// Set stuff (health etc).
+	void SetClassStuff();
+
+	// Set the class value a player currently has.
+	void SetCurrentClassValue();
+
+	// Get the class value
+	int GetClassValue()const;
+	// Get the default classes value.
+	int GetDefaultClassValue()const;
+
+	// Start setting the player onto their selected class
+	void SetPlayerClass();
+
+	// int for the classes health.
+	int  GetClassHealth()const;
+	// int for the classes maximum health.
+	int GetClassMaxHealth()const;
+	
+		// int for the classes as defined by their enum:
+	int m_iClass;
+	// Int for the current player class of the player.
+	int m_iCurrentClass;
+	// Default classes int.
+	int m_iDefaultClass;
+
+	// Set the classes.
+	void SetClassDefault();
+	void SetClassGroundUnit();
+	void SetClassSupportUnit();
+	void SetClassMedic();
+	void SetClassHeavy();
+// Ints for the movement speeds.
+int m_iWalkSpeed; 
+int m_iNormSpeed;
+int m_iSprintSpeed;
+#endif //Seco7_USE_PLAYERCLASSES
+
+// Armor Ints.
+	int m_iArmor;
+	int m_iMaxArmor;
+	void	IncrementArmorValue( int nCount, int nMaxValue = -1 );
+	void	SetArmorValue( int value );
+	void	SetMaxArmorValue( int MaxArmorValue );
+	
+// Armor gets.
+int CHL2MP_Player::GetArmorValue()
+{
+	return m_iArmor;
+}
+
+
+int CHL2MP_Player::GetMaxArmorValue()
+{
+	return m_iMaxArmor;
+}
+
+#ifdef Seco7_USE_PLAYERCLASSES
+private:  
+	// Test whether this player is spawning for the first time.
+	bool m_bFirstSpawn;
+	bool IsFirstSpawn();
+
+void CHL2MP_Player::SetHealthValue( int value )
+{
+	m_iHealth = value;
+}
+
+void CHL2MP_Player::SetMaxHealthValue( int MaxValue )
+{
+	m_iMaxHealth = MaxValue;
+}
+
+int CHL2MP_Player::GetHealthValue()
+{
+	return m_iHealth;
+}
+
+int CHL2MP_Player::GetMaxHealthValue()
+{
+	return m_iMaxHealth;
+}
+
+void CHL2MP_Player::IncrementHealthValue( int nCount )
+{ 
+	m_iHealth += nCount;
+	if (m_iMaxHealth > 0 && m_iHealth > m_iMaxHealth)
+		m_iHealth = m_iMaxHealth;
+}
+#endif //Seco7_USE_PLAYERCLASSES
 public:
 	DECLARE_CLASS( CHL2MP_Player, CHL2_Player );
 
@@ -52,6 +184,16 @@ public:
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
 
+	
+	#ifdef Seco7_USE_PLAYERCLASSES
+	void SSPlayerClassesBGCheck(CHL2MP_Player *pPlayer);
+	void ShowSSPlayerClasses(CHL2MP_Player *pPlayer);
+	void ForceHUDReload(CHL2MP_Player *pPlayer);
+	 bool (m_bDelayedMessage);
+	 float (m_flDelayedMessageTime); 
+	CNetworkVar(int, m_iClientClass); //4WH - Information: Lets the client player know its class int.
+	#endif //Seco7_USE_PLAYERCLASSES
+	
 	virtual void Precache( void );
 	virtual void Spawn( void );
 	virtual void PostThink( void );
@@ -64,7 +206,13 @@ public:
 	virtual bool BecomeRagdollOnClient( const Vector &force );
 	virtual void Event_Killed( const CTakeDamageInfo &info );
 	virtual int OnTakeDamage( const CTakeDamageInfo &inputInfo );
-	virtual bool WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const;
+
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	virtual bool WantsLagCompensationOnEntity( const CBaseEntity *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const; 
+#else
+virtual bool WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const;
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	virtual void FireBullets ( const FireBulletsInfo_t &info );
 	virtual bool Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex = 0);
 	virtual bool BumpWeapon( CBaseCombatWeapon *pWeapon );

@@ -47,6 +47,8 @@ float CNPC_FloorTurret::fMaxTipControllerVelocity = 300.0f * 300.0f;
 float CNPC_FloorTurret::fMaxTipControllerAngularVelocity = 90.0f * 90.0f;
 
 #define	LASER_BEAM_SPRITE			"effects/laser1.vmt"
+//4WH - Information: Here we set the portal turret model.
+#define FLOOR_TURRET_MODEL_PORTAL "models/props/turret_01.mdl"
 
 #define	FLOOR_TURRET_MODEL			"models/combine_turrets/floor_turret.mdl"
 #define	FLOOR_TURRET_MODEL_CITIZEN	"models/combine_turrets/citizen_turret.mdl"
@@ -148,6 +150,9 @@ END_DATADESC()
 
 LINK_ENTITY_TO_CLASS( npc_turret_floor, CNPC_FloorTurret );
 
+//4WH - Information: For loading official Portal maps.
+LINK_ENTITY_TO_CLASS( npc_portal_turret_floor, CNPC_FloorTurret );
+
 //-----------------------------------------------------------------------------
 // Constructor
 //-----------------------------------------------------------------------------
@@ -230,7 +235,7 @@ void CNPC_FloorTurret::Precache( void )
 
 	PropBreakablePrecacheAll( MAKE_STRING( pModelName ) );
 
-	if ( IsCitizenTurret() )
+	if ( IsCitizenTurret() /*//4WH - Information: Also do this for Portal turrets.*/|| IsPortalTurret())
 	{
 		PrecacheModel( LASER_BEAM_SPRITE );
 		PrecacheScriptSound( "NPC_FloorTurret.AlarmPing");
@@ -256,6 +261,24 @@ void CNPC_FloorTurret::Precache( void )
 	PrecacheScriptSound( "NPC_FloorTurret.Ping");
 	PrecacheScriptSound( "NPC_FloorTurret.DryFire");
 	PrecacheScriptSound( "NPC_FloorTurret.Destruct" );
+	
+//4WH - Information:
+	if (IsPortalTurret())
+	{	
+	PrecacheScriptSound( "NPC_FloorTurret.TalkPickup" );
+	PrecacheScriptSound( "NPC_FloorTurret.TalkActive" );
+	PrecacheScriptSound( "NPC_FloorTurret.TalkAutosearch" );
+	PrecacheScriptSound( "NPC_FloorTurret.TalkCollide" );
+	PrecacheScriptSound( "NPC_FloorTurret.TalkDeploy" );
+	PrecacheScriptSound( "NPC_FloorTurret.TalkDisabled" );
+	PrecacheScriptSound( "NPC_FloorTurret.TalkPickup" );
+	PrecacheScriptSound( "NPC_FloorTurret.TalkRetire" );	
+	PrecacheScriptSound( "NPC_FloorTurret.TalkSearch" );	
+	PrecacheScriptSound( "NPC_FloorTurret.TalkShotAt" );	
+	PrecacheScriptSound( "NPC_FloorTurret.TalkTipped" );	
+	PrecacheScriptSound( "NPC_FloorTurret.TalkDissolved" );
+	PrecacheScriptSound( "NPC_FloorTurret.DeployingKlaxon" );
+	}
 
 #ifdef HL2_EPISODIC
 	PrecacheParticleSystem( "explosion_turret_break" );
@@ -272,7 +295,16 @@ void CNPC_FloorTurret::Spawn( void )
 	Precache();
 
 	const char *pModelName = STRING( GetModelName() );
+	
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	SetModel( ( pModelName && pModelName[ 0 ] != '\0' ) ? pModelName : FLOOR_TURRET_MODEL_PORTAL );
+	}
+	else
+	{
 	SetModel( ( pModelName && pModelName[ 0 ] != '\0' ) ? pModelName : FLOOR_TURRET_MODEL );
+	}
 	
 	// If we're a citizen turret, we use a different skin
 	if ( IsCitizenTurret() )
@@ -305,7 +337,12 @@ void CNPC_FloorTurret::Spawn( void )
 	m_iHealth		= 100;
 	m_iMaxHealth	= 100;
 
+//4WH - Information:
+	if (!IsPortalTurret())
+	{
 	AddEFlags( EFL_NO_DISSOLVE );
+	}	
+	
 
 	SetPoseParameter( m_poseAim_Yaw, 0 );
 	SetPoseParameter( m_poseAim_Pitch, 0 );
@@ -414,7 +451,16 @@ void CNPC_FloorTurret::Retire( void )
 		if ( UpdateFacing() == false )
 		{
 			SetActivity( (Activity) ACT_FLOOR_TURRET_CLOSE );
-			EmitSound( "NPC_FloorTurret.Retire" );
+	
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+EmitSound( "NPC_FloorTurret.TalkRetire" );
+	}
+	else
+	{
+EmitSound( "NPC_FloorTurret.Retire" );
+	}
 
 			//Notify of the retraction
 			m_OnRetire.FireOutput( NULL, this );
@@ -462,7 +508,16 @@ void CNPC_FloorTurret::Deploy( void )
 	{
 		m_bActive = true;
 		SetActivity( (Activity) ACT_FLOOR_TURRET_OPEN );
-		EmitSound( "NPC_FloorTurret.Deploy" );
+		
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.TalkDeploy" );
+	}
+	else
+	{
+	EmitSound( "NPC_FloorTurret.Deploy" );
+	}
 
 		//Notify we're deploying
 		m_OnDeploy.FireOutput( NULL, this );
@@ -478,7 +533,15 @@ void CNPC_FloorTurret::Deploy( void )
 		m_flPlaybackRate = 0;
 		SetThink( &CNPC_FloorTurret::SearchThink );
 
+//4WH - Information:
+		if (IsPortalTurret())
+		{
+		EmitSound( "NPC_FloorTurret.TalkSearch" );	
+		}
+		else
+		{
 		EmitSound( "NPC_FloorTurret.Move" );
+		}
 	}
 
 	m_flLastSight = gpGlobals->curtime + FLOOR_TURRET_MAX_WAIT;	
@@ -491,7 +554,13 @@ void CNPC_FloorTurret::OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup
 {
 	m_hPhysicsAttacker = pPhysGunUser;
 	m_flLastPhysicsInfluenceTime = gpGlobals->curtime;
-
+	
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.TalkPickup" );
+	}
+	
 	// Drop our mass a lot so that we can be moved easily with +USE
 	if ( reason != PUNTED_BY_CANNON )
 	{
@@ -609,7 +678,15 @@ bool CNPC_FloorTurret::HandleInteraction(int interactionType, void *data, CBaseC
 		CalculateMeleeDamageForce( &info, forward, GetAbsOrigin() );
 		TakeDamage( info );
 
-		EmitSound( "NPC_Combine.WeaponBash" );
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.TalkShotAt" );
+	}
+	else
+	{
+	EmitSound( "NPC_Combine.WeaponBash" );
+	}
 		return true;
 	}
 
@@ -698,8 +775,17 @@ bool CNPC_FloorTurret::UpdateFacing( void )
 
 void CNPC_FloorTurret::DryFire( void )
 {
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.TalkActive" );
+	EmitSound( "NPC_FloorTurret.TalkDeploy" );
+	}
+	else
+	{
 	EmitSound( "NPC_FloorTurret.DryFire");
 	EmitSound( "NPC_FloorTurret.Activate" );
+	}
 
  	if ( RandomFloat( 0, 1 ) > 0.5 )
 	{
@@ -1067,8 +1153,18 @@ void CNPC_FloorTurret::SearchThink( void )
 		SpinUp();
  
 		if ( gpGlobals->curtime > m_flNextActivateSoundTime )
-		{
-			EmitSound( "NPC_FloorTurret.Activate" );
+		{		
+		//4WH - Information:
+		if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.TalkActive" );
+	}
+	else
+	{
+	EmitSound( "NPC_FloorTurret.Activate" );
+	}
+
+			
 			m_flNextActivateSoundTime = gpGlobals->curtime + 3.0;
 		}
 		return;
@@ -1122,7 +1218,15 @@ void CNPC_FloorTurret::AutoSearchThink( void )
 		SetThink( &CNPC_FloorTurret::Deploy );
 		if ( !m_bNoAlarmSounds )
 		{
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.TalkAutosearch" );
+	}
+else
+{
 			EmitSound( "NPC_FloorTurret.Alert" );
+}
 		}
 	}
 }
@@ -1298,11 +1402,29 @@ void CNPC_FloorTurret::TippedThink( void )
 			if ( UpdateFacing() == false )
 			{
 				//Make any last death noises and anims
-				EmitSound( "NPC_FloorTurret.Die" );
+
+//4WH - Information:				
+	if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.TalkTipped" );	
+	}
+	else
+	{
+	EmitSound( "NPC_FloorTurret.Die" );
+	}
 				SpinDown();
 
 				SetActivity( (Activity) ACT_FLOOR_TURRET_CLOSE );
-				EmitSound( "NPC_FloorTurret.Retract" );
+				
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.TalkRetire" );	
+	}
+	else
+	{
+	EmitSound( "NPC_FloorTurret.Retract" );
+	}
 
 				CTakeDamageInfo	info;
 				info.SetDamage( 1 );
@@ -1497,7 +1619,16 @@ bool CNPC_FloorTurret::PreThink( turretState_e state )
 				SpinUp();
 				if ( !m_bNoAlarmSounds )
 				{
-					EmitSound( "NPC_FloorTurret.Alarm" );
+					
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.DeployingKlaxon" );
+	}
+	else
+	{
+	EmitSound( "NPC_FloorTurret.Alarm" );
+	}
 				}
 			}
 			else
@@ -1557,7 +1688,7 @@ void CNPC_FloorTurret::SetEyeState( eyeState_t state )
 	}
 
 	// Add the laser if it doesn't already exist
-	if ( IsCitizenTurret() && HasSpawnFlags( SF_FLOOR_TURRET_OUT_OF_AMMO ) == false && m_hLaser == NULL )
+	if ( IsCitizenTurret() && HasSpawnFlags( SF_FLOOR_TURRET_OUT_OF_AMMO ) == false && m_hLaser == NULL /*//4WH - Information: Here we allow lasers on Portal turrets.*/ || IsPortalTurret())
 	{
 		m_hLaser = CBeam::BeamCreate( LASER_BEAM_SPRITE, 1.0f );
 		if ( m_hLaser == NULL )
@@ -1565,8 +1696,19 @@ void CNPC_FloorTurret::SetEyeState( eyeState_t state )
 
 		m_hLaser->EntsInit( this, this );
 		m_hLaser->FollowEntity( this );
-		m_hLaser->SetStartAttachment( LookupAttachment( "laser_start" ) );
-		m_hLaser->SetEndAttachment( LookupAttachment( "laser_end" ) );
+
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	m_hLaser->SetStartAttachment( LookupAttachment( "light" ) );
+	m_hLaser->SetEndAttachment( LookupAttachment( "eyes" ) );	
+	}
+	else
+	{
+	m_hLaser->SetStartAttachment( LookupAttachment( "laser_start" ) );
+	m_hLaser->SetEndAttachment( LookupAttachment( "laser_end" ) );	
+	}
+		
 		m_hLaser->SetNoise( 0 );
 		m_hLaser->SetColor( 255, 0, 0 );
 		m_hLaser->SetScrollRate( 0 );
@@ -1855,6 +1997,14 @@ int CNPC_FloorTurret::OnTakeDamage( const CTakeDamageInfo &info )
 		// Bullets, but not buckshot, do extra push
 		newInfo.ScaleDamageForce( 2.5f );
 	}
+//4WH - Information:
+	else if ( info.GetDamageType() & DMG_DISSOLVE && IsPortalTurret())
+	{
+		newInfo.ScaleDamageForce( 100.0f );
+		EmitSound( "NPC_FloorTurret.TalkDissolved" );
+	}
+
+	
 
 	// Manually apply vphysics because AI_BaseNPC takedamage doesn't call back to CBaseEntity OnTakeDamage
 	VPhysicsTakeDamage( newInfo );
@@ -1890,7 +2040,12 @@ QAngle CNPC_FloorTurret::PreferredCarryAngles( void )
 	static QAngle g_prefAngles;
 
 	Vector vecUserForward;
-	CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	pPlayer->EyeVectors( &vecUserForward );
 
 	// If we're looking up, then face directly forward
@@ -2038,7 +2193,15 @@ void CNPC_FloorTurret::BreakThink( void )
 	// K-boom
 	RadiusDamage( CTakeDamageInfo( this, this, 15.0f, DMG_BLAST ), vecOrigin, (10*12), CLASS_NONE, this );
 
+//4WH - Information:
+	if (IsPortalTurret())
+	{
+	EmitSound( "NPC_FloorTurret.TalkDisabled" );
+	}
+	else
+	{
 	EmitSound( "NPC_FloorTurret.Destruct" );
+	}
 
 	breakablepropparams_t params( GetAbsOrigin(), GetAbsAngles(), vec3_origin, RandomAngularImpulse( -800.0f, 800.0f ) );
 	params.impactEnergyScale = 1.0f;

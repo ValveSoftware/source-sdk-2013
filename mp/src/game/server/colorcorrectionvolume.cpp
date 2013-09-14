@@ -162,7 +162,12 @@ void CColorCorrectionVolume::Spawn( void )
 
 bool CColorCorrectionVolume::PassesTriggerFilters( CBaseEntity *pEntity )
 {
-	if( pEntity == UTIL_GetLocalPlayer() )
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	if( pEntity->IsPlayer() ) 
+#else
+if( pEntity == UTIL_GetLocalPlayer() )
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 		return true;
 
 	return false;

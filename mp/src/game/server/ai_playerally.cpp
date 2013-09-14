@@ -368,6 +368,12 @@ void CAI_PlayerAlly::DisplayDeathMessage( void )
 
 	CBaseEntity *pPlayer = AI_GetSinglePlayer();
 
+	// clear any pending autosavedangerous
+	g_ServerGameDLL.m_fAutoSaveDangerousTime = 0.0f;
+	g_ServerGameDLL.m_fAutoSaveDangerousMinHealthToCommit = 0.0f;
+}	
+#else
+CBaseEntity *pPlayer = AI_GetSinglePlayer();
 	if ( pPlayer )	
 	{
 		UTIL_ShowMessage( GetDeathMessageText(), ToBasePlayer( pPlayer ) );
@@ -386,6 +392,7 @@ void CAI_PlayerAlly::DisplayDeathMessage( void )
 	// clear any pending autosavedangerous
 	g_ServerGameDLL.m_fAutoSaveDangerousTime = 0.0f;
 	g_ServerGameDLL.m_fAutoSaveDangerousMinHealthToCommit = 0.0f;
+#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
 }
 
 //-----------------------------------------------------------------------------

@@ -228,6 +228,16 @@ CBasePlayer	*UTIL_PlayerByIndex( int playerIndex );
 // not useable in multiplayer - see UTIL_GetListenServerHost()
 CBasePlayer* UTIL_GetLocalPlayer( void );
 
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+// helper functions added for replacing the above 
+CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin ); 
+CBasePlayer *UTIL_GetNearestVisiblePlayer(CBaseEntity *pLooker, int mask = MASK_SOLID_BRUSHONLY); 
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
+//4WH - Information: Helper function for player usage.
+CBasePlayer *UTIL_GetOtherNearestPlayer( const Vector &origin );
+
+
 // get the local player on a listen server
 CBasePlayer *UTIL_GetListenServerHost( void );
 

@@ -2622,7 +2622,8 @@ void PhysCollisionScreenShake( gamevcollisionevent_t *pEvent, int index )
 	}
 }
 
-#if HL2_EPISODIC
+//4WH - Episodic Issues: if Changed to ifdef.
+#ifdef HL2_EPISODIC
 // Uses DispatchParticleEffect because, so far as I know, that is the new means of kicking
 // off flinders for this kind of collision. Should this be in g_pEffects instead? 
 void PhysCollisionWarpEffect( gamevcollisionevent_t *pEvent, surfacedata_t *phit )
@@ -2661,7 +2662,7 @@ void PhysCollisionDust( gamevcollisionevent_t *pEvent, surfacedata_t *phit )
 
 		break;
 
-#if HL2_EPISODIC 
+#ifdef HL2_EPISODIC 
 		// this is probably redundant because BaseEntity::VHandleCollision should have already dispatched us elsewhere
 	case CHAR_TEX_WARPSHIELD:
 		PhysCollisionWarpEffect(pEvent,phit);

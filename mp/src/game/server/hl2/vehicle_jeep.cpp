@@ -143,10 +143,10 @@ IMPLEMENT_SERVERCLASS_ST( CPropJeep, DT_PropJeep )
 	SendPropBool( SENDINFO( m_bHeadlightIsOn ) ),
 END_SEND_TABLE();
 
-// This is overriden for the episodic jeep
+//4WH - Information: Use the hl2 vehicle as the base prop_vehicle_jeep when you don't have episodic content defined.
 #ifndef HL2_EPISODIC
 LINK_ENTITY_TO_CLASS( prop_vehicle_jeep, CPropJeep );
-#endif
+#endif //HL2_EPISODIC
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -194,6 +194,11 @@ void CPropJeep::Precache( void )
 
 	PrecacheScriptSound( "Jeep.GaussCharge" );
 
+	#ifdef Seco7_ALLOW_JEEP_HEADLIGHTS
+	PrecacheScriptSound( "Airboat_headlight_on" );
+	PrecacheScriptSound( "Airboat_headlight_off" );
+	#endif //Seco7_ALLOW_JEEP_HEADLIGHTS
+	
 	PrecacheModel( GAUSS_BEAM_SPRITE );
 
 	BaseClass::Precache();
@@ -897,6 +902,10 @@ void CPropJeep::FireCannon( void )
 
 	if ( m_bUnableToFire )
 		return;
+		
+	
+	//4WH - Information: Thanks to Sub-Zero, we have working hit effects from the tau cannon.
+	CDisablePredictionFiltering disabler;
 
 	m_flCannonTime = gpGlobals->curtime + 0.2f;
 	m_bCannonCharging = false;
@@ -936,6 +945,10 @@ void CPropJeep::FireCannon( void )
 //-----------------------------------------------------------------------------
 void CPropJeep::FireChargedCannon( void )
 {
+
+	//4WH - Information: Thanks to Sub-Zero, we have working hit effects from the tau cannon.
+	CDisablePredictionFiltering disabler;
+	
 	bool penetrated = false;
 
 	m_bCannonCharging	= false;
@@ -1324,8 +1337,8 @@ void CPropJeep::DriveVehicle( float flFrameTime, CUserCmd *ucmd, int iButtonsDow
 {
 	int iButtons = ucmd->buttons;
 
-	//Adrian: No headlights on Superfly.
-/*	if ( ucmd->impulse == 100 )
+#ifdef Seco7_ALLOW_JEEP_HEADLIGHTS
+	if ( ucmd->impulse == 100 )
 	{
 		if (HeadlightIsOn())
 		{
@@ -1335,7 +1348,8 @@ void CPropJeep::DriveVehicle( float flFrameTime, CUserCmd *ucmd, int iButtonsDow
 		{
 			HeadlightTurnOn();
 		}
-	}*/
+	}
+#endif //Seco7_ALLOW_JEEP_HEADLIGHTS
 		
 	// Only handle the cannon if the vehicle has one
 	if ( m_bHasGun )
@@ -1471,7 +1485,12 @@ void CPropJeep::EnterVehicle( CBaseCombatCharacter *pPassenger )
 //-----------------------------------------------------------------------------
 void CPropJeep::ExitVehicle( int nRole )
 {
-	HeadlightTurnOff();
+	#ifdef Seco7_ALLOW_JEEP_HEADLIGHTS
+	if (HeadlightIsOn())
+{
+HeadlightTurnOff();
+}
+#endif //Seco7_ALLOW_JEEP_HEADLIGHTS
 
 	BaseClass::ExitVehicle( nRole );
 
@@ -1729,3 +1748,24 @@ int CJeepFourWheelServerVehicle::GetExitAnimToUse( Vector &vecEyeExitEndpoint, b
 
 	return BaseClass::GetExitAnimToUse( vecEyeExitEndpoint, bAllPointsBlocked );
 }
+
+
+#ifdef Seco7_ALLOW_JEEP_HEADLIGHTS
+//—————————————————————————–
+// Purpose:
+//—————————————————————————–
+void CPropJeep::HeadlightTurnOn( void )
+{
+EmitSound( "Airboat_headlight_on" );
+m_bHeadlightIsOn = true;
+}
+
+//—————————————————————————–
+// Purpose:
+//—————————————————————————–
+void CPropJeep::HeadlightTurnOff( void )
+{
+EmitSound( "Airboat_headlight_off" );
+m_bHeadlightIsOn = false;
+}
+#endif //Seco7_ALLOW_JEEP_HEADLIGHTS

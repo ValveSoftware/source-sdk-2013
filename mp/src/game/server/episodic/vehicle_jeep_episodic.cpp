@@ -314,7 +314,11 @@ LINK_ENTITY_TO_CLASS( info_target_vehicle_transition, CInfoTargetVehicleTransiti
 //	CPropJeepEpisodic
 //
 
+//4WH - Information: Use the episodic vehicle as the base prop_vehicle_jeep when you have episodic content defined. If you need the jeep, use vehicle_hl2buggy (prop_vehicle_hl2buggy).
+#ifdef HL2_EPISODIC
 LINK_ENTITY_TO_CLASS( prop_vehicle_jeep, CPropJeepEpisodic );
+LINK_ENTITY_TO_CLASS( prop_vehicle_jalopy, CPropJeepEpisodic ); //4WH - Information: For ease of use in Hammer, lets create a link for the jalopy.
+#endif //HL2_EPISODIC
 
 BEGIN_DATADESC( CPropJeepEpisodic )
 
@@ -954,7 +958,12 @@ void CPropJeepEpisodic::UpdateRadar( bool forceUpdate )
 
 	//Msg("Server detected %d objects\n", m_iNumRadarContacts );
 
-	CBasePlayer *pPlayer = AI_GetSinglePlayer();
+		//4WH - Information: Fix pPlayer from sp to mp.
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+#else
+		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	CSingleUserRecipientFilter filter(pPlayer);
 	UserMessageBegin( filter, "UpdateJalopyRadar" );
 	WRITE_BYTE( 0 ); // end marker
@@ -1129,7 +1138,12 @@ CBaseEntity *CPropJeepEpisodic::OnFailedPhysGunPickup( Vector vPhysgunPos )
 	{
 		// Player's forward direction
 		Vector vecPlayerForward;
+		//4WH - Information: Fix pPlayer from sp to mp.
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
 		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 		if ( pPlayer == NULL )
 			return NULL;
 
@@ -1310,6 +1324,14 @@ static void KillBlockingEnemyNPCs( CBasePlayer *pPlayer, CBaseEntity *pVehicleEn
 
 			CTakeDamageInfo dmgInfo( pVehicleEntity, pVehicleEntity, damageForce, contactList[i], 200.0f, DMG_CRUSH|DMG_VEHICLE );
 			npcList[i]->TakeDamage( dmgInfo );
+			
+			//4WH - Null Pointers: Occasionally on hitting an AI the game would crash. This is our fix.
+			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			IPhysicsObject*physicsObj = npcList[i]->VPhysicsGetObject();
+			if (physicsObj == NULL)
+							return;
+			#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			
 			pVehiclePhysics->ApplyForceOffset( vehicleForce, contactList[i] );
 			PhysCollisionSound( pVehicleEntity, npcList[i]->VPhysicsGetObject(), CHAN_BODY, pVehiclePhysics->GetMaterialIndex(), npcList[i]->VPhysicsGetObject()->GetMaterialIndex(), gpGlobals->frametime, 200.0f );
 		}
@@ -1590,7 +1612,9 @@ int	CPropJeepEpisodic::DrawDebugTextOverlays( void )
 void CPropJeepEpisodic::InputOutsideTransition( inputdata_t &inputdata )
 {
 	// Teleport into the new map
-	CBasePlayer *pPlayer = AI_GetSinglePlayer();
+		//4WH - Information: Fix pPlayer from sp to mp.
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();   
+		//CBasePlayer *pPlayer = AI_GetSinglePlayer();
 	Vector vecTeleportPos;
 	QAngle vecTeleportAngles;
 

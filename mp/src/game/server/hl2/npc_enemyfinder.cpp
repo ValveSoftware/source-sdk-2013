@@ -344,9 +344,15 @@ void CNPC_EnemyFinder::StartNPC ( void )
 											// the ground just because it's not MOVETYPE_FLY
 	BaseClass::StartNPC();
 
-	if ( AI_IsSinglePlayer() && m_PlayerFreePass.GetParams().duration > 0.1 )
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	if ( m_PlayerFreePass.GetParams().duration > 0.1 ) 
+	{
+		m_PlayerFreePass.SetPassTarget( UTIL_GetNearestPlayer(GetAbsOrigin()) ); 
+#else
+if ( AI_IsSinglePlayer() && m_PlayerFreePass.GetParams().duration > 0.1 )
 	{
 		m_PlayerFreePass.SetPassTarget( UTIL_PlayerByIndex(1) );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		AI_FreePassParams_t freePassParams = m_PlayerFreePass.GetParams();
 
@@ -416,7 +422,12 @@ bool CNPC_EnemyFinder::ShouldAlwaysThink()
 	if ( BaseClass::ShouldAlwaysThink() )
 		return true;
 		
-	CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	if ( pPlayer && IRelationType( pPlayer ) == D_HT )
 	{
 		float playerDistSqr = GetAbsOrigin().DistToSqr( pPlayer->GetAbsOrigin() );

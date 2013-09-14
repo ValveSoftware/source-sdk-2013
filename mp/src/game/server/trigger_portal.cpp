@@ -275,7 +275,11 @@ void CTriggerPortal::DisableForIncomingEntity( CBaseEntity *pEntity )
 	// Start thinking, and remove the other as soon as it's not touching me.
 	// Needs to be done in addition to EndTouch, because entities may move fast
 	// enough through the portal to come out not touching the other portal.
+#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	SetContextThink( &CTriggerPortal::DisabledThink, gpGlobals->curtime + 0.1, TRIGGER_DISABLED_THINK );
+#else
 	SetContextThink( DisabledThink, gpGlobals->curtime + 0.1, TRIGGER_DISABLED_THINK );
+#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
 }
 
 //-----------------------------------------------------------------------------
@@ -298,8 +302,11 @@ void CTriggerPortal::DisabledThink( void )
 			m_hDisabledForEntities.Remove(i);
 		}
 	}
-
+#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	SetContextThink( &CTriggerPortal::DisabledThink, gpGlobals->curtime + 0.1, TRIGGER_DISABLED_THINK );
+#else
 	SetContextThink( DisabledThink, gpGlobals->curtime + 0.1, TRIGGER_DISABLED_THINK );
+#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
 }
 
 //-----------------------------------------------------------------------------

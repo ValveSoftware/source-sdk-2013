@@ -1546,7 +1546,12 @@ void CNPC_CombineDropship::UpdateRotorWashVolume( CSoundPatch *pRotorSound, floa
 void CNPC_CombineDropship::UpdateRotorWashVolume()
 {
 	float flNearFactor = 0.0f; 
-	CBaseEntity *pPlayer = UTIL_PlayerByIndex( 1 );
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+CBaseEntity *pPlayer = UTIL_PlayerByIndex( 1 );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	if (pPlayer)
 	{
 		float flDist = pPlayer->GetAbsOrigin().DistTo( GetAbsOrigin() );

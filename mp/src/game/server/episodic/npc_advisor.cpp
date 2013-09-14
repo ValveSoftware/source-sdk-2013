@@ -30,7 +30,7 @@
 // #include "mathlib/noise.h"
 
 // this file contains the definitions for the message ID constants (eg ADVISOR_MSG_START_BEAM etc)
-#include "npc_advisor_shared.h"
+#include "../../shared/episodic/npc_advisor_shared.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

@@ -13,6 +13,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef 
+extern ConVar BreenCastAudio;
+#endif SHADOW_SOURCE
+
 static IPredictionSystem g_RecipientFilterPredictionSystem;
 
 //-----------------------------------------------------------------------------

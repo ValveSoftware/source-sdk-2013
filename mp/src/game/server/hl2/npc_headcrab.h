@@ -268,7 +268,9 @@ public:
 	virtual void AlertSound( void );
 	virtual void ImpactSound( void );
 	virtual void TelegraphSound( void );
-#if HL2_EPISODIC
+
+//4WH - Episodic Issues: if Changed to ifdef.
+#ifdef HL2_EPISODIC
 	virtual bool FInViewCone( CBaseEntity *pEntity );
 #endif
 

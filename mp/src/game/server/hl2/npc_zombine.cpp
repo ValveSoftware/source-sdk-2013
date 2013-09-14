@@ -35,6 +35,9 @@
 
 #include "ai_interactions.h"
 
+//4WH - Episodic Issues: Here we include the hl2mp gamerules so that calls to darkness mode work.
+#include "hl2mp_gamerules.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -614,7 +617,7 @@ bool CNPC_Zombine::AllowedToSprint( void )
 
 	if ( pPlayer )
 	{
-		if ( HL2GameRules()->IsAlyxInDarknessMode() && pPlayer->FlashlightIsOn() == false )
+		if ( HL2MPRules()->IsAlyxInDarknessMode() && pPlayer->FlashlightIsOn() == false )
 		{
 			iChance = SPRINT_CHANCE_VALUE_DARKNESS;
 		}

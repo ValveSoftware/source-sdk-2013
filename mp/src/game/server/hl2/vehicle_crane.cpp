@@ -852,7 +852,12 @@ void CPropCrane::InputUnlock( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CPropCrane::InputForcePlayerIn( inputdata_t &inputdata )
 {
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+	#else
 	CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI	
+
 	if ( pPlayer && !m_hPlayer )
 	{
 		GetServerVehicle()->HandlePassengerEntry( pPlayer, 0 );

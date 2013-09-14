@@ -124,7 +124,7 @@ BEGIN_DATADESC( CNPC_PlayerCompanion )
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableWeaponPickup", InputDisableWeaponPickup ),
 
 
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 	DEFINE_INPUTFUNC( FIELD_VOID, "ClearAllOutputs", InputClearAllOuputs ),
 #endif
 
@@ -348,9 +348,17 @@ void CNPC_PlayerCompanion::GatherConditions()
 {
 	BaseClass::GatherConditions();
 
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+//4WH - Null Pointers: Null pointer fixed by KuRouZu on the steam coding forums.
+	CBasePlayer *pPlayer = ToBasePlayer( GetFollowBehavior().GetFollowTarget() );//UTIL_GetNearestPlayer(GetAbsOrigin());
+
+	if ( pPlayer ) 
+	{
+#else
 	if ( AI_IsSinglePlayer() )
 	{
-		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( Classify() == CLASS_PLAYER_ALLY_VITAL )
 		{
@@ -496,9 +504,17 @@ void CNPC_PlayerCompanion::GatherConditions()
 		DoCustomSpeechAI();
 	}
 
-	if ( AI_IsSinglePlayer() && hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+//4WH - Null Pointers: Null pointer fixed by KuRouZu on the steam coding forums.
+	if ( pPlayer && hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
+	{
+		Vector los = ( pPlayer->EyePosition() - EyePosition() );
+#else
+if ( AI_IsSinglePlayer() && hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
 	{
 		Vector los = ( UTIL_GetLocalPlayer()->EyePosition() - EyePosition() );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 		los.z = 0;
 		VectorNormalize( los );
 
@@ -514,7 +530,11 @@ void CNPC_PlayerCompanion::GatherConditions()
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::DoCustomSpeechAI( void )
 {
-	CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	
 	// Don't allow this when we're getting in the car
 #ifdef HL2_EPISODIC
@@ -547,7 +567,12 @@ void CNPC_PlayerCompanion::DoCustomSpeechAI( void )
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::PredictPlayerPush()
 {
-	CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI	
+
 	if ( pPlayer && pPlayer->GetSmoothedVelocity().LengthSqr() >= Square(140))
 	{
 		Vector predictedPosition = pPlayer->WorldSpaceCenter() + pPlayer->GetSmoothedVelocity() * .4;
@@ -957,6 +982,105 @@ bool CNPC_PlayerCompanion::IsValidReasonableFacing( const Vector &vecSightDir, f
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType ) 
+{
+	switch( scheduleType )
+	{
+	case SCHED_IDLE_STAND:
+	case SCHED_ALERT_STAND:
+		if( GetActiveWeapon() )
+		{
+			// Everyone with less than half a clip takes turns reloading when not fighting.
+			CBaseCombatWeapon *pWeapon = GetActiveWeapon();
+
+			if( CanReload() && pWeapon->UsesClipsForAmmo1() && pWeapon->Clip1() < ( pWeapon->GetMaxClip1() * .5 ) && OccupyStrategySlot( SQUAD_SLOT_EXCLUSIVE_RELOAD ) )
+			{
+					CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+
+					pWeapon = pPlayer->GetActiveWeapon();
+					if( pWeapon && pWeapon->UsesClipsForAmmo1() && 
+						pWeapon->Clip1() < ( pWeapon->GetMaxClip1() * .75 ) &&
+						pPlayer->GetAmmoCount( pWeapon->GetPrimaryAmmoType() ) )
+					{
+						SpeakIfAllowed( TLK_PLRELOAD );
+					}
+				return SCHED_RELOAD;
+			}
+		}
+		break;
+
+	case SCHED_COWER:
+		return SCHED_PC_COWER;
+
+	case SCHED_TAKE_COVER_FROM_BEST_SOUND:
+		{
+			CSound *pSound = GetBestSound(SOUND_DANGER);
+
+			if( pSound && pSound->m_hOwner )
+			{
+				if( pSound->m_hOwner->IsNPC() && FClassnameIs( pSound->m_hOwner, "npc_zombine" ) )
+				{
+					// Run fully away from a Zombine with a grenade.
+					return SCHED_PC_TAKE_COVER_FROM_BEST_SOUND;
+				}
+			}
+
+			return SCHED_PC_MOVE_TOWARDS_COVER_FROM_BEST_SOUND;
+		}
+
+	case SCHED_FLEE_FROM_BEST_SOUND:
+		return SCHED_PC_FLEE_FROM_BEST_SOUND;
+
+	case SCHED_ESTABLISH_LINE_OF_FIRE:
+	case SCHED_MOVE_TO_WEAPON_RANGE:
+		if ( IsMortar( GetEnemy() ) )
+			return SCHED_TAKE_COVER_FROM_ENEMY;
+		break;
+
+	case SCHED_CHASE_ENEMY:
+		if ( IsMortar( GetEnemy() ) )
+			return SCHED_TAKE_COVER_FROM_ENEMY;
+		if ( GetEnemy() && FClassnameIs( GetEnemy(), "npc_combinegunship" ) )
+			return SCHED_ESTABLISH_LINE_OF_FIRE;
+		break;
+
+	case SCHED_ESTABLISH_LINE_OF_FIRE_FALLBACK:
+		// If we're fighting a gunship, try again
+		if ( GetEnemy() && FClassnameIs( GetEnemy(), "npc_combinegunship" ) )
+			return SCHED_ESTABLISH_LINE_OF_FIRE;
+		break;
+
+	case SCHED_RANGE_ATTACK1:
+		if ( IsMortar( GetEnemy() ) )
+			return SCHED_TAKE_COVER_FROM_ENEMY;
+			
+		if ( GetShotRegulator()->IsInRestInterval() )
+			return SCHED_STANDOFF;
+
+		if( !OccupyStrategySlotRange( SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2 ) )
+			return SCHED_STANDOFF;
+		break;
+
+	case SCHED_FAIL_TAKE_COVER:
+		if ( IsEnemyTurret() )
+		{
+			return SCHED_PC_FAIL_TAKE_COVER_TURRET;
+		}
+		break;
+	case SCHED_RUN_FROM_ENEMY_FALLBACK:
+		{
+			if ( HasCondition( COND_CAN_RANGE_ATTACK1 ) )
+			{
+				return SCHED_RANGE_ATTACK1;
+			}
+			break;
+		}
+	}
+
+	return BaseClass::TranslateSchedule( scheduleType );
+}
+#else
 int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType ) 
 {
 	switch( scheduleType )
@@ -1056,6 +1180,7 @@ int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType )
 
 	return BaseClass::TranslateSchedule( scheduleType );
 }
+#endif //Seco7_Enable_Fixed_Multiplayer_AI	
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -1153,10 +1278,15 @@ void CNPC_PlayerCompanion::RunTask( const Task_t *pTask )
 
 		case TASK_PC_GET_PATH_OFF_COMPANION:
 			{
-				if ( AI_IsSinglePlayer() )
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+					GetNavigator()->SetAllowBigStep( UTIL_GetNearestPlayer(GetAbsOrigin()) );
+#else
+if ( AI_IsSinglePlayer() )
 				{
 					GetNavigator()->SetAllowBigStep( UTIL_GetLocalPlayer() );
 				}
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 				ChainRunTask( TASK_MOVE_AWAY_PATH, 48 );
 			}
 			break;
@@ -1513,7 +1643,12 @@ void CNPC_PlayerCompanion::Touch( CBaseEntity *pOther )
 		if ( m_afMemory & bits_MEMORY_PROVOKED )
 			return;
 			
-		TestPlayerPushing( ( pOther->IsPlayer() ) ? pOther : AI_GetSinglePlayer() );
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		TestPlayerPushing( ( pOther->IsPlayer() ) ? pOther : UTIL_GetNearestPlayer(GetAbsOrigin()) ); 
+#else
+TestPlayerPushing( ( pOther->IsPlayer() ) ? pOther : AI_GetSinglePlayer() );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	}
 }
 
@@ -1741,7 +1876,11 @@ void CNPC_PlayerCompanion::UpdateReadiness()
 		}
 	}
 
- 	if( ai_debug_readiness.GetBool() && AI_IsSinglePlayer() )
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+ 	if( ai_debug_readiness.GetBool() ) 
+#else
+if( ai_debug_readiness.GetBool() && AI_IsSinglePlayer() )
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	{
 		// Draw the readiness-o-meter
 		Vector vecSpot;
@@ -1750,7 +1889,11 @@ void CNPC_PlayerCompanion::UpdateReadiness()
 		const float GRADLENGTH	= 4.0f;
 
 		Vector right;
-		UTIL_PlayerByIndex( 1 )->GetVectors( NULL, &right, NULL );
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		UTIL_GetNearestPlayer(GetAbsOrigin())->GetVectors( NULL, &right, NULL ); 
+#else
+UTIL_PlayerByIndex( 1 )->GetVectors( NULL, &right, NULL );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( IsInScriptedReadinessState() )
  		{
@@ -1890,14 +2033,23 @@ bool CNPC_PlayerCompanion::PickTacticalLookTarget( AILookTargetArgs_t *pArgs )
 	}
 
 	flMaxLookTime = flMinLookTime + random->RandomFloat( 0.0f, 0.5f );
-	pArgs->flDuration = random->RandomFloat( flMinLookTime, flMaxLookTime );
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	pArgs->flDuration = random->RandomFloat( flMinLookTime, flMaxLookTime ); 
+#else
+pArgs->flDuration = random->RandomFloat( flMinLookTime, flMaxLookTime );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if( HasCondition(COND_SEE_PLAYER) && hl2_episodic.GetBool() )
 	{
 		// 1/3rd chance to authoritatively look at player
 		if( random->RandomInt( 0, 2 ) == 0 )
 		{
-			pArgs->hTarget = AI_GetSinglePlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			pArgs->hTarget = UTIL_GetNearestVisiblePlayer(this);
+#else
+pArgs->hTarget = AI_GetSinglePlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 			return true;
 		}
 	}
@@ -2784,7 +2936,12 @@ void CNPC_PlayerCompanion::OnFriendDamaged( CBaseCombatCharacter *pSquadmate, CB
 			}
 		}
 
-		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 		if ( pPlayer && IsInPlayerSquad() && ( pPlayer->GetAbsOrigin().AsVector2D() - GetAbsOrigin().AsVector2D() ).LengthSqr() < Square( 25*12 ) && IsAllowedToSpeak( TLK_WATCHOUT ) )
 		{
 			if ( !pPlayer->FInViewCone( pAttacker ) )
@@ -3017,12 +3174,21 @@ float CNPC_PlayerCompanion::GetIdealSpeed() const
 float CNPC_PlayerCompanion::GetIdealAccel() const
 {
 	float multiplier = 1.0;
+
+
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		if ( m_bMovingAwayFromPlayer && (UTIL_GetNearestPlayer(GetAbsOrigin())->GetAbsOrigin() - GetAbsOrigin()).Length2DSqr() < Square(3.0*12.0) ) 
+		multiplier = 2.0;
+
+	return BaseClass::GetIdealAccel() * multiplier;
+#else
 	if ( AI_IsSinglePlayer() )
 	{
 		if ( m_bMovingAwayFromPlayer && (UTIL_PlayerByIndex(1)->GetAbsOrigin() - GetAbsOrigin()).Length2DSqr() < Square(3.0*12.0) )
 			multiplier = 2.0;
 	}
 	return BaseClass::GetIdealAccel() * multiplier;
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 }
 
 //-----------------------------------------------------------------------------
@@ -3084,8 +3250,10 @@ bool CNPC_PlayerCompanion::ShouldAlwaysTransition( void )
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::InputOutsideTransition( inputdata_t &inputdata )
 {
-	if ( !AI_IsSinglePlayer() )
-		return;
+#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+	if ( !AI_IsSinglePlayer() ) 
+		return; 
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	// Must want to do this
 	if ( ShouldAlwaysTransition() == false )
@@ -3095,7 +3263,12 @@ void CNPC_PlayerCompanion::InputOutsideTransition( inputdata_t &inputdata )
 	if ( IsInAVehicle() )
 		return;
 
-	CBaseEntity *pPlayer = UTIL_GetLocalPlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+CBaseEntity *pPlayer = UTIL_GetLocalPlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	const Vector &playerPos = pPlayer->GetAbsOrigin();
 
 	// Mark us as already having succeeded if we're vital or always meant to come with the player
@@ -3523,7 +3696,7 @@ void CNPC_PlayerCompanion::InputGiveWeapon( inputdata_t &inputdata )
 	}
 }
 
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 //------------------------------------------------------------------------------
 // Purpose: Delete all outputs from this NPC.
 //------------------------------------------------------------------------------
@@ -3684,9 +3857,21 @@ bool CNPC_PlayerCompanion::IsNavigationUrgent( void )
 		// could not see the player but the player could in fact see them.  Now the NPC's facing is
 		// irrelevant and the player's viewcone is more authorative. -- jdw
 
-		CBasePlayer *pLocalPlayer = AI_GetSinglePlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		for (int i = 1; i <= gpGlobals->maxClients; i++ ) 
+		{ 
+			CBasePlayer *pPlayer = UTIL_PlayerByIndex( i ); 
+			if ( !pPlayer ) 
+				continue; 
+
+			if ( pPlayer->FInViewCone( EyePosition() ) ) 
+				return false;
+	} 
+#else
+CBasePlayer *pLocalPlayer = AI_GetSinglePlayer();
 		if ( pLocalPlayer->FInViewCone( EyePosition() ) )
 			return false;
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		return true;
 	}

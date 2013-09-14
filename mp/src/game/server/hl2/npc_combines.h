@@ -18,7 +18,9 @@
 class CNPC_CombineS : public CNPC_Combine
 {
 	DECLARE_CLASS( CNPC_CombineS, CNPC_Combine );
-#if HL2_EPISODIC
+
+//4WH - Episodic Issues: if Changed to ifdef.
+#ifdef HL2_EPISODIC
 	DECLARE_DATADESC();
 #endif
 
@@ -47,7 +49,7 @@ public:
 private:
 	bool		ShouldHitPlayer( const Vector &targetDir, float targetDist );
 
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 public:
 	Activity	NPC_TranslateActivity( Activity eNewActivity );
 

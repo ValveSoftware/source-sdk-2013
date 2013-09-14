@@ -44,6 +44,9 @@ enum eyeState_t
 #define SF_FLOOR_TURRET_OUT_OF_AMMO			0x00000100
 #define SF_FLOOR_TURRET_CITIZEN				0x00000200	// Citizen modified turret
 
+//4WH - Information: Define our portal turret flag.
+#define PORTAL_TURRET						0x00000400
+
 class CTurretTipController;
 class CBeam;
 class CSprite;
@@ -195,6 +198,10 @@ protected:
 	virtual bool	OnSide( void );
 
 	bool	IsCitizenTurret( void ) { return HasSpawnFlags( SF_FLOOR_TURRET_CITIZEN ); }
+	
+	//4WH - Information: Is this turret portal based?
+	bool	IsPortalTurret( void ) { return HasSpawnFlags( PORTAL_TURRET ); }
+	
 	bool	UpdateFacing( void );
 	void	DryFire( void );
 	void	UpdateMuzzleMatrix();

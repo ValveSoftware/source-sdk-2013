@@ -3,9 +3,10 @@
 // Purpose: 
 //
 //=============================================================================
-#if defined( GAME_DLL )
+//Seco2013-Compile Errors, commented out to allow compile.
+//#if defined( GAME_DLL )
 #include "cbase.h"
-#endif
+//#endif
 #include "ep2_gamestats.h"
 #include "tier1/utlbuffer.h"
 #include "vehicle_base.h"

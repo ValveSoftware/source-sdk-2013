@@ -593,7 +593,11 @@ void CNewRecharge::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 	if ( !pActivator || !pActivator->IsPlayer() )
 		return;
 
-	CBasePlayer *pPlayer = static_cast<CBasePlayer *>(pActivator);
+#ifdef Seco7_USE_PLAYERCLASSES
+CHL2MP_Player *pPlayer = static_cast<CHL2MP_Player *>(pActivator);
+#else
+CBasePlayer *pPlayer = static_cast<CBasePlayer *>(pActivator);
+#endif //Seco7_USE_PLAYERCLASSES
 
 	// Reset to a state of continuous use.
 	m_iCaps = FCAP_CONTINUOUS_USE;
@@ -642,8 +646,14 @@ void CNewRecharge::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 		return;
 	}
 
-	// Get our maximum armor value
-	int nMaxArmor = 100;
+// Get our maximum armor value
+ int nMaxArmor;
+#ifdef Seco7_USE_PLAYERCLASSES
+ nMaxArmor = pPlayer->GetMaxArmorValue();
+#else
+ nMaxArmor = 100;
+#endif //Seco7_USE_PLAYERCLASSES
+
 	if ( HasSpawnFlags(	SF_CITADEL_RECHARGER ) )
 	{
 		nMaxArmor = sk_suitcharger_citadel_maxarmor.GetInt();

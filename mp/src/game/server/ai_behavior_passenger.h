@@ -13,7 +13,7 @@
 #include "ai_speech.h"
 #include "ai_behavior.h"
 #include "ai_utils.h"
-#include "vehicle_jeep_episodic.h"
+#include "../episodic/vehicle_jeep_episodic.h"
 
 #define STOPPED_VELOCITY_THRESHOLD		32.0f
 #define	STOPPED_VELOCITY_THRESHOLD_SQR	(STOPPED_VELOCITY_THRESHOLD*STOPPED_VELOCITY_THRESHOLD)

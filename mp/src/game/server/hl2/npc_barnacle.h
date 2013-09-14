@@ -144,8 +144,8 @@ private:
 	void DropTongue( void );
 
 
-
-#if HL2_EPISODIC
+//4WH - Episodic Issues: if Changed to ifdef.
+#ifdef HL2_EPISODIC
 	/// Decides whether something should poison the barnacle upon eating
 	static bool IsPoisonous( CBaseEntity *pVictim );
 

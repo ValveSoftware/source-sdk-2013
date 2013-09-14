@@ -19,7 +19,7 @@
 
 #ifdef HL2_EPISODIC
 #include "ai_behavior_operator.h"
-#include "ai_behavior_passenger_companion.h"
+#include "..\episodic\ai_behavior_passenger_companion.h"
 #endif
 
 #if defined( _WIN32 )
@@ -302,7 +302,8 @@ public:
 	void			InputSetReadinessMedium( inputdata_t &inputdata );
 	void			InputSetReadinessHigh( inputdata_t &inputdata );
 	void			InputLockReadiness( inputdata_t &inputdata );
-#if HL2_EPISODIC
+//4WH - Episodic Issues: if Changed to ifdef.
+#ifdef HL2_EPISODIC
 	void			InputClearAllOuputs( inputdata_t &inputdata ); ///< annihilate every output on this npc
 #endif
 

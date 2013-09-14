@@ -20,11 +20,38 @@
 #include "grenade_satchel.h"
 #include "eventqueue.h"
 #include "gamestats.h"
+#ifdef Seco7_SAVERESTORE
+#include "filesystem.h"
+#include "ammodef.h"
+#endif //Seco7_SAVERESTORE
 
 #include "engine/IEngineSound.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 
 #include "ilagcompensationmanager.h"
+
+
+
+#ifdef Seco7_USE_PLAYERCLASSES
+	int MaximumAssaulterPlayerNumbers = 1;
+	int MaximumSupporterPlayerNumbers = 1;
+	int MaximumMedicPlayerNumbers = 1;
+	int MaximumHeavyPlayerNumbers = 1;
+	
+	int AssaulterPlayerNumbers = 0;//Current Number of class players in the game.
+	int SupporterPlayerNumbers = 0;
+	int MedicPlayerNumbers = 0;
+	int HeavyPlayerNumbers = 0;
+	
+	bool PlayerCanChangeClass;
+#endif //Seco7_USE_PLAYERCLASSES
+
+#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+Vector respawn_origin;
+Vector pEntityOrigin;
+ConVar sv_seco7_increment_killed("sv_seco7_increment_killed", "0", 0, "The level of Increment Killed as a convar.");
+int PlayerDucking;
+#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 
 int g_iLastCitizenModel = 0;
 int g_iLastCombineModel = 0;
@@ -41,6 +68,30 @@ LINK_ENTITY_TO_CLASS( player, CHL2MP_Player );
 
 LINK_ENTITY_TO_CLASS( info_player_combine, CPointEntity );
 LINK_ENTITY_TO_CLASS( info_player_rebel, CPointEntity );
+
+//4WH - Information: Here we allow each class to have their own spawn point.
+#ifdef Seco7_USE_PLAYERCLASSES
+LINK_ENTITY_TO_CLASS( info_player_assaulter, CPointEntity );
+LINK_ENTITY_TO_CLASS( info_player_supporter, CPointEntity );
+LINK_ENTITY_TO_CLASS( info_player_medic, CPointEntity );
+LINK_ENTITY_TO_CLASS( info_player_heavy, CPointEntity );
+#endif //Seco7_USE_PLAYERCLASSES
+
+extern void SendProxy_Origin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
+
+BEGIN_SEND_TABLE_NOBASE( CHL2MP_Player, DT_HL2MPLocalPlayerExclusive )
+	// send a hi-res origin to the local player for use in prediction
+	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_NOSCALE|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
+	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
+//	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
+END_SEND_TABLE()
+
+BEGIN_SEND_TABLE_NOBASE( CHL2MP_Player, DT_HL2MPNonLocalPlayerExclusive )
+	// send a lo-res origin to other players
+	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_COORD_MP_LOWPRECISION|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
+	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
+	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
+END_SEND_TABLE()
 
 IMPLEMENT_SERVERCLASS_ST(CHL2MP_Player, DT_HL2MP_Player)
 	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 11, SPROP_CHANGES_OFTEN ),
@@ -62,6 +113,11 @@ END_DATADESC()
 
 const char *g_ppszRandomCitizenModels[] = 
 {
+//4WH - Information: Player models are precached here.
+	"models/sdk/humans/group03/male_05.mdl",
+	"models/sdk/humans/group03/male_06_sdk.mdl",
+	"models/sdk/humans/group03/l7h_rebel.mdl",
+
 	"models/humans/group03/male_01.mdl",
 	"models/humans/group03/male_02.mdl",
 	"models/humans/group03/female_01.mdl",
@@ -81,6 +137,9 @@ const char *g_ppszRandomCitizenModels[] =
 
 const char *g_ppszRandomCombineModels[] =
 {
+//4WH - Information: Player models are also precached here.
+	"models/sdk/Humans/Group03/police_05.mdl",
+
 	"models/combine_soldier.mdl",
 	"models/combine_soldier_prisonguard.mdl",
 	"models/combine_super_soldier.mdl",
@@ -111,6 +170,11 @@ CHL2MP_Player::CHL2MP_Player() : m_PlayerAnimState( this )
 	m_bReady = false;
 
 	BaseClass::ChangeTeam( 0 );
+
+#ifdef Seco7_USE_PLAYERCLASSES
+	m_bDelayedMessage = false;
+	PlayerCanChangeClass = false;
+#endif //Seco7_USE_PLAYERCLASSES
 	
 //	UseClientSideAnimation();
 }
@@ -196,6 +260,7 @@ void CHL2MP_Player::GiveAllItems( void )
 
 void CHL2MP_Player::GiveDefaultItems( void )
 {
+#ifndef Seco7_USE_PLAYERCLASSES
 	EquipSuit();
 
 	CBasePlayer::GiveAmmo( 255,	"Pistol");
@@ -213,10 +278,17 @@ void CHL2MP_Player::GiveDefaultItems( void )
 		GiveNamedItem( "weapon_crowbar" );
 	}
 	
+	//4WH - Information: Provide hands.
+	GiveNamedItem( "weapon_hands" );
+	
 	GiveNamedItem( "weapon_pistol" );
 	GiveNamedItem( "weapon_smg1" );
 	GiveNamedItem( "weapon_frag" );
 	GiveNamedItem( "weapon_physcannon" );
+	
+	//4WH - Information: Still provide armour for a non-playerclass player.
+	SetArmorValue(100);
+	SetMaxArmorValue(200);
 
 	const char *szDefaultWeaponName = engine->GetClientConVarValue( engine->IndexOfEdict( edict() ), "cl_defaultweapon" );
 
@@ -230,6 +302,7 @@ void CHL2MP_Player::GiveDefaultItems( void )
 	{
 		Weapon_Switch( Weapon_OwnsThisType( "weapon_physcannon" ) );
 	}
+#endif //Seco7_USE_PLAYERCLASSES
 }
 
 void CHL2MP_Player::PickDefaultSpawnTeam( void )
@@ -282,11 +355,73 @@ void CHL2MP_Player::PickDefaultSpawnTeam( void )
 	}
 }
 
+#define HL2MP_PUSHAWAY_THINK_CONTEXT	"HL2MPPushawayThink"
+void CHL2MP_Player::HL2MPPushawayThink(void)
+{
+	// Push physics props out of our way.
+	PerformObstaclePushaway( this );
+	SetNextThink( gpGlobals->curtime + PUSHAWAY_THINK_INTERVAL, HL2MP_PUSHAWAY_THINK_CONTEXT );
+}
+
+#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+//------------------------------------------------------------------------------
+// A small wrapper around SV_Move that never clips against the supplied entity.
+//------------------------------------------------------------------------------
+static bool TestEntityPosition ( CBasePlayer *pPlayer )
+{	
+	trace_t	trace;
+	UTIL_TraceEntity( pPlayer, pPlayer->GetAbsOrigin(), pPlayer->GetAbsOrigin(), MASK_PLAYERSOLID, &trace );
+	return (trace.startsolid == 0);
+}
+
+static int FindPassableSpace( CBasePlayer *pPlayer, const Vector& direction, float step, Vector& oldorigin )
+{
+	int i;
+	for ( i = 0; i < 100; i++ )
+	{
+		Vector origin = pPlayer->GetAbsOrigin();
+		VectorMA( origin, step, direction, origin );
+		pPlayer->SetAbsOrigin( origin );
+		if ( TestEntityPosition( pPlayer ) )
+		{
+			VectorCopy( pPlayer->GetAbsOrigin(), oldorigin );
+			return 1;
+		}
+	}
+	return 0;
+}
+#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+
 //-----------------------------------------------------------------------------
 // Purpose: Sets HL2 specific defaults.
 //-----------------------------------------------------------------------------
 void CHL2MP_Player::Spawn(void)
 {
+#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+if ( m_bTransition )
+	{
+		if ( m_bTransitionTeleported )
+			g_pGameRules->GetPlayerSpawnSpot( this );
+
+		m_bTransition = false;
+		m_bTransitionTeleported = false;
+
+		#ifdef Seco7_USE_PLAYERCLASSES
+		m_iClass = m_iCurrentClass;
+		#endif //Seco7_USE_PLAYERCLASSES
+
+		return;
+	}	
+#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+
+//4WH - CodeAddendumms: Fix by Dan911.
+#ifdef Seco7_USE_PLAYERCLASSES
+Msg( "Assaulters: %i\n", MaximumAssaulterPlayerNumbers);
+Msg( "Supporters: %i \n", SupporterPlayerNumbers);
+Msg( "Medics: %i \n", MedicPlayerNumbers);
+Msg( "Heavies: %i \n", HeavyPlayerNumbers);
+#endif //Seco7_USE_PLAYERCLASSES
+
 	m_flNextModelChangeTime = 0.0f;
 	m_flNextTeamChangeTime = 0.0f;
 
@@ -296,13 +431,132 @@ void CHL2MP_Player::Spawn(void)
 	
 	if ( !IsObserver() )
 	{
+#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+// Disengage from hierarchy
+SetParent( NULL );
+SetMoveType( MOVETYPE_NOCLIP );
+AddEFlags( EFL_NOCLIP_ACTIVE );
+
+//4WH - Information: Just in case our dynamic respawn code is going to spawn us in world geometery, or even a player or NPC, run these checks so if we are stuck we get moved to a good location to spawn.
+CPlayerState *pl2 = PlayerData();
+	Assert( pl2 );
+
+RemoveEFlags( EFL_NOCLIP_ACTIVE );
+SetMoveType( MOVETYPE_WALK );
+
+Vector oldorigin = GetAbsOrigin();
+	if ( !TestEntityPosition( this ) )
+	{
+		Vector forward, right, up;
+
+		AngleVectors ( pl2->v_angle, &forward, &right, &up);
+		
+		// Try to move into the world
+		if ( !FindPassableSpace( this, forward, 1, oldorigin ) )
+		{
+			if ( !FindPassableSpace( this, right, 1, oldorigin ) )
+			{
+				if ( !FindPassableSpace( this, right, -1, oldorigin ) )		// left
+				{
+					if ( !FindPassableSpace( this, up, 1, oldorigin ) )	// up
+					{
+						if ( !FindPassableSpace( this, up, -1, oldorigin ) )	// down
+						{
+							if ( !FindPassableSpace( this, forward, -1, oldorigin ) )	// back
+							{
+							//Coudln't find the world, so we kill the player. In  some cases this is because of collision bugs when a player should be crouched but isnt.
+							// we therefore set the player to be ducked before killing them, so that our PlayerDucking check can take care of fixing their spawn point automatically.
+							// and we hope that the players next attempt at spawning is more successful than their last attempt.
+							AddFlag(FL_ONGROUND); // set the player on the ground at the start of the round.
+							SetCollisionBounds( VEC_CROUCH_TRACE_MIN, VEC_CROUCH_TRACE_MAX );
+							AddFlag(FL_DUCKING);
+							m_Local.m_bDucked = true;
+							m_Local.m_bDucking = false;
+							CommitSuicide();
+							}
+						}
+					}
+				}
+			}
+		}	
+		SetAbsOrigin( oldorigin );
+	}
+
+//4WH - Information: Very rarely a player may still spawn in another player, this rarely happens, so as a fix we kill the player we're about to spawn on. We do at least warn them that they should move first.
+int MovedYet = 0;
+
+LoopSpot:
+CBaseEntity *ent = NULL;
+		for ( CEntitySphereQuery sphere( GetAbsOrigin(), 0.1 ); (ent = sphere.GetCurrentEntity()) != NULL; sphere.NextEntity() )
+		{
+			if ( ent->IsPlayer() && ent!=(this) )
+			{
+			AddFlag(FL_ONGROUND); // set the player on the ground at the start of the round.
+			
+				if (MovedYet == 0)
+				{
+				UTIL_ClientPrintAll( HUD_PRINTCENTER, "#BLOCKING_SPAWN");
+#ifdef Seco7_USE_PLAYERCLASSES
+				m_bDelayedMessage = true;
+				m_flDelayedMessageTime = gpGlobals->curtime + 6.0f;
+#endif //Seco7_USE_PLAYERCLASSES
+				}
+				MovedYet ++;	
+			
+					if (MovedYet >= 6)
+					{
+					//4WH - Information: We gave them a chance to move, they didn't take it so now we spawn the player and kill the other one.
+					ent->TakeDamage( CTakeDamageInfo( GetContainingEntity(INDEXENT(0)), GetContainingEntity(INDEXENT(0)), 3000, DMG_GENERIC ) );
+					}
+					else
+					{
+					goto LoopSpot; //4WH - Information: We loop through the code until either there's no one in our way, or 6 (or more) calls have been made, in which case we kill the offending player.
+					}
+			}
+#ifdef Seco7_USE_PLAYERCLASSES
+		m_bDelayedMessage = false;
+#endif //Seco7_USE_PLAYERCLASSES
+		MovedYet = 0;
+		}
+#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE	
+
+	 #ifdef Seco7_USE_PLAYERCLASSES
+	  PlayerCanChangeClass = true;
+
+#ifndef Seco7_SAVERESTORE
+	color32 black = {0,0,0,255};
+	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT );
+#endif //Seco7_SAVERESTORE
+	 
+		switch( m_iCurrentClass )
+		{
+		case Assaulter:
+			SetClassGroundUnit();
+			break;
+		case Supporter:
+			SetClassSupportUnit();
+			break;
+		case Medic:
+			SetClassMedic();
+			break;
+		case Heavy:
+			SetClassHeavy();
+			break;
+		case Default:
+			SetClassDefault();
+			break;
+		}
+	   #endif //Seco7_USE_PLAYERCLASSES
+	   
 		pl.deadflag = false;
 		RemoveSolidFlags( FSOLID_NOT_SOLID );
 
 		RemoveEffects( EF_NODRAW );
 		
-		GiveDefaultItems();
-	}
+		GiveDefaultItems();			
+		StartSprinting();
+		StopSprinting();		
+}
 
 	SetNumAnimOverlays( 3 );
 	ResetAnimation();
@@ -331,11 +585,96 @@ void CHL2MP_Player::Spawn(void)
 	SetPlayerUnderwater(false);
 
 	m_bReady = false;
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+	//4WH - Information: This allows map makers to override player models per-map. Note that it sets the same player model for EVERY player.
+		CBaseEntity *pSwitchModelEnt = NULL;
+		Vector SwitchModelEntOrigin = GetAbsOrigin();
+		pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+		
+	if (pSwitchModelEnt != NULL)
+	{
+		if (pSwitchModelEnt->NameMatches("metrocop"))
+		{
+			SetModel( "models/sdk/Humans/Group03/police_05.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_METROPOLICE;
+		}
+		else if (pSwitchModelEnt->NameMatches("male05"))
+		{
+			SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+		}
+		else if (pSwitchModelEnt->NameMatches("male06"))
+		{
+			SetModel( "models/sdk/Humans/Group03/male_06.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+		}
+		else if (pSwitchModelEnt->NameMatches("l7hrebel"))
+		{
+			SetModel( "models/sdk/Humans/Group03/l7h_rebel.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+		}
+		else
+		{
+			Msg ("Warning! switchmodel name NOT a valid model name!");
+			SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+			Msg ("Fail-safe player models have been set!");
+		}
+	}
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
 }
 
 void CHL2MP_Player::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
 {
+
+#ifdef Seco7_PLAYERS_CAN_PICKUP_OBJECTS
+	// can't pick up what you're standing on
+	if ( GetGroundEntity() == pObject )
+		return;
 	
+	if ( bLimitMassAndSize == true )
+	{
+	//4WH - Information: When player classes are enabled, each classes pickup strength can be defined here. Otherwise everyone is given the same strength setting of: (35,128) (Size/Mass)
+	#ifdef Seco7_USE_PLAYERCLASSES
+		switch( m_iClass )
+		{
+		case Assaulter:
+				if ( CBasePlayer::CanPickupObject( pObject, 70, 156 ) == false )
+			 return;
+			break;
+		case Supporter:
+				if ( CBasePlayer::CanPickupObject( pObject, 35, 128 ) == false )
+			 return;
+			break;
+		case Medic:
+				if ( CBasePlayer::CanPickupObject( pObject, 18, 65 ) == false )
+			 return;
+			break;
+		case Heavy:
+				if ( CBasePlayer::CanPickupObject( pObject, 500, 500 ) == false )
+			 return;
+			break;
+		}
+	#else
+	if ( CBasePlayer::CanPickupObject( pObject, 35, 128 ) == false )
+			 return;
+	#endif //Seco7_USE_PLAYERCLASSES
+	}
+
+	// Can't be picked up if NPCs are on me
+	if ( pObject->HasNPCsOnIt() )
+		return;
+			
+		HideViewModels();//4WH - Information: Hides the currently held players weapon model, since the weapon gets removed below, but the weapon model remains on screen without this line.
+		ClearActiveWeapon(); //4WH - Information: Prevents weapon sounds/effects on throwing picked up objects.
+		
+	//4WH - Information: Here we make players who are holding items switch to an invisible hands weapon so as to not T-Pose their animation. Naturally mod teams should really make new animations for stuff like this.
+	Weapon_Switch( Weapon_OwnsThisType( "weapon_hands" ) );
+	
+	PlayerPickupObject( this, pObject );
+
+#endif //Seco7_PLAYERS_CAN_PICKUP_OBJECTS
+
 }
 
 bool CHL2MP_Player::ValidatePlayerModel( const char *pModel )
@@ -569,6 +908,23 @@ void CHL2MP_Player::PostThink( void )
 
 	// Store the eye angles pitch so the client can compute its animation state correctly.
 	m_angEyeAngles = EyeAngles();
+    
+		
+#ifdef Seco7_USE_PLAYERCLASSES
+OnClassChange();
+
+if ( m_bDelayedMessage && m_flDelayedMessageTime <= gpGlobals->curtime )
+{
+ClientPrint( this, HUD_PRINTCENTER, "#Class_Full" );
+}
+m_bDelayedMessage = false;
+#endif //Seco7_USE_PLAYERCLASSES
+
+//4WH - Information: If our weapon is NULL switch to our hands.
+if ( GetActiveWeapon() == NULL )
+{
+Weapon_Switch( Weapon_OwnsThisType( "weapon_hands" ) );
+}
 
 	QAngle angles = GetLocalAngles();
 	angles[PITCH] = 0;
@@ -616,6 +972,16 @@ void CHL2MP_Player::NoteWeaponFired( void )
 
 extern ConVar sv_maxunlag;
 
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBaseEntity *pEntity, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const 
+{
+	// No need to lag compensate at all if we're not attacking in this command and
+	// we haven't attacked recently.
+	if ( !( pCmd->buttons & IN_ATTACK ) && (pCmd->command_number - m_iLastWeaponFireUsercmd > 5) )
+		return false;
+
+	return BaseClass::WantsLagCompensationOnEntity( pEntity, pCmd, pEntityTransmitBits ); 
+#else
 bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const
 {
 	// No need to lag compensate at all if we're not attacking in this command and
@@ -650,6 +1016,7 @@ bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, co
 		return false;
 
 	return true;
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 }
 
 Activity CHL2MP_Player::TranslateTeamActivity( Activity ActToTranslate )
@@ -1013,6 +1380,20 @@ bool CHL2MP_Player::ClientCommand( const CCommand &args )
 	{
 		return true;
 	}
+	
+	#ifdef Seco7_USE_PLAYERCLASSES
+	else if ( FStrEq( args[0], "class" ) ) 
+	{
+		if ( args.ArgC() < 2 )
+		{
+			Warning( "Player sent bad class syntax\n" );
+		}
+		m_iClass = atoi( args[1] );
+		//ChangeClass(); // See comment on ChangeClass() as to why it is commented.
+		SetPlayerClass();
+		return true;
+	}
+	#endif //Seco7_USE_PLAYERCLASSES
 
 	return BaseClass::ClientCommand( args );
 }
@@ -1227,9 +1608,36 @@ void CHL2MP_Player::Event_Killed( const CTakeDamageInfo &info )
 
 	SetNumAnimOverlays( 0 );
 
+#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+	sv_seco7_increment_killed.SetValue(sv_seco7_increment_killed.GetInt()+1);
+	#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+
 	// Note: since we're dead, it won't draw us on the client, but we don't set EF_NODRAW
 	// because we still want to transmit to the clients in our PVS.
 	CreateRagdollEntity();
+	#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+	//4WH - Information: When a player is killed and if there's a ragdoll (there always is, even if it gets removed instantly) then we either get the position of our next (other) nearest player (because GetNearestPlayer would return ourselves) and set it to be the vector labelled respawn_origin or we just use the position of our ragdolls first spawn if no players are alive.
+	CBasePlayer *pPlayer = UTIL_GetOtherNearestPlayer(GetAbsOrigin());
+	if (m_hRagdoll)
+	{	
+		if (pPlayer == NULL || pPlayer == (this))
+			{
+			respawn_origin = m_hRagdoll->GetAbsOrigin();
+			}
+			else
+			{
+			respawn_origin = pPlayer->GetAbsOrigin();
+			}
+	}
+	
+	if ( GetFlags() & FL_DUCKING )
+	{
+	//We we're killed while ducking, this could be in a vent or enclosed area, so set an int so the dynamic respawn code can set you ducked on spawn.
+	PlayerDucking = 1;
+	}
+	
+	
+	#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 
 	DetonateTripmines();
 
@@ -1242,6 +1650,15 @@ void CHL2MP_Player::Event_Killed( const CTakeDamageInfo &info )
 			m_hRagdoll->GetBaseAnimating()->Dissolve( NULL, gpGlobals->curtime, false, ENTITY_DISSOLVE_NORMAL );
 		}
 	}
+#ifdef Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
+	if ( (info.GetDamageType() & (DMG_ALWAYSGIB|DMG_LASTGENERICFLAG|DMG_CRUSH)) == (DMG_ALWAYSGIB|DMG_LASTGENERICFLAG|DMG_CRUSH) )
+	{
+		if ( m_hRagdoll )
+		{
+			UTIL_RemoveImmediate( m_hRagdoll );	
+		}
+	}
+#endif
 
 	CBaseEntity *pAttacker = info.GetAttacker();
 
@@ -1263,6 +1680,15 @@ void CHL2MP_Player::Event_Killed( const CTakeDamageInfo &info )
 
 	RemoveEffects( EF_NODRAW );	// still draw player body
 	StopZooming();
+	
+#ifdef Seco7_FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
+color32 darkred = {53,0,0,255};
+UTIL_ScreenFade( this, darkred, 1.0f, 5.0f, FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT );
+#endif //Seco7_FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
+
+#ifdef Seco7_USE_PLAYERCLASSES
+PlayerCanChangeClass = true;
+#endif //Seco7_USE_PLAYERCLASSES
 }
 
 int CHL2MP_Player::OnTakeDamage( const CTakeDamageInfo &inputInfo )
@@ -1270,6 +1696,14 @@ int CHL2MP_Player::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	//return here if the player is in the respawn grace period vs. slams.
 	if ( gpGlobals->curtime < m_flSlamProtectTime &&  (inputInfo.GetDamageType() == DMG_BLAST ) )
 		return 0;
+		
+	#ifndef Seco7_FRIENDLY_FIRE_ENABLED
+	//4WH - Information: Don't allow friendly fire.
+	CBaseEntity *pAttacker = inputInfo.GetAttacker();
+	
+	if ( pAttacker && pAttacker->IsPlayer() && pAttacker!=(this))
+	return 0;
+	#endif //Seco7_FRIENDLY_FIRE_ENABLED
 
 	m_vecTotalBulletForce += inputInfo.GetDamageForce();
 	
@@ -1316,6 +1750,84 @@ CBaseEntity* CHL2MP_Player::EntSelectSpawnPoint( void )
 	CBaseEntity *pLastSpawnPoint = g_pLastSpawn;
 	edict_t		*player = edict();
 	const char *pSpawnpointName = "info_player_deathmatch";
+
+#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+//4WH - Information: If you're killed, the killed count gets incremented past 1. This then enables the following code so that you respawn near to where you were killed, so that you don't respawn all the way back at the start of the map. There are fail-safes included to try to provide you with a valid spawning area. The spawn function also takes care of some of this.
+if(sv_seco7_increment_killed.GetInt() >= 1)
+{
+CBaseEntity *pPlayerStart = CreateEntityByName( "info_player_deathmatch" );
+pPlayerStart->SetAbsOrigin( respawn_origin );
+pPlayerStart->Spawn();
+pSpot = pPlayerStart;
+pSpawnpointName = "info_player_deathmatch";
+
+//4WH - Information: We need to calculate how safe this spawn point is to use.
+CBaseEntity *ent = NULL;
+		for ( CEntitySphereQuery sphere( pSpot->GetAbsOrigin(), 39 ); (ent = sphere.GetCurrentEntity()) != NULL; sphere.NextEntity() )
+		{
+			//4WH - Information: First off, lets check if where we want to spawn is currently occupied by an NPC or player other than ourselves.
+			if ( (ent->IsNPC()) || ent->IsPlayer() && !(ent->edict() == player) )
+			{
+				//4WH - Information: Check if the entity is on dry land.
+				if ( ent->GetWaterLevel() == 0)
+				{
+				AddFlag(FL_ONGROUND); // set the player on the ground at the start of the round.
+				//4WH - Information: The player start is considered safe to use, but first check if the ent is ducked, and as such we should spawn ducked in case it's a vent or enclosed area, otherwise we'll get stuck.
+						if ( ent->IsPlayer() && !(ent->edict() == player) && ent->GetFlags() & FL_DUCKING )
+						{
+						SetCollisionBounds( VEC_CROUCH_TRACE_MIN, VEC_CROUCH_TRACE_MAX );
+						AddFlag(FL_DUCKING);
+						m_Local.m_bDucked = true;
+						m_Local.m_bDucking = false;
+						}	
+				//4WH - Information: All safety checks in this area are now complete, now let's tell the code to spawn the player.
+				goto ReturnSpot;
+				}
+				else if (ent->GetWaterLevel() != 0 && ent->GetDamageType() == NULL)
+				{
+				//4WH - Information: Okay so they're in water but not taking damage so we'll happily spawn in the water.
+				//4WH - Information: Once more our checks are complete and we can safely spawn the player.
+				goto ReturnSpot;
+				}
+				else
+				{
+				//4WH - Information: They're taking damage and they're in water, this is a bad position to be in. So lets respawn where we last spawned, which should be safe (hopefully).
+				pSpot = pLastSpawnPoint;
+				goto ReturnSpot;
+				}
+			}
+			else
+			{
+			//4WH - Information: Our spawning area is now clear of NPCs and other players, but as a precaution, check that it's safe to spawn where we want to in-case of dangerous water.
+				if ( GetWaterLevel() == 0)
+				{
+				AddFlag(FL_ONGROUND); // set the player on the ground at the start of the round.
+					if (PlayerDucking == 1)
+					{
+					//4WH - Information: We were killed while ducked/ducking so lets spawn ducked in case we're in a vent or something
+					SetCollisionBounds( VEC_CROUCH_TRACE_MIN, VEC_CROUCH_TRACE_MAX );
+					AddFlag(FL_DUCKING);
+					m_Local.m_bDucked = true;
+					m_Local.m_bDucking = false;
+					//4WH - Information: Set PlayerDucking back to 0.
+					PlayerDucking = 0;
+					}
+				//4WH - Information: We say it's safe to spawn, and hope for the best.
+				goto ReturnSpot;
+				}
+				else
+				{
+				//4WH - Information: We'll spawn in water and we don't know if it may harm us, so spawn at our last spawn point for safety.
+				pSpot = pLastSpawnPoint;
+				goto ReturnSpot;
+				}
+			}
+		//4WH - Information: Shouldn't get here really, but just in-case we do let's make the player respawn at their last spawn point.
+		pSpot = pLastSpawnPoint;
+		goto ReturnSpot;
+		}
+}
+#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 
 	if ( HL2MPRules()->IsTeamplay() == true )
 	{
@@ -1380,13 +1892,104 @@ CBaseEntity* CHL2MP_Player::EntSelectSpawnPoint( void )
 		goto ReturnSpot;
 	}
 
-	if ( !pSpot  )
-	{
-		pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start" );
+if ( !pSpot  )
+{
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	char szMapName[256];
+	Q_strncpy(szMapName, STRING(gpGlobals->mapname), sizeof(szMapName) );
+	Q_strlower(szMapName);
 
-		if ( pSpot )
-			goto ReturnSpot;
+	//4WH - Information: Although we don't support official maps for gaming, they are useful for testing and these maps for whatever reason spawn you in the wrong location. As such this
+	// code is here to force players to spawn at the beginning of the selected maps. Custom maps won't require this as they will have deathmatch/class based player starts.
+	if( !Q_strnicmp( szMapName, "d1_canals_01a", 13 )
+|| !Q_strnicmp( szMapName, "d1_canals_03", 12 )
+|| !Q_strnicmp( szMapName, "d1_canals_13", 12 )
+|| !Q_strnicmp( szMapName, "d1_town_01", 10 )
+|| !Q_strnicmp( szMapName, "d1_town_01a", 11 )
+|| !Q_strnicmp( szMapName, "d1_town_02", 10 )
+|| !Q_strnicmp( szMapName, "d1_town_02a", 11 )
+|| !Q_strnicmp( szMapName, "d1_town_03", 10 )
+|| !Q_strnicmp( szMapName, "d1_town_04", 10 )
+|| !Q_strnicmp( szMapName, "d1_town_05", 10 )
+|| !Q_strnicmp( szMapName, "d2_coast_03", 11)
+|| !Q_strnicmp( szMapName, "d2_coast_08", 11 )
+|| !Q_strnicmp( szMapName, "d2_coast_11", 11 )
+|| !Q_strnicmp( szMapName, "d2_prison_01", 12 )
+|| !Q_strnicmp( szMapName, "d2_prison_02", 12 )
+|| !Q_strnicmp( szMapName, "d2_prison_03", 12 )
+|| !Q_strnicmp( szMapName, "d2_prison_04", 12 )
+|| !Q_strnicmp( szMapName, "d2_prison_05", 12 )
+|| !Q_strnicmp( szMapName, "d2_prison_06", 12 )
+|| !Q_strnicmp( szMapName, "d2_prison_07", 12 )
+|| !Q_strnicmp( szMapName, "d2_prison_08", 12 )
+|| !Q_strnicmp( szMapName, "d3_c17_08", 9 )
+|| !Q_strnicmp( szMapName, "d3_citadel_01", 13 )
+|| !Q_strnicmp( szMapName, "d3_citadel_02", 13 )
+|| !Q_strnicmp( szMapName, "d3_citadel_03", 13 )
+|| !Q_strnicmp( szMapName, "d3_citadel_04", 13 )
+|| !Q_strnicmp( szMapName, "d3_citadel_05", 13 )
+|| !Q_strnicmp( szMapName, "d3_breen_01", 11 )
+|| !Q_strnicmp( szMapName, "ep1_c17_00", 10 )
+|| !Q_strnicmp( szMapName, "ep1_c17_00a", 11 )
+|| !Q_strnicmp( szMapName, "ep1_c17_02b", 11 )
+|| !Q_strnicmp( szMapName, "ep1_c17_05", 10 )
+|| !Q_strnicmp( szMapName, "ep2_outland_01a", 15 )
+|| !Q_strnicmp( szMapName, "ep2_outland_03", 14 )
+|| !Q_strnicmp( szMapName, "ep2_outland_08", 14 )
+|| !Q_strnicmp( szMapName, "ep2_outland_06", 14 )
+	)
+	{
+		CBaseEntity *pEntity = NULL;
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+		Vector vecOrigin = pPlayer->GetAbsOrigin();
+		pEntity = gEntList.FindEntityByClassnameNearest( "item_suit", vecOrigin, 0, NULL);
+
+
+		if (pEntity != NULL)
+		{
+		vecOrigin = pEntity->GetAbsOrigin();
+		pEntity = gEntList.FindEntityByClassnameNearest( "info_player_start", vecOrigin, 0, NULL);
+		pSpot = pEntity;
+		pSpawnpointName = "info_player_start";
+		goto ReturnSpot;
+		}
+		else
+		{
+		pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start");
+		}
 	}
+	else if( !Q_strnicmp( szMapName, "d1_trainstation_05", 18 ) )
+	{
+		CBaseEntity *pEntity = NULL;
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+		Vector vecOrigin = pPlayer->GetAbsOrigin();
+		pEntity = gEntList.FindEntityByClassnameNearest( "npc_alyx", vecOrigin, 0, NULL);
+		if (pEntity != NULL)
+		{
+		vecOrigin = pEntity->GetAbsOrigin();
+		pEntity = gEntList.FindEntityByClassnameNearest( "info_player_start", vecOrigin, 0, NULL);
+		pSpot = pEntity;
+		pSpawnpointName = "info_player_start";
+		goto ReturnSpot;
+		}
+		else
+		{
+		pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start");
+		}
+	}
+	else
+	{
+	pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start");
+	}
+#else
+pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start");
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+}
+
+if (pSpot)
+{
+goto ReturnSpot; //return pSpot;*/
+}
 
 ReturnSpot:
 
@@ -1449,7 +2052,15 @@ CON_COMMAND( timeleft, "prints the time remaining in the match" )
 		}
 	}	
 }
-
+#ifdef Seco7_USE_PLAYERCLASSES
+CON_COMMAND (howmany, "Prints the number of players in each class.")
+ {
+	Msg( "Assaulters: %i\n", AssaulterPlayerNumbers);
+	Msg( "Supporters: %i\n", SupporterPlayerNumbers);
+	Msg( "Medics: %i\n", MedicPlayerNumbers);
+	Msg( "Heavies: %i\n", HeavyPlayerNumbers);
+}
+#endif //Seco7_USE_PLAYERCLASSES
 
 void CHL2MP_Player::Reset()
 {	
@@ -1627,3 +2238,1079 @@ bool CHL2MP_Player::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 
 	return true;
 }
+	return;
+}
+// -------------------------------------------------------------------------------- //
+// Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
+// -------------------------------------------------------------------------------- //
+
+class CTEPlayerAnimEvent : public CBaseTempEntity
+{
+public:
+	DECLARE_CLASS( CTEPlayerAnimEvent, CBaseTempEntity );
+	DECLARE_SERVERCLASS();
+
+					CTEPlayerAnimEvent( const char *name ) : CBaseTempEntity( name )
+					{
+					}
+
+	CNetworkHandle( CBasePlayer, m_hPlayer );
+	CNetworkVar( int, m_iEvent );
+	CNetworkVar( int, m_nData );
+};
+
+IMPLEMENT_SERVERCLASS_ST_NOBASE( CTEPlayerAnimEvent, DT_TEPlayerAnimEvent )
+	SendPropEHandle( SENDINFO( m_hPlayer ) ),
+	SendPropInt( SENDINFO( m_iEvent ), Q_log2( PLAYERANIMEVENT_COUNT ) + 1, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_nData ), 32 )
+END_SEND_TABLE()
+
+static CTEPlayerAnimEvent g_TEPlayerAnimEvent( "PlayerAnimEvent" );
+
+void TE_PlayerAnimEvent( CBasePlayer *pPlayer, PlayerAnimEvent_t event, int nData )
+{
+	CPVSFilter filter( (const Vector&)pPlayer->EyePosition() );
+
+	//Tony; use prediction rules.
+	filter.UsePredictionRules();
+	
+	g_TEPlayerAnimEvent.m_hPlayer = pPlayer;
+	g_TEPlayerAnimEvent.m_iEvent = event;
+	g_TEPlayerAnimEvent.m_nData = nData;
+	g_TEPlayerAnimEvent.Create( filter, 0 );
+}
+
+
+void CHL2MP_Player::DoAnimationEvent( PlayerAnimEvent_t event, int nData )
+{
+	m_PlayerAnimState->DoAnimationEvent( event, nData );
+	TE_PlayerAnimEvent( this, event, nData );	// Send to any clients who can see this guy.
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Override setup bones so that is uses the render angles from
+//			the HL2MP animation state to setup the hitboxes.
+//-----------------------------------------------------------------------------
+void CHL2MP_Player::SetupBones( matrix3x4_t *pBoneToWorld, int boneMask )
+{
+	VPROF_BUDGET( "CHL2MP_Player::SetupBones", VPROF_BUDGETGROUP_SERVER_ANIM );
+
+	// Set the mdl cache semaphore.
+	MDLCACHE_CRITICAL_SECTION();
+
+	// Get the studio header.
+	Assert( GetModelPtr() );
+	CStudioHdr *pStudioHdr = GetModelPtr( );
+
+	Vector pos[MAXSTUDIOBONES];
+	Quaternion q[MAXSTUDIOBONES];
+
+	// Adjust hit boxes based on IK driven offset.
+	Vector adjOrigin = GetAbsOrigin() + Vector( 0, 0, m_flEstIkOffset );
+
+	// FIXME: pass this into Studio_BuildMatrices to skip transforms
+	CBoneBitList boneComputed;
+	if ( m_pIk )
+	{
+		m_iIKCounter++;
+		m_pIk->Init( pStudioHdr, GetAbsAngles(), adjOrigin, gpGlobals->curtime, m_iIKCounter, boneMask );
+		GetSkeleton( pStudioHdr, pos, q, boneMask );
+
+		m_pIk->UpdateTargets( pos, q, pBoneToWorld, boneComputed );
+		CalculateIKLocks( gpGlobals->curtime );
+		m_pIk->SolveDependencies( pos, q, pBoneToWorld, boneComputed );
+	}
+	else
+	{
+		GetSkeleton( pStudioHdr, pos, q, boneMask );
+	}
+
+	CBaseAnimating *pParent = dynamic_cast< CBaseAnimating* >( GetMoveParent() );
+	if ( pParent )
+	{
+		// We're doing bone merging, so do special stuff here.
+		CBoneCache *pParentCache = pParent->GetBoneCache();
+		if ( pParentCache )
+		{
+			BuildMatricesWithBoneMerge( 
+				pStudioHdr, 
+				m_PlayerAnimState->GetRenderAngles(),
+				adjOrigin, 
+				pos, 
+				q, 
+				pBoneToWorld, 
+				pParent, 
+				pParentCache );
+
+			return;
+		}
+	}
+
+	Studio_BuildMatrices( 
+		pStudioHdr, 
+		m_PlayerAnimState->GetRenderAngles(),
+		adjOrigin, 
+		pos, 
+		q, 
+		-1,
+		pBoneToWorld,
+		boneMask );
+}
+
+#ifdef Seco7_USE_PLAYERCLASSES
+// Allow the server admin to set the default class value.
+ConVar default_class("default_class", "5", FCVAR_ARCHIVE, "Variable für Standardklasse!");
+
+	// Is this first spawn?
+	bool m_bFirstSpawn = true;
+	
+	// Start off with the players health as being 100.
+	int m_iHealth = 100;
+
+	// And the maximum allowed health to also be 100.
+	int m_iMaxHealth = 100;
+	
+
+void CHL2MP_Player::InitClassSystem()
+{
+	DevMsg("Klassensystem wird initalisiert!\n");
+	CheckAllClassConVars();
+	SetPlayerClass();
+	SetClassStuff();
+}
+
+int CHL2MP_Player::GetClassValue()const
+{
+	return m_iClass;
+}
+
+int CHL2MP_Player::GetDefaultClassValue()const
+{
+	return m_iDefaultClass;
+}
+
+bool CHL2MP_Player::IsFirstSpawn()
+{
+	return m_bFirstSpawn;
+}
+
+// Soll die Waffen verteilen:
+// Hier ist irgend wo ein Bug!
+void CHL2MP_Player::SetPlayerClass()
+{
+       // Set the actual class type with the following commands.
+	Msg("Starting SetPlayerClass, m_iClass is: %i and iCurrentClass is: %i\n",m_iClass,m_iCurrentClass);
+	if(PlayerCanChangeClass) {
+		switch(m_iClass) // switch m_iClass (option from the menu)
+		{
+		case Assaulter:
+			SetClassGroundUnit();
+			break;
+		case Supporter:
+			SetClassSupportUnit();
+			break;
+		case Medic:
+			SetClassMedic();
+			break;
+		case Heavy:
+			SetClassHeavy();
+			break;
+		case Unassigned:
+			//Set the default class.
+		case Default:
+			SetClassDefault(); // shouldn't get here.
+			break;
+		}
+	} else {
+		ClientPrint( this, HUD_PRINTCENTER, "You can't change classes now." );
+	}
+	m_iClass=0;
+	Msg("Done with SetPlayerClass, m_iClass is: %i and iCurrentClass is: %i\n",m_iClass,m_iCurrentClass);
+	StartSprinting();
+	StopSprinting();
+}
+
+void CHL2MP_Player::OnClassChange()
+{
+}
+
+void CHL2MP_Player::CheckAllClassConVars()
+{
+	Msg("CheckAllClassConVars\n");
+}
+
+void CHL2MP_Player::SetClassDefault()
+{
+	Msg("You are the default class!\n");
+	//CheckAllClassConVars();
+	//SetPlayerClass();
+	RemoveAllItems( true ); //Testing lines below.
+	
+	switch(m_iCurrentClass) { // Well, the player can now be this class, BUT lets first make it so someone can join THEIR OLD class.
+		case Assaulter:
+			AssaulterPlayerNumbers --;
+			break;
+		case Supporter:
+			SupporterPlayerNumbers --;
+			break;
+		case Medic:
+			MedicPlayerNumbers --;
+			break;
+		case Heavy:
+			HeavyPlayerNumbers --;
+			break;
+		case Default:
+			break;
+		}
+	
+}
+
+// Assault:
+void CHL2MP_Player::SetClassGroundUnit()
+{
+	Msg("Assaulter method.\n");
+	if(m_iCurrentClass==1){ // int may be replaced with corresponding class #
+		m_iClientClass = m_iCurrentClass;
+		ForceHUDReload(this);
+		Msg("Respawning...\n");
+		PlayerCanChangeClass = false;
+
+		// some of the items given/set may not need to be set. we'll figure it out.
+				GiveNamedItem( "weapon_hands" );
+		GiveNamedItem( "weapon_crowbar" );
+		GiveNamedItem( "weapon_pistol" );
+		GiveNamedItem( "weapon_crossbow" );
+		GiveNamedItem( "weapon_frag" );
+		GiveNamedItem( "weapon_physcannon" );
+		CBasePlayer::GiveAmmo( 80,	"XBowBolt" );
+		CBasePlayer::GiveAmmo( 100,	"Pistol");
+		CBasePlayer::GiveAmmo( 1,	"grenade" );
+		EquipSuit();
+		m_iHealth = 125;
+		m_iMaxHealth = 125;
+		SetArmorValue(100);
+		SetMaxArmorValue(200);
+   		CBasePlayer::SetWalkSpeed(50);
+		CBasePlayer::SetNormSpeed(190);
+   		CBasePlayer::SetSprintSpeed(640);
+		CBasePlayer::SetJumpHeight(200.0);
+
+				//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.		
+		CBasePlayer::KeyValue( "targetname", "Assaulter" );
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
+CBaseEntity *pSwitchModelEnt = NULL;
+Vector SwitchModelEntOrigin = GetAbsOrigin();
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+	
+if (pSwitchModelEnt == NULL)
+{
+SetModel( "models/sdk/Humans/Group03/male_06_sdk.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+}
+#else
+SetModel( "models/sdk/Humans/Group03/male_06_sdk.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+
+#ifndef Seco7_SAVERESTORE
+	color32 black = {0,0,0,255};
+	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_IN|FFADE_PURGE );
+#endif //Seco7_SAVERESTORE
+	} else if(AssaulterPlayerNumbers >= MaximumAssaulterPlayerNumbers) // Player gets here when they are not currently in the class AND the class is full.
+	{
+		ClientPrint( this, HUD_PRINTCENTER, "#Class_Full" );
+		m_bDelayedMessage = true;
+		m_flDelayedMessageTime = gpGlobals->curtime + 3.0f; //4WH - Information: 3 second delay for Class Full Message visibility before showing the classes menu again.
+		ShowSSPlayerClasses(this);
+	} else // Player gets here if it is their new class AND the class is not full.
+	{
+		Msg("You may spawn...\n");
+		switch(m_iCurrentClass) { // Well, the player can now be this class, BUT lets first make it so someone can join THEIR OLD class.
+		case Assaulter:
+			Msg("You should not have got this message.\n");
+			break;
+		case Supporter:
+			SupporterPlayerNumbers --;
+			break;
+		case Medic:
+			MedicPlayerNumbers --;
+			break;
+		case Heavy:
+			HeavyPlayerNumbers --;
+			break;
+		case Default:
+			break;
+		}
+		AssaulterPlayerNumbers ++;
+		m_iCurrentClass=1;
+		m_iClientClass = m_iCurrentClass;
+		ForceHUDReload(this);
+		PlayerCanChangeClass=false;
+		GiveNamedItem( "weapon_hands" );		
+		GiveNamedItem( "weapon_crowbar" );
+		GiveNamedItem( "weapon_pistol" );
+		GiveNamedItem( "weapon_crossbow" );
+		GiveNamedItem( "weapon_frag" );
+		GiveNamedItem( "weapon_physcannon" );
+		CBasePlayer::GiveAmmo( 9,	"XBowBolt" );
+		CBasePlayer::GiveAmmo( 100,	"Pistol");
+		CBasePlayer::GiveAmmo( 2,	"grenade" );
+
+		EquipSuit();
+
+		m_iHealth = 125;
+		m_iMaxHealth = 125;
+		SetArmorValue(100);
+		SetMaxArmorValue(200);
+
+		CBasePlayer::SetWalkSpeed(50);
+		CBasePlayer::SetNormSpeed(190);
+		CBasePlayer::SetSprintSpeed(640);
+		CBasePlayer::SetJumpHeight(200.0);
+
+		//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.		
+		CBasePlayer::KeyValue( "targetname", "Assaulter" );
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
+CBaseEntity *pSwitchModelEnt = NULL;
+Vector SwitchModelEntOrigin = GetAbsOrigin();
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+	
+if (pSwitchModelEnt == NULL)
+{
+SetModel( "models/sdk/Humans/Group03/male_06_sdk.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+}
+#else
+SetModel( "models/sdk/Humans/Group03/male_06_sdk.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+
+		
+		
+//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
+CBaseEntity *pEntity = NULL;
+pEntity = gEntList.FindEntityByClassnameNearest( "info_player_assaulter", pEntityOrigin, 0, NULL);
+if (pEntity != NULL)
+{
+pEntityOrigin = pEntity->GetAbsOrigin();
+SetAbsOrigin(pEntityOrigin);
+}
+#ifndef Seco7_SAVERESTORE
+	color32 black = {0,0,0,255};
+	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_IN|FFADE_PURGE );
+#endif //Seco7_SAVERESTORE
+		
+	}
+}
+
+// Supporter
+void CHL2MP_Player::SetClassSupportUnit()
+{
+	Msg("Supporter method.\n");
+	if(m_iCurrentClass==2){ // int may be replaced with corresponding class #
+		m_iClientClass = m_iCurrentClass;
+		ForceHUDReload(this);
+		Msg("Respawning...\n");
+		PlayerCanChangeClass = false;
+
+		m_iHealth = 100;
+		m_iMaxHealth = 100;
+		SetArmorValue(50);
+		SetMaxArmorValue(100);
+		GiveNamedItem( "weapon_hands" );
+		GiveNamedItem( "weapon_crowbar" );
+		GiveNamedItem( "weapon_pistol" );
+		GiveNamedItem( "weapon_smg1" );
+		
+		CBasePlayer::GiveAmmo( 30,	"Pistol");
+		CBasePlayer::GiveAmmo( 30,	"SMG1");
+		CBasePlayer::GiveAmmo( 3,	"smg1_grenade");
+		
+   		CBasePlayer::SetWalkSpeed(150);
+		CBasePlayer::SetNormSpeed(190);
+		CBasePlayer::SetSprintSpeed(500);
+		CBasePlayer::SetJumpHeight(150.0);
+
+		//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.		
+		CBasePlayer::KeyValue( "targetname", "Supporter" );
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
+CBaseEntity *pSwitchModelEnt = NULL;
+Vector SwitchModelEntOrigin = GetAbsOrigin();
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+	
+if (pSwitchModelEnt == NULL)
+{
+SetModel( "models/sdk/Humans/Group03/l7h_rebel.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+}
+#else
+SetModel( "models/sdk/Humans/Group03/l7h_rebel.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+		
+		
+#ifndef Seco7_SAVERESTORE
+	color32 black = {0,0,0,255};
+	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_IN|FFADE_PURGE );
+#endif //Seco7_SAVERESTORE
+	} else if(SupporterPlayerNumbers >= MaximumSupporterPlayerNumbers)
+	{
+		ClientPrint( this, HUD_PRINTCENTER, "#Class_Full" );
+		m_bDelayedMessage = true;
+		m_flDelayedMessageTime = gpGlobals->curtime + 3.0f; //4WH - Information: 3 second delay for Class Full Message visibility before showing the classes menu again.
+		ShowSSPlayerClasses(this);
+	} else
+	{
+		Msg("You may spawn...\n");
+		switch(m_iCurrentClass) {
+		case Assaulter:
+			AssaulterPlayerNumbers --;
+			break;
+		case Supporter:
+			Msg("You should not have got this message.\n");
+			break;
+		case Medic:
+			MedicPlayerNumbers --;
+			break;
+		case Heavy:
+			HeavyPlayerNumbers --;
+			break;
+		case Default:
+			break;
+		}
+		SupporterPlayerNumbers ++;
+		m_iCurrentClass=2;
+		m_iClientClass = m_iCurrentClass;
+		ForceHUDReload(this);
+		PlayerCanChangeClass=false;
+	
+		m_iHealth = 100;
+		m_iMaxHealth = 100;
+		SetArmorValue(50);
+		SetMaxArmorValue(100);
+	
+				GiveNamedItem( "weapon_hands" );
+		GiveNamedItem( "weapon_crowbar" );
+		GiveNamedItem( "weapon_pistol" );
+		GiveNamedItem( "weapon_smg1" );
+	
+		CBasePlayer::GiveAmmo( 30,	"Pistol");
+		CBasePlayer::GiveAmmo( 30,	"SMG1");
+		CBasePlayer::GiveAmmo( 3,	"smg1_grenade");
+	
+   		CBasePlayer::SetWalkSpeed(150);
+		CBasePlayer::SetNormSpeed(190);
+		CBasePlayer::SetSprintSpeed(500);
+		CBasePlayer::SetJumpHeight(150.0);
+
+		//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.		
+		CBasePlayer::KeyValue( "targetname", "Supporter" );
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
+CBaseEntity *pSwitchModelEnt = NULL;
+Vector SwitchModelEntOrigin = GetAbsOrigin();
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+	
+if (pSwitchModelEnt == NULL)
+{
+SetModel( "models/sdk/Humans/Group03/l7h_rebel.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+}
+#else
+SetModel( "models/sdk/Humans/Group03/l7h_rebel.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+
+		
+				
+//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
+CBaseEntity *pEntity = NULL;
+pEntity = gEntList.FindEntityByClassnameNearest( "info_player_supporter", pEntityOrigin, 0, NULL);
+if (pEntity != NULL)
+{
+pEntityOrigin = pEntity->GetAbsOrigin();
+SetAbsOrigin(pEntityOrigin);
+}
+#ifndef Seco7_SAVERESTORE
+	color32 black = {0,0,0,255};
+	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_IN|FFADE_PURGE );
+#endif //Seco7_SAVERESTORE
+		
+	}
+}
+
+
+
+// Medic:
+void CHL2MP_Player::SetClassMedic()
+{
+	Msg("Medic method.\n");
+	if(m_iCurrentClass==3){ // int may be replaced with corresponding class #
+		m_iClientClass = m_iCurrentClass;
+		ForceHUDReload(this);
+		Msg("Respawning...\n");
+		PlayerCanChangeClass = false;
+
+		m_iHealth = 80;
+		m_iMaxHealth = 80;
+		SetArmorValue(5);
+		SetMaxArmorValue(10);
+		GiveNamedItem( "weapon_hands" );
+		GiveNamedItem( "weapon_357" );
+		GiveNamedItem( "weapon_shotgun" );
+		GiveNamedItem( "weapon_rpg" );
+
+		CBasePlayer::GiveAmmo( 90,	"Buckshot");
+		CBasePlayer::GiveAmmo( 32,	"357" );
+		CBasePlayer::GiveAmmo( 2,	"slam" );
+		CBasePlayer::GiveAmmo( 3,	"rpg_round");
+
+   		CBasePlayer::SetWalkSpeed(150);
+   		CBasePlayer::SetNormSpeed(190);
+		CBasePlayer::SetSprintSpeed(320);
+		CBasePlayer::SetJumpHeight(100.0);
+
+		//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.		
+		CBasePlayer::KeyValue( "targetname", "Medic" );
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
+CBaseEntity *pSwitchModelEnt = NULL;
+Vector SwitchModelEntOrigin = GetAbsOrigin();
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+	
+if (pSwitchModelEnt == NULL)
+{
+SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+}
+#else
+SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+
+		
+
+#ifndef Seco7_SAVERESTORE
+	color32 black = {0,0,0,255};
+	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_IN|FFADE_PURGE );
+#endif //Seco7_SAVERESTORE
+	} else if(MedicPlayerNumbers >= MaximumMedicPlayerNumbers)
+	{
+		ClientPrint( this, HUD_PRINTCENTER, "#Class_Full" );
+		m_bDelayedMessage = true;
+		m_flDelayedMessageTime = gpGlobals->curtime + 3.0f; //4WH - Information: 3 second delay for Class Full Message visibility before showing the classes menu again.
+		ShowSSPlayerClasses(this);
+	} else
+	{
+		Msg("You may spawn...\n");
+		switch(m_iCurrentClass) {
+		case Assaulter:
+			AssaulterPlayerNumbers --;
+			break;
+		case Supporter:
+			SupporterPlayerNumbers --;
+			break;
+		case Medic:
+			Msg("You should not have got this message.\n");
+			break;
+		case Heavy:
+			HeavyPlayerNumbers --;
+			break;
+		case Default:
+			break;
+		}
+		MedicPlayerNumbers ++;
+		m_iCurrentClass=3;
+		m_iClientClass = m_iCurrentClass;
+		ForceHUDReload(this);
+		PlayerCanChangeClass=false;
+
+		m_iHealth = 80;
+		m_iMaxHealth = 80;
+		SetArmorValue(5);
+		SetMaxArmorValue(10);
+		GiveNamedItem( "weapon_hands" );
+		GiveNamedItem( "weapon_357" );
+		GiveNamedItem( "weapon_shotgun" );
+		GiveNamedItem( "weapon_rpg" );
+
+		CBasePlayer::GiveAmmo( 90,	"Buckshot");
+		CBasePlayer::GiveAmmo( 32,	"357" );
+		CBasePlayer::GiveAmmo( 2,	"slam" );
+		CBasePlayer::GiveAmmo( 3,	"rpg_round");
+
+   		CBasePlayer::SetWalkSpeed(150);
+   		CBasePlayer::SetNormSpeed(190);
+   		CBasePlayer::SetSprintSpeed(320);
+		CBasePlayer::SetJumpHeight(100.0);
+
+		//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.		
+		CBasePlayer::KeyValue( "targetname", "Medic" );
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
+CBaseEntity *pSwitchModelEnt = NULL;
+Vector SwitchModelEntOrigin = GetAbsOrigin();
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+	
+if (pSwitchModelEnt == NULL)
+{
+SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+}
+#else
+SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+
+		
+		
+//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
+CBaseEntity *pEntity = NULL;
+pEntity = gEntList.FindEntityByClassnameNearest( "info_player_medic", pEntityOrigin, 0, NULL);
+if (pEntity != NULL)
+{
+pEntityOrigin = pEntity->GetAbsOrigin();
+SetAbsOrigin(pEntityOrigin);
+}
+#ifndef Seco7_SAVERESTORE
+	color32 black = {0,0,0,255};
+	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_IN|FFADE_PURGE );
+#endif //Seco7_SAVERESTORE
+		
+	}
+}
+
+
+// Heavy:
+void CHL2MP_Player::SetClassHeavy()
+{
+	Msg("Heavy method.\n");
+	if(m_iCurrentClass==4){ // int may be replaced with corresponding class #
+		m_iClientClass = m_iCurrentClass;
+		ForceHUDReload(this);
+		Msg("Respawning...\n");
+		PlayerCanChangeClass = false;
+
+		m_iHealth = 500;
+		m_iMaxHealth = 500;
+		SetArmorValue(500);
+		SetMaxArmorValue(1000);
+		GiveNamedItem( "weapon_hands" );
+		GiveNamedItem( "weapon_stunstick" );
+		GiveNamedItem( "weapon_pistol" );
+		GiveNamedItem( "weapon_ar2" );
+		GiveNamedItem( "weapon_smg1" );
+
+		CBasePlayer::GiveAmmo( 95,	"Pistol");
+		CBasePlayer::GiveAmmo( 50,	"AR2" );
+		CBasePlayer::GiveAmmo( 3,	"AR2AltFire" );
+		CBasePlayer::GiveAmmo( 100,	"SMG1");
+		CBasePlayer::GiveAmmo( 3,	"smg1_grenade");
+
+   		CBasePlayer::SetWalkSpeed(150);
+		CBasePlayer::SetNormSpeed(190);
+		CBasePlayer::SetSprintSpeed(320);
+		CBasePlayer::SetJumpHeight(40.0);
+
+		//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.		
+		CBasePlayer::KeyValue( "targetname", "Heavy" );
+		EquipSuit();
+
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
+CBaseEntity *pSwitchModelEnt = NULL;
+Vector SwitchModelEntOrigin = GetAbsOrigin();
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+	
+if (pSwitchModelEnt == NULL)
+{
+SetModel( "models/sdk/Humans/Group03/police_05.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_METROPOLICE;
+}
+#else
+SetModel( "models/sdk/Humans/Group03/police_05.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_METROPOLICE;
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+		
+		
+
+#ifndef Seco7_SAVERESTORE
+	color32 black = {0,0,0,255};
+	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_IN|FFADE_PURGE );
+#endif //Seco7_SAVERESTORE
+
+	}
+	else if(HeavyPlayerNumbers >= MaximumHeavyPlayerNumbers)
+	{
+		ClientPrint( this, HUD_PRINTCENTER, "#Class_Full" );
+		m_bDelayedMessage = true;
+		m_flDelayedMessageTime = gpGlobals->curtime + 3.0f; //4WH - Information: 3 second delay for Class Full Message visibility before showing the classes menu again.
+		ShowSSPlayerClasses(this);
+	} else
+	{
+		Msg("You may spawn...\n");
+		switch(m_iCurrentClass) {
+		case Assaulter:
+			AssaulterPlayerNumbers --;
+			break;
+		case Supporter:
+			SupporterPlayerNumbers --;
+			break;
+		case Medic:
+			MedicPlayerNumbers --;
+			break;
+		case Heavy:
+			Msg("You should not have got this message.\n");
+			break;
+		case Default:
+			break;
+		}
+		HeavyPlayerNumbers ++;
+		m_iCurrentClass=4;
+		m_iClientClass = m_iCurrentClass;
+		ForceHUDReload(this);
+		PlayerCanChangeClass=false;
+
+		m_iHealth = 500;
+		m_iMaxHealth = 500;
+		SetArmorValue(500);
+		SetMaxArmorValue(1000);
+				GiveNamedItem( "weapon_hands" );
+		GiveNamedItem( "weapon_stunstick" );
+		GiveNamedItem( "weapon_pistol" );
+		GiveNamedItem( "weapon_ar2" );
+		GiveNamedItem( "weapon_smg1" );
+
+		CBasePlayer::GiveAmmo( 95,	"Pistol");
+		CBasePlayer::GiveAmmo( 50,	"AR2" );
+		CBasePlayer::GiveAmmo( 3,	"AR2AltFire" );
+		CBasePlayer::GiveAmmo( 100,	"SMG1");
+		CBasePlayer::GiveAmmo( 3,	"smg1_grenade");
+
+   		CBasePlayer::SetWalkSpeed(150);
+   		CBasePlayer::SetNormSpeed(190);
+		CBasePlayer::SetSprintSpeed(320);
+		CBasePlayer::SetJumpHeight(40.0);
+
+				//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.
+		CBasePlayer::KeyValue( "targetname", "Heavy" );
+		EquipSuit();
+	
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
+CBaseEntity *pSwitchModelEnt = NULL;
+Vector SwitchModelEntOrigin = GetAbsOrigin();
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+	
+if (pSwitchModelEnt == NULL)
+{
+SetModel( "models/sdk/Humans/Group03/police_05.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_METROPOLICE;
+}
+#else
+SetModel( "models/sdk/Humans/Group03/police_05.mdl" );
+m_iPlayerSoundType = (int)PLAYER_SOUNDS_METROPOLICE;
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+
+		
+				
+//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
+CBaseEntity *pEntity = NULL;
+pEntity = gEntList.FindEntityByClassnameNearest( "info_player_heavy", pEntityOrigin, 0, NULL);
+if (pEntity != NULL)
+{
+pEntityOrigin = pEntity->GetAbsOrigin();
+SetAbsOrigin(pEntityOrigin);
+}
+#ifndef Seco7_SAVERESTORE
+	color32 black = {0,0,0,255};
+	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_IN|FFADE_PURGE );
+#endif //Seco7_SAVERESTORE
+		
+	}
+}
+#endif //Seco7_USE_PLAYERCLASSES
+
+void CHL2MP_Player::SetArmorValue( int value )
+{
+BaseClass::SetArmorValue(value);
+	m_iArmor = value;
+}
+
+
+// Armour Settings.
+void CHL2MP_Player::SetMaxArmorValue( int MaxArmorValue )
+{
+	m_iMaxArmor = MaxArmorValue;
+}
+#ifdef Seco7_USE_PLAYERCLASSES
+// Get the player classes health
+int  CHL2MP_Player::GetClassHealth()const
+{
+	return m_iHealth;
+}
+
+// Get the player classes maximum allowed health
+int CHL2MP_Player::GetClassMaxHealth()const
+{
+	return m_iMaxHealth;
+}
+
+void CHL2MP_Player::SetClassStuff()
+{
+	// Set the health values for this class.   
+	SetHealthValue(GetClassHealth());
+	SetMaxHealthValue(GetClassMaxHealth());
+}
+
+void CHL2MP_Player::ChangeClass()
+{
+	SetPlayerClass(); // Since it is just this line I believe instead of coming to ChangeClass() after menu selection we can go straight to this method.
+}
+#endif //Seco7_USE_PLAYERCLASSES
+//-----------------------------------------------------------------------------
+void CHL2MP_Player::IncrementArmorValue( int nCount, int nMaxValue )
+{ 
+nMaxValue = m_iMaxArmor;
+BaseClass::IncrementArmorValue(nCount, nMaxValue );
+}	
+
+#ifdef Seco7_USE_PLAYERCLASSES
+bool CHL2MP_Player::ApplyBattery( float powerMultiplier )
+{
+		const float MAX_NORMAL_BATTERY = GetMaxArmorValue();
+		
+		float ss_battery = GetArmorValue();
+		
+		float charge = 35;
+	
+	if (MAX_NORMAL_BATTERY == ss_battery)
+	{
+	return false;
+	}
+	
+	if ((ss_battery <= MAX_NORMAL_BATTERY) && IsSuitEquipped())
+	{
+		int pct;
+		char szcharge[64];
+
+		IncrementArmorValue( charge);
+
+		CPASAttenuationFilter filter( this, "ItemBattery.Touch" );
+		EmitSound( filter, entindex(), "ItemBattery.Touch" );
+
+		CSingleUserRecipientFilter user( this );
+		user.MakeReliable();
+
+		UserMessageBegin( user, "ItemPickup" );
+			WRITE_STRING( "item_battery" );
+		MessageEnd();
+
+		
+		// Suit reports new power level
+		// For some reason this wasn't working in release build -- round it.
+		pct = (int)( (float)(ArmorValue() * 100.0) * (1.0/MAX_NORMAL_BATTERY) + 0.5);
+		pct = (pct / 5);
+		if (pct > 0)
+			pct--;
+	
+		Q_snprintf( szcharge,sizeof(szcharge),"!HEV_%1dP", pct );
+		
+		//UTIL_EmitSoundSuit(edict(), szcharge);
+		//SetSuitUpdate(szcharge, FALSE, SUIT_NEXT_IN_30SEC);
+		return true;		
+	}
+	return false;
+}
+
+void CHL2MP_Player::SSPlayerClassesBGCheck(CHL2MP_Player *pPlayer)
+{
+CSingleUserRecipientFilter user( pPlayer );
+user.MakeReliable();
+UserMessageBegin( user, "SSPlayerClassesBGCheck" );
+MessageEnd();
+}
+
+void CHL2MP_Player::ShowSSPlayerClasses(CHL2MP_Player *pPlayer)
+{
+	if(PlayerCanChangeClass) {
+		CSingleUserRecipientFilter user( pPlayer );
+		user.MakeReliable();
+		UserMessageBegin( user, "ShowSSPlayerClasses" );
+		MessageEnd();
+	} else
+		Msg("You cannot change classes.");
+}
+
+void CHL2MP_Player::ForceHUDReload(CHL2MP_Player *pPlayer)
+{
+CSingleUserRecipientFilter user( pPlayer );
+user.MakeReliable();
+UserMessageBegin( user, "ForceHUDReload" );
+MessageEnd();
+}
+ #endif //Seco7_USE_PLAYERCLASSES
+ 
+ 
+#ifdef Seco7_SAVERESTORE
+void CHL2MP_Player::SaveTransitionFile(void)
+{
+	FileHandle_t hFile = g_pFullFileSystem->Open( "cfg/transition.cfg", "w" );
+
+	if ( hFile == FILESYSTEM_INVALID_HANDLE )
+	{
+	Warning("Invalid filesystem handle \n");
+	CUtlBuffer buf( 0, 0, CUtlBuffer::TEXT_BUFFER );
+	g_pFullFileSystem->WriteFile( "cfg/transition.cfg", "MOD", buf );
+	return;
+	}
+	else
+	{
+	// Iterate all active players
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CHL2MP_Player *pPlayerMP = ToHL2MPPlayer( UTIL_PlayerByIndex( i ) );
+		if (pPlayerMP == NULL)
+		{
+			//4WH - Information: If we're a listen server then the host is both a server and a client. As a server they return NULL so we return 
+			g_pFullFileSystem->Close( hFile );
+			return;
+		}
+		#ifdef Seco7_USE_PLAYERCLASSES
+		int ClassValue = pPlayerMP->m_iCurrentClass;
+		#endif //Seco7_USE_PLAYERCLASSES
+		int HealthValue = pPlayerMP->m_iHealth;
+		int ArmourValue = pPlayerMP->m_iArmor;
+		int WeaponSlot = 0;
+	
+	
+		//Set the weapon slot back to 0 for cleanliness and ease of use in hl2mp_client.cpps restore code.
+		WeaponSlot = 0;
+		Msg("Saving cfg file...\n");	
+		//Get this persons steam ID.
+		//Also write on a new line a { and use the SteamID as our heading!.
+		char tmpSteamid[32];
+		Q_snprintf(tmpSteamid,sizeof(tmpSteamid), "\"%s\"\n""{\n",engine->GetPlayerNetworkIDString(pPlayerMP->edict()));
+		
+		//Write this persons steam ID to our file.
+		g_pFullFileSystem->Write( &tmpSteamid, strlen(tmpSteamid), hFile );
+
+		#ifdef Seco7_USE_PLAYERCLASSES
+		//Get their Class
+		char data1[32];
+		Q_snprintf( data1,sizeof(data1), "\"CurrentClass" "\" ");
+		char data2[32];
+		Q_snprintf(data2,sizeof(data2), "\"%i\"\n", ClassValue);
+		//Write this persons Class to the file.
+		g_pFullFileSystem->Write( &data1, strlen(data1), hFile );
+		g_pFullFileSystem->Write( &data2, strlen(data2), hFile );
+		#endif //Seco7_USE_PLAYERCLASSES
+		
+		//Get their Health
+		char data3[32];
+		Q_snprintf( data3,sizeof(data3), "\"Health" "\" ");
+		char data4[32];
+		Q_snprintf(data4,sizeof(data4), "\"%i\"\n", HealthValue);
+		//Write this persons Health to the file.
+		g_pFullFileSystem->Write( &data3, strlen(data3), hFile );
+		g_pFullFileSystem->Write( &data4, strlen(data4), hFile );
+		
+		//Get their Armour
+		char data5[32];
+		Q_snprintf( data5,sizeof(data5), "\"Armour" "\" ");
+		char data6[32];
+		Q_snprintf(data6,sizeof(data6), "\"%i\"\n", ArmourValue);
+		//Write this persons Armour to the file.
+		g_pFullFileSystem->Write( &data5, strlen(data5), hFile );
+		g_pFullFileSystem->Write( &data6, strlen(data6), hFile );
+
+		
+		//Go through the players inventory to find out their weapons and ammo.
+		CBaseCombatWeapon *pCheck;
+		
+		//This is our player. This is set because currently this section is in TakeDamage of hl2mp_player.cpp
+		CBasePlayer *pPlayer = ToBasePlayer(pPlayerMP);
+		const char *weaponName = "";
+		weaponName = pPlayer->GetActiveWeapon()->GetClassname();
+		
+		//Get their current weapon so we can attempt to switch to it on spawning.
+		char ActiveWepPre[32];
+		Q_snprintf(ActiveWepPre,sizeof(ActiveWepPre), "\n""\"ActiveWeapon\" ");
+		//Write our weapon.
+		g_pFullFileSystem->Write( &ActiveWepPre, strlen(ActiveWepPre), hFile );
+		char ActiveWep[32];
+		Q_snprintf(ActiveWep,sizeof(ActiveWep), "\"%s\"\n", weaponName);
+		//Write our weapon.
+		g_pFullFileSystem->Write( &ActiveWep, strlen(ActiveWep), hFile );
+		
+	
+		for ( int i = 0 ; i < WeaponCount(); ++i )
+		{
+			pCheck = GetWeapon( i );
+			if ( !pCheck )
+				continue;
+			
+			//Create a temporary int for both primary and secondary clip ammo counts.
+			int TempPrimaryClip = pPlayer->GetAmmoCount( pCheck->GetPrimaryAmmoType());
+			int TempSecondaryClip = pPlayer->GetAmmoCount( pCheck->GetSecondaryAmmoType());
+			
+			//Creaye a temporary int for both primary and seconday clip ammo TYPES.
+			int ammoIndex_Pri = pCheck->GetPrimaryAmmoType();
+			int ammoIndex_Sec = pCheck->GetSecondaryAmmoType();
+			
+			//Get out weapons classname and get our text set up.
+			char pCheckWep[32];
+			Q_snprintf(pCheckWep,sizeof(pCheckWep), "\"Weapon_%i\" \"%s\"\n", WeaponSlot,pCheck->GetClassname());
+			//Write our weapon.
+			g_pFullFileSystem->Write( &pCheckWep, strlen(pCheckWep), hFile );
+		
+				if (TempPrimaryClip >= 1)
+				{	
+				//Get out weapons primary clip and get our text set up.
+				char PrimaryClip[32];
+				Q_snprintf(PrimaryClip,sizeof(PrimaryClip), "\"Weapon_%i_PriClip\" \"%i\"\n", WeaponSlot,TempPrimaryClip);
+				//Now write our weapons primary clip count.
+				g_pFullFileSystem->Write( &PrimaryClip, strlen(PrimaryClip), hFile );
+					//Get out weapons primary clip ammo type.
+					if( ammoIndex_Pri != -1 )
+					{
+					char PrimaryWeaponClipAmmoType[32];
+					Q_snprintf(PrimaryWeaponClipAmmoType,sizeof(PrimaryWeaponClipAmmoType), "\"Weapon_%i_PriClipAmmo\" ", WeaponSlot);
+					char PrimaryClipAmmoType[32];
+					Q_snprintf(PrimaryClipAmmoType,sizeof(PrimaryClipAmmoType), "\"%s\"\n", GetAmmoDef()->GetAmmoOfIndex(ammoIndex_Pri)->pName);
+					//Now write our weapons primary clip count.
+					g_pFullFileSystem->Write( &PrimaryWeaponClipAmmoType, strlen(PrimaryWeaponClipAmmoType), hFile );
+					g_pFullFileSystem->Write( &PrimaryClipAmmoType, strlen(PrimaryClipAmmoType), hFile );
+					}
+				}
+		
+				if (TempSecondaryClip >= 1)
+				{	
+				//Get out weapons secondary clip and get our text set up.
+				char SecondaryClip[32];
+				Q_snprintf(SecondaryClip,sizeof(SecondaryClip), "\"Weapon_%i_SecClip\" \"%i\"\n", WeaponSlot,TempSecondaryClip);
+				//Now write our weapons secondary clip count.
+				g_pFullFileSystem->Write( &SecondaryClip, strlen(SecondaryClip), hFile );
+					//Get out weapons secondary clip ammo type.
+					if( ammoIndex_Sec != -1 )
+					{
+					char SecondaryWeaponClipAmmoType[32];
+					Q_snprintf(SecondaryWeaponClipAmmoType,sizeof(SecondaryWeaponClipAmmoType), "\"Weapon_%i_SecClipAmmo\" ", WeaponSlot);
+					char SecondaryClipAmmoType[32];
+					Q_snprintf(SecondaryClipAmmoType,sizeof(SecondaryClipAmmoType), "\"%s\"\n", GetAmmoDef()->GetAmmoOfIndex(ammoIndex_Pri)->pName);
+					//Now write our weapons primary clip count.
+					g_pFullFileSystem->Write( &SecondaryWeaponClipAmmoType, strlen(SecondaryWeaponClipAmmoType), hFile );
+					g_pFullFileSystem->Write( &SecondaryClipAmmoType, strlen(SecondaryClipAmmoType), hFile );
+					}
+				}
+				
+		//Now increase our weapon slot number for the next weapon (if needed).
+		WeaponSlot ++;
+		}
+		
+	  //Also write on a new line a } to close off this Players section. Now that we're done with all weapons.
+	  char SecClose[32];
+	  Q_snprintf(SecClose,sizeof(SecClose), "}\n\n",NULL);
+	  g_pFullFileSystem->Write( &SecClose, strlen(SecClose), hFile );
+	}
+	
+	//Close the file. Important or changes don't get saved till the exe closes which we don't want.
+	g_pFullFileSystem->Close( hFile );
+	}
+}
+ #endif //Seco7_SAVERESTORE

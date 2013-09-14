@@ -433,7 +433,8 @@ void CBreakable::Precache( void )
 		break;
 #endif
 
-#if HL2_EPISODIC 
+//4WH - Episodic Issues: if Changed to ifdef.
+#ifdef HL2_EPISODIC 
 	case matNone:
 		pGibName = "";
 		break;

@@ -41,8 +41,9 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-		if ( pPlayer->IsSuitEquipped() )
-			return FALSE;
+	    //4WH - Information: These two lines are commented out for play-through of official hl2/ep1/ep2 maps. Your choice whether to re-enable it or not.
+		//if ( pPlayer->IsSuitEquipped() )
+			//return FALSE;
 
 		if ( m_spawnflags & SF_SUIT_SHORTLOGON )
 			UTIL_EmitSoundSuit(pPlayer->edict(), "!HEV_A0");		// short version of suit logon,

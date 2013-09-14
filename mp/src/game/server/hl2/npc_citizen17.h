@@ -216,14 +216,14 @@ public:
 	
 	bool 			CanHeal();
 	bool 			ShouldHealTarget( CBaseEntity *pTarget, bool bActiveUse = false );
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 	bool 			ShouldHealTossTarget( CBaseEntity *pTarget, bool bActiveUse = false );
 #endif
 	void 			Heal();
 
 	bool			ShouldLookForHealthItem();
 
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 	void			TossHealthKit( CBaseCombatCharacter *pThrowAt, const Vector &offset ); // create a healthkit and throw it at someone
 	void			InputForceHealthKitToss( inputdata_t &inputdata );
 #endif

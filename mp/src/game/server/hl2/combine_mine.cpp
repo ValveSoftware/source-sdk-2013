@@ -873,13 +873,21 @@ float CBounceBomb::FindNearestNPC()
 	}
 
 	// finally, check the player.
-	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
+#else
+CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if( pPlayer && !(pPlayer->GetFlags() & FL_NOTARGET) )
 	{
 		float flDist = (pPlayer->GetAbsOrigin() - GetAbsOrigin() ).LengthSqr();
 
-		if( flDist < flNearest && FVisible( pPlayer, MASK_SOLID_BRUSHONLY ) )
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		if( flDist < flNearest ) 
+#else
+if( flDist < flNearest && FVisible( pPlayer, MASK_SOLID_BRUSHONLY ) )
+#endif //Seco7_Enable_Fixed_Multiplayer_AI		
 		{
 			flNearest = flDist;
 			SetNearestNPC( pPlayer );
