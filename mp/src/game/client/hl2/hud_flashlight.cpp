@@ -65,7 +65,11 @@ CHudFlashlight::CHudFlashlight( const char *pElementName ) : CHudElement( pEleme
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
 
+	#ifdef Seco7_HAS_FLASHLIGHT_REGARDLESS_OF_SUIT
+	SetHiddenBits( HIDEHUD_PLAYERDEAD );
+	#else
 	SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
+	#endif
 }
 
 //-----------------------------------------------------------------------------

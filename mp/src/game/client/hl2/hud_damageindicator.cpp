@@ -127,7 +127,11 @@ CHudDamageIndicator::CHudDamageIndicator( const char *pElementName ) : CHudEleme
 
 	m_WhiteAdditiveMaterial.Init( "vgui/white_additive", TEXTURE_GROUP_VGUI ); 
 	
+	#ifdef Seco7_HAS_DAMAGE_INDICATOR_REGARDLESS_OF_SUIT
+	SetHiddenBits( HIDEHUD_PLAYERDEAD );
+	#else
 	SetHiddenBits( HIDEHUD_HEALTH );
+    #endif
 }
 
 //-----------------------------------------------------------------------------

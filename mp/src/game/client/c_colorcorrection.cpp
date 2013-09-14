@@ -122,7 +122,11 @@ void C_ColorCorrection::ClientThink()
 		return;
 	}
 
-	CBaseEntity *pPlayer = UTIL_PlayerByIndex(1);
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBaseEntity *pPlayer = C_BasePlayer::GetLocalPlayer();
+#else
+CBaseEntity *pPlayer = UTIL_PlayerByIndex(1);
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	if( !pPlayer )
 		return;
 

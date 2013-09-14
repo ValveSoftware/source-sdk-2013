@@ -1654,6 +1654,19 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 //-----------------------------------------------------------------------------
 void CHLClient::LevelInitPostEntity( )
 {
+
+#ifdef Seco7_IRONSIGHT_ENABLED
+engine->ClientCmd( "ironsight_toggle /n" ); //4WH - Information: Toggle ironsight to on if we're using it on the start of the level. Clients can toggle it off via console or key binds.
+engine->ClientCmd( "crosshair 0" ); //4WH - Information: Cheap fix to the ironsight, we just disable the clients crosshair. Clients can of course turn it back on via console.
+#else
+engine->ClientCmd( "crosshair 1" ); //4WH - Information: Cheap fix to the ironsight, sometimes the game keeps crosshairs off even after a code compile change, so fix those here.
+#endif //Seco7_IRONSIGHT_ENABLED
+
+#ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+//4WH - Information: Let's make sure that if NightVision was used, on a server change we turn it off again. This also makes sure that if a player manages to class switch that they're not stuck in fullbright.
+cvar->FindVar("mat_fullbright")->SetValue(0);
+#endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+
 	IGameSystem::LevelInitPostEntityAllSystems();
 	C_PhysPropClientside::RecreateAll();
 	internalCenterPrint->Clear();
@@ -2176,6 +2189,12 @@ void OnRenderStart()
 	PhysicsSimulate();
 
 	C_BaseAnimating::ThreadedBoneSetup();
+	
+	#ifdef Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
+	 //Tony; in multiplayer do some extra stuff. like re-calc the view if in a vehicle!
+    if ( engine->GetMaxClients() > 1 )
+    view->MP_PostSimulate();
+	#endif //Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
 
 	{
 		VPROF_("Client TempEnts", 0, VPROF_BUDGETGROUP_CLIENT_SIM, false, BUDGETFLAG_CLIENT);

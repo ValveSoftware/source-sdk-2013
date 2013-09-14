@@ -64,6 +64,12 @@ ConVar cl_yawspeed( "cl_yawspeed", "210", FCVAR_NONE, "Client yaw speed.", true,
 ConVar cl_pitchspeed( "cl_pitchspeed", "225", FCVAR_NONE, "Client pitch speed.", true, -100000, true, 100000 );
 ConVar cl_pitchdown( "cl_pitchdown", "89", FCVAR_CHEAT );
 ConVar cl_pitchup( "cl_pitchup", "89", FCVAR_CHEAT );
+#ifdef Seco7_USE_PLAYERCLASSES
+ConVar cl_sidespeed( "cl_sidespeed", "4500", FCVAR_CHEAT ); //4WH - Information: Here we set the maximum side speed a player can achieve. Default is 450.
+ConVar cl_upspeed( "cl_upspeed", "4500", FCVAR_CHEAT ); //4WH - Information: Here we set the maximum up speed a player can achieve. Default is 320.
+ConVar cl_forwardspeed( "cl_forwardspeed", "4500", FCVAR_CHEAT ); //4WH - Information: Here we set the maximum forward speed a player can achieve. Default is 450.
+ConVar cl_backspeed( "cl_backspeed", "4500", FCVAR_CHEAT ); //4WH - Information: Here we set the maximum back speed a player can achieve. Default is 450.
+#else
 #if defined( CSTRIKE_DLL )
 ConVar cl_sidespeed( "cl_sidespeed", "400", FCVAR_CHEAT );
 ConVar cl_upspeed( "cl_upspeed", "320", FCVAR_ARCHIVE|FCVAR_CHEAT );
@@ -75,6 +81,7 @@ ConVar cl_upspeed( "cl_upspeed", "320", FCVAR_REPLICATED | FCVAR_CHEAT );
 ConVar cl_forwardspeed( "cl_forwardspeed", "450", FCVAR_REPLICATED | FCVAR_CHEAT );
 ConVar cl_backspeed( "cl_backspeed", "450", FCVAR_REPLICATED | FCVAR_CHEAT );
 #endif // CSTRIKE_DLL
+#endif //Seco7_USE_PLAYERCLASSES
 ConVar lookspring( "lookspring", "0", FCVAR_ARCHIVE );
 ConVar lookstrafe( "lookstrafe", "0", FCVAR_ARCHIVE );
 ConVar in_joystick( "joystick","0", FCVAR_ARCHIVE );
@@ -1073,6 +1080,9 @@ void CInput::ExtraMouseSample( float frametime, bool active )
 		engine->SetViewAngles( cmd->viewangles );
 		prediction->SetLocalViewAngles( cmd->viewangles );
 	}
+#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+extern int g_iChatBubble;
+#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
 
 	// Let the headtracker override the view at the very end of the process so
 	// that vehicles and other stuff in g_pClientMode->CreateMove can override 
@@ -1279,6 +1289,10 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 	}
 	m_EntityGroundContact.RemoveAll();
 #endif
+
+#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+cmd->chatbubble = g_iChatBubble;
+#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
 
 	pVerified->m_cmd = *cmd;
 	pVerified->m_crc = cmd->GetChecksum();

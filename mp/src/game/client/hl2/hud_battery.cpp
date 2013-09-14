@@ -54,7 +54,11 @@ DECLARE_HUD_MESSAGE( CHudBattery, Battery );
 //-----------------------------------------------------------------------------
 CHudBattery::CHudBattery( const char *pElementName ) : BaseClass(NULL, "HudSuit"), CHudElement( pElementName )
 {
+	#ifdef Seco7_HAS_BATTERY_REGARDLESS_OF_SUIT
+	SetHiddenBits( HIDEHUD_PLAYERDEAD );
+	#else
 	SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_NEEDSUIT );
+	#endif
 }
 
 //-----------------------------------------------------------------------------

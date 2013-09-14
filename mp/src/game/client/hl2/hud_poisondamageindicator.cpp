@@ -63,7 +63,11 @@ CHudPoisonDamageIndicator::CHudPoisonDamageIndicator( const char *pElementName )
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
 	
+	#ifdef Seco7_HAS_NEUROTOXIN_INDICATOR_REGARDLESS_OF_SUIT
+	SetHiddenBits( HIDEHUD_PLAYERDEAD );
+	#else
 	SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
+	#endif
 }
 
 //-----------------------------------------------------------------------------

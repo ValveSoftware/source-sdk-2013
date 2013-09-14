@@ -74,7 +74,11 @@ void cc_cl_interp_all_changed( IConVar *pConVar, const char *pOldString, float f
 
 
 static ConVar  cl_extrapolate( "cl_extrapolate", "1", FCVAR_CHEAT, "Enable/disable extrapolation if interpolation history runs out." );
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+static ConVar  cl_interp_npcs( "cl_interp_npcs", "0.3", FCVAR_USERINFO, "Interpolate NPC positions starting this many seconds in past (or cl_interp, if greater)" );
+#else
 static ConVar  cl_interp_npcs( "cl_interp_npcs", "0.0", FCVAR_USERINFO, "Interpolate NPC positions starting this many seconds in past (or cl_interp, if greater)" );  
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 static ConVar  cl_interp_all( "cl_interp_all", "0", 0, "Disable interpolation list optimizations.", 0, 0, 0, 0, cc_cl_interp_all_changed );
 ConVar  r_drawmodeldecals( "r_drawmodeldecals", "1" );
 extern ConVar	cl_showerror;

@@ -1390,3 +1390,59 @@ CON_COMMAND( getpos, "dump position and angles to the console" )
 	Warning( "%s %f %f %f\n", pCommand2, angles.x, angles.y, angles.z );
 }
 
+#ifdef Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
+void CViewRender::MP_PostSimulate()
+{
+    C_BasePlayer *pLocal = C_BasePlayer::GetLocalPlayer();
+    if ( !pLocal )
+        return;
+
+    //Tony; if the local player is in a vehicle, then we need to kill the bone cache, and re-calculate the view.
+    if ( !pLocal->IsInAVehicle() && !pLocal->GetVehicle())
+        return;
+
+    IClientVehicle *pVehicle = pLocal->GetVehicle();
+    Assert( pVehicle );
+    CBaseAnimating *pVehicleEntity =
+(CBaseAnimating*)pVehicle->GetVehicleEnt();
+    Assert( pVehicleEntity );
+
+    int nRole = pVehicle->GetPassengerRole( pLocal );
+
+    //Tony; we have to invalidate the bone cache in order for the attachment lookups to be correct!
+    pVehicleEntity->InvalidateBoneCache();
+    pVehicle->GetVehicleViewPosition( nRole, &m_View.origin, &m_View.angles,
+&m_View.fov );
+
+    //Tony; everything below is from SetupView - the things that should be recalculated.. are recalculated!
+    pLocal->CalcViewModelView( m_View.origin, m_View.angles );
+
+    // Compute the world->main camera transform
+    ComputeCameraVariables( m_View.origin, m_View.angles,
+        &g_vecVForward, &g_vecVRight, &g_vecVUp, &g_matCamInverse );
+
+    // set up the hearing origin...
+    AudioState_t audioState;
+    audioState.m_Origin = m_View.origin;
+    audioState.m_Angles = m_View.angles;
+    audioState.m_bIsUnderwater = pLocal && pLocal->AudioStateIsUnderwater(m_View.origin );
+
+    ToolFramework_SetupAudioState( audioState );
+
+    m_View.origin = audioState.m_Origin;
+    m_View.angles = audioState.m_Angles;
+
+    engine->SetAudioState( audioState );
+
+    g_vecPrevRenderOrigin = g_vecRenderOrigin;
+    g_vecPrevRenderAngles = g_vecRenderAngles;
+    g_vecRenderOrigin = m_View.origin;
+    g_vecRenderAngles = m_View.angles;
+
+#ifdef _DEBUG
+    s_DbgSetupOrigin = m_View.origin;
+    s_DbgSetupAngles = m_View.angles;
+#endif
+
+}
+#endif //Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
