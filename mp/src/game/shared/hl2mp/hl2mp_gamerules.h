@@ -84,6 +84,10 @@ class CHL2MPRules : public CTeamplayRules
 public:
 	DECLARE_CLASS( CHL2MPRules, CTeamplayRules );
 
+#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+	bool	MegaPhyscannonActive( void ) { return m_bMegaPhysgun;	}
+#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
+
 #ifdef CLIENT_DLL
 
 	DECLARE_CLIENTCLASS_NOBASE(); // This makes datatables able to access our private vars.
@@ -91,6 +95,12 @@ public:
 #else
 
 	DECLARE_SERVERCLASS_NOBASE(); // This makes datatables able to access our private vars.
+	
+//4WH - Episodic Issues: Here we add darkness mode so that it now works.
+	virtual bool IsAlyxInDarknessMode();
+	virtual bool ShouldBurningPropsEmitLight();
+			
+
 #endif
 	
 	CHL2MPRules();
@@ -134,6 +144,10 @@ public:
 	void    CheckChatForReadySignal( CHL2MP_Player *pPlayer, const char *chatmsg );
 	const char *GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer );
 
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	void InitDefaultAIRelationships( void );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 #endif
 	virtual void ClientDisconnected( edict_t *pClient );
 
@@ -158,6 +172,12 @@ private:
 	bool m_bCompleteReset;
 	bool m_bAwaitingReadyRestart;
 	bool m_bHeardAllPlayersReady;
+
+	#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+	//4WH - Information: Super grav gun stuff.
+	// Rules change for the mega physgun
+	CNetworkVar( bool, m_bMegaPhysgun );
+	#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
 
 #ifndef CLIENT_DLL
 	bool m_bChangelevelDone;

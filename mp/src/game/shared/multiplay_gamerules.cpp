@@ -50,6 +50,17 @@
 
 REGISTER_GAMERULES_CLASS( CMultiplayRules );
 
+#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+//4WH - Multiplayer Level Transitions:  This sets what percentage of players are required in the changelevel trigger before map change takes effect. Currently it's set to 100% (all players required).
+ConVar	mp_transition_players_percent( "mp_transition_players_percent",
+					  "100",
+					  FCVAR_NOTIFY|FCVAR_REPLICATED,
+					  "How many players in percent are needed for a level transition?" );
+#ifndef CLIENT_DLL
+ConVar sv_transitions( "sv_transitions", "1", FCVAR_NOTIFY|FCVAR_GAMEDLL, "Enable transitions" );
+#endif
+#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+
 ConVar mp_chattime(
 		"mp_chattime", 
 		"10", 
@@ -259,6 +270,17 @@ CMultiplayRules::CMultiplayRules()
 {
 #ifndef CLIENT_DLL
 	m_flTimeLastMapChangeOrPlayerWasConnected = 0.0f;
+#ifdef Seco7_USE_PLAYERCLASSES
+extern int AssaulterPlayerNumbers;
+extern int SupporterPlayerNumbers;
+extern int MedicPlayerNumbers;
+extern int HeavyPlayerNumbers;
+
+AssaulterPlayerNumbers = 0;
+SupporterPlayerNumbers = 0;
+MedicPlayerNumbers = 0;
+HeavyPlayerNumbers = 0;
+#endif //Seco7_USE_PLAYERCLASSES
 
 	RefreshSkillData( true );
 
@@ -688,7 +710,12 @@ ConVarRef suitcharger( "sk_suitcharger" );
 	//=========================================================
 	float CMultiplayRules::FlPlayerSpawnTime( CBasePlayer *pPlayer )
 	{
+	//4WH - CodeAddendumms: Fix by TheRealJMan.
+	#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+		return gpGlobals->curtime + 3;//now!
+	#else
 		return gpGlobals->curtime;//now!
+	#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 	}
 
 	bool CMultiplayRules::AllowAutoTargetCrosshair( void )

@@ -14,7 +14,7 @@
 	#include "c_hl2mp_player.h"
 #else
 	#include "hl2mp_player.h"
-	#include "grenade_tripmine.h"
+	#include "hl2mp/grenade_tripmine.h" //seco2013 Load the hl2mp version!
 	#include "grenade_satchel.h"
 	#include "entitylist.h"
 	#include "eventqueue.h"

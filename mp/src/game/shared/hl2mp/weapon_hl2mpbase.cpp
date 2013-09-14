@@ -118,8 +118,8 @@ void CWeaponHL2MPBase::WeaponSound( WeaponSound_t sound_type, float soundtime /*
 		CBroadcastRecipientFilter filter; // this is client side only
 		if ( !te->CanPredict() )
 			return;
-				
-		CBaseEntity::EmitSound( filter, GetPlayerOwner()->entindex(), shootsound, &GetPlayerOwner()->GetAbsOrigin() ); 
+		//4WH - Information: This crashed due to it being set to GetPlayerOwner which is singleplayer only.
+		CBaseEntity::EmitSound( filter, GetHL2MPPlayerOwner()->entindex(), shootsound, &GetHL2MPPlayerOwner()->GetAbsOrigin() ); 
 #else
 		BaseClass::WeaponSound( sound_type, soundtime );
 #endif

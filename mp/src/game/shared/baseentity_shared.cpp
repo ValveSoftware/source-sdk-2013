@@ -1603,9 +1603,10 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 	
 	bool bDoServerEffects = true;
 
-#if defined( HL2MP ) && defined( GAME_DLL )
+//4WH - Information: This is a fix which is meant to allow tracers from mounted guns to display once more in-game, by always making sure it returns true.
+/*#if defined( HL2MP ) && defined( GAME_DLL )
 	bDoServerEffects = false;
-#endif
+#endif*/
 
 #if defined( GAME_DLL )
 	if( IsPlayer() )
@@ -2040,7 +2041,12 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 bool CBaseEntity::ShouldDrawUnderwaterBulletBubbles()
 {
 #if defined( HL2_DLL ) && defined( GAME_DLL )
-	CBaseEntity *pPlayer = ( gpGlobals->maxClients == 1 ) ? UTIL_GetLocalPlayer() : NULL;
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	CBaseEntity *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
+#else
+CBaseEntity *pPlayer = ( gpGlobals->maxClients == 1 ) ? UTIL_GetLocalPlayer() : NULL;
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	return pPlayer && (pPlayer->GetWaterLevel() == 3);
 #else
 	return false;
@@ -2498,6 +2504,13 @@ void CBaseEntity::CollisionRulesChanged()
 		}
 		IPhysicsObject *pList[VPHYSICS_MAX_OBJECT_LIST_COUNT];
 		int count = VPhysicsGetObjectList( pList, ARRAYSIZE(pList) );
+
+		//4WH - Information:
+		if (count == NULL || pList == NULL)
+		{
+			return;
+		}
+
 		for ( int i = 0; i < count; i++ )
 		{
 			if ( pList[i] != NULL ) //this really shouldn't happen, but it does >_<

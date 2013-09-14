@@ -769,7 +769,9 @@ bool ShouldRemoveThisRagdoll( CBaseAnimating *pRagdoll )
 	}
 
 #else
-	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if( !UTIL_FindClientInPVS( pRagdoll->edict() ) )
 	{
@@ -778,13 +780,15 @@ bool ShouldRemoveThisRagdoll( CBaseAnimating *pRagdoll )
 
 		return true;
 	}
-	else if( !pPlayer->FInViewCone( pRagdoll ) )
+#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+else if( !pPlayer->FInViewCone( pRagdoll ) )
 	{
 		if ( g_debug_ragdoll_removal.GetBool() )
 			 NDebugOverlay::Line( pRagdoll->GetAbsOrigin(), pRagdoll->GetAbsOrigin() + Vector( 0, 0, 64 ), 0, 0, 255, true, 5 );
 		
 		return true;
 	}
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 #endif
 
@@ -798,7 +802,7 @@ bool ShouldRemoveThisRagdoll( CBaseAnimating *pRagdoll )
 // Cull stale ragdolls. There is an ifdef here: one version for episodic, 
 // one for everything else.
 //-----------------------------------------------------------------------------
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 
 void CRagdollLRURetirement::Update( float frametime ) // EPISODIC VERSION
 {

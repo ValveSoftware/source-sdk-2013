@@ -40,6 +40,11 @@ public:
 
 	void Reset()
 	{
+	
+#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+chatbubble = 0;
+#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+	
 		command_number = 0;
 		tick_count = 0;
 		viewangles.Init();
@@ -64,6 +69,10 @@ public:
 	{
 		if ( this == &src )
 			return *this;
+			
+#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+chatbubble          = src.chatbubble;
+#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
 
 		command_number		= src.command_number;
 		tick_count			= src.tick_count;
@@ -98,6 +107,11 @@ public:
 		CRC32_t crc;
 
 		CRC32_Init( &crc );
+
+#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+CRC32_ProcessBuffer( &crc, &chatbubble, sizeof ( chatbubble ) );
+#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+
 		CRC32_ProcessBuffer( &crc, &command_number, sizeof( command_number ) );
 		CRC32_ProcessBuffer( &crc, &tick_count, sizeof( tick_count ) );
 		CRC32_ProcessBuffer( &crc, &viewangles, sizeof( viewangles ) );    
@@ -154,6 +168,10 @@ public:
 
 	short	mousedx;		// mouse accum in x from create move
 	short	mousedy;		// mouse accum in y from create move
+	
+#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+short	chatbubble;
+#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
 
 	// Client only, tracks whether we've predicted this command at least once
 	bool	hasbeenpredicted;

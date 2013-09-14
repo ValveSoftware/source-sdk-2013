@@ -219,6 +219,11 @@ protected:
 	virtual bool HandleJumping( Activity &idealActivity );
 	virtual bool HandleDucking( Activity &idealActivity );
 	virtual bool HandleMoving( Activity &idealActivity );
+	
+	#ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+	virtual bool HandleVehicle( Activity &idealActivity );
+	#endif //Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+	
 	virtual bool HandleSwimming( Activity &idealActivity );
 	virtual bool HandleDying( Activity &idealActivity );
 

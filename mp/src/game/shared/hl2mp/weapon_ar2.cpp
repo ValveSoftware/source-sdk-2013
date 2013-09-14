@@ -174,6 +174,11 @@ void CWeaponAR2::DelayedAttack( void )
 
 	// Register a muzzleflash for the AI
 	pOwner->DoMuzzleFlash();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef CLIENT_DLL
+	pOwner->SetMuzzleFlashTime( gpGlobals->curtime + 0.5 );
+#endif
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	
 	WeaponSound( WPN_DOUBLE );
 

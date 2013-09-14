@@ -4,13 +4,31 @@
 //
 //=============================================================================//
 #include "cbase.h"
+
+#ifdef Seco7_USE_CSS_LADDERS
+#include "gamemovement.h"
+#else
 #include "hl_gamemovement.h"
 #include "in_buttons.h"
 #include "utlrbtree.h"
 #include "hl2_shareddefs.h"
 
+#ifdef HL2MP
+#include "hl2mp_gamerules.h"
+#endif
+#endif //Seco7_USE_CSS_LADDERS
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+#ifdef Seco7_USE_CSS_LADDERS
+// Expose our interface.
+static CGameMovement g_GameMovement;
+IGameMovement *g_pGameMovement = ( IGameMovement * )&g_GameMovement;
+
+EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CGameMovement, IGameMovement,INTERFACENAME_GAMEMOVEMENT, g_GameMovement );
+
+#else
 
 static ConVar sv_autoladderdismount( "sv_autoladderdismount", "1", FCVAR_REPLICATED, "Automatically dismount from ladders when you reach the end (don't have to +USE)." );
 static ConVar sv_ladderautomountdot( "sv_ladderautomountdot", "0.4", FCVAR_REPLICATED, "When auto-mounting a ladder by looking up its axis, this is the tolerance for looking now directly along the ladder axis." );
@@ -1150,3 +1168,29 @@ bool CHL2GameMovement::CanAccelerate()
 
 	EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CGameMovement, IGameMovement,INTERFACENAME_GAMEMOVEMENT, g_GameMovement );
 #endif
+
+//-----------------------------------------------------------------------------
+// Purpose: Allow bots etc to use slightly different solid masks
+//-----------------------------------------------------------------------------
+unsigned int CHL2GameMovement::PlayerSolidMask( bool brushOnly )
+{
+	int mask = 0;
+#ifdef HL2MP
+	if ( HL2MPRules()->IsTeamplay() )
+	{
+		switch ( player->GetTeamNumber() )
+		{
+		case TEAM_REBELS:
+			mask = CONTENTS_TEAM1;
+			break;
+
+		case TEAM_COMBINE:
+			mask = CONTENTS_TEAM2;
+			break;
+		}
+	}
+#endif
+	return ( mask | BaseClass::PlayerSolidMask( brushOnly ) );
+}
+
+#endif //Seco7_USE_CSS_LADDERS

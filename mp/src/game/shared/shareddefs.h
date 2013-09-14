@@ -526,11 +526,12 @@ enum
 	BLOOD_COLOR_GREEN,
 	BLOOD_COLOR_MECH,
 
-#if defined( HL2_EPISODIC )
+//4WH - Episodic Issues: If we don't comment out this ifdef (which used to be an if), then the code doesn't compile.
+//#ifdef HL2_EPISODIC
 	BLOOD_COLOR_ANTLION,		// FIXME: Move to Base HL2
 	BLOOD_COLOR_ZOMBIE,			// FIXME: Move to Base HL2
 	BLOOD_COLOR_ANTLION_WORKER,
-#endif // HL2_EPISODIC
+//#endif // HL2_EPISODIC
 };
 
 //-----------------------------------------------------------------------------

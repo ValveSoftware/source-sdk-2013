@@ -50,4 +50,10 @@ void RegisterUserMessages( void )
 	// NVNT register haptic user messages
 	RegisterHapticMessages();
 #endif
+
+#ifdef Seco7_USE_PLAYERCLASSES
+	usermessages->Register( "SSPlayerClassesBGCheck", -1 );
+	usermessages->Register( "ShowSSPlayerClasses", -1 );
+	usermessages->Register( "ForceHUDReload", -1 );
+	#endif //Seco7_USE_PLAYERCLASSES
 }

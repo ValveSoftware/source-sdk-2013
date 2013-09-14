@@ -199,6 +199,24 @@ void CWeaponFrag::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChar
 		m_flNextPrimaryAttack	= gpGlobals->curtime + RETHROW_DELAY;
 		m_flNextSecondaryAttack	= gpGlobals->curtime + RETHROW_DELAY;
 		m_flTimeWeaponIdle = FLT_MAX; //NOTE: This is set once the animation has finished up!
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI		
+		// Make a sound designed to scare snipers back into their holes!
+		CBaseCombatCharacter *pOwner = GetOwner();
+
+		if( pOwner )
+		{
+			Vector vecSrc = pOwner->Weapon_ShootPosition();
+			Vector	vecDir;
+
+			AngleVectors( pOwner->EyeAngles(), &vecDir );
+
+			trace_t tr;
+
+			UTIL_TraceLine( vecSrc, vecSrc + vecDir * 1024, MASK_SOLID_BRUSHONLY, pOwner, COLLISION_GROUP_NONE, &tr );
+
+			CSoundEnt::InsertSound( SOUND_DANGER_SNIPERONLY, tr.endpos, 384, 0.2, pOwner );
+		}
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	}
 }
 

@@ -30,12 +30,22 @@ public:
 
 	DECLARE_NETWORKCLASS(); 
 	DECLARE_PREDICTABLE();
-
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef CLIENT_DLL
+	int CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }
+	void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
+	void Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary );
+	void FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool bUseWeaponAngles );
+#endif
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 private:
 	CNetworkVar( bool,	m_bNeedPump );		// When emptied completely
 	CNetworkVar( bool,	m_bDelayedFire1 );	// Fire primary when finished reloading
 	CNetworkVar( bool,	m_bDelayedFire2 );	// Fire secondary when finished reloading
 	CNetworkVar( bool,	m_bDelayedReload );	// Reload when finished pump
+	#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+	CNetworkVar( bool,m_bInReload );
+	#endif
 
 public:
 	virtual const Vector& GetBulletSpread( void )
@@ -54,6 +64,9 @@ public:
 	void CheckHolsterReload( void );
 	void Pump( void );
 //	void WeaponIdle( void );
+#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
+#endif
 	void ItemHolsterFrame( void );
 	void ItemPostFrame( void );
 	void PrimaryAttack( void );
@@ -79,11 +92,17 @@ BEGIN_NETWORK_TABLE( CWeaponShotgun, DT_WeaponShotgun )
 	RecvPropBool( RECVINFO( m_bDelayedFire1 ) ),
 	RecvPropBool( RECVINFO( m_bDelayedFire2 ) ),
 	RecvPropBool( RECVINFO( m_bDelayedReload ) ),
+	#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+		RecvPropBool( RECVINFO( m_bInReload ) ),
+	#endif //Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
 #else
 	SendPropBool( SENDINFO( m_bNeedPump ) ),
 	SendPropBool( SENDINFO( m_bDelayedFire1 ) ),
 	SendPropBool( SENDINFO( m_bDelayedFire2 ) ),
 	SendPropBool( SENDINFO( m_bDelayedReload ) ),
+	#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+		SendPropBool( SENDINFO( m_bInReload ) ),
+	#endif //Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
 #endif
 END_NETWORK_TABLE()
 
@@ -93,6 +112,9 @@ BEGIN_PREDICTION_DATA( CWeaponShotgun )
 	DEFINE_PRED_FIELD( m_bDelayedFire1, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bDelayedFire2, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bDelayedReload, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+		DEFINE_PRED_FIELD( m_bInReload, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	#endif //Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
 END_PREDICTION_DATA()
 #endif
 
@@ -102,21 +124,135 @@ PRECACHE_WEAPON_REGISTER(weapon_shotgun);
 #ifndef CLIENT_DLL
 acttable_t	CWeaponShotgun::m_acttable[] = 
 {
-	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_SHOTGUN,					false },
-	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_SHOTGUN,					false },
-	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_SHOTGUN,			false },
-	{ ACT_HL2MP_WALK_CROUCH,			ACT_HL2MP_WALK_CROUCH_SHOTGUN,			false },
-	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SHOTGUN,	false },
-	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_SHOTGUN,		false },
-	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_SHOTGUN,					false },
+	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_SHOTGUN,					false },
+	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_SHOTGUN,			false },
+
+	{ ACT_MP_RUN,						ACT_HL2MP_RUN_SHOTGUN,					false },
+	{ ACT_MP_CROUCHWALK,				ACT_HL2MP_WALK_CROUCH_SHOTGUN,			false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SHOTGUN,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SHOTGUN,	false },
+
+	{ ACT_MP_RELOAD_STAND,				ACT_HL2MP_GESTURE_RELOAD_SHOTGUN,		false },
+	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_SHOTGUN,		false },
+
+	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_SHOTGUN,					false },
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_SHOTGUN,				false },
+
+	// HL2
+	{ ACT_IDLE,						ACT_IDLE_SMG1,					true },	// FIXME: hook to shotgun unique
+
+	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_SHOTGUN,			true },
+	{ ACT_RELOAD,					ACT_RELOAD_SHOTGUN,					false },
+	{ ACT_WALK,						ACT_WALK_RIFLE,						true },
+	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_SHOTGUN,				true },
+
+// Readiness activities (not aiming)
+	{ ACT_IDLE_RELAXED,				ACT_IDLE_SHOTGUN_RELAXED,		false },//never aims
+	{ ACT_IDLE_STIMULATED,			ACT_IDLE_SHOTGUN_STIMULATED,	false },
+	{ ACT_IDLE_AGITATED,			ACT_IDLE_SHOTGUN_AGITATED,		false },//always aims
+
+	{ ACT_WALK_RELAXED,				ACT_WALK_RIFLE_RELAXED,			false },//never aims
+	{ ACT_WALK_STIMULATED,			ACT_WALK_RIFLE_STIMULATED,		false },
+	{ ACT_WALK_AGITATED,			ACT_WALK_AIM_RIFLE,				false },//always aims
+
+	{ ACT_RUN_RELAXED,				ACT_RUN_RIFLE_RELAXED,			false },//never aims
+	{ ACT_RUN_STIMULATED,			ACT_RUN_RIFLE_STIMULATED,		false },
+	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_RIFLE,				false },//always aims
+
+
+
+// Readiness activities (aiming)
+	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_SMG1_RELAXED,			false },//never aims	
+	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_AIM_RIFLE_STIMULATED,	false },
+	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_SMG1,			false },//always aims
+
+
+
+	{ ACT_WALK_AIM_RELAXED,			ACT_WALK_RIFLE_RELAXED,			false },//never aims
+	{ ACT_WALK_AIM_STIMULATED,		ACT_WALK_AIM_RIFLE_STIMULATED,	false },
+	{ ACT_WALK_AIM_AGITATED,		ACT_WALK_AIM_RIFLE,				false },//always aims
+
+
+
+	{ ACT_RUN_AIM_RELAXED,			ACT_RUN_RIFLE_RELAXED,			false },//never aims
+	{ ACT_RUN_AIM_STIMULATED,		ACT_RUN_AIM_RIFLE_STIMULATED,	false },
+	{ ACT_RUN_AIM_AGITATED,			ACT_RUN_AIM_RIFLE,				false },//always aims
+//End readiness activities
+
+
+
+	{ ACT_WALK_AIM,					ACT_WALK_AIM_SHOTGUN,				true },
+	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,				true },
+	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,			true },
+	{ ACT_RUN,						ACT_RUN_RIFLE,						true },
+	{ ACT_RUN_AIM,					ACT_RUN_AIM_SHOTGUN,				true },
+	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RIFLE,				true },
+	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_RIFLE,			true },
+	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_SHOTGUN,	true },
+	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_SHOTGUN_LOW,		true },
+	{ ACT_RELOAD_LOW,				ACT_RELOAD_SHOTGUN_LOW,				false },
+	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SHOTGUN,			false },
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 };
 
 IMPLEMENT_ACTTABLE(CWeaponShotgun);
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef CLIENT_DLL
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *pOperator - 
+//-----------------------------------------------------------------------------
+void CWeaponShotgun::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool bUseWeaponAngles )
+{
+	Vector vecShootOrigin, vecShootDir;
+	CAI_BaseNPC *npc = pOperator->MyNPCPointer();
+	ASSERT( npc != NULL );
+	WeaponSound( SINGLE_NPC );
+	pOperator->DoMuzzleFlash();
+	m_iClip1 = m_iClip1 - 1;
+
+	if ( bUseWeaponAngles )
+	{
+		QAngle	angShootDir;
+		GetAttachment( LookupAttachment( "muzzle" ), vecShootOrigin, angShootDir );
+		AngleVectors( angShootDir, &vecShootDir );
+	}
+	else 
+	{
+		vecShootOrigin = pOperator->Weapon_ShootPosition();
+		vecShootDir = npc->GetActualShootTrajectory( vecShootOrigin );
+	}
+
+	pOperator->FireBullets( 8, vecShootOrigin, vecShootDir, GetBulletSpread(), MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 0 );
+}
 
 #endif
 
 
+//-----------------------------------------------------------------------------
+// Purpose:
+// Input  :
+// Output :
+//-----------------------------------------------------------------------------
+void CWeaponShotgun::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator )
+{
+	switch( pEvent->event )
+	{
+		case EVENT_WEAPON_SHOTGUN_FIRE:
+		{
+			FireNPCPrimaryAttack( pOperator, false );
+		}
+		break;
+
+		default:
+			CBaseCombatWeapon::Operator_HandleAnimEvent( pEvent, pOperator );
+			break;
+	}
+}
+#endif
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 //-----------------------------------------------------------------------------
 // Purpose: Override so only reload one shell at a time
 // Input  :
@@ -322,6 +458,13 @@ void CWeaponShotgun::PrimaryAttack( void )
 
 	// Fire the bullets, and force the first shot to be perfectly accuracy
 	pPlayer->FireBullets( info );
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef CLIENT_DLL
+	// DM: Hellow? NPCs... look here! I'm shooting!
+	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 1.0 );
+	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), SOUNDENT_VOLUME_SHOTGUN, 0.2 );
+#endif
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	
 	QAngle punch;
 	punch.Init( SharedRandomFloat( "shotgunpax", -2, -1 ), SharedRandomFloat( "shotgunpay", -2, 2 ), 0 );
@@ -375,6 +518,13 @@ void CWeaponShotgun::SecondaryAttack( void )
 	// Fire the bullets, and force the first shot to be perfectly accuracy
 	pPlayer->FireBullets( info );
 	pPlayer->ViewPunch( QAngle(SharedRandomFloat( "shotgunsax", -5, 5 ),0,0) );
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef CLIENT_DLL
+	// DM: Hellow? NPCs... look here! I'm shooting!
+	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 1.0 );
+	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), SOUNDENT_VOLUME_SHOTGUN, 0.2 );
+#endif
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if (!m_iClip1 && pPlayer->GetAmmoCount(m_iPrimaryAmmoType) <= 0)
 	{
@@ -616,6 +766,16 @@ void CWeaponShotgun::ItemHolsterFrame( void )
 //==================================================
 // Purpose: 
 //==================================================
+#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+ bool CWeaponShotgun::Holster( CBaseCombatWeapon *pSwitchingTo )
+{
+
+m_bNeedPump = false;
+m_bInReload = false;
+
+return BaseClass::Holster( pSwitchingTo );
+}
+#endif //Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
 /*
 void CWeaponShotgun::WeaponIdle( void )
 {

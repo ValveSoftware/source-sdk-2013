@@ -26,5 +26,9 @@ float PlayerPickupGetHeldObjectMass( CBaseEntity *pPickupControllerEntity, IPhys
 float PhysCannonGetHeldObjectMass( CBaseCombatWeapon *pActiveWeapon, IPhysicsObject *pHeldObject );
 
 CBaseEntity *PhysCannonGetHeldEntity( CBaseCombatWeapon *pActiveWeapon );
+#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+CBaseEntity *GetPlayerHeldEntity( CBasePlayer *pPlayer );
+bool PhysCannonAccountableForObject( CBaseCombatWeapon *pPhysCannon, CBaseEntity *pObject );
+#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
 
 #endif // WEAPON_PHYSCANNON_H

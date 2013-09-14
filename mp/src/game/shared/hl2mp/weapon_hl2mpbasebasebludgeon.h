@@ -33,7 +33,12 @@ public:
 
 	DECLARE_NETWORKCLASS(); 
 	DECLARE_PREDICTABLE();
-
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef CLIENT_DLL 
+int		CapabilitiesGet( void ) { return bits_CAP_WEAPON_MELEE_ATTACK1; } 
+#endif 
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	
 	virtual	void	Spawn( void );
 	virtual	void	Precache( void );
 	
