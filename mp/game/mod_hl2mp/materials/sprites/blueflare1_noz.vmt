@@ -1,0 +1,8 @@
+"Sprite"
+{
+	"$spriteorientation" "vp_parallel"
+	"$spriteorigin" "[ 0.50 0.50 ]"
+	"$basetexture" "sprites/blueflare1"
+	"$additive" "1"
+	"$ignorez" "1"
+}

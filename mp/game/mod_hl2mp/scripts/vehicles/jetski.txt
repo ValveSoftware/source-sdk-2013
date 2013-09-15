@@ -1,0 +1,107 @@
+// Jetski
+
+"vehicle"
+{
+	"wheelsperaxle"		"2"
+	"body"
+	{
+		"countertorquefactor"		"0.0"
+		"massCenterOverride"		"0 0 0"
+		"massoverride"			"200"		// 155 kg dry & 200 kg wet
+	}
+	"engine"
+	{
+		"horsepower"			"150"		
+		"maxrpm"			"11000"
+		"maxspeed"			"20"		// mph
+		"maxReverseSpeed"		"3"		// mph
+		"autotransmission"		"1"
+		"axleratio"			"3.4"
+		"gear"				"2.235"		// 1st gear
+		"shiftuprpm"			"7500"
+		"shiftdownrpm"			"0"
+	
+	}
+	"steering"
+	{
+		"degrees"		"60"
+		"slowcarspeed"		"0"
+		"fastcarspeed"		"20"
+		"slowsteeringrate"	"8"		
+		"faststeeringrate"	"3"
+		"steeringRestFactor"	"1"
+	}
+
+	// front axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"		"10"
+			"mass"			"100"
+			"inertia"		"0.5"
+			"damping"		"0"
+			"rotdamping"		"0.0"
+			"material"		"slidingrubbertire"
+		}
+		"suspension"
+		{
+			"springConstant"			"60"
+			"springDamping"				"4"
+			"stabilizerConstant"			"100"
+			"springDampingCompression"		"4"
+			"maxBodyForce"				"250"
+		}
+
+		"torquefactor"	"0.5"
+		"brakefactor"	"0.5"
+	}
+
+	// rear axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"		"10"
+			"mass"			"100"
+			"inertia"		"0.5"
+			"damping"		"0"
+			"rotdamping"		"0.0"
+			"material"		"slidingrubbertire"
+		}
+		"suspension"
+		{
+			"springConstant"			"60"
+			"springDamping"				"4"
+			"stabilizerConstant"			"100"
+			"springDampingCompression"		"4"
+			"maxBodyForce"				"250"
+		}
+		"torquefactor"	"0.5"
+		"brakefactor"	"0.5"
+	}
+}
+
+"vehicle_sounds"
+{
+	// List gears in order from lowest speed to highest speed
+	"gear"
+	{
+		"max_speed"		"0.5"
+		"speed_approach_factor" "0.1"
+		"engine_loop"		"Jetski_firstgear"
+	}
+	"gear"
+	{
+		"max_speed"		"1.0"
+		"speed_approach_factor" "0.1"
+		"engine_loop"		"Jetski_secondgear"
+	}
+	"engine_start"		"Jetski_engine_start"
+	"engine_stop"		"Jetski_engine_stop"
+	"engine_idle"		"Jetski_engine_idle"
+	"skid_lowfriction"	"Jetski_skid_normalfriction"
+	"skid_normalfriction"	"Jetski_skid_normalfriction"
+	"skid_highfriction"	"Jetski_skid_normalfriction"
+	//"speed_sound"		""
+}

@@ -23,21 +23,21 @@
 		"fieldName" "TargetID"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
 	TeamDisplay
 	{
 		"fieldName" "TeamDisplay"
-	    "visible" "0"
-	    "enabled" "1"
+		"visible" "0"
+		"enabled" "1"
 		"xpos"	"16"
 		"ypos"	"415"
-	    "wide" "200"
-	    "tall" "60"
-	    "text_xpos" "8"
-	    "text_ypos" "4"
+		"wide" "200"
+		"tall" "60"
+		"text_xpos" "8"
+		"text_ypos" "4"
 	}
 	
 	HudVoiceSelfStatus
@@ -56,28 +56,22 @@
 		"fieldName" "HudVoiceStatus"
 		"visible" "1"
 		"enabled" "1"
-		"xpos" "r145"
+		"xpos" "r200"
 		"ypos" "0"
-		"wide" "145"
+		"wide" "100"
 		"tall" "400"
 
-		"item_wide"	"135"
-		
-		"show_avatar"		"0"
-		
-		"show_dead_icon"	"1"
-		"dead_xpos"			"1"
-		"dead_ypos"			"0"
-		"dead_wide"			"16"
-		"dead_tall"			"16"
-		
-		"show_voice_icon"	"1"
-		"icon_ypos"			"0"
-		"icon_xpos"			"15"
-		"icon_tall"			"16"
-		"icon_wide"			"16"
-		
-		"text_xpos"			"33"
+		"item_tall"	"24"
+		"item_wide"	"100"
+
+		"item_spacing" "2"
+
+		"icon_ypos"	"0"
+		"icon_xpos"	"0"
+		"icon_tall"	"24"
+		"icon_wide"	"24"
+
+		"text_xpos"	"26"
 	}
 	
 	HudSuit
@@ -230,7 +224,7 @@
 		"fieldName" "HudCrosshair"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
@@ -239,10 +233,10 @@
 		"fieldName" "HudDeathNotice"
 		"visible" "1"
 		"enabled" "1"
-		"xpos"	 "r640"
-		"ypos"	 "12"
-		"wide"	 "628"
-		"tall"	 "468"
+		"xpos"	 "0"
+		"ypos"	 "0"
+		"wide"	 "f0"
+		"tall"	 "480"
 
 		"MaxDeathNotices" "4"
 		"LineHeight"	  "22"
@@ -265,7 +259,7 @@
 		"fieldName" "ScorePanel"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
@@ -274,7 +268,7 @@
 		"fieldName" "HudTrain"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
@@ -283,7 +277,7 @@
 		"fieldName" "HudMOTD"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
@@ -301,7 +295,7 @@
 		"fieldName" "HudMenu"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
@@ -345,7 +339,7 @@
 		"fieldName" "HudGeiger"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
@@ -354,7 +348,7 @@
 		"fieldName" "HUDQuickInfo"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
@@ -363,7 +357,7 @@
 		"fieldName" "HudWeapon"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 	HudAnimationInfo
@@ -371,7 +365,7 @@
 		"fieldName" "HudAnimationInfo"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
@@ -380,7 +374,7 @@
 		"fieldName" "HudPredictionDump"
 		"visible" "1"
 		"enabled" "1"
-		"wide"	 "640"
+		"wide"	 "f0"
 		"tall"	 "480"
 	}
 
@@ -443,7 +437,7 @@
 		"visible"	"1"
 		"xpos"	"0"
 		"ypos"	"0"
-		"wide"	"640"
+		"wide"	"f0"
 		"tall"	"480"
 		"TextColor"	"255 255 255 192"
 
@@ -454,52 +448,11 @@
 		"fieldName" 		"HudChat"
 		"visible" 		"1"
 		"enabled" 		"1"
-		"xpos"			"10"
+		"xpos"			"10"	[$WIN32]
+		"xpos"			"42"	[$X360]
 		"ypos"			"275"
 		"wide"	 		"320"
 		"tall"	 		"120"
 		"PaintBackgroundType"	"2"
-	}
-	
-	AchievementNotificationPanel	
-	{
-		"fieldName"	"AchievementNotificationPanel"
-		"visible"	"0"
-		"enabled"	"0"
-	}
-	
-	HudHintKeyDisplay
-	{
-		"fieldName"	"HudHintKeyDisplay"
-		"visible"	"0"
-		"enabled" 	"0"
-	}
-	
-	HUDAutoAim
-	{
-		"fieldName"	"HUDAutoAim"
-		"visible"	"0"
-		"enabled"	"0"
-	}	
-	
-	HudHDRDemo
-	{
-		"fieldName"	"HudHDRDemo"
-		"visible"	"0"
-		"enabled"	"0"
-	}
-	
-	HudCommentary
-	{
-		"fieldName"	"HudCommentary"
-		"visible"	"0"
-		"enabled"	"0"
-	}
-	
-	"CHudVote"
-	{
-		"fieldName"		"CHudVote"
-		"visible"		"0"
-		"enabled"		"0"
 	}
 }

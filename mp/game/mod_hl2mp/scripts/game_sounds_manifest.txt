@@ -1,0 +1,136 @@
+game_sounds_manifest
+{
+	"precache_file"		"scripts/game_sounds.txt"
+	"precache_file"		"scripts/game_sounds_ui.txt"
+	"precache_file"		"scripts/game_sounds_player.txt"
+
+	// Weapon sounds
+	"precache_file"		"scripts/game_sounds_weapons.txt"
+	"precache_file"		"scripts/game_sounds_weapons_ep2.txt"
+
+	// HL2 World, Ambient Generic, Items, Physics, Vehicles
+	"precache_file"		"scripts/game_sounds_world.txt"
+	"precache_file"		"scripts/game_sounds_ambient_generic.txt"
+	"precache_file"		"scripts/game_sounds_items.txt"
+	"precache_file"		"scripts/game_sounds_physics.txt"
+	"precache_file"		"scripts/game_sounds_vehicles.txt"
+
+	// E3 level sounds
+	"precache_file"		"scripts/level_sounds_e3_c17.txt"
+	"precache_file"		"scripts/level_sounds_e3_town.txt"
+	"precache_file"		"scripts/level_sounds_e3_bugbait.txt"
+
+	// Episodic content sounds
+	"precache_file"		"scripts/npc_sounds_alyx_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_strider_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_strider_episodic2.txt"
+	"precache_file"		"scripts/npc_sounds_turret_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_soldier_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_ministrider_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_roller_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_combine_ball_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_citizen_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_citizen_episodic2.txt"
+	"precache_file"		"scripts/npc_sounds_citizen_ep1.txt"
+	"precache_file"		"scripts/npc_sounds_zombine.txt"
+	"precache_file"		"scripts/npc_sounds_dog_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_antlion_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_antlionguard_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_antlionguard_episodic2.txt"
+	"precache_file"		"scripts/npc_sounds_advisor.txt"
+	"precache_file"		"scripts/npc_sounds_advisor_episodic2.txt"
+	"precache_file"		"scripts/npc_sounds_hunter.txt"
+	"precache_file"		"scripts/npc_sounds_antlion_grub_episodic.txt"
+	"precache_file"		"scripts/npc_sounds_attackheli_episodic2.txt"
+	"precache_file"		"scripts/npc_sounds_fastzombie_episodic2.txt"
+	"precache_file"		"scripts/game_sounds_addendum_ep2.txt"
+
+
+	"precache_file"		"scripts/level_sounds_music_episodic.txt"
+	"precache_file"		"scripts/level_sounds_music_episodic2.txt"
+	"precache_file"		"scripts/game_sounds_weapons_episodic.txt"
+	"precache_file"		"scripts/level_voices_episode_01.txt"
+	"precache_file"		"scripts/level_sounds_aftermath_episodic.txt"
+	"precache_file"		"scripts/level_sounds_outland_episodic.txt"
+	"precache_file"		"scripts/level_sounds_c17_02a.txt"
+
+	"precache_file"		"scripts/level_voices_episode_02.txt"
+	"precache_file"		"scripts/game_sounds_vehicles_ep2.txt"
+
+	// EP2 content sounds
+	"precache_file"		"scripts/game_sounds_physics_ep2.txt"
+
+	// Game level sounds
+	"precache_file"		"scripts/level_sounds_eli_lab.txt"
+	"precache_file"		"scripts/level_sounds_trainyard.txt"
+	"precache_file"		"scripts/level_sounds_k_lab.txt"
+	"precache_file"		"scripts/level_sounds_k_lab2.txt"
+	"precache_file"		"scripts/level_sounds_coast.txt"
+	"precache_file"		"scripts/level_sounds_novaprospekt.txt"
+	"precache_file"		"scripts/level_sounds_streetwar.txt"
+	"precache_file"		"scripts/level_sounds_streetwar2.txt"
+	"precache_file"		"scripts/level_sounds_breencast.txt"
+	"precache_file"		"scripts/level_sounds_citadel.txt"
+	"precache_file"		"scripts/level_sounds_canals.txt"
+	"precache_file"		"scripts/level_sounds_ravenholm.txt"
+	"precache_file"		"scripts/level_sounds_ravenholm2.txt"
+	"precache_file"		"scripts/level_sounds_canals2.txt"
+
+	//Music Tracks
+	"precache_file"		"scripts/level_sounds_music.txt"
+
+	// NPC Sounds
+	"precache_file"		"scripts/npc_sounds_eli.txt"
+	"precache_file"		"scripts/npc_sounds_alyx.txt"
+	"precache_file"		"scripts/npc_sounds_dog.txt"
+	"precache_file"		"scripts/npc_sounds_citizen.txt"
+	"precache_file"		"scripts/npc_sounds_barney.txt"
+	"precache_file"		"scripts/npc_sounds_soldier.txt"
+	"precache_file"		"scripts/npc_sounds_strider.txt"
+	"precache_file"		"scripts/npc_sounds_zombie.txt"
+	"precache_file"		"scripts/npc_sounds_vortigaunt.txt"
+	"precache_file"		"scripts/npc_sounds_turret.txt"
+	"precache_file"		"scripts/npc_sounds_scanner.txt"
+	"precache_file"		"scripts/npc_sounds_rollermine.txt"
+	"precache_file"		"scripts/npc_sounds_poisonzombie.txt"
+	"precache_file"		"scripts/npc_sounds_metropolice.txt"
+   	"precache_file"		"scripts/npc_sounds_combinecamera.txt"
+	"precache_file"		"scripts/npc_sounds_manhack.txt"
+	"precache_file"		"scripts/npc_sounds_ichthyosaur.txt"
+	"precache_file"		"scripts/npc_sounds_blackheadcrab.txt"
+	"precache_file"		"scripts/npc_sounds_fastheadcrab.txt"
+	"precache_file"		"scripts/npc_sounds_headcrab.txt"
+	"precache_file"		"scripts/npc_sounds_fastzombie.txt"
+	"precache_file"		"scripts/npc_sounds_birds.txt"
+	"precache_file"		"scripts/npc_sounds_gunship.txt"
+	"precache_file"		"scripts/npc_sounds_dropship.txt"
+	"precache_file"		"scripts/npc_sounds_barnacle.txt"
+	"precache_file"		"scripts/npc_sounds_attackheli.txt"
+	"precache_file"		"scripts/npc_sounds_antlionguard.txt"
+	"precache_file"		"scripts/npc_sounds_antlion.txt"
+	"precache_file"		"scripts/npc_sounds_env_headcrabcanister.txt"
+	"precache_file"		"scripts/npc_sounds_combine_ball.txt"
+	"precache_file"		"scripts/npc_sounds_combine_mine.txt"
+	"precache_file"		"scripts/npc_sounds_sniper.txt"
+	"precache_file"		"scripts/npc_sounds_stalker.txt"
+	"precache_file"		"scripts/npc_sounds_gman.txt"
+   	"precache_file"		"scripts/npc_sounds_combine_cannon.txt"
+	"precache_file"		"scripts/npc_sounds_alyx_episodic2.txt"
+	"precache_file"		"scripts/npc_sounds_turret_episodic2.txt"
+	
+	//Portal content Sounds
+	"precache_file"		"scripts/game_sounds_portal.txt"
+	"precache_file"		"scripts/game_sounds_player_portal.txt"
+	"precache_file"		"scripts/game_sounds_weapons_episodic.txt"
+	"precache_file"		"scripts/game_sounds_weapons_portal.txt"
+	"precache_file"		"scripts/level_sounds_music_portal.txt"
+	"precache_file"		"scripts/level_sounds_escape.txt"
+	"precache_file"		"scripts/npc_sounds_aperture_ai.txt"
+	"precache_file"		"scripts/npc_sounds_energy_ball.txt"
+	"precache_file"		"scripts/npc_sounds_turret_portal.txt"
+	"precache_file"		"scripts/npc_sounds_rocket_turret.txt"
+	"precache_file"		"scripts/npc_sounds_glados_cores.txt"
+	
+	//Seco7 content Sounds
+	"precache_file"		"scripts/game_sounds_seco7.txt"
+}

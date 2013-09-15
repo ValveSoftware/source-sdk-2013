@@ -1,0 +1,43 @@
+//Adrian: This file contains the credits info for both the Intro and outro.
+"credits.txt"
+{
+
+"CreditsParams"
+{
+	"fadeintime"	"2.5"
+	"fadeouttime"	"1"
+	"fadeholdtime"	"1.0"
+	"nextfadetime"	"1.0"
+	"pausebetweenwaves" "1.0"
+	"logotime" "1.0"
+	"posx"	"96"
+	"posy"	"360"
+
+	"color" "255 255 255 128"
+
+//Outro Parameters
+	"scrolltime" "158"
+	"separation"  "10"
+}
+
+//========================================================
+//These are the names used in the outro (breen_01)
+//========================================================
+"OutroCreditsNames"
+{
+	" "	"CreditsOutroLogos"
+	" "	"CreditsOutroText"
+	" "	"CreditsOutroLogos"
+	" "	"CreditsOutroText"
+	"Seco-v7"	"CreditsOutroText"
+	" "	"CreditsOutroText"
+	"Created by..."	"CreditsOutroText"
+	" "	"CreditsOutroText"
+	"4-Wheeled Husky Games"   "CreditsOutroText"
+	" "	"CreditsOutroText"
+	" "	"CreditsOutroLogos"
+}
+
+
+
+}

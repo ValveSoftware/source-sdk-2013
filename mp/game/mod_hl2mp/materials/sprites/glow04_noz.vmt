@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	"$basetexture" "sprites/glow04"
+//	"$ignorez" 1
+	"$additive" 1
+	"$vertexcolor" 1
+	"$vertexalpha" 1
+}

@@ -1,0 +1,82 @@
+versioninfo
+{
+	"editorversion" "400"
+	"editorbuild" "4715"
+	"mapversion" "7120"
+	"formatversion" "100"
+	"prefab" "1"
+}
+world
+{
+	"id" "1072641"
+	"mapversion" "7120"
+	"classname" "worldspawn"
+	"skyname" "sky_day01_01"
+	"maxpropscreenwidth" "-1"
+	"detailvbsp" "detail.vbsp"
+	"detailmaterial" "detail/detailsprites"
+}
+entity
+{
+	"id" "1072642"
+	"classname" "prop_vehicle_jalopy"
+	"actionScale" "1"
+	"angles" "0 78 0"
+	"disableselfshadowing" "0"
+	"disableshadows" "0"
+	"disablevertexlighting" "0"
+	"fademaxdist" "0"
+	"fademindist" "-1"
+	"fadescale" "1"
+	"ignorenormals" "0"
+	"maxdxlevel" "0"
+	"mindxlevel" "0"
+	"model" "models/vehicle.mdl"
+	"origin" "5939.37 -12347.7 225"
+	"screenspacefade" "0"
+	"skin" "0"
+	"solid" "6"
+	"targetname" "jeepJalopy"
+	"VehicleLocked" "0"
+	"vehiclescript" "scripts/vehicles/jalopy.txt"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"comments" "The parent vehicle. You will find that all the vehicles we decided should be using the passenger seat have prefabs created for your usage in the OrangeBox Co-Operative compiled folder. Also one other bug with having a passenger seat enabled is that when not carrying a passenger and you have a tau cannon enabled, the field of shooting is highly restricted on the right hand of your screen. But if you have a passenger seat you should be carrying a passenger."
+		"logicalpos" "[0 500]"
+	}
+}
+entity
+{
+	"id" "1072645"
+	"classname" "prop_vehicle_passengerseat"
+	"actionScale" "1"
+	"angles" "0 78 0"
+	"disableselfshadowing" "0"
+	"disableshadows" "0"
+	"disablevertexlighting" "0"
+	"fademaxdist" "0"
+	"fademindist" "-1"
+	"fadescale" "1"
+	"ignorenormals" "0"
+	"maxdxlevel" "0"
+	"mindxlevel" "0"
+	"model" "models/ss_passenger_cube.mdl"
+	"origin" "5959.13 -12330 281"
+	"parentname" "jeepJalopy"
+	"screenspacefade" "0"
+	"skin" "0"
+	"solid" "0"
+	"VehicleLocked" "0"
+	"vehiclescript" "scripts/vehicles/prisoner_pod.txt"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"comments" "A good old method used for donkeys years by HL2 users. Attach a non-drivable vehicle such as a prisoner pod to a jeep through parenting to provide a basic method of taking more than one occupant in a vehicle. We have extended this by creating our own passenger seat, with custom model which is invisible in game. Also we give the passenger the same field of view as the driver can in the parent vehicle. Finally we allow the passenger to use their own weapons while in transit. There are bugs that crop up, one is that occasionally on entering a vehicle you will have a black, pink or sometimes yellow viewport, a second bug is that your view may be angled incorrectly. In each case exit the vehicle and try entering again, the bug may happen again but usually it is fixed on your third or fourth attempt. The final bug involves a driver stopping too close to a wall, the passenger exits the vehicle and finds themselves either embedded in the world or has been moved out of it."
+		"logicalpos" "[0 0]"
+	}
+}

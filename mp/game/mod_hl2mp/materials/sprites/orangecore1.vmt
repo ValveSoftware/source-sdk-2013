@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	"$additive" 1
+	"$vertexalpha" 1
+	"$vertexcolor" 1
+	"$basetexture" "sprites/orangecore1"
+//	"$ignorez" 1
+}

@@ -1,0 +1,19 @@
+"UnlitTwoTexture"
+{
+	"$basetexture" "models/effects/portalfunnel_sheet"
+	"$texture2" "models/effects/portalfunnel2_sheet"
+ 	"$model" 1
+//	"$nocull" "1"
+	"$additive" "1"
+	"Proxies"
+	{
+
+		"TextureScroll"
+		{
+			"texturescrollvar" "$texture2transform"
+			"texturescrollrate" .2
+			"texturescrollangle" 60
+		}
+	}
+
+}

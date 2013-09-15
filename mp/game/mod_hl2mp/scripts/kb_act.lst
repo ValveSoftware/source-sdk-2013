@@ -52,8 +52,6 @@
 "impulse 201"			"#Valve_Spray_Logo"
 "pause"					"#Valve_Pause_Game"
 "quit"					"#Valve_Quit_Game"
-"timeleft"				"Time Left in Round"
-"askconnect_accept"	"#Valve_Accept_Redirect"
 "blank"			"=========================="
 "blank"			"#Valve_Miscellaneous_Keyboard_Keys_Title"
 "blank"			"=========================="

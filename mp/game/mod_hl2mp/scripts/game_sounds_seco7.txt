@@ -1,0 +1,21 @@
+// HL2 Weapons
+
+// *******
+// NightVision
+
+"NightVision.On"
+{
+	"channel"	"CHAN_AUTO"
+	"volume"		"0.95"
+	"pitch"		"PITCH_NORM"
+	"soundlevel"	"SNDLVL_NORM"
+	"wave"	"nvg_on.wav"
+}
+
+"NightVision.Off"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.95"
+	"soundlevel"  	"SNDLVL_70dB"
+	"wave"	"nvg_off.wav"
+}

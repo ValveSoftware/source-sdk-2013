@@ -1,0 +1,39 @@
+"Refract"
+{
+	"Refract_dx60"
+	{
+		"$fallbackmaterial"	"models/effects/portalrift_sheet_dx60"
+	}
+
+	"$model" 1
+	"$basetexture" "_rt_Camera"
+	"$refractamount" "0.26"
+	"$bluramount" "1"
+	"$scale" "[1 1]"
+	"$dudvmap" "models/effects/portal_camera_dudv"
+	"$normalmap" "models/effects/portalrift_normal"
+	"$bumpframe" 0
+	"$translucent" 1
+	"$refracttinttexture" "models/effects/portalrift"
+
+	"Proxies"
+	{
+		"AnimatedTexture"
+		{
+			"animatedtexturevar" "$normalmap"
+			"animatedtextureframenumvar" "$bumpframe"
+			"animatedtextureframerate" 22
+		}
+		"AnimatedTexture"
+		{
+			"animatedtexturevar" "$refracttinttexture"
+			"animatedtextureframenumvar" "$refracttinttextureframe"
+			"animatedtextureframerate" 22
+		}
+
+
+	}
+
+
+}
+

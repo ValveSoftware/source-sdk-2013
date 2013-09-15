@@ -1,0 +1,70 @@
+// HL2DM DEDICATED SERVER CONFIGURATION SPECIFICATION FOR GUI
+"GameServerConfig"
+{
+	"mp_timelimit"
+	{
+		"name"	"Time Limit (Min.)"
+		"type"	"string"
+	}
+
+	"mp_fraglimit"
+	{
+		"name"	"Frag Limit"
+		"type"	"string"
+	}
+
+	"mp_teamplay"
+	{
+		"name" "Teamplay"
+		"type" "enumeration"
+		"list"
+		{
+			"0" "Disabled"
+			"1" "Enabled"
+		}
+	}
+
+	"mp_weaponstay"
+	{
+		"name" "Weapons Stay"
+		"type" "enumeration"
+		"list"
+		{
+			"0" "Disabled"
+			"1" "Enabled"
+		}
+	}
+
+	"mp_footsteps"
+	{
+		"name" "Footsteps"
+		"type" "enumeration"
+		"list"
+		{
+			"0" "Disabled"
+			"1" "Enabled"
+		}
+	}
+
+	"mp_flashlight"
+	{
+		"name" "Flashlight"
+		"type" "enumeration"
+		"list"
+		{
+			"0" "Disabled"
+			"1" "Enabled"
+		}
+	}
+
+	"mp_forcerespawn"
+	{
+		"name" "Force Respawn"
+		"type" "enumeration"
+		"list"
+		{
+			"0" "Disabled"
+			"1" "Enabled"
+		}
+	}
+}

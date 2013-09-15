@@ -1,0 +1,5 @@
+"Refract"
+{
+	$refracttint "[0 .95 0]" //Was.85 //Was .7
+	$normalmap ""
+}

@@ -1,12 +1,12 @@
 "GameInfo"
 {
-	game	"My First HL2MP Mod"
-	title	"HALF+LIFE'"
-	title2	"deathmatch mod"
+	game	"Seco-2013"
+	title	""
+	title2	""
 	type multiplayer_only
 	nomodels 0
-	nohimodel 1
-	nocrosshair 1
+	nohimodel 0
+	nocrosshair 0
 	hidden_maps
 	{
 		"test_speakers"		1

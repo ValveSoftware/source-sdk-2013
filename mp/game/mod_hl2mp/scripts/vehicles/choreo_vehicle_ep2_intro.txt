@@ -1,0 +1,127 @@
+"vehicle"
+{
+	"wheelsperaxle"	"2"
+	"body"
+	{
+		"countertorquefactor"	"0"
+		"massCenterOverride"	"0 0 0"
+		"massoverride"		"800"		// kg
+	}
+	"engine"
+	{
+		"horsepower"		"350"
+		"maxrpm"		"3000"
+		"maxspeed"		"35"		// mph
+		"autotransmission"	"1"
+		"axleratio"		"4.56"
+		"gear"			"1.86"		// 1st gear
+		"gear"			"1.59"		// 2nd gear
+		"gear"			"1.17"		// 3rd gear
+		"gear"			"1.0"		// 4th gear
+		"gear"			"0.84"		// 5th gear
+		"shiftuprpm"		"1500"
+		"shiftdownrpm"		"300"
+	
+		"boost"
+		{
+			"force"		"2.5"	// 2.5 car body mass * gravity * inches / second ^ 2
+			"duration"	"1.0"	// 1 second of boost
+			"delay"		"15"	// 15 seconds before you can use it again
+    	}
+	}
+	"steering"
+	{
+		"degrees"		"26"
+		"fastdampen"		"0.35"
+		"slowcarspeed"		"0"
+		"fastcarspeed"		"40"
+		"slowsteeringrate"	"4"		
+		"faststeeringrate"	"2"
+		"steeringRestFactor"	"1.5"
+		"turnbrake"		"0.25"
+
+		"skidallowed"		"1"
+		"dustcloud"		"1"
+	}
+
+	// front axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"	"18"
+			"mass"		"100"
+			"inertia"	"0.5"		// steady the car (fixes the oscillation of the axles about z)
+			"damping"	"0"
+			"rotdamping"	"0.0"
+			"material"	"rubbertire"
+			"skidmaterial"	"slidingrubbertire_front"
+		}
+		"suspension"
+		{
+			"springConstant"		"80"
+			"springDamping"			"4"
+			"stabilizerConstant"		"110"
+			"springDampingCompression"	"4"
+			"maxBodyForce"			"250"
+		}
+
+		"torquefactor"	"0.8"
+		"brakefactor"	"0.5"
+	}
+
+	// rear axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"	"20"
+			"mass"		"100"
+			"inertia"	"0.5"		// steady the car (fixes the oscillation of the axles about z)
+			"damping"	"0"
+			"rotdamping"	"0.0"
+			"material"	"rubbertire"
+			"skidmaterial"	"slidingrubbertire_rear"
+		}
+		"suspension"
+		{
+			"springConstant"		"80"
+			"springDamping"			"4"
+			"stabilizerConstant"		"110"
+			"springDampingCompression"	"4"
+			"maxBodyForce"			"250"
+		}
+		"torquefactor"	"0.2"
+		"brakefactor"	"0.5"
+	}
+}
+
+"vehicle_sounds"
+{
+	// List gears in order from lowest speed to highest speed
+	"gear"
+	{
+		"max_speed"				"1.0"
+		"speed_approach_factor" "1.0"
+		"engine_loop"			"PrisonerPod.NoSound"
+		"foot_off"				"PrisonerPod.NoSound"
+		"foot_off_slow"			"PrisonerPod.NoSound"
+	}
+	
+	"engine_start"		"PrisonerPod.NoSound"
+	"engine_stop"		"PrisonerPod.NoSound"
+	"engine_idle"		"PrisonerPod.NoSound"
+	"engine2_start"		"PrisonerPod.NoSound"
+	"engine2_stop"		"PrisonerPod.NoSound"
+}
+
+"vehicle_view"
+{
+	"clamp" "1"
+	"yawmin"	"-25"
+	"yawmax"	"57`"
+	"pitchmin"	"-20"
+	"pitchmax"	"20"
+	"fov"		"70"
+}
+
