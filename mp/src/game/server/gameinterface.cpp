@@ -556,6 +556,10 @@ void DrawAllDebugOverlays( void )
 	// A hack to draw point_message entities w/o developer required
 	DrawMessageEntities();
 }
+#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+	// Obsidian: Convar to hold whether we're dedicated or not so the client can access
+ConVar sv_dedicated( "sv_dedicated", "0", FCVAR_REPLICATED, "Is this a dedicated server?" );
+#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
 
 CServerGameDLL g_ServerGameDLL;
 // INTERFACEVERSION_SERVERGAMEDLL_VERSION_8 is compatible with the latest since we're only adding things to the end, so expose that as well.
@@ -636,6 +640,48 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	// Yes, both the client and game .dlls will try to Connect, the soundemittersystem.dll will handle this gracefully
 	if ( !soundemitterbase->Connect( appSystemFactory ) )
 		return false;
+		
+#ifdef Seco7_USE_STATIC_MOUNT_CODE
+//4WH - Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
+// game that you choose to mount here, they could well crash to desktop. The file is in the root of the compiled modification folder. This is how we allow people who have just loaded the game to use map and changelevel commands
+// to any official valve map.
+  KeyValues *pkvMount = new KeyValues( "InstalledSourceGames" );
+   if ( pkvMount->LoadFromFile( filesystem, "InstalledSourceGames.txt" ) )
+   {
+      while ( pkvMount )
+      {
+         const char *pszMountName = pkvMount->GetName();
+         KeyValues *pkvSearchPath = pkvMount->FindKey( "searchpath" );
+         KeyValues *pkvAppID = pkvMount->FindKey( "appid" );
+
+         if ( pszMountName && pkvSearchPath && pkvAppID )
+         {
+            const char *pszMountPath = pkvSearchPath->GetString();
+            int nMountID = pkvAppID->GetInt();
+			
+			//4WH - Information: If InstalledSourceGames.txt attempts to mount Portal, but Portal is disabled in the code - skip trying to mount Portal.
+			#ifndef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+			if (nMountID == -400)
+			{
+			Msg ("MOUNT FAILURE - PORTAL CONTENT NOT ENABLED BY DEVELOPMENT TEAM! \n");
+			break;
+			}
+			#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+
+            filesystem->AddSearchPath(pszMountPath, "GAME");
+            filesystem->MountSteamContent(nMountID);
+
+            Msg( "Mounted additional content: %s\n", pszMountName );
+         }
+
+         pkvMount = pkvMount->GetNextKey();
+      }
+      Msg( "\n" );
+   }
+ //4WH - Information: Enabling the following two lines gives invaluable information on how the mount lines should look if you need to edit the per-map gcf mount code.
+ //Msg ("These are the default search paths");
+ //filesystem->PrintSearchPaths();
+#endif //Seco7_USE_STATIC_MOUNT_CODE
 
 	// cache the globals
 	gpGlobals = pGlobals;
@@ -741,6 +787,13 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	// init the gamestatsupload connection
 	gamestatsuploader->InitConnection();
 #endif
+
+#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+		// Obsidian: Set the sv_dedicated convar early here
+	// since it can't change during runtime anyway.
+	if ( engine->IsDedicatedServer() )
+		sv_dedicated.SetValue( 1 );
+#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
 
 	return true;
 }
@@ -961,6 +1014,15 @@ bool CServerGameDLL::IsRestoring()
 	return g_InRestore;
 }
 
+#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+// Obsidian:
+ConVar sv_serveractive( "sv_serveractive", "0", FCVAR_REPLICATED, "Is the server currently running?" );
+ConVar sv_hl2_mount( "sv_hl2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: HL2." );
+ConVar sv_ep1_mount( "sv_ep1_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 1." );
+ConVar sv_ep2_mount( "sv_ep2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 2." );
+ConVar sv_failsafe_mount( "sv_failsafe_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Fail_Safe - Something has gone wrong!" );
+#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+
 // Called any time a new level is started (after GameInit() also on level transitions within a game)
 bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background )
 {
@@ -976,6 +1038,276 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 
 	ResetWindspeed();
 	UpdateChapterRestrictions( pMapName );
+	
+#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE	
+//4WH - Information: This is the new dynamic GCF mounting code. Basically each map can be set to be either HL2, Ep1, Ep2 or (if you're feeling daring for your mod) Portal content enabled. If you enable Ep2, you lose some functionality that HL2 has, and vice-versa.
+// as you can see. Mounting depends on a specific naming scheme for custom maps. These are seco7_hl2_<map name>, seco7_ep1_<mapname> and finally seco7_ep2_<mapname>
+//REMEMBER ! ! ! ! To change seco7_ to whatever prefix your mod uses or you WILL crash ! ! !
+//ALSO !!!!!!!!!!! Remember to change the mod folder search paths from seco7 to the name of your Mod folder. Otherwise you will have LOADS of problems on dynamically mounted maps!
+	if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "seco7_bg", 5 ))
+	{
+	//4WH - Information: Background maps use the static search paths for mounts. This is restrictive as to what's allowable in such maps but it's essential this not be changed due to main menu bugs.
+	}
+	else if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d1_", 3 )
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d2_", 3 )
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d3_", 3 )
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "dm_", 3 )
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "testchmb", 8 ) //Allow portal maps to load as HL2.
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "escape", 6 ) //Allow portal maps to load as HL2.
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "seco7_hl2_", 7 ) ) //Mounts required for HalfLife 2/Deathmatch content.
+	{
+		Msg("HALFLIFE 2 CONTENT IS BEING MOUNTED! \n");		
+		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
+		//4WH - Information: Dedicated servers require different search paths to work.
+		if (sv_dedicated.GetBool())
+		{
+		filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../orangebox", "PLATFORM");
+		filesystem->AddSearchPath("seco-7", "MOD");
+		filesystem->AddSearchPath("seco7/bin", "GAMEBIN");
+		filesystem->AddSearchPath("seco-7", "GAME");
+		filesystem->AddSearchPath("hl2", "GAMEBIN");
+		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-220);  //Half-Life 2
+		filesystem->AddSearchPath("seco-7", "DEFAULT_WRITE_PATH");
+		filesystem->AddSearchPath("seco-7", "LOGDIR");
+		filesystem->AddSearchPath("hl2mp", "GAME");
+		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
+		filesystem->AddSearchPath("episodic", "GAME");
+		filesystem->AddSearchPath("ep2", "GAME");	
+		
+		#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		filesystem->AddSearchPath("portal", "GAME");
+		filesystem->MountSteamContent(-400);  //Portal*/
+		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
+		#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		
+		sv_hl2_mount.SetValue(1);
+		sv_ep1_mount.SetValue(0);
+		sv_ep2_mount.SetValue(0);
+		sv_failsafe_mount.SetValue(0);
+		}
+		else
+		{
+		filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("orangebox", "PLATFORM");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "MOD");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7/bin", "GAMEBIN");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "GAME");
+		filesystem->AddSearchPath("hl2", "GAMEBIN");
+		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-220);  //Half-Life 2
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "DEFAULT_WRITE_PATH");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "LOGDIR");
+		filesystem->AddSearchPath("hl2mp", "GAME");
+		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
+		filesystem->AddSearchPath("episodic", "GAME");
+		filesystem->AddSearchPath("ep2", "GAME");	
+		
+		#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		filesystem->AddSearchPath("portal", "GAME");
+		filesystem->MountSteamContent(-400);  //Portal*/
+		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
+		#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		
+		sv_hl2_mount.SetValue(1);
+		sv_ep1_mount.SetValue(0);
+		sv_ep2_mount.SetValue(0);
+		sv_failsafe_mount.SetValue(0);
+		}
+	}
+	else if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep1_", 4 )
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "seco7_ep1_", 7 )	) //Mounts required for Episode 1 content.
+	{
+		Msg("EPISODE 1 CONTENT IS BEING MOUNTED! \n");
+		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
+		//4WH - Information: Dedicated servers require different search paths to work.
+		if (sv_dedicated.GetBool())
+		{
+		filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../orangebox", "PLATFORM");
+		filesystem->AddSearchPath("seco-7", "MOD");
+		filesystem->AddSearchPath("seco7/bin", "GAMEBIN");
+		filesystem->AddSearchPath("seco-7", "GAME");
+		filesystem->AddSearchPath("episodic", "GAMEBIN");
+		filesystem->AddSearchPath("episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
+		filesystem->AddSearchPath("hl2", "GAMEBIN");
+		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-220);  //Half-Life 2
+		filesystem->AddSearchPath("seco-7", "DEFAULT_WRITE_PATH");
+		filesystem->AddSearchPath("seco-7", "LOGDIR");
+		filesystem->AddSearchPath("hl2mp", "GAME");
+		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
+		filesystem->AddSearchPath("ep2", "GAME");	
+		
+		#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		filesystem->AddSearchPath("portal", "GAME");
+		filesystem->MountSteamContent(-400);  //Portal*/
+		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
+		#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		
+		sv_hl2_mount.SetValue(0);
+		sv_ep1_mount.SetValue(1);
+		sv_ep2_mount.SetValue(0);
+		sv_failsafe_mount.SetValue(0);
+		}
+		else
+		{
+		filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("orangebox", "PLATFORM");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "MOD");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7/bin", "GAMEBIN");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "GAME");
+		filesystem->AddSearchPath("episodic", "GAMEBIN");
+		filesystem->AddSearchPath("episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
+		filesystem->AddSearchPath("hl2", "GAMEBIN");
+		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-220);  //Half-Life 2
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "DEFAULT_WRITE_PATH");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "LOGDIR");
+		filesystem->AddSearchPath("hl2mp", "GAME");
+		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
+		filesystem->AddSearchPath("ep2", "GAME");
+		
+		#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		filesystem->AddSearchPath("portal", "GAME");
+		filesystem->MountSteamContent(-400);  //Portal*/
+		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
+		#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		
+		sv_hl2_mount.SetValue(0);
+		sv_ep1_mount.SetValue(1);
+		sv_ep2_mount.SetValue(0);
+		sv_failsafe_mount.SetValue(0);
+		}
+	}
+	else if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep2_", 4 )
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "seco7_ep2_", 7 )) //Mounts required for Episode 2 content.
+	{
+		Msg("EPISODE 2 CONTENT IS BEING MOUNTED! \n");
+		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
+		//4WH - Information: Dedicated servers require different search paths to work.
+		if (sv_dedicated.GetBool())
+		{
+		filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../orangebox", "PLATFORM");
+		filesystem->AddSearchPath("seco-7", "MOD");
+		filesystem->AddSearchPath("seco7/bin", "GAMEBIN");
+		filesystem->AddSearchPath("seco-7", "GAME");
+		filesystem->AddSearchPath("ep2", "GAMEBIN");
+		filesystem->AddSearchPath("ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-420);  //Half-Life 2-Episode 2
+		filesystem->AddSearchPath("hl2", "GAMEBIN");
+		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-220);  //Half-Life 2
+		filesystem->AddSearchPath("seco-7", "DEFAULT_WRITE_PATH");
+		filesystem->AddSearchPath("seco-7", "LOGDIR");
+		filesystem->AddSearchPath("hl2mp", "GAME");
+		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
+		filesystem->AddSearchPath("episodic", "GAME");
+		filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
+		
+		#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		filesystem->AddSearchPath("portal", "GAME");
+		filesystem->MountSteamContent(-400);  //Portal*/
+		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
+		#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		
+		sv_hl2_mount.SetValue(0);
+		sv_ep1_mount.SetValue(0);
+		sv_ep2_mount.SetValue(1);
+		sv_failsafe_mount.SetValue(0);
+		}
+		else
+		{
+		filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("orangebox", "PLATFORM");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "MOD");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7/bin", "GAMEBIN");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "GAME");
+		filesystem->AddSearchPath("ep2", "GAMEBIN");
+		filesystem->AddSearchPath("ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-420);  //Half-Life 2-Episode 2
+		filesystem->AddSearchPath("hl2", "GAMEBIN");
+		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->MountSteamContent(-220);  //Half-Life 2
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "DEFAULT_WRITE_PATH");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "LOGDIR");
+		filesystem->AddSearchPath("hl2mp", "GAME");
+		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
+		filesystem->AddSearchPath("episodic", "GAME");
+		filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
+		
+		#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		filesystem->AddSearchPath("portal", "GAME");
+		filesystem->MountSteamContent(-400);  //Portal*/
+		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
+		#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		
+		sv_hl2_mount.SetValue(0);
+		sv_ep1_mount.SetValue(0);
+		sv_ep2_mount.SetValue(1);
+		sv_failsafe_mount.SetValue(0);
+		}
+	}
+	else 
+	{
+		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
+		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
+		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
+		if (sv_dedicated.GetBool())
+		{
+		filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../orangebox", "PLATFORM");
+		filesystem->AddSearchPath("seco-7", "MOD");
+		filesystem->AddSearchPath("seco7/bin", "GAMEBIN");
+		filesystem->AddSearchPath("seco-7", "GAME");
+		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
+		filesystem->AddSearchPath("hl2mp", "GAME");
+		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch		
+		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
+		filesystem->AddSearchPath("seco-7", "DEFAULT_WRITE_PATH");
+		filesystem->AddSearchPath("seco-7", "LOGDIR");
+		sv_hl2_mount.SetValue(0);
+		sv_ep1_mount.SetValue(0);
+		sv_ep2_mount.SetValue(0);
+		sv_failsafe_mount.SetValue(1);
+		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
+		}
+		else
+		{
+		filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("orangebox", "PLATFORM");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "MOD");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7/bin", "GAMEBIN");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "GAME");
+		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
+		filesystem->AddSearchPath("hl2mp", "GAME");
+		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch		
+		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "DEFAULT_WRITE_PATH");
+		filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "LOGDIR");
+		sv_hl2_mount.SetValue(0);
+		sv_ep1_mount.SetValue(0);
+		sv_ep2_mount.SetValue(0);
+		sv_failsafe_mount.SetValue(1);
+		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
+		}
+	}	
+#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+
+#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+	// Obsidian:
+	     	// Tell the client it's no longer ok to flush the mdlcache
+	sv_serveractive.SetValue( 1 );
+	
+	
+		// Always flush mdlcache
+		Msg("SERVER IS FLUSHING CACHE !");
+		mdlcache->Flush();
+	#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
 
 	if ( IsX360() && !background && (gpGlobals->maxClients == 1) && (g_nCurrentChapterIndex >= 0) )
 	{
