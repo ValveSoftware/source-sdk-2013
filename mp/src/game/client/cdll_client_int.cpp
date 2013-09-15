@@ -1648,14 +1648,14 @@ if (sv_hl2_mount.GetBool())
 filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
 filesystem->AddSearchPath("orangebox", "PLATFORM");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "MOD");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7/bin", "GAMEBIN");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "GAME");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 filesystem->AddSearchPath("hl2", "GAMEBIN");
 filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 filesystem->MountSteamContent(-220);  //Half-Life 2
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "DEFAULT_WRITE_PATH");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "LOGDIR");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 filesystem->AddSearchPath("hl2mp", "GAME");
 filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
 filesystem->AddSearchPath("episodic", "GAME");
@@ -1672,17 +1672,17 @@ if (sv_ep1_mount.GetBool())
 filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
 filesystem->AddSearchPath("orangebox", "PLATFORM");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "MOD");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7/bin", "GAMEBIN");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "GAME");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 filesystem->AddSearchPath("episodic", "GAMEBIN");
 filesystem->AddSearchPath("episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
 filesystem->AddSearchPath("hl2", "GAMEBIN");
 filesystem->AddSearchPath("hl2", "GAME");
 filesystem->MountSteamContent(-220);  //Half-Life 2
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "DEFAULT_WRITE_PATH");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "LOGDIR");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 filesystem->AddSearchPath("hl2mp", "GAME");
 filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
 filesystem->AddSearchPath("ep2", "GAME");	
@@ -1698,17 +1698,17 @@ if (sv_ep2_mount.GetBool())
 filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
 filesystem->AddSearchPath("orangebox", "PLATFORM");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "MOD");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7/bin", "GAMEBIN");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "GAME");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 filesystem->AddSearchPath("ep2", "GAMEBIN");
 filesystem->AddSearchPath("ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 filesystem->MountSteamContent(-420);  //Half-Life 2-Episode 2
 filesystem->AddSearchPath("hl2", "GAMEBIN");
 filesystem->AddSearchPath("hl2", "GAME");
 filesystem->MountSteamContent(-220);  //Half-Life 2
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "DEFAULT_WRITE_PATH");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "LOGDIR");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 filesystem->AddSearchPath("hl2mp", "GAME");
 filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
 filesystem->AddSearchPath("episodic", "GAME");
@@ -1728,9 +1728,9 @@ filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
 Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->AddSearchPath("orangebox", "PLATFORM");
 Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "MOD");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7/bin", "GAMEBIN");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "GAME");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->AddSearchPath("hl2mp", "GAMEBIN");
 Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
@@ -1738,8 +1738,8 @@ filesystem->AddSearchPath("hl2mp", "GAME");
 Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
 Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "DEFAULT_WRITE_PATH");
-filesystem->AddSearchPath("../../../steamapps/SourceMods/seco-7", "LOGDIR");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
+filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 }
 #endif //Seco7_USE_DYNAMIC_MOUNT_CODE
