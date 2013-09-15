@@ -902,6 +902,27 @@ void CHL2MP_Player::NoteWeaponFired( void )
 }
 
 extern ConVar sv_maxunlag;
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBaseEntity *pEntity, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const 
+{
+	// No need to lag compensate at all if we're not attacking in this command and
+	// we haven't attacked recently.
+	if ( !( pCmd->buttons & IN_ATTACK ) && (pCmd->command_number - m_iLastWeaponFireUsercmd > 5) )
+		return false;
+
+	return BaseClass::WantsLagCompensationOnEntity( pEntity, pCmd, pEntityTransmitBits ); 
+#else
+bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const
+{
+	// No need to lag compensate at all if we're not attacking in this command and
+	// we haven't attacked recently.
+	if ( !( pCmd->buttons & IN_ATTACK ) && (pCmd->command_number - m_iLastWeaponFireUsercmd > 5) )
+		return false;
+
+	return BaseClass::WantsLagCompensationOnEntity( pPlayer, pCmd, pEntityTransmitBits );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
+}
 
 Activity CHL2MP_Player::TranslateTeamActivity( Activity ActToTranslate )
 {

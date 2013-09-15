@@ -230,6 +230,16 @@ void CWeaponShotgun::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool
 
 #endif
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeaponShotgun::Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary )
+{
+	// Ensure we have enough rounds in the clip
+	m_iClip1++;
+
+	FireNPCPrimaryAttack( pOperator, true );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose:

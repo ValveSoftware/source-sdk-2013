@@ -3058,6 +3058,12 @@ float CBasePlayer::GetHeldObjectMass( IPhysicsObject *pHeldObject )
 	return 0;
 }
 
+#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+CBaseEntity	*CBasePlayer::GetHeldObject( void )
+{
+	return NULL;
+}
+#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
 
 //-----------------------------------------------------------------------------
 // Purpose:	Server side of jumping rules.  Most jumping logic is already
