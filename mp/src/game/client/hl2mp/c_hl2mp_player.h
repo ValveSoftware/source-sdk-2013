@@ -65,6 +65,10 @@ public:
 	virtual void CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, float &zFar, float &fov );
 	virtual const QAngle& EyeAngles( void );
 
+	#ifdef Seco7_USE_PLAYERCLASSES
+	CNetworkVar(int, m_iClientClass);
+	#endif //Seco7_USE_PLAYERCLASSES
+
 	
 	bool	CanSprint( void );
 	void	StartSprinting( void );

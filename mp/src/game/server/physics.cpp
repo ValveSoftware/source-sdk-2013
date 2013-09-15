@@ -32,7 +32,7 @@
 #include "tier0/vprof.h"
 #include "engine/IStaticPropMgr.h"
 #include "physics_prop_ragdoll.h"
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 #include "particle_parse.h"
 #endif
 #include "vphysics/object_hash.h"

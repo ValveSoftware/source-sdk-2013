@@ -465,7 +465,7 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 				//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 				CBaseEntity *pEntity = NULL;
 				Vector pEntityOrigin;
-				pEntity = gEntList.FindEntityByClassnameNearest( "info_player_assaulter", pEntityOrigin, 0, NULL);
+				pEntity = gEntList.FindEntityByClassnameNearest( "info_player_assaulter", pEntityOrigin, 0);
 					if (pEntity != NULL)
 					{
 					pEntityOrigin = pEntity->GetAbsOrigin();
@@ -582,7 +582,7 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 				//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 				CBaseEntity *pEntity = NULL;
 				Vector pEntityOrigin;
-				pEntity = gEntList.FindEntityByClassnameNearest( "info_player_supporter", pEntityOrigin, 0, NULL);
+				pEntity = gEntList.FindEntityByClassnameNearest( "info_player_supporter", pEntityOrigin, 0);
 					if (pEntity != NULL)
 					{
 					pEntityOrigin = pEntity->GetAbsOrigin();
@@ -699,7 +699,7 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 				//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 				CBaseEntity *pEntity = NULL;
 				Vector pEntityOrigin;
-				pEntity = gEntList.FindEntityByClassnameNearest( "info_player_medic", pEntityOrigin, 0, NULL);
+				pEntity = gEntList.FindEntityByClassnameNearest( "info_player_medic", pEntityOrigin, 0);
 					if (pEntity != NULL)
 					{
 					pEntityOrigin = pEntity->GetAbsOrigin();
@@ -816,7 +816,7 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 				//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 				CBaseEntity *pEntity = NULL;
 				Vector pEntityOrigin;
-				pEntity = gEntList.FindEntityByClassnameNearest( "info_player_heavy", pEntityOrigin, 0, NULL);
+				pEntity = gEntList.FindEntityByClassnameNearest( "info_player_heavy", pEntityOrigin, 0);
 					if (pEntity != NULL)
 					{
 					pEntityOrigin = pEntity->GetAbsOrigin();

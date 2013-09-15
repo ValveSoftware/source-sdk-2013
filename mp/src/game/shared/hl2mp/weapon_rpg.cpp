@@ -507,6 +507,7 @@ void CMissile::IgniteThink( void )
 		#else
 		color32 white = { 255,225,205,64 };
 		UTIL_ScreenFade( pPlayer, white, 0.1f, 0.0f, FFADE_IN );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	}
 
 	CreateSmokeTrail();
@@ -1448,20 +1449,14 @@ END_PREDICTION_DATA()
 #ifndef CLIENT_DLL
 acttable_t	CWeaponRPG::m_acttable[] = 
 {
-	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_RPG,					false },
-	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_RPG,			false },
-
-	{ ACT_MP_RUN,						ACT_HL2MP_RUN_RPG,					false },
-	{ ACT_MP_CROUCHWALK,				ACT_HL2MP_WALK_CROUCH_RPG,			false },
-
-	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_RPG,	false },
-	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_RPG,	false },
-
-	{ ACT_MP_RELOAD_STAND,				ACT_HL2MP_GESTURE_RELOAD_RPG,		false },
-	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_RPG,		false },
-
-	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_RPG,					false },
-
+	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_RPG,					false },
+	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_RPG,					false },
+	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_RPG,			false },
+	{ ACT_HL2MP_WALK_CROUCH,			ACT_HL2MP_WALK_CROUCH_RPG,			false },
+	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_RPG,	false },
+	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_RPG,		false },
+	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_RPG,					false },
+	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_RPG,				false },
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI	
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_RPG_RELAXED,			true }, //
 	{ ACT_IDLE_STIMULATED,			ACT_IDLE_ANGRY_RPG,				true }, //

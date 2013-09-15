@@ -2,1189 +2,529 @@
 //
 // Purpose: 
 //
-// TODO: 
-//		Take advantage of new NPC fields like GetEnemy() and get rid of that OFFSET() stuff
-//		Revisit enemy validation stuff, maybe it's not necessary with the newest NPC code
-//
-// $NoKeywords: $
 //=============================================================================//
 
-#include "cbase.h"
-#include "Sprite.h"
-#include "basecombatweapon.h"
-#include "ai_basenpc.h"
-#include "AI_Senses.h"
-#include "AI_Memory.h"
-#include "gamerules.h"
-#include "ammodef.h"
-#include "ndebugoverlay.h"
-#include "IEffects.h"
-#include "vstdlib/random.h"
-#include "engine/IEngineSound.h"
+#ifndef BASEANIMATING_H
+#define BASEANIMATING_H
+#ifdef _WIN32
+#pragma once
+#endif
 
-class CSprite;
+#include "baseentity.h"
+#include "entityoutput.h"
+#include "studio.h"
+#include "datacache/idatacache.h"
+#include "tier0/threadtools.h"
 
-#define TURRET_RANGE	(100 * 12)
-#define TURRET_SPREAD	VECTOR_CONE_5DEGREES
-#define TURRET_TURNRATE	360		// max angles per second
-#define TURRET_MAXWAIT	15		// seconds turret will stay active w/o a target
-#define TURRET_MAXSPIN	5		// seconds turret barrel will spin w/o a target
-#define TURRET_MACHINE_VOLUME	0.5
 
-#define TURRET_BC_YAW	"aim_yaw"
-#define TURRET_BC_PITCH	"aim_pitch"
+struct animevent_t;
+struct matrix3x4_t;
+class CIKContext;
+class KeyValues;
+FORWARD_DECLARE_HANDLE( memhandle_t );
 
-#define TURRET_ORIENTATION_FLOOR 0
-#define TURRET_ORIENTATION_CEILING 1
+#define	BCF_NO_ANIMATION_SKIP	( 1 << 0 )	// Do not allow PVS animation skipping (mostly for attachments being critical to an entity)
+#define	BCF_IS_IN_SPAWN			( 1 << 1 )	// Is currently inside of spawn, always evaluate animations
 
-//=========================================================
-// private activities
-//=========================================================
-int ACT_TURRET_OPEN;
-int ACT_TURRET_CLOSE;
-int ACT_TURRET_OPEN_IDLE;
-int ACT_TURRET_CLOSED_IDLE;
-int ACT_TURRET_FIRE;
-int ACT_TURRET_RELOAD;
-
-// ===============================================
-//  Private spawn flags  (must be above (1<<15))
-// ===============================================
-#define SF_NPC_TURRET_AUTOACTIVATE		0x00000020
-#define SF_NPC_TURRET_STARTINACTIVE		0x00000040
-
-extern short		g_sModelIndexSmoke;			// (in combatweapon.cpp) holds the index for the smoke cloud
-
-ConVar	sk_miniturret_health( "sk_miniturret_health","0");
-ConVar	sk_sentry_health( "sk_sentry_health","0");
-ConVar	sk_turret_health( "sk_turret_health","0");
-
-class CBaseTurret : public CAI_BaseNPC
+class CBaseAnimating : public CBaseEntity
 {
-	DECLARE_CLASS( CBaseTurret, CAI_BaseNPC );
 public:
-	void Spawn(void);
-	virtual void Precache(void);
-	bool KeyValue( const char *szKeyName, const char *szValue );
-	//void TurretUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
-	
-	virtual void		TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr );
-	virtual int			OnTakeDamage( const CTakeDamageInfo &info );
-	virtual Class_T		Classify(void);
+	DECLARE_CLASS( CBaseAnimating, CBaseEntity );
 
-	int BloodColor( void ) { return DONT_BLEED; }
-	bool Event_Gibbed( void ) { return FALSE; }	// UNDONE: Throw turret gibs?
+	CBaseAnimating();
+	~CBaseAnimating();
 
-	Vector	EyeOffset( Activity nActivity );
-	Vector	EyePosition( void );
+	DECLARE_PREDICTABLE();
 
-	// Inputs
-	void InputToggle( inputdata_t &inputdata );
-
-	// Think functions
-
-	void ActiveThink(void);
-	void SearchThink(void);
-	void AutoSearchThink(void);
-	void TurretDeath(void);
-
-	void Deploy(void);
-	void Retire(void);
-	
-	void Initialize(void);
-
-	virtual void Ping(void);
-	virtual void EyeOn(void);
-	virtual void EyeOff(void);
+	enum
+	{
+		NUM_POSEPAREMETERS = 24,
+		NUM_BONECTRLS = 4
+	};
 
 	DECLARE_DATADESC();
-
-	// other functions
-	int MoveTurret(void);
-	virtual void Shoot(const Vector &vecSrc, const Vector &vecDirToEnemy) { };
-
-	CSprite *m_pEyeGlow;
-	int		m_eyeBrightness;
-
-	int	m_iDeployHeight;
-	int	m_iRetractHeight;
-	int m_iMinPitch;
-
-	int m_iBaseTurnRate;	// angles per second
-	float m_fTurnRate;		// actual turn rate
-	int	m_iOn;
-	int m_fBeserk;			// Sometimes this bitch will just freak out
-	int m_iAutoStart;		// true if the turret auto deploys when a target
-							// enters its range
-
-	Vector	m_vecLastSight;	// Last seen position
-	float	m_flLastSight;	// Last time we saw a target
-	float	m_flMaxWait;	// Max time to search w/o a target
-
-	// movement
-	float	m_flStartYaw;
-	QAngle	m_vecGoalAngles;
-
-	int		m_iAmmoType;
-
-	float	m_flPingTime;	// Time until the next ping, used when searching
-	float	m_flDamageTime;	// Time we last took damage.
-
-	COutputEvent m_OnDeploy;
-	COutputEvent m_OnRetire;
-
-	// external
-	//COutputEvent		m_OnDamaged;
-	//COutputEvent		m_OnDeath;
-	//COutputEvent		m_OnHalfHealth;
-	//COutputEHANDLE		m_OnFoundEnemy; 
-	//COutputEvent		m_OnLostEnemyLOS; 
-	//COutputEvent		m_OnLostEnemy; 
-	//COutputEHANDLE		m_OnFoundPlayer;
-	//COutputEvent		m_OnLostPlayerLOS;
-	//COutputEvent		m_OnLostPlayer; 
-	//COutputEvent		m_OnHearWorld;
-	//COutputEvent		m_OnHearPlayer;
-	//COutputEvent		m_OnHearCombat;
-
-};
-
-
-BEGIN_DATADESC( CBaseTurret )
-
-	DEFINE_FIELD( m_pEyeGlow, FIELD_CLASSPTR ),
-	DEFINE_FIELD( m_eyeBrightness, FIELD_INTEGER ),
-	DEFINE_FIELD( m_iDeployHeight, FIELD_INTEGER ),
-	DEFINE_FIELD( m_iRetractHeight, FIELD_INTEGER ),
-	DEFINE_FIELD( m_iMinPitch, FIELD_INTEGER ),
-
-	DEFINE_FIELD( m_iBaseTurnRate, FIELD_INTEGER ),
-	DEFINE_FIELD( m_fTurnRate, FIELD_FLOAT ),
-	DEFINE_FIELD( m_iOn, FIELD_INTEGER ),
-	DEFINE_FIELD( m_fBeserk, FIELD_INTEGER ),
-	DEFINE_FIELD( m_iAutoStart, FIELD_INTEGER ),
-
-	DEFINE_FIELD( m_vecLastSight, FIELD_POSITION_VECTOR ),
-	DEFINE_FIELD( m_flLastSight, FIELD_TIME ),
-	DEFINE_FIELD( m_flMaxWait, FIELD_FLOAT ),
-
-	DEFINE_FIELD( m_flStartYaw, FIELD_FLOAT ),
-	DEFINE_FIELD( m_vecGoalAngles, FIELD_VECTOR ),
-
-	DEFINE_FIELD( m_iAmmoType, FIELD_INTEGER ),
-
-	DEFINE_FIELD( m_flPingTime, FIELD_TIME ),
-	DEFINE_FIELD( m_flDamageTime, FIELD_TIME ),
-
-	// Function pointers
-	//DEFINE_USEFUNC( TurretUse ),
-	DEFINE_THINKFUNC( ActiveThink ),
-	DEFINE_THINKFUNC( SearchThink ),
-	DEFINE_THINKFUNC( AutoSearchThink ),
-	DEFINE_THINKFUNC( TurretDeath ),
-	DEFINE_THINKFUNC( Deploy ),
-	DEFINE_THINKFUNC( Retire ),
-	DEFINE_THINKFUNC( Initialize ),
-
-	// Inputs
-	DEFINE_INPUTFUNC( FIELD_VOID, "Toggle", InputToggle ),
-	
-	// Outputs
-	DEFINE_OUTPUT(m_OnDeploy, "OnDeploy"),
-	DEFINE_OUTPUT(m_OnRetire, "OnRetire"),
-
-END_DATADESC()
-
-
-
-//------------------------------------------------------------------------------
-// Purpose : 
-// Input   :
-// Output  :
-//------------------------------------------------------------------------------
-Vector	CBaseTurret::EyeOffset( Activity nActivity )
-{
-	return Vector( 0, 0, -20 );
-}
-
-
-Vector	CBaseTurret::EyePosition( void )
-{
-	Vector vecOrigin;
-	QAngle vecAngles;
-
-	GetAttachment( "eyes", vecOrigin, vecAngles );
-	return vecOrigin;
-}
-
-bool CBaseTurret::KeyValue( const char *szKeyName, const char *szValue )
-{
-	if (FStrEq(szKeyName, "maxsleep"))
-	{
-		m_flMaxWait = atof(szValue);
-	}
-	else if (FStrEq(szKeyName, "turnrate"))
-	{
-		m_iBaseTurnRate = atoi(szValue);
-	}
-	else if (FStrEq(szKeyName, "style") ||
-			 FStrEq(szKeyName, "height") ||
-			 FStrEq(szKeyName, "value1") ||
-			 FStrEq(szKeyName, "value2") ||
-			 FStrEq(szKeyName, "value3"))
-	{
-	}
-	else
-		return BaseClass::KeyValue( szKeyName, szValue );
-
-	return true;
-}
-
-
-void CBaseTurret::Spawn()
-{ 
-	Precache( );
-	SetNextThink( gpGlobals->curtime + 1 );
-	SetMoveType( MOVETYPE_FLY );
-	m_nSequence		= 0;
-	m_flCycle		= 0;
-	SetSolid( SOLID_SLIDEBOX );
-	m_takedamage		= DAMAGE_YES;
-	AddFlag( FL_AIMTARGET );
-
-	m_iAmmoType = g_pGameRules->GetAmmoDef()->Index("SMG1");
-
-	AddFlag( FL_NPC );
-
-	if (( m_spawnflags & SF_NPC_TURRET_AUTOACTIVATE ) && !( m_spawnflags & SF_NPC_TURRET_STARTINACTIVE ))
-	{
-		m_iAutoStart = true;
-	}
-
-	ResetSequenceInfo( );
-
-	SetPoseParameter( TURRET_BC_YAW, 0 );
-	SetPoseParameter( TURRET_BC_PITCH, 0 );
-
-	// Activities
-	ADD_CUSTOM_ACTIVITY( CBaseTurret, ACT_TURRET_OPEN );
-	ADD_CUSTOM_ACTIVITY( CBaseTurret, ACT_TURRET_CLOSE );
-	ADD_CUSTOM_ACTIVITY( CBaseTurret, ACT_TURRET_CLOSED_IDLE );
-	ADD_CUSTOM_ACTIVITY( CBase`matTurret, ACT_TURRET_OPEN_IDLE );
-	ADD_CUSTOM_ACTIVITY( CBaseTurret, ACT_TURRET_FIRE );
-	ADD_CUSTOM_ACTIVITY( CBaseTurret, ACT_TURRET_RELOAD );
-}
-
-
-void CBaseTurret::Precache( )
-{
-	BaseClass::Precache();
-
-	PrecacheScriptSound( "NPC_Turret.Ping" );
-	PrecacheScriptSound( "NPC_Turret.Deploy" );
-	PrecacheScriptSound( "NPC_Turret.Retire" );
-	PrecacheScriptSound( "NPC_Turret.Alert" );
-	PrecacheScriptSound( "NPC_Turret.Die" );
-}
-
-void CBaseTurret::Initialize(void)
-{
-	m_iOn = 0;
-	m_fBeserk = 0;
-
-	SetPoseParameter( TURRET_BC_YAW, 0 );
-	SetPoseParameter( TURRET_BC_PITCH, 0 );
-
-	if (m_iBaseTurnRate == 0) m_iBaseTurnRate = TURRET_TURNRATE;
-	if (m_flMaxWait == 0) m_flMaxWait = TURRET_MAXWAIT;
-
-	m_vecGoalAngles = GetAngles();
-
-	if (m_iAutoStart)
-	{
-		m_flLastSight = gpGlobals->curtime + m_flMaxWait;
-		SetThink(AutoSearchThink);		
-		SetNextThink( gpGlobals->curtime + .1 );
-	}
-	else
-		SetThink(SUB_DoNothing);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Input handler for toggling the turret on/off.
-//-----------------------------------------------------------------------------
-void CBaseTurret::InputToggle( inputdata_t &inputdata )
-{
-	//if ( !ShouldToggle( useType, m_iOn ) )
-	//	return;
-
-	if (m_iOn)
-	{
-		SetEnemy( NULL );
-		SetNextThink( gpGlobals->curtime + 0.1f );
-		m_iAutoStart = FALSE;// switching off a turret disables autostart
-		//!!!! this should spin down first!!BUGBUG
-		SetThink(Retire);
-	}
-	else 
-	{
-		SetNextThink( gpGlobals->curtime + 0.1f ); // turn on delay
-
-		// if the turret is flagged as an autoactivate turret, re-enable its ability open self.
-		if ( m_spawnflags & SF_NPC_TURRET_AUTOACTIVATE )
-		{
-			m_iAutoStart = TRUE;
-		}
-		
-		SetThink(Deploy);
-	}
-}
-
-
-void CBaseTurret::Ping( void )
-{
-	// make the pinging noise every second while searching
-	if (m_flPingTime == 0)
-		m_flPingTime = gpGlobals->curtime + 1;
-	else if (m_flPingTime <= gpGlobals->curtime)
-	{
-		m_flPingTime = gpGlobals->curtime + 1;
-		EmitSound( "NPC_Turret.Ping" );
-		EyeOn( );
-	}
-	else if (m_eyeBrightness > 0)
-	{
-		EyeOff( );
-	}
-}
-
-
-void CBaseTurret::EyeOn( )
-{
-	if (m_pEyeGlow)
-	{
-		if (m_eyeBrightness != 255)
-		{
-			m_eyeBrightness = 255;
-		}
-		m_pEyeGlow->SetBrightness( m_eyeBrightness );
-	}
-}
-
-
-void CBaseTurret::EyeOff( )
-{
-	if (m_pEyeGlow)
-	{
-		if (m_eyeBrightness > 0)
-		{
-			m_eyeBrightness = MAX( 0, m_eyeBrightness - 30 );
-			m_pEyeGlow->SetBrightness( m_eyeBrightness );
-		}
-	}
-}
-
-
-void CBaseTurret::ActiveThink(void)
-{
-	int fAttack = 0;
-	Vector vecDirToEnemy;
-
-	SetNextThink( gpGlobals->curtime + 0.1f );
-	StudioFrameAdvance( );
-
-	if ((!m_iOn) || (GetEnemy() == NULL))
-	{
-		SetEnemy( NULL );
-		m_flLastSight = gpGlobals->curtime + m_flMaxWait;
-		SetThink(SearchThink);
-		return;
-	}
-	
-	// if it's dead, look for something new
-	if ( !GetEnemy()->IsAlive() )
-	{
-		if (!m_flLastSight)
-		{
-			m_flLastSight = gpGlobals->curtime + 0.5; // continue-shooting timeout
-		}
-		else
-		{
-			if (gpGlobals->curtime > m_flLastSight)
-			{	
-				SetEnemy( NULL );
-				m_flLastSight = gpGlobals->curtime + m_flMaxWait;
-				SetThink(SearchThink);
-				return;
-			}
-		}
-	}
-
-	Vector vecMid = EyePosition( );
-	Vector vecMidEnemy = GetEnemy()->BodyTarget(vecMid);
-
-	// g_pEffects->Sparks( vecMid );
-	// g_pEffects->Sparks( vecMidEnemy );
-
-	// Look for our current enemy
-	//int fEnemyVisible = FBoxVisible( this, GetEnemy(), vecMidEnemy );	
-	int fEnemyVisible = FInViewCone( GetEnemy() ) && FVisible( GetEnemy() );	
-
-	vecDirToEnemy = vecMidEnemy - vecMid;	// calculate dir and dist to enemy
-	// NDebugOverlay::Line( vecMid, vecMidEnemy, 0, 255, 0, false, 0.1 );
-	
-	float flDistToEnemy = vecDirToEnemy.Length();
-
-	QAngle vecAnglesToEnemy;
-	VectorNormalize( vecDirToEnemy );
-	VectorAngles( vecDirToEnemy, vecAnglesToEnemy );
-
-	// Current enmey is not visible.
-	if (!fEnemyVisible || (flDistToEnemy > TURRET_RANGE))
-	{
-		// DevMsg( "lost you\n" );
-
-		if (!m_flLastSight)
-		{
-			m_flLastSight = gpGlobals->curtime + 0.5;
-		}
-		else
-		{
-			// Should we look for a new target?
-			if (gpGlobals->curtime > m_flLastSight)
-			{
-				ClearEnemyMemory();
-				SetEnemy( NULL );
-				m_flLastSight = gpGlobals->curtime + m_flMaxWait;
-				SetThink(SearchThink);
-				return;
-			}
-		}
-		fEnemyVisible = 0;
-	}
-	else
-	{
-		m_vecLastSight = vecMidEnemy;
-	}
-
-	Vector vecLOS = vecDirToEnemy; //vecMid - m_vecLastSight;
-	VectorNormalize( vecLOS );
-
-	Vector vecMuzzle, vecMuzzleDir;
-	QAngle vecMuzzleAng;
-	GetAttachment( "eyes", vecMuzzle, vecMuzzleAng );
-
-	AngleVectors( vecMuzzleAng, &vecMuzzleDir );
-	
-	// Is the Gun looking at the target
-	if (DotProduct(vecLOS, vecMuzzleDir) <= 0.9848) // 10 degree slop
-	{
-		fAttack = FALSE;
-	}
-	else
-	{
-		fAttack = TRUE;
-	}
-
-	// fire the gun
-	if (fAttack || m_fBeserk)
-	{
-		m_Activity = ACT_RESET;
-		SetActivity( (Activity)ACT_TURRET_FIRE );
-		Shoot(vecMuzzle, vecMuzzleDir );
-	} 
-	else
-	{
-		SetActivity( (Activity)ACT_TURRET_OPEN_IDLE );
-	}
-
-	//move the gun
-	if (m_fBeserk)
-	{
-		// DevMsg( "berserk" );
-
-		if (random->RandomInt(0,9) == 0)
-		{
-			m_vecGoalAngles.y = random->RandomFloat(-180,180);
-			m_vecGoalAngles.x = random->RandomFloat(-90,90);
-			OnTakeDamage( CTakeDamageInfo( this, this, 1, DMG_GENERIC ) ); // don't beserk forever
-			return;
-		}
-	} 
-	else if (fEnemyVisible)
-	{
-		// DevMsg( "->[%.2f]\n", vec.x);
-		m_vecGoalAngles.y = vecAnglesToEnemy.y;
-		m_vecGoalAngles.x = vecAnglesToEnemy.x;
-
-	}
-
-	MoveTurret();
-}
-
-
-void CBaseTurret::Deploy(void)
-{
-	SetNextThink( gpGlobals->curtime + 0.1f );
-	StudioFrameAdvance( );
-
-	if ( m_Activity != ACT_TURRET_OPEN )
-	{
-		m_iOn = 1;
-		SetActivity( (Activity)ACT_TURRET_OPEN );
-		EmitSound( "NPC_Turret.Deploy" );
-
-		m_OnDeploy.FireOutput(NULL, this);
-	}
-
-	if (m_fSequenceFinished)
-	{
-		Vector curmins, curmaxs;
-		curmins = WorldAlignMins();
-		curmaxs = WorldAlignMaxs();
-
-		curmaxs.z = m_iDeployHeight;
-		curmins.z = -m_iDeployHeight;
-
-		SetCollisionBounds( curmins, curmaxs );
-
-		Relink();
-
-		SetActivity( (Activity)ACT_TURRET_OPEN_IDLE );
-
-		m_flPlaybackRate = 0;
-		SetThink(SearchThink);
-	}
-
-	m_flLastSight = gpGlobals->curtime + m_flMaxWait;
-}
-
-void CBaseTurret::Retire(void)
-{
-	// make the turret level
-	m_vecGoalAngles = GetAngles( );
-
-	SetNextThink( gpGlobals->curtime + 0.1f );
-
-	StudioFrameAdvance( );
-
-	EyeOff( );
-
-	if ( m_Activity != ACT_TURRET_CLOSE )
-	{
-		SetActivity( (Activity)ACT_TURRET_OPEN_IDLE );
-		
-		if (!MoveTurret())
-		{
-			SetActivity( (Activity)ACT_TURRET_CLOSE );
-			EmitSound( "NPC_Turret.Retire" );
-
-			m_OnRetire.FireOutput(NULL, this);
-		}
-	}
-	else if (m_fSequenceFinished) 
-	{	
-		m_iOn = 0;
-		m_flLastSight = 0;
-
-		SetActivity( (Activity)ACT_TURRET_CLOSED_IDLE );
-
-		Vector curmins, curmaxs;
-		curmins = WorldAlignMins();
-		curmaxs = WorldAlignMaxs();
-
-		curmaxs.z = m_iRetractHeight;
-		curmins.z = -m_iRetractHeight;
-
-		SetCollisionBounds( curmins, curmaxs );
-		Relink();
-
-		if (m_iAutoStart)
-		{
-			SetThink(AutoSearchThink);		
-			SetNextThink( gpGlobals->curtime + .1 );
-		}
-		else
-		{
-			SetThink(SUB_DoNothing);
-		}
-	}
-}
-
-
-//
-// This search function will sit with the turret deployed and look for a new target. 
-// After a set amount of time, the barrel will spin down. After m_flMaxWait, the turret will
-// retact.
-//
-void CBaseTurret::SearchThink(void)
-{
-	// ensure rethink
-	SetActivity( (Activity)ACT_TURRET_OPEN_IDLE );
-
-	StudioFrameAdvance( );
-	SetNextThink( gpGlobals->curtime + 0.1f );
-
-	Ping( );
-
-	// If we have a target and we're still healthy
-	if (GetEnemy() != NULL)
-	{
-		if (!GetEnemy()->IsAlive() )
-			SetEnemy( NULL );// Dead enemy forces a search for new one
-	}
-
-	// Acquire Target
-	if (GetEnemy() == NULL)
-	{
-		GetSenses()->Look(TURRET_RANGE);
-		SetEnemy( BestEnemy() );
-	}
-
-	// If we've found a target, spin up the barrel and start to attack
-	if (GetEnemy() != NULL)
-	{
-		m_flLastSight = 0;
-		SetThink(ActiveThink);
-	}
-	else
-	{
-		// Are we out of time, do we need to retract?
- 		if (gpGlobals->curtime > m_flLastSight)
-		{
-			//Before we retrace, make sure that we are spun down.
-			m_flLastSight = 0;
-			SetThink(Retire);
-		}
-		
-		// generic hunt for new victims
-		m_vecGoalAngles.y = (m_vecGoalAngles.y + 0.1 * m_iBaseTurnRate);
-		if (m_vecGoalAngles.y >= 360)
-			m_vecGoalAngles.y -= 360;
-
-		MoveTurret();
-	}
-}
-
-
-// 
-// This think function will deploy the turret when something comes into range. This is for
-// automatically activated turrets.
-//
-void CBaseTurret::AutoSearchThink(void)
-{
-	// ensure rethink
-	StudioFrameAdvance( );
-	SetNextThink( gpGlobals->curtime + random->RandomFloat( 0.2, 0.3 ) );
-
-	// If we have a target and we're still healthy
-
-	if (GetEnemy() != NULL)
-	{
-		if (!GetEnemy()->IsAlive() )
-			SetEnemy( NULL );// Dead enemy forces a search for new one
-	}
-
-	// Acquire Target
-
-	if (GetEnemy() == NULL)
-	{
-		GetSenses()->Look( TURRET_RANGE );
-		SetEnemy( BestEnemy() );
-	}
-
-	if (GetEnemy() != NULL)
-	{
-		SetThink(Deploy);
-		EmitSound( "NPC_Turret.Alert" );
-	}
-}
-
-
-void CBaseTurret ::	TurretDeath( void )
-{
-	StudioFrameAdvance( );
-	SetNextThink( gpGlobals->curtime + 0.1f );
-
-	if (m_lifeState != LIFE_DEAD)
-	{
-		m_lifeState = LIFE_DEAD;
-
-		EmitSound( "NPC_Turret.Die" );
-
-		SetActivity( (Activity)ACT_TURRET_CLOSE );
-
-		EyeOn( );	
-	}
-
-	EyeOff( );
-
-	if (m_flDamageTime + random->RandomFloat( 0, 2 ) > gpGlobals->curtime)
-	{
-		// lots of smoke
-		Vector pos;
-		CollisionProp()->RandomPointInBounds( vec3_origin, Vector( 1, 1, 1 ), &pos );
-		pos.z = CollisionProp()->GetCollisionOrigin().z;
-		
-		CBroadcastRecipientFilter filter;
-		te->Smoke( filter, 0.0, &pos,
-			g_sModelIndexSmoke,
-			2.5,
-			10 );
-	}
-	
-	if (m_flDamageTime + random->RandomFloat( 0, 5 ) > gpGlobals->curtime)
-	{
-		Vector vecSrc;
-		CollisionProp()->RandomPointInBounds( vec3_origin, Vector( 1, 1, 1 ), &vecSrc );
-		g_pEffects->Sparks( vecSrc );
-	}
-
-	if (m_fSequenceFinished && !MoveTurret( ) && m_flDamageTime + 5 < gpGlobals->curtime)
-	{
-		m_flPlaybackRate = 0;
-		SetThink( NULL );
-	}
-}
-
-
-
-void CBaseTurret::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr )
-{
-	CTakeDamageInfo info = inputInfo;
-
-	if ( ptr->hitgroup == 10 )
-	{
-		// hit armor
-		if ( m_flDamageTime != gpGlobals->curtime || (random->RandomInt(0,10) < 1) )
-		{
-			g_pEffects->Ricochet( ptr->endpos, (vecDir*-1.0f) );
-			m_flDamageTime = gpGlobals->curtime;
-		}
-
-		info.SetDamage( 0.1 );// don't hurt the NPC much, but allow bits_COND_LIGHT_DAMAGE to be generated
-	}
-
-	if ( !m_takedamage )
-		return;
-
-	AddMultiDamage( info, this );
-}
-
-
-int CBaseTurret::OnTakeDamage( const CTakeDamageInfo &inputInfo )
-{
-	if ( !m_takedamage )
-		return 0;
-
-	CTakeDamageInfo info = inputInfo;
-
-	if (!m_iOn)
-		info.ScaleDamage( 0.1f );
-
-	m_iHealth -= info.GetDamage();
-	if (m_iHealth <= 0)
-	{
-		m_iHealth = 0;
-		m_takedamage = DAMAGE_NO;
-		m_flDamageTime = gpGlobals->curtime;
-
-		RemoveFlag( FL_NPC ); // why are they set in the first place???
-
-		SetThink(TurretDeath);
-
-		m_OnDamaged.FireOutput( info.GetInflictor(), this );
-
-		SetNextThink( gpGlobals->curtime + 0.1f );
-
-		return 0;
-	}
-
-	if (m_iHealth <= 10)
-	{
-		if (m_iOn && (1 || random->RandomInt(0, 0x7FFF) > 800))
-		{
-			m_fBeserk = 1;
-			SetThink(SearchThink);
-		}
-	}
-
-	return 1;
-}
-
-
-int CBaseTurret::MoveTurret(void)
-{
-	bool bDidMove = false;
-	int iPose;
-
-	matrix3x4_t localToWorld;
-	
-	GetAttachment( LookupAttachment( "eyes" ), localToWorld );
-
-	Vector vecGoalDir;
-	AngleVectors( m_vecGoalAngles, &vecGoalDir );
-
-	Vector vecGoalLocalDir;
-	VectorIRotate( vecGoalDir, localToWorld, vecGoalLocalDir );
-
-	QAngle vecGoalLocalAngles;
-	VectorAngles( vecGoalLocalDir, vecGoalLocalAngles );
-
-	float flDiff;
-	QAngle vecNewAngles;
-
-  // update pitch
-	flDiff = AngleNormalize( UTIL_ApproachAngle(  vecGoalLocalAngles.x, 0.0, 0.1 * m_iBaseTurnRate ) );
-	iPose = LookupPoseParameter( TURRET_BC_PITCH );
-	SetPoseParameter( iPose, GetPoseParameter( iPose ) + flDiff / 1.5 );
-
-	if (fabs(flDiff) > 0.1)
-	{
-		bDidMove = true;
-	}
-
-	// update yaw, with acceleration
-#if 0
-	float flDist = AngleNormalize( vecGoalLocalAngles.y );
-	float flNewDist;
-	float flNewTurnRate;
-
-	ChangeDistance( 0.1, flDist, 0.0, m_fTurnRate, m_iBaseTurnRate, m_iBaseTurnRate * 4, flNewDist, flNewTurnRate );
-	m_fTurnRate = flNewTurnRate;
-	flDiff = flDist - flNewDist;
-#else
-	flDiff = AngleNormalize( UTIL_ApproachAngle(  vecGoalLocalAngles.y, 0.0, 0.1 * m_iBaseTurnRate ) );
-#endif
-
-	iPose = LookupPoseParameter( TURRET_BC_YAW );
-	SetPoseParameter( iPose, GetPoseParameter( iPose ) + flDiff / 1.5 );
-	if (fabs(flDiff) > 0.1)
-	{
-		bDidMove = true;
-	}
-
-	if (bDidMove)
-	{
-		// DevMsg( "(%.2f, %.2f)\n", AngleNormalize( vecGoalLocalAngles.x ), AngleNormalize( vecGoalLocalAngles.y ) );
-	}
-	return bDidMove;
-}
-
-//
-// ID as a machine
-//
-Class_T	CBaseTurret::Classify ( void )
-
-{
-	if (m_iOn || m_iAutoStart)
-	{
-		return	CLASS_MILITARY;
-	}
-
-	return CLASS_MILITARY;
-}
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-class CCeilingTurret : public CBaseTurret
-{
-	DECLARE_CLASS( CCeilingTurret, CBaseTurret );
-public:
-	void Spawn(void);
-	void Precache(void);
-
-	// other functions
-	void Shoot( const Vector &vecSrc, const Vector &vecDirToEnemy );
-};
-
-#define TURRET_GLOW_SPRITE "sprites/glow01.vmt"
-
-LINK_ENTITY_TO_CLASS( npc_turret_ceiling, CCeilingTurret );
-
-void CCeilingTurret::Spawn()
-{ 
-	Precache( );
-
-	SetModel( "models/combine_turrets/ceiling_turret.mdl" );
-	
-	BaseClass::Spawn( );
-
-	m_iHealth			= sk_turret_health.GetFloat();
-	m_HackedGunPos		= Vector( 0, 0, 12.75 );
-
-	AngleVectors( GetAngles(), NULL, NULL, &m_vecViewOffset );
-	m_vecViewOffset		= m_vecViewOffset * Vector( 0, 0, -64 );
-
-	m_flFieldOfView		= VIEW_FIELD_FULL;
-
-	m_iRetractHeight = 16;
-	m_iDeployHeight = 32;
-	m_iMinPitch	= -45;
-	UTIL_SetSize(this, Vector(-32, -32, -m_iRetractHeight), Vector(32, 32, m_iRetractHeight));
-	
-	SetThink(Initialize);	
-
-	m_pEyeGlow = CSprite::SpriteCreate( TURRET_GLOW_SPRITE, GetOrigin(), FALSE );
-	m_pEyeGlow->SetTransparency( kRenderGlow, 255, 0, 0, 0, kRenderFxNoDissipation );
-	m_pEyeGlow->SetAttachment( this, 2 );
-	m_eyeBrightness = 0;
-
-	SetNextThink( gpGlobals->curtime + 0.3; );
-}
-
-void CCeilingTurret::Precache()
-{
-	PrecacheModel( "models/combine_turrets/ceiling_turret.mdl");	
-	PrecacheModel( TURRET_GLOW_SPRITE );
-
-	PrecacheScriptSound( "CeilingTurret.Shoot" );
-	BaseClass::Precache();
-}
-
-void CCeilingTurret::Shoot(const Vector &vecSrc, const Vector &vecDirToEnemy)
-{
-	//NDebugOverlay::Line( vecSrc, vecSrc + vecDirToEnemy * 512, 0, 255, 255, false, 0.1 );
-	FireBullets( 1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, m_iAmmoType, 1 );
-	EmitSound( "CeilingTurret.Shoot" );
-	
-	DoMuzzleFlash();
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if 0
-
-class CMiniTurret : public CBaseTurret
-{
-	DECLARE_CLASS( CMiniTurret, CBaseTurret );
-public:
-	void Spawn( );
-	void Precache(void);
-	// other functions
-	void Shoot(const Vector &vecSrc, const Vector &vecDirToEnemy);
-};
-
-LINK_ENTITY_TO_CLASS( npc_miniturret, CMiniTurret );
-
-
-void CMiniTurret::Spawn()
-{ 
-	Precache( );
-	SetModel( "models/miniturret.mdl" );
-	m_iHealth			= sk_miniturret_health.GetFloat();
-	m_HackedGunPos		= Vector( 0, 0, 12.75 );
-	m_vecViewOffset.z = 12.75;
-	m_flFieldOfView		= VIEW_FIELD_NARROW;
-
-	CBaseTurret::Spawn( );
-
-	m_iAmmoType = g_pGameRules->GetAmmoDef()->Index("Pistol");
-
-	m_iRetractHeight = 16;
-	m_iDeployHeight = 32;
-	m_iMinPitch	= -45;
-	UTIL_SetSize(this, Vector(-16, -16, -m_iRetractHeight), Vector(16, 16, m_iRetractHeight));
-
-	SetThink(Initialize);	
-	SetNextThink( gpGlobals->curtime + 0.3; );
-}
-
-
-void CMiniTurret::Precache()
-{
-	PrecacheModel ("models/miniturret.mdl");	
-
-	PrecacheScriptSound( "MiniTurret.Shoot" );
-
-	BaseClass::Precache();
-}
-
-
-
-void CMiniTurret::Shoot(const Vector &vecSrc, const Vector &vecDirToEnemy)
-{
-	FireBullets( 1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, m_iAmmoType, 1 );
-
-	EmitSound( "MiniTurret.Shoot" );
-
-	DoMuzzleFlash();
-}
-
-
-#endif
-
-
-//=========================================================
-// Sentry gun - smallest turret, placed near grunt entrenchments
-//=========================================================
-class CSentry : public CBaseTurret
-{
-	DECLARE_CLASS( CSentry, CBaseTurret );
-public:
-	void Spawn( );
-	void Precache(void);
-	// other functions
-	void Shoot(const Vector &vecSrc, const Vector &vecDirToEnemy);
-	int OnTakeDamage( const CTakeDamageInfo &info );
-	void SentryTouch( CBaseEntity *pOther );
-	void SentryDeath( void );
+	DECLARE_SERVERCLASS();
+
+	virtual void SetModel( const char *szModelName );
+	virtual void Activate();
+	virtual void Spawn();
+	virtual void Precache();
+	virtual void SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways );
+
+	virtual int	 Restore( IRestore &restore );
+	virtual void OnRestore();
+
+	CStudioHdr *GetModelPtr( void );
+	void InvalidateMdlCache();
+
+	virtual CStudioHdr *OnNewModel();
+
+	virtual CBaseAnimating*	GetBaseAnimating() { return this; }
+
+	// Cycle access
+	void SetCycle( float flCycle );
+	float GetCycle() const;
+
+	float	GetAnimTimeInterval( void ) const;
+
+	// Call this in your constructor to tell it that you will not use animtime. Then the
+	// interpolation will be done correctly on the client.
+	// This defaults to off.
+	void	UseClientSideAnimation();
+
+	// Tells whether or not we're using client-side animation. Used for controlling
+	// the transmission of animtime.
+	bool	IsUsingClientSideAnimation()	{ return m_bClientSideAnimation; }
+
+
+	// Basic NPC Animation functions
+	virtual float	GetIdealSpeed( ) const;
+	virtual float	GetIdealAccel( ) const;
+	virtual void	StudioFrameAdvance(); // advance animation frame to some time in the future
+	void StudioFrameAdvanceManual( float flInterval );
+	bool	IsValidSequence( int iSequence );
+
+	inline float					GetPlaybackRate();
+	inline void						SetPlaybackRate( float rate );
+
+	inline int GetSequence() { return m_nSequence; }
+	virtual void SetSequence(int nSequence);
+	/* inline */ void ResetSequence(int nSequence);
+	// FIXME: push transitions support down into CBaseAnimating?
+	virtual bool IsActivityFinished( void ) { return m_bSequenceFinished; }
+	inline bool IsSequenceFinished( void ) { return m_bSequenceFinished; }
+	inline bool SequenceLoops( void ) { return m_bSequenceLoops; }
+	bool		 IsSequenceLooping( CStudioHdr *pStudioHdr, int iSequence );
+	inline bool	 IsSequenceLooping( int iSequence ) { return IsSequenceLooping(GetModelPtr(),iSequence); }
+	inline float SequenceDuration( void ) { return SequenceDuration( m_nSequence ); }
+	float	SequenceDuration( CStudioHdr *pStudioHdr, int iSequence );
+	inline float SequenceDuration( int iSequence ) { return SequenceDuration(GetModelPtr(), iSequence); }
+	float	GetSequenceCycleRate( CStudioHdr *pStudioHdr, int iSequence );
+	inline float	GetSequenceCycleRate( int iSequence ) { return GetSequenceCycleRate(GetModelPtr(),iSequence); }
+	float	GetLastVisibleCycle( CStudioHdr *pStudioHdr, int iSequence );
+	virtual float	GetSequenceGroundSpeed( CStudioHdr *pStudioHdr, int iSequence );
+	inline float GetSequenceGroundSpeed( int iSequence ) { return GetSequenceGroundSpeed(GetModelPtr(), iSequence); }
+	void	ResetActivityIndexes ( void );
+	void    ResetEventIndexes ( void );
+	int		SelectWeightedSequence ( Activity activity );
+	int		SelectWeightedSequence ( Activity activity, int curSequence );
+	int		SelectHeaviestSequence ( Activity activity );
+	int		LookupActivity( const char *label );
+	int		LookupSequence ( const char *label );
+	KeyValues *GetSequenceKeyValues( int iSequence );
+
+	float GetSequenceMoveYaw( int iSequence );
+	float GetSequenceMoveDist( CStudioHdr *pStudioHdr, int iSequence );
+	inline float GetSequenceMoveDist( int iSequence ) { return GetSequenceMoveDist(GetModelPtr(),iSequence);}
+	void  GetSequenceLinearMotion( int iSequence, Vector *pVec );
+	const char *GetSequenceName( int iSequence );
+	const char *GetSequenceActivityName( int iSequence );
+	Activity GetSequenceActivity( int iSequence );
+
+	void ResetSequenceInfo ( );
+	// This will stop animation until you call ResetSequenceInfo() at some point in the future
+	inline void StopAnimation( void ) { m_flPlaybackRate = 0; }
+
+	virtual void ClampRagdollForce( const Vector &vecForceIn, Vector *vecForceOut ) { *vecForceOut = vecForceIn; } // Base class does nothing.
+	virtual bool BecomeRagdollOnClient( const Vector &force );
+	virtual bool IsRagdoll();
+	virtual bool CanBecomeRagdoll( void ); //Check if this entity will ragdoll when dead.
+
+	virtual	void GetSkeleton( CStudioHdr *pStudioHdr, Vector pos[], Quaternion q[], int boneMask );
+
+	virtual void GetBoneTransform( int iBone, matrix3x4_t &pBoneToWorld );
+	virtual void SetupBones( matrix3x4_t *pBoneToWorld, int boneMask );
+	virtual void CalculateIKLocks( float currentTime );
+	virtual void Teleport( const Vector *newPosition, const QAngle *newAngles, const Vector *newVelocity );
+
+	bool HasAnimEvent( int nSequence, int nEvent );
+	virtual	void DispatchAnimEvents ( CBaseAnimating *eventHandler ); // Handle events that have happend since last time called up until X seconds into the future
+	virtual void HandleAnimEvent( animevent_t *pEvent );
+
+	int		LookupPoseParameter( CStudioHdr *pStudioHdr, const char *szName );
+	inline int	LookupPoseParameter( const char *szName ) { return LookupPoseParameter(GetModelPtr(), szName); }
+
+	float	SetPoseParameter( CStudioHdr *pStudioHdr, const char *szName, float flValue );
+	inline float SetPoseParameter( const char *szName, float flValue ) { return SetPoseParameter( GetModelPtr(), szName, flValue ); }
+	float	SetPoseParameter( CStudioHdr *pStudioHdr, int iParameter, float flValue );
+	inline float SetPoseParameter( int iParameter, float flValue ) { return SetPoseParameter( GetModelPtr(), iParameter, flValue ); }
+
+	float	GetPoseParameter( const char *szName );
+	float	GetPoseParameter( int iParameter );
+	bool	GetPoseParameterRange( int index, float &minValue, float &maxValue );
+	bool	HasPoseParameter( int iSequence, const char *szName );
+	bool	HasPoseParameter( int iSequence, int iParameter );
+	float	EdgeLimitPoseParameter( int iParameter, float flValue, float flBase = 0.0f );
 
 protected:
+	// The modus operandi for pose parameters is that you should not use the const char * version of the functions
+	// in general code -- it causes many many string comparisons, which is slower than you think. Better is to 
+	// save off your pose parameters in member variables in your derivation of this function:
+	virtual void	PopulatePoseParameters( void );
 
-	DECLARE_DATADESC();
+
+public:
+
+	int  LookupBone( const char *szName );
+	void GetBonePosition( const char *szName, Vector &origin, QAngle &angles );
+	void GetBonePosition( int iBone, Vector &origin, QAngle &angles );
+	int	GetPhysicsBone( int boneIndex );
+
+	int GetNumBones ( void );
+
+	int  FindTransitionSequence( int iCurrentSequence, int iGoalSequence, int *piDir );
+	bool GotoSequence( int iCurrentSequence, float flCurrentCycle, float flCurrentRate,  int iGoalSequence, int &iNextSequence, float &flCycle, int &iDir );
+	int  GetEntryNode( int iSequence );
+	int  GetExitNode( int iSequence );
+	
+	void GetEyeballs( Vector &origin, QAngle &angles ); // ?? remove ??
+
+	int LookupAttachment( const char *szName );
+
+	// These return the attachment in world space
+	bool GetAttachment( const char *szName, Vector &absOrigin, QAngle &absAngles );
+	bool GetAttachment( int iAttachment, Vector &absOrigin, QAngle &absAngles );
+	int GetAttachmentBone( int iAttachment );
+	virtual bool GetAttachment( int iAttachment, matrix3x4_t &attachmentToWorld );
+
+	// These return the attachment in the space of the entity
+	bool GetAttachmentLocal( const char *szName, Vector &origin, QAngle &angles );
+	bool GetAttachmentLocal( int iAttachment, Vector &origin, QAngle &angles );
+	bool GetAttachmentLocal( int iAttachment, matrix3x4_t &attachmentToLocal );
+	
+	// Non-angle versions of the attachments in world space
+	bool GetAttachment(  const char *szName, Vector &absOrigin, Vector *forward = NULL, Vector *right = NULL, Vector *up = NULL );
+	bool GetAttachment( int iAttachment, Vector &absOrigin, Vector *forward = NULL, Vector *right = NULL, Vector *up = NULL );
+
+	void SetBodygroup( int iGroup, int iValue );
+	int GetBodygroup( int iGroup );
+
+	const char *GetBodygroupName( int iGroup );
+	int FindBodygroupByName( const char *name );
+	int GetBodygroupCount( int iGroup );
+	int GetNumBodyGroups( void );
+
+	void					SetHitboxSet( int setnum );
+	void					SetHitboxSetByName( const char *setname );
+	int						GetHitboxSet( void );
+	char const				*GetHitboxSetName( void );
+	int						GetHitboxSetCount( void );
+	int						GetHitboxBone( int hitboxIndex );
+	bool					LookupHitbox( const char *szName, int& outSet, int& outBox );
+
+	// Computes a box that surrounds all hitboxes
+	bool ComputeHitboxSurroundingBox( Vector *pVecWorldMins, Vector *pVecWorldMaxs );
+	bool ComputeEntitySpaceHitboxSurroundingBox( Vector *pVecWorldMins, Vector *pVecWorldMaxs );
+	
+	// Clone a CBaseAnimating from another (copies model & sequence data)
+	void CopyAnimationDataFrom( CBaseAnimating *pSource );
+
+	int ExtractBbox( int sequence, Vector& mins, Vector& maxs );
+	void SetSequenceBox( void );
+	int RegisterPrivateActivity( const char *pszActivityName );
+
+	void	ResetClientsideFrame( void );
+
+// Controllers.
+	virtual	void			InitBoneControllers ( void );
+	
+	// Return's the controller's angle/position in bone space.
+	float					GetBoneController ( int iController );
+
+	// Maps the angle/position value you specify into the bone's start/end and sets the specified controller to the value.
+	float					SetBoneController ( int iController, float flValue );
+	
+	void					GetVelocity(Vector *vVelocity, AngularImpulse *vAngVelocity);
+
+	// these two need to move somewhere else
+	LocalFlexController_t GetNumFlexControllers( void );
+	const char *GetFlexDescFacs( int iFlexDesc );
+	const char *GetFlexControllerName( LocalFlexController_t iFlexController );
+	const char *GetFlexControllerType( LocalFlexController_t iFlexController );
+
+	virtual	Vector GetGroundSpeedVelocity( void );
+
+	bool GetIntervalMovement( float flIntervalUsed, bool &bMoveSeqFinished, Vector &newPosition, QAngle &newAngles );
+	bool GetSequenceMovement( int nSequence, float fromCycle, float toCycle, Vector &deltaPosition, QAngle &deltaAngles );
+	float GetInstantaneousVelocity( float flInterval = 0.0 );
+	float GetEntryVelocity( int iSequence );
+	float GetExitVelocity( int iSequence );
+	float GetMovementFrame( float flDist );
+	bool HasMovement( int iSequence );
+
+	void ReportMissingActivity( int iActivity );
+	virtual bool TestCollision( const Ray_t &ray, unsigned int fContentsMask, trace_t& tr );
+	virtual bool TestHitboxes( const Ray_t &ray, unsigned int fContentsMask, trace_t& tr );
+	class CBoneCache *GetBoneCache( void );
+	void InvalidateBoneCache();
+	void InvalidateBoneCacheIfOlderThan( float deltaTime );
+	virtual int DrawDebugTextOverlays( void );
+	
+	// See note in code re: bandwidth usage!!!
+	void				DrawServerHitboxes( float duration = 0.0f, bool monocolor = false );
+	void				DrawRawSkeleton( matrix3x4_t boneToWorld[], int boneMask, bool noDepthTest = true, float duration = 0.0f, bool monocolor = false );
+
+	void				SetModelScale( float scale, float change_duration = 0.0f );
+	float				GetModelScale() const { return m_flModelScale; }
+
+	void				UpdateModelScale();
+	virtual	void		RefreshCollisionBounds( void );
+	
+	// also calculate IK on server? (always done on client)
+	void EnableServerIK();
+	void DisableServerIK();
+
+	// for ragdoll vs. car
+	int GetHitboxesFrontside( int *boxList, int boxMax, const Vector &normal, float dist );
+
+	void	GetInputDispatchEffectPosition( const char *sInputString, Vector &pOrigin, QAngle &pAngles );
+
+	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& set );
+
+	// Send a muzzle flash event to the client for this entity.
+	void DoMuzzleFlash();
+
+	// Fire
+	virtual void Ignite( float flFlameLifetime, bool bNPCOnly = true, float flSize = 0.0f, bool bCalledByLevelDesigner = false );
+	virtual void IgniteLifetime( float flFlameLifetime );
+	virtual void IgniteNumHitboxFires( int iNumHitBoxFires );
+	virtual void IgniteHitboxFireScale( float flHitboxFireScale );
+	virtual void Extinguish() { RemoveFlag( FL_ONFIRE ); }
+	bool IsOnFire() { return ( (GetFlags() & FL_ONFIRE) != 0 ); }
+	void Scorch( int rate, int floor );
+	void InputIgnite( inputdata_t &inputdata );
+	void InputIgniteLifetime( inputdata_t &inputdata );
+	void InputIgniteNumHitboxFires( inputdata_t &inputdata );
+	void InputIgniteHitboxFireScale( inputdata_t &inputdata );
+	void InputBecomeRagdoll( inputdata_t &inputdata );
+
+	// Dissolve, returns true if the ragdoll has been created
+	bool Dissolve( const char *pMaterialName, float flStartTime, bool bNPCOnly = true, int nDissolveType = 0, Vector vDissolverOrigin = vec3_origin, int iMagnitude = 0 );
+	bool IsDissolving() { return ( (GetFlags() & FL_DISSOLVING) != 0 ); }
+	void TransferDissolveFrom( CBaseAnimating *pAnim );
+
+	// animation needs
+	float				m_flGroundSpeed;	// computed linear movement rate for current sequence
+	float				m_flLastEventCheck;	// cycle index of when events were last checked
+
+	virtual void SetLightingOriginRelative( CBaseEntity *pLightingOriginRelative );
+	void SetLightingOriginRelative( string_t strLightingOriginRelative );
+	CBaseEntity *GetLightingOriginRelative();
+
+	virtual void SetLightingOrigin( CBaseEntity *pLightingOrigin );
+	void SetLightingOrigin( string_t strLightingOrigin );
+	CBaseEntity *GetLightingOrigin();
+
+	const float* GetPoseParameterArray() { return m_flPoseParameter.Base(); }
+	const float* GetEncodedControllerArray() { return m_flEncodedController.Base(); }
+
+	void BuildMatricesWithBoneMerge( const CStudioHdr *pStudioHdr, const QAngle& angles, 
+		const Vector& origin, const Vector pos[MAXSTUDIOBONES],
+		const Quaternion q[MAXSTUDIOBONES], matrix3x4_t bonetoworld[MAXSTUDIOBONES],
+		CBaseAnimating *pParent, CBoneCache *pParentCache );
+
+	void	SetFadeDistance( float minFadeDist, float maxFadeDist );
+
+	int		GetBoneCacheFlags( void ) { return m_fBoneCacheFlags; }
+	inline void	SetBoneCacheFlags( unsigned short fFlag ) { m_fBoneCacheFlags |= fFlag; }
+	inline void	ClearBoneCacheFlags( unsigned short fFlag ) { m_fBoneCacheFlags &= ~fFlag; }
+
+	bool PrefetchSequence( int iSequence );
+
+private:
+	void LockStudioHdr();
+	void UnlockStudioHdr();
+
+	void StudioFrameAdvanceInternal( CStudioHdr *pStudioHdr, float flInterval );
+	void InputSetLightingOriginRelative( inputdata_t &inputdata );
+	void InputSetLightingOrigin( inputdata_t &inputdata );
+
+	bool CanSkipAnimation( void );
+
+public:
+	CNetworkVar( int, m_nForceBone );
+	CNetworkVector( m_vecForce );
+
+	CNetworkVar( int, m_nSkin );
+	CNetworkVar( int, m_nBody );
+	CNetworkVar( int, m_nHitboxSet );
+
+	// For making things thin during barnacle swallowing, e.g.
+	CNetworkVar( float, m_flModelScale );
+
+	// was pev->framerate
+	CNetworkVar( float, m_flPlaybackRate );
+
+public:
+	void InitStepHeightAdjust( void );
+	void SetIKGroundContactInfo( float minHeight, float maxHeight );
+	void UpdateStepOrigin( void );
+
+protected:
+	float				m_flIKGroundContactTime;
+	float				m_flIKGroundMinHeight;
+	float				m_flIKGroundMaxHeight;
+
+	float				m_flEstIkFloor; // debounced
+	float				m_flEstIkOffset;
+
+  	CIKContext			*m_pIk;
+	int					m_iIKCounter;
+
+public:
+	Vector	GetStepOrigin( void ) const;
+	QAngle	GetStepAngles( void ) const;
+
+private:
+	bool				m_bSequenceFinished;// flag set when StudioAdvanceFrame moves across a frame boundry
+	bool				m_bSequenceLoops;	// true if the sequence loops
+	bool				m_bResetSequenceInfoOnLoad; // true if a ResetSequenceInfo was queued up during dynamic load
+	float				m_flDissolveStartTime;
+
+	// was pev->frame
+	CNetworkVar( float, m_flCycle );
+	CNetworkVar( int, m_nSequence );	
+	CNetworkArray( float, m_flPoseParameter, NUM_POSEPAREMETERS );	// must be private so manual mode works!
+	CNetworkArray( float, m_flEncodedController, NUM_BONECTRLS );		// bone controller setting (0..1)
+
+	// Client-side animation (useful for looping animation objects)
+	CNetworkVar( bool, m_bClientSideAnimation );
+	CNetworkVar( bool, m_bClientSideFrameReset );
+
+	CNetworkVar( int, m_nNewSequenceParity );
+	CNetworkVar( int, m_nResetEventsParity );
+
+	// Incremented each time the entity is told to do a muzzle flash.
+	// The client picks up the change and draws the flash.
+	CNetworkVar( unsigned char, m_nMuzzleFlashParity );
+
+	CNetworkHandle( CBaseEntity, m_hLightingOrigin );
+	CNetworkHandle( CBaseEntity, m_hLightingOriginRelative );
+
+	string_t m_iszLightingOriginRelative;	// for reading from the file only
+	string_t m_iszLightingOrigin;			// for reading from the file only
+
+	memhandle_t		m_boneCacheHandle;
+	unsigned short	m_fBoneCacheFlags;		// Used for bone cache state on model
+
+protected:
+	CNetworkVar( float, m_fadeMinDist );	// Point at which fading is absolute
+	CNetworkVar( float, m_fadeMaxDist );	// Point at which fading is inactive
+	CNetworkVar( float, m_flFadeScale );	// Scale applied to min / max
+
+public:
+	COutputEvent m_OnIgnite;
+
+private:
+	CStudioHdr			*m_pStudioHdr;
+	CThreadFastMutex	m_StudioHdrInitLock;
+	CThreadFastMutex	m_BoneSetupMutex;
+
+// FIXME: necessary so that cyclers can hack m_bSequenceFinished
+friend class CFlexCycler;
+friend class CCycler;
+friend class CBlendingCycler;
 };
 
-
-BEGIN_DATADESC( CSentry )
-
-	// Function pointers
-	DEFINE_ENTITYFUNC( SentryTouch ),
-	DEFINE_THINKFUNC( SentryDeath ),
-
-END_DATADESC()
-
-
-LINK_ENTITY_TO_CLASS( NPC_sentry, CSentry );
-
-void CSentry::Precache()
-{
-	PrecacheModel ("models/sentry.mdl");	
-
-	PrecacheScriptSound( "Sentry.Shoot" );
-	PrecacheScriptSound( "Sentry.Die" );
-
-	BaseClass::Precache();
-}
-
-void CSentry::Spawn()
+//-----------------------------------------------------------------------------
+// Purpose: return a pointer to an updated studiomdl cache cache
+//-----------------------------------------------------------------------------
+inline CStudioHdr *CBaseAnimating::GetModelPtr( void ) 
 { 
-	Precache( );
-	SetModel( "models/sentry.mdl" );
-	m_iHealth			= sk_sentry_health.GetFloat();
-	m_HackedGunPos		= Vector( 0, 0, 48 );
-	m_vecViewOffset.z		= 48;
-	m_flMaxWait = 1E6;
+	if ( IsDynamicModelLoading() )
+		return NULL;
 
-	CBaseTurret::Spawn();
-	m_iRetractHeight = 64;
-	m_iDeployHeight = 64;
-	m_iMinPitch	= -60;
-	UTIL_SetSize(this, Vector(-16, -16, -m_iRetractHeight), Vector(16, 16, m_iRetractHeight));
-
-	SetTouch(SentryTouch);
-	SetThink(Initialize);	
-	SetNextThink( gpGlobals->curtime + 0.3; );
+#ifdef _DEBUG
+	// GetModelPtr() is often called before OnNewModel() so go ahead and set it up first chance.
+	static IDataCacheSection *pModelCache = datacache->FindSection( "ModelData" );
+	AssertOnce( pModelCache->IsFrameLocking() );
+#endif
+	if ( !m_pStudioHdr && GetModel() )
+	{
+		LockStudioHdr();
+	}
+	return ( m_pStudioHdr && m_pStudioHdr->IsValid() ) ? m_pStudioHdr : NULL;
 }
 
-void CSentry::Shoot(const Vector &vecSrc, const Vector &vecDirToEnemy)
+inline void CBaseAnimating::InvalidateMdlCache()
 {
-	FireBullets( 1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, m_iAmmoType, 1 );
-
-	EmitSound( "Sentry.Shoot" );
-
-	DoMuzzleFlash();
+	UnlockStudioHdr();
+	if ( m_pStudioHdr != NULL )
+	{
+		delete m_pStudioHdr;
+		m_pStudioHdr = NULL;
+	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Serves the 90% case of calling SetSequence / ResetSequenceInfo.
+//-----------------------------------------------------------------------------
 
-int CSentry::OnTakeDamage( const CTakeDamageInfo &info )
+/*
+inline void CBaseAnimating::ResetSequence(int nSequence)
 {
-	if ( !m_takedamage )
-		return 0;
-
-	if (!m_iOn)
-	{
-		SetThink( Deploy );
-		SetNextThink( gpGlobals->curtime + 0.1f );
-	}
-
-	m_iHealth -= info.GetDamage();
-	if (m_iHealth <= 0)
-	{
-		m_iHealth = 0;
-		m_takedamage = DAMAGE_NO;
-		m_flDamageTime = gpGlobals->curtime;
-
-		RemoveFlag( FL_NPC ); // why are they set in the first place???
-
-		SetThink(SentryDeath);
-		m_OnDamaged.FireOutput( info.GetInflictor(), this );
-		SetNextThink( gpGlobals->curtime + 0.1f );
-
-		return 0;
-	}
-
-	return 1;
+	m_nSequence = nSequence;
+	ResetSequenceInfo();
 }
+*/
 
-
-void CSentry::SentryTouch( CBaseEntity *pOther )
+inline float CBaseAnimating::GetPlaybackRate()
 {
-	if ( pOther && (pOther->IsPlayer() || (pOther->GetFlags() & FL_NPC)) )
-	{
-		OnTakeDamage( CTakeDamageInfo( pOther, pOther, 0, 0 ) );
-	}
+	return m_flPlaybackRate;
 }
 
-
-void CSentry ::	SentryDeath( void )
+inline void CBaseAnimating::SetPlaybackRate( float rate )
 {
-	StudioFrameAdvance( );
-	SetNextThink( gpGlobals->curtime + 0.1f );
-
-	if (m_lifeState != LIFE_DEAD)
-	{
-		m_lifeState = LIFE_DEAD;
-
-		EmitSound( "Sentry.Die" );
-
-		SetPoseParameter( TURRET_BC_YAW, 0 );
-		SetPoseParameter( TURRET_BC_PITCH, 0 );
-
-		SetActivity( (Activity)ACT_TURRET_CLOSE );
-
-		SetSolid( SOLID_NOT );
-		QAngle angles = GetAngles();
-		angles.y = UTIL_AngleMod( GetAngles().y + random->RandomInt( 0, 2 ) * 120 );
-		SetAngles( angles );
-
-		EyeOn( );
-	}
-
-	EyeOff( );
-
-	Vector vecSrc;
-	QAngle vecAng;
-	GetAttachment( "eyes", vecSrc, vecAng );
-
-	if (m_flDamageTime + random->RandomFloat( 0, 2 ) > gpGlobals->curtime)
-	{
-		// lots of smoke
-		Vector pos = vecSrc + Vector( random->RandomFloat( -16, 16 ), 
-				random->RandomFloat( -16, 16 ),
-				 -32 );
-
-		CBroadcastRecipientFilter filter;
-		te->Smoke( filter, 0.0, &pos,
-			g_sModelIndexSmoke,
-			1.5,
-			8 );
-	}
-	
-	if (m_flDamageTime + random->RandomFloat( 0, 8 ) > gpGlobals->curtime)
-	{
-		g_pEffects->Sparks( vecSrc );
-	}
-
-	if (m_fSequenceFinished && m_flDamageTime + 5 < gpGlobals->curtime)
-	{
-		m_flPlaybackRate = 0;
-		SetThink( NULL );
-	}
+	m_flPlaybackRate = rate;
 }
 
+inline void CBaseAnimating::SetLightingOrigin( CBaseEntity *pLightingOrigin )
+{
+	m_hLightingOrigin = pLightingOrigin;
+}
+
+inline CBaseEntity *CBaseAnimating::GetLightingOrigin()
+{
+	return m_hLightingOrigin;
+}
+
+inline void CBaseAnimating::SetLightingOriginRelative( CBaseEntity *pLightingOriginRelative )
+{
+	m_hLightingOriginRelative = pLightingOriginRelative;
+}
+
+inline CBaseEntity *CBaseAnimating::GetLightingOriginRelative()
+{
+	return m_hLightingOriginRelative;
+}
+
+//-----------------------------------------------------------------------------
+// Cycle access
+//-----------------------------------------------------------------------------
+inline float CBaseAnimating::GetCycle() const
+{
+	return m_flCycle;
+}
+
+inline void CBaseAnimating::SetCycle( float flCycle )
+{
+	m_flCycle = flCycle;
+}
+
+
+EXTERN_SEND_TABLE(DT_BaseAnimating);
+
+
+
+#define ANIMATION_SEQUENCE_BITS			12	// 4096 sequences
+#define ANIMATION_SKIN_BITS				10	// 1024 body skin selections FIXME: this seems way high
+#define ANIMATION_BODY_BITS				32	// body combinations
+#define ANIMATION_HITBOXSET_BITS		2	// hit box sets 
+#if defined( TF_DLL )
+#define ANIMATION_POSEPARAMETER_BITS	8	// pose parameter resolution
+#else
+#define ANIMATION_POSEPARAMETER_BITS	11	// pose parameter resolution
+#endif
+#define ANIMATION_PLAYBACKRATE_BITS		8	// default playback rate, only used on leading edge detect sequence changes
+
+#endif // BASEANIMATING_H

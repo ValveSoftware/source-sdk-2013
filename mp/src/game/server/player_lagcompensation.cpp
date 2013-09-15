@@ -292,9 +292,11 @@ void UpdateAIIndexes();
 
 	CBasePlayer				*m_pCurrentPlayer;	// The player we are doing lag compensation for
 
+	float					m_flTeleportDistanceSqr;
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI	
 	bool					m_bNeedsAIUpdate; 
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 };
 
 static CLagCompensationManager g_LagCompensationManager( "CLagCompensationManager" );
@@ -458,8 +460,8 @@ if ( m_bNeedsAIUpdate )
 		record.m_flSimulationTime	= pNPC->GetSimulationTime();
 		record.m_vecAngles			= pNPC->GetLocalAngles();
 		record.m_vecOrigin			= pNPC->GetLocalOrigin();
-		record.m_vecMaxs			= pNPC->WorldAlignMaxs();
-		record.m_vecMins			= pNPC->WorldAlignMins();
+		record.m_vecMaxsPreScaled			= pNPC->WorldAlignMaxs();
+		record.m_vecMinsPreScaled			= pNPC->WorldAlignMins();
 
 		int layerCount = pNPC->GetNumAnimOverlays();
 		for( int layerIndex = 0; layerIndex < layerCount; ++layerIndex )
@@ -477,6 +479,9 @@ if ( m_bNeedsAIUpdate )
 		record.m_masterCycle = pNPC->GetCycle();
 	}
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
+
+	//Clear the current player.
+	m_pCurrentPlayer = NULL;
 }
 
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
@@ -520,23 +525,9 @@ void CLagCompensationManager::UpdateAIIndexes()
 	}
 }
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
-
-	//Clear the current player.
-	m_pCurrentPlayer = NULL;
-}
-
 // Called during player movement to set up/restore after lag compensation
 void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCmd *cmd )
 {
-
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		// sort out any changes to the AI indexing 
-	if ( m_bNeedsAIUpdate ) // to be called once per frame... must happen BEFORE lag compensation - 
-	{// if that happens, that is. if not its called at the end of the frame 
-		m_bNeedsAIUpdate = false; 
-		UpdateAIIndexes(); 
-	} 
-
 	//DONT LAG COMP AGAIN THIS FRAME IF THERES ALREADY ONE IN PROGRESS
 	//IF YOU'RE HITTING THIS THEN IT MEANS THERES A CODE BUG
 	if ( m_pCurrentPlayer )
@@ -546,14 +537,22 @@ void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCm
 		return;
 	}
 
-	// Assume no players need to be restored
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		// sort out any changes to the AI indexing 
+	if ( m_bNeedsAIUpdate ) // to be called once per frame... must happen BEFORE lag compensation - 
+	{// if that happens, that is. if not its called at the end of the frame 
+		m_bNeedsAIUpdate = false; 
+		UpdateAIIndexes(); 
+	} 
+
+	// Assume no players or entities need to be restored 
+
 	m_RestorePlayer.ClearAll();
 	m_RestoreEntity.ClearAll(); 
 #else
 // Assume no players need to be restored
 	m_RestorePlayer.ClearAll();
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
-
 	m_bNeedToRestore = false;
 
 	m_pCurrentPlayer = player;
@@ -570,10 +569,6 @@ void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCm
 	VPROF_BUDGET( "StartLagCompensation", VPROF_BUDGETGROUP_OTHER_NETWORKING );
 	Q_memset( m_RestoreData, 0, sizeof( m_RestoreData ) );
 	Q_memset( m_ChangeData, 0, sizeof( m_ChangeData ) );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	Q_memset( m_EntityRestoreData, 0, sizeof( m_EntityRestoreData ) ); 
-	Q_memset( m_EntityChangeData, 0, sizeof( m_EntityChangeData ) ); 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	// Get true latency
 
@@ -615,11 +610,8 @@ void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCm
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		if ( !pPlayer || player == pPlayer ) 
-			continue;
-#else
-if ( !pPlayer )
+
+		if ( !pPlayer )
 		{
 			continue;
 		}
@@ -637,23 +629,6 @@ if ( !pPlayer )
 		// Move other player back in time
 		BacktrackPlayer( pPlayer, TICKS_TO_TIME( targettick ) );
 	}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	
-	// also iterate all monsters 
-	CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs(); 
-	int nAIs = g_AI_Manager.NumAIs(); 
-
-	for ( int i = 0; i < nAIs; i++ ) 
-	{ 
-		CAI_BaseNPC *pNPC = ppAIs[i]; 
-		// Custom checks for if things should lag compensate 
-		if ( !pNPC || !player->WantsLagCompensationOnEntity( pNPC, cmd, pEntityTransmitBits ) ) 
-			continue; 
-		
-		// Move NPC back in time 
-		BacktrackEntity( pNPC, TICKS_TO_TIME( targettick ) ); 
-	} 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
 }
 
 void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTargetTime )
@@ -789,40 +764,6 @@ void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTar
 					m_RestorePlayer.Clear( pl_index );
 				}				
 			}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-						else
-			{
-				CAI_BaseNPC *pHitEntity = dynamic_cast<CAI_BaseNPC *>( tr.m_pEnt );
-				if ( pHitEntity )
-				{
-					CAI_BaseNPC *pNPC = NULL;
-					CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs();
-					int nAIs = g_AI_Manager.NumAIs();
-					for ( int i = 0; i < nAIs; i++ ) // we'll have to find this entity's index though :(
-					{
-						pNPC = ppAIs[i];
-						if ( pNPC == pHitEntity )
-							break;
-					}
-					// If we haven't backtracked this player, do it now
-					// this deliberately ignores WantsLagCompensationOnEntity.
-					if ( pNPC && !m_RestoreEntity.Get( pNPC->GetAIIndex() ) )
-					{
-						// prevent recursion - save a copy of m_RestoreEntity,
-						// pretend that this player is off-limits
- 
-						// Temp turn this flag on
-						m_RestoreEntity.Set( pNPC->GetAIIndex() );
-
-						BacktrackEntity( pHitEntity, flTargetTime );
-
-						// Remove the temp flag
-						m_RestoreEntity.Clear( pNPC->GetAIIndex() );
-					}
-				}
-			}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
-
 
 			// now trace us back as far as we can go
 			UTIL_TraceEntity( pPlayer, pPlayer->GetLocalOrigin(), org, MASK_PLAYERSOLID, &tr );
@@ -1004,349 +945,6 @@ void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTar
 		pPlayer->DrawServerHitboxes(4, true);
 	}
 }
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-void CLagCompensationManager::BacktrackEntity( CAI_BaseNPC *pEntity, float flTargetTime )
-{
-	Vector org, mins, maxs;
-	QAngle ang;
-
-	VPROF_BUDGET( "BacktrackEntity", "CLagCompensationManager" );
-
-	// get track history of this entity
-	int index = pEntity->GetAIIndex();
-	CUtlFixedLinkedList< LagRecord > *track = &m_EntityTrack[ index ];
-
-	// check if we have at leat one entry
-	if ( track->Count() <= 0 )
-		return;
-
-	int curr = track->Head();
-
-	LagRecord *prevRecord = NULL;
-	LagRecord *record = NULL;
-
-	Vector prevOrg = pEntity->GetLocalOrigin();
-	
-	// Walk context looking for any invalidating event
-	while( track->IsValidIndex(curr) )
-	{
-		// remember last record
-		prevRecord = record;
-
-		// get next record
-		record = &track->Element( curr );
-
-		if ( !(record->m_fFlags & LC_ALIVE) )
-		{
-			// entity must be alive, lost track
-			return;
-		}
-
-		Vector delta = record->m_vecOrigin - prevOrg;
-		if ( delta.LengthSqr() > LAG_COMPENSATION_TELEPORTED_DISTANCE_SQR )
-		{
-			// lost track, moved too far (may have teleported)
-			return; 
-		}
-
-		// did we find a context smaller than target time ?
-		if ( record->m_flSimulationTime <= flTargetTime )
-			break; // hurra, stop
-
-		prevOrg = record->m_vecOrigin;
-
-		// go one step back in time
-		curr = track->Next( curr );
-	}
-
-	Assert( record );
-
-	if ( !record )
-	{
-		if ( sv_unlag_debug.GetBool() )
-		{
-			DevMsg( "No valid positions in history for BacktrackEntity ( %s )\n", pEntity->GetClassname() );
-		}
-
-		return; // that should never happen
-	}
-
-	float frac = 0.0f;
-	if ( prevRecord && 
-		 (record->m_flSimulationTime < flTargetTime) &&
-		 (record->m_flSimulationTime < prevRecord->m_flSimulationTime) )
-	{
-		// we didn't find the exact time but have a valid previous record
-		// so interpolate between these two records;
-
-		Assert( prevRecord->m_flSimulationTime > record->m_flSimulationTime );
-		Assert( flTargetTime < prevRecord->m_flSimulationTime );
-
-		// calc fraction between both records
-		frac = ( flTargetTime - record->m_flSimulationTime ) / 
-			( prevRecord->m_flSimulationTime - record->m_flSimulationTime );
-
-		Assert( frac > 0 && frac < 1 ); // should never extrapolate
-
-		ang  = Lerp( frac, record->m_vecAngles, prevRecord->m_vecAngles );
-		org  = Lerp( frac, record->m_vecOrigin, prevRecord->m_vecOrigin  );
-		mins = Lerp( frac, record->m_vecMins, prevRecord->m_vecMins  );
-		maxs = Lerp( frac, record->m_vecMaxs, prevRecord->m_vecMaxs );
-	}
-	else
-	{
-		// we found the exact record or no other record to interpolate with
-		// just copy these values since they are the best we have
-		ang  = record->m_vecAngles;
-		org  = record->m_vecOrigin;
-		mins = record->m_vecMins;
-		maxs = record->m_vecMaxs;
-	}
-
-	// See if this is still a valid position for us to teleport to
-	if ( sv_unlag_fixstuck.GetBool() )
-	{
-		// Try to move to the wanted position from our current position.
-		trace_t tr;
-		UTIL_TraceEntity( pEntity, org, org, MASK_NPCSOLID, &tr );
-		if ( tr.startsolid || tr.allsolid )
-		{
-			if ( sv_unlag_debug.GetBool() )
-				DevMsg( "WARNING: BackupEntity trying to back entity into a bad position - %s\n", pEntity->GetClassname() );
-
-			CBasePlayer *pHitPlayer = dynamic_cast<CBasePlayer *>( tr.m_pEnt );
-
-			// don't lag compensate the current player
-			if ( pHitPlayer && ( pHitPlayer != m_pCurrentPlayer ) )	
-			{
-				// If we haven't backtracked this player, do it now
-				// this deliberately ignores WantsLagCompensationOnEntity.
-				if ( !m_RestorePlayer.Get( pHitPlayer->entindex() - 1 ) )
-				{
-					// prevent recursion - save a copy of m_RestorePlayer,
-					// pretend that this player is off-limits
-					int pl_index = pEntity->entindex() - 1;
-
-					// Temp turn this flag on
-					m_RestorePlayer.Set( pl_index );
-
-					BacktrackPlayer( pHitPlayer, flTargetTime );
-
-					// Remove the temp flag
-					m_RestorePlayer.Clear( pl_index );
-				}				
-			}
-			else
-			{
-				CAI_BaseNPC *pHitEntity = dynamic_cast<CAI_BaseNPC *>( tr.m_pEnt );
-				if ( pHitEntity )
-				{
-					CAI_BaseNPC *pNPC = NULL;
-					CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs();
-					int nAIs = g_AI_Manager.NumAIs();
-					for ( int i = 0; i < nAIs; i++ ) // we'll have to find this entity's index though :(
-					{
-						pNPC = ppAIs[i];
-						if ( pNPC == pHitEntity )
-							break;
-					}
-					// If we haven't backtracked this player, do it now
-					// this deliberately ignores WantsLagCompensationOnEntity.
-					if ( pNPC && !m_RestoreEntity.Get( pNPC->GetAIIndex() ) )
-					{
-						// prevent recursion - save a copy of m_RestoreEntity,
-						// pretend that this player is off-limits
-
-						// Temp turn this flag on
-						m_RestoreEntity.Set( pNPC->GetAIIndex() );
-
-						BacktrackEntity( pHitEntity, flTargetTime );
-
-						// Remove the temp flag
-						m_RestoreEntity.Clear( pNPC->GetAIIndex() );
-					}
-				}
-			}
-
-			// now trace us back as far as we can go
-			UTIL_TraceEntity( pEntity, pEntity->GetLocalOrigin(), org, MASK_NPCSOLID, &tr );
-
-			if ( tr.startsolid || tr.allsolid )
-			{
-				// Our starting position is bogus
-
-				if ( sv_unlag_debug.GetBool() )
-					DevMsg( "Backtrack failed completely, bad starting position\n" );
-			}
-			else
-			{
-				// We can get to a valid place, but not all the way to the target
-				Vector vPos;
-				VectorLerp( pEntity->GetLocalOrigin(), org, tr.fraction * g_flFractionScale, vPos );
-				
-				// This is as close as we're going to get
-				org = vPos;
-
-				if ( sv_unlag_debug.GetBool() )
-					DevMsg( "Backtrack got most of the way\n" );
-			}
-		}
-	}
-	
-	// See if this represents a change for the entity
-	int flags = 0;
-	LagRecord *restore = &m_EntityRestoreData[ index ];
-	LagRecord *change  = &m_EntityChangeData[ index ];
-
-	QAngle angdiff = pEntity->GetLocalAngles() - ang;
-	Vector orgdiff = pEntity->GetLocalOrigin() - org;
-
-	// Always remember the pristine simulation time in case we need to restore it.
-	restore->m_flSimulationTime = pEntity->GetSimulationTime();
-
-	if ( angdiff.LengthSqr() > LAG_COMPENSATION_EPS_SQR )
-	{
-		flags |= LC_ANGLES_CHANGED;
-		restore->m_vecAngles = pEntity->GetLocalAngles();
-		pEntity->SetLocalAngles( ang );
-		change->m_vecAngles = ang;
-	}
-
-	// Use absolute equality here
-	if ( ( mins != pEntity->WorldAlignMins() ) ||
-		 ( maxs != pEntity->WorldAlignMaxs() ) )
-	{
-		flags |= LC_SIZE_CHANGED;
-		restore->m_vecMins = pEntity->WorldAlignMins() ;
-		restore->m_vecMaxs = pEntity->WorldAlignMaxs();
-		pEntity->SetSize( mins, maxs );
-		change->m_vecMins = mins;
-		change->m_vecMaxs = maxs;
-	}
-
-	// Note, do origin at end since it causes a relink into the k/d tree
-	if ( orgdiff.LengthSqr() > LAG_COMPENSATION_EPS_SQR )
-	{
-		flags |= LC_ORIGIN_CHANGED;
-		restore->m_vecOrigin = pEntity->GetLocalOrigin();
-		pEntity->SetLocalOrigin( org );
-		change->m_vecOrigin = org;
-	}
-
-	// Sorry for the loss of the optimization for the case of people
-	// standing still, but you breathe even on the server.
-	// This is quicker than actually comparing all bazillion floats.
-	flags |= LC_ANIMATION_CHANGED;
-	restore->m_masterSequence = pEntity->GetSequence();
-	restore->m_masterCycle = pEntity->GetCycle();
-
-	bool interpolationAllowed = false;
-	if( prevRecord && (record->m_masterSequence == prevRecord->m_masterSequence) )
-	{
-		// If the master state changes, all layers will be invalid too, so don't interp (ya know, interp barely ever happens anyway)
-		interpolationAllowed = true;
-	}
-	
-	////////////////////////
-	// First do the master settings
-	bool interpolatedMasters = false;
-	if( frac > 0.0f && interpolationAllowed )
-	{
-		interpolatedMasters = true;
-		pEntity->SetSequence( Lerp( frac, record->m_masterSequence, prevRecord->m_masterSequence ) );
-		pEntity->SetCycle( Lerp( frac, record->m_masterCycle, prevRecord->m_masterCycle ) );
-
-		if( record->m_masterCycle > prevRecord->m_masterCycle )
-		{
-			// the older record is higher in frame than the newer, it must have wrapped around from 1 back to 0
-			// add one to the newer so it is lerping from .9 to 1.1 instead of .9 to .1, for example.
-			float newCycle = Lerp( frac, record->m_masterCycle, prevRecord->m_masterCycle + 1 );
-			pEntity->SetCycle(newCycle < 1 ? newCycle : newCycle - 1 );// and make sure .9 to 1.2 does not end up 1.05
-		}
-		else
-		{
-			pEntity->SetCycle( Lerp( frac, record->m_masterCycle, prevRecord->m_masterCycle ) );
-		}
-	}
-	if( !interpolatedMasters )
-	{
-		pEntity->SetSequence(record->m_masterSequence);
-		pEntity->SetCycle(record->m_masterCycle);
-	}
-
-	////////////////////////
-	// Now do all the layers
-	int layerCount = pEntity->GetNumAnimOverlays();
-	for( int layerIndex = 0; layerIndex < layerCount; ++layerIndex )
-	{
-		CAnimationLayer *currentLayer = pEntity->GetAnimOverlay(layerIndex);
-		if( currentLayer )
-		{
-			restore->m_layerRecords[layerIndex].m_cycle = currentLayer->m_flCycle;
-			restore->m_layerRecords[layerIndex].m_order = currentLayer->m_nOrder;
-			restore->m_layerRecords[layerIndex].m_sequence = currentLayer->m_nSequence;
-			restore->m_layerRecords[layerIndex].m_weight = currentLayer->m_flWeight;
-
-			bool interpolated = false;
-			if( (frac > 0.0f)  &&  interpolationAllowed )
-			{
-				LayerRecord &recordsLayerRecord = record->m_layerRecords[layerIndex];
-				LayerRecord &prevRecordsLayerRecord = prevRecord->m_layerRecords[layerIndex];
-				if( (recordsLayerRecord.m_order == prevRecordsLayerRecord.m_order)
-					&& (recordsLayerRecord.m_sequence == prevRecordsLayerRecord.m_sequence)
-					)
-				{
-					// We can't interpolate across a sequence or order change
-					interpolated = true;
-					if( recordsLayerRecord.m_cycle > prevRecordsLayerRecord.m_cycle )
-					{
-						// the older record is higher in frame than the newer, it must have wrapped around from 1 back to 0
-						// add one to the newer so it is lerping from .9 to 1.1 instead of .9 to .1, for example.
-						float newCycle = Lerp( frac, recordsLayerRecord.m_cycle, prevRecordsLayerRecord.m_cycle + 1 );
-						currentLayer->m_flCycle = newCycle < 1 ? newCycle : newCycle - 1;// and make sure .9 to 1.2 does not end up 1.05
-					}
-					else
-					{
-						currentLayer->m_flCycle = Lerp( frac, recordsLayerRecord.m_cycle, prevRecordsLayerRecord.m_cycle  );
-					}
-					currentLayer->m_nOrder = recordsLayerRecord.m_order;
-					currentLayer->m_nSequence = recordsLayerRecord.m_sequence;
-					currentLayer->m_flWeight = Lerp( frac, recordsLayerRecord.m_weight, prevRecordsLayerRecord.m_weight  );
-				}
-			}
-			if( !interpolated )
-			{
-				//Either no interp, or interp failed.  Just use record.
-				currentLayer->m_flCycle = record->m_layerRecords[layerIndex].m_cycle;
-				currentLayer->m_nOrder = record->m_layerRecords[layerIndex].m_order;
-				currentLayer->m_nSequence = record->m_layerRecords[layerIndex].m_sequence;
-				currentLayer->m_flWeight = record->m_layerRecords[layerIndex].m_weight;
-			}
-		}
-	}
-	
-	if ( !flags )
-		return; // we didn't change anything
-
-	if ( sv_lagflushbonecache.GetBool() )
-		pEntity->InvalidateBoneCache();
-
-	/*char text[256]; Q_snprintf( text, sizeof(text), "time %.2f", flTargetTime );
-	pEntity->DrawServerHitboxes( 10 );
-	NDebugOverlay::Text( org, text, false, 10 );
-	NDebugOverlay::EntityBounds( pEntity, 255, 0, 0, 32, 10 ); */
-
-	m_RestoreEntity.Set( index ); //remember that we changed this entity
-	m_bNeedToRestore = true;  // we changed at least one player / entity
-	restore->m_fFlags = flags; // we need to restore these flags
-	change->m_fFlags = flags; // we have changed these flags
-
-	if( sv_showlagcompensation.GetInt() == 1 )
-	{
-		pEntity->DrawServerHitboxes(4, true);
-	}
-}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 
 void CLagCompensationManager::FinishLagCompensation( CBasePlayer *player )
@@ -1446,92 +1044,6 @@ void CLagCompensationManager::FinishLagCompensation( CBasePlayer *player )
 		if ( restoreSimulationTime )
 		{
 			pPlayer->SetSimulationTime( restore->m_flSimulationTime );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		}
-	}
-	
-	// also iterate all monsters
-	CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs();
-	int nAIs = g_AI_Manager.NumAIs();
-
-	for ( int i = 0; i < nAIs; i++ )
-	{
-		CAI_BaseNPC *pNPC = ppAIs[i];
-		
-		if ( !m_RestoreEntity.Get( i ) )
-		{
-			// entity wasn't changed by lag compensation
-			continue;
-		}
-
-		LagRecord *restore = &m_EntityRestoreData[ i ];
-		LagRecord *change  = &m_EntityChangeData[ i ];
-
-		bool restoreSimulationTime = false;
-
-		if ( restore->m_fFlags & LC_SIZE_CHANGED )
-		{
-			restoreSimulationTime = true;
-	
-			// see if simulation made any changes, if no, then do the restore, otherwise,
-			//  leave new values in
-			if ( pNPC->WorldAlignMins() == change->m_vecMins && 
-				 pNPC->WorldAlignMaxs() == change->m_vecMaxs )
-			{
-				// Restore it
-				pNPC->SetSize( restore->m_vecMins, restore->m_vecMaxs );
-			}
-		}
-
-		if ( restore->m_fFlags & LC_ANGLES_CHANGED )
-		{		   
-			restoreSimulationTime = true;
-
-			if ( pNPC->GetLocalAngles() == change->m_vecAngles )
-			{
-				pNPC->SetLocalAngles( restore->m_vecAngles );
-			}
-		}
-
-		if ( restore->m_fFlags & LC_ORIGIN_CHANGED )
-		{
-			restoreSimulationTime = true;
-
-			// Okay, let's see if we can do something reasonable with the change
-			Vector delta = pNPC->GetLocalOrigin() - change->m_vecOrigin;
-			
-			// If it moved really far, just leave the player in the new spot!!!
-			if ( delta.LengthSqr() < LAG_COMPENSATION_TELEPORTED_DISTANCE_SQR )
-			{
-				RestoreEntityTo( pNPC, restore->m_vecOrigin + delta );
-			}
-		}
-
-		if( restore->m_fFlags & LC_ANIMATION_CHANGED )
-		{
-			restoreSimulationTime = true;
-
-			pNPC->SetSequence(restore->m_masterSequence);
-			pNPC->SetCycle(restore->m_masterCycle);
-
-			int layerCount = pNPC->GetNumAnimOverlays();
-			for( int layerIndex = 0; layerIndex < layerCount; ++layerIndex )
-			{
-				CAnimationLayer *currentLayer = pNPC->GetAnimOverlay(layerIndex);
-				if( currentLayer )
-				{
-					currentLayer->m_flCycle = restore->m_layerRecords[layerIndex].m_cycle;
-					currentLayer->m_nOrder = restore->m_layerRecords[layerIndex].m_order;
-					currentLayer->m_nSequence = restore->m_layerRecords[layerIndex].m_sequence;
-					currentLayer->m_flWeight = restore->m_layerRecords[layerIndex].m_weight;
-				}
-			}
-		}
-
-		if ( restoreSimulationTime )
-		{
-			pNPC->SetSimulationTime( restore->m_flSimulationTime );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
 		}
 	}
 }

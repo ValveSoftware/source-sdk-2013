@@ -650,7 +650,6 @@ int CNPC_Vortigaunt::RangeAttack1Conditions( float flDot, float flDist )
 CBasePlayer *pPlayer = AI_GetSinglePlayer();
 		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
-		CBasePlayer *pPlayer = AI_GetSinglePlayer();
 		if ( pPlayer && ( pPlayer->GetAbsOrigin() - GetEnemy()->GetAbsOrigin() ).LengthSqr() < Square( AntlionWorkerBurstRadius() ) )
 		{
 			// Warn the player to get away!

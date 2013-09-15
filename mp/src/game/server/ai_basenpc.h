@@ -457,21 +457,22 @@ public:
 	
 	CAI_BaseNPC **	AccessAIs();
 	int				NumAIs();
-	
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 	int AddAI( CAI_BaseNPC *pAI ); 
 #else
 void AddAI( CAI_BaseNPC *pAI );
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	void RemoveAI( CAI_BaseNPC *pAI );
 
 	bool FindAI( CAI_BaseNPC *pAI )	{ return ( m_AIs.Find( pAI ) != m_AIs.InvalidIndex() ); }
 	
 private:
-	enum
+	//4WH - Compile errors (and previously defined).
+	/*enum
 	{
 		MAX_AIS = 256
-	};
+	};*/
 	
 	typedef CUtlVector<CAI_BaseNPC *> CAIArray;
 	
@@ -2132,15 +2133,14 @@ public:
 
 	void				StartPingEffect( void ) { m_flTimePingEffect = gpGlobals->curtime + 2.0f; DispatchUpdateTransmitState(); }
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 	// used by lag compensation to be able to refer to & track specific NPCs, and detect changes in the AI list 
 	void				SetAIIndex(int i) { m_iAIIndex = i; } 
 	int					GetAIIndex() { return m_iAIIndex; } 
 private: 
 	int					m_iAIIndex; 
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
-
-};
+ };
 
 
 //-----------------------------------------------------------------------------

@@ -2721,7 +2721,7 @@ void CFlexCycler::Think( void )
 CBaseEntity *pPlayer = (CBaseEntity *)UTIL_GetLocalPlayer();
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 
-	CBaseEntity *pPlayer = (CBaseEntity *)UTIL_GetLocalPlayer();
+
 	if (pPlayer)
 	{
 		if (pPlayer->GetSmoothedVelocity().Length() != 0 && DotProduct( forward, pPlayer->EyePosition() - EyePosition()) > 0.5)

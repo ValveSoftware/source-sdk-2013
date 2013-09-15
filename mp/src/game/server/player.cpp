@@ -5074,6 +5074,11 @@ void CBasePlayer::InitialSpawn( void )
 //-----------------------------------------------------------------------------
 void CBasePlayer::Spawn( void )
 {
+
+#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+KillChatBubble();
+#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+
 	// Needs to be done before weapons are given
 	if ( Hints() )
 	{

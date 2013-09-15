@@ -2266,7 +2266,6 @@ void CFuncTank::Fire( int bulletCount, const Vector &barrelEnd, const Vector &fo
 #else
 UTIL_PlayerByIndex(1)->RumbleEffect( RUMBLE_AR2, 0, RUMBLE_FLAG_RESTART | RUMBLE_FLAG_RANDOM_AMPLITUDE );
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
-}
 		}
 		else
 		{
@@ -4290,8 +4289,8 @@ CBasePlayer *pPlayer = AI_GetSinglePlayer();
 				m_hBeam->SetColor( 0,0, 0 );
 				vecTargetPosition = pPlayer->EyePosition();
 				Vector vecForwardCurrent = vecToPlayer;
-				Vector vecBarrelCurrentEnd = WorldBarrelPosition() + 1.0f;
-				BaseClass::Fire( 1, vecBarrelCurrentEnd, vecForwardCurrent, pPlayer, false );
+//4WH-FixMe				Vector vecBarrelCurrentEnd = WorldBarrelPosition() + 1.0f;
+//4WH-FixME				BaseClass::Fire( 1, vecBarrelCurrentEnd, vecForwardCurrent, pPlayer, false );
 				//m_flTimeBeamOn = gpGlobals->curtime + 0.2f;
 				//m_flTimeNextSweep = gpGlobals->curtime + random->RandomInt( 2.0f, 4.0f ); //When "harrassing" make sure we have a longer random wait time before the next shot. Otherwise things get quite hairy for players!
 				bHarass = true;

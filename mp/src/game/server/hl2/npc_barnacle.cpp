@@ -28,7 +28,7 @@
 #include "npc_BaseZombie.h"
 #include "modelentities.h"
 
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 #include "npc_antlion.h"
 #endif
 
@@ -1859,7 +1859,7 @@ void CNPC_Barnacle::SwallowPrey( void )
 		m_bSwallowingPrey = false;
 		m_hTongueTip->SetAbsVelocity( vec3_origin );
 
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 		// digest poisonous things for just a moment before being killed by them (it looks wierd if it's instant)
 		// Parentheses were probably intended around the ?: part of the expression, but putting them there now
 		// would change the behavior which is undesirable, so parentheses were placed around the '+' to suppress

@@ -32,9 +32,9 @@
 /*****************/
 #define Seco7_Enable_Fixed_Multiplayer_AI //Allow AI in your mod, also fixes numerous crashes to do with AI and related features.
 #define HL2_EPISODIC //Choose Episode 2 code for preference. Reccomended for Orange Box. Disabling this means you must exclude all episodic cpp/h files from your project (due to compile erros you'll get otherwise).
-#define Seco7_USE_STATIC_MOUNT_CODE //Use static mounting code to mount multiple games. This must also be defined for dynamic mounts.
-#define Seco7_USE_DYNAMIC_MOUNT_CODE //This is a much better mounting system allowing for true content mounting as though a map were that game. Maps must be named ss_hl2_, ss_ep1_ and ss_ep2_ for valid mounting.
-#define Seco7_ENABLE_PORTAL_CONTENT_MOUNTING //Portal is seperate to the rest of the mounting code as it will crash anyone without Portal installed in most cases if a Portal map is loaded.
+//#define Seco7_USE_STATIC_MOUNT_CODE //Use static mounting code to mount multiple games. This must also be defined for dynamic mounts.
+//#define Seco7_USE_DYNAMIC_MOUNT_CODE //This is a much better mounting system allowing for true content mounting as though a map were that game. Maps must be named ss_hl2_, ss_ep1_ and ss_ep2_ for valid mounting.
+//#define Seco7_ENABLE_PORTAL_CONTENT_MOUNTING //Portal is seperate to the rest of the mounting code as it will crash anyone without Portal installed in most cases if a Portal map is loaded.
 #define Seco7_PREVENT_ITEM_WEAPON_RESPAWNING //Prevent items and weapons from respawning after picked up by a player. Actually we cheat and set the respawn time insanely high.
 
 /***************************/
@@ -50,11 +50,11 @@
 /**************************/
 /* Multiplayer Additions. */
 /**************************/
-//#define Seco7_FRIENDLY_FIRE_ENABLED //Enable friendly fire.
+#define Seco7_FRIENDLY_FIRE_ENABLED //Enable friendly fire.
 #define Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE //Respawn where you were killed or for preference near a living player as opposed to back at the start of a map.
 #define Seco7_USE_PLAYERCLASSES //Enable player classes.
 #define Seco7_MULTIPLAYER_VIEWCONTROL_CAMERAS //Fixes the View Control Cameras so that all clients are affected by View Control cameras.
-//#define Seco7_FORCE_TEAMPLAY_AS_ALWAYS_ON //Forces teamplay to always be enabled.
+#define Seco7_FORCE_TEAMPLAY_AS_ALWAYS_ON //Forces teamplay to always be enabled.
 #define Seco7_ENABLE_TEAMPLAY_FIXES //Fixes errors between AI and players when teams are in use, and AI are enabled.
 #define Seco7_ENABLE_FAKE_PASSENGER_SEATS //Allows a hacky passenger seat to be added to valves vehicles (jeep and jalopy).
 
@@ -69,7 +69,7 @@
 /************************/
 /* Player Enhancements. */
 /************************/
-//#define Seco7_IRONSIGHT_ENABLED //Allow basic version of ironsight.
+#define Seco7_IRONSIGHT_ENABLED //Allow basic version of ironsight.
 #define Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 #define Seco7_PLAYERS_CAN_PICKUP_OBJECTS //Players can pickup objects with their hands.
 #define Seco7_CAN_SPRINT_WITHOUT_SUIT //Players can sprint without the HEV suit.
@@ -92,7 +92,7 @@
 /*********************/
 #define Seco7_ENABLE_MAP_BRIEFINGS //Have map briefing VGUI windows (identical to MOTD) describing the loaded map.
 #define Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES //This allows mappers to override the default player models with one single player model.
-//#define Seco7_USE_CSS_LADDERS //Use the easier to map with counter strike source ladders in your maps.
+#define Seco7_USE_CSS_LADDERS //Use the easier to map with counter strike source ladders in your maps.
 
 /************************/
 /* Server Enhancements. */
@@ -101,7 +101,7 @@
 #define Seco7_ALLOW_VALVE_APPROVED_CHEATING //Allow sv_cheats to work.
 #define Seco7_MULTIPLAYER_CHAT_BUBBLES //Shows a chat icon while a player is typing.
 #define Seco7_HIGH_PING_VEHICLE_FIX //Remove vehicle judder for players with high latency (lag) at the cost of forward/backwards view dampening.
-//#define Seco7_ALLOW_JEEP_HEADLIGHTS //Allows headlights to work in jeep/jalopy.
+#define Seco7_ALLOW_JEEP_HEADLIGHTS //Allows headlights to work in jeep/jalopy.
 
 /******************************/
 /* Experimental Enhancements. */

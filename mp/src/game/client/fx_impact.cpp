@@ -400,13 +400,14 @@ void PlayImpactSound( CBaseEntity *pEntity, trace_t &tr, Vector &vecServerOrigin
 		else
 		{
 			CLocalPlayerFilter filter;
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-C_BaseEntity::EmitSound( filter, NULL, pbulletImpactSoundName, /*pdata->soundhandles.bulletImpact,*/ &vecOrigin );
-#else
-C_BaseEntity::EmitSound( filter, NULL, pbulletImpactSoundName, pdata->soundhandles.bulletImpact, &vecOrigin );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI}
+			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			C_BaseEntity::EmitSound( filter, NULL, pbulletImpactSoundName, /*pdata->soundhandles.bulletImpact,*/ &vecOrigin );
+			#else
+			C_BaseEntity::EmitSound( filter, NULL, pbulletImpactSoundName, pdata->soundhandles.bulletImpact, &vecOrigin );
+			#endif //Seco7_Enable_Fixed_Multiplayer_AI}
 
-		return;
+			return;
+		}
 	}
 
 #ifdef _DEBUG

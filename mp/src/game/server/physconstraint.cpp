@@ -16,10 +16,11 @@
 #include "fmtstr.h"
 #include "physics_prop_ragdoll.h"
 
-#define HINGE_NOTIFY HL2_EPISODIC
-#if HINGE_NOTIFY
+//4WH - Episodic Issues: If we don't comment these out, then the code doesn't compile.
+//#define HINGE_NOTIFY HL2_EPISODIC
+//#if HINGE_NOTIFY
 #include "physconstraint_sounds.h"
-#endif
+//#endif
 
 #include "physconstraint.h"
 
@@ -573,18 +574,8 @@ void CPhysConstraint::GetConstraintObjects( hl_constraint_info_t &info )
 		{
 			Warning("Bogus constraint %s (attaches ENTITY NOT FOUND:%s to %s)\n", GetDebugName(), STRING(m_nameAttach1), STRING(m_nameAttach2));
 #ifdef HL2_EPISODIC
-//4WH - Information: Added in these to prevent hl2/ep1 maps from having NULL physics constraints.
-if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep1_", 4 )
-|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d1_", 3 )
-|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d2_", 3 )
-|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d3_", 3 ) )
-	{
-	}
-	else
-	{
 			info.pObjects[0] = info.pObjects[1] = NULL;
 			return;
-	}
 #endif	// HL2_EPISODIC
 		}
 		info.pObjects[0] = g_PhysWorldObject;
@@ -596,18 +587,8 @@ if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep1_", 4 )
 		{
 			Warning("Bogus constraint %s (attaches %s to ENTITY NOT FOUND:%s)\n", GetDebugName(), STRING(m_nameAttach1), STRING(m_nameAttach2));
 #ifdef HL2_EPISODIC
-//4WH - Information: Added in these to prevent hl2/ep1 maps from having NULL physics constraints.
-if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep1_", 4 )
-|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d1_", 3 )
-|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d2_", 3 )
-|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d3_", 3 ) )
-	{
-	}
-	else
-	{
 			info.pObjects[0] = info.pObjects[1] = NULL;
 			return;
-	}
 #endif	// HL2_EPISODIC
 		}
 		info.pObjects[1] = info.pObjects[0];
@@ -1311,49 +1292,6 @@ void CPhysSlideConstraint::Precache()
 #endif
 
 
-//-----------------------------------------------------------------------------
-// Purpose: seco2013 Fixed breakable constraint
-//-----------------------------------------------------------------------------
-class CPhysFixed : public CPhysConstraint
-{
-	DECLARE_CLASS( CPhysFixed, CPhysConstraint );
-public:
-	IPhysicsConstraint *CreateConstraint( IPhysicsConstraintGroup *pGroup, const hl_constraint_info_t &info );
-	
-	// just for debugging - move to the position of the reference entity
-	void MoveToRefPosition()
-	{
-		if ( m_pConstraint )
-		{
-			matrix3x4_t xformRef;
-			m_pConstraint->GetConstraintTransform( &xformRef, NULL );
-			IPhysicsObject *pObj = m_pConstraint->GetReferenceObject();
-			if ( pObj && pObj->IsMoveable() )
-			{
-				Vector pos, posWorld;
-				MatrixPosition( xformRef, pos );
-				pObj->LocalToWorld(&posWorld, pos);
-				SetAbsOrigin(posWorld);
-			}
-		}
-	}
-	int DrawDebugTextOverlays()
-	{
-		if ( m_debugOverlays & OVERLAY_TEXT_BIT )
-		{
-			MoveToRefPosition();
-		}
-		return BaseClass::DrawDebugTextOverlays();
-	}
-	void DrawDebugGeometryOverlays()
-	{
-		if ( m_debugOverlays & (OVERLAY_BBOX_BIT|OVERLAY_PIVOT_BIT|OVERLAY_ABSBOX_BIT) )
-		{
-			MoveToRefPosition();
-		}
-		BaseClass::DrawDebugGeometryOverlays();
-	}
-};
 
 LINK_ENTITY_TO_CLASS( phys_constraint, CPhysFixed );
 

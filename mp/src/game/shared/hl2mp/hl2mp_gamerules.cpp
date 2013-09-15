@@ -345,7 +345,7 @@ if( physcannon_mega_enabled.GetBool() == true )
 		else
 		{
 			// FIXME: Is there a better place for this?
-			m_bMegaPhysgun = ( GlobalEntity_GetState("super_phys_gun") == GLOBAL_ON );
+//4WH Fix Me			m_bMegaPhysgun = ( GlobalEntity_GetState("super_phys_gun") == GLOBAL_ON );
 		}
 #endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
 	
@@ -2414,7 +2414,7 @@ bool CHL2MPRules::IsAlyxInDarknessMode()
 	if ( alyx_darkness_force.GetBool() )
 		return true;
 
-	return ( GlobalEntity_GetState( "ep_alyx_darknessmode" ) == GLOBAL_ON );
+//4WH Fix Me return ( GlobalEntity_GetState( "ep_alyx_darknessmode" ) == GLOBAL_ON );
 #else
 	return false;
 #endif // HL2_EPISODIC

@@ -79,6 +79,8 @@ public:
 
 	virtual void	Spawn( void );
 	virtual void	SharedSpawn(); // Shared between client and server.
+
+	virtual bool	GetSteamID( CSteamID *pID ); //4WH this was missing from the header, but function requiring it still in the cpp and not a seco modification as far as I can see.
 	
 		
 #ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES

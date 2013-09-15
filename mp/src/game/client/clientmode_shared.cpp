@@ -358,7 +358,6 @@ else
 	ClearKeyValuesCache();
 #endif //Seco7_USE_PLAYERCLASSES
 }
-}
 
 
 //----------------------------------------------------------------------------

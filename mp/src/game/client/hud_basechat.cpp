@@ -1153,8 +1153,6 @@ void CBaseHudChat::Printf( int iFilter, const char *fmt, ... )
 	ChatPrintf( 0, iFilter, "%s", msg );
 }
 
-
-
 #ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
 int g_iChatBubble = 0;
 #endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
@@ -1176,18 +1174,19 @@ void CBaseHudChat::StartMessageMode( int iMessageModeType )
 	}
 	else
 	{
-#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
-	if ( m_nMessageMode == MM_SAY )
-	{
-		m_pChatInput->SetPrompt( L"Say :" );
-		g_iChatBubble = 1; //all chat bubble
-	}
-	else
-	{
-		m_pChatInput->SetPrompt( L"Say (TEAM) :" );
-		g_iChatBubble = 2; //team chat bubble
-	}
-#else
+		#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+		if ( m_nMessageMode == MM_SAY )
+		{
+			m_pChatInput->SetPrompt( L"Say :" );
+			g_iChatBubble = 1; //all chat bubble
+		}
+		else
+		{
+			m_pChatInput->SetPrompt( L"Say (TEAM) :" );
+			g_iChatBubble = 2; //team chat bubble
+		}
+		#else
+
 		if ( m_nMessageMode == MM_SAY )
 		{
 			m_pChatInput->SetPrompt( L"Say :" );
@@ -1196,8 +1195,8 @@ void CBaseHudChat::StartMessageMode( int iMessageModeType )
 		{
 			m_pChatInput->SetPrompt( L"Say (TEAM) :" );
 		}
+		#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
 	}
-#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
 	
 	if ( GetChatHistory() )
 	{

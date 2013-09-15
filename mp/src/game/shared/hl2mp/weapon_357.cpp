@@ -13,10 +13,6 @@
 	#include "c_hl2mp_player.h"
 #else
 	#include "hl2mp_player.h"
-
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-    #include "te_effect_dispatch.h"
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
 #endif
 
 #include "weapon_hl2mpbasehlmpcombatweapon.h"
@@ -40,11 +36,9 @@ public:
 	DECLARE_NETWORKCLASS(); 
 	DECLARE_PREDICTABLE();
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 	DECLARE_ACTTABLE();
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 private:
 	
@@ -148,10 +142,6 @@ void CWeapon357::PrimaryAttack( void )
 
 #ifndef CLIENT_DLL
 	pPlayer->SnapEyeAngles( angles );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 0.5 );
-	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), 600, 0.2, GetOwner() );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
 #endif
 
 	pPlayer->ViewPunch( QAngle( -8, random->RandomFloat( -2, 2 ), 0 ) );

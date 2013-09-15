@@ -934,4 +934,7 @@ enum
 };
 #endif // TF_DLL || TF_CLIENT_DLL
 
+//4WH - Information: Here we add in the Source Engine Co-Op v7 definitions.
+#include "./seco/seco7_shareddefs.h"
+
 #endif // SHAREDDEFS_H

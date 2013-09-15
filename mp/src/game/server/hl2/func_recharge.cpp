@@ -19,6 +19,10 @@
 #include "engine/IEngineSound.h"
 #include "in_buttons.h"
 
+#ifdef Seco7_USE_PLAYERCLASSES
+#include "hl2mp_player.h"
+#endif //Seco7_USE_PLAYERCLASSES
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 

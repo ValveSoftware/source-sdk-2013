@@ -33,6 +33,9 @@
 #include "hl2_gamerules.h"
 #include "decals.h"
 
+//4WH - Episodic Issues: Here we include the hl2mp gamerules so that calls to darkness mode work.
+#include "hl2mp_gamerules.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 

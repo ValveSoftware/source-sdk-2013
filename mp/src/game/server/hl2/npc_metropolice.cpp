@@ -5013,8 +5013,6 @@ void CNPC_MetroPolice::GatherConditions( void )
 #else
 CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
-
-	CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
 	
 	// FIXME: Player can be NULL here during level transitions.
 	if ( !pPlayer )

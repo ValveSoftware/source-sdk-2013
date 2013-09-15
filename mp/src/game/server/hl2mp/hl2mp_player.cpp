@@ -30,8 +30,6 @@
 
 #include "ilagcompensationmanager.h"
 
-
-
 #ifdef Seco7_USE_PLAYERCLASSES
 	int MaximumAssaulterPlayerNumbers = 1;
 	int MaximumSupporterPlayerNumbers = 1;
@@ -52,7 +50,6 @@ Vector pEntityOrigin;
 ConVar sv_seco7_increment_killed("sv_seco7_increment_killed", "0", 0, "The level of Increment Killed as a convar.");
 int PlayerDucking;
 #endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
-
 int g_iLastCitizenModel = 0;
 int g_iLastCombineModel = 0;
 
@@ -76,23 +73,6 @@ LINK_ENTITY_TO_CLASS( info_player_supporter, CPointEntity );
 LINK_ENTITY_TO_CLASS( info_player_medic, CPointEntity );
 LINK_ENTITY_TO_CLASS( info_player_heavy, CPointEntity );
 #endif //Seco7_USE_PLAYERCLASSES
-
-extern void SendProxy_Origin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
-
-BEGIN_SEND_TABLE_NOBASE( CHL2MP_Player, DT_HL2MPLocalPlayerExclusive )
-	// send a hi-res origin to the local player for use in prediction
-	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_NOSCALE|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
-	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
-//	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
-END_SEND_TABLE()
-
-BEGIN_SEND_TABLE_NOBASE( CHL2MP_Player, DT_HL2MPNonLocalPlayerExclusive )
-	// send a lo-res origin to other players
-	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_COORD_MP_LOWPRECISION|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
-	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
-	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
-END_SEND_TABLE()
-
 IMPLEMENT_SERVERCLASS_ST(CHL2MP_Player, DT_HL2MP_Player)
 	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 11, SPROP_CHANGES_OFTEN ),
 	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 11, SPROP_CHANGES_OFTEN ),
@@ -355,14 +335,6 @@ void CHL2MP_Player::PickDefaultSpawnTeam( void )
 	}
 }
 
-#define HL2MP_PUSHAWAY_THINK_CONTEXT	"HL2MPPushawayThink"
-void CHL2MP_Player::HL2MPPushawayThink(void)
-{
-	// Push physics props out of our way.
-	PerformObstaclePushaway( this );
-	SetNextThink( gpGlobals->curtime + PUSHAWAY_THINK_INTERVAL, HL2MP_PUSHAWAY_THINK_CONTEXT );
-}
-
 #ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 //------------------------------------------------------------------------------
 // A small wrapper around SV_Move that never clips against the supplied entity.
@@ -553,10 +525,8 @@ CBaseEntity *ent = NULL;
 
 		RemoveEffects( EF_NODRAW );
 		
-		GiveDefaultItems();			
-		StartSprinting();
-		StopSprinting();		
-}
+		GiveDefaultItems();
+	}
 
 	SetNumAnimOverlays( 3 );
 	ResetAnimation();
@@ -585,43 +555,6 @@ CBaseEntity *ent = NULL;
 	SetPlayerUnderwater(false);
 
 	m_bReady = false;
-#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
-	//4WH - Information: This allows map makers to override player models per-map. Note that it sets the same player model for EVERY player.
-		CBaseEntity *pSwitchModelEnt = NULL;
-		Vector SwitchModelEntOrigin = GetAbsOrigin();
-		pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
-		
-	if (pSwitchModelEnt != NULL)
-	{
-		if (pSwitchModelEnt->NameMatches("metrocop"))
-		{
-			SetModel( "models/sdk/Humans/Group03/police_05.mdl" );
-			m_iPlayerSoundType = (int)PLAYER_SOUNDS_METROPOLICE;
-		}
-		else if (pSwitchModelEnt->NameMatches("male05"))
-		{
-			SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
-			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
-		}
-		else if (pSwitchModelEnt->NameMatches("male06"))
-		{
-			SetModel( "models/sdk/Humans/Group03/male_06.mdl" );
-			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
-		}
-		else if (pSwitchModelEnt->NameMatches("l7hrebel"))
-		{
-			SetModel( "models/sdk/Humans/Group03/l7h_rebel.mdl" );
-			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
-		}
-		else
-		{
-			Msg ("Warning! switchmodel name NOT a valid model name!");
-			SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
-			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
-			Msg ("Fail-safe player models have been set!");
-		}
-	}
-#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
 }
 
 void CHL2MP_Player::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
@@ -908,8 +841,6 @@ void CHL2MP_Player::PostThink( void )
 
 	// Store the eye angles pitch so the client can compute its animation state correctly.
 	m_angEyeAngles = EyeAngles();
-    
-		
 #ifdef Seco7_USE_PLAYERCLASSES
 OnClassChange();
 
@@ -924,11 +855,11 @@ m_bDelayedMessage = false;
 if ( GetActiveWeapon() == NULL )
 {
 Weapon_Switch( Weapon_OwnsThisType( "weapon_hands" ) );
-}
 
 	QAngle angles = GetLocalAngles();
 	angles[PITCH] = 0;
 	SetLocalAngles( angles );
+}
 }
 
 void CHL2MP_Player::PlayerDeathThink()
@@ -971,53 +902,6 @@ void CHL2MP_Player::NoteWeaponFired( void )
 }
 
 extern ConVar sv_maxunlag;
-
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBaseEntity *pEntity, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const 
-{
-	// No need to lag compensate at all if we're not attacking in this command and
-	// we haven't attacked recently.
-	if ( !( pCmd->buttons & IN_ATTACK ) && (pCmd->command_number - m_iLastWeaponFireUsercmd > 5) )
-		return false;
-
-	return BaseClass::WantsLagCompensationOnEntity( pEntity, pCmd, pEntityTransmitBits ); 
-#else
-bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const
-{
-	// No need to lag compensate at all if we're not attacking in this command and
-	// we haven't attacked recently.
-	if ( !( pCmd->buttons & IN_ATTACK ) && (pCmd->command_number - m_iLastWeaponFireUsercmd > 5) )
-		return false;
-
-	// If this entity hasn't been transmitted to us and acked, then don't bother lag compensating it.
-	if ( pEntityTransmitBits && !pEntityTransmitBits->Get( pPlayer->entindex() ) )
-		return false;
-
-	const Vector &vMyOrigin = GetAbsOrigin();
-	const Vector &vHisOrigin = pPlayer->GetAbsOrigin();
-
-	// get max distance player could have moved within max lag compensation time, 
-	// multiply by 1.5 to to avoid "dead zones"  (sqrt(2) would be the exact value)
-	float maxDistance = 1.5 * pPlayer->MaxSpeed() * sv_maxunlag.GetFloat();
-
-	// If the player is within this distance, lag compensate them in case they're running past us.
-	if ( vHisOrigin.DistTo( vMyOrigin ) < maxDistance )
-		return true;
-
-	// If their origin is not within a 45 degree cone in front of us, no need to lag compensate.
-	Vector vForward;
-	AngleVectors( pCmd->viewangles, &vForward );
-	
-	Vector vDiff = vHisOrigin - vMyOrigin;
-	VectorNormalize( vDiff );
-
-	float flCosAngle = 0.707107f;	// 45 degree angle
-	if ( vForward.Dot( vDiff ) < flCosAngle )
-		return false;
-
-	return true;
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
-}
 
 Activity CHL2MP_Player::TranslateTeamActivity( Activity ActToTranslate )
 {
@@ -1615,6 +1499,7 @@ void CHL2MP_Player::Event_Killed( const CTakeDamageInfo &info )
 	// Note: since we're dead, it won't draw us on the client, but we don't set EF_NODRAW
 	// because we still want to transmit to the clients in our PVS.
 	CreateRagdollEntity();
+	
 	#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 	//4WH - Information: When a player is killed and if there's a ragdoll (there always is, even if it gets removed instantly) then we either get the position of our next (other) nearest player (because GetNearestPlayer would return ourselves) and set it to be the vector labelled respawn_origin or we just use the position of our ragdolls first spawn if no players are alive.
 	CBasePlayer *pPlayer = UTIL_GetOtherNearestPlayer(GetAbsOrigin());
@@ -1650,6 +1535,7 @@ void CHL2MP_Player::Event_Killed( const CTakeDamageInfo &info )
 			m_hRagdoll->GetBaseAnimating()->Dissolve( NULL, gpGlobals->curtime, false, ENTITY_DISSOLVE_NORMAL );
 		}
 	}
+	
 #ifdef Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
 	if ( (info.GetDamageType() & (DMG_ALWAYSGIB|DMG_LASTGENERICFLAG|DMG_CRUSH)) == (DMG_ALWAYSGIB|DMG_LASTGENERICFLAG|DMG_CRUSH) )
 	{
@@ -1942,13 +1828,13 @@ if ( !pSpot  )
 		CBaseEntity *pEntity = NULL;
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
 		Vector vecOrigin = pPlayer->GetAbsOrigin();
-		pEntity = gEntList.FindEntityByClassnameNearest( "item_suit", vecOrigin, 0, NULL);
+		pEntity = gEntList.FindEntityByClassnameNearest( "item_suit", vecOrigin, 0);
 
 
 		if (pEntity != NULL)
 		{
 		vecOrigin = pEntity->GetAbsOrigin();
-		pEntity = gEntList.FindEntityByClassnameNearest( "info_player_start", vecOrigin, 0, NULL);
+		pEntity = gEntList.FindEntityByClassnameNearest( "info_player_start", vecOrigin, 0);
 		pSpot = pEntity;
 		pSpawnpointName = "info_player_start";
 		goto ReturnSpot;
@@ -1963,11 +1849,11 @@ if ( !pSpot  )
 		CBaseEntity *pEntity = NULL;
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
 		Vector vecOrigin = pPlayer->GetAbsOrigin();
-		pEntity = gEntList.FindEntityByClassnameNearest( "npc_alyx", vecOrigin, 0, NULL);
+		pEntity = gEntList.FindEntityByClassnameNearest( "npc_alyx", vecOrigin, 0);
 		if (pEntity != NULL)
 		{
 		vecOrigin = pEntity->GetAbsOrigin();
-		pEntity = gEntList.FindEntityByClassnameNearest( "info_player_start", vecOrigin, 0, NULL);
+		pEntity = gEntList.FindEntityByClassnameNearest( "info_player_start", vecOrigin, 0);
 		pSpot = pEntity;
 		pSpawnpointName = "info_player_start";
 		goto ReturnSpot;
@@ -2238,124 +2124,6 @@ bool CHL2MP_Player::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 
 	return true;
 }
-	return;
-}
-// -------------------------------------------------------------------------------- //
-// Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
-// -------------------------------------------------------------------------------- //
-
-class CTEPlayerAnimEvent : public CBaseTempEntity
-{
-public:
-	DECLARE_CLASS( CTEPlayerAnimEvent, CBaseTempEntity );
-	DECLARE_SERVERCLASS();
-
-					CTEPlayerAnimEvent( const char *name ) : CBaseTempEntity( name )
-					{
-					}
-
-	CNetworkHandle( CBasePlayer, m_hPlayer );
-	CNetworkVar( int, m_iEvent );
-	CNetworkVar( int, m_nData );
-};
-
-IMPLEMENT_SERVERCLASS_ST_NOBASE( CTEPlayerAnimEvent, DT_TEPlayerAnimEvent )
-	SendPropEHandle( SENDINFO( m_hPlayer ) ),
-	SendPropInt( SENDINFO( m_iEvent ), Q_log2( PLAYERANIMEVENT_COUNT ) + 1, SPROP_UNSIGNED ),
-	SendPropInt( SENDINFO( m_nData ), 32 )
-END_SEND_TABLE()
-
-static CTEPlayerAnimEvent g_TEPlayerAnimEvent( "PlayerAnimEvent" );
-
-void TE_PlayerAnimEvent( CBasePlayer *pPlayer, PlayerAnimEvent_t event, int nData )
-{
-	CPVSFilter filter( (const Vector&)pPlayer->EyePosition() );
-
-	//Tony; use prediction rules.
-	filter.UsePredictionRules();
-	
-	g_TEPlayerAnimEvent.m_hPlayer = pPlayer;
-	g_TEPlayerAnimEvent.m_iEvent = event;
-	g_TEPlayerAnimEvent.m_nData = nData;
-	g_TEPlayerAnimEvent.Create( filter, 0 );
-}
-
-
-void CHL2MP_Player::DoAnimationEvent( PlayerAnimEvent_t event, int nData )
-{
-	m_PlayerAnimState->DoAnimationEvent( event, nData );
-	TE_PlayerAnimEvent( this, event, nData );	// Send to any clients who can see this guy.
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Override setup bones so that is uses the render angles from
-//			the HL2MP animation state to setup the hitboxes.
-//-----------------------------------------------------------------------------
-void CHL2MP_Player::SetupBones( matrix3x4_t *pBoneToWorld, int boneMask )
-{
-	VPROF_BUDGET( "CHL2MP_Player::SetupBones", VPROF_BUDGETGROUP_SERVER_ANIM );
-
-	// Set the mdl cache semaphore.
-	MDLCACHE_CRITICAL_SECTION();
-
-	// Get the studio header.
-	Assert( GetModelPtr() );
-	CStudioHdr *pStudioHdr = GetModelPtr( );
-
-	Vector pos[MAXSTUDIOBONES];
-	Quaternion q[MAXSTUDIOBONES];
-
-	// Adjust hit boxes based on IK driven offset.
-	Vector adjOrigin = GetAbsOrigin() + Vector( 0, 0, m_flEstIkOffset );
-
-	// FIXME: pass this into Studio_BuildMatrices to skip transforms
-	CBoneBitList boneComputed;
-	if ( m_pIk )
-	{
-		m_iIKCounter++;
-		m_pIk->Init( pStudioHdr, GetAbsAngles(), adjOrigin, gpGlobals->curtime, m_iIKCounter, boneMask );
-		GetSkeleton( pStudioHdr, pos, q, boneMask );
-
-		m_pIk->UpdateTargets( pos, q, pBoneToWorld, boneComputed );
-		CalculateIKLocks( gpGlobals->curtime );
-		m_pIk->SolveDependencies( pos, q, pBoneToWorld, boneComputed );
-	}
-	else
-	{
-		GetSkeleton( pStudioHdr, pos, q, boneMask );
-	}
-
-	CBaseAnimating *pParent = dynamic_cast< CBaseAnimating* >( GetMoveParent() );
-	if ( pParent )
-	{
-		// We're doing bone merging, so do special stuff here.
-		CBoneCache *pParentCache = pParent->GetBoneCache();
-		if ( pParentCache )
-		{
-			BuildMatricesWithBoneMerge( 
-				pStudioHdr, 
-				m_PlayerAnimState->GetRenderAngles(),
-				adjOrigin, 
-				pos, 
-				q, 
-				pBoneToWorld, 
-				pParent, 
-				pParentCache );
-
-			return;
-		}
-	}
-
-	Studio_BuildMatrices( 
-		pStudioHdr, 
-		m_PlayerAnimState->GetRenderAngles(),
-		adjOrigin, 
-		pos, 
-		q, 
-		-1,
-		pBoneToWorld,
-		boneMask );
-}
 
 #ifdef Seco7_USE_PLAYERCLASSES
 // Allow the server admin to set the default class value.
@@ -2500,7 +2268,7 @@ void CHL2MP_Player::SetClassGroundUnit()
 #ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
 CBaseEntity *pSwitchModelEnt = NULL;
 Vector SwitchModelEntOrigin = GetAbsOrigin();
-pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0);
 	
 if (pSwitchModelEnt == NULL)
 {
@@ -2573,7 +2341,7 @@ m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
 #ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
 CBaseEntity *pSwitchModelEnt = NULL;
 Vector SwitchModelEntOrigin = GetAbsOrigin();
-pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0);
 	
 if (pSwitchModelEnt == NULL)
 {
@@ -2589,7 +2357,7 @@ m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
 		
 //4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 CBaseEntity *pEntity = NULL;
-pEntity = gEntList.FindEntityByClassnameNearest( "info_player_assaulter", pEntityOrigin, 0, NULL);
+pEntity = gEntList.FindEntityByClassnameNearest( "info_player_assaulter", pEntityOrigin, 0);
 if (pEntity != NULL)
 {
 pEntityOrigin = pEntity->GetAbsOrigin();
@@ -2636,7 +2404,7 @@ void CHL2MP_Player::SetClassSupportUnit()
 #ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
 CBaseEntity *pSwitchModelEnt = NULL;
 Vector SwitchModelEntOrigin = GetAbsOrigin();
-pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0);
 	
 if (pSwitchModelEnt == NULL)
 {
@@ -2708,7 +2476,7 @@ m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
 #ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
 CBaseEntity *pSwitchModelEnt = NULL;
 Vector SwitchModelEntOrigin = GetAbsOrigin();
-pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0);
 	
 if (pSwitchModelEnt == NULL)
 {
@@ -2724,7 +2492,7 @@ m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
 				
 //4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 CBaseEntity *pEntity = NULL;
-pEntity = gEntList.FindEntityByClassnameNearest( "info_player_supporter", pEntityOrigin, 0, NULL);
+pEntity = gEntList.FindEntityByClassnameNearest( "info_player_supporter", pEntityOrigin, 0);
 if (pEntity != NULL)
 {
 pEntityOrigin = pEntity->GetAbsOrigin();
@@ -2774,7 +2542,7 @@ void CHL2MP_Player::SetClassMedic()
 #ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
 CBaseEntity *pSwitchModelEnt = NULL;
 Vector SwitchModelEntOrigin = GetAbsOrigin();
-pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0);
 	
 if (pSwitchModelEnt == NULL)
 {
@@ -2847,7 +2615,7 @@ m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
 #ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
 CBaseEntity *pSwitchModelEnt = NULL;
 Vector SwitchModelEntOrigin = GetAbsOrigin();
-pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0);
 	
 if (pSwitchModelEnt == NULL)
 {
@@ -2863,7 +2631,7 @@ m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
 		
 //4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 CBaseEntity *pEntity = NULL;
-pEntity = gEntList.FindEntityByClassnameNearest( "info_player_medic", pEntityOrigin, 0, NULL);
+pEntity = gEntList.FindEntityByClassnameNearest( "info_player_medic", pEntityOrigin, 0);
 if (pEntity != NULL)
 {
 pEntityOrigin = pEntity->GetAbsOrigin();
@@ -2916,7 +2684,7 @@ void CHL2MP_Player::SetClassHeavy()
 #ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
 CBaseEntity *pSwitchModelEnt = NULL;
 Vector SwitchModelEntOrigin = GetAbsOrigin();
-pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0);
 	
 if (pSwitchModelEnt == NULL)
 {
@@ -2995,7 +2763,7 @@ m_iPlayerSoundType = (int)PLAYER_SOUNDS_METROPOLICE;
 #ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES		
 CBaseEntity *pSwitchModelEnt = NULL;
 Vector SwitchModelEntOrigin = GetAbsOrigin();
-pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0, NULL);
+pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0);
 	
 if (pSwitchModelEnt == NULL)
 {
@@ -3011,7 +2779,7 @@ m_iPlayerSoundType = (int)PLAYER_SOUNDS_METROPOLICE;
 				
 //4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 CBaseEntity *pEntity = NULL;
-pEntity = gEntList.FindEntityByClassnameNearest( "info_player_heavy", pEntityOrigin, 0, NULL);
+pEntity = gEntList.FindEntityByClassnameNearest( "info_player_heavy", pEntityOrigin, 0);
 if (pEntity != NULL)
 {
 pEntityOrigin = pEntity->GetAbsOrigin();

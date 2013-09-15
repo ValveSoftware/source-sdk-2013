@@ -1168,29 +1168,4 @@ bool CHL2GameMovement::CanAccelerate()
 
 	EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CGameMovement, IGameMovement,INTERFACENAME_GAMEMOVEMENT, g_GameMovement );
 #endif
-
-//-----------------------------------------------------------------------------
-// Purpose: Allow bots etc to use slightly different solid masks
-//-----------------------------------------------------------------------------
-unsigned int CHL2GameMovement::PlayerSolidMask( bool brushOnly )
-{
-	int mask = 0;
-#ifdef HL2MP
-	if ( HL2MPRules()->IsTeamplay() )
-	{
-		switch ( player->GetTeamNumber() )
-		{
-		case TEAM_REBELS:
-			mask = CONTENTS_TEAM1;
-			break;
-
-		case TEAM_COMBINE:
-			mask = CONTENTS_TEAM2;
-			break;
-		}
-	}
-#endif
-	return ( mask | BaseClass::PlayerSolidMask( brushOnly ) );
-}
-
 #endif //Seco7_USE_CSS_LADDERS

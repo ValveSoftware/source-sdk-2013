@@ -44,6 +44,10 @@ public:
 	virtual void	SetGroundEntity( trace_t *pm );
 	virtual bool CanAccelerate( void );
 
+	#ifdef Seco7_USE_CSS_LADDERS
+	virtual unsigned int PlayerSolidMask( bool brushOnly = false );
+	#endif //Seco7_USE_CSS_LADDERS
+
 private:
 
 	// See if we are pressing use near a ladder "mount" point and if so, latch us onto the ladder

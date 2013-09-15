@@ -239,7 +239,8 @@ CAI_Manager g_AI_Manager;
 //-------------------------------------
 
 CAI_Manager::CAI_Manager()
-{#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+{
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 	m_AIs.EnsureCapacity( MAX_AIS );
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 }
