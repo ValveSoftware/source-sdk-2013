@@ -307,7 +307,14 @@ void CEnvSoundscape::UpdateForPlayer( ss_update_t &update )
 		// draw myself
 		NDebugOverlay::Box(GetAbsOrigin(), Vector(-10,-10,-10), Vector(10,10,10),  255, 0, 255, 64, NDEBUG_PERSIST_TILL_NEXT_SERVER );
 
- 		if ( update.pPlayer )
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer(); 
+#else
+// Don't use GetLocalPlayer(), because that prevents multiplayer games using this for testing with a single client in the game
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+#endif //Seco7_Enable_Fixed_Multiplayer_AI 		
+
+if ( update.pPlayer )
 		{
 			audioparams_t &audio = update.pPlayer->GetAudioParams();
 			if ( audio.ent.Get() != this )

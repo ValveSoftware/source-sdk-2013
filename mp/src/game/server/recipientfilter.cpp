@@ -369,6 +369,15 @@ CTeamRecipientFilter::CTeamRecipientFilter( int team, bool isReliable )
 //-----------------------------------------------------------------------------
 void CPASAttenuationFilter::Filter( const Vector& origin, float attenuation /*= ATTN_NORM*/ )
 {
+
+	//4WH - Information: Try as we might, this was the only fix for getting breencasts.
+	// Don't crop for attenuation 
+	if ( gpGlobals->maxClients >= 1 )
+	{
+	AddAllPlayers();
+	return;
+	}
+	
 	// Don't crop for attenuation in single player
 	if ( gpGlobals->maxClients == 1 )
 		return;

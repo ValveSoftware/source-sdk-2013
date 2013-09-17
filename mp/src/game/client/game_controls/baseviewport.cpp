@@ -42,6 +42,11 @@
 #include "NavProgress.h"
 #include "commentary_modelviewer.h"
 
+#ifdef Seco7_USE_PLAYERCLASSES
+  // Sub dialogs
+  # include "classmenu.h"
+#endif //Seco7_USE_PLAYERCLASSES
+
 // our definition
 #include "baseviewport.h"
 #include <filesystem.h>
@@ -90,6 +95,32 @@ CON_COMMAND( hidepanel, "Hides a viewport panel <name>" )
 		
 	 gViewPortInterface->ShowPanel( args[ 1 ], false );
 }
+
+#ifdef Seco7_USE_PLAYERCLASSES
+ CON_COMMAND( SSPlayerClassesBGChecked, "Makes sure the player class menu isn't displayed on the background maps." )
+{
+	if ( !gViewPortInterface )
+		return;
+
+ if ( !engine->IsLevelMainMenuBackground() )
+	{		
+	return;
+	}
+ else
+	{
+	engine->ClientCmd( "ss_classes_default" );
+    }
+}
+
+ CON_COMMAND( chooseclass, "Opens a menu for class choose" )
+ {
+ 	if ( !gViewPortInterface )
+ 		return;
+ 
+ 	gViewPortInterface->ShowPanel( "class", true );
+ }
+
+#endif //Seco7_USE_PLAYERCLASSES
 
 /* global helper functions
 
@@ -233,6 +264,9 @@ void CBaseViewport::CreateDefaultPanels( void )
 	AddNewPanel( CreatePanelByName( PANEL_NAV_PROGRESS ), "PANEL_NAV_PROGRESS" );
 	// AddNewPanel( CreatePanelByName( PANEL_TEAM ), "PANEL_TEAM" );
 	// AddNewPanel( CreatePanelByName( PANEL_CLASS ), "PANEL_CLASS" );
+#ifdef Seco7_USE_PLAYERCLASSES
+	AddNewPanel( CreatePanelByName( PANEL_CLASS ), "PANEL_CLASS" );
+#endif //Seco7_USE_PLAYERCLASSES
 	// AddNewPanel( CreatePanelByName( PANEL_BUY ), "PANEL_BUY" );
 #endif
 }
@@ -270,6 +304,12 @@ IViewPortPanel* CBaseViewport::CreatePanelByName(const char *szPanelName)
 		newpanel = new CMapOverview( this );
 	}
 	*/
+#ifdef Seco7_USE_PLAYERCLASSES
+	else if ( Q_strcmp(PANEL_CLASS, szPanelName) == 0 )
+	{
+		newpanel = new CClassMenu( this );
+	}
+#endif //Seco7_USE_PLAYERCLASSES
 	else if ( Q_strcmp(PANEL_TEAM, szPanelName) == 0 )
 	{
 		newpanel = new CTeamMenu( this );

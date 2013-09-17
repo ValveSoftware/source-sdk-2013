@@ -77,14 +77,15 @@ BEGIN_DATADESC( CFuncTank )
 	DEFINE_KEYFIELD( m_iBulletDamageVsPlayer, FIELD_INTEGER, "bullet_damage_vs_player" ),
 	DEFINE_KEYFIELD( m_iszMaster, FIELD_STRING, "master" ),
 	
-#ifdef HL2_EPISODIC	
+//4WH - Episodic Issues: We enable all ammo types so that we can have both the old style mounted guns (which players can use) and the new combine cannons (which players can't use, and rely on the new ammo code).
+//#ifdef HL2_EPISODIC	
 	DEFINE_KEYFIELD( m_iszAmmoType, FIELD_STRING, "ammotype" ),
 	DEFINE_FIELD( m_iAmmoType, FIELD_INTEGER ),
-#else
+//#else
 	DEFINE_FIELD( m_iSmallAmmoType, FIELD_INTEGER ),
 	DEFINE_FIELD( m_iMediumAmmoType, FIELD_INTEGER ),
 	DEFINE_FIELD( m_iLargeAmmoType, FIELD_INTEGER ),
-#endif // HL2_EPISODIC
+//#endif // HL2_EPISODIC
 
 	DEFINE_KEYFIELD( m_soundStartRotate, FIELD_SOUNDNAME, "rotatestartsound" ),
 	DEFINE_KEYFIELD( m_soundStopRotate, FIELD_SOUNDNAME, "rotatestopsound" ),
@@ -755,6 +756,13 @@ void CFuncTank::Spawn( void )
 		AddSolidFlags( FSOLID_NOT_SOLID );
 	}
 
+//4WH - Information: This is code added from DutchMegas' Collaborate source mod to fix func_tank for hl2mp usage.
+	CDynamicProp *pProp = dynamic_cast<CDynamicProp*>(GetParent());
+	if ( pProp )
+	{
+		pProp->SetClientSideAnimation( false );
+	}
+
 	m_hControlVolume	= NULL;
 
 	if ( GetParent() && GetParent()->GetBaseAnimating() )
@@ -1027,6 +1035,7 @@ bool CFuncTank::StartControl( CBaseCombatCharacter *pController )
 
 		CBasePlayer *pPlayer = static_cast<CBasePlayer*>( m_hController.Get() );
 		pPlayer->m_Local.m_iHideHUD |= HIDEHUD_WEAPONSELECTION;
+		pPlayer->Weapon_Switch( pPlayer->Weapon_OwnsThisType( "weapon_hands" ) );//4WH - Information: Prevents weapon sounds/effects on throwing picked up objects.
 	}
 	else
 	{
@@ -4289,8 +4298,8 @@ CBasePlayer *pPlayer = AI_GetSinglePlayer();
 				m_hBeam->SetColor( 0,0, 0 );
 				vecTargetPosition = pPlayer->EyePosition();
 				Vector vecForwardCurrent = vecToPlayer;
-//4WH-FixMe				Vector vecBarrelCurrentEnd = WorldBarrelPosition() + 1.0f;
-//4WH-FixME				BaseClass::Fire( 1, vecBarrelCurrentEnd, vecForwardCurrent, pPlayer, false );
+				Vector vecBarrelCurrentEnd = WorldBarrelPosition();//4WH + 1.0f;
+				BaseClass::Fire( 1, vecBarrelCurrentEnd, vecForwardCurrent, pPlayer, false );
 				//m_flTimeBeamOn = gpGlobals->curtime + 0.2f;
 				//m_flTimeNextSweep = gpGlobals->curtime + random->RandomInt( 2.0f, 4.0f ); //When "harrassing" make sure we have a longer random wait time before the next shot. Otherwise things get quite hairy for players!
 				bHarass = true;

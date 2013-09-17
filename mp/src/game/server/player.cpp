@@ -6177,6 +6177,7 @@ void CBasePlayer::ImpulseCommands( )
 	m_nImpulse = 0;
 }
 
+#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING 
 #ifdef HL2_EPISODIC
 
 //-----------------------------------------------------------------------------
@@ -6187,7 +6188,7 @@ static void CreateJalopy( CBasePlayer *pPlayer )
 	// Cheat to create a jeep in front of the player
 	Vector vecForward;
 	AngleVectors( pPlayer->EyeAngles(), &vecForward );
-	CBaseEntity *pJeep = (CBaseEntity *)CreateEntityByName( "prop_vehicle_jeep" );
+	CBaseEntity *pJeep = (CBaseEntity *)CreateEntityByName( "prop_vehicle_jalopy" );
 	if ( pJeep )
 	{
 		Vector vecOrigin = pPlayer->GetAbsOrigin() + vecForward * 256 + Vector(0,0,64);
@@ -6239,7 +6240,7 @@ static void CreateJeep( CBasePlayer *pPlayer )
 		pJeep->SetAbsAngles( vecAngles );
 		pJeep->KeyValue( "model", "models/buggy.mdl" );
 		pJeep->KeyValue( "solid", "6" );
-		pJeep->KeyValue( "targetname", "jeep" );
+		pJeep->KeyValue( "targetname", "hl2buggy" );
 		pJeep->KeyValue( "vehiclescript", "scripts/vehicles/jeep_test.txt" );
 		DispatchSpawn( pJeep );
 		pJeep->Activate();
@@ -6298,7 +6299,7 @@ void CC_CH_CreateAirboat( void )
 }
 
 static ConCommand ch_createairboat( "ch_createairboat", CC_CH_CreateAirboat, "Spawn airboat in front of the player.", FCVAR_CHEAT );
-
+#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 
 //=========================================================
 //=========================================================
@@ -6309,6 +6310,10 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 	{
 		return;
 	}
+	
+#ifndef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+return;
+#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 
 	CBaseEntity *pEntity;
 	trace_t tr;
@@ -6336,16 +6341,20 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 		break;
 
 	case 82:
+		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		// Cheat to create a jeep in front of the player
 		CreateJeep( this );
+		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	case 83:
-		// Cheat to create a airboat in front of the player
+		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		CreateAirboat( this );
+		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	case 101:
+	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		gEvilImpulse101 = true;
 
 		EquipSuit();
@@ -6384,15 +6393,19 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 		}
 		
 		gEvilImpulse101		= false;
+		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 
 		break;
 
 	case 102:
+	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		// Gibbage!!!
 		CGib::SpawnRandomGibs( this, 1, GIB_HUMAN );
+	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	case 103:
+	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		// What the hell are you doing?
 		pEntity = FindEntityForward( this, true );
 		if ( pEntity )
@@ -6401,9 +6414,11 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 			if ( pNPC )
 				pNPC->ReportAIState();
 		}
+	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	case 106:
+	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		// Give me the classname and targetname of this entity.
 		pEntity = FindEntityForward( this, true );
 		if ( pEntity )
@@ -6426,9 +6441,11 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 			if ( pEntity->m_iGlobalname != NULL_STRING )
 				Msg( "Globalname: %s\n", STRING(pEntity->m_iGlobalname) );
 		}
+	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING	
 		break;
 
 	case 107:
+	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		{
 			trace_t tr;
 
@@ -6447,6 +6464,7 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 			if ( pTextureName )
 				Msg( "Texture: %s\n", pTextureName );
 		}
+	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	//
@@ -6454,6 +6472,7 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 	//
 	case 108:
 	{
+	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		pEntity = FindEntityForward( this, true );
 		if ( pEntity )
 		{
@@ -6464,26 +6483,34 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 				CAI_BaseNPC::SetDebugNPC( pNPC );
 			}
 		}
+	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		break;
 	}
 
 	case	195:// show shortest paths for entire level to nearest node
 		{
+		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 			Create("node_viewer_fly", GetLocalOrigin(), GetLocalAngles());
+		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	case	196:// show shortest paths for entire level to nearest node
 		{
+		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 			Create("node_viewer_large", GetLocalOrigin(), GetLocalAngles());
+		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	case	197:// show shortest paths for entire level to nearest node
 		{
+		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 			Create("node_viewer_human", GetLocalOrigin(), GetLocalAngles());
+		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	case	202:// Random blood splatter
 		{
+		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 			Vector forward;
 			EyeVectors( &forward );
 			UTIL_TraceLine ( EyePosition(), 
@@ -6495,15 +6522,18 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 				CBloodSplat *pBlood = CREATE_UNSAVED_ENTITY( CBloodSplat, "bloodsplat" );
 				pBlood->Spawn( this );
 			}
+		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	case	203:// remove creature.
 		pEntity = FindEntityForward( this, true );
 		if ( pEntity )
 		{
+		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
 			UTIL_Remove( pEntity );
 //			if ( pEntity->m_takedamage )
 //				pEntity->SetThink(SUB_Remove);
+		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	}

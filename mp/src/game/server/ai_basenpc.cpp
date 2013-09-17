@@ -3153,8 +3153,8 @@ void CAI_BaseNPC::UpdateEfficiency( bool bInPVS )
 	}
 
 	//---------------------------------
-
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+
 	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());  
 #else
 CBasePlayer *pPlayer = AI_GetSinglePlayer(); 

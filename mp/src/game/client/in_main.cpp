@@ -1292,7 +1292,7 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 #endif
 
 #ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
-//4WH FixMe cmd->chatbubble = g_iChatBubble;
+//4WH Fix Me cmd->chatbubble = g_iChatBubble;
 #endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
 
 	pVerified->m_cmd = *cmd;

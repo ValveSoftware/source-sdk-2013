@@ -36,6 +36,13 @@
 	#include "voice_gamemgr.h"
 	#include "hl2mp_gameinterface.h"
 	#include "hl2mp_cvars.h"
+	
+
+
+	
+//4WH - Episodic Issues: Here we include the globalstate.h file so that darkness mode will work for GLOBAL_ON state.
+#include "globalstate.h"
+#include "FileSystem.h"
 
 #ifdef DEBUG	
 	#include "hl2mp_bot_temp.h"
@@ -345,7 +352,7 @@ if( physcannon_mega_enabled.GetBool() == true )
 		else
 		{
 			// FIXME: Is there a better place for this?
-//4WH Fix Me			m_bMegaPhysgun = ( GlobalEntity_GetState("super_phys_gun") == GLOBAL_ON );
+			m_bMegaPhysgun = ( GlobalEntity_GetState("super_phys_gun") == GLOBAL_ON );
 		}
 #endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
 	
@@ -2414,7 +2421,7 @@ bool CHL2MPRules::IsAlyxInDarknessMode()
 	if ( alyx_darkness_force.GetBool() )
 		return true;
 
-//4WH Fix Me return ( GlobalEntity_GetState( "ep_alyx_darknessmode" ) == GLOBAL_ON );
+ 		return ( GlobalEntity_GetState( "ep_alyx_darknessmode" ) == GLOBAL_ON );
 #else
 	return false;
 #endif // HL2_EPISODIC

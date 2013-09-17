@@ -106,7 +106,7 @@
 /******************************/
 /* Experimental Enhancements. */
 /******************************/
-//#define Seco7_ENABLE_IN_TESTING_ITEMS //Enables buggy test items again, such as the Portal gun. Make sure you have Portal installed, and the portal mounting line enabled. Currently it likes to crash but I don't think it'd take much editing to fix, it's working fine, it just needs it to remove/recreate a new portal whenever you fire again.
+#define Seco7_ENABLE_IN_TESTING_ITEMS //Enables buggy test items again, such as the Portal gun. Make sure you have Portal installed, and the portal mounting line enabled. Currently it likes to crash but I don't think it'd take much editing to fix, it's working fine, it just needs it to remove/recreate a new portal whenever you fire again.
 
 /******************/
 /* SDK Bug Fixes. */

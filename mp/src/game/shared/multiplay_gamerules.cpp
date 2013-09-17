@@ -1118,7 +1118,7 @@ ConVarRef suitcharger( "sk_suitcharger" );
 	bool CMultiplayRules::PlayFootstepSounds( CBasePlayer *pl )
 	{
 		if ( footsteps.GetInt() == 0 )
-			return false;
+			return true; //4WH - Information: Always have footstep sounds enabled (by default this is false).
 
 		if ( pl->IsOnLadder() || pl->GetAbsVelocity().Length2D() > 220 )
 			return true;  // only make step sounds in multiplayer if the player is moving fast enough

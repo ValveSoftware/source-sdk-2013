@@ -679,8 +679,8 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
       Msg( "\n" );
    }
  //4WH - Information: Enabling the following two lines gives invaluable information on how the mount lines should look if you need to edit the per-map gcf mount code.
- //Msg ("These are the default search paths");
- //filesystem->PrintSearchPaths();
+ Msg ("These are the default search paths");
+ filesystem->PrintSearchPaths();
 #endif //Seco7_USE_STATIC_MOUNT_CODE
 
 	// cache the globals

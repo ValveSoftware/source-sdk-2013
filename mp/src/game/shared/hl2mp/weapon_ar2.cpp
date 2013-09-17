@@ -15,6 +15,9 @@
 	#include "hl2mp_player.h"
 	#include "te_effect_dispatch.h"
 	#include "prop_combine_ball.h"
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+    #include "npc_combines.h"
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 #endif
 
 #include "weapon_ar2.h"
@@ -46,7 +49,7 @@ LINK_ENTITY_TO_CLASS( weapon_ar2, CWeaponAR2 );
 PRECACHE_WEAPON_REGISTER(weapon_ar2);
 
 
-#ifndef CLIENT_DLL
+//#ifndef CLIENT_DLL
 
 acttable_t	CWeaponAR2::m_acttable[] = 
 {
@@ -58,11 +61,86 @@ acttable_t	CWeaponAR2::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_AR2,		false },
 	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_AR2,					false },
 	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_AR2,				false },
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_AR2,					false },
+	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_AR2,			false },
+
+	{ ACT_MP_RUN,						ACT_HL2MP_RUN_AR2,					false },
+	{ ACT_MP_CROUCHWALK,				ACT_HL2MP_WALK_CROUCH_AR2,			false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_AR2,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_AR2,	false },
+
+	{ ACT_MP_RELOAD_STAND,				ACT_HL2MP_GESTURE_RELOAD_AR2,		false },
+	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_AR2,		false },
+
+	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_AR2,					false },
+
+//NPC Stuff.
+
+#ifndef CLIENT_DLL
+	// HL2
+	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_AR2,			true },
+
+	{ ACT_RELOAD,					ACT_RELOAD_SMG1,				true },		// FIXME: hook to AR2 unique
+	{ ACT_IDLE,						ACT_IDLE_SMG1,					true },		// FIXME: hook to AR2 unique
+	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_SMG1,			true },		// FIXME: hook to AR2 unique
+
+
+
+	{ ACT_WALK,						ACT_WALK_RIFLE,					true },
+
+
+
+// Readiness activities (not aiming)
+	{ ACT_IDLE_RELAXED,				ACT_IDLE_SMG1_RELAXED,			false },//never aims
+	{ ACT_IDLE_STIMULATED,			ACT_IDLE_SMG1_STIMULATED,		false },
+	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_SMG1,			false },//always aims
+
+
+	{ ACT_WALK_RELAXED,				ACT_WALK_RIFLE_RELAXED,			false },//never aims
+	{ ACT_WALK_STIMULATED,			ACT_WALK_RIFLE_STIMULATED,		false },
+	{ ACT_WALK_AGITATED,			ACT_WALK_AIM_RIFLE,				false },//always aims
+
+	{ ACT_RUN_RELAXED,				ACT_RUN_RIFLE_RELAXED,			false },//never aims
+	{ ACT_RUN_STIMULATED,			ACT_RUN_RIFLE_STIMULATED,		false },
+	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_RIFLE,				false },//always aims
+
+// Readiness activities (aiming)
+	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_SMG1_RELAXED,			false },//never aims	
+	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_AIM_RIFLE_STIMULATED,	false },
+	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_SMG1,			false },//always aims
+
+	{ ACT_WALK_AIM_RELAXED,			ACT_WALK_RIFLE_RELAXED,			false },//never aims
+	{ ACT_WALK_AIM_STIMULATED,		ACT_WALK_AIM_RIFLE_STIMULATED,	false },
+	{ ACT_WALK_AIM_AGITATED,		ACT_WALK_AIM_RIFLE,				false },//always aims
+
+	{ ACT_RUN_AIM_RELAXED,			ACT_RUN_RIFLE_RELAXED,			false },//never aims
+	{ ACT_RUN_AIM_STIMULATED,		ACT_RUN_AIM_RIFLE_STIMULATED,	false },
+	{ ACT_RUN_AIM_AGITATED,			ACT_RUN_AIM_RIFLE,				false },//always aims
+//End readiness activities
+
+	{ ACT_WALK_AIM,					ACT_WALK_AIM_RIFLE,				true },
+	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,			true },
+	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,		true },
+	{ ACT_RUN,						ACT_RUN_RIFLE,					true },
+	{ ACT_RUN_AIM,					ACT_RUN_AIM_RIFLE,				true },
+	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RIFLE,			true },
+	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_RIFLE,		true },
+	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_AR2,	false },
+	{ ACT_COVER_LOW,				ACT_COVER_SMG1_LOW,				false },		// FIXME: hook to AR2 unique
+	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_AR2_LOW,			false },
+	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_SMG1_LOW,		true },		// FIXME: hook to AR2 unique
+	{ ACT_RELOAD_LOW,				ACT_RELOAD_SMG1_LOW,			false },
+	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SMG1,		true },
+//	{ ACT_RANGE_ATTACK2, ACT_RANGE_ATTACK_AR2_GRENADE, true },
+#endif
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 };
 
 IMPLEMENT_ACTTABLE(CWeaponAR2);
 
-#endif
+//#endif
 
 CWeaponAR2::CWeaponAR2( )
 {
@@ -84,9 +162,144 @@ void CWeaponAR2::Precache( void )
 
 	UTIL_PrecacheOther( "prop_combine_ball" );
 	UTIL_PrecacheOther( "env_entity_dissolver" );
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+    PrecacheMaterial( "effects/strider_muzzle" );
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 #endif
 	
 }
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef CLIENT_DLL
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *pOperator - 
+//-----------------------------------------------------------------------------
+void CWeaponAR2::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool bUseWeaponAngles )
+{
+	Vector vecShootOrigin, vecShootDir;
+
+	CAI_BaseNPC *npc = pOperator->MyNPCPointer();
+	ASSERT( npc != NULL );
+
+	if ( bUseWeaponAngles )
+	{
+		QAngle	angShootDir;
+		GetAttachment( LookupAttachment( "muzzle" ), vecShootOrigin, angShootDir );
+		AngleVectors( angShootDir, &vecShootDir );
+	}
+	else 
+	{
+		vecShootOrigin = pOperator->Weapon_ShootPosition();
+		vecShootDir = npc->GetActualShootTrajectory( vecShootOrigin );
+	}
+
+	WeaponSoundRealtime( SINGLE_NPC );
+
+	CSoundEnt::InsertSound( SOUND_COMBAT|SOUND_CONTEXT_GUNFIRE, pOperator->GetAbsOrigin(), SOUNDENT_VOLUME_MACHINEGUN, 0.2, pOperator, SOUNDENT_CHANNEL_WEAPON, pOperator->GetEnemy() );
+
+	pOperator->FireBullets( 1, vecShootOrigin, vecShootDir, VECTOR_CONE_PRECALCULATED, MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 2 );
+
+	// NOTENOTE: This is overriden on the client-side
+	// pOperator->DoMuzzleFlash();
+
+	m_iClip1 = m_iClip1 - 1;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeaponAR2::FireNPCSecondaryAttack( CBaseCombatCharacter *pOperator, bool bUseWeaponAngles )
+{
+	WeaponSound( WPN_DOUBLE );
+
+	CNPC_Combine *pSoldier;
+
+	pSoldier = dynamic_cast<CNPC_Combine*>(GetOwner());
+
+	if( !pSoldier )
+		return;
+
+	// Fire!
+	Vector vecSrc;
+	Vector vecAiming;
+
+	if ( bUseWeaponAngles )
+	{
+		QAngle	angShootDir;
+		GetAttachment( LookupAttachment( "muzzle" ), vecSrc, angShootDir );
+		AngleVectors( angShootDir, &vecAiming );
+	}
+	else 
+	{
+		vecSrc = pSoldier->Weapon_ShootPosition( );
+		vecAiming = pSoldier->GetAltFireTarget() - vecSrc;
+		VectorNormalize( vecAiming );
+	}
+
+	Vector impactPoint = vecSrc + ( vecAiming * MAX_TRACE_LENGTH );
+
+	float flAmmoRatio = 1.0f;
+	float flDuration = RemapValClamped( flAmmoRatio, 0.0f, 1.0f, 0.5f, sk_weapon_ar2_alt_fire_duration.GetFloat() );
+	float flRadius = RemapValClamped( flAmmoRatio, 0.0f, 1.0f, 4.0f, sk_weapon_ar2_alt_fire_radius.GetFloat() );
+
+	// Fire the bullets
+	Vector vecVelocity = vecAiming * 1000.0f;
+
+	// Fire the combine ball
+	CreateCombineBall(	vecSrc, 
+		vecVelocity, 
+		flRadius, 
+		sk_weapon_ar2_alt_fire_mass.GetFloat(),
+		flDuration,
+		pSoldier );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeaponAR2::Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary )
+{
+	if ( bSecondary )
+	{
+		FireNPCSecondaryAttack( pOperator, true );
+	}
+	else
+	{
+		// Ensure we have enough rounds in the clip
+		m_iClip1++;
+
+		FireNPCPrimaryAttack( pOperator, true );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *pEvent - 
+//			*pOperator - 
+//-----------------------------------------------------------------------------
+void CWeaponAR2::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator )
+{
+	switch( pEvent->event )
+	{ 
+		case EVENT_WEAPON_AR2:
+			{
+				FireNPCPrimaryAttack( pOperator, false );
+			}
+			break;
+
+		case EVENT_WEAPON_AR2_ALTFIRE:
+			{
+				FireNPCSecondaryAttack( pOperator, false );
+			}
+			break;
+
+		default:
+			CBaseCombatWeapon::Operator_HandleAnimEvent( pEvent, pOperator );
+			break;
+	}
+}
+#endif
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 //-----------------------------------------------------------------------------
 // Purpose: Handle grenade detonate in-air (even when no ammo is left)

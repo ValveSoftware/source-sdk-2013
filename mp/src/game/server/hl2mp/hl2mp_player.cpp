@@ -86,6 +86,10 @@ IMPLEMENT_SERVERCLASS_ST(CHL2MP_Player, DT_HL2MP_Player)
 //	SendPropExclude( "DT_ServerAnimationData" , "m_flCycle" ),	
 //	SendPropExclude( "DT_AnimTimeMustBeFirst" , "m_flAnimTime" ),
 	
+	#ifdef Seco7_USE_PLAYERCLASSES
+	SendPropInt( SENDINFO( m_iClientClass)),
+	#endif //Seco7_USE_PLAYERCLASSES
+		
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CHL2MP_Player )
@@ -98,7 +102,7 @@ const char *g_ppszRandomCitizenModels[] =
 	"models/sdk/humans/group03/male_06_sdk.mdl",
 	"models/sdk/humans/group03/l7h_rebel.mdl",
 
-	"models/humans/group03/male_01.mdl",
+	/*"models/humans/group03/male_01.mdl",
 	"models/humans/group03/male_02.mdl",
 	"models/humans/group03/female_01.mdl",
 	"models/humans/group03/male_03.mdl",
@@ -112,7 +116,7 @@ const char *g_ppszRandomCitizenModels[] =
 	"models/humans/group03/male_07.mdl",
 	"models/humans/group03/female_07.mdl",
 	"models/humans/group03/male_08.mdl",
-	"models/humans/group03/male_09.mdl",
+	"models/humans/group03/male_09.mdl",*/
 };
 
 const char *g_ppszRandomCombineModels[] =
@@ -120,10 +124,10 @@ const char *g_ppszRandomCombineModels[] =
 //4WH - Information: Player models are also precached here.
 	"models/sdk/Humans/Group03/police_05.mdl",
 
-	"models/combine_soldier.mdl",
+	/*"models/combine_soldier.mdl",
 	"models/combine_soldier_prisonguard.mdl",
 	"models/combine_super_soldier.mdl",
-	"models/police.mdl",
+	"models/police.mdl",*/
 };
 
 
@@ -203,6 +207,8 @@ void CHL2MP_Player::Precache( void )
 
 void CHL2MP_Player::GiveAllItems( void )
 {
+#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+
 	EquipSuit();
 
 	CBasePlayer::GiveAmmo( 255,	"Pistol");
@@ -235,7 +241,8 @@ void CHL2MP_Player::GiveAllItems( void )
 	GiveNamedItem( "weapon_slam" );
 
 	GiveNamedItem( "weapon_physcannon" );
-	
+#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+
 }
 
 void CHL2MP_Player::GiveDefaultItems( void )
@@ -526,7 +533,11 @@ CBaseEntity *ent = NULL;
 		RemoveEffects( EF_NODRAW );
 		
 		GiveDefaultItems();
-	}
+		#ifdef Seco7_USE_PLAYERCLASSES			
+		StartSprinting();
+		StopSprinting();		
+		#endif //Seco7_USE_PLAYERCLASSES
+}
 
 	SetNumAnimOverlays( 3 );
 	ResetAnimation();
@@ -555,6 +566,43 @@ CBaseEntity *ent = NULL;
 	SetPlayerUnderwater(false);
 
 	m_bReady = false;
+#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+	//4WH - Information: This allows map makers to override player models per-map. Note that it sets the same player model for EVERY player.
+		CBaseEntity *pSwitchModelEnt = NULL;
+		Vector SwitchModelEntOrigin = GetAbsOrigin();
+		pSwitchModelEnt = gEntList.FindEntityByClassnameNearest( "info_switchmodel", SwitchModelEntOrigin, 0);
+		
+	if (pSwitchModelEnt != NULL)
+	{
+		if (pSwitchModelEnt->NameMatches("metrocop"))
+		{
+			SetModel( "models/sdk/Humans/Group03/police_05.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_METROPOLICE;
+		}
+		else if (pSwitchModelEnt->NameMatches("male05"))
+		{
+			SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+		}
+		else if (pSwitchModelEnt->NameMatches("male06"))
+		{
+			SetModel( "models/sdk/Humans/Group03/male_06.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+		}
+		else if (pSwitchModelEnt->NameMatches("l7hrebel"))
+		{
+			SetModel( "models/sdk/Humans/Group03/l7h_rebel.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+		}
+		else
+		{
+			Msg ("Warning! switchmodel name NOT a valid model name!");
+			SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
+			m_iPlayerSoundType = (int)PLAYER_SOUNDS_CITIZEN;
+			Msg ("Fail-safe player models have been set!");
+		}
+	}
+#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
 }
 
 void CHL2MP_Player::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
@@ -645,7 +693,7 @@ void CHL2MP_Player::SetPlayerTeamModel( void )
 
 	if ( modelIndex == -1 || ValidatePlayerModel( szModelName ) == false )
 	{
-		szModelName = "models/Combine_Soldier.mdl";
+		szModelName = "models/sdk/humans/group03/police_05.mdl";//4WH szModelName = "models/Combine_Soldier.mdl";
 		m_iModelType = TEAM_COMBINE;
 
 		char szReturnString[512];
@@ -746,7 +794,7 @@ void CHL2MP_Player::SetPlayerModel( void )
 
 	if ( modelIndex == -1 )
 	{
-		szModelName = "models/Combine_Soldier.mdl";
+		szModelName = "models/sdk/humans/group03/police_05.mdl";//4WH szModelName = "models/Combine_Soldier.mdl";
 		m_iModelType = TEAM_COMBINE;
 
 		char szReturnString[512];

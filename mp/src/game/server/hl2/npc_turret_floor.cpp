@@ -229,8 +229,21 @@ void CNPC_FloorTurret::UpdateOnRemove( void )
 void CNPC_FloorTurret::Precache( void )
 {
 	const char *pModelName = STRING( GetModelName() );
+	//#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	if (IsPortalTurret())
+	{
+	pModelName = ( pModelName && pModelName[ 0 ] != '\0' ) ? pModelName : FLOOR_TURRET_MODEL_PORTAL;
+	PrecacheModel( pModelName );
+	}
+	else
+	{
+	//#else
 	pModelName = ( pModelName && pModelName[ 0 ] != '\0' ) ? pModelName : FLOOR_TURRET_MODEL;
 	PrecacheModel( pModelName );
+	}
+	//#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	
+	
 	PrecacheModel( FLOOR_TURRET_GLOW_SPRITE );
 
 	PropBreakablePrecacheAll( MAKE_STRING( pModelName ) );
@@ -1218,16 +1231,18 @@ void CNPC_FloorTurret::AutoSearchThink( void )
 		SetThink( &CNPC_FloorTurret::Deploy );
 		if ( !m_bNoAlarmSounds )
 		{
-//4WH - Information:
+	//#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
 	if (IsPortalTurret())
 	{
 	EmitSound( "NPC_FloorTurret.TalkAutosearch" );
 	}
-else
-{
-			EmitSound( "NPC_FloorTurret.Alert" );
-}
-		}
+	else
+	{
+	//#else
+	EmitSound( "NPC_FloorTurret.Alert" );
+	}
+	//#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	}
 	}
 }
 
@@ -1403,7 +1418,7 @@ void CNPC_FloorTurret::TippedThink( void )
 			{
 				//Make any last death noises and anims
 
-//4WH - Information:				
+//4WH - Information:2				
 	if (IsPortalTurret())
 	{
 	EmitSound( "NPC_FloorTurret.TalkTipped" );	

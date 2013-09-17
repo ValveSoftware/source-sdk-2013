@@ -4294,10 +4294,17 @@ void CCitizenResponseSystem::ResponseThink()
 					float flNearestDist = (CITIZEN_RESPONSE_DISTANCE * CITIZEN_RESPONSE_DISTANCE);
 					CBaseEntity *pNearestCitizen = NULL;
 					CBaseEntity *pCitizen = NULL;
-					CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 					while ( (pCitizen = gEntList.FindEntityByClassname( pCitizen, "npc_citizen" ) ) != NULL)
 					{
-						float flDistToPlayer = (pPlayer->WorldSpaceCenter() - pCitizen->WorldSpaceCenter()).LengthSqr();
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+					CBasePlayer *pPlayer = UTIL_GetNearestPlayer(pCitizen->GetAbsOrigin()); 
+#endif //Seco7_Enable_Fixed_Multiplayer_AI	
+
+					float flDistToPlayer = (pPlayer->WorldSpaceCenter() - pCitizen->WorldSpaceCenter()).LengthSqr();
 						if ( flDistToPlayer < flNearestDist )
 						{
 							flNearestDist = flDistToPlayer;

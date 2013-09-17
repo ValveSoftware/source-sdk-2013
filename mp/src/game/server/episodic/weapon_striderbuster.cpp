@@ -50,7 +50,7 @@ ConVar striderbuster_dive_force( "striderbuster_dive_force", "-200" ); // How mu
 
 ConVar striderbuster_use_particle_flare( "striderbuster_use_particle_flare", "1" );
 
-
+#ifdef HL2_EPISODIC //4WH - Episodic Issues: Code can't compile without using an ifdef here.
 #define STRIDERBUSTER_FLAG_KNOCKED_OFF_STRIDER		0x00000001 // We were knocked off of a strider after the player attached me.
 
 #define SF_DONT_WEAPON_MANAGE			0x800000
@@ -1175,3 +1175,4 @@ bool StriderBuster_WasKnockedOffStrider( CBaseEntity *pEntity )
 	return false;
 }
 
+#endif //HL2_EPISODIC //4WH

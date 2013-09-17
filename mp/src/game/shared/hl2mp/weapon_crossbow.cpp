@@ -433,9 +433,9 @@ private:
 	void	SetChargerState( ChargerState_t state );
 	void	DoLoadEffect( void );
 
-#ifndef CLIENT_DLL
+//4WH  #ifndef CLIENT_DLL
 	DECLARE_ACTTABLE();
-#endif
+//#endif
 
 private:
 	
@@ -475,7 +475,7 @@ LINK_ENTITY_TO_CLASS( weapon_crossbow, CWeaponCrossbow );
 
 PRECACHE_WEAPON_REGISTER( weapon_crossbow );
 
-#ifndef CLIENT_DLL
+//4WH #ifndef CLIENT_DLL
 
 acttable_t	CWeaponCrossbow::m_acttable[] = 
 {
@@ -486,11 +486,26 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,	false },
 	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_CROSSBOW,			false },
 	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_CROSSBOW,					false },
+#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_CROSSBOW,					false },
+	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_CROSSBOW,				false },
+
+	{ ACT_MP_RUN,						ACT_HL2MP_RUN_CROSSBOW,						false },
+	{ ACT_MP_CROUCHWALK,				ACT_HL2MP_WALK_CROUCH_CROSSBOW,				false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,	false },
+
+	{ ACT_MP_RELOAD_STAND,				ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,			false },
+	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,			false },
+
+	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_CROSSBOW,			false },
+#endif //Seco7_Enable_Fixed_Multiplayer_AI
 };
 
 IMPLEMENT_ACTTABLE(CWeaponCrossbow);
 
-#endif
+//#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor

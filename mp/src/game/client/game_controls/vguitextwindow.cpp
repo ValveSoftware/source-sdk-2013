@@ -137,6 +137,7 @@ CTextWindow::~CTextWindow()
 
 void CTextWindow::Reset( void )
 {
+#ifndef Seco7_BG_MOTD_FIX
 	//=============================================================================
 	// HPE_BEGIN:
 	// [Forrest] Replace strange hard-coded default message with hard-coded error message.
@@ -153,6 +154,7 @@ void CTextWindow::Reset( void )
 	m_bShownURL = false;
 	m_bUnloadOnDismissal = false;
 	Update();
+#endif //Seco7_BG_MOTD_FIX
 }
 
 void CTextWindow::ShowText( const char *text )
