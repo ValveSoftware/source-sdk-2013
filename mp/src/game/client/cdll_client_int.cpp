@@ -1635,7 +1635,7 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 		// Obsidian: Always flush the mdlcache here, except when it will crash
 		// Expression is a little complex, what it says is that if we're a listen server
 		// and the localplayer is index 1, don't flush anything.
-		//SahdowSource - Information: If we don't flush the cache here strange things happen to the NPCs in dedicated server games. Example: The metropolice float (yes, in the AIR) round "matrix" style.
+		//4WH - Information: If we don't flush the cache here strange things happen to the NPCs in dedicated server games. Example: The metropolice float (yes, in the AIR) round "matrix" style.
 		if ( !(!sv_dedicated.GetBool() && (engine->GetLocalPlayer() == 1)) )
 		{
 		    Msg("CLIENT LEVEL PRE-INIT IS FLUSHING CACHE !");
@@ -1725,19 +1725,13 @@ if (sv_failsafe_mount.GetBool())
 filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
-Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->AddSearchPath("orangebox", "PLATFORM");
-Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->AddSearchPath("hl2mp", "GAMEBIN");
-Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->AddSearchPath("hl2mp", "GAME");
-Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
 filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
