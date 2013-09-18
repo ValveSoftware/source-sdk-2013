@@ -2616,11 +2616,11 @@ CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
 	if ( m_fDangerousTimer != 0.0f )
 	{
 		// There's a dangerous timer. Save if we have enough hitpoints.
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+		#else
+			CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 
 		if (pPlayer && pPlayer->GetHealth() >= m_minHitPoints)
@@ -3496,9 +3496,10 @@ void CTriggerCamera::Disable( void )
 	}
 
 	//4WH - Null Pointers: On ep2_outland_01 the game would crash as it didn't find a player, so define them as the nearest player.
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
-	CBasePlayer *m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+		CBasePlayer *m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	//return the player to previous takedamage state
 	m_hPlayer->m_takedamage = m_nOldTakeDamage;
 

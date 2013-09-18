@@ -5,9 +5,9 @@
 //=============================================================================//
 
 #ifdef Seco7_PLAYER_MOVEMENT_CAMERA_BOB
-#include "weapon_hl2mpbasehlmpcombatweapon.h"
+	#include "weapon_hl2mpbasehlmpcombatweapon.h"
 #else
-#include "weapon_hl2mpbase.h"
+	#include "weapon_hl2mpbase.h"
 #endif //Seco7_PLAYER_MOVEMENT_CAMERA_BOB
 
 #ifndef BASEHLCOMBATWEAPON_H
@@ -24,9 +24,9 @@
 // Machine gun base class
 //=========================================================
 #ifdef Seco7_PLAYER_MOVEMENT_CAMERA_BOB
-class CHL2MPMachineGun : public CBaseHL2MPCombatWeapon
+	class CHL2MPMachineGun : public CBaseHL2MPCombatWeapon
 #else
-class CHL2MPMachineGun : public CWeaponHL2MPBase
+	class CHL2MPMachineGun : public CWeaponHL2MPBase
 #endif //Seco7_PLAYER_MOVEMENT_CAMERA_BOB
 {
 public:

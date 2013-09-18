@@ -443,9 +443,9 @@ void CNPC_Vortigaunt::RunTask( const Task_t *pTask )
 	{
 		// Wait for the player to get near (before starting the bugbait sequence)
 		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 		#else
-CBasePlayer *pPlayer = AI_GetSinglePlayer();
+			CBasePlayer *pPlayer = AI_GetSinglePlayer();
 		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( pPlayer != NULL )
@@ -645,9 +645,9 @@ int CNPC_Vortigaunt::RangeAttack1Conditions( float flDot, float flDist )
 		if ( ( GetAbsOrigin() - GetEnemy()->GetAbsOrigin() ).LengthSqr() < Square( AntlionWorkerBurstRadius() ) )
 			return COND_TOO_CLOSE_TO_ATTACK;
 		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetEnemy()->GetAbsOrigin()); 
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetEnemy()->GetAbsOrigin()); 
 		#else
-CBasePlayer *pPlayer = AI_GetSinglePlayer();
+			CBasePlayer *pPlayer = AI_GetSinglePlayer();
 		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( pPlayer && ( pPlayer->GetAbsOrigin() - GetEnemy()->GetAbsOrigin() ).LengthSqr() < Square( AntlionWorkerBurstRadius() ) )
@@ -1701,9 +1701,9 @@ void CNPC_Vortigaunt::MaintainHealSchedule( void )
 
 	// For now, we only heal the player
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 	#else
-	CBasePlayer *pPlayer = AI_GetSinglePlayer();
+		CBasePlayer *pPlayer = AI_GetSinglePlayer();
 	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer == NULL )
@@ -2363,9 +2363,9 @@ bool CNPC_Vortigaunt::HealGestureHasLOS( void )
 {
 	//For now the player is always our target
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBaseEntity *pTargetEnt = UTIL_GetNearestVisiblePlayer(this); 
+		CBaseEntity *pTargetEnt = UTIL_GetNearestVisiblePlayer(this); 
 	#else
-	CBaseEntity *pTargetEnt = AI_GetSinglePlayer();
+		CBaseEntity *pTargetEnt = AI_GetSinglePlayer();
 	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if ( pTargetEnt == NULL )

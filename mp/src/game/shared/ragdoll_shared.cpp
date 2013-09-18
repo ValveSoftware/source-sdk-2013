@@ -769,9 +769,9 @@ bool ShouldRemoveThisRagdoll( CBaseAnimating *pRagdoll )
 	}
 
 #else
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI
-CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if( !UTIL_FindClientInPVS( pRagdoll->edict() ) )
 	{

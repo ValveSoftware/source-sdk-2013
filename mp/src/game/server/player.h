@@ -253,34 +253,34 @@ public:
 	IPlayerInfo *GetPlayerInfo() { return &m_PlayerInfo; }
 	IBotController *GetBotController() { return &m_PlayerInfo; }
 	
-#ifdef Seco7_USE_PLAYERCLASSES
- // Here are the players speed is set:
-void SetWalkSpeed(int WalkSpeed);
-void SetNormSpeed(int NormSpeed);
-void SetSprintSpeed(int SprintSpeed);
-void SetJumpHeight(float JumpHeight);
+	#ifdef Seco7_USE_PLAYERCLASSES
+	 // Here are the players speed is set:
+	void SetWalkSpeed(int WalkSpeed);
+	void SetNormSpeed(int NormSpeed);
+	void SetSprintSpeed(int SprintSpeed);
+	void SetJumpHeight(float JumpHeight);
+	
+	// Spielergeschwindigkeit:
+	int m_iWalkSpeed;
+	int m_iNormSpeed;
+	int m_iSprintSpeed;
+	
+	CNetworkVar( float, m_iJumpHeight );
+	
+	int GetWalkSpeed();
+	int GetNormSpeed();
+	int GetSprintSpeed();
+	float GetJumpHeight();
+	#endif //Seco7_USE_PLAYERCLASSES
 
-// Spielergeschwindigkeit:
-int m_iWalkSpeed;
-int m_iNormSpeed;
-int m_iSprintSpeed;
+	#ifdef Seco7_ENABLE_FAKE_PASSENGER_SEATS
+	void SafeVehicleExit(CBasePlayer *pPlayer);
+	#endif //Seco7_ENABLE_FAKE_PASSENGER_SEATS
 
-CNetworkVar( float, m_iJumpHeight );
-
-int GetWalkSpeed();
-int GetNormSpeed();
-int GetSprintSpeed();
-float GetJumpHeight();
-#endif //Seco7_USE_PLAYERCLASSES
-
-#ifdef Seco7_ENABLE_FAKE_PASSENGER_SEATS
-void SafeVehicleExit(CBasePlayer *pPlayer);
-#endif //Seco7_ENABLE_FAKE_PASSENGER_SEATS
-
-#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
-	bool m_bTransition; //4WH - Information:  This is important as it allows the game to save each players progress over a map change. Create the booleans required for transitions to work.
-	bool m_bTransitionTeleported; //4WH - Information:  This is important as it allows the game to save each players progress over a map change.  Create the booleans required for transitions to work.
-#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+	#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+		bool m_bTransition; //4WH - Information:  This is important as it allows the game to save each players progress over a map change. Create the booleans required for transitions to work.
+		bool m_bTransitionTeleported; //4WH - Information:  This is important as it allows the game to save each players progress over a map change.  Create the booleans required for transitions to work.
+	#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
 
 	virtual void			SetModel( const char *szModelName );
 	void					SetBodyPitch( float flPitch );
@@ -335,12 +335,12 @@ void SafeVehicleExit(CBasePlayer *pPlayer);
 	void					MakeTracer( const Vector &vecTracerSrc, const trace_t &tr, int iTracerType );
 	void					DoImpactEffect( trace_t &tr, int nDamageType );
 	
-#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
-	void MakeChatBubble(int chatbubble);
-	void KillChatBubble();
-	void CheckChatBubble( CUserCmd *cmd );
-	EHANDLE m_hChatBubble;
-#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES		
+	#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+		void MakeChatBubble(int chatbubble);
+		void KillChatBubble();
+		void CheckChatBubble( CUserCmd *cmd );
+		EHANDLE m_hChatBubble;
+	#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES		
 
 #if !defined( NO_ENTITY_PREDICTION )
 	void					AddToPlayerSimulationList( CBaseEntity *other );

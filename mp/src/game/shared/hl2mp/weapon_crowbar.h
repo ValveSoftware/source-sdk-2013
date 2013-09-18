@@ -58,9 +58,9 @@ public:
 	void HandleAnimEventMeleeHit( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
 	
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	virtual int WeaponMeleeAttack1Condition( float flDot, float flDist ); 
+		virtual int WeaponMeleeAttack1Condition( float flDot, float flDist ); 
 	#else
-	int WeaponMeleeAttack1Condition( float flDot, float flDist );
+		int WeaponMeleeAttack1Condition( float flDot, float flDist );
 	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 #endif
 

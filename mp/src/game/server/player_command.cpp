@@ -433,9 +433,9 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 		Assert( g_pGameMovement );
 		g_pGameMovement->ProcessMovement( player, g_pMoveData );
 		
-#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
-player->CheckChatBubble(ucmd);
-#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES		
+	#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+		player->CheckChatBubble(ucmd);
+	#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES		
 		
 	}
 	else

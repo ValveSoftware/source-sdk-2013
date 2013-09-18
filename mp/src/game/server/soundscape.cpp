@@ -310,7 +310,7 @@ void CEnvSoundscape::UpdateForPlayer( ss_update_t &update )
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetLocalPlayer(); 
 #else
-// Don't use GetLocalPlayer(), because that prevents multiplayer games using this for testing with a single client in the game
+		// Don't use GetLocalPlayer(), because that prevents multiplayer games using this for testing with a single client in the game
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
 #endif //Seco7_Enable_Fixed_Multiplayer_AI 		
 

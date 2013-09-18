@@ -68,7 +68,7 @@ public:
 	virtual void		Init( void ) = 0;
 	
 	#ifdef Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
-	virtual void        MP_PostSimulate() = 0;
+		virtual void        MP_PostSimulate() = 0;
 	#endif //Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
 
 	// Clear any systems between levels

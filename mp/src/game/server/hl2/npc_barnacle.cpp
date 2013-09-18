@@ -1251,7 +1251,7 @@ void CNPC_Barnacle::LiftPrey( void )
 
 	// Height from the barnacle's origin to the point at which it bites
 	#ifdef Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
-		float flPBiteZOffset = 10.0;
+		float flBiteZOffset = 10.0;
 	#else
 		float flBiteZOffset = 60.0;
     #endif //Seco7_BARNACLES_CAN_SWALLOW_PLAYERS

@@ -199,7 +199,7 @@ void CMissile::Spawn( void )
 	SetNextThink( gpGlobals->curtime + 0.3f );
 	
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	SetDamage( EXPLOSION_DAMAGE );
+		SetDamage( EXPLOSION_DAMAGE );
 	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	m_takedamage = DAMAGE_YES;

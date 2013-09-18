@@ -37,10 +37,10 @@ class CMissile : public CBaseCombatCharacter
 	DECLARE_CLASS( CMissile, CBaseCombatCharacter );
 
 public:
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-static const int EXPLOSION_RADIUS = 200; 
-	static const int EXPLOSION_DAMAGE = 200; 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		static const int EXPLOSION_RADIUS = 200; 
+		static const int EXPLOSION_DAMAGE = 200; 
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	CMissile();
 	~CMissile();
 
@@ -73,12 +73,12 @@ static const int EXPLOSION_RADIUS = 200;
 	CHandle<CWeaponRPG>		m_hOwner;
 
 	static CMissile *Create( const Vector &vecOrigin, const QAngle &vecAngles, edict_t *pentOwner );
+
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	void CreateDangerSounds( bool bState ){ m_bCreateDangerSounds = bState; } 
-	
-	static void AddCustomDetonator( CBaseEntity *pEntity, float radius, float height = -1 );
-	static void RemoveCustomDetonator( CBaseEntity *pEntity );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		void CreateDangerSounds( bool bState ){ m_bCreateDangerSounds = bState; } 		
+		static void AddCustomDetonator( CBaseEntity *pEntity, float radius, float height = -1 );
+		static void RemoveCustomDetonator( CBaseEntity *pEntity );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 protected:
 	virtual void DoExplosion();	
@@ -228,9 +228,8 @@ public:
 	#ifndef CLIENT_DLL 
 	bool	WeaponLOSCondition( const Vector &ownerPos, const Vector &targetPos, bool bSetConditions ); 
 	int		WeaponRangeAttack1Condition( float flDot, float flDist ); 
-
 	void	Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator ); 
-#endif 
+	#endif 
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	void	StartGuiding( void );

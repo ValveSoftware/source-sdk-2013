@@ -839,11 +839,11 @@ void CProtoSniper::PaintTarget( const Vector &vecTarget, float flPaintTime )
 //-----------------------------------------------------------------------------
 bool CProtoSniper::IsPlayerAllySniper()
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBaseEntity *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+	#else
+		CBaseEntity *pPlayer = AI_GetSinglePlayer();
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	return IRelationType( pPlayer ) == D_LI;
 }
@@ -2613,18 +2613,18 @@ Vector CProtoSniper::LeadTarget( CBaseEntity *pTarget )
 CBaseEntity *CProtoSniper::PickDeadPlayerTarget()
 {
 	const int iSearchSize = 32;
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBaseEntity *pTarget = UTIL_GetNearestVisiblePlayer(this); 
-	CBaseEntity *pEntities[ iSearchSize ];
-
-	int iNumEntities = UTIL_EntitiesInSphere( pEntities, iSearchSize, pTarget->GetAbsOrigin(), 180.0f, 0 ); 
-#else
-CBaseEntity *pTarget = AI_GetSinglePlayer();
-	CBaseEntity *pEntities[ iSearchSize ];
-
-	int iNumEntities = UTIL_EntitiesInSphere( pEntities, iSearchSize, AI_GetSinglePlayer()->GetAbsOrigin(), 180.0f, 0 );
-
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBaseEntity *pTarget = UTIL_GetNearestVisiblePlayer(this); 
+		CBaseEntity *pEntities[ iSearchSize ];
+	
+		int iNumEntities = UTIL_EntitiesInSphere( pEntities, iSearchSize, pTarget->GetAbsOrigin(), 180.0f, 0 ); 
+	#else
+	CBaseEntity *pTarget = AI_GetSinglePlayer();
+		CBaseEntity *pEntities[ iSearchSize ];
+	
+		int iNumEntities = UTIL_EntitiesInSphere( pEntities, iSearchSize, AI_GetSinglePlayer()->GetAbsOrigin(), 180.0f, 0 );
+	
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	// Not very robust, but doesn't need to be. Randomly select a nearby object in the list that isn't an NPC.
 	if( iNumEntities > 0 )

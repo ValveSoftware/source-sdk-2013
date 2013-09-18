@@ -29,7 +29,7 @@ CBaseEntity* MoveToRandomSpot( CBaseEntity *pEnt )
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
 		UTIL_SetOrigin( pEnt, GetRandomSpot() );
 #else
-CBasePlayer *pLocalPlayer = UTIL_GetLocalPlayer();
+		CBasePlayer *pLocalPlayer = UTIL_GetLocalPlayer();
 		if ( pLocalPlayer )
 		{			
 			Vector vForward;

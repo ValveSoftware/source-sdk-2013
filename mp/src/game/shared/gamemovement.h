@@ -23,9 +23,9 @@
 #define GAMEMOVEMENT_JUMP_TIME				510.0f		//ms approx - based on the 21 unit height jump
 
 #ifdef Seco7_USE_PLAYERCLASSES
-#define GAMEMOVEMENT_JUMP_HEIGHT player->GetJumpHeight()
+	#define GAMEMOVEMENT_JUMP_HEIGHT player->GetJumpHeight()
 #else
-#define GAMEMOVEMENT_JUMP_HEIGHT			21.0f		// units
+	#define GAMEMOVEMENT_JUMP_HEIGHT			21.0f		// units
 #endif //Seco7_USE_PLAYERCLASSES
 
 #define GAMEMOVEMENT_TIME_TO_UNDUCK			( TIME_TO_UNDUCK * 1000.0f )		// ms

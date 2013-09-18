@@ -652,11 +652,11 @@ void CNPC_Strider::PostNPCInit()
 		RemoveFlag( FL_FLY );
 	}
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	m_PlayerFreePass.SetPassTarget( UTIL_GetNearestPlayer(GetAbsOrigin()) ); 
-#else
-m_PlayerFreePass.SetPassTarget( UTIL_PlayerByIndex(1) );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		m_PlayerFreePass.SetPassTarget( UTIL_GetNearestPlayer(GetAbsOrigin()) ); 
+	#else
+		m_PlayerFreePass.SetPassTarget( UTIL_PlayerByIndex(1) );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	
 	AI_FreePassParams_t freePassParams = 
@@ -2558,8 +2558,8 @@ int CNPC_Strider::MeleeAttack1Conditions( float flDot, float flDist )
 		return COND_NONE;
 
 	#ifndef Seco7_STRIDERS_ALWAYS_STOMP_IMPALE_PLAYERS
-	// No more stabbing players.
-    if ( pEnemy->IsPlayer() && !HasSpawnFlags(SF_CAN_STOMP_PLAYER) )
+		// No more stabbing players.
+    	if ( pEnemy->IsPlayer() && !HasSpawnFlags(SF_CAN_STOMP_PLAYER) )
 		return COND_NONE;
 	#endif
 
@@ -3140,11 +3140,12 @@ int CNPC_Strider::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			{
 				// See if the person that injured me is an NPC.
 				CAI_BaseNPC *pAttacker = dynamic_cast<CAI_BaseNPC *>( info.GetAttacker() );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI				
-CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+				
+				#ifdef Seco7_Enable_Fixed_Multiplayer_AI				
+					CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+				#else
+					CBasePlayer *pPlayer = AI_GetSinglePlayer();
+				#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 				if( pAttacker && pAttacker->IsAlive() && pPlayer )
 				{
@@ -4350,12 +4351,12 @@ void CNPC_Strider::StompHit( int followerBoneIndex )
 	bool bIsValidTarget = pNPC && pNPC->GetModelPtr();
 	
 	#ifdef Seco7_STRIDERS_ALWAYS_STOMP_IMPALE_PLAYERS
-	bIsValidTarget = bIsValidTarget || ( pEnemy && pEnemy->IsPlayer() );
-	#else
-	if ( HasSpawnFlags( SF_CAN_STOMP_PLAYER ) ) 
-	{
 		bIsValidTarget = bIsValidTarget || ( pEnemy && pEnemy->IsPlayer() );
-	}
+	#else
+		if ( HasSpawnFlags( SF_CAN_STOMP_PLAYER ) ) 
+		{
+			bIsValidTarget = bIsValidTarget || ( pEnemy && pEnemy->IsPlayer() );
+		}
 	#endif
 
 	if ( !bIsValidTarget )

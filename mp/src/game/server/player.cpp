@@ -194,11 +194,11 @@ ConVar  player_debug_print_damage( "player_debug_print_damage", "0", FCVAR_CHEAT
 
 void CC_GiveCurrentAmmo( void )
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetCommandClient(); 
-#else
-CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetCommandClient(); 
+	#else
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if( pPlayer )
 	{
@@ -5081,9 +5081,9 @@ void CBasePlayer::InitialSpawn( void )
 void CBasePlayer::Spawn( void )
 {
 
-#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
-KillChatBubble();
-#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+	#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+		KillChatBubble();
+	#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
 
 	// Needs to be done before weapons are given
 	if ( Hints() )

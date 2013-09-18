@@ -195,8 +195,8 @@ void CPropJeep::Precache( void )
 	PrecacheScriptSound( "Jeep.GaussCharge" );
 
 	#ifdef Seco7_ALLOW_JEEP_HEADLIGHTS
-	PrecacheScriptSound( "Airboat_headlight_on" );
-	PrecacheScriptSound( "Airboat_headlight_off" );
+		PrecacheScriptSound( "Airboat_headlight_on" );
+		PrecacheScriptSound( "Airboat_headlight_off" );
 	#endif //Seco7_ALLOW_JEEP_HEADLIGHTS
 	
 	PrecacheModel( GAUSS_BEAM_SPRITE );

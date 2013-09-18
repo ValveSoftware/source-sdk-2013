@@ -575,11 +575,12 @@ Vector CParticleSystemQuery::GetLocalPlayerPos( void )
 		return vec3_origin;
 	return pPlayer->WorldSpaceCenter();
 #else
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetLocalPlayer(); //AI Patch Replacment: CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#else
-CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer(); //AI Patch Replacment: CBasePlayer *pPlayer = AI_GetSinglePlayer();
+	#else
+		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if ( !pPlayer )
 		return vec3_origin;
@@ -600,11 +601,12 @@ void CParticleSystemQuery::GetLocalPlayerEyeVectors( Vector *pForward, Vector *p
 	}
 	pPlayer->EyeVectors( pForward, pRight, pUp );
 #else
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();	
-#else
-CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();	
+	#else
+		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	
 	if ( !pPlayer )
 	{

@@ -239,14 +239,14 @@ void CNPCSimpleTalker::RunTask( const Task_t *pTask )
 			// fail out if the player looks away or moves away.
 			if ( !pPlayer || ( pPlayer->GetAbsOrigin() - GetAbsOrigin() ).Length2D() > TALKER_STARE_DIST ) 
 #else
-if ( pTask->iTask == TASK_TALKER_CLIENT_STARE && AI_IsSinglePlayer() )
-		{
-			// Get edict for one player
-			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-			Assert( pPlayer );
-
-			// fail out if the player looks away or moves away.
-			if ( ( pPlayer->GetAbsOrigin() - GetAbsOrigin() ).Length2D() > TALKER_STARE_DIST )
+		if ( pTask->iTask == TASK_TALKER_CLIENT_STARE && AI_IsSinglePlayer() )
+				{
+					// Get edict for one player
+					CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+					Assert( pPlayer );
+		
+					// fail out if the player looks away or moves away.
+					if ( ( pPlayer->GetAbsOrigin() - GetAbsOrigin() ).Length2D() > TALKER_STARE_DIST )
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 			{

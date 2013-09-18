@@ -14,9 +14,9 @@
 #include "basecombatweapon_shared.h"
 #include "hl2mp_weapon_parse.h"
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
-#ifndef CLIENT_DLL 
-	#include "AI_BaseNPC.h" 
-#endif 
+	#ifndef CLIENT_DLL 
+		#include "AI_BaseNPC.h" 
+	#endif 
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 #if defined( CLIENT_DLL )

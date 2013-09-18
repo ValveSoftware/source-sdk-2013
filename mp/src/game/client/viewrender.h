@@ -303,7 +303,7 @@ public:
 	virtual void	Shutdown( void );
 	
 	#ifdef Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
-	virtual void    MP_PostSimulate();
+		virtual void    MP_PostSimulate();
 	#endif //Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
 
 	const CViewSetup *GetPlayerViewSetup( ) const;

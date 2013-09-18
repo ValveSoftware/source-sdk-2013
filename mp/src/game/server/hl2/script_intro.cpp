@@ -234,9 +234,9 @@ void CScriptIntro::InputSetFOVBlendTime( inputdata_t &inputdata )
 	{
 		// If we weren't blending, then we need to construct a proper starting point from scratch
 		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 		#else
-		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+			CBasePlayer *pPlayer = AI_GetSinglePlayer();
 		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( pPlayer )
