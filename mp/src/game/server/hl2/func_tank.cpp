@@ -762,7 +762,7 @@ void CFuncTank::Spawn( void )
 	{
 		pProp->SetClientSideAnimation( false );
 	}
-
+/**/
 	m_hControlVolume	= NULL;
 
 	if ( GetParent() && GetParent()->GetBaseAnimating() )
@@ -1035,6 +1035,7 @@ bool CFuncTank::StartControl( CBaseCombatCharacter *pController )
 
 		CBasePlayer *pPlayer = static_cast<CBasePlayer*>( m_hController.Get() );
 		pPlayer->m_Local.m_iHideHUD |= HIDEHUD_WEAPONSELECTION;
+
 		pPlayer->Weapon_Switch( pPlayer->Weapon_OwnsThisType( "weapon_hands" ) );//4WH - Information: Prevents weapon sounds/effects on throwing picked up objects.
 	}
 	else
@@ -1049,10 +1050,10 @@ bool CFuncTank::StartControl( CBaseCombatCharacter *pController )
 		m_hController->GetActiveWeapon()->Holster();
 	}
 
-//4WH - Information: Here we add code from DutchMegas' Collaborate source mod.
-
+	//4WH - Information: Here we add code from DutchMegas' Collaborate source mod.
 	if ( pController->IsPlayer() )
-		pController->SetNextAttack( gpGlobals->curtime + 1.0f );
+	pController->SetNextAttack( gpGlobals->curtime + 1.0f );
+	/**/
 
 	// Set the controller's position to be the use position.
 	m_vecControllerUsePos = m_hController->GetLocalOrigin();
@@ -1097,6 +1098,7 @@ void CFuncTank::StopControl()
 	{
 		CBasePlayer *pPlayer = static_cast<CBasePlayer*>( m_hController.Get() );
 		pPlayer->m_Local.m_iHideHUD &= ~HIDEHUD_WEAPONSELECTION;
+		
 		pPlayer->SwitchToNextBestWeapon(pPlayer->GetActiveWeapon());//4WH - Information: Restores to a weapon.
 	}
 
@@ -1570,9 +1572,9 @@ void CFuncTank::Think( void )
 
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
-#endif //Seco7_Enable_Fixed_Multiplayer_AI		
+	#else
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI		
 
 		bool bThinkFast = false;
 
@@ -2182,9 +2184,11 @@ void CFuncTank::DoMuzzleFlash( void )
 			CEffectData data;
 			data.m_nAttachmentIndex = m_nBarrelAttachment;
 			data.m_nEntIndex = pAnim->entindex();
+
 			//4WH - Information: Here we add code from DutchMegas' Collaborate source mode.
 			pAnim->GetAttachment( m_nBarrelAttachment, data.m_vOrigin );
-			
+			/**/
+
 			// FIXME: Create a custom entry here!
 			DispatchEffect( "ChopperMuzzleFlash", data );
 		}
@@ -2195,8 +2199,10 @@ void CFuncTank::DoMuzzleFlash( void )
 			data.m_nAttachmentIndex = m_nBarrelAttachment;
 			data.m_flScale = 1.0f;
 			data.m_fFlags = MUZZLEFLASH_COMBINE;
+
 			//4WH - Information: Here we add code from DutchMegas' Collaborate source mode.
 			pAnim->GetAttachment( m_nBarrelAttachment, data.m_vOrigin );
+			/**/
 
 			DispatchEffect( "MuzzleFlash", data );
 		}
@@ -2468,8 +2474,9 @@ LINK_ENTITY_TO_CLASS( func_tank, CFuncTankGun );
 //-----------------------------------------------------------------------------
 void CFuncTankGun::Fire( int bulletCount, const Vector &barrelEnd, const Vector &forward, CBaseEntity *pAttacker, bool bIgnoreSpread )
 {
-//4WH - Information: This is required so that tracers show up for mounted guns.
-IPredictionSystem::SuppressHostEvents( NULL );
+	//4WH - Information: This is required so that tracers show up for mounted guns.
+	IPredictionSystem::SuppressHostEvents( NULL );
+	/**/
 
 	int i;
 
@@ -2493,45 +2500,45 @@ IPredictionSystem::SuppressHostEvents( NULL );
 	info.m_pAttacker = pAttacker;
 	info.m_pAdditionalIgnoreEnt = GetParent();
 	
-//4WH - Episodic Issues: Here we disable the episode 2 method of mounted guns which doesn't work in hl2mp.
-/*#ifdef HL2_EPISODIC
-	if ( m_iAmmoType != -1 )
-	{
+	//4WH - Episodic Issues: Here we disable the episode 2 method of mounted guns which doesn't work in hl2mp.
+	/*#ifdef HL2_EPISODIC
+		if ( m_iAmmoType != -1 )
+		{
+			for ( i = 0; i < bulletCount; i++ )
+			{
+				info.m_iAmmoType = m_iAmmoType;
+				FireBullets( info );
+			}
+		}
+	#else*/
 		for ( i = 0; i < bulletCount; i++ )
 		{
+			switch( m_bulletType )
+			{
+			case TANK_BULLET_SMALL:
+				info.m_iAmmoType = m_iSmallAmmoType;
+				FireBullets( info );
+				break;
+	
+			case TANK_BULLET_MEDIUM:
+				info.m_iAmmoType = m_iMediumAmmoType;
+				FireBullets( info );
+				break;
+	
+			case TANK_BULLET_LARGE:
+				info.m_iAmmoType = m_iLargeAmmoType;
+				FireBullets( info );
+				break;
+	
+			default:
+			case TANK_BULLET_NONE:
+			//4WH - Episodic Issues: Since only guns without a tank_bullet setting will be episodic (and non-player controllable anyway), here we tell the code to use the episode 2 ammo code.
 			info.m_iAmmoType = m_iAmmoType;
 			FireBullets( info );
+				break;
+			}
 		}
-	}
-#else*/
-	for ( i = 0; i < bulletCount; i++ )
-	{
-		switch( m_bulletType )
-		{
-		case TANK_BULLET_SMALL:
-			info.m_iAmmoType = m_iSmallAmmoType;
-			FireBullets( info );
-			break;
-
-		case TANK_BULLET_MEDIUM:
-			info.m_iAmmoType = m_iMediumAmmoType;
-			FireBullets( info );
-			break;
-
-		case TANK_BULLET_LARGE:
-			info.m_iAmmoType = m_iLargeAmmoType;
-			FireBullets( info );
-			break;
-
-		default:
-		case TANK_BULLET_NONE:
-//4WH - Episodic Issues: Since only guns without a tank_bullet setting will be episodic (and non-player controllable anyway), here we tell the code to use the episode 2 ammo code.
-		info.m_iAmmoType = m_iAmmoType;
-		FireBullets( info );
-			break;
-		}
-	}
-//#endif // HL2_EPISODIC
+	//#endif // HL2_EPISODIC
 
 	CFuncTank::Fire( bulletCount, barrelEnd, forward, pAttacker, bIgnoreSpread );
 }
@@ -3001,8 +3008,10 @@ void CFuncTankAirboatGun::DoMuzzleFlash( void )
 		data.m_nEntIndex = m_hAirboatGunModel->entindex();
 		data.m_nAttachmentIndex = m_nGunBarrelAttachment;
 		data.m_flScale = 1.0f;
+
 		//4WH - Information: Here we add code from DutchMegas' Collaborate source mode.
         m_hAirboatGunModel->GetAttachment( m_nGunBarrelAttachment, data.m_vOrigin );
+		/**/
 		DispatchEffect( "AirboatMuzzleFlash", data );
 	}
 }
@@ -4442,8 +4451,8 @@ void CFuncTankCombineCannon::MakeTracer( const Vector &vecTracerSrc, const trace
 		}
 		Vector vecPlayer = pPlayer->EyePosition();
 #else
-	if( AI_IsSinglePlayer() )
-	{
+		if( AI_IsSinglePlayer() )
+		{
 		Vector vecPlayer = AI_GetSinglePlayer()->EyePosition();
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 

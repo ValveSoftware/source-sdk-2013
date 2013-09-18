@@ -96,7 +96,7 @@ public:
 
 	DECLARE_SERVERCLASS_NOBASE(); // This makes datatables able to access our private vars.
 	
-//4WH - Episodic Issues: Here we add darkness mode so that it now works.
+	//4WH - Episodic Issues: Here we add darkness mode so that it now works.
 	virtual bool IsAlyxInDarknessMode();
 	virtual bool ShouldBurningPropsEmitLight();
 			

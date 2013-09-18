@@ -28,10 +28,10 @@ public:
 
 public:
 
-#ifdef Seco7_IRONSIGHT_ENABLED
-	Vector m_expOffset;
-	QAngle m_expOriOffset;
-#endif //Seco7_IRONSIGHT_ENABLED
+	#ifdef Seco7_IRONSIGHT_ENABLED
+		Vector m_expOffset;
+		QAngle m_expOriOffset;
+	#endif //Seco7_IRONSIGHT_ENABLED
 
 	int m_iPlayerDamage;
 };

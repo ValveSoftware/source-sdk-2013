@@ -360,7 +360,7 @@ void C_PropAirboat::DampenEyePosition( Vector &vecVehicleEyePos, QAngle &vecVehi
 
 	// Dampen forward/backward motion.
 	#ifndef Seco7_HIGH_PING_VEHICLE_FIX
-	DampenForwardMotion( vecVehicleEyePos, vecVehicleEyeAngles, flFrameTime );
+		DampenForwardMotion( vecVehicleEyePos, vecVehicleEyeAngles, flFrameTime );
 	#endif //Seco7_HIGH_PING_VEHICLE_FIX
 	
 	// Blend up/down motion.

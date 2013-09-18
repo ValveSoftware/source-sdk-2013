@@ -84,11 +84,11 @@ public:
 	
 		
 #ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
-virtual const Vector &GetRenderOrigin();
+	virtual const Vector &GetRenderOrigin();
 #endif //Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
 
 #ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
-int m_iClientClass;
+	int m_iClientClass;
 #endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 	// IClientEntity overrides.
@@ -261,8 +261,8 @@ int m_iClientClass;
 	virtual void				ItemPostFrame( void );
 	
 	#ifdef Seco7_USE_PLAYERCLASSES
-	float GetJumpHeight();
-	CNetworkVar( float, m_iJumpHeight );
+		float GetJumpHeight();
+		CNetworkVar( float, m_iJumpHeight );
 	#endif //Seco7_USE_PLAYERCLASSES
 	
 	virtual void				AbortReload( void );

@@ -66,7 +66,7 @@ public:
 	virtual const QAngle& EyeAngles( void );
 
 	#ifdef Seco7_USE_PLAYERCLASSES
-	CNetworkVar(int, m_iClientClass);
+		CNetworkVar(int, m_iClientClass);
 	#endif //Seco7_USE_PLAYERCLASSES
 
 	

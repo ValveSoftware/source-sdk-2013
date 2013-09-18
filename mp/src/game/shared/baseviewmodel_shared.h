@@ -34,8 +34,8 @@ class CBaseViewModel : public CBaseAnimating, public IHasOwner
 public:
 
 #ifdef Seco7_IRONSIGHT_ENABLED
-bool m_bExpSighted;
-float m_expFactor;
+	bool m_bExpSighted;
+	float m_expFactor;
 #endif //Seco7_IRONSIGHT_ENABLED
 
 	DECLARE_NETWORKCLASS();

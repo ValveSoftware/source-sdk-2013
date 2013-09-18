@@ -352,10 +352,10 @@ void CAI_PlaneSolver::GenerateObstacleNpcs( const AILocalMoveGoal_t &goal, float
 		}
 
 		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		CBaseEntity *pPlayer = UTIL_GetNearestPlayer(m_pNpc->GetAbsOrigin()); 
-#else
-CBaseEntity *pPlayer = UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			CBaseEntity *pPlayer = UTIL_GetNearestPlayer(m_pNpc->GetAbsOrigin()); 
+		#else
+			CBaseEntity *pPlayer = UTIL_PlayerByIndex( 1 );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( pPlayer )
 		{

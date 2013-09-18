@@ -1900,12 +1900,11 @@ void CGameMovement::StayOnGround( void )
 void CGameMovement::WalkMove( void )
 {
 #ifdef Seco7_PLAYER_MOVEMENT_CAMERA_BOB
- if ( cl_viewbob_enabled.GetInt() == 1 && !engine->IsPaused() )
+ 	if ( cl_viewbob_enabled.GetInt() == 1 && !engine->IsPaused() )
 	{
 		float xoffset = sin( gpGlobals->curtime * cl_viewbob_timer.GetFloat() ) * player->GetAbsVelocity().Length() * cl_viewbob_scale.GetFloat() / 400; // Was 100
 		float yoffset = sin( 2 * gpGlobals->curtime * cl_viewbob_timer.GetFloat() ) * player->GetAbsVelocity().Length() * cl_viewbob_scale.GetFloat() / 800; // Was 400.
 		player->ViewPunch( QAngle( xoffset, yoffset, 0));
- 
 	}
 #endif //Seco7_PLAYER_MOVEMENT_CAMERA_BOB
 	int i;

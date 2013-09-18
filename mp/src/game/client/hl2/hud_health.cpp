@@ -67,9 +67,9 @@ DECLARE_HUD_MESSAGE( CHudHealth, Damage );
 CHudHealth::CHudHealth( const char *pElementName ) : CHudElement( pElementName ), CHudNumericDisplay(NULL, "HudHealth")
 {
 	#ifdef Seco7_HAS_HEALTH_REGARDLESS_OF_SUIT
-	SetHiddenBits( HIDEHUD_PLAYERDEAD );
+		SetHiddenBits( HIDEHUD_PLAYERDEAD );
 	#else
-	SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
+		SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
 	#endif
 }
 

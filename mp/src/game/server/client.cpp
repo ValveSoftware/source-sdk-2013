@@ -1149,7 +1149,7 @@ void CC_God_f (void)
    }
 #else
 	#ifndef Seco7_ALLOW_VALVE_APPROVED_CHEATING
-	if ( gpGlobals->deathmatch )
+		if ( gpGlobals->deathmatch )
 		return;
 	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 #endif
@@ -1320,8 +1320,8 @@ void CC_Notarget_f (void)
 		return;
 
 	#ifndef Seco7_ALLOW_VALVE_APPROVED_CHEATING
-	if ( gpGlobals->deathmatch )
-	return;
+		if ( gpGlobals->deathmatch )
+		return;
 	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
 
 	pPlayer->ToggleFlag( FL_NOTARGET );

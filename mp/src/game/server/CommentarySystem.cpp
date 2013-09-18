@@ -239,7 +239,7 @@ CBasePlayer *GetCommentaryPlayer( void )
 
 	return pPlayer;
 #else
-return UTIL_GetLocalPlayer(); 
+	return UTIL_GetLocalPlayer(); 
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 }
 

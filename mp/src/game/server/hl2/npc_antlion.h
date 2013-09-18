@@ -230,10 +230,10 @@ private:
 	bool SeenEnemyWithinTime( float flTime );
 	void DelaySquadAttack( float flDuration );
 
-//4WH - Episodic Issues: if Changed to ifdef.
-#ifdef HL2_EPISODIC
-	void DoPoisonBurst();
-#endif
+	//4WH - Episodic Issues: if Changed to ifdef.
+	#ifdef HL2_EPISODIC
+		void DoPoisonBurst();
+	#endif
 
 	float	m_flIdleDelay;
 	float	m_flBurrowTime;
@@ -279,10 +279,11 @@ private:
 	bool		m_bDontExplode;			// Suppresses worker poison burst when drowning, failing to unburrow, etc.
 	bool		m_bLoopingStarted;
 	bool		m_bSuppressUnburrowEffects;	// Don't kick up dust when spawning
-//Seco2013 - Has to be in hl2mprules not hl2rules.
-#ifdef HL2_EPISODIC
-	bool		m_bHasDoneAirAttack;  ///< only allowed to apply this damage once per glide
-#endif
+
+	//Seco2013 - Has to be in hl2mprules not hl2rules.
+	#ifdef HL2_EPISODIC
+		bool		m_bHasDoneAirAttack;  ///< only allowed to apply this damage once per glide
+	#endif
 
 	bool		m_bForcedStuckJump;
 	int			m_nBodyBone;

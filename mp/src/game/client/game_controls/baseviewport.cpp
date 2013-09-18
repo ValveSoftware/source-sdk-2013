@@ -97,29 +97,28 @@ CON_COMMAND( hidepanel, "Hides a viewport panel <name>" )
 }
 
 #ifdef Seco7_USE_PLAYERCLASSES
- CON_COMMAND( SSPlayerClassesBGChecked, "Makes sure the player class menu isn't displayed on the background maps." )
-{
-	if ( !gViewPortInterface )
-		return;
-
- if ( !engine->IsLevelMainMenuBackground() )
-	{		
-	return;
-	}
- else
+	 CON_COMMAND( SSPlayerClassesBGChecked, "Makes sure the player class menu isn't displayed on the background maps." )
 	{
-	engine->ClientCmd( "ss_classes_default" );
-    }
-}
-
- CON_COMMAND( chooseclass, "Opens a menu for class choose" )
- {
- 	if ( !gViewPortInterface )
- 		return;
- 
- 	gViewPortInterface->ShowPanel( "class", true );
- }
-
+		if ( !gViewPortInterface )
+			return;
+	
+	 if ( !engine->IsLevelMainMenuBackground() )
+		{		
+		return;
+		}
+	 else
+		{
+		engine->ClientCmd( "ss_classes_default" );
+	    }
+	}
+	
+	 CON_COMMAND( chooseclass, "Opens a menu for class choose" )
+	 {
+	 	if ( !gViewPortInterface )
+	 		return;
+	 
+	 	gViewPortInterface->ShowPanel( "class", true );
+	 }
 #endif //Seco7_USE_PLAYERCLASSES
 
 /* global helper functions

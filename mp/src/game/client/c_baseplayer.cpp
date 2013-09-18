@@ -72,7 +72,7 @@ int g_nKillCamTarget2 = 0;
 extern ConVar mp_forcecamera; // in gamevars_shared.h
 
 #ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
-extern int m_iClientClass;
+	extern int m_iClientClass;
 #endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 #define FLASHLIGHT_DISTANCE		1000
@@ -282,7 +282,7 @@ END_RECV_TABLE()
 		RecvPropFloat	(RECVINFO(m_flMaxspeed)),
 		
 		#ifdef Seco7_USE_PLAYERCLASSES
-		RecvPropFloat	(RECVINFO(m_iJumpHeight)),
+			RecvPropFloat	(RECVINFO(m_iJumpHeight)),
 		#endif //Seco7_USE_PLAYERCLASSES
 		
 		RecvPropInt		(RECVINFO(m_fFlags)),
@@ -2993,21 +2993,21 @@ void CC_DumpClientSoundscapeData( const CCommand& args )
 static ConCommand soundscape_dumpclient("soundscape_dumpclient", CC_DumpClientSoundscapeData, "Dumps the client's soundscape data.\n", FCVAR_CHEAT);
 
 #ifdef Seco7_USE_PLAYERCLASSES
-float C_BasePlayer::GetJumpHeight()
-{
-        return m_iJumpHeight;
-}
+	float C_BasePlayer::GetJumpHeight()
+	{
+	        return m_iJumpHeight;
+	}
 #endif //Seco7_USE_PLAYERCLASSES
 
 
 #ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
-//4WH - Information: Tony Sergi has said on the hl2coders list that third person models need to invalidate their bone cache, so we do that here.
-const Vector &C_BasePlayer::GetRenderOrigin( void )
-{
-	if (IsInAVehicle())
+	//4WH - Information: Tony Sergi has said on the hl2coders list that third person models need to invalidate their bone cache, so we do that here.
+	const Vector &C_BasePlayer::GetRenderOrigin( void )
 	{
-	InvalidateBoneCache();
+		if (IsInAVehicle())
+		{
+		InvalidateBoneCache();
+		}
+	 return BaseClass::GetRenderOrigin();
 	}
- return BaseClass::GetRenderOrigin();
-}
 #endif //Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES

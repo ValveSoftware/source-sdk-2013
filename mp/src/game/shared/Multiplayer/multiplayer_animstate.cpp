@@ -895,7 +895,7 @@ Activity CMultiPlayerAnimState::CalcMainActivity()
 		HandleSwimming( idealActivity ) || 
 		
 		#ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
-		HandleVehicle( idealActivity ) || 
+			HandleVehicle( idealActivity ) || 
 		#endif //Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
 		
 		HandleDying( idealActivity ) )

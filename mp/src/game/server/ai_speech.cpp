@@ -315,10 +315,10 @@ AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, const char *
 	if ( !GetOuter()->IsPlayer() )
 	{
 		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetOuter()->GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetOuter()->GetAbsOrigin()); 
+		#else
+			CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if( pPlayer )
 			pPlayer->ModifyOrAppendPlayerCriteria( set );
@@ -943,10 +943,10 @@ void CAI_ExpresserHost_NPC_DoModifyOrAppendCriteria( CAI_BaseNPC *pSpeaker, AI_C
 	}
 
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(pSpeaker->GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(pSpeaker->GetAbsOrigin()); 
+	#else
+		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer )
 	{

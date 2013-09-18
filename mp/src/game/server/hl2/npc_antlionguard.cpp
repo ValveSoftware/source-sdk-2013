@@ -1606,12 +1606,13 @@ public:
 //-----------------------------------------------------------------------------
 void CNPC_AntlionGuard::Footstep( bool bHeavy )
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
-#else
-	CBasePlayer *pPlayer = AI_GetSinglePlayer();
-	Assert( pPlayer != NULL );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+	#else
+		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+		Assert( pPlayer != NULL );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	if ( pPlayer == NULL )
 		return;
 

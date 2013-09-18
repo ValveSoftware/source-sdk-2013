@@ -124,17 +124,18 @@ void CAI_AllyManager::CountAllies( int *pTotal, int *pMedics )
 {
 	(*pTotal) = (*pMedics) = 0;
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-#else
-	if ( !AI_IsSinglePlayer() ) 
-	{
-		// @TODO (toml 10-22-04): no MP support right now
-		return;
-	}
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		//Do nothing here.
+	#else
+		if ( !AI_IsSinglePlayer() ) 
+		{
+			// @TODO (toml 10-22-04): no MP support right now
+			return;
+		}
 
-	const Vector &	vPlayerPos = UTIL_GetLocalPlayer()->GetAbsOrigin();
-
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		const Vector &	vPlayerPos = UTIL_GetLocalPlayer()->GetAbsOrigin();
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	
 	CAI_BaseNPC **	ppAIs 	= g_AI_Manager.AccessAIs();
 	int 			nAIs 	= g_AI_Manager.NumAIs();
 
@@ -151,27 +152,29 @@ void CAI_AllyManager::CountAllies( int *pTotal, int *pMedics )
 				continue;
 			
 			// They only count if I can use them.
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-			if( ppAIs[i]->IRelationType( UTIL_GetNearestPlayer(ppAIs[i]->GetAbsOrigin()) ) != D_LI )
-#else
-if( ppAIs[i]->IRelationType( UTIL_GetLocalPlayer() ) != D_LI )
-#endif //Seco7_Enable_Fixed_Multiplayer_AI				
-continue;
+			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+				if( ppAIs[i]->IRelationType( UTIL_GetNearestPlayer(ppAIs[i]->GetAbsOrigin()) ) != D_LI )
+				continue;
+			#else
+				if( ppAIs[i]->IRelationType( UTIL_GetLocalPlayer() ) != D_LI )
+				continue;
+			#endif //Seco7_Enable_Fixed_Multiplayer_AI				
 
 			// Skip distant NPCs
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-			Vector vNearestPlayerPos = UTIL_GetNearestPlayer(ppAIs[i]->GetAbsOrigin())->GetAbsOrigin();
-			if ( !ppAIs[i]->IsInPlayerSquad() && 
-				!UTIL_FindClientInPVS( ppAIs[i]->edict() ) && 
-				( ( ppAIs[i]->GetAbsOrigin() - vNearestPlayerPos ).LengthSqr() > 150*12 ||
-				  fabsf( ppAIs[i]->GetAbsOrigin().z - vNearestPlayerPos.z ) > 192 ) )
-#else
-			if ( !ppAIs[i]->IsInPlayerSquad() && 
+			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+				Vector vNearestPlayerPos = UTIL_GetNearestPlayer(ppAIs[i]->GetAbsOrigin())->GetAbsOrigin();
+				if ( !ppAIs[i]->IsInPlayerSquad() && 
+					!UTIL_FindClientInPVS( ppAIs[i]->edict() ) && 
+					( ( ppAIs[i]->GetAbsOrigin() - vNearestPlayerPos ).LengthSqr() > 150*12 ||
+				  	fabsf( ppAIs[i]->GetAbsOrigin().z - vNearestPlayerPos.z ) > 192 ) )
+				continue;
+			#else
+				if ( !ppAIs[i]->IsInPlayerSquad() && 
 				!UTIL_FindClientInPVS( ppAIs[i]->edict() ) && 
 				( ( ppAIs[i]->GetAbsOrigin() - vPlayerPos ).LengthSqr() > 150*12 ||
 				  fabsf( ppAIs[i]->GetAbsOrigin().z - vPlayerPos.z ) > 192 ) )
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
 				continue;
+			#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 			if( FClassnameIs( ppAIs[i], "npc_citizen" ) ) 
 			{  

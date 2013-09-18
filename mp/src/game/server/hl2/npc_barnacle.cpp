@@ -1250,22 +1250,16 @@ void CNPC_Barnacle::LiftPrey( void )
 	}
 
 	// Height from the barnacle's origin to the point at which it bites
-	float flBiteZOffset = 60.0;
 	#ifdef Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
-	float flPBiteZOffset = 10.0;
-    #endif //Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
-	
-	#ifdef Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
-	if ( IsEnemyAPlayer() )
-	{
-		LiftPlayer(flPBiteZOffset);
-	}
+		float flPBiteZOffset = 10.0;
 	#else
+		float flBiteZOffset = 60.0;
+    #endif //Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
+
 	if ( IsEnemyAPlayer() )
 	{
 		LiftPlayer(flBiteZOffset);
 	}
-	#endif //Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
 	else if ( IsEnemyARagdoll() )
 	{
 		LiftRagdoll(flBiteZOffset);
@@ -1672,15 +1666,15 @@ void CNPC_Barnacle::BitePrey( void )
 	else
 	{
 		#ifdef Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
-	EmitSound( "NPC_Barnacle.Digest" );
-	pVictim->AddEffects( EF_NODRAW );
-		iDamageType |= DMG_LASTGENERICFLAG;
-		nDamage = 5000; //4WH - Information: Make barnacles really deadly!//pVictim->m_iHealth; 
-	EmitSound( "NPC_Barnacle.Digest" );
-	SpawnDeathGibs();
-#else	
-	nDamage = BARNACLE_BITE_DAMAGE_TO_PLAYER; 
-#endif //Seco7_BARNACLES_CAN_SWALLOW_PLAYERS	
+			EmitSound( "NPC_Barnacle.Digest" );
+			pVictim->AddEffects( EF_NODRAW );
+			iDamageType |= DMG_LASTGENERICFLAG;
+			nDamage = 5000; //4WH - Information: Make barnacles really deadly!//pVictim->m_iHealth; 
+			EmitSound( "NPC_Barnacle.Digest" );
+			SpawnDeathGibs();
+		#else	
+			nDamage = BARNACLE_BITE_DAMAGE_TO_PLAYER; 
+		#endif //Seco7_BARNACLES_CAN_SWALLOW_PLAYERS	
 	}
 
 	if ( m_hRagdoll )

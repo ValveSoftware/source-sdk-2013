@@ -42,7 +42,7 @@
 #endif
 
 #ifdef Seco7_USE_PLAYERCLASSES
-#include "c_hl2mp_player.h"
+	#include "c_hl2mp_player.h"
 #endif //Seco7_USE_PLAYERCLASSES
 
 #if defined( REPLAY_ENABLED )
@@ -191,20 +191,20 @@ static void __MsgFunc_Rumble( bf_read &msg )
 	RumbleEffect( waveformIndex, rumbleData, rumbleFlags );
 }
 #ifdef Seco7_USE_PLAYERCLASSES
-static void __MsgFunc_SSPlayerClassesBGCheck( bf_read &msg )
-{
-		engine->ClientCmd( "SSPlayerClassesBGChecked" );
-}
-
-static void __MsgFunc_ShowSSPlayerClasses( bf_read &msg )
-{
-		engine->ClientCmd( "chooseclass" );
-}
-
-static void __MsgFunc_ForceHUDReload( bf_read &msg )
-{
-		engine->ClientCmd( "hud_reloadscheme" );
-}
+	static void __MsgFunc_SSPlayerClassesBGCheck( bf_read &msg )
+	{
+			engine->ClientCmd( "SSPlayerClassesBGChecked" );
+	}
+	
+	static void __MsgFunc_ShowSSPlayerClasses( bf_read &msg )
+	{
+			engine->ClientCmd( "chooseclass" );
+	}
+	
+	static void __MsgFunc_ForceHUDReload( bf_read &msg )
+	{
+			engine->ClientCmd( "hud_reloadscheme" );
+	}
 #endif //Seco7_USE_PLAYERCLASSES
 
 static void __MsgFunc_VGUIMenu( bf_read &msg )
@@ -299,63 +299,63 @@ ClientModeShared::~ClientModeShared()
 void ClientModeShared::ReloadScheme( void )
 {
 #ifdef Seco7_USE_PLAYERCLASSES
-C_HL2MP_Player *pPlayer = C_HL2MP_Player::GetLocalHL2MPPlayer();
- 
-if(!pPlayer)
-	return;
-int ClassValue = pPlayer->m_iClientClass;
- 
- //4WH - Information: Here you can set different hud schemes and layouts for each player class, also you can overlay materials here so that a player class could view the world through (say) a helmet. Look at the nightvision code for the material overlay lines.
- 
-// Check which class.
-if (ClassValue == 1)
-{
-	m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: Change the HUD colour scheme for this player class.
-	ClearKeyValuesCache();
-	// Derived ClientMode class must make sure m_Viewport is instantiated
-	Assert( m_pViewport );
-	m_pViewport->LoadControlSettings( "scripts/HudLayout.res" ); //Information: Change the HUD layout this player class.
-	return;
-}
-else if (ClassValue == 2)
-{
-	m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: Change the HUD colour scheme for this player class.
-	ClearKeyValuesCache();
-	// Derived ClientMode class must make sure m_Viewport is instantiated
-	Assert( m_pViewport );
-	m_pViewport->LoadControlSettings( "scripts/HudLayout.res" ); //Information: Change the HUD layout this player class.
-	return;
-}
-else if (ClassValue == 3)
-{
-	m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: Change the HUD colour scheme for this player class.
-	ClearKeyValuesCache();
-	// Derived ClientMode class must make sure m_Viewport is instantiated
-	Assert( m_pViewport );
-	m_pViewport->LoadControlSettings( "scripts/HudLayout.res" ); //Information: Change the HUD layout this player class.
-	return;
-}
-else if (ClassValue == 4)
-{
-	m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: Change the HUD colour scheme for this player class.
-	ClearKeyValuesCache();
-	// Derived ClientMode class must make sure m_Viewport is instantiated
-	Assert( m_pViewport );
-	m_pViewport->LoadControlSettings( "scripts/HudLayout.res" );
-	 return;
-}
-else
-{
-	m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: If no class can be found for whatever reason, give this HUD colour scheme for this player.
-	ClearKeyValuesCache();
-	// Derived ClientMode class must make sure m_Viewport is instantiated
-	Assert( m_pViewport );
-	m_pViewport->LoadControlSettings( "scripts/HudLayout.res" );
-	return;
-}
-#else
-	m_pViewport->ReloadScheme( "resource/ClientScheme.res" );
-	ClearKeyValuesCache();
+	C_HL2MP_Player *pPlayer = C_HL2MP_Player::GetLocalHL2MPPlayer();
+	 
+	if(!pPlayer)
+		return;
+	int ClassValue = pPlayer->m_iClientClass;
+	 
+	 //4WH - Information: Here you can set different hud schemes and layouts for each player class, also you can overlay materials here so that a player class could view the world through (say) a helmet. Look at the nightvision code for the material overlay lines.
+	 
+	// Check which class.
+	if (ClassValue == 1)
+	{
+		m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: Change the HUD colour scheme for this player class.
+		ClearKeyValuesCache();
+		// Derived ClientMode class must make sure m_Viewport is instantiated
+		Assert( m_pViewport );
+		m_pViewport->LoadControlSettings( "scripts/HudLayout.res" ); //Information: Change the HUD layout this player class.
+		return;
+	}
+	else if (ClassValue == 2)
+	{
+		m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: Change the HUD colour scheme for this player class.
+		ClearKeyValuesCache();
+		// Derived ClientMode class must make sure m_Viewport is instantiated
+		Assert( m_pViewport );
+		m_pViewport->LoadControlSettings( "scripts/HudLayout.res" ); //Information: Change the HUD layout this player class.
+		return;
+	}
+	else if (ClassValue == 3)
+	{
+		m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: Change the HUD colour scheme for this player class.
+		ClearKeyValuesCache();
+		// Derived ClientMode class must make sure m_Viewport is instantiated
+		Assert( m_pViewport );
+		m_pViewport->LoadControlSettings( "scripts/HudLayout.res" ); //Information: Change the HUD layout this player class.
+		return;
+	}
+	else if (ClassValue == 4)
+	{
+		m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: Change the HUD colour scheme for this player class.
+		ClearKeyValuesCache();
+		// Derived ClientMode class must make sure m_Viewport is instantiated
+		Assert( m_pViewport );
+		m_pViewport->LoadControlSettings( "scripts/HudLayout.res" );
+		 return;
+	}
+	else
+	{
+		m_pViewport->ReloadScheme( "resource/ClientScheme.res" ); //Information: If no class can be found for whatever reason, give this HUD colour scheme for this player.
+		ClearKeyValuesCache();
+		// Derived ClientMode class must make sure m_Viewport is instantiated
+		Assert( m_pViewport );
+		m_pViewport->LoadControlSettings( "scripts/HudLayout.res" );
+		return;
+	}
+	#else
+		m_pViewport->ReloadScheme( "resource/ClientScheme.res" );
+		ClearKeyValuesCache();
 #endif //Seco7_USE_PLAYERCLASSES
 }
 
@@ -429,9 +429,9 @@ void ClientModeShared::Init()
 	HOOK_MESSAGE( Rumble );
 	
 	#ifdef Seco7_USE_PLAYERCLASSES
-	HOOK_MESSAGE( SSPlayerClassesBGCheck);
-	HOOK_MESSAGE( ShowSSPlayerClasses);
-	HOOK_MESSAGE( ForceHUDReload);
+		HOOK_MESSAGE( SSPlayerClassesBGCheck);
+		HOOK_MESSAGE( ShowSSPlayerClasses);
+		HOOK_MESSAGE( ForceHUDReload);
 	#endif //Seco7_USE_PLAYERCLASSES
 }
 

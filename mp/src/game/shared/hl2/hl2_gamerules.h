@@ -77,10 +77,11 @@ private:
 	virtual void			PlayerThink( CBasePlayer *pPlayer );
 	virtual float			GetAmmoDamage( CBaseEntity *pAttacker, CBaseEntity *pVictim, int nAmmoType );
 
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI
-//4WH - Episodic Issues: Here we disable this as it's been moved to hl2mp_gamerules so that calls to darkness mode work.
+	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+	//4WH - Episodic Issues: Here we disable this as it's been moved to hl2mp_gamerules so that calls to darkness mode work.
 	virtual bool			ShouldBurningPropsEmitLight();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 public:
 
 	bool AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info );
@@ -90,14 +91,14 @@ public:
 	void	NPC_DroppedHealth( void );
 	void	NPC_DroppedGrenade( void );
 	
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
 	bool	MegaPhyscannonActive( void ) { return m_bMegaPhysgun;	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	
-//4WH - Episodic Issues: Here we disable this as it's been moved to hl2mp_gamerules so that calls to darkness mode work.
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+	//4WH - Episodic Issues: Here we disable this as it's been moved to hl2mp_gamerules so that calls to darkness mode work.
+	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
 	virtual bool IsAlyxInDarknessMode();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 private:
 

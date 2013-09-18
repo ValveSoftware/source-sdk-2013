@@ -863,10 +863,11 @@ void CAI_PassengerBehavior::DetachFromVehicle( void )
 	GetOuter()->AddFlag( FL_FLY );
 	GetOuter()->SetGroundEntity( NULL );
 	GetOuter()->SetCollisionGroup( COLLISION_GROUP_NPC );
-//4WH - Episodic Issues: We add in this if def solely for people who DO NOT want episode 2 content.
-#ifdef HL2_EPISODIC
+
+	//4WH - Episodic Issues: We add in this if def solely for people who DO NOT want episode 2 content.
+	#ifdef HL2_EPISODIC
 	m_hVehicle->RemovePhysicsChild( GetOuter() );
-#endif
+	#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -892,10 +893,10 @@ void CAI_PassengerBehavior::AttachToVehicle( void )
 	GetEntryTarget( &m_vecTargetPosition, &m_vecTargetAngles );
 
 	//4WH - Episodic Issues: We add in this if def solely for people who DO NOT want episode 2 content.
-#ifdef HL2_EPISODIC
+	#ifdef HL2_EPISODIC
 	// Get physics messages from our attached physics object
 	m_hVehicle->AddPhysicsChild( GetOuter() );
-#endif
+	#endif
 }
 
 //-----------------------------------------------------------------------------

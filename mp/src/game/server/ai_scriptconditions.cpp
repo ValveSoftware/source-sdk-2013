@@ -475,16 +475,13 @@ void CAI_ScriptConditions::EvaluationThink()
 
 #ifdef HL2_DLL
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	/*	if( AI_GetSinglePlayer()->GetFlags() & FL_NOTARGET ) 
-	{ 
-		ScrCondDbgMsg( ("%s WARNING: Player is NOTARGET. This will affect all LOS conditiosn involving the player!\n", GetDebugName()) ); 
-	}*/ 
-#else
-if( AI_GetSinglePlayer()->GetFlags() & FL_NOTARGET )
-	{
-		ScrCondDbgMsg( ("%s WARNING: Player is NOTARGET. This will affect all LOS conditiosn involving the player!\n", GetDebugName()) );
-	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	//Do nothing.
+	#else
+		if( AI_GetSinglePlayer()->GetFlags() & FL_NOTARGET )
+		{
+			ScrCondDbgMsg( ("%s WARNING: Player is NOTARGET. This will affect all LOS conditiosn involving the player!\n", GetDebugName()) );
+		}
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 #endif
 
 
@@ -744,9 +741,7 @@ bool CAI_ScriptConditions::PlayerHasLineOfSight( CBaseEntity *pViewer, CBaseEnti
 {
 	//4WH - Null Pointers: Fixing a null on ep2_outland_09. This however breaks the map.
 	if (pViewer == NULL)
-	{
 	return false;
-	}
 
 	CBaseCombatCharacter *pCombatantViewer = pViewer->MyCombatCharacterPointer();
 

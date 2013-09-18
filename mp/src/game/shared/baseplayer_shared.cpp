@@ -227,11 +227,11 @@ bool CBasePlayer::UsingStandardWeaponsInVehicle( void )
 	  ( FClassnameIs( pVehicleEnt, "class C_PropVehicleSSPassengerSeat" )))
 	  )
 	{
-	return true;
+		return true;
 	}
 	else
 	{
-	return false;
+		return false;
 	}
 	#endif //Seco7_ENABLE_FAKE_PASSENGER_SEATS
 		

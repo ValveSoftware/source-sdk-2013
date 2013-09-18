@@ -2041,12 +2041,11 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 bool CBaseEntity::ShouldDrawUnderwaterBulletBubbles()
 {
 #if defined( HL2_DLL ) && defined( GAME_DLL )
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBaseEntity *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
-#else
-CBaseEntity *pPlayer = ( gpGlobals->maxClients == 1 ) ? UTIL_GetLocalPlayer() : NULL;
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
-
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBaseEntity *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
+	#else
+		CBaseEntity *pPlayer = ( gpGlobals->maxClients == 1 ) ? UTIL_GetLocalPlayer() : NULL;
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	return pPlayer && (pPlayer->GetWaterLevel() == 3);
 #else
 	return false;

@@ -72,9 +72,9 @@ CHudLocator::CHudLocator( const char *pElementName ) : CHudElement( pElementName
 	SetParent( pParent );
 
 	#ifdef  Seco7_HAS_HUD_LOCATOR_REGARDLESS_OF_SUIT
-	SetHiddenBits( HIDEHUD_PLAYERDEAD );
+		SetHiddenBits( HIDEHUD_PLAYERDEAD );
 	#else
-	SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
+		SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
 	#endif
 
 	m_textureID_IconJalopy = -1;
@@ -132,12 +132,12 @@ bool CHudLocator::ShouldDraw( void )
 	if( pPlayer->GetVehicle() )
 		return false;
 
-//4WH - Compile Issues: See below line.
-//4WH - Episodic Issues: Since this hud is only for episodic games, we add ifdefs here to fix compiler errors.
-#ifdef HL2_EPISODIC
-	if( pPlayer->m_HL2Local.m_vecLocatorOrigin == vec3_invalid )
-		return false;
-#endif //HL2_EPISODIC
+	//4WH - Compile Issues: See below line.
+	//4WH - Episodic Issues: Since this hud is only for episodic games, we add ifdefs here to fix compiler errors.
+	#ifdef HL2_EPISODIC
+		if( pPlayer->m_HL2Local.m_vecLocatorOrigin == vec3_invalid )
+			return false;
+	#endif //HL2_EPISODIC
 	
 	return true;
 }

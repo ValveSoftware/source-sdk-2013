@@ -186,12 +186,12 @@ public:
 
 	
 	#ifdef Seco7_USE_PLAYERCLASSES
-	void SSPlayerClassesBGCheck(CHL2MP_Player *pPlayer);
-	void ShowSSPlayerClasses(CHL2MP_Player *pPlayer);
-	void ForceHUDReload(CHL2MP_Player *pPlayer);
-	 bool (m_bDelayedMessage);
-	 float (m_flDelayedMessageTime); 
-	CNetworkVar(int, m_iClientClass); //4WH - Information: Lets the client player know its class int.
+		void SSPlayerClassesBGCheck(CHL2MP_Player *pPlayer);
+		void ShowSSPlayerClasses(CHL2MP_Player *pPlayer);
+		void ForceHUDReload(CHL2MP_Player *pPlayer);
+		bool (m_bDelayedMessage);
+		float (m_flDelayedMessageTime); 
+		CNetworkVar(int, m_iClientClass); //4WH - Information: Lets the client player know its class int.
 	#endif //Seco7_USE_PLAYERCLASSES
 	
 	virtual void Precache( void );
@@ -207,11 +207,11 @@ public:
 	virtual void Event_Killed( const CTakeDamageInfo &info );
 	virtual int OnTakeDamage( const CTakeDamageInfo &inputInfo );
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	virtual bool WantsLagCompensationOnEntity( const CBaseEntity *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const; 
-#else
-virtual bool WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const;
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		virtual bool WantsLagCompensationOnEntity( const CBaseEntity *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const; 
+	#else
+		virtual bool WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const;
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	virtual void FireBullets ( const FireBulletsInfo_t &info );
 	virtual bool Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex = 0);

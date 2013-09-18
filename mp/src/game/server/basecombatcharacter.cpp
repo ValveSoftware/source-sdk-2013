@@ -3111,19 +3111,19 @@ void CBaseCombatCharacter::VPhysicsShadowCollision( int index, gamevcollisioneve
 	// which can occur owing to ordering issues it appears.
 	float flOtherAttackerTime = 0.0f;
 
-#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
-	if ( HL2MPRules()->MegaPhyscannonActive() == true )
-	{
-		flOtherAttackerTime = 1.0f;
-	}
+	#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+		if ( HL2MPRules()->MegaPhyscannonActive() == true )
+		{
+			flOtherAttackerTime = 1.0f;
+		}
 	#else
-	#if defined( HL2_DLL ) && !defined( HL2MP )
-	if ( HL2GameRules()->MegaPhyscannonActive() == true )
-	{
-		flOtherAttackerTime = 1.0f;
-	}
-	#endif // HL2_DLL && !HL2MP
-#endif // Seco7_ALLOW_SUPER_GRAVITY_GUN
+		#if defined( HL2_DLL ) && !defined( HL2MP )
+		if ( HL2GameRules()->MegaPhyscannonActive() == true )
+		{
+			flOtherAttackerTime = 1.0f;
+		}
+		#endif // HL2_DLL && !HL2MP
+	#endif // Seco7_ALLOW_SUPER_GRAVITY_GUN
 
 	if ( this == pOther->HasPhysicsAttacker( flOtherAttackerTime ) )
 		return;

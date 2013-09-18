@@ -36,13 +36,10 @@
 	#include "voice_gamemgr.h"
 	#include "hl2mp_gameinterface.h"
 	#include "hl2mp_cvars.h"
-	
-
-
-	
-//4WH - Episodic Issues: Here we include the globalstate.h file so that darkness mode will work for GLOBAL_ON state.
-#include "globalstate.h"
-#include "FileSystem.h"
+		
+	//4WH - Episodic Issues: Here we include the globalstate.h file so that darkness mode will work for GLOBAL_ON state.
+	#include "globalstate.h"
+	#include "FileSystem.h"
 
 #ifdef DEBUG	
 	#include "hl2mp_bot_temp.h"
@@ -51,6 +48,7 @@
 extern void respawn(CBaseEntity *pEdict, bool fCopyCorpse);
 
 extern bool FindInList( const char **pStrings, const char *pToFind );
+
 #ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
 ConVar  physcannon_mega_enabled( "physcannon_mega_enabled", "0", FCVAR_CHEAT | FCVAR_REPLICATED );
 #endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
@@ -58,12 +56,12 @@ ConVar  physcannon_mega_enabled( "physcannon_mega_enabled", "0", FCVAR_CHEAT | F
 ConVar sv_hl2mp_weapon_respawn_time( "sv_hl2mp_weapon_respawn_time", "20", FCVAR_GAMEDLL | FCVAR_NOTIFY );
 ConVar sv_hl2mp_item_respawn_time( "sv_hl2mp_item_respawn_time", "30", FCVAR_GAMEDLL | FCVAR_NOTIFY );
 ConVar sv_report_client_settings("sv_report_client_settings", "0", FCVAR_GAMEDLL | FCVAR_NOTIFY );
+
 //4WH - Episodic Issues: Here we add darkness mode so that it now works.
 #ifdef HL2_EPISODIC  
-
 ConVar  alyx_darkness_force( "alyx_darkness_force", "0", FCVAR_CHEAT | FCVAR_REPLICATED );
-
 #endif // HL2_EPISODIC
+
 extern ConVar mp_chattime;
 
 extern CBaseEntity	 *g_pLastCombineSpawn;
@@ -80,14 +78,14 @@ BEGIN_NETWORK_TABLE_NOBASE( CHL2MPRules, DT_HL2MPRules )
 
 	#ifdef CLIENT_DLL
 		RecvPropBool( RECVINFO( m_bTeamPlayEnabled ) ),
-#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
-		RecvPropBool( RECVINFO( m_bMegaPhysgun ) ),
-#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
+		#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+				RecvPropBool( RECVINFO( m_bMegaPhysgun ) ),
+		#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
 	#else
 		SendPropBool( SENDINFO( m_bTeamPlayEnabled ) ),
-#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN	
-		SendPropBool( SENDINFO( m_bMegaPhysgun ) ),
-#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN	
+		#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN	
+				SendPropBool( SENDINFO( m_bMegaPhysgun ) ),
+		#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN	
 	#endif
 
 END_NETWORK_TABLE()
@@ -210,9 +208,9 @@ char *sTeamNames[] =
 
 CHL2MPRules::CHL2MPRules()
 {
-#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
-m_bMegaPhysgun = false;
-#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
+	#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+	m_bMegaPhysgun = false;
+	#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
 #ifndef CLIENT_DLL
 	// Create the team managers
 	for ( int i = 0; i < ARRAYSIZE( sTeamNames ); i++ )
@@ -223,15 +221,15 @@ m_bMegaPhysgun = false;
 		g_Teams.AddToTail( pTeam );
 	}	
 	
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	InitDefaultAIRelationships();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
-
-#ifdef Seco7_FORCE_TEAMPLAY_AS_ALWAYS_ON
-		m_bTeamPlayEnabled = true;
-#else
-		m_bTeamPlayEnabled = teamplay.GetBool();
-#endif //Seco7_FORCE_TEAMPLAY_AS_ALWAYS_ON
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		InitDefaultAIRelationships();
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	
+	#ifdef Seco7_FORCE_TEAMPLAY_AS_ALWAYS_ON
+			m_bTeamPlayEnabled = true;
+	#else
+			m_bTeamPlayEnabled = teamplay.GetBool();
+	#endif //Seco7_FORCE_TEAMPLAY_AS_ALWAYS_ON
 
 	m_bTeamPlayEnabled = teamplay.GetBool();
 	m_flIntermissionEndTime = 0.0f;
@@ -299,17 +297,17 @@ float CHL2MPRules::FlWeaponRespawnTime( CBaseCombatWeapon *pWeapon )
 		if ( !(pWeapon->GetWeaponFlags() & ITEM_FLAG_LIMITINWORLD) )
 		{
 		#ifdef Seco7_PREVENT_ITEM_WEAPON_RESPAWNING
-		return 9999999999999999999;
+			return 9999999999999999999;
 		#else
-		return 0;		// weapon respawns almost instantly
+			return 0;		// weapon respawns almost instantly
 		#endif //Seco7_PREVENT_ITEM_WEAPON_RESPAWNING
 		}
 	}
 
 	#ifdef Seco7_PREVENT_ITEM_WEAPON_RESPAWNING
-	return 9999999999999999999;
+		return 9999999999999999999;
 	#else
-	return sv_hl2mp_weapon_respawn_time.GetFloat();
+		return sv_hl2mp_weapon_respawn_time.GetFloat();
 	#endif //Seco7_PREVENT_ITEM_WEAPON_RESPAWNING
 #endif
 
@@ -344,17 +342,17 @@ void CHL2MPRules::Think( void )
 {
 
 #ifndef CLIENT_DLL
-#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
-if( physcannon_mega_enabled.GetBool() == true )
-		{
-			m_bMegaPhysgun = true;
-		}
-		else
-		{
-			// FIXME: Is there a better place for this?
-			m_bMegaPhysgun = ( GlobalEntity_GetState("super_phys_gun") == GLOBAL_ON );
-		}
-#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
+	#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+	if( physcannon_mega_enabled.GetBool() == true )
+			{
+				m_bMegaPhysgun = true;
+			}
+			else
+			{
+				// FIXME: Is there a better place for this?
+				m_bMegaPhysgun = ( GlobalEntity_GetState("super_phys_gun") == GLOBAL_ON );
+			}
+	#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
 	
 	CGameRules::Think();
 
@@ -658,9 +656,9 @@ QAngle CHL2MPRules::VecItemRespawnAngles( CItem *pItem )
 float CHL2MPRules::FlItemRespawnTime( CItem *pItem )
 {
 	#ifdef Seco7_PREVENT_ITEM_WEAPON_RESPAWNING
-	return 9999999999999999999;
+		return 9999999999999999999;
 	#else
-	return sv_hl2mp_item_respawn_time.GetFloat();
+		return sv_hl2mp_item_respawn_time.GetFloat();
 	#endif //Seco7_PREVENT_ITEM_WEAPON_RESPAWNING
 }
 
@@ -715,13 +713,13 @@ void CHL2MPRules::ClientDisconnected( edict_t *pClient )
 			pPlayer->GetTeam()->RemovePlayer( pPlayer );
 		}
 		#ifdef Seco7_USE_PLAYERCLASSES
-		CHL2MP_Player *pPlayer = (CHL2MP_Player *)CBaseEntity::Instance( pClient );
+			CHL2MP_Player *pPlayer = (CHL2MP_Player *)CBaseEntity::Instance( pClient );
 
-		//4WH - Information: On disconnecting from the game, set any player who is in the normal four classes to the default class so as to free up a player slot on their last player class.
-		if (pPlayer->GetClassValue() != 5 && (pPlayer->GetClassValue() != 0))
-		{
-		pPlayer->SetClassDefault();
-		}
+			//4WH - Information: On disconnecting from the game, set any player who is in the normal four classes to the default class so as to free up a player slot on their last player class.
+			if (pPlayer->GetClassValue() != 5 && (pPlayer->GetClassValue() != 0))
+			{
+			pPlayer->SetClassDefault();
+			}
 		#endif //Seco7_USE_PLAYERCLASSES
 	}
 
@@ -912,9 +910,9 @@ int CHL2MPRules::PlayerRelationship( CBaseEntity *pPlayer, CBaseEntity *pTarget 
 
 const char *CHL2MPRules::GetGameDescription( void )
 { 
-//4WH - Information: Community fix provided by Alters. Change this to reflect in the game.
+	//4WH - Information: Community fix provided by Alters. Change this to reflect in the game.
 	if ( IsTeamplay() )
-		return "Source Engine Co-Operative v7 - Team Game."; //return "Team Deathmatch"; 
+	return "Source Engine Co-Operative v7 - Team Game."; //return "Team Deathmatch"; 
 
 	return "Source Engine Co-Operative v7 - Game.";//return "Deathmatch"; 
 } 
@@ -958,104 +956,105 @@ bool CHL2MPRules::ShouldCollide( int collisionGroup0, int collisionGroup1 )
 	{
 		return false;
 	}
-#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN	
-		// This is only for the super physcannon
-	if ( m_bMegaPhysgun )
-	{
-		if ( collisionGroup0 == COLLISION_GROUP_INTERACTIVE_DEBRIS && collisionGroup1 == COLLISION_GROUP_PLAYER )
-			return false;
-	}
-#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
+
+	#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN	
+			// This is only for the super physcannon
+		if ( m_bMegaPhysgun )
+		{
+			if ( collisionGroup0 == COLLISION_GROUP_INTERACTIVE_DEBRIS && collisionGroup1 == COLLISION_GROUP_PLAYER )
+				return false;
+		}
+	#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
 	
 	//4WH - Information: The below is added from hl2_gamerules.cpp and is required.
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		// Prevent the player movement from colliding with spit globs (caused the player to jump on top of globs while in water)
-	if ( collisionGroup0 == COLLISION_GROUP_PLAYER_MOVEMENT && collisionGroup1 == HL2COLLISION_GROUP_SPIT )
-		return false;
-
-	// HL2 treats movement and tracing against players the same, so just remap here
-	if ( collisionGroup0 == COLLISION_GROUP_PLAYER_MOVEMENT )
-	{
-		collisionGroup0 = COLLISION_GROUP_PLAYER;
-	}
-
-	if( collisionGroup1 == COLLISION_GROUP_PLAYER_MOVEMENT )
-	{
-		collisionGroup1 = COLLISION_GROUP_PLAYER;
-	}
-
-	//If collisionGroup0 is not a player then NPC_ACTOR behaves just like an NPC.
-	if ( collisionGroup1 == COLLISION_GROUP_NPC_ACTOR && collisionGroup0 != COLLISION_GROUP_PLAYER )
-	{
-		collisionGroup1 = COLLISION_GROUP_NPC;
-	}
-
-	if ( collisionGroup0 == HL2COLLISION_GROUP_COMBINE_BALL )
-	{
-		if ( collisionGroup1 == HL2COLLISION_GROUP_COMBINE_BALL )
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			// Prevent the player movement from colliding with spit globs (caused the player to jump on top of globs while in water)
+		if ( collisionGroup0 == COLLISION_GROUP_PLAYER_MOVEMENT && collisionGroup1 == HL2COLLISION_GROUP_SPIT )
 			return false;
-	}
-
-	if ( collisionGroup0 == HL2COLLISION_GROUP_COMBINE_BALL && collisionGroup1 == HL2COLLISION_GROUP_COMBINE_BALL_NPC )
-		return false;
-
-	if ( ( collisionGroup0 == COLLISION_GROUP_WEAPON ) ||
-		( collisionGroup0 == COLLISION_GROUP_PLAYER ) ||
-		( collisionGroup0 == COLLISION_GROUP_PROJECTILE ) )
-	{
-		if ( collisionGroup1 == HL2COLLISION_GROUP_COMBINE_BALL )
+	
+		// HL2 treats movement and tracing against players the same, so just remap here
+		if ( collisionGroup0 == COLLISION_GROUP_PLAYER_MOVEMENT )
+		{
+			collisionGroup0 = COLLISION_GROUP_PLAYER;
+		}
+	
+		if( collisionGroup1 == COLLISION_GROUP_PLAYER_MOVEMENT )
+		{
+			collisionGroup1 = COLLISION_GROUP_PLAYER;
+		}
+	
+		//If collisionGroup0 is not a player then NPC_ACTOR behaves just like an NPC.
+		if ( collisionGroup1 == COLLISION_GROUP_NPC_ACTOR && collisionGroup0 != COLLISION_GROUP_PLAYER )
+		{
+			collisionGroup1 = COLLISION_GROUP_NPC;
+		}
+	
+		if ( collisionGroup0 == HL2COLLISION_GROUP_COMBINE_BALL )
+		{
+			if ( collisionGroup1 == HL2COLLISION_GROUP_COMBINE_BALL )
+				return false;
+		}
+	
+		if ( collisionGroup0 == HL2COLLISION_GROUP_COMBINE_BALL && collisionGroup1 == HL2COLLISION_GROUP_COMBINE_BALL_NPC )
 			return false;
-	}
-
-	if ( collisionGroup0 == COLLISION_GROUP_DEBRIS )
-	{
-		if ( collisionGroup1 == HL2COLLISION_GROUP_COMBINE_BALL )
-			return true;
-	}
-
-	if (collisionGroup0 == HL2COLLISION_GROUP_HOUNDEYE && collisionGroup1 == HL2COLLISION_GROUP_HOUNDEYE )
-		return false;
-
-	if (collisionGroup0 == HL2COLLISION_GROUP_HOMING_MISSILE && collisionGroup1 == HL2COLLISION_GROUP_HOMING_MISSILE )
-		return false;
-
-	if ( collisionGroup1 == HL2COLLISION_GROUP_CROW )
-	{
-		if ( collisionGroup0 == COLLISION_GROUP_PLAYER || collisionGroup0 == COLLISION_GROUP_NPC ||
-			 collisionGroup0 == HL2COLLISION_GROUP_CROW )
+	
+		if ( ( collisionGroup0 == COLLISION_GROUP_WEAPON ) ||
+			( collisionGroup0 == COLLISION_GROUP_PLAYER ) ||
+			( collisionGroup0 == COLLISION_GROUP_PROJECTILE ) )
+		{
+			if ( collisionGroup1 == HL2COLLISION_GROUP_COMBINE_BALL )
+				return false;
+		}
+	
+		if ( collisionGroup0 == COLLISION_GROUP_DEBRIS )
+		{
+			if ( collisionGroup1 == HL2COLLISION_GROUP_COMBINE_BALL )
+				return true;
+		}
+	
+		if (collisionGroup0 == HL2COLLISION_GROUP_HOUNDEYE && collisionGroup1 == HL2COLLISION_GROUP_HOUNDEYE )
 			return false;
-	}
-
-	if ( ( collisionGroup0 == HL2COLLISION_GROUP_HEADCRAB ) && ( collisionGroup1 == HL2COLLISION_GROUP_HEADCRAB ) )
-		return false;
-
-	// striders don't collide with other striders
-	if ( collisionGroup0 == HL2COLLISION_GROUP_STRIDER && collisionGroup1 == HL2COLLISION_GROUP_STRIDER )
-		return false;
-
-	// gunships don't collide with other gunships
-	if ( collisionGroup0 == HL2COLLISION_GROUP_GUNSHIP && collisionGroup1 == HL2COLLISION_GROUP_GUNSHIP )
-		return false;
-
-	// weapons and NPCs don't collide
-	if ( collisionGroup0 == COLLISION_GROUP_WEAPON && (collisionGroup1 >= HL2COLLISION_GROUP_FIRST_NPC && collisionGroup1 <= HL2COLLISION_GROUP_LAST_NPC ) )
-		return false;
-
-	//players don't collide against NPC Actors.
-	//I could've done this up where I check if collisionGroup0 is NOT a player but I decided to just
-	//do what the other checks are doing in this function for consistency sake.
-	if ( collisionGroup1 == COLLISION_GROUP_NPC_ACTOR && collisionGroup0 == COLLISION_GROUP_PLAYER )
-		return false;
-		
-	// In cases where NPCs are playing a script which causes them to interpenetrate while riding on another entity,
-	// such as a train or elevator, you need to disable collisions between the actors so the mover can move them.
-	if ( collisionGroup0 == COLLISION_GROUP_NPC_SCRIPTED && collisionGroup1 == COLLISION_GROUP_NPC_SCRIPTED )
-		return false;
-
-	// Spit doesn't touch other spit
-	if ( collisionGroup0 == HL2COLLISION_GROUP_SPIT && collisionGroup1 == HL2COLLISION_GROUP_SPIT )
-		return false;
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	
+		if (collisionGroup0 == HL2COLLISION_GROUP_HOMING_MISSILE && collisionGroup1 == HL2COLLISION_GROUP_HOMING_MISSILE )
+			return false;
+	
+		if ( collisionGroup1 == HL2COLLISION_GROUP_CROW )
+		{
+			if ( collisionGroup0 == COLLISION_GROUP_PLAYER || collisionGroup0 == COLLISION_GROUP_NPC ||
+				 collisionGroup0 == HL2COLLISION_GROUP_CROW )
+				return false;
+		}
+	
+		if ( ( collisionGroup0 == HL2COLLISION_GROUP_HEADCRAB ) && ( collisionGroup1 == HL2COLLISION_GROUP_HEADCRAB ) )
+			return false;
+	
+		// striders don't collide with other striders
+		if ( collisionGroup0 == HL2COLLISION_GROUP_STRIDER && collisionGroup1 == HL2COLLISION_GROUP_STRIDER )
+			return false;
+	
+		// gunships don't collide with other gunships
+		if ( collisionGroup0 == HL2COLLISION_GROUP_GUNSHIP && collisionGroup1 == HL2COLLISION_GROUP_GUNSHIP )
+			return false;
+	
+		// weapons and NPCs don't collide
+		if ( collisionGroup0 == COLLISION_GROUP_WEAPON && (collisionGroup1 >= HL2COLLISION_GROUP_FIRST_NPC && collisionGroup1 <= HL2COLLISION_GROUP_LAST_NPC ) )
+			return false;
+	
+		//players don't collide against NPC Actors.
+		//I could've done this up where I check if collisionGroup0 is NOT a player but I decided to just
+		//do what the other checks are doing in this function for consistency sake.
+		if ( collisionGroup1 == COLLISION_GROUP_NPC_ACTOR && collisionGroup0 == COLLISION_GROUP_PLAYER )
+			return false;
+			
+		// In cases where NPCs are playing a script which causes them to interpenetrate while riding on another entity,
+		// such as a train or elevator, you need to disable collisions between the actors so the mover can move them.
+		if ( collisionGroup0 == COLLISION_GROUP_NPC_SCRIPTED && collisionGroup1 == COLLISION_GROUP_NPC_SCRIPTED )
+			return false;
+	
+		// Spit doesn't touch other spit
+		if ( collisionGroup0 == HL2COLLISION_GROUP_SPIT && collisionGroup1 == HL2COLLISION_GROUP_SPIT )
+			return false;
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	return BaseClass::ShouldCollide( collisionGroup0, collisionGroup1 ); 
 
@@ -1108,7 +1107,7 @@ CAmmoDef *GetAmmoDef()
 		def.AddAmmoType("SMG1_Grenade",		DMG_BURN,					TRACER_NONE,			0,			0,			3,			0,							0 );
 		def.AddAmmoType("Grenade",			DMG_BURN,					TRACER_NONE,			0,			0,			5,			0,							0 );
 		def.AddAmmoType("slam",				DMG_BURN,					TRACER_NONE,			0,			0,			5,			0,							0 );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI		
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI		
 		def.AddAmmoType("AlyxGun",			DMG_BULLET,					TRACER_LINE,			"sk_plr_dmg_alyxgun",		"sk_npc_dmg_alyxgun",		"sk_max_alyxgun",		BULLET_IMPULSE(200, 1225), 0 );
 		def.AddAmmoType("SniperRound",		DMG_BULLET | DMG_SNIPER,	TRACER_NONE,			"sk_plr_dmg_sniper_round",	"sk_npc_dmg_sniper_round",	"sk_max_sniper_round",	BULLET_IMPULSE(650, 6000), 0 );
 		def.AddAmmoType("SniperPenetratedRound", DMG_BULLET | DMG_SNIPER, TRACER_NONE,			"sk_dmg_sniper_penetrate_plr", "sk_dmg_sniper_penetrate_npc", "sk_max_sniper_round", BULLET_IMPULSE(150, 6000), 0 );
@@ -1122,12 +1121,12 @@ CAmmoDef *GetAmmoDef()
 		def.AddAmmoType("StriderMinigun",	DMG_BULLET,					TRACER_LINE,			5, 15,15, 1.0 * 750 * 12, AMMO_FORCE_DROP_IF_CARRIED ); // hit like a 1.0kg weight at 750 ft/s
 		def.AddAmmoType("StriderMinigunDirect",	DMG_BULLET,				TRACER_LINE,			2, 2, 15, 1.0 * 750 * 12, AMMO_FORCE_DROP_IF_CARRIED ); // hit like a 1.0kg weight at 750 ft/s
 		def.AddAmmoType("HelicopterGun",	DMG_BULLET,					TRACER_LINE_AND_WHIZ,	"sk_npc_dmg_helicopter_to_plr", "sk_npc_dmg_helicopter",	"sk_max_smg1",	BULLET_IMPULSE(400, 1225), AMMO_FORCE_DROP_IF_CARRIED | AMMO_INTERPRET_PLRDAMAGE_AS_DAMAGE_TO_PLAYER );
-#ifdef HL2_EPISODIC
-		def.AddAmmoType("Hopwire",			DMG_BLAST,					TRACER_NONE,			"sk_plr_dmg_grenade",		"sk_npc_dmg_grenade",		"sk_max_hopwire",		0, 0);
-		def.AddAmmoType("CombineHeavyCannon",	DMG_BULLET,				TRACER_LINE,			40,	40, NULL, 10 * 750 * 12, AMMO_FORCE_DROP_IF_CARRIED ); // hit like a 10 kg weight at 750 ft/s
-		def.AddAmmoType("ammo_proto1",			DMG_BULLET,				TRACER_LINE,			0, 0, 10, 0, 0 );
-#endif // HL2_EPISODIC
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			#ifdef HL2_EPISODIC
+			def.AddAmmoType("Hopwire",			DMG_BLAST,					TRACER_NONE,			"sk_plr_dmg_grenade",		"sk_npc_dmg_grenade",		"sk_max_hopwire",		0, 0);
+			def.AddAmmoType("CombineHeavyCannon",	DMG_BULLET,				TRACER_LINE,			40,	40, NULL, 10 * 750 * 12, AMMO_FORCE_DROP_IF_CARRIED ); // hit like a 10 kg weight at 750 ft/s
+			def.AddAmmoType("ammo_proto1",			DMG_BULLET,				TRACER_LINE,			0, 0, 10, 0, 0 );
+			#endif // HL2_EPISODIC
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	}
 
 	return &def;
@@ -1217,12 +1216,12 @@ void CHL2MPRules::RestartGame()
 			pPlayer->GetActiveWeapon()->Holster();
 		}
 
-#ifdef Seco7_USE_PLAYERCLASSES
-		//4WH - Information: On disconnecting from the game, set any player who is in the normal four classes to the default class so as to free up a player slot on their last player class.
-		if (pPlayer->GetClassValue() != 5 && (pPlayer->GetClassValue() != 0))
-		{
-		pPlayer->SetClassDefault();
-		}
+		#ifdef Seco7_USE_PLAYERCLASSES
+			//4WH - Information: On disconnecting from the game, set any player who is in the normal four classes to the default class so as to free up a player slot on their last player class.
+			if (pPlayer->GetClassValue() != 5 && (pPlayer->GetClassValue() != 0))
+			{
+				pPlayer->SetClassDefault();
+			}
 		#endif //Seco7_USE_PLAYERCLASSES
 
 		pPlayer->RemoveAllItems( true );
@@ -1480,7 +1479,6 @@ const char *CHL2MPRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 }
 
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
-
 void CHL2MPRules::InitDefaultAIRelationships( void )
 {
 	int i, j;

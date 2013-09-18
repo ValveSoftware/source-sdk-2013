@@ -457,7 +457,7 @@ void CHL2_Player::CheckSuitZoom( void )
 			StopZooming();
 			
 		#ifdef Seco7_IRONSIGHT_ENABLED
-		ShowViewModel( true ); //4WH - Information: Shows the currently held players weapon model.
+			ShowViewModel( true ); //4WH - Information: Shows the currently held players weapon model.
 		#endif //Seco7_IRONSIGHT_ENABLED
 		}	
 		else if ( m_afButtonPressed & IN_ZOOM )
@@ -465,7 +465,7 @@ void CHL2_Player::CheckSuitZoom( void )
 			StartZooming();
 			
 		#ifdef Seco7_IRONSIGHT_ENABLED
-		ShowViewModel( false ); //4WH - Information: Hides the currently held players weapon model.
+			ShowViewModel( false ); //4WH - Information: Hides the currently held players weapon model.
 		#endif //Seco7_IRONSIGHT_ENABLED
 		}
 	}
@@ -499,11 +499,12 @@ void CHL2_Player::HandleSpeedChanges( void )
 	bool bCanSprint = CanSprint();
 	bool bIsSprinting = IsSprinting();
 
-#ifdef Seco7_CAN_SPRINT_WITHOUT_SUIT
-	bool bWantSprint = ( bCanSprint && (m_nButtons & IN_SPEED) );
-#else
-	bool bWantSprint = ( bCanSprint && IsSuitEquipped() && (m_nButtons & IN_SPEED) );
-#endif
+	#ifdef Seco7_CAN_SPRINT_WITHOUT_SUIT
+		bool bWantSprint = ( bCanSprint && (m_nButtons & IN_SPEED) );
+	#else
+		bool bWantSprint = ( bCanSprint && IsSuitEquipped() && (m_nButtons & IN_SPEED) );
+	#endif
+
 	if ( bIsSprinting != bWantSprint && (buttonsChanged & IN_SPEED) )
 	{
 		// If someone wants to sprint, make sure they've pressed the button to do so. We want to prevent the
@@ -721,17 +722,14 @@ void CHL2_Player::PreThink(void)
 	WaterMove();
 	VPROF_SCOPE_END();
 
-#ifdef Seco7_HAS_FLASHLIGHT_REGARDLESS_OF_SUIT
-	//if ( g_pGameRules && g_pGameRules->FAllowFlashlight() )
-	//	m_Local.m_iHideHUD &= ~HIDEHUD_FLASHLIGHT;
-	//else
-	//	m_Local.m_iHideHUD |= HIDEHUD_FLASHLIGHT;
-#else
-	if ( g_pGameRules && g_pGameRules->FAllowFlashlight() )
-		m_Local.m_iHideHUD &= ~HIDEHUD_FLASHLIGHT;
-	else
-		m_Local.m_iHideHUD |= HIDEHUD_FLASHLIGHT;
-#endif //Seco7_HAS_FLASHLIGHT_REGARDLESS_OF_SUIT
+	#ifdef Seco7_HAS_FLASHLIGHT_REGARDLESS_OF_SUIT
+		//Do nothing here.
+	#else
+		if ( g_pGameRules && g_pGameRules->FAllowFlashlight() )
+			m_Local.m_iHideHUD &= ~HIDEHUD_FLASHLIGHT;
+		else
+			m_Local.m_iHideHUD |= HIDEHUD_FLASHLIGHT;
+	#endif //Seco7_HAS_FLASHLIGHT_REGARDLESS_OF_SUIT
 
 	
 	VPROF_SCOPE_BEGIN( "CHL2_Player::PreThink-CommanderUpdate" );
@@ -1159,13 +1157,12 @@ void CHL2_Player::Spawn(void)
 	//
 	//m_flMaxspeed = 320;
 
-#ifdef Seco7_CAN_SPRINT_WITHOUT_SUIT
-	/*if ( !IsSuitEquipped() )
-		 StartWalking();*/
-#else
-	if ( !IsSuitEquipped() )
-		 StartWalking();
-#endif //Seco7_CAN_SPRINT_WITHOUT_SUIT
+	#ifdef Seco7_CAN_SPRINT_WITHOUT_SUIT
+		//Do nothing here.
+	#else
+		if ( !IsSuitEquipped() )
+			 StartWalking();
+	#endif //Seco7_CAN_SPRINT_WITHOUT_SUIT
 
 	SuitPower_SetCharge( 100 );
 
@@ -1270,18 +1267,18 @@ void CHL2_Player::StopSprinting( void )
 		SuitPower_RemoveDevice( SuitDeviceSprint );
 	}
 
-#ifdef Seco7_CAN_SPRINT_WITHOUT_SUIT
-		SetMaxSpeed( HL2_NORM_SPEED );
-#else
-if( IsSuitEquipped() )
-	{
-		SetMaxSpeed( HL2_NORM_SPEED );
-	}
-	else
-	{
-		SetMaxSpeed( HL2_WALK_SPEED );
-	}
-#endif //Seco7_CAN_SPRINT_WITHOUT_SUIT
+	#ifdef Seco7_CAN_SPRINT_WITHOUT_SUIT
+			SetMaxSpeed( HL2_NORM_SPEED );
+	#else
+		if( IsSuitEquipped() )
+		{
+			SetMaxSpeed( HL2_NORM_SPEED );
+		}
+		else
+		{
+			SetMaxSpeed( HL2_WALK_SPEED );
+		}
+	#endif //Seco7_CAN_SPRINT_WITHOUT_SUIT
 
 	m_fIsSprinting = false;
 
@@ -2109,15 +2106,16 @@ void CHL2_Player::FlashlightTurnOn( void )
 //-----------------------------------------------------------------------------
 void CHL2_Player::FlashlightTurnOff( void )
 {
-#ifdef Seco7_HAS_FLASHLIGHT_REGARDLESS_OF_SUIT
-	//Do Nothing.
-#else
-	if ( Flashlight_UseLegacyVersion() )
-	{
-		if( !SuitPower_RemoveDevice( SuitDeviceFlashlight ) )
+	#ifdef Seco7_HAS_FLASHLIGHT_REGARDLESS_OF_SUIT
+		//Do Nothing.
+	#else
+		if ( Flashlight_UseLegacyVersion() )
+		{
+			if( !SuitPower_RemoveDevice( SuitDeviceFlashlight ) )
 			return;
-	}
-#endif //Seco7_HAS_FLASHLIGHT_REGARDLESS_OF_SUIT
+		}
+	#endif //Seco7_HAS_FLASHLIGHT_REGARDLESS_OF_SUIT
+
 	RemoveEffects( EF_DIMLIGHT );
 	EmitSound( "HL2Player.FlashLightOff" );
 
@@ -2526,8 +2524,8 @@ void CHL2_Player::Event_Killed( const CTakeDamageInfo &info )
 
 	//4WH - CodeAddendumms: Fix by TheRealJMan.
 	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
-	FirePlayerProxyOutput( "PlayerDied", variant_t(), this, this );
-	NotifyScriptsOfDeath();
+		FirePlayerProxyOutput( "PlayerDied", variant_t(), this, this );
+		NotifyScriptsOfDeath();
 	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 }
 

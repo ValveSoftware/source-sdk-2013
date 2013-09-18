@@ -475,10 +475,10 @@ CBaseEntity *ent = NULL;
 				if (MovedYet == 0)
 				{
 				UTIL_ClientPrintAll( HUD_PRINTCENTER, "#BLOCKING_SPAWN");
-#ifdef Seco7_USE_PLAYERCLASSES
-				m_bDelayedMessage = true;
-				m_flDelayedMessageTime = gpGlobals->curtime + 6.0f;
-#endif //Seco7_USE_PLAYERCLASSES
+				#ifdef Seco7_USE_PLAYERCLASSES
+					m_bDelayedMessage = true;
+					m_flDelayedMessageTime = gpGlobals->curtime + 6.0f;
+				#endif //Seco7_USE_PLAYERCLASSES
 				}
 				MovedYet ++;	
 			
@@ -492,9 +492,9 @@ CBaseEntity *ent = NULL;
 					goto LoopSpot; //4WH - Information: We loop through the code until either there's no one in our way, or 6 (or more) calls have been made, in which case we kill the offending player.
 					}
 			}
-#ifdef Seco7_USE_PLAYERCLASSES
-		m_bDelayedMessage = false;
-#endif //Seco7_USE_PLAYERCLASSES
+		#ifdef Seco7_USE_PLAYERCLASSES
+				m_bDelayedMessage = false;
+		#endif //Seco7_USE_PLAYERCLASSES
 		MovedYet = 0;
 		}
 #endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE	
@@ -502,10 +502,10 @@ CBaseEntity *ent = NULL;
 	 #ifdef Seco7_USE_PLAYERCLASSES
 	  PlayerCanChangeClass = true;
 
-#ifndef Seco7_SAVERESTORE
-	color32 black = {0,0,0,255};
-	UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT );
-#endif //Seco7_SAVERESTORE
+		#ifndef Seco7_SAVERESTORE
+			color32 black = {0,0,0,255};
+			UTIL_ScreenFade( this, black, 0.0f, 0.0f, FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT );
+		#endif //Seco7_SAVERESTORE
 	 
 		switch( m_iCurrentClass )
 		{

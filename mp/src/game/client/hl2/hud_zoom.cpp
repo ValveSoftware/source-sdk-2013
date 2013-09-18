@@ -69,9 +69,9 @@ CHudZoom::CHudZoom( const char *pElementName ) : CHudElement(pElementName), Base
 	SetParent( pParent );
 	
 	#ifdef Seco7_HAS_ZOOM_VIEW_FUNCTION_REGARDLESS_OF_SUIT
-	SetHiddenBits( HIDEHUD_PLAYERDEAD );
+		SetHiddenBits( HIDEHUD_PLAYERDEAD );
 	#else
-	SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
+		SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
 	#endif
 }
 

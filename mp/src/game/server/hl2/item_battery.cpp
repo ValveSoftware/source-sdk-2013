@@ -39,13 +39,13 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-	#ifdef Seco7_USE_PLAYERCLASSES
-		CHL2MP_Player *pHL2MPPlayer = dynamic_cast<CHL2MP_Player *>(pPlayer);
-		return ( pHL2MPPlayer && pHL2MPPlayer->ApplyBattery() );
-	#else
-		CHL2_Player *pHL2Player = dynamic_cast<CHL2_Player *>( pPlayer );
-		return ( pHL2Player && pHL2Player->ApplyBattery() );
-	#endif //Seco7_USE_PLAYERCLASSES
+		#ifdef Seco7_USE_PLAYERCLASSES
+			CHL2MP_Player *pHL2MPPlayer = dynamic_cast<CHL2MP_Player *>(pPlayer);
+			return ( pHL2MPPlayer && pHL2MPPlayer->ApplyBattery() );
+		#else
+			CHL2_Player *pHL2Player = dynamic_cast<CHL2_Player *>( pPlayer );
+			return ( pHL2Player && pHL2Player->ApplyBattery() );
+		#endif //Seco7_USE_PLAYERCLASSES
 	}
 };
 

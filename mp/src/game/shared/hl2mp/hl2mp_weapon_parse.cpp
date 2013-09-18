@@ -29,24 +29,24 @@ void CHL2MPSWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponNa
 	m_iPlayerDamage = pKeyValuesData->GetInt( "damage", 0 );
 	
 	#ifdef Seco7_IRONSIGHT_ENABLED
-   // this just saves off the data in the script file for later use
-   KeyValues *pEt = pKeyValuesData->FindKey("ExpOffset");
-   if (pEt)
-   {
-		m_expOffset.x     = pEt->GetFloat("x", 0.0f);
-		m_expOffset.y     = pEt->GetFloat("y", 0.0f);
-		m_expOffset.z     = pEt->GetFloat("z", 0.0f);
- 
-		m_expOriOffset.x  = pEt->GetFloat("xori", 0.0f);
-		m_expOriOffset.y  = pEt->GetFloat("yori", 0.0f);
-		m_expOriOffset.z  = pEt->GetFloat("zori", 0.0f);
-   }
-   else
-   {
-      m_expOffset = vec3_origin;
-      m_expOriOffset.Init();
-   }
-#endif //Seco7_IRONSIGHT_ENABLED
+	   // this just saves off the data in the script file for later use
+	   KeyValues *pEt = pKeyValuesData->FindKey("ExpOffset");
+	   if (pEt)
+	   {
+			m_expOffset.x     = pEt->GetFloat("x", 0.0f);
+			m_expOffset.y     = pEt->GetFloat("y", 0.0f);
+			m_expOffset.z     = pEt->GetFloat("z", 0.0f);
+	 
+			m_expOriOffset.x  = pEt->GetFloat("xori", 0.0f);
+			m_expOriOffset.y  = pEt->GetFloat("yori", 0.0f);
+			m_expOriOffset.z  = pEt->GetFloat("zori", 0.0f);
+	   }
+	   else
+	   {
+	      m_expOffset = vec3_origin;
+	      m_expOriOffset.Init();
+	   }
+	#endif //Seco7_IRONSIGHT_ENABLED
 }
 
 

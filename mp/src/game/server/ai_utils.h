@@ -24,13 +24,13 @@
 inline CBasePlayer *AI_GetSinglePlayer()
 {
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-//Do nothing here. 
-#else
-if ( gpGlobals->maxClients > 1 )
+	//Do nothing here. 
+	#else
+	if ( gpGlobals->maxClients > 1 )
 	{
 		return NULL;
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	
 	return UTIL_GetLocalPlayer();
 }

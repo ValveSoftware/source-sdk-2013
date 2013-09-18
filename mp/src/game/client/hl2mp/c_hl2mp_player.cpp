@@ -14,8 +14,9 @@
 #include "iviewrender_beams.h"			// flashlight beam
 #include "r_efx.h"
 #include "dlight.h"
+
 #ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
-#include "iviewrender.h"
+	#include "iviewrender.h"
 #endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 // Don't alias here
@@ -34,8 +35,8 @@ IMPLEMENT_CLIENTCLASS_DT(C_HL2MP_Player, DT_HL2MP_Player, CHL2MP_Player)
 
 	RecvPropBool( RECVINFO( m_fIsWalking ) ),
 	
-		#ifdef Seco7_USE_PLAYERCLASSES
-	RecvPropInt( RECVINFO( m_iClientClass)),
+	#ifdef Seco7_USE_PLAYERCLASSES
+		RecvPropInt( RECVINFO( m_iClientClass)),
 	#endif //Seco7_USE_PLAYERCLASSES
 	
 END_RECV_TABLE()
@@ -52,12 +53,12 @@ static ConVar cl_playermodel( "cl_playermodel", "none", FCVAR_USERINFO | FCVAR_A
 static ConVar cl_defaultweapon( "cl_defaultweapon", "weapon_physcannon", FCVAR_USERINFO | FCVAR_ARCHIVE, "Default Spawn Weapon");
 
 #ifdef Seco7_FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
-static ConVar cl_fp_ragdoll ( "cl_fp_ragdoll", "1", FCVAR_ARCHIVE, "Allow first person ragdolls" );
-static ConVar cl_fp_ragdoll_auto ( "cl_fp_ragdoll_auto", "1", FCVAR_ARCHIVE, "Autoswitch to ragdoll thirdperson-view when necessary" );
+	static ConVar cl_fp_ragdoll ( "cl_fp_ragdoll", "1", FCVAR_ARCHIVE, "Allow first person ragdolls" );
+	static ConVar cl_fp_ragdoll_auto ( "cl_fp_ragdoll_auto", "1", FCVAR_ARCHIVE, "Autoswitch to ragdoll thirdperson-view when necessary" );
 #endif //Seco7_FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
 
 #ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
-extern int m_iClientClass;
+	extern int m_iClientClass;
 #endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 void SpawnBlood (Vector vecSpot, const Vector &vecDir, int bloodColor, float flDamage);
@@ -1030,36 +1031,36 @@ void C_HL2MP_Player::PostThink( void )
 	m_angEyeAngles = EyeAngles();
 }
 #ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
-//4WH - Information: Currently set to be toggled by the 'N' key.
-CON_COMMAND( nightvision, "Garths NightVision." )
-{
-	C_HL2MP_Player *pPlayer = C_HL2MP_Player::GetLocalHL2MPPlayer();
-	
-if(!pPlayer)
-{
-	return;
-}
-	
-int ClassValue = pPlayer->m_iClientClass;
-
-	//4WH - Information: Only the Heavy Class has nightvision so we don't do anything if anyone else uses the command.
-	if (ClassValue != 4)
+	//4WH - Information: Currently set to be toggled by the 'N' key.
+	CON_COMMAND( nightvision, "Garths NightVision." )
 	{
-	return;
+		C_HL2MP_Player *pPlayer = C_HL2MP_Player::GetLocalHL2MPPlayer();
+		
+	if(!pPlayer)
+	{
+		return;
 	}
+		
+	int ClassValue = pPlayer->m_iClientClass;
 	
-	if (cvar->FindVar("mat_fullbright")->GetInt() == 1)//is it on?
-	{
-	cvar->FindVar("mat_fullbright")->SetValue(0);
-	pPlayer->EmitSound( "NightVision.Off" );
-	view->SetScreenOverlayMaterial( NULL );	
+		//4WH - Information: Only the Heavy Class has nightvision so we don't do anything if anyone else uses the command.
+		if (ClassValue != 4)
+		{
+		return;
+		}
+		
+		if (cvar->FindVar("mat_fullbright")->GetInt() == 1)//is it on?
+		{
+		cvar->FindVar("mat_fullbright")->SetValue(0);
+		pPlayer->EmitSound( "NightVision.Off" );
+		view->SetScreenOverlayMaterial( NULL );	
+		}
+		else
+		{
+		pPlayer->EmitSound( "NightVision.On" );
+		IMaterial *pMaterial = materials->FindMaterial( "nightvision", TEXTURE_GROUP_OTHER, true );
+		view->SetScreenOverlayMaterial( pMaterial );
+		cvar->FindVar("mat_fullbright")->SetValue(1);
+		}
 	}
-	else
-	{
-	pPlayer->EmitSound( "NightVision.On" );
-	IMaterial *pMaterial = materials->FindMaterial( "nightvision", TEXTURE_GROUP_OTHER, true );
-	view->SetScreenOverlayMaterial( pMaterial );
-	cvar->FindVar("mat_fullbright")->SetValue(1);
-	}
-}
 #endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS

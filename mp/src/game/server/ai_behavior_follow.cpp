@@ -2139,24 +2139,29 @@ void CAI_FollowGoal::EnableGoal( CAI_BaseNPC *pAI )
 		return;
 	
 	CBaseEntity *pGoalEntity = GetGoalEntity();
+	
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	if ( !pGoalEntity ) 
-	{
-				CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-		if ( pAI->IRelationType(pPlayer) == D_LI ) 
+		if ( !pGoalEntity ) 
 		{
-			pGoalEntity = pPlayer; 
-#else
-if ( !pGoalEntity && AI_IsSinglePlayer() )
-	{
-		if ( pAI->IRelationType(UTIL_GetLocalPlayer()) == D_LI )
-		{
-			pGoalEntity = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
-
-			SetGoalEntity( pGoalEntity );
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+			
+			if ( pAI->IRelationType(pPlayer) == D_LI ) 
+			{
+				pGoalEntity = pPlayer; 
+				SetGoalEntity( pGoalEntity );
+			}
 		}
-	}
+	#else
+		if ( !pGoalEntity && AI_IsSinglePlayer() )
+		{
+			if ( pAI->IRelationType(UTIL_GetLocalPlayer()) == D_LI )
+			{
+				pGoalEntity = UTIL_GetLocalPlayer();
+				SetGoalEntity( pGoalEntity );
+			}	
+		}
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 
 	if ( pGoalEntity )
 		pBehavior->SetFollowGoal( this );

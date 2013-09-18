@@ -348,17 +348,17 @@ void CNPC_PlayerCompanion::GatherConditions()
 {
 	BaseClass::GatherConditions();
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-//4WH - Null Pointers: Null pointer fixed by KuRouZu on the steam coding forums.
-	CBasePlayer *pPlayer = ToBasePlayer( GetFollowBehavior().GetFollowTarget() );//UTIL_GetNearestPlayer(GetAbsOrigin());
-
-	if ( pPlayer ) 
-	{
-#else
-	if ( AI_IsSinglePlayer() )
-	{
-CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			//4WH - Null Pointers: Null pointer fixed by KuRouZu on the steam coding forums.
+			CBasePlayer *pPlayer = ToBasePlayer( GetFollowBehavior().GetFollowTarget() );//UTIL_GetNearestPlayer(GetAbsOrigin());
+		
+			if ( pPlayer ) 
+			{
+		#else
+			if ( AI_IsSinglePlayer() )
+			{
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( Classify() == CLASS_PLAYER_ALLY_VITAL )
 		{
@@ -504,16 +504,16 @@ CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 		DoCustomSpeechAI();
 	}
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-//4WH - Null Pointers: Null pointer fixed by KuRouZu on the steam coding forums.
-	if ( pPlayer && hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
-	{
-		Vector los = ( pPlayer->EyePosition() - EyePosition() );
-#else
-if ( AI_IsSinglePlayer() && hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
-	{
-		Vector los = ( UTIL_GetLocalPlayer()->EyePosition() - EyePosition() );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	//4WH - Null Pointers: Null pointer fixed by KuRouZu on the steam coding forums.
+		if ( pPlayer && hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
+		{
+			Vector los = ( pPlayer->EyePosition() - EyePosition() );
+	#else
+		if ( AI_IsSinglePlayer() && hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
+		{
+			Vector los = ( UTIL_GetLocalPlayer()->EyePosition() - EyePosition() );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		los.z = 0;
 		VectorNormalize( los );
@@ -530,12 +530,12 @@ if ( AI_IsSinglePlayer() && hl2_episodic.GetBool() && !GetEnemy() && HasConditio
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::DoCustomSpeechAI( void )
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
-	
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+	#else
+		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		
 	// Don't allow this when we're getting in the car
 #ifdef HL2_EPISODIC
 	bool bPassengerInTransition = ( IsInAVehicle() && ( m_PassengerBehavior.GetPassengerState() == PASSENGER_STATE_ENTERING || m_PassengerBehavior.GetPassengerState() == PASSENGER_STATE_EXITING ) );
@@ -570,7 +570,7 @@ void CNPC_PlayerCompanion::PredictPlayerPush()
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
 	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 #else
-CBasePlayer *pPlayer = AI_GetSinglePlayer();
+	CBasePlayer *pPlayer = AI_GetSinglePlayer();
 #endif //Seco7_Enable_Fixed_Multiplayer_AI	
 
 	if ( pPlayer && pPlayer->GetSmoothedVelocity().LengthSqr() >= Square(140))

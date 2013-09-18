@@ -33,9 +33,9 @@ CHudSuitPower::CHudSuitPower( const char *pElementName ) : CHudElement( pElement
 	SetParent( pParent );
 
 	#ifdef Seco7_HAS_POWER_INDICATOR_REGARDLESS_OF_SUIT
-	SetHiddenBits( HIDEHUD_PLAYERDEAD );
+		SetHiddenBits( HIDEHUD_PLAYERDEAD );
 	#else
-	SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
+		SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
 	#endif
 }
 
@@ -64,21 +64,21 @@ void CHudSuitPower::Reset( void )
 //-----------------------------------------------------------------------------
 bool CHudSuitPower::ShouldDraw()
 {
-#ifdef Seco7_HAS_POWER_INDICATOR_REGARDLESS_OF_SUIT
-	return true;
-#else
-bool bNeedsDraw = false;
-
-	C_BaseHLPlayer *pPlayer = (C_BaseHLPlayer *)C_BasePlayer::GetLocalPlayer();
-	if ( !pPlayer )
-		return false;
-
-	// needs draw if suit power changed or animation in progress
-	bNeedsDraw = ( ( pPlayer->m_HL2Local.m_flSuitPower != m_flSuitPower ) || ( m_AuxPowerColor[3] > 0 ) );
-
-	return ( bNeedsDraw && CHudElement::ShouldDraw() );
-#endif //Seco7_HAS_POWER_INDICATOR_REGARDLESS_OF_SUIT
-}
+	#ifdef Seco7_HAS_POWER_INDICATOR_REGARDLESS_OF_SUIT
+		return true;
+	#else
+		bool bNeedsDraw = false;
+	
+		C_BaseHLPlayer *pPlayer = (C_BaseHLPlayer *)C_BasePlayer::GetLocalPlayer();
+		if ( !pPlayer )
+			return false;
+	
+		// needs draw if suit power changed or animation in progress
+		bNeedsDraw = ( ( pPlayer->m_HL2Local.m_flSuitPower != m_flSuitPower ) || ( m_AuxPowerColor[3] > 0 ) );
+	
+		return ( bNeedsDraw && CHudElement::ShouldDraw() );
+	#endif //Seco7_HAS_POWER_INDICATOR_REGARDLESS_OF_SUIT
+	}
 
 //-----------------------------------------------------------------------------
 // Purpose: 

@@ -223,9 +223,9 @@ bool CHalfLife2::Damage_IsTimeBased( int iDmgType )
 
 //4WH - Episodic Issues: Here we disable this as it's been moved to hl2mp_gamerules so that calls to darkness mode work.
 #ifndef Seco7_Enable_Fixed_Multiplayer_AI
-#ifdef HL2_EPISODIC
-ConVar  alyx_darkness_force( "alyx_darkness_force", "0", FCVAR_CHEAT | FCVAR_REPLICATED );
-#endif // HL2_EPISODIC
+	#ifdef HL2_EPISODIC
+	ConVar  alyx_darkness_force( "alyx_darkness_force", "0", FCVAR_CHEAT | FCVAR_REPLICATED );
+	#endif // HL2_EPISODIC
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 #endif // CLIENT_DLL
@@ -1410,19 +1410,18 @@ ConVar  alyx_darkness_force( "alyx_darkness_force", "0", FCVAR_CHEAT | FCVAR_REP
 		{
 			// A physics object has struck a player ally. Don't allow damage if it
 			// came from any player's physcannon. 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-			for (int i = 1; i <= gpGlobals->maxClients; i++ )//
-			//AI Patch Removal: CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
-			{
+			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+				for (int i = 1; i <= gpGlobals->maxClients; i++ )//
+				//AI Patch Removal: CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+				{
 				CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 				if ( !pPlayer )//AI Patch Removal
-					continue;
-#else
-CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
-
-			if( pPlayer )
-			{
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+				continue;
+			#else
+				CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);	
+				if( pPlayer )
+				{
+			#endif //Seco7_Enable_Fixed_Multiplayer_AI
 				CBaseEntity *pWeapon = pPlayer->HasNamedPlayerItem("weapon_physcannon");
 
 				if( pWeapon )

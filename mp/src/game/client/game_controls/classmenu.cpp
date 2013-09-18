@@ -174,9 +174,9 @@ void CClassMenu::OnCommand( const char *command )
 		if ( hud_classautokill.GetBool() )
 		{
 			#ifdef seco2013
-			//Too many crashes linked to the following command.
+				//Too many crashes linked to the following command.
 			#else
-            engine->ClientCmd( "kill" );
+            	engine->ClientCmd( "kill" );
 			#endif //seco2013
 		}
 #endif // !CSTRIKE_DLL && !TF_CLIENT_DLL

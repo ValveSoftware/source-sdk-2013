@@ -876,7 +876,7 @@ float CBounceBomb::FindNearestNPC()
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
 	CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
 #else
-CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if( pPlayer && !(pPlayer->GetFlags() & FL_NOTARGET) )
@@ -886,7 +886,7 @@ CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
 		if( flDist < flNearest ) 
 #else
-if( flDist < flNearest && FVisible( pPlayer, MASK_SOLID_BRUSHONLY ) )
+		if( flDist < flNearest && FVisible( pPlayer, MASK_SOLID_BRUSHONLY ) )
 #endif //Seco7_Enable_Fixed_Multiplayer_AI		
 		{
 			flNearest = flDist;

@@ -556,10 +556,10 @@ void DrawAllDebugOverlays( void )
 	// A hack to draw point_message entities w/o developer required
 	DrawMessageEntities();
 }
-#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
-	// Obsidian: Convar to hold whether we're dedicated or not so the client can access
-ConVar sv_dedicated( "sv_dedicated", "0", FCVAR_REPLICATED, "Is this a dedicated server?" );
-#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+	#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+		// Obsidian: Convar to hold whether we're dedicated or not so the client can access
+		ConVar sv_dedicated( "sv_dedicated", "0", FCVAR_REPLICATED, "Is this a dedicated server?" );
+	#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
 
 CServerGameDLL g_ServerGameDLL;
 // INTERFACEVERSION_SERVERGAMEDLL_VERSION_8 is compatible with the latest since we're only adding things to the end, so expose that as well.
@@ -641,47 +641,47 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	if ( !soundemitterbase->Connect( appSystemFactory ) )
 		return false;
 		
-#ifdef Seco7_USE_STATIC_MOUNT_CODE
-//4WH - Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
-// game that you choose to mount here, they could well crash to desktop. The file is in the root of the compiled modification folder. This is how we allow people who have just loaded the game to use map and changelevel commands
-// to any official valve map.
-  KeyValues *pkvMount = new KeyValues( "InstalledSourceGames" );
-   if ( pkvMount->LoadFromFile( filesystem, "InstalledSourceGames.txt" ) )
-   {
-      while ( pkvMount )
-      {
-         const char *pszMountName = pkvMount->GetName();
-         KeyValues *pkvSearchPath = pkvMount->FindKey( "searchpath" );
-         KeyValues *pkvAppID = pkvMount->FindKey( "appid" );
-
-         if ( pszMountName && pkvSearchPath && pkvAppID )
-         {
-            const char *pszMountPath = pkvSearchPath->GetString();
-            int nMountID = pkvAppID->GetInt();
-			
-			//4WH - Information: If InstalledSourceGames.txt attempts to mount Portal, but Portal is disabled in the code - skip trying to mount Portal.
-			#ifndef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
-			if (nMountID == -400)
-			{
-			Msg ("MOUNT FAILURE - PORTAL CONTENT NOT ENABLED BY DEVELOPMENT TEAM! \n");
-			break;
-			}
-			#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
-
-            filesystem->AddSearchPath(pszMountPath, "GAME");
-            filesystem->MountSteamContent(nMountID);
-
-            Msg( "Mounted additional content: %s\n", pszMountName );
-         }
-
-         pkvMount = pkvMount->GetNextKey();
-      }
-      Msg( "\n" );
-   }
- //4WH - Information: Enabling the following two lines gives invaluable information on how the mount lines should look if you need to edit the per-map gcf mount code.
- //Msg ("These are the default search paths");
- //filesystem->PrintSearchPaths();
-#endif //Seco7_USE_STATIC_MOUNT_CODE
+	#ifdef Seco7_USE_STATIC_MOUNT_CODE
+	//4WH - Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
+	// game that you choose to mount here, they could well crash to desktop. The file is in the root of the compiled modification folder. This is how we allow people who have just loaded the game to use map and changelevel commands
+	// to any official valve map.
+	  KeyValues *pkvMount = new KeyValues( "InstalledSourceGames" );
+	   if ( pkvMount->LoadFromFile( filesystem, "InstalledSourceGames.txt" ) )
+	   {
+	      while ( pkvMount )
+	      {
+	         const char *pszMountName = pkvMount->GetName();
+	         KeyValues *pkvSearchPath = pkvMount->FindKey( "searchpath" );
+	         KeyValues *pkvAppID = pkvMount->FindKey( "appid" );
+	
+	         if ( pszMountName && pkvSearchPath && pkvAppID )
+	         {
+	            const char *pszMountPath = pkvSearchPath->GetString();
+	            int nMountID = pkvAppID->GetInt();
+				
+				//4WH - Information: If InstalledSourceGames.txt attempts to mount Portal, but Portal is disabled in the code - skip trying to mount Portal.
+				#ifndef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+				if (nMountID == -400)
+				{
+				Msg ("MOUNT FAILURE - PORTAL CONTENT NOT ENABLED BY DEVELOPMENT TEAM! \n");
+				break;
+				}
+				#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	
+	            filesystem->AddSearchPath(pszMountPath, "GAME");
+	            filesystem->MountSteamContent(nMountID);
+	
+	            Msg( "Mounted additional content: %s\n", pszMountName );
+	         }
+	
+	         pkvMount = pkvMount->GetNextKey();
+	      }
+	      Msg( "\n" );
+	   }
+	 //4WH - Information: Enabling the following two lines gives invaluable information on how the mount lines should look if you need to edit the per-map gcf mount code.
+	 //Msg ("These are the default search paths");
+	 //filesystem->PrintSearchPaths();
+	#endif //Seco7_USE_STATIC_MOUNT_CODE
 
 	// cache the globals
 	gpGlobals = pGlobals;
@@ -788,12 +788,12 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	gamestatsuploader->InitConnection();
 #endif
 
-#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+	#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
 		// Obsidian: Set the sv_dedicated convar early here
-	// since it can't change during runtime anyway.
-	if ( engine->IsDedicatedServer() )
+		// since it can't change during runtime anyway.
+		if ( engine->IsDedicatedServer() )
 		sv_dedicated.SetValue( 1 );
-#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+	#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
 
 	return true;
 }
@@ -806,14 +806,13 @@ void CServerGameDLL::PostInit()
 void CServerGameDLL::DLLShutdown( void )
 {
 
-//4WH - Clear the transition file.
-#ifdef Seco7_SAVERESTORE
-	FileHandle_t hFile = g_pFullFileSystem->Open( "cfg/transition.cfg", "w" );
-
-	CUtlBuffer buf( 0, 0, CUtlBuffer::TEXT_BUFFER );
-	g_pFullFileSystem->WriteFile( "cfg/transition.cfg", "MOD", buf );
-	g_pFullFileSystem->Close( hFile );
-#endif //Seco7_SAVERESTORE
+	//4WH - Clear the transition file.
+	#ifdef Seco7_SAVERESTORE
+		FileHandle_t hFile = g_pFullFileSystem->Open( "cfg/transition.cfg", "w" );
+		CUtlBuffer buf( 0, 0, CUtlBuffer::TEXT_BUFFER );
+		g_pFullFileSystem->WriteFile( "cfg/transition.cfg", "MOD", buf );
+		g_pFullFileSystem->Close( hFile );
+	#endif //Seco7_SAVERESTORE
 
 	// Due to dependencies, these are not autogamesystems
 	ModelSoundsCacheShutdown();
@@ -916,10 +915,11 @@ bool CServerGameDLL::GameInit( void )
 	ResetGlobalState();
 	engine->ServerCommand( "exec game.cfg\n" );
 	engine->ServerExecute( );
-#ifdef Seco7_Force_LAN_DISABLED
-	engine->ServerCommand( "sv_lan 0\n" );
-	engine->ServerCommand( "heartbeat\n" );
-#endif //Seco7_Force_LAN_DISABLED
+	#ifdef Seco7_Force_LAN_DISABLED
+		engine->ServerCommand( "sv_lan 0\n" );
+		engine->ServerCommand( "heartbeat\n" );
+	#endif //Seco7_Force_LAN_DISABLED
+
 	CBaseEntity::sm_bAccurateTriggerBboxChecks = true;
 
 	IGameEvent *event = gameeventmanager->CreateEvent( "game_init" );
@@ -1014,14 +1014,14 @@ bool CServerGameDLL::IsRestoring()
 	return g_InRestore;
 }
 
-#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
-// Obsidian:
-ConVar sv_serveractive( "sv_serveractive", "0", FCVAR_REPLICATED, "Is the server currently running?" );
-ConVar sv_hl2_mount( "sv_hl2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: HL2." );
-ConVar sv_ep1_mount( "sv_ep1_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 1." );
-ConVar sv_ep2_mount( "sv_ep2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 2." );
-ConVar sv_failsafe_mount( "sv_failsafe_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Fail_Safe - Something has gone wrong!" );
-#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+	#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+	// Obsidian:
+	ConVar sv_serveractive( "sv_serveractive", "0", FCVAR_REPLICATED, "Is the server currently running?" );
+	ConVar sv_hl2_mount( "sv_hl2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: HL2." );
+	ConVar sv_ep1_mount( "sv_ep1_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 1." );
+	ConVar sv_ep2_mount( "sv_ep2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 2." );
+	ConVar sv_failsafe_mount( "sv_failsafe_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Fail_Safe - Something has gone wrong!" );
+	#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
 
 // Called any time a new level is started (after GameInit() also on level transitions within a game)
 bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background )
@@ -1344,6 +1344,7 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 
 	// load MOTD from file into stringtable
 	LoadMessageOfTheDay();
+
 	#ifdef Seco7_ENABLE_MAP_BRIEFINGS
 	LoadMapBriefing(); // Obsidian
 	#endif //Seco7_ENABLE_MAP_BRIEFINGS
@@ -1634,11 +1635,11 @@ void CServerGameDLL::Think( bool finalTick )
 	if ( m_fAutoSaveDangerousTime != 0.0f && m_fAutoSaveDangerousTime < gpGlobals->curtime )
 	{
 		// The safety timer for a dangerous auto save has expired
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pPlayer = UTIL_GetLocalPlayer(); 
-#else
-CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			CBasePlayer *pPlayer = UTIL_GetLocalPlayer(); 
+		#else
+			CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( pPlayer && ( pPlayer->GetDeathTime() == 0.0f || pPlayer->GetDeathTime() > gpGlobals->curtime )
 			&& !pPlayer->IsSinglePlayerGameEnding()
@@ -1671,26 +1672,27 @@ void CServerGameDLL::LevelShutdown( void )
 #endif
 
 	g_pServerBenchmark->EndBenchmark();
-#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
-extern ConVar sv_seco7_increment_killed;
-sv_seco7_increment_killed.SetValue (0);
-#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 
-#ifdef Seco7_USE_PLAYERCLASSES
-extern int AssaulterPlayerNumbers;
-extern int SupporterPlayerNumbers;
-extern int MedicPlayerNumbers;
-extern int HeavyPlayerNumbers;
-AssaulterPlayerNumbers = 0;
-SupporterPlayerNumbers = 0;
-MedicPlayerNumbers = 0;
-HeavyPlayerNumbers = 0;
-#endif //Seco7_USE_PLAYERCLASSES
+	#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+		extern ConVar sv_seco7_increment_killed;
+		sv_seco7_increment_killed.SetValue (0);
+		#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+		
+		#ifdef Seco7_USE_PLAYERCLASSES
+		extern int AssaulterPlayerNumbers;
+		extern int SupporterPlayerNumbers;
+		extern int MedicPlayerNumbers;
+		extern int HeavyPlayerNumbers;
+		AssaulterPlayerNumbers = 0;
+		SupporterPlayerNumbers = 0;
+		MedicPlayerNumbers = 0;
+		HeavyPlayerNumbers = 0;
+	#endif //Seco7_USE_PLAYERCLASSES
 
-#ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
-//4WH - Information: Make sure fullbright gets turned off.
-cvar->FindVar("mat_fullbright")->SetValue(0);
-#endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+	#ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+		//4WH - Information: Make sure fullbright gets turned off.
+		cvar->FindVar("mat_fullbright")->SetValue(0);
+	#endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 	MDLCACHE_CRITICAL_SECTION();
 	IGameSystem::LevelShutdownPreEntityAllSystems();
@@ -2291,43 +2293,43 @@ void CServerGameDLL::LoadMessageOfTheDay()
 	LoadSpecificMOTDMsg( motdfile_text, "motd_text" );
 }
 
-#ifdef Seco7_ENABLE_MAP_BRIEFINGS
-// Obsidian
-void CServerGameDLL::LoadMapBriefing()
-{
-	char data[2048];
-
-	char szMapName[128];
-	Q_strncpy( szMapName, STRING( gpGlobals->mapname ), sizeof( szMapName ) );
-	Q_strlower( szMapName );
-	
-	char szMapString[MAX_PATH]; 
-	Q_snprintf( szMapString, sizeof( szMapString ), "maps/map_briefings/%s_briefing.txt", szMapName );
-
-	int length = filesystem->Size( szMapString, "GAME" );
-
-	FileHandle_t hFile = filesystem->Open( szMapString, "rb", "GAME" );
-	
-	if ( hFile == FILESYSTEM_INVALID_HANDLE )
-	return;
-
-	filesystem->Read( data, length, hFile );
-
-	data[length] = 0;
-
-	g_pStringTableInfoPanel->AddString( CBaseEntity::IsServer(), "briefing", length+1, data );
-
-	if ( hFile == FILESYSTEM_INVALID_HANDLE )
-	return;
-
-	filesystem->Read( data, length, hFile );
-	filesystem->Close( hFile );
-
-	data[length] = 0;
-
-	g_pStringTableInfoPanel->AddString( CBaseEntity::IsServer(), "briefing", length+1, data );
-}
-#endif //Seco7_ENABLE_MAP_BRIEFINGS
+	#ifdef Seco7_ENABLE_MAP_BRIEFINGS
+		// Obsidian
+		void CServerGameDLL::LoadMapBriefing()
+		{
+			char data[2048];
+		
+			char szMapName[128];
+			Q_strncpy( szMapName, STRING( gpGlobals->mapname ), sizeof( szMapName ) );
+			Q_strlower( szMapName );
+			
+			char szMapString[MAX_PATH]; 
+			Q_snprintf( szMapString, sizeof( szMapString ), "maps/map_briefings/%s_briefing.txt", szMapName );
+		
+			int length = filesystem->Size( szMapString, "GAME" );
+		
+			FileHandle_t hFile = filesystem->Open( szMapString, "rb", "GAME" );
+			
+			if ( hFile == FILESYSTEM_INVALID_HANDLE )
+			return;
+		
+			filesystem->Read( data, length, hFile );
+		
+			data[length] = 0;
+		
+			g_pStringTableInfoPanel->AddString( CBaseEntity::IsServer(), "briefing", length+1, data );
+		
+			if ( hFile == FILESYSTEM_INVALID_HANDLE )
+			return;
+		
+			filesystem->Read( data, length, hFile );
+			filesystem->Close( hFile );
+		
+			data[length] = 0;
+		
+			g_pStringTableInfoPanel->AddString( CBaseEntity::IsServer(), "briefing", length+1, data );
+		}
+	#endif //Seco7_ENABLE_MAP_BRIEFINGS
 
 void CServerGameDLL::LoadSpecificMOTDMsg( const ConVar &convar, const char *pszStringName )
 {
@@ -3508,11 +3510,11 @@ void CServerGameClients::GetBugReportInfo( char *buf, int buflen )
 
 	if ( gpGlobals->maxClients == 1 )
 	{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		CBaseEntity *ent = FindPickerEntity( UTIL_GetLocalPlayer() ); 
-#else
-CBaseEntity *ent = FindPickerEntity( UTIL_PlayerByIndex(1) );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			CBaseEntity *ent = FindPickerEntity( UTIL_GetLocalPlayer() ); 
+		#else
+			CBaseEntity *ent = FindPickerEntity( UTIL_PlayerByIndex(1) );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( ent )
 		{

@@ -89,8 +89,6 @@
 
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
 #include "ilagcompensationmanager.h" 
-
-//4WH - Information: Here we include the hl2mp gamerules.
 #include "hl2mp_gamerules.h"
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 
@@ -240,9 +238,7 @@ CAI_Manager g_AI_Manager;
 
 CAI_Manager::CAI_Manager()
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 	m_AIs.EnsureCapacity( MAX_AIS );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
 }
 
 //-------------------------------------
@@ -660,10 +656,8 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 	BaseClass::Ignite( flFlameLifetime, bNPCOnly, flSize, bCalledByLevelDesigner );
 
 #ifdef Seco7_Enable_Fixed_Multiplayer_AI
-/*#ifdef HL2_EPISODIC 
-	if ( AI_IsSinglePlayer() ) 
-	{
-		CBasePlayer *pPlayer = AI_GetSinglePlayer(); 
+		#ifdef HL2_EPISODIC 
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
 		if ( pPlayer->IRelationType( this ) != D_LI ) 
 		{ 
 			CNPC_Alyx *alyx = CNPC_Alyx::GetAlyx(); 
@@ -673,10 +667,9 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 				alyx->EnemyIgnited( this ); 
 			} 
 		} 
-	} 
-#endif*/ 
+		#endif //HL2_EPISODIC
 #else
-#ifdef HL2_EPISODIC
+	#ifdef HL2_EPISODIC
 	if ( AI_IsSinglePlayer() )
 	{
 		CBasePlayer *pPlayer = AI_GetSinglePlayer();
@@ -690,7 +683,7 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 			}
 		}
 	}
-#endif
+	#endif //HL2_EPISODIC
 #endif //Seco7_Enable_Fixed_Multiplayer_AI
 }
 
@@ -3154,11 +3147,10 @@ void CAI_BaseNPC::UpdateEfficiency( bool bInPVS )
 
 	//---------------------------------
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-
-	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());  
-#else
-CBasePlayer *pPlayer = AI_GetSinglePlayer(); 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());  
+	#else
+		CBasePlayer *pPlayer = AI_GetSinglePlayer(); 
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	static Vector vPlayerEyePosition;
 	static Vector vPlayerForward;
@@ -3607,11 +3599,11 @@ void CAI_BaseNPC::RebalanceThinks()
 
 		int i;
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+		#else
+			CBasePlayer *pPlayer = AI_GetSinglePlayer();
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 
 		Vector vPlayerForward;
@@ -3895,10 +3887,10 @@ void CAI_BaseNPC::SetPlayerAvoidState( void )
 		GetPlayerAvoidBounds( &vMins, &vMaxs );
 
 		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pLocalPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pLocalPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			CBasePlayer *pLocalPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+		#else
+			CBasePlayer *pLocalPlayer = AI_GetSinglePlayer();
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		if ( pLocalPlayer )
 		{
@@ -4874,26 +4866,43 @@ void CAI_BaseNPC::RunAI( void )
 	}
 
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	if( ai_debug_loners.GetBool() && !IsInSquad() ) 
-#else
-if( ai_debug_loners.GetBool() && !IsInSquad() && AI_IsSinglePlayer() )
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
-	{
+		if( ai_debug_loners.GetBool() && !IsInSquad() ) 
+		{
 		Vector right;
 		Vector vecPoint;
 
 		vecPoint = EyePosition() + Vector( 0, 0, 12 );
 
 		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		UTIL_GetNearestPlayer(GetAbsOrigin())->GetVectors( NULL, &right, NULL ); 
-#else
-UTIL_GetLocalPlayer()->GetVectors( NULL, &right, NULL );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			UTIL_GetNearestPlayer(GetAbsOrigin())->GetVectors( NULL, &right, NULL ); 
+		#else
+			UTIL_GetLocalPlayer()->GetVectors( NULL, &right, NULL );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		NDebugOverlay::Line( vecPoint, vecPoint + Vector( 0, 0, 64 ), 255, 0, 0, false , 0.1 );
 		NDebugOverlay::Line( vecPoint, vecPoint + Vector( 0, 0, 32 ) + right * 32, 255, 0, 0, false , 0.1 );
 		NDebugOverlay::Line( vecPoint, vecPoint + Vector( 0, 0, 32 ) - right * 32, 255, 0, 0, false , 0.1 );
-	}
+		}
+	#else
+		if( ai_debug_loners.GetBool() && !IsInSquad() && AI_IsSinglePlayer() )
+		{
+		Vector right;
+		Vector vecPoint;
+
+		vecPoint = EyePosition() + Vector( 0, 0, 12 );
+
+		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			UTIL_GetNearestPlayer(GetAbsOrigin())->GetVectors( NULL, &right, NULL ); 
+		#else
+			UTIL_GetLocalPlayer()->GetVectors( NULL, &right, NULL );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
+		NDebugOverlay::Line( vecPoint, vecPoint + Vector( 0, 0, 64 ), 255, 0, 0, false , 0.1 );
+		NDebugOverlay::Line( vecPoint, vecPoint + Vector( 0, 0, 32 ) + right * 32, 255, 0, 0, false , 0.1 );
+		NDebugOverlay::Line( vecPoint, vecPoint + Vector( 0, 0, 32 ) - right * 32, 255, 0, 0, false , 0.1 );
+		}
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 	
 #ifdef _DEBUG
 	m_bSelected = ( (m_debugOverlays & OVERLAY_NPC_SELECTED_BIT) != 0 );
@@ -11449,11 +11458,11 @@ CAI_BaseNPC::CAI_BaseNPC(void)
 	m_nDebugPauseIndex			= 0;
 
 	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	SetAIIndex( g_AI_Manager.AddAI( this ) ); 
-	lagcompensation->RemoveNpcData( GetAIIndex() ); // make sure we're not inheriting anyone else's data 
-#else
-g_AI_Manager.AddAI( this );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		SetAIIndex( g_AI_Manager.AddAI( this ) ); 
+		lagcompensation->RemoveNpcData( GetAIIndex() ); // make sure we're not inheriting anyone else's data 
+	#else
+		g_AI_Manager.AddAI( this );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	
 	if ( g_AI_Manager.NumAIs() == 1 )
 	{
@@ -12625,16 +12634,16 @@ bool CAI_BaseNPC::IsPlayerAlly( CBasePlayer *pPlayer )
 		// in multiplayer mode we need a valid pPlayer 
 		// or override this virtual function
 		#ifndef Seco7_Enable_Fixed_Multiplayer_AI
-		if ( !AI_IsSinglePlayer() ) 
+			if ( !AI_IsSinglePlayer() ) 
 			return false; 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		// NULL means single player mode
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+		#else
+			pPlayer = UTIL_GetLocalPlayer();
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	}
 
 	return ( !pPlayer || IRelationType( pPlayer ) == D_LI ); 
@@ -14074,17 +14083,24 @@ void CAI_BaseNPC::PlayerHasIlluminatedNPC( CBasePlayer *pPlayer, float flDot )
 		{
 			// Only do this in alyx darkness mode
 			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-			if ( HL2MPRules()->IsAlyxInDarknessMode() )
-			#else
-			if ( HL2GameRules()->IsAlyxInDarknessMode() )
-			#endif //Seco7_Enable_Fixed_Multiplayer_AI
-			{
-				// Can only break when we're in the action anim
-				if ( m_hCine->IsPlayingAction() )
+				if ( HL2MPRules()->IsAlyxInDarknessMode() )
 				{
-					m_hCine->StopActionLoop( true );
+					// Can only break when we're in the action anim
+					if ( m_hCine->IsPlayingAction() )
+					{
+						m_hCine->StopActionLoop( true );
+					}
 				}
-			}
+			#else
+				if ( HL2GameRules()->IsAlyxInDarknessMode() )
+				{
+					// Can only break when we're in the action anim
+					if ( m_hCine->IsPlayingAction() )
+					{
+						m_hCine->StopActionLoop( true );
+					}
+				}
+			#endif //Seco7_Enable_Fixed_Multiplayer_AI
 		}
 	}
 #endif

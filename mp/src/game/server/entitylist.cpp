@@ -521,11 +521,11 @@ CBaseEntity *CGlobalEntityList::FindEntityProcedural( const char *szName, CBaseE
 		//
 		if ( FStrEq( pName, "player" ) )
 		{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 			return (CBaseEntity *)UTIL_GetLocalPlayer(); 
-#else
-return (CBaseEntity *)UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#else
+			return (CBaseEntity *)UTIL_PlayerByIndex( 1 );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		}
 		else if ( FStrEq( pName, "pvsplayer" ) )
@@ -542,11 +542,11 @@ return (CBaseEntity *)UTIL_PlayerByIndex( 1 );
 			else
 			{
 				// FIXME: error condition?
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 				return (CBaseEntity *)UTIL_GetLocalPlayer(); 
-#else
-return (CBaseEntity *)UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			#else
+				return (CBaseEntity *)UTIL_PlayerByIndex( 1 );
+			#endif //Seco7_Enable_Fixed_Multiplayer_AI
 			}
 
 		}
@@ -560,11 +560,11 @@ return (CBaseEntity *)UTIL_PlayerByIndex( 1 );
 		}
 		else if ( FStrEq( pName, "picker" ) )
 		{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 			return FindPickerEntity( UTIL_GetLocalPlayer() ); 
-#else
-return FindPickerEntity( UTIL_PlayerByIndex(1) );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#else
+			return FindPickerEntity( UTIL_PlayerByIndex(1) );
+		#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		}
 		else if ( FStrEq( pName, "self" ) )

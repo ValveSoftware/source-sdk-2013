@@ -1583,40 +1583,40 @@ int CBaseEntity::VPhysicsTakeDamage( const CTakeDamageInfo &info )
 		{
 			// if the player is holding the object, use it's real mass (player holding reduced the mass)
 			//4WH: CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-CBasePlayer *pPlayer = NULL;
+			CBasePlayer *pPlayer = NULL;
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
-			// See which MP player is holding the physics object and then use that player to get the real mass of the object.
-			// This is ugly but better than having linkage between an object and its "holding" player.
-			for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-			{
-				CBasePlayer *tempPlayer = UTIL_PlayerByIndex( i );
-				if ( tempPlayer && (tempPlayer->GetHeldObject() == this ) )
-				{
-				pPlayer = tempPlayer;
-					break;
-				}
-			}
-#else
-if ( AI_IsSinglePlayer() )
-			{
-				pPlayer = UTIL_GetLocalPlayer();
-			}
-			else
-			{
-				// See which MP player is holding the physics object and then use that player to get the real mass of the object.
-				// This is ugly but better than having linkage between an object and its "holding" player.
-				for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-				{
-					CBasePlayer *tempPlayer = UTIL_PlayerByIndex( i );
-					if ( tempPlayer && (tempPlayer->GetHeldObject() == this ) )
-					{
-						pPlayer = tempPlayer;
-						break;
-					}
-				}
-			}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+						// See which MP player is holding the physics object and then use that player to get the real mass of the object.
+						// This is ugly but better than having linkage between an object and its "holding" player.
+						for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+						{
+							CBasePlayer *tempPlayer = UTIL_PlayerByIndex( i );
+							if ( tempPlayer && (tempPlayer->GetHeldObject() == this ) )
+							{
+							pPlayer = tempPlayer;
+								break;
+							}
+						}
+			#else
+						if ( AI_IsSinglePlayer() )
+						{
+							pPlayer = UTIL_GetLocalPlayer();
+						}
+						else
+						{
+							// See which MP player is holding the physics object and then use that player to get the real mass of the object.
+							// This is ugly but better than having linkage between an object and its "holding" player.
+							for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+							{
+								CBasePlayer *tempPlayer = UTIL_PlayerByIndex( i );
+								if ( tempPlayer && (tempPlayer->GetHeldObject() == this ) )
+								{
+									pPlayer = tempPlayer;
+									break;
+								}
+							}
+						}
+			#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 			if ( pPlayer )
 			{
@@ -6682,11 +6682,11 @@ void CBaseEntity::DispatchResponse( const char *conceptName )
 	ModifyOrAppendCriteria( set );
 
 	// Append local player criteria to set,too
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+	#else
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if( pPlayer )
 		pPlayer->ModifyOrAppendPlayerCriteria( set );

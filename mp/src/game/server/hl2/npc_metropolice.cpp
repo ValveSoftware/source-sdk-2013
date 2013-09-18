@@ -3904,11 +3904,11 @@ void CNPC_MetroPolice::AnnounceHarrassment( void )
 //-----------------------------------------------------------------------------
 void CNPC_MetroPolice::IncrementPlayerCriminalStatus( void )
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+	#else
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 
 	if ( pPlayer )
@@ -3961,10 +3961,10 @@ float CNPC_MetroPolice::GetIdealAccel( void ) const
 //-----------------------------------------------------------------------------
 void CNPC_MetroPolice::AdministerJustice( void )
 {
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI
-	if ( !AI_IsSinglePlayer() ) 
+	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+		if ( !AI_IsSinglePlayer() ) 
 		return; 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	// If we're allowed to chase the player, do so. Otherwise, just threaten.
 	if ( !IsInAScript() && (m_NPCState != NPC_STATE_SCRIPT) && HasSpawnFlags( SF_METROPOLICE_ALLOWED_TO_RESPOND ) )
@@ -5008,11 +5008,11 @@ void CNPC_MetroPolice::GatherConditions( void )
 	{
 		ClearCondition( COND_METROPOLICE_PLAYER_TOO_CLOSE );
 	}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+	#else
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	
 	// FIXME: Player can be NULL here during level transitions.
 	if ( !pPlayer )

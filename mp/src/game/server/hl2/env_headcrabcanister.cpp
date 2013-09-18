@@ -925,11 +925,11 @@ void CEnvHeadcrabCanister::Detonate( )
 	// Shake the screen unless flagged otherwise
 	if ( !HasSpawnFlags( SF_NO_SHAKE ) )
 	{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-#else
-CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#else
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 		// If the player is on foot, then do a more limited shake
 		float shakeRadius = ( pPlayer && pPlayer->IsInAVehicle() ) ? sk_env_headcrabcanister_shake_radius_vehicle.GetFloat() : sk_env_headcrabcanister_shake_radius.GetFloat();

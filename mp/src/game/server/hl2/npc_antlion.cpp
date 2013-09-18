@@ -4038,22 +4038,23 @@ bool CNPC_Antlion::CorpseGib( const CTakeDamageInfo &info )
 void CNPC_Antlion::Touch( CBaseEntity *pOther )
 {
 	//See if the touching entity is a vehicle
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI
-CBasePlayer *pPlayer = ToBasePlayer( AI_GetSinglePlayer() );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = ToBasePlayer( AI_GetSinglePlayer() );
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	
 	// FIXME: Technically we'll want to check to see if a vehicle has touched us with the player OR NPC driver
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	for (int i = 1; i <= gpGlobals->maxClients; i++ ) 
-	{
-	CBasePlayer *pPlayer = UTIL_PlayerByIndex( i ); 
-		if ( !pPlayer || !pPlayer->IsInAVehicle() ) 
-			continue; 
-#else
-if ( pPlayer && pPlayer->IsInAVehicle() )
-	{
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		for (int i = 1; i <= gpGlobals->maxClients; i++ ) 
+		{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i ); 
+			if ( !pPlayer || !pPlayer->IsInAVehicle() ) 
+				continue; 
+	#else
+		if ( pPlayer && pPlayer->IsInAVehicle() )
+		{
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
 		IServerVehicle	*pVehicle = pPlayer->GetVehicle();
 		CBaseEntity *pVehicleEnt = pVehicle->GetVehicleEnt();
 

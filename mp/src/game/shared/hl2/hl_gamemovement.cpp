@@ -12,10 +12,9 @@
 #include "in_buttons.h"
 #include "utlrbtree.h"
 #include "hl2_shareddefs.h"
-
-#ifdef HL2MP
-#include "hl2mp_gamerules.h"
-#endif
+	#ifdef HL2MP
+		#include "hl2mp_gamerules.h"
+	#endif
 #endif //Seco7_USE_CSS_LADDERS
 
 // memdbgon must be the last include file in a .cpp file!!!

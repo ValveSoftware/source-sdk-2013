@@ -348,12 +348,13 @@ void CGameText::Display( CBaseEntity *pActivator )
 {
 	if ( !CanFireForActivator( pActivator ) )
 		return;
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-	// also send to all if we haven't got a specific activator player to send to 
-	if ( MessageToAll() || !pActivator || !pActivator->IsPlayer() ) 
-#else
-if ( MessageToAll() )
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		// also send to all if we haven't got a specific activator player to send to 
+		if ( MessageToAll() || !pActivator || !pActivator->IsPlayer() ) 
+	#else
+		if ( MessageToAll() )
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 
 	if ( MessageToAll() )
 	{
@@ -361,21 +362,21 @@ if ( MessageToAll() )
 	}
 	else
 	{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-		UTIL_HudMessage( ToBasePlayer( pActivator ), m_textParms, MessageGet() );
-#else
-// If we're in singleplayer, show the message to the player.
-		if ( gpGlobals->maxClients == 1 )
-		{
-			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-			UTIL_HudMessage( pPlayer, m_textParms, MessageGet() );
-		}
-		// Otherwise show the message to the player that triggered us.
-		else if ( pActivator && pActivator->IsNetClient() )
-		{
+	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
 			UTIL_HudMessage( ToBasePlayer( pActivator ), m_textParms, MessageGet() );
-		}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#else
+	// If we're in singleplayer, show the message to the player.
+			if ( gpGlobals->maxClients == 1 )
+			{
+				CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+				UTIL_HudMessage( pPlayer, m_textParms, MessageGet() );
+			}
+			// Otherwise show the message to the player that triggered us.
+			else if ( pActivator && pActivator->IsNetClient() )
+			{
+				UTIL_HudMessage( ToBasePlayer( pActivator ), m_textParms, MessageGet() );
+			}
+	#endif //Seco7_Enable_Fixed_Multiplayer_AI
 	}
 }
 
