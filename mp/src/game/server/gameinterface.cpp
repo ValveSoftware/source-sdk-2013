@@ -1059,32 +1059,32 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		Msg("HALFLIFE 2 CONTENT IS BEING MOUNTED! \n");		
 		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 		//4WH - Information: Dedicated servers require different search paths to work.	
-		filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../orangebox", "PLATFORM");
+		//filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
+		//filesystem->AddSearchPath("../orangebox", "PLATFORM");
 		if (sv_dedicated.GetBool())
 		{
-		filesystem->AddSearchPath("mod_hl2mp", "MOD");
-		filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
-		filesystem->AddSearchPath("mod_hl2mp", "GAME");
+			filesystem->AddSearchPath("mod_hl2mp", "MOD");
+			filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
+			filesystem->AddSearchPath("mod_hl2mp", "GAME");
 		}
 		else
 		{
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 		}
 		filesystem->AddSearchPath("hl2", "GAMEBIN");
 		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 		filesystem->MountSteamContent(-220);  //Half-Life 2
 		if (sv_dedicated.GetBool())
 		{
-		filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-		filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
+			filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
+			filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
 		}
 		else
 		{
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 		}
 		filesystem->AddSearchPath("hl2mp", "GAME");
 		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
@@ -1109,19 +1109,19 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 		//4WH - Information: Dedicated servers require different search paths to work.
 		
-		filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../orangebox", "PLATFORM");
+		filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../ep2", "PLATFORM");
 		if (sv_dedicated.GetBool())
 		{
-		filesystem->AddSearchPath("mod_hl2mp", "MOD");
-		filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
-		filesystem->AddSearchPath("mod_hl2mp", "GAME");
+			filesystem->AddSearchPath("mod_hl2mp", "MOD");
+			filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
+			filesystem->AddSearchPath("mod_hl2mp", "GAME");
 		}
 		else
 		{
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 		}
 		filesystem->AddSearchPath("episodic", "GAMEBIN");
 		filesystem->AddSearchPath("episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
@@ -1131,13 +1131,13 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		filesystem->MountSteamContent(-220);  //Half-Life 2
 		if (sv_dedicated.GetBool())
 		{
-		filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-		filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
+			filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
+			filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
 		}
 		else
 		{
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 		}
 		filesystem->AddSearchPath("hl2mp", "GAME");
 		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
@@ -1160,19 +1160,19 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		Msg("EPISODE 2 CONTENT IS BEING MOUNTED! \n");
 		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 		//4WH - Information: Dedicated servers require different search paths to work.
-		filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../orangebox", "PLATFORM");
+		filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../ep2", "PLATFORM");
 		if (sv_dedicated.GetBool())
 		{
-		filesystem->AddSearchPath("mod_hl2mp", "MOD");
-		filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
-		filesystem->AddSearchPath("mod_hl2mp", "GAME");
+			filesystem->AddSearchPath("mod_hl2mp", "MOD");
+			filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
+			filesystem->AddSearchPath("mod_hl2mp", "GAME");
 		}
 		else
 		{
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 		}
 		filesystem->AddSearchPath("ep2", "GAMEBIN");
 		filesystem->AddSearchPath("ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
@@ -1182,13 +1182,13 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		filesystem->MountSteamContent(-220);  //Half-Life 2
 		if (sv_dedicated.GetBool())
 		{
-		filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-		filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
+			filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
+			filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
 		}
 		else
 		{
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 		}
 		filesystem->AddSearchPath("hl2mp", "GAME");
 		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
@@ -1210,31 +1210,31 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	{
 		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-		filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../orangebox", "PLATFORM");
+		filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../ep2", "PLATFORM");
 		if (sv_dedicated.GetBool())
 		{
-		filesystem->AddSearchPath("mod_hl2mp", "MOD");
-		filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
-		filesystem->AddSearchPath("mod_hl2mp", "GAME");
+			filesystem->AddSearchPath("mod_hl2mp", "MOD");
+			filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
+			filesystem->AddSearchPath("mod_hl2mp", "GAME");
 		}
 		else
 		{
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 		}
 		filesystem->AddSearchPath("hl2mp", "GAME");
 		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch		
 		if (sv_dedicated.GetBool())
 		{
-		filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-		filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
+			filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
+			filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
 		}
 		else
 		{
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-		filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 		}
 		sv_hl2_mount.SetValue(0);
 		sv_ep1_mount.SetValue(0);

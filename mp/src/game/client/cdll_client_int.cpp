@@ -1646,8 +1646,12 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	if (sv_hl2_mount.GetBool())
 	{
 	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("orangebox", "PLATFORM");
+	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
+	filesystem->AddSearchPath("ep2", "PLATFORM");
+
+	//filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin" //Exe Path
+	//filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2" //Platform Path
+
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
@@ -1670,8 +1674,8 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	if (sv_ep1_mount.GetBool())
 	{
 	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("orangebox", "PLATFORM");
+	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
+	filesystem->AddSearchPath("ep2", "PLATFORM");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
@@ -1696,8 +1700,8 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	if (sv_ep2_mount.GetBool())
 	{
 	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("orangebox", "PLATFORM");
+	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
+	filesystem->AddSearchPath("ep2", "PLATFORM");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
@@ -1724,8 +1728,8 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	{
 	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 	Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
-	filesystem->AddSearchPath("orangebox", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("orangebox", "PLATFORM");
+	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
+	filesystem->AddSearchPath("ep2", "PLATFORM");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");

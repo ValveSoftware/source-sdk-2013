@@ -1,5 +1,5 @@
 //====================================================//
-//  Source Engine CoOperative v7.					  //
+//  Source Engine CoOperative.					  //
 //====================================================//
 #ifndef seco7_SHAREDDEFS_H
 #define seco7_SHAREDDEFS_H
@@ -7,25 +7,7 @@
 #pragma once
 #endif
 
-//-----------------------------------------------//
-// Additional Searches/Information for coders. //
-//-------------------------------------------//
-//4WH - Mounting Code:
-//4WH - Compile Issues:
-//4WH - Episodic Issues:
-//4WH - Null Pointers:
-//4WH - Information:
-//4WH - Portal Information:
-//4WH - CodeAddendumms:        (these are addendums provided by others on the Valve wiki page).
-//
-// To those wishing to make a co-op version of the Half-Life 2/Ep1/2 maps, Mulekick on the steam forums gave this advice for older maps:
-// - This does mean that you will need to start using the Everything solution file, which means more work settings things up again -
-//Basically brushes that block LOS from AI's won't work with older maps.
-//To fix this:
-//In public/bspflags.h, change the line starting with
-//#define MASK_BLOCKLOS (CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_BLOCKLOS)
-//to:
-//#define MASK_BLOCKLOS (CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_BLOCKLOS|CONTENTS_OPAQUE)
+//Besides the Valve Wiki page, further information and help can be found in the shared/seco/seco_information.h file.
 
 /*****************/
 /* Base Defines. */
