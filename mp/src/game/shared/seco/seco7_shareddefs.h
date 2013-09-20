@@ -1,5 +1,5 @@
 //====================================================//
-//  Source Engine CoOperative v7.					  //
+//  Source Engine CoOperative.					  //
 //====================================================//
 #ifndef seco7_SHAREDDEFS_H
 #define seco7_SHAREDDEFS_H
@@ -7,25 +7,28 @@
 #pragma once
 #endif
 
-//-----------------------------------------------//
-// Additional Searches/Information for coders. //
-//-------------------------------------------//
-//4WH - Mounting Code:
-//4WH - Compile Issues:
-//4WH - Episodic Issues:
-//4WH - Null Pointers:
-//4WH - Information:
-//4WH - Portal Information:
-//4WH - CodeAddendumms:        (these are addendums provided by others on the Valve wiki page).
-//
-// To those wishing to make a co-op version of the Half-Life 2/Ep1/2 maps, Mulekick on the steam forums gave this advice for older maps:
-// - This does mean that you will need to start using the Everything solution file, which means more work settings things up again -
-//Basically brushes that block LOS from AI's won't work with older maps.
-//To fix this:
-//In public/bspflags.h, change the line starting with
-//#define MASK_BLOCKLOS (CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_BLOCKLOS)
-//to:
-//#define MASK_BLOCKLOS (CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_BLOCKLOS|CONTENTS_OPAQUE)
+//Besides the Valve Wiki page, further information and help can be found in the shared/seco/seco_information.h file.
+// Mount them.
+/*
+		FOR_EACH_VEC( vecFullLocationPaths, idxLocation )
+		{
+			FOR_EACH_VEC( vecPathIDs, idxPathID )
+			{
+				FileSystem_AddLoadedSearchPath( initInfo, vecPathIDs[ idxPathID ], vecFullLocationPaths[ idxLocation ], bLowViolence );
+			}
+		}*/
+		
+/*
+
+	// Also, mark specific path IDs as "by request only". That way, we won't waste time searching in them
+	// when people forget to specify a search path.
+	initInfo.m_pFileSystem->MarkPathIDByRequestOnly( "executable_path", true );
+	initInfo.m_pFileSystem->MarkPathIDByRequestOnly( "gamebin", true );
+	initInfo.m_pFileSystem->MarkPathIDByRequestOnly( "download", true );
+	initInfo.m_pFileSystem->MarkPathIDByRequestOnly( "mod", true );
+	initInfo.m_pFileSystem->MarkPathIDByRequestOnly( "game_write", true );
+	initInfo.m_pFileSystem->MarkPathIDByRequestOnly( "mod_write", true );
+*/
 
 /*****************/
 /* Base Defines. */
@@ -33,8 +36,8 @@
 #define Seco7_Enable_Fixed_Multiplayer_AI //Allow AI in your mod, also fixes numerous crashes to do with AI and related features.
 #define HL2_EPISODIC //Choose Episode 2 code for preference. Reccomended for Orange Box. Disabling this means you must exclude all episodic cpp/h files from your project (due to compile erros you'll get otherwise).
 #define Seco7_USE_STATIC_MOUNT_CODE //Use static mounting code to mount multiple games. This must also be defined for dynamic mounts.
-#define Seco7_USE_DYNAMIC_MOUNT_CODE //This is a much better mounting system allowing for true content mounting as though a map were that game. Maps must be named ss_hl2_, ss_ep1_ and ss_ep2_ for valid mounting.
-//#define Seco7_ENABLE_PORTAL_CONTENT_MOUNTING //Portal is seperate to the rest of the mounting code as it will crash anyone without Portal installed in most cases if a Portal map is loaded.
+//#define Seco7_USE_DYNAMIC_MOUNT_CODE //This is a much better mounting system allowing for true content mounting as though a map were that game. Maps must be named ss_hl2_, ss_ep1_ and ss_ep2_ for valid mounting.
+//s#define Seco7_ENABLE_PORTAL_CONTENT_MOUNTING //Portal is seperate to the rest of the mounting code as it will crash anyone without Portal installed in most cases if a Portal map is loaded.
 #define Seco7_PREVENT_ITEM_WEAPON_RESPAWNING //Prevent items and weapons from respawning after picked up by a player. Actually we cheat and set the respawn time insanely high.
 
 /***************************/

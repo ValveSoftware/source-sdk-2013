@@ -2545,11 +2545,23 @@ ConVar	sv_alternateticks( "sv_alternateticks", ( IsX360() ) ? "1" : "0", FCVAR_S
 //-----------------------------------------------------------------------------
 bool CBaseEntity::IsSimulatingOnAlternateTicks()
 {
+	//.Kave's fix for slow motion single player problems.
+	#ifdef seco7_ENABLED_FIXED_MULTIPLAYER_AI
+	if( gpGlobals->maxClients > 1 )
+	{
+		sv_alternateticks.SetValue( 1 );
+	}
+	else if( gpGlobals->maxClients == 1 )
+	{
+		sv_alternateticks.SetValue( 0 );
+	}
+	#else
 	if ( gpGlobals->maxClients != 1 )
 	{
 		return false;
 	}
-
+	#endif
+	
 	return sv_alternateticks.GetBool();
 }
 
