@@ -952,6 +952,9 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 	// it's ok if this is NULL. That just means the headtrack.dll wasn't found
 	g_pSourceVR = (ISourceVirtualReality *)appSystemFactory(SOURCE_VIRTUAL_REALITY_INTERFACE_VERSION, NULL);
+	
+	Msg ("These are the default server search paths");
+	filesystem->PrintSearchPaths();
 
 #ifdef Seco7_USE_STATIC_MOUNT_CODE
 	//4WH - Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
