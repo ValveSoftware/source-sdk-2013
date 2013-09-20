@@ -170,11 +170,6 @@ const char *COM_GetModDirectory(); // return the mod dir (rather than the comple
 #include "sixense/in_sixense.h"
 #endif
 
-//4WH
-#include "filesystem_init.h"
-//!!!
-
-
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -957,10 +952,6 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 	// it's ok if this is NULL. That just means the headtrack.dll wasn't found
 	g_pSourceVR = (ISourceVirtualReality *)appSystemFactory(SOURCE_VIRTUAL_REALITY_INTERFACE_VERSION, NULL);
-	
-					
-				Msg ("These are the client search paths");
-				filesystem->PrintSearchPaths();
 
 #ifdef Seco7_USE_STATIC_MOUNT_CODE
 	//4WH - Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
@@ -988,10 +979,9 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 				break;
 				}
 				#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
-						
+		
 	            filesystem->AddSearchPath(pszMountPath, "GAME");
 	            filesystem->MountSteamContent(nMountID);
-
 	         }
 	
 	         pkvMount = pkvMount->GetNextKey();
@@ -1658,6 +1648,10 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
 	filesystem->AddSearchPath("ep2", "PLATFORM");
+
+	//filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin" //Exe Path
+	//filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2" //Platform Path
+
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
@@ -1679,9 +1673,9 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	//=================
 	if (sv_ep1_mount.GetBool())
 	{
-	//filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	//filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
-	//filesystem->AddSearchPath("ep2", "PLATFORM");
+	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
+	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
+	filesystem->AddSearchPath("ep2", "PLATFORM");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
@@ -1695,7 +1689,7 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 	filesystem->AddSearchPath("hl2mp", "GAME");
 	filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-	//filesystem->AddSearchPath("ep2", "GAME");	
+	filesystem->AddSearchPath("ep2", "GAME");	
 	
 	#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
 	filesystem->AddSearchPath("portal", "GAME");

@@ -129,10 +129,6 @@ extern ConVar tf_mm_servermode;
 #include "replay/ireplaysystem.h"
 #endif
 
-//4WH
-#include "filesystem_init.h"
-//!!!
-
 extern IToolFrameworkServer *g_pToolFrameworkServer;
 extern IParticleSystemQuery *g_pParticleSystemQuery;
 
@@ -645,8 +641,6 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	if ( !soundemitterbase->Connect( appSystemFactory ) )
 		return false;
 		
-						
-		
 	#ifdef Seco7_USE_STATIC_MOUNT_CODE
 	//4WH - Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
 	// game that you choose to mount here, they could well crash to desktop. The file is in the root of the compiled modification folder. This is how we allow people who have just loaded the game to use map and changelevel commands
@@ -673,21 +667,10 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 				break;
 				}
 				#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
-				
-				//Ep2.
-				//if (nMountID == -420)
-				//{
-				filesystem->AddSearchPath("../../../steamapps/common/half-life2/ep2", "GAME");
-				filesystem->AddSearchPath("../../../steamapps/common/half-life2/ep2/ep2_sound_vo_english.vpk", "GAME");
-				filesystem->AddSearchPath("../../../steamapps/common/half-life2/ep2/ep2_pak.vpk", "GAME");
-				//}
 	
 	            filesystem->AddSearchPath(pszMountPath, "GAME");
 	            filesystem->MountSteamContent(nMountID);
-				
-				Msg ("These are the server search paths");
-				filesystem->PrintSearchPaths();
-				
+	
 	            Msg( "Mounted additional content: %s\n", pszMountName );
 	         }
 	
@@ -1076,8 +1059,8 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		Msg("HALFLIFE 2 CONTENT IS BEING MOUNTED! \n");		
 		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 		//4WH - Information: Dedicated servers require different search paths to work.	
-		filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../ep2", "PLATFORM");
+		//filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
+		//filesystem->AddSearchPath("../orangebox", "PLATFORM");
 		if (sv_dedicated.GetBool())
 		{
 			filesystem->AddSearchPath("mod_hl2mp", "MOD");
@@ -1123,11 +1106,11 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "seco7_ep1_", 10 )	) //Mounts required for Episode 1 content.
 	{
 		Msg("EPISODE 1 CONTENT IS BEING MOUNTED! \n");
-		//filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
+		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 		//4WH - Information: Dedicated servers require different search paths to work.
 		
-		//filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
-	//	filesystem->AddSearchPath("../ep2", "PLATFORM");
+		filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../ep2", "PLATFORM");
 		if (sv_dedicated.GetBool())
 		{
 			filesystem->AddSearchPath("mod_hl2mp", "MOD");
