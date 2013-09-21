@@ -34,9 +34,9 @@
 #include "ai_behavior_lead.h"
 #include "gameinterface.h"
 
-#ifdef Seco7_SAVERESTORE
+#ifdef SecobMod___SAVERESTORE
 #include "hl2mp_player.h"
-#endif //Seco7_SAVERESTORE
+#endif //SecobMod___SAVERESTORE
 
 #ifdef HL2_DLL
 #include "hl2_player.h"
@@ -55,9 +55,9 @@ CUtlVector< CHandle<CTriggerMultiple> >	g_hWeaponFireTriggers;
 extern CServerGameDLL	g_ServerGameDLL;
 extern bool				g_fGameOver;
 
-#ifdef Seco7_SAVERESTORE
+#ifdef SecobMod___SAVERESTORE
 extern bool Transitioned;
-#endif //Seco7_SAVERESTORE
+#endif //SecobMod___SAVERESTORE
 
 ConVar showtriggers( "showtriggers", "0", FCVAR_CHEAT, "Shows trigger brushes" );
 
@@ -1547,10 +1547,10 @@ void CChangeLevel::WarnAboutActiveLead( void )
 	}
 }
 
-#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+#ifdef SecobMod___MULTIPLAYER_LEVEL_TRANSITIONS
 extern ConVar mp_transition_players_percent;
 extern ConVar sv_transitions;
-#endif Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+#endif SecobMod___MULTIPLAYER_LEVEL_TRANSITIONS
 
 void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 {
@@ -1559,14 +1559,14 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 
 	Assert(!FStrEq(m_szMapName, ""));
 
-	#ifndef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+	#ifndef SecobMod___MULTIPLAYER_LEVEL_TRANSITIONS
 	// Don't work in deathmatch
 	if ( g_pGameRules->IsDeathmatch() )
 		return;
-	#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+	#endif //SecobMod___MULTIPLAYER_LEVEL_TRANSITIONS
 	
-#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
-CBasePlayer *pPlayer = (pActivator && pActivator->IsPlayer()) ? ToBasePlayer( pActivator ) : UTIL_GetLocalPlayer(); //4WH - Multiplayer Level Transitions: Get all the players who activate our multiplayer transition.
+#ifdef SecobMod___MULTIPLAYER_LEVEL_TRANSITIONS
+CBasePlayer *pPlayer = (pActivator && pActivator->IsPlayer()) ? ToBasePlayer( pActivator ) : UTIL_GetLocalPlayer(); //SecobMod__Information Get all the players who activate our multiplayer transition.
 	if ( !pPlayer )
 		return;
 
@@ -1595,20 +1595,20 @@ CBasePlayer *pPlayer = (pActivator && pActivator->IsPlayer()) ? ToBasePlayer( pA
 		}
 	}
 //===================================================================================
-#ifdef Seco7_SAVERESTORE
+#ifdef SecobMod___SAVERESTORE
 CHL2MP_Player *p2Player = (CHL2MP_Player *)UTIL_GetLocalPlayer();
 p2Player->SaveTransitionFile();
 Transitioned = true;
-#endif //Seco7_SAVERESTORE
+#endif //SecobMod___SAVERESTORE
 
 	// This object will get removed in the call to engine->ChangeLevel, copy the params into "safe" memory
 	Q_strncpy(st_szNextMap, m_szMapName, sizeof(st_szNextMap));
 
-	//4WH - Information: Change to the next map.
+	//SecobMod__Information  Change to the next map.
 		engine->ChangeLevel( st_szNextMap, NULL );
-		//4WH - Information: As far as we're concerned this is where we stop the code because we just transitioned.
+		//SecobMod__Information  As far as we're concerned this is where we stop the code because we just transitioned.
 		return;
-#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+#endif //SecobMod___MULTIPLAYER_LEVEL_TRANSITIONS
 
 	// Some people are firing these multiple times in a frame, disable
 	if ( m_bTouched )
@@ -1616,10 +1616,10 @@ Transitioned = true;
 
 	m_bTouched = true;
 
-//4WH - Information: Code can't compile without this ifndef.
-#ifndef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+//SecobMod__Information  Code can't compile without this ifndef.
+#ifndef SecobMod___MULTIPLAYER_LEVEL_TRANSITIONS
 CBaseEntity *pPlayer = (pActivator && pActivator->IsPlayer()) ? pActivator : UTIL_GetLocalPlayer();
-#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+#endif //SecobMod___MULTIPLAYER_LEVEL_TRANSITIONS
 
 
 	int transitionState = InTransitionVolume(pPlayer, m_szLandmarkName);
@@ -2592,11 +2592,11 @@ void CTriggerSave::Touch( CBaseEntity *pOther )
 		if ( g_ServerGameDLL.m_fAutoSaveDangerousTime != 0.0f && g_ServerGameDLL.m_fAutoSaveDangerousTime >= gpGlobals->curtime )
 		{
 			// A previous dangerous auto save was waiting to become safe
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod___Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 #else
 CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod___Enable_Fixed_Multiplayer_AI
 
 			if ( pPlayer->GetDeathTime() == 0.0f || pPlayer->GetDeathTime() > gpGlobals->curtime )
 			{
@@ -2616,11 +2616,11 @@ CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
 	if ( m_fDangerousTimer != 0.0f )
 	{
 		// There's a dangerous timer. Save if we have enough hitpoints.
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
-		#else
-			CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod___Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+#endif //SecobMod___Enable_Fixed_Multiplayer_AI
 
 
 		if (pPlayer && pPlayer->GetHealth() >= m_minHitPoints)
@@ -2872,7 +2872,7 @@ private:
 	int	  m_iAttachmentIndex;
 	bool  m_bSnapToGoal;
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	bool  m_bInterpolatePosition;
 
@@ -2890,7 +2890,7 @@ private:
 	COutputEvent m_OnEndFollow;
 };
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 const float CTriggerCamera::kflPosInterpTime = 2.0f;
 #endif
@@ -3022,7 +3022,7 @@ void CTriggerCamera::InputDisable( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-#ifdef Seco7_MULTIPLAYER_VIEWCONTROL_CAMERAS
+#ifdef SecobMod___MULTIPLAYER_VIEWCONTROL_CAMERAS
 void CTriggerCamera::Enable( void )
 {
 
@@ -3044,12 +3044,12 @@ m_hPlayer = pPlayer;
 	if ( !m_hPlayer || !m_hPlayer->IsPlayer() )
 	{
 	Msg ("Not m_hPlayer or m_hPlayer isn't a player!");
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod___Enable_Fixed_Multiplayer_AI
 		m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 		Msg ("m_hPlayer should now be the nearest player.");
 #else
 m_hPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod___Enable_Fixed_Multiplayer_AI
 
 	}
 
@@ -3245,11 +3245,11 @@ void CTriggerCamera::Enable( void )
 
 	if ( !m_hPlayer || !m_hPlayer->IsPlayer() )
 	{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod___Enable_Fixed_Multiplayer_AI
 		m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 #else
 m_hPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod___Enable_Fixed_Multiplayer_AI
 
 	}
 
@@ -3420,12 +3420,12 @@ m_hPlayer = UTIL_GetLocalPlayer();
 
 	DispatchUpdateTransmitState();
 }
-#endif //Seco7_MULTIPLAYER_VIEWCONTROL_CAMERAS
+#endif //SecobMod___MULTIPLAYER_VIEWCONTROL_CAMERAS
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-#ifdef Seco7_MULTIPLAYER_VIEWCONTROL_CAMERAS
+#ifdef SecobMod___MULTIPLAYER_VIEWCONTROL_CAMERAS
 void CTriggerCamera::Disable( void )
 {
 for ( int i = 1; i <= gpGlobals->maxClients; i++ )
@@ -3495,11 +3495,10 @@ void CTriggerCamera::Disable( void )
 		m_hPlayer->m_takedamage = m_nOldTakeDamage;
 	}
 
-	//4WH - Null Pointers: On ep2_outland_01 the game would crash as it didn't find a player, so define them as the nearest player.
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
-		CBasePlayer *m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
-
+	//SecobMod__MiscFixes On ep2_outland_01 the game would crash as it didn't find a player, so define them as the nearest player.
+#ifdef SecobMod___Enable_Fixed_Multiplayer_AI	
+	CBasePlayer *m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+#endif //SecobMod___Enable_Fixed_Multiplayer_AI
 	//return the player to previous takedamage state
 	m_hPlayer->m_takedamage = m_nOldTakeDamage;
 
@@ -3512,7 +3511,7 @@ void CTriggerCamera::Disable( void )
 
 	DispatchUpdateTransmitState();
 }
-#endif //Seco7_MULTIPLAYER_VIEWCONTROL_CAMERAS
+#endif //SecobMod___MULTIPLAYER_VIEWCONTROL_CAMERAS
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -3781,9 +3780,9 @@ static void PlayCDTrack( int iTrack )
 	// manually find the single player. 
 	pClient = engine->PEntityOfEntIndex( 1 );
 
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef SecobMod___Enable_Fixed_Multiplayer_AI
 	Assert(gpGlobals->maxClients == 1); 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod___Enable_Fixed_Multiplayer_AI
 	
 	// Can't play if the client is not connected!
 	if ( !pClient )
