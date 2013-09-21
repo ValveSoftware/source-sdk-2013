@@ -8,7 +8,7 @@
 #include "npcevent.h"
 #include "in_buttons.h"
 
-#ifdef Seco7_ENABLE_IN_TESTING_ITEMS
+#ifdef SecobMod__ENABLE_IN_TESTING_ITEMS
 
 #ifdef CLIENT_DLL
 	#include "c_hl2mp_player.h"
@@ -384,7 +384,7 @@ const char *PlayerSteamID = engine->GetPlayerNetworkIDString(GetOwnerEntity()->e
 			//We just shot our secondary fire, so we'll become a secondary portal
 			UTIL_Remove(p2Exsist);
 			
-				CBaseEntity *pPortal2  = CreateEntityByName( "seco7_portal" );
+				CBaseEntity *pPortal2  = CreateEntityByName( "SecobMod__portal" );
 				if( pPortal2 )
 				{
 				EmitSound( "Portal.open_blue" );
@@ -399,7 +399,7 @@ const char *PlayerSteamID = engine->GetPlayerNetworkIDString(GetOwnerEntity()->e
 			//We just shot a primary fire, we we'll become a primary portal.
 			UTIL_Remove(p1Exsist);
 			
-				CBaseEntity *pPortal1  = CreateEntityByName( "seco7_portal" );
+				CBaseEntity *pPortal1  = CreateEntityByName( "SecobMod__portal" );
 				if( pPortal1 )
 				{
 				EmitSound( "Portal.open_red" );
@@ -413,7 +413,7 @@ const char *PlayerSteamID = engine->GetPlayerNetworkIDString(GetOwnerEntity()->e
 		else
 		{
 			//We found no portal2, so we name our spawning portal - portal2name.
-			CBaseEntity *pPortal2  = CreateEntityByName( "seco7_portal" );
+			CBaseEntity *pPortal2  = CreateEntityByName( "SecobMod__portal" );
 			if( pPortal2 )
 			{
 			EmitSound( "Portal.open_blue" );
@@ -427,7 +427,7 @@ const char *PlayerSteamID = engine->GetPlayerNetworkIDString(GetOwnerEntity()->e
 	else
 	{
 			//We found no Portal1, so lets name ourselves Portal1name.
-			CBaseEntity *pPortal1  = CreateEntityByName( "seco7_portal" );
+			CBaseEntity *pPortal1  = CreateEntityByName( "SecobMod__portal" );
 			if( pPortal1 )
 			{
 			EmitSound( "Portal.open_red" );
@@ -990,4 +990,4 @@ bool CWeaponPortalGun::SendWeaponAnim( int iActivity )
 	//For now, just set the ideal activity and be done with it
 	return BaseClass::SendWeaponAnim( newActivity );
 }
-#endif //Seco7_ENABLE_IN_TESTING_ITEMS
+#endif //SecobMod__ENABLE_IN_TESTING_ITEMS

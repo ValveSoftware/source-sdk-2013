@@ -76,7 +76,7 @@ protected:
 	int						m_nVentPose;
 	DECLARE_ACTTABLE();
 	
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 	int CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }
 	void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
@@ -84,7 +84,7 @@ protected:
 	void FireNPCSecondaryAttack( CBaseCombatCharacter *pOperator, bool bUseWeaponAngles );
 	void FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool bUseWeaponAngles );
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 };
 
 

@@ -62,7 +62,7 @@ acttable_t	CWeaponCrowbar::m_acttable[] =
 	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_MELEE,			false },
 
 	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_MELEE,					false },	
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_MELEE,					false },
 	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_MELEE,					false },
 	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_MELEE,			false },
@@ -75,7 +75,7 @@ acttable_t	CWeaponCrowbar::m_acttable[] =
 	{ ACT_MELEE_ATTACK1,	ACT_MELEE_ATTACK_SWING, true }, 
 	{ ACT_IDLE,				ACT_IDLE_ANGRY_MELEE,	false }, 
 	{ ACT_IDLE_ANGRY,		ACT_IDLE_ANGRY_MELEE,	false }, 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 };
 
 IMPLEMENT_ACTTABLE(CWeaponCrowbar);
@@ -131,7 +131,7 @@ void CWeaponCrowbar::HandleAnimEventMeleeHit( animevent_t *pEvent, CBaseCombatCh
 	Vector vecDirection;
 	AngleVectors( GetAbsAngles(), &vecDirection );
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CBaseEntity *pEnemy = pOperator->MyNPCPointer() ? pOperator->MyNPCPointer()->GetEnemy() : NULL;
 	if ( pEnemy )
 	{
@@ -146,7 +146,7 @@ void CWeaponCrowbar::HandleAnimEventMeleeHit( animevent_t *pEvent, CBaseCombatCh
 			vecDirection = vecDelta;
 		}
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	Vector vecEnd;
 	VectorMA( pOperator->Weapon_ShootPosition(), 50, vecDirection, vecEnd );

@@ -91,9 +91,9 @@ public:
 #ifndef CLIENT_DLL
 	void		Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
 	int			WeaponMeleeAttack1Condition( float flDot, float flDist );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	bool		CanBePickedUpByNPCs( void ) { return false;	}	
-#endif //Seco7_Enable_Fixed_Multiplayer_AI	
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI	
 #endif
 	
 	float		GetDamageForActivity( Activity hitActivity );
@@ -169,7 +169,7 @@ acttable_t	CWeaponStunStick::m_acttable[] =
 	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_MELEE,			false },
 
 	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_MELEE,					false },
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	{ ACT_MELEE_ATTACK1,	ACT_MELEE_ATTACK_SWING,	true }, 
 	{ ACT_IDLE_ANGRY,		ACT_IDLE_ANGRY_MELEE,	true }, 
 
@@ -182,7 +182,7 @@ acttable_t	CWeaponStunStick::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_MELEE,			false },
 	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_MELEE,					false },
 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 };
 
 IMPLEMENT_ACTTABLE(CWeaponStunStick);
@@ -378,12 +378,12 @@ void CWeaponStunStick::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseComba
 				WeaponSound( MELEE_HIT );
 
 				CBasePlayer *pPlayer = ToBasePlayer( pHurt );
-				#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+				#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 				CNPC_MetroPolice *pCop = dynamic_cast<CNPC_MetroPolice *>(pOperator); 
-				#endif //Seco7_Enable_Fixed_Multiplayer_AI
+				#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 				bool bFlashed = false;
 				
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 				if ( pCop != NULL && pPlayer != NULL )
 				{
 					// See if we need to knock out this target
@@ -408,7 +408,7 @@ void CWeaponStunStick::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseComba
 						pCop->StunnedTarget( pHurt );
 					}
 				}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
  
 				
 				// Punch angles
@@ -524,13 +524,13 @@ bool CWeaponStunStick::Holster( CBaseCombatWeapon *pSwitchingTo )
 void CWeaponStunStick::Drop( const Vector &vecVelocity )
 {
 	SetStunState( false );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 BaseClass::Drop( vecVelocity ); 
 #else
 #ifndef CLIENT_DLL
 	UTIL_Remove( this );
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 }
 

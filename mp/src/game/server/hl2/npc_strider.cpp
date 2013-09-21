@@ -652,11 +652,11 @@ void CNPC_Strider::PostNPCInit()
 		RemoveFlag( FL_FLY );
 	}
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		m_PlayerFreePass.SetPassTarget( UTIL_GetNearestPlayer(GetAbsOrigin()) ); 
 	#else
 		m_PlayerFreePass.SetPassTarget( UTIL_PlayerByIndex(1) );
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	
 	AI_FreePassParams_t freePassParams = 
@@ -783,11 +783,11 @@ int	CNPC_Strider::DrawDebugTextOverlays()
 			text_offset++;
 		}
 		
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 #else
 		CBaseEntity *pPlayer = UTIL_PlayerByIndex(1);
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( pPlayer )
 		{
 			if ( GetSenses()->ShouldSeeEntity( pPlayer ) && GetSenses()->CanSeeEntity( pPlayer ) )
@@ -2557,7 +2557,7 @@ int CNPC_Strider::MeleeAttack1Conditions( float flDot, float flDist )
 	if ( !pEnemy )
 		return COND_NONE;
 
-	#ifndef Seco7_STRIDERS_ALWAYS_STOMP_IMPALE_PLAYERS
+	#ifndef SecobMod__STRIDERS_ALWAYS_STOMP_IMPALE_PLAYERS
 		// No more stabbing players.
     	if ( pEnemy->IsPlayer() && !HasSpawnFlags(SF_CAN_STOMP_PLAYER) )
 		return COND_NONE;
@@ -3141,11 +3141,11 @@ int CNPC_Strider::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 				// See if the person that injured me is an NPC.
 				CAI_BaseNPC *pAttacker = dynamic_cast<CAI_BaseNPC *>( info.GetAttacker() );
 				
-				#ifdef Seco7_Enable_Fixed_Multiplayer_AI				
+				#ifdef SecobMod__Enable_Fixed_Multiplayer_AI				
 					CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 				#else
 					CBasePlayer *pPlayer = AI_GetSinglePlayer();
-				#endif //Seco7_Enable_Fixed_Multiplayer_AI
+				#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 				if( pAttacker && pAttacker->IsAlive() && pPlayer )
 				{
@@ -3367,11 +3367,11 @@ bool CNPC_Strider::BecomeRagdoll( const CTakeDamageInfo &info, const Vector &for
 	{
 		// Otherwise just keel over
 		CRagdollProp *pRagdoll = NULL;
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 #else
 CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI		
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI		
 
 		if ( pPlayer && mat_dxlevel.GetInt() > 0 )
 		{
@@ -4350,7 +4350,7 @@ void CNPC_Strider::StompHit( int followerBoneIndex )
 	CAI_BaseNPC *pNPC = pEnemy ? pEnemy->MyNPCPointer() : NULL;
 	bool bIsValidTarget = pNPC && pNPC->GetModelPtr();
 	
-	#ifdef Seco7_STRIDERS_ALWAYS_STOMP_IMPALE_PLAYERS
+	#ifdef SecobMod__STRIDERS_ALWAYS_STOMP_IMPALE_PLAYERS
 		bIsValidTarget = bIsValidTarget || ( pEnemy && pEnemy->IsPlayer() );
 	#else
 		if ( HasSpawnFlags( SF_CAN_STOMP_PLAYER ) ) 

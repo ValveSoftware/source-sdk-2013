@@ -71,7 +71,7 @@ CHudLocator::CHudLocator( const char *pElementName ) : CHudElement( pElementName
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
 
-	#ifdef  Seco7_HAS_HUD_LOCATOR_REGARDLESS_OF_SUIT
+	#ifdef  SecobMod__HAS_HUD_LOCATOR_REGARDLESS_OF_SUIT
 		SetHiddenBits( HIDEHUD_PLAYERDEAD );
 	#else
 		SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT );
@@ -132,8 +132,7 @@ bool CHudLocator::ShouldDraw( void )
 	if( pPlayer->GetVehicle() )
 		return false;
 
-	//4WH - Compile Issues: See below line.
-	//4WH - Episodic Issues: Since this hud is only for episodic games, we add ifdefs here to fix compiler errors.
+	//SecobMod__IFDEF_Info: Since this hud is only for episodic games, we add ifdefs here to fix compiler errors.
 	#ifdef HL2_EPISODIC
 		if( pPlayer->m_HL2Local.m_vecLocatorOrigin == vec3_invalid )
 			return false;

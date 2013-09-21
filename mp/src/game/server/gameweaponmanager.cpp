@@ -241,11 +241,11 @@ void CGameWeaponManager::Think()
 
 		if ( gpGlobals->maxClients == 1 )
 		{
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(pCandidate); 
 		#else
 			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 			// Nodraw serves as a flag that this weapon is already being removed since
 			// all we're really doing inside this loop is marking them for removal by
@@ -264,12 +264,12 @@ void CGameWeaponManager::Think()
 				fRemovedOne = true;
 			}
 		}
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifndef SecobMod__Enable_Fixed_Multiplayer_AI	
 		else
 		{
 			fRemovedOne = true;
 		}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		if( fRemovedOne )
 		{

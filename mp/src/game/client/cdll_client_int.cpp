@@ -339,12 +339,12 @@ class IClientPurchaseInterfaceV2 *g_pClientPurchaseInterface = (class IClientPur
 
 static ConVar *g_pcv_ThreadMode = NULL;
 
-#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
 	ConVar sv_hl2_mount( "sv_hl2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: HL2." );
 	ConVar sv_ep1_mount( "sv_ep1_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 1." );
 	ConVar sv_ep2_mount( "sv_ep2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 2." );
 	ConVar sv_failsafe_mount( "sv_failsafe_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Fail_Safe - Something has gone wrong!" );
-#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
 
 //-----------------------------------------------------------------------------
 // Purpose: interface for gameui to modify voice bans
@@ -956,8 +956,8 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	Msg ("These are the default server search paths");
 	filesystem->PrintSearchPaths();
 
-#ifdef Seco7_USE_STATIC_MOUNT_CODE
-	//4WH - Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
+#ifdef SecobMod__USE_STATIC_MOUNT_CODE
+	//SecobMod__Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
 	// game that you choose to mount here, they could well crash to desktop. The file is in the root of the compiled modification folder. This is how we allow people who have just loaded the game to use map and changelevel commands
 	// to any official valve map.
 	  KeyValues *pkvMount = new KeyValues( "InstalledSourceGames" );
@@ -975,13 +975,13 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	            const char *pszMountPath = pkvSearchPath->GetString();
 	            int nMountID = pkvAppID->GetInt();
 				
-				//4WH - Information: If InstalledSourceGames.txt attempts to mount Portal, but Portal is disabled in the code - skip trying to mount Portal.
-				#ifndef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+				//SecobMod__Information: If InstalledSourceGames.txt attempts to mount Portal, but Portal is disabled in the code - skip trying to mount Portal.
+				#ifndef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 				if (nMountID == -400)
 				{
 				break;
 				}
-				#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+				#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 		
 	            filesystem->AddSearchPath(pszMountPath, "GAME");
 	            filesystem->MountSteamContent(nMountID);
@@ -990,7 +990,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	         pkvMount = pkvMount->GetNextKey();
 	      }
 	   }
-#endif //Seco7_USE_STATIC_MOUNT_CODE
+#endif //SecobMod__USE_STATIC_MOUNT_CODE
   
 	factorylist_t factories;
 	factories.appSystemFactory = appSystemFactory;
@@ -1620,12 +1620,12 @@ void CHLClient::View_Fade( ScreenFade_t *pSF )
 		vieweffects->Fade( *pSF );
 }
 
-#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
 	// Obsidian:
 	// 1 means don't flush, as doing so will crash the server, 0 means safe to flush
 	ConVar sv_serveractive( "sv_serveractive", "0", FCVAR_REPLICATED, "Is the server currently running?" );
 	ConVar sv_dedicated( "sv_dedicated", "0", FCVAR_REPLICATED, "Is this a dedicated server?" );
-#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
 
 //-----------------------------------------------------------------------------
 // Purpose: Per level init
@@ -1633,106 +1633,112 @@ void CHLClient::View_Fade( ScreenFade_t *pSF )
 void CHLClient::LevelInitPreEntity( char const* pMapName )
 {
 
-#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
 			//Why did I remove this section from Alpha 2 !
 			// Obsidian: Always flush the mdlcache here, except when it will crash
 			// Expression is a little complex, what it says is that if we're a listen server
 			// and the localplayer is index 1, don't flush anything.
-			//4WH - Information: If we don't flush the cache here strange things happen to the NPCs in dedicated server games. Example: The metropolice float (yes, in the AIR) round "matrix" style.
+			//SecobMod__Information: If we don't flush the cache here strange things happen to the NPCs in dedicated server games. Example: The metropolice float (yes, in the AIR) round "matrix" style.
 			if ( !(!sv_dedicated.GetBool() && (engine->GetLocalPlayer() == 1)) )
 			{
 			    Msg("CLIENT LEVEL PRE-INIT IS FLUSHING CACHE !");
 				mdlcache->Flush();
 				UncacheAllMaterials();
 			}
-			
+	//SecobMod__ChangeME!		
 	if (sv_hl2_mount.GetBool())
 	{
 	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("ep2", "PLATFORM");
-
-	//filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin" //Exe Path
-	//filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2" //Platform Path
-
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-	filesystem->AddSearchPath("hl2", "GAMEBIN");
-	filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 	filesystem->MountSteamContent(-220);  //Half-Life 2
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 	filesystem->AddSearchPath("hl2mp", "GAME");
 	filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-	filesystem->AddSearchPath("episodic", "GAME");
-	filesystem->AddSearchPath("ep2", "GAME");	
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME");	
 	
-	#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 	filesystem->AddSearchPath("portal", "GAME");
 	filesystem->MountSteamContent(-400);  //Portal
-	#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 	}		
 	//=================
 	if (sv_ep1_mount.GetBool())
 	{
-	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("ep2", "PLATFORM");
+	/*filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-	filesystem->AddSearchPath("episodic", "GAMEBIN");
-	filesystem->AddSearchPath("episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/bin", "GAMEBIN");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 	filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
-	filesystem->AddSearchPath("hl2", "GAMEBIN");
-	filesystem->AddSearchPath("hl2", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME");
 	filesystem->MountSteamContent(-220);  //Half-Life 2
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 	filesystem->AddSearchPath("hl2mp", "GAME");
 	filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-	filesystem->AddSearchPath("ep2", "GAME");	
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME");	
 	
-	#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/ep1_sound_vo_english.vpk", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/ep1_pak.vpk", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_vo_english.vpk", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_pak.vpk", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_textures.vpk", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_misc.vpk", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_misc.vpk", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/", "GAME");*/
+	
+	#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 	filesystem->AddSearchPath("portal", "GAME");
 	filesystem->MountSteamContent(-400);  //Portal
-	#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 	}		
 	//=================
 	if (sv_ep2_mount.GetBool())
 	{
 	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("ep2", "PLATFORM");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-	filesystem->AddSearchPath("ep2", "GAMEBIN");
-	filesystem->AddSearchPath("ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "GAMEBIN");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 	filesystem->MountSteamContent(-420);  //Half-Life 2-Episode 2
-	filesystem->AddSearchPath("hl2", "GAMEBIN");
-	filesystem->AddSearchPath("hl2", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME");
 	filesystem->MountSteamContent(-220);  //Half-Life 2
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 	filesystem->AddSearchPath("hl2mp", "GAME");
 	filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-	filesystem->AddSearchPath("episodic", "GAME");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
 	filesystem->MountSteamContent (-380);  //Half-Life 2-Episode 1
 	
-	#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 	filesystem->AddSearchPath("portal", "GAME");
 	filesystem->MountSteamContent(-400);  //Portal
-	#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+	#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 	}			
 	//=================
 	if (sv_failsafe_mount.GetBool())
 	{
 	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
 	Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
-	filesystem->AddSearchPath("ep2", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("ep2", "PLATFORM");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
+	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
@@ -1743,7 +1749,7 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
 	Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 	}
-#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
 
 	// HACK: Bogus, but the logic is too complicated in the engine
 	if (g_bLevelInitialized)
@@ -1821,17 +1827,17 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 void CHLClient::LevelInitPostEntity( )
 {
 
-#ifdef Seco7_IRONSIGHT_ENABLED
-	engine->ClientCmd( "ironsight_toggle /n" ); //4WH - Information: Toggle ironsight to on if we're using it on the start of the level. Clients can toggle it off via console or key binds.
-	engine->ClientCmd( "crosshair 0" ); //4WH - Information: Cheap fix to the ironsight, we just disable the clients crosshair. Clients can of course turn it back on via console.
+#ifdef SecobMod__IRONSIGHT_ENABLED
+	engine->ClientCmd( "ironsight_toggle /n" ); //SecobMod__Information: Toggle ironsight to on if we're using it on the start of the level. Clients can toggle it off via console or key binds.
+	engine->ClientCmd( "crosshair 0" ); //SecobMod__Information: Cheap fix to the ironsight, we just disable the clients crosshair. Clients can of course turn it back on via console.
 #else
-	engine->ClientCmd( "crosshair 1" ); //4WH - Information: Cheap fix to the ironsight, sometimes the game keeps crosshairs off even after a code compile change, so fix those here.
-#endif //Seco7_IRONSIGHT_ENABLED
+	engine->ClientCmd( "crosshair 1" ); //SecobMod__Information: Cheap fix to the ironsight, sometimes the game keeps crosshairs off even after a code compile change, so fix those here.
+#endif //SecobMod__IRONSIGHT_ENABLED
 
-#ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
-	//4WH - Information: Let's make sure that if NightVision was used, on a server change we turn it off again. This also makes sure that if a player manages to class switch that they're not stuck in fullbright.
+#ifdef SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+	//SecobMod__Information: Let's make sure that if NightVision was used, on a server change we turn it off again. This also makes sure that if a player manages to class switch that they're not stuck in fullbright.
 	cvar->FindVar("mat_fullbright")->SetValue(0);
-#endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+#endif //SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 	IGameSystem::LevelInitPostEntityAllSystems();
 	C_PhysPropClientside::RecreateAll();
@@ -1862,7 +1868,7 @@ void CHLClient::ResetStringTablePointers()
 //-----------------------------------------------------------------------------
 void CHLClient::LevelShutdown( void )
 {
-//4WH - Information: This is where the LevelShutdown flush was originally situated.
+//SecobMod__Information: This is where the LevelShutdown flush was originally situated.
 
 	// HACK: Bogus, but the logic is too complicated in the engine
 	if (!g_bLevelInitialized)
@@ -2358,11 +2364,11 @@ void OnRenderStart()
 
 	C_BaseAnimating::ThreadedBoneSetup();
 	
-	#ifdef Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
+	#ifdef SecobMod__FIX_VEHICLE_PLAYER_CAMERA_JUDDER
 		 //Tony; in multiplayer do some extra stuff. like re-calc the view if in a vehicle!
     	if ( engine->GetMaxClients() > 1 )
     	view->MP_PostSimulate();
-	#endif //Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
+	#endif //SecobMod__FIX_VEHICLE_PLAYER_CAMERA_JUDDER
 
 	{
 		VPROF_("Client TempEnts", 0, VPROF_BUDGETGROUP_CLIENT_SIM, false, BUDGETFLAG_CLIENT);

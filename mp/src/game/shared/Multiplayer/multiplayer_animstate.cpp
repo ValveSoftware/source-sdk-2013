@@ -778,7 +778,7 @@ bool CMultiPlayerAnimState::HandleDucking( Activity &idealActivity )
 	return false;
 }
 
-#ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+#ifdef SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *idealActivity - 
@@ -789,7 +789,7 @@ bool CMultiPlayerAnimState::HandleVehicle( Activity &idealActivity )
 	if ( GetBasePlayer()->IsInAVehicle())
 	{
 		{
-		//4WH - Information: Once you have created your custom player animations, set sequences in the .qc file and remove/replace the ACT idle below.
+		//SecobMod__Information: Once you have created your custom player animations, set sequences in the .qc file and remove/replace the ACT idle below.
 		idealActivity = ACT_MP_CROUCH_IDLE; //ACT_HL2MP_SIT_IN_VEHICLE;
 		}
 		
@@ -797,7 +797,7 @@ bool CMultiPlayerAnimState::HandleVehicle( Activity &idealActivity )
 	}
 	return false;
 }
-#endif //Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+#endif //SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -894,9 +894,9 @@ Activity CMultiPlayerAnimState::CalcMainActivity()
 		HandleDucking( idealActivity ) || 
 		HandleSwimming( idealActivity ) || 
 		
-		#ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+		#ifdef SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 			HandleVehicle( idealActivity ) || 
-		#endif //Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+		#endif //SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 		
 		HandleDying( idealActivity ) )
 	{

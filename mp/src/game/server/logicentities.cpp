@@ -2305,11 +2305,11 @@ void CLogicAutosave::InputSave( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CLogicAutosave::InputSaveDangerous( inputdata_t &inputdata )
 {
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetLocalPlayer(); 
 	#else
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( g_ServerGameDLL.m_fAutoSaveDangerousTime != 0.0f && g_ServerGameDLL.m_fAutoSaveDangerousTime >= gpGlobals->curtime )
 	{
@@ -2358,13 +2358,13 @@ class CLogicActiveAutosave : public CLogicAutosave
 
 	void SaveThink()
 	{
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 		if ( pPlayer && gpGlobals->maxClients == 1 ) 
 	#else
 		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 		if ( pPlayer )
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 		{
 			if ( m_flStartTime < 0 )
 			{

@@ -134,11 +134,11 @@ void CPropVehicleViewController::ExitVehicle( int nRole )
 //-----------------------------------------------------------------------------
 void CPropVehicleViewController::InputForcePlayerIn( inputdata_t &inputdata )
 {
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 	#else
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( !pPlayer )
 		return;

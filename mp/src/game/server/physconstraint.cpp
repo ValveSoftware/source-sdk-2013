@@ -16,7 +16,7 @@
 #include "fmtstr.h"
 #include "physics_prop_ragdoll.h"
 
-//4WH - Episodic Issues: If we don't comment these out, then the code doesn't compile.
+////SecobMod__IFDEF_Info: If we don't comment these out, then the code doesn't compile.
 //#define HINGE_NOTIFY HL2_EPISODIC
 //#if HINGE_NOTIFY
 #include "physconstraint_sounds.h"
@@ -574,7 +574,7 @@ void CPhysConstraint::GetConstraintObjects( hl_constraint_info_t &info )
 		{
 			Warning("Bogus constraint %s (attaches ENTITY NOT FOUND:%s to %s)\n", GetDebugName(), STRING(m_nameAttach1), STRING(m_nameAttach2));
 #ifdef HL2_EPISODIC
-//4WH - Information: Added in these to prevent hl2/ep1 maps from having NULL physics constraints.
+//SecobMod__Information: Added in these to prevent hl2/ep1 maps from having NULL physics constraints.
 if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep1_", 4 )
 || !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d1_", 3 )
 || !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d2_", 3 )
@@ -597,7 +597,7 @@ if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep1_", 4 )
 		{
 			Warning("Bogus constraint %s (attaches %s to ENTITY NOT FOUND:%s)\n", GetDebugName(), STRING(m_nameAttach1), STRING(m_nameAttach2));
 #ifdef HL2_EPISODIC
-//4WH - Information: Added in these to prevent hl2/ep1 maps from having NULL physics constraints.
+//SecobMod__Information: Added in these to prevent hl2/ep1 maps from having NULL physics constraints.
 if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep1_", 4 )
 || !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d1_", 3 )
 || !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d2_", 3 )

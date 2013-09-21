@@ -1390,7 +1390,7 @@ CON_COMMAND( getpos, "dump position and angles to the console" )
 	Warning( "%s %f %f %f\n", pCommand2, angles.x, angles.y, angles.z );
 }
 
-#ifdef Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
+#ifdef SecobMod__FIX_VEHICLE_PLAYER_CAMERA_JUDDER
 void CViewRender::MP_PostSimulate()
 {
     C_BasePlayer *pLocal = C_BasePlayer::GetLocalPlayer();
@@ -1445,4 +1445,4 @@ void CViewRender::MP_PostSimulate()
 #endif
 
 }
-#endif //Seco7_FIX_VEHICLE_PLAYER_CAMERA_JUDDER
+#endif //SecobMod__FIX_VEHICLE_PLAYER_CAMERA_JUDDER

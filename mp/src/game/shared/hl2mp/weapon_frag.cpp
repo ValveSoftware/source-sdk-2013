@@ -100,7 +100,7 @@ acttable_t	CWeaponFrag::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_GRENADE,		false },
 	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_GRENADE,					false },
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 { ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK_SLAM, true }, 
 
 	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_GRENADE,					false },
@@ -116,7 +116,7 @@ acttable_t	CWeaponFrag::m_acttable[] =
 	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_GRENADE,		false },
 
 	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_GRENADE,					false },
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 };
 
@@ -218,7 +218,7 @@ void CWeaponFrag::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChar
 		m_flNextPrimaryAttack	= gpGlobals->curtime + RETHROW_DELAY;
 		m_flNextSecondaryAttack	= gpGlobals->curtime + RETHROW_DELAY;
 		m_flTimeWeaponIdle = FLT_MAX; //NOTE: This is set once the animation has finished up!
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI		
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI		
 		// Make a sound designed to scare snipers back into their holes!
 		CBaseCombatCharacter *pOwner = GetOwner();
 
@@ -235,7 +235,7 @@ void CWeaponFrag::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChar
 
 			CSoundEnt::InsertSound( SOUND_DANGER_SNIPERONLY, tr.endpos, 384, 0.2, pOwner );
 		}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 }
 

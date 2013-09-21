@@ -28,7 +28,7 @@ void CHL2MPSWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponNa
 
 	m_iPlayerDamage = pKeyValuesData->GetInt( "damage", 0 );
 	
-	#ifdef Seco7_IRONSIGHT_ENABLED
+	#ifdef SecobMod__IRONSIGHT_ENABLED
 	   // this just saves off the data in the script file for later use
 	   KeyValues *pEt = pKeyValuesData->FindKey("ExpOffset");
 	   if (pEt)
@@ -46,7 +46,7 @@ void CHL2MPSWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponNa
 	      m_expOffset = vec3_origin;
 	      m_expOriOffset.Init();
 	   }
-	#endif //Seco7_IRONSIGHT_ENABLED
+	#endif //SecobMod__IRONSIGHT_ENABLED
 }
 
 

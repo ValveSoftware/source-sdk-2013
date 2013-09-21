@@ -74,7 +74,7 @@ float GetZoomOwnerDesiredFOV( CBaseEntity *pZoomOwner )
 //-----------------------------------------------------------------------------
 void CEnvZoom::InputZoom( inputdata_t &inputdata )
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CBasePlayer *pPlayer; 
 		
 	if ( inputdata.pActivator && inputdata.pActivator->IsPlayer() ) 
@@ -83,7 +83,7 @@ void CEnvZoom::InputZoom( inputdata_t &inputdata )
 		pPlayer= UTIL_GetNearestPlayer(GetAbsOrigin());	 
 #else
 	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer )
 	{
@@ -114,7 +114,7 @@ void CEnvZoom::InputZoom( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CEnvZoom::InputUnZoom( inputdata_t &inputdata )
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CBasePlayer *pPlayer;
 	if ( inputdata.pActivator && inputdata.pActivator->IsPlayer() ) 
 		pPlayer = ToBasePlayer( inputdata.pActivator ); 
@@ -122,7 +122,7 @@ void CEnvZoom::InputUnZoom( inputdata_t &inputdata )
 		pPlayer= UTIL_GetNearestPlayer(GetAbsOrigin());	 
 #else
 	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer )
 	{

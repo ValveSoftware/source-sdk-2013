@@ -14,11 +14,11 @@
 #include "client_virtualreality.h"
 #include "headtrack/isourcevirtualreality.h"
 	
-	#ifdef Seco7_IRONSIGHT_ENABLED
+	#ifdef SecobMod__IRONSIGHT_ENABLED
 	#include "convar.h"
 	#include "c_hl2mp_player.h"
 	#include "weapon_hl2mpbase.h"
-	#endif //Seco7_IRONSIGHT_ENABLED
+	#endif //SecobMod__IRONSIGHT_ENABLED
 
 #else
 #include "vguiscreen.h"
@@ -40,7 +40,7 @@ extern ConVar in_forceuser;
 #define VIEWMODEL_ANIMATION_PARITY_BITS 3
 #define SCREEN_OVERLAY_MATERIAL "vgui/screens/vgui_overlay"
 
-#ifdef Seco7_IRONSIGHT_ENABLED
+#ifdef SecobMod__IRONSIGHT_ENABLED
 	#if defined( CLIENT_DLL )
 	void ExpWpnTestOffset(ConVar *pConVar, char *pszString);
 	ConVar   cl_exp_test_wpn_offset("cl_exp_test_wpn_offset", "0", 0, "Tests weapon offsets",
@@ -82,7 +82,7 @@ extern ConVar in_forceuser;
 	// last time ironsighted mode was toggled
 	float gIronsightedTime(0.0f);
 	
-	float gMoveTime(0.1f); //4WH - Information: Seconds to use to move the model up to players view
+	float gMoveTime(0.1f); //SecobMod__Information: Seconds to use to move the model up to players view
 	 
 	// I bound this to a key for testing(i.e. bind [ ironsight_toggle)
 	CON_COMMAND(ironsight_toggle, "toggles ironsight mode for the current weapon")
@@ -136,7 +136,7 @@ extern ConVar in_forceuser;
 	   pos        += up        * offset.z;
 	}
 	#endif
-#endif //Seco7_IRONSIGHT_ENABLED
+#endif //SecobMod__IRONSIGHT_ENABLED
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -190,13 +190,13 @@ void CBaseViewModel::Spawn( void )
 	SetSize( Vector( -8, -4, -2), Vector(8, 4, 2) );
 	SetSolid( SOLID_NONE );
 	
-#ifdef Seco7_IRONSIGHT_ENABLED
+#ifdef SecobMod__IRONSIGHT_ENABLED
 	#ifdef CLIENT_DLL
 		m_bExpSighted  = false;
 		m_expFactor    = 0.0f;
 		gIronsightedTime = 0.0f; 
 	#endif
-#endif //Seco7_IRONSIGHT_ENABLED
+#endif //SecobMod__IRONSIGHT_ENABLED
 }
 
 
@@ -496,7 +496,7 @@ void CBaseViewModel::SendViewModelMatchingSequence( int sequence )
 #endif
 
 
-#ifdef Seco7_IRONSIGHT_ENABLED
+#ifdef SecobMod__IRONSIGHT_ENABLED
 void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosition, const QAngle& eyeAngles )
 {
    // UNDONE: Calc this on the server?  Disabled for now as it seems unnecessary to have this info on the server
@@ -541,7 +541,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
    SetLocalAngles(vmangles);
 #endif
 }
-#else //Seco7_IRONSIGHT_ENABLED
+#else //SecobMod__IRONSIGHT_ENABLED
 void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosition, const QAngle& eyeAngles )
 {
 	// UNDONE: Calc this on the server?  Disabled for now as it seems unnecessary to have this info on the server
@@ -618,7 +618,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 #endif
 
 }
-#endif //Seco7_IRONSIGHT_ENABLED
+#endif //SecobMod__IRONSIGHT_ENABLED
 
 //-----------------------------------------------------------------------------
 // Purpose: 

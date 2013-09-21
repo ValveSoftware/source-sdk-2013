@@ -12,9 +12,9 @@
 #include "items.h"
 #include "engine/IEngineSound.h"
 
-#ifdef Seco7_USE_PLAYERCLASSES
+#ifdef SecobMod__USE_PLAYERCLASSES
 #include "hl2mp_player.h"
-#endif //Seco7_USE_PLAYERCLASSES
+#endif //SecobMod__USE_PLAYERCLASSES
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -39,13 +39,13 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-		#ifdef Seco7_USE_PLAYERCLASSES
+		#ifdef SecobMod__USE_PLAYERCLASSES
 			CHL2MP_Player *pHL2MPPlayer = dynamic_cast<CHL2MP_Player *>(pPlayer);
 			return ( pHL2MPPlayer && pHL2MPPlayer->ApplyBattery() );
 		#else
 			CHL2_Player *pHL2Player = dynamic_cast<CHL2_Player *>( pPlayer );
 			return ( pHL2Player && pHL2Player->ApplyBattery() );
-		#endif //Seco7_USE_PLAYERCLASSES
+		#endif //SecobMod__USE_PLAYERCLASSES
 	}
 };
 

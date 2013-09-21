@@ -6,7 +6,7 @@
 //=============================================================================//
 
 #include "cbase.h"
-#include "seco/weapon_hands.h"
+#include "secobmod/weapon_hands.h"
 #include "weapon_hl2mpbasehlmpcombatweapon.h"
 #include "gamerules.h"
 #include "ammodef.h"
@@ -60,7 +60,7 @@ acttable_t	CWeaponhands::m_acttable[] =
 	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_PISTOL,		false },
 
 	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_PISTOL,					false },
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_PISTOL,					false },
 	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_PISTOL,					false },
 	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_PISTOL,			false },
@@ -75,7 +75,7 @@ acttable_t	CWeaponhands::m_acttable[] =
 	{ ACT_MELEE_ATTACK1,	ACT_MELEE_ATTACK_SWING, true }, 
 	{ ACT_IDLE,				ACT_IDLE_ANGRY_MELEE,	false }, 
 	{ ACT_IDLE_ANGRY,		ACT_IDLE_ANGRY_MELEE,	false }, 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	};
 
 IMPLEMENT_ACTTABLE(CWeaponhands);
@@ -106,7 +106,7 @@ void CWeaponhands::AddViewKick( void )
 
 
 #ifndef CLIENT_DLL
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
  //-----------------------------------------------------------------------------
 // Attempt to lead the target (needed because citizens can't hit manhacks with the hands!)
 //-----------------------------------------------------------------------------
@@ -156,7 +156,7 @@ int CWeaponhands::WeaponMeleeAttack1Condition( float flDot, float flDist )
 
 	return COND_TOO_FAR_TO_ATTACK;
 }
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 //-----------------------------------------------------------------------------
 // Animation event handlers
@@ -168,7 +168,7 @@ void CWeaponhands::HandleAnimEventMeleeHit( animevent_t *pEvent, CBaseCombatChar
 	Vector vecDirection;
 	AngleVectors( GetAbsAngles(), &vecDirection );
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CBaseEntity *pEnemy = pOperator->MyNPCPointer() ? pOperator->MyNPCPointer()->GetEnemy() : NULL;
 	if ( pEnemy )
 	{
@@ -183,7 +183,7 @@ void CWeaponhands::HandleAnimEventMeleeHit( animevent_t *pEvent, CBaseCombatChar
 			vecDirection = vecDelta;
 		}
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	Vector vecEnd;
 	VectorMA( pOperator->Weapon_ShootPosition(), 50, vecDirection, vecEnd );

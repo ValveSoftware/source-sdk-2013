@@ -149,7 +149,7 @@ void CAI_LeadBehavior::LeadPlayer( const AI_LeadArgs_t &leadArgs, CAI_LeadBehavi
 #ifndef CSTRIKE_DLL
 	CAI_PlayerAlly *pOuter = dynamic_cast<CAI_PlayerAlly*>(GetOuter());
 	
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( pOuter ) 
 		{
 			pOuter->SetSpeechTarget( UTIL_GetNearestVisiblePlayer(pOuter) );
@@ -159,7 +159,7 @@ void CAI_LeadBehavior::LeadPlayer( const AI_LeadArgs_t &leadArgs, CAI_LeadBehavi
 		{
 			pOuter->SetSpeechTarget( UTIL_GetLocalPlayer() );
 		}
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 #endif
 
 	if( SetGoal( leadArgs ) )
@@ -187,10 +187,10 @@ void CAI_LeadBehavior::StopLeading( void )
 
 bool CAI_LeadBehavior::CanSelectSchedule()
 {
-	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
  		if ( !AI_GetSinglePlayer() || AI_GetSinglePlayer()->IsDead() ) 
 		return false; 
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	bool fAttacked = ( HasCondition( COND_LIGHT_DAMAGE ) || HasCondition( COND_HEAVY_DAMAGE ) );
 	bool fNonCombat = ( GetNpcState() == NPC_STATE_IDLE || GetNpcState() == NPC_STATE_ALERT );
@@ -202,7 +202,7 @@ bool CAI_LeadBehavior::CanSelectSchedule()
 
 void CAI_LeadBehavior::BeginScheduleSelection()
 {
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(GetOuter()); 
 		
 		if ( !pPlayer ) 
@@ -212,7 +212,7 @@ void CAI_LeadBehavior::BeginScheduleSelection()
 		}
 	#else
 		SetTarget( AI_GetSinglePlayer() );
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	CAI_Expresser *pExpresser = GetOuter()->GetExpresser();
 	if ( pExpresser )
@@ -347,11 +347,11 @@ bool CAI_LeadBehavior::PlayerIsAheadOfMe( bool bForce )
 	m_bInitialAheadTest = false;
 
 	Vector vecClosestPoint;
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	if ( GetClosestPointOnRoute( UTIL_GetNearestPlayer(GetAbsOrigin())->GetAbsOrigin(), &vecClosestPoint ) ) 
 #else
 if ( GetClosestPointOnRoute( AI_GetSinglePlayer()->GetAbsOrigin(), &vecClosestPoint ) )
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	{
 		// If the closest point is not right next to me, then 
 		// the player is somewhere ahead of me on the route.
@@ -378,11 +378,11 @@ void CAI_LeadBehavior::GatherConditions( void )
 		}
 
 		// We have to collect data about the person we're leading around.
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			CBaseEntity *pFollower = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 		#else
 			CBaseEntity *pFollower = AI_GetSinglePlayer();
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		if( pFollower )
 		{
@@ -565,11 +565,11 @@ int CAI_LeadBehavior::SelectSchedule()
 		// Player's here, but does he have the weapon we want him to have?
 		if ( m_weaponname != NULL_STRING )
 		{
-			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 				CBasePlayer *pFollower = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 			#else
 				CBasePlayer *pFollower = AI_GetSinglePlayer();
-			#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 			if ( pFollower && !pFollower->Weapon_OwnsThisType( STRING(m_weaponname) ) )
 			{
@@ -599,11 +599,11 @@ int CAI_LeadBehavior::SelectSchedule()
 			else
 			{
 				// We have to collect data about the person we're leading around.
-				#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+				#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 					CBaseEntity *pFollower = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 				#else
 					CBaseEntity *pFollower = AI_GetSinglePlayer();
-				#endif //Seco7_Enable_Fixed_Multiplayer_AI
+				#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 				if( pFollower )
 				{
@@ -868,11 +868,11 @@ void CAI_LeadBehavior::StartTask( const Task_t *pTask )
 
 		case TASK_LEAD_RETRIEVE_WAIT:
 		{
-			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 				m_MoveMonitor.SetMark( UTIL_GetNearestPlayer(GetAbsOrigin()), 24 ); 
 			#else
 				m_MoveMonitor.SetMark( AI_GetSinglePlayer(), 24 );
-			#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 			ChainStartTask( TASK_WAIT_INDEFINITE );
 			break;

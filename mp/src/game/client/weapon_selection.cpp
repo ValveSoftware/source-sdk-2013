@@ -75,11 +75,11 @@ CBaseHudWeaponSelection::CBaseHudWeaponSelection( const char *pElementName ) : C
 {
 	s_pInstance = this;
 	
-	#ifdef  Seco7_HAS_WEAPONS_SELECTION_REGARDLESS_OF_SUIT
+	#ifdef  SecobMod__HAS_WEAPONS_SELECTION_REGARDLESS_OF_SUIT
 		SetHiddenBits( HIDEHUD_PLAYERDEAD );
 	#else
 		SetHiddenBits( HIDEHUD_WEAPONSELECTION | HIDEHUD_NEEDSUIT | HIDEHUD_PLAYERDEAD | HIDEHUD_INVEHICLE );
-	#endif //Seco7_HAS_WEAPONS_SELECTION_REGARDLESS_OF_SUIT
+	#endif //SecobMod__HAS_WEAPONS_SELECTION_REGARDLESS_OF_SUIT
 }
 
 //-----------------------------------------------------------------------------

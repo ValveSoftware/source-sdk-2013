@@ -15,9 +15,9 @@
 	#include "hl2mp_player.h"
 	#include "te_effect_dispatch.h"
 	#include "prop_combine_ball.h"
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
     #include "npc_combines.h"
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 #endif
 
 #include "weapon_ar2.h"
@@ -61,7 +61,7 @@ acttable_t	CWeaponAR2::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_AR2,		false },
 	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_AR2,					false },
 	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_AR2,				false },
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 { ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_AR2,					false },
 	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_AR2,			false },
 
@@ -135,7 +135,7 @@ acttable_t	CWeaponAR2::m_acttable[] =
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SMG1,		true },
 //	{ ACT_RANGE_ATTACK2, ACT_RANGE_ATTACK_AR2_GRENADE, true },
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 };
 
 IMPLEMENT_ACTTABLE(CWeaponAR2);
@@ -162,13 +162,13 @@ void CWeaponAR2::Precache( void )
 
 	UTIL_PrecacheOther( "prop_combine_ball" );
 	UTIL_PrecacheOther( "env_entity_dissolver" );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
     PrecacheMaterial( "effects/strider_muzzle" );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 #endif
 	
 }
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -299,7 +299,7 @@ void CWeaponAR2::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChara
 	}
 }
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 //-----------------------------------------------------------------------------
 // Purpose: Handle grenade detonate in-air (even when no ammo is left)
@@ -387,11 +387,11 @@ void CWeaponAR2::DelayedAttack( void )
 
 	// Register a muzzleflash for the AI
 	pOwner->DoMuzzleFlash();
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	#ifndef CLIENT_DLL
 		pOwner->SetMuzzleFlashTime( gpGlobals->curtime + 0.5 );
 	#endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	WeaponSound( WPN_DOUBLE );
 

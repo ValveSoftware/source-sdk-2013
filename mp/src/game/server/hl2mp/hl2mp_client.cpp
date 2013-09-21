@@ -28,9 +28,9 @@
 
 #include "tier0/vprof.h"
 
-#ifdef Seco7_SAVERESTORE
+#ifdef SecobMod__SAVERESTORE
 #include "filesystem.h"
-#endif //Seco7_SAVERESTORE
+#endif //SecobMod__SAVERESTORE
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -42,7 +42,7 @@ ConVar sv_motd_unload_on_dismissal( "sv_motd_unload_on_dismissal", "0", 0, "If e
 extern CBaseEntity*	FindPickerEntityClass( CBasePlayer *pPlayer, char *classname );
 extern bool			g_fGameOver;
 
-#ifdef Seco7_USE_PLAYERCLASSES
+#ifdef SecobMod__USE_PLAYERCLASSES
 void SSPlayerClassesBGCheck(CHL2MP_Player *pPlayer)
 {
 	CSingleUserRecipientFilter user( pPlayer );
@@ -71,14 +71,14 @@ CON_COMMAND( ss_classes_default, "The current map is a background level - do def
 		pPlayer->m_Local.m_iHideHUD |= HIDEHUD_ALL;
 		pPlayer->RemoveAllItems( true );
 		
-		//4WH - Information: These are now commented out because for your own mod you'll have to use the black room spawn method anyway.
+		//SecobMod__Information: These are now commented out because for your own mod you'll have to use the black room spawn method anyway.
 		// That is for your own maps, you create a seperate room with fully black textures, no light and a single info_player_start.
 		//You may end up needing to uncomment it if you don't use playerclasses, but you'll figure that out for yourself when you cant see anything but your HUD.
 		//color32 black = {0,0,0,255};
 		//UTIL_ScreenFade( pPlayer, black, 0.0f, 0.0f, FFADE_IN|FFADE_PURGE );
 		}
 }
-#endif //Seco7_USE_PLAYERCLASSES
+#endif //SecobMod__USE_PLAYERCLASSES
 
 void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 {
@@ -86,7 +86,7 @@ void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 	pPlayer->Spawn();
 
 
-#ifdef Seco7_USE_PLAYERCLASSES
+#ifdef SecobMod__USE_PLAYERCLASSES
 	pPlayer->InitialSpawn();
 	pPlayer->Spawn();
 	pPlayer->RemoveAllItems( true );
@@ -94,7 +94,7 @@ void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 #else
 	pPlayer->InitialSpawn();
 	pPlayer->Spawn();
-#endif //Seco7_USE_PLAYERCLASSES
+#endif //SecobMod__USE_PLAYERCLASSES
 		
 	char sName[128];
 	Q_strncpy( sName, pPlayer->GetPlayerName(), sizeof( sName ) );
@@ -126,14 +126,14 @@ void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 
 pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 
-#ifndef Seco7_SAVERESTORE
-	#ifdef Seco7_USE_PLAYERCLASSES
+#ifndef SecobMod__SAVERESTORE
+	#ifdef SecobMod__USE_PLAYERCLASSES
 	pPlayer->ShowViewPortPanel( PANEL_CLASS, true, NULL );
-	#endif //Seco7_USE_PLAYERCLASSES	
-#endif //Seco7_SAVERESTORE
+	#endif //SecobMod__USE_PLAYERCLASSES	
+#endif //SecobMod__SAVERESTORE
 
 
-#ifdef Seco7_SAVERESTORE 
+#ifdef SecobMod__SAVERESTORE 
 	//if (Transitioned)
 	//{
 	  KeyValues *pkvTransitionRestoreFile = new KeyValues( "cfg/transition.cfg" );
@@ -153,17 +153,17 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 					{
 					break;
 					}	
-				//4WH - Information: No SteamID found for this person, maybe they're new to the game or have "STEAM_ID_PENDING". Show them the class menu and break the loop.
+				//SecobMod__Information: No SteamID found for this person, maybe they're new to the game or have "STEAM_ID_PENDING". Show them the class menu and break the loop.
 				pPlayer->ShowViewPortPanel( PANEL_CLASS, true, NULL );
 				break;
 			}
 			 
 			  Msg ("SteamID Match Found!");
 	
-			 #ifdef Seco7_USE_PLAYERCLASSES
+			 #ifdef SecobMod__USE_PLAYERCLASSES
 			 //Class.
 			 KeyValues *pkvCurrentClass = pkvTransitionRestoreFile->FindKey( "CurrentClass" );
-			 #endif //Seco7_USE_PLAYERCLASSES
+			 #endif //SecobMod__USE_PLAYERCLASSES
 			 //Health
 			 KeyValues *pkvHealth = pkvTransitionRestoreFile->FindKey( "Health" );
 	
@@ -254,7 +254,7 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 	
 	
 	//=====================================================================	
-			#ifdef Seco7_USE_PLAYERCLASSES
+			#ifdef SecobMod__USE_PLAYERCLASSES
 	         if ( pszSteamID && pkvCurrentClass && pkvHealth && pkvArmour )
 	         {
 				
@@ -458,11 +458,11 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 					pPlayer->CBasePlayer::SetSprintSpeed(640);
 					pPlayer->CBasePlayer::SetJumpHeight(200.0);		
 			
-					//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.
+					//SecobMod__Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.
 					pPlayer->CBasePlayer::KeyValue( "targetname", "Assaulter" );
 					pPlayer->SetModel( "models/sdk/Humans/Group03/male_06_sdk.mdl" );
 					
-					//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
+					//SecobMod__Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 					CBaseEntity *pEntity = NULL;
 					Vector pEntityOrigin;
 					pEntity = gEntList.FindEntityByClassnameNearest( "info_player_assaulter", pEntityOrigin, 0);
@@ -575,11 +575,11 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 					pPlayer->CBasePlayer::SetSprintSpeed(500);
 					pPlayer->CBasePlayer::SetJumpHeight(150.0);
 	
-					//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.				
+					//SecobMod__Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.				
 					pPlayer->CBasePlayer::KeyValue( "targetname", "Supporter" );
 					pPlayer->SetModel( "models/sdk/Humans/Group03/l7h_rebel.mdl" );
 					
-					//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
+					//SecobMod__Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 					CBaseEntity *pEntity = NULL;
 					Vector pEntityOrigin;
 					pEntity = gEntList.FindEntityByClassnameNearest( "info_player_supporter", pEntityOrigin, 0);
@@ -692,11 +692,11 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 					pPlayer->CBasePlayer::SetSprintSpeed(320);
 					pPlayer->CBasePlayer::SetJumpHeight(100.0);
 	
-					//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.				
+					//SecobMod__Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.				
 					pPlayer->CBasePlayer::KeyValue( "targetname", "Medic" );
 					pPlayer->SetModel( "models/sdk/Humans/Group03/male_05.mdl" );
 					
-					//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
+					//SecobMod__Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 					CBaseEntity *pEntity = NULL;
 					Vector pEntityOrigin;
 					pEntity = gEntList.FindEntityByClassnameNearest( "info_player_medic", pEntityOrigin, 0);
@@ -809,11 +809,11 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 					pPlayer->CBasePlayer::SetSprintSpeed(320);
 					pPlayer->CBasePlayer::SetJumpHeight(40.0);
 	
-					//4WH - Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.				
+					//SecobMod__Information: This allows you to use filtering while mapping. Such as only a trigger one class may actually trigger. Thanks to Alters for providing this fix.				
 					pPlayer->CBasePlayer::KeyValue( "targetname", "Heavy" );
 					pPlayer->SetModel( "models/sdk/Humans/Group03/police_05.mdl" );
 					
-					//4WH - Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
+					//SecobMod__Information: Due to the way our player classes now work, the first spawn of any class has to teleport to their specific player start.
 					CBaseEntity *pEntity = NULL;
 					Vector pEntityOrigin;
 					pEntity = gEntList.FindEntityByClassnameNearest( "info_player_heavy", pEntityOrigin, 0);
@@ -834,9 +834,9 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 				}
 				
 	         }
-			 #endif //Seco7_USE_PLAYERCLASSES
+			 #endif //SecobMod__USE_PLAYERCLASSES
 			 
-			 #ifndef Seco7_USE_PLAYERCLASSES
+			 #ifndef SecobMod__USE_PLAYERCLASSES
 			   if ( pszSteamID )
 	         {
 				
@@ -1043,7 +1043,7 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 				{
 				pPlayer->ShowViewPortPanel( PANEL_CLASS, true, NULL );
 				}
-			 #endif //NOT Seco7_USE_PLAYERCLASSES
+			 #endif //NOT SecobMod__USE_PLAYERCLASSES
 			 
 			// Transitioned = false;
 			 break;
@@ -1055,9 +1055,9 @@ pPlayer->ShowViewPortPanel( PANEL_INFO, true, data );
 	{
 		pPlayer->ShowViewPortPanel( PANEL_CLASS, true, NULL );
 	}
-#endif //Seco7_SAVERESTORE
+#endif //SecobMod__SAVERESTORE
 
-#ifdef Seco7_ENABLE_MAP_BRIEFINGS
+#ifdef SecobMod__ENABLE_MAP_BRIEFINGS
 pPlayer->ShowViewPortPanel( PANEL_INFO, false, NULL );
 const char *brief_title = (hostname) ? hostname->GetString() : "MESSAGE OF THE DAY";
 
@@ -1067,7 +1067,7 @@ brief_data->SetString( "title", brief_title );		// info panel title
 brief_data->SetString( "type", "1" );			// show userdata from stringtable entry
 brief_data->SetString( "msg",	"briefing" );		// use this stringtable entry
 pPlayer->ShowViewPortPanel( PANEL_INFO, true, brief_data );
-#endif //Seco7_ENABLE_MAP_BRIEFINGS
+#endif //SecobMod__ENABLE_MAP_BRIEFINGS
 
 	data->deleteThis();
 }

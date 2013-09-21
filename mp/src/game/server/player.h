@@ -253,7 +253,7 @@ public:
 	IPlayerInfo *GetPlayerInfo() { return &m_PlayerInfo; }
 	IBotController *GetBotController() { return &m_PlayerInfo; }
 	
-	#ifdef Seco7_USE_PLAYERCLASSES
+	#ifdef SecobMod__USE_PLAYERCLASSES
 	 // Here are the players speed is set:
 	void SetWalkSpeed(int WalkSpeed);
 	void SetNormSpeed(int NormSpeed);
@@ -271,16 +271,16 @@ public:
 	int GetNormSpeed();
 	int GetSprintSpeed();
 	float GetJumpHeight();
-	#endif //Seco7_USE_PLAYERCLASSES
+	#endif //SecobMod__USE_PLAYERCLASSES
 
-	#ifdef Seco7_ENABLE_FAKE_PASSENGER_SEATS
+	#ifdef SecobMod__ENABLE_FAKE_PASSENGER_SEATS
 	void SafeVehicleExit(CBasePlayer *pPlayer);
-	#endif //Seco7_ENABLE_FAKE_PASSENGER_SEATS
+	#endif //SecobMod__ENABLE_FAKE_PASSENGER_SEATS
 
-	#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
-		bool m_bTransition; //4WH - Information:  This is important as it allows the game to save each players progress over a map change. Create the booleans required for transitions to work.
-		bool m_bTransitionTeleported; //4WH - Information:  This is important as it allows the game to save each players progress over a map change.  Create the booleans required for transitions to work.
-	#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+	#ifdef SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
+		bool m_bTransition; //SecobMod__Information:  This is important as it allows the game to save each players progress over a map change. Create the booleans required for transitions to work.
+		bool m_bTransitionTeleported; //SecobMod__Information:  This is important as it allows the game to save each players progress over a map change.  Create the booleans required for transitions to work.
+	#endif //SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
 
 	virtual void			SetModel( const char *szModelName );
 	void					SetBodyPitch( float flPitch );
@@ -311,11 +311,11 @@ public:
 	// Returns true if this player wants pPlayer to be moved back in time when this player runs usercmds.
 	// Saves a lot of overhead on the server if we can cull out entities that don't need to lag compensate
 	// (like team members, entities out of our PVS, etc).
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	virtual bool			WantsLagCompensationOnEntity( const CBaseEntity	*pEntity, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const;
 #else
 	virtual bool			WantsLagCompensationOnEntity( const CBasePlayer	*pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const;
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	virtual void			Spawn( void );
 	virtual void			Activate( void );
@@ -335,12 +335,12 @@ public:
 	void					MakeTracer( const Vector &vecTracerSrc, const trace_t &tr, int iTracerType );
 	void					DoImpactEffect( trace_t &tr, int nDamageType );
 	
-	#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+	#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 		void MakeChatBubble(int chatbubble);
 		void KillChatBubble();
 		void CheckChatBubble( CUserCmd *cmd );
 		EHANDLE m_hChatBubble;
-	#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES		
+	#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES		
 
 #if !defined( NO_ENTITY_PREDICTION )
 	void					AddToPlayerSimulationList( CBaseEntity *other );
@@ -591,7 +591,7 @@ public:
 	virtual void			ForceDropOfCarriedPhysObjects( CBaseEntity *pOnlyIfHoldindThis = NULL ) {}
 	virtual float			GetHeldObjectMass( IPhysicsObject *pHeldObject );
 
-	//4WH
+	//SecobMod__MiscFixes
 	virtual CBaseEntity		*GetHeldObject( void );
 
 	void					CheckSuitUpdate();

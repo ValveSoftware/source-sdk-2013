@@ -5321,7 +5321,7 @@ void CGrenadeHelicopter::VPhysicsCollision( int index, gamevcollisionevent_t *pE
 }
 
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 //------------------------------------------------------------------------------
 // double launch velocity for ep2_outland_08
@@ -5565,12 +5565,11 @@ void CGrenadeHelicopter::OnPhysGunDrop( CBasePlayer *pPhysGunUser, PhysGunDrop_t
 bool CGrenadeHelicopter::IsThrownByPlayer()
 {
 	// if player is the owner and we're set to explode on contact, then the player threw this grenade.
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
-//4WH - CodeAddendumms: Fix by TheRealJMan.
-return ( m_bExplodeOnContact ); 
-#else
-return ( ( GetOwnerEntity() == UTIL_GetLocalPlayer() ) && m_bExplodeOnContact );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
+	return ( m_bExplodeOnContact ); 
+	#else
+	return ( ( GetOwnerEntity() == UTIL_GetLocalPlayer() ) && m_bExplodeOnContact );
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 //-----------------------------------------------------------------------------

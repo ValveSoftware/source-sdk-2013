@@ -13,9 +13,9 @@
 #include "utllinkedlist.h"
 #include "BaseAnimatingOverlay.h"
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #include "ai_basenpc.h" 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 #include "tier0/vprof.h"
 
@@ -167,7 +167,7 @@ static void RestorePlayerTo( CBasePlayer *pPlayer, const Vector &vWantedPos )
 		UTIL_SetOrigin( pPlayer, tr.endpos, true );
 	}
 }
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 
 static void RestoreEntityTo( CAI_BaseNPC *pEntity, const Vector &vWantedPos )
 {
@@ -208,7 +208,7 @@ static void RestoreEntityTo( CAI_BaseNPC *pEntity, const Vector &vWantedPos )
 		UTIL_SetOrigin( pEntity, tr.endpos, true );
 	}
 }
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -218,9 +218,9 @@ class CLagCompensationManager : public CAutoGameSystemPerFrame, public ILagCompe
 public:
 	CLagCompensationManager( char const *name ) : CAutoGameSystemPerFrame( name ), m_flTeleportDistanceSqr( 64 *64 )
 	{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	m_bNeedsAIUpdate = true; 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 
 	// IServerSystem stuff
@@ -242,65 +242,65 @@ public:
 	// Called during player movement to set up/restore after lag compensation
 	void			StartLagCompensation( CBasePlayer *player, CUserCmd *cmd );
 	void			FinishLagCompensation( CBasePlayer *player );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 	void RemoveNpcData(int index) // clear specific NPC's history 
 	{ 
 		CUtlFixedLinkedList< LagRecord > *track = &m_EntityTrack[index]; 
 		track->Purge(); 
 	} 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 
 private:
 	void			BacktrackPlayer( CBasePlayer *player, float flTargetTime );
 
 	
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	void			BacktrackEntity( CAI_BaseNPC *entity, float flTargetTime ); 
-	#endif //#Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //#SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	void ClearHistory()
 	{
 		for ( int i=0; i<MAX_PLAYERS; i++ )
 			m_PlayerTrack[i].Purge();
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			for ( int j=0; j<MAX_AIS; j++ ) 
 			m_EntityTrack[j].Purge(); 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 void UpdateAIIndexes(); 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	// keep a list of lag records for each player
 	CUtlFixedLinkedList< LagRecord >	m_PlayerTrack[ MAX_PLAYERS ];
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CUtlFixedLinkedList< LagRecord >	m_EntityTrack[ MAX_AIS ]; 
-#endif Seco7_Enable_Fixed_Multiplayer_AI
+#endif SecobMod__Enable_Fixed_Multiplayer_AI
 
 	// Scratchpad for determining what needs to be restored
 	CBitVec<MAX_PLAYERS>	m_RestorePlayer;
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CBitVec<MAX_AIS>		m_RestoreEntity; 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	bool					m_bNeedToRestore;
 	
 	LagRecord				m_RestoreData[ MAX_PLAYERS ];	// player data before we moved him back
 	LagRecord				m_ChangeData[ MAX_PLAYERS ];	// player data where we moved him back
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 	LagRecord				m_EntityRestoreData[ MAX_AIS ]; 
 	LagRecord				m_EntityChangeData[ MAX_AIS ]; 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	CBasePlayer				*m_pCurrentPlayer;	// The player we are doing lag compensation for
 
 	float					m_flTeleportDistanceSqr;
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 	bool					m_bNeedsAIUpdate; 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 };
 
@@ -313,12 +313,12 @@ ILagCompensationManager *lagcompensation = &g_LagCompensationManager;
 //-----------------------------------------------------------------------------
 void CLagCompensationManager::FrameUpdatePostEntityThink()
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 if ( m_bNeedsAIUpdate ) 
 		UpdateAIIndexes(); // only bother if we haven't had one yet 
 	else // setting this true here ensures that the update happens at the start of the next frame 
 		m_bNeedsAIUpdate = true; 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( (gpGlobals->maxClients <= 1) || !sv_unlag.GetBool() )
 	{
@@ -407,7 +407,7 @@ if ( m_bNeedsAIUpdate )
 		record.m_masterSequence = pPlayer->GetSequence();
 		record.m_masterCycle = pPlayer->GetCycle();
 	}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	// Iterate all active NPCs
 	CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs();
 	int nAIs = g_AI_Manager.NumAIs();
@@ -483,13 +483,13 @@ if ( m_bNeedsAIUpdate )
 		record.m_masterSequence = pNPC->GetSequence();
 		record.m_masterCycle = pNPC->GetCycle();
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	//Clear the current player.
 	m_pCurrentPlayer = NULL;
 }
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 void CLagCompensationManager::UpdateAIIndexes()
 {
 	CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs();
@@ -529,7 +529,7 @@ void CLagCompensationManager::UpdateAIIndexes()
 		}
 	}
 }
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 // Called during player movement to set up/restore after lag compensation
 void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCmd *cmd )
 {
@@ -542,7 +542,7 @@ void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCm
 		return;
 	}
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		// sort out any changes to the AI indexing 
 	if ( m_bNeedsAIUpdate ) // to be called once per frame... must happen BEFORE lag compensation - 
 	{// if that happens, that is. if not its called at the end of the frame 
@@ -557,7 +557,7 @@ void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCm
 #else
 // Assume no players need to be restored
 	m_RestorePlayer.ClearAll();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	m_bNeedToRestore = false;
 
 	m_pCurrentPlayer = player;
@@ -574,10 +574,10 @@ void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCm
 	VPROF_BUDGET( "StartLagCompensation", VPROF_BUDGETGROUP_OTHER_NETWORKING );
 	Q_memset( m_RestoreData, 0, sizeof( m_RestoreData ) );
 	Q_memset( m_ChangeData, 0, sizeof( m_ChangeData ) );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	Q_memset( m_EntityRestoreData, 0, sizeof( m_EntityRestoreData ) ); 
 	Q_memset( m_EntityChangeData, 0, sizeof( m_EntityChangeData ) ); 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	// Get true latency
 
@@ -619,7 +619,7 @@ void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCm
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( !pPlayer || player == pPlayer ) 
 			continue;
 #else
@@ -633,7 +633,7 @@ if ( !pPlayer )
 		{
 			continue;
 		}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		// Custom checks for if things should lag compensate (based on things like what team the player is on).
 		if ( !player->WantsLagCompensationOnEntity( pPlayer, cmd, pEntityTransmitBits ) )
@@ -642,7 +642,7 @@ if ( !pPlayer )
 		// Move other player back in time
 		BacktrackPlayer( pPlayer, TICKS_TO_TIME( targettick ) );
 	}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	// also iterate all monsters 
 	CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs(); 
@@ -658,7 +658,7 @@ if ( !pPlayer )
 		// Move NPC back in time 
 		BacktrackEntity( pNPC, TICKS_TO_TIME( targettick ) ); 
 	} 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTargetTime )
@@ -794,7 +794,7 @@ void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTar
 					m_RestorePlayer.Clear( pl_index );
 				}				
 			}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 						else
 			{
 				CAI_BaseNPC *pHitEntity = dynamic_cast<CAI_BaseNPC *>( tr.m_pEnt );
@@ -826,7 +826,7 @@ void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTar
 					}
 				}
 			}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 
 			// now trace us back as far as we can go
@@ -1009,7 +1009,7 @@ void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTar
 		pPlayer->DrawServerHitboxes(4, true);
 	}
 }
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 void CLagCompensationManager::BacktrackEntity( CAI_BaseNPC *pEntity, float flTargetTime )
 {
 	Vector org, mins, maxs;
@@ -1351,7 +1351,7 @@ void CLagCompensationManager::BacktrackEntity( CAI_BaseNPC *pEntity, float flTar
 		pEntity->DrawServerHitboxes(4, true);
 	}
 }
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 
 void CLagCompensationManager::FinishLagCompensation( CBasePlayer *player )
@@ -1451,7 +1451,7 @@ void CLagCompensationManager::FinishLagCompensation( CBasePlayer *player )
 		if ( restoreSimulationTime )
 		{
 			pPlayer->SetSimulationTime( restore->m_flSimulationTime );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		}
 	}
 	
@@ -1536,7 +1536,7 @@ void CLagCompensationManager::FinishLagCompensation( CBasePlayer *player )
 		if ( restoreSimulationTime )
 		{
 			pNPC->SetSimulationTime( restore->m_flSimulationTime );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 		}
 	}
 }

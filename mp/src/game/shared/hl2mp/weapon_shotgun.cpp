@@ -30,20 +30,20 @@ public:
 
 	DECLARE_NETWORKCLASS(); 
 	DECLARE_PREDICTABLE();
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 	int CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }
 	void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
 	void Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary );
 	void FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool bUseWeaponAngles );
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 private:
 	CNetworkVar( bool,	m_bNeedPump );		// When emptied completely
 	CNetworkVar( bool,	m_bDelayedFire1 );	// Fire primary when finished reloading
 	CNetworkVar( bool,	m_bDelayedFire2 );	// Fire secondary when finished reloading
 	CNetworkVar( bool,	m_bDelayedReload );	// Reload when finished pump
-	#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+	#ifdef SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
 	CNetworkVar( bool,m_bInReload );
 	#endif
 
@@ -64,7 +64,7 @@ public:
 	void CheckHolsterReload( void );
 	void Pump( void );
 //	void WeaponIdle( void );
-#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+#ifdef SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
 bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 #endif
 	void ItemHolsterFrame( void );
@@ -92,17 +92,17 @@ BEGIN_NETWORK_TABLE( CWeaponShotgun, DT_WeaponShotgun )
 	RecvPropBool( RECVINFO( m_bDelayedFire1 ) ),
 	RecvPropBool( RECVINFO( m_bDelayedFire2 ) ),
 	RecvPropBool( RECVINFO( m_bDelayedReload ) ),
-	#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+	#ifdef SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
 		RecvPropBool( RECVINFO( m_bInReload ) ),
-	#endif //Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+	#endif //SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
 #else
 	SendPropBool( SENDINFO( m_bNeedPump ) ),
 	SendPropBool( SENDINFO( m_bDelayedFire1 ) ),
 	SendPropBool( SENDINFO( m_bDelayedFire2 ) ),
 	SendPropBool( SENDINFO( m_bDelayedReload ) ),
-	#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+	#ifdef SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
 		SendPropBool( SENDINFO( m_bInReload ) ),
-	#endif //Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+	#endif //SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
 #endif
 END_NETWORK_TABLE()
 
@@ -112,9 +112,9 @@ BEGIN_PREDICTION_DATA( CWeaponShotgun )
 	DEFINE_PRED_FIELD( m_bDelayedFire1, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bDelayedFire2, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bDelayedReload, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
-	#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+	#ifdef SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
 		DEFINE_PRED_FIELD( m_bInReload, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
-	#endif //Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+	#endif //SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
 END_PREDICTION_DATA()
 #endif
 
@@ -137,7 +137,7 @@ acttable_t	CWeaponShotgun::m_acttable[] =
 	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_SHOTGUN,		false },
 
 	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_SHOTGUN,					false },
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_SHOTGUN,					false },
 	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_SHOTGUN,					false },
 	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_SHOTGUN,			false },
@@ -202,11 +202,11 @@ acttable_t	CWeaponShotgun::m_acttable[] =
 	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_SHOTGUN_LOW,		true },
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_SHOTGUN_LOW,				false },
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SHOTGUN,			false },
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 };
 
 IMPLEMENT_ACTTABLE(CWeaponShotgun);
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -270,7 +270,7 @@ void CWeaponShotgun::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatC
 	}
 }
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 //-----------------------------------------------------------------------------
 // Purpose: Override so only reload one shell at a time
 // Input  :
@@ -476,13 +476,13 @@ void CWeaponShotgun::PrimaryAttack( void )
 
 	// Fire the bullets, and force the first shot to be perfectly accuracy
 	pPlayer->FireBullets( info );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 	// DM: Hellow? NPCs... look here! I'm shooting!
 	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 1.0 );
 	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), SOUNDENT_VOLUME_SHOTGUN, 0.2 );
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	QAngle punch;
 	punch.Init( SharedRandomFloat( "shotgunpax", -2, -1 ), SharedRandomFloat( "shotgunpay", -2, 2 ), 0 );
@@ -536,13 +536,13 @@ void CWeaponShotgun::SecondaryAttack( void )
 	// Fire the bullets, and force the first shot to be perfectly accuracy
 	pPlayer->FireBullets( info );
 	pPlayer->ViewPunch( QAngle(SharedRandomFloat( "shotgunsax", -5, 5 ),0,0) );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 	// DM: Hellow? NPCs... look here! I'm shooting!
 	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 1.0 );
 	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), SOUNDENT_VOLUME_SHOTGUN, 0.2 );
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if (!m_iClip1 && pPlayer->GetAmmoCount(m_iPrimaryAmmoType) <= 0)
 	{
@@ -784,7 +784,7 @@ void CWeaponShotgun::ItemHolsterFrame( void )
 //==================================================
 // Purpose: 
 //==================================================
-#ifdef Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+#ifdef SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
  bool CWeaponShotgun::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
 
@@ -793,7 +793,7 @@ m_bInReload = false;
 
 return BaseClass::Holster( pSwitchingTo );
 }
-#endif //Seco7_FIX_SHOTGUN_FAST_SWITCH_BUG
+#endif //SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG
 /*
 void CWeaponShotgun::WeaponIdle( void )
 {

@@ -1021,9 +1021,9 @@ void CBaseCombatWeapon::SetActivity( Activity act, float duration )
 	//Adrian: Oh man again...
 #if !defined( CLIENT_DLL ) && (defined( HL2MP ) || defined( PORTAL ) || defined( SDK_DLL ) )
 		
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			if ( GetOwner()->IsPlayer() ) 
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		SetModel( GetViewModel() );
 #endif

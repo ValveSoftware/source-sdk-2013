@@ -2622,7 +2622,7 @@ void PhysCollisionScreenShake( gamevcollisionevent_t *pEvent, int index )
 	}
 }
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 // Uses DispatchParticleEffect because, so far as I know, that is the new means of kicking
 // off flinders for this kind of collision. Should this be in g_pEffects instead? 

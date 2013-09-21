@@ -72,7 +72,7 @@ public:
 	// This defaults to off.
 	void	UseClientSideAnimation();
 
-	//4WH - Information: Set to match DutchMegas' Collaborate mod code.
+	//SecobMod__Information: Set to match DutchMegas' Collaborate mod code.
 	void SetClientSideAnimation( bool val ) { m_bClientSideAnimation = val; };
 		
 	// Tells whether or not we're using client-side animation. Used for controlling

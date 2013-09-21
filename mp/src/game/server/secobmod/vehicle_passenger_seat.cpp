@@ -23,10 +23,10 @@
 
 #define	VEHICLE_HITBOX_DRIVER		1
 
-#ifdef Seco7_ENABLE_FAKE_PASSENGER_SEATS
+#ifdef SecobMod__ENABLE_FAKE_PASSENGER_SEATS
 
-//4WH - Information: Only allow passenger seats if the AI patch code is enabled.
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+//SecobMod__Information: Only allow passenger seats if the AI patch code is enabled.
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 
 //
 // Anim events.
@@ -181,9 +181,9 @@ private:
 	COutputEvent		m_OnClose;
 };
 
-#ifdef Seco7_ENABLE_FAKE_PASSENGER_SEATS
+#ifdef SecobMod__ENABLE_FAKE_PASSENGER_SEATS
 LINK_ENTITY_TO_CLASS( prop_vehicle_ss_passengerseat, CPropVehiclePassengerSeat );
-#endif //Seco7_ENABLE_FAKE_PASSENGER_SEATS
+#endif //SecobMod__ENABLE_FAKE_PASSENGER_SEATS
 
 
 BEGIN_DATADESC( CPropVehiclePassengerSeat )
@@ -337,8 +337,8 @@ void CPropVehiclePassengerSeat::Think(void)
 	{
 		BaseClass::Think();
 		
-	//4WH - Information: The game has a tendency to not keep our passenger in his seat, so each tick we make them attached to the attachment point.
-	#ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+	//SecobMod__Information: The game has a tendency to not keep our passenger in his seat, so each tick we make them attached to the attachment point.
+	#ifdef SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 	Vector vVector;
 
 	int iAttachment = LookupAttachment( "vehicle_seat" );
@@ -348,7 +348,7 @@ void CPropVehiclePassengerSeat::Think(void)
 	GetAttachment( iAttachment, vVector, NULL );
 	m_hPlayer->SetAbsOrigin(vVector);
 	}
-	#endif //Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+	#endif //SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 		
 		// If the enter or exit animation has finished, tell the server vehicle
 		if ( IsSequenceFinished() && (m_bExitAnimOn || m_bEnterAnimOn) )
@@ -532,8 +532,8 @@ void CPropVehiclePassengerSeat::EnterVehicle( CBaseCombatCharacter *pPassenger )
 		Assert( 0 );
 	}
 	
-#ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
-	//4WH - Information: Use our exit attachment point.
+#ifdef SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
+	//SecobMod__Information: Use our exit attachment point.
 	Vector vVector;
 
 	int iAttachment = LookupAttachment( "vehicle_seat" );
@@ -543,9 +543,9 @@ void CPropVehiclePassengerSeat::EnterVehicle( CBaseCombatCharacter *pPassenger )
 	GetAttachment( iAttachment, vVector, NULL );
 	m_hPlayer->SetAbsOrigin(vVector);
 	}
-#endif //Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+#endif //SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 	
-	//4WH - Information: Since weapon models dissapear on entering vehicles we need to force a weapon switch to occur to bring them back. The only working method found is to switch to the next best weapon.
+	//SecobMod__Information: Since weapon models dissapear on entering vehicles we need to force a weapon switch to occur to bring them back. The only working method found is to switch to the next best weapon.
 	m_hPlayer->SwitchToNextBestWeapon(m_hPlayer->GetActiveWeapon());
 }
 
@@ -570,7 +570,7 @@ void CPropVehiclePassengerSeat::ExitVehicle( int nRole )
 		return;
 		
 		
-	//4WH - Information: Use our exit attachment point.
+	//SecobMod__Information: Use our exit attachment point.
 	Vector vVector;
 
 	int iAttachment = LookupAttachment( "exit8" );
@@ -581,7 +581,7 @@ void CPropVehiclePassengerSeat::ExitVehicle( int nRole )
 	m_hPlayer->SetAbsOrigin(vVector);
 	}
 		
-	//4WH - Information: Just in case our exit is bad, call this safety function (newly created in player.cpp/h).
+	//SecobMod__Information: Just in case our exit is bad, call this safety function (newly created in player.cpp/h).
 	m_hPlayer->SafeVehicleExit(m_hPlayer);
 
 	m_hPlayer = NULL;
@@ -805,5 +805,5 @@ void CPassengerSeatServerVehicle::GetVehicleViewPosition( int nRole, Vector *pAb
 	// UNDONE: *pOrigin would already be correct in single player if the HandleView() on the server ran after vphysics
 	MatrixGetColumn( newCameraToWorld, 3, *pAbsOrigin );
 }
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
-#endif //Seco7_ENABLE_FAKE_PASSENGER_SEATS
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__ENABLE_FAKE_PASSENGER_SEATS

@@ -51,9 +51,9 @@ void RegisterUserMessages( void )
 	RegisterHapticMessages();
 #endif
 
-	#ifdef Seco7_USE_PLAYERCLASSES
+	#ifdef SecobMod__USE_PLAYERCLASSES
 		usermessages->Register( "SSPlayerClassesBGCheck", -1 );
 		usermessages->Register( "ShowSSPlayerClasses", -1 );
 		usermessages->Register( "ForceHUDReload", -1 );
-	#endif //Seco7_USE_PLAYERCLASSES
+	#endif //SecobMod__USE_PLAYERCLASSES
 }

@@ -38,7 +38,7 @@ public:
 	{
 		if ( m_distSq != 0 )
 		{
-			//4WH - Null Pointers: To prevent the code crashing if pEntity1 is NULL, return false.
+			////SecobMod__Information: To prevent the code crashing if pEntity1 is NULL, return false.
              if (pEntity1 == NULL)
 			 return false;
 

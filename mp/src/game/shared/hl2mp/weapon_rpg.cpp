@@ -46,9 +46,9 @@ const char *g_pLaserDotThink = "LaserThinkContext";
 
 static ConVar sk_apc_missile_damage("sk_apc_missile_damage", "15");
 #define APC_MISSILE_DAMAGE	sk_apc_missile_damage.GetFloat()
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 extern int g_interactionPlayerLaunchedRPG;
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 #endif
 
@@ -131,9 +131,9 @@ BEGIN_DATADESC( CMissile )
 	DEFINE_FIELD( m_flGracePeriodEndsAt,	FIELD_TIME ),
 	DEFINE_FIELD( m_flDamage,				FIELD_FLOAT ),
 	
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	DEFINE_FIELD( m_bCreateDangerSounds,	FIELD_BOOLEAN ),
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	// Function Pointers
 	DEFINE_FUNCTION( MissileTouch ),
@@ -155,9 +155,9 @@ CMissile::CMissile()
 {
 	m_hRocketTrail = NULL;
 	
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	m_bCreateDangerSounds = false; //
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 CMissile::~CMissile()
@@ -198,9 +198,9 @@ void CMissile::Spawn( void )
 	
 	SetNextThink( gpGlobals->curtime + 0.3f );
 	
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		SetDamage( EXPLOSION_DAMAGE );
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	m_takedamage = DAMAGE_YES;
 	m_iHealth = m_iMaxHealth = 100;
@@ -375,11 +375,11 @@ void CMissile::ShotDown( void )
 void CMissile::DoExplosion( void )
 {
 	// Explode
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	ExplosionCreate( GetAbsOrigin(), GetAbsAngles(), GetOwnerEntity(), GetDamage(), CMissile::EXPLOSION_RADIUS,
 	#else
 	ExplosionCreate( GetAbsOrigin(), GetAbsAngles(), GetOwnerEntity(), GetDamage(), GetDamage() * 2,
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 		SF_ENVEXPLOSION_NOSPARKS | SF_ENVEXPLOSION_NODLIGHTS | SF_ENVEXPLOSION_NOSMOKE, 0.0f, this);
 }
 
@@ -431,7 +431,7 @@ void CMissile::MissileTouch( CBaseEntity *pOther )
 	
 	// Don't touch triggers (but DO hit weapons)
 	if ( pOther->IsSolidFlagSet(FSOLID_TRIGGER|FSOLID_VOLUME_CONTENTS) && pOther->GetCollisionGroup() != COLLISION_GROUP_WEAPON )
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	{
 		// Some NPCs are triggers that can take damage (like antlion grubs). We should hit them.
 		if ( ( pOther->m_takedamage == DAMAGE_NO ) || ( pOther->m_takedamage == DAMAGE_EVENTS_ONLY ) )
@@ -439,7 +439,7 @@ void CMissile::MissileTouch( CBaseEntity *pOther )
 	}
 	#else
 	return;
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	Explode();
 }
@@ -498,7 +498,7 @@ void CMissile::IgniteThink( void )
 	{
 		CBasePlayer *pPlayer = ToBasePlayer( m_hOwner->GetOwner() );
 
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( pPlayer )
 		{
 			color32 white = { 255,225,205,64 };
@@ -507,7 +507,7 @@ void CMissile::IgniteThink( void )
 		#else
 		color32 white = { 255,225,205,64 };
 		UTIL_ScreenFade( pPlayer, white, 0.1f, 0.0f, FFADE_IN );
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 
 	CreateSmokeTrail();
@@ -618,13 +618,13 @@ void CMissile::SeekThink( void )
 			flBestDist	= dotDist;
 		}
 	}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 if( flBestDist <= ( GetAbsVelocity().Length() * 2.5f ) && FVisible( pBestDot->GetAbsOrigin() ) )
 	{
 		// Scare targets
 		CSoundEnt::InsertSound( SOUND_DANGER, pBestDot->GetAbsOrigin(), CMissile::EXPLOSION_RADIUS, 0.2f, pBestDot, SOUNDENT_CHANNEL_REPEATED_DANGER, NULL ); //
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	//If we have a dot target
 	if ( pBestDot == NULL )
@@ -648,7 +648,7 @@ if( flBestDist <= ( GetAbsVelocity().Length() * 2.5f ) && FVisible( pBestDot->Ge
 	VectorSubtract( targetPos, GetAbsOrigin(), vTargetDir );
 	float flDist = VectorNormalize( vTargetDir );
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 if( pLaserDot->GetTargetEntity() != NULL && flDist <= 240.0f ) //
 	{
 		// Prevent the missile circling the Strider like a Halo in ep1_c17_06. If the missile gets within 20
@@ -658,7 +658,7 @@ if( pLaserDot->GetTargetEntity() != NULL && flDist <= 240.0f ) //
 			flHomingSpeed *= 1.75f;
 		}
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	Vector	vDir	= GetAbsVelocity();
 	float	flSpeed	= VectorNormalize( vDir );
@@ -698,7 +698,7 @@ if( pLaserDot->GetTargetEntity() != NULL && flDist <= 240.0f ) //
 	// Think as soon as possible
 	SetNextThink( gpGlobals->curtime );
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	if ( m_bCreateDangerSounds == true )
 	{
 		trace_t tr;
@@ -706,7 +706,7 @@ if( pLaserDot->GetTargetEntity() != NULL && flDist <= 240.0f ) //
 
 		CSoundEnt::InsertSound( SOUND_DANGER, tr.endpos, 100, 0.2, this, SOUNDENT_CHANNEL_REPEATED_DANGER );
 	}
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 
@@ -735,7 +735,7 @@ CMissile *CMissile::Create( const Vector &vecOrigin, const QAngle &vecAngles, ed
 	return pMissile;
 }
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 CUtlVector<CMissile::CustomDetonator_t> CMissile::gm_CustomDetonators;
@@ -762,7 +762,7 @@ void CMissile::RemoveCustomDetonator( CBaseEntity *pEntity )
 		}
 	}
 }
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 //-----------------------------------------------------------------------------
 // This entity is used to create little force boxes that the helicopter
@@ -959,9 +959,9 @@ BEGIN_DATADESC( CAPCMissile )
 	DEFINE_THINKFUNC( BeginSeekThink ),
 	DEFINE_THINKFUNC( AugerStartThink ),
 	DEFINE_THINKFUNC( ExplodeThink ),
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 DEFINE_THINKFUNC( APCSeekThink ),
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	DEFINE_FUNCTION( APCMissileTouch ),
 
@@ -1007,7 +1007,7 @@ void CAPCMissile::Init()
 	SetTouch( &CAPCMissile::APCMissileTouch );
 	m_flLastHomingSpeed = APC_HOMING_SPEED;
 	
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CreateDangerSounds( true );
 
 
@@ -1015,7 +1015,7 @@ void CAPCMissile::Init()
 	{
 		AddFlag( FL_AIMTARGET );
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 
@@ -1089,16 +1089,16 @@ void CAPCMissile::BeginSeekThink( void )
 {
  	RemoveSolidFlags( FSOLID_NOT_SOLID );
 	
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	SetThink( &CAPCMissile::APCSeekThink );
 #else
 SetThink( &CAPCMissile::SeekThink );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI	
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI	
 
 	SetNextThink( gpGlobals->curtime );
 }
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 void CAPCMissile::APCSeekThink( void )
 {
 	BaseClass::SeekThink();
@@ -1127,7 +1127,7 @@ void CAPCMissile::APCSeekThink( void )
 		SetThink( NULL );
 	}
 }
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 void CAPCMissile::ExplodeThink()
 {
@@ -1457,7 +1457,7 @@ acttable_t	CWeaponRPG::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_RPG,		false },
 	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_RPG,					false },
 	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_RPG,				false },
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_RPG,					false },
 	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_RPG,			false },
 
@@ -1484,7 +1484,7 @@ acttable_t	CWeaponRPG::m_acttable[] =
 	{ ACT_RUN,						ACT_RUN_RPG,					true }, //
 	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RPG,				true }, //
 	{ ACT_COVER_LOW,				ACT_COVER_LOW_RPG,				true }, //
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 };
 
 IMPLEMENT_ACTTABLE(CWeaponRPG);
@@ -1500,9 +1500,9 @@ CWeaponRPG::CWeaponRPG()
 	m_bInitialStateUpdate= false;
 	m_bHideGuiding = false;
 	m_bGuiding = false;
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 m_hMissile = NULL;
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	m_fMinRange1 = m_fMinRange2 = 40*12;
 	m_fMaxRange1 = m_fMaxRange2 = 500*12;
@@ -1566,7 +1566,7 @@ void CWeaponRPG::Activate( void )
 		}
 	}
 }
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1639,7 +1639,7 @@ void CWeaponRPG::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChara
 	}
 }
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1719,7 +1719,7 @@ void CWeaponRPG::PrimaryAttack( void )
 	pMissile->SetDamage( GetHL2MPWpnData().m_iPlayerDamage );
 
 	m_hMissile = pMissile;
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 
 		// Register a muzzleflash for the AI
 	pOwner->SetMuzzleFlashTime( gpGlobals->curtime + 0.5 );
@@ -1751,7 +1751,7 @@ void CWeaponRPG::PrimaryAttack( void )
 			ppAIs[ i ]->DispatchInteraction( g_interactionPlayerLaunchedRPG, NULL, pMissile );
 		}
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 #endif
 
 	DecrementAmmo( GetOwner() );
@@ -1835,11 +1835,11 @@ void CWeaponRPG::ItemPostFrame( void )
 	}
 
 	// Supress our guiding effects if we're lowered
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	if ( GetIdealActivity() == ACT_VM_IDLE_LOWERED || GetIdealActivity() == ACT_VM_RELOAD )
 #else
 	if ( GetIdealActivity() == ACT_VM_IDLE_LOWERED )
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	{
 		SuppressGuiding();
 	}
@@ -1855,12 +1855,12 @@ void CWeaponRPG::ItemPostFrame( void )
 	{
 		StopGuiding();
 	}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 	if ( pPlayer->m_afButtonPressed & IN_ATTACK2 )
 	{
 		ToggleGuiding();
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 //-----------------------------------------------------------------------------
@@ -1881,16 +1881,16 @@ Vector CWeaponRPG::GetLaserPosition( void )
 	return vec3_origin;
 }
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 //-----------------------------------------------------------------------------
 // Purpose: NPC RPG users cheat and directly set the laser pointer's origin
 // Input  : &vecTarget - 
 //-----------------------------------------------------------------------------
 void CWeaponRPG::UpdateNPCLaserPosition( const Vector &vecTarget )
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 CreateLaserPointer();
 	// Turn the laserdot on
@@ -1905,7 +1905,7 @@ CreateLaserPointer();
 
 	SetNPCLaserPosition( vecTarget );
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 //-----------------------------------------------------------------------------
@@ -1913,9 +1913,9 @@ CreateLaserPointer();
 //-----------------------------------------------------------------------------
 void CWeaponRPG::SetNPCLaserPosition( const Vector &vecTarget ) 
 { 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 m_vecLaserDot = vecTarget; //
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 //-----------------------------------------------------------------------------
@@ -1923,16 +1923,16 @@ m_vecLaserDot = vecTarget; //
 //-----------------------------------------------------------------------------
 const Vector &CWeaponRPG::GetNPCLaserPosition( void )
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	return m_vecLaserDot;
 #else
 return vec3_origin;
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #endif //
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Output : Returns true if the rocket is being guided, false if it's dumb
@@ -2155,7 +2155,7 @@ bool CWeaponRPG::Reload( void )
 
 	return true;
 }
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -2237,7 +2237,7 @@ int CWeaponRPG::WeaponRangeAttack1Condition( float flDot, float flDist )
 	return COND_CAN_RANGE_ATTACK1;
 }
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 #ifdef CLIENT_DLL
 

@@ -169,7 +169,7 @@ void WriteUsercmd( bf_write *buf, const CUserCmd *to, const CUserCmd *from )
 		buf->WriteOneBit( 0 );
 	}
 	
-#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 	// CHATBUBBLE
 	if ( to->chatbubble != from->chatbubble )
 	{
@@ -180,7 +180,7 @@ void WriteUsercmd( bf_write *buf, const CUserCmd *to, const CUserCmd *from )
 	{
 		buf->WriteOneBit( 0 );
 	}
-#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 #if defined( HL2_CLIENT_DLL )
 	if ( to->entitygroundcontact.Count() != 0 )
@@ -302,11 +302,11 @@ void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from )
 		move->mousedy = buf->ReadShort();
 	}
 	
-#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 	// CHAT BUBBLE
 	if ( buf->ReadOneBit() )
 		move->chatbubble = buf->ReadUBitLong( 3 );
-#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 #if defined( HL2_DLL )
 	if ( buf->ReadOneBit() )

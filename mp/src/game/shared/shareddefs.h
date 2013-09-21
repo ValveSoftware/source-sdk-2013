@@ -526,7 +526,7 @@ enum
 	BLOOD_COLOR_GREEN,
 	BLOOD_COLOR_MECH,
 
-//4WH - Episodic Issues: If we don't comment out this ifdef (which used to be an if), then the code doesn't compile.
+//SecobMod__IFDEF_Fixes
 //#ifdef HL2_EPISODIC
 	BLOOD_COLOR_ANTLION,		// FIXME: Move to Base HL2
 	BLOOD_COLOR_ZOMBIE,			// FIXME: Move to Base HL2
@@ -934,7 +934,7 @@ enum
 };
 #endif // TF_DLL || TF_CLIENT_DLL
 
-//4WH - Information: Here we add in the Source Engine Co-Op v7 definitions.
-#include "./seco/seco7_shareddefs.h"
+//SecobMod__Information: Here we add in the Source Engine Co-Operative Base Mod shared definitions file.
+#include "./secobmod/secobmod_shareddefs.h"
 
 #endif // SHAREDDEFS_H

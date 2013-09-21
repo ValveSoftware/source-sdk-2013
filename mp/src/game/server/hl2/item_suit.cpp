@@ -41,7 +41,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-	    //4WH - Information: These two lines are commented out for play-through of official hl2/ep1/ep2 maps. Your choice whether to re-enable it or not.
+	    //SecobMod__Information: These two lines are commented out for play-through of official hl2/ep1/ep2 maps. Your choice whether to re-enable it or not.
 		//if ( pPlayer->IsSuitEquipped() )
 		//return FALSE;
 

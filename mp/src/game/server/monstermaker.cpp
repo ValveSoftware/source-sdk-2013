@@ -660,9 +660,9 @@ CNPCSpawnDestination *CTemplateNPCMaker::FindSpawnDestination()
 			bool fValid = true;
 			Vector vecTest = pDestination->GetAbsOrigin();
 
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			pPlayer = UTIL_GetNearestPlayer(vecTest); 
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 			if( m_CriterionVisibility != TS_YN_DONT_CARE )
 			{
@@ -731,9 +731,9 @@ CNPCSpawnDestination *CTemplateNPCMaker::FindSpawnDestination()
 			{
 				Vector vecTest = pDestinations[ i ]->GetAbsOrigin();
 
-			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 				pPlayer = UTIL_GetNearestPlayer(vecTest); 
-			#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 				float flDist = ( vecTest - pPlayer->GetAbsOrigin() ).Length();
 

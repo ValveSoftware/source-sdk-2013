@@ -48,19 +48,19 @@ public:
 
 	void		Drop( const Vector &vecVelocity );
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 	CWeaponhands( const CWeaponhands & ); 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 
 	// Animation event
 #ifndef CLIENT_DLL
 	virtual void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	virtual int WeaponMeleeAttack1Condition( float flDot, float flDist ); 
 #else
 int WeaponMeleeAttack1Condition( float flDot, float flDist );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 private: 
 	// Animation event handlers 
 	void HandleAnimEventMeleeHit( animevent_t *pEvent, CBaseCombatCharacter *pOperator );

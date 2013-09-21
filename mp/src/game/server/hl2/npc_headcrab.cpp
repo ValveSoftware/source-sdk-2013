@@ -33,7 +33,7 @@
 #include "hl2_gamerules.h"
 #include "decals.h"
 
-//4WH - Episodic Issues: Here we include the hl2mp gamerules so that calls to darkness mode work.
+//SecobMod__MiscFixes: Here we include the hl2mp gamerules so that calls to darkness mode work.
 #include "hl2mp_gamerules.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -1308,7 +1308,7 @@ void CBaseHeadcrab::JumpFromCanister()
 void CBaseHeadcrab::DropFromCeiling( void )
 {
 #ifdef HL2_EPISODIC
-//Seco 2013
+//SecobMod__MiscFixes HL2MPRules as opposed to singleplayer HL2GameRules.
 	if ( HL2MPRules()->IsAlyxInDarknessMode() )
 	{
 		if ( IsHangingFromCeiling() )
@@ -1325,11 +1325,11 @@ void CBaseHeadcrab::DropFromCeiling( void )
 				{
 					SetSchedule( SCHED_HEADCRAB_CEILING_DROP );
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 					CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 #else
 CBaseEntity *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 					if ( pPlayer )
 					{

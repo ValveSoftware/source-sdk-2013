@@ -194,11 +194,11 @@ ConVar  player_debug_print_damage( "player_debug_print_damage", "0", FCVAR_CHEAT
 
 void CC_GiveCurrentAmmo( void )
 {
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetCommandClient(); 
 	#else
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if( pPlayer )
 	{
@@ -256,10 +256,10 @@ END_DATADESC()
 // Global Savedata for player
 BEGIN_DATADESC( CBasePlayer )
 
-	#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+	#ifdef SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
 	DEFINE_FIELD( m_bTransition, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bTransitionTeleported, FIELD_BOOLEAN ),
-	#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+	#endif //SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
 
 	DEFINE_EMBEDDED( m_Local ),
 #if defined USES_ECON_ITEMS
@@ -559,16 +559,16 @@ CBasePlayer *CBasePlayer::CreatePlayer( const char *className, edict_t *ed )
 CBasePlayer::CBasePlayer( )
 {
 
-#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 m_hChatBubble = NULL; // make sure null.
-#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 	AddEFlags( EFL_NO_AUTO_EDICT_ATTACH );
 	
-#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+#ifdef SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
 m_bTransition = false;
 m_bTransitionTeleported = false;
-#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+#endif //SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
 
 #ifdef _DEBUG
 	m_vecAutoAim.Init();
@@ -744,7 +744,7 @@ int CBasePlayer::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 	return BaseClass::ShouldTransmit( pInfo );
 }
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 bool CBasePlayer::WantsLagCompensationOnEntity( const CBaseEntity *pEntity, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const 
 {
 	//Tony; only check teams in teamplay
@@ -793,7 +793,7 @@ bool CBasePlayer::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, cons
 	// get max distance player could have moved within max lag compensation time, 
 	// multiply by 1.5 to to avoid "dead zones"  (sqrt(2) would be the exact value)
 	float maxDistance = 1.5 * pPlayer->MaxSpeed() * sv_maxunlag.GetFloat();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI	
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI	
 	
 	// If the player is within this distance, lag compensate them in case they're running past us.
 	if ( vHisOrigin.DistTo( vMyOrigin ) < maxDistance )
@@ -1703,9 +1703,9 @@ int CBasePlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 void CBasePlayer::Event_Killed( const CTakeDamageInfo &info )
 {
 
-#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 KillChatBubble();
-#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 	CSound *pSound;
 
@@ -1787,7 +1787,7 @@ KillChatBubble();
 }
 
 
-#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 #define CHAT_BUBBLE_MODEL "models/extras/info_speech.mdl"
 class CChatBubble : public CBaseAnimating
 {
@@ -1921,7 +1921,7 @@ void CBasePlayer::CheckChatBubble( CUserCmd *cmd )
 		KillChatBubble();
 }
 
-#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 void CBasePlayer::Event_Dying( const CTakeDamageInfo& info )
 {
@@ -3058,12 +3058,12 @@ float CBasePlayer::GetHeldObjectMass( IPhysicsObject *pHeldObject )
 	return 0;
 }
 
-#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+#ifdef SecobMod__ALLOW_SUPER_GRAVITY_GUN
 CBaseEntity	*CBasePlayer::GetHeldObject( void )
 {
 	return NULL;
 }
-#endif //Seco7_ALLOW_SUPER_GRAVITY_GUN
+#endif //SecobMod__ALLOW_SUPER_GRAVITY_GUN
 
 //-----------------------------------------------------------------------------
 // Purpose:	Server side of jumping rules.  Most jumping logic is already
@@ -5081,9 +5081,9 @@ void CBasePlayer::InitialSpawn( void )
 void CBasePlayer::Spawn( void )
 {
 
-	#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+	#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 		KillChatBubble();
-	#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+	#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 	// Needs to be done before weapons are given
 	if ( Hints() )
@@ -5629,9 +5629,9 @@ bool CBasePlayer::GetInVehicle( IServerVehicle *pVehicle, int nRole )
 
 	if ( !pVehicle->IsPassengerVisible( nRole ) )
 	{
-		#ifndef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
-		AddEffects( EF_NODRAW ); //4WH - Information: This causes players to have invisible third person models in vehicles.
-		#endif Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+		#ifndef SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
+		AddEffects( EF_NODRAW ); //SecobMod__Information: This causes players to have invisible third person models in vehicles.
+		#endif SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 	}
 
 	// Put us in the vehicle
@@ -6177,7 +6177,7 @@ void CBasePlayer::ImpulseCommands( )
 	m_nImpulse = 0;
 }
 
-#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING 
+#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING 
 #ifdef HL2_EPISODIC
 
 //-----------------------------------------------------------------------------
@@ -6226,7 +6226,7 @@ static void CreateJeep( CBasePlayer *pPlayer )
 	Vector vecForward;
 	AngleVectors( pPlayer->EyeAngles(), &vecForward );
 //Tony; in sp sdk, we have prop_vehicle_hl2buggy; because episode 2 modified the jeep code to turn it into the jalopy instead of the regular buggy
-//4WH - Information: Changed the define to hl2_episodic so people can summon the hl2 buggy.
+//SecobMod__Information: Changed the define to hl2_episodic so people can summon the hl2 buggy.
 #ifdef HL2_EPISODIC
 	CBaseEntity *pJeep = (CBaseEntity *)CreateEntityByName( "prop_vehicle_hl2buggy" );
 #else
@@ -6299,7 +6299,7 @@ void CC_CH_CreateAirboat( void )
 }
 
 static ConCommand ch_createairboat( "ch_createairboat", CC_CH_CreateAirboat, "Spawn airboat in front of the player.", FCVAR_CHEAT );
-#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 
 //=========================================================
 //=========================================================
@@ -6311,9 +6311,9 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 		return;
 	}
 	
-#ifndef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+#ifndef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 return;
-#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 
 	CBaseEntity *pEntity;
 	trace_t tr;
@@ -6341,20 +6341,20 @@ return;
 		break;
 
 	case 82:
-		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		// Cheat to create a jeep in front of the player
 		CreateJeep( this );
-		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	case 83:
-		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		CreateAirboat( this );
-		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	case 101:
-	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		gEvilImpulse101 = true;
 
 		EquipSuit();
@@ -6393,19 +6393,19 @@ return;
 		}
 		
 		gEvilImpulse101		= false;
-		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 
 		break;
 
 	case 102:
-	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		// Gibbage!!!
 		CGib::SpawnRandomGibs( this, 1, GIB_HUMAN );
-	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	case 103:
-	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		// What the hell are you doing?
 		pEntity = FindEntityForward( this, true );
 		if ( pEntity )
@@ -6414,11 +6414,11 @@ return;
 			if ( pNPC )
 				pNPC->ReportAIState();
 		}
-	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	case 106:
-	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		// Give me the classname and targetname of this entity.
 		pEntity = FindEntityForward( this, true );
 		if ( pEntity )
@@ -6441,11 +6441,11 @@ return;
 			if ( pEntity->m_iGlobalname != NULL_STRING )
 				Msg( "Globalname: %s\n", STRING(pEntity->m_iGlobalname) );
 		}
-	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING	
+	#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING	
 		break;
 
 	case 107:
-	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		{
 			trace_t tr;
 
@@ -6464,7 +6464,7 @@ return;
 			if ( pTextureName )
 				Msg( "Texture: %s\n", pTextureName );
 		}
-	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		break;
 
 	//
@@ -6472,7 +6472,7 @@ return;
 	//
 	case 108:
 	{
-	#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		pEntity = FindEntityForward( this, true );
 		if ( pEntity )
 		{
@@ -6483,34 +6483,34 @@ return;
 				CAI_BaseNPC::SetDebugNPC( pNPC );
 			}
 		}
-	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		break;
 	}
 
 	case	195:// show shortest paths for entire level to nearest node
 		{
-		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 			Create("node_viewer_fly", GetLocalOrigin(), GetLocalAngles());
-		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	case	196:// show shortest paths for entire level to nearest node
 		{
-		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 			Create("node_viewer_large", GetLocalOrigin(), GetLocalAngles());
-		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	case	197:// show shortest paths for entire level to nearest node
 		{
-		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 			Create("node_viewer_human", GetLocalOrigin(), GetLocalAngles());
-		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	case	202:// Random blood splatter
 		{
-		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 			Vector forward;
 			EyeVectors( &forward );
 			UTIL_TraceLine ( EyePosition(), 
@@ -6522,18 +6522,18 @@ return;
 				CBloodSplat *pBlood = CREATE_UNSAVED_ENTITY( CBloodSplat, "bloodsplat" );
 				pBlood->Spawn( this );
 			}
-		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	case	203:// remove creature.
 		pEntity = FindEntityForward( this, true );
 		if ( pEntity )
 		{
-		#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 			UTIL_Remove( pEntity );
 //			if ( pEntity->m_takedamage )
 //				pEntity->SetThink(SUB_Remove);
-		#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+		#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		}
 		break;
 	}
@@ -7832,7 +7832,7 @@ void CStripWeapons::StripWeapons(inputdata_t &data, bool stripSuit)
 	}
 	else if ( !g_pGameRules->IsDeathmatch() )
 	{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	for (int i = 1; i <= gpGlobals->maxClients; i++ ) 
 	{ 
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i ); 
@@ -7843,7 +7843,7 @@ void CStripWeapons::StripWeapons(inputdata_t &data, bool stripSuit)
 	}
 #else
 pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 
 	if ( pPlayer )
@@ -7938,7 +7938,7 @@ void CRevertSaved::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 	UTIL_ScreenFadeAll( m_clrRender, Duration(), HoldTime(), FFADE_OUT );
 	SetNextThink( gpGlobals->curtime + LoadTime() );
 	SetThink( &CRevertSaved::LoadThink );
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	for (int i = 1; i <= gpGlobals->maxClients; i++ ) 
 	{ 
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i ); 
@@ -7969,7 +7969,7 @@ CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 		g_ServerGameDLL.m_fAutoSaveDangerousTime = 0.0f;
 		g_ServerGameDLL.m_fAutoSaveDangerousMinHealthToCommit = 0.0f;
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 void CRevertSaved::InputReload( inputdata_t &inputdata )
@@ -8020,8 +8020,8 @@ void CRevertSaved::LoadThink( void )
 	{
 		engine->ServerCommand("reload\n");
 	}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
-//4WH - Information: Here we change level to the map we're already on if a vital ally such as Alyx is killed etc etc etc.
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+//SecobMod__Information: Here we change level to the map we're already on if a vital ally such as Alyx is killed etc etc etc.
 	else
 	{
 	char *szDefaultMapName = new char[32];
@@ -8029,7 +8029,7 @@ void CRevertSaved::LoadThink( void )
 	engine->ChangeLevel( szDefaultMapName, NULL );
 	return;
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI	
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI	
 }
 
 #define SF_SPEED_MOD_SUPPRESS_WEAPONS	(1<<0)	// Take away weapons
@@ -8106,11 +8106,11 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 	}
 	else if ( !g_pGameRules->IsDeathmatch() )
 	{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 #else
 pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 
 	if ( pPlayer )
@@ -9605,7 +9605,7 @@ void CBasePlayer::AdjustDrownDmg( int nAmount )
 	}
 }
 
-#ifdef Seco7_USE_PLAYERCLASSES
+#ifdef SecobMod__USE_PLAYERCLASSES
 void CBasePlayer::SetWalkSpeed(int WalkSpeed)
 {
         m_iWalkSpeed=WalkSpeed;
@@ -9645,9 +9645,9 @@ float CBasePlayer::GetJumpHeight()
 {
         return m_iJumpHeight;
 }
-#endif //Seco7_USE_PLAYERCLASSES
+#endif //SecobMod__USE_PLAYERCLASSES
 
-#ifdef Seco7_ENABLE_FAKE_PASSENGER_SEATS
+#ifdef SecobMod__ENABLE_FAKE_PASSENGER_SEATS
 //------------------------------------------------------------------------------
 // A small wrapper around SV_Move that never clips against the supplied entity.
 //------------------------------------------------------------------------------
@@ -9711,7 +9711,7 @@ Vector oldorigin = GetAbsOrigin();
 		AddFlag(FL_ONGROUND);
 	}
 }
-#endif //Seco7_ENABLE_FAKE_PASSENGER_SEATS
+#endif //SecobMod__ENABLE_FAKE_PASSENGER_SEATS
 
 
 #if !defined(NO_STEAM)

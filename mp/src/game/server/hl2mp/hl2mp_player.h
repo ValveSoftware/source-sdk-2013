@@ -37,7 +37,7 @@ public:
 
 class CHL2MP_Player : public CHL2_Player
 {
-#ifdef Seco7_USE_PLAYERCLASSES
+#ifdef SecobMod__USE_PLAYERCLASSES
 enum
 {
 	Unassigned = 0,
@@ -47,24 +47,24 @@ enum
 	Heavy,
 	Default,
 };
-#endif //Seco7_USE_PLAYERCLASSES
+#endif //SecobMod__USE_PLAYERCLASSES
 
 public:
 
-	#ifdef Seco7_USE_PLAYERCLASSES
+	#ifdef SecobMod__USE_PLAYERCLASSES
 	//Can we change player class?
 	bool PlayerCanChangeClass;
 
 	// Apply a battery
 	bool ApplyBattery( float powerMultiplier = 1.0 );
-	#endif //Seco7_USE_PLAYERCLASSES
+	#endif //SecobMod__USE_PLAYERCLASSES
 
-	#ifdef Seco7_SAVERESTORE
+	#ifdef SecobMod__SAVERESTORE
 	virtual void SaveTransitionFile(void);
-	#endif //Seco7_SAVERESTORE
+	#endif //SecobMod__SAVERESTORE
 
-	#ifdef Seco7_USE_PLAYERCLASSES
-	//4WH - Information: Old ChangeClass vs New spam ver.
+	#ifdef SecobMod__USE_PLAYERCLASSES
+	//SecobMod__Information: Old ChangeClass vs New spam ver.
 	// Method to change class.
 	//virtual void ChangeClass(int NewClass);
 	void ChangeClass();
@@ -115,7 +115,7 @@ public:
 int m_iWalkSpeed; 
 int m_iNormSpeed;
 int m_iSprintSpeed;
-#endif //Seco7_USE_PLAYERCLASSES
+#endif //SecobMod__USE_PLAYERCLASSES
 
 // Armor Ints.
 	int m_iArmor;
@@ -136,7 +136,7 @@ int CHL2MP_Player::GetMaxArmorValue()
 	return m_iMaxArmor;
 }
 
-#ifdef Seco7_USE_PLAYERCLASSES
+#ifdef SecobMod__USE_PLAYERCLASSES
 private:  
 	// Test whether this player is spawning for the first time.
 	bool m_bFirstSpawn;
@@ -168,7 +168,7 @@ void CHL2MP_Player::IncrementHealthValue( int nCount )
 	if (m_iMaxHealth > 0 && m_iHealth > m_iMaxHealth)
 		m_iHealth = m_iMaxHealth;
 }
-#endif //Seco7_USE_PLAYERCLASSES
+#endif //SecobMod__USE_PLAYERCLASSES
 public:
 	DECLARE_CLASS( CHL2MP_Player, CHL2_Player );
 
@@ -185,14 +185,14 @@ public:
 	DECLARE_DATADESC();
 
 	
-	#ifdef Seco7_USE_PLAYERCLASSES
+	#ifdef SecobMod__USE_PLAYERCLASSES
 		void SSPlayerClassesBGCheck(CHL2MP_Player *pPlayer);
 		void ShowSSPlayerClasses(CHL2MP_Player *pPlayer);
 		void ForceHUDReload(CHL2MP_Player *pPlayer);
 		bool (m_bDelayedMessage);
 		float (m_flDelayedMessageTime); 
-		CNetworkVar(int, m_iClientClass); //4WH - Information: Lets the client player know its class int.
-	#endif //Seco7_USE_PLAYERCLASSES
+		CNetworkVar(int, m_iClientClass); //SecobMod__Information: Lets the client player know its class int.
+	#endif //SecobMod__USE_PLAYERCLASSES
 	
 	virtual void Precache( void );
 	virtual void Spawn( void );
@@ -207,11 +207,11 @@ public:
 	virtual void Event_Killed( const CTakeDamageInfo &info );
 	virtual int OnTakeDamage( const CTakeDamageInfo &inputInfo );
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		virtual bool WantsLagCompensationOnEntity( const CBaseEntity *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const; 
 	#else
 		virtual bool WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const;
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	virtual void FireBullets ( const FireBulletsInfo_t &info );
 	virtual bool Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex = 0);

@@ -775,9 +775,9 @@ void UTIL_Tracer( const Vector &vecStart, const Vector &vecEnd, int iEntIndex,
 
 void UTIL_BloodDrips( const Vector &origin, const Vector &direction, int color, int amount )
 {
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 IPredictionSystem::SuppressHostEvents( NULL );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( !UTIL_ShouldShowBlood( color ) )
 		return;
@@ -787,13 +787,13 @@ IPredictionSystem::SuppressHostEvents( NULL );
 
 	if ( g_Language.GetInt() == LANGUAGE_GERMAN && color == BLOOD_COLOR_RED )
 		color = 0;
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
 if ( g_pGameRules->IsMultiplayer() )
 	{
 		// scale up blood effect in multiplayer for better visibility
 		amount *= 5;
 	}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( amount > 255 )
 		amount = 255;

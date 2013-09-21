@@ -963,7 +963,7 @@ void CNPC_Barnacle::UpdatePlayerConstraint( void )
 	m_bPlayerWasStanding = bStanding;
 }
 
-#ifdef Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
+#ifdef SecobMod__BARNACLES_CAN_SWALLOW_PLAYERS
 //-----------------------------------------------------------------------------
 // Purpose: Lift the prey stuck to our tongue up towards our mouth
 //-----------------------------------------------------------------------------
@@ -1022,7 +1022,7 @@ void CNPC_Barnacle::LiftPlayer( float flBiteZOffset )
 		PullEnemyTorwardsMouth( true );
 	}
 }
-#endif //Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
+#endif //SecobMod__BARNACLES_CAN_SWALLOW_PLAYERS
 
 
 //-----------------------------------------------------------------------------
@@ -1250,11 +1250,11 @@ void CNPC_Barnacle::LiftPrey( void )
 	}
 
 	// Height from the barnacle's origin to the point at which it bites
-	#ifdef Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
+	#ifdef SecobMod__BARNACLES_CAN_SWALLOW_PLAYERS
 		float flBiteZOffset = 10.0;
 	#else
 		float flBiteZOffset = 60.0;
-    #endif //Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
+    #endif //SecobMod__BARNACLES_CAN_SWALLOW_PLAYERS
 
 	if ( IsEnemyAPlayer() )
 	{
@@ -1665,16 +1665,16 @@ void CNPC_Barnacle::BitePrey( void )
 	}
 	else
 	{
-		#ifdef Seco7_BARNACLES_CAN_SWALLOW_PLAYERS
+		#ifdef SecobMod__BARNACLES_CAN_SWALLOW_PLAYERS
 			EmitSound( "NPC_Barnacle.Digest" );
 			pVictim->AddEffects( EF_NODRAW );
 			iDamageType |= DMG_LASTGENERICFLAG;
-			nDamage = 5000; //4WH - Information: Make barnacles really deadly!//pVictim->m_iHealth; 
+			nDamage = 5000; //SecobMod__Information: Make barnacles really deadly!//pVictim->m_iHealth; 
 			EmitSound( "NPC_Barnacle.Digest" );
 			SpawnDeathGibs();
 		#else	
 			nDamage = BARNACLE_BITE_DAMAGE_TO_PLAYER; 
-		#endif //Seco7_BARNACLES_CAN_SWALLOW_PLAYERS	
+		#endif //SecobMod__BARNACLES_CAN_SWALLOW_PLAYERS	
 	}
 
 	if ( m_hRagdoll )

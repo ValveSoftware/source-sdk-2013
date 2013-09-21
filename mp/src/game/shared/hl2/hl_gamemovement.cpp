@@ -5,7 +5,7 @@
 //=============================================================================//
 #include "cbase.h"
 
-#ifdef Seco7_USE_CSS_LADDERS
+#ifdef SecobMod__USE_CSS_LADDERS
 #include "gamemovement.h"
 #else
 #include "hl_gamemovement.h"
@@ -15,12 +15,12 @@
 	#ifdef HL2MP
 		#include "hl2mp_gamerules.h"
 	#endif
-#endif //Seco7_USE_CSS_LADDERS
+#endif //SecobMod__USE_CSS_LADDERS
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifdef Seco7_USE_CSS_LADDERS
+#ifdef SecobMod__USE_CSS_LADDERS
 // Expose our interface.
 static CGameMovement g_GameMovement;
 IGameMovement *g_pGameMovement = ( IGameMovement * )&g_GameMovement;
@@ -1167,4 +1167,4 @@ bool CHL2GameMovement::CanAccelerate()
 
 	EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CGameMovement, IGameMovement,INTERFACENAME_GAMEMOVEMENT, g_GameMovement );
 #endif
-#endif //Seco7_USE_CSS_LADDERS
+#endif //SecobMod__USE_CSS_LADDERS

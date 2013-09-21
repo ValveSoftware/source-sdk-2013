@@ -16,9 +16,9 @@ extern int g_iSkillLevel;
 extern bool g_fGameOver;
 extern ConVar g_Language;
 
-#ifdef Seco7_SAVERESTORE
+#ifdef SecobMod__SAVERESTORE
 extern bool Transitioned;
-#endif //Seco7_SAVERESTORE
+#endif //SecobMod__SAVERESTORE
 
 
 

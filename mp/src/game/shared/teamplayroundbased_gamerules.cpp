@@ -312,11 +312,11 @@ CON_COMMAND_F( mp_forcewin, "Forces team to win", FCVAR_CHEAT )
 		if ( args.ArgC() == 1 )
 		{
 			// if no team specified, use player 1's team
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			iTeam = UTIL_GetLocalPlayer()->GetTeamNumber();	
 #else
 iTeam = UTIL_PlayerByIndex( 1 )->GetTeamNumber();	
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		}
 		else if ( args.ArgC() == 2 )

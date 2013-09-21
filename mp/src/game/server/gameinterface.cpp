@@ -125,6 +125,10 @@ extern ConVar tf_mm_servermode;
 #include "portal_player.h"
 #endif
 
+#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE	
+#include "soundscape_system.h"
+#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE	
+
 #if defined( REPLAY_ENABLED )
 #include "replay/ireplaysystem.h"
 #endif
@@ -556,10 +560,10 @@ void DrawAllDebugOverlays( void )
 	// A hack to draw point_message entities w/o developer required
 	DrawMessageEntities();
 }
-	#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+	#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
 		// Obsidian: Convar to hold whether we're dedicated or not so the client can access
 		ConVar sv_dedicated( "sv_dedicated", "0", FCVAR_REPLICATED, "Is this a dedicated server?" );
-	#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+	#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
 
 CServerGameDLL g_ServerGameDLL;
 // INTERFACEVERSION_SERVERGAMEDLL_VERSION_8 is compatible with the latest since we're only adding things to the end, so expose that as well.
@@ -644,8 +648,8 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	Msg ("These are the default server search paths");
 	filesystem->PrintSearchPaths();
 		
-	#ifdef Seco7_USE_STATIC_MOUNT_CODE
-	//4WH - Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
+	#ifdef SecobMod__USE_STATIC_MOUNT_CODE
+	//SecobMod__Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
 	// game that you choose to mount here, they could well crash to desktop. The file is in the root of the compiled modification folder. This is how we allow people who have just loaded the game to use map and changelevel commands
 	// to any official valve map.
 	  KeyValues *pkvMount = new KeyValues( "InstalledSourceGames" );
@@ -662,14 +666,14 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	            const char *pszMountPath = pkvSearchPath->GetString();
 	            int nMountID = pkvAppID->GetInt();
 				
-				//4WH - Information: If InstalledSourceGames.txt attempts to mount Portal, but Portal is disabled in the code - skip trying to mount Portal.
-				#ifndef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+				//SecobMod__Information: If InstalledSourceGames.txt attempts to mount Portal, but Portal is disabled in the code - skip trying to mount Portal.
+				#ifndef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 				if (nMountID == -400)
 				{
 				Msg ("MOUNT FAILURE - PORTAL CONTENT NOT ENABLED BY DEVELOPMENT TEAM! \n");
 				break;
 				}
-				#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+				#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 	
 	            filesystem->AddSearchPath(pszMountPath, "GAME");
 	            filesystem->MountSteamContent(nMountID);
@@ -681,10 +685,10 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	      }
 	      Msg( "\n" );
 	   }
-	 //4WH - Information: Enabling the following two lines gives invaluable information on how the mount lines should look if you need to edit the per-map gcf mount code.
+	 //SecobMod__Information: Enabling the following two lines gives invaluable information on how the mount lines should look if you need to edit the per-map gcf mount code.
 	 //Msg ("These are the default search paths");
 	 //filesystem->PrintSearchPaths();
-	#endif //Seco7_USE_STATIC_MOUNT_CODE
+	#endif //SecobMod__USE_STATIC_MOUNT_CODE
 
 	// cache the globals
 	gpGlobals = pGlobals;
@@ -791,12 +795,12 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	gamestatsuploader->InitConnection();
 #endif
 
-	#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+	#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
 		// Obsidian: Set the sv_dedicated convar early here
 		// since it can't change during runtime anyway.
 		if ( engine->IsDedicatedServer() )
 		sv_dedicated.SetValue( 1 );
-	#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+	#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
 
 	return true;
 }
@@ -809,13 +813,13 @@ void CServerGameDLL::PostInit()
 void CServerGameDLL::DLLShutdown( void )
 {
 
-	//4WH - Clear the transition file.
-	#ifdef Seco7_SAVERESTORE
+	//SecobMod__Information: Clear the transition file.
+	#ifdef SecobMod__SAVERESTORE
 		FileHandle_t hFile = g_pFullFileSystem->Open( "cfg/transition.cfg", "w" );
 		CUtlBuffer buf( 0, 0, CUtlBuffer::TEXT_BUFFER );
 		g_pFullFileSystem->WriteFile( "cfg/transition.cfg", "MOD", buf );
 		g_pFullFileSystem->Close( hFile );
-	#endif //Seco7_SAVERESTORE
+	#endif //SecobMod__SAVERESTORE
 
 	// Due to dependencies, these are not autogamesystems
 	ModelSoundsCacheShutdown();
@@ -918,10 +922,10 @@ bool CServerGameDLL::GameInit( void )
 	ResetGlobalState();
 	engine->ServerCommand( "exec game.cfg\n" );
 	engine->ServerExecute( );
-	#ifdef Seco7_Force_LAN_DISABLED
+	#ifdef SecobMod__Force_LAN_DISABLED
 		engine->ServerCommand( "sv_lan 0\n" );
 		engine->ServerCommand( "heartbeat\n" );
-	#endif //Seco7_Force_LAN_DISABLED
+	#endif //SecobMod__Force_LAN_DISABLED
 
 	CBaseEntity::sm_bAccurateTriggerBboxChecks = true;
 
@@ -1017,14 +1021,14 @@ bool CServerGameDLL::IsRestoring()
 	return g_InRestore;
 }
 
-	#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+	#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
 	// Obsidian:
 	ConVar sv_serveractive( "sv_serveractive", "0", FCVAR_REPLICATED, "Is the server currently running?" );
 	ConVar sv_hl2_mount( "sv_hl2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: HL2." );
 	ConVar sv_ep1_mount( "sv_ep1_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 1." );
 	ConVar sv_ep2_mount( "sv_ep2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 2." );
 	ConVar sv_failsafe_mount( "sv_failsafe_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Fail_Safe - Something has gone wrong!" );
-	#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+	#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
 
 // Called any time a new level is started (after GameInit() also on level transitions within a game)
 bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background )
@@ -1042,14 +1046,15 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	ResetWindspeed();
 	UpdateChapterRestrictions( pMapName );
 	
-#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE	
-//4WH - Information: This is the new dynamic GCF mounting code. Basically each map can be set to be either HL2, Ep1, Ep2 or (if you're feeling daring for your mod) Portal content enabled. If you enable Ep2, you lose some functionality that HL2 has, and vice-versa.
-// as you can see. Mounting depends on a specific naming scheme for custom maps. These are seco7_hl2_<map name>, seco7_ep1_<mapname> and finally seco7_ep2_<mapname>
-//REMEMBER ! ! ! ! To change seco7_ to whatever prefix your mod uses or you WILL crash ! ! !
+#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE	
+//SecobMod__ChangeME!
+//SecobMod__Information: This is the new dynamic GCF mounting code. Basically each map can be set to be either HL2, Ep1, Ep2 or (if you're feeling daring for your mod) Portal content enabled. If you enable Ep2, you lose some functionality that HL2 has, and vice-versa.
+// as you can see. Mounting depends on a specific naming scheme for custom maps. These are SecobMod__hl2_<map name>, SecobMod__ep1_<mapname> and finally SecobMod__ep2_<mapname>
+//REMEMBER ! ! ! ! To change SecobMod__ to whatever prefix your mod uses or you WILL crash ! ! !
 //ALSO !!!!!!!!!!! Remember to change the mod folder search paths from seco7 to the name of your Mod folder. Otherwise you will have LOADS of problems on dynamically mounted maps!
-	if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "seco7_bg", 8 ))
+	if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__bkgd", 14 ))
 	{
-	//4WH - Information: Background maps use the static search paths for mounts. This is restrictive as to what's allowable in such maps but it's essential this not be changed due to main menu bugs.
+	//SecobMod__Information: Background maps use the static search paths for mounts. This is restrictive as to what's allowable in such maps but it's essential this not be changed due to main menu bugs.
 	}
 	else if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d1_", 3 )
 	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d2_", 3 )
@@ -1057,13 +1062,13 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "dm_", 3 )
 	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "testchmb", 8 ) //Allow portal maps to load as HL2.
 	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "escape", 6 ) //Allow portal maps to load as HL2.
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "seco7_hl2_", 10 ) ) //Mounts required for HalfLife 2/Deathmatch content.
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__hl2_", 14 ) ) //Mounts required for HalfLife 2/Deathmatch content.
 	{
 		Msg("HALFLIFE 2 CONTENT IS BEING MOUNTED! \n");		
 		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-		//4WH - Information: Dedicated servers require different search paths to work.	
-		//filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
-		//filesystem->AddSearchPath("../orangebox", "PLATFORM");
+		//SecobMod__Information: Dedicated servers require different search paths to work.	
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
 		if (sv_dedicated.GetBool())
 		{
 			filesystem->AddSearchPath("mod_hl2mp", "MOD");
@@ -1076,8 +1081,8 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 		}
-		filesystem->AddSearchPath("hl2", "GAMEBIN");
-		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 		filesystem->MountSteamContent(-220);  //Half-Life 2
 		if (sv_dedicated.GetBool())
 		{
@@ -1091,14 +1096,14 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		}
 		filesystem->AddSearchPath("hl2mp", "GAME");
 		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-		filesystem->AddSearchPath("episodic", "GAME");
-		filesystem->AddSearchPath("ep2", "GAME");	
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME");	
 		
-		#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 		filesystem->AddSearchPath("portal", "GAME");
 		filesystem->MountSteamContent(-400);  //Portal*/
 		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
-		#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 		
 		sv_hl2_mount.SetValue(1);
 		sv_ep1_mount.SetValue(0);
@@ -1106,51 +1111,131 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		sv_failsafe_mount.SetValue(0);
 	}
 	else if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep1_", 4 )
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "seco7_ep1_", 10 )	) //Mounts required for Episode 1 content.
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__ep1_", 14 )	) //Mounts required for Episode 1 content.
 	{
 		Msg("EPISODE 1 CONTENT IS BEING MOUNTED! \n");
-		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-		//4WH - Information: Dedicated servers require different search paths to work.
+	
+			filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
+			//engine->ServerCommand( "soundscape_flush\n" ); // We have to remove all sound paths or the game gets confused about where sounds are stored etc.
+			
+			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/", "BASE_PATH");
+			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/bin/", "EXECUTABLE_PATH");
+			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/platform/", "PLATFORM");
+			
+			if (sv_dedicated.GetBool())
+			{
+				filesystem->AddSearchPath("mod_hl2mp", "MOD");
+				filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
+				filesystem->AddSearchPath("mod_hl2mp", "GAME");
+				filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
+				filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
+			}
+			else
+			{
+				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "GAME");
+				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod");
+				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod_write");
+				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "default_write_path");
+				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin/", "gamebin");
+			}
+			
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_vo_english.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_pak.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_textures.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_misc.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_misc.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/platform/platform_misc.vpk", "PLATFORM" );
+			
+		/*	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/", "GAME");*/
+			
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "game_write");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin/", "gamebin");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod");
+			
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/hl2mp_pak.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/hl2mp_pak.vpk", "mod");
+
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME");
+
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/ep1_pak.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/ep1_sound_vo_english.vpk", "GAME");
+			
+			/*
+			//Old style layout for reference.
+			filesystem->AddSearchPath("../orangebox", "EXECUTABLE_PATH");
+			filesystem->AddSearchPath("../orangebox", "PLATFORM");
+			filesystem->AddSearchPath("ouroboros", "MOD");
+			filesystem->AddSearchPath("ouroboros/bin", "GAMEBIN");
+			filesystem->AddSearchPath("ouroboros", "GAME");
+			filesystem->AddSearchPath("episodic", "GAMEBIN");
+			filesystem->AddSearchPath("episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+			filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
+			filesystem->AddSearchPath("hl2", "GAMEBIN");
+			filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+			filesystem->MountSteamContent(-220);  //Half-Life 2
+			filesystem->AddSearchPath("ouroboros", "DEFAULT_WRITE_PATH");
+			filesystem->AddSearchPath("ouroboros", "LOGDIR");
+			filesystem->AddSearchPath("hl2mp", "GAME");
+			filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
+			filesystem->AddSearchPath("ep2", "GAME");	
+			
+			#ifdef OBCO_ENABLE_PORTAL_CONTENT_MOUNTING
+			filesystem->AddSearchPath("portal", "GAME");
+			filesystem->MountSteamContent(-400);  //Portal
+			Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
+			#endif //OBCO_ENABLE_PORTAL_CONTENT_MOUNTING
+			*/
+
 		
-		filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../ep2", "PLATFORM");
-		if (sv_dedicated.GetBool())
-		{
-			filesystem->AddSearchPath("mod_hl2mp", "MOD");
-			filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
-			filesystem->AddSearchPath("mod_hl2mp", "GAME");
-		}
-		else
-		{
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-		}
-		filesystem->AddSearchPath("episodic", "GAMEBIN");
-		filesystem->AddSearchPath("episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-		filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
-		filesystem->AddSearchPath("hl2", "GAMEBIN");
-		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-		filesystem->MountSteamContent(-220);  //Half-Life 2
-		if (sv_dedicated.GetBool())
-		{
-			filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-			filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
-		}
-		else
-		{
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
-		}
-		filesystem->AddSearchPath("hl2mp", "GAME");
-		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-		filesystem->AddSearchPath("ep2", "GAME");	
+			//Default layout of gameinfo.txt's search paths.
+			/*
+			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/", "BASE_PATH");
+			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/bin/", "EXECUTABLE_PATH");
+			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/platform/", "PLATFORM");
+			
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod_write");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "default_write_path");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin/", "gamebin");
+			
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_vo_english.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_pak.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_textures.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_misc.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_misc.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/platform/platform_misc.vpk", "PLATFORM" );
+			
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/", "GAME");
+			
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "game_write");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin/", "gamebin");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod");
+			
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/hl2mp_pak.vpk", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/hl2mp_pak.vpk", "mod");
+
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
+			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME");
+			
+			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "LOGDIR");
+			*/
+
+	Msg ("These are the episodic search paths");
+	 filesystem->PrintSearchPaths();
 		
-		#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 		filesystem->AddSearchPath("portal", "GAME");
 		filesystem->MountSteamContent(-400);  //Portal*/
 		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
-		#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 		
 		sv_hl2_mount.SetValue(0);
 		sv_ep1_mount.SetValue(1);
@@ -1158,13 +1243,13 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		sv_failsafe_mount.SetValue(0);
 	}
 	else if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep2_", 3 )
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "seco7_ep2_", 10 )) //Mounts required for Episode 2 content.
+	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__ep2_", 14 )) //Mounts required for Episode 2 content.
 	{
 		Msg("EPISODE 2 CONTENT IS BEING MOUNTED! \n");
 		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-		//4WH - Information: Dedicated servers require different search paths to work.
-		filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../ep2", "PLATFORM");
+		//SecobMod__Information: Dedicated servers require different search paths to work.
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
 		if (sv_dedicated.GetBool())
 		{
 			filesystem->AddSearchPath("mod_hl2mp", "MOD");
@@ -1177,11 +1262,11 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
 			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
 		}
-		filesystem->AddSearchPath("ep2", "GAMEBIN");
-		filesystem->AddSearchPath("ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "GAMEBIN");
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 		filesystem->MountSteamContent(-420);  //Half-Life 2-Episode 2
-		filesystem->AddSearchPath("hl2", "GAMEBIN");
-		filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
 		filesystem->MountSteamContent(-220);  //Half-Life 2
 		if (sv_dedicated.GetBool())
 		{
@@ -1195,14 +1280,14 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		}
 		filesystem->AddSearchPath("hl2mp", "GAME");
 		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-		filesystem->AddSearchPath("episodic", "GAME");
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
 		filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
 		
-		#ifdef Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 		filesystem->AddSearchPath("portal", "GAME");
 		filesystem->MountSteamContent(-400);  //Portal*/
 		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
-		#endif //Seco7_ENABLE_PORTAL_CONTENT_MOUNTING
+		#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
 		
 		sv_hl2_mount.SetValue(0);
 		sv_ep1_mount.SetValue(0);
@@ -1213,8 +1298,8 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	{
 		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-		filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../ep2", "PLATFORM");
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
+		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
 		if (sv_dedicated.GetBool())
 		{
 			filesystem->AddSearchPath("mod_hl2mp", "MOD");
@@ -1245,9 +1330,9 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		sv_failsafe_mount.SetValue(1);
 		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
 	}	
-#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
 
-#ifdef Seco7_USE_DYNAMIC_MOUNT_CODE
+#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
 	// Obsidian:
 	     	// Tell the client it's no longer ok to flush the mdlcache
 	sv_serveractive.SetValue( 1 );
@@ -1256,7 +1341,7 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		// Always flush mdlcache
 		Msg("SERVER IS FLUSHING CACHE !");
 		mdlcache->Flush();
-	#endif //Seco7_USE_DYNAMIC_MOUNT_CODE
+	#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
 
 	if ( IsX360() && !background && (gpGlobals->maxClients == 1) && (g_nCurrentChapterIndex >= 0) )
 	{
@@ -1348,9 +1433,9 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	// load MOTD from file into stringtable
 	LoadMessageOfTheDay();
 
-	#ifdef Seco7_ENABLE_MAP_BRIEFINGS
+	#ifdef SecobMod__ENABLE_MAP_BRIEFINGS
 	LoadMapBriefing(); // Obsidian
-	#endif //Seco7_ENABLE_MAP_BRIEFINGS
+	#endif //SecobMod__ENABLE_MAP_BRIEFINGS
 
 	// Sometimes an ent will Remove() itself during its precache, so RemoveImmediate won't happen.
 	// This makes sure those ents get cleaned up.
@@ -1638,11 +1723,11 @@ void CServerGameDLL::Think( bool finalTick )
 	if ( m_fAutoSaveDangerousTime != 0.0f && m_fAutoSaveDangerousTime < gpGlobals->curtime )
 	{
 		// The safety timer for a dangerous auto save has expired
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			CBasePlayer *pPlayer = UTIL_GetLocalPlayer(); 
 		#else
 			CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		if ( pPlayer && ( pPlayer->GetDeathTime() == 0.0f || pPlayer->GetDeathTime() > gpGlobals->curtime )
 			&& !pPlayer->IsSinglePlayerGameEnding()
@@ -1676,12 +1761,12 @@ void CServerGameDLL::LevelShutdown( void )
 
 	g_pServerBenchmark->EndBenchmark();
 
-	#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
-		extern ConVar sv_seco7_increment_killed;
-		sv_seco7_increment_killed.SetValue (0);
-		#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+	#ifdef SecobMod__ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+		extern ConVar sv_SecobMod__increment_killed;
+		sv_SecobMod__increment_killed.SetValue (0);
+		#endif //SecobMod__ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 		
-		#ifdef Seco7_USE_PLAYERCLASSES
+		#ifdef SecobMod__USE_PLAYERCLASSES
 		extern int AssaulterPlayerNumbers;
 		extern int SupporterPlayerNumbers;
 		extern int MedicPlayerNumbers;
@@ -1690,12 +1775,12 @@ void CServerGameDLL::LevelShutdown( void )
 		SupporterPlayerNumbers = 0;
 		MedicPlayerNumbers = 0;
 		HeavyPlayerNumbers = 0;
-	#endif //Seco7_USE_PLAYERCLASSES
+	#endif //SecobMod__USE_PLAYERCLASSES
 
-	#ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
-		//4WH - Information: Make sure fullbright gets turned off.
+	#ifdef SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+		//SecobMod__Information: Make sure fullbright gets turned off.
 		cvar->FindVar("mat_fullbright")->SetValue(0);
-	#endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+	#endif //SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 	MDLCACHE_CRITICAL_SECTION();
 	IGameSystem::LevelShutdownPreEntityAllSystems();
@@ -2296,7 +2381,7 @@ void CServerGameDLL::LoadMessageOfTheDay()
 	LoadSpecificMOTDMsg( motdfile_text, "motd_text" );
 }
 
-	#ifdef Seco7_ENABLE_MAP_BRIEFINGS
+	#ifdef SecobMod__ENABLE_MAP_BRIEFINGS
 		// Obsidian
 		void CServerGameDLL::LoadMapBriefing()
 		{
@@ -2332,7 +2417,7 @@ void CServerGameDLL::LoadMessageOfTheDay()
 		
 			g_pStringTableInfoPanel->AddString( CBaseEntity::IsServer(), "briefing", length+1, data );
 		}
-	#endif //Seco7_ENABLE_MAP_BRIEFINGS
+	#endif //SecobMod__ENABLE_MAP_BRIEFINGS
 
 void CServerGameDLL::LoadSpecificMOTDMsg( const ConVar &convar, const char *pszStringName )
 {
@@ -3060,8 +3145,8 @@ void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 				gamestats->Event_PlayerDisconnected( player );
 			}
 			
-		//4WH - Information: If a client disconnects wipe them from the transition file. Note that if you want it so people who lag out can rejoin instantly without picking a class, then comment all this section out.
-		#ifdef Seco7_SAVERESTORE
+		//SecobMod__Information: If a client disconnects wipe them from the transition file. Note that if you want it so people who lag out can rejoin instantly without picking a class, then comment all this section out.
+		#ifdef SecobMod__SAVERESTORE
 		  KeyValues *pkvTransitionRestoreFile = new KeyValues( "cfg/transition.cfg" );
 			if ( pkvTransitionRestoreFile->LoadFromFile( filesystem, "cfg/transition.cfg" ) )
 			{
@@ -3082,7 +3167,7 @@ void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 				break;
 				}
 			}
-		#endif //Seco7_SAVERESTORE
+		#endif //SecobMod__SAVERESTORE
 		}
 
 		// Make sure all Untouch()'s are called for this client leaving
@@ -3513,11 +3598,11 @@ void CServerGameClients::GetBugReportInfo( char *buf, int buflen )
 
 	if ( gpGlobals->maxClients == 1 )
 	{
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			CBaseEntity *ent = FindPickerEntity( UTIL_GetLocalPlayer() ); 
 		#else
 			CBaseEntity *ent = FindPickerEntity( UTIL_PlayerByIndex(1) );
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		if ( ent )
 		{

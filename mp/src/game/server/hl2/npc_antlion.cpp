@@ -230,7 +230,7 @@ BEGIN_DATADESC( CNPC_Antlion )
 	DEFINE_FIELD( m_flNextJumpPushTime,		FIELD_TIME ),
 	DEFINE_FIELD( m_bForcedStuckJump,		FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_flZapDuration,			FIELD_TIME ),
-//4WH episodic fix
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	DEFINE_FIELD( m_bHasDoneAirAttack,		FIELD_BOOLEAN ),
 #endif	
@@ -297,7 +297,7 @@ void CNPC_Antlion::Spawn( void )
 
 	m_NPCState	= NPC_STATE_NONE;
 
-//Seco2013 - Has to be in hl2mprules not hl2rules.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	m_iHealth = ( IsWorker() ) ? sk_antlion_worker_health.GetFloat() : sk_antlion_health.GetFloat();
 #else
@@ -1011,7 +1011,7 @@ Vector VecCheckThrowTolerance( CBaseEntity *pEdict, const Vector &vecSpot1, Vect
 bool CNPC_Antlion::GetSpitVector( const Vector &vecStartPos, const Vector &vecTarget, Vector *vecOut )
 {
 	// antlion workers exist only in episodic.
-//Seco2013 - Has to be in hl2mprules not hl2rules.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	// Try the most direct route
 	Vector vecToss = VecCheckThrowTolerance( this, vecStartPos, vecTarget, sk_antlion_worker_spit_speed.GetFloat(), (10.0f*12.0f) );
@@ -1275,7 +1275,7 @@ void CNPC_Antlion::HandleAnimEvent( animevent_t *pEvent )
 	}
 
 	// antlion worker events
-//Seco2013 - Has to be in hl2mprules not hl2rules.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	if ( pEvent->event == AE_ANTLION_WORKER_EXPLODE_SCREAM )
 	{
@@ -1728,7 +1728,7 @@ void CNPC_Antlion::StartTask( const Task_t *pTask )
 void CNPC_Antlion::RunTask( const Task_t *pTask )
 {
 	// some state that needs be set each frame
-//Seco2013 - Has to be in hl2mprules not hl2rules.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	if ( GetFlags() & FL_ONGROUND )
 	{
@@ -3058,7 +3058,7 @@ void CNPC_Antlion::StartJump( void )
 	SetAbsVelocity( m_vecSavedJump );
 
 	m_bForcedStuckJump = false;
-//Seco2013 - Has to be in hl2mprules not hl2rules.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	m_bHasDoneAirAttack = false;
 #endif
@@ -4038,13 +4038,13 @@ bool CNPC_Antlion::CorpseGib( const CTakeDamageInfo &info )
 void CNPC_Antlion::Touch( CBaseEntity *pOther )
 {
 	//See if the touching entity is a vehicle
-	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = ToBasePlayer( AI_GetSinglePlayer() );
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	// FIXME: Technically we'll want to check to see if a vehicle has touched us with the player OR NPC driver
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		for (int i = 1; i <= gpGlobals->maxClients; i++ ) 
 		{
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i ); 
@@ -4053,7 +4053,7 @@ void CNPC_Antlion::Touch( CBaseEntity *pOther )
 	#else
 		if ( pPlayer && pPlayer->IsInAVehicle() )
 		{
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		IServerVehicle	*pVehicle = pPlayer->GetVehicle();
 		CBaseEntity *pVehicleEnt = pVehicle->GetVehicleEnt();
@@ -4104,9 +4104,9 @@ void CNPC_Antlion::Touch( CBaseEntity *pOther )
 					}
 				}
 			}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			break; // safe to assume will only be touched by 1 vehicle per frame 
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 		}
 	}
 
@@ -4370,7 +4370,7 @@ void CNPC_Antlion::InputJumpAtTarget( inputdata_t &inputdata )
 		return;
 	}
 
-//Seco2013 - Has to be in hl2mprules not hl2rules.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 
 	// Try the jump
@@ -4406,7 +4406,7 @@ void CNPC_Antlion::InputJumpAtTarget( inputdata_t &inputdata )
 
 	SetCondition( COND_ANTLION_CAN_JUMP_AT_TARGET );
 }
-//Seco2013 - Has to be in hl2mprules not hl2rules.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 //-----------------------------------------------------------------------------
 // workers can explode.

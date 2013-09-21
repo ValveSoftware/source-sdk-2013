@@ -1197,11 +1197,11 @@ bool CBaseFlex::ProcessFlexAnimationSceneEvent( CSceneEventInfo *info, CChoreoSc
 					// only check occasionally
 					else if (info->m_flNext <= gpGlobals->curtime)
 					{
-					#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+					#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 						CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
 					#else
 						CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-					#endif //Seco7_Enable_Fixed_Multiplayer_AI
+					#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 						// if not in view, disable
 						info->m_bHasArrived = (pPlayer && !pPlayer->FInViewCone( this ) );
@@ -2716,11 +2716,11 @@ void CFlexCycler::Think( void )
 	Vector forward, right, up;
 	GetVectors( &forward, &right, &up );
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBaseEntity *pPlayer = (CBaseEntity *)UTIL_GetNearestVisiblePlayer(this); 
 	#else
 		CBaseEntity *pPlayer = (CBaseEntity *)UTIL_GetLocalPlayer();
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 
 	if (pPlayer)

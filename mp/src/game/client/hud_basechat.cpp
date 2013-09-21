@@ -1153,9 +1153,9 @@ void CBaseHudChat::Printf( int iFilter, const char *fmt, ... )
 	ChatPrintf( 0, iFilter, "%s", msg );
 }
 
-	#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+	#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 		int g_iChatBubble = 0;
-	#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+	#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1174,7 +1174,7 @@ void CBaseHudChat::StartMessageMode( int iMessageModeType )
 	}
 	else
 	{
-		#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+		#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 			if ( m_nMessageMode == MM_SAY )
 			{
 				m_pChatInput->SetPrompt( L"Say :" );
@@ -1194,7 +1194,7 @@ void CBaseHudChat::StartMessageMode( int iMessageModeType )
 			{
 				m_pChatInput->SetPrompt( L"Say (TEAM) :" );
 			}
-		#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+		#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 	}
 	
 	if ( GetChatHistory() )
@@ -1242,9 +1242,9 @@ void CBaseHudChat::StopMessageMode( void )
 	SetKeyBoardInputEnabled( false );
 	SetMouseInputEnabled( false );
 	
-	#ifdef Seco7_MULTIPLAYER_CHAT_BUBBLES
+	#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
 		g_iChatBubble = false;
-	#endif //Seco7_MULTIPLAYER_CHAT_BUBBLES
+	#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 	
 	if ( GetChatHistory() )
 	{

@@ -58,7 +58,6 @@ public:
 	bool	WasPunted( void ) const { return m_punted; }
 
 	// this function only used in episodic.
-//4WH Fix Me-in old seco is just ifdef no &&.
 #if defined(HL2_EPISODIC) && 0 // FIXME: HandleInteraction() is no longer called now that base grenade derives from CBaseAnimating
 	bool	HandleInteraction(int interactionType, void *data, CBaseCombatCharacter* sourceEnt);
 #endif 
@@ -376,7 +375,7 @@ int CGrenadeFrag::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 	return BaseClass::OnTakeDamage( inputInfo );
 }
-//4WH old seco 7 ifdef no &&.
+
 #if defined(HL2_EPISODIC) && 0 // FIXME: HandleInteraction() is no longer called now that base grenade derives from CBaseAnimating
 extern int	g_interactionBarnacleVictimGrab; ///< usually declared in ai_interactions.h but no reason to haul all of that in here.
 extern int g_interactionBarnacleVictimBite;

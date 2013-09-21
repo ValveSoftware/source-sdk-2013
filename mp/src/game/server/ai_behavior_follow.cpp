@@ -18,15 +18,12 @@
 #include "ndebugoverlay.h"
 #include "ai_senses.h"
 
-//4WH - Episodic Issues: Here we include the hl2mp gamerules so that calls to darkness mode work.
+//SecobMod__MiscFixes: Here we include the hl2mp gamerules so that calls to darkness mode work. Calls to HL2GameRules are also changed to HL2MPRules in this file for darkness mode to work.
 #include "hl2mp_gamerules.h"
 
 #ifdef HL2_EPISODIC
 	#include "info_darknessmode_lightsource.h"
 #endif
-
-//4WH - Episodic Issues: Here we include the hl2mp gamerules so that calls to darkness mode work.
-#include "hl2mp_gamerules.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -770,7 +767,6 @@ void CAI_FollowBehavior::GatherConditions( void )
 
 #ifdef HL2_EPISODIC
 	// Let followers know if the player is lit in the darkness
-	//4WH - Changed HL2GameRules to HL2MPRules
 	if ( GetFollowTarget()->IsPlayer() && HL2MPRules()->IsAlyxInDarknessMode() )
 	{
 		if ( LookerCouldSeeTargetInDarkness( GetOuter(), GetFollowTarget() ) )
@@ -855,7 +851,6 @@ bool CAI_FollowBehavior::ShouldMoveToFollowTarget()
 		return false;
 
 #ifdef HL2_EPISODIC
-	//4WH - Changed HL2GameRules to HL2MPRules
 	if ( HL2MPRules()->IsAlyxInDarknessMode() )
 	{
 		// If we're in darkness mode, the player needs to be lit by
@@ -1976,7 +1971,6 @@ void CAI_FollowBehavior::BuildScheduleTestBits()
 
 #ifdef HL2_EPISODIC
 		// In Alyx darkness mode, break on the player turning their flashlight off
-		//4WH - Changed HL2GameRules to HL2MPRules
 		if ( HL2MPRules()->IsAlyxInDarknessMode() )
 		{
 			if ( IsCurSchedule(SCHED_FOLLOW, false) || IsCurSchedule(SCHED_MOVE_TO_FACE_FOLLOW_TARGET, false) ||
@@ -2140,7 +2134,7 @@ void CAI_FollowGoal::EnableGoal( CAI_BaseNPC *pAI )
 	
 	CBaseEntity *pGoalEntity = GetGoalEntity();
 	
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( !pGoalEntity ) 
 		{
 			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
@@ -2160,7 +2154,7 @@ void CAI_FollowGoal::EnableGoal( CAI_BaseNPC *pAI )
 				SetGoalEntity( pGoalEntity );
 			}	
 		}
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 
 	if ( pGoalEntity )

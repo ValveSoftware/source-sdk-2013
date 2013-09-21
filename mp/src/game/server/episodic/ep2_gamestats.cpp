@@ -3,7 +3,7 @@
 // Purpose: 
 //
 //=============================================================================
-//Seco2013-Compile Errors, commented out to allow compile.
+//SecobMod__IFDEF_Fixes
 //#if defined( GAME_DLL )
 #include "cbase.h"
 //#endif

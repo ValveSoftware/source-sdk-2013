@@ -11,6 +11,6 @@ exec autoexec.cfg
 //
 stuffcmds
 
-hostname "Seco-7 Co-operative."
+hostname "Source Engine Co-Operative Base Modification."
 
 mp_forcerespawn 0

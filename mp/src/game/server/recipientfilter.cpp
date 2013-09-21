@@ -13,7 +13,6 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-//4WH BreenCast Convar
 extern ConVar BreenCastAudio;
 
 static IPredictionSystem g_RecipientFilterPredictionSystem;
@@ -370,7 +369,7 @@ CTeamRecipientFilter::CTeamRecipientFilter( int team, bool isReliable )
 void CPASAttenuationFilter::Filter( const Vector& origin, float attenuation /*= ATTN_NORM*/ )
 {
 
-	//4WH - Information: Try as we might, this was the only fix for getting breencasts.
+	//SecobMod__Information: Try as we might, this was the only fix for getting breencasts.
 	// Don't crop for attenuation 
 	if ( gpGlobals->maxClients >= 1 )
 	{

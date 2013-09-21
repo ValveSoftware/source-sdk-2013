@@ -13,7 +13,7 @@
 #include "tier0/memdbgon.h"
 
 
-//4WH - Episodic Issues: Changed from if to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 // When enabled, add code to have the antlion bleed profusely as it is badly injured.
 #define ANTLIONGUARD_BLOOD_EFFECTS 2
@@ -38,7 +38,7 @@ private:
 	bool m_bInCavern;
 	dlight_t *m_dlight;
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	unsigned char m_iBleedingLevel; //< the version coming from the server
 	unsigned char m_iPerformingBleedingLevel; //< the version we're currently performing (for comparison to one above)
@@ -84,7 +84,7 @@ void C_NPC_AntlionGuard::OnDataChanged( DataUpdateType_t type )
 	}
 
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	if (m_iBleedingLevel != m_iPerformingBleedingLevel)
 	{
@@ -94,7 +94,7 @@ void C_NPC_AntlionGuard::OnDataChanged( DataUpdateType_t type )
 
 }
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

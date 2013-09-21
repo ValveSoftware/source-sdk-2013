@@ -302,7 +302,7 @@ public:
 	void			InputSetReadinessMedium( inputdata_t &inputdata );
 	void			InputSetReadinessHigh( inputdata_t &inputdata );
 	void			InputLockReadiness( inputdata_t &inputdata );
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	void			InputClearAllOuputs( inputdata_t &inputdata ); ///< annihilate every output on this npc
 #endif

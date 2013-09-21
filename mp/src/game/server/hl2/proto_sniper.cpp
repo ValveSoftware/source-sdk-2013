@@ -292,7 +292,7 @@ private:
 	void InputStopSweeping( inputdata_t &inputdata );
 	void InputProtectTarget( inputdata_t &inputdata );
 
-//4WH - Episodic Issues: Changed from an if to an ifdef due to compile errors.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	void InputSetPaintInterval( inputdata_t &inputdata );
 	void InputSetPaintIntervalVariance( inputdata_t &inputdata );
@@ -451,7 +451,7 @@ BEGIN_DATADESC( CProtoSniper )
 	DEFINE_INPUTFUNC( FIELD_STRING, "StopSweeping", InputStopSweeping ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "ProtectTarget", InputProtectTarget ),
 
-//4WH - Episodic Issues: Changed from an if to an ifdef due to compile errors.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetPaintInterval", InputSetPaintInterval ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetPaintIntervalVariance", InputSetPaintIntervalVariance ),
@@ -839,11 +839,11 @@ void CProtoSniper::PaintTarget( const Vector &vecTarget, float flPaintTime )
 //-----------------------------------------------------------------------------
 bool CProtoSniper::IsPlayerAllySniper()
 {
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 	#else
 		CBaseEntity *pPlayer = AI_GetSinglePlayer();
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	return IRelationType( pPlayer ) == D_LI;
 }
@@ -1129,7 +1129,7 @@ void CProtoSniper::InputProtectTarget( inputdata_t &inputdata )
 }
 
 
-//4WH - Episodic Issues: Changed from an if to an ifdef due to compile errors.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -1400,8 +1400,8 @@ int CProtoSniper::SelectSchedule ( void )
 		// Reload is absolute priority.
 		return SCHED_RELOAD;
 	}
-//4WH - Information: The condition area below when used in mp caused the sniper to fail terribly. Removing it from working with the AI enabled really improves snipers.
-	#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+//SecobMod__Information: The condition area below when used in mp caused the sniper to fail terribly. Removing it from working with the AI enabled really improves snipers.
+	#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
 	if( !AI_GetSinglePlayer()->IsAlive() && m_bKilledPlayer )
 	{
 		if( HasCondition(COND_IN_PVS) )
@@ -1409,7 +1409,7 @@ int CProtoSniper::SelectSchedule ( void )
 			return SCHED_PSNIPER_PLAYER_DEAD;
 		}
 	}
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	if( HasCondition( COND_HEAR_DANGER ) )
 	{
@@ -2613,7 +2613,7 @@ Vector CProtoSniper::LeadTarget( CBaseEntity *pTarget )
 CBaseEntity *CProtoSniper::PickDeadPlayerTarget()
 {
 	const int iSearchSize = 32;
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBaseEntity *pTarget = UTIL_GetNearestVisiblePlayer(this); 
 		CBaseEntity *pEntities[ iSearchSize ];
 	
@@ -2624,7 +2624,7 @@ CBaseEntity *CProtoSniper::PickDeadPlayerTarget()
 	
 		int iNumEntities = UTIL_EntitiesInSphere( pEntities, iSearchSize, AI_GetSinglePlayer()->GetAbsOrigin(), 180.0f, 0 );
 	
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	// Not very robust, but doesn't need to be. Randomly select a nearby object in the list that isn't an NPC.
 	if( iNumEntities > 0 )

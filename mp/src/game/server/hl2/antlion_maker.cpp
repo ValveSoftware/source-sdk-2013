@@ -1172,11 +1172,11 @@ void CAntlionTemplateMaker::FindNodesCloseToPlayer( void )
 {
 	SetContextThink( &CAntlionTemplateMaker::FindNodesCloseToPlayer, gpGlobals->curtime + random->RandomFloat( 0.75, 1.75 ), s_pBlockedEffectsThinkContext );
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); // dubious 
 	#else
 		CBasePlayer *pPlayer = AI_GetSinglePlayer();
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer == NULL )
 		 return;
@@ -1264,11 +1264,11 @@ void CAntlionTemplateMaker::BlockedCheckFunc( void )
 			{
 				Vector vHintPos;
 
-				#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+				#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 					pNode->GetPosition( UTIL_GetNearestPlayer(GetAbsOrigin()), &vHintPos ); 
 				#else
 					pNode->GetPosition( AI_GetSinglePlayer(), &vHintPos );
-				#endif //Seco7_Enable_Fixed_Multiplayer_AI
+				#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 				
 				CBaseEntity*	pList[20];
 				int count = UTIL_EntitiesInBox( pList, 20, vHintPos + NAI_Hull::Mins( HULL_MEDIUM ), vHintPos + NAI_Hull::Maxs( HULL_MEDIUM ), 0 );

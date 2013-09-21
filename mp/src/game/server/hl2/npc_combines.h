@@ -19,7 +19,7 @@ class CNPC_CombineS : public CNPC_Combine
 {
 	DECLARE_CLASS( CNPC_CombineS, CNPC_Combine );
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	DECLARE_DATADESC();
 #endif

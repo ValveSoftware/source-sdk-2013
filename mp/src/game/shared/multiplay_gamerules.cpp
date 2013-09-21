@@ -50,8 +50,8 @@
 
 REGISTER_GAMERULES_CLASS( CMultiplayRules );
 
-#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
-	//4WH - Multiplayer Level Transitions:  This sets what percentage of players are required in the changelevel trigger before map change takes effect. Currently it's set to 100% (all players required).
+#ifdef SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
+	//SecobMod__Information:  This sets what percentage of players are required in the changelevel trigger before map change takes effect. Currently it's set to 100% (all players required).
 	ConVar	mp_transition_players_percent( "mp_transition_players_percent",
 						  "100",
 						  FCVAR_NOTIFY|FCVAR_REPLICATED,
@@ -59,7 +59,7 @@ REGISTER_GAMERULES_CLASS( CMultiplayRules );
 		#ifndef CLIENT_DLL
 		ConVar sv_transitions( "sv_transitions", "1", FCVAR_NOTIFY|FCVAR_GAMEDLL, "Enable transitions" );
 		#endif
-#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+#endif //SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
 
 ConVar mp_chattime(
 		"mp_chattime", 
@@ -271,7 +271,7 @@ CMultiplayRules::CMultiplayRules()
 #ifndef CLIENT_DLL
 	m_flTimeLastMapChangeOrPlayerWasConnected = 0.0f;
 
-	#ifdef Seco7_USE_PLAYERCLASSES
+	#ifdef SecobMod__USE_PLAYERCLASSES
 		extern int AssaulterPlayerNumbers;
 		extern int SupporterPlayerNumbers;
 		extern int MedicPlayerNumbers;
@@ -281,7 +281,7 @@ CMultiplayRules::CMultiplayRules()
 		SupporterPlayerNumbers = 0;
 		MedicPlayerNumbers = 0;
 		HeavyPlayerNumbers = 0;
-	#endif //Seco7_USE_PLAYERCLASSES
+	#endif //SecobMod__USE_PLAYERCLASSES
 
 	RefreshSkillData( true );
 
@@ -711,12 +711,11 @@ ConVarRef suitcharger( "sk_suitcharger" );
 	//=========================================================
 	float CMultiplayRules::FlPlayerSpawnTime( CBasePlayer *pPlayer )
 	{
-		//4WH - CodeAddendumms: Fix by TheRealJMan.
-		#ifdef Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+		#ifdef SecobMod__ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 			return gpGlobals->curtime + 3;//now!
 		#else
 			return gpGlobals->curtime;//now!
-		#endif //Seco7_ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
+		#endif //SecobMod__ENABLE_DYNAMIC_PLAYER_RESPAWN_CODE
 	}
 
 	bool CMultiplayRules::AllowAutoTargetCrosshair( void )
@@ -1119,7 +1118,7 @@ ConVarRef suitcharger( "sk_suitcharger" );
 	bool CMultiplayRules::PlayFootstepSounds( CBasePlayer *pl )
 	{
 		if ( footsteps.GetInt() == 0 )
-			return true; //4WH - Information: Always have footstep sounds enabled (by default this is false).
+			return true; //SecobMod__Information: Always have footstep sounds enabled (by default this is false).
 
 		if ( pl->IsOnLadder() || pl->GetAbsVelocity().Length2D() > 220 )
 			return true;  // only make step sounds in multiplayer if the player is moving fast enough

@@ -314,11 +314,11 @@ AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, const char *
 	// Append local player criteria to set, but not if this is a player doing the talking
 	if ( !GetOuter()->IsPlayer() )
 	{
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetOuter()->GetAbsOrigin()); 
 		#else
 			CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		if( pPlayer )
 			pPlayer->ModifyOrAppendPlayerCriteria( set );
@@ -942,11 +942,11 @@ void CAI_ExpresserHost_NPC_DoModifyOrAppendCriteria( CAI_BaseNPC *pSpeaker, AI_C
 		set.AppendCriteria( "weapon", "none" );
 	}
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(pSpeaker->GetAbsOrigin()); 
 	#else
 		CBasePlayer *pPlayer = AI_GetSinglePlayer();
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer )
 	{

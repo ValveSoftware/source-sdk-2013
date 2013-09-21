@@ -42,7 +42,9 @@ private:
 	float	m_nCalcFrame;	// Frame the last calculation was made at
 };
 
-void RecvProxy_ScaleXx( const CRecvProxyData *pData, void *pStruct, void *pOut ) //4WH - Compile Issues: Edited function names due to conflict with c_prop_coreball.cpp Formerly RecvProxy_ScaleX
+//SecobMod__MiscFixes - The following functions and clientclass staements were originally X,Y,Z but due to conflicts with c_prop_coreball these are now Xx,Yy and Zz.
+
+void RecvProxy_ScaleXx( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
 	C_PropScalable *pCoreData = (C_PropScalable *) pStruct;
 
@@ -54,7 +56,7 @@ void RecvProxy_ScaleXx( const CRecvProxyData *pData, void *pStruct, void *pOut )
 	}
 }
 
-void RecvProxy_ScaleYy( const CRecvProxyData *pData, void *pStruct, void *pOut ) //4WH - Compile Issues: Edited function names due to conflict with c_prop_coreball.cpp Formerly RecvProxy_ScaleY
+void RecvProxy_ScaleYy( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
 	C_PropScalable *pCoreData = (C_PropScalable *) pStruct;
 
@@ -66,7 +68,7 @@ void RecvProxy_ScaleYy( const CRecvProxyData *pData, void *pStruct, void *pOut )
 	}
 }
 
-void RecvProxy_ScaleZz( const CRecvProxyData *pData, void *pStruct, void *pOut ) //4WH - Compile Issues: Edited function names due to conflict with c_prop_coreball.cpp Formerly RecvProxy_ScaleZ
+void RecvProxy_ScaleZz( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
 	C_PropScalable *pCoreData = (C_PropScalable *) pStruct;
 
@@ -79,9 +81,9 @@ void RecvProxy_ScaleZz( const CRecvProxyData *pData, void *pStruct, void *pOut )
 }
 
 IMPLEMENT_CLIENTCLASS_DT( C_PropScalable, DT_PropScalable, CPropScalable )
-	RecvPropFloat( RECVINFO( m_flScaleX ), 0, RecvProxy_ScaleXx ), //4WH - Compile Issues: Edited function names due to conflict with c_prop_coreball.cpp Formerly RecvProxy_ScaleX
-	RecvPropFloat( RECVINFO( m_flScaleY ), 0, RecvProxy_ScaleYy ), //4WH - Compile Issues: Edited function names due to conflict with c_prop_coreball.cpp Formerly RecvProxy_ScaleY
-	RecvPropFloat( RECVINFO( m_flScaleZ ), 0, RecvProxy_ScaleZz ), //4WH - Compile Issues: Edited function names due to conflict with c_prop_coreball.cpp Formerly RecvProxy_ScaleZ
+	RecvPropFloat( RECVINFO( m_flScaleX ), 0, RecvProxy_ScaleXx ),
+	RecvPropFloat( RECVINFO( m_flScaleY ), 0, RecvProxy_ScaleYy ),
+	RecvPropFloat( RECVINFO( m_flScaleZ ), 0, RecvProxy_ScaleZz ),
 
 	RecvPropFloat( RECVINFO( m_flLerpTimeX ) ),
 	RecvPropFloat( RECVINFO( m_flLerpTimeY ) ),

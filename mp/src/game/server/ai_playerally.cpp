@@ -367,7 +367,7 @@ void CAI_PlayerAlly::DisplayDeathMessage( void )
 		return;
 
 		
-	#ifdef Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+	#ifdef SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
 		for( int i = 1; i <= gpGlobals->maxClients; i++)
 		{
 			CBasePlayer* pPlayer = UTIL_PlayerByIndex( i );
@@ -410,7 +410,7 @@ void CAI_PlayerAlly::DisplayDeathMessage( void )
 			// clear any pending autosavedangerous
 			g_ServerGameDLL.m_fAutoSaveDangerousTime = 0.0f;
 			g_ServerGameDLL.m_fAutoSaveDangerousMinHealthToCommit = 0.0f;
-	#endif //Seco7_MULTIPLAYER_LEVEL_TRANSITIONS
+	#endif //SecobMod__MULTIPLAYER_LEVEL_TRANSITIONS
 }
 
 //-----------------------------------------------------------------------------

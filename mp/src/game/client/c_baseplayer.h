@@ -80,16 +80,16 @@ public:
 	virtual void	Spawn( void );
 	virtual void	SharedSpawn(); // Shared between client and server.
 
-	virtual bool	GetSteamID( CSteamID *pID ); //4WH this was missing from the header, but function requiring it still in the cpp and not a seco modification as far as I can see.
+	virtual bool	GetSteamID( CSteamID *pID ); //SecobMod__MiscFixes This was missing from the header, but function requiring it still in the cpp and not a seco modification as far as I can see.
 	
 		
-#ifdef Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+#ifdef SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 	virtual const Vector &GetRenderOrigin();
-#endif //Seco7_ALLOW_PLAYER_MODELS_IN_VEHICLES
+#endif //SecobMod__ALLOW_PLAYER_MODELS_IN_VEHICLES
 
-#ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+#ifdef SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 	int m_iClientClass;
-#endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+#endif //SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 	// IClientEntity overrides.
 	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
@@ -260,10 +260,10 @@ public:
 	virtual void				ItemPreFrame( void );
 	virtual void				ItemPostFrame( void );
 	
-	#ifdef Seco7_USE_PLAYERCLASSES
+	#ifdef SecobMod__USE_PLAYERCLASSES
 		float GetJumpHeight();
 		CNetworkVar( float, m_iJumpHeight );
-	#endif //Seco7_USE_PLAYERCLASSES
+	#endif //SecobMod__USE_PLAYERCLASSES
 	
 	virtual void				AbortReload( void );
 

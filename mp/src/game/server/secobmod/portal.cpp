@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: seco7_portal. The seco7 portal. 
+// Purpose: SecobMod__portal. The seco7 portal. 
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -20,16 +20,16 @@
 #define TRIGGER_DISABLED_THINK			"PortalDisabledThink"
 
 //////////////////////////////////////////////////////////////////////////
-// Cseco7_Portal
+// CSecobMod__Portal
 // Moves touched entity to a target location, changing the model's orientation
 // to match the exit target. It differs from CTriggerTeleport in that it
 // reorients physics and has inputs to enable/disable its function.
 //////////////////////////////////////////////////////////////////////////
-class Cseco7_Portal : public CBaseAnimating
+class CSecobMod__Portal : public CBaseAnimating
 {
 public:
 	DECLARE_DATADESC();
-	DECLARE_CLASS( Cseco7_Portal, CBaseAnimating );
+	DECLARE_CLASS( CSecobMod__Portal, CBaseAnimating );
 
 	virtual void Spawn( void );
 	virtual void Precache( void );
@@ -43,16 +43,16 @@ public:
 
 private:
 	string_t					m_strRemotePortal;
-	CNetworkHandle( Cseco7_Portal, m_hRemotePortal );
+	CNetworkHandle( CSecobMod__Portal, m_hRemotePortal );
 	CUtlVector<EHANDLE>			m_hDisabledForEntities;
 
 	// Input for setting remote portal entity (for teleporting to it)
 	void SetRemotePortal ( const char* strRemotePortalName );
 };
 
-LINK_ENTITY_TO_CLASS( seco7_portal, Cseco7_Portal );
+LINK_ENTITY_TO_CLASS( SecobMod__portal, CSecobMod__Portal );
 
-BEGIN_DATADESC( Cseco7_Portal )
+BEGIN_DATADESC( CSecobMod__Portal )
 	DEFINE_KEYFIELD( m_strRemotePortal, FIELD_STRING, "RemotePortal" ),
 
 	DEFINE_FIELD( m_hRemotePortal, FIELD_EHANDLE ),
@@ -65,7 +65,7 @@ END_DATADESC()
 //-----------------------------------------------------------------------------
 // Purpose: Precache assets used by the entity
 //-----------------------------------------------------------------------------
-void Cseco7_Portal::Precache( void )
+void CSecobMod__Portal::Precache( void )
 {
 	PrecacheModel ( "models/obco_portal1.mdl" );
 	PrecacheModel ( "models/obco_portal2.mdl" );
@@ -75,7 +75,7 @@ void Cseco7_Portal::Precache( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void Cseco7_Portal::Spawn( void )
+void CSecobMod__Portal::Spawn( void )
 {
 	Precache();
 	SetModel ( "models/obco_portal1.mdl" );
@@ -128,10 +128,10 @@ void Cseco7_Portal::Spawn( void )
 // Purpose: 
 // Input  : strRemotePortalName - 
 //-----------------------------------------------------------------------------
-void Cseco7_Portal::SetRemotePortal(const char *strRemotePortalName)
+void CSecobMod__Portal::SetRemotePortal(const char *strRemotePortalName)
 {
 
-	m_hRemotePortal = dynamic_cast<Cseco7_Portal*> (gEntList.FindEntityByName( NULL, strRemotePortalName, NULL, NULL, NULL ));
+	m_hRemotePortal = dynamic_cast<CSecobMod__Portal*> (gEntList.FindEntityByName( NULL, strRemotePortalName, NULL, NULL, NULL ));
 	if ( m_hRemotePortal == NULL )
 	{
 		Msg ( "trigger_portal: Cannot find remote portal entity named %s\n", m_hRemotePortal );
@@ -142,7 +142,7 @@ void Cseco7_Portal::SetRemotePortal(const char *strRemotePortalName)
 // Purpose: 
 // Input  : *pOther - 
 //-----------------------------------------------------------------------------
-void Cseco7_Portal::EndTouch(CBaseEntity *pOther)
+void CSecobMod__Portal::EndTouch(CBaseEntity *pOther)
 {
 	BaseClass::EndTouch(pOther);
 
@@ -185,11 +185,11 @@ static int FindPassableSpace( CBaseEntity *pOther, const Vector& direction, floa
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Upon touching a non-filtered entity, Cseco7_Portal teleports them to it's
+// Purpose: Upon touching a non-filtered entity, CSecobMod__Portal teleports them to it's
 //			remote portal location.
 // Input  : *pOther - 
 //-----------------------------------------------------------------------------
-void Cseco7_Portal::Touch( CBaseEntity *pOther )
+void CSecobMod__Portal::Touch( CBaseEntity *pOther )
 {
 		// If we somehow lost our pointer to the remote portal, get a new one
 		if ( m_hRemotePortal == NULL )
@@ -253,7 +253,7 @@ void Cseco7_Portal::Touch( CBaseEntity *pOther )
 		Vector vecOldPos = pOther->WorldSpaceCenter();
 
 		// place player at the new destination
-		Cseco7_Portal *pPortal = m_hRemotePortal.Get();
+		CSecobMod__Portal *pPortal = m_hRemotePortal.Get();
 		pPortal->DisableForIncomingEntity( pOther );
 		pOther->Teleport( &ptNewOrigin, &qNewAngles, &vVelocity );
 
@@ -326,7 +326,7 @@ void Cseco7_Portal::Touch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void Cseco7_Portal::DisableForIncomingEntity( CBaseEntity *pEntity )
+void CSecobMod__Portal::DisableForIncomingEntity( CBaseEntity *pEntity )
 {
 	EHANDLE hHandle;
 	hHandle = pEntity;
@@ -337,13 +337,13 @@ void Cseco7_Portal::DisableForIncomingEntity( CBaseEntity *pEntity )
 	// Needs to be done in addition to EndTouch, because entities may move fast
 	// enough through the portal to come out not touching the other portal.
 
-	SetContextThink( &Cseco7_Portal::DisabledThink, gpGlobals->curtime + 0.1, TRIGGER_DISABLED_THINK );
+	SetContextThink( &CSecobMod__Portal::DisabledThink, gpGlobals->curtime + 0.1, TRIGGER_DISABLED_THINK );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void Cseco7_Portal::DisabledThink( void )
+void CSecobMod__Portal::DisabledThink( void )
 {
 	// If we've got no disabled entities left, we're done
 	if ( !m_hDisabledForEntities.Count() )
@@ -360,13 +360,13 @@ void Cseco7_Portal::DisabledThink( void )
 			m_hDisabledForEntities.Remove(i);
 		}
 	}
-	SetContextThink( &Cseco7_Portal::DisabledThink, gpGlobals->curtime + 0.1, TRIGGER_DISABLED_THINK );
+	SetContextThink( &CSecobMod__Portal::DisabledThink, gpGlobals->curtime + 0.1, TRIGGER_DISABLED_THINK );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool Cseco7_Portal::IsTouchingPortal( CBaseEntity *pEntity )
+bool CSecobMod__Portal::IsTouchingPortal( CBaseEntity *pEntity )
 {
 	// First, check the touchlinks. This will find non-vphysics entities touching us
     touchlink_t *root = ( touchlink_t * )GetDataObject( TOUCHLINK );

@@ -716,11 +716,11 @@ Vector CAI_StandoffBehavior::GetStandoffGoalPosition()
 	}
 	else if( PlayerIsLeading() )
 	{
-		#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+		#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			return UTIL_GetNearestPlayer(GetAbsOrigin())->GetAbsOrigin(); 
 		#else
 			return UTIL_GetLocalPlayer()->GetAbsOrigin();
-		#endif //Seco7_Enable_Fixed_Multiplayer_AI
+		#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 	else
 	{
@@ -772,11 +772,11 @@ void CAI_StandoffBehavior::UpdateBattleLines()
 			if ( m_params.fPlayerIsBattleline )
 			{
 				const float DIST_PLAYER_PLANE = 180;
-				#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+				#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 					CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 				#else
 					CBaseEntity *pPlayer = UTIL_GetLocalPlayer();
-				#endif //Seco7_Enable_Fixed_Multiplayer_AI
+				#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 				
 				BattleLine_t playerLine;
 
@@ -1007,11 +1007,11 @@ void CAI_StandoffBehavior::OnChangeTacticalConstraints()
 
 bool CAI_StandoffBehavior::PlayerIsLeading()
 {
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 	#else
 		CBaseEntity *pPlayer = AI_GetSinglePlayer();
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	return ( pPlayer && GetOuter()->IRelationType( pPlayer ) == D_LI );
 }
@@ -1020,11 +1020,11 @@ bool CAI_StandoffBehavior::PlayerIsLeading()
 
 CBaseEntity *CAI_StandoffBehavior::GetPlayerLeader()
 {
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBaseEntity *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 	#else
 		CBaseEntity *pPlayer = AI_GetSinglePlayer();
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer && GetOuter()->IRelationType( pPlayer ) == D_LI )
 		return pPlayer;

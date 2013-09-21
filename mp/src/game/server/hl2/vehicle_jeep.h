@@ -86,11 +86,11 @@ public:
 	const char		*GetTracerType( void ) { return "AR2Tracer"; }
 	void			DoImpactEffect( trace_t &tr, int nDamageType );
 
-#ifdef Seco7_ALLOW_JEEP_HEADLIGHTS
+#ifdef SecobMod__ALLOW_JEEP_HEADLIGHTS
 bool HeadlightIsOn( void ) { return m_bHeadlightIsOn; }
 void HeadlightTurnOn( void );
 void HeadlightTurnOff( void );
-#endif //Seco7_ALLOW_JEEP_HEADLIGHTS
+#endif //SecobMod__ALLOW_JEEP_HEADLIGHTS
 
 private:
 

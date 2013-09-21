@@ -851,10 +851,10 @@ CON_COMMAND( fov, "Change players FOV" )
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 void CC_Player_SetModel( const CCommand &args )
 {
-	//4WH 
+	//SecobMod__MiscFixes
 		//if ( gpGlobals->deathmatch )
 		//return;
 
@@ -868,7 +868,7 @@ void CC_Player_SetModel( const CCommand &args )
 	}
 }
 static ConCommand setmodel("setmodel", CC_Player_SetModel, "Changes's player's model", FCVAR_CHEAT );
-#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1059,7 +1059,7 @@ static int FindPassableSpace( CBasePlayer *pPlayer, const Vector& direction, flo
 	return 0;
 }
 
-#ifdef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+#ifdef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 //------------------------------------------------------------------------------
 // Noclip
 //------------------------------------------------------------------------------
@@ -1148,10 +1148,10 @@ void CC_God_f (void)
 		   return;
    }
 #else
-	#ifndef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#ifndef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		if ( gpGlobals->deathmatch )
 		return;
-	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 #endif
 
 	pPlayer->ToggleFlag( FL_GODMODE );
@@ -1319,10 +1319,10 @@ void CC_Notarget_f (void)
 	if ( !pPlayer )
 		return;
 
-	#ifndef Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#ifndef SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 		if ( gpGlobals->deathmatch )
 		return;
-	#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+	#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 
 	pPlayer->ToggleFlag( FL_NOTARGET );
 	if ( !(pPlayer->GetFlags() & FL_NOTARGET ) )
@@ -1355,7 +1355,7 @@ void CC_HurtMe_f(const CCommand &args)
 }
 
 static ConCommand hurtme("hurtme", CC_HurtMe_f, "Hurts the player.\n\tArguments: <health to lose>", FCVAR_CHEAT);
-#endif //Seco7_ALLOW_VALVE_APPROVED_CHEATING
+#endif //SecobMod__ALLOW_VALVE_APPROVED_CHEATING
 
 static bool IsInGroundList( CBaseEntity *ent, CBaseEntity *ground )
 {

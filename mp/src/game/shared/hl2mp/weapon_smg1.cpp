@@ -63,14 +63,14 @@ public:
 
 
 	DECLARE_ACTTABLE();
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 	int CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }
 	void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
 	void FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, Vector &vecShootOrigin, Vector &vecShootDir );
 	void Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary );
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 protected:
 
 	Vector	m_vecTossVelocity;
@@ -91,7 +91,7 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( weapon_smg1, CWeaponSMG1 );
 PRECACHE_WEAPON_REGISTER(weapon_smg1);
 
-//4WH commented out or code cant compile.
+//SecobMod__IFDEF_Fixes
 /*#ifndef CLIENT_DLL*/
 acttable_t	CWeaponSMG1::m_acttable[] = 
 {
@@ -108,7 +108,7 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_SMG1,			false },
 
 	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_SMG1,					false },
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		
 	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_SMG1,					false },
 	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_SMG1,					false },
@@ -175,12 +175,11 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_SMG1_LOW,			false },
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_SMG1_LOW,			false },
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SMG1,		true },
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	};
 
 IMPLEMENT_ACTTABLE(CWeaponSMG1);
-//4WH commented out or code cant compile.
-/*#endif //CLIENT_DLL*/
+//#endif //CLIENT_DLL
 
 //=========================================================
 CWeaponSMG1::CWeaponSMG1( )
@@ -188,7 +187,7 @@ CWeaponSMG1::CWeaponSMG1( )
 	m_fMinRange1		= 0;// No minimum range. 
 	m_fMaxRange1		= 1400;
 }
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -280,7 +279,7 @@ void CWeaponSMG1::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChar
 	}
 }
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -418,14 +417,14 @@ void CWeaponSMG1::SecondaryAttack( void )
 
 	// Can blow up after a short delay (so have time to release mouse button)
 	m_flNextSecondaryAttack = gpGlobals->curtime + 1.0f;
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 	// Register a muzzleflash for the AI.
 	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 0.5 );
 
 	CSoundEnt::InsertSound( SOUND_COMBAT, pPlayer->GetAbsOrigin(), SOUNDENT_VOLUME_MACHINEGUN, 0.2, pPlayer );
 #endif
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 }
 
 //-----------------------------------------------------------------------------

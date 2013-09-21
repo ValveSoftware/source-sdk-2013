@@ -1,14 +1,18 @@
 //====================================================//
-//  Source Engine CoOperative - Information.          //
+//  Source Engine: CoOperative Base Mod Information.  //
 //====================================================//
-//4WH - Mounting Code:
-//4WH - Compile Issues:
-//4WH - Episodic Issues:
-//4WH - Null Pointers:
-//4WH - Information:
-//4WH - Portal Information:
-//4WH - CodeAddendumms:        (these are addendums provided by others on the Valve wiki page).
-//
+//SecobMod__IFDEF_Fixes  These are mainly kept to show where if defined lines have had to be changed to ifdef for code to compile.
+//SecobMod__IFDEF_Info   These are like the above but have information describing why the fix is in place.
+//SecobMod__MiscFixes    These are small fixes to the code to allow things to run correctly.
+//SecobMod__MiscFixes	   These are like the above but have information describing why the fix was required.
+//SecobMod__Information  These are the main comment lines found in the source code explaining many things in detail.
+//SecobMod__ChangeME!    These are lines of code that require changing for the game to run correctly once you start modifying the base.
+//SecobMod__FixMe		   These are bugs in the code which require a fix before they'll work.
+
+
+//================================================//
+//  Co-Op Singleplayer Maps Information.          //
+//================================================//
 // To those wishing to make a co-op version of the Half-Life 2/Ep1/2 maps, Mulekick on the steam forums gave this advice for older maps:
 // - This does mean that you will need to start using the Everything solution file, which means more work settings things up again -
 //Basically brushes that block LOS from AI's won't work with older maps.
@@ -19,15 +23,15 @@
 //#define MASK_BLOCKLOS (CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_BLOCKLOS|CONTENTS_OPAQUE)
 
 
-//====================================================//
-//  GameInfo.txt Backup.          //
-//====================================================//
+//=========================//
+//  GameInfo.txt Backup.   //
+//=========================//
 /*
 "GameInfo"
 {
-	game	"Seco-2013"
-	title	""
-	title2	""
+	game	"Source Engine Co-Operative Base Modification (2013)"
+	title	"Source Engine Co-Operative Base Modification"
+	title2	"(2013)"
 	type multiplayer_only
 	nomodels 0
 	nohimodel 0
@@ -45,18 +49,18 @@
 		
 		SearchPaths
 		{
-			//Seco-2013: Allow custom content ontop of Seco2013 by user .vpk packaged mods.
+			//SecobMod__ Allow custom content by user .vpk packaged mods.
 			game+mod			hl2mp/custom/*
 			game+mod			hl2/custom/*
 
-			//Seco-2013: Set the gameinfo.txt's location to that of the mod search path here.
+			//SecobMod__ Set the gameinfo.txt's location to that of the mod search path here.
 			game+mod+mod_write+default_write_path		|gameinfo_path|.
 			gamebin				|gameinfo_path|bin
 
-			//Seco-2013: Load all the .vpk files that we want -EXCEPT- hl2mp files (which break the AI if they're enabled so early).
+			//SecobMod__ Load all the .vpk files that we want -EXCEPT- hl2mp files (which break the AI if they're enabled so early).
 			game_lv				hl2/hl2_lv.vpk //Low Violence.
 			
-			//Seco-2013: Newest game first, so here ep2,ep1,hl2s multitude of .vpk files.			
+			//SecobMod__ Newest game first, so here ep2,ep1,hl2s multitude of .vpk files.			
 			game				|all_source_engine_paths|ep2/ep2_sound_vo_english.vpk
 			game				|all_source_engine_paths|ep2/ep2_pak.vpk
 			game				|all_source_engine_paths|episodic/ep1_sound_vo_english.vpk
@@ -68,19 +72,19 @@
 			game				|all_source_engine_paths|hl2/hl2_misc.vpk
 			platform			|all_source_engine_paths|platform/platform_misc.vpk
 			
-			//Seco-2013: The below lines allow the game to find the location of all singleplayer maps for playing. Remove the block if you don't want to be able to do this. Good for testing stuff though.
+			//SecobMod__ The below lines allow the game to find the location of all singleplayer maps for playing. Remove the block if you don't want to be able to do this. Good for testing stuff though.
 			game "|gameinfo_path|..\..\common\Half-Life 2\hl2" 
 			game "|gameinfo_path|..\..\common\Half-Life 2\episodic"
 			game "|gameinfo_path|..\..\common\Half-Life 2\ep2"
 
 
-			//Seco-2013: Set the Source SDK 2013 Multiplayer (hl2mp) folder as the game search and write path.
+			//SecobMod__ Set the Source SDK 2013 Multiplayer (hl2mp) folder as the game search and write path.
 			game+game_write		hl2mp
 
-			//Seco-2013: Location of the Source SDK 2013 Multiplayer exe file.
+			//SecobMod__ Location of the Source SDK 2013 Multiplayer exe file.
 			gamebin				hl2mp/bin
 
-			//Seco-2013: Now we can mount in our game+mod files (hl2mp) without breaking stuff.
+			//SecobMod__ Now we can mount in our game+mod files (hl2mp) without breaking stuff.
 			game+mod			|all_source_engine_paths|hl2mp
 			game+mod			hl2mp/hl2mp_pak.vpk
 			game				|all_source_engine_paths|episodic

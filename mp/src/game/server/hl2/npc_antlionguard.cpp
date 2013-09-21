@@ -46,7 +46,7 @@ ConVar	g_debug_antlionguard( "g_debug_antlionguard", "0" );
 ConVar	sk_antlionguard_dmg_charge( "sk_antlionguard_dmg_charge", "0" );
 ConVar	sk_antlionguard_dmg_shove( "sk_antlionguard_dmg_shove", "0" );
 
-//Seco2013 - Has to be in hl2mprules not hl2rules.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 // When enabled, add code to have the antlion bleed profusely as it is badly injured.
 #define ANTLIONGUARD_BLOOD_EFFECTS 2
@@ -85,7 +85,7 @@ ConVar	g_antlionguard_hemorrhage( "g_antlionguard_hemorrhage", "1", FCVAR_NONE, 
 #define	ANTLIONGUARD_FOV_NORMAL			-0.4f
 
 // cavern guard's poisoning behavior
-//Seco2013 - Has to be in hl2mprules not hl2rules.
+//SSecobMod__MiscFixes
 #ifdef HL2_EPISODIC
 #define ANTLIONGUARD_POISON_TO			12 // we only poison Gordon down to twelve to give him a chance to regen up to 20 by the next charge
 #endif
@@ -1606,12 +1606,12 @@ public:
 //-----------------------------------------------------------------------------
 void CNPC_AntlionGuard::Footstep( bool bHeavy )
 {
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
 	#else
 		CBasePlayer *pPlayer = AI_GetSinglePlayer();
 		Assert( pPlayer != NULL );
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer == NULL )
 		return;

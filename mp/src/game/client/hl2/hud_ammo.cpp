@@ -60,7 +60,7 @@ DECLARE_HUDELEMENT( CHudAmmo );
 //-----------------------------------------------------------------------------
 CHudAmmo::CHudAmmo( const char *pElementName ) : BaseClass(NULL, "HudAmmo"), CHudElement( pElementName )
 {
-	#ifdef Seco7_HAS_AMMO_REGARDLESS_OF_SUIT
+	#ifdef SecobMod__HAS_AMMO_REGARDLESS_OF_SUIT
 		SetHiddenBits( HIDEHUD_PLAYERDEAD );
 	#else
 		SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT | HIDEHUD_WEAPONSELECTION );

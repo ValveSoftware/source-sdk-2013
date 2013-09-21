@@ -43,7 +43,7 @@
 #include "NextBot/NextBotManager.h"
 #endif
 
-//4WH - Episodic Issues: Here we include the hl2mp gamerules so that calls to darkness mode work.
+//SecobMod__MiscFixes: Here we include the hl2mp gamerules so that calls to darkness mode work. We also change any calls to HL2GameRules to HL2MPRules as required for darkness mode to work.
 #include "hl2mp_gamerules.h"
 
 #ifdef HL2_DLL
@@ -1534,7 +1534,6 @@ bool CBaseCombatCharacter::BecomeRagdoll( const CTakeDamageInfo &info, const Vec
 
 #ifdef HL2_EPISODIC
 	// Burning corpses are server-side in episodic, if we're in darkness mode
-//4WH - Episodic Issues: Here we include the hl2mp gamerules so that calls to darkness mode work.
 	if ( IsOnFire() && HL2MPRules()->IsAlyxInDarknessMode() )
 	{
 		CBaseEntity *pRagdoll = CreateServerRagdoll( this, m_nForceBone, newinfo, COLLISION_GROUP_DEBRIS );
@@ -1920,11 +1919,11 @@ void CBaseCombatCharacter::Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector
 			{
 				// Drop enough ammo to kill 2 of me.
 				// Figure out how much damage one piece of this type of ammo does to this type of enemy.
-				#ifdef Seco7_Enable_Fixed_Multiplayer_AI				
+				#ifdef SecobMod__Enable_Fixed_Multiplayer_AI				
 float flAmmoDamage = g_pGameRules->GetAmmoDamage( UTIL_GetNearestPlayer(GetAbsOrigin()), this, pWeapon->GetPrimaryAmmoType() ); 
 #else
 float flAmmoDamage = g_pGameRules->GetAmmoDamage( UTIL_PlayerByIndex(1), this, pWeapon->GetPrimaryAmmoType() );							
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 pWeapon->m_iClip1 = (GetMaxHealth() / flAmmoDamage) * 2;
 			}
@@ -3111,7 +3110,7 @@ void CBaseCombatCharacter::VPhysicsShadowCollision( int index, gamevcollisioneve
 	// which can occur owing to ordering issues it appears.
 	float flOtherAttackerTime = 0.0f;
 
-	#ifdef Seco7_ALLOW_SUPER_GRAVITY_GUN
+	#ifdef SecobMod__ALLOW_SUPER_GRAVITY_GUN
 		if ( HL2MPRules()->MegaPhyscannonActive() == true )
 		{
 			flOtherAttackerTime = 1.0f;
@@ -3123,7 +3122,7 @@ void CBaseCombatCharacter::VPhysicsShadowCollision( int index, gamevcollisioneve
 			flOtherAttackerTime = 1.0f;
 		}
 		#endif // HL2_DLL && !HL2MP
-	#endif // Seco7_ALLOW_SUPER_GRAVITY_GUN
+	#endif // SecobMod__ALLOW_SUPER_GRAVITY_GUN
 
 	if ( this == pOther->HasPhysicsAttacker( flOtherAttackerTime ) )
 		return;
@@ -3290,11 +3289,11 @@ CBaseEntity *CBaseCombatCharacter::FindMissTarget( void )
 	CBaseEntity *pMissCandidates[ MAX_MISS_CANDIDATES ];
 	int numMissCandidates = 0;
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
 #else
 CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	CBaseEntity *pEnts[256];
 	Vector		radius( 100, 100, 100);

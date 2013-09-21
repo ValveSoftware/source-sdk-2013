@@ -269,7 +269,7 @@ public:
 	virtual void ImpactSound( void );
 	virtual void TelegraphSound( void );
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	virtual bool FInViewCone( CBaseEntity *pEntity );
 #endif

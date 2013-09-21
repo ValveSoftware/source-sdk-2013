@@ -349,12 +349,12 @@ void CGameText::Display( CBaseEntity *pActivator )
 	if ( !CanFireForActivator( pActivator ) )
 		return;
 
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		// also send to all if we haven't got a specific activator player to send to 
 		if ( MessageToAll() || !pActivator || !pActivator->IsPlayer() ) 
 	#else
 		if ( MessageToAll() )
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( MessageToAll() )
 	{
@@ -362,7 +362,7 @@ void CGameText::Display( CBaseEntity *pActivator )
 	}
 	else
 	{
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			UTIL_HudMessage( ToBasePlayer( pActivator ), m_textParms, MessageGet() );
 	#else
 	// If we're in singleplayer, show the message to the player.
@@ -376,7 +376,7 @@ void CGameText::Display( CBaseEntity *pActivator )
 			{
 				UTIL_HudMessage( ToBasePlayer( pActivator ), m_textParms, MessageGet() );
 			}
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 }
 

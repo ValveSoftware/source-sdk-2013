@@ -94,7 +94,7 @@ bool CAI_MoveProbe::ShouldBrushBeIgnored( CBaseEntity *pEntity )
 		CFuncBrush *pFuncBrush = assert_cast<CFuncBrush *>(pEntity);
 
 		// this is true if my class or entity name matches the exclusion name on the func brush
-	//4WH - Episodic Issues: Changed from if to ifdef.
+	//SecobMod__IFDEF_Fixes
 	#ifdef HL2_EPISODIC
 		bool nameMatches = ( pFuncBrush->m_iszExcludedClass == GetOuter()->m_iClassname ) || GetOuter()->NameMatches(pFuncBrush->m_iszExcludedClass);
 	#else	// do not match against entity name in base HL2 (just in case there is some case somewhere that might be broken by this)

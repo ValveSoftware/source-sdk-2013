@@ -191,7 +191,7 @@ void CAI_Relationship::ApplyRelationship( CBaseEntity *pActivator, CBaseEntity *
 	
 	// The player spawns slightly after the NPCs, meaning that if we don't wait, the
 	// player will miss any relationships placed on them.
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( UTIL_GetLocalPlayer() ) 
 		{
 			SetThink( &CAI_Relationship::ApplyRelationshipThink );
@@ -203,7 +203,7 @@ void CAI_Relationship::ApplyRelationship( CBaseEntity *pActivator, CBaseEntity *
 			SetThink( &CAI_Relationship::ApplyRelationshipThink );
 			SetNextThink( gpGlobals->curtime );
 		}
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( !m_bIsActive )
 	{

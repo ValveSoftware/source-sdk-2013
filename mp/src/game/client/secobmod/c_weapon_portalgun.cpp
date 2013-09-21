@@ -11,7 +11,7 @@
 #include "c_te_effect_dispatch.h"
 #include "beamdraw.h"
 
-#ifdef Seco7_ENABLE_IN_TESTING_ITEMS
+#ifdef SecobMod__ENABLE_IN_TESTING_ITEMS
 
 CLIENTEFFECT_REGISTER_BEGIN( PrecacheEffectPortalGun )
 CLIENTEFFECT_MATERIAL( "effects/muzzleflash1" )
@@ -160,4 +160,4 @@ void CrosshairLoadCallback2( const CEffectData &data )
 
 DECLARE_CLIENT_EFFECT( "PortalGunLoad", CrosshairLoadCallback2 );
 
-#endif //Seco7_ENABLE_IN_TESTING_ITEMS
+#endif //SecobMod__ENABLE_IN_TESTING_ITEMS

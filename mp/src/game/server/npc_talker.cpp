@@ -228,7 +228,7 @@ void CNPCSimpleTalker::RunTask( const Task_t *pTask )
 	case TASK_TALKER_CLIENT_STARE:
 	case TASK_TALKER_LOOK_AT_CLIENT:
 
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( pTask->iTask == TASK_TALKER_CLIENT_STARE ) 
 		{
 			// Get edict for one player
@@ -247,7 +247,7 @@ void CNPCSimpleTalker::RunTask( const Task_t *pTask )
 		
 					// fail out if the player looks away or moves away.
 					if ( ( pPlayer->GetAbsOrigin() - GetAbsOrigin() ).Length2D() > TALKER_STARE_DIST )
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 			{
 				// player moved away.
@@ -835,7 +835,7 @@ int CNPCSimpleTalker::SelectNonCombatSpeechSchedule()
 	}
 	
 	// failed to speak, so look at the player if he's around
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	if ( GetExpresser()->CanSpeak() && HasCondition ( COND_SEE_PLAYER ) && random->RandomInt( 0, 6 ) == 0 ) 
 	{ 
 CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
@@ -844,7 +844,7 @@ CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this);
 	{
 		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 		Assert( pPlayer );
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		if ( pPlayer )
 		{

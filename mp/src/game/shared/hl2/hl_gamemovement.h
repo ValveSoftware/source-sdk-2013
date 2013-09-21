@@ -44,9 +44,9 @@ public:
 	virtual void	SetGroundEntity( trace_t *pm );
 	virtual bool CanAccelerate( void );
 
-	#ifdef Seco7_USE_CSS_LADDERS
+	#ifdef SecobMod__USE_CSS_LADDERS
 		virtual unsigned int PlayerSolidMask( bool brushOnly = false );
-	#endif //Seco7_USE_CSS_LADDERS
+	#endif //SecobMod__USE_CSS_LADDERS
 
 private:
 

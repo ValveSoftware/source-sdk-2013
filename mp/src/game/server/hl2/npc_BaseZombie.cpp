@@ -48,7 +48,7 @@
 #include "ammodef.h"
 #include "vehicle_base.h"
 
-//4WH - Episodic Issues: Here we include the hl2mp gamerules so that calls to darkness mode work.
+//SecobMod__MiscFixes: Here we include the hl2mp gamerules so that calls to darkness mode work and also in the file change darkness mode HL2GameRules to HL2MPRules.
 #include "hl2mp_gamerules.h"
  
 // memdbgon must be the last include file in a .cpp file!!!
@@ -952,7 +952,6 @@ int CNPC_BaseZombie::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 //-----------------------------------------------------------------------------
 void CNPC_BaseZombie::MakeAISpookySound( float volume, float duration )
 {
-//4WH - Information: Changed from HL2GameRules to MP version.
 	#ifdef HL2_EPISODIC
 	if ( HL2MPRules()->IsAlyxInDarknessMode() )
 	{

@@ -15,9 +15,9 @@
 #include "r_efx.h"
 #include "dlight.h"
 
-#ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+#ifdef SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 	#include "iviewrender.h"
-#endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+#endif //SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 // Don't alias here
 #if defined( CHL2MP_Player )
@@ -35,9 +35,9 @@ IMPLEMENT_CLIENTCLASS_DT(C_HL2MP_Player, DT_HL2MP_Player, CHL2MP_Player)
 
 	RecvPropBool( RECVINFO( m_fIsWalking ) ),
 	
-	#ifdef Seco7_USE_PLAYERCLASSES
+	#ifdef SecobMod__USE_PLAYERCLASSES
 		RecvPropInt( RECVINFO( m_iClientClass)),
-	#endif //Seco7_USE_PLAYERCLASSES
+	#endif //SecobMod__USE_PLAYERCLASSES
 	
 END_RECV_TABLE()
 
@@ -52,14 +52,14 @@ END_PREDICTION_DATA()
 static ConVar cl_playermodel( "cl_playermodel", "none", FCVAR_USERINFO | FCVAR_ARCHIVE | FCVAR_SERVER_CAN_EXECUTE, "Default Player Model");
 static ConVar cl_defaultweapon( "cl_defaultweapon", "weapon_physcannon", FCVAR_USERINFO | FCVAR_ARCHIVE, "Default Spawn Weapon");
 
-#ifdef Seco7_FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
+#ifdef SecobMod__FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
 	static ConVar cl_fp_ragdoll ( "cl_fp_ragdoll", "1", FCVAR_ARCHIVE, "Allow first person ragdolls" );
 	static ConVar cl_fp_ragdoll_auto ( "cl_fp_ragdoll_auto", "1", FCVAR_ARCHIVE, "Autoswitch to ragdoll thirdperson-view when necessary" );
-#endif //Seco7_FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
+#endif //SecobMod__FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
 
-#ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+#ifdef SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 	extern int m_iClientClass;
-#endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+#endif //SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
 
 void SpawnBlood (Vector vecSpot, const Vector &vecDir, int bloodColor, float flDamage);
 
@@ -709,7 +709,7 @@ void C_HL2MP_Player::CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNea
 {
 	if ( m_lifeState != LIFE_ALIVE && !IsObserver() )
 	{
-#ifdef Seco7_FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
+#ifdef SecobMod__FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
 		// First person ragdolls
 		if ( cl_fp_ragdoll.GetBool() && m_hRagdoll.Get() )
 		{
@@ -736,7 +736,7 @@ void C_HL2MP_Player::CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNea
 
 		eyeOrigin = vec3_origin;
 		eyeAngles = vec3_angle;
-#endif //Seco7_FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
+#endif //SecobMod__FIRST_PERSON_RAGDOLL_CAMERA_ON_PLAYER_DEATH
 
 		Vector origin = EyePosition();			
 
@@ -1030,8 +1030,8 @@ void C_HL2MP_Player::PostThink( void )
 	// Store the eye angles pitch so the client can compute its animation state correctly.
 	m_angEyeAngles = EyeAngles();
 }
-#ifdef Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
-	//4WH - Information: Currently set to be toggled by the 'N' key.
+#ifdef SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+	//SecobMod__Information: Currently set to be toggled by the 'N' key.
 	CON_COMMAND( nightvision, "Garths NightVision." )
 	{
 		C_HL2MP_Player *pPlayer = C_HL2MP_Player::GetLocalHL2MPPlayer();
@@ -1043,7 +1043,7 @@ void C_HL2MP_Player::PostThink( void )
 		
 	int ClassValue = pPlayer->m_iClientClass;
 	
-		//4WH - Information: Only the Heavy Class has nightvision so we don't do anything if anyone else uses the command.
+		//SecobMod__Information: Only the Heavy Class has nightvision so we don't do anything if anyone else uses the command.
 		if (ClassValue != 4)
 		{
 		return;
@@ -1063,4 +1063,4 @@ void C_HL2MP_Player::PostThink( void )
 		cvar->FindVar("mat_fullbright")->SetValue(1);
 		}
 	}
-#endif //Seco7_ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+#endif //SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS

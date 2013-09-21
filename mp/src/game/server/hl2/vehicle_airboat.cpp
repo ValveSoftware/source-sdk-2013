@@ -1573,7 +1573,7 @@ void CPropAirboat::FireGun( )
 	Vector vecForward;
 	GetAttachment( m_nGunBarrelAttachment, vecGunPosition, &vecForward );
 	
-	//4WH - Information: Thanks to Sub-Zero, we have working hit effects from the tau cannon.
+	//SecobMod__Information: Thanks to Sub-Zero, we have working hit effects from the tau cannon.
 	CDisablePredictionFiltering disabler;
 	
 	

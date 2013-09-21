@@ -937,20 +937,20 @@ void CBaseEntity::DrawDebugGeometryOverlays(void)
 			NDebugOverlay::EntityBounds(this, 255, 255, 255, 0, 0 );
 		}
 	}
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 	if ( m_debugOverlays & OVERLAY_AUTOAIM_BIT && (GetFlags()&FL_AIMTARGET) && pPlayer != NULL ) 
 #else
 	if ( m_debugOverlays & OVERLAY_AUTOAIM_BIT && (GetFlags()&FL_AIMTARGET) && AI_GetSinglePlayer() != NULL )	
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	{
 		// Crude, but it gets the point across.
 		Vector vecCenter = GetAutoAimCenter();
 		Vector vecRight, vecUp, vecDiag;
-#ifndef Seco7_Enable_Fixed_Multiplayer_AI
+#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
 CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		float radius = GetAutoAimRadius();
 
@@ -1582,10 +1582,9 @@ int CBaseEntity::VPhysicsTakeDamage( const CTakeDamageInfo &info )
 		if ( gameFlags & FVPHYSICS_PLAYER_HELD )
 		{
 			// if the player is holding the object, use it's real mass (player holding reduced the mass)
-			//4WH: CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 			CBasePlayer *pPlayer = NULL;
 
-			#ifdef Seco7_Enable_Fixed_Multiplayer_AI	
+			#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
 						// See which MP player is holding the physics object and then use that player to get the real mass of the object.
 						// This is ugly but better than having linkage between an object and its "holding" player.
 						for ( int i = 1; i <= gpGlobals->maxClients; i++ )
@@ -1616,7 +1615,7 @@ int CBaseEntity::VPhysicsTakeDamage( const CTakeDamageInfo &info )
 								}
 							}
 						}
-			#endif //Seco7_Enable_Fixed_Multiplayer_AI
+			#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 			if ( pPlayer )
 			{
@@ -2710,7 +2709,7 @@ void CBaseEntity::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 	}
 	PhysCollisionScreenShake( pEvent, index );
 
-//4WH - Episodic Issues: if Changed to ifdef.
+//SecobMod__IFDEF_Fixes
 #ifdef HL2_EPISODIC
 	// episodic does something different for when advisor shields are struck
 	if ( phit->game.material == 'Z' || pprops->game.material == 'Z')
@@ -6682,11 +6681,11 @@ void CBaseEntity::DispatchResponse( const char *conceptName )
 	ModifyOrAppendCriteria( set );
 
 	// Append local player criteria to set,too
-	#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+	#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 	#else
 		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if( pPlayer )
 		pPlayer->ModifyOrAppendPlayerCriteria( set );
@@ -6753,11 +6752,11 @@ void CBaseEntity::DumpResponseCriteria( void )
 	ModifyOrAppendCriteria( set );
 
 	// Append local player criteria to set,too
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 #else
 CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer )
 	{
@@ -7243,11 +7242,11 @@ bool CBaseEntity::SUB_AllowedToFade( void )
 
 	// on Xbox, allow these to fade out
 #ifndef _XBOX
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
 #else
 CBasePlayer *pPlayer = ( AI_IsSinglePlayer() ) ? UTIL_GetLocalPlayer() : NULL;
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer && pPlayer->FInViewCone( this ) )
 		return false;

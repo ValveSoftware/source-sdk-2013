@@ -37,7 +37,7 @@
 #include "weapon_flaregun.h"
 #include "env_debughistory.h"
 
-//4WH - Episodic Issues: Here we include the hl2mp gamerules so that calls to darkness mode work.
+//SecobMod__MiscFixes: Here we include the hl2mp gamerules so that calls to darkness mode work. Also many instances of HL2GameRules are now set to HL2MPRules in this file.
 #include "hl2mp_gamerules.h"
 
 extern Vector PointOnLineNearestPoint(const Vector& vStartPos, const Vector& vEndPos, const Vector& vPoint);
@@ -917,7 +917,7 @@ void CNPC_Alyx::AnalyzeGunfireSound( CSound *pSound )
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::IsValidEnemy( CBaseEntity *pEnemy )
 {
-	//Seco2013 - Has to be in hl2mprules not hl2gamerules
+
 	if ( HL2MPRules()->IsAlyxInDarknessMode() )
 	{
 		if ( !CanSeeEntityInDarkness( pEnemy ) )
@@ -1210,7 +1210,7 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 
 	// Darkness mode speech
 	ClearCondition( COND_ALYX_IN_DARK );
- 	//Seco2013 - Has to be in hl2mprules not hl2gamerules
+
 	if ( HL2MPRules()->IsAlyxInDarknessMode() )
 	{
 		// Even though the darkness light system will take flares into account when Alyx
@@ -1393,7 +1393,7 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 	{
 		// If we've left darkness mode, or if the player has blinded me with 
 		// the flashlight, don't bother speaking the found player line.
-		//Seco2013 - Has to be in hl2mprules not hl2rules.
+
 		if ( !m_bIsFlashlightBlind && HL2MPRules()->IsAlyxInDarknessMode() && m_bDarknessSpeechAllowed )
 		{
 			if ( HasCondition(COND_SEE_PLAYER) && !HasCondition( COND_TALKER_PLAYER_DEAD ) )
@@ -1543,7 +1543,6 @@ bool CNPC_Alyx::FInViewCone( CBaseEntity *pEntity )
 	}
 
 	// Else, fall through...
-//Seco2013 - Has to be in hl2mprules not hl2rules.
  	if ( HL2MPRules()->IsAlyxInDarknessMode() )
 	{
 		if ( CanSeeEntityInDarkness( pEntity ) )
@@ -1583,7 +1582,6 @@ bool CNPC_Alyx::CanSeeEntityInDarkness( CBaseEntity *pEntity )
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::QuerySeeEntity( CBaseEntity *pEntity, bool bOnlyHateOrFearIfNPC)
 {
-//Seco2013 - Has to be in hl2mprules not hl2rules.
 	if ( HL2MPRules()->IsAlyxInDarknessMode() )
 	{
 		if ( !CanSeeEntityInDarkness( pEntity ) )
@@ -1708,7 +1706,6 @@ int CNPC_Alyx::SelectSchedule( void )
 {
     // If we're in darkness mode, and the player has the flashlight off, and we hear a zombie footstep,
 	// and the player isn't nearby, deliberately turn away from the zombie to let the zombie grab me.
-	//Seco2013 - Has to be in hl2mprules not hl2rules.
 	if ( HL2MPRules()->IsAlyxInDarknessMode() && m_NPCState == NPC_STATE_ALERT )
 	{
 		if ( HasCondition ( COND_HEAR_COMBAT ) && !HasCondition(COND_SEE_PLAYER) )
@@ -1866,7 +1863,6 @@ int CNPC_Alyx::TranslateSchedule( int scheduleType )
 
 	case SCHED_HIDE_AND_RELOAD:
 		{
-//Seco2013 - Has to be in hl2mprules not hl2rules.
 			if ( HL2MPRules()->IsAlyxInDarknessMode() )
 				return SCHED_RELOAD;
 
@@ -2273,7 +2269,6 @@ int CNPC_Alyx::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	int taken = BaseClass::OnTakeDamage_Alive(info);
 
-//Seco2013 - Has to be in hl2mprules not hl2rules.
 	if ( taken && HL2MPRules()->IsAlyxInDarknessMode() && !HasCondition( COND_TALKER_PLAYER_DEAD ) )
 	{
 		if ( !HasCondition(COND_SEE_ENEMY) && (info.GetDamageType() & (DMG_SLASH | DMG_CLUB) ) )
@@ -2698,7 +2693,6 @@ bool CNPC_Alyx::PlayerFlashlightOnMyEyes( CBasePlayer *pPlayer )
 	float flDist = VectorNormalize( vecToEyes ); 
 
 	// We can be blinded in daylight, but only at close range
-//Seco2013 - Has to be in hl2mprules not hl2rules.
 	if ( HL2MPRules()->IsAlyxInDarknessMode() == false )
 	{
 		if ( flDist > (8*12.0f) )

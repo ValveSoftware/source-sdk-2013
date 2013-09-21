@@ -706,7 +706,7 @@ void CPropCombineBall::WhizSoundThink()
 	pPhysicsObject->GetPosition( &vecPosition, NULL );
 	pPhysicsObject->GetVelocity( &vecVelocity, NULL );
 	
-	//4WH
+	//SecobMod__MiscFixes 
 	//if ( gpGlobals->maxClients == 1 )
 	// Multiplayer equivelent, loops through players and decides if it should go or not, like SP.
 	if ( gpGlobals->maxClients > 1 )
@@ -763,11 +763,11 @@ void CPropCombineBall::WhizSoundThink()
 	}
 	else
 	{
-			#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+			#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());  //Slightly different location due to OLD/NEW sdk code differences. Unsure if needed.
 	#else
 	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-	#endif //Seco7_Enable_Fixed_Multiplayer_AI	
+	#endif //SecobMod__Enable_Fixed_Multiplayer_AI	
 
 		if ( pPlayer )
 		{
