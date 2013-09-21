@@ -64,10 +64,10 @@ LINK_ENTITY_TO_CLASS(info_player_deathmatch,CBaseDMStart);
 LINK_ENTITY_TO_CLASS(info_player_start,CPointEntity);
 LINK_ENTITY_TO_CLASS(info_landmark,CPointEntity);
 
-#ifdef Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
-//4WH - Information: Allow us to create an info_switchmodel entity.
+#ifdef SecobMod___ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+//SecobMod__Information Allow us to create an info_switchmodel entity.
 LINK_ENTITY_TO_CLASS(info_switchmodel,CPointEntity);
-#endif //Seco7_ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
+#endif //SecobMod___ENABLE_MAP_SPECIFIC_PLAYER_MODEL_OVERRIDES
 
 bool CBaseDMStart::IsTriggered( CBaseEntity *pEntity )
 {

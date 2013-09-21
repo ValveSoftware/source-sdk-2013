@@ -26,7 +26,7 @@ CBaseEntity* MoveToRandomSpot( CBaseEntity *pEnt )
 {
 	if ( pEnt )
 	{
-#ifdef Seco7_Enable_Fixed_Multiplayer_AI
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		UTIL_SetOrigin( pEnt, GetRandomSpot() );
 #else
 		CBasePlayer *pLocalPlayer = UTIL_GetLocalPlayer();
@@ -37,7 +37,7 @@ CBaseEntity* MoveToRandomSpot( CBaseEntity *pEnt )
 
 			UTIL_SetOrigin( pEnt, GetRandomSpot() );
 		}
-#endif //Seco7_Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 
 	return pEnt;
