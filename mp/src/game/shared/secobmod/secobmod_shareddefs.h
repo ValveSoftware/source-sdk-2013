@@ -14,7 +14,7 @@
 /*****************/
 #define SecobMod__MiscFixes //Used when a fix doesn't quite fit in any of the other defined categorties. 
 #define SecobMod__Enable_Fixed_Multiplayer_AI //Allow AI in your mod, also fixes numerous crashes to do with AI and related features.
-//#define SecobMod__USE_STATIC_MOUNT_CODE //Use static mounting code to mount multiple games. This must also be defined for dynamic mounts.
+#define SecobMod__USE_STATIC_MOUNT_CODE //Use static mounting code to mount multiple games. This must also be defined for dynamic mounts.
 #define SecobMod__USE_DYNAMIC_MOUNT_CODE //This is a much better mounting system allowing for true content mounting as though a map were that game. Maps must be named ss_hl2_, ss_ep1_ and ss_ep2_ for valid mounting.
 //s#define SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING //Portal is seperate to the rest of the mounting code as it will crash anyone without Portal installed in most cases if a Portal map is loaded.
 #define SecobMod__PREVENT_ITEM_WEAPON_RESPAWNING //Prevent items and weapons from respawning after picked up by a player. Actually we cheat and set the respawn time insanely high.
