@@ -1,4 +1,4 @@
 "chapters"
 {
-	1	"background01"
+	1	"SecobMod__bkgd"
 }

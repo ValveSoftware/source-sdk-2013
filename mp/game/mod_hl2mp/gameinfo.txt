@@ -1,6 +1,6 @@
 "GameInfo"
 {
-	game	"Seco-2013"
+	game	"Source Engine Co-Operative Base Modification (2013)"
 	title	""
 	title2	""
 	type multiplayer_only
@@ -18,48 +18,17 @@
 	{
 		SteamAppId				243750
 		
-		//
-		// The code that loads this file automatically does a few things here:
-		//
-		// 1. For each "Game" search path, it adds a "GameBin" path, in <dir>\bin
-		// 2. For each "Game" search path, it adds another "Game" path in front of it with _<langage> at the end.
-		//    For example: c:\hl2\cstrike on a french machine would get a c:\hl2\cstrike_french path added to it.
-		// 3. For the first "Game" search path, it adds a search path called "MOD".
-		// 4. For the first "Game" search path, it adds a search path called "DEFAULT_WRITE_PATH".
-		//
-
-		//
-		// Search paths are relative to the base directory, which is where hl2.exe is found.
-		//
-		// |gameinfo_path| points at the directory where gameinfo.txt is.
-		// We always want to mount that directory relative to gameinfo.txt, so
-		// people can mount stuff in c:\mymod, and the main game resources are in
-		// someplace like c:\program files\valve\steam\steamapps\half-life 2.
-		//
 		SearchPaths
-		{
-			// First, mount all user customizations.  This will search for VPKs and subfolders
-			// and mount them in alphabetical order.  The easiest way to distribute a mod is to
-			// pack up the custom content into a VPK.  To "install" a mod, just drop it in this
-			// folder.
-			//
-			// Note that this folder is scanned only when the game is booted.
+		{		
+			//=======================================
+			//Secob Game Search Paths
+			//=======================================
+			//SecobMod__ Allow custom content by user .vpk packaged mods.
 			game+mod			hl2mp/custom/*
 			game+mod			hl2/custom/*
 
-			// Now search loose files.  We'll set the directory containing the gameinfo.txt file
-			// as the first "mod" search path (after any user customizations).  This is also the one
-			// that's used when writing to the "mod" path.
-			game+mod+mod_write+default_write_path		|gameinfo_path|.
-			gamebin				|gameinfo_path|bin
-
-			// We search VPK files before ordinary folders, because most files will be found in
-			// VPK and we can avoid making thousands of file system calls to attempt to open files
-			// in folders where they don't exist.  (Searching a VPK is much faster than making an operating
-			// system call.)
-			game_lv				hl2/hl2_lv.vpk
-			game+mod			hl2mp/hl2mp_english.vpk
-			game+mod			hl2mp/hl2mp_pak.vpk
+			//SecobMod__This is where we load in the Source SDK's hl2 vpk files.
+			//If we load the half-life2's files then we crash the game on startup, and these work just fine.
 			game				|all_source_engine_paths|hl2/hl2_english.vpk
 			game				|all_source_engine_paths|hl2/hl2_pak.vpk
 			game				|all_source_engine_paths|hl2/hl2_textures.vpk
@@ -68,17 +37,67 @@
 			game				|all_source_engine_paths|hl2/hl2_misc.vpk
 			platform			|all_source_engine_paths|platform/platform_misc.vpk
 
-			// Add the HL2 directory as a game search path.  This is also where where writes
-			// to the "game" path go.
+			//SecobMod__ Set the gameinfo.txt's location to that of the mod search path here and add the bin folder.
+			game+mod+mod_write+default_write_path		|gameinfo_path|.
+			gamebin				|gameinfo_path|bin
+			
+			//SecobMod__ Set the Source SDK 2013 Multiplayer (hl2mp) folder as the game search and write path.
 			game+game_write		hl2mp
-
-			// Where the game's binaries are
 			gamebin				hl2mp/bin
+			game+mod			|all_source_engine_paths|hl2mp
+			game+mod			hl2mp/hl2mp_pak.vpk
+			Game				|gameinfo_path|.
 
-			// Last, mount in shared HL2 loose files
+			//SecobMod__Finally we find any other missing content.
 			game				|all_source_engine_paths|hl2mp
 			game				|all_source_engine_paths|hl2
 			platform			|all_source_engine_paths|platform
+
+			
+			
+			//=======================================
+			//Valve Game Search Paths
+			//=======================================
+			//SecobMod__Mount our additional games here
+			//This allows you to use other content in your games and load some maps from other games (but some maps crash to desktop, and portal2 maps can't be loaded due to version mismatch).
+			
+		//Episode 2	
+		game "|gameinfo_path|..\..\common\Half-Life 2\ep2\ep2_sound_vo_english.vpk"	
+		game "|gameinfo_path|..\..\common\Half-Life 2\ep2\ep2_pak.vpk"
+
+		//Counter Strike Source
+		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike"
+		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike\cstrike_english.vpk"
+		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike\cstrike_pak.vpk"
+		
+		//Portal1
+		game "|gameinfo_path|..\..\common\Portal\portal"
+		game "|gameinfo_path|..\..\common\Portal\portal\portal_pak.vpk"
+		
+		//Portal2
+		game "|gameinfo_path|..\..\common\Portal 2\portal2"
+		game "|gameinfo_path|..\..\common\Portal 2\portal2\pak01.vpk"
+
+		//Episode1
+		game "|gameinfo_path|..\..\common\Half-Life 2\episodic\ep1_pak.vpk"
+		game "|gameinfo_path|..\..\common\Half-Life 2\episodic\ep1_sound_vo_english.vpk"
+		
+		//Team Fortress 2
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf\tf2_textures.vpk"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf\tf2_sound_vo_english.vpk"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf\tf2_sound_misc.vpk"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf\tf2_misc.vpk"
+	
+			
+		//SecobMod__If we want to load any official maps from any Valve .vpk enabled game we add the folder paths to them here.
+		game "|gameinfo_path|..\..\common\Half-Life 2\ep2"	
+		game "|gameinfo_path|..\..\common\Half-Life 2\episodic"
+		game "|gameinfo_path|..\..\common\Half-Life 2\hl2"
+		game "|gameinfo_path|..\..\common\portal\portal"
+		game "|gameinfo_path|..\..\common\Portal 2\portal2"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf"
+		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike"
 		}
 	}
 }

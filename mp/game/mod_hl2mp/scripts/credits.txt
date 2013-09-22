@@ -29,11 +29,11 @@
 	" "	"CreditsOutroText"
 	" "	"CreditsOutroLogos"
 	" "	"CreditsOutroText"
-	"Seco-v7"	"CreditsOutroText"
+	"Source Engine Co-Operative Base Mod"	"CreditsOutroText"
 	" "	"CreditsOutroText"
 	"Created by..."	"CreditsOutroText"
 	" "	"CreditsOutroText"
-	"4-Wheeled Husky Games"   "CreditsOutroText"
+	"Chiefwhosm/Whoozzem"   "CreditsOutroText"
 	" "	"CreditsOutroText"
 	" "	"CreditsOutroLogos"
 }
