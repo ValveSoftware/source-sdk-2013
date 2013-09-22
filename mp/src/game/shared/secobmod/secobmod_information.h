@@ -6,7 +6,7 @@
 //SecobMod__MiscFixes    These are small fixes to the code to allow things to run correctly.
 //SecobMod__MiscFixes	   These are like the above but have information describing why the fix was required.
 //SecobMod__Information  These are the main comment lines found in the source code explaining many things in detail.
-//SecobMod__ChangeME!    These are lines of code that require changing for the game to run correctly once you start modifying the base.
+//SecobMod__ChangeME!    These are lines of code that require changing/you may wish to change for the game to run correctly once you start modifying the base.
 //SecobMod__FixMe		   These are bugs in the code which require a fix before they'll work.
 
 
@@ -22,467 +22,6 @@
 //to:
 //#define MASK_BLOCKLOS (CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_BLOCKLOS|CONTENTS_OPAQUE)
 
-
-//All OLD MOUNT CODE CLIENT/SERVER.
-//=============================//
-// Server Dynamic Mount Code.  //
-//=============================//
-/*
-#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE	
-//SecobMod__ChangeME!
-//SecobMod__Information: This is the new dynamic GCF mounting code. Basically each map can be set to be either HL2, Ep1, Ep2 or (if you're feeling daring for your mod) Portal content enabled. If you enable Ep2, you lose some functionality that HL2 has, and vice-versa.
-// as you can see. Mounting depends on a specific naming scheme for custom maps. These are SecobMod__hl2_<map name>, SecobMod__ep1_<mapname> and finally SecobMod__ep2_<mapname>
-//REMEMBER ! ! ! ! To change SecobMod__ to whatever prefix your mod uses or you WILL crash ! ! !
-//ALSO !!!!!!!!!!! Remember to change the mod folder search paths from seco7 to the name of your Mod folder. Otherwise you will have LOADS of problems on dynamically mounted maps!
-	if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__bkgd", 14 ))
-	{
-	//SecobMod__Information: Background maps use the static search paths for mounts. This is restrictive as to what's allowable in such maps but it's essential this not be changed due to main menu bugs.
-	}
-	else if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d1_", 3 )
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d2_", 3 )
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "d3_", 3 )
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "dm_", 3 )
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "testchmb", 8 ) //Allow portal maps to load as HL2.
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "escape", 6 ) //Allow portal maps to load as HL2.
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__hl2_", 14 ) ) //Mounts required for HalfLife 2/Deathmatch content.
-	{
-		Msg("HALFLIFE 2 CONTENT IS BEING MOUNTED! \n");		
-		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-		//SecobMod__Information: Dedicated servers require different search paths to work.	
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
-		if (sv_dedicated.GetBool())
-		{
-			filesystem->AddSearchPath("mod_hl2mp", "MOD");
-			filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
-			filesystem->AddSearchPath("mod_hl2mp", "GAME");
-		}
-		else
-		{
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-		}
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-		filesystem->MountSteamContent(-220);  //Half-Life 2
-		if (sv_dedicated.GetBool())
-		{
-			filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-			filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
-		}
-		else
-		{
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
-		}
-		filesystem->AddSearchPath("hl2mp", "GAME");
-		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME");	
-		
-		#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-		filesystem->AddSearchPath("portal", "GAME");
-		filesystem->MountSteamContent(-400);  //Portal
-		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
-		#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-		
-		sv_hl2_mount.SetValue(1);
-		sv_ep1_mount.SetValue(0);
-		sv_ep2_mount.SetValue(0);
-		sv_failsafe_mount.SetValue(0);
-	}
-	else if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep1_", 4 )
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__ep1_", 14 )	) //Mounts required for Episode 1 content.
-	{
-		Msg("EPISODE 1 CONTENT IS BEING MOUNTED! \n");
-	
-			//filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-			//engine->ServerCommand( "soundscape_flush\n" ); // We have to remove all sound paths or the game gets confused about where sounds are stored etc.
-			
-			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/", "BASE_PATH");
-			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/bin/", "EXECUTABLE_PATH");
-			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/platform/", "PLATFORM");
-			
-			
-			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/hl2", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/episodic/", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/ep2/", "GAME");
-			
-			if (sv_dedicated.GetBool())
-			{
-				filesystem->AddSearchPath("mod_hl2mp", "MOD");
-				filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
-				filesystem->AddSearchPath("mod_hl2mp", "GAME");
-				filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-				filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
-			}
-			else
-			{
-				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "GAME");
-				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod");
-				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod_write");
-				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "default_write_path");
-				filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin/", "gamebin");
-			}
-			
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_vo_english.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_pak.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_textures.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_misc.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_misc.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/platform/platform_misc.vpk", "PLATFORM" );
-			
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/", "GAME");
-			
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "game_write");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin/", "gamebin");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod");
-			
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/hl2mp_pak.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/hl2mp_pak.vpk", "mod");
-
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME");
-
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/ep1_pak.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/ep1_sound_vo_english.vpk", "GAME");
-			
-			
-			//Old style layout for reference.
-			filesystem->AddSearchPath("../ep2", "EXECUTABLE_PATH");
-			filesystem->AddSearchPath("../ep2", "PLATFORM");
-			filesystem->AddSearchPath("mod_hl2mp", "MOD");
-			filesystem->AddSearchPath("source sdk base 2013 multiplayer/bin", "GAMEBIN");
-			filesystem->AddSearchPath("mod_hl2mp", "GAME");
-			filesystem->AddSearchPath("episodic", "GAMEBIN");
-			filesystem->AddSearchPath("episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-			filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
-			filesystem->AddSearchPath("hl2", "GAMEBIN");
-			filesystem->AddSearchPath("hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-			filesystem->MountSteamContent(-220);  //Half-Life 2
-			filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-			filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
-			filesystem->AddSearchPath("hl2mp", "GAME");
-			filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-			filesystem->AddSearchPath("ep2", "GAME");	
-			
-			#ifdef OBCO_ENABLE_PORTAL_CONTENT_MOUNTING
-			filesystem->AddSearchPath("portal", "GAME");
-			filesystem->MountSteamContent(-400);  //Portal
-			Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
-			#endif //OBCO_ENABLE_PORTAL_CONTENT_MOUNTING
-			
-
-		
-			//Default layout of gameinfo.txt's search paths.
-			
-			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/", "BASE_PATH");
-			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/bin/", "EXECUTABLE_PATH");
-			filesystem->AddSearchPath("../../../steamapps/common/source sdk base 2013 multiplayer/platform/", "PLATFORM");
-			
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod_write");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "default_write_path");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin/", "gamebin");
-			
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_vo_english.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_pak.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_textures.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_misc.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_misc.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/platform/platform_misc.vpk", "PLATFORM" );
-			
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/", "GAME");
-			
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "game_write");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin/", "gamebin");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "mod");
-			
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/hl2mp_pak.vpk", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/hl2mp_pak.vpk", "mod");
-
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
-			filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME");
-			
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/", "LOGDIR");
-			
-
-	Msg ("These are the episodic search paths");
-	 filesystem->PrintSearchPaths();
-		
-		#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-		filesystem->AddSearchPath("portal", "GAME");
-		filesystem->MountSteamContent(-400);  //Portal*/
-		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
-		#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-		
-		sv_hl2_mount.SetValue(0);
-		sv_ep1_mount.SetValue(1);
-		sv_ep2_mount.SetValue(0);
-		sv_failsafe_mount.SetValue(0);
-	}
-	else if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "ep2_", 3 )
-	|| !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__ep2_", 14 )) //Mounts required for Episode 2 content.
-	{
-		Msg("EPISODE 2 CONTENT IS BEING MOUNTED! \n");
-		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-		//SecobMod__Information: Dedicated servers require different search paths to work.
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
-		if (sv_dedicated.GetBool())
-		{
-			filesystem->AddSearchPath("mod_hl2mp", "MOD");
-			filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
-			filesystem->AddSearchPath("mod_hl2mp", "GAME");
-		}
-		else
-		{
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-		}
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "GAMEBIN");
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-		filesystem->MountSteamContent(-420);  //Half-Life 2-Episode 2
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-		filesystem->MountSteamContent(-220);  //Half-Life 2
-		if (sv_dedicated.GetBool())
-		{
-			filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-			filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
-		}
-		else
-		{
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
-		}
-		filesystem->AddSearchPath("hl2mp", "GAME");
-		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
-		filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
-		
-		#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-		filesystem->AddSearchPath("portal", "GAME");
-		filesystem->MountSteamContent(-400);  //Portal*/
-		Msg("PORTAL CONTENT IS BEING MOUNTED! \n");
-		#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-		
-		sv_hl2_mount.SetValue(0);
-		sv_ep1_mount.SetValue(0);
-		sv_ep2_mount.SetValue(1);
-		sv_failsafe_mount.SetValue(0);
-	}
-	else 
-	{
-		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
-		filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
-		filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
-		if (sv_dedicated.GetBool())
-		{
-			filesystem->AddSearchPath("mod_hl2mp", "MOD");
-			filesystem->AddSearchPath("mod_hl2mp/bin", "GAMEBIN");
-			filesystem->AddSearchPath("mod_hl2mp", "GAME");
-		}
-		else
-		{
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-		}
-		filesystem->AddSearchPath("hl2mp", "GAME");
-		filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch		
-		if (sv_dedicated.GetBool())
-		{
-			filesystem->AddSearchPath("mod_hl2mp", "DEFAULT_WRITE_PATH");
-			filesystem->AddSearchPath("mod_hl2mp", "LOGDIR");
-		}
-		else
-		{
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-			filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
-		}
-		sv_hl2_mount.SetValue(0);
-		sv_ep1_mount.SetValue(0);
-		sv_ep2_mount.SetValue(0);
-		sv_failsafe_mount.SetValue(1);
-		Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
-	}	
-#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
-*/
-
-//=============================//
-// Client Dynamic Mount Code.  //
-//=============================//
-/*
-#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
-			//Why did I remove this section from Alpha 2 !
-			// Obsidian: Always flush the mdlcache here, except when it will crash
-			// Expression is a little complex, what it says is that if we're a listen server
-			// and the localplayer is index 1, don't flush anything.
-			//SecobMod__Information: If we don't flush the cache here strange things happen to the NPCs in dedicated server games. Example: The metropolice float (yes, in the AIR) round "matrix" style.
-			if ( !(!sv_dedicated.GetBool() && (engine->GetLocalPlayer() == 1)) )
-			{
-			    Msg("CLIENT LEVEL PRE-INIT IS FLUSHING CACHE !");
-				mdlcache->Flush();
-				UncacheAllMaterials();
-			}
-	//SecobMod__ChangeME!		
-	if (sv_hl2_mount.GetBool())
-	{
-	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-	filesystem->MountSteamContent(-220);  //Half-Life 2
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
-	filesystem->AddSearchPath("hl2mp", "GAME");
-	filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME");	
-	
-	#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-	filesystem->AddSearchPath("portal", "GAME");
-	filesystem->MountSteamContent(-400);  //Portal
-	#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-	}		
-	//=================
-	if (sv_ep1_mount.GetBool())
-	{
-	/*filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/bin", "GAMEBIN");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-	filesystem->MountSteamContent(-380);  //Half-Life 2-Episode 1
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME");
-	filesystem->MountSteamContent(-220);  //Half-Life 2
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
-	filesystem->AddSearchPath("hl2mp", "GAME");
-	filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME");	
-	
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/ep1_sound_vo_english.vpk", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/ep1_pak.vpk", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_vo_english.vpk", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_pak.vpk", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_textures.vpk", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_sound_misc.vpk", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/hl2_misc.vpk", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic/", "GAME");
-	
-	#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-	filesystem->AddSearchPath("portal", "GAME");
-	filesystem->MountSteamContent(-400);  //Portal
-	#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-	}		
-	//=================
-	if (sv_ep2_mount.GetBool())
-	{
-	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "GAMEBIN");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "GAME", PATH_ADD_TO_TAIL); //Add to the Tail
-	filesystem->MountSteamContent(-420);  //Half-Life 2-Episode 2
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2/bin", "GAMEBIN");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/hl2", "GAME");
-	filesystem->MountSteamContent(-220);  //Half-Life 2
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
-	filesystem->AddSearchPath("hl2mp", "GAME");
-	filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/episodic", "GAME");
-	filesystem->MountSteamContent (-380);  //Half-Life 2-Episode 1
-	
-	#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-	filesystem->AddSearchPath("portal", "GAME");
-	filesystem->MountSteamContent(-400);  //Portal
-	#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-	}			
-	//=================
-	if (sv_failsafe_mount.GetBool())
-	{
-	filesystem->RemoveAllSearchPaths(); // We have to remove all search paths or the game gets confused about model vertex counts etc.
-	Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2/bin", "EXECUTABLE_PATH");
-	filesystem->AddSearchPath("../../../steamapps/common/Half-Life 2/ep2", "PLATFORM");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "MOD");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp/bin", "GAMEBIN");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "GAME");
-	filesystem->AddSearchPath("hl2mp", "GAMEBIN");
-	filesystem->AddSearchPath("hl2mp", "GAME");
-	filesystem->MountSteamContent(-320);  //Half-Life 2:Deathmatch
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "DEFAULT_WRITE_PATH");
-	filesystem->AddSearchPath("../../../steamapps/SourceMods/mod_hl2mp", "LOGDIR");
-	Msg("WARNING ! FAIL-SAFE CONTENT IS BEING MOUNTED! MAP NAME NOT VALID FOR DYNAMIC GCF MOUNTING! FIX THIS OR CHANGE TO A DIFFERENT LEVEL ! \n");
-	}
-#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
-*/
-
-
-//=============================//
-//    Static Mount Code.       //
-//=============================//
-/*#ifdef SecobMod__USE_STATIC_MOUNT_CODE
-	//SecobMod__Information: This is our base game mount code. It relies on a text file to hold all the search paths/AppIDs which your mod requires. Make sure people know what you add to this, because if they don't have the
-	// game that you choose to mount here, they could well crash to desktop. The file is in the root of the compiled modification folder. This is how we allow people who have just loaded the game to use map and changelevel commands
-	// to any official valve map.
-	  KeyValues *pkvMount = new KeyValues( "InstalledSourceGames" );
-	   if ( pkvMount->LoadFromFile( filesystem, "InstalledSourceGames.txt" ) )
-	   {
-	      while ( pkvMount )
-	      {
-	         const char *pszMountName = pkvMount->GetName();
-	         KeyValues *pkvSearchPath = pkvMount->FindKey( "searchpath" );
-	         KeyValues *pkvAppID = pkvMount->FindKey( "appid" );
-			 
-	
-	         if ( pszMountName && pkvSearchPath && pkvAppID )
-	         {
-	            const char *pszMountPath = pkvSearchPath->GetString();
-	            int nMountID = pkvAppID->GetInt();
-				
-				//SecobMod__Information: If InstalledSourceGames.txt attempts to mount Portal, but Portal is disabled in the code - skip trying to mount Portal.
-				#ifndef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-				if (nMountID == -400)
-				{
-				break;
-				}
-				#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-		
-	            filesystem->AddSearchPath(pszMountPath, "GAME");
-	            filesystem->MountSteamContent(nMountID);
-	         }
-	
-	         pkvMount = pkvMount->GetNextKey();
-	      }
-	   }
-#endif //SecobMod__USE_STATIC_MOUNT_CODE*/
-
 //=========================//
 //  GameInfo.txt Backup.   //
 //=========================//
@@ -490,8 +29,8 @@
 "GameInfo"
 {
 	game	"Source Engine Co-Operative Base Modification (2013)"
-	title	"Source Engine Co-Operative Base Modification"
-	title2	"(2013)"
+	title	""
+	title2	""
 	type multiplayer_only
 	nomodels 0
 	nohimodel 0
@@ -508,48 +47,85 @@
 		SteamAppId				243750
 		
 		SearchPaths
-		{
+		{		
+			//=======================================
+			//Secob Game Search Paths
+			//=======================================
 			//SecobMod__ Allow custom content by user .vpk packaged mods.
 			game+mod			hl2mp/custom/*
 			game+mod			hl2/custom/*
 
-			//SecobMod__ Set the gameinfo.txt's location to that of the mod search path here.
-			game+mod+mod_write+default_write_path		|gameinfo_path|.
-			gamebin				|gameinfo_path|bin
-
-			//SecobMod__ Load all the .vpk files that we want -EXCEPT- hl2mp files (which break the AI if they're enabled so early).
-			game_lv				hl2/hl2_lv.vpk //Low Violence.
-			
-			//SecobMod__ Newest game first, so here ep2,ep1,hl2s multitude of .vpk files.			
-			game				|all_source_engine_paths|ep2/ep2_sound_vo_english.vpk
-			game				|all_source_engine_paths|ep2/ep2_pak.vpk
-			game				|all_source_engine_paths|episodic/ep1_sound_vo_english.vpk
-			game				|all_source_engine_paths|episodic/ep1_pak.vpk
-			game				|all_source_engine_paths|hl2/hl2_sound_vo_english.vpk
+			//SecobMod__This is where we load in the Source SDK's hl2 vpk files.
+			//If we load the half-life2's files then we crash the game on startup, and these work just fine.
+			game				|all_source_engine_paths|hl2/hl2_english.vpk
 			game				|all_source_engine_paths|hl2/hl2_pak.vpk
 			game				|all_source_engine_paths|hl2/hl2_textures.vpk
+			game				|all_source_engine_paths|hl2/hl2_sound_vo_english.vpk
 			game				|all_source_engine_paths|hl2/hl2_sound_misc.vpk
 			game				|all_source_engine_paths|hl2/hl2_misc.vpk
 			platform			|all_source_engine_paths|platform/platform_misc.vpk
+
+			//SecobMod__ Set the gameinfo.txt's location to that of the mod search path here and add the bin folder.
+			game+mod+mod_write+default_write_path		|gameinfo_path|.
+			gamebin				|gameinfo_path|bin
 			
-			//SecobMod__ The below lines allow the game to find the location of all singleplayer maps for playing. Remove the block if you don't want to be able to do this. Good for testing stuff though.
-			game "|gameinfo_path|..\..\common\Half-Life 2\hl2" 
-			game "|gameinfo_path|..\..\common\Half-Life 2\episodic"
-			game "|gameinfo_path|..\..\common\Half-Life 2\ep2"
-
-
 			//SecobMod__ Set the Source SDK 2013 Multiplayer (hl2mp) folder as the game search and write path.
 			game+game_write		hl2mp
-
-			//SecobMod__ Location of the Source SDK 2013 Multiplayer exe file.
 			gamebin				hl2mp/bin
-
-			//SecobMod__ Now we can mount in our game+mod files (hl2mp) without breaking stuff.
 			game+mod			|all_source_engine_paths|hl2mp
 			game+mod			hl2mp/hl2mp_pak.vpk
-			game				|all_source_engine_paths|episodic
+			Game				|gameinfo_path|.
+
+			//SecobMod__Finally we find any other missing content.
+			game				|all_source_engine_paths|hl2mp
 			game				|all_source_engine_paths|hl2
 			platform			|all_source_engine_paths|platform
+
+			
+			
+			//=======================================
+			//Valve Game Search Paths
+			//=======================================
+			//SecobMod__Mount our additional games here
+			//This allows you to use other content in your games and load some maps from other games (but some maps crash to desktop, and portal2 maps can't be loaded due to version mismatch).
+			
+		//Episode 2	
+		game "|gameinfo_path|..\..\common\Half-Life 2\ep2\ep2_sound_vo_english.vpk"	
+		game "|gameinfo_path|..\..\common\Half-Life 2\ep2\ep2_pak.vpk"
+
+		//Counter Strike Source
+		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike"
+		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike\cstrike_english.vpk"
+		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike\cstrike_pak.vpk"
+		
+		//Portal1
+		game "|gameinfo_path|..\..\common\Portal\portal"
+		game "|gameinfo_path|..\..\common\Portal\portal\portal_pak.vpk"
+		
+		//Portal2
+		game "|gameinfo_path|..\..\common\Portal 2\portal2"
+		game "|gameinfo_path|..\..\common\Portal 2\portal2\pak01.vpk"
+
+		//Episode1
+		game "|gameinfo_path|..\..\common\Half-Life 2\episodic\ep1_pak.vpk"
+		game "|gameinfo_path|..\..\common\Half-Life 2\episodic\ep1_sound_vo_english.vpk"
+		
+		//Team Fortress 2
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf\tf2_textures.vpk"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf\tf2_sound_vo_english.vpk"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf\tf2_sound_misc.vpk"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf\tf2_misc.vpk"
+	
+			
+		//SecobMod__If we want to load any official maps from any Valve .vpk enabled game we add the folder paths to them here.
+		game "|gameinfo_path|..\..\common\Half-Life 2\ep2"	
+		game "|gameinfo_path|..\..\common\Half-Life 2\episodic"
+		game "|gameinfo_path|..\..\common\Half-Life 2\hl2"
+		game "|gameinfo_path|..\..\common\portal\portal"
+		game "|gameinfo_path|..\..\common\Portal 2\portal2"
+		game "|gameinfo_path|..\..\common\Team Fortress 2\tf"
+		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike"
 		}
 	}
 }

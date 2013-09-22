@@ -229,7 +229,7 @@ void CNPC_FloorTurret::UpdateOnRemove( void )
 void CNPC_FloorTurret::Precache( void )
 {
 	const char *pModelName = STRING( GetModelName() );
-	//#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
+	#ifdef SecobMod__ENABLE_PORTAL_ITEMS
 	if (IsPortalTurret())
 	{
 	pModelName = ( pModelName && pModelName[ 0 ] != '\0' ) ? pModelName : FLOOR_TURRET_MODEL_PORTAL;
@@ -237,11 +237,14 @@ void CNPC_FloorTurret::Precache( void )
 	}
 	else
 	{
-	//#else
 	pModelName = ( pModelName && pModelName[ 0 ] != '\0' ) ? pModelName : FLOOR_TURRET_MODEL;
 	PrecacheModel( pModelName );
 	}
-	//#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
+	#else
+	pModelName = ( pModelName && pModelName[ 0 ] != '\0' ) ? pModelName : FLOOR_TURRET_MODEL;
+	PrecacheModel( pModelName );
+	}
+	#endif //SecobMod__ENABLE_PORTAL_ITEMS
 	
 	
 	PrecacheModel( FLOOR_TURRET_GLOW_SPRITE );
@@ -1231,18 +1234,19 @@ void CNPC_FloorTurret::AutoSearchThink( void )
 		SetThink( &CNPC_FloorTurret::Deploy );
 		if ( !m_bNoAlarmSounds )
 		{
-	//#ifdef SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-	if (IsPortalTurret())
-	{
-	EmitSound( "NPC_FloorTurret.TalkAutosearch" );
-	}
-	else
-	{
-	//#else
-	EmitSound( "NPC_FloorTurret.Alert" );
-	}
-	//#endif //SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING
-	}
+			#ifdef SecobMod__ENABLE_PORTAL_ITEMS
+			if (IsPortalTurret())
+			{
+			EmitSound( "NPC_FloorTurret.TalkAutosearch" );
+			}
+			else
+			{
+			EmitSound( "NPC_FloorTurret.Alert" );
+			}
+			#else
+			EmitSound( "NPC_FloorTurret.Alert" );
+			#endif //SecobMod__ENABLE_PORTAL_ITEMS
+		}
 	}
 }
 

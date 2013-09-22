@@ -339,13 +339,6 @@ class IClientPurchaseInterfaceV2 *g_pClientPurchaseInterface = (class IClientPur
 
 static ConVar *g_pcv_ThreadMode = NULL;
 
-#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
-	ConVar sv_hl2_mount( "sv_hl2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: HL2." );
-	ConVar sv_ep1_mount( "sv_ep1_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 1." );
-	ConVar sv_ep2_mount( "sv_ep2_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Episode 2." );
-	ConVar sv_failsafe_mount( "sv_failsafe_mount", "0", FCVAR_REPLICATED, "Dynamically Mount: Fail_Safe - Something has gone wrong!" );
-#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
-
 //-----------------------------------------------------------------------------
 // Purpose: interface for gameui to modify voice bans
 //-----------------------------------------------------------------------------
@@ -952,13 +945,6 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 	// it's ok if this is NULL. That just means the headtrack.dll wasn't found
 	g_pSourceVR = (ISourceVirtualReality *)appSystemFactory(SOURCE_VIRTUAL_REALITY_INTERFACE_VERSION, NULL);
-	
-	Msg ("These are the default server search paths");
-	filesystem->PrintSearchPaths();
-
-#ifdef SecobMod__USE_STATIC_MOUNT_CODE
-	//SecobMod__FixME!
-#endif //SecobMod__USE_STATIC_MOUNT_CODE
   
 	factorylist_t factories;
 	factories.appSystemFactory = appSystemFactory;
@@ -1588,54 +1574,11 @@ void CHLClient::View_Fade( ScreenFade_t *pSF )
 		vieweffects->Fade( *pSF );
 }
 
-#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
-	// Obsidian:
-	// 1 means don't flush, as doing so will crash the server, 0 means safe to flush
-	ConVar sv_serveractive( "sv_serveractive", "0", FCVAR_REPLICATED, "Is the server currently running?" );
-	ConVar sv_dedicated( "sv_dedicated", "0", FCVAR_REPLICATED, "Is this a dedicated server?" );
-#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
-
 //-----------------------------------------------------------------------------
 // Purpose: Per level init
 //-----------------------------------------------------------------------------
 void CHLClient::LevelInitPreEntity( char const* pMapName )
 {
-
-#ifdef SecobMod__USE_DYNAMIC_MOUNT_CODE
-			//Why did I remove this section from Alpha 2 !
-			// Obsidian: Always flush the mdlcache here, except when it will crash
-			// Expression is a little complex, what it says is that if we're a listen server
-			// and the localplayer is index 1, don't flush anything.
-			//SecobMod__Information: If we don't flush the cache here strange things happen to the NPCs in dedicated server games. Example: The metropolice float (yes, in the AIR) round "matrix" style.
-			if ( !(!sv_dedicated.GetBool() && (engine->GetLocalPlayer() == 1)) )
-			{
-			    Msg("CLIENT LEVEL PRE-INIT IS FLUSHING CACHE !");
-				mdlcache->Flush();
-				UncacheAllMaterials();
-			}
-	//SecobMod__ChangeME!		
-	if (sv_hl2_mount.GetBool())
-	{
-		//Remember we don't need to do anything fancy like is server dedicated code for the client.
-		//SecobMod__FixME!
-	}		
-	//=================
-	if (sv_ep1_mount.GetBool())
-	{
-		//SecobMod__FixME!
-	}		
-	//=================
-	if (sv_ep2_mount.GetBool())
-	{
-		//SecobMod__FixME!
-	}			
-	//=================
-	if (sv_failsafe_mount.GetBool())
-	{
-		//SecobMod__FixME!
-	}
-#endif //SecobMod__USE_DYNAMIC_MOUNT_CODE
-
 	// HACK: Bogus, but the logic is too complicated in the engine
 	if (g_bLevelInitialized)
 		return;

@@ -14,10 +14,8 @@
 /*****************/
 #define SecobMod__MiscFixes //Used when a fix doesn't quite fit in any of the other defined categorties. 
 #define SecobMod__Enable_Fixed_Multiplayer_AI //Allow AI in your mod, also fixes numerous crashes to do with AI and related features.
-#define SecobMod__USE_STATIC_MOUNT_CODE //Use static mounting code to mount multiple games. This must also be defined for dynamic mounts.
-#define SecobMod__USE_DYNAMIC_MOUNT_CODE //This is a much better mounting system allowing for true content mounting as though a map were that game. Maps must be named ss_hl2_, ss_ep1_ and ss_ep2_ for valid mounting.
-//s#define SecobMod__ENABLE_PORTAL_CONTENT_MOUNTING //Portal is seperate to the rest of the mounting code as it will crash anyone without Portal installed in most cases if a Portal map is loaded.
 #define SecobMod__PREVENT_ITEM_WEAPON_RESPAWNING //Prevent items and weapons from respawning after picked up by a player. Actually we cheat and set the respawn time insanely high.
+
 
 /***************************/
 /* Singleplayer Additions. */
@@ -52,7 +50,7 @@
 /* Player Enhancements. */
 /************************/
 #define SecobMod__IRONSIGHT_ENABLED //Allow basic version of ironsight.
-#define SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS
+#define SecobMod__ENABLE_NIGHTVISION_FOR_HEAVY_CLASS //Give the heavy class nightvision (use the 'N' key to toggle on/off)
 #define SecobMod__PLAYERS_CAN_PICKUP_OBJECTS //Players can pickup objects with their hands.
 #define SecobMod__CAN_SPRINT_WITHOUT_SUIT //Players can sprint without the HEV suit.
 #define SecobMod__HAS_AMMO_REGARDLESS_OF_SUIT //Players have an ammo count.
@@ -81,20 +79,20 @@
 /************************/
 #define SecobMod__Force_LAN_DISABLED //Disable Lan games from activating on server startup.
 #define SecobMod__ALLOW_VALVE_APPROVED_CHEATING //Allow sv_cheats to work.
-#define SecobMod__MULTIPLAYER_CHAT_BUBBLES //Shows a chat icon while a player is typing.
+//#define SecobMod__MULTIPLAYER_CHAT_BUBBLES //Shows a chat icon while a player is typing.
 #define SecobMod__HIGH_PING_VEHICLE_FIX //Remove vehicle judder for players with high latency (lag) at the cost of forward/backwards view dampening.
 //#define SecobMod__ALLOW_JEEP_HEADLIGHTS //Allows headlights to work in jeep/jalopy.
 
 /******************************/
 /* Experimental Enhancements. */
 /******************************/
-//#define SecobMod__ENABLE_IN_TESTING_ITEMS //Enables buggy test items again, such as the Portal gun. Make sure you have Portal installed, and the portal mounting line enabled. Currently it likes to crash but I don't think it'd take much editing to fix, it's working fine, it just needs it to remove/recreate a new portal whenever you fire again.
+#define SecobMod__ENABLE_IN_TESTING_ITEMS //Enables buggy test items again, such as the Portal gun. Make sure you have Portal installed, and the portal items line enabled.
+#define SecobMod__ENABLE_PORTAL_ITEMS //Currently it likes to crash alot!.
 
 /******************/
 /* SDK Bug Fixes. */
 /******************/
 #define SecobMod__BG_MOTD_FIX //Stops the MOTD showing on main menu maps.
 #define SecobMod__FIX_SHOTGUN_FAST_SWITCH_BUG //Fixes a bug in the shotgun code - Community fix submitted fix by SubZero.
-
 
 #endif // SecobMod__SHAREDDEFS_H
