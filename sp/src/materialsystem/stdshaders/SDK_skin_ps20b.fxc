@@ -90,6 +90,7 @@ const float4 g_ShaderControls						: register( PSREG_CONSTANT_27 );					// xyz a
 #define g_SelfIllumMaskControl			g_EnvMapFresnel.w
 #define g_fBaseMapAlphaPhongMask		g_ShaderControls.x
 #define g_fInvertPhongMask				g_ShaderControls.w
+#define g_fMinLighting					g_ShaderControls.y // GSTRINGMIGRATION
 
 sampler BaseTextureSampler		: register( s0 );	// Base map, selfillum in alpha
 sampler SpecularWarpSampler		: register( s1 );	// Specular warp sampler (for iridescence etc)
@@ -298,7 +299,15 @@ float4 main( PS_INPUT i ) : COLOR
 
 	diffuseLighting *= g_DiffuseModulation.rgb;
 
+	// GSTRINGMIGRATION
+#if FOGTYPE == 2 || FLASHLIGHT != 0
 	float3 diffuseComponent = albedo * diffuseLighting;
+#else
+	float flFresnelMinlight = saturate( dot( worldSpaceNormal, vEyeDir ) );
+	float3 diffuseComponent = albedo * lerp( diffuseLighting, 1, g_fMinLighting * flFresnelMinlight );
+#endif
+	// END GSTRINGMIGRATION
+	
 	if ( bSelfIllum && !bFlashlight )
 	{
 #if ( SELFILLUMFRESNEL == 1 ) // To free up the constant register...see top of file

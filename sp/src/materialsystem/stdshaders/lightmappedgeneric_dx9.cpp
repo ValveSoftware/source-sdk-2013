@@ -9,7 +9,7 @@
 #include "BaseVSShader.h"
 #include "convar.h"
 #include "lightmappedgeneric_dx9_helper.h"
-#include "SDK_lightmappedgeneric_ps20.inc"
+#include "SDK_lightmappedgeneric_ps20b.inc"
 #include "SDK_lightmappedgeneric_vs20.inc"
 
 BEGIN_VS_SHADER( SDK_LightmappedGeneric,

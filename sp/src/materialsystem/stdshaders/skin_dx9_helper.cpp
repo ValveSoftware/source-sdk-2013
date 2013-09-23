@@ -717,7 +717,10 @@ void DrawSkin_DX9_Internal( CBaseVSShader *pShader, IMaterialVar** params, IShad
 		bool bHasBaseAlphaPhongMask = (info.m_nBaseMapAlphaPhongMask != -1) && ( params[info.m_nBaseMapAlphaPhongMask]->GetIntValue() != 0 );
 		float fHasBaseAlphaPhongMask = bHasBaseAlphaPhongMask ? 1 : 0;
 		// Controls for lerp-style paths through shader code
-		float vShaderControls[4] = { fHasBaseAlphaPhongMask, 0.0f, 0.0f, fInvertPhongMask };
+
+		const float flMinLighting = pShaderAPI->GetFloatRenderingParameter( FLOAT_RENDERPARM_MINIMUMLIGHTING ); // GSTRINGMIGRATION
+
+		float vShaderControls[4] = { fHasBaseAlphaPhongMask, flMinLighting, 0.0f, fInvertPhongMask }; // GSTRINGMIGRATION
 		pShaderAPI->SetPixelShaderConstant( PSREG_CONSTANT_27, vShaderControls, 1 );
 
 		if ( hasDetailTexture )

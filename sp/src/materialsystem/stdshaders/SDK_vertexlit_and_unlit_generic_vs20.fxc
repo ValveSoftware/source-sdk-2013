@@ -98,7 +98,7 @@ struct VS_OUTPUT
 #endif
 	float4 color					: TEXCOORD2;		// Vertex color (from lighting or unlit)
 
-#if CUBEMAP || _X360
+#if 1 //CUBEMAP || _X360 // GSTRINGMIGRATION
 	float3 worldVertToEyeVector		: TEXCOORD3;		// Necessary for cubemaps
 #endif
 
@@ -178,7 +178,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.worldPos_ProjPosZ.w = projPos.z;
 
 	// Needed for cubemaps 
-#if CUBEMAP
+#if 1 //CUBEMAP // GSTRINGMIGRATION
 	o.worldVertToEyeVector.xyz = VSHADER_VECT_SCALE * (cEyePos - worldPos);
 #endif
 

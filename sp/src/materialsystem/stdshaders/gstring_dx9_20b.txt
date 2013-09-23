@@ -1,8 +1,8 @@
 SDK_skin_ps20b.fxc
 SDK_skin_vs20.fxc
-SDK_vertexlit_and_unlit_generic_bump_ps2x.fxc
+SDK_vertexlit_and_unlit_generic_bump_ps20b.fxc
 SDK_vertexlit_and_unlit_generic_bump_vs20.fxc
-SDK_vertexlit_and_unlit_generic_ps2x.fxc
+SDK_vertexlit_and_unlit_generic_ps20b.fxc
 SDK_vertexlit_and_unlit_generic_vs20.fxc
 
 SDK_cloak_blended_pass_ps2x.fxc
@@ -20,7 +20,7 @@ SDK_lightmappedgeneric_flashlight_vs11.fxc
 SDK_lightmappedgeneric_flashlight_vs20.fxc
 SDK_lightmappedgeneric_lightingonly_overbright2_ps11.fxc
 SDK_lightmappedgeneric_lightingonly_vs11.fxc
-SDK_lightmappedgeneric_ps2x.fxc
+SDK_lightmappedgeneric_ps20b.fxc
 SDK_lightmappedgeneric_ps11.fxc
 SDK_lightmappedgeneric_vs20.fxc
 SDK_lightmappedreflective_ps2x.fxc

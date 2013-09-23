@@ -64,7 +64,12 @@ const float4 g_SelfIllumTint_and_BlendFactor	: register( c4 );
 const float4 g_ShaderControls					: register( c12 );
 const float4 g_DepthFeatheringConstants			: register( c13 );
 
-const float4 g_EyePos							: register( c20 );
+// GSTRINGMIGRATION
+const float4 g_EyePos_MinLight							: register( c20 );
+#define g_EyePos g_EyePos_MinLight.xyz
+#define g_fMinLighting g_EyePos_MinLight.w
+// END GSTRINGMIGRATION
+
 const float4 g_FogParams						: register( c21 );
 
 #define g_SelfIllumTint				g_SelfIllumTint_and_BlendFactor.xyz
@@ -351,7 +356,16 @@ float4 main( PS_INPUT i ) : COLOR
 
 	alpha = lerp( alpha, alpha * i.color.a, g_fVertexAlpha );
 
+	// GSTRINGMIGRATION
+#if FOGTYPE == 2 || FLASHLIGHT != 0
 	float3 diffuseComponent = albedo * diffuseLighting;
+#else
+	float3 vEyeDir = normalize( i.worldVertToEyeVector.xyz );
+	float flFresnelMinlight = saturate( dot( i.worldSpaceNormal, vEyeDir ) );
+
+	float3 diffuseComponent = albedo * lerp( diffuseLighting, 1, g_fMinLighting * flFresnelMinlight );
+#endif
+	// END GSTRINGMIGRATION
 
 #if DETAILTEXTURE
 	diffuseComponent = 

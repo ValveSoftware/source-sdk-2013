@@ -19,15 +19,9 @@ fxctmp9_tmp\SDK_skin_vs30.inc shaders\fxc\SDK_skin_vs30.vcs: SDK_skin_vs20.fxc c
 	echo common_pragmas.h>> filestocopy.txt
 	echo common_vs_fxc.h>> filestocopy.txt
 
-fxctmp9_tmp\SDK_vertexlit_and_unlit_generic_bump_ps30.inc shaders\fxc\SDK_vertexlit_and_unlit_generic_bump_ps30.vcs: SDK_vertexlit_and_unlit_generic_bump_ps2x.fxc common_fxc.h common_hlsl_cpp_consts.h common_pragmas.h common_flashlight_fxc.h common_vertexlitgeneric_dx9.h common_ps_fxc.h
+fxctmp9_tmp\SDK_vertexlit_and_unlit_generic_bump_ps30.inc shaders\fxc\SDK_vertexlit_and_unlit_generic_bump_ps30.vcs: SDK_vertexlit_and_unlit_generic_bump_ps2x.fxc 
 	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_vertexlit_and_unlit_generic_bump_ps2x.fxc-----SDK_vertexlit_and_unlit_generic_bump_ps30
 	echo SDK_vertexlit_and_unlit_generic_bump_ps2x.fxc>> filestocopy.txt
-	echo common_fxc.h>> filestocopy.txt
-	echo common_hlsl_cpp_consts.h>> filestocopy.txt
-	echo common_pragmas.h>> filestocopy.txt
-	echo common_flashlight_fxc.h>> filestocopy.txt
-	echo common_vertexlitgeneric_dx9.h>> filestocopy.txt
-	echo common_ps_fxc.h>> filestocopy.txt
 
 fxctmp9_tmp\SDK_vertexlit_and_unlit_generic_bump_vs30.inc shaders\fxc\SDK_vertexlit_and_unlit_generic_bump_vs30.vcs: SDK_vertexlit_and_unlit_generic_bump_vs20.fxc common_fxc.h common_hlsl_cpp_consts.h common_pragmas.h common_vs_fxc.h
 	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_vertexlit_and_unlit_generic_bump_vs20.fxc-----SDK_vertexlit_and_unlit_generic_bump_vs30
@@ -37,15 +31,9 @@ fxctmp9_tmp\SDK_vertexlit_and_unlit_generic_bump_vs30.inc shaders\fxc\SDK_vertex
 	echo common_pragmas.h>> filestocopy.txt
 	echo common_vs_fxc.h>> filestocopy.txt
 
-fxctmp9_tmp\SDK_vertexlit_and_unlit_generic_ps30.inc shaders\fxc\SDK_vertexlit_and_unlit_generic_ps30.vcs: SDK_vertexlit_and_unlit_generic_ps2x.fxc common_fxc.h common_hlsl_cpp_consts.h common_pragmas.h common_flashlight_fxc.h common_vertexlitgeneric_dx9.h common_ps_fxc.h
+fxctmp9_tmp\SDK_vertexlit_and_unlit_generic_ps30.inc shaders\fxc\SDK_vertexlit_and_unlit_generic_ps30.vcs: SDK_vertexlit_and_unlit_generic_ps2x.fxc 
 	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_vertexlit_and_unlit_generic_ps2x.fxc-----SDK_vertexlit_and_unlit_generic_ps30
 	echo SDK_vertexlit_and_unlit_generic_ps2x.fxc>> filestocopy.txt
-	echo common_fxc.h>> filestocopy.txt
-	echo common_hlsl_cpp_consts.h>> filestocopy.txt
-	echo common_pragmas.h>> filestocopy.txt
-	echo common_flashlight_fxc.h>> filestocopy.txt
-	echo common_vertexlitgeneric_dx9.h>> filestocopy.txt
-	echo common_ps_fxc.h>> filestocopy.txt
 
 fxctmp9_tmp\SDK_vertexlit_and_unlit_generic_vs30.inc shaders\fxc\SDK_vertexlit_and_unlit_generic_vs30.vcs: SDK_vertexlit_and_unlit_generic_vs20.fxc common_fxc.h common_hlsl_cpp_consts.h common_pragmas.h common_vs_fxc.h
 	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_vertexlit_and_unlit_generic_vs20.fxc-----SDK_vertexlit_and_unlit_generic_vs30

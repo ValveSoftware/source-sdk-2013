@@ -77,7 +77,12 @@ const float4 g_ShaderControls				: register( c12 );
 // 2 registers each - 6 registers total
 PixelShaderLightInfo cLightInfo[3]			: register( c13 );  // through c18
 
-const float3 g_EyePos						: register( c20 );
+// GSTRINGMIGRATION
+const float4 g_EyePos_MinLight				: register( c20 );
+#define g_EyePos g_EyePos_MinLight.xyz
+#define g_fMinLighting g_EyePos_MinLight.w
+// END GSTRINGMIGRATION
+
 const float4 g_FogParams					: register( c21 );
 
 const float4 g_FlashlightAttenuationFactors	: register( c22 );
@@ -193,10 +198,9 @@ float4 main( PS_INPUT i ) : COLOR
 		specularFactor = normalTexel.a;
 
 	float3 diffuseLighting = float3( 1.0f, 1.0f, 1.0f );
+	float3 worldSpaceNormal = Vec3TangentToWorld( tangentSpaceNormal.xyz, i.vWorldNormal, i.vWorldTangent, vWorldBinormal ); // GSTRINGMIGRATION
 	if ( bDiffuseLighting )
 	{
-		float3 worldSpaceNormal = Vec3TangentToWorld( tangentSpaceNormal.xyz, i.vWorldNormal, i.vWorldTangent, vWorldBinormal );
-
 #if ( defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) )
 		worldSpaceNormal = normalize( worldSpaceNormal );
 #else
@@ -252,7 +256,16 @@ float4 main( PS_INPUT i ) : COLOR
 	diffuseLighting *= g_DiffuseModulation.rgb;
 	alpha *= g_DiffuseModulation.a;
 
+	// GSTRINGMIGRATION
+#if FOGTYPE == 2 || FLASHLIGHT != 0
 	float3 diffuseComponent = albedo * diffuseLighting;
+#else
+	float3 vEyeDir = normalize( i.worldVertToEyeVectorXYZ_tangentSpaceVertToEyeVectorZ.xyz );
+	float flFresnelMinlight = saturate( dot( worldSpaceNormal, vEyeDir ) );
+
+	float3 diffuseComponent = albedo * lerp( diffuseLighting, 1, g_fMinLighting * flFresnelMinlight );
+#endif
+	// END GSTRINGMIGRATION
 
 
 #if !FLASHLIGHT || defined ( _X360 )
