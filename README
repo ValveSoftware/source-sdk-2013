@@ -1,7 +1,132 @@
-SECO-2013 ~ Co-Operative Base Mod for the Source Engine 2013 SDK.
+Source Engine Co-Operative Base Mod for the Source Engine 2013 SDK.
 
-Seco-2013 is a fork of the Source SDK 2013 GitHUB repository. Please see:
+SecobMod is a modification containing useful code fixes for co-operative games, below are some of the key features and below that is the Source SDK licence to which you must agree before using this modification.
 
-https://github.com/ValveSoftware/source-sdk-2013
+Developers can easily enable and disable individual features to suit their needs.
+ 
+This is a cut down list, for full information as to the features please see the secobmod_shareddefs.h file).
+ 
+** Portal Gun, enable testing in the shared defs file to enable its useage. give weapon_portalgun and companioncube.
+** Super Gravity Gun (some graphic effects missing - most of the code done by .Kave).
+** Restart level on critical ally/object/time limit failing.
+** View Cameras now take control of all players on a server (Gordon's KO Wakeup scene, etc).
+** Save/Restore transitions now work even if you disable playerclasses from the code.
+** Each player class player now has their own unique filter name, meaning only a certain playerclass
+ can trigger an event (for example). Thanks Alters for the fix!
+** Called it a day on development. It's all in the hands of the community now.
+ 
+ 
+* AI Patch Modifications:
+** Enable/Disable an enhanced version of Winston's AI Multiplayer patch.
+** Valve Game Mounting through use of the gameinfo.txt search paths.		  
+ 
+ 
+* Episode 2 Support:
+** Including support for Alyx Darkness Mode 
+ 
+ 
+* Player Abilities:
+** Non-HEV wearers can still be allowed to sprint, have the geiger counter, etc. This is on a
+ per-item basis, so players could have the geiger, but no sprint if you wanted.
+** Players can pick up objects with their hands.  
+** NightVision (currently only enabled for the Heavy class, use the 'N' key to enable it).
+ 
+ 
+* Player Class System With:
+** Four (or more, or less) Player Classes.
+** Per Player Class Object Pickup Strengths.
+** Customise Class Health/Maximum Health Values.
+** Customise Class Armour/Maximum Armour Values.
+** Customise Class Walk/Sprint/Normal movement speeds.
+** Customise Class Jump Heights.
+** Each Class Can Have Its Own HUD Layout/Colour scheme.
+** Define how many players can be in each Player Class. 
+ 
+ 
+* Teamplay Support:
+** Fixes for enemy NPCs and teamplay games.
+ 
+ 
+* Weapon Enhancements:
+** Development teams can now enable Iron Sight.
+** A known HL2DM shotgun fast-switch bug - fixed thanks to Community input!.
+ 
+ 
+* NPC Abilities:
+** Striders can be set to always impale players who get too close.
+** Barnacles can now be set to swallow players.
+ 
+ 
+* Vehicles:
+** The multiplayer camera judder is no more!
+** Thirdperson model in-vehicle animations can now be used.
+** Old-Style passenger seats can now be used to provide extra seats in vehicles.
+** Jeeps and Jalopys' can now have their headlights switched on.
+ 
+ 
+* Cool Stuff:
+** Firstperson ragdoll views on player deaths.
+** Camera bob on player movement (incl. strafe).
+** Use Counter-Strike: Sources' ladders code instead of the Half-Life 2 ladders.
+ 
+ 
+* Game Settings:
+** Friendly Fire (Replaces players can collide from v1.5).
+** Dynamic Respawn Code. Don't spawn back at the start of the map anymore, respawn back 
+where you left off in your killing spree.
+** Multiplayer Level Transitions. On ALL players entering the transition area the server 
+is forced to changelevel to the next map (percentage can be changed).
+** Save/Restore. A basic working transition system which saves/restores your loadouts.
+** Valve approved cheating. Now even if sv_cheats 1 is enabled, players can't cheat unless 
+you define it as acceptable in the code.
+** Map briefings. Provide storylines on a per-map basis.
+** Map specific model overrides. Changes all players to a specified player model on a 
+particular map (set by the mapper). Check out our defector map for an in-game example!
 
-To view the Valve Source SDK licence agreement.
+==============================
+Original Source 1 SDK Licence.
+==============================
+
+   SOURCE 1 SDK LICENSE
+
+Source SDK Copyright(c) Valve Corp.  
+
+THIS DOCUMENT DESCRIBES A CONTRACT BETWEEN YOU AND VALVE 
+CORPORATION ("Valve").  PLEASE READ IT BEFORE DOWNLOADING OR USING 
+THE SOURCE ENGINE SDK ("SDK"). BY DOWNLOADING AND/OR USING THE 
+SOURCE ENGINE SDK YOU ACCEPT THIS LICENSE. IF YOU DO NOT AGREE TO 
+THE TERMS OF THIS LICENSE PLEASE DON’T DOWNLOAD OR USE THE SDK.  
+
+  You may, free of charge, download and use the SDK to develop a modified Valve game 
+running on the Source engine.  You may distribute your modified Valve game in source and 
+object code form, but only for free. Terms of use for Valve games are found in the Steam 
+Subscriber Agreement located here: http://store.steampowered.com/subscriber_agreement/ 
+
+  You may copy, modify, and distribute the SDK and any modifications you make to the 
+SDK in source and object code form, but only for free.  Any distribution of this SDK must 
+include this LICENSE file and thirdpartylegalnotices.txt.  
+ 
+  Any distribution of the SDK or a substantial portion of the SDK must include the above 
+copyright notice and the following: 
+
+    DISCLAIMER OF WARRANTIES.  THE SOURCE SDK AND ANY 
+    OTHER MATERIAL DOWNLOADED BY LICENSEE IS PROVIDED 
+    "AS IS".  VALVE AND ITS SUPPLIERS DISCLAIM ALL 
+    WARRANTIES WITH RESPECT TO THE SDK, EITHER EXPRESS 
+    OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED 
+    WARRANTIES OF MERCHANTABILITY, NON-INFRINGEMENT, 
+    TITLE AND FITNESS FOR A PARTICULAR PURPOSE.  
+
+    LIMITATION OF LIABILITY.  IN NO EVENT SHALL VALVE OR 
+    ITS SUPPLIERS BE LIABLE FOR ANY SPECIAL, INCIDENTAL, 
+    INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER 
+    (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF 
+    BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF 
+    BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) 
+    ARISING OUT OF THE USE OF OR INABILITY TO USE THE 
+    ENGINE AND/OR THE SDK, EVEN IF VALVE HAS BEEN 
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  
+ 
+       
+If you would like to use the SDK for a commercial purpose, please contact Valve at 
+sourceengine@valvesoftware.com.
