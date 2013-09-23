@@ -19,7 +19,7 @@
 #define LIGHTGLOW_OUTERMAXDIST_BITS	16
 #define LIGHTGLOW_OUTERMAXDIST_MAX_VALUE	((1 << LIGHTGLOW_OUTERMAXDIST_BITS)-1)
 
-class CLightGlow : public CBaseEntity
+class CLightGlow : public CLensflareBase // GSTRINGMIGRATION
 {
 public:
 	DECLARE_CLASS( CLightGlow, CBaseEntity );

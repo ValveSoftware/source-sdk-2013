@@ -287,7 +287,7 @@ void CHudElement::SetHiddenBits( int iBits )
 //-----------------------------------------------------------------------------
 bool CHudElement::ShouldDraw( void )
 {
-	bool bShouldDraw = ( !gHUD.IsHidden( m_iHiddenBits ) );
+	bool bShouldDraw = ( !gHUD.IsHidden( m_iHiddenBits, GetRenderStage() ) ); // GSTRINGMIGRATION
 
 	if ( bShouldDraw )
 	{
@@ -387,6 +387,16 @@ CHud::CHud()
 	SetDefLessFunc( m_RenderGroups );
 
 	m_flScreenShotTime = -1;
+
+	m_iRenderingStage = HUDRENDERSTAGE_DEFAULT_HUD; // GSTRINGMIGRATION
+}
+
+// GSTRINGMIGRATION
+void CHud::SetRenderingStage( HUDRENDERSTAGE_t stage )
+{
+	m_iRenderingStage = stage;
+
+	OnRendermodeChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -945,8 +955,15 @@ float CHud::GetFOVSensitivityAdjust()
 //-----------------------------------------------------------------------------
 // Purpose: Return true if the passed in sections of the HUD shouldn't be drawn
 //-----------------------------------------------------------------------------
-bool CHud::IsHidden( int iHudFlags )
+bool CHud::IsHidden( int iHudFlags, HUDRENDERSTAGE_t stage ) // GSTRINGMIGRATION
 {
+	// GSTRINGMIGRATION
+	const bool bDrawAll = m_iRenderingStage == HUDRENDERSTAGE_ALL;
+
+	if ( !bDrawAll && stage != m_iRenderingStage )
+		return true;
+	// END GSTRINGMIGRATION
+
 	// Not in game?
 	if ( !engine->IsInGame() )
 		return true;

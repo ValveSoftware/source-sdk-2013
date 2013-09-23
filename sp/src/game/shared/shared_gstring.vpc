@@ -1,0 +1,19 @@
+
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$Folder "G-String"
+		{
+			$File	"$SRCDIR\game\shared\gstring\cenv_postprocessing.cpp"
+			$File	"$SRCDIR\game\shared\gstring\cenv_postprocessing.h"
+			
+			$File	"$SRCDIR\game\shared\gstring\gstring_cvars.cpp"
+			$File	"$SRCDIR\game\shared\gstring\gstring_cvars.h"
+			
+			$File	"$SRCDIR\game\shared\gstring\clensflare_base.cpp"
+			$File	"$SRCDIR\game\shared\gstring\clensflare_base.h"
+		}
+	}
+}

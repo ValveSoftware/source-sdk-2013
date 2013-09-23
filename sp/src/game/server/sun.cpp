@@ -14,7 +14,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-class CSun : public CBaseEntity
+class CSun : public CLensflareBase // GSTRINGMIGRATION
 {
 public:
 	DECLARE_CLASS( CSun, CBaseEntity );

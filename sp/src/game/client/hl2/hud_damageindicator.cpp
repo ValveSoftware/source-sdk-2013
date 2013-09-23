@@ -22,6 +22,10 @@
 #include "clienteffectprecachesystem.h"
 #include "headtrack/isourcevirtualreality.h"
 
+// GSTRINGMIGRATION
+#include "Gstring/gstring_postprocess.h"
+#include "Gstring/vgui/vParticleContainer.h"
+
 using namespace vgui;
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -43,6 +47,8 @@ public:
 
 	// Handler for our message
 	void MsgFunc_Damage( bf_read &msg );
+
+	virtual CHud::HUDRENDERSTAGE_t	GetRenderStage(){ return CHud::HUDRENDERSTAGE_PRE_BARS; }; // GSTRINGMIGRATION
 
 private:
 	virtual void Paint();
@@ -68,6 +74,11 @@ private:
 	void GetDamagePosition( const Vector &vecDelta, float *flRotation );
 
 	CMaterialReference m_WhiteAdditiveMaterial;
+
+	// GSTRINGMIGRATION
+	CVGUIParticleContainer *m_pParticleParent;
+	void AddBloodParticle( int health, int dmg );
+	// END GSTRINGMIGRATION
 };
 
 DECLARE_HUDELEMENT( CHudDamageIndicator );
@@ -125,6 +136,14 @@ CHudDamageIndicator::CHudDamageIndicator( const char *pElementName ) : CHudEleme
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
 
+	// GSTRINGMIGRATION
+	m_pParticleParent = new CVGUIParticleContainer( this );
+	m_pParticleParent->AddGlobalOperator( new vParticleOperator_Movement() );
+	m_pParticleParent->AddGlobalOperator( new vParticleOperator_AlphaFade( 0 ) );
+	m_pParticleParent->AddGlobalOperator( new vParticleOperator_ColorFade( Vector( 0, 0, 0 ) ) );
+	m_pParticleParent->AddGlobalOperator( new vParticleOperator_SizeMultiply( 1.05f ) );
+	// END GSTRINGMIGRATION
+
 	m_WhiteAdditiveMaterial.Init( "vgui/white_additive", TEXTURE_GROUP_VGUI ); 
 	
 	SetHiddenBits( HIDEHUD_HEALTH );
@@ -158,7 +177,8 @@ bool CHudDamageIndicator::ShouldDraw( void )
 						m_DmgColorRight[3] || 
 						m_DmgHighColorLeft[3] || 
 						m_DmgHighColorRight[3] ||
-						m_DmgFullscreenColor[3];
+						m_DmgFullscreenColor[3] ||
+						m_pParticleParent->GetNumParticles() > 0; // GSTRINGMIGRATION
 
 	return ( bNeedsDraw && CHudElement::ShouldDraw() );
 }
@@ -458,4 +478,41 @@ void CHudDamageIndicator::ApplySchemeSettings(vgui::IScheme *pScheme)
 	}
 
 	SetSize(vw, vh);
+
+	m_pParticleParent->SetBounds( 0, 0,
+		vw, vh ); // GSTRINGMIGRATION
 }
+
+// GSTRINGMIGRATION
+static const char *g_szBloodMaterials[] = {
+	"effects/blood_overlay",
+	"effects/blood_overlay2",
+	"effects/blood_overlay3",
+	"effects/blood_overlay4",
+};
+static const int g_iBloodMaterialsAmt = ARRAYSIZE( g_szBloodMaterials );
+
+void CHudDamageIndicator::AddBloodParticle( int health, int dmg )
+{
+	if ( m_pParticleParent->GetNumParticles() > 6 )
+		return;
+
+	int w,t;
+	GetSize( w, t );
+
+	float alphaStart = RemapValClamped( health, 0, 100, 1, 0.65f );
+	float lifetime = RemapValClamped( dmg, 0, 50, 4.0f, 10.0f );
+
+	vParticle *p = new vParticle();
+
+	p->CreateQuadRenderer( g_szBloodMaterials[ RandomInt( 0, g_iBloodMaterialsAmt - 1 ) ] );
+	p->SetStartSize_Absolute( w );
+	p->vecPos.Init( w/2, t/2 );
+	p->SetStartAlpha( alphaStart );
+	p->SetLifeDuration( lifetime );
+	p->flAngle = RandomInt( 0, 3 ) * 90.0f;
+
+	m_pParticleParent->AddParticle( p );
+}
+
+// END GSTRINGMIGRATION

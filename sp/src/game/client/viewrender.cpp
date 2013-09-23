@@ -77,6 +77,10 @@
 // Projective textures
 #include "C_Env_Projected_Texture.h"
 
+// GSTRINGMIGRATION
+#include "shadereditor/shadereditorsystem.h"
+// END GSTRINGMIGRATION
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1351,6 +1355,13 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 
 	DrawWorldAndEntities( drawSkybox, view, nClearFlags, pCustomVisibility );
 
+	// GSTRINGMIGRATION
+	VisibleFogVolumeInfo_t fogVolumeInfo;
+	render->GetVisibleFogVolume( view.origin, &fogVolumeInfo );
+	WaterRenderInfo_t info;	DetermineWaterRenderInfo( fogVolumeInfo, info );
+	g_ShaderEditorSystem->CustomViewRender( &g_CurrentViewID, fogVolumeInfo, info );
+	// END GSTRINGMIGRATION
+
 	// Disable fog for the rest of the stuff
 	DisableFog();
 
@@ -1887,6 +1898,49 @@ void CViewRender::FreezeFrame( float flFreezeTime )
 const char *COM_GetModDirectory();
 
 
+//static void DrawVGUILayer( CHud::HUDRENDERSTAGE_t stage, const CViewSetup &view )
+//{
+//	const bool bMainPass = stage == CHud::HUDRENDERSTAGE_DEFAULT_HUD;
+//
+//	VPROF_BUDGET( "VGui_DrawHud", VPROF_BUDGETGROUP_OTHER_VGUI );
+//
+//	gHUD.SetRenderingStage( stage );
+//	// paint the vgui screen
+//	if ( bMainPass )
+//		VGui_PreRender();
+//
+//	// Make sure the client .dll root panel is at the proper point before doing the "SolveTraverse" calls
+//	vgui::VPANEL root = enginevgui->GetPanel( PANEL_CLIENTDLL );
+//	if ( root != 0 )
+//	{
+//		vgui::ipanel()->SetPos( root, view.x, view.y );
+//		vgui::ipanel()->SetSize( root, view.width, view.height );
+//	}
+//	// Same for client .dll tools
+//	root = enginevgui->GetPanel( PANEL_CLIENTDLL_TOOLS );
+//	if ( root != 0 )
+//	{
+//		vgui::ipanel()->SetPos( root, view.x, view.y );
+//		vgui::ipanel()->SetSize( root, view.width, view.height );
+//	}
+//
+//	// The crosshair, etc. needs to get at the current setup stuff
+//	AllowCurrentViewAccess( true );
+//
+//	// Draw the in-game stuff based on the actual viewport being used
+//	render->VGui_Paint( PAINT_INGAMEPANELS );
+//
+//	AllowCurrentViewAccess( false );
+//
+//	if ( bMainPass )
+//	{
+//		VGui_PostRender();
+//
+//		g_pClientMode->PostRenderVGui();
+//		materials->Flush();
+//	}
+//}
+
 //-----------------------------------------------------------------------------
 // Purpose: This renders the entire 3D view and the in-game hud/viewmodel
 // Input  : &view - 
@@ -1969,6 +2023,10 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		if ( ( bDrew3dSkybox = pSkyView->Setup( view, &nClearFlags, &nSkyboxVisible ) ) != false )
 		{
 			AddViewToScene( pSkyView );
+
+			// GSTRINGMIGRATION
+			g_ShaderEditorSystem->UpdateSkymask();
+			// END GSTRINGMIGRATION
 		}
 		SafeRelease( pSkyView );
 
@@ -2026,6 +2084,10 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		// Now actually draw the viewmodel
 		DrawViewModels( view, whatToDraw & RENDERVIEW_DRAWVIEWMODEL );
 
+		// GSTRINGMIGRATION
+		g_ShaderEditorSystem->UpdateSkymask( bDrew3dSkybox );
+		// END GSTRINGMIGRATION
+
 		DrawUnderwaterOverlay();
 
 		PixelVisibility_EndScene();
@@ -2062,6 +2124,10 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 			}
 			pRenderContext.SafeRelease();
 		}
+
+		// GSTRINGMIGRATION
+		g_ShaderEditorSystem->CustomPostRender();
+		// END GSTRINGMIGRATION
 
 		// And here are the screen-space effects
 

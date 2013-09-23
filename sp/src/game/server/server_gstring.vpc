@@ -8,6 +8,7 @@ $Macro SRCDIR		"..\.."
 $Macro GAMENAME 	"gstringv2"
 
 $Include "$SRCDIR\game\server\server_base.vpc"
+$Include "$SRCDIR\game\shared\shared_gstring.vpc"
 
 $Configuration
 {
@@ -22,6 +23,14 @@ $Project "Server (G-String)"
 {
 	$Folder	"Source Files"
 	{
+		$Folder "G-String"
+		{
+			$File	"gstring\cgstring_globals.cpp"
+			$File	"gstring\cgstring_globals.h"
+			$File	"gstring\cgstring_player.cpp"
+			$File	"gstring\cgstring_player.h"
+		}
+	
 		$File	"ai_eventresponse.cpp"
 		$File	"ai_eventresponse.h"
 		$File	"ai_relationship.cpp"

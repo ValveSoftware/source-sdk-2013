@@ -767,6 +767,9 @@ public:
 	// Sets the shadow color
 	virtual void SetShadowColor( unsigned char r, unsigned char g, unsigned char b );
 	void GetShadowColor( unsigned char *r, unsigned char *g, unsigned char *b ) const;
+	
+// GSTRINGMIGRATION
+	virtual void SetShadowColorMaterialsOnly( float r, float g, float b );
 
 	// Sets the shadow distance
 	virtual void SetShadowDistance( float flMaxDistance );
@@ -1497,6 +1500,23 @@ void CClientShadowMgr::SetShadowColor( unsigned char r, unsigned char g, unsigne
 	m_AmbientLightColor.r = r;
 	m_AmbientLightColor.g = g;
 	m_AmbientLightColor.b = b;
+}
+
+// GSTRINGMIGRATION
+void CClientShadowMgr::SetShadowColorMaterialsOnly( float r, float g, float b )
+{
+	float fr = r;
+	float fg = g;
+	float fb = b;
+
+	// Hook the shadow color into the shadow materials
+	m_SimpleShadow->ColorModulate( fr, fg, fb );
+
+	if (m_RenderToTextureActive)
+	{
+		m_RenderShadow->ColorModulate( fr, fg, fb );
+		m_RenderModelShadow->ColorModulate( fr, fg, fb );
+	}
 }
 
 void CClientShadowMgr::GetShadowColor( unsigned char *r, unsigned char *g, unsigned char *b ) const

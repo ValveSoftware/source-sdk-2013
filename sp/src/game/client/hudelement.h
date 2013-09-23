@@ -59,6 +59,8 @@ public:
 	// HIDEHUD_ flags that note when this element should be hidden in the HUD
 	virtual void				SetHiddenBits( int iBits );
 
+	virtual CHud::HUDRENDERSTAGE_t	GetRenderStage(){ return CHud::HUDRENDERSTAGE_DEFAULT_HUD; }; // GSTRINGMIGRATION
+
 	bool						IsParentedToClientDLLRootPanel() const;
 	void						SetParentedToClientDLLRootPanel( bool parented );
 

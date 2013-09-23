@@ -101,6 +101,31 @@ void CHud::Think(void)
 	}
 }
 
+// GSTRINGMIGRATION
+void CHud::OnRendermodeChanged()
+{
+	for ( int i = 0; i < m_HudList.Size(); i++ )
+	{
+		// Visible?
+		bool visible = m_HudList[i]->ShouldDraw();
+
+		m_HudList[i]->SetActive( visible );
+
+		// If it's a vgui panel, hide/show as appropriate
+		vgui::Panel *pPanel = dynamic_cast<vgui::Panel*>(m_HudList[i]);
+		if ( pPanel && pPanel->IsVisible() != visible )
+		{
+			pPanel->SetVisible( visible );
+		}
+		else if ( !pPanel )
+		{
+			// All HUD elements should now derive from vgui!!!
+			Assert( 0 );
+		}
+	}
+}
+// END GSTRINGMIGRATION
+
 //-----------------------------------------------------------------------------
 // Purpose:  The percentage passed in is expected and clamped to 0.0f to 1.0f
 // Input  : x - 

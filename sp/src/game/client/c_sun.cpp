@@ -10,6 +10,15 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+// GSTRINGMIGRATION
+CUtlVector< C_Sun* >g_hSuns;
+
+int GetNumSuns()
+{
+	return g_hSuns.Count();
+}
+// END GSTRINGMIGRATION
+
 static void RecvProxy_HDRColorScale( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
 	C_Sun *pSun = ( C_Sun * )pStruct;
@@ -39,11 +48,14 @@ C_Sun::C_Sun()
 
 	m_GlowOverlay.m_bDirectional = true;
 	m_GlowOverlay.m_bInSky = true;
+
+	g_hSuns.AddToTail( this ); // GSTRINGMIGRATION
 }
 
 
 C_Sun::~C_Sun()
 {
+	g_hSuns.FindAndRemove( this ); // GSTRINGMIGRATION
 }
 
 

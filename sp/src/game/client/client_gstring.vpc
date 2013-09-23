@@ -8,13 +8,14 @@ $Macro SRCDIR		"..\.."
 $Macro GAMENAME 	"gstringv2"
 
 $Include "$SRCDIR\game\client\client_base.vpc"
+$Include "$SRCDIR\game\shared\shared_gstring.vpc"
 
 $Configuration
 {
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	".\hl2;.\hl2\elements;$SRCDIR\game\shared\hl2;$SRCDIR\game\shared\episodic;..\..\public;$BASE"
-		$PreprocessorDefinitions		"$BASE;HL2_CLIENT_DLL;HL2_EPISODIC;GSTRING"
+		$PreprocessorDefinitions		"$BASE;HL2_CLIENT_DLL;HL2_EPISODIC;GSTRING;SOURCE_2013"
 	}
 }
 
@@ -22,6 +23,45 @@ $Project "Client (G-String)"
 {
 	$Folder	"Source Files"
 	{
+		$Folder "Shader Editor"
+		{
+			$File	"shadereditor\isedit_modelrender.h"
+			$File	"shadereditor\ivshadereditor.h"
+			$File	"shadereditor\sedit_modelrender.cpp"
+			$File	"shadereditor\sedit_modelrender.h"
+			$File	"shadereditor\shadereditorsystem.cpp"
+			$File	"shadereditor\shadereditorsystem.h"
+		}
+		
+		$Folder "G-String"
+		{
+			$File	"gstring\gstring_postprocess.cpp"
+			$File	"gstring\gstring_postprocess.h"
+			$File	"gstring\c_gstring_player.cpp"
+			$File	"gstring\c_gstring_player.h"
+			$File	"gstring\cframetimehelper.cpp"
+			$File	"gstring\cframetimehelper.h"
+			
+			$Folder "vgui"
+			{
+				$File	"gstring\vgui\hud_lensflarefx.cpp"
+				$File	"gstring\vgui\hud_nightvision.cpp"
+				$File	"gstring\vgui\hud_waterfx.cpp"
+				$File	"gstring\vgui\vgui_gstringmain.cpp"
+				$File	"gstring\vgui\vgui_gstringoptions.cpp"
+				$File	"gstring\vgui\vgui_menubutton.cpp"
+				$File	"gstring\vgui\vgui_menuembedded.cpp"
+				$File	"gstring\vgui\vgui_menulabel.cpp"
+				$File	"gstring\vgui\vgui_menulayer.cpp"
+				$File	"gstring\vgui\vlensflare.cpp"
+				$File	"gstring\vgui\vparticle.cpp"
+				$File	"gstring\vgui\vparticlecontainer.cpp"
+				$File	"gstring\vgui\vparticleoperators.cpp"
+				$File	"gstring\vgui\vparticleoperatorslensflare.cpp"
+				$File	"gstring\vgui\vparticlerenderers.cpp"
+			}
+		}
+	
 		$File	"hud_chat.cpp"
 		$File	"c_team_objectiveresource.cpp"
 		$File	"c_team_objectiveresource.h"

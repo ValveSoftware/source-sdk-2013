@@ -57,7 +57,7 @@ protected:
 // Sun entity
 //
 
-class C_Sun : public C_BaseEntity
+class C_Sun : public CLensflareBase // GSTRINGMIGRATION
 {
 public:
 	DECLARE_CLASS( C_Sun, C_BaseEntity );
@@ -67,6 +67,8 @@ public:
 					~C_Sun();
 
 	virtual void	OnDataChanged( DataUpdateType_t updateType );
+
+	virtual CGlowOverlay *GetGlowSource(){ return &m_GlowOverlay; }; // GSTRINGMIGRATION
 
 public:
 	C_SunGlowOverlay	m_Overlay;
@@ -82,5 +84,6 @@ public:
 	int					m_nOverlayMaterial;
 };
 
+extern int GetNumSuns(); // GSTRINGMIGRATION
 
 #endif // C_SUN_H

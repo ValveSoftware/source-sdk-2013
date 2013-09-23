@@ -54,3 +54,31 @@ config.cfg
 # shader files
 *.tmp
 
+*.filters
+*.vpc_crc
+/sp/src/materialsystem/stdshaders/Debug_dx9_gstringv2
+*.sentinel
+/sp/src/mathlib/Debug
+/sp/src/raytrace/Debug
+/sp/src/vgui2/vgui_controls/generated_proto
+/sp/src/tier1/Debug
+/sp/src/vgui2/vgui_controls/Debug
+/sp/src/materialsystem/stdshaders/filelist.txt
+/sp/src/materialsystem/stdshaders/filelistgen.txt
+/sp/src/materialsystem/stdshaders/filestocopy.txt
+/sp/src/materialsystem/stdshaders/inclist.txt
+/sp/src/materialsystem/stdshaders/uniquefilestocopy.txt
+/sp/src/materialsystem/stdshaders/vcslist.txt
+/sp/src/materialsystem/stdshaders/*.copy
+
+/sp/src/game/client/Debug_gstringv2
+
+/sp/src/materialsystem/stdshaders/Release_dx9_gstringv2
+
+/sp/src/mathlib/Release
+
+/sp/src/raytrace/Release
+/sp/src/tier1/Release
+
+/sp/game/gstringv2/bin/*.pdb
+/sp/game/gstringv2/bin/*.dll

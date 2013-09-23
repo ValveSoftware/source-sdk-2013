@@ -76,7 +76,7 @@ protected:
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class C_LightGlow : public C_BaseEntity
+class C_LightGlow : public CLensflareBase // GSTRINGMIGRATION
 {
 public:
 	DECLARE_CLASS( C_LightGlow, C_BaseEntity );
@@ -90,6 +90,8 @@ public:
 	virtual void	OnDataChanged( DataUpdateType_t updateType );
 	virtual void	Simulate( void );
 	virtual void	ClientThink( void );
+
+	virtual CGlowOverlay *GetGlowSource(){ return &m_Glow; }; // GSTRINGMIGRATION
 
 public:
 	
