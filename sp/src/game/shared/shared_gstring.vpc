@@ -14,6 +14,9 @@ $Project
 			
 			$File	"$SRCDIR\game\shared\gstring\clensflare_base.cpp"
 			$File	"$SRCDIR\game\shared\gstring\clensflare_base.h"
+			
+			$File	"$SRCDIR\game\shared\gstring\cscreenoverlay_multi.cpp"
+			$File	"$SRCDIR\game\shared\gstring\cscreenoverlay_multi.h"
 		}
 	}
 }

@@ -389,6 +389,12 @@ void CHudDamageIndicator::MsgFunc_Damage( bf_read &msg )
 		highDamage = DAMAGE_HIGH;
 	}
 
+	int maskBlood = ( bitsDamage & ( DMG_CRUSH | DMG_BULLET | DMG_SLASH | DMG_VEHICLE |
+		DMG_BLAST | DMG_CLUB | DMG_ENERGYBEAM | DMG_PHYSGUN | DMG_AIRBOAT | DMG_DIRECT | DMG_BUCKSHOT ) );
+
+	if ( bitsDamage == 0 || maskBlood != 0 )
+		AddBloodParticle( pPlayer->GetHealth(), damageTaken );
+
 	if ( damageTaken > 0 || armor > 0 )
 	{
 		// see which quandrant the effect is in

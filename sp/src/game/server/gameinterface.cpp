@@ -2230,6 +2230,13 @@ void PrecacheMaterial( const char *pMaterialName )
 	g_pStringTableMaterials->AddString( CBaseEntity::IsServer(), pMaterialName );
 }
 
+// GSTRINGMIGRATION
+int PrecacheMaterialGetIndex( const char *pszMatName )
+{
+	Assert( pszMatName && pszMatName[0] );
+	return g_pStringTableMaterials->AddString( CBaseEntity::IsServer(), pszMatName );
+}
+// END GSTRINGMIGRATION
 
 //-----------------------------------------------------------------------------
 // Converts a previously precached material into an index

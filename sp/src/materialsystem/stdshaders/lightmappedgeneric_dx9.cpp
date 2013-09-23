@@ -104,6 +104,8 @@ END_SHADER_PARAMS
 		info.m_nNoDiffuseBumpLighting = NODIFFUSEBUMPLIGHTING;
 		info.m_nBumpmap2 = BUMPMAP2;
 		info.m_nBumpFrame2 = BUMPFRAME2;
+		info.m_nBumpTransform2 = BUMPTRANSFORM2;
+		info.m_nBumpMask = BUMPMASK;
 		info.m_nBaseTexture2 = BASETEXTURE2;
 		info.m_nBaseTexture2Frame = FRAME2;
 		info.m_nBaseTextureNoEnvmap = BASETEXTURENOENVMAP;
@@ -115,7 +117,13 @@ END_SHADER_PARAMS
 		info.m_nBlendModulateTexture = BLENDMODULATETEXTURE;
 		info.m_nMaskedBlending = MASKEDBLENDING;
 		info.m_nBlendMaskTransform = BLENDMASKTRANSFORM;
+		info.m_nSelfShadowedBumpFlag = SSBUMP;
+		info.m_nSeamlessMappingScale = SEAMLESS_SCALE;
+		info.m_nAlphaTestReference = ALPHATESTREFERENCE;
 
+		info.m_nSoftEdges = SOFTEDGES;
+		info.m_nEdgeSoftnessStart = EDGESOFTNESSSTART;
+		info.m_nEdgeSoftnessEnd = EDGESOFTNESSEND;
 		info.m_nOutline = OUTLINE;
 		info.m_nOutlineColor = OUTLINECOLOR;
 		info.m_nOutlineAlpha = OUTLINEALPHA;
@@ -123,36 +131,6 @@ END_SHADER_PARAMS
 		info.m_nOutlineStart1 = OUTLINESTART1;
 		info.m_nOutlineEnd0 = OUTLINEEND0;
 		info.m_nOutlineEnd1 = OUTLINEEND1;
-
-		info.m_nSoftEdges = SOFTEDGES;
-		info.m_nEdgeSoftnessStart = EDGESOFTNESSSTART;
-		info.m_nEdgeSoftnessEnd = EDGESOFTNESSEND;
-
-		info.m_nAlphaTestReference = ALPHATESTREFERENCE;
-		info.m_nSelfShadowedBumpFlag = SSBUMP;
-		info.m_nSeamlessMappingScale = SEAMLESS_SCALE;
-
-		info.m_nBumpmap = BUMPMAP;
-		info.m_nBumpFrame = BUMPFRAME;
-		info.m_nBumpTransform = BUMPTRANSFORM;
-		info.m_nEnvmapContrast = ENVMAPCONTRAST;
-		info.m_nEnvmapSaturation = ENVMAPSATURATION;
-		info.m_nFresnelReflection = FRESNELREFLECTION;
-		info.m_nNoDiffuseBumpLighting = NODIFFUSEBUMPLIGHTING;
-		info.m_nBumpmap2 = BUMPMAP2;
-		info.m_nBumpFrame2 = BUMPFRAME2;
-		info.m_nBaseTexture2 = BASETEXTURE2;
-		info.m_nBaseTexture2Frame = FRAME2;
-		info.m_nBumpTransform2 = BUMPTRANSFORM2;
-		info.m_nBumpMask = BUMPMASK;
-		info.m_nBaseTextureNoEnvmap = BASETEXTURENOENVMAP;
-		info.m_nBaseTexture2NoEnvmap = BASETEXTURE2NOENVMAP;
-		info.m_nDetailAlphaMaskBaseTexture = DETAIL_ALPHA_MASK_BASE_TEXTURE;
-		info.m_nFlashlightTexture = FLASHLIGHTTEXTURE;
-		info.m_nFlashlightTextureFrame = FLASHLIGHTTEXTUREFRAME;
-		info.m_nLightWarpTexture = LIGHTWARPTEXTURE;
-		info.m_nBlendModulateTexture = BLENDMODULATETEXTURE;
-		info.m_nBlendMaskTransform = BLENDMASKTRANSFORM;
 	}
 
 	SHADER_FALLBACK

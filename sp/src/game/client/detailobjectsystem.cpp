@@ -26,6 +26,8 @@
 #include <algorithm>
 #include "tier0/valve_minmax_on.h"
 
+#include "gstring/gstring_postprocess.h" // GSTRINGMIGRATION
+
 #if defined(DOD_DLL) || defined(CSTRIKE_DLL)
 #define USE_DETAIL_SHAPES
 #endif
@@ -924,6 +926,12 @@ void CDetailModel::GetColorModulation( float *color )
 			}
 		}
 	}
+
+	// GSTRINGMIGRATION
+	const float flNightvisionAmt = GetNightvisionMinLighting();
+	for ( int i = 0; i < 3; i++ )
+		color[i] = Lerp( flNightvisionAmt, color[i], 1.0f );
+	// END GSTRINGMIGRATION
 
 	// Gamma correct....
 	engine->LinearToGamma( color, color );
