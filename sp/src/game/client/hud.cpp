@@ -481,6 +481,16 @@ void CHud::Init( void )
 	FreeHudTextureList( textureList );
 }
 
+// GSTRINGMIGRATION
+void CHud::InitPostSystems( void )
+{
+	for ( int i = 0; i < m_HudList.Size(); i++ )
+	{
+		m_HudList[i]->PostDLLInit();
+	}
+}
+// END GSTRINGMIGRATION
+
 //-----------------------------------------------------------------------------
 // Purpose: Init Hud global colors
 // Input  : *scheme - 

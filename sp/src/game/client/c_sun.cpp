@@ -27,7 +27,7 @@ static void RecvProxy_HDRColorScale( const CRecvProxyData *pData, void *pStruct,
 	pSun->m_GlowOverlay.m_flHDRColorScale = pData->m_Value.m_Float;
 }
 
-IMPLEMENT_CLIENTCLASS_DT_NOBASE( C_Sun, DT_Sun, CSun )
+IMPLEMENT_CLIENTCLASS_DT( C_Sun, DT_Sun, CSun ) // GSTRINGMIGRATION add base
 	
 	RecvPropInt( RECVINFO(m_clrRender), 0, RecvProxy_IntToColor32 ),
 	RecvPropInt( RECVINFO(m_clrOverlay), 0, RecvProxy_IntToColor32 ),
@@ -147,6 +147,13 @@ void C_Sun::OnDataChanged( DataUpdateType_t updateType )
 		m_Overlay.Deactivate();
 		m_GlowOverlay.Deactivate();
 	}
+
+	// GSTRINGMIGRATION
+	if ( updateType == DATA_UPDATE_CREATED )
+	{
+		CreateLensFlare();
+	}
+	// END GSTRINGMIGRATION
 }
 
 

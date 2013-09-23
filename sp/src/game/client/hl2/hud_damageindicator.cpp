@@ -146,7 +146,7 @@ CHudDamageIndicator::CHudDamageIndicator( const char *pElementName ) : CHudEleme
 
 	m_WhiteAdditiveMaterial.Init( "vgui/white_additive", TEXTURE_GROUP_VGUI ); 
 	
-	SetHiddenBits( HIDEHUD_HEALTH );
+	//SetHiddenBits( HIDEHUD_HEALTH ); // GSTRINGMIGRATION
 }
 
 //-----------------------------------------------------------------------------
@@ -334,12 +334,14 @@ void CHudDamageIndicator::DrawFullscreenDamageIndicator()
 //-----------------------------------------------------------------------------
 void CHudDamageIndicator::Paint()
 {
+	// GSTRINGMIGRATION
 	// draw fullscreen damage indicators
-	DrawFullscreenDamageIndicator();
+	//DrawFullscreenDamageIndicator();
 
 	// draw side damage indicators
-	DrawDamageIndicator(0);
-	DrawDamageIndicator(1);
+	//DrawDamageIndicator(0);
+	//DrawDamageIndicator(1);
+	// END GSTRINGMIGRATION
 }
 
 //-----------------------------------------------------------------------------

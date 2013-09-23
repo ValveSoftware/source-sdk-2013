@@ -79,7 +79,7 @@ protected:
 class C_LightGlow : public CLensflareBase // GSTRINGMIGRATION
 {
 public:
-	DECLARE_CLASS( C_LightGlow, C_BaseEntity );
+	DECLARE_CLASS( C_LightGlow, CLensflareBase ); // GSTRINGMIGRATION
 	DECLARE_CLIENTCLASS();
 
 	C_LightGlow();
@@ -113,7 +113,7 @@ static void RecvProxy_HDRColorScale( const CRecvProxyData *pData, void *pStruct,
 	pLightGlow->m_Glow.m_flHDRColorScale = pData->m_Value.m_Float;
 }
 
-IMPLEMENT_CLIENTCLASS_DT_NOBASE( C_LightGlow, DT_LightGlow, CLightGlow )
+IMPLEMENT_CLIENTCLASS_DT( C_LightGlow, DT_LightGlow, CLightGlow ) // GSTRINGMIGRATION add base
 	RecvPropInt( RECVINFO(m_clrRender), 0, RecvProxy_IntToColor32 ),
 	RecvPropInt( RECVINFO( m_nHorizontalSize ) ),
 	RecvPropInt( RECVINFO( m_nVerticalSize ) ),
@@ -179,6 +179,8 @@ void C_LightGlow::OnDataChanged( DataUpdateType_t updateType )
 		}
 
 		SetNextClientThink( gpGlobals->curtime + RandomFloat(0,3.0) );
+
+		CreateLensFlare(); // GSTRINGMIGRATION
 	}
 	else if ( updateType == DATA_UPDATE_DATATABLE_CHANGED ) //Right now only color should change.
 	{

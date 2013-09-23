@@ -1085,6 +1085,8 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 	ClientWorldFactoryInit();
 
+	gHUD.InitPostSystems(); // GSTRINGMIGRATION
+
 	C_BaseAnimating::InitBoneSetupThreadPool();
 
 #if defined( WIN32 ) && !defined( _X360 )

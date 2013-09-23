@@ -23,8 +23,11 @@ BEGIN_DATADESC( CLensflareBase )
 END_DATADESC()
 #endif
 
-
-IMPLEMENT_NETWORKCLASS_DT( CLensflareBase, CLensflareBase_DT )
+#ifdef GAME_DLL
+IMPLEMENT_SERVERCLASS_ST_NOBASE( CLensflareBase, CLensflareBase_DT )
+#else
+IMPLEMENT_CLIENTCLASS_DT_NOBASE( CLensflareBase, CLensflareBase_DT, CLensflareBase )
+#endif
 
 #ifdef GAME_DLL
 	SendPropString( SENDINFO( m_netStr_LensFlareScript ) ),

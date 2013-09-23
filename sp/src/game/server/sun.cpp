@@ -17,7 +17,7 @@
 class CSun : public CLensflareBase // GSTRINGMIGRATION
 {
 public:
-	DECLARE_CLASS( CSun, CBaseEntity );
+	DECLARE_CLASS( CSun, CLensflareBase ); // GSTRINGMIGRATION
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
 
@@ -51,7 +51,7 @@ public:
 	CNetworkVar( float, m_flHDRColorScale );
 };
 
-IMPLEMENT_SERVERCLASS_ST_NOBASE( CSun, DT_Sun )
+IMPLEMENT_SERVERCLASS_ST( CSun, DT_Sun ) // GSTRINGMIGRATION add base
 	SendPropInt( SENDINFO(m_clrRender), 32, SPROP_UNSIGNED, SendProxy_Color32ToInt ),
 	SendPropInt( SENDINFO(m_clrOverlay), 32, SPROP_UNSIGNED, SendProxy_Color32ToInt ),
 	SendPropVector( SENDINFO(m_vDirection), 0, SPROP_NORMAL ),

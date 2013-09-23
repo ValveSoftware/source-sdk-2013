@@ -32,6 +32,8 @@ public:
 
 	// called when the Hud is initialised (whenever the DLL is loaded)
 	virtual void				Init( void ) { return; }
+	// called after the dll finished init
+	virtual void				PostDLLInit( void ) { return; } // GSTRINGMIGRATION
 
 	// called whenever the video mode changes, and whenever Init() would be called, so the hud can vid init itself
 	virtual void				VidInit( void ) { return; }

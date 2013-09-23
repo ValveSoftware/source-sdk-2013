@@ -113,6 +113,8 @@ public:
 
 	// Init's called when the HUD's created at DLL load
 	void						Init( void );
+	// Called after client dll finished its initialization
+	void						InitPostSystems( void ); // GSTRINGMIGRATION
 	// VidInit's called when the video mode's changed
 	void						VidInit( void );
 	// Shutdown's called when the engine's shutting down

@@ -60,7 +60,7 @@ protected:
 class C_Sun : public CLensflareBase // GSTRINGMIGRATION
 {
 public:
-	DECLARE_CLASS( C_Sun, C_BaseEntity );
+	DECLARE_CLASS( C_Sun, CLensflareBase ); // GSTRINGMIGRATION
 	DECLARE_CLIENTCLASS();
 
 					C_Sun();
