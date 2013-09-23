@@ -69,10 +69,21 @@ extern ConVar replay_rendersetting_renderglow;
 #include "econ_item_description.h"
 #endif
 
+#ifdef SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
+#include "clienteffectprecachesystem.h"
+#endif //SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 #define ACHIEVEMENT_ANNOUNCEMENT_MIN_TIME 10
+
+#ifdef SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
+CLIENTEFFECT_REGISTER_BEGIN( PrecachePostProcessingEffectsGlow )
+	CLIENTEFFECT_MATERIAL( "dev/glow_color" )
+	CLIENTEFFECT_MATERIAL( "dev/halo_add_to_screen" )
+CLIENTEFFECT_REGISTER_END_CONDITIONAL( engine->GetDXSupportLevel() >= 90 )
+#endif //SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
 
 class CHudWeaponSelection;
 class CHudChat;
@@ -835,6 +846,10 @@ bool ClientModeShared::DoPostScreenSpaceEffects( const CViewSetup *pSetup )
 			return false;
 	}
 #endif 
+
+#ifdef SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
+g_GlowObjectManager.RenderGlowEffects( pSetup, 0  );
+#endif //SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
 	return true;
 }
 

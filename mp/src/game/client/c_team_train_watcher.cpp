@@ -14,6 +14,10 @@
 #include "teamplayroundbased_gamerules.h"
 #endif
 
+#ifdef SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
+#include "teamplayroundbased_gamerules.h"
+#endif //SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 

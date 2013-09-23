@@ -66,6 +66,8 @@
 #define SecobMod__HAS_POWER_INDICATOR_REGARDLESS_OF_SUIT //Shows sprint etc meter
 #define SecobMod__HAS_FLASHLIGHT_REGARDLESS_OF_SUIT //Enables the flashlight except HL2 DM overrides disabling this and provides the flashlight anyway.
 #define SecobMod__HAS_GEIGER_COUNTER_REGARDLESS_OF_SUIT //Allows you to detect toxic areas.
+//#define SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS //The glowing outline that you see used in L4D (Left4Dead).
+//#define GLOWS_ENABLE //Use this to enable Valve's glow code for use with the above (both defines are required).
 
 /**********************/
 /* Map Enhancements. */

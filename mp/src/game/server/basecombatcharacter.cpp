@@ -770,6 +770,11 @@ void CBaseCombatCharacter::Spawn( void )
 {
 	BaseClass::Spawn();
 	
+	//SecobMod__ChangeME! You may not want all AI having the glow effect but we have this here to prove it works!
+	#ifdef SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
+	AddGlowEffect();
+	#endif //SecobMod__HAS_L4D_STYLE_GLOW_EFFECTS
+	
 	SetBlocksLOS( false );
 	m_aliveTimer.Start();
 	m_hasBeenInjured = 0;
