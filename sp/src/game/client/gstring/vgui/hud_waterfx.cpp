@@ -18,8 +18,8 @@ using namespace vgui;
 
 DECLARE_HUDELEMENT( CHudWaterEffects );
 
-ConVar gstring_vgui_rain_size( "gstring_vgui_rain_size", "4.0" );
-ConVar gstring_vgui_rain_length( "gstring_vgui_rain_length", "0.3" );
+ConVar gstring_vgui_rain_size( "gstring_vgui_rain_size", "4.0" ); // Nicolas: 1.2 or 2.5 looks more realistic. //
+ConVar gstring_vgui_rain_length( "gstring_vgui_rain_length", "0.3" ); // Nicolas: 0.5 or 1.5 looks more realistic. //
 
 CHudWaterEffects::CHudWaterEffects( const char *pElementName ) : CHudElement( pElementName ), BaseClass(NULL, "HudWaterFx")
 {
