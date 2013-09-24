@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -62,15 +62,19 @@ public:
 	const WeaponProficiencyInfo_t *GetProficiencyValues();
 
 
-	DECLARE_ACTTABLE();
-#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+	
+
 #ifndef CLIENT_DLL
+	DECLARE_ACTTABLE();
+
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	int CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }
 	void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
 	void FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, Vector &vecShootOrigin, Vector &vecShootDir );
 	void Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary );
-#endif
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
+#endif
+
 protected:
 
 	Vector	m_vecTossVelocity;
@@ -91,8 +95,8 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( weapon_smg1, CWeaponSMG1 );
 PRECACHE_WEAPON_REGISTER(weapon_smg1);
 
-//SecobMod__IFDEF_Fixes
-/*#ifndef CLIENT_DLL*/
+#ifndef CLIENT_DLL
+
 acttable_t	CWeaponSMG1::m_acttable[] = 
 {
 	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_SMG1,					false },
@@ -108,8 +112,7 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_SMG1,			false },
 
 	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_SMG1,					false },
-#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-		
+//SecobMod__Information These are the old act lines, required for our player models animations.
 	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_SMG1,					false },
 	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_SMG1,					false },
 	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_SMG1,			false },
@@ -117,7 +120,8 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SMG1,	false },
 	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_SMG1,		false },
 	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_SMG1,					false },
-	{ ACT_RANGE_ATTACK1,				ACT_HL2MP_GESTURE_RANGE_ATTACK_SMG1,					false },
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_SMG1,					false },
 
 	// HL2
 	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_SMG1,			true },
@@ -179,7 +183,8 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 	};
 
 IMPLEMENT_ACTTABLE(CWeaponSMG1);
-//#endif //CLIENT_DLL
+#endif //not clientdll.
+
 
 //=========================================================
 CWeaponSMG1::CWeaponSMG1( )
@@ -187,6 +192,7 @@ CWeaponSMG1::CWeaponSMG1( )
 	m_fMinRange1		= 0;// No minimum range. 
 	m_fMaxRange1		= 1400;
 }
+
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
@@ -337,6 +343,8 @@ bool CWeaponSMG1::Reload( void )
 		m_flNextSecondaryAttack = GetOwner()->m_flNextAttack = fCacheTime;
 
 		WeaponSound( RELOAD );
+//		ToHL2MPPlayer(GetOwner())->DoAnimationEvent( PLAYERANIMEVENT_RELOAD );
+
 	}
 
 	return fRet;
@@ -408,6 +416,9 @@ void CWeaponSMG1::SecondaryAttack( void )
 
 	// player "shoot" animation
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+	//Tony; TODO SECONDARY!
+//	ToHL2MPPlayer(pPlayer)->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
+
 
 	// Decrease ammo
 	pPlayer->RemoveAmmo( 1, m_iSecondaryAmmoType );
@@ -417,6 +428,7 @@ void CWeaponSMG1::SecondaryAttack( void )
 
 	// Can blow up after a short delay (so have time to release mouse button)
 	m_flNextSecondaryAttack = gpGlobals->curtime + 1.0f;
+
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef CLIENT_DLL
 	// Register a muzzleflash for the AI.
