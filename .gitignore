@@ -85,3 +85,4 @@ config.cfg
 
 /sp/src/game/server/Debug_gstringv2
 /sp/src/vgui2/vgui_controls/Release
+/sp/src/game/client/Release_gstringv2

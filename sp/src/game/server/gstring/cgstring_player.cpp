@@ -38,12 +38,15 @@ bool CGstringPlayer::IsNightvisionActive() const
 
 void CGstringPlayer::SetNightvisionActive( bool bActive )
 {
-	m_bNightvisionActive = bActive;
+	if ( m_bNightvisionActive != bActive )
+	{
+		if ( bActive )
+			EmitSound( "nightvision.on" );
+		else
+			EmitSound( "nightvision.off" );
 
-	if ( bActive )
-		EmitSound( "nightvision.on" );
-	else
-		EmitSound( "nightvision.off" );
+		m_bNightvisionActive = bActive;
+	}
 }
 
 void CGstringPlayer::ToggleNightvision()
@@ -65,11 +68,33 @@ void CGstringPlayer::ImpulseCommands()
 
 	switch ( iImpulse )
 	{
-	case 120:
+	case 100:
 		{
-			ToggleNightvision();
-			break;
+			if ( g_pGstringGlobals != NULL )
+			{
+				// neither flashlight nor nightvision
+				if ( !g_pGstringGlobals->IsUserLightSourceEnabled() )
+					break;
+
+				if ( g_pGstringGlobals->IsNightvisionEnabled() ) // use nightvision
+				{
+					if ( FlashlightIsOn() )
+						FlashlightTurnOff();
+
+					ToggleNightvision();
+				}
+				else // use flashlight
+				{
+					SetNightvisionActive( false );
+					BaseClass::ImpulseCommands();
+				}
+
+				break;
+			}
+
+			BaseClass::ImpulseCommands();
 		}
+		break;
 	default:
 		BaseClass::ImpulseCommands();
 		return;
