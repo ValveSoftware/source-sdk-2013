@@ -15,6 +15,16 @@
 class C_LightGlowOverlay : public CGlowOverlay
 {
 public:
+	// GSTRINGMIGRATION
+	C_LightGlowOverlay()
+	{
+		m_flFade = 1.0f;
+	}
+
+	virtual float GetGlowScale()
+	{
+		return CGlowOverlay::GetGlowScale() * m_flFade;
+	}
 
 	virtual void CalcSpriteColorAndSize( float flDot, CGlowSprite *pSprite, float *flHorzSize, float *flVertSize, Vector *vColor )
 	{
@@ -22,7 +32,6 @@ public:
 		*flVertSize = pSprite->m_flVertSize;
 		
 		Vector viewDir = ( CurrentViewOrigin() - m_vecOrigin );
-		float distToViewer = VectorNormalize( viewDir );
 
 		if ( m_bOneSided )
 		{
@@ -33,20 +42,21 @@ public:
 			}
 		}
 
-		float fade;
+		float distToViewer = VectorNormalize( viewDir );
 
 		// See if we're in the outer fade distance range
 		if ( m_nOuterMaxDist > m_nMaxDist && distToViewer > m_nMaxDist )
 		{
-			fade = RemapValClamped( distToViewer, m_nMaxDist, m_nOuterMaxDist, 1.0f, 0.0f );
+			m_flFade = RemapValClamped( distToViewer, m_nMaxDist, m_nOuterMaxDist, 1.0f, 0.0f );
 		}
 		else
 		{
-			fade = RemapValClamped( distToViewer, m_nMinDist, m_nMaxDist, 0.0f, 1.0f );
+			m_flFade = RemapValClamped( distToViewer, m_nMinDist, m_nMaxDist, 0.0f, 1.0f );
 		}
 		
-		*vColor = pSprite->m_vColor * fade * m_flGlowObstructionScale;
+		*vColor = pSprite->m_vColor * m_flFade * m_flGlowObstructionScale;
 	}
+	// END GSTRINGMIGRATION
 
 	void SetOrigin( const Vector &origin ) { m_vecOrigin = origin; }
 	
@@ -71,6 +81,7 @@ protected:
 	int		m_nOuterMaxDist;
 	bool	m_bOneSided;
 	bool	m_bModulateByDot;
+	float	m_flFade;			// GSTRINGMIGRATION
 };
 
 //-----------------------------------------------------------------------------

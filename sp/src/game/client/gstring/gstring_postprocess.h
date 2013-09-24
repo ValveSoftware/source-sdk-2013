@@ -3,8 +3,6 @@
 
 void PerformScenePostProcessHack();
 
-void OnGstringPPModeChange( int nChangeFlags );
-
 float GetSceneFadeScalar();
 
 void DrawBarsAndGrain( int x, int y, int w, int h );

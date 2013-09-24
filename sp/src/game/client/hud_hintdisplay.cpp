@@ -423,6 +423,7 @@ void CHudHintKeyDisplay::ApplySchemeSettings( vgui::IScheme *pScheme )
 //-----------------------------------------------------------------------------
 bool CHudHintKeyDisplay::ShouldDraw( void )
 {
+	return false; // GSTRINGMIGRATION
 	return ( ( GetAlpha() > 0 ) && CHudElement::ShouldDraw() );
 }
 

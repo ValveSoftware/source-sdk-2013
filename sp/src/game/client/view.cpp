@@ -334,8 +334,6 @@ void CViewRender::Init( void ) // GSTRINGMIGRATION
 #if defined( CSTRIKE_DLL )
 	m_flLastFOV = default_fov.GetFloat();
 #endif
-
-	materials->AddRestoreFunc( &OnGstringPPModeChange );
 }
 
 //-----------------------------------------------------------------------------
@@ -381,8 +379,6 @@ void CViewRender::LevelShutdown( void )
 //-----------------------------------------------------------------------------
 void CViewRender::Shutdown( void )
 {
-	materials->RemoveRestoreFunc( &OnGstringPPModeChange );
-
 	m_TranslucentSingleColor.Shutdown( );
 	m_ModulateSingleColor.Shutdown( );
 	m_ScreenOverlayMaterial.Shutdown();

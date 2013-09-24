@@ -25,41 +25,6 @@
 #define VIGNETTE_EDITOR_NAME "ppe_vignette"
 #define NIGHTVISION_EDITOR_NAME "ppe_nightvision"
 
-static IMaterialVar *pVar_LinearDirection = NULL;
-static IMaterialVar *pVar_ForwardPosition = NULL;
-static IMaterialVar *pVar_RotationCenter = NULL;
-static IMaterialVar *pVar_ForwardBlend = NULL;
-static IMaterialVar *pVar_RotationBlend = NULL;
-static IMaterialVar *pVar_RotationScale = NULL;
-static IMaterialVar *pVar_ScreenBlur_Strength = NULL;
-static IMaterialVar *pVar_DreamBlur_Strength = NULL;
-static IMaterialVar *pVar_BloomFlare_Strength = NULL;
-static IMaterialVar *pVar_Desaturation_Strength = NULL;
-static IMaterialVar *pVar_GodRays_Intensity = NULL;
-static IMaterialVar *pVar_Filmgrain_Strength = NULL;
-static IMaterialVar *pVar_Vignette_Strength = NULL;
-static IMaterialVar *pVar_Vignette_Ranges = NULL;
-static IMaterialVar *pVar_Nightvision_Params = NULL;
-
-void OnGstringPPModeChange( int nChangeFlags )
-{
-	pVar_LinearDirection = NULL;
-	pVar_ForwardPosition = NULL;
-	pVar_RotationCenter = NULL;
-	pVar_ForwardBlend = NULL;
-	pVar_RotationBlend = NULL;
-	pVar_RotationScale = NULL;
-	pVar_ScreenBlur_Strength = NULL;
-	pVar_DreamBlur_Strength = NULL;
-	pVar_BloomFlare_Strength = NULL;
-	pVar_Desaturation_Strength = NULL;
-	pVar_GodRays_Intensity = NULL;
-	pVar_Filmgrain_Strength = NULL;
-	pVar_Vignette_Strength = NULL;
-	pVar_Vignette_Ranges = NULL;
-	pVar_Nightvision_Params = NULL;
-}
-
 float GetSceneFadeScalar()
 {
 	byte color[4];
@@ -140,8 +105,7 @@ void DrawBarsAndGrain( int x, int y, int w, int h )
 
 		if ( iFilmgrainIndex >= 0 )
 		{
-			if ( pVar_Filmgrain_Strength == NULL )
-				pVar_Filmgrain_Strength = GetPPEMaterialVar( FILMGRAIN_EDITOR_NAME, "filmgrain", "$MUTABLE_01" );
+			DEFINE_SHADEREDITOR_MATERIALVAR( FILMGRAIN_EDITOR_NAME, "filmgrain", "$MUTABLE_01", pVar_Filmgrain_Strength );
 
 			pVar_Filmgrain_Strength->SetFloatValue( cvar_gstring_filmgrain_strength.GetFloat() * flNightvisionStrengthInv );
 
@@ -155,11 +119,8 @@ void DrawBarsAndGrain( int x, int y, int w, int h )
 
 		if ( iVignetteIndex >= 0 )
 		{
-			if ( pVar_Vignette_Strength == NULL )
-				pVar_Vignette_Strength = GetPPEMaterialVar( VIGNETTE_EDITOR_NAME, "vignette", "$MUTABLE_01" );
-
-			if ( pVar_Vignette_Ranges == NULL )
-				pVar_Vignette_Ranges = GetPPEMaterialVar( VIGNETTE_EDITOR_NAME, "vignette", "$MUTABLE_02" );
+			DEFINE_SHADEREDITOR_MATERIALVAR( VIGNETTE_EDITOR_NAME, "vignette", "$MUTABLE_01", pVar_Vignette_Strength );
+			DEFINE_SHADEREDITOR_MATERIALVAR( VIGNETTE_EDITOR_NAME, "vignette", "$MUTABLE_02", pVar_Vignette_Ranges );
 
 			pVar_Vignette_Strength->SetFloatValue( cvar_gstring_vignette_strength.GetFloat() * flNightvisionStrengthInv );
 			pVar_Vignette_Ranges->SetVecValue( cvar_gstring_vignette_range_max.GetFloat(),
@@ -197,7 +158,7 @@ static float g_flGodRaysIntensity = 1.0f;
 
 void SetGodraysColor( Vector col )
 {
-	IMaterialVar *pVarMutable = GetPPEMaterialVar( GODRAYS_EDITOR_NAME, "sunrays calc", "$MUTABLE_01" );
+	DEFINE_SHADEREDITOR_MATERIALVAR( GODRAYS_EDITOR_NAME, "sunrays calc", "$MUTABLE_01", pVarMutable );
 	Assert( pVarMutable );
 
 	if ( !pVarMutable )
@@ -239,8 +200,7 @@ void DrawGodrays()
 	if ( iGodrayIndex < 0 )
 		return;
 
-	if ( pVar_GodRays_Intensity == NULL )
-		pVar_GodRays_Intensity = GetPPEMaterialVar( GODRAYS_EDITOR_NAME, "sunrays calc", "$MUTABLE_02" );
+	DEFINE_SHADEREDITOR_MATERIALVAR( GODRAYS_EDITOR_NAME, "sunrays calc", "$MUTABLE_02", pVar_GodRays_Intensity );
 
 	Assert( pVar_GodRays_Intensity );
 
@@ -303,9 +263,9 @@ void DrawExplosionBlur()
 	if ( !ShouldDrawCommon() )
 		return;
 
-	IMaterialVar *pVar_Origin = GetPPEMaterialVar( EXPLOSION_EDITOR_NAME, "explosion mat", "$MUTABLE_01" );
-	IMaterialVar *pVar_Strength = GetPPEMaterialVar( EXPLOSION_EDITOR_NAME, "explosion mat", "$MUTABLE_02" );
-	IMaterialVar *pVar_LinearAmt = GetPPEMaterialVar( EXPLOSION_EDITOR_NAME, "explosion mat", "$MUTABLE_03" );
+	DEFINE_SHADEREDITOR_MATERIALVAR( EXPLOSION_EDITOR_NAME, "explosion mat", "$MUTABLE_01", pVar_Origin );
+	DEFINE_SHADEREDITOR_MATERIALVAR( EXPLOSION_EDITOR_NAME, "explosion mat", "$MUTABLE_02", pVar_Strength );
+	DEFINE_SHADEREDITOR_MATERIALVAR( EXPLOSION_EDITOR_NAME, "explosion mat", "$MUTABLE_03", pVar_LinearAmt );
 
 	if ( pVar_Origin == NULL ||
 		pVar_Strength == NULL ||
@@ -374,29 +334,19 @@ void DrawMotionBlur()
 	if ( !cvar_gstring_drawmotionblur.GetInt() )
 		return;
 
-	if ( pVar_LinearDirection == NULL )
-		pVar_LinearDirection = GetPPEMaterialVar( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_01" );
-
-	if ( pVar_ForwardPosition == NULL )
-		pVar_ForwardPosition = GetPPEMaterialVar( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_02" );
-
-	if ( pVar_RotationCenter == NULL )
-		pVar_RotationCenter = GetPPEMaterialVar( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_03" );
-
-	if ( pVar_ForwardBlend == NULL )
-		pVar_ForwardBlend = GetPPEMaterialVar( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_04" );
-
-	if ( pVar_RotationBlend == NULL )
-		pVar_RotationBlend = GetPPEMaterialVar( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_05" );
-
-	if ( pVar_RotationScale == NULL )
-		pVar_RotationScale = GetPPEMaterialVar( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_06" );
+	DEFINE_SHADEREDITOR_MATERIALVAR( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_01", pVar_LinearDirection );
+	DEFINE_SHADEREDITOR_MATERIALVAR( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_02", pVar_ForwardPosition );
+	DEFINE_SHADEREDITOR_MATERIALVAR( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_03", pVar_RotationCenter );
+	DEFINE_SHADEREDITOR_MATERIALVAR( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_04", pVar_ForwardBlend );
+	DEFINE_SHADEREDITOR_MATERIALVAR( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_05", pVar_RotationBlend );
+	DEFINE_SHADEREDITOR_MATERIALVAR( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_06", pVar_RotationScale );
 
 	if ( pVar_LinearDirection == NULL ||
 		pVar_ForwardPosition == NULL ||
 		pVar_RotationCenter == NULL ||
 		pVar_ForwardBlend == NULL ||
-		pVar_RotationBlend == NULL )
+		pVar_RotationBlend == NULL ||
+		pVar_RotationScale == NULL )
 	{
 		Assert( 0 );
 		return;
@@ -524,8 +474,7 @@ void DrawScreenGaussianBlur()
 	if ( !cvar_gstring_drawscreenblur.GetBool() )
 		return;
 
-	if ( pVar_ScreenBlur_Strength == NULL )
-		pVar_ScreenBlur_Strength = GetPPEMaterialVar( SCREENBLUR_EDITOR_NAME, "blendmaterial", "$MUTABLE_01" );
+	DEFINE_SHADEREDITOR_MATERIALVAR( SCREENBLUR_EDITOR_NAME, "blendmaterial", "$MUTABLE_01", pVar_ScreenBlur_Strength );
 
 	if ( pVar_ScreenBlur_Strength == NULL )
 	{
@@ -562,8 +511,7 @@ void DrawDreamBlur()
 		return;
 	}
 
-	if ( pVar_DreamBlur_Strength == NULL )
-		pVar_DreamBlur_Strength = GetPPEMaterialVar( DREAMBLUR_EDITOR_NAME, "dream", "$MUTABLE_01" );
+	DEFINE_SHADEREDITOR_MATERIALVAR( DREAMBLUR_EDITOR_NAME, "dream", "$MUTABLE_01", pVar_DreamBlur_Strength );
 
 	if ( pVar_DreamBlur_Strength == NULL )
 	{
@@ -622,8 +570,7 @@ void DrawBloomFlare()
 	if ( iBloomFlare < 0 )
 		return;
 
-	if ( pVar_BloomFlare_Strength == NULL )
-		pVar_BloomFlare_Strength = GetPPEMaterialVar( BLOOMFLARE_EDITOR_NAME, "bloomflare", "$MUTABLE_01" );
+	DEFINE_SHADEREDITOR_MATERIALVAR( BLOOMFLARE_EDITOR_NAME, "bloomflare", "$MUTABLE_01", pVar_BloomFlare_Strength );
 
 	if ( cvar_gstring_bloomflare_strength.GetFloat() <= 0.0f )
 		return;
@@ -648,8 +595,7 @@ void DrawDesaturation()
 	if ( iDesaturationIndex < 0 )
 		return;
 
-	if ( pVar_Desaturation_Strength == NULL )
-		pVar_Desaturation_Strength = GetPPEMaterialVar( DESATURATION_EDITOR_NAME, "desaturate", "$MUTABLE_01" );
+	DEFINE_SHADEREDITOR_MATERIALVAR( DESATURATION_EDITOR_NAME, "desaturate", "$MUTABLE_01", pVar_Desaturation_Strength );
 
 	if ( pVar_Desaturation_Strength == NULL )
 	{
@@ -696,8 +642,7 @@ void DrawNightvision()
 	if ( iNightvisionIndex < 0 )
 		return;
 
-	if ( pVar_Nightvision_Params == NULL )
-		pVar_Nightvision_Params = GetPPEMaterialVar( NIGHTVISION_EDITOR_NAME, "nv calc", "$MUTABLE_01" );
+	DEFINE_SHADEREDITOR_MATERIALVAR( NIGHTVISION_EDITOR_NAME, "nv calc", "$MUTABLE_01", pVar_Nightvision_Params );
 
 	Assert( pVar_Nightvision_Params );
 

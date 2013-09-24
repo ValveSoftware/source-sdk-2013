@@ -1,6 +1,8 @@
 
 #include "cbase.h"
 #include "c_gstring_player.h"
+#include "view_shared.h"
+#include "view.h"
 
 
 //CON_COMMAND( gstring_list_recvproj, "" )
@@ -68,5 +70,45 @@ void C_GstringPlayer::ClientThink()
 		v = Lerp( m_flNightvisionFraction * 0.7f, v, Vector( 1, 1, 1 ) );
 
 		g_pClientShadowMgr->SetShadowColorMaterialsOnly( XYZ( v ) );
+	}
+}
+
+void C_GstringPlayer::OverrideView( CViewSetup *pSetup )
+{
+	Vector velocity;
+	EstimateAbsVelocity( velocity );
+	float speed = velocity.NormalizeInPlace();
+
+	static float amt = 0.0f;
+	static float amtSide = 0.0f;
+	float amtGoal = RemapValClamped( speed, 200, 300, 0, 1.5f );
+
+	if ( (GetFlags() & FL_ONGROUND) == 0 ||
+		GetMoveType() != MOVETYPE_WALK )
+		amtGoal = 0.0f;
+
+	float amtGoalSide = amtGoal;
+
+	float dot_fwd = DotProduct( MainViewForward(), velocity );
+	float dot_side = DotProduct( MainViewRight(), velocity );
+	amtGoal *= abs( dot_fwd );
+	amtGoalSide *= dot_side * 2.0f;
+
+	if ( amt != amtGoal )
+		amt = Approach( amtGoal, amt, gpGlobals->frametime * 3.0f );
+
+	if ( amtSide != amtGoalSide )
+		amtSide = Approach( amtGoalSide, amtSide, gpGlobals->frametime * 4.0f );
+
+	if ( amt > 0.0f )
+	{
+		float sine = sin( gpGlobals->curtime * 10.0f ) * amt;
+		pSetup->origin += Vector( 0, 0, 1.0f ) * sine;
+		pSetup->angles.x += sine * 1.0f;
+	}
+
+	if ( amtSide != 0.0f )
+	{
+		pSetup->angles.z += amtSide;
 	}
 }

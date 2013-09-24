@@ -49,7 +49,8 @@ void CGstringPlayer::SetNightvisionActive( bool bActive )
 void CGstringPlayer::ToggleNightvision()
 {
 	if ( g_pGstringGlobals != NULL
-		&& !g_pGstringGlobals->IsNightvisionEnabled() )
+		&& !g_pGstringGlobals->IsNightvisionEnabled()
+		|| !IsSuitEquipped() )
 	{
 		EmitSound( "nightvision.unavailable" );
 		return;
@@ -64,13 +65,15 @@ void CGstringPlayer::ImpulseCommands()
 
 	switch ( iImpulse )
 	{
-	case 100:
+	case 120:
 		{
 			ToggleNightvision();
-			ClearImpulse();
 			break;
 		}
 	default:
 		BaseClass::ImpulseCommands();
+		return;
 	}
+
+	ClearImpulse();
 }

@@ -18,6 +18,7 @@ public:
 
 	virtual void ClientThink();
 
+	virtual void OverrideView( CViewSetup *pSetup );
 protected:
 
 private:
