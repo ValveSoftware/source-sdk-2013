@@ -3,7 +3,10 @@
 #include "c_gstring_player.h"
 #include "view_shared.h"
 #include "view.h"
+#include "flashlighteffect.h"
+#include "c_muzzleflash_effect.h"
 
+#define FLASHLIGHT_DISTANCE		1000
 
 //CON_COMMAND( gstring_list_recvproj, "" )
 //{
@@ -27,7 +30,15 @@ END_RECV_TABLE()
 
 C_GstringPlayer::C_GstringPlayer()
 	: m_flNightvisionFraction( 0.0f )
+	, m_flMuzzleFlashTime( 0.0f )
+	, m_pMuzzleFlashEffect( NULL )
+	, m_flMuzzleFlashDuration( 0.0f )
 {
+}
+
+C_GstringPlayer::~C_GstringPlayer()
+{
+	delete m_pMuzzleFlashEffect;
 }
 
 bool C_GstringPlayer::IsNightvisionActive() const
@@ -71,6 +82,13 @@ void C_GstringPlayer::ClientThink()
 
 		g_pClientShadowMgr->SetShadowColorMaterialsOnly( XYZ( v ) );
 	}
+
+	if ( ShouldMuzzleFlash() )
+	{
+		DisableMuzzleFlash();
+
+		ProcessMuzzleFlashEvent();
+	}
 }
 
 void C_GstringPlayer::OverrideView( CViewSetup *pSetup )
@@ -110,5 +128,90 @@ void C_GstringPlayer::OverrideView( CViewSetup *pSetup )
 	if ( amtSide != 0.0f )
 	{
 		pSetup->angles.z += amtSide;
+	}
+}
+
+void C_GstringPlayer::ProcessMuzzleFlashEvent()
+{
+	//BaseClass::ProcessMuzzleFlashEvent();
+
+	m_flMuzzleFlashDuration = RandomFloat( 0.035f, 0.07f );
+	m_flMuzzleFlashTime = gpGlobals->curtime + m_flMuzzleFlashDuration;
+}
+
+void C_GstringPlayer::UpdateFlashlight()
+{
+	const bool bDoMuzzleflash = m_flMuzzleFlashTime > gpGlobals->curtime;
+	const bool bDoFlashlight = !bDoMuzzleflash && IsEffectActive( EF_DIMLIGHT );
+
+	Vector vecForward, vecRight, vecUp, vecPos;
+	vecPos = EyePosition();
+	EyeVectors( &vecForward, &vecRight, &vecUp );
+
+	if ( bDoFlashlight || bDoMuzzleflash )
+	{
+		ConVarRef scissor( "r_flashlightscissor" );
+		scissor.SetValue( "0" );
+
+		C_BaseViewModel *pViewModel = GetViewModel();
+		if ( pViewModel != NULL
+			&& pViewModel->GetModelPtr() != NULL
+			&& pViewModel->GetModelPtr()->GetNumAttachments() >= 1 )
+		{
+			extern void FormatViewModelAttachment( Vector &vOrigin, bool bInverse );
+
+			matrix3x4_t viewModel;
+			pViewModel->GetAttachment( 1, viewModel );
+
+			QAngle ang;
+			MatrixAngles( viewModel, ang, vecPos );
+			FormatViewModelAttachment( vecPos, false );
+			AngleVectors( ang, &vecForward, &vecRight, &vecUp );
+		}
+	}
+
+	if ( bDoFlashlight )
+	{
+		if (!m_pFlashlight)
+		{
+			// Turned on the headlight; create it.
+			m_pFlashlight = new CFlashlightEffect(index);
+
+			if (!m_pFlashlight)
+				return;
+
+			m_pFlashlight->TurnOn();
+		}
+
+		// Update the light with the new position and direction.
+		m_pFlashlight->UpdateLight( vecPos, vecForward, vecRight, vecUp, FLASHLIGHT_DISTANCE );
+	}
+	else if (m_pFlashlight)
+	{
+		// Turned off the flashlight; delete it.
+		delete m_pFlashlight;
+		m_pFlashlight = NULL;
+	}
+
+	if ( bDoMuzzleflash )
+	{
+		if (!m_pMuzzleFlashEffect)
+		{
+			// Turned on the headlight; create it.
+			m_pMuzzleFlashEffect = new C_MuzzleflashEffect();
+
+			if (!m_pMuzzleFlashEffect)
+				return;
+		}
+
+		float flStrength = ( m_flMuzzleFlashTime - gpGlobals->curtime ) / m_flMuzzleFlashDuration;
+
+		// Update the light with the new position and direction.
+		m_pMuzzleFlashEffect->UpdateLight( vecPos, vecForward, vecRight, vecUp, flStrength * flStrength );
+	}
+	else
+	{
+		delete m_pMuzzleFlashEffect;
+		m_pMuzzleFlashEffect = NULL;
 	}
 }

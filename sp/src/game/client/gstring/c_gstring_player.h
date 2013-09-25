@@ -3,6 +3,8 @@
 
 #include "c_basehlplayer.h"
 
+class C_MuzzleflashEffect;
+
 class C_GstringPlayer : public C_BaseHLPlayer
 {
 	DECLARE_CLASS( C_GstringPlayer, C_BaseHLPlayer );
@@ -10,6 +12,7 @@ class C_GstringPlayer : public C_BaseHLPlayer
 
 public:
 	C_GstringPlayer();
+	~C_GstringPlayer();
 
 	bool IsNightvisionActive() const;
 	float GetNightvisionFraction() const;
@@ -19,12 +22,21 @@ public:
 	virtual void ClientThink();
 
 	virtual void OverrideView( CViewSetup *pSetup );
+
+	virtual void ProcessMuzzleFlashEvent();
+	virtual void UpdateFlashlight();
+
+
 protected:
 
 private:
 	CNetworkVar( bool, m_bNightvisionActive );
 
 	float m_flNightvisionFraction;
+
+	float m_flMuzzleFlashTime;
+	float m_flMuzzleFlashDuration;
+	C_MuzzleflashEffect *m_pMuzzleFlashEffect;
 
 };
 

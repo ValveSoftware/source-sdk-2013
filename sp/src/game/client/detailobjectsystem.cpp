@@ -28,7 +28,7 @@
 
 #include "gstring/gstring_postprocess.h" // GSTRINGMIGRATION
 
-#if defined(DOD_DLL) || defined(CSTRIKE_DLL)
+#if defined(DOD_DLL) || defined(CSTRIKE_DLL) || defined(GSTRING) // GSTRINGMIGRATION
 #define USE_DETAIL_SHAPES
 #endif
 

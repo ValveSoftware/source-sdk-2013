@@ -41,6 +41,8 @@ $Project "Client (G-String)"
 			$File	"gstring\c_gstring_player.h"
 			$File	"gstring\cframetimehelper.cpp"
 			$File	"gstring\cframetimehelper.h"
+			$File	"gstring\c_muzzleflash_effect.cpp"
+			$File	"gstring\c_muzzleflash_effect.h"
 			
 			$Folder "vgui"
 			{
