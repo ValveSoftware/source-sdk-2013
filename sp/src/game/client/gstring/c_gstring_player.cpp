@@ -121,8 +121,11 @@ void C_GstringPlayer::OverrideView( CViewSetup *pSetup )
 	if ( amt > 0.0f )
 	{
 		float sine = sin( gpGlobals->curtime * 10.0f ) * amt;
+		float sineY = sin( gpGlobals->curtime * 5.0f + M_PI * 0.5f ) * amt;
+
 		pSetup->origin += Vector( 0, 0, 1.0f ) * sine;
 		pSetup->angles.x += sine * 1.0f;
+		pSetup->angles.y += sineY * 2.0f;
 	}
 
 	if ( amtSide != 0.0f )
@@ -135,18 +138,24 @@ void C_GstringPlayer::ProcessMuzzleFlashEvent()
 {
 	//BaseClass::ProcessMuzzleFlashEvent();
 
-	m_flMuzzleFlashDuration = RandomFloat( 0.035f, 0.07f );
+	m_flMuzzleFlashDuration = RandomFloat( 0.025f, 0.045f );
 	m_flMuzzleFlashTime = gpGlobals->curtime + m_flMuzzleFlashDuration;
 }
 
 void C_GstringPlayer::UpdateFlashlight()
 {
-	const bool bDoMuzzleflash = m_flMuzzleFlashTime > gpGlobals->curtime;
+	const bool bDoMuzzleflash = m_flMuzzleFlashTime > gpGlobals->curtime || m_flMuzzleFlashDuration > 0.0f;
 	const bool bDoFlashlight = !bDoMuzzleflash && IsEffectActive( EF_DIMLIGHT );
 
 	Vector vecForward, vecRight, vecUp, vecPos;
 	vecPos = EyePosition();
 	EyeVectors( &vecForward, &vecRight, &vecUp );
+
+	if ( m_flMuzzleFlashTime <= gpGlobals->curtime
+		&& m_flMuzzleFlashDuration > 0.0f )
+	{
+		m_flMuzzleFlashDuration = 0.0f;
+	}
 
 	if ( bDoFlashlight || bDoMuzzleflash )
 	{

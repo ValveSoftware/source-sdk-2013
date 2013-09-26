@@ -37,8 +37,8 @@ void C_MuzzleflashEffect::UpdateLight( const Vector &vecPos, const Vector &vecDi
 	state.m_fVerticalFOVDegrees = state.m_fHorizontalFOVDegrees = 100.0f + 40.0f * flStrength;
 	state.m_fConstantAtten = 0.0f;
 	state.m_Color[0] = 1.0f;
-	state.m_Color[1] = 1.0f;
-	state.m_Color[2] = 1.0f;
+	state.m_Color[1] = 0.7f;
+	state.m_Color[2] = 0.3f;
 	state.m_Color[3] = 0.0f;
 	state.m_NearZ = 5.0f;	// Push near plane out so that we don't clip the world when the flashlight pulls back 
 	state.m_FarZ = 500.0f;

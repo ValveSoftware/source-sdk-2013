@@ -80,8 +80,8 @@ ConVar	sv_waterfriction(  "sv_waterfriction", "1", FCVAR_NOTIFY | FCVAR_REPLICAT
 ConVar	sv_footsteps	( "sv_footsteps", "1", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Play footstep sound for players" );
 #if defined( GSTRING ) // GSTRINGMIGRATION
 // Let's re-eanble that good old effect from Quake. :)
-ConVar sv_rollspeed ( "sv_rollspeed", "40.0f", FCVAR_CHEAT | FCVAR_REPLICATED );
-ConVar sv_rollangle ( "sv_rollangle", "1.2f", FCVAR_CHEAT | FCVAR_REPLICATED, "Max view roll angle" );
+ConVar sv_rollspeed ( "sv_rollspeed", "550.0", FCVAR_CHEAT | FCVAR_REPLICATED );
+ConVar sv_rollangle ( "sv_rollangle", "3", FCVAR_CHEAT | FCVAR_REPLICATED, "Max view roll angle" );
 #else
 ConVar	sv_rollspeed	( "sv_rollspeed", "200", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY);
 ConVar	sv_rollangle	( "sv_rollangle", "0", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Max view roll angle");
