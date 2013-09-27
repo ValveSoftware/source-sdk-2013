@@ -1292,7 +1292,7 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 #endif
 
 	#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
-		//SecobMod__FixMe cmd->chatbubble = g_iChatBubble;
+		cmd->chatbubble = g_iChatBubble;
 	#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 	pVerified->m_cmd = *cmd;
