@@ -11,7 +11,7 @@
 #include "radial.h"
 #include "mathlib/bumpvects.h"
 #include "utlrbtree.h"
-#include "mathlib/VMatrix.h"
+#include "mathlib/vmatrix.h"
 #include "macro_texture.h"
 
 

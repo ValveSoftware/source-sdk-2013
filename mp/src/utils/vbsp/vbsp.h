@@ -18,7 +18,7 @@
 #include "bsplib.h"
 #include "qfiles.h"
 #include "utilmatlib.h"
-#include "ChunkFile.h"
+#include "chunkfile.h"
 
 #ifdef WIN32
 #pragma warning( disable: 4706 )

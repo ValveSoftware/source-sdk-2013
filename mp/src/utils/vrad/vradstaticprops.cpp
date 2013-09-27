@@ -11,16 +11,16 @@
 
 #include "vrad.h"
 #include "mathlib/vector.h"
-#include "UtlBuffer.h"
+#include "utlbuffer.h"
 #include "utlvector.h"
-#include "GameBSPFile.h"
-#include "BSPTreeData.h"
-#include "VPhysics_Interface.h"
-#include "Studio.h"
-#include "Optimize.h"
-#include "Bsplib.h"
-#include "CModel.h"
-#include "PhysDll.h"
+#include "gamebspfile.h"
+#include "bsptreedata.h"
+#include "vphysics_interface.h"
+#include "studio.h"
+#include "optimize.h"
+#include "bsplib.h"
+#include "cmodel.h"
+#include "physdll.h"
 #include "phyfile.h"
 #include "collisionutils.h"
 #include "tier1/KeyValues.h"
@@ -96,11 +96,13 @@ public:
 	void ComputeLighting( int iThread );
 
 private:
+#if defined(_WIN32)
 	// VMPI stuff.
 	static void VMPI_ProcessStaticProp_Static( int iThread, uint64 iStaticProp, MessageBuffer *pBuf );
 	static void VMPI_ReceiveStaticPropResults_Static( uint64 iStaticProp, MessageBuffer *pBuf, int iWorker );
 	void VMPI_ProcessStaticProp( int iThread, int iStaticProp, MessageBuffer *pBuf );
 	void VMPI_ReceiveStaticPropResults( int iStaticProp, MessageBuffer *pBuf, int iWorker );
+#endif
 	
 	// local thread version
 	static void ThreadComputeStaticPropLighting( int iThread, void *pUserData );
@@ -1020,8 +1022,12 @@ void ComputeDirectLightingAtPoint( Vector &position, Vector &normal, Vector &out
 
 		GatherSampleLightSSE( sampleOutput, dl, -1, adjusted_pos4, &normal4, 1, iThread, nLFlags | GATHERLFLAGS_FORCE_FAST,
 		                      static_prop_id_to_skip, flEpsilon );
-		
+
+#if !USE_STDC_FOR_SIMD
+		VectorMA( outColor, ((float*) &sampleOutput.m_flFalloff)[0] * ((float*) &sampleOutput.m_flDot[0])[0], dl->light.intensity, outColor );
+#else
 		VectorMA( outColor, sampleOutput.m_flFalloff.m128_f32[0] * sampleOutput.m_flDot[0].m128_f32[0], dl->light.intensity, outColor );
+#endif
 	}
 }
 
@@ -1103,7 +1109,9 @@ void CVradStaticPropMgr::ComputeLighting( CStaticProp &prop, int iThread, int pr
 	if (prop.m_Flags & STATIC_PROP_NO_PER_VERTEX_LIGHTING )
 		return;
 
+#if defined(_WIN32)
 	VMPI_SetCurrentStage( "ComputeLighting" );
+#endif
 	
 	for ( int bodyID = 0; bodyID < pStudioHdr->numbodyparts; ++bodyID )
 	{
@@ -1333,7 +1341,7 @@ void CVradStaticPropMgr::SerializeLighting()
 			pMesh->m_nOffset   = (unsigned int)pVertexData - (unsigned int)pVhvHdr; 
 
 			// construct vertexes
-			for (int k=0; k<pMesh->m_nVertexes; k++)
+			for (unsigned int k=0; k<pMesh->m_nVertexes; k++)
 			{
 				Vector &vector = m_StaticProps[i].m_MeshData[n].m_Verts[k];
 
@@ -1359,6 +1367,7 @@ void CVradStaticPropMgr::SerializeLighting()
 	}
 }
 
+#if defined(_WIN32)
 void CVradStaticPropMgr::VMPI_ProcessStaticProp_Static( int iThread, uint64 iStaticProp, MessageBuffer *pBuf )
 {
 	g_StaticPropMgr.VMPI_ProcessStaticProp( iThread, iStaticProp, pBuf );
@@ -1419,6 +1428,7 @@ void CVradStaticPropMgr::VMPI_ReceiveStaticPropResults( int iStaticProp, Message
 	// Apply the results.
 	ApplyLightingToStaticProp( m_StaticProps[iStaticProp], &results );
 }
+#endif
 
 
 void CVradStaticPropMgr::ComputeLightingForProp( int iThread, int iStaticProp )
@@ -1460,6 +1470,7 @@ void CVradStaticPropMgr::ComputeLighting( int iThread )
 	// ensure any traces against us are ignored because we have no inherit lighting contribution
 	m_bIgnoreStaticPropTrace = true;
 
+#if defined(_WIN32)
 	if ( g_bUseMPI )
 	{
 		// Distribute the work among the workers.
@@ -1472,6 +1483,7 @@ void CVradStaticPropMgr::ComputeLighting( int iThread )
 			&CVradStaticPropMgr::VMPI_ReceiveStaticPropResults_Static );
 	}
 	else
+#endif
 	{
 		RunThreadsOn(count, true, ThreadComputeStaticPropLighting);
 	}
@@ -1525,7 +1537,9 @@ void CVradStaticPropMgr::AddPolysForRayTrace( void )
 						queryModel->GetTriangleVerts( nConvex, nTri, verts );
 						for ( int nVert = 0; nVert < 3; ++nVert )
 							verts[nVert] = xform.VMul4x3(verts[nVert]);
+#if defined( _WIN32 )
 						g_RtEnv.AddTriangle ( TRACE_ID_STATICPROP | nProp, verts[0], verts[1], verts[2], fullCoverage );
+#endif
 					}
 				}
 				s_pPhysCollision->DestroyQueryModel( queryModel );
@@ -1534,7 +1548,9 @@ void CVradStaticPropMgr::AddPolysForRayTrace( void )
 			{
 				VectorAdd ( dict.m_Mins, prop.m_Origin, prop.m_mins );
 				VectorAdd ( dict.m_Maxs, prop.m_Origin, prop.m_maxs );
+#if defined( _WIN32 )
 				g_RtEnv.AddAxisAlignedRectangularSolid ( TRACE_ID_STATICPROP | nProp, prop.m_mins, prop.m_maxs, fullCoverage );
+#endif
 			}
 			
 			continue;
@@ -1667,9 +1683,11 @@ void CVradStaticPropMgr::AddPolysForRayTrace( void )
 // 		printf( "gl %6.3f %6.3f %6.3f 1 0 0\n", XYZ(position1));
 // 		printf( "gl %6.3f %6.3f %6.3f 0 1 0\n", XYZ(position2));
 // 		printf( "gl %6.3f %6.3f %6.3f 0 0 1\n", XYZ(position3));
+#if defined( _WIN32 )
 									g_RtEnv.AddTriangle( TRACE_ID_STATICPROP | nProp,
 														 position1, position2, position3,
 														 color, flags, materialIndex);
+#endif
 								}
 							}
 							else

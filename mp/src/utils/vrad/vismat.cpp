@@ -45,7 +45,9 @@ public:
 
 	FORCEINLINE void TestMakeTransfer( Vector start, Vector stop, int ndxShooter, int ndxReciever )
 	{
+#if defined( _WIN32 )
 		g_RtEnv.AddToRayStream( m_RayStream, start, stop, &m_pResults[m_nTests] );
+#endif
 		m_pShooterPatches[m_nTests] = ndxShooter;
 		m_pRecieverPatches[m_nTests] = ndxReciever;
 		++m_nTests;
@@ -64,7 +66,7 @@ private:
 };
 
 CTransferMaker::CTransferMaker( transfer_t *all_transfers ) :
-	m_AllTransfers( all_transfers ), m_nTests( 0 )
+	m_nTests( 0 ), m_AllTransfers( all_transfers )
 {
 	m_pResults = (RayTracingSingleResult *)calloc( 1, MAX_PATCHES * sizeof ( RayTracingSingleResult ) );
 	m_pShooterPatches = (int *)calloc( 1, MAX_PATCHES * sizeof( int ) );
@@ -80,7 +82,9 @@ CTransferMaker::~CTransferMaker()
 
 void CTransferMaker::Finish()
 {
+#if defined( _WIN32 )
 	g_RtEnv.FinishRayStream( m_RayStream );
+#endif
 	for ( int i = 0; i < m_nTests; ++i )
 	{
 		if ( m_pResults[i].HitID == -1 || m_pResults[i].HitDistance >= m_pResults[i].ray_length )
@@ -207,7 +211,7 @@ Sets vis bits for all patches in the face
 */
 void TestPatchToFace (unsigned patchnum, int facenum, int head, transfer_t *transfers, CTransferMaker &transferMaker, int iThread )
 {
-	if( faceParents.Element( facenum ) == g_Patches.InvalidIndex() || patchnum == g_Patches.InvalidIndex() )
+	if( faceParents.Element( facenum ) == g_Patches.InvalidIndex() || patchnum == (unsigned) g_Patches.InvalidIndex() )
 		return;
 
 	CPatch	*patch = &g_Patches.Element( patchnum );
@@ -467,11 +471,13 @@ BuildVisMatrix
 */
 void BuildVisMatrix (void)
 {
+#if defined( _WIN32 )
 	if ( g_bUseMPI )
 	{
 		RunMPIBuildVisLeafs();
 	}
 	else 
+#endif
 	{
 		RunThreadsOn (dvis->numclusters, true, BuildVisLeafs);
 	}

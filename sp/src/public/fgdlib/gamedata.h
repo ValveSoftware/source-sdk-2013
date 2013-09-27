@@ -10,15 +10,20 @@
 #pragma once
 #endif
 
+#if defined( _MSC_VER )
 #pragma warning(push, 1)
 #pragma warning(disable:4701 4702 4530)
+#endif
 #include <fstream>
+#if defined( _MSC_VER )
 #pragma warning(pop)
-#include "TokenReader.h"
-#include "GDClass.h"
-#include "InputOutput.h"
-#include "UtlString.h"
+#endif
+#include "tokenreader.h"
+#include "gdclass.h"
+#include "inputoutput.h"
+#include "utlstring.h"
 #include "utlvector.h"
+#include "ieditortexture.h"
 
 
 class MDkeyvalue;

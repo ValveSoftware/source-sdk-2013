@@ -6,26 +6,30 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#if defined(_WIN32)
 #include <windows.h>
+#endif
 #include "vbsp.h"
 #include "bsplib.h"
 #include "KeyValues.h"
 #include "utlsymbol.h"
 #include "utlvector.h"
+#if defined(_WIN32)
 #include <io.h>
+#endif
 #include "bspfile.h"
 #include "utilmatlib.h"
 #include "gamebspfile.h"
-#include "mathlib/VMatrix.h"
+#include "mathlib/vmatrix.h"
 #include "materialpatch.h"
 #include "pacifier.h"
 #include "vstdlib/random.h"
 #include "builddisp.h"
 #include "disp_vbsp.h"
-#include "UtlBuffer.h"
-#include "CollisionUtils.h"
+#include "utlbuffer.h"
+#include "collisionutils.h"
 #include <float.h>
-#include "UtlLinkedList.h"
+#include "utllinkedlist.h"
 #include "byteswap.h"
 #include "writebsp.h"
 

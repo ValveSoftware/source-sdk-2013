@@ -966,7 +966,7 @@ void SetModelNumbers (void)
 		}
 		else
 		{
-			sprintf (value, "");
+			value[0] = '\0';
 		}
 		SetKeyValue (&entities[i], "model", value);
 	}

@@ -172,17 +172,25 @@ typedef float vec_t;
 
 inline unsigned long& FloatBits( vec_t& f )
 {
+	// TODO: Does this violate strict aliasing? GCC doesn't warn.
 	return *reinterpret_cast<unsigned long*>(&f);
 }
 
 inline unsigned long const& FloatBits( vec_t const& f )
 {
+	// TODO: Does this violate strict aliasing? GCC doesn't warn.
 	return *reinterpret_cast<unsigned long const*>(&f);
 }
 
 inline vec_t BitsToFloat( unsigned long i )
 {
-	return *reinterpret_cast<vec_t*>(&i);
+	union
+	{
+		unsigned long i;
+		vec_t v;
+	} u;
+	u.i = i;
+	return u.v;
 }
 
 inline bool IsFinite( vec_t f )

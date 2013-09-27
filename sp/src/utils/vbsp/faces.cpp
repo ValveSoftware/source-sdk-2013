@@ -1505,7 +1505,9 @@ int AddWindingToPrimverts( const winding_t *w, unsigned short *pIndices, int ver
 
 
 
+#if defined( _MSC_VER )
 #pragma optimize( "g", off )
+#endif
 #define USE_TRISTRIPS
 
 // UNDONE: Should split this function into subdivide and primitive building parts
@@ -1788,7 +1790,9 @@ void SplitSubdividedFaces( face_t *pLeafFaceList, node_t *headnode )
 	SplitSubdividedFaces_Node_r( headnode );
 }
 
+#if defined( _MSC_VER )
 #pragma optimize( "", on )
+#endif
 
 /*
 ============

@@ -16,7 +16,7 @@
 #include "phyfile.h"
 #include <float.h>
 #include "KeyValues.h"
-#include "UtlBuffer.h"
+#include "utlbuffer.h"
 #include "utlsymbol.h"
 #include "utlrbtree.h"
 #include "ivp.h"
@@ -1411,7 +1411,7 @@ static void ConvertModelToPhysCollide( CUtlVector<CPhysCollisionEntry *> &collis
 			}
 		}
 
-		if ( (!numprops || j >= numprops) && numprops < ARRAYSIZE(proplist) )
+		if ( (!numprops || j >= numprops) && numprops < (int) ARRAYSIZE(proplist) )
 		{
 			proplist[numprops].prop = prop;
 			proplist[numprops].area = face->area;

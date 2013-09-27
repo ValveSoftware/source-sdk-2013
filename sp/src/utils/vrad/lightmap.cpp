@@ -76,7 +76,7 @@ static directlight_t *gAmbient = NULL;
 
 CNormalList::CNormalList() : m_Normals( 128 )
 {
-	for( int i=0; i < sizeof(m_NormalGrid)/sizeof(m_NormalGrid[0][0][0]); i++ )
+	for( size_t i=0; i < sizeof(m_NormalGrid)/sizeof(m_NormalGrid[0][0][0]); i++ )
 	{
 		(&m_NormalGrid[0][0][0] + i)->SetGrowSize( 16 );
 	}
@@ -296,7 +296,7 @@ void PairEdges (void)
 					// add to neighbor list
 					tmpneighbor[m] = vertexface[n][k];
 					numneighbors++;
-					if ( numneighbors > ARRAYSIZE(tmpneighbor) )
+					if ( numneighbors > (int) ARRAYSIZE(tmpneighbor) )
 					{
 						Error("Stack overflow in neighbors\n");
 					}
@@ -1044,16 +1044,16 @@ void MergeDLightVis( directlight_t *dl, int cluster )
   LightForKey
   =============
 */
-int LightForKey (entity_t *ent, char *key, Vector& intensity )
+int LightForKey (entity_t *ent, const char *key, Vector& intensity )
 {
-	char *pLight;
+	const char *pLight;
 
 	pLight = ValueForKey( ent, key );
 
 	return LightForString( pLight, intensity );
 }
 
-int LightForString( char *pLight, Vector& intensity )
+int LightForString( const char *pLight, Vector& intensity )
 {
 	double r, g, b, scaler;
 	int argCnt;
@@ -1462,7 +1462,7 @@ void BuildVisForLightEnvironment( void )
 	}
 }
 
-static char *ValueForKeyWithDefault (entity_t *ent, char *key, char *default_value = NULL)
+static char *ValueForKeyWithDefault (entity_t *ent, const char *key, char *default_value = NULL)
 {
 	epair_t	*ep;
 	
@@ -2534,7 +2534,11 @@ static void GatherSampleLightAt4Points( SSE_SampleInfo_t& info, int sampleIdx, i
 			if (info.m_WarnFace != info.m_FaceNum)
 			{
 				Warning ("\nWARNING: Too many light styles on a face at (%f, %f, %f)\n",
+#if !USE_STDC_FOR_SIMD
+					((float*) &info.m_Points.x)[0], ((float*) &info.m_Points.y)[0], ((float*) &info.m_Points.z)[0] );
+#else
 					info.m_Points.x.m128_f32[0], info.m_Points.y.m128_f32[0], info.m_Points.z.m128_f32[0] );
+#endif
 				info.m_WarnFace = info.m_FaceNum;
 			}
 			continue;
@@ -3174,7 +3178,9 @@ void BuildFacelights (int iThread, int facenum)
 		}
 	}
 
+#if defined( _WIN32 )
 	if (!g_bUseMPI) 
+#endif
 	{
 		//
 		// This is done on the master node when MPI is used

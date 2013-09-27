@@ -11,7 +11,7 @@
 
 #include "vrad.h"
 #include "trace.h"
-#include "Cmodel.h"
+#include "cmodel.h"
 #include "mathlib/vmatrix.h"
 
 
@@ -133,7 +133,11 @@ public:
 			addedCoverage[s] = 0.0f;
 			if ( ( sign >> s) & 0x1 )
 			{
+#if !USE_STDC_FOR_SIMD
+				addedCoverage[s] = ComputeCoverageFromTexture( ((float*) b0)[s], ((float*) b1)[s], ((float*) b2)[s], hitID );
+#else
 				addedCoverage[s] = ComputeCoverageFromTexture( b0->m128_f32[s], b1->m128_f32[s], b2->m128_f32[s], hitID );
+#endif
 			}
 		}
 		m_coverage = AddSIMD( m_coverage, LoadUnalignedSIMD( addedCoverage ) );
@@ -161,7 +165,9 @@ void TestLine( const FourVectors& start, const FourVectors& stop,
 	RayTracingResult rt_result;
 	CCoverageCountTexture coverageCallback;
 
+#if defined(WIN32)
 	g_RtEnv.Trace4Rays(myrays, Four_Zeros, len, &rt_result, TRACE_ID_STATICPROP | static_prop_index_to_ignore, g_bTextureShadows ? &coverageCallback : 0 );
+#endif
 
 	// Assume we can see the targets unless we get hits
 	float visibility[4];
@@ -169,7 +175,11 @@ void TestLine( const FourVectors& start, const FourVectors& stop,
 	{
 		visibility[i] = 1.0f;
 		if ( ( rt_result.HitIds[i] != -1 ) &&
+#if !USE_STDC_FOR_SIMD
+		     ( ((float*) &rt_result.HitDistance)[i] < ((float*) &len)[i] ) )
+#else
 		     ( rt_result.HitDistance.m128_f32[i] < len.m128_f32[i] ) )
+#endif
 		{
 			visibility[i] = 0.0f;
 		}
@@ -361,7 +371,9 @@ void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
 	RayTracingResult rt_result;
 	CCoverageCountTexture coverageCallback;
 
+#if defined( _WIN32 )
 	g_RtEnv.Trace4Rays(myrays, Four_Zeros, len, &rt_result, TRACE_ID_STATICPROP | static_prop_to_skip, g_bTextureShadows? &coverageCallback : 0);
+#endif
 
 	if ( bDoDebug )
 	{
@@ -373,10 +385,16 @@ void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
 	{
 		aOcclusion[i] = 0.0f;
 		if ( ( rt_result.HitIds[i] != -1 ) &&
+#if !USE_STDC_FOR_SIMD
+		     ( ((float*) &rt_result.HitDistance)[i] < ((float*) &len)[i] ) )
+#else
 		     ( rt_result.HitDistance.m128_f32[i] < len.m128_f32[i] ) )
+#endif
 		{
+#if defined( _WIN32 )
 			int id = g_RtEnv.OptimizedTriangleList[rt_result.HitIds[i]].m_Data.m_IntersectData.m_nTriangleID;
 			if ( !( id & TRACE_ID_SKY ) )
+#endif
 				aOcclusion[i] = 1.0f;
 		}
 	}
@@ -524,7 +542,9 @@ void AddBrushToRaytraceEnvironment( dbrush_t *pBrush, const VMatrix &xform )
 				v2 = xform.VMul4x3(w->p[j]);
 				Vector fullCoverage;
 				fullCoverage.x = 1.0f;
+#if defined( _WIN32 )
 				g_RtEnv.AddTriangle(TRACE_ID_OPAQUE, v0, v1, v2, fullCoverage);
+#endif
 			}
 			FreeWinding( w );
 		}
@@ -625,7 +645,7 @@ void AddBrushesForRayTrace( void )
 			if ( j >= MAX_POINTS_ON_WINDING )
 				Error( "***** ERROR! MAX_POINTS_ON_WINDING reached!" );
 
-			if ( face->firstedge + j >= ARRAYSIZE( dsurfedges ) )
+			if ( face->firstedge + j >= (int) ARRAYSIZE( dsurfedges ) )
 				Error( "***** ERROR! face->firstedge + j >= ARRAYSIZE( dsurfedges )!" );
 
 			int surfEdge = dsurfedges[face->firstedge + j];
@@ -647,7 +667,9 @@ void AddBrushesForRayTrace( void )
 		{
 			Vector fullCoverage;
 			fullCoverage.x = 1.0f;
+#if defined( _WIN32 )
 			g_RtEnv.AddTriangle ( TRACE_ID_SKY, points[0], points[j - 1], points[j], fullCoverage );
+#endif
 		}
 	}
 }

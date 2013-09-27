@@ -6,11 +6,11 @@
 //=============================================================================//
 
 #include "vrad.h"
-#include "VRAD_DispColl.h"
-#include "DispColl_Common.h"
+#include "vrad_dispcoll.h"
+#include "dispcoll_common.h"
 #include "radial.h"
-#include "CollisionUtils.h"
-#include "tier0\dbg.h"
+#include "collisionutils.h"
+#include "tier0/dbg.h"
 
 #define SAMPLE_BBOX_SLOP		5.0f
 #define TRIEDGE_EPSILON			0.001f
@@ -1075,6 +1075,8 @@ void CVRADDispColl::AddPolysForRayTrace( void )
 
 		Vector fullCoverage;
 		fullCoverage.x = 1.0f;
+#if defined( _WIN32 )
 		g_RtEnv.AddTriangle( TRACE_ID_OPAQUE, m_aVerts[v[0]], m_aVerts[v[1]], m_aVerts[v[2]], fullCoverage );
+#endif
 	}
 }

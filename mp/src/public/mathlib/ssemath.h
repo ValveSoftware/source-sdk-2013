@@ -1798,7 +1798,13 @@ FORCEINLINE fltx4 LoadUnaligned3SIMD( const void *pSIMD )
 /// replicate a single 32 bit integer value to all 4 components of an m128
 FORCEINLINE fltx4 ReplicateIX4( int i )
 {
-	fltx4 value = _mm_set_ss( * ( ( float *) &i ) );;
+	union
+	{
+		int i;
+		float f;
+	} u;
+	u.i = i;
+	fltx4 value = _mm_set_ss( u.f );
 	return _mm_shuffle_ps( value, value, 0);
 }
 

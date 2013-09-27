@@ -179,12 +179,16 @@ struct CacheOptimizedKDNode
 	inline int NumberOfTrianglesInLeaf(void) const
 	{
 		assert(NodeType()==KDNODE_STATE_LEAF);
-		return *((int32 *) &SplittingPlaneValue);
+		union { int32 i; float f; } u;
+		u.f=SplittingPlaneValue;
+		return u.i;
 	}
 
 	inline void SetNumberOfTrianglesInLeafNode(int n)
 	{
-		*((int32 *) &SplittingPlaneValue)=n;
+		union { int32 i; float f; } u;
+		u.f = n;
+		SplittingPlaneValue = u.i;
 	}
 
 protected:

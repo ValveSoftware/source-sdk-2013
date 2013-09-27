@@ -9,7 +9,7 @@
 #include "utllinkedlist.h"
 #include "utlvector.h"
 #include "iscratchpad3d.h"
-#include "scratchpadutils.h"
+#include "ScratchPadUtils.h"
 
 
 //#define USE_SCRATCHPAD
@@ -57,7 +57,7 @@ int GetAllNeighbors( const CCoreDispInfo *pDisp, int iNeighbors[512] )
 
 		for ( int i=0; i < pCorner->m_nNeighbors; i++ )
 		{
-			if ( nNeighbors < _ARRAYSIZE( iNeighbors ) )
+			if ( nNeighbors < (int) _ARRAYSIZE( iNeighbors ) )
 				iNeighbors[nNeighbors++] = pCorner->m_Neighbors[i];
 		}
 	}

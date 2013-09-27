@@ -33,7 +33,7 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CVRadDLL, ILaunchableDLL, LAUNCHABLE_DLL_INTE
 class dat
 {
 public:
-	char *name;
+	const char *name;
 	int size;
 };
 #define DATENTRY(name) {#name, sizeof(name)}
@@ -169,20 +169,42 @@ void CVRadDLL::GetBSPInfo( CBSPInfo *pInfo )
 
 bool CVRadDLL::DoIncrementalLight( char const *pVMFFile )
 {
+#if defined(WIN32)
 	char tempPath[MAX_PATH], tempFilename[MAX_PATH];
 	GetTempPath( sizeof( tempPath ), tempPath );
 	GetTempFileName( tempPath, "vmf_entities_", 0, tempFilename );
+#endif
+
+#if defined(POSIX)
+	char* tempFilename = tempnam(NULL, "vmf_entities_");
+	if ( !tempFilename )
+		return false;
+#endif
 
 	FileHandle_t fp = g_pFileSystem->Open( tempFilename, "wb" );
 	if( !fp )
+	{
+#if defined(POSIX)
+		free( tempFilename );
+#endif
 		return false;
+	}
 
 	g_pFileSystem->Write( pVMFFile, strlen(pVMFFile)+1, fp );
 	g_pFileSystem->Close( fp );
 
 	// Parse the new entities.
 	if( !LoadEntsFromMapFile( tempFilename ) )
+	{
+#if defined(POSIX)
+		free( tempFilename );
+#endif
 		return false;
+	}
+
+#if defined(POSIX)
+	free( tempFilename );
+#endif
 
 	// Create lights.
 	CreateDirectLights();

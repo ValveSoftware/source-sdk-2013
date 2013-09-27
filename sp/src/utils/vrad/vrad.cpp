@@ -1305,7 +1305,7 @@ void WriteWorld (char *name, int iBump)
 	g_pFileSystem->Close( out );
 }
 
-void WriteRTEnv (char *name)
+void WriteRTEnv (const char *name)
 {
 	FileHandle_t out;
 
@@ -1758,7 +1758,7 @@ void RadWorld_Start()
 	{
 		// Remember the old lightmap vectors.
 		float oldLightmapVecs[MAX_MAP_TEXINFO][2][4];
-		for (i = 0; i < texinfo.Count(); i++)
+		for (i = 0; i < (unsigned)texinfo.Count(); i++)
 		{
 			for( int j=0; j < 2; j++ )
 			{
@@ -1770,7 +1770,7 @@ void RadWorld_Start()
 		}
 
 		// rescale luxels to be no denser than "luxeldensity"
-		for (i = 0; i < texinfo.Count(); i++)
+		for (i = 0; i < (unsigned)texinfo.Count(); i++)
 		{
 			texinfo_t	*tx = &texinfo[i];
 
@@ -2019,12 +2019,14 @@ bool RadWorld_Go()
 	}
 
 	// build initial facelights
+#if defined(WIN32)
 	if (g_bUseMPI) 
 	{
 		// RunThreadsOnIndividual (numfaces, true, BuildFacelights);
 		RunMPIBuildFacelights();
 	}
 	else 
+#endif
 	{
 		RunThreadsOnIndividual (numfaces, true, BuildFacelights);
 	}
@@ -2079,12 +2081,16 @@ bool RadWorld_Go()
 		StaticDispMgr()->EndTimer();
 
 		// blend bounced light into direct light and save
+#if defined(WIN32)
 		VMPI_SetCurrentStage( "FinalLightFace" );
 		if ( !g_bUseMPI || g_bMPIMaster )
+#endif
 			RunThreadsOnIndividual (numfaces, true, FinalLightFace);
 		
+#if defined(WIN32)
 		// Distribute the lighting data to workers.
 		VMPI_DistributeLightData();
+#endif
 			
 		Msg("FinalLightFace Done\n"); fflush(stdout);
 	}
@@ -2098,7 +2104,7 @@ FileHandle_t pFileSamples[4][4];
 
 void LoadPhysicsDLL( void )
 {
-	PhysicsDLLPath( "VPHYSICS.DLL" );
+	PhysicsDLLPath( "vphysics.dll" );
 }
 
 
@@ -2141,7 +2147,9 @@ void VRAD_LoadBSP( char const *pFilename )
 	// so we prepend qdir here.
 	strcpy( source, ExpandPath( source ) );
 
+#if defined(_WIN32)
 	if ( !g_bUseMPI )
+#endif
 	{
 		// Setup the logfile.
 		char logFile[512];
@@ -2158,7 +2166,11 @@ void VRAD_LoadBSP( char const *pFilename )
 		// Otherwise, try looking in the BIN directory from which we were run from
 		Msg( "Could not find lights.rad in %s.\nTrying VRAD BIN directory instead...\n", 
 			    global_lights );
+#if defined(_WIN32)
 		GetModuleFileName( NULL, global_lights, sizeof( global_lights ) );
+#else
+		readlink( "/proc/self/exe", global_lights, sizeof( global_lights ) );
+#endif
 		Q_ExtractFilePath( global_lights, global_lights, sizeof( global_lights ) );
 		strcat( global_lights, "lights.rad" );
 	}
@@ -2181,7 +2193,9 @@ void VRAD_LoadBSP( char const *pFilename )
 	GetPlatformMapPath( source, platformPath, 0, MAX_PATH );
 
 	Msg( "Loading %s\n", platformPath );
+#if defined(_WIN32)
 	VMPI_SetCurrentStage( "LoadBSPFile" );
+#endif
 	LoadBSPFile (platformPath);
 	
 	// now, set whether or not static prop lighting is present
@@ -2257,7 +2271,9 @@ void VRAD_LoadBSP( char const *pFilename )
 	// Build acceleration structure
 	printf ( "Setting up ray-trace acceleration structure... ");
 	float start = Plat_FloatTime();
+#if defined( _WIN32 )
 	g_RtEnv.SetupAccelerationStructure();
+#endif
 	float end = Plat_FloatTime();
 	printf ( "Done (%.2f seconds)\n", end-start );
 
@@ -2309,7 +2325,9 @@ void VRAD_Finish()
 	}
 
 	Msg( "Writing %s\n", platformPath );
+#if defined(_WIN32)
 	VMPI_SetCurrentStage( "WriteBSPFile" );
+#endif
 	WriteBSPFile(platformPath);
 
 	if ( g_bDumpPatches )
@@ -2730,6 +2748,7 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 			}
 		}
 #endif
+#if defined(WIN32)
 		// NOTE: the -mpi checks must come last here because they allow the previous argument 
 		// to be -mpi as well. If it game before something else like -game, then if the previous
 		// argument was -mpi and the current argument was something valid like -game, it would skip it.
@@ -2742,6 +2761,7 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 			if ( i == argc - 1 && V_stricmp( argv[i], "-mpi_ListParams" ) != 0 )
 				break;
 		}
+#endif
 		else
 		{
 			break;
@@ -2893,7 +2913,9 @@ int RunVRAD( int argc, char **argv )
 
 	VRAD_Finish();
 
+#if defined(_WIN32)
 	VMPI_SetCurrentStage( "master done" );
+#endif
 
 	DeleteCmdLine( argc, argv );
 	CmdLib_Cleanup();
@@ -2907,15 +2929,17 @@ int VRAD_Main(int argc, char **argv)
 
 	VRAD_Init();
 
+#if defined( _WIN32 )
 	// This must come first.
 	VRAD_SetupMPI( argc, argv );
+#endif
 
 	// Initialize the filesystem, so additional commandline options can be loaded
 	Q_StripExtension( argv[ argc - 1 ], source, sizeof( source ) );
 	CmdLib_InitFileSystem( argv[ argc - 1 ] );
 	Q_FileBase( source, source, sizeof( source ) );
 
-#if !defined( _DEBUG )
+#if !defined( _DEBUG ) && defined( _WIN32 )
 	if ( g_bUseMPI && !g_bMPIMaster )
 	{
 		SetupToolsMinidumpHandler( VMPI_ExceptionFilter );
@@ -2930,7 +2954,26 @@ int VRAD_Main(int argc, char **argv)
 	return RunVRAD( argc, argv );
 }
 
+#if defined(POSIX)
 
+int main(int argc, char* argv[])
+{
+	bool both = false;
+	for ( int i = 1; i < argc; i++ )
+	{
+		if ( !strcmp( argv[i], "-both" ) )
+		{
+			int result;
+			argv[i] = (char*) "-ldr";
+			if ( (result = VRAD_Main( argc, argv )) )
+				return result;
+			argv[i] = (char*) "-hdr";
+			execvp(argv[0], argv);
+			return 0;
+		}
+	}
 
+	return VRAD_Main( argc, argv );
+}
 
-
+#endif

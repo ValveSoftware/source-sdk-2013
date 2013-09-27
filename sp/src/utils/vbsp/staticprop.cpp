@@ -11,17 +11,20 @@
 #include "utlvector.h"
 #include "bspfile.h"
 #include "gamebspfile.h"
-#include "VPhysics_Interface.h"
-#include "Studio.h"
+#include "vphysics_interface.h"
+#include "studio.h"
 #include "byteswap.h"
-#include "UtlBuffer.h"
-#include "CollisionUtils.h"
+#include "utlbuffer.h"
+#include "collisionutils.h"
 #include <float.h>
-#include "CModel.h"
-#include "PhysDll.h"
+#include "cmodel.h"
+#include "physdll.h"
 #include "utlsymbol.h"
 #include "tier1/strtools.h"
 #include "KeyValues.h"
+#if !defined(_WIN32)
+#include <ctype.h>
+#endif
 
 static void SetCurrentModel( studiohdr_t *pStudioHdr );
 static void FreeCurrentModelVertexes();
@@ -129,7 +132,7 @@ isstaticprop_ret IsStaticProp( studiohdr_t* pHdr )
 static int AddStaticPropDictLump( char const* pModelName )
 {
 	StaticPropDictLump_t dictLump;
-	strncpy( dictLump.m_Name, pModelName, DETAIL_NAME_LENGTH );
+	Q_strncpy( dictLump.m_Name, pModelName, DETAIL_NAME_LENGTH );
 
 	for (int i = s_StaticPropDictLump.Size(); --i >= 0; )
 	{
@@ -245,7 +248,13 @@ static CPhysCollide* GetCollisionModel( char const* pModelName )
 	// Convert to a common string
 	char* pTemp = (char*)_alloca(strlen(pModelName) + 1);
 	strcpy( pTemp, pModelName );
+#if defined(_WIN32)
 	_strlwr( pTemp );
+#else
+	for (size_t i = 0; pTemp[i]; i++)
+		if (isupper( pTemp[i] ))
+			pTemp[i] = tolower( pTemp[i] );
+#endif
 
 	char* pSlash = strchr( pTemp, '\\' );
 	while( pSlash )

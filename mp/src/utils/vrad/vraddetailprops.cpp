@@ -10,11 +10,11 @@
 //=============================================================================//
 
 #include "vrad.h"
-#include "Bsplib.h"
-#include "GameBSPFile.h"
-#include "UtlBuffer.h"
+#include "bsplib.h"
+#include "gamebspfile.h"
+#include "utlbuffer.h"
 #include "utlvector.h"
-#include "CModel.h"
+#include "cmodel.h"
 #include "studio.h"
 #include "pacifier.h"
 #include "vraddetailprops.h"
@@ -227,7 +227,11 @@ static void ComputeMaxDirectLighting( DetailObjectLump_t& prop, Vector* maxcolor
 		normal4.DuplicateVector( normal );
 
 		GatherSampleLightSSE ( out, dl, -1, origin4, &normal4, 1, iThread );
+#if !USE_STDC_FOR_SIMD
+		VectorMA( maxcolor[dl->light.style], ((float*) &out.m_flFalloff)[0] * ((float*) &out.m_flDot[0])[0], dl->light.intensity, maxcolor[dl->light.style] );
+#else
 		VectorMA( maxcolor[dl->light.style], out.m_flFalloff.m128_f32[0] * out.m_flDot[0].m128_f32[0], dl->light.intensity, maxcolor[dl->light.style] );
+#endif
 	}
 }
 
@@ -358,7 +362,7 @@ static void ComputeLightmapColorPointSample( dface_t* pFace, directlight_t* pSky
 class CLightSurface : public IBSPNodeEnumerator
 {
 public:
-	CLightSurface(int iThread) : m_pSurface(0), m_HitFrac(1.0f), m_bHasLuxel(false), m_iThread(iThread) {}
+	CLightSurface(int iThread) : m_iThread(iThread), m_pSurface(0), m_HitFrac(1.0f), m_bHasLuxel(false) {}
 
 	// call back with a node and a context
 	bool EnumerateNode( int node, Ray_t const& ray, float f, int context )
@@ -957,6 +961,7 @@ void UnserializeDetailPropLighting( int lumpID, int lumpVersion, CUtlVector<Deta
 	buf.Get( lumpData.Base(), lightsize );
 }
 
+#if defined( _WIN32 )
 DetailObjectLump_t *g_pMPIDetailProps = NULL;
 
 void VMPI_ProcessDetailPropWU( int iThread, int iWorkUnit, MessageBuffer *pBuf )
@@ -999,6 +1004,7 @@ void VMPI_ReceiveDetailPropWU( int iWorkUnit, MessageBuffer *pBuf, int iWorker )
 		pBuf->read( &l->m_Style, sizeof( l->m_Style ) );
 	}
 }
+#endif
 	
 //-----------------------------------------------------------------------------
 // Computes lighting for the detail props
