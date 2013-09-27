@@ -103,9 +103,29 @@ static void ModulateByFlashlight( const Vector &vecOrigin, Vector &vecColor )
 	C_GstringPlayer *pPlayer = ToGstringPlayer( C_BasePlayer::GetLocalPlayer() );
 
 	if ( pPlayer != NULL
-		&& pPlayer->IsEffectActive( EF_DIMLIGHT ) )
+		&& pPlayer->IsRenderingFlashlight() )
 	{
-		vecColor = Vector( 1, 1, 1 );
+		Vector vecFlashlightPos, vecFlashlightForward;
+
+		pPlayer->GetFlashlightPosition( vecFlashlightPos );
+		pPlayer->GetFlashlightForward( vecFlashlightForward );
+
+		Vector delta = ( vecOrigin + Vector( 0, 0, 20 ) ) - CurrentViewOrigin();
+
+		const float flDist = delta.NormalizeInPlace();
+		const float flDot = DotProduct( delta, vecFlashlightForward );
+		const float flFOV = pPlayer->GetFlashlightDot();
+
+		if ( flDot > flFOV )
+		{
+			float flScale = RemapValClamped( flDot, flFOV, flFOV + 0.04f, 0.0f, 1.0f );
+			flScale *= RemapValClamped( flDist, 0.0f, 500.0f, 1.0f, 0.0f );
+
+			float flMaxLight = ( vecColor.x + vecColor.y + vecColor.z ) * 0.15f + 0.5f;
+			flMaxLight = MIN( 1.0f, flMaxLight );
+
+			vecColor = Lerp( flScale, vecColor, Vector( flMaxLight, flMaxLight, flMaxLight ) );
+		}
 	}
 }
 

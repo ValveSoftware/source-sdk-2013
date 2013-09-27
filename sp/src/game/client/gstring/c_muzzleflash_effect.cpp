@@ -12,6 +12,8 @@ C_MuzzleflashEffect::C_MuzzleflashEffect()
 	m_FlashlightHandle = CLIENTSHADOW_INVALID_HANDLE;
 
 	m_FlashlightTexture.Init( "effects/muzzleflashlight", TEXTURE_GROUP_OTHER, true );
+
+	m_flHorizontalFOV = 90.0f;
 }
 
 C_MuzzleflashEffect::~C_MuzzleflashEffect()
@@ -44,6 +46,8 @@ void C_MuzzleflashEffect::UpdateLight( const Vector &vecPos, const Vector &vecDi
 	state.m_FarZ = 500.0f;
 	state.m_bEnableShadows = true;
 	state.m_flShadowMapResolution = r_flashlightdepthres.GetInt();
+
+	m_flHorizontalFOV = state.m_fHorizontalFOVDegrees;
 
 	state.m_pSpotlightTexture = m_FlashlightTexture;
 	state.m_nSpotlightTextureFrame = 0;

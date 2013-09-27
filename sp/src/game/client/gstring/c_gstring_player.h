@@ -26,7 +26,7 @@ public:
 	virtual void ProcessMuzzleFlashEvent();
 	virtual void UpdateFlashlight();
 
-	virtual bool IsRenderFlashlight() const;
+	virtual bool IsRenderingFlashlight() const;
 	virtual void GetFlashlightPosition( Vector &vecPos ) const;
 	virtual void GetFlashlightForward( Vector &vecForward ) const;
 	virtual float GetFlashlightDot() const;
@@ -42,6 +42,10 @@ private:
 	float m_flMuzzleFlashDuration;
 	C_MuzzleflashEffect *m_pMuzzleFlashEffect;
 
+	bool m_bFlashlightVisible;
+	Vector m_vecFlashlightPosition;
+	Vector m_vecFlashlightForward;
+	float m_flFlashlightDot;
 };
 
 inline C_GstringPlayer *ToGstringPlayer( C_BaseEntity *pPlayer )

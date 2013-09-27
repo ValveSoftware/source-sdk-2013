@@ -33,6 +33,7 @@ C_GstringPlayer::C_GstringPlayer()
 	, m_flMuzzleFlashTime( 0.0f )
 	, m_pMuzzleFlashEffect( NULL )
 	, m_flMuzzleFlashDuration( 0.0f )
+	, m_bFlashlightVisible( false )
 {
 }
 
@@ -157,7 +158,9 @@ void C_GstringPlayer::UpdateFlashlight()
 		m_flMuzzleFlashDuration = 0.0f;
 	}
 
-	if ( bDoFlashlight || bDoMuzzleflash )
+	m_bFlashlightVisible = bDoFlashlight || bDoMuzzleflash;
+
+	if ( m_bFlashlightVisible )
 	{
 		ConVarRef scissor( "r_flashlightscissor" );
 		scissor.SetValue( "0" );
@@ -187,6 +190,12 @@ void C_GstringPlayer::UpdateFlashlight()
 		}
 	}
 
+	m_vecFlashlightPosition = vecPos;
+	m_vecFlashlightForward = vecForward;
+
+#define FLASHLIGHT_FOV_ADJUST 15.0f
+#define FLASHLIGHT_FOV_MIN 5.0f
+
 	if ( bDoFlashlight )
 	{
 		if (!m_pFlashlight)
@@ -202,8 +211,12 @@ void C_GstringPlayer::UpdateFlashlight()
 
 		// Update the light with the new position and direction.
 		m_pFlashlight->UpdateLight( vecPos, vecForward, vecRight, vecUp, FLASHLIGHT_DISTANCE );
+
+		m_flFlashlightDot = m_pFlashlight->GetHorizontalFOV() - FLASHLIGHT_FOV_ADJUST;
+		m_flFlashlightDot = MAX( m_flFlashlightDot, FLASHLIGHT_FOV_MIN );
+		m_flFlashlightDot = cos( DEG2RAD( m_flFlashlightDot ) );
 	}
-	else if (m_pFlashlight)
+	else if ( m_pFlashlight )
 	{
 		// Turned off the flashlight; delete it.
 		delete m_pFlashlight;
@@ -225,6 +238,10 @@ void C_GstringPlayer::UpdateFlashlight()
 
 		// Update the light with the new position and direction.
 		m_pMuzzleFlashEffect->UpdateLight( vecPos, vecForward, vecRight, vecUp, flStrength * flStrength );
+		
+		m_flFlashlightDot = m_pMuzzleFlashEffect->GetHorizontalFOV() - FLASHLIGHT_FOV_ADJUST;
+		m_flFlashlightDot = MAX( m_flFlashlightDot, FLASHLIGHT_FOV_MIN );
+		m_flFlashlightDot = cos( DEG2RAD( m_flFlashlightDot ) );
 	}
 	else
 	{
@@ -233,20 +250,22 @@ void C_GstringPlayer::UpdateFlashlight()
 	}
 }
 
-bool C_GstringPlayer::IsRenderFlashlight() const
+bool C_GstringPlayer::IsRenderingFlashlight() const
 {
-	return false;
+	return m_bFlashlightVisible;
 }
 
 void C_GstringPlayer::GetFlashlightPosition( Vector &vecPos ) const
 {
+	vecPos = m_vecFlashlightPosition;
 }
 
 void C_GstringPlayer::GetFlashlightForward( Vector &vecForward ) const
 {
+	vecForward = m_vecFlashlightForward;
 }
 
 float C_GstringPlayer::GetFlashlightDot() const
 {
-	return 0.0f;
+	return m_flFlashlightDot;
 }
