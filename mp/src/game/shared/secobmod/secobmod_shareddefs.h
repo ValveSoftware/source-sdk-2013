@@ -14,7 +14,7 @@
 /*****************/
 #define SecobMod__MiscFixes //Used when a fix doesn't quite fit in any of the other defined categorties. 
 #define SecobMod__Enable_Fixed_Multiplayer_AI //Allow AI in your mod, also fixes numerous crashes to do with AI and related features.
-#define SecobMod__PREVENT_ITEM_WEAPON_RESPAWNING //Prevent items and weapons from respawning after picked up by a player. Actually we cheat and set the respawn time insanely high.
+#define SecobMod__PREVENT_ITEM_WEAPON_RESPAWNING //Prevent items and weapons from respawning after being picked up by a player. Actually we cheat and set the respawn time insanely high.
 
 
 /***************************/
@@ -35,7 +35,6 @@
 #define SecobMod__USE_PLAYERCLASSES //Enable player classes.
 #define SecobMod__MULTIPLAYER_VIEWCONTROL_CAMERAS //Fixes the View Control Cameras so that all clients are affected by View Control cameras.
 #define SecobMod__FORCE_TEAMPLAY_AS_ALWAYS_ON //Forces teamplay to always be enabled.
-#define SecobMod__ENABLE_TEAMPLAY_FIXES //Fixes errors between AI and players when teams are in use, and AI are enabled.
 #define SecobMod__ENABLE_FAKE_PASSENGER_SEATS //Allows a hacky passenger seat to be added to valves vehicles (jeep and jalopy).
 
 /**********************/
