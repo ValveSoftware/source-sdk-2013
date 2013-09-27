@@ -935,6 +935,31 @@ inline T QWordSwapC( T dw )
 
 	#pragma warning(pop)
 
+#elif defined( _LINUX ) || defined( __APPLE__ )
+
+	#define WordSwap  WordSwapAsm
+	#define DWordSwap DWordSwapAsm
+
+	template <typename T>
+	inline T WordSwapAsm( T w )
+	{
+		__asm__ (
+			"xchg %b0, %h0\n"
+			: "+r" (w)
+		);
+		return w;
+	}
+
+	template <typename T>
+	inline T DWordSwapAsm( T dw )
+	{
+		__asm__ (
+			"bswap %0\n"
+			: "+r" (dw)
+		);
+		return dw;
+	}
+
 #else
 
 	#define WordSwap  WordSwapC
