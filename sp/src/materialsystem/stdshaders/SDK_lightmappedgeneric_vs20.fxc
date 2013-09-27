@@ -58,7 +58,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 projPos					: POSITION;	
-#if !defined( _X360 )    
+#if !defined( _X360 )    && !defined(SHADER_MODEL_VS_3_0)
 	float  fog						: FOG;
 #endif
 
@@ -208,7 +208,7 @@ VS_OUTPUT main( const VS_INPUT v )
 #endif
 
 	o.vertexBlendX_fogFactorW = CalcFog( worldPos, projPos, g_FogType );
-#if !defined( _X360 )
+#if !defined( _X360 ) && !defined(SHADER_MODEL_VS_3_0)
 	o.fog = o.vertexBlendX_fogFactorW;
 #endif
 

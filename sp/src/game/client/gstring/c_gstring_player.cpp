@@ -176,6 +176,14 @@ void C_GstringPlayer::UpdateFlashlight()
 			MatrixAngles( viewModel, ang, vecPos );
 			FormatViewModelAttachment( vecPos, false );
 			AngleVectors( ang, &vecForward, &vecRight, &vecUp );
+
+			trace_t tr;
+			Vector vecIdealPos = vecPos - vecForward * 40.0f;
+
+			UTIL_TraceHull( EyePosition(), vecIdealPos,
+				Vector( -6, -6, -6 ), Vector( 6, 6, 6 ), MASK_SOLID, this, COLLISION_GROUP_DEBRIS, &tr );
+
+			vecPos = tr.endpos;
 		}
 	}
 
@@ -223,4 +231,22 @@ void C_GstringPlayer::UpdateFlashlight()
 		delete m_pMuzzleFlashEffect;
 		m_pMuzzleFlashEffect = NULL;
 	}
+}
+
+bool C_GstringPlayer::IsRenderFlashlight() const
+{
+	return false;
+}
+
+void C_GstringPlayer::GetFlashlightPosition( Vector &vecPos ) const
+{
+}
+
+void C_GstringPlayer::GetFlashlightForward( Vector &vecForward ) const
+{
+}
+
+float C_GstringPlayer::GetFlashlightDot() const
+{
+	return 0.0f;
 }

@@ -53,6 +53,8 @@ private:
 	CVGUIMenuEmbedded *m_pWrappedMenu;
 
 	float m_flNextDepth;
+
+	int m_ilastSize;
 };
 
 extern CVGUIGstringMain *GetGstringMain();

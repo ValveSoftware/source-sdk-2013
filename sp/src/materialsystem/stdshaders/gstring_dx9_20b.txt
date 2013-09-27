@@ -23,8 +23,8 @@ SDK_lightmappedgeneric_lightingonly_vs11.fxc
 SDK_lightmappedgeneric_ps20b.fxc
 SDK_lightmappedgeneric_ps11.fxc
 SDK_lightmappedgeneric_vs20.fxc
-SDK_lightmappedreflective_ps2x.fxc
-SDK_lightmappedreflective_vs20.fxc
+//SDK_lightmappedreflective_ps2x.fxc
+//SDK_lightmappedreflective_vs20.fxc
 SDK_unlitgeneric_ps2x.fxc
 SDK_unlitgeneric_ps11.fxc
 SDK_unlitgeneric_vs20.fxc

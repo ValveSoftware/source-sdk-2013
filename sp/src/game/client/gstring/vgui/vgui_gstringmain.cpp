@@ -45,6 +45,7 @@ CVGUIGstringMain *GetGstringMain()
 }
 
 CVGUIGstringMain::CVGUIGstringMain( VPANEL parent, const char *pName ) : BaseClass( NULL, pName )
+	, m_ilastSize( 0 )
 {
 	SetParent( parent );
 	SetVisible( true );
@@ -114,6 +115,16 @@ void CVGUIGstringMain::OnThink()
 	{
 		bWasIngame = bIsIngame;
 		UpdateLayoutVisibility();
+	}
+
+	// for some reason the immediate layout update after resolution change
+	// is being overwritten again..
+	const int iSizeHash = GetWide() | ( GetTall() << 16 );
+	if ( iSizeHash != m_ilastSize )
+	{
+		m_ilastSize = iSizeHash;
+
+		InvalidateLayout();
 	}
 }
 

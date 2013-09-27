@@ -8,6 +8,7 @@
 //  STATIC: "SEAMLESS_DETAIL"       "0..1"
 //  STATIC: "SEPARATE_DETAIL_UVS"   "0..1"
 //  STATIC: "DECAL"					"0..1" [vs30]
+//  STATIC: "SM30_VERTEXID"			"0..1" [vs30]
 
 //  DYNAMIC: "COMPRESSED_VERTS"		"0..1"
 //	DYNAMIC: "DYNAMIC_LIGHT"		"0..1"
@@ -29,7 +30,7 @@ static const bool g_bVertexColor	= VERTEXCOLOR ? true : false;
 static const bool g_bCubemap		= CUBEMAP ? true : false;
 static const bool g_bFlashlight		= FLASHLIGHT ? true : false;
 static const bool g_bHalfLambert	= HALFLAMBERT ? true : false;
-#if (defined( SHADER_MODEL_VS_3_0 ) && MORPHING && DECAL)
+#if (defined( SHADER_MODEL_VS_3_0 ) && MORPHING && DECAL && SM30_VERTEXID)
 static const bool g_bDecalOffset	= true;
 #else
 static const bool g_bDecalOffset	= false;
@@ -47,7 +48,7 @@ const float4 cDetailTexCoordTransform[2]	:  register( SHADER_SPECIFIC_CONST_4 );
 const float4x4 g_FlashlightWorldToTexture :  register( SHADER_SPECIFIC_CONST_6 ); // 6, 7, 8, 9
 #endif
 
-#ifdef SHADER_MODEL_VS_3_0
+#if defined( SHADER_MODEL_VS_3_0 ) && SM30_VERTEXID
 // NOTE: cMorphTargetTextureDim.xy = target dimensions,
 //		 cMorphTargetTextureDim.z = 4tuples/morph
 const float3 cMorphTargetTextureDim			: register( SHADER_SPECIFIC_CONST_10 );
@@ -73,7 +74,7 @@ struct VS_INPUT
 	// Position and normal/tangent deltas
 	float3 vPosFlex			: POSITION1;
 	float3 vNormalFlex		: NORMAL1;
-#ifdef SHADER_MODEL_VS_3_0
+#if defined( SHADER_MODEL_VS_3_0 ) && SM30_VERTEXID
 	float vVertexID			: POSITION2;
 #endif
 };
@@ -139,7 +140,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.SeamlessWeights.xyz = NNormal * NNormal;				// sums to 1.
 #endif
 	
-#if !defined( SHADER_MODEL_VS_3_0 ) || !MORPHING
+#if !defined( SHADER_MODEL_VS_3_0 ) || !MORPHING || !SM30_VERTEXID
 	ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal );
 #else
 	ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
@@ -159,7 +160,7 @@ VS_OUTPUT main( const VS_INPUT v )
 		worldNormal = normalize( worldNormal );
 	}
 
-#if defined( SHADER_MODEL_VS_3_0 ) && MORPHING && DECAL
+#if defined( SHADER_MODEL_VS_3_0 ) && MORPHING && DECAL && SM30_VERTEXID
 	// Avoid z precision errors
 	worldPos += worldNormal * 0.05f * v.vTexCoord2.z;
 #endif

@@ -26,6 +26,10 @@ public:
 	virtual void ProcessMuzzleFlashEvent();
 	virtual void UpdateFlashlight();
 
+	virtual bool IsRenderFlashlight() const;
+	virtual void GetFlashlightPosition( Vector &vecPos ) const;
+	virtual void GetFlashlightForward( Vector &vecForward ) const;
+	virtual float GetFlashlightDot() const;
 
 protected:
 

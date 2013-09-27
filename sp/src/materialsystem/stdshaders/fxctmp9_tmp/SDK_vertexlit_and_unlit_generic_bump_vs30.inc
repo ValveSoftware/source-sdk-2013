@@ -64,6 +64,27 @@ public:
 		m_bDECAL = true;
 #endif
 	}
+private:
+	int m_nSM30_VERTEXID;
+#ifdef _DEBUG
+	bool m_bSM30_VERTEXID;
+#endif
+public:
+	void SetSM30_VERTEXID( int i )
+	{
+		Assert( i >= 0 && i <= 1 );
+		m_nSM30_VERTEXID = i;
+#ifdef _DEBUG
+		m_bSM30_VERTEXID = true;
+#endif
+	}
+	void SetSM30_VERTEXID( bool i )
+	{
+		m_nSM30_VERTEXID = i ? 1 : 0;
+#ifdef _DEBUG
+		m_bSM30_VERTEXID = true;
+#endif
+	}
 public:
 	sdk_vertexlit_and_unlit_generic_bump_vs30_Static_Index( )
 	{
@@ -79,19 +100,23 @@ public:
 		m_bDECAL = false;
 #endif // _DEBUG
 		m_nDECAL = 0;
+#ifdef _DEBUG
+		m_bSM30_VERTEXID = false;
+#endif // _DEBUG
+		m_nSM30_VERTEXID = 0;
 	}
 	int GetIndex()
 	{
 		// Asserts to make sure that we aren't using any skipped combinations.
 		// Asserts to make sure that we are setting all of the combination vars.
 #ifdef _DEBUG
-		bool bAllStaticVarsDefined = m_bHALFLAMBERT && m_bUSE_WITH_2B && m_bDECAL;
+		bool bAllStaticVarsDefined = m_bHALFLAMBERT && m_bUSE_WITH_2B && m_bDECAL && m_bSM30_VERTEXID;
 		Assert( bAllStaticVarsDefined );
 #endif // _DEBUG
-		return ( 16 * m_nHALFLAMBERT ) + ( 32 * m_nUSE_WITH_2B ) + ( 64 * m_nDECAL ) + 0;
+		return ( 16 * m_nHALFLAMBERT ) + ( 32 * m_nUSE_WITH_2B ) + ( 64 * m_nDECAL ) + ( 128 * m_nSM30_VERTEXID ) + 0;
 	}
 };
-#define shaderStaticTest_sdk_vertexlit_and_unlit_generic_bump_vs30 vsh_forgot_to_set_static_HALFLAMBERT + vsh_forgot_to_set_static_USE_WITH_2B + vsh_forgot_to_set_static_DECAL + 0
+#define shaderStaticTest_sdk_vertexlit_and_unlit_generic_bump_vs30 vsh_forgot_to_set_static_HALFLAMBERT + vsh_forgot_to_set_static_USE_WITH_2B + vsh_forgot_to_set_static_DECAL + vsh_forgot_to_set_static_SM30_VERTEXID + 0
 class sdk_vertexlit_and_unlit_generic_bump_vs30_Dynamic_Index
 {
 private:

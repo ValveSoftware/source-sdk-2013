@@ -3,6 +3,7 @@
 //  STATIC: "USE_WITH_2B"			"0..1"
 //  STATIC: "DECAL"					"0..1" [vs30]
 //  STATIC: "FLASHLIGHT"			"0..1" [XBOX]
+//  STATIC: "SM30_VERTEXID"			"0..1" [vs30]
 
 //  DYNAMIC: "COMPRESSED_VERTS"		"0..1"
 //	DYNAMIC: "DOWATERFOG"			"0..1"
@@ -18,7 +19,7 @@ const float4 cBaseTexCoordTransform[2]	 :  register( SHADER_SPECIFIC_CONST_0 );	
 const float4 cDetailTexCoordTransform[2] :  register( SHADER_SPECIFIC_CONST_4 );	// 4 & 5
 const float4x4 g_FlashlightWorldToTexture :  register( SHADER_SPECIFIC_CONST_6 );	// 6, 7, 8, 9
 
-#ifdef SHADER_MODEL_VS_3_0
+#if defined( SHADER_MODEL_VS_3_0 ) && SM30_VERTEXID
 // NOTE: cMorphTargetTextureDim.xy = target dimensions,
 //		 cMorphTargetTextureDim.z = 4tuples/morph
 const float3 cMorphTargetTextureDim			: register( SHADER_SPECIFIC_CONST_10 );
@@ -52,7 +53,7 @@ struct VS_INPUT
 	// Position and normal/tangent deltas
 	float3 vPosFlex			: POSITION1;
 	float3 vNormalFlex		: NORMAL1;
-#ifdef SHADER_MODEL_VS_3_0
+#if defined( SHADER_MODEL_VS_3_0 ) && SM30_VERTEXID
 	float vVertexID			: POSITION2;
 #endif
 };
@@ -102,7 +103,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	float4 vTangent;
 	DecompressVertex_NormalTangent( v.vNormal, v.vUserData, vNormal, vTangent );
 
-#if !defined( SHADER_MODEL_VS_3_0 ) || !MORPHING
+#if !defined( SHADER_MODEL_VS_3_0 ) || !MORPHING || !SM30_VERTEXID
 	ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal, vTangent.xyz );
 #else
 	ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
@@ -121,7 +122,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	worldTangentS = normalize( worldTangentS );
 	worldTangentT = normalize( worldTangentT );
 
-#if defined( SHADER_MODEL_VS_3_0 ) && MORPHING && DECAL
+#if defined( SHADER_MODEL_VS_3_0 ) && MORPHING && DECAL && SM30_VERTEXID
 	// Avoid z precision errors
 	worldPos += worldNormal * 0.05f * v.vTexCoord2.z;
 #endif

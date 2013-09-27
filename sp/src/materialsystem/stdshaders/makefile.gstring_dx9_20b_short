@@ -1,0 +1,60 @@
+default:  fxctmp9_tmp\SDK_flashlight_ps20.inc shaders\fxc\SDK_flashlight_ps20.vcs fxctmp9_tmp\SDK_flashlight_ps20b.inc shaders\fxc\SDK_flashlight_ps20b.vcs fxctmp9_tmp\SDK_flashlight_ps11.inc shaders\fxc\SDK_flashlight_ps11.vcs fxctmp9_tmp\SDK_lightmappedgeneric_flashlight_vs11.inc shaders\fxc\SDK_lightmappedgeneric_flashlight_vs11.vcs fxctmp9_tmp\SDK_lightmappedgeneric_flashlight_vs20.inc shaders\fxc\SDK_lightmappedgeneric_flashlight_vs20.vcs fxctmp9_tmp\SDK_vertexlit_and_unlit_generic_ps20b.inc shaders\fxc\SDK_vertexlit_and_unlit_generic_ps20b.vcs
+
+fxctmp9_tmp\SDK_flashlight_ps20.inc shaders\fxc\SDK_flashlight_ps20.vcs: SDK_flashlight_ps2x.fxc common_fxc.h shader_constant_register_map.h common_ps_fxc.h common_vertexlitgeneric_dx9.h common_lightmappedgeneric_fxc.h common_pragmas.h common_hlsl_cpp_consts.h common_flashlight_fxc.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_flashlight_ps2x.fxc-----SDK_flashlight_ps20
+	echo SDK_flashlight_ps2x.fxc>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+	echo shader_constant_register_map.h>> filestocopy.txt
+	echo common_ps_fxc.h>> filestocopy.txt
+	echo common_vertexlitgeneric_dx9.h>> filestocopy.txt
+	echo common_lightmappedgeneric_fxc.h>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_flashlight_fxc.h>> filestocopy.txt
+
+fxctmp9_tmp\SDK_flashlight_ps20b.inc shaders\fxc\SDK_flashlight_ps20b.vcs: SDK_flashlight_ps2x.fxc common_fxc.h shader_constant_register_map.h common_ps_fxc.h common_vertexlitgeneric_dx9.h common_lightmappedgeneric_fxc.h common_pragmas.h common_hlsl_cpp_consts.h common_flashlight_fxc.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_flashlight_ps2x.fxc-----SDK_flashlight_ps20b
+	echo SDK_flashlight_ps2x.fxc>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+	echo shader_constant_register_map.h>> filestocopy.txt
+	echo common_ps_fxc.h>> filestocopy.txt
+	echo common_vertexlitgeneric_dx9.h>> filestocopy.txt
+	echo common_lightmappedgeneric_fxc.h>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_flashlight_fxc.h>> filestocopy.txt
+
+fxctmp9_tmp\SDK_flashlight_ps11.inc shaders\fxc\SDK_flashlight_ps11.vcs: SDK_flashlight_ps11.fxc common_fxc.h common_hlsl_cpp_consts.h common_pragmas.h common_ps_fxc.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_flashlight_ps11.fxc-----SDK_flashlight_ps11
+	echo SDK_flashlight_ps11.fxc>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+	echo common_ps_fxc.h>> filestocopy.txt
+
+fxctmp9_tmp\SDK_lightmappedgeneric_flashlight_vs11.inc shaders\fxc\SDK_lightmappedgeneric_flashlight_vs11.vcs: SDK_lightmappedgeneric_flashlight_vs11.fxc common_fxc.h common_hlsl_cpp_consts.h common_pragmas.h common_vs_fxc.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_lightmappedgeneric_flashlight_vs11.fxc-----SDK_lightmappedgeneric_flashlight_vs11
+	echo SDK_lightmappedgeneric_flashlight_vs11.fxc>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+	echo common_vs_fxc.h>> filestocopy.txt
+
+fxctmp9_tmp\SDK_lightmappedgeneric_flashlight_vs20.inc shaders\fxc\SDK_lightmappedgeneric_flashlight_vs20.vcs: SDK_lightmappedgeneric_flashlight_vs20.fxc common_fxc.h common_hlsl_cpp_consts.h common_pragmas.h common_vs_fxc.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_lightmappedgeneric_flashlight_vs20.fxc-----SDK_lightmappedgeneric_flashlight_vs20
+	echo SDK_lightmappedgeneric_flashlight_vs20.fxc>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+	echo common_vs_fxc.h>> filestocopy.txt
+
+fxctmp9_tmp\SDK_vertexlit_and_unlit_generic_ps20b.inc shaders\fxc\SDK_vertexlit_and_unlit_generic_ps20b.vcs: SDK_vertexlit_and_unlit_generic_ps20b.fxc common_fxc.h common_hlsl_cpp_consts.h common_pragmas.h common_flashlight_fxc.h common_vertexlitgeneric_dx9.h common_ps_fxc.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." SDK_vertexlit_and_unlit_generic_ps20b.fxc-----SDK_vertexlit_and_unlit_generic_ps20b
+	echo SDK_vertexlit_and_unlit_generic_ps20b.fxc>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+	echo common_flashlight_fxc.h>> filestocopy.txt
+	echo common_vertexlitgeneric_dx9.h>> filestocopy.txt
+	echo common_ps_fxc.h>> filestocopy.txt
+

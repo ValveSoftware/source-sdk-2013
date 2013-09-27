@@ -10,7 +10,9 @@
 
 #include "common_ps_fxc.h"
 
+#if defined(SHADER_MODEL_PS_3_0)
 #define NEW_SHADOW_FILTERS // Comment if you want to enable retail shadow filter.
+#endif
 
 // JasonM - TODO: remove this simpleton version
 float DoShadow( sampler DepthSampler, float4 texCoord )
@@ -101,11 +103,15 @@ float DoShadowNvidiaCheap( sampler DepthSampler, const float4 shadowMapPos )
 	return dot(vTaps, float4(0.25, 0.25, 0.25, 0.25));
 }
 
+#if defined( NEW_SHADOW_FILTERS )
+float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float3 shadowMapPos )
+#else
 float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float4 shadowMapPos )
+#endif
 {
-	float fTexelEpsilon = 1.0f / 1024.0f;
+	float fTexelEpsilon = 1.0f / 512.0f;
 
-	float ooW = 1.0f / shadowMapPos.w;								// 1 / w
+	float ooW = 1.0f; //1.0f / shadowMapPos.w;								// 1 / w
 	float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
 
 	float2 shadowMapCenter = shadowMapCenter_objDepth.xy;			// Center of shadow filter
@@ -145,12 +151,7 @@ float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float3 shadowMap
 float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float4 shadowMapPos )
 #endif
 {
-#if defined( NEW_SHADOW_FILTERS )
-	// TODO: Set resolution from flashlight's state.
-	float fEpsilon    = 1.0f / 1024.0f;
-#else
 	float fEpsilon    = 1.0f / 512.0f;
-#endif
 	float fTwoEpsilon = 2.0f * fEpsilon;
 
 #if defined( NEW_SHADOW_FILTERS )	

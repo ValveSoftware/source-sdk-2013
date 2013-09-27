@@ -169,6 +169,27 @@ public:
 		m_bDECAL = true;
 #endif
 	}
+private:
+	int m_nSM30_VERTEXID;
+#ifdef _DEBUG
+	bool m_bSM30_VERTEXID;
+#endif
+public:
+	void SetSM30_VERTEXID( int i )
+	{
+		Assert( i >= 0 && i <= 1 );
+		m_nSM30_VERTEXID = i;
+#ifdef _DEBUG
+		m_bSM30_VERTEXID = true;
+#endif
+	}
+	void SetSM30_VERTEXID( bool i )
+	{
+		m_nSM30_VERTEXID = i ? 1 : 0;
+#ifdef _DEBUG
+		m_bSM30_VERTEXID = true;
+#endif
+	}
 public:
 	sdk_vertexlit_and_unlit_generic_vs30_Static_Index( )
 	{
@@ -204,19 +225,23 @@ public:
 		m_bDECAL = false;
 #endif // _DEBUG
 		m_nDECAL = 0;
+#ifdef _DEBUG
+		m_bSM30_VERTEXID = false;
+#endif // _DEBUG
+		m_nSM30_VERTEXID = 0;
 	}
 	int GetIndex()
 	{
 		// Asserts to make sure that we aren't using any skipped combinations.
 		// Asserts to make sure that we are setting all of the combination vars.
 #ifdef _DEBUG
-		bool bAllStaticVarsDefined = m_bVERTEXCOLOR && m_bCUBEMAP && m_bHALFLAMBERT && m_bFLASHLIGHT && m_bSEAMLESS_BASE && m_bSEAMLESS_DETAIL && m_bSEPARATE_DETAIL_UVS && m_bDECAL;
+		bool bAllStaticVarsDefined = m_bVERTEXCOLOR && m_bCUBEMAP && m_bHALFLAMBERT && m_bFLASHLIGHT && m_bSEAMLESS_BASE && m_bSEAMLESS_DETAIL && m_bSEPARATE_DETAIL_UVS && m_bDECAL && m_bSM30_VERTEXID;
 		Assert( bAllStaticVarsDefined );
 #endif // _DEBUG
-		return ( 128 * m_nVERTEXCOLOR ) + ( 256 * m_nCUBEMAP ) + ( 512 * m_nHALFLAMBERT ) + ( 1024 * m_nFLASHLIGHT ) + ( 2048 * m_nSEAMLESS_BASE ) + ( 4096 * m_nSEAMLESS_DETAIL ) + ( 8192 * m_nSEPARATE_DETAIL_UVS ) + ( 16384 * m_nDECAL ) + 0;
+		return ( 128 * m_nVERTEXCOLOR ) + ( 256 * m_nCUBEMAP ) + ( 512 * m_nHALFLAMBERT ) + ( 1024 * m_nFLASHLIGHT ) + ( 2048 * m_nSEAMLESS_BASE ) + ( 4096 * m_nSEAMLESS_DETAIL ) + ( 8192 * m_nSEPARATE_DETAIL_UVS ) + ( 16384 * m_nDECAL ) + ( 32768 * m_nSM30_VERTEXID ) + 0;
 	}
 };
-#define shaderStaticTest_sdk_vertexlit_and_unlit_generic_vs30 vsh_forgot_to_set_static_VERTEXCOLOR + vsh_forgot_to_set_static_CUBEMAP + vsh_forgot_to_set_static_HALFLAMBERT + vsh_forgot_to_set_static_FLASHLIGHT + vsh_forgot_to_set_static_SEAMLESS_BASE + vsh_forgot_to_set_static_SEAMLESS_DETAIL + vsh_forgot_to_set_static_SEPARATE_DETAIL_UVS + vsh_forgot_to_set_static_DECAL + 0
+#define shaderStaticTest_sdk_vertexlit_and_unlit_generic_vs30 vsh_forgot_to_set_static_VERTEXCOLOR + vsh_forgot_to_set_static_CUBEMAP + vsh_forgot_to_set_static_HALFLAMBERT + vsh_forgot_to_set_static_FLASHLIGHT + vsh_forgot_to_set_static_SEAMLESS_BASE + vsh_forgot_to_set_static_SEAMLESS_DETAIL + vsh_forgot_to_set_static_SEPARATE_DETAIL_UVS + vsh_forgot_to_set_static_DECAL + vsh_forgot_to_set_static_SM30_VERTEXID + 0
 class sdk_vertexlit_and_unlit_generic_vs30_Dynamic_Index
 {
 private:

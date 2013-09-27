@@ -583,6 +583,9 @@ void DrawBloomFlare()
 	shaderEdit->DrawPPEOnDemand( iBloomFlare );
 }
 
+/**
+ * DESATURATION
+ */
 void DrawDesaturation()
 {
 	const float flDesaturationStrength = cvar_gstring_desaturation_strength.GetFloat();
@@ -608,6 +611,9 @@ void DrawDesaturation()
 	shaderEdit->DrawPPEOnDemand( iDesaturationIndex );
 }
 
+/**
+ * NIGHTVISION
+ */
 static float g_flNightvisionBlackFade = 0.0f;
 static float g_flNightvisionAmount = 0.0f;
 static float g_flNightvisionOverbright = 0.0f;
