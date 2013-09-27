@@ -98,6 +98,7 @@ class CDetailObjectSystemPerLeafData
 	}
 };
 
+// GSTRINGMIGRATION
 static void ModulateByFlashlight( const Vector &vecOrigin, Vector &vecColor )
 {
 	C_GstringPlayer *pPlayer = ToGstringPlayer( C_BasePlayer::GetLocalPlayer() );
@@ -128,6 +129,7 @@ static void ModulateByFlashlight( const Vector &vecOrigin, Vector &vecColor )
 		}
 	}
 }
+// END GSTRINGMIGRATION
 
 //-----------------------------------------------------------------------------
 // Detail models
@@ -1052,7 +1054,7 @@ void CDetailModel::DrawTypeSprite( CMeshBuilder &meshBuilder )
 	Vector vecColor;
 	GetColorModulation( vecColor.Base() );
 
-	ModulateByFlashlight( m_Origin, vecColor );
+	ModulateByFlashlight( m_Origin, vecColor ); // GSTRINGMIGRATION
 
 	unsigned char color[4];
 	color[0] = (unsigned char)(vecColor[0] * 255.0f);
@@ -1147,7 +1149,7 @@ void CDetailModel::DrawTypeShapeCross( CMeshBuilder &meshBuilder )
 	Vector vecColor;
 	GetColorModulation( vecColor.Base() );
 
-	ModulateByFlashlight( m_Origin, vecColor );
+	ModulateByFlashlight( m_Origin, vecColor ); // GSTRINGMIGRATION
 
 	unsigned char color[4];
 	color[0] = (unsigned char)(vecColor[0] * 255.0f);
@@ -1263,7 +1265,7 @@ void CDetailModel::DrawTypeShapeTri( CMeshBuilder &meshBuilder )
 	Vector vecColor;
 	GetColorModulation( vecColor.Base() );
 
-	ModulateByFlashlight( m_Origin, vecColor );
+	ModulateByFlashlight( m_Origin, vecColor ); // GSTRINGMIGRATION
 
 	unsigned char color[4];
 	color[0] = (unsigned char)(vecColor[0] * 255.0f);

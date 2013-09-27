@@ -4,6 +4,7 @@
 #include "c_basehlplayer.h"
 
 class C_MuzzleflashEffect;
+class C_BobModel;
 
 class C_GstringPlayer : public C_BaseHLPlayer
 {
@@ -46,6 +47,10 @@ private:
 	Vector m_vecFlashlightPosition;
 	Vector m_vecFlashlightForward;
 	float m_flFlashlightDot;
+
+	C_BobModel *m_pBobViewModel;
+	float m_flBobModelAmount;
+	QAngle m_angLastBobAngle;
 };
 
 inline C_GstringPlayer *ToGstringPlayer( C_BaseEntity *pPlayer )

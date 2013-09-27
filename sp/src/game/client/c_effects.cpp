@@ -23,6 +23,11 @@
 #include "tier0/vprof.h"
 #include "viewrender.h"
 
+// GSTRINGMIGRATION
+#include "hud.h"
+#include "Gstring/vgui/hud_waterfx.h"
+// END GSTRINGMIGRATION
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -33,7 +38,7 @@ Vector g_vSplashColor( 0.5, 0.5, 0.5 );
 float g_flSplashScale = 0.15;
 float g_flSplashLifetime = 0.5f;
 float g_flSplashAlpha = 0.3f;
-ConVar r_RainSplashPercentage( "r_RainSplashPercentage", "20", FCVAR_CHEAT ); // N% chance of a rain particle making a splash.
+ConVar r_RainSplashPercentage( "r_RainSplashPercentage", "10", FCVAR_CHEAT ); // N% chance of a rain particle making a splash.
 
 
 float GUST_INTERVAL_MIN = 1;
@@ -124,6 +129,8 @@ public:
 
 	void Render();
 
+	bool IsEnabled(); // GSTRINGMIGRATION
+
 private:
 
 	// Creates a single particle
@@ -177,6 +184,8 @@ private:
 
 	float			m_flDensity;
 
+	bool				m_bEnabled; // GSTRINGMIGRATION
+
 	// Some state used in rendering and simulation
 	// Used to modify the rain density and wind from the console
 	static ConVar s_raindensity;
@@ -187,7 +196,14 @@ private:
 	static Vector s_WindVector;			// Stores the wind speed vector
 	
 	CUtlLinkedList<CPrecipitationParticle> m_Particles;
-	CUtlVector<Vector> m_Splashes;
+	// GSTRINGMIGRATION
+	struct WorldSplash_t
+	{
+		Vector orig, normal;
+	};
+	CUtlVector<WorldSplash_t> m_Splashes;
+	CUtlVector<Vector> m_Splashes_Watersurface;
+	// END GSTRINGMIGRATION
 
 	CSmartPtr<AshDebrisEffect>		m_pAshEmitter;
 	TimedEvent						m_tAshParticleTimer;
@@ -204,7 +220,8 @@ private:
 
 // Just receive the normal data table stuff
 IMPLEMENT_CLIENTCLASS_DT(CClient_Precipitation, DT_Precipitation, CPrecipitation)
-	RecvPropInt( RECVINFO( m_nPrecipType ) )
+	RecvPropInt( RECVINFO( m_nPrecipType ) ),
+	RecvPropBool( RECVINFO( m_bEnabled ) ), // GSTRINGMIGRATION
 END_RECV_TABLE()
 
 static ConVar r_SnowEnable( "r_SnowEnable", "1", FCVAR_CHEAT, "Snow Enable" );
@@ -254,14 +271,20 @@ static bool IsInAir( const Vector& position )
 
 ConVar CClient_Precipitation::s_raindensity( "r_raindensity","0.001", FCVAR_CHEAT);
 ConVar CClient_Precipitation::s_rainwidth( "r_rainwidth", "0.5", FCVAR_CHEAT );
-ConVar CClient_Precipitation::s_rainlength( "r_rainlength", "0.1f", FCVAR_CHEAT );
+ConVar CClient_Precipitation::s_rainlength( "r_rainlength", "0.01f", FCVAR_CHEAT ); // GSTRINGMIGRATION
 ConVar CClient_Precipitation::s_rainspeed( "r_rainspeed", "600.0f", FCVAR_CHEAT );
-ConVar r_rainalpha( "r_rainalpha", "0.4", FCVAR_CHEAT );
+ConVar r_rainalpha( "r_rainalpha", "0.1", FCVAR_CHEAT ); // GSTRINGMIGRATION
 ConVar r_rainalphapow( "r_rainalphapow", "0.8", FCVAR_CHEAT );
 
 
 Vector CClient_Precipitation::s_WindVector;		// Stores the wind speed vector
 
+// GSTRINGMIGRATION
+bool CClient_Precipitation::IsEnabled()
+{
+	return m_bEnabled;
+}
+// END GSTRINGMIGRATION
 
 void CClient_Precipitation::OnDataChanged( DataUpdateType_t updateType )
 {
@@ -324,26 +347,50 @@ inline bool CClient_Precipitation::SimulateRain( CPrecipitationParticle* pPartic
 		}
 	}
 
-		// No longer in the air? punt.
-		if ( !IsInAir( pParticle->m_Pos ) )
-		{
-			// Possibly make a splash if we hit a water surface and it's in front of the view.
-			if ( m_Splashes.Count() < 20 )
-			{
-				if ( RandomInt( 0, 100 ) < r_RainSplashPercentage.GetInt() )
-				{
-					trace_t trace;
-					UTIL_TraceLine(vOldPos, pParticle->m_Pos, MASK_WATER, NULL, COLLISION_GROUP_NONE, &trace);
-					if( trace.fraction < 1 )
-					{
-						m_Splashes.AddToTail( trace.endpos );
-					}
-				}
-			}
 
-			// Tell the framework it's time to remove the particle from the list
-			return false;
+	// GSTRINGMIGRATION
+	CTraceFilterHitAll filter;
+	int traceMask = ( MASK_SOLID | MASK_SHOT | MASK_WATER ) & ~CONTENTS_MONSTER;
+	trace_t tr;
+	UTIL_TraceLine( vOldPos, pParticle->m_Pos, traceMask, &filter, &tr );
+
+	C_BasePlayer *pl = C_BasePlayer::GetLocalPlayer();
+	static CHudWaterEffects *pHudWaterFX = GET_HUDELEMENT( CHudWaterEffects );
+
+	if ( pl != NULL &&
+		pHudWaterFX != NULL )
+	{
+
+		Vector mins = 1.5f * pl->WorldAlignMins() + pl->GetLocalOrigin();
+		Vector maxs = 1.5f * pl->WorldAlignMaxs() + pl->GetLocalOrigin();
+
+		if ( IsPointInBox( tr.endpos, mins, maxs ) )
+		{
+			pHudWaterFX->SetDropMultiplier( max( 1, m_flDensity * 10000.0f ) );
+			pHudWaterFX->OnRainHit();
 		}
+	}
+
+	if ( tr.DidHit() )
+	{
+		if ( RandomInt( 0, 100 ) < r_RainSplashPercentage.GetInt() &&
+			(tr.endpos - MainViewOrigin()).LengthSqr() < (1024*1024) )
+		{
+			if ( tr.contents & MASK_WATER )
+				m_Splashes_Watersurface.AddToTail( tr.endpos );
+			else
+			{
+				WorldSplash_t s;
+				s.orig = tr.endpos;
+				s.normal = tr.plane.normal;
+				m_Splashes.AddToTail( s );
+			}
+		}
+
+		// Tell the framework it's time to remove the particle from the list
+		return false;
+	}
+	// END GSTRINGMIGRATION
 
 	// We still want this particle
 	return true;
@@ -432,7 +479,8 @@ void CClient_Precipitation::Simulate( float dt )
 	timer.Start();
 
 	// Emit new particles
-	EmitParticles( dt );
+	if ( IsEnabled() ) // GSTRINGMIGRATION
+		EmitParticles( dt );
 
 	// Simulate all the particles.
 	int iNext;
@@ -529,6 +577,8 @@ inline void CClient_Precipitation::RenderParticle( CPrecipitationParticle* pPart
 	float flWidth = GetWidth();
 
 	float flScreenSpaceWidth = flWidth * m_flHalfScreenWidth / -start.z;
+	flScreenSpaceWidth = max( flScreenSpaceWidth, 0.0f ); // GSTRINGMIGRATION
+
 	if ( flScreenSpaceWidth < MIN_SCREENSPACE_RAIN_WIDTH )
 	{
 		// Make the rain tracer at least the min size, but fade its alpha the smaller it gets.
@@ -538,22 +588,31 @@ inline void CClient_Precipitation::RenderParticle( CPrecipitationParticle* pPart
 	flAlpha = pow( flAlpha, r_rainalphapow.GetFloat() );
 
 	float flColor[4] = { 1, 1, 1, flAlpha };
-	Tracer_Draw( &mb, start, delta, flWidth, flColor, 1 );
+	Tracer_Draw( &mb, start - delta, delta, flWidth, flColor, 1 ); // GSTRINGMIGRATION
 }
 
 
 void CClient_Precipitation::CreateWaterSplashes()
 {
+	// GSTRINGMIGRATION
 	for ( int i=0; i < m_Splashes.Count(); i++ )
 	{
-		Vector vSplash = m_Splashes[i];
+		WorldSplash_t vSplash = m_Splashes[i];
+		
+		if ( CurrentViewForward().Dot( vSplash.orig - CurrentViewOrigin() ) > 1 )
+			FX_GunshotSplash( vSplash.orig, vSplash.normal, RandomFloat( 1.5f, 3.5f ), false );
+	}
+	m_Splashes.RemoveAll();
+
+	for ( int i=0; i < m_Splashes_Watersurface.Count(); i++ )
+	{
+		Vector vSplash = m_Splashes_Watersurface[i];
 		
 		if ( CurrentViewForward().Dot( vSplash - CurrentViewOrigin() ) > 1 )
-		{
-			FX_WaterRipple( vSplash, g_flSplashScale, &g_vSplashColor, g_flSplashLifetime, g_flSplashAlpha );
-		}
+			FX_WaterRipple( vSplash, g_flSplashScale, &g_vSplashColor, g_flSplashLifetime, g_flSplashAlpha ); //, "effects/splashwake5" );
 	}
-	m_Splashes.Purge();
+	m_Splashes_Watersurface.RemoveAll();
+	// END GSTRINGMIGRATION
 }
 
 
@@ -1205,6 +1264,7 @@ BEGIN_RECV_TABLE_NOBASE(CEnvWindShared, DT_EnvWindShared)
 	RecvPropFloat	(RECVINFO(m_flInitialWindSpeed)),
 	RecvPropFloat	(RECVINFO(m_flStartTime)),
 	RecvPropFloat	(RECVINFO(m_flGustDuration)),
+	RecvPropBool	(RECVINFO(m_bEnabled)), // GSTRINGMIGRATION
 //	RecvPropInt		(RECVINFO(m_iszGustSound)),
 END_RECV_TABLE()
 

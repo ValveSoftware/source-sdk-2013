@@ -5,6 +5,7 @@
 #include "view.h"
 #include "flashlighteffect.h"
 #include "c_muzzleflash_effect.h"
+#include "c_bobmodel.h"
 
 #define FLASHLIGHT_DISTANCE		1000
 
@@ -21,7 +22,6 @@
 //	}
 //}
 
-
 IMPLEMENT_CLIENTCLASS_DT( C_GstringPlayer, DT_CGstringPlayer, CGstringPlayer )
 
 	RecvPropBool( RECVINFO( m_bNightvisionActive ) ),
@@ -34,12 +34,20 @@ C_GstringPlayer::C_GstringPlayer()
 	, m_pMuzzleFlashEffect( NULL )
 	, m_flMuzzleFlashDuration( 0.0f )
 	, m_bFlashlightVisible( false )
+	, m_pBobViewModel( NULL )
+	, m_flBobModelAmount( 0.0f )
+	, m_angLastBobAngle( vec3_angle )
 {
 }
 
 C_GstringPlayer::~C_GstringPlayer()
 {
 	delete m_pMuzzleFlashEffect;
+
+	if ( m_pBobViewModel != NULL )
+	{
+		m_pBobViewModel->Release();
+	}
 }
 
 bool C_GstringPlayer::IsNightvisionActive() const
@@ -133,6 +141,65 @@ void C_GstringPlayer::OverrideView( CViewSetup *pSetup )
 	{
 		pSetup->angles.z += amtSide;
 	}
+
+	// shake derived from viewmodel
+	C_BaseViewModel *pViewModel = GetViewModel();
+
+	//m_flBobModelAmount
+
+	if ( pViewModel != NULL
+		&& pViewModel->GetModelPtr() != NULL )
+	{
+		if ( m_pBobViewModel == NULL )
+		{
+			const char *pszName = modelinfo->GetModelName( pViewModel->GetModel() );
+
+			if ( pszName && *pszName )
+			{
+				m_pBobViewModel = new C_BobModel();
+			
+				m_pBobViewModel->InitializeAsClientEntity( pszName, RENDER_GROUP_OTHER );
+			}
+		}
+
+		if ( m_pBobViewModel->GetModelIndex() != pViewModel->GetModelIndex() )
+		{
+			const char *pszName = modelinfo->GetModelName( pViewModel->GetModel() );
+
+			if ( pszName && *pszName )
+			{
+				m_pBobViewModel->SetModel( pszName );
+			}
+		}
+
+		if ( m_pBobViewModel->IsDirty() )
+		{
+			m_pBobViewModel->UpdateDefaultTransforms();
+			m_pBobViewModel->SetDirty( false );
+		}
+
+		//extern void FormatViewModelAttachment( Vector &vOrigin, bool bInverse );
+
+		if ( !m_pBobViewModel->IsInvalid() )
+		{
+			m_pBobViewModel->SetSequence( pViewModel->GetSequence() );
+			m_pBobViewModel->SetCycle( pViewModel->GetCycle() );
+
+			QAngle ang;
+			m_pBobViewModel->GetDeltaTransforms( ang );
+			m_angLastBobAngle = ang * 0.15f;
+		}
+	}
+
+	float flGoalBobAmount = ( m_pBobViewModel && !m_pBobViewModel->IsInvalid() )
+		? 1.0f : 0.0f;
+
+	if ( m_flBobModelAmount != flGoalBobAmount )
+	{
+		m_flBobModelAmount = Approach( flGoalBobAmount, m_flBobModelAmount, gpGlobals->frametime * 1.5f );
+	}
+
+	pSetup->angles += m_angLastBobAngle * m_flBobModelAmount;
 }
 
 void C_GstringPlayer::ProcessMuzzleFlashEvent()
@@ -166,6 +233,7 @@ void C_GstringPlayer::UpdateFlashlight()
 		scissor.SetValue( "0" );
 
 		C_BaseViewModel *pViewModel = GetViewModel();
+
 		if ( pViewModel != NULL
 			&& pViewModel->GetModelPtr() != NULL
 			&& pViewModel->GetModelPtr()->GetNumAttachments() >= 1 )

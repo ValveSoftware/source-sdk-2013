@@ -43,6 +43,8 @@ $Project "Client (G-String)"
 			$File	"gstring\cframetimehelper.h"
 			$File	"gstring\c_muzzleflash_effect.cpp"
 			$File	"gstring\c_muzzleflash_effect.h"
+			$File	"gstring\c_bobmodel.cpp"
+			$File	"gstring\c_bobmodel.h"
 			
 			$Folder "vgui"
 			{

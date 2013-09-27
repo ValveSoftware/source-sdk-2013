@@ -117,7 +117,7 @@ void FX_WaterRipple( const Vector &origin, float scale, Vector *pColor, float fl
 // Input  : &origin - 
 //			&normal - 
 //-----------------------------------------------------------------------------
-void FX_GunshotSplash( const Vector &origin, const Vector &normal, float scale )
+void FX_GunshotSplash( const Vector &origin, const Vector &normal, float scale, bool bPlaySound )
 {
 	VPROF_BUDGET( "FX_GunshotSplash", VPROF_BUDGETGROUP_PARTICLE_RENDERING );
 	
@@ -234,18 +234,22 @@ void FX_GunshotSplash( const Vector &origin, const Vector &normal, float scale )
 	// Do a ripple
 	FX_WaterRipple( origin, flScale, &color, 1.5f, luminosity );
 
-	//Play a sound
-	CLocalPlayerFilter filter;
+	// GSTRINGMIGRATION
+	if ( bPlaySound )
+	{
+		//Play a sound
+		CLocalPlayerFilter filter;
 
-	EmitSound_t ep;
-	ep.m_nChannel = CHAN_VOICE;
-	ep.m_pSoundName =  "Physics.WaterSplash";
-	ep.m_flVolume = 1.0f;
-	ep.m_SoundLevel = SNDLVL_NORM;
-	ep.m_pOrigin = &origin;
+		EmitSound_t ep;
+		ep.m_nChannel = CHAN_VOICE;
+		ep.m_pSoundName =  "Physics.WaterSplash";
+		ep.m_flVolume = 1.0f;
+		ep.m_SoundLevel = SNDLVL_NORM;
+		ep.m_pOrigin = &origin;
 
-
-	C_BaseEntity::EmitSound( filter, SOUND_FROM_WORLD, ep );
+		C_BaseEntity::EmitSound( filter, SOUND_FROM_WORLD, ep );
+	}
+	// END GSTRINGMIGRATION
 }
 
 //-----------------------------------------------------------------------------

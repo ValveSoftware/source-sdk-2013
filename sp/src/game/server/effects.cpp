@@ -1472,6 +1472,8 @@ void CItemSoda::CanTouch ( CBaseEntity *pOther )
 // technology demo
 //=========================================================
 
+#define PRECIPFLAG_STARTDISABLED 0x01 // GSTRINGMIGRATION
+
 class CPrecipitation : public CBaseEntity
 {
 public:
@@ -1482,6 +1484,17 @@ public:
 	CPrecipitation();
 	void	Spawn( void );
 
+	// GSTRINGMIGRATION
+	void InputEnable( inputdata_t &inputdata );
+	void InputDisable( inputdata_t &inputdata );
+	void InputToggle( inputdata_t &inputdata );
+
+	void SetEnabled( bool bEnabled );
+	bool IsEnabled();
+
+	CNetworkVar( bool, m_bEnabled );
+	// END GSTRINGMIGRATION
+
 	CNetworkVar( PrecipitationType_t, m_nPrecipType );
 };
 
@@ -1489,11 +1502,19 @@ LINK_ENTITY_TO_CLASS( func_precipitation, CPrecipitation );
 
 BEGIN_DATADESC( CPrecipitation )
 	DEFINE_KEYFIELD( m_nPrecipType, FIELD_INTEGER, "preciptype" ),
+
+	// GSTRINGMIGRATION
+	DEFINE_FIELD( m_bEnabled, FIELD_BOOLEAN ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "disable", InputDisable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "toggle", InputToggle ),
+	// END GSTRINGMIGRATION
 END_DATADESC()
 
 // Just send the normal entity crap
 IMPLEMENT_SERVERCLASS_ST( CPrecipitation, DT_Precipitation)
-	SendPropInt( SENDINFO( m_nPrecipType ), Q_log2( NUM_PRECIPITATION_TYPES ) + 1, SPROP_UNSIGNED )
+	SendPropInt( SENDINFO( m_nPrecipType ), Q_log2( NUM_PRECIPITATION_TYPES ) + 1, SPROP_UNSIGNED ),
+	SendPropBool( SENDINFO( m_bEnabled ) ), // GSTRINGMIGRATION
 END_SEND_TABLE()
 
 
@@ -1519,7 +1540,36 @@ void CPrecipitation::Spawn( void )
 		m_nPrecipType = PRECIPITATION_TYPE_RAIN;
 
 	m_nRenderMode = kRenderEnvironmental;
+
+	SetEnabled( !HasSpawnFlags( PRECIPFLAG_STARTDISABLED ) );	// GSTRINGMIGRATION
 }
+
+// GSTRINGMIGRATION
+void CPrecipitation::SetEnabled( bool bEnabled )
+{
+	m_bEnabled = bEnabled;
+}
+
+bool CPrecipitation::IsEnabled()
+{
+	return m_bEnabled;
+}
+
+void CPrecipitation::InputEnable( inputdata_t &inputdata )
+{
+	SetEnabled( true );
+}
+
+void CPrecipitation::InputDisable( inputdata_t &inputdata )
+{
+	SetEnabled( false );
+}
+
+void CPrecipitation::InputToggle( inputdata_t &inputdata )
+{
+	SetEnabled( !IsEnabled() );
+}
+// END GSTRINGMIGRATION
 #endif
 
 //-----------------------------------------------------------------------------
@@ -1535,10 +1585,22 @@ public:
 	void	WindThink( void );
 	int		UpdateTransmitState( void );
 
+	// GSTRINGMIGRATION
+	void InputEnable( inputdata_t &inputdata );
+	void InputDisable( inputdata_t &inputdata );
+	void InputToggle( inputdata_t &inputdata );
+	// END GSTRINGMIGRATION
+
 	DECLARE_DATADESC();
 	DECLARE_SERVERCLASS();
 
 private:
+
+	// GSTRINGMIGRATION
+	void SetEnabled( bool bEnabled );
+	bool IsEnabled() const { return m_EnvWindShared.m_bEnabled; }
+	// END GSTRINGMIGRATION
+
 #ifdef POSIX
 	CEnvWindShared m_EnvWindShared; // FIXME - fails to compile as networked var due to operator= problem
 #else
@@ -1572,6 +1634,13 @@ BEGIN_DATADESC( CEnvWind )
 	// Function Pointers
 	DEFINE_FUNCTION( WindThink ),
 
+	// GSTRINGMIGRATION
+	DEFINE_FIELD( m_EnvWindShared.m_bEnabled, FIELD_BOOLEAN ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "disable", InputDisable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "toggle", InputToggle ),
+	// END GSTRINGMIGRATION
+
 END_DATADESC()
 
 
@@ -1592,6 +1661,8 @@ BEGIN_SEND_TABLE_NOBASE(CEnvWindShared, DT_EnvWindShared)
 	SendPropFloat	(SENDINFO(m_flStartTime),	 0, SPROP_NOSCALE ),
 
 	SendPropFloat	(SENDINFO(m_flGustDuration), 0, SPROP_NOSCALE),
+
+	SendPropBool	(SENDINFO(m_bEnabled)), // GSTRINGMIGRATION
 	// Sound related
 //	SendPropInt		(SENDINFO(m_iszGustSound),	10, SPROP_UNSIGNED ),
 END_SEND_TABLE()
@@ -1631,6 +1702,27 @@ void CEnvWind::WindThink( void )
 	SetNextThink( m_EnvWindShared.WindThink( gpGlobals->curtime ) );
 }
 
+// GSTRINGMIGRATION
+void CEnvWind::SetEnabled( bool bEnabled )
+{
+	m_EnvWindShared.m_bEnabled = bEnabled;
+}
+
+void CEnvWind::InputEnable( inputdata_t &inputdata )
+{
+	SetEnabled( true );
+}
+
+void CEnvWind::InputDisable( inputdata_t &inputdata )
+{
+	SetEnabled( false );
+}
+
+void CEnvWind::InputToggle( inputdata_t &inputdata )
+{
+	SetEnabled( !IsEnabled() );
+}
+// END GSTRINGMIGRATION
 
 
 //==================================================
