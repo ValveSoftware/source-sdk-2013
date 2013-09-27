@@ -18,12 +18,15 @@ public:
 	void SetNightvisionActive( bool bActive );
 
 	virtual void ImpulseCommands();
+	virtual void PhysicsSimulate();
 
 protected:
 
 private:
 	void ToggleNightvision();
 	CNetworkVar( bool, m_bNightvisionActive );
+
+	CNetworkVar( bool, m_bHasUseEntity );
 
 };
 

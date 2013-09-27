@@ -12,6 +12,7 @@ END_DATADESC()
 IMPLEMENT_SERVERCLASS_ST( CGstringPlayer, DT_CGstringPlayer )
 
 	SendPropBool( SENDINFO( m_bNightvisionActive ) ),
+	SendPropBool( SENDINFO( m_bHasUseEntity ) ),
 
 END_SEND_TABLE()
 
@@ -19,6 +20,7 @@ LINK_ENTITY_TO_CLASS( player, CGstringPlayer );
 
 CGstringPlayer::CGstringPlayer()
 {
+	m_bHasUseEntity = false;
 	m_bNightvisionActive = false;
 }
 
@@ -101,4 +103,11 @@ void CGstringPlayer::ImpulseCommands()
 	}
 
 	ClearImpulse();
+}
+
+void CGstringPlayer::PhysicsSimulate()
+{
+	BaseClass::PhysicsSimulate();
+
+	m_bHasUseEntity = GetUseEntity() != NULL;
 }

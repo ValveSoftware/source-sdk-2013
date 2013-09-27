@@ -51,6 +51,8 @@ private:
 	C_BobModel *m_pBobViewModel;
 	float m_flBobModelAmount;
 	QAngle m_angLastBobAngle;
+
+	CNetworkVar( bool, m_bHasUseEntity );
 };
 
 inline C_GstringPlayer *ToGstringPlayer( C_BaseEntity *pPlayer )

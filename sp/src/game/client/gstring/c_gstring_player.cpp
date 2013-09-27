@@ -25,6 +25,7 @@
 IMPLEMENT_CLIENTCLASS_DT( C_GstringPlayer, DT_CGstringPlayer, CGstringPlayer )
 
 	RecvPropBool( RECVINFO( m_bNightvisionActive ) ),
+	RecvPropBool( RECVINFO( m_bHasUseEntity ) ),
 
 END_RECV_TABLE()
 
@@ -38,6 +39,7 @@ C_GstringPlayer::C_GstringPlayer()
 	, m_flBobModelAmount( 0.0f )
 	, m_angLastBobAngle( vec3_angle )
 {
+	m_bHasUseEntity = false;
 }
 
 C_GstringPlayer::~C_GstringPlayer()
@@ -145,8 +147,6 @@ void C_GstringPlayer::OverrideView( CViewSetup *pSetup )
 	// shake derived from viewmodel
 	C_BaseViewModel *pViewModel = GetViewModel();
 
-	//m_flBobModelAmount
-
 	if ( pViewModel != NULL
 		&& pViewModel->GetModelPtr() != NULL )
 	{
@@ -191,15 +191,20 @@ void C_GstringPlayer::OverrideView( CViewSetup *pSetup )
 		}
 	}
 
-	float flGoalBobAmount = ( m_pBobViewModel && !m_pBobViewModel->IsInvalid() )
+	float flGoalBobAmount = ( m_pBobViewModel
+		&& !m_pBobViewModel->IsInvalid()
+		&& !m_bHasUseEntity )
 		? 1.0f : 0.0f;
 
 	if ( m_flBobModelAmount != flGoalBobAmount )
 	{
-		m_flBobModelAmount = Approach( flGoalBobAmount, m_flBobModelAmount, gpGlobals->frametime * 1.5f );
+		m_flBobModelAmount = Approach( flGoalBobAmount, m_flBobModelAmount, gpGlobals->frametime * 5.0f );
 	}
 
-	pSetup->angles += m_angLastBobAngle * m_flBobModelAmount;
+	if ( !m_bHasUseEntity )
+	{
+		pSetup->angles += m_angLastBobAngle * m_flBobModelAmount;
+	}
 }
 
 void C_GstringPlayer::ProcessMuzzleFlashEvent()
