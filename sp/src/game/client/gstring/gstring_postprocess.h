@@ -29,4 +29,8 @@ void SetNightvisionParams( float flBlackFade, float flNightvisionAmount, float f
 void DrawNightvision();
 float GetNightvisionMinLighting();
 
+void DrawHurtFX();
+
+void ResetEffects();
+
 #endif

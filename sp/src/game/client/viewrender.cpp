@@ -2332,6 +2332,8 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 				DrawBloomFlare();
 
 			DrawNightvision();
+
+			DrawHurtFX();
 		}
 
 		g_ShaderEditorSystem->CustomPostRender();

@@ -24,6 +24,7 @@
 #define FILMGRAIN_EDITOR_NAME "ppe_filmgrain"
 #define VIGNETTE_EDITOR_NAME "ppe_vignette"
 #define NIGHTVISION_EDITOR_NAME "ppe_nightvision"
+#define HURTFX_EDITOR_NAME "ppe_hurtfx"
 
 float GetSceneFadeScalar()
 {
@@ -661,4 +662,118 @@ void DrawNightvision()
 		0 );
 
 	shaderEdit->DrawPPEOnDemand( iNightvisionIndex );
+}
+
+/**
+ * HURTFX
+ */
+
+static int iHealthLast = -1;
+static float flAnimationTime = 0.0f;
+static float flDecayTime = 0.0f;
+static float flHealthAnimationTime = 0.0f;
+static Vector vecLastParams = vec3_origin;
+
+void DrawHurtFX()
+{
+	if ( !ShouldDrawCommon() )
+		return;
+
+	static const int iHurtFXIndex = shaderEdit->GetPPEIndex( HURTFX_EDITOR_NAME );
+
+	if ( iHurtFXIndex < 0 )
+		return;
+
+	DEFINE_SHADEREDITOR_MATERIALVAR( HURTFX_EDITOR_NAME, "hurtfx", "$MUTABLE_01", pVar_HurtFX_Params );
+
+	Assert( pVar_HurtFX_Params );
+
+	if ( !pVar_HurtFX_Params )
+		return;
+
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+
+	if ( !pPlayer )
+		return;
+
+	const float flDecayDuration = 0.5f;
+	const float flHealthAnimationDuration = 0.7f;
+
+	int iHealthCurrent = pPlayer->GetHealth();
+	iHealthCurrent = MAX( 0, iHealthCurrent );
+
+	float flChromatic = RemapValClamped( iHealthCurrent, 0, 25, 0.02f, 0.008f );
+	float flRedBlend = RemapValClamped( iHealthCurrent, 0, 25, 2.5f, 0.0f );
+	float flHealthBlend = 0.0f;
+
+	if ( iHealthLast != iHealthCurrent )
+	{
+		if ( iHealthLast >= 0 )
+		{
+			if ( iHealthLast > iHealthCurrent )
+			{
+				float flIncrement = RemapValClamped( iHealthCurrent, 0, 90, 0.5f, 0.1f );
+
+				flAnimationTime = gpGlobals->curtime + flIncrement;
+			}
+			else
+			{
+				flDecayTime = gpGlobals->curtime + flDecayDuration;
+
+				flHealthAnimationTime = gpGlobals->curtime + RemapValClamped( iHealthLast, 0, 90,
+					flHealthAnimationDuration, flHealthAnimationDuration * 0.3f );
+			}
+		}
+
+		iHealthLast = iHealthCurrent;
+	}
+
+	float flAdd = flAnimationTime - gpGlobals->curtime;
+
+	if ( flAdd > 0.0f )
+	{
+		flChromatic += flAdd * 0.04f;
+		flRedBlend += flAdd * 5.0f;
+	}
+
+	if ( flHealthAnimationTime > gpGlobals->curtime )
+	{
+		const float flBlendTime = ( flHealthAnimationTime - gpGlobals->curtime ) / flHealthAnimationDuration;
+
+		flHealthBlend = powf( flBlendTime, 0.7f ) * 2.5f;
+	}
+
+	Vector params( flChromatic, flRedBlend, flHealthBlend );
+
+	if ( flDecayTime > gpGlobals->curtime )
+	{
+		const float flBlendTime = ( flDecayTime - gpGlobals->curtime ) / flDecayDuration;
+
+		params = Lerp( flBlendTime, params, vecLastParams );
+	}
+	else
+	{
+		vecLastParams = params;
+	}
+
+	pVar_HurtFX_Params->SetVecValue( params.x, params.y, params.z );
+
+	shaderEdit->DrawPPEOnDemand( iHurtFXIndex );
+}
+
+void ResetEffects()
+{
+	// hurtfx params
+	iHealthLast = -1;
+	flAnimationTime = 0.0f;
+	flDecayTime = 0.0f;
+	flHealthAnimationTime = 0.0f;
+	vecLastParams = vec3_origin;
+
+	// explosions
+	g_hExplosionBlurQueue.RemoveAll();
+
+	// godrays
+	SetGodraysColor( Vector( 1, 1, 1 ) );
+	SetGodraysIntensity( 1.0f );
 }

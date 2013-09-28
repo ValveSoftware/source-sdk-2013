@@ -360,9 +360,7 @@ void CViewRender::LevelInit( void )
 	g_pScreenSpaceEffects->InitScreenSpaceEffects( );
 
 	// GSTRINGMIGRATION
-	// reset values in material
-	SetGodraysColor();
-	SetGodraysIntensity();
+	ResetEffects();
 	// END GSTRINGMIGRATION
 }
 
