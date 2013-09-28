@@ -1968,6 +1968,19 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		ITexture *pFlashlightDepthTexture;
 		FlashlightState_t flashlightState = pShaderAPI->GetFlashlightStateEx( worldToTexture, &pFlashlightDepthTexture );
 
+		// GSTRINGMIGRATION
+		if ( pFlashlightDepthTexture == NULL )
+		{
+			const int iFlashlightShadowIndex = ( flashlightState.m_nShadowQuality >> 16 ) - 1;
+
+			if ( iFlashlightShadowIndex >= 0
+				&& iFlashlightShadowIndex <= ( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_LAST - INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST ) )
+			{
+				pFlashlightDepthTexture = (ITexture*)pShaderAPI->GetIntRenderingParameter( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST + iFlashlightShadowIndex );
+			}
+		}
+		// END GSTRINGMIGRATION
+
 		SetFlashLightColorFromState( flashlightState, pShaderAPI );
 
 		BindTexture( SHADER_SAMPLER0, flashlightState.m_pSpotlightTexture, flashlightState.m_nSpotlightTextureFrame );
