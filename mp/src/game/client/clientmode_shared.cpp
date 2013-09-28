@@ -267,6 +267,16 @@ static void __MsgFunc_VGUIMenu( bf_read &msg )
 
 	// is the server trying to show an MOTD panel? Check that it's allowed right now.
 	ClientModeShared *mode = ( ClientModeShared * )GetClientModeNormal();
+	#ifdef SecobMod__BG_FIX
+	//SecobMod__Information Prevent the info panel (briefings/motd) from being shown on main menu maps.
+	if ( (Q_stricmp( panelname, PANEL_INFO ) == 0) && engine->IsLevelMainMenuBackground() )
+	return;
+	//SecobMod__Information may as well throw in a check against the class panel being shown here.
+	if ( (Q_stricmp( panelname, PANEL_CLASS ) == 0) && engine->IsLevelMainMenuBackground() )
+	return;
+	#endif //SecobMod__BG_FIX
+	
+	
 	if ( Q_stricmp( panelname, PANEL_INFO ) == 0 && mode )
 	{
 		if ( !mode->IsInfoPanelAllowed() )

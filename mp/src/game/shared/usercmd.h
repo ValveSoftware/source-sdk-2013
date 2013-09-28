@@ -108,10 +108,6 @@ public:
 
 		CRC32_Init( &crc );
 		
-		#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
-		CRC32_ProcessBuffer( &crc, &chatbubble, sizeof ( chatbubble ) );
-		#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
-
 		CRC32_ProcessBuffer( &crc, &command_number, sizeof( command_number ) );
 		CRC32_ProcessBuffer( &crc, &tick_count, sizeof( tick_count ) );
 		CRC32_ProcessBuffer( &crc, &viewangles, sizeof( viewangles ) );    
@@ -125,6 +121,11 @@ public:
 		CRC32_ProcessBuffer( &crc, &random_seed, sizeof( random_seed ) );
 		CRC32_ProcessBuffer( &crc, &mousedx, sizeof( mousedx ) );
 		CRC32_ProcessBuffer( &crc, &mousedy, sizeof( mousedy ) );
+		
+		#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
+		CRC32_ProcessBuffer( &crc, &chatbubble, sizeof ( chatbubble ) );
+		#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
+		
 		CRC32_Final( &crc );
 
 		return crc;

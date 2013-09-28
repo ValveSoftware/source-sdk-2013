@@ -1801,9 +1801,7 @@ public:
 	float m_flRotation;
 	float m_flSinwave;
 	float m_flAlpha;
-
     EHANDLE player;
-
 	virtual void Spawn()
 	{
 		SetModel(CHAT_BUBBLE_MODEL);
@@ -1820,15 +1818,12 @@ public:
 
 		SetRenderColorA( m_flAlpha );
 		SetRenderColor( m_flAlpha, m_flAlpha, m_flAlpha );
-		SetRenderMode( kRenderTransAdd );	
-			
+		SetRenderMode( kRenderTransAdd );
 	}
-
 	virtual void Precache()
 	{
 		PrecacheModel(CHAT_BUBBLE_MODEL);
 	}
-
 	virtual void BubbleThink( void ){
 		//	rotate the chatbubble
 		QAngle aRotations = GetAbsAngles();
@@ -1843,14 +1838,12 @@ public:
 			if( m_flSinwave > 1000 )
 				m_flSinwave = 0;
 			float flVerticalOffset = sin( m_flSinwave ) * 5;
-
+			
 			//	clamp to the player's position and go up above the head
 			Vector fr, rt, up;
 			AngleVectors(player->GetAbsAngles(), &fr, &rt, &up);			
-			Vector offset = player->GetAbsOrigin() + up * ( 92 + flVerticalOffset );			
+			Vector offset = player->GetAbsOrigin() + up * ( 85 + flVerticalOffset );			
 			SetAbsOrigin( offset );
-			Vector offsetNew = GetAbsOrigin();
-			SetAbsOrigin( offsetNew );
 		}
 
 		if( m_flAlpha < 255 ){
@@ -1885,7 +1878,7 @@ void CBasePlayer::MakeChatBubble(int chatbubble)
 	Vector fr, rt, up;
 	AngleVectors(GetAbsAngles(), &fr, &rt, &up);
 	//Vector offset = GetAbsOrigin() + up * 64;
-	Vector offset = GetAbsOrigin() + up * 92;
+	Vector offset = GetAbsOrigin() + up * 85;
 
 	CChatBubble *pBubble = (CChatBubble*)CBaseEntity::CreateNoSpawn( "chat_bubble", offset, GetAbsAngles(), this );
 	if (pBubble)
@@ -1920,7 +1913,6 @@ void CBasePlayer::CheckChatBubble( CUserCmd *cmd )
 	else
 		KillChatBubble();
 }
-
 #endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 void CBasePlayer::Event_Dying( const CTakeDamageInfo& info )

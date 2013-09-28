@@ -1071,34 +1071,11 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	//  to be parsed (the above code has loaded all point_template entities)
 	PrecachePointTemplates();
 
-	#ifdef SecobMod__BG_MOTD_FIX
-	if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__bkgd", 14 ))
-	{
-		//SecobMod__Information: Background maps don't load the MOTD.
-	}
-	else
-	{
-		// load MOTD from file into stringtable
-		LoadMessageOfTheDay();
-	}
+	#ifdef SecobMod__ENABLE_MAP_BRIEFINGS
+	LoadMapBriefing(); // Obsidian
 	#else
 	// load MOTD from file into stringtable
 	LoadMessageOfTheDay();
-	#endif //#define SecobMod__BG_MOTD_FIX
-	
-	#ifdef SecobMod__ENABLE_MAP_BRIEFINGS
-		#ifdef SecobMod__BG_MOTD_FIX
-		if ( !Q_strnicmp( gpGlobals->mapname.ToCStr(), "SecobMod__bkgd", 14 ))
-		{
-			//SecobMod__Information: Background maps don't load the briefing.
-		}
-		else
-		{
-			LoadMapBriefing(); // Obsidian
-		}
-		#else
-		LoadMapBriefing(); // Obsidian
-		#endif //SecobMod__BG_MOTD_FIX
 	#endif //SecobMod__ENABLE_MAP_BRIEFINGS
 
 	// Sometimes an ent will Remove() itself during its precache, so RemoveImmediate won't happen.

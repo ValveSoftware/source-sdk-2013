@@ -1081,10 +1081,6 @@ void CInput::ExtraMouseSample( float frametime, bool active )
 		prediction->SetLocalViewAngles( cmd->viewangles );
 	}
 
-	#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
-		extern int g_iChatBubble;
-	#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
-
 	// Let the headtracker override the view at the very end of the process so
 	// that vehicles and other stuff in g_pClientMode->CreateMove can override 
 	// first
@@ -1112,6 +1108,10 @@ void CInput::ExtraMouseSample( float frametime, bool active )
 	}
 
 }
+
+#ifdef SecobMod__MULTIPLAYER_CHAT_BUBBLES
+extern int g_iChatBubble;
+#endif //SecobMod__MULTIPLAYER_CHAT_BUBBLES
 
 void CInput::CreateMove ( int sequence_number, float input_sample_frametime, bool active )
 {	
