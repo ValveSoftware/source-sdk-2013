@@ -30,6 +30,8 @@ void CGstringPlayer::Precache()
 	PrecacheScriptSound( "nightvision.off" );
 	PrecacheScriptSound( "nightvision.unavailable" );
 
+	PrecacheModel( "models/humans/group03/female_01.mdl" );
+
 	BaseClass::Precache();
 }
 

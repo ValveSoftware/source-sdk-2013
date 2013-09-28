@@ -45,6 +45,8 @@ $Project "Client (G-String)"
 			$File	"gstring\c_muzzleflash_effect.h"
 			$File	"gstring\c_bobmodel.cpp"
 			$File	"gstring\c_bobmodel.h"
+			$File	"gstring\c_firstpersonbody.cpp"
+			$File	"gstring\c_firstpersonbody.h"
 			
 			$Folder "vgui"
 			{

@@ -5,6 +5,7 @@
 
 class C_MuzzleflashEffect;
 class C_BobModel;
+class C_FirstpersonBody;
 
 class C_GstringPlayer : public C_BaseHLPlayer
 {
@@ -35,6 +36,8 @@ public:
 protected:
 
 private:
+	void UpdateBodyModel();
+
 	CNetworkVar( bool, m_bNightvisionActive );
 
 	float m_flNightvisionFraction;
@@ -53,6 +56,8 @@ private:
 	QAngle m_angLastBobAngle;
 
 	CNetworkVar( bool, m_bHasUseEntity );
+
+	C_FirstpersonBody *m_pBodyModel;
 };
 
 inline C_GstringPlayer *ToGstringPlayer( C_BaseEntity *pPlayer )

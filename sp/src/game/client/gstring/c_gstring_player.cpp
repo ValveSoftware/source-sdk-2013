@@ -6,6 +6,8 @@
 #include "flashlighteffect.h"
 #include "c_muzzleflash_effect.h"
 #include "c_bobmodel.h"
+#include "c_firstpersonbody.h"
+
 
 #define FLASHLIGHT_DISTANCE		1000
 
@@ -21,6 +23,7 @@
 //		Msg( "%i: %s - %s\n", pEnt->entindex(), pEnt->GetClassName(), pEnt->GetClassname() );
 //	}
 //}
+
 
 IMPLEMENT_CLIENTCLASS_DT( C_GstringPlayer, DT_CGstringPlayer, CGstringPlayer )
 
@@ -38,6 +41,7 @@ C_GstringPlayer::C_GstringPlayer()
 	, m_pBobViewModel( NULL )
 	, m_flBobModelAmount( 0.0f )
 	, m_angLastBobAngle( vec3_angle )
+	, m_pBodyModel( NULL )
 {
 	m_bHasUseEntity = false;
 }
@@ -49,6 +53,11 @@ C_GstringPlayer::~C_GstringPlayer()
 	if ( m_pBobViewModel != NULL )
 	{
 		m_pBobViewModel->Release();
+	}
+
+	if ( m_pBodyModel != NULL )
+	{
+		m_pBodyModel->Release();
 	}
 }
 
@@ -100,6 +109,8 @@ void C_GstringPlayer::ClientThink()
 
 		ProcessMuzzleFlashEvent();
 	}
+
+	UpdateBodyModel();
 }
 
 void C_GstringPlayer::OverrideView( CViewSetup *pSetup )
@@ -341,4 +352,103 @@ void C_GstringPlayer::GetFlashlightForward( Vector &vecForward ) const
 float C_GstringPlayer::GetFlashlightDot() const
 {
 	return m_flFlashlightDot;
+}
+
+void C_GstringPlayer::UpdateBodyModel()
+{
+	if ( m_pBodyModel == NULL )
+	{
+		m_pBodyModel = new C_FirstpersonBody();
+		m_pBodyModel->InitializeAsClientEntity( "models/humans/group03/female_01.mdl", RENDER_GROUP_OPAQUE_ENTITY );
+		m_pBodyModel->Spawn();
+		m_pBodyModel->AddEffects( EF_NOINTERP );
+	}
+
+	QAngle angle = GetRenderAngles();
+	angle.x = 0;
+	angle.z = 0;
+
+	Vector fwd, right, up;
+	AngleVectors( angle, &fwd, &right, &up );
+
+	const float flSpeed = GetAbsVelocity().Length2D();
+	const bool bInAir = ( GetFlags() & FL_ONGROUND ) == 0;
+	const bool bDuck = m_Local.m_bDucked
+		|| m_Local.m_bDucking;
+	const bool bMoving = flSpeed > 40.0f;
+
+	static float flBackOffset = 13.0f;
+	float flBackOffsetDesired = bDuck ? 18.0f : 13.0f;
+
+	if ( flBackOffset != flBackOffsetDesired )
+	{
+		flBackOffset = Approach( flBackOffsetDesired, flBackOffset, gpGlobals->frametime * 25.0f );
+	}
+
+	Vector origin = GetRenderOrigin() - fwd * flBackOffset;
+	if ( !bDuck
+		|| m_Local.m_bInDuckJump && bInAir )
+	{
+		origin.z += GetViewOffset().z - VEC_VIEW.z;
+	}
+
+	m_pBodyModel->m_EntClientFlags |= ENTCLIENTFLAG_DONTUSEIK;
+	m_pBodyModel->SetAbsOrigin( origin );
+	m_pBodyModel->SetAbsAngles( angle );
+
+	Activity actDesired = ACT_IDLE;
+	float flPlaybackrate = 1.0f;
+
+	if ( bInAir )
+	{
+		actDesired = ACT_JUMP;
+	}
+	else
+	{
+		if ( bMoving )
+		{
+			actDesired = bDuck ? ACT_RUN_CROUCH : ACT_RUN;
+		}
+		else
+		{
+			actDesired = bDuck ? ACT_COVER_LOW : ACT_IDLE;
+		}
+	}
+
+	Vector vecVelocity = GetAbsVelocity();
+	vecVelocity.z = 0.0f;
+	float flLength = vecVelocity.NormalizeInPlace();
+
+	if ( flLength > 40.0f
+		&& m_pBodyModel->m_iPoseParam_MoveYaw >= 0 )
+	{
+		VectorYawRotate( vecVelocity, -angle.y, vecVelocity );
+
+		float flYaw = atan2( vecVelocity.y, vecVelocity.x );
+		flYaw = AngleNormalizePositive( flYaw );
+
+		static float flYawLast = 0.0f;
+		flYawLast = ApproachAngle( flYaw, flYawLast, gpGlobals->frametime * 10.0f );
+
+		m_pBodyModel->SetPoseParameter( m_pBodyModel->m_iPoseParam_MoveYaw, RAD2DEG( AngleNormalize( flYawLast ) ) );
+	}
+
+	if ( m_pBodyModel->GetSequenceActivity( m_pBodyModel->GetSequence() )
+		!= actDesired )
+	{
+		m_pBodyModel->SetSequence( m_pBodyModel->SelectWeightedSequence( actDesired ) );
+	}
+
+	if ( !bInAir && bMoving )
+	{
+		float flGroundSpeed = m_pBodyModel->GetSequenceGroundSpeed( m_pBodyModel->GetSequence() );
+
+		if ( flGroundSpeed > 0.0f )
+		{
+			flPlaybackrate = flSpeed / flGroundSpeed;
+		}
+	}
+
+	m_pBodyModel->SetPlaybackRate( flPlaybackrate );
+	m_pBodyModel->StudioFrameAdvance();
 }

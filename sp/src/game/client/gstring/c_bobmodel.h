@@ -9,6 +9,10 @@ class C_BobModel : public C_BaseAnimating
 public:
 	C_BobModel();
 
+	virtual int ObjectCaps() {
+		return FCAP_DONT_SAVE;
+	};
+
 	virtual bool ShouldDraw() { return true; }
 	virtual int DrawModel( int flags ) { return 0; }
 	virtual void FireEvent( const Vector& origin, const QAngle& angles, int event, const char *options ) {}
