@@ -451,4 +451,9 @@ void C_GstringPlayer::UpdateBodyModel()
 
 	m_pBodyModel->SetPlaybackRate( flPlaybackrate );
 	m_pBodyModel->StudioFrameAdvance();
+
+	if ( m_pBodyModel->GetShadowHandle() == CLIENTSHADOW_INVALID_HANDLE )
+	{
+		m_pBodyModel->CreateShadow();
+	}
 }
