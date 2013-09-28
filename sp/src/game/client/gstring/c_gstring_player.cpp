@@ -25,6 +25,10 @@
 //}
 
 
+static ConVar gstring_firstpersonbody_forwardoffset_min( "gstring_firstpersonbody_forwardoffset_min", "13.0" );
+static ConVar gstring_firstpersonbody_forwardoffset_max( "gstring_firstpersonbody_forwardoffset_max", "18.0" );
+
+
 IMPLEMENT_CLIENTCLASS_DT( C_GstringPlayer, DT_CGstringPlayer, CGstringPlayer )
 
 	RecvPropBool( RECVINFO( m_bNightvisionActive ) ),
@@ -359,7 +363,7 @@ void C_GstringPlayer::UpdateBodyModel()
 	if ( m_pBodyModel == NULL )
 	{
 		m_pBodyModel = new C_FirstpersonBody();
-		m_pBodyModel->InitializeAsClientEntity( "models/humans/group03/female_01.mdl", RENDER_GROUP_OPAQUE_ENTITY );
+		m_pBodyModel->InitializeAsClientEntity( "models/humans/group02/female_04.mdl", RENDER_GROUP_OPAQUE_ENTITY );
 		m_pBodyModel->Spawn();
 		m_pBodyModel->AddEffects( EF_NOINTERP );
 	}
@@ -377,8 +381,10 @@ void C_GstringPlayer::UpdateBodyModel()
 		|| m_Local.m_bDucking;
 	const bool bMoving = flSpeed > 40.0f;
 
-	static float flBackOffset = 13.0f;
-	float flBackOffsetDesired = bDuck ? 18.0f : 13.0f;
+	static float flBackOffset = gstring_firstpersonbody_forwardoffset_min.GetFloat();
+	float flBackOffsetDesired = bDuck ?
+		gstring_firstpersonbody_forwardoffset_max.GetFloat()
+		: gstring_firstpersonbody_forwardoffset_min.GetFloat();
 
 	if ( flBackOffset != flBackOffsetDesired )
 	{
@@ -419,7 +425,10 @@ void C_GstringPlayer::UpdateBodyModel()
 	vecVelocity.z = 0.0f;
 	float flLength = vecVelocity.NormalizeInPlace();
 
-	if ( flLength > 40.0f
+	static bool bWasMoving = false;
+	const bool bDoMoveYaw = flLength > 40.0f;
+
+	if ( bDoMoveYaw
 		&& m_pBodyModel->m_iPoseParam_MoveYaw >= 0 )
 	{
 		VectorYawRotate( vecVelocity, -angle.y, vecVelocity );
@@ -428,10 +437,20 @@ void C_GstringPlayer::UpdateBodyModel()
 		flYaw = AngleNormalizePositive( flYaw );
 
 		static float flYawLast = 0.0f;
-		flYawLast = ApproachAngle( flYaw, flYawLast, gpGlobals->frametime * 10.0f );
+
+		if ( bWasMoving )
+		{
+			flYawLast = ApproachAngle( flYaw, flYawLast, gpGlobals->frametime * 10.0f );
+		}
+		else
+		{
+			flYawLast = flYaw;
+		}
 
 		m_pBodyModel->SetPoseParameter( m_pBodyModel->m_iPoseParam_MoveYaw, RAD2DEG( AngleNormalize( flYawLast ) ) );
 	}
+
+	bWasMoving = bDoMoveYaw;
 
 	if ( m_pBodyModel->GetSequenceActivity( m_pBodyModel->GetSequence() )
 		!= actDesired )
@@ -452,7 +471,8 @@ void C_GstringPlayer::UpdateBodyModel()
 	m_pBodyModel->SetPlaybackRate( flPlaybackrate );
 	m_pBodyModel->StudioFrameAdvance();
 
-	if ( m_pBodyModel->GetShadowHandle() == CLIENTSHADOW_INVALID_HANDLE )
+	if ( m_pBodyModel->GetModel() != NULL
+		&& m_pBodyModel->GetShadowHandle() == CLIENTSHADOW_INVALID_HANDLE )
 	{
 		m_pBodyModel->CreateShadow();
 	}

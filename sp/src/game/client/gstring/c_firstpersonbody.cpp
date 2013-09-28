@@ -6,6 +6,8 @@
 #include "jigglebones.h"
 #include "viewrender.h"
 
+static ConVar gstring_firstpersonbody_scale( "gstring_firstpersonbody_scale", "1" );
+static ConVar gstring_firstpersonbody_hiddenbone_scale( "gstring_firstpersonbody_hiddenbone_scale", "0.01" );
 
 C_FirstpersonBody::C_FirstpersonBody()
 	: m_iBoneNeck( -1 )
@@ -162,14 +164,14 @@ void C_FirstpersonBody::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quat
 
 		if (hdr->boneParent(i) == -1) 
 		{
-			MatrixScaleBy( 0.9f, GetBoneForWrite( i ) );
+			MatrixScaleBy( gstring_firstpersonbody_scale.GetFloat(), GetBoneForWrite( i ) );
 		}
 
 		if ( i == m_iBoneNeck
 			|| i == m_iBoneArmR
 			|| i == m_iBoneArmL )
 		{
-			MatrixScaleBy( 0.01f, GetBoneForWrite( i ) );
+			MatrixScaleBy( gstring_firstpersonbody_hiddenbone_scale.GetFloat(), GetBoneForWrite( i ) );
 		}
 	}
 }
