@@ -9,6 +9,8 @@
 //SecobMod__ChangeME!    These are lines of code that require changing/you may wish to change for the game to run correctly once you start modifying the base.
 //SecobMod__FixMe		   These are bugs in the code which require a fix before they'll work.
 
+//A list of known bugs can be found on the Valve wiki page, these tend to be somewhat minor and beyond my fixing abilities as well (which isn't saying much admittedly).
+
 
 //================================================//
 //  Co-Op Singleplayer Maps Information.          //

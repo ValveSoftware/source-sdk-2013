@@ -89,6 +89,7 @@
 /******************************/
 #define SecobMod__ENABLE_IN_TESTING_ITEMS //Enables buggy test items again, such as the Portal gun. Make sure you have Portal installed, and the portal items line enabled.
 #define SecobMod__ENABLE_PORTAL_ITEMS //Currently it likes to crash alot!.
+#define SecobMod__ENABLE_HALF_LIFE_SOURCE //Allow for some of the Half-Life:Source code to be used providing the game is installed.
 
 /******************/
 /* SDK Bug Fixes. */
