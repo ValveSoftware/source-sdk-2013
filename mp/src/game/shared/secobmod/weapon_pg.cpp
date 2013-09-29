@@ -21,6 +21,9 @@
 	#include "Sprite.h"
 	#include "SpriteTrail.h"
 	#include "beam_shared.h"
+	#include "../../server/secobmod/npc_secobmodportal1.h"
+	#include "../../server/secobmod/npc_secobmodportal2.h"
+	#include "point_camera.h"
 #endif
 
 #include "weapon_hl2mpbasehlmpcombatweapon.h"
@@ -29,8 +32,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-//#define BOLT_MODEL			"models/crossbow_bolt.mdl"
-#define BOLT_MODEL	"models/weapons/w_missile_closed.mdl"
+#define BOLT_MODEL	""
 
 #define BOLT_AIR_VELOCITY	3500
 #define BOLT_WATER_VELOCITY	1500
@@ -60,14 +62,15 @@ public:
 
 public:
 	void Spawn( void );
+	void Spawn2( void );
 	void Precache( void );
 	void BubbleThink( void );
 	void BoltTouch( CBaseEntity *pOther );
+	void BoltTouch2( CBaseEntity *pOther );
 	bool CreateVPhysics( void );
 	unsigned int PhysicsSolidMaskForEntity() const;
 	static CPortalBolt *BoltCreate( const Vector &vecOrigin, const QAngle &angAngles, int iDamage, CBasePlayer *pentOwner = NULL );
 	static CPortalBolt *BoltCreate2( const Vector &vecOrigin, const QAngle &angAngles, int iDamage, CBasePlayer *pentOwner = NULL );
-
 
 protected:
 
@@ -109,6 +112,20 @@ CPortalBolt *CPortalBolt::BoltCreate( const Vector &vecOrigin, const QAngle &ang
 	pBolt->m_iDamage = iDamage;
 
 	return pBolt;
+}
+
+CPortalBolt *CPortalBolt::BoltCreate2( const Vector &vecOrigin, const QAngle &angAngles, int iDamage, CBasePlayer *pentOwner )
+{
+	// Create a new entity with CPortalBolt private data
+	CPortalBolt *pBolt2 = (CPortalBolt *)CreateEntityByName( "portal_bolt" );
+	UTIL_SetOrigin( pBolt2, vecOrigin );
+	pBolt2->SetAbsAngles( angAngles );
+	pBolt2->Spawn2();
+	pBolt2->SetOwnerEntity( pentOwner );
+
+	pBolt2->m_iDamage = iDamage;
+
+	return pBolt2;
 }
 
 //-----------------------------------------------------------------------------
@@ -168,7 +185,7 @@ void CPortalBolt::Spawn( void )
 {
 	Precache( );
 
-	SetModel( "models/crossbow_bolt.mdl" );
+	SetModel( "" );
 	SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_CUSTOM );
 	UTIL_SetSize( this, -Vector(1,1,1), Vector(1,1,1) );
 	SetSolid( SOLID_BBOX );
@@ -188,12 +205,40 @@ void CPortalBolt::Spawn( void )
 	m_nSkin = BOLT_SKIN_GLOW;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Portal 2 Spawner.
+//-----------------------------------------------------------------------------
+void CPortalBolt::Spawn2( void )
+{
+	Precache( );
+
+	SetModel( "" );
+	SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_CUSTOM );
+	UTIL_SetSize( this, -Vector(1,1,1), Vector(1,1,1) );
+	SetSolid( SOLID_BBOX );
+	SetGravity( 0.05f );
+	
+	// Make sure we're updated if we're underwater
+	UpdateWaterState();
+
+	SetTouch( &CPortalBolt::BoltTouch2 );
+
+	SetThink( &CPortalBolt::BubbleThink );
+	SetNextThink( gpGlobals->curtime + 0.1f );
+	
+	CreateSprites();
+
+	// Make us glow until we've hit the wall
+	m_nSkin = BOLT_SKIN_GLOW;
+}
+
+
 void CPortalBolt::Precache( void )
 {
 	PrecacheModel( BOLT_MODEL );
 
 	// This is used by C_TEStickyBolt, despte being different from above!!!
-	PrecacheModel( "models/crossbow_bolt.mdl" );
+	PrecacheModel( "" );
 
 	PrecacheModel( "sprites/light_glow02_noz.vmt" );
 }
@@ -204,8 +249,16 @@ void CPortalBolt::Precache( void )
 //-----------------------------------------------------------------------------
 void CPortalBolt::BoltTouch( CBaseEntity *pOther )
 {
+	const char *PlayerSteamID = engine->GetPlayerNetworkIDString(GetOwnerEntity()->edict()); //Finds the current players Steam ID.		
+	if( PlayerSteamID == NULL)
+	return;
+	//Create two new strings for either portal, using the players SteamID to make them uniquely named.
+    char Portal1Name[ 512 ];
+    Q_strncpy( Portal1Name, "Portal1_" ,sizeof(Portal1Name));
+    Q_strncat( Portal1Name, PlayerSteamID,sizeof(Portal1Name), COPY_ALL_CHARACTERS );
 			
-		if ( !pOther->IsSolid() || pOther->IsSolidFlagSet(FSOLID_VOLUME_CONTENTS) )
+			
+	if ( !pOther->IsSolid() || pOther->IsSolidFlagSet(FSOLID_VOLUME_CONTENTS) )
 		return;
 
 	if ( pOther->m_takedamage != DAMAGE_NO )
@@ -242,7 +295,7 @@ void CPortalBolt::BoltTouch( CBaseEntity *pOther )
 		SetAbsVelocity( Vector( 0, 0, 0 ) );
 
 		// play body "thwack" sound
-		EmitSound( "weapon_portalgun.BoltHitBody" );
+EmitSound( "weapon_portalgun.BoltHitBody" );
 
 		Vector vForward;
 
@@ -264,7 +317,7 @@ void CPortalBolt::BoltTouch( CBaseEntity *pOther )
 				data.m_vNormal = vForward;
 				data.m_nEntIndex = tr2.fraction != 1.0f;
 			
-				DispatchEffect( "BoltImpact", data );
+				//DispatchEffect( "BoltImpact", data );
 			}
 		}
 		
@@ -281,7 +334,8 @@ void CPortalBolt::BoltTouch( CBaseEntity *pOther )
 		// See if we struck the world
 		if ( pOther->GetMoveType() == MOVETYPE_NONE && !( tr.surface.flags & SURF_SKY ) )
 		{
-			EmitSound( "weapon_portalgun.BoltHitWorld" );
+EmitSound( "weapon_portalgun.BoltHitWorld" );
+			
 
 			// if what we hit is static architecture, can stay around for a while.
 			Vector vecDir = GetAbsVelocity();
@@ -324,9 +378,9 @@ void CPortalBolt::BoltTouch( CBaseEntity *pOther )
 				data.m_vNormal = vForward;
 				data.m_nEntIndex = 0;
 			
-				DispatchEffect( "BoltImpact", data );
+				//DispatchEffect( "BoltImpact", data );
 				
-				UTIL_ImpactTrace( &tr, DMG_BULLET );
+				//UTIL_ImpactTrace( &tr, DMG_BULLET );
 
 				AddEffects( EF_NODRAW );
 				SetTouch( NULL );
@@ -351,96 +405,327 @@ void CPortalBolt::BoltTouch( CBaseEntity *pOther )
 			// Put a mark unless we've hit the sky
 			if ( ( tr.surface.flags & SURF_SKY ) == false )
 			{
-				UTIL_ImpactTrace( &tr, DMG_BULLET );
+				//UTIL_ImpactTrace( &tr, DMG_BULLET );
 			}
+
+			UTIL_Remove( this );
 		}
-		
-//Portal Spawning must go here!
-const char *PlayerSteamID = engine->GetPlayerNetworkIDString(GetOwnerEntity()->edict()); //Finds the current players Steam ID.
+	}
+
+	if ( g_pGameRules->IsMultiplayer() )
+	{
+//		SetThink( &CPortalBolt::ExplodeThink );
+//		SetNextThink( gpGlobals->curtime + 0.1f );
+	}
+	
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//SecobMod__Information  If a Portal1 already exists, delete it.
+CBaseEntity *ent1 = gEntList.FindEntityByName( NULL, Portal1Name );
+				while ( ent1 )
+				{
+					CBaseEntity *next1 = gEntList.FindEntityByClassname( ent1, "info_playerstart" );
+					EmitSound( "Portal.close_blue" );
+					UTIL_Remove( ent1 );
+					ent1 = next1;
+				}
+CNPC_SecobModportal1 *pBullseye = static_cast<CNPC_SecobModportal1*>( CreateEntityByName( "npc_SecobModportal1" ) );
+				if( pBullseye )
+				{
+				EmitSound( "Portal.open_blue" );
+				pBullseye->SetAbsOrigin( this->GetAbsOrigin() );
+				pBullseye->SetAbsAngles( this->GetAbsAngles()  );
+				pBullseye->KeyValue( "solid", "6" );
+				pBullseye->KeyValue( "targetname", Portal1Name );
+				pBullseye->Spawn();
+				DispatchSpawn(pBullseye);
+				pBullseye->Activate();
+				pBullseye->SetHealth(999999999);
+				}
 				
+//SecobMod__Information  If a Portal1 camera already exists, delete it.
+CBaseEntity *cam1 = gEntList.FindEntityByName( NULL, "portalcamera1" );
+				while ( cam1 )
+				{
+					CBaseEntity *next2 = gEntList.FindEntityByClassname( cam1, "info_playerstart" );
+					UTIL_Remove( cam1 );
+					cam1 = next2;
+				}
+				CPointCamera *cam2 = static_cast<CPointCamera*>( CreateEntityByName( "point_camera" ) );
+				if (cam2)
+				{
+				cam2->SetAbsOrigin( this->GetAbsOrigin() );
+				cam2->SetAbsAngles( this->GetAbsAngles()  );
+				cam2->KeyValue( "targetname", "portalcamera1" );
+				cam2->Spawn();
+				DispatchSpawn(cam2);
+				cam2->Activate();
+				cam2->SetActive(true);
+				}
+				
+//SecobMod__Information  If a Portal1 monitor already exists, delete it.
+CBaseEntity *ent2 = gEntList.FindEntityByClassname( NULL, "my_model_entity1" );
+				while ( ent2 )
+				{
+					CBaseEntity *next2 = gEntList.FindEntityByClassname( ent2, "info_playerstart" );
+					UTIL_Remove( ent2 );
+					ent2 = next2;
+				}
+				CBaseEntity *pMonitor = CreateEntityByName( "my_model_entity1" );
+				if (pMonitor)
+				{
+				pMonitor->SetAbsOrigin( this->GetAbsOrigin() );
+				pMonitor->SetAbsAngles( this->GetAbsAngles()  );
+				pMonitor->Spawn();
+				DispatchSpawn(pMonitor);
+				pMonitor->Activate();
+				}
+				
+				
+				return;
+				}
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	
+	
+//}
+
+//-----------------------------------------------------------------------------
+// Purpose: Portal2 Touch Function.
+// Input  : *pOther - 
+//-----------------------------------------------------------------------------
+void CPortalBolt::BoltTouch2( CBaseEntity *pOther )
+{
+	const char *PlayerSteamID = engine->GetPlayerNetworkIDString(GetOwnerEntity()->edict()); //Finds the current players Steam ID.				
 	if( PlayerSteamID == NULL)
 	return;
- 
-	//Create two new strings for either portal, using the players SteamID to make them uniquely named.
-    char Portal1Name[ 512 ];
-    Q_strncpy( Portal1Name, "Portal1_" ,sizeof(Portal1Name));
-    Q_strncat( Portal1Name, PlayerSteamID,sizeof(Portal1Name), COPY_ALL_CHARACTERS );
 	char Portal2Name[ 512 ];
 	Q_strncpy( Portal2Name, "Portal2_" ,sizeof(Portal2Name));
 	Q_strncat( Portal2Name, PlayerSteamID,sizeof(Portal2Name), COPY_ALL_CHARACTERS );
-               
-	//Now lets check if any portals already exsist.
-	CBaseEntity *p1Exsist = gEntList.FindEntityByName( NULL, Portal1Name );
-	if (p1Exsist)
+			
+			
+	if ( !pOther->IsSolid() || pOther->IsSolidFlagSet(FSOLID_VOLUME_CONTENTS) )
+		return;
+
+	if ( pOther->m_takedamage != DAMAGE_NO )
 	{
-		//One was found, do we also find a Portal2?
-		CBaseEntity *p2Exsist = gEntList.FindEntityByName( NULL, Portal2Name );
-		if (p2Exsist)
+		trace_t	tr, tr2;
+		tr = BaseClass::GetTouchTrace();
+		Vector	vecNormalizedVel = GetAbsVelocity();
+
+		ClearMultiDamage();
+		VectorNormalize( vecNormalizedVel );
+
+		if( GetOwnerEntity() && GetOwnerEntity()->IsPlayer() && pOther->IsNPC() )
 		{
-			return;
-		//We found both a portal1 and portal2 in exsistence.
-			/*if (Portal2Bool)
-			{
-			//We just shot our secondary fire, so we'll become a secondary portal
-			UTIL_Remove(p2Exsist);
-			
-				CBaseEntity *pPortal2  = CreateEntityByName( "SecobMod__portal" );
-				if( pPortal2 )
-				{
-				EmitSound( "Portal.open_blue" );
-				pPortal2->SetAbsOrigin( this->GetAbsOrigin() );
-				pPortal2->SetAbsAngles( this->GetAbsAngles()  );
-				pPortal2->KeyValue( "targetname", Portal2Name );
-				Portal2->Spawn();
-				}
-			}
-			else
-			{
-			//We just shot a primary fire, we we'll become a primary portal.
-			UTIL_Remove(p1Exsist);
-			
-				CBaseEntity *pPortal1  = CreateEntityByName( "SecobMod__portal" );
-				if( pPortal1 )
-				{
-				EmitSound( "Portal.open_red" );
-				pPortal1->SetAbsOrigin( this->GetAbsOrigin() );
-				pPortal1->SetAbsAngles( this->GetAbsAngles()  );
-				pPortal1->KeyValue( "targetname", Portal1Name );
-				Portal1->Spawn();
-				}
-			}*/
+			CTakeDamageInfo	dmgInfo( this, GetOwnerEntity(), m_iDamage, DMG_NEVERGIB );
+			dmgInfo.AdjustPlayerDamageInflictedForSkillLevel();
+			CalculateMeleeDamageForce( &dmgInfo, vecNormalizedVel, tr.endpos, 0.7f );
+			dmgInfo.SetDamagePosition( tr.endpos );
+			pOther->DispatchTraceAttack( dmgInfo, vecNormalizedVel, &tr );
 		}
 		else
 		{
-			//We found no portal2, so we name our spawning portal - portal2name.
-			CBaseEntity *pPortal2  = CreateEntityByName( "SecobMod__portal" );
-			if( pPortal2 )
+			CTakeDamageInfo	dmgInfo( this, GetOwnerEntity(), m_iDamage, DMG_BULLET | DMG_NEVERGIB );
+			CalculateMeleeDamageForce( &dmgInfo, vecNormalizedVel, tr.endpos, 0.7f );
+			dmgInfo.SetDamagePosition( tr.endpos );
+			pOther->DispatchTraceAttack( dmgInfo, vecNormalizedVel, &tr );
+		}
+
+		ApplyMultiDamage();
+
+		//Adrian: keep going through the glass.
+		if ( pOther->GetCollisionGroup() == COLLISION_GROUP_BREAKABLE_GLASS )
+			 return;
+
+		SetAbsVelocity( Vector( 0, 0, 0 ) );
+
+		// play body "thwack" sound
+
+		Vector vForward;
+
+		AngleVectors( GetAbsAngles(), &vForward );
+		VectorNormalize ( vForward );
+
+		UTIL_TraceLine( GetAbsOrigin(),	GetAbsOrigin() + vForward * 128, MASK_OPAQUE, pOther, COLLISION_GROUP_NONE, &tr2 );
+
+		if ( tr2.fraction != 1.0f )
+		{
+//			NDebugOverlay::Box( tr2.endpos, Vector( -16, -16, -16 ), Vector( 16, 16, 16 ), 0, 255, 0, 0, 10 );
+//			NDebugOverlay::Box( GetAbsOrigin(), Vector( -16, -16, -16 ), Vector( 16, 16, 16 ), 0, 0, 255, 0, 10 );
+
+			if ( tr2.m_pEnt == NULL || ( tr2.m_pEnt && tr2.m_pEnt->GetMoveType() == MOVETYPE_NONE ) )
 			{
-			EmitSound( "Portal.open_blue" );
-			pPortal2->SetAbsOrigin( this->GetAbsOrigin() );
-			pPortal2->SetAbsAngles( this->GetAbsAngles()  );
-			pPortal2->KeyValue( "targetname", Portal2Name );
-			pPortal2->Spawn();
+				CEffectData	data;
+
+				data.m_vOrigin = tr2.endpos;
+				data.m_vNormal = vForward;
+				data.m_nEntIndex = tr2.fraction != 1.0f;
+			
+				//DispatchEffect( "BoltImpact", data );
 			}
 		}
+		
+		SetTouch( NULL );
+		SetThink( NULL );
+
+		UTIL_Remove( this );
 	}
 	else
 	{
-			//We found no Portal1, so lets name ourselves Portal1name.
-			CBaseEntity *pPortal1  = CreateEntityByName( "SecobMod__portal" );
-			if( pPortal1 )
+		trace_t	tr;
+		tr = BaseClass::GetTouchTrace();
+
+		// See if we struck the world
+		if ( pOther->GetMoveType() == MOVETYPE_NONE && !( tr.surface.flags & SURF_SKY ) )
+		{
+
+			// if what we hit is static architecture, can stay around for a while.
+			Vector vecDir = GetAbsVelocity();
+			float speed = VectorNormalize( vecDir );
+
+			// See if we should reflect off this surface
+			float hitDot = DotProduct( tr.plane.normal, -vecDir );
+			
+			if ( ( hitDot < 0.5f ) && ( speed > 100 ) )
 			{
-			EmitSound( "Portal.open_red" );
-			pPortal1->SetAbsOrigin( this->GetAbsOrigin() );
-			pPortal1->SetAbsAngles( this->GetAbsAngles()  );
-			pPortal1->KeyValue( "targetname", Portal1Name );
-			pPortal1->Spawn();
+				Vector vReflection = 2.0f * tr.plane.normal * hitDot + vecDir;
+				
+				QAngle reflectAngles;
+
+				VectorAngles( vReflection, reflectAngles );
+
+				SetLocalAngles( reflectAngles );
+
+				SetAbsVelocity( vReflection * speed * 0.75f );
+
+				// Start to sink faster
+				SetGravity( 1.0f );
 			}
+			else
+			{
+				SetThink( &CPortalBolt::SUB_Remove );
+				SetNextThink( gpGlobals->curtime + 2.0f );
+				
+				//FIXME: We actually want to stick (with hierarchy) to what we've hit
+				SetMoveType( MOVETYPE_NONE );
+			
+				Vector vForward;
+
+				AngleVectors( GetAbsAngles(), &vForward );
+				VectorNormalize ( vForward );
+
+				CEffectData	data;
+
+				data.m_vOrigin = tr.endpos;
+				data.m_vNormal = vForward;
+				data.m_nEntIndex = 0;
+			
+				//DispatchEffect( "BoltImpact", data );
+				
+				//UTIL_ImpactTrace( &tr, DMG_BULLET );
+
+				AddEffects( EF_NODRAW );
+				SetTouch( NULL );
+				SetThink( &CPortalBolt::SUB_Remove );
+				SetNextThink( gpGlobals->curtime + 2.0f );
+
+				if ( m_pGlowSprite != NULL )
+				{
+					m_pGlowSprite->TurnOn();
+					m_pGlowSprite->FadeAndDie( 3.0f );
+				}
+			}
+			
+			// Shoot some sparks
+			if ( UTIL_PointContents( GetAbsOrigin() ) != CONTENTS_WATER)
+			{
+				g_pEffects->Sparks( GetAbsOrigin() );
+			}
+		}
+		else
+		{
+			// Put a mark unless we've hit the sky
+			if ( ( tr.surface.flags & SURF_SKY ) == false )
+			{
+				//UTIL_ImpactTrace( &tr, DMG_BULLET );
+			}
+
+			UTIL_Remove( this );
+		}
 	}
-		//END OF PORTAL SPAWNING CODE
-	UTIL_Remove( this );
-	}	
-}
+
+	if ( g_pGameRules->IsMultiplayer() )
+	{
+//		SetThink( &CPortalBolt::ExplodeThink );
+//		SetNextThink( gpGlobals->curtime + 0.1f );
+	}
+	
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//SecobMod__Information  If a Portal1 already exists, delete it.
+CBaseEntity *ent3 = gEntList.FindEntityByName( NULL, Portal2Name );
+				while ( ent3 )
+				{
+					CBaseEntity *next3 = gEntList.FindEntityByClassname( ent3, "info_playerstart" );
+					EmitSound( "Portal.close_red" );
+					UTIL_Remove( ent3 );
+					ent3 = next3;
+				}
+CNPC_SecobModportal1 *pBullseye = static_cast<CNPC_SecobModportal1*>( CreateEntityByName( "npc_SecobModportal2" ) );
+				if( pBullseye )
+				{
+				EmitSound( "Portal.open_red" );
+				pBullseye->SetAbsOrigin( this->GetAbsOrigin() );
+				pBullseye->SetAbsAngles( this->GetAbsAngles()  );
+				pBullseye->KeyValue( "solid", "6" );
+				pBullseye->KeyValue( "targetname", Portal2Name );
+				pBullseye->Spawn();
+				DispatchSpawn(pBullseye);
+				pBullseye->Activate();
+				pBullseye->SetHealth(999999999);
+				}
+				
+//SecobMod__Information  If a Portal2 camera already exists, delete it.
+CBaseEntity *cam3 = gEntList.FindEntityByName( NULL, "portalcamera2" );
+				while ( cam3 )
+				{
+					CBaseEntity *next2 = gEntList.FindEntityByClassname( cam3, "info_playerstart" );
+					UTIL_Remove( cam3 );
+					cam3 = next2;
+				}
+				CPointCamera *cam4 = static_cast<CPointCamera*>( CreateEntityByName( "point_camera" ) );
+				if (cam4)
+				{
+				Msg ("point cam created");
+				cam4->SetAbsOrigin( this->GetAbsOrigin() );
+				cam4->SetAbsAngles( this->GetAbsAngles()  );
+				cam4->KeyValue( "targetname", "portalcamera2" );
+				cam4->Spawn();
+				DispatchSpawn(cam4);
+				cam4->Activate();
+				cam4->SetActive(true);
+				}	
+				
+//SecobMod__Information  If a Portal2 monitor already exists, delete it.
+CBaseEntity *ent4 = gEntList.FindEntityByClassname( NULL, "my_model_entity2" );
+				while ( ent4 )
+				{
+					CBaseEntity *next4 = gEntList.FindEntityByClassname( ent4, "info_playerstart" );
+					UTIL_Remove( ent4 );
+					ent4 = next4;
+				}
+				CBaseEntity *pMonitor = CreateEntityByName( "my_model_entity2" );
+				if (pMonitor)
+				{
+				pMonitor->SetAbsOrigin( this->GetAbsOrigin() );
+				pMonitor->SetAbsAngles( this->GetAbsAngles()  );
+				pMonitor->Spawn();
+				DispatchSpawn(pMonitor);
+				pMonitor->Activate();
+				}
+				
+				return;
+				}
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -486,7 +771,6 @@ public:
 	virtual void	ItemPostFrame( void );
 	virtual void	ItemBusyFrame( void );
 	virtual bool	SendWeaponAnim( int iActivity );
-	
 
 #ifndef CLIENT_DLL
 	virtual void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
@@ -499,6 +783,7 @@ private:
 	
 	void	SetSkin( int skinNum );
 	void	FireBolt( void );
+	void	FireBolt2( void );
 	
 	// Various states for the crossbow's charger
 	enum ChargerState_t
@@ -594,7 +879,6 @@ void CWeaponPortalGun::Precache( void )
 	PrecacheScriptSound( "Weapon_Crossbow.BoltHitBody" );
 	PrecacheScriptSound( "Weapon_Crossbow.BoltHitWorld" );
 	PrecacheScriptSound( "Weapon_Crossbow.BoltSkewer" );
-	
 	PrecacheScriptSound( "Portal.close_blue" );
 	PrecacheScriptSound( "Portal.open_red" );
 
@@ -615,7 +899,6 @@ void CWeaponPortalGun::PrimaryAttack( void )
 	m_bMustReload = true;
 
 	SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration( ACT_VM_PRIMARYATTACK ) );
-
 }
 
 //-----------------------------------------------------------------------------
@@ -623,13 +906,12 @@ void CWeaponPortalGun::PrimaryAttack( void )
 //-----------------------------------------------------------------------------
 void CWeaponPortalGun::SecondaryAttack( void )
 {
-		FireBolt();
+		FireBolt2();
 
 	// Signal a reload
 	m_bMustReload = true;
 
 	SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration( ACT_VM_PRIMARYATTACK ) );
-	
 }
 
 //-----------------------------------------------------------------------------
@@ -680,7 +962,7 @@ EmitSound( "Weapon_Portalgun.powerup" );
 		}
 		else
 		{
-			WeaponSound( EMPTY );
+			//WeaponSound( EMPTY );
 			m_flNextPrimaryAttack = 0.15;
 		}
 
@@ -712,12 +994,80 @@ EmitSound( "Weapon_Portalgun.fire_blue" );
 
 #endif
 
-	m_iClip1--;
+	//m_iClip1--;
 
 	pOwner->ViewPunch( QAngle( -2, 0, 0 ) );
 
-	WeaponSound( SINGLE );
-	WeaponSound( SPECIAL2 );
+	//WeaponSound( SINGLE );
+	//WeaponSound( SPECIAL2 );
+
+	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
+
+	if ( !m_iClip1 && pOwner->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 )
+	{
+		// HEV suit - indicate out of ammo condition
+		pOwner->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
+	}
+
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack	= gpGlobals->curtime + 0.75;
+
+	DoLoadEffect();
+	SetChargerState( CHARGER_STATE_DISCHARGE );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: To function as the Portal2 spawner.
+//-----------------------------------------------------------------------------
+void CWeaponPortalGun::FireBolt2( void )
+{
+EmitSound( "Weapon_Portalgun.powerup" );
+	if ( m_iClip1 <= 0 )
+	{
+		if ( !m_bFireOnEmpty )
+		{
+			Reload();
+		}
+		else
+		{
+			//WeaponSound( EMPTY );
+			m_flNextPrimaryAttack = 0.15;
+		}
+
+		return;
+	}
+EmitSound( "Weapon_Portalgun.fire_red" );
+	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
+	
+	if ( pOwner == NULL )
+		return;
+
+#ifndef CLIENT_DLL
+	Vector vecAiming	= pOwner->GetAutoaimVector( 0 );	
+	Vector vecSrc		= pOwner->Weapon_ShootPosition();
+
+	QAngle angAiming;
+	VectorAngles( vecAiming, angAiming );
+
+	CPortalBolt *pBolt2 = CPortalBolt::BoltCreate2( vecSrc, angAiming, GetHL2MPWpnData().m_iPlayerDamage, pOwner );
+
+	if ( pOwner->GetWaterLevel() == 3 )
+	{
+		pBolt2->SetAbsVelocity( vecAiming * BOLT_WATER_VELOCITY );
+	}
+	else
+	{
+		pBolt2->SetAbsVelocity( vecAiming * BOLT_AIR_VELOCITY );
+	}
+
+#endif
+
+	//m_iClip1--;
+
+	pOwner->ViewPunch( QAngle( -2, 0, 0 ) );
+
+	//WeaponSound( SINGLE );
+	//WeaponSound( SPECIAL2 );
 
 	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
 
@@ -829,7 +1179,7 @@ void CWeaponPortalGun::DoLoadEffect( void )
 
 	CPASFilter filter( data.m_vOrigin );
 	filter.RemoveRecipient( pOwner );
-	te->DispatchEffect( filter, 0.0, data.m_vOrigin, "CrossbowLoad", data );
+	//te->DispatchEffect( filter, 0.0, data.m_vOrigin, "CrossbowLoad", data );
 #else
 	CBaseViewModel *pViewModel = pOwner->GetViewModel();
 
@@ -840,7 +1190,7 @@ void CWeaponPortalGun::DoLoadEffect( void )
 			data.m_hEntity = pViewModel->GetRefEHandle();
 		else
 			data.m_hEntity = GetRefEHandle();
-		DispatchEffect( "CrossbowLoad", data );
+		//DispatchEffect( "CrossbowLoad", data );
 	}
 #endif
 

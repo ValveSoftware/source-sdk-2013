@@ -12,7 +12,6 @@
 #include "beamdraw.h"
 
 #ifdef SecobMod__ENABLE_IN_TESTING_ITEMS
-
 CLIENTEFFECT_REGISTER_BEGIN( PrecacheEffectPortalGun )
 CLIENTEFFECT_MATERIAL( "effects/muzzleflash1" )
 CLIENTEFFECT_REGISTER_END()
