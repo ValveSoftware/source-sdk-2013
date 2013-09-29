@@ -183,6 +183,8 @@ void CVGUIMenuEmbedded::PerformLayout()
 	int w, t;
 	GetSize( w, t );
 
+	_line_offset = scheme()->GetProportionalScaledValue( 50 );
+
 	m_pTitle_0->SetBounds( 0, 0, w, _line_offset );
 	m_pTitle_1->SetBounds( 0, 0, w, _line_offset );
 
@@ -192,9 +194,9 @@ void CVGUIMenuEmbedded::PerformLayout()
 	activeButtons.AddVectorToTail( m_hButtons_General );
 	activeButtons.Sort( MenuButtonSort );
 
-	int button_size_y = scheme()->GetProportionalScaledValue( 17 );
+	int button_size_y = scheme()->GetProportionalScaledValue( 19 );
 	int button_size_x = w * 0.75f;
-	int button_offset_y = 15;
+	int button_offset_y = scheme()->GetProportionalScaledValue( 7 );
 	int cur_y = _line_offset + _line_size_y +
 		button_size_y;
 

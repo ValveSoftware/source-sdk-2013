@@ -193,7 +193,7 @@ void CVGUIGstringMain::UpdateLayoutVisibility()
 	engine->GetScreenSize( w, t );
 
 	int menuHeight = t * 0.7f;
-	int menuWidth = menuHeight * 0.7f;
+	int menuWidth = menuHeight * 0.85f;
 
 	m_pWrappedMenu->SetBounds( w / 2 - menuWidth / 2,
 		t * 0.38f,

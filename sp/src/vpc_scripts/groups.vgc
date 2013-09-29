@@ -17,7 +17,7 @@ $Group "gstring"
 	"vgui_controls"
 	"mathlib"
 	"raytrace"
-	//"vbsp"
+	"vbsp"
 }
 
 $Group "gamedlls"
