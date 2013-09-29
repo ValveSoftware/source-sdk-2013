@@ -427,6 +427,8 @@ exit 1
     <ClInclude Include="..\..\public\scratchpad3d.h" />
     <ClInclude Include="scratchpad_gamedll_helpers.h" />
     <ClInclude Include="..\..\public\ScratchPadUtils.h" />
+    <ClInclude Include="secobmod\npc_secobmodportal1.h" />
+    <ClInclude Include="secobmod\npc_secobmodportal2.h" />
     <ClInclude Include="sendproxy.h" />
     <ClInclude Include="..\..\public\shake.h" />
     <ClInclude Include="..\..\game\shared\shared_classnames.h" />
@@ -1263,7 +1265,10 @@ exit 1
     <ClCompile Include="scripted.cpp" />
     <ClCompile Include="scriptedtarget.cpp" />
     <ClCompile Include="secobmod\companioncube.cpp" />
-    <ClCompile Include="secobmod\portal.cpp" />
+    <ClCompile Include="secobmod\Func_PortalMonitor1.cpp" />
+    <ClCompile Include="secobmod\Func_PortalMonitor2.cpp" />
+    <ClCompile Include="secobmod\npc_secobmodportal1.cpp" />
+    <ClCompile Include="secobmod\npc_secobmodportal2.cpp" />
     <ClCompile Include="secobmod\vehicle_passenger_seat.cpp" />
     <ClCompile Include="sendproxy.cpp" />
     <ClCompile Include="..\..\game\shared\sequence_Transitioner.cpp" />

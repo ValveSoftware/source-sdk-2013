@@ -2,11 +2,17 @@ Source Engine Co-Operative Base Mod for the Source Engine 2013 SDK.
 
 SecobMod is a modification containing useful code fixes for co-operative games, below are some of the key features and below that is the Source SDK licence to which you must agree before using this modification.
 
+SecobMod is a community project. This means anyone may contribute to fixing any bugs which may be found. The original author is no longer working on SecobMod and has switched his attention to other pursuits.
+
+In other words it's REALLY in the hands of the Source SDK community to improve upon.
+
+As always remember to include the credits from the SecobMod valve wiki page in any project you create which uses content (or SecobMod itself).
+
 Developers can easily enable and disable individual features to suit their needs.
  
 This is a cut down list, for full information as to the features please see the secobmod_shareddefs.h file).
  
-** Portal Gun, enable testing in the shared defs file to enable its useage. give weapon_portalgun and companioncube.
+** Portal Gun, enable testing in the shared defs. file to enable its usage. give weapon_portalgun and companioncube.
 ** Super Gravity Gun (some graphic effects missing - most of the code done by .Kave).
 ** Restart level on critical ally/object/time limit failing.
 ** View Cameras now take control of all players on a server (Gordon's KO Wakeup scene, etc).
