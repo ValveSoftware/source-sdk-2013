@@ -707,7 +707,7 @@ void DrawHurtFX()
 		return;
 
 	const float flDecayDuration = 0.5f;
-	const float flHealthAnimationDuration = 0.7f;
+	const float flHealthAnimationDuration = 0.8f;
 	const float flChromaticHurtMax = ( flChromaticAmount > 0.0f ) ? 0.02f : 0.0f;
 
 	int iHealthCurrent = pPlayer->GetHealth();
@@ -723,7 +723,7 @@ void DrawHurtFX()
 		{
 			if ( iHealthLast > iHealthCurrent )
 			{
-				float flIncrement = RemapValClamped( iHealthCurrent, 0, 90, 0.65f, 0.35f );
+				float flIncrement = RemapValClamped( iHealthCurrent, 0, 90, 0.5f, 0.2f );
 
 				flAnimationTime = gpGlobals->curtime + flIncrement;
 			}
@@ -732,7 +732,7 @@ void DrawHurtFX()
 				flDecayTime = gpGlobals->curtime + flDecayDuration;
 
 				flHealthAnimationTime = gpGlobals->curtime + RemapValClamped( iHealthLast, 0, 90,
-					flHealthAnimationDuration, flHealthAnimationDuration * 0.3f );
+					flHealthAnimationDuration, flHealthAnimationDuration * 0.5f );
 			}
 		}
 

@@ -376,6 +376,9 @@ void C_GstringPlayer::UpdateBodyModel()
 	}
 
 	QAngle angle = GetRenderAngles();
+
+	const float flViewPitch = angle.x;
+
 	angle.x = 0;
 	angle.z = 0;
 
@@ -405,6 +408,10 @@ void C_GstringPlayer::UpdateBodyModel()
 		|| m_Local.m_bInDuckJump && bInAir )
 	{
 		origin.z += GetViewOffset().z - VEC_VIEW.z;
+	}
+	else if ( bDuck && flViewPitch < -20.0f ) // hide body when ducking and looking up
+	{
+		origin.z -= 50.0f;
 	}
 
 	m_pBodyModel->m_EntClientFlags |= ENTCLIENTFLAG_DONTUSEIK;
