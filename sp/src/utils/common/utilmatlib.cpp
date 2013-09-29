@@ -52,6 +52,11 @@ void LoadMaterialSystemInterface( CreateInterfaceFn fileSystemFactory )
 	{
 		Error( "Could not start the empty shader (shaderapiempty.dll)!" );
 	}
+
+	// loads game shader dlls from game directory
+	// i.e. allows you to use custom lightmapped shaders in hammer
+	// the respective call to ModShutdown() has been left out on purpose because it makes vbsp crash
+	g_pMaterialSystem->ModInit();
 }
 
 void InitMaterialSystem( const char *materialBaseDirPath, CreateInterfaceFn fileSystemFactory )
