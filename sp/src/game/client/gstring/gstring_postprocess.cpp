@@ -100,7 +100,8 @@ void DrawBarsAndGrain( int x, int y, int w, int h )
 	C_GstringPlayer *pPlayer = LocalGstringPlayer();
 	float flNightvisionStrengthInv = 1.0f - (pPlayer ? pPlayer->GetNightvisionFraction() : 0.0f);
 
-	if ( cvar_gstring_drawfilmgrain.GetBool() )
+	if ( cvar_gstring_drawfilmgrain.GetBool()
+		&& cvar_gstring_filmgrain_strength.GetFloat() > 0.0f )
 	{
 		static int iFilmgrainIndex = shaderEdit->GetPPEIndex( FILMGRAIN_EDITOR_NAME );
 
@@ -278,7 +279,8 @@ void DrawExplosionBlur()
 	if ( iExplosionIndex < 0 )
 		return;
 
-	if ( !cvar_gstring_drawexplosionblur.GetInt() )
+	if ( !cvar_gstring_drawexplosionblur.GetInt()
+		|| cvar_gstring_explosionfx_strength.GetFloat() <= 0.0f )
 		return;
 
 	for ( int i = 0; i < g_hExplosionBlurQueue.Count(); i++ )
@@ -332,7 +334,10 @@ void DrawMotionBlur()
 	if ( iMotionBlur < 0 )
 		return;
 
-	if ( !cvar_gstring_drawmotionblur.GetInt() )
+	float motionblur_scale = cvar_gstring_motionblur_scale.GetFloat();
+
+	if ( !cvar_gstring_drawmotionblur.GetInt()
+		|| motionblur_scale <= 0.0f )
 		return;
 
 	DEFINE_SHADEREDITOR_MATERIALVAR( MOTIONBLUR_EDITOR_NAME, "motionblur", "$MUTABLE_01", pVar_LinearDirection );
@@ -361,8 +366,6 @@ void DrawMotionBlur()
 
 	Vector delta = pos_cur - pos_last;
 	float distance = delta.Length();
-
-	float motionblur_scale = cvar_gstring_motionblur_scale.GetFloat();
 
 	if ( gpGlobals->frametime < (1.0f/20.0f) &&
 		gpGlobals->frametime > 0.0f )
@@ -679,6 +682,13 @@ void DrawHurtFX()
 	if ( !ShouldDrawCommon() )
 		return;
 
+	const float flHurtFXEnable = cvar_gstring_drawhurtfx.GetBool() ? 1.0f : 0.0f;
+	const float flChromaticAmount = cvar_gstring_chromatic_aberration.GetFloat();
+
+	if ( flHurtFXEnable <= 0.0f
+		&& flChromaticAmount <= 0.0f )
+		return;
+
 	static const int iHurtFXIndex = shaderEdit->GetPPEIndex( HURTFX_EDITOR_NAME );
 
 	if ( iHurtFXIndex < 0 )
@@ -698,11 +708,12 @@ void DrawHurtFX()
 
 	const float flDecayDuration = 0.5f;
 	const float flHealthAnimationDuration = 0.7f;
+	const float flChromaticHurtMax = ( flChromaticAmount > 0.0f ) ? 0.02f : 0.0f;
 
 	int iHealthCurrent = pPlayer->GetHealth();
 	iHealthCurrent = MAX( 0, iHealthCurrent );
 
-	float flChromatic = RemapValClamped( iHealthCurrent, 0, 25, 0.02f, 0.008f );
+	float flChromatic = RemapValClamped( iHealthCurrent, 0, 25, flChromaticHurtMax, flChromaticAmount );
 	float flRedBlend = RemapValClamped( iHealthCurrent, 0, 25, 2.5f, 0.0f );
 	float flHealthBlend = 0.0f;
 
@@ -712,7 +723,7 @@ void DrawHurtFX()
 		{
 			if ( iHealthLast > iHealthCurrent )
 			{
-				float flIncrement = RemapValClamped( iHealthCurrent, 0, 90, 0.5f, 0.1f );
+				float flIncrement = RemapValClamped( iHealthCurrent, 0, 90, 0.65f, 0.35f );
 
 				flAnimationTime = gpGlobals->curtime + flIncrement;
 			}
@@ -756,7 +767,8 @@ void DrawHurtFX()
 		vecLastParams = params;
 	}
 
-	pVar_HurtFX_Params->SetVecValue( params.x, params.y, params.z );
+
+	pVar_HurtFX_Params->SetVecValue( params.x, params.y * flHurtFXEnable, params.z * flHurtFXEnable );
 
 	shaderEdit->DrawPPEOnDemand( iHurtFXIndex );
 }

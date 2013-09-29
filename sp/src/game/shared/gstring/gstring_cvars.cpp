@@ -17,7 +17,7 @@ ConVar cvar_gstring_drawmotionblur( "gstring_DrawMotionblur", "1", FCVAR_ARCHIVE
 ConVar cvar_gstring_drawscreenblur( "gstring_DrawScreenBlur", "1", FCVAR_ARCHIVE );
 ConVar cvar_gstring_drawdreamblur( "gstring_DrawDreamBlur", "1", FCVAR_ARCHIVE );
 ConVar cvar_gstring_drawlensflare( "gstring_DrawLensFlare", "1", FCVAR_ARCHIVE );
-ConVar cvar_gstring_drawbloomflare( "gstring_DrawBloomFlare", "0", FCVAR_ARCHIVE );
+ConVar cvar_gstring_drawbloomflare( "gstring_DrawBloomFlare", "2", FCVAR_ARCHIVE );
 ConVar cvar_gstring_drawwatereffects( "gstring_DrawWaterEffects", "1", FCVAR_ARCHIVE );
 
 ConVar cvar_gstring_bars_scale( "gstring_Bars_scale", "0.14", FCVAR_ARCHIVE );
@@ -33,4 +33,7 @@ ConVar cvar_gstring_vignette_range_max( "gstring_Vignette_range_max", "0.7", FCV
 
 ConVar cvar_gstring_debug_vguiparticles( "gstring_debug_VguiParticles", "0" );
 ConVar cvar_gstring_nightvision_minlighting( "gstring_nightvision_minlighting", "0.5" );
+
+ConVar cvar_gstring_drawhurtfx( "gstring_DrawHurtFX", "1" );
+ConVar cvar_gstring_chromatic_aberration( "gstring_chromatic_aberration", "0.005" );
 #endif

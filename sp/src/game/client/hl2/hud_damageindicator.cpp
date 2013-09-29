@@ -24,7 +24,9 @@
 
 // GSTRINGMIGRATION
 #include "Gstring/gstring_postprocess.h"
+#include "Gstring/gstring_cvars.h"
 #include "Gstring/vgui/vParticleContainer.h"
+// END GSTRINGMIGRATION
 
 using namespace vgui;
 
@@ -173,6 +175,9 @@ void CHudDamageIndicator::Init( void )
 //-----------------------------------------------------------------------------
 bool CHudDamageIndicator::ShouldDraw( void )
 {
+	if ( !cvar_gstring_drawhurtfx.GetBool() ) // GSTRINGMIGRATION
+		return false;
+
 	bool bNeedsDraw = m_DmgColorLeft[3] || 
 						m_DmgColorRight[3] || 
 						m_DmgHighColorLeft[3] || 

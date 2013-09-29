@@ -29,8 +29,9 @@ protected:
 
 private:
 
-	vgui::CheckButton	*m_pCheck_CinematicBars;
-	vgui::CheckButton	*m_pCheck_FilmGrain;
+	void ReadValues();
+
+	vgui::CheckButton	*m_pCheck_HurtFX;
 	vgui::CheckButton	*m_pCheck_GodRays;
 	vgui::CheckButton	*m_pCheck_WaterEffects;
 	vgui::CheckButton	*m_pCheck_Vignette;
@@ -38,10 +39,8 @@ private:
 	vgui::CheckButton	*m_pCheck_LensFlare;
 	vgui::ComboBox		*m_pCBox_BloomFlare;
 
-	vgui::CheckButton	*m_pCheck_MotionBlur;
 	vgui::CheckButton	*m_pCheck_DreamBlur;
 	vgui::CheckButton	*m_pCheck_ScreenBlur;
-	vgui::CheckButton	*m_pCheck_ExplosionBlur;
 
 	vgui::Slider		*m_pSlider_CinematicBars_Size;
 	vgui::Slider		*m_pSlider_MotionBlur_Strength;
@@ -49,6 +48,7 @@ private:
 	vgui::Slider		*m_pSlider_ExplosionBlur_Strength;
 	vgui::Slider		*m_pSlider_Desaturation_Strength;
 	vgui::Slider		*m_pSlider_FilmGrain_Strength;
+	vgui::Slider		*m_pSlider_Chromatic_Strength;
 
 	vgui::Label			*m_pLabel_Value_CinematicBars;
 	vgui::Label			*m_pLabel_Value_MotionBlur;
@@ -56,6 +56,7 @@ private:
 	vgui::Label			*m_pLabel_Value_ExplosionBlur;
 	vgui::Label			*m_pLabel_Value_Desaturation;
 	vgui::Label			*m_pLabel_Value_FilmGrain;
+	vgui::Label			*m_pLabel_Value_Chromatic;
 };
 
 

@@ -44,6 +44,7 @@ private:
 
 	float m_flMuzzleFlashTime;
 	float m_flMuzzleFlashDuration;
+	float m_flMuzzleFlashRoll;
 	C_MuzzleflashEffect *m_pMuzzleFlashEffect;
 
 	bool m_bFlashlightVisible;

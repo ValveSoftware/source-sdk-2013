@@ -46,6 +46,7 @@ C_GstringPlayer::C_GstringPlayer()
 	, m_flBobModelAmount( 0.0f )
 	, m_angLastBobAngle( vec3_angle )
 	, m_pBodyModel( NULL )
+	, m_flMuzzleFlashRoll( 0.0f )
 {
 	m_bHasUseEntity = false;
 }
@@ -228,6 +229,7 @@ void C_GstringPlayer::ProcessMuzzleFlashEvent()
 
 	m_flMuzzleFlashDuration = RandomFloat( 0.025f, 0.045f );
 	m_flMuzzleFlashTime = gpGlobals->curtime + m_flMuzzleFlashDuration;
+	m_flMuzzleFlashRoll = RandomFloat( 0, 360.0f );
 }
 
 void C_GstringPlayer::UpdateFlashlight()
@@ -324,6 +326,11 @@ void C_GstringPlayer::UpdateFlashlight()
 
 		float flStrength = ( m_flMuzzleFlashTime - gpGlobals->curtime ) / m_flMuzzleFlashDuration;
 
+		QAngle ang;
+		VectorAngles( vecForward, vecUp, ang );
+		ang.z = m_flMuzzleFlashRoll;
+		AngleVectors( ang, &vecForward, &vecRight, &vecUp );
+
 		// Update the light with the new position and direction.
 		m_pMuzzleFlashEffect->UpdateLight( vecPos, vecForward, vecRight, vecUp, flStrength * flStrength );
 		
@@ -375,11 +382,13 @@ void C_GstringPlayer::UpdateBodyModel()
 	Vector fwd, right, up;
 	AngleVectors( angle, &fwd, &right, &up );
 
+	const float flMovingMinSpeed = 10.0f;
+
 	const float flSpeed = GetAbsVelocity().Length2D();
 	const bool bInAir = ( GetFlags() & FL_ONGROUND ) == 0;
 	const bool bDuck = m_Local.m_bDucked
 		|| m_Local.m_bDucking;
-	const bool bMoving = flSpeed > 40.0f;
+	const bool bMoving = flSpeed > flMovingMinSpeed;
 
 	static float flBackOffset = gstring_firstpersonbody_forwardoffset_min.GetFloat();
 	float flBackOffsetDesired = bDuck ?
@@ -426,7 +435,7 @@ void C_GstringPlayer::UpdateBodyModel()
 	float flLength = vecVelocity.NormalizeInPlace();
 
 	static bool bWasMoving = false;
-	const bool bDoMoveYaw = flLength > 40.0f;
+	const bool bDoMoveYaw = flLength > flMovingMinSpeed;
 
 	if ( bDoMoveYaw
 		&& m_pBodyModel->m_iPoseParam_MoveYaw >= 0 )
@@ -465,6 +474,8 @@ void C_GstringPlayer::UpdateBodyModel()
 		if ( flGroundSpeed > 0.0f )
 		{
 			flPlaybackrate = flSpeed / flGroundSpeed;
+
+			flPlaybackrate = MIN( 3.0f, flPlaybackrate );
 		}
 	}
 

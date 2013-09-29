@@ -9,7 +9,8 @@ public:
 	C_MuzzleflashEffect();
 	~C_MuzzleflashEffect();
 
-	virtual void UpdateLight(const Vector &vecPos, const Vector &vecDir, const Vector &vecRight, const Vector &vecUp, float flStrength );
+	virtual void UpdateLight(const Vector &vecPos, const Vector &vecDir, const Vector &vecRight, const Vector &vecUp,
+		float flStrength );
 
 	float GetHorizontalFOV() const { return m_flHorizontalFOV; }
 

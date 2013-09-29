@@ -90,3 +90,4 @@ config.cfg
 /sp/src/game/server/Release_gstringv2
 
 /sp/src/utils/vbsp/Debug
+/sp/src/utils/vbsp/Release
