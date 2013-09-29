@@ -65,6 +65,11 @@
 		game "|gameinfo_path|..\..\common\Half-Life 2\ep2\ep2_sound_vo_english.vpk"	
 		game "|gameinfo_path|..\..\common\Half-Life 2\ep2\ep2_pak.vpk"
 
+		//Half-Life Source
+		game "|gameinfo_path|..\..\common\Half-Life 2\hl1_hd\hl1_hd_pak.vpk"
+		game "|gameinfo_path|..\..\common\Half-Life 2\hl1\hl1_sound_vo_english.vpk"
+		game "|gameinfo_path|..\..\common\Half-Life 2\hl1\hl1_pak.vpk"
+		
 		//Counter Strike Source
 		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike"
 		game "|gameinfo_path|..\..\common\Counter-Strike Source\cstrike\cstrike_english.vpk"
@@ -94,6 +99,7 @@
 		game "|gameinfo_path|..\..\common\Half-Life 2\ep2"	
 		game "|gameinfo_path|..\..\common\Half-Life 2\episodic"
 		game "|gameinfo_path|..\..\common\Half-Life 2\hl2"
+		game "|gameinfo_path|..\..\common\Half-Life 2\hl1"
 		game "|gameinfo_path|..\..\common\portal\portal"
 		game "|gameinfo_path|..\..\common\Portal 2\portal2"
 		game "|gameinfo_path|..\..\common\Team Fortress 2\tf"

@@ -1,0 +1,8 @@
+"LightmappedGeneric"
+{
+	"$basetexture" "darktown/rockwall001"
+	"$surfaceprop" "concrete"
+	"$bumpmap" "darktown/rockwall001normal"
+}
+	
+}
