@@ -28,7 +28,7 @@
 
 // GSTRINGMIGRATION
 #include "gstring/gstring_postprocess.h"
-#include "gstring\c_gstring_player.h"
+#include "gstring/c_gstring_player.h"
 // END GSTRINGMIGRATION
 
 #if defined(DOD_DLL) || defined(CSTRIKE_DLL) || defined(GSTRING) // GSTRINGMIGRATION
