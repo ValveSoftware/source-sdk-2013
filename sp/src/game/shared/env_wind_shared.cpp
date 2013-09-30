@@ -83,6 +83,8 @@ static Vector s_vecWindVelocity( 0, 0, 0 );
 CEnvWindShared::CEnvWindShared() : m_WindAveQueue(10), m_WindVariationQueue(10)
 {
 	m_pWindSound = NULL;
+
+	m_bEnabled = true; // GSTRINGMIGRATION
 }
 
 CEnvWindShared::~CEnvWindShared()
@@ -192,7 +194,14 @@ float CEnvWindShared::WindThink( float flTime )
 		// Now that we've chosen 
 		// either ramp up, or sleep till change
 		bool bReachedSteadyState = true;
-		if ( m_flAveWindSpeed > m_flWindSpeed )
+		// GSTRINGMIGRATION
+		if ( !m_bEnabled )
+		{
+			if ( m_flWindSpeed != 0.0f )
+				m_flWindSpeed = Approach( 0.0f, m_flWindSpeed, 0.3f * WIND_ACCELERATION * flSimDeltaTime );
+		}
+		else if ( m_flAveWindSpeed > m_flWindSpeed )
+		// END GSTRINGMIGRATION
 		{
 			m_flWindSpeed += WIND_ACCELERATION * flSimDeltaTime;
 			if (m_flWindSpeed > m_flAveWindSpeed)

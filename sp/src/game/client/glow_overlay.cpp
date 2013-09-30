@@ -185,6 +185,36 @@ void CGlowOverlay::UpdateSkyGlowObstruction( float zFar, bool bCacheFullSceneSta
 	}
 }
 
+// GSTRINGMIGRATION
+Vector CGlowOverlay::GetGlowDirection()
+{
+	Vector vToGlow;
+	
+	if( m_bDirectional )
+		vToGlow = m_vDirection;
+	else
+		vToGlow = m_vPos - CurrentViewOrigin();
+
+	VectorNormalize( vToGlow );
+
+	return vToGlow;
+}
+
+float CGlowOverlay::GetGlowScale()
+{
+	return m_flGlowObstructionScale;
+}
+
+Vector CGlowOverlay::GetGlowColor()
+{
+	Assert( m_nSprites > 0 );
+
+	if ( m_nSprites > 0 )
+		return m_Sprites[0].m_vColor;
+
+	return Vector( 1, 1, 1 );
+}
+// END GSTRINGMIGRATION
 
 void CGlowOverlay::UpdateGlowObstruction( const Vector &vToGlow, bool bCacheFullSceneState )
 {

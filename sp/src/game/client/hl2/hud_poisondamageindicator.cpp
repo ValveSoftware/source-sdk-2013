@@ -38,6 +38,8 @@ public:
 	void Reset( void );
 	virtual bool ShouldDraw( void );
 
+	virtual CHud::HUDRENDERSTAGE_t	GetRenderStage(){ return CHud::HUDRENDERSTAGE_PRE_BARS; }; // GSTRINGMIGRATION
+
 private:
 	virtual void OnThink();
 	virtual void Paint();

@@ -591,16 +591,19 @@ protected:
 	float							m_flOldCycle;
 	bool							m_bNoModelParticles;
 
+	// GSTRINGMIGRATION made protected
+	CBoneMergeCache					*m_pBoneMergeCache;	// This caches the strcmp lookups that it has to do
+														// when merg
+	CJiggleBones					*m_pJiggleBones;
+	// END GSTRINGMIGRATION
+
 private:
 	float							m_flOldModelScale;
 	int								m_nOldSequence;
-	CBoneMergeCache					*m_pBoneMergeCache;	// This caches the strcmp lookups that it has to do
-														// when merg
 	
 	CUtlVector< matrix3x4_t >		m_CachedBoneData; // never access this directly. Use m_BoneAccessor.
 	memhandle_t						m_hitboxBoneCacheHandle;
 	float							m_flLastBoneSetupTime;
-	CJiggleBones					*m_pJiggleBones;
 
 	// Calculated attachment points
 	CUtlVector<CAttachmentData>		m_Attachments;

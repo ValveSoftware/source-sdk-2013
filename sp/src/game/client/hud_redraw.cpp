@@ -53,24 +53,22 @@ void CHud::Think(void)
 	const bool bPlayingReplay = g_pEngineClientReplay && g_pEngineClientReplay->IsPlayingReplayDemo();
 #endif
 
+	SetRenderingStage( HUDRENDERSTAGE_ALL ); // GSTRINGMIGRATION
+
 	// Determine the visibility of all hud elements
 	for ( int i = 0; i < m_HudList.Size(); i++ )
 	{
+		// GSTRINGMIGRATION
 		// Visible?
-		bool visible = m_HudList[i]->ShouldDraw();
-
-#if defined( REPLAY_ENABLED )
-		visible = visible && !bPlayingReplay;
-#endif
-
-		m_HudList[i]->SetActive( visible );
+		bool visible = false;
 
 		// If it's a vgui panel, hide/show as appropriate
 		vgui::Panel *pPanel = dynamic_cast<vgui::Panel*>(m_HudList[i]);
-		if ( pPanel && pPanel->IsVisible() != visible )
+		if ( pPanel )
 		{
-			pPanel->SetVisible( visible );
+			visible = pPanel->IsVisible();
 		}
+		// END GSTRINGMIGRATION
 		else if ( !pPanel )
 		{
 			// All HUD elements should now derive from vgui!!!
@@ -100,6 +98,31 @@ void CHud::Think(void)
 		m_flScreenShotTime = -1;
 	}
 }
+
+// GSTRINGMIGRATION
+void CHud::OnRendermodeChanged()
+{
+	for ( int i = 0; i < m_HudList.Size(); i++ )
+	{
+		// Visible?
+		bool visible = m_HudList[i]->ShouldDraw();
+
+		m_HudList[i]->SetActive( visible );
+
+		// If it's a vgui panel, hide/show as appropriate
+		vgui::Panel *pPanel = dynamic_cast<vgui::Panel*>(m_HudList[i]);
+		if ( pPanel && pPanel->IsVisible() != visible )
+		{
+			pPanel->SetVisible( visible );
+		}
+		else if ( !pPanel )
+		{
+			// All HUD elements should now derive from vgui!!!
+			Assert( 0 );
+		}
+	}
+}
+// END GSTRINGMIGRATION
 
 //-----------------------------------------------------------------------------
 // Purpose:  The percentage passed in is expected and clamped to 0.0f to 1.0f

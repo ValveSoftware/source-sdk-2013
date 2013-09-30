@@ -97,12 +97,24 @@ public:
 	static const int			HUDPB_VERTICAL;
 	static const int			HUDPB_HORIZONTAL_INV;
 
+	// GSTRINGMIGRATION
+	enum HUDRENDERSTAGE_t
+	{
+		HUDRENDERSTAGE_ALL = -1,
+		HUDRENDERSTAGE_PRE_HDR,
+		HUDRENDERSTAGE_PRE_BARS,
+		HUDRENDERSTAGE_DEFAULT_HUD,
+	};
+	// END GSTRINGMIGRATION
+
 public:
 								CHud();
 								~CHud();
 
 	// Init's called when the HUD's created at DLL load
 	void						Init( void );
+	// Called after client dll finished its initialization
+	void						InitPostSystems( void ); // GSTRINGMIGRATION
 	// VidInit's called when the video mode's changed
 	void						VidInit( void );
 	// Shutdown's called when the engine's shutting down
@@ -118,6 +130,7 @@ public:
 	void						OnRestore();
 
 	void						Think();
+	void						OnRendermodeChanged(); // GSTRINGMIGRATION
 
 	void						ProcessInput( bool bActive );
 	void						UpdateHud( bool bActive );
@@ -130,7 +143,7 @@ public:
 	// Search list for "name" and return the hud element if it exists
 	CHudElement					*FindElement( const char *pName );
 	
-	bool						IsHidden( int iHudFlags );
+	bool						IsHidden( int iHudFlags, HUDRENDERSTAGE_t stage ); // GSTRINGMIGRATION
 
 	float						GetSensitivity();
 	float						GetFOVSensitivityAdjust();
@@ -176,6 +189,8 @@ public:
 
 	CUtlVector< CHudElement * >	m_HudList;
 
+	void						SetRenderingStage( HUDRENDERSTAGE_t stage ); // GSTRINGMIGRATION
+
 private:
 	void						InitFonts();
 
@@ -190,6 +205,8 @@ private:
 	CUtlMap< int, CHudRenderGroup * >		m_RenderGroups;
 
 	float						m_flScreenShotTime; // used to take end-game screenshots
+
+	int							m_iRenderingStage; // GSTRINGMIGRATION
 };
 
 extern CHud gHUD;

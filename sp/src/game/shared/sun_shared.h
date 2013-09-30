@@ -17,4 +17,6 @@
 #define	SF_LIGHTGLOW_DIRECTIONAL	(1<<0)
 #define	SF_MODULATE_BY_DIRECTION	(1<<1)
 
+#include "Gstring/clensflare_base.h" // GSTRINGMIGRATION
+
 #endif // SUN_SHARED_H

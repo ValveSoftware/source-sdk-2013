@@ -210,6 +210,8 @@ void ComputeRenderInfo( mstudiobbox_t *pHitBox, const matrix3x4_t &hitboxToWorld
 //-----------------------------------------------------------------------------
 int C_WeaponPhysCannon::DrawModel( int flags )
 {
+	return BaseClass::DrawModel( flags ); // GSTRINGMIGRATION
+
 	// If we're not ugrading, don't do anything special
 	if ( m_bIsCurrentlyUpgrading == false && m_bWasUpgraded == false )
 		return BaseClass::DrawModel( flags );

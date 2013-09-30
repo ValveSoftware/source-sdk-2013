@@ -173,6 +173,8 @@ public:
 	CNetworkVar( int, m_iInitialWindDir );
 	CNetworkVar( float, m_flInitialWindSpeed );
 
+	CNetworkVar( bool, m_bEnabled );	// GSTRINGMIGRATION
+
 #ifndef CLIENT_DLL
 	COutputEvent m_OnGustStart;
 	COutputEvent m_OnGustEnd;

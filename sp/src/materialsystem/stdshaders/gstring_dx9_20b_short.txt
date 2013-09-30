@@ -1,0 +1,7 @@
+
+SDK_flashlight_ps2x.fxc
+SDK_flashlight_ps11.fxc
+SDK_lightmappedgeneric_flashlight_vs11.fxc
+SDK_lightmappedgeneric_flashlight_vs20.fxc
+
+SDK_vertexlit_and_unlit_generic_ps20b.fxc

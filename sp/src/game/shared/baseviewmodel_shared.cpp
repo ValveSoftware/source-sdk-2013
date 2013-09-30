@@ -400,7 +400,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		{
 			// add weapon-specific bob 
 			pWeapon->AddViewmodelBob( this, vmorigin, vmangles );
-#if defined ( CSTRIKE_DLL )
+#if defined ( CSTRIKE_DLL ) || defined( GSTRING ) // GSTRINGMIGRATION
 			CalcViewModelLag( vmorigin, vmangles, vmangoriginal );
 #endif
 		}

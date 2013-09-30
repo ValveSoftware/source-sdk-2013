@@ -85,6 +85,12 @@ public:
 	static void		RestoreSkyOverlayData( int iRestoreFromSlot );
 #endif
 
+	// GSTRINGMIGRATION
+	virtual Vector GetGlowDirection();
+	virtual float GetGlowScale();
+	virtual Vector GetGlowColor();
+	// END GSTRINGMIGRATION
+
 protected:
 
 	void			UpdateGlowObstruction( const Vector &vToGlow, bool bCacheFullSceneState );

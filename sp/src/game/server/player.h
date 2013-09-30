@@ -746,6 +746,7 @@ public:
 	float	GetFOVDistanceAdjustFactorForNetworking();
 
 	int		GetImpulse( void ) const { return m_nImpulse; }
+	void	ClearImpulse() { m_nImpulse = 0; } // GSTRINGMIGRATION
 
 	// Movement constraints
 	void	ActivateMovementConstraint( CBaseEntity *pEntity, const Vector &vecCenter, float flRadius, float flConstraintWidth, float flSpeedFactor );

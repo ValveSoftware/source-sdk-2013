@@ -53,6 +53,8 @@ extern CSteamGameServerAPIContext *steamgameserverapicontext; //available on gam
 //-----------------------------------------------------------------------------
 void PrecacheMaterial( const char *pMaterialName );
 
+int PrecacheMaterialGetIndex( const char *pszMatName ); // GSTRINGMIGRATION
+
 //-----------------------------------------------------------------------------
 // Converts a previously precached material into an index
 //-----------------------------------------------------------------------------

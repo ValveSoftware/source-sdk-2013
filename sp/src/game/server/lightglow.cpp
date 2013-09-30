@@ -19,10 +19,10 @@
 #define LIGHTGLOW_OUTERMAXDIST_BITS	16
 #define LIGHTGLOW_OUTERMAXDIST_MAX_VALUE	((1 << LIGHTGLOW_OUTERMAXDIST_BITS)-1)
 
-class CLightGlow : public CBaseEntity
+class CLightGlow : public CLensflareBase // GSTRINGMIGRATION
 {
 public:
-	DECLARE_CLASS( CLightGlow, CBaseEntity );
+	DECLARE_CLASS( CLightGlow, CLensflareBase ); // GSTRINGMIGRATION
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
 
@@ -47,7 +47,7 @@ public:
 
 extern void SendProxy_Angles( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
 
-IMPLEMENT_SERVERCLASS_ST_NOBASE( CLightGlow, DT_LightGlow )
+IMPLEMENT_SERVERCLASS_ST( CLightGlow, DT_LightGlow ) // GSTRINGMIGRATION add base
 	SendPropInt( SENDINFO(m_clrRender), 32, SPROP_UNSIGNED, SendProxy_Color32ToInt ),
 	SendPropInt( SENDINFO(m_nHorizontalSize), 16, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO(m_nVerticalSize), 16, SPROP_UNSIGNED ),

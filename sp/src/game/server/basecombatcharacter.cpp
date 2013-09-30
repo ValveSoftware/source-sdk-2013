@@ -3336,10 +3336,9 @@ void CBaseCombatCharacter::DoMuzzleFlash()
 		pWeapon->DoMuzzleFlash();
 		//NOTENOTE: We do not chain to the base here
 	}
-	else
-	{
-		BaseClass::DoMuzzleFlash();
-	}
+
+	// GSTRINGMIGRATION our player uses this
+	BaseClass::DoMuzzleFlash();
 }
 
 //-----------------------------------------------------------------------------

@@ -19,6 +19,8 @@
 #include "fx_line.h"
 #include "fx_water.h"
 
+#include "gstring\gstring_postprocess.h" // GSTRINGMIGRATION
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -192,6 +194,8 @@ void C_BaseExplosionEffect::Create( const Vector &position, float force, float s
 	CreateDebris();
 	//FIXME: CreateDynamicLight();
 	CreateMisc();
+
+	QueueExplosionBlur( position ); // GSTRINGMIGRATION
 }
 
 //-----------------------------------------------------------------------------

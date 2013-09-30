@@ -3711,6 +3711,9 @@ void CWeaponPhysCannon::StopEffects( bool stopSound )
 //-----------------------------------------------------------------------------
 void CWeaponPhysCannon::StartEffects( void )
 {
+	return; // GSTRINGMIGRATION
+
+
 	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
 	if ( pOwner == NULL )
 		return;

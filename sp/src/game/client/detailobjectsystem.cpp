@@ -26,7 +26,12 @@
 #include <algorithm>
 #include "tier0/valve_minmax_on.h"
 
-#if defined(DOD_DLL) || defined(CSTRIKE_DLL)
+// GSTRINGMIGRATION
+#include "gstring/gstring_postprocess.h"
+#include "gstring/c_gstring_player.h"
+// END GSTRINGMIGRATION
+
+#if defined(DOD_DLL) || defined(CSTRIKE_DLL) || defined(GSTRING) // GSTRINGMIGRATION
 #define USE_DETAIL_SHAPES
 #endif
 
@@ -92,6 +97,39 @@ class CDetailObjectSystemPerLeafData
 		m_DetailPropRenderFrame = -1;
 	}
 };
+
+// GSTRINGMIGRATION
+static void ModulateByFlashlight( const Vector &vecOrigin, Vector &vecColor )
+{
+	C_GstringPlayer *pPlayer = ToGstringPlayer( C_BasePlayer::GetLocalPlayer() );
+
+	if ( pPlayer != NULL
+		&& pPlayer->IsRenderingFlashlight() )
+	{
+		Vector vecFlashlightPos, vecFlashlightForward;
+
+		pPlayer->GetFlashlightPosition( vecFlashlightPos );
+		pPlayer->GetFlashlightForward( vecFlashlightForward );
+
+		Vector delta = ( vecOrigin + Vector( 0, 0, 20 ) ) - CurrentViewOrigin();
+
+		const float flDist = delta.NormalizeInPlace();
+		const float flDot = DotProduct( delta, vecFlashlightForward );
+		const float flFOV = pPlayer->GetFlashlightDot();
+
+		if ( flDot > flFOV )
+		{
+			float flScale = RemapValClamped( flDot, flFOV, flFOV + 0.04f, 0.0f, 1.0f );
+			flScale *= RemapValClamped( flDist, 0.0f, 500.0f, 1.0f, 0.0f );
+
+			float flMaxLight = ( vecColor.x + vecColor.y + vecColor.z ) * 0.15f + 0.5f;
+			flMaxLight = MIN( 1.0f, flMaxLight );
+
+			vecColor = Lerp( flScale, vecColor, Vector( flMaxLight, flMaxLight, flMaxLight ) );
+		}
+	}
+}
+// END GSTRINGMIGRATION
 
 //-----------------------------------------------------------------------------
 // Detail models
@@ -925,6 +963,12 @@ void CDetailModel::GetColorModulation( float *color )
 		}
 	}
 
+	// GSTRINGMIGRATION
+	const float flNightvisionAmt = GetNightvisionMinLighting();
+	for ( int i = 0; i < 3; i++ )
+		color[i] = Lerp( flNightvisionAmt, color[i], 1.0f );
+	// END GSTRINGMIGRATION
+
 	// Gamma correct....
 	engine->LinearToGamma( color, color );
 }
@@ -1009,6 +1053,8 @@ void CDetailModel::DrawTypeSprite( CMeshBuilder &meshBuilder )
 
 	Vector vecColor;
 	GetColorModulation( vecColor.Base() );
+
+	ModulateByFlashlight( m_Origin, vecColor ); // GSTRINGMIGRATION
 
 	unsigned char color[4];
 	color[0] = (unsigned char)(vecColor[0] * 255.0f);
@@ -1102,6 +1148,8 @@ void CDetailModel::DrawTypeShapeCross( CMeshBuilder &meshBuilder )
 
 	Vector vecColor;
 	GetColorModulation( vecColor.Base() );
+
+	ModulateByFlashlight( m_Origin, vecColor ); // GSTRINGMIGRATION
 
 	unsigned char color[4];
 	color[0] = (unsigned char)(vecColor[0] * 255.0f);
@@ -1216,6 +1264,8 @@ void CDetailModel::DrawTypeShapeTri( CMeshBuilder &meshBuilder )
 
 	Vector vecColor;
 	GetColorModulation( vecColor.Base() );
+
+	ModulateByFlashlight( m_Origin, vecColor ); // GSTRINGMIGRATION
 
 	unsigned char color[4];
 	color[0] = (unsigned char)(vecColor[0] * 255.0f);

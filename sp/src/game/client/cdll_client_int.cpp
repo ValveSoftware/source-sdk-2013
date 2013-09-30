@@ -147,6 +147,9 @@
 #include "fbxsystem/fbxsystem.h"
 #endif
 
+#include "ShaderEditor/ShaderEditorSystem.h"
+#include "Gstring/vgui/vgui_gstringMain.h"
+
 extern vgui::IInputInternal *g_InputInternal;
 const char *COM_GetModDirectory(); // return the mod dir (rather than the complete -game param, which can be a path)
 
@@ -1082,6 +1085,8 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 	ClientWorldFactoryInit();
 
+	gHUD.InitPostSystems(); // GSTRINGMIGRATION
+
 	C_BaseAnimating::InitBoneSetupThreadPool();
 
 #if defined( WIN32 ) && !defined( _X360 )
@@ -1164,6 +1169,10 @@ void CHLClient::PostInit()
 		mat_vsync.SetValue( 0 );
 #endif
 	}
+
+	// GSTRINGMIGRATION
+	if ( ( CommandLine() != NULL ) && ( CommandLine()->FindParm( "-nomenu" ) == 0 ) )
+		CVGUIGstringMain::Create();
 }
 
 //-----------------------------------------------------------------------------

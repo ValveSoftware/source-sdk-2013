@@ -172,6 +172,12 @@ bool CBaseHLCombatWeapon::WeaponShouldBeLowered( void )
 
 	if ( m_bLowered )
 		return true;
+
+	// GSTRINGMIGRATION
+	CHL2_Player *player = assert_cast< CHL2_Player* >( GetOwner() );
+	if ( player->IsSprinting() )
+		return true;
+	// END GSTRINGMIGRATION
 	
 #if !defined( CLIENT_DLL )
 

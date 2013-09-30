@@ -45,6 +45,8 @@
 #include "headtrack/isourcevirtualreality.h"
 #include "client_virtualreality.h"
 
+#include "gstring\gstring_postprocess.h" // GSTRINGMIGRATION
+
 #if defined( REPLAY_ENABLED )
 #include "replay/ireplaysystem.h"
 #include "replay/ienginereplay.h"
@@ -292,7 +294,7 @@ extern ConVar default_fov;
 //-----------------------------------------------------------------------------
 // Purpose: Initializes all view systems
 //-----------------------------------------------------------------------------
-void CViewRender::Init( void )
+void CViewRender::Init( void ) // GSTRINGMIGRATION
 {
 	memset( &m_PitchDrift, 0, sizeof( m_PitchDrift ) );
 
@@ -332,7 +334,6 @@ void CViewRender::Init( void )
 #if defined( CSTRIKE_DLL )
 	m_flLastFOV = default_fov.GetFloat();
 #endif
-
 }
 
 //-----------------------------------------------------------------------------
@@ -357,6 +358,10 @@ void CViewRender::LevelInit( void )
 
 	// Init all IScreenSpaceEffects
 	g_pScreenSpaceEffects->InitScreenSpaceEffects( );
+
+	// GSTRINGMIGRATION
+	ResetEffects();
+	// END GSTRINGMIGRATION
 }
 
 //-----------------------------------------------------------------------------

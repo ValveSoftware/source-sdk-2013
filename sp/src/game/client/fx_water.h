@@ -62,7 +62,7 @@ private:
 };
 
 extern void FX_WaterRipple( const Vector &origin, float scale, Vector *pColor, float flLifetime=1.5, float flAlpha=1 );
-extern void FX_GunshotSplash( const Vector &origin, const Vector &normal, float scale );
+extern void FX_GunshotSplash( const Vector &origin, const Vector &normal, float scale, bool bPlaySound = true ); // GSTRINGMIGRATION
 extern void FX_GunshotSlimeSplash( const Vector &origin, const Vector &normal, float scale );
 
 //-----------------------------------------------------------------------------

@@ -81,6 +81,7 @@
 #include "toolframework_client.h"
 #include "bonetoworldarray.h"
 #include "cmodel.h"
+#include "renderparm.h" // GSTRINGMIGRATION
 
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -767,6 +768,9 @@ public:
 	// Sets the shadow color
 	virtual void SetShadowColor( unsigned char r, unsigned char g, unsigned char b );
 	void GetShadowColor( unsigned char *r, unsigned char *g, unsigned char *b ) const;
+	
+// GSTRINGMIGRATION
+	virtual void SetShadowColorMaterialsOnly( float r, float g, float b );
 
 	// Sets the shadow distance
 	virtual void SetShadowDistance( float flMaxDistance );
@@ -1290,8 +1294,10 @@ bool CClientShadowMgr::Init()
 
 	SetShadowBlobbyCutoffArea( 0.005 );
 
-	bool bTools = CommandLine()->CheckParm( "-tools" ) != NULL;
-	m_nMaxDepthTextureShadows = bTools ? 4 : 1;	// Just one shadow depth texture in games, more in tools
+	//bool bTools = CommandLine()->CheckParm( "-tools" ) != NULL;
+
+	// GSTRINGMIGRATION
+	m_nMaxDepthTextureShadows = 5; //bTools ? 4 : 1;	// Just one shadow depth texture in games, more in tools
 
 	bool bLowEnd = ( g_pMaterialSystemHardwareConfig->GetDXSupportLevel() < 80 );
 
@@ -1497,6 +1503,23 @@ void CClientShadowMgr::SetShadowColor( unsigned char r, unsigned char g, unsigne
 	m_AmbientLightColor.r = r;
 	m_AmbientLightColor.g = g;
 	m_AmbientLightColor.b = b;
+}
+
+// GSTRINGMIGRATION
+void CClientShadowMgr::SetShadowColorMaterialsOnly( float r, float g, float b )
+{
+	float fr = r;
+	float fg = g;
+	float fb = b;
+
+	// Hook the shadow color into the shadow materials
+	m_SimpleShadow->ColorModulate( fr, fg, fb );
+
+	if (m_RenderToTextureActive)
+	{
+		m_RenderShadow->ColorModulate( fr, fg, fb );
+		m_RenderModelShadow->ColorModulate( fr, fg, fb );
+	}
 }
 
 void CClientShadowMgr::GetShadowColor( unsigned char *r, unsigned char *g, unsigned char *b ) const
@@ -3940,6 +3963,13 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 
 			Assert(0);
 			shadowmgr->SetFlashlightDepthTexture( shadow.m_ShadowHandle, NULL, 0 );
+
+			// GSTRINGMIGRATION
+			if ( j <= ( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_LAST - INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST ) )
+			{
+				pRenderContext->SetIntRenderingParameter( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST + j, 0 );
+			}
+			// END GSTRINGMIGRATION
 			continue;
 		}
 
@@ -3972,6 +4002,19 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 
 		// Render to the shadow depth texture with appropriate view
 		view->UpdateShadowDepthTexture( m_DummyColorTexture, shadowDepthTexture, shadowView );
+
+		// GSTRINGMIGRATION
+		if ( j <= ( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_LAST - INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST ) )
+		{
+			pRenderContext->SetIntRenderingParameter( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST + j, int((ITexture*)shadowDepthTexture) );
+
+			FlashlightState_t state = shadowmgr->GetFlashlightState( shadow.m_ShadowHandle );
+
+			state.m_nShadowQuality = state.m_nShadowQuality | ( ( j + 1 ) << 16 );
+
+			shadowmgr->UpdateFlashlightState( shadow.m_ShadowHandle, state );
+		}
+		// END GSTRINGMIGRATION
 
 		// Associate the shadow depth texture and stencil bit with the flashlight for use during scene rendering
 		shadowmgr->SetFlashlightDepthTexture( shadow.m_ShadowHandle, shadowDepthTexture, 0 );

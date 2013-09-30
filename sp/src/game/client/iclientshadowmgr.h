@@ -100,7 +100,11 @@ public:
 	virtual void SetShadowsDisabled( bool bDisabled ) = 0;
 
 	virtual void ComputeShadowDepthTextures( const CViewSetup &pView ) = 0;
-
+	
+	// GSTRINGMIGRATION
+	virtual void SetShadowColorMaterialsOnly( float r, float g, float b ) = 0;
+	virtual void GetShadowColor( unsigned char *r, unsigned char *g, unsigned char *b ) const = 0;
+	// END GSTRINGMIGRATION
 };
 
 

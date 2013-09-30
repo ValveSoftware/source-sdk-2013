@@ -77,6 +77,13 @@
 // Projective textures
 #include "C_Env_Projected_Texture.h"
 
+// GSTRINGMIGRATION
+#include "gstring/gstring_postprocess.h"
+#include "gstring/cscreenoverlay_multi.h"
+#include "gstring/gstring_cvars.h"
+#include "shadereditor/shadereditorsystem.h"
+// END GSTRINGMIGRATION
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1351,6 +1358,13 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 
 	DrawWorldAndEntities( drawSkybox, view, nClearFlags, pCustomVisibility );
 
+	// GSTRINGMIGRATION
+	VisibleFogVolumeInfo_t fogVolumeInfo;
+	render->GetVisibleFogVolume( view.origin, &fogVolumeInfo );
+	WaterRenderInfo_t info;	DetermineWaterRenderInfo( fogVolumeInfo, info );
+	g_ShaderEditorSystem->CustomViewRender( &g_CurrentViewID, fogVolumeInfo, info );
+	// END GSTRINGMIGRATION
+
 	// Disable fog for the rest of the stuff
 	DisableFog();
 
@@ -1886,6 +1900,199 @@ void CViewRender::FreezeFrame( float flFreezeTime )
 
 const char *COM_GetModDirectory();
 
+// GSTRINGMIGRATION
+static void DrawVGUILayer( CHud::HUDRENDERSTAGE_t stage, const CViewSetup &view )
+{
+	const bool bMainPass = stage == CHud::HUDRENDERSTAGE_DEFAULT_HUD;
+
+	VPROF_BUDGET( "VGui_DrawHud", VPROF_BUDGETGROUP_OTHER_VGUI );
+
+	gHUD.SetRenderingStage( stage );
+	// paint the vgui screen
+	//if ( bMainPass )
+	//	VGui_PreRender();
+
+	//// Make sure the client .dll root panel is at the proper point before doing the "SolveTraverse" calls
+	//vgui::VPANEL root = enginevgui->GetPanel( PANEL_CLIENTDLL );
+	//if ( root != 0 )
+	//{
+	//	vgui::ipanel()->SetPos( root, view.x, view.y );
+	//	vgui::ipanel()->SetSize( root, view.width, view.height );
+	//}
+	//// Same for client .dll tools
+	//root = enginevgui->GetPanel( PANEL_CLIENTDLL_TOOLS );
+	//if ( root != 0 )
+	//{
+	//	vgui::ipanel()->SetPos( root, view.x, view.y );
+	//	vgui::ipanel()->SetSize( root, view.width, view.height );
+	//}
+
+	//// The crosshair, etc. needs to get at the current setup stuff
+	//AllowCurrentViewAccess( true );
+
+	//// Draw the in-game stuff based on the actual viewport being used
+	//render->VGui_Paint( PAINT_INGAMEPANELS );
+
+	//AllowCurrentViewAccess( false );
+
+	//if ( bMainPass )
+	//{
+	//	VGui_PostRender();
+
+	//	g_pClientMode->PostRenderVGui();
+	//	materials->Flush();
+	//}
+
+
+
+	CMatRenderContextPtr renderContext( materials );
+
+	VPROF_BUDGET( "VGui_DrawHud", VPROF_BUDGETGROUP_OTHER_VGUI );
+	int viewWidth = view.m_nUnscaledWidth;
+	int viewHeight = view.m_nUnscaledHeight;
+	int viewActualWidth = view.m_nUnscaledWidth;
+	int viewActualHeight = view.m_nUnscaledHeight;
+	int viewX = view.m_nUnscaledX;
+	int viewY = view.m_nUnscaledY;
+	int viewFramebufferX = 0;
+	int viewFramebufferY = 0;
+	int viewFramebufferWidth = viewWidth;
+	int viewFramebufferHeight = viewHeight;
+	bool bClear = false;
+	bool bPaintMainMenu = false;
+	ITexture *pTexture = NULL;
+	//if( UseVR() )
+	//{
+	//	if( g_ClientVirtualReality.ShouldRenderHUDInWorld() )
+	//	{
+	//		pTexture = materials->FindTexture( "_rt_gui", NULL, false );
+	//		if( pTexture )
+	//		{
+	//			bPaintMainMenu = true;
+	//			bClear = true;
+	//			viewX = 0;
+	//			viewY = 0;
+	//			viewActualWidth = pTexture->GetActualWidth();
+	//			viewActualHeight = pTexture->GetActualHeight();
+
+	//			vgui::surface()->GetScreenSize( viewWidth, viewHeight );
+
+	//			viewFramebufferX = view.m_eStereoEye == STEREO_EYE_RIGHT ? viewFramebufferWidth : 0;
+	//			viewFramebufferY = 0;
+	//		}
+	//	}
+	//	else
+	//	{
+	//		viewFramebufferX = view.m_eStereoEye == STEREO_EYE_RIGHT ? viewWidth : 0;
+	//		viewFramebufferY = 0;
+	//	}
+	//}
+
+	// Get the render context out of materials to avoid some debug stuff.
+	// WARNING THIS REQUIRES THE .SafeRelease below or it'll never release the ref
+	//pRenderContext = materials->GetRenderContext();
+
+	// clear depth in the backbuffer before we push the render target
+	if( bClear )
+	{
+		renderContext->ClearBuffers( false, true, true );
+	}
+
+	// constrain where VGUI can render to the view
+	renderContext->PushRenderTargetAndViewport( pTexture, NULL, viewX, viewY, viewActualWidth, viewActualHeight );
+	// If drawing off-screen, force alpha for that pass
+	if (pTexture)
+	{
+		renderContext->OverrideAlphaWriteEnable( true, true );
+	}
+
+	// let vgui know where to render stuff for the forced-to-framebuffer panels
+	if( UseVR() )
+	{
+		vgui::surface()->SetFullscreenViewport( viewFramebufferX, viewFramebufferY, viewFramebufferWidth, viewFramebufferHeight );
+	}
+
+	// clear the render target if we need to
+	if( bClear )
+	{
+		renderContext->ClearColor4ub( 0, 0, 0, 0 );
+		renderContext->ClearBuffers( true, false );
+	}
+	//renderContext.SafeRelease();
+
+	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "VGui_DrawHud", __FUNCTION__ );
+
+	// paint the vgui screen
+	if ( bMainPass )
+	{
+		VGui_PreRender();
+	}
+
+	// Make sure the client .dll root panel is at the proper point before doing the "SolveTraverse" calls
+	vgui::VPANEL root = enginevgui->GetPanel( PANEL_CLIENTDLL );
+	if ( root != 0 )
+	{
+		vgui::ipanel()->SetPos( root, viewX, viewY );
+		vgui::ipanel()->SetSize( root, viewWidth, viewHeight );
+	}
+	// Same for client .dll tools
+	root = enginevgui->GetPanel( PANEL_CLIENTDLL_TOOLS );
+	if ( root != 0 )
+	{
+		vgui::ipanel()->SetPos( root, viewX, viewY );
+		vgui::ipanel()->SetSize( root, viewWidth, viewHeight );
+	}
+
+	// The crosshair, etc. needs to get at the current setup stuff
+	AllowCurrentViewAccess( true );
+
+	// Draw the in-game stuff based on the actual viewport being used
+	render->VGui_Paint( PAINT_INGAMEPANELS );
+
+	// maybe paint the main menu and cursor too if we're in stereo hud mode
+	if( bPaintMainMenu )
+		render->VGui_Paint( PAINT_UIPANELS | PAINT_CURSOR );
+
+	AllowCurrentViewAccess( false );
+
+	if ( bMainPass )
+	{
+		VGui_PostRender();
+
+		g_pClientMode->PostRenderVGui();
+	}
+
+	//pRenderContext = materials->GetRenderContext();
+	if (pTexture)
+	{
+		renderContext->OverrideAlphaWriteEnable( false, true );
+	}
+	renderContext->PopRenderTargetAndViewport();
+
+	//if ( UseVR() )
+	//{
+	//	// figure out if we really want to draw the HUD based on freeze cam
+	//	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+	//	bool bInFreezeCam = ( pPlayer && pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM );
+
+	//	// draw the HUD after the view model so its "I'm closer" depth queues work right.
+	//	if( !bInFreezeCam && g_ClientVirtualReality.ShouldRenderHUDInWorld() )
+	//	{
+	//		// Now we've rendered the HUD to its texture, actually get it on the screen.
+	//		// Since we're drawing it as a 3D object, we need correctly set up frustum, etc.
+	//		int ClearFlags = 0;
+	//		SetupMain3DView( view, ClearFlags );
+
+	//		// TODO - a bit of a shonky test - basically trying to catch the main menu, the briefing screen, the loadout screen, etc.
+	//		bool bTranslucent = !g_pMatSystemSurface->IsCursorVisible();
+	//		g_ClientVirtualReality.RenderHUDQuad( g_pClientMode->ShouldBlackoutAroundHUD(), bTranslucent );
+	//		CleanupMain3DView( view );
+	//	}
+	//}
+
+	//renderContext->Flush();
+}
+// END GSTRINGMIGRATION
 
 //-----------------------------------------------------------------------------
 // Purpose: This renders the entire 3D view and the in-game hud/viewmodel
@@ -1922,7 +2129,17 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 
 	CMatRenderContextPtr pRenderContext( materials );
 	ITexture *saveRenderTarget = pRenderContext->GetRenderTarget();
-	pRenderContext.SafeRelease(); // don't want to hold for long periods in case in a locking active share thread mode
+
+	const bool bBuildingCubemaps = building_cubemaps.GetBool(); // GSTRINGMIGRATION
+	const bool bShouldUpdateSkymask = !bBuildingCubemaps && ShouldDrawGodrays();
+
+	// GSTRINGMIGRATION
+	pRenderContext->SetFloatRenderingParameter( FLOAT_RENDERPARM_MINIMUMLIGHTING,
+		bBuildingCubemaps ?
+		0.0f : GetNightvisionMinLighting() );
+	// END GSTRINGMIGRATION
+
+	pRenderContext.SafeRelease(); // don't want to hold for long periods in case in a locking active share thread mode // GSTRINGMIGRATION
 
 	if ( !m_rbTakeFreezeFrame[ view.m_eStereoEye ] && m_flFreezeFrameUntil > gpGlobals->curtime )
 	{
@@ -1969,6 +2186,11 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		if ( ( bDrew3dSkybox = pSkyView->Setup( view, &nClearFlags, &nSkyboxVisible ) ) != false )
 		{
 			AddViewToScene( pSkyView );
+
+			// GSTRINGMIGRATION
+			if ( bShouldUpdateSkymask )
+				g_ShaderEditorSystem->UpdateSkymask();
+			// END GSTRINGMIGRATION
 		}
 		SafeRelease( pSkyView );
 
@@ -2002,29 +2224,45 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		// Finish scene
 		render->SceneEnd();
 
+		// GSTRINGMIGRATION
 		// Draw lightsources if enabled
-		render->DrawLights();
+		//render->DrawLights();
 
-		RenderPlayerSprites();
+		//RenderPlayerSprites();
 
 		// Image-space motion blur
-		if ( !building_cubemaps.GetBool() && view.m_bDoBloomAndToneMapping ) // We probably should use a different view. variable here
+		//if ( !building_cubemaps.GetBool() && view.m_bDoBloomAndToneMapping ) // We probably should use a different view. variable here
+		//{
+		//	if ( ( mat_motion_blur_enabled.GetInt() ) && ( g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 90 ) )
+		//	{
+		//		pRenderContext.GetFrom( materials );
+		//		{
+		//			PIXEVENT( pRenderContext, "DoImageSpaceMotionBlur" );
+		//			DoImageSpaceMotionBlur( view, view.x, view.y, view.width, view.height );
+		//		}
+		//		pRenderContext.SafeRelease();
+		//	}
+		//}
+
+		if ( !bBuildingCubemaps )
 		{
-			if ( ( mat_motion_blur_enabled.GetInt() ) && ( g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 90 ) )
-			{
-				pRenderContext.GetFrom( materials );
-				{
-					PIXEVENT( pRenderContext, "DoImageSpaceMotionBlur" );
-					DoImageSpaceMotionBlur( view, view.x, view.y, view.width, view.height );
-				}
-				pRenderContext.SafeRelease();
-			}
+			UpdateScreenEffectTexture();
+
+			PerformScenePostProcessHack();
+
+			DrawMotionBlur();
 		}
+		// END GSTRINGMIGRATION
 
 		GetClientModeNormal()->DoPostScreenSpaceEffects( &view );
 
 		// Now actually draw the viewmodel
 		DrawViewModels( view, whatToDraw & RENDERVIEW_DRAWVIEWMODEL );
+
+		// GSTRINGMIGRATION
+		if ( bShouldUpdateSkymask )
+			g_ShaderEditorSystem->UpdateSkymask( bDrew3dSkybox );
+		// END GSTRINGMIGRATION
 
 		DrawUnderwaterOverlay();
 
@@ -2041,7 +2279,24 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		// Overlay screen fade on entire screen
 		IMaterial* pMaterial = blend ? m_ModulateSingleColor : m_TranslucentSingleColor;
 		render->ViewDrawFade( color, pMaterial );
-		PerformScreenOverlay( view.x, view.y, view.width, view.height );
+		//PerformScreenOverlay( view.x, view.y, view.width, view.height ); // GSTRINGMIGRATION
+
+		// GSTRINGMIGRATION
+		if ( whatToDraw & RENDERVIEW_DRAWHUD && !bBuildingCubemaps )
+		{
+			render->Push2DView( view, 0, saveRenderTarget, GetFrustum() );
+			DrawVGUILayer( CHud::HUDRENDERSTAGE_PRE_HDR, view );
+			render->PopView( GetFrustum() );
+			UpdateScreenEffectTexture( 0, view.x, view.y, view.width, view.height );
+		}
+
+		if ( !bBuildingCubemaps )
+		{
+			DrawScreenGaussianBlur();
+
+			DrawDreamBlur();
+		}
+		// END GSTRINGMIGRATION
 
 		// Prevent sound stutter if going slow
 		engine->Sound_ExtraUpdate();	
@@ -2063,6 +2318,27 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 			pRenderContext.SafeRelease();
 		}
 
+		// GSTRINGMIGRATION
+		if ( !bBuildingCubemaps )
+		{
+			DrawOverlaysForMode( CScreenoverlayMulti::RENDERMODE_POST_HDR,
+				view.x, view.y, view.width, view.height );
+
+			DrawExplosionBlur();
+
+			DrawGodrays();
+
+			if ( view.m_bDoBloomAndToneMapping )
+				DrawBloomFlare();
+
+			DrawNightvision();
+
+			DrawHurtFX();
+		}
+
+		g_ShaderEditorSystem->CustomPostRender();
+		// END GSTRINGMIGRATION
+
 		// And here are the screen-space effects
 
 		if ( IsPC() )
@@ -2081,6 +2357,25 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 			pRenderContext->SetToneMappingScaleLinear(Vector(1,1,1));
 			pRenderContext.SafeRelease();
 		}
+
+		// GSTRINGMIGRATION
+		if ( whatToDraw & RENDERVIEW_DRAWHUD && !bBuildingCubemaps )
+		{
+			render->Push2DView( view, 0, saveRenderTarget, GetFrustum() );
+			DrawVGUILayer( CHud::HUDRENDERSTAGE_PRE_BARS, view );
+			render->PopView( GetFrustum() );
+			UpdateScreenEffectTexture( 0, view.x, view.y, view.width, view.height );
+		}
+
+		if ( !bBuildingCubemaps )
+		{
+			DrawOverlaysForMode( CScreenoverlayMulti::RENDERMODE_POST_POSTPROCESSING,
+				view.x, view.y, view.width, view.height );
+
+			if ( whatToDraw & RENDERVIEW_DRAWHUD )
+				DrawBarsAndGrain( view.x, view.y, view.width, view.height );
+		}
+		// END GSTRINGMIGRATION
 
 		CleanupMain3DView( view );
 
@@ -2160,149 +2455,16 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 
 	Render2DEffectsPreHUD( view );
 
+	// GSTRINGMIGRATION
 	if ( whatToDraw & RENDERVIEW_DRAWHUD )
-	{
-		VPROF_BUDGET( "VGui_DrawHud", VPROF_BUDGETGROUP_OTHER_VGUI );
-		int viewWidth = view.m_nUnscaledWidth;
-		int viewHeight = view.m_nUnscaledHeight;
-		int viewActualWidth = view.m_nUnscaledWidth;
-		int viewActualHeight = view.m_nUnscaledHeight;
-		int viewX = view.m_nUnscaledX;
-		int viewY = view.m_nUnscaledY;
-		int viewFramebufferX = 0;
-		int viewFramebufferY = 0;
-		int viewFramebufferWidth = viewWidth;
-		int viewFramebufferHeight = viewHeight;
-		bool bClear = false;
-		bool bPaintMainMenu = false;
-		ITexture *pTexture = NULL;
-		if( UseVR() )
-		{
-			if( g_ClientVirtualReality.ShouldRenderHUDInWorld() )
-			{
-				pTexture = materials->FindTexture( "_rt_gui", NULL, false );
-				if( pTexture )
-				{
-					bPaintMainMenu = true;
-					bClear = true;
-					viewX = 0;
-					viewY = 0;
-					viewActualWidth = pTexture->GetActualWidth();
-					viewActualHeight = pTexture->GetActualHeight();
-
-					vgui::surface()->GetScreenSize( viewWidth, viewHeight );
-
-					viewFramebufferX = view.m_eStereoEye == STEREO_EYE_RIGHT ? viewFramebufferWidth : 0;
-					viewFramebufferY = 0;
-				}
-			}
-			else
-			{
-				viewFramebufferX = view.m_eStereoEye == STEREO_EYE_RIGHT ? viewWidth : 0;
-				viewFramebufferY = 0;
-			}
-		}
-
-		// Get the render context out of materials to avoid some debug stuff.
-		// WARNING THIS REQUIRES THE .SafeRelease below or it'll never release the ref
-		pRenderContext = materials->GetRenderContext();
-
-		// clear depth in the backbuffer before we push the render target
-		if( bClear )
-		{
-			pRenderContext->ClearBuffers( false, true, true );
-		}
-
-		// constrain where VGUI can render to the view
-		pRenderContext->PushRenderTargetAndViewport( pTexture, NULL, viewX, viewY, viewActualWidth, viewActualHeight );
-		// If drawing off-screen, force alpha for that pass
-		if (pTexture)
-		{
-			pRenderContext->OverrideAlphaWriteEnable( true, true );
-		}
-
-		// let vgui know where to render stuff for the forced-to-framebuffer panels
-		if( UseVR() )
-		{
-			vgui::surface()->SetFullscreenViewport( viewFramebufferX, viewFramebufferY, viewFramebufferWidth, viewFramebufferHeight );
-		}
-
-		// clear the render target if we need to
-		if( bClear )
-		{
-			pRenderContext->ClearColor4ub( 0, 0, 0, 0 );
-			pRenderContext->ClearBuffers( true, false );
-		}
-		pRenderContext.SafeRelease();
-
-		tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "VGui_DrawHud", __FUNCTION__ );
-
-		// paint the vgui screen
-		VGui_PreRender();
-
-		// Make sure the client .dll root panel is at the proper point before doing the "SolveTraverse" calls
-		vgui::VPANEL root = enginevgui->GetPanel( PANEL_CLIENTDLL );
-		if ( root != 0 )
-		{
-			vgui::ipanel()->SetSize( root, viewWidth, viewHeight );
-		}
-		// Same for client .dll tools
-		root = enginevgui->GetPanel( PANEL_CLIENTDLL_TOOLS );
-		if ( root != 0 )
-		{
-			vgui::ipanel()->SetSize( root, viewWidth, viewHeight );
-		}
-
-		// The crosshair, etc. needs to get at the current setup stuff
-		AllowCurrentViewAccess( true );
-
-		// Draw the in-game stuff based on the actual viewport being used
-		render->VGui_Paint( PAINT_INGAMEPANELS );
-
-		// maybe paint the main menu and cursor too if we're in stereo hud mode
-		if( bPaintMainMenu )
-			render->VGui_Paint( PAINT_UIPANELS | PAINT_CURSOR );
-
-		AllowCurrentViewAccess( false );
-
-		VGui_PostRender();
-
-		g_pClientMode->PostRenderVGui();
-		pRenderContext = materials->GetRenderContext();
-		if (pTexture)
-		{
-			pRenderContext->OverrideAlphaWriteEnable( false, true );
-		}
-		pRenderContext->PopRenderTargetAndViewport();
-
-		if ( UseVR() )
-		{
-			// figure out if we really want to draw the HUD based on freeze cam
-			C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-			bool bInFreezeCam = ( pPlayer && pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM );
-
-			// draw the HUD after the view model so its "I'm closer" depth queues work right.
-			if( !bInFreezeCam && g_ClientVirtualReality.ShouldRenderHUDInWorld() )
-			{
-				// Now we've rendered the HUD to its texture, actually get it on the screen.
-				// Since we're drawing it as a 3D object, we need correctly set up frustum, etc.
-				int ClearFlags = 0;
-				SetupMain3DView( view, ClearFlags );
-
-				// TODO - a bit of a shonky test - basically trying to catch the main menu, the briefing screen, the loadout screen, etc.
-				bool bTranslucent = !g_pMatSystemSurface->IsCursorVisible();
-				g_ClientVirtualReality.RenderHUDQuad( g_pClientMode->ShouldBlackoutAroundHUD(), bTranslucent );
-				CleanupMain3DView( view );
-			}
-		}
-
-		pRenderContext->Flush();
-		pRenderContext.SafeRelease();
-	}
+		DrawVGUILayer( CHud::HUDRENDERSTAGE_DEFAULT_HUD, view );
+	// END GSTRINGMIGRATION
 
 	CDebugViewRender::Draw2DDebuggingInfo( view );
 
 	Render2DEffectsPostHUD( view );
+
+	DrawDesaturation(); // GSTRINGMIGRATION
 
 	g_bRenderingView = false;
 
@@ -4394,88 +4556,93 @@ void CRendering3dView::DrawTranslucentRenderables( bool bInSkybox, bool bShadowD
 // 	bool bClipSkybox = (nFlags & DF_CLIP_SKYBOX ) != 0;
 	unsigned long nEngineDrawFlags = BuildEngineDrawWorldListFlags( m_DrawFlags & ~DF_DRAWSKYBOX );
 
-	DetailObjectSystem()->BeginTranslucentDetailRendering();
-
-	if ( m_pMainView->ShouldDrawEntities() && r_drawtranslucentrenderables.GetBool() )
+	if ( cvar_gstring_drawdetailpropsfirst.GetBool() )
 	{
-		MDLCACHE_CRITICAL_SECTION();
-		// Draw the particle singletons.
-		DrawParticleSingletons( bInSkybox );
+		// GSTRINGMIGRATION
+		// draw details props BEFORE every other translucent renderable
 
-		CClientRenderablesList::CEntry *pEntities = m_pRenderablesList->m_RenderGroups[RENDER_GROUP_TRANSLUCENT_ENTITY];
-		int iCurTranslucentEntity = m_pRenderablesList->m_RenderGroupCounts[RENDER_GROUP_TRANSLUCENT_ENTITY] - 1;
+		DetailObjectSystem()->BeginTranslucentDetailRendering();
 
-		bool bRenderingWaterRenderTargets = m_DrawFlags & ( DF_RENDER_REFRACTION | DF_RENDER_REFLECTION );
-
-		while( iCurTranslucentEntity >= 0 )
+		if ( m_pMainView->ShouldDrawEntities() && r_drawtranslucentrenderables.GetBool() )
 		{
-			// Seek the current leaf up to our current translucent-entity leaf.
-			int iThisLeaf = pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf;
+			MDLCACHE_CRITICAL_SECTION();
+			// Draw the particle singletons.
+			//DrawParticleSingletons( bInSkybox );
 
-			// First draw the translucent parts of the world up to and including those in this leaf
-			DrawTranslucentWorldAndDetailPropsInLeaves( iPrevLeaf, iThisLeaf, nEngineDrawFlags, nDetailLeafCount, pDetailLeafList, bShadowDepth );
+			CClientRenderablesList::CEntry *pEntities = m_pRenderablesList->m_RenderGroups[RENDER_GROUP_TRANSLUCENT_ENTITY];
+			int iCurTranslucentEntity = m_pRenderablesList->m_RenderGroupCounts[RENDER_GROUP_TRANSLUCENT_ENTITY] - 1;
 
-			// We're traversing the leaf list backwards to get the appropriate sort ordering (back to front)
-			iPrevLeaf = iThisLeaf - 1;
-
-			// Draw all the translucent entities with this leaf.
-			int nLeaf = info.m_pLeafList[iThisLeaf];
-
-			bool bDrawDetailProps = ClientLeafSystem()->ShouldDrawDetailObjectsInLeaf( nLeaf, m_pMainView->BuildWorldListsNumber() );
-			if ( bDrawDetailProps )
+			while( iCurTranslucentEntity >= 0 )
 			{
-				// Draw detail props up to but not including this leaf
-				Assert( nDetailLeafCount > 0 ); 
-				--nDetailLeafCount;
-				Assert( pDetailLeafList[nDetailLeafCount] == nLeaf );
-				DetailObjectSystem()->RenderTranslucentDetailObjects( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nDetailLeafCount, pDetailLeafList );
+				// Seek the current leaf up to our current translucent-entity leaf.
+				int iThisLeaf = pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf;
 
-				// Draw translucent renderables in the leaf interspersed with detail props
-				for( ;pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf == iThisLeaf && iCurTranslucentEntity >= 0; --iCurTranslucentEntity )
+				// First draw the translucent parts of the world up to and including those in this leaf
+				DrawTranslucentWorldAndDetailPropsInLeaves( iPrevLeaf, iThisLeaf, nEngineDrawFlags, nDetailLeafCount, pDetailLeafList, bShadowDepth );
+
+				// We're traversing the leaf list backwards to get the appropriate sort ordering (back to front)
+				iPrevLeaf = iThisLeaf - 1;
+
+				// Draw all the translucent entities with this leaf.
+				int nLeaf = info.m_pLeafList[iThisLeaf];
+
+				bool bDrawDetailProps = ClientLeafSystem()->ShouldDrawDetailObjectsInLeaf( nLeaf, m_pMainView->BuildWorldListsNumber() );
+				if ( bDrawDetailProps )
 				{
-					IClientRenderable *pRenderable = pEntities[iCurTranslucentEntity].m_pRenderable;
+					// Draw detail props up to but not including this leaf
+					Assert( nDetailLeafCount > 0 ); 
+					--nDetailLeafCount;
+					Assert( pDetailLeafList[nDetailLeafCount] == nLeaf );
+					DetailObjectSystem()->RenderTranslucentDetailObjects( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nDetailLeafCount, pDetailLeafList );
 
-					// Draw any detail props in this leaf that's farther than the entity
-					const Vector &vecRenderOrigin = pRenderable->GetRenderOrigin();
-					DetailObjectSystem()->RenderTranslucentDetailObjectsInLeaf( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nLeaf, &vecRenderOrigin );
-
-					bool bUsesPowerOfTwoFB = pRenderable->UsesPowerOfTwoFrameBufferTexture();
-					bool bUsesFullFB       = pRenderable->UsesFullFrameBufferTexture();
-
-					if ( ( bUsesPowerOfTwoFB || bUsesFullFB )&& !bShadowDepth )
+					// Draw translucent renderables in the leaf interspersed with detail props
+					for( ;pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf == iThisLeaf && iCurTranslucentEntity >= 0; --iCurTranslucentEntity )
 					{
-						if( bRenderingWaterRenderTargets )
-						{
-							continue;
-						}
-
-						CMatRenderContextPtr pRenderContext( materials );
-						ITexture *rt = pRenderContext->GetRenderTarget();
-
-						if ( rt && bUsesFullFB )
-						{
-							UpdateScreenEffectTexture( 0, 0, 0, rt->GetActualWidth(), rt->GetActualHeight(), true );
-						}
-						else if ( bUsesPowerOfTwoFB )
-						{
-							UpdateRefractTexture();
-						}
-
-						pRenderContext.SafeRelease();
 					}
 
-					// Then draw the translucent renderable
-					DrawTranslucentRenderable( pRenderable, (pEntities[iCurTranslucentEntity].m_TwoPass != 0), bShadowDepth, false );
+					// Draw all remaining props in this leaf
+					DetailObjectSystem()->RenderTranslucentDetailObjectsInLeaf( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nLeaf, NULL );
+				}
+				else
+				{
+					// Draw queued up detail props (we know that the list of detail leaves won't include this leaf, since ShouldDrawDetailObjectsInLeaf is false)
+					// Therefore no fixup on nDetailLeafCount is required as in the above section
+					DetailObjectSystem()->RenderTranslucentDetailObjects( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nDetailLeafCount, pDetailLeafList );
+
+					for( ;pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf == iThisLeaf && iCurTranslucentEntity >= 0; --iCurTranslucentEntity )
+					{
+					}
 				}
 
-				// Draw all remaining props in this leaf
-				DetailObjectSystem()->RenderTranslucentDetailObjectsInLeaf( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nLeaf, NULL );
+				nDetailLeafCount = 0;
 			}
-			else
+		}
+
+		// Draw the rest of the surfaces in world leaves
+		DrawTranslucentWorldAndDetailPropsInLeaves( iPrevLeaf, 0, nEngineDrawFlags, nDetailLeafCount, pDetailLeafList, bShadowDepth );
+
+		// Draw any queued-up detail props from previously visited leaves
+		DetailObjectSystem()->RenderTranslucentDetailObjects( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nDetailLeafCount, pDetailLeafList );
+
+		// now all translucents that AREN'T detailprops
+		if ( m_pMainView->ShouldDrawEntities() && r_drawtranslucentrenderables.GetBool() )
+		{
+			MDLCACHE_CRITICAL_SECTION();
+			// Draw the particle singletons.
+			DrawParticleSingletons( bInSkybox );
+
+			CClientRenderablesList::CEntry *pEntities = m_pRenderablesList->m_RenderGroups[RENDER_GROUP_TRANSLUCENT_ENTITY];
+			int iCurTranslucentEntity = m_pRenderablesList->m_RenderGroupCounts[RENDER_GROUP_TRANSLUCENT_ENTITY] - 1;
+
+			bool bRenderingWaterRenderTargets = m_DrawFlags & ( DF_RENDER_REFRACTION | DF_RENDER_REFLECTION );
+
+			while( iCurTranslucentEntity >= 0 )
 			{
-				// Draw queued up detail props (we know that the list of detail leaves won't include this leaf, since ShouldDrawDetailObjectsInLeaf is false)
-				// Therefore no fixup on nDetailLeafCount is required as in the above section
-				DetailObjectSystem()->RenderTranslucentDetailObjects( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nDetailLeafCount, pDetailLeafList );
+				// Seek the current leaf up to our current translucent-entity leaf.
+				int iThisLeaf = pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf;
+
+				// We're traversing the leaf list backwards to get the appropriate sort ordering (back to front)
+				iPrevLeaf = iThisLeaf - 1;
 
 				for( ;pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf == iThisLeaf && iCurTranslucentEntity >= 0; --iCurTranslucentEntity )
 				{
@@ -4518,17 +4685,150 @@ void CRendering3dView::DrawTranslucentRenderables( bool bInSkybox, bool bShadowD
 
 					DrawTranslucentRenderable( pRenderable, (pEntities[iCurTranslucentEntity].m_TwoPass != 0), bShadowDepth, false );
 				}
+
+				nDetailLeafCount = 0;
 			}
-
-			nDetailLeafCount = 0;
 		}
+		// END GSTRINGMIGRATION
 	}
+	else
+	{
+		DetailObjectSystem()->BeginTranslucentDetailRendering();
 
-	// Draw the rest of the surfaces in world leaves
-	DrawTranslucentWorldAndDetailPropsInLeaves( iPrevLeaf, 0, nEngineDrawFlags, nDetailLeafCount, pDetailLeafList, bShadowDepth );
+		if ( m_pMainView->ShouldDrawEntities() && r_drawtranslucentrenderables.GetBool() )
+		{
+			MDLCACHE_CRITICAL_SECTION();
+			// Draw the particle singletons.
+			DrawParticleSingletons( bInSkybox );
 
-	// Draw any queued-up detail props from previously visited leaves
-	DetailObjectSystem()->RenderTranslucentDetailObjects( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nDetailLeafCount, pDetailLeafList );
+			CClientRenderablesList::CEntry *pEntities = m_pRenderablesList->m_RenderGroups[RENDER_GROUP_TRANSLUCENT_ENTITY];
+			int iCurTranslucentEntity = m_pRenderablesList->m_RenderGroupCounts[RENDER_GROUP_TRANSLUCENT_ENTITY] - 1;
+
+			bool bRenderingWaterRenderTargets = m_DrawFlags & ( DF_RENDER_REFRACTION | DF_RENDER_REFLECTION );
+
+			while( iCurTranslucentEntity >= 0 )
+			{
+				// Seek the current leaf up to our current translucent-entity leaf.
+				int iThisLeaf = pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf;
+
+				// First draw the translucent parts of the world up to and including those in this leaf
+				DrawTranslucentWorldAndDetailPropsInLeaves( iPrevLeaf, iThisLeaf, nEngineDrawFlags, nDetailLeafCount, pDetailLeafList, bShadowDepth );
+
+				// We're traversing the leaf list backwards to get the appropriate sort ordering (back to front)
+				iPrevLeaf = iThisLeaf - 1;
+
+				// Draw all the translucent entities with this leaf.
+				int nLeaf = info.m_pLeafList[iThisLeaf];
+
+				bool bDrawDetailProps = ClientLeafSystem()->ShouldDrawDetailObjectsInLeaf( nLeaf, m_pMainView->BuildWorldListsNumber() );
+				if ( bDrawDetailProps )
+				{
+					// Draw detail props up to but not including this leaf
+					Assert( nDetailLeafCount > 0 ); 
+					--nDetailLeafCount;
+					Assert( pDetailLeafList[nDetailLeafCount] == nLeaf );
+					DetailObjectSystem()->RenderTranslucentDetailObjects( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nDetailLeafCount, pDetailLeafList );
+
+					// Draw translucent renderables in the leaf interspersed with detail props
+					for( ;pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf == iThisLeaf && iCurTranslucentEntity >= 0; --iCurTranslucentEntity )
+					{
+						IClientRenderable *pRenderable = pEntities[iCurTranslucentEntity].m_pRenderable;
+
+						// Draw any detail props in this leaf that's farther than the entity
+						const Vector &vecRenderOrigin = pRenderable->GetRenderOrigin();
+						DetailObjectSystem()->RenderTranslucentDetailObjectsInLeaf( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nLeaf, &vecRenderOrigin );
+
+						bool bUsesPowerOfTwoFB = pRenderable->UsesPowerOfTwoFrameBufferTexture();
+						bool bUsesFullFB       = pRenderable->UsesFullFrameBufferTexture();
+
+						if ( ( bUsesPowerOfTwoFB || bUsesFullFB )&& !bShadowDepth )
+						{
+							if( bRenderingWaterRenderTargets )
+							{
+								continue;
+							}
+
+							CMatRenderContextPtr pRenderContext( materials );
+							ITexture *rt = pRenderContext->GetRenderTarget();
+
+							if ( rt && bUsesFullFB )
+							{
+								UpdateScreenEffectTexture( 0, 0, 0, rt->GetActualWidth(), rt->GetActualHeight(), true );
+							}
+							else if ( bUsesPowerOfTwoFB )
+							{
+								UpdateRefractTexture();
+							}
+
+							pRenderContext.SafeRelease();
+						}
+
+						// Then draw the translucent renderable
+						DrawTranslucentRenderable( pRenderable, (pEntities[iCurTranslucentEntity].m_TwoPass != 0), bShadowDepth, false );
+					}
+
+					// Draw all remaining props in this leaf
+					DetailObjectSystem()->RenderTranslucentDetailObjectsInLeaf( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nLeaf, NULL );
+				}
+				else
+				{
+					// Draw queued up detail props (we know that the list of detail leaves won't include this leaf, since ShouldDrawDetailObjectsInLeaf is false)
+					// Therefore no fixup on nDetailLeafCount is required as in the above section
+					DetailObjectSystem()->RenderTranslucentDetailObjects( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nDetailLeafCount, pDetailLeafList );
+
+					for( ;pEntities[iCurTranslucentEntity].m_iWorldListInfoLeaf == iThisLeaf && iCurTranslucentEntity >= 0; --iCurTranslucentEntity )
+					{
+						IClientRenderable *pRenderable = pEntities[iCurTranslucentEntity].m_pRenderable;
+
+						bool bUsesPowerOfTwoFB = pRenderable->UsesPowerOfTwoFrameBufferTexture();
+						bool bUsesFullFB       = pRenderable->UsesFullFrameBufferTexture();
+
+						if ( ( bUsesPowerOfTwoFB || bUsesFullFB )&& !bShadowDepth )
+						{
+							if( bRenderingWaterRenderTargets )
+							{
+								continue;
+							}
+
+							CMatRenderContextPtr pRenderContext( materials );
+							ITexture *rt = pRenderContext->GetRenderTarget();
+
+							if ( rt )
+							{
+								if ( bUsesFullFB )
+								{
+									UpdateScreenEffectTexture( 0, 0, 0, rt->GetActualWidth(), rt->GetActualHeight(), true );
+								}
+								else if ( bUsesPowerOfTwoFB )
+								{
+									UpdateRefractTexture(0, 0, rt->GetActualWidth(), rt->GetActualHeight());
+								}
+							}
+							else
+							{
+								if ( bUsesPowerOfTwoFB )
+								{
+									UpdateRefractTexture();
+								}
+							}
+
+							pRenderContext.SafeRelease();
+						}
+
+						DrawTranslucentRenderable( pRenderable, (pEntities[iCurTranslucentEntity].m_TwoPass != 0), bShadowDepth, false );
+					}
+				}
+
+				nDetailLeafCount = 0;
+			}
+		}
+
+		// Draw the rest of the surfaces in world leaves
+		DrawTranslucentWorldAndDetailPropsInLeaves( iPrevLeaf, 0, nEngineDrawFlags, nDetailLeafCount, pDetailLeafList, bShadowDepth );
+
+		// Draw any queued-up detail props from previously visited leaves
+		DetailObjectSystem()->RenderTranslucentDetailObjects( CurrentViewOrigin(), CurrentViewForward(), CurrentViewRight(), CurrentViewUp(), nDetailLeafCount, pDetailLeafList );
+	}
 
 	// Reset the blend state.
 	render->SetBlend( 1 );
@@ -5866,7 +6166,9 @@ void CAboveWaterView::CRefractionView::Setup()
 	m_ClearFlags = VIEW_CLEAR_COLOR | VIEW_CLEAR_DEPTH;
 
 	m_DrawFlags = DF_RENDER_REFRACTION | DF_CLIP_Z | 
-		DF_RENDER_UNDERWATER | DF_FUDGE_UP | 
+		// GSTRINGMIGRATION draw stuff above water to get rid of that ugly edge
+		// let z clipping do the rest
+		DF_RENDER_UNDERWATER | DF_FUDGE_UP | DF_RENDER_ABOVEWATER |
 		DF_DRAW_ENTITITES ;
 }
 

@@ -10,6 +10,9 @@
 
 #include "common_ps_fxc.h"
 
+#if defined(SHADER_MODEL_PS_3_0)
+#define NEW_SHADOW_FILTERS // Comment if you want to enable retail shadow filter.
+#endif
 
 // JasonM - TODO: remove this simpleton version
 float DoShadow( sampler DepthSampler, float4 texCoord )
@@ -100,11 +103,15 @@ float DoShadowNvidiaCheap( sampler DepthSampler, const float4 shadowMapPos )
 	return dot(vTaps, float4(0.25, 0.25, 0.25, 0.25));
 }
 
+#if defined( NEW_SHADOW_FILTERS )
+float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float3 shadowMapPos )
+#else
 float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float4 shadowMapPos )
+#endif
 {
-	float fTexelEpsilon = 1.0f / 1024.0f;
+	float fTexelEpsilon = 1.0f / 512.0f;
 
-	float ooW = 1.0f / shadowMapPos.w;								// 1 / w
+	float ooW = 1.0f; //1.0f / shadowMapPos.w;								// 1 / w
 	float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
 
 	float2 shadowMapCenter = shadowMapCenter_objDepth.xy;			// Center of shadow filter
@@ -138,13 +145,23 @@ float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float4 shadowMapPos )
 //	4	20	33	20	4
 //	1	4	7	4	1
 //
+#if defined( NEW_SHADOW_FILTERS )
+float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float3 shadowMapPos )
+#else
 float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float4 shadowMapPos )
+#endif
 {
 	float fEpsilon    = 1.0f / 512.0f;
 	float fTwoEpsilon = 2.0f * fEpsilon;
 
+#if defined( NEW_SHADOW_FILTERS )	
+	// I guess we don't need this one.
+	// float ooW = 1.0f / shadowMapPos.w;							// 1 / w
+	float3 shadowMapCenter_objDepth = shadowMapPos;					// Do both projections at once
+#else
 	float ooW = 1.0f / shadowMapPos.w;								// 1 / w
 	float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
+#endif
 
 	float2 shadowMapCenter = shadowMapCenter_objDepth.xy;			// Center of shadow filter
 	float objDepth = shadowMapCenter_objDepth.z;					// Object depth in shadow space
@@ -601,7 +618,12 @@ float DoFlashlightShadow( sampler DepthSampler, sampler RandomRotationSampler, f
 
 #if !defined( _X360 ) //PC
 	if( nShadowLevel == NVIDIA_PCF_POISSON )
+#if defined( NEW_SHADOW_FILTERS )	
+		// Let's replace noise filter with gaussian blur, like in Portal 2.
+		flShadow = DoShadowNvidiaPCF5x5Gaussian( DepthSampler, vProjCoords );
+#else
 		flShadow = DoShadowPoisson16Sample( DepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, vShadowTweaks, true, false );
+#endif	
 	else if( nShadowLevel == ATI_NOPCF )
 		flShadow = DoShadowPoisson16Sample( DepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, vShadowTweaks, false, false );
 	else if( nShadowLevel == ATI_NO_PCF_FETCH4 )
