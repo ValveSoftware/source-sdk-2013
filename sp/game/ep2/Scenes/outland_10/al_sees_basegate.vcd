@@ -1,0 +1,49 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Debug text"
+  {
+    event speak "this is it, we made it!"
+    {
+      time 0.776115 2.280129
+      param "ep_02.al_silo_wemadeit01"
+      param2 "0.500"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look at base_gate_model"
+    {
+      time 0.000000 2.632653
+      param "base_gate_model"
+      event_ramp
+      {
+        0.3780 1.0000
+        2.1329 0.9944
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "98"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,99 @@
+// Choreo version 1
+event loop "loop"
+{
+  time 30.693335 -1.000000
+  param "0.000000"
+  loopcount "-1"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look_player"
+    {
+      time 0.053333 4.099999
+      param "!player"
+      event_ramp
+      {
+        0.2885 0.8439
+        3.4505 0.7100
+      }
+    }
+    event lookat "look_dog"
+    {
+      time 25.093332 31.219999
+      param "dog"
+      event_ramp
+      {
+        0.5885 0.5224
+        2.5731 0.6971
+        4.4154 0.6210
+        5.5305 0.7100
+      }
+    }
+    event lookat "look_player"
+    {
+      time 14.293333 25.219997
+      param "!player"
+      event_ramp
+      {
+        0.3693 0.5596
+        0.8731 0.6007
+        3.2538 0.6684
+        3.3615 0.6024
+        5.5346 0.4958
+        7.0423 0.8917
+        8.1615 0.9036
+        9.3885 0.7225
+        9.6115 0.3993
+        10.2728 0.3039
+        10.6308 0.3046
+      }
+    }
+    event lookat "look_dog"
+    {
+      time 3.893332 10.019999
+      param "dog"
+      event_ramp
+      {
+        0.5885 0.5224
+        2.5731 0.6971
+        4.4154 0.6210
+        5.5305 0.7100
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

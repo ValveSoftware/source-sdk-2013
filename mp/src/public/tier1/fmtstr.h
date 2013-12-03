@@ -18,6 +18,9 @@
 #if defined( _WIN32 )
 #pragma once
 #endif
+#if defined(POSIX)
+#pragma GCC visibility push(hidden)
+#endif
 
 //=============================================================================
 
@@ -28,7 +31,7 @@
 		int     result; \
 		va_list arg_ptr; \
 		bool bTruncated = false; \
-		static int scAsserted = 0; \
+		static unsigned int scAsserted = 0; \
 	\
 		va_start(arg_ptr, lastArg); \
 		result = Q_vsnprintfRet( (szBuf), nBufSize, (*(ppszFormat)), arg_ptr, &bTruncated ); \
@@ -115,7 +118,7 @@ public:
 		m_nLength = 0; 
 	}
 
-	void AppendFormat( PRINTF_FORMAT_STRING const char *pchFormat, ... ) 
+	void AppendFormat(PRINTF_FORMAT_STRING const char *pchFormat, ... ) FMTFUNCTION( 2, 3 )
 	{ 
 		char *pchEnd = m_szBuf + m_nLength; 
 		FmtStrVSNPrintf( pchEnd, SIZE_BUF - m_nLength, m_bQuietTruncation, &pchFormat, m_nLength, pchFormat ); 
@@ -173,6 +176,10 @@ void CFmtStrN<SIZE_BUF>::AppendFormatV( const char *pchFormat, va_list args )
 	m_nLength += cubPrinted;
 }
 
+
+#if defined(POSIX)
+#pragma GCC visibility pop
+#endif
 
 //-----------------------------------------------------------------------------
 //

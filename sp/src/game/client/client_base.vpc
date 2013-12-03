@@ -44,14 +44,18 @@ $Configuration	"Release"
 
 $Configuration
 {
+	$General
+	{
+			$OutputDirectory			".\$GAMENAME"		[$OSXALL]
+	}
+
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	".\;$BASE;$SRCDIR\vgui2\include;$SRCDIR\vgui2\controls;$SRCDIR\game\shared;.\game_controls;$SRCDIR\thirdparty\sixensesdk\include"
 		$PreprocessorDefinitions		"$BASE;NO_STRING_T;CLIENT_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead" 
 		$PreprocessorDefinitions		"$BASE;ENABLE_CHROMEHTMLWINDOW;fopen=dont_use_fopen" [$WIN32]
 		$PreprocessorDefinitions		"$BASE;ENABLE_CHROMEHTMLWINDOW;" [$OSXALL]
-		$PreprocessorDefinitions		"$BASE;ENABLE_CHROMEHTMLWINDOW;" [$LINUX]
-		$PreprocessorDefinitions		"$BASE;USE_WEBM_FOR_REPLAY" [$LINUX]
+		$PreprocessorDefinitions		"$BASE;ENABLE_CHROMEHTMLWINDOW;USE_WEBM_FOR_REPLAY;" [$LINUXALL]
 		$PreprocessorDefinitions		"$BASE;CURL_STATICLIB" [$WIN32 && $BUILD_REPLAY]
 		$Create/UsePrecompiledHeader	"Use Precompiled Header (/Yu)"
 		$Create/UsePCHThroughFile		"cbase.h"
@@ -1232,55 +1236,7 @@ $Project
 		$File	"game_controls\IconPanel.h"
 	}
 	
-	$Folder	"Link Libraries" [$WIN32]
-	{
-		$DynamicFile	"$SRCDIR\lib\public\bitmap.lib"
-		$DynamicFile	"$SRCDIR\lib\public\choreoobjects.lib"
-		$DynamicFile	"$SRCDIR\lib\public\dmxloader.lib"
-		$DynamicFile	"$SRCDIR\lib\public\mathlib.lib"
-		$DynamicFile	"$SRCDIR\lib\public\matsys_controls.lib"
-		$DynamicFile	"$SRCDIR\lib\public\particles.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier1.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier2.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier3.lib"
-		$DynamicFile	"$SRCDIR\lib\public\vgui_controls.lib"
-		$DynamicFile	"$SRCDIR\lib\public\steam_api.lib"
-		$DynamicFile	"$SRCDIR\lib\public\vtf.lib"
-		$DynamicFile	"$SRCDIR\lib\win32\release\libcurl.lib"	[$BUILD_REPLAY]
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$DynamicFile	"$SRCDIR\lib\public\bitmap_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\choreoobjects_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\dmxloader_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\mathlib_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\matsys_controls_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\particles_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier1_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier2_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier3_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\vgui_controls_360.lib"
-	}
-	
-	$Folder	"Link Libraries" [$POSIX && !$LINUX]
-	{
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\libcurl$_IMPLIB_EXT"	
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\bitmap$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\choreoobjects$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\dmxloader$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\mathlib$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\matsys_controls$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\particles$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\tier1$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\tier2$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\tier3$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\vgui_controls$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXsteam_api$_IMPLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\vtf$_STATICLIB_EXT" 
- 	}
-
-	$Folder	"Link Libraries" [$LINUX]
+	$Folder	"Link Libraries"
 	{
 		$Lib		bitmap
 		$Lib		choreoobjects
@@ -1292,12 +1248,20 @@ $Project
 		$Lib		tier2
 		$Lib		tier3
 		$Lib		vgui_controls
-		$Lib		vtf 
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXsteam_api$_IMPLIB_EXT"
-		$DynamicFile	"$SRCDIR/lib/linux32/libcurl$_STATICLIB_EXT" [$DEDICATED]
-		$DynamicFile	"$SRCDIR/lib/linux32/libcurlssl$_STATICLIB_EXT" [!$DEDICATED]
-		$DynamicFile	"$SRCDIR/lib/linux32/libssl$_STATICLIB_EXT" [!$DEDICATED]
-		$DynamicFile	"$SRCDIR/lib/linux32/release/libcrypto$_STATICLIB_EXT" [!$DEDICATED]
+		$Lib		vtf
+		$ImpLib		steam_api
+		
+		$Lib $LIBCOMMON/libcrypto [$POSIX]
+
+		$ImpLib	"$LIBCOMMON\curl"	  [$OSXALL]
+
+		$Lib	"$LIBCOMMON\libcurl" [$WIN32]
+		$Lib   "libz" [$WIN32]
+
+		$Libexternal	libz [$LINUXALL]
+		$Libexternal "$LIBCOMMON/libcurl" [$LINUXALL]
+		$Libexternal "$LIBCOMMON/libcurlssl" [$LINUXALL]
+		$Libexternal "$LIBCOMMON/libssl" [$LINUXALL]
  	}
 
 }

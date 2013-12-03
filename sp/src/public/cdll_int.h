@@ -566,6 +566,8 @@ public:
 	virtual bool IsActiveApp() = 0;
 
 	virtual void DisconnectInternal() = 0;
+
+	virtual int GetInstancesRunningCount( ) = 0;
 };
 
 

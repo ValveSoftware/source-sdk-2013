@@ -1,0 +1,80 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "ep_02.reb_cannon_thanks"
+    {
+      time 1.746032 4.710930
+      param "ep_02.reb_cannon_thanks"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.031746 5.880952
+      param "!player"
+      event_ramp
+      {
+        0.4900 0.9808 "curve_easein_to_curve_easeout"
+        5.2820 0.9744 "curve_easein_to_curve_easeout"
+      }
+    }
+  }
+  channel "faceto"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "postures"
+  {
+    event gesture "hg_chest_twistL"
+    {
+      time 0.067155 5.282294
+      param "hg_chest_twistL"
+      event_ramp
+      {
+        0.5280 1.0000 "curve_easein_to_curve_easeout"
+        4.4701 0.9786 "curve_easein_to_curve_easeout"
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.130806
+        "extreme" 0.222231
+        "loop" 0.368078
+        "end" 0.811263
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.465116
+        "extreme" 0.558140
+        "loop" 0.581395
+        "end" 0.697674
+      }
+      sequenceduration 1.466667
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\humans\group03\male_05.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "84"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "98"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

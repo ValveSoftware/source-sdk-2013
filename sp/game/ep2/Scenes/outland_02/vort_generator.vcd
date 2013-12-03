@@ -1,0 +1,735 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "vort_extract_injuriesdeep01"
+    {
+      time 11.250000 13.233923
+      param "ep_02.vort_extract_injuriesdeep01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_injuriesdeep02"
+    {
+      time 13.583333 17.597960
+      param "ep_02.vort_extract_injuriesdeep02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_werequire"
+    {
+      time 17.861111 22.283606
+      param "ep_02.vort_extract_werequire"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_journeydeep01"
+    {
+      time 28.111111 34.489796
+      param "ep_02.vort_extract_journeydeep01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_journeydeep02"
+    {
+      time 34.638889 37.422901
+      param "ep_02.vort_extract_journeydeep02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_joinmefm01"
+    {
+      time 41.416660 42.849949
+      param "ep_02.vort_extract_joinmefm01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_joinmefm02"
+    {
+      time 43.083332 43.928661
+      param "ep_02.vort_extract_joinmefm02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 40.683910 49.429241
+      param "!player"
+      event_ramp
+      {
+        0.6235 1.0000
+        8.0356 1.0000
+      }
+    }
+    event lookat "vort_calvary_1"
+    {
+      time 10.416667 21.444445
+      param "vort_calvary_1"
+      event_ramp
+      {
+        0.6250 1.0000
+        9.8861 1.0000
+      }
+    }
+    event lookat "vort_calvary_actor"
+    {
+      time 20.722223 28.916668
+      param "vort_calvary_actor"
+      event_ramp
+      {
+        0.7250 1.0000
+        7.0528 1.0000
+      }
+    }
+    event lookat "vort_calvary_1"
+    {
+      time 27.916668 37.583332
+      param "vort_calvary_1"
+      event_ramp
+      {
+        0.6250 1.0000
+        8.5250 1.0000
+      }
+    }
+    event lookat "vort_calvary_actor"
+    {
+      time 36.666668 41.000004
+      param "vort_calvary_actor"
+      event_ramp
+      {
+        0.7250 1.0000
+        3.1917 1.0000
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 41.007893 49.379875
+      param "!player"
+      event_ramp
+      {
+        0.7882 1.0000
+        7.5604 1.0000
+      }
+    }
+    event face "vort_calvary_1"
+    {
+      time 0.091225 41.574318
+      param "vort_calvary_1"
+      event_ramp
+      {
+        0.7882 1.0000
+        40.6715 1.0000
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 11.333333 15.355556
+      param "g_Accent_BothHands01"
+      absolutetags playback_time
+      {
+        "apex" 0.205801
+        "accent" 0.281343
+        "loop" 0.474394
+        "end" 0.600298
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.166667
+        "accent" 0.282051
+        "loop" 0.576923
+        "end" 0.769231
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "1"
+    {
+      time 15.027779 18.550001
+      param "g_palm_both"
+      absolutetags playback_time
+      {
+        "apex" 0.256976
+        "accent" 0.400752
+        "loop" 0.477433
+        "end" 0.717059
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153846
+        "accent" 0.346154
+        "loop" 0.448718
+        "end" 0.769231
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "1"
+    {
+      time 28.194445 31.288889
+      param "g_rightfist"
+      absolutetags playback_time
+      {
+        "apex" 0.270458
+        "accent" 0.509490
+        "loop" 0.531418
+        "end" 0.608169
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.196429
+        "accent" 0.464286
+        "loop" 0.500000
+        "end" 0.625000
+      }
+      sequenceduration 1.900000
+    }
+    event gesture "1"
+    {
+      time 30.805555 34.794441
+      param "g_refer_left"
+      absolutetags playback_time
+      {
+        "apex" 0.168759
+        "accent" 0.287270
+        "loop" 0.371920
+        "end" 0.638933
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.194805
+        "accent" 0.376623
+        "loop" 0.506494
+        "end" 0.636364
+      }
+      sequenceduration 2.600000
+    }
+    event gesture "1"
+    {
+      time 41.166668 46.411114
+      param "g_hold_hands"
+      absolutetags playback_time
+      {
+        "in" 0.237162
+        "loop" 0.435866
+        "end" 0.506374
+        "out" 0.765957
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.313559
+        "loop" 0.576271
+        "end" 0.669492
+        "out" 0.788136
+      }
+      sequenceduration 3.966667
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "lead to generator"
+    {
+      time 48.422218 -1.000000
+      param "2"
+    }
+    event firetrigger "move to player"
+    {
+      time 42.477776 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+actor "vort_calvary_actor"
+{
+  channel "audio"
+  {
+    event speak "vort_junc_exhausted"
+    {
+      time 0.316667 3.546939
+      param "ep_02.vort_junc_exhausted"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_junc_nextmatter"
+    {
+      time 3.816667 7.329842
+      param "ep_02.vort_junc_nextmatter"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_junc_thealyxvance"
+    {
+      time 7.533333 11.087958
+      param "ep_02.vort_junc_thealyxvance"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_agreed"
+    {
+      time 25.694445 27.669638
+      param "ep_02.vort_extract_agreed"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_wemustremain"
+    {
+      time 37.499996 40.865143
+      param "ep_02.vort_extract_wemustremain"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_extract_theextract"
+    {
+      time 23.138889 25.316463
+      param "ep_02.vort_extract_theextract02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_extract_theextract"
+    {
+      time 20.750000 22.468843
+      param "ep_02.vort_grp_agree03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_ahyes"
+    {
+      time 47.666664 49.533695
+      param "ep_02.vort_grp_agree07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_ahyes"
+    {
+      time 43.972221 45.620136
+      param "ep_02.vort_grp_agree05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "moveTo"
+  {
+    event gesture "1"
+    {
+      time 47.916668 49.883335
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.8375 0.4416
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "1"
+    {
+      time 21.083334 23.050001
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.8375 0.4416
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "1"
+    {
+      time 23.666668 26.300001
+      param "g_heal_lookup"
+      absolutetags playback_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "1"
+    {
+      time 44.000000 46.633335
+      param "g_heal_lookup"
+      absolutetags playback_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "faceTo"
+  {
+    event lookat "Vort"
+    {
+      time 0.138889 42.555557
+      param "Vort"
+      event_ramp
+      {
+        0.6091 1.0000
+        41.8050 1.0000
+      }
+    }
+    event lookat "!player"
+    {
+      time 42.083332 50.277779
+      param "!player"
+      event_ramp
+      {
+        0.8000 1.0000
+        7.1750 1.0000
+      }
+    }
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+actor "vort_calvary_1"
+{
+  channel "audio"
+  {
+    event speak "vort_extract_ahyes"
+    {
+      time 20.944445 23.163584
+      param "ep_02.vort_extract_ahyes"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_ahyes"
+    {
+      time 24.444445 26.092358
+      param "ep_02.vort_grp_agree05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_ahyes"
+    {
+      time 16.472221 17.777664
+      param "ep_02.vort_grp_agree06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_ahyes"
+    {
+      time 46.611107 47.842648
+      param "ep_02.vort_grp_agree01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "moveTo"
+  {
+    event gesture "1"
+    {
+      time 21.250000 23.216667
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.7500 0.4589
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "1"
+    {
+      time 16.527779 19.161112
+      param "g_heal_lookup"
+      absolutetags playback_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "1"
+    {
+      time 46.472221 49.105556
+      param "g_heal_lookup"
+      absolutetags playback_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "faceTo"
+  {
+    event lookat "Vort"
+    {
+      time 0.222222 42.472225
+      param "Vort"
+      event_ramp
+      {
+        0.5636 1.0000
+        41.6000 1.0000
+      }
+    }
+    event lookat "!player"
+    {
+      time 42.083332 50.777775
+      param "!player"
+      event_ramp
+      {
+        0.7500 1.0000
+        7.6250 1.0000
+      }
+    }
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+actor "vort_calvary_2"
+{
+  channel "audio"
+  {
+    event speak "vort_extract_theextract3"
+    {
+      time 22.277779 24.966169
+      param "ep_02.vort_extract_theextract03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_yescompanion01"
+    {
+      time 43.499992 45.091217
+      param "ep_02.vort_extract_yescompanion01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "vort_extract_yescompanion01"
+    {
+      time 45.444439 47.676365
+      param "ep_02.vort_extract_yescompanion02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_extract_theextract"
+    {
+      time 9.722222 11.441066
+      param "ep_02.vort_grp_agree03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "moveTo"
+  {
+    event gesture "1"
+    {
+      time 43.777779 45.744446
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.6750 0.5281
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "1"
+    {
+      time 9.777777 11.744444
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.6750 0.5281
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "1"
+    {
+      time 22.194447 24.827780
+      param "g_heal_lookup"
+      absolutetags playback_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.102564
+        "accent" 0.320513
+        "loop" 0.512821
+        "end" 0.705128
+      }
+      sequenceduration 2.633333
+    }
+  }
+  channel "faceTo"
+  {
+    event lookat "Vort"
+    {
+      time 0.388889 42.833336
+      param "Vort"
+      event_ramp
+      {
+        0.6273 1.0000
+        41.8763 1.0000
+      }
+    }
+    event lookat "!player"
+    {
+      time 42.444443 50.972221
+      param "!player"
+      event_ramp
+      {
+        0.8750 1.0000
+        7.5500 1.0000
+      }
+    }
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "24"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "22"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

@@ -56,7 +56,7 @@ public:
 	fieldtype_t FieldType( void ) { return fieldType; }
 
 	void SetBool( bool b ) { bVal = b; fieldType = FIELD_BOOLEAN; }
-	void SetString( char *str ) { Q_snprintf(iszVal, 1024, str); fieldType = FIELD_STRING; }
+	void SetString( char *str ) { Q_snprintf(iszVal, 1024, "%s", str); fieldType = FIELD_STRING; }
 	void SetInt( int val ) { iVal = val, fieldType = FIELD_INTEGER; }
 	void SetFloat( float val ) { flVal = val, fieldType = FIELD_FLOAT; }
 	void SetEdict( edict_t *val ) { eVal = val; fieldType = FIELD_EHANDLE; }

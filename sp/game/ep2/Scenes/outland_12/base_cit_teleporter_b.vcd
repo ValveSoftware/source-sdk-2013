@@ -1,0 +1,145 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "audio"
+  {
+  }
+  channel "lookat"
+  {
+    event lookat "Look at mark_tele1"
+    {
+      time 13.530304 22.469700
+      param "mark_tele1"
+    }
+    event lookat "Look at mark_tele2"
+    {
+      time 0.015152 13.500002
+      param "mark_tele2"
+    }
+    event lookat "Look at mark_tele2"
+    {
+      time 22.500000 31.348488
+      param "mark_tele2"
+    }
+  }
+  channel "faceto"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "postures"
+  {
+    event gesture "shiftright"
+    {
+      time 0.023809 9.458731
+      param "shiftright"
+      event_ramp
+      {
+        0.4040 0.9799
+        5.0741 0.9195 "curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x"
+        5.8112 0.0403
+        7.0459 0.0671
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.053536
+        "loop" 0.142762
+        "end" 0.793146
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153061
+        "loop" 0.408163
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "p_stepleft"
+    {
+      time 16.468254 24.993795
+      param "p_stepleft"
+      absolutetags playback_time
+      {
+        "apex" 0.158053
+        "loop" 0.253951
+        "end" 0.836590
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.348837
+        "loop" 0.511628
+        "end" 0.790698
+      }
+      sequenceduration 2.900000
+    }
+    event gesture "shiftright"
+    {
+      time 23.675325 29.822365
+      param "shiftright"
+      event_ramp
+      {
+        0.4040 0.9799
+        3.3059 0.9195
+        3.7580 0.0671
+        3.7861 0.0403
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.082171
+        "loop" 0.219121
+        "end" 0.810550
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153061
+        "loop" 0.408163
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "g_Pacer_ArmsCrossed"
+    {
+      time 9.658730 17.069839
+      param "g_Pacer_ArmsCrossed"
+      event_ramp
+      {
+        0.4940 0.9866
+        6.9088 0.9664
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.064228
+        "accent" 0.102765
+        "loop" 0.156288
+        "end" 0.919700
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.285714
+        "accent" 0.464286
+        "loop" 0.642857
+        "end" 0.892857
+      }
+      sequenceduration 0.966667
+    }
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\humans\group03\male_01.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "44"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

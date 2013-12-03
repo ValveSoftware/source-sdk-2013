@@ -1,0 +1,121 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_whydefendgarrison"
+    {
+      time 0.055556 3.050930
+      param "ep_01.al_whydefendgarrison"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_holdinginplace"
+    {
+      time 3.564815 5.695246
+      param "ep_01.al_holdinginplace"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_defyorders02"
+    {
+      time 8.759258 12.416401
+      param "ep_01.al_defyorders02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_defyorders01"
+    {
+      time 6.351851 8.740603
+      param "ep_01.al_defyorders01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "soldier_garrison_A"
+    {
+      time 0.138889 6.231481
+      param "soldier_garrison_A"
+      event_ramp
+      {
+        0.9200 0.9619
+        4.9900 0.9746
+      }
+    }
+    event lookat "!player"
+    {
+      time 8.500000 13.342591
+      param "!player"
+      event_ramp
+      {
+        0.5600 0.9778
+        4.5233 0.9175
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "soldier_garrison_A"
+    {
+      time 0.638889 3.194444
+      param "soldier_garrison_A"
+      event_ramp
+      {
+        1.9700 0.9810
+        2.5556 1.0000
+      }
+    }
+    event face "!player"
+    {
+      time 9.055554 9.962962
+      param "!player"
+      event_ramp
+      {
+        0.9074 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Body_gestures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "head flex"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "72"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

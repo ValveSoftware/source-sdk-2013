@@ -1,0 +1,23 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Audio"
+  {
+    event generic "Flip"
+    {
+      time 0.133333 2.020000
+      param "debugtext Alyx: Hey Gordon, flip the car over!"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

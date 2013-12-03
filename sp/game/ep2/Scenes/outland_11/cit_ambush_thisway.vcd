@@ -1,0 +1,147 @@
+// Choreo version 1
+event section "pause"
+{
+  time 4.775362 -1.000000
+  param "noaction"
+}
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "npc_citizen.startle01"
+    {
+      time 3.094203 3.583092
+      param "npc_citizen.startle01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.silo_reb_magsentyou"
+    {
+      time 1.260869 2.995041
+      param "ep_02.reb_silo_magsentyou"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.silo_reb_thruhere"
+    {
+      time 0.014492 1.139004
+      param "ep_02.reb_silo_thruhere"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.021739 0.855072
+      param "!player"
+      event_ramp
+      {
+        0.3310 0.9443
+        0.5723 0.9443
+      }
+    }
+    event lookat "mark_hunter_ambush_1"
+    {
+      time 3.702899 5.007247
+      param "mark_hunter_ambush_1"
+      event_ramp
+      {
+        0.3310 0.9443
+        1.0433 0.9443
+      }
+    }
+    event lookat "!player"
+    {
+      time 1.057971 3.246376
+      param "!player"
+      event_ramp
+      {
+        0.3310 0.9443
+        1.9274 0.9443
+      }
+    }
+    event lookat "hunter_ambush_door"
+    {
+      time 2.905797 3.985507
+      param "hunter_ambush_door"
+      event_ramp
+      {
+        0.3310 0.9443
+        0.8187 0.9443
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.014493 0.362319
+      param "!player"
+      event_ramp
+      {
+        0.0048 0.9833
+      }
+    }
+    event face "!player"
+    {
+      time 1.398551 3.326087
+      param "!player"
+      event_ramp
+      {
+        0.0762 0.2563
+        1.7593 0.2451
+      }
+    }
+    event face "hunter_ambush_door"
+    {
+      time 3.123189 3.905797
+      param "hunter_ambush_door"
+      event_ramp
+      {
+        0.0762 0.2535
+        0.6144 0.2423
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_cit_ambush_2"
+    {
+      time 0.028986 6.043478
+      param "mark_cit_ambush_2"
+      param2 "Run"
+      resumecondition
+      forceshortmovement
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "models\humans\group01\male_01.mdl"
+}
+
+mapname "maps\ep1_c17_00.bsp"
+scalesettings
+{
+  "CChoreoView" "92"
+  "SceneRampTool" "100"
+  "RampTool" "84"
+  "ExpressionTool" "66"
+  "GestureTool" "100"
+}
+fps 60
+snap off

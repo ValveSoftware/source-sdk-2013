@@ -1,0 +1,71 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 2.200000 -1.000000
+  param "noaction"
+}
+actor "!Target2"
+{
+  channel "audio"
+  {
+    event speak "Help!"
+    {
+      time 1.733335 2.200818
+      param "npc_citizen.help01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "hey, over here!"
+    {
+      time 0.355556 1.128753
+      param "npc_citizen.overhere01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 0.066666 3.722222
+      param "!player"
+      event_ramp
+      {
+        0.1600 0.9948
+        2.9345 0.9818
+      }
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "sequence"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

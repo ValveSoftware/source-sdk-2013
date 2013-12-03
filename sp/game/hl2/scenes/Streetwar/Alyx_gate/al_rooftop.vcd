@@ -1,0 +1,552 @@
+// Choreo version 1
+event section "gettobridge"
+{
+  time 9.756300 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "streetwar.al_hey"
+    {
+      time 3.358334 3.803413
+      param "streetwar.al_hey"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "streetwar.al_thrudownthere"
+    {
+      time 4.208333 6.616315
+      param "streetwar.al_thrudownthere"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "streetwar.al_thatway"
+    {
+      time 6.783334 8.030159
+      param "streetwar.al_thatway"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "streetwar.al_ahno"
+    {
+      time 8.091668 9.197133
+      param "streetwar.al_ahno"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "streetwar.al_gordonrun"
+    {
+      time 11.241670 13.326591
+      param "streetwar.al_gordonrun"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "npc_alyx.hurt08"
+    {
+      time 13.814815 14.341889
+      param "streetwar.al_uggh02"
+      param2 ".5"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 3.515447 8.264633
+      param "!player"
+      event_ramp
+      {
+        0.4606 0.7883
+        0.5485 0.8796
+        0.7000 0.9708
+        0.8777 1.0000
+        4.4750 1.0000
+        4.7491 1.0000
+      }
+    }
+    event lookat "mark_alyx_escape"
+    {
+      time 0.895528 3.869920
+      param "mark_alyx_escape"
+      event_ramp
+      {
+        0.7451 0.9936
+        2.9744 0.9979
+      }
+    }
+    event lookat "mark_alyx_offstage"
+    {
+      time 8.166260 9.893499
+      param "mark_alyx_offstage"
+      event_ramp
+      {
+        0.3394 0.8905
+        0.4182 0.9672
+        0.5363 1.0000
+        1.7272 0.9979
+      }
+    }
+    event lookat "!player"
+    {
+      time 10.681974 13.503923
+      param "!player"
+      event_ramp
+      {
+        0.3636 0.8905
+        0.4576 0.9672
+        0.6000 0.9915
+        2.8219 1.0000
+      }
+    }
+    event lookat "mark_alyx_escape"
+    {
+      time 5.478862 7.086588
+      param "mark_alyx_escape"
+      event_ramp
+      {
+        0.5530 0.8636
+        0.6765 0.9610
+        0.8863 1.0000
+        1.0480 0.9896
+        1.6077 0.0000
+      }
+    }
+    event lookat "mark_alyx_lookat_bridge1"
+    {
+      time 3.500000 4.216667
+      param "mark_alyx_lookat_bridge1"
+      event_ramp
+      {
+        0.4636 0.9161
+      }
+    }
+    event lookat "mark_alyx_lookat_bridge1"
+    {
+      time 0.033333 1.816667
+      param "mark_alyx_lookat_bridge1"
+      event_ramp
+      {
+        0.4545 0.8431
+        0.5606 0.9453
+        0.7197 0.9891
+        1.7833 1.0000
+      }
+    }
+    event lookat "mark_alyx_lookat_bridge1"
+    {
+      time 5.462963 6.531482
+      param "mark_alyx_lookat_bridge1"
+      event_ramp
+      {
+        0.4405 0.5584
+        0.5135 0.6387
+        0.5992 0.6606
+        0.6811 0.6277
+        0.7514 0.5401
+      }
+    }
+    active "0"
+  }
+  channel "face to"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "mark_alyx_offstage"
+    {
+      time 9.220617 9.801014
+      param "mark_alyx_offstage"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+    event face "mark_alyx_lookat_bridge2"
+    {
+      time 0.899187 3.381300
+      param "mark_alyx_lookat_bridge2"
+      event_ramp
+      {
+        0.7879 0.8686
+        0.9091 0.9453
+        1.5102 0.9958
+        2.4821 1.0000
+      }
+    }
+    event face "mark_alyx_lookat_bridge2"
+    {
+      time 5.377235 7.213819
+      param "mark_alyx_lookat_bridge2"
+      event_ramp
+      {
+        0.4973 0.7956
+        0.6405 0.9307
+        0.8801 1.0000
+        1.2319 0.9956
+        1.8366 0.0000
+      }
+    }
+    event face "mark_alyx_lookat_distance1"
+    {
+      time 3.418700 10.127642
+      param "mark_alyx_lookat_distance1"
+      event_ramp
+      {
+        0.5595 0.8139
+        0.7324 0.9489
+        0.9691 1.0000
+        6.7090 1.0000
+      }
+    }
+    event face "mark_alyx_offstage"
+    {
+      time 8.220460 9.825811
+      param "mark_alyx_offstage"
+      event_ramp
+      {
+        0.3606 0.8467
+        0.4364 0.9380
+        0.5182 0.9745
+        0.6761 1.0000
+        1.6054 1.0000
+      }
+    }
+    event face "!player"
+    {
+      time 10.625065 13.490917
+      param "!player"
+      event_ramp
+      {
+        0.5030 0.8723
+        0.6212 0.9745
+        0.7733 0.9958
+        2.8659 1.0000
+      }
+    }
+  }
+  channel "Sequences"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.111111
+      param ""
+    }
+    event sequence "c17_07_kidnapped"
+    {
+      time 13.314815 16.981482
+      param "c17_07_kidnapped"
+      event_ramp
+      {
+        0.3391 0.8993
+        0.3913 0.9732
+        0.4548 1.0000
+        3.6667 1.0000
+      }
+      fixedlength
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.166667
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 4.259259 7.296296
+      param ""
+    }
+    event gesture "A_bg_chinout"
+    {
+      time 2.648149 6.827578
+      param "A_bg_chinout"
+      absolutetags playback_time
+      {
+        "apex" 0.104932
+        "extreme" 0.234078
+        "loop" 0.363225
+        "end" 0.800579
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.156627
+        "extreme" 0.349398
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "A_bg_chinout"
+    {
+      time 4.611111 9.337037
+      param "A_bg_chinout"
+      event_ramp
+      {
+        0.3417 0.0000
+        1.2417 0.9124
+        1.3833 0.9745
+        1.5750 1.0000
+        3.6167 0.9891
+        3.7750 0.9307
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.027356
+        "extreme" 0.039080
+        "loop" 0.058620
+        "end" 0.762062
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.156627
+        "extreme" 0.349398
+        "loop" 0.542169
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "Body Gestures"
+  {
+    event gesture "accentdown_ext"
+    {
+      time 0.000000 9.283334
+      param "accentdown_ext"
+      event_ramp
+      {
+        0.0000 0.0000
+        0.4667 0.7810
+        0.5909 0.9015
+        0.8758 1.0000
+        8.2030 0.9745
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.000000
+        "extreme" 0.007181
+        "loop" 0.075404
+        "end" 0.883131
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.253012
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+    event gesture "NULL"
+    {
+      time 9.981482 10.481482
+      param ""
+    }
+    event gesture "accentdown_ext"
+    {
+      time 11.333334 13.762963
+      param "accentdown_ext"
+      absolutetags playback_time
+      {
+        "apex" 0.166617
+        "extreme" 0.291581
+        "loop" 0.583162
+        "end" 0.763665
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.144578
+        "extreme" 0.253012
+        "loop" 0.506024
+        "end" 0.662651
+      }
+      sequenceduration 2.800000
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.533333
+      param ""
+    }
+    event gesture "A_gesture18"
+    {
+      time 2.533334 7.151853
+      param "A_pointdown_g"
+      event_ramp
+      {
+        0.6492 1.0000
+        1.3164 1.0000
+        1.5459 0.9590
+        2.3459 0.0546
+        2.5984 0.0034
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.138742
+        "accent" 0.676000
+        "loop" 0.748000
+        "end" 0.820000
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.244898
+        "accent" 0.540816
+        "loop" 0.673469
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "NULL"
+    {
+      time 10.018519 10.518519
+      param ""
+    }
+    event gesture "A_gesture18"
+    {
+      time 11.074075 12.987043
+      param "A_gesture18"
+      absolutetags playback_time
+      {
+        "apex" 0.289878
+        "accent" 0.491200
+        "loop" 0.702760
+        "end" 0.716759
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.223529
+        "accent" 0.411765
+        "loop" 0.552941
+        "end" 0.670588
+      }
+      sequenceduration 2.866667
+    }
+    event gesture "A_g_yell"
+    {
+      time 12.074074 14.840741
+      param "A_g_yell"
+      event_ramp
+      {
+        0.5607 0.9286
+        0.8410 0.9536
+        1.8279 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.134146
+        "accent" 0.304878
+        "loop" 0.585366
+        "end" 0.658537
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.134146
+        "accent" 0.304878
+        "loop" 0.585366
+        "end" 0.658537
+      }
+      sequenceduration 2.766667
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.116667
+      param ""
+    }
+    event gesture "A_yayhigh_g"
+    {
+      time 4.116666 9.083333
+      param "A_yayhigh_g"
+      event_ramp
+      {
+        0.0030 0.9964
+        2.2091 0.9927
+        3.1879 0.8467
+        3.8758 0.7372
+        4.5152 0.0474
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.270100
+        "accent" 0.466717
+        "loop" 0.554855
+        "end" 0.778524
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.244898
+        "accent" 0.540816
+        "loop" 0.673469
+        "end" 0.714286
+      }
+      sequenceduration 3.300000
+    }
+    event gesture "NULL"
+    {
+      time 1.599999 2.499999
+      param ""
+    }
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "shooting 1"
+    {
+      time 7.881707 -1.000000
+      param "1"
+    }
+    event firetrigger "alyx shoots back 2"
+    {
+      time 8.891666 -1.000000
+      param "2"
+    }
+    event firetrigger "alyx offstage 3"
+    {
+      time 9.825001 -1.000000
+      param "3"
+    }
+    event firetrigger "alyx back 4"
+    {
+      time 9.860186 -1.000000
+      param "4"
+    }
+  }
+  channel "ai"
+  {
+    event generic "unholster"
+    {
+      time 8.063278 8.563279
+      param "AI_UNHOLSTER"
+    }
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d3_c17_07.bsp"
+scalesettings
+{
+  "CChoreoView" "90"
+  "SceneRampTool" "100"
+  "RampTool" "122"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

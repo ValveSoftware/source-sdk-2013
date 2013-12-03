@@ -6,18 +6,26 @@
 
 $IgnoreRedundancyWarning	"ON"
 
-$MacroRequired				"PLATSUBDIR"
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTBINNAME"
 $MacroRequired				"OUTBINDIR"
+$MacroRequired				"LIBPUBLIC"
+$MacroRequired				"LIBCOMMON"
+$MacroRequired				"PLATSUBDIR"
+$MacroRequired				"OUTDLLEXT"
+$MacroRequiredAllowEmpty	"GAMENAME"
+$MacroRequiredAllowEmpty	"INTERMEDIATESUBDIR"
+$MacroRequiredAllowEmpty	"_UNITYSUBDIR"
+$Macro						"_SUBDIRSUFFIX"		"$INTERMEDIATESUBDIR$GAMENAME$PLATSUBDIR$_UNITYSUBDIR"
 
 $Configuration "Debug"
 {
 	$General	
 	{
 		// General
-		$OutputDirectory					".\Debug$PLATSUBDIR"
-		$IntermediateDirectory				".\Debug$PLATSUBDIR"
+		$OutputDirectory					".\Debug$_SUBDIRSUFFIX"
+		$IntermediateDirectory				".\Debug$_SUBDIRSUFFIX"
+
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile
 		$InheritedProjectPropertySheets
@@ -49,11 +57,10 @@ $Configuration "Debug"
 		// General
 		$AdditionalIncludeDirectories		"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
 		$Resolve#UsingReferences
-		$DebugInformationFormat				"Program Database for Edit & Continue (/ZI)" [!$EANDCDISABLED && !$WIN64]
-		$DebugInformationFormat				"Program Database (/Zi)"                     [$EANDCDISABLED || $WIN64]
+		$DebugInformationFormat				"Program Database for Edit & Continue (/ZI)" [$WIN32]
+		$DebugInformationFormat				"Program Database (/Zi)" [$WIN64]
 		$SuppressStartupBanner		
 		$WarningLevel						"Level 4 (/W4)"
-		$Detect64bitPortabilityIssues		"Yes (/Wp64)"
 		$TreatWarningsAsErrors
 		$UseUNICODEResponseFiles
 
@@ -67,19 +74,14 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;DLLNAME=$OUTBINNAME"
-		$PreprocessorDefinitions			"$BASE;RAD_TELEMETRY_DISABLED" [$SOURCESDK]
+		$PreprocessorDefinitions			"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
 
 		// Code Generation
 		$EnableStringPooling				"Yes (/GF)"
-		// EnableMinimalRebuild is incompatible with /MP (multi-processor builds)
-		// and it also makes it hard to iterate on warnings because the compiler
-		// detects that there is no reason to recompile when you request it.
-		// It should always be off? It should definitely be off for /analyze builds.
-		//$EnableMinimalRebuild				"Yes (/Gm)" [!$ANALYZE]
+		$EnableMinimalRebuild				
 		$EnableC++Exceptions				"No"
 		$SmallerTypeCheck
 		$BasicRuntimeChecks					"Default"
@@ -88,7 +90,6 @@ $Configuration "Debug"
 		$BufferSecurityCheck				"Yes"
 		$EnableFunctionLevelLinking
 		$EnableEnhancedInstructionSet
-		$EnableEnhancedInstructionSet			"Streaming SIMD Extensions (/arch:SSE)" [$WIN32]
 		$FloatingPointModel					"Fast (/fp:fast)"
 		$EnableFloatingPointExceptions
 
@@ -127,18 +128,18 @@ $Configuration "Debug"
 		$ShowIncludes
 		$UndefinePreprocessorDefinitions
 		$UndefineAllPreprocessorDefinitions
-		$UseFullPaths
+		$UseFullPaths						"Yes (/FC)"
 		$OmitDefaultLibraryNames
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
 
-		// Command Line 
-		$AdditionalOptions					"$BASE /MP"
+		// Command Line (L4D adding /MP)
+		$AdditionalOptions					"/MP /Zm200"
 	}
 
 	$Linker
 	{
 		// General
-		$OutputFile							"$(OutDir)/$OUTBINNAME.dll"
+		$OutputFile							"$(OutDir)/$OUTBINNAME$OUTDLLEXT"
 		$ShowProgress						"Not Set"
 		$Version
 		$EnableIncrementalLinking			"Yes (/INCREMENTAL)"
@@ -166,13 +167,12 @@ $Configuration "Debug"
 		$ManifestFile
 		$AdditionalManifestDependencies
 		$AllowIsolation
+		//$UACExecutionLevel				[$VS2010]
 
 		// Debugging
 		$GenerateDebugInfo					"Yes (/DEBUG)"
 		$GenerateProgramDatabaseFile		"$(IntDir)/$(TargetName).pdb"
 		$StripPrivateSymbols
-		$GenerateMapFile					"No"
-		$MapFileName						"$(IntDir)/$(TargetName).map"
 		$MapExports
 		$DebuggableAssembly
 
@@ -187,6 +187,9 @@ $Configuration "Debug"
 		$SwapRunFromCD
 		$SwapRunFromNetwork
 		$Driver
+
+		// DYNAMICBASE/ASLR in debug builds is annoying and not helpful.
+		$RandomizedBaseAddress				"false"
 
 		// Optimization
 		$References
@@ -213,6 +216,7 @@ $Configuration "Debug"
 		$DelayLoadedDLL
 		$ImportLibrary
 		$MergeSections
+		$TargetMachine					
 		$Profile
 		$CLRThreadAttribute
 		$CLRImageType
@@ -224,12 +228,6 @@ $Configuration "Debug"
 
 		// Command Line
 		$AdditionalOptions						
-	}
-
-	$Linker [$VS2010]
-	{
-		// SAFE_SEH should always be disabled on debug builds.
-		$ImageHasSafeExceptionHandlers		"false"
 	}
 
 	$ManifestTool
@@ -285,7 +283,7 @@ $Configuration "Debug"
 	$Resources
 	{
 		// General
-		$PreprocessorDefinitions			"_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"$BASE;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 		$Culture							"English (United States) (0x409)"
 		$AdditionalIncludeDirectories
 		$IgnoreStandardIncludePath

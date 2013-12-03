@@ -1,0 +1,67 @@
+// Choreo version 1
+actor "Gman"
+{
+  channel "audio"
+  {
+    event speak "gman_tellyourfather-notthistime01"
+    {
+      time 0.076389 1.816457
+      param "ep_02.leipzig.gman_tellyourfather-notthistime01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_tellyourfather-notthistime02"
+    {
+      time 1.993056 4.187228
+      param "ep_02.leipzig.gman_tellyourfather-notthistime02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "gman_tellyourfather-notthistime03"
+    {
+      time 4.368056 9.315765
+      param "ep_02.leipzig.gman_tellyourfather-notthistime03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "lookit"
+    {
+      time 2.927222 5.373888
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204 "curve_bspline_to_curve_bspline"
+        0.5838 0.5525 "curve_bspline_to_curve_bspline"
+        1.6143 0.5580 "curve_bspline_to_curve_bspline"
+        2.2521 0.3481 "curve_bspline_to_curve_bspline"
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  faceposermodel "models\gman.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

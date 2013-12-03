@@ -6,18 +6,25 @@
 
 $IgnoreRedundancyWarning	"ON"
 
-$MacroRequired				"PLATSUBDIR"
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTBINNAME"
 $MacroRequired				"OUTBINDIR"
+$MacroRequired				"LIBPUBLIC"
+$MacroRequired				"LIBCOMMON"
+$MacroRequired				"PLATSUBDIR"
+$MacroRequiredAllowEmpty	"GAMENAME"
+$MacroRequiredAllowEmpty	"INTERMEDIATESUBDIR"
+$MacroRequiredAllowEmpty	"_UNITYSUBDIR"
+$MacroRequiredAllowEmpty	"_STATICSUBDIR"
+$Macro						"_SUBDIRSUFFIX"		"$INTERMEDIATESUBDIR$_STATICSUBDIR$GAMENAME$PLATSUBDIR$_UNITYSUBDIR"
 
 $Configuration "Debug"
 {
 	$General	
 	{
 		// General
-		$OutputDirectory					".\Debug$PLATSUBDIR"
-		$IntermediateDirectory				".\Debug$PLATSUBDIR"
+		$OutputDirectory					".\Debug$_SUBDIRSUFFIX"
+		$IntermediateDirectory				".\Debug$_SUBDIRSUFFIX"
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile
 		$InheritedProjectPropertySheets
@@ -50,11 +57,10 @@ $Configuration "Debug"
 		// General
 		$AdditionalIncludeDirectories			"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
 		$Resolve#UsingReferences
-		$DebugInformationFormat				"Program Database for Edit & Continue (/ZI)" [!$EANDCDISABLED && !$WIN64]
-		$DebugInformationFormat				"Program Database (/Zi)"                     [$EANDCDISABLED || $WIN64]
+		$DebugInformationFormat					"Program Database for Edit & Continue (/ZI)" [$WIN32]
+		$DebugInformationFormat					"Program Database (/Zi)" [$WIN64]
 		$SuppressStartupBanner		
 		$WarningLevel							"Level 4 (/W4)"
-		$Detect64bitPortabilityIssues			"Yes (/Wp64)"
 		$TreatWarningsAsErrors					"No"
 		$UseUNICODEResponseFiles				"No"
 
@@ -68,8 +74,7 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions				"_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
-		$PreprocessorDefinitions		"$BASE;RAD_TELEMETRY_DISABLED" [$SOURCESDK]
+		$PreprocessorDefinitions				"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -89,7 +94,6 @@ $Configuration "Debug"
 		$BufferSecurityCheck					"Yes"
 		$EnableFunctionLevelLinking
 		$EnableEnhancedInstructionSet
-		$EnableEnhancedInstructionSet				"Streaming SIMD Extensions (/arch:SSE)" [$WIN32]
 		$FloatingPointModel						"Fast (/fp:fast)"
 		$EnableFloatingPointExceptions
 
@@ -128,12 +132,12 @@ $Configuration "Debug"
 		$ShowIncludes
 		$UndefinePreprocessorDefinitions
 		$UndefineAllPreprocessorDefinitions
-		$UseFullPaths
+		$UseFullPaths							"Yes (/FC)"
 		$OmitDefaultLibraryNames
 		$ErrorReporting							"Prompt Immediately (/errorReport:prompt)"
 
 		// Command Line
-		$AdditionalOptions						"$BASE /MP"
+		$AdditionalOptions
 	}
 
 	$Linker
@@ -163,18 +167,16 @@ $Configuration "Debug"
 		$AssemblyLinkResource
 
 		// Manifest File
-		$GenerateManifest						"No" [!$VS2010]
-		$GenerateManifest						"Yes" [$VS2010]
+		$GenerateManifest						"Yes"
 		$ManifestFile
 		$AdditionalManifestDependencies
 		$AllowIsolation
+		$UACExecutionLevel
 
 		// Debugging
 		$GenerateDebugInfo						"Yes (/DEBUG)"
 		$GenerateProgramDatabaseFile			"$(IntDir)/$(TargetName).pdb"
 		$StripPrivateSymbols
-		$GenerateMapFile						"No"
-		$MapFileName							"$(IntDir)/$(TargetName).map"
 		$MapExports
 		$DebuggableAssembly
 
@@ -189,6 +191,9 @@ $Configuration "Debug"
 		$SwapRunFromCD
 		$SwapRunFromNetwork
 		$Driver
+
+		// DYNAMICBASE/ASLR in debug builds is annoying and not helpful.
+		$RandomizedBaseAddress				"false"
 
 		// Optimization
 		$References
@@ -215,6 +220,7 @@ $Configuration "Debug"
 		$DelayLoadedDLL
 		$ImportLibrary
 		$MergeSections
+		$TargetMachine						
 		$Profile
 		$CLRThreadAttribute
 		$CLRImageType
@@ -223,12 +229,9 @@ $Configuration "Debug"
 		$DelaySign
 		$ErrorReporting							"Prompt Immediately (/ERRORREPORT:PROMPT)"
 		$CLRUnmanagedCodeCheck
-	}
 
-	$Linker [$VS2010]
-	{
-		// SAFE_SEH should always be disabled on debug builds.
-		$ImageHasSafeExceptionHandlers		"false"
+		// Command Line
+		$AdditionalOptions						
 	}
 
 	$ManifestTool

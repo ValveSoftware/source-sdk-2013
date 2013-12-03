@@ -1,0 +1,65 @@
+// Choreo version 1
+actor "alyx_damaged"
+{
+  channel "play sound"
+  {
+    event speak "breathe"
+    {
+      time 0.008501 1.390088
+      param "ep_01.al_outofbreath01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "breathe"
+    {
+      time 3.446002 5.506773
+      param "ep_01.al_outofbreath06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "breathe"
+    {
+      time 6.029335 8.090106
+      param "ep_01.al_outofbreath06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "breathe"
+    {
+      time 1.466835 3.243162
+      param "ep_01.al_outofbreath04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "animation"
+  {
+  }
+  channel "text"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "lookAt"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "32"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

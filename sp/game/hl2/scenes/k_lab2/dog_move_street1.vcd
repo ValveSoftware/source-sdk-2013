@@ -1,0 +1,51 @@
+// Choreo version 1
+actor "Dog"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "mark_dog_movestreet1"
+    {
+      time 0.080000 5.033333
+      param "mark_dog_movestreet1"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 3.920000 6.926667
+      param "!player"
+      event_ramp
+      {
+        0.8400 0.9412
+        2.7867 0.9608
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "Sequence"
+  {
+  }
+  faceposermodel "C:\VALVE\HL2\hl2\models\dog.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "20"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

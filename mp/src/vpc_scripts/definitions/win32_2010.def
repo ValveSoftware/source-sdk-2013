@@ -232,7 +232,12 @@
 		{
 			"type"	"ignore"
 		}
-				
+		
+		"$AdditionalLibraryDirectories"
+		{
+			"type"	"ignore"
+		}
+		
 		// General
 		"$AdditionalIncludeDirectories"
 		{

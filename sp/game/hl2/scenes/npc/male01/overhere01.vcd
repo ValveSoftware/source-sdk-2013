@@ -1,0 +1,132 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "overhere01"
+    {
+      time 0.586667 1.359865
+      param "npc_citizen.overhere01"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "Lookatplayer"
+    {
+      time 0.000000 3.720001
+      param "!player"
+      event_ramp
+      {
+        0.2000 0.9979
+        3.4067 0.9958
+      }
+    }
+  }
+  channel "animation"
+  {
+    event sequence "wave"
+    {
+      time 0.006666 4.006666
+      param "Wave"
+      event_ramp
+      {
+        0.2273 0.9936
+        3.4455 0.8644
+      }
+      fixedlength
+    }
+  }
+  channel "face player"
+  {
+    event face "face player"
+    {
+      time 0.006667 3.920000
+      param "!player"
+      event_ramp
+      {
+        0.3182 0.9936
+        2.9703 1.0000
+        3.6158 0.8390
+      }
+    }
+  }
+  channel "Head"
+  {
+    event flexanimation "Head"
+    {
+      time 0.013334 4.000000
+      param ""
+      event_ramp
+      {
+        0.3364 0.9979
+        3.7455 0.9979
+      }
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.0769 0.7600
+          0.1372 0.9000
+          0.2350 0.3900
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0769 0.7600
+          0.1372 0.9100
+          0.2329 0.3100
+        }
+        {
+        }
+        "wrinkler"        
+        {
+          0.0769 0.3900
+          0.1372 0.5300
+          0.2350 0.1600
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.0358 0.5100
+          0.1680 0.4969
+          0.9718 0.6900
+          3.2513 0.5100
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1249 0.7332
+          0.2277 0.7898
+          0.9746 0.8286
+          3.0373 0.7109
+          3.4300 0.5308
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.4096 0.5084
+          0.9778 0.0270
+          1.9796 0.0000
+          2.4635 0.0000
+          3.2192 0.4214
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "RampTool" "22"
+  "ExpressionTool" "48"
+  "GestureTool" "100"
+}
+fps 60
+snap off

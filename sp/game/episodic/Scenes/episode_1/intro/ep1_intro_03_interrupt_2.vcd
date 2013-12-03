@@ -1,0 +1,73 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 3.907407 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 3.611112 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Body_gestures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1 - climb up"
+    {
+      time 0.101851 -1.000000
+      param "1"
+    }
+  }
+  channel "move to"
+  {
+    event moveto "!player"
+    {
+      time 2.296298 4.138889
+      param "!player"
+      param2 "Run"
+      resumecondition
+      distancetotarget 100.00
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "head flex"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "72"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

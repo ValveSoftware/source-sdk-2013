@@ -1,0 +1,83 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "monk_rant04"
+    {
+      time 0.060000 6.698571
+      param "ravenholm.monk_rant04"
+      param2 "90dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 2.726667
+      param ""
+    }
+    event gesture "g_Apologize"
+    {
+      time 0.013333 3.126667
+      param "g_Apologize"
+      event_ramp
+      {
+        0.2301 0.0000
+        0.8932 0.9966
+        2.1836 1.0000
+        2.6740 0.0000
+        3.1133 0.0000
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.070664
+        "accent" 0.335487
+        "loop" 0.922912
+        "end" 0.922912
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.661157
+        "accent" 0.743802
+        "loop" 0.971074
+        "end" 0.991736
+      }
+      sequenceduration 8.100000
+    }
+    event face "player"
+    {
+      time -0.006666 3.160001
+      param "!player"
+      event_ramp
+      {
+        0.4188 0.9664
+        2.7062 0.9799
+      }
+    }
+    event lookat "self"
+    {
+      time 0.006667 3.233334
+      param "!self"
+      event_ramp
+      {
+        0.4125 0.9497
+        2.7646 0.9832
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "32"
+}
+fps 60
+snap off

@@ -1,0 +1,105 @@
+// Choreo version 1
+actor "Griggs"
+{
+  channel "audio"
+  {
+    event speak "sheckley_killlion"
+    {
+      time 0.138888 1.376235
+      param "ep_02.griggs_followme02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "sheckley"
+    {
+      time 0.041667 1.802083
+      param "sheckley"
+      event_ramp
+      {
+        0.4182 0.9827
+        1.4182 0.9654
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.135416 1.735416
+      param "bg_up_l"
+      absolutetags playback_time
+      {
+        "apex" 0.085106
+        "extreme" 0.276596
+        "loop" 0.425532
+        "end" 0.638298
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.085106
+        "extreme" 0.276596
+        "loop" 0.425532
+        "end" 0.638298
+      }
+      sequenceduration 1.600000
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "face"
+    {
+      time 0.062500 1.552084
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "lid_tightener" combo 
+        {
+          0.7875 0.9000
+        }
+        {
+          0.7875 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.7875 1.0000
+        }
+        {
+          0.7875 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.7875 0.6000
+        }
+        {
+          0.7875 0.5000
+        }
+        "wrinkler" 
+        {
+          0.7875 0.5400
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "64"
+  "ExpressionTool" "100"
+  "RampTool" "66"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

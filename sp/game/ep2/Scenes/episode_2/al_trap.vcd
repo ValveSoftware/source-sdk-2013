@@ -1,0 +1,36 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "Audio"
+  {
+    event speak "ep_02.al_inn_trap"
+    {
+      time 0.045747 1.015180
+      param "ep_02.al_inn_trap"
+      param2 ".9"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.al_inn_getinside"
+    {
+      time 1.091954 2.251500
+      param "ep_02.al_inn_getinside"
+      param2 ".8"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "116"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

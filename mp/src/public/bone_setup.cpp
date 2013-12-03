@@ -57,7 +57,9 @@ public:
 		{
 			p = new T[MAXSTUDIOBONES];
 			if ( ((size_t)p) % TSLIST_NODE_ALIGNMENT != 0 )
+			{
 				DebuggerBreak();
+			}
 		}
 
 		return p;

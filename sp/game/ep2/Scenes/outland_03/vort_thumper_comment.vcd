@@ -1,0 +1,82 @@
+// Choreo version 1
+actor "vort"
+{
+  channel "play wav"
+  {
+    event speak "ep_02.vort_extract_vibdevice"
+    {
+      time 0.400000 9.424013
+      param "ep_02.vort_extract_vibdevice"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Flex"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.100000 9.950000
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "face to"
+  {
+    event face "Face !player"
+    {
+      time 0.233333 9.916666
+      param "!player"
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Look at !player"
+    {
+      time 0.350000 9.900001
+      param "!player"
+      event_ramp
+      {
+        0.3616 0.3604
+        0.5803 0.7739
+        0.7182 0.9117
+        0.9045 0.9823
+        1.0924 1.0000
+        8.4222 1.0000
+        8.6657 0.9823
+        8.8727 0.9205
+        8.9934 0.8092
+        9.3101 0.1502
+      }
+    }
+  }
+  channel "fire trigger"
+  {
+  }
+  channel "gesture"
+  {
+  }
+  channel "posture"
+  {
+  }
+  channel "text"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "40"
+  "RampTool" "44"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

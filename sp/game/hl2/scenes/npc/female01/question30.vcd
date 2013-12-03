@@ -1,0 +1,106 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "question30"
+    {
+      time 0.006667 1.921111
+      param "npc_citizen.question30"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Facial"
+  {
+    event flexanimation "Facial"
+    {
+      time 0.000000 1.886667
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_droop"         combo        
+        {
+          0.1726 1.0000
+          0.3181 1.0000
+          1.4846 1.0000
+        }
+        {
+        }
+        "lid_closer"         combo        
+        {
+        }
+        {
+        }
+        "blink"        
+        {
+          0.2050 0.7400
+          0.3383 0.8000
+          0.5738 0.2200
+        }
+        "inner_raiser"         combo        
+        {
+          0.1358 0.7300
+          0.2495 0.8800
+          0.8067 0.9500
+          1.3580 0.8000
+          1.5501 0.2300
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.1898 0.7300
+          0.3035 0.8800
+          0.8067 0.9500
+          1.3040 0.8000
+          1.4961 0.2300
+        }
+        {
+        }
+        "eyes_updown"         range 30.0 -30.0        
+        {
+        }
+        "eyes_rightleft"         range 30.0 -30.0        
+        {
+        }
+      }
+    }
+  }
+  channel "Head"
+  {
+    event flexanimation "Head"
+    {
+      time -0.000000 1.886667
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.3736 0.5118
+          0.5382 0.5447
+          0.6463 0.5512
+          1.2434 0.5382
+          1.4368 0.5152
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+        }
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

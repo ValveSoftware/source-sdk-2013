@@ -1,0 +1,129 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_reload03"
+    {
+      time 0.268817 0.980450
+      param "ep_01.al_reload03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.043011 1.446237
+      param "!player"
+      event_ramp 
+      {
+        0.3385 0.9601
+        0.9850 0.9681
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+    event gesture "NULL"
+    {
+      time -0.021505 0.478495
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.043011 1.719355
+      param "a_bg_hdaccleft"
+      event_ramp 
+      {
+        0.4346 0.7437
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.161416
+        "extreme" 0.419154
+        "loop" 0.624822
+        "end" 0.779418
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.117647
+        "extreme" 0.338235
+        "loop" 0.514706
+        "end" 0.588235
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "Gestures"
+  {
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.075269 1.080645
+      param ""
+      flexanimations samples_use_time
+      {
+        "lowerer" combo 
+        {
+          0.3927 0.5300
+        }
+        {
+          0.3927 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.3927 0.4300
+        }
+        {
+          0.3927 0.5000
+        }
+        "upper_raiser" combo 
+        {
+          0.3927 0.0900
+        }
+        {
+          0.3927 0.5000
+        }
+      }
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

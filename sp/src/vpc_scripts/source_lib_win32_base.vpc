@@ -6,15 +6,12 @@
 
 $Include "$SRCDIR\vpc_scripts\version.vpc"
 
-$Macro NOAPPENDPLATSUBDIR "1" [!$WIN64]
-
-$MacroRequired				"PLATSUBDIR"
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTLIBNAME"	"$PROJECTNAME"
 $MacroRequired				"OUTLIBDIR"
 
-// Fix up directories for targets like win64
-$Macro OUTLIBDIR	"$OUTLIBDIR$PLATSUBDIR" [!$NOAPPENDPLATSUBDIR]
+$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR"
+$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR"
 
 $Include "$SRCDIR\vpc_scripts\source_lib_win32_debug.vpc"
 $Include "$SRCDIR\vpc_scripts\source_lib_win32_release.vpc"
@@ -25,38 +22,41 @@ $IgnoreRedundancyWarning	"ON"
 // Common Configuration
 $Configuration
 {
-	$General [$VS2010]
+	$General	[$VS2010]
 	{
-		$TargetName		"$OUTLIBNAME"
+		$TargetName	"$OUTLIBNAME"
 	}
 
-	$General
-	{
-		$OutputDirectory	"$OUTLIBDIR"
-	}
 
 	$Compiler
 	{
+		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
+		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]
+		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC;_DLL_EXT=$_DLL_EXT"
 		$PreprocessorDefinitions			"$BASE;LIBNAME=$OUTLIBNAME"
-		$PreprocessorDefinitions		"$BASE;RAD_TELEMETRY_DISABLED" [$SOURCESDK]
+	}
+
+	$Compiler [$WIN32]
+	{
+		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions 2 (/arch:SSE2)"
 	}
 	
 	$PreBuildEvent
 	{
 		$CommandLine		"if EXIST $OUTLIBDIR\$(TargetName).lib ( for /f $QUOTEdelims=$QUOTE %%A in ('attrib $QUOTE$OUTLIBDIR\$(TargetName).lib$QUOTE') do set valveTmpIsReadOnly=$QUOTE%%A$QUOTE" "\n" \
-							") else ( mkdir $OUTLIBDIR )" "\n" \
+							") else ( if not EXIST $OUTLIBDIR mkdir $OUTLIBDIR )" "\n" \
 							"set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%" "\n" \
 							"if $QUOTE%valveTmpIsReadOnlyLetter%$QUOTE==$QUOTER$QUOTE (" "\n" \
 							"    attrib -r $OUTLIBDIR\$(TargetName).lib" "\n" \
 							"    $SRCDIR\devtools\bin\gnu\touch.exe -d $QUOTE1999-01-01$QUOTE $OUTLIBDIR\$(TargetName).lib" "\n" \
 							"    attrib +r $OUTLIBDIR\$(TargetName).lib" "\n" \
 							")" "\n" \
-							"$CRCCHECK" "\n" 	[!$SOURCESDK]		
+							"$CRCCHECK" "\n" 			
 	}
 
-	$PreLinkEvent
+	$PreLinkEvent [!$ANALYZE && !$SOURCESDK]
 	{
-		$CommandLine		"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTLIBDIR\$(TargetName).lib $SRCDIR" [!$SOURCESDK ]
+		$CommandLine		"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTLIBDIR\$(TargetName).lib $SRCDIR" 
 	}
 
 	$Librarian
@@ -64,13 +64,6 @@ $Configuration
 		// Suppress this warning using the undocumented /ignore linker switch
 		// schemalib.lib(schemaclassinfo.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
 		$AdditionalOptions					"$BASE /ignore:4221"
-
-		// This option is from the devil.  Basically, it causes the link inputs
-		// to vary depending on what is in the solution.  This is anathema
-		// to the way that we use projects and solutions here at Valve.
-		// It also exposes a bug in VS2005 causing files to be recompiled/linked
-		// even if nothing changed.
-		$LinkLibraryDependencies	"false"
 	}
 }
 

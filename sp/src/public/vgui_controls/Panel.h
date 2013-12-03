@@ -519,10 +519,10 @@ public:
 	// [tj] Simple getters and setters to decide which corners to draw rounded
     unsigned char GetRoundedCorners() { return m_roundedCorners; }
 	void SetRoundedCorners (unsigned char cornerFlags) { m_roundedCorners = cornerFlags; }
-	bool ShouldDrawTopLeftCornerRounded() { return m_roundedCorners & PANEL_ROUND_CORNER_TOP_LEFT; }
-	bool ShouldDrawTopRightCornerRounded() { return m_roundedCorners & PANEL_ROUND_CORNER_TOP_RIGHT; }
-	bool ShouldDrawBottomLeftCornerRounded() { return m_roundedCorners & PANEL_ROUND_CORNER_BOTTOM_LEFT; }
-	bool ShouldDrawBottomRightCornerRounded() { return m_roundedCorners & PANEL_ROUND_CORNER_BOTTOM_RIGHT; }
+	bool ShouldDrawTopLeftCornerRounded() { return ( m_roundedCorners & PANEL_ROUND_CORNER_TOP_LEFT ) != 0; }
+	bool ShouldDrawTopRightCornerRounded() { return ( m_roundedCorners & PANEL_ROUND_CORNER_TOP_RIGHT ) != 0; }
+	bool ShouldDrawBottomLeftCornerRounded() { return ( m_roundedCorners & PANEL_ROUND_CORNER_BOTTOM_LEFT ) != 0; }
+	bool ShouldDrawBottomRightCornerRounded() { return ( m_roundedCorners & PANEL_ROUND_CORNER_BOTTOM_RIGHT ) != 0; }
 	 
 	//=============================================================================
 	// HPE_END

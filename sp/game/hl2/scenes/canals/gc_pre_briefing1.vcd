@@ -1,0 +1,120 @@
+// Choreo version 1
+event section "pause"
+{
+  time 1.869230 -1.000000
+  param "noaction"
+}
+event stoppoint "done"
+{
+  time 2.584617 -1.000000
+  param "noaction"
+}
+actor "npc_cit_briefer"
+{
+  channel "moveto"
+  {
+    event moveto "mark_briefer_moveto_map1"
+    {
+      time 0.146668 1.993335
+      param "mark_briefer_moveto_map1"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "faceto"
+  {
+    event face "face player"
+    {
+      time 1.360001 3.780000
+      param "!player"
+      event_ramp
+      {
+        1.0600 0.9712
+        2.4200 0.9898
+      }
+    }
+  }
+  channel "seq"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  channel "audio"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 1.640000 4.964102
+      param "!player"
+      event_ramp
+      {
+        0.4840 0.9543
+        3.0661 0.8646
+      }
+    }
+  }
+}
+
+actor "npc_cit_gate"
+{
+  channel "audio"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "faceto"
+  {
+    event face "face player"
+    {
+      time 0.080000 2.559485
+      param "!player"
+      event_ramp
+      {
+        0.4833 0.9949
+        2.1062 1.0000
+      }
+    }
+  }
+  channel "triggers"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 0.079999 2.580513
+      param "!player"
+      event_ramp
+      {
+        0.4380 0.9306
+        2.0225 0.8528
+      }
+    }
+  }
+}
+
+actor "npc_vort_gun"
+{
+  channel "moveto"
+  {
+  }
+}
+
+mapname "maps\d1_canals_08a.bsp"
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "60"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

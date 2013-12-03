@@ -1,0 +1,149 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "laugh01"
+    {
+      time 0.026666 2.561587
+      param "eli_lab.al_laugh02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "sweet!"
+    {
+      time 2.639999 3.545985
+      param "eli_lab.al_sweet"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "wheres ball"
+    {
+      time 4.426666 5.425804
+      param "eli_lab.al_wheresball"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.080000 4.020000
+      param "!player"
+      event_ramp
+      {
+        0.2808 0.8663
+        3.4090 0.8223
+      }
+    }
+    event lookat "look dog"
+    {
+      time 3.920000 8.953334
+      param "dog"
+      event_ramp
+      {
+        0.2808 0.8663
+        4.5023 0.8223
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "Dog"
+{
+  channel "look at"
+  {
+    event lookat "mark_dog_look_pipes"
+    {
+      time 0.186666 4.686666
+      param "mark_dog_look_pipes"
+      event_ramp
+      {
+        0.3615 0.9870
+        3.3952 0.9922
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "mark_dog_look_pipes"
+    {
+      time 2.506667 4.180000
+      param "mark_dog_look_pipes"
+      event_ramp
+      {
+        0.8691 0.6623
+        1.0718 0.9974
+        1.6756 0.9974
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_dog_move_pipes"
+    {
+      time 0.640000 3.273334
+      param "mark_dog_move_pipes"
+      param2 "Run"
+    }
+  }
+  channel "seq"
+  {
+    event sequence "pout"
+    {
+      time 3.466667 8.466667
+      param "disappointed"
+      event_ramp
+      {
+        0.7038 0.9974
+        4.6500 0.9948
+      }
+      fixedlength
+    }
+  }
+  channel "audio"
+  {
+    event speak "asd"
+    {
+      time 6.080000 6.725306
+      param "NPC_dog.Dissapointed_1"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

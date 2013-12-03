@@ -1,0 +1,62 @@
+// Choreo version 1
+event section "Wait for movement"
+{
+  time 11.986667 -1.000000
+  param "noaction"
+}
+event section "Wait for Movement"
+{
+  time 2.585034 -1.000000
+  param "noaction"
+}
+event stoppoint "Scene completion"
+{
+  time 3.000000 -1.000000
+  param "noaction"
+}
+actor "!target1"
+{
+  channel "moveto"
+  {
+    event moveto "moveto target3"
+    {
+      time 11.546668 12.360002
+      param "!target3"
+      param2 "Run"
+      resumecondition
+    }
+    event moveto "moveto target2"
+    {
+      time 2.043537 2.856871
+      param "!target2"
+      param2 "Walk"
+      resumecondition
+    }
+    event firetrigger "Pause scene"
+    {
+      time 0.102041 -1.000000
+      param "1"
+    }
+  }
+  channel "lookat"
+  {
+    event lookat "Look at target3"
+    {
+      time 0.000000 1.540817
+      param "!target3"
+    }
+  }
+  active "0"
+}
+
+mapname "maps\d1_canals_08a.bsp"
+scalesettings
+{
+  "CChoreoView" "98"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

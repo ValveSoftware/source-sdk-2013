@@ -770,6 +770,10 @@ public:
 	// A method to apply a decal to an entity
 	virtual void					AddDecal( const Vector& rayStart, const Vector& rayEnd,
 										const Vector& decalCenter, int hitbox, int decalIndex, bool doTrace, trace_t& tr, int maxLODToDecal = ADDDECAL_TO_ALL_LODS );
+
+	virtual void					AddColoredDecal( const Vector& rayStart, const Vector& rayEnd,
+		const Vector& decalCenter, int hitbox, int decalIndex, bool doTrace, trace_t& tr, Color cColor, int maxLODToDecal = ADDDECAL_TO_ALL_LODS );
+
 	// A method to remove all decals from an entity
 	void							RemoveAllDecals( void );
 
@@ -1317,7 +1321,7 @@ public:
 	short							m_nModelIndex;
 
 #ifdef TF_CLIENT_DLL
-	int								m_nModelIndexOverrides[MAX_MODEL_INDEX_OVERRIDES];
+	int								m_nModelIndexOverrides[MAX_VISION_MODES];
 #endif
 
 	char							m_takedamage;
@@ -1464,6 +1468,7 @@ private:
 
 	// methods related to decal adding
 	void AddStudioDecal( const Ray_t& ray, int hitbox, int decalIndex, bool doTrace, trace_t& tr, int maxLODToDecal = ADDDECAL_TO_ALL_LODS );
+	void AddColoredStudioDecal( const Ray_t& ray, int hitbox, int decalIndex, bool doTrace, trace_t& tr, Color cColor, int maxLODToDecal );
 	void AddBrushModelDecal( const Ray_t& ray, const Vector& decalCenter, int decalIndex, bool doTrace, trace_t& tr );
 
 	void ComputePackedOffsets( void );

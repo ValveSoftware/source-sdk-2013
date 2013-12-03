@@ -1,0 +1,108 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "vort_extract_donotkill"
+    {
+      time 0.712122 6.301805
+      param "ep_02.vort_extract_donotkill"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.107656 10.869579
+      param "!player"
+      event_ramp
+      {
+        0.5880 1.0000
+        10.4057 1.0000
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.075758 10.939396
+      param "!player"
+      event_ramp
+      {
+        0.7260 1.0000
+        10.1721 1.0000
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.469696 4.087879
+      param "g_Accent_BothHands01"
+      absolutetags playback_time
+      {
+        "apex" 0.121301
+        "accent" 0.205279
+        "loop" 0.419888
+        "end" 0.748954
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.166667
+        "accent" 0.282051
+        "loop" 0.576923
+        "end" 0.769231
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "2"
+    {
+      time 3.409091 6.784849
+      param "g_cross_palmout_right"
+      absolutetags playback_time
+      {
+        "apex" 0.194134
+        "accent" 0.484700
+        "loop" 0.655032
+        "end" 0.665052
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.205882
+        "accent" 0.632353
+        "loop" 0.882353
+        "end" 0.897059
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "44"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

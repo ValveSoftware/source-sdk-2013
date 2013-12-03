@@ -1,0 +1,81 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "ep_02.reb_tvwatching_03"
+    {
+      time 0.375000 2.102257
+      param "ep_02.reb_tvwatching_03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!Target2"
+    {
+      time 0.062499 1.562500
+      param "!Target2"
+      event_ramp
+      {
+        0.2524 0.9697
+        1.3726 0.9461
+      }
+    }
+    event lookat "!player"
+    {
+      time 1.145832 7.083334
+      param "!player"
+      event_ramp
+      {
+        0.4238 0.9596
+        5.1574 0.9933
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodygestures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "headf"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "eyes"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "temp"
+  {
+  }
+  faceposermodel "models\humans\group03\male_09.mdl"
+}
+
+mapname "maps\d1_eli\d1_eli_01_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "32"
+  "ExpressionTool" "40"
+  "GestureTool" "100"
+  "RampTool" "42"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

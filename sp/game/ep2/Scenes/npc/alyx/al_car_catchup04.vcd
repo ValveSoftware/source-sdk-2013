@@ -1,0 +1,117 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "NPC_Alyx.vehicle_request_entrance"
+    {
+      time 0.381945 3.573237
+      param "ep_02.al_car_catchup04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Look at !player"
+    {
+      time -0.000000 3.916667
+      param "!player"
+      event_ramp
+      {
+        0.5816 1.0000
+        3.2935 1.0000
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.013889 4.027778
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "inner_raiser" combo 
+        {
+          0.3750 0.1900
+          0.5020 0.1800
+          1.5152 0.1600
+          1.6440 0.2000
+          1.8320 0.5900
+          1.9909 0.7000
+          2.9333 0.6400
+          3.2303 0.3300
+          3.5879 0.2900
+        }
+        {
+          0.3750 0.5000
+        }
+        "outer_raiser" combo 
+        {
+          0.3750 0.5600
+          0.4880 0.6100
+          1.6560 0.6200
+          3.2545 0.6500
+          3.6212 0.5800
+        }
+        {
+          0.3750 0.5000
+        }
+        "lowerer" combo 
+        {
+          0.3750 0.5100
+          0.4880 0.5100
+          0.7400 0.7600
+          1.0400 0.5500
+          1.6740 0.4600
+          3.3000 0.5600
+          3.5970 0.4600
+        }
+        {
+          0.3750 0.5000
+        }
+        "corner_puller" combo 
+        {
+          0.3750 0.3900
+          0.5140 0.4000
+          0.6697 0.0000
+          1.3758 0.0000
+          1.6740 0.4200
+          1.9576 0.0000
+          3.0970 0.0000
+          3.4788 0.4800
+          3.7061 0.4500
+        }
+        {
+          0.3750 0.5000
+        }
+      }
+    }
+  }
+  channel "sequence"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "66"
+  "RampTool" "40"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

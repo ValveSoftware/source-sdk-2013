@@ -1,0 +1,117 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_cit_join01"
+    {
+      time 2.037037 3.360574
+      param "ep_01.al_cit_join01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_notellingtime"
+    {
+      time 5.657407 9.854414
+      param "ep_01.al_notellingtime"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "backstreet_citizen_3"
+    {
+      time 0.064815 6.851853
+      param "backstreet_citizen_3"
+      event_ramp
+      {
+        0.8833 0.9714
+        6.4515 0.9016
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "backstreet_citizen_3"
+    {
+      time 1.388889 6.240741
+      param "backstreet_citizen_3"
+      event_ramp
+      {
+        0.5400 0.9429
+        4.5311 0.9175
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Body_gestures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.500000
+      param "NULL"
+    }
+    event gesture "point"
+    {
+      time 1.601852 5.920370
+      param "a_g_point"
+      absolutetags playback_time
+      {
+        "in" 0.070779
+        "loop" 0.231818
+        "end" 0.742489
+        "out" 0.864807
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.169811
+        "loop" 0.471698
+        "end" 0.566038
+        "out" 0.716981
+      }
+      sequenceduration 1.800000
+    }
+  }
+  channel "Trigger"
+  {
+    event generic "point"
+    {
+      time 1.750000 6.000000
+      param "AI_AIM"
+      param2 "backstreet_citizen_3"
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "head flex"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "72"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

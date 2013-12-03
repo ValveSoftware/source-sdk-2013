@@ -1,0 +1,74 @@
+// Choreo version 1
+actor "chet"
+{
+  channel "move to"
+  {
+    event moveto "chetMovesAwayFromDoor"
+    {
+      time 4.932857 8.876908
+      param "!target1"
+      param2 "Run"
+    }
+  }
+  channel "debug text"
+  {
+    event generic "chet runs away"
+    {
+      time 4.929285 6.357858
+      param "debugtext Chet: Right.  I should get back outside with the others."
+    }
+    event generic "chet says there used to be a door..."
+    {
+      time 0.553808 1.393094
+      param "debugtext Chet: Well, this used to be the way to get downstairs."
+    }
+  }
+  channel "audio"
+  {
+  }
+  channel "face to"
+  {
+    event face "chetFacePlayer"
+    {
+      time 0.562617 2.648331
+      param "!player"
+      event_ramp 
+      {
+        0.1176 1.0000
+        1.9246 1.0000
+      }
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "fastZombieScream"
+    {
+      time 4.434524 -1.000000
+      param "8"
+    }
+  }
+  channel "look at"
+  {
+    event lookat "chetLooksAtPlayer"
+    {
+      time 0.928571 1.946429
+      param "!player"
+      event_ramp 
+      {
+        0.0880 0.9831
+        0.9240 1.0000
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "98"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -2199,7 +2199,7 @@ void CNPC_Hunter::PrescheduleThink()
 		if ( m_flPupilDilateTime < gpGlobals->curtime )
 		{
  			CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
- 			if ( pPlayer && !pPlayer->IsIlluminatedByFlashlight( this, NULL ) || !PlayerFlashlightOnMyEyes( pPlayer ) )
+ 			if ( ( pPlayer && !pPlayer->IsIlluminatedByFlashlight( this, NULL ) ) || !PlayerFlashlightOnMyEyes( pPlayer ) )
 			{
 				//Msg( "NOT SHINING FLASHLIGHT ON ME\n" );
 			
@@ -6347,13 +6347,13 @@ void CNPC_Hunter::FootFX( const Vector &origin )
 CBaseEntity *CNPC_Hunter::GetEnemyVehicle()
 {
 	if ( GetEnemy() == NULL )
-		return false;
+		return NULL;
 
 	CBaseCombatCharacter *pCCEnemy = GetEnemy()->MyCombatCharacterPointer();
 	if ( pCCEnemy != NULL )
 		return pCCEnemy->GetVehicleEntity();
 
-	return false;
+	return NULL;
 }
 
 

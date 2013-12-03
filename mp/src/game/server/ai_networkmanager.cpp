@@ -48,7 +48,7 @@ inline void DebugConnectMsg( int node1, int node2, const char *pszFormat, ... )
 		Q_vsnprintf( string, sizeof(string), pszFormat, argptr );
 		va_end( argptr );
 
-		DevMsg( string );
+		DevMsg( "%s", string );
 	}
 }
 

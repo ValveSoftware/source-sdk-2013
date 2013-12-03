@@ -1810,7 +1810,10 @@ void CNPC_Barnacle::SwallowPrey( void )
 
 #if HL2_EPISODIC
 		// digest poisonous things for just a moment before being killed by them (it looks wierd if it's instant)
-		m_flDigestFinish = gpGlobals->curtime + m_bSwallowingPoison ? 0.48f : 10.0f;
+		// Parentheses were probably intended around the ?: part of the expression, but putting them there now
+		// would change the behavior which is undesirable, so parentheses were placed around the '+' to suppress
+		// compiler warnings.
+		m_flDigestFinish = ( gpGlobals->curtime + m_bSwallowingPoison ) ? 0.48f : 10.0f;
 #else
 		m_flDigestFinish = gpGlobals->curtime + 10.0;
 #endif

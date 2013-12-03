@@ -44,6 +44,11 @@ $Configuration	"Release"
 
 $Configuration
 {
+	$General
+	{
+		$OutputDirectory		".\$GAMENAME"		[$OSXALL]
+	}
+	
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;.\;$SRCDIR\game\shared;$SRCDIR\utils\common;$SRCDIR\game\shared\econ;$SRCDIR\game\server\NextBot"
@@ -998,40 +1003,7 @@ $Project
 		$File	"toolframework_server.h"
 	}
 	
-	
-	$Folder	"Link Libraries" [$WIN32]
-	{
-		$DynamicFile	"$SRCDIR\lib\public\choreoobjects.lib"
-		$DynamicFile	"$SRCDIR\lib\public\dmxloader.lib"
-		$DynamicFile	"$SRCDIR\lib\public\mathlib.lib"
-		$DynamicFile	"$SRCDIR\lib\public\particles.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier2.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier3.lib"
-		$DynamicFile	"$SRCDIR\lib\public\steam_api.lib"
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$DynamicFile	"$SRCDIR\lib\public\choreoobjects_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\dmxloader_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\mathlib_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\particles_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier2_360.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier3_360.lib"
-	}
-
-	$Folder	"Link Libraries" [$POSIX && !$LINUX]
-	{
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\choreoobjects$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\dmxloader$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\mathlib$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\particles$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\tier2$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\tier3$_STATICLIB_EXT"
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXsteam_api$_IMPLIB_EXT"
-	}
-
-	$Folder	"Link Libraries" [$LINUX]
+	$Folder	"Link Libraries" 
 	{
 		$Lib	choreoobjects
 		$Lib	dmxloader
@@ -1039,6 +1011,6 @@ $Project
 		$Lib	particles
 		$Lib	tier2
 		$Lib	tier3
-		$DynamicFile		"$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXsteam_api$_EXTERNAL_IMPLIB_EXT"
+		$ImpLibexternal steam_api
 	}
 }

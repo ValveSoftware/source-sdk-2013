@@ -1,0 +1,115 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "mudcop1_01"
+    {
+      time 0.006667 1.419932
+      param "canals.mudcop1_01"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "mudcop1_02"
+    {
+      time 3.460000 7.079954
+      param "canals.mudcop1_02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "mudcop1_03"
+    {
+      time 10.346666 11.388027
+      param "canals.mudcop1_03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "mudcop1_04"
+    {
+      time 14.113334 14.931542
+      param "canals.mudcop1_04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "mudcop1_05"
+    {
+      time 21.973335 22.890705
+      param "canals.mudcop1_05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+  }
+}
+
+actor "!Target2"
+{
+  channel "Audio"
+  {
+    event speak "mudcop2_01"
+    {
+      time 1.920000 3.110137
+      param "canals.mudcop2_01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "mudcop2_02"
+    {
+      time 7.446666 10.149251
+      param "canals.mudcop2_02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "mudcop2_03"
+    {
+      time 11.833333 13.717687
+      param "canals.mudcop2_03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "mudcop2_04"
+    {
+      time 15.320001 21.617733
+      param "canals.mudcop2_04"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "mudcop2_05"
+    {
+      time 23.300003 24.390955
+      param "canals.mudcop2_05"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+}
+fps 60
+snap off

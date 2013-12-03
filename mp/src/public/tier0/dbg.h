@@ -253,9 +253,13 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 				if ( ret == SPEW_DEBUGGER)									\
 				{															\
 					if ( !ShouldUseNewAssertDialog() || DoNewAssertDialog( __TFILE__, __LINE__, _msg ) ) \
+					{														\
 						DebuggerBreak();									\
+					}														\
 					if ( _bFatal )											\
+					{														\
 						_ExitOnFatalAssert( __TFILE__, __LINE__ );			\
+					}														\
 				}															\
 			}																\
 		} while (0)

@@ -1,0 +1,62 @@
+// Choreo version 1
+actor "Mossman"
+{
+  channel "audio"
+  {
+    event speak "mo_gowithalyx02"
+    {
+      time 0.199998 1.963717
+      param "eli_lab.mo_gowithalyx02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.026668 2.206667
+      param "!player"
+      event_ramp
+      {
+        0.5400 0.4930
+        1.7066 0.5710
+        1.8105 0.5738
+        1.8798 0.5849
+        1.9800 0.5543
+        2.1800 0.5236
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\mossman.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "50"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,49 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "lookat"
+  {
+    event lookat "!player"
+    {
+      time 0.036232 11.704968
+      param "!player"
+    }
+  }
+  channel "faceto"
+  {
+    event face "!player"
+    {
+      time 0.028986 8.181159
+      param "!player"
+    }
+  }
+  channel "moveto"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+    event firetrigger "1"
+    {
+      time 2.889579 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "models\humans\group03\male_03.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

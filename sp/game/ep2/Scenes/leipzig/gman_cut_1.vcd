@@ -1,0 +1,59 @@
+// Choreo version 1
+actor "Gman"
+{
+  channel "Audio"
+  {
+    event speak "gman_forgetaboutallthis02"
+    {
+      time 0.755064 3.470347
+      param "ep_02.leipzig.gman_notsuptobehere"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "alyx_gman"
+    {
+      time 0.029767 3.551352
+      param "alyx_gman"
+      event_ramp
+      {
+        0.3971 0.0751
+        0.7059 0.0751
+        1.0118 0.0751
+        2.6544 0.0751
+        2.9426 0.0751
+        3.2049 0.0751
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  faceposermodel "models\gman.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "124"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+  "RampTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -3311,7 +3311,8 @@ void CBasePlayer::PhysicsSimulate( void )
 	}
 #endif // _DEBUG
 
-	if ( int numUsrCmdProcessTicksMax = sv_maxusrcmdprocessticks.GetInt() )
+	int numUsrCmdProcessTicksMax = sv_maxusrcmdprocessticks.GetInt();
+	if ( gpGlobals->maxClients != 1 && numUsrCmdProcessTicksMax ) // don't apply this filter in SP games
 	{
 		// Grant the client some time buffer to execute user commands
 		m_flMovementTimeForUserCmdProcessingRemaining += TICK_INTERVAL;

@@ -1,0 +1,45 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "streetwar.al_letsgo02_r"
+    {
+      time 0.013334 0.706577
+      param "streetwar.al_letsgo02_r"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.020000 0.706667
+      param "!player"
+      event_ramp
+      {
+        0.1080 0.8596
+        0.1700 0.9868
+        0.5507 0.9868
+        0.6207 0.8377
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

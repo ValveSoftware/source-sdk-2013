@@ -1,0 +1,48 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "seenworse"
+    {
+      time 0.026667 3.286191
+      param "npc_vortigaunt.seenworse"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look"
+  {
+    event lookat "!player"
+    {
+      time 0.020000 3.273334
+      param "!player"
+      event_ramp
+      {
+        0.1500 0.8728
+        0.2654 1.0000
+        2.9729 0.9912
+        3.0882 0.8728
+      }
+    }
+  }
+  channel "Head"
+  {
+  }
+  channel "Facial"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

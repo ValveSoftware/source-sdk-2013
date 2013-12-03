@@ -1,0 +1,106 @@
+// Choreo version 1
+event section "pause"
+{
+  time 2.008576 -1.000000
+  param "noaction"
+}
+actor "npc_citizen_box"
+{
+  channel "audio"
+  {
+    event speak "ep_02.reb_chop_favor01"
+    {
+      time 2.586956 3.670516
+      param "ep_02.reb_chop_favor01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 1.760869 4.500000
+      param "!player"
+      event_ramp
+      {
+        0.9667 1.0000
+        2.0875 1.0000
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 1.768115 4.449275
+      param "!player"
+      event_ramp
+      {
+        0.9333 1.0000
+        2.0223 0.9928
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_citgreet_1"
+    {
+      time 0.050725 2.724638
+      param "mark_citgreet_1"
+      param2 "Run"
+      resumecondition
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "wave"
+    {
+      time 2.304348 4.321737
+      param "g_wave"
+      absolutetags playback_time
+      {
+        "in" 0.286397
+        "loop" 0.616366
+        "end" 0.659388
+        "out" 0.695240
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.352941
+        "loop" 0.779412
+        "end" 0.794118
+        "out" 0.808824
+      }
+      sequenceduration 2.300000
+    }
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1 pause"
+    {
+      time 2.231884 -1.000000
+      param "1"
+    }
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\ep1_c17_00.bsp"
+scalesettings
+{
+  "CChoreoView" "92"
+  "SceneRampTool" "100"
+  "RampTool" "84"
+  "ExpressionTool" "66"
+  "GestureTool" "100"
+}
+fps 60
+snap off

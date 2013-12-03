@@ -1,0 +1,61 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_combat_nice"
+    {
+      time 0.173611 0.849869
+      param "npc_alyx.gordon_dist01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.027778 1.694445
+      param "!player"
+      event_ramp
+      {
+        0.3082 0.9293
+        1.5408 0.9764
+      }
+    }
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.069445 1.159722
+      param "!player"
+      event_ramp
+      {
+        0.3571 0.9360
+        0.8755 0.9764
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

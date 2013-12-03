@@ -1,0 +1,16 @@
+// base file for a console app with qt. win32 only for now. CG: I'm not 100% sure this is the right definition,
+// but I'm moving the logic here so it doesn't end up pasted into every such app.
+
+$Include "$SRCDIR\vpc_scripts\source_exe_qt_win32_base.vpc"
+
+$Configuration
+{
+	$Linker
+	{
+		$SubSystem		"Console (/SUBSYSTEM:CONSOLE)"
+	}
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE,..\common"
+	}
+}

@@ -16,7 +16,8 @@
 #include "limits.h"
 
 #if defined( OSX )
-inline wchar_t *wcsdup(const wchar_t *pString)
+#define wcsdup wcsdup_osx
+inline wchar_t *wcsdup_osx(const wchar_t *pString)
 {
 	wchar_t *pMemory;
 

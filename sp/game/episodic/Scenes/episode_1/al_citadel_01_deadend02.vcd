@@ -1,0 +1,181 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 8.956987 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "npc_alyx.gasp03"
+    {
+      time 1.978493 2.442529
+      param "npc_alyx.gasp03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_random"
+    {
+      time 6.548386 7.137592
+      param "ep_01.al_random"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_random02"
+    {
+      time 7.591397 8.745138
+      param "ep_01.al_random02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.021505 1.220430
+      param "!player"
+      event_ramp 
+      {
+        0.5308 0.9810
+        0.6469 1.0000
+      }
+    }
+    event lookat "mark_look_tesla_01"
+    {
+      time 0.688172 2.166666
+      param "mark_look_tesla_01"
+      event_ramp 
+      {
+        0.2000 0.9746
+        1.4152 0.9810
+      }
+    }
+    event lookat "mark_look_tesla_01"
+    {
+      time 3.344087 7.844086
+      param "mark_look_tesla_01"
+      event_ramp 
+      {
+        0.6308 0.9746
+        4.0868 0.9810
+      }
+    }
+    event lookat "!player"
+    {
+      time 7.376344 9.693548
+      param "!player"
+      event_ramp 
+      {
+        0.3808 0.9460
+        2.0789 0.9206
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_walkdebris_1"
+    {
+      time 0.344086 1.295699
+      param "mark_al_walkdebris_1"
+      param2 "Walk"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!self"
+    {
+      time 1.558322 3.875528
+      param "!self"
+      event_ramp 
+      {
+        0.0654 0.9778
+        2.2253 0.9556
+      }
+    }
+    event face "mark_look_tesla_01"
+    {
+      time 1.032258 1.768817
+      param "mark_look_tesla_01"
+      event_ramp 
+      {
+        0.2808 0.9778
+        0.5962 0.9206
+      }
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 2.059139
+      param ""
+    }
+    event gesture "A_P_exposreact_ng"
+    {
+      time 1.633591 4.317259
+      param "A_P_exposreact_ng"
+      absolutetags playback_time
+      {
+        "apex" 0.147962
+        "loop" 0.295924
+        "end" 0.339913
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.100000
+        "loop" 0.371429
+        "end" 0.485714
+      }
+      sequenceduration 2.366667
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  channel "bodyges"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 3.485233
+      param ""
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 4.284517
+      param "NULL"
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "62"
+  "ExpressionTool" "18"
+  "GestureTool" "76"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

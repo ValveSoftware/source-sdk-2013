@@ -1,0 +1,108 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "ep_02.vort_extract_keen01"
+    {
+      time 0.141667 2.968333
+      param "ep_02.vort_extract_keen01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_02.vort_extract_keen02"
+    {
+      time 3.083334 6.678005
+      param "ep_02.vort_extract_keen02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "flex"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time -0.000000 6.750000
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "center_lid_raiser" 
+        {
+          2.1617 0.0000
+          2.2840 0.1447
+          2.5340 0.0000
+        }
+        "center_lid_tightener" 
+        {
+          1.7017 0.0000
+          2.0600 0.0000
+          2.7600 0.0000
+        }
+        "center_lid_droop" 
+        {
+          1.7017 0.0000
+          2.0600 0.0000
+          2.7600 0.0000
+        }
+        "center_lid_closer" 
+        {
+          1.7017 0.0000
+          2.0600 0.0000
+          2.7600 0.0000
+        }
+      }
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "Look at !player"
+    {
+      time 0.033333 6.775000
+      param "!player"
+      event_ramp
+      {
+        0.2180 0.3587
+        0.3700 0.8251
+        0.4980 0.9647
+        0.6460 1.0000
+        5.6800 0.9982
+        5.9220 0.9611
+        6.1540 0.8251
+        6.5100 0.1996
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "80"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

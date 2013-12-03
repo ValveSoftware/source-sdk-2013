@@ -1,0 +1,222 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "firetrap_welldone"
+    {
+      time 0.266667 1.835012
+      param "ravenholm.firetrap_welldone"
+      param2 "90dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "firetrap_freeuse"
+    {
+      time 2.313333 7.615623
+      param "ravenholm.firetrap_freeuse"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.013333 7.800000
+      param "!player"
+      event_ramp
+      {
+        0.0780 0.0597
+        0.4960 0.9748
+        7.0686 0.9748
+        7.6806 0.0440
+      }
+    }
+  }
+  channel "triggers"
+  {
+    event firetrigger "spawn headcrab"
+    {
+      time 8.426667 -1.000000
+      param "1"
+    }
+  }
+  channel "Sequence"
+  {
+    active "0"
+  }
+  channel "Faceto"
+  {
+    event face "!player"
+    {
+      time 0.000000 8.361632
+      param "!player"
+    }
+  }
+  channel "posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.606918
+      param ""
+    }
+    event gesture "p_Step_Forward"
+    {
+      time 0.012579 5.312579
+      param "p_Step_Forward"
+      absolutetags playback_time
+      {
+        "apex" 0.111639
+        "loop" 0.344418
+        "end" 0.374109
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.126582
+        "loop" 0.411392
+        "end" 0.443038
+      }
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.946667
+      param ""
+    }
+    event gesture "Well_Done"
+    {
+      time 0.013333 2.345284
+      param "g_Fist"
+      event_ramp
+      {
+        0.6827 0.7271
+        0.8909 0.8364
+        1.3808 0.6675
+        1.9231 0.1026
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.279871
+        "accent" 0.381655
+        "loop" 0.454358
+        "end" 0.538544
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.258621
+        "accent" 0.413793
+        "loop" 0.517241
+        "end" 0.603448
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "NULL"
+    {
+      time 1.966667 2.466667
+      param ""
+    }
+    event gesture "g_sweep"
+    {
+      time 2.040000 5.301657
+      param "g_Sweep"
+      event_ramp
+      {
+        0.5750 0.3079
+        0.6808 0.4007
+        1.1429 0.7214
+        1.3571 0.7893
+        1.5409 0.8080
+        2.1214 0.8107
+        2.2864 0.8047
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.206717
+        "accent" 0.405405
+        "loop" 0.599481
+        "end" 0.720932
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.227273
+        "accent" 0.522727
+        "loop" 0.659091
+        "end" 0.693182
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "g_presenting"
+    {
+      time 3.850439 7.706663
+      param "g_Presenting"
+      event_ramp
+      {
+        0.4706 0.4879
+        0.9346 0.6811
+        1.1695 0.6972
+        1.9748 0.6918
+        2.4179 0.6543
+        2.7879 0.4638
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.140291
+        "accent" 0.301660
+        "loop" 0.521219
+        "end" 0.674985
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.171429
+        "accent" 0.314286
+        "loop" 0.600000
+        "end" 0.671429
+      }
+      sequenceduration 2.366667
+    }
+    event gesture "g_Low_Chop"
+    {
+      time 5.740000 8.400001
+      param "g_Low_Chop"
+      event_ramp
+      {
+        1.7109 0.6464
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.268170
+        "accent" 0.457644
+        "loop" 0.639098
+        "end" 0.776942
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.206897
+        "accent" 0.396552
+        "loop" 0.517241
+        "end" 0.603448
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "BodyGestures"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\monk.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "106"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "28"
+}
+fps 60
+snap off

@@ -1,0 +1,347 @@
+// Choreo version 1
+actor "Breen"
+{
+  channel "audio"
+  {
+    event speak "this is a significant development"
+    {
+      time -0.326666 3.064309
+      param "k_lab.br_significant"
+      fixedlength
+      tags
+      {
+        "man" 0.787834
+      }
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "there he is again!"
+    {
+      time 3.613335 5.118845
+      param "k_lab.br_thereheis"
+      fixedlength
+      tags
+      {
+        "there" 0.044352
+      }
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "triggers"
+  {
+    event firetrigger "teleport FX"
+    {
+      time 4.846667 -1.000000
+      param "1"
+    }
+    event firetrigger "2 - suck sound"
+    {
+      time 2.853333 -1.000000
+      param "2"
+    }
+  }
+  channel "looktargets"
+  {
+    event lookat "look at player"
+    {
+      time 2.779999 5.099994
+      param "!player"
+      event_ramp
+      {
+        0.3354 0.5789
+        0.5660 0.7738
+        0.8170 0.8452
+        1.7573 0.8492
+        2.1213 0.8492
+        2.3200 0.8492
+      }
+    }
+    event lookat "look offscreen"
+    {
+      time -0.240001 3.319999
+      param "breen_looktarget"
+      event_ramp
+      {
+        0.0968 0.6548
+        0.3290 0.9524
+        2.9839 0.9683
+        3.3548 0.6270
+      }
+    }
+  }
+  channel "faceto"
+  {
+    event face "face player"
+    {
+      time 2.860000 4.446668
+      param "!player"
+      event_ramp
+      {
+        0.2680 0.4683
+        0.6060 0.7619
+        0.6660 0.7698
+        1.2993 0.7817
+        1.5480 0.7857
+        1.5853 0.7817
+      }
+    }
+    event face "breen_looktarget"
+    {
+      time -0.443031 2.264850
+      param "breen_looktarget"
+      event_ramp
+      {
+        0.2099 0.4865
+        0.6060 1.0000
+        0.6660 1.0000
+        2.4205 1.0000
+        2.6692 1.0000
+        2.7065 1.0000
+      }
+    }
+  }
+  channel "posture"
+  {
+  }
+  channel "bodyaccent"
+  {
+  }
+  channel "gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.226666
+      param ""
+    }
+    event gesture "g1"
+    {
+      time 0.000000 4.365277
+      param "B_gesture01"
+      absolutetags playback_time
+      {
+        "appex2" 0.183184
+        "apex" 0.290670
+        "appex3" 0.367816
+        "accent" 0.443415
+        "loop" 0.568795
+        "end" 0.804836
+      }
+      absolutetags shifted_time
+      {
+        "appex2" 0.195265
+        "apex" 0.227273
+        "appex3" 0.265277
+        "accent" 0.386364
+        "loop" 0.568182
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+    event gesture "g2"
+    {
+      time 3.060000 6.319998
+      param "B_gesture01"
+      event_ramp
+      {
+        0.4800 0.5309
+        2.7453 0.4762
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.139059
+        "accent" 0.278119
+        "loop" 0.586912
+        "end" 0.820041
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.227273
+        "accent" 0.386364
+        "loop" 0.568182
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "head"
+  {
+    event flexanimation "head"
+    {
+      time -0.453333 5.266666
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.1001 0.4700
+          0.6109 0.5000
+          2.0366 0.5000
+          2.2447 0.5100
+          2.7369 0.5100
+          2.9147 0.5100
+          3.2873 0.5100
+          4.1619 0.5100
+          4.2363 0.4900
+          4.3459 0.4800
+          4.5569 0.4900
+          4.6975 0.4800
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1001 0.3500
+          0.6109 0.5900
+          2.0151 0.6700
+          2.0366 0.6700
+          2.2447 0.2900
+          2.7369 0.5500
+          2.9147 0.4000
+          3.2873 0.5200
+          4.1267 0.6100
+          4.1619 0.5900
+          4.2363 0.4700
+          4.3459 0.3900
+          4.5569 0.5500
+          4.6975 0.3500
+          4.7685 0.3500
+          4.8161 0.3900
+          4.8885 0.4100
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.1001 0.4100
+          0.6109 0.5000
+          2.0366 0.6100
+          2.2447 0.6400
+          2.7369 0.5500
+          2.9147 0.5500
+          3.2873 0.5500
+          4.1308 0.5400
+          4.1719 0.5700
+          4.2363 0.6800
+          4.3159 0.7300
+          4.5569 0.6900
+          4.6975 0.7100
+        }
+        "head_forwardback"         range 0.2 -0.2        
+        {
+          0.1001 0.5000
+          0.6109 0.6100
+          2.0068 0.6200
+          2.0366 0.6100
+          2.2447 0.4000
+          2.7369 0.5400
+          2.9147 0.5400
+          3.2873 0.5400
+          4.1371 0.6900
+          4.1619 0.6700
+          4.2363 0.3500
+          4.3459 0.2500
+          4.4687 0.3000
+          4.5569 0.3100
+          4.6975 0.2700
+        }
+      }
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.046667 5.413333
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_raiser"         combo        
+        {
+          3.5063 0.1500
+          4.0431 1.0000
+        }
+        {
+          3.4226 0.5000
+          4.0431 0.5000
+        }
+        "lid_tightener"         combo        
+        {
+          3.4226 0.5400
+          3.9496 0.0400
+        }
+        {
+          3.4226 0.5000
+        }
+        "inner_raiser"         combo        
+        {
+          0.4778 0.7800
+          0.9163 0.7800
+          1.7664 0.9100
+          3.2897 0.0000
+          4.0178 0.6700
+        }
+        {
+          0.4778 0.5000
+          0.9163 0.5000
+          1.7664 0.5000
+          3.2897 0.5000
+          4.0178 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.4778 0.2800
+          0.9163 0.2800
+          1.7664 0.2800
+          3.2897 0.0000
+          4.0178 0.8700
+        }
+        {
+          0.4778 0.5000
+          0.9163 0.5000
+          1.7664 0.5000
+          3.2897 0.5000
+          4.0178 0.5000
+        }
+        "lowerer"         combo        
+        {
+          0.4778 0.8300
+          0.8894 0.0400
+          1.7664 0.0000
+          3.2897 0.8000
+          4.0178 0.0000
+        }
+        {
+          0.4778 0.5000
+          1.7664 0.5000
+          3.2897 0.5000
+          4.0178 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.4778 0.2000
+          0.9163 0.2000
+          1.7664 0.2000
+          3.2897 0.2000
+          4.0178 0.2000
+        }
+        {
+          0.4778 0.5000
+          0.9163 0.5000
+          1.7664 0.5000
+          3.2897 0.5000
+          4.0178 0.5000
+        }
+      }
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\breen.mdl"
+}
+
+mapname "maps\d1_trainstation_05.bsp"
+scalesettings
+{
+  "CChoreoView" "88"
+  "RampTool" "62"
+  "ExpressionTool" "42"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

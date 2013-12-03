@@ -1,0 +1,403 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "audio"
+  {
+    event speak "shanty_gotsomeammo"
+    {
+      time 0.200001 1.953017
+      param "canals.shanty_gotsomeammo"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "shanty_helpyourself"
+    {
+      time 2.755555 5.154421
+      param "canals.shanty_helpyourself"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "Lookat_Player"
+    {
+      time 0.004166 1.640277
+      param "!player"
+      event_ramp
+      {
+        0.1400 0.5487
+        0.3333 0.9198
+        0.5567 0.9921
+        1.0473 0.9890
+        1.1806 0.9104
+      }
+    }
+    event lookat "Lookat_Player"
+    {
+      time 2.080554 6.052777
+      param "!player"
+      event_ramp
+      {
+        0.1733 0.5503
+        0.3200 0.8443
+        0.5067 0.9827
+        3.4822 0.9818
+      }
+    }
+    event lookat "Lookat_ammo_crate"
+    {
+      time 1.244444 2.386110
+      param "!target4"
+      event_ramp
+      {
+        0.3900 0.4582
+        0.7469 0.4582
+      }
+    }
+    event generic "blink override"
+    {
+      time 0.066666 5.122221
+      param "AI_BLINK"
+    }
+    event lookat "Lookat radio"
+    {
+      time 6.552776 7.677776
+      param "mark_lookat_radio"
+      event_ramp
+      {
+        0.1733 0.5503
+        0.3200 0.8443
+        0.5067 0.9827
+        1.1250 1.0000
+      }
+    }
+  }
+  channel "sequence"
+  {
+    event sequence "Idle_Relaxed_SMG1_7"
+    {
+      time 0.013889 7.215279
+      param "Idle_Relaxed_SMG1_7"
+      event_ramp
+      {
+        0.5100 0.9455
+        6.6344 0.9745
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "faceto radio"
+    {
+      time 6.612501 7.680558
+      param "mark_lookat_radio"
+      event_ramp
+      {
+        1.0681 1.0000
+      }
+    }
+    event face "faceto_player"
+    {
+      time 0.272222 5.763890
+      param "!player"
+      event_ramp
+      {
+        0.5733 0.7345
+        0.7600 0.9164
+        1.0433 1.0000
+        5.4917 1.0000
+      }
+    }
+    event face "crates"
+    {
+      time 1.105557 2.465280
+      param "!target4"
+      event_ramp
+      {
+        0.4800 0.2218
+        0.7567 0.2218
+      }
+      lockbodyfacing
+    }
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.090278
+      param ""
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.270833
+      param ""
+    }
+    event gesture "fwd"
+    {
+      time 2.784723 4.662500
+      param "bg_accentFwd"
+      event_ramp
+      {
+        0.0000 0.3985
+        0.9749 0.3835
+        1.8777 0.3910
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.203766
+        "extreme" 0.414860
+        "loop" 0.664448
+        "end" 0.777795
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.138889
+        "extreme" 0.361111
+        "loop" 0.555556
+        "end" 0.694444
+      }
+      sequenceduration 2.433333
+    }
+    event gesture "NULL"
+    {
+      time 2.493056 2.673612
+      param ""
+    }
+    event gesture "bg_accentUp"
+    {
+      time 0.076389 2.152586
+      param "bg_accentUp"
+      event_ramp
+      {
+        0.3000 0.4218
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.146502
+        "extreme" 0.358116
+        "loop" 0.631884
+        "end" 0.641884
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.125000
+        "extreme" 0.305556
+        "loop" 0.555556
+        "end" 0.694444
+      }
+      sequenceduration 2.433333
+    }
+    event gesture "b_OverHere_Left"
+    {
+      time 1.069444 2.869444
+      param "b_OverHere_Left"
+      event_ramp
+      {
+        0.3467 0.3600
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 3.666666 3.854166
+      param ""
+    }
+    event gesture "b_OverHere_Left"
+    {
+      time 4.097223 6.001390
+      param "b_OverHere_Left"
+      absolutetags playback_time
+      {
+        "apex" 0.233062
+        "extreme" 0.803807
+        "loop" 0.821642
+        "end" 0.839478
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.188679
+        "extreme" 0.792453
+        "loop" 0.811321
+        "end" 0.830189
+      }
+      sequenceduration 1.800000
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "enable hudhint"
+    {
+      time 1.466666 -1.000000
+      param "1"
+    }
+  }
+  channel "Flex Anim"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.044444 5.122222
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_tightener"         combo        
+        {
+          2.1376 0.0100
+          2.3223 0.3900
+          2.4725 0.0200
+        }
+        {
+          2.3223 0.5000
+        }
+        "lid_closer"         combo        
+        {
+          0.6753 0.0000
+          0.7535 1.0000
+          0.8397 0.0000
+          1.4009 0.0000
+          1.4734 1.0000
+          1.5404 0.0000
+          2.3106 0.0000
+          2.3832 1.0000
+          2.4856 0.0000
+          3.3599 0.0000
+          3.4325 1.0000
+          3.5264 0.0000
+          3.9003 0.0000
+          3.9784 1.0000
+          4.0677 0.0000
+          4.8826 0.0000
+          4.9551 1.0000
+          5.0388 0.0000
+        }
+        {
+        }
+        "inner_raiser"         combo        
+        {
+          0.7847 0.6900
+          1.3839 0.0000
+          2.1368 0.0000
+          2.3223 0.3600
+          3.2650 0.6800
+          4.1396 0.2400
+          5.0605 0.0200
+        }
+        {
+          0.7847 0.0600
+          1.1972 0.4100
+          2.3223 0.5000
+          3.2650 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          2.0930 0.0000
+          2.3223 0.3500
+          3.3152 1.0000
+          4.1787 0.0000
+        }
+        {
+          2.3223 0.5000
+          3.3152 1.0000
+        }
+        "lowerer"         combo        
+        {
+          1.1718 0.0000
+          1.7179 0.5400
+          2.2476 0.0000
+          4.6140 0.0000
+          4.7926 0.6400
+        }
+        {
+          0.7847 0.5000
+          1.7709 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.7847 0.3600
+          1.7709 0.0000
+        }
+        {
+          0.7847 0.0000
+          1.7709 0.0000
+        }
+        "jaw_drop"        
+        {
+          2.7200 0.0000
+          3.0540 0.3300
+          3.2131 0.0000
+        }
+        "mouth_drop"         combo        
+        {
+          2.7200 0.0000
+          3.0540 0.7500
+          3.1866 0.0000
+        }
+        {
+          3.0540 0.5000
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          2.6591 0.5100
+          2.7373 0.5100
+          3.2954 0.4000
+          3.5577 0.3900
+          3.9875 0.4600
+          4.5919 0.5000
+          4.7647 0.5500
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          2.6256 0.5000
+          2.7652 0.4900
+          3.2786 0.6000
+          3.5521 0.3900
+          3.9540 0.5000
+          4.5807 0.6100
+          4.7368 0.3600
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          2.6145 0.4800
+          2.7428 0.4800
+          3.2563 0.4100
+          3.5298 0.5700
+          3.9261 0.4800
+          4.5640 0.4500
+          4.7591 0.5400
+        }
+      }
+    }
+  }
+  faceposermodel "U:\HL2\release\dev\hl2\models\Humans\Group01\male_09.mdl"
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "38"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

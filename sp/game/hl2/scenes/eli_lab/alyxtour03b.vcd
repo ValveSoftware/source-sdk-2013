@@ -1,0 +1,227 @@
+// Choreo version 1
+event section "pause_raven"
+{
+  time 2.880000 -1.000000
+  param "noaction"
+}
+event stoppoint "end"
+{
+  time 6.373333 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "we used to go to Ravenholm..."
+    {
+      time 3.733335 6.273494
+      param "eli_lab.al_ravenholm02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look_player"
+    {
+      time 2.639999 6.686666
+      param "!player"
+      event_ramp
+      {
+        0.4000 0.6059
+        2.8611 0.5985
+        3.7688 0.6468
+        4.0034 0.6394
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "run to player"
+    {
+      time 0.013332 3.020000
+      param "!player"
+      param2 "Run"
+      resumecondition
+      distancetotarget 42.00
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.086667
+      param ""
+    }
+    event gesture "A_bg_embarassed"
+    {
+      time 3.626666 7.573333
+      param "A_bg_embarassed"
+      event_ramp
+      {
+        0.0038 0.7159
+        0.0346 0.7159
+        3.9077 0.5568
+        3.9385 0.5568
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.149870
+        "extreme" 0.297297
+        "loop" 0.506757
+        "end" 0.777027
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.136364
+        "extreme" 0.329545
+        "loop" 0.454545
+        "end" 0.568182
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.406667
+      param ""
+    }
+    event gesture "A_g_rthdflipout"
+    {
+      time 3.653333 6.620000
+      param "A_g_rthdflipout"
+      event_ramp
+      {
+        0.5192 0.7841
+        0.6385 0.9015
+        0.7577 0.9659
+        0.9692 0.9962
+        1.6808 0.2008
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.147727
+        "accent" 0.375000
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.147727
+        "accent" 0.375000
+        "loop" 0.545455
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.000000 8.000000
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.3827 0.5100
+          3.4243 0.5100
+          3.7217 0.5100
+          4.0672 0.6100
+          5.1261 0.6100
+          5.4809 0.7500
+          6.1427 0.5100
+        }
+        {
+          0.3827 0.5000
+          3.4243 0.5000
+          3.7217 0.5000
+          4.0672 0.5000
+          5.1261 0.5000
+          5.4809 0.5000
+          6.1427 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.3827 0.0000
+          3.4243 0.0000
+          3.7217 0.0000
+          4.0672 0.3100
+          5.1261 0.3100
+          5.4809 0.0000
+          6.1427 0.0000
+        }
+        {
+          0.3827 0.5000
+          3.4243 0.5000
+          3.7217 0.5000
+          4.0672 0.5000
+          5.1261 0.5000
+          5.4809 0.5000
+          6.1427 0.5000
+        }
+        "lowerer"         combo        
+        {
+          0.3827 0.0000
+          3.4243 0.0000
+          3.7217 0.0000
+          4.0672 0.0000
+          5.1261 0.0000
+          5.4809 0.2800
+          6.1427 0.0000
+        }
+        {
+          0.3827 0.5000
+          3.4243 0.5000
+          3.7217 0.5000
+          4.0672 0.5000
+          5.1261 0.5000
+          5.4809 0.5000
+          6.1427 0.5000
+        }
+        "corner_depressor"         combo        
+        {
+          0.3827 0.3900
+          3.4243 0.3900
+          3.7217 0.3900
+          4.0672 0.3900
+          5.1261 0.3900
+          5.4809 0.3800
+          6.1427 0.3900
+        }
+        {
+          0.3827 0.5000
+          3.4243 0.5000
+          3.7217 0.5000
+          4.0672 0.5000
+          5.1261 0.5000
+          5.4809 0.5000
+          6.1427 0.5000
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

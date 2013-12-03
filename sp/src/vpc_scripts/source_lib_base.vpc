@@ -1,20 +1,22 @@
-//-----------------------------------------------------------------------------
-//	source_lib_base.VPC
-//
-//	Project Script
-//-----------------------------------------------------------------------------
-
+$Include "$SRCDIR\vpc_scripts\platform_dirs.vpc"
 $include "$SRCDIR\vpc_scripts\source_base.vpc"
 
-$Macro PLATSUBDIR	"\linux32" [$LINUX32]
-$Macro OUTBINDIR	"$OUTBINDIR"	[$LINUX32]
-$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR"	[$LINUX32]
-$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR"	[$LINUX32]
+$MacroRequired OUTLIBDIR	"$SRCDIR\lib\public$PLATSUBDIR"
 
-$MacroRequired		"OUTLIBDIR" "$SRCDIR\lib\public\$PLATFORM" [$LINUX]
-$MacroRequired		"OUTLIBCOMMONDIR" "$SRCDIR\lib\common\$PLATFORM" [$LINUX]
-$include "$SRCDIR\vpc_scripts\source_lib_linux_base.vpc"	[$LINUX]
-$include "$SRCDIR\vpc_scripts\source_lib_win32_base.vpc"	[$WINDOWS]	
-$include "$SRCDIR\vpc_scripts\source_lib_posix_base.vpc"	[$POSIX && !$LINUX]	
+$include "$SRCDIR\vpc_scripts\source_lib_posix_base.vpc"	[$POSIX]
+$include "$SRCDIR\vpc_scripts\source_lib_win32_base.vpc"	[$WIN32 || $WIN64]
 $include "$SRCDIR\vpc_scripts\source_lib_x360_base.vpc"		[$X360]
-$Include "$SRCDIR\vpc_scripts\source_video_base.vpc"
+$include "$SRCDIR\vpc_scripts\source_ppu_lib_ps3_base.vpc"	[$PS3]
+
+$include "$SRCDIR\vpc_scripts\source_video_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions			"$BASE;DEV_BUILD"						[!$PUBLISH]
+		$PreprocessorDefinitions			"$BASE;_PROFILE"						[$PROFILE && !$RETAIL]
+		$PreprocessorDefinitions			"$BASE;RETAIL_ASSERTS"					[$RETAIL && $RETAILASSERTS]
+		$PreprocessorDefinitions			"$BASE;FRAME_POINTER_OMISSION_DISABLED"	[$NOFPO || $VS2010]
+	}
+}

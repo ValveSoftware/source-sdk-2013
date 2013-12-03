@@ -21,12 +21,19 @@ of its origin, and informing Valve of any license or other restriction of
 which you are personally aware. 
 
 
-Technical Guidelines for Contributions:
+Valve is happy to accept pull requests and issues in the source-sdk-2013
+repository in these cases:
+ * Changes that fix bugs in the SDK deployment process itself. The repository
+   should build out of the box, and anything that prevents that is a pull
+   request we want.
+ * High priority bugs in HL2, the Episodes, or HL2MP that can be fixed in
+   client.dll or server.dll.
 
-* Please keep your pull requests as granular as possible. Including two or three unrelated things in a single pull request just makes it less likely that the uber-request will be accepted. Two small pull requests are usually bettern than one large pull request.
-* If you are including a pull request with warning fixes, please include the following information about the warning:
-  . The OS and version you are building on
-  . The Compiler and version you are using
-  . The text of the warning (or group of warnings) itself
+For other changes we suggest that you issue a pull request to one of these
+fine community-maintained repositories instead: 
+  https://developer.valvesoftware.com/wiki/Source-sdk-2013-community-repos
 
+If you are going to make a pull request, please keep them as granular as
+possible. Pull requests with 3-4 unrelated changes in them aren't going to
+be accepted.
 

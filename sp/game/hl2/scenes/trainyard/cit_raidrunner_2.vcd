@@ -1,0 +1,95 @@
+// Choreo version 1
+event stoppoint "pow"
+{
+  time 4.004446 -1.000000
+  param "noaction"
+}
+event section "paws"
+{
+  time 1.839996 -1.000000
+  param "noaction"
+}
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "Help!"
+    {
+      time 2.546668 3.215693
+      param "npc_citizen.help01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "runforyourlife"
+    {
+      time 0.017780 1.228936
+      param "npc_citizen.runforyourlife03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "startleGasp"
+    {
+      time 2.000003 2.219141
+      param "npc_citizen.startle01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Look at"
+  {
+  }
+  channel "Face to"
+  {
+  }
+  channel "Move to"
+  {
+    event moveto "mark_Raid_BeatDown"
+    {
+      time 0.100000 1.977779
+      param "mark_Raid_BeatDown"
+      param2 "run_protected_all"
+      resumecondition
+    }
+  }
+  channel "Posture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.760000
+      param ""
+    }
+  }
+  channel "Gesture"
+  {
+  }
+  channel "Flex anim"
+  {
+    event firetrigger "2_SpawnCops"
+    {
+      time 0.360001 -1.000000
+      param "2"
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1_ss_Raid_BeatDown"
+    {
+      time 1.960000 -1.000000
+      param "1"
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "50"
+  "RampTool" "50"
+  "SceneRampTool" "100"
+  "ExpressionTool" "38"
+  "GestureTool" "100"
+}
+fps 60
+snap off

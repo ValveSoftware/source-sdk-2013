@@ -1,0 +1,74 @@
+// Choreo version 1
+event stoppoint "stop"
+{
+  time 6.506667 -1.000000
+  param "noaction"
+}
+event section "pause"
+{
+  time 1.680000 -1.000000
+  param "noaction"
+}
+actor "Kleiner"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+    event lookat "mark_kleiner_search_look_1a"
+    {
+      time 2.026667 4.206667
+      param "mark_kleiner_search_look_1a"
+      event_ramp
+      {
+        0.2460 0.9532
+        1.8587 0.9299
+      }
+    }
+    event lookat "mark_kleiner_search_look_1a"
+    {
+      time 3.973334 6.393334
+      param "mark_kleiner_search_look_1a"
+      event_ramp
+      {
+        0.0980 0.9896
+        2.0547 0.9766
+      }
+    }
+    event lookat "look alyx"
+    {
+      time 6.240001 9.646667
+      param "alyx"
+      event_ramp
+      {
+        0.0980 0.9896
+        3.0414 0.9766
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_kleiner_search_1"
+    {
+      time 0.053334 1.780000
+      param "mark_kleiner_search_1"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,34 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "gloriousend"
+    {
+      time 0.026667 2.914173
+      param "npc_vortigaunt.gloriousend"
+      param2 "75dB"
+      fixedlength
+    }
+  }
+  channel "Look"
+  {
+  }
+  channel "Head"
+  {
+  }
+  channel "Facial"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,59 @@
+// Choreo version 1
+actor "Al"
+{
+  channel "audio"
+  {
+    event speak "shanty_go_nag01"
+    {
+      time 0.288890 1.105058
+      param "canals.shanty_go_nag01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.088889 2.122222
+      param "!player"
+      event_ramp
+      {
+        0.4033 0.9767
+        1.6244 0.9788
+      }
+    }
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.088889 2.144444
+      param "!player"
+      event_ramp
+      {
+        0.3333 0.2818
+        1.4433 0.2436
+      }
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,62 @@
+// Choreo version 1
+actor "eli"
+{
+  channel "audio"
+  {
+    event speak "notime01"
+    {
+      time 0.076389 1.729722
+      param "ep_02.eli_launch_notime01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "notime02"
+    {
+      time 1.916667 2.884672
+      param "ep_02.eli_launch_notime02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 0.080000 1.394722
+      param "!player"
+      event_ramp
+      {
+        0.1211 0.3204 "curve_bspline_to_curve_bspline"
+        0.5838 0.5525 "curve_bspline_to_curve_bspline"
+        0.8013 0.5580 "curve_bspline_to_curve_bspline"
+        1.1202 0.3481 "curve_bspline_to_curve_bspline"
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "96"
+  "ExpressionTool" "100"
+  "RampTool" "98"
+  "GestureTool" "100"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

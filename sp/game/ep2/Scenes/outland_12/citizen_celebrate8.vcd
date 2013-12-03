@@ -1,0 +1,78 @@
+// Choreo version 1
+actor "!target1"
+{
+  channel "Audio"
+  {
+    event speak "wahooo waaahoo, yes"
+    {
+      time 0.052084 3.420089
+      param "odessa.nlo_cheer01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "right in the melon"
+    {
+      time 4.906250 6.996930
+      param "ep_02.reb_striderdown10"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "nice shot doc"
+    {
+      time 3.489583 5.238925
+      param "ep_02.reb_striderdown09"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "look at player"
+    {
+      time 4.103267 7.032448
+      param "!player"
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "seq"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "GestureTool" "100"
+  "ExpressionTool" "100"
+  "CChoreoView" "64"
+}
+fps 60
+snap off
+ignorePhonemes off

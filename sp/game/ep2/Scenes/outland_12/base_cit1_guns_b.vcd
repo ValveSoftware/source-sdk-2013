@@ -1,0 +1,69 @@
+// Choreo version 1
+event loop "gffg"
+{
+  time 16.214285 -1.000000
+  param "0.000000"
+  loopcount "-1"
+}
+actor "citizen1"
+{
+  channel "audio"
+  {
+  }
+  channel "lookAt"
+  {
+    event generic "look around"
+    {
+      time 0.023810 16.214285
+      param "AI_RANDOMLOOK"
+    }
+  }
+  channel "faceTo"
+  {
+    event face "mark1"
+    {
+      time 0.032782 16.212906
+      param "mark1"
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "bg_accentFwd"
+    {
+      time 5.880952 8.314285
+      param "bg_accentFwd"
+      absolutetags playback_time
+      {
+        "apex" 0.138889
+        "extreme" 0.361111
+        "loop" 0.555556
+        "end" 0.694444
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.138889
+        "extreme" 0.361111
+        "loop" 0.555556
+        "end" 0.694444
+      }
+    }
+  }
+  faceposermodel "models\humans\group01\male_06.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "84"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "100"
+  "SceneRampTool" "14"
+}
+fps 60
+snap off

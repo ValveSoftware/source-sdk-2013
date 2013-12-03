@@ -1,0 +1,120 @@
+// Choreo version 1
+event stoppoint "hh"
+{
+  time 5.457778 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "ep_01.al_alert_zombies02"
+    {
+      time 0.004444 2.802040
+      param "ep_01.al_alert_zombies02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "ep_01.al_shortwork"
+    {
+      time 3.261075 5.392367
+      param "ep_01.al_shortwork"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Trigger"
+  {
+    event firetrigger "1_zombiesWakeUp"
+    {
+      time 1.191112 -1.000000
+      param "1"
+    }
+  }
+  channel "bodyges"
+  {
+    event generic "aim_!target2"
+    {
+      time 0.835556 3.068888
+      param "AI_AIM"
+      param2 "!target2"
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "PointAtTurret"
+    {
+      time 0.795556 3.835555
+      param "a_g_point"
+      absolutetags playback_time
+      {
+        "in" 0.181552
+        "loop" 0.414907
+        "end" 0.517480
+        "out" 0.681595
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.169811
+        "loop" 0.471698
+        "end" 0.566038
+        "out" 0.716981
+      }
+      sequenceduration 1.800000
+    }
+    event gesture "NULL"
+    {
+      time 0.000000 4.033334
+      param ""
+    }
+  }
+  channel "armpose"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "seq"
+  {
+    event interrupt "asdf"
+    {
+      time 0.991112 1.846667
+      param ""
+    }
+    event interrupt "asdf"
+    {
+      time 2.733335 3.291112
+      param ""
+    }
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+mapname "maps\d1_trainstation_05bill.bsp"
+scalesettings
+{
+  "CChoreoView" "150"
+  "ExpressionTool" "18"
+  "GestureTool" "100"
+  "RampTool" "90"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

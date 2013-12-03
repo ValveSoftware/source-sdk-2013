@@ -1,0 +1,172 @@
+// Choreo version 1
+actor "griggs"
+{
+  channel "audio"
+  {
+    event speak "griggs_wegotantlions01"
+    {
+      time 0.215278 0.743283
+      param "ep_02.griggs_wegotantlions01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "griggs_wegotantlions02"
+    {
+      time 1.386111 2.468787
+      param "ep_02.griggs_wegotantlions02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player"
+    {
+      time 0.031389 5.866848
+      param "!player"
+      event_ramp
+      {
+        0.7150 1.0000
+        5.4055 1.0000
+      }
+    }
+  }
+  channel "faceto"
+  {
+    event face "!player"
+    {
+      time 0.055555 5.876489
+      param "!player"
+      event_ramp
+      {
+        0.4959 1.0000
+        5.4263 1.0000
+      }
+    }
+  }
+  channel "moveto"
+  {
+    event moveto "mark_griggs_stop1"
+    {
+      time 0.416667 2.685185
+      param "mark_griggs_stop1"
+      param2 "Run"
+    }
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.916667 2.883334
+      param "g_point_l_rpg"
+      absolutetags playback_time
+      {
+        "in" 0.086207
+        "loop" 0.431034
+        "end" 0.603448
+        "out" 0.775862
+      }
+      absolutetags shifted_time
+      {
+        "in" 0.086207
+        "loop" 0.431034
+        "end" 0.603448
+        "out" 0.775862
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "1"
+    {
+      time 0.072917 2.039584
+      param "g_palm_up_l"
+      absolutetags playback_time
+      {
+        "apex" 0.172414
+        "accent" 0.362069
+        "loop" 0.431034
+        "end" 0.775862
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.172414
+        "accent" 0.362069
+        "loop" 0.431034
+        "end" 0.775862
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "head gestures"
+  {
+    event gesture "1"
+    {
+      time 0.197917 2.164583
+      param "bg_down"
+      absolutetags playback_time
+      {
+        "apex" 0.086207
+        "extreme" 0.241379
+        "loop" 0.482759
+        "end" 0.672414
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.086207
+        "extreme" 0.241379
+        "loop" 0.482759
+        "end" 0.672414
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "trigger"
+  {
+    event firetrigger "1"
+    {
+      time 2.677778 -1.000000
+      param "1"
+    }
+  }
+}
+
+actor "sheckley"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "moveto"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "facial flex"
+  {
+  }
+}
+
+scalesettings
+{
+  "SceneRampTool" "100"
+  "GestureTool" "100"
+  "RampTool" "48"
+  "ExpressionTool" "100"
+  "CChoreoView" "64"
+}
+fps 60
+snap off
+ignorePhonemes off

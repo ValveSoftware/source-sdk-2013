@@ -1,0 +1,124 @@
+// Choreo version 1
+event section "pause"
+{
+  time 4.666667 -1.000000
+  param "noaction"
+}
+actor "!target1"
+{
+  channel "audio"
+  {
+    event speak "npc_citizen.excuseme02"
+    {
+      time 5.104167 5.813668
+      param "npc_citizen.excuseme02"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "mark_vort_elev_hall"
+    {
+      time 1.506944 7.194446
+      param "mark_vort_elev_hall"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodygestures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "headf"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "eyes"
+  {
+  }
+  channel "Trigger"
+  {
+    active "0"
+  }
+  channel "temp"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "!target2"
+{
+  channel "audio"
+  {
+    event speak "ep_02.vort_grp_agree06"
+    {
+      time 6.750000 8.055442
+      param "ep_02.vort_grp_agree06"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+    event moveto "mark_cit_elev_hall"
+    {
+      time 0.152778 9.451389
+      param "mark_cit_elev_hall"
+      param2 "Walk"
+      resumecondition
+    }
+  }
+  channel "face to"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "body"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "triggers"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\Eli.mdl"
+}
+
+mapname "maps\d1_eli\d1_eli_01_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "32"
+  "ExpressionTool" "40"
+  "GestureTool" "100"
+  "RampTool" "42"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

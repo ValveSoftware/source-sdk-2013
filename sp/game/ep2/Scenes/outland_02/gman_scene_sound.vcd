@@ -1,0 +1,27 @@
+// Choreo version 1
+actor "!player"
+{
+  channel "Audio"
+  {
+    event speak "outland_ep02.GMAN_Full_00_01_03"
+    {
+      time 0.000000 174.980957
+      param "outland_ep02.GMAN_Full_00_01_03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  faceposermodel "models\gman.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "4"
+  "ExpressionTool" "2"
+  "GestureTool" "100"
+  "RampTool" "72"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

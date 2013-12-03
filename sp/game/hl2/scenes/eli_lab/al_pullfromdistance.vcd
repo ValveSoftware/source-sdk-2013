@@ -1,0 +1,224 @@
+// Choreo version 1
+event stoppoint "1"
+{
+  time 7.812294 -1.000000
+  param "noaction"
+}
+event section "1"
+{
+  time 7.758959 -1.000000
+  param "noaction"
+}
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_pullfromdistance"
+    {
+      time 5.198960 7.583178
+      param "eli_lab.al_pullfromdistance"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look at player"
+    {
+      time 5.252295 8.552292
+      param "!player"
+      event_ramp
+      {
+        0.5308 0.9564
+        2.5071 0.9782
+      }
+    }
+    event lookat "mark_al_look_barrels"
+    {
+      time 0.027359 6.072295
+      param "mark_al_look_barrels"
+      event_ramp
+      {
+        0.5308 0.9564
+        2.4885 0.9709
+        3.1269 0.0582
+        3.4385 0.0400
+        4.0269 0.9636
+        5.2521 0.9782
+      }
+    }
+  }
+  channel "move to"
+  {
+    event moveto "mark_al_scrapyard_area1_2"
+    {
+      time 1.118960 7.832295
+      param "mark_al_scrapyard_area1_2"
+      param2 "Walk"
+      resumecondition
+    }
+    active "0"
+  }
+  channel "faceTo"
+  {
+    event face "mark_al_look_barrels"
+    {
+      time 1.572294 5.086668
+      param "mark_al_look_barrels"
+      event_ramp
+      {
+        0.5731 0.4036
+        0.8538 0.4218
+        1.0423 0.3927
+        1.6769 0.1818
+        2.0115 0.1927
+        2.4461 0.4464
+        2.6187 0.4464
+        3.0072 0.4464
+        3.3610 0.4464
+        3.4533 0.4464
+        3.5143 0.4464
+      }
+      lockbodyfacing
+    }
+    event face "mark_al_look_barrels"
+    {
+      time 3.752036 7.725630
+      param "mark_al_look_barrels"
+      event_ramp
+      {
+        0.5731 0.4036
+        1.3654 0.9418
+        1.6577 0.9964
+        3.9736 0.9964
+      }
+    }
+    event face "mark_al_look_barrels"
+    {
+      time 0.011775 1.128227
+      param "mark_al_look_barrels"
+      event_ramp
+      {
+        0.3962 0.4000
+        0.6077 0.4982
+        0.8958 0.5200
+        1.0074 0.5200
+        1.1164 0.5200
+      }
+    }
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 2.178961
+      param ""
+    }
+    event gesture "A_gesture02p"
+    {
+      time 4.905629 7.872295
+      param "A_gesture02p"
+      absolutetags playback_time
+      {
+        "apex" 0.204545
+        "accent" 0.443182
+        "loop" 0.568182
+        "end" 0.681818
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.204545
+        "accent" 0.443182
+        "loop" 0.568182
+        "end" 0.681818
+      }
+      sequenceduration 2.966667
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "facial"
+    {
+      time 6.787879 7.538959
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.0941 0.1100
+          0.2438 0.1800
+          0.4363 0.0000
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0941 0.2200
+          0.2438 0.2900
+          0.4363 0.0000
+        }
+        {
+        }
+      }
+    }
+    event flexanimation "facial"
+    {
+      time 5.281384 6.725107
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.0941 0.4200
+          0.2438 0.5500
+          0.3272 0.3500
+          0.3892 0.2700
+          0.5785 0.2000
+          0.6603 0.0600
+        }
+        {
+        }
+        "outer_raiser"         combo        
+        {
+          0.0941 0.4200
+          0.2438 0.5500
+          0.3315 0.4400
+          0.3807 0.3700
+          0.5197 0.3100
+          0.5733 0.2700
+          0.6603 0.0800
+        }
+        {
+        }
+        "lowerer"         combo        
+        {
+          0.5775 0.0700
+          0.6694 0.3600
+          0.7400 0.4100
+          1.0714 0.3200
+        }
+        {
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "77"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "52"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

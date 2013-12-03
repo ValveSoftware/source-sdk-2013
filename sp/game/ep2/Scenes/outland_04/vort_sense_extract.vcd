@@ -1,0 +1,232 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "vort_extract_wind"
+    {
+      time 0.383586 9.599436
+      param "ep_02.vort_extract_wind"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.039474 10.137257
+      param "!player"
+      event_ramp
+      {
+        0.5880 1.0000
+        9.6476 1.0000
+      }
+    }
+  }
+  channel "moveTo"
+  {
+    event moveto "!player"
+    {
+      time 0.114035 5.815790
+      param "!player"
+      param2 "Run"
+      distancetotarget 120.00
+    }
+  }
+  channel "faceTo"
+  {
+    event face "!player"
+    {
+      time 0.027778 10.152779
+      param "!player"
+      event_ramp
+      {
+        0.4040 0.3160
+        0.6300 0.3853
+        0.7840 0.3853
+        9.4433 0.3853
+        9.5633 0.3853
+        9.7700 0.3247
+      }
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "1"
+    {
+      time 0.277777 3.111111
+      param "g_present"
+      absolutetags playback_time
+      {
+        "apex" 0.214286
+        "accent" 0.392857
+        "loop" 0.547619
+        "end" 0.666667
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.214286
+        "accent" 0.392857
+        "loop" 0.547619
+        "end" 0.666667
+      }
+      sequenceduration 2.833333
+    }
+    event gesture "2"
+    {
+      time 2.384615 5.017949
+      param "g_palm_both"
+      absolutetags playback_time
+      {
+        "apex" 0.153846
+        "accent" 0.346154
+        "loop" 0.448718
+        "end" 0.769231
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.153846
+        "accent" 0.346154
+        "loop" 0.448718
+        "end" 0.769231
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "g_palm_mid_left"
+    {
+      time 5.025641 8.871794
+      param "g_palm_mid_left"
+      absolutetags playback_time
+      {
+        "apex" 0.175397
+        "accent" 0.289405
+        "loop" 0.403413
+        "end" 0.726667
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.238095
+        "accent" 0.392857
+        "loop" 0.547619
+        "end" 0.666667
+      }
+      sequenceduration 2.833333
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.102565 9.833334
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "center_lid_raiser" 
+        {
+          0.8675 0.0000
+          1.1838 0.0000
+          1.7532 0.0000
+          2.5246 0.0000
+          3.0374 0.0000
+          3.9605 0.0000
+          5.7407 0.0000
+          6.3304 0.0000
+          7.6111 0.0000
+        }
+        "center_lid_tightener" 
+        {
+          0.8675 0.1100
+          1.1838 0.5500
+          1.7532 0.4900
+          2.5246 0.4267
+          3.0374 0.3903
+          3.9605 0.3289
+          5.3182 0.1300
+          5.7407 0.1999
+          6.3304 0.8400
+          7.6111 0.4800
+        }
+        "center_lid_droop" 
+        {
+          0.8675 0.1183
+          1.1838 0.1500
+          1.7532 0.4300
+          2.5246 0.5583
+          3.0374 0.5712
+          3.9605 0.6400
+          5.7407 0.4760
+          6.3304 0.4061
+          7.6111 0.2547
+        }
+        "lowerer" combo 
+        {
+          0.8675 0.0000
+          1.1838 0.0000
+          1.7532 0.0000
+          2.5246 0.0000
+          3.0374 0.6100
+          3.9605 0.0300
+          5.7407 0.0000
+          6.3304 0.4800
+          7.6111 0.3300
+        }
+        {
+          0.8675 0.5000
+          1.1838 0.5000
+          1.7532 0.5000
+          2.5246 0.5000
+          3.0374 0.5000
+          3.9605 0.5000
+          5.7407 0.5000
+          6.3304 0.5000
+          7.6111 0.5000
+        }
+        "cheek_raiser" combo 
+        {
+          0.8675 0.0000
+          1.1838 0.7600
+          1.7532 0.2900
+          2.5246 0.0124
+          3.0374 0.7900
+          3.9605 0.3100
+          5.3818 0.0600
+          5.7407 0.0000
+          6.3304 0.3800
+          7.6111 0.2100
+        }
+        {
+          0.8675 0.5000
+          1.1838 0.5000
+          1.7532 0.5000
+          2.5246 0.5000
+          3.0374 0.5000
+          3.9605 0.5000
+          5.7407 0.5000
+          6.3304 0.5000
+          7.6111 0.5000
+        }
+      }
+    }
+  }
+  channel "trigger"
+  {
+  }
+  faceposermodel "U:\main\game\ep2\models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "52"
+  "ExpressionTool" "22"
+  "GestureTool" "100"
+  "RampTool" "40"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

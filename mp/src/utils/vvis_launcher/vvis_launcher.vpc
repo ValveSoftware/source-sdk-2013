@@ -8,7 +8,7 @@ $Macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$SRCDIR\..\game\bin"
 $Macro OUTBINNAME	"vvis"
 
-$Include "$SRCDIR\vpc_scripts\source_exe_con_win32_base.vpc"
+$Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
 
 $Configuration
 {

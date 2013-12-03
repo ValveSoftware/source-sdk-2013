@@ -1,0 +1,165 @@
+// Choreo version 1
+actor "Breen"
+{
+  channel "audio"
+  {
+    event speak "br_mock07"
+    {
+      time 0.222222 4.181179
+      param "citadel.br_mock07"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "!player"
+    {
+      time 0.111110 4.611111
+      param "!player"
+      event_ramp
+      {
+        0.8667 0.9351
+        3.8978 0.9247
+      }
+    }
+  }
+  channel "move to "
+  {
+  }
+  channel "face to"
+  {
+    event face "!player"
+    {
+      time 0.066667 4.411112
+      param "!player"
+      event_ramp
+      {
+        0.6700 0.9584
+        4.3444 1.0000
+      }
+    }
+  }
+  channel "sequence"
+  {
+    event flexanimation "face"
+    {
+      time 0.111112 4.611112
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          1.0497 0.0800
+          1.4272 0.5300
+          2.6940 0.5300
+          3.4076 0.0000
+        }
+        {
+          1.0497 0.5000
+          1.4272 0.5000
+          2.6940 0.5000
+          3.4076 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          1.0497 0.0000
+          1.4272 0.8900
+          2.6940 0.8900
+          3.4076 0.1000
+        }
+        {
+          1.0497 0.5000
+          1.4272 0.5000
+          2.6940 0.5000
+          3.4076 0.5000
+        }
+        "lowerer"         combo        
+        {
+          1.0497 0.6500
+          1.4272 0.0000
+          2.6940 0.0000
+          3.4076 0.0000
+        }
+        {
+          1.0497 0.5000
+          1.4272 0.5000
+          2.6940 0.5000
+          3.4076 0.5000
+        }
+      }
+    }
+  }
+  channel "postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.122222
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.133333 2.400000
+      param "B_bg_hipback"
+      absolutetags playback_time
+      {
+        "apex" 0.178338
+        "extreme" 0.253035
+        "loop" 0.507003
+        "end" 0.581699
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.126984
+        "extreme" 0.206349
+        "loop" 0.476190
+        "end" 0.555556
+      }
+      sequenceduration 2.133333
+    }
+  }
+  channel "gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.811111
+      param ""
+    }
+    event gesture "1"
+    {
+      time 0.155556 3.622222
+      param "B_g_sweepout"
+      absolutetags playback_time
+      {
+        "apex" 0.174757
+        "accent" 0.466019
+        "loop" 0.679612
+        "end" 0.728155
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.174757
+        "accent" 0.466019
+        "loop" 0.679612
+        "end" 0.728155
+      }
+      sequenceduration 3.466667
+    }
+  }
+  channel "trigger"
+  {
+  }
+}
+
+mapname "maps\klab_actormarks.bsp"
+scalesettings
+{
+  "CChoreoView" "30"
+  "ExpressionTool" "40"
+  "RampTool" "60"
+  "GestureTool" "50"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

@@ -1,0 +1,156 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+    event speak "nlo_farewell"
+    {
+      time 0.400000 1.604943
+      param "odessa.nlo_citizen_drivesafe"
+      param2 "75dB"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Trigger"
+  {
+    event firetrigger "open gate 1"
+    {
+      time 4.346666 -1.000000
+      param "1"
+    }
+  }
+  channel "Look"
+  {
+    event lookat "look at player"
+    {
+      time 0.026666 2.580000
+      param "!player"
+      event_ramp
+      {
+        0.4400 0.9958
+        1.8613 0.9831
+      }
+    }
+    event lookat "Look at button"
+    {
+      time 1.820000 5.240000
+      param "info_lookat_button"
+      event_ramp
+      {
+        0.2960 0.3098
+        0.6360 0.8868
+        1.0040 0.9969
+        2.7213 0.9953
+        2.9973 0.8900
+        3.1253 0.6525
+      }
+    }
+    event lookat "Look at player"
+    {
+      time 4.766666 6.686667
+      param "!player"
+      event_ramp
+      {
+        0.2040 0.6132
+        0.4160 0.8742
+        0.8120 0.9984
+        1.5107 0.9984
+        1.7827 0.8899
+        1.8627 0.6305
+      }
+    }
+  }
+  channel "Face to"
+  {
+    event face "Face to player"
+    {
+      time 4.960000 6.680002
+      param "!player"
+      event_ramp
+      {
+        0.4080 0.4371
+        1.1680 0.9277
+        1.7200 1.0000
+      }
+    }
+    event face "Face to button"
+    {
+      time 1.506666 5.333334
+      param "info_lookat_button"
+      event_ramp
+      {
+        0.3840 0.3459
+        0.7680 0.7720
+        1.9814 1.0000
+        3.8267 1.0000
+      }
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 2.240000
+      param ""
+    }
+    event gesture "p_pushbutton_rifle"
+    {
+      time 2.960000 5.480000
+      param "p_ConsoleType_Rifle"
+      absolutetags playback_time
+      {
+        "apex" 0.133813
+        "loop" 0.628922
+        "end" 0.802879
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.116279
+        "loop" 0.546512
+        "end" 0.697674
+      }
+      sequenceduration 2.900000
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.240000
+      param ""
+    }
+    event gesture "g_pushbutton_rifle"
+    {
+      time 3.813335 5.813334
+      param "g_buttonpush_rifle"
+      absolutetags playback_time
+      {
+        "apex" 0.169540
+        "accent" 0.237356
+        "loop" 0.610345
+        "end" 0.678161
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.172414
+        "accent" 0.241379
+        "loop" 0.620690
+        "end" 0.689655
+      }
+      sequenceduration 1.966667
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "100"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "50"
+}
+fps 60
+snap off

@@ -1,0 +1,83 @@
+// Choreo version 1
+actor "vort_silo2"
+{
+  channel "audio"
+  {
+    event speak "npc_vortigaunt.allinoneinall"
+    {
+      time 0.109669 1.987016
+      param "npc_vortigaunt.allinoneinall"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+  }
+  channel "face to"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "postures"
+  {
+  }
+  channel "gestures"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "look to"
+  {
+  }
+  faceposermodel "models\vortigaunt2.mdl"
+}
+
+actor "Alyx"
+{
+  channel "Audio"
+  {
+    event speak "npc_alyx.gordon_dist01"
+    {
+      time 2.604165 3.280424
+      param "npc_alyx.gordon_dist01"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "!player"
+    {
+      time 0.104166 6.077182
+      param "!player"
+      event_ramp
+      {
+        0.6810 0.9443
+        5.5235 0.9610
+      }
+    }
+  }
+}
+
+mapname "maps\ep2_outland_06.bsp"
+scalesettings
+{
+  "CChoreoView" "42"
+  "SceneRampTool" "100"
+  "RampTool" "26"
+  "ExpressionTool" "64"
+  "GestureTool" "100"
+}
+fps 60
+snap off

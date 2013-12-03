@@ -7,7 +7,7 @@
 $Macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$SRCDIR\..\game\bin"
 
-$Include "$SRCDIR\vpc_scripts\source_exe_con_win32_base.vpc"
+$Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
 
 $Configuration
 {
@@ -173,11 +173,11 @@ $Project "Vbsp"
 
 	$Folder	"Link Libraries"
 	{
-		$DynamicFile	"$SRCDIR\lib\public\bitmap.lib"
-		$DynamicFile	"$SRCDIR\lib\public\fgdlib.lib"
-		$DynamicFile	"$SRCDIR\lib\public\mathlib.lib"
-		$DynamicFile	"$SRCDIR\lib\public\tier2.lib"
-		$DynamicFile	"$SRCDIR\lib\public\vtf.lib"
+		$Lib bitmap
+		$Lib fgdlib
+		$Lib mathlib
+		$Lib tier2
+		$Lib vtf
 	}
 
 	$File	"notes.txt"

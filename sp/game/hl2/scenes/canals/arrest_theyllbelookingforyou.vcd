@@ -1,0 +1,467 @@
+// Choreo version 1
+event stoppoint "done"
+{
+  time 6.222537 -1.000000
+  param "noaction"
+}
+event loop "loop"
+{
+  time 9.500000 -1.000000
+  param "8.000000"
+  loopcount "-1"
+}
+actor "Arrest_cit_female"
+{
+  channel "audio"
+  {
+    event speak "looking for you"
+    {
+      time 1.109043 2.660812
+      param "canals.arrest_lookingforyou"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+    event speak "you better run"
+    {
+      time 2.677671 5.453340
+      param "canals.arrest_run"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "player look"
+    {
+      time 0.065664 5.777339
+      param "!player"
+      event_ramp
+      {
+        0.4842 0.8095
+        0.7263 0.9492
+        1.0368 0.9797
+        1.5105 0.9797
+        4.1820 0.9797
+        4.6030 0.9797
+        4.9241 0.9442
+        5.1938 0.8501
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+    event face "player"
+    {
+      time 0.054264 5.879846
+      param "!player"
+      event_ramp
+      {
+        0.6842 0.2893
+        1.0579 0.3198
+        1.6474 0.3198
+        2.7474 0.3198
+        3.1737 0.3198
+        4.3158 0.3198
+        4.8053 0.3198
+        5.1368 0.2893
+      }
+      lockbodyfacing
+    }
+  }
+  channel "seq."
+  {
+    event sequence "NULL"
+    {
+      time 0.000000 7.655039
+      param "checkmalepost"
+    }
+  }
+  channel "Postures"
+  {
+    event gesture "p_arrest_Upright"
+    {
+      time 0.000000 7.106202
+      param "p_arrest_Upright"
+      absolutetags playback_time
+      {
+        "apex" 0.096776
+        "loop" 0.193551
+        "end" 0.803516
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.204082
+        "loop" 0.408163
+        "end" 0.510204
+      }
+      sequenceduration 3.300000
+    }
+  }
+  channel "bodygesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.538760
+      param ""
+    }
+    event gesture "b_accent_fwd_UpperBody"
+    {
+      time 3.914729 6.361240
+      param "b_accent_fwd_UpperBody"
+      event_ramp
+      {
+        0.0105 0.9645
+        1.3737 0.9746
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.110344
+        "extreme" 0.331033
+        "loop" 0.579308
+        "end" 0.695099
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.098765
+        "extreme" 0.296296
+        "loop" 0.518519
+        "end" 0.654321
+      }
+      sequenceduration 2.733333
+    }
+    event gesture "NULL"
+    {
+      time 7.038759 7.538759
+      param ""
+    }
+  }
+  channel "Gestures"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 1.190377
+      param ""
+    }
+    event gesture "NULL"
+    {
+      time 6.418605 7.600776
+      param ""
+    }
+    event gesture "urgenthandsweep"
+    {
+      time 1.356589 3.637209
+      param "urgenthandsweep"
+      event_ramp
+      {
+        0.0000 0.4924
+        0.1421 0.4924
+        0.6421 0.4924
+        1.5877 0.4924
+        2.1877 0.4924
+        2.2772 0.4924
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.207426
+        "accent" 0.325955
+        "loop" 0.592645
+        "end" 0.666725
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.191781
+        "accent" 0.301370
+        "loop" 0.547945
+        "end" 0.616438
+      }
+      sequenceduration 2.466667
+    }
+    event gesture "NULL"
+    {
+      time 3.046513 3.608526
+      param ""
+    }
+    event gesture "g_arrest_clench"
+    {
+      time 3.682171 6.152714
+      param "g_arrest_clench"
+      absolutetags playback_time
+      {
+        "apex" 0.109691
+        "accent" 0.250723
+        "loop" 0.379219
+        "end" 0.652038
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.103448
+        "accent" 0.275862
+        "loop" 0.431034
+        "end" 0.517241
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.973096 5.629960
+      param ""
+      flexanimations samples_use_time
+      {
+        "inner_raiser"         combo        
+        {
+          0.1268 0.0000
+          0.5071 0.9300
+          0.9941 0.7300
+          1.7481 0.3100
+          2.2185 0.9000
+          2.5751 0.9100
+          3.9609 0.8600
+          4.4469 0.5700
+        }
+        {
+          0.1268 0.5000
+          0.5071 0.5000
+          0.9941 0.5000
+          1.7481 0.5000
+          2.2185 0.5000
+          3.9919 0.5000
+        }
+        "outer_raiser"         combo        
+        {
+          0.1268 0.0000
+          0.5071 0.7600
+          0.9941 0.2900
+          1.7481 0.1900
+          2.2185 0.1900
+          2.5182 0.0600
+          3.9919 0.0000
+        }
+        {
+          0.1268 0.5000
+          0.5071 0.5000
+          0.9941 0.5000
+          1.7481 0.5000
+          2.2185 0.5000
+          3.9919 0.5000
+        }
+        "lowerer"         combo        
+        {
+          0.1268 0.0000
+          0.5071 0.0000
+          0.9941 0.0000
+          1.7481 0.0000
+          2.2185 0.0000
+          3.9919 0.0000
+        }
+        {
+          0.1268 0.5000
+          0.5071 0.5000
+          0.9941 0.5000
+          1.7481 0.5000
+          2.2185 0.5000
+          3.9919 0.5000
+        }
+        "cheek_raiser"         combo        
+        {
+          0.1268 0.0000
+          0.5071 0.0000
+          0.9941 0.0000
+          1.7481 0.0000
+          2.2185 0.0000
+          3.9919 0.0000
+        }
+        {
+          0.1268 0.5000
+          0.5071 0.5000
+          0.9941 0.5000
+          1.7481 0.5000
+          2.2185 0.5000
+          3.9919 0.5000
+        }
+        "wrinkler"        
+        {
+          0.1268 0.0000
+          0.5071 0.3300
+          0.9941 0.1800
+          1.7481 0.0600
+          2.2185 0.0600
+          3.9919 0.0600
+        }
+        "upper_raiser"         combo        
+        {
+          0.1268 0.0000
+          0.5071 0.0000
+          0.9941 0.0000
+          1.7481 0.0000
+          2.2185 0.0000
+          3.9919 0.0000
+        }
+        {
+          0.1268 0.5000
+          0.5071 0.5000
+          0.9941 0.5000
+          1.7481 0.5000
+          2.2185 0.5000
+          3.9919 0.5000
+        }
+        "corner_puller"         combo        
+        {
+          0.1268 0.0000
+          0.5071 0.0000
+          0.9941 0.0000
+          1.7481 0.0000
+          2.2185 0.0000
+          3.9919 0.0000
+        }
+        {
+          0.1268 0.5000
+          0.5071 0.5000
+          0.9941 0.5000
+          1.7481 0.5000
+          2.2185 0.5000
+          3.9919 0.5000
+        }
+        "corner_depressor"         combo        
+        {
+          0.1268 0.0000
+          0.5071 0.0000
+          0.9941 0.0000
+          1.7481 0.0000
+          2.2185 0.0000
+          3.9919 0.0000
+        }
+        {
+          0.1268 0.5000
+          0.5071 0.5000
+          0.9941 0.5000
+          1.7481 0.5000
+          2.2185 0.5000
+          3.9919 0.5000
+        }
+        "chin_raiser"        
+        {
+          0.1268 0.0000
+          0.5071 0.0000
+          0.9941 0.0000
+          1.7481 0.0000
+          2.2185 0.0000
+          3.9919 0.0000
+        }
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.1913 0.5000
+          0.5998 0.4700
+          0.9204 0.4700
+          2.0632 0.4700
+          2.3166 0.5700
+          2.6527 0.4300
+          2.9526 0.5500
+          3.2473 0.4700
+          3.5317 0.5300
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.1913 0.5000
+          0.5998 0.7600
+          0.9204 0.4000
+          1.2669 0.4700
+          2.0632 0.4900
+          2.3166 0.5600
+          2.6527 0.4500
+          3.0560 0.4800
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.1913 0.5000
+          0.5998 0.3200
+          0.9204 0.5000
+          1.2307 0.5100
+          2.0632 0.5000
+          2.3166 0.5000
+          2.6527 0.5000
+        }
+      }
+    }
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\hl2\hl2\models\Humans\Group01\Female_02.mdl"
+}
+
+actor "arrest_cit_male"
+{
+  channel "LookAt"
+  {
+  }
+  channel "Flex"
+  {
+    event flexanimation "flkex"
+    {
+      time 0.024390 11.117887
+      param ""
+      flexanimations samples_use_time
+      {
+        "lid_closer"         combo        
+        {
+          0.1137 1.0000
+          3.7042 1.0000
+          10.7471 1.0000
+        }
+        {
+        }
+        "part"         combo        
+        {
+          0.4829 0.7000
+          0.9657 0.9700
+          1.8107 1.0000
+          9.2747 0.9700
+          10.0421 0.9900
+          10.4991 0.9200
+        }
+        {
+        }
+        "jaw_drop"        
+        {
+          0.4053 0.3600
+          1.1037 0.3600
+          9.9731 0.3600
+          10.6112 0.3600
+          10.7491 0.3600
+        }
+      }
+    }
+  }
+  channel "NULL"
+  {
+    event sequence "NULL"
+    {
+      time 0.170732 7.369919
+      param "arrestpostidle"
+    }
+  }
+  faceposermodel "U:\hl2\hl2\models\Humans\Group01\male_02.mdl"
+}
+
+mapname "maps\d1_trainstation_04.bsp"
+scalesettings
+{
+  "CChoreoView" "82"
+  "ExpressionTool" "14"
+  "GestureTool" "100"
+  "RampTool" "38"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

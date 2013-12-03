@@ -1,12 +1,13 @@
 $Configuration
 {
-	$General [$VS2012]
+	$General
 	{
-		// Request the VS 11 (VS 2012) compiler toolset.
-		$PlatformToolset "v110"
+		// Request a specific compiler toolset.
+		$PlatformToolset "v110" [$VS2012] // VS 11
+		$PlatformToolset "v120" [$VS2013] // VS 12
 	}
 
-	$General [$VS2010 || $VS2012]
+	$General
 	{
 		$ExecutableDirectories "$(ExecutablePath);$(Path)"
 		// We need to override mt.exe for Win7 compatibiity.  Append paths before $(ExecutablePath) if you need VS to use your tools rather than its own
@@ -14,11 +15,14 @@ $Configuration
 		// VS 2012 compiles fine but does not link. We want to redirect to stub versions of
 		// the tools (like link.exe and mt.exe) so that the link stage will be NOPed when
 		// doing /analyze builds.
-		$ExecutableDirectories "$SRCDIR\devtools\vs_nop_tools;$BASE" [$ANALYZE && $VS2012]
+		$ExecutableDirectories "$SRCDIR\devtools\vs_nop_tools;$BASE" [$ANALYZE && ($VS2012 || $VS2013)]
 	}
 
 	$Compiler
 	{
+		// warning C4316: object allocated on the heap may not be aligned 16
+		$DisableSpecificWarnings	"$BASE;4316" [$VS2013]
+
 		// When using /analyze (triggered with /define:ANALYZE on the vpc command line) we want
 		// to use /MP but not at its most aggressive setting, and we want to forcibly disable lots
 		// of warnings (also disabled in platform.h but not everybody includes that).
@@ -26,11 +30,13 @@ $Configuration
 		// warning C6318: Ill-defined __try/__except: use of the constant EXCEPTION_CONTINUE_SEARCH -- bogus
 		// warning C6322: Empty _except block
 		// Set the stack size threshold to 100,000 to avoid noisy warnings on functions with modest stack usage
-		$AdditionalOptions	"/MP3 /analyze /analyze:stacksize100000 /wd6308 /wd6255 /wd6387 /wd6309 /wd6011 /wd6211 /wd6031 /wd6326 /wd6239 " \
-		"/wd6285 /wd6237 /wd6235 /wd6240 /wd6323 /wd6326 /wd6335 /wd6320 /wd6250 /wd6384 /wd6318 /wd6322" [$ANALYZE]
+		// Note that /analyze for VS 2010 only works with the 32-bit compiler, but for VS 2012 it works on 64-bit
+		// as well.
+		$DisableSpecificWarnings	"$BASE;6308;6255;6387;6309;6011;6211;6031;6326;6239;6285;6237;6235;6240;6323;6326;6335;6320;6250;6384;6318;6322" [$ANALYZE]
+		$AdditionalOptions	"$BASE /MP3 /analyze /analyze:stacksize100000" [$ANALYZE]
 
 		// Specify /define:ALLOWSHADOWING to suppress variable shadowing warnings
-		$AdditionalOptions	"$BASE /wd6244 /wd6246" [$ANALYZE && $ALLOWSHADOWING]
+		$DisableSpecificWarnings	"$BASE;6244;6246" [$ANALYZE && $ALLOWSHADOWING]
 
 		// New warnings in VS 2012 that we want to ignore.
 		// warning C4005: 'DXGI_STATUS_OCCLUDED' : macro redefinition
@@ -46,22 +52,15 @@ $Configuration
 		// warning C28301: No annotations for first declaration of 'InitializeCriticalSection'. See d:\clients\tf3\staging\src\public\tier0\threadtools.h(1373).
 		// warning C28195: The function was declared as acquiring memory in 'return' and exited without doing so.
 		// warning C6340: Mismatch on sign: 'unsigned short' passed as parameter '6' when some signed type is required in call to 'V_snprintf'.
-		// warning C6330: 'const char' passed as parameter '1' when 'unsigned char' is required in call to 'isspace'.
-		$AdditionalOptions  "$BASE /wd6014 /wd28159 /wd28182 /wd28183 /wd28197 /wd28198 /wd28204 /wd28247 /wd28251 /wd28301 /wd28195 /wd6340 /wd6330" [$ANALYZE && $VS2012]
+		// This warning only applies to Windows XP in low-memory situations:
+		// warning C28125: The function 'InitializeCriticalSection' must be called from within a try\except block
+		// warning C28160: Error annotation: Calling VirtualFreeEx without the MEM_RELEASE flag frees memory but not address descriptors (VADs); results in address space leaks.
+		// warning C6248: Setting a SECURITY_DESCRIPTOR's DACL to NULL will result in an unprotected object.
+		// warning C6102: Using value from failed function call
+		$DisableSpecificWarnings	"$BASE;6014;28159;28182;28183;28197;28198;28204;28247;28251;28301;28195;6340;28125;28160;6248;6102" [$ANALYZE && ($VS2012 || $VS2013)]
 
-		// Having lots of warnings makes it harder to notice new, and possibly
-		// important warnings, both on buildbot and in the output window. Lots
-		// of warnings also makes it harder to skip through errors in the output
-		// window since F8 stops on both warnings and errors. The only way to
-		// keep the warning count down is to have warnings-as-errors.
-		// We will not be warning free on 64-bit for a while...
-		$TreatWarningsAsErrors				"Yes (/WX)" [!$ANALYZE && !$WIN64]
-
-		$PreprocessorDefinitions			"$BASE;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
+		// Defines to differentiate 32 from 64 bit builds
+		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
 		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]
-
-		// Pass on appropriate branch define to preprocessor
-		$PreprocessorDefinitions		"$BASE;STAGING_ONLY" [$STAGING_ONLY]
-		$PreprocessorDefinitions		"$BASE;TF_BETA" [$TF_BETA]
 	}
 }

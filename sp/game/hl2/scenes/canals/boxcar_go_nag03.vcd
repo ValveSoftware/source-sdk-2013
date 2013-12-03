@@ -1,0 +1,159 @@
+// Choreo version 1
+actor "Boxcar_vort"
+{
+  channel "audio"
+  {
+  }
+  channel "look at"
+  {
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "seq."
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "bodygesture"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  faceposermodel "U:\HL2\hl2\models\alyx.mdl"
+}
+
+actor "Boxcar_human"
+{
+  channel "audio"
+  {
+    event speak "Go on nag"
+    {
+      time 0.373333 1.334467
+      param "canals.boxcar_go_nag03"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look player"
+    {
+      time 0.133333 1.700001
+      param "!player"
+      event_ramp
+      {
+        0.0660 0.4167
+        0.2212 0.8333
+        0.5940 0.9286
+        1.1970 0.9127
+        1.4394 0.7778
+        1.5121 0.4087
+      }
+    }
+  }
+  channel "gesture"
+  {
+    event gesture "NULL"
+    {
+      time 0.000000 0.230338
+      param ""
+    }
+    event gesture "get"
+    {
+      time 0.284644 2.251311
+      param "G_lefthandmotion"
+      event_ramp
+      {
+        0.1306 0.2381
+        0.5286 0.6190
+        1.2694 0.2659
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.137405
+        "accent" 0.320611
+        "loop" 0.614504
+        "end" 0.763359
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.224138
+        "accent" 0.482759
+        "loop" 0.517241
+        "end" 0.724138
+      }
+      sequenceduration 1.966667
+    }
+  }
+  channel "face to"
+  {
+    event face "face player"
+    {
+      time 0.046741 1.991311
+      param "!player"
+      event_ramp
+      {
+        0.3473 0.4682
+        1.1488 0.7023
+        1.5516 0.4960
+      }
+    }
+  }
+  channel "facial"
+  {
+    event flexanimation "face"
+    {
+      time 0.044943 1.743445
+      param ""
+      flexanimations samples_use_time
+      {
+        "head_rightleft"         range 30.0 -30.0        
+        {
+          0.3962 0.5000
+          0.6919 0.3100
+          1.0276 0.4400
+        }
+        "head_updown"         range 15.0 -15.0        
+        {
+          0.3962 0.5000
+          0.6919 0.3600
+          1.0283 0.4800
+        }
+        "head_tilt"         range 15.0 -15.0        
+        {
+          0.3962 0.5000
+          0.6919 0.7400
+          1.0735 0.5400
+        }
+      }
+    }
+  }
+}
+
+mapname "maps\d1_trainstation_04.bsp"
+scalesettings
+{
+  "CChoreoView" "89"
+  "ExpressionTool" "142"
+  "GestureTool" "100"
+  "RampTool" "98"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off

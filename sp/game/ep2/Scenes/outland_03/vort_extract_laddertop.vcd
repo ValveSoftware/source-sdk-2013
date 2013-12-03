@@ -1,0 +1,202 @@
+// Choreo version 1
+actor "Vort"
+{
+  channel "Audio"
+  {
+    event speak "Grim pinata"
+    {
+      time 0.141667 5.667018
+      param "ep_02.vort_extract_laddertop"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "Flex"
+  {
+    event flexanimation "Facial Animation"
+    {
+      time 0.008333 5.758334
+      param ""
+      flexanimations samples_use_time defaultcurvetype=curve_catmullrom_normalize_x_to_curve_catmullrom_normalize_x
+      {
+        "center_lid_raiser" 
+        {
+          0.4500 0.0000
+          0.4500 0.0000
+          0.6667 0.9200
+          0.9660 0.8500
+          1.1917 0.0000
+          1.2250 0.0000
+          1.3583 0.0000
+          1.5333 0.0000
+          1.6333 0.0000
+          1.6840 0.0000
+          1.7417 0.0000
+          2.0083 0.8800
+          2.1860 0.7100
+          2.2993 0.0000
+          3.7100 0.0000
+          3.8780 0.7100
+          4.0020 0.6800
+          4.1780 0.0000
+        }
+        "center_lid_tightener" 
+        {
+          0.4500 0.0000
+          0.6667 0.0000
+          1.1917 0.0000
+          1.2250 0.0000
+          1.3583 0.5500
+          1.4673 0.7950
+          1.6333 0.8500
+          1.6840 0.7171
+          1.6937 0.6500
+          1.7440 0.0000
+          2.0083 0.0000
+          2.2333 0.0000
+        }
+        "center_lid_closer" 
+        {
+          1.6700 0.0000
+          1.7423 0.8600
+          1.8423 0.0000
+        }
+        "presser" 
+        {
+          1.2690 0.0000
+          1.4313 0.6100
+          1.6840 0.7365
+          1.9440 0.0000
+        }
+      }
+    }
+  }
+  channel "lookAt"
+  {
+    event lookat "Look at !player"
+    {
+      time 0.025000 5.733333
+      param "!player"
+      event_ramp
+      {
+        0.5260 0.0760
+        1.3520 0.0495
+        4.8960 0.0265
+      }
+    }
+  }
+  channel "moveTo"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "gestures"
+  {
+    event gesture "hg_acc_down"
+    {
+      time 3.275001 5.241668
+      param "hg_acc_down"
+      event_ramp
+      {
+        0.5060 0.3463
+        1.3720 0.3710
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.155172
+        "extreme" 0.379310
+        "loop" 0.827586
+        "end" 0.844828
+      }
+      sequenceduration 1.966667
+    }
+    event gesture "hg_shake"
+    {
+      time 3.683334 5.383334
+      param "hg_shake"
+      event_ramp
+      {
+        0.4780 0.0565
+        1.2120 0.0283
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.089744
+        "extreme" 0.705128
+        "loop" 0.897436
+        "end" 0.910256
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.089744
+        "extreme" 0.705128
+        "loop" 0.897436
+        "end" 0.910256
+      }
+      sequenceduration 2.633333
+    }
+    event gesture "g_palm_whoa"
+    {
+      time 3.200000 5.500000
+      param "g_palm_whoa"
+      event_ramp
+      {
+        0.7360 0.2650
+      }
+      absolutetags playback_time
+      {
+        "apex" 0.308824
+        "accent" 0.514706
+        "loop" 0.882353
+        "end" 0.897059
+      }
+      absolutetags shifted_time
+      {
+        "apex" 0.308824
+        "accent" 0.514706
+        "loop" 0.882353
+        "end" 0.897059
+      }
+    }
+  }
+  channel "head"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "trigger"
+  {
+  }
+  channel "anim"
+  {
+    event sequence "NULL"
+    {
+      time 0.016667 3.150001
+      param "crouch_peek"
+      fixedlength
+    }
+  }
+  faceposermodel "models\vortigaunt.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "80"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "30"
+  "SceneRampTool" "100"
+}
+fps 60
+snap off
+ignorePhonemes off

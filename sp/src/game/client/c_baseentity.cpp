@@ -2462,27 +2462,36 @@ void C_BaseEntity::UnlinkFromHierarchy()
 void C_BaseEntity::ValidateModelIndex( void )
 {
 #ifdef TF_CLIENT_DLL
-	if ( m_nModelIndexOverrides[MODEL_INDEX_OVERRIDE_DEFAULT] > 0 ) 
+	if ( m_nModelIndexOverrides[VISION_MODE_NONE] > 0 ) 
 	{
 		if ( IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_HALLOWEEN ) )
 		{
-			if ( m_nModelIndexOverrides[MODEL_INDEX_OVERRIDE_HALLOWEEN] > 0 )
+			if ( m_nModelIndexOverrides[VISION_MODE_HALLOWEEN] > 0 )
 			{
-				SetModelByIndex( m_nModelIndexOverrides[MODEL_INDEX_OVERRIDE_HALLOWEEN] );
+				SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_HALLOWEEN] );
 				return;
 			}
 		}
 		
 		if ( IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_PYRO ) )
 		{
-			if ( m_nModelIndexOverrides[MODEL_INDEX_OVERRIDE_PYRO] > 0 )
+			if ( m_nModelIndexOverrides[VISION_MODE_PYRO] > 0 )
 			{
-				SetModelByIndex( m_nModelIndexOverrides[MODEL_INDEX_OVERRIDE_PYRO] );
+				SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_PYRO] );
 				return;
 			}
 		}
 
-		SetModelByIndex( m_nModelIndexOverrides[MODEL_INDEX_OVERRIDE_DEFAULT] );		
+		if ( IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_ROME ) )
+		{
+			if ( m_nModelIndexOverrides[VISION_MODE_ROME] > 0 )
+			{
+				SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_ROME] );
+				return;
+			}
+		}
+
+		SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_NONE] );		
 
 		return;
 	}
@@ -3597,6 +3606,48 @@ void C_BaseEntity::AddStudioDecal( const Ray_t& ray, int hitbox, int decalIndex,
 	}
 }
 
+//-----------------------------------------------------------------------------
+void C_BaseEntity::AddColoredStudioDecal( const Ray_t& ray, int hitbox, int decalIndex, 
+	bool doTrace, trace_t& tr, Color cColor, int maxLODToDecal )
+{
+	if (doTrace)
+	{
+		enginetrace->ClipRayToEntity( ray, MASK_SHOT, this, &tr );
+
+		// Trace the ray against the entity
+		if (tr.fraction == 1.0f)
+			return;
+
+		// Set the trace index appropriately...
+		tr.m_pEnt = this;
+	}
+
+	// Exit out after doing the trace so any other effects that want to happen can happen.
+	if ( !r_drawmodeldecals.GetBool() )
+		return;
+
+	// Found the point, now lets apply the decals
+	CreateModelInstance();
+
+	// FIXME: Pass in decal up?
+	Vector up(0, 0, 1);
+
+	if (doTrace && (GetSolid() == SOLID_VPHYSICS) && !tr.startsolid && !tr.allsolid)
+	{
+		// Choose a more accurate normal direction
+		// Also, since we have more accurate info, we can avoid pokethru
+		Vector temp;
+		VectorSubtract( tr.endpos, tr.plane.normal, temp );
+		Ray_t betterRay;
+		betterRay.Init( tr.endpos, temp );
+		modelrender->AddColoredDecal( m_ModelInstance, betterRay, up, decalIndex, GetStudioBody(), cColor, true, maxLODToDecal );
+	}
+	else
+	{
+		modelrender->AddColoredDecal( m_ModelInstance, ray, up, decalIndex, GetStudioBody(), cColor, false, maxLODToDecal );
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // This method works when we've got a brush model
@@ -3638,6 +3689,56 @@ void C_BaseEntity::AddDecal( const Vector& rayStart, const Vector& rayEnd,
 
 	case mod_brush:
 		AddBrushModelDecal( ray, decalCenter, decalIndex, doTrace, tr );
+		break;
+
+	default:
+		// By default, no collision
+		tr.fraction = 1.0f;
+		break;
+	}
+}
+
+//-----------------------------------------------------------------------------
+void C_BaseEntity::AddColoredDecal( const Vector& rayStart, const Vector& rayEnd,
+	const Vector& decalCenter, int hitbox, int decalIndex, bool doTrace, trace_t& tr, Color cColor, int maxLODToDecal )
+{
+	Ray_t ray;
+	ray.Init( rayStart, rayEnd );
+	
+	// FIXME: Better bloat?
+	// Bloat a little bit so we get the intersection
+	ray.m_Delta *= 1.1f;
+
+	int modelType = modelinfo->GetModelType( model );
+	if ( doTrace )
+	{
+		enginetrace->ClipRayToEntity( ray, MASK_SHOT, this, &tr );
+		switch ( modelType )
+		{
+		case mod_studio:
+			tr.m_pEnt = this;
+			break;
+		case mod_brush:
+			if ( tr.fraction == 1.0f )
+				return;		// Explicitly end
+		default:
+			// By default, no collision
+			tr.fraction = 1.0f;
+			break;
+		}
+	}
+
+	switch ( modelType )
+	{
+	case mod_studio:
+		AddColoredStudioDecal( ray, hitbox, decalIndex, doTrace, tr, cColor, maxLODToDecal );
+		break;
+
+	case mod_brush:
+		{
+			color32 cColor32 = { cColor.r(), cColor.g(), cColor.b(), cColor.a() };
+			effects->DecalColorShoot( decalIndex, index, model, GetAbsOrigin(), GetAbsAngles(), decalCenter, 0, 0, cColor32 );
+		}
 		break;
 
 	default:

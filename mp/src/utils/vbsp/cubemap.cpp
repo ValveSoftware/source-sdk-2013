@@ -286,12 +286,8 @@ void CreateDefaultCubemaps( bool bHDR )
 	// NOTE: This implementation depends on the fact that all VTF files contain
 	// all mipmap levels
 	const char *pSkyboxBaseName = FindSkyboxMaterialName();
-	char skyboxMaterialName[MAX_PATH];
-	Q_snprintf( skyboxMaterialName, MAX_PATH, "skybox/%s", pSkyboxBaseName );
 
-	IVTFTexture *pSrcVTFTextures[6];
-
-	if( !skyboxMaterialName )
+	if( !pSkyboxBaseName )
 	{
 		if( s_DefaultCubemapNames.Count() )
 		{
@@ -299,6 +295,11 @@ void CreateDefaultCubemaps( bool bHDR )
 		}
 		return;
 	}
+
+	char skyboxMaterialName[MAX_PATH];
+	Q_snprintf( skyboxMaterialName, MAX_PATH, "skybox/%s", pSkyboxBaseName );
+
+	IVTFTexture *pSrcVTFTextures[6];
 
 	int unionTextureFlags = 0;
 	if( !LoadSrcVTFFiles( pSrcVTFTextures, skyboxMaterialName, &unionTextureFlags, bHDR ) )

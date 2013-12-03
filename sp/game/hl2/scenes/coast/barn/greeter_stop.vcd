@@ -1,0 +1,65 @@
+// Choreo version 1
+actor "!Target1"
+{
+  channel "Audio"
+  {
+  }
+  channel "Expression"
+  {
+  }
+  channel "Look"
+  {
+    event lookat "look at player"
+    {
+      time 0.062318 4.381740
+      param "!player"
+      event_ramp
+      {
+        0.4400 0.9958
+        4.0834 0.9831
+      }
+    }
+  }
+  channel "Gesture"
+  {
+    event sequence "Wave"
+    {
+      time 0.260868 3.594201
+      param "Wave"
+      event_ramp
+      {
+        0.4200 0.8796
+        0.5100 0.9672
+        0.6650 1.0000
+        2.5750 1.0000
+        2.7050 0.9489
+        2.7900 0.8650
+      }
+      fixedlength
+    }
+  }
+  channel "face"
+  {
+    event face "!player"
+    {
+      time 0.101449 4.500000
+      param "!player"
+      event_ramp
+      {
+        0.6800 0.7119
+        4.3985 1.0000
+      }
+    }
+  }
+}
+
+scalesettings
+{
+  "CChoreoView" "46"
+  "SceneRampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+  "RampTool" "40"
+}
+fps 60
+snap off

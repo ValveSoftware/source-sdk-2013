@@ -1,0 +1,71 @@
+// Choreo version 1
+actor "Alyx"
+{
+  channel "audio"
+  {
+    event speak "al_room1_lights_on"
+    {
+      time 0.133333 0.840430
+      param "novaprospekt.al_room1_lights_on"
+      fixedlength
+      cctype "cc_master"
+      cctoken ""
+    }
+  }
+  channel "look at"
+  {
+    event lookat "look_player"
+    {
+      time 0.080000 1.193333
+      param "camera_alyx"
+      event_ramp
+      {
+        0.1100 0.8883
+        0.9240 0.9169
+      }
+    }
+  }
+  channel "move to"
+  {
+  }
+  channel "faceTo"
+  {
+  }
+  channel "Postures"
+  {
+  }
+  channel "Gestures"
+  {
+  }
+  channel "facial"
+  {
+  }
+  channel "Trigger"
+  {
+  }
+  channel "face to"
+  {
+    event face "mark_alyx_lookat_secroom_console_1"
+    {
+      time 0.044444 1.313332
+      param "mark_alyx_lookat_secroom_console_1"
+      event_ramp
+      {
+        0.1880 0.9922
+        1.2160 0.9870
+      }
+    }
+  }
+  faceposermodel "u:\tf2\hl2\models\alyx.mdl"
+}
+
+scalesettings
+{
+  "CChoreoView" "25"
+  "SceneRampTool" "100"
+  "RampTool" "100"
+  "ExpressionTool" "100"
+  "GestureTool" "100"
+}
+fps 60
+snap off

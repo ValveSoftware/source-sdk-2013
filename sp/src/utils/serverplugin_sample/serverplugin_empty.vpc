@@ -56,11 +56,7 @@ $Project "Serverplugin_empty"
 
 	$Folder	"Link Libraries"
 	{
-		$DynamicFile	"$SRCDIR\lib\public\mathlib.lib" [$WIN32]
-		$DynamicFile	"$SRCDIR\lib\public\tier2.lib" [$WIN32]
-		$DynamicFile	"$SRCDIR\lib\public\$PLATFORM\mathlib$_STATICLIB_EXT" [$LINUX]
-		$DynamicFile	"$SRCDIR\lib\public\$PLATFORM\tier2$_STATICLIB_EXT" [$LINUX]
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\mathlib$_STATICLIB_EXT" [$OSXALL]
-		$DynamicFile	"$SRCDIR\lib\$PLATFORM\tier2$_STATICLIB_EXT" [$OSXALL]
+		$Lib mathlib
+		$Lib tier2
 	}
 }
