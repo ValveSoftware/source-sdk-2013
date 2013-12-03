@@ -1,4 +1,4 @@
-﻿$Macro PLATSUBDIR	"\."	[$WIN32]
+$Macro PLATSUBDIR	"\."	[$WIN32]
 $Macro PLATSUBDIR	"\x64"	[$WIN64]
 $Macro PLATSUBDIR	"\."	[$X360]
 $Macro PLATSUBDIR	"\linux32" [$LINUX32]

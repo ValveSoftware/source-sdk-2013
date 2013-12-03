@@ -1,10 +1,22 @@
 creategameprojects text
 createallprojects text
+xcode_ccache_wrapper text
 vpc text
-*.sh text
-
 vpc_linux binary
 vpc_osx binary
+
+*.sh text
+*.c text
+*.h text
+*.H text
+*.cpp text
+*.vpc text
+*.vgc text
+*.nut text
+*.awk text
+*.pl text
+*.py text
+*.xcconfig text
 
 *.exe binary
 protoc binary
