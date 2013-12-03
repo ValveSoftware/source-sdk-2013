@@ -8,6 +8,7 @@ vpc_osx binary
 *.sh text
 *.c text
 *.h text
+*.H text
 *.cpp text
 *.vpc text
 *.vgc text
