@@ -586,7 +586,7 @@ inline void CUtlBuffer::GetObject( T *dest )
 {
 	if ( CheckGet( sizeof(T) ) )
 	{
-		if ( !m_Byteswap.IsSwappingBytes() || ( sizeof( T ) == 1 ) )
+		if ( ( sizeof( T ) == 1 ) || !m_Byteswap.IsSwappingBytes() )
 		{
 			*dest = *(T *)PeekGet();
 		}
@@ -618,7 +618,7 @@ inline void CUtlBuffer::GetTypeBin( T &dest )
 {
 	if ( CheckGet( sizeof(T) ) )
 	{
-		if ( !m_Byteswap.IsSwappingBytes() || ( sizeof( T ) == 1 ) )
+		if ( ( sizeof( T ) == 1 ) || !m_Byteswap.IsSwappingBytes() )
 		{
 			dest = *(T *)PeekGet();
 		}
@@ -804,7 +804,7 @@ inline void CUtlBuffer::PutObject( T *src )
 {
 	if ( CheckPut( sizeof(T) ) )
 	{
-		if ( !m_Byteswap.IsSwappingBytes() || ( sizeof( T ) == 1 ) )
+		if ( ( sizeof( T ) == 1 ) || !m_Byteswap.IsSwappingBytes() )
 		{
 			*(T *)PeekPut() = *src;
 		}
@@ -833,7 +833,7 @@ inline void CUtlBuffer::PutTypeBin( T src )
 {
 	if ( CheckPut( sizeof(T) ) )
 	{
-		if ( !m_Byteswap.IsSwappingBytes() || ( sizeof( T ) == 1 ) )
+		if ( ( sizeof( T ) == 1 ) || !m_Byteswap.IsSwappingBytes() )
 		{
 			*(T *)PeekPut() = src;
 		}
