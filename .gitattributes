@@ -16,6 +16,7 @@ vpc_osx binary
 *.awk text
 *.pl text
 *.py text
+*.xcconfig text
 
 *.exe binary
 protoc binary
