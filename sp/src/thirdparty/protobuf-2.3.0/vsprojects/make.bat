@@ -4,24 +4,23 @@ setlocal
 @rem Move to the batch file directory so we can run it from anywhere
 cd %~dp0
 
-call "%VS100COMNTOOLS%vsvars32.bat"
+call "%VS110COMNTOOLS%vsvars32.bat"
+set dirsuffix=\2012
 
-for /d %%d in (debug release "debug|x64" "release|x64") do (
+@rem Note that we no longer build separate debug libraries
+for /d %%d in ( "release|Win32" "release|x64") do (
+	@rem Note that this message seems to display out of order for some reason...
 	echo Building %%d
 	devenv protobuf_2010.sln /clean %%d
-	devenv protobuf_2010.sln /build %%d /project libprotobuf
 	devenv protobuf_2010.sln /build %%d /project libprotobuf-lite
+	@rem Note that building libprotoc also ensures that libprotobuf builds
 	devenv protobuf_2010.sln /build %%d /project libprotoc
 )
 
-p4 edit ..\..\..\lib\win32\debug\VS2010\libproto*.lib
-p4 edit ..\..\..\lib\win32\release\VS2010\libproto*.lib
-p4 edit ..\..\..\lib\win64\debug\VS2010\libproto*.lib
-p4 edit ..\..\..\lib\win64\release\VS2010\libproto*.lib
+p4 edit ..\..\..\lib\public%dirsuffix%\libproto*.lib
+p4 edit ..\..\..\lib\public\x64%dirsuffix%\libproto*.lib
 
-copy /y Debug\libproto*.lib ..\..\..\lib\win32\debug\VS2010
-copy /y Release\libproto*.lib ..\..\..\lib\win32\Release\VS2010
-copy /y x64\Debug\libproto*.lib ..\..\..\lib\win64\debug\VS2010
-copy /y x64\Release\libproto*.lib ..\..\..\lib\win64\Release\VS2010
+copy /y Release\libproto*.lib ..\..\..\lib\public%dirsuffix%
+copy /y x64\Release\libproto*.lib ..\..\..\lib\public\x64%dirsuffix%
 
 @echo Check in the changed libraries in src\lib if you are done.

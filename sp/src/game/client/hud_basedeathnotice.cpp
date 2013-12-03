@@ -114,7 +114,8 @@ void CHudBaseDeathNotice::Paint()
 		DeathNoticeItem &msg = m_DeathNotices[i];
 		
 		CHudTexture *icon = msg.iconDeath;
-						
+		CHudTexture *iconPrekiller = msg.iconPreKiller;
+
 		wchar_t victim[256]=L"";
 		wchar_t killer[256]=L"";
 
@@ -125,10 +126,15 @@ void CHudBaseDeathNotice::Paint()
 
 		int iVictimTextWide = UTIL_ComputeStringWidth( m_hTextFont, victim ) + xSpacing;
 		int iDeathInfoTextWide= msg.wzInfoText[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzInfoText ) + xSpacing : 0;
+		int iDeathInfoEndTextWide= msg.wzInfoTextEnd[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzInfoTextEnd ) + xSpacing : 0;
+
 		int iKillerTextWide = killer[0] ? UTIL_ComputeStringWidth( m_hTextFont, killer ) + xSpacing : 0;
 		int iLineTall = m_flLineHeight;
 		int iTextTall = surface()->GetFontTall( m_hTextFont );
 		int iconWide = 0, iconTall = 0, iDeathInfoOffset = 0, iVictimTextOffset = 0, iconActualWide = 0;
+		
+		int iPreKillerTextWide = msg.wzPreKillerText[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzPreKillerText ) - xSpacing : 0;
+		int iconPrekillerWide = 0, iconPrekillerActualWide = 0, iconPreKillerTall = 0;
 
 		// Get the local position for this notice
 		if ( icon )
@@ -145,7 +151,25 @@ void CHudBaseDeathNotice::Paint()
 			iconTall *= flScale;
 			iconWide *= flScale;
 		}
-		int iTotalWide = iKillerTextWide + iconWide + iVictimTextWide + iDeathInfoTextWide + ( xMargin * 2 );
+
+		if ( iconPrekiller )
+		{
+			iconPrekillerActualWide = iconPrekiller->EffectiveWidth( 1.0f );
+			iconPrekillerWide = iconPrekillerActualWide;
+			iconPreKillerTall = iconPrekiller->EffectiveHeight( 1.0f );
+
+			int iconTallDesired = iLineTall-YRES(2);
+			Assert( 0 != iconTallDesired );
+			float flScale = (float) iconTallDesired / (float) iconPreKillerTall;
+
+			iconPrekillerActualWide *= flScale;
+			iconPreKillerTall *= flScale;
+			iconPrekillerWide *= flScale;
+		}
+
+		int iTotalWide = iKillerTextWide + iconWide + iVictimTextWide + iDeathInfoTextWide + iDeathInfoEndTextWide + ( xMargin * 2 );
+		iTotalWide += iconPrekillerWide + iPreKillerTextWide;
+
 		int y = yStart + ( ( iLineTall + m_flLineSpacing ) * i );				
 		int yText = y + ( ( iLineTall - iTextTall ) / 2 );
 		int yIcon = y + ( ( iLineTall - iconTall ) / 2 );
@@ -160,16 +184,32 @@ void CHudBaseDeathNotice::Paint()
 		Vertex_t vert[NUM_BACKGROUND_COORD];
 		GetBackgroundPolygonVerts( x, y+1, x+iTotalWide, y+iLineTall-1, ARRAYSIZE( vert ), vert );		
 		surface()->DrawSetTexture( -1 );
-		surface()->DrawSetColor( msg.bLocalPlayerInvolved ? m_clrLocalBGColor : m_clrBaseBGColor );
+		surface()->DrawSetColor( GetBackgroundColor ( i ) );
 		surface()->DrawTexturedPolygon( ARRAYSIZE( vert ), vert );
 
 		x += xMargin;
-			
+	
 		if ( killer[0] )
 		{
 			// Draw killer's name
 			DrawText( x, yText, m_hTextFont, GetTeamColor( msg.Killer.iTeam, msg.bLocalPlayerInvolved ), killer );
 			x += iKillerTextWide;
+		}
+
+		// prekiller text
+		if ( msg.wzPreKillerText[0] )
+		{
+			x += xSpacing;
+			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i ), msg.wzPreKillerText );
+			x += iPreKillerTextWide;
+		}
+
+		// Prekiller icon
+		if ( iconPrekiller )
+		{
+			int yPreIconTall = y + ( ( iLineTall - iconPreKillerTall ) / 2 );
+			iconPrekiller->DrawSelf( x, yPreIconTall, iconPrekillerActualWide, iconPreKillerTall, m_clrIcon );
+			x += iconPrekillerWide + xSpacing;
 		}
 
 		// Draw glow behind weapon icon to show it was a crit death
@@ -194,13 +234,19 @@ void CHudBaseDeathNotice::Paint()
 				iVictimTextOffset -= iDeathInfoTextWide;
 			}
 
-			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( msg.bLocalPlayerInvolved ), msg.wzInfoText );
+			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i ), msg.wzInfoText );
 			x += iDeathInfoTextWide;
 		}
 
 		// Draw victims name
 		DrawText( x + iVictimTextOffset, yText, m_hTextFont, GetTeamColor( msg.Victim.iTeam, msg.bLocalPlayerInvolved ), victim );
 		x += iVictimTextWide;
+
+		// Draw Additional Text on the end of the victims name
+		if ( msg.wzInfoTextEnd[0] )
+		{
+			DrawText( x , yText, m_hTextFont, GetInfoTextColor( i ), msg.wzInfoTextEnd );
+		}
 	}
 }
 
@@ -358,7 +404,12 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 			bLocalPlayerInvolved = true;
 		}
 
-		if ( event->GetInt( "damagebits" ) & DMG_CRITICAL )
+		if ( event->GetInt( "death_flags" ) & TF_DEATH_AUSTRALIUM )
+		{
+			m_DeathNotices[iMsg].bCrit= true;
+			m_DeathNotices[iMsg].iconCritDeath = GetIcon( "d_australium", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );
+		}
+		else if ( event->GetInt( "damagebits" ) & DMG_CRITICAL )
 		{
 			m_DeathNotices[iMsg].bCrit= true;
 			m_DeathNotices[iMsg].iconCritDeath = GetIcon( "d_crit", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );

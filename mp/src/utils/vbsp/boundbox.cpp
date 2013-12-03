@@ -14,7 +14,7 @@
 #include "tier0/memdbgon.h"
 
 
-float rint(float f)
+float V_rint(float f)
 {
 	if (f > 0.0f) {
 		return (float) floor(f + 0.5f);
@@ -223,7 +223,7 @@ void BoundBox::GetBoundsSize(Vector& size)
 //-----------------------------------------------------------------------------
 static int Snap(/*int*/ float iValue, int iGridSize)
 {
-	return (int)(rint(iValue/iGridSize) * iGridSize);
+	return (int)(V_rint(iValue/iGridSize) * iGridSize);
 }
 
 

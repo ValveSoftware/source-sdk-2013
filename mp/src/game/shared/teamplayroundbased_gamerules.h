@@ -297,6 +297,8 @@ public:
 	virtual void	BetweenRounds_End( void ) { return; }
 	virtual void	BetweenRounds_Think( void ) { return; }
 
+	virtual void	PreRound_End( void ) { return; }
+
 	bool PrevRoundWasWaitingForPlayers() { return m_bPrevRoundWasWaitingForPlayers; }
 
 	virtual bool ShouldScorePerRound( void ){ return true; }
@@ -415,6 +417,7 @@ protected:
 	void State_Think_STARTGAME( void );
 
 	void State_Enter_PREROUND( void );
+	void State_Leave_PREROUND( void );
 	void State_Think_PREROUND( void );
 
 	void State_Enter_RND_RUNNING( void );
@@ -456,7 +459,9 @@ protected:
 	void PlayStalemateSong( void );
 	void PlaySuddenDeathSong( void );
 
-	virtual const char* LoseSongName( void ) { return "Game.YourTeamLost"; }
+	virtual const char* GetStalemateSong( int nTeam ) { return "Game.Stalemate"; }
+	virtual const char* WinSongName( int nTeam ) { return "Game.YourTeamWon"; }
+	virtual const char* LoseSongName( int nTeam ) { return "Game.YourTeamLost"; }
 	
 	virtual void RespawnTeam( int iTeam ) { RespawnPlayers( false, true, iTeam ); }
 

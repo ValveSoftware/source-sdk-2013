@@ -36,7 +36,7 @@
 #include <vgui/ILocalize.h>
 #include "hud_vote.h"
 #include "ienginevgui.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 #if defined( _X360 )
 #include "xbox/xbox_console.h"
 #endif
@@ -208,6 +208,7 @@ static void __MsgFunc_VGUIMenu( bf_read &msg )
 	if ( count > 0 )
 	{
 		KeyValues *keys = new KeyValues("data");
+		//Msg( "MsgFunc_VGUIMenu:\n" );
 
 		for ( int i=0; i<count; i++)
 		{
@@ -216,8 +217,23 @@ static void __MsgFunc_VGUIMenu( bf_read &msg )
 
 			msg.ReadString( name, sizeof(name) );
 			msg.ReadString( data, sizeof(data) );
+			//Msg( "  %s <- '%s'\n", name, data );
 
 			keys->SetString( name, data );
+		}
+
+		// !KLUDGE! Whitelist of URL protocols formats for MOTD
+		if (
+			!V_stricmp( panelname, PANEL_INFO ) // MOTD
+			&& keys->GetInt( "type", 0 ) == 2 // URL message type
+		) {
+			const char *pszURL = keys->GetString( "msg", "" );
+			if ( Q_strncmp( pszURL, "http://", 7 ) != 0 && Q_strncmp( pszURL, "https://", 8 ) != 0 )
+			{
+				Warning( "Blocking MOTD URL '%s'; must begin with 'http://' or 'https://'\n", pszURL );
+				keys->deleteThis();
+				return;
+			}
 		}
 
 		viewport->SetData( keys );
@@ -496,7 +512,7 @@ bool ClientModeShared::ShouldBlackoutAroundHUD()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Allows the client mode to override mouse control stuff in headtrack
+// Purpose: Allows the client mode to override mouse control stuff in sourcevr
 //-----------------------------------------------------------------------------
 HeadtrackMovementMode_t ClientModeShared::ShouldOverrideHeadtrackControl() 
 {

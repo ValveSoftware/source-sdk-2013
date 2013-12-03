@@ -247,8 +247,8 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 			if (!(_exp)) 													\
 			{ 																\
 				_SpewInfo( SPEW_ASSERT, __TFILE__, __LINE__ );				\
-				SpewRetval_t ret = _SpewMessage("%s", _msg);				\
-				CallAssertFailedNotifyFunc( __TFILE__, __LINE__, _msg );								\
+				SpewRetval_t ret = _SpewMessage("%s", static_cast<const char*>( _msg ));	\
+				CallAssertFailedNotifyFunc( __TFILE__, __LINE__, _msg );					\
 				_executeExp; 												\
 				if ( ret == SPEW_DEBUGGER)									\
 				{															\
@@ -343,6 +343,9 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 #define  AssertEquals( _exp, _expectedValue )              	AssertMsg2( (_exp) == (_expectedValue), _T("Expected %d but got %d!"), (_expectedValue), (_exp) ) 
 #define  AssertFloatEquals( _exp, _expectedValue, _tol )  	AssertMsg2( fabs((_exp) - (_expectedValue)) <= (_tol), _T("Expected %f but got %f!"), (_expectedValue), (_exp) )
 #define  Verify( _exp )           							Assert( _exp )
+#define  VerifyMsg1( _exp, _msg, a1 )						AssertMsg1( _exp, _msg, a1 )
+#define	 VerifyMsg2( _exp, _msg, a1, a2 )					AssertMsg2( _exp, _msg, a1, a2 )
+#define	 VerifyMsg3( _exp, _msg, a1, a2, a3 )				AssertMsg3( _exp, _msg, a1, a2, a3 )
 #define  VerifyEquals( _exp, _expectedValue )           	AssertEquals( _exp, _expectedValue )
 #define  DbgVerify( _exp )           						Assert( _exp )
 
@@ -366,6 +369,9 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 #define  AssertEquals( _exp, _expectedValue )				((void)0)
 #define  AssertFloatEquals( _exp, _expectedValue, _tol )	((void)0)
 #define  Verify( _exp )										(_exp)
+#define	 VerifyMsg1( _exp, _msg, a1 )						(_exp)
+#define	 VerifyMsg2( _exp, _msg, a1, a2 )					(_exp)
+#define	 VerifyMsg3( _exp, _msg, a1, a2, a3 )				(_exp)
 #define  VerifyEquals( _exp, _expectedValue )           	(_exp)
 #define  DbgVerify( _exp )									(_exp)
 

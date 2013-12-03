@@ -894,7 +894,12 @@ C_BaseEntity::C_BaseEntity() :
 {
 	AddVar( &m_vecOrigin, &m_iv_vecOrigin, LATCH_SIMULATION_VAR );
 	AddVar( &m_angRotation, &m_iv_angRotation, LATCH_SIMULATION_VAR );
-	AddVar( &m_vecVelocity, &m_iv_vecVelocity, LATCH_SIMULATION_VAR );
+	// Removing this until we figure out why velocity introduces view hitching.
+	// One possible fix is removing the player->ResetLatched() call in CGameMovement::FinishDuck(), 
+	// but that re-introduces a third-person hitching bug.  One possible cause is the abrupt change
+	// in player size/position that occurs when ducking, and how prediction tries to work through that.
+	//
+	// AddVar( &m_vecVelocity, &m_iv_vecVelocity, LATCH_SIMULATION_VAR );
 
 	m_DataChangeEventRef = -1;
 	m_EntClientFlags = 0;

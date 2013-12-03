@@ -206,6 +206,8 @@ $Project
 		$File	"$SRCDIR\game\shared\basegrenade_shared.cpp"
 		$File	"$SRCDIR\game\shared\baseparticleentity.cpp"
 		$File	"$SRCDIR\game\shared\baseplayer_shared.cpp"
+		$File	"$SRCDIR\game\shared\baseprojectile.cpp"
+		$File	"$SRCDIR\game\shared\baseprojectile.h"
 		$File	"$SRCDIR\game\shared\baseviewmodel_shared.cpp"
 		$File	"beamdraw.cpp"
 		$File	"$SRCDIR\game\shared\beam_shared.cpp"

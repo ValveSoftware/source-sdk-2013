@@ -105,6 +105,10 @@ public:
 
 // Gets a material bound to a surface texture ID
 	virtual IMaterial *DrawGetTextureMaterial( int id ) = 0;
+
+	// The matching method is in ISurface, but we can't add anything there and remain mod-compatible.
+	// So this goes here instead.
+	virtual void GetFullscreenViewportAndRenderTarget( int & x, int & y, int & w, int & h, ITexture **ppRenderTarget ) = 0;
 };
 
 

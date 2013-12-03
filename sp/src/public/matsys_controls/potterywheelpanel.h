@@ -131,8 +131,9 @@ protected:
 
 	bool	m_bRenderToTexture;
 
+	virtual void SetupRenderState( int nDisplayWidth, int nDisplayHeight );
+
 private:
-	void SetupRenderState( int nDisplayWidth, int nDisplayHeight );
 	void CreateDefaultLights();
 	void DestroyLights();
 

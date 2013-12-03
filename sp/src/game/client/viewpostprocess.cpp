@@ -834,7 +834,7 @@ void CLuminanceHistogramSystem::UpdateLuminanceRanges( void )
 		s_bFirstTime = false;
 
 		// This seems like a bad idea but it's fine for now
-		const char *sModsForOriginalAlgorithm[] = { "dod", "cstrike", "lostcoast" };
+		const char *sModsForOriginalAlgorithm[] = { "dod", "cstrike", "lostcoast", "hl1" };
 		for ( int i=0; i<3; i++ )
 		{
 			if ( strlen( engine->GetGameDirectory() ) >= strlen( sModsForOriginalAlgorithm[i] ) )

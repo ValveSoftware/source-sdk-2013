@@ -138,8 +138,8 @@ class LogMessage {
 class LogMessageCrash : public LogMessage {
  public:
   LogMessageCrash() { }
-#if _MSC_VER == 1700
-// Bogus warning from VS 2012:
+#if _MSC_VER == 1700 || _MSC_VER == 1800
+// Bogus warning from VS 2012 and VS 2013:
 // warning C4722: 'snappy::LogMessageCrash::~LogMessageCrash' : destructor never returns, potential memory leak
 #pragma warning(push)
 #pragma warning(disable : 4722)
@@ -150,7 +150,7 @@ class LogMessageCrash : public LogMessage {
     abort();
   }
 };
-#if _MSC_VER == 1700
+#if _MSC_VER == 1700 || _MSC_VER == 1800
 #pragma warning(pop)
 #endif
 

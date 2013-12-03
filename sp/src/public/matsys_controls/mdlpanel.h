@@ -51,6 +51,8 @@ public:
 
 	virtual void OnTick();
 
+	virtual void Paint();
+
 	// Sets the current mdl
 	virtual void SetMDL( MDLHandle_t handle, void *pProxyData = NULL );
 	virtual void SetMDL( const char *pMDLName, void *pProxyData = NULL );
@@ -78,6 +80,7 @@ public:
 	void SetSkin( int nSkin );
 	void SetLookAtCamera( bool bLookAtCamera );
 	void SetIgnoreDoubleClick( bool bState );
+	void SetThumbnailSafeZone( bool bVisible );
 
 	// Bounds.
 	bool GetBoundingBox( Vector &vecBoundsMin, Vector &vecBoundsMax );
@@ -103,6 +106,8 @@ public:
 
 protected:
 
+	virtual void SetupRenderState( int nDisplayWidth, int nDisplayHeight ) OVERRIDE;
+
 	struct MDLData_t
 	{
 		CMDL		m_MDL;
@@ -122,7 +127,7 @@ protected:
 
 private:
 	// paint it!
-	void OnPaint3D();
+	virtual void OnPaint3D();
 	virtual void PrePaint3D( IMatRenderContext *pRenderContext ) { };
 	virtual void PostPaint3D( IMatRenderContext *pRenderContext ) { };
 	virtual void RenderingMergedModel( IMatRenderContext *pRenderContext, CStudioHdr *pStudioHdr, MDLHandle_t mdlHandle, matrix3x4_t *pWorldMatrix ) { };
@@ -141,6 +146,7 @@ private:
 	bool	m_bWireFrame : 1;
 	bool	m_bLookAtCamera : 1;
 	bool	m_bIgnoreDoubleClick : 1;
+	bool	m_bThumbnailSafeZone : 1;
 
 	float	m_PoseParameters[ MAXSTUDIOPOSEPARAM ];
 };

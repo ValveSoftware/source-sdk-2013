@@ -36,13 +36,14 @@
 #include "materialsystem/itexture.h"
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/materialsystem_config.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
 #include "toolframework_client.h"
 #include "tier0/icommandline.h"
 #include "ienginevgui.h"
 #include <vgui_controls/Controls.h>
 #include <vgui/ISurface.h>
 #include "ScreenSpaceEffects.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 #include "client_virtualreality.h"
 
 #if defined( REPLAY_ENABLED )
@@ -83,10 +84,6 @@ extern ConVar sensitivity;
 #endif
 
 ConVar zoom_sensitivity_ratio( "zoom_sensitivity_ratio", "1.0", 0, "Additional mouse sensitivity scale factor applied when FOV is zoomed in." );
-
-#ifdef STAGING_ONLY
-ConVar vr_stereo_debug_viewport( "vr_stereo_debug_viewport", "0" );
-#endif
 
 CViewRender g_DefaultViewRender;
 IViewRender *view = NULL;	// set in cldll_client_init.cpp if no mod creates their own
@@ -301,16 +298,6 @@ void CViewRender::Init( void )
 	m_pDrawEntities		= cvar->FindVar( "r_drawentities" );
 	m_pDrawBrushModels	= cvar->FindVar( "r_drawbrushmodels" );
 
-	if( UseVR() )
-	{
-		m_eStartEye = STEREO_EYE_LEFT;
-		m_eLastEye = STEREO_EYE_RIGHT;
-	}
-	else
-	{
-		m_eStartEye = m_eLastEye = STEREO_EYE_MONO;
-	}
-
 	beams->InitBeams();
 	tempents->Init();
 
@@ -500,12 +487,18 @@ void CViewRender::DriftPitch (void)
 
 StereoEye_t		CViewRender::GetFirstEye() const
 {
-	return m_eStartEye;
+	if( UseVR() )
+		return STEREO_EYE_LEFT;
+	else
+		return STEREO_EYE_MONO;
 }
 
 StereoEye_t		CViewRender::GetLastEye() const
 {
-	return m_eLastEye;
+	if( UseVR() )
+		return STEREO_EYE_RIGHT;
+	else
+		return STEREO_EYE_MONO;
 }
 
 
@@ -1177,57 +1170,14 @@ void CViewRender::Render( vrect_t *rect )
 			}
 			break;
 
+			case STEREO_EYE_RIGHT:
 			case STEREO_EYE_LEFT:
 			{
-#ifdef STAGING_ONLY
-                if ( vr_stereo_debug_viewport.GetBool() )
-                {
-                    // Stress-test for crazy viewports.
-	                view.width			= vr.width * flViewportScale * 0.25f;
-	                view.height			= vr.height * flViewportScale * 0.75f;
-	                view.x				= vr.x * flViewportScale;
-	                view.y				= (vr.y + vr.height * 0.20f) * flViewportScale;
-
-					view.m_nUnscaledWidth = vr.width / 2;
-                }
-                else
-#endif
-                {
-	                view.width			= vr.width * flViewportScale * 0.5f;
-	                view.height			= vr.height * flViewportScale;
-	                view.x				= vr.x * flViewportScale ;
-	                view.y				= vr.y * flViewportScale;
-
-					view.m_nUnscaledWidth = vr.width / 2;
-                }
-			}
-			break;
-
-			case STEREO_EYE_RIGHT:
-			{
-#ifdef STAGING_ONLY
-				if ( vr_stereo_debug_viewport.GetBool() )
-				{
-					// Stress-test for crazy viewports.
-					view.width			= vr.width * flViewportScale * 0.75f;
-					view.height			= vr.height * flViewportScale * 0.75f;
-					view.x				= vr.x + vr.width * 0.25f;
-					view.y				= vr.y + vr.height * 0.1f;
- 
-					view.m_nUnscaledWidth = vr.width / 2;
-					view.m_nUnscaledX = vr.x + view.m_nUnscaledWidth;
-				}
-                else
-#endif
-                {
-	                view.width			= vr.width * flViewportScale * 0.5f;
-	                view.height			= vr.height * flViewportScale;
-	                view.x				= (vr.x + view.width) * flViewportScale;
-	                view.y				= vr.y * flViewportScale;
-
-					view.m_nUnscaledWidth = vr.width / 2;
-					view.m_nUnscaledX = vr.x + view.m_nUnscaledWidth;
-                }
+				g_pSourceVR->GetViewportBounds( (ISourceVirtualReality::VREye)(eEye - 1 ), &view.x, &view.y, &view.width, &view.height );
+				view.m_nUnscaledWidth = view.width;
+				view.m_nUnscaledHeight = view.height;
+				view.m_nUnscaledX = view.x;
+				view.m_nUnscaledY = view.y;
 			}
 			break;
 
@@ -1302,9 +1252,32 @@ void CViewRender::Render( vrect_t *rect )
 			// we should use the monitor view from the left eye for both eyes
 			flags |= RENDERVIEW_SUPPRESSMONITORRENDERING;
 		}
-	    RenderView( view, nClearFlags, flags );
-    }
 
+	    RenderView( view, nClearFlags, flags );
+
+		if ( UseVR() )
+		{
+			bool bDoUndistort = ! engine->IsTakingScreenshot();
+
+			if ( bDoUndistort )
+			{
+				g_ClientVirtualReality.PostProcessFrame( eEye );
+			}
+
+			// logic here all cloned from code in viewrender.cpp around RenderHUDQuad:
+
+			// figure out if we really want to draw the HUD based on freeze cam
+			bool bInFreezeCam = ( pPlayer && pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM );
+
+			// draw the HUD after the view model so its "I'm closer" depth queues work right.
+			if( !bInFreezeCam && g_ClientVirtualReality.ShouldRenderHUDInWorld() )
+			{
+				// TODO - a bit of a shonky test - basically trying to catch the main menu, the briefing screen, the loadout screen, etc.
+				bool bTranslucent = !g_pMatSystemSurface->IsCursorVisible();
+				g_ClientVirtualReality.OverlayHUDQuadWithUndistort( view, bDoUndistort, g_pClientMode->ShouldBlackoutAroundHUD(), bTranslucent );
+			}
+		}
+    }
 
 
 	// TODO: should these be inside or outside the stereo eye stuff?
@@ -1333,15 +1306,6 @@ void CViewRender::Render( vrect_t *rect )
 		render->PopView( GetFrustum() );
 	}
 
-
-	if ( UseVR() )
-	{
-		if ( !engine->IsTakingScreenshot() )
-		{
-			// Deal with the distortion on the display. 
-			g_ClientVirtualReality.PostProcessFrame( rect );
-		}
-	}
 
 }
 

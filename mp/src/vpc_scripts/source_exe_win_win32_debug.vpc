@@ -74,7 +74,7 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions				"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions				"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -229,6 +229,8 @@ $Configuration "Debug"
 		$DelaySign
 		$ErrorReporting							"Prompt Immediately (/ERRORREPORT:PROMPT)"
 		$CLRUnmanagedCodeCheck
+		// SAFE_SEH should always be disabled on debug builds.
+		$ImageHasSafeExceptionHandlers		"false"
 
 		// Command Line
 		$AdditionalOptions						
@@ -287,7 +289,7 @@ $Configuration "Debug"
 	$Resources
 	{
 		// General
-		$PreprocessorDefinitions				"_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions				"_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)"
 		$Culture								"English (United States) (0x409)"
 		$AdditionalIncludeDirectories
 		$IgnoreStandardIncludePath

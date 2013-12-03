@@ -147,6 +147,7 @@ public:
 
 	virtual bool	IsInfoPanelAllowed() = 0;
 	virtual void	InfoPanelDisplayed() = 0;
+	virtual bool	IsHTMLInfoPanelAllowed() = 0;
 };	
 
 extern IClientMode *g_pClientMode;

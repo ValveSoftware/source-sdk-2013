@@ -14,6 +14,7 @@
 
 #include "tier3/tier3.h"
 #include "iclientvirtualreality.h"
+#include "view_shared.h"
 
 enum HeadtrackMovementMode_t
 {
@@ -33,20 +34,6 @@ enum HeadtrackMovementMode_t
 	HMM_NOOVERRIDE = HMM_LAST		// Used as a retrun from ShouldOverrideHeadtrackControl(), not an actual mode.
 };
 
-
-// used for interacting with the calibration UI
-struct TEyeCalibration
-{
-	struct TEyeEdges
-	{
-		int iTop, iBot, iIn, iOut;		// These are used to calculate everything else.
-		float fSizePixels;
-		float fReliefInches;
-	} Left, Right;
-
-	float fIpdPixels;
-	float fIpdInches;
-};
 
 //-----------------------------------------------------------------------------
 // The implementation
@@ -77,6 +64,8 @@ public:
 	virtual InitReturnVal_t					Init();
 	virtual void							Shutdown();
 
+	// Called when startup is complete
+	void StartupComplete();
 
 	//---------------------------------------------------------
 	// IClientVirtualReality implementation
@@ -94,6 +83,7 @@ public:
 	bool CurrentlyZoomed();
 	void OverrideTorsoTransform( const Vector & position, const QAngle & angles ) ;
 	void CancelTorsoTransformOverride( ) ;
+	bool CanOverlayHudQuad();
 	void GetHUDBounds( Vector *pViewer, Vector *pUL, Vector *pUR, Vector *pLL, Vector *pLR );
 	void RenderHUDQuad( bool bBlackout, bool bTranslucent );
 	float GetZoomedModeMagnification();
@@ -105,23 +95,14 @@ public:
 	const VMatrix & GetWorldFromMidEye() const { return m_WorldFromMidEyeNoDebugCam; }
 	void OverrideViewModelTransform( Vector & vmorigin, QAngle & vmangles, bool bUseLargeOverride );
 	void AlignTorsoAndViewToWeapon();
-	void PostProcessFrame( const vrect_t *SrcRect );
+	void PostProcessFrame( StereoEye_t eEye );
+	void OverlayHUDQuadWithUndistort( const CViewSetup &view, bool bDoUndistort, bool bBlackout, bool bTranslucent );
 
 	//---------------------------------------------------------
-	// Stat collection
+	// Enter/leave VR mode
 	//---------------------------------------------------------
-	bool CollectSessionStartStats( KeyValues *pkvStats );
-	bool CollectPeriodicStats( KeyValues *pkvStats );
-
-	//---------------------------------------------------------
-	// IPD Calibration
-	//---------------------------------------------------------
-	void DrawIpdCalibration ( const vrect_t *SrcRect );
-
-	void RecalcEyeCalibration ( TEyeCalibration *p );
-	void GetCurrentEyeCalibration ( TEyeCalibration *p );
-	void SetCurrentEyeCalibration ( TEyeCalibration const &p );
-	void SetEyeCalibrationDisplayMisc ( int iEditingNum, bool bVisible );
+	void Activate();
+	void Deactivate();
 
 private:
 	HeadtrackMovementMode_t m_hmmMovementActual;
@@ -169,11 +150,14 @@ private:
 
 	RTime32			m_rtLastMotionSample;
 
-	// IPD test fields
-	bool			m_bIpdTestEnabled;
-	int				m_IpdTestControl;
-	TEyeCalibration m_IpdTestCurrent;
-
+	// video mode we had before we entered VR mode
+	bool m_bNonVRWindowed;
+	int m_nNonVRWidth;
+	int m_nNonVRHeight;
+#if defined( USE_SDL )
+    int m_nNonVRSDLDisplayIndex;
+#endif
+    bool m_bNonVRRawInput;
 };
 
 extern CClientVirtualReality g_ClientVirtualReality;

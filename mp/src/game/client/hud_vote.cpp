@@ -1059,6 +1059,10 @@ void CHudVote::MsgFunc_CallVoteFailed( bf_read &msg )
 		case VOTE_FAILED_CANNOT_KICK_DURING_ROUND:
 			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_round_active" );
 			break;
+
+		case VOTE_FAILED_MODIFICATION_ALREADY_ACTIVE:
+			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_event_already_active" );
+			break;
 	}	
 }
 

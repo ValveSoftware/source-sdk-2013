@@ -84,7 +84,7 @@ public:
 
 
 	int		OnTakeDamage_Alive( const CTakeDamageInfo &info );
-	void	TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr );
+	void	TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator );
 
 	virtual bool FireGun( void );
 

@@ -34,7 +34,9 @@ class CTeamControlPoint;
 
 // #define TWMASTER_THINK	"CTeamTrainWatcherMasterThink"
 
-class CTeamTrainWatcher : public CBaseEntity, public CGameEventListener
+DECLARE_AUTO_LIST( ITFTeamTrainWatcher );
+
+class CTeamTrainWatcher : public CBaseEntity, public CGameEventListener, public ITFTeamTrainWatcher
 {
 	DECLARE_CLASS( CTeamTrainWatcher, CBaseEntity );
 public:
@@ -55,6 +57,7 @@ public:
 	void InputOnStartOvertime( inputdata_t &inputdata );
 	void InputSetSpeedForwardModifier( inputdata_t &inputdata );
 	void InputSetTrainRecedeTime( inputdata_t &inputdata );
+	void InputSetTrainCanRecede( inputdata_t &inputdata );
 
 	// ==========================================================
 	// given a start node and a list of goal nodes

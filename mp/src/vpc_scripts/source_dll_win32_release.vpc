@@ -81,7 +81,7 @@ $Configuration "Release"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"$BASE;WIN32;_WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"$BASE;WIN32;_WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
 		$PreprocessorDefinitions			"$BASE;RELEASE_ASSERTS" [$RELEASEASSERTS]
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
@@ -141,8 +141,7 @@ $Configuration "Release"
 		$OmitDefaultLibraryNames
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
 
-		// Command Line (L4D adding /MP)
-		$AdditionalOptions					"/MP /Zm200"
+		$AdditionalOptions					"/Zm200"
 		// Enable extra debugging information.
 		$AdditionalOptions					"$BASE /d2Zi+"  [$VS2010]
 		$AdditionalOptions					"$BASE /Oy-"	[$NOFPO]
@@ -248,6 +247,8 @@ $Configuration "Release"
 		$DelaySign
 		$ErrorReporting						"Prompt Immediately (/ERRORREPORT:PROMPT)"
 		$CLRUnmanagedCodeCheck
+		// Most DLLs cannot yet handle SafeSEH
+		$ImageHasSafeExceptionHandlers		"false"
 
 		// Command Line
 		$AdditionalOptions						
@@ -306,7 +307,7 @@ $Configuration "Release"
 	$Resources
 	{
 		// General
-		$PreprocessorDefinitions			"$BASE;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"$BASE;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)"
 		$Culture							"English (United States) (0x409)"
 		$AdditionalIncludeDirectories
 		$IgnoreStandardIncludePath

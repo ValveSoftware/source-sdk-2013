@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libprotobuf", "libprotobuf.vcxproj", "{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libprotoc", "libprotoc.vcxproj", "{B84FF31A-5F9A-46F8-AB22-DBFC9BECE3BE}"
@@ -61,20 +61,16 @@ Global
 		{4DF72760-C055-40A5-A77E-30A17E2AC2DB}.Release|x64.Build.0 = Release|x64
 		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Debug|Win32.ActiveCfg = Debug|Win32
 		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Debug|Win32.Build.0 = Debug|Win32
-		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Debug|x64.ActiveCfg = Debug|x64
-		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Debug|x64.Build.0 = Debug|x64
+		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Debug|x64.ActiveCfg = Debug|Win32
 		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Release|Win32.ActiveCfg = Release|Win32
 		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Release|Win32.Build.0 = Release|Win32
-		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Release|x64.ActiveCfg = Release|x64
-		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Release|x64.Build.0 = Release|x64
+		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}.Release|x64.ActiveCfg = Release|Win32
 		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Debug|Win32.ActiveCfg = Debug|Win32
 		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Debug|Win32.Build.0 = Debug|Win32
-		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Debug|x64.ActiveCfg = Debug|x64
-		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Debug|x64.Build.0 = Debug|x64
+		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Debug|x64.ActiveCfg = Debug|Win32
 		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Release|Win32.ActiveCfg = Release|Win32
 		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Release|Win32.Build.0 = Release|Win32
-		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Release|x64.ActiveCfg = Release|x64
-		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Release|x64.Build.0 = Release|x64
+		{3AF54C8A-10BF-4332-9147-F68ED9862032}.Release|x64.ActiveCfg = Release|Win32
 		{49EA010D-706F-4BE2-A397-77854B72A040}.Debug|Win32.ActiveCfg = Debug|Win32
 		{49EA010D-706F-4BE2-A397-77854B72A040}.Debug|Win32.Build.0 = Debug|Win32
 		{49EA010D-706F-4BE2-A397-77854B72A040}.Debug|x64.ActiveCfg = Debug|x64

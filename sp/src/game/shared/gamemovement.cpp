@@ -55,6 +55,12 @@ ConVar player_limit_jump_speed( "player_limit_jump_speed", "1", FCVAR_REPLICATED
 // duck controls. Its value is meaningless anytime we don't have the options window open.
 ConVar option_duck_method("option_duck_method", "1", FCVAR_REPLICATED|FCVAR_ARCHIVE );// 0 = HOLD to duck, 1 = Duck is a toggle
 
+#ifdef STAGING_ONLY
+#ifdef CLIENT_DLL
+ConVar debug_latch_reset_onduck( "debug_latch_reset_onduck", "1", FCVAR_CHEAT );
+#endif
+#endif
+
 // [MD] I'll remove this eventually. For now, I want the ability to A/B the optimizations.
 bool g_bMovementOptimizations = true;
 
@@ -4108,8 +4114,15 @@ void CGameMovement::FinishUnDuck( void )
 	mv->SetAbsOrigin( newOrigin );
 
 #ifdef CLIENT_DLL
+#ifdef STAGING_ONLY
+	if ( debug_latch_reset_onduck.GetBool() )
+	{
+		player->ResetLatched();
+	}
+#else
 	player->ResetLatched();
 #endif
+#endif // CLIENT_DLL
 
 	// Recategorize position since ducking can change origin
 	CategorizePosition();
@@ -4207,8 +4220,15 @@ void CGameMovement::FinishDuck( void )
 		mv->SetAbsOrigin( out );
 
 #ifdef CLIENT_DLL
+#ifdef STAGING_ONLY
+		if ( debug_latch_reset_onduck.GetBool() )
+		{
+			player->ResetLatched();
+		}
+#else
 		player->ResetLatched();
 #endif
+#endif // CLIENT_DLL
 	}
 
 	// See if we are stuck?

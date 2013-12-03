@@ -35,6 +35,7 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/stubs/stl_util-inl.h>
+#include <algorithm>
 
 namespace google {
 namespace protobuf {

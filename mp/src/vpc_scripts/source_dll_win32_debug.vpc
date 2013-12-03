@@ -74,7 +74,7 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -132,8 +132,7 @@ $Configuration "Debug"
 		$OmitDefaultLibraryNames
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
 
-		// Command Line (L4D adding /MP)
-		$AdditionalOptions					"/MP /Zm200"
+		$AdditionalOptions					"/Zm200"
 	}
 
 	$Linker
@@ -225,6 +224,8 @@ $Configuration "Debug"
 		$DelaySign
 		$ErrorReporting						"Prompt Immediately (/ERRORREPORT:PROMPT)"
 		$CLRUnmanagedCodeCheck
+		// SAFE_SEH should always be disabled on debug builds.
+		$ImageHasSafeExceptionHandlers		"false"
 
 		// Command Line
 		$AdditionalOptions						
@@ -283,7 +284,7 @@ $Configuration "Debug"
 	$Resources
 	{
 		// General
-		$PreprocessorDefinitions			"$BASE;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"$BASE;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)"
 		$Culture							"English (United States) (0x409)"
 		$AdditionalIncludeDirectories
 		$IgnoreStandardIncludePath

@@ -451,6 +451,17 @@ void CHudWeaponSelection::Paint()
 	if ( !pSelectedWeapon )
 		return;
 
+	bool bPushedViewport = false;
+	if( hud_fastswitch.GetInt() == HUDTYPE_FASTSWITCH  || hud_fastswitch.GetInt() == HUDTYPE_PLUS )
+	{
+		CMatRenderContextPtr pRenderContext( materials );
+		if( pRenderContext->GetRenderTarget() )
+		{
+			surface()->PushFullscreenViewport();
+			bPushedViewport = true;
+		}
+	}
+
 	// interpolate the selected box size between the small box size and the large box size
 	// interpolation has been removed since there is no weapon pickup animation anymore, so it's all at the largest size
 	float percentageDone = 1.0f; //min(1.0f, (gpGlobals->curtime - m_flPickupStartTime) / m_flWeaponPickupGrowTime);
@@ -726,6 +737,11 @@ void CHudWeaponSelection::Paint()
 			// do nothing
 		}
 		break;
+	}
+
+	if( bPushedViewport )
+	{
+		surface()->PopFullscreenViewport();
 	}
 }
 
@@ -1025,8 +1041,6 @@ void CHudWeaponSelection::ApplySchemeSettings(vgui::IScheme *pScheme)
 	{
 		SetBounds( x, y, screenWide - x, screenTall - y );
 	}
-
-	SetForceStereoRenderToFrameBuffer( true );
 }
 
 //-----------------------------------------------------------------------------

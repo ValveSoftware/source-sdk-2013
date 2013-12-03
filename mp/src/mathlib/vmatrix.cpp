@@ -507,7 +507,7 @@ bool VMatrix::IsRotationMatrix() const
 		FloatMakePositive( v2.Dot(v3) ) < 0.01f;
 }
 
-void VMatrix::SetupMatrixOrgAngles( const Vector &origin, const QAngle &vAngles )
+static void SetupMatrixAnglesInternal( vec_t m[4][4], const QAngle & vAngles )
 {
 	float		sr, sp, sy, cr, cp, cy;
 
@@ -528,11 +528,31 @@ void VMatrix::SetupMatrixOrgAngles( const Vector &origin, const QAngle &vAngles 
 	m[0][3] = 0.f;
 	m[1][3] = 0.f;
 	m[2][3] = 0.f;
+}
+
+void VMatrix::SetupMatrixOrgAngles( const Vector &origin, const QAngle &vAngles )
+{
+	SetupMatrixAnglesInternal( m, vAngles );
 	
 	// Add translation
 	m[0][3] = origin.x;
 	m[1][3] = origin.y;
 	m[2][3] = origin.z;
+	m[3][0] = 0.0f;
+	m[3][1] = 0.0f;
+	m[3][2] = 0.0f;
+	m[3][3] = 1.0f;
+}
+
+
+void	VMatrix::SetupMatrixAngles( const QAngle &vAngles )
+{
+	SetupMatrixAnglesInternal( m, vAngles );
+
+	// Zero everything else
+	m[0][3] = 0.0f;
+	m[1][3] = 0.0f;
+	m[2][3] = 0.0f;
 	m[3][0] = 0.0f;
 	m[3][1] = 0.0f;
 	m[3][2] = 0.0f;

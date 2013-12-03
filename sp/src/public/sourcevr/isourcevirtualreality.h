@@ -21,21 +21,19 @@
 //-----------------------------------------------------------------------------
 // forward declarations
 //-----------------------------------------------------------------------------
+class ITexture;
+class IMaterialSystem;
 
 //-----------------------------------------------------------------------------
 // important enumeration
 //-----------------------------------------------------------------------------
-struct VRTrackerState_t
+
+struct VRRect_t
 {
-	// Tracker has finished starting up and has produced at least one valid pose.
-	bool bInitialized;
-
-	// Tracker currently has a valid pose.
-	bool bHasValidPose;
-
-	// Tracker is in a state where it is likely to suffer from yaw drift. This
-	// would apply to any gyro-only tracking system.
-	bool bWillDriftInYaw;
+	int32 nX;
+	int32 nY;
+	int32 nWidth;
+	int32 nHeight;
 };
 
 
@@ -69,6 +67,14 @@ public:
 		VREye_Right
 	};
 
+	// Which texture is being requested in GetRenderTarget?
+	enum EWhichRenderTarget
+	{
+		RT_Color = 0,
+		RT_Depth,
+	};
+
+
 	// ----------------------------------------------------------------------
 	// General utilities
 	// ----------------------------------------------------------------------
@@ -76,24 +82,17 @@ public:
 	// Returns true if the game should run in VR mode
 	virtual bool ShouldRunInVR() = 0;
 
-	// The name of the display at which the game should put its window. 
-	// TODO: This is pretty horrible from a "what the game has to do" point
-	// of view. Make it better.
-	virtual const char *GetDisplayName() = 0;
-
-	// The size of the window that the game should create
-	virtual bool GetWindowSize( int *pnWidth, int *pnHeight ) = 0;
-
-	// Lets engine tell headtrack that it's going to use a different size window based
-	// what the display is actually using. This happens when somebody clones
-	// their desktop onto the HMD
-	virtual void OverrideWindowSize( int nWidth, int nHeight ) = 0;
+	// Returns true if there is a compatible HMD connected 
+	virtual bool IsHmdConnected() = 0;
 
 	// The size and position of the viewport for the specified eye
 	virtual void GetViewportBounds( VREye eEye, int *pnX, int *pnY, int *pnWidth, int *pnHeight ) = 0;
 
 	// Performs the distortion post-processing.
-	virtual bool DoDistortionProcessing ( const vrect_t *SrcRect ) = 0;
+	virtual bool DoDistortionProcessing ( VREye eEye ) = 0;
+
+	// Composites the HUD directly onto the backbuffer / render target, including undistort.
+	virtual bool CompositeHud ( VREye eEye, float ndcHudBounds[4], bool bDoUndistort, bool bBlackout, bool bTranslucent ) = 0;
 
 	// ----------------------------------------------------------------------
 	// Getting the current pose
@@ -101,13 +100,6 @@ public:
 
 	// returns the pose relative to the zero point
 	virtual VMatrix GetMideyePose() = 0;
-
-	// returns the gravity-relative HUD correction matrix (I think)
-	virtual VMatrix GetHudUpCorrection() = 0;
-
-	// transforms to mid eye form left/right
-	virtual VMatrix GetMidEyeFromLeft() = 0;
-	virtual VMatrix GetMidEyeFromRight() = 0;
 
 	// All-in-one interfaces (they call GetCameraPoseZeroFromCurrent)
 	// Grabs the current tracking data and sets up state for the Override* calls.
@@ -117,41 +109,49 @@ public:
 	// Information about the display
 	// ----------------------------------------------------------------------
 
-	// returns the serial number for the display or NULL if no serial number
-	// could be retrieved
-	virtual const char *GetDisplaySerialNumber() = 0;
-
-	// returns the model number for the display or NULL if no model number
-	// could be retrieved
-	virtual const char *GetDisplayModelNumber() = 0;
-
-	// returns the "ipd" of the display. This is the separation of the centers
-	// of the two lenses in mm
-	virtual float GetDisplaySeparationMM() = 0;
+	// Passes back the bounds of the window that the game should create. This might
+	// span two displays if we're dealing with a two-input display. Returns true
+	// if the bounds were set.
+	virtual bool GetDisplayBounds( VRRect_t *pRect ) = 0;
 
 	// Computes and returns the projection matrix for the eye
 	virtual bool GetEyeProjectionMatrix ( VMatrix *pResult, VREye, float zNear, float zFar, float fovScale ) = 0;
 
-	// Returns the horizontal FOV of the display in degrees
-	virtual float GetHorizontalFOVDegrees() = 0;
+	// Returns the transform from the mid-eye to the specified eye. Multiply this by 
+	// the tweaked (for mouse rotation and WASD translation) mideye position to get the
+	// view matrix. This matrix takes the user's IPD into account.
+	virtual VMatrix GetMidEyeFromEye( VREye eEye ) = 0;
 
-	// ----------------------------------------------------------------------
-	// Information about the user
-	// ----------------------------------------------------------------------
-
-	// returns the intrapupilar distance of the user in mm
-	virtual float GetUserIPDMM() = 0;
-
-	// sets the intrapupilar distance of the user in mm
-	virtual void SetUserIPDMM( float fIPDMM ) = 0;
-
+	// returns the adapter index to use for VR mode
+	virtual int GetVRModeAdapter() = 0;
 
 	// ----------------------------------------------------------------------
 	// Information about the tracker
 	// ----------------------------------------------------------------------
 
-	// returns the state of the tracking system
-	virtual VRTrackerState_t GetTrackerState() = 0;
+	virtual bool WillDriftInYaw() = 0;
+
+	// ----------------------------------------------------------------------
+	// Methods about oversized offscreen rendering
+	// ----------------------------------------------------------------------
+
+	// Sets up the pre-distortion render targets.
+	virtual void CreateRenderTargets( IMaterialSystem *pMaterialSystem ) = 0;
+	virtual void ShutdownRenderTargets() = 0;
+
+	// fetches the render target for the specified eye
+	virtual ITexture *GetRenderTarget( VREye eEye, EWhichRenderTarget eWhich ) = 0;
+
+	// Returns the (possibly overridden) framebuffer size for render target sizing.
+	virtual void				GetRenderTargetFrameBufferDimensions( int & nWidth, int & nHeight ) = 0;
+
+	// ----------------------------------------------------------------------
+	// Enter/leave VR mode
+	// ----------------------------------------------------------------------
+	virtual bool Activate() = 0;
+	virtual void Deactivate() = 0;
+
+
 };
 
 

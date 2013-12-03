@@ -557,6 +557,14 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 			if ( bUseHeadOrigin > 0 )
 			{
 				int iBone = Studio_BoneIndexByName( pAnimating->GetModelPtr(), "bip_head" );
+				if ( iBone < 0 )
+				{
+					iBone = Studio_BoneIndexByName( pAnimating->GetModelPtr(), "prp_helmet" );
+					if ( iBone < 0 )
+					{
+						iBone = Studio_BoneIndexByName( pAnimating->GetModelPtr(), "prp_hat" );
+					}
+				}
 				if ( iBone >= 0 )
 				{
 					bUsingHeadOrigin = true;
@@ -587,18 +595,23 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 
 					if ( !pAnimating->GetAttachment( pPoint->iAttachmentPoint, attachmentToWorld ) )
 					{
-						Warning( "Cannot update control point %d for effect '%s'.\n", pPoint->iAttachmentPoint, pEffect->pParticleEffect->GetEffectName() );
-						attachmentToWorld = pAnimating->RenderableToWorldTransform();
+						// try C_BaseAnimating if attach point is not on the weapon
+						if ( !pAnimating->C_BaseAnimating::GetAttachment( pPoint->iAttachmentPoint, attachmentToWorld ) )
+						{
+							Warning( "Cannot update control point %d for effect '%s'.\n", pPoint->iAttachmentPoint, pEffect->pParticleEffect->GetEffectName() );
+							attachmentToWorld = pAnimating->RenderableToWorldTransform();
+						}
 					}
 
-					MatrixVectors( attachmentToWorld, &vecForward, &vecRight, &vecUp );
-					MatrixPosition( attachmentToWorld, vecOrigin );
+					VMatrix vMat(attachmentToWorld);
+					MatrixTranslate( vMat, pPoint->vecOriginOffset );
+					MatrixVectors( vMat.As3x4(), &vecForward, &vecRight, &vecUp );
+					MatrixPosition( vMat.As3x4(), vecOrigin );
 
 					if ( pEffect->pParticleEffect->m_pDef->IsViewModelEffect() )
 					{
 						FormatViewModelAttachment( vecOrigin, true );
 					}
-
 				}
 			}
 			break;

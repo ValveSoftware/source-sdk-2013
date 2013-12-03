@@ -47,7 +47,7 @@
 #include "replay/ienginereplay.h"
 #endif
 #include "steam/steam_api.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 #include "client_virtualreality.h"
 
 #if defined USES_ECON_ITEMS
@@ -114,6 +114,13 @@ ConVar	spec_freeze_distance_max( "spec_freeze_distance_max", "200", FCVAR_CHEAT,
 static ConVar	cl_first_person_uses_world_model ( "cl_first_person_uses_world_model", "0", FCVAR_ARCHIVE, "Causes the third person model to be drawn instead of the view model" );
 
 ConVar demo_fov_override( "demo_fov_override", "0", FCVAR_CLIENTDLL | FCVAR_DONTRECORD, "If nonzero, this value will be used to override FOV during demo playback." );
+
+// This only needs to be approximate - it just controls the distance to the pivot-point of the head ("the neck") of the in-game character, not the player's real-world neck length.
+// Ideally we would find this vector by subtracting the neutral-pose difference between the head bone (the pivot point) and the "eyes" attachment point.
+// However, some characters don't have this attachment point, and finding the neutral pose is a pain.
+// This value is found by hand, and a good value depends more on the in-game models than on actual human shapes.
+ConVar cl_meathook_neck_pivot_ingame_up( "cl_meathook_neck_pivot_ingame_up", "7.0" );
+ConVar cl_meathook_neck_pivot_ingame_fwd( "cl_meathook_neck_pivot_ingame_fwd", "3.0" );
 
 void RecvProxy_LocalVelocityX( const CRecvProxyData *pData, void *pStruct, void *pOut );
 void RecvProxy_LocalVelocityY( const CRecvProxyData *pData, void *pStruct, void *pOut );
@@ -429,6 +436,8 @@ C_BasePlayer::C_BasePlayer() : m_iv_vecViewOffset( "C_BasePlayer::m_iv_vecViewOf
 	m_bFiredWeapon = false;
 
 	m_nForceVisionFilterFlags = 0;
+
+	ListenForGameEvent( "base_player_teleported" );
 }
 
 //-----------------------------------------------------------------------------
@@ -698,6 +707,20 @@ surfacedata_t* C_BasePlayer::GetGroundSurface()
 	return physprops->GetSurfaceData( trace.surface.surfaceProps );
 }
 
+void C_BasePlayer::FireGameEvent( IGameEvent *event )
+{
+	if ( FStrEq( event->GetName(), "base_player_teleported" ) )
+	{
+		const int index = event->GetInt( "entindex" );
+		if ( index == entindex() && IsLocalPlayer() )
+		{
+			// In VR, we want to make sure our head and body
+			// are aligned after we teleport.
+			g_ClientVirtualReality.AlignTorsoAndViewToWeapon();
+		}
+	}
+
+}
 
 //-----------------------------------------------------------------------------
 // returns the player name
@@ -1851,11 +1874,9 @@ void C_BasePlayer::ThirdPersonSwitch( bool bThirdperson )
 	{
 		return !input->CAM_IsThirdPerson() && ( !ToolsEnabled() || !ToolFramework_IsThirdPersonCamera() );
 	}
-	else
-	{
-		// Not looking at the local player, e.g. in a replay in third person mode or freelook.
-		return false;
-	}
+
+	// Not looking at the local player, e.g. in a replay in third person mode or freelook.
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -1867,11 +1888,9 @@ void C_BasePlayer::ThirdPersonSwitch( bool bThirdperson )
 	{
 		return !LocalPlayerInFirstPersonView() || cl_first_person_uses_world_model.GetBool();
 	}
-	else
-	{
-		static ConVarRef vr_first_person_uses_world_model( "vr_first_person_uses_world_model" );
-		return !LocalPlayerInFirstPersonView() || vr_first_person_uses_world_model.GetBool();
-	}
+
+	static ConVarRef vr_first_person_uses_world_model( "vr_first_person_uses_world_model" );
+	return !LocalPlayerInFirstPersonView() || vr_first_person_uses_world_model.GetBool();
 }
 
 
@@ -1995,6 +2014,16 @@ void C_BasePlayer::PostThink( void )
 
 	if ( IsAlive())
 	{
+		// Need to do this on the client to avoid prediction errors
+		if ( GetFlags() & FL_DUCKING )
+		{
+			SetCollisionBounds( VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX );
+		}
+		else
+		{
+			SetCollisionBounds( VEC_HULL_MIN, VEC_HULL_MAX );
+		}
+		
 		if ( !CommentaryModeShouldSwallowInput( this ) )
 		{
 			// do weapon stuff
@@ -2850,7 +2879,13 @@ void C_BasePlayer::BuildFirstPersonMeathookTransformations( CStudioHdr *hdr, Vec
 
 	m_BoneAccessor.SetWritableBones( BONE_USED_BY_ANYTHING );
 
-	matrix3x4_t &mHeadTransform = GetBoneForWrite( LookupBone( pchHeadBoneName ) );
+	int iHead = LookupBone( pchHeadBoneName );
+	if ( iHead == -1 )
+	{
+		return;
+	}
+
+	matrix3x4_t &mHeadTransform = GetBoneForWrite( iHead );
 
 	// "up" on the head bone is along the negative Y axis - not sure why.
 	//Vector vHeadTransformUp ( -mHeadTransform[0][1], -mHeadTransform[1][1], -mHeadTransform[2][1] );
@@ -2862,29 +2897,19 @@ void C_BasePlayer::BuildFirstPersonMeathookTransformations( CStudioHdr *hdr, Vec
 	// We can't move this with animations or effects without causing nausea, so we need to move
 	// the whole body so that the animated head is in the right place to match the player-controlled head.
 	Vector vHeadUp;
-	bool bMeathookEnable = true;
 	Vector vRealPivotPoint;
-	bool bEnableDecapitation = true;
 	if( UseVR() )
 	{
-		static ConVarRef vr_neck_pivot_ingame_up( "vr_neck_pivot_ingame_up" );
-		static ConVarRef vr_neck_pivot_ingame_fwd( "vr_neck_pivot_ingame_fwd" );
-		static ConVarRef vr_meathook_enable ( "vr_meathook_enable" );
-		static ConVarRef vr_decapitation_enable ( "vr_decapitation_enable" );
-
 		VMatrix mWorldFromMideye = g_ClientVirtualReality.GetWorldFromMidEye();
-
-		bMeathookEnable = vr_meathook_enable.GetBool();
-		bEnableDecapitation = vr_decapitation_enable.GetBool();
 
 		// What we do here is:
 		// * Take the required eye pos+orn - the actual pose the player is controlling with the HMD.
-		// * Go downwards in that space by headtrack_neck_pivot_ingame_* - this is now the neck-pivot in the game world of where the player is actually looking.
+		// * Go downwards in that space by cl_meathook_neck_pivot_ingame_* - this is now the neck-pivot in the game world of where the player is actually looking.
 		// * Now place the body of the animated character so that the head bone is at that position.
 		// The head bone is the neck pivot point of the in-game character.
 
 		Vector vRealMidEyePos = mWorldFromMideye.GetTranslation();
-		vRealPivotPoint = vRealMidEyePos - ( mWorldFromMideye.GetUp() * vr_neck_pivot_ingame_up.GetFloat() ) - ( mWorldFromMideye.GetForward() * vr_neck_pivot_ingame_fwd.GetFloat() );
+		vRealPivotPoint = vRealMidEyePos - ( mWorldFromMideye.GetUp() * cl_meathook_neck_pivot_ingame_up.GetFloat() ) - ( mWorldFromMideye.GetForward() * cl_meathook_neck_pivot_ingame_fwd.GetFloat() );
 	}
 	else
 	{
@@ -2892,55 +2917,48 @@ void C_BasePlayer::BuildFirstPersonMeathookTransformations( CStudioHdr *hdr, Vec
 		Vector vForward, vRight, vUp;
 		AngleVectors( MainViewAngles(), &vForward, &vRight, &vUp );
 		
-		vRealPivotPoint = MainViewOrigin() - ( vUp * 7.3f ) - ( vForward * 3.f );		
+		vRealPivotPoint = MainViewOrigin() - ( vUp * cl_meathook_neck_pivot_ingame_up.GetFloat() ) - ( vForward * cl_meathook_neck_pivot_ingame_fwd.GetFloat() );		
 	}
 
 	Vector vDeltaToAdd = vRealPivotPoint - vHeadTransformTranslation;
 
 
-	if ( bMeathookEnable )
+	// Now add this offset to the entire skeleton.
+	for (int i = 0; i < hdr->numbones(); i++)
 	{
-		// Now add this offset to the entire skeleton.
-		for (int i = 0; i < hdr->numbones(); i++)
+		// Only update bones reference by the bone mask.
+		if ( !( hdr->boneFlags( i ) & boneMask ) )
 		{
-			// Only update bones reference by the bone mask.
-			if ( !( hdr->boneFlags( i ) & boneMask ) )
-			{
-				continue;
-			}
-			matrix3x4_t& bone = GetBoneForWrite( i );
-			Vector vBonePos;
-			MatrixGetTranslation ( bone, vBonePos );
-			vBonePos += vDeltaToAdd;
-			MatrixSetTranslation ( vBonePos, bone );
+			continue;
 		}
+		matrix3x4_t& bone = GetBoneForWrite( i );
+		Vector vBonePos;
+		MatrixGetTranslation ( bone, vBonePos );
+		vBonePos += vDeltaToAdd;
+		MatrixSetTranslation ( vBonePos, bone );
 	}
 
-	if ( bEnableDecapitation )
+	// Then scale the head to zero, but leave its position - forms a "neck stub".
+	// This prevents us rendering junk all over the screen, e.g. inside of mouth, etc.
+	MatrixScaleByZero( mHeadTransform );
+
+	// TODO: right now we nuke the hats by shrinking them to nothing,
+	// but it feels like we should do something more sensible.
+	// For example, for one sniper taunt he takes his hat off and waves it - would be nice to see it then.
+	int iHelm = LookupBone( "prp_helmet" );
+	if ( iHelm != -1 )
 	{
-		// Then scale the head to zero, but leave its position - forms a "neck stub".
-		// This prevents us rendering junk all over the screen, e.g. inside of mouth, etc.
-		MatrixScaleByZero ( mHeadTransform );
-
-		// TODO: right now we nuke the hats by shrinking them to nothing,
-		// but it feels like we should do something more sensible.
-		// For example, for one sniper taunt he takes his hat off and waves it - would be nice to see it then.
-		int iHelm = LookupBone( "prp_helmet" );
-		if ( iHelm != -1 )
-		{
-			// Scale the helmet.
-			matrix3x4_t  &transformhelmet = GetBoneForWrite( iHelm );
-			MatrixScaleByZero ( transformhelmet );
-		}
-
-		iHelm = LookupBone( "prp_hat" );
-		if ( iHelm != -1 )
-		{
-			matrix3x4_t  &transformhelmet = GetBoneForWrite( iHelm );
-			MatrixScaleByZero ( transformhelmet );
-		}
+		// Scale the helmet.
+		matrix3x4_t  &transformhelmet = GetBoneForWrite( iHelm );
+		MatrixScaleByZero( transformhelmet );
 	}
 
+	iHelm = LookupBone( "prp_hat" );
+	if ( iHelm != -1 )
+	{
+		matrix3x4_t  &transformhelmet = GetBoneForWrite( iHelm );
+		MatrixScaleByZero( transformhelmet );
+	}
 }
 
 

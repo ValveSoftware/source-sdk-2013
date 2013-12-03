@@ -34,6 +34,7 @@
 
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/stubs/common.h>
+#include <algorithm>
 
 namespace google {
 namespace protobuf {

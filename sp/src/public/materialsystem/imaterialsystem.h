@@ -524,7 +524,8 @@ enum RenderTargetSizeMode_t
 	RT_SIZE_FULL_FRAME_BUFFER=4,	// Same size as frame buffer, or next lower power of 2 if we can't do that.
 	RT_SIZE_OFFSCREEN=5,			// Target of specified size, don't mess with dimensions
 	RT_SIZE_FULL_FRAME_BUFFER_ROUNDED_UP=6, // Same size as the frame buffer, rounded up if necessary for systems that can't do non-power of two textures.
-	RT_SIZE_REPLAY_SCREENSHOT = 7	// Rounded down to power of 2, essentially...
+	RT_SIZE_REPLAY_SCREENSHOT = 7,	// Rounded down to power of 2, essentially...
+	RT_SIZE_LITERAL = 8				// Use the size passed in. Don't clamp it to the frame buffer size. Really.
 };
 
 typedef void (*MaterialBufferReleaseFunc_t)( );
@@ -1028,6 +1029,16 @@ public:
 #ifdef DX_TO_GL_ABSTRACTION
 	virtual void				DoStartupShaderPreloading( void ) = 0;
 #endif	
+
+	// Sets the override sizes for all render target size tests. These replace the frame buffer size.
+	// Set them when you are rendering primarily to something larger than the frame buffer (as in VR mode).
+	virtual void				SetRenderTargetFrameBufferSizeOverrides( int nWidth, int nHeight ) = 0;
+
+	// Returns the (possibly overridden) framebuffer size for render target sizing.
+	virtual void				GetRenderTargetFrameBufferDimensions( int & nWidth, int & nHeight ) = 0;
+
+	// returns the display device name that matches the adapter index we were started with
+	virtual char *GetDisplayDeviceName() const = 0;
 };
 
 
@@ -1482,7 +1493,7 @@ public:
 	// Returns whether a pointer is render data. NOTE: passing NULL returns true
 	virtual bool			IsRenderData( const void *pData ) const = 0;
 	virtual void			PrintfVA( char *fmt, va_list vargs ) = 0;
-	virtual void			Printf( PRINTF_FORMAT_STRING char *fmt, ... ) = 0;
+	virtual void			Printf( PRINTF_FORMAT_STRING const char *fmt, ... ) = 0;
 	virtual float			Knob( char *knobname, float *setvalue = NULL ) = 0;
 	// Allows us to override the alpha write setting of a material
 	virtual void OverrideAlphaWriteEnable( bool bEnable, bool bAlphaWriteEnable ) = 0;

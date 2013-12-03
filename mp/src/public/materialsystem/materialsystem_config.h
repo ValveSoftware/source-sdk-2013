@@ -33,6 +33,7 @@ enum MaterialSystem_Config_Flags_t
 	MATSYS_VIDCFG_FLAGS_SCALE_TO_OUTPUT_RESOLUTION  = ( 1 << 14 ),
 	MATSYS_VIDCFG_FLAGS_USING_MULTIPLE_WINDOWS      = ( 1 << 15 ),
 	MATSYS_VIDCFG_FLAGS_DISABLE_PHONG               = ( 1 << 16 ),
+	MATSYS_VIDCFG_FLAGS_VR_MODE						= ( 1 << 17 ),
 };
 
 struct MaterialSystemHardwareIdentifier_t
@@ -64,6 +65,7 @@ struct MaterialSystem_Config_t
 	bool ScaleToOutputResolution() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_SCALE_TO_OUTPUT_RESOLUTION ) != 0; }
 	bool UsingMultipleWindows() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_USING_MULTIPLE_WINDOWS ) != 0; }
 	bool UsePhong() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_DISABLE_PHONG ) == 0; }
+	bool VRMode() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_VR_MODE) != 0; }
 	bool ShadowDepthTexture() const { return m_bShadowDepthTexture; }
 	bool MotionBlur() const { return m_bMotionBlur; }
 	bool SupportFlashlight() const { return m_bSupportFlashlight; }
@@ -140,6 +142,8 @@ struct MaterialSystem_Config_t
 	bool m_bMotionBlur;
 	bool m_bSupportFlashlight;
 
+	int m_nVRModeAdapter;
+
 	MaterialSystem_Config_t()
 	{
 		memset( this, 0, sizeof( *this ) );
@@ -160,6 +164,7 @@ struct MaterialSystem_Config_t
 		SetFlag( MATSYS_VIDCFG_FLAGS_SCALE_TO_OUTPUT_RESOLUTION, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_USING_MULTIPLE_WINDOWS, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_DISABLE_PHONG, false );
+		SetFlag( MATSYS_VIDCFG_FLAGS_VR_MODE, false );
 
 		m_VideoMode.m_Width = 640;
 		m_VideoMode.m_Height = 480;
@@ -181,6 +186,8 @@ struct MaterialSystem_Config_t
 		m_bShadowDepthTexture = false;
 		m_bMotionBlur = false;
 		m_bSupportFlashlight = true;
+
+		m_nVRModeAdapter = -1;
 
 		// misc defaults
 		bAllowCheats = false;

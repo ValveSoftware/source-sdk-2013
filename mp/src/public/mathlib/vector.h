@@ -1187,7 +1187,7 @@ inline Vector &AllocTempVector()
 		}
 		ThreadPause();
 	} 
-	return s_vecTemp[nIndex & 0xffff];
+	return s_vecTemp[nIndex];
 }
 
 

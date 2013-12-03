@@ -62,7 +62,7 @@ using sixenseMath::Line;
 #include "iinput.h"
 #include "game/client/iviewport.h"
 #include "filesystem.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 
 #ifdef TF_CLIENT_DLL
 #include "tf_hud_menu_engy_build.h"

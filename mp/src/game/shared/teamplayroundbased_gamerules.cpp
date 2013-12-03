@@ -1267,7 +1267,7 @@ CGameRulesRoundStateInfo* CTeamplayRoundBasedRules::State_LookupInfo( gamerules_
 		{ GR_STATE_INIT,		"GR_STATE_INIT",		&CTeamplayRoundBasedRules::State_Enter_INIT, NULL, &CTeamplayRoundBasedRules::State_Think_INIT },
 		{ GR_STATE_PREGAME,		"GR_STATE_PREGAME",		&CTeamplayRoundBasedRules::State_Enter_PREGAME, NULL, &CTeamplayRoundBasedRules::State_Think_PREGAME },
 		{ GR_STATE_STARTGAME,	"GR_STATE_STARTGAME",	&CTeamplayRoundBasedRules::State_Enter_STARTGAME, NULL, &CTeamplayRoundBasedRules::State_Think_STARTGAME },
-		{ GR_STATE_PREROUND,	"GR_STATE_PREROUND",	&CTeamplayRoundBasedRules::State_Enter_PREROUND, NULL, &CTeamplayRoundBasedRules::State_Think_PREROUND },
+		{ GR_STATE_PREROUND,	"GR_STATE_PREROUND",	&CTeamplayRoundBasedRules::State_Enter_PREROUND, &CTeamplayRoundBasedRules::State_Leave_PREROUND, &CTeamplayRoundBasedRules::State_Think_PREROUND },
 		{ GR_STATE_RND_RUNNING,	"GR_STATE_RND_RUNNING",	&CTeamplayRoundBasedRules::State_Enter_RND_RUNNING, NULL,	&CTeamplayRoundBasedRules::State_Think_RND_RUNNING },
 		{ GR_STATE_TEAM_WIN,	"GR_STATE_TEAM_WIN",	&CTeamplayRoundBasedRules::State_Enter_TEAM_WIN, NULL,	&CTeamplayRoundBasedRules::State_Think_TEAM_WIN },
 		{ GR_STATE_RESTART,		"GR_STATE_RESTART",		&CTeamplayRoundBasedRules::State_Enter_RESTART,	NULL, &CTeamplayRoundBasedRules::State_Think_RESTART },
@@ -1422,6 +1422,14 @@ void CTeamplayRoundBasedRules::State_Enter_PREROUND( void )
 	}
 
 	StopWatchModeThink();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTeamplayRoundBasedRules::State_Leave_PREROUND( void )
+{
+	PreRound_End();
 }
 
 //-----------------------------------------------------------------------------
@@ -2159,6 +2167,7 @@ void CTeamplayRoundBasedRules::SetWinningTeam( int team, int iWinReason, bool bF
 	if ( event )
 	{
 		event->SetInt( "team", team );
+		event->SetInt( "winreason", iWinReason );
 		event->SetBool( "full_round", bForceMapReset );
 		event->SetFloat( "round_time", gpGlobals->curtime - m_flRoundStartTime );
 		event->SetBool( "was_sudden_death", bWasSuddenDeath );
@@ -3062,11 +3071,11 @@ void CTeamplayRoundBasedRules::PlayWinSong( int team )
 		{
 			if ( i == team )
 			{
-				BroadcastSound( i, "Game.YourTeamWon" );
+				BroadcastSound( i, WinSongName( i ) );
 			}
 			else
 			{
-				const char *pchLoseSong = LoseSongName();
+				const char *pchLoseSong = LoseSongName( i );
 				if ( pchLoseSong )
 				{
 					BroadcastSound( i, pchLoseSong );
@@ -3094,11 +3103,11 @@ void CTeamplayRoundBasedRules::PlaySuddenDeathSong( void )
 //-----------------------------------------------------------------------------
 void CTeamplayRoundBasedRules::PlayStalemateSong( void )
 {
-	BroadcastSound( TEAM_UNASSIGNED, "Game.Stalemate" );
+	BroadcastSound( TEAM_UNASSIGNED, GetStalemateSong( TEAM_UNASSIGNED ) );
 
 	for ( int i = FIRST_GAME_TEAM; i < GetNumberOfTeams(); i++ )
 	{
-		BroadcastSound( i, "Game.Stalemate" );
+		BroadcastSound( i, GetStalemateSong( i ) );
 	}
 }
 

@@ -603,7 +603,7 @@ public:
 	// debug logging
 	// only implemented in some subclasses
 	virtual void PrintfVA( char *fmt, va_list vargs ) = 0;
-	virtual void Printf( PRINTF_FORMAT_STRING char *fmt, ... ) = 0;
+	virtual void Printf( PRINTF_FORMAT_STRING const char *fmt, ... ) = 0;
 	virtual float Knob( char *knobname, float *setvalue = NULL ) = 0;
 	// Allows us to override the alpha write setting of a material
 	virtual void OverrideAlphaWriteEnable( bool bEnable, bool bAlphaWriteEnable ) = 0;
