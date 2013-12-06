@@ -8,7 +8,7 @@
 #include "cbase.h"
 #include "beam_shared.h"
 #include "shake.h"
-#include "grenade_tripmine.h"
+#include "hl2mp/grenade_tripmine.h" // Load the hl2mp header!!
 #include "vstdlib/random.h"
 #include "engine/IEngineSound.h"
 #include "explode.h"
@@ -49,8 +49,23 @@ CTripmineGrenade::CTripmineGrenade()
 	m_vecEnd.Init();
 	m_posOwner.Init();
 	m_angleOwner.Init();
+
+	m_pConstraint = NULL;
+	m_bAttached = false;
+	m_hAttachEntity = NULL;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CTripmineGrenade::~CTripmineGrenade( void )
+{
+	if (m_pConstraint)
+	{
+		physenv->DestroyConstraint(m_pConstraint);
+		m_pConstraint = NULL;
+	}
+}
 void CTripmineGrenade::Spawn( void )
 {
 	Precache( );
@@ -59,7 +74,7 @@ void CTripmineGrenade::Spawn( void )
 	SetSolid( SOLID_BBOX );
 	SetModel( "models/Weapons/w_slam.mdl" );
 
-    IPhysicsObject *pObject = VPhysicsInitNormal( SOLID_BBOX, GetSolidFlags() | FSOLID_TRIGGER, true );
+	IPhysicsObject *pObject = VPhysicsInitNormal( SOLID_BBOX, GetSolidFlags() | FSOLID_TRIGGER, true );
 	pObject->EnableMotion( false );
 	SetCollisionGroup( COLLISION_GROUP_WEAPON );
 
@@ -120,6 +135,11 @@ void CTripmineGrenade::PowerupThink( void  )
 		MakeBeam( );
 		RemoveSolidFlags( FSOLID_NOT_SOLID );
 		m_bIsLive			= true;
+
+		// The moment it's live, then do this - incase the attach entity moves between placing it, and activation
+		// use the absorigin of what we're attaching to for the check, if it moves - we blow up.
+		if ( m_bAttached && m_hAttachEntity.Get() != NULL )
+			m_vAttachedPosition = m_hAttachEntity.Get()->GetAbsOrigin();
 
 		// play enabled sound
 		EmitSound( "TripmineGrenade.Activate" );
@@ -219,9 +239,20 @@ void CTripmineGrenade::BeamBreakThink( void  )
 	CBaseEntity *pEntity = tr.m_pEnt;
 	CBaseCombatCharacter *pBCC  = ToBaseCombatCharacter( pEntity );
 
-	if (pBCC || fabs( m_flBeamLength - tr.fraction ) > 0.001)
+	bool bAttachMoved = false;
+	if ( m_bAttached && m_hAttachEntity.Get() != NULL )
+	{
+		if ( m_hAttachEntity.Get()->GetAbsOrigin() != m_vAttachedPosition )
+			bAttachMoved = true;
+	}
+
+	// Also blow up if the attached entity goes away, ie: a crate
+	if (pBCC || fabs( m_flBeamLength - tr.fraction ) > 0.001 || ( m_bAttached && m_hAttachEntity.Get() == NULL) || bAttachMoved )
 	{
 		m_iHealth = 0;
+		if (m_pConstraint)
+			m_pConstraint->Deactivate();
+
 		Event_Killed( CTakeDamageInfo( (CBaseEntity*)m_hOwner, this, 100, GIB_NORMAL ) );
 		return;
 	}
@@ -254,6 +285,9 @@ void CTripmineGrenade::Event_Killed( const CTakeDamageInfo &info )
 {
 	m_takedamage		= DAMAGE_NO;
 
+	if (m_pConstraint)
+		m_pConstraint->Deactivate();
+
 	SetThink( &CTripmineGrenade::DelayDeathThink );
 	SetNextThink( gpGlobals->curtime + 0.25 );
 
@@ -274,3 +308,60 @@ void CTripmineGrenade::DelayDeathThink( void )
 	UTIL_Remove( this );
 }
 
+bool CTripmineGrenade::MakeConstraint( CBaseEntity *pObject )
+{
+	IPhysicsObject *cMinePhysics = VPhysicsGetObject();
+
+	Assert( cMinePhysics );
+
+	IPhysicsObject *pAttached = pObject->VPhysicsGetObject();
+	if ( !cMinePhysics || !pAttached )
+		return false;
+
+	// constraining to the world means object 1 is fixed
+	if ( pAttached == g_PhysWorldObject )
+		PhysSetGameFlags( cMinePhysics, FVPHYSICS_CONSTRAINT_STATIC );
+
+	IPhysicsConstraintGroup *pGroup = NULL;
+
+	constraint_fixedparams_t fixed;
+	fixed.Defaults();
+	fixed.InitWithCurrentObjectState( cMinePhysics, pAttached );
+	fixed.constraint.Defaults();
+
+	m_pConstraint = physenv->CreateFixedConstraint( cMinePhysics, pAttached, pGroup, fixed );
+	
+	if (!m_pConstraint)
+		return false;
+
+	m_pConstraint->SetGameData( (void *)this );
+
+	return true;
+}
+
+void CTripmineGrenade::AttachToEntity(CBaseEntity *pOther)
+{
+	if (!pOther)
+		return;
+
+	if ( !VPhysicsGetObject() )
+		return;
+
+	m_bAttached			= true;
+	m_hAttachEntity		= pOther;
+
+	SetMoveType			( MOVETYPE_NONE );
+
+	if (pOther->GetSolid() == SOLID_VPHYSICS && pOther->VPhysicsGetObject() != NULL )
+	{
+		SetSolid(SOLID_BBOX); //Tony; switch to bbox solid instead of vphysics, because we've made the physics object non-solid
+		MakeConstraint(pOther);
+		SetMoveType		( MOVETYPE_VPHYSICS ); // use vphysics while constrained!!
+	}
+	//if it isnt vphysics or bsp, use SetParent to follow it.
+	else if (pOther->GetSolid() != SOLID_BSP)
+	{
+		SetSolid(SOLID_BBOX); //Tony; switch to bbox solid instead of vphysics, because we've made the physics object non-solid
+		SetParent( m_hAttachEntity.Get() );
+	}
+}
