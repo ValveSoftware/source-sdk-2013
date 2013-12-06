@@ -107,12 +107,11 @@ CHL2MP_Player::CHL2MP_Player() : m_PlayerAnimState( this )
 
 	m_iSpawnInterpCounter = 0;
 
-    m_bEnterObserver = false;
+	m_bEnterObserver = false;
 	m_bReady = false;
 
 	BaseClass::ChangeTeam( 0 );
 	
-//	UseClientSideAnimation();
 }
 
 CHL2MP_Player::~CHL2MP_Player( void )
@@ -142,13 +141,13 @@ void CHL2MP_Player::Precache( void )
 	int i;	
 
 	for ( i = 0; i < nHeads; ++i )
-	   	 PrecacheModel( g_ppszRandomCitizenModels[i] );
+		 PrecacheModel( g_ppszRandomCitizenModels[i] );
 
 	//Precache Combine Models
 	nHeads = ARRAYSIZE( g_ppszRandomCombineModels );
 
 	for ( i = 0; i < nHeads; ++i )
-	   	 PrecacheModel( g_ppszRandomCombineModels[i] );
+		 PrecacheModel( g_ppszRandomCombineModels[i] );
 
 	PrecacheFootStepSounds();
 
@@ -355,7 +354,7 @@ bool CHL2MP_Player::ValidatePlayerModel( const char *pModel )
 
 	for ( i = 0; i < iModels; ++i )
 	{
-	   	if ( !Q_stricmp( g_ppszRandomCombineModels[i], pModel ) )
+		if ( !Q_stricmp( g_ppszRandomCombineModels[i], pModel ) )
 		{
 			return true;
 		}
@@ -1415,7 +1414,7 @@ CON_COMMAND( timeleft, "prints the time remaining in the match" )
 	CHL2MP_Player *pPlayer = ToHL2MPPlayer( UTIL_GetCommandClient() );
 
 	int iTimeRemaining = (int)HL2MPRules()->GetMapRemainingTime();
-    
+	
 	if ( iTimeRemaining == 0 )
 	{
 		if ( pPlayer )

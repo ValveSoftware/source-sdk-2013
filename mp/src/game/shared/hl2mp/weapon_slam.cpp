@@ -816,7 +816,7 @@ void CWeapon_SLAM::Weapon_Switch( void )
 void CWeapon_SLAM::WeaponIdle( void )
 {
 	// Ready to switch animations?
- 	if ( HasWeaponIdleTimeElapsed() )
+	if ( HasWeaponIdleTimeElapsed() )
 	{
 		// Don't allow throw to attach switch unless in idle
 		if (m_bClearReload)

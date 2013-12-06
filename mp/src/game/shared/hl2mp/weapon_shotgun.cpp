@@ -366,8 +366,8 @@ void CWeaponShotgun::SecondaryAttack( void )
 	// player "shoot" animation
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
-	Vector vecSrc	 = pPlayer->Weapon_ShootPosition();
-	Vector vecAiming = pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );	
+	Vector vecSrc		= pPlayer->Weapon_ShootPosition();
+	Vector vecAiming	= pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );
 
 	FireBulletsInfo_t info( 12, vecSrc, vecAiming, GetBulletSpread(), MAX_TRACE_LENGTH, m_iPrimaryAmmoType );
 	info.m_pAttacker = pPlayer;

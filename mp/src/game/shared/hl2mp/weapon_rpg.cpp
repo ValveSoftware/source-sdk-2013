@@ -453,7 +453,7 @@ void CMissile::IgniteThink( void )
 	SetMoveType( MOVETYPE_FLY );
 	SetModel("models/weapons/w_missile.mdl");
 	UTIL_SetSize( this, vec3_origin, vec3_origin );
- 	RemoveSolidFlags( FSOLID_NOT_SOLID );
+	RemoveSolidFlags( FSOLID_NOT_SOLID );
 
 	//TODO: Play opening sound
 
@@ -983,7 +983,7 @@ void CAPCMissile::ExplodeDelay( float flDelay )
 
 void CAPCMissile::BeginSeekThink( void )
 {
- 	RemoveSolidFlags( FSOLID_NOT_SOLID );
+	RemoveSolidFlags( FSOLID_NOT_SOLID );
 	SetThink( &CAPCMissile::SeekThink );
 	SetNextThink( gpGlobals->curtime );
 }

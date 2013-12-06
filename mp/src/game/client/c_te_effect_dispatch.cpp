@@ -103,8 +103,8 @@ static void RecordEffect( const char *pEffectName, const CEffectData &data )
 		char pName[1024];
 		Q_snprintf( pName, sizeof(pName), "TE_DispatchEffect %s %s", pEffectName, pSurfacePropName );
 
- 		msg->SetInt( "te", TE_DISPATCH_EFFECT );
- 		msg->SetString( "name", pName );
+		msg->SetInt( "te", TE_DISPATCH_EFFECT );
+		msg->SetString( "name", pName );
 		msg->SetFloat( "time", gpGlobals->curtime );
 		msg->SetFloat( "originx", data.m_vOrigin.x );
 		msg->SetFloat( "originy", data.m_vOrigin.y );
@@ -126,10 +126,10 @@ static void RecordEffect( const char *pEffectName, const CEffectData &data )
 		msg->SetInt( "color", data.m_nColor );
 		msg->SetInt( "damagetype", data.m_nDamageType );
 		msg->SetInt( "hitbox", data.m_nHitBox );
- 		msg->SetString( "effectname", pEffectName );
+		msg->SetString( "effectname", pEffectName );
 
 		// FIXME: Need to write the attachment name here
- 		msg->SetInt( "attachmentindex", data.m_nAttachmentIndex );
+		msg->SetInt( "attachmentindex", data.m_nAttachmentIndex );
 
 		// NOTE: Ptrs are our way of indicating it's an entindex
 		msg->SetPtr( "entindex", (void*)data.entindex() );
