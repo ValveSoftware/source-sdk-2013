@@ -132,6 +132,7 @@ void CTripmineGrenade::PowerupThink( void  )
 {
 	if (gpGlobals->curtime > m_flPowerUp)
 	{
+		m_flPowerUp = 0;
 		MakeBeam( );
 		RemoveSolidFlags( FSOLID_NOT_SOLID );
 		m_bIsLive			= true;
@@ -165,8 +166,6 @@ void CTripmineGrenade::MakeBeam( void )
 	UTIL_TraceLine( GetAbsOrigin(), m_vecEnd, MASK_SHOT, this, COLLISION_GROUP_NONE, &tr );
 
 	m_flBeamLength = tr.fraction;
-
-
 
 	// If I hit a living thing, send the beam through me so it turns on briefly
 	// and then blows the living thing up
@@ -259,22 +258,22 @@ void CTripmineGrenade::BeamBreakThink( void  )
 
 	SetNextThink( gpGlobals->curtime + 0.05f );
 }
-
-#if 0 // FIXME: OnTakeDamage_Alive() is no longer called now that base grenade derives from CBaseAnimating
-int CTripmineGrenade::OnTakeDamage_Alive( const CTakeDamageInfo &info )
+int CTripmineGrenade::OnTakeDamage( const CTakeDamageInfo &info )
 {
-	if (gpGlobals->curtime < m_flPowerUp && info.GetDamage() < m_iHealth)
+	if ( m_iHealth < 0 )
+		return 0;	//already dead.
+
+	if ( gpGlobals->curtime > m_flPowerUp )
 	{
-		// disable
-		// Create( "weapon_tripmine", GetLocalOrigin() + m_vecDir * 24, GetAngles() );
-		SetThink( &CTripmineGrenade::SUB_Remove );
-		SetNextThink( gpGlobals->curtime + 0.1f );
-		KillBeam();
-		return FALSE;
+		m_iHealth -= info.GetDamage();
+
+		if ( m_iHealth <= 0 )
+			Event_Killed( info );
+
+		return info.GetDamage();
 	}
-	return BaseClass::OnTakeDamage_Alive( info );
+	return 0;
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose:
