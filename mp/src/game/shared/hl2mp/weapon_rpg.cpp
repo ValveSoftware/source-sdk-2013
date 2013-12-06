@@ -1882,6 +1882,19 @@ void CWeaponRPG::GetWeaponAttachment( int attachmentId, Vector &outVector, Vecto
 	}
 }
 
+//Tony; added so when the rpg switches to third person, the beam etc is re-created.
+void CWeaponRPG::ThirdPersonSwitch( bool bThirdPerson )
+{
+	if ( m_pBeam != NULL )
+	{
+		//Tell it to die right away and let the beam code free it.
+		m_pBeam->brightness = 0.0f;
+		m_pBeam->flags &= ~FBEAM_FOREVER;
+		m_pBeam->die = gpGlobals->curtime - 0.1;
+		m_pBeam = NULL;
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Setup our laser beam
 //-----------------------------------------------------------------------------
@@ -2230,7 +2243,7 @@ int CLaserDot::DrawModel( int flags )
 	if ( pOwner != NULL && pOwner->IsDormant() == false )
 	{
 		// Always draw the dot in front of our faces when in first-person
-		if ( pOwner->IsLocalPlayer() )
+		if ( pOwner->IsLocalPlayer() && C_BasePlayer::LocalPlayerInFirstPersonView() )	//Tony; !!!
 		{
 			// Take our view position and orientation
 			vecAttachment = CurrentViewOrigin();

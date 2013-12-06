@@ -792,29 +792,34 @@ void CWeaponCrossbow::DoLoadEffect( void )
 	if ( pOwner == NULL )
 		return;
 
-	CBaseViewModel *pViewModel = pOwner->GetViewModel();
-
-	if ( pViewModel == NULL )
-		return;
-
+	//Tony; change this up a bit; on the server, dispatch an effect but don't send it to the client who fires
+	//on the client, create an effect either in the view model, or on the world model if first person.
 	CEffectData	data;
 
-#ifdef CLIENT_DLL
-	data.m_hEntity = pViewModel->GetRefEHandle();
-#else
-	data.m_nEntIndex = pViewModel->entindex();
-#endif
 	data.m_nAttachmentIndex = 1;
+	data.m_vOrigin = pOwner->GetAbsOrigin();
 
-	DispatchEffect( "CrossbowLoad", data );
+	CPASFilter filter( data.m_vOrigin );
+
+#ifdef GAME_DLL
+	filter.RemoveRecipient( pOwner );
+	data.m_nEntIndex = entindex();
+#else
+	CBaseViewModel *pViewModel = pOwner->GetViewModel();
+	if ( ShouldDrawUsingViewModel() && pViewModel != NULL )
+		data.m_hEntity = pViewModel->GetRefEHandle();
+	else
+		data.m_hEntity = GetRefEHandle();
+#endif
+
+	DispatchEffect( "CrossbowLoad", data, filter );
 
 #ifndef CLIENT_DLL
-
 	CSprite *pBlast = CSprite::SpriteCreate( CROSSBOW_GLOW_SPRITE2, GetAbsOrigin(), false );
 
 	if ( pBlast )
 	{
-		pBlast->SetAttachment( pOwner->GetViewModel(), 1 );
+		pBlast->SetAttachment( this, 1 );
 		pBlast->SetTransparency( kRenderTransAdd, 255, 255, 255, 255, kRenderFxNone );
 		pBlast->SetBrightness( 128 );
 		pBlast->SetScale( 0.2f );

@@ -68,7 +68,7 @@ public:
 	virtual void			OnDataChanged( DataUpdateType_t updateType );
 	virtual RenderGroup_t	GetRenderGroup( void );
 	virtual void			ViewModelDrawn( C_BaseViewModel *pBaseViewModel );
-	
+	virtual bool			IsTransparent( void );
 #endif
 
 	virtual void Precache();
@@ -122,6 +122,9 @@ private:
 	#define	FADE_DURATION	0.25f
 
 	float	m_flFadeTime;
+
+	//Tony; third person check thing, this has to be done for the local player if third person switches, so we can re-calc attachment points.
+	virtual void			ThirdPersonSwitch( bool bThirdPerson );
 
 #endif
 
@@ -447,6 +450,10 @@ void CWeaponStunStick::SetStunState( bool state )
 bool CWeaponStunStick::Deploy( void )
 {
 	SetStunState( true );
+#ifdef CLIENT_DLL
+	//Tony; we need to just do this
+	SetupAttachmentPoints();
+#endif
 
 	return BaseClass::Deploy();
 }
@@ -842,6 +849,10 @@ void C_WeaponStunStick::DrawFirstPersonEffects( void )
 	}
 }
 
+void C_WeaponStunStick::ThirdPersonSwitch( bool bThirdPerson )
+{
+	SetupAttachmentPoints();
+}
 //-----------------------------------------------------------------------------
 // Purpose: Draw our special effects
 //-----------------------------------------------------------------------------
@@ -872,6 +883,13 @@ void C_WeaponStunStick::ViewModelDrawn( C_BaseViewModel *pBaseViewModel )
 	BaseClass::ViewModelDrawn( pBaseViewModel );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: We are always considered transparent
+//-----------------------------------------------------------------------------
+bool C_WeaponStunStick::IsTransparent( void )
+{
+	return true;
+}
 //-----------------------------------------------------------------------------
 // Purpose: Draw a cheap glow quad at our impact point (with sparks)
 //-----------------------------------------------------------------------------
