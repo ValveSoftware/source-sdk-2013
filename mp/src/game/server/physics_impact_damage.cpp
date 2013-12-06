@@ -335,14 +335,32 @@ float CalculatePhysicsImpactDamage( int index, gamevcollisionevent_t *pEvent, co
 
 	if ( pEvent->pObjects[otherIndex]->GetGameFlags() & FVPHYSICS_PLAYER_HELD )
 	{
+		// if the player is holding the object, use its real mass (player holding reduced the mass)
+		
+		CBasePlayer *pPlayer = NULL;
+
 		if ( gpGlobals->maxClients == 1 )
 		{
-			// if the player is holding the object, use it's real mass (player holding reduced the mass)
-			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-			if ( pPlayer )
+			pPlayer = UTIL_GetLocalPlayer();
+		}
+		else
+		{
+			// See which MP player is holding the physics object and then use that player to get the real mass of the object.
+			// This is ugly but better than having linkage between an object and its "holding" player.
+			for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 			{
-				otherMass = pPlayer->GetHeldObjectMass( pEvent->pObjects[otherIndex] );
+				CBasePlayer *tempPlayer = UTIL_PlayerByIndex( i );
+				if ( tempPlayer && pEvent->pEntities[index] == tempPlayer->GetHeldObject() )
+				{
+					pPlayer = tempPlayer;
+					break;
+				}
 			}
+		}
+
+		if ( pPlayer )
+		{
+			otherMass = pPlayer->GetHeldObjectMass( pEvent->pObjects[otherIndex] );
 		}
 	}
 
@@ -438,17 +456,34 @@ float CalculatePhysicsImpactDamage( int index, gamevcollisionevent_t *pEvent, co
 	}
 	else if ( pEvent->pObjects[index]->GetGameFlags() & FVPHYSICS_PLAYER_HELD )
 	{
+		// if the player is holding the object, use it's real mass (player holding reduced the mass)
+
+		CBasePlayer *pPlayer = NULL;
 		if ( gpGlobals->maxClients == 1 )
 		{
-			// if the player is holding the object, use it's real mass (player holding reduced the mass)
-			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-			if ( pPlayer )
+			pPlayer = UTIL_GetLocalPlayer();
+		}
+		else
+		{
+			// See which MP player is holding the physics object and then use that player to get the real mass of the object.
+			// This is ugly but better than having linkage between an object and its "holding" player.
+			for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 			{
-				float mass = pPlayer->GetHeldObjectMass( pEvent->pObjects[index] );
-				if ( mass > 0 )
+				CBasePlayer *tempPlayer = UTIL_PlayerByIndex( i );
+				if ( tempPlayer && pEvent->pEntities[index] == tempPlayer->GetHeldObject() )
 				{
-					invMass = 1.0f / mass;
+					pPlayer = tempPlayer;
+					break;
 				}
+			}
+		}
+
+		if ( pPlayer )
+		{
+			float mass = pPlayer->GetHeldObjectMass( pEvent->pObjects[index] );
+			if ( mass > 0 )
+			{
+				invMass = 1.0f / mass;
 			}
 		}
 	}
