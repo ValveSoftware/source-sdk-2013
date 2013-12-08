@@ -36,6 +36,8 @@ public:
 	// Outputs
 	COutputEvent m_OnTrigger;
 	COutputEvent m_OnSpawn;
+
+	bool IsDisabled( void ){ return m_bDisabled; }
 	
 private:
 

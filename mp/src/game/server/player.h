@@ -765,6 +765,7 @@ public:
 	//---------------------------------
 	void	InputSetHealth( inputdata_t &inputdata );
 	void	InputSetHUDVisibility( inputdata_t &inputdata );
+	void	InputHandleMapEvent( inputdata_t &inputdata );
 
 	surfacedata_t *GetSurfaceData( void ) { return m_pSurfaceData; }
 	void SetLadderNormal( Vector vecLadderNormal ) { m_vecLadderNormal = vecLadderNormal; }
@@ -902,6 +903,8 @@ protected:
 								float& zNear, float& zFar, float& fov );
 	void					CalcObserverView( Vector& eyeOrigin, QAngle& eyeAngles, float& fov );
 	void					CalcViewModelView( const Vector& eyeOrigin, const QAngle& eyeAngles);
+
+	virtual	void			Internal_HandleMapEvent( inputdata_t &inputdata ){}
 
 	// FIXME: Make these private! (tf_player uses them)
 

@@ -224,6 +224,8 @@ private:
 	float				m_flActiveTimeInEditor;	// Will be zero'd out if user is idle (ie if they don't press space bar often enough)
 
 	CPanelAnimationVarAliasType( int, m_nRightMarginWidth, "right_margin_width", "0", "proportional_xpos" );
+
+	bool				m_bCurrentTargetNeedsVisibilityUpdate;
 };
 
 //-----------------------------------------------------------------------------

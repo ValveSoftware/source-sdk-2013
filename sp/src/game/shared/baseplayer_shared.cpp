@@ -22,7 +22,7 @@
 	#include "view.h"
 	#include "client_virtualreality.h"
 	#define CRecipientFilter C_RecipientFilter
-	#include "headtrack/isourcevirtualreality.h"
+	#include "sourcevr/isourcevirtualreality.h"
 
 #else
 

@@ -641,7 +641,7 @@ ConVarRef suitcharger( "sk_suitcharger" );
 
 	//=========================================================
 	//=========================================================
-	bool CMultiplayRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker )
+	bool CMultiplayRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info )
 	{
 		return true;
 	}
@@ -834,7 +834,11 @@ ConVarRef suitcharger( "sk_suitcharger" );
 						// If the inflictor is the killer,  then it must be their current weapon doing the damage
 						if ( pScorer->GetActiveWeapon() )
 						{
+#ifdef HL1MP_DLL
+							killer_weapon_name = pScorer->GetActiveWeapon()->GetClassname();
+#else
 							killer_weapon_name = pScorer->GetActiveWeapon()->GetDeathNoticeName();
+#endif
 						}
 					}
 					else
@@ -870,7 +874,9 @@ ConVarRef suitcharger( "sk_suitcharger" );
 			event->SetInt("attacker", killer_ID );
 			event->SetInt("customkill", info.GetDamageCustom() );
 			event->SetInt("priority", 7 );	// HLTV event priority, not transmitted
-			
+#ifdef HL1MP_DLL
+			event->SetString("weapon", killer_weapon_name );
+#endif			
 			gameeventmanager->FireEvent( event );
 		}
 
@@ -1745,6 +1751,37 @@ ConVarRef suitcharger( "sk_suitcharger" );
 			}
 
 			pPlayer->SpeakConceptIfAllowed( iConcept, modifiers );
+		}
+	}
+
+	void CMultiplayRules::RandomPlayersSpeakConceptIfAllowed( int iConcept, int iNumRandomPlayer /*= 1*/, int iTeam /*= TEAM_UNASSIGNED*/, const char *modifiers /*= NULL*/ )
+	{
+		CUtlVector< CBaseMultiplayerPlayer* > speakCandidates;
+
+		CBaseMultiplayerPlayer *pPlayer;
+		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			pPlayer = ToBaseMultiplayerPlayer( UTIL_PlayerByIndex( i ) );
+
+			if ( !pPlayer )
+				continue;
+
+			if ( iTeam != TEAM_UNASSIGNED )
+			{
+				if ( pPlayer->GetTeamNumber() != iTeam )
+					continue;
+			}
+
+			speakCandidates.AddToTail( pPlayer );
+		}
+
+		int iSpeaker = iNumRandomPlayer;
+		while ( iSpeaker > 0 && speakCandidates.Count() > 0 )
+		{
+			int iRandomSpeaker = RandomInt( 0, speakCandidates.Count() - 1 );
+			speakCandidates[ iRandomSpeaker ]->SpeakConceptIfAllowed( iConcept, modifiers );
+			speakCandidates.FastRemove( iRandomSpeaker );
+			iSpeaker--;
 		}
 	}
 

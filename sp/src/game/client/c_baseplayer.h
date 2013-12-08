@@ -23,6 +23,8 @@
 #include "hintsystem.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 #include "c_env_fog_controller.h"
+#include "igameevents.h"
+#include "GameEventListener.h"
 
 #if defined USES_ECON_ITEMS
 #include "econ_item.h"
@@ -66,7 +68,7 @@ bool IsInFreezeCam( void );
 //-----------------------------------------------------------------------------
 // Purpose: Base Player class
 //-----------------------------------------------------------------------------
-class C_BasePlayer : public C_BaseCombatCharacter
+class C_BasePlayer : public C_BaseCombatCharacter, public CGameEventListener
 {
 public:
 	DECLARE_CLASS( C_BasePlayer, C_BaseCombatCharacter );
@@ -466,6 +468,8 @@ protected:
 
 	// used by client side player footsteps 
 	surfacedata_t* GetGroundSurface();
+
+	virtual void	FireGameEvent( IGameEvent *event );
 
 protected:
 	// Did we just enter a vehicle this frame?

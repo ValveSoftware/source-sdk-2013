@@ -111,18 +111,18 @@ void CCEFThread::WakeThread()
 //-----------------------------------------------------------------------------
 #define HTML_MSG_FUNC( eHTMLCommand, bodyType, commandFunc ) \
 	case eHTMLCommand: \
-	{ \
-		CHTMLProtoBufMsg< bodyType > cmd( pCmd->m_eCmd ); \
-		if ( !cmd.BDeserializeCrossProc( &pCmd->m_Buffer ) ) \
-		{ \
-			bError = true; \
-		} \
+{ \
+	CHTMLProtoBufMsg< bodyType > cmd( pCmd->m_eCmd ); \
+	if ( !cmd.BDeserializeCrossProc( &pCmd->m_Buffer ) ) \
+{ \
+	bError = true; \
+} \
 		else \
-		{ \
+{ \
 			cmd.Body().set_browser_handle( pCmd->m_iBrowser ); \
-			g_CEFThread.commandFunc( cmd ); \
-		} \
-	} \
+	g_CEFThread.commandFunc( cmd ); \
+} \
+} \
 	break; 
 
 
@@ -204,7 +204,7 @@ void CCEFThread::RunCurrentCommands()
 			HTML_MSG_FUNC( eHTMLCommands_ExitFullScreen, CMsgExitFullScreen, ThreadExitFullScreen );
 			HTML_MSG_FUNC( eHTMLCommands_CloseFullScreenFlashIfOpen, CMsgCloseFullScreenFlashIfOpen, ThreadCloseFullScreenFlashIfOpen );
 			HTML_MSG_FUNC( eHTMLCommands_PauseFullScreenFlashMovieIfOpen, CMsgPauseFullScreenFlashMovieIfOpen, ThreadPauseFullScreenFlashMovieIfOpen );
-
+			
 		default:
 			bError = true;
 			AssertMsg1( false, "Invalid message in browser stream (%d)", pCmd->m_eCmd );
@@ -351,7 +351,7 @@ bool CCEFThread::GetMainThreadCommand( HTMLCommandBuffer_t **pBuf )
 		return true;
 	}
 	else
-		return 	m_tslResponseBuffers.PopItem( pBuf );
+	return 	m_tslResponseBuffers.PopItem( pBuf );
 }
 
 
@@ -376,7 +376,7 @@ bool CCEFThread::GetCEFThreadCommand( HTMLCommandBuffer_t **pBuf )
 //-----------------------------------------------------------------------------
 const char *CCEFThread::PchWebkitUserAgent()
 {
-	return  "Mozilla/5.0 (%s; U; %s; en-US; %s/%llu; %s) AppleWebKit/535.15 (KHTML, like Gecko) Chrome/18.0.989.0 Safari/535.11";
+	return  "Mozilla/5.0 (%s; U; %s; en-US; %s/%llu; %s) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Safari/535.19";
 }
 
 
@@ -405,12 +405,33 @@ void CCEFThread::ThreadCreateBrowser( const CHTMLProtoBufMsg<CMsgBrowserCreate> 
 	CefWindowInfo info;
 	info.SetAsOffScreen( NULL );
 	info.m_bPopupWindow = htmlCommand.BodyConst().popup();
-    
 	CefBrowserSettings settings;
 	settings.fullscreen_enabled = true;
 	settings.threaded_compositing_enabled = true;
 	settings.java_disabled = true;
 	//settings.accelerated_compositing_enabled = true; // not supported when going into fullscreen mode
+
+    // Drag and drop is supposed to be disabled automatically for offscreen views, but
+    // ports for Mac and Linux have bugs where it is not really disabled, causing havoc
+    settings.drag_drop_disabled = true;
+
+#ifdef LINUX
+	// Turn off web features here that don't work on Linux
+	settings.webgl_disabled = true;
+#endif
+
+	// CEF HTML local storage, databases, and offline application cache are all busted;
+	// they live in a temp dir which gets cleaned up on shutdown. There's no point in
+	// enabling them just to generate extra files to cleanup on shutdown when there's
+	// no actual disk persistence. we need to upgrade CEF again before they will work.
+	settings.local_storage_disabled = true;
+	settings.databases_disabled = true;
+	settings.application_cache_disabled = true;
+	settings.java_disabled = true;
+
+	// We don't provide a UI to connect to the WebKit developer tools API
+	// so there is no point having it suck up CPU and listening on a port.
+	settings.developer_tools_disabled = true;
 
     // Drag and drop is supposed to be disabled automatically for offscreen views, but
     // ports for Mac and Linux have bugs where it is not really disabled, causing havoc
@@ -479,7 +500,7 @@ void CCEFThread::ThreadBrowserSize( const CHTMLProtoBufMsg<CMsgBrowserSize> &htm
 	GET_BROSWER_FUNC( htmlCommand, SetSize( PET_VIEW, htmlCommand.BodyConst().width(), htmlCommand.BodyConst().height() ) );
 	if ( BIsValidBrowserHandle( htmlCommand.BodyConst().browser_handle(), iClient ) )
 		m_listClientHandlers[iClient]->SetSize( htmlCommand.BodyConst().width(), htmlCommand.BodyConst().height() );
-}
+	}
 
 
 //-----------------------------------------------------------------------------
@@ -646,8 +667,8 @@ void CCEFThread::ThreadBrowserHorizontalScrollBarSizeHelper( int iBrowser, bool 
 		if ( bForceSendUpdate || 0 != memcmp( &pHandler->m_CachedHScroll, &scroll, sizeof( scroll ) ) )
 		{
 			pHandler->m_CachedHScroll = scroll;
-		
-			CHTMLProtoBufMsg<CMsgHorizontalScrollBarSizeResponse> cmd( eHTMLCommands_HorizontalScrollBarSizeResponse );
+
+	CHTMLProtoBufMsg<CMsgHorizontalScrollBarSizeResponse> cmd( eHTMLCommands_HorizontalScrollBarSizeResponse );
 			cmd.Body().set_x( scroll.m_nX );
 			cmd.Body().set_y( scroll.m_nY );
 			cmd.Body().set_wide( scroll.m_nWide );
@@ -655,10 +676,10 @@ void CCEFThread::ThreadBrowserHorizontalScrollBarSizeHelper( int iBrowser, bool 
 			cmd.Body().set_scroll_max( scroll.m_nMax );
 			cmd.Body().set_scroll( scroll.m_nScroll );
 			cmd.Body().set_visible( scroll.m_bVisible != 0 );
-			cmd.Body().set_zoom( flZoom );
-			int m_iBrowser = iBrowser;
-			DISPATCH_MESSAGE( eHTMLCommands_HorizontalScrollBarSizeResponse );
-		}
+	cmd.Body().set_zoom( flZoom );
+	int m_iBrowser = iBrowser;
+	DISPATCH_MESSAGE( eHTMLCommands_HorizontalScrollBarSizeResponse );
+}
 	}
 }
 
@@ -701,7 +722,7 @@ void CCEFThread::ThreadBrowserVerticalScrollBarSizeHelper( int iBrowser, bool bF
 		{
 			pHandler->m_CachedVScroll = scroll;
 
-			CHTMLProtoBufMsg<CMsgVerticalScrollBarSizeResponse> cmd( eHTMLCommands_VerticalScrollBarSizeResponse );
+	CHTMLProtoBufMsg<CMsgVerticalScrollBarSizeResponse> cmd( eHTMLCommands_VerticalScrollBarSizeResponse );
 			cmd.Body().set_x( scroll.m_nX );
 			cmd.Body().set_y( scroll.m_nY );
 			cmd.Body().set_wide( scroll.m_nWide );
@@ -709,10 +730,10 @@ void CCEFThread::ThreadBrowserVerticalScrollBarSizeHelper( int iBrowser, bool bF
 			cmd.Body().set_scroll_max( scroll.m_nMax );
 			cmd.Body().set_scroll( scroll.m_nScroll );
 			cmd.Body().set_visible( scroll.m_bVisible != 0 );
-			cmd.Body().set_zoom( flZoom );
-			int m_iBrowser = iBrowser;
-			DISPATCH_MESSAGE( eHTMLCommands_VerticalScrollBarSizeResponse );
-		}
+	cmd.Body().set_zoom( flZoom );
+	int m_iBrowser = iBrowser;
+	DISPATCH_MESSAGE( eHTMLCommands_VerticalScrollBarSizeResponse );
+}
 	}
 }
 
@@ -743,7 +764,7 @@ void CCEFThread::ThreadBrowserSetHorizontalScroll( const CHTMLProtoBufMsg<CMsgSe
 	GET_BROSWER_FUNC( htmlCommand, SetHorizontalScroll( htmlCommand.BodyConst().scroll() ) );
 
 	ThreadBrowserHorizontalScrollBarSizeHelper( htmlCommand.BodyConst().browser_handle(), true );
-}
+	}
 
 
 //-----------------------------------------------------------------------------
@@ -851,7 +872,7 @@ void CCEFThread::ThreadGetZoom( const CHTMLProtoBufMsg<CMsgGetZoom> &htmlCmd )
 //-----------------------------------------------------------------------------
 void IOT_SetCookie(const CefString& url, CefCookie* cookie, CThreadEvent *pEvent ) 
 {
-	CefSetCookie(url, *cookie);
+    CefCookieManager::GetGlobalManager()->SetCookie(url, *cookie);
 	pEvent->Set();
 }
 
@@ -936,7 +957,7 @@ private:
 //-----------------------------------------------------------------------------
 void IOT_CookiesForURL(const CefString& url, CThreadEvent *pEvent, CUtlVector<CCefCookie> *pVecCookies ) 
 {
-	CefVisitUrlCookies( url, false, new CookieVisitor( pVecCookies, pEvent ) );
+	CefCookieManager::GetGlobalManager()->VisitUrlCookies( url, false, new CookieVisitor( pVecCookies, pEvent ) );
 }
 
 
@@ -1029,7 +1050,6 @@ void CCEFThread::AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app)
 //#endif
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: clean up the temp folders cef can leave around on crash
 //-----------------------------------------------------------------------------
@@ -1092,12 +1112,13 @@ int CCEFThread::Run()
 
 		// Populate the settings based on command line arguments.
 		AppGetSettings(settings, app);
+		settings.pack_loading_disabled = true;
 
 		// Initialize CEF.
 		CefInitialize(settings, app, "");
 
 	#if defined( VPROF_ENABLED )
-		//CVProfile *pProfile = GetVProfProfileForCurrentThread();
+//		CVProfile *pProfile = GetVProfProfileForCurrentThread();
 	#endif
 		
 		CLimitTimer timer;
@@ -1125,8 +1146,8 @@ int CCEFThread::Run()
 			m_bSawUserInputThisFrame = false;
 
 	#if defined( VPROF_ENABLED )
-			//if ( pProfile )
-			//	pProfile->MarkFrame( "UI CEF HTML Thread" );
+//			if ( pProfile )
+//				pProfile->MarkFrame( "UI CEF HTML Thread" );
 	#endif
 			// Limit animation frame rate
 			timer.SetLimit( k_nMillion/m_nTargetFrameRate );
@@ -1138,7 +1159,7 @@ int CCEFThread::Run()
 			}
 
 			// now let cef think
-			if ( m_listClientHandlers.Count() || timerLastCefThink.BLimitReached() )
+			if ( !m_bExit && ( m_listClientHandlers.Count() || timerLastCefThink.BLimitReached() ) && m_nTargetFrameRate > 0 )
 			{
 				VPROF_BUDGET( "CCEFThread - CefDoMessageLoopWork()", VPROF_BUDGETGROUP_TENFOOT );
 				CefDoMessageLoopWork();
@@ -1314,7 +1335,7 @@ void CCEFThread::CheckForFullScreenFlashControl()
 					}
 
 					SetForegroundWindow( m_flashfullscreenHWND );
-				}
+	}
 			}
 			else 
 			{
@@ -1360,40 +1381,40 @@ void CCEFThread::Validate( CValidator &validator, const tchar *pchName )
 	// hacky but reliable way to avoid both vgui and panorama validating all this stuff twice
 	if ( !validator.IsClaimed( m_sHTMLCacheDir.Access() ) )
 	{
-		VALIDATE_SCOPE();
-		ValidateObj( m_sHTMLCacheDir );
-		ValidateObj( m_sCookiePath );
-		ValidateObj( m_listClientHandlers );
-		FOR_EACH_LL( m_listClientHandlers, i )
-		{
-			ValidatePtr( m_listClientHandlers[i] );
-		}
-		ValidateObj( m_vecQueueCommands );
-		FOR_EACH_VEC( m_vecQueueCommands, i )
-		{
-			ValidatePtr( m_vecQueueCommands[i] );
-		}
+	VALIDATE_SCOPE();
+	ValidateObj( m_sHTMLCacheDir );
+	ValidateObj( m_sCookiePath );
+	ValidateObj( m_listClientHandlers );
+	FOR_EACH_LL( m_listClientHandlers, i )
+	{
+		ValidatePtr( m_listClientHandlers[i] );
+	}
+	ValidateObj( m_vecQueueCommands );
+	FOR_EACH_VEC( m_vecQueueCommands, i )
+	{
+		ValidatePtr( m_vecQueueCommands[i] );
+	}
 		ValidateObj( m_vecQueueResponses );
 		FOR_EACH_VEC( m_vecQueueResponses, i )
 		{
 			ValidatePtr( m_vecQueueResponses[i] );
 		}
 
-		ValidateObj( m_tslUnsedBuffers );
+	ValidateObj( m_tslUnsedBuffers );
+	{
+		CTSList<HTMLCommandBuffer_t*>::Node_t *pNode = m_tslUnsedBuffers.Detach();
+		while ( pNode  )
 		{
-			CTSList<HTMLCommandBuffer_t*>::Node_t *pNode = m_tslUnsedBuffers.Detach();
-			while ( pNode  )
-			{
-				CTSList<HTMLCommandBuffer_t*>::Node_t *pNext = (CTSList<HTMLCommandBuffer_t*>::Node_t *)pNode->Next;
-				ValidatePtr( pNode->elem );
-				m_tslUnsedBuffers.Push( pNode );
-				pNode = pNext;
-			}
+			CTSList<HTMLCommandBuffer_t*>::Node_t *pNext = (CTSList<HTMLCommandBuffer_t*>::Node_t *)pNode->Next;
+			ValidatePtr( pNode->elem );
+			m_tslUnsedBuffers.Push( pNode );
+			pNode = pNext;
 		}
-
-		ValidateObj( m_tslCommandBuffers );
-		ValidateObj( m_tslResponseBuffers );
 	}
+
+	ValidateObj( m_tslCommandBuffers );
+	ValidateObj( m_tslResponseBuffers );
+}
 }
 #endif
 
@@ -1567,23 +1588,23 @@ void CChromePainter::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType typ
 	{
 		// main browser painting
 
-		if ( !m_pParent->IsVisuallyNonEmpty() )
-		{
-			return;
-		}
+	if ( !m_pParent->IsVisuallyNonEmpty() )
+	{
+		return;
+	}
 
 		// If there were no dirty regions (unlikely), perhaps due to a bug, be conservative and paint all
 		if ( dirtyRects.empty() )
-		{
+	{
 			m_MainTexture.MarkAllDirty();
-		}
-		else
-		{
+	}
+	else
+	{
 			for ( RectList::const_iterator iter = dirtyRects.begin(); iter != dirtyRects.end(); ++iter )
-			{
+		{
 				m_MainTexture.MarkDirtyRect( iter->x, iter->y, iter->x + iter->width, iter->y + iter->height );
-			}
-		}
+				}
+				}
 
 		// Refresh all dirty main texture pixels from the chromium rendering buffer
 		if ( m_MainTexture.BUpdatePixels( (byte*)buffer, wide, tall ) )
@@ -1629,7 +1650,7 @@ void CChromePainter::SetUpdated( bool state )
 // Purpose: move to the next html texture to render into
 //-----------------------------------------------------------------------------
 uint32 CChromePainter::FlipTexture() 
-{
+{ 
 	int iTex = m_iNextTexture;
 	m_iTexturesInFlightBits |= ( 1<<iTex );
 	m_iNextTexture = (m_iNextTexture+1)%Q_ARRAYSIZE(m_Texture);
@@ -1672,19 +1693,19 @@ byte *CChromePainter::PComposedTextureData( uint32 iTexture )
 
 		// Notify the main thread that the composited popup region is dirty
 		m_UpdateRect.MarkDirtyRect( GetPopupX(), GetPopupY(), GetPopupX() + nCopyWide, GetPopupY() + nCopyTall );
-		
+
 		byte *pCurTextureByte = pTexture;
 		pCurTextureByte += ( GetPopupY() * m_Texture[ iTexture ].GetWide() * 4 ); // move ahead to the right row
 		pCurTextureByte += ( GetPopupX() * 4 ); // now offset into the edge as needed
-			
+
 		const byte *pPopupTexture = PPopupTextureData();
 		for ( int iRow = 0; iRow < nCopyTall; iRow++ )
-		{
+{
 			Q_memcpy( pCurTextureByte, pPopupTexture, nCopyWide*4 );
 			pCurTextureByte += ( m_Texture[ iTexture ].GetWide() * 4 ); // move ahead one row in both images
 			pPopupTexture += ( GetPopupWide() * 4 );
 		}
-	}
+}
 
 	return pTexture;
 }
@@ -2000,34 +2021,34 @@ void CClientHandler::OnLoadStart(CefRefPtr<CefBrowser> browser,
 		if ( !frame->IsMain() )
 			return;
 
-		std::wstring sURL = frame->GetURL();
-		if ( sURL.empty() )
-			return;
+	std::wstring sURL = frame->GetURL();
+	if ( sURL.empty() )
+		return;
 
-		CStrAutoEncode url( sURL.c_str() );
-		m_strCurrentUrl = url.ToString();
+	CStrAutoEncode url( sURL.c_str() );
+	m_strCurrentUrl = url.ToString();
 
-		if ( m_strCurrentUrl.IsEmpty() )
-			return;
+	if ( m_strCurrentUrl.IsEmpty() )
+		return;
 
-		bool bIsRedirect = false;
-		if ( m_strCurrentUrl == m_strLastRedirectURL )
-			bIsRedirect = true;
+	bool bIsRedirect = false;
+	if ( m_strCurrentUrl == m_strLastRedirectURL )
+		bIsRedirect = true;
 
-		CHTMLProtoBufMsg<CMsgURLChanged> cmd( eHTMLCommands_URLChanged );
-		cmd.Body().set_url( url.ToString() );
+	CHTMLProtoBufMsg<CMsgURLChanged> cmd( eHTMLCommands_URLChanged );
+	cmd.Body().set_url( url.ToString() );
 		cmd.Body().set_bnewnavigation( bIsNewNavigation );
-
-		if ( !m_strPostData.IsEmpty() )
+	
+	if ( !m_strPostData.IsEmpty() )
 			cmd.Body().set_postdata( m_strPostData.String() );
 
-		cmd.Body().set_bisredirect( bIsRedirect );
-		CefString frameName = frame->GetName();
-		if ( !frameName.empty() )
-			cmd.Body().set_pagetitle( frameName.c_str() );
+	cmd.Body().set_bisredirect( bIsRedirect );
+	CefString frameName = frame->GetName();
+	if ( !frameName.empty() )
+		cmd.Body().set_pagetitle( frameName.c_str() );
 
-		DISPATCH_MESSAGE( eHTMLCommands_URLChanged );
-	}
+	DISPATCH_MESSAGE( eHTMLCommands_URLChanged );
+}
 
 	{
 		CHTMLProtoBufMsg<CMsgCanGoBackAndForward> cmd( eHTMLCommands_CanGoBackandForward );
@@ -2420,10 +2441,10 @@ bool CClientHandler::OnTooltip(CefRefPtr<CefBrowser> browser, CefString& text)
         {
             m_strToolTip = text.c_str();
 
-            CHTMLProtoBufMsg<CMsgUpdateToolTip> cmd( eHTMLCommands_UpdateToolTip );
+		CHTMLProtoBufMsg<CMsgUpdateToolTip> cmd( eHTMLCommands_UpdateToolTip );
             cmd.Body().set_text( m_strToolTip );
-            DISPATCH_MESSAGE( eHTMLCommands_UpdateToolTip );
-        }
+		DISPATCH_MESSAGE( eHTMLCommands_UpdateToolTip );
+	}
 	}
 	else if ( m_bShowingToolTip )
 	{
@@ -2612,9 +2633,9 @@ bool CChromePainter::OnFileOpenDialog( CefRefPtr<CefBrowser> browser, bool bMult
 			{
 				if ( !cmd.BodyConst().files(i).empty() )
 				{
-					CPathString path( cmd.BodyConst().files(i).c_str() );
-					files.push_back( path.GetWCharPathPrePended() );
-				}
+				CPathString path( cmd.BodyConst().files(i).c_str() );
+				files.push_back( path.GetWCharPathPrePended() );
+			}
 			}
 
 			// if you have a DEBUG build and are crashing here it is because
@@ -2853,7 +2874,7 @@ void CClientHandler::SetMouseLocation( int nMouseX, int nMouseY )
 		m_nMouseScrolledY = nMouseY + m_Browser->HorizontalScroll();
 		m_bMouseFocus = true;
 		m_Browser->SendMouseMoveEvent( m_nMouseX, m_nMouseY, false );
-	}
+}
 }
 
 //-----------------------------------------------------------------------------
@@ -2952,7 +2973,7 @@ const byte *CClientHandler::PComposedTextureData( uint32 iTexture )
 	VPROF_BUDGET( "CClientHandler::PTextureData", VPROF_BUDGETGROUP_VGUI );
 
 	return m_Painter.PComposedTextureData( iTexture );
-}
+	}
 
 
 //-----------------------------------------------------------------------------
@@ -3048,12 +3069,13 @@ void CCEFThread::ThreadLinkAtPosition( const CHTMLProtoBufMsg<CMsgLinkAtPosition
 {
 	CefString pchURL;
 	int iClient = 0;
-	int bLiveLink = false;
-	int bInput = false;
+    int bLiveLink = false;
+    int bInput = false;
 	if ( BIsValidBrowserHandle( htmlCommand.BodyConst().browser_handle(), iClient ) )
 	{ 
 		if ( m_listClientHandlers[iClient]->GetBrowser() )
-			pchURL = m_listClientHandlers[iClient]->GetBrowser()->GetLinkAtPosition( htmlCommand.BodyConst().x(), htmlCommand.BodyConst().y(), bLiveLink, bInput );
+			 m_listClientHandlers[iClient]->GetBrowser()->GetLinkAtPosition( htmlCommand.BodyConst().x(), htmlCommand.BodyConst().y(),
+                                                                                    pchURL, bLiveLink, bInput);
 	}
 
 	CHTMLProtoBufMsg<CMsgLinkAtPositionResponse> cmd( eHTMLCommands_LinkAtPositionResponse );
@@ -3079,9 +3101,9 @@ void CCEFThread::ThreadZoomToElementAtPosition( const CHTMLProtoBufMsg<CMsgZoomT
 		if ( m_listClientHandlers[iClient]->GetBrowser() )
 		{
 			CefRect initialRect, finalRect;
-			float zoomLevel = m_listClientHandlers[iClient]->GetBrowser()->scalePageToFitElementAt( 
-																				htmlCommand.BodyConst().x(), htmlCommand.BodyConst().y(), 
-																				initialRect, finalRect );
+			float zoomLevel = m_listClientHandlers[iClient]->GetBrowser()->scalePageToFitElementAt(
+																				htmlCommand.BodyConst().x(), htmlCommand.BodyConst().y(),
+                                                                                initialRect, finalRect );
 			int m_iBrowser = htmlCommand.BodyConst().browser_handle();
 			ThreadBrowserVerticalScrollBarSizeHelper( m_iBrowser, true );
 			ThreadBrowserHorizontalScrollBarSizeHelper( m_iBrowser, true );
@@ -3100,7 +3122,7 @@ void CCEFThread::ThreadZoomToElementAtPosition( const CHTMLProtoBufMsg<CMsgZoomT
 			}
 		}
 	}
-}
+			}
 
 
 //-----------------------------------------------------------------------------
@@ -3357,7 +3379,7 @@ void CCEFThread::ThreadMouseWheel( const CHTMLProtoBufMsg<CMsgMouseWheel> &htmlC
 		int nMouseX, nMouseY;
 		m_listClientHandlers[ iClient ]->GetMouseLocation( nMouseX, nMouseY );
 
-		browser->SendMouseWheelEvent( nMouseX, nMouseY, htmlCommand.BodyConst().delta() );
+		browser->SendMouseWheelEvent( nMouseX, nMouseY, 0, htmlCommand.BodyConst().delta() );
 	}
 }
 
@@ -3374,7 +3396,13 @@ void CCEFThread::ThreadKeyTyped( const CHTMLProtoBufMsg<CMsgKeyChar> &htmlComman
 		if ( !browser.get() )
 			return;
 
-		browser->SendKeyEvent( KT_CHAR, htmlCommand.BodyConst().unichar(), 0, false, false );
+		CefKeyInfo keyInfo;
+#ifdef OSX
+		keyInfo.character = htmlCommand.BodyConst().unichar();
+#else
+		keyInfo.key = htmlCommand.BodyConst().unichar();
+#endif
+		browser->SendKeyEvent( KT_CHAR, keyInfo, 0 );
 	}
 }
 
@@ -3391,7 +3419,13 @@ void CCEFThread::ThreadKeyDown( const CHTMLProtoBufMsg<CMsgKeyDown> &htmlCommand
 		if ( !browser.get() )
 			return;
 
-		browser->SendKeyEvent( KT_KEYDOWN, htmlCommand.BodyConst().keycode(), htmlCommand.BodyConst().modifiers(), false, false );
+		CefKeyInfo keyInfo;
+#ifdef OSX
+		keyInfo.keyCode = htmlCommand.BodyConst().keycode();
+#else
+		keyInfo.key = htmlCommand.BodyConst().keycode();
+#endif
+		browser->SendKeyEvent( KT_KEYDOWN, keyInfo, htmlCommand.BodyConst().modifiers() );
 	}
 }
 
@@ -3408,7 +3442,13 @@ void CCEFThread::ThreadKeyUp( const CHTMLProtoBufMsg<CMsgKeyUp> &htmlCommand )
 		if ( !browser.get() )
 			return;
 
-		browser->SendKeyEvent( KT_KEYUP, htmlCommand.BodyConst().keycode(), htmlCommand.BodyConst().modifiers(), false, false );
+		CefKeyInfo keyInfo;
+#ifdef OSX
+		keyInfo.keyCode = htmlCommand.BodyConst().keycode();
+#else
+		keyInfo.key = htmlCommand.BodyConst().keycode();
+#endif
+		browser->SendKeyEvent( KT_KEYUP, keyInfo, htmlCommand.BodyConst().modifiers() );
 	}
 }
 

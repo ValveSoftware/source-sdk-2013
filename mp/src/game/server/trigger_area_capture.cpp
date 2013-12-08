@@ -43,7 +43,6 @@ BEGIN_DATADESC(CTriggerAreaCapture)
 //	DEFINE_FIELD( m_TeamData, CUtlVector < perteamdata_t > ),
 //	DEFINE_FIELD( m_Blockers, CUtlVector < blockers_t > ),
 //	DEFINE_FIELD( m_bActive, FIELD_BOOLEAN ),
-//	DEFINE_FIELD( m_iAreaIndex, FIELD_INTEGER ),
 //	DEFINE_FIELD( m_hPoint, CHandle < CTeamControlPoint > ),
 //	DEFINE_FIELD( m_bRequiresObject, FIELD_BOOLEAN ),
 //	DEFINE_FIELD( m_iCapAttemptNumber, FIELD_INTEGER ),
@@ -95,8 +94,6 @@ void CTriggerAreaCapture::Spawn( void )
 	InitTrigger();
 	
 	Precache();
-
-	m_iAreaIndex = -1;
 
 	SetTouch ( &CTriggerAreaCaptureShim::Touch );		
 	SetThink( &CTriggerAreaCapture::CaptureThink );
@@ -167,14 +164,6 @@ void CTriggerAreaCapture::Precache( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTriggerAreaCapture::SetAreaIndex( int index )
-{
-	m_iAreaIndex = index;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 bool CTriggerAreaCapture::IsActive( void )
 {
 	return !m_bDisabled;
@@ -231,7 +220,7 @@ void CTriggerAreaCapture::StartTouch(CBaseEntity *pOther)
 //-----------------------------------------------------------------------------
 void CTriggerAreaCapture::EndTouch(CBaseEntity *pOther)
 {
-	if ( PassesTriggerFilters(pOther) && m_hPoint )
+	if ( IsTouching( pOther ) && m_hPoint )
 	{
 		IGameEvent *event = gameeventmanager->CreateEvent( "controlpoint_endtouch" );
 		if ( event )
@@ -273,8 +262,6 @@ void CTriggerAreaCapture::AreaTouch( CBaseEntity *pOther )
 	// Don't cap areas unless the round is running
 	if ( !TeamplayGameRules()->PointsMayBeCaptured() )
 		return;
-
-	Assert( m_iAreaIndex != -1 );
 
 	// dont touch for non-alive or non-players
 	if( !pOther->IsPlayer() || !pOther->IsAlive() )
@@ -770,6 +757,8 @@ void CTriggerAreaCapture::StartCapture( int team, int capmode )
 	m_StartOutput.FireOutput(this,this);
 	
 	m_nCapturingTeam = team;
+
+	OnStartCapture( m_nCapturingTeam );
 
 	UpdateNumPlayers();
 

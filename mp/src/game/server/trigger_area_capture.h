@@ -55,13 +55,13 @@ public:
 
 	// A team has finished capturing the zone.
 	virtual void OnEndCapture( int iTeam ) { return; }
+	virtual void OnStartCapture( int iTeam ) { return; }
 
 public:
 	virtual void Spawn( void );
 	virtual void Precache( void );
 	virtual bool KeyValue( const char *szKeyName, const char *szValue );
 
-	void	SetAreaIndex( int index );
 	bool	IsActive( void );
 	bool	CheckIfDeathCausesBlock( CBaseMultiplayerPlayer *pVictim, CBaseMultiplayerPlayer *pKiller );
 
@@ -172,8 +172,6 @@ private:
 	
 	COutputInt m_OnNumCappersChanged;
 	COutputInt m_OnNumCappersChanged2;
-
-	int		m_iAreaIndex;	//index of this area among all other areas
 
 	CHandle<CTeamControlPoint>	m_hPoint;	//the capture point that we are linked to!
 

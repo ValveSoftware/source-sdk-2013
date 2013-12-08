@@ -2097,10 +2097,15 @@ typedef enum
 
 	// Throwable Animations
 	ACT_MP_THROW,
-
 	ACT_THROWABLE_VM_DRAW,
 	ACT_THROWABLE_VM_IDLE,
 	ACT_THROWABLE_VM_FIRE,
+
+	// Spell Animations
+	ACT_SPELL_VM_DRAW,
+	ACT_SPELL_VM_IDLE, 
+	ACT_SPELL_VM_ARM, 
+	ACT_SPELL_VM_FIRE,
 
 	// this is the end of the global activities, private per-monster activities start here.
 	LAST_SHARED_ACTIVITY,

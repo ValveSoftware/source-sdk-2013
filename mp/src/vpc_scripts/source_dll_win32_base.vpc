@@ -39,7 +39,7 @@ $Configuration
 
 	$Compiler [$WIN32]
 	{
-		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions 2 (/arch:SSE2)"
+		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions (/arch:SSE)"
 	}
 	
 	$Linker
@@ -103,6 +103,23 @@ $Project
 				}
 			}
 		}
+
+		// Implement __imp__EncodePointer and __imp__DecodePointer so that we can run on XP SP1
+		// when building with VS 2010.
+		$File	"$SRCDIR\public\tier0\pointeroverride.asm" [$WIN32 && $VS2010]
+		{
+			$Configuration
+			{	
+				$CustomBuildStep
+				{
+					// General
+					$CommandLine				"$QUOTE$(VCInstallDir)bin\ml.exe$QUOTE /safeseh /c /Cp /Zi /Fo$QUOTE$(IntDir)\$(InputName).obj$QUOTE $QUOTE$(InputPath)$QUOTE"
+					$Description				"Compiling pointeroverride.asm"
+					$Outputs					"$(IntDir)\$(InputName).obj"
+				}		
+			}
+		}
+
 		$File	"$SRCDIR\common\debug_dll_check.cpp"	[!$SOURCESDK]	
 		{
 			$Configuration

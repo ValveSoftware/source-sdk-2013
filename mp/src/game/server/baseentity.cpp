@@ -4524,6 +4524,17 @@ void CBaseEntity::Teleport( const Vector *newPosition, const QAngle *newAngles, 
 		teleportList[i].pEntity->CollisionRulesChanged();
 	}
 
+	if ( IsPlayer() )
+	{
+		// Tell the client being teleported
+		IGameEvent *event = gameeventmanager->CreateEvent( "base_player_teleported" );
+		if ( event )
+		{
+			event->SetInt( "entindex", entindex() );
+			gameeventmanager->FireEventClientSide( event );
+		}
+	}
+
 	Assert( g_TeleportStack[index] == this );
 	g_TeleportStack.FastRemove( index );
 

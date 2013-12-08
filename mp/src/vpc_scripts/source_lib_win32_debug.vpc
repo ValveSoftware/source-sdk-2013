@@ -75,7 +75,7 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -136,9 +136,6 @@ $Configuration "Debug"
 		$UseFullPaths						"Yes (/FC)"
 		$OmitDefaultLibraryNames
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
-
-		// Command Line (L4D adding /MP)
-		$AdditionalOptions					"/MP"	[$VS2005]
 	}
 
 	$Librarian

@@ -38,7 +38,7 @@ $Configuration
 
 	$Compiler [$WIN32]
 	{
-		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions 2 (/arch:SSE2)"
+		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions (/arch:SSE)"
 	}
 	
 	$PreBuildEvent

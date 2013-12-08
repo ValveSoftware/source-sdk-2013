@@ -770,10 +770,12 @@ void CLagCompensationManager::FinishLagCompensation( CBasePlayer *player )
 				// Restore it
 				pPlayer->SetSize( restore->m_vecMinsPreScaled, restore->m_vecMaxsPreScaled );
 			}
+#ifdef STAGING_ONLY
 			else
 			{
 				Warning( "Should we really not restore the size?\n" );
 			}
+#endif
 		}
 
 		if ( restore->m_fFlags & LC_ANGLES_CHANGED )

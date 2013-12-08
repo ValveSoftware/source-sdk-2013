@@ -200,6 +200,9 @@ public:
 	// Setup a matrix for origin and angles.
 	void		SetupMatrixOrgAngles( const Vector &origin, const QAngle &vAngles );
 	
+	// Setup a matrix for angles and no translation.
+	void		SetupMatrixAngles( const QAngle &vAngles );
+
 	// General inverse. This may fail so check the return!
 	bool		InverseGeneral(VMatrix &vInverse) const;
 	

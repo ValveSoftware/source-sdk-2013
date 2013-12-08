@@ -12,7 +12,7 @@
 #include "iprediction.h"
 #include "prediction.h"
 #include "client_virtualreality.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 #else
 #include "vguiscreen.h"
 #endif

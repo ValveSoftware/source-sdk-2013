@@ -64,7 +64,7 @@ BOOL g_Update = TRUE;
 BOOL g_bDisp = FALSE;
 IPhysicsCollision *physcollision = NULL;
 // -----------
-static int g_Keys[255];
+static int g_Keys[256];
 void AppKeyDown( int key );
 void AppKeyUp( int key );
 

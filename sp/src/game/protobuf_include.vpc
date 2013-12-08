@@ -10,6 +10,8 @@ $Project
 {
 	$Folder "Libraries"
 	{
-		$Libexternal libprotobuf
+		$Libexternal libprotobuf [!$VS2012 && !$VS2013]
+		$Libexternal 2012\libprotobuf [$VS2012]
+		$Libexternal 2013\libprotobuf [$VS2013]
 	}
 }

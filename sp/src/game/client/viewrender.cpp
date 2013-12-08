@@ -51,7 +51,7 @@
 #include "studio_stats.h"
 #include "con_nprint.h"
 #include "clientmode_shared.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 #include "client_virtualreality.h"
 
 #ifdef PORTAL
@@ -394,7 +394,7 @@ protected:
 	bool			GetSkyboxFogEnable();
 
 	void			Enable3dSkyboxFog( void );
-	void			DrawInternal( view_id_t iSkyBoxViewID = VIEW_3DSKY, bool bInvokePreAndPostRender = true, ITexture *pRenderTarget = NULL );
+	void			DrawInternal( view_id_t iSkyBoxViewID, bool bInvokePreAndPostRender, ITexture *pRenderTarget, ITexture *pDepthTarget );
 
 	sky3dparams_t *	PreRender3dSkyboxWorld( SkyboxVisibility_t nSkyboxVisible );
 
@@ -1055,7 +1055,15 @@ void CViewRender::DrawViewModels( const CViewSetup &view, bool drawViewmodel )
 	viewModelSetup.fov = view.fovViewmodel;
 	viewModelSetup.m_flAspectRatio = engine->GetScreenAspectRatio();
 
-	render->Push3DView( viewModelSetup, 0, NULL, GetFrustum() );
+	ITexture *pRTColor = NULL;
+	ITexture *pRTDepth = NULL;
+	if( view.m_eStereoEye != STEREO_EYE_MONO )
+	{
+		pRTColor = g_pSourceVR->GetRenderTarget( (ISourceVirtualReality::VREye)(view.m_eStereoEye-1), ISourceVirtualReality::RT_Color );
+		pRTDepth = g_pSourceVR->GetRenderTarget( (ISourceVirtualReality::VREye)(view.m_eStereoEye-1), ISourceVirtualReality::RT_Depth );
+	}
+
+	render->Push3DView( viewModelSetup, 0, pRTColor, GetFrustum(), pRTDepth );
 
 #ifdef PORTAL //the depth range hack doesn't work well enough for the portal mod (and messing with the depth hack values makes some models draw incorrectly)
 				//step up to a full depth clear if we're extremely close to a portal (in a portal environment)
@@ -1822,7 +1830,15 @@ void CViewRender::SetupMain3DView( const CViewSetup &view, int &nClearFlags )
 	}
 	else
 	{
-		render->Push3DView( view, nClearFlags, NULL, GetFrustum() );
+		ITexture *pRTColor = NULL;
+		ITexture *pRTDepth = NULL;
+		if( view.m_eStereoEye != STEREO_EYE_MONO )
+		{
+			pRTColor = g_pSourceVR->GetRenderTarget( (ISourceVirtualReality::VREye)(view.m_eStereoEye-1), ISourceVirtualReality::RT_Color );
+			pRTDepth = g_pSourceVR->GetRenderTarget( (ISourceVirtualReality::VREye)(view.m_eStereoEye-1), ISourceVirtualReality::RT_Depth );
+		}
+
+		render->Push3DView( view, nClearFlags, pRTColor, GetFrustum(), pRTDepth );
 	}
 
 	// If we didn't clear the depth here, we'll need to clear it later
@@ -2155,6 +2171,12 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		pCopyMaterial->DecrementReferenceCount();
 	}
 
+	// if we're in VR mode we might need to override the render target
+	if( UseVR() )
+	{
+		saveRenderTarget = g_pSourceVR->GetRenderTarget( (ISourceVirtualReality::VREye)(view.m_eStereoEye - 1), ISourceVirtualReality::RT_Color );
+	}
+
 	// Draw the 2D graphics
 	render->Push2DView( view, 0, saveRenderTarget, GetFrustum() );
 
@@ -2192,7 +2214,9 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 
 					vgui::surface()->GetScreenSize( viewWidth, viewHeight );
 
-					viewFramebufferX = view.m_eStereoEye == STEREO_EYE_RIGHT ? viewFramebufferWidth : 0;
+					viewFramebufferX = 0;
+					if( view.m_eStereoEye == STEREO_EYE_RIGHT && !saveRenderTarget )
+						viewFramebufferX = viewFramebufferWidth;
 					viewFramebufferY = 0;
 				}
 			}
@@ -2224,7 +2248,7 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		// let vgui know where to render stuff for the forced-to-framebuffer panels
 		if( UseVR() )
 		{
-			vgui::surface()->SetFullscreenViewport( viewFramebufferX, viewFramebufferY, viewFramebufferWidth, viewFramebufferHeight );
+			vgui::surface()->SetFullscreenViewportAndRenderTarget( viewFramebufferX, viewFramebufferY, viewFramebufferWidth, viewFramebufferHeight, saveRenderTarget );
 		}
 
 		// clear the render target if we need to
@@ -4703,7 +4727,7 @@ sky3dparams_t *CSkyboxView::PreRender3dSkyboxWorld( SkyboxVisibility_t nSkyboxVi
 //-----------------------------------------------------------------------------
 // 
 //-----------------------------------------------------------------------------
-void CSkyboxView::DrawInternal( view_id_t iSkyBoxViewID, bool bInvokePreAndPostRender, ITexture *pRenderTarget )
+void CSkyboxView::DrawInternal( view_id_t iSkyBoxViewID, bool bInvokePreAndPostRender, ITexture *pRenderTarget, ITexture *pDepthTarget )
 {
 	unsigned char **areabits = render->GetAreaBits();
 	unsigned char *savebits;
@@ -4736,7 +4760,7 @@ void CSkyboxView::DrawInternal( view_id_t iSkyBoxViewID, bool bInvokePreAndPostR
 	// cluster with sky.  Then we could just connect the areas to do our vis.
 	//m_bOverrideVisOrigin could hose us here, so call direct
 	render->ViewSetupVis( false, 1, &m_pSky3dParams->origin.Get() );
-	render->Push3DView( (*this), m_ClearFlags, pRenderTarget, GetFrustum() );
+	render->Push3DView( (*this), m_ClearFlags, pRenderTarget, GetFrustum(), pDepthTarget );
 
 	// Store off view origin and angles
 	SetupCurrentView( origin, angles, iSkyBoxViewID );
@@ -4832,7 +4856,15 @@ void CSkyboxView::Draw()
 {
 	VPROF_BUDGET( "CViewRender::Draw3dSkyboxworld", "3D Skybox" );
 
-	DrawInternal();
+	ITexture *pRTColor = NULL;
+	ITexture *pRTDepth = NULL;
+	if( m_eStereoEye != STEREO_EYE_MONO )
+	{
+		pRTColor = g_pSourceVR->GetRenderTarget( (ISourceVirtualReality::VREye)(m_eStereoEye-1), ISourceVirtualReality::RT_Color );
+		pRTDepth = g_pSourceVR->GetRenderTarget( (ISourceVirtualReality::VREye)(m_eStereoEye-1), ISourceVirtualReality::RT_Depth );
+	}
+
+	DrawInternal(VIEW_3DSKY, true, pRTColor, pRTDepth );
 }
 
 
@@ -4882,7 +4914,7 @@ void CPortalSkyboxView::Draw()
 
 	bool bInvokePreAndPostRender = ( g_pPortalRender->ShouldUseStencilsToRenderPortals() == false );
 
-	DrawInternal( iSkyBoxViewID, bInvokePreAndPostRender, m_pRenderTarget );
+	DrawInternal( iSkyBoxViewID, bInvokePreAndPostRender, m_pRenderTarget, NULL );
 
 	pRenderContext->EnableClipping( bClippingEnabled );
 

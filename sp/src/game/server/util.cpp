@@ -902,7 +902,15 @@ void UTIL_ScreenShakeObject( CBaseEntity *pEnt, const Vector &center, float ampl
 				continue;
 			}
 
-			localAmplitude = ComputeShakeAmplitude( center, pPlayer->WorldSpaceCenter(), amplitude, radius );
+			if ( radius > 0 )
+			{
+				localAmplitude = ComputeShakeAmplitude( center, pPlayer->WorldSpaceCenter(), amplitude, radius );
+			}
+			else
+			{
+				// If using a 0 radius, apply to everyone with no falloff
+				localAmplitude = amplitude;
+			}
 
 			// This happens if the player is outside the radius, 
 			// in which case we should ignore all commands

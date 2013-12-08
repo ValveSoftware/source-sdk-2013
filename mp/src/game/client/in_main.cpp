@@ -31,7 +31,7 @@
 #endif
 
 #include "client_virtualreality.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 
 // NVNT Include
 #include "haptics/haptic_utils.h"

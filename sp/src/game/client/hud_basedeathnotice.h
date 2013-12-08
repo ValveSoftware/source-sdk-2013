@@ -30,6 +30,7 @@ struct DeathNoticeItem
 	{
 		szIcon[0]=0;
 		wzInfoText[0]=0;
+		wzInfoTextEnd[0]=0;
 		iconDeath = NULL;
 		iconCritDeath = NULL;
 		bSelfInflicted = false;
@@ -40,6 +41,9 @@ struct DeathNoticeItem
 		iWeaponID = -1;
 		iKillerID = -1;
 		iVictimID = -1;
+
+		iconPreKiller = NULL;
+		wzPreKillerText[0] = 0;
 	}
 
 	float GetExpiryTime();
@@ -48,8 +52,13 @@ struct DeathNoticeItem
 	DeathNoticePlayer   Victim;
 	char		szIcon[32];		// name of icon to display
 	wchar_t		wzInfoText[32];	// any additional text to display next to icon
+	wchar_t		wzInfoTextEnd[32];	// any additional text to display next to victim name
 	CHudTexture *iconDeath;
 	CHudTexture *iconCritDeath;	// crit background icon
+
+	CHudTexture *iconPreKiller;
+	wchar_t		wzPreKillerText[32];
+
 	bool		bSelfInflicted;
 	bool		bLocalPlayerInvolved;
 	bool		bCrit;
@@ -104,7 +113,8 @@ protected:
 	virtual int UseExistingNotice( IGameEvent *event ) { return -1; }
 
 	void GetLocalizedControlPointName( IGameEvent *event, char *namebuf, int namelen );
-	virtual Color GetInfoTextColor( bool bLocalPlayerInvolved ){ return Color( 255, 255, 255, 255 ); }
+	virtual Color GetInfoTextColor( int iDeathNoticeMsg ){ return Color( 255, 255, 255, 255 ); }
+	virtual Color GetBackgroundColor ( int iDeathNoticeMsg ) { return m_DeathNotices[iDeathNoticeMsg].bLocalPlayerInvolved ? m_clrLocalBGColor : m_clrBaseBGColor; }
 
 	CPanelAnimationVarAliasType( float, m_flLineHeight, "LineHeight", "16", "proportional_float" );
 	CPanelAnimationVarAliasType( float, m_flLineSpacing, "LineSpacing", "4", "proportional_float" );
@@ -115,6 +125,7 @@ protected:
 	CPanelAnimationVar( Color, m_clrIcon, "IconColor", "255 80 0 255" );
 	CPanelAnimationVar( Color, m_clrBaseBGColor, "BaseBackgroundColor", "46 43 42 220" );
 	CPanelAnimationVar( Color, m_clrLocalBGColor, "LocalBackgroundColor", "245 229 196 200" );
+	CPanelAnimationVar( Color, m_clrKillStreakBg, "KillStreakBackgroundColor", "224 223 219 200" );
 
 	CUtlVector<DeathNoticeItem> m_DeathNotices;
 
