@@ -1,0 +1,27 @@
+ps.1.1
+
+; t0: 
+;		texture: dudv map
+;		texcoords: dudvmap texcoords
+; t1:
+;		texture: reflection render target
+;		texcoords: 
+; t2:	
+;		texture: normal map (usef for fresnel calculation)
+;		texcoords: 
+; t4:	texture: normalization cube map
+;		texcoords: eye vect
+
+tex t0				; sample dudv map
+texbem t1, t0		; reflection
+tex t2				; normal map
+tex t3				; eye vector (through normalization cubemap)
+
+; dot eye-vector with per-pixel normal from t2
+dp3_sat	r1.rgba, t3_bx2, t2_bx2
+
+; run Fresnel approx. on it: R0 + (1-R0) (1-cos(q))^5
+mul r0.a, 1-r1.a, 1-r1.a			// squared
+mul r0.a, r0.a, r0.a				// quartic
+mul r0.rgb, t1, c0				// shove color from reflection render target into r0
++mul_sat r0.a, r0.a, 1-r1.a			// quintic

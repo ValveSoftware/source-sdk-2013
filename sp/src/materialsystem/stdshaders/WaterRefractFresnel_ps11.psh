@@ -1,0 +1,24 @@
+ps.1.1
+
+; t0: 
+;		texture: dudv map
+;		texcoords: dudvmap texcoords
+; t1:
+;		texture: refraction render target
+;		texcoords: 
+
+tex t0			; sample dudv map
+texbem t1, t0		; refraction
+tex t2			; The normal map
+tex t3			; Normalize the tangent-space vector to the eye
+
+; dot eye-vector with per-pixel normal from t2
+dp3_sat r1.rgba, t2_bx2, t3_bx2
+
+mul r0.a, 1-r1.a, 1-r1.a			; squared
+mul r0.a, r0.a, r0.a				; quartic
+
+mul r0.rgb, t1, c0
++mul_sat r0.a, r0.a, 1-r1.a			; quintic
+
+add_sat r0.a, r0.a, v0.a			; cheap water distance

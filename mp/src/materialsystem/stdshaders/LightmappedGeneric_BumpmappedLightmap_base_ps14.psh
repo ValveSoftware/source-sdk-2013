@@ -1,0 +1,39 @@
+;------------------------------------------------------------------------------
+; Computes the diffuse component of lighting using lightmap + bumpmap
+; t0 - Normalmap
+; t1 - Lightmap1
+; t2 - Lightmap2
+; t3 - Lightmap3
+; t4 - Base
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - Normalmap and lightmap texture coordinates
+; c0, c1, c2 - Axes of the lightmap coordinate system in tangent space 
+;------------------------------------------------------------------------------
+ps.1.4
+
+; Get the 3-vector from the normal map
+texld r0, t0
+
+; Sample the lightmaps
+texld r1, t1 
+texld r2, t2 
+texld r3, t3 
+
+; Sample the base texture
+texld r4, t4
+
+; output = (lightmapColor[0] * ( ( N dot basis[0] )^2 ) + 
+;	       lightmapColor[1] * ( ( N dot basis[1] )^2 ) +
+;	       lightmapColor[2] * ( ( N dot basis[2] )^2 ) ) * base
+
+dp3 r5.r, r0_bx2, c0
+dp3 r5.g, r0_bx2, c1
+dp3 r5.b, r0_bx2, c2
+mul	r5.rgb, r5, r5
+mul	r1, r1, r5.r
+mad r1, r2, r5.g, r1
+mad r1, r3, r5.g, r1
+
+; assume overbright_2 !!!
+mul_x2 r0, r1, r4

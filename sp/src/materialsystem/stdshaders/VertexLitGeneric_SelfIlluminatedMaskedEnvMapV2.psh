@@ -1,0 +1,23 @@
+; DYNAMIC: "WRITEONETODESTALPHA" "0..1"
+ps.1.1
+
+; Get the color from the texture
+tex t0		; base 
+tex t1		; env map
+tex t2		; mask
+
+mul r0.rgb, t0, c3 +		; base times modulation
+mul r0.a, c3.a, t2.a		; alpha = mod alpha * mask alpha 
+
+mul r0.rgb, v0, r0			; Apply lighting 
+mul_x2 r0.rgb, c0, r0		; * 2 * (overbrightFactor/2)
+
+mul r1, t0, c1				; Self illum * tint
+lrp r0.rgb, t0.a, r1, r0	; Blend between self-illum + base * lighting
+
+mul r1, t2, t1				; envmapmask * envmap
+mad r0.rgb, r1, c2, r0		; + envmapmask * envmap * envmaptint (color only)
+
+#if WRITEONETODESTALPHA
++mov r0.a, c4			; make alpha 255
+#endif

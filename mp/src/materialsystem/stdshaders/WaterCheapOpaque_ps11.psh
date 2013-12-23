@@ -1,0 +1,26 @@
+ps.1.1
+
+; Get the 3-vector from the normal map
+tex t0
+
+; Perform matrix multiply to get a local normal bump.  Then
+; reflect the eye vector through the normal and sample from 
+; a cubic environment map.
+texm3x3pad t1, t0_bx2
+texm3x3pad t2, t0_bx2		
+texm3x3vspec t3, t0_bx2
+
+mul r0, t3, c1					; envmap color * envmaptint
+
+dp3_sat t2, v0_bx2, t0_bx2			; dot eye-vector with per-pixel normal from t0
+
+; run Fresnel approx. on it: R0 + (1-R0) (1-cos(q))^5 in alpha channel
+; NOTE: This is not perspective-correct and results in strange artifacts
+mul r1.a, 1-t2.a, 1-t2.a			; squared
+mul r1.a, r1.a, r1.a				; quartic
+mul_sat r1.a, r1.a, 1-t2.a			; quintic
+
+; t1.a is now the fresnel factor
+lrp r0.rgb, r1.a, r0, c0			; blend between reflected color and fog color based on fresnel
+
+
