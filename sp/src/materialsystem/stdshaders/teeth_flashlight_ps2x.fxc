@@ -1,0 +1,66 @@
+//====== Copyright © 1996-2004, Valve Corporation, All rights reserved. =======
+//
+// Purpose: 
+//
+//=============================================================================
+
+// STATIC: "CONVERT_TO_SRGB"			"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
+// STATIC: "CONVERT_TO_SRGB"			"0..1"	[ps30][= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
+// STATIC: "CONVERT_TO_SRGB"			"0..0"	[= 0] [XBOX]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b] [PC]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps30]  [PC]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..0"	[ps20b] [XBOX]
+
+// DYNAMIC: "PIXELFOGTYPE"				"0..1"
+// DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b]
+// DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps30]
+
+#include "common_flashlight_fxc.h"
+#include "shader_constant_register_map.h"
+
+sampler BaseTextureSampler					: register( s0 );
+sampler SpotSampler							: register( s1 );
+sampler FlashlightDepthSampler				: register( s2 );
+sampler RandomRotationSampler				: register( s3 );
+
+const float4 g_FogParams					: register( PSREG_FOG_PARAMS );
+const float3 g_EyePos						: register( PSREG_EYEPOS_SPEC_EXPONENT );
+const float3 g_FlashlightPos				: register( PSREG_FLASHLIGHT_POSITION_RIM_BOOST );
+const float4 g_FlashlightAtten				: register( PSREG_FLASHLIGHT_ATTENUATION );
+const float4x4 g_FlashlightWorldToTexture	: register( PSREG_FLASHLIGHT_TO_WORLD_TEXTURE );
+const float4 g_ShadowTweaks					: register( PSREG_ENVMAP_TINT__SHADOW_TWEAKS );
+
+struct PS_INPUT
+{
+	float2 baseTexCoord						: TEXCOORD0;		// Base texture coordinates
+	float4 spotTexCoord						: TEXCOORD1;		// Spotlight texture coordinates
+	float3 vertAtten						: TEXCOORD2;		// Distance/spot attenuation
+	float4 projPos							: TEXCOORD3;		// Projective space position
+	float3 worldPos							: TEXCOORD4;		// Necessary for pixel fog
+};
+
+float4 main( PS_INPUT i ) : COLOR
+{
+#if defined( SHADER_MODEL_PS_2_0 )
+		float3 result = tex2Dproj( SpotSampler, i.spotTexCoord.xyzw );
+#else 
+		float3 vProjCoords = i.spotTexCoord.xyz / i.spotTexCoord.w;
+		float3 result = tex2D( SpotSampler, vProjCoords );
+#endif
+
+	result *= cFlashlightColor.rgb;
+
+#if FLASHLIGHTSHADOWS && ( defined( SHADER_MODEL_PS_2_B ) || defined( SHADER_MODEL_PS_3_0 ) )
+	result *= DoFlashlightShadow( FlashlightDepthSampler, RandomRotationSampler, vProjCoords, i.projPos.xy / i.projPos.z, FLASHLIGHTDEPTHFILTERMODE, g_ShadowTweaks, true );
+#endif
+	result *= 0.35f;	// Without this, unshadowed teeth always seem to glow
+
+	result *= i.vertAtten;										// Distance atten, NdotL and forward vector
+
+	float4 baseSample = tex2D( BaseTextureSampler, i.baseTexCoord );
+	result *= baseSample.rgb;									// Multiply by base map and diffuse
+
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.z, i.worldPos.z, i.projPos.z );
+	return FinalOutput( float4( result, baseSample.a ), fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR );
+}
+

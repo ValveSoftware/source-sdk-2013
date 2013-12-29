@@ -1,0 +1,29 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+; c2 - envmaptint 
+;------------------------------------------------------------------------------
+
+tex t0	; base color
+tex t1	; cube map
+tex t2	; envmap mask
+tex t3	; detail texture
+
+; version 1: applies the mod2x *after* environment map
+;mul r0.rgb, t1, 1-t2.a ; can't use mad cause can't use 3 texture registers
+;mul r0.rgb, c2, r0		; apply the envmaptint
+;mad r0.rgb, t0, v0, r0
+;+ mul r0.a, t0, v0
+;mul_x2 r0.rgb, r0, t3	; mod2x detail texture
+
+; version 2: applies the mod2x *before* environment map
+mul r0, t0, v0			; Base times modulation color
+mul_x2 r0.rgb, r0, t3	; mod2x detail texture 
+mul r1, t1, 1-t2.a		; Have to invert the alpha for basealpha (feh!)
+mul r1, c2, r1			; apply the envmaptint
+add r0.rgb, r0, r1		; add in the envmap

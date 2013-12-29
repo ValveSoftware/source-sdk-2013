@@ -1,0 +1,34 @@
+ps.1.1
+def c0, 1,0,0,0
+def c1, 0,1,0,0
+def c2, 0,0,1,0
+
+;------------------------------------------------------------------------------
+; Computes the diffuse component of lighting using lightmap + bumpmap
+; t0 - Normalmap
+; t1 - Lightmap1
+; t2 - Lightmap2
+; t3 - Lightmap3
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - Normalmap and lightmap texture coordinates
+;------------------------------------------------------------------------------
+
+; Get the 3-vector from the normal map
+tex t0
+
+; Sample the lightmaps
+tex t1 
+tex t2 
+tex t3 
+
+; output = lightmapColor[0] * n.r + lightmapColor[1] * n.g + lightmapColor[2] * n.b
+
+
+mov r0, t0
+dp3 r1, t0, c0
+mul r0.rgb, r1, t1
+dp3 r1, t0, c1
+mad r0.rgb, r1, t2, r0
+dp3 r1, t0, c2
+mad r0.rgb, r1, t3, r0

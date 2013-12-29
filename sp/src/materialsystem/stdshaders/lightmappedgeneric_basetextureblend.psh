@@ -1,0 +1,9 @@
+ps.1.1
+
+tex t0 ; base 1
+tex t1 ; base 2
+
+mov r1, t1
+lrp r0, 1-v0.a, t0, r1
+mul r0, r0, c0
+

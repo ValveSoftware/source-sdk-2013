@@ -1,0 +1,110 @@
+// STATIC: "CONVERT_TO_SRGB"				"0..1"	[ps20b] [= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
+// STATIC: "CONVERT_TO_SRGB"				"0..0"	[= 0] [XBOX]
+// STATIC: "BASETEXTURE"					"0..1"
+// STATIC: "MULTITEXTURE"					"0..1"
+// STATIC: "REFLECT"						"0..1"
+// STATIC: "REFRACT"						"0..1"
+// STATIC: "ABOVEWATER"						"0..1"
+// STATIC: "BLURRY_REFRACT"					"0..1"	[ps20b]
+
+// When we turn NORMAL_DECODE_MODE on, this shader only needs 0..1, not 0..2
+// STATIC: "NORMAL_DECODE_MODE"				"0..0"	[XBOX]
+// STATIC: "NORMAL_DECODE_MODE"				"0..0"	[PC]
+
+// DYNAMIC: "PIXELFOGTYPE"					"0..1"
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..1"	[ps20b] [PC]
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..0"	[ps20b] [XBOX]
+
+// SKIP: $MULTITEXTURE && $BASETEXTURE
+
+#if defined(SHADER_MODEL_PS_2_0)
+#	define BLURRY_REFRACT 0
+#	define WRITE_DEPTH_TO_DESTALPHA 0
+#endif
+
+#include "water_ps2x_helper.h"
+
+
+sampler RefractSampler			: register( s0 );
+#if BASETEXTURE
+sampler BaseTextureSampler		: register( s1 );
+#endif
+sampler ReflectSampler			: register( s2 );
+#if BASETEXTURE
+sampler LightmapSampler			: register( s3 );
+#endif
+sampler NormalSampler			: register( s4 );
+
+const HALF4 vRefractTint			: register( c1 );
+const HALF4 vReflectTint			: register( c4 );
+const float4 g_ReflectRefractScale	: register( c5 ); // xy - reflect scale, zw - refract scale
+const HALF4 g_WaterFogColor			: register( c6 );
+const HALF4 g_WaterFogParams		: register( c7 );
+
+const float4 g_PixelFogParams		: register( c8 );
+
+
+#define g_WaterFogStart			g_WaterFogParams.x
+#define g_WaterFogEndMinusStart	g_WaterFogParams.y
+#define g_Reflect_OverBright	g_WaterFogParams.z
+
+struct PS_INPUT
+{
+	float2 vBumpTexCoord			: TEXCOORD0;
+	half3 vTangentEyeVect			: TEXCOORD1;
+	float4 vReflectXY_vRefractYX	: TEXCOORD2;
+	float W							: TEXCOORD3;
+	float4 vProjPos					: TEXCOORD4;
+	float screenCoord				: TEXCOORD5;
+#if MULTITEXTURE
+	float4 vExtraBumpTexCoord		: TEXCOORD6;
+#endif
+#if BASETEXTURE
+// CENTROID: TEXCOORD6
+	HALF4 lightmapTexCoord1And2		: TEXCOORD6;
+// CENTROID: TEXCOORD7
+	HALF4 lightmapTexCoord3			: TEXCOORD7;
+#endif
+
+	float4 fogFactorW				: COLOR1;
+};
+
+float4 main( PS_INPUT i ) : COLOR
+{
+	DrawWater_params_t params;
+
+	params.vBumpTexCoord = i.vBumpTexCoord;
+#if MULTITEXTURE
+	params.vExtraBumpTexCoord = i.vExtraBumpTexCoord;
+#endif
+	params.vReflectXY_vRefractYX = i.vReflectXY_vRefractYX;
+	params.w = i.W;
+	params.vReflectRefractScale = g_ReflectRefractScale;
+	params.fReflectOverbright = g_Reflect_OverBright;
+	params.vReflectTint = vReflectTint;
+	params.vRefractTint = vRefractTint;
+	params.vTangentEyeVect = i.vTangentEyeVect;
+	params.waterFogColor = g_WaterFogColor;
+#if BASETEXTURE
+	params.lightmapTexCoord1And2 = i.lightmapTexCoord1And2;
+	params.lightmapTexCoord3 = i.lightmapTexCoord3;
+#endif
+	params.vProjPos = i.vProjPos;
+	params.pixelFogParams = g_PixelFogParams;
+	params.fWaterFogStart = g_WaterFogStart;
+	params.fWaterFogEndMinusStart = g_WaterFogEndMinusStart;
+
+	float4 result;
+	float fogFactor;
+	DrawWater( params, 
+			   // yay. . can't put sampler in a struct.
+#if BASETEXTURE
+			   BaseTextureSampler, 
+			   LightmapSampler, 
+#endif
+			   NormalSampler, RefractSampler, ReflectSampler,
+			   result, fogFactor );
+
+	return FinalOutput( float4( result.rgb, 1.0f ), fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_NONE, (WRITE_DEPTH_TO_DESTALPHA != 0), i.vProjPos.z );
+}
+

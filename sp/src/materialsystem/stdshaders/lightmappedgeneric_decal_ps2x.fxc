@@ -1,0 +1,59 @@
+// DYNAMIC: "PIXELFOGTYPE"		"0..1"
+
+// STATIC: "CONVERT_TO_SRGB"	"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
+// STATIC: "CONVERT_TO_SRGB"	"0..0"	[= 0] [XBOX]
+
+#include "common_ps_fxc.h"
+#include "shader_constant_register_map.h"
+
+sampler BaseTextureSampler	: register( s0 );
+sampler LightMap0Sampler	: register( s1 );
+sampler LightMap1Sampler	: register( s2 );
+sampler LightMap2Sampler	: register( s3 );
+
+const float4 g_LightMap0Color	: register( c0 );
+const float4 g_LightMap1Color	: register( c1 );
+const float4 g_LightMap2Color	: register( c2 );
+const float4 g_ModulationColor	: register( c3 );
+
+const float4 g_FogParams				: register( PSREG_FOG_PARAMS );
+const float4 g_EyePos_SpecExponent		: register( PSREG_EYEPOS_SPEC_EXPONENT );
+
+
+struct PS_INPUT
+{
+	float4 vProjPos		: POSITION;
+	float2 vTexCoord0	: TEXCOORD0;
+	float2 vTexCoord1	: TEXCOORD1;
+	float2 vTexCoord2	: TEXCOORD2;
+	float2 vTexCoord3	: TEXCOORD3;
+	float4 worldPos_projPosZ		: TEXCOORD4;		// Necessary for pixel fog
+
+	float4 vColor : COLOR0;
+};
+
+float4 main( PS_INPUT i ) : COLOR
+{
+	float4 resultColor;
+	
+	// output = lightmapColor[0] * ( ( N dot basis[0] )^2 ) + 
+	//	       lightmapColor[1] * ( ( N dot basis[1] )^2 ) +
+	//	       lightmapColor[2] * ( ( N dot basis[2] )^2 ) +
+	resultColor = tex2D( LightMap0Sampler, i.vTexCoord1 ) * g_LightMap0Color;
+	resultColor = (tex2D( LightMap1Sampler, i.vTexCoord2 ) * g_LightMap1Color) + resultColor;
+	resultColor = (tex2D( LightMap2Sampler, i.vTexCoord3 ) * g_LightMap2Color) + resultColor;
+	
+	// Modulate by decal texture
+	float4 decalColor = tex2D( BaseTextureSampler, i.vTexCoord0 );
+	resultColor.rgb = resultColor * decalColor;
+	resultColor.a = decalColor.a;
+	
+	// Modulate by constant color
+	resultColor = resultColor * g_ModulationColor;
+	
+	// Modulate by per-vertex factor
+	resultColor = resultColor * i.vColor;
+	
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.z, i.worldPos_projPosZ.z, i.worldPos_projPosZ.w );
+	return FinalOutput( resultColor, fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR );	
+}

@@ -1,0 +1,14 @@
+; DYNAMIC: "WRITEONETODESTALPHA" "0..1"
+ps.1.1
+
+tex t0	; base color
+tex t1	; cube map
+
+mul r0, t0, c3			; base times modulation
+mul r0.rgb, v0, r0		; apply vertex lighting
+mul_x2 r0.rgb, c0, r0   ; * 2 * (overbrightFactor/2)
+mad r0.rgb, t1, c2, r0	; + envmap * envmaptint (color only)
+
+#if WRITEONETODESTALPHA
++mov r0.a, c4			; make alpha 255
+#endif

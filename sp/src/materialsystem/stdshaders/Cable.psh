@@ -1,0 +1,27 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; See the vertex shader for info
+;
+; This shader takes:
+;	t0 = normal map
+;	t1 = base texture
+;	v0 = directional light color
+;	t2 = directional light direction (biased into 0-1)
+;	c0 = percent of dirlight to add as ambient
+;
+; Output:
+;	(t0 dot t1) * v0
+;------------------------------------------------------------------------------
+
+tex			t0						; Get the 3-vector from the normal map
+tex			t1						; Interpret tcoord t1 as color data.
+texcoord	t2			
+
+dp3			r1, t0_bx2, t2_bx2		; r1 = normalMap dot dirLightDir
+add			r0, r1, c0				; + 0.5
+
+mul			r1, v0, r0				; scale the dot product by the dirlight's actual color
+mul			r0.rgb, r1, t1 +		; scale by the texture color
+
+mul			r0.a, t1.a, v0.a

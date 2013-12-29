@@ -1,0 +1,16 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw the eyes
+; t0 - texture
+; t1 - iris
+; t2 - glint
+;------------------------------------------------------------------------------
+
+tex t0
+tex t1
+tex t2
+
+lrp	r0, t1.a, t1, t0		; Blend in the iris with the background 
+mad r0.rgb, r0, v0, t2 +	; Modulate by the illumination, add in the glint
+mov r0.a, t0.a				
