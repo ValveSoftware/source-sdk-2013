@@ -91,7 +91,7 @@ void vprint( int depth, const char *fmt, ... )
 		}
 	}
 
-	::printf( string );
+	::printf( "%s", string );
 	OutputDebugString( string );
 
 	if ( fp )

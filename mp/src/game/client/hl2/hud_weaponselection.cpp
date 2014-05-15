@@ -598,13 +598,13 @@ void CHudWeaponSelection::Paint()
 
 			// bucket style
 			int screenCenterX = (int) fCenterX;
-			int screenCenterY = (int) fCenterY - 15; // Height isn't quite screen height, so adjust for center alignement
+			int screenCenterY = (int) fCenterY - 15; // Height isn't quite screen height, so adjust for center alignment
 
 			// Modifiers for the four directions. Used to change the x and y offsets
 			// of each box based on which bucket we're drawing. Bucket directions are
 			// 0 = UP, 1 = RIGHT, 2 = DOWN, 3 = LEFT
-			int xModifiers[] = { 0, 1, 0, -1 };
-			int yModifiers[] = { -1, 0, 1, 0 };
+			int xModifiers[] = { 0, 1, 0, -1, -1, 1 };
+			int yModifiers[] = { -1, 0, 1, 0, 1, 1 };
 
 			// Draw the four buckets
 			for ( int i = 0; i < MAX_WEAPON_SLOTS; ++i )
@@ -1453,7 +1453,7 @@ void CHudWeaponSelection::SelectWeaponSlot( int iSlot )
 		return;
 
 	// Don't try and read past our possible number of slots
-	if ( iSlot > MAX_WEAPON_SLOTS )
+	if ( iSlot >= MAX_WEAPON_SLOTS )
 		return;
 	
 	// Make sure the player's allowed to switch weapons

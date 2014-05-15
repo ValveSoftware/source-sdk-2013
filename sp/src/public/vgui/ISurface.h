@@ -387,7 +387,7 @@ public:
 	virtual IHTMLChromeController *AccessChromeHTMLController() = 0;
 
 	// the origin of the viewport on the framebuffer (Which might not be 0,0 for stereo)
-	virtual void SetFullscreenViewportAndRenderTarget( int x, int y, int w, int h, ITexture *pRenderTarget ) = 0;
+	virtual void SetFullscreenViewport( int x, int y, int w, int h ) = 0; // this uses NULL for the render target.
 	virtual void GetFullscreenViewport( int & x, int & y, int & w, int & h ) = 0;
 	virtual void PushFullscreenViewport() = 0;
 	virtual void PopFullscreenViewport() = 0;

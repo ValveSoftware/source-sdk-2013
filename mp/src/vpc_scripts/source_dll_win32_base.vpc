@@ -24,7 +24,7 @@ $IgnoreRedundancyWarning	"ON"
 // Common Configuration
 $Configuration
 {
-	$General	[$VS2010]
+	$General
 	{
 		$TargetName	"$OUTBINNAME"
 	}
@@ -50,6 +50,7 @@ $Configuration
 		// Suppress this pointless warning using the undocumented /ignore linker switch
 		// schemalib.lib(schemaclassinfo.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
 		$AdditionalOptions					"$BASE /ignore:4221"
+		$AdditionalOptions					"$BASE $SRCDIR\lib\public\ftol3.obj" [$VS2013 && $WIN32 && !$DISABLE_FTOL3_OVERRIDE && !$SOURCESDK] // Work around CRT bug https://connect.microsoft.com/VisualStudio/feedback/details/806362/vc12-pollutes-the-floating-point-stack-when-casting-infinity-nan-to-unsigned-long#
 	}
 	
 	$PreBuildEvent
@@ -105,8 +106,8 @@ $Project
 		}
 
 		// Implement __imp__EncodePointer and __imp__DecodePointer so that we can run on XP SP1
-		// when building with VS 2010.
-		$File	"$SRCDIR\public\tier0\pointeroverride.asm" [$WIN32 && $VS2010]
+		// when building with VS 2010 and higher.
+		$File	"$SRCDIR\public\tier0\pointeroverride.asm" [$WIN32]
 		{
 			$Configuration
 			{	

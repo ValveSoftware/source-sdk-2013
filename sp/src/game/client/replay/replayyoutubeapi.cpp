@@ -24,7 +24,7 @@
 #include "confirm_dialog.h"
 #include "replay/vgui/replaybrowserdetailspanel.h"
 
-#include "base_gcmessages.h"
+#include "base_gcmessages.pb.h"
 
 #include "youtubeapi.h"
 #include "steamworks_gamestats.h"

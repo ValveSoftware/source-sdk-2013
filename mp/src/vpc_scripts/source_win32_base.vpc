@@ -1,3 +1,8 @@
+// Settings for /analyze are in a separate .vpc file so that they can be
+// changed without triggering a full rebuild of non-analyze builds. On non-analyze
+// builds the analyze.vpc file will not be listed as a dependency.
+$Include "$SRCDIR\vpc_scripts\source_win32_analyze.vpc" [$ANALYZE]
+
 $Configuration
 {
 	$General
@@ -27,45 +32,23 @@ $Configuration
 		// warning C4316: object allocated on the heap may not be aligned 16
 		$DisableSpecificWarnings	"$BASE;4316" [$VS2013]
 
-		// When using /analyze (triggered with /define:ANALYZE on the vpc command line) we want to forcibly disable lots
-		// of warnings (also disabled in platform.h but not everybody includes that).
-		// See platform.h for the list of warnings with explanations.
-		// warning C6318: Ill-defined __try/__except: use of the constant EXCEPTION_CONTINUE_SEARCH -- bogus
-		// warning C6322: Empty _except block
-		// Set the stack size threshold to 100,000 to avoid noisy warnings on functions with modest stack usage
-		// Note that /analyze for VS 2010 only works with the 32-bit compiler, but for VS 2012 it works on 64-bit
-		// as well.
-		$DisableSpecificWarnings	"$BASE;6308;6255;6387;6309;6011;6211;6031;6326;6239;6285;6237;6235;6240;6323;6326;6335;6320;6250;6384;6318;6322" [$ANALYZE]
-		// See http://randomascii.wordpress.com/2011/10/04/analyzecommand-line-options/ for details on these options.
-		// /analyze:only may result in fewer warnings being reported, but the warnings it misses should show up in the regular build.
-		$AdditionalOptions	"$BASE /analyze /analyze:only /analyze:stacksize100000" [$ANALYZE]
-
-		// Specify /define:ALLOWSHADOWING to suppress variable shadowing warnings
-		$DisableSpecificWarnings	"$BASE;6244;6246" [$ANALYZE && $ALLOWSHADOWING]
-
-		// New warnings in VS 2012 that we want to ignore.
-		// warning C4005: 'DXGI_STATUS_OCCLUDED' : macro redefinition
-		// warning C6014: Leaking memory 'pThinkParams'. 
-		// warning C28159: Consider using 'GetTickCount64' instead of 'GetTickCount'. Reason: GetTickCount overflows roughly every 49 days.
-		// warning C28182: Dereferencing NULL pointer. 'pPropMesh' contains the same NULL value as '(CMesh *)=(pPropMesh)' did. 
-		// warning C28183: 'entropy->ac_count_ptrs[actbl]' could be '0', and is a copy of the value found in 'entropy->dc_count_ptrs[dctbl]':  this does not adhere to the specification for the function 'memset'. 
-		// warning C28197: Possibly leaking memory 'pInfo'.
-		// warning C28198: Possibly leaking memory 'kvFrame1' due to an exception.   Is a local catch block needed to clean up memory?
-		// warning C28204: 'QueryInterface' : Only one of this overload and the one at c:\program files (x86)\windows kits\8.0\include\um\unknwnbase.h(114) are annotated for _Param_(2): both or neither must be annotated.
-		// warning C28247: Model file annotation for function '_vsnprintf': annotation on _Param_(1)/SAL_post, 'RequiresZeroTermination' duplicates header file annotation 'SAL_nullTerminated'. Remove the duplicated annotations from the model file. (Header: c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(349).)
-		// warning C28251: Inconsistent annotation for 'WinMain': this instance has no annotations. See c:\program files (x86)\windows kits\8.0\include\um\winbase.h(2286).
-		// warning C28301: No annotations for first declaration of 'InitializeCriticalSection'. See d:\clients\tf3\staging\src\public\tier0\threadtools.h(1373).
-		// warning C28195: The function was declared as acquiring memory in 'return' and exited without doing so.
-		// warning C6340: Mismatch on sign: 'unsigned short' passed as parameter '6' when some signed type is required in call to 'V_snprintf'.
-		// This warning only applies to Windows XP in low-memory situations:
-		// warning C28125: The function 'InitializeCriticalSection' must be called from within a try\except block
-		// warning C28160: Error annotation: Calling VirtualFreeEx without the MEM_RELEASE flag frees memory but not address descriptors (VADs); results in address space leaks.
-		// warning C6248: Setting a SECURITY_DESCRIPTOR's DACL to NULL will result in an unprotected object.
-		// warning C6102: Using value from failed function call
-		$DisableSpecificWarnings	"$BASE;6014;28159;28182;28183;28197;28198;28204;28247;28251;28301;28195;6340;28125;28160;6248;6102" [$ANALYZE && ($VS2012 || $VS2013)]
+		// Having lots of warnings makes it harder to notice new, and possibly
+		// important warnings, both on buildbot and in the output window. Lots
+		// of warnings also makes it harder to skip through errors in the output
+		// window since F8 stops on both warnings and errors. The only way to
+		// keep the warning count down is to have warnings-as-errors.
+		// We will not be warning free on 64-bit for a while...
+		$TreatWarningsAsErrors				"Yes (/WX)" [!$ANALYZE && !$WIN64]
 
 		// Defines to differentiate 32 from 64 bit builds
 		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
 		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]
+
+		// /Gw is a VS 2013 option that puts global and static variables in individual sections so that the
+		// linker can discard unreferenced data. When building @client /dota with linker optimizations this
+		// reduces the client.dll size by about 1.14%. When linker optimizations are disabled this has no
+		// effect. This option does not show up in the IDE so we need to add it in $AdditionalOptions.
+		// http://blogs.msdn.com/b/vcblog/archive/2013/09/11/introducing-gw-compiler-switch.aspx
+		$AdditionalOptions	"$BASE /Gw" [$VS2013]
 	}
 }

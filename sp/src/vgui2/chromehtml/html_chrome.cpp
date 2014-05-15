@@ -2079,7 +2079,12 @@ void CClientHandler::OnLoadEnd(CefRefPtr<CefBrowser> browser,
 
 	{
 		CHTMLProtoBufMsg<CMsgFinishedRequest> cmd( eHTMLCommands_FinishedRequest );
-		cmd.Body().set_url( CStrAutoEncode( browser->GetMainFrame()->GetURL().c_str() ).ToString() );
+
+		if ( browser->GetMainFrame()->GetURL().size() > 0 )
+			cmd.Body().set_url( CStrAutoEncode( browser->GetMainFrame()->GetURL().c_str() ).ToString() );
+		else
+			cmd.Body().set_url( "" );
+
 		CefString frameName = browser->GetMainFrame()->GetName();
 		if ( !frameName.empty() )
 			cmd.Body().set_pagetitle( frameName.c_str() );
@@ -2221,6 +2226,9 @@ bool CClientHandler::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
 										  CefRefPtr<CefResponse> response,
 										  int loadFlags)
 {
+	if ( request->GetURL().size() == 0 )
+		return false;
+
 	CHTMLProtoBufMsg<CMsgLoadingResource> cmd( eHTMLCommands_LoadingResource );
 	cmd.Body().set_url( CStrAutoEncode( request->GetURL().c_str() ).ToString() );
 	DISPATCH_MESSAGE( eHTMLCommands_LoadingResource );
@@ -3022,42 +3030,43 @@ void CClientHandler::RequestScreenShot( const CHTMLProtoBufMsg<CMsgSavePageToJPE
 //-----------------------------------------------------------------------------
 void CClientHandler::SavePageToJPEGIfNeeded( CefRefPtr<CefBrowser> browser, const byte *pRGBA, int wide, int tall )
 {
-	if ( m_Snapshot.m_sURLSnapshot.IsValid() && wide && tall
-		&& m_Snapshot.m_sURLSnapshot == CStrAutoEncode( browser->GetMainFrame()->GetURL().c_str() ).ToString() )
+	if ( m_Snapshot.m_sURLSnapshot.IsValid() && wide && tall && ( browser->GetMainFrame()->GetURL().size() > 0 ) )
 	{
-		VPROF_BUDGET( "CClientHandler::SavePageToJPEGIfNeeded", VPROF_BUDGETGROUP_TENFOOT );
-
-		CUtlBuffer bufRGB;
-
-		bufRGB.Put( pRGBA, wide * tall *4 );
-		if ( !BConvertRGBAToRGB( bufRGB, wide, tall ) )
-			return;
-
-		BResizeImageRGB( bufRGB, wide, tall, m_Snapshot.m_nWide, m_Snapshot.m_nTall );
-		// input format is actually BGRA so now swizzle to rgb
-		byte *pBGR = (byte *)bufRGB.Base();
-		for ( int i = 0; i < m_Snapshot.m_nTall; i++ )
+		if ( m_Snapshot.m_sURLSnapshot == CStrAutoEncode( browser->GetMainFrame()->GetURL().c_str() ).ToString() )
 		{
-			for ( int j = 0; j < m_Snapshot.m_nWide; j++ )
+			VPROF_BUDGET( "CClientHandler::SavePageToJPEGIfNeeded", VPROF_BUDGETGROUP_TENFOOT );
+
+			CUtlBuffer bufRGB;
+
+			bufRGB.Put( pRGBA, wide * tall *4 );
+			if ( !BConvertRGBAToRGB( bufRGB, wide, tall ) )
+				return;
+
+			BResizeImageRGB( bufRGB, wide, tall, m_Snapshot.m_nWide, m_Snapshot.m_nTall );
+			// input format is actually BGRA so now swizzle to rgb
+			byte *pBGR = (byte *)bufRGB.Base();
+			for ( int i = 0; i < m_Snapshot.m_nTall; i++ )
 			{
-				char cR = pBGR[0];
-				pBGR[0] = pBGR[2];
-				pBGR[2] = cR;
-				pBGR += 3;
+				for ( int j = 0; j < m_Snapshot.m_nWide; j++ )
+				{
+					char cR = pBGR[0];
+					pBGR[0] = pBGR[2];
+					pBGR[2] = cR;
+					pBGR += 3;
+				}
 			}
-		}
 
-		if ( !ConvertRGBToJpeg( m_Snapshot.m_sFileNameSnapshot, k_ScreenshotQuality, m_Snapshot.m_nWide, m_Snapshot.m_nTall, bufRGB ) )
-			return;
+			if ( !ConvertRGBToJpeg( m_Snapshot.m_sFileNameSnapshot, k_ScreenshotQuality, m_Snapshot.m_nWide, m_Snapshot.m_nTall, bufRGB ) )
+				return;
 		
-		CHTMLProtoBufMsg<CMsgSavePageToJPEGResponse> cmd( eHTMLCommands_SavePageToJPEGResponse );
-		cmd.Body().set_url( m_Snapshot.m_sURLSnapshot );
-		cmd.Body().set_filename( m_Snapshot.m_sFileNameSnapshot );
-		DISPATCH_MESSAGE( eHTMLCommands_SavePageToJPEGResponse );		
+			CHTMLProtoBufMsg<CMsgSavePageToJPEGResponse> cmd( eHTMLCommands_SavePageToJPEGResponse );
+			cmd.Body().set_url( m_Snapshot.m_sURLSnapshot );
+			cmd.Body().set_filename( m_Snapshot.m_sFileNameSnapshot );
+			DISPATCH_MESSAGE( eHTMLCommands_SavePageToJPEGResponse );		
 
-		m_Snapshot.m_sURLSnapshot.Clear();
-		m_Snapshot.m_flRequestTimeout = 0.0f;
-
+			m_Snapshot.m_sURLSnapshot.Clear();
+			m_Snapshot.m_flRequestTimeout = 0.0f;
+		}
 	}
 }
 

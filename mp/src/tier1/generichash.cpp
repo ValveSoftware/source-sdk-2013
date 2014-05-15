@@ -364,7 +364,7 @@ uint32 MurmurHash2( const void * key, int len, uint32 seed )
 #define TOLOWERU( c ) ( ( uint32 ) ( ( ( c >= 'A' ) && ( c <= 'Z' ) )? c + 32 : c ) )
 uint32 MurmurHash2LowerCase( char const *pString, uint32 nSeed )
 {
-	int nLen = strlen( pString );
+	int nLen = ( int )strlen( pString );
 	char *p = ( char * ) stackalloc( nLen + 1 );
 	for( int i = 0; i < nLen ; i++ )
 	{

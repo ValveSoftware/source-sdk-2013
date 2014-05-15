@@ -31,28 +31,52 @@
 		int     result; \
 		va_list arg_ptr; \
 		bool bTruncated = false; \
-		static unsigned int scAsserted = 0; \
+		static int scAsserted = 0; \
 	\
 		va_start(arg_ptr, lastArg); \
-		result = Q_vsnprintfRet( (szBuf), nBufSize, (*(ppszFormat)), arg_ptr, &bTruncated ); \
+		result = V_vsnprintfRet( (szBuf), (nBufSize)-1, (*(ppszFormat)), arg_ptr, &bTruncated ); \
 		va_end(arg_ptr); \
 	\
+		(szBuf)[(nBufSize)-1] = 0; \
 		if ( bTruncated && !(bQuietTruncation) && scAsserted < 5 ) \
 		{ \
-			Assert( !bTruncated ); \
+			Warning( "FmtStrVSNPrintf truncated to %d without QUIET_TRUNCATION specified!\n", ( int )( nBufSize ) ); \
+			AssertMsg( 0, "FmtStrVSNPrintf truncated without QUIET_TRUNCATION specified!\n" ); \
 			scAsserted++; \
 		} \
 		m_nLength = nPrevLen + result; \
 	} \
 	while (0)
 
+// using macro to be compatable with GCC
+#define FmtStrVSNPrintfNoLengthFixup( szBuf, nBufSize, bQuietTruncation, ppszFormat, nPrevLen, lastArg ) \
+	do \
+	{ \
+		int     result; \
+		va_list arg_ptr; \
+		bool bTruncated = false; \
+		static int scAsserted = 0; \
+	\
+		va_start(arg_ptr, lastArg); \
+		result = V_vsnprintfRet( (szBuf), (nBufSize)-1, (*(ppszFormat)), arg_ptr, &bTruncated ); \
+		va_end(arg_ptr); \
+	\
+		(szBuf)[(nBufSize)-1] = 0; \
+		if ( bTruncated && !(bQuietTruncation) && scAsserted < 5 ) \
+		{ \
+			Warning( "FmtStrVSNPrintf truncated to %d without QUIET_TRUNCATION specified!\n", ( int )( nBufSize ) ); \
+			AssertMsg( 0, "FmtStrVSNPrintf truncated without QUIET_TRUNCATION specified!\n" ); \
+			scAsserted++; \
+		} \
+	} \
+	while (0)
 
 //-----------------------------------------------------------------------------
 //
 // Purpose: String formatter with specified size
 //
 
-template <int SIZE_BUF>
+template <int SIZE_BUF, bool QUIET_TRUNCATION = false >
 class CFmtStrN
 {
 public:
@@ -80,14 +104,36 @@ public:
 	// Explicit reformat
 	const char *sprintf(PRINTF_FORMAT_STRING const char *pszFormat, ...) FMTFUNCTION( 2, 3 )
 	{
-		FmtStrVSNPrintf( m_szBuf, SIZE_BUF, m_bQuietTruncation, &pszFormat, 0, pszFormat ); 
+		InitQuietTruncation();
+		FmtStrVSNPrintf(m_szBuf, SIZE_BUF, m_bQuietTruncation, &pszFormat, 0, pszFormat ); 
+		return m_szBuf;
+	}
+
+	// Use this for va_list formatting
+	const char *sprintf_argv(const char *pszFormat, va_list arg_ptr)
+	{
+		int result; 
+		bool bTruncated = false; 
+		static int s_nWarned = 0; 
+
+		InitQuietTruncation();
+		result = V_vsnprintfRet( m_szBuf, SIZE_BUF - 1, pszFormat, arg_ptr, &bTruncated );
+		m_szBuf[SIZE_BUF - 1] = 0; 
+		if ( bTruncated && !m_bQuietTruncation && ( s_nWarned < 5 ) ) 
+		{ 
+			Warning( "CFmtStr truncated to %d without QUIET_TRUNCATION specified!\n", SIZE_BUF ); 
+			AssertMsg( 0, "CFmtStr truncated without QUIET_TRUNCATION specified!\n" );
+			s_nWarned++; 
+		} 
+		m_nLength = V_strlen( m_szBuf );
 		return m_szBuf;
 	}
 
 	// Use this for pass-through formatting
 	void VSprintf(const char **ppszFormat, ...)
 	{
-		FmtStrVSNPrintf( m_szBuf, SIZE_BUF, m_bQuietTruncation, ppszFormat, 0, ppszFormat);
+		InitQuietTruncation();
+		FmtStrVSNPrintf( m_szBuf, SIZE_BUF, m_bQuietTruncation, ppszFormat, 0, ppszFormat );
 	}
 
 	// Compatible API with CUtlString for converting to const char*
@@ -97,14 +143,17 @@ public:
 	operator const char *() const				{ return m_szBuf; }
 	char *Access()								{ return m_szBuf; }
 
-	CFmtStrN<SIZE_BUF> & operator=( const char *pchValue ) 
+	// Access template argument
+	static inline int GetMaxLength() { return SIZE_BUF-1; }
+
+	CFmtStrN<SIZE_BUF,QUIET_TRUNCATION> & operator=( const char *pchValue ) 
 	{ 
 		V_strncpy( m_szBuf, pchValue, SIZE_BUF );
 		m_nLength = V_strlen( m_szBuf );
 		return *this; 
 	}
 
-	CFmtStrN<SIZE_BUF> & operator+=( const char *pchValue ) 
+	CFmtStrN<SIZE_BUF,QUIET_TRUNCATION> & operator+=( const char *pchValue ) 
 	{ 
 		Append( pchValue ); 
 		return *this; 
@@ -112,13 +161,19 @@ public:
 
 	int Length() const							{ return m_nLength; }
 
+	void SetLength( int nLength )
+	{
+		m_nLength = Min( nLength, SIZE_BUF - 1 );
+		m_szBuf[m_nLength] = '\0';
+	}
+
 	void Clear()								
 	{ 
 		m_szBuf[0] = 0; 
 		m_nLength = 0; 
 	}
 
-	void AppendFormat(PRINTF_FORMAT_STRING const char *pchFormat, ... ) FMTFUNCTION( 2, 3 )
+	void AppendFormat( PRINTF_FORMAT_STRING const char *pchFormat, ... ) 
 	{ 
 		char *pchEnd = m_szBuf + m_nLength; 
 		FmtStrVSNPrintf( pchEnd, SIZE_BUF - m_nLength, m_bQuietTruncation, &pchFormat, m_nLength, pchFormat ); 
@@ -163,14 +218,12 @@ public:
 
 	void AppendIndent( uint32 unCount, char chIndent = '\t' );
 
+	void SetQuietTruncation( bool bQuiet ) { m_bQuietTruncation = bQuiet; }
+
 protected:
 	virtual void InitQuietTruncation()
 	{
-#ifdef _DEBUG
-		m_bQuietTruncation = false; 
-#else
-		m_bQuietTruncation = true;	// Force quiet for release builds
-#endif
+		m_bQuietTruncation = QUIET_TRUNCATION; 
 	}
 
 	bool m_bQuietTruncation;
@@ -183,16 +236,14 @@ private:
 
 // Version which will not assert if strings are truncated
 
-template <int SIZE_BUF>
-class CFmtStrQuietTruncationN : public CFmtStrN<SIZE_BUF>
+template < int SIZE_BUF >
+class CFmtStrQuietTruncationN : public CFmtStrN<SIZE_BUF, true >
 {
-protected:
-	virtual void InitQuietTruncation() { this->m_bQuietTruncation = true; }
 };
 
 
-template< int SIZE_BUF >
-void CFmtStrN<SIZE_BUF>::AppendIndent( uint32 unCount, char chIndent )
+template< int SIZE_BUF, bool QUIET_TRUNCATION >
+void CFmtStrN< SIZE_BUF, QUIET_TRUNCATION >::AppendIndent( uint32 unCount, char chIndent )
 {
 	Assert( Length() + unCount < SIZE_BUF );
 	if( Length() + unCount >= SIZE_BUF )
@@ -204,8 +255,8 @@ void CFmtStrN<SIZE_BUF>::AppendIndent( uint32 unCount, char chIndent )
 	m_szBuf[ m_nLength ] = '\0';
 }
 
-template< int SIZE_BUF >
-void CFmtStrN<SIZE_BUF>::AppendFormatV( const char *pchFormat, va_list args )
+template< int SIZE_BUF, bool QUIET_TRUNCATION >
+void CFmtStrN< SIZE_BUF, QUIET_TRUNCATION >::AppendFormatV( const char *pchFormat, va_list args )
 {
 	int cubPrinted = V_vsnprintf( m_szBuf+Length(), SIZE_BUF - Length(), pchFormat, args );
 	m_nLength += cubPrinted;

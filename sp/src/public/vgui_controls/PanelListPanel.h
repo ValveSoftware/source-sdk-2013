@@ -24,8 +24,8 @@ namespace vgui
 
 //-----------------------------------------------------------------------------
 // Purpose: A list of variable height child panels
-//  each list item consists of a label-panel pair. Height of the item is
-// determined from the lable.
+// each list item consists of a label-panel pair. Height of the item is
+// determined from the label.
 //-----------------------------------------------------------------------------
 class PanelListPanel : public EditablePanel
 {
@@ -83,6 +83,8 @@ public:
 		return &m_SortedItems;
 	}
 
+	int	ComputeVPixelsNeeded();
+
 protected:
 	// overrides
 	virtual void OnSizeChanged(int wide, int tall);
@@ -92,7 +94,7 @@ protected:
 	virtual void OnMouseWheeled(int delta);
 
 private:
-	int	ComputeVPixelsNeeded();
+	
 
 	enum { DEFAULT_HEIGHT = 24, PANELBUFFER = 5 };
 

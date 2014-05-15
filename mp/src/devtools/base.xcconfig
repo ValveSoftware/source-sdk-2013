@@ -25,7 +25,7 @@ GCC_REUSE_STRINGS = YES
 // following line to the xcconfig:
 // CLANG_CXX_LIBRARY = libc++
 GCC_PREPROCESSOR_DEFINITIONS = _DLL_EXT=.dylib NO_MALLOC_OVERRIDE=1 VPROF_LEVEL=1 NO_HOOK_MALLOC=1 PNG_NO_PEDANTIC_WARNINGS CPP11_NO_LIBCXX
-BASE_CFLAGS= -Usprintf -Ustrncpy -UPROTECTED_THINGS_ENABLE
+BASE_CFLAGS= -Usprintf -Ustrncpy -UPROTECTED_THINGS_ENABLE -ftemplate-depth=512
 
 GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO
 WARNING_CFLAGS = -Wno-deprecated-writable-strings -Wno-switch-enum -Wno-switch -Wno-unused-value -Wno-parentheses -Wno-logical-op-parentheses -Wno-c++11-narrowing
@@ -41,6 +41,6 @@ CLANG_CXX_LANGUAGE_STANDARD = gnu++11
 // gets into the header map, so sacrifice speed for corectness.
 USE_HEADERMAP = NO
 
-SDKROOT = macosx10.7
+SDKROOT = macosx10.9
 MACOSX_DEPLOYMENT_TARGET = 10.5
 GCC_FAST_MATH = YES

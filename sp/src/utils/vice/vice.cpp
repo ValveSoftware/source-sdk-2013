@@ -49,7 +49,7 @@ static void Pause( void )
 
 static void Exit(const char *msg)
 {
-	fprintf( stderr, msg );
+	fprintf( stderr, "%s", msg );
 	Pause();
 	exit( -1 );
 }

@@ -141,6 +141,7 @@ private:
 	void		ControllerMove ( float frametime, CUserCmd *cmd );
 	void		JoyStickMove ( float frametime, CUserCmd *cmd );
 	float		ScaleAxisValue( const float axisValue, const float axisThreshold );
+	virtual float JoyStickAdjustYaw( float flSpeed ) { return flSpeed; }
 
 	// Call this to get the cursor position. The call will be logged in the VCR file if there is one.
 	void		GetMousePos(int &x, int &y);

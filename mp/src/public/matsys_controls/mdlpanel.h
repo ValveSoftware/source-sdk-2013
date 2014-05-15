@@ -130,6 +130,7 @@ private:
 	virtual void OnPaint3D();
 	virtual void PrePaint3D( IMatRenderContext *pRenderContext ) { };
 	virtual void PostPaint3D( IMatRenderContext *pRenderContext ) { };
+	virtual void RenderingRootModel( IMatRenderContext *pRenderContext, CStudioHdr *pStudioHdr, MDLHandle_t mdlHandle, matrix3x4_t *pWorldMatrix ) { };
 	virtual void RenderingMergedModel( IMatRenderContext *pRenderContext, CStudioHdr *pStudioHdr, MDLHandle_t mdlHandle, matrix3x4_t *pWorldMatrix ) { };
 
 	void OnMouseDoublePressed( vgui::MouseCode code );

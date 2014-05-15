@@ -51,7 +51,7 @@
 
 // BUGBUG: Reconcile with or derive this from the engine's internal definition!
 // FIXME: I added an extra bit because I needed to make it signed
-#define SP_MODEL_INDEX_BITS			12
+#define SP_MODEL_INDEX_BITS			13
 
 // How many bits to use to encode an edict.
 #define	MAX_EDICT_BITS				11			// # of bits needed to represent max edicts

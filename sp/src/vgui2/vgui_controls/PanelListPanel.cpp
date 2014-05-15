@@ -24,6 +24,8 @@
 
 using namespace vgui;
 
+DECLARE_BUILD_FACTORY( PanelListPanel );
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -135,7 +137,7 @@ Panel *PanelListPanel::GetCellRenderer( int row )
 //			data->GetName() is used to uniquely identify an item
 //			data sub items are matched against column header name to be used in the table
 //-----------------------------------------------------------------------------
-int PanelListPanel::AddItem( Panel *labelPanel, Panel *panel)
+int PanelListPanel::AddItem( Panel *labelPanel, Panel *panel )
 {
 	Assert(panel);
 

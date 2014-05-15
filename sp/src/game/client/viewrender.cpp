@@ -2248,7 +2248,7 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		// let vgui know where to render stuff for the forced-to-framebuffer panels
 		if( UseVR() )
 		{
-			vgui::surface()->SetFullscreenViewportAndRenderTarget( viewFramebufferX, viewFramebufferY, viewFramebufferWidth, viewFramebufferHeight, saveRenderTarget );
+			g_pMatSystemSurface->SetFullscreenViewportAndRenderTarget( viewFramebufferX, viewFramebufferY, viewFramebufferWidth, viewFramebufferHeight, saveRenderTarget );
 		}
 
 		// clear the render target if we need to
@@ -3885,7 +3885,7 @@ static void DrawOpaqueRenderables_DrawStaticProps( CClientRenderablesList::CEntr
 	for( CClientRenderablesList::CEntry *itEntity = pEntitiesBegin; itEntity < pEntitiesEnd; ++ itEntity )
 	{
 		if ( itEntity->m_pRenderable )
-			NULL;
+			/**/;
 		else
 			continue;
 
@@ -3935,7 +3935,7 @@ void CRendering3dView::DrawOpaqueRenderables( ERenderDepthMode DepthMode )
 	RopeManager()->ResetRenderCache();
 	g_pParticleSystemMgr->ResetRenderCache();
 
-	bool const bDrawopaquestaticpropslast = r_drawopaquestaticpropslast.GetBool();
+	//bool const bDrawopaquestaticpropslast = r_drawopaquestaticpropslast.GetBool();
 
 	
 	//
@@ -4101,16 +4101,20 @@ void CRendering3dView::DrawOpaqueRenderables( ERenderDepthMode DepthMode )
 
 		for ( int bucket = 0; bucket < RENDER_GROUP_CFG_NUM_OPAQUE_ENT_BUCKETS; ++ bucket )
 		{
-			if ( bDrawopaquestaticpropslast )
+			// PVS-Studio pointed out that the two sides of the if/else were identical. Fixing
+			// this long-broken behavior would change rendering, so I fixed the code but
+			// commented out the new behavior. Uncomment the if statement and else block
+			// when needed.
+			//if ( bDrawopaquestaticpropslast )
 			{
 				DrawOpaqueRenderables_Range( pEnts[bucket][0], pEnts[bucket][1], DepthMode );
 				DrawOpaqueRenderables_DrawStaticProps( pProps[bucket][0], pProps[bucket][1], DepthMode );
 			}
-			else
+			/*else
 			{
-				DrawOpaqueRenderables_Range( pEnts[bucket][0], pEnts[bucket][1], DepthMode );
 				DrawOpaqueRenderables_DrawStaticProps( pProps[bucket][0], pProps[bucket][1], DepthMode );
-			}
+				DrawOpaqueRenderables_Range( pEnts[bucket][0], pEnts[bucket][1], DepthMode );
+			}*/
 		}
 
 

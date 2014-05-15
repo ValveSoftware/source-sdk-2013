@@ -82,7 +82,7 @@ $Configuration "Release"
 
 		// Preprocessor
 		$PreprocessorDefinitions			"$BASE;WIN32;_WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
-		$PreprocessorDefinitions			"$BASE;RELEASE_ASSERTS" [$RELEASEASSERTS]
+		$PreprocessorDefinitions			"$BASE;RELEASEASSERTS" [$RELEASEASSERTS]
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -143,7 +143,7 @@ $Configuration "Release"
 
 		$AdditionalOptions					"/Zm200"
 		// Enable extra debugging information.
-		$AdditionalOptions					"$BASE /d2Zi+"  [$VS2010]
+		$AdditionalOptions					"$BASE /d2Zi+"
 		$AdditionalOptions					"$BASE /Oy-"	[$NOFPO]
 	}
 

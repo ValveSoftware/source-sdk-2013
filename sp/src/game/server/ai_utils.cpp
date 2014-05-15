@@ -46,7 +46,7 @@ END_DATADESC()
 CAI_ShotRegulator::CAI_ShotRegulator() : m_nMinBurstShots(1), m_nMaxBurstShots(1)
 {
 	m_flMinRestInterval = 0.0f;
-	m_flMinRestInterval = 0.0f;
+	m_flMaxRestInterval = 0.0f;
 	m_flMinBurstInterval = 0.0f;
 	m_flMaxBurstInterval = 0.0f;
 	m_flNextShotTime = -1;

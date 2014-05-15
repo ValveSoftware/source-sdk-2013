@@ -931,7 +931,8 @@ void CPrediction::SetIdealPitch ( C_BasePlayer *player, const Vector& origin, co
 	Vector	top, bottom;
 	float	floor_height[MAX_FORWARD];
 	int		i, j;
-	int		step, dir, steps;
+	float	step, dir;
+	int		steps;
 	trace_t tr;
 
 	if ( player->GetGroundEntity() == NULL )

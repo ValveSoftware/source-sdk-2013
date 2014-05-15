@@ -86,7 +86,6 @@ void CBuyMenu::ShowPanel(bool bShow)
 void CBuyMenu::Update()
 {
 	//Don't need to do anything, but do need to implement this function as base is pure virtual
-	NULL;
 }
 void CBuyMenu::OnClose()
 {

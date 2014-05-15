@@ -4075,7 +4075,8 @@ ZRESULT TUnzip::Find(const TCHAR *name, bool ic, int *index, ZIPENTRY *ze)
 		return ZR_NOTFOUND;
 	}
 	if (currentfile!=-1) 
-		unzCloseCurrentFile(uf); currentfile=-1;
+		unzCloseCurrentFile(uf);
+	currentfile=-1;
 	int i = (int)uf->num_file;
 	if (index!=NULL) 
 		*index=i;

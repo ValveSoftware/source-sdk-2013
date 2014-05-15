@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//====== Copyright (c) 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: interface to user account information in Steam
 //
@@ -97,7 +97,7 @@ public:
 	// levels of speech are detected.
 	// nUncompressedVoiceDesiredSampleRate is necessary to know the number of bytes to return in pcbUncompressed - can be set to 0 if you don't need uncompressed (the usual case)
 	// If you're upgrading from an older Steamworks API, you'll want to pass in 11025 to nUncompressedVoiceDesiredSampleRate
-	virtual EVoiceResult GetAvailableVoice(uint32 *pcbCompressed, uint32 *pcbUncompressed, uint32 nUncompressedVoiceDesiredSampleRate) = 0;
+	virtual EVoiceResult GetAvailableVoice( uint32 *pcbCompressed, uint32 *pcbUncompressed, uint32 nUncompressedVoiceDesiredSampleRate ) = 0;
 
 	// Gets the latest voice data from the microphone. Compressed data is an arbitrary format, and is meant to be handed back to 
 	// DecompressVoice() for playback later as a binary blob. Uncompressed data is 16-bit, signed integer, 11025Hz PCM format.
@@ -158,6 +158,14 @@ public:
 	// retrieve a finished ticket
 	virtual bool GetEncryptedAppTicket( void *pTicket, int cbMaxTicket, uint32 *pcbTicket ) = 0;
 
+	// Trading Card badges data access
+	// if you only have one set of cards, the series will be 1
+	// the user has can have two different badges for a series; the regular (max level 5) and the foil (max level 1)
+	virtual int GetGameBadgeLevel( int nSeries, bool bFoil ) = 0;
+
+	// gets the Steam Level of the user, as shown on their profile
+	virtual int GetPlayerSteamLevel() = 0;
+
 #ifdef _PS3
 	// Initiates PS3 Logon request using just PSN ticket.  
 	//
@@ -197,7 +205,7 @@ public:
 
 };
 
-#define STEAMUSER_INTERFACE_VERSION "SteamUser016"
+#define STEAMUSER_INTERFACE_VERSION "SteamUser017"
 
 
 // callbacks
@@ -287,6 +295,7 @@ struct ValidateAuthTicketResponse_t
 	enum { k_iCallback = k_iSteamUserCallbacks + 43 };
 	CSteamID m_SteamID;
 	EAuthSessionResponse m_eAuthSessionResponse;
+	CSteamID m_OwnerSteamID; // different from m_SteamID if borrowed
 };
 
 

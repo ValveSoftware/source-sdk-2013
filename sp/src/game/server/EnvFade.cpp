@@ -95,7 +95,7 @@ void CEnvFade::InputFade( inputdata_t &inputdata )
 
 	if ( m_spawnflags & SF_FADE_ONLYONE )
 	{
-		if ( inputdata.pActivator->IsNetClient() )
+		if ( inputdata.pActivator && inputdata.pActivator->IsNetClient() )
 		{
 			UTIL_ScreenFade( inputdata.pActivator, m_clrRender, Duration(), HoldTime(), fadeFlags );
 		}

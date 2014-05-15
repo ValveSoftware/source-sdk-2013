@@ -166,7 +166,6 @@ $Configuration "Debug"
 		$ManifestFile
 		$AdditionalManifestDependencies
 		$AllowIsolation
-		//$UACExecutionLevel				[$VS2010]
 
 		// Debugging
 		$GenerateDebugInfo					"Yes (/DEBUG)"

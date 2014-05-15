@@ -23,8 +23,7 @@ $Configuration "Debug"
 	$General	
 	{
 		// General
-		$OutputDirectory					".\Debug$_SUBDIRSUFFIX"		[!$VS2010]
-		$OutputDirectory					"$OUTLIBDIR"				[$VS2010]
+		$OutputDirectory					"$OUTLIBDIR"
 		$IntermediateDirectory				".\Debug$_SUBDIRSUFFIX"
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile

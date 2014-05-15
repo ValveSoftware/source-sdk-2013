@@ -200,6 +200,7 @@ public:
 	void AddVCDSequenceToGestureSlot( int iGestureSlot, int iGestureSequence, float flCycle = 0.0f, bool bAutoKill = true );
 	CAnimationLayer* GetGestureSlotLayer( int iGestureSlot );
 	bool	IsGestureSlotActive( int iGestureSlot );
+	bool	VerifyAnimLayerInSlot( int iGestureSlot );
 
 	// Feet.
 	bool	m_bForceAimYaw;

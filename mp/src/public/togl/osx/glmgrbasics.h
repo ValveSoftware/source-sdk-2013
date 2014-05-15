@@ -17,7 +17,7 @@
 #include <OpenGL/CGLTypes.h>
 #include <OpenGL/CGLRenderers.h>
 #include <OpenGL/CGLCurrent.h>
-#include <OpenGL/CGLProfiler.h>
+//#include <OpenGL/CGLProfiler.h>
 //#include <ApplicationServices/ApplicationServices.h>
 #elif defined(LINUX)
 #include <GL/gl.h>
@@ -112,8 +112,8 @@ void	GLMEndPIXEvent( void );
 
 //===============================================================================
 // knob twiddling
-float	GLMKnob( char *knobname, float *setvalue );	// Pass NULL to not-set the knob value
-float	GLMKnobToggle( char *knobname );
+//float	GLMKnob( char *knobname, float *setvalue );	// Pass NULL to not-set the knob value
+//float	GLMKnobToggle( char *knobname );
 
 //===============================================================================
 // other stuff

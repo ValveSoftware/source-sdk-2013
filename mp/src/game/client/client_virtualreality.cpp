@@ -21,6 +21,7 @@
 #include "vgui_controls/Controls.h"
 #include "tier0/vprof_telemetry.h"
 #include <time.h>
+#include "steam/steam_api.h"
 
 const char *COM_GetModDirectory(); // return the mod dir (rather than the complete -game param, which can be a path)
 
@@ -259,6 +260,8 @@ CClientVirtualReality::CClientVirtualReality()
 
 	m_rtLastMotionSample = 0;
 	m_bMotionUpdated = false;
+
+	m_bForceVRMode = false; 
 
 #if defined( USE_SDL )
     m_nNonVRSDLDisplayIndex = 0;
@@ -1363,28 +1366,32 @@ void CClientVirtualReality::Activate()
 	if( !g_pSourceVR )
 		return;
 
-	// see if VR mode is even enabled
-	if( materials->GetCurrentConfigForVideoCard().m_nVRModeAdapter == -1 )
+	// These checks don't apply if we're in VR mode because Steam said so.
+	if ( !m_bForceVRMode )
 	{
-		Warning( "Enable VR mode in the video options before trying to use it.\n" );
-		return;
-	}
+		// see if VR mode is even enabled
+		if ( materials->GetCurrentConfigForVideoCard().m_nVRModeAdapter == -1 )
+		{
+			Warning( "Enable VR mode in the video options before trying to use it.\n" );
+			return;
+		}
 
-	// See if we have an actual adapter
-	int32 nVRModeAdapter = g_pSourceVR->GetVRModeAdapter();
-	if( nVRModeAdapter == -1 )
-	{
-		Warning( "Unable to get VRMode adapter from OpenVR. VR mode cannot be enabled. Try restarting and then enabling VR again.\n" );
-		return;
-	}
+		// See if we have an actual adapter
+		int32 nVRModeAdapter = g_pSourceVR->GetVRModeAdapter();
+		if ( nVRModeAdapter == -1 )
+		{
+			Warning( "Unable to get VRMode adapter from OpenVR. VR mode cannot be enabled. Try restarting and then enabling VR again.\n" );
+			return;
+		}
 
-	// we can only activate if we've got a VR device
-	if( materials->GetCurrentConfigForVideoCard().m_nVRModeAdapter != nVRModeAdapter )
-	{
-		Warning( "VR Mode expects adapter %d which is different from %d which we are currently using. Try restarting and enabling VR mode again.\n",
-			nVRModeAdapter, materials->GetCurrentConfigForVideoCard().m_nVRModeAdapter );
-		engine->ExecuteClientCmd( "mat_enable_vrmode 0\n" );
-		return;
+		// we can only activate if we've got a VR device
+		if ( materials->GetCurrentConfigForVideoCard().m_nVRModeAdapter != nVRModeAdapter )
+		{
+			Warning( "VR Mode expects adapter %d which is different from %d which we are currently using. Try restarting and enabling VR mode again.\n",
+				nVRModeAdapter, materials->GetCurrentConfigForVideoCard().m_nVRModeAdapter );
+			engine->ExecuteClientCmd( "mat_enable_vrmode 0\n" );
+			return;
+		}
 	}
 
 
@@ -1429,18 +1436,22 @@ void CClientVirtualReality::Activate()
 	int nViewportWidth, nViewportHeight;
 
 	g_pSourceVR->GetViewportBounds( ISourceVirtualReality::VREye_Left, NULL, NULL, &nViewportWidth, &nViewportHeight );
-	vgui::surface()->SetFullscreenViewportAndRenderTarget( 0, 0, nViewportWidth, nViewportHeight, g_pSourceVR->GetRenderTarget( ISourceVirtualReality::VREye_Left, ISourceVirtualReality::RT_Color ) );
+	g_pMatSystemSurface->SetFullscreenViewportAndRenderTarget( 0, 0, nViewportWidth, nViewportHeight, g_pSourceVR->GetRenderTarget( ISourceVirtualReality::VREye_Left, ISourceVirtualReality::RT_Color ) );
 
 	vgui::ivgui()->SetVRMode( true );
 
-	VRRect_t rect;
-	if( g_pSourceVR->GetDisplayBounds( &rect ) )
+	// we can skip this extra mode change if we've always been in VR mode
+	if ( !m_bForceVRMode )
 	{
+		VRRect_t rect;
+		if ( g_pSourceVR->GetDisplayBounds( &rect ) )
+		{
 
-		// set mode
-		char szCmd[ 256 ];
-		Q_snprintf( szCmd, sizeof( szCmd ), "mat_setvideomode %i %i %i\n", rect.nWidth, rect.nHeight, vr_force_windowed.GetBool()? 1 : 0 );
-		engine->ClientCmd_Unrestricted( szCmd );
+			// set mode
+			char szCmd[256];
+			Q_snprintf( szCmd, sizeof(szCmd), "mat_setvideomode %i %i %i\n", rect.nWidth, rect.nHeight, vr_force_windowed.GetBool() ? 1 : 0 );
+			engine->ClientCmd_Unrestricted( szCmd );
+		}
 	}
 }
 
@@ -1455,7 +1466,7 @@ void CClientVirtualReality::Deactivate()
 
 	g_pMatSystemSurface->ForceScreenSizeOverride(false, 0, 0 );
 	g_pMaterialSystem->GetRenderContext()->Viewport( 0, 0, m_nNonVRWidth, m_nNonVRHeight );
-	vgui::surface()->SetFullscreenViewportAndRenderTarget( 0, 0, m_nNonVRWidth, m_nNonVRHeight, NULL );
+	g_pMatSystemSurface->SetFullscreenViewportAndRenderTarget( 0, 0, m_nNonVRWidth, m_nNonVRHeight, NULL );
 
     static ConVarRef cl_software_cursor( "cl_software_cursor" );
     vgui::surface()->SetSoftwareCursor( cl_software_cursor.GetBool() );
@@ -1499,7 +1510,10 @@ void CClientVirtualReality::Deactivate()
 // Called when startup is complete
 void CClientVirtualReality::StartupComplete()
 {
-	if( vr_activate_default.GetBool() )
+	if ( g_pSourceVR )
+		m_bForceVRMode = g_pSourceVR->ShouldForceVRMode();
+
+	if ( vr_activate_default.GetBool( ) || m_bForceVRMode )
 		Activate();
 }
 

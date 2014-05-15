@@ -846,6 +846,8 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	{
 		angle = m_flPreviousJoystickYaw * joy_yawsensitivity.GetFloat() * aspeed * 180.0;
 	}
+
+	angle = JoyStickAdjustYaw( angle );
 	viewangles[YAW] += angle;
 	cmd->mousedx = angle;
 

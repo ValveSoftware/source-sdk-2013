@@ -150,7 +150,9 @@ public:
 	// ----------------------------------------------------------------------
 	virtual bool Activate() = 0;
 	virtual void Deactivate() = 0;
-
+	
+	virtual bool ShouldForceVRMode() = 0;
+	virtual void SetShouldForceVRMode() = 0;
 
 };
 

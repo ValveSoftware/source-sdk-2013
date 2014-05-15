@@ -142,7 +142,7 @@ $Configuration "Release"
 		$ErrorReporting							"Prompt Immediately (/errorReport:prompt)"
 
 		// Enable extra debugging information.
-		$AdditionalOptions						"$BASE /d2Zi+"  [$VS2010]
+		$AdditionalOptions						"$BASE /d2Zi+"
 		// Command Line
 		$AdditionalOptions						"$BASE /Oy-"	[$NOFPO]
 	}
@@ -264,7 +264,7 @@ $Configuration "Release"
 		$UseFAT32WorkAround
 
 		// Input And Output
-		$AdditionalManifestFiles			"$SRCDIR\public\windows_default.manifest" [$VS2010 && !$SOURCESDK]
+		$AdditionalManifestFiles			"$SRCDIR\public\windows_default.manifest" [!$SOURCESDK]
 		$InputResourceManifests
 		$EmbedManifest
 		$OutputManifestFile

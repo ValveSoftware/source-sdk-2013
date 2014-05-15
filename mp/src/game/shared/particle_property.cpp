@@ -200,8 +200,23 @@ void CParticleProperty::AddControlPoint( int iEffectIndex, int iPoint, C_BaseEnt
 	ParticleEffectList_t *pEffect = &m_ParticleEffects[iEffectIndex];
 	Assert( pEffect->pControlPoints.Count() < MAX_PARTICLE_CONTROL_POINTS );
 
-	int iIndex = pEffect->pControlPoints.AddToTail();
-	ParticleControlPoint_t *pNewPoint = &pEffect->pControlPoints[iIndex];
+	// If the control point is already used, override it
+	ParticleControlPoint_t *pNewPoint = NULL;
+	int iIndex = iPoint;
+	FOR_EACH_VEC( pEffect->pControlPoints, i )
+	{
+		if ( pEffect->pControlPoints[i].iControlPoint == iPoint )
+		{
+			pNewPoint = &pEffect->pControlPoints[i];
+		}
+	}
+
+	if ( !pNewPoint )
+	{
+		iIndex = pEffect->pControlPoints.AddToTail();
+		pNewPoint = &pEffect->pControlPoints[iIndex];
+	}
+	
 	pNewPoint->iControlPoint = iPoint;
 	pNewPoint->hEntity = pEntity;
 	pNewPoint->iAttachType = iAttachType;
@@ -553,7 +568,7 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 		if ( pAnimating )
 		{
 			int bUseHeadOrigin = 0;
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pPoint->hEntity.Get(), bUseHeadOrigin, particle_effect_use_head_origin );
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bUseHeadOrigin, particle_effect_use_head_origin );
 			if ( bUseHeadOrigin > 0 )
 			{
 				int iBone = Studio_BoneIndexByName( pAnimating->GetModelPtr(), "bip_head" );
@@ -565,15 +580,17 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 						iBone = Studio_BoneIndexByName( pAnimating->GetModelPtr(), "prp_hat" );
 					}
 				}
-				if ( iBone >= 0 )
+				if ( iBone < 0 )
 				{
-					bUsingHeadOrigin = true;
-					const matrix3x4_t headBone = pAnimating->GetBone( iBone );
-					MatrixVectors( headBone, &vecForward, &vecRight, &vecUp );
-					MatrixPosition( headBone, vecOrigin );
-
-					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPoint->hEntity.Get(), flOffset, particle_effect_vertical_offset );
+					iBone = 0;
 				}
+
+				bUsingHeadOrigin = true;
+				const matrix3x4_t headBone = pAnimating->GetBone( iBone );
+				MatrixVectors( headBone, &vecForward, &vecRight, &vecUp );
+				MatrixPosition( headBone, vecOrigin );
+
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pAnimating, flOffset, particle_effect_vertical_offset );	
 			}
 		}
 	}

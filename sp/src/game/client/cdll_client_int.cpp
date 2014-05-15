@@ -1717,7 +1717,11 @@ void CHLClient::LevelShutdown( void )
 
 	messagechars->Clear();
 
+#ifndef TF_CLIENT_DLL
+	// don't want to do this for TF2 because we have particle systems in our
+	// character loadout screen that can be viewed when we're not connected to a server
 	g_pParticleSystemMgr->UncacheAllParticleSystems();
+#endif
 	UncacheAllMaterials();
 
 #ifdef _XBOX

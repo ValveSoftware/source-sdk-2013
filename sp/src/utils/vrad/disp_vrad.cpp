@@ -46,7 +46,7 @@ int FindNeighborCornerVert( CCoreDispInfo *pDisp, const Vector &vTest )
 }
 
 
-int GetAllNeighbors( const CCoreDispInfo *pDisp, int iNeighbors[512] )
+int GetAllNeighbors( const CCoreDispInfo *pDisp, int (&iNeighbors)[512] )
 {
 	int nNeighbors = 0;
 
@@ -57,7 +57,7 @@ int GetAllNeighbors( const CCoreDispInfo *pDisp, int iNeighbors[512] )
 
 		for ( int i=0; i < pCorner->m_nNeighbors; i++ )
 		{
-			if ( nNeighbors < _ARRAYSIZE( iNeighbors ) )
+			if ( nNeighbors < ARRAYSIZE( iNeighbors ) )
 				iNeighbors[nNeighbors++] = pCorner->m_Neighbors[i];
 		}
 	}

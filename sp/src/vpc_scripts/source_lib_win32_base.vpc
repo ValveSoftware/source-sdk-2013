@@ -22,7 +22,7 @@ $IgnoreRedundancyWarning	"ON"
 // Common Configuration
 $Configuration
 {
-	$General	[$VS2010]
+	$General
 	{
 		$TargetName	"$OUTLIBNAME"
 	}

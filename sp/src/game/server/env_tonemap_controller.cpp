@@ -169,7 +169,7 @@ void CEnvTonemapController::InputSetBloomScaleRange( inputdata_t &inputdata )
 		return;
 	}
 	m_flCustomBloomScale=bloom_max;
-	m_flCustomBloomScale=bloom_min;
+	m_flCustomBloomScaleMinimum=bloom_min;
 }
 
 //-----------------------------------------------------------------------------

@@ -27,10 +27,7 @@ $Configuration "Release"
 	$General
 	{
 		// General
-		$OutputDirectory					".\Release$_SUBDIRSUFFIX"		[!$VS2010 && !$RETAIL && !$PROFILE]
-		$OutputDirectory					".\Retail$_SUBDIRSUFFIX"		[!$VS2010 && $RETAIL]
-		$OutputDirectory					".\Profile$_SUBDIRSUFFIX"		[!$VS2010 && !$RETAIL && $PROFILE]
-		$OutputDirectory					"$OUTLIBDIR"					[$VS2010]
+		$OutputDirectory					"$OUTLIBDIR"
 		$IntermediateDirectory				".\Release$_SUBDIRSUFFIX"		[!$RETAIL && !$PROFILE]
 		$IntermediateDirectory				".\Retail$_SUBDIRSUFFIX"		[$RETAIL]
 		$IntermediateDirectory				".\Profile$_SUBDIRSUFFIX"		[!$RETAIL && $PROFILE]
@@ -83,7 +80,7 @@ $Configuration "Release"
 
 		// Preprocessor
 		$PreprocessorDefinitions			"$BASE;WIN32;_WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
-		$PreprocessorDefinitions			"$BASE;RELEASE_ASSERTS" [$RELEASEASSERTS]
+		$PreprocessorDefinitions			"$BASE;RELEASEASSERTS" [$RELEASEASSERTS]
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -143,7 +140,7 @@ $Configuration "Release"
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
 
 		// Enable extra debugging information.
-		$AdditionalOptions					"/d2Zi+"  [$VS2010]
+		$AdditionalOptions					"/d2Zi+"
 		$AdditionalOptions					"$BASE /Oy-"	[$NOFPO]
 	}
 

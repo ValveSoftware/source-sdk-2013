@@ -1885,7 +1885,8 @@ static void DrawPyroVignette( int nDestX, int nDestY, int nWidth, int nHeight,	/
 
 	if ( pyro_vignette.GetInt() > 1 )
 	{
-		Vector2D vMaxSize( ( float )nScreenWidth / ( float )nScreenWidth / NUM_PYRO_SEGMENTS * 2.0f, ( float )nScreenHeight / ( float )nScreenHeight / NUM_PYRO_SEGMENTS * 2.0f );
+		float flPyroSegments = 2.0f / NUM_PYRO_SEGMENTS;
+		Vector2D vMaxSize( flPyroSegments, flPyroSegments );
 
 		if ( !bInit )
 		{

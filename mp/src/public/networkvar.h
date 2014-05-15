@@ -455,7 +455,7 @@ public:
 		SetX( ix );
 		SetY( iy );
 		SetZ( iz );
-		SetZ( iw );
+		SetW( iw );
 	}
 	
 	const Type& operator=( const Type &val ) 

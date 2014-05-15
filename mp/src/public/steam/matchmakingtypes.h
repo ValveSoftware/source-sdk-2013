@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright � 1996-2008, Valve LLC, All rights reserved. ============
 //
 // Purpose: 
 //
@@ -32,6 +32,11 @@ const int k_cbMaxGameServerName = 64;
 const int k_cbMaxGameServerTags = 128;
 const int k_cbMaxGameServerGameData = 2048;
 
+/// Store key/value pair used in matchmaking queries.
+///
+/// Actually, the name Key/Value is a bit misleading.  The "key" is better
+/// understood as "filter operation code" and the "value" is the operand to this
+/// filter operation.  The meaning of the operand depends upon the filter.
 struct MatchMakingKeyValuePair_t
 {
 	MatchMakingKeyValuePair_t() { m_szKey[0] = m_szValue[0] = 0; }

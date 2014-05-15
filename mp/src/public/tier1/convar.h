@@ -66,7 +66,7 @@ void ConVar_PublishToVXConsole();
 //-----------------------------------------------------------------------------
 // Called when a ConCommand needs to execute
 //-----------------------------------------------------------------------------
-typedef void ( *FnCommandCallbackV1_t )( void );
+typedef void ( *FnCommandCallbackVoid_t )( void );
 typedef void ( *FnCommandCallback_t )( const CCommand &command );
 
 #define COMMAND_COMPLETION_MAXITEMS		64
@@ -265,7 +265,7 @@ friend class CCvar;
 public:
 	typedef ConCommandBase BaseClass;
 
-	ConCommand( const char *pName, FnCommandCallbackV1_t callback, 
+	ConCommand( const char *pName, FnCommandCallbackVoid_t callback, 
 		const char *pHelpString = 0, int flags = 0, FnCommandCompletionCallback completionFunc = 0 );
 	ConCommand( const char *pName, FnCommandCallback_t callback, 
 		const char *pHelpString = 0, int flags = 0, FnCommandCompletionCallback completionFunc = 0 );
@@ -295,7 +295,7 @@ private:
 	// Call this function when executing the command
 	union
 	{
-		FnCommandCallbackV1_t m_fnCommandCallbackV1;
+		FnCommandCallbackVoid_t m_fnCommandCallbackV1;
 		FnCommandCallback_t m_fnCommandCallback;
 		ICommandCallback *m_pCommandCallback; 
 	};
