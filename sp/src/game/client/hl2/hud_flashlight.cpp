@@ -135,7 +135,7 @@ void CHudFlashlight::Paint()
 	surface()->DrawSetTextPos( m_IconX, m_IconY );
 	surface()->DrawUnicodeChar( pState );
 
-	// Don't draw the progress bar is we're fully charged
+	// Don't draw the progress bar if we're fully charged
 	if ( bIsOn == false && chunkCount == enabledChunks )
 		return;
 
