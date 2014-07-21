@@ -427,13 +427,7 @@ void CBaseAchievement::EnsureComponentBitSetAndEvaluate( int iBitNumber )
 
 		// new component, set the bit and increment the count
 		SetComponentBits( m_iComponentBits | iBitMask );
-		Assert( m_iCount <= m_iGoal );
-		if ( m_iCount == m_iGoal )
-		{
-			// all components found, award the achievement (and save state)
-			AwardAchievement();
-		}
-		else
+		if ( m_iCount != m_iGoal )
 		{
 			// save our state at the next good opportunity
 			m_pAchievementMgr->SetDirty( true );		
@@ -452,6 +446,15 @@ void CBaseAchievement::EnsureComponentBitSetAndEvaluate( int iBitNumber )
 		{
 			Msg( "Component %d for achievement %s found, but already had that component\n", iBitNumber, GetName() );
 		}
+	}
+
+	// Check to see if we've achieved our goal even if the bit is already set 
+	// (this fixes some older achievements that are stuck in the 9/9 state and could never be evaluated)
+	Assert( m_iCount <= m_iGoal );
+	if ( m_iCount == m_iGoal )
+	{
+		// all components found, award the achievement (and save state)
+		AwardAchievement();
 	}
 }
 

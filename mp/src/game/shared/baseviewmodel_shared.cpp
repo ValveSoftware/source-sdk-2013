@@ -12,14 +12,7 @@
 #include "iprediction.h"
 #include "prediction.h"
 #include "client_virtualreality.h"
-#include "headtrack/isourcevirtualreality.h"
-	
-	#ifdef SecobMod__IRONSIGHT_ENABLED
-	#include "convar.h"
-	#include "c_hl2mp_player.h"
-	#include "weapon_hl2mpbase.h"
-	#endif //SecobMod__IRONSIGHT_ENABLED
-
+#include "sourcevr/isourcevirtualreality.h"
 #else
 #include "vguiscreen.h"
 #endif

@@ -9,6 +9,7 @@
 #include "vguitextwindow.h"
 #include <networkstringtabledefs.h>
 #include <cdll_client_int.h>
+#include <clientmode_shared.h>
 
 #include <vgui/IScheme.h>
 #include <vgui/ILocalize.h>
@@ -165,8 +166,15 @@ void CTextWindow::ShowText( const char *text )
 void CTextWindow::ShowURL( const char *URL, bool bAllowUserToDisable )
 {
 #if defined( ENABLE_CHROMEHTMLWINDOW )
-	if ( bAllowUserToDisable && cl_disablehtmlmotd.GetBool() )
+	#ifdef _DEBUG
+		Msg( "CTextWindow::ShowURL( %s )\n", URL );
+	#endif
+
+	ClientModeShared *mode = ( ClientModeShared * )GetClientModeNormal();
+	if ( ( bAllowUserToDisable && cl_disablehtmlmotd.GetBool() ) || !mode->IsHTMLInfoPanelAllowed() )
 	{
+		Warning( "Blocking HTML info panel '%s'; Using plaintext instead.\n", URL );
+
 		// User has disabled HTML TextWindows. Show the fallback as text only.
 		if ( g_pStringTableInfoPanel )
 		{
@@ -289,7 +297,15 @@ void CTextWindow::Update( void )
 	}
 	else if ( m_nContentType == TYPE_URL )
 	{
-		ShowURL( m_szMessage );
+		if ( !Q_strncmp( m_szMessage, "http://", 7 ) || !Q_strncmp( m_szMessage, "https://", 8 ) || !Q_stricmp( m_szMessage, "about:blank" ) )
+		{
+			ShowURL( m_szMessage );
+		}
+		else
+		{
+			// We should have trapped this at a higher level
+			Assert( !"URL protocol is missing or blocked" );
+		}
 	}
 	else if ( m_nContentType == TYPE_FILE )
 	{

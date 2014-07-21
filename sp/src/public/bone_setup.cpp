@@ -678,6 +678,12 @@ static void CalcLocalHierarchyAnimation(
 	int boneMask
 	)
 {
+#ifdef STAGING_ONLY
+	Assert( iNewParent == -1 || (iNewParent >= 0 && iNewParent < MAXSTUDIOBONES) );
+	Assert( iBone > 0 );
+	Assert( iBone < MAXSTUDIOBONES );
+#endif // STAGING_ONLY
+
 	Vector localPos;
 	Quaternion localQ;
 
@@ -715,12 +721,19 @@ static void CalcLocalHierarchyAnimation(
 	CalcDecompressedAnimation( pHierarchy->pLocalAnim(), iFrame - pHierarchy->iStart, flFraq, localPos, localQ );
 
 	BuildBoneChain( pStudioHdr, rootXform, pos, q, iBone, boneToWorld, boneComputed );
-	BuildBoneChain( pStudioHdr, rootXform, pos, q, iNewParent, boneToWorld, boneComputed );
 
 	matrix3x4_t localXform;
 	AngleMatrix( localQ, localPos, localXform );
 
-	ConcatTransforms( boneToWorld[iNewParent], localXform, boneToWorld[iBone] );
+	if ( iNewParent != -1 )
+	{
+		BuildBoneChain( pStudioHdr, rootXform, pos, q, iNewParent, boneToWorld, boneComputed );
+		ConcatTransforms( boneToWorld[iNewParent], localXform, boneToWorld[iBone] );
+	}
+	else
+	{
+		boneToWorld[iBone] = localXform;
+	}
 
 	// back solve
 	Vector p1;
@@ -995,10 +1008,17 @@ static void CalcVirtualAnimation( virtualmodel_t *pVModel, const CStudioHdr *pSt
 			int iBone = pAnimGroup->masterBone[pHierarchy->iBone];
 			if (iBone >= 0 && (pStudioHdr->boneFlags(iBone) & boneMask))
 			{
-				int iNewParent = pAnimGroup->masterBone[pHierarchy->iNewParent];
-				if (iNewParent >= 0 && (pStudioHdr->boneFlags(iNewParent) & boneMask))
+				if ( pHierarchy->iNewParent != -1 )
 				{
-					CalcLocalHierarchyAnimation( pStudioHdr, boneToWorld, boneComputed, pos, q, pbone, pHierarchy, iBone, iNewParent, cycle, iFrame, s, boneMask );
+					int iNewParent = pAnimGroup->masterBone[pHierarchy->iNewParent];
+					if (iNewParent >= 0 && (pStudioHdr->boneFlags(iNewParent) & boneMask))
+					{
+						CalcLocalHierarchyAnimation( pStudioHdr, boneToWorld, boneComputed, pos, q, pbone, pHierarchy, iBone, iNewParent, cycle, iFrame, s, boneMask );
+					}
+				}
+				else
+				{
+					CalcLocalHierarchyAnimation( pStudioHdr, boneToWorld, boneComputed, pos, q, pbone, pHierarchy, iBone, -1, cycle, iFrame, s, boneMask );
 				}
 			}
 		}
@@ -5947,4 +5967,82 @@ bool Studio_PrefetchSequence( const CStudioHdr *pStudioHdr, int iSequence )
 
 	// Everything for this sequence is resident?
 	return !pendingload;
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Drive a flex controller from a component of a bone
+//-----------------------------------------------------------------------------
+void Studio_RunBoneFlexDrivers( float *pflFlexControllerWeights, const CStudioHdr *pStudioHdr, const Vector *pvPositions, const matrix3x4_t *pBoneToWorld, const matrix3x4_t &mRootToWorld )
+{
+	bool bRootToWorldInvComputed = false;
+	matrix3x4_t mRootToWorldInv;
+	matrix3x4_t mParentInv;
+	matrix3x4_t mBoneLocal;
+
+	const int nBoneFlexDriverCount = pStudioHdr->BoneFlexDriverCount();
+
+	for ( int i = 0; i < nBoneFlexDriverCount; ++i )
+	{
+		const mstudioboneflexdriver_t *pBoneFlexDriver = pStudioHdr->BoneFlexDriver( i );
+		const mstudiobone_t *pStudioBone = pStudioHdr->pBone( pBoneFlexDriver->m_nBoneIndex );
+
+		const int nControllerCount = pBoneFlexDriver->m_nControlCount;
+
+		if ( pStudioBone->flags & BONE_USED_BY_BONE_MERGE )
+		{
+			// The local space version of the bone is not available if this is a bonemerged bone
+			// so do the slow computation of the local version of the bone from boneToWorld
+
+			if ( pStudioBone->parent < 0 )
+			{
+				if ( !bRootToWorldInvComputed )
+				{
+					MatrixInvert( mRootToWorld, mRootToWorldInv );
+					bRootToWorldInvComputed = true;
+				}
+
+				MatrixMultiply( mRootToWorldInv, pBoneToWorld[ pBoneFlexDriver->m_nBoneIndex ], mBoneLocal );
+			}
+			else
+			{
+				MatrixInvert( pBoneToWorld[ pStudioBone->parent ], mParentInv );
+				MatrixMultiply( mParentInv, pBoneToWorld[ pBoneFlexDriver->m_nBoneIndex ], mBoneLocal );
+			}
+
+			for ( int j = 0; j < nControllerCount; ++j )
+			{
+				const mstudioboneflexdrivercontrol_t *pController = pBoneFlexDriver->pBoneFlexDriverControl( j );
+				const mstudioflexcontroller_t *pFlexController = pStudioHdr->pFlexcontroller( static_cast< LocalFlexController_t >( pController->m_nFlexControllerIndex ) );
+
+				if ( pFlexController->localToGlobal < 0 )
+					continue;
+
+				Assert( pController->m_nFlexControllerIndex >= 0 && pController->m_nFlexControllerIndex < pStudioHdr->numflexcontrollers() );
+				Assert( pController->m_nBoneComponent >= 0 && pController->m_nBoneComponent <= 2 );
+				pflFlexControllerWeights[pFlexController->localToGlobal] =
+					RemapValClamped( mBoneLocal[pController->m_nBoneComponent][3], pController->m_flMin, pController->m_flMax, 0.0f, 1.0f );
+			}
+		}
+		else
+		{
+			// Use the local space version of the bone directly for non-bonemerged bones
+
+			const Vector &position = pvPositions[ pBoneFlexDriver->m_nBoneIndex ];
+
+			for ( int j = 0; j < nControllerCount; ++j )
+			{
+				const mstudioboneflexdrivercontrol_t *pController = pBoneFlexDriver->pBoneFlexDriverControl( j );
+				const mstudioflexcontroller_t *pFlexController = pStudioHdr->pFlexcontroller( static_cast< LocalFlexController_t >( pController->m_nFlexControllerIndex ) );
+
+				if ( pFlexController->localToGlobal < 0 )
+					continue;
+
+				Assert( pController->m_nFlexControllerIndex >= 0 && pController->m_nFlexControllerIndex < pStudioHdr->numflexcontrollers() );
+				Assert( pController->m_nBoneComponent >= 0 && pController->m_nBoneComponent <= 2 );
+				pflFlexControllerWeights[pFlexController->localToGlobal] =
+					RemapValClamped( position[pController->m_nBoneComponent], pController->m_flMin, pController->m_flMax, 0.0f, 1.0f );
+			}
+		}
+	}
 }

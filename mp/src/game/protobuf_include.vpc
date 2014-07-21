@@ -8,8 +8,10 @@ $MacroRequired "PLATFORM"
 
 $Project
 {
-	$Folder "Libraries"
+	$Folder "Link Libraries"
 	{
-		$Libexternal libprotobuf
+		$Libexternal $SRCDIR\lib\public\2010\libprotobuf [$VS2010]
+		$Libexternal 2012\libprotobuf [$VS2012]
+		$Libexternal libprotobuf [$VS2013 || !$WINDOWS]
 	}
 }

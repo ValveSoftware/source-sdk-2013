@@ -186,7 +186,7 @@ void RayTracingEnvironment::RenderScene(
 								   AndNotSIMD(no_hit_mask,intens.x));
 				intens.y=OrSIMD(AndSIMD(BackgroundColor.y,no_hit_mask),
 								   AndNotSIMD(no_hit_mask,intens.y));
-				intens.z=OrSIMD(AndSIMD(BackgroundColor.y,no_hit_mask),
+				intens.z=OrSIMD(AndSIMD(BackgroundColor.z,no_hit_mask),
 								   AndNotSIMD(no_hit_mask,intens.z));
 
 				MapLinearIntensities(intens,dest,dest+1,dest+stride,dest+stride+1);

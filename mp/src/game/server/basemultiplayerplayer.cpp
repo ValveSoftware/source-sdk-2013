@@ -132,7 +132,15 @@ bool CBaseMultiplayerPlayer::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 //-----------------------------------------------------------------------------
 bool CBaseMultiplayerPlayer::ShouldRunRateLimitedCommand( const CCommand &args )
 {
-	const char *pcmd = args[0];
+	return ShouldRunRateLimitedCommand( args[0] );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CBaseMultiplayerPlayer::ShouldRunRateLimitedCommand( const char *pszCommand )
+{
+	const char *pcmd = pszCommand;
 
 	int i = m_RateLimitLastCommandTimes.Find( pcmd );
 	if ( i == m_RateLimitLastCommandTimes.InvalidIndex() )

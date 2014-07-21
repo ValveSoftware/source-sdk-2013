@@ -210,6 +210,9 @@ BEGIN_DATADESC( CBaseAnimating )
 	DEFINE_INPUT( m_fadeMaxDist, FIELD_FLOAT, "fademaxdist" ),
 	DEFINE_KEYFIELD( m_flFadeScale, FIELD_FLOAT, "fadescale" ),
 
+	DEFINE_KEYFIELD( m_flModelScale, FIELD_FLOAT, "modelscale" ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetModelScale", InputSetModelScale ),
+
 	DEFINE_FIELD( m_fBoneCacheFlags, FIELD_SHORT ),
 
 	END_DATADESC()
@@ -441,7 +444,7 @@ void CBaseAnimating::StudioFrameAdvanceInternal( CStudioHdr *pStudioHdr, float f
 			m_flAnimTime.Get(), m_flPrevAnimTime, flInterval, GetCycle() );
 	*/
  
-	m_flGroundSpeed = GetSequenceGroundSpeed( pStudioHdr, GetSequence() );
+	m_flGroundSpeed = GetSequenceGroundSpeed( pStudioHdr, GetSequence() ) * GetModelScale();
 
 	// Msg("%s : %s : %5.1f\n", GetClassname(), GetSequenceName( GetSequence() ), GetCycle() );
 	InvalidatePhysicsRecursive( ANIMATION_CHANGED );
@@ -608,6 +611,17 @@ void CBaseAnimating::InputSetLightingOrigin( inputdata_t &inputdata )
 	// Find our specified target
 	string_t strLightingOrigin = MAKE_STRING( inputdata.value.String() );
 	SetLightingOrigin( strLightingOrigin );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: SetModelScale input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetModelScale( inputdata_t &inputdata )
+{
+	Vector vecScale;
+	inputdata.value.Vector3D( vecScale );
+
+	SetModelScale( vecScale.x, vecScale.y );
 }
 
 
@@ -877,7 +891,7 @@ void CBaseAnimating::ResetSequenceInfo ( )
 	}
 
 	CStudioHdr *pStudioHdr = GetModelPtr();
-	m_flGroundSpeed = GetSequenceGroundSpeed( pStudioHdr, GetSequence() );
+	m_flGroundSpeed = GetSequenceGroundSpeed( pStudioHdr, GetSequence() ) * GetModelScale();
 	m_bSequenceLoops = ((GetSequenceFlags( pStudioHdr, GetSequence() ) & STUDIO_LOOPING) != 0);
 	// m_flAnimTime = gpGlobals->time;
 	m_flPlaybackRate = 1.0;

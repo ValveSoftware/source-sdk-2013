@@ -245,6 +245,8 @@ $Project
 		$File	"$SRCDIR\game\shared\baseparticleentity.h"
 		$File	"$SRCDIR\game\shared\baseplayer_shared.cpp"
 		$File	"$SRCDIR\game\shared\baseplayer_shared.h"
+		$File	"$SRCDIR\game\shared\baseprojectile.cpp"
+		$File	"$SRCDIR\game\shared\baseprojectile.h"
 		$File	"BasePropDoor.h"
 		$File	"basetoggle.h"
 		$File	"baseviewmodel.cpp"

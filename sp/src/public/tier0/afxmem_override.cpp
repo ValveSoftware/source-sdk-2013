@@ -429,8 +429,7 @@ void* __cdecl operator new(size_t nSize, int nType, LPCSTR lpszFileName, int nLi
 #endif
 }
 
-#if 0
-#if _MSC_VER >= 1200
+#if _MSC_VER >= 1700
 void __cdecl operator delete(void* p, int nType, LPCSTR /* lpszFileName */, int /* nLine */)
 {
 #if !defined(_AFX_NO_DEBUG_CRT) && defined(_DEBUG)
@@ -440,19 +439,16 @@ void __cdecl operator delete(void* p, int nType, LPCSTR /* lpszFileName */, int 
 #endif
 }
 #endif // _MSC_VER >= 1200
-#endif
 
-#if _MSC_VER >= 1210
+#if _MSC_VER >= 1700
 void* __cdecl operator new[](size_t nSize, int nType, LPCSTR lpszFileName, int nLine)
 {
 	return ::operator new(nSize, nType, lpszFileName, nLine);
 }
-#if 0
 void __cdecl operator delete[](void* p, int nType, LPCSTR lpszFileName, int nLine)
 {
 	::operator delete(p, nType, lpszFileName, nLine);
 }
-#endif
 #endif // _MSC_VER >= 1210
 
 #endif //_DEBUG

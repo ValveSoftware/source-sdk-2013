@@ -589,7 +589,7 @@ void DrawTeslaSegs( int noise_divisions, float *prgNoise, const model_t* spritem
 			curSeg.m_flWidth = ((fraction*(endWidth-startWidth))+startWidth) * 2;
 
 		// Reduce the width by the current number of branches we've had
-		for ( int j = 0; i < iBranches; j++ )
+		for ( int j = 0; j < iBranches; j++ )
 		{
 			curSeg.m_flWidth *= 0.5;
 		}
@@ -619,7 +619,7 @@ void DrawTeslaSegs( int noise_divisions, float *prgNoise, const model_t* spritem
 
 				// Reduce the end width by the current number of branches we've had
 				flEndWidth = endWidth;
-				for ( int j = 0; i < iBranches; j++ )
+				for ( int j = 0; j < iBranches; j++ )
 				{
 					flEndWidth *= 0.5;
 				}

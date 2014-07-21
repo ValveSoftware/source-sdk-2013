@@ -80,6 +80,12 @@ public:
 	int Count() const;
 	int Size() const;	// don't use me!
 
+	/// are there no elements? For compatibility with lists.
+	inline bool IsEmpty( void ) const
+	{
+		return ( Count() == 0 );
+	}
+
 	// Is element index valid?
 	bool IsValidIndex( int i ) const;
 	static int InvalidIndex();

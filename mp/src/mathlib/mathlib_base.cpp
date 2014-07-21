@@ -4244,7 +4244,7 @@ FPExceptionDisabler::FPExceptionDisabler()
 	// Retrieve the current state of the exception flags. This
 	// must be done before changing them. _MCW_EM is a bit
 	// mask representing all available exception masks.
-	_controlfp_s(&mOldValues, _MCW_EM, _MCW_EM);
+	_controlfp_s(&mOldValues, 0, 0);
 	// Set all of the exception flags, which suppresses FP
 	// exceptions on the x87 and SSE units.
 	_controlfp_s(0, _MCW_EM, _MCW_EM);
@@ -4269,7 +4269,7 @@ FPExceptionEnabler::FPExceptionEnabler(unsigned int enableBits /*= _EM_OVERFLOW 
 	// Retrieve the current state of the exception flags. This
 	// must be done before changing them. _MCW_EM is a bit
 	// mask representing all available exception masks.
-	_controlfp_s(&mOldValues, _MCW_EM, _MCW_EM);
+	_controlfp_s(&mOldValues, 0, 0);
 
 	// Make sure no non-exception flags have been specified,
 	// to avoid accidental changing of rounding modes, etc.

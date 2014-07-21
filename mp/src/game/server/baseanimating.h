@@ -341,6 +341,7 @@ private:
 	void StudioFrameAdvanceInternal( CStudioHdr *pStudioHdr, float flInterval );
 	void InputSetLightingOriginRelative( inputdata_t &inputdata );
 	void InputSetLightingOrigin( inputdata_t &inputdata );
+	void InputSetModelScale( inputdata_t &inputdata );
 
 	bool CanSkipAnimation( void );
 

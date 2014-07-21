@@ -1646,7 +1646,7 @@ static CBaseEntity *FindPhysicsBlockerForHierarchy( CBaseEntity *pParentEntity )
 			{
 				IPhysicsObject *pOther = pSnapshot->GetObject(1);
 				CBaseEntity *pOtherEntity = static_cast<CBaseEntity *>(pOther->GetGameData());
-				if ( pOtherEntity->GetMoveType() == MOVETYPE_VPHYSICS )
+				if ( pOtherEntity && pOtherEntity->GetMoveType() == MOVETYPE_VPHYSICS )
 				{
 					Vector normal;
 					pSnapshot->GetSurfaceNormal(normal);

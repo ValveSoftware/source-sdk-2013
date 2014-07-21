@@ -841,16 +841,6 @@ void CTeamControlPointMaster::InputRoundSpawn( inputdata_t &input )
 	FindControlPointRounds();
 
 	SetBaseControlPoints();
-
-	// init the ClientAreas
-	int index = 0;
-	
-	for ( int i=0; i<ITriggerAreaCaptureAutoList::AutoList().Count(); ++i )
-	{
-		CTriggerAreaCapture *pArea = static_cast< CTriggerAreaCapture * >( ITriggerAreaCaptureAutoList::AutoList()[i] );
-		pArea->SetAreaIndex( index );
-		index++;
-	}
 	
 	ObjectiveResource()->ResetControlPoints();
 }

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -8,8 +8,8 @@
 #include "iviewrender_beams.h"
 #include "beam_shared.h"
 #include "c_weapon__stubs.h"
-#include "materialsystem/IMaterial.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "materialsystem/imaterial.h"
+#include "clienteffectprecachesystem.h"
 #include "beamdraw.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

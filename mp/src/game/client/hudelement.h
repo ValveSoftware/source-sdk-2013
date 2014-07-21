@@ -36,9 +36,9 @@ public:
 	// called whenever the video mode changes, and whenever Init() would be called, so the hud can vid init itself
 	virtual void				VidInit( void ) { return; }
 
-	// LevelInit's called whenever a new level's starting
+	// LevelInit's called whenever a new level is starting
 	virtual void				LevelInit( void ) { return; };
-	// LevelShutdown's called whenever a level's finishing
+	// LevelShutdown's called whenever a level is finishing
 	virtual void				LevelShutdown( void ) { return; };
 
 	// called whenever the hud receives "reset" message, which is (usually) every time the client respawns after getting killed

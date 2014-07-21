@@ -14,7 +14,7 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$BASE,..\common"
-		$PreprocessorDefinitions			"_HAS_ITERATOR_DEBUGGING=0;_DEBUG;_WIN32;_CONSOLE"
+		$PreprocessorDefinitions			"_HAS_ITERATOR_DEBUGGING=0;_WIN32;_CONSOLE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
 	}
 }
 

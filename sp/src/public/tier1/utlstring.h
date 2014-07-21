@@ -332,6 +332,7 @@ public:
 	void Clear() { Set( NULL ); }
 
 	const T *Get() const { return m_pString ? m_pString : StringFuncs<T>::EmptyString(); }
+	operator const T*() const { return m_pString ? m_pString : StringFuncs<T>::EmptyString(); }
 
 	bool IsEmpty() const { return m_pString == NULL; } // Note: empty strings are never stored by Set
 

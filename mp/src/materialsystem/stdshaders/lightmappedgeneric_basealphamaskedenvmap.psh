@@ -1,0 +1,22 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+; c1 - self-illum tint
+; c2 - envmap tint
+;------------------------------------------------------------------------------
+
+tex t0
+tex t1
+tex t2
+tex t3
+
+mul		r0, t0, v0			; base times vertex color (with alpha)
+mul		r1, t2, 1-t3.a		; envmap * envmapmask alpha
+mad		r0.rgb, r1, c2, r0	; + envmap * envmapmask * envmaptint (color only)
+mul		r0.rgb, t1, r0		; fold in lighting (color only)
+mul_x2	r0.rgb, c0, r0		; * 2 * (overbrightFactor/2)

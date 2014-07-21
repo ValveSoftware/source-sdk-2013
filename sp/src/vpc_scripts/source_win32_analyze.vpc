@@ -1,0 +1,65 @@
+// /analyze specific settings. Placed here so that they can be changed without triggering rebuilds of the entire world.
+
+$Configuration
+{
+	$Compiler
+	{
+		// When using /analyze (triggered with /define:ANALYZE on the vpc command line) we want to forcibly disable lots
+		// of warnings.
+		// warning C6308: 'realloc' might return null pointer, cause the original memory block to be leaked
+		// warning C6255: _alloca indicates failure by raising a stack overflow exception. Consider using _malloca instead
+		// warning C6387: 'argument 1' might be '0': this does not adhere to the specification for the function 'GetProcAddress'
+		// warning C6309: Argument '1' is null: this does not adhere to function specification of 'GetProcAddress'
+		// warning C6011: Dereferencing NULL pointer 'm_ppTestCases'
+		// warning C6211: Leaking memory 'newKeyValue' due to an exception. Consider using a local catch block to clean up memory
+		// These warnings are because /analyze doesn't like our use of constants, especially things like IsPC()
+		// warning C6326: Potential comparison of a constant with another constant
+		// warning C6239: (<non-zero constant> && <expression>) always evaluates to the result of <expression>. Did you intend to use the bitwise-and operator?
+		// warning C6285: (<non-zero constant> || <non-zero constant>) is always a non-zero constant. Did you intend to use the bitwise-and operator?
+		// warning C6237: (<zero> && <expression>) is always zero. <expression> is never evaluated and might have side effects
+		// warning C6235: (<non-zero constant> || <expression>) is always a non-zero constant
+		// warning C6240: (<expression> && <non-zero constant>) always evaluates to the result of <expression>. Did you intend to use the bitwise-and operator?
+		// These warnings aren't really important:
+		// warning C6323: Use of arithmetic operator on Boolean type(s)
+		// /analyze doesn't like GCOMPILER_ASSERT's implementation of compile-time asserts
+		// warning C6326: Potential comparison of a constant with another constant
+		// warning C6335: Leaking process information handle 'pi.hThread'
+		// warning C6320: Exception-filter expression is the constant EXCEPTION_EXECUTE_HANDLER. This might mask exceptions that were not intended to be handled
+		// warning C6250: Calling 'VirtualFree' without the MEM_RELEASE flag might free memory but not address descriptors (VADs). This causes address space leaks
+		// warning C6384: Dividing sizeof a pointer by another value
+		// warning C6318: Ill-defined __try/__except: use of the constant EXCEPTION_CONTINUE_SEARCH -- bogus
+		// warning C6322: Empty _except block
+
+		// Set the stack size threshold to 100,000 to avoid noisy warnings on functions with modest stack usage
+		// Note that /analyze for VS 2010 only works with the 32-bit compiler, but for VS 2012 it works on 64-bit
+		// as well.
+		$DisableSpecificWarnings	"$BASE;6308;6255;6387;6309;6011;6211;6326;6239;6285;6237;6235;6240;6323;6326;6335;6320;6250;6384;6318;6322" [$ANALYZE]
+		// See http://randomascii.wordpress.com/2011/10/04/analyzecommand-line-options/ for details on these options.
+		// /analyze:only may result in fewer warnings being reported, but the warnings it misses should show up in the regular build.
+		$AdditionalOptions	"$BASE /analyze /analyze:only /analyze:stacksize100000" [$ANALYZE]
+
+		// Specify /define:ALLOWSHADOWING to suppress variable shadowing warnings
+		$DisableSpecificWarnings	"$BASE;6244;6246" [$ANALYZE && $ALLOWSHADOWING]
+
+		// New warnings in VS 2012 that we want to ignore.
+		// warning C4005: 'DXGI_STATUS_OCCLUDED' : macro redefinition
+		// warning C6014: Leaking memory 'pThinkParams'. 
+		// warning C28159: Consider using 'GetTickCount64' instead of 'GetTickCount'. Reason: GetTickCount overflows roughly every 49 days.
+		// warning C28182: Dereferencing NULL pointer. 'pPropMesh' contains the same NULL value as '(CMesh *)=(pPropMesh)' did. 
+		// warning C28183: 'entropy->ac_count_ptrs[actbl]' could be '0', and is a copy of the value found in 'entropy->dc_count_ptrs[dctbl]':  this does not adhere to the specification for the function 'memset'. 
+		// warning C28197: Possibly leaking memory 'pInfo'.
+		// warning C28198: Possibly leaking memory 'kvFrame1' due to an exception.   Is a local catch block needed to clean up memory?
+		// warning C28204: 'QueryInterface' : Only one of this overload and the one at c:\program files (x86)\windows kits\8.0\include\um\unknwnbase.h(114) are annotated for _Param_(2): both or neither must be annotated.
+		// warning C28247: Model file annotation for function '_vsnprintf': annotation on _Param_(1)/SAL_post, 'RequiresZeroTermination' duplicates header file annotation 'SAL_nullTerminated'. Remove the duplicated annotations from the model file. (Header: c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(349).)
+		// warning C28251: Inconsistent annotation for 'WinMain': this instance has no annotations. See c:\program files (x86)\windows kits\8.0\include\um\winbase.h(2286).
+		// warning C28301: No annotations for first declaration of 'InitializeCriticalSection'. See d:\clients\tf3\staging\src\public\tier0\threadtools.h(1373).
+		// warning C28195: The function was declared as acquiring memory in 'return' and exited without doing so.
+		// warning C6340: Mismatch on sign: 'unsigned short' passed as parameter '6' when some signed type is required in call to 'V_snprintf'.
+		// This warning only applies to Windows XP in low-memory situations:
+		// warning C28125: The function 'InitializeCriticalSection' must be called from within a try\except block
+		// warning C28160: Error annotation: Calling VirtualFreeEx without the MEM_RELEASE flag frees memory but not address descriptors (VADs); results in address space leaks.
+		// warning C6248: Setting a SECURITY_DESCRIPTOR's DACL to NULL will result in an unprotected object.
+		// warning C6102: Using value from failed function call
+		$DisableSpecificWarnings	"$BASE;6014;28159;28182;28183;28197;28198;28204;28247;28251;28301;28195;6340;28125;28160;6248;6102" [$ANALYZE && ($VS2012 || $VS2013)]
+	}
+}

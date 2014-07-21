@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright � 1996-2008, Valve LLC, All rights reserved. ============
 //
 // Purpose:
 //
@@ -20,7 +20,7 @@
 // interface layer, no need to include anything about the implementation.
 
 #include "steamtypes.h"
-
+#include "steamuniverse.h"
 
 // General result codes
 enum EResult
@@ -102,7 +102,13 @@ enum EResult
 	k_EResultNoMatchingURL = 75,
 	k_EResultBadResponse = 76,					// parse failure, missing field, etc.
 	k_EResultRequirePasswordReEntry = 77,		// The user cannot complete the action until they re-enter their password
-	k_EResultValueOutOfRange = 78				// the value entered is outside the acceptable range
+	k_EResultValueOutOfRange = 78,				// the value entered is outside the acceptable range
+	k_EResultUnexpectedError = 79,				// something happened that we didn't expect to ever happen
+	k_EResultDisabled = 80,						// The requested service has been configured to be unavailable
+	k_EResultInvalidCEGSubmission = 81,			// The set of files submitted to the CEG server are not valid !
+	k_EResultRestrictedDevice = 82,				// The device being used is not allowed to perform this action
+	k_EResultRegionLocked = 83,					// The action could not be complete because it is region restricted
+	k_EResultRateLimitExceeded = 84,			// Temporary rate limit exceeded, try again later, different from k_EResultLimitExceeded which may be permanent
 };
 
 // Error codes for use with the voice functions
@@ -178,18 +184,6 @@ typedef enum
 } EUserHasLicenseForAppResult;
 
 
-// Steam universes.  Each universe is a self-contained Steam instance.
-enum EUniverse
-{
-	k_EUniverseInvalid = 0,
-	k_EUniversePublic = 1,
-	k_EUniverseBeta = 2,
-	k_EUniverseInternal = 3,
-	k_EUniverseDev = 4,
-	// k_EUniverseRC = 5,				// no such universe anymore
-	k_EUniverseMax
-};
-
 // Steam account types
 enum EAccountType
 {
@@ -227,15 +221,21 @@ enum EAppReleaseState
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-enum EAppOwernshipFlags
+enum EAppOwnershipFlags
 {
-	k_EAppOwernshipFlags_None				= 0,	// unknown
-	k_EAppOwernshipFlags_OwnsLicense		= 1,	// owns license for this game
-	k_EAppOwernshipFlags_FreeLicense		= 2,	// not paid for game
-	k_EAppOwernshipFlags_RegionRestricted	= 4,	// owns app, but not allowed to play in current region
-	k_EAppOwernshipFlags_LowViolence		= 8,	// only low violence version
-	k_EAppOwernshipFlags_InvalidPlatform	= 16,	// app not supported on current platform
-	k_EAppOwernshipFlags_DeviceLicense		= 32,	// license was granted by authorized local device
+	k_EAppOwnershipFlags_None				= 0x000,	// unknown
+	k_EAppOwnershipFlags_OwnsLicense		= 0x001,	// owns license for this game
+	k_EAppOwnershipFlags_FreeLicense		= 0x002,	// not paid for game
+	k_EAppOwnershipFlags_RegionRestricted	= 0x004,	// owns app, but not allowed to play in current region
+	k_EAppOwnershipFlags_LowViolence		= 0x008,	// only low violence version
+	k_EAppOwnershipFlags_InvalidPlatform	= 0x010,	// app not supported on current platform
+	k_EAppOwnershipFlags_SharedLicense		= 0x020,	// license was granted by authorized local device
+	k_EAppOwnershipFlags_FreeWeekend		= 0x040,	// owned by a free weekend licenses
+	k_EAppOwnershipFlags_LicenseLocked		= 0x080,	// shared license is locked (in use) by other user
+	k_EAppOwnershipFlags_LicensePending		= 0x100,	// owns app, but transaction is still pending. Can't install or play
+	k_EAppOwnershipFlags_LicenseExpired		= 0x200,	// doesn't own app anymore since license expired
+	k_EAppOwnershipFlags_LicensePermanent	= 0x400,	// permanent license, not borrowed, or guest or freeweekend etc
+	k_EAppOwnershipFlags_LicenseRecurring	= 0x800,	// Recurring license, user is charged periodically
 };
 
 
@@ -253,7 +253,8 @@ enum EAppType
 	k_EAppType_DLC					= 0x020,	// down loadable content
 	k_EAppType_Guide				= 0x040,	// game guide, PDF etc
 	k_EAppType_Driver				= 0x080,	// hardware driver updater (ATI, Razor etc)
-	
+	k_EAppType_Config				= 0x100,	// hidden app used to config Steam features (backpack, sales, etc)
+		
 	k_EAppType_Shortcut				= 0x40000000,	// just a shortcut, client side only
 	k_EAppType_DepotOnly			= 0x80000000,	// placeholder since depots and apps share the same namespace
 };
@@ -449,6 +450,12 @@ public:
 	{
 		SetFromUint64( ulSteamID );
 	}
+#ifdef INT64_DIFFERENT_FROM_INT64_T
+	CSteamID( uint64_t ulSteamID )
+	{
+		SetFromUint64( (uint64)ulSteamID );
+	}
+#endif
 
 
 	//-----------------------------------------------------------------------------
@@ -463,7 +470,7 @@ public:
 		m_steamid.m_comp.m_EUniverse = eUniverse;
 		m_steamid.m_comp.m_EAccountType = eAccountType;
 
-		if ( eAccountType == k_EAccountTypeClan )
+		if ( eAccountType == k_EAccountTypeClan || eAccountType == k_EAccountTypeGameServer )
 		{
 			m_steamid.m_comp.m_unAccountInstance = 0;
 		}
@@ -720,6 +727,9 @@ public:
 	const char * Render() const;				// renders this steam ID to string
 	static const char * Render( uint64 ulSteamID );	// static method to render a uint64 representation of a steam ID to a string
 
+	const char * RenderLink() const;				// renders this steam ID to an admin console link string
+	static const char * RenderLink( uint64 ulSteamID );	// static method to render a uint64 representation of a steam ID to a string
+
 	void SetFromString( const char *pchSteamID, EUniverse eDefaultUniverse );
     // SetFromString allows many partially-correct strings, constraining how
     // we might be able to change things in the future.
@@ -845,6 +855,12 @@ public:
 	{
 		m_ulGameID = ulGameID;
 	}
+#ifdef INT64_DIFFERENT_FROM_INT64_T
+	CGameID( uint64_t ulGameID )
+	{
+		m_ulGameID = (uint64)ulGameID;
+	}
+#endif
 
 	explicit CGameID( int32 nAppID )
 	{

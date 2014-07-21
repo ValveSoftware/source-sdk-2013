@@ -37,6 +37,7 @@
 #define GOOGLE_PROTOBUF_WIRE_FORMAT_LITE_INL_H__
 
 #include <string>
+#include <algorithm>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/message_lite.h>
 #include <google/protobuf/repeated_field.h>

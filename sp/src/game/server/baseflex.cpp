@@ -1318,9 +1318,9 @@ static Activity DetermineExpressionMoveActivity( CChoreoEvent *event, CAI_BaseNP
 
 	// Custom distance styles are appended to param2 with a space as a separator
 	const char *pszAct = Q_strstr( sParam2, " " );
+	char szActName[256];
 	if ( pszAct )
 	{
-		char szActName[256];
 		Q_strncpy( szActName, sParam2, sizeof(szActName) );
 		szActName[ (pszAct-sParam2) ] = '\0';
 		pszAct = szActName;

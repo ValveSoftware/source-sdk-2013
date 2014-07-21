@@ -2705,7 +2705,8 @@ ZRESULT TZip::Add(const char *odstzn, void *src,unsigned int len, DWORD flags)
 	while (*d != 0) 
 	{
 		if (*d == '\\') 
-			*d = '/'; d++;
+			*d = '/';
+		d++;
 	}
 	bool isdir = (flags==ZIP_FOLDER);
 	bool needs_trailing_slash = (isdir && dstzn[strlen(dstzn)-1]!='/');

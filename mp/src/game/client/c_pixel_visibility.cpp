@@ -16,7 +16,7 @@
 #include "utlmultilist.h"
 #include "vprof.h"
 #include "icommandline.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 
 static void PixelvisDrawChanged( IConVar *pPixelvisVar, const char *pOld, float flOldValue );
 

@@ -1,0 +1,15 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+; c2 - envmaptint 
+;------------------------------------------------------------------------------
+
+tex t1	; cube map
+
+mul r0, v0, t1
+mul r0.rgb, r0, c2

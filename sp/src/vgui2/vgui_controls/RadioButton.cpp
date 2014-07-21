@@ -115,7 +115,7 @@ void RadioButton::ApplySchemeSettings(IScheme *pScheme)
 	SetContentAlignment(a_west);
 
 	//  reloading the scheme wipes out lists of images
-	_radioBoxImage->SetFont( pScheme->GetFont("Marlett", IsProportional()) );
+	_radioBoxImage->SetFont( pScheme->GetFont("MarlettSmall", IsProportional()) );
 	_radioBoxImage->ResizeImageToContent();
 	SetImageAtIndex(0, _radioBoxImage, 0);
 

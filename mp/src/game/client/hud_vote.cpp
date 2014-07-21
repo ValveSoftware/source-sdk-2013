@@ -662,7 +662,8 @@ void CVoteSetupDialog::OnItemSelected( vgui::Panel *panel )
 				for ( int index = 0; index < m_VoteIssuesPopFiles.Count(); index++ )
 				{
 					// Don't show the current pop file
-					if ( TFObjectiveResource()->GetMvMPopFileName() == '\0' )
+					const char *pszPopFileName = TFObjectiveResource()->GetMvMPopFileName();
+					if ( !pszPopFileName || !pszPopFileName[0] )
 					{
 						// Use the map name
 						char szShortMapName[ MAX_MAP_NAME ];
@@ -1058,6 +1059,10 @@ void CHudVote::MsgFunc_CallVoteFailed( bf_read &msg )
 
 		case VOTE_FAILED_CANNOT_KICK_DURING_ROUND:
 			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_round_active" );
+			break;
+
+		case VOTE_FAILED_MODIFICATION_ALREADY_ACTIVE:
+			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_event_already_active" );
 			break;
 	}	
 }

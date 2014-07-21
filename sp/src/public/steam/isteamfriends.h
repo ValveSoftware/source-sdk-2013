@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//====== Copyright (C) 1996-2008, Valve Corporation, All rights reserved. =====
 //
 // Purpose: interface to both friends list data and general information about users
 //
@@ -203,6 +203,9 @@ public:
 	// accesses old friends names - returns an empty string when their are no more items in the history
 	virtual const char *GetFriendPersonaNameHistory( CSteamID steamIDFriend, int iPersonaName ) = 0;
 
+	// Returns nickname the current user has set for the specified player. Returns NULL if the no nickname has been set for that player.
+	virtual const char *GetPlayerNickname( CSteamID steamIDPlayer ) = 0;
+
 	// returns true if the specified user meets any of the criteria specified in iFriendFlags
 	// iFriendFlags can be the union (binary or, |) of one or more k_EFriendFlags values
 	virtual bool HasFriend( CSteamID steamIDFriend, int iFriendFlags ) = 0;
@@ -340,7 +343,7 @@ public:
 	virtual int GetClanChatMemberCount( CSteamID steamIDClan ) = 0;
 	virtual CSteamID GetChatMemberByIndex( CSteamID steamIDClan, int iUser ) = 0;
 	virtual bool SendClanChatMessage( CSteamID steamIDClanChat, const char *pchText ) = 0;
-	virtual int GetClanChatMessage( CSteamID steamIDClanChat, int iMessage, void *prgchText, int cchTextMax, EChatEntryType *, CSteamID * ) = 0;
+	virtual int GetClanChatMessage( CSteamID steamIDClanChat, int iMessage, void *prgchText, int cchTextMax, EChatEntryType *peChatEntryType, CSteamID *psteamidChatter ) = 0;
 	virtual bool IsClanChatAdmin( CSteamID steamIDClanChat, CSteamID steamIDUser ) = 0;
 
 	// interact with the Steam (game overlay / desktop)
@@ -360,7 +363,7 @@ public:
 	virtual SteamAPICall_t EnumerateFollowingList( uint32 unStartIndex ) = 0;
 };
 
-#define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends013"
+#define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends014"
 
 // callbacks
 #if defined( VALVE_CALLBACK_PACK_SMALL )

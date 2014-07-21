@@ -1,0 +1,19 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+;------------------------------------------------------------------------------
+
+tex t0	; base color
+tex t1	; cube map
+tex t3	; detail texture
+
+mul r0, t0, c3			; base times modulation
+mul_x2 r0.rgb, r0, t3	; detail texture
+mad r0.rgb, t1, c2, r0	; + envmap * envmaptint (color only)
+mul r0.rgb, v0, r0		; apply vertex lighting
+mul_x2 r0.rgb, c0, r0   ; * 2 * (overbrightFactor/2)

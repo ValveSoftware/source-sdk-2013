@@ -11,7 +11,7 @@
 #include "rendertexture.h"
 #include "view_scene.h"
 #include "viewrender.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 #include "client_virtualreality.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

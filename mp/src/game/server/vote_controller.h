@@ -25,7 +25,7 @@ public:
 	const char			*GetTypeString( void );						// Connection between console command and specific type of issue
 	virtual const char	*GetDetailsString();
 	virtual void		SetIssueDetails( const char *pszDetails );	// We need to know the details part of the con command for later
-	virtual void		OnVoteFailed( void );						// The moment the vote fails, also has some time for feedback before the window goes away
+	virtual void		OnVoteFailed( int iEntityHoldingVote );		// The moment the vote fails, also has some time for feedback before the window goes away
 	virtual void		OnVoteStarted( void ) {}					// Called as soon as the vote starts
 	virtual bool		IsEnabled( void ) { return false; }			// Query the issue to see if it's enabled
 	virtual bool		CanTeamCallVote( int iTeam ) const;			// Can someone on the given team call this vote?
@@ -40,6 +40,7 @@ public:
 	virtual bool		IsYesNoVote( void );
 	virtual void		SetYesNoVoteCount( int iNumYesVotes, int iNumNoVotes, int iNumPotentialVotes );
 	virtual bool		GetVoteOptions( CUtlVector <const char*> &vecNames );	// We use this to generate options for voting
+	virtual bool		BRecordVoteFailureEventForEntity( int iVoteCallingEntityIndex ) const { return iVoteCallingEntityIndex != DEDICATED_SERVER; }
 
 protected:
 	static void			ListStandardNoArgCommand( CBasePlayer *forWhom, const char *issueString );		// List a Yes vote command

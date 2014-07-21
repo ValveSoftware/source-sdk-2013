@@ -474,10 +474,6 @@ private:
 	// This stores the current view
  	CViewSetup		m_CurrentView;
 
-	// these will both be mono or they will be left/right
-	StereoEye_t		m_eStartEye;
-	StereoEye_t		m_eLastEye;
-
 	// VIS Overrides
 	// Set to true to turn off client side vis ( !!!! rendering will be slow since everything will draw )
 	bool			m_bForceNoVis;	

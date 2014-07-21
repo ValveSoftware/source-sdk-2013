@@ -32,7 +32,7 @@ void CUtlMemoryPool::SetErrorReportFunc( MemoryPoolReportFunc_t func )
 CUtlMemoryPool::CUtlMemoryPool( int blockSize, int numElements, int growMode, const char *pszAllocOwner, int nAlignment )
 {
 #ifdef _X360
-	if( numElements > 0 && growMode != GROW_NONE )
+	if( numElements > 0 && growMode != UTLMEMORYPOOL_GROW_NONE )
 	{
 		numElements = 1;
 	}
@@ -157,18 +157,18 @@ void CUtlMemoryPool::AddNewBlob()
 
 	int sizeMultiplier;
 
-	if( m_GrowMode == GROW_SLOW )
+	if( m_GrowMode == UTLMEMORYPOOL_GROW_SLOW )
 	{
 		sizeMultiplier = 1;
 	}
 	else
 	{
-		if ( m_GrowMode == GROW_NONE )
+		if ( m_GrowMode == UTLMEMORYPOOL_GROW_NONE )
 		{
 			// Can only have one allocation when we're in this mode
 			if( m_NumBlobs != 0 )
 			{
-				Assert( !"CUtlMemoryPool::AddNewBlob: mode == GROW_NONE" );
+				Assert( !"CUtlMemoryPool::AddNewBlob: mode == UTLMEMORYPOOL_GROW_NONE" );
 				return;
 			}
 		}
@@ -231,10 +231,10 @@ void *CUtlMemoryPool::Alloc( size_t amount )
 
 	if( !m_pHeadOfFreeList )
 	{
-		// returning NULL is fine in GROW_NONE
-		if( m_GrowMode == GROW_NONE )
+		// returning NULL is fine in UTLMEMORYPOOL_GROW_NONE
+		if( m_GrowMode == UTLMEMORYPOOL_GROW_NONE )
 		{
-			//Assert( !"CUtlMemoryPool::Alloc: tried to make new blob with GROW_NONE" );
+			//Assert( !"CUtlMemoryPool::Alloc: tried to make new blob with UTLMEMORYPOOL_GROW_NONE" );
 			return NULL;
 		}
 

@@ -89,6 +89,7 @@ public:
 
 	// Command rate limiting.
 	bool ShouldRunRateLimitedCommand( const CCommand &args );
+	bool ShouldRunRateLimitedCommand( const char *pszCommand );
 
 protected:
 	virtual CAI_Expresser *CreateExpresser( void );

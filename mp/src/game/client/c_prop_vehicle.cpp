@@ -18,7 +18,7 @@
 #include "vgui/ISurface.h"
 #include "client_virtualreality.h"
 #include "../hud_crosshair.h"
-#include "headtrack/isourcevirtualreality.h"
+#include "sourcevr/isourcevirtualreality.h"
 // NVNT haptic utils
 #include "haptics/haptic_utils.h"
 

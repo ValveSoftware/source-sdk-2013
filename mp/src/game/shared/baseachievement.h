@@ -105,6 +105,9 @@ public:
 
 	virtual void Think( void ) { return; }
 
+	const char *GetMapNameFilter( void ){ return m_pMapNameFilter; }
+	CAchievementMgr *GetAchievementMgr( void ){ return m_pAchievementMgr; }
+
 protected:
 	virtual void FireGameEvent( IGameEvent *event );
 	virtual void FireGameEvent_Internal( IGameEvent *event ) {};

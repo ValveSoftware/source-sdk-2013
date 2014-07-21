@@ -132,6 +132,7 @@ public:
 
 	virtual bool	IsInfoPanelAllowed() OVERRIDE { return true; }
 	virtual void	InfoPanelDisplayed() OVERRIDE { }
+	virtual bool	IsHTMLInfoPanelAllowed() OVERRIDE { return true; }
 
 protected:
 	CBaseViewport			*m_pViewport;

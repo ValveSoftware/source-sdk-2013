@@ -303,7 +303,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 	SendPropBool( SENDINFO( m_bAlternateSorting )),
 
 #ifdef TF_DLL
-	SendPropArray3( SENDINFO_ARRAY3(m_nModelIndexOverrides), SendPropInt( SENDINFO_ARRAY(m_nModelIndexOverrides), SP_MODEL_INDEX_BITS, SPROP_UNSIGNED ) ),
+	SendPropArray3( SENDINFO_ARRAY3(m_nModelIndexOverrides), SendPropInt( SENDINFO_ARRAY(m_nModelIndexOverrides), SP_MODEL_INDEX_BITS, 0 ) ),
 #endif
 
 END_SEND_TABLE()
@@ -4522,6 +4522,17 @@ void CBaseEntity::Teleport( const Vector *newPosition, const QAngle *newAngles, 
 	for (i = 0; i < teleportList.Count(); i++)
 	{
 		teleportList[i].pEntity->CollisionRulesChanged();
+	}
+
+	if ( IsPlayer() )
+	{
+		// Tell the client being teleported
+		IGameEvent *event = gameeventmanager->CreateEvent( "base_player_teleported" );
+		if ( event )
+		{
+			event->SetInt( "entindex", entindex() );
+			gameeventmanager->FireEventClientSide( event );
+		}
 	}
 
 	Assert( g_TeleportStack[index] == this );

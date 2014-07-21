@@ -18,7 +18,7 @@ class CFlashlightEffect
 public:
 
 	CFlashlightEffect(int nEntIndex = 0);
-	~CFlashlightEffect();
+	virtual ~CFlashlightEffect();
 
 	virtual void UpdateLight(const Vector &vecPos, const Vector &vecDir, const Vector &vecRight, const Vector &vecUp, int nDistance);
 	void TurnOn();

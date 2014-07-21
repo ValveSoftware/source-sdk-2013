@@ -11,6 +11,8 @@
 #pragma once
 #endif
 
+#include "baseprojectile.h"
+
 #if defined( CLIENT_DLL )
 
 #define CBaseGrenade C_BaseGrenade
@@ -29,12 +31,12 @@
 class CTakeDamageInfo;
 
 #if !defined( CLIENT_DLL )
-class CBaseGrenade : public CBaseAnimating, public CDefaultPlayerPickupVPhysics
+class CBaseGrenade : public CBaseProjectile, public CDefaultPlayerPickupVPhysics
 #else
-class CBaseGrenade : public CBaseAnimating
+class CBaseGrenade : public CBaseProjectile
 #endif
 {
-	DECLARE_CLASS( CBaseGrenade, CBaseAnimating );
+	DECLARE_CLASS( CBaseGrenade, CBaseProjectile );
 public:
 
 	CBaseGrenade(void);

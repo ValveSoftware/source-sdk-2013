@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//====== Copyright (c) 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: interface to steam for game servers
 //
@@ -56,10 +56,7 @@ public:
 	/// @see SteamServersConnected_t
 	/// @see SteamServerConnectFailure_t
 	/// @see SteamServersDisconnected_t
-	virtual void LogOn(
-		const char *pszAccountName,
-		const char *pszPassword
-	) = 0;
+	virtual void LogOn( const char *pszToken ) = 0;
 
 	/// Login to a generic, anonymous account.
 	///
@@ -121,7 +118,7 @@ public:
 	/// it allows users to filter in the matchmaking/server-browser interfaces based on the value
 	///
 	/// @see k_cbMaxGameServerTags
-	virtual void SetGameTags( const char *pchGameTags ) = 0; 
+	virtual void SetGameTags( const char *pchGameTags ) = 0;
 
 	/// Sets a string defining the "gamedata" for this server, this is optional, but if it is set
 	/// it allows users to filter in the matchmaking/server-browser interfaces based on the value
@@ -129,7 +126,7 @@ public:
 	/// acknowledged)
 	///
 	/// @see k_cbMaxGameServerGameData
-	virtual void SetGameData( const char *pchGameData) = 0; 
+	virtual void SetGameData( const char *pchGameData ) = 0;
 
 	/// Region identifier.  This is an optional field, the default value is empty, meaning the "world" region
 	virtual void SetRegion( const char *pszRegion ) = 0;
@@ -192,15 +189,10 @@ public:
 	// returns false if we're not connected to the steam servers and thus cannot ask
 	virtual bool RequestUserGroupStatus( CSteamID steamIDUser, CSteamID steamIDGroup ) = 0;
 
-//
-// Query steam for server data
-//
 
-	// Ask for the gameplay stats for the server. Results returned in a callback
+	// these two functions s are deprecated, and will not return results
+	// they will be removed in a future version of the SDK
 	virtual void GetGameplayStats( ) = 0;
-
-	// Gets the reputation score for the game server. This API also checks if the server or some
-	// other server on the same IP is banned from the Steam master servers.
 	virtual SteamAPICall_t GetServerReputation( ) = 0;
 
 	// Returns the public IP of the server according to Steam, useful when the server is 
@@ -255,7 +247,7 @@ public:
 
 };
 
-#define STEAMGAMESERVER_INTERFACE_VERSION "SteamGameServer011"
+#define STEAMGAMESERVER_INTERFACE_VERSION "SteamGameServer012"
 
 // game server flags
 const uint32 k_unServerFlagNone			= 0x00;
@@ -284,7 +276,8 @@ const uint32 k_unServerFlagPrivate		= 0x20;		// server shouldn't list on master 
 struct GSClientApprove_t
 {
 	enum { k_iCallback = k_iSteamGameServerCallbacks + 1 };
-	CSteamID m_SteamID;
+	CSteamID m_SteamID;			// SteamID of approved player
+	CSteamID m_OwnerSteamID;	// SteamID of original owner for game license
 };
 
 

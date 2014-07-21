@@ -112,7 +112,7 @@ void ConstructStringVArgsInternal_Impl(T *unicodeOutput, int unicodeBufferSizeIn
 			}
 			else
 			{
-				AssertMsg( argindex < numFormatParameters, "ConstructStringVArgsInternal_Impl() - Found a %s# escape sequence whose index was more than the number of args." );
+				AssertMsg( argindex < numFormatParameters, "ConstructStringVArgsInternal_Impl() - Found a %%s# escape sequence whose index was more than the number of args." );
 
 				//copy it over, char by char
 				*outputPos = *searchPos;

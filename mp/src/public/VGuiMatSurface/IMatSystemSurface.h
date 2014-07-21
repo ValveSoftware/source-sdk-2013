@@ -105,6 +105,9 @@ public:
 
 // Gets a material bound to a surface texture ID
 	virtual IMaterial *DrawGetTextureMaterial( int id ) = 0;
+
+	virtual void GetFullscreenViewportAndRenderTarget( int & x, int & y, int & w, int & h, ITexture **ppRenderTarget ) = 0;
+	virtual void SetFullscreenViewportAndRenderTarget( int x, int y, int w, int h, ITexture *pRenderTarget ) = 0;
 };
 
 

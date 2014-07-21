@@ -114,7 +114,7 @@ void TE_BloodStream( IRecipientFilter& filter, float delay,
 	float		arc = 0.05;
 	int			count, count2;
 	float		num;
-	int			speedCopy = amount;
+	float		speedCopy = amount;
 	
 	Vector dir;
 	VectorCopy( *direction, dir );

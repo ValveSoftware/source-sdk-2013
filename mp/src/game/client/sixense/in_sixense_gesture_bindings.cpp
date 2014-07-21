@@ -879,10 +879,6 @@ bool SixenseGestureBindings::ActionTokenToStr( sixenseUtils::IButtonStates::Acti
 	{
 		Q_snprintf( buf, buflen, "tilt_gesture" );
 	}
-	else if( action == sixenseUtils::IButtonStates::ACTION_BUTTON_PRESS ) 
-	{
-		Q_snprintf( buf, buflen, "button_press" );
-	} 
 	else if( action == sixenseUtils::IButtonStates::ACTION_TRIGGER_PRESS ) 
 	{
 		Q_snprintf( buf, buflen, "trigger_press" );

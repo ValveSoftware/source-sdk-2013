@@ -156,6 +156,9 @@ public:
 	// This is the filesystem FileSystem_LoadSearchPaths is talking to.
 	IFileSystem		*m_pFileSystem;
 
+	bool m_bMountHDContent;
+	bool m_bLowViolence;
+
 // Outputs.
 public:
 	// This is the location of the first search path called "game", which also becomes your "mod" search path.
