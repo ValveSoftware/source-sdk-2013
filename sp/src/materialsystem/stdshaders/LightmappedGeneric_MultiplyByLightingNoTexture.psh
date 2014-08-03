@@ -1,0 +1,20 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+;------------------------------------------------------------------------------
+
+def c2, 1.0f, 1.0f, 1.0f, 1.0f
+
+tex t0
+tex t1
+
+; Blend between grey and lightmap color based on total alpha
+
+mul_x2 r1.rgb, c0, t1		; Apply overbright to lightmap
++ mov_sat r1.a, v0		; vertex alpha
+lrp r0, r1.a, r1, c2		; interpolate between white + color

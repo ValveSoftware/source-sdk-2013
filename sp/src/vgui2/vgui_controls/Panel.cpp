@@ -3911,7 +3911,7 @@ void Panel::PinToSibling( const char *pszSibling, PinCorner_e pinOurCorner, PinC
 	_pinCornerToSibling = pinOurCorner;
 	_pinToSiblingCorner = pinSibling;
 
-	if ( _pinToSibling && pszSibling && !Q_strcmp( _pinToSibling, pszSibling ) )
+	if ( m_pinSibling.Get() && _pinToSibling && pszSibling && !Q_strcmp( _pinToSibling, pszSibling ) )
 		return;
 
 	if (_pinToSibling)

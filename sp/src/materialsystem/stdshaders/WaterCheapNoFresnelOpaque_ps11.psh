@@ -1,0 +1,19 @@
+ps.1.1
+
+; Get the 3-vector from the normal map
+tex t0
+
+; Perform matrix multiply to get a local normal bump.  Then
+; reflect the eye vector through the normal and sample from 
+; a cubic environment map.
+texm3x3pad t1, t0_bx2
+texm3x3pad t2, t0_bx2		
+texm3x3vspec t3, t0_bx2
+
+mul r0, t3, c1					; multiply color by reflecttint
+lrp r0.rgb, c1.a, r0, c0		; blend between reflected color and fog color based on constant factor
+
+
+
+
+

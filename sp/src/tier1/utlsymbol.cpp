@@ -225,7 +225,7 @@ CUtlSymbol CUtlSymbolTable::AddString( const char* pString )
 	if (id.IsValid())
 		return id;
 
-	int len = strlen(pString) + 1;
+	int len = V_strlen(pString) + 1;
 
 	// Find a pool with space for this string, or allocate a new one.
 	int iPool = FindPoolWithSpace( len );

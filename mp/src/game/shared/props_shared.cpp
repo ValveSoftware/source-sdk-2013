@@ -1323,7 +1323,7 @@ CBaseEntity *CreateGibsFromList( CUtlVector<breakmodel_t> &list, int modelindex,
 	if ( !pCollide )
 		return NULL;
 
-	int nSkin = 0;
+	int nSkin = params.nDefaultSkin;
 	CBaseEntity *pOwnerEntity = pEntity;
 	CBaseAnimating *pOwnerAnim = NULL;
 	if ( pPhysics )

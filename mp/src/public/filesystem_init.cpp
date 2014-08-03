@@ -224,6 +224,7 @@ CFSSearchPathsInit::CFSSearchPathsInit()
 	m_pDirectoryName = NULL;
 	m_pLanguage = NULL;
 	m_ModPath[0] = 0;
+	m_bMountHDContent = m_bLowViolence = false;
 }
 
 
@@ -460,52 +461,6 @@ FSReturnCode_t LoadGameInfoFile(
 	return FS_OK;
 }
 
-// checks the registry for the low violence setting
-// Check "HKEY_CURRENT_USER\Software\Valve\Source\Settings" and "User Token 2" or "User Token 3"
-bool IsLowViolenceBuild( void )
-{
-#if defined(_WIN32)
-	HKEY hKey;
-	char szValue[64];
-	unsigned long len = sizeof(szValue) - 1;
-	bool retVal = false;
-	
-	if ( IsPC() && RegOpenKeyEx( HKEY_CURRENT_USER, "Software\\Valve\\Source\\Settings", NULL, KEY_READ, &hKey) == ERROR_SUCCESS )
-	{
-		// User Token 2
-		if ( RegQueryValueEx( hKey, "User Token 2", NULL, NULL, (unsigned char*)szValue, &len ) == ERROR_SUCCESS )
-		{
-			if ( Q_strlen( szValue ) > 0 )
-			{
-				retVal = true;
-			}
-		}
-
-		if ( !retVal )
-		{
-			// reset "len" for the next check
-			len = sizeof(szValue) - 1;
-
-			// User Token 3
-			if ( RegQueryValueEx( hKey, "User Token 3", NULL, NULL, (unsigned char*)szValue, &len ) == ERROR_SUCCESS )
-			{
-				if ( Q_strlen( szValue ) > 0 )
-				{
-					retVal = true;
-				}
-			}
-		}
-
-		RegCloseKey(hKey);
-	}
-
-	return retVal;
-#elif POSIX
-	return false;
-#else
-	#error "Fix me"
-#endif
-}
 
 static void FileSystem_AddLoadedSearchPath( 
 	CFSSearchPathsInit &initInfo, 
@@ -519,12 +474,25 @@ static void FileSystem_AddLoadedSearchPath(
 	{
 
 		// Not in LV build, don't mount
-		if ( !bLowViolence )
+		if ( !initInfo.m_bLowViolence )
 			return;
 
 		// Mount, as a game path
 		pPathID = "game";
 	}
+
+	// Check for mounting HD game content if enabled
+	if ( V_stricmp( pPathID, "game_hd" ) == 0 )
+	{
+
+		// Not in LV build, don't mount
+		if ( !initInfo.m_bMountHDContent )
+			return;
+
+		// Mount, as a game path
+		pPathID = "game";
+	}
+
 
 	// Special processing for ordinary game folders
 	if ( V_stristr( fullLocationPath, ".vpk" ) == NULL && Q_stricmp( pPathID, "game" ) == 0 )
@@ -600,7 +568,7 @@ FSReturnCode_t FileSystem_LoadSearchPaths( CFSSearchPathsInit &initInfo )
 		}
 	}
 
-	bool bLowViolence = IsLowViolenceBuild();
+	bool bLowViolence = initInfo.m_bLowViolence;
 	for ( KeyValues *pCur=pSearchPaths->GetFirstValue(); pCur; pCur=pCur->GetNextValue() )
 	{
 		const char *pLocation = pCur->GetString();

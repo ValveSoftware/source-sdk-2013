@@ -765,6 +765,29 @@ private:
 
 };
 
+// Encodes a string (or binary data) in URL encoding format, see rfc1738 section 2.2.
+// Dest buffer should be 3 times the size of source buffer to guarantee it has room to encode.
+void Q_URLEncodeRaw( OUT_Z_CAP(nDestLen) char *pchDest, int nDestLen, const char *pchSource, int nSourceLen );
+
+// Decodes a string (or binary data) from URL encoding format, see rfc1738 section 2.2.
+// Dest buffer should be at least as large as source buffer to gurantee room for decode.
+// Dest buffer being the same as the source buffer (decode in-place) is explicitly allowed.
+//
+// Returns the amount of space actually used in the output buffer.  
+size_t Q_URLDecodeRaw( OUT_CAP(nDecodeDestLen) char *pchDecodeDest, int nDecodeDestLen, const char *pchEncodedSource, int nEncodedSourceLen );
+
+// Encodes a string (or binary data) in URL encoding format, this isn't the strict rfc1738 format, but instead uses + for spaces.  
+// This is for historical reasons and HTML spec foolishness that lead to + becoming a de facto standard for spaces when encoding form data.
+// Dest buffer should be 3 times the size of source buffer to guarantee it has room to encode.
+void Q_URLEncode( OUT_Z_CAP(nDestLen) char *pchDest, int nDestLen, const char *pchSource, int nSourceLen );
+
+// Decodes a string (or binary data) in URL encoding format, this isn't the strict rfc1738 format, but instead uses + for spaces.  
+// This is for historical reasons and HTML spec foolishness that lead to + becoming a de facto standard for spaces when encoding form data.
+// Dest buffer should be at least as large as source buffer to gurantee room for decode.
+// Dest buffer being the same as the source buffer (decode in-place) is explicitly allowed.
+//
+// Returns the amount of space actually used in the output buffer.  
+size_t Q_URLDecode( OUT_CAP(nDecodeDestLen) char *pchDecodeDest, int nDecodeDestLen, const char *pchEncodedSource, int nEncodedSourceLen );
 
 
 // NOTE: This is for backward compatability!

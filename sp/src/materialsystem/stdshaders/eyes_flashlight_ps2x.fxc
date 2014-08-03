@@ -1,0 +1,15 @@
+//====== Copyright © 1996-2004, Valve Corporation, All rights reserved. =======
+//
+// Purpose: 
+//
+//=============================================================================
+
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b] [PC]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps30]  [PC]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..0"	[ps20b] [XBOX]
+
+// DYNAMIC: "PIXELFOGTYPE"				"0..1"
+// DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b]
+// DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps30]
+
+#include "eyes_flashlight_inc.fxc"

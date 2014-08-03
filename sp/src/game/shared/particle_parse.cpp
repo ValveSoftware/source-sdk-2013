@@ -309,7 +309,7 @@ void DispatchParticleEffect( const char *pszParticleName, ParticleAttachment_t i
 	if ( ( data.m_fFlags & PARTICLE_DISPATCH_FROM_ENTITY ) != 0 &&
 		 ( iAttachType == PATTACH_ABSORIGIN_FOLLOW || iAttachType == PATTACH_POINT_FOLLOW || iAttachType == PATTACH_ROOTBONE_FOLLOW ) )
 	{
-		CReliableBroadcastRecipientFilter filter;
+		CBroadcastRecipientFilter filter;
 		DispatchEffect( "ParticleEffect", data, filter );
 	}
 	else

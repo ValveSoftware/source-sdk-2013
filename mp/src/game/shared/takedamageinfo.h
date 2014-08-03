@@ -77,6 +77,8 @@ public:
 	void			SetDamageCustom( int iDamageCustom );
 	int				GetDamageStats( void ) const;
 	void			SetDamageStats( int iDamageStats );
+	void			SetForceFriendlyFire( bool bValue ) { m_bForceFriendlyFire = bValue; }
+	bool			IsForceFriendlyFire( void ) const { return m_bForceFriendlyFire; }
 
 	int				GetAmmoType() const;
 	void			SetAmmoType( int iAmmoType );
@@ -123,6 +125,7 @@ protected:
 	int				m_iDamagedOtherPlayers;
 	int				m_iPlayerPenetrationCount;
 	float			m_flDamageBonus;		// Anything that increases damage (crit) - store the delta
+	bool			m_bForceFriendlyFire;	// Ideally this would be a dmg type, but we can't add more
 
 	DECLARE_SIMPLE_DATADESC();
 };

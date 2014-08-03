@@ -4075,7 +4075,8 @@ ZRESULT TUnzip::Find(const TCHAR *name, bool ic, int *index, ZIPENTRY *ze)
 		return ZR_NOTFOUND;
 	}
 	if (currentfile!=-1) 
-		unzCloseCurrentFile(uf); currentfile=-1;
+		unzCloseCurrentFile(uf);
+	currentfile=-1;
 	int i = (int)uf->num_file;
 	if (index!=NULL) 
 		*index=i;
@@ -4474,15 +4475,7 @@ bool SafeUnzipMemory( const void *pvZipped, int cubZipped, void *pvDest, int cub
 	int iRes = ZR_CORRUPT;
 	if ( hZip )
 	{
-		try
-		{
-			iRes = UnzipItem( hZip, 0, pvDest, cubDest, ZIP_MEMORY );
-		}
-		catch ( ... )
-		{
-			// failed to unzip, try to continue
-			iRes = ZR_CORRUPT;
-		}
+		iRes = UnzipItem( hZip, 0, pvDest, cubDest, ZIP_MEMORY );
 		CloseZip( hZip );
 	}
 

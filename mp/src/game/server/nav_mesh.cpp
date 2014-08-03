@@ -630,9 +630,10 @@ void CNavMesh::OnRoundRestart( void )
 	}
 
 	// attach prerequisites
-	CFuncNavPrerequisite *prereq = NULL;
-	while( ( prereq = (CFuncNavPrerequisite *)gEntList.FindEntityByClassname( prereq, "func_nav_prerequisite" ) ) != NULL )
+	for ( int i=0; i<IFuncNavPrerequisiteAutoList::AutoList().Count(); ++i )
 	{
+		CFuncNavPrerequisite *prereq = static_cast< CFuncNavPrerequisite* >( IFuncNavPrerequisiteAutoList::AutoList()[i] );
+
 		Extent prereqExtent;
 		prereqExtent.Init( prereq );
 

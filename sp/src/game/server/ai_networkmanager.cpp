@@ -983,7 +983,7 @@ bool CAI_NetworkManager::IsAIFileCurrent ( const char *szMapName )
 		Q_strncpy( szLoweredGameDir, pGameDir, sizeof( szLoweredGameDir ) );
 		Q_strlower( szLoweredGameDir );
 		
-		if ( !V_stricmp( szLoweredGameDir, "hl2" ) || !V_stricmp( szLoweredGameDir, "episodic" ) || !V_stricmp( szLoweredGameDir, "ep2" ) || !V_stricmp( szLoweredGameDir, "portal" ) || !V_stricmp( szLoweredGameDir, "lostcoast" ) )
+		if ( !V_stricmp( szLoweredGameDir, "hl2" ) || !V_stricmp( szLoweredGameDir, "episodic" ) || !V_stricmp( szLoweredGameDir, "ep2" ) || !V_stricmp( szLoweredGameDir, "portal" ) || !V_stricmp( szLoweredGameDir, "lostcoast" )  || !V_stricmp( szLoweredGameDir, "hl1" ) )
 		{
 			// we shipped good node graphs for our games
 			return true;

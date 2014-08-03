@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//====== Copyright � 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: interface to utility functions in Steam
 //
@@ -149,17 +149,20 @@ public:
 #endif
 
 	// Activates the Big Picture text input dialog which only supports gamepad input
-	virtual bool ShowGamepadTextInput( EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax ) = 0;
+	virtual bool ShowGamepadTextInput( EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText ) = 0;
 
 	// Returns previously entered text & length
 	virtual uint32 GetEnteredGamepadTextLength() = 0;
-	virtual bool GetEnteredGamepadTextInput( char *pchText, uint32 cchText ) = 0;	
+	virtual bool GetEnteredGamepadTextInput( char *pchText, uint32 cchText ) = 0;
 
 	// returns the language the steam client is running in, you probably want ISteamApps::GetCurrentGameLanguage instead, this is for very special usage cases
 	virtual const char *GetSteamUILanguage() = 0;
+
+	// returns true if Steam itself is running in VR mode
+	virtual bool IsSteamRunningInVR() = 0;
 };
 
-#define STEAMUTILS_INTERFACE_VERSION "SteamUtils006"
+#define STEAMUTILS_INTERFACE_VERSION "SteamUtils007"
 
 
 // callbacks

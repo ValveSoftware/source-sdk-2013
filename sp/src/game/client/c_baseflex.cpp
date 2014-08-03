@@ -1159,6 +1159,33 @@ void C_BaseFlex::SetupWeights( const matrix3x4_t *pBoneToWorld, int nFlexWeightC
 
 
 //-----------------------------------------------------------------------------
+// Purpose: Use the local bone positions to set flex control weights
+//          via boneflexdrivers specified in the model
+//-----------------------------------------------------------------------------
+void C_BaseFlex::BuildTransformations( CStudioHdr *pStudioHdr, Vector *pos, Quaternion q[], const matrix3x4_t& cameraTransform, int boneMask, CBoneBitList &boneComputed )
+{
+	const int nBoneFlexDriverCount = pStudioHdr->BoneFlexDriverCount();
+
+	for ( int i = 0; i < nBoneFlexDriverCount; ++i )
+	{
+		const mstudioboneflexdriver_t *pBoneFlexDriver = pStudioHdr->BoneFlexDriver( i );
+		const Vector &position = pos[ pBoneFlexDriver->m_nBoneIndex ];
+
+		const int nControllerCount = pBoneFlexDriver->m_nControlCount;
+		for ( int j = 0; j < nControllerCount; ++j )
+		{
+			const mstudioboneflexdrivercontrol_t *pController = pBoneFlexDriver->pBoneFlexDriverControl( j );
+			Assert( pController->m_nFlexControllerIndex >= 0 && pController->m_nFlexControllerIndex < pStudioHdr->numflexcontrollers() );
+			Assert( pController->m_nBoneComponent >= 0 && pController->m_nBoneComponent <= 2 );
+			SetFlexWeight( static_cast< LocalFlexController_t >( pController->m_nFlexControllerIndex ), RemapValClamped( position[pController->m_nBoneComponent], pController->m_flMin, pController->m_flMax, 0.0f, 1.0f ) );
+		}
+	}
+
+	BaseClass::BuildTransformations( pStudioHdr, pos, q, cameraTransform, boneMask, boneComputed );
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose: process the entities networked state, vcd playback, wav file visemes, and blinks into a global shared flex controller array
 //-----------------------------------------------------------------------------
 bool C_BaseFlex::SetupGlobalWeights( const matrix3x4_t *pBoneToWorld, int nFlexWeightCount, float *pFlexWeights, float *pFlexDelayedWeights )

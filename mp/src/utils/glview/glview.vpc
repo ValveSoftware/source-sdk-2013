@@ -20,7 +20,6 @@ $Configuration
 	$Linker
 	{
 		$AdditionalDependencies				"$BASE glu32.lib opengl32.lib odbc32.lib odbccp32.lib winmm.lib"
-		$AdditionalDependencies				"$BASE glaux.lib" [!$VS2010]
 	}
 }
 

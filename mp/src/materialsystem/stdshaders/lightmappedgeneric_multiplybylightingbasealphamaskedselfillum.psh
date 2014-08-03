@@ -1,0 +1,24 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+;------------------------------------------------------------------------------
+
+tex t0
+tex t1
+
+; Blend between grey and lightmap color based on total alpha
+
+def c0 0.5f 0.5f 0.5f 1.0f
+
+mul_x2 r1.rgb, c0, t1		; Apply overbright to lightmap
++ mul r1.a, t0, v0			; base times vertex alpha
+; GR - workaround for const/lerp issues
+mul r0.rgb, c1, t0			; Self illum * tint
++mul_sat r0.a, c1, t0
+lrp r1.rgb, t0.a, r1, r0	; Blend between self-illum + lightmap
+lrp r0, r1.a, r1, c0		; interpolate between grey + color

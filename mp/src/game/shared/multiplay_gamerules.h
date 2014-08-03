@@ -136,7 +136,7 @@ public:
 
 // Client damage rules
 	virtual float FlPlayerFallDamage( CBasePlayer *pPlayer );
-	virtual bool  FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker );
+	virtual bool  FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info );
 	virtual bool AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info );
 
 // Client spawn/respawn control
@@ -215,6 +215,7 @@ public:
 	void IncrementMapCycleIndex();
 
 	void HaveAllPlayersSpeakConceptIfAllowed( int iConcept, int iTeam = TEAM_UNASSIGNED, const char *modifiers = NULL );
+	void RandomPlayersSpeakConceptIfAllowed( int iConcept, int iNumRandomPlayer = 1, int iTeam = TEAM_UNASSIGNED, const char *modifiers = NULL );
 
 	virtual void GetTaggedConVarList( KeyValues *pCvarTagList );
 

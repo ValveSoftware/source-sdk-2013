@@ -72,6 +72,7 @@ BEGIN_DATADESC( CTeamTrainWatcher )
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetSpeedForwardModifier", InputSetSpeedForwardModifier ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetTrainRecedeTime", InputSetTrainRecedeTime ),
+	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetTrainCanRecede", InputSetTrainCanRecede ),
 
 	// Outputs
 	DEFINE_OUTPUT( m_OnTrainStartRecede, "OnTrainStartRecede" ),
@@ -141,6 +142,9 @@ END_SEND_TABLE()
 
 
 LINK_ENTITY_TO_CLASS( team_train_watcher, CTeamTrainWatcher );
+
+IMPLEMENT_AUTO_LIST( ITFTeamTrainWatcher );
+
 /*
 LINK_ENTITY_TO_CLASS( team_train_watcher_master, CTeamTrainWatcherMaster );
 PRECACHE_REGISTER( team_train_watcher_master );
@@ -708,6 +712,11 @@ void CTeamTrainWatcher::InputSetTrainRecedeTime( inputdata_t &inputdata )
 	{
 		m_nTrainRecedeTime = 0;
 	}
+}
+
+void CTeamTrainWatcher::InputSetTrainCanRecede( inputdata_t &inputdata )
+{
+	m_bTrainCanRecede = inputdata.value.Bool();
 }
 
 void CTeamTrainWatcher::InputOnStartOvertime( inputdata_t &inputdata )

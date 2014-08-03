@@ -34,7 +34,7 @@ every surface must be divided into at least two patches each axis
 */
 
 CUtlVector<CPatch>		g_Patches;			
-CUtlVector<int>			g_FacePatches;		// constains all patches, children first
+CUtlVector<int>			g_FacePatches;		// contains all patches, children first
 CUtlVector<int>			faceParents;		// contains only root patches, use next parent to iterate
 CUtlVector<int>			clusterChildren;
 CUtlVector<Vector>		emitlight;
@@ -2408,12 +2408,13 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 		{
 			if ( ++i < argc )
 			{
-				numbounce = atoi (argv[i]);
-				if ( numbounce < 0 )
+				int bounceParam = atoi (argv[i]);
+				if ( bounceParam < 0 )
 				{
 					Warning("Error: expected non-negative value after '-bounce'\n" );
 					return 1;
 				}
+				numbounce = (unsigned)bounceParam;
 			}
 			else
 			{

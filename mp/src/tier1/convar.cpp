@@ -269,7 +269,7 @@ char *ConCommandBase::CopyString( const char *from )
 	int		len;
 	char	*to;
 
-	len = strlen( from );
+	len = V_strlen( from );
 	if ( len <= 0 )
 	{
 		to = new char[1];
@@ -507,7 +507,7 @@ int DefaultCompletionFunc( const char *partial, char commands[ COMMAND_COMPLETIO
 //	m_bIsNewConCommand = true;
 //}
 
-ConCommand::ConCommand( const char *pName, FnCommandCallbackV1_t callback, const char *pHelpString /*= 0*/, int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/ )
+ConCommand::ConCommand( const char *pName, FnCommandCallbackVoid_t callback, const char *pHelpString /*= 0*/, int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/ )
 {
 	// Set the callback
 	m_fnCommandCallbackV1 = callback;
@@ -951,7 +951,7 @@ void ConVar::Create( const char *pName, const char *pDefaultValue, int flags /*=
 	// Name should be static data
 	SetDefault( pDefaultValue );
 
-	m_StringLength = strlen( m_pszDefaultValue ) + 1;
+	m_StringLength = V_strlen( m_pszDefaultValue ) + 1;
 	m_pszString = new char[m_StringLength];
 	memcpy( m_pszString, m_pszDefaultValue, m_StringLength );
 	
@@ -963,6 +963,7 @@ void ConVar::Create( const char *pName, const char *pDefaultValue, int flags /*=
 	m_fnChangeCallback = callback;
 
 	m_fValue = ( float )atof( m_pszString );
+	m_nValue = atoi( m_pszString ); // dont convert from float to int and lose bits
 
 	// Bounds Check, should never happen, if it does, no big deal
 	if ( m_bHasMin && ( m_fValue < m_fMinVal ) )
@@ -974,8 +975,6 @@ void ConVar::Create( const char *pName, const char *pDefaultValue, int flags /*=
 	{
 		Assert( 0 );
 	}
-
-	m_nValue = ( int )m_fValue;
 
 	BaseClass::Create( pName, pHelpString, flags );
 }

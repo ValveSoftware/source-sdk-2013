@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//====== Copyright © 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: interface to steam managing game server/client match making
 //
@@ -74,7 +74,7 @@ public:
 	virtual int AddFavoriteGame( AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer ) =0;
 	
 	// removes the game server from the local storage; returns true if one was removed
-    virtual bool RemoveFavoriteGame( AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags ) = 0;
+	virtual bool RemoveFavoriteGame( AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags ) = 0;
 
 	///////
 	// Game lobby functions
@@ -563,6 +563,7 @@ struct FavoritesListChanged_t
 	uint32 m_nAppID;
 	uint32 m_nFlags;
 	bool m_bAdd; // true if this is adding the entry, otherwise it is a remove
+	AccountID_t m_unAccountId;
 };
 
 
@@ -725,6 +726,21 @@ struct PSNGameBootInviteResult_t
 	bool m_bGameBootInviteExists;
 	CSteamID m_steamIDLobby;		// Should be valid if m_bGameBootInviteExists == true
 };
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Result of our request to create a Lobby
+//			m_eResult == k_EResultOK on success
+//			at this point, the lobby has been joined and is ready for use
+//			a LobbyEnter_t callback will also be received (since the local user is joining their own lobby)
+//-----------------------------------------------------------------------------
+struct FavoritesListAccountsUpdated_t
+{
+	enum { k_iCallback = k_iSteamMatchmakingCallbacks + 16 };
+	
+	EResult m_eResult;
+};
+
 #pragma pack( pop )
 
 

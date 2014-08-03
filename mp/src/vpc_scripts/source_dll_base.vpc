@@ -10,7 +10,7 @@ $Include "$SRCDIR\vpc_scripts\source_video_base.vpc"
 
 $Configuration
 {
-	$General	[$VS2010]
+	$General
 	{
 		$TargetExtension	"$OUTDLLEXT"
 	}
@@ -20,6 +20,6 @@ $Configuration
 		$PreprocessorDefinitions			"$BASE;DEV_BUILD"						[!$PUBLISH]
 		$PreprocessorDefinitions			"$BASE;_PROFILE"						[$PROFILE && !$RETAIL]
 		$PreprocessorDefinitions			"$BASE;RETAIL_ASSERTS"					[$RETAIL && $RETAILASSERTS]
-		$PreprocessorDefinitions			"$BASE;FRAME_POINTER_OMISSION_DISABLED"	[$NOFPO || $VS2010]
+		$PreprocessorDefinitions			"$BASE;FRAME_POINTER_OMISSION_DISABLED" // This is now always true.
 	}
 }

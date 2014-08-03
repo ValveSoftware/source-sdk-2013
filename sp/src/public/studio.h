@@ -313,6 +313,63 @@ private:
 };
 
 
+//-----------------------------------------------------------------------------
+// The component of the bone used by mstudioboneflexdriver_t
+//-----------------------------------------------------------------------------
+enum StudioBoneFlexComponent_t
+{
+	STUDIO_BONE_FLEX_INVALID = -1,	// Invalid
+	STUDIO_BONE_FLEX_TX = 0,		// Translate X
+	STUDIO_BONE_FLEX_TY = 1,		// Translate Y
+	STUDIO_BONE_FLEX_TZ = 2			// Translate Z
+};
+
+
+//-----------------------------------------------------------------------------
+// Component is one of Translate X, Y or Z [0,2] (StudioBoneFlexComponent_t)
+//-----------------------------------------------------------------------------
+struct mstudioboneflexdrivercontrol_t
+{
+	DECLARE_BYTESWAP_DATADESC();
+
+	int m_nBoneComponent;		// Bone component that drives flex, StudioBoneFlexComponent_t
+	int m_nFlexControllerIndex;	// Flex controller to drive
+	float m_flMin;				// Min value of bone component mapped to 0 on flex controller
+	float m_flMax;				// Max value of bone component mapped to 1 on flex controller
+
+	mstudioboneflexdrivercontrol_t(){}
+private:
+	// No copy constructors allowed
+	mstudioboneflexdrivercontrol_t( const mstudioboneflexdrivercontrol_t &vOther );
+};
+
+
+//-----------------------------------------------------------------------------
+// Drive flex controllers from bone components
+//-----------------------------------------------------------------------------
+struct mstudioboneflexdriver_t
+{
+	DECLARE_BYTESWAP_DATADESC();
+
+	int m_nBoneIndex;			// Bone to drive flex controller
+	int m_nControlCount;		// Number of flex controllers being driven
+	int m_nControlIndex;		// Index into data where controllers are (relative to this)
+
+	inline mstudioboneflexdrivercontrol_t *pBoneFlexDriverControl( int i ) const
+	{
+		Assert( i >= 0 && i < m_nControlCount );
+		return (mstudioboneflexdrivercontrol_t *)(((byte *)this) + m_nControlIndex) + i;
+	}
+
+	int unused[3];
+
+	mstudioboneflexdriver_t(){}
+private:
+	// No copy constructors allowed
+	mstudioboneflexdriver_t( const mstudioboneflexdriver_t &vOther );
+};
+
+
 #define BONE_CALCULATE_MASK			0x1F
 #define BONE_PHYSICALLY_SIMULATED	0x01	// bone is physically simulated when physics are active
 #define BONE_PHYSICS_PROCEDURAL		0x02	// procedural when physics is active
@@ -902,33 +959,6 @@ struct mstudioflexcontrollerui_t
 };
 
 
-// these are the on-disk format vertex anims
-struct dstudiovertanim_t
-{
-	unsigned short		index;
-	byte				speed;	// 255/max_length_in_flex
-	byte				side;	// 255/left_right
-	Vector48			delta;
-	Vector48			ndelta;
-
-private:
-	// No copy constructors allowed
-	dstudiovertanim_t(const dstudiovertanim_t& vOther);
-};
-
-
-struct dstudiovertanim_wrinkle_t : public dstudiovertanim_t
-{
-	short				wrinkledelta;	// Encodes a range from -1 to 1. NOTE: -32768 == -32767 == -1.0f, 32767 = 1.0f
-
-private:
-	// No copy constructors allowed
-	dstudiovertanim_wrinkle_t( const dstudiovertanim_t& vOther );
-};
-
-const float g_VertAnimFixedPointScale = 1.0f / 4096.0f;
-const float g_VertAnimFixedPointScaleInv = 1.0f / g_VertAnimFixedPointScale;
-
 // this is the memory image of vertex anims (16-bit fixed point)
 struct mstudiovertanim_t
 {
@@ -952,21 +982,31 @@ protected:
 	};
 
 public:
-	inline Vector GetDeltaFixed()
+	inline void ConvertToFixed( float flVertAnimFixedPointScale )
 	{
-		return Vector( delta[0]*g_VertAnimFixedPointScale, delta[1]*g_VertAnimFixedPointScale, delta[2]*g_VertAnimFixedPointScale );
+		delta[0] = flDelta[0].GetFloat() / flVertAnimFixedPointScale;
+		delta[1] = flDelta[1].GetFloat() / flVertAnimFixedPointScale;
+		delta[2] = flDelta[2].GetFloat() / flVertAnimFixedPointScale;
+		ndelta[0] = flNDelta[0].GetFloat() / flVertAnimFixedPointScale;
+		ndelta[1] = flNDelta[1].GetFloat() / flVertAnimFixedPointScale;
+		ndelta[2] = flNDelta[2].GetFloat() / flVertAnimFixedPointScale;
 	}
-	inline Vector GetNDeltaFixed()
+
+	inline Vector GetDeltaFixed( float flVertAnimFixedPointScale )
 	{
-		return Vector( ndelta[0]*g_VertAnimFixedPointScale, ndelta[1]*g_VertAnimFixedPointScale, ndelta[2]*g_VertAnimFixedPointScale );
+		return Vector( delta[0] * flVertAnimFixedPointScale, delta[1] * flVertAnimFixedPointScale, delta[2] * flVertAnimFixedPointScale );
 	}
-	inline void GetDeltaFixed4DAligned( Vector4DAligned *vFillIn )
+	inline Vector GetNDeltaFixed( float flVertAnimFixedPointScale )
 	{
-		vFillIn->Set( delta[0]*g_VertAnimFixedPointScale, delta[1]*g_VertAnimFixedPointScale, delta[2]*g_VertAnimFixedPointScale, 0.0f );
+		return Vector( ndelta[0] * flVertAnimFixedPointScale, ndelta[1] * flVertAnimFixedPointScale, ndelta[2] * flVertAnimFixedPointScale );
 	}
-	inline void GetNDeltaFixed4DAligned( Vector4DAligned *vFillIn )
+	inline void GetDeltaFixed4DAligned( Vector4DAligned *vFillIn, float flVertAnimFixedPointScale )
 	{
-		vFillIn->Set( ndelta[0]*g_VertAnimFixedPointScale, ndelta[1]*g_VertAnimFixedPointScale, ndelta[2]*g_VertAnimFixedPointScale, 0.0f );
+		vFillIn->Set( delta[0] * flVertAnimFixedPointScale, delta[1] * flVertAnimFixedPointScale, delta[2] * flVertAnimFixedPointScale, 0.0f );
+	}
+	inline void GetNDeltaFixed4DAligned( Vector4DAligned *vFillIn, float flVertAnimFixedPointScale )
+	{
+		vFillIn->Set( ndelta[0] * flVertAnimFixedPointScale, ndelta[1] * flVertAnimFixedPointScale, ndelta[2] * flVertAnimFixedPointScale, 0.0f );
 	}
 	inline Vector GetDeltaFloat()
 	{
@@ -976,17 +1016,17 @@ public:
 	{
 		return Vector (flNDelta[0].GetFloat(), flNDelta[1].GetFloat(), flNDelta[2].GetFloat());
 	}
-	inline void SetDeltaFixed( const Vector& vInput )
+	inline void SetDeltaFixed( const Vector& vInput, float flVertAnimFixedPointScale )
 	{
-		delta[0] = vInput.x * g_VertAnimFixedPointScaleInv;
-		delta[1] = vInput.y * g_VertAnimFixedPointScaleInv;
-		delta[2] = vInput.z * g_VertAnimFixedPointScaleInv;
+		delta[0] = vInput.x / flVertAnimFixedPointScale;
+		delta[1] = vInput.y / flVertAnimFixedPointScale;
+		delta[2] = vInput.z / flVertAnimFixedPointScale;
 	}
-	inline void SetNDeltaFixed( const Vector& vInputNormal )
+	inline void SetNDeltaFixed( const Vector& vInputNormal, float flVertAnimFixedPointScale )
 	{
-		ndelta[0] = vInputNormal.x * g_VertAnimFixedPointScaleInv;
-		ndelta[1] = vInputNormal.y * g_VertAnimFixedPointScaleInv;
-		ndelta[2] = vInputNormal.z * g_VertAnimFixedPointScaleInv;
+		ndelta[0] = vInputNormal.x / flVertAnimFixedPointScale;
+		ndelta[1] = vInputNormal.y / flVertAnimFixedPointScale;
+		ndelta[2] = vInputNormal.z / flVertAnimFixedPointScale;
 	}
 
 	// Ick...can also force fp16 data into this structure for writing to file in legacy format...
@@ -1003,10 +1043,20 @@ public:
 		flNDelta[2].SetFloat( vInputNormal.z );
 	}
 
+	class CSortByIndex
+	{
+	public:
+		bool operator()(const mstudiovertanim_t &left, const mstudiovertanim_t & right)const
+		{
+			return left.index < right.index;
+		}
+	};
+	friend class CSortByIndex;
+
 	mstudiovertanim_t(){}
-private:
-	// No copy constructors allowed
-	mstudiovertanim_t(const mstudiovertanim_t& vOther);
+//private:
+// No copy constructors allowed, but it's needed for std::sort()
+//	mstudiovertanim_t(const mstudiovertanim_t& vOther);
 };
 
 
@@ -1017,20 +1067,25 @@ struct mstudiovertanim_wrinkle_t : public mstudiovertanim_t
 
 	short	wrinkledelta;
 
-	inline void SetWrinkleFixed( float flWrinkle )
+	inline void SetWrinkleFixed( float flWrinkle, float flVertAnimFixedPointScale )
 	{
-		int nWrinkleDeltaInt = flWrinkle * g_VertAnimFixedPointScaleInv;
+		int nWrinkleDeltaInt = flWrinkle / flVertAnimFixedPointScale;
 		wrinkledelta = clamp( nWrinkleDeltaInt, -32767, 32767 );
 	}
 
-	inline Vector4D GetDeltaFixed()
+	inline Vector4D GetDeltaFixed( float flVertAnimFixedPointScale )
 	{
-		return Vector4D( delta[0]*g_VertAnimFixedPointScale, delta[1]*g_VertAnimFixedPointScale, delta[2]*g_VertAnimFixedPointScale, wrinkledelta*g_VertAnimFixedPointScale );
+		return Vector4D( delta[0] * flVertAnimFixedPointScale, delta[1] * flVertAnimFixedPointScale, delta[2] * flVertAnimFixedPointScale, wrinkledelta * flVertAnimFixedPointScale );
 	}
 
-	inline void GetDeltaFixed4DAligned( Vector4DAligned *vFillIn )
+	inline void GetDeltaFixed4DAligned( Vector4DAligned *vFillIn, float flVertAnimFixedPointScale )
 	{
-		vFillIn->Set( delta[0]*g_VertAnimFixedPointScale, delta[1]*g_VertAnimFixedPointScale, delta[2]*g_VertAnimFixedPointScale, wrinkledelta*g_VertAnimFixedPointScale );
+		vFillIn->Set( delta[0] * flVertAnimFixedPointScale, delta[1] * flVertAnimFixedPointScale, delta[2] * flVertAnimFixedPointScale, wrinkledelta * flVertAnimFixedPointScale );
+	}
+
+	inline float GetWrinkleDeltaFixed( float flVertAnimFixedPointScale )
+	{
+		return wrinkledelta * flVertAnimFixedPointScale;
 	}
 };
 
@@ -1959,6 +2014,9 @@ struct vertexFileFixup_t
 #define STUDIOHDR_FLAGS_CAST_TEXTURE_SHADOWS	( 1 << 18 )
 
 
+// flagged on load to indicate no animation events on this model
+#define STUDIOHDR_FLAGS_VERT_ANIM_FIXED_POINT_SCALE	( 1 << 21 )
+
 // NOTE! Next time we up the .mdl file format, remove studiohdr2_t
 // and insert all fields in this structure into studiohdr_t.
 struct studiohdr2_t
@@ -1982,7 +2040,11 @@ struct studiohdr2_t
 	int sznameindex;
 	inline char *pszName() { return (sznameindex) ? (char *)(((byte *)this) + sznameindex ) : NULL; }
 
-	int reserved[58];
+	int m_nBoneFlexDriverCount;
+	int m_nBoneFlexDriverIndex;
+	inline mstudioboneflexdriver_t *pBoneFlexDriver( int i ) const { Assert( i >= 0 && i < m_nBoneFlexDriverCount ); return (mstudioboneflexdriver_t *)(((byte *)this) + m_nBoneFlexDriverIndex) + i; }
+
+	int reserved[56];
 };
 
 struct studiohdr_t
@@ -2229,7 +2291,10 @@ struct studiohdr_t
 	int					flexcontrolleruiindex;
 	mstudioflexcontrollerui_t *pFlexControllerUI( int i ) const { Assert( i >= 0 && i < numflexcontrollerui); return (mstudioflexcontrollerui_t *)(((byte *)this) + flexcontrolleruiindex) + i; }
 
-	int					unused3[2];
+	float				flVertAnimFixedPointScale;
+	inline float		VertAnimFixedPointScale() const { return ( flags & STUDIOHDR_FLAGS_VERT_ANIM_FIXED_POINT_SCALE ) ? flVertAnimFixedPointScale : 1.0f / 4096.0f; }
+
+	int					unused3[1];
 
 	// FIXME: Remove when we up the model version. Move all fields of studiohdr2_t into studiohdr_t.
 	int					studiohdr2index;
@@ -2244,6 +2309,9 @@ struct studiohdr_t
 	inline float		MaxEyeDeflection() const { return studiohdr2index ? pStudioHdr2()->MaxEyeDeflection() : 0.866f; } // default to cos(30) if not set
 
 	inline mstudiolinearbone_t *pLinearBones() const { return studiohdr2index ? pStudioHdr2()->pLinearBones() : NULL; }
+
+	inline int			BoneFlexDriverCount() const { return studiohdr2index ? pStudioHdr2()->m_nBoneFlexDriverCount : 0; }
+	inline const mstudioboneflexdriver_t* BoneFlexDriver( int i ) const { Assert( i >= 0 && i < BoneFlexDriverCount() ); return studiohdr2index ? pStudioHdr2()->pBoneFlexDriver( i ) : NULL; }
 
 	// NOTE: No room to add stuff? Up the .mdl file format version 
 	// [and move all fields in studiohdr2_t into studiohdr_t and kill studiohdr2_t],
@@ -2403,6 +2471,11 @@ public:
 	inline float		MaxEyeDeflection() const { return m_pStudioHdr->MaxEyeDeflection(); }
 
 	inline mstudiolinearbone_t *pLinearBones() const { return m_pStudioHdr->pLinearBones(); }
+
+	inline int			BoneFlexDriverCount() const { return m_pStudioHdr->BoneFlexDriverCount(); }
+	inline const mstudioboneflexdriver_t *BoneFlexDriver( int i ) const { return m_pStudioHdr->BoneFlexDriver( i ); }
+
+	inline float		VertAnimFixedPointScale() const { return m_pStudioHdr->VertAnimFixedPointScale(); }
 
 public:
 	int IsSequenceLooping( int iSequence );
@@ -2970,6 +3043,9 @@ inline void Studio_SetRootLOD( studiohdr_t *pStudioHdr, int rootLOD )
 	{
 		rootLOD = pStudioHdr->numAllowedRootLODs - 1;
 	}
+
+	Assert( rootLOD >= 0 && rootLOD < MAX_NUM_LODS );
+	Clamp( rootLOD, 0, MAX_NUM_LODS - 1 );
 
 	// run the lod fixups that culls higher detail lods
 	// vertexes are external, fixups ensure relative offsets and counts are cognizant of shrinking data

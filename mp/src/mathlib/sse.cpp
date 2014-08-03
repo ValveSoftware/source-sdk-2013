@@ -259,6 +259,7 @@ float FASTCALL _SSE_VectorNormalize (Vector& vec)
             "movaps          %%xmm4, %1 \n\t"
             : "=m" (radius), "=m" (result)
             : "m" (*v)
+            : "xmm1", "xmm2", "xmm3", "xmm4"
  		);
 #else
 	#error "Not Implemented"
@@ -322,8 +323,9 @@ float _SSE_InvRSquared(const float* v)
 		"maxss           %%xmm5, %%xmm1 \n\t"
         "rcpss           %%xmm1, %%xmm0 \n\t"
 		"movss           %%xmm0, %0 \n\t" 
-        : "=m" (inv_r2)
-        : "m" (*v), "0" (inv_r2)
+        : "+m" (inv_r2)
+        : "m" (*v)
+        : "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5"
  		);
 #else
 	#error "Not Implemented"

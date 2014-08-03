@@ -189,12 +189,12 @@ void GetFPSColor( int nFps, unsigned char ucColor[3] )
 	if ( IsPC() && g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 95 )
 	{
 		nFPSThreshold1 = 60;
-		nFPSThreshold1 = 50;
+		nFPSThreshold2 = 50;
 	}
 	else if ( IsX360() || g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 90 )
 	{
 		nFPSThreshold1 = 30;
-		nFPSThreshold1 = 25;
+		nFPSThreshold2 = 25;
 	}
 
 	if ( nFps >= nFPSThreshold1 )

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//====== Copyright 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
@@ -20,9 +20,12 @@
 #include "isteamnetworking.h"
 #include "isteamremotestorage.h"
 #include "isteamscreenshots.h"
+#include "isteammusic.h"
 #include "isteamhttp.h"
 #include "isteamunifiedmessages.h"
 #include "isteamcontroller.h"
+#include "isteamugc.h"
+#include "isteamapplist.h"
 
 #if defined( _PS3 )
 #include "steamps3params.h"
@@ -59,10 +62,10 @@
 //----------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 // S_API void SteamAPI_Init(); (see below)
-S_API void SteamAPI_Shutdown();
+S_API void S_CALLTYPE SteamAPI_Shutdown();
 
 // checks if a local Steam client is running 
-S_API bool SteamAPI_IsSteamRunning();
+S_API bool S_CALLTYPE SteamAPI_IsSteamRunning();
 
 // Detects if your executable was launched through the Steam client, and restarts your game through 
 // the client if necessary. The Steam client will be started if it is not running.
@@ -75,14 +78,14 @@ S_API bool SteamAPI_IsSteamRunning();
 //
 // NOTE: This function should be used only if you are using CEG or not using Steam's DRM. Once applied
 //       to your executable, Steam's DRM will handle restarting through Steam if necessary.
-S_API bool SteamAPI_RestartAppIfNecessary( uint32 unOwnAppID );
+S_API bool S_CALLTYPE SteamAPI_RestartAppIfNecessary( uint32 unOwnAppID );
 
 // crash dump recording functions
-S_API void SteamAPI_WriteMiniDump( uint32 uStructuredExceptionCode, void* pvExceptionInfo, uint32 uBuildID );
-S_API void SteamAPI_SetMiniDumpComment( const char *pchMsg );
+S_API void S_CALLTYPE SteamAPI_WriteMiniDump( uint32 uStructuredExceptionCode, void* pvExceptionInfo, uint32 uBuildID );
+S_API void S_CALLTYPE SteamAPI_SetMiniDumpComment( const char *pchMsg );
 
 // interface pointers, configured by SteamAPI_Init()
-S_API ISteamClient *SteamClient();
+S_API ISteamClient *S_CALLTYPE SteamClient();
 
 
 //
@@ -96,29 +99,33 @@ S_API ISteamClient *SteamClient();
 // functions below to get at the Steam interfaces.
 //
 #ifdef VERSION_SAFE_STEAM_API_INTERFACES
-S_API bool SteamAPI_InitSafe();
+S_API bool S_CALLTYPE SteamAPI_InitSafe();
 #else
 
 #if defined(_PS3)
-S_API bool SteamAPI_Init( SteamPS3Params_t *pParams );
+S_API bool S_CALLTYPE SteamAPI_Init( SteamPS3Params_t *pParams );
 #else
-S_API bool SteamAPI_Init();
+S_API bool S_CALLTYPE SteamAPI_Init();
 #endif
 
-S_API ISteamUser *SteamUser();
-S_API ISteamFriends *SteamFriends();
-S_API ISteamUtils *SteamUtils();
-S_API ISteamMatchmaking *SteamMatchmaking();
-S_API ISteamUserStats *SteamUserStats();
-S_API ISteamApps *SteamApps();
-S_API ISteamNetworking *SteamNetworking();
-S_API ISteamMatchmakingServers *SteamMatchmakingServers();
-S_API ISteamRemoteStorage *SteamRemoteStorage();
-S_API ISteamScreenshots *SteamScreenshots();
-S_API ISteamHTTP *SteamHTTP();
-S_API ISteamUnifiedMessages *SteamUnifiedMessages();
+S_API ISteamUser *S_CALLTYPE SteamUser();
+S_API ISteamFriends *S_CALLTYPE SteamFriends();
+S_API ISteamUtils *S_CALLTYPE SteamUtils();
+S_API ISteamMatchmaking *S_CALLTYPE SteamMatchmaking();
+S_API ISteamUserStats *S_CALLTYPE SteamUserStats();
+S_API ISteamApps *S_CALLTYPE SteamApps();
+S_API ISteamNetworking *S_CALLTYPE SteamNetworking();
+S_API ISteamMatchmakingServers *S_CALLTYPE SteamMatchmakingServers();
+S_API ISteamRemoteStorage *S_CALLTYPE SteamRemoteStorage();
+S_API ISteamScreenshots *S_CALLTYPE SteamScreenshots();
+S_API ISteamHTTP *S_CALLTYPE SteamHTTP();
+S_API ISteamUnifiedMessages *S_CALLTYPE SteamUnifiedMessages();
+S_API ISteamController *S_CALLTYPE SteamController();
+S_API ISteamUGC *S_CALLTYPE SteamUGC();
+S_API ISteamAppList *S_CALLTYPE SteamAppList();
+S_API ISteamMusic *S_CALLTYPE SteamMusic();
 #ifdef _PS3
-S_API ISteamPS3OverlayRender * SteamPS3OverlayRender();
+S_API ISteamPS3OverlayRender *S_CALLTYPE SteamPS3OverlayRender();
 #endif
 #endif // VERSION_SAFE_STEAM_API_INTERFACES
 
@@ -132,16 +139,16 @@ S_API ISteamPS3OverlayRender * SteamPS3OverlayRender();
 //  to as many functions/objects as are registered to it
 //----------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-S_API void SteamAPI_RunCallbacks();
+S_API void S_CALLTYPE SteamAPI_RunCallbacks();
 
 
 
 // functions used by the utility CCallback objects to receive callbacks
-S_API void SteamAPI_RegisterCallback( class CCallbackBase *pCallback, int iCallback );
-S_API void SteamAPI_UnregisterCallback( class CCallbackBase *pCallback );
+S_API void S_CALLTYPE SteamAPI_RegisterCallback( class CCallbackBase *pCallback, int iCallback );
+S_API void S_CALLTYPE SteamAPI_UnregisterCallback( class CCallbackBase *pCallback );
 // functions used by the utility CCallResult objects to receive async call results
-S_API void SteamAPI_RegisterCallResult( class CCallbackBase *pCallback, SteamAPICall_t hAPICall );
-S_API void SteamAPI_UnregisterCallResult( class CCallbackBase *pCallback, SteamAPICall_t hAPICall );
+S_API void S_CALLTYPE SteamAPI_RegisterCallResult( class CCallbackBase *pCallback, SteamAPICall_t hAPICall );
+S_API void S_CALLTYPE SteamAPI_UnregisterCallResult( class CCallbackBase *pCallback, SteamAPICall_t hAPICall );
 
 
 //-----------------------------------------------------------------------------
@@ -397,6 +404,10 @@ public:
 	ISteamScreenshots*	SteamScreenshots()					{ return m_pSteamScreenshots; }
 	ISteamHTTP*			SteamHTTP()							{ return m_pSteamHTTP; }
 	ISteamUnifiedMessages*	SteamUnifiedMessages()			{ return m_pSteamUnifiedMessages; }
+	ISteamController*	SteamController()					{ return m_pController; }
+	ISteamUGC*			SteamUGC()							{ return m_pSteamUGC; }
+	ISteamAppList*		SteamAppList()						{ return m_pSteamAppList; }
+	ISteamMusic*		SteamMusic()						{ return m_pSteamMusic; }
 #ifdef _PS3
 	ISteamPS3OverlayRender* SteamPS3OverlayRender()		{ return m_pSteamPS3OverlayRender; }
 #endif
@@ -415,6 +426,9 @@ private:
 	ISteamHTTP			*m_pSteamHTTP;
 	ISteamUnifiedMessages*m_pSteamUnifiedMessages;
 	ISteamController	*m_pController;
+	ISteamUGC			*m_pSteamUGC;
+	ISteamAppList		*m_pSteamAppList;
+	ISteamMusic			*m_pSteamMusic;
 #ifdef _PS3
 	ISteamPS3OverlayRender *m_pSteamPS3OverlayRender;
 #endif
@@ -438,7 +452,11 @@ inline void CSteamAPIContext::Clear()
 	m_pSteamRemoteStorage = NULL;
 	m_pSteamHTTP = NULL;
 	m_pSteamScreenshots = NULL;
+	m_pSteamMusic = NULL;
 	m_pSteamUnifiedMessages = NULL;
+	m_pController = NULL;
+	m_pSteamUGC = NULL;
+	m_pSteamAppList = NULL;
 #ifdef _PS3
 	m_pSteamPS3OverlayRender = NULL;
 #endif
@@ -501,6 +519,24 @@ inline bool CSteamAPIContext::Init()
 	if ( !m_pSteamUnifiedMessages )
 		return false;
 
+	m_pController = SteamClient()->GetISteamController( hSteamUser, hSteamPipe, STEAMCONTROLLER_INTERFACE_VERSION );
+	if ( !m_pController )
+		return false;
+
+	m_pSteamUGC = SteamClient()->GetISteamUGC( hSteamUser, hSteamPipe, STEAMUGC_INTERFACE_VERSION );
+	if ( !m_pSteamUGC )
+		return false;
+
+	m_pSteamAppList = SteamClient()->GetISteamAppList( hSteamUser, hSteamPipe, STEAMAPPLIST_INTERFACE_VERSION );
+	if ( !m_pSteamAppList )
+		return false;
+
+	m_pSteamMusic = SteamClient()->GetISteamMusic( hSteamUser, hSteamPipe, STEAMMUSIC_INTERFACE_VERSION );
+	if ( !m_pSteamMusic )
+	{
+		return false;
+	}
+	
 #ifdef _PS3
 	m_pSteamPS3OverlayRender = SteamClient()->GetISteamPS3OverlayRender();
 #endif
@@ -512,13 +548,13 @@ inline bool CSteamAPIContext::Init()
 
 #if defined(USE_BREAKPAD_HANDLER) || defined(STEAM_API_EXPORTS)
 // this should be called before the game initialized the steam APIs
-// pchDate should be of the format "Mmm dd yyyy" (such as from the __DATE __ macro )
-// pchTime should be of the format "hh:mm:ss" (such as from the __TIME __ macro )
+// pchDate should be of the format "Mmm dd yyyy" (such as from the __DATE__ macro )
+// pchTime should be of the format "hh:mm:ss" (such as from the __TIME__ macro )
 // bFullMemoryDumps (Win32 only) -- writes out a uuid-full.dmp in the client/dumps folder
 // pvContext-- can be NULL, will be the void * context passed into m_pfnPreMinidumpCallback
 // PFNPreMinidumpCallback m_pfnPreMinidumpCallback   -- optional callback which occurs just before a .dmp file is written during a crash.  Applications can hook this to allow adding additional information into the .dmp comment stream.
-S_API void SteamAPI_UseBreakpadCrashHandler( char const *pchVersion, char const *pchDate, char const *pchTime, bool bFullMemoryDumps, void *pvContext, PFNPreMinidumpCallback m_pfnPreMinidumpCallback );
-S_API void SteamAPI_SetBreakpadAppID( uint32 unAppID );
+S_API void S_CALLTYPE SteamAPI_UseBreakpadCrashHandler( char const *pchVersion, char const *pchDate, char const *pchTime, bool bFullMemoryDumps, void *pvContext, PFNPreMinidumpCallback m_pfnPreMinidumpCallback );
+S_API void S_CALLTYPE SteamAPI_SetBreakpadAppID( uint32 unAppID );
 #endif
 
 #endif // STEAM_API_H

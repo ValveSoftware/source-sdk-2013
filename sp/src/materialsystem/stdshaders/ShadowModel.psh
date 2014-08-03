@@ -1,0 +1,22 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+;------------------------------------------------------------------------------
+
+def c0,1.0f, 1.0f, 1.0f, 1.0f
+
+tex t0		; shadow color
+texkill t1	; Clip
+texkill t2
+texkill t3	; backface cull
+
+; Darkening equation, compute a color = (shadow color * shadow alpha + 1- shadow alpha)
+;sub r1, t0, v0.a			; r1 = shadow alpha
+lrp r0.rgb, t0.a, v0, c0 +	; r0.rgb = (shadow color * shadow alpha + 1 - shadow alpha)
+mov r0.a, c0.a				; r0.a = 1
+ 

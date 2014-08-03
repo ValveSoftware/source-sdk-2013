@@ -37,7 +37,7 @@ static void PFMWrite( float *pFloatImage, const char *pFilename, int width, int 
 
 SpewRetval_t VTF2TGAOutputFunc( SpewType_t spewType, char const *pMsg )
 {
-	printf( pMsg );
+	printf( "%s", pMsg );
 	fflush( stdout );
 
 	if (spewType == SPEW_ERROR)

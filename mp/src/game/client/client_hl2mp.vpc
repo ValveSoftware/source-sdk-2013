@@ -114,6 +114,15 @@ $Project "Client (HL2MP)"
 			$File	"hl2\vgui_rootpanel_hl2.cpp"
 		}
 
+		$Folder	"seco"
+		{
+			$File	"$SRCDIR\game\client\episodic\flesh_internal_material_proxy.cpp"
+			$File	"$SRCDIR\game\client\game_controls\classmenu.cpp"
+			$File	"$SRCDIR\game\shared\hl2\survival_gamerules.cpp"
+			$File	"$SRCDIR\game\shared\secobmod\weapon_hands.cpp"
+			$File	"$SRCDIR\game\shared\secobmod\weapon_pg.cpp"
+		}
+		
 		$Folder	"HL2MP"
 		{
 			$File	"hl2mp\c_hl2mp_player.cpp"
@@ -127,6 +136,8 @@ $Project "Client (HL2MP)"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_player_shared.h"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_weapon_parse.cpp"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_weapon_parse.h"
+			$File	"$SRCDIR\game\client\secobmod\c_vehicle_passenger_seat.cpp"
+			$File	"$SRCDIR\game\client\secobmod\c_weapon_portalgun.cpp"
 
 			$Folder	"Weapons"
 			{

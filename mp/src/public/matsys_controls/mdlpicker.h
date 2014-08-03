@@ -101,6 +101,7 @@ private:
 
 	void WriteBackbackVMTFiles( const char *assetName );
 	void GenerateBackpackIcons( void );
+	CUtlString GetOutputFileSuffix();
 
 	MESSAGE_FUNC_PARAMS( OnCheckButtonChecked, "CheckButtonChecked", kv );
 	MESSAGE_FUNC_PARAMS( OnItemSelected, "ItemSelected", kv );

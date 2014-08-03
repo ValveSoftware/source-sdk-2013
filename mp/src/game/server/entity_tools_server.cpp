@@ -409,13 +409,39 @@ void CC_Ent_Keyvalue( const CCommand &args )
 		return;
 	}
 
-	int nID = atoi( args[1] );
-
-	CBaseEntity *pEnt = g_ServerTools.FindEntityByHammerID( nID );
-	if ( !pEnt )
+	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() );
+	CBaseEntity *pEnt;
+	if ( FStrEq( args[1], "" ) || FStrEq( args[1], "!picker" ) )
 	{
-		Msg( "Entity ID %d not found.\n", nID );
-		return;
+		if (!pPlayer)
+			return;
+
+		extern CBaseEntity *FindPickerEntity( CBasePlayer *pPlayer );
+		pEnt = FindPickerEntity( pPlayer );
+
+		if ( !pEnt )
+		{
+			ClientPrint( pPlayer, HUD_PRINTCONSOLE, "No entity in front of player.\n" );
+			return;
+		}
+	}
+	else if ( FStrEq( args[1], "!self" ) || FStrEq( args[1], "!caller" ) || FStrEq( args[1], "!activator" ) )
+	{
+		if (!pPlayer)
+			return;
+
+		pEnt = pPlayer;
+	}
+	else
+	{
+		int nID = atoi( args[1] );
+
+		pEnt = g_ServerTools.FindEntityByHammerID( nID );
+		if ( !pEnt )
+		{
+			Msg( "Entity ID %d not found.\n", nID );
+			return;
+		}
 	}
 
 	int nArg = 2;

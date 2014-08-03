@@ -352,9 +352,9 @@ bool CTeamplayRules::IsTeamplay( void )
 	return true;
 }
 
-bool CTeamplayRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker )
+bool CTeamplayRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info )
 {
-	if ( pAttacker && PlayerRelationship( pPlayer, pAttacker ) == GR_TEAMMATE )
+	if ( pAttacker && PlayerRelationship( pPlayer, pAttacker ) == GR_TEAMMATE && !info.IsForceFriendlyFire() )
 	{
 		// my teammate hit me.
 		if ( (friendlyfire.GetInt() == 0) && (pAttacker != pPlayer) )
@@ -364,7 +364,7 @@ bool CTeamplayRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pA
 		}
 	}
 
-	return BaseClass::FPlayerCanTakeDamage( pPlayer, pAttacker );
+	return BaseClass::FPlayerCanTakeDamage( pPlayer, pAttacker, info );
 }
 
 //=========================================================

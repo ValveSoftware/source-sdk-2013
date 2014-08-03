@@ -1952,9 +1952,8 @@ void KeyValues::ParseIncludedKeys( char const *resourceName, const char *filetoi
 	Q_strncpy( fullpath, resourceName, sizeof( fullpath ) );
 
 	// Strip off characters back to start or first /
-	bool done = false;
 	int len = Q_strlen( fullpath );
-	while ( !done )
+	for (;;)
 	{
 		if ( len <= 0 )
 		{

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//====== Copyright © 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: interface to app data in Steam
 //
@@ -59,10 +59,19 @@ public:
 
 	virtual bool GetCurrentBetaName( char *pchName, int cchNameBufferSize ) = 0; // returns current beta branch name, 'public' is the default branch
 	virtual bool MarkContentCorrupt( bool bMissingFilesOnly ) = 0; // signal Steam that game files seems corrupt or missing
-	virtual uint32 GetInstalledDepots( DepotId_t *pvecDepots, uint32 cMaxDepots ) = 0; // return installed depots in mount order
+	virtual uint32 GetInstalledDepots( AppId_t appID, DepotId_t *pvecDepots, uint32 cMaxDepots ) = 0; // return installed depots in mount order
 
 	// returns current app install folder for AppID, returns folder name length
 	virtual uint32 GetAppInstallDir( AppId_t appID, char *pchFolder, uint32 cchFolderBufferSize ) = 0;
+	virtual bool BIsAppInstalled( AppId_t appID ) = 0; // returns true if that app is installed (not necessarily owned)
+	
+	virtual CSteamID GetAppOwner() = 0; // returns the SteamID of the original owner. If different from current user, it's borrowed
+
+	// Returns the associated launch param if the game is run via steam://run/<appid>//?param1=value1;param2=value2;param3=value3 etc.
+	// Parameter names starting with the character '@' are reserved for internal use and will always return and empty string.
+	// Parameter names starting with an underscore '_' are reserved for steam features -- they can be queried by the game,
+	// but it is advised that you not param names beginning with an underscore for your own features.
+	virtual const char *GetLaunchQueryParam( const char *pchKey ) = 0;
 
 #ifdef _PS3
 	// Result returned in a RegisterActivationCodeResponse_t callresult
@@ -70,7 +79,7 @@ public:
 #endif
 };
 
-#define STEAMAPPS_INTERFACE_VERSION "STEAMAPPS_INTERFACE_VERSION005"
+#define STEAMAPPS_INTERFACE_VERSION "STEAMAPPS_INTERFACE_VERSION006"
 
 // callbacks
 #if defined( VALVE_CALLBACK_PACK_SMALL )
@@ -123,5 +132,18 @@ struct AppProofOfPurchaseKeyResponse_t
 	uint32	m_nAppID;
 	char	m_rgchKey[ k_cubAppProofOfPurchaseKeyMax ];
 };
+
+//---------------------------------------------------------------------------------
+// Purpose: posted after the user gains executes a steam url with query parameters
+// such as steam://run/<appid>//?param1=value1;param2=value2;param3=value3; etc
+// while the game is already running.  The new params can be queried
+// with GetLaunchQueryParam.
+//---------------------------------------------------------------------------------
+struct NewLaunchQueryParameters_t
+{
+	enum { k_iCallback = k_iSteamAppsCallbacks + 14 };
+};
+
+
 #pragma pack( pop )
 #endif // ISTEAMAPPS_H

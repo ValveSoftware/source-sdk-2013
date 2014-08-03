@@ -107,9 +107,9 @@ public:
 	void						VidInit( void );
 	// Shutdown's called when the engine's shutting down
 	void						Shutdown( void );
-	// LevelInit's called whenever a new level's starting
+	// LevelInit's called whenever a new level is starting
 	void						LevelInit( void );
-	// LevelShutdown's called whenever a level's finishing
+	// LevelShutdown's called whenever a level is finishing
 	void						LevelShutdown( void );
 	
 	void						ResetHUD( void );

@@ -616,11 +616,7 @@ void CVoteController::VoteControllerThink( void )
 		}
 		else
 		{
-			// Don't track failed dedicated server votes
-			if ( m_iEntityHoldingVote != DEDICATED_SERVER )
-			{
-				m_potentialIssues[m_iActiveIssueIndex]->OnVoteFailed();
-			}
+			m_potentialIssues[m_iActiveIssueIndex]->OnVoteFailed( m_iEntityHoldingVote );
 			m_resetVoteTimer.Start( 5.0 );
 		}
 	}
@@ -895,34 +891,38 @@ const char *CBaseIssue::GetVotePassedString( void )
 //-----------------------------------------------------------------------------
 // Purpose:  Store failures to prevent vote spam
 //-----------------------------------------------------------------------------
-void CBaseIssue::OnVoteFailed( void )
+void CBaseIssue::OnVoteFailed( int iEntityHoldingVote )
 {
-	// Check for an existing match
-	for ( int index = 0; index < m_FailedVotes.Count(); index++ )
+	// Don't track failed dedicated server votes
+	if ( BRecordVoteFailureEventForEntity( iEntityHoldingVote ) )
 	{
-		FailedVote *pFailedVote = m_FailedVotes[index];
-		if ( Q_strcmp( pFailedVote->szFailedVoteParameter, GetDetailsString() ) == 0 )
+		// Check for an existing match
+		for ( int index = 0; index < m_FailedVotes.Count(); index++ )
 		{
-			int nTime = sv_vote_failure_timer.GetInt();
+			FailedVote *pFailedVote = m_FailedVotes[index];
+			if ( Q_strcmp( pFailedVote->szFailedVoteParameter, GetDetailsString() ) == 0 )
+			{
+				int nTime = sv_vote_failure_timer.GetInt();
 
 #ifdef TF_DLL
-			if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
-			{
-				nTime = sv_vote_failure_timer_mvm.GetInt();
-			}
+				if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+				{
+					nTime = sv_vote_failure_timer_mvm.GetInt();
+				}
 #endif // TF_DLL
 
-			pFailedVote->flLockoutTime = gpGlobals->curtime + nTime;
+				pFailedVote->flLockoutTime = gpGlobals->curtime + nTime;
 
-			return;
+				return;
+			}
 		}
-	}
 
-	// Need to create a new one
-	FailedVote *pNewFailedVote = new FailedVote;
-	int iIndex = m_FailedVotes.AddToTail( pNewFailedVote );
-	Q_strcpy( m_FailedVotes[iIndex]->szFailedVoteParameter, GetDetailsString() );
-	m_FailedVotes[iIndex]->flLockoutTime = gpGlobals->curtime + sv_vote_failure_timer.GetFloat();
+		// Need to create a new one
+		FailedVote *pNewFailedVote = new FailedVote;
+		int iIndex = m_FailedVotes.AddToTail( pNewFailedVote );
+		Q_strcpy( m_FailedVotes[iIndex]->szFailedVoteParameter, GetDetailsString() );
+		m_FailedVotes[iIndex]->flLockoutTime = gpGlobals->curtime + sv_vote_failure_timer.GetFloat();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -939,7 +939,7 @@ bool CBaseIssue::CanTeamCallVote( int iTeam ) const
 bool CBaseIssue::CanCallVote( int iEntIndex, const char *pszDetails, vote_create_failed_t &nFailCode, int &nTime )
 {
 	// Automated server vote - don't bother testing against it
-	if ( iEntIndex == DEDICATED_SERVER )
+	if ( !BRecordVoteFailureEventForEntity( iEntIndex ) )
 		return true;
 
 	// Bogus player

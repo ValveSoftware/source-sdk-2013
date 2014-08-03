@@ -1,0 +1,27 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+;------------------------------------------------------------------------------
+
+tex t0
+tex t1
+tex t2
+
+mov r0.rgb, t0 +
+mov r0.a, v0.a			; Grab alpha from vertex color
+
+lrp r0.rgb, t2.a, t2, r0	; Base = base * (1 - detail alpha) + detail * detail alpha
+mul r0.rgb, r0, v0		; modulate by vertex color
+mul r0.rgb, t1, r0		; fold in lightmap (color only)
+mul_x2 r0.rgb, c0, r0   ; * 2 * (overbrightFactor/2)
+
+mul r1.rgb, c1, t0			; Self illum * tint
++ mul r1.a, t0.a, 1-t2.a	; Reduce self-illum amount based on 1 - detailalpha
+
+lrp r0.rgb, t0.a, r1, r0	; Blend between self-illum + base * lightmap
+
