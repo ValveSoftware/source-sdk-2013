@@ -1803,7 +1803,7 @@ void CTempEnts::MuzzleFlash( int type, ClientEntityHandle_t hEntity, int attachm
 //-----------------------------------------------------------------------------
 void CTempEnts::MuzzleFlash( const Vector& pos1, const QAngle& angles, int type, ClientEntityHandle_t hEntity, bool firstPerson )
 {
-#ifdef CSTRIKE_DLL
+#ifndef CSTRIKE_DLL
 
 	return;
 

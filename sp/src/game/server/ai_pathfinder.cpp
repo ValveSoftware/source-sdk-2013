@@ -25,6 +25,11 @@
 //@todo: bad dependency!
 #include "ai_navigator.h"
 
+// support for nav mesh
+#include "nav_mesh.h"
+#include "nav_pathfind.h"
+#include "nav_area.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1426,6 +1431,23 @@ AI_Waypoint_t *CAI_Pathfinder::BuildRoute( const Vector &vStart, const Vector &v
 								  buildFlags, goalTolerance);
 	}
 
+	//  If the local fails, try a nav mesh route
+	// the nav mesh doesn't supports flying npc's, like the strider or gunship
+	if ( !pResult && curNavType != NAV_FLY )
+	{
+		/*CNavArea *closestArea = NULL;
+		CNavArea *startArea = TheNavMesh->GetNearestNavArea(vStart);
+		CNavArea *goalArea = TheNavMesh->GetNearestNavArea(vEnd);
+
+		ShortestPathCost costfunc;
+
+		if( NavAreaBuildPath( startArea, goalArea, &vEnd, costfunc, buildFlags, goalTolerance, &closestArea) )
+		{
+			AI_Waypoint_t *newway = new AI_Waypoint_t( vEnd, 0, curNavType, bits_WP_TO_GOAL, NO_NODE );
+			pResult = BuildNavRoute( startArea, closestArea, vEnd, newway, curNavType );
+		}*/
+	}
+
 	//  If the fails, try a node route
 	if ( !pResult )
 	{
@@ -1435,6 +1457,319 @@ AI_Waypoint_t *CAI_Pathfinder::BuildRoute( const Vector &vStart, const Vector &v
 	m_bIgnoreStaleLinks = false;
 
 	return pResult;
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: This is our cost func. This should likely do something different
+//			then return 0.0f...
+//-----------------------------------------------------------------------------
+class CNavArea;
+class CNavLadder;
+
+float checkCost( CNavArea *nav1, CNavArea *nav2, const CNavLadder *nav3 ) 
+{ 
+	if(nav3)	// ignore ladders
+		return 0.0f;
+
+	if( !nav1 || !nav2 )
+		return 0.0f;
+
+	// just take the lenght of the two centers. This should be enough.
+	return nav1->GetTotalCost() + (nav1->GetCenter() - nav2->GetCenter()).Length2D();
+	
+	//return 0.0f;
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+/**
+* Find path from startArea to goalArea via an A* search, using supplied cost heuristic.
+* If cost functor returns -1 for an area, that area is considered a dead end.
+* This doesn't actually build a path, but the path is defined by following parent
+* pointers back from goalArea to startArea.
+* If 'closestArea' is non-NULL, the closest area to the goal is returned (useful if the path fails).
+* If 'goalArea' is NULL, will compute a path as close as possible to 'goalPos'.
+* If 'goalPos' is NULL, will use the center of 'goalArea' as the goal position.
+* Returns true if a path exists.
+* Updated for hl2wars and hl2 npc's
+*/
+template< typename CostFunctor >
+bool CAI_Pathfinder::NavAreaBuildPath( CNavArea *startArea, CNavArea *goalArea, const Vector *goalPos, CostFunctor &costFunc, int buildFlags, float goalTolerance, CNavArea **closestArea )
+{
+	/*if (startArea == NULL)
+		return false;
+
+	if (goalArea == NULL && goalPos == NULL)
+		return false;
+
+	startArea->SetParent( NULL );
+
+	// if we are already in the goal area, build trivial path
+	if (startArea == goalArea)
+	{
+		goalArea->SetParent( NULL );
+		return true;
+	}
+
+	// determine actual goal position
+	Vector actualGoalPos = (goalPos) ? *goalPos : goalArea->GetCenter();
+
+	// start search
+	CNavArea::ClearSearchLists();
+
+	// compute estimate of path length
+	/// @todo Cost might work as "manhattan distance"
+	startArea->SetTotalCost( (startArea->GetCenter() - actualGoalPos).Length() );
+
+	float initCost = checkCost( startArea, NULL, NULL );	
+	if (initCost < 0.0f)
+		return false;
+	startArea->SetCostSoFar( initCost );
+
+	startArea->AddToOpenList();
+
+	// keep track of the area we visit that is closest to the goal
+	if (closestArea)
+		*closestArea = startArea;
+	float closestAreaDist = startArea->GetTotalCost();
+
+	// do A* search
+	while( !CNavArea::IsOpenListEmpty() )
+	{
+		// get next area to check
+		CNavArea *area = CNavArea::PopOpenList();
+
+		// don't consider jump area's
+		if( area->GetAttributes() & NAV_MESH_JUMP)
+			continue;
+
+		// check if we have found the goal area or position
+		if (area == goalArea || (goalArea == NULL && goalPos && area->Contains( *goalPos )))
+		{
+			if (closestArea)
+			{
+				*closestArea = area;
+			}
+
+			return true;
+		}
+
+		// search adjacent areas
+		bool searchFloor = true;
+		int dir = NORTH;
+		const NavConnectVector *floorList = area->GetAdjacentAreas( NORTH );
+		int floorIter = 0;
+
+		bool ladderUp = true;
+		const NavLadderConnectVector *ladderList = NULL;
+		int ladderIter = NavLadderConnectList::InvalidIndex();
+		enum { AHEAD = 0, LEFT, RIGHT, BEHIND, NUM_TOP_DIRECTIONS };
+		int ladderTopDir = AHEAD;
+
+		while(true)
+		{
+			CNavArea *newArea;
+			NavTraverseType how;
+			const CNavLadder *ladder = NULL;
+
+			//
+			// Get next adjacent area - either on floor or via ladder
+			//
+			if (searchFloor)
+			{
+				// if exhausted adjacent connections in current direction, begin checking next direction
+				if (floorIter == floorList->InvalidIndex())
+				{
+					++dir;
+
+					if (dir == NUM_DIRECTIONS)
+					{
+						// checked all directions on floor - check ladders next
+						searchFloor = false;
+
+						ladderList = area->GetLadders( CNavLadder::LADDER_UP );
+						ladderIter = 0;
+						ladderTopDir = AHEAD;
+					}
+					else
+					{
+						// start next direction
+						floorList = area->GetAdjacentAreas( (NavDirType)dir );
+						floorIter = 0;
+					}
+
+					continue;
+				}
+
+				newArea = floorList->Element(floorIter).area;
+				how = (NavTraverseType)dir;
+				floorIter++;
+			}
+			else	// search ladders
+			{
+				if (ladderIter == ladderList->InvalidIndex())
+				{
+					if (!ladderUp)
+					{
+						// checked both ladder directions - done
+						break;
+					}
+					else
+					{
+						// check down ladders
+						ladderUp = false;
+						ladderList = area->GetLadders( CNavLadder::LADDER_DOWN );
+						ladderIter = 0;
+					}
+					continue;
+				}
+
+				if (ladderUp)
+				{
+					ladder = ladderList->Element( ladderIter ).ladder;
+
+					// do not use BEHIND connection, as its very hard to get to when going up a ladder
+					if (ladderTopDir == AHEAD)
+						newArea = ladder->m_topForwardArea;
+					else if (ladderTopDir == LEFT)
+						newArea = ladder->m_topLeftArea;
+					else if (ladderTopDir == RIGHT)
+						newArea = ladder->m_topRightArea;
+					else
+					{
+						ladderIter++;
+						ladderTopDir = AHEAD;
+						continue;
+					}
+
+					how = GO_LADDER_UP;
+					++ladderTopDir;
+				}
+				else
+				{
+					newArea = ladderList->Element(ladderIter).ladder->m_bottomArea;
+					how = GO_LADDER_DOWN;
+					ladder = ladderList->Element(ladderIter).ladder;
+					ladderIter++;
+				}
+
+				if (newArea == NULL)
+					continue;
+			}
+
+			// don't backtrack
+			if (newArea == area)
+				continue;
+
+			// don't consider jump area's
+			if( newArea->GetAttributes() & NAV_MESH_JUMP)
+				continue;
+
+			float newCostSoFar = checkCost( newArea, area, ladder );
+
+			// check if cost functor says this area is a dead-end
+			if (newCostSoFar < 0.0f)
+				continue;
+
+			if ((newArea->IsOpen() || newArea->IsClosed()) && newArea->GetCostSoFar() <= newCostSoFar)
+			{
+				// this is a worse path - skip it
+				continue;
+			}
+			else
+			{
+				// compute estimate of distance left to go
+				float newCostRemaining = (newArea->GetCenter() - actualGoalPos).Length();
+
+				// track closest area to goal in case path fails
+				if (closestArea && newCostRemaining < closestAreaDist)
+				{
+					*closestArea = newArea;
+					closestAreaDist = newCostRemaining;
+				}
+
+				newArea->SetParent( area, how );
+				newArea->SetCostSoFar( newCostSoFar );
+				newArea->SetTotalCost( newCostSoFar + newCostRemaining );
+
+				if (newArea->IsClosed())
+					newArea->RemoveFromClosedList();
+
+				if (newArea->IsOpen())
+				{
+					// area already on open list, update the list order to keep costs sorted
+					newArea->UpdateOnOpenList();
+				}
+				else
+				{
+					newArea->AddToOpenList();
+				}
+			}
+		}
+
+		// we have searched this area
+		area->AddToClosedList();
+	}
+
+	return false;*/
+return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Builds a route to the given vecGoal using the navigation mesh result
+//-----------------------------------------------------------------------------
+AI_Waypoint_t *CAI_Pathfinder::BuildNavRoute( CNavArea *startArea, CNavArea *goalArea, const Vector &from, AI_Waypoint_t *waypoint, Navigation_t curNavType )
+{
+	if( !goalArea )
+		return waypoint;
+
+	int nodeID, endFlags;
+	nodeID = NO_NODE;
+
+	endFlags = 0;
+	Vector center, center_portal, delta;
+	float hwidth, hwidthhull;
+	NavDirType dir;
+	
+	Vector closestpoint;
+	if( goalArea->GetParent() )
+	{
+		center = goalArea->GetParent()->GetCenter();
+		dir = goalArea->ComputeDirection(&center);	
+		goalArea->ComputePortal( goalArea->GetParent(), dir, &center_portal, &hwidth );
+		goalArea->ComputeClosestPointInPortal( goalArea->GetParent(), dir, goalArea->GetParent()->GetCenter(), &closestpoint );
+		
+		// this point would be the closest route. But does or our hull fits?
+		trace_t trace;
+		CTraceFilterWorldOnly traceFilter;
+		AI_TraceHull( closestpoint, closestpoint, WorldAlignMins(), WorldAlignMaxs(), MASK_SOLID, &traceFilter, &trace );
+		if ( trace.fraction != 1.0f )
+		{
+			// move a bit to the center
+			delta = closestpoint - center_portal;
+			hwidthhull = GetOuter()->GetHullWidth() / 2.0f;
+			if( delta.IsLengthGreaterThan( hwidthhull ) )
+			{
+				closestpoint = closestpoint + ( (hwidthhull / delta.Length() ) * delta  );	
+			}
+		}
+
+		// TODO: try to make the connection look less forced by randomly moving it a bit.
+
+
+
+		closestpoint.z = goalArea->GetZ( closestpoint );
+		AI_Waypoint_t *newway = new AI_Waypoint_t( closestpoint, 0, curNavType, endFlags, nodeID );
+		if( waypoint )
+			newway->SetNext(waypoint);
+		return BuildNavRoute( startArea, goalArea->GetParent(), closestpoint, newway, curNavType );
+	}
+	else
+	{
+		return waypoint;
+	}
+	
 }
 
 void CAI_Pathfinder::UnlockRouteNodes( AI_Waypoint_t *pPath )
