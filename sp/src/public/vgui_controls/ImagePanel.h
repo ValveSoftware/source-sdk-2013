@@ -75,6 +75,7 @@ private:
 	char *m_pszImageName;
 	char *m_pszFillColorName;
 	char *m_pszDrawColorName;
+	bool m_bPositionImage;
 	bool m_bCenterImage;
 	bool m_bScaleImage;
 	bool m_bTileImage;

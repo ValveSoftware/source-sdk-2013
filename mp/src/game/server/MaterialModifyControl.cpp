@@ -271,7 +271,7 @@ void CMaterialModifyControl::InputStartFloatLerp( inputdata_t &inputdata )
 				{
 					bool bWrap = atoi(pszParam) != 0;
 					// We don't implement wrap currently.
-					bWrap = bWrap;
+					NOTE_UNUSED( bWrap );
 
 					// Got all the parameters. Save 'em and return;
 					m_flFloatLerpStartValue = flStartValue;

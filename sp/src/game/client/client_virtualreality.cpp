@@ -261,8 +261,6 @@ CClientVirtualReality::CClientVirtualReality()
 	m_rtLastMotionSample = 0;
 	m_bMotionUpdated = false;
 
-	m_bForceVRMode = false; 
-
 #if defined( USE_SDL )
     m_nNonVRSDLDisplayIndex = 0;
 #endif
@@ -1367,7 +1365,7 @@ void CClientVirtualReality::Activate()
 		return;
 
 	// These checks don't apply if we're in VR mode because Steam said so.
-	if ( !m_bForceVRMode )
+	if ( !ShouldForceVRActive() )
 	{
 		// see if VR mode is even enabled
 		if ( materials->GetCurrentConfigForVideoCard().m_nVRModeAdapter == -1 )
@@ -1441,7 +1439,7 @@ void CClientVirtualReality::Activate()
 	vgui::ivgui()->SetVRMode( true );
 
 	// we can skip this extra mode change if we've always been in VR mode
-	if ( !m_bForceVRMode )
+	if ( !ShouldForceVRActive() )
 	{
 		VRRect_t rect;
 		if ( g_pSourceVR->GetDisplayBounds( &rect ) )
@@ -1510,10 +1508,7 @@ void CClientVirtualReality::Deactivate()
 // Called when startup is complete
 void CClientVirtualReality::StartupComplete()
 {
-	if ( g_pSourceVR )
-		m_bForceVRMode = g_pSourceVR->ShouldForceVRMode();
-
-	if ( vr_activate_default.GetBool( ) || m_bForceVRMode )
+	if ( vr_activate_default.GetBool() || ShouldForceVRActive() )
 		Activate();
 }
 

@@ -65,6 +65,7 @@ void CHudBaseDeathNotice::Init( void )
 	ListenForGameEvent( "teamplay_point_captured" );
 	ListenForGameEvent( "teamplay_capture_blocked" );
 	ListenForGameEvent( "teamplay_flag_event" );
+	ListenForGameEvent( "rd_robot_killed" );
 }
 
 //-----------------------------------------------------------------------------

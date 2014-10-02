@@ -173,7 +173,7 @@ public:
 		m_nLength = 0; 
 	}
 
-	void AppendFormat( PRINTF_FORMAT_STRING const char *pchFormat, ... ) 
+	void AppendFormat( PRINTF_FORMAT_STRING const char *pchFormat, ... ) FMTFUNCTION( 2, 3 )
 	{ 
 		char *pchEnd = m_szBuf + m_nLength; 
 		FmtStrVSNPrintf( pchEnd, SIZE_BUF - m_nLength, m_bQuietTruncation, &pchFormat, m_nLength, pchFormat ); 

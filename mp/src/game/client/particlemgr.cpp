@@ -97,8 +97,8 @@ CParticleSubTextureGroup::~CParticleSubTextureGroup()
 
 CParticleSubTexture::CParticleSubTexture()
 {
-	m_tCoordMins[0] = m_tCoordMins[0] = 0;
-	m_tCoordMaxs[0] = m_tCoordMaxs[0] = 1;
+	m_tCoordMins[0] = m_tCoordMins[1] = 0;
+	m_tCoordMaxs[0] = m_tCoordMaxs[1] = 1;
 	m_pGroup = &m_DefaultGroup;
 	m_pMaterial = NULL;
 

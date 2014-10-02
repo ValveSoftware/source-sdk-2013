@@ -192,7 +192,7 @@ bool C_BaseViewModel::Interpolate( float currentTime )
 }
 
 
-inline bool C_BaseViewModel::ShouldFlipViewModel()
+bool C_BaseViewModel::ShouldFlipViewModel()
 {
 #ifdef CSTRIKE_DLL
 	// If cl_righthand is set, then we want them all right-handed.

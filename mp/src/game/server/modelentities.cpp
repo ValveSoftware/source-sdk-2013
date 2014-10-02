@@ -191,7 +191,7 @@ void CFuncBrush::TurnOn( void )
 }
 
 
-bool CFuncBrush::IsOn( void )
+bool CFuncBrush::IsOn( void ) const
 {
 	return !IsEffectActive( EF_NODRAW );
 }

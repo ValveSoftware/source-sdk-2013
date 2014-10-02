@@ -615,7 +615,9 @@ void CZipFile::ParseFromBuffer( void *buffer, int bufferlength )
 
 	ZIP_EndOfCentralDirRecord rec = { 0 };
 
+#ifdef DBGFLAG_ASSERT
 	bool bFoundEndOfCentralDirRecord = false;
+#endif
 	unsigned int offset = fileLen - sizeof( ZIP_EndOfCentralDirRecord );
 	// If offset is ever greater than startOffset then it means that it has
 	// wrapped. This used to be a tautological >= 0 test.
@@ -626,7 +628,9 @@ void CZipFile::ParseFromBuffer( void *buffer, int bufferlength )
 		buf.GetObjects( &rec );
 		if ( rec.signature == PKID( 5, 6 ) )
 		{
+#ifdef DBGFLAG_ASSERT
 			bFoundEndOfCentralDirRecord = true;
+#endif
 
 			// Set any xzip configuration
 			if ( rec.commentLength )

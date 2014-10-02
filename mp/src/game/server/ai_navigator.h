@@ -43,7 +43,7 @@ extern ConVar ai_debug_nav;
 	do \
 	{ \
 		if (DbgNav()) \
-			DevMsg( pAI, CFmtStr( "[Nav] %s", static_cast<const char *>(pszMsg) ) ); \
+			DevMsg( pAI, "[Nav] %s", static_cast<const char *>(pszMsg) ); \
 	} while (0)
 #define DbgNavMsg1( pAI, pszMsg, a ) DbgNavMsg( pAI, CFmtStr(static_cast<const char *>(pszMsg), (a) ) )
 #define DbgNavMsg2( pAI, pszMsg, a, b ) DbgNavMsg( pAI, CFmtStr(static_cast<const char *>(pszMsg), (a), (b) ) )

@@ -269,7 +269,7 @@ bool CAI_LeadBehavior::GetClosestPointOnRoute( const Vector &targetPos, Vector *
 	float		flNearestDist	= 999999999;
 	float		flPathDist, flPathDist2D;
 
-	Vector vecNearestPoint;
+	Vector vecNearestPoint(0, 0, 0);
 	Vector vecPrevPos = GetOuter()->GetAbsOrigin();
 	for ( ; (waypoint != NULL) ; waypoint = waypoint->GetNext() )
 	{

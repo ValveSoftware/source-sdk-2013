@@ -3329,6 +3329,8 @@ inline void CMeshBuilder::ComputeNumVertsAndIndices( int *pMaxVertices, int *pMa
 		break;
 
 	default:
+		*pMaxVertices = 0;
+		*pMaxIndices = 0;
 		Assert(0);
 	}
 

@@ -102,9 +102,10 @@ enum EWorkshopFileType
 	k_EWorkshopFileTypeMerch				  = 11,
 	k_EWorkshopFileTypeControllerBinding	  = 12,
 	k_EWorkshopFileTypeSteamworksAccessInvite = 13,
+	k_EWorkshopFileTypeSteamVideo			  = 14,
 
-	// Update k_EWorkshopFileTypeMax if you add values
-	k_EWorkshopFileTypeMax = 14
+	// Update k_EWorkshopFileTypeMax if you add values.
+	k_EWorkshopFileTypeMax = 15
 	
 };
 
@@ -138,10 +139,6 @@ enum EWorkshopVideoProvider
 	k_EWorkshopVideoProviderYoutube = 1
 };
 
-enum
-{
-	k_WorkshopForceLoadPublishedFileDetailsFromCache = -1
-};
 
 enum EUGCReadAction
 {

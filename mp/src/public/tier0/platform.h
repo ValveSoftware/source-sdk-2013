@@ -230,7 +230,11 @@ typedef unsigned int		uint;
 // Ensure that everybody has the right compiler version installed. The version
 // number can be obtained by looking at the compiler output when you type 'cl'
 // and removing the last two digits and the periods: 16.00.40219.01 becomes 160040219
-#if _MSC_FULL_VER > 160000000
+#if _MSC_FULL_VER > 180000000
+	#if _MSC_FULL_VER < 180030723
+		#error You must install VS 2013 Update 3
+	#endif
+#elif _MSC_FULL_VER > 160000000
 	#if _MSC_FULL_VER < 160040219
 		#error You must install VS 2010 SP1
 	#endif
@@ -396,6 +400,12 @@ typedef void * HINSTANCE;
 #endif
 #endif
 #define	DebuggerBreakIfDebugging() if ( !Plat_IsInDebugSession() ) ; else DebuggerBreak()
+
+#ifdef STAGING_ONLY
+#define	DebuggerBreakIfDebugging_StagingOnly() if ( !Plat_IsInDebugSession() ) ; else DebuggerBreak()
+#else
+#define	DebuggerBreakIfDebugging_StagingOnly()
+#endif
 
 // C functions for external declarations that call the appropriate C++ methods
 #ifndef EXPORT
@@ -1086,7 +1096,6 @@ PLATFORM_INTERFACE bool				Plat_IsInBenchmarkMode();
 
 PLATFORM_INTERFACE double			Plat_FloatTime();		// Returns time in seconds since the module was loaded.
 PLATFORM_INTERFACE unsigned int		Plat_MSTime();			// Time in milliseconds.
-PLATFORM_INTERFACE char *			Plat_asctime( const struct tm *tm, char *buf );
 PLATFORM_INTERFACE char *			Plat_ctime( const time_t *timep, char *buf, size_t bufsize );
 PLATFORM_INTERFACE struct tm *		Plat_gmtime( const time_t *timep, struct tm *result );
 PLATFORM_INTERFACE time_t			Plat_timegm( struct tm *timeptr );
@@ -1140,7 +1149,7 @@ inline uint64 Plat_Rdtsc()
 			memcpy( this, &src, sizeof(_classname) );	\
 			return *this;								\
 		}
-	
+
 // Processor Information:
 struct CPUInformation
 {
@@ -1244,7 +1253,7 @@ PLATFORM_INTERFACE void* Plat_SimpleLog( const tchar* file, int line );
 // Returns true if debugger attached, false otherwise
 //-----------------------------------------------------------------------------
 #if defined(_WIN32) || defined(LINUX) || defined(OSX)
-PLATFORM_INTERFACE bool Plat_IsInDebugSession( bool bForceRecheck = false );
+PLATFORM_INTERFACE bool Plat_IsInDebugSession();
 PLATFORM_INTERFACE void Plat_DebugString( const char * );
 #else
 inline bool Plat_IsInDebugSession( bool bForceRecheck = false ) { return false; }
@@ -1558,6 +1567,20 @@ private:
 	FUNCPTR_TYPE m_pfn;
 };
 #endif
+
+
+// Watchdog timer support. Call Plat_BeginWatchdogTimer( nn ) to kick the timer off.  if you don't call
+// Plat_EndWatchdogTimer within nn seconds, the program will kick off an exception.  This is for making
+// sure that hung dedicated servers abort (and restart) instead of staying hung. Calling
+// Plat_EndWatchdogTimer more than once or when there is no active watchdog is fine. Only does anything
+// under linux right now. It should be possible to implement this functionality in windows via a
+// thread, if desired.
+PLATFORM_INTERFACE void Plat_BeginWatchdogTimer( int nSecs );
+PLATFORM_INTERFACE void Plat_EndWatchdogTimer( void );
+PLATFORM_INTERFACE int Plat_GetWatchdogTime( void );
+
+typedef void (*Plat_WatchDogHandlerFunction_t)(void);
+PLATFORM_INTERFACE void Plat_SetWatchdogHandlerFunction( Plat_WatchDogHandlerFunction_t function );
 
 
 //-----------------------------------------------------------------------------

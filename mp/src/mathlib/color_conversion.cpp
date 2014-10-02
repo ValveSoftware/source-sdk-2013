@@ -609,10 +609,10 @@ void VectorToColorRGBExp32( const Vector& vin, ColorRGBExp32 &c )
 		scalar = *reinterpret_cast<float *>(&fbits);
 	}
 
-	// we should never need to clamp:
-	Assert(vin.x * scalar <= 255.0f && 
-		   vin.y * scalar <= 255.0f && 
-		   vin.z * scalar <= 255.0f);
+	// We can totally wind up above 255 and that's okay--but above 256 would be right out.
+	Assert(vin.x * scalar < 256.0f && 
+		   vin.y * scalar < 256.0f && 
+		   vin.z * scalar < 256.0f);
 
 	// This awful construction is necessary to prevent VC2005 from using the 
 	// fldcw/fnstcw control words around every float-to-unsigned-char operation.

@@ -1190,6 +1190,7 @@ bool Q_IsMeanSpaceW( wchar_t wch )
 	case L'\x200B':   // ZERO-WIDTH SPACE
 	case L'\x200C':   // ZERO-WIDTH NON-JOINER
 	case L'\x200D':   // ZERO WIDTH JOINER
+	case L'\x200E':	  // LEFT-TO-RIGHT MARK
 	case L'\x2028':   // LINE SEPARATOR
 	case L'\x2029':   // PARAGRAPH SEPARATOR
 	case L'\x202F':   // NARROW NO-BREAK SPACE
@@ -1238,6 +1239,48 @@ static wchar_t *StripWhitespaceWorker( int cchLength, wchar_t *pwch, bool *pbStr
 	}
 
 	return pwch;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Strips all evil characters (ie. zero-width no-break space)
+//			from a string.
+//-----------------------------------------------------------------------------
+bool Q_RemoveAllEvilCharacters( char *pch )
+{
+	// convert to unicode
+	int cch = Q_strlen( pch );
+	int cubDest = (cch + 1 ) * sizeof( wchar_t );
+	wchar_t *pwch = (wchar_t *)stackalloc( cubDest );
+	int cwch = Q_UTF8ToUnicode( pch, pwch, cubDest );
+
+	bool bStrippedWhitespace = false;
+
+	// Walk through and skip over evil characters
+	int nWalk = 0;
+	for( int i=0; i<cwch; ++i )
+	{
+		if( !Q_IsMeanSpaceW( pwch[i] ) )
+		{
+			pwch[nWalk] = pwch[i];
+			++nWalk;
+		}
+		else
+		{
+			bStrippedWhitespace = true;
+		}
+	}
+
+	// Null terminate
+	pwch[nWalk-1] = L'\0';
+	
+
+	// copy back, if necessary
+	if ( bStrippedWhitespace )
+	{
+		Q_UnicodeToUTF8( pwch, pch, cch );
+	}
+
+	return bStrippedWhitespace;
 }
 
 
@@ -1422,7 +1465,6 @@ int V_UCS2ToUnicode( const ucs2 *pUCS2, wchar_t *pUnicode, int cubDestSizeInByte
 	char *pOut = (char *)pUnicode;
 	if ( conv_t > 0 )
 	{
-		cchResult = 0;
 		cchResult = iconv( conv_t, &pIn, &nLenUnicde, &pOut, &nMaxUTF8 );
 		iconv_close( conv_t );
 		if ( (int)cchResult < 0 )
@@ -1463,7 +1505,6 @@ int V_UnicodeToUCS2( const wchar_t *pUnicode, int cubSrcInBytes, char *pUCS2, in
 	char *pOut = pUCS2;
 	if ( conv_t > 0 )
 	{
-		cchResult = 0;
 		cchResult = iconv( conv_t, &pIn, &nLenUnicde, &pOut, &nMaxUCS2 );
 		iconv_close( conv_t );
 		if ( (int)cchResult < 0 )
@@ -1510,7 +1551,6 @@ int V_UCS2ToUTF8( const ucs2 *pUCS2, char *pUTF8, int cubDestSizeInBytes )
 	char *pOut = (char *)pUTF8;
 	if ( conv_t > 0 )
 	{
-		cchResult = 0;
 		const size_t nBytesToWrite = nMaxUTF8;
 		cchResult = iconv( conv_t, &pIn, &nLenUnicde, &pOut, &nMaxUTF8 );
 
@@ -1556,7 +1596,6 @@ int V_UTF8ToUCS2( const char *pUTF8, int cubSrcInBytes, ucs2 *pUCS2, int cubDest
 	char *pOut = (char *)pUCS2;
 	if ( conv_t > 0 )
 	{
-		cchResult = 0;
 		cchResult = iconv( conv_t, &pIn, &nLenUnicde, &pOut, &nMaxUTF8 );
 		iconv_close( conv_t );
 		if ( (int)cchResult < 0 )

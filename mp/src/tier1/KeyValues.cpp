@@ -725,7 +725,7 @@ void KeyValues::WriteConvertedString( IBaseFileSystem *filesystem, FileHandle_t 
 		j++;
 	}		
 
-	INTERNALWRITE(convertedString, strlen(convertedString));
+	INTERNALWRITE(convertedString, Q_strlen(convertedString));
 }
 
 
@@ -1348,8 +1348,11 @@ const char *KeyValues::GetString( const char *keyName, const char *defaultValue 
 			Q_snprintf( buf, sizeof( buf ), "%f", dat->m_flValue );
 			SetString( keyName, buf );
 			break;
-		case TYPE_INT:
 		case TYPE_PTR:
+			Q_snprintf( buf, sizeof( buf ), "%lld", (int64)(size_t)dat->m_pValue );
+			SetString( keyName, buf );
+			break;
+		case TYPE_INT:
 			Q_snprintf( buf, sizeof( buf ), "%d", dat->m_iValue );
 			SetString( keyName, buf );
 			break;
@@ -1398,8 +1401,11 @@ const wchar_t *KeyValues::GetWString( const char *keyName, const wchar_t *defaul
 			swprintf(wbuf, Q_ARRAYSIZE(wbuf), L"%f", dat->m_flValue);
 			SetWString( keyName, wbuf);
 			break;
-		case TYPE_INT:
 		case TYPE_PTR:
+			swprintf( wbuf, Q_ARRAYSIZE(wbuf), L"%lld", (int64)(size_t)dat->m_pValue );
+			SetWString( keyName, wbuf );
+			break;
+		case TYPE_INT:
 			swprintf( wbuf, Q_ARRAYSIZE(wbuf), L"%d", dat->m_iValue );
 			SetWString( keyName, wbuf );
 			break;
@@ -1441,10 +1447,17 @@ const wchar_t *KeyValues::GetWString( const char *keyName, const wchar_t *defaul
 //-----------------------------------------------------------------------------
 // Purpose: Get a bool interpretation of the key.
 //-----------------------------------------------------------------------------
-bool KeyValues::GetBool( const char *keyName, bool defaultValue )
+bool KeyValues::GetBool( const char *keyName, bool defaultValue, bool* optGotDefault )
 {
 	if ( FindKey( keyName ) )
+    {
+        if ( optGotDefault )
+            (*optGotDefault) = false;
 		return 0 != GetInt( keyName, 0 );
+    }
+    
+    if ( optGotDefault )
+        (*optGotDefault) = true;
 
 	return defaultValue;
 }
@@ -1582,7 +1595,7 @@ void KeyValues::SetWString( const char *keyName, const wchar_t *value )
 		}
 
 		// allocate memory for the new value and copy it in
-		int len = wcslen( value );
+		int len = Q_wcslen( value );
 		dat->m_wsValue = new wchar_t[len + 1];
 		Q_memcpy( dat->m_wsValue, value, (len+1) * sizeof(wchar_t) );
 
@@ -1828,7 +1841,7 @@ KeyValues *KeyValues::MakeCopy( void ) const
 		{
 			if ( m_wsValue )
 			{
-				int len = wcslen( m_wsValue );
+				int len = Q_wcslen( m_wsValue );
 				newKeyValue->m_wsValue = new wchar_t[len+1];
 				Q_memcpy( newKeyValue->m_wsValue, m_wsValue, (len+1)*sizeof(wchar_t));
 			}
@@ -2647,13 +2660,13 @@ bool KeyValues::ReadAsBinary( CUtlBuffer &buffer, int nStackDepth )
 void *KeyValues::operator new( size_t iAllocSize )
 {
 	MEM_ALLOC_CREDIT();
-	return KeyValuesSystem()->AllocKeyValuesMemory(iAllocSize);
+	return KeyValuesSystem()->AllocKeyValuesMemory( (int)iAllocSize );
 }
 
 void *KeyValues::operator new( size_t iAllocSize, int nBlockUse, const char *pFileName, int nLine )
 {
 	MemAlloc_PushAllocDbgInfo( pFileName, nLine );
-	void *p = KeyValuesSystem()->AllocKeyValuesMemory(iAllocSize);
+	void *p = KeyValuesSystem()->AllocKeyValuesMemory( (int)iAllocSize );
 	MemAlloc_PopAllocDbgInfo();
 	return p;
 }

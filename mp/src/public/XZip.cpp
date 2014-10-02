@@ -1470,7 +1470,7 @@ void send_bits(TState &state,int value, int length)
  */
 unsigned bi_reverse(unsigned code, int len)
 {
-    register unsigned res = 0;
+    unsigned res = 0;
     do {
         res |= code & 1;
         code >>= 1, res <<= 1;
@@ -1571,7 +1571,7 @@ int  longest_match (TState &state,IPos cur_match);
  */
 void lm_init (TState &state, int pack_level, ush *flags)
 {
-    register unsigned j;
+    unsigned j;
 
     Assert(state,pack_level>=1 && pack_level<=8,"bad pack level");
 
@@ -1642,9 +1642,9 @@ void lm_init (TState &state, int pack_level, ush *flags)
 int longest_match(TState &state,IPos cur_match)
 {
     unsigned chain_length = state.ds.max_chain_length;   /* max hash chain length */
-    register uch far *scan = state.ds.window + state.ds.strstart; /* current string */
-    register uch far *match;                    /* matched string */
-    register int len;                           /* length of current match */
+    uch far *scan = state.ds.window + state.ds.strstart; /* current string */
+    uch far *match;                    /* matched string */
+    int len;                           /* length of current match */
     int best_len = state.ds.prev_length;                 /* best match length so far */
     IPos limit = state.ds.strstart > (IPos)MAX_DIST ? state.ds.strstart - (IPos)MAX_DIST : NIL;
     /* Stop when cur_match becomes <= limit. To simplify the code,
@@ -1657,9 +1657,9 @@ int longest_match(TState &state,IPos cur_match)
 
 
 
-    register uch far *strend = state.ds.window + state.ds.strstart + MAX_MATCH;
-    register uch scan_end1  = scan[best_len-1];
-    register uch scan_end   = scan[best_len];
+    uch far *strend = state.ds.window + state.ds.strstart + MAX_MATCH;
+    uch scan_end1  = scan[best_len-1];
+    uch scan_end   = scan[best_len];
 
     /* Do not waste too much time if we already have a good match: */
     if (state.ds.prev_length >= state.ds.good_match) {
@@ -1747,7 +1747,7 @@ int longest_match(TState &state,IPos cur_match)
  */
 void fill_window(TState &state)
 {
-    register unsigned n, m;
+    unsigned n, m;
     unsigned more;    /* Amount of free space at the end of the window. */
 
     do {
@@ -1916,7 +1916,7 @@ ulg deflate(TState &state)
     IPos prev_match;            /* previous match */
     int flush;                  /* set if current block must be flushed */
     int match_available = 0;    /* set if previous match exists */
-    register unsigned match_length = MIN_MATCH-1; /* length of best match */
+    unsigned match_length = MIN_MATCH-1; /* length of best match */
 
     if (state.level <= 3) return deflate_fast(state); /* optimized for speed */
 

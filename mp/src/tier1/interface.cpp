@@ -143,6 +143,7 @@ static void *Sys_GetProcAddress( const char *pModuleName, const char *pName )
 #endif
 }
 
+#if !defined(LINUX)
 static void *Sys_GetProcAddress( HMODULE hModule, const char *pName )
 {
 #ifdef WIN32
@@ -151,6 +152,7 @@ static void *Sys_GetProcAddress( HMODULE hModule, const char *pName )
 	return (void *)dlsym( (void *)hModule, pName );
 #endif
 }
+#endif
 
 bool Sys_IsDebuggerPresent()
 {
@@ -540,3 +542,26 @@ void CDllDemandLoader::Unload()
 		m_hModule = 0;
 	}
 }
+
+#if defined( STAGING_ONLY ) && defined( _WIN32 )
+
+typedef USHORT( WINAPI RtlCaptureStackBackTrace_FUNC )(
+	ULONG frames_to_skip,
+	ULONG frames_to_capture,
+	PVOID *backtrace,
+	PULONG backtrace_hash );
+
+extern "C" int backtrace( void **buffer, int size )
+{
+	HMODULE hNTDll = GetModuleHandleA( "ntdll.dll" );
+	static RtlCaptureStackBackTrace_FUNC * const pfnRtlCaptureStackBackTrace =
+		( RtlCaptureStackBackTrace_FUNC * )GetProcAddress( hNTDll, "RtlCaptureStackBackTrace" );
+
+	if ( !pfnRtlCaptureStackBackTrace )
+		return 0;
+
+	return (int)pfnRtlCaptureStackBackTrace( 2, size, buffer, 0 );
+}
+
+#endif // STAGING_ONLY && _WIN32
+

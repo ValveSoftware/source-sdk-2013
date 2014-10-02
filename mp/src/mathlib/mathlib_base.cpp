@@ -3388,7 +3388,7 @@ void MathLib_Init( float gamma, float texGamma, float brightness, int overbright
 	{
 		s_bSSE2Enabled = false;
 	}
-#endif
+#endif // !_X360
 
 	s_bMathlibInitialized = true;
 

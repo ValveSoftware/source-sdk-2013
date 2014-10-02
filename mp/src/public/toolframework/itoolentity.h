@@ -32,6 +32,9 @@ class CBaseAnimating;
 class CTakeDamageInfo;
 class ITempEntsSystem;
 class IEntityFactoryDictionary;
+class CBaseTempEntity;
+class CGlobalEntityList;
+class IEntityFindFilter;
 
 
 //-----------------------------------------------------------------------------
@@ -217,13 +220,35 @@ public:
 	virtual void RadiusDamage( const CTakeDamageInfo &info, const Vector &vecSrc, float flRadius, int iClassIgnore, CBaseEntity *pEntityIgnore ) = 0;
 
 	virtual ITempEntsSystem *GetTempEntsSystem( void ) = 0;
+	virtual CBaseTempEntity *GetTempEntList( void ) = 0;
+
+	virtual CGlobalEntityList *GetEntityList( void ) = 0;
+	virtual bool IsEntityPtr( void *pTest ) = 0;
+	virtual CBaseEntity *FindEntityByClassname( CBaseEntity *pStartEntity, const char *szName ) = 0;
+	virtual CBaseEntity *FindEntityByName( CBaseEntity *pStartEntity, const char *szName, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL, IEntityFindFilter *pFilter = NULL ) = 0;
+	virtual CBaseEntity *FindEntityInSphere( CBaseEntity *pStartEntity, const Vector &vecCenter, float flRadius ) = 0;
+	virtual CBaseEntity *FindEntityByTarget( CBaseEntity *pStartEntity, const char *szName ) = 0;
+	virtual CBaseEntity *FindEntityByModel( CBaseEntity *pStartEntity, const char *szModelName ) = 0;
+	virtual CBaseEntity *FindEntityByNameNearest( const char *szName, const Vector &vecSrc, float flRadius, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL ) = 0;
+	virtual CBaseEntity *FindEntityByNameWithin( CBaseEntity *pStartEntity, const char *szName, const Vector &vecSrc, float flRadius, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL ) = 0;
+	virtual CBaseEntity *FindEntityByClassnameNearest( const char *szName, const Vector &vecSrc, float flRadius ) = 0;
+	virtual CBaseEntity *FindEntityByClassnameWithin( CBaseEntity *pStartEntity, const char *szName, const Vector &vecSrc, float flRadius ) = 0;
+	virtual CBaseEntity *FindEntityByClassnameWithin( CBaseEntity *pStartEntity, const char *szName, const Vector &vecMins, const Vector &vecMaxs ) = 0;
+	virtual CBaseEntity *FindEntityGeneric( CBaseEntity *pStartEntity, const char *szName, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL ) = 0;
+	virtual CBaseEntity *FindEntityGenericWithin( CBaseEntity *pStartEntity, const char *szName, const Vector &vecSrc, float flRadius, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL ) = 0;
+	virtual CBaseEntity *FindEntityGenericNearest( const char *szName, const Vector &vecSrc, float flRadius, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL ) = 0;
+	virtual CBaseEntity *FindEntityNearestFacing( const Vector &origin, const Vector &facing, float threshold ) = 0;
+	virtual CBaseEntity *FindEntityClassNearestFacing( const Vector &origin, const Vector &facing, float threshold, char *classname ) = 0;
+	virtual CBaseEntity *FindEntityProcedural( const char *szName, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL ) = 0;
 };
 
 typedef IServerTools IServerTools001;
+typedef IServerTools IServerTools002;
 
 #define VSERVERTOOLS_INTERFACE_VERSION_1	"VSERVERTOOLS001"
-#define VSERVERTOOLS_INTERFACE_VERSION		"VSERVERTOOLS002"
-#define VSERVERTOOLS_INTERFACE_VERSION_INT	2
+#define VSERVERTOOLS_INTERFACE_VERSION_2	"VSERVERTOOLS002"
+#define VSERVERTOOLS_INTERFACE_VERSION		"VSERVERTOOLS003"
+#define VSERVERTOOLS_INTERFACE_VERSION_INT	3
 
 //-----------------------------------------------------------------------------
 // Purpose: Client side tool interace (right now just handles IClientRenderables).

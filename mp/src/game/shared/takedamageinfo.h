@@ -55,7 +55,8 @@ public:
 	void			AddDamage( float flAddAmount );
 	void			SubtractDamage( float flSubtractAmount );
 	float			GetDamageBonus() const;
-	void			SetDamageBonus( float flBonus );
+	CBaseEntity		*GetDamageBonusProvider() const;
+	void			SetDamageBonus( float flBonus, CBaseEntity *pProvider = NULL );
 
 	float			GetBaseDamage() const;
 	bool			BaseDamageIsValid() const;
@@ -125,6 +126,7 @@ protected:
 	int				m_iDamagedOtherPlayers;
 	int				m_iPlayerPenetrationCount;
 	float			m_flDamageBonus;		// Anything that increases damage (crit) - store the delta
+	EHANDLE			m_hDamageBonusProvider;	// Who gave us the ability to do extra damage?
 	bool			m_bForceFriendlyFire;	// Ideally this would be a dmg type, but we can't add more
 
 	DECLARE_SIMPLE_DATADESC();
@@ -247,9 +249,15 @@ inline float CTakeDamageInfo::GetDamageBonus() const
 	return m_flDamageBonus;
 }
 
-inline void CTakeDamageInfo::SetDamageBonus( float flBonus )
+inline CBaseEntity *CTakeDamageInfo::GetDamageBonusProvider() const
+{
+	return m_hDamageBonusProvider;
+}
+
+inline void CTakeDamageInfo::SetDamageBonus( float flBonus, CBaseEntity *pProvider /*= NULL*/ )
 {
 	m_flDamageBonus = flBonus;
+	m_hDamageBonusProvider = pProvider;
 }
 
 inline float CTakeDamageInfo::GetBaseDamage() const

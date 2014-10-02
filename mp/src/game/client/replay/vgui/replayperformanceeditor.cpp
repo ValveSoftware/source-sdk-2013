@@ -576,7 +576,7 @@ public:
 		BaseClass::PerformLayout();
 
 		int nWidth = XRES( 140 );
-		int nMargins[2] = { XRES( 5 ), YRES( 5 ) };
+		int nMargins[2] = { (int)XRES( 5 ), (int)YRES( 5 ) };
 		int nVBuf = YRES( 0 );
 		int nLastY = -1;
 		int nY = nMargins[1];
@@ -1969,7 +1969,7 @@ void CReplayPerformanceEditorPanel::PerformLayout()
 		dynamic_cast< CExLabel * >( m_pPlayerCellsPanel->FindChildByName( "RedLabel" ) ),
 		dynamic_cast< CExLabel * >( m_pPlayerCellsPanel->FindChildByName( "BlueLabel" ) )
 	};
-	int nMargins[2] = { XRES( 5 ), YRES( 2 ) };
+	int nMargins[2] = { (int)XRES( 5 ), (int)YRES( 2 ) };
 	for ( int i = 0; i < 2; ++i )
 	{
 		pRedBlueLabels[i]->SizeToContents();

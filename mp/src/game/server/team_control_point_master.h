@@ -121,13 +121,17 @@ public:
 	bool ShouldScorePerCapture( void ){ return m_bScorePerCapture; }
 	bool ShouldPlayAllControlPointRounds( void ){ return m_bPlayAllRounds; }
 	int NumPlayableControlPointRounds( void ); // checks to see if there are any more rounds to play (but doesn't actually "get" one to play)
-	
-//	void ListRounds( void );
+
+#ifdef STAGING_ONLY
+	void ListRounds( void );
+#endif
 
 	float GetPartialCapturePointRate( void );
 
 	void SetLastOwnershipChangeTime( float m_flTime ) { m_flLastOwnershipChangeTime = m_flTime; }
 	float GetLastOwnershipChangeTime( void ) { return m_flLastOwnershipChangeTime; }
+
+	int GetCurrentRoundIndex() { return m_iCurrentRoundIndex; }
 
 private:
 	void EXPORT CPMThink( void );

@@ -204,7 +204,9 @@ float FASTCALL _SSE_VectorNormalize (Vector& vec)
 #endif
 
 	float *v = &vec[0];
+#ifdef _WIN32
 	float *r = &result[0];
+#endif
 
 	float	radius = 0.f;
 	// Blah, get rid of these comparisons ... in reality, if you have all 3 as zero, it shouldn't 
@@ -740,6 +742,7 @@ float _SSE_cos( float x )
 //-----------------------------------------------------------------------------
 // SSE2 implementations of optimized routines:
 //-----------------------------------------------------------------------------
+#ifdef PLATFORM_WINDOWS_PC32
 void _SSE2_SinCos(float x, float* s, float* c)  // any x
 {
 #ifdef _WIN32
@@ -825,7 +828,9 @@ void _SSE2_SinCos(float x, float* s, float* c)  // any x
 	#error "Not Implemented"
 #endif
 }
+#endif // PLATFORM_WINDOWS_PC32
 
+#ifdef PLATFORM_WINDOWS_PC32
 float _SSE2_cos(float x)  
 {
 #ifdef _WIN32
@@ -883,7 +888,9 @@ float _SSE2_cos(float x)
 
 	return x;
 }
+#endif // PLATFORM_WINDOWS_PC32
 
+#if 0
 // SSE Version of VectorTransform
 void VectorTransformSSE(const float *in1, const matrix3x4_t& in2, float *out1)
 {
@@ -941,7 +948,9 @@ void VectorTransformSSE(const float *in1, const matrix3x4_t& in2, float *out1)
 	#error "Not Implemented"
 #endif
 }
+#endif
 
+#if 0
 void VectorRotateSSE( const float *in1, const matrix3x4_t& in2, float *out1 )
 {
 	Assert( s_bMathlibInitialized );
@@ -995,6 +1004,7 @@ void VectorRotateSSE( const float *in1, const matrix3x4_t& in2, float *out1 )
 	#error "Not Implemented"
 #endif
 }
+#endif
 
 #ifdef _WIN32
 void _declspec(naked) _SSE_VectorMA( const float *start, float scale, const float *direction, float *dest )

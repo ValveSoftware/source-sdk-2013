@@ -343,6 +343,8 @@ inline void CBaseEdict::SetFree()
 	m_fStateFlags |= FL_EDICT_FREE;
 }
 
+// WARNING: Make sure you don't really want to call ED_ClearFreeFlag which will also
+//  remove this edict from the g_FreeEdicts bitset.
 inline void CBaseEdict::ClearFree()
 {
 	m_fStateFlags &= ~FL_EDICT_FREE;

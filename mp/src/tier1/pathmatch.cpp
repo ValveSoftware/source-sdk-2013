@@ -316,6 +316,7 @@ inline __attribute__ ((always_inline)) static int utf8casecmp_loop(const uint32_
 	}
 }
 
+#ifdef UTF8_PATHMATCH
 static int utf8casecmp(const char *str1, const char *str2)
 {
 	uint32_t *folded1 = fold_utf8(str1);
@@ -325,6 +326,7 @@ static int utf8casecmp(const char *str1, const char *str2)
 	delete[] folded2;
 	return retval;
 }
+#endif
 
 // Simple object to help make sure a DIR* from opendir
 // gets closed when it goes out of scope.

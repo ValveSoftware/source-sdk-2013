@@ -217,6 +217,8 @@ public:
 	void     RemoveAll( );
 	void	 Purge();
 
+	bool HasElement( T const &search ) const { return Find( search ) != InvalidIndex(); }
+
 	// Allocation, deletion
 	void  FreeNode( I i );
 

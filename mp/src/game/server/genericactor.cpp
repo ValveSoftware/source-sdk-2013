@@ -372,7 +372,7 @@ void CFlextalkActor::ProcessSceneEvents( void )
 						{
 							m_flexnum = LookupFlex( szTemp );
 
-							if (m_flexnum != -1 && m_flextarget[m_flexnum] != 1)
+							if (m_flexnum != LocalFlexController_t(-1) && m_flextarget[m_flexnum] != 1)
 							{
 								m_flextarget[m_flexnum] = 1.0;
 								// SetFlexTarget( m_flexnum );

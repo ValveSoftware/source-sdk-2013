@@ -109,8 +109,6 @@ void CWindowPane::PaneTouch( CBaseEntity *pOther )
 //------------------------------------------------------------------------------
 void CWindowPane::Die( void )
 {
-	Vector flForce = -1 * GetAbsVelocity();
-
 	CPASFilter filter( GetAbsOrigin() );
 	te->ShatterSurface( filter, 0.0,
 					 &GetAbsOrigin(), &GetAbsAngles(), 

@@ -465,7 +465,6 @@ public:
 		{
 			return;
 		}
-#endif // STAGING_ONLY
 
 		if ( !Q_strncasecmp( params.soundname, "vo", 2 ) &&
 			!( params.channel == CHAN_STREAM ||
@@ -475,6 +474,7 @@ public:
 			DevMsg( "EmitSound:  Voice wave file %s doesn't specify CHAN_VOICE, CHAN_VOICE2 or CHAN_STREAM for sound %s\n",
 				params.soundname, ep.m_pSoundName );
 		}
+#endif // STAGING_ONLY
 
 		// handle SND_CHANGEPITCH/SND_CHANGEVOL and other sound flags.etc.
 		if( ep.m_nFlags & SND_CHANGE_PITCH )

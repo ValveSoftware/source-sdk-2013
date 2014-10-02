@@ -156,6 +156,7 @@ CChoreoScene& CChoreoScene::operator=( const CChoreoScene& src )
 	m_pTokenizer = src.m_pTokenizer;
 	
 	m_flCurrentTime = src.m_flCurrentTime;
+	m_flStartLoopTime = src.m_flStartLoopTime;
 	m_flStartTime = src.m_flStartTime;
 	m_flEndTime	= src.m_flEndTime;
 	m_flSoundSystemLatency = src.m_flSoundSystemLatency;
@@ -234,6 +235,7 @@ void CChoreoScene::Init( IChoreoEventCallback *callback )
 	m_szMapname[ 0 ] = 0;
 
 	m_flCurrentTime = 0.0f;
+	m_flStartLoopTime = -1.f;
 	m_flStartTime = 0.0f;
 	m_flEndTime	= 0.0f;
 	m_flSoundSystemLatency = 0.0f;
@@ -2312,6 +2314,8 @@ void CChoreoScene::ResetSimulation( bool forward /*= true*/, float starttime /*=
 
 	m_flCurrentTime = forward ? m_flEarliestTime : m_flLatestTime;
 
+	m_flStartLoopTime = -1.f;
+
 	// choreoprintf( 0, "Start time %f\n", m_flCurrentTime );
 
 	m_flLastActiveTime = 0.0f;
@@ -2473,6 +2477,15 @@ int CChoreoScene::EventThink( CChoreoEvent *e, float frame_start_time, float fra
 				}
 			}
 			*/
+
+			if ( !suppressed )
+			{
+				// if this SPEAK event starts before the beginning of the current loop, don't play the SPEAK event again in the loop
+				if ( m_flStartLoopTime >= 0.f && starttime < m_flStartLoopTime )
+				{
+					return iret;
+				}
+			}
 		}
 		break;
 	case CChoreoEvent::SUBSCENE:
@@ -2836,6 +2849,8 @@ void CChoreoScene::SetTime( float t )
 void CChoreoScene::LoopToTime( float t )
 {
 	m_flCurrentTime = t;
+
+	m_flStartLoopTime = t;
 }
 
 //-----------------------------------------------------------------------------

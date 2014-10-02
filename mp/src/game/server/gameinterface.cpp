@@ -1928,6 +1928,15 @@ const char *CServerGameDLL::GetServerBrowserGameData()
 }
 
 //-----------------------------------------------------------------------------
+void CServerGameDLL::Status( void (*print) (const char *fmt, ...) )
+{
+	if ( g_pGameRules )
+	{
+		g_pGameRules->Status( print );
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Called during a transition, to build a map adjacency list
 //-----------------------------------------------------------------------------
 void CServerGameDLL::BuildAdjacentMapList( void )
@@ -3332,7 +3341,7 @@ void MessageWriteEHandle( CBaseEntity *pEntity )
 	{
 		EHANDLE hEnt = pEntity;
 
-		int iSerialNum = hEnt.GetSerialNumber() & (1 << NUM_NETWORKED_EHANDLE_SERIAL_NUMBER_BITS) - 1;
+		int iSerialNum = hEnt.GetSerialNumber() & ( (1 << NUM_NETWORKED_EHANDLE_SERIAL_NUMBER_BITS) - 1 );
 		iEncodedEHandle = hEnt.GetEntryIndex() | (iSerialNum << MAX_EDICT_BITS);
 	}
 	else

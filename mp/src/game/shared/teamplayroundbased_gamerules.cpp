@@ -90,6 +90,7 @@ BEGIN_NETWORK_TABLE_NOBASE( CTeamplayRoundBasedRules, DT_TeamplayRoundBasedRules
 	RecvPropBool( RECVINFO( m_bStopWatch ) ),
 	RecvPropBool( RECVINFO( m_bMultipleTrains ) ),
 	RecvPropArray3( RECVINFO_ARRAY(m_bPlayerReady), RecvPropBool( RECVINFO(m_bPlayerReady[0]) ) ),
+	RecvPropBool( RECVINFO( m_bCheatsEnabledDuringLevel ) ),
 
 #else
 	SendPropInt( SENDINFO( m_iRoundState ), 5 ),
@@ -107,6 +108,7 @@ BEGIN_NETWORK_TABLE_NOBASE( CTeamplayRoundBasedRules, DT_TeamplayRoundBasedRules
 	SendPropBool( SENDINFO( m_bStopWatch ) ),
 	SendPropBool( SENDINFO( m_bMultipleTrains ) ),
 	SendPropArray3( SENDINFO_ARRAY3(m_bPlayerReady), SendPropBool( SENDINFO_ARRAY(m_bPlayerReady) ) ),
+	SendPropBool( SENDINFO( m_bCheatsEnabledDuringLevel ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -184,7 +186,7 @@ ConVar tf_arena_round_time( "tf_arena_round_time", "0", FCVAR_NOTIFY | FCVAR_REP
 ConVar tf_arena_max_streak( "tf_arena_max_streak", "3", FCVAR_NOTIFY | FCVAR_REPLICATED, "Teams will be scrambled if one team reaches this streak" );
 ConVar tf_arena_use_queue( "tf_arena_use_queue", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Enables the spectator queue system for Arena." );
 
-ConVar mp_teams_unbalance_limit( "mp_teams_unbalance_limit", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
+ConVar mp_teams_unbalance_limit( "mp_teams_unbalance_limit", "1", FCVAR_REPLICATED,
 					 "Teams are unbalanced when one team has this many more players than the other team. (0 disables check)",
 					 true, 0,	// min value
 					 true, 30	// max value
@@ -421,6 +423,7 @@ CTeamplayRoundBasedRules::CTeamplayRoundBasedRules( void )
 	m_nAutoBalanceQueuePlayerScore = -1;
 
 	SetDefLessFunc( m_GameTeams );
+	m_bCheatsEnabledDuringLevel = false;
 
 #endif
 }
@@ -554,6 +557,18 @@ float CTeamplayRoundBasedRules::GetMinTimeWhenPlayerMaySpawn( CBasePlayer *pPlay
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTeamplayRoundBasedRules::LevelInitPostEntity( void )
+{
+	BaseClass::LevelInitPostEntity();
+
+#ifdef GAME_DLL
+	m_bCheatsEnabledDuringLevel = sv_cheats && sv_cheats->GetBool();
+#endif // GAME_DLL
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 float CTeamplayRoundBasedRules::GetRespawnTimeScalar( int iTeam )
 {
 	// For long respawn times, scale the time as the number of players drops
@@ -629,6 +644,12 @@ void CTeamplayRoundBasedRules::Think( void )
 		CheckWaitingForPlayers();
 
 		m_flNextPeriodicThink = gpGlobals->curtime + 1.0;
+	}
+
+	// Watch dog for cheats ever being enabled during a level
+	if ( !m_bCheatsEnabledDuringLevel && sv_cheats && sv_cheats->GetBool() )
+	{
+		m_bCheatsEnabledDuringLevel = true;
 	}
 
 	// Bypass teamplay think.
@@ -954,7 +975,11 @@ void CTeamplayRoundBasedRules::CheckRestartRound( void )
 		int iDelayMax = 60;
 
 #if defined(TF_CLIENT_DLL) || defined(TF_DLL)
+#ifdef STAGING_ONLY
+		if ( TFGameRules() && ( TFGameRules()->IsMannVsMachineMode() || TFGameRules()->IsRatedTournamentMode() ) )
+#else
 		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+#endif // STAGING_ONLY
 		{
 			iDelayMax = 180;
 		}
@@ -1415,6 +1440,12 @@ void CTeamplayRoundBasedRules::State_Enter_PREROUND( void )
 		State_Transition( GR_STATE_BETWEEN_RNDS );
 		TFObjectiveResource()->SetMannVsMachineBetweenWaves( true );
 	}
+#ifdef STAGING_ONLY
+	else if ( TFGameRules() && TFGameRules()->IsRatedTournamentMode() )
+	{
+		State_Transition( GR_STATE_BETWEEN_RNDS );
+	}
+#endif // STAGING_ONLY
 #endif // #if defined(TF_CLIENT_DLL) || defined(TF_DLL)
 	else
 	{
@@ -1501,14 +1532,23 @@ void CTeamplayRoundBasedRules::CheckReadyRestart( void )
 		m_flRestartRoundTime = -1;
 
 #ifdef TF_DLL
-		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && g_pPopulationManager )
+		if ( TFGameRules() )
 		{
-			if ( TFObjectiveResource()->GetMannVsMachineIsBetweenWaves() )
+			if ( TFGameRules()->IsMannVsMachineMode() && g_pPopulationManager )
 			{
-				g_pPopulationManager->StartCurrentWave();
+				if ( TFObjectiveResource()->GetMannVsMachineIsBetweenWaves() )
+				{
+					g_pPopulationManager->StartCurrentWave();
+					return;
+				}
 			}
-			
-			return;
+#ifdef STAGING_ONLY
+			else if ( TFGameRules()->IsRatedTournamentMode() )
+			{
+				TFGameRules()->StartRatedTournamentMatch();
+				return;
+			}
+#endif // STAGING_ONLY
 		}
 #endif // TF_DLL
 
@@ -1703,6 +1743,19 @@ void CTeamplayRoundBasedRules::State_Enter_TEAM_WIN( void )
 	InternalHandleTeamWin( m_iWinningTeam );
 
 	SendWinPanelInfo();
+
+#ifdef STAGING_ONLY
+#ifdef TF_DLL
+	if ( TFGameRules() && TFGameRules()->IsRatedTournamentMode() )
+	{
+		// Do this now, so players don't leave before the usual CheckWinLimit() call happens
+		if ( CheckWinLimit() )
+		{
+			TFGameRules()->SkillRating_CalculateAdjustmentForTeams( m_iWinningTeam );
+		}
+	}
+#endif // TF_DLL
+#endif // STAGING_ONLY
 }
 
 //-----------------------------------------------------------------------------
@@ -1710,8 +1763,16 @@ void CTeamplayRoundBasedRules::State_Enter_TEAM_WIN( void )
 //-----------------------------------------------------------------------------
 void CTeamplayRoundBasedRules::State_Think_TEAM_WIN( void )
 {
-	if( gpGlobals->curtime > m_flStateTransitionTime )
+	if ( gpGlobals->curtime > m_flStateTransitionTime )
 	{
+#ifdef TF_DLL
+		IGameEvent *event = gameeventmanager->CreateEvent( "scorestats_accumulated_update" );
+		if ( event )
+		{
+			gameeventmanager->FireEvent( event );
+		}
+#endif // TF_DLL
+
 		bool bDone = !(!CheckTimeLimit() && !CheckWinLimit() && !CheckMaxRounds() && !CheckNextLevelCvar());
 
 		// check the win limit, max rounds, time limit and nextlevel cvar before starting the next round
@@ -2632,6 +2693,10 @@ void CTeamplayRoundBasedRules::RoundRespawn( void )
 	}
 #endif
 
+    // Free any edicts that were marked deleted. This should hopefully clear some out
+    //  so the below function can use the now freed ones.
+	engine->AllowImmediateEdictReuse();
+
 	RespawnPlayers( true );
 
 	// reset per-round scores for each player
@@ -3020,6 +3085,14 @@ void CTeamplayRoundBasedRules::ResetScores( void )
 	m_bResetPlayerScores = true;
 	m_bResetRoundsPlayed = true;
 	//m_flStopWatchTime = -1.0f;
+
+#ifdef TF_DLL
+	IGameEvent *event = gameeventmanager->CreateEvent( "scorestats_accumulated_reset" );
+	if ( event )
+	{
+		gameeventmanager->FireEvent( event );
+	}
+#endif // TF_DLL
 }
 
 //-----------------------------------------------------------------------------

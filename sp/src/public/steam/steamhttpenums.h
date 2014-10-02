@@ -81,6 +81,7 @@ enum EHTTPStatusCode
 	k_EHTTPStatusCode415UnsupportedMediaType =	415,
 	k_EHTTPStatusCode416RequestedRangeNotSatisfiable = 416,
 	k_EHTTPStatusCode417ExpectationFailed =		417,
+	k_EHTTPStatusCode429TooManyRequests	=		429,
 
 	// Server error codes
 	k_EHTTPStatusCode500InternalServerError =	500,

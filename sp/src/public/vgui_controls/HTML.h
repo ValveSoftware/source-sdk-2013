@@ -18,8 +18,11 @@
 #include <vgui_controls/PHandle.h>
 #include <vgui_controls/FileOpenDialog.h>
 #include <vgui_controls/TextEntry.h>
-#include <html/ihtmlchrome.h>
 #include <tier1/utlmap.h>
+#ifndef VERSION_SAFE_STEAM_API_INTERFACES
+#define VERSION_SAFE_STEAM_API_INTERFACES
+#endif
+#include "steam/steam_api.h"
 
 class HTMLComboBoxHost;
 namespace vgui
@@ -31,7 +34,7 @@ namespace vgui
 //			It can load any valid URL (i.e local files or web pages), you cannot dynamically change the
 //			content however (internally to the control that is).
 //-----------------------------------------------------------------------------
-class HTML: public Panel, public IHTMLResponses
+class HTML: public Panel
 {
 	DECLARE_CLASS_SIMPLE( HTML, Panel );
 	// TODO::STYLE
@@ -145,60 +148,53 @@ public:
 #endif // DBGFLAG_VALIDATE
 
 	void PaintComboBox();
-	int  BrowserGetIndex() { return m_iBrowser; }
+	ISteamHTMLSurface *SteamHTMLSurface() { return m_SteamAPIContext.SteamHTMLSurface(); }
+
+	void OnHTMLMouseMoved( int x, int y )
+	{
+		if ( m_SteamAPIContext.SteamHTMLSurface() )
+			m_SteamAPIContext.SteamHTMLSurface()->MouseMove( m_unBrowserHandle, x, y );
+	}
+
 protected:
 	virtual void ApplySchemeSettings( IScheme *pScheme );
 
 	friend class HTMLComboBoxHost;
 	vgui::Menu *m_pContextMenu;
 
-private:
-	// IHTMLResponses callbacks from the browser engine
-	virtual void BrowserSetIndex( int idx ) { m_iBrowser = idx; BrowserResize(); SendPendingHTMLMessages(); }
-	virtual void BrowserReady( const CMsgBrowserReady *pCmd );
-	virtual void BrowserNeedsPaint( const CMsgNeedsPaint *pCmd );
-	virtual void BrowserStartRequest( const CMsgStartRequest *pCmd );
-	virtual void BrowserURLChanged( const CMsgURLChanged *pCmd );
-	virtual void BrowserFinishedRequest( const CMsgFinishedRequest *pCmd );
-	virtual void BrowserShowPopup( const CMsgShowPopup *pCmd );
-	virtual void BrowserHidePopup( const CMsgHidePopup *pCmd );
-	virtual void BrowserOpenNewTab( const CMsgOpenNewTab *pCmd );
-	virtual void BrowserPopupHTMLWindow( const CMsgPopupHTMLWindow *pCmd );
-	virtual void BrowserSetHTMLTitle( const CMsgSetHTMLTitle *pCmd );
-	virtual void BrowserLoadingResource( const CMsgLoadingResource *pCmd );
-	virtual void BrowserStatusText( const CMsgStatusText *pCmd );
-	virtual void BrowserSetCursor( const CMsgSetCursor *pCmd );
-	virtual void BrowserFileLoadDialog( const CMsgFileLoadDialog *pCmd );
-	virtual void BrowserShowToolTip( const CMsgShowToolTip *pCmd );
-	virtual void BrowserUpdateToolTip( const CMsgUpdateToolTip *pCmd );
-	virtual void BrowserHideToolTip( const CMsgHideToolTip *pCmd );
-	virtual void BrowserSearchResults( const CMsgSearchResults *pCmd );
-	virtual void BrowserClose( const CMsgClose *pCmd );
-	virtual void BrowserHorizontalScrollBarSizeResponse( const CMsgHorizontalScrollBarSizeResponse *pCmd );
-	virtual void BrowserVerticalScrollBarSizeResponse( const CMsgVerticalScrollBarSizeResponse *pCmd );
-	virtual void BrowserGetZoomResponse( const CMsgGetZoomResponse *pCmd );
-	virtual void BrowserLinkAtPositionResponse( const CMsgLinkAtPositionResponse *pCmd );
-	virtual void BrowserZoomToElementAtPositionResponse( const CMsgZoomToElementAtPositionResponse *pCmd );
-	virtual void BrowserJSAlert( const CMsgJSAlert *pCmd );
-	virtual void BrowserJSConfirm( const CMsgJSConfirm *pCmd );
-	virtual void BrowserCanGoBackandForward( const CMsgCanGoBackAndForward *pCmd );
-	virtual void BrowserOpenSteamURL( const CMsgOpenSteamURL *pCmd );
-	virtual void BrowserSizePopup( const CMsgSizePopup *pCmd );
-	void SendPendingHTMLMessages();
-	/*virtual void BrowserResourceResponse( const CMsgResourceResponse *pCmd );*/
-	virtual void BrowserScalePageToValueResponse( const CMsgScalePageToValueResponse *pCmd ){}
-	virtual void BrowserRequestFullScreen( const CMsgRequestFullScreen *pCmd ) {}
-	virtual void BrowserExitFullScreen( const CMsgExitFullScreen *pCmd ) {}
-	virtual void BrowserGetCookiesForURLResponse( const CMsgGetCookiesForURLResponse *pCmd ){}
-	virtual void BrowserNodeGotFocus( const CMsgNodeHasFocus *pCmd ){}
-	virtual void BrowserSavePageToJPEGResponse( const CMsgSavePageToJPEGResponse *pCmd ) {}
-	virtual void BrowserFocusedNodeValueResponse( const CMsgFocusedNodeTextResponse *pCmd ) {}
 
-	virtual void _DeserializeAndDispatch( HTMLCommandBuffer_t *pCmd );
+private:
+	STEAM_CALLBACK( HTML, BrowserNeedsPaint, HTML_NeedsPaint_t, m_NeedsPaint );
+	STEAM_CALLBACK( HTML, BrowserComboNeedsPaint, HTML_ComboNeedsPaint_t, m_ComboNeedsPaint );
+	STEAM_CALLBACK( HTML, BrowserStartRequest, HTML_StartRequest_t, m_StartRequest );
+	STEAM_CALLBACK( HTML, BrowserURLChanged, HTML_URLChanged_t, m_URLChanged );
+	STEAM_CALLBACK( HTML, BrowserFinishedRequest, HTML_FinishedRequest_t, m_FinishedRequest );
+	STEAM_CALLBACK( HTML, BrowserShowPopup, HTML_ShowPopup_t, m_ShowPopup );
+	STEAM_CALLBACK( HTML, BrowserHidePopup, HTML_HidePopup_t, m_HidePopup );
+	STEAM_CALLBACK( HTML, BrowserSizePopup, HTML_SizePopup_t, m_SizePopup );
+
+	STEAM_CALLBACK( HTML, BrowserOpenNewTab, HTML_OpenLinkInNewTab_t, m_LinkInNewTab );
+	STEAM_CALLBACK( HTML, BrowserSetHTMLTitle, HTML_ChangedTitle_t, m_ChangeTitle );
+	STEAM_CALLBACK( HTML, BrowserPopupHTMLWindow, HTML_NewWindow_t, m_NewWindow );
+	STEAM_CALLBACK( HTML, BrowserFileLoadDialog, HTML_FileOpenDialog_t, m_FileLoadDialog );
+	STEAM_CALLBACK( HTML, BrowserSearchResults, HTML_SearchResults_t, m_SearchResults );
+	STEAM_CALLBACK( HTML, BrowserClose, HTML_CloseBrowser_t, m_CloseBrowser );
+	STEAM_CALLBACK( HTML, BrowserHorizontalScrollBarSizeResponse, HTML_HorizontalScroll_t, m_HorizScroll );
+	STEAM_CALLBACK( HTML, BrowserVerticalScrollBarSizeResponse, HTML_VerticalScroll_t, m_VertScroll );
+	STEAM_CALLBACK( HTML, BrowserLinkAtPositionResponse, HTML_LinkAtPosition_t, m_LinkAtPosResp );
+	STEAM_CALLBACK( HTML, BrowserJSAlert, HTML_JSAlert_t, m_JSAlert );
+	STEAM_CALLBACK( HTML, BrowserJSConfirm, HTML_JSConfirm_t, m_JSConfirm );
+	STEAM_CALLBACK( HTML, BrowserCanGoBackandForward, HTML_CanGoBackAndForward_t, m_CanGoBackForward );
+	STEAM_CALLBACK( HTML, BrowserSetCursor, HTML_SetCursor_t, m_SetCursor );
+	STEAM_CALLBACK( HTML, BrowserStatusText, HTML_StatusText_t, m_StatusText );
+	STEAM_CALLBACK( HTML, BrowserShowToolTip, HTML_ShowToolTip_t, m_ShowTooltip );
+	STEAM_CALLBACK( HTML, BrowserUpdateToolTip, HTML_UpdateToolTip_t, m_UpdateTooltip );
+	STEAM_CALLBACK( HTML, BrowserHideToolTip, HTML_HideToolTip_t, m_HideTooltip );
+
+	void OnBrowserReady( HTML_BrowserReady_t *pBrowserReady, bool bIOFailure );
 
 	void PostURL(const char *URL, const char *pchPostData, bool force);
 	virtual void BrowserResize();
-	virtual void CalcScrollBars(int w,int h);
 	void UpdateSizeAndScrollBars();
 	MESSAGE_FUNC( OnSliderMoved, "ScrollBarSliderMoved" );
 	MESSAGE_FUNC_CHARPTR( OnFileSelected, "FileSelected", fullpath );
@@ -206,8 +202,6 @@ private:
 	MESSAGE_FUNC_PTR( OnTextChanged, "TextChanged", panel );
 	MESSAGE_FUNC_PTR( OnEditNewLine, "TextNewLine", panel );
 	MESSAGE_FUNC_INT( DismissJSDialog, "DismissJSDialog", result );
-
-	void UpdateCachedHTMLValues();
 
 	vgui::Panel *m_pInteriorPanel;
 	vgui::ScrollBar *_hbar,*_vbar;
@@ -256,7 +250,6 @@ private:
 	};
 	CUtlVector<CustomURLHandler_t> m_CustomURLHandlers;
 
-	int m_iBrowser; // our browser handle
 	int m_iHTMLTextureID; // vgui texture id
 	// Track the texture width and height requested so we can tell
 	// when the size has changed and reallocate the texture.
@@ -290,16 +283,12 @@ private:
 		ScrollData_t() 
 		{
 			m_bVisible = false;
-			m_nX = m_nY = m_nWide = m_nTall = m_nMax = m_nScroll = 0;
+			m_nMax = m_nScroll = 0;
 		}
 
 		bool operator==( ScrollData_t const &src ) const
 		{
 			return m_bVisible == src.m_bVisible && 
-				m_nX == src.m_nX &&
-				m_nY == src.m_nY &&
-				m_nWide == src.m_nWide &&
-				m_nTall == src.m_nTall &&
 				m_nMax == src.m_nMax &&
 				m_nScroll == src.m_nScroll;
 		}
@@ -311,10 +300,6 @@ private:
 
 
 		bool m_bVisible; // is the scroll bar visible
-		int m_nX; /// where cef put the scroll bar
-		int m_nY;
-		int m_nWide;
-		int m_nTall;  // how many pixels of scroll in the current scroll knob
 		int m_nMax; // most amount of pixels we can scroll
 		int m_nScroll; // currently scrolled amount of pixels
 		float m_flZoom; // zoom level this scroll bar is for
@@ -340,7 +325,10 @@ private:
 		}
 	};
 	CUtlVector<CustomCursorCache_t> m_vecHCursor;
-	CUtlVector<HTMLCommandBuffer_t *> m_vecPendingMessages;
+
+	CSteamAPIContext m_SteamAPIContext;
+	HHTMLBrowser m_unBrowserHandle;
+	CCallResult< HTML, HTML_BrowserReady_t > m_SteamCallResultBrowserReady;
 };
 
 } // namespace vgui

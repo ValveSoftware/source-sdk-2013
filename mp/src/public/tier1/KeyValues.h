@@ -174,7 +174,7 @@ public:
 	const char *GetString( const char *keyName = NULL, const char *defaultValue = "" );
 	const wchar_t *GetWString( const char *keyName = NULL, const wchar_t *defaultValue = L"" );
 	void *GetPtr( const char *keyName = NULL, void *defaultValue = (void*)0 );
-	bool GetBool( const char *keyName = NULL, bool defaultValue = false );
+	bool GetBool( const char *keyName = NULL, bool defaultValue = false, bool* optGotDefault = NULL );
 	Color GetColor( const char *keyName = NULL /* default value is all black */);
 	bool  IsEmpty(const char *keyName = NULL);
 

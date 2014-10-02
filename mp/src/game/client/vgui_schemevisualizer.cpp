@@ -177,7 +177,7 @@ void CSchemeVisualizer::AddBordersToList()
 void CSchemeVisualizer::AddFontsToList()
 {
 #ifdef POSIX
-	const char strOAccent[] = { 0xc3, 0x93, 0x00 };	// UTF-8 for U+00D3 (LATIN CAPITAL LETTER O WITH ACUTE)
+	const char strOAccent[] = { (char)0xc3, (char)0x93, 0x00 };	// UTF-8 for U+00D3 (LATIN CAPITAL LETTER O WITH ACUTE)
 #else
 	const uint8 strOAccent[] = { 0xd3, 0x00	};
 #endif

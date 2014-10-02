@@ -357,7 +357,7 @@ inline void CDmAttribute::SetValue( char *pValue )
 
 inline void CDmAttribute::SetValue( const void *pValue, size_t nSize )
 {
-	CUtlBinaryBlock buf( pValue, nSize );
+	CUtlBinaryBlock buf( pValue, (int)nSize );
 	return SetValue( buf );
 }
 
@@ -599,7 +599,7 @@ inline CDmAttribute* CDmElement::SetValue( const char *pAttributeName, char *pVa
 
 inline CDmAttribute* CDmElement::SetValue( const char *pAttributeName, const void *pValue, size_t nSize )
 {
-	CUtlBinaryBlock buf( pValue, nSize );
+	CUtlBinaryBlock buf( pValue, (int)nSize );
 	return SetValue( pAttributeName, buf );
 }
 

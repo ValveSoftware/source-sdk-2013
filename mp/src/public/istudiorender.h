@@ -178,6 +178,16 @@ struct DrawModelResults_t
 	CUtlVectorFixed<IMaterial *,MAX_DRAW_MODEL_INFO_MATERIALS> m_Materials;
 };
 
+struct ColorTexelsInfo_t
+{
+	int						m_nWidth;
+	int						m_nHeight;
+	int						m_nMipmapCount;
+	ImageFormat				m_ImageFormat;
+	int						m_nByteCount;
+	byte*					m_pTexelData;
+};
+
 struct ColorMeshInfo_t
 {
 	// A given color mesh can own a unique Mesh, or it can use a shared Mesh
@@ -186,6 +196,8 @@ struct ColorMeshInfo_t
 	IPooledVBAllocator	*	m_pPooledVBAllocator;
 	int						m_nVertOffsetInBytes;
 	int						m_nNumVerts;
+	ITexture			*   m_pLightmap;
+	ColorTexelsInfo_t   *   m_pLightmapData;
 };
 
 struct DrawModelInfo_t

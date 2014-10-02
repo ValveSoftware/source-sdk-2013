@@ -18,6 +18,15 @@
 // BOTPORT: Clean up relationship between team index and danger storage in nav areas
 enum { MAX_NAV_TEAMS = 2 };
 
+#ifdef STAGING_ONLY
+inline void DebuggerBreakOnNaN_StagingOnly( float val )
+{
+	if ( IS_NAN( val ) )
+		DebuggerBreak();
+}
+#else
+#define DebuggerBreakOnNaN_StagingOnly( _val )
+#endif
 
 class CFuncElevator;
 class CFuncNavPrerequisite;
@@ -445,14 +454,14 @@ public:
 
 	static void ClearSearchLists( void );						// clears the open and closed lists for a new search
 
-	void SetTotalCost( float value )	{ Assert( value >= 0.0 && !IS_NAN(value) ); m_totalCost = value; }
-	float GetTotalCost( void ) const	{ return m_totalCost; }
+	void SetTotalCost( float value )	{ DebuggerBreakOnNaN_StagingOnly( value ); Assert( value >= 0.0 && !IS_NAN(value) ); m_totalCost = value; }
+	float GetTotalCost( void ) const	{ DebuggerBreakOnNaN_StagingOnly( m_totalCost ); return m_totalCost; }
 
-	void SetCostSoFar( float value )	{ Assert( value >= 0.0 && !IS_NAN(value) ); m_costSoFar = value; }
-	float GetCostSoFar( void ) const	{ return m_costSoFar; }
+	void SetCostSoFar( float value )	{ DebuggerBreakOnNaN_StagingOnly( value ); Assert( value >= 0.0 && !IS_NAN(value) ); m_costSoFar = value; }
+	float GetCostSoFar( void ) const	{ DebuggerBreakOnNaN_StagingOnly( m_costSoFar ); return m_costSoFar; }
 
-	void SetPathLengthSoFar( float value )	{ Assert( value >= 0.0 && !IS_NAN(value) ); m_pathLengthSoFar = value; }
-	float GetPathLengthSoFar( void ) const	{ return m_pathLengthSoFar; }
+	void SetPathLengthSoFar( float value )	{ DebuggerBreakOnNaN_StagingOnly( value ); Assert( value >= 0.0 && !IS_NAN(value) ); m_pathLengthSoFar = value; }
+	float GetPathLengthSoFar( void ) const	{ DebuggerBreakOnNaN_StagingOnly( m_pathLengthSoFar ); return m_pathLengthSoFar; }
 
 	//- editing -----------------------------------------------------------------------------------------
 	virtual void Draw( void ) const;							// draw area for debugging & editing
@@ -515,8 +524,8 @@ public:
 		}
 	};
 
-	virtual bool IsEntirelyVisible( const Vector &eye, CBaseEntity *ignore = NULL ) const;				// return true if entire area is visible from given eyepoint (CPU intensive)
-	virtual bool IsPartiallyVisible( const Vector &eye, CBaseEntity *ignore = NULL ) const;				// return true if any portion of the area is visible from given eyepoint (CPU intensive)
+	virtual bool IsEntirelyVisible( const Vector &eye, const CBaseEntity *ignore = NULL ) const;				// return true if entire area is visible from given eyepoint (CPU intensive)
+	virtual bool IsPartiallyVisible( const Vector &eye, const CBaseEntity *ignore = NULL ) const;				// return true if any portion of the area is visible from given eyepoint (CPU intensive)
 
 	virtual bool IsPotentiallyVisible( const CNavArea *area ) const;		// return true if given area is potentially visible from somewhere in this area (very fast)
 	virtual bool IsPotentiallyVisibleToTeam( int team ) const;				// return true if any portion of this area is visible to anyone on the given team (very fast)

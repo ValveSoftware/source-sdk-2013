@@ -158,6 +158,7 @@ private:
 	COutputEvent	m_OnSetupFinished;
 
 	float			m_flNextOvertimeNag;
+	float			m_flLastTime;
 
 	DECLARE_DATADESC();
 

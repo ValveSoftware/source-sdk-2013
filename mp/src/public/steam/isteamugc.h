@@ -91,6 +91,16 @@ enum EUGCQuery
 	k_EUGCQuery_RankedByTextSearch							  = 11,
 };
 
+enum EItemUpdateStatus
+{
+	k_EItemUpdateStatusInvalid 				= 0, // The item update handle was invalid, job might be finished, listen too SubmitItemUpdateResult_t
+	k_EItemUpdateStatusPreparingConfig 		= 1, // The item update is processing configuration data
+	k_EItemUpdateStatusPreparingContent		= 2, // The item update is reading and processing content files
+	k_EItemUpdateStatusUploadingContent		= 3, // The item update is uploading content changes to Steam
+	k_EItemUpdateStatusUploadingPreviewFile	= 4, // The item update is uploading new preview file image
+	k_EItemUpdateStatusCommittingChanges	= 5  // The item update is committing all changes
+};
+
 
 const uint32 kNumUGCResultsPerPage = 50;
 
@@ -124,6 +134,7 @@ struct SteamUGCDetails_t
 	uint32 m_unVotesUp;												// number of votes up
 	uint32 m_unVotesDown;											// number of votes down
 	float m_flScore;												// calculated score
+	uint32 m_unNumChildren;											// if m_eFileType == k_EWorkshopFileTypeCollection, then this number will be the number of children contained within the collection
 };
 
 //-----------------------------------------------------------------------------
@@ -165,10 +176,35 @@ public:
 
 	// Request full details for one piece of UGC
 	virtual SteamAPICall_t RequestUGCDetails( PublishedFileId_t nPublishedFileID, uint32 unMaxAgeSeconds ) = 0;
-	
+
+	// Steam Workshop Creator API
+	virtual SteamAPICall_t CreateItem( AppId_t nConsumerAppId, EWorkshopFileType eFileType ) = 0; // create new item for this app with no content attached yet
+
+	virtual UGCUpdateHandle_t StartItemUpdate( AppId_t nConsumerAppId, PublishedFileId_t nPublishedFileID ) = 0; // start an UGC item update. Set changed properties before commiting update with CommitItemUpdate()
+
+	virtual bool SetItemTitle( UGCUpdateHandle_t handle, const char *pchTitle ) = 0; // change the title of an UGC item
+	virtual bool SetItemDescription( UGCUpdateHandle_t handle, const char *pchDescription ) = 0; // change the description of an UGC item
+	virtual bool SetItemVisibility( UGCUpdateHandle_t handle, ERemoteStoragePublishedFileVisibility eVisibility ) = 0; // change the visibility of an UGC item
+	virtual bool SetItemTags( UGCUpdateHandle_t updateHandle, const SteamParamStringArray_t *pTags ) = 0; // change the tags of an UGC item
+	virtual bool SetItemContent( UGCUpdateHandle_t handle, const char *pszContentFolder ) = 0; // update item content from this local folder
+	virtual bool SetItemPreview( UGCUpdateHandle_t handle, const char *pszPreviewFile ) = 0; //  change preview image file for this item. pszPreviewFile points to local image file 
+
+	virtual SteamAPICall_t SubmitItemUpdate( UGCUpdateHandle_t handle, const char *pchChangeNote ) = 0; // commit update process started with StartItemUpdate()
+	virtual EItemUpdateStatus GetItemUpdateProgress( UGCUpdateHandle_t handle, uint64 *punBytesProcessed, uint64* punBytesTotal ) = 0;
+
+	// Steam Workshop Consumer API
+	virtual SteamAPICall_t SubscribeItem( PublishedFileId_t nPublishedFileID ) = 0; // subscript to this item, will be installed ASAP
+	virtual SteamAPICall_t UnsubscribeItem( PublishedFileId_t nPublishedFileID ) = 0; // unsubscribe from this item, will be uninstalled after game quits
+	virtual uint32 GetNumSubscribedItems() = 0; // number of subscribed items 
+	virtual uint32 GetSubscribedItems( PublishedFileId_t* pvecPublishedFileID, uint32 cMaxEntries ) = 0; // all subscribed item PublishFileIDs
+
+	// Get info about the item on disk.  If you are supporting items published through the legacy RemoteStorage APIs then *pbLegacyItem will be set to true
+	// and pchFolder will contain the full path to the file rather than the containing folder.
+	virtual bool GetItemInstallInfo( PublishedFileId_t nPublishedFileID, uint64 *punSizeOnDisk, char *pchFolder, uint32 cchFolderSize, bool *pbLegacyItem ) = 0; // returns true if item is installed
+	virtual bool GetItemUpdateInfo( PublishedFileId_t nPublishedFileID, bool *pbNeedsUpdate, bool *pbIsDownloading, uint64 *punBytesDownloaded, uint64 *punBytesTotal ) = 0;
 };
 
-#define STEAMUGC_INTERFACE_VERSION "STEAMUGC_INTERFACE_VERSION002"
+#define STEAMUGC_INTERFACE_VERSION "STEAMUGC_INTERFACE_VERSION003"
 
 //-----------------------------------------------------------------------------
 // Purpose: Callback for querying UGC
@@ -196,8 +232,37 @@ struct SteamUGCRequestUGCDetailsResult_t
 
 
 //-----------------------------------------------------------------------------
-// Purpose: k_iClientUGCCallbacks + 3 to k_iClientUGCCallbacks + 6 in use
+// Purpose: result for ISteamUGC::CreateItem() 
 //-----------------------------------------------------------------------------
+struct CreateItemResult_t
+{
+	enum { k_iCallback = k_iClientUGCCallbacks + 3 };
+	EResult m_eResult;
+	PublishedFileId_t m_nPublishedFileId; // new item got this UGC PublishFileID
+	bool m_bUserNeedsToAcceptWorkshopLegalAgreement;
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: result for ISteamUGC::SubmitItemUpdate() 
+//-----------------------------------------------------------------------------
+struct SubmitItemUpdateResult_t
+{
+	enum { k_iCallback = k_iClientUGCCallbacks + 4 };
+	EResult m_eResult;
+	bool m_bUserNeedsToAcceptWorkshopLegalAgreement;
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: a new Workshop item has been installed 
+//-----------------------------------------------------------------------------
+struct ItemInstalled_t
+{
+	enum { k_iCallback = k_iClientUGCCallbacks + 5 };
+	AppId_t m_unAppID;
+	PublishedFileId_t m_nPublishedFileId;
+};
 
 
 #pragma pack( pop )

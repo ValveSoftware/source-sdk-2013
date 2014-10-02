@@ -109,6 +109,11 @@ enum EResult
 	k_EResultRestrictedDevice = 82,				// The device being used is not allowed to perform this action
 	k_EResultRegionLocked = 83,					// The action could not be complete because it is region restricted
 	k_EResultRateLimitExceeded = 84,			// Temporary rate limit exceeded, try again later, different from k_EResultLimitExceeded which may be permanent
+	k_EResultAccountLoginDeniedNeedTwoFactor = 85,	// Need two-factor code to login
+	k_EResultItemDeleted = 86,					// The thing we're trying to access has been deleted
+	k_EResultAccountLoginDeniedThrottle = 87,	// login attempt failed, try to throttle response to possible attacker
+	k_EResultTwoFactorCodeMismatch = 88,		// two factor code mismatch
+	k_EResultTwoFactorActivationCodeMismatch = 89,	// activation code for two-factor didn't match
 };
 
 // Error codes for use with the voice functions
@@ -173,6 +178,7 @@ typedef enum
 	k_EAuthSessionResponseAuthTicketCanceled = 6,			// The ticket has been canceled by the issuer
 	k_EAuthSessionResponseAuthTicketInvalidAlreadyUsed = 7,	// This ticket has already been used, it is not valid.
 	k_EAuthSessionResponseAuthTicketInvalid = 8,			// This ticket is not from a user instance currently connected to steam.
+	k_EAuthSessionResponsePublisherIssuedBan = 9,			// The user is banned for this game. The ban came via the web api and not VAC
 } EAuthSessionResponse;
 
 // results from UserHasLicenseForApp
@@ -223,19 +229,21 @@ enum EAppReleaseState
 //-----------------------------------------------------------------------------
 enum EAppOwnershipFlags
 {
-	k_EAppOwnershipFlags_None				= 0x000,	// unknown
-	k_EAppOwnershipFlags_OwnsLicense		= 0x001,	// owns license for this game
-	k_EAppOwnershipFlags_FreeLicense		= 0x002,	// not paid for game
-	k_EAppOwnershipFlags_RegionRestricted	= 0x004,	// owns app, but not allowed to play in current region
-	k_EAppOwnershipFlags_LowViolence		= 0x008,	// only low violence version
-	k_EAppOwnershipFlags_InvalidPlatform	= 0x010,	// app not supported on current platform
-	k_EAppOwnershipFlags_SharedLicense		= 0x020,	// license was granted by authorized local device
-	k_EAppOwnershipFlags_FreeWeekend		= 0x040,	// owned by a free weekend licenses
-	k_EAppOwnershipFlags_LicenseLocked		= 0x080,	// shared license is locked (in use) by other user
-	k_EAppOwnershipFlags_LicensePending		= 0x100,	// owns app, but transaction is still pending. Can't install or play
-	k_EAppOwnershipFlags_LicenseExpired		= 0x200,	// doesn't own app anymore since license expired
-	k_EAppOwnershipFlags_LicensePermanent	= 0x400,	// permanent license, not borrowed, or guest or freeweekend etc
-	k_EAppOwnershipFlags_LicenseRecurring	= 0x800,	// Recurring license, user is charged periodically
+	k_EAppOwnershipFlags_None				= 0x0000,	// unknown
+	k_EAppOwnershipFlags_OwnsLicense		= 0x0001,	// owns license for this game
+	k_EAppOwnershipFlags_FreeLicense		= 0x0002,	// not paid for game
+	k_EAppOwnershipFlags_RegionRestricted	= 0x0004,	// owns app, but not allowed to play in current region
+	k_EAppOwnershipFlags_LowViolence		= 0x0008,	// only low violence version
+	k_EAppOwnershipFlags_InvalidPlatform	= 0x0010,	// app not supported on current platform
+	k_EAppOwnershipFlags_SharedLicense		= 0x0020,	// license was granted by authorized local device
+	k_EAppOwnershipFlags_FreeWeekend		= 0x0040,	// owned by a free weekend licenses
+	k_EAppOwnershipFlags_RetailLicense		= 0x0080,	// has a retail license for game, (CD-Key etc)
+	k_EAppOwnershipFlags_LicenseLocked		= 0x0100,	// shared license is locked (in use) by other user
+	k_EAppOwnershipFlags_LicensePending		= 0x0200,	// owns app, but transaction is still pending. Can't install or play
+	k_EAppOwnershipFlags_LicenseExpired		= 0x0400,	// doesn't own app anymore since license expired
+	k_EAppOwnershipFlags_LicensePermanent	= 0x0800,	// permanent license, not borrowed, or guest or freeweekend etc
+	k_EAppOwnershipFlags_LicenseRecurring	= 0x1000,	// Recurring license, user is charged periodically
+	k_EAppOwnershipFlags_LicenseCanceled	= 0x2000,	// Mark as canceled, but might be still active if recurring
 };
 
 
@@ -249,15 +257,21 @@ enum EAppType
 	k_EAppType_Application			= 0x002,	// software application
 	k_EAppType_Tool					= 0x004,	// SDKs, editors & dedicated servers
 	k_EAppType_Demo					= 0x008,	// game demo
-	k_EAppType_Media				= 0x010,	// media trailer
+	k_EAppType_Media_DEPRECATED		= 0x010,	// legacy - was used for game trailers, which are now just videos on the web
 	k_EAppType_DLC					= 0x020,	// down loadable content
 	k_EAppType_Guide				= 0x040,	// game guide, PDF etc
 	k_EAppType_Driver				= 0x080,	// hardware driver updater (ATI, Razor etc)
 	k_EAppType_Config				= 0x100,	// hidden app used to config Steam features (backpack, sales, etc)
+	k_EAppType_Film					= 0x200,	// A Movie (feature film)
+	k_EAppType_TVSeries				= 0x400,	// A TV or other video series which will have episodes and perhaps seasons
+	k_EAppType_Video				= 0x800,	// A video component of either a Film or TVSeries (may be the feature, an episode, preview, making-of, etc)
+	k_EAppType_Plugin				= 0x1000,	// Plug-in types for other Apps
+	k_EAppType_Music				= 0x2000,	// Music files
 		
 	k_EAppType_Shortcut				= 0x40000000,	// just a shortcut, client side only
 	k_EAppType_DepotOnly			= 0x80000000,	// placeholder since depots and apps share the same namespace
 };
+
 
 
 //-----------------------------------------------------------------------------
@@ -297,7 +311,8 @@ enum EChatEntryType
 	k_EChatEntryTypeWasBanned = 9,		// user was banned (data: 64-bit steamid of actor performing the ban)
 	k_EChatEntryTypeDisconnected = 10,	// user disconnected
 	k_EChatEntryTypeHistoricalChat = 11,	// a chat message from user's chat history or offilne message
-
+	k_EChatEntryTypeReserved1 = 12,
+	k_EChatEntryTypeReserved2 = 13,
 };
 
 
@@ -320,18 +335,6 @@ enum EChatRoomEnterResponse
 	// k_EChatRoomEnterResponseNoRankingDataLobby = 12,  // No longer used
 	// k_EChatRoomEnterResponseNoRankingDataUser = 13,  //  No longer used
 	// k_EChatRoomEnterResponseRankOutOfRange = 14, //  No longer used
-};
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Status of a given depot version, these are stored in the DB, don't renumber
-//-----------------------------------------------------------------------------
-enum EStatusDepotVersion
-{
-	k_EStatusDepotVersionInvalid = 0,			
-	k_EStatusDepotVersionDisabled = 1,			// version was disabled, no manifest & content available
-	k_EStatusDepotVersionAvailable = 2,			// manifest & content is available, but not current
-	k_EStatusDepotVersionCurrent = 3,			// current depot version. The can be multiple, one for public and one for each beta key
 };
 
 
@@ -394,6 +397,7 @@ enum ENotificationPosition
 #pragma pack( push, 1 )		
 
 #define CSTEAMID_DEFINED
+#define CSTEAMID_RENDERLINK_SUPPORT
 
 // Steam ID structure (64 bits total)
 class CSteamID
@@ -532,7 +536,7 @@ public:
 	}
 
 
-#if defined( INCLUDED_STEAM_COMMON_STEAMCOMMON_H ) 
+#if defined( INCLUDED_STEAM2_USERID_STRUCTS ) 
 	//-----------------------------------------------------------------------------
 	// Purpose: Initializes a steam ID from a Steam2 ID structure
 	// Input:	pTSteamGlobalUserID -	Steam2 ID to convert
@@ -727,8 +731,10 @@ public:
 	const char * Render() const;				// renders this steam ID to string
 	static const char * Render( uint64 ulSteamID );	// static method to render a uint64 representation of a steam ID to a string
 
+#ifdef CSTEAMID_RENDERLINK_SUPPORT
 	const char * RenderLink() const;				// renders this steam ID to an admin console link string
 	static const char * RenderLink( uint64 ulSteamID );	// static method to render a uint64 representation of a steam ID to a string
+#endif
 
 	void SetFromString( const char *pchSteamID, EUniverse eDefaultUniverse );
     // SetFromString allows many partially-correct strings, constraining how

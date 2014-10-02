@@ -60,6 +60,8 @@ bool		g_bDumpRtEnv = false;
 bool		bRed2Black = true;
 bool		g_bFastAmbient = false;
 bool        g_bNoSkyRecurse = false;
+bool		g_bDumpPropLightmaps = false;
+
 
 int			junk;
 
@@ -2403,6 +2405,10 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 		else if ( !Q_stricmp( argv[i], "-LargeDispSampleRadius" ) )
 		{
 			g_bLargeDispSampleRadius = true;
+		}
+		else if (!Q_stricmp( argv[i], "-dumppropmaps"))
+		{
+			g_bDumpPropLightmaps = true;
 		}
 		else if (!Q_stricmp(argv[i],"-bounce"))
 		{

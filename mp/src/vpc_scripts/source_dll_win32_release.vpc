@@ -142,8 +142,11 @@ $Configuration "Release"
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
 
 		$AdditionalOptions					"/Zm200"
-		// Enable extra debugging information.
-		$AdditionalOptions					"$BASE /d2Zi+"
+		// Enable extra debugging information. This switch requires VS 2013 Update 3.
+		// With VS 2013 make sure that Edit-And-Continue is disabled in the debugger settings so that
+		// the debugger uses the enhanced debug information.
+		// http://randomascii.wordpress.com/2013/09/11/debugging-optimized-codenew-in-visual-studio-2012/
+		$AdditionalOptions					"$BASE /Zo"
 		$AdditionalOptions					"$BASE /Oy-"	[$NOFPO]
 	}
 
@@ -165,7 +168,7 @@ $Configuration "Release"
 		// Input
 		$AdditionalDependencies
 		$IgnoreAllDefaultLibraries
-		$IgnoreSpecificLibrary				"libc;libcd;libcmtd"
+		$IgnoreSpecificLibrary				"libc;libcd;libcmtd;libcpmtd;libcpmtd0;libcpmtd1"
 		$ModuleDefinitionFile
 		$AddModuleToAssembly
 		$EmbedManagedResourceFile

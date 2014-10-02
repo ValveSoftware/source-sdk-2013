@@ -16,10 +16,13 @@
 // isteamcontroller.h.
 #include "steamtypes.h"
 #else
-// Otherwise, we assume it's a firmware build, which doesn't deal with all the
-// things that exist in steamtypes.h, and hardcode the typedefs we need.
-typedef unsigned           int uint32;
-typedef unsigned       __int64 uint64;
+#include <stdint.h>
+typedef uint32_t uint32;
+#ifdef __C51__
+typedef uint8_t uint64[8];
+#else
+typedef uint64_t uint64;
+#endif
 #endif
 
 #pragma pack(1)

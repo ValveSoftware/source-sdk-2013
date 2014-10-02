@@ -31,6 +31,9 @@
 // DYNAMIC: "LIGHTING_PREVIEW"          "0..0"	[XBOX]
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b]
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps30]
+// DYNAMIC: "STATIC_LIGHT_LIGHTMAP"	    "0..1"  [ps20b] [ps30]
+// DYNAMIC: "STATIC_LIGHT_LIGHTMAP"	    "0..0"  [ps20]
+// DYNAMIC: "DEBUG_LUXELS"				"0..1"	[ps20b] [ps30]
 
 // detail blend mode 6 = ps20b only
 // SKIP: $DETAIL_BLEND_MODE == 6				[ps20]
@@ -71,6 +74,9 @@
 
 // SKIP: $CUBEMAP_SPHERE_LEGACY && ($CUBEMAP == 0)
 
+// Debugging luxels only makes sense if we have lightmaps on this geometry.
+// SKIP: ($STATIC_LIGHT_LIGHTMAP == 0) && ($DEBUG_LUXELS == 1)
+
 #include "common_flashlight_fxc.h"
 #include "common_vertexlitgeneric_dx9.h"
  
@@ -105,6 +111,7 @@ sampler FlashlightSampler		: register( s7 );
 sampler ShadowDepthSampler		: register( s8 );	// Flashlight shadow depth map sampler
 sampler DepthSampler			: register( s10 );	//depth buffer sampler for depth blending
 sampler SelfIllumMaskSampler	: register( s11 );	// selfillummask
+sampler LightMapSampler			: register( s12 );
 
 struct PS_INPUT
 {
@@ -165,6 +172,10 @@ const float4 g_OutlineParams : register( c9 );
 
 #if DETAILTEXTURE
 const float3 g_DetailTint : register( c10 );
+#endif
+
+#if DEBUG_LUXELS
+const float4 g_LuxelScale : register( c11 );
 #endif
 
 
@@ -331,10 +342,22 @@ float4 main( PS_INPUT i ) : COLOR
 	}
 
 	float3 diffuseLighting = float3( 1.0f, 1.0f, 1.0f );
-	if( bDiffuseLighting || bVertexColor && !( bVertexColor && bDiffuseLighting ) )
+	if( bDiffuseLighting || bVertexColor )
 	{
 		diffuseLighting = i.color.rgb;
 	}
+
+#if STATIC_LIGHT_LIGHTMAP
+	// This matches the behavior of vertex lighting, which multiplies by cOverbright (which is not accessible here)
+	// And converts from Gamma space to Linear space before being used.
+	float2 lightmapTexCoords = i.baseTexCoord.xy;
+	#if DEBUG_LUXELS
+		lightmapTexCoords.xy *= g_LuxelScale.xy;
+	#endif
+	float3 f3LightmapColor = GammaToLinear( 2.0f * tex2D( LightMapSampler, lightmapTexCoords ).rgb );
+	diffuseLighting = f3LightmapColor;
+#endif
+
 
 	float3 albedo = baseColor;
 	if (bBlendTintByBaseAlpha)

@@ -20,6 +20,7 @@
 #include <vgui/IScheme.h>
 #include <vgui/ILocalize.h>
 #include "tier0/vprof.h"
+#include "tier0/cpumonitoring.h"
 #include "cdll_bounded_cvars.h"
 
 #include "materialsystem/imaterialsystem.h"
@@ -761,7 +762,7 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 
 	Q_snprintf( sz, sizeof( sz ), "lerp: %5.1f ms", GetClientInterpAmount() * 1000.0f );
 
-	int interpcolor[ 3 ] = { GRAPH_RED, GRAPH_GREEN, GRAPH_BLUE }; 
+	int interpcolor[ 3 ] = { (int)GRAPH_RED, (int)GRAPH_GREEN, (int)GRAPH_BLUE }; 
 	float flInterp = GetClientInterpAmount();
 	if ( flInterp > 0.001f )
 	{
@@ -817,7 +818,7 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 		{
 			Q_snprintf( sz, sizeof( sz ), "sv  : %5.1f   var: %4.2f msec", m_flServerFramerate, m_flServerFramerateStdDeviation * 1000.0f );
 
-			int servercolor[ 3 ] = { GRAPH_RED, GRAPH_GREEN, GRAPH_BLUE };
+			int servercolor[ 3 ] = { (int)GRAPH_RED, (int)GRAPH_GREEN, (int)GRAPH_BLUE };
 
 			if ( m_flServerFramerate < 10.0f )
 			{
@@ -875,6 +876,35 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 		y -= textTall;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 0, 0, 128, 255, "voice" );
 		y -= textTall;
+	}
+	else
+	{
+		const CPUFrequencyResults frequency = GetCPUFrequencyResults();
+		double currentTime = Plat_FloatTime();
+		const double displayTime = 5.0f; // Display frequency results for this long.
+		if ( frequency.m_GHz > 0 && frequency.m_timeStamp + displayTime > currentTime )
+		{
+			// Optionally print out the CPU frequency monitoring data.
+			uint8 cpuColor[4] = { (uint8)GRAPH_RED, (uint8)GRAPH_GREEN, (uint8)GRAPH_BLUE, 255 };
+
+			if ( frequency.m_percentage < kCPUMonitoringWarning2 )
+			{
+				cpuColor[0] = 255;
+				cpuColor[1] = 31;
+				cpuColor[2] = 31;
+			}
+			else if ( frequency.m_percentage < kCPUMonitoringWarning1 )
+			{
+				cpuColor[0] = 255;
+				cpuColor[1] = 125;
+				cpuColor[2] = 31;
+			}
+			// Experimental fading out as data becomes stale. Probably too distracting.
+			//float age = currentTime - frequency.m_timeStamp;
+			//cpuColor.a *= ( displayTime - age ) / displayTime;
+			g_pMatSystemSurface->DrawColoredText( font, x, y, cpuColor[0], cpuColor[1], cpuColor[2], cpuColor[3],
+						"CPU freq: %3.1f%%   Min: %3.1f%%", frequency.m_percentage, frequency.m_lowestPercentage );
+		}
 	}
 }
 

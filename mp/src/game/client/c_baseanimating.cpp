@@ -3531,7 +3531,7 @@ bool C_BaseAnimating::DispatchMuzzleEffect( const char *options, bool isFirstPer
 	p = nexttoken( token, p, ' ' );
 
 	// Find the weapon type
-	if ( token ) 
+	if ( token[0] ) 
 	{
 		//TODO: Parse the type from a list instead
 		if ( Q_stricmp( token, "COMBINE" ) == 0 )
@@ -3577,7 +3577,7 @@ bool C_BaseAnimating::DispatchMuzzleEffect( const char *options, bool isFirstPer
 	int	attachmentIndex = -1;
 
 	// Find the attachment name
-	if ( token ) 
+	if ( token[0] ) 
 	{
 		attachmentIndex = LookupAttachment( token );
 
@@ -3684,29 +3684,25 @@ void C_BaseAnimating::FireEvent( const Vector& origin, const QAngle& angles, int
 			// Get the particle effect name
 			const char *p = options;
 			p = nexttoken(token, p, ' ');
-			if ( token ) 
-			{
-				const char* mtoken = ModifyEventParticles( token );
-				if ( !mtoken || mtoken[0] == '\0' )
-					return;
-				Q_strncpy( szParticleEffect, mtoken, sizeof(szParticleEffect) );
-			}
+
+			const char* mtoken = ModifyEventParticles( token );
+			if ( !mtoken || mtoken[0] == '\0' )
+				return;
+			Q_strncpy( szParticleEffect, mtoken, sizeof(szParticleEffect) );
 
 			// Get the attachment type
 			p = nexttoken(token, p, ' ');
-			if ( token ) 
+
+			iAttachType = GetAttachTypeFromString( token );
+			if ( iAttachType == -1 )
 			{
-				iAttachType = GetAttachTypeFromString( token );
-				if ( iAttachType == -1 )
-				{
-					Warning("Invalid attach type specified for particle effect anim event. Trying to spawn effect '%s' with attach type of '%s'\n", szParticleEffect, token );
-					return;
-				}
+				Warning("Invalid attach type specified for particle effect anim event. Trying to spawn effect '%s' with attach type of '%s'\n", szParticleEffect, token );
+				return;
 			}
 
 			// Get the attachment point index
 			p = nexttoken(token, p, ' ');
-			if ( token )
+			if ( token[0] )
 			{
 				iAttachment = atoi(token);
 
@@ -3902,26 +3898,19 @@ void C_BaseAnimating::FireEvent( const Vector& origin, const QAngle& angles, int
 
 	case AE_CL_BODYGROUP_SET_VALUE:
 		{
-			char szBodygroupName[256];
-			int value = 0;
-
+			int value;
 			char token[256];
+			char szBodygroupName[256];
 
 			const char *p = options;
 
 			// Bodygroup Name
 			p = nexttoken(token, p, ' ');
-			if ( token ) 
-			{
-				Q_strncpy( szBodygroupName, token, sizeof(szBodygroupName) );
-			}
+			Q_strncpy( szBodygroupName, token, sizeof(szBodygroupName) );
 
 			// Get the desired value
 			p = nexttoken(token, p, ' ');
-			if ( token ) 
-			{
-				value = atoi( token );
-			}
+			value = token[0] ? atoi( token ) : 0;
 
 			int index = FindBodygroupByName( szBodygroupName );
 			if ( index >= 0 )
@@ -3950,33 +3939,21 @@ void C_BaseAnimating::FireObsoleteEvent( const Vector& origin, const QAngle& ang
 	// Obsolete. Use the AE_CL_CREATE_PARTICLE_EFFECT event instead, which uses the artist driven particle system & editor.
 	case AE_CLIENT_EFFECT_ATTACH:
 		{
-			int iAttachment = -1;
-			int iParam = 0;
+			int iAttachment;
+			int iParam;
 			char token[128];
 			char effectFunc[128];
 
 			const char *p = options;
 
 			p = nexttoken(token, p, ' ');
-
-			if( token ) 
-			{
-				Q_strncpy( effectFunc, token, sizeof(effectFunc) );
-			}
+			Q_strncpy( effectFunc, token, sizeof(effectFunc) );
 
 			p = nexttoken(token, p, ' ');
-
-			if( token )
-			{
-				iAttachment = atoi(token);
-			}
+			iAttachment = token[0] ? atoi(token) : -1;
 
 			p = nexttoken(token, p, ' ');
-
-			if( token )
-			{
-				iParam = atoi(token);
-			}
+			iParam = token[0] ? atoi(token) : 0;
 
 			if ( iAttachment != -1 && m_Attachments.Count() >= iAttachment )
 			{
@@ -5281,8 +5258,9 @@ float C_BaseAnimating::FrameAdvance( float flInterval )
 // Stubs for weapon prediction
 void C_BaseAnimating::ResetSequenceInfo( void )
 {
-	if (GetSequence() == -1)
+	if ( GetSequence() == -1 )
 	{
+		// This shouldn't happen.  Setting m_nSequence blindly is a horrible coding practice.
 		SetSequence( 0 );
 	}
 
@@ -5294,7 +5272,7 @@ void C_BaseAnimating::ResetSequenceInfo( void )
 
 	CStudioHdr *pStudioHdr = GetModelPtr();
 	m_flGroundSpeed = GetSequenceGroundSpeed( pStudioHdr, GetSequence() ) * GetModelScale();
-	m_bSequenceLoops = ((GetSequenceFlags( pStudioHdr, GetSequence() ) & STUDIO_LOOPING) != 0);
+	m_bSequenceLoops = ( ( GetSequenceFlags( pStudioHdr, GetSequence() ) & STUDIO_LOOPING ) != 0 );
 	// m_flAnimTime = gpGlobals->time;
 	m_flPlaybackRate = 1.0;
 	m_bSequenceFinished = false;
@@ -5302,9 +5280,12 @@ void C_BaseAnimating::ResetSequenceInfo( void )
 
 	m_nNewSequenceParity = ( m_nNewSequenceParity + 1 ) & EF_PARITY_MASK;
 	m_nResetEventsParity = ( m_nResetEventsParity + 1 ) & EF_PARITY_MASK;
-	
+
 	// FIXME: why is this called here?  Nothing should have changed to make this nessesary
-	SetEventIndexForSequence( pStudioHdr->pSeqdesc( GetSequence() ) );
+	if ( pStudioHdr )
+	{
+		SetEventIndexForSequence( pStudioHdr->pSeqdesc( GetSequence() ) );
+	}
 }
 
 //=========================================================

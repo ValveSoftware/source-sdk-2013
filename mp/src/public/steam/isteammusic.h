@@ -6,7 +6,7 @@
 #pragma once
 #endif
 
-#include "steam/isteamclient.h"
+#include "isteamclient.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

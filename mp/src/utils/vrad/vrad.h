@@ -281,6 +281,7 @@ extern qboolean		g_bLowPriority;
 extern qboolean		do_fast;
 extern bool			g_bInterrupt;		// Was used with background lighting in WC. Tells VRAD to stop lighting.
 extern IIncremental *g_pIncremental;	// null if not doing incremental lighting
+extern bool			g_bDumpPropLightmaps;
 
 extern float g_flSkySampleScale;								// extra sampling factor for indirect light
 
@@ -363,7 +364,10 @@ void BuildFacelights (int facenum, int threadnum);
 void PrecompLightmapOffsets();
 void FinalLightFace (int threadnum, int facenum);
 void PvsForOrigin (Vector& org, byte *pvs);
-void ConvertRGBExp32ToRGBA8888( const ColorRGBExp32 *pSrc, unsigned char *pDst );
+void ConvertRGBExp32ToRGBA8888( const ColorRGBExp32 *pSrc, unsigned char *pDst, Vector* _optOutLinear = NULL );
+void ConvertRGBExp32ToLinear(const ColorRGBExp32 *pSrc, Vector* pDst);
+void ConvertLinearToRGBA8888( const Vector *pSrc, unsigned char *pDst );
+
 
 inline byte PVSCheck( const byte *pvs, int iCluster )
 {

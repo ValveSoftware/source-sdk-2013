@@ -172,6 +172,7 @@ class CLagCompensationManager : public CAutoGameSystemPerFrame, public ILagCompe
 public:
 	CLagCompensationManager( char const *name ) : CAutoGameSystemPerFrame( name ), m_flTeleportDistanceSqr( 64 *64 )
 	{
+		m_isCurrentlyDoingCompensation = false;
 	}
 
 	// IServerSystem stuff
@@ -193,6 +194,8 @@ public:
 	// Called during player movement to set up/restore after lag compensation
 	void			StartLagCompensation( CBasePlayer *player, CUserCmd *cmd );
 	void			FinishLagCompensation( CBasePlayer *player );
+
+	bool			IsCurrentlyDoingLagCompensation() const OVERRIDE { return m_isCurrentlyDoingCompensation; }
 
 private:
 	void			BacktrackPlayer( CBasePlayer *player, float flTargetTime );
@@ -216,6 +219,8 @@ private:
 	CBasePlayer				*m_pCurrentPlayer;	// The player we are doing lag compensation for
 
 	float					m_flTeleportDistanceSqr;
+
+	bool					m_isCurrentlyDoingCompensation;	// Sentinel to prevent calling StartLagCompensation a second time before a Finish.
 };
 
 static CLagCompensationManager g_LagCompensationManager( "CLagCompensationManager" );
@@ -322,6 +327,8 @@ void CLagCompensationManager::FrameUpdatePostEntityThink()
 // Called during player movement to set up/restore after lag compensation
 void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCmd *cmd )
 {
+	Assert( !m_isCurrentlyDoingCompensation );
+
 	//DONT LAG COMP AGAIN THIS FRAME IF THERES ALREADY ONE IN PROGRESS
 	//IF YOU'RE HITTING THIS THEN IT MEANS THERES A CODE BUG
 	if ( m_pCurrentPlayer )
@@ -349,6 +356,8 @@ void CLagCompensationManager::StartLagCompensation( CBasePlayer *player, CUserCm
 	VPROF_BUDGET( "StartLagCompensation", VPROF_BUDGETGROUP_OTHER_NETWORKING );
 	Q_memset( m_RestoreData, 0, sizeof( m_RestoreData ) );
 	Q_memset( m_ChangeData, 0, sizeof( m_ChangeData ) );
+
+	m_isCurrentlyDoingCompensation = true;
 
 	// Get true latency
 
@@ -734,7 +743,10 @@ void CLagCompensationManager::FinishLagCompensation( CBasePlayer *player )
 	m_pCurrentPlayer = NULL;
 
 	if ( !m_bNeedToRestore )
+	{
+		m_isCurrentlyDoingCompensation = false;
 		return; // no player was changed at all
+	}
 
 	// Iterate all active players
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
@@ -828,6 +840,8 @@ void CLagCompensationManager::FinishLagCompensation( CBasePlayer *player )
 			pPlayer->SetSimulationTime( restore->m_flSimulationTime );
 		}
 	}
+
+	m_isCurrentlyDoingCompensation = false;
 }
 
 

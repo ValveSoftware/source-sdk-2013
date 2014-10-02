@@ -143,23 +143,23 @@ struct citizen_expression_list_t
 // Scared
 citizen_expression_list_t ScaredExpressions[STATES_WITH_EXPRESSIONS] =
 {
-	{ "scenes/Expressions/citizen_scared_idle_01.vcd" },
-	{ "scenes/Expressions/citizen_scared_alert_01.vcd" },
-	{ "scenes/Expressions/citizen_scared_combat_01.vcd" },
+	{ { "scenes/Expressions/citizen_scared_idle_01.vcd" } },
+	{ { "scenes/Expressions/citizen_scared_alert_01.vcd" } },
+	{ { "scenes/Expressions/citizen_scared_combat_01.vcd" } },
 };
 // Normal
 citizen_expression_list_t NormalExpressions[STATES_WITH_EXPRESSIONS] =
 {
-	{ "scenes/Expressions/citizen_normal_idle_01.vcd" },
-	{ "scenes/Expressions/citizen_normal_alert_01.vcd" },
-	{ "scenes/Expressions/citizen_normal_combat_01.vcd" },
+	{ { "scenes/Expressions/citizen_normal_idle_01.vcd" } },
+	{ { "scenes/Expressions/citizen_normal_alert_01.vcd" } },
+	{ { "scenes/Expressions/citizen_normal_combat_01.vcd" } },
 };
 // Angry
 citizen_expression_list_t AngryExpressions[STATES_WITH_EXPRESSIONS] =
 {
-	{ "scenes/Expressions/citizen_angry_idle_01.vcd" },
-	{ "scenes/Expressions/citizen_angry_alert_01.vcd" },
-	{ "scenes/Expressions/citizen_angry_combat_01.vcd" },
+	{ { "scenes/Expressions/citizen_angry_idle_01.vcd" } },
+	{ { "scenes/Expressions/citizen_angry_alert_01.vcd" } },
+	{ { "scenes/Expressions/citizen_angry_combat_01.vcd" } },
 };
 
 //-----------------------------------------------------------------------------
@@ -4197,8 +4197,6 @@ void CNPC_Citizen::AddInsignia()
 
 void CNPC_Citizen::RemoveInsignia()
 {
-	// This is crap right now.
-	CBaseEntity *FirstEnt();
 	CBaseEntity *pEntity = gEntList.FirstEnt();
 
 	while( pEntity )

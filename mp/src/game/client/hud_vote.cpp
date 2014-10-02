@@ -983,6 +983,12 @@ void CHudVote::MsgFunc_CallVoteFailed( bf_read &msg )
 
 	char szTime[256];
 	wchar_t wszTime[256];
+	bool bMinutes = ( nTime > 65 );
+	if ( bMinutes )
+	{
+		nTime /= 60;
+	}
+	const char *pszTimeString = ( bMinutes ) ? ( ( nTime < 2 ) ? "#GameUI_vote_failed_recently_min" : "#GameUI_vote_failed_recently_mins" ) : "#GameUI_vote_failed_recently";
 	Q_snprintf( szTime, sizeof ( szTime), "%i", nTime );
 	g_pVGuiLocalize->ConvertANSIToUnicode( szTime, wszTime, sizeof( wszTime ) );
 
@@ -1021,8 +1027,8 @@ void CHudVote::MsgFunc_CallVoteFailed( bf_read &msg )
 			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_map_name_required" );
 			break;
 
-		case VOTE_FAILED_FAILED_RECENTLY:
-			g_pVGuiLocalize->ConstructString( wszHeaderString, sizeof(wszHeaderString), g_pVGuiLocalize->Find( "#GameUI_vote_failed_recently" ), 1, wszTime );
+		case VOTE_FAILED_ON_COOLDOWN:
+			g_pVGuiLocalize->ConstructString( wszHeaderString, sizeof( wszHeaderString ), g_pVGuiLocalize->Find( pszTimeString ), 1, wszTime );
 			pwszHeaderString = wszHeaderString;
 			m_pCallVoteFailed->SetDialogVariable( "FailedReason", pwszHeaderString );
 			break;

@@ -562,11 +562,11 @@ Vector C_BaseFlex::SetViewTarget( CStudioHdr *pStudioHdr )
 		m_iEyeUpdown = FindFlexController( "eyes_updown" );
 		m_iEyeRightleft = FindFlexController( "eyes_rightleft" );
 
-		if ( m_iEyeUpdown != -1 )
+		if ( m_iEyeUpdown != LocalFlexController_t(-1) )
 		{
 			pStudioHdr->pFlexcontroller( m_iEyeUpdown )->localToGlobal = AddGlobalFlexController( "eyes_updown" );
 		}
-		if ( m_iEyeRightleft != -1 )
+		if ( m_iEyeRightleft != LocalFlexController_t(-1) )
 		{
 			pStudioHdr->pFlexcontroller( m_iEyeRightleft )->localToGlobal = AddGlobalFlexController( "eyes_rightleft" );
 		}
@@ -594,13 +594,13 @@ Vector C_BaseFlex::SetViewTarget( CStudioHdr *pStudioHdr )
 		// calculate animated eye deflection
 		Vector eyeDeflect;
 		QAngle eyeAng( 0, 0, 0 );
-		if ( m_iEyeUpdown != -1 )
+		if ( m_iEyeUpdown != LocalFlexController_t(-1) )
 		{
 			mstudioflexcontroller_t *pflex = pStudioHdr->pFlexcontroller( m_iEyeUpdown );
 			eyeAng.x = g_flexweight[ pflex->localToGlobal ];
 		}
 		
-		if ( m_iEyeRightleft != -1 )
+		if ( m_iEyeRightleft != LocalFlexController_t(-1) )
 		{
 			mstudioflexcontroller_t *pflex = pStudioHdr->pFlexcontroller( m_iEyeRightleft );
 			eyeAng.y = g_flexweight[ pflex->localToGlobal ];
@@ -1057,7 +1057,7 @@ void C_BaseFlex::GetToolRecordingState( KeyValues *msg )
 	Vector viewtarget = m_viewtarget; // Use the unfiltered value
 
 	// HACK HACK: Unmap eyes right/left amounts
-	if (m_iEyeUpdown != -1 && m_iEyeRightleft != -1)
+	if (m_iEyeUpdown != LocalFlexController_t(-1) && m_iEyeRightleft != LocalFlexController_t(-1))
 	{
 		mstudioflexcontroller_t *flexupdown = hdr->pFlexcontroller( m_iEyeUpdown );
 		mstudioflexcontroller_t *flexrightleft = hdr->pFlexcontroller( m_iEyeRightleft );

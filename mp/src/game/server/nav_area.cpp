@@ -192,6 +192,8 @@ CNavArea::CNavArea( void )
 	m_avoidanceObstacleHeight = 0.0f;
 
 	m_totalCost = 0.0f;
+	m_costSoFar = 0.0f;
+	m_pathLengthSoFar = 0.0f;
 
 	ResetNodes();
 
@@ -244,6 +246,8 @@ CNavArea::CNavArea( void )
 	m_isInheritedFrom = false;
 
 	m_funcNavCostVector.RemoveAll();
+
+	m_nVisTestCounter = (uint32)-1;
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -3381,16 +3385,10 @@ void CNavArea::AddToOpenList( void )
 	}
 
 	// insert self in ascending cost order
-	// Since costs are positive, IEEE754 let's us compare as integers (see http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm)
 	CNavArea *area, *last = NULL;
-	int thisCostBits = *reinterpret_cast<const int *>(&m_totalCost);
-
-	Assert ( m_totalCost >= 0.0f );
 	for( area = m_openList; area; area = area->m_nextOpen )
 	{
-		Assert ( area->GetTotalCost() >= 0.0f );
-		int thoseCostBits = *reinterpret_cast<const int *>(&area->m_totalCost);
-		if ( thisCostBits < thoseCostBits )
+		if ( GetTotalCost() < area->GetTotalCost() )
 		{
 			break;
 		}
@@ -5630,7 +5628,7 @@ void CNavArea::ComputeVisibilityToMesh( void )
 /**
  * The center and all four corners must ALL be visible
  */
-bool CNavArea::IsEntirelyVisible( const Vector &eye, CBaseEntity *ignore ) const
+bool CNavArea::IsEntirelyVisible( const Vector &eye, const CBaseEntity *ignore ) const
 {
 	Vector corner;
 	trace_t result;
@@ -5663,7 +5661,7 @@ bool CNavArea::IsEntirelyVisible( const Vector &eye, CBaseEntity *ignore ) const
 /**
  * The center or any of the four corners may be visible
  */
-bool CNavArea::IsPartiallyVisible( const Vector &eye, CBaseEntity *ignore ) const
+bool CNavArea::IsPartiallyVisible( const Vector &eye, const CBaseEntity *ignore ) const
 {
 	Vector corner;
 	trace_t result;

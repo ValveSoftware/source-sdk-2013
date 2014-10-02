@@ -114,7 +114,7 @@ bool CAI_MoveSolver::Solve( const AI_MoveSuggestion_t *pSuggestions, int nSugges
 		AI_MoveSuggestion_t *pHighSuggestion;
 	};
 
-	Solution_t 	solutions[NUM_SOLUTIONS]	= { 0 };
+	Solution_t 	solutions[NUM_SOLUTIONS]	= { { 0, 0, NULL } };
 
 	//---------------------------------
 

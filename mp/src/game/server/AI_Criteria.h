@@ -84,8 +84,10 @@ private:
 				Q_strncpy( value, str, sizeof( value ) );
 			}
 		}
-				
-		CUtlSymbol criterianame;
+
+		// We use CUtlRBTree CopyFrom() in ctor, so CritEntry_t must be POD. If you add
+		// CUtlString or something then you must change AI_CriteriaSet copy ctor.
+		CUtlSymbol	criterianame;
 		char		value[ 64 ];
 		float		weight;
 	};
@@ -178,10 +180,10 @@ public:
 	~AI_Response();
 	AI_Response &operator=( const AI_Response &from );
 
-	void	Release();
+	void			Release();
 
-	void			GetName( char *buf, size_t buflen ) const;
-	void			GetResponse( char *buf, size_t buflen ) const;
+	const char *	GetNamePtr() const;
+	const char *	GetResponsePtr() const;
 	const AI_ResponseParams *GetParams() const { return &m_Params; }
 	ResponseType_t	GetType() const { return (ResponseType_t)m_Type; }
 	soundlevel_t	GetSoundLevel() const;
@@ -195,7 +197,7 @@ public:
 	float			GetPreDelay() const;
 
 	void			SetContext( const char *context );
-	const char *	GetContext( void ) const { return m_szContext; }
+	const char *	GetContext( void ) const { return m_szContext.Length() ? m_szContext.Get() : NULL; }
 
 	bool			IsApplyContextToWorld( void ) { return m_bApplyContextToWorld; }
 
@@ -230,7 +232,7 @@ private:
 
 	AI_ResponseParams m_Params;
 
-	char *			m_szContext;
+	CUtlString		m_szContext;
 	bool			m_bApplyContextToWorld;
 };
 

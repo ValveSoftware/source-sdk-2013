@@ -53,16 +53,16 @@ public:
 
 inline void* operator new(size_t size, void *ptr, DummyAllocatorHelper *asdf)
 {
-	asdf=asdf;	// compiler warning.
-	size=size;
+	(void)asdf;	// Suppress unused-variable compiler warnings.
+	(void)size;
 	return ptr;
 }
 
 inline void operator delete(void *ptrToDelete, void *ptr, DummyAllocatorHelper *asdf)
 {
-	asdf=asdf;	// compiler warning.
-	ptr=ptr;
-	ptrToDelete=ptrToDelete;
+	(void)asdf;	// Suppress unused-variable compiler warnings.
+	(void)ptr;
+	(void)ptrToDelete;
 }
 
 // Use these to manually construct and destruct lists of objects.

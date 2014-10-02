@@ -1267,7 +1267,7 @@ float CTeamControlPointMaster::GetPartialCapturePointRate( void )
 	return m_flPartialCapturePointsRate;
 }
 
-/*
+#ifdef STAGING_ONLY
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1344,4 +1344,4 @@ void cc_PlayRound( const CCommand& args )
 }
 
 static ConCommand playround( "playround", cc_PlayRound, "Play the selected round\n\tArgument: {round name given by \"listrounds\" command}", FCVAR_CHEAT );
-*/
+#endif

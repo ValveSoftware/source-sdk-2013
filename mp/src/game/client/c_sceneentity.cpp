@@ -214,11 +214,11 @@ void C_SceneEntity::SetupClientOnlyScene( const char *pszFilename, C_BaseFlex *p
 		V_strcpy( szFilename, szSceneHWM );
 	}
 
-	Assert( szFilename && szFilename[ 0 ] );
-	if (  szFilename && szFilename[ 0 ] )
+	Assert(  szFilename[ 0 ] );
+	if ( szFilename[ 0 ] )
 	{
 		LoadSceneFromFile( szFilename );
-		
+
 		if (!CommandLine()->FindParm("-hushasserts"))
 		{
 			Assert( m_pScene );
@@ -335,8 +335,8 @@ void C_SceneEntity::PostDataUpdate( DataUpdateType_t updateType )
 
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
-		Assert( szFilename && szFilename[ 0 ] );
-		if (  szFilename && szFilename[ 0 ] )
+		Assert( szFilename[ 0 ] );
+		if ( szFilename[ 0 ] )
 		{
 			LoadSceneFromFile( szFilename );
 
@@ -373,6 +373,8 @@ void C_SceneEntity::PostDataUpdate( DataUpdateType_t updateType )
 
 			SetNextClientThink( CLIENT_THINK_ALWAYS );
 		}
+
+		m_bWasPlaying = !m_bIsPlayingBack; // force it to be "changed"
 	}
 
 	// Playback state changed...

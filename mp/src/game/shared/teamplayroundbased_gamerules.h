@@ -88,6 +88,11 @@ enum {
 	WINREASON_TIMELIMIT,
 	WINREASON_WINLIMIT,
 	WINREASON_WINDIFFLIMIT,
+#if defined(TF_CLIENT_DLL) || defined(TF_DLL)
+	WINREASON_RD_REACTOR_CAPTURED,
+	WINREASON_RD_CORES_COLLECTED,
+	WINREASON_RD_REACTOR_RETURNED,
+#endif
 };
 
 enum stalemate_reasons_t
@@ -183,6 +188,7 @@ public:
 
 	virtual float GetNextRespawnWave( int iTeam, CBasePlayer *pPlayer );
 	virtual bool HasPassedMinRespawnTime( CBasePlayer *pPlayer );
+	virtual void	LevelInitPostEntity( void );
 	virtual float	GetRespawnTimeScalar( int iTeam );
 	virtual float	GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers = true );
 	virtual bool	ShouldRespawnQuickly( CBasePlayer *pPlayer ) { return false; }
@@ -541,6 +547,7 @@ private:
 public:
 	bool WouldChangeUnbalanceTeams( int iNewTeam, int iCurrentTeam  );
 	bool AreTeamsUnbalanced( int &iHeaviestTeam, int &iLightestTeam );
+	virtual bool HaveCheatsBeenEnabledDuringLevel( void ) { return m_bCheatsEnabledDuringLevel; }
 
 protected:
 	CNetworkVar( gamerules_roundstate_t, m_iRoundState );
@@ -557,10 +564,11 @@ protected:
 	CNetworkVar( float,			m_flMapResetTime );						// Time that the map was reset
 	CNetworkArray( float,		m_flNextRespawnWave, MAX_TEAMS );		// Minor waste, but cleaner code
 	CNetworkArray( bool,		m_bTeamReady, MAX_TEAMS );
-	CNetworkVar( bool, m_bStopWatch );
-	CNetworkVar( bool, m_bMultipleTrains ); // two trains in this map?
+	CNetworkVar( bool,			m_bStopWatch );
+	CNetworkVar( bool,			m_bMultipleTrains ); // two trains in this map?
 	CNetworkArray( bool,		m_bPlayerReady, MAX_PLAYERS );
-	
+	CNetworkVar( bool,			m_bCheatsEnabledDuringLevel );
+
 public:
 	CNetworkArray( float,		m_TeamRespawnWaveTimes, MAX_TEAMS );	// Time between each team's respawn wave
 

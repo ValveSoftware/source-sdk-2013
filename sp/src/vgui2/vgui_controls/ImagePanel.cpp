@@ -38,6 +38,7 @@ ImagePanel::ImagePanel(Panel *parent, const char *name) : Panel(parent, name)
 	m_bTileImage = false;
 	m_bTileHorizontally = false;
 	m_bTileVertically = false;
+	m_bPositionImage = true;
 	m_fScaleAmount = 0.0f;
 	m_FillColor = Color(0, 0, 0, 0);
 	m_DrawColor = Color(255,255,255,255);
@@ -143,25 +144,28 @@ void ImagePanel::PaintBackground()
 		// HPE_END
 		//=============================================================================
 
-		if ( m_bCenterImage )
+		if ( m_bPositionImage )
 		{
-			int wide, tall;
-			GetSize(wide, tall);
-
-			int imageWide, imageTall;
-			m_pImage->GetSize( imageWide, imageTall );
-
-			if ( m_bScaleImage && m_fScaleAmount > 0.0f )
+			if ( m_bCenterImage )
 			{
-				imageWide = static_cast<int>( static_cast<float>(imageWide) * m_fScaleAmount );
-				imageTall = static_cast<int>( static_cast<float>(imageTall) * m_fScaleAmount );
-			}
+				int wide, tall;
+				GetSize(wide, tall);
 
-			m_pImage->SetPos( (wide - imageWide) / 2, (tall - imageTall) / 2 );
-		}
-		else
-		{
-			m_pImage->SetPos(0, 0);
+				int imageWide, imageTall;
+				m_pImage->GetSize( imageWide, imageTall );
+
+				if ( m_bScaleImage && m_fScaleAmount > 0.0f )
+				{
+					imageWide = static_cast<int>( static_cast<float>(imageWide) * m_fScaleAmount );
+					imageTall = static_cast<int>( static_cast<float>(imageTall) * m_fScaleAmount );
+				}
+
+				m_pImage->SetPos( (wide - imageWide) / 2, (tall - imageTall) / 2 );
+			}
+			else
+			{
+				m_pImage->SetPos(0, 0);
+			}
 		}
 
 		if (m_bScaleImage)
@@ -217,7 +221,11 @@ void ImagePanel::PaintBackground()
 				if ( !m_bTileVertically )
 					break;
 			}
-			m_pImage->SetPos(0, 0);
+
+			if ( m_bPositionImage )
+			{
+				m_pImage->SetPos(0, 0);
+			}
 		}
 		else
 		{
@@ -259,6 +267,7 @@ void ImagePanel::GetSettings(KeyValues *outResourceData)
 		outResourceData->SetString("border", GetBorder()->GetName());
 	}
 
+	outResourceData->GetInt("positionImage", m_bPositionImage );
 	outResourceData->SetInt("scaleImage", m_bScaleImage);
 	outResourceData->SetFloat("scaleAmount", m_fScaleAmount);
 	outResourceData->SetInt("tileImage", m_bTileImage);
@@ -278,6 +287,7 @@ void ImagePanel::ApplySettings(KeyValues *inResourceData)
 	m_pszFillColorName = NULL;
 	m_pszDrawColorName = NULL;		// HPE addition
 
+	m_bPositionImage = inResourceData->GetInt("positionImage", 1);
 	m_bScaleImage = inResourceData->GetInt("scaleImage", 0);
 	m_fScaleAmount = inResourceData->GetFloat("scaleAmount", 0.0f);
 	m_bTileImage = inResourceData->GetInt("tileImage", 0);

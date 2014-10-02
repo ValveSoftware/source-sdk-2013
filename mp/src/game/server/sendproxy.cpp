@@ -27,7 +27,7 @@ void SendProxy_EHandleToInt( const SendProp *pProp, const void *pStruct, const v
 
 	if ( pHandle && pHandle->Get() )
 	{
-		int iSerialNum = pHandle->GetSerialNumber() & (1 << NUM_NETWORKED_EHANDLE_SERIAL_NUMBER_BITS) - 1;
+		int iSerialNum = pHandle->GetSerialNumber() & ( (1 << NUM_NETWORKED_EHANDLE_SERIAL_NUMBER_BITS) - 1 );
 		pOut->m_Int = pHandle->GetEntryIndex() | (iSerialNum << MAX_EDICT_BITS);
 	}
 	else
@@ -106,6 +106,7 @@ REGISTER_SEND_PROXY_NON_MODIFIED_POINTER( SendProxy_OnlyToTeam );
 #define TIME_BITS 24
 
 // This table encodes edict data.
+#if 0
 static void SendProxy_Time( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID )
 {
 	float clock_base = floor( gpGlobals->curtime );
@@ -119,6 +120,7 @@ static void SendProxy_Time( const SendProp *pProp, const void *pStruct, const vo
 
 	pOut->m_Int = addt;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

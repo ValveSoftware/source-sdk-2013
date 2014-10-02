@@ -1858,6 +1858,15 @@ void Panel::InternalMousePressed(int code)
 		}
 	}
 
+#ifdef STAGING_ONLY
+	// If holding CTRL + ALT, invalidate layout.  For debugging purposes
+	if ( ( vgui::input()->IsKeyDown(KEY_LCONTROL) || vgui::input()->IsKeyDown(KEY_RCONTROL) ) 
+		&& ( vgui::input()->IsKeyDown(KEY_LALT) || vgui::input()->IsKeyDown(KEY_RALT) ) )
+	{
+		InvalidateLayout( true, true );
+	}
+#endif
+
 	Panel *pMouseHandler = m_hMouseEventHandler.Get();
 	if ( pMouseHandler )
 	{
@@ -4117,7 +4126,230 @@ void Panel::ApplyAutoResizeSettings(KeyValues *inResourceData)
 
 ConVar panel_test_title_safe( "panel_test_title_safe", "0", FCVAR_CHEAT, "Test vgui panel positioning with title safe indentation" );
 
+int Panel::ComputeWide( KeyValues *inResourceData, int nParentWide, int nParentTall, bool bComputingOther )
+{
+	int wide = GetWide();
 
+	const char *wstr = inResourceData->GetString( "wide", NULL );
+	if ( wstr )
+	{
+		if ( wstr[0] == 'f' || wstr[0] == 'F' )
+		{
+			_buildModeFlags |= BUILDMODE_SAVE_WIDE_FULL;
+			wstr++;
+		}
+		else 
+		{
+			if ( wstr[0] == 'o' || wstr[0] == 'O' )
+			{
+				wstr++;
+				if ( bComputingOther )
+				{
+					Warning( "Wide and Tall of panel %s are set to be each other!\n", GetName() );
+					return 0;
+				}
+
+				_buildModeFlags |= BUILDMODE_SAVE_WIDE_PROPORTIONAL_TALL;
+				wide = ComputeTall( inResourceData, nParentWide, nParentTall, true );
+
+				if ( IsProportional() )
+				{
+					wide = scheme()->GetProportionalNormalizedValue( wide );
+				}
+			}
+			else if ( wstr[0] == 'p' || wstr[0] == 'P' )
+			{
+				_buildModeFlags |= BUILDMODE_SAVE_WIDE_PROPORTIONAL;
+				wstr++;
+			}
+		}
+
+		float flWide = atof(wstr);
+		if ( !(_buildModeFlags & BUILDMODE_SAVE_WIDE_PROPORTIONAL_TALL) )
+		{
+			wide = atoi(wstr);
+		}
+
+		if ( _buildModeFlags & BUILDMODE_SAVE_WIDE_PROPORTIONAL_TALL )
+		{
+			wide = scheme()->GetProportionalScaledValueEx(GetScheme(), wide);
+			wide *= flWide;
+		}
+		else if ( _buildModeFlags & BUILDMODE_SAVE_WIDE_PROPORTIONAL )
+		{
+			wide = scheme()->GetProportionalScaledValueEx(GetScheme(), wide);
+			wide = nParentWide - wide;
+			wide *= flWide;
+		}
+		else
+		{
+			if ( IsProportional() )
+			{
+				// scale the width up to our screen co-ords
+				wide = scheme()->GetProportionalScaledValueEx(GetScheme(), wide);
+			}
+			// now correct the alignment
+			if (_buildModeFlags & BUILDMODE_SAVE_WIDE_FULL)
+			{
+				wide = nParentWide - wide;
+			}
+		}
+	}
+
+	return wide;
+}
+
+int Panel::ComputeTall( KeyValues *inResourceData, int nParentWide, int nParentTall, bool bComputingOther )
+{
+	int tall = GetTall();
+
+	// allow tall to be use the "fill" option, set to the height of the parent/screen
+	const char *tstr = inResourceData->GetString( "tall", NULL );
+	if ( tstr )
+	{
+		if (tstr[0] == 'f' || tstr[0] == 'F')
+		{
+			_buildModeFlags |= BUILDMODE_SAVE_TALL_FULL;
+			tstr++;
+		}
+		else 
+		{
+			if ( tstr[0] == 'o' || tstr[0] == 'O' )
+			{
+				tstr++;
+				if ( bComputingOther )
+				{
+					Warning( "Wide and Tall of panel %s are set to be each other!\n", GetName() );
+					return 0;
+				}
+
+				_buildModeFlags |= BUILDMODE_SAVE_TALL_PROPORTIONAL_WIDE;
+				tall = ComputeWide( inResourceData, nParentWide, nParentTall, true );
+				if ( IsProportional() )
+				{
+					tall = scheme()->GetProportionalNormalizedValue( tall );
+				}
+			}
+			else if ( tstr[0] == 'p' || tstr[0] == 'P' )
+			{
+				_buildModeFlags |= BUILDMODE_SAVE_TALL_PROPORTIONAL;
+				tstr++;
+			}
+		}
+
+		float flTall = atof(tstr);
+		if ( !( _buildModeFlags & BUILDMODE_SAVE_TALL_PROPORTIONAL_WIDE ) )
+		{
+			tall = atoi(tstr);
+		}
+
+		if ( _buildModeFlags & BUILDMODE_SAVE_TALL_PROPORTIONAL_WIDE )
+		{
+			tall = scheme()->GetProportionalScaledValueEx(GetScheme(), tall);
+			tall *= flTall;
+		}
+		else if ( _buildModeFlags & BUILDMODE_SAVE_TALL_PROPORTIONAL )
+		{
+			// scale the height up to our screen co-ords
+			tall = scheme()->GetProportionalScaledValueEx(GetScheme(), tall);
+			tall = nParentTall - tall;
+			tall *= flTall;
+		}
+		else
+		{
+			if ( IsProportional() )
+			{
+				// scale the height up to our screen co-ords
+				tall = scheme()->GetProportionalScaledValueEx(GetScheme(), tall);
+			}
+			// now correct the alignment
+			if (_buildModeFlags & BUILDMODE_SAVE_TALL_FULL)
+			{
+				tall = nParentTall - tall;
+			}
+		}
+	}
+
+	return tall;
+}
+
+int Panel::ComputePos( const char *pszInput, int &nPos, const int& nSize, const int& nParentSize, const bool& bX )
+{
+	const int nFlagRightAlign = bX ? BUILDMODE_SAVE_XPOS_RIGHTALIGNED : BUILDMODE_SAVE_YPOS_BOTTOMALIGNED;
+	const int nFlagCenterAlign = bX ? BUILDMODE_SAVE_XPOS_CENTERALIGNED : BUILDMODE_SAVE_YPOS_CENTERALIGNED;
+	const int nFlagProportionalSlef = bX ? BUILDMODE_SAVE_XPOS_PROPORTIONAL_SELF : BUILDMODE_SAVE_YPOS_PROPORTIONAL_SELF;
+	const int nFlagProportionalParent = bX ? BUILDMODE_SAVE_XPOS_PROPORTIONAL_PARENT : BUILDMODE_SAVE_YPOS_PROPORTIONAL_PARENT;
+
+	int nFlags = 0;
+	if ( pszInput )
+	{
+		// look for alignment flags
+		if (pszInput[0] == 'r' || pszInput[0] == 'R')
+		{
+			nFlags |= nFlagRightAlign;
+			pszInput++;
+		}
+		else if (pszInput[0] == 'c' || pszInput[0] == 'C')
+		{
+			nFlags |= nFlagCenterAlign;
+			pszInput++;
+		}
+
+		if ( pszInput[0] == 's' || pszInput[0] == 'S' )
+		{
+			nFlags |= nFlagProportionalSlef;
+			pszInput++;
+		}
+		else if ( pszInput[0] == 'p' || pszInput[0] == 'P' )
+		{
+			nFlags |= nFlagProportionalParent;
+			pszInput++;
+		}
+
+		// get the value
+		nPos = atoi( pszInput );
+		float flPos = atof( pszInput );
+
+		float flProportion = 1.f;
+		// scale the x up to our screen co-ords
+		if ( IsProportional() )
+		{
+			int nOldPos = nPos;
+			nPos = scheme()->GetProportionalScaledValueEx(GetScheme(), nPos);
+			flProportion = (float)nPos / (float)nOldPos;
+		}
+
+		int nPosDelta = 0;
+		if ( nFlags & nFlagProportionalSlef )
+		{
+			nPosDelta = nSize * flPos;
+		}
+		else if ( nFlags & nFlagProportionalParent )
+		{
+			nPosDelta = nParentSize * flPos;
+		}
+		else
+		{
+			nPosDelta = nPos;
+		}
+
+		// now correct the alignment
+		if ( nFlags & nFlagRightAlign )
+		{
+			nPos = nParentSize - nPosDelta;
+		}
+		else if ( nFlags & nFlagCenterAlign )
+		{
+			nPos = (nParentSize / 2) + nPosDelta;
+		}
+		else
+		{
+			nPos = nPosDelta;
+		}
+	}
+
+	return nFlags;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Loads panel details from the resource info
@@ -4135,7 +4367,19 @@ void Panel::ApplySettings(KeyValues *inResourceData)
 	InternalApplySettings( GetAnimMap(), inResourceData );
 
 	// clear any alignment flags
-	_buildModeFlags &= ~(BUILDMODE_SAVE_XPOS_RIGHTALIGNED | BUILDMODE_SAVE_XPOS_CENTERALIGNED | BUILDMODE_SAVE_YPOS_BOTTOMALIGNED | BUILDMODE_SAVE_YPOS_CENTERALIGNED | BUILDMODE_SAVE_WIDE_FULL | BUILDMODE_SAVE_TALL_FULL | BUILDMODE_SAVE_PROPORTIONAL_TO_PARENT);
+	_buildModeFlags &= ~( BUILDMODE_SAVE_XPOS_RIGHTALIGNED 
+						| BUILDMODE_SAVE_XPOS_CENTERALIGNED 
+						| BUILDMODE_SAVE_YPOS_BOTTOMALIGNED 
+						| BUILDMODE_SAVE_YPOS_CENTERALIGNED 
+						| BUILDMODE_SAVE_WIDE_FULL 
+						| BUILDMODE_SAVE_TALL_FULL 
+						| BUILDMODE_SAVE_PROPORTIONAL_TO_PARENT
+						| BUILDMODE_SAVE_WIDE_PROPORTIONAL_TALL 
+						| BUILDMODE_SAVE_TALL_PROPORTIONAL_WIDE 
+						| BUILDMODE_SAVE_XPOS_PROPORTIONAL_PARENT 
+						| BUILDMODE_SAVE_YPOS_PROPORTIONAL_PARENT
+						| BUILDMODE_SAVE_XPOS_PROPORTIONAL_SELF
+						| BUILDMODE_SAVE_YPOS_PROPORTIONAL_SELF );
 
 	// get the position
 	int alignScreenWide, alignScreenTall;	// screen dimensions used for pinning in splitscreen
@@ -4169,72 +4413,17 @@ void Panel::ApplySettings(KeyValues *inResourceData)
 		}
 	}
 
+	// size
+	int wide = ComputeWide( inResourceData, alignScreenWide, alignScreenTall, false );
+	int tall = ComputeTall( inResourceData, alignScreenWide, alignScreenTall, false );
+
 	int x, y;
 	GetPos(x, y);
 	const char *xstr = inResourceData->GetString( "xpos", NULL );
 	const char *ystr = inResourceData->GetString( "ypos", NULL );
-
-	if (xstr)
-	{
-		// look for alignment flags
-		if (xstr[0] == 'r' || xstr[0] == 'R')
-		{
-			_buildModeFlags |= BUILDMODE_SAVE_XPOS_RIGHTALIGNED;
-			xstr++;
-		}
-		else if (xstr[0] == 'c' || xstr[0] == 'C')
-		{
-			_buildModeFlags |= BUILDMODE_SAVE_XPOS_CENTERALIGNED;
-			xstr++;
-		}
-
-		// get the value
-		x = atoi(xstr);
-		// scale the x up to our screen co-ords
-		if ( IsProportional() )
-		{
-			x = scheme()->GetProportionalScaledValueEx(GetScheme(), x);
-		}
-		// now correct the alignment
-		if (_buildModeFlags & BUILDMODE_SAVE_XPOS_RIGHTALIGNED)
-		{
-			x = alignScreenWide - x;
-		}
-		else if (_buildModeFlags & BUILDMODE_SAVE_XPOS_CENTERALIGNED)
-		{
-			x = (alignScreenWide / 2) + x;
-		}
-	}
-
-	if (ystr)
-	{
-		// look for alignment flags
-		if (ystr[0] == 'r' || ystr[0] == 'R')
-		{
-			_buildModeFlags |= BUILDMODE_SAVE_YPOS_BOTTOMALIGNED;
-			ystr++;
-		}
-		else if (ystr[0] == 'c' || ystr[0] == 'C')
-		{
-			_buildModeFlags |= BUILDMODE_SAVE_YPOS_CENTERALIGNED;
-			ystr++;
-		}
-		y = atoi(ystr);
-		if (IsProportional())
-		{
-			// scale the y up to our screen co-ords
-			y = scheme()->GetProportionalScaledValueEx(GetScheme(), y);
-		}
-		// now correct the alignment
-		if (_buildModeFlags & BUILDMODE_SAVE_YPOS_BOTTOMALIGNED)
-		{
-			y = alignScreenTall - y;
-		}
-		else if (_buildModeFlags & BUILDMODE_SAVE_YPOS_CENTERALIGNED)
-		{
-			y = (alignScreenTall / 2) + y;
-		}
-	}
+	_buildModeFlags |= ComputePos( xstr, x, wide, alignScreenWide, true );
+	_buildModeFlags |= ComputePos( ystr, y, tall, alignScreenTall, false );
+	
 
 	bool bUsesTitleSafeArea = false;
 	int titleSafeWide = 0;
@@ -4341,53 +4530,6 @@ void Panel::ApplySettings(KeyValues *inResourceData)
 	if (inResourceData->FindKey( "zpos" ))
 	{
 		SetZPos( inResourceData->GetInt( "zpos" ) );
-	}
-
-	// size
-	int wide, tall;
-	GetSize( wide, tall );
-
-	const char *wstr = inResourceData->GetString( "wide", NULL );
-	if ( wstr )
-	{
-		if (wstr[0] == 'f' || wstr[0] == 'F')
-		{
-			_buildModeFlags |= BUILDMODE_SAVE_WIDE_FULL;
-			wstr++;
-		}
-		wide = atoi(wstr);
-		if ( IsProportional() )
-		{
-			// scale the width up to our screen co-ords
-			wide = scheme()->GetProportionalScaledValueEx(GetScheme(), wide);
-		}
-		// now correct the alignment
-		if (_buildModeFlags & BUILDMODE_SAVE_WIDE_FULL)
-		{
-			wide = alignScreenWide - wide;
-		}
-	}
-
-	// allow tall to be use the "fill" option, set to the height of the parent/screen
-	wstr = inResourceData->GetString( "tall", NULL );
-	if ( wstr )
-	{
-		if (wstr[0] == 'f' || wstr[0] == 'F')
-		{
-			_buildModeFlags |= BUILDMODE_SAVE_TALL_FULL;
-			wstr++;
-		}
-		tall = atoi(wstr);
-		if ( IsProportional() )
-		{
-			// scale the height up to our screen co-ords
-			tall = scheme()->GetProportionalScaledValueEx(GetScheme(), tall);
-		}
-		// now correct the alignment
-		if (_buildModeFlags & BUILDMODE_SAVE_TALL_FULL)
-		{
-			tall = alignScreenTall - tall;
-		}
 	}
 
 	if( bUsesTitleSafeArea )

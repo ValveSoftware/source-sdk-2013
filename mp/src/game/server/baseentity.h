@@ -83,7 +83,7 @@ class CUserCmd;
 class CSkyCamera;
 class CEntityMapData;
 class INextBot;
-
+class IHasAttributes;
 
 typedef CUtlVector< CBaseEntity* > EntityList_t;
 
@@ -1087,49 +1087,57 @@ public:
 	int		GetHealth() const		{ return m_iHealth; }
 	void	SetHealth( int amt )	{ m_iHealth = amt; }
 
+	float HealthFraction() const;
+
 	// Ugly code to lookup all functions to make sure they are in the table when set.
 #ifdef _DEBUG
-	void FunctionCheck( void *pFunction, const char *name );
 
+#ifdef GNUC
+#define ENTITYFUNCPTR_SIZE	8
+#else
+#define ENTITYFUNCPTR_SIZE	4
+#endif
+
+	void FunctionCheck( void *pFunction, const char *name );
 	ENTITYFUNCPTR TouchSet( ENTITYFUNCPTR func, char *name ) 
 	{ 
-#ifdef GNUC
-		COMPILE_TIME_ASSERT( sizeof(func) == 8 );
-#else
-		COMPILE_TIME_ASSERT( sizeof(func) == 4 );
-#endif
+		COMPILE_TIME_ASSERT( sizeof(func) == ENTITYFUNCPTR_SIZE );
 		m_pfnTouch = func; 
 		FunctionCheck( *(reinterpret_cast<void **>(&m_pfnTouch)), name ); 
 		return func;
 	}
 	USEPTR	UseSet( USEPTR func, char *name ) 
 	{ 
-#ifdef GNUC
-		COMPILE_TIME_ASSERT( sizeof(func) == 8 );
-#else
-		COMPILE_TIME_ASSERT( sizeof(func) == 4 );
-#endif
+		COMPILE_TIME_ASSERT( sizeof(func) == ENTITYFUNCPTR_SIZE );
 		m_pfnUse = func; 
 		FunctionCheck( *(reinterpret_cast<void **>(&m_pfnUse)), name ); 
 		return func;
 	}
 	ENTITYFUNCPTR	BlockedSet( ENTITYFUNCPTR func, char *name ) 
 	{ 
-#ifdef GNUC
-		COMPILE_TIME_ASSERT( sizeof(func) == 8 );
-#else
-		COMPILE_TIME_ASSERT( sizeof(func) == 4 );
-#endif
+		COMPILE_TIME_ASSERT( sizeof(func) == ENTITYFUNCPTR_SIZE );
 		m_pfnBlocked = func; 
 		FunctionCheck( *(reinterpret_cast<void **>(&m_pfnBlocked)), name ); 
 		return func;
 	}
 
-#endif
+#endif // _DEBUG
+
 	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& set );
 	void			AppendContextToCriteria( AI_CriteriaSet& set, const char *prefix = "" );
 	void			DumpResponseCriteria( void );
-	
+
+	// Return the IHasAttributes interface for this base entity. Removes the need for:
+	//	dynamic_cast< IHasAttributes * >( pEntity );
+	// Which is remarkably slow.
+	// GetAttribInterface( CBaseEntity *pEntity ) in attribute_manager.h uses
+	//  this function, tests for NULL, and Asserts m_pAttributes == dynamic_cast.
+	inline IHasAttributes *GetHasAttributesInterfacePtr() const { return m_pAttributes; }
+
+protected:
+	// NOTE: m_pAttributes needs to be set in the leaf class constructor.
+	IHasAttributes *m_pAttributes;
+
 private:
 	friend class CAI_Senses;
 	CBaseEntity	*m_pLink;// used for temporary link-list operations. 

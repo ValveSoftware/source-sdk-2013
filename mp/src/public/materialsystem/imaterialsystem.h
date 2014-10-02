@@ -1039,6 +1039,10 @@ public:
 
 	// returns the display device name that matches the adapter index we were started with
 	virtual char *GetDisplayDeviceName() const = 0;
+
+	// creates a texture suitable for use with materials from a raw stream of bits.
+	// The bits will be retained by the material system and can be freed upon return.
+	virtual ITexture*			CreateTextureFromBits(int w, int h, int mips, ImageFormat fmt, int srcBufferSize, byte* srcBits) = 0;
 };
 
 

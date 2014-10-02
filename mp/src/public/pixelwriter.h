@@ -331,6 +331,14 @@ FORCEINLINE_PIXEL void CPixelWriter::SetPixelMemory( ImageFormat format, void* p
 				format_error_printed[format] = true;
 			}
 			m_Size = 0; // set to zero so that we don't stomp memory for formats that we don't understand.
+			m_RShift = 0;
+			m_GShift = 0;
+			m_BShift = 0;
+			m_AShift = 0;
+			m_RMask = 0x00;
+			m_GMask = 0x00;
+			m_BMask = 0x00;
+			m_AMask = 0x00;
 		}
 		break;
 	}

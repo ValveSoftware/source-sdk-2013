@@ -85,6 +85,8 @@ typedef enum
 
 	AE_WPN_PLAYWPNSOUND,	// Play a weapon sound from the weapon script file
 
+	AE_RD_ROBOT_POP_PANELS_OFF,
+
 	LAST_SHARED_ANIMEVENT,
 } Animevent;
 

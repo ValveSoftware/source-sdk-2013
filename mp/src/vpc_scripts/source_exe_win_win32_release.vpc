@@ -82,7 +82,7 @@ $Configuration "Release"
 
 		// Preprocessor
 		$PreprocessorDefinitions				"$BASE;WIN32;_WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
-		$PreprocessorDefinitions				"$BASE;RELEASE_ASSERTS" [$RELEASEASSERTS]
+		$PreprocessorDefinitions				"$BASE;RELEASEASSERTS" [$RELEASEASSERTS]
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -141,8 +141,11 @@ $Configuration "Release"
 		$OmitDefaultLibraryNames
 		$ErrorReporting							"Prompt Immediately (/errorReport:prompt)"
 
-		// Enable extra debugging information.
-		$AdditionalOptions						"$BASE /d2Zi+"
+		// Enable extra debugging information. This switch requires VS 2013 Update 3.
+		// With VS 2013 make sure that Edit-And-Continue is disabled in the debugger settings so that
+		// the debugger uses the enhanced debug information.
+		// http://randomascii.wordpress.com/2013/09/11/debugging-optimized-codenew-in-visual-studio-2012/
+		$AdditionalOptions					"$BASE /Zo"
 		// Command Line
 		$AdditionalOptions						"$BASE /Oy-"	[$NOFPO]
 	}
@@ -165,7 +168,7 @@ $Configuration "Release"
 		// Input
 		$AdditionalDependencies
 		$IgnoreAllDefaultLibraries
-		$IgnoreSpecificLibrary					"libc;libcd;libcmtd"
+		$IgnoreSpecificLibrary					"libc;libcd;libcmtd;libcpmtd;libcpmtd0;libcpmtd1"
 		$ModuleDefinitionFile
 		$AddModuleToAssembly
 		$EmbedManagedResourceFile

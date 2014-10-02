@@ -354,6 +354,67 @@ void CClientEntityList::OnAddEntity( IHandleEntity *pEnt, CBaseHandle handle )
 
 }
 
+#if defined( STAGING_ONLY )
+
+// Defined in tier1 / interface.cpp for Windows and native for POSIX platforms.
+extern "C" int backtrace( void **buffer, int size );
+
+static struct
+{
+	int entnum;
+	float time;
+	C_BaseEntity *pBaseEntity;
+	void *backtrace_addrs[ 16 ];
+} g_RemoveEntityBacktraces[ 1024 ];
+static uint32 g_RemoveEntityBacktracesIndex = 0;
+
+static void OnRemoveEntityBacktraceHook( int entnum, C_BaseEntity *pBaseEntity )
+{
+	int index = g_RemoveEntityBacktracesIndex++;
+	if ( g_RemoveEntityBacktracesIndex >= ARRAYSIZE( g_RemoveEntityBacktraces ) )
+		g_RemoveEntityBacktracesIndex = 0;
+
+	g_RemoveEntityBacktraces[ index ].entnum = entnum;
+	g_RemoveEntityBacktraces[ index ].time = gpGlobals->curtime;
+	g_RemoveEntityBacktraces[ index ].pBaseEntity = pBaseEntity;
+
+	memset( g_RemoveEntityBacktraces[ index ].backtrace_addrs, 0, sizeof( g_RemoveEntityBacktraces[ index ].backtrace_addrs ) );
+	backtrace( g_RemoveEntityBacktraces[ index ].backtrace_addrs, ARRAYSIZE( g_RemoveEntityBacktraces[ index ].backtrace_addrs ) );
+}
+
+// Should help us track down CL_PreserveExistingEntity Host_Error() issues:
+//  1. Set cl_removeentity_backtrace_capture to 1.
+//  2. When error hits, run "cl_removeentity_backtrace_dump [entnum]".
+//  3. In debugger, track down what functions the spewed addresses refer to.
+static ConVar cl_removeentity_backtrace_capture( "cl_removeentity_backtrace_capture", "0", 0,
+	"For debugging. Capture backtraces for CClientEntityList::OnRemoveEntity calls." );
+
+CON_COMMAND( cl_removeentity_backtrace_dump, "Dump backtraces for client OnRemoveEntity calls." )
+{
+	if ( !cl_removeentity_backtrace_capture.GetBool() )
+	{
+		Msg( "cl_removeentity_backtrace_dump error: cl_removeentity_backtrace_capture not enabled. Backtraces not captured.\n" );
+		return;
+	}
+
+	int entnum = ( args.ArgC() >= 2 ) ? atoi( args[ 1 ] ) : -1;
+
+	for ( int i = 0; i < ARRAYSIZE( g_RemoveEntityBacktraces ); i++ )
+	{
+		if ( g_RemoveEntityBacktraces[ i ].time && 
+			( entnum == -1 || g_RemoveEntityBacktraces[ i ].entnum == entnum ) )
+		{
+			Msg( "%d: time:%.2f pBaseEntity:%p\n", g_RemoveEntityBacktraces[i].entnum,
+				g_RemoveEntityBacktraces[ i ].time, g_RemoveEntityBacktraces[ i ].pBaseEntity );
+			for ( int j = 0; j < ARRAYSIZE( g_RemoveEntityBacktraces[ i ].backtrace_addrs ); j++ )
+			{
+				Msg( "  %p\n", g_RemoveEntityBacktraces[ i ].backtrace_addrs[ j ] );
+			}
+		}
+	}
+}
+
+#endif // STAGING_ONLY
 
 void CClientEntityList::OnRemoveEntity( IHandleEntity *pEnt, CBaseHandle handle )
 {
@@ -379,6 +440,13 @@ void CClientEntityList::OnRemoveEntity( IHandleEntity *pEnt, CBaseHandle handle 
 	RemovePVSNotifier( pUnknown );
 
 	C_BaseEntity *pBaseEntity = pUnknown->GetBaseEntity();
+
+#if defined( STAGING_ONLY )
+	if ( cl_removeentity_backtrace_capture.GetBool() )
+	{
+		OnRemoveEntityBacktraceHook( entnum, pBaseEntity );
+	}
+#endif // STAGING_ONLY
 
 	if ( pBaseEntity )
 	{

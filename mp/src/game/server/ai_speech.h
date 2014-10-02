@@ -135,7 +135,7 @@ struct ConceptHistory_t
 	ConceptHistory_t& operator = ( const ConceptHistory_t& src );
 
 	~ConceptHistory_t();
-	
+
 	float		timeSpoken;
 	AI_Response *response;
 };
@@ -159,9 +159,9 @@ public:
 	bool Speak( AIConcept_t concept, const char *modifiers = NULL, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
 
 	// These two methods allow looking up a response and dispatching it to be two different steps
-	AI_Response *SpeakFindResponse( AIConcept_t concept, const char *modifiers = NULL );
-	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response *response, IRecipientFilter *filter = NULL );
-	float GetResponseDuration( AI_Response *response );
+	bool SpeakFindResponse( AI_Response &response, AIConcept_t concept, const char *modifiers = NULL );
+	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response &response, IRecipientFilter *filter = NULL );
+	float GetResponseDuration( AI_Response &response );
 
 	virtual int SpeakRawSentence( const char *pszSentence, float delay, float volume = VOL_NORM, soundlevel_t soundlevel = SNDLVL_TALKING, CBaseEntity *pListener = NULL );
 	
@@ -283,10 +283,10 @@ public:
 	virtual bool 	Speak( AIConcept_t concept, const char *modifiers = NULL, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
 
 	// These two methods allow looking up a response and dispatching it to be two different steps
-	AI_Response *	SpeakFindResponse( AIConcept_t concept, const char *modifiers = NULL );
-	bool 			SpeakDispatchResponse( AIConcept_t concept, AI_Response *response );
-	virtual void	PostSpeakDispatchResponse( AIConcept_t concept, AI_Response *response ) { return; }
-	float 			GetResponseDuration( AI_Response *response );
+	bool			SpeakFindResponse( AI_Response& response, AIConcept_t concept, const char *modifiers = NULL );
+	bool 			SpeakDispatchResponse( AIConcept_t concept, AI_Response& response );
+	virtual void	PostSpeakDispatchResponse( AIConcept_t concept, AI_Response& response ) { return; }
+	float 			GetResponseDuration( AI_Response& response );
 
 	float GetTimeSpeechComplete() const 	{ return this->GetExpresser()->GetTimeSpeechComplete(); }
 
@@ -360,15 +360,15 @@ inline IResponseSystem *CAI_ExpresserHost<BASE_NPC>::GetResponseSystem()
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 template <class BASE_NPC>
-inline AI_Response *CAI_ExpresserHost<BASE_NPC>::SpeakFindResponse( AIConcept_t concept, const char *modifiers /*= NULL*/ )
+inline bool CAI_ExpresserHost<BASE_NPC>::SpeakFindResponse( AI_Response& response, AIConcept_t concept, const char *modifiers /*= NULL*/ )
 {
-	return this->GetExpresser()->SpeakFindResponse( concept, modifiers );
+	return this->GetExpresser()->SpeakFindResponse( response, concept, modifiers );
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 template <class BASE_NPC>
-inline bool CAI_ExpresserHost<BASE_NPC>::SpeakDispatchResponse( AIConcept_t concept, AI_Response *response )
+inline bool CAI_ExpresserHost<BASE_NPC>::SpeakDispatchResponse( AIConcept_t concept, AI_Response& response )
 {
 	if ( this->GetExpresser()->SpeakDispatchResponse( concept, response ) )
 	{
@@ -382,7 +382,7 @@ inline bool CAI_ExpresserHost<BASE_NPC>::SpeakDispatchResponse( AIConcept_t conc
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 template <class BASE_NPC>
-inline float CAI_ExpresserHost<BASE_NPC>::GetResponseDuration( AI_Response *response )
+inline float CAI_ExpresserHost<BASE_NPC>::GetResponseDuration( AI_Response& response )
 {
 	return this->GetExpresser()->GetResponseDuration( response );
 }

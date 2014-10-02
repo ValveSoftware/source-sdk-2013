@@ -107,7 +107,6 @@ public:
 	void		PreTranslate(const Vector &vTrans);
 	void		PostTranslate(const Vector &vTrans);
 
-	matrix3x4_t& As3x4();
 	const matrix3x4_t& As3x4() const;
 	void		CopyFrom3x4( const matrix3x4_t &m3x4 );
 	void		Set3x4( matrix3x4_t& matrix3x4 ) const;
@@ -628,11 +627,6 @@ inline void VMatrix::PostTranslate(const Vector &vTrans)
 inline const matrix3x4_t& VMatrix::As3x4() const
 {
 	return *((const matrix3x4_t*)this);
-}
-
-inline matrix3x4_t& VMatrix::As3x4()
-{
-	return *((matrix3x4_t*)this);
 }
 
 inline void VMatrix::CopyFrom3x4( const matrix3x4_t &m3x4 )

@@ -90,7 +90,7 @@ public:
 
 	// kill all particle systems involving a given entity for their control points
 	void				StopParticlesInvolving( CBaseEntity *pEntity );
-	void				StopParticlesNamed( const char *pszEffectName, bool bForceRemoveInstantly = false ); ///< kills all particles using the given definition name
+	void				StopParticlesNamed( const char *pszEffectName, bool bForceRemoveInstantly = false, bool bInverse = false ); ///< kills all particles using the given definition name
 	void				StopParticlesWithNameAndAttachment( const char *pszEffectName, int iAttachmentPoint, bool bForceRemoveInstantly = false ); ///< kills all particles using the given definition name
 
 	// Particle System hooks

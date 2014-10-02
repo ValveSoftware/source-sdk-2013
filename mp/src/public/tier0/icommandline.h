@@ -40,6 +40,8 @@ public:
 	
 	// copies the string passwed
 	virtual void SetParm( int nIndex, char const *pNewParm ) =0;
+
+	virtual const char *ParmValueByIndex( int nIndex, const char *pDefaultVal = 0 ) const = 0;
 };
 
 //-----------------------------------------------------------------------------

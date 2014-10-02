@@ -514,7 +514,7 @@ void CPredictionCopy::DescribeQuaternion( difftype_t dt, Quaternion* outValue, c
 
 		for ( int j = 0; j < 4; j++ )
 		{
-			delta[i] = outValue[i][j] - inValue[i][j];
+			delta[j] = outValue[i][j] - inValue[i][j];
 		}
 
 		ReportFieldsDiffer( "quaternion[] differs (1st diff) (net %f %f %f %f - pred %f %f %f %f) delta(%f %f %f %f)\n", 
@@ -933,7 +933,7 @@ CPredictionCopy::difftype_t CPredictionCopy::CompareQuaternion( Quaternion* outV
 
 			for ( int j = 0; j < 4; j++ )
 			{
-				delta[i] = outValue[i][j] - inValue[i][j];
+				delta[j] = outValue[i][j] - inValue[i][j];
 			}
 
 			if ( tolerance > 0.0f )

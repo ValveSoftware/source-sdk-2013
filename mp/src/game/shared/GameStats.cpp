@@ -1199,6 +1199,7 @@ void CBaseGameStats_Driver::ResetData()
 	pKV->SetInt( "Height", dest_height );
 	const MaterialSystem_Config_t &config = materials->GetCurrentConfigForVideoCard();
 	pKV->SetInt( "Windowed", config.Windowed() == true );
+	pKV->SetInt( "MaxDxLevel", g_pMaterialSystemHardwareConfig->GetMaxDXSupportLevel() );
 
 	engine->SetGamestatsData( m_pGamestatsData );
 #endif

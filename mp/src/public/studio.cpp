@@ -1673,7 +1673,7 @@ void CStudioHdr::CActivityToSequenceMapping::Initialize( CStudioHdr * __restrict
 
 	// Now, create starting indices for each activity. For an activity n, 
 	// the starting index is of course the sum of counts [0..n-1]. 
-	register int sequenceCount = 0;
+	int sequenceCount = 0;
 	int topActivity = 0; // this will store the highest seen activity number (used later to make an ad hoc map on the stack)
 	for ( UtlHashHandle_t handle = m_ActToSeqHash.GetFirstHandle() ; 
 		  m_ActToSeqHash.IsValidHandle(handle) ;

@@ -72,6 +72,7 @@ $Project "tier1"
 		$File	"utlbufferutil.cpp"
 		$File	"utlstring.cpp"
 		$File	"utlsymbol.cpp"
+		$File	"utlbinaryblock.cpp"
 		$File	"pathmatch.cpp" [$LINUXALL]
 		$File	"snappy.cpp"
 		$File	"snappy-sinksource.cpp"
@@ -147,6 +148,7 @@ $Project "tier1"
 		$File	"$SRCDIR\public\tier1\utlsymbol.h"
 		$File	"$SRCDIR\public\tier1\utlsymbollarge.h"
 		$File	"$SRCDIR\public\tier1\utlvector.h"
+		$File	"$SRCDIR\public\tier1\utlbinaryblock.h"
 		$File	"$SRCDIR\common\xbox\xboxstubs.h"				[$WINDOWS]
 	}
 }

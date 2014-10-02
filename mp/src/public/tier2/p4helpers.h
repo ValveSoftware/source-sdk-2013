@@ -36,6 +36,9 @@ public:
 	// Is the file in perforce?
 	virtual bool IsFileInPerforce();
 
+	// Changes the file to the specified filetype.
+	virtual bool SetFileType( const CUtlString& desiredFileType );
+
 protected:
 	// The filename that this class instance represents
 	CUtlString m_sFilename;
@@ -53,6 +56,7 @@ public:
 	virtual bool Edit( void ) { return true; }
 	virtual bool Add( void ) { return true; }
 	virtual bool IsFileInPerforce() { return false; }
+	virtual bool SetFileType(const CUtlString& desiredFileType) { return true; }
 };
 
 
@@ -122,16 +126,35 @@ protected:
 class CP4AutoEditAddFile
 {
 public:
-	explicit CP4AutoEditAddFile( char const *szFilename ) : m_spImpl( g_p4factory->AccessFile( szFilename ) )
+	explicit CP4AutoEditAddFile( char const *szFilename ) 
+	: m_spImpl( g_p4factory->AccessFile( szFilename ) )
+	, m_bHasDesiredFileType( false )
 	{ 
 		m_spImpl->Edit(); 
 	}
-	~CP4AutoEditAddFile( void ) { m_spImpl->Add(); }
+
+	explicit CP4AutoEditAddFile( char const *szFilename, const char *szFiletype ) 
+	: m_spImpl( g_p4factory->AccessFile( szFilename ) )
+	, m_sFileType(szFiletype)
+	, m_bHasDesiredFileType( true )
+	{ 
+		m_spImpl->Edit(); 
+		m_spImpl->SetFileType( m_sFileType );
+	}
+
+	~CP4AutoEditAddFile( void ) 
+	{ 
+		m_spImpl->Add(); 
+		if ( m_bHasDesiredFileType )
+			m_spImpl->SetFileType( m_sFileType );
+	}
 
 	CP4File * File() const { return m_spImpl.Get(); }
 
 protected:
 	CPlainAutoPtr< CP4File > m_spImpl;
+	CUtlString m_sFileType;
+	bool m_bHasDesiredFileType;
 };
 
 

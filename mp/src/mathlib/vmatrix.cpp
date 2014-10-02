@@ -955,7 +955,7 @@ void MatrixBuildTranslation( VMatrix& dst, const Vector &translation )
 //-----------------------------------------------------------------------------
 void MatrixBuildRotationAboutAxis( VMatrix &dst, const Vector &vAxisOfRot, float angleDegrees )
 {
-	MatrixBuildRotationAboutAxis( vAxisOfRot, angleDegrees, dst.As3x4() );
+	MatrixBuildRotationAboutAxis( vAxisOfRot, angleDegrees, const_cast< matrix3x4_t &> ( dst.As3x4() ) );
 	dst[3][0] = 0;
 	dst[3][1] = 0;
 	dst[3][2] = 0;

@@ -391,6 +391,21 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 #define  AssertAlways( _exp )           							_AssertMsg( _exp, _T("Assertion Failed: ") _T(#_exp), ((void)0), false )
 #define  AssertMsgAlways( _exp, _msg )  							_AssertMsg( _exp, _msg, ((void)0), false )
 
+// Stringify a number
+#define V_STRINGIFY_INTERNAL(x) #x
+// Extra level of indirection needed when passing in a macro to avoid getting the macro name instead of value
+#define V_STRINGIFY(x) V_STRINGIFY_INTERNAL(x)
+
+// Macros to help decorate warnings or errors with the location in code
+#define FILE_LINE_FUNCTION_STRING __FILE__ "(" V_STRINGIFY(__LINE__) "):" __FUNCTION__ ":"
+#define FILE_LINE_STRING __FILE__ "(" V_STRINGIFY(__LINE__) "):"
+#define FUNCTION_LINE_STRING __FUNCTION__ "(" V_STRINGIFY(__LINE__) "): "
+
+// Handy define for inserting clickable messages into the build output.
+// Use like this:
+// #pragma MESSAGE("Some message")
+#define MESSAGE(msg) message(__FILE__ "(" V_STRINGIFY(__LINE__) "): " msg)
+
 
 #if !defined( _X360 ) || !defined( _RETAIL )
 

@@ -748,9 +748,12 @@ void RichText::Paint()
 	_currentTextClickable = m_CachedRenderState.textClickable;
 
 	renderState.textClickable = _currentTextClickable;
-	renderState.textColor = m_FormatStream[renderState.formatStreamIndex].color;
+
+	if ( m_FormatStream.IsValidIndex( renderState.formatStreamIndex ) )
+		renderState.textColor = m_FormatStream[renderState.formatStreamIndex].color;
+
 	CalculateFade( renderState );
-	
+
 	renderState.formatStreamIndex++;
 
 	if ( _currentTextClickable )

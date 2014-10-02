@@ -1678,7 +1678,7 @@ bool CSentence::ShouldSplitWord( char in )
 	if ( in <= 32 )
 		return true;
 
-	if ( in >= 128 )
+	if ( (unsigned char)in > SCHAR_MAX )
 		return true;
 
 	if ( ispunct( in ) )

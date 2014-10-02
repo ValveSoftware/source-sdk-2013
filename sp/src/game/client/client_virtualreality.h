@@ -147,7 +147,6 @@ private:
 	int				m_iAlignTorsoAndViewToWeaponCountdown;
 
 	bool			m_bMotionUpdated;
-	bool			m_bForceVRMode;
 
 	RTime32			m_rtLastMotionSample;
 

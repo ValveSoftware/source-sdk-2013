@@ -58,6 +58,7 @@ public:
 	void InputSetSpeedForwardModifier( inputdata_t &inputdata );
 	void InputSetTrainRecedeTime( inputdata_t &inputdata );
 	void InputSetTrainCanRecede( inputdata_t &inputdata );
+	void InputSetTrainRecedeTimeAndUpdate( inputdata_t &inputdata );
 
 	// ==========================================================
 	// given a start node and a list of goal nodes
@@ -93,6 +94,8 @@ public:
 #if defined( STAGING_ONLY ) && defined( TF_DLL )
 	void DumpStats( void );
 #endif // STAGING_ONLY && TF_DLL
+
+	float GetTrainProgress() { return m_flTotalProgress; }
 
 private:
 

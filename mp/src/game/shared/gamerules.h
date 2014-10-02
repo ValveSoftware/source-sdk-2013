@@ -205,6 +205,8 @@ public:
 	
 #else
 
+	virtual void Status( void (*print) (const char *fmt, ...) ) {}
+
 	virtual void GetTaggedConVarList( KeyValues *pCvarTagList ) {}
 
 	// NVNT see if the client of the player entered is using a haptic device.

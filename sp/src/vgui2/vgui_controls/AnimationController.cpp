@@ -343,7 +343,7 @@ bool AnimationController::ParseScriptFile(char *pMem, int length)
 		}
 
 		// walk the commands
-		while (token && token[0])
+		while (token[0])
 		{
 			// get the command type
 			pMem = ParseFile(pMem, token, NULL);

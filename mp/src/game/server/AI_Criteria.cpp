@@ -27,13 +27,8 @@ AI_CriteriaSet::AI_CriteriaSet() : m_Lookup( 0, 0, CritEntry_t::LessFunc )
 //-----------------------------------------------------------------------------
 AI_CriteriaSet::AI_CriteriaSet( const AI_CriteriaSet& src ) : m_Lookup( 0, 0, CritEntry_t::LessFunc )
 {
-	m_Lookup.Purge();
-	for ( short i = src.m_Lookup.FirstInorder(); 
-		i != src.m_Lookup.InvalidIndex(); 
-		i = src.m_Lookup.NextInorder( i ) )
-	{
-		m_Lookup.Insert( src.m_Lookup[ i ] );
-	}
+	// Use fast Copy CUtlRBTree CopyFrom. WARNING: It only handles POD.
+	m_Lookup.CopyFrom( src.m_Lookup );
 }
 
 //-----------------------------------------------------------------------------
@@ -162,7 +157,6 @@ void AI_CriteriaSet::Describe()
 {
 	for ( short i = m_Lookup.FirstInorder(); i != m_Lookup.InvalidIndex(); i = m_Lookup.NextInorder( i ) )
 	{
-
 		CritEntry_t *entry = &m_Lookup[ i ];
 
 		if ( entry->weight != 1.0f )
@@ -199,9 +193,9 @@ AI_Response::AI_Response()
 {
 	m_Type = RESPONSE_NONE;
 	m_szResponseName[0] = 0;
+	m_szMatchingRule[0] = 0;
+
 	m_pCriteria = NULL;
-	m_szMatchingRule[0]=0;
-	m_szContext = NULL;
 	m_bApplyContextToWorld = false;
 }
 
@@ -209,13 +203,8 @@ AI_Response::AI_Response()
 //-----------------------------------------------------------------------------
 AI_Response::AI_Response( const AI_Response &from )
 {
-	Assert( (void*)(&m_Type) == (void*)this );
 	m_pCriteria = NULL;
-	memcpy( this, &from, sizeof(*this) );
-	m_pCriteria = NULL;
-	m_szContext = NULL;
-	SetContext( from.m_szContext );
-	m_bApplyContextToWorld = from.m_bApplyContextToWorld;
+	*this = from;
 }
 
 //-----------------------------------------------------------------------------
@@ -224,20 +213,34 @@ AI_Response::AI_Response( const AI_Response &from )
 AI_Response::~AI_Response()
 {
 	delete m_pCriteria;
-	delete[] m_szContext;
+	m_pCriteria = NULL;
 }
 
 //-----------------------------------------------------------------------------
 AI_Response &AI_Response::operator=( const AI_Response &from )
 {
 	Assert( (void*)(&m_Type) == (void*)this );
+
+	if (this == &from)
+		return *this;
+
+	m_Type = from.m_Type;
+
+	V_strcpy_safe( m_szResponseName, from.m_szResponseName );
+	V_strcpy_safe( m_szMatchingRule, from.m_szMatchingRule );
+
 	delete m_pCriteria;
 	m_pCriteria = NULL;
-	memcpy( this, &from, sizeof(*this) );
-	m_pCriteria = NULL;
-	m_szContext = NULL;
-	SetContext( from.m_szContext );
+
+	// Copy criteria.
+	if (from.m_pCriteria)
+		m_pCriteria = new AI_CriteriaSet(*from.m_pCriteria);
+
+	m_Params = from.m_Params;
+
+	m_szContext = from.m_szContext;
 	m_bApplyContextToWorld = from.m_bApplyContextToWorld;
+
 	return *this;
 }
 
@@ -246,15 +249,22 @@ AI_Response &AI_Response::operator=( const AI_Response &from )
 // Input  : *response - 
 //			*criteria - 
 //-----------------------------------------------------------------------------
-void AI_Response::Init( ResponseType_t type, const char *responseName, const AI_CriteriaSet& criteria, const AI_ResponseParams& responseparams, const char *ruleName, const char *applyContext, bool bApplyContextToWorld )
+void AI_Response::Init( ResponseType_t type, const char *responseName, const AI_CriteriaSet& criteria,
+					const AI_ResponseParams& responseparams, const char *ruleName, const char *applyContext,
+					bool bApplyContextToWorld )
 {
 	m_Type = type;
-	Q_strncpy( m_szResponseName, responseName, sizeof( m_szResponseName ) );
+
+	V_strcpy_safe( m_szResponseName, responseName );
+	V_strcpy_safe( m_szMatchingRule, ruleName ? ruleName : "NULL" );
+
 	// Copy underlying criteria
+	Assert( !m_pCriteria );
 	m_pCriteria = new AI_CriteriaSet( criteria );
-	Q_strncpy( m_szMatchingRule, ruleName ? ruleName : "NULL", sizeof( m_szMatchingRule ) );
+
 	m_Params = responseparams;
-	SetContext( applyContext );
+
+	m_szContext = applyContext;
 	m_bApplyContextToWorld = bApplyContextToWorld;
 }
 
@@ -269,35 +279,29 @@ void AI_Response::Describe()
 		m_pCriteria->Describe();
 	}
 	if ( m_szMatchingRule[ 0 ] )
-	{
 		DevMsg( "Matched rule '%s', ", m_szMatchingRule );
-	}
-	if ( m_szContext )
-	{
-		DevMsg( "Contexts to set '%s' on %s, ", m_szContext, m_bApplyContextToWorld ? "world" : "speaker" );
-	}
+	if ( m_szContext.Length() )
+		DevMsg( "Contexts to set '%s' on %s, ", m_szContext.Get(), m_bApplyContextToWorld ? "world" : "speaker" );
 
-	DevMsg( "response %s = '%s'\n", DescribeResponse( (ResponseType_t)m_Type ),  m_szResponseName );
+	DevMsg( "response %s = '%s'\n", DescribeResponse( (ResponseType_t)m_Type ), m_szResponseName );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-// Output : char const
 //-----------------------------------------------------------------------------
-void AI_Response::GetName( char *buf, size_t buflen ) const
+const char * AI_Response::GetNamePtr() const
 {
-	Q_strncpy( buf, m_szResponseName, buflen );
+    return m_szResponseName;
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-// Output : char const
 //-----------------------------------------------------------------------------
-void AI_Response::GetResponse( char *buf, size_t buflen ) const
+const char * AI_Response::GetResponsePtr() const
 {
-	GetName( buf, buflen );
+    return m_szResponseName;
 }
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : type - 
@@ -313,25 +317,15 @@ const char *AI_Response::DescribeResponse( ResponseType_t type )
 
 	switch( type )
 	{
-	default:
-		{
-			Assert( 0 );
-		}
-		// Fall through
-	case RESPONSE_NONE:
-		return "RESPONSE_NONE";
-	case RESPONSE_SPEAK:
-		return "RESPONSE_SPEAK";
-	case RESPONSE_SENTENCE:
-		return "RESPONSE_SENTENCE";
-	case RESPONSE_SCENE:
-		return "RESPONSE_SCENE";
-	case RESPONSE_RESPONSE:
-		return "RESPONSE_RESPONSE";
-	case RESPONSE_PRINT:
-		return "RESPONSE_PRINT";
+	case RESPONSE_NONE:     return "RESPONSE_NONE";
+	case RESPONSE_SPEAK:    return "RESPONSE_SPEAK";
+	case RESPONSE_SENTENCE: return "RESPONSE_SENTENCE";
+	case RESPONSE_SCENE:    return "RESPONSE_SCENE";
+	case RESPONSE_RESPONSE: return "RESPONSE_RESPONSE";
+	case RESPONSE_PRINT:    return "RESPONSE_PRINT";
 	}
 
+	Assert( 0 );
 	return "RESPONSE_NONE";
 }
 
@@ -447,16 +441,7 @@ float AI_Response::GetPreDelay() const
 //-----------------------------------------------------------------------------
 void AI_Response::SetContext( const char *context )
 {
-	delete[] m_szContext;
-	m_szContext = NULL;
-
-	if ( context )
-	{
-		int len = Q_strlen( context );
-		m_szContext = new char[ len + 1 ];
-		Q_memcpy( m_szContext, context, len );
-		m_szContext[ len ] = 0;
-	}
+	m_szContext = context;
 }
 
 //-----------------------------------------------------------------------------

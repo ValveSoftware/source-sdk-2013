@@ -28,7 +28,7 @@ public:
 
 	virtual bool			SpeakIfAllowed( AIConcept_t concept, const char *modifiers = NULL, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
 	virtual IResponseSystem *GetResponseSystem();
-	AI_Response				*SpeakConcept( int iConcept );
+	bool					SpeakConcept( AI_Response& response, int iConcept );
 	virtual bool			SpeakConceptIfAllowed( int iConcept, const char *modifiers = NULL, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
 
 	virtual bool		CanHearAndReadChatFrom( CBasePlayer *pPlayer );

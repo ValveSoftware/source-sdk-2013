@@ -3548,30 +3548,51 @@ static void LinearToBumpedLightmap(
 // Convert a RGBExp32 to a RGBA8888
 // This matches the engine's conversion, so the lighting result is consistent.
 //-----------------------------------------------------------------------------
-void ConvertRGBExp32ToRGBA8888( const ColorRGBExp32 *pSrc, unsigned char *pDst )
+void ConvertRGBExp32ToRGBA8888( const ColorRGBExp32 *pSrc, unsigned char *pDst, Vector* _optOutLinear )
 {
 	Vector		linearColor;
-	Vector		vertexColor;
 
 	// convert from ColorRGBExp32 to linear space
 	linearColor[0] = TexLightToLinear( ((ColorRGBExp32 *)pSrc)->r, ((ColorRGBExp32 *)pSrc)->exponent );
 	linearColor[1] = TexLightToLinear( ((ColorRGBExp32 *)pSrc)->g, ((ColorRGBExp32 *)pSrc)->exponent );
 	linearColor[2] = TexLightToLinear( ((ColorRGBExp32 *)pSrc)->b, ((ColorRGBExp32 *)pSrc)->exponent );
 
+	ConvertLinearToRGBA8888( &linearColor, pDst );
+	if ( _optOutLinear )
+		*_optOutLinear = linearColor;
+}
+
+//-----------------------------------------------------------------------------
+// Converts a RGBExp32 to a linear color value.
+//-----------------------------------------------------------------------------
+void ConvertRGBExp32ToLinear(const ColorRGBExp32 *pSrc, Vector* pDst)
+{
+
+	(*pDst)[0] = TexLightToLinear(((ColorRGBExp32 *)pSrc)->r, ((ColorRGBExp32 *)pSrc)->exponent);
+	(*pDst)[1] = TexLightToLinear(((ColorRGBExp32 *)pSrc)->g, ((ColorRGBExp32 *)pSrc)->exponent);
+	(*pDst)[2] = TexLightToLinear(((ColorRGBExp32 *)pSrc)->b, ((ColorRGBExp32 *)pSrc)->exponent);
+}
+
+//-----------------------------------------------------------------------------
+// Converts a linear color value (suitable for combining linearly) to an RBGA8888 value expected by the engine.
+//-----------------------------------------------------------------------------
+void ConvertLinearToRGBA8888(const Vector *pSrcLinear, unsigned char *pDst)
+{
+	Vector		vertexColor;
+
 	// convert from linear space to lightmap space
 	// cannot use mathlib routine directly because it doesn't match
 	// the colorspace version found in the engine, which *is* the same sequence here
-	vertexColor[0] = LinearToVertexLight( linearColor[0] );
-	vertexColor[1] = LinearToVertexLight( linearColor[1] );
-	vertexColor[2] = LinearToVertexLight( linearColor[2] );
+	vertexColor[0] = LinearToVertexLight((*pSrcLinear)[0]);
+	vertexColor[1] = LinearToVertexLight((*pSrcLinear)[1]);
+	vertexColor[2] = LinearToVertexLight((*pSrcLinear)[2]);
 
 	// this is really a color normalization with a floor
-	ColorClamp( vertexColor );
+	ColorClamp(vertexColor);
 
 	// final [0..255] scale
-	pDst[0] = RoundFloatToByte( vertexColor[0] * 255.0f );
-	pDst[1] = RoundFloatToByte( vertexColor[1] * 255.0f );
-	pDst[2] = RoundFloatToByte( vertexColor[2] * 255.0f );
+	pDst[0] = RoundFloatToByte(vertexColor[0] * 255.0f);
+	pDst[1] = RoundFloatToByte(vertexColor[1] * 255.0f);
+	pDst[2] = RoundFloatToByte(vertexColor[2] * 255.0f);
 	pDst[3] = 255;
 }
-

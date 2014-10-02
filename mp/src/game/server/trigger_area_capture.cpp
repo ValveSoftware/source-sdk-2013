@@ -366,6 +366,7 @@ void CTriggerAreaCapture::CaptureThink( void )
 							}
 
 							iNumBlockablePlayers[iTeam] += TeamplayGameRules()->GetCaptureValueForPlayer( pPlayer );
+							pPlayer->SetLastObjectiveTime( gpGlobals->curtime );
 						}
 						continue;
 					}
@@ -378,6 +379,7 @@ void CTriggerAreaCapture::CaptureThink( void )
 						}
 
 						iNumPlayers[iTeam] += TeamplayGameRules()->GetCaptureValueForPlayer( pPlayer );
+						pPlayer->SetLastObjectiveTime( gpGlobals->curtime );
 					}
 				}
 			}

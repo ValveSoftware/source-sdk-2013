@@ -581,6 +581,19 @@ inline CUtlVector<T, A>& CUtlVector<T, A>::operator=( const CUtlVector<T, A> &ot
 	return *this;
 }
 
+#ifdef STAGING_ONLY
+inline void StagingUtlVectorBoundsCheck( int i, int size )
+{
+	if ( (unsigned)i >= (unsigned)size )
+	{
+		Msg( "Array access error: %d / %d\n", i, size );
+		DebuggerBreak();
+	}
+}
+
+#else
+#define StagingUtlVectorBoundsCheck( _i, _size )
+#endif
 
 //-----------------------------------------------------------------------------
 // element access
@@ -590,6 +603,7 @@ inline T& CUtlVector<T, A>::operator[]( int i )
 {
 	// Do an inline unsigned check for maximum debug-build performance.
 	Assert( (unsigned)i < (unsigned)m_Size );
+	StagingUtlVectorBoundsCheck( i, m_Size );
 	return m_Memory[ i ];
 }
 
@@ -598,6 +612,7 @@ inline const T& CUtlVector<T, A>::operator[]( int i ) const
 {
 	// Do an inline unsigned check for maximum debug-build performance.
 	Assert( (unsigned)i < (unsigned)m_Size );
+	StagingUtlVectorBoundsCheck( i, m_Size );
 	return m_Memory[ i ];
 }
 
@@ -606,6 +621,7 @@ inline T& CUtlVector<T, A>::Element( int i )
 {
 	// Do an inline unsigned check for maximum debug-build performance.
 	Assert( (unsigned)i < (unsigned)m_Size );
+	StagingUtlVectorBoundsCheck( i, m_Size );
 	return m_Memory[ i ];
 }
 
@@ -614,6 +630,7 @@ inline const T& CUtlVector<T, A>::Element( int i ) const
 {
 	// Do an inline unsigned check for maximum debug-build performance.
 	Assert( (unsigned)i < (unsigned)m_Size );
+	StagingUtlVectorBoundsCheck( i, m_Size );
 	return m_Memory[ i ];
 }
 
@@ -621,6 +638,7 @@ template< typename T, class A >
 inline T& CUtlVector<T, A>::Head()
 {
 	Assert( m_Size > 0 );
+	StagingUtlVectorBoundsCheck( 0, m_Size );
 	return m_Memory[ 0 ];
 }
 
@@ -628,6 +646,7 @@ template< typename T, class A >
 inline const T& CUtlVector<T, A>::Head() const
 {
 	Assert( m_Size > 0 );
+	StagingUtlVectorBoundsCheck( 0, m_Size );
 	return m_Memory[ 0 ];
 }
 
@@ -635,6 +654,7 @@ template< typename T, class A >
 inline T& CUtlVector<T, A>::Tail()
 {
 	Assert( m_Size > 0 );
+	StagingUtlVectorBoundsCheck( 0, m_Size );
 	return m_Memory[ m_Size - 1 ];
 }
 
@@ -642,6 +662,7 @@ template< typename T, class A >
 inline const T& CUtlVector<T, A>::Tail() const
 {
 	Assert( m_Size > 0 );
+	StagingUtlVectorBoundsCheck( 0, m_Size );
 	return m_Memory[ m_Size - 1 ];
 }
 

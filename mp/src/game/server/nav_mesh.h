@@ -1259,8 +1259,10 @@ extern CNavMesh *TheNavMesh;
 // factory for creating the Navigation Mesh
 extern CNavMesh *NavMeshFactory( void );
 
+#ifdef STAGING_ONLY
 // for debugging the A* algorithm, if nonzero, show debug display and decrement for each pathfind
 extern int g_DebugPathfindCounter;
+#endif
 
 
 //--------------------------------------------------------------------------------------------------------------

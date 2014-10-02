@@ -59,6 +59,7 @@ class CGamestatsData;
 class CSteamID;
 class IReplayFactory;
 class IReplaySystem;
+class IServer;
 
 typedef struct player_info_s player_info_t;
 
@@ -72,7 +73,9 @@ typedef struct player_info_s player_info_t;
 #define DLLEXPORT /* */
 #endif
 
-#define INTERFACEVERSION_VENGINESERVER	"VEngineServer021"
+#define INTERFACEVERSION_VENGINESERVER_VERSION_21	"VEngineServer021"
+#define INTERFACEVERSION_VENGINESERVER				"VEngineServer022"
+#define INTERFACEVERSION_VENGINESERVER_INT			22
 
 struct bbox_t
 {
@@ -410,7 +413,12 @@ public:
 
 	// Get sv.GetTime()
 	virtual float GetServerTime() const = 0;
+
+	// Exposed for server plugin authors
+	virtual IServer *GetIServer() = 0;
 };
+
+typedef IVEngineServer IVEngineServer021;
 
 
 #define INTERFACEVERSION_SERVERGAMEDLL_VERSION_8	"ServerGameDLL008"
@@ -543,6 +551,9 @@ public:
 
 	// Get gamedata string to send to the master serer updater.
 	virtual const char *GetServerBrowserGameData() = 0;
+
+	// Called to add output to the status command
+	virtual void 			Status( void (*print) (const char *fmt, ...) ) = 0;
 };
 
 typedef IServerGameDLL IServerGameDLL008;

@@ -337,6 +337,7 @@ bool Q_StripPrecedingAndTrailingWhitespaceW( wchar_t *pwch );
 // like punctuation spaces, non-breaking spaces, composing characters, and so on
 bool Q_AggressiveStripPrecedingAndTrailingWhitespace( char *pch );
 bool Q_AggressiveStripPrecedingAndTrailingWhitespaceW( wchar_t *pwch );
+bool Q_RemoveAllEvilCharacters( char *pch );
 
 // Functions for converting hexidecimal character strings back into binary data etc.
 //

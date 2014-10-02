@@ -15,7 +15,7 @@ $Configuration
 	$Compiler
 	{
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
-		$PrecompiledHeaderFile				"Debug/vrad_launcher.pch"
+		$PrecompiledHeaderFile				"$(IntDir)/vrad_launcher.pch"
 	}
 }
 

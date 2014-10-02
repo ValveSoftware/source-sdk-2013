@@ -22,13 +22,22 @@ HOSTNAME := $(shell hostname)
 # To build with clang, set the following in your environment:
 #   CC = clang
 #   CXX = clang++
+ifneq (,$(findstring clang,$(CXX)))
+	CLANG_BUILD = 1
+endif
 
 ifeq ($(CFG), release)
 	# With gcc 4.6.3, engine.so went from 7,383,765 to 8,429,109 when building with -O3.
 	#  There also was no speed difference running at 1280x1024. May 2012, mikesart.
 	#  tonyp: The size increase was likely caused by -finline-functions and -fipa-cp-clone getting switched on with -O3.
 	# -fno-omit-frame-pointer: need this for stack traces with perf.
-	OptimizerLevel_CompilerSpecific = -O2 -fno-strict-aliasing -ffast-math -fno-omit-frame-pointer -ftree-vectorize -fpredictive-commoning -funswitch-loops
+	OptimizerLevel_CompilerSpecific = -O2 -fno-strict-aliasing -ffast-math -fno-omit-frame-pointer -ftree-vectorize
+	ifeq ($(CLANG_BUILD),1)
+		# These aren't supported wit Clang 3.5. Need to remove when we update that.
+		OptimizerLevel_CompilerSpecific += -fpredictive-commoning -funswitch-loops
+	else
+		OptimizerLevel_CompilerSpecific += -fpredictive-commoning -funswitch-loops
+	endif
 else
 	OptimizerLevel_CompilerSpecific = -O0
 	#-O1 -finline-functions
@@ -41,14 +50,14 @@ CPPFLAGS = $(DEFINES) $(addprefix -I, $(abspath $(INCLUDEDIRS) ))
 CFLAGS = $(ARCH_FLAGS) $(CPPFLAGS) $(WARN_FLAGS) -fvisibility=$(SymbolVisibility) $(OptimizerLevel) -pipe $(GCC_ExtraCompilerFlags) -Usprintf -Ustrncpy -UPROTECTED_THINGS_ENABLE
 # In -std=gnu++0x mode we get lots of errors about "error: narrowing conversion". -fpermissive
 # turns these into warnings in gcc, and -Wno-c++11-narrowing suppresses them entirely in clang 3.1+.
-ifeq ($(CXX),clang++)
+ifeq ($(CLANG_BUILD),1)
 	CXXFLAGS = $(CFLAGS) -std=gnu++0x -Wno-c++11-narrowing -Wno-dangling-else
 else
 	CXXFLAGS = $(CFLAGS) -std=gnu++0x -fpermissive
 endif
 DEFINES += -DVPROF_LEVEL=1 -DGNUC -DNO_HOOK_MALLOC -DNO_MALLOC_OVERRIDE
 LDFLAGS = $(CFLAGS) $(GCC_ExtraLinkerFlags) $(OptimizerLevel)
-GENDEP_CXXFLAGS = -MD -MP -MF $(@:.o=.P) 
+GENDEP_CXXFLAGS = -MMD -MP -MF $(@:.o=.P) 
 MAP_FLAGS =
 Srv_GAMEOUTPUTFILE = 
 COPY_DLL_TO_SRV = 0
@@ -57,11 +66,30 @@ COPY_DLL_TO_SRV = 0
 ifeq ($(STEAM_BRANCH),1)
 	WARN_FLAGS = -Wall -Wextra -Wshadow -Wno-invalid-offsetof
 else
-	WARN_FLAGS = -Wno-write-strings -Wno-multichar
+	WARN_FLAGS = -Wall -Wno-invalid-offsetof -Wno-multichar -Wno-overloaded-virtual
+	WARN_FLAGS += -Wno-write-strings
+	WARN_FLAGS += -Wno-unused-variable
+	WARN_FLAGS += -Wno-unused-but-set-variable
+	WARN_FLAGS += -Wno-unused-function
+
+	ifeq ($(CLANG_BUILD),1)
+		# Clang specific flags
+	else
+		# Gcc specific flags. Need this for gcc 4.8.
+		# WARN_FLAGS += -Wno-unused-local-typedefs
+		# WARN_FLAGS += -Wno-unused-function
+		# WARN_FLAGS += -Wno-unused-result
+		# WARN_FLAGS += -Wno-narrowing
+	endif
 endif
 
-WARN_FLAGS += -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-value -Wno-missing-field-initializers -Wno-sign-compare -Wno-reorder -Wno-invalid-offsetof -Wno-float-equal -Werror=return-type -fdiagnostics-show-option -Wformat -Wformat-security
+WARN_FLAGS += -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-value -Wno-missing-field-initializers
+WARN_FLAGS += -Wno-sign-compare -Wno-reorder -Wno-invalid-offsetof -Wno-float-equal -Werror=return-type
+WARN_FLAGS += -fdiagnostics-show-option -Wformat -Wformat-security
 
+ifeq ($(OS),Darwin)
+$(error This file should never be used for Mac - use base.xconfig)
+endif
 
 ifeq ($(OS),Linux)
 	# We should always specify -Wl,--build-id, as documented at:
@@ -85,12 +113,9 @@ ifeq ($(OS),Linux)
 		# If the steam-runtime is available, use it. We should just default to using it when
 		#  buildbot and everyone has a bit of time to get it installed.
 		ifneq "$(wildcard /valve/steam-runtime/bin/)" ""
-			# The steam-runtime is incompatible with clang at this point, so disable it
-			# if clang is enabled.
-			ifneq ($(CXX),clang++)
-				VALVE_BINDIR = /valve/steam-runtime/bin/
-			endif
+			VALVE_BINDIR = /valve/steam-runtime/bin/
 		endif
+
 		GCC_VER =
 		MARCH_TARGET = pentium4
 		# On dedicated servers, some plugins depend on global variable symbols in addition to functions.
@@ -98,7 +123,10 @@ ifeq ($(OS),Linux)
 		STRIP_FLAGS = -x
 	endif
 
-	ifeq ($(CXX),clang++)
+	ifeq ($(CLANG_BUILD),1)
+		# The steam-runtime is incompatible with clang at this point, so disable it
+		VALVE_BINDIR =
+
 		# Clang does not support -mfpmath=sse because it uses whatever
 		# instruction set extensions are available by default.
 		SSE_GEN_FLAGS = -msse2
@@ -114,19 +142,18 @@ ifeq ($(OS),Linux)
 	ifeq ($(origin AR), default)
 		AR = $(VALVE_BINDIR)ar crs
 	endif
-	ifeq ($(origin CC),default)
+	ifeq ($(origin CC), default)
 		CC = $(CCACHE) $(VALVE_BINDIR)gcc$(GCC_VER)	
 	endif
 	ifeq ($(origin CXX), default)
 		CXX = $(CCACHE) $(VALVE_BINDIR)g++$(GCC_VER)
 	endif
+
 	# Support ccache with clang. Add -Qunused-arguments to avoid excessive warnings due to
 	# a ccache quirk. Could also upgrade ccache.
 	# http://petereisentraut.blogspot.com/2011/05/ccache-and-clang.html
-	ifeq ($(CC),clang)
+	ifeq ($(CLANG_BUILD),1)
 		CC = $(CCACHE) $(VALVE_BINDIR)clang -Qunused-arguments
-	endif
-	ifeq ($(CXX),clang++)
 		CXX = $(CCACHE) $(VALVE_BINDIR)clang++ -Qunused-arguments
 	endif
 	LINK ?= $(CC)
@@ -177,84 +204,6 @@ ifeq ($(OS),Linux)
 
 	LIB_START_SHLIB = $(PATHWRAP) -static-libgcc -Wl,--start-group
 	LIB_END_SHLIB = -Wl,--end-group -lm -ldl $(LIBSTDCXXPIC) -lpthread -l:$(LD_SO) -Wl,--version-script=$(SRCROOT)/devtools/version_script.linux.txt
-
-endif
-
-ifeq ($(OS),Darwin)
-	CCACHE := $(SRCROOT)/devtools/bin/osx32/ccache
-	MAC_SDK_VER ?= 10.6
-	MAC_SDK := macosx$(MAC_SDK_VER)
-	SYSROOT := $(shell xcodebuild -sdk $(MAC_SDK) -version Path)
-
-	ifneq ($(origin MAC_SDK_VER), file)
-            $(warning Attempting build with SDK version $(MAC_SDK_VER), only 10.6 is supported and recommended!)
-	endif
-
-	ifeq ($(SYSROOT),)
-		FIRSTSDK := $(firstword $(sort $(shell xcodebuild -showsdks | grep macosx | sed 's/.*macosx//')))
-                $(error Could not find SDK version $(MAC_SDK_VER). Install and configure Xcode 4.3, or build with: make MAC_SDK_VER=$(FIRSTSDK))
-	endif
-
-	ifeq ($(origin CC), default)
-                # Test to see if you have a compiler in the right place, if you
-                # don't abort with an error
-		CLANG := $(shell xcrun -sdk $(MAC_SDK) -find clang)
-		ifeq ($(wildcard $(CLANG)),)
-                        $(error Unable to find C compiler, install and configure Xcode 4.3)
-		endif
-
-		CC := $(CCACHE) $(CLANG) -Qunused-arguments
-	endif
-
-	ifeq ($(origin CXX), default)
-		CXXLANG := $(shell xcrun -sdk $(MAC_SDK) -find clang++)
-		ifeq ($(wildcard $(CXXLANG)),)
-                        $(error Unable to find C++ compiler, install and configure Xcode 4.3)
-		endif
-
-		CXX := $(CCACHE) $(CXXLANG) -Qunused-arguments
-	endif
-	LINK ?= $(CXX)
-
-	ifeq ($(origin AR), default)
-		AR := $(shell xcrun -sdk $(MAC_SDK) -find libtool) -static -o
-	endif
-
-	ifeq ($(TARGET_PLATFORM),osx64)
-		ARCH_FLAGS += -arch x86_64 -m64 -march=core2
-	else ifeq (,$(findstring -arch x86_64,$(GCC_ExtraCompilerFlags)))
-		ARCH_FLAGS += -arch i386 -m32 -march=prescott -momit-leaf-frame-pointer -mtune=core2
-	else
-		# dirty hack to build a universal binary - don't specify the architecture
-		ARCH_FLAGS += -arch i386 -Xarch_i386 -march=prescott -Xarch_i386 -mtune=core2 -Xarch_i386 -momit-leaf-frame-pointer -Xarch_x86_64 -march=core2
-	endif
-
-	GEN_SYM ?= $(shell xcrun -sdk $(MAC_SDK) -find dsymutil)
-	ifeq ($(CFG),release)
-		STRIP ?= strip -S
-	else
-		STRIP ?= true
-	endif
-	ifeq ($(SOURCE_SDK), 1)
-		VSIGN ?= true
-	else
-		VSIGN ?= $(SRCROOT)/devtools/bin/vsign
-	endif
-
-	CPPFLAGS += -I$(SYSROOT)/usr/include/malloc
-	CFLAGS += -isysroot $(SYSROOT) -mmacosx-version-min=10.5 -fasm-blocks
-
-	LIB_START_EXE = -lm -ldl -lpthread
-	LIB_END_EXE = 
-
-	LIB_START_SHLIB = 
-	LIB_END_SHLIB = 
-
-	SHLIBLDFLAGS = $(LDFLAGS) -bundle -flat_namespace -undefined suppress -Wl,-dead_strip -Wl,-no_dead_strip_inits_and_terms 
-
-	ifeq (lib,$(findstring lib,$(GAMEOUTPUTFILE)))
-		SHLIBLDFLAGS = $(LDFLAGS) -dynamiclib -current_version 1.0 -compatibility_version 1.0 -install_name @rpath/$(basename $(notdir $(GAMEOUTPUTFILE))).dylib $(SystemLibraries) -Wl,-dead_strip -Wl,-no_dead_strip_inits_and_terms 
-	endif
 
 endif
 

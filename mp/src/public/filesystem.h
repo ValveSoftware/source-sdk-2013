@@ -5,6 +5,10 @@
 // $NoKeywords: $
 //===========================================================================//
 
+#ifndef FILESYSTEM_H
+#define FILESYSTEM_H
+#pragma once
+
 #include <limits.h>
 
 #include "tier0/threadtools.h"
@@ -16,9 +20,6 @@
 #include "tier1/checksum_crc.h"
 #include "tier1/checksum_md5.h"
 #include "tier1/refcount.h"
-
-#ifndef FILESYSTEM_H
-#define FILESYSTEM_H
 
 #ifdef _WIN32
 #pragma once
@@ -581,10 +582,20 @@ public:
 	virtual void			MarkPathIDByRequestOnly( const char *pPathID, bool bRequestOnly ) = 0;
 
 	// converts a partial path into a full path
-	virtual const char		*RelativePathToFullPath( const char *pFileName, const char *pPathID, char *pLocalPath, int localPathBufferSize, PathTypeFilter_t pathFilter = FILTER_NONE, PathTypeQuery_t *pPathType = NULL ) = 0;
+	// Prefer using the RelativePathToFullPath_safe template wrapper to calling this directly
+	virtual const char		*RelativePathToFullPath( const char *pFileName, const char *pPathID, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars, PathTypeFilter_t pathFilter = FILTER_NONE, PathTypeQuery_t *pPathType = NULL ) = 0;
+	template <size_t maxLenInChars> const char *RelativePathToFullPath_safe( const char *pFileName, const char *pPathID, OUT_Z_ARRAY char (&pDest)[maxLenInChars], PathTypeFilter_t pathFilter = FILTER_NONE, PathTypeQuery_t *pPathType = NULL )
+	{
+		return RelativePathToFullPath( pFileName, pPathID, pDest, (int)maxLenInChars, pathFilter, pPathType );
+	}
 
 	// Returns the search path, each path is separated by ;s. Returns the length of the string returned
-	virtual int				GetSearchPath( const char *pathID, bool bGetPackFiles, char *pPath, int nMaxLen ) = 0;
+	// Prefer using the GetSearchPath_safe template wrapper to calling this directly
+	virtual int				GetSearchPath( const char *pathID, bool bGetPackFiles, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars ) = 0;
+	template <size_t maxLenInChars> int GetSearchPath_safe( const char *pathID, bool bGetPackFiles, OUT_Z_ARRAY char (&pDest)[maxLenInChars] )
+	{
+		return GetSearchPath( pathID, bGetPackFiles, pDest, (int)maxLenInChars );
+	}
 
 	// interface for custom pack files > 4Gb
 	virtual bool			AddPackFile( const char *fullpath, const char *pathID ) = 0;
@@ -651,11 +662,21 @@ public:
 
 	// FIXME: This method is obsolete! Use RelativePathToFullPath instead!
 	// converts a partial path into a full path
-	virtual const char		*GetLocalPath( const char *pFileName, char *pLocalPath, int localPathBufferSize ) = 0;
+	// Prefer using the GetLocalPath_safe template wrapper to calling this directly
+	virtual const char		*GetLocalPath( const char *pFileName, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars ) = 0;
+	template <size_t maxLenInChars> const char *GetLocalPath_safe( const char *pFileName, OUT_Z_ARRAY char (&pDest)[maxLenInChars] )
+	{
+		return GetLocalPath( pFileName, pDest, (int)maxLenInChars );
+	}
 
 	// Returns true on success ( based on current list of search paths, otherwise false if 
 	//  it can't be resolved )
-	virtual bool			FullPathToRelativePath( const char *pFullpath, char *pRelative, int maxlen ) = 0;
+	// Prefer using the FullPathToRelativePath_safe template wrapper to calling this directly
+	virtual bool			FullPathToRelativePath( const char *pFullpath, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars ) = 0;
+	template <size_t maxLenInChars> bool FullPathToRelativePath_safe( const char *pFullpath, OUT_Z_ARRAY char (&pDest)[maxLenInChars] )
+	{
+		return FullPathToRelativePath( pFullpath, pDest, (int)maxLenInChars );
+	}
 
 	// Gets the current working directory
 	virtual bool			GetCurrentDirectory( char* pDirectory, int maxlen ) = 0;
@@ -815,7 +836,12 @@ public:
 	virtual void		EndMapAccess() = 0;
 
 	// Returns true on success, otherwise false if it can't be resolved
-	virtual bool		FullPathToRelativePathEx( const char *pFullpath, const char *pPathId, char *pRelative, int maxlen ) = 0;
+	// Prefer using the FullPathToRelativePathEx_safe template wrapper to calling this directly
+	virtual bool		FullPathToRelativePathEx( const char *pFullpath, const char *pPathId, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars ) = 0;
+	template <size_t maxLenInChars> bool FullPathToRelativePathEx_safe( const char *pFullpath, OUT_Z_ARRAY char (&pDest)[maxLenInChars] )
+	{
+		return FullPathToRelativePathEx( pFullpath, pDest, (int)maxLenInChars );
+	}
 
 	virtual int			GetPathIndex( const FileNameHandle_t &handle ) = 0;
 	virtual long		GetPathTime( const char *pPath, const char *pPathID ) = 0;
@@ -892,6 +918,14 @@ public:
 
 	// Called when we unload a file, to remove that file's info for pure server purposes.
 	virtual void			NotifyFileUnloaded( const char *pszFilename, const char *pPathId ) = 0;
+
+	// Returns true on successfully retrieve case-sensitive full path, otherwise false
+	// Prefer using the GetCaseCorrectFullPath template wrapper to calling this directly
+	virtual bool			GetCaseCorrectFullPath_Ptr( const char *pFullPath, OUT_Z_CAP( maxLenInChars ) char *pDest, int maxLenInChars ) = 0;
+	template <size_t maxLenInChars> bool GetCaseCorrectFullPath( const char *pFullPath, OUT_Z_ARRAY char( &pDest )[maxLenInChars] )
+	{
+		return GetCaseCorrectFullPath_Ptr( pFullPath, pDest, (int)maxLenInChars );
+	}
 };
 
 //-----------------------------------------------------------------------------

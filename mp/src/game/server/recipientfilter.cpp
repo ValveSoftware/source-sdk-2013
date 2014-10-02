@@ -98,7 +98,7 @@ void CRecipientFilter::AddAllPlayers( void )
 	}
 }
 
-void CRecipientFilter::AddRecipient( CBasePlayer *player )
+void CRecipientFilter::AddRecipient( const CBasePlayer *player )
 {
 	Assert( player );
 

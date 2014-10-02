@@ -231,7 +231,7 @@ void CParticleSystemQuery::GetRandomPointsOnControllingObjectHitBox(
 					{
 						bSucesss = true;
 						
-						Vector vecWorldPosition;
+						Vector vecWorldPosition(0, 0, 0);
 						float u = 0, v = 0, w = 0;
 						int nHitbox = 0;
 						int nNumIters = nNumTrysToGetAPointInsideTheModel;
@@ -308,7 +308,7 @@ void CParticleSystemQuery::GetRandomPointsOnControllingObjectHitBox(
 
 			
 
-			Vector vecWorldPosition;
+			Vector vecWorldPosition(0, 0, 0);
 			float u = 0, v = 0, w = 0;
 			int nHitbox = 0;
 			int nNumIters = nNumTrysToGetAPointInsideTheModel;

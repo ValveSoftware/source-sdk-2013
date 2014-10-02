@@ -17,7 +17,7 @@
 #define MAX_COMMAND_LENGTH 64
 #define MAX_CREATE_ERROR_STRING 96
 
-class CBaseIssue	// Abstract base class for all things-that-can-be-voted-on.  
+class CBaseIssue	// Base class concept for vote issues (i.e. Kick Player).  Created per level-load and destroyed by CVoteController's dtor.
 {
 public:
 	CBaseIssue(const char *typeString);
@@ -41,6 +41,9 @@ public:
 	virtual void		SetYesNoVoteCount( int iNumYesVotes, int iNumNoVotes, int iNumPotentialVotes );
 	virtual bool		GetVoteOptions( CUtlVector <const char*> &vecNames );	// We use this to generate options for voting
 	virtual bool		BRecordVoteFailureEventForEntity( int iVoteCallingEntityIndex ) const { return iVoteCallingEntityIndex != DEDICATED_SERVER; }
+	void				SetIssueCooldownDuration( float flDuration ) { m_flNextCallTime = gpGlobals->curtime + flDuration; }	// The issue can not be raised again for this period of time (in seconds)
+
+	CHandle< CBasePlayer > m_hPlayerTarget;							// If the target of the issue is a player, we should store them here
 
 protected:
 	static void			ListStandardNoArgCommand( CBasePlayer *forWhom, const char *issueString );		// List a Yes vote command
@@ -59,6 +62,7 @@ protected:
 	int m_iNumYesVotes;
 	int m_iNumNoVotes;
 	int m_iNumPotentialVotes;
+	float m_flNextCallTime;
 };
 
 class CVoteController : public CBaseEntity
@@ -93,13 +97,16 @@ public:
 	void			ListIssues( CBasePlayer *pForWhom );
 	bool			IsValidVoter( CBasePlayer *pWhom );
 	bool			CanTeamCastVote( int iTeam ) const;
-	void			SendVoteFailedMessage( vote_create_failed_t nReason = VOTE_FAILED_GENERIC, CBasePlayer *pVoteCaller = NULL, int nTime = -1 );
+	void			SendVoteCreationFailedMessage( vote_create_failed_t nReason, CBasePlayer *pVoteCaller, int nTime = -1 );
+	void			SendVoteFailedToPassMessage( vote_create_failed_t nReason );
 	void			VoteChoice_Increment( int nVoteChoice );
 	void			VoteChoice_Decrement( int nVoteChoice );
 	int				GetWinningVoteOption( void );
 	void			TrackVoteCaller( CBasePlayer *pPlayer );
 	bool			CanEntityCallVote( CBasePlayer *pPlayer, int &nCooldown );
 	bool			IsVoteActive( void ) { return m_iActiveIssueIndex != INVALID_ISSUE; }
+
+	void			AddPlayerToKickWatchList( CSteamID steamID, float flDuration );
 
 protected:
 	void			ResetData( void );

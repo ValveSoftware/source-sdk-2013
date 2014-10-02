@@ -220,7 +220,7 @@ BEGIN_VS_SHADER( Sky_HDR_DX9, "Help for Sky_HDR_DX9 shader" )
 				float w=txtr->GetActualWidth();
 				float h=txtr->GetActualHeight();
 				float FUDGE=0.01/max(w,h);					// per ATI
-				float c1[4]={0.5/w-FUDGE, 0.5/h-FUDGE, w, h };
+				float c1[4]={(float)(0.5/w-FUDGE), (float)(0.5/h-FUDGE), w, h };
 				pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_0, c1);
 
 				BindTexture( SHADER_SAMPLER0, HDRCOMPRESSEDTEXTURE, FRAME );

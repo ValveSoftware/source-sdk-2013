@@ -1187,7 +1187,7 @@ int SENTENCEG_PlayRndI(edict_t *entity, int isentenceg,
 	name[0] = 0;
 
 	ipick = engine->SentenceGroupPick( isentenceg, name, sizeof( name ) );
-	if (ipick > 0 && name)
+	if ( ( ipick > 0 ) && name[0] )
 	{
 		int sentenceIndex = SENTENCEG_Lookup( name );
 		CPASAttenuationFilter filter( GetContainingEntity( entity ), soundlevel );

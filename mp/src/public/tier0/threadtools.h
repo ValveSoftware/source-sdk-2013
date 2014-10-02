@@ -346,7 +346,7 @@ template <class T = intp>
 		COMPILE_TIME_ASSERT( sizeof(T) >= sizeof(int) );
 	}
 
-	operator const int() const { return (int)this->Get(); }
+	operator int() const { return (int)this->Get(); }
 	int	operator=( int i ) { this->Set( (intp)i ); return i; }
 
 	int operator++()					{ T i = this->Get(); this->Set( ++i ); return (int)i; }
@@ -1227,9 +1227,9 @@ protected:
 	CThreadMutex m_Lock;
 
 #ifdef WIN32
-	const ThreadHandle_t GetThreadID() const { return (ThreadHandle_t)m_hThread; }
+	ThreadHandle_t GetThreadID() const { return (ThreadHandle_t)m_hThread; }
 #else
-	const ThreadId_t GetThreadID() const { return (ThreadId_t)m_threadId; }
+	ThreadId_t GetThreadID() const { return (ThreadId_t)m_threadId; }
 #endif
 
 private:

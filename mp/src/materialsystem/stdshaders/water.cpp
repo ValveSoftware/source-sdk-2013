@@ -488,9 +488,9 @@ BEGIN_VS_SHADER( Water_DX90,
 			float cheapWaterEndDistance = params[CHEAPWATERENDDISTANCE]->GetFloatValue();
 			float cheapWaterParams[4] = 
 			{
-				cheapWaterStartDistance * VSHADER_VECT_SCALE,
-				cheapWaterEndDistance * VSHADER_VECT_SCALE,
-				PSHADER_VECT_SCALE / ( cheapWaterEndDistance - cheapWaterStartDistance ),
+				(float)(cheapWaterStartDistance * VSHADER_VECT_SCALE),
+				(float)(cheapWaterEndDistance * VSHADER_VECT_SCALE),
+				(float)(PSHADER_VECT_SCALE / ( cheapWaterEndDistance - cheapWaterStartDistance )),
 				cheapWaterStartDistance / ( cheapWaterEndDistance - cheapWaterStartDistance ),
 			};
 			pShaderAPI->SetPixelShaderConstant( 1, cheapWaterParams );

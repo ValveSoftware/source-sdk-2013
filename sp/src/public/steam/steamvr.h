@@ -119,6 +119,11 @@ public:
 	*/
 	virtual void GetDXGIOutputInfo( int32_t *pnAdapterIndex, int32_t *pnAdapterOutputIndex ) = 0;
 
+	/** [Windows Only]
+	* Notifies the system that the VR output will appear in a particular window.
+	*/
+	virtual void AttachToWindow( void *hWnd ) = 0;
+
 	// ------------------------------------
 	// Tracking Methods
 	// ------------------------------------
@@ -168,7 +173,7 @@ public:
 	virtual uint32_t GetDisplayId( char *pchBuffer, uint32_t unBufferLen ) = 0;
 };
 
-static const char * const IHmd_Version = "IHmd_004";
+static const char * const IHmd_Version = "IHmd_005";
 
 /** error codes returned by Vr_Init */
 enum HmdError
@@ -187,10 +192,15 @@ enum HmdError
 	HmdError_Init_NotInitialized		= 109,
 
 	HmdError_Driver_Failed = 200,
+	HmdError_Driver_Unknown = 201,
+	HmdError_Driver_HmdUnknown = 202,
+	HmdError_Driver_NotLoaded = 203,
 
 	HmdError_IPC_ServerInitFailed		= 300,
 	HmdError_IPC_ConnectFailed			= 301,
 	HmdError_IPC_SharedStateInitFailed	= 302,
+
+	HmdError_VendorSpecific_UnableToConnectToOculusRuntime = 1000,
 
 };
 
@@ -235,6 +245,15 @@ VR_INTERFACE IHmd *VR_Init( HmdError *peError );
 /** unloads vrclient.dll. Any interface pointers from the interface are 
 * invalid after this point */
 VR_INTERFACE void VR_Shutdown( );
+
+/** Returns true if there is an HMD attached. This check is as lightweight as possible and
+* can be called outside of VR_Init/VR_Shutdown. It should be used when an application wants
+* to know if initializing VR is a possibility but isn't ready to take that step yet.
+*/
+VR_INTERFACE bool VR_IsHmdPresent();
+
+/** Returns the string version of an HMD error. This function may be called outside of VR_Init()/VR_Shutdown(). */
+VR_INTERFACE const char *VR_GetStringForHmdError( HmdError error );
 
 #pragma pack( pop )
 

@@ -202,7 +202,7 @@ public:
 		uint nWidth = nWidthHeight & 0xFFFF, nHeight = nWidthHeight >> 16;
 		// Apply half pixel offset to output vertices to account for the pixel center difference between D3D9 and OpenGL.
 		// We output vertices in clip space, which ranges from [-1,1], so 1.0/width in clip space transforms into .5/width in screenspace, see: "Viewports and Clipping (Direct3D 9)" in the DXSDK
-		float v[4] = { 1.0f / nWidth, 1.0f / nHeight, nWidth, nHeight };
+		float v[4] = { 1.0f / (float)nWidth, 1.0f / (float)nHeight, (float)nWidth, (float)nHeight };
 		if ( m_locVertexScreenParams >= 0 )
 			gGL->glUniform4fv( m_locVertexScreenParams, 1, v );
 	}

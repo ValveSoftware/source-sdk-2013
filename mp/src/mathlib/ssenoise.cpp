@@ -30,6 +30,10 @@ static ALIGN16 int32 idx_mask[4]= {0xffff, 0xffff, 0xffff, 0xffff};
 // returns 0..1
 static inline float GetLatticePointValue( int idx_x, int idx_y, int idx_z )
 {
+	NOTE_UNUSED(perm_d);
+	NOTE_UNUSED(impulse_ycoords);
+	NOTE_UNUSED(impulse_zcoords);
+
 	int ret_idx = perm_a[idx_x & 0xff];
 	ret_idx = perm_b[( idx_y + ret_idx ) & 0xff];
 	ret_idx = perm_c[( idx_z + ret_idx ) & 0xff];

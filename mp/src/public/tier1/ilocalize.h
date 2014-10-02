@@ -401,6 +401,35 @@ public:
 		}
 	}
 
+	template < typename T, typename U, typename V, typename W, typename X, typename Y, typename Z >
+	CConstructLocalizedString( const locchar_t *loc_Format, T arg0, U arg1, V arg2, W arg3, X arg4, Y arg5, Z arg6)
+	{
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<T>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<U>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<V>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<W>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<X>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<Y>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<Z>::kIsValid );
+
+		m_loc_Buffer[0] = '\0';
+
+		if ( loc_Format )
+		{
+			::ILocalize::ConstructString( m_loc_Buffer,
+				sizeof( m_loc_Buffer ),
+				loc_Format,
+				7,
+				CLocalizedStringArg<T>( arg0 ).GetLocArg(),
+				CLocalizedStringArg<U>( arg1 ).GetLocArg(),
+				CLocalizedStringArg<V>( arg2 ).GetLocArg(),
+				CLocalizedStringArg<W>( arg3 ).GetLocArg(),
+				CLocalizedStringArg<X>( arg4 ).GetLocArg(),
+				CLocalizedStringArg<Y>( arg5 ).GetLocArg(), 
+				CLocalizedStringArg<Z>( arg6 ).GetLocArg() );
+		}
+	}
+
 	CConstructLocalizedString( const locchar_t *loc_Format, KeyValues *pKeyValues )
 	{
 		m_loc_Buffer[0] = '\0';

@@ -167,4 +167,9 @@ inline bool UseVR()
 	return g_pSourceVR != NULL && g_pSourceVR->ShouldRunInVR();
 }
 
+inline bool ShouldForceVRActive()
+{
+	return g_pSourceVR != NULL && g_pSourceVR->ShouldForceVRMode();
+}
+
 #endif // ISOURCEVIRTUALREALITY_H

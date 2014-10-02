@@ -49,7 +49,9 @@ ConVar nav_max_vis_delta_list_length( "nav_max_vis_delta_list_length", "64", FCV
 
 extern ConVar nav_show_potentially_visible;
 
+#ifdef STAGING_ONLY
 int g_DebugPathfindCounter = 0;
+#endif
 
 
 bool FindGroundForNode( Vector *pos, Vector *normal );

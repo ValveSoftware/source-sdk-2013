@@ -368,7 +368,7 @@ bool CSceneImage::CreateSceneImageFile( CUtlBuffer &targetBuffer, char const *pc
 
 	if ( !bQuiet )
 	{
-		Msg( "Scenes: String Table: %d bytes\n", stringOffsets.Count() * sizeof( int ) );
+		Msg( "Scenes: String Table: %llu bytes\n", (uint64)(stringOffsets.Count() * sizeof( int )) );
 		Msg( "Scenes: String Pool: %d bytes\n", stringPool.TellMaxPut() );
 	}
 

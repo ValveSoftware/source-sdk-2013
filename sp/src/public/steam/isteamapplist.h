@@ -10,8 +10,8 @@
 #pragma once
 #endif
 
-#include "steam/isteamclient.h"
-#include "steam/steamtypes.h"
+#include "isteamclient.h"
+#include "steamtypes.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: This is a restricted interface that can only be used by previously approved apps,

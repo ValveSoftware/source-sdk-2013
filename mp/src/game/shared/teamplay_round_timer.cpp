@@ -245,6 +245,7 @@ CTeamRoundTimer::CTeamRoundTimer( void )
 	m_bResetTimeOnRoundStart = false;
 	m_nTimeToUseAfterSetupFinished = 0;
 	m_flNextOvertimeNag = 0;
+	m_flLastTime = 0.f;
 #endif
 }
 
@@ -781,6 +782,9 @@ void CTeamRoundTimer::SetTimerThink( int nType )
 //-----------------------------------------------------------------------------
 void CTeamRoundTimer::RoundTimerSetupThink( void )
 {
+	float flLastTime = m_flLastTime;
+	m_flLastTime = GetTimeRemaining();
+
 	if ( TeamplayRoundBasedRules()->IsInPreMatch() == true && IsDisabled() == false )
 	{
 		inputdata_t data;
@@ -796,6 +800,22 @@ void CTeamRoundTimer::RoundTimerSetupThink( void )
 
 	float flTime = GetTimeRemaining();
 	TeamplayRoundBasedRules()->SetOvertime( false );
+
+	if ( m_flLastTime > 0.f )
+	{
+		int nLastSecond = floor( flLastTime );
+		int nThisSecond = floor( flTime );
+
+		if ( nLastSecond != nThisSecond )
+		{
+			IGameEvent *event = gameeventmanager->CreateEvent( "teamplay_pre_round_time_left" );
+			if ( event )
+			{
+				event->SetInt( "time", nThisSecond );
+				gameeventmanager->FireEvent( event );
+			}
+		}
+	}
 
 	if ( flTime <= 0.0f && m_bFireFinished )
 	{
@@ -1291,14 +1311,14 @@ void CTeamRoundTimer::InputAddTeamTime( inputdata_t &input )
 
 	// get the team
 	p = nexttoken( token, p, ' ' );
-	if ( token )
+	if ( token[0] )
 	{
 		nTeam = Q_atoi( token );
 	}
 
 	// get the time
 	p = nexttoken( token, p, ' ' );
-	if ( token )
+	if ( token[0] )
 	{
 		nSeconds = Q_atoi( token );
 	}

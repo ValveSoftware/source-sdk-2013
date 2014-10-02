@@ -13,17 +13,6 @@
 #include <vgui_controls/Menu.h>
 #include <vgui_controls/MessageBox.h>
 
-#include <tier0/memdbgoff.h>
-#include <tier0/valve_minmax_off.h>
-#include "htmlmessages.pb.h"
-#include <tier0/valve_minmax_on.h>
-#include <tier0/memdbgon.h>
-
-#include "html/ipainthtml.h"
-#include "html/ihtmlchrome.h"
-#include "html/ichromehtmlwrapper.h"
-#include "html/htmlprotobuf.h"
-
 #include "filesystem.h"
 #include "../vgui2/src/vgui_key_translation.h"
 
@@ -37,20 +26,6 @@
 
 using namespace vgui;
 
-// helper to send IPC messages to the CEF thread
-#define DISPATCH_MESSAGE( eCmd ) \
-	if (surface()->AccessChromeHTMLController()) \
-	{ \
-		cmd.Body().set_browser_handle( m_iBrowser );\
-		HTMLCommandBuffer_t *pBuf = surface()->AccessChromeHTMLController()->GetFreeCommandBuffer( eCmd, m_iBrowser ); \
-		cmd.SerializeCrossProc( &pBuf->m_Buffer ); \
-		if ( m_iBrowser == -1 ) { m_vecPendingMessages.AddToTail( pBuf ); } \
-		else \
-		{ \
-		surface()->AccessChromeHTMLController()->PushCommand( pBuf ); \
-		surface()->AccessChromeHTMLController()->WakeThread(); \
-		}\
-	} \
 
 const int k_nMaxCustomCursors = 2; // the max number of custom cursors we keep cached PER html control
 
@@ -118,7 +93,6 @@ public:
 
 private:
 	HTML *m_pParent;
-	CUtlVector<HTMLCommandBuffer_t *> m_vecPendingMessages;
 };
 
 
@@ -187,7 +161,32 @@ private:
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-HTML::HTML(Panel *parent, const char *name, bool allowJavaScript, bool bPopupWindow) : Panel(parent, name)
+HTML::HTML(Panel *parent, const char *name, bool allowJavaScript, bool bPopupWindow) : Panel(parent, name), 
+m_NeedsPaint( this, &HTML::BrowserNeedsPaint ),
+m_ComboNeedsPaint( this, &HTML::BrowserComboNeedsPaint ),
+m_StartRequest( this, &HTML::BrowserStartRequest ),
+m_URLChanged( this, &HTML::BrowserURLChanged ),
+m_FinishedRequest( this, &HTML::BrowserFinishedRequest ),
+m_ShowPopup( this, &HTML::BrowserShowPopup ),
+m_HidePopup( this, &HTML::BrowserHidePopup ),
+m_SizePopup( this, &HTML::BrowserSizePopup ),
+m_LinkInNewTab( this, &HTML::BrowserOpenNewTab ),
+m_ChangeTitle( this, &HTML::BrowserSetHTMLTitle ),
+m_FileLoadDialog( this, &HTML::BrowserFileLoadDialog ),
+m_SearchResults( this, &HTML::BrowserSearchResults ),
+m_CloseBrowser( this, &HTML::BrowserClose ),
+m_HorizScroll( this, &HTML::BrowserHorizontalScrollBarSizeResponse ),
+m_VertScroll( this, &HTML::BrowserVerticalScrollBarSizeResponse ),
+m_LinkAtPosResp( this, &HTML::BrowserLinkAtPositionResponse ),
+m_JSAlert( this, &HTML::BrowserJSAlert ),
+m_JSConfirm( this, &HTML::BrowserJSConfirm ),
+m_CanGoBackForward( this, &HTML::BrowserCanGoBackandForward ),
+m_NewWindow( this, &HTML::BrowserPopupHTMLWindow ),
+m_SetCursor( this, &HTML::BrowserSetCursor ),
+m_StatusText( this, &HTML::BrowserStatusText ),
+m_ShowTooltip( this, &HTML::BrowserShowToolTip ),
+m_UpdateTooltip( this, &HTML::BrowserUpdateToolTip ),
+m_HideTooltip( this, &HTML::BrowserHideToolTip )
 {
 	m_iHTMLTextureID = 0;
 	m_iComboBoxTextureID = 0;
@@ -197,18 +196,22 @@ HTML::HTML(Panel *parent, const char *name, bool allowJavaScript, bool bPopupWin
 	m_bRequestingDragURL = false;
 	m_bRequestingCopyLink = false;
 	m_flZoom = 100.0f;
-	m_iBrowser = -1;
 	m_bNeedsFullTextureUpload = false;
 
 	m_pInteriorPanel = new HTMLInterior( this );
 	SetPostChildPaintEnabled( true );
-	if (surface() && surface()->AccessChromeHTMLController())
+
+	m_unBrowserHandle = INVALID_HTTMLBROWSER;
+	m_SteamAPIContext.Init();
+	if ( m_SteamAPIContext.SteamHTMLSurface() )
 	{
-		surface()->AccessChromeHTMLController()->CreateBrowser( this, bPopupWindow, surface()->GetWebkitHTMLUserAgentString() );
+		m_SteamAPIContext.SteamHTMLSurface()->Init();
+		SteamAPICall_t hSteamAPICall = m_SteamAPIContext.SteamHTMLSurface()->CreateBrowser( surface()->GetWebkitHTMLUserAgentString(), NULL );
+		m_SteamCallResultBrowserReady.Set( hSteamAPICall, this, &HTML::OnBrowserReady );
 	}
 	else
 	{
-		Warning("Unable to access ChromeHTMLController");
+		Warning("Unable to access SteamHTMLSurface");
 	}
 	m_iScrollBorderX=m_iScrollBorderY=0;
 	m_bScrollBarEnabled = true;
@@ -251,15 +254,31 @@ HTML::HTML(Panel *parent, const char *name, bool allowJavaScript, bool bPopupWin
 
 
 //-----------------------------------------------------------------------------
+// Purpose: browser is ready to show pages
+//-----------------------------------------------------------------------------
+void HTML::OnBrowserReady( HTML_BrowserReady_t *pBrowserReady, bool bIOFailure )
+{
+	m_unBrowserHandle = pBrowserReady->unBrowserHandle;
+	BrowserResize();
+
+	if (!m_sPendingURLLoad.IsEmpty())
+	{
+		PostURL( m_sPendingURLLoad, m_sPendingPostData, false );
+		m_sPendingURLLoad.Clear();
+	}
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose: Destructor
 //-----------------------------------------------------------------------------
 HTML::~HTML()
 {
 	m_pContextMenu->MarkForDeletion();
 
-	if (surface()->AccessChromeHTMLController())
+	if ( m_SteamAPIContext.SteamHTMLSurface() )
 	{
-		surface()->AccessChromeHTMLController()->RemoveBrowser( this );
+		m_SteamAPIContext.SteamHTMLSurface()->RemoveBrowser( m_unBrowserHandle );
 	}
 	
 	FOR_EACH_VEC( m_vecHCursor, i )
@@ -412,138 +431,11 @@ void HTML::OnMove()
 	// tell cef where we are on the screen so plugins can correctly render
 	int nPanelAbsX, nPanelAbsY;
 	ipanel()->GetAbsPos( GetVPanel(), nPanelAbsX, nPanelAbsY );
-	CHTMLProtoBufMsg<CMsgBrowserPosition> cmd( eHTMLCommands_BrowserPosition );
-	cmd.Body().set_x( nPanelAbsX );
-	cmd.Body().set_y( nPanelAbsY );
-	DISPATCH_MESSAGE( eHTMLCommands_BrowserPosition );
 
 	if ( m_pComboBoxHost && m_pComboBoxHost->IsVisible() )
 	{
 		m_pComboBoxHost->SetVisible( false );
 	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: calculates the need for and position of both horizontal and vertical scroll bars
-//-----------------------------------------------------------------------------
-void HTML::CalcScrollBars(int w, int h)
-{
-	bool bScrollbarVisible = _vbar->IsVisible();
-
-	if ( m_bScrollBarEnabled )
-	{
-		for ( int i = 0; i < 2; i++ )
-		{
-			int scrollx, scrolly, scrollwide, scrolltall;
-			bool bVisible = false;
-			if ( i==0 )
-			{
-				scrollx = m_scrollHorizontal.m_nX;
-				scrolly = m_scrollHorizontal.m_nY;
-				scrollwide = m_scrollHorizontal.m_nWide;
-				scrolltall = m_scrollHorizontal.m_nTall;
-				bVisible = m_scrollHorizontal.m_bVisible;
-
-				// scrollbar positioning tweaks - should be moved into a resource file
-				scrollwide += 14;
-				scrolltall += 5;
-			}
-			else
-			{
-				scrollx = m_scrollVertical.m_nX;
-				scrolly = m_scrollVertical.m_nY;
-				scrollwide = m_scrollVertical.m_nWide;
-				scrolltall = m_scrollVertical.m_nTall;
-				bVisible = m_scrollVertical.m_bVisible;
-
-				// scrollbar positioning tweaks - should be moved into a resource file
-				//scrollx -= 3;
-				if ( m_scrollHorizontal.m_bVisible )
-					scrolltall += 16;
-				else
-					scrolltall -= 2;
-
-				scrollwide += 5;
-			}
-			
-			if ( bVisible && scrollwide && scrolltall )
-			{
-				int panelWide, panelTall;
-				GetSize( panelWide, panelTall );
-
-				ScrollBar *bar = _vbar; 
-				if ( i == 0 )
-					bar = _hbar;
-				
-				if (!bar->IsVisible())
-				{
-					bar->SetVisible(true);
-					// displayable area has changed, need to force an update
-					PostMessage(this, new KeyValues("OnSliderMoved"), 0.02f);
-				}
-
-				int rangeWindow = panelTall - scrollwide;
-				if ( i==0 )
-					rangeWindow = panelWide - scrolltall;
-				int range = m_scrollVertical.m_nMax + m_scrollVertical.m_nTall;
-				if ( i == 0 )
-					range = m_scrollHorizontal.m_nMax + m_scrollVertical.m_nWide;
-				int curValue = m_scrollVertical.m_nScroll;
-				if ( i == 0 )
-					curValue = m_scrollHorizontal.m_nScroll;
-
-				bar->SetEnabled(false);
-				bar->SetRangeWindow( rangeWindow );
-				bar->SetRange( 0, range ); // we want the range [0.. (img_h - h)], but the scrollbar actually returns [0..(range-rangeWindow)] so make sure -h gets deducted from the max range value	
-				bar->SetButtonPressedScrollValue( 5 );
-				if ( curValue > ( bar->GetValue() + 5 ) || curValue < (bar->GetValue() - 5 ) )
-					bar->SetValue( curValue );
-
-				if ( i == 0 )
-				{
-					bar->SetPos( 0, h - scrolltall - 1 );
-					bar->SetWide( scrollwide );
-					bar->SetTall( scrolltall );
-				}
-				else
-				{
-					bar->SetPos( w - scrollwide, 0 );
-					bar->SetTall( scrolltall );
-					bar->SetWide( scrollwide );
-				}
-
-				if ( i == 0 )
-					m_iScrollBorderY=scrolltall;
-				else
-					m_iScrollBorderX=scrollwide;
-			}
-			else
-			{
-				if ( i == 0 )
-				{
-					m_iScrollBorderY=0;
-					_hbar->SetVisible( false );
-				}
-				else
-				{
-					m_iScrollBorderX=0;
-					_vbar->SetVisible( false );
-
-				}
-			}
-		}
-	}
-	else
-	{
-		m_iScrollBorderX = 0;
-		m_iScrollBorderY=0;
-		_vbar->SetVisible(false);
-		_hbar->SetVisible(false);
-	}
-
-	if ( bScrollbarVisible != _vbar->IsVisible() )
-		InvalidateLayout();
 }
 
 
@@ -560,7 +452,7 @@ void HTML::OpenURL(const char *URL, const char *postData, bool force)
 //-----------------------------------------------------------------------------
 void HTML::PostURL(const char *URL, const char *pchPostData, bool force)
 {
-	if ( m_iBrowser < 0 )
+	if ( m_unBrowserHandle == INVALID_HTTMLBROWSER )
 	{
 		m_sPendingURLLoad = URL;
 		m_sPendingPostData = pchPostData;
@@ -587,33 +479,27 @@ void HTML::PostURL(const char *URL, const char *pchPostData, bool force)
 			g_pFullFileSystem->GetLocalPath( baseDir, fileLocation, sizeof(fileLocation) );
 			Q_snprintf(htmlLocation, sizeof(htmlLocation), "file://%s", fileLocation);
 	
-			CHTMLProtoBufMsg<CMsgPostURL> cmd( eHTMLCommands_PostURL );
-			cmd.Body().set_url( htmlLocation );
-			DISPATCH_MESSAGE( eHTMLCommands_PostURL );
-
+			if (m_SteamAPIContext.SteamHTMLSurface())
+				m_SteamAPIContext.SteamHTMLSurface()->LoadURL( m_unBrowserHandle, htmlLocation, NULL );
 		}
 		else
 		{
-			CHTMLProtoBufMsg<CMsgPostURL> cmd( eHTMLCommands_PostURL );
-			cmd.Body().set_url( URL );
-			DISPATCH_MESSAGE( eHTMLCommands_PostURL );
+			if (m_SteamAPIContext.SteamHTMLSurface())
+				m_SteamAPIContext.SteamHTMLSurface()->LoadURL( m_unBrowserHandle, URL, NULL );
 		}
 	}
 	else
 	{
 		if ( pchPostData && Q_strlen(pchPostData) > 0 )
 		{
-			CHTMLProtoBufMsg<CMsgPostURL> cmd( eHTMLCommands_PostURL );
-			cmd.Body().set_url( URL );
-			cmd.Body().set_post( pchPostData );
-			DISPATCH_MESSAGE( eHTMLCommands_PostURL );
+			if (m_SteamAPIContext.SteamHTMLSurface())
+				m_SteamAPIContext.SteamHTMLSurface()->LoadURL( m_unBrowserHandle, URL, pchPostData );
 
 		}
 		else
 		{			
-			CHTMLProtoBufMsg<CMsgPostURL> cmd( eHTMLCommands_PostURL );
-			cmd.Body().set_url( URL );
-			DISPATCH_MESSAGE( eHTMLCommands_PostURL );
+			if (m_SteamAPIContext.SteamHTMLSurface())
+				m_SteamAPIContext.SteamHTMLSurface()->LoadURL( m_unBrowserHandle, URL, NULL );
 		}
 	}
 }
@@ -624,8 +510,8 @@ void HTML::PostURL(const char *URL, const char *pchPostData, bool force)
 //-----------------------------------------------------------------------------
 bool HTML::StopLoading()
 {
-	CHTMLProtoBufMsg<CMsgStopLoad> cmd( eHTMLCommands_StopLoad );
-	DISPATCH_MESSAGE( eHTMLCommands_StopLoad );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->StopLoad( m_unBrowserHandle );
 	return true;
 }
 
@@ -635,8 +521,8 @@ bool HTML::StopLoading()
 //-----------------------------------------------------------------------------
 bool HTML::Refresh()
 {
-	CHTMLProtoBufMsg<CMsgReload> cmd( eHTMLCommands_Reload );
-	DISPATCH_MESSAGE( eHTMLCommands_Reload );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->Reload( m_unBrowserHandle );
 	return true;
 }
 
@@ -646,8 +532,8 @@ bool HTML::Refresh()
 //-----------------------------------------------------------------------------
 void HTML::GoBack()
 {
-	CHTMLProtoBufMsg<CMsgGoBack> cmd( eHTMLCommands_GoBack );
-	DISPATCH_MESSAGE( eHTMLCommands_GoBack );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->GoBack( m_unBrowserHandle );
 }
 
 
@@ -656,8 +542,8 @@ void HTML::GoBack()
 //-----------------------------------------------------------------------------
 void HTML::GoForward()
 {
-	CHTMLProtoBufMsg<CMsgGoForward> cmd( eHTMLCommands_GoForward );
-	DISPATCH_MESSAGE( eHTMLCommands_GoForward );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->GoForward( m_unBrowserHandle );
 }
 
 
@@ -686,15 +572,6 @@ void HTML::OnSizeChanged(int wide,int tall)
 {
 	BaseClass::OnSizeChanged(wide,tall);
 	UpdateSizeAndScrollBars();
-	UpdateCachedHTMLValues();
-#ifdef WIN32
-	// under windows we get stuck in the windows message loop pushing out WM_WINDOWPOSCHANGED without returning in the windproc loop
-	// so we need to manually pump the html dispatching of messages here
-	if ( surface() && surface()->AccessChromeHTMLController() )
-	{
-		surface()->AccessChromeHTMLController()->RunFrame();
-	}
-#endif
 }
 
 
@@ -703,9 +580,8 @@ void HTML::OnSizeChanged(int wide,int tall)
 //-----------------------------------------------------------------------------
 void HTML::RunJavascript( const char *pchScript )
 {
-	CHTMLProtoBufMsg<CMsgExecuteJavaScript> cmd( eHTMLCommands_ExecuteJavaScript );
-	cmd.Body().set_script( pchScript );
-	DISPATCH_MESSAGE( eHTMLCommands_ExecuteJavaScript );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->ExecuteJavascript( m_unBrowserHandle, pchScript );
 }
 
 
@@ -714,21 +590,19 @@ void HTML::RunJavascript( const char *pchScript )
 //-----------------------------------------------------------------------------
 // Purpose: helper to convert UI mouse codes to CEF ones
 //-----------------------------------------------------------------------------
-int ConvertMouseCodeToCEFCode( MouseCode code )
+ISteamHTMLSurface::EHTMLMouseButton ConvertMouseCodeToCEFCode( MouseCode code )
 {
 	switch( code )
 	{
+	default:
 	case MOUSE_LEFT:
-		return IInputEventHTML::eButtonLeft;
+		return ISteamHTMLSurface::eHTMLMouseButton_Left;
 		break;
 	case MOUSE_RIGHT:
-		return IInputEventHTML::eButtonRight;
+		return ISteamHTMLSurface::eHTMLMouseButton_Right;
 		break;
 	case MOUSE_MIDDLE:
-		return IInputEventHTML::eButtonMiddle;
-		break;
-	default:
-		return IInputEventHTML::eButtonLeft;
+		return ISteamHTMLSurface::eHTMLMouseButton_Middle;
 		break;
 	}
 }
@@ -768,9 +642,8 @@ void HTML::OnMousePressed(MouseCode code)
 	// ignore right clicks if context menu has been disabled
 	if ( code != MOUSE_RIGHT )
 	{
-		CHTMLProtoBufMsg<CMsgMouseDown> cmd( eHTMLCommands_MouseDown );
-		cmd.Body().set_mouse_button( ConvertMouseCodeToCEFCode( code ) );
-		DISPATCH_MESSAGE( eHTMLCommands_MouseDown );
+		if (m_SteamAPIContext.SteamHTMLSurface())
+			m_SteamAPIContext.SteamHTMLSurface()->MouseDown( m_unBrowserHandle, ConvertMouseCodeToCEFCode( code ) );
 	}
 
 	if ( code == MOUSE_LEFT )
@@ -815,9 +688,8 @@ void HTML::OnMouseReleased(MouseCode code)
 		m_sDragURL = NULL;
 	}
 
-	CHTMLProtoBufMsg<CMsgMouseUp> cmd( eHTMLCommands_MouseUp );
-	cmd.Body().set_mouse_button( ConvertMouseCodeToCEFCode( code ) );
-	DISPATCH_MESSAGE( eHTMLCommands_MouseUp );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->MouseUp( m_unBrowserHandle, ConvertMouseCodeToCEFCode( code ) );
 }
 
 
@@ -832,10 +704,8 @@ void HTML::OnCursorMoved(int x,int y)
 		m_iMouseX = x;
 		m_iMouseY = y;
 
-		CHTMLProtoBufMsg<CMsgMouseMove> cmd( eHTMLCommands_MouseMove );
-		cmd.Body().set_x( m_iMouseX ); 
-		cmd.Body().set_y( m_iMouseY );
-		DISPATCH_MESSAGE( eHTMLCommands_MouseMove );
+		if (m_SteamAPIContext.SteamHTMLSurface())
+			m_SteamAPIContext.SteamHTMLSurface()->MouseMove( m_unBrowserHandle, m_iMouseX, m_iMouseY );
 	}
 	else if ( !m_sDragURL.IsEmpty() )
 	{
@@ -866,9 +736,34 @@ void HTML::OnCursorMoved(int x,int y)
 //-----------------------------------------------------------------------------
 void HTML::OnMouseDoublePressed(MouseCode code)
 {
-	CHTMLProtoBufMsg<CMsgMouseDblClick> cmd( eHTMLCommands_MouseDblClick );
-	cmd.Body().set_mouse_button( ConvertMouseCodeToCEFCode( code ) );
-	DISPATCH_MESSAGE( eHTMLCommands_MouseDblClick );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->MouseDoubleClick( m_unBrowserHandle, ConvertMouseCodeToCEFCode( code ) );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: return the bitmask of any modifier keys that are currently down
+//-----------------------------------------------------------------------------
+int GetKeyModifiers()
+{
+	// Any time a key is pressed reset modifier list as well
+	int nModifierCodes = 0;
+	if (vgui::input()->IsKeyDown( KEY_LCONTROL ) || vgui::input()->IsKeyDown( KEY_RCONTROL ))
+		nModifierCodes |= ISteamHTMLSurface::eHTMLKeyModifier_CrtlDown;
+
+	if (vgui::input()->IsKeyDown( KEY_LALT ) || vgui::input()->IsKeyDown( KEY_RALT ))
+		nModifierCodes |= ISteamHTMLSurface::eHTMLKeyModifier_AltDown;
+
+	if (vgui::input()->IsKeyDown( KEY_LSHIFT ) || vgui::input()->IsKeyDown( KEY_RSHIFT ))
+		nModifierCodes |= ISteamHTMLSurface::eHTMLKeyModifier_ShiftDown;
+
+#ifdef OSX
+	// for now pipe through the cmd-key to be like the control key so we get copy/paste
+	if (vgui::input()->IsKeyDown( KEY_LWIN ) || vgui::input()->IsKeyDown( KEY_RWIN ))
+		nModifierCodes |= ISteamHTMLSurface::eHTMLKeyModifier_CrtlDown;
+#endif
+
+	return nModifierCodes;
 }
 
 
@@ -877,9 +772,8 @@ void HTML::OnMouseDoublePressed(MouseCode code)
 //-----------------------------------------------------------------------------
 void HTML::OnKeyTyped(wchar_t unichar)
 {
-	CHTMLProtoBufMsg<CMsgKeyChar> cmd( eHTMLCommands_KeyChar );
-	cmd.Body().set_unichar( unichar );
-	DISPATCH_MESSAGE( eHTMLCommands_KeyChar );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->KeyChar( m_unBrowserHandle, unichar, (ISteamHTMLSurface::EHTMLKeyModifiers)GetKeyModifiers() );
 }
 
 
@@ -951,32 +845,6 @@ bool HTML::FindDialogVisible()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: return the bitmask of any modifier keys that are currently down
-//-----------------------------------------------------------------------------
-int GetKeyModifiers()
-{
-	// Any time a key is pressed reset modifier list as well
-	int nModifierCodes = 0;
-	if( vgui::input()->IsKeyDown( KEY_LCONTROL ) || vgui::input()->IsKeyDown( KEY_RCONTROL ) )
-		nModifierCodes |= IInputEventHTML::CrtlDown;
-
-	if( vgui::input()->IsKeyDown( KEY_LALT ) || vgui::input()->IsKeyDown( KEY_RALT ) )
-		nModifierCodes |= IInputEventHTML::AltDown;
-
-	if( vgui::input()->IsKeyDown( KEY_LSHIFT ) || vgui::input()->IsKeyDown( KEY_RSHIFT ) )
-		nModifierCodes |= IInputEventHTML::ShiftDown;
-
-#ifdef OSX
-	// for now pipe through the cmd-key to be like the control key so we get copy/paste
-	if( vgui::input()->IsKeyDown( KEY_LWIN ) || vgui::input()->IsKeyDown( KEY_RWIN ) )
-		nModifierCodes |= IInputEventHTML::CrtlDown;
-#endif
-
-	return nModifierCodes;
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: passes key presses to the browser 
 //-----------------------------------------------------------------------------
 void HTML::OnKeyCodeTyped(KeyCode code)
@@ -1038,10 +906,8 @@ void HTML::OnKeyCodeTyped(KeyCode code)
 		}
 	}
 
-	CHTMLProtoBufMsg<CMsgKeyDown> cmd( eHTMLCommands_KeyDown );
-	cmd.Body().set_keycode( KeyCode_VGUIToVirtualKey(code) );
-	cmd.Body().set_modifiers( GetKeyModifiers() );
-	DISPATCH_MESSAGE( eHTMLCommands_KeyDown );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->KeyDown( m_unBrowserHandle, KeyCode_VGUIToVirtualKey(code), (ISteamHTMLSurface::EHTMLKeyModifiers)GetKeyModifiers() );
 }
 
 
@@ -1050,10 +916,8 @@ void HTML::OnKeyCodeTyped(KeyCode code)
 //-----------------------------------------------------------------------------
 void HTML::OnKeyCodeReleased(KeyCode code)
 {
-	CHTMLProtoBufMsg<CMsgKeyDown> cmd( eHTMLCommands_KeyUp );
-	cmd.Body().set_keycode( KeyCode_VGUIToVirtualKey(code) );
-	cmd.Body().set_modifiers( GetKeyModifiers() );
-	DISPATCH_MESSAGE( eHTMLCommands_KeyUp );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->KeyUp( m_unBrowserHandle, KeyCode_VGUIToVirtualKey( code ), (ISteamHTMLSurface::EHTMLKeyModifiers)GetKeyModifiers() );
 }
 
 
@@ -1069,9 +933,8 @@ void HTML::OnMouseWheeled(int delta)
 		_vbar->SetValue(val);
 	}
 
-	CHTMLProtoBufMsg<CMsgMouseWheel> cmd( eHTMLCommands_MouseWheel );
-	cmd.Body().set_delta( delta );
-	DISPATCH_MESSAGE( eHTMLCommands_MouseWheel );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->MouseWheel( m_unBrowserHandle, delta* 100.0/3.0 );
 }
 
 
@@ -1091,6 +954,9 @@ void HTML::AddCustomURLHandler(const char *customProtocolName, vgui::Panel *targ
 //-----------------------------------------------------------------------------
 void HTML::BrowserResize()
 {
+	if (m_unBrowserHandle == INVALID_HTTMLBROWSER)
+		return;
+
 	int w,h;
 	GetSize( w, h );
 	int right = 0, bottom = 0;
@@ -1104,6 +970,7 @@ void HTML::BrowserResize()
 	}
 	*/
 
+
 	if ( m_iWideLastHTMLSize != (  w - m_iScrollBorderX - right ) || m_iTalLastHTMLSize != ( h - m_iScrollBorderY - bottom ) )
 	{
 		m_iWideLastHTMLSize = w - m_iScrollBorderX - right;
@@ -1115,10 +982,8 @@ void HTML::BrowserResize()
 		}
 
 		{
-			CHTMLProtoBufMsg<CMsgBrowserSize> cmd( eHTMLCommands_BrowserSize );
-			cmd.Body().set_width( m_iWideLastHTMLSize );
-			cmd.Body().set_height( m_iTalLastHTMLSize );
-			DISPATCH_MESSAGE( eHTMLCommands_BrowserSize );
+			if (m_SteamAPIContext.SteamHTMLSurface())
+				m_SteamAPIContext.SteamHTMLSurface()->SetSize( m_unBrowserHandle, m_iWideLastHTMLSize, m_iTalLastHTMLSize );
 		}
 
 	
@@ -1127,16 +992,10 @@ void HTML::BrowserResize()
 		int scrollV = _vbar->GetValue();
 		int scrollH = _hbar->GetValue();
 
-		{
-			CHTMLProtoBufMsg<CMsgSetHorizontalScroll> cmd( eHTMLCommands_SetHorizontalScroll );
-			cmd.Body().set_scroll( scrollH );
-			DISPATCH_MESSAGE( eHTMLCommands_SetHorizontalScroll );
-		}
-		{
-			CHTMLProtoBufMsg<CMsgSetVerticalScroll> cmd( eHTMLCommands_SetVerticalScroll );
-			cmd.Body().set_scroll( scrollV );
-			DISPATCH_MESSAGE( eHTMLCommands_SetVerticalScroll );
-		}
+		if (m_SteamAPIContext.SteamHTMLSurface())
+			m_SteamAPIContext.SteamHTMLSurface()->SetHorizontalScroll( m_unBrowserHandle, scrollH );
+		if (m_SteamAPIContext.SteamHTMLSurface())
+			m_SteamAPIContext.SteamHTMLSurface()->SetVerticalScroll( m_unBrowserHandle, scrollV );
 	}
 
 }
@@ -1149,18 +1008,16 @@ void HTML::OnSliderMoved()
 {
 	if(_hbar->IsVisible())
 	{
-		int scrollX =_hbar->GetValue();
-		CHTMLProtoBufMsg<CMsgSetHorizontalScroll> cmd( eHTMLCommands_SetHorizontalScroll );
-		cmd.Body().set_scroll( scrollX );
-		DISPATCH_MESSAGE( eHTMLCommands_SetHorizontalScroll );
+		int scrollX = _hbar->GetValue();
+		if (m_SteamAPIContext.SteamHTMLSurface())
+			m_SteamAPIContext.SteamHTMLSurface()->SetHorizontalScroll( m_unBrowserHandle, scrollX );
 	}
 
 	if(_vbar->IsVisible())
 	{
 		int scrollY=_vbar->GetValue();
-		CHTMLProtoBufMsg<CMsgSetVerticalScroll> cmd( eHTMLCommands_SetVerticalScroll );
-		cmd.Body().set_scroll( scrollY );
-		DISPATCH_MESSAGE( eHTMLCommands_SetVerticalScroll );
+		if (m_SteamAPIContext.SteamHTMLSurface())
+			m_SteamAPIContext.SteamHTMLSurface()->SetVerticalScroll( m_unBrowserHandle, scrollY );
 	}
 	
 	// post a message that the slider has moved
@@ -1241,10 +1098,8 @@ void HTML::PostChildPaint()
 //-----------------------------------------------------------------------------
 void HTML::AddHeader( const char *pchHeader, const char *pchValue )
 {
-	CHTMLProtoBufMsg<CMsgAddHeader> cmd( eHTMLCommands_AddHeader );
-	cmd.Body().set_key( pchHeader );
-	cmd.Body().set_value( pchValue );
-	DISPATCH_MESSAGE( eHTMLCommands_AddHeader );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->AddHeader( m_unBrowserHandle, pchHeader, pchValue );
 }
 
 
@@ -1253,10 +1108,10 @@ void HTML::AddHeader( const char *pchHeader, const char *pchValue )
 //-----------------------------------------------------------------------------
 void HTML::OnSetFocus()
 {
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->SetKeyFocus( m_unBrowserHandle, true );
+
 	BaseClass::OnSetFocus();
-	CHTMLProtoBufMsg<CMsgSetFocus> cmd( eHTMLCommands_SetFocus );
-	cmd.Body().set_focus( true );
-	DISPATCH_MESSAGE( eHTMLCommands_SetFocus );
 }
 
 
@@ -1275,9 +1130,8 @@ void HTML::OnKillFocus()
 	if ( m_pComboBoxHost->HasFocus() )
 		return;
 
-	CHTMLProtoBufMsg<CMsgSetFocus> cmd( eHTMLCommands_SetFocus );
-	cmd.Body().set_focus( false );
-	DISPATCH_MESSAGE( eHTMLCommands_SetFocus );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->SetKeyFocus( m_unBrowserHandle, false );
 }
 
 
@@ -1304,18 +1158,18 @@ void HTML::OnCommand( const char *pchCommand )
 	}
 	else if ( !Q_stricmp( pchCommand, "viewsource" ) )
 	{
-		CHTMLProtoBufMsg<CMsgViewSource> cmd( eHTMLCommands_ViewSource );
-		DISPATCH_MESSAGE( eHTMLCommands_ViewSource );
+		if (m_SteamAPIContext.SteamHTMLSurface())
+			m_SteamAPIContext.SteamHTMLSurface()->ViewSource( m_unBrowserHandle );
 	}
 	else if ( !Q_stricmp( pchCommand, "copy" ) )
 	{
-		CHTMLProtoBufMsg<CMsgCopy> cmd( eHTMLCommands_Copy );
-		DISPATCH_MESSAGE( eHTMLCommands_Copy );
+		if (m_SteamAPIContext.SteamHTMLSurface())
+			m_SteamAPIContext.SteamHTMLSurface()->CopyToClipboard( m_unBrowserHandle );
 	}
 	else if ( !Q_stricmp( pchCommand, "paste" ) )
 	{
-		CHTMLProtoBufMsg<CMsgPaste> cmd( eHTMLCommands_Paste );
-		DISPATCH_MESSAGE( eHTMLCommands_Paste );
+		if (m_SteamAPIContext.SteamHTMLSurface())
+			m_SteamAPIContext.SteamHTMLSurface()->PasteFromClipboard( m_unBrowserHandle );
 	}
 	else if ( !Q_stricmp( pchCommand, "copyurl" ) )
 	{
@@ -1342,9 +1196,10 @@ void HTML::OnCommand( const char *pchCommand )
 //-----------------------------------------------------------------------------
 void HTML::OnFileSelected( const char *pchSelectedFile )
 {
-	CHTMLProtoBufMsg<CMsgFileLoadDialogResponse> cmd( eHTMLCommands_FileLoadDialogResponse );
-	cmd.Body().add_files( pchSelectedFile );
-	DISPATCH_MESSAGE( eHTMLCommands_FileLoadDialogResponse );
+	const char *ppchSelectedFiles[] = { pchSelectedFile, NULL };
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->FileLoadDialogResponse( m_unBrowserHandle , ppchSelectedFiles );
+
 	m_hFileOpenDialog->Close();
 }
 
@@ -1353,8 +1208,9 @@ void HTML::OnFileSelected( const char *pchSelectedFile )
 //-----------------------------------------------------------------------------
 void HTML::OnFileSelectionCancelled()
 {
-	CHTMLProtoBufMsg<CMsgFileLoadDialogResponse> cmd( eHTMLCommands_FileLoadDialogResponse );
-	DISPATCH_MESSAGE( eHTMLCommands_FileLoadDialogResponse );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->FileLoadDialogResponse( m_unBrowserHandle, NULL );
+
 	m_hFileOpenDialog->Close();
 }
 
@@ -1369,10 +1225,8 @@ void HTML::Find( const char *pchSubStr )
 
 	m_sLastSearchString = pchSubStr;
 
-	CHTMLProtoBufMsg<CMsgFind> cmd( eHTMLCommands_Find );
-	cmd.Body().set_find( pchSubStr );
-	cmd.Body().set_infind( m_bInFind );
-	DISPATCH_MESSAGE( eHTMLCommands_Find );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->Find( m_unBrowserHandle, pchSubStr, m_bInFind, false );
 }
 
 
@@ -1381,11 +1235,8 @@ void HTML::Find( const char *pchSubStr )
 //-----------------------------------------------------------------------------
 void HTML::FindPrevious()
 {
-	CHTMLProtoBufMsg<CMsgFind> cmd( eHTMLCommands_Find );
-	cmd.Body().set_find( m_sLastSearchString );
-	cmd.Body().set_infind( m_bInFind );
-	cmd.Body().set_reverse( true );
-	DISPATCH_MESSAGE( eHTMLCommands_Find );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->Find( m_unBrowserHandle, m_sLastSearchString, m_bInFind, true );
 }
 
 
@@ -1403,9 +1254,8 @@ void HTML::FindNext()
 //-----------------------------------------------------------------------------
 void HTML::StopFind( )
 {
-	CHTMLProtoBufMsg<CMsgStopFind> cmd( eHTMLCommands_StopFind );
-	DISPATCH_MESSAGE( eHTMLCommands_StopFind );
-
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->StopFind( m_unBrowserHandle );
 	m_bInFind = false;
 }
 
@@ -1456,11 +1306,7 @@ void HTMLComboBoxHost::OnCursorMoved(int x,int y)
 	// Only do this when we are over the current panel
 	if ( vgui::input()->GetMouseOver() == GetVPanel() )
 	{
-		int m_iBrowser = m_pParent->BrowserGetIndex();
-		CHTMLProtoBufMsg<CMsgMouseMove> cmd( eHTMLCommands_MouseMove );
-		cmd.Body().set_x( x ); 
-		cmd.Body().set_y( y );
-		DISPATCH_MESSAGE( eHTMLCommands_MouseMove );
+		m_pParent->OnHTMLMouseMoved( x, y );
 	}
 }
 
@@ -1548,92 +1394,11 @@ void HTML::CHTMLFindBar::OnCommand( const char *pchCmd )
 
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: TEMPORARY WORKAROUND FOR VS2005 INTERFACE ISSUES
-//-----------------------------------------------------------------------------
-#define TMP_HTML_MSG_FUNC( eHTMLCommand, bodyType, commandFunc ) \
-	case eHTMLCommand: \
-	{ \
-		CHTMLProtoBufMsg< bodyType > cmd( pCmd->m_eCmd ); \
-		if ( cmd.BDeserializeCrossProc( &pCmd->m_Buffer ) ) \
-			commandFunc( &cmd.BodyConst() ); \
-	} \
-	break;  \
-
-void HTML::_DeserializeAndDispatch( HTMLCommandBuffer_t *pCmd )
-{
-	switch ( pCmd->m_eCmd )
-	{
-	default:
-		break;
-	TMP_HTML_MSG_FUNC( eHTMLCommands_BrowserReady, CMsgBrowserReady, BrowserReady );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_NeedsPaint, CMsgNeedsPaint, BrowserNeedsPaint );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_StartRequest, CMsgStartRequest, BrowserStartRequest );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_URLChanged, CMsgURLChanged, BrowserURLChanged );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_FinishedRequest, CMsgFinishedRequest, BrowserFinishedRequest );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_ShowPopup, CMsgShowPopup, BrowserShowPopup );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_HidePopup, CMsgHidePopup, BrowserHidePopup );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_OpenNewTab, CMsgOpenNewTab, BrowserOpenNewTab );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_PopupHTMLWindow, CMsgPopupHTMLWindow, BrowserPopupHTMLWindow );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_SetHTMLTitle, CMsgSetHTMLTitle, BrowserSetHTMLTitle );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_LoadingResource, CMsgLoadingResource, BrowserLoadingResource );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_StatusText, CMsgStatusText, BrowserStatusText );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_SetCursor, CMsgSetCursor, BrowserSetCursor );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_FileLoadDialog, CMsgFileLoadDialog, BrowserFileLoadDialog );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_ShowToolTip, CMsgShowToolTip, BrowserShowToolTip );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_UpdateToolTip, CMsgUpdateToolTip, BrowserUpdateToolTip );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_HideToolTip, CMsgHideToolTip, BrowserHideToolTip );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_SearchResults, CMsgSearchResults, BrowserSearchResults );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_Close, CMsgClose, BrowserClose );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_GetZoomResponse, CMsgGetZoomResponse, BrowserGetZoomResponse );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_HorizontalScrollBarSizeResponse, CMsgHorizontalScrollBarSizeResponse, BrowserHorizontalScrollBarSizeResponse );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_VerticalScrollBarSizeResponse, CMsgVerticalScrollBarSizeResponse, BrowserVerticalScrollBarSizeResponse );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_LinkAtPositionResponse, CMsgLinkAtPositionResponse, BrowserLinkAtPositionResponse );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_ZoomToElementAtPositionResponse, CMsgZoomToElementAtPositionResponse, BrowserZoomToElementAtPositionResponse );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_JSAlert, CMsgJSAlert, BrowserJSAlert );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_JSConfirm, CMsgJSConfirm, BrowserJSConfirm );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_OpenSteamURL, CMsgOpenSteamURL, BrowserOpenSteamURL );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_CanGoBackandForward, CMsgCanGoBackAndForward, BrowserCanGoBackandForward );
-	TMP_HTML_MSG_FUNC( eHTMLCommands_SizePopup, CMsgSizePopup, BrowserSizePopup );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: browser has been constructed on the cef thread, lets use it
-//-----------------------------------------------------------------------------
-void HTML::BrowserReady( const CMsgBrowserReady *pCmd )
-{
-	const char *pchTitle = g_pVGuiLocalize->FindAsUTF8( "#cef_error_title" );
-	const char *pchHeader = g_pVGuiLocalize->FindAsUTF8( "#cef_error_header" );
-	const char *pchDetailCacheMiss = g_pVGuiLocalize->FindAsUTF8( "#cef_cachemiss" );
-	const char *pchDetailBadUURL = g_pVGuiLocalize->FindAsUTF8( "#cef_badurl" );
-	const char *pchDetailConnectionProblem = g_pVGuiLocalize->FindAsUTF8( "#cef_connectionproblem" );
-	const char *pchDetailProxyProblem = g_pVGuiLocalize->FindAsUTF8( "#cef_proxyconnectionproblem" );
-	const char *pchDetailUnknown = g_pVGuiLocalize->FindAsUTF8( "#cef_unknown" );
-
-	// tell it utf8 loc strings to use
-	CHTMLProtoBufMsg<CMsgBrowserErrorStrings> cmd( eHTMLCommands_BrowserErrorStrings );
-	cmd.Body().set_title( pchTitle );
-	cmd.Body().set_header( pchHeader );
-	cmd.Body().set_cache_miss( pchDetailCacheMiss );
-	cmd.Body().set_bad_url( pchDetailBadUURL );
-	cmd.Body().set_connection_problem( pchDetailConnectionProblem );
-	cmd.Body().set_proxy_problem( pchDetailProxyProblem );
-	cmd.Body().set_unknown( pchDetailUnknown );
-	DISPATCH_MESSAGE( eHTMLCommands_BrowserErrorStrings );
-
-	if ( !m_sPendingURLLoad.IsEmpty() )
-	{
-		PostURL( m_sPendingURLLoad, m_sPendingPostData, false );
-		m_sPendingURLLoad.Clear();
-	}
-}
-
 
 //-----------------------------------------------------------------------------
 // Purpose: we have a new texture to update
 //-----------------------------------------------------------------------------
-void HTML::BrowserNeedsPaint( const CMsgNeedsPaint *pCmd )
+void HTML::BrowserNeedsPaint( HTML_NeedsPaint_t *pCallback )
 {
 	int tw = 0, tt = 0;
 	if ( m_iHTMLTextureID != 0 )
@@ -1642,18 +1407,14 @@ void HTML::BrowserNeedsPaint( const CMsgNeedsPaint *pCmd )
 		tt = m_allocedTextureHeight;
 	}
 
-	if ( m_iHTMLTextureID != 0 && ( ( _vbar->IsVisible() && pCmd->scrolly() > 0 && abs( (int)pCmd->scrolly() - m_scrollVertical.m_nScroll) > 5 ) || ( _hbar->IsVisible() && pCmd->scrollx() > 0 && abs( (int)pCmd->scrollx() - m_scrollHorizontal.m_nScroll ) > 5 ) ) )
+	if ( m_iHTMLTextureID != 0 && ( ( _vbar->IsVisible() && pCallback->unScrollY > 0 && abs( (int)pCallback->unScrollY - m_scrollVertical.m_nScroll) > 5 ) || ( _hbar->IsVisible() && pCallback->unScrollX > 0 && abs( (int)pCallback->unScrollX - m_scrollHorizontal.m_nScroll ) > 5 ) ) )
 	{
-		// this isn't an update from a scroll position we expect, ignore it and ask for a refresh of our update pos2
-		CHTMLProtoBufMsg<CMsgNeedsPaintResponse> cmd( eHTMLCommands_NeedsPaintResponse );
-		cmd.Body().set_textureid( pCmd->textureid() );
-		DISPATCH_MESSAGE( eHTMLCommands_NeedsPaintResponse );
 		m_bNeedsFullTextureUpload = true;
 		return;
 	}
 
 	// update the vgui texture
-	if ( m_bNeedsFullTextureUpload || m_iHTMLTextureID == 0  || tw != (int)pCmd->wide() || tt != (int)pCmd->tall() )
+	if ( m_bNeedsFullTextureUpload || m_iHTMLTextureID == 0  || tw != (int)pCallback->unWide || tt != (int)pCallback->unTall )
 	{
 		m_bNeedsFullTextureUpload = false;
 		if ( m_iHTMLTextureID != 0 )
@@ -1662,22 +1423,33 @@ void HTML::BrowserNeedsPaint( const CMsgNeedsPaint *pCmd )
 		// if the dimensions changed we also need to re-create the texture ID to support the overlay properly (it won't resize a texture on the fly, this is the only control that needs
 		//   to so lets have a tiny bit more code here to support that)
 		m_iHTMLTextureID = surface()->CreateNewTextureID( true );
-		surface()->DrawSetTextureRGBAEx( m_iHTMLTextureID, (const unsigned char *)pCmd->rgba(), pCmd->wide(), pCmd->tall(), IMAGE_FORMAT_BGRA8888 );// BR FIXME - this call seems to shift by some number of pixels?
-		m_allocedTextureWidth = pCmd->wide();
-		m_allocedTextureHeight = pCmd->tall();
+		surface()->DrawSetTextureRGBAEx( m_iHTMLTextureID, (const unsigned char *)pCallback->pBGRA, pCallback->unWide, pCallback->unTall, IMAGE_FORMAT_BGRA8888 );// BR FIXME - this call seems to shift by some number of pixels?
+		m_allocedTextureWidth = pCallback->unWide;
+		m_allocedTextureHeight = pCallback->unTall;
 	}
-	else if ( (int)pCmd->updatewide() > 0 && (int)pCmd->updatetall() > 0 )
+	else if ( (int)pCallback->unUpdateWide > 0 && (int)pCallback->unUpdateTall > 0 )
 	{
 		// same size texture, just bits changing in it, lets twiddle
-		surface()->DrawUpdateRegionTextureRGBA( m_iHTMLTextureID, pCmd->updatex(), pCmd->updatey(), (const unsigned char *)pCmd->rgba(), pCmd->updatewide(), pCmd->updatetall(), IMAGE_FORMAT_BGRA8888 );
+		surface()->DrawUpdateRegionTextureRGBA( m_iHTMLTextureID, pCallback->unUpdateX, pCallback->unUpdateY, (const unsigned char *)pCallback->pBGRA, pCallback->unUpdateWide, pCallback->unUpdateTall, IMAGE_FORMAT_BGRA8888 );
 	}
 	else
 	{
-		surface()->DrawSetTextureRGBAEx( m_iHTMLTextureID, (const unsigned char *)pCmd->rgba(), pCmd->wide(), pCmd->tall(), IMAGE_FORMAT_BGRA8888 );
+		surface()->DrawSetTextureRGBAEx( m_iHTMLTextureID, (const unsigned char *)pCallback->pBGRA,pCallback->unWide, pCallback->unTall, IMAGE_FORMAT_BGRA8888 );
 	}
 
+	// need a paint next time
+	Repaint();
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: we have a new texture to update
+//-----------------------------------------------------------------------------
+void HTML::BrowserComboNeedsPaint( HTML_ComboNeedsPaint_t *pCallback )
+{
 	if ( m_pComboBoxHost->IsVisible() )
 	{
+		int tw = 0, tt = 0;
 		// update the combo box texture also
 		if ( m_iComboBoxTextureID != 0 )
 		{
@@ -1685,7 +1457,7 @@ void HTML::BrowserNeedsPaint( const CMsgNeedsPaint *pCmd )
 			tt = m_allocedComboBoxHeight;
 		}
 
-		if ( m_iComboBoxTextureID == 0  || tw != (int)pCmd->combobox_wide() || tt != (int)pCmd->combobox_tall() )
+		if ( m_iComboBoxTextureID == 0  || tw != (int)pCallback->unWide || tt != (int)pCallback->unTall )
 		{
 			if ( m_iComboBoxTextureID != 0 )
 				surface()->DeleteTextureByID( m_iComboBoxTextureID );
@@ -1693,23 +1465,16 @@ void HTML::BrowserNeedsPaint( const CMsgNeedsPaint *pCmd )
 			// if the dimensions changed we also need to re-create the texture ID to support the overlay properly (it won't resize a texture on the fly, this is the only control that needs
 			//   to so lets have a tiny bit more code here to support that)
 			m_iComboBoxTextureID = surface()->CreateNewTextureID( true );
-			surface()->DrawSetTextureRGBAEx( m_iComboBoxTextureID, (const unsigned char *)pCmd->combobox_rgba(), pCmd->combobox_wide(), pCmd->combobox_tall(), IMAGE_FORMAT_BGRA8888 );
-			m_allocedComboBoxWidth = (int)pCmd->combobox_wide();
-			m_allocedComboBoxHeight = (int)pCmd->combobox_tall();
+			surface()->DrawSetTextureRGBAEx( m_iComboBoxTextureID, (const unsigned char *)pCallback->pBGRA, pCallback->unWide, pCallback->unTall, IMAGE_FORMAT_BGRA8888 );
+			m_allocedComboBoxWidth = (int)pCallback->unWide;
+			m_allocedComboBoxHeight = (int)pCallback->unTall;
 		}
 		else
 		{
 			// same size texture, just bits changing in it, lets twiddle
-			surface()->DrawUpdateRegionTextureRGBA( m_iComboBoxTextureID, 0, 0, (const unsigned char *)pCmd->combobox_rgba(), pCmd->combobox_wide(), pCmd->combobox_tall(), IMAGE_FORMAT_BGRA8888 );
+			surface()->DrawUpdateRegionTextureRGBA( m_iComboBoxTextureID, 0, 0, (const unsigned char *)pCallback->pBGRA, pCallback->unWide, pCallback->unTall, IMAGE_FORMAT_BGRA8888 );
 		}
 	}
-
-	// need a paint next time
-	Repaint();
-
-	CHTMLProtoBufMsg<CMsgNeedsPaintResponse> cmd( eHTMLCommands_NeedsPaintResponse );
-	cmd.Body().set_textureid( pCmd->textureid() );
-	DISPATCH_MESSAGE( eHTMLCommands_NeedsPaintResponse );
 }
 
 
@@ -1771,70 +1536,54 @@ bool HTML::OnStartRequest( const char *url, const char *target, const char *pchP
 //-----------------------------------------------------------------------------
 // Purpose: callback from cef thread, load a url please
 //-----------------------------------------------------------------------------
-void HTML::BrowserStartRequest( const CMsgStartRequest *pCmd )
+void HTML::BrowserStartRequest( HTML_StartRequest_t *pCmd )
 {
-	bool bRes = OnStartRequest( pCmd->url().c_str(), pCmd->target().c_str(), pCmd->postdata().c_str(), pCmd->bisredirect() );
+	bool bRes = OnStartRequest( pCmd->pchURL, pCmd->pchTarget, pCmd->pchPostData, pCmd->bIsRedirect );
 
-	CHTMLProtoBufMsg<CMsgStartRequestResponse> cmd( eHTMLCommands_StartRequestResponse );
-	cmd.Body().set_ballow( bRes );
-	DISPATCH_MESSAGE( eHTMLCommands_StartRequestResponse );
-
-	UpdateCachedHTMLValues();
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->AllowStartRequest( m_unBrowserHandle, bRes );
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: browser went to a new url
 //-----------------------------------------------------------------------------
-void HTML::BrowserURLChanged( const CMsgURLChanged *pCmd )
+void HTML::BrowserURLChanged( HTML_URLChanged_t *pCmd )
 {
-	m_sCurrentURL = pCmd->url().c_str();
+	m_sCurrentURL = pCmd->pchURL;
 
 	KeyValues *pMessage = new KeyValues( "OnURLChanged" );
-	pMessage->SetString( "url", pCmd->url().c_str() );
-	pMessage->SetString( "postdata", pCmd->postdata().c_str() );
-	pMessage->SetInt( "isredirect", pCmd->bisredirect() ? 1 : 0 );
+	pMessage->SetString( "url", pCmd->pchURL );
+	pMessage->SetString( "postdata", pCmd->pchPostData );
+	pMessage->SetInt( "isredirect", pCmd->bIsRedirect ? 1 : 0 );
 
 	PostActionSignal( pMessage );
 
-	OnURLChanged( m_sCurrentURL, pCmd->postdata().c_str(), pCmd->bisredirect() );
+	OnURLChanged( m_sCurrentURL, pCmd->pchPostData, pCmd->bIsRedirect );
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: finished loading this page
 //-----------------------------------------------------------------------------
-void HTML::BrowserFinishedRequest( const CMsgFinishedRequest *pCmd )
+void HTML::BrowserFinishedRequest( HTML_FinishedRequest_t *pCmd )
 {
-	PostActionSignal( new KeyValues( "OnFinishRequest", "url", pCmd->url().c_str() ) );
-	if (  pCmd->pagetitle().length()  )
-		PostActionSignal( new KeyValues( "PageTitleChange", "title", pCmd->pagetitle().c_str() ) );
-	KeyValues *pKVSecure = new KeyValues( "SecurityStatus" );
-	pKVSecure->SetString( "url", pCmd->url().c_str() );
-	pKVSecure->SetInt( "secure", pCmd->security_info().bissecure() );
-	pKVSecure->SetInt( "certerror", pCmd->security_info().bhascerterror() );
-	pKVSecure->SetInt( "isevcert", pCmd->security_info().bisevcert() );
-	pKVSecure->SetString( "certname", pCmd->security_info().certname().c_str() );
-	PostActionSignal( pKVSecure );
+	PostActionSignal( new KeyValues( "OnFinishRequest", "url", pCmd->pchURL ) );
+	if (  pCmd->pchPageTitle && pCmd->pchPageTitle[0] )
+		PostActionSignal( new KeyValues( "PageTitleChange", "title", pCmd->pchPageTitle ) );
 
 	CUtlMap < CUtlString, CUtlString > mapHeaders;
 	SetDefLessFunc( mapHeaders );
-	for ( int i = 0; i < pCmd->headers_size(); i++ )
-	{
-		const CHTMLHeader &header = pCmd->headers(i);
-		mapHeaders.Insert( header.key().c_str(), header.value().c_str() );
-	}
+	// headers are no longer reported on loads
 
-	OnFinishRequest( pCmd->url().c_str(), pCmd->pagetitle().c_str(), mapHeaders );
-
-	UpdateCachedHTMLValues();
+	OnFinishRequest( pCmd->pchURL, pCmd->pchPageTitle, mapHeaders );
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: show a popup dialog
 //-----------------------------------------------------------------------------
-void HTML::BrowserShowPopup( const CMsgShowPopup *pCmd )
+void HTML::BrowserShowPopup( HTML_ShowPopup_t *pCmd )
 {
 	m_pComboBoxHost->SetVisible( true );
 }
@@ -1852,7 +1601,7 @@ void HTML::HidePopup()
 //-----------------------------------------------------------------------------
 // Purpose: browser wants us to hide a popup
 //-----------------------------------------------------------------------------
-void HTML::BrowserHidePopup( const CMsgHidePopup *pCmd )
+void HTML::BrowserHidePopup( HTML_HidePopup_t *pCmd )
 {
 	HidePopup();
 }
@@ -1861,18 +1610,18 @@ void HTML::BrowserHidePopup( const CMsgHidePopup *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: browser wants us to position a popup
 //-----------------------------------------------------------------------------
-void HTML::BrowserSizePopup( const CMsgSizePopup *pCmd )
+void HTML::BrowserSizePopup( HTML_SizePopup_t *pCmd )
 {
 	int nAbsX, nAbsY;
 	ipanel()->GetAbsPos( GetVPanel(), nAbsX, nAbsY );
-	m_pComboBoxHost->SetBounds( pCmd->x() + 1 + nAbsX, pCmd->y() + nAbsY, pCmd->wide(), pCmd->tall() );
+	m_pComboBoxHost->SetBounds( pCmd->unX + 1 + nAbsX, pCmd->unY+ nAbsY, pCmd->unWide, pCmd->unTall );
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: browser wants to open a new tab
 //-----------------------------------------------------------------------------
-void HTML::BrowserOpenNewTab( const CMsgOpenNewTab *pCmd )
+void HTML::BrowserOpenNewTab( HTML_OpenLinkInNewTab_t *pCmd )
 {
 	(pCmd);
 	// Not suppored by default, if a child class overrides us and knows how to handle tabs, then it can do this.
@@ -1882,20 +1631,20 @@ void HTML::BrowserOpenNewTab( const CMsgOpenNewTab *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: display a new html window 
 //-----------------------------------------------------------------------------
-void HTML::BrowserPopupHTMLWindow( const CMsgPopupHTMLWindow *pCmd )
+void HTML::BrowserPopupHTMLWindow( HTML_NewWindow_t *pCmd )
 {
-	HTMLPopup *p = new HTMLPopup( this, pCmd->url().c_str(), "" );
-	int wide = pCmd->wide();
-	int tall = pCmd->tall();
+	HTMLPopup *p = new HTMLPopup( this, pCmd->pchURL, "" );
+	int wide = pCmd->unWide;
+	int tall = pCmd->unTall;
 	if ( wide == 0 || tall == 0 )
 	{
 		wide = MAX( 640, GetWide() );
 		tall = MAX( 480, GetTall() );
 	}
 
-	p->SetBounds( pCmd->x(), pCmd->y(), wide, tall  );
+	p->SetBounds( pCmd->unX, pCmd->unY, wide, tall  );
 	p->SetDeleteSelfOnClose( true );
-	if ( pCmd->x() == 0 || pCmd->y() == 0 )
+	if ( pCmd->unX == 0 || pCmd->unY == 0 )
 		p->MoveToCenterOfScreen();
 	p->Activate();
 
@@ -1905,50 +1654,161 @@ void HTML::BrowserPopupHTMLWindow( const CMsgPopupHTMLWindow *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: browser telling us the page title
 //-----------------------------------------------------------------------------
-void HTML::BrowserSetHTMLTitle( const CMsgSetHTMLTitle *pCmd )
+void HTML::BrowserSetHTMLTitle( HTML_ChangedTitle_t *pCmd )
 {
-	PostMessage( GetParent(), new KeyValues( "OnSetHTMLTitle", "title", pCmd->title().c_str() ) );
-	OnSetHTMLTitle( pCmd->title().c_str() );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: still loading stuff for this page
-//-----------------------------------------------------------------------------
-void HTML::BrowserLoadingResource( const CMsgLoadingResource *pCmd )
-{
-	UpdateCachedHTMLValues();
+	PostMessage( GetParent(), new KeyValues( "OnSetHTMLTitle", "title", pCmd->pchTitle ) );
+	OnSetHTMLTitle( pCmd->pchTitle );
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: status bar details
 //-----------------------------------------------------------------------------
-void HTML::BrowserStatusText( const CMsgStatusText *pCmd )
+void HTML::BrowserStatusText( HTML_StatusText_t *pCmd )
 {
-	PostActionSignal( new KeyValues( "OnSetStatusText", "status", pCmd->text().c_str() ) );
+	PostActionSignal( new KeyValues( "OnSetStatusText", "status", pCmd->pchMsg ) );
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: browser telling us to use this cursor
 //-----------------------------------------------------------------------------
-void HTML::BrowserSetCursor( const CMsgSetCursor *pCmd )
+void HTML::BrowserSetCursor( HTML_SetCursor_t *pCmd )
 {
-	// Mouse cursor value in CMsgSetCursor is set to one of EMouseCursor,
-	// by CChromePainter::OnSetCursor in html_chrome.cpp
-	// Code below relies on start of EMouseCursor being exactly same as vgui::CursorCode  
-	
-	vgui::CursorCode cursor;
-	uint32 msgCursor = pCmd->cursor();
+	vgui::CursorCode cursor = dc_last;
 
-	if ( msgCursor >= (uint32)(dc_last) )
+	switch ( pCmd->eMouseCursor )
+	{
+	case ISteamHTMLSurface::dc_user:
+		cursor = dc_user; 
+		break;
+	case ISteamHTMLSurface::dc_none:
+		cursor = dc_none;
+		break;
+	default:
+	case ISteamHTMLSurface::dc_arrow:
+		cursor = dc_arrow;
+		break;
+	case ISteamHTMLSurface::dc_ibeam:
+		cursor = dc_ibeam;
+		break;
+	case ISteamHTMLSurface::dc_hourglass:
+		cursor = dc_hourglass;
+		break;
+	case ISteamHTMLSurface::dc_waitarrow:
+		cursor = dc_waitarrow;
+		break;
+	case ISteamHTMLSurface::dc_crosshair:
+		cursor = dc_crosshair;
+		break;
+	case ISteamHTMLSurface::dc_up:
+		cursor = dc_up;
+		break;
+	/*case ISteamHTMLSurface::dc_sizenw:
+		cursor = dc_sizenw;
+		break;
+	case ISteamHTMLSurface::dc_sizese:
+		cursor = dc_sizese;
+		break;
+	case ISteamHTMLSurface::dc_sizene:
+		cursor = dc_sizene;
+		break;
+	case ISteamHTMLSurface::dc_sizesw:
+		cursor = dc_sizesw;
+		break;
+	case ISteamHTMLSurface::dc_sizew:
+		cursor = dc_sizew;
+		break;
+	case ISteamHTMLSurface::dc_sizee:
+		cursor = dc_sizee;
+		break;
+	case ISteamHTMLSurface::dc_sizen:
+		cursor = dc_sizen;
+		break;
+	case ISteamHTMLSurface::dc_sizes:
+		cursor = dc_sizes;
+		break;*/
+	case ISteamHTMLSurface::dc_sizewe:
+		cursor = dc_sizewe;
+		break;
+	case ISteamHTMLSurface::dc_sizens:
+		cursor = dc_sizens;
+		break;
+	case ISteamHTMLSurface::dc_sizeall:
+		cursor = dc_sizeall;
+		break;
+	case ISteamHTMLSurface::dc_no:
+		cursor = dc_no;
+		break;
+	case ISteamHTMLSurface::dc_hand:
+		cursor = dc_hand;
+		break;
+	case ISteamHTMLSurface::dc_blank:
+		cursor = dc_blank;
+		break;
+/*	case ISteamHTMLSurface::dc_middle_pan:
+		cursor = dc_middle_pan;
+		break;
+	case ISteamHTMLSurface::dc_north_pan:
+		cursor = dc_north_pan;
+		break;
+	case ISteamHTMLSurface::dc_north_east_pan:
+		cursor = dc_north_east_pan;
+		break;
+	case ISteamHTMLSurface::dc_east_pan:
+		cursor = dc_east_pan;
+		break;
+	case ISteamHTMLSurface::dc_south_east_pan:
+		cursor = dc_south_east_pan;
+		break;
+	case ISteamHTMLSurface::dc_south_pan:
+		cursor = dc_south_pan;
+		break;
+	case ISteamHTMLSurface::dc_south_west_pan:
+		cursor = dc_south_west_pan;
+		break;
+	case ISteamHTMLSurface::dc_west_pan:
+		cursor = dc_west_pan;
+		break;
+	case ISteamHTMLSurface::dc_north_west_pan:
+		cursor = dc_north_west_pan;
+		break;
+	case ISteamHTMLSurface::dc_alias:
+		cursor = dc_alias;
+		break;
+	case ISteamHTMLSurface::dc_cell:
+		cursor = dc_cell;
+		break;
+	case ISteamHTMLSurface::dc_colresize:
+		cursor = dc_colresize;
+		break;
+	case ISteamHTMLSurface::dc_copycur:
+		cursor = dc_copycur;
+		break;
+	case ISteamHTMLSurface::dc_verticaltext:
+		cursor = dc_verticaltext;
+		break;
+	case ISteamHTMLSurface::dc_rowresize:
+		cursor = dc_rowresize;
+		break;
+	case ISteamHTMLSurface::dc_zoomin:
+		cursor = dc_zoomin;
+		break;
+	case ISteamHTMLSurface::dc_zoomout:
+		cursor = dc_zoomout;
+		break;
+	case ISteamHTMLSurface::dc_custom:
+		cursor = dc_custom;
+		break;
+	case ISteamHTMLSurface::dc_help:
+		cursor = dc_help;
+		break;*/
+
+	}
+
+	if ( cursor >= dc_last )
 	{
 		cursor = dc_arrow;
-	}
-	else
-	{
-		cursor = (CursorCode)msgCursor;
 	}
 	
 	SetCursor( cursor );
@@ -1958,40 +1818,28 @@ void HTML::BrowserSetCursor( const CMsgSetCursor *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: browser telling to show the file loading dialog
 //-----------------------------------------------------------------------------
-void HTML::BrowserFileLoadDialog( const CMsgFileLoadDialog *pCmd )
+void HTML::BrowserFileLoadDialog( HTML_FileOpenDialog_t *pCmd )
 {
-	/*
-	// try and use the OS-specific file dialog first
-	char rgchFileName[MAX_UNICODE_PATH_IN_UTF8];
-	if ( surface()->OpenOSFileOpenDialog( pCmd->title().c_str(), pCmd->initialfile().c_str(), NULL, rgchFileName, sizeof(rgchFileName) ) )
+	// couldn't access an OS-specific dialog, use the internal one
+	if ( m_hFileOpenDialog.Get() )
 	{
-		CHTMLProtoBufMsg<CMsgFileLoadDialogResponse> cmd( eHTMLCommands_FileLoadDialogResponse );
-		cmd.Body().add_files( rgchFileName );
-		DISPATCH_MESSAGE( eHTMLCommands_FileLoadDialogResponse );
+		delete m_hFileOpenDialog.Get();
+		m_hFileOpenDialog = NULL;
 	}
-	else*/
-	{
-		// couldn't access an OS-specific dialog, use the internal one
-		if ( m_hFileOpenDialog.Get() )
-		{
-			delete m_hFileOpenDialog.Get();
-			m_hFileOpenDialog = NULL;
-		}
-		m_hFileOpenDialog = new FileOpenDialog( this, pCmd->title().c_str(), true );
-		m_hFileOpenDialog->SetStartDirectory( pCmd->initialfile().c_str() );
-		m_hFileOpenDialog->AddActionSignalTarget( this );
-		m_hFileOpenDialog->SetAutoDelete( true );
-		m_hFileOpenDialog->DoModal(false);
-	}
+	m_hFileOpenDialog = new FileOpenDialog( this, pCmd->pchTitle, true );
+	m_hFileOpenDialog->SetStartDirectory( pCmd->pchInitialFile );
+	m_hFileOpenDialog->AddActionSignalTarget( this );
+	m_hFileOpenDialog->SetAutoDelete( true );
+	m_hFileOpenDialog->DoModal(false);
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: browser asking to show a tooltip
 //-----------------------------------------------------------------------------
-void HTML::BrowserShowToolTip( const CMsgShowToolTip *pCmd )
+void HTML::BrowserShowToolTip( HTML_ShowToolTip_t *pCmd )
 {
-	/*
+/*	
 	BR FIXME
 	Tooltip *tip = GetTooltip();
 	tip->SetText( pCmd->text().c_str() );
@@ -2000,13 +1848,14 @@ void HTML::BrowserShowToolTip( const CMsgShowToolTip *pCmd )
 	tip->SetMaxToolTipWidth( MAX( 200, GetWide()/2 ) );
 	tip->ShowTooltip( this );
 	*/
+	
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: browser telling us to update tool tip text
 //-----------------------------------------------------------------------------
-void HTML::BrowserUpdateToolTip( const CMsgUpdateToolTip *pCmd )
+void HTML::BrowserUpdateToolTip( HTML_UpdateToolTip_t *pCmd )
 {
 //	GetTooltip()->SetText( pCmd->text().c_str() );
 }
@@ -2015,7 +1864,7 @@ void HTML::BrowserUpdateToolTip( const CMsgUpdateToolTip *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: browser telling that it is done with the tip
 //-----------------------------------------------------------------------------
-void HTML::BrowserHideToolTip( const CMsgHideToolTip *pCmd )
+void HTML::BrowserHideToolTip( HTML_HideToolTip_t *pCmd )
 {
 //	GetTooltip()->HideTooltip();
 //	DeleteToolTip();
@@ -2025,17 +1874,17 @@ void HTML::BrowserHideToolTip( const CMsgHideToolTip *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: callback when performing a search
 //-----------------------------------------------------------------------------
-void HTML::BrowserSearchResults( const CMsgSearchResults *pCmd )
+void HTML::BrowserSearchResults( HTML_SearchResults_t *pCmd )
 {
-	if ( pCmd->results() == 0 )
+	if ( pCmd->unResults == 0 )
 		m_pFindBar->HideCountLabel();
 	else
 		m_pFindBar->ShowCountLabel();
 
-	if ( pCmd->results() > 0 )
-		m_pFindBar->SetDialogVariable( "findcount", (int)pCmd->results() );
-	if ( pCmd->activematch() > 0 )
-		m_pFindBar->SetDialogVariable( "findactive", (int)pCmd->activematch() );
+	if ( pCmd->unResults > 0 )
+		m_pFindBar->SetDialogVariable( "findcount", (int)pCmd->unResults );
+	if ( pCmd->unCurrentMatch > 0 )
+		m_pFindBar->SetDialogVariable( "findactive", (int)pCmd->unCurrentMatch );
 	m_pFindBar->InvalidateLayout();
 }
 
@@ -2043,7 +1892,7 @@ void HTML::BrowserSearchResults( const CMsgSearchResults *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: browser telling us it had a close requested
 //-----------------------------------------------------------------------------
-void HTML::BrowserClose( const CMsgClose *pCmd )
+void HTML::BrowserClose( HTML_CloseBrowser_t *pCmd )
 {
 	PostActionSignal( new KeyValues( "OnCloseWindow" ) );
 }
@@ -2052,17 +1901,13 @@ void HTML::BrowserClose( const CMsgClose *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: browser telling us the size of the horizontal scrollbars
 //-----------------------------------------------------------------------------
-void HTML::BrowserHorizontalScrollBarSizeResponse( const CMsgHorizontalScrollBarSizeResponse *pCmd )
+void HTML::BrowserHorizontalScrollBarSizeResponse( HTML_HorizontalScroll_t *pCmd )
 {
 	ScrollData_t scrollHorizontal;
-	scrollHorizontal.m_nX = pCmd->x();
-	scrollHorizontal.m_nY = pCmd->y();
-	scrollHorizontal.m_nWide = pCmd->wide();
-	scrollHorizontal.m_nTall = pCmd->tall();
-	scrollHorizontal.m_nScroll = pCmd->scroll();
-	scrollHorizontal.m_nMax = pCmd->scroll_max();
-	scrollHorizontal.m_bVisible = ( m_scrollHorizontal.m_nTall > 0 ); 
-	scrollHorizontal.m_flZoom = pCmd->zoom();
+	scrollHorizontal.m_nScroll = pCmd->unScrollCurrent;
+	scrollHorizontal.m_nMax = pCmd->unScrollMax;
+	scrollHorizontal.m_bVisible = pCmd->bVisible;
+	scrollHorizontal.m_flZoom = pCmd->flPageScale;
 
 	if ( scrollHorizontal != m_scrollHorizontal )
 	{
@@ -2078,17 +1923,13 @@ void HTML::BrowserHorizontalScrollBarSizeResponse( const CMsgHorizontalScrollBar
 //-----------------------------------------------------------------------------
 // Purpose: browser telling us the size of the vertical scrollbars
 //-----------------------------------------------------------------------------
-void HTML::BrowserVerticalScrollBarSizeResponse( const CMsgVerticalScrollBarSizeResponse *pCmd )
+void HTML::BrowserVerticalScrollBarSizeResponse( HTML_VerticalScroll_t *pCmd )
 {
 	ScrollData_t scrollVertical;
-	scrollVertical.m_nX = pCmd->x();
-	scrollVertical.m_nY = pCmd->y();
-	scrollVertical.m_nWide = pCmd->wide();
-	scrollVertical.m_nTall = pCmd->tall();
-	scrollVertical.m_nScroll = pCmd->scroll();
-	scrollVertical.m_nMax = pCmd->scroll_max();
-	scrollVertical.m_bVisible = ( m_scrollVertical.m_nTall > 0 ); 
-	scrollVertical.m_flZoom = pCmd->zoom();
+	scrollVertical.m_nScroll = pCmd->unScrollCurrent;
+	scrollVertical.m_nMax = pCmd->unScrollMax;
+	scrollVertical.m_bVisible = pCmd->bVisible;
+	scrollVertical.m_flZoom = pCmd->flPageScale;
 
 	if ( scrollVertical != m_scrollVertical )
 	{
@@ -2102,26 +1943,13 @@ void HTML::BrowserVerticalScrollBarSizeResponse( const CMsgVerticalScrollBarSize
 
 
 //-----------------------------------------------------------------------------
-// Purpose: browser telling us the current page zoom
-//-----------------------------------------------------------------------------
-void HTML::BrowserGetZoomResponse( const CMsgGetZoomResponse *pCmd )
-{
-	m_flZoom = pCmd->zoom();
-	if ( m_flZoom == 0.0f )
-		m_flZoom = 100.0f;
-	m_flZoom /= 100; // scale zoom to 1.0 being 100%, webkit gives us 100 for normal scale
-
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: browser telling us what is at this location on the page
 //-----------------------------------------------------------------------------
-void HTML::BrowserLinkAtPositionResponse( const CMsgLinkAtPositionResponse *pCmd )
+void HTML::BrowserLinkAtPositionResponse( HTML_LinkAtPosition_t *pCmd )
 {
-	m_LinkAtPos.m_sURL = pCmd->url().c_str();
-	m_LinkAtPos.m_nX = pCmd->x();
-	m_LinkAtPos.m_nY = pCmd->y();
+	m_LinkAtPos.m_sURL = pCmd->pchURL;
+	m_LinkAtPos.m_nX = pCmd->x;
+	m_LinkAtPos.m_nY = pCmd->y;
 
 	m_pContextMenu->SetItemVisible( m_iCopyLinkMenuItemID, !m_LinkAtPos.m_sURL.IsEmpty() ? true : false );
 	if ( m_bRequestingDragURL )
@@ -2149,20 +1977,11 @@ void HTML::BrowserLinkAtPositionResponse( const CMsgLinkAtPositionResponse *pCmd
 
 
 //-----------------------------------------------------------------------------
-// Purpose: browser telling us that a zoom to element is done
-//-----------------------------------------------------------------------------
-void HTML::BrowserZoomToElementAtPositionResponse( const CMsgZoomToElementAtPositionResponse *pCmd )
-{
-
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: browser telling us to pop a javascript alert dialog
 //-----------------------------------------------------------------------------
-void HTML::BrowserJSAlert( const CMsgJSAlert *pCmd )
+void HTML::BrowserJSAlert( HTML_JSAlert_t *pCmd )
 {
-	MessageBox *pDlg = new MessageBox( m_sCurrentURL, (const char *)pCmd->message().c_str(), this );
+	MessageBox *pDlg = new MessageBox( m_sCurrentURL, (const char *)pCmd->pchMessage, this );
 	pDlg->AddActionSignalTarget( this );
 	pDlg->SetCommand( new KeyValues( "DismissJSDialog", "result", false ) );
 	pDlg->DoModal();
@@ -2172,9 +1991,9 @@ void HTML::BrowserJSAlert( const CMsgJSAlert *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: browser telling us to pop a js confirm dialog
 //-----------------------------------------------------------------------------
-void HTML::BrowserJSConfirm( const CMsgJSConfirm *pCmd )
+void HTML::BrowserJSConfirm( HTML_JSConfirm_t *pCmd )
 {
-	QueryBox *pDlg = new QueryBox( m_sCurrentURL, (const char *)pCmd->message().c_str(), this );
+	QueryBox *pDlg = new QueryBox( m_sCurrentURL, (const char *)pCmd->pchMessage, this );
 	pDlg->AddActionSignalTarget( this );
 	pDlg->SetOKCommand( new KeyValues( "DismissJSDialog", "result", true ) );
 	pDlg->SetCancelCommand( new KeyValues( "DismissJSDialog", "result", false ) );
@@ -2187,50 +2006,18 @@ void HTML::BrowserJSConfirm( const CMsgJSConfirm *pCmd )
 //-----------------------------------------------------------------------------
 void HTML::DismissJSDialog( int bResult )
 {
-	CHTMLProtoBufMsg<CMsgJSDialogResponse> cmd( eHTMLCommands_JSDialogResponse );
-	cmd.Body().set_result( bResult==1 );
-	DISPATCH_MESSAGE( eHTMLCommands_JSDialogResponse );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->JSDialogResponse( m_unBrowserHandle, bResult );
 };
 
 
 //-----------------------------------------------------------------------------
 // Purpose: browser telling us the state of back and forward buttons
 //-----------------------------------------------------------------------------
-void HTML::BrowserCanGoBackandForward( const CMsgCanGoBackAndForward *pCmd )
+void HTML::BrowserCanGoBackandForward( HTML_CanGoBackAndForward_t *pCmd )
 {
-	m_bCanGoBack = pCmd->bgoback();
-	m_bCanGoForward = pCmd->bgoforward();
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: browser telling us a steam url was asked to be loaded
-//-----------------------------------------------------------------------------
-void HTML::BrowserOpenSteamURL( const CMsgOpenSteamURL *pCmd )
-{
-	vgui::ivgui()->PostMessage( surface()->GetEmbeddedPanel(), 
-		new KeyValues( "OpenSteamDialog", "cmd", pCmd->url().c_str() ), NULL, 0.3f );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: update the value of the cached variables we keep
-//-----------------------------------------------------------------------------
-void HTML::UpdateCachedHTMLValues()
-{
-	// request scroll bar sizes
-	{
-		CHTMLProtoBufMsg<CMsgVerticalScrollBarSize> cmd( eHTMLCommands_VerticalScrollBarSize );
-		DISPATCH_MESSAGE( eHTMLCommands_VerticalScrollBarSize );
-	}
-	{
-		CHTMLProtoBufMsg<CMsgHorizontalScrollBarSize> cmd( eHTMLCommands_HorizontalScrollBarSize );
-		DISPATCH_MESSAGE( eHTMLCommands_HorizontalScrollBarSize );
-	}
-	{
-		CHTMLProtoBufMsg<CMsgGetZoom> cmd( eHTMLCommands_GetZoom );
-		DISPATCH_MESSAGE( eHTMLCommands_GetZoom );
-	}
+	m_bCanGoBack = pCmd->bCanGoBack;
+	m_bCanGoForward = pCmd->bCanGoForward;
 }
 
 
@@ -2239,39 +2026,17 @@ void HTML::UpdateCachedHTMLValues()
 //-----------------------------------------------------------------------------
 void HTML::GetLinkAtPosition( int x, int y )
 {
-	CHTMLProtoBufMsg<CMsgLinkAtPosition> cmd( eHTMLCommands_LinkAtPosition );
-	cmd.Body().set_x( x );
-	cmd.Body().set_y( y );
-	DISPATCH_MESSAGE( eHTMLCommands_LinkAtPosition );
+	if (m_SteamAPIContext.SteamHTMLSurface())
+		m_SteamAPIContext.SteamHTMLSurface()->GetLinkAtPosition( m_unBrowserHandle, x, y );
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: send any queued html messages we have
-//-----------------------------------------------------------------------------
-void HTML::SendPendingHTMLMessages()
-{
-	FOR_EACH_VEC( m_vecPendingMessages, i )
-	{
-		m_vecPendingMessages[i]->m_iBrowser = m_iBrowser;
-		surface()->AccessChromeHTMLController()->PushCommand( m_vecPendingMessages[i] );
-		surface()->AccessChromeHTMLController()->WakeThread();
-	}
-	m_vecPendingMessages.RemoveAll();
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: update the size of the browser itself and scrollbars it shows
 //-----------------------------------------------------------------------------
 void HTML::UpdateSizeAndScrollBars()
 {
-	// Tell IE
 	BrowserResize();
-
-	// Do this after we tell IE!
-	int w,h;
-	GetSize( w, h );
-	CalcScrollBars(w,h);
-
 	InvalidateLayout();
 }
 

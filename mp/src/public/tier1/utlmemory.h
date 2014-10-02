@@ -552,7 +552,7 @@ inline T& CUtlMemory<T,I>::operator[]( I i )
 	// Avoid function calls in the asserts to improve debug build performance
 	Assert( m_nGrowSize != EXTERNAL_CONST_BUFFER_MARKER ); //Assert( !IsReadOnly() );
 	Assert( (uint32)i < (uint32)m_nAllocationCount );
-	return m_pMemory[i];
+	return m_pMemory[(uint32)i];
 }
 
 template< class T, class I >
@@ -560,7 +560,7 @@ inline const T& CUtlMemory<T,I>::operator[]( I i ) const
 {
 	// Avoid function calls in the asserts to improve debug build performance
 	Assert( (uint32)i < (uint32)m_nAllocationCount );
-	return m_pMemory[i];
+	return m_pMemory[(uint32)i];
 }
 
 template< class T, class I >
@@ -569,7 +569,7 @@ inline T& CUtlMemory<T,I>::Element( I i )
 	// Avoid function calls in the asserts to improve debug build performance
 	Assert( m_nGrowSize != EXTERNAL_CONST_BUFFER_MARKER ); //Assert( !IsReadOnly() );
 	Assert( (uint32)i < (uint32)m_nAllocationCount );
-	return m_pMemory[i];
+	return m_pMemory[(uint32)i];
 }
 
 template< class T, class I >
@@ -577,7 +577,7 @@ inline const T& CUtlMemory<T,I>::Element( I i ) const
 {
 	// Avoid function calls in the asserts to improve debug build performance
 	Assert( (uint32)i < (uint32)m_nAllocationCount );
-	return m_pMemory[i];
+	return m_pMemory[(uint32)i];
 }
 
 

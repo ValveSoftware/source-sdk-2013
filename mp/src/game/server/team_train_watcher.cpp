@@ -73,6 +73,7 @@ BEGIN_DATADESC( CTeamTrainWatcher )
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetSpeedForwardModifier", InputSetSpeedForwardModifier ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetTrainRecedeTime", InputSetTrainRecedeTime ),
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetTrainCanRecede", InputSetTrainCanRecede ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetTrainRecedeTimeAndUpdate", InputSetTrainRecedeTimeAndUpdate ),
 
 	// Outputs
 	DEFINE_OUTPUT( m_OnTrainStartRecede, "OnTrainStartRecede" ),
@@ -711,6 +712,24 @@ void CTeamTrainWatcher::InputSetTrainRecedeTime( inputdata_t &inputdata )
 	else
 	{
 		m_nTrainRecedeTime = 0;
+	}
+}
+
+void CTeamTrainWatcher::InputSetTrainRecedeTimeAndUpdate(inputdata_t &inputdata)
+{
+	InputSetTrainRecedeTime( inputdata );
+
+	// update our time if we're already counting down
+	if ( m_flRecedeTime > 0 )
+	{
+		m_flRecedeTotalTime = tf_escort_recede_time.GetFloat();
+		if ( m_nTrainRecedeTime > 0 )
+		{
+			m_flRecedeTotalTime = m_nTrainRecedeTime;
+		}
+
+		m_flRecedeStartTime = gpGlobals->curtime;
+		m_flRecedeTime = m_flRecedeStartTime + m_flRecedeTotalTime;
 	}
 }
 

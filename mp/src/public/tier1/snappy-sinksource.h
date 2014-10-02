@@ -60,6 +60,7 @@ class Sink {
   // The default implementation always returns the scratch buffer.
   virtual char* GetAppendBuffer(size_t length, char* scratch);
 
+
  private:
   // No copying
   Sink(const Sink&);
