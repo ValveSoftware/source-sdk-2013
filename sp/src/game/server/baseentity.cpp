@@ -5341,7 +5341,7 @@ public:
 		{
 			const char *target = "", *action = "Use";
 			variant_t value;
-			int delay = 0;
+			float delay = 0;
 
 			target = STRING( AllocPooledString(command.Arg( 1 ) ) );
 
