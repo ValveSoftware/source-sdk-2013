@@ -80,6 +80,6 @@ $Project "Phonemeextractor"
 	$Folder	"Link Libraries"
 	{
 		$Lib mathlib
-		$DynamicFile	$SAPIDIR\sapi51\lib\i386\sapi.lib"
+		$DynamicFile	"$SAPIDIR\sapi51\lib\i386\sapi.lib"
 	}
 }
