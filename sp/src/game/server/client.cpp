@@ -311,9 +311,13 @@ void ClientPrecache( void )
 	CBaseEntity::PrecacheModel( "sprites/purpleglow1.vmt" );	
 	CBaseEntity::PrecacheModel( "sprites/purplelaser1.vmt" );	
 	
+	/* BM: No such sound!
+	BUGBUG: Should there be?
 #ifndef HL2MP
 	CBaseEntity::PrecacheScriptSound( "Hud.Hint" );
 #endif // HL2MP
+	//*/
+
 	CBaseEntity::PrecacheScriptSound( "Player.FallDamage" );
 	CBaseEntity::PrecacheScriptSound( "Player.Swim" );
 
