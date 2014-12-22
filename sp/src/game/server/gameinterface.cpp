@@ -2009,6 +2009,8 @@ void CServerGameDLL::LoadSpecificMOTDMsg( const ConVar &convar, const char *pszS
 		bFound = filesystem->ReadFile( szResolvedFilename, "GAME", buf );
 	}
 
+	/* BM: No MOtDs in SP; so quit complaining about it! */
+#ifdef HL2MP
 	if ( !bFound )
 	{
 		Msg( "'%s' not found; not loaded\n", szPreferredFilename );
@@ -2030,6 +2032,8 @@ void CServerGameDLL::LoadSpecificMOTDMsg( const ConVar &convar, const char *pszS
 	{
 		Msg( "Set %s from file '%s'.  ('%s' was not found.)\n", pszStringName, szResolvedFilename, szPreferredFilename );
 	}
+#endif // HL2MP
+	//*/
 
 	g_pStringTableInfoPanel->AddString( CBaseEntity::IsServer(), pszStringName, buf.TellPut(), buf.Base() );
 #endif
