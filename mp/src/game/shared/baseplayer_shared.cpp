@@ -1065,7 +1065,7 @@ float IntervalDistance( float x, float x0, float x1 )
 	return 0;
 }
 
-float EstimatedDistanceSquared(const Vector &point, const CBaseEntity *pEntity)
+static float EstimatedDistanceSquared(const Vector &point, const CBaseEntity *pEntity)
 {
 	Vector nearestPoint;
 	pEntity->CollisionProp()->CalcNearestPoint( point, &nearestPoint );
@@ -1104,8 +1104,8 @@ CBaseEntity *CBasePlayer::FindUseEntity()
 
 	if ( !bUsable && (directTrace.contents & CONTENTS_PLAYERCLIP) )
 	{
-		// If we hit a non-usable clip brush, then try tracing again, ignoring
-		// clip brushes, so that object inside of or beyond them can be +used.
+		// We hit a non-usable clip brush. Try tracing again, ignoring clip
+		// brushes, so that objects inside of or beyond them can be +used.
 
 		// NOTE: If a usable clip brush is behind a non-usable clip brush,
 		// then we won't be able to +use it, unfortunately. This is difficult
@@ -1241,7 +1241,7 @@ CBaseEntity *CBasePlayer::FindUseEntity()
 		UTIL_TraceLine( searchCenter, searchCenter + 1.1 * PLAYER_USE_RADIUS * forward, MASK_SHOT, this, COLLISION_GROUP_NONE, &tr );
 		pObject = tr.m_pEnt;
 
-		if( pObject != pNearest && pObject && pObject->MyNPCPointer() && pObject->MyNPCPointer()->IsPlayerAlly( this ) )
+		if ( pObject != pNearest && pObject && pObject->MyNPCPointer() && pObject->MyNPCPointer()->IsPlayerAlly( this ) )
 		{
 			// Player is selecting a different NPC through some negative space
 			// in the first NPC's hitboxes (between legs, over shoulder, etc).
