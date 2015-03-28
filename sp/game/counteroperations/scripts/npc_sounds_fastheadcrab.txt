@@ -1,0 +1,101 @@
+"NPC_FastHeadcrab.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_fast/idle1.wav"
+		"wave"	"npc/headcrab_fast/idle2.wav"
+		"wave"	"npc/headcrab_fast/idle3.wav"
+	}
+}
+
+"NPC_FastHeadcrab.Alert"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"wave"			"npc/headcrab_fast/alert1.wav"
+}
+
+"NPC_FastHeadcrab.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_fast/pain1.wav"
+		"wave"	"npc/headcrab_fast/pain2.wav"
+		"wave"	"npc/headcrab_fast/pain3.wav"
+	}
+}
+
+"NPC_FastHeadcrab.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_fast/die1.wav"
+		"wave"	"npc/headcrab_fast/die2.wav"
+	}
+}
+
+"NPC_FastHeadcrab.Bite"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"wave"			"npc/headcrab_fast/headbite.wav"
+}
+
+"NPC_FastHeadcrab.Attack"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_fast/attack1.wav"
+		"wave"	"npc/headcrab_fast/attack2.wav"
+		"wave"	"npc/headcrab_fast/attack3.wav"
+	}
+}
+
+"NPC_FastHeadcrab.Footstep"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.01"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_step1.wav"
+		"wave"	"npc/headcrab_poison/ph_step2.wav"
+		"wave"	"npc/headcrab_poison/ph_step3.wav"
+		"wave"	"npc/headcrab_poison/ph_step4.wav"
+	}
+}

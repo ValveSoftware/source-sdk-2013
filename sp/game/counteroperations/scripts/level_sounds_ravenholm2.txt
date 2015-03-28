@@ -1,0 +1,830 @@
+//
+//
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+//
+// VOL_NORM		1.0f
+//
+//-----------------------------------------------------------------------------
+// common attenuation values
+//-----------------------------------------------------------------------------
+//
+// DON'T USE THESE - USE SNDLVL_ INSTEAD!!!
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f
+//	ATTN_IDLE		2.0f
+//	ATTN_STATIC		1.25f 
+//	ATTN_RICOCHET	1.5f
+//	ATTN_GUNFIRE	0.27f
+//
+//	SNDLVL_NONE		= 0,
+//	SNDLVL_25dB		= 25,
+//	SNDLVL_30dB		= 30,
+//	SNDLVL_35dB		= 35,
+//	SNDLVL_40dB		= 40,
+//	SNDLVL_45dB		= 45,
+//	SNDLVL_50dB		= 50,	= 3.9
+//	SNDLVL_55dB		= 55,	= 3.0
+//	SNDLVL_IDLE		= 60,	= 2.0
+//	SNDLVL_TALKING		= 60,	= 2.0
+//	SNDLVL_60dB		= 60,	= 2.0
+//	SNDLVL_65dB		= 65,	= 1.5
+//	SNDLVL_STATIC		= 66,	= 1.25
+//	SNDLVL_70dB		= 70,	= 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	= 0.8
+//	SNDLVL_80dB		= 80,	= 0.7
+//	SNDLVL_85dB		= 85,	= 0.6
+//	SNDLVL_90dB		= 90,	= 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	= 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140, = 0.27
+//	SNDLVL_140dB	= 140,	= 0.2
+//	SNDLVL_150dB	= 150,	= 0.2
+//
+
+
+"Town.d1_town_01_LoudSpark"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"0.8,1.0"
+	"soundlevel"  "SNDLVL_60dB"
+	"pitch"		"110,115"
+	"rndwave"
+	{
+		"wave"	"ambient/energy/spark1.wav"
+		"wave"	"ambient/energy/spark2.wav"
+		"wave"	"ambient/energy/spark3.wav"
+		"wave"	"ambient/energy/spark4.wav"
+	}
+}
+
+"Town.d1_town_01_transformer_loop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_60db"
+	"wave"			"ambient/machines/transformer_loop.wav"
+}
+
+"Town.d1_town_01_tone_warehouse"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/areas/zombie_town/tone_warehouse.wav"
+}
+
+"Town.d1_town_01_electric_loop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_60db"
+	"wave"			"ambient/energy/electric_loop.wav"
+}
+
+"Town.d1_town_01_spin_loop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_60db"
+	"wave"			"ambient/machines/spin_loop.wav"
+}
+
+"Town.d1_town_01_spindown"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_60db"
+	"wave"			"ambient/machines/spindown.wav"
+}
+
+"Town.d1_town_01_spinup"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_60db"
+	"wave"			"ambient/machines/spinup.wav"
+}
+
+"Town.d1_town_01_sputter1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_60db"
+	"wave"			"ambient/machines/sputter1.wav"
+}
+
+"Town.d1_town_01_metal_rattle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_60db"
+	"wave"			"ambient/materials/metal_rattle.wav"
+}
+
+"Town.d1_town_01_lever1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"buttons/lever1.wav"
+}
+
+"Town.d1_town_01_lightswitch2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"buttons/lightswitch2.wav"
+}
+
+"Town.d1_town_01_ball_zap1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/assassin/ball_zap1.wav"
+}
+
+"Town.d1_town_01_monk_rant07"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"vo/ravenholm/monk_rant07.wav"
+}
+
+"Town.d1_town_01_monk_rant09"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"vo/ravenholm/monk_rant09.wav"
+}
+
+"Town.d1_town_01_monk_rant20"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"vo/ravenholm/monk_rant20.wav"
+}
+
+"Town.d1_town_01_switch_burst"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"weapons/smg1/switch_burst.wav"
+}
+
+"Town.d1_town_01a_firebig"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/nature/fire/firebig.wav"
+}
+
+"Town.d1_town_01a_explosion1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"impact/explosions/script/explosion1.wav"
+}
+
+"Town.d1_town_01a_glass_largesheet_break1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/glass/glass_largesheet_break1.wav"
+}
+
+"Town.d1_town_01a_explode_9"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"weapons/explode_9.wav"
+}
+
+"Town.d1_town_01a_shotgun_dbl_fire"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"weapons/shotgun/shotgun_dbl_fire.wav"
+}
+
+"Town.d1_town_02_spindown"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spindown.wav"
+}
+
+"Town.d1_town_02_spinup"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spinup.wav"
+}
+
+"Town.d1_town_02_metal_stress5"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/metal_stress5.wav"
+}
+
+"Town.d1_town_02_wood_creak1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_140db"
+	"wave"			"ambient/materials/wood_creak1.wav"
+}
+
+"Town.d1_town_02_wood_creak4"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/wood_creak4.wav"
+}
+
+"Town.d1_town_02_drawbridge_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.7"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"doors/drawbridge_move1.wav"
+}
+
+"Town.d1_town_02_drawbridge_stop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.7"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_98db"
+	"wave"			"doors/drawbridge_stop1.wav"
+}
+
+"Town.d1_town_02_default_locked"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/default_locked.wav"
+}
+
+"Town.d1_town_02_wood_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/wood_move1.wav"
+}
+
+"Town.d1_town_02_des_wind2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"hl1/ambience/des_wind2.wav"
+}
+
+"Town.d1_town_02_fz_alert_far1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/fast_zombie/fz_alert_far1.wav"
+}
+
+"Town.d1_town_02_wake1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/fast_zombie/wake1.wav"
+}
+
+"Town.d1_town_02_zo_attack1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_75db"
+	"wave"			"npc/zombie/zo_attack1.wav"
+}
+
+"Town.d1_town_02_zombie_pound_door"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/zombie/zombie_pound_door.wav"
+}
+
+"Town.d1_town_02_pz_call1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/zombie_poison/pz_call1.wav"
+}
+
+"Town.d1_town_02_glass_bottle_break1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/glass/glass_bottle_break1.wav"
+}
+
+"Town.d1_town_02_glass_cup_break2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/glass/glass_cup_break2.wav"
+}
+
+"Town.d1_town_02_glass_largesheet_break1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/glass/glass_largesheet_break1.wav"
+}
+
+"Town.d1_town_02_glass_largesheet_break2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/glass/glass_largesheet_break2.wav"
+}
+
+"Town.d1_town_02_glass_pottery_break4"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/glass/glass_pottery_break4.wav"
+}
+
+"Town.d1_town_02_wood_crate_break3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_crate_break3.wav"
+}
+
+"Town.d1_town_02_elevbell1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"plats/elevbell1.wav"
+}
+
+"Town.d1_town_02_squeekmove1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"plats/squeekmove1.wav"
+}
+
+"Town.d1_town_02_squeekstop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"plats/squeekstop1.wav"
+}
+
+"Town.d1_town_02_metalgrate3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"player/footsteps/metalgrate3.wav"
+}
+
+"Town.d1_town_02a_fence_rattle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_chainlink_impact_soft1.wav"
+}
+
+"Town.d1_town_02a_tram_hit4"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/areas/zombie_town/tram_hit4.wav"
+}
+
+"Town.d1_town_02a_tram_move"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/areas/zombie_town/tram_move.wav"
+}
+
+"Town.d1_town_02a_wood_creak1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/fx/wood_fx/wood_creak1.wav"
+}
+
+"Town.d1_town_02a_spindown"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spindown.wav"
+}
+
+"Town.d1_town_02a_spinup"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spinup.wav"
+}
+
+"Town.d1_town_02a_fz_alert_far1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/fast_zombie/fz_alert_far1.wav"
+}
+
+"Town.d1_town_02a_fz_scream1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/fast_zombie/fz_scream1.wav"
+}
+
+"Town.d1_town_02a_pz_call1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/zombie_poison/pz_call1.wav"
+}
+
+"Town.d1_town_03_spin_loop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spin_loop.wav"
+}
+
+"Town.d1_town_03_spindown"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spindown.wav"
+}
+
+"Town.d1_town_03_spinup"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spinup.wav"
+}
+
+"Town.d1_town_03_sputter1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/sputter1.wav"
+}
+
+"Town.d1_town_03_metal_groan"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/metal_groan.wav"
+}
+
+"Town.d1_town_03_metal_stress1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/metal_stress1.wav"
+}
+
+"Town.d1_town_03_metal_stress4"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/metal_stress4.wav"
+}
+
+"Town.d1_town_03_default_locked"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/default_locked.wav"
+}
+
+"Town.d1_town_03_gate_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/gate_move1.wav"
+}
+
+"Town.d1_town_03_metal_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/metal_move1.wav"
+}
+
+"Town.d1_town_03_metal_stop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/metal_stop1.wav"
+}
+
+"Town.d1_town_03_fz_alert_far1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/fast_zombie/fz_alert_far1.wav"
+}
+
+"Town.d1_town_03_blade_out"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/roller/blade_out.wav"
+}
+
+"Town.d1_town_03_zo_attack2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_75db"
+	"wave"			"npc/zombie/zo_attack2.wav"
+}
+
+"Town.d1_town_03_metal_box_break1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_box_break1.wav"
+}
+
+"Town.d1_town_03_tram_hit1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"plats/tram_hit1.wav"
+}
+
+"Town.d1_town_03_tram_hit4"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"plats/tram_hit4.wav"
+}
+
+"Town.d1_town_03_tram_motor"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"plats/tram_motor.wav"
+}
+
+"Town.d1_town_03_tram_motor_start"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"plats/tram_motor_start.wav"
+}
+
+"Town.d1_town_03_tram_move"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"plats/tram_move.wav"
+}
+
+"Town.d1_town_03_metalgrate3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"player/footsteps/metalgrate3.wav"
+}
+
+"Town.d1_town_04_spin_loop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spin_loop.wav"
+}
+
+"Town.d1_town_04_spindown"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spindown.wav"
+}
+
+"Town.d1_town_04_spinup"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/spinup.wav"
+}
+
+"Town.d1_town_04_metal_big_impact_scrape1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/metal_big_impact_scrape1.wav"
+}
+
+"Town.d1_town_04_wood_creak1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/wood_creak1.wav"
+}
+
+"Town.d1_town_04_wood_creak2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/wood_creak2.wav"
+}
+
+"Town.d1_town_04_sputter1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/objects/spin_trap/sputter1.wav"
+}
+
+"Town.d1_town_04_metal_large_debris1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_large_debris1.wav"
+}
+
+"Town.d1_town_04_metal_solid_strain4"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_solid_strain4.wav"
+}
+
+"Town.d1_town_05_explode_9"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/explosions/explode_9.wav"
+}
+

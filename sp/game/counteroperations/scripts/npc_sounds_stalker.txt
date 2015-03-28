@@ -1,0 +1,73 @@
+"NPC_Stalker.BurnFlesh"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/stalker/laser_flesh.wav"
+}
+
+"NPC_Stalker.BurnWall"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/stalker/laser_burn.wav"
+}
+
+"NPC_Stalker.FootstepLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/stalker/stalker_footstep_left1.wav"
+		"wave"	"npc/stalker/stalker_footstep_left2.wav"
+	}
+}
+
+"NPC_Stalker.FootstepRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/stalker/stalker_footstep_right1.wav"
+		"wave"	"npc/stalker/stalker_footstep_right2.wav"
+	}
+}
+
+"NPC_Stalker.Hit"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"50, 150"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/vort/foot_hit.wav"
+}
+
+"NPC_Stalker.AmbientLaserStart"
+{
+	"channel"		"CHAN_AUTO"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/stalker/laser_start.wav"
+}

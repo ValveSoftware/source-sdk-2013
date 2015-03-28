@@ -1,0 +1,228 @@
+// move
+
+"NPC_RollerMine.Roll"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.56"
+	"pitch"			"80, 150"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/roller/mine/rmine_moveslow_loop1.wav"
+}
+
+// move with spikes
+
+"NPC_RollerMine.RollWithSpikes"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.56"
+	"pitch"			"80, 150"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/roller/mine/rmine_movefast_loop1.wav"
+}
+
+// tossed by physcannon
+
+"NPC_RollerMine.Tossed"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.9"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/roller/mine/rmine_tossed1.wav"
+}
+
+// picked up by physcannon
+
+"NPC_RollerMine.Held"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.7"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/roller/mine/rmine_taunt2.wav"
+}
+
+// within 400 units of enemy
+
+"NPC_RollerMine.Taunt"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.400"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/roller/mine/rmine_taunt1.wav"
+}
+
+// pitch based on distance to enemy
+
+"NPC_RollerMine.Ping"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"			"90, 130"
+
+	"soundlevel"	"SNDLVL_85dB"
+
+	"wave"			"npc/roller/mine/rmine_seek_loop2.wav"
+}
+
+// spikes out
+
+"NPC_RollerMine.OpenSpikes"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.5"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/roller/mine/rmine_blades_out1.wav"
+		"wave"	"npc/roller/mine/rmine_blades_out2.wav"
+		"wave"	"npc/roller/mine/rmine_blades_out3.wav"
+	}
+}
+
+// retract spikes
+
+"NPC_RollerMine.CloseSpikes"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.5"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/roller/mine/rmine_blades_in1.wav"
+		"wave"	"npc/roller/mine/rmine_blades_in2.wav"
+		"wave"	"npc/roller/mine/rmine_blades_in3.wav"
+	}
+}
+
+// zap enemy
+
+"NPC_RollerMine.Shock"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.7"
+	"pitch"			"100,120"
+
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"wave"			"npc/roller/mine/rmine_explode_shock1.wav"
+}
+
+// just before detonation
+
+"NPC_RollerMine.Hurt"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.7"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/roller/mine/rmine_predetonate.wav"
+}
+
+
+
+// talk to other mines while stuck on vehicle
+
+"NPC_RollerMine.Chirp"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"			"80, 120"
+
+	"soundlevel"	"SNDLVL_75dB"
+	"rndwave"
+	{
+		"wave"	"npc/roller/mine/rmine_chirp_quest1.wav"
+		"wave"	"npc/roller/mine/rmine_blip3.wav"
+	}
+
+}
+
+// respond to other mines while stuck on vehicle
+
+"NPC_RollerMine.ChirpRespond"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"			"80, 120"
+
+	"soundlevel"	"SNDLVL_75dB"
+	"rndwave"
+	{
+		"wave"	"npc/roller/mine/rmine_chirp_answer1.wav"
+		"wave"	"npc/roller/mine/rmine_blip1.wav"
+	}
+}
+
+// zap vehicle
+
+"NPC_RollerMine.JoltVehicle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/roller/mine/rmine_shockvehicle1.wav"
+		"wave"	"npc/roller/mine/rmine_shockvehicle2.wav"
+	}
+}
+
+// ******************************************************
+// UNUSED: 
+
+"NPC_RollerMine.Warn"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/roller/mine/rmine_blip1.wav"
+}
+"NPC_RollerMine.ExplodeChirp"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/roller/mine/rmine_blip1.wav"
+}
+"NPC_RollerMine.ExplodeChirpRespond"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"			"90, 110"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/roller/mine/rmine_blip1.wav"
+}
+
+
+

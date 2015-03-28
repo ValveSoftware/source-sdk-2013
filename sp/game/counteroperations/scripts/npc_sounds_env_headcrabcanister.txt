@@ -1,0 +1,59 @@
+//*********************************************************
+// Env_HeadcrabCanister Sounds
+
+
+//Command Mode Sentences
+
+"HeadcrabCanister.IncomingSound"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.75"
+	"soundlevel"	"0"
+	"pitch"		"PITCH_NORM"
+	"wave"	"npc/env_headcrabcanister/incoming.wav"
+}
+
+"HeadcrabCanister.LaunchSound"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.75"
+	"soundlevel"	"0"
+	"pitch"		"PITCH_NORM"
+	"wave"	"npc/env_headcrabcanister/launch.wav"
+}
+
+"HeadcrabCanister.Explosion"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.95"
+	"soundlevel"	"SNDLVL_140db"
+	"pitch"		"PITCH_NORM"
+	"wave"	"npc/env_headcrabcanister/explosion.wav"
+}
+
+"HeadcrabCanister.AfterLanding"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.56"
+	"soundlevel"	"SNDLVL_70dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"npc/env_headcrabcanister/hiss.wav"
+}
+
+"HeadcrabCanister.SkyboxExplosion"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.8"
+	"soundlevel"	"0"
+	"pitch"		"PITCH_NORM"
+	"wave"	"npc/env_headcrabcanister/explosion.wav"
+}
+
+"HeadcrabCanister.Open"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.500000"
+	"pitch"		"100"
+	"soundlevel"	"SNDLVL_90dB"
+	"wave"		"ambient/levels/canals/headcrab_canister_open1.wav"
+}

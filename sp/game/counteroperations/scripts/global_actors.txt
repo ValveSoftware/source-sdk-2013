@@ -1,0 +1,35 @@
+globalactors
+{
+	"alyx"		"female"
+	"barney"	"male"
+	"breen"		"male"
+	"eli"		"male"
+	"odell"		"male"
+	"kleiner"	"male"
+	"monk"		"male"
+	"mossman"	"female"
+
+
+	"male_01"	"male"
+	"male_02"	"male"
+	"male_03"	"male"
+	"male_04"	"male"
+	"male_05"	"male"
+	"male_06"	"male"
+	"male_07"	"male"
+	"male_08"	"male"
+	"male_09"	"male"
+	"male_10"	"male"
+
+	"female_01"	"female"
+	"female_02"	"female"
+	"female_03"	"female"
+	"female_04"	"female"
+	"female_05"	"female"
+	"female_06"	"female"
+	"female_07"	"female"
+	"female_08"	"female"
+	"female_09"	"female"
+	"female_10"	"female"
+
+}

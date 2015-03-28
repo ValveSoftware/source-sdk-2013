@@ -1,0 +1,147 @@
+"NPC_AttackHelicopter.FireGun"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"wave"			"npc/attack_helicopter/aheli_weapon_fire_loop3.wav"
+}
+
+"NPC_AttackHelicopter.ChargeGun"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"95,105"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"rndwave"
+	{
+	"wave"			"npc/attack_helicopter/aheli_charge_up.wav"
+	}
+}
+
+"NPC_AttackHelicopter.ChargeDownGun"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"95,115"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"rndwave"
+	{
+	"wave"			"^npc/attack_helicopter/aheli_charge_down.wav"
+	}
+}
+
+"NPC_AttackHelicopter.Rotors"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_130dB"
+
+	"wave"			"^npc/attack_helicopter/aheli_rotor_loop1.wav"
+}
+
+"NPC_AttackHelicopter.RotorsLoud"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_140dB"
+
+	"wave"			"^npc/attack_helicopter/aheli_rotor_loop1.wav"
+}
+
+"NPC_AttackHelicopter.RotorBlast"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.4"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"npc/attack_helicopter/aheli_wash_loop3.wav"
+}
+
+"NPC_AttackHelicopter.NearFlyby"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.8"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_110dB"
+
+	"wave"			"npc/attack_helicopter/aheli_close_flyby1.wav"
+}
+
+"NPC_AttackHelicopterGrenade.Ping"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"			"100"
+	"wave"			"npc/attack_helicopter/aheli_mine_seek_loop1.wav"
+}
+
+
+"NPC_AttackHelicopter.DropMine"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"soundlevel"	"SNDLVL_100dB"
+	"pitch"			"90,115"
+	"wave"			"npc/attack_helicopter/aheli_mine_drop1.wav"
+}
+
+"NPC_AttackHelicopter.MegabombAlert"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_120dB"
+	"pitch"			"100"
+	"wave"			"npc/attack_helicopter/aheli_megabomb_siren1.wav"
+}
+
+"NPC_AttackHelicopter.BadlyDamagedAlert"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"soundlevel"	"SNDLVL_110dB"
+	"pitch"			"100"
+	"wave"			"npc/attack_helicopter/aheli_damaged_alarm1.wav"
+}
+
+"NPC_AttackHelicopter.CrashingAlarm1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_120dB"
+	"pitch"			"100"
+	"wave"			"npc/attack_helicopter/aheli_crash_alert2.wav"
+}
+
+
+"NPC_Helicopter.FireRocket"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"soundlevel"	"SNDLVL_90dB"
+	"pitch"			"100"
+	"wave"			"weapons/stinger_fire1.wav"
+}
+
+"NPC_AttackHelicopter.Crash"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"soundlevel"		"SNDLVL_120dB"
+	"pitch"			"100"
+	"wave"			"npc/combine_gunship/gunship_explode2.wav"
+}

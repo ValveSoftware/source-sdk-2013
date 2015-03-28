@@ -1,0 +1,63 @@
+// plugin dialog animation script
+//
+//
+// commands:
+//	Animate <panel name> <variable> <target value> <interpolator> <start time> <duration>
+//		variables:
+//			FgColor
+//			BgColor
+//			Position
+//			Size
+//			Blur		(hud panels only)
+//			TextColor	(hud panels only)
+//			Ammo2Color	(hud panels only)
+//			Alpha		(hud weapon selection only)
+//			SelectionAlpha  (hud weapon selection only)
+//			TextScan	(hud weapon selection only)
+//
+//		interpolator:
+//			Linear
+//			Accel - starts moving slow, ends fast
+//			Deaccel - starts moving fast, ends slow
+//
+//	RunEvent <event name> <start time>
+//		starts another even running at the specified time
+//
+//	StopEvent <event name> <start time>
+//		stops another event that is current running at the specified time
+//
+//	StopAnimation <panel name> <variable> <start time>
+//		stops all animations refering to the specified variable in the specified panel
+//
+//	StopPanelAnimations <panel name> <start time>
+//		stops all active animations operating on the specified panel
+//
+//
+//
+
+
+event AskConnectShow
+{
+	Animate AskConnectPanel Alpha	0	Linear 0.0 0.0
+	Animate AskConnectPanel Alpha	255 Linear 0.0 0.5
+}
+
+event AskConnectHide
+{
+	Animate AskConnectPanel Alpha	0   Linear 0.0 0.5
+}
+
+event PluginMessageShow
+{
+	Animate PluginHudMessage Alpha	255 Linear 0.0 0.5
+}
+
+event PluginMessageSmall
+{
+	Animate PluginHudMessage Size	"40 32"	Linear 0.0 1.5
+}
+
+event PluginMessageHide
+{
+	Animate PluginHudMessage Alpha	0 Linear 0.0 1.0
+}

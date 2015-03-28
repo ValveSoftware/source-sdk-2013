@@ -1,0 +1,605 @@
+effect "innerspiral2_sprite"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle4"
+	color "128 255 160 128"
+	scale 0.2
+	fadetime 3.5
+	stopfollowonkill 1
+}
+
+effect "innerspiral2_trail1"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle4"
+	color "255 50 240 128"
+	scale 4
+	fadetime .7
+	stopfollowonkill 1
+}
+
+effect "innerspiral2_trail2"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle4"
+	color "128 200 200 40"
+	scale 4
+	fadetime 1
+	stopfollowonkill 1
+}
+
+
+effect "innerspiral1_sprite"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle3"
+	color "128 255 160 128"
+	scale 0.2
+	fadetime 3.5
+	stopfollowonkill 1
+}
+
+effect "innerspiral1_trail1"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle3"
+	color "255 0 255 128"
+	scale 4
+	fadetime .7
+	stopfollowonkill 1
+}
+
+effect "innerspiral1_trail2"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle3"
+	color "128 255 160 40"
+	scale 4
+	fadetime 1
+	stopfollowonkill 1
+}
+
+effect "outterspiral2_sprite"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle2"
+	color "128 255 160 128"
+	scale 0.7
+	fadetime 5
+	stopfollowonkill 1
+}
+
+effect "outterspiral2_trail1"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle2"
+	color "255 0 255 128"
+	scale 8
+	fadetime .7
+	stopfollowonkill 1
+}
+
+effect "outterspiral2_trail2"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle2"
+	color "128 255 200 40"
+	scale 8
+	fadetime 1
+	stopfollowonkill 1
+}
+
+effect "outterspiral1_sprite"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle1"
+	color "128 255 160 128"
+	scale 0.7
+	fadetime 5
+	stopfollowonkill 1
+}
+
+effect "outterspiral1_trail1"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle1"
+	color "255 0 255 128"
+	scale 8
+	fadetime .7
+	stopfollowonkill 1
+}
+
+effect "outterspiral1_trail2"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle1"
+	color "128 255 160 40"
+	scale 8
+	fadetime 1
+	stopfollowonkill 1
+}
+
+effect "bodysprite1"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle5"
+	color "128 255 160 128"
+	scale 0.3
+	fadetime 2
+}
+
+effect "bodysprite2"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle7"
+	color "128 255 160 128"
+	scale 0.3
+	fadetime 2
+}
+
+effect "bodysprite3"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle9"
+	color "128 255 160 128"
+	scale 0.3
+	fadetime 2
+}
+
+effect "bodysprite4"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle12"
+	color "128 255 160 128"
+	scale 0.3
+	fadetime 2
+}
+
+effect "bodysprite5"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle18"
+	color "128 255 160 128"
+	scale 0.3
+	fadetime 2
+}
+
+effect "bodysprite6"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle20"
+	color "128 255 160 128"
+	scale 0.3
+	fadetime 2
+}
+
+effect "bodysprite7"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle13"
+	color "128 255 160 128"
+	scale 0.3
+	fadetime 2
+}
+
+effect "bodysprite8"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Alyx_Particle16"
+	color "128 255 160 128"
+	scale 0.3
+	fadetime 2
+}
+
+effect "bodytrail1"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle5"
+	color "123 5 255 100"
+	scale 3
+	fadetime .1
+}
+
+effect "bodytrail2"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle5"
+	color "110 236 255 40"
+	scale 6
+	fadetime .3
+}
+
+effect "bodytrail3"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle6"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail4"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle6"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail5"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle7"
+	color "123 5 255 100"
+	scale 3
+	fadetime .1
+}
+
+effect "bodytrail6"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle7"
+	color "110 236 255 40"
+	scale 6
+	fadetime .3
+}
+
+effect "bodytrail7"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle8"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail8"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle8"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail9"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle9"
+	color "123 5 255 100"
+	scale 3
+	fadetime .1
+}
+
+effect "bodytrail10"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle9"
+	color "110 236 255 40"
+	scale 6
+	fadetime .3
+}
+
+effect "bodytrail11"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle10"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail12"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle10"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail13"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle11"
+	color "123 5 255 100"
+	scale 3
+	fadetime .1
+}
+
+effect "bodytrail14"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle11"
+	color "110 236 255 40"
+	scale 6
+	fadetime .3
+}
+
+effect "bodytrail15"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle12"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail16"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle12"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail17"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle13"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail18"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle13"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail19"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle14"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail20"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle14"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail21"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle15"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail22"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle15"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail23"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle16"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail24"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle16"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail25"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle17"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail26"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle17"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail27"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle18"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail28"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle18"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail29"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle19"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail30"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle19"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "bodytrail31"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle20"
+	color "123 5 255 100"
+	scale 2
+	fadetime .1
+}
+
+effect "bodytrail32"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Alyx_Particle20"
+	color "110 236 255 40"
+	scale 4
+	fadetime .3
+}
+
+effect "test1"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Particle1"
+	color "255 0 255 128"
+	scale 16
+	fadetime .7
+}
+
+effect "test3"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Particle1"
+	color "128 255 160 40"
+	scale 16
+	fadetime 1
+}
+
+effect "test2"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Particle2"
+	color "0 255 255 40"
+	scale 12
+	fadetime .4
+}
+
+
+effect "test4"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Particle2"
+	color "255 0 0 255"
+	scale 50
+	fadetime 1.5
+}
+
+effect "test5"
+{
+	type "trail"
+	material "sprites/tp_beam001.vmt"
+	attachment "Particle3"
+	color "55 255 220 255"
+	scale 12
+	fadetime .8
+}
+
+effect "test1_sprite"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Particle1"
+	color "128 255 160 128"
+	scale 0.5
+	fadetime 3.5
+}
+
+effect "test2_sprite"
+{
+	type "sprite"
+	material "sprites/glow01.vmt"
+	attachment "Particle2"
+	color "0 255 255 128"
+	scale 0.5
+	fadetime 3.5
+}
+
+

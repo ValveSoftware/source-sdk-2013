@@ -1,0 +1,153 @@
+//-- Canals Boxcar
+criterion "IsManhackconcept" "concept" "ManhackNag" "required"
+criterion "Isboxcarconcept" "concept" "BoxcarNag" "required"
+criterion "IsBoatDockconcept" "concept" "DockBoatNag" "required"
+criterion "IsBoatMapconcept" "concept" "BoatMapRoomNag" "required"
+criterion "IsBoatLeaveCaveconcept" "concept" "BoatLeaveCaveNag" "required"
+criterion "IsShantyLeaveGreeterconcept" "concept" "ShantyGreeterLeaveNag" "required"
+criterion "IsAirboatLeaveGateconcept" "concept" "AirboatGateNag" "required"
+criterion "IsAirboatGetInconcept" "concept" "AirboatGetInNag" "required"
+
+
+//***============================================================================================================
+//***
+//*** Canals Nags
+//*** 
+//***============================================================================================================
+
+//============================================================================================================
+// Manhack Matt Nags
+//============================================================================================================
+
+response "Manhack_Nags"
+{
+	scene "scenes/canals/matt_go_nag01.vcd"
+	scene "scenes/canals/matt_go_nag02.vcd"
+	scene "scenes/canals/matt_go_nag03.vcd"
+	scene "scenes/canals/matt_go_nag04.vcd"
+	scene "scenes/canals/matt_go_nag05.vcd"
+}
+
+rule NagManHack
+{
+	criteria		IsManhackconcept
+	response		Manhack_nags
+}
+
+//============================================================================================================
+// Boxcar Nags
+//============================================================================================================
+
+response "Boxcar_Nags"
+{
+	scene "scenes/canals/boxcar_go_nag01.vcd"
+	scene "scenes/canals/boxcar_go_nag02.vcd"
+	scene "scenes/canals/boxcar_go_nag03.vcd"
+	scene "scenes/canals/boxcar_go_nag04.vcd"	
+}
+
+rule NagBoxcar
+{
+	criteria		Isboxcarconcept
+	response		Boxcar_Nags
+}
+
+//============================================================================================================
+// Boat Dock Nags
+//============================================================================================================
+
+response "BoatDockNags"
+{
+	scene "scenes/canals/gc_nagpullboat_01.vcd"
+}
+
+rule NagBoatDock
+{
+	criteria		IsBoatDockconcept
+	response		BoatDockNags
+}
+
+//============================================================================================================
+// Boat - Maproom Nags
+//============================================================================================================
+
+response "BoatUpgradeMapNags"
+{
+	scene "scenes/canals/gc_nagmaproom_01.vcd" displayfirst
+	scene "scenes/canals/gc_nagmaproom_02.vcd"
+	scene "scenes/canals/gc_nagmaproom_03.vcd"	
+}
+
+rule NagBoatMap
+{
+	criteria		IsBoatMapconcept
+	response		BoatUpgradeMapNags
+}
+
+//============================================================================================================
+// GunBoat - Leave Cave
+//============================================================================================================
+
+response "BoatLeaveCaveNags"
+{
+	scene "scenes/canals/gc_nagleavecave_01.vcd" displayfirst
+	scene "scenes/canals/gc_nagleavecave_02.vcd"
+	scene "scenes/canals/gc_nagleavecave_03.vcd"	
+}
+
+rule NagBoatLeaveCave
+{
+	criteria		IsBoatLeaveCaveconcept
+	response		BoatLeaveCaveNags
+}
+
+//============================================================================================================
+// Shanty - Leave Greeter
+//============================================================================================================
+
+response "ShantyGreeterLeaveNags"
+{
+	scene "scenes/canals/shanty_go_nag01.vcd" displayfirst
+//	scene "scenes/canals/shanty_go_nag02.vcd"
+	scene "scenes/canals/shanty_go_nag03.vcd"	
+}
+
+rule NagGreeterLeave
+{
+	criteria		IsShantyLeaveGreeterconcept
+	response		ShantyGreeterLeaveNags
+}
+
+//============================================================================================================
+// Airboat - Get in Airboat
+//============================================================================================================
+
+response "AirboatBoatNags"
+{
+	scene "scenes/canals/airboat_nag01.vcd" displayfirst
+//	scene "scenes/canals/airboat_nag02.vcd"
+	scene "scenes/canals/airboat_nag03.vcd"	
+}
+
+rule NagAirboatGate
+{
+	criteria		IsAirboatGetInconcept
+	response		AirboatBoatNags
+}
+
+//============================================================================================================
+// Airboat - Leave Airboat Dock
+//============================================================================================================
+
+response "AirboatGateNags"
+{
+	scene "scenes/canals/airboat_go_nag01.vcd" displayfirst
+	scene "scenes/canals/airboat_go_nag02.vcd"
+	scene "scenes/canals/airboat_go_nag03.vcd"	
+}
+
+rule NagAirboatGate
+{
+	criteria		IsAirboatLeaveGateconcept
+	response		AirboatGateNags
+}

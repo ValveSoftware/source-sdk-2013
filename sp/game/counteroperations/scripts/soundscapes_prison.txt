@@ -1,0 +1,983 @@
+
+////////////////////////// prison /////////////////////////////////
+
+// utility soundscapes
+
+"prison.util_distantcombat_verylight"
+{
+	"playrandom"
+	{
+		"time"		"1,30"
+		"volume"	"0.05,0.15"
+		"pitch"		"90,105"	
+		"rndwave"
+		{
+			"wave"	"ambient/levels/prison/inside_battle1.wav"
+			"wave"	"ambient/levels/prison/inside_battle2.wav"
+			"wave"	"ambient/levels/prison/inside_battle3.wav"
+			"wave"	"ambient/levels/prison/inside_battle4.wav"
+			"wave"	"ambient/levels/prison/inside_battle5.wav"
+			"wave"	"ambient/levels/prison/inside_battle6.wav"
+			"wave"	"ambient/levels/prison/inside_battle7.wav"
+			"wave"	"ambient/levels/prison/inside_battle8.wav"
+			"wave"	"ambient/levels/prison/inside_battle9.wav"
+		}
+		
+	}
+
+	"playrandom"
+	{
+		"time"		"5,30"
+		"volume"	"0.05,0.1"
+		"pitch"		"90,105"
+
+		"rndwave"
+		{
+			"wave"	"ambient/levels/prison/inside_battle_antlion1.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion2.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion3.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion4.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion5.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion6.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion7.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion8.wav"
+			"wave"	"ambient/levels/prison/inside_battle_zombie1.wav"
+			"wave"	"ambient/levels/prison/inside_battle_zombie2.wav"
+			"wave"	"ambient/levels/prison/inside_battle_zombie3.wav"
+			"wave"	"ambient/levels/prison/inside_battle_soldier1.wav"
+			"wave"	"ambient/levels/prison/inside_battle_soldier2.wav"
+			"wave"	"ambient/levels/prison/inside_battle_soldier3.wav"
+		}
+		
+	}
+
+}
+
+"prison.util_distantcombat_light"
+{
+	"playrandom"
+	{
+		"time"		"1,16"
+		"volume"	"0.1,0.2"
+		"pitch"		"90,105"	
+		"rndwave"
+		{
+			"wave"	"ambient/levels/prison/inside_battle1.wav"
+			"wave"	"ambient/levels/prison/inside_battle2.wav"
+			"wave"	"ambient/levels/prison/inside_battle3.wav"
+			"wave"	"ambient/levels/prison/inside_battle4.wav"
+			"wave"	"ambient/levels/prison/inside_battle5.wav"
+			"wave"	"ambient/levels/prison/inside_battle6.wav"
+			"wave"	"ambient/levels/prison/inside_battle7.wav"
+			"wave"	"ambient/levels/prison/inside_battle8.wav"
+			"wave"	"ambient/levels/prison/inside_battle9.wav"
+		}
+		
+	}
+
+	"playrandom"
+	{
+		"time"		"2,16"
+		"volume"	"0.1,0.2"
+		"pitch"		"90,105"
+
+		"rndwave"
+		{
+			"wave"	"ambient/levels/prison/inside_battle_antlion1.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion2.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion3.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion4.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion5.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion6.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion7.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion8.wav"
+			"wave"	"ambient/levels/prison/inside_battle_zombie1.wav"
+			"wave"	"ambient/levels/prison/inside_battle_zombie2.wav"
+			"wave"	"ambient/levels/prison/inside_battle_zombie3.wav"
+			"wave"	"ambient/levels/prison/inside_battle_soldier1.wav"
+			"wave"	"ambient/levels/prison/inside_battle_soldier2.wav"
+			"wave"	"ambient/levels/prison/inside_battle_soldier3.wav"
+		}
+		
+	}
+
+}
+
+
+"prison.util_distantcombat_heavy"
+{
+	"playrandom"
+	{
+		"time"		"1,4"
+		"volume"	"0.1,0.3"
+		"pitch"		"90,105"	
+		"rndwave"
+		{
+			"wave"	"ambient/levels/prison/inside_battle1.wav"
+			"wave"	"ambient/levels/prison/inside_battle2.wav"
+			"wave"	"ambient/levels/prison/inside_battle3.wav"
+			"wave"	"ambient/levels/prison/inside_battle4.wav"
+			"wave"	"ambient/levels/prison/inside_battle5.wav"
+			"wave"	"ambient/levels/prison/inside_battle6.wav"
+			"wave"	"ambient/levels/prison/inside_battle7.wav"
+			"wave"	"ambient/levels/prison/inside_battle8.wav"
+			"wave"	"ambient/levels/prison/inside_battle9.wav"
+		}
+		
+	}
+
+	"playrandom"
+	{
+		"time"		"2,4"
+		"volume"	"0.1,0.3"
+		"pitch"		"90,105"
+
+		"rndwave"
+		{
+			"wave"	"ambient/levels/prison/inside_battle_antlion1.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion2.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion3.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion4.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion5.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion6.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion7.wav"
+			"wave"	"ambient/levels/prison/inside_battle_antlion8.wav"
+			"wave"	"ambient/levels/prison/inside_battle_zombie1.wav"
+			"wave"	"ambient/levels/prison/inside_battle_zombie2.wav"
+			"wave"	"ambient/levels/prison/inside_battle_zombie3.wav"
+			"wave"	"ambient/levels/prison/inside_battle_soldier1.wav"
+			"wave"	"ambient/levels/prison/inside_battle_soldier2.wav"
+			"wave"	"ambient/levels/prison/inside_battle_soldier3.wav"
+		}
+		
+	}
+}
+
+"prison.util_antlion_burrows"
+{
+	"playrandom"
+	{
+		"time"		"4,15"
+		"volume"	"0.2,0.4"
+		"pitch"		"90,115"
+		"soundlevel"	"SNDLVL_80dB"
+		
+		"rndwave"
+		{
+			"wave"	"ambient/levels/coast/antlion_hill_ambient1.wav"
+			"wave"	"ambient/levels/coast/antlion_hill_ambient2.wav"
+			"wave"	"ambient/levels/coast/antlion_hill_ambient4.wav"
+		}
+	}
+
+	"playrandom"
+	{
+		"time"		"3, 6"
+		"volume"	"0.1,0.35"
+		"pitch"		"95,115"
+		"soundlevel"	"SNDLVL_80dB"
+		"rndwave"
+		{
+			"wave"	"npc/antlion/idle1.wav"
+			"wave"	"npc/antlion/idle2.wav"
+			"wave"	"npc/antlion/idle3.wav"
+			"wave"	"npc/antlion/idle4.wav"
+			"wave"	"npc/antlion/idle5.wav"
+		}
+		
+	}
+}
+
+"prison.util_fardrips"
+{
+	"playrandom"
+	{
+		"volume"	"0.1,0.2"
+		"pitch"		"90,120"
+		"time"		"0.5, 5.0"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140dB"
+		"rndwave"
+		{
+			"wave"	"ambient/water/distant_drip1.wav"
+			"wave"	"ambient/water/distant_drip2.wav"
+			"wave"	"ambient/water/distant_drip3.wav"
+			"wave"	"ambient/water/distant_drip4.wav"
+		}
+	}
+}
+
+"prison.util_drips"
+{
+	"playrandom"
+	{
+		"volume"	"0.2,0.5"
+		"pitch"		"100"
+		"time"		"0.5, 5.0"
+		"position"	"random"
+		"rndwave"
+		{
+			"wave"	"ambient/water/rain_drip1.wav"
+			"wave"	"ambient/water/rain_drip2.wav"
+			"wave"	"ambient/water/rain_drip3.wav"
+			"wave"	"ambient/water/rain_drip4.wav"
+		}
+	}
+}
+
+
+"prison.util_distant_trains"
+{
+	"playrandom"
+	{
+		"time"		"30,60"
+		"volume"	"0.1,0.2"
+		"pitch"		"95,105"
+
+		"rndwave"
+		{
+			"wave"	"ambient/alarms/train_horn_distant1.wav"
+		}
+	}
+
+}
+
+"prison.util_radio"
+{
+	"playrandom"
+	{
+		"volume"	"0.1,0.3"
+		"pitch"		"80,120"
+		"time"		"1.0, 15.0"
+		"rndwave"
+		{
+			"wave"	"ambient/levels/prison/radio_random1.wav"
+			"wave"	"ambient/levels/prison/radio_random2.wav"
+			"wave"	"ambient/levels/prison/radio_random3.wav"
+			"wave"	"ambient/levels/prison/radio_random4.wav"
+			"wave"	"ambient/levels/prison/radio_random5.wav"
+			"wave"	"ambient/levels/prison/radio_random6.wav"
+			"wave"	"ambient/levels/prison/radio_random7.wav"
+			"wave"	"ambient/levels/prison/radio_random8.wav"
+			"wave"	"ambient/levels/prison/radio_random9.wav"
+			"wave"	"ambient/levels/prison/radio_random10.wav"
+			"wave"	"ambient/levels/prison/radio_random11.wav"
+			"wave"	"ambient/levels/prison/radio_random12.wav"
+			"wave"	"ambient/levels/prison/radio_random13.wav"
+			"wave"	"ambient/levels/prison/radio_random14.wav"
+			"wave"	"ambient/levels/prison/radio_random15.wav"
+		}
+	}
+}
+
+"prison.util_control_room"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/atmosphere/city_rumble_loop1.wav"
+		"pitch"		"100"
+	}
+
+// position 0 is combine computer terminal
+
+	"playsoundscape"
+	{
+		"name"	"combine.computer"
+		"volume"	"0.4"
+		"positionoverride"	"0"
+	}
+
+}
+
+////////////////////////// Soundscapes for use in levels /////////////////////////////
+
+
+"prison.citizen_camp"
+{
+	"playsoundscape"
+	{
+		"name"	"coast.util_distant_shoreline"
+		"volume" "0.5"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"coast.util_windgusts"
+		"volume" "0.2"
+	}
+}
+
+
+"prison.redlight_bunker"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"		"ambient/atmosphere/hole_amb3.wav"
+		"pitch"		"100"
+	}
+}
+
+
+"prison.outdoor_courtyard"
+{
+	"playsoundscape"
+	{
+		"name"	"coast.util_distant_shoreline"
+		"volume" "0.4"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"coast.util_windgusts"
+		"volume" "0.3"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"d1_trainstation.city"
+		"volume"	"0.2"
+	}
+}
+
+"prison.outdoor_courtyard_hvycombat"
+{
+	"playsoundscape"
+	{
+		"name"	"prison.util_distantcombat_heavy"
+		"volume"	"1.0"
+	}
+	"playsoundscape"
+	{
+		"name"	"coast.util_distant_shoreline"
+		"volume" "0.4"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"coast.util_windgusts"
+		"volume" "0.3"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"d1_trainstation.city"
+		"volume"	"0.2"
+	}
+}
+
+
+// near alyx encounter
+
+"prison.trainstation"
+{
+	"dsp"	"1"
+
+	"playsoundscape"
+	{
+		"name"	"prison.util_distant_trains"
+		"volume"	"0.5"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.17"
+		"wave"		"ambient/atmosphere/drone2LP.wav"
+		"pitch"		"100"
+	}
+
+	"playrandom"
+	{
+		"time"		"15, 60"
+		"volume"	"0.1,0.3"
+		"pitch"		"95,105"
+		"position"	"random"
+
+		"rndwave"
+		{
+			"wave"	"ambient/atmosphere/city_skypass1.wav"
+			"wave"	"ambient/atmosphere/city_truckpass1.wav"
+		
+		}
+	}
+}
+
+
+// teleport lab
+
+"prison.teleport_area"
+{
+	"dsp"	"1"
+	
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"		"ambient/atmosphere/drone4LP.wav"
+		"pitch"		"100"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.06"
+		"wave"		"ambient/atmosphere/tone_quiet.wav"
+		"pitch"		"100"
+	}
+
+// position 0 is main control area
+
+	"playsoundscape"
+	{
+		"name"	"prison.util_control_room"
+		"positionoverride" "0"
+		"volume"	"1.0"
+	}
+
+// position 1 is secondary computer console
+
+	"playsoundscape"
+	{
+		"name"	"combine.computer"
+		"volume"	"0.4"
+		"positionoverride"	"1"
+	}
+}
+
+
+
+// control room with combine equipment
+
+"prison.control_room"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.15"
+		"wave"		"ambient/atmosphere/city_rumble_loop1.wav"
+		"pitch"		"100"
+	}
+
+	// position 0 is radio speaker
+	"playsoundscape"
+	{
+		"name"	"prison.util_radio"
+		"volume"	"1.0"
+		"positionoverride"	"0"
+	}
+
+	// position 1 is combine computer terminal
+
+	"playsoundscape"
+	{
+		"name"	"combine.computer"
+		"volume"	"0.4"
+		"positionoverride"	"1"
+	}
+
+}
+
+// control room with no combine equipment
+
+"prison.control_room_simple"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.15"
+		"wave"		"ambient/atmosphere/indoor1.wav"
+		"pitch"		"100"
+	}
+
+	// position 0 is radio speaker
+
+	"playsoundscape"
+	{
+		"name"	"prison.util_radio"
+		"volume"	"1.0"
+		"positionoverride"	"0"
+	}
+}
+
+// area adjacent to huge combine wall
+
+"prison.combine_wall"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/atmosphere/ambience6.wav"
+		"pitch"		"100"
+	}
+
+
+// position 0 - the wall
+
+	"playrandom"
+	{
+		"time"		"4, 4"
+		"volume"	"0.3"
+		"rndwave"
+		{
+			"wave"		"ambient/atmosphere/metallic1.wav"
+		}
+
+		"pitch"		"100"
+	}
+
+
+	"playrandom"
+	{
+		"time"		"3, 10"
+		"volume"	"0.2,0.5"
+		"pitch"		"95,105"
+		"position"	"random"
+
+		"rndwave"
+		{
+			"wave"	"ambient/atmosphere/terrain_rumble1.wav"
+			"wave"	"ambient/atmosphere/thunder1.wav"
+			"wave"	"ambient/atmosphere/thunder2.wav"
+			"wave"	"ambient/atmosphere/thunder3.wav"
+			"wave"	"ambient/atmosphere/thunder4.wav"
+		}	
+	}
+}
+
+"prison.util_quiet_cellblock"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.12"
+		//"wave"		"ambient/atmosphere/underground.wav"
+		"wave"		"ambient/atmosphere/undercity_loop1.wav"
+		"pitch"		"80"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"prison.util_drips"
+		"volume"	"0.15"
+	}
+
+	"playrandom"
+	{
+		"time"		"3, 10"
+		"volume"	"0.05,0.15"
+		"pitch"		"95,105"
+		"position"	"random"
+
+		"rndwave"
+		{
+			"wave"	"ambient/materials/metal_rattle1.wav"
+			"wave"	"ambient/materials/metal_rattle2.wav"
+			"wave"	"ambient/materials/metal_rattle3.wav"
+		}
+		
+	}
+}
+
+"prison.util_louder_cellblock"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.17"
+		"wave"		"ambient/atmosphere/underground.wav"
+		"pitch"		"80"
+	}
+}
+
+// quiet atmospheric cellblock - very light distant combat
+
+"prison.larger_cellblock_vlightcombat"
+{
+	"dsp"	"1"
+
+	"playsoundscape"
+	{
+		"name"	"prison.util_quiet_cellblock"
+		"volume"	"1.0"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"prison.util_distantcombat_verylight"
+		"volume"	"1.0"
+	}
+}
+
+// ambient cellblock, just after player enters prison for first time (heavy combat, distant inside)
+ 
+"prison.larger_cellblock_hvycombat"
+{
+	"playsoundscape"
+	{
+		"name"	"prison.util_louder_cellblock"
+		"volume"	"1.0"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"prison.util_distantcombat_heavy"
+		"volume"	"1.0"
+	}
+}
+
+"prison.larger_cellblock_lightcombat"
+{
+	"playsoundscape"
+	{
+		"name"	"prison.util_quiet_cellblock"
+		"volume"	"1.0"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"prison.util_distantcombat_light"
+		"volume"	"1.0"
+	}
+}
+
+
+"prison.general_hallway_lightcombat"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.14"
+		"wave"		"ambient/atmosphere/indoor2.wav"
+		"pitch"		"100"
+	}
+
+	
+	"playsoundscape"
+	{
+		"name"	"prison.util_distantcombat_light"
+		"volume"	"1.0"
+	}
+}
+ 
+
+ "prison.general_hallway_vlightcombat"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.18"
+		"wave"		"ambient/atmosphere/indoor2.wav"
+		"pitch"		"100"
+	}
+
+	
+	"playsoundscape"
+	{
+		"name"	"prison.util_distantcombat_verylight"
+		"volume"	"1.0"
+	}
+}
+
+// watery tunnel, entering base
+
+"prison.general_dripping_tunnel"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/water/drip_loop1.wav"
+		"pitch"		"100"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.25"
+		"wave"		"ambient/wind/wind_tunnel1.wav"
+		"pitch"		"100"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"prison.util_fardrips"
+		// "position"	"0"
+		"volume"	"1.0"
+	}
+	
+	"playsoundscape"
+	{
+		"name"		"d1_canals.util_tunnel_windgusts"
+		"volume"	"0.7"
+	}
+}
+
+"prison.hall_with_burrows" 
+{
+	// antlion burrow area - before turret combat
+
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.1"
+		"wave"		"ambient/atmosphere/indoor2.wav"
+		"pitch"		"100"
+	}
+	
+	
+	//Position 0 - soft antlion chittering from burrow
+	"playsoundscape"
+	{
+		"positionoverride"	"0"
+		"name"		"prison.util_antlion_burrows"
+		"volume"	"1.0"
+	}
+
+	//Position 1 - soft antlion chittering from burrow
+	"playsoundscape"
+	{
+		"positionoverride"	"1"
+		"name"		"prison.util_antlion_burrows"
+		"volume"	"1.0"
+	}
+
+}
+
+"prison.electric_water_room"
+{
+	"dsp"	"1"
+	
+	"playsoundscape"
+	{
+		"name"		"prison.util_fardrips"
+		// "position"	"0"
+		"volume"	"0.3"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/water/drip_loop1.wav"
+		"pitch"		"100"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"pitch"		"100"
+		"wave"		"ambient/atmosphere/corridor2.wav"
+	}
+
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"pitch"		"100"
+		"wave"		"ambient/atmosphere/cargo_hold2.wav"
+	}
+
+	// distant, echo-y wet
+	// running water
+	"playlooping"
+	{
+		"volume"	"0.05"
+		"wave"		"ambient/water/water_flow_loop1.wav"
+		"pitch"		"100"
+		"soundlevel"	"SNDLVL_90dB"
+	}
+
+}
+
+
+"prison.laundry"
+{
+	"dsp"	"1"
+
+		"playlooping"
+	{
+		"volume"	"0.45"
+		"pitch"		"100"
+		"wave"		"ambient/atmosphere/laundry_amb.wav"
+	}
+
+
+	// Machines - position 0
+
+	"playlooping"
+	{
+		"volume"	"0.45"
+		"wave"		"ambient/machines/laundry_machine1_amb.wav"
+		"pitch"		"100"
+		"soundlevel"	"SNDLVL_90dB"
+		"position"	"0"
+	}
+
+	"playrandom"
+	{
+		"time"		"0.5, 1"
+		"volume"	"0.05, 0.15"
+		"pitch"		"99,102"
+
+		"rndwave"
+		{
+
+			"wave"		"ambient/machines/machine1_hit1.wav"
+			"wave"		"ambient/machines/machine1_hit2.wav"
+		}
+
+		"soundlevel"	"SNDLVL_90dB"
+		"position"	"0"
+
+	}
+
+}
+
+"prison.watery_hallway"
+{
+	"dsp"	"1"
+	
+
+	// dripping water
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/water/drip_loop1.wav"
+		"pitch"		"120"
+		"soundlevel"	"SNDLVL_90dB"
+	}
+
+	//dripping water
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/water/drip_loop1.wav"
+		"pitch"		"140"
+		"soundlevel"	"SNDLVL_90dB"
+	}
+}
+
+"prison.showers"
+{
+	"dsp"	"1"
+
+	// big echo-y wet
+	//Position 0 - running water
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/water/water_flow_loop1.wav"
+		"pitch"		"100"
+		"soundlevel"	"SNDLVL_90dB"
+		"position"	"0"
+	}
+
+
+	//Position 1 - dripping water
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"		"ambient/water/drip_loop1.wav"
+		"pitch"		"120"
+		"soundlevel"	"SNDLVL_90dB"
+		"position"	"1"
+	}
+
+	//Position 1 - dripping water
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/water/drip_loop1.wav"
+		"pitch"		"140"
+			"soundlevel"	"SNDLVL_90dB"
+		"position"	"1"
+	}
+
+	//Position 2 - water heater hiss
+	"playlooping"
+	{
+		"volume"	"0.15"
+		"wave"		"ambient/gas/steam_loop1.wav"
+		"pitch"		"100"
+		"soundlevel"	"SNDLVL_80dB"
+		"position"	"2"
+	}
+}
+
+"prison.zombie_infested"
+{
+	"playrandom"
+	{
+		"time"		"15, 60"
+		"volume"	"0.05,0.15"
+		"pitch"		"90,110"
+		"position"	"random"
+		"rndwave"
+		{
+			"wave"	"ambient/creatures/town_moan1.wav"
+			"wave"	"ambient/creatures/town_zombie_call1.wav"
+			"wave"	"ambient/creatures/town_scared_breathing1.wav"
+		}
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"pitch"		"50"
+		"wave"		"ambient/atmosphere/tone_alley.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"prison.util_fardrips"
+		"volume"	"0.85"
+	}
+
+	"playrandom"
+	{
+		"time"		"3,15"
+		"volume"	"0.2,0.5"
+		"pitch"		"95,105"
+		"attenuation"	"0"
+
+		"rndwave"
+		{
+			"wave"		"ambient/creatures/flies1.wav"
+			"wave"		"ambient/creatures/flies2.wav"
+			"wave"		"ambient/creatures/flies3.wav"
+			"wave"		"ambient/creatures/flies4.wav"
+			"wave"		"ambient/creatures/flies5.wav"
+		}
+		
+	}
+
+	"playrandom"
+	{
+		"time"		"20,40"
+		"volume"	"0.1,0.3"
+		"pitch"		"95,105"
+		"attenuation"	"0"
+
+		"rndwave"
+		{
+			"wave"	"ambient/creatures/rats1.wav"
+			"wave"	"ambient/creatures/rats2.wav"
+			"wave"	"ambient/creatures/rats3.wav"
+			"wave"	"ambient/creatures/rats4.wav"
+		}
+		
+	}
+}
+
+

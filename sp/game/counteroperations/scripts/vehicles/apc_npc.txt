@@ -1,0 +1,228 @@
+// This is a test jeep type vehicle for the wasteland
+
+"vehicle"
+{
+	"wheelsperaxle"	"2"
+	"body"
+	{
+		"countertorquefactor"	"1"
+		"massCenterOverride"	"0 0 0"
+		"massoverride"		"800"		// kg
+	}
+	"engine"
+	{
+		"horsepower"		"350"
+		"maxrpm"		"3000"
+		"maxspeed"		"35"		// mph
+		"maxReverseSpeed"	"25"		// mph
+		"autotransmission"	"1"
+		"axleratio"		"4.56"
+		"gear"			"1.86"		// 1st gear
+		"gear"			"1.59"		// 2nd gear
+		"gear"			"1.17"		// 3rd gear
+		"gear"			"1.0"		// 4th gear
+		"gear"			"0.84"		// 5th gear
+		"shiftuprpm"		"1500"
+		"shiftdownrpm"		"300"
+	
+		"boost"
+		{
+			"force"		"1.5"	// 1.5 car body mass * gravity * inches / second ^ 2
+			"duration"	"2.0"	// 2 second of boost
+			"delay"		"15"	// 15 seconds before you can use it again
+
+//			"torqueboost"	"1"	// enable "sprint" mode of vehicle, not	force type booster			
+//			"maxspeed"	"50"	// maximum turbo speed
+		}
+	}
+	"steering"
+	{
+		"degrees"		"60"
+		"fastdampen"		"0.35"
+		"slowcarspeed"		"0"
+		"fastcarspeed"		"40"
+		"slowsteeringrate"	"4"		
+		"faststeeringrate"	"2"
+		"steeringRestFactor"	"2"
+		"turnbrake"		"0.25"
+
+		"skidallowed"		"1"
+		"dustcloud"		"1"
+
+		// ep2 vehicle model
+		"degreesFast"		"60"
+		"degreesSlow"		"60"
+		"slowSteeringRate"	"4.0"		
+		"fastSteeringRate"	"2.0"
+		"steeringRestRateSlow"	"1.5"
+		"steeringRestRateFast"	"1.5"
+		"turnThrottleReduceSlow" "0.0"
+		"turnThrottleReduceFast" "0.0"
+
+		"brakeSteeringRateFactor"	"1"
+		"throttleSteeringRestRateFactor"	"1"
+		"boostSteeringRestRateFactor"	"1"
+		"boostSteeringRateFactor"	"1"
+		"powerSlideAccel"	"0"
+	}
+
+	// front axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"	"28"
+			"mass"		"100"
+			"inertia"	"0.5"		// steady the car (fixes the oscillation of the axles about z)
+			"damping"	"0"
+			"rotdamping"	"0.0"
+			"material"	"rubbertire"
+			"skidmaterial"	"slidingrubbertire_front"
+		}
+		"suspension"
+		{
+			"springConstant"		"80"
+			"springDamping"			"4"
+			"stabilizerConstant"		"110"
+			"springDampingCompression"	"4"
+			"maxBodyForce"			"250"
+		}
+
+		"torquefactor"	"0.8"
+		"brakefactor"	"0.5"
+	}
+
+	// rear axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"	"28"
+			"mass"		"100"
+			"inertia"	"0.5"		// steady the car (fixes the oscillation of the axles about z)
+			"damping"	"0"
+			"rotdamping"	"0.0"
+			"material"	"rubbertire"
+			"skidmaterial"	"slidingrubbertire_rear"
+		}
+		"suspension"
+		{
+			"springConstant"		"80"
+			"springDamping"			"4"
+			"stabilizerConstant"		"110"
+			"springDampingCompression"	"4"
+			"maxBodyForce"			"250"
+		}
+		"torquefactor"	"0.2"
+		"brakefactor"	"0.5"
+	}
+}
+
+"vehicle_sounds"
+{
+	// List gears in order from lowest speed to highest speed
+
+	"gear"
+	{
+		"max_speed"		"0.1"
+		"speed_approach_factor" "1.0"
+	}
+
+	"gear"
+	{
+		"max_speed"		"0.2"
+		"speed_approach_factor" "1.0"
+	}
+
+	"gear"
+	{
+		"max_speed"		"1.0"
+		"speed_approach_factor" "0.9"
+	}
+
+	"state"
+	{
+		"name"		"SS_SHUTDOWN"
+		"sound"		"apc_engine_stop"
+	}
+	"state"
+	{
+		"name"		"SS_START_IDLE"
+		"sound"		"apc_engine_start"
+	}
+	"state"
+	{
+		"name"		"SS_REVERSE"
+		"sound"		"apc_firstgear"
+		"min_time"	"0.7"
+	}
+	"state"
+	{
+		"name"		"SS_IDLE"
+		"sound"		"apc_engine_idle"
+	}
+	"state"
+	{
+		"name"		"SS_GEAR_0"
+		"sound"		"apc_engine_idle"
+		"min_time"	"0.2"
+	}
+	"state"
+	{
+		"name"		"SS_GEAR_0_RESUME"
+		"sound"		"apc_engine_idle"
+		"min_time"	"0.2"
+	}
+	"state"
+	{
+		"name"		"SS_GEAR_1"
+		"sound"		"apc_engine_idle"
+		"min_time"	"0.2"
+	}
+	"state"
+	{
+		"name"		"SS_GEAR_1_RESUME"
+		"sound"		"apc_engine_idle"
+		"min_time"	"0.2"
+	}
+	"state"
+	{
+		"name"		"SS_GEAR_2"
+		"sound"		"apc_firstgear"
+		"min_time"	"1.0"
+	}
+	"state"
+	{
+		"name"		"SS_GEAR_2_RESUME"
+		"sound"		"apc_firstgear_resume"
+		"min_time"	"2.5"
+	}
+	"state"
+	{
+		"name"		"SS_SLOWDOWN_HIGHSPEED"
+		"sound"		"apc_throttleoff_fastspeed"
+	}
+	"state"
+	{
+		"name"		"SS_SLOWDOWN"
+		"sound"		"apc_throttleoff_slowspeed"
+	}
+
+	"crashsound"
+	{
+		"min_speed"			"350"
+		"min_speed_change"	"250"
+		"sound"				"ATV_impact_medium"
+		"gear_limit"		"1"
+	}
+	"crashsound"
+	{
+		"min_speed"			"450"
+		"min_speed_change"	"350"
+		"sound"				"ATV_impact_heavy"
+	}
+
+	"skid_lowfriction"	"ATV_skid_lowfriction"
+	"skid_normalfriction"	"ATV_skid_normalfriction"
+	"skid_highfriction"	"ATV_skid_highfriction"
+}

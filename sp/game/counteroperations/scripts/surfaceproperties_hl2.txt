@@ -1,0 +1,123 @@
+// "surface group" 
+// { 
+// "property" 	"value"
+// ...
+// }
+//
+// thickness: If this value is present, the material is not volumetrically solid
+// it means that the volume should be computed as the surface area times this
+// thickness (for automatic mass).  The inside space beneath the thickness value is air.
+//
+// physics parameters are:
+// density: this is the material density in kg / m^3 (water is 1000)
+// elasticity: This is the collision elasticity (0 - 1.0, 0.01 is soft, 1.0 is hard)
+// friction: this is the physical friction (0 - 1.0, 0.01 is slick, 1.0 is totally rough)
+// dampening: this is the physical drag on an object when in contact with this surface (0 - x, 0 none to x a lot)
+//
+// !!! Do not edit the physics properties (especially density) without the proper references !!!
+//
+// Sounds
+// 
+// stepleft: footstep sound for left foot
+// stepright: footstep sound for right foot
+// impactsoft: Physical impact sound when hitting soft surfaces
+// impacthard: Physical impact sound when hitting hard surfaces
+// scrapesmooth: Looping physics friction sound (when scraping smooth surfaces)
+// scraperough: Looping physics friction sound (when scraping rough surfaces)
+// bulletimpact: bullet impact sound
+// gamematerial: game material index (can be a single letter or a number)
+// 
+
+// NOTE: The properties of "default" will get copied into EVERY material who does not
+// 	 override them!!!
+//
+// "base" means to use the parameters from that material as a base.
+// "base" must appear as the first key in a material
+//
+
+"metalvehicle"
+{
+	"base"		"metal"
+	"thickness"	"0.1"
+	"density"	"2700"
+	"elasticity"	"0.2"
+	"friction"	"0.8"
+
+	"audioreflectivity" "0.33"
+	"audioroughnessfactor" "0.1"
+	"audioHardMinVelocity"	"500" // 500
+
+	"impactHardThreshold" "0.5"   
+  
+
+	"impacthard"	"MetalVehicle.ImpactHard"
+	"impactsoft"	"MetalVehicle.ImpactSoft"
+	"scraperough"	"MetalVehicle.ScrapeRough"
+	"scrapesmooth"	"MetalVehicle.ScrapeSmooth"
+
+
+	"gamematerial"	"M"
+}
+	
+
+"crowbar"
+{
+	"base"		"metal"
+	"impactsoft"	"Weapon_Crowbar.Melee_HitWorld"
+	"impacthard"	"Weapon_Crowbar.Melee_HitWorld"
+}
+
+"antlionsand"
+{
+	"base"		"sand"
+
+	"gamematerial"	"N"
+}
+
+"metal_seafloorcar"
+{
+	"base"		"metal"
+	"bulletimpact"	"Metal_SeafloorCar.BulletImpact"
+}
+
+"gunship"
+{
+	"base"		"metal"
+	"friction"	"0.3"
+	"impacthard"	"Gunship.Impact"
+	"scraperough"	"Gunship.Scrape"
+}
+
+"strider"
+{
+	"base"		"metal"
+
+	"impacthard"	"Strider.Impact"
+	"scraperough"	"Strider.Scrape"
+}
+
+"antlion"
+{
+	"base"		"alienflesh"
+	
+	"gamematerial"	"A"
+}
+
+"combine_metal"
+{
+	"base"		"solidmetal"
+
+}
+
+"combine_glass"
+{
+	"base"		"glass"
+
+}
+
+"zombieflesh"
+{
+ 	"base"   	"flesh"
+ 
+ 	"impacthard"	"Flesh_Bloody.ImpactHard"
+}

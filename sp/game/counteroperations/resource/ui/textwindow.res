@@ -1,0 +1,88 @@
+"Resource/UI/TextWindow.res"
+{
+	"info"
+	{
+		"ControlName"		"CTextWindow"
+		"fieldName"		"TextWindow"
+		"xpos"			"76"
+		"ypos"			"0"
+		"wide"			"552"
+		"tall"			"448"
+		"autoResize"		"0"
+		"pinCorner"		"0"
+		"visible"		"0"
+		"enabled"		"1"
+		"tabPosition"	"0"
+	}
+		
+	"HTMLMessage"
+	{
+		"ControlName"		"HTML"
+		"fieldName"		"HTMLMessage"
+		"xpos"			"0"
+		"ypos"			"116"
+		"wide"			"480"
+		"tall"			"240"
+		"autoResize"		"3"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+	}
+	
+	"TextMessage"
+	{
+		"ControlName"		"TextEntry"
+		"fieldName"		"TextMessage"
+		"xpos"			"0"
+		"ypos"			"116"
+		"wide"			"480"
+		"tall"			"240"
+		"autoResize"		"3"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"textAlignment"		"northwest"
+		"textHidden"		"0"
+		"editable"		"0"
+		"maxchars"		"-1"
+		"NumericInputOnly"	"0"
+	}
+	
+	"MessageTitle"
+	{
+		"ControlName"		"Label"
+		"fieldName"		"MessageTitle"
+		"xpos"			"8"
+		"ypos"			"72"
+		"wide"			"400"
+		"tall"			"24"
+		"autoResize"		"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"labelText"		"Message Title"
+		"textAlignment"		"west"
+		"dulltext"		"0"
+		"brighttext"		"0"
+	}
+	
+	"ok"
+	{
+		"ControlName"		"Button"
+		"fieldName"		"ok"
+		"xpos"			"0"
+		"ypos"			"364"
+		"wide"			"128"
+		"tall"			"20"
+		"autoResize"		"0"
+		"pinCorner"		"2"
+		"visible"		"1"
+		"enabled"		"1"
+		"labelText"		"#PropertyDialog_OK"
+		"textAlignment"		"center"
+		"dulltext"		"0"
+		"brighttext"		"0"
+		"command"		"okay"
+		"Default"		"1"
+	}
+}

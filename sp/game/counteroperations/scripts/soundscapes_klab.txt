@@ -1,0 +1,140 @@
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f	75dB
+//	ATTN_IDLE		2.0f	60dB
+//	ATTN_STATIC		1.25f	66dB
+//	ATTN_RICOCHET	1.5f	65dB
+//	ATTN_GUNFIRE	0.27f	140dB
+
+//	SNDLVL_50dB		= 50,	// 3.9
+//	SNDLVL_55dB		= 55,	// 3.0
+//	SNDLVL_IDLE		= 60,	// 2.0
+//	SNDLVL_TALKING	= 60,	// 2.0
+//	SNDLVL_60dB		= 60,	// 2.0
+//	SNDLVL_65dB		= 65,	// 1.5
+//	SNDLVL_STATIC	= 66,	// 1.25
+//	SNDLVL_70dB		= 70,	// 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	// 0.8
+//	SNDLVL_80dB		= 80,	// 0.7
+//	SNDLVL_85dB		= 85,	// 0.6
+//	SNDLVL_90dB		= 90,	// 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	// 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140,	// 0.27
+//	SNDLVL_140dB	= 140,	// 0.2
+//	SNDLVL_150dB	= 150,	// 0.2
+
+// *******************************************************************************
+// ***************** Kleiner's Lab *****************
+
+"K_lab.LabSounds"
+{
+	"dsp"	"0"
+
+	// lab ambience
+	"playlooping"
+	{
+		"volume"	"0.1"
+		"wave"	"ambient/atmosphere/captain_room.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	}
+
+	// position0 - goo tubes
+//	"playlooping"
+//	{
+//		"volume"	"0.1"
+//		"wave"	"ambient/machines/city_ventpump_loop1.wav"
+//		"pitch"		"100"
+//		"attenuation"	"0.7"
+//		"position"	"0"
+//	}
+
+	"playrandom"
+	{
+		"time"	"0.25, 2.0"
+		"volume"	"0.25,0.5"
+		"pitch"	"80,120"
+		"position"	"0"	
+		"rndwave"
+		{
+			"wave"	"physics/flesh/flesh_bloody_impact_hard1.wav"
+			"wave"	"physics/flesh/flesh_bloody_impact_hard1.wav"
+			"wave"	"physics/flesh/flesh_bloody_impact_hard1.wav"
+		}
+	}
+
+	// position1 - computers on desk
+	"playlooping"
+	{
+		"volume"	"0.1"
+		"wave"		"hl1/ambience/computalk2.wav"
+		"pitch"		"105"
+		"attenuation"	"0.7"
+		"position"	"1"
+	}
+		
+}
+
+// *******************************************************************************
+// ***************** E3_lab *****************
+
+"E3_lab.LabSounds"
+{
+	"dsp"	"17"
+
+	"playlooping"
+	{
+		"volume"	"0.5"
+		"pitch"		"100"
+		"attenuation"	"0"
+		"wave"		"#music/HL2_song10.mp3"
+		"suppress_on_restore"	"1" // don't restart this sound if loading a saved game
+	}
+
+	// position0 - goo tubes
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"	"ambient/atmosphere/city_beacon_loop1.wav"
+		"pitch"		"120"
+		"attenuation"	"0.7"
+		"position"	"0"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"	"ambient/machines/city_ventpump_loop1.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+		"position"	"0"
+	}
+
+	// position1 - computers on desk
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"		"ambient/machines/lab_loop1.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+		"position"	"1"
+	}
+		
+}
+
+// ***************** E3_lab *****************
+// *******************************************************************************
+
+
+
+
+
+
+
+
+
+

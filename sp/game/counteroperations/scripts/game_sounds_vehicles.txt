@@ -1,0 +1,871 @@
+// ******************************
+// CRANE
+
+
+"Crane_engine_idle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"		"vehicles/Crane/crane_idle_loop3.wav"
+}
+
+"Crane_engine_start"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"		"vehicles/Crane/crane_startengine1.wav"
+}
+
+"Crane_engine_stop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"		"common/null.wav"
+}
+
+"Crane_firstgear"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"90,120"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"		"vehicles/Crane/crane_turn_loop2.wav"
+}
+
+"Crane_throttleoff_slowspeed"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"		"vehicles/Crane/crane_slow_to_idle_loop4.wav"
+}
+
+"Crane_extend_start"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"			"vehicles/Crane/crane_extend_loop1.wav"
+}
+
+"Crane_extend_stop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"			"vehicles/Crane/crane_extend_stop.wav"
+}
+
+"Crane_magnet_release"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"			"vehicles/Crane/crane_magnet_release.wav"
+}
+
+"Crane_magnet_reelin"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"		"vehicles/Crane/crane_magnet_grab.wav"
+}
+
+
+"Crane_magnet_toggle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		"vehicles/Crane/crane_magnet_switchon.wav"
+}
+
+"Crane_magnet_creak"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"90, 110"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"vehicles/Crane/crane_creak1.wav"
+		"wave"	"vehicles/Crane/crane_creak2.wav"
+		"wave"	"vehicles/Crane/crane_creak3.wav"
+		"wave"	"vehicles/Crane/crane_creak4.wav"
+	}
+}
+
+
+
+// ******************************
+// JEEP
+
+
+"ATV_engine_idle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+
+	//"wave"		"vehicles/atv_idle_loop1.wav"
+	"wave"		"vehicles/v8/v8_idle_loop1.wav"
+}
+
+"ATV_engine_null"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"		"common/null.wav"
+}
+
+"ATV_engine_start"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	//"wave"		"vehicles/atv_start_loop1.wav"
+	"wave"		"vehicles/v8/v8_start_loop1.wav"
+}
+
+"ATV_engine_stop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+
+	//"wave"		"common/null.wav"
+	"wave"		"vehicles/v8/v8_stop1.wav"
+}
+
+"ATV_rev"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.9"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"98,105"
+	"wave"		"vehicles/v8/v8_rev_short_loop1.wav"
+
+//	"rndwave"
+//	{
+//		"wave"		"vehicles/v8/v8_rev_short_loop1.wav"
+//		"wave"		"vehicles/v8/v8_rev_short_loop6.wav"
+//	}
+}
+
+"ATV_reverse"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"			"100"
+	"wave"			"vehicles/v8/v8_firstgear_rev_loop1.wav"
+}
+
+
+"ATV_firstgear"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"100"
+	//"wave"		"vehicles/v8/v8_firstgear_rev_loop1.wav"
+	"wave"		"vehicles/v8/first.wav"
+}
+
+"ATV_secondgear"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,105"
+	//"wave"		"vehicles/atv_secondgear_to_fullthrottle_loop1.wav"
+	//"wave"		"vehicles/v8/v8_secondgear_loop1.wav"
+	"wave"		"vehicles/v8/second.wav"
+}
+
+"ATV_thirdgear"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,105"
+	//"wave"		"vehicles/atv_thirdgear_to_fullthrottle_loop1.wav"
+	//"wave"		"vehicles/v8/v8_secondgear_loop1.wav"
+	"wave"		"vehicles/v8/third.wav"
+}
+
+"ATV_fourthgear"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"105,105"
+	"wave"		"vehicles/v8/fourth_cruise_loop2.wav"
+}
+
+"ATV_firstgear_noshift"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"105,105"
+	// NOTE: This needs to be a looping sound
+	"wave"		"vehicles/v8/first.wav"
+}
+"ATV_secondgear_noshift"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"105,105"
+	// NOTE: This needs to be a looping sound
+	"wave"		"vehicles/v8/first.wav"
+}
+"ATV_thirdgear_noshift"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"105,105"
+	// NOTE: This needs to be a looping sound
+	"wave"		"vehicles/v8/first.wav"
+}
+
+"ATV_fourthgear_noshift"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"105,105"
+	// NOTE: This needs to be a looping sound
+	"wave"		"vehicles/v8/fourth_cruise_loop2.wav"
+}
+
+"ATV_downshift_to_2nd"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,105"
+	//"wave"		"vehicles/atv_downshift_to_2nd_loop1.wav"
+	"wave"		"vehicles/v8/first_rev.wav"
+	//"wave"		"vehicles/v8/downshift.wav"
+	//"wave"		"common/null.wav"
+}
+
+"ATV_downshift_to_1st"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,105"
+	//"wave"		"vehicles/atv_downshift_to_1st_loop1.wav"
+	"wave"		"vehicles/v8/first_rev.wav"
+	//"wave"		"vehicles/v8/downshift.wav"
+	//"wave"		"common/null.wav"
+}
+
+"ATV_throttleoff_slowspeed"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,105"
+	"wave"		"vehicles/v8/v8_throttle_off_slow_loop2.wav"
+	//"wave"		"vehicles/v8/v8_idle_loop1.wav"
+}
+
+"ATV_throttleoff_fastspeed"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,105"
+	//"wave"		"vehicles/atv_throttleoff_loop1.wav"
+	"wave"		"vehicles/v8/v8_throttle_off_fast_loop1.wav"
+	//"wave"		"common/null.wav"
+}
+
+"ATV_skid_lowfriction"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,110"
+	//"wave"		"vehicles/atv_skid_lowfriction.wav"
+	"wave"		"vehicles/v8/skid_lowfriction.wav"
+}
+
+"ATV_skid_normalfriction"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,110"
+	//"wave"		"vehicles/atv_skid_normalfriction.wav"
+	"wave"		"vehicles/v8/skid_normalfriction.wav"
+}
+
+"ATV_skid_highfriction"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,110"
+	//"wave"		"vehicles/atv_skid_highfriction.wav"
+	"wave"		"vehicles/v8/skid_highfriction.wav"
+}
+
+"ATV_impact_heavy"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"95,110"
+	"rndwave"
+	{
+		"wave"	"vehicles/v8/vehicle_impact_heavy1.wav"
+		"wave"	"vehicles/v8/vehicle_impact_heavy2.wav"
+		"wave"	"vehicles/v8/vehicle_impact_heavy3.wav"
+		"wave"	"vehicles/v8/vehicle_impact_heavy4.wav"
+	}
+}
+
+"ATV_impact_medium"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"95,110"
+	"rndwave"
+	{
+		"wave"	"vehicles/v8/vehicle_impact_medium1.wav"
+		"wave"	"vehicles/v8/vehicle_impact_medium2.wav"
+		"wave"	"vehicles/v8/vehicle_impact_medium3.wav"
+		"wave"	"vehicles/v8/vehicle_impact_medium4.wav"
+	}
+}
+
+"ATV_rollover"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"95,110"
+	"rndwave"
+	{
+		"wave"	"vehicles/v8/vehicle_rollover1.wav"
+		"wave"	"vehicles/v8/vehicle_rollover2.wav"
+	}
+}
+
+
+"ATV_turbo_on"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,110"
+	//"wave"		"vehicles/vehicle_turbo_loop3.wav"
+	"wave"		"vehicles/v8/v8_turbo_on_loop1.wav"
+}
+
+"ATV_turbo_off"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,110"
+	//"wave"		"vehicles/vehicle_turbo_off1.wav"
+	"wave"		"vehicles/v8/v8_turbo_off.wav"
+}
+
+"ATV_start_in_water"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"			"100"
+	"wave"			"vehicles/jetski/jetski_no_gas_start.wav"
+}
+
+"ATV_stall_in_water"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"			"100"
+	"wave"			"vehicles/jetski/jetski_off.wav"
+}
+
+"Jeep.GaussCharge"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"soundlevel"	"SNDLVL_NORM"
+	"wave"		"weapons/gauss/chargeloop.wav"
+}
+
+"PropJeep.FireCannon"
+{
+	"channel"		"CHAN_AUTO"
+	"volume"		"0.750, 1.000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"weapons/gauss/fire1.wav"
+}
+
+"PropJeep.FireChargedCannon"
+{
+	"channel"		"CHAN_AUTO"
+	"volume"		"0.750, 1.000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"weapons/gauss/fire1.wav"
+}
+
+"PropJeep.AmmoOpen"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,110"
+	"wave"		"vehicles/atv_ammo_open.wav"
+}
+
+"PropJeep.AmmoClose"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"soundlevel"	"SNDLVL_80dB"
+	"pitch"		"90,110"
+	"wave"		"vehicles/atv_ammo_close.wav"
+}
+
+// **********************************
+// APC
+
+
+"PropAPC.FireCannon"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_130dB"
+
+	"wave"			"weapons/stinger_fire1.wav"
+}
+
+"PropAPC.FireRocket"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_130dB"
+
+	"wave"			"weapons/stinger_fire1.wav"
+}
+
+// ******************************
+// AIRBOAT
+
+// NOTE: play engine idle 3.15 seconds after engine start
+// NOTE: if you change the volume of the start sound here, you need to change ENGINE_MAX_VOLUME in vehicle_airboat.cpp!
+"Airboat_engine_start"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"soundlevel"	"SNDLVL_NORM"
+	"pitch"			"95,105"
+
+	"wave"			"vehicles/airboat/fan_motor_start1.wav"
+}
+
+// kill all engine loops and play this
+
+"Airboat_engine_stop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"vehicles/airboat/fan_motor_shut_off1.wav"
+}
+
+// pitch shift between max & min pitch, based on speed
+
+"Airboat_engine_idle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100,160"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"vehicles/airboat/fan_motor_idle_loop1.wav"
+}
+
+"Airboat_engine_fullthrottle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"80,130"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		"vehicles/airboat/fan_motor_fullthrottle_loop1.wav"
+}
+
+// pitch shift between max & min based on throttle
+
+"Airboat_fan_idle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.9"
+	"pitch"			"100,120"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"vehicles/airboat/fan_blade_idle_loop1.wav"
+}
+
+"Airboat_fan_fullthrottle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"		"100,120"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		"vehicles/airboat/fan_blade_fullthrottle_loop1.wav"
+}
+
+// one-shot, pontoon skid on rough surface
+
+"Airboat_skid_rough"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"pitch"			"80, 120"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"vehicles/airboat/pontoon_scrape_rough1.wav"
+		"wave"	"vehicles/airboat/pontoon_scrape_rough2.wav"
+		"wave"	"vehicles/airboat/pontoon_scrape_rough3.wav"
+	}
+}
+
+// one-shot, pontoon skid on smooth surface
+
+"Airboat_skid_smooth"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"pitch"			"80, 120"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"vehicles/airboat/pontoon_scrape_smooth1.wav"
+		"wave"	"vehicles/airboat/pontoon_scrape_smooth2.wav"
+		"wave"	"vehicles/airboat/pontoon_scrape_smooth3.wav"
+	}
+}
+
+// hard landing
+
+"Airboat_impact_hard"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"vehicles/airboat/pontoon_impact_hard1.wav"
+		"wave"	"vehicles/airboat/pontoon_impact_hard2.wav"
+	}
+}
+
+// soft landing
+
+"Airboat_impact_soft"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"vehicles/airboat/pontoon_impact_soft1.wav"
+}
+
+// hard landing in water. Also play Airboat_impact_hard.
+
+"Airboat_impact_splash"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"vehicles/airboat/pontoon_splash1.wav"
+		"wave"	"vehicles/airboat/pontoon_splash2.wav"
+	}
+}
+
+// water lapping on pontoons (loop)
+// fade out in 2 seconds when moving, fade in in 2 seconds when stopped
+
+"Airboat_water_stopped"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.5"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"vehicles/airboat/pontoon_stopped_water_loop1.wav"
+}
+
+// under way - water splashing on pontoons (loop)
+// fade in from 0 volume, based on speed
+
+"Airboat_water_fast"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"vehicles/airboat/pontoon_fast_water_loop2.wav"
+}
+
+"Airboat_gun_charge"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"weapons/airboat/chargeloop.wav"
+}
+
+"Airboat_gun_shoot"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"1.0"
+	"pitch"			"98,101"
+							 
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"wave"	"weapons/airboat/shoot.wav"
+}
+
+"Airboat.FireGunLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"wave"			"weapons/airboat/airboat_gun_loop2.wav"
+}
+
+"Airboat.FireGunRevDown"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"rndwave"
+	{
+		"wave"			"weapons/airboat/airboat_gun_lastshot1.wav"
+		"wave"			"weapons/airboat/airboat_gun_lastshot2.wav"
+	}
+}
+
+"Airboat.FireGunHeavy"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"rndwave"
+	{
+		"wave"			"weapons/airboat/airboat_gun_energy1.wav"
+		"wave"			"weapons/airboat/airboat_gun_energy2.wav"
+	}
+}
+
+"Airboat_NoSound"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"common/null.wav"
+}
+
+"Airboat_headlight_on"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1.0"
+	"soundlevel"    "SNDLVL_75dB"
+	"pitch"	"PITCH_NORM"
+
+	"wave" "items/flashlight1.wav"
+}
+
+"Airboat_headlight_off"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"	"PITCH_NORM"
+
+	"wave" "items/flashlight1.wav"
+}
+
+// **********************************
+// Prisoner pod
+
+"PrisonerPod.NoSound"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"common/null.wav"
+}
+
+// ******************************
+// Combine APC
+
+"apc_engine_idle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.7"
+	"soundlevel"	"SNDLVL_75db"
+
+	"wave"		"vehicles/apc/apc_idle1.wav"
+}
+
+"apc_engine_start"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.85"
+	"soundlevel"	"SNDLVL_95db"
+
+	"wave"		"vehicles/apc/apc_start_loop3.wav"
+}
+
+"apc_engine_stop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.85"
+	"soundlevel"	"SNDLVL_95db"
+
+	"wave"		"vehicles/apc/apc_shutdown.wav"
+}
+
+"apc_firstgear"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.85"
+	"soundlevel"	"SNDLVL_95db"
+	"pitch"		"100"
+	"wave"		"vehicles/apc/apc_firstgear_loop1.wav"
+}
+
+"apc_firstgear_resume"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.85"
+	"soundlevel"	"SNDLVL_95db"
+	"pitch"		"100"
+	"wave"		"vehicles/apc/apc_cruise_loop3.wav"
+}
+
+"apc_throttleoff_slowspeed"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.85"
+	"soundlevel"	"SNDLVL_95db"
+	"pitch"		"100"
+	"wave"		"vehicles/apc/apc_idle1.wav"
+}
+
+"apc_throttleoff_fastspeed"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.68"
+	"soundlevel"	"SNDLVL_95db"
+	"pitch"		"100"
+	"wave"		"vehicles/apc/apc_slowdown_fast_loop5.wav"
+}

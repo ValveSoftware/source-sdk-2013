@@ -1,0 +1,231 @@
+//-- Breen's Office
+criterion "IsFollowBreenConcept" "concept" "BreenFollowNag" "required"
+criterion "IsGetGravGunConcept" "concept" "GetGravNag" "required"
+criterion "IsChargeYourSuitConcept" "concept" "ChargeSuitNag" "required"
+criterion "IsGetInElevatorConcept" "concept" "InElevatorNag" "required"
+
+//-- Breen's Teleport
+criterion "IsBreenTaunt1Concept" "concept" "BreenTaunt1Nag" "required"
+criterion "IsBreenTaunt2Concept" "concept" "BreenTaunt2Nag" "required"
+criterion "IsBreenTaunt3Concept" "concept" "BreenTaunt3Nag" "required"
+criterion "IsBreenTaunt4Concept" "concept" "BreenTaunt4Nag" "required"
+criterion "IsBreenTaunt5Concept" "concept" "BreenTaunt5Nag" "required"
+criterion "IsBreenTaunt6Concept" "concept" "BreenTaunt6Nag" "required"
+criterion "IsBreenTaunt7Concept" "concept" "BreenTaunt7Nag" "required"
+criterion "IsBreenTaunt8Concept" "concept" "BreenTaunt8Nag" "required"
+criterion "IsBreenTaunt9Concept" "concept" "BreenTaunt9Nag" "required"
+
+//***============================================================================================================
+//***
+//*** Breen's Office Nags
+//***
+//***============================================================================================================
+//============================================================================================================
+// Getting into the lift (follow Breen)
+//============================================================================================================
+response "FollowBreenNag"
+{
+	scene "scenes/citadel/al_nag_exit01.vcd" defaultdelay
+	scene "scenes/citadel/al_nag_exit02.vcd" defaultdelay
+}
+
+rule NagFollowBreen
+{
+	criteria		IsFollowBreenConcept
+	response		FollowBreenNag
+}
+
+//============================================================================================================
+// Pick up the gravity gun, Gordon
+//============================================================================================================
+response "GetGravGunNag"
+{
+	scene "scenes/citadel/al_gravgun_nag01.vcd" defaultdelay
+	scene "scenes/citadel/al_gravgun_nag02.vcd" defaultdelay
+}
+
+rule NagGetGravGun
+{
+	criteria		IsGetGravGunConcept
+	response		GetGravGunNag
+}
+
+//============================================================================================================
+// Charge your suit (control room)
+//============================================================================================================
+response "ChargeYourSuitNag"
+{
+	scene "scenes/citadel/al_chargesuit_nag01.vcd" defaultdelay
+	scene "scenes/citadel/al_chargesuit_nag02.vcd" defaultdelay
+}
+
+rule NagChargeYourSuit
+{
+	criteria		IsChargeYourSuitConcept
+	response		ChargeYourSuitNag
+}
+
+//============================================================================================================
+// Getting onto the elevator (control room)
+//============================================================================================================
+response "GetInElevatorNag"
+{
+	scene "scenes/citadel/al_elevator_nag01.vcd" defaultdelay
+	scene "scenes/citadel/al_elevator_nag02.vcd" defaultdelay
+}
+
+rule NagGetInElevator
+{
+	criteria		IsGetInElevatorConcept
+	response		GetInElevatorNag
+}
+
+
+//***============================================================================================================
+//***
+//*** Breen's Teleport Nags
+//***
+//***============================================================================================================
+//============================================================================================================
+// TP Wave 1
+//============================================================================================================
+response "BreenTaunt1Nag"
+{
+	scene "scenes/citadel/al_tp_nag1_1.vcd" defaultdelay
+}
+
+rule NagBreenTaunt1
+{
+	criteria		IsBreenTaunt1Concept
+	response		BreenTaunt1Nag
+}
+
+//============================================================================================================
+// TP Wave 2
+//============================================================================================================
+response "BreenTaunt2Nag"
+{
+	scene "scenes/citadel/al_keepgoing.vcd" 
+	scene "scenes/citadel/al_yes.vcd" 
+	scene "scenes/citadel/al_itsbreen.vcd" 
+}
+
+rule NagBreenTaunt2
+{
+	criteria		IsBreenTaunt2Concept
+	response		BreenTaunt2Nag
+}
+
+//============================================================================================================
+// TP Wave 3
+//============================================================================================================
+response "BreenTaunt3Nag"
+{
+	scene "scenes/citadel/al_tp_nag3_1.vcd" 
+	scene "scenes/citadel/al_tp_nag3_2.vcd" 
+}
+
+rule NagBreenTaunt3
+{
+	criteria		IsBreenTaunt3Concept
+	response		BreenTaunt3Nag
+}
+
+//============================================================================================================
+// TP Wave 4
+//============================================================================================================
+response "BreenTaunt4Nag"
+{
+	scene "scenes/citadel/al_ifonly.vcd" displayfirst 
+	scene "scenes/citadel/al_funnel.vcd" 
+}
+
+rule NagBreenTaunt4
+{
+	criteria		IsBreenTaunt4Concept
+	response		BreenTaunt4Nag
+}
+
+//============================================================================================================
+// TP Wave 5
+//============================================================================================================
+response "BreenTaunt5Nag"
+{
+	scene "scenes/citadel/al_bothtypes.vcd" displayfirst 
+	scene "scenes/citadel/al_misenergy.vcd" 
+	scene "scenes/citadel/al_shootbeam.vcd" 
+}
+
+rule NagBreenTaunt5
+{
+	criteria		IsBreenTaunt5Concept
+	response		BreenTaunt5Nag
+}
+
+//============================================================================================================
+// TP Wave 6
+//============================================================================================================
+response "BreenTaunt6Nag"
+{
+	scene "scenes/citadel/al_workingd" displayfirst 
+	scene "scenes/citadel/al_staybackbeam.vcd" 
+}
+
+rule NagBreenTaunt6
+{
+	criteria		IsBreenTaunt6Concept
+	response		BreenTaunt6Nag
+}
+
+//============================================================================================================
+// TP Wave 7
+//============================================================================================================
+response "BreenTaunt7Nag"
+{
+	scene "scenes/citadel/al_critical.vcd" displayfirst defaultdelay
+	scene "scenes/citadel/al_working.vcd" defaultdelay
+	scene "scenes/citadel/al_stayawaycore.vcd" 
+	scene "scenes/citadel/al_exhaust.vcd"
+}
+
+rule NagBreenTaunt7
+{
+	criteria		IsBreenTaunt7Concept
+	response		BreenTaunt7Nag
+}
+
+//============================================================================================================
+// TP Wave 8
+//============================================================================================================
+response "BreenTaunt8Nag"
+{
+	scene "scenes/citadel/al_pulses.vcd" 
+	scene "scenes/citadel/al_exhaust.vcd" 
+	scene "scenes/citadel/al_uptop.vcd" displayfirst
+	scene "scenes/citadel/al_launchup.vcd" 
+	scene "scenes/citadel/al_tearapart.vcd" 
+}
+
+rule NagBreenTaunt8
+{
+	criteria		IsBreenTaunt8Concept
+	response		BreenTaunt8Nag
+}
+
+//============================================================================================================
+// TP Wave 9
+//============================================================================================================
+response "BreenTaunt9Nag"
+{
+	scene "scenes/citadel/al_tp_nag9_1.vcd" defaultdelay
+	scene "scenes/citadel/al_tp_nag9_2.vcd" defaultdelay
+	scene "scenes/citadel/al_tp_nag9_3.vcd" displayfirst defaultdelay
+	scene "scenes/citadel/al_core_exhaust.vcd" 
+}
+
+rule NagBreenTaunt7
+{
+	criteria		IsBreenTaunt9Concept
+	response		BreenTaunt9Nag
+}
+

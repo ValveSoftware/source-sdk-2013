@@ -1,0 +1,83 @@
+"NPC_CombineBall.Explosion"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_140dB"
+
+	"wave"			"weapons/physcannon/energy_sing_explosion2.wav"
+}
+
+"NPC_CombineBall.HoldingInPhysCannon"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.9"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"			"weapons/physcannon/energy_sing_loop4.wav"
+}
+
+"NPC_CombineBall.WhizFlyby"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"rndwave"
+	{
+		"wave"	"weapons/physcannon/energy_sing_flyby1.wav"
+		"wave"	"weapons/physcannon/energy_sing_flyby2.wav"
+	}
+}
+
+"NPC_CombineBall.Launch"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"rndwave"
+	{
+		"wave"	"weapons/physcannon/energy_sing_flyby1.wav"
+		"wave"	"weapons/physcannon/energy_sing_flyby2.wav"
+	}
+}
+
+"NPC_CombineBall.KillImpact"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"rndwave"
+	{
+		"wave"	"weapons/physcannon/energy_disintegrate4.wav"
+		"wave"	"weapons/physcannon/energy_disintegrate5.wav"
+	}
+}
+
+"NPC_CombineBall.Impact"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_100DB"
+
+	"rndwave"
+	{
+		"wave"	"weapons/physcannon/energy_bounce1.wav"
+		"wave"	"weapons/physcannon/energy_bounce2.wav"
+	}
+}
+
+

@@ -1,0 +1,84 @@
+//-- Trainstation
+criterion "IsBarneyGetOutConcept" "concept" "BGetOutNag" "required"
+criterion "IsCitHoldDoorConcept" "concept" "CitDoor1Nag" "required"
+
+//-- Alyx Intro
+criterion "IsAIntroFollow1nagConcept" "concept" "AIntFollow1Nag" "required"
+criterion "IsAIntroFollow2nagConcept" "concept" "AIntFollow2Nag" "required"
+
+//***============================================================================================================
+//***
+//*** Trainstation Nags
+//***
+//***============================================================================================================
+//============================================================================================================
+// Barney Intro - Interrogation ROom
+//============================================================================================================
+response "BarneyGetOutNag"
+{
+	scene "scenes/trainyard/ba_exitnag01.vcd" displayfirst
+	scene "scenes/trainyard/ba_exitnag02.vcd"
+	scene "scenes/trainyard/ba_exitnag03.vcd"
+	scene "scenes/trainyard/ba_exitnag04.vcd"
+	scene "scenes/trainyard/ba_exitnag05.vcd"
+	scene "scenes/trainyard/ba_exitnag06.vcd"
+	scene "scenes/trainyard/ba_exitnag07.vcd"
+}
+
+rule NagBarneyGetOut
+{
+	criteria		IsBarneyGetOutConcept
+	response		BarneyGetOutNag
+}
+
+//============================================================================================================
+// Citizen Holding back cops Nags
+//============================================================================================================
+response "CitHoldingDoorNag"
+{
+	scene "scenes/trainyard/cit_blocker_holdem.vcd"
+	scene "scenes/trainyard/cit_blocker_go01.vcd"
+	scene "scenes/trainyard/cit_blocker_go02.vcd"
+	scene "scenes/trainyard/cit_blocker_go03.vcd"
+}
+
+rule NagCitHoldingDoor
+{
+	criteria		IsCitHoldDoorConcept
+	response		CitHoldingDoorNag
+}
+
+//***============================================================================================================
+//***
+//*** Alyx Intro Nags
+//***
+//***============================================================================================================
+//============================================================================================================
+// Elevator Nags
+//============================================================================================================
+response "NagAIntroFollow1"
+{
+	scene "scenes/k_lab/al_thisway.vcd"
+}
+
+rule NagAIntroFollow1
+{
+	criteria		IsAIntroFollow1nagConcept
+	response		NagAIntroFollow1
+}
+
+//============================================================================================================
+// Hallway Nags
+//============================================================================================================
+response "NagAIntroFollow2"
+{
+	scene "scenes/k_lab/al_cmongordon.vcd" displayfirst
+	scene "scenes/k_lab/al_thisway.vcd"
+}
+
+rule NagAIntroFollow2
+{
+	criteria		IsAIntroFollow2nagConcept
+	response		NagAIntroFollow2
+}
+

@@ -1,0 +1,74 @@
+// Citizen package. Not really a weapon, just needs to be a visible model for citizens to open.
+
+WeaponData
+{
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"	"#HL2_SMG1"
+	"viewmodel"			"models/weapons/w_suitcase_passenger.mdl"
+	"playermodel"			"models/weapons/w_suitcase_passenger.mdl"
+	"anim_prefix"			"smg2"
+	"bucket"				"2"
+	"bucket_position"		"0"
+
+	"clip_size"				"-1"
+	"clip2_size"			"-1"
+
+	"default_clip"			"-1"
+	"default_clip2"			"-1"
+
+	"primary_ammo"			"None"
+	"secondary_ammo"		"None"
+
+	"weight"				"0"
+	"item_flags"			"0"
+
+	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
+	SoundData
+	{
+	}
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"file"		"sprites/w_icons1"
+				"x"			"128"
+				"y"			"128"
+				"width"		"128"
+				"height"	"64"
+		}
+		"weapon_s"
+		{
+				"file"		"sprites/w_icons1b"
+				"x"			"128"
+				"y"			"128"
+				"width"		"128"
+				"height"	"64"
+		}
+		"ammo"
+		{
+				"file"		"sprites/a_icons1"
+				"x"			"55"
+				"y"			"60"
+				"width"		"73"
+				"height"	"15"
+		}
+		"crosshair"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"0"
+				"y"			"48"
+				"width"		"24"
+				"height"	"24"
+		}
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"0"
+				"y"			"48"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+}

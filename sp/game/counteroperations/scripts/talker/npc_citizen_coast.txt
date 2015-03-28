@@ -1,0 +1,272 @@
+//====================================================================================================
+// Coast specific criteria
+//====================================================================================================
+criterion "IsOdessaVillager" "odessavillager" "1" required
+criterion "OdessaAlive" "worldodessadead" "0" required
+criterion "OdessaDead" "worldodessadead" "1" required
+criterion "GunshipDead" "worldgunshipdead" "1" required
+criterion "GunshipAlive" "worldgunshipdead" "0" required
+
+criterion "IsMap_d2_coast_10" "map" "d2_coast_10" required
+criterion "TauHasNotBeenRemoved" "tauonjeep" "1"
+criterion "TauHasBeenRemoved" "tauonjeep" "0"
+
+//====================================================================================================
+// d2_coast_02
+//====================================================================================================
+//======================================================
+// Guy who leads you up the stairs to the vortigaunt
+//======================================================
+
+response "OdessaVillagerLeadWaitOver"
+{
+//	scene "scenes/coast/odessa/leadwaitover.vcd"
+}
+
+rule OdessaVillagerLeadWaitOver
+{
+	criteria		IsOdessaVillager ConceptLeadWaitOver 
+	response		OdessaVillagerLeadWaitOver
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "OdessaVillagerLeadCatchup"
+{
+	scene "scenes/coast/odessa/leadlaggingbehind01.vcd" weight 0.5
+	scene "scenes/coast/odessa/leadlaggingbehind02.vcd" weight 0.5
+	scene "scenes/coast/odessa/$gender01/stairman_follow01.vcd" weight 2.0
+	scene "scenes/coast/odessa/$gender01/stairman_follow03.vcd" weight 2.0
+}
+
+rule OdessaVillagerLeadCatchup
+{
+	criteria		IsOdessaVillager ConceptLeadRetrieve
+	response		OdessaVillagerLeadCatchup
+}
+
+
+//======================================================
+// General villagers
+//======================================================
+response "OdessaVillagerBeforeGunship"
+{
+	scene "scenes/coast/odessa/$gender01/nlo_citizen_greet01.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_citizen_greet02.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_citizen_greet03.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_citizen_greet04.vcd"
+}
+
+rule OdessaVillagerUseBeforeGunship
+{
+	criteria		ConceptTalkUse IsOdessaVillager GunshipAlive
+	response		OdessaVillagerBeforeGunship
+}
+
+rule OdessaVillagerStareBeforeGunship
+{
+	criteria		ConceptTalkStare IsOdessaVillager GunshipAlive
+	response		OdessaVillagerBeforeGunship
+}
+
+
+
+//------------------------------------------------------------------------------------------------------------
+response "OdessaVillagerAfterGunship"
+{
+	scene "scenes/coast/odessa/$gender01/nlo_citizen_post01.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_citizen_post02.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_citizen_post03.vcd"
+
+}
+
+rule OdessaVillagerUseAfterGunship
+{
+	criteria		ConceptTalkUse IsOdessaVillager GunshipDead
+	response		OdessaVillagerAfterGunship
+}
+
+rule OdessaVillagerStareAfterGunship
+{
+	criteria		ConceptTalkStare IsOdessaVillager GunshipDead
+	response		OdessaVillagerAfterGunship
+}
+
+//---------------------------------------------------------------
+
+response "OdessaVillagerHelloDead"
+{
+	scene "scenes/coast/odessa/$gender01/nlo_opengate.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_cubdeath01.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_cubdeath02.vcd"
+
+}
+
+rule OdessaVillagerHelloDead
+{
+	criteria		IsCitizen ConceptTalkHello IsOdessaVillager OdessaDead NPCIdle  PlayerNear SeePlayer
+	response		OdessaVillagerHelloDead
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "OdessaVillagerHelloAlive"
+{
+//
+}
+
+rule OdessaVillagerHelloAlive
+{
+	criteria		IsCitizen ConceptTalkHello IsOdessaVillager OdessaAlive NPCIdle  PlayerNear SeePlayer
+	response		OdessaVillagerHelloAlive
+}
+
+//------------------------------------------------------------------------------------------------------------
+// For now, the idle citizens keep telling you to go see Odessa
+rule OdessaVillagerTalkIdle
+{
+ 	criteria      		IsOdessaVillager IsCitizen ConceptTalkIdle OdessaAlive NPCIdle
+ 	response  		OdessaVillagerHelloAlive
+}
+
+// If Odessa's dead, the citizens just idly mourn him
+rule OdessaVillagerTalkIdle
+{
+ 	criteria      		IsOdessaVillager IsCitizen ConceptTalkIdle OdessaDead NPCIdle
+ 	response  		OdessaVillagerHelloDead
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "OdessaVillagerIdleGunshipDead"
+{
+//
+}
+
+// If Odessa's alive, but the gunship's dead, the citizens tell you to get moving
+rule OdessaVillagerTalkIdle
+{
+ 	criteria      		IsOdessaVillager IsCitizen ConceptTalkIdle OdessaAlive GunshipDead NPCIdle
+ 	response  		OdessaVillagerIdleGunshipDead
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "OdessaVillagerResponsePlayerKilledGunship"
+{
+	scene "scenes/coast/odessa/$gender01/nlo_cheer01.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_cheer02.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_cheer03.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_cheer04.vcd"
+}
+
+rule OdessaVillagerResponsePlayerKilledGunship
+{
+	criteria		IsCitizen ConceptCRPlayerKilledGunship
+	response		OdessaVillagerResponsePlayerKilledGunship
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "OdessaVillagerResponseVitalNPCDied"
+{
+	scene "scenes/coast/odessa/$gender01/nlo_cubdeath01.vcd"
+	scene "scenes/coast/odessa/$gender01/nlo_cubdeath02.vcd"
+}
+
+rule OdessaVillagerResponseVitalNPCDied
+{
+	criteria		IsCitizen ConceptCRVitalNPCDied
+	response		OdessaVillagerResponseVitalNPCDied
+}
+
+
+//====================================================================================================
+// d2_coast_10
+//====================================================================================================
+//======================================================
+// Citizen who leads you to the secret door of the lighthouse
+//======================================================
+response "ExitLeadStart"
+{
+	scene "scenes/coast/barn/$gender01/exit_cliffpath.vcd"
+}
+
+rule ExitLeadStart
+{
+	criteria		IsMap_d2_coast_10 ConceptLeadStart
+	response		ExitLeadStart
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "ExitLeadCatchup"
+{
+	scene "scenes/coast/barn/$gender01/exit_comewith.vcd"	
+}
+
+rule ExitLeadCatchup
+{
+	criteria		IsMap_d2_coast_10 ConceptLeadCatchup
+	response		ExitLeadCatchup
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response "ExitLeadRetrieve"
+{
+	scene "scenes/npc/$gender01/letsgo02.vcd"
+}
+
+rule ExitLeadRetrieve
+{
+	criteria		IsMap_d2_coast_10 ConceptLeadRetrieve
+	response		ExitLeadRetrieve
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "ExitLeadSuccess"
+{
+	scene "scenes/coast/barn/$gender01/exit_watchstep.vcd"
+}
+
+rule ExitLeadSuccess
+{
+	criteria		IsMap_d2_coast_10 ConceptLeadSuccess
+	response		ExitLeadSuccess
+}
+
+//======================================================
+// General villagers 
+//======================================================
+response "d2_coast_10_Hello"
+{
+	sequential
+	scene "scenes/coast/barn/$gender01/parkit.vcd" nodelay speakonce
+	scene "scenes/coast/barn/$gender01/chatter.vcd" nodelay speakonce
+	scene "scenes/coast/barn/$gender01/ditchcar.vcd" nodelay speakonce
+	scene "scenes/coast/barn/$gender01/getcarinbarn.vcd" nodelay speakonce
+	scene "scenes/coast/barn/$gender01/gettauoff.vcd" speakonce
+}
+
+//rule d2_coast_10_Hello
+//{
+//	criteria		IsCitizen ConceptTalkHello IsMap_d2_coast_10 NPCIdle  PlayerNear SeePlayer
+//	response		d2_coast_10_Hello
+//}
+
+//------------------------------------------------------------------------------------------------------------
+// For now, the idle citizens keep telling you to get your car into the barn
+rule d2_coast_10_CitizenTalkIdle
+{
+ 	criteria      		IsMap_d2_coast_10 IsCitizen ConceptTalkStare NPCIdle
+ 	response  		d2_coast_10_Hello
+}
+
+//======================================================
+// Villager responses [This bit was cut; no feedback when shooting with a pistol.]
+//======================================================
+//response "d2_coast_10_ResponsePlayerShotGunship"
+//{
+//	scene "scenes/coast/odessa/$gender01/nlo_userockets.vcd"
+//}
+//
+//rule d2_coast_10_ResponsePlayerShotGunship
+//{
+//	criteria		IsMap_d2_coast_10 ConceptCRPlayerShotGunship
+//	response		d2_coast_10_ResponsePlayerShotGunship
+//}

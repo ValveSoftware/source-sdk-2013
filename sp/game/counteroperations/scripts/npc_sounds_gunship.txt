@@ -1,0 +1,150 @@
+"NPC_CombineGunship.CannonSound"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"90"
+
+	"soundlevel"	"SNDLVL_140dB"
+
+	"wave"			"npc/combine_gunship/gunship_weapon_fire_loop6.wav"
+}
+
+"NPC_CombineGunship.CannonStartSound"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.9"
+	"pitch"			"95,105"
+
+	"soundlevel"	"SNDLVL_140dB"
+
+	"wave"			"npc/combine_gunship/attack_start2.wav"
+}
+
+"NPC_CombineGunship.CannonStopSound"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"1.0"
+	"pitch"			"95,105"
+
+	"soundlevel"	"SNDLVL_140dB"
+
+	"wave"			"npc/combine_gunship/attack_stop2.wav"
+}
+
+"NPC_CombineGunship.DyingSound"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_130dB"
+
+	"wave"			"npc/combine_gunship/gunship_crashing1.wav"
+}
+
+"NPC_CombineGunship.RotorSound"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_130dB"
+
+	//"wave"			"npc/combine_gunship/gunship_engine_loop3.wav"
+	"wave"			"^npc/combine_gunship/engine_whine_loop1.wav"
+}
+
+// "NPC_CombineGunship.IntakeSound"
+// {
+// 	"channel"		"CHAN_STATIC"
+// 	"volume"		"0.8"
+// 	"pitch"			"100"
+// 
+// 	"soundlevel"	"SNDLVL_100dB"
+// 
+// 	"wave"			"npc/combine_gunship/wind_blow_loop1.wav"
+// }
+
+"NPC_CombineGunship.ExhaustSound"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	// "wave"			"npc/combine_gunship/wind_blow_loop1.wav"
+	"wave"			"npc/combine_gunship/engine_rotor_loop1.wav"
+
+}
+
+"NPC_CombineGunship.RotorBlastSound"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	//"wave"			"npc/combine_gunship/wind_blast_loop1.wav"
+	"wave"			"npc/combine_gunship/gunship_engine_loop3.wav"
+}
+
+"NPC_CombineGunship.SearchPing"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800"
+	"pitch"			"95,105"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"npc/combine_gunship/gunship_ping_search.wav"
+}
+
+"NPC_CombineGunship.PatrolPing"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800"
+	"pitch"			"100,110"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"npc/combine_gunship/ping_search.wav"
+}
+
+"NPC_CombineGunship.SeeEnemy"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800"
+	"pitch"			"80,120"
+
+	"soundlevel"	"SNDLVL_120dB"
+	"rndwave"
+	{
+		"wave"			"npc/combine_gunship/gunship_moan.wav"
+		"wave"			"npc/combine_gunship/see_enemy.wav"
+		"wave"			"npc/combine_gunship/ping_patrol.wav"
+	}
+}
+
+"NPC_CombineGunship.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"90,115"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"npc/combine_gunship/gunship_pain.wav"
+}
+
+"NPC_CombineGunship.Explode"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"wave"			"npc/combine_gunship/gunship_explode2.wav"
+}

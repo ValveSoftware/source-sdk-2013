@@ -1,0 +1,54 @@
+"NPC_CombineDropship.RotorLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_140dB"
+
+	"wave"			"npc/combine_gunship/dropship_engine_distant_loop1.wav"
+}
+
+"NPC_CombineDropship.NearRotorLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_130dB"
+
+	"wave"			"npc/combine_gunship/dropship_engine_near_loop1.wav"
+}
+
+"NPC_CombineDropship.FireLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_130dB"
+
+	"wave"			"npc/combine_gunship/gunship_fire_loop1.wav"
+}
+
+"NPC_CombineDropship.OnGroundRotorLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_130dB"
+
+	"wave"			"npc/combine_gunship/dropship_onground_loop1.wav"
+}
+
+"NPC_CombineDropship.DescendingWarningLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_140dB"
+
+	"wave"			"npc/combine_gunship/dropship_dropping_pod_loop1.wav"
+}

@@ -1,0 +1,508 @@
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f	75dB
+//	ATTN_IDLE		2.0f	60dB
+//	ATTN_STATIC		1.25f	66dB
+//	ATTN_RICOCHET	1.5f	65dB
+//	ATTN_GUNFIRE	0.27f	140dB
+
+//	SNDLVL_50dB		= 50,	// 3.9
+//	SNDLVL_55dB		= 55,	// 3.0
+//	SNDLVL_IDLE		= 60,	// 2.0
+//	SNDLVL_TALKING	= 60,	// 2.0
+//	SNDLVL_60dB		= 60,	// 2.0
+//	SNDLVL_65dB		= 65,	// 1.5
+//	SNDLVL_STATIC	= 66,	// 1.25
+//	SNDLVL_70dB		= 70,	// 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	// 0.8
+//	SNDLVL_80dB		= 80,	// 0.7
+//	SNDLVL_85dB		= 85,	// 0.6
+//	SNDLVL_90dB		= 90,	// 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	// 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140,	// 0.27
+//	SNDLVL_140dB	= 140,	// 0.2
+//	SNDLVL_150dB	= 150,	// 0.2
+
+// *******************************************************************************
+// ***************** Kleiner's Lab *****************
+
+"eli_01_lab_main_1"
+{
+	"dsp"	"9"
+
+	// lab ambience
+	"playlooping"
+	{
+		"volume"	"0.1"
+		"wave"	"ambient/atmosphere/captain_room.wav"
+		"pitch"		"100"
+		"attenuation"	"ATTN_IDLE"
+	}
+
+	// position0 - goo tubes
+	"playlooping"
+	{
+		"volume"	"0.05"
+		"wave"	"ambient/water/water_in_boat1.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+		"position"	"0"
+	}
+
+	"playrandom"
+	{
+		"time"	"0.25, 2.0"
+		"volume"	"0.05,0.1"
+		"pitch"	"80,120"
+		"position"	"0"	
+		"rndwave"
+		{
+			"wave"	"physics/flesh/flesh_bloody_impact_hard1.wav"
+			"wave"	"physics/flesh/flesh_bloody_impact_hard1.wav"
+			"wave"	"physics/flesh/flesh_bloody_impact_hard1.wav"
+		}
+	}
+
+	// position1 - computers on desk
+	"playlooping"
+	{
+		"volume"	"0.05"
+		"wave"		"ambient/levels/labs/equipment_beep_loop1.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+		"position"	"1"
+	}
+
+	// position2 - elevatorshaft
+	"playlooping"
+	{
+		"volume"	"0.15"
+		"wave"		"ambient/atmosphere/elev_shaft1.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+		"position"	"2"
+	}
+
+	// position3 - vortmachine
+	"playlooping"
+	{
+		"volume"	"0.15"
+		"wave"		"HL1/ambience/labdrone2.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+		"position"	"3"
+	}
+		
+}
+
+"eli_01_elevator_1"
+{
+	"dsp"	"18"
+
+	// elevatorshaft
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"		"ambient/atmosphere/elev_shaft1.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+		
+}
+
+
+"eli_01_upperhall_2"
+{
+	"dsp"	"18"
+
+	// upper hallway 2
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"	"ambient/atmosphere/tunnel1.wav"
+		"pitch"		"100"
+		"attenuation"	"ATTN_IDLE"
+	}
+
+	"playrandom"
+	{
+		"time"	"3.0, 10.0"
+		"volume"	"0.02,0.08"
+		"pitch"	"80,120"
+		"position"	"0"	
+		"rndwave"
+		{
+			"wave"	"ambient/materials/metal_rattle1.wav"
+			"wave"	"ambient/materials/metal_rattle3.wav"
+			"wave"	"ambient/materials/metal_rattle4.wav"
+			"wave"	"ambient/water/rain_drip1.wav"
+			"wave"	"ambient/water/rain_drip2.wav"
+			"wave"	"ambient/water/rain_drip3.wav"
+			"wave"	"ambient/voices/cough1.wav"
+			"wave"	"ambient/voices/cough2.wav"
+		}
+	}
+		
+}
+
+
+"eli_01_upperhall_1"
+{
+	"dsp"	"3"
+
+	// upper hallway 1
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"		"ambient/atmosphere/ambience5.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+}
+
+"eli_01_lowerlab_hall_1"
+{
+	"dsp"	"5"
+
+	// outside lab hall
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"	"ambient/atmosphere/tunnel1.wav"
+		"pitch"		"100"
+		"attenuation"	"ATTN_IDLE"
+	}
+
+	// position0 - engine room
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"	"ambient/atmosphere/engine_room.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+		"position"	"0"
+	}
+
+	"playrandom"
+	{
+		"time"	"1.0, 5.0"
+		"volume"	"0.04,0.1"
+		"pitch"	"80,120"
+		"position"	"0"	
+		"rndwave"
+		{
+			"wave"	"ambient/materials/metal_rattle1.wav"
+			"wave"	"ambient/materials/metal_rattle3.wav"
+			"wave"	"ambient/materials/metal_rattle4.wav"
+			"wave"	"ambient/water/rain_drip1.wav"
+			"wave"	"ambient/water/rain_drip2.wav"
+			"wave"	"ambient/water/rain_drip3.wav"
+			"wave"	"ambient/voices/cough1.wav"
+			"wave"	"ambient/voices/cough2.wav"
+		}
+	}
+		
+}
+
+"eli_01_lower_corridor_1"
+{
+	"dsp"	"3"
+
+	// lower hallway 1
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"		"ambient/atmosphere/ambience5.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+}
+
+"eli_01_lower_ravenhall_1"
+{
+	"dsp"	"19"
+
+	// lower raven hall
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"		"ambient/atmosphere/Drone2LP.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+	"playrandom"
+	{
+		"time"	"3.0, 6.0"
+		"volume"	"0.04,0.2"
+		"pitch"	"80,120"
+		"rndwave"
+		{
+			"wave"	"ambient/atmosphere/cave_hit1.wav"
+			"wave"	"ambient/atmosphere/cave_hit2.wav"
+			"wave"	"ambient/atmosphere/cave_hit3.wav"
+		}
+	}
+		
+}
+
+"eli_01_lower_ravenhall_2"
+{
+	"dsp"	"19"
+
+	// lower raven hall
+	"playlooping"
+	{
+		"volume"	"0.8"
+		"wave"		"ambient/explosions/battle_loop2.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+	"playrandom"
+	{
+		"time"	"3.0, 6.0"
+		"volume"	"0.06,0.2"
+		"pitch"	"80,120"
+		"rndwave"
+		{
+			"wave"	"ambient/atmosphere/cave_hit1.wav"
+			"wave"	"ambient/atmosphere/cave_hit2.wav"
+			"wave"	"ambient/atmosphere/cave_hit3.wav"
+			"wave"	"ambient/explosions/exp1.wav"
+			"wave"	"ambient/explosions/exp2.wav"
+			"wave"	"ambient/explosions/exp3.wav"
+		}
+	}
+}
+
+"eli_02_lowerlab_hall_1"
+{
+	"dsp"	"5"
+
+	// outside lab hall
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"	"ambient/atmosphere/tunnel1.wav"
+		"pitch"		"100"
+		"attenuation"	"ATTN_IDLE"
+	}
+
+	"playrandom"
+	{
+		"time"	"1.0, 6.0"
+		"volume"	"0.1,0.2"
+		"pitch"	"80,120"	
+		"rndwave"
+		{
+			"wave"	"ambient/materials/metal_rattle1.wav"
+			"wave"	"ambient/materials/metal_rattle3.wav"
+			"wave"	"ambient/materials/metal_rattle4.wav"
+			"wave"	"ambient/explosions/exp1.wav"
+			"wave"	"ambient/explosions/exp2.wav"
+			"wave"	"ambient/explosions/exp3.wav"
+			"wave"	"ambient/explosions/exp4.wav"
+		}
+	}
+
+
+	// position0 - engine room
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"	"ambient/atmosphere/engine_room.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+		"position"	"0"
+	}
+		
+}
+
+"eli_02_lower_corridor_1"
+{
+	"dsp"	"3"
+
+	// lower hallway 1
+	"playlooping"
+	{
+		"volume"	"0.5"
+		"wave"		"ambient/atmosphere/ambience5.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+	"playrandom"
+	{
+		"time"	"1.0, 6.0"
+		"volume"	"0.1,0.3"
+		"pitch"	"80,120"	
+		"rndwave"
+		{
+			"wave"	"ambient/materials/metal_rattle1.wav"
+			"wave"	"ambient/materials/metal_rattle3.wav"
+			"wave"	"ambient/materials/metal_rattle4.wav"
+			"wave"	"ambient/explosions/exp1.wav"
+			"wave"	"ambient/explosions/exp2.wav"
+			"wave"	"ambient/explosions/exp3.wav"
+			"wave"	"ambient/explosions/exp4.wav"
+		}
+	}
+
+}
+
+"eli_02_ravenshaft_1"
+{
+	"dsp"	"19"
+
+	// lower raven hall
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"		"ambient/atmosphere/Drone2LP.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+	"playrandom"
+	{
+		"time"	"3.0, 6.0"
+		"volume"	"0.06,0.2"
+		"pitch"	"80,120"
+		"rndwave"
+		{
+			"wave"	"ambient/atmosphere/cave_hit1.wav"
+			"wave"	"ambient/atmosphere/cave_hit2.wav"
+			"wave"	"ambient/atmosphere/cave_hit3.wav"
+		}
+	}
+}
+
+
+"eli_02_ravenshaft_2"
+{
+	"dsp"	"19"
+
+	// lower raven hall
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"		"ambient/atmosphere/Drone2LP.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"		"ambient/water/drip_loop1.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+	"playrandom"
+	{
+		"time"	"3.0, 6.0"
+		"volume"	"0.06,0.2"
+		"pitch"	"80,120"
+		"rndwave"
+		{
+			"wave"	"ambient/atmosphere/cave_hit1.wav"
+			"wave"	"ambient/atmosphere/cave_hit2.wav"
+			"wave"	"ambient/atmosphere/cave_hit3.wav"
+		}
+	}
+
+	"playrandom"
+	{
+		"time"	"3.0, 8.0"
+		"volume"	"0.08,0.25"
+		"pitch"	"80,120"
+		"position"	"0"	
+		"rndwave"
+		{
+			"wave"	"ambient/materials/rock2.wav"
+			"wave"	"ambient/materials/rock5.wav"
+			"wave"	"ambient/materials/wood_creak1.wav"
+			"wave"	"ambient/materials/creak5.wav"
+			"wave"	"ambient/atmosphere/cave_hit1.wav"
+			"wave"	"ambient/atmosphere/cave_hit2.wav"
+			"wave"	"ambient/atmosphere/cave_hit3.wav"
+		}
+	}
+}
+
+"eli_02_scrapyard_1"
+{
+	"dsp"	"24"
+
+	// first scrap area
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"		"ambient/atmosphere/cave_outdoor1.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+	"playrandom"
+	{
+		"time"	"8.0, 16.0"
+		"volume"	"0.1,0.2"
+		"pitch"	"80,120"	
+		"rndwave"
+		{
+			"wave"		"ambient/atmosphere/hole_hit1.wav"
+			"wave"		"ambient/atmosphere/hole_hit2.wav"
+			"wave"		"ambient/atmosphere/hole_hit3.wav"
+			"wave"		"ambient/atmosphere/hole_hit4.wav"
+			"wave"		"ambient/atmosphere/hole_hit5.wav"
+		}
+	}
+}
+
+"eli_02_scrapyard_2"
+{
+	"dsp"	"25"
+
+	// second scrap area 2
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"		"ambient/wind/wasteland_wind.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+	// second scrap area 2
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"		"ambient/atmosphere/cave_outdoor1.wav"
+		"pitch"		"100"
+		"attenuation"	"0.7"
+	}
+
+	"playrandom"
+	{
+		"time"	"8.0, 16.0"
+		"volume"	"0.1,0.2"
+		"pitch"	"80,120"	
+		"rndwave"
+		{
+			"wave"		"ambient/atmosphere/hole_hit1.wav"
+			"wave"		"ambient/atmosphere/hole_hit2.wav"
+			"wave"		"ambient/atmosphere/hole_hit3.wav"
+			"wave"		"ambient/atmosphere/hole_hit4.wav"
+			"wave"		"ambient/atmosphere/hole_hit5.wav"
+		}
+	}
+}
+
+

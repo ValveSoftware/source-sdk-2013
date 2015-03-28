@@ -1,0 +1,728 @@
+
+"NPC_dog.Idlemode_loop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.7"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_70dB"
+
+	"wave"	"npc/dog/dog_idlemode_loop1.wav"
+}
+
+"NPC_dog.Combatmode_loop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.7"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_70dB"
+
+	"wave"	"npc/dog/dog_combatmode_loop1.wav"
+}
+
+"NPC_dog.Grab_Alyx"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"	"physics/flesh/flesh_impact_hard4.wav"
+}
+
+"NPC_dog.Roll_1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"	"npc/dog/dog_rollover_servos1.wav"
+}
+
+"NPC_dog.Slide"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.5"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_70dB"
+
+	"wave"	"vehicles/Airboat/pontoon_scrape_rough3.wav"
+}
+
+"NPC_dog.Slide_car"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"physics/metal/metal_box_scrape_rough_loop2.wav"
+}
+
+"NPC_dog.PoundGround"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"80, 100"
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"vehicles/v8/vehicle_impact_medium2.wav"
+		"wave"	"physics/metal/metal_barrel_impact_hard5.wav"
+	}
+}
+
+"NPC_dog.PoundGround_Light"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.70"
+	"pitch"			"70, 90"
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"physics/metal/metal_barrel_impact_hard5.wav"
+		"wave"	"physics/metal/metal_barrel_impact_hard6.wav"
+	}
+}
+
+"NPC_dog.PoundGround_hard"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"80,100"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"vehicles/v8/vehicle_impact_medium4.wav"
+}
+
+"NPC_dog.MetalHit_Soft_1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.9"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"	"physics/metal/metal_barrel_impact_soft2.wav"
+}
+
+"NPC_dog.Dumpster_Pickup"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.9"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"ambient/materials/metal_stress4.wav"
+}
+
+"NPC_dog.Dumpster_Rattle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"			"150"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"ambient/machines/wall_move4.wav"
+}
+
+
+"NPC_dog.Dumpster_Drop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"190"
+	"soundlevel"	"SNDLVL_110dB"
+
+	"wave"	"ambient/machines/floodgate_stop1.wav"
+}
+
+"NPC_dog.Servo_1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/dog/dog_servo1.wav"
+		"wave"	"npc/dog/dog_servo2.wav"
+		"wave"	"npc/dog/dog_servo10.wav"
+	}
+}
+
+
+"NPC_dog.Servo_up_1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_70dB"
+	
+	"rndwave"
+	{
+		"wave"	"npc/dog/dog_servo5.wav"
+		"wave"	"npc/dog/dog_servo7.wav"
+		"wave"	"npc/dog/dog_servo8.wav"
+		"wave"	"npc/dog/dog_servo12.wav"
+	}
+}
+
+"NPC_dog.Servo_dn_1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/dog/dog_servo3.wav"
+		"wave"	"npc/dog/dog_servo6.wav"
+
+	}
+}
+
+"NPC_dog.Pneumatic_1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.9"
+	"pitch"			"90, 110"
+	"soundlevel"	"SNDLVL_80dB"
+
+	
+	"rndwave"
+	{
+		"wave"	"npc/dog/dog_pneumatic1.wav"
+		"wave"	"npc/dog/dog_pneumatic2.wav"
+
+	}
+}
+
+"NPC_dog.Straining_1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.9"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_straining1.wav"
+}
+
+"NPC_dog.Straining_2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.9"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_straining2.wav"
+}
+
+"NPC_dog.Straining_3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.9"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_straining3.wav"
+}
+
+"NPC_dog.Rock_Lift1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"ambient/materials/rock2.wav"
+}
+
+"NPC_dog.Rock_Drop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"80"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"physics/concrete/boulder_impact_hard3.wav"
+}
+
+"NPC_dog.Ravendoor_Creak"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"50"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"ambient/materials/metal_stress1.wav"
+}
+
+"NPC_dog.Ravendoor_Lift"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"85"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"doors/garage_stop1.wav"
+}
+
+"NPC_dog.Ravendoor_Lift_loop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"85"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"doors/garage_move1.wav"
+}
+
+"NPC_dog.Ravendoor_Opened"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"80"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"doors/garage_stop1.wav"
+}
+
+"NPC_dog.Ravendoor_Closing"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"140"
+	"soundlevel"	"SNDLVL_110dB"
+
+	"wave"	"ambient/machines/wall_move3.wav"
+}
+
+"NPC_dog.Ravendoor_Closed"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"npc/dog/dog_drop_gate1.wav"
+}
+
+"NPC_dog.Airlock_Bangdoor"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"70,95"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"npc/dog/dog_drop_gate1.wav"
+}
+
+"NPC_dog.Dog_Sit"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"	"npc/dog/dog_drop_gate1.wav"
+}
+
+"NPC_dog.Airlock_Slidedoor"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"70,95"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"npc/dog/dog_destroy_door1.wav"
+}
+
+"NPC_dog.Scrape_Car"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_110dB"
+
+	"wave"	"vehicles/v8/vehicle_rollover1.wav"
+}
+
+"NPC_dog.Throw_Car"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"physics/nearmiss/whoosh_large1.wav"
+}
+
+"NPC_dog.WallLift_Ambient"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"85, 100"
+	"soundlevel"	"SNDLVL_160dB"
+
+	"wave"	"ambient/machines/wall_ambient1.wav"
+}
+
+"NPC_dog.WallLift_ConcreteScrape"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"	"physics/concrete/concrete_block_scrape_rough_loop1.wav"
+}
+
+"NPC_dog.WallLift_Creak1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"85, 115"
+	"soundlevel"	"SNDLVL_160dB"
+
+	"wave"	"ambient/machines/wall_move1.wav"
+}
+
+"NPC_dog.WallLift_Creak2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_160dB"
+
+	"wave"	"ambient/machines/wall_move3.wav"
+}
+
+"NPC_dog.WallLift_Stop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"75, 100"
+	"soundlevel"	"SNDLVL_160dB"
+
+	"wave"	"doors/drawbridge_stop1.wav"
+}
+
+
+"NPC_dog.Pain_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_alarmed1.wav"
+}
+
+"NPC_dog.Pain_2"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_alarmed3.wav"
+}
+
+"NPC_dog.Surprise_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+	
+	"wave"	"npc/dog/dog_alarmed1.wav"
+}
+
+"NPC_dog.Surprise_2"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_alarmed3.wav"
+}
+
+"NPC_dog.Scared_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_scared1.wav"
+}
+
+"NPC_dog.Talk_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/dog/dog_idle1.wav"
+		"wave"	"npc/dog/dog_idle2.wav"
+		"wave"	"npc/dog/dog_idle3.wav"
+		"wave"	"npc/dog/dog_idle4.wav"
+		"wave"	"npc/dog/dog_idle5.wav"
+	}
+}
+
+"NPC_dog.Angry_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_angry1.wav"
+}
+
+"NPC_dog.Angry_2"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_angry2.wav"
+}
+
+"NPC_dog.Angry_3"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_angry3.wav"
+}
+
+
+"NPC_dog.Curious_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"80,105"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_playfull1.wav"
+}
+
+"NPC_dog.Dissapointed_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"npc/dog/dog_disappointed.wav"
+}
+
+"NPC_dog.Growl_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_growl2.wav"
+}
+
+"NPC_dog.Growl_2"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"	"npc/dog/dog_growl3.wav"
+}
+
+"NPC_dog.Laugh_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"npc/dog/dog_laugh1.wav"
+}
+
+"NPC_dog.Playful_1"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"120"
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"npc/dog/dog_playfull1.wav"
+}
+
+"NPC_dog.Playful_3"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"npc/dog/dog_playfull3.wav"
+}
+
+"NPC_dog.Playful_4"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"npc/dog/dog_playfull4.wav"
+}
+
+"NPC_dog.Playful_5"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"npc/dog/dog_playfull5.wav"
+}
+
+"NPC_dog.FootstepLeft"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"		"100"
+
+	"soundlevel"	"SNDLVL_90db"
+
+	"rndwave"
+	{
+		"wave"	"npc/dog/dog_footstep1.wav"
+		"wave"	"npc/dog/dog_footstep2.wav"
+
+	}
+}
+
+"NPC_dog.FootstepRight"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"		"100"
+
+	"soundlevel"	"SNDLVL_90db"
+
+	"rndwave"
+	{
+		"wave"	"npc/dog/dog_footstep3.wav"
+		"wave"	"npc/dog/dog_footstep4.wav"
+
+	}
+}
+
+"NPC_dog.RunFootstepLeft"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"		"100"
+
+	"soundlevel"	"SNDLVL_100db"
+
+	"rndwave"
+	{
+		"wave"	"npc/dog/dog_footstep_run1.wav"
+		"wave"	"npc/dog/dog_footstep_run2.wav"
+		"wave"	"npc/dog/dog_footstep_run3.wav"
+		"wave"	"npc/dog/dog_footstep_run4.wav"
+
+	}
+}
+
+"NPC_dog.RunFootstepRight"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"		"100"
+
+	"soundlevel"	"SNDLVL_100db"
+
+	"rndwave"
+	{
+		"wave"	"npc/dog/dog_footstep_run5.wav"
+		"wave"	"npc/dog/dog_footstep_run6.wav"
+		"wave"	"npc/dog/dog_footstep_run7.wav"
+		"wave"	"npc/dog/dog_footstep_run8.wav"
+
+	}
+}
+
+// new sounds
+
+"NPC_dog.Hang_On_Dropship"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_110dB"
+
+	"wave"	"npc/dog/dog_on_dropship.wav"
+}
+
+// thrown car hits ground
+
+"NPC_dog.Thrown_Car_Hits_Ground"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"80,120"
+	"soundlevel"	"SNDLVL_120dB"
+	"rndwave"
+	{
+		"wave"	"npc/dog/car_impact1.wav"
+		"wave"	"npc/dog/car_impact2.wav"
+		"wave"	"vehicles/v8/vehicle_rollover2.wav"
+	}
+}
+
+
+"NPC_DOG.Metal_Box_ImpactSoft"
+{
+	"soundlevel"		"SNDLVL_75dB"
+	"volume"		"0.6"
+	"pitch"		"98,100"
+	"rndwave"
+	{
+		"wave"	"physics/metal/metal_box_impact_soft1.wav"
+		"wave"	"physics/metal/metal_box_impact_soft2.wav"
+		"wave"	"physics/metal/metal_box_impact_soft3.wav"
+	}
+}
+
+
+"NPC_DOG.Metal_Box_ImpactHard"
+{
+	"soundlevel"		"SNDLVL_75dB"
+	"volume"		"0.6"
+	"pitch"		"98,100"
+	"rndwave"
+	{
+		"wave"	"physics/metal/metal_box_impact_hard1.wav"
+		"wave"	"physics/metal/metal_box_impact_hard2.wav"
+		"wave"	"physics/metal/metal_box_impact_hard3.wav"
+	}
+}
+
+
+

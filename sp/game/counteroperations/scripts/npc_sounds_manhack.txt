@@ -1,0 +1,159 @@
+"NPC_Manhack.Die"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/manhack/gib.wav"
+}
+
+"NPC_Manhack.Bat"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.800"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/manhack/bat_away.wav"
+}
+
+"NPC_Manhack.Splash"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"ambient/water/water_splash1.wav"
+		"wave"	"ambient/water/water_splash2.wav"
+		"wave"	"ambient/water/water_splash3.wav"
+	}
+}
+
+"NPC_Manhack.Slice"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/manhack/grind_flesh1.wav"
+		"wave"	"npc/manhack/grind_flesh2.wav"
+		"wave"	"npc/manhack/grind_flesh3.wav"
+	}
+}
+
+"NPC_Manhack.Grind"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"0.80"
+	"pitch"			"95,105"
+
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/manhack/grind1.wav"
+		"wave"	"npc/manhack/grind2.wav"
+		"wave"	"npc/manhack/grind3.wav"
+		"wave"	"npc/manhack/grind4.wav"
+		"wave"	"npc/manhack/grind5.wav"
+	}
+}
+
+"NPC_Manhack.EngineNoise"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/manhack/mh_blade_snick1.wav"
+}
+
+"NPC_Manhack.Unpack"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/turret_floor/deploy.wav"
+}
+
+"NPC_Manhack.EngineSound1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_65dB"
+	"wave"			"npc/manhack/mh_engine_loop1.wav"
+}
+
+
+"NPC_Manhack.EngineSound2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_65dB"
+	"wave"			"npc/manhack/mh_engine_loop2.wav"
+}
+
+"NPC_Manhack.BladeSound"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_70dB"
+	"wave"			"npc/manhack/mh_blade_loop1.wav"
+}
+
+"NPC_Manhack.ChargeAnnounce"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_70dB"
+	"rndwave"
+	{
+		"wave"	"npc/roller/mine/rmine_blades_out1.wav"
+		"wave"	"npc/roller/mine/rmine_blades_out2.wav"
+		"wave"	"npc/roller/mine/rmine_blades_out3.wav"
+	}
+}
+
+"NPC_Manhack.ChargeEnd"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_70dB"
+	"rndwave"
+	{
+		"wave"	"npc/roller/mine/rmine_blades_in1.wav"
+		"wave"	"npc/roller/mine/rmine_blades_in2.wav"
+		"wave"	"npc/roller/mine/rmine_blades_in3.wav"
+	}
+}
+
+"NPC_Manhack.Stunned"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.80"
+	"pitch"			"145,150"
+	"soundlevel"	"SNDLVL_70dB"
+	"wave"			"npc/scanner/scanner_siren2.wav"
+}
+

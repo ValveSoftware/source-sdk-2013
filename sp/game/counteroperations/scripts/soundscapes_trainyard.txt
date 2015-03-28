@@ -1,0 +1,452 @@
+// Trainstation soundscapes
+
+"d1_trainstation.util_city"
+{
+
+	"playrandom"
+	{
+		"time"		"10,45"
+		"volume"	"0.2,0.3"
+		"pitch"		"100"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140db"
+		"rndwave"
+		{
+			"wave"	"ambient/machines/heli_pass1.wav"
+			"wave"	"ambient/machines/aircraft_distant_flyby1.wav"
+			"wave"	"ambient/machines/aircraft_distant_flyby3.wav"
+		}
+	}
+
+	"playrandom"
+	{
+		"time"		"10,30"
+		"volume"	"0.15,0.35"
+		"pitch"		"80,120"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140db"
+
+		"rndwave"
+		{
+			"wave"	"ambient/atmosphere/city_truckpass1.wav"
+			"wave"	"ambient/atmosphere/city_skypass1.wav"
+		}
+	} 
+
+	"playrandom"
+	{
+		"time"		"30,60"
+		"volume"	"0.05,0.1"
+		"pitch"		"100"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140db"
+
+		"rndwave"
+		{
+			"wave"	"ambient/alarms/apc_alarm_pass1.wav"
+			"wave"	"ambient/alarms/manhack_alert_pass1.wav"
+			"wave"	"ambient/alarms/scanner_alert_pass1.wav"
+		}
+	}
+
+
+	"playrandom"
+	{
+		"time"		"20,40"
+		"volume"	"0.05,0.1"
+		"pitch"		"95,105"
+
+		"rndwave"
+		{
+			"wave"	"ambient/alarms/train_horn_distant1.wav"
+			"wave"	"ambient/machines/station_train_squeel.wav"
+		}
+	}
+
+	"playrandom"
+	{
+		"time"		"10,60"
+		"volume"	"0.1,0.25"
+		"pitch"		"95,105"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140db"
+
+		"rndwave"
+		{
+			"wave"	"ambient/machines/truck_pass_distant1.wav"
+			"wave"	"ambient/machines/truck_pass_distant2.wav"
+			"wave"	"ambient/machines/truck_pass_distant3.wav"
+			"wave"	"ambient/machines/truck_pass_overhead1.wav"
+		}
+	}
+}
+
+"d1_trainstation.city"
+{
+
+	"playlooping"
+	{
+		"volume"	"0.12"
+		"wave"		"ambient/atmosphere/station_ambience_loop2.wav"
+		"pitch"		"100"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.util_city"
+		"volume"	"1.0"
+	}
+}
+
+// trainstation - just off the train
+//	position 0 is under train
+
+"d1_trainstation.Platform"
+{
+	"dsp"	"1"
+	"dsp_volume" "0.8"
+	
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.util_city"
+		"volume"	"1.0"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"		"ambient/atmosphere/station_ambience_stereo_loop1.wav"
+		"pitch"		"100"
+	}
+}
+
+// inside station, near luggage cops
+
+"d1_trainstation.Turnstyle"
+{
+	"dsp"	"1"
+	"dsp_volume" "0.7"
+	
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.util_city"
+		"volume"	"0.38"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.22"
+		"wave"		"ambient/atmosphere/station_ambience_loop2.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	}
+}
+
+// combine computer terminals
+
+"combine.computer"
+{
+	
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"wave"		"ambient/machines/combine_terminal_loop1.wav"
+		"pitch"		"100"
+		"soundlevel" "SNDLVL_65db"
+	}
+
+	"playrandom"
+	{
+		"time"		"5,15"
+		"volume"	"0.3,0.5"
+		"pitch"		"95,105"
+		"soundlevel" "SNDLVL_80db"
+		"rndwave"
+		{
+			"wave"	"buttons/combine_button2.wav"
+			"wave"	"buttons/combine_button5.wav"
+			"wave"	"buttons/combine_button3.wav"
+			"wave"	"buttons/combine_button7.wav"
+			//"wave"	"buttons/combine_terminal_loop1.wav"
+			//"wave"	"buttons/combine_terminal_loop2.wav"
+			"wave"	"ambient/machines/combine_terminal_idle1.wav"
+			"wave"	"ambient/machines/combine_terminal_idle2.wav"
+			"wave"	"ambient/machines/combine_terminal_idle3.wav"
+			"wave"	"ambient/machines/combine_terminal_idle4.wav"
+		}
+	}
+}
+
+// interrogation area/barney encounter
+//		position 0 is combine computer
+
+"d1_trainstation.Interrogation"
+{
+	"dsp"	"1"
+	"dsp_volume" "0.6"
+	
+	"playsoundscape"
+	{
+		"name"		"combine.computer"
+		"volume"	"1.0"
+		"positionoverride"	"0"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/atmosphere/trainstation_ambient_loop1.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	}
+}
+
+// outside station - terminal square & side streets
+
+"d1_trainstation.TerminalSquare"
+{
+	"dsp"	"1"
+	"dsp_volume" "1.0"
+	
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.util_city"
+		"volume"	"1.0"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.35"
+		"wave"		"ambient/atmosphere/station_ambience_loop4.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	}
+}
+
+"d1_trainstation.QuietCourtyard"
+{
+	"dsp"	"1"
+	"dsp_volume" "1.0"
+	
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.util_city"
+		"volume"	"0.6"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"wave"		"*ambient/atmosphere/plaza_amb.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	}
+}
+
+// sound of appartment occupants from various locations
+// played automatically by d1_trainstation.Appartments
+
+"d1_trainstation.Occupants"
+{
+	"playrandom"
+	{
+		"time"		"2,7"
+		"volume"	"0.15,0.28"
+		"pitch"		"95,105"
+		"position"	"random"
+		"soundlevel" "SNDLVL_140dB"
+
+		"rndwave"
+		{
+					"wave"  "ambient/materials/bump1.wav"
+					"wave"  "ambient/materials/shuffle1.wav"
+					"wave"  "ambient/materials/squeeker2.wav"
+					"wave"  "ambient/materials/squeekyfloor1.wav"
+					"wave"  "ambient/materials/squeekyfloor2.wav"
+				//	"wave"  "ambient/materials/cupdrop.wav"
+					"wave"  "ambient/materials/dinnerplates1.wav"
+					"wave"  "ambient/materials/dinnerplates2.wav"
+					"wave"  "ambient/materials/dinnerplates3.wav"
+					"wave"  "ambient/materials/dinnerplates4.wav"
+					"wave"  "ambient/materials/dinnerplates5.wav"
+					"wave"  "ambient/voices/cough1.wav"
+					"wave"  "ambient/voices/cough2.wav"
+					"wave"  "ambient/voices/cough3.wav"
+					"wave"  "ambient/voices/cough4.wav"
+					"wave"  "ambient/materials/flush1.wav"
+					"wave"  "ambient/materials/flush2.wav"
+					"wave"  "ambient/materials/footsteps_wood1.wav"
+					"wave"  "ambient/materials/footsteps_wood2.wav"
+					"wave"  "ambient/materials/rustypipes1.wav"
+					"wave"  "ambient/materials/rustypipes2.wav"
+					"wave"  "ambient/materials/rustypipes3.wav"
+		}
+	}
+}
+
+"d1_trainstation.AppartmentCourtyard"
+{
+	"dsp"	"1"
+	"dsp_volume" "1.0"
+	
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.util_city"
+		"volume"	"0.4"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.1"
+		"wave"		"ambient/atmosphere/station_ambience_loop4.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.Occupants"
+		"volume"	"0.5"
+	}
+}
+
+// appartment pre raid - 
+// occupants make sounds from 4 positions in 'space' locations player can't reach
+
+"d1_trainstation.Appartments"
+{
+	"dsp"	"1"
+	"dsp_volume" "1.0"
+	
+	"playlooping"
+	{
+		"volume"	"0.05"
+		"wave"		"ambient/voices/appartments_crowd_loop1.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	}
+
+	
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.Occupants"
+		"volume"	"1.0"
+	}
+}
+
+// loudspeaker voice during raid
+// played automatically in d1_trainstation.RaidAppartments
+
+"d1_trainstation.RaidCityvoice"
+{
+	"dsp"	"1"
+	"dsp_volume" "1.0"
+	
+	"playrandom"
+	{
+		"time"		"10,20"
+		"volume"	"1.0,1.0"
+		"pitch"		"100"
+
+		"rndwave"
+		{
+					"wave"  "*npc/overwatch/cityvoice/f_trainstation_assemble_spkr.wav"
+					"wave"  "*npc/overwatch/cityvoice/f_trainstation_assumepositions_spkr.wav"
+					"wave"  "*npc/overwatch/cityvoice/f_trainstation_inform_spkr.wav"
+					"wave"  "*npc/overwatch/cityvoice/f_trainstation_offworldrelocation_spkr.wav"
+		}
+	}
+}
+
+// sound of occupants during raid
+// played automatically in d1_trainstation.RaidAppartments
+
+"d1_trainstation.RaidOccupants"
+{
+	"playrandom"
+	{
+		"time"		"1,5"
+		"volume"	"0.2,0.7"
+		"pitch"		"90,108"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140dB"
+		"rndwave"
+		{
+				"wave" "ambient/voices/m_scream1.wav"
+				"wave" "ambient/voices/f_scream1.wav"
+				"wave" "ambient/voices/citizen_beaten5.wav"
+				"wave" "ambient/voices/citizen_punches2.wav"
+				"wave" "ambient/voices/citizen_punches3.wav"
+				"wave" "ambient/materials/cupdrop.wav"
+				"wave" "ambient/materials/footsteps_glass1.wav"
+				"wave" "ambient/materials/footsteps_glass2.wav"
+				"wave" "ambient/materials/footsteps_stairs1.wav"
+				"wave" "ambient/materials/footsteps_stairs2.wav"
+				"wave" "ambient/materials/platedrop1.wav"
+				"wave" "ambient/materials/platedrop2.wav"
+				"wave" "ambient/materials/platedrop3.wav"
+				"wave" "ambient/materials/roust_crash1.wav"
+				"wave" "ambient/materials/roust_crash2.wav"
+				"wave" "ambient/materials/rustypipes1.wav"
+				"wave" "ambient/materials/rustypipes2.wav"
+				"wave" "ambient/materials/rustypipes3.wav"
+		}
+	}
+}
+
+// appartment raid - 
+// occupants make sounds from 4 positions in 'space' locations player can't reach
+
+"d1_trainstation.RaidAppartments"
+{
+	"dsp"	"1"
+	"dsp_volume" "1.0"
+	
+
+	"playlooping"
+	{
+		"volume"	"0.03"
+		"wave"		"ambient/voices/appartments_crowd_loop1.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	} 
+
+
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.RaidCityvoice"
+		"volume"	"1.0"
+	}
+
+
+	"playsoundscape"
+	{
+		"name"		"d1_trainstation.RaidOccupants"
+		"volume"	"1.0"
+	}
+
+}
+
+"general.concrete_quiet"
+{
+	"dsp"	"1"
+	
+	"playlooping"
+	{
+		"volume"	"0.175"
+		"wave"		"ambient/atmosphere/underground_hall_loop1.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	}
+}
+
+
+
+
+
+
+
+
+
+
+

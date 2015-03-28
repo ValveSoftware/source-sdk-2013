@@ -1,0 +1,129 @@
+//============================================================================================================
+// Tenement Apartment specific criteria
+//============================================================================================================
+criterion "IsBreenCastOn" "breencast" "1" weight 12 required
+criterion "IsBreenCastOff" "breencast" "0" weight 12 required
+
+criterion "IsTenementFloor1" "tenement_flr1" "1" weight 2 required
+criterion "IsTenementFloor2" "tenement_flr2" "1" weight 2 required
+criterion "IsTenementAttic" "tenement_attic" "1" weight 2 required
+
+//floor1, room1
+criterion "IsTenementFlr1Drinker" "tenement_flr1_drinker" "1" weight 11 required
+criterion "IsTenementFlr1WindowGuy" "tenement_flr1_windowGuy" "1" weight 11 required
+criterion "IsTenementFlr1WindowGal" "tenement_flr1_windowGal" "1" weight 11 required
+
+//floor1, room2, tv-watchers
+criterion "IsTenementFlr1TVWatcher1_TVon" "tenement_flr1_TVwatcher1_TVon" "1" weight 10 required
+criterion "IsTenementFlr1TVWatcher2_TVon" "tenement_flr1_TVwatcher2_TVon" "1" weight 10 required
+criterion "IsTenementFlr1TVWatcher1_TVoff" "tenement_flr1_TVwatcher1_TVon" "0" weight 10 required
+criterion "IsTenementFlr1TVWatcher2_TVoff" "tenement_flr1_TVwatcher2_TVon" "0" weight 10 required
+
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+// specific cit contexts, floor 1, Room1
+//------------------------------------------------------------------------------------------------------------
+response "TenementFlr1DrinkerUse"
+{
+norepeat
+	scene "scenes/trainyard/cit_drunk.vcd" 
+}
+
+rule IsTenementFlr1DrinkerUse
+{
+	criteria		IsCitizen ConceptTalkUse IsGordonPreCriminal IsTenementFlr1Drinker NPCIdle
+	response		TenementFlr1DrinkerUse
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response "TenementFlr1WindowGuyUse"
+{
+	norepeat
+	sequential
+	scene "scenes/trainyard/$gender01/cit_window_use01.vcd"
+	scene "scenes/trainyard/$gender01/cit_window_use04.vcd"
+
+}
+
+rule IsTenementFlr1WindowGuyUse
+{
+	criteria		IsCitizen ConceptTalkUse IsGordonPreCriminal IsTenementFlr1WindowGuy NPCIdle
+	response		TenementFlr1WindowGuyUse
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response "TenementFlr1WindowGalUse"
+{
+	norepeat
+	sequential
+	scene "scenes/trainyard/$gender01/cit_window_use02.vcd"
+	scene "scenes/trainyard/$gender01/cit_window_use03.vcd"
+
+}
+
+rule IsTenementFlr1WindowGalUse
+{
+	criteria		IsCitizen ConceptTalkUse IsGordonPreCriminal IsTenementFlr1WindowGal NPCIdle
+	response		TenementFlr1WindowGalUse
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+// specific cit contexts, floor 1, Room2
+//------------------------------------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------------------------------------
+// Tenement Reponses
+//------------------------------------------------------------------------------------------------------------
+response "TenementFlr1Use"
+{
+
+}
+
+rule TenementFlr1Use
+{
+	criteria		IsCitizen ConceptTalkUse IsGordonPreCriminal IsTenementFloor1 NPCIdle
+	response		TenementFlr1Use
+}
+
+response "TenementFlr1Hello"
+{
+
+}
+
+rule TenementFlr1Hello
+{
+	criteria		IsCitizen ConceptTalkHello IsTenementFloor1 NPCIdle PlayerNear SeePlayer
+	response		TenementFlr1Hello
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "TenementFlr2Use"
+{
+
+}
+
+rule TenementFlr2Use
+{
+	criteria		IsCitizen ConceptTalkUse IsGordonPreCriminal IsTenementFloor2 NPCIdle
+	response		TenementFlr2Use
+}
+
+response "TenementFlr2Hello"
+{
+
+}
+
+rule TenementFlr2Hello
+{
+	criteria		IsCitizen ConceptTalkHello IsTenementFloor2 NPCIdle  PlayerNear SeePlayer
+	response		TenementFlr2Hello
+}
+
+

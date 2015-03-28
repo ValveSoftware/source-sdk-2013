@@ -1,0 +1,62 @@
+criterion "IsEnterIntRoomconcept" "concept" "EnterIntRoomNag" "required"
+criterion "IsExitIntRoomconcept" "concept" "ExitIntRoomNag" "required"
+criterion "IsAlyxGauntlet1concept" "concept" "ExitAGaunt1Nag" "required"
+
+//***============================================================================================================
+//***
+//*** Prison Nags
+//*** 
+//***============================================================================================================
+
+//============================================================================================================
+// Enter Interrogation Room Nags
+//============================================================================================================
+
+response "EIntRoom_Nag"
+{
+	scene "scenes/novaprospekt/al_nag_introom_01.vcd"
+	scene "scenes/novaprospekt/al_nag_introom_02.vcd"
+	scene "scenes/novaprospekt/al_nag_introom_03.vcd"
+}
+
+rule NagEnterIntRoom
+{
+	criteria		IsEnterIntRoomconcept
+	response		EIntRoom_Nag
+}
+
+
+//============================================================================================================
+// Exit Interrogation Room Nags
+//============================================================================================================
+
+response "IntRoom_Nag"
+{
+	scene "scenes/novaprospekt/al_introom_nags01.vcd"
+	scene "scenes/novaprospekt/al_introom_nags02.vcd"
+	scene "scenes/novaprospekt/al_introom_nags03.vcd"
+	scene "scenes/novaprospekt/al_introom_nags04.vcd"
+}
+
+rule NagExitIntRoom
+{
+	criteria		IsExitIntRoomconcept
+	response		IntRoom_Nag
+}
+
+//============================================================================================================
+// Exit First Gauntlet Nags
+//============================================================================================================
+
+response "AGaunt1_Nag"
+{
+	scene "scenes/novaprospekt/al_introom_nags03.vcd"
+	scene "scenes/novaprospekt/al_introom_nags04.vcd"
+}
+
+rule NagAGaunt1
+{
+	criteria		IsAlyxGauntlet1concept
+	response		AGaunt1_Nag
+}
+

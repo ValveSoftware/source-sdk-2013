@@ -1,0 +1,19 @@
+// E3_Town
+//*********************************************************
+
+"E3_Phystown.Slicer"
+{
+	"channel"	"CHAN_STATIC"
+	"soundlevel"  "SNDLVL_90dB"
+	"pitch"		"85,115"
+	"volume"	"0.8, 1.0"
+
+	"rndwave"
+	{
+		"wave"		"ambient/machines/slicer1.wav"
+		"wave"		"ambient/machines/slicer2.wav"
+		"wave"		"ambient/machines/slicer3.wav"
+		"wave"		"ambient/machines/slicer4.wav"
+	}
+}
+

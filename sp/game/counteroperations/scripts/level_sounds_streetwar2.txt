@@ -1,0 +1,710 @@
+//
+//
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+//
+// VOL_NORM		1.0f
+//
+//-----------------------------------------------------------------------------
+// common attenuation values
+//-----------------------------------------------------------------------------
+//
+// DON'T USE THESE - USE SNDLVL_ INSTEAD!!!
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f
+//	ATTN_IDLE		2.0f
+//	ATTN_STATIC		1.25f 
+//	ATTN_RICOCHET	1.5f
+//	ATTN_GUNFIRE	0.27f
+//
+//	SNDLVL_NONE		= 0,
+//	SNDLVL_25dB		= 25,
+//	SNDLVL_30dB		= 30,
+//	SNDLVL_35dB		= 35,
+//	SNDLVL_40dB		= 40,
+//	SNDLVL_45dB		= 45,
+//	SNDLVL_50dB		= 50,	= 3.9
+//	SNDLVL_55dB		= 55,	= 3.0
+//	SNDLVL_IDLE		= 60,	= 2.0
+//	SNDLVL_TALKING		= 60,	= 2.0
+//	SNDLVL_60dB		= 60,	= 2.0
+//	SNDLVL_65dB		= 65,	= 1.5
+//	SNDLVL_STATIC		= 66,	= 1.25
+//	SNDLVL_70dB		= 70,	= 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	= 0.8
+//	SNDLVL_80dB		= 80,	= 0.7
+//	SNDLVL_85dB		= 85,	= 0.6
+//	SNDLVL_90dB		= 90,	= 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	= 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140, = 0.27
+//	SNDLVL_140dB	= 140,	= 0.2
+//	SNDLVL_150dB	= 150,	= 0.2
+//
+
+"streetwar.d3_c17_08_steam01"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.4"
+	"pitch"		"100"
+	"soundlevel"	"SNDLVL_50dB"
+
+	"wave"		"ambient/gas/steam_loop1.wav"
+}
+
+"streetwar.d3_c17_06a_overhere01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"*vo/npc/male01/overhere01.wav"
+}
+
+"Streetwar.d3_c17_03_default_locked"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/default_locked.wav"
+}
+
+"Streetwar.d3_c17_06b_grenade_fire"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/waste_scanner/grenade_fire.wav"
+}
+
+"Streetwar.d3_c17_07_combine_shield_loop3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"ambient/machines/combine_shield_loop3.wav"
+}
+
+"Streetwar.d3_c17_07_combine_shield_touch_loop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/combine_shield_touch_loop1.wav"
+}
+
+"Streetwar.d3_c17_07_wall_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"ambient/machines/wall_move1.wav"
+}
+
+"Streetwar.d3_c17_07_beamstart11"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"beams/beamstart11.wav"
+}
+
+"Streetwar.d3_c17_07_default_stop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/default_stop.wav"
+}
+
+"Streetwar.d3_c17_07_die2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/combine_soldier/die2.wav"
+}
+
+"Streetwar.d3_c17_07_acquiringonvisual"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"npc/metropolice/vo/acquiringonvisual.wav"
+}
+
+"Streetwar.d3_c17_07_heavymove1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_120db"
+	"wave"			"plats/heavymove1.wav"
+}
+
+"Streetwar.d3_c17_07_platstop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"plats/platstop1.wav"
+}
+
+"Streetwar.d3_c17_07_apc_idle1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.5"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_75db"
+	"wave"			"vehicles/apc/apc_idle1.wav"
+}
+
+"Streetwar.d3_c17_07_apc_shutdown"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.7"
+	"pitch"			"50"
+	"soundlevel"	"SNDLVL_75db"
+	"wave"			"vehicles/apc/apc_shutdown.wav"
+}
+
+"Streetwar.d3_c17_07_al_thatwasclose"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"vo/streetwar/alyx_gate/al_thatwasclose.wav"
+}
+
+"Streetwar.d3_c17_07_fire"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"weapons/flaregun/fire.wav"
+}
+
+"Streetwar.d3_c17_10a_siren"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"170"
+	"soundlevel"	"SNDLVL_130db"
+	"wave"			"ambient/alarms/combine_bank_alarm_loop1.wav"
+}
+
+"Streetwar.d3_c17_10a_explode_1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/explosions/explode_1.wav"
+}
+
+"Streetwar.d3_c17_10a_explode_3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/explosions/explode_3.wav"
+}
+
+"Streetwar.d3_c17_10a_combine_shield_loop3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"ambient/machines/combine_shield_loop3.wav"
+}
+
+"Streetwar.d3_c17_10a_combine_shield_touch_loop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/combine_shield_touch_loop1.wav"
+}
+
+"Streetwar.d3_c17_10a_default_locked"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/default_locked.wav"
+}
+
+"Streetwar.d3_c17_10a_default_move"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/default_move.wav"
+}
+
+"Streetwar.d3_c17_10a_default_stop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/default_stop.wav"
+}
+
+"Streetwar.d3_c17_10a_metal_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/metal_move1.wav"
+}
+
+"Streetwar.d3_c17_10a_wood_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/wood_move1.wav"
+}
+
+"Streetwar.d3_c17_10a_wood_stop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/wood_stop1.wav"
+}
+
+"Streetwar.d3_c17_10a_heavy_metal_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/heavy_metal_move1.wav"
+}
+
+"Streetwar.d3_c17_10a_heavy_metal_stop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/heavy_metal_stop1.wav"
+}
+
+"Streetwar.d3_c17_10a_abouttime02"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"vo/npc/male01/abouttime02.wav"
+}
+
+
+"Streetwar.d3_c17_10b_alarm1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.68"
+	"pitch"			"140"
+	"soundlevel"	"0"
+	"wave"			"ambient/alarms/combine_bank_alarm_loop4.wav"
+}
+
+"Streetwar.d3_c17_10b_combine_shield_loop3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"ambient/machines/combine_shield_loop3.wav"
+}
+
+"Streetwar.d3_c17_10b_combine_shield_touch_loop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/combine_shield_touch_loop1.wav"
+}
+
+"Streetwar.d3_c17_10b_lever6"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"buttons/lever6.wav"
+}
+
+"Streetwar.d3_c17_10b_doormove3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/doormove3.wav"
+}
+
+"Streetwar.d3_c17_10b_heavy_metal_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/heavy_metal_move1.wav"
+}
+
+"Streetwar.d3_c17_10b_heavy_metal_stop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/heavy_metal_stop1.wav"
+}
+
+"Streetwar.d3_c17_10b_metal_stop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/metal_stop1.wav"
+}
+
+"Streetwar.d3_c17_10b_rumble1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"npc/antlion/rumble1.wav"
+}
+
+"Streetwar.d3_c17_10b_gunship_pain"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"npc/combine_gunship/gunship_pain.wav"
+}
+
+"Streetwar.d3_c17_10b_ping_patrol"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"npc/combine_gunship/ping_patrol.wav"
+}
+
+"Streetwar.d3_c17_10b_announce1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/combine_soldier/vo/block64jet.wav"
+}
+
+"Streetwar.d3_c17_10b_announce2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/combine_soldier/vo/block31mace.wav"
+}
+
+"Streetwar.d3_c17_10b_assault1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"npc/combine_soldier/vo/callhotpoint.wav"
+}
+
+"Streetwar.d3_c17_10b_assault3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"npc/combine_soldier/vo/closing2.wav"
+}
+
+"Streetwar.d3_c17_10b_rmine_blades_in1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"npc/roller/mine/rmine_blades_in1.wav"
+}
+
+"Streetwar.d3_c17_10a_fire"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.35"
+	"soundlevel"	"SNDLVL_140db"
+	"pitch"		"110,130"
+	"wave"	"npc/env_headcrabcanister/launch.wav"
+}
+
+"Streetwar.d3_c17_10b_fire"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.35"
+	"soundlevel"	"SNDLVL_140db"
+	"pitch"		"110,130"
+	"wave"	"npc/env_headcrabcanister/launch.wav"
+}
+
+"Streetwar.d3_c17_10b_fire2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"80,110"
+	"soundlevel"	"0"
+	"wave"			"weapons/mortar/mortar_shell_incomming1.wav"
+}
+
+
+"Streetwar.d3_c17_10b_die"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"npc/turret_floor/die.wav"
+}
+
+"Streetwar.d3_c17_10b_flesh_burn"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"player/general/flesh_burn.wav"
+}
+
+"Streetwar.d3_c17_10b_apc_idle1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.5"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_75db"
+	"wave"			"vehicles/apc/apc_idle1.wav"
+}
+
+"Streetwar.d3_c17_10b_apc_shutdown"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"50"
+	"soundlevel"	"0"
+	"wave"			"vehicles/apc/apc_shutdown.wav"
+}
+
+"Streetwar.d3_c17_10b_crane_magnet_switchon"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"vehicles/Crane/crane_magnet_switchon.wav"
+}
+
+"Streetwar.d3_c17_10b_mine_mode"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"weapons/slam/mine_mode.wav"
+}
+
+"Streetwar.d3_c17_11_drawbridge_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/drawbridge_move1.wav"
+}
+
+"Streetwar.d3_c17_11_drawbridge_stop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/drawbridge_stop1.wav"
+}
+
+"Streetwar.d3_c17_11_garage_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/garage_move1.wav"
+}
+
+"Streetwar.d3_c17_11_garage_stop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/garage_stop1.wav"
+}
+
+"Streetwar.d3_c17_11_heavy_metal_move1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/heavy_metal_move1.wav"
+}
+
+"Streetwar.d3_c17_11_heavy_metal_stop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"doors/heavy_metal_stop1.wav"
+}
+
+"Streetwar.d3_c17_11_fire"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_70db"
+	"wave"			"npc/strider/fire.wav"
+}
+
+"Streetwar.d3_c17_11_die"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"npc/turret_floor/die.wav"
+}
+
+"Streetwar.d3_c17_11_crane_magnet_switchon"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"vehicles/Crane/crane_magnet_switchon.wav"
+}
+
+"Streetwar.d3_C17_13_explode_2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_140db"
+	"wave"			"ambient/explosions/explode_2.wav"
+}
+
+"Streetwar.d3_C17_13_beep"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_140dB"
+	"wave"			"hl1/fvox/beep.wav"
+}
+
+"Streetwar.d3_C17_13_containmentproceeding"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/combine_soldier/vo/containmentproceeding.wav"
+}
+
+"Streetwar.d3_C17_13_off1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"npc/combine_soldier/vo/off1.wav"
+}
+
+"Streetwar.d3_C17_13_metal_barrel_impact_hard7"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_barrel_impact_hard7.wav"
+}
+
+"Streetwar.d3_C17_13_metal_canister_impact_soft2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_canister_impact_soft2.wav"
+}
+
+"Streetwar.d3_C17_13_metal_large_debris2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_140db"
+	"wave"			"physics/metal/metal_large_debris2.wav"
+}
+
+"Streetwar.d3_c17_13_fire"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_65db"
+	"wave"			"ambient/fire/fire_med_loop1.wav"
+}

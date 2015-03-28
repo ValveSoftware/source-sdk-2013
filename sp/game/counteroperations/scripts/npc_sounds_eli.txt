@@ -1,0 +1,65 @@
+//*********************************************************
+// Eli NPC sounds
+
+"NPC_Eli.FootstepLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.28"
+	"pitch"		"120, 140"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"physics/metal/metal_grenade_impact_soft1.wav"
+		"wave"	"physics/metal/metal_grenade_impact_soft2.wav"
+		"wave"	"physics/metal/metal_grenade_impact_soft3.wav"
+	}
+}
+
+"NPC_Eli.FootstepRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.6"
+	"pitch"		"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"player/footsteps/concrete3.wav"
+		"wave"	"player/footsteps/concrete4.wav"
+	}
+}
+
+"NPC_Eli.RunFootstepLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.6"
+	"pitch"		"115, 135"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"physics/metal/metal_canister_impact_soft1.wav"
+		"wave"	"physics/metal/metal_canister_impact_soft2.wav"
+		"wave"	"physics/metal/metal_canister_impact_soft3.wav"
+	}
+}
+
+"NPC_Eli.RunFootstepRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.6"
+	"pitch"		"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/footsteps/hardboot_generic2.wav"
+		"wave"	"npc/footsteps/hardboot_generic4.wav"
+		"wave"	"npc/footsteps/hardboot_generic6.wav"
+	}
+}

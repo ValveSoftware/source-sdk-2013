@@ -1,0 +1,32 @@
+"GameInfo"
+{
+	game 		"Counter Operations"
+	title 		"Counter Operations"
+	type		singleplayer_only
+
+	FileSystem
+	{
+		SteamAppId					243730				// Source SDK Base 2013 Singleplayer
+		SearchPaths
+		{
+			// No /custom/ folders because they can interfere with mod content and shouldn't be in mod gameinfo.
+			game+mod+mod_write+default_write_path	|gameinfo_path|.		// Mod
+			gamebin					|gameinfo_path|bin		// Mod's Binaries	
+	 
+			// Base Half-Life 2 Content: ep2, episodic, hl2
+			game_lv					|all_source_engine_paths|hl2/hl2_lv.vpk
+			game					|all_source_engine_paths|hl2/hl2_english.vpk
+			game					|all_source_engine_paths|hl2/hl2_pak.vpk
+			game					|all_source_engine_paths|hl2/hl2_textures.vpk
+			game					|all_source_engine_paths|hl2/hl2_sound_vo_english.vpk
+			game					|all_source_engine_paths|hl2/hl2_sound_misc.vpk
+			game					|all_source_engine_paths|hl2/hl2_misc.vpk
+			platform				|all_source_engine_paths|platform/platform_misc.vpk
+	 
+			// TODO; find out what is it and why it's here
+			game					|all_source_engine_paths|hl2
+			platform				|all_source_engine_paths|platform
+		}
+	}
+	
+}

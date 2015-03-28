@@ -1,0 +1,80 @@
+map: default
+	vbsp:
+	vvis:	-mpi 
+	vrad:	-final -staticproppolys -textureshadows -nossprops -hdr -mpi 
+
+map: devtest
+	vbsp:
+	vvis:	-mpi 
+	vrad:   -both -mpi 
+
+map: devtest_01b
+	vbsp:
+	vvis:	-mpi 
+	vrad:   -both -mpi 
+
+map: devtest_02
+	vbsp:
+	vvis:	-mpi 
+	vrad:   -both -mpi 
+
+map: devtest_03
+	vbsp:
+	vvis:	-mpi 
+	vrad:   -both -mpi 
+
+map: devtest_04
+	vbsp:
+	vvis:	-mpi 
+	vrad:   -both -mpi 
+
+map: devtest_05
+	vbsp:
+	vvis:	-mpi 
+	vrad:   -both -mpi 
+
+
+map: devtest_06
+	vbsp:
+	vvis:	-mpi 
+	vrad:   -both -mpi 
+
+map: devtest_07
+	vbsp:
+	vvis:	-mpi 
+	vrad:   -both -mpi 
+
+map: background04
+	vbsp:
+	vvis:	-mpi -fast
+	vrad:	-final -staticproppolys -textureshadows -nossprops -hdr -mpi 
+
+map: d2_coast_01
+	vbsp:
+	vvis:	-mpi -fast
+	vrad:	-final -staticproppolys -textureshadows -nossprops -hdr -mpi 
+
+map: d2_coast_04
+	vbsp:
+	vvis:	-mpi 
+	vrad:   -final -nossprops -hdr -mpi 
+
+map: d2_coast_11
+	vbsp:
+	vvis:	-mpi -fast
+	vrad:	-final -staticproppolys -textureshadows -nossprops -hdr -mpi 
+
+map: d2_prison_08
+	vbsp:
+	vvis:	-mpi 
+	vrad:	-final -nossprops -hdr -mpi 
+
+map: d3_c17_08
+	vbsp:
+	vvis:	-mpi 
+	vrad:	-final -dispchop 2 -staticproppolys -textureshadows -nossprops -hdr -mpi 
+
+map: d3_citadel_01
+	vbsp:
+	vvis:	-mpi 
+	vrad:	-final -dispchop 2 -staticproppolys -textureshadows -nossprops -hdr -mpi 

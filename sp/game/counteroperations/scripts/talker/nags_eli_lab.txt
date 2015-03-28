@@ -1,0 +1,133 @@
+//-- E_Lab
+criterion "IsELabFollowMossmanConcept" "concept" "FollowMossNag" "required"
+criterion "IsGoWithAlyxConcept" "concept" "GoAlyxNag" "required"
+criterion "IsLabFollowAlyxNagConcept" "concept" "FollowAlyxNag" "required"
+criterion "IsTakeGravGunNagConcept" "concept" "GravGunNag" "required"
+criterion "IsGoBackAirlockConcept" "concept" "GoBackAirNag" "required"
+criterion "IsMossmanRoomConcept" "concept" "MossmanRoomNag" "required"
+criterion "IsAlyxStackConcept" "concept" "AlyxStackNag" "required"
+
+//***============================================================================================================
+//***
+//*** Eli's Lab Nags
+//***
+//***============================================================================================================
+
+//============================================================================================================
+// Mossman Follow (Mossman)
+//============================================================================================================
+response "ELabFollowMossmanNag"
+{
+	scene "scenes/eli_lab/mo_hurryup01.vcd"
+	scene "scenes/eli_lab/mo_thiswaydoc.vcd"	
+}
+
+rule NagELabFollowMossman
+{
+	criteria		IsELabFollowMossmanConcept
+	response		ELabFollowMossmanNag
+}
+
+//============================================================================================================
+// Follow Alyx to Airlock2 (Mossman, Eli)
+//============================================================================================================
+response "GoWithAlyxNag"
+{
+	scene "scenes/eli_lab/mo_gowithalyx01.vcd"
+	scene "scenes/eli_lab/mo_gowithalyx02.vcd"	
+	scene "scenes/eli_lab/eli_gowithalyx01.vcd"
+	scene "scenes/eli_lab/eli_gowithalyx02.vcd"
+	scene "scenes/eli_lab/eli_gowithalyx03.vcd"
+	scene "scenes/eli_lab/eli_littlewhile.vcd" displayfirst
+}
+
+rule NagGoWithAlyx
+{
+	criteria		IsGoWithAlyxConcept
+	response		GoWithAlyxNag
+}
+
+//============================================================================================================
+// Follow Alyx General
+//============================================================================================================
+response "ELabFollowAlyxNag"
+{
+	scene "scenes/eli_lab/al_cmon.vcd"
+	scene "scenes/eli_lab/al_youcoming.vcd"
+	scene "scenes/eli_lab/al_cmongordon.vcd"
+	scene "scenes/eli_lab/al_thisway.vcd" displayfirst
+}
+
+rule NagELabFollowAlyx
+{
+	criteria		IsLabFollowAlyxNagConcept
+	response		ELabFollowAlyxNag
+}
+
+//============================================================================================================
+// Take Grav Gun from Alyx
+//============================================================================================================
+response "TakeGravGunNag"
+{
+	scene "scenes/eli_lab/al_takeit.vcd" displayfirst
+	scene "scenes/eli_lab/al_takethis.vcd"
+}
+
+rule NagTakeGravGun
+{
+	criteria		IsTakeGravGunNagConcept
+	response		TakeGravGunNag
+}
+
+//============================================================================================================
+// Into the Airlock (Alyx) !!!!!
+//============================================================================================================
+response "GoBackAirlockNag"
+{
+	scene "scenes/eli_lab/al_intoairlock01.vcd" displayfirst
+	scene "scenes/eli_lab/al_intoairlock02.vcd"
+	scene "scenes/eli_lab/al_intoairlock03.vcd"
+	scene "scenes/eli_lab/al_intoairlock04.vcd"
+	scene "scenes/eli_lab/al_intoairlock05.vcd"
+	scene "scenes/eli_lab/al_intoairlock06.vcd"
+	scene "scenes/eli_lab/al_intoairlock07.vcd"
+}
+
+rule NagGoBackAirlock
+{
+	criteria		IsGoBackAirlockConcept
+	response		GoBackAirlockNag
+}
+
+//============================================================================================================
+// Follow Mossman into her side room
+//============================================================================================================
+response "FollowMossRoomNag"
+{
+	scene "scenes/eli_lab/mo_gotoeli01.vcd" displayfirst defaultdelay
+	scene "scenes/eli_lab/mo_gotoeli02.vcd" defaultdelay
+	scene "scenes/eli_lab/mo_gotoeli03.vcd" defaultdelay
+	scene "scenes/eli_lab/mo_gotoeli04.vcd" defaultdelay
+}
+
+rule NagFollowMossRoom
+{
+	criteria		IsMossmanRoomConcept
+	response		FollowMossRoomNag
+}
+
+//============================================================================================================
+// Alyx nags you to stack things
+//============================================================================================================
+response "AlyxStackThingsNag"
+{
+	scene "scenes/eli_lab/al_trystacking.vcd" displayfirst defaultdelay
+	scene "scenes/eli_lab/al_placeobjs.vcd" defaultdelay
+	scene "scenes/eli_lab/al_buildastack.vcd" defaultdelay
+}
+
+rule NagAlyxStack
+{
+	criteria		IsAlyxStackConcept
+	response		AlyxStackThingsNag
+}

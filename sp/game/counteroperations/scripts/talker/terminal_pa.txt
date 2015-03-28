@@ -1,0 +1,27 @@
+// Terminal/Train station PA
+response "announce"
+{
+	sequential
+	// norepeat
+	speak "Trainyard.pasystem_01"
+	speak "Trainyard.pasystem_02"
+	speak "Trainyard.pasystem_03"
+	speak "Trainyard.pasystem_04"
+	speak "Trainyard.pasystem_05"
+	speak "Trainyard.pasystem_06"
+	speak "Trainyard.pasystem_07"
+	speak "Trainyard.pasystem_08"
+	speak "Trainyard.pasystem_09"
+	speak "Trainyard.pasystem_10"
+	speak "Trainyard.pasystem_11"
+}
+
+// Criteria wants to match the "concept" key (specified for the 'speaker' entity in the .vmf)
+criterion concept_train_speaker "concept" "train_speaker" required
+
+rule "make_announcment"
+{
+	// If the speaker is the 'train_speaker' then make an announement from 'announce'
+	"criteria"			"concept_train_speaker"
+	"response"			"announce"
+}

@@ -1,0 +1,1286 @@
+//*******************************************************
+// HL2 World sounds
+// 	doors, buttons, levers, platforms, beams
+
+
+"FuncTrackChange.Blocking"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"buttons/button11.wav"
+}
+
+"TriggerSuperArmor.StartCharging"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.85"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"items/suitchargeok1.wav"
+}
+
+"TriggerSuperArmor.Charging"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.85"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"items/suitcharge1.wav"
+}
+
+"TriggerSuperArmor.DoneCharging"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.85"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"items/suitchargeno1.wav"
+}
+
+// *********************************************************
+// Doors
+"Door.Locked1"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"doors/door_locked1.wav"
+}
+
+"Door.Locked2"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"doors/door_locked2.wav"
+}
+
+"DoorSound.Null"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_NORM"
+	"wave"	"common/null.wav" 
+}
+
+"DoorSound.DefaultMove"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.2"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"	"doors/default_move.wav" 
+}
+
+"DoorSound.DefaultArrive"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.2"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"	"common/null.wav" 
+}
+
+"DoorSound.DefaultLocked"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.2"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"	"doors/default_locked.wav" 
+}
+
+"RotDoorSound.DefaultMove"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.2"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"	"doors/default_move.wav" 
+}
+
+"RotDoorSound.DefaultArrive"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.2"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"	"common/null.wav" 
+}
+
+"RotDoorSound.DefaultLocked"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.2"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"	"doors/default_locked.wav" 
+}
+
+// 1 Metal Door
+
+"Doors.Move1"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.2"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"rndwave"
+	{
+		"wave"	"doors/door_metal_rusty_move1.wav"
+		"wave"	"doors/door_squeek1.wav"
+	}
+}
+
+"Doors.FullOpen1"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.5"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_medium_open1.wav"
+}
+
+"Doors.FullClose1"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"rndwave"
+	{
+		"wave"	"doors/door_metal_medium_close1.wav"
+		"wave"	"doors/default_stop.wav"
+	}
+}
+
+// 2 Rusty Metal Door
+
+"Doors.Move2"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.5"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"rndwave"
+	{
+		"wave"	"doors/door_metal_rusty_move1.wav"
+		"wave"	"doors/metal_move1.wav"
+	}
+}
+
+"Doors.FullOpen2"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_large_open1.wav"
+}
+
+"Doors.FullClose2"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"rndwave"
+	{
+		"wave"	"doors/door_metal_large_close2.wav"
+		"wave"	"doors/metal_stop1.wav"
+	}
+}
+
+// 3 Wood door
+
+"Doors.Move3"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.5"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"rndwave"
+	{
+		"wave"	"doors/door1_move.wav"
+		"wave"	"doors/wood_move1.wav"
+	}
+}
+
+"Doors.FullOpen3"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door1_stop.wav"
+}
+
+"Doors.FullClose3"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"rndwave"
+	{
+		"wave"	"doors/door_wood_close1.wav"
+		"wave"	"doors/wood_stop1.wav"
+	}
+}
+
+// 4 Old Wood door
+
+"Doors.Move4"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.5"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"rndwave"
+	{
+		"wave"	"doors/door1_move.wav"
+		"wave"	"doors/wood_move1.wav"
+	}
+}
+
+"Doors.FullOpen4"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door1_stop.wav"
+}
+
+"Doors.FullClose4"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"rndwave"
+	{
+		"wave"	"doors/door_wood_close1.wav"
+		"wave"	"doors/wood_stop1.wav"
+	}
+}
+
+
+// 5 screen door with spring
+
+"Doors.Move5"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.5"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_screen_move1.wav"
+}
+
+"Doors.FullOpen5"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_screen_open1.wav"
+}
+
+"Doors.FullClose5"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_screen_close1.wav"
+}	
+
+// 6 chainlink door
+
+"Doors.Move6"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.6"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_chainlink_move1.wav"
+}
+
+"Doors.FullOpen6"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_chainlink_close1.wav"
+}
+
+"Doors.FullClose6"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_chainlink_close2.wav"
+}
+
+// 7 metal gate
+
+"Doors.Move7"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.6"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_gate_move1.wav"
+}
+
+"Doors.FullOpen7"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_gate_close1.wav"
+}
+
+"Doors.FullClose7"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_large_close2.wav"
+}
+
+// 8 locker/metal box/vent door
+
+"Doors.Move8"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.5"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_thin_move1.wav"
+}
+
+"Doors.FullOpen8"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_thin_open1.wav"
+}
+
+"Doors.FullClose8"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_thin_close2.wav"
+}
+
+// 9 large metal door
+
+"Doors.Move9"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_85dB"
+	"pitch"		"75,85"
+	"rndwave"
+	{
+		"wave"	"doors/metal_move1.wav"
+	}
+}
+
+"Doors.FullOpen9"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_85dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_large_close2.wav"
+}
+
+"Doors.FullClose9"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_85dB"
+	"pitch"		"90,110"
+	"wave"	"doors/door_metal_large_chamber_close1.wav"
+}
+
+// 10 huge metal door
+
+"Doors.Move10"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.8"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"100"
+	"wave"	"plats/hall_elev_move.wav"
+}
+
+"Doors.FullOpen10"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"70,80"
+	"wave"	"plats/hall_elev_stop.wav"
+}
+
+"Doors.FullClose10"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"70,80"
+	"wave"	"plats/hall_elev_stop.wav"
+}
+
+// 11 large metal rollup door
+
+"Doors.Move11"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.65"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"90,110"
+	"wave"	"doors/garage_move1.wav"
+}
+
+"Doors.FullOpen11"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"90,110"
+	"wave"	"doors/garage_stop1.wav"
+}
+
+"Doors.FullClose11"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"90,110"
+	"wave"	"doors/garage_stop1.wav"
+}
+
+// 12 large motorized door1
+
+"Doors.Move12"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_85dB"
+	"pitch"		"100"
+	"wave"	"doors/doormove1.wav"
+}
+
+"Doors.FullOpen12"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_85dB"
+	"pitch"		"100"
+	"wave"	"doors/doorstop6.wav"
+}
+
+"Doors.FullClose12"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_85dB"
+	"pitch"		"100"
+	"wave"		"doors/doorstop6.wav"
+}
+
+// 13 large motorized door2
+
+"Doors.Move13"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_85dB"
+	"pitch"		"100"
+	"wave"	"doors/doormove7.wav"
+}
+
+"Doors.FullOpen13"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_85dB"
+	"pitch"		"100"
+	"wave"	"doors/doorstop2.wav"
+}
+
+"Doors.FullClose13"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_85dB"
+	"pitch"		"100"
+	"wave"	"doors/doorstop2.wav"
+}
+// 14 pressurized door
+
+"Doors.Move14"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"doors/doormove2.wav"
+}
+
+"Doors.FullOpen14"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"doors/doorstop1.wav"
+}
+
+"Doors.FullClose14"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.4"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"		"doors/doorstop1.wav"
+}
+
+// 15 high tech glass/plastic door
+
+"Doors.Move15"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"doors/doormove4.wav"
+}
+
+"Doors.FullOpen15"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.4"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"doors/doorstop4.wav"
+}
+
+"Doors.FullClose15"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.4"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"doors/doorstop4.wav"
+}
+
+// 16 gigantic floodgate door
+
+"Doors.Move16"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"100"
+	"wave"	"ambient/machines/wall_move4.wav"
+}
+
+"Doors.FullOpen16"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"100"
+	"wave"	"plats/bigstop1.wav"
+}
+
+"Doors.FullClose16"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"100"
+	"wave"	"plats/bigstop1.wav"
+}
+
+// 17 combine barrier/gate door large
+
+"Doors.Move17"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"100"
+	"wave"	"ambient/machines/wall_ambient1.wav"
+}
+
+"Doors.FullOpen17"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"100"
+	"wave"	"plats/platstop1.wav"
+}
+
+"Doors.FullClose17"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"100"
+	"wave"	"plats/platstop1.wav"
+}
+
+// 18 combine barrier/gate door medium
+
+"Doors.Move18"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.8"
+	"soundlevel"  "SNDLVL_90dB"
+	"pitch"		"120"
+	"wave"	"ambient/machines/wall_move5.wav"
+}
+
+"Doors.FullOpen18"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.8"
+	"soundlevel"  "SNDLVL_90dB"
+	"pitch"		"120"
+	"wave"	"plats/platstop1.wav"
+}
+
+"Doors.FullClose18"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.8"
+	"soundlevel"  "SNDLVL_90dB"
+	"pitch"		"100"
+	"wave"	"plats/platstop1.wav"
+}
+
+"doors.locker_shut"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.15,0.25"
+	"soundlevel"  "SNDLVL_75dB"
+                "pitch"       "120,135"
+                "rndwave"
+                {
+	   		        "wave"	"doors/vent_open2.wav"
+                    "wave"	"doors/vent_open3.wav"
+                }
+}
+
+
+// **************************************************************
+// Combine Door (combine_gate_**)
+
+// combine gate citizen
+
+"Doors.CombineGate_citizen_unlock1"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.65"
+	"soundlevel"  "SNDLVL_70dB"
+	"pitch"		"100"
+	"wave"	"plats/hall_elev_door.wav"
+}
+
+"Doors.CombineGate_citizen_move1"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.65"
+	"soundlevel"  "SNDLVL_70dB"
+	"pitch"		"100"
+	"wave"	"plats/hall_elev_move.wav"
+}
+
+"Doors.CombineGate_citizen_stop1"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_70dB"
+	"pitch"		"100"
+	"wave"	"plats/elevator_stop1.wav"
+}
+
+"Doors.CombineGate_citizen_stop2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_70dB"
+	"pitch"		"100"
+	"wave"	"plats/elevator_stop2.wav"
+}
+
+// **************************************************************
+// Door Handles
+
+// 1 latch
+
+"DoorHandles.Unlocked1"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"rndwave"
+	{
+		"wave"	"doors/latchunlocked1.wav"
+		"wave"	"doors/door_latch3.wav"
+	}
+}
+
+"DoorHandles.Locked1"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/latchlocked2.wav"
+}
+
+// 2 pushbar
+
+"DoorHandles.Unlocked2"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/handle_pushbar_open1.wav"
+}
+
+"DoorHandles.Locked2"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/handle_pushbar_locked1.wav"
+}
+
+// 3 knob
+
+"DoorHandles.Unlocked3"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/latchunlocked1.wav"
+}
+
+"DoorHandles.Locked3"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/handle_knob_locked2.wav"
+}
+
+// 4 metal locker
+
+"DoorHandles.Unlocked4"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/latchunlocked2.wav"
+}
+
+"DoorHandles.Locked4"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+	"wave"	"doors/handle_locker_locked1.wav"
+}
+
+
+// **********************************************************
+// UNDONE: Platforms
+
+// 1 clean elevator
+//doors/door_elevator1.wav
+//doors/door_elevator_loop1.wav
+
+// 2 industrial elevator
+//doors/garage_move1.wav
+//doors/garage_stop1.wav
+
+// 3 extension bridge
+//doors/drawbridge_move1.wav
+//doors/drawbridge_stop1.wav
+
+
+
+// **********************************************************
+// Buttons
+
+"Buttons.snd0"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"common/null.wav"
+
+}
+
+"Buttons.snd1"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button1.wav"
+}
+
+"Buttons.snd2"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button2.wav"
+}
+
+"Buttons.snd3"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button3.wav"
+}
+
+"Buttons.snd4"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button4.wav"
+}
+
+"Buttons.snd5"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button5.wav"
+}
+
+"Buttons.snd6"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button6.wav"
+}
+
+"Buttons.snd7"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button7.wav"
+}
+
+"Buttons.snd8"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button8.wav"
+}
+
+"Buttons.snd9"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button9.wav"
+}
+
+"Buttons.snd10"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button10.wav"
+}
+
+"Buttons.snd11"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button11.wav"
+}
+
+"Buttons.snd12"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"doors/latchlocked2.wav"
+}
+
+"Buttons.snd13"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"doors/latchunlocked1.wav"
+}
+
+"Buttons.snd14"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/lightswitch2.wav"
+}
+
+"Buttons.snd15"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button15.wav"
+}
+
+"Buttons.snd16"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button16.wav"
+}
+
+"Buttons.snd17"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button17.wav"
+}
+
+"Buttons.snd18"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button18.wav"
+}
+
+"Buttons.snd19"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button19.wav"
+}
+
+"Buttons.snd20"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button20.wav"
+}
+
+// ******************************************************
+// Levers
+
+"Buttons.snd21"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"buttons/lever1.wav"
+
+}
+
+"Buttons.snd22"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"buttons/lever2.wav"
+
+}
+
+"Buttons.snd23"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"buttons/lever3.wav"
+
+}
+
+"Buttons.snd24"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"buttons/lever4.wav"
+
+}
+
+"Buttons.snd25"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"buttons/lever5.wav"
+
+}
+
+"Buttons.snd26"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/Lever6.wav"
+}
+
+"Buttons.snd27"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/Lever7.wav"
+}
+
+"Buttons.snd28"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/Lever8.wav"
+}
+
+
+// ******************************************************
+// New buttons
+
+"Buttons.snd31"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button21.wav"
+}
+
+"Buttons.snd32"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button22.wav"
+}
+
+"Buttons.snd33"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button23.wav"
+}
+
+"Buttons.snd34"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button24.wav"
+}
+
+"Buttons.snd35"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button12.wav"
+}
+
+"Buttons.snd36"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button13.wav"
+}
+
+"Buttons.snd37"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/button14.wav"
+}
+
+
+// ************************************************
+// Combine Buttons
+
+"Buttons.snd40"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/combine_button_locked.wav"
+}
+
+"Buttons.snd41"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/combine_button1.wav"
+}
+
+"Buttons.snd42"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/combine_button2.wav"
+}
+"Buttons.snd43"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/combine_button3.wav"
+}
+
+"Buttons.snd44"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/combine_button4.wav"
+}
+"Buttons.snd45"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/combine_button5.wav"
+}
+"Buttons.snd46"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/combine_button6.wav"
+}
+
+"Buttons.snd47"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"100"
+	"wave"	"buttons/combine_button7.wav"
+}
+
+
+"WeaponDissolve.Dissolve"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"pitch"		"90,110"
+	"soundlevel"	"SNDLVL_100db"
+	"rndwave"
+	{
+		"wave"		"ambient/levels/citadel/weapon_disintegrate1.wav"
+		"wave"		"ambient/levels/citadel/weapon_disintegrate2.wav"
+		"wave"		"ambient/levels/citadel/weapon_disintegrate3.wav"
+		"wave"		"ambient/levels/citadel/weapon_disintegrate4.wav"
+	}
+}
+
+"WeaponDissolve.Charge"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.45"
+	"pitch"		"90,110"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"		"ambient/energy/electric_loop.wav"
+}
+
+"WeaponDissolve.Beam"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"0.8"
+	"pitch"		"100"
+	"soundlevel"	"SNDLVL_100db"
+
+	"rndwave"
+	{
+		"wave"		"ambient/levels/citadel/zapper_loop1.wav"
+		"wave"		"ambient/levels/citadel/zapper_loop2.wav"
+	}
+}
+
+"PropaneTank.Burst"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1.0"
+	"pitch"		"95,105"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"		"ambient/fire/gascan_ignite1.wav"
+}

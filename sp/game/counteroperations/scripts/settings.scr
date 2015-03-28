@@ -1,0 +1,131 @@
+// NOTE:  THIS FILE IS AUTOMATICALLY REGENERATED, 
+//DO NOT EDIT THIS HEADER, YOUR COMMENTS WILL BE LOST IF YOU DO
+// Multiplayer options script
+//
+// Format:
+//  Version [float]
+//  Options description followed by 
+//  Options defaults
+//
+// Option description syntax:
+//
+//  "cvar" { "Prompt" { type [ type info ] } { default } }
+//
+//  type = 
+//   BOOL   (a yes/no toggle)
+//   STRING
+//   NUMBER
+//   LIST
+//
+// type info:
+// BOOL                 no type info
+// NUMBER       min max range, use -1 -1 for no limits
+// STRING       no type info
+// LIST          delimited list of options value pairs
+//
+//
+// default depends on type
+// BOOL is "0" or "1"
+// NUMBER is "value"
+// STRING is "value"
+// LIST is "index", where index "0" is the first element of the list
+
+
+// Half-Life Server Configuration Layout Script (stores last settings chosen, too)
+// File generated:  Fri Apr 02 07:04:35 PM
+//
+//
+// Cvar	-	Setting
+
+VERSION 1.0
+
+DESCRIPTION SERVER_OPTIONS
+{
+	"mp_teamlist"
+	{
+		"Valid teams, leave blank for all"
+		{ STRING }
+		{ "robo;hgrunt" }
+	}
+
+	"mp_fraglimit"
+	{
+		"Frag Limit"
+		{ NUMBER 0.000000 -1.000000 }
+		{ "0.000000" }
+	}
+
+	"mp_timelimit"
+	{
+		"Time Limit (Min.)"
+		{ NUMBER 0.000000 -1.000000 }
+		{ "0.000000" }
+	}
+
+	"mp_falldamage"
+	{
+		"Falling Damage"
+		{
+			LIST
+			"Normal" "0"
+			"Realistic" "1"
+		}
+		{ "0.000000" }
+	}
+
+	"mp_teamplay"
+	{
+		"Teamplay"
+		{ BOOL }
+		{ "0" }
+	}
+
+	"mp_friendlyfire"
+	{
+		"Friendly Fire"
+		{ BOOL }
+		{ "0" }
+	}
+
+	"mp_weaponstay"
+	{
+		"Weapons Stay"
+		{ BOOL }
+		{ "0" }
+	}
+
+	"mp_forcerespawn"
+	{
+		"Force Respawn"
+		{ BOOL }
+		{ "0" }
+	}
+
+	"mp_footsteps"
+	{
+		"Footsteps"
+		{ BOOL }
+		{ "1" }
+	}
+
+	"mp_flashlight"
+	{
+		"Flashlight"
+		{ BOOL }
+		{ "0" }
+	}
+
+	"mp_autocrosshair"
+	{
+		"Autocrosshair"
+		{ BOOL }
+		{ "0" }
+	}
+
+	"sv_sendvelocity"
+	{
+		"Low ping server physics"
+		{ BOOL }
+		{ "1" }
+	}
+}

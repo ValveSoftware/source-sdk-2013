@@ -1,0 +1,34 @@
+//*********************************************************
+// E3_bugbait
+
+//e3_bugbait.combat_music1
+//{
+//	// starts as you round corner and first get shot at by soldiers - before sending antlions
+//	"channel"	"CHAN_STATIC"
+//	"volume"	"0.8"
+//	"soundlevel"  "SNDLVL_NONE"
+//	"pitch"		"PITCH_NORM"
+//
+//	"wave"	"#music/HL2_song4.mp3"	
+//}
+
+//e3_bugbait.finale_music1
+//{
+//	// starts at the moment the antlion guard busts through the door
+//	"channel"	"CHAN_STATIC"
+//	"volume"	"0.3"
+//	"soundlevel"  "SNDLVL_NONE"
+//	"pitch"		"PITCH_NORM"
+//
+//	"wave"	"#music/HL2_song8.wav"
+//}
+
+"e3_bugbait.alg_crashwall"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_140dB"
+	"pitch"		"PITCH_NORM"
+
+	"wave"	"physics/metal/metal_large_debris1.wav"	
+}

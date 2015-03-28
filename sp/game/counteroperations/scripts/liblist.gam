@@ -1,0 +1,8 @@
+// Valve Game Info file
+//  These are key/value pairs.  Certain mods will use different settings.
+//
+game "Half-Life 2"
+startmap "Hyper_001"
+trainingmap "t0a0"
+hlversion "1000"
+mpentity "info_player_deathmatch"

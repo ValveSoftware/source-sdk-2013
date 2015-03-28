@@ -1,0 +1,26 @@
+// Dissolve screams
+criterion "IsCombine" "classname" "npc_combine" "required"
+criterion "IsCombineS" "classname" "npc_combine_s" "required"
+
+//response "CombineDissolveScream"
+//{
+//	speak "NPC_CombineS.DissolveScream" noscene
+//}
+
+//rule CombineDissolveScream
+//{
+//	criteria		IsCombineS ConceptDissolveScream
+//	response		CombineDissolveScream
+//}
+
+response "CombineElectrocuteScream"
+{
+	speak "NPC_CombineS.ElectrocuteScream" noscene
+}
+
+rule CombineElectrocuteScream
+{
+	criteria		IsCombineS ConceptElectrocuteScream
+	response		CombineElectrocuteScream
+}
+

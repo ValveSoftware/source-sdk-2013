@@ -1,0 +1,422 @@
+// Decal definitions, format is 
+//   decalname weight
+//   where weight is used to randomly selected a decal to apply from within the group
+
+// This is just an entry to map material types to "impact.xxx"
+"TranslationData"
+{
+	"-"			""  // don't decal this surface
+
+	"C"			"Impact.Concrete"
+	"M"			"Impact.Metal"
+	"W"			"Impact.Wood"
+	"Y"			"Impact.Glass"
+	"F"			"Impact.Flesh"
+	"B"			"Impact.BloodyFlesh"
+	"H"			"Impact.AlienFlesh"
+	"A"			"Impact.Antlion"
+	"E"			"Impact.Antlion"
+	"N"			"Impact.Sand"
+	"V"			"Impact.Metal"
+
+//new subrects
+	"G"			"Impact.Metal"
+	"T"			"Impact.Concrete"
+	"I"			""
+	"O"			"Impact.Wood"
+	"P"			"Impact.Concrete"
+	"L"			"Impact.Concrete"
+	"D"			"Impact.Concrete"
+	"S"			""
+	"X"			""
+}
+
+"Impact.Concrete"
+{
+	"decals/concrete/shot1_subrect" "1"
+	"decals/concrete/shot2_subrect" "1"
+	"decals/concrete/shot3_subrect" "1"
+	"decals/concrete/shot4_subrect" "1"
+	"decals/concrete/shot5_subrect" "1"
+}
+
+"Impact.Metal"
+{
+	"decals/metal/shot1_subrect" "1"
+	"decals/metal/shot2_subrect" "1"
+	"decals/metal/shot3_subrect" "1"
+	"decals/metal/shot4_subrect" "1"
+	"decals/metal/shot5_subrect" "1"
+}
+
+"Impact.Wood"
+{
+	"decals/wood/shot1_subrect" "1"
+	"decals/wood/shot2_subrect" "1"
+	"decals/wood/shot3_subrect" "1"
+	"decals/wood/shot4_subrect" "1"
+	"decals/wood/shot5_subrect" "1"
+}
+
+"Impact.Glass"
+{
+	"decals/glass/shot1_subrect" "1"
+	"decals/glass/shot2_subrect" "1"
+	"decals/glass/shot3_subrect" "1"
+	"decals/glass/shot4_subrect" "1"
+	"decals/glass/shot5_subrect" "1"
+}
+
+
+"Impact.Flesh"
+{
+	"decals/flesh/blood1_subrect" "1"
+	"decals/flesh/blood2_subrect" "1"
+	"decals/flesh/blood3_subrect" "1"
+	"decals/flesh/blood4_subrect" "1"
+	"decals/flesh/blood5_subrect" "1"
+}
+
+
+"Impact.BloodyFlesh"
+{
+	"decals/bloodyflesh/blood1_subrect" "1"
+	"decals/bloodyflesh/blood2_subrect" "1"
+	"decals/bloodyflesh/blood3_subrect" "1"
+	"decals/bloodyflesh/blood4_subrect" "1"
+	"decals/bloodyflesh/blood5_subrect" "1"
+}
+
+"Impact.AlienFlesh"
+{
+	"decals/alienflesh/shot1_subrect" "1"
+	"decals/alienflesh/shot2_subrect" "1"
+	"decals/alienflesh/shot3_subrect" "1"
+	"decals/alienflesh/shot4_subrect" "1"
+	"decals/alienflesh/shot5_subrect" "1"
+}
+
+"Impact.Antlion"
+{
+	"decals/antlion/shot1_subrect" "1"
+	"decals/antlion/shot2_subrect" "1"
+	"decals/antlion/shot3_subrect" "1"
+	"decals/antlion/shot4_subrect" "1"
+	"decals/antlion/shot5_subrect" "1"
+}
+
+// Sand does not have model versions of the decals.
+"Impact.Sand"
+{
+	"decals/sand/shot1_subrect" "1"
+	"decals/sand/shot2_subrect" "1"
+	"decals/sand/shot3_subrect" "1"
+	"decals/sand/shot4_subrect" "1"
+}
+
+"Scorch"
+{
+	"decals/scorch1_subrect" "1"
+	"decals/scorch2_subrect" "1"
+}
+
+"Blood"
+{
+	"decals/blood1_subrect" "1"
+	"decals/blood2_subrect" "1"
+	"decals/blood3_subrect" "1"
+	"decals/blood4_subrect" "1"
+	"decals/blood5_subrect" "1"
+	"decals/blood6_subrect" "1"
+}
+
+"YellowBlood"
+{
+	"decals/yblood1_subrect" "1"
+	"decals/yblood2_subrect" "1"
+	"decals/yblood3_subrect" "1"
+	"decals/yblood4_subrect" "1"
+	"decals/yblood5_subrect" "1"
+	"decals/yblood6_subrect" "1"
+}
+
+"GlassBreak"
+{
+	"decals/break1_subrect" "1"
+	"decals/break2_subrect" "1"
+	"decals/break3_subrect" "1"
+}
+
+"BigShot"
+{
+	"decals/bigshot1_subrect" "1"
+	"decals/bigshot2_subrect" "1"
+	"decals/bigshot3_subrect" "1"
+	"decals/bigshot4_subrect" "1"
+	"decals/bigshot5_subrect" "1"
+}
+
+"BulletProof"
+{
+	"decals/bproof1_subrect" "1"
+}
+
+"SmallScorch"
+{
+	"decals/smscorch1_subrect" "1"
+	"decals/smscorch2_subrect" "1"
+	"decals/smscorch3_subrect" "1"
+}
+
+"FadingScorch"
+{
+	"decals/scorchfade_subrect" "1"
+}
+
+"BeerSplash"
+{
+	"decals/beersplash_subrect" "1"
+}
+
+"ManhackCut"
+{
+	"decals/manhackcut_subrect" "1"
+	"decals/manhackcut2_subrect" "1"
+	"decals/manhackcut3_subrect" "1"
+}
+
+"RedGlowFade"
+{	
+	"decals/redglowfade" "1"
+}
+
+"CombineBallFade"
+{	
+	"decals/combineballfade" "1"
+}
+
+"CombineBallFade2"
+{	
+	"decals/combineballfade2" "1"
+}
+
+"CombineBallFade3"
+{	
+	"decals/combineballfade3" "1"
+}
+
+"PlasmaGlowFade"
+{	
+	 "decals/plasmaglowfade" "1"
+}
+
+"Splash"
+{ 
+	"decals/decalsplash" "1"
+}
+
+"ExplosiveGunshot"
+{
+	"decals/concrete/shot1_subrect" "1"
+}
+
+"Fire"
+{
+	"sprites/fire_floor" "1"
+}
+
+// Currently a model version of this decal doesn't exist.
+"Antion.Unburrow"
+{
+	"decals/unburrow_subrect" "1"
+}
+
+"Extinguish"
+{
+	"decals/extinguish1_subrect" "1"
+	"decals/extinguish2_subrect" "1"
+}
+
+// Currently a model version of these decals don't exist.
+"Splash.Large"
+{
+	"decals/splash1_subrect" "1"
+	"decals/splash2_subrect" "1"
+	"decals/splash3_subrect" "1"
+}
+
+// Currently a model version of these decals don't exist.
+"Splash.Small"
+{
+	"decals/splash1_subrect" "1"
+	"decals/splash1_subrect" "1"
+	"decals/splash1_subrect" "1"
+}
+
+// Currently a model version of this decal doesn't exit.
+"Rollermine.Crater"
+{
+	"decals/rollermine_crater_subrect" "1"
+}
+
+"BirdPoop"
+{
+	"decals/decal_birdpoop001_subrect" "1"
+	"decals/decal_birdpoop002_subrect" "1"
+	"decals/decal_birdpoop003_subrect" "1"
+	"decals/decal_birdpoop004_subrect" "1"
+}
+
+"PaintSplatBlue"
+{
+	"decals/decal_paintsplatterblue001_subrect" "1"
+}
+
+"PaintSplatGreen"
+{
+	"decals/decal_paintsplattergreen001_subrect" "1"
+}
+
+"PaintSplatPink"
+{
+	"decals/decal_paintsplatterpink001_subrect" "1"
+}
+
+// Mark left by energyballs
+"EnergyBall.Impact"
+{
+	"decals/smscorch1_subrect" "1"
+}
+
+// Currently a model version doesn't exist and it is not in a decal page.
+"Antlion.Splat"
+{
+	"decals/antlion/antlion_splat" "1"
+}
+
+// Wiring left in wall after a camera falls
+"SecurityCamera.Detachment"
+{
+	"decals/security_camera_detachment" "1"
+}
+
+"Models"
+{
+	// World Model specific decal precache.
+	"decals/concrete/shot1" "1"
+	"decals/concrete/shot2" "1"
+	"decals/concrete/shot3" "1"
+	"decals/concrete/shot4" "1"
+	"decals/concrete/shot5" "1"
+	"decals/metal/shot1" "1"
+	"decals/metal/shot2" "1"
+	"decals/metal/shot3" "1"
+	"decals/metal/shot4" "1"
+	"decals/metal/shot5" "1"
+	"decals/wood/shot1" "1"
+	"decals/wood/shot2" "1"
+	"decals/wood/shot3" "1"
+	"decals/wood/shot4" "1"
+	"decals/wood/shot5" "1"
+	"decals/glass/shot1" "1"
+	"decals/glass/shot2" "1"
+	"decals/glass/shot3" "1"
+	"decals/glass/shot4" "1"
+	"decals/glass/shot5" "1"
+	"decals/flesh/blood1" "1"
+	"decals/flesh/blood2" "1"
+	"decals/flesh/blood3" "1"
+	"decals/flesh/blood4" "1"
+	"decals/flesh/blood5" "1"
+	"decals/bloodyflesh/blood1" "1"
+	"decals/bloodyflesh/blood2" "1"
+	"decals/bloodyflesh/blood3" "1"
+	"decals/bloodyflesh/blood4" "1"
+	"decals/bloodyflesh/blood5" "1"
+	"decals/alienflesh/shot1" "1"
+	"decals/alienflesh/shot2" "1"
+	"decals/alienflesh/shot3" "1"
+	"decals/alienflesh/shot4" "1"
+	"decals/alienflesh/shot5" "1"
+	"decals/antlion/shot1" "1"
+	"decals/antlion/shot2" "1"
+	"decals/antlion/shot3" "1"
+	"decals/antlion/shot4" "1"
+	"decals/antlion/shot5" "1"
+	"decals/scorch1" "1"
+	"decals/scorch2" "1"
+	"decals/blood1" "1"
+	"decals/blood2" "1"
+	"decals/blood3" "1"
+	"decals/blood4" "1"
+	"decals/blood5" "1"
+	"decals/blood6" "1"
+	"decals/blood7" "1"
+	"decals/blood8" "1"
+	"decals/yblood1" "1"
+	"decals/yblood2" "1"
+	"decals/yblood3" "1"
+	"decals/yblood4" "1"
+	"decals/yblood5" "1"
+	"decals/yblood6" "1"
+	"decals/break1" "1"
+	"decals/break2" "1"
+	"decals/break3" "1"
+	"decals/bigshot1" "1"
+	"decals/bigshot2" "1"
+	"decals/bigshot3" "1"
+	"decals/bigshot4" "1"
+	"decals/bigshot5" "1"
+	"decals/bproof1" "1"
+	"decals/smscorch1" "1"
+	"decals/smscorch2" "1"
+	"decals/smscorch3" "1"
+	"decals/scorchfade" "1"
+	"decals/beersplash" "1"
+	"decals/manhackcut" "1"
+	"decals/manhackcut2" "1"
+	"decals/manhackcut3" "1"
+	"decals/unburrow" "1"
+	"decals/extinguish1" "1"
+	"decals/extinguish2" "1"
+	"decals/splash1" "1"
+	"decals/splash2" "1"
+	"decals/splash3" "1"
+	"decals/rollermine_crater" "1"
+	"decals/decal_birdpoop001" "1"
+	"decals/decal_birdpoop002" "1"
+	"decals/decal_birdpoop003" "1"
+	"decals/decal_birdpoop004" "1"
+	"decals/decal_paintsplatterblue001" "1"
+	"decals/decal_paintsplattergreen001" "1"
+	"decals/decal_paintsplatterpink001" "1"
+	"decals/decal_paintsplatterblue_model" "1"
+	"decals/decal_paintsplattergreen_model" "1"
+	"decals/decal_paintsplatterpink_model" "1"
+	"decals/smscorch1_subrect" "1"
+	"decals/antlion/antlion_splat" "1"
+	"decals/security_camera_detachment" "1"
+
+	// Model specific decal precache.
+	"decals/beersplashmodel" "1"
+	"decals/bigshot1model" "1"
+	"decals/bigshot2model" "1"
+	"decals/bigshot3model" "1"
+	"decals/bigshot4model" "1"
+	"decals/bigshot5model" "1"
+	"decals/bproof1model" "1"
+	"decals/break1model" "1"
+	"decals/break2model" "1"
+	"decals/break3model" "1"
+	"decals/decal_paintsplatterblue_model" "1"
+	"decals/decal_paintsplattergreen_model" "1"
+	"decals/decal_paintsplatterpink_model" "1"
+	"decals/extinguish1model" "1"
+	"decals/extinguish2model" "1"
+	"decals/scorch1model" "1"
+	"decals/scorch2model" "1"
+	"decals/scorchfademodel" "1"
+	"decals/smscorch1model" "1"
+	"decals/smscorch2model" "1"
+	"decals/smscorch3model" "1"
+}

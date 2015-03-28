@@ -1,0 +1,85 @@
+// Assault Rifle 2
+
+WeaponData
+{
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"	"#HL2_Pulse_Rifle"
+	"viewmodel"			"models/weapons/v_irifle.mdl"
+	"playermodel"			"models/weapons/w_irifle.mdl"
+	"anim_prefix"			"ar2"
+	"bucket"			"2"
+	"bucket_position"		"1"
+	"bucket_360"			"1"
+	"bucket_position_360"		"2"
+
+	"clip_size"			"30"
+	"default_clip"			"30"
+
+	"clip2_size"			"-1"
+	"default_clip2"			"-1"
+
+	"primary_ammo"			"AR2"
+	"secondary_ammo"		"AR2AltFire"
+
+	"weight"				"5"
+	"rumble"			"4"
+	"item_flags"			"0"
+
+	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
+	SoundData
+	{
+		"special1"		"Weapon_CombineGuard.Special1"
+		"empty"			"Weapon_IRifle.Empty"
+		"double_shot"		"Weapon_IRifle.Single"
+		"reload"		"Weapon_AR2.Reload"
+		"single_shot"		"Weapon_AR2.Single"
+
+		// NPC SECTION
+		"single_shot_npc"	"Weapon_AR2.NPC_Single"
+		"reload_npc"		"Weapon_AR2.NPC_Reload"
+		"double_shot_npc"	"Weapon_AR2.NPC_Double"
+	}
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"font"		"WeaponIcons"
+				"character"	"l"
+		}
+		"weapon_s"
+		{	
+				"font"		"WeaponIconsSelected"
+				"character"	"l"
+		}
+		"weapon_small"
+		{
+				"font"		"WeaponIconsSmall"
+				"character"	"l"
+		}
+		"ammo"
+		{
+				"font"		"WeaponIconsSmall"
+				"character"	"u"
+		}
+		"ammo2"
+		{
+				"font"		"WeaponIconsSmall"
+				"character"	"z"
+		}
+		"crosshair"
+		{
+				"font"		"Crosshairs"
+				"character"	"Q"
+		}
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"0"
+				"y"			"48"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+}

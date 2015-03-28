@@ -1,0 +1,310 @@
+//============================================================================================================
+// Barney criteria
+criterion "IsBarney" "classname" "npc_barney" "required"
+criterion "IsMap_d3_c17_10b" "map" "d3_c17_10b" "required"
+//============================================================================================================
+
+
+response BarneyDanger
+{
+   scene "scenes/npc/Barney/ba_getaway.vcd"
+	scene "scenes/npc/Barney/ba_damnit.vcd"
+	scene "scenes/npc/Barney/ba_lookout.vcd"
+	scene "scenes/npc/Barney/ba_getdown.vcd"
+	scene "scenes/npc/Barney/ba_getoutofway.vcd"
+}
+
+rule BarneyDanger
+{
+	criteria		IsBarney ConceptTalkDanger
+	response		BarneyDanger
+}
+
+
+response BarneyMortarDanger
+{
+   scene "scenes/npc/Barney/ba_lookout.vcd"
+	scene "scenes/npc/Barney/ba_duck.vcd"
+	scene "scenes/npc/Barney/ba_getdown.vcd"
+   scene "scenes/npc/Barney/ba_run.vcd"
+	scene "scenes/npc/Barney/ba_getoutofway.vcd"
+	scene "scenes/npc/Barney/ba_hereitcomes.vcd"
+}
+
+rule BarneyMortarDanger
+{
+	criteria		IsBarney ConceptTalkDanger EnemyIsMortar
+	response		BarneyMortarDanger
+}
+
+response BarneyShot
+{
+   scene "scenes/npc/Barney/ba_pain01.vcd"
+	scene "scenes/npc/Barney/ba_pain02.vcd"
+	scene "scenes/npc/Barney/ba_pain03.vcd"
+   scene "scenes/npc/Barney/ba_pain04.vcd"
+	scene "scenes/npc/Barney/ba_pain05.vcd"
+	scene "scenes/npc/Barney/ba_pain06.vcd"
+   scene "scenes/npc/Barney/ba_pain07.vcd"
+	scene "scenes/npc/Barney/ba_pain08.vcd"
+   scene "scenes/npc/Barney/ba_pain09.vcd"
+	scene "scenes/npc/Barney/ba_pain10.vcd"
+}
+
+rule BarneyShot
+{
+   criteria    IsBarney ConceptShot
+   response    BarneyShot
+}
+
+response BarneyWound
+{
+	scene "scenes/npc/Barney/ba_wounded01.vcd"
+	scene "scenes/npc/Barney/ba_wounded02.vcd"
+   scene "scenes/npc/Barney/ba_wounded03.vcd"
+}
+
+rule BarneyWound
+{
+	criteria	IsBarney  ConceptTalkWound
+   response BarneyWound
+}
+
+response BarneyMortalWound
+{
+	scene "scenes/npc/Barney/ba_ohshit.vcd"
+   scene "scenes/npc/Barney/ba_no01.vcd"
+	scene "scenes/npc/Barney/ba_no02.vcd"
+	scene "scenes/npc/Barney/ba_thisisbad.vcd"
+}
+
+rule BarneyMortalWound
+{
+	criteria		IsBarney  ConceptTalkMortal
+	response		BarneyMortalWound
+}
+
+response BarneyEnemyDead
+{
+   scene "scenes/npc/Barney/ba_gotone.vcd"
+	scene "scenes/npc/Barney/ba_downyougo.vcd"
+	scene "scenes/npc/Barney/ba_losttouch.vcd"
+	scene "scenes/npc/Barney/ba_ohyeah.vcd"
+   scene "scenes/npc/Barney/ba_laugh01.vcd"
+   scene "scenes/npc/Barney/ba_laugh02.vcd"
+	scene "scenes/npc/Barney/ba_laugh03.vcd"
+   scene "scenes/npc/Barney/ba_laugh04.vcd"
+}
+
+rule BarneyEnemyDead
+{
+	criteria		IsBarney ConceptEnemyDead
+	response		BarneyEnemyDead
+	rescenedelay 		3
+}
+
+response BarneyAttack
+{
+	scene "scenes/npc/Barney/ba_yell.vcd"
+	scene "scenes/npc/Barney/ba_bringiton.vcd"
+	scene "scenes/npc/Barney/ba_goingdown.vcd"
+   scene "scenes/npc/Barney/ba_littlehelphere.vcd"
+	scene "scenes/npc/Barney/ba_covermegord.vcd"
+	scene "scenes/npc/Barney/ba_gordonhelp.vcd"
+   scene "scenes/npc/Barney/ba_openfiregord.vcd"
+}
+
+rule BarneyAttack
+{
+	criteria		IsBarney  ConceptTalkAttacking
+	response		BarneyAttack
+}
+
+response BarneyCombineGroup
+{
+   scene "scenes/npc/Barney/ba_soldiers.vcd"
+   scene "scenes/npc/Barney/ba_heretheycome01.vcd"
+   scene "scenes/npc/Barney/ba_heretheycome02.vcd"
+   scene "scenes/npc/Barney/ba_uhohheretheycome.vcd"
+   scene "scenes/npc/Barney/ba_openfiregord.vcd"
+	scene "scenes/npc/Barney/ba_bringiton.vcd"
+	scene "scenes/npc/Barney/ba_letsdoit.vcd"
+	scene "scenes/npc/Barney/ba_imwithyou.vcd"
+}
+
+response BarneyCombine
+{
+   response BarneyCombineGroup respeakdelay 180
+}
+
+rule BarneyStartCombatCombine
+{
+	criteria    IsBarney ConceptStartCombat
+	enemy npc_combine_s required
+	response    BarneyCombine
+}
+
+response BarneyHeadcrabGroup
+{
+	scene "scenes/npc/Barney/ba_headcrabs.vcd"
+  	scene "scenes/npc/Barney/ba_headhumpers.vcd"
+	
+}
+
+response BarneyHeadcrab
+{
+   response BarneyHeadcrabGroup respeakdelay 180
+}
+
+rule BarneyStartCombatHeadcrab
+{
+	criteria    IsBarney ConceptStartCombat
+	enemy npc_headcrab required
+	response    BarneyHeadcrab
+}
+
+rule BarneyStartCombatHeadcrabFast
+{
+	criteria    IsBarney ConceptStartCombat
+	enemy npc_headcrab_fast required
+	response    BarneyHeadcrab
+}
+
+rule BarneyStartCombatHeadcrabBlack
+{
+	criteria    IsBarney ConceptStartCombat
+	enemy npc_headcrab_black required
+	response    BarneyHeadcrab
+}
+
+response BarneyTurretGroup
+{
+	scene "scenes/npc/Barney/ba_turret.vcd"
+}
+
+response BarneyTurret
+{
+   response BarneyTurretGroup respeakdelay 180
+}
+
+response BarneyTurretGroundGroup
+{
+	scene "scenes/npc/Barney/ba_turret.vcd"   weight 2
+	scene "scenes/npc/Barney/ba_grenade01.vcd"
+	scene "scenes/npc/Barney/ba_grenade02.vcd"
+}
+
+response BarneyTurretGround
+{
+   response BarneyTurretGroundGroup respeakdelay 180
+}
+
+rule BarneyStartCombatTurretFloor
+{
+	criteria    IsBarney ConceptStartCombat
+	enemy npc_turret_floor required
+	response    BarneyTurret
+}
+
+rule BarneyStartCombatTurretGround
+{
+	criteria    IsBarney ConceptStartCombat
+	enemy npc_turret_gound required
+	response    BarneyTurretGround
+}
+
+rule BarneyStartCombatTurretCeiling
+{
+	criteria    IsBarney ConceptStartCombat
+	enemy npc_turret_ceiling required
+	response    BarneyTurret
+}
+
+response BarneyHideAndReload
+{
+   scene "scenes/npc/Barney/ba_covermegord.vcd"
+   scene "scenes/npc/Barney/ba_oldtimes.vcd"
+}
+
+rule BarneyHideAndReload
+{
+	criteria		IsBarney ConceptHideAndReload PlayerNear
+	response		BarneyHideAndReload
+}
+
+//============================================================================================================
+// Barney Leader speech
+//============================================================================================================
+
+response BarneyLeadStart
+{
+	scene "scenes/npc/Barney/ba_follow05.vcd"
+}
+
+rule BarneyLeadStart
+{
+	criteria		IsBarney ConceptLeadComingBack
+	response		BarneyLeadStart
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response BarneyComingBack
+{
+	scene "scenes/npc/Barney/ba_follow01.vcd"
+	scene "scenes/npc/Barney/ba_follow03.vcd"
+	scene "scenes/npc/Barney/ba_follow02.vcd"
+	scene "scenes/npc/Barney/ba_hurryup.vcd"
+	scene "scenes/npc/Barney/ba_letsgo.vcd"
+}
+
+rule BarneyComingBack
+{
+	criteria		IsBarney ConceptLeadComingBack
+	response		BarneyComingBack
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+// BANK only:
+response "BankBarneyLeadCatchup"
+{
+	scene "scenes/streetwar/nexus/ba_roofaccess.vcd"
+	scene "scenes/streetwar/nexus/ba_headforroof.vcd"
+	scene "scenes/streetwar/nexus/ba_totheroof.vcd"
+}
+
+rule BarneyLeadCatchup
+{
+	criteria		IsBarney ConceptLeadCatchup IsMap_d3_C17_10b
+	response		BankBarneyLeadCatchup
+}
+
+//------------------------------------------------------------------------------------------------------------
+// Sniper map:
+
+response SniperBarneyLeadStart
+{
+	scene "scenes/Streetwar/sniper/ba_returnhero.vcd"
+}
+
+rule SniperBarneyLeadStart
+{
+	criteria		IsBarney ConceptLeadStart IsMap_d3_c17_09
+	response		SniperBarneyLeadStart
+}
+
+
+response SniperBarneyLeadCatchup
+{
+   scene "scenes/Streetwar/sniper/ba_heycomeon.vcd" weight 2
+   scene "scenes/Streetwar/sniper/ba_letsgetgoing.vcd"
+   scene "scenes/Streetwar/sniper/ba_overhere.vcd"
+}
+
+rule SniperBarneyLeadStartCatchup
+{
+	criteria		IsBarney ConceptLeadCatchup IsMap_d3_c17_09
+	response		SniperBarneyLeadCatchup
+}
+

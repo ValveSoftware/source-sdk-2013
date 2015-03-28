@@ -1,0 +1,301 @@
+"NPC_Antlion.MeleeAttack"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/zombie/claw_strike1.wav"
+		"wave"	"npc/zombie/claw_strike2.wav"
+		"wave"	"npc/zombie/claw_strike3.wav"
+	}
+}
+
+"NPC_Antlion.BurrowIn"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.75"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/antlion/digdown1.wav"
+}
+
+"NPC_Antlion.BurrowOut"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.75"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/antlion/digup1.wav"
+}
+
+"NPC_Antlion.FootstepSoft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.030, 0.050"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion/foot1.wav"
+		"wave"	"npc/antlion/foot2.wav"
+		"wave"	"npc/antlion/foot3.wav"
+		"wave"	"npc/antlion/foot4.wav"
+	}
+}
+
+"NPC_Antlion.Footstep"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.100, 0.150"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion/foot1.wav"
+		"wave"	"npc/antlion/foot2.wav"
+		"wave"	"npc/antlion/foot3.wav"
+		"wave"	"npc/antlion/foot4.wav"
+	}
+}
+
+"NPC_Antlion.FootstepHeavy"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion/foot1.wav"
+		"wave"	"npc/antlion/foot2.wav"
+		"wave"	"npc/antlion/foot3.wav"
+		"wave"	"npc/antlion/foot4.wav"
+	}
+}
+
+"NPC_Antlion.MeleeAttackSingle"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.250, 1.000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion/attack_single1.wav"
+		"wave"	"npc/antlion/attack_single2.wav"
+		"wave"	"npc/antlion/attack_single3.wav"
+	}
+}
+
+"NPC_Antlion.MeleeAttackDouble"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.250, 1.000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion/attack_double1.wav"
+		"wave"	"npc/antlion/attack_double2.wav"
+		"wave"	"npc/antlion/attack_double3.wav"
+	}
+}
+
+"NPC_Antlion.Distracted"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_85db"
+
+	"wave"			"npc/antlion/distract1.wav"
+}
+
+"NPC_Antlion.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750, 1.000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion/idle1.wav"
+		"wave"	"npc/antlion/idle2.wav"
+		"wave"	"npc/antlion/idle3.wav"
+		"wave"	"npc/antlion/idle4.wav"
+		"wave"	"npc/antlion/idle5.wav"
+	}
+}
+
+"NPC_Antlion.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750, 1.000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion/pain1.wav"
+		"wave"	"npc/antlion/pain2.wav"
+	}
+}
+
+"NPC_Antlion.JumpTouch"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/zombie/claw_strike1.wav"
+		"wave"	"npc/zombie/claw_strike2.wav"
+		"wave"	"npc/zombie/claw_strike3.wav"
+	}
+}
+
+"NPC_Antlion.Land"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/antlion/land1.wav"
+}
+
+"NPC_Antlion.WingsOpen"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/antlion/fly1.wav"
+}
+
+"NPC_Antlion.LoopingAgitated"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/antlion/charge_loop1.wav"
+}
+
+"NPC_AntlionGrub.Scared"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion_grub/scared1.wav"
+		"wave"	"npc/antlion_grub/scared2.wav"
+		"wave"	"npc/antlion_grub/scared3.wav"
+	}
+}
+
+"NPC_AntlionGrub.Squash"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.500"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/antlion_grub/squashed.wav"
+}
+
+"FX_AntlionImpact.ShellImpact"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.750, 1.000"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"	"95, 105"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion/shell_impact1.wav"
+		"wave"	"npc/antlion/shell_impact2.wav"
+		"wave"	"npc/antlion/shell_impact3.wav"
+		"wave"	"npc/antlion/shell_impact4.wav"
+	}
+}
+
+"NPC_Antlion.RunOverByVehicle"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"  "SNDLVL_NORM"
+	"pitch"	"PITCH_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion_grub/squashed.wav"
+	}
+}
+
+"NPC_Antlion.Movement"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"VOL_NORM"
+	"soundlevel"  "SNDLVL_50dB"
+	"pitch"	"PITCH_NORM"
+
+	"wave"	"npc/antlion_grub/movement.wav"
+}
+
+
+"NPC_Antlion.Voice"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"  "SNDLVL_50dB"
+	"pitch"	"PITCH_NORM"
+
+	"wave"	"npc/antlion_grub/voice2.wav"
+}
+
+
+"NPC_Antlion.Heal"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"VOL_NORM"
+	"soundlevel"  "SNDLVL_50dB"
+	"pitch"	"PITCH_NORM"
+
+	"wave"	"npc/antlion_grub/heal.wav"
+}

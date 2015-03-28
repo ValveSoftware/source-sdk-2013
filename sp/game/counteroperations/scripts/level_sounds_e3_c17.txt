@@ -1,0 +1,63 @@
+
+// SPOKEN AUDIO
+
+"E3_C17_02.GateGrindsDown1"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_130dB"
+	"pitch"		"PITCH_NORM"
+
+	"wave"	"ambient/machines/wall_move2.wav"	
+}
+
+"E3_C17_02.GateGrindsDown2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_130dB"
+	"pitch"		"PITCH_NORM"
+
+	"wave"	"ambient/machines/wall_move1.wav"	
+}
+
+"E3_C17_02.GateGrindsUp2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_130dB"
+	"pitch"		"PITCH_NORM"
+
+	"wave"	"ambient/machines/wall_move4.wav"	
+}
+
+
+"E3_C17_02.GateHitsGround"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_140dB"
+	"pitch"		"PITCH_NORM"
+
+	"wave"	"ambient/machines/wall_crash1.wav"	
+}
+
+"E3_C17_02.GateAmbientSound"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_100dB"
+	"pitch"		"PITCH_NORM"
+	
+	"wave"	"ambient/machines/wall_ambient_loop1.wav"
+}
+
+//"E3_Under_02.Music"
+//{
+//	"channel"	"CHAN_STATIC"
+//	"volume"	"1.0"
+//	"soundlevel"  "SNDLVL_NONE"
+//	"pitch"		"PITCH_NORM"
+//
+//	"wave"	"#music/HL2_song1.mp3"	
+//}
