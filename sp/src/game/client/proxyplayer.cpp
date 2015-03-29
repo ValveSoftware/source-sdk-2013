@@ -11,6 +11,7 @@
 #include "materialsystem/itexture.h"
 #include "materialsystem/imaterialsystem.h"
 #include "functionproxy.h"
+#include "proxyentity.h"
 #include "toolframework_client.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -248,6 +249,97 @@ void CPlayerPositionProxy::OnBind( void *pC_BaseEntity )
 
 EXPOSE_INTERFACE( CPlayerPositionProxy, IMaterialProxy, "PlayerPosition" IMATERIAL_PROXY_INTERFACE_VERSION );
 
+
+//-----------------------------------------------------------------------------
+// Returns the entity's forward, right, and/or up vectors.
+//-----------------------------------------------------------------------------
+class CEntityVectorsProxy : public CEntityMaterialProxy
+{
+public:
+	CEntityVectorsProxy()
+	{
+		m_pMaterial = NULL;
+		m_pForward = NULL;
+		m_pRight = NULL;
+		m_pUp = NULL;
+	}
+
+	virtual ~CEntityVectorsProxy()
+	{
+	}
+
+	virtual bool Init( IMaterial *pMaterial, KeyValues *pKeyValues )
+	{
+		const char* pForward = pKeyValues->GetString( "forward" );
+		const char* pRight = pKeyValues->GetString( "right" );
+		const char* pUp = pKeyValues->GetString( "up" );
+		m_pMaterial = pMaterial;
+		bool found;
+
+		if (pForward && *pForward) {
+			m_pForward = pMaterial->FindVar( pForward, &found, true );
+			if (!found)
+			{
+				m_pForward = NULL;
+				return false;
+			}
+		}
+
+		if (pRight && *pRight) {
+			m_pRight = pMaterial->FindVar( pRight, &found, true );
+			if (!found)
+			{
+				m_pRight = NULL;
+				return false;
+			}
+		}
+
+		if (pUp && *pUp) {
+			m_pUp = pMaterial->FindVar( pUp, &found, true );
+			if (!found)
+			{
+				m_pUp = NULL;
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	virtual void OnBind( C_BaseEntity *pC_BaseEntity )
+	{
+		Vector forward, right, up;
+		pC_BaseEntity->GetVectors( &forward, &right, &up );
+
+		if (m_pForward)
+		{
+			m_pForward->SetVecValue( forward.x, forward.y, forward.z );
+		}
+
+		if (m_pRight)
+		{
+			m_pRight->SetVecValue( right.x, right.y, right.z );
+		}
+
+		if (m_pUp)
+		{
+			m_pUp->SetVecValue( up.x, up.y, up.z );
+		}
+	}
+
+	virtual IMaterial *GetMaterial()
+	{
+		return m_pMaterial;
+	}
+
+protected:
+	IMaterial *m_pMaterial;
+	IMaterialVar *m_pForward;
+	IMaterialVar *m_pRight;
+	IMaterialVar *m_pUp;
+};
+
+EXPOSE_INTERFACE( CEntityVectorsProxy, IMaterialProxy, "EntityVectors" IMATERIAL_PROXY_INTERFACE_VERSION );
 
 //-----------------------------------------------------------------------------
 // Returns the entity speed
