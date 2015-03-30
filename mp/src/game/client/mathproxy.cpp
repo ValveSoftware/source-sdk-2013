@@ -413,7 +413,7 @@ void CSineProxy::OnBind( void *pC_BaseEntity )
 	// get a value in [min,max]	
 	flValue = ( flSineMax - flSineMin ) * flValue + flSineMin;
 	
-	SetFloatResult( 1 );
+	SetFloatResult( flValue );
 
 	if ( ToolsEnabled() )
 	{
