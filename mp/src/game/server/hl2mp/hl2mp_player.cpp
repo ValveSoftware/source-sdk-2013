@@ -20,11 +20,16 @@
 #include "grenade_satchel.h"
 #include "eventqueue.h"
 #include "gamestats.h"
+#include "tier0/vprof.h"
+#include "bone_setup.h"
 
 #include "engine/IEngineSound.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 
 #include "ilagcompensationmanager.h"
+
+// memdbgon must be the last include file in a .cpp file!!!
+#include "tier0/memdbgon.h"
 
 int g_iLastCitizenModel = 0;
 int g_iLastCombineModel = 0;
@@ -42,19 +47,58 @@ LINK_ENTITY_TO_CLASS( player, CHL2MP_Player );
 LINK_ENTITY_TO_CLASS( info_player_combine, CPointEntity );
 LINK_ENTITY_TO_CLASS( info_player_rebel, CPointEntity );
 
+extern void SendProxy_Origin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
+
+//Tony; this should ideally be added to dt_send.cpp
+void* SendProxy_SendNonLocalDataTable( const SendProp *pProp, const void *pStruct, const void *pVarData, CSendProxyRecipients *pRecipients, int objectID )
+{
+	pRecipients->SetAllRecipients();
+	pRecipients->ClearRecipient( objectID - 1 );
+	return ( void * )pVarData;
+}
+REGISTER_SEND_PROXY_NON_MODIFIED_POINTER( SendProxy_SendNonLocalDataTable );
+
+
+BEGIN_SEND_TABLE_NOBASE( CHL2MP_Player, DT_HL2MPLocalPlayerExclusive )
+	// send a hi-res origin to the local player for use in prediction
+	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_NOSCALE|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
+	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
+//	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
+END_SEND_TABLE()
+
+BEGIN_SEND_TABLE_NOBASE( CHL2MP_Player, DT_HL2MPNonLocalPlayerExclusive )
+	// send a lo-res origin to other players
+	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_COORD_MP_LOWPRECISION|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
+	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
+	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
+END_SEND_TABLE()
+
 IMPLEMENT_SERVERCLASS_ST(CHL2MP_Player, DT_HL2MP_Player)
-	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 11, SPROP_CHANGES_OFTEN ),
-	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 11, SPROP_CHANGES_OFTEN ),
+	SendPropExclude( "DT_BaseAnimating", "m_flPoseParameter" ),
+	SendPropExclude( "DT_BaseAnimating", "m_flPlaybackRate" ),	
+	SendPropExclude( "DT_BaseAnimating", "m_nSequence" ),
+	SendPropExclude( "DT_BaseEntity", "m_angRotation" ),
+	SendPropExclude( "DT_BaseAnimatingOverlay", "overlay_vars" ),
+
+	SendPropExclude( "DT_BaseEntity", "m_vecOrigin" ),
+
+	// playeranimstate and clientside animation takes care of these on the client
+	SendPropExclude( "DT_ServerAnimationData" , "m_flCycle" ),	
+	SendPropExclude( "DT_AnimTimeMustBeFirst" , "m_flAnimTime" ),
+
+	SendPropExclude( "DT_BaseFlex", "m_flexWeight" ),
+	SendPropExclude( "DT_BaseFlex", "m_blinktoggle" ),
+	SendPropExclude( "DT_BaseFlex", "m_viewtarget" ),
+
+	// Data that only gets sent to the local player.
+	SendPropDataTable( "hl2mplocaldata", 0, &REFERENCE_SEND_TABLE(DT_HL2MPLocalPlayerExclusive), SendProxy_SendLocalDataTable ),
+	// Data that gets sent to all other players
+	SendPropDataTable( "hl2mpnonlocaldata", 0, &REFERENCE_SEND_TABLE(DT_HL2MPNonLocalPlayerExclusive), SendProxy_SendNonLocalDataTable ),
+
 	SendPropEHandle( SENDINFO( m_hRagdoll ) ),
 	SendPropInt( SENDINFO( m_iSpawnInterpCounter), 4 ),
 	SendPropInt( SENDINFO( m_iPlayerSoundType), 3 ),
-	
-	SendPropExclude( "DT_BaseAnimating", "m_flPoseParameter" ),
-	SendPropExclude( "DT_BaseFlex", "m_viewtarget" ),
-
-//	SendPropExclude( "DT_ServerAnimationData" , "m_flCycle" ),	
-//	SendPropExclude( "DT_AnimTimeMustBeFirst" , "m_flAnimTime" ),
-	
+		
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CHL2MP_Player )
@@ -96,8 +140,12 @@ const char *g_ppszRandomCombineModels[] =
 
 #pragma warning( disable : 4355 )
 
-CHL2MP_Player::CHL2MP_Player() : m_PlayerAnimState( this )
+CHL2MP_Player::CHL2MP_Player()
 {
+	//Tony; create our player animation state.
+	m_PlayerAnimState = CreateHL2MPPlayerAnimState( this );
+	UseClientSideAnimation();
+
 	m_angEyeAngles.Init();
 
 	m_iLastWeaponFireUsercmd = 0;
@@ -107,16 +155,16 @@ CHL2MP_Player::CHL2MP_Player() : m_PlayerAnimState( this )
 
 	m_iSpawnInterpCounter = 0;
 
-    m_bEnterObserver = false;
+	m_bEnterObserver = false;
 	m_bReady = false;
 
 	BaseClass::ChangeTeam( 0 );
 	
-//	UseClientSideAnimation();
 }
 
 CHL2MP_Player::~CHL2MP_Player( void )
 {
+	m_PlayerAnimState->Release();
 
 }
 
@@ -142,13 +190,13 @@ void CHL2MP_Player::Precache( void )
 	int i;	
 
 	for ( i = 0; i < nHeads; ++i )
-	   	 PrecacheModel( g_ppszRandomCitizenModels[i] );
+		 PrecacheModel( g_ppszRandomCitizenModels[i] );
 
 	//Precache Combine Models
 	nHeads = ARRAYSIZE( g_ppszRandomCombineModels );
 
 	for ( i = 0; i < nHeads; ++i )
-	   	 PrecacheModel( g_ppszRandomCombineModels[i] );
+		 PrecacheModel( g_ppszRandomCombineModels[i] );
 
 	PrecacheFootStepSounds();
 
@@ -304,8 +352,6 @@ void CHL2MP_Player::Spawn(void)
 		GiveDefaultItems();
 	}
 
-	SetNumAnimOverlays( 3 );
-	ResetAnimation();
 
 	m_nRenderFX = kRenderNormal;
 
@@ -331,6 +377,10 @@ void CHL2MP_Player::Spawn(void)
 	SetPlayerUnderwater(false);
 
 	m_bReady = false;
+
+	//Tony; do the spawn animevent
+	DoAnimationEvent( PLAYERANIMEVENT_SPAWN );
+
 }
 
 void CHL2MP_Player::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
@@ -355,7 +405,7 @@ bool CHL2MP_Player::ValidatePlayerModel( const char *pModel )
 
 	for ( i = 0; i < iModels; ++i )
 	{
-	   	if ( !Q_stricmp( g_ppszRandomCombineModels[i], pModel ) )
+		if ( !Q_stricmp( g_ppszRandomCombineModels[i], pModel ) )
 		{
 			return true;
 		}
@@ -505,55 +555,20 @@ void CHL2MP_Player::SetupPlayerSoundsByModel( const char *pModelName )
 	}
 }
 
-void CHL2MP_Player::ResetAnimation( void )
-{
-	if ( IsAlive() )
-	{
-		SetSequence ( -1 );
-		SetActivity( ACT_INVALID );
-
-		if (!GetAbsVelocity().x && !GetAbsVelocity().y)
-			SetAnimation( PLAYER_IDLE );
-		else if ((GetAbsVelocity().x || GetAbsVelocity().y) && ( GetFlags() & FL_ONGROUND ))
-			SetAnimation( PLAYER_WALK );
-		else if (GetWaterLevel() > 1)
-			SetAnimation( PLAYER_WALK );
-	}
-}
-
-
 bool CHL2MP_Player::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex )
 {
 	bool bRet = BaseClass::Weapon_Switch( pWeapon, viewmodelindex );
-
-	if ( bRet == true )
-	{
-		ResetAnimation();
-	}
 
 	return bRet;
 }
 
 void CHL2MP_Player::PreThink( void )
 {
-	QAngle vOldAngles = GetLocalAngles();
-	QAngle vTempAngles = GetLocalAngles();
-
-	vTempAngles = EyeAngles();
-
-	if ( vTempAngles[PITCH] > 180.0f )
-	{
-		vTempAngles[PITCH] -= 360.0f;
-	}
-
-	SetLocalAngles( vTempAngles );
-
 	BaseClass::PreThink();
 	State_PreThink();
 
 	//Reset bullet force accumulator, only lasts one frame
 	m_vecTotalBulletForce = vec3_origin;
-	SetLocalAngles( vOldAngles );
 }
 
 void CHL2MP_Player::PostThink( void )
@@ -565,14 +580,13 @@ void CHL2MP_Player::PostThink( void )
 		SetCollisionBounds( VEC_CROUCH_TRACE_MIN, VEC_CROUCH_TRACE_MAX );
 	}
 
-	m_PlayerAnimState.Update();
-
-	// Store the eye angles pitch so the client can compute its animation state correctly.
-	m_angEyeAngles = EyeAngles();
-
 	QAngle angles = GetLocalAngles();
 	angles[PITCH] = 0;
 	SetLocalAngles( angles );
+
+	// Store the eye angles pitch so the client can compute its animation state correctly.
+	m_angEyeAngles = EyeAngles();
+	m_PlayerAnimState->Update( m_angEyeAngles[YAW], m_angEyeAngles[PITCH] );
 }
 
 void CHL2MP_Player::PlayerDeathThink()
@@ -670,170 +684,6 @@ Activity CHL2MP_Player::TranslateTeamActivity( Activity ActToTranslate )
 }
 
 extern ConVar hl2_normspeed;
-
-// Set the activity based on an event or current state
-void CHL2MP_Player::SetAnimation( PLAYER_ANIM playerAnim )
-{
-	int animDesired;
-
-	float speed;
-
-	speed = GetAbsVelocity().Length2D();
-
-	
-	// bool bRunning = true;
-
-	//Revisit!
-/*	if ( ( m_nButtons & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) ) )
-	{
-		if ( speed > 1.0f && speed < hl2_normspeed.GetFloat() - 20.0f )
-		{
-			bRunning = false;
-		}
-	}*/
-
-	if ( GetFlags() & ( FL_FROZEN | FL_ATCONTROLS ) )
-	{
-		speed = 0;
-		playerAnim = PLAYER_IDLE;
-	}
-
-	Activity idealActivity = ACT_HL2MP_RUN;
-
-	// This could stand to be redone. Why is playerAnim abstracted from activity? (sjb)
-	if ( playerAnim == PLAYER_JUMP )
-	{
-		idealActivity = ACT_HL2MP_JUMP;
-	}
-	else if ( playerAnim == PLAYER_DIE )
-	{
-		if ( m_lifeState == LIFE_ALIVE )
-		{
-			return;
-		}
-	}
-	else if ( playerAnim == PLAYER_ATTACK1 )
-	{
-		if ( GetActivity( ) == ACT_HOVER	|| 
-			 GetActivity( ) == ACT_SWIM		||
-			 GetActivity( ) == ACT_HOP		||
-			 GetActivity( ) == ACT_LEAP		||
-			 GetActivity( ) == ACT_DIESIMPLE )
-		{
-			idealActivity = GetActivity( );
-		}
-		else
-		{
-			idealActivity = ACT_HL2MP_GESTURE_RANGE_ATTACK;
-		}
-	}
-	else if ( playerAnim == PLAYER_RELOAD )
-	{
-		idealActivity = ACT_HL2MP_GESTURE_RELOAD;
-	}
-	else if ( playerAnim == PLAYER_IDLE || playerAnim == PLAYER_WALK )
-	{
-		if ( !( GetFlags() & FL_ONGROUND ) && GetActivity( ) == ACT_HL2MP_JUMP )	// Still jumping
-		{
-			idealActivity = GetActivity( );
-		}
-		/*
-		else if ( GetWaterLevel() > 1 )
-		{
-			if ( speed == 0 )
-				idealActivity = ACT_HOVER;
-			else
-				idealActivity = ACT_SWIM;
-		}
-		*/
-		else
-		{
-			if ( GetFlags() & FL_DUCKING )
-			{
-				if ( speed > 0 )
-				{
-					idealActivity = ACT_HL2MP_WALK_CROUCH;
-				}
-				else
-				{
-					idealActivity = ACT_HL2MP_IDLE_CROUCH;
-				}
-			}
-			else
-			{
-				if ( speed > 0 )
-				{
-					/*
-					if ( bRunning == false )
-					{
-						idealActivity = ACT_WALK;
-					}
-					else
-					*/
-					{
-						idealActivity = ACT_HL2MP_RUN;
-					}
-				}
-				else
-				{
-					idealActivity = ACT_HL2MP_IDLE;
-				}
-			}
-		}
-
-		idealActivity = TranslateTeamActivity( idealActivity );
-	}
-	
-	if ( idealActivity == ACT_HL2MP_GESTURE_RANGE_ATTACK )
-	{
-		RestartGesture( Weapon_TranslateActivity( idealActivity ) );
-
-		// FIXME: this seems a bit wacked
-		Weapon_SetActivity( Weapon_TranslateActivity( ACT_RANGE_ATTACK1 ), 0 );
-
-		return;
-	}
-	else if ( idealActivity == ACT_HL2MP_GESTURE_RELOAD )
-	{
-		RestartGesture( Weapon_TranslateActivity( idealActivity ) );
-		return;
-	}
-	else
-	{
-		SetActivity( idealActivity );
-
-		animDesired = SelectWeightedSequence( Weapon_TranslateActivity ( idealActivity ) );
-
-		if (animDesired == -1)
-		{
-			animDesired = SelectWeightedSequence( idealActivity );
-
-			if ( animDesired == -1 )
-			{
-				animDesired = 0;
-			}
-		}
-	
-		// Already using the desired animation?
-		if ( GetSequence() == animDesired )
-			return;
-
-		m_flPlaybackRate = 1.0;
-		ResetSequence( animDesired );
-		SetCycle( 0 );
-		return;
-	}
-
-	// Already using the desired animation?
-	if ( GetSequence() == animDesired )
-		return;
-
-	//Msg( "Set animation to %d\n", animDesired );
-	// Reset to first frame of desired animation
-	ResetSequence( animDesired );
-	SetCycle( 0 );
-}
-
 
 extern int	gEvilImpulse101;
 //-----------------------------------------------------------------------------
@@ -1225,8 +1075,6 @@ void CHL2MP_Player::Event_Killed( const CTakeDamageInfo &info )
 	CTakeDamageInfo subinfo = info;
 	subinfo.SetDamageForce( m_vecTotalBulletForce );
 
-	SetNumAnimOverlays( 0 );
-
 	// Note: since we're dead, it won't draw us on the client, but we don't set EF_NODRAW
 	// because we still want to transmit to the clients in our PVS.
 	CreateRagdollEntity();
@@ -1415,7 +1263,7 @@ CON_COMMAND( timeleft, "prints the time remaining in the match" )
 	CHL2MP_Player *pPlayer = ToHL2MPPlayer( UTIL_GetCommandClient() );
 
 	int iTimeRemaining = (int)HL2MPRules()->GetMapRemainingTime();
-    
+	
 	if ( iTimeRemaining == 0 )
 	{
 		if ( pPlayer )
@@ -1627,3 +1475,140 @@ bool CHL2MP_Player::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 
 	return true;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: multiplayer does not do autoaiming.
+//-----------------------------------------------------------------------------
+Vector CHL2MP_Player::GetAutoaimVector( float flScale )
+{
+	//No Autoaim
+	Vector	forward;
+	AngleVectors( EyeAngles() + m_Local.m_vecPunchAngle, &forward );
+	return	forward;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Do nothing multiplayer_animstate takes care of animation.
+// Input  : playerAnim - 
+//-----------------------------------------------------------------------------
+void CHL2MP_Player::SetAnimation( PLAYER_ANIM playerAnim )
+{
+	return;
+}
+
+// -------------------------------------------------------------------------------- //
+// Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
+// -------------------------------------------------------------------------------- //
+class CTEPlayerAnimEvent : public CBaseTempEntity
+{
+public:
+	DECLARE_CLASS( CTEPlayerAnimEvent, CBaseTempEntity );
+	DECLARE_SERVERCLASS();
+
+	CTEPlayerAnimEvent( const char *name ) : CBaseTempEntity( name )
+	{
+	}
+
+	CNetworkHandle( CBasePlayer, m_hPlayer );
+	CNetworkVar( int, m_iEvent );
+	CNetworkVar( int, m_nData );
+};
+
+IMPLEMENT_SERVERCLASS_ST_NOBASE( CTEPlayerAnimEvent, DT_TEPlayerAnimEvent )
+	SendPropEHandle( SENDINFO( m_hPlayer ) ),
+	SendPropInt( SENDINFO( m_iEvent ), Q_log2( PLAYERANIMEVENT_COUNT ) + 1, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_nData ), 32 )
+END_SEND_TABLE()
+
+static CTEPlayerAnimEvent g_TEPlayerAnimEvent( "PlayerAnimEvent" );
+
+void TE_PlayerAnimEvent( CBasePlayer *pPlayer, PlayerAnimEvent_t event, int nData )
+{
+	CPVSFilter filter( (const Vector&)pPlayer->EyePosition() );
+
+	//Tony; use prediction rules.
+	filter.UsePredictionRules();
+	
+	g_TEPlayerAnimEvent.m_hPlayer = pPlayer;
+	g_TEPlayerAnimEvent.m_iEvent = event;
+	g_TEPlayerAnimEvent.m_nData = nData;
+	g_TEPlayerAnimEvent.Create( filter, 0 );
+}
+
+
+void CHL2MP_Player::DoAnimationEvent( PlayerAnimEvent_t event, int nData )
+{
+	m_PlayerAnimState->DoAnimationEvent( event, nData );
+	TE_PlayerAnimEvent( this, event, nData );	// Send to any clients who can see this guy.
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Override setup bones so that is uses the render angles from
+//			the HL2MP animation state to setup the hitboxes.
+//-----------------------------------------------------------------------------
+void CHL2MP_Player::SetupBones( matrix3x4_t *pBoneToWorld, int boneMask )
+{
+	VPROF_BUDGET( "CHL2MP_Player::SetupBones", VPROF_BUDGETGROUP_SERVER_ANIM );
+
+	// Get the studio header.
+	Assert( GetModelPtr() );
+	CStudioHdr *pStudioHdr = GetModelPtr( );
+	if ( !pStudioHdr )
+		return;
+
+	Vector pos[MAXSTUDIOBONES];
+	Quaternion q[MAXSTUDIOBONES];
+
+	// Adjust hit boxes based on IK driven offset.
+	Vector adjOrigin = GetAbsOrigin() + Vector( 0, 0, m_flEstIkOffset );
+
+	// FIXME: pass this into Studio_BuildMatrices to skip transforms
+	CBoneBitList boneComputed;
+	if ( m_pIk )
+	{
+		m_iIKCounter++;
+		m_pIk->Init( pStudioHdr, GetAbsAngles(), adjOrigin, gpGlobals->curtime, m_iIKCounter, boneMask );
+		GetSkeleton( pStudioHdr, pos, q, boneMask );
+
+		m_pIk->UpdateTargets( pos, q, pBoneToWorld, boneComputed );
+		CalculateIKLocks( gpGlobals->curtime );
+		m_pIk->SolveDependencies( pos, q, pBoneToWorld, boneComputed );
+	}
+	else
+	{
+		GetSkeleton( pStudioHdr, pos, q, boneMask );
+	}
+
+	CBaseAnimating *pParent = dynamic_cast< CBaseAnimating* >( GetMoveParent() );
+	if ( pParent )
+	{
+		// We're doing bone merging, so do special stuff here.
+		CBoneCache *pParentCache = pParent->GetBoneCache();
+		if ( pParentCache )
+		{
+			BuildMatricesWithBoneMerge( 
+				pStudioHdr, 
+				m_PlayerAnimState->GetRenderAngles(),
+				adjOrigin, 
+				pos, 
+				q, 
+				pBoneToWorld, 
+				pParent, 
+				pParentCache );
+
+			return;
+		}
+	}
+
+	Studio_BuildMatrices( 
+		pStudioHdr, 
+		m_PlayerAnimState->GetRenderAngles(),
+		adjOrigin, 
+		pos, 
+		q, 
+		-1,
+		GetModelScale(), // Scaling
+		pBoneToWorld,
+		boneMask );
+}
+
