@@ -24,6 +24,7 @@
 #define LC_ANGLES_CHANGED	(1<<9)
 #define LC_SIZE_CHANGED		(1<<10)
 #define LC_ANIMATION_CHANGED (1<<11)
+#define LC_POSE_PARAMS_CHANGED (1<<12)
 
 static ConVar sv_lagcompensation_teleport_dist( "sv_lagcompensation_teleport_dist", "64", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "How far a player got moved by game code before we can't lag compensate their position back" );
 #define LAG_COMPENSATION_EPS_SQR ( 0.1f * 0.1f )
@@ -322,9 +323,12 @@ void CLagCompensationManager::FrameUpdatePostEntityThink()
 		record.m_masterCycle = pPlayer->GetCycle();
 
 		CStudioHdr *hdr = pPlayer->GetModelPtr();
-		for( int paramIndex = 0; paramIndex < hdr->GetNumPoseParameters(); paramIndex++ )
+		if( hdr )
 		{
-			record.m_poseParameters[paramIndex] = pPlayer->GetPoseParameter( paramIndex );
+			for( int paramIndex = 0; paramIndex < hdr->GetNumPoseParameters(); paramIndex++ )
+			{
+				record.m_poseParameters[paramIndex] = pPlayer->GetPoseParameter( paramIndex );
+			}
 		}
 	}
 
@@ -723,19 +727,22 @@ void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTar
 
 	// Now do pose parameters
 	CStudioHdr *hdr = pPlayer->GetModelPtr();
-	for( int paramIndex = 0; paramIndex < hdr->GetNumPoseParameters(); paramIndex++ )
+	if( hdr )
 	{
-		float poseParameter = record->m_poseParameters[paramIndex];
-		if( (frac > 0.0f)  &&  interpolationAllowed )
+		for( int paramIndex = 0; paramIndex < hdr->GetNumPoseParameters(); paramIndex++ )
 		{
-			// These could wrap like cycles, but there's no way to know. In the most common case
-			// (move_x/move_y) it's correct to just lerp. Interpolation almost never happens anyways.
-			float prevPoseParameter = prevRecord->m_poseParameters[paramIndex];
-			pPlayer->SetPoseParameter( paramIndex, Lerp( frac, poseParameter, prevPoseParameter ) );
-		}
-		else
-		{
-			pPlayer->SetPoseParameter( paramIndex, poseParameter );
+			float poseParameter = record->m_poseParameters[paramIndex];
+			if( (frac > 0.0f)  &&  interpolationAllowed )
+			{
+				// These could wrap like cycles, but there's no way to know. In the most common case
+				// (move_x/move_y) it's correct to just lerp. Interpolation almost never happens anyways.
+				float prevPoseParameter = prevRecord->m_poseParameters[paramIndex];
+				pPlayer->SetPoseParameter( paramIndex, Lerp( frac, poseParameter, prevPoseParameter ) );
+			}
+			else
+			{
+				pPlayer->SetPoseParameter( paramIndex, poseParameter );
+			}
 		}
 	}
 	
@@ -857,6 +864,20 @@ void CLagCompensationManager::FinishLagCompensation( CBasePlayer *player )
 					currentLayer->m_nOrder = restore->m_layerRecords[layerIndex].m_order;
 					currentLayer->m_nSequence = restore->m_layerRecords[layerIndex].m_sequence;
 					currentLayer->m_flWeight = restore->m_layerRecords[layerIndex].m_weight;
+				}
+			}
+		}
+		
+		if( restore->m_fFlags & LC_POSE_PARAMS_CHANGED )
+		{
+			restoreSimulationTime = true;
+
+			CStudioHdr *hdr = pPlayer->GetModelPtr();
+			if( hdr )
+			{
+				for( int paramIndex = 0; paramIndex < hdr->GetNumPoseParameters(); paramIndex++ )
+				{
+					pPlayer->SetPoseParameter( paramIndex, restore->m_poseParameters[paramIndex] );
 				}
 			}
 		}
