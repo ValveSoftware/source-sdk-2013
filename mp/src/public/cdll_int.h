@@ -548,6 +548,9 @@ public:
 	//  returns the string name of the key to which this string is bound. Returns NULL if no such binding exists
 	// Unlike Key_LookupBinding, leading '+' characters are not stripped from bindings.
 	virtual	const char			*Key_LookupBindingExact( const char *pBinding ) = 0;
+	
+	virtual void				AddPhonemeFile( const char *pszPhonemeFile ) = 0;
+
 };
 
 abstract_class IVEngineClient : public IVEngineClient013

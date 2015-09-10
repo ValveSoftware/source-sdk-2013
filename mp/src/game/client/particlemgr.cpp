@@ -1540,11 +1540,14 @@ static ConVar r_threaded_particles( "r_threaded_particles", "1" );
 
 static float s_flThreadedPSystemTimeStep;
 
-static void ProcessPSystem( CNewParticleEffect *&pNewEffect )
+static void ProcessPSystem( ParticleSimListEntry_t& pSimListEntry )
 {
 	// Enable FP exceptions here when FP_EXCEPTIONS_ENABLED is defined,
 	// to help track down bad math.
 	FPExceptionEnabler enableExceptions;
+
+	CNewParticleEffect* pNewEffect = pSimListEntry.m_pNewParticleEffect;
+	bool updateBboxOnly = pSimListEntry.m_bBoundingBoxOnly;
 
 	// If this is a new effect, then update its bbox so it goes in the
 	// right leaves (if it has particles).
@@ -1564,12 +1567,12 @@ static void ProcessPSystem( CNewParticleEffect *&pNewEffect )
 
 	if ( pNewEffect->GetFirstFrameFlag() )
 	{
-		pNewEffect->Simulate( 0.0f );
+		pNewEffect->Simulate( 0.0f, updateBboxOnly );
 		pNewEffect->SetFirstFrameFlag( false );
 	}
 	else if ( pNewEffect->ShouldSimulate() )
 	{
-		pNewEffect->Simulate( s_flThreadedPSystemTimeStep );
+		pNewEffect->Simulate( s_flThreadedPSystemTimeStep, updateBboxOnly );
 	}
 
 	if ( pNewEffect->IsFinished() )
@@ -1684,7 +1687,7 @@ bool CParticleMgr::RetireParticleCollections( CParticleSystemDefinition* pDef,
 // Next, see if there are new particle systems that need early retirement
 static ConVar cl_particle_retire_cost( "cl_particle_retire_cost", "0", FCVAR_CHEAT );
 
-bool CParticleMgr::EarlyRetireParticleSystems( int nCount, CNewParticleEffect **ppEffects )
+bool CParticleMgr::EarlyRetireParticleSystems( int nCount, ParticleSimListEntry_t *ppEffects )
 {
 	// NOTE: Doing a cheap and hacky estimate of worst-case fillrate
 	const CViewSetup *pViewSetup = view->GetPlayerViewSetup();
@@ -1699,14 +1702,14 @@ bool CParticleMgr::EarlyRetireParticleSystems( int nCount, CNewParticleEffect **
 	CParticleSystemDefinition **ppDefs = (CParticleSystemDefinition**)stackalloc( nCount * sizeof(CParticleSystemDefinition*) );
 	for ( int i = 0; i < nCount; ++i )
 	{
-		CParticleSystemDefinition *pDef = ppEffects[i]->m_pDef;
+		CParticleSystemDefinition *pDef = ppEffects[i].m_pNewParticleEffect->m_pDef;
 
 		// Skip stuff that doesn't have a cull radius set
 		if ( pDef->GetCullRadius() == 0.0f )
 			continue;
 
 		// Only perform the cull check on creation
-		if ( !ppEffects[i]->GetFirstFrameFlag() )
+		if ( !ppEffects[i].m_pNewParticleEffect->GetFirstFrameFlag() )
 			continue;
 
 		if ( pDef->HasRetirementBeenChecked( gpGlobals->framecount ) )
@@ -1714,7 +1717,7 @@ bool CParticleMgr::EarlyRetireParticleSystems( int nCount, CNewParticleEffect **
 
 		pDef->MarkRetirementCheck( gpGlobals->framecount );
 
-		ppDefs[nDefCount++] = ppEffects[i]->m_pDef;
+		ppDefs[nDefCount++] = ppEffects[i].m_pNewParticleEffect->m_pDef;
 	}
 
 	if ( nDefCount == 0 )
@@ -1722,7 +1725,7 @@ bool CParticleMgr::EarlyRetireParticleSystems( int nCount, CNewParticleEffect **
 
 	for ( int i = 0; i < nCount; ++i )
 	{
-		ppEffects[i]->MarkShouldPerformCullCheck( true );
+		ppEffects[i].m_pNewParticleEffect->MarkShouldPerformCullCheck( true );
 	}
 
 	Vector vecCameraForward;
@@ -1749,28 +1752,45 @@ bool CParticleMgr::EarlyRetireParticleSystems( int nCount, CNewParticleEffect **
 
 	for ( int i = 0; i < nCount; ++i )
 	{
-		ppEffects[i]->MarkShouldPerformCullCheck( false );
+		ppEffects[i].m_pNewParticleEffect->MarkShouldPerformCullCheck( false );
 	}
 	return bRetiredCollections;
 }
 
 static ConVar particle_sim_alt_cores( "particle_sim_alt_cores", "2" );
 
-void CParticleMgr::BuildParticleSimList( CUtlVector< CNewParticleEffect* > &list )
+void CParticleMgr::BuildParticleSimList( CUtlVector< ParticleSimListEntry_t > &list )
 {
 	float flNow = g_pParticleSystemMgr->GetLastSimulationTime();
 	for( CNewParticleEffect *pNewEffect=m_NewEffects.m_pHead; pNewEffect;
 		pNewEffect=pNewEffect->m_pNext )
 	{
+		bool bSkip = false;
+		bool bNeedsBboxUpdate = false;
+
 		if ( flNow >= pNewEffect->m_flNextSleepTime && pNewEffect->m_nActiveParticles > 0 )
-			continue;
+			bSkip = true;
 		if ( pNewEffect->GetRemoveFlag() )
-			continue;
-		if ( g_bMeasureParticlePerformance )
+			bSkip = true;
+
+		if ( !bSkip && g_bMeasureParticlePerformance )
 		{
 			g_nNumParticlesSimulated += pNewEffect->m_nActiveParticles;
 		}
-		list.AddToTail( pNewEffect );
+		
+		// Particles that are attached to moving things will need to update their bboxes even if they
+		// otherwise would like to skip the updates. Check that here.
+		if (bSkip)
+		{
+			bNeedsBboxUpdate = pNewEffect->HasMoved();
+			bSkip = !bNeedsBboxUpdate;
+		}
+
+		if (!bSkip)
+		{
+			ParticleSimListEntry_t entry = { pNewEffect, bNeedsBboxUpdate };
+			list.AddToTail( entry );
+		}
 	}
 }
 
@@ -1812,22 +1832,26 @@ void CParticleMgr::UpdateNewEffects( float flTimeDelta )
 	int nParticleStatsTriggerCount = cl_particle_stats_trigger_count.GetInt();
 
 	BeginSimulateParticles();
-	CUtlVector<CNewParticleEffect *> particlesToSimulate;
-	BuildParticleSimList( particlesToSimulate );
 	s_flThreadedPSystemTimeStep = flTimeDelta;
 
-	int nCount = particlesToSimulate.Count();
-
 	// first, run non-reentrant part to get CP updates from entities
-	for( int i=0; i<nCount; i++ )
+	// This is done on all particles, because it updates control point locations which we need to determine whether or not we should 
+	// do full simulation later. 
+	for (CNewParticleEffect *pNewEffect = m_NewEffects.m_pHead; pNewEffect;
+		pNewEffect = pNewEffect->m_pNext)
 	{
 		// this one can call into random entity code which may not be thread-safe
-		particlesToSimulate[i]->Update( s_flThreadedPSystemTimeStep );
+		pNewEffect->Update( s_flThreadedPSystemTimeStep );
 		if ( nParticleStatsTriggerCount > 0 )
 		{
-			nParticleActiveParticlesCount += CountParticleSystemActiveParticles( particlesToSimulate[i] );
+			nParticleActiveParticlesCount += CountParticleSystemActiveParticles( pNewEffect );
 		}
 	}
+
+	CUtlVector<ParticleSimListEntry_t> particlesToSimulate;
+	BuildParticleSimList(particlesToSimulate);
+	int nCount = particlesToSimulate.Count();
+
 
 	// See if there are new particle systems that need early retirement
 	// This has to happen after the first update
@@ -1861,7 +1885,7 @@ void CParticleMgr::UpdateNewEffects( float flTimeDelta )
 				{
 					nAltCore = 2;
 				}
-				CParallelProcessor<CNewParticleEffect*, CFuncJobItemProcessor<CNewParticleEffect*> > processor( "CParticleMgr::UpdateNewEffects" );
+				CParallelProcessor<ParticleSimListEntry_t, CFuncJobItemProcessor<ParticleSimListEntry_t> > processor( "CParticleMgr::UpdateNewEffects" );
 				processor.m_ItemProcessor.Init( ProcessPSystem, NULL, NULL );
 				processor.Run( particlesToSimulate.Base(), nCount, INT_MAX, m_pThreadPool[nAltCore-1] );
 			}
@@ -1872,7 +1896,7 @@ void CParticleMgr::UpdateNewEffects( float flTimeDelta )
 	for( int i=0; i<nCount; i++)
 	{
 		// this one can call into random entity code which may not be thread-safe
-		particlesToSimulate[i]->DetectChanges();
+		particlesToSimulate[i].m_pNewParticleEffect->DetectChanges();
 	}
 
 	EndSimulateParticles();

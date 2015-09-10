@@ -14,6 +14,40 @@
 #pragma once
 #endif
 
+template <typename T>
+inline void SafeAssign(T** ppInoutDst, T* pInoutSrc )
+{
+	Assert( ppInoutDst );
+
+	// Do addref before release
+	if ( pInoutSrc )
+		( pInoutSrc )->AddRef();
+
+	// Do addref before release
+	if ( *ppInoutDst )
+		( *ppInoutDst )->Release();
+
+	// Do the assignment
+	( *ppInoutDst ) = pInoutSrc;
+}
+
+template <typename T>
+inline void SafeAddRef( T* pObj )
+{
+	if ( pObj )
+		pObj->AddRef();
+}
+
+template <typename T>
+inline void SafeRelease( T** ppInoutPtr )
+{
+	Assert( ppInoutPtr  );
+	if ( *ppInoutPtr )
+		( *ppInoutPtr )->Release();
+
+	( *ppInoutPtr ) = NULL;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:	Implement a standard reference counted interface. Use of this
 //			is optional insofar as all the concrete tools only require

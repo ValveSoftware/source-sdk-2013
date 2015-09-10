@@ -81,7 +81,7 @@ C_VoteController::~C_VoteController()
 void C_VoteController::ResetData()
 {
 	m_iActiveIssueIndex = INVALID_ISSUE;
-	m_iOnlyTeamToVote = TEAM_INVALID;
+	m_iOnlyTeamToVote = TEAM_UNASSIGNED;
 	for( int index = 0; index < MAX_VOTE_OPTIONS; index++ )
 	{
 		m_nVoteOptionCount[index] = 0;
@@ -118,9 +118,11 @@ void C_VoteController::ClientThink()
 	{
 		if ( m_nPotentialVotes > 0 )
 		{
+#ifdef STAGING_ONLY
 			// Currently hard-coded to MAX_VOTE_COUNT options per issue
 			DevMsg( "Votes: Option1 - %d, Option2 - %d, Option3 - %d, Option4 - %d, Option5 - %d\n",
 				m_nVoteOptionCount[0], m_nVoteOptionCount[1], m_nVoteOptionCount[2], m_nVoteOptionCount[3], m_nVoteOptionCount[4] );
+#endif // STAGING_ONLY
 
 			IGameEvent *event = gameeventmanager->CreateEvent( "vote_changed" );
 			if ( event )

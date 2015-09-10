@@ -522,7 +522,7 @@ void CInput::ApplyMouse( QAngle& viewangles, CUserCmd *cmd, float mouse_x, float
 			}
 			else
 			{
-				viewangles[PITCH] += m_pitch->GetFloat() * mouse_y;
+				viewangles[PITCH] += CAM_CapPitch( m_pitch->GetFloat() * mouse_y );
 			}
 
 			// Check pitch bounds

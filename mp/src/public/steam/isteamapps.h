@@ -49,7 +49,7 @@ public:
 	// Install/Uninstall control for optional DLC
 	virtual void InstallDLC( AppId_t nAppID ) = 0;
 	virtual void UninstallDLC( AppId_t nAppID ) = 0;
-
+	
 	// Request cd-key for yourself or owned DLC. If you are interested in this
 	// data then make sure you provide us with a list of valid keys to be distributed
 	// to users when they purchase the game, before the game ships.
@@ -73,13 +73,18 @@ public:
 	// but it is advised that you not param names beginning with an underscore for your own features.
 	virtual const char *GetLaunchQueryParam( const char *pchKey ) = 0;
 
+	// get download progress for optional DLC
+	virtual bool GetDlcDownloadProgress( AppId_t nAppID, uint64 *punBytesDownloaded, uint64 *punBytesTotal ) = 0; 
+
+	// return the buildid of this app, may change at any time based on backend updates to the game
+	virtual int GetAppBuildId() = 0;
 #ifdef _PS3
 	// Result returned in a RegisterActivationCodeResponse_t callresult
 	virtual SteamAPICall_t RegisterActivationCode( const char *pchActivationCode ) = 0;
 #endif
 };
 
-#define STEAMAPPS_INTERFACE_VERSION "STEAMAPPS_INTERFACE_VERSION006"
+#define STEAMAPPS_INTERFACE_VERSION "STEAMAPPS_INTERFACE_VERSION007"
 
 // callbacks
 #if defined( VALVE_CALLBACK_PACK_SMALL )

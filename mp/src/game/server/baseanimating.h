@@ -108,6 +108,7 @@ public:
 	void    ResetEventIndexes ( void );
 	int		SelectWeightedSequence ( Activity activity );
 	int		SelectWeightedSequence ( Activity activity, int curSequence );
+	int		SelectWeightedSequenceFromModifiers( Activity activity, CUtlSymbol *pActivityModifiers, int iModifierCount );
 	int		SelectHeaviestSequence ( Activity activity );
 	int		LookupActivity( const char *label );
 	int		LookupSequence ( const char *label );
@@ -436,10 +437,14 @@ inline CStudioHdr *CBaseAnimating::GetModelPtr( void )
 		return NULL;
 
 #ifdef _DEBUG
-	// GetModelPtr() is often called before OnNewModel() so go ahead and set it up first chance.
-	static IDataCacheSection *pModelCache = datacache->FindSection( "ModelData" );
-	AssertOnce( pModelCache->IsFrameLocking() );
+	if ( !HushAsserts() )
+	{
+		// GetModelPtr() is often called before OnNewModel() so go ahead and set it up first chance.
+		static IDataCacheSection *pModelCache = datacache->FindSection( "ModelData" );
+		AssertOnce( pModelCache->IsFrameLocking() );
+	}
 #endif
+
 	if ( !m_pStudioHdr && GetModel() )
 	{
 		LockStudioHdr();

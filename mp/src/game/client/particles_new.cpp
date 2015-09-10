@@ -65,6 +65,8 @@ void CNewParticleEffect::Construct()
 	m_MaxBounds = Vector( -1.0e6, -1.0e6, -1.0e6 );
 	m_pDebugName = NULL;
 
+	m_bViewModelEffect = m_pDef ? m_pDef->IsViewModelEffect() : false;
+
 	if ( IsValid() && clienttools->IsInRecordingMode() )
 	{
 		int nId = AllocateToolParticleEffectId();	

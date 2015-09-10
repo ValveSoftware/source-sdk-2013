@@ -133,31 +133,56 @@ S_API ISteamPS3OverlayRender *S_CALLTYPE SteamPS3OverlayRender();
 #endif
 #endif // VERSION_SAFE_STEAM_API_INTERFACES
 
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------//
-//	steam callback helper functions
+//	steam callback and call-result helpers
 //
-//	The following classes/macros are used to be able to easily multiplex callbacks 
-//	from the Steam API into various objects in the app in a thread-safe manner
+//	The following macros and classes are used to register your application for
+//	callbacks and call-results, which are delivered in a predictable manner.
 //
-//	These functors are triggered via the SteamAPI_RunCallbacks() function, mapping the callback
-//  to as many functions/objects as are registered to it
+//	STEAM_CALLBACK macros are meant for use inside of a C++ class definition.
+//	They map a Steam notification callback directly to a class member function
+//	which is automatically prototyped as "void func( callback_type *pParam )".
+//
+//	CCallResult is used with specific Steam APIs that return "result handles".
+//	The handle can be passed to a CCallResult object's Set function, along with
+//	an object pointer and member-function pointer. The member function will
+//	be executed once the results of the Steam API call are available.
+//
+//	CCallback and CCallbackManual classes can be used instead of STEAM_CALLBACK
+//	macros if you require finer control over registration and unregistration.
+//
+//	Callbacks and call-results are queued automatically and are only
+//	delivered/executed when your application calls SteamAPI_RunCallbacks().
 //----------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 S_API void S_CALLTYPE SteamAPI_RunCallbacks();
 
 
 
-// functions used by the utility CCallback objects to receive callbacks
+// Declares a callback member function plus a helper member variable which
+// registers the callback on object creation and unregisters on destruction.
+// The optional fourth 'var' param exists only for backwards-compatibility
+// and can be ignored.
+#define STEAM_CALLBACK( thisclass, func, .../*callback_type, [deprecated] var*/ ) \
+	_STEAM_CALLBACK_SELECT( ( __VA_ARGS__, 4, 3 ), ( /**/, thisclass, func, __VA_ARGS__ ) )
+
+// Declares a callback function and a named CCallbackManual variable which
+// has Register and Unregister functions instead of automatic registration.
+#define STEAM_CALLBACK_MANUAL( thisclass, func, callback_type, var )	\
+	CCallbackManual< thisclass, callback_type > var; void func( callback_type *pParam )
+
+
+// Internal functions used by the utility CCallback objects to receive callbacks
 S_API void S_CALLTYPE SteamAPI_RegisterCallback( class CCallbackBase *pCallback, int iCallback );
 S_API void S_CALLTYPE SteamAPI_UnregisterCallback( class CCallbackBase *pCallback );
-// functions used by the utility CCallResult objects to receive async call results
+// Internal functions used by the utility CCallResult objects to receive async call results
 S_API void S_CALLTYPE SteamAPI_RegisterCallResult( class CCallbackBase *pCallback, SteamAPICall_t hAPICall );
 S_API void S_CALLTYPE SteamAPI_UnregisterCallResult( class CCallbackBase *pCallback, SteamAPICall_t hAPICall );
 
 
 //-----------------------------------------------------------------------------
-// Purpose: base for callbacks, 
-//			used only by CCallback, shouldn't be used directly
+// Purpose: base for callbacks and call results - internal implementation detail
 //-----------------------------------------------------------------------------
 class CCallbackBase
 {
@@ -174,6 +199,26 @@ protected:
 	uint8 m_nCallbackFlags;
 	int m_iCallback;
 	friend class CCallbackMgr;
+
+private:
+	CCallbackBase( const CCallbackBase& );
+	CCallbackBase& operator=( const CCallbackBase& );
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: templated base for callbacks - internal implementation detail
+//-----------------------------------------------------------------------------
+template< int sizeof_P >
+class CCallbackImpl : protected CCallbackBase
+{
+public:
+	~CCallbackImpl() { if ( m_nCallbackFlags & k_ECallbackFlagsRegistered ) SteamAPI_UnregisterCallback( this ); }
+	void SetGameserverFlag() { m_nCallbackFlags |= k_ECallbackFlagsGameServer; }
+
+protected:
+	virtual void Run( void *pvParam ) = 0;
+	virtual void Run( void *pvParam, bool /*bIOFailure*/, SteamAPICall_t /*hSteamAPICall*/ ) { Run( pvParam ); }
+	virtual int GetCallbackSizeBytes() { return sizeof_P; }
 };
 
 
@@ -235,7 +280,7 @@ private:
 		m_hAPICall = k_uAPICallInvalid; // caller unregisters for us
 		(m_pObj->*m_Func)( (P *)pvParam, false );		
 	}
-	void Run( void *pvParam, bool bIOFailure, SteamAPICall_t hSteamAPICall )
+	virtual void Run( void *pvParam, bool bIOFailure, SteamAPICall_t hSteamAPICall )
 	{
 		if ( hSteamAPICall == m_hAPICall )
 		{
@@ -243,7 +288,7 @@ private:
 			(m_pObj->*m_Func)( (P *)pvParam, bIOFailure );			
 		}
 	}
-	int GetCallbackSizeBytes()
+	virtual int GetCallbackSizeBytes()
 	{
 		return sizeof( P );
 	}
@@ -257,31 +302,24 @@ private:
 
 //-----------------------------------------------------------------------------
 // Purpose: maps a steam callback to a class member function
-//			template params: T = local class, P = parameter struct
+//			template params: T = local class, P = parameter struct,
+//			bGameserver = listen for gameserver callbacks instead of client callbacks
 //-----------------------------------------------------------------------------
-template< class T, class P, bool bGameServer >
-class CCallback : protected CCallbackBase
+template< class T, class P, bool bGameserver = false >
+class CCallback : public CCallbackImpl< sizeof( P ) >
 {
 public:
-	typedef void (T::*func_t)( P* );
+	typedef void (T::*func_t)(P*);
 
-	// If you can't support constructing a callback with the correct parameters
-	// then uncomment the empty constructor below and manually call
-	// ::Register() for your object
-	// Or, just call the regular constructor with (NULL, NULL)
-	// CCallback() {}
-	
-	// constructor for initializing this object in owner's constructor
-	CCallback( T *pObj, func_t func ) : m_pObj( pObj ), m_Func( func )
+	// NOTE: If you can't provide the correct parameters at construction time, you should
+	// use the CCallbackManual callback object (STEAM_CALLBACK_MANUAL macro) instead.
+	CCallback( T *pObj, func_t func ) : m_pObj( NULL ), m_Func( NULL )
 	{
-		if ( pObj && func )
-			Register( pObj, func );
-	}
-
-	~CCallback()
-	{
-		if ( m_nCallbackFlags & k_ECallbackFlagsRegistered )
-			Unregister();
+		if ( bGameserver )
+		{
+			this->SetGameserverFlag();
+		}
+		Register( pObj, func );
 	}
 
 	// manual registration of the callback
@@ -290,13 +328,9 @@ public:
 		if ( !pObj || !func )
 			return;
 
-		if ( m_nCallbackFlags & k_ECallbackFlagsRegistered )
+		if ( this->m_nCallbackFlags & CCallbackBase::k_ECallbackFlagsRegistered )
 			Unregister();
 
-		if ( bGameServer )
-		{
-			m_nCallbackFlags |= k_ECallbackFlagsGameServer;
-		}
 		m_pObj = pObj;
 		m_Func = func;
 		// SteamAPI_RegisterCallback sets k_ECallbackFlagsRegistered
@@ -309,38 +343,50 @@ public:
 		SteamAPI_UnregisterCallback( this );
 	}
 
-	void SetGameserverFlag() { m_nCallbackFlags |= k_ECallbackFlagsGameServer; }
 protected:
 	virtual void Run( void *pvParam )
 	{
 		(m_pObj->*m_Func)( (P *)pvParam );
-	}
-	virtual void Run( void *pvParam, bool, SteamAPICall_t )
-	{
-		(m_pObj->*m_Func)( (P *)pvParam );
-	}
-	int GetCallbackSizeBytes()
-	{
-		return sizeof( P );
 	}
 
 	T *m_pObj;
 	func_t m_Func;
 };
 
-// Allows you to defer registration of the callback
-template< class T, class P, bool bGameServer >
+
+//-----------------------------------------------------------------------------
+// Purpose: subclass of CCallback which allows default-construction in
+//			an unregistered state; you must call Register manually
+//-----------------------------------------------------------------------------
+template< class T, class P, bool bGameServer = false >
 class CCallbackManual : public CCallback< T, P, bGameServer >
 {
 public:
 	CCallbackManual() : CCallback< T, P, bGameServer >( NULL, NULL ) {}
+
+	// Inherits public Register and Unregister functions from base class
 };
 
-// utility macro for declaring the function and callback object together
-#define STEAM_CALLBACK( thisclass, func, param, var ) CCallback< thisclass, param, false > var; void func( param *pParam )
 
-// same as above, but lets you defer the callback binding by calling Register later
-#define STEAM_CALLBACK_MANUAL( thisclass, func, param, var ) CCallbackManual< thisclass, param, false > var; void func( param *pParam )
+
+//-----------------------------------------------------------------------------
+// The following macros are implementation details, not intended for public use
+//-----------------------------------------------------------------------------
+#define _STEAM_CALLBACK_AUTO_HOOK( thisclass, func, param )
+#define _STEAM_CALLBACK_HELPER( _1, _2, SELECTED, ... )		_STEAM_CALLBACK_##SELECTED
+#define _STEAM_CALLBACK_SELECT( X, Y )						_STEAM_CALLBACK_HELPER X Y
+#define _STEAM_CALLBACK_3( extra_code, thisclass, func, param ) \
+	struct CCallbackInternal_ ## func : private CCallbackImpl< sizeof( param ) > { \
+		CCallbackInternal_ ## func () { extra_code SteamAPI_RegisterCallback( this, param::k_iCallback ); } \
+		CCallbackInternal_ ## func ( const CCallbackInternal_ ## func & ) { extra_code SteamAPI_RegisterCallback( this, param::k_iCallback ); } \
+		CCallbackInternal_ ## func & operator=( const CCallbackInternal_ ## func & ) { return *this; } \
+		private: virtual void Run( void *pvParam ) { _STEAM_CALLBACK_AUTO_HOOK( thisclass, func, param ) \
+			thisclass *pOuter = reinterpret_cast<thisclass*>( reinterpret_cast<char*>(this) - offsetof( thisclass, m_steamcallback_ ## func ) ); \
+			pOuter->func( reinterpret_cast<param*>( pvParam ) ); \
+		} \
+	} m_steamcallback_ ## func ; void func( param *pParam )
+#define _STEAM_CALLBACK_4( _, thisclass, func, param, var ) \
+	CCallback< thisclass, param > var; void func( param *pParam )
 
 
 #ifdef _WIN32

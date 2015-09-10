@@ -69,6 +69,15 @@ const char *CClientSideEffect::GetName( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Set the name of effect
+// Input : const char
+//-----------------------------------------------------------------------------
+void CClientSideEffect::SetEffectName( const char *pszName )
+{
+	m_pszName = pszName;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Is effect still active?
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
@@ -99,6 +108,7 @@ public:
 	//	Add an effect to the effects list
 	void			AddEffect( CClientSideEffect *effect );
 	// Remove the specified effect
+	void			RemoveEffect( CClientSideEffect *effect );
 	// Draw/update all effects in the current list
 	void			DrawEffects( double frametime );
 	// Flush out all effects from the list
@@ -158,6 +168,23 @@ void CEffectsList::AddEffect( CClientSideEffect *effect )
 	}
 
 	m_rgEffects[ m_nEffects++ ] = effect;
+}
+
+//-----------------------------------------------------------------------------
+void CEffectsList::RemoveEffect( CClientSideEffect *effect ) 
+{
+	Assert( effect );
+	CClientSideEffect **end = &m_rgEffects[m_nEffects];
+	for( CClientSideEffect **p = &m_rgEffects[0]; p < end; ++p)
+	{
+		if ( *p == effect )
+		{
+			RemoveEffect( p - &m_rgEffects[0] ); // todo remove this crutch
+			return;
+		}
+	}
+
+	Assert( false ); // don't know this effect
 }
 
 //-----------------------------------------------------------------------------

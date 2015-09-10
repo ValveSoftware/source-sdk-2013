@@ -132,6 +132,7 @@ public:
 	float GetLastOwnershipChangeTime( void ) { return m_flLastOwnershipChangeTime; }
 
 	int GetCurrentRoundIndex() { return m_iCurrentRoundIndex; }
+	bool ShouldSwitchTeamsOnRoundWin( void ) { return m_bSwitchTeamsOnWin; }
 
 private:
 	void EXPORT CPMThink( void );

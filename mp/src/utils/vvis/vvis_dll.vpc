@@ -97,5 +97,6 @@ $Project "Vvis_dll"
 		$Lib mathlib
 		$Lib tier2
 		$Lib vmpi
+		$Lib "$LIBCOMMON/lzma"
 	}
 }

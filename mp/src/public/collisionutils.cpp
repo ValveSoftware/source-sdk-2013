@@ -228,7 +228,7 @@ int IntersectTriangleWithPlaneBarycentric( const Vector& org, const Vector& edge
 	{
 		pIntersection[ptIdx].x = - ( orgDotNormal - plane.w + edgeVDotNormal) / 
 			( edgeUDotNormal - edgeVDotNormal);
-		pIntersection[ptIdx].y = 1.0f - pIntersection[ptIdx].x;;
+		pIntersection[ptIdx].y = 1.0f - pIntersection[ptIdx].x;
 		if ((pIntersection[ptIdx].x >= 0.0f) && (pIntersection[ptIdx].x <= 1.0f) &&
 			 (pIntersection[ptIdx].y >= 0.0f) && (pIntersection[ptIdx].y <= 1.0f))
 			++ptIdx;

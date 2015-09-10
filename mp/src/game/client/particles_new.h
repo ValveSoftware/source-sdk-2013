@@ -91,6 +91,9 @@ public:
 	void SetControlPointUpVector( int nWhichPoint, const Vector &v );
 	void SetControlPointRightVector( int nWhichPoint, const Vector &v );
 
+	void SetIsViewModelEffect ( bool bIsViewModelEffect ) { m_bViewModelEffect = bIsViewModelEffect; }
+	bool GetIsViewModelEffect () { return m_bViewModelEffect; }
+
 	FORCEINLINE EHANDLE const &GetControlPointEntity( int nWhichPoint )
 	{
 		return m_hControlPointOwners[ nWhichPoint ];
@@ -152,6 +155,8 @@ protected:
 	// holds the min/max bounds used to manage this thing in the client leaf system
 	Vector		m_LastMin;
 	Vector		m_LastMax;
+
+	bool		m_bViewModelEffect;
 
 private:
 	// Update the reference count.
@@ -309,7 +314,7 @@ inline void CNewParticleEffect::MarkShouldPerformCullCheck( bool bEnable )
 inline CSmartPtr<CNewParticleEffect> CNewParticleEffect::Create( CBaseEntity *pOwner, const char *pParticleSystemName, const char *pDebugName )
 {
 	CNewParticleEffect *pRet = new CNewParticleEffect( pOwner, pParticleSystemName );
-	pRet->m_pDebugName = pDebugName;
+	pRet->m_pDebugName = pDebugName ? pDebugName : pParticleSystemName;
 	pRet->SetDynamicallyAllocated( true );
 	return pRet;
 }
@@ -317,7 +322,7 @@ inline CSmartPtr<CNewParticleEffect> CNewParticleEffect::Create( CBaseEntity *pO
 inline CSmartPtr<CNewParticleEffect> CNewParticleEffect::Create( CBaseEntity *pOwner, CParticleSystemDefinition *pDef, const char *pDebugName )
 {
 	CNewParticleEffect *pRet = new CNewParticleEffect( pOwner, pDef );
-	pRet->m_pDebugName = pDebugName;
+	pRet->m_pDebugName = pDebugName ? pDebugName : pDef->GetName();
 	pRet->SetDynamicallyAllocated( true );
 	return pRet;
 }

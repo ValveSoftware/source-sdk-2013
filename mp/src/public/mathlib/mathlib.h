@@ -1203,7 +1203,7 @@ inline float SimpleSplineRemapValClamped( float val, float A, float B, float C, 
 
 FORCEINLINE int RoundFloatToInt(float f)
 {
-#if defined(__i386__) || defined(_M_IX86) || defined( PLATFORM_WINDOWS_PC64 )
+#if defined(__i386__) || defined(_M_IX86) || defined( PLATFORM_WINDOWS_PC64 ) || defined(__x86_64__)
 	return _mm_cvtss_si32(_mm_load_ss(&f));
 #elif defined( _X360 )
 #ifdef Assert

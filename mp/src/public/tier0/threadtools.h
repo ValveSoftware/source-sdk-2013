@@ -233,7 +233,7 @@ inline void const *ThreadInterlockedExchangePointerToConst( void const * volatil
 inline void const *ThreadInterlockedCompareExchangePointerToConst( void const * volatile *p, void const *value, void const *comperand )	{ return ThreadInterlockedCompareExchangePointer( const_cast < void * volatile * > ( p ), const_cast < void * > ( value ), const_cast < void * > ( comperand ) ); }
 inline bool ThreadInterlockedAssignPointerToConstIf( void const * volatile *p, void const *value, void const *comperand )			{ return ThreadInterlockedAssignPointerIf( const_cast < void * volatile * > ( p ), const_cast < void * > ( value ), const_cast < void * > ( comperand ) ); }
 
-#if defined( X64BITS )
+#if defined( PLATFORM_64BITS )
 #if defined (_WIN32) 
 typedef __m128i int128;
 inline int128 int128_zero()	{ return _mm_setzero_si128(); }
@@ -288,6 +288,30 @@ PLATFORM_INTERFACE void ThreadNotifySyncReleasing(void *p);
 // Encapsulation of a thread local datum (needed because THREAD_LOCAL doesn't
 // work in a DLL loaded with LoadLibrary()
 //-----------------------------------------------------------------------------
+
+#ifndef NO_THREAD_LOCAL
+
+#if defined(_LINUX) && !defined(OSX)
+// linux totally supports compiler thread locals, even across dll's.
+#define PLAT_COMPILER_SUPPORTED_THREADLOCALS 1
+#define CTHREADLOCALINTEGER( typ ) __thread int
+#define CTHREADLOCALINT __thread int
+#define CTHREADLOCALPTR( typ ) __thread typ *
+#define CTHREADLOCAL( typ ) __thread typ
+#define GETLOCAL( x ) ( x )
+#endif // _LINUX && !OSX
+
+#if defined(WIN32) || defined(OSX)
+#ifndef __AFXTLS_H__ // not compatible with some Windows headers
+#define CTHREADLOCALINT CThreadLocalInt<int>
+#define CTHREADLOCALINTEGER( typ ) CThreadLocalInt<typ>
+#define CTHREADLOCALPTR( typ ) CThreadLocalPtr<typ>
+#define CTHREADLOCAL( typ ) CThreadLocal<typ>
+#define GETLOCAL( x ) ( x.Get() )
+#endif
+#endif // WIN32 || OSX
+
+#endif // NO_THREAD_LOCALS
 
 #ifndef __AFXTLS_H__ // not compatible with some Windows headers
 #ifndef NO_THREAD_LOCAL
@@ -484,7 +508,7 @@ public:
 	bool operator==( T *rhs ) const	{ return ( m_value == rhs ); }
 	bool operator!=( T *rhs ) const	{ return ( m_value != rhs ); }
 
-#ifdef X64BITS
+#if defined( PLATFORM_64BITS )
 	T *operator++()					{ return ((T *)ThreadInterlockedExchangeAdd64( (int64 *)&m_value, sizeof(T) )) + 1; }
 	T *operator++(int)				{ return (T *)ThreadInterlockedExchangeAdd64( (int64 *)&m_value, sizeof(T) ); }
 
@@ -521,6 +545,41 @@ public:
 
 private:
 	T * volatile m_value;
+};
+
+//-----------------------------------------------------------------------------
+// 
+// Platform independent verification that multiple threads aren't getting into the same code at the same time. 
+// Note: This is intended for use to identify problems, it doesn't provide any sort of thread safety.
+// 
+//-----------------------------------------------------------------------------
+class ReentrancyVerifier
+{
+public:
+	inline ReentrancyVerifier(CInterlockedInt* counter, int sleepTimeMS)
+	: mCounter(counter)
+	{
+		Assert(mCounter != NULL);
+
+		if (++(*mCounter) != 1) {
+			DebuggerBreakIfDebugging_StagingOnly();
+		}
+
+		if (sleepTimeMS > 0)
+		{
+			ThreadSleep(sleepTimeMS);
+		}
+	}
+
+	inline ~ReentrancyVerifier()
+	{
+		if (--(*mCounter) != 0) {
+			DebuggerBreakIfDebugging_StagingOnly();
+		}
+	}
+
+private:
+	CInterlockedInt* mCounter;
 };
 
 

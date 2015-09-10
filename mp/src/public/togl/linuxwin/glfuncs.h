@@ -1,4 +1,26 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
+//                       TOGL CODE LICENSE
+//
+//  Copyright 2011-2014 Valve Corporation
+//  All Rights Reserved.
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 // !!! FIXME: Some of these aren't base OpenGL...pick out the extensions.
 // !!! FIXME: Also, look up these -1, -1 versions numbers.
 GL_FUNC(OpenGL,true,GLenum,glGetError,(void),())
@@ -39,8 +61,11 @@ GL_FUNC_VOID(OpenGL,true,glDisable,(GLenum a),(a))
 GL_FUNC_VOID(OpenGL,true,glDisableVertexAttribArray,(GLuint a),(a))
 GL_FUNC_VOID(OpenGL,true,glDrawArrays,(GLenum a,GLint b,GLsizei c),(a,b,c))
 GL_FUNC_VOID(OpenGL,true,glDrawBuffer,(GLenum a),(a))
+GL_FUNC_VOID(OpenGL,true,glDrawBuffers,(GLsizei a,const GLenum *b),(a,b))
 GL_FUNC_VOID(OpenGL,true,glDrawRangeElements,(GLenum a,GLuint b,GLuint c,GLsizei d,GLenum e,const GLvoid *f),(a,b,c,d,e,f))
+#ifndef OSX // 10.6/GL 2.1 compatability
 GL_FUNC_VOID(OpenGL,true,glDrawRangeElementsBaseVertex,(GLenum a,GLuint b,GLuint c,GLsizei d,GLenum e,const GLvoid *f, GLenum g),(a,b,c,d,e,f,g))
+#endif
 GL_FUNC_VOID(OpenGL,true,glEnable,(GLenum a),(a))
 GL_FUNC_VOID(OpenGL,true,glEnableVertexAttribArray,(GLuint a),(a))
 GL_FUNC_VOID(OpenGL,true,glEnd,(void),())
@@ -185,17 +210,24 @@ GL_FUNC_VOID(GL_ARB_framebuffer_object,false,glRenderbufferStorageMultisample,(G
 GL_EXT(GL_GREMEDY_string_marker,-1,-1)
 GL_FUNC_VOID(GL_GREMEDY_string_marker,false,glStringMarkerGREMEDY,(GLsizei a,const void *b),(a,b))
 GL_EXT(GL_ARB_debug_output,-1,-1)
+#ifdef OSX
+GL_FUNC_VOID(GL_ARB_debug_output,false,glDebugMessageCallbackARB,(void ( *a)(GLenum, GLenum , GLuint , GLenum , GLsizei , const GLchar* , GLvoid*) ,void* b),(a,b))
+#else
 GL_FUNC_VOID(GL_ARB_debug_output,false,glDebugMessageCallbackARB,(void (APIENTRY *a)(GLenum, GLenum , GLuint , GLenum , GLsizei , const GLchar* , GLvoid*) ,void* b),(a,b))
+#endif
 GL_FUNC_VOID(GL_ARB_debug_output,false,glDebugMessageControlARB,(GLenum a, GLenum b, GLenum c, GLsizei d, const GLuint* e, GLboolean f),(a,b,c,d,e,f))
+
 GL_EXT(GL_EXT_direct_state_access,-1,-1)
 GL_FUNC_VOID(GL_EXT_direct_state_access,false,glBindMultiTextureEXT,(GLenum a,GLuint b, GLuint c),(a,b,c))
-GL_FUNC_VOID(OpenGL,true,glGenSamplers,(GLuint a,GLuint *b),(a,b))
-GL_FUNC_VOID(OpenGL,true,glDeleteSamplers,(GLsizei a,const GLuint *b),(a,b))
-GL_FUNC_VOID(OpenGL,true,glBindSampler,(GLuint a, GLuint b),(a,b))
-GL_FUNC_VOID(OpenGL,true,glSamplerParameteri,(GLuint a, GLenum b, GLint c),(a,b,c))
-GL_FUNC_VOID(OpenGL,true,glSamplerParameterf,(GLuint a, GLenum b, GLfloat c),(a,b,c))
-GL_FUNC_VOID(OpenGL,true,glSamplerParameterfv,(GLuint a, GLenum b, const GLfloat *c),(a,b,c))
 GL_EXT(GL_NV_bindless_texture,-1,-1)
+
+#ifndef OSX
+GL_FUNC_VOID(OpenGL, true, glGenSamplers, (GLuint a, GLuint *b), (a, b))
+GL_FUNC_VOID(OpenGL, true, glDeleteSamplers, (GLsizei a, const GLuint *b), (a, b))
+GL_FUNC_VOID(OpenGL, true, glBindSampler, (GLuint a, GLuint b), (a, b))
+GL_FUNC_VOID(OpenGL, true, glSamplerParameteri, (GLuint a, GLenum b, GLint c), (a, b, c))
+GL_FUNC_VOID(OpenGL, true, glSamplerParameterf, (GLuint a, GLenum b, GLfloat c), (a, b, c))
+GL_FUNC_VOID(OpenGL, true, glSamplerParameterfv, (GLuint a, GLenum b, const GLfloat *c), (a, b, c))
 GL_FUNC(GL_NV_bindless_texture, false, GLuint64, glGetTextureHandleNV, (GLuint texture), (texture))
 GL_FUNC(GL_NV_bindless_texture, false, GLuint64, glGetTextureSamplerHandleNV, (GLuint texture, GLuint sampler), (texture, sampler))
 GL_FUNC_VOID(GL_NV_bindless_texture, false, glMakeTextureHandleResidentNV, (GLuint64 handle), (handle))
@@ -213,11 +245,17 @@ GL_FUNC_VOID(OpenGL,true,glQueryCounter,(GLuint id, GLenum target), (id, target)
 GL_FUNC_VOID(OpenGL,true,glGetQueryObjectiv,(GLuint id, GLenum pname, GLint *params), (id, pname, params))
 GL_FUNC_VOID(OpenGL,true,glGetQueryObjectui64v,(GLuint id, GLenum pname, GLuint64 *params), (id, pname, params))
 GL_FUNC_VOID(OpenGL,true,glCopyBufferSubData,(GLenum readtarget, GLenum writetarget, GLintptr readoffset, GLintptr writeoffset, GLsizeiptr size),(readtarget, writetarget, readoffset, writeoffset, size))
+#endif // !OSX
+
 GL_EXT(GL_AMD_pinned_memory,-1,-1)
 GL_EXT(GL_EXT_framebuffer_multisample_blit_scaled,-1,-1)
+
+#ifndef OSX
 GL_FUNC_VOID(OpenGL,true,glGenVertexArrays,(GLsizei n, GLuint *arrays),(n, arrays))
 GL_FUNC_VOID(OpenGL,true,glDeleteVertexArrays,(GLsizei n, GLuint *arrays),(n, arrays))
 GL_FUNC_VOID(OpenGL,true,glBindVertexArray,(GLuint a),(a))
+#endif // !OSX
+
 GL_EXT(GL_EXT_texture_sRGB_decode,-1,-1)
 GL_FUNC_VOID(OpenGL,true,glPushClientAttrib,(GLbitfield a),(a))
 GL_FUNC_VOID(OpenGL,true,glPopClientAttrib,(void),())
@@ -227,6 +265,9 @@ GL_EXT(GL_EXT_texture_compression_s3tc,-1,-1)
 GL_EXT(GL_EXT_texture_compression_dxt1,-1,-1)
 GL_EXT(GL_ANGLE_texture_compression_dxt3,-1,-1)
 GL_EXT(GL_ANGLE_texture_compression_dxt5,-1,-1)
+
+GL_EXT( GL_ARB_buffer_storage, 4, 4 )
+GL_FUNC_VOID( GL_ARB_buffer_storage, false, glBufferStorage, (GLenum target, GLsizeiptr size, const void *data, GLbitfield flags), (target, size, data, flags) )
 
 // This one is an OS extension. We'll add a little helper function to look for it.
 #ifdef _WIN32

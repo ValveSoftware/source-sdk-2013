@@ -18,6 +18,9 @@
 #include "tools/bonelist.h"
 #include <KeyValues.h>
 #include "hltvcamera.h"
+#ifdef TF_CLIENT_DLL
+	#include "tf_weaponbase.h"
+#endif
 
 #if defined( REPLAY_ENABLED )
 #include "replay/replaycamera.h"
@@ -53,8 +56,8 @@ void FormatViewModelAttachment( Vector &vOrigin, bool bInverse )
 	// aspect ratio cancels out, so only need one factor
 	// the difference between the screen coordinates of the 2 systems is the ratio
 	// of the coefficients of the projection matrices (tan (fov/2) is that coefficient)
-	float factorX = worldx / viewx;
-
+	// NOTE: viewx was coming in as 0 when folks set their viewmodel_fov to 0 and show their weapon.
+	float factorX = viewx ? ( worldx / viewx ) : 0.0f;
 	float factorY = factorX;
 	
 	// Get the coordinates in the viewer's space.
@@ -330,6 +333,16 @@ int C_BaseViewModel::DrawModel( int flags )
 			pWeapon->ViewModelDrawn( this );
 		}
 	}
+
+#ifdef TF_CLIENT_DLL
+	CTFWeaponBase* pTFWeapon = dynamic_cast<CTFWeaponBase*>( pWeapon );
+	if ( ( flags & STUDIO_RENDER ) && pTFWeapon && pTFWeapon->m_viewmodelStatTrakAddon )
+	{
+		pTFWeapon->m_viewmodelStatTrakAddon->RemoveEffects( EF_NODRAW );
+		pTFWeapon->m_viewmodelStatTrakAddon->DrawModel( flags );
+		pTFWeapon->m_viewmodelStatTrakAddon->AddEffects( EF_NODRAW );
+	}
+#endif
 
 	return ret;
 }

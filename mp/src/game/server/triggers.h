@@ -68,6 +68,8 @@ public:
 	virtual bool PassesTriggerFilters(CBaseEntity *pOther);
 	virtual void StartTouch(CBaseEntity *pOther);
 	virtual void EndTouch(CBaseEntity *pOther);
+	virtual void StartTouchAll() {}
+	virtual void EndTouchAll() {}
 	bool IsTouching( CBaseEntity *pOther );
 
 	CBaseEntity *GetTouchedEntityOfType( const char *sClassName );
@@ -164,7 +166,21 @@ protected:
 // Purpose: Hurts anything that touches it. If the trigger has a targetname,
 //			firing it will toggle state.
 //-----------------------------------------------------------------------------
-class CTriggerHurt : public CBaseTrigger
+
+// This class is to get around the fact that DEFINE_FUNCTION doesn't like multiple inheritance
+class CTriggerHurtShim : public CBaseTrigger
+{
+	virtual void RadiationThink( void ) = 0;
+	virtual void HurtThink( void ) = 0;
+
+public:
+
+	void RadiationThinkShim( void ){ RadiationThink(); }
+	void HurtThinkShim( void ){ HurtThink(); }
+};
+
+DECLARE_AUTO_LIST( ITriggerHurtAutoList );
+class CTriggerHurt : public CTriggerHurtShim, public ITriggerHurtAutoList
 {
 public:
 	CTriggerHurt()
@@ -173,7 +189,7 @@ public:
 		m_flDamageCap = 20.0f;
 	}
 
-	DECLARE_CLASS( CTriggerHurt, CBaseTrigger );
+	DECLARE_CLASS( CTriggerHurt, CTriggerHurtShim );
 
 	void Spawn( void );
 	void RadiationThink( void );
@@ -206,5 +222,7 @@ public:
 
 	CUtlVector<EHANDLE>	m_hurtEntities;
 };
+
+bool IsTakingTriggerHurtDamageAtPoint( const Vector &vecPoint );
 
 #endif // TRIGGERS_H

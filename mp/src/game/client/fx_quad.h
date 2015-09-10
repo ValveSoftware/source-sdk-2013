@@ -82,8 +82,6 @@ public:
 	virtual void	Destroy( void );
 	virtual	void	Update( double frametime );
 
-protected:
-
 	FXQuadData_t	m_FXData;
 };
 

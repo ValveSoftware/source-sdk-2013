@@ -64,6 +64,7 @@ $Project "tier1"
 		$File	"reliabletimer.cpp"
 		$File	"stringpool.cpp"
 		$File	"strtools.cpp"
+		$File	"strtools_unicode.cpp"
 		$File	"tier1.cpp"
 		$File	"tokenreader.cpp"
 		$File	"sparsematrix.cpp"
@@ -77,6 +78,15 @@ $Project "tier1"
 		$File	"snappy.cpp"
 		$File	"snappy-sinksource.cpp"
 		$File	"snappy-stubs-internal.cpp"
+	}
+
+	// Select bits from the LZMA SDK to support lzmaDecoder.h
+	// Encoding support requires the full lzma project
+	$Folder "LZMA Decompression Support"
+	{
+		$File	"$SRCDIR\utils\lzma\C\LzmaDec.h"
+		$File	"$SRCDIR\utils\lzma\C\LzmaDec.c"
+		$File	"$SRCDIR\utils\lzma\C\7zTypes.h"
 	}
 
 	$Folder	"Header Files"

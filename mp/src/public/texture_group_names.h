@@ -23,6 +23,7 @@
 #define TEXTURE_GROUP_PRECACHED						"Precached"				// TODO: assign texture groups to the precached materials
 #define TEXTURE_GROUP_CUBE_MAP						"CubeMap textures"
 #define TEXTURE_GROUP_RENDER_TARGET					"RenderTargets"
+#define TEXTURE_GROUP_RUNTIME_COMPOSITE				"Runtime Composite"
 #define TEXTURE_GROUP_UNACCOUNTED					"Unaccounted textures"	// Textures that weren't assigned a texture group.
 //#define TEXTURE_GROUP_STATIC_VERTEX_BUFFER		"Static Vertex"
 #define TEXTURE_GROUP_STATIC_INDEX_BUFFER			"Static Indices"

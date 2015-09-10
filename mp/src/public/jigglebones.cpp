@@ -23,7 +23,7 @@ ConVar cl_jiggle_bone_debug_yaw_constraints( "cl_jiggle_bone_debug_yaw_constrain
 ConVar cl_jiggle_bone_debug_pitch_constraints( "cl_jiggle_bone_debug_pitch_constraints", "0", FCVAR_CHEAT, "Display physics-based 'jiggle bone' debugging information" );
 #endif // CLIENT_DLL
 
-ConVar cl_jiggle_bone_framerate_cutoff( "cl_jiggle_bone_framerate_cutoff", "45", 0, "Skip jiggle bone simulation if framerate drops below this value (frames/second)" );
+ConVar cl_jiggle_bone_framerate_cutoff( "cl_jiggle_bone_framerate_cutoff", "20", 0, "Skip jiggle bone simulation if framerate drops below this value (frames/second)" );
 
 
 //-----------------------------------------------------------------------------
@@ -39,6 +39,10 @@ JiggleData * CJiggleBones::GetJiggleData( int bone, float currenttime, const Vec
 
 	JiggleData data;
 	data.Init( bone, currenttime, initBasePos, initTipPos );
+
+	// Start out using jiggle bones for at least 16 frames.
+	data.useGoalMatrixCount = 0;
+	data.useJiggleBoneCount = 16;
 
 	int idx = m_jiggleBoneState.AddToHead( data );
 	if ( idx == m_jiggleBoneState.InvalidIndex() )
@@ -96,11 +100,40 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 	float deltaT = currenttime - data->lastUpdate;
 
 	const float thousandHZ = 0.001f;
-	if ( deltaT < thousandHZ )
+	bool bMaxDeltaT = deltaT < thousandHZ;
+	bool bUseGoalMatrix = cl_jiggle_bone_framerate_cutoff.GetFloat() <= 0.0f || deltaT > ( 1.0f / cl_jiggle_bone_framerate_cutoff.GetFloat() );
+
+	if ( bUseGoalMatrix )
+	{
+		// We hit the jiggle bone framerate cutoff. Reset the useGoalMatrixCount so we
+		//  use the goal matrix at least 32 frames and don't flash back and forth.
+		data->useGoalMatrixCount = 32;
+	}
+	else if ( data->useGoalMatrixCount > 0 )
+	{
+		// Below the cutoff, but still need to use the goal matrix a few more times.
+		bUseGoalMatrix = true;
+		data->useGoalMatrixCount--;
+	}
+	else
+	{
+		// Use real jiggle bones. Woot!
+		data->useJiggleBoneCount = 32;
+	}
+
+	if ( data->useJiggleBoneCount > 0 )
+	{
+		// Make sure we draw at least runs of 32 frames with real jiggle bones.
+		data->useJiggleBoneCount--;
+		data->useGoalMatrixCount = 0;
+		bUseGoalMatrix = false;
+	}
+
+	if ( bMaxDeltaT )
 	{
 		deltaT = thousandHZ;
 	}
-	else if ( cl_jiggle_bone_framerate_cutoff.GetFloat() <= 0.0f || deltaT > ( 1.0f / cl_jiggle_bone_framerate_cutoff.GetFloat() ) )
+	else if ( bUseGoalMatrix )
 	{
 		// disable jigglebone - just use goal matrix
 		boneMX = goalMX;

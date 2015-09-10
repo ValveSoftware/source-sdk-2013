@@ -141,7 +141,7 @@ bool CGenericClassBasedReplay::Read( KeyValues *pIn )
 
 	// Read killer info
 	m_nKillerClass = pIn->GetInt( "killer_class" );
-	V_strcpy( m_szKillerName, pIn->GetString( "killer_name" ) );
+	V_strcpy_safe( m_szKillerName, pIn->GetString( "killer_name" ) );
 
 	// Make sure vector is clear
 	Assert( GetKillCount() == 0 );

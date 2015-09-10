@@ -1402,7 +1402,7 @@ void CControlPointProgressBar::PerformLayout( void )
 {
 	BaseClass::PerformLayout();
 
-	if ( m_pAttachedToIcon && m_pTeardrop && m_pTeardropSide )
+	if ( m_pAttachedToIcon && m_pTeardrop && m_pTeardropSide && m_pAttachedToIcon->GetVPanel() )
 	{
 		int iIconX, iIconY;
 		ipanel()->GetAbsPos(m_pAttachedToIcon->GetVPanel(), iIconX, iIconY );

@@ -68,6 +68,8 @@ AnimationController::AnimationController(Panel *parent) : BaseClass(parent, NULL
 	m_sWide = g_ScriptSymbols.AddString("wide");
 	m_sTall = g_ScriptSymbols.AddString("tall");
 
+	m_sModelPos = g_ScriptSymbols.AddString( "model_pos" );
+
 	m_flCurrentTime = 0.0f;
 }
 
@@ -508,6 +510,34 @@ bool AnimationController::ParseScriptFile(char *pMem, int length)
 				pMem = ParseFile(pMem, token, NULL);
 				animCmd.cmdData.runEvent.timeDelay = (float)atof(token);
 			}
+			else if (!stricmp(token, "runeventchild"))
+			{
+				animCmd.commandType = CMD_RUNEVENTCHILD;
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.variable = g_ScriptSymbols.AddString(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.event = g_ScriptSymbols.AddString(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.timeDelay = (float)atof(token);
+			}
+			else if (!stricmp(token, "firecommand"))
+			{
+				animCmd.commandType = CMD_FIRECOMMAND;
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.timeDelay = (float)atof(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.variable = g_ScriptSymbols.AddString(token);
+			}
+			else if (!stricmp(token, "setvisible"))
+			{
+				animCmd.commandType = CMD_SETVISIBLE;
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.variable = g_ScriptSymbols.AddString(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.variable2 = atoi(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.timeDelay = (float)atof(token);
+			}
 			else if (!stricmp(token, "stopevent"))
 			{
 				animCmd.commandType = CMD_STOPEVENT;
@@ -659,9 +689,11 @@ void AnimationController::UpdatePostedMessages(bool bRunToCompletion)
 		case CMD_RUNEVENT:
 			{
 				RanEvent_t curEvent;
+				curEvent.pParent = NULL;
 				curEvent.event = msg.event;
-				curEvent.pParent = msg.parent.Get();
 
+				curEvent.pParent = msg.parent.Get();
+				
 				// run the event, but only if we haven't already run it this frame, for this parent
 				if (!eventsRanThisFrame.HasElement(curEvent))
 				{
@@ -669,6 +701,37 @@ void AnimationController::UpdatePostedMessages(bool bRunToCompletion)
 					RunCmd_RunEvent(msg);
 				}
 			}	
+			break;
+		case CMD_RUNEVENTCHILD:
+			{
+				RanEvent_t curEvent;
+				curEvent.pParent = NULL;
+				curEvent.event =  msg.event;
+
+				curEvent.pParent = msg.parent.Get()->FindChildByName( g_ScriptSymbols.String(msg.variable) );
+				msg.parent = curEvent.pParent;
+		
+				// run the event, but only if we haven't already run it this frame, for this parent
+				if (!eventsRanThisFrame.HasElement(curEvent))
+				{
+					eventsRanThisFrame.AddToTail(curEvent);
+					RunCmd_RunEvent(msg);
+				}
+			}
+			break;
+		case CMD_FIRECOMMAND:
+			{
+				msg.parent->OnCommand( g_ScriptSymbols.String(msg.variable) );
+			}
+			break;
+		case CMD_SETVISIBLE:
+			{
+				Panel* pPanel = msg.parent.Get()->FindChildByName( g_ScriptSymbols.String(msg.variable) );
+				if ( pPanel )
+				{
+					pPanel->SetVisible( msg.variable2 == 1 );
+				}
+			}
 			break;
 		case CMD_STOPEVENT:
 			RunCmd_StopEvent(msg);
@@ -944,6 +1007,63 @@ bool AnimationController::StartAnimationSequence(Panel *pWithinParent, const cha
 	}
 
 	return true;	
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: stops an animation sequence script
+//-----------------------------------------------------------------------------
+bool AnimationController::StopAnimationSequence( Panel *pWithinParent, const char *sequenceName )
+{
+	Assert( pWithinParent );
+
+	// lookup the symbol for the name
+	UtlSymId_t seqName = g_ScriptSymbols.Find( sequenceName );
+	if (seqName == UTL_INVAL_SYMBOL)
+		return false;
+
+	// remove the existing command from the queue
+	RemoveQueuedAnimationCommands( seqName, pWithinParent );
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Runs a custom command from code, not from a script file
+//-----------------------------------------------------------------------------
+void AnimationController::CancelAnimationsForPanel( Panel *pWithinParent )
+{
+	// Msg("Removing queued anims for sequence %s\n", g_ScriptSymbols.String(seqName));
+
+	// remove messages posted by this sequence
+	// if pWithinParent is specified, remove only messages under that parent
+	{
+		for (int i = 0; i < m_PostedMessages.Count(); i++)
+		{
+			if ( m_PostedMessages[i].parent == pWithinParent )
+			{
+				m_PostedMessages.Remove(i);
+				--i;
+			}
+		}
+	}
+
+	// remove all animations
+	// if pWithinParent is specified, remove only animations under that parent
+	for (int i = 0; i < m_ActiveAnimations.Count(); i++)
+	{
+		Panel *animPanel = m_ActiveAnimations[i].panel;
+
+		if ( !animPanel )
+			continue;
+
+		Panel *foundPanel = pWithinParent->FindChildByName(animPanel->GetName(),true);
+
+		if ( foundPanel != animPanel )
+			continue;
+
+		m_ActiveAnimations.Remove(i);
+		--i;
+	}
 }
 
 //-----------------------------------------------------------------------------

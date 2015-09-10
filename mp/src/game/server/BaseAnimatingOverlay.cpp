@@ -928,6 +928,25 @@ void CBaseAnimatingOverlay::SetLayerCycle( int iLayer, float flCycle, float flPr
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CBaseAnimatingOverlay::SetLayerCycle( int iLayer, float flCycle, float flPrevCycle, float flLastEventCheck )
+{
+	if (!IsValidLayer( iLayer ))
+		return;
+
+	if (!m_AnimOverlay[iLayer].m_bLooping)
+	{
+		flCycle = clamp( flCycle, 0.0f, 1.0f );
+		flPrevCycle = clamp( flPrevCycle, 0.0f, 1.0f );
+	}
+	m_AnimOverlay[iLayer].m_flCycle = flCycle;
+	m_AnimOverlay[iLayer].m_flPrevCycle = flPrevCycle;
+	m_AnimOverlay[iLayer].m_flLastEventCheck = flLastEventCheck;
+	m_AnimOverlay[iLayer].MarkActive( );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 float CBaseAnimatingOverlay::GetLayerCycle( int iLayer )
 {
 	if (!IsValidLayer( iLayer ))

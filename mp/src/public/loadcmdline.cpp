@@ -22,8 +22,7 @@ static void AddArguments( int &argc, char **&argv, const char *str )
 	char   *argList	 = 0;
 	int		argCt	 = argc;
 
-	argList = new char[ Q_strlen( str ) + 1 ];
-	Q_strcpy( argList, str );
+	argList = V_strdup( str );
 
 	// Parse the arguments out of the string
 	char *token = strtok( argList, " " );
@@ -45,8 +44,7 @@ static void AddArguments( int &argc, char **&argv, const char *str )
 		int i;
 		for( i = 0; i < argc - 1; ++i )
 		{
-			args[ i ] = new char[ Q_strlen( argv[ i ] ) + 1 ];
-			Q_strcpy( args[ i ], argv[ i ] );
+			args[ i ] = V_strdup( argv[ i ] );
 		}
 
 		// copy new arguments
@@ -54,14 +52,12 @@ static void AddArguments( int &argc, char **&argv, const char *str )
 		token = strtok( argList, " " );
 		for( ; i < argCt - 1; ++i )
 		{
-			args[ i ] = new char[ Q_strlen( token ) + 1 ];
-			Q_strcpy( args[ i ], token );
+			args[ i ] = V_strdup( token );
 			token = strtok( NULL, " " );
 		}
 
 		// Copy the last original argument
-		args[ i ] = new char[ Q_strlen( argv[ argc - 1 ] ) + 1 ];
-		Q_strcpy( args[ i ], argv[ argc - 1 ] );
+		args[ i ] = V_strdup( argv[ argc - 1 ] );
 
 		argc = argCt;
 		argv = args;

@@ -122,6 +122,9 @@ ConVar demo_fov_override( "demo_fov_override", "0", FCVAR_CLIENTDLL | FCVAR_DONT
 ConVar cl_meathook_neck_pivot_ingame_up( "cl_meathook_neck_pivot_ingame_up", "7.0" );
 ConVar cl_meathook_neck_pivot_ingame_fwd( "cl_meathook_neck_pivot_ingame_fwd", "3.0" );
 
+static ConVar	cl_clean_textures_on_death( "cl_clean_textures_on_death", "0", FCVAR_DEVELOPMENTONLY,  "If enabled, attempts to purge unused textures every time a freeze cam is shown" );
+
+
 void RecvProxy_LocalVelocityX( const CRecvProxyData *pData, void *pStruct, void *pOut );
 void RecvProxy_LocalVelocityY( const CRecvProxyData *pData, void *pStruct, void *pOut );
 void RecvProxy_LocalVelocityZ( const CRecvProxyData *pData, void *pStruct, void *pOut );
@@ -436,6 +439,7 @@ C_BasePlayer::C_BasePlayer() : m_iv_vecViewOffset( "C_BasePlayer::m_iv_vecViewOf
 	m_bFiredWeapon = false;
 
 	m_nForceVisionFilterFlags = 0;
+	m_nLocalPlayerVisionFlags = 0;
 
 	ListenForGameEvent( "base_player_teleported" );
 }
@@ -541,6 +545,7 @@ CBaseEntity	*C_BasePlayer::GetObserverTarget() const	// returns players target o
 			case OBS_MODE_FIXED:		// view from a fixed camera position
 			case OBS_MODE_IN_EYE:		// follow a player in first person view
 			case OBS_MODE_CHASE:		// follow a player in third person view
+			case OBS_MODE_POI:			// PASSTIME point of interest - game objective, big fight, anything interesting
 			case OBS_MODE_ROAMING:		// free roaming
 				return m_hObserverTarget;
 				break;
@@ -635,6 +640,7 @@ int C_BasePlayer::GetObserverMode() const
 		case OBS_MODE_FIXED:		// view from a fixed camera position
 		case OBS_MODE_IN_EYE:		// follow a player in first person view
 		case OBS_MODE_CHASE:		// follow a player in third person view
+		case OBS_MODE_POI:			// PASSTIME point of interest - game objective, big fight, anything interesting
 		case OBS_MODE_ROAMING:		// free roaming
 			return m_iObserverMode;
 			break;
@@ -880,6 +886,10 @@ void C_BasePlayer::PostDataUpdate( DataUpdateType_t updateType )
 			// Force the sound mixer to the freezecam mixer
 			ConVar *pVar = (ConVar *)cvar->FindVar( "snd_soundmixer" );
 			pVar->SetValue( "FreezeCam_Only" );
+
+			// When we start, give unused textures an opportunity to unload
+			if ( cl_clean_textures_on_death.GetBool() )
+				g_pMaterialSystem->UncacheUnusedMaterials( false );
 		}
 		else if ( m_bWasFreezeFraming && GetObserverMode() != OBS_MODE_FREEZECAM )
 		{
@@ -896,6 +906,14 @@ void C_BasePlayer::PostDataUpdate( DataUpdateType_t updateType )
 
 			m_nForceVisionFilterFlags = 0;
 			CalculateVisionUsingCurrentFlags();
+		}
+		
+		// force calculate vision when the local vision flags changed
+		int nCurrentLocalPlayerVisionFlags = GetLocalPlayerVisionFilterFlags();
+		if ( m_nLocalPlayerVisionFlags != nCurrentLocalPlayerVisionFlags )
+		{
+			CalculateVisionUsingCurrentFlags();
+			m_nLocalPlayerVisionFlags = nCurrentLocalPlayerVisionFlags;
 		}
 	}
 
@@ -2078,7 +2096,7 @@ void C_BasePlayer::GetToolRecordingState( KeyValues *msg )
 	// then this code can (should!) be removed
 	if ( state.m_bThirdPerson )
 	{
-		Vector cam_ofs = g_ThirdPersonManager.GetCameraOffsetAngles();
+		const Vector& cam_ofs = g_ThirdPersonManager.GetCameraOffsetAngles();
 		
 		QAngle camAngles;
 		camAngles[ PITCH ] = cam_ofs[ PITCH ];
@@ -2594,7 +2612,7 @@ void C_BasePlayer::NotePredictionError( const Vector &vDelta )
 // offset curtime and setup bones at that time using fake interpolation
 // fake interpolation means we don't have reliable interpolation history (the local player doesn't animate locally)
 // so we just modify cycle and origin directly and use that as a fake guess
-void C_BasePlayer::ForceSetupBonesAtTimeFakeInterpolation( matrix3x4_t *pBonesOut, float curtimeOffset )
+bool C_BasePlayer::ForceSetupBonesAtTimeFakeInterpolation( matrix3x4_t *pBonesOut, float curtimeOffset )
 {
 	// we don't have any interpolation data, so fake it
 	float cycle = m_flCycle;
@@ -2609,30 +2627,37 @@ void C_BasePlayer::ForceSetupBonesAtTimeFakeInterpolation( matrix3x4_t *pBonesOu
 	m_flCycle = fmod( 10 + cycle + m_flPlaybackRate * curtimeOffset, 1.0f );
 	SetLocalOrigin( origin + curtimeOffset * GetLocalVelocity() );
 	// Setup bone state to extrapolate physics velocity
-	SetupBones( pBonesOut, MAXSTUDIOBONES, BONE_USED_BY_ANYTHING, gpGlobals->curtime + curtimeOffset );
+	bool bSuccess = SetupBones( pBonesOut, MAXSTUDIOBONES, BONE_USED_BY_ANYTHING, gpGlobals->curtime + curtimeOffset );
 
 	m_flCycle = cycle;
 	SetLocalOrigin( origin );
+	return bSuccess;
 }
 
-void C_BasePlayer::GetRagdollInitBoneArrays( matrix3x4_t *pDeltaBones0, matrix3x4_t *pDeltaBones1, matrix3x4_t *pCurrentBones, float boneDt )
+bool C_BasePlayer::GetRagdollInitBoneArrays( matrix3x4_t *pDeltaBones0, matrix3x4_t *pDeltaBones1, matrix3x4_t *pCurrentBones, float boneDt )
 {
 	if ( !IsLocalPlayer() )
-	{
-		BaseClass::GetRagdollInitBoneArrays(pDeltaBones0, pDeltaBones1, pCurrentBones, boneDt);
-		return;
-	}
-	ForceSetupBonesAtTimeFakeInterpolation( pDeltaBones0, -boneDt );
-	ForceSetupBonesAtTimeFakeInterpolation( pDeltaBones1, 0 );
+		return BaseClass::GetRagdollInitBoneArrays(pDeltaBones0, pDeltaBones1, pCurrentBones, boneDt);
+
+	bool bSuccess = true;
+
+	if ( !ForceSetupBonesAtTimeFakeInterpolation( pDeltaBones0, -boneDt ) )
+		bSuccess = false;
+	if ( !ForceSetupBonesAtTimeFakeInterpolation( pDeltaBones1, 0 ) )
+		bSuccess = false;
+
 	float ragdollCreateTime = PhysGetSyncCreateTime();
 	if ( ragdollCreateTime != gpGlobals->curtime )
 	{
-		ForceSetupBonesAtTimeFakeInterpolation( pCurrentBones, ragdollCreateTime - gpGlobals->curtime );
+		if ( !ForceSetupBonesAtTimeFakeInterpolation( pCurrentBones, ragdollCreateTime - gpGlobals->curtime ) )
+			bSuccess = false;
 	}
 	else
 	{
-		SetupBones( pCurrentBones, MAXSTUDIOBONES, BONE_USED_BY_ANYTHING, gpGlobals->curtime );
+		if ( !SetupBones( pCurrentBones, MAXSTUDIOBONES, BONE_USED_BY_ANYTHING, gpGlobals->curtime ) )
+			bSuccess = false;
 	}
+	return bSuccess;
 }
 
 
@@ -2838,6 +2863,7 @@ void C_BasePlayer::UpdateWearables( void )
 		{
 			pItem->ValidateModelIndex();
 			pItem->UpdateVisibility();
+			pItem->CreateShadow();
 		}
 	}
 }

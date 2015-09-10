@@ -823,14 +823,9 @@ inline bool CNavArea::IsDegenerate( void ) const
 //--------------------------------------------------------------------------------------------------------------
 inline CNavArea *CNavArea::GetAdjacentArea( NavDirType dir, int i ) const
 {
-	for( int iter = 0; iter < m_connect[dir].Count(); ++iter )
-	{
-		if (i == 0)
-			return m_connect[dir][iter].area;
-		--i;
-	}
-
-	return NULL;
+	if ( ( i < 0 ) || ( i >= m_connect[dir].Count() ) )
+		return NULL;
+	return m_connect[dir][i].area;
 }
 
 //--------------------------------------------------------------------------------------------------------------

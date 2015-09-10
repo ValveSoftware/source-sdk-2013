@@ -64,7 +64,7 @@ public:
 	void SetLOD( int nLOD );
 
 	// Sets the current sequence
-	void SetSequence( int nSequence );
+	void SetSequence( int nSequence, bool bResetSequence = false );
 
 	// Set the pose parameters
 	void SetPoseParameters( const float *pPoseParameters, int nCount );
@@ -113,6 +113,7 @@ protected:
 		CMDL		m_MDL;
 		matrix3x4_t	m_MDLToWorld;
 		bool		m_bDisabled;
+		float		m_flCycleStartTime;
 	};
 
 	MDLData_t				m_RootMDL;

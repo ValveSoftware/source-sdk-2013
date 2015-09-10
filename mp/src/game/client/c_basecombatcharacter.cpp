@@ -34,6 +34,7 @@ C_BaseCombatCharacter::C_BaseCombatCharacter()
 	m_pGlowEffect = NULL;
 	m_bGlowEnabled = false;
 	m_bOldGlowEnabled = false;
+	m_bClientSideGlowEnabled = false;
 #endif // GLOWS_ENABLE
 }
 
@@ -116,6 +117,22 @@ void C_BaseCombatCharacter::GetGlowEffectColor( float *r, float *g, float *b )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+/*
+void C_BaseCombatCharacter::EnableGlowEffect( float r, float g, float b )
+{
+	// destroy the existing effect
+	if ( m_pGlowEffect )
+	{
+		DestroyGlowEffect();
+	}
+
+	m_pGlowEffect = new CGlowObject( this, Vector( r, g, b ), 1.0, true );
+}
+*/
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void C_BaseCombatCharacter::UpdateGlowEffect( void )
 {
 	// destroy the existing effect
@@ -125,7 +142,7 @@ void C_BaseCombatCharacter::UpdateGlowEffect( void )
 	}
 
 	// create a new effect
-	if ( m_bGlowEnabled )
+	if ( m_bGlowEnabled || m_bClientSideGlowEnabled )
 	{
 		float r, g, b;
 		GetGlowEffectColor( &r, &g, &b );

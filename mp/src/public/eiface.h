@@ -74,8 +74,9 @@ typedef struct player_info_s player_info_t;
 #endif
 
 #define INTERFACEVERSION_VENGINESERVER_VERSION_21	"VEngineServer021"
-#define INTERFACEVERSION_VENGINESERVER				"VEngineServer022"
-#define INTERFACEVERSION_VENGINESERVER_INT			22
+#define INTERFACEVERSION_VENGINESERVER_VERSION_22	"VEngineServer022"
+#define INTERFACEVERSION_VENGINESERVER				"VEngineServer023"
+#define INTERFACEVERSION_VENGINESERVER_INT			23
 
 struct bbox_t
 {
@@ -91,16 +92,16 @@ abstract_class IVEngineServer
 public:
 	// Tell engine to change level ( "changelevel s1\n" or "changelevel2 s1 s2\n" )
 	virtual void		ChangeLevel( const char *s1, const char *s2 ) = 0;
-	
+
 	// Ask engine whether the specified map is a valid map file (exists and has valid version number).
 	virtual int			IsMapValid( const char *filename ) = 0;
-	
+
 	// Is this a dedicated server?
 	virtual bool		IsDedicatedServer( void ) = 0;
-	
+
 	// Is in Hammer editing mode?
 	virtual int			IsInEditMode( void ) = 0;
-	
+
 	// Add to the server/client lookup/precache table, the specified string is given a unique index
 	// NOTE: The indices for PrecacheModel are 1 based
 	//  a 0 returned from those methods indicates the model or sound was not correctly precached
@@ -416,14 +417,43 @@ public:
 
 	// Exposed for server plugin authors
 	virtual IServer *GetIServer() = 0;
+
+	virtual bool IsPlayerNameLocked( const edict_t *pEdict ) = 0;
+	virtual bool CanPlayerChangeName( const edict_t *pEdict ) = 0;
+
+	// Find the canonical name of a map, given a partial or non-canonical map name.
+	// Except in the case of an exact match, pMapName is updated to the canonical name of the match.
+	// NOTE That this is subject to the same limitation as ServerGameDLL::CanProvideLevel -- This is non-blocking, so it
+	//      is possible that blocking ServerGameDLL::PrepareLevelResources call may be able to pull a better match than
+	//      is immediately available to this call (e.g. blocking lookups of cloud maps)
+	enum eFindMapResult {
+		// A direct match for this name was found
+		eFindMap_Found,
+		// No match for this map name could be found.
+		eFindMap_NotFound,
+		// A fuzzy match for this mapname was found and pMapName was updated to the full name.
+		// Ex: cp_dust -> cp_dustbowl
+		eFindMap_FuzzyMatch,
+		// A match for this map name was found, and the map name was updated to the canonical version of the
+		// name.
+		// Ex: workshop/1234 -> workshop/cp_qualified_name.ugc1234
+		eFindMap_NonCanonical,
+		// No currently available match for this map name could be found, but it may be possible to load ( see caveat
+		// about PrepareLevelResources above )
+		eFindMap_PossiblyAvailable
+	};
+	virtual eFindMapResult FindMap( /* in/out */ char *pMapName, int nMapNameMax ) = 0;
 };
 
+// These only differ in new items added to the end
 typedef IVEngineServer IVEngineServer021;
+typedef IVEngineServer IVEngineServer022;
 
 
 #define INTERFACEVERSION_SERVERGAMEDLL_VERSION_8	"ServerGameDLL008"
-#define INTERFACEVERSION_SERVERGAMEDLL				"ServerGameDLL009"
-#define INTERFACEVERSION_SERVERGAMEDLL_INT			9
+#define INTERFACEVERSION_SERVERGAMEDLL_VERSION_9	"ServerGameDLL009"
+#define INTERFACEVERSION_SERVERGAMEDLL				"ServerGameDLL010"
+#define INTERFACEVERSION_SERVERGAMEDLL_INT			10
 
 class IServerGCLobby;
 
@@ -554,6 +584,51 @@ public:
 
 	// Called to add output to the status command
 	virtual void 			Status( void (*print) (const char *fmt, ...) ) = 0;
+
+	// Informs the game we would like to load this level, giving it a chance to prepare dynamic resources.
+	//
+	// - pszMapName is the name of the map we're looking for, and may be overridden to e.g. the canonical name of the
+	//   map.
+	//
+	// - pszMapFile is the file we intend to use for this map ( e.g. maps/<mapname>.bsp ), and may be overridden to the
+	//   file representing this map name. ( e.g. /path/to/steamapps/workshop/cp_mymap.ugc12345.bsp )
+	//
+	// This call is blocking, and may block for extended periods. See AsyncPrepareLevelResources below.
+	virtual void PrepareLevelResources( /* in/out */ char *pszMapName, size_t nMapNameSize,
+	                                    /* in/out */ char *pszMapFile, size_t nMapFileSize ) = 0;
+
+	// Asynchronous version of PrepareLevelResources. Returns preparation status of map when called.
+	// If passed, flProgress is filled with the current progress percentage [ 0.f to 1.f ] for the InProgress
+	// result
+	enum ePrepareLevelResourcesResult
+	{
+		// Good to go
+		ePrepareLevelResources_Prepared,
+		// Game DLL is async preparing (e.g. streaming resources). flProgress will be filled if passed.
+		ePrepareLevelResources_InProgress
+	};
+	virtual ePrepareLevelResourcesResult AsyncPrepareLevelResources( /* in/out */ char *pszMapName, size_t nMapNameSize,
+	                                                                 /* in/out */ char *pszMapFile, size_t nMapFileSize,
+	                                                                 float *flProgress = NULL ) = 0;
+
+	// Ask the game DLL to evaluate what it would do with this map name were it passed to PrepareLevelResources.
+	// NOTE That this is this is syncronous and non-blocking, so it is possible that async PrepareLevelResources call
+	//      may be able to pull a better match than is immediately available to this call (e.g. blocking lookups of
+	//      cloud maps)
+	enum eCanProvideLevelResult {
+		// Have no knowledge of this level name, it will be up to the engine to provide. (e.g. as maps/levelname.bsp)
+		eCanProvideLevel_CannotProvide,
+		// Can provide resources for this level, and pMapName has been updated to the canonical name we would provide it
+		// under (as with PrepareLevelResources)
+		eCanProvideLevel_CanProvide,
+		// We recognize this level name as something we might be able to prepare, but without a blocking/async call to
+		// PrepareLevelResources, it is not possible to say whether it is available.
+		eCanProvideLevel_Possibly
+	};
+	virtual eCanProvideLevelResult CanProvideLevel( /* in/out */ char *pMapName, int nMapNameMax ) = 0;
+
+	// Called to see if the game server is okay with a manual changelevel or map command
+	virtual bool			IsManualMapChangeOkay( const char **pszReason ) = 0;
 };
 
 typedef IServerGameDLL IServerGameDLL008;

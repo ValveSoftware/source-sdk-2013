@@ -44,6 +44,14 @@
 #define ROUND_SETUP_2SECS	"Announcer.RoundBegins2Seconds"
 #define ROUND_SETUP_1SECS	"Announcer.RoundBegins1Seconds"
 
+#ifdef TF_CLIENT_DLL
+#define MERASMUS_SETUP_5SECS	"Merasmus.RoundBegins5Seconds"
+#define MERASMUS_SETUP_4SECS	"Merasmus.RoundBegins4Seconds"
+#define MERASMUS_SETUP_3SECS	"Merasmus.RoundBegins3Seconds"
+#define MERASMUS_SETUP_2SECS	"Merasmus.RoundBegins2Seconds"
+#define MERASMUS_SETUP_1SECS	"Merasmus.RoundBegins1Seconds"
+#endif
+
 #define ROUND_START_BELL	"Ambient.Siren"
 
 #define ROUND_TIMER_TIME_ADDED			"Announcer.TimeAdded"
@@ -283,6 +291,14 @@ void CTeamRoundTimer::Precache( void )
 	PrecacheScriptSound( ROUND_TIMER_TIME_ADDED_LOSER );
 	PrecacheScriptSound( ROUND_TIMER_TIME_ADDED_WINNER );
 	PrecacheScriptSound( ROUND_START_BELL );
+
+#ifdef TF_CLIENT_DLL
+	PrecacheScriptSound( MERASMUS_SETUP_5SECS );
+	PrecacheScriptSound( MERASMUS_SETUP_4SECS );
+	PrecacheScriptSound( MERASMUS_SETUP_3SECS );
+	PrecacheScriptSound( MERASMUS_SETUP_2SECS );
+	PrecacheScriptSound( MERASMUS_SETUP_1SECS );
+#endif // TF_CLIENT_DLL
 #endif // TF_DLL || TF_CLIENT_DLL
 }
 
@@ -575,7 +591,16 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_5SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-			pszRetVal = ROUND_SETUP_5SECS;
+#ifdef TF_CLIENT_DLL
+			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
+			{
+				pszRetVal = MERASMUS_SETUP_5SECS;
+			}
+			else
+#endif
+			{
+				pszRetVal = ROUND_SETUP_5SECS;
+			}
 		}
 		else
 		{
@@ -585,7 +610,16 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_4SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-			pszRetVal = ROUND_SETUP_4SECS;
+#ifdef TF_CLIENT_DLL
+			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
+			{
+				pszRetVal = MERASMUS_SETUP_4SECS;
+			}
+			else
+#endif
+			{
+				pszRetVal = ROUND_SETUP_4SECS;
+			}
 		}
 		else
 		{
@@ -595,7 +629,16 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_3SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-			pszRetVal = ROUND_SETUP_3SECS;
+#ifdef TF_CLIENT_DLL
+			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
+			{
+				pszRetVal = MERASMUS_SETUP_3SECS;
+			}
+			else
+#endif
+			{
+				pszRetVal = ROUND_SETUP_3SECS;
+			}
 		}
 		else
 		{
@@ -605,7 +648,16 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_2SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-			pszRetVal = ROUND_SETUP_2SECS;
+#ifdef TF_CLIENT_DLL
+			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
+			{
+				pszRetVal = MERASMUS_SETUP_2SECS;
+			}
+			else
+#endif
+			{
+				pszRetVal = ROUND_SETUP_2SECS;
+			}
 		}
 		else
 		{
@@ -615,7 +667,16 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_1SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-			pszRetVal = ROUND_SETUP_1SECS;
+#ifdef TF_CLIENT_DLL
+			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
+			{
+				pszRetVal = MERASMUS_SETUP_1SECS;
+			}
+			else
+#endif
+			{
+				pszRetVal = ROUND_SETUP_1SECS;
+			}
 		}
 		else
 		{

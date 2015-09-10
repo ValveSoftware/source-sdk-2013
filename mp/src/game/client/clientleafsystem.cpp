@@ -189,12 +189,12 @@ private:
 	void RemoveShadowFromLeaves( ClientLeafShadowHandle_t handle );
 
 	// Methods associated with the various bi-directional sets
-	static unsigned short& FirstRenderableInLeaf( int leaf ) 
+	static unsigned int& FirstRenderableInLeaf( int leaf ) 
 	{ 
 		return s_ClientLeafSystem.m_Leaf[leaf].m_FirstElement;
 	}
 
-	static unsigned short& FirstLeafInRenderable( unsigned short renderable ) 
+	static unsigned int& FirstLeafInRenderable( unsigned short renderable ) 
 	{ 
 		return s_ClientLeafSystem.m_Renderables[renderable].m_LeafList;
 	}
@@ -248,8 +248,8 @@ private:
 		int					m_RenderFrame2;
 		int					m_EnumCount;	// Have I been added to a particular shadow yet?
 		int					m_TranslucencyCalculated;
-		unsigned short		m_LeafList;		// What leafs is it in?
-		unsigned short		m_RenderLeaf;	// What leaf do I render in?
+		unsigned int		m_LeafList;		// What leafs is it in?
+		unsigned int		m_RenderLeaf;	// What leaf do I render in?
 		unsigned char		m_Flags;		// rendering flags
 		unsigned char		m_RenderGroup;	// RenderGroup_t type
 		unsigned short		m_FirstShadow;	// The first shadow caster that cast on it
@@ -260,7 +260,7 @@ private:
 	// The leaf contains an index into a list of renderables
 	struct ClientLeaf_t
 	{
-		unsigned short	m_FirstElement;
+		unsigned int	m_FirstElement;
 		unsigned short	m_FirstShadow;
 
 		unsigned short	m_FirstDetailProp;
@@ -302,7 +302,7 @@ private:
 	CUtlLinkedList< ShadowInfo_t, ClientLeafShadowHandle_t, false, unsigned int >	m_Shadows;
 
 	// Maintains the list of all renderables in a particular leaf
-	CBidirectionalSet< int, ClientRenderHandle_t, unsigned short, unsigned int >	m_RenderablesInLeaf;
+	CBidirectionalSet< int, ClientRenderHandle_t, unsigned int, unsigned int >	m_RenderablesInLeaf;
 
 	// Maintains a list of all shadows in a particular leaf 
 	CBidirectionalSet< int, ClientLeafShadowHandle_t, unsigned short, unsigned int >	m_ShadowsInLeaf;
@@ -343,7 +343,8 @@ void DefaultRenderBoundsWorldspace( IClientRenderable *pRenderable, Vector &absM
 {
 	// Tracker 37433:  This fixes a bug where if the stunstick is being wielded by a combine soldier, the fact that the stick was
 	//  attached to the soldier's hand would move it such that it would get frustum culled near the edge of the screen.
-	C_BaseEntity *pEnt = pRenderable->GetIClientUnknown()->GetBaseEntity();
+	IClientUnknown *pUnk = pRenderable->GetIClientUnknown();
+	C_BaseEntity *pEnt = pUnk->GetBaseEntity();
 	if ( pEnt && pEnt->IsFollowingEntity() )
 	{
 		C_BaseEntity *pParent = pEnt->GetFollowedEntity();
@@ -629,7 +630,7 @@ void CClientLeafSystem::NewRenderable( IClientRenderable* pRenderable, RenderGro
 	info.m_Flags = flags;
 	info.m_RenderGroup = (unsigned char)type;
 	info.m_EnumCount = 0;
-	info.m_RenderLeaf = 0xFFFF;
+	info.m_RenderLeaf = m_RenderablesInLeaf.InvalidIndex();
 	if ( IsViewModelRenderGroup( (RenderGroup_t)info.m_RenderGroup ) )
 	{
 		AddToViewModelList( handle );
@@ -986,7 +987,7 @@ void CClientLeafSystem::AddShadowToLeaf( int leaf, ClientLeafShadowHandle_t shad
 	m_ShadowsInLeaf.AddElementToBucket( leaf, shadow ); 
 
 	// Add the shadow exactly once to all renderables in the leaf
-	unsigned short i = m_RenderablesInLeaf.FirstElement( leaf );
+	unsigned int i = m_RenderablesInLeaf.FirstElement( leaf );
 	while ( i != m_RenderablesInLeaf.InvalidIndex() )
 	{
 		ClientRenderHandle_t renderable = m_RenderablesInLeaf.Element(i);
@@ -1092,7 +1093,54 @@ void CClientLeafSystem::AddRenderableToLeaf( int leaf, ClientRenderHandle_t rend
 #ifdef VALIDATE_CLIENT_LEAF_SYSTEM
 	m_RenderablesInLeaf.ValidateAddElementToBucket( leaf, renderable );
 #endif
-	m_RenderablesInLeaf.AddElementToBucket( leaf, renderable );
+
+#ifdef DUMP_RENDERABLE_LEAFS
+	static uint32 count = 0;
+	if (count < m_RenderablesInLeaf.NumAllocated())
+	{
+		count = m_RenderablesInLeaf.NumAllocated();
+		Msg("********** frame: %d count:%u ***************\n", gpGlobals->framecount, count );
+
+		if (count >= 20000)
+		{
+			for (int j = 0; j < m_RenderablesInLeaf.NumAllocated(); j++)
+			{
+				const ClientRenderHandle_t& renderable = m_RenderablesInLeaf.Element(j);
+				RenderableInfo_t& info = m_Renderables[renderable];
+
+				char pTemp[256];
+				const char *pClassName = "<unknown renderable>";
+				C_BaseEntity *pEnt = info.m_pRenderable->GetIClientUnknown()->GetBaseEntity();
+				if ( pEnt )
+				{
+					pClassName = pEnt->GetClassname();
+				}
+				else
+				{
+					CNewParticleEffect *pEffect = dynamic_cast< CNewParticleEffect*>( info.m_pRenderable );
+					if ( pEffect )
+					{
+						Vector mins, maxs;
+						pEffect->GetRenderBounds(mins, maxs);
+						Q_snprintf( pTemp, sizeof(pTemp), "ps: %s %.2f,%.2f", pEffect->GetEffectName(), maxs.x - mins.x, maxs.y - mins.y );
+						pClassName = pTemp;
+					}
+					else if ( dynamic_cast< CParticleEffectBinding* >( info.m_pRenderable ) )
+					{
+						pClassName = "<old particle system>";
+					}
+				}
+
+				Msg(" %d: %p group:%d %s %d %d TransCalc:%d renderframe:%d\n", j, info.m_pRenderable, info.m_RenderGroup, pClassName,
+					info.m_LeafList, info.m_RenderLeaf, info.m_TranslucencyCalculated, info.m_RenderFrame);
+			}
+
+			DebuggerBreak();
+		}
+	}
+#endif // DUMP_RENDERABLE_LEAFS
+
+	m_RenderablesInLeaf.AddElementToBucket(leaf, renderable);
 
 	if ( !ShouldRenderableReceiveShadow( renderable, SHADOW_FLAGS_PROJECTED_TEXTURE_TYPE_MASK ) )
 		return;
@@ -1344,7 +1392,7 @@ void CClientLeafSystem::ComputeTranslucentRenderLeaf( int count, const LeafIndex
 		orderedList.AddToTail( LeafToMarker( leaf ) );
 
 		// iterate over all elements in this leaf
-		unsigned short idx = m_RenderablesInLeaf.FirstElement(leaf);
+		unsigned int idx = m_RenderablesInLeaf.FirstElement(leaf);
 		while (idx != m_RenderablesInLeaf.InvalidIndex())
 		{
 			RenderableInfo_t& info = m_Renderables[m_RenderablesInLeaf.Element(idx)];
@@ -1512,7 +1560,7 @@ void CClientLeafSystem::CollateRenderablesInLeaf( int leaf, int worldListLeafInd
 	AddRenderableToRenderList( *info.m_pRenderList, NULL, worldListLeafIndex, RENDER_GROUP_OPAQUE_ENTITY, NULL );
 
 	// Collate everything.
-	unsigned short idx = m_RenderablesInLeaf.FirstElement(leaf);
+	unsigned int idx = m_RenderablesInLeaf.FirstElement(leaf);
 	for ( ;idx != m_RenderablesInLeaf.InvalidIndex(); idx = m_RenderablesInLeaf.NextElement(idx) )
 	{
 		ClientRenderHandle_t handle = m_RenderablesInLeaf.Element(idx);

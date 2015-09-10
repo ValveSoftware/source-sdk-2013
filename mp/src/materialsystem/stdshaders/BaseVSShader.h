@@ -118,6 +118,7 @@ public:
 											int transformVar, int scaleVar );
 
 	// Moves a matrix into vertex shader constants 
+	void SetVertexShaderMatrix2x4( int vertexReg, int matrixVar );
 	void SetVertexShaderMatrix3x4( int vertexReg, int matrixVar );
 	void SetVertexShaderMatrix4x4( int vertexReg, int matrixVar );
 

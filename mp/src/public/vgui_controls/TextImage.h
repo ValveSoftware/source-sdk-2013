@@ -105,6 +105,9 @@ public:
 	void SetColorChangeStream( CUtlSortVector<label_colorchange_t,CColorChangeListLess> *pUtlVecStream );
 	void ClearColorChangeStream( void ) { m_ColorChangeStream.Purge(); }
 
+	const wchar_t *GetEllipsesPosition( void ) const { return m_pwszEllipsesPosition; }
+	bool IsWrapping() const { return m_LineBreaks.Count() != 0; }
+
 protected:
 	// truncate the _text string to fit into the draw width
 	void SizeText(wchar_t *tempText, int stringLength);

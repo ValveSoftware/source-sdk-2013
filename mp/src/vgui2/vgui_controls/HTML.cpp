@@ -26,9 +26,6 @@
 
 using namespace vgui;
 
-
-const int k_nMaxCustomCursors = 2; // the max number of custom cursors we keep cached PER html control
-
 //-----------------------------------------------------------------------------
 // Purpose: A simple passthrough panel to render the border onto the HTML widget
 //-----------------------------------------------------------------------------
@@ -47,54 +44,6 @@ public:
 private:
 	HTML *m_pHTML;
 };
-
-
-//-----------------------------------------------------------------------------
-// Purpose: a vgui container for popup menus displayed by a control, only 1 menu for any control can be visible at a time
-//-----------------------------------------------------------------------------
-class HTMLComboBoxHost : public vgui::EditablePanel
-{
-	DECLARE_CLASS_SIMPLE( HTMLComboBoxHost, EditablePanel );
-public:
-	HTMLComboBoxHost( HTML *parent, const char *panelName ) : EditablePanel( parent, panelName ) 
-	{ 
-		m_pParent = parent; 
-		MakePopup(false);
-	}
-	~HTMLComboBoxHost() {} 
-
-	virtual void PaintBackground();
-
-	virtual void OnMousePressed(MouseCode code);
-	virtual void OnMouseReleased(MouseCode code);
-	virtual void OnCursorMoved(int x,int y);
-	virtual void OnMouseDoublePressed(MouseCode code);
-	virtual void OnKeyTyped(wchar_t unichar);
-	virtual void OnKeyCodeTyped(KeyCode code);
-	virtual void OnKeyCodeReleased(KeyCode code);
-	virtual void OnMouseWheeled(int delta);
-
-	virtual void OnKillFocus()
-	{
-		if ( vgui::input()->GetFocus() != m_pParent->GetVPanel() ) // if its not our parent trying to steal focus
-		{
-			BaseClass::OnKillFocus();
-			if ( m_pParent )
-				m_pParent->HidePopup();
-		}
-	}
-
-	virtual void PerformLayout()
-	{
-	// no op the perform layout as we just render the html controls popup texture into it
-	// we don't want the menu logic trying to play with its size
-	}
-
-
-private:
-	HTML *m_pParent;
-};
-
 
 //-----------------------------------------------------------------------------
 // Purpose: container class for any external popup windows the browser requests
@@ -163,15 +112,12 @@ private:
 //-----------------------------------------------------------------------------
 HTML::HTML(Panel *parent, const char *name, bool allowJavaScript, bool bPopupWindow) : Panel(parent, name), 
 m_NeedsPaint( this, &HTML::BrowserNeedsPaint ),
-m_ComboNeedsPaint( this, &HTML::BrowserComboNeedsPaint ),
 m_StartRequest( this, &HTML::BrowserStartRequest ),
 m_URLChanged( this, &HTML::BrowserURLChanged ),
 m_FinishedRequest( this, &HTML::BrowserFinishedRequest ),
-m_ShowPopup( this, &HTML::BrowserShowPopup ),
-m_HidePopup( this, &HTML::BrowserHidePopup ),
-m_SizePopup( this, &HTML::BrowserSizePopup ),
 m_LinkInNewTab( this, &HTML::BrowserOpenNewTab ),
 m_ChangeTitle( this, &HTML::BrowserSetHTMLTitle ),
+m_NewWindow( this, &HTML::BrowserPopupHTMLWindow ),
 m_FileLoadDialog( this, &HTML::BrowserFileLoadDialog ),
 m_SearchResults( this, &HTML::BrowserSearchResults ),
 m_CloseBrowser( this, &HTML::BrowserClose ),
@@ -181,7 +127,6 @@ m_LinkAtPosResp( this, &HTML::BrowserLinkAtPositionResponse ),
 m_JSAlert( this, &HTML::BrowserJSAlert ),
 m_JSConfirm( this, &HTML::BrowserJSConfirm ),
 m_CanGoBackForward( this, &HTML::BrowserCanGoBackandForward ),
-m_NewWindow( this, &HTML::BrowserPopupHTMLWindow ),
 m_SetCursor( this, &HTML::BrowserSetCursor ),
 m_StatusText( this, &HTML::BrowserStatusText ),
 m_ShowTooltip( this, &HTML::BrowserShowToolTip ),
@@ -189,7 +134,6 @@ m_UpdateTooltip( this, &HTML::BrowserUpdateToolTip ),
 m_HideTooltip( this, &HTML::BrowserHideToolTip )
 {
 	m_iHTMLTextureID = 0;
-	m_iComboBoxTextureID = 0;
 	m_bCanGoBack = false;
 	m_bCanGoForward = false;
 	m_bInFind = false;
@@ -201,7 +145,7 @@ m_HideTooltip( this, &HTML::BrowserHideToolTip )
 	m_pInteriorPanel = new HTMLInterior( this );
 	SetPostChildPaintEnabled( true );
 
-	m_unBrowserHandle = INVALID_HTTMLBROWSER;
+	m_unBrowserHandle = INVALID_HTMLBROWSER;
 	m_SteamAPIContext.Init();
 	if ( m_SteamAPIContext.SteamHTMLSurface() )
 	{
@@ -233,10 +177,6 @@ m_HideTooltip( this, &HTML::BrowserHideToolTip )
 	m_pFindBar = new HTML::CHTMLFindBar( this );
 	m_pFindBar->SetZPos( 2 );
 	m_pFindBar->SetVisible( false );
-	
-	m_pComboBoxHost = new HTMLComboBoxHost( this, "ComboBoxHost" );
-	m_pComboBoxHost->SetPaintBackgroundEnabled( true );
-	m_pComboBoxHost->SetVisible( false );
 
 	m_pContextMenu = new Menu( this, "contextmenu" );
 	m_pContextMenu->AddMenuItem( "#vgui_HTMLBack", new KeyValues( "Command", "command", "back" ), this );
@@ -349,36 +289,6 @@ void HTML::Paint()
 	}
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: paint the combo box texture if we have one
-//-----------------------------------------------------------------------------
-void HTML::PaintComboBox()
-{
-	BaseClass::Paint();
-	if ( m_iComboBoxTextureID != 0 )
-	{
-		surface()->DrawSetTexture( m_iComboBoxTextureID );
-		surface()->DrawSetColor( Color( 255, 255, 255, 255 ) );
-		int tw = m_allocedComboBoxWidth;
-		int tt = m_allocedComboBoxHeight;
-		surface()->DrawTexturedRect( 0, 0, tw, tt );
-	}
-
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: overrides panel class, paints a texture of the HTML window as a background
-//-----------------------------------------------------------------------------
-void HTMLComboBoxHost::PaintBackground()
-{
-	BaseClass::PaintBackground();
-
-	m_pParent->PaintComboBox();
-}
-
-
 //-----------------------------------------------------------------------------
 // Purpose: causes a repaint when the layout changes
 //-----------------------------------------------------------------------------
@@ -431,11 +341,6 @@ void HTML::OnMove()
 	// tell cef where we are on the screen so plugins can correctly render
 	int nPanelAbsX, nPanelAbsY;
 	ipanel()->GetAbsPos( GetVPanel(), nPanelAbsX, nPanelAbsY );
-
-	if ( m_pComboBoxHost && m_pComboBoxHost->IsVisible() )
-	{
-		m_pComboBoxHost->SetVisible( false );
-	}
 }
 
 
@@ -452,7 +357,7 @@ void HTML::OpenURL(const char *URL, const char *postData, bool force)
 //-----------------------------------------------------------------------------
 void HTML::PostURL(const char *URL, const char *pchPostData, bool force)
 {
-	if ( m_unBrowserHandle == INVALID_HTTMLBROWSER )
+	if ( m_unBrowserHandle == INVALID_HTMLBROWSER )
 	{
 		m_sPendingURLLoad = URL;
 		m_sPendingPostData = pchPostData;
@@ -674,7 +579,7 @@ void HTML::OnMouseReleased(MouseCode code)
 		input()->SetMouseCapture( NULL );
 		input()->SetCursorOveride( 0 );
 
-		if ( !m_sDragURL.IsEmpty() && input()->GetMouseOver() != GetVPanel() && input()->GetMouseOver() != NULL )
+		if ( !m_sDragURL.IsEmpty() && input()->GetMouseOver() != GetVPanel() && input()->GetMouseOver() )
 		{
 			// post the text as a drag drop to the target panel
 			KeyValuesAD kv( "DragDrop" );
@@ -709,7 +614,7 @@ void HTML::OnCursorMoved(int x,int y)
 	}
 	else if ( !m_sDragURL.IsEmpty() )
 	{
-		if ( input()->GetMouseOver() == NULL )
+		if ( !input()->GetMouseOver() )
 		{
 			// we're not over any vgui window, switch to the OS implementation of drag/drop
 			// BR FIXME
@@ -749,18 +654,18 @@ int GetKeyModifiers()
 	// Any time a key is pressed reset modifier list as well
 	int nModifierCodes = 0;
 	if (vgui::input()->IsKeyDown( KEY_LCONTROL ) || vgui::input()->IsKeyDown( KEY_RCONTROL ))
-		nModifierCodes |= ISteamHTMLSurface::eHTMLKeyModifier_CrtlDown;
+		nModifierCodes |= ISteamHTMLSurface::k_eHTMLKeyModifier_CtrlDown;
 
 	if (vgui::input()->IsKeyDown( KEY_LALT ) || vgui::input()->IsKeyDown( KEY_RALT ))
-		nModifierCodes |= ISteamHTMLSurface::eHTMLKeyModifier_AltDown;
+		nModifierCodes |= ISteamHTMLSurface::k_eHTMLKeyModifier_AltDown;
 
 	if (vgui::input()->IsKeyDown( KEY_LSHIFT ) || vgui::input()->IsKeyDown( KEY_RSHIFT ))
-		nModifierCodes |= ISteamHTMLSurface::eHTMLKeyModifier_ShiftDown;
+		nModifierCodes |= ISteamHTMLSurface::k_eHTMLKeyModifier_ShiftDown;
 
 #ifdef OSX
 	// for now pipe through the cmd-key to be like the control key so we get copy/paste
 	if (vgui::input()->IsKeyDown( KEY_LWIN ) || vgui::input()->IsKeyDown( KEY_RWIN ))
-		nModifierCodes |= ISteamHTMLSurface::eHTMLKeyModifier_CrtlDown;
+		nModifierCodes |= ISteamHTMLSurface::k_eHTMLKeyModifier_CtrlDown;
 #endif
 
 	return nModifierCodes;
@@ -925,8 +830,8 @@ void HTML::OnKeyCodeReleased(KeyCode code)
 // Purpose: scrolls the vertical scroll bar on a web page
 //-----------------------------------------------------------------------------
 void HTML::OnMouseWheeled(int delta)
-{	
-	if (_vbar && ( ( m_pComboBoxHost && !m_pComboBoxHost->IsVisible() ) ) )
+{
+	if (_vbar )
 	{
 		int val = _vbar->GetValue();
 		val -= (delta * 100.0/3.0 ); // 100 for every 3 lines matches chromes code
@@ -954,7 +859,7 @@ void HTML::AddCustomURLHandler(const char *customProtocolName, vgui::Panel *targ
 //-----------------------------------------------------------------------------
 void HTML::BrowserResize()
 {
-	if (m_unBrowserHandle == INVALID_HTTMLBROWSER)
+	if (m_unBrowserHandle == INVALID_HTMLBROWSER)
 		return;
 
 	int w,h;
@@ -1120,14 +1025,10 @@ void HTML::OnSetFocus()
 //-----------------------------------------------------------------------------
 void HTML::OnKillFocus()
 {
-	if ( vgui::input()->GetFocus() != m_pComboBoxHost->GetVPanel() ) // if its not the menu stealing our focus
-		BaseClass::OnKillFocus();
+	BaseClass::OnKillFocus();
 
 	// Don't clear the actual html focus if a context menu is what took focus
 	if ( m_pContextMenu->HasFocus() )
-		return;
-
-	if ( m_pComboBoxHost->HasFocus() )
 		return;
 
 	if (m_SteamAPIContext.SteamHTMLSurface())
@@ -1279,83 +1180,6 @@ void HTML::OnTextChanged( Panel *pPanel )
 	Find( rgchText );
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: passes mouse clicks to the control
-//-----------------------------------------------------------------------------
-void HTMLComboBoxHost::OnMousePressed(MouseCode code)
-{
-	m_pParent->OnMousePressed(code);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: passes mouse up events
-//-----------------------------------------------------------------------------
-void HTMLComboBoxHost::OnMouseReleased(MouseCode code)
-{
-	m_pParent->OnMouseReleased(code);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: keeps track of where the cursor is
-//-----------------------------------------------------------------------------
-void HTMLComboBoxHost::OnCursorMoved(int x,int y)
-{
-	// Only do this when we are over the current panel
-	if ( vgui::input()->GetMouseOver() == GetVPanel() )
-	{
-		m_pParent->OnHTMLMouseMoved( x, y );
-	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: passes double click events to the browser
-//-----------------------------------------------------------------------------
-void HTMLComboBoxHost::OnMouseDoublePressed(MouseCode code)
-{
-	m_pParent->OnMouseDoublePressed(code);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: passes key presses to the browser (we don't current do this)
-//-----------------------------------------------------------------------------
-void HTMLComboBoxHost::OnKeyTyped(wchar_t unichar)
-{
-	m_pParent->OnKeyTyped(unichar);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: passes key presses to the browser 
-//-----------------------------------------------------------------------------
-void HTMLComboBoxHost::OnKeyCodeTyped(KeyCode code)
-{
-	m_pParent->OnKeyCodeTyped(code);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void HTMLComboBoxHost::OnKeyCodeReleased(KeyCode code)
-{
-	m_pParent->OnKeyCodeReleased(code);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: scrolls the vertical scroll bar on a web page
-//-----------------------------------------------------------------------------
-void HTMLComboBoxHost::OnMouseWheeled(int delta)
-{	
-	 m_pParent->OnMouseWheeled( delta );
-}
-
-
 //-----------------------------------------------------------------------------
 // Purpose: helper class for the find bar
 //-----------------------------------------------------------------------------
@@ -1440,43 +1264,6 @@ void HTML::BrowserNeedsPaint( HTML_NeedsPaint_t *pCallback )
 	// need a paint next time
 	Repaint();
 }
-
-
-//-----------------------------------------------------------------------------
-// Purpose: we have a new texture to update
-//-----------------------------------------------------------------------------
-void HTML::BrowserComboNeedsPaint( HTML_ComboNeedsPaint_t *pCallback )
-{
-	if ( m_pComboBoxHost->IsVisible() )
-	{
-		int tw = 0, tt = 0;
-		// update the combo box texture also
-		if ( m_iComboBoxTextureID != 0 )
-		{
-			tw = m_allocedComboBoxWidth;
-			tt = m_allocedComboBoxHeight;
-		}
-
-		if ( m_iComboBoxTextureID == 0  || tw != (int)pCallback->unWide || tt != (int)pCallback->unTall )
-		{
-			if ( m_iComboBoxTextureID != 0 )
-				surface()->DeleteTextureByID( m_iComboBoxTextureID );
-
-			// if the dimensions changed we also need to re-create the texture ID to support the overlay properly (it won't resize a texture on the fly, this is the only control that needs
-			//   to so lets have a tiny bit more code here to support that)
-			m_iComboBoxTextureID = surface()->CreateNewTextureID( true );
-			surface()->DrawSetTextureRGBAEx( m_iComboBoxTextureID, (const unsigned char *)pCallback->pBGRA, pCallback->unWide, pCallback->unTall, IMAGE_FORMAT_BGRA8888 );
-			m_allocedComboBoxWidth = (int)pCallback->unWide;
-			m_allocedComboBoxHeight = (int)pCallback->unTall;
-		}
-		else
-		{
-			// same size texture, just bits changing in it, lets twiddle
-			surface()->DrawUpdateRegionTextureRGBA( m_iComboBoxTextureID, 0, 0, (const unsigned char *)pCallback->pBGRA, pCallback->unWide, pCallback->unTall, IMAGE_FORMAT_BGRA8888 );
-		}
-	}
-}
-
 
 //-----------------------------------------------------------------------------
 // Purpose: browser wants to start loading this url, do we let it?
@@ -1579,45 +1366,6 @@ void HTML::BrowserFinishedRequest( HTML_FinishedRequest_t *pCmd )
 	OnFinishRequest( pCmd->pchURL, pCmd->pchPageTitle, mapHeaders );
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: show a popup dialog
-//-----------------------------------------------------------------------------
-void HTML::BrowserShowPopup( HTML_ShowPopup_t *pCmd )
-{
-	m_pComboBoxHost->SetVisible( true );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: hide the popup
-//-----------------------------------------------------------------------------
-void HTML::HidePopup()
-{ 
-	m_pComboBoxHost->SetVisible( false ); 
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: browser wants us to hide a popup
-//-----------------------------------------------------------------------------
-void HTML::BrowserHidePopup( HTML_HidePopup_t *pCmd )
-{
-	HidePopup();
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: browser wants us to position a popup
-//-----------------------------------------------------------------------------
-void HTML::BrowserSizePopup( HTML_SizePopup_t *pCmd )
-{
-	int nAbsX, nAbsY;
-	ipanel()->GetAbsPos( GetVPanel(), nAbsX, nAbsY );
-	m_pComboBoxHost->SetBounds( pCmd->unX + 1 + nAbsX, pCmd->unY+ nAbsY, pCmd->unWide, pCmd->unTall );
-}
-
-
 //-----------------------------------------------------------------------------
 // Purpose: browser wants to open a new tab
 //-----------------------------------------------------------------------------
@@ -1627,9 +1375,8 @@ void HTML::BrowserOpenNewTab( HTML_OpenLinkInNewTab_t *pCmd )
 	// Not suppored by default, if a child class overrides us and knows how to handle tabs, then it can do this.
 }
 
-
 //-----------------------------------------------------------------------------
-// Purpose: display a new html window 
+// Purpose: display a new html window
 //-----------------------------------------------------------------------------
 void HTML::BrowserPopupHTMLWindow( HTML_NewWindow_t *pCmd )
 {

@@ -1,0 +1,23 @@
+PROG = lzmadec
+CXX = gcc 
+LIB = 
+RM = rm -f
+CFLAGS = -c -O2 -Wall -pedantic -D _LZMA_PROB32 
+
+OBJS = LzmaTest.o LzmaDecode.o 
+
+all: $(PROG)
+
+$(PROG): $(OBJS)
+	$(CXX) -o $(PROG) $(LDFLAGS) $(OBJS) $(LIB)
+
+LzmaTest.o: LzmaTest.c
+	$(CXX) $(CFLAGS) LzmaTest.c
+
+LzmaDecode.o: LzmaDecode.c
+	$(CXX) $(CFLAGS) LzmaDecode.c
+
+
+clean:
+	-$(RM) $(PROG) $(OBJS)
+

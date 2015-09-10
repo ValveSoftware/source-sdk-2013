@@ -133,7 +133,7 @@ public:
 		float time = ( tmFastTime() - time0 ) * g_Telemetry.flRDTSCToMilliSeconds;
 		if( time >= m_threshold )
 		{
-			tmMessage( TELEMETRY_LEVEL0, TMMF_ICON_NOTE | TMMF_SEVERITY_WARNING, "(dota/spike)%s %.2fms %t", m_message, time, tmSendCallStack( TELEMETRY_LEVEL0, 0 ) );
+			tmMessage( TELEMETRY_LEVEL0, TMMF_ICON_NOTE | TMMF_SEVERITY_WARNING, "(source/spike)%s %.2fms %t", m_message, time, tmSendCallStack( TELEMETRY_LEVEL0, 0 ) );
 		}
 	}
 

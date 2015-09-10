@@ -636,10 +636,17 @@ void CBaseEntity::SetPredictionRandomSeed( const CUserCmd *cmd )
 	if ( !cmd )
 	{
 		m_nPredictionRandomSeed = -1;
+#ifdef GAME_DLL
+		m_nPredictionRandomSeedServer = -1;
+#endif
+
 		return;
 	}
 
 	m_nPredictionRandomSeed = ( cmd->random_seed );
+#ifdef GAME_DLL
+	m_nPredictionRandomSeedServer = ( cmd->server_random_seed );
+#endif
 }
 
 
@@ -1679,7 +1686,7 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 	int iSeed = 0;
 	if ( IsPlayer() )
 	{
-		iSeed = CBaseEntity::GetPredictionRandomSeed() & 255;
+		iSeed = CBaseEntity::GetPredictionRandomSeed( info.m_bUseServerRandomSeed ) & 255;
 	}
 
 #if defined( HL2MP ) && defined( GAME_DLL )

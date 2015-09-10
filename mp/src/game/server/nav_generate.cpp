@@ -1229,9 +1229,12 @@ void CNavMesh::RemoveOverlappingObstacleTopAreas()
 
 static void CommandNavCheckStairs( void )
 {
+	if ( !UTIL_IsCommandIssuedByServerAdmin() )
+		return;
+
 	TheNavMesh->MarkStairAreas();
 }
-static ConCommand nav_check_stairs( "nav_check_stairs", CommandNavCheckStairs, "Update the nav mesh STAIRS attribute" );
+static ConCommand nav_check_stairs( "nav_check_stairs", CommandNavCheckStairs, "Update the nav mesh STAIRS attribute", FCVAR_CHEAT );
 
 //--------------------------------------------------------------------------------------------------------------
 /**
@@ -1445,6 +1448,9 @@ bool CNavArea::TestStairs( void )
 //--------------------------------------------------------------------------------------------------------------
 CON_COMMAND_F( nav_test_stairs, "Test the selected set for being on stairs", FCVAR_CHEAT )
 {
+	if ( !UTIL_IsCommandIssuedByServerAdmin() )
+		return;
+
 	int count = 0;
 
 	const NavAreaVector &selectedSet = TheNavMesh->GetSelectedSet();
@@ -4932,5 +4938,8 @@ void CNavMesh::PostProcessCliffAreas()
 
 CON_COMMAND_F( nav_gen_cliffs_approx, "Mark cliff areas, post-processing approximation", FCVAR_CHEAT )
 {
+	if ( !UTIL_IsCommandIssuedByServerAdmin() )
+		return;
+
 	TheNavMesh->PostProcessCliffAreas();
 }

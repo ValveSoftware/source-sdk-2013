@@ -221,6 +221,9 @@ typedef void (*AssertFailedNotifyFunc_t)( const char *pchFile, int nLine, const 
 DBG_INTERFACE void SetAssertFailedNotifyFunc( AssertFailedNotifyFunc_t func );
 DBG_INTERFACE void CallAssertFailedNotifyFunc( const char *pchFile, int nLine, const char *pchMessage );
 
+/* True if -hushasserts was passed on command line. */
+DBG_INTERFACE bool HushAsserts();
+
 #if defined( USE_SDL )
 DBG_INTERFACE void SetAssertDialogParent( struct SDL_Window *window );
 DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
@@ -412,12 +415,15 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 /* These are always compiled in */
 DBG_INTERFACE void Msg( PRINTF_FORMAT_STRING const tchar* pMsg, ... ) FMTFUNCTION( 1, 2 );
 DBG_INTERFACE void DMsg( const tchar *pGroupName, int level, PRINTF_FORMAT_STRING const tchar *pMsg, ... ) FMTFUNCTION( 3, 4 );
+DBG_INTERFACE void MsgV( PRINTF_FORMAT_STRING const tchar *pMsg, va_list arglist );
 
 DBG_INTERFACE void Warning( PRINTF_FORMAT_STRING const tchar *pMsg, ... ) FMTFUNCTION( 1, 2 );
 DBG_INTERFACE void DWarning( const tchar *pGroupName, int level, PRINTF_FORMAT_STRING const tchar *pMsg, ... ) FMTFUNCTION( 3, 4 );
+DBG_INTERFACE void WarningV( PRINTF_FORMAT_STRING const tchar *pMsg, va_list arglist );
 
 DBG_INTERFACE void Log( PRINTF_FORMAT_STRING const tchar *pMsg, ... ) FMTFUNCTION( 1, 2 );
 DBG_INTERFACE void DLog( const tchar *pGroupName, int level, PRINTF_FORMAT_STRING const tchar *pMsg, ... ) FMTFUNCTION( 3, 4 );
+DBG_INTERFACE void LogV( PRINTF_FORMAT_STRING const tchar *pMsg, va_list arglist );
 
 #ifdef Error
 // p4.cpp does a #define Error Warning and in that case the Error prototype needs to
@@ -425,17 +431,23 @@ DBG_INTERFACE void DLog( const tchar *pGroupName, int level, PRINTF_FORMAT_STRIN
 DBG_INTERFACE void Error( PRINTF_FORMAT_STRING const tchar *pMsg, ... ) FMTFUNCTION( 1, 2 );
 #else
 DBG_INTERFACE void NORETURN Error( PRINTF_FORMAT_STRING const tchar *pMsg, ... ) FMTFUNCTION( 1, 2 );
+DBG_INTERFACE void NORETURN ErrorV( PRINTF_FORMAT_STRING const tchar *pMsg, va_list arglist );
+
 #endif
 
 #else
 
 inline void Msg( ... ) {}
 inline void DMsg( ... ) {}
+inline void MsgV( PRINTF_FORMAT_STRING const tchar *pMsg, va_list arglist ) {}
 inline void Warning( PRINTF_FORMAT_STRING const tchar *pMsg, ... ) {}
+inline void WarningV( PRINTF_FORMAT_STRING const tchar *pMsg, va_list arglist ) {}
 inline void DWarning( ... ) {}
 inline void Log( ... ) {}
 inline void DLog( ... ) {}
+inline void LogV( PRINTF_FORMAT_STRING const tchar *pMsg, va_list arglist ) {}
 inline void Error( ... ) {}
+inline void ErrorV( PRINTF_FORMAT_STRING const tchar *pMsg, va_list arglist ) {}
 
 #endif
 

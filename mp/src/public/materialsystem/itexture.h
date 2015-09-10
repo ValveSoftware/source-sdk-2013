@@ -39,6 +39,10 @@ public:
 	// This will be called when the regenerator needs to be deleted
 	// which will happen when the texture is destroyed
 	virtual void Release() = 0;
+
+	// (erics): This should have a virtual destructor, but would be ABI breaking (non-versioned interface implemented
+	//          by the game)
+//	virtual ~ITextureRegenerator(){}
 };
 
 abstract_class ITexture
@@ -120,6 +124,13 @@ public:
 
 	// Save texture to a file.
 	virtual bool SaveToFile( const char *fileName ) = 0;
+
+	// Copy this texture, which must be a render target or a renderable texture, to the destination texture, 
+	// which must have been created with the STAGING bit.
+	virtual void CopyToStagingTexture( ITexture* pDstTex ) = 0;
+
+	// Set that this texture should return true for the call "IsError"
+	virtual void SetErrorTexture( bool bIsErrorTexture ) = 0;
 };
 
 

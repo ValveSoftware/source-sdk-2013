@@ -17,6 +17,7 @@
 
 #ifdef TF_DLL
 #include "tf_shareddefs.h"
+#include "tf_gamerules.h"
 #endif
 
 #define CONTROL_POINT_UNLOCK_THINK			"UnlockThink"
@@ -269,6 +270,7 @@ void CTeamControlPoint::Precache( void )
 
 #ifdef TF_DLL
 	PrecacheScriptSound( "Announcer.ControlPointContested" );
+	PrecacheScriptSound( "Announcer.ControlPointContested_Neutral" );
 #endif
 }
 
@@ -653,7 +655,15 @@ void CTeamControlPoint::InternalSetOwner( int iCapTeam, bool bMakeSound, int iNu
 
 			Assert( playerIndex > 0 && playerIndex <= gpGlobals->maxClients );
 
-			PlayerCapped( ToBaseMultiplayerPlayer(UTIL_PlayerByIndex( playerIndex )) );
+			CBaseMultiplayerPlayer *pPlayer = ToBaseMultiplayerPlayer( UTIL_PlayerByIndex( playerIndex ) );
+			PlayerCapped( pPlayer );
+
+#ifdef TF_DLL
+			if ( TFGameRules() && TFGameRules()->IsHolidayActive( kHoliday_EOTL ) )
+			{
+				TFGameRules()->DropBonusDuck( pPlayer->GetAbsOrigin(), ToTFPlayer( pPlayer ), NULL, NULL, false, true );
+			}
+#endif
 		}
 
 		// Remap team to get first game team = 1
@@ -733,7 +743,7 @@ void CTeamControlPoint::SendCapString( int iCapTeam, int iNumCappingPlayers, int
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTeamControlPoint::CaptureBlocked( CBaseMultiplayerPlayer *pPlayer )
+void CTeamControlPoint::CaptureBlocked( CBaseMultiplayerPlayer *pPlayer, CBaseMultiplayerPlayer *pVictim )
 {
 	if( strlen( STRING(m_iszPrintName) ) <= 0 )
 		return;
@@ -746,6 +756,10 @@ void CTeamControlPoint::CaptureBlocked( CBaseMultiplayerPlayer *pPlayer )
 		event->SetString( "cpname", STRING(m_iszPrintName) );
 		event->SetInt( "blocker", pPlayer->entindex() );
 		event->SetInt( "priority", 9 );
+		if ( pVictim )
+		{
+			event->SetInt( "victim", pVictim->entindex() );
+		}
 
 		gameeventmanager->FireEvent( event );
 	}

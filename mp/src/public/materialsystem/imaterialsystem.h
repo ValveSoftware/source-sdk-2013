@@ -43,6 +43,7 @@ struct MaterialSystem_Config_t;
 class VMatrix;
 struct matrix3x4_t;
 class ITexture;
+class ITextureCompositor;
 struct MaterialSystemHardwareIdentifier_t;
 class KeyValues;
 class IShader;
@@ -88,6 +89,7 @@ enum ShaderParamType_t
 	SHADER_PARAM_TYPE_MATRIX,
 	SHADER_PARAM_TYPE_MATERIAL,
 	SHADER_PARAM_TYPE_STRING,
+	SHADER_PARAM_TYPE_MATRIX4X2
 };
 
 enum MaterialMatrixMode_t
@@ -289,7 +291,6 @@ private:
 #define CREATERENDERTARGETFLAGS_NOEDRAM			0x00000008 // inhibit allocation in 360 EDRAM
 #define CREATERENDERTARGETFLAGS_TEMP			0x00000010 // only allocates memory upon first resolve, destroyed at level end
 
-
 //-----------------------------------------------------------------------------
 // allowed stencil operations. These match the d3d operations
 //-----------------------------------------------------------------------------
@@ -478,6 +479,21 @@ private:
 	int m_nBottom;
 };
 
+// Passed as the callback object to Async functions in the material system
+// so that callers don't have to worry about memory going out of scope before the 
+// results return.
+abstract_class IAsyncTextureOperationReceiver : public IRefCounted
+{
+public:
+	virtual void OnAsyncCreateComplete( ITexture* pTex, void* pExtraArgs ) = 0;
+	virtual void OnAsyncFindComplete( ITexture* pTex, void* pExtraArgs ) = 0;
+	virtual void OnAsyncMapComplete( ITexture* pTex, void* pExtraArgs, void* pMemory, int nPitch ) = 0;
+	virtual void OnAsyncReadbackBegin( ITexture* pDst, ITexture* pSrc, void* pExtraArgs ) = 0;
+
+	virtual int GetRefCount() const = 0;
+};
+
+
 //-----------------------------------------------------------------------------
 // Flags to be used with the Init call
 //-----------------------------------------------------------------------------
@@ -525,7 +541,9 @@ enum RenderTargetSizeMode_t
 	RT_SIZE_OFFSCREEN=5,			// Target of specified size, don't mess with dimensions
 	RT_SIZE_FULL_FRAME_BUFFER_ROUNDED_UP=6, // Same size as the frame buffer, rounded up if necessary for systems that can't do non-power of two textures.
 	RT_SIZE_REPLAY_SCREENSHOT = 7,	// Rounded down to power of 2, essentially...
-	RT_SIZE_LITERAL = 8				// Use the size passed in. Don't clamp it to the frame buffer size. Really.
+	RT_SIZE_LITERAL = 8,			// Use the size passed in. Don't clamp it to the frame buffer size. Really.
+	RT_SIZE_LITERAL_PICMIP = 9		// Use the size passed in, don't clamp to the frame buffer size, but do apply picmip restrictions.
+
 };
 
 typedef void (*MaterialBufferReleaseFunc_t)( );
@@ -1043,6 +1061,23 @@ public:
 	// creates a texture suitable for use with materials from a raw stream of bits.
 	// The bits will be retained by the material system and can be freed upon return.
 	virtual ITexture*			CreateTextureFromBits(int w, int h, int mips, ImageFormat fmt, int srcBufferSize, byte* srcBits) = 0;
+
+	// Lie to the material system to pretend to be in render target allocation mode at the beginning of time.
+	// This was a thing that mattered a lot to old hardware, but doesn't matter at all to new hardware,
+	// where new is defined to be "anything from the last decade." However, we want to preserve legacy behavior
+	// for the old games because it's easier than testing them.
+	virtual void				OverrideRenderTargetAllocation( bool rtAlloc ) = 0;
+
+	// creates a texture compositor that will attempt to composite a new textuer from the steps of the specified KeyValues.
+	virtual ITextureCompositor*	NewTextureCompositor( int w, int h, const char* pCompositeName, int nTeamNum, uint64 randomSeed, KeyValues* stageDesc, uint32 texCompositeCreateFlags = 0 ) = 0;
+
+	// Loads the texture with the specified name, calls pRecipient->OnAsyncFindComplete with the result from the main thread.
+	// once the texture load is complete. If the texture cannot be found, the returned texture will return true for IsError().
+	virtual void AsyncFindTexture( const char* pFilename, const char *pTextureGroupName, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs, bool bComplain = true, int nAdditionalCreationFlags = 0 ) = 0;
+
+	// creates a texture suitable for use with materials from a raw stream of bits.
+	// The bits will be retained by the material system and can be freed upon return.
+	virtual ITexture*			CreateNamedTextureFromBitsEx( const char* pName, const char *pTextureGroupName, int w, int h, int mips, ImageFormat fmt, int srcBufferSize, byte* srcBits, int nFlags ) = 0;
 };
 
 
@@ -1504,6 +1539,11 @@ public:
 	virtual void OverrideColorWriteEnable( bool bOverrideEnable, bool bColorWriteEnable ) = 0;
 
 	virtual void ClearBuffersObeyStencilEx( bool bClearColor, bool bClearAlpha, bool bClearDepth ) = 0;
+
+	// Create a texture from the specified src render target, then call pRecipient->OnAsyncCreateComplete from the main thread.
+	// The texture will be created using the destination format, and will optionally have mipmaps generated.
+	// In case of error, the provided callback function will be called with the error texture.
+	virtual void AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) = 0;
 };
 
 template< class E > inline E* IMatRenderContext::LockRenderDataTyped( int nCount, const E* pSrcData )

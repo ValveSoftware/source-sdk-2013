@@ -133,7 +133,7 @@ float GetClientInterpAmount()
 	}
 	else
 	{
-		if (!CommandLine()->FindParm("-hushasserts"))
+		if ( !HushAsserts() )
 		{
 			AssertMsgOnce( false, "GetInterpolationAmount: can't get cl_updaterate cvar." );
 		}

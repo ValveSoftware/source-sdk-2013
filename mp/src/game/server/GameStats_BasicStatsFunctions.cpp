@@ -155,7 +155,7 @@ bool BasicGameStats_t::ParseFromBuffer( CUtlBuffer& buf, int iBufferStatsVersion
 	for ( int i = 0; i < c; ++i )
 	{
 		char mapname[ 256 ];
-		buf.GetString( mapname, sizeof( mapname ) );
+		buf.GetString( mapname );
 
 		BasicGameStatsRecord_t *rec = FindOrAddRecordForMap( mapname );
 		bool valid= rec->ParseFromBuffer( buf, iBufferStatsVersion );

@@ -339,6 +339,77 @@ int CStudioHdr::CActivityToSequenceMapping::SelectWeightedSequence( CStudioHdr *
 
 }
 
+int CStudioHdr::CActivityToSequenceMapping::SelectWeightedSequenceFromModifiers( CStudioHdr *pstudiohdr, int activity, CUtlSymbol *pActivityModifiers, int iModifierCount )
+{
+	if ( !pstudiohdr->SequencesAvailable() )
+	{
+		return ACTIVITY_NOT_AVAILABLE;
+	}
+
+	VerifySequenceIndex( pstudiohdr );
+
+	if ( pstudiohdr->GetNumSeq() == 1 )
+	{
+		return ( ::GetSequenceActivity( pstudiohdr, 0, NULL ) == activity ) ? 0 : ACTIVITY_NOT_AVAILABLE;
+	}
+
+	if (!ValidateAgainst(pstudiohdr))
+	{
+		AssertMsg1(false, "CStudioHdr %s has changed its vmodel pointer without reinitializing its activity mapping! Now performing emergency reinitialization.", pstudiohdr->pszName());
+		ExecuteOnce(DebuggerBreakIfDebugging());
+		Reinitialize(pstudiohdr);
+	}
+
+	// a null m_pSequenceTuples just means that this studio header has no activities.
+	if (!m_pSequenceTuples)
+		return ACTIVITY_NOT_AVAILABLE;
+
+	// get the data for the given activity
+	HashValueType dummy( activity, 0, 0, 0 );
+	UtlHashHandle_t handle = m_ActToSeqHash.Find(dummy);
+	if (!m_ActToSeqHash.IsValidHandle(handle))
+	{
+		return ACTIVITY_NOT_AVAILABLE;
+	}
+	const HashValueType * __restrict actData = &m_ActToSeqHash[handle];
+
+	// go through each sequence and give it a score
+	int top_score = -1;
+	CUtlVector<int> topScoring( actData->count, actData->count );	
+	for ( int i = 0; i < actData->count; i++ )
+	{
+		SequenceTuple * __restrict sequenceInfo = m_pSequenceTuples + actData->startingIdx + i;
+		int score = 0;
+		// count matching activity modifiers
+		for ( int m = 0; m < iModifierCount; m++ )
+		{
+			int num_modifiers = sequenceInfo->iNumActivityModifiers;
+			for ( int k = 0; k < num_modifiers; k++ )
+			{
+				if ( sequenceInfo->pActivityModifiers[ k ] == pActivityModifiers[ m ] )
+				{
+					score++;
+					break;
+				}
+			}
+		}
+		if ( score > top_score )
+		{
+			topScoring.RemoveAll();
+			topScoring.AddToTail( sequenceInfo->seqnum );
+			top_score = score;
+		}
+	}
+
+	// randomly pick between the highest scoring sequences ( NOTE: this method of selecting a sequence ignores activity weights )
+	if ( IsInPrediction() )
+	{
+		return topScoring[ SharedRandomInt( "SelectWeightedSequence", 0, topScoring.Count() - 1 ) ];
+	}
+	
+	return topScoring[ RandomInt( 0, topScoring.Count() - 1 ) ];
+}
+
 
 #endif
 
@@ -446,9 +517,9 @@ int LookupSequence( CStudioHdr *pstudiohdr, const char *label )
 
 void GetSequenceLinearMotion( CStudioHdr *pstudiohdr, int iSequence, const float poseParameter[], Vector *pVec )
 {
-	if (! pstudiohdr)
+	if ( !pstudiohdr)
 	{
-		Msg( "Bad pstudiohdr in GetSequenceLinearMotion()!\n" );
+		ExecuteNTimes( 20, Msg( "Bad pstudiohdr in GetSequenceLinearMotion()!\n" ) );
 		return;
 	}
 
@@ -460,11 +531,7 @@ void GetSequenceLinearMotion( CStudioHdr *pstudiohdr, int iSequence, const float
 		// Don't spam on bogus model
 		if ( pstudiohdr->GetNumSeq() > 0 )
 		{
-			static int msgCount = 0;
-			while ( ++msgCount <= 10 )
-			{
-				Msg( "Bad sequence (%i out of %i max) in GetSequenceLinearMotion() for model '%s'!\n", iSequence, pstudiohdr->GetNumSeq(), pstudiohdr->pszName() );
-			}
+			ExecuteNTimes( 20, Msg( "Bad sequence (%i out of %i max) in GetSequenceLinearMotion() for model '%s'!\n", iSequence, pstudiohdr->GetNumSeq(), pstudiohdr->pszName() ) );
 		}
 		pVec->Init();
 		return;
@@ -849,7 +916,7 @@ const char *GetBodygroupName( CStudioHdr *pstudiohdr, int iGroup )
 
 int FindBodygroupByName( CStudioHdr *pstudiohdr, const char *name )
 {
-	if ( !pstudiohdr )
+	if ( !pstudiohdr || !pstudiohdr->IsValid() )
 		return -1;
 
 	int group;

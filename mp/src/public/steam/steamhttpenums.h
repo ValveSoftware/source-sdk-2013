@@ -64,7 +64,7 @@ enum EHTTPStatusCode
 
 	// Error codes
 	k_EHTTPStatusCode400BadRequest =			400,
-	k_EHTTPStatusCode401Unauthorized =			401,
+	k_EHTTPStatusCode401Unauthorized =			401, // You probably want 403 or something else. 401 implies you're sending a WWW-Authenticate header and the client can sent an Authorization header in response.
 	k_EHTTPStatusCode402PaymentRequired =		402, // This is reserved for future HTTP specs, not really supported by clients
 	k_EHTTPStatusCode403Forbidden =				403,
 	k_EHTTPStatusCode404NotFound =				404,
@@ -81,6 +81,7 @@ enum EHTTPStatusCode
 	k_EHTTPStatusCode415UnsupportedMediaType =	415,
 	k_EHTTPStatusCode416RequestedRangeNotSatisfiable = 416,
 	k_EHTTPStatusCode417ExpectationFailed =		417,
+	k_EHTTPStatusCode4xxUnknown = 				418, // 418 is reserved, so we'll use it to mean unknown
 	k_EHTTPStatusCode429TooManyRequests	=		429,
 
 	// Server error codes
@@ -90,6 +91,7 @@ enum EHTTPStatusCode
 	k_EHTTPStatusCode503ServiceUnavailable =	503,
 	k_EHTTPStatusCode504GatewayTimeout =		504,
 	k_EHTTPStatusCode505HTTPVersionNotSupported = 505,
+	k_EHTTPStatusCode5xxUnknown =				599,
 };
 
 #endif // STEAMHTTPENUMS_H

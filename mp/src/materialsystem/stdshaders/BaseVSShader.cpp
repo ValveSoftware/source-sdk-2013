@@ -458,6 +458,21 @@ void CBaseVSShader::SetPixelShaderTextureScaledTransform( int pixelReg, int tran
 //-----------------------------------------------------------------------------
 // Moves a matrix into vertex shader constants 
 //-----------------------------------------------------------------------------
+void CBaseVSShader::SetVertexShaderMatrix2x4( int vertexReg, int matrixVar )
+{
+	IMaterialVar* pTranslationVar = s_ppParams[ matrixVar ];
+	if ( pTranslationVar )
+	{
+		s_pShaderAPI->SetVertexShaderConstant( vertexReg, &pTranslationVar->GetMatrixValue()[ 0 ][ 0 ], 2 );
+	}
+	else
+	{
+		VMatrix matrix;
+		MatrixSetIdentity( matrix );
+		s_pShaderAPI->SetVertexShaderConstant( vertexReg, &matrix[ 0 ][ 0 ], 2 );
+	}
+}
+
 void CBaseVSShader::SetVertexShaderMatrix3x4( int vertexReg, int matrixVar )
 {
 	IMaterialVar* pTranslationVar = s_ppParams[matrixVar];

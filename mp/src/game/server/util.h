@@ -222,6 +222,7 @@ float		UTIL_GetSimulationInterval();
 // NOTENOTE: Use UTIL_GetLocalPlayer instead of UTIL_PlayerByIndex IF you're in single player
 // and you want the player.
 CBasePlayer	*UTIL_PlayerByIndex( int playerIndex );
+CBasePlayer *UTIL_PlayerBySteamID( const CSteamID &steamID );
 
 // NOTENOTE: Use this instead of UTIL_PlayerByIndex IF you're in single player
 // and you want the player.

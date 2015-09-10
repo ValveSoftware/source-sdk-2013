@@ -64,6 +64,8 @@ enum EMatchMakingServerResponse
 class servernetadr_t 
 {
 public:
+
+	servernetadr_t() : m_usConnectionPort( 0 ), m_usQueryPort( 0 ), m_unIP( 0 ) {}
 	
 	void	Init( unsigned int ip, uint16 usQueryPort, uint16 usConnectionPort );
 #ifdef NETADR_H
@@ -154,9 +156,9 @@ inline const char *servernetadr_t::ToString( uint32 unIP, uint16 usPort ) const
 	static int nBuf = 0;
 	unsigned char *ipByte = (unsigned char *)&unIP;
 #ifdef VALVE_BIG_ENDIAN
-	Q_snprintf (s[nBuf], sizeof( s[nBuf] ), "%u.%u.%u.%u:%i", (int)(ipByte[0]), (int)(ipByte[1]), (int)(ipByte[2]), (int)(ipByte[3]), usPort );
+	V_snprintf (s[nBuf], sizeof( s[nBuf] ), "%u.%u.%u.%u:%i", (int)(ipByte[0]), (int)(ipByte[1]), (int)(ipByte[2]), (int)(ipByte[3]), usPort );
 #else
-	Q_snprintf (s[nBuf], sizeof( s[nBuf] ), "%u.%u.%u.%u:%i", (int)(ipByte[3]), (int)(ipByte[2]), (int)(ipByte[1]), (int)(ipByte[0]), usPort );
+	V_snprintf (s[nBuf], sizeof( s[nBuf] ), "%u.%u.%u.%u:%i", (int)(ipByte[3]), (int)(ipByte[2]), (int)(ipByte[1]), (int)(ipByte[0]), usPort );
 #endif
 	const char *pchRet = s[nBuf];
 	++nBuf;

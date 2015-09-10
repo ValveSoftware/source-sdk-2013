@@ -24,6 +24,8 @@
 // DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"	[ps30]
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b]
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps30]
+// DYNAMIC: "PHONG_USE_EXPONENT_FACTOR"	"0..0"	[ps20]
+// DYNAMIC: "PHONG_USE_EXPONENT_FACTOR"	"0..1"	[ps20b] [ps30]  [PC]
 
 
 // SKIP: ($PIXELFOGTYPE == 0) && ($WRITEWATERFOGTODESTALPHA != 0)
@@ -76,7 +78,9 @@ const float4 g_EyePos_SpecExponent					: register( PSREG_EYEPOS_SPEC_EXPONENT );
 const float4 g_FogParams							: register( PSREG_FOG_PARAMS );
 const float4 g_FlashlightAttenuationFactors_RimMask	: register( PSREG_FLASHLIGHT_ATTENUATION );			// On non-flashlight pass, x has rim mask control
 const float4 g_FlashlightPos_RimBoost				: register( PSREG_FLASHLIGHT_POSITION_RIM_BOOST );
-const float4x4 g_FlashlightWorldToTexture			: register( PSREG_FLASHLIGHT_TO_WORLD_TEXTURE );
+#if FLASHLIGHT
+	const float4x4 g_FlashlightWorldToTexture		: register( PSREG_FLASHLIGHT_TO_WORLD_TEXTURE );
+#endif
 const float4 g_FresnelSpecParams					: register( PSREG_FRESNEL_SPEC_PARAMS );			// xyz are fresnel, w is specular boost
 const float4 g_SpecularRimParams					: register( PSREG_SPEC_RIM_PARAMS );				// xyz are specular tint color, w is rim power
 PixelShaderLightInfo cLightInfo[3]					: register( PSREG_LIGHT_INFO_ARRAY );				// 2 registers each - 6 registers total (4th light spread across w's)
@@ -95,6 +99,7 @@ const float4 g_ShaderControls						: register( PSREG_CONSTANT_27 );					// x is 
 #define g_fBaseMapAlphaPhongMask		g_ShaderControls.x
 #define g_fTintReplacementControl		g_ShaderControls.z
 #define g_fInvertPhongMask				g_ShaderControls.w
+
 
 sampler BaseTextureSampler		: register( s0 );	// Base map, selfillum in alpha
 sampler SpecularWarpSampler		: register( s1 );	// Specular warp sampler (for iridescence etc)
@@ -118,7 +123,6 @@ sampler DetailSampler			: register( s13 );	// detail texture
 #endif
 
 sampler SelfIllumMaskSampler	: register( s14 );	// selfillummask
-
 
 struct PS_INPUT
 {
@@ -258,7 +262,11 @@ float4 main( PS_INPUT i ) : COLOR
 	[flatten]
 #endif
 	
+#if ( PHONG_USE_EXPONENT_FACTOR )
+	fSpecExp = ( 1.0f + g_EyePos_SpecExponent.w * vSpecExpMap.r );
+#else
 	fSpecExp = (g_EyePos_SpecExponent.w >= 0.0) ? g_EyePos_SpecExponent.w : (1.0f + 149.0f * vSpecExpMap.r);
+#endif
 
 	// If constant tint is negative, tint with albedo, based upon scalar tint map
 #if defined( _X360 )
@@ -286,15 +294,17 @@ float4 main( PS_INPUT i ) : COLOR
 	}
 	else
 	{
-		float4 flashlightSpacePosition = mul( float4( vWorldPos, 1.0f ), g_FlashlightWorldToTexture );
+		#if FLASHLIGHT
+			float4 flashlightSpacePosition = mul( float4( vWorldPos, 1.0f ), g_FlashlightWorldToTexture );
 
-		DoSpecularFlashlight( g_FlashlightPos, vWorldPos, flashlightSpacePosition, worldSpaceNormal, 
-			g_FlashlightAttenuationFactors.xyz, g_FlashlightAttenuationFactors.w,
-			FlashlightSampler, ShadowDepthSampler, NormalizeRandRotSampler, FLASHLIGHTDEPTHFILTERMODE, FLASHLIGHTSHADOWS, true, vProjPos.xy / vProjPos.z,
-			fSpecExp, vEyeDir, bDoSpecularWarp, SpecularWarpSampler, fFresnelRanges, g_EnvmapTint_ShadowTweaks,
+			DoSpecularFlashlight( g_FlashlightPos, vWorldPos, flashlightSpacePosition, worldSpaceNormal, 
+				g_FlashlightAttenuationFactors.xyz, g_FlashlightAttenuationFactors.w,
+				FlashlightSampler, ShadowDepthSampler, NormalizeRandRotSampler, FLASHLIGHTDEPTHFILTERMODE, FLASHLIGHTSHADOWS, true, vProjPos.xy / vProjPos.z,
+				fSpecExp, vEyeDir, bDoSpecularWarp, SpecularWarpSampler, fFresnelRanges, g_EnvmapTint_ShadowTweaks,
 
-			// These two values are output
-			diffuseLighting, specularLighting );
+				// These two values are output
+				diffuseLighting, specularLighting );
+		#endif
 	}
 
 	// If we didn't already apply Fresnel to specular warp, modulate the specular

@@ -189,7 +189,16 @@ public:
 	unsigned int	GetUnsignedInt( );
 	float			GetFloat( );
 	double			GetDouble( );
-	void			GetString( char* pString, int nMaxChars = 0 );
+	template <size_t maxLenInChars> void GetString( char( &pString )[maxLenInChars] )
+	{
+		GetStringInternal( pString, maxLenInChars );
+	}
+
+	void GetStringManualCharCount( char *pString, size_t maxLenInChars )
+	{
+		GetStringInternal( pString, maxLenInChars );
+	}
+
 	void			Get( void* pMem, int size );
 	void			GetLine( char* pLine, int nMaxChars = 0 );
 
@@ -384,6 +393,7 @@ protected:
 	// Call this to peek arbitrarily long into memory. It doesn't fail unless
 	// it can't read *anything* new
 	bool CheckArbitraryPeekGet( int nOffset, int &nIncrement );
+	void GetStringInternal( char *pString, size_t maxLenInChars );
 
 	template <typename T> void GetType( T& dest, const char *pszFmt );
 	template <typename T> void GetTypeBin( T& dest );

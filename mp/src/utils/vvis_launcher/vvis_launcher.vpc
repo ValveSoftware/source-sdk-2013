@@ -18,6 +18,11 @@ $Configuration
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
 		$PrecompiledHeaderFile				"Debug/vvis_launcher.pch"
 	}
+
+	$Linker [$WIN32]
+	{
+		$EnableLargeAddresses				"Support Addresses Larger Than 2 Gigabytes (/LARGEADDRESSAWARE)"
+	}
 }
 
 $Project "Vvis_launcher"

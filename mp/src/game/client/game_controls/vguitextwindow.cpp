@@ -138,9 +138,9 @@ void CTextWindow::Reset( void )
 	// HPE_BEGIN:
 	// [Forrest] Replace strange hard-coded default message with hard-coded error message.
 	//=============================================================================
-	Q_strcpy( m_szTitle, "Error loading info message." );
-	Q_strcpy( m_szMessage, "" );
-	Q_strcpy( m_szMessageFallback, "" );
+	V_strcpy_safe( m_szTitle, "Error loading info message." );
+	V_strcpy_safe( m_szMessage, "" );
+	V_strcpy_safe( m_szMessageFallback, "" );
 	//=============================================================================
 	// HPE_END
 	//=============================================================================

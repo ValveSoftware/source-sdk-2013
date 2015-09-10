@@ -59,7 +59,7 @@ public:
 	{
 		g_pVGuiLocalize->ConvertANSIToUnicode( pPlayerName, m_wszPlayerName, sizeof(m_wszPlayerName) );
 		SetLifetime( 7 );
-		SetText( "#Vote_notification_text" );
+		SetText( "#GameUI_Vote_Notification_Text" );
 		AddStringToken( "initiator", m_wszPlayerName );
 	}
 	virtual bool CanBeTriggered()
@@ -68,7 +68,10 @@ public:
 	}
 	virtual void Trigger()
 	{
-		CTFGenericConfirmDialog *pDialog = ShowConfirmDialog( "#Vote_notification_title", "#Vote_notification_text", "#Vote_notification_view", "#cancel", &ConfirmShowVoteSetup );
+		CTFGenericConfirmDialog *pDialog = ShowConfirmDialog( "#GameUI_Vote_Notification_Title", 
+															  "#GameUI_Vote_Notification_Text", 
+															  "#GameUI_Vote_Notification_View", 
+															  "#cancel", &ConfirmShowVoteSetup );
 		pDialog->SetContext( this );
 		pDialog->AddStringToken( "initiator", m_wszPlayerName );
 		// so we aren't deleted
@@ -95,7 +98,7 @@ public:
 			CHudVote *pHudVote = GET_HUDELEMENT( CHudVote );
 			if ( pHudVote )
 			{
-				pHudVote->ShowVoteUI();
+				pHudVote->ShowVoteUI( true );
 			}
 		}
 		pNotification->SetIsInUse( false );
@@ -291,6 +294,76 @@ void CVoteSetupDialog::ApplySettings(KeyValues *inResourceData)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CVoteSetupDialog::InitializeIssueList( void )
+{
+	m_pComboBox->RemoveAll();
+	m_pComboBox->SetVisible( false );
+	SetDialogVariable( "combo_label", "" );
+
+	for ( int index = 0; index < m_VoteIssues.Count(); index++ )
+	{
+		if ( !m_VoteIssues[index].szName || !m_VoteIssues[index].szName[0] )
+			continue;
+
+		bool bActive = m_VoteIssues[index].bIsActive;
+
+		char szIssueLocalized[k_MAX_VOTE_NAME_LENGTH] = { 0 };
+		g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( m_VoteIssues[index].szNameString ), szIssueLocalized, sizeof( szIssueLocalized ) );
+
+		if ( !bActive )
+		{
+			char szDisabled[k_MAX_VOTE_NAME_LENGTH] = { 0 };
+			g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( "#GameUI_Vote_Disabled" ), szDisabled, sizeof( szDisabled ) );
+			V_strcat_safe( szIssueLocalized, szDisabled );
+		}
+
+		KeyValues *pKeyValues = new KeyValues( "Issue" );
+		pKeyValues->SetString( "Issue", szIssueLocalized );
+		pKeyValues->SetString( "IssueRaw", m_VoteIssues[index].szName );
+		pKeyValues->SetBool( "Active", m_VoteIssues[index].bIsActive );
+		int iId = m_pVoteSetupList->AddItem( 0, pKeyValues );
+		pKeyValues->deleteThis();
+
+		// Setup the list entry style
+		if ( m_hIssueFont != INVALID_FONT )
+		{
+			m_pVoteSetupList->SetItemFont( iId, m_hIssueFont );
+			Color colFG = bActive ? m_IssueFGColor : m_IssueFGColorDisabled;
+			m_pVoteSetupList->SetItemFgColor( iId, colFG );
+		}
+	}
+
+	// Select the first item by default
+	if ( m_pVoteSetupList->GetItemCount() > 0 )
+	{
+		m_pVoteSetupList->SetSelectedItem( 0 );
+	}
+	else
+	{
+		// No active issues
+		char szIssueLocalized[k_MAX_VOTE_NAME_LENGTH] = { 0 };
+		g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( "#GameUI_Vote_System_Disabled" ), szIssueLocalized, sizeof( szIssueLocalized ) );
+
+		KeyValues *pKeyValues = new KeyValues( "Issue" );
+		pKeyValues->SetString( "Issue", szIssueLocalized );
+		pKeyValues->SetString( "IssueRaw", "Disabled" );
+		pKeyValues->SetBool( "Active", false );
+		int iId = m_pVoteSetupList->AddItem( 0, pKeyValues );
+		pKeyValues->deleteThis();
+
+		if ( m_hIssueFont != INVALID_FONT )
+		{
+			m_pVoteSetupList->SetItemFont( iId, m_hIssueFont );
+			m_pVoteSetupList->SetItemFgColor( iId, m_IssueFGColor );
+		}
+	}
+
+	UpdateCurrentMap();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Keep track of the current map
 //-----------------------------------------------------------------------------
 void CVoteSetupDialog::UpdateCurrentMap( void )
@@ -302,7 +375,7 @@ void CVoteSetupDialog::UpdateCurrentMap( void )
 //-----------------------------------------------------------------------------
 // Purpose: Feeds Issues from the server to this Dialog
 //-----------------------------------------------------------------------------
-void CVoteSetupDialog::AddVoteIssues( CUtlStringList &m_VoteSetupIssues )
+void CVoteSetupDialog::AddVoteIssues( CUtlVector< VoteIssue_t > &m_VoteSetupIssues )
 {
 	m_VoteIssues.RemoveAll();
 	for ( int index = 0; index < m_VoteSetupIssues.Count(); index++ )
@@ -385,36 +458,7 @@ void CVoteSetupDialog::Activate()
 		m_pVoteParameterList->SetSectionFgColor( 1, m_HeaderFGColor );
 	}
 
-	// Populate the Issue list
-	for ( int index = 0; index < m_VoteIssues.Count(); index++ )
-	{
-		const char *pszIssue = m_VoteIssues[index];
-		if ( !pszIssue || !pszIssue[0] )
-			continue;
-
-		KeyValues *pKeyValues = new KeyValues( "Issue" );
-		pKeyValues->SetString( "Issue", pszIssue );
-		int iId = m_pVoteSetupList->AddItem( 0, pKeyValues );
-		pKeyValues->deleteThis();
-
-		// Setup the list entry style
-		if ( m_hIssueFont != INVALID_FONT )
-		{
-			m_pVoteSetupList->SetItemFont( iId, m_hIssueFont );
-
-			bool bDisabled = V_stristr( pszIssue, "(Disabled on Server)" );		// driller: need to localize
-			Color colFG = bDisabled ? m_IssueFGColorDisabled : m_IssueFGColor;
-			m_pVoteSetupList->SetItemFgColor( iId, colFG );
-		}
-	}
-
-	// Select the first item by default
-	if ( m_pVoteSetupList->GetItemCount() > 0 )
-	{
-		m_pVoteSetupList->SetSelectedItem( 0 );
-	}
-
-	UpdateCurrentMap();
+	InitializeIssueList();
 }
 
 //-----------------------------------------------------------------------------
@@ -432,15 +476,15 @@ void CVoteSetupDialog::OnClose()
 void CVoteSetupDialog::OnCommand(const char *command)
 {
 	// We should have enough data to issue a CallVote command
-	if ( V_stricmp( command, "CallVote" ) == 0 )
+	if ( !V_stricmp( command, "CallVote" ) )
 	{
 		int iSelectedItem = m_pVoteSetupList->GetSelectedItem();
 		if ( iSelectedItem >= 0 )
 		{
-			char szVoteCommand[128];
+			char szVoteCommand[k_MAX_VOTE_NAME_LENGTH];
 			KeyValues *pIssueKeyValues = m_pVoteSetupList->GetItemData( iSelectedItem );
-			const char *szIssue = pIssueKeyValues->GetString( "Issue" );
-			if ( V_stricmp( "changelevel", szIssue ) == 0 || V_stricmp( "nextlevel", szIssue ) == 0 )
+			const char *szIssueRaw = pIssueKeyValues->GetString( "IssueRaw" );
+			if ( !V_stricmp( "ChangeLevel", szIssueRaw ) || !V_stricmp( "NextLevel", szIssueRaw ) )
 			{
 				int nSelectedParam = m_pVoteParameterList->GetSelectedItem();
 				if ( nSelectedParam >= 0 )
@@ -454,13 +498,13 @@ void CVoteSetupDialog::OnCommand(const char *command)
 						{
 							// Which Map?
 							const char *szMapName = pParameterKeyValues->GetString( "Name" );
-							Q_snprintf( szVoteCommand, sizeof( szVoteCommand ), "callvote %s %s\n;", szIssue, szMapName );
+							Q_snprintf( szVoteCommand, sizeof( szVoteCommand ), "callvote %s %s\n;", szIssueRaw, szMapName );
 							engine->ClientCmd( szVoteCommand );
 						}
 					}
 				}
 			}
-			else if ( V_stricmp( "kick", szIssue ) == 0 )
+			else if ( !V_stricmp( "Kick", szIssueRaw ) )
 			{
 				// Get selected Player
 				int iSelectedParam = m_pVoteParameterList->GetSelectedItem();
@@ -476,7 +520,7 @@ void CVoteSetupDialog::OnCommand(const char *command)
 						if ( engine->GetPlayerInfo( playerIndex, &playerInfo ) )
 						{
 							CBasePlayer *pPlayer = UTIL_PlayerByIndex( playerIndex );
-							Q_snprintf( szVoteCommand, sizeof( szVoteCommand ), "callvote %s \"%d %s\"\n;", szIssue, pPlayer->GetUserID(), pReasonString );
+							Q_snprintf( szVoteCommand, sizeof( szVoteCommand ), "callvote %s \"%d %s\"\n;", szIssueRaw, pPlayer->GetUserID(), pReasonString );
 							engine->ClientCmd( szVoteCommand );
 #ifdef TF_CLIENT_DLL
 							CSteamID steamID;
@@ -495,7 +539,7 @@ void CVoteSetupDialog::OnCommand(const char *command)
 				}
 			}
 #ifdef TF_CLIENT_DLL
-			else if ( V_stricmp( "ChangeMission", szIssue ) == 0 )
+			else if ( !V_stricmp( "ChangeMission", szIssueRaw ) )
 			{
 				int nSelectedParam = m_pVoteParameterList->GetSelectedItem();
 				if ( nSelectedParam >= 0 )
@@ -509,7 +553,7 @@ void CVoteSetupDialog::OnCommand(const char *command)
 						{
 							// Which Pop File?
 							const char *szPopFile = pParameterKeyValues->GetString( "Name" );
-							Q_snprintf( szVoteCommand, sizeof( szVoteCommand ), "callvote %s %s\n;", szIssue, szPopFile );
+							Q_snprintf( szVoteCommand, sizeof( szVoteCommand ), "callvote %s %s\n;", szIssueRaw, szPopFile );
 							engine->ClientCmd( szVoteCommand );
 						}
 					}
@@ -519,7 +563,7 @@ void CVoteSetupDialog::OnCommand(const char *command)
 			else
 			{
 				// Non-parameter vote.  i.e.  callvote scrambleteams
-				Q_snprintf( szVoteCommand, sizeof(szVoteCommand), "callvote %s\n;", szIssue );
+				Q_snprintf( szVoteCommand, sizeof(szVoteCommand), "callvote %s\n;", szIssueRaw );
 				engine->ClientCmd( szVoteCommand );
 			}
 
@@ -551,22 +595,23 @@ void CVoteSetupDialog::OnItemSelected( vgui::Panel *panel )
 			if ( !pIssueKeyValues )
 				return;
 
+			CHudVote *pHudVote = GET_HUDELEMENT( CHudVote );
+			if ( !pHudVote )
+				return;
+
 			// We're rebuilding, so clear state
 			m_bVoteButtonEnabled = false;
 			m_pVoteParameterList->ClearSelection();
 			m_pVoteParameterList->RemoveAll();
 
-			const char *szName = pIssueKeyValues->GetString( "Issue" );
-			if ( V_stricmp( "Voting disabled on this Server", szName ) == 0 )
-			{
-				m_bVoteButtonEnabled = false;
-			}
-			else if ( V_stristr( szName, "(Disabled on Server)" ) )		// driller: need to localize
+			const char *pszIssueRaw = pIssueKeyValues->GetString( "IssueRaw" );
+			bool bActive = pIssueKeyValues->GetBool( "Active" );
+			if ( !pHudVote->IsVoteSystemActive() || !bActive )
 			{
 				m_bVoteButtonEnabled = false;
 			}
 			// CHANGELEVEL / NEXTLEVEL
-			else if ( V_stricmp( "changelevel", szName ) == 0 || V_stricmp( "nextlevel", szName ) == 0 )
+			else if ( !V_stricmp( "ChangeLevel", pszIssueRaw ) || !V_stricmp( "NextLevel", pszIssueRaw ) )
 			{
 				// Feed the mapcycle to the parameters list
 				for ( int index = 0; index < m_VoteIssuesMapCycle.Count(); index++ )
@@ -598,7 +643,7 @@ void CVoteSetupDialog::OnItemSelected( vgui::Panel *panel )
 				}
 			}
 			// KICK
-			else if ( V_stricmp( "kick", szName ) == 0 )
+			else if ( !V_stricmp( "Kick", pszIssueRaw ) )
 			{
 				// Feed the player list to the parameters list
 				int nMaxClients = engine->GetMaxClients();
@@ -656,7 +701,7 @@ void CVoteSetupDialog::OnItemSelected( vgui::Panel *panel )
 			}
 #ifdef TF_CLIENT_DLL
 			// CHANGE POP FILE
-			else if ( V_stricmp( "ChangeMission", szName ) == 0 )
+			else if ( !V_stricmp( "ChangeMission", pszIssueRaw ) )
 			{
 				// Feed the popfiles to the parameters list
 				for ( int index = 0; index < m_VoteIssuesPopFiles.Count(); index++ )
@@ -742,8 +787,8 @@ void CVoteSetupDialog::RefreshIssueParameters()
 	if ( iSelectedItem >= 0 )
 	{
 		KeyValues *pIssueKeyValues = m_pVoteSetupList->GetItemData( iSelectedItem );
-		const char *szName = pIssueKeyValues->GetString( "Issue" );
-		if ( V_stricmp( "kick", szName ) == 0 )
+		const char *pszIssueRaw = pIssueKeyValues->GetString( "IssueRaw" );
+		if ( !V_stricmp( "Kick", pszIssueRaw ) )
 		{
 			if ( m_pVoteParameterList->GetItemCount() > 0 )
 			{
@@ -786,10 +831,10 @@ void CVoteSetupDialog::RefreshIssueParameters()
 
 					m_pVoteParameterList->InvalidateItem( index );
 				}
-
-				m_pVoteParameterList->SetImageList( m_pImageList, false );
 			}
 		}
+
+		m_pVoteParameterList->SetImageList( m_pImageList, false );
 	}
 }
 
@@ -799,9 +844,9 @@ void CVoteSetupDialog::RefreshIssueParameters()
 void CVoteSetupDialog::ResetData()
 {
 	m_bVoteButtonEnabled = false;
- 	m_pVoteSetupList->DeleteAllItems();
-	m_pVoteParameterList->DeleteAllItems();
-	m_pComboBox->DeleteAllItems();
+ 	m_pVoteSetupList->RemoveAll();
+	m_pVoteParameterList->RemoveAll();
+	m_pComboBox->RemoveAll();
 }
 
 //-----------------------------------------------------------------------------
@@ -863,7 +908,7 @@ void CHudVote::Init( void )
 	ListenForGameEvent( "vote_options" );
 	ListenForGameEvent( "vote_cast" );
 
-	SetVoteActive( false );
+	m_bVotingActive = false;
 	m_flVoteResultCycleTime = -1;
 	m_flHideTime = -1;
 	m_bIsYesNoVote = true;
@@ -871,6 +916,8 @@ void CHudVote::Init( void )
 	m_nVoteChoicesCount = 2;  // Yes/No is the default
 	m_bShowVoteActivePanel = false;
 	m_iVoteCallerIdx = -1;
+	m_bVoteSystemActive = false;
+	m_nVoteTeamIndex = 0;
 
 	HOOK_HUD_MESSAGE( CHudVote, CallVoteFailed );
 	HOOK_HUD_MESSAGE( CHudVote, VoteStart );
@@ -884,7 +931,7 @@ void CHudVote::Init( void )
 //-----------------------------------------------------------------------------
 void CHudVote::LevelInit( void )
 {
-	SetVoteActive( false );
+	m_bVotingActive = false;
 	m_flVoteResultCycleTime = -1;
 	m_flHideTime = -1;
 	m_flPostVotedHideTime = -1;
@@ -901,7 +948,7 @@ int	CHudVote::KeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBin
 	if ( !down )
 		return 1;
 
-	if ( !m_bVoteActive )
+	if ( !m_bVotingActive )
 		return 1;
 
  	if ( m_bPlayerVoted )
@@ -979,21 +1026,19 @@ void CHudVote::MsgFunc_CallVoteFailed( bf_read &msg )
 	m_pCallVoteFailed->SetVisible( true );
 	m_pVoteSetupDialog->SetVisible( false );
 
-	m_flHideTime = gpGlobals->curtime + 4.0;
+	m_flHideTime = gpGlobals->curtime + 4.f;
 
-	char szTime[256];
-	wchar_t wszTime[256];
+	char szTime[k_MAX_VOTE_NAME_LENGTH];
+	wchar_t wszTime[k_MAX_VOTE_NAME_LENGTH];
 	bool bMinutes = ( nTime > 65 );
 	if ( bMinutes )
 	{
 		nTime /= 60;
 	}
-	const char *pszTimeString = ( bMinutes ) ? ( ( nTime < 2 ) ? "#GameUI_vote_failed_recently_min" : "#GameUI_vote_failed_recently_mins" ) : "#GameUI_vote_failed_recently";
 	Q_snprintf( szTime, sizeof ( szTime), "%i", nTime );
 	g_pVGuiLocalize->ConvertANSIToUnicode( szTime, wszTime, sizeof( wszTime ) );
 
-	wchar_t wszHeaderString[512];
-	wchar_t *pwszHeaderString;
+	wchar_t wszHeaderString[k_MAX_VOTE_NAME_LENGTH];
 
 	switch( nReason )
 	{
@@ -1006,10 +1051,12 @@ void CHudVote::MsgFunc_CallVoteFailed( bf_read &msg )
 			break;
 
 		case VOTE_FAILED_RATE_EXCEEDED:
-			g_pVGuiLocalize->ConstructString( wszHeaderString, sizeof(wszHeaderString), g_pVGuiLocalize->Find( "#GameUI_vote_failed_vote_spam" ), 1, wszTime );
-			pwszHeaderString = wszHeaderString;
-			m_pCallVoteFailed->SetDialogVariable( "FailedReason", pwszHeaderString );
+		{
+			const char *pszTimeString = ( bMinutes ) ? ( ( nTime < 2 ) ? "#GameUI_vote_failed_vote_spam_min" : "#GameUI_vote_failed_vote_spam_mins" ) : "#GameUI_vote_failed_vote_spam";
+			g_pVGuiLocalize->ConstructString( wszHeaderString, sizeof( wszHeaderString ), g_pVGuiLocalize->Find( pszTimeString ), 1, wszTime );
+			m_pCallVoteFailed->SetDialogVariable( "FailedReason", wszHeaderString );
 			break;
+		}
 
 		case VOTE_FAILED_ISSUE_DISABLED:
 			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_disabled_issue" );
@@ -1028,10 +1075,12 @@ void CHudVote::MsgFunc_CallVoteFailed( bf_read &msg )
 			break;
 
 		case VOTE_FAILED_ON_COOLDOWN:
+		{
+			const char *pszTimeString = ( bMinutes ) ? ( ( nTime < 2 ) ? "#GameUI_vote_failed_recently_min" : "#GameUI_vote_failed_recently_mins" ) : "#GameUI_vote_failed_recently";
 			g_pVGuiLocalize->ConstructString( wszHeaderString, sizeof( wszHeaderString ), g_pVGuiLocalize->Find( pszTimeString ), 1, wszTime );
-			pwszHeaderString = wszHeaderString;
-			m_pCallVoteFailed->SetDialogVariable( "FailedReason", pwszHeaderString );
+			m_pCallVoteFailed->SetDialogVariable( "FailedReason", wszHeaderString );
 			break;
+		}
 
 		case VOTE_FAILED_TEAM_CANT_CALL:
 			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_team_cant_call" );
@@ -1058,10 +1107,12 @@ void CHudVote::MsgFunc_CallVoteFailed( bf_read &msg )
 			break;
 
 		case VOTE_FAILED_CANNOT_KICK_FOR_TIME:
-			g_pVGuiLocalize->ConstructString( wszHeaderString, sizeof(wszHeaderString), g_pVGuiLocalize->Find( "#GameUI_vote_failed_cannot_kick_for_time" ), 1, wszTime );
-			pwszHeaderString = wszHeaderString;
-			m_pCallVoteFailed->SetDialogVariable( "FailedReason", pwszHeaderString );
+		{
+			const char *pszTimeString = ( bMinutes ) ? ( ( nTime < 2 ) ? "#GameUI_vote_failed_cannot_kick_min" : "#GameUI_vote_failed_cannot_kick_mins" ) : "#GameUI_vote_failed_cannot_kick";
+			g_pVGuiLocalize->ConstructString( wszHeaderString, sizeof( wszHeaderString ), g_pVGuiLocalize->Find( pszTimeString ), 1, wszTime );
+			m_pCallVoteFailed->SetDialogVariable( "FailedReason", wszHeaderString );
 			break;
+		}
 
 		case VOTE_FAILED_CANNOT_KICK_DURING_ROUND:
 			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_round_active" );
@@ -1069,6 +1120,14 @@ void CHudVote::MsgFunc_CallVoteFailed( bf_read &msg )
 
 		case VOTE_FAILED_MODIFICATION_ALREADY_ACTIVE:
 			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_event_already_active" );
+			break;
+
+		case VOTE_FAILED_VOTE_IN_PROGRESS:
+			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_vote_in_progress" );
+			break;
+
+		case VOTE_FAILED_KICK_LIMIT_REACHED:
+			m_pCallVoteFailed->SetControlString( "FailedReason", "#GameUI_vote_failed_kick_limit" );
 			break;
 	}	
 }
@@ -1081,14 +1140,14 @@ void CHudVote::MsgFunc_VoteFailed( bf_read &msg )
 	if ( IsPlayingDemo() )
 		return;
 
-	int iTeam = msg.ReadByte();
+	m_nVoteTeamIndex = msg.ReadByte();
 	vote_create_failed_t nReason = (vote_create_failed_t)msg.ReadByte();
 
 	// Visibility of this error is handled by OnThink()
-	SetVoteActive( false );
+	m_bVotingActive = false;
 	m_bVotePassed = false;
-	m_flVoteResultCycleTime = gpGlobals->curtime + 2;
-	m_flHideTime = gpGlobals->curtime + 5;
+	m_flVoteResultCycleTime = gpGlobals->curtime + 2.f;
+	m_flHideTime = gpGlobals->curtime + 5.f;
 
 	switch ( nReason )
 	{
@@ -1105,11 +1164,10 @@ void CHudVote::MsgFunc_VoteFailed( bf_read &msg )
 		break;
 	}
 
-	// driller:  this event has no listeners - will eventually hook into stats
 	IGameEvent *event = gameeventmanager->CreateEvent( "vote_failed" );
 	if ( event )
 	{
-		event->SetInt( "team", iTeam );
+		event->SetInt( "team", m_nVoteTeamIndex );
 		gameeventmanager->FireEventClientSide( event );
 	}
 
@@ -1117,7 +1175,11 @@ void CHudVote::MsgFunc_VoteFailed( bf_read &msg )
 	if ( !pLocalPlayer )
 		return;
 
-	pLocalPlayer->EmitSound("Vote.Failed");
+	bool bShowToPlayer = ( !m_nVoteTeamIndex || pLocalPlayer->GetTeamNumber() == m_nVoteTeamIndex );
+	if ( bShowToPlayer )
+	{
+		pLocalPlayer->EmitSound("Vote.Failed");
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1133,9 +1195,8 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 		return;
 
 	// Is this a team-only vote?
-	int iTeam = msg.ReadByte();
-	uint8 invalidTeam = (uint8)TEAM_INVALID;
-	if ( iTeam != invalidTeam && iTeam != pLocalPlayer->GetTeamNumber() )
+	m_nVoteTeamIndex = msg.ReadByte();
+	if ( m_nVoteTeamIndex >= FIRST_GAME_TEAM && m_nVoteTeamIndex != pLocalPlayer->GetTeamNumber() )
 		return;
 
 	// Entity calling the vote
@@ -1163,18 +1224,18 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 	}
 
 	// DisplayString
-	char szIssue[256];
+	char szIssue[k_MAX_VOTE_NAME_LENGTH];
 	szIssue[0] = 0;
 	msg.ReadString( szIssue, sizeof(szIssue) );
 
 	// DetailString
-	char szParam1[256];
+	char szParam1[k_MAX_VOTE_NAME_LENGTH];
 	szParam1[0] = 0;
 	msg.ReadString( szParam1, sizeof(szParam1) );
 
 	m_bIsYesNoVote = msg.ReadByte();
 
-	SetVoteActive( true );
+	m_bVotingActive = true;
 	m_pVoteFailed->SetVisible( false );
 	m_pVotePassed->SetVisible( false );
 	m_pCallVoteFailed->SetVisible( false );
@@ -1204,25 +1265,23 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 	// Display vote caller's name
 	wchar_t wszCallerName[MAX_PLAYER_NAME_LENGTH];
 	
-	wchar_t wszHeaderString[512];
-	wchar_t *pwszHeaderString;
+	wchar_t wszHeaderString[k_MAX_VOTE_NAME_LENGTH];
 
 	// Player
 	g_pVGuiLocalize->ConvertANSIToUnicode( pszCallerName, wszCallerName, sizeof( wszCallerName ) );
 
 	// String
-	g_pVGuiLocalize->ConstructString( wszHeaderString, sizeof(wszHeaderString), g_pVGuiLocalize->Find( "#GameUI_vote_header" ), 1, wszCallerName );
-	pwszHeaderString = wszHeaderString;
+	g_pVGuiLocalize->ConstructString( wszHeaderString, sizeof( wszHeaderString ), g_pVGuiLocalize->Find( "#GameUI_vote_header" ), 1, wszCallerName );
 
 	// Final
-	m_pVoteActive->SetDialogVariable( "header", pwszHeaderString );
+	m_pVoteActive->SetDialogVariable( "header", wszHeaderString );
 
 	// Display the Issue
 	wchar_t *pwcParam;
-	wchar_t wcParam[128];
+	wchar_t wcParam[k_MAX_VOTE_NAME_LENGTH];
 
 	wchar_t *pwcIssue;
-	wchar_t wcIssue[512];
+	wchar_t wcIssue[k_MAX_VOTE_NAME_LENGTH];
 
 	if ( Q_strlen( szParam1 ) > 0 )
 	{
@@ -1252,7 +1311,7 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 	if ( m_bIsYesNoVote )
 	{
 		// YES / NO UI
-		wchar_t wzFinal[512] = L"";
+		wchar_t wzFinal[k_MAX_VOTE_NAME_LENGTH] = L"";
 		wchar_t *pszText = g_pVGuiLocalize->Find( "#GameUI_vote_yes_pc_instruction" );
 		if ( pszText )
 		{
@@ -1294,7 +1353,7 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 				// Construct Option name
 				const char *pszChoiceName = m_VoteSetupChoices[iIndex];
 
-				char szOptionName[256];
+				char szOptionName[k_MAX_VOTE_NAME_LENGTH];
 				Q_snprintf( szOptionName, sizeof( szOptionName ), "F%i. ", iIndex + 1 );
 
 				Q_strncat( szOptionName, pszChoiceName, sizeof( szOptionName ), COPY_ALL_CHARACTERS );
@@ -1320,7 +1379,7 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 	{
 		event->SetString( "issue", szIssue );
 		event->SetString( "param1", szParam1 );
-		event->SetInt( "team", iTeam );
+		event->SetInt( "team", m_nVoteTeamIndex );
 		event->SetInt( "initiator", m_iVoteCallerIdx );
 		gameeventmanager->FireEventClientSide( event );
 	}
@@ -1332,10 +1391,10 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 	}
 	else
 	{
-		ShowVoteUI();
+		m_bShowVoteActivePanel = true;
 	}
 #else
-	ShowVoteUI();
+	m_bShowVoteActivePanel = true;
 #endif	// TF_CLIENT_DLL
 }
 
@@ -1347,24 +1406,24 @@ void CHudVote::MsgFunc_VotePass( bf_read &msg )
 	if ( IsPlayingDemo() )
 		return;
 
-	int iTeam = msg.ReadByte();
+	m_nVoteTeamIndex = msg.ReadByte();
 
 	// Passed string
-	char szResult[256];
+	char szResult[k_MAX_VOTE_NAME_LENGTH];
 	szResult[0] = 0;
 	msg.ReadString( szResult, sizeof(szResult) );
 
 	// Detail string
-	char szParam1[256];
+	char szParam1[k_MAX_VOTE_NAME_LENGTH];
 	szParam1[0] = 0;
 	msg.ReadString( szParam1, sizeof(szParam1) );
 
 	// Localize
 	wchar_t *pwcParam;
-	wchar_t wcParam[128];
+	wchar_t wcParam[k_MAX_VOTE_NAME_LENGTH];
 
 	wchar_t *pwcIssue;
-	wchar_t wcIssue[512];
+	wchar_t wcIssue[k_MAX_VOTE_NAME_LENGTH];
 
 	if ( Q_strlen( szParam1 ) > 0 )
 	{
@@ -1390,10 +1449,10 @@ void CHudVote::MsgFunc_VotePass( bf_read &msg )
 
 	m_pVotePassed->SetDialogVariable( "passedresult", pwcIssue );
 
-	SetVoteActive( false );
+	m_bVotingActive = false;
 	m_bVotePassed = true;
-	m_flVoteResultCycleTime = gpGlobals->curtime + 2;
-	m_flHideTime = gpGlobals->curtime + 5;
+	m_flVoteResultCycleTime = gpGlobals->curtime + 2.f;
+	m_flHideTime = gpGlobals->curtime + 5.f;
 
 	// driller:  this event has no listeners - will eventually hook into stats
 	IGameEvent *event = gameeventmanager->CreateEvent( "vote_passed" );
@@ -1401,7 +1460,7 @@ void CHudVote::MsgFunc_VotePass( bf_read &msg )
 	{
 		event->SetString( "details", szResult );
 		event->SetString( "param1", szParam1 );
-		event->SetInt( "team", iTeam );
+		event->SetInt( "team", m_nVoteTeamIndex );
 		gameeventmanager->FireEventClientSide( event );
 	}
 
@@ -1434,21 +1493,45 @@ void CHudVote::MsgFunc_VoteSetup( bf_read &msg )
 	int nIssueCount = msg.ReadByte();
 	if ( nIssueCount )
 	{
-		for ( int index = 0; index < nIssueCount; index++ )
+		for ( int i = 0; i < nIssueCount; i++ )
 		{
-			char szIssue[256];
-			msg.ReadString( szIssue, sizeof(szIssue) );
-			if ( !m_VoteSetupIssues.HasElement( szIssue ) )
+			char szIssue[k_MAX_VOTE_NAME_LENGTH];
+			char szIssueString[k_MAX_VOTE_NAME_LENGTH];
+			msg.ReadString( szIssue, sizeof( szIssue ) );
+			msg.ReadString( szIssueString, sizeof( szIssueString ) );
+			bool bIsActive = (bool)msg.ReadByte();
+			
+			m_bVoteSystemActive |= bIsActive;
+			
+			bool bAdd = true;
+			FOR_EACH_VEC( m_VoteSetupIssues, j )
 			{
+				if ( !V_strcmp( szIssue, m_VoteSetupIssues[j].szName ) )
+				{
+					bAdd = false;
+					break;
+				}
+			}
+
+			if ( bAdd )
+			{
+				// When empty, assume that we just pre-pend #Vote_ to szIssue (reduces msg size)
+				if ( !szIssueString[0] )
+				{
+					V_sprintf_safe( szIssueString, "#Vote_%s", szIssue );
+				}
+
+				VoteIssue_t issue;
+				V_strcpy_safe( issue.szName, szIssue );
+				V_strcpy_safe( issue.szNameString, szIssueString );
+				issue.bIsActive = bIsActive;
+				
 				// Send it over to the listpanel
-				m_VoteSetupIssues.CopyAndAddToTail( szIssue );
+				m_VoteSetupIssues.AddToTail( issue );
 			}
 		}
 	}
-	else
-	{
-		m_VoteSetupIssues.CopyAndAddToTail( "Voting disabled on this Server" );
-	}
+
 	m_pVoteSetupDialog->AddVoteIssues( m_VoteSetupIssues );
 
 	// Load up the list of Vote Issue Parameters
@@ -1638,50 +1721,51 @@ void CHudVote::FireGameEvent( IGameEvent *event )
 //-----------------------------------------------------------------------------
 void CHudVote::OnThink()
 {
-	// We delay hiding the menu after we cast a vote
-	if ( m_bPlayerVoted && m_flPostVotedHideTime > 0 && m_flPostVotedHideTime < gpGlobals->curtime )
+	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( pLocalPlayer )
 	{
-		m_pVoteActive->SetVisible( false );
-		m_bShowVoteActivePanel = false;
-		m_flPostVotedHideTime = -1;
-	}
+		bool bShowToPlayer = ( !m_nVoteTeamIndex || pLocalPlayer->GetTeamNumber() == m_nVoteTeamIndex );
 
-	if ( m_flVoteResultCycleTime > 0 && m_flVoteResultCycleTime < gpGlobals->curtime )
-	{
-		m_pVoteActive->SetVisible( false );
-		m_pVoteFailed->SetVisible( !m_bVotePassed );
-		m_pVotePassed->SetVisible( m_bVotePassed );
-		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( m_pVoteActive, "HideVoteBackgrounds" );
-
-		m_flVoteResultCycleTime = -1;
-		m_bPlayerVoted = false;
-		m_bVoteActive = false;
-		m_bShowVoteActivePanel = false;
-		m_iVoteCallerIdx = -1;
-	}
-
-	if ( m_bVoteActive )
-	{
-		// driller:  Need to rewrite this to handle all vote types (Yes/No and General)
-		if ( m_bIsYesNoVote && m_pVoteActive )
+		// We delay hiding the menu after we cast a vote
+		if ( m_bPlayerVoted && m_flPostVotedHideTime > 0 && gpGlobals->curtime > m_flPostVotedHideTime )
 		{
-			char szYesCount[512] = "";
-			Q_snprintf( szYesCount, 512, "%d", m_nVoteOptionCount[0] );
-
-			char szNoCount[512] = "";
-			Q_snprintf( szNoCount, 512, "%d", m_nVoteOptionCount[1] );
-
-			m_pVoteActive->SetControlString( "Option1CountLabel", szYesCount );
-			m_pVoteActive->SetControlString( "Option2CountLabel", szNoCount );
+			m_pVoteActive->SetVisible( false );
+			m_bShowVoteActivePanel = false;
+			m_flPostVotedHideTime = -1;
 		}
 
-		if ( !m_pVoteActive->IsVisible() && m_bShowVoteActivePanel )
+		if ( m_flVoteResultCycleTime > 0 && gpGlobals->curtime > m_flVoteResultCycleTime )
 		{
-			m_pVoteActive->SetVisible( true );
+			m_pVoteActive->SetVisible( false );
+			m_pVoteFailed->SetVisible( !m_bVotePassed && bShowToPlayer );
+			m_pVotePassed->SetVisible( m_bVotePassed && bShowToPlayer );
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( m_pVoteActive, "HideVoteBackgrounds" );
 
-			C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
-			if ( pLocalPlayer )
+			m_flVoteResultCycleTime = -1;
+			m_bPlayerVoted = false;
+			m_bVotingActive = false;
+			m_bShowVoteActivePanel = false;
+			m_iVoteCallerIdx = -1;
+		}
+
+		if ( m_bVotingActive && m_bShowVoteActivePanel )
+		{
+			// driller:  Need to rewrite this to handle all vote types (Yes/No and General)
+			if ( m_bIsYesNoVote && m_pVoteActive )
 			{
+				char szYesCount[k_MAX_VOTE_NAME_LENGTH] = "";
+				Q_snprintf( szYesCount, sizeof( szYesCount ), "%d", m_nVoteOptionCount[0] );
+
+				char szNoCount[k_MAX_VOTE_NAME_LENGTH] = "";
+				Q_snprintf( szNoCount, sizeof( szNoCount ), "%d", m_nVoteOptionCount[1] );
+
+				m_pVoteActive->SetControlString( "Option1CountLabel", szYesCount );
+				m_pVoteActive->SetControlString( "Option2CountLabel", szNoCount );
+			}
+
+			if ( !m_pVoteActive->IsVisible() && bShowToPlayer )
+			{
+				m_pVoteActive->SetVisible( true );
 				pLocalPlayer->EmitSound("Vote.Created");
 			}
 		}
@@ -1695,7 +1779,7 @@ void CHudVote::OnThink()
 //-----------------------------------------------------------------------------
 bool CHudVote::ShouldDraw( void )
 {
-	return ( m_bVoteActive || m_flHideTime > gpGlobals->curtime );
+	return ( m_bVotingActive || gpGlobals->curtime < m_flHideTime );
 }
 
 //-----------------------------------------------------------------------------
@@ -1704,22 +1788,6 @@ bool CHudVote::ShouldDraw( void )
 bool CHudVote::IsPlayingDemo() const
 {
 	return engine->IsPlayingDemo();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CHudVote::SetVoteActive( bool bActive )
-{
-	m_bVoteActive = bActive;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CHudVote::ShowVoteUI( void )
-{
-	m_bShowVoteActivePanel = true;
 }
 
 //-----------------------------------------------------------------------------

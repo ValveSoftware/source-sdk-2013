@@ -20,11 +20,11 @@
 enum EFriendRelationship
 {
 	k_EFriendRelationshipNone = 0,
-	k_EFriendRelationshipBlocked = 1,
+	k_EFriendRelationshipBlocked = 1,			// this doesn't get stored; the user has just done an Ignore on an friendship invite
 	k_EFriendRelationshipRequestRecipient = 2,
 	k_EFriendRelationshipFriend = 3,
 	k_EFriendRelationshipRequestInitiator = 4,
-	k_EFriendRelationshipIgnored = 5,
+	k_EFriendRelationshipIgnored = 5,			// this is stored; the user has explicit blocked this other user from comments/chat/etc
 	k_EFriendRelationshipIgnoredFriend = 6,
 	k_EFriendRelationshipSuggested = 7,
 
@@ -37,6 +37,12 @@ const int k_cchMaxFriendsGroupName = 64;
 
 // maximum number of groups a single user is allowed
 const int k_cFriendsGroupLimit = 100;
+
+// friends group identifier type
+typedef int16 FriendsGroupID_t;
+
+// invalid friends group identifier constant
+const FriendsGroupID_t k_FriendsGroupID_Invalid = -1;
 
 const int k_cEnumerateFollowersMax = 50;
 
@@ -199,12 +205,26 @@ public:
 	virtual const char *GetFriendPersonaName( CSteamID steamIDFriend ) = 0;
 
 	// returns true if the friend is actually in a game, and fills in pFriendGameInfo with an extra details 
-	virtual bool GetFriendGamePlayed( CSteamID steamIDFriend, FriendGameInfo_t *pFriendGameInfo ) = 0;
+	virtual bool GetFriendGamePlayed( CSteamID steamIDFriend, OUT_STRUCT() FriendGameInfo_t *pFriendGameInfo ) = 0;
 	// accesses old friends names - returns an empty string when their are no more items in the history
 	virtual const char *GetFriendPersonaNameHistory( CSteamID steamIDFriend, int iPersonaName ) = 0;
+	// friends steam level
+	virtual int GetFriendSteamLevel( CSteamID steamIDFriend ) = 0;
 
 	// Returns nickname the current user has set for the specified player. Returns NULL if the no nickname has been set for that player.
 	virtual const char *GetPlayerNickname( CSteamID steamIDPlayer ) = 0;
+
+	// friend grouping (tag) apis
+	// returns the number of friends groups
+	virtual int GetFriendsGroupCount() = 0;
+	// returns the friends group ID for the given index (invalid indices return k_FriendsGroupID_Invalid)
+	virtual FriendsGroupID_t GetFriendsGroupIDByIndex( int iFG ) = 0;
+	// returns the name for the given friends group (NULL in the case of invalid friends group IDs)
+	virtual const char *GetFriendsGroupName( FriendsGroupID_t friendsGroupID ) = 0;
+	// returns the number of members in a given friends group
+	virtual int GetFriendsGroupMembersCount( FriendsGroupID_t friendsGroupID ) = 0;
+	// gets up to nMembersCount members of the given friends group, if fewer exist than requested those positions' SteamIDs will be invalid
+	virtual void GetFriendsGroupMembersList( FriendsGroupID_t friendsGroupID, OUT_ARRAY_CALL(nMembersCount, GetFriendsGroupMembersCount, friendsGroupID ) CSteamID *pOutSteamIDMembers, int nMembersCount ) = 0;
 
 	// returns true if the specified user meets any of the criteria specified in iFriendFlags
 	// iFriendFlags can be the union (binary or, |) of one or more k_EFriendFlags values
@@ -218,7 +238,7 @@ public:
 	// returns the most recent information we have about what's happening in a clan
 	virtual bool GetClanActivityCounts( CSteamID steamIDClan, int *pnOnline, int *pnInGame, int *pnChatting ) = 0;
 	// for clans a user is a member of, they will have reasonably up-to-date information, but for others you'll have to download the info to have the latest
-	virtual SteamAPICall_t DownloadClanActivityCounts( CSteamID *psteamIDClans, int cClansToRequest ) = 0;
+	virtual SteamAPICall_t DownloadClanActivityCounts( ARRAY_COUNT(cClansToRequest) CSteamID *psteamIDClans, int cClansToRequest ) = 0;
 
 	// iterators for getting users in a chat room, lobby, game server or clan
 	// note that large clans that cannot be iterated by the local user
@@ -343,7 +363,7 @@ public:
 	virtual int GetClanChatMemberCount( CSteamID steamIDClan ) = 0;
 	virtual CSteamID GetChatMemberByIndex( CSteamID steamIDClan, int iUser ) = 0;
 	virtual bool SendClanChatMessage( CSteamID steamIDClanChat, const char *pchText ) = 0;
-	virtual int GetClanChatMessage( CSteamID steamIDClanChat, int iMessage, void *prgchText, int cchTextMax, EChatEntryType *peChatEntryType, CSteamID *psteamidChatter ) = 0;
+	virtual int GetClanChatMessage( CSteamID steamIDClanChat, int iMessage, void *prgchText, int cchTextMax, EChatEntryType *peChatEntryType, OUT_STRUCT() CSteamID *psteamidChatter ) = 0;
 	virtual bool IsClanChatAdmin( CSteamID steamIDClanChat, CSteamID steamIDUser ) = 0;
 
 	// interact with the Steam (game overlay / desktop)
@@ -363,7 +383,7 @@ public:
 	virtual SteamAPICall_t EnumerateFollowingList( uint32 unStartIndex ) = 0;
 };
 
-#define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends014"
+#define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends015"
 
 // callbacks
 #if defined( VALVE_CALLBACK_PACK_SMALL )

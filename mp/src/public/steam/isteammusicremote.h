@@ -118,6 +118,9 @@ DEFINE_CALLBACK( MusicPlayerSelectsPlaylistEntry_t, k_iSteamMusicCallbacks + 13 
 	CALLBACK_MEMBER(0, int, nID )
 END_DEFINE_CALLBACK_1()
 
+DEFINE_CALLBACK( MusicPlayerWantsPlayingRepeatStatus_t, k_iSteamMusicRemoteCallbacks + 14 )
+	CALLBACK_MEMBER(0, int, m_nPlayingRepeatStatus )
+END_DEFINE_CALLBACK_1()
 
 #pragma pack( pop )
 

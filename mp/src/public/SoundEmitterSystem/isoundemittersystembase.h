@@ -264,6 +264,9 @@ public:
 	virtual soundlevel_t	LookupSoundLevelByHandle( char const *soundname, HSOUNDSCRIPTHANDLE& handle ) = 0;
 
 	virtual void			ReloadSoundEntriesInList( IFileList *pFilesToReload ) = 0;
+
+	// Called by either client or server to force ModShutdown and ModInit
+	virtual void			Flush() = 0;
 };
 
 #endif // ISOUNDEMITTERSYSTEMBASE_H

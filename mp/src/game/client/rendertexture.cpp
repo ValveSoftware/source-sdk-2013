@@ -107,11 +107,11 @@ ITexture *GetFullFrameFrameBufferTexture( int textureIndex )
 		char name[256];
 		if( textureIndex != 0 )
 		{
-			sprintf( name, "_rt_FullFrameFB%d", textureIndex );
+			V_sprintf_safe( name, "_rt_FullFrameFB%d", textureIndex );
 		}
 		else
 		{
-			Q_strcpy( name, "_rt_FullFrameFB" );
+			V_strcpy_safe( name, "_rt_FullFrameFB" );
 		}
 		s_pFullFrameFrameBufferTexture[textureIndex].Init( materials->FindTexture( name, TEXTURE_GROUP_RENDER_TARGET ) );
 		Assert( !IsErrorTexture( s_pFullFrameFrameBufferTexture[textureIndex] ) );

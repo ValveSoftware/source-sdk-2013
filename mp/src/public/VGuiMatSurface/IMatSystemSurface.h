@@ -108,6 +108,13 @@ public:
 
 	virtual void GetFullscreenViewportAndRenderTarget( int & x, int & y, int & w, int & h, ITexture **ppRenderTarget ) = 0;
 	virtual void SetFullscreenViewportAndRenderTarget( int x, int y, int w, int h, ITexture *pRenderTarget ) = 0;
+
+	// get texture id for a texture
+	virtual int  DrawGetTextureId( ITexture *pTexture ) = 0;
+
+	// begin and end skin composition painting
+	virtual void BeginSkinCompositionPainting() = 0;
+	virtual void EndSkinCompositionPainting() = 0;
 };
 
 

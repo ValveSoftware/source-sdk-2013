@@ -284,7 +284,7 @@ CSysModule *Sys_LoadModule( const char *pModuleName, Sys_Flags flags /* = SYS_NO
 			int i = CommandLine()->FindParm( "-basedir" );
 			if ( i )
 			{
-				strcpy( szCwd, CommandLine()->GetParm( i+1 ) );
+				V_strcpy_safe( szCwd, CommandLine()->GetParm( i + 1 ) );
 			}
 		}
 		if (szCwd[strlen(szCwd) - 1] == '/' || szCwd[strlen(szCwd) - 1] == '\\' )

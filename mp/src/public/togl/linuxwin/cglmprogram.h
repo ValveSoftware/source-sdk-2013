@@ -1,4 +1,26 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
+//                       TOGL CODE LICENSE
+//
+//  Copyright 2011-2014 Valve Corporation
+//  All Rights Reserved.
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 //
 // cglmprogram.h
 //	GLMgr programs (ARBVP/ARBfp)
@@ -110,8 +132,8 @@ public:
 	void	SetProgramText			( char *text );				// import text to GLM object - invalidate any prev compiled program
 	void	SetShaderName			( const char *name );				// only used for debugging/telemetry markup
 	
-	bool	CompileActiveSources	( void );					// compile only the flavors that were provided.
-	bool	Compile					( EGLMProgramLang lang );	
+	void	CompileActiveSources	( void );					// compile only the flavors that were provided.
+	void	Compile					( EGLMProgramLang lang );	
 	bool	CheckValidity			( EGLMProgramLang lang );
 
 	void	LogSlow					( EGLMProgramLang lang );	// detailed spew when called for first time; one liner or perhaps silence after that
@@ -145,6 +167,9 @@ public:
 
 	uint					m_samplerMask;			// (1<<n) mask of sampler active locs, if this is a fragment shader (dxabstract sets this field)
 	uint					m_samplerTypes;			// SAMPLER_2D, etc.
+	uint					m_fragDataMask;			// (1<<n) mask of gl_FragData[n] outputs referenced, if this is a fragment shader (dxabstract sets this field)
+	uint					m_numDrawBuffers;		// number of draw buffers used
+	GLenum					m_drawBuffers[4];		// GL_COLOR_ATTACHMENT0_EXT1, etc
 	uint					m_nNumUsedSamplers;
 	uint					m_maxSamplers;
 	uint					m_maxVertexAttrs;
@@ -154,6 +179,13 @@ public:
 	bool					m_bTranslatedProgram;
 
 	char					m_shaderName[64];
+
+	// Cache label string from the shader text
+	// example:
+	// trans#2871 label:vs-file vertexlit_and_unlit_generic_vs20 vs-index 294912 vs-combo 1234
+	char					m_labelName[1024];
+	int						m_labelIndex;
+	int						m_labelCombo;
 };	
 
 //===============================================================================
@@ -188,9 +220,14 @@ public:
 
 	bool	SetProgramPair			( CGLMProgram *vp, CGLMProgram *fp );
 		// true result means successful link and query
+		// Note that checking the link status and querying the uniform can be optionally
+		// deferred to take advantage of multi-threaded compilation in the driver
 
 	bool	RefreshProgramPair		( void );
 		// re-link and re-query the uniforms
+
+	bool	ValidateProgramPair( void );
+		// true result means successful link and query
 
 	FORCEINLINE void UpdateScreenUniform( uint nWidthHeight )
 	{
@@ -199,10 +236,10 @@ public:
 		
 		m_nScreenWidthHeight = nWidthHeight;
 
-		uint nWidth = nWidthHeight & 0xFFFF, nHeight = nWidthHeight >> 16;
+		float fWidth = (float)( nWidthHeight & 0xFFFF ), fHeight = (float)( nWidthHeight >> 16 );
 		// Apply half pixel offset to output vertices to account for the pixel center difference between D3D9 and OpenGL.
 		// We output vertices in clip space, which ranges from [-1,1], so 1.0/width in clip space transforms into .5/width in screenspace, see: "Viewports and Clipping (Direct3D 9)" in the DXSDK
-		float v[4] = { 1.0f / (float)nWidth, 1.0f / (float)nHeight, (float)nWidth, (float)nHeight };
+		float v[4] = { 1.0f / fWidth, 1.0f / fHeight, fWidth, fHeight };
 		if ( m_locVertexScreenParams >= 0 )
 			gGL->glUniform4fv( m_locVertexScreenParams, 1, v );
 	}
@@ -227,10 +264,10 @@ public:
 	GLint					m_locVertexBoneParams;	// "vcbones"
 	GLint					m_locVertexInteger0;	// "i0"
 			
-	GLint					m_locVertexBool0;		// "b0"
-	GLint					m_locVertexBool1;		// "b1"
-	GLint					m_locVertexBool2;		// "b2"
-	GLint					m_locVertexBool3;		// "b3"
+	enum { cMaxVertexShaderBoolUniforms = 4, cMaxFragmentShaderBoolUniforms = 1 };
+
+	GLint					m_locVertexBool[cMaxVertexShaderBoolUniforms];		// "b0", etc.
+	GLint					m_locFragmentBool[cMaxFragmentShaderBoolUniforms];		// "fb0", etc.
 	bool					m_bHasBoolOrIntUniforms;
 			
 	// fragment stage uniforms
@@ -243,10 +280,11 @@ public:
 	float					m_fakeSRGBEnableValue;			// shadow to avoid redundant sets of the m_locFragmentFakeSRGBEnable uniform
 		// init it to -1.0 at link or relink, so it will trip on any legit incoming value (0.0 or 1.0)
 
-	GLint					m_locSamplers[ 16 ];			// "sampler0 ... sampler1..."
+	GLint					m_locSamplers[ GLM_SAMPLER_COUNT ];			// "sampler0 ... sampler1..."
 
 	// other stuff
 	bool					m_valid;				// true on successful link
+	bool					m_bCheckLinkStatus;
 	uint					m_revision;				// if this pair is relinked, bump this number.
 
 	GLint					m_locVertexScreenParams; // vcscreen

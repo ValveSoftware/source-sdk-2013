@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -18,15 +18,22 @@ class CUtlBuffer;
 abstract_class IZip
 {
 public:
+	enum eCompressionType
+	{
+		// Type of compression used for this file in the zip
+		eCompressionType_Unknown = -1,
+		eCompressionType_None    = 0,
+		eCompressionType_LZMA    = 14
+	};
 	virtual void			Reset() = 0;
 
-	// Add a single file to a zip - maintains the zip's previous alignment state
-	virtual void			AddFileToZip		( const char *relativename, const char *fullpath ) = 0;
+	// Add a single file to a zip - maintains the zip's previous alignment state.
+	virtual void			AddFileToZip		( const char *relativename, const char *fullpath, eCompressionType compressionType = eCompressionType_None ) = 0;
 
 	// Whether a file is contained in a zip - maintains alignment
 	virtual bool			FileExistsInZip		( const char *pRelativeName ) = 0;
 
-	// Reads a file from the zip - maintains alignement
+	// Reads a file from the zip - maintains alignement.
 	virtual bool			ReadFileFromZip		( const char *pRelativeName, bool bTextMode, CUtlBuffer &buf ) = 0;
 	virtual bool			ReadFileFromZip		( HANDLE hFile, const char *pRelativeName, bool bTextMode, CUtlBuffer &buf ) = 0;
 
@@ -43,18 +50,18 @@ public:
 	virtual unsigned int	EstimateSize		( void ) = 0;
 
 	// Add buffer to zip as a file with given name - uses current alignment size, default 0 (no alignment)
-	virtual void			AddBufferToZip		( const char *relativename, void *data, int length, bool bTextMode ) = 0;
+	virtual void			AddBufferToZip		( const char *relativename, void *data, int length, bool bTextMode, eCompressionType compressionType = eCompressionType_None ) = 0;
 
-	// Writes out zip file to a buffer - uses current alignment size 
+	// Writes out zip file to a buffer - uses current alignment size
 	// (set by file's previous alignment, or a call to ForceAlignment)
 	virtual void			SaveToBuffer		( CUtlBuffer& outbuf ) = 0;
 
-	// Writes out zip file to a filestream - uses current alignment size 
+	// Writes out zip file to a filestream - uses current alignment size
 	// (set by file's previous alignment, or a call to ForceAlignment)
 	virtual void			SaveToDisk			( FILE *fout ) = 0;
 	virtual void			SaveToDisk			( HANDLE hFileOut ) = 0;
-	
-	// Reads a zip file from a buffer into memory - sets current alignment size to 
+
+	// Reads a zip file from a buffer into memory - sets current alignment size to
 	// the file's alignment size, unless overridden by a ForceAlignment call)
 	virtual void			ParseFromBuffer		( void *buffer, int bufferlength ) = 0;
 

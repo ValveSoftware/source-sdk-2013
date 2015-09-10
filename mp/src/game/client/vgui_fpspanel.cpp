@@ -395,7 +395,7 @@ public:
 		if ( fpsPanel )
 		{
 			fpsPanel->SetParent( (vgui::Panel *)NULL );
-			delete fpsPanel;
+			fpsPanel->MarkForDeletion();
 			fpsPanel = NULL;
 		}
 	}
@@ -814,7 +814,7 @@ public:
 		if ( ioPanel )
 		{
 			ioPanel->SetParent( (vgui::Panel *)NULL );
-			delete ioPanel;
+			ioPanel->MarkForDeletion();
 			ioPanel = NULL;
 		}
 	}

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//====== Copyright � 1996-2009, Valve Corporation, All rights reserved. =======
 //
 // Purpose: interface to stats, achievements, and leaderboards 
 //
@@ -194,7 +194,9 @@ public:
 	// as above, but downloads leaderboard entries for an arbitrary set of users - ELeaderboardDataRequest is k_ELeaderboardDataRequestUsers
 	// if a user doesn't have a leaderboard entry, they won't be included in the result
 	// a max of 100 users can be downloaded at a time, with only one outstanding call at a time
-	virtual SteamAPICall_t DownloadLeaderboardEntriesForUsers( SteamLeaderboard_t hSteamLeaderboard, CSteamID *prgUsers, int cUsers ) = 0;
+	METHOD_DESC(Downloads leaderboard entries for an arbitrary set of users - ELeaderboardDataRequest is k_ELeaderboardDataRequestUsers)
+	virtual SteamAPICall_t DownloadLeaderboardEntriesForUsers( SteamLeaderboard_t hSteamLeaderboard,
+															   ARRAY_COUNT_D(cUsers, Array of users to retrieve) CSteamID *prgUsers, int cUsers ) = 0;
 
 	// Returns data about a single leaderboard entry
 	// use a for loop from 0 to LeaderboardScoresDownloaded_t::m_cEntryCount to get all the downloaded entries
@@ -259,8 +261,8 @@ public:
 	// So when called, pData[0] will be today, pData[1] will be yesterday, and pData[2] will be two days ago, 
 	// etc. cubData is the size in bytes of the pubData buffer. Returns the number of 
 	// elements actually set.
-	virtual int32 GetGlobalStatHistory( const char *pchStatName, int64 *pData, uint32 cubData ) = 0;
-	virtual int32 GetGlobalStatHistory( const char *pchStatName, double *pData, uint32 cubData ) = 0;
+	virtual int32 GetGlobalStatHistory( const char *pchStatName, ARRAY_COUNT(cubData) int64 *pData, uint32 cubData ) = 0;
+	virtual int32 GetGlobalStatHistory( const char *pchStatName, ARRAY_COUNT(cubData) double *pData, uint32 cubData ) = 0;
 
 #ifdef _PS3
 	// Call to kick off installation of the PS3 trophies. This call is asynchronous, and the results will be returned in a PS3TrophiesInstalled_t
