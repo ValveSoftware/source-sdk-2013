@@ -295,7 +295,7 @@ rule CitizenAnswerVort
 //
 //response "CitizenQuestionHelloAlyx1"
 //{
-//	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx01.vcd" delay 1 // Hey!  You’re Alyx Vance!
+//	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx01.vcd" delay 1 // Hey!  Youâ€™re Alyx Vance!
 //
 //}
 //
@@ -320,7 +320,7 @@ rule CitizenAnswerVort
 //
 //response "CitizenQuestionHelloAlyx3"
 //{
-//	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx03.vcd" delay 1 // Alyx Vance and Gordon Freeman!  You stayed behind to look after us, didn’t you?
+//	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx03.vcd" delay 1 // Alyx Vance and Gordon Freeman!  You stayed behind to look after us, didnâ€™t you?
 //	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx05.vcd" delay 1 // I hope you two are here to help.
 //}
 //
@@ -419,9 +419,9 @@ rule CitizenAnswerVort
 
 //response "CitizenQuestionHelloAlyx"
 //{
-//	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx01.vcd" delay 1 // Hey!  You’re Alyx Vance!
+//	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx01.vcd" delay 1 // Hey!  Youâ€™re Alyx Vance!
 //	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx02.vcd" delay 1 // I know you!
-//	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx03.vcd" delay 1 // Alyx Vance and Gordon Freeman!  You stayed behind to look after us, didn’t you?
+//	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx03.vcd" delay 1 // Alyx Vance and Gordon Freeman!  You stayed behind to look after us, didnâ€™t you?
 //	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx04.vcd" delay 1 // Who are you again?
 //	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx05.vcd" delay 1 // I hope you two are here to help.
 //	scene "scenes/episode_1/npc/$gender01/cit_greet_alyx06.vcd" delay 1 // You're Kleiner's daughter, right?

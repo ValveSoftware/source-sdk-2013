@@ -3,10 +3,10 @@ actor "Alyx"
 {
   channel "audio"
   {
-    event generic "Okay, that’s it.  The elevator should be working now."
+    event generic "Okay, that's it.  The elevator should be working now."
     {
       time 0.096774 3.317204
-      param "debugtext Okay, that’s it.  The elevator should be working now."
+      param "debugtext Okay, that's it.  The elevator should be working now."
     }
   }
   channel "look at"

@@ -6,7 +6,7 @@ use Text::Wrap;
 srand(31456);
 
 print <<END
-//========= Copyright © 1996-2006, Valve Corporation, All rights reserved. ============//
+//========= Copyright Â© 1996-2006, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: static data for noise() primitives.
 //

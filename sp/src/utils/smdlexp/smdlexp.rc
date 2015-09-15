@@ -113,7 +113,7 @@ BEGIN
             VALUE "FileDescription", "SMD file exporter (3D Studio Max plugin)\0"
             VALUE "FileVersion", "2, 0, 0, 1\0"
             VALUE "InternalName", "SMDLEXP\0"
-            VALUE "LegalCopyright", "Copyright © 1998, Valve LLC\0"
+            VALUE "LegalCopyright", "Copyright (c) 1998, Valve LLC\0"
             VALUE "LegalTrademarks", "The following are registered trademarks of Autodesk, Inc.: 3D Studio MAX.  The following are trademarks of Autodesk, Inc.: Kinetix, Kinetix(logo), BIPED, Physique, Character Studio, MAX DWG, DWG Unplugged, Heidi, FLI, FLC, DXF.\0"
             VALUE "OriginalFilename", "SMDLEXP.DLE\0"
             VALUE "PrivateBuild", "\0"

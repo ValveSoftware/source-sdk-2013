@@ -1,4 +1,4 @@
-//===== Copyright © Valve Corporation, All rights reserved. ======//
+//===== Copyright Â© Valve Corporation, All rights reserved. ======//
 #ifndef ISHADER_DECLARATIONS_HDR
 #define ISHADER_DECLARATIONS_HDR
 
