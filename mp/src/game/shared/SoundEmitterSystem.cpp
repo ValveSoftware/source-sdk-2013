@@ -278,7 +278,7 @@ public:
 			V_strncpy( scriptfile, "scripts/mvm_level_sounds.txt", sizeof( scriptfile ) );
 			if ( filesystem->FileExists( "scripts/mvm_level_sounds.txt", "GAME" ) )
 			{
-				soundemitterbase->AddSoundOverrides( "scripts/mvm_level_sounds.txt" );
+				soundemitterbase->AddSoundOverrides( "scripts/mvm_level_sounds.txt", true );
 			}
 			if ( filesystem->FileExists( "scripts/mvm_level_sound_tweaks.txt", "GAME" ) )
 			{
