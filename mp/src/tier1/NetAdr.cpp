@@ -97,7 +97,7 @@ bool netadr_t::IsReservedAdr () const
 		if ( (ip[0] == 10) ||									// 10.x.x.x is reserved
 			 (ip[0] == 127) ||									// 127.x.x.x 
 			 (ip[0] == 172 && ip[1] >= 16 && ip[1] <= 31) ||	// 172.16.x.x  - 172.31.x.x 
-			 (ip[0] == 192 && ip[1] >= 168) ) 					// 192.168.x.x
+			 (ip[0] == 192 && ip[1] == 168) ) 					// 192.168.x.x
 			return true;
 	}
 	return false;
