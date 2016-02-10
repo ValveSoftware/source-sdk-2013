@@ -11,7 +11,13 @@
 
 	icon		"resource/icon"
 
+	// This needs to be gone if we're implemeting MP AND SP . If only MP, then "multiplayer_only"
 	type		singleplayer_only
+
+	hidden_maps {
+		credits 1
+		background_01 1
+	}
 
 	FileSystem
 	{
