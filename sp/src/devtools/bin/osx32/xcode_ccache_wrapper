@@ -1,3 +1,0 @@
-#!/bin/bash
-
-exec $(dirname $0)/ccache "${DT_TOOLCHAIN_DIR}"/usr/bin/clang -Qunused-arguments "$@"
