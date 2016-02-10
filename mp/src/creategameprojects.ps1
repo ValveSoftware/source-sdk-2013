@@ -5,11 +5,11 @@ if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 	exit
 }
 
-$path = (Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 243730" -Name InstallLocation).InstallLocation
+$path = (Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 243750" -Name InstallLocation).InstallLocation
 
 if (!$path)
 {
-	Write-Warning "You should install Source SDK Base 2013 Singleplayer."
+	Write-Warning "You should install Source SDK Base 2013 Multiplayer."
 	pause
 	exit
 }
