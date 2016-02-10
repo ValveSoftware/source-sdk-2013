@@ -1,0 +1,14 @@
+"screenspace_general"
+{
+        "$PIXSHADER" "haloaddoutline_ps20"
+ 
+        "$ALPHA_BLEND_COLOR_OVERLAY" 1
+        "$basetexture" "_rt_fullframefb"
+        "$ignorez" 1
+        "$linearread_basetexture" 1
+        "$linearwrite" 1
+ 
+        "$texture1" "dev/glow_red"
+        "$texture2" "dev/glow_white"
+        "$texture3" "dev/glow_blue"
+}

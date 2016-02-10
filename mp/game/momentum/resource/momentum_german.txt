@@ -1,0 +1,74 @@
+"lang"
+{
+	"Language" "German"
+	"Tokens"
+	{
+        //Controls
+		"MOM_Controls_Title" "MOMENTUM STEUERUNG"
+		"MOM_Controls_Restart" "Run neustarten"
+		"MOM_Controls_Reset" "Zum start des aktuellen Levels zurücksetzen"
+		"MOM_Controls_ToggleMenu" "Checkpoint Menü anzeigen/ausblenden"
+		"MOM_Controls_Practice" "Trainingsmodus ein-/ausschalten"
+        
+        //CP Menu
+		"MOM_Menu_CreateCP" "Checkpoint erstellen"
+		"MOM_Menu_ToPreviousCP" "Zum vorherigen Checkpoint teleportieren"
+		"MOM_Menu_ToNextCP" "Nächster Checkpoint"
+		"MOM_Menu_ToLastCP" "Letzter Checkpoint"
+		"MOM_Menu_RemoveCurrentCP" "Aktuellen Checkpoint entfernen"
+		"MOM_Menu_RemoveEveryCP" "Alle Checkpoints entfernen"
+		"MOM_Menu_Cancel" "Menü schließen"
+        
+        //In-game leaderboards
+		"MOM_Name" "Name"
+		"MOM_Time" "Zeit"
+		"MOM_Date" "Datum"
+		"MOM_Rank" "Rang"
+		"MOM_MapRank" "Map Rang"
+		"MOM_GlobalRank" "Globaler Rang"
+        
+        //Timer
+		"MOM_Checkpoint" "Checkpoint"
+		"MOM_Stage" "Level"
+		"MOM_Linear" "Lineare Map"
+        "MOM_Cheater_Message" "Halt Stop! Hör auf zu Cheaten!\nWenn du deine Zeiten veröffentlichen willst,\nmusst du Cheats deaktivieren\nund die Map neustarten!"
+        
+        //Guns
+        "MOM_Gun" "Momentum Pistole"
+        
+        //Map Selection
+        "MOM_MapSelector_LocalMaps" "Lokale Maps"
+        "MOM_MapSelector_Filter" "Filter"
+        "MOM_MapSelector_All" "<Alle>"
+        "MOM_MapSelector_LessThanDiff2" "< 2"
+        "MOM_MapSelector_LessThanDiff3" "< 3"
+        "MOM_MapSelector_LessThanDiff4" "< 4"
+        "MOM_MapSelector_LessThanDiff5" "< 5"
+        "MOM_MapSelector_LessThanDiff6" "< 6"
+        //MOM_TODO: Is '6' the best difficulty tier to stop at?
+        "MOM_MapSelector_MapCount" "Maps (%s1)"
+        "MOM_MapSelector_Maps" "Maps"
+        "MOM_MapSelector_FilterCompletedMaps" "Fertige Maps ausblenden"
+        "MOM_MapSelector_StartMap" "Map starten"
+        "MOM_MapSelector_ShowMapInfo" "Map Infromationen anzeigen"
+        "MOM_MapSelector_SurfOnly" "Nur Surf Maps"
+        "MOM_MapSelector_BhopOnly" "Nur Bhop Maps"
+        "MOM_MapSelector_GameMode" "Spielmodus"
+        "MOM_MapSelector_Map" "Map Name"
+        "MOM_MapSelector_Difficulty" "Schwierigkeitsgrad"
+        "MOM_MapSelector_SearchingForMaps" "Suche nach Maps..."
+        "MOM_MapSelector_StopSearching" "Suche stoppen"
+        "MOM_MapSelector_Search" "Suche..."
+        "MOM_MapSelector_NoMaps" "Keien Maps gefunden!"
+        "MOM_MapSelector_Completed" "Fertig"
+        "MOM_MapSelector_Completed_Tooltip" "Diese Spalte zeigt an ob du diese Map schon fertig gespielt hast."
+        "MOM_MapSelector_BestTime" "Beste Zeit" 
+        "MOM_MapSelector_LinearOnly" "Nur lineare Maps"
+        "MOM_MapSelector_StagedOnly" "Nur gelevelte Maps"
+        "MOM_MapSelector_MapLayout" "Map Layout"
+        "MOM_MapSelector_MapLayout_Tooltip" "Diese Spalte zeigt an ob die Map linear oder gelevelt aufgebaut ist."
+        
+        //Map Info
+        //MOM_TODO
+	}
+}

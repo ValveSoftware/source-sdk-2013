@@ -1,0 +1,119 @@
+WeaponData
+{
+	"MaxPlayerSpeed" 		"210"
+	"WeaponType" 			"SniperRifle"
+	"FullAuto"				1
+	"WeaponPrice" 			"5000"
+	"WeaponArmorRatio" 		"1.65"
+	"CrosshairMinDistance" 		"6"
+	"CrosshairDeltaDistance" 	"4"
+	"Team" 				"TERRORIST"
+	"BuiltRightHanded" 		"0"
+	"PlayerAnimationExtension"	 "g3"
+	"MuzzleFlashScale"		"1.5"
+	"MuzzleFlashStyle"		"CS_MUZZLEFLASH_X"
+	"CanEquipWithShield" 		"0"
+	
+	
+	// Weapon characteristics:
+	"Penetration"			"3"
+	"Damage"			"80"
+	"Range"				"8192"
+	"RangeModifier"			"0.98"
+	"Bullets"			"1"
+	"CycleTime"			"0.25"
+	"AccuracyDivisor"		"-1"
+	"AccuracyOffset"		"0"
+	"MaxInaccuracy"			"0"
+	"TimeToIdle"			"1.8"
+	"IdleInterval"			"60"
+	
+	// New accuracy model parameters
+	"Spread"					0.00030
+	"InaccuracyCrouch"			0.01935
+	"InaccuracyStand"			0.02580
+	"InaccuracyJump"			0.46557
+	"InaccuracyLand"			0.04656
+	"InaccuracyLadder"			0.11639
+	"InaccuracyFire"			0.04989
+	"InaccuracyMove"			0.23279
+								 
+	"SpreadAlt"					0.00030
+	"InaccuracyCrouchAlt"		0.00150
+	"InaccuracyStandAlt"		0.00200
+	"InaccuracyJumpAlt"			0.46557
+	"InaccuracyLandAlt"			0.04656
+	"InaccuracyLadderAlt"		0.11639
+	"InaccuracyFireAlt"			0.04989
+	"InaccuracyMoveAlt"			0.23279
+								 
+	"RecoveryTimeCrouch"		0.22245
+	"RecoveryTimeStand"			0.31142
+	
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"			"#Cstrike_WPNHUD_G3SG1"
+	"viewmodel"			"models/weapons/v_snip_g3sg1.mdl"
+	"playermodel"			"models/weapons/w_snip_g3sg1.mdl"
+	
+	"anim_prefix"			"anim"
+	"bucket"			"0"
+	"bucket_position"		"0"
+
+	"clip_size"			"20"
+	
+	"primary_ammo"			"BULLET_PLAYER_762MM"
+	"secondary_ammo"		"None"
+
+	"weight"			"20"
+	"item_flags"			"0"
+
+	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
+	SoundData
+	{
+		//"reload"			"Default.Reload"
+		//"empty"				"Default.ClipEmpty_Rifle"
+		"single_shot"		"Weapon_G3SG1.Single"
+		special3			Default.Zoom
+	}
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"font"		"CSweaponsSmall"
+				"character"	"I"
+		}
+		"weapon_s"
+		{	
+				"font"		"CSweapons"
+				"character"	"I"
+		}
+		"ammo"
+		{
+				"font"		"CSTypeDeath"
+				"character"		"V"
+		}
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"0"
+				"y"			"48"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+	ModelBounds
+	{
+		Viewmodel
+		{
+			Mins	"-8 -3 -13"
+			Maxs	"33 10 -1"
+		}
+		World
+		{
+			Mins	"-11 -9 -4"
+			Maxs	"28 9 9"
+		}
+	}
+}

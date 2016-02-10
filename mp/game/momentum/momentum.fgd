@@ -1,0 +1,145 @@
+@include "base.fgd"
+
+//-------------------------------------------------------------------------
+//
+// CUSTOM MOMENTUM TRIGGERS
+//
+//-------------------------------------------------------------------------
+
+@BaseClass base(Trigger) = TeleTrigger
+[
+    target(target_destination) : "Remote Destination" : : "The entity specifying the point to which the player should be teleported."
+    
+    stop(choices) : "Stop player on teleport" : 1 = 
+    [
+        0 : "False"
+        1 : "True"
+    ]
+    
+    resetang(choices) : "Reset the player angles on teleport" : 1 =
+    [
+        0 : "False"
+        1 : "True"
+    ]
+]
+
+@BaseClass base(TeleTrigger) = HopTrigger
+[
+    hold(float) : "Time teleport delay" : 1 : "If the player is in this trigger for longer than this (in seconds), teleport them to the most recent checkpoint."
+]
+
+@SolidClass base(TeleTrigger) = trigger_momentum_teleport : "A trigger volume that teleports entities that touch it. Entities are teleported to the Remote Destination. "+
+    "The entity can have its Angles and Velocity reset by boolean settings." []
+
+@SolidClass base(Trigger) = trigger_momentum_timer_start : "Trigger that starts the timer." 
+[
+	leavespeed(float) : "Max leave speed" : 290 : "Max speed (Units Per Second) the player will be able to leave the trigger if LIMIT LEAVE SPEED flag is set."
+	lookangles(angle) : "Look angles" : "0 0 0" : "Where player will look when teleported to start."
+	spawnflags(flags) =
+	[
+		2 : "Limit leave speed" : 1
+		4 : "Use look angles" : 0
+		8 : "Check only XY for leave speed check" : 1
+	]
+]
+
+@SolidClass base(Trigger) = trigger_momentum_timer_stop : "Trigger that stops the timer." []
+
+@SolidClass base(Trigger) = trigger_momentum_timer_stage : "Starting trigger for each stage of a map. trigger_momentum_timer_start is automatically stage 1!"
+[
+    stage(integer) : "Stage Number" : 2 : "The stage number that correlates to the part of map. 1 is automatically set by trigger_momentum_timer_start!"
+]
+
+@SolidClass base(Trigger) = trigger_momentum_timer_checkpoint : "Trigger that saves current position. Used by trigger_momentum_teleport_checkpoint." 
+[
+    checkpoint(integer) : "Checkpoint Number" : -1 : "An optional number to assign to this checkpoint, used by filter_activator_checkpoint."
+]
+
+@SolidClass base(TeleTrigger) = trigger_momentum_teleport_checkpoint : "Trigger that teleports to the last trigger_momentum_timer_checkpoint." []
+
+@SolidClass base(Trigger) = trigger_momentum_resetonehop : "Trigger that resets one hops." []
+
+@SolidClass base(HopTrigger) = trigger_momentum_onehop : "Trigger that only allows for one hop."
+[
+	spawnflags(flags) =
+	[
+		2 : "Reset hop state if player hops onto another different onehop" : 1
+	]
+]
+
+@SolidClass base(HopTrigger) = trigger_momentum_multihop : "Trigger that allows for multiple hops, as long as the player hops." []
+
+@SolidClass base(Trigger) = trigger_momentum_userinput : "Trigger that fires on user KeyPress if inside trigger."
+[
+	output OnKeyPressed(void) : "Fires when the desired key is pressed"
+	lookedkey(choices) : "Key that fires" : "Forward" =
+	[
+		0 : "Forward"
+		1 : "Back"
+		2 : "Move Left"
+		3 : "Move Right"
+		4 : "Jump"
+		5 : "Duck"
+		6 : "Attack"
+		7 : "Attack 2"
+		8 : "Reload"	
+	]
+]
+
+@FilterClass base(Targetname) = filter_activator_checkpoint : "Filter that checks to see if the player is at or above the given checkpoint number."
+[
+	checkpoint(integer) : "Minimum req. checkpoint" : -2 : "The minimum checkpoint the player needs to be at in order for the filter to accept the activator."
+]
+
+@SolidClass = func_ladder : 
+	"Ladder. Players will be able to freely along this brush, as if it was a ladder. If you are using a model prop " +
+	"for the visual representation of the ladder in the map, apply the toolsinvisibleladder material to the " +
+	"func_ladder brush."
+[
+]
+
+@SolidClass base(func_breakable) = func_shootboost : 
+	"Entity that pushes the player when hit by the momentum_gun."
+[
+	target(target_destination) : "Inside trigger" : : "If specified, the player must be inside this trigger for the func to work."
+	pushdir(angle) : "Push Direction (Pitch Yaw Roll)" : "0 0 0" : "Where player will be pushed."
+	force(integer) : "Force of the push" : 300 : "General force of the push (Player final velocity in Units per seconds) " +
+	"Ignored if -Use the direction vector as final force instead of calculating it by force amount- flag is set."
+	increase(choices) : "Handling of player's velocity" : 4 =
+    [
+        0 : "Set player's velocity to push final force"
+        1 : "Increase player's velocity by push final force"
+        2 : "Only if the player's velocity is lower than the push velocity, set player's velocity to final push velocity"
+        3 : "Only if the player's velocity is lower than the push velocity, increase player's velocity by final push velocity"
+        4 : "Act as basevelocity"
+    ]
+    spawnflags(flags) = 
+	[ 
+		2: "Use the direction vector as final force instead of calculating it by force amount" : 0
+	]
+
+    // THIS THROWS AN ERROR, BUT AS IT HIDES IT-> WE STAY WITH IT FOR NOW
+    health(float) : "Strength" : 1 : "Number of points of damage to take before breaking. IT HAS TO BE ABOVE 0."
+]
+
+@SolidClass base(Trigger) = trigger_momentum_push : 
+	"A trigger volume that modifies velocity of players that touch it."
+[
+	pushdir(angle) : "Push Direction (Pitch Yaw Roll)" : "0 0 0" : "Where player will be pushed. (Check flags for controlling its behaviour)."
+	force(integer) : "Force of the push" : 300 : "General force of the push (Player final velocity in Units per seconds) " +
+	"Ignored if -Use the direction vector as final force instead of calculating it by force amount- flag is set."
+	increase(choices) : "Handling of player's velocity" : 3 =
+    [
+        0 : "Set player velocity to final push force"
+        1 : "Increase player's current velocity by push final foce ammount"
+        2 : "Only set the player's velocity to the final push velocity if player's velocity is lower than final push velocity"
+        3 : "Act as basevelocity"
+    ]
+	spawnflags(flags) = 
+	[ 
+		2 : "Only allow for one touch before reseting" : 1
+		4 : "Modify player velocity on StartTouch" : 0
+		8 : "Modify player velocity on EndTouch" : 1
+		16 : "Use the direction vector as final force instead of calculating it by force amount" : 1
+	]
+]

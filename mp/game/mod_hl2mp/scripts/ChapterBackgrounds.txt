@@ -1,4 +1,0 @@
-"chapters"
-{
-	1	"background01"
-}

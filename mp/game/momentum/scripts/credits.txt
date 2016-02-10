@@ -1,0 +1,77 @@
+//Adrian: This file contains the credits info for both the Intro and outro.
+"credits.txt"
+{
+
+//========================================================
+//These are the names used in the intro (trainride)
+//========================================================
+"IntroCreditsNames"
+{
+	"V"	"WeaponIcons"
+	" "	"CreditsText"
+	" "	"CreditsText"
+}
+
+"CreditsParams"
+{
+	"logo" "HALF-LIFE'"
+	
+	"fadeintime"	"2.5"
+	"fadeouttime"	"1"
+	"fadeholdtime"	"1.0"
+	"nextfadetime"	"1.0"
+	"pausebetweenwaves" "1.0"
+	"logotime" "1.0"
+	"posx"	"96"
+	"posy"	"360"
+
+	"color" "255 255 255 128"
+
+//Outro Parameters
+// When setting scrolltime value, don't make it too slow/too fast!
+	"scrolltime" "40"
+	"separation"  "10"
+}
+
+//================================================================================
+//	These are the names used in the credits.
+//	If you contribute to the project, feel free to add yourself
+//	in the contributors section. 
+//	(Add a new "YOUR NAME/USERNAME HERE" "CreditsOutroText" after the last one.)
+//================================================================================
+"OutroCreditsNames"
+{
+	"MOMENTUM MOD"	"CreditsOutroTextExtraLarge"
+	" "	"CreditsOutroText"
+	" "	"CreditsOutroText"
+	"Momentum Team" "CreditsOutroTextLarge"
+	"Nick K. (Gocnak)" "CreditsOutroText"
+	"Rubén Rincón (RabsRincon)"   "CreditsOutroText"
+	"Gus Naughton" "CreditsOutroText"
+	"Fatalis"	"CreditsOutroText"
+	"Flipybitz"	"CreditsOutroText"
+	"Tuxxi"	"CreditsOutroText"
+	"Juxtapo" "CreditsOutroText"
+	"Pcpie"	"CreditsOutroText"
+	"Mehis" "CreditsOutroText"
+	" "	"CreditsOutroText"
+	"Contributors" "CreditsOutroTextLarge"
+	// Add yourself here
+
+	//-----------------
+	" "	"CreditsOutroText"
+	" "	"CreditsOutroText"
+	" "	"CreditsOutroText"
+	" "	"CreditsOutroText"
+	"Special thanks to:"   "CreditsOutroTextLarge"
+	"Ivan Vashchaev for his JSON parser GASON"   "CreditsOutroText"
+	"Slack Technologies Inc." "CreditsOutroText"
+	"The Rhino Burger for their cover of Tiagre at Dawn" "CreditsOutroText"
+	"everyone who has ever contributed"   "CreditsOutroText"
+	"and"	"CreditsOutroText"
+	" "	"CreditsOutroText"
+	" "	"CreditsOutroText"
+	"V"	"CreditsOutroLogos"
+}
+
+}

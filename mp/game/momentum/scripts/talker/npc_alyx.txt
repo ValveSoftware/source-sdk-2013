@@ -1,0 +1,120 @@
+//============================================================================================================
+// Alyx criteria
+criterion "IsAlyx" "classname" "npc_alyx" "required"
+//============================================================================================================
+
+//============================================================================================================
+// Alyx Combat speech
+//============================================================================================================
+//----------------------------------------------------------------------------
+
+response "AlyxDanger"
+{
+   scene "scenes/npc/Alyx/getback01.vcd"
+   scene "scenes/npc/Alyx/getback02.vcd" 
+   scene "scenes/npc/Alyx/getdown01.vcd"
+	scene "scenes/npc/Alyx/watchout01.vcd"
+	scene "scenes/npc/Alyx/watchout02.vcd"
+}
+rule AlyxDanger
+{
+	criteria IsAlyx ConceptTalkDanger
+	response AlyxDanger
+}
+
+response AlyxShot
+{
+   scene "scenes/npc/Alyx/gasp02.vcd"
+   scene "scenes/npc/Alyx/gasp03.vcd"
+   scene "scenes/npc/Alyx/hurt04.vcd" 
+   scene "scenes/npc/Alyx/hurt05.vcd" 
+   scene "scenes/npc/Alyx/hurt06.vcd"
+   scene "scenes/npc/Alyx/hurt08.vcd"
+   scene "scenes/npc/Alyx/uggh01.vcd" 
+}
+
+rule AlyxShot
+{
+   criteria    IsAlyx ConceptShot
+   response    AlyxShot
+}
+
+
+response AlyxEnemyDead
+{
+   scene "scenes/npc/Alyx/brutal02.vcd" respeakdelay 300
+}
+
+rule AlyxEnemyDead
+{
+	criteria		IsAlyx ConceptEnemyDead
+	response		AlyxEnemyDead
+}
+
+response AlyxHideAndReload
+{
+	scene "scenes/npc/Alyx/coverme01.vcd"
+	scene "scenes/npc/Alyx/coverme02.vcd"
+   scene "scenes/npc/Alyx/coverme03.vcd" 
+}
+
+rule AlyxHideAndReload
+{
+	criteria		IsAlyx ConceptHideAndReload PlayerNear
+	response		AlyxHideAndReload
+}
+
+response AlyxTalkPlayerPushed
+{
+	scene "scenes/npc/Alyx/excuseme01.vcd"
+	scene "scenes/npc/Alyx/excuseme02.vcd"
+   scene "scenes/npc/Alyx/excuseme03.vcd" 
+}
+
+rule AlyxTalkPlayerPushed
+{
+	criteria		IsAlyx  ConceptTalkPlayerPushed SeenByPlayer NoRecentCombat
+	response		AlyxTalkPlayerPushed
+}
+
+response AlyxPlayerReload
+{
+   scene "scenes/npc/Alyx/youreload01.vcd"
+   scene "scenes/npc/Alyx/youreload02.vcd"
+}
+
+rule AlyxPlayerReload
+{
+	criteria		ConceptPlayerReload IsAlyx PlayerNear SeePlayer
+	response		AlyxPlayerReload
+}
+
+response AlyxWatchOut
+{
+   scene "scenes/npc/Alyx/lookout01.vcd"
+   scene "scenes/npc/Alyx/lookout03.vcd" 
+}
+
+rule AlyxWatchOut
+{
+	criteria		IsAlyx  ConceptTalkWatchout
+	response		AlyxWatchout
+}
+
+response AlyxPlayerDead
+{
+	scene "scenes/npc/Alyx/ohno_startle01.vcd"
+	scene "scenes/npc/Alyx/ohno_startle02.vcd"
+   scene "scenes/npc/Alyx/ohno_startle03.vcd" 
+}
+
+rule AlyxPlayerDead
+{
+	criteria		IsAlyx  ConceptPlayerDead
+	response		AlyxWatchout
+	matchonce
+}
+
+//----------------------------------------------------------------------------
+
+//============================================================================================================
