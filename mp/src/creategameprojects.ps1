@@ -4,12 +4,19 @@ if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 	pause
 	exit
 }
-
+$ErrorActionPreference= 'silentlycontinue'
 $path = (Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 243750" -Name InstallLocation).InstallLocation
 
 if (!$path)
 {
-	Write-Warning "You should install Source SDK Base 2013 Multiplayer."
+	Write-Warning "You should install Source SDK Base 2013 Multiplayer.`nRequesting Steam to install the app..."
+    try {
+        $cmd ="cmd.exe"
+        &$cmd "/c start steam://install/243750/"
+    }
+    catch {
+        "Steam is not running."
+    }
 	pause
 	exit
 }
