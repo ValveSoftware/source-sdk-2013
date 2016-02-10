@@ -15,7 +15,7 @@
 
 	FileSystem
 	{
-		SteamAppId				243730 // This sets the app ID in Steam. This is the Source SDK Base 2013 Singleplayer
+		SteamAppId				244310 // This sets the app ID in Steam. This is the Source SDK Base 2013 Singleplayer
 		
 		//
 		// The code that loads this file automatically does a few things here:
