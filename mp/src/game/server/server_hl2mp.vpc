@@ -152,6 +152,22 @@ $Project "Server (Momentum)"
 			$File   "$SRCDIR\game\shared\momentum\fx_cs_shared.cpp"
 		}
 
+		$Folder	"JSON Parser"
+	    {
+		    $File "$SRCDIR\thirdparty\gason\src\gason.h"
+		    $File "$SRCDIR\thirdparty\gason\src\gason.cpp"
+		    {
+			    $Configuration
+				{
+					$Compiler
+					{
+						$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
+						$TreatWarningsAsErrors "No"
+					}
+				}
+			}
+		}
+
 		$Folder	"HL2 DLL"
 		{
 			$File	"hl2\ai_allymanager.cpp"

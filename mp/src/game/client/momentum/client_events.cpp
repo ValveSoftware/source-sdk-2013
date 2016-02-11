@@ -2,9 +2,9 @@
 #include <windows.h>
 #endif
 
+#include "client_events.h"
 #include "filesystem.h"
 #include "movevars_shared.h"
-#include "client_events.h"
 
 #include "tier0/memdbgon.h"
 
