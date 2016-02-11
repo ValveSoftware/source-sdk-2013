@@ -175,9 +175,9 @@ static void OnGamemodeChanged(IConVar *var, const char* pOldValue, float fOldVal
     else Warning("Failed to change interval per tick, cannot set tick rate!\n");
 }
 
-static ConVar gamemode("mom_gamemode", "0", FCVAR_REPLICATED | FCVAR_NOT_CONNECTED | FCVAR_HIDDEN, "", true, 0, false, 0,OnGamemodeChanged);
+static ConVar gamemode("mom_gamemode", "0", FCVAR_REPLICATED | FCVAR_NOT_CONNECTED | FCVAR_HIDDEN, "", true, 0, false, 0, OnGamemodeChanged);
 
-static ConVar allow_custom("mom_allow_custom_maps", "0", FCVAR_ARCHIVE | FCVAR_REPLICATED, "Allow loading custom maps that aren't of an official gametype.", true ,0, true ,1);
+static ConVar allow_custom("mom_allow_custom_maps", "0", FCVAR_ARCHIVE | FCVAR_REPLICATED, "Allow loading custom maps that aren't of an official gametype.", true, 0, true, 1);
 
 static ConVar give_weapon("mom_spawn_with_weapon", "1", FCVAR_NONE, "Spawn the player with a weapon?", true, 0, true, 1);
 
@@ -185,7 +185,7 @@ void CMomentum::PlayerSpawn(CBasePlayer* pPlayer)
 {
     if (gamemode.GetInt() == 0 && !allow_custom.GetBool())
     {
-        engine->ServerCommand("disconnect\n"); 
+        engine->ServerCommand("disconnect\n");
         Warning("\n\nBeware, beware!\nYou have been disconnected from the map because custom maps are not allowed if %s is 0.\nPlease set it to 1 in order to play custom maps.\n\n", allow_custom.GetName());
     }
 
@@ -203,7 +203,7 @@ void CMomentum::PlayerSpawn(CBasePlayer* pPlayer)
         pPlayer->m_Local.m_iHideHUD &= ~HIDEHUD_WEAPONSELECTION;
     }
 
-    
+
     //MOM_TODO: could this change to gamemode != ALLOWED ?
     if (give_weapon.GetBool() && !Q_strcmp(pMapName, "credits.bsp") && !(Q_strnicmp(pMapName, "background", Q_strlen("background"))))
         pPlayer->Weapon_Create("weapon_momentum_gun");
@@ -211,84 +211,84 @@ void CMomentum::PlayerSpawn(CBasePlayer* pPlayer)
 }
 
 
-class CVoiceGameMgrHelper : public IVoiceGameMgrHelper
-{
-public:
-    virtual bool		CanPlayerHearPlayer(CBasePlayer *pListener, CBasePlayer *pTalker, bool &bProximity)
-    {
-        return true;
-    }
-};
-CVoiceGameMgrHelper g_VoiceGameMgrHelper;
-IVoiceGameMgrHelper *g_pVoiceGameMgrHelper = &g_VoiceGameMgrHelper;
+//class CVoiceGameMgrHelper : public IVoiceGameMgrHelper
+//{
+//public:
+//    virtual bool		CanPlayerHearPlayer(CBasePlayer *pListener, CBasePlayer *pTalker, bool &bProximity)
+//    {
+//        return true;
+//    }
+//};
+//CVoiceGameMgrHelper g_VoiceGameMgrHelper;
+//IVoiceGameMgrHelper *g_pVoiceGameMgrHelper = &g_VoiceGameMgrHelper;
 
 
 //-----------------------------------------------------------------------------
 // Purpose: MULTIPLAYER BODY QUE HANDLING
 //-----------------------------------------------------------------------------
-class CCorpse : public CBaseAnimating
-{
-public:
-    DECLARE_CLASS(CCorpse, CBaseAnimating);
-    DECLARE_SERVERCLASS();
-
-    virtual int ObjectCaps(void) { return FCAP_DONT_SAVE; }
-
-public:
-    CNetworkVar(int, m_nReferencePlayer);
-};
-
-IMPLEMENT_SERVERCLASS_ST(CCorpse, DT_Corpse)
-SendPropInt(SENDINFO(m_nReferencePlayer), 10, SPROP_UNSIGNED)
-END_SEND_TABLE()
-
-LINK_ENTITY_TO_CLASS(bodyque, CCorpse);
-
-
-CCorpse		*g_pBodyQueueHead;
-
-void InitBodyQue(void)
-{
-    CCorpse *pEntity = (CCorpse *) CreateEntityByName("bodyque");
-    pEntity->AddEFlags(EFL_KEEP_ON_RECREATE_ENTITIES);
-    g_pBodyQueueHead = pEntity;
-    CCorpse *p = g_pBodyQueueHead;
-
-    // Reserve 3 more slots for dead bodies
-    for (int i = 0; i < 3; i++)
-    {
-        CCorpse *next = (CCorpse *) CreateEntityByName("bodyque");
-        next->AddEFlags(EFL_KEEP_ON_RECREATE_ENTITIES);
-        p->SetOwnerEntity(next);
-        p = next;
-    }
-
-    p->SetOwnerEntity(g_pBodyQueueHead);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: make a body que entry for the given ent so the ent can be respawned elsewhere
-// GLOBALS ASSUMED SET:  g_eoBodyQueueHead
-//-----------------------------------------------------------------------------
-void CopyToBodyQue(CBaseAnimating *pCorpse)
-{
-    if (pCorpse->IsEffectActive(EF_NODRAW))
-        return;
-
-    CCorpse *pHead = g_pBodyQueueHead;
-
-    pHead->CopyAnimationDataFrom(pCorpse);
-
-    pHead->SetMoveType(MOVETYPE_FLYGRAVITY);
-    pHead->SetAbsVelocity(pCorpse->GetAbsVelocity());
-    pHead->ClearFlags();
-    pHead->m_nReferencePlayer = ENTINDEX(pCorpse);
-
-    pHead->SetLocalAngles(pCorpse->GetAbsAngles());
-    UTIL_SetOrigin(pHead, pCorpse->GetAbsOrigin());
-
-    UTIL_SetSize(pHead, pCorpse->WorldAlignMins(), pCorpse->WorldAlignMaxs());
-    g_pBodyQueueHead = (CCorpse *) pHead->GetOwnerEntity();
-}
+//class CCorpse : public CBaseAnimating
+//{
+//public:
+//    DECLARE_CLASS(CCorpse, CBaseAnimating);
+//    DECLARE_SERVERCLASS();
+//
+//    virtual int ObjectCaps(void) { return FCAP_DONT_SAVE; }
+//
+//public:
+//    CNetworkVar(int, m_nReferencePlayer);
+//};
+//
+//IMPLEMENT_SERVERCLASS_ST(CCorpse, DT_Corpse)
+//SendPropInt(SENDINFO(m_nReferencePlayer), 10, SPROP_UNSIGNED)
+//END_SEND_TABLE()
+//
+//LINK_ENTITY_TO_CLASS(bodyque, CCorpse);
+//
+//
+//CCorpse		*g_pBodyQueueHead;
+//
+//void InitBodyQue(void)
+//{
+//    CCorpse *pEntity = (CCorpse *) CreateEntityByName("bodyque");
+//    pEntity->AddEFlags(EFL_KEEP_ON_RECREATE_ENTITIES);
+//    g_pBodyQueueHead = pEntity;
+//    CCorpse *p = g_pBodyQueueHead;
+//
+//    // Reserve 3 more slots for dead bodies
+//    for (int i = 0; i < 3; i++)
+//    {
+//        CCorpse *next = (CCorpse *) CreateEntityByName("bodyque");
+//        next->AddEFlags(EFL_KEEP_ON_RECREATE_ENTITIES);
+//        p->SetOwnerEntity(next);
+//        p = next;
+//    }
+//
+//    p->SetOwnerEntity(g_pBodyQueueHead);
+//}
+//
+////-----------------------------------------------------------------------------
+//// Purpose: make a body que entry for the given ent so the ent can be respawned elsewhere
+//// GLOBALS ASSUMED SET:  g_eoBodyQueueHead
+////-----------------------------------------------------------------------------
+//void CopyToBodyQue(CBaseAnimating *pCorpse)
+//{
+//    if (pCorpse->IsEffectActive(EF_NODRAW))
+//        return;
+//
+//    CCorpse *pHead = g_pBodyQueueHead;
+//
+//    pHead->CopyAnimationDataFrom(pCorpse);
+//
+//    pHead->SetMoveType(MOVETYPE_FLYGRAVITY);
+//    pHead->SetAbsVelocity(pCorpse->GetAbsVelocity());
+//    pHead->ClearFlags();
+//    pHead->m_nReferencePlayer = ENTINDEX(pCorpse);
+//
+//    pHead->SetLocalAngles(pCorpse->GetAbsAngles());
+//    UTIL_SetOrigin(pHead, pCorpse->GetAbsOrigin());
+//
+//    UTIL_SetSize(pHead, pCorpse->WorldAlignMins(), pCorpse->WorldAlignMaxs());
+//    g_pBodyQueueHead = (CCorpse *) pHead->GetOwnerEntity();
+//}
 
 #endif

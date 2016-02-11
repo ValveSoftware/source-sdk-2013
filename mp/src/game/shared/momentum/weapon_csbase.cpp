@@ -1314,8 +1314,8 @@ bool CWeaponCSBase::IsUseable()
 
 #if defined( CLIENT_DLL )
 
-float	g_lateralBob = 0;
-float	g_verticalBob = 0;
+extern float	g_lateralBob;
+extern float	g_verticalBob;
 
 static ConVar	cl_bobcycle("cl_bobcycle", "0.8", FCVAR_CHEAT);
 static ConVar	cl_bob("cl_bob", "0.002", FCVAR_CHEAT);

@@ -40,10 +40,10 @@ extern IVModelInfo* modelinfo;
 // Global functions.
 // ----------------------------------------------------------------------------- //
 
-bool IsAmmoType( int iAmmoType, const char *pAmmoName )
-{
-	return GetAmmoDef()->Index( pAmmoName ) == iAmmoType;
-}
+//bool IsAmmoType( int iAmmoType, const char *pAmmoName )
+//{
+//	return GetAmmoDef()->Index( pAmmoName ) == iAmmoType;
+//}
 
 static const char * s_WeaponAliasInfo[] = 
 {

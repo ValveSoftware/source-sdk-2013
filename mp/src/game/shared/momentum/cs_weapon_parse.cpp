@@ -225,10 +225,10 @@ void ParseVector(KeyValues *keyValues, const char *keyName, Vector& vec)
     }
 }
 
-FileWeaponInfo_t* CreateWeaponInfo()
-{
-    return new CCSWeaponInfo;
-}
+//FileWeaponInfo_t* CreateWeaponInfo()
+//{
+//    return new CCSWeaponInfo;
+//}
 
 CCSWeaponInfo::CCSWeaponInfo()
 {
