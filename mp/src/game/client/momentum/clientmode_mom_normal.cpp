@@ -11,6 +11,7 @@
 #include <vgui/IInput.h>
 #include <vgui/IPanel.h>
 #include <vgui/ISurface.h>
+#include "ClientTimesDisplay.h"
 #include <vgui_controls/AnimationController.h>
 #include "iinput.h"
 #include "ienginevgui.h"
@@ -51,6 +52,20 @@ protected:
         gHUD.InitColors(pScheme);
 
         SetPaintBackgroundEnabled(false);
+    }
+
+    IViewPortPanel *CreatePanelByName(const char *pzName)
+    {
+        IViewPortPanel *panel = BaseClass::CreatePanelByName(pzName);
+        if (!panel)
+        {
+            if (!Q_strcmp(PANEL_TIMES, pzName))
+            {
+                panel = new CClientTimesDisplay(this);
+            }
+        }
+
+        return panel;
     }
 
     virtual void CreateDefaultPanels(void) 
