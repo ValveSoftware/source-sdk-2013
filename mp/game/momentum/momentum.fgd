@@ -143,3 +143,17 @@
 		16 : "Use the direction vector as final force instead of calculating it by force amount" : 1
 	]
 ]
+
+@PointClass base(env_sprite) sprite()  = ent_momentum_collectable : "Collectables that the player can collect"
+[
+	spawnflags(flags) =
+	[
+		1: "Start on" : 1
+		2: "Play Once" : 0
+	]
+	mode(choices) : "Sets the type of collectable" : 0 =
+    [
+        0 : "Local (Only needed for this map)"
+        1 : "Global (For campaing mode)"
+    ]
+]
