@@ -35,7 +35,6 @@ IClientMode *GetClientModeNormal()
     return &g_ClientModeNormal;
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: this is the viewport that contains all the hud elements
 //-----------------------------------------------------------------------------
@@ -61,19 +60,19 @@ protected:
         {
             if (!Q_strcmp(PANEL_TIMES, pzName))
             {
-				panel = new CClientTimesDisplay(this);
-			}
+                panel = new CClientTimesDisplay(this);
+            }
         }
 
         return panel;
     }
 
-    virtual void CreateDefaultPanels(void) 
-    { 
+    virtual void CreateDefaultPanels(void)
+    {
         AddNewPanel(CreatePanelByName(PANEL_TIMES), "PANEL_TIMES");
 
         BaseClass::CreateDefaultPanels();// MOM_TODO: do we want the other panels?
-        /* don't create any panels yet*/ 
+        /* don't create any panels yet*/
     };
 };
 
