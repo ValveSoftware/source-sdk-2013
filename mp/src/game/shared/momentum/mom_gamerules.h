@@ -27,7 +27,6 @@ public:
 
 #else
     DECLARE_SERVERCLASS_NOBASE();
-    
 
     //virtual void			Think(void);
 
@@ -36,6 +35,7 @@ public:
     virtual bool			IsSpawnPointValid(CBaseEntity *pSpot, CBasePlayer *pPlayer);
     virtual CBaseEntity*    GetPlayerSpawnSpot(CBasePlayer *pPlayer);
     virtual const char *GetGameDescription(void) { return "Momentum"; }
+    
 
     // Ammo
     virtual void			PlayerThink(CBasePlayer *pPlayer) {}
@@ -55,6 +55,7 @@ private:
 
 public:
 
+    virtual const CViewVectors* GetViewVectors() const;
     CMomentum();
     ~CMomentum();
 

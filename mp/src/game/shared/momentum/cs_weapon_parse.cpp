@@ -13,7 +13,6 @@
 //#include "cs_gamerules.h"
 //#include "cs_blackmarket.h"
 
-
 //--------------------------------------------------------------------------------------------------------
 struct WeaponTypeInfo
 {
@@ -225,15 +224,15 @@ void ParseVector(KeyValues *keyValues, const char *keyName, Vector& vec)
     }
 }
 
-//FileWeaponInfo_t* CreateWeaponInfo()
-//{
-//    return new CCSWeaponInfo;
-//}
-
 CCSWeaponInfo::CCSWeaponInfo()
 {
     m_flMaxSpeed = 1; // This should always be set in the script.
     m_szAddonModel[0] = 0;
+}
+
+FileWeaponInfo_t* CreateWeaponInfo()
+{
+    return new CCSWeaponInfo();
 }
 
 int	CCSWeaponInfo::GetWeaponPrice(void)
@@ -259,11 +258,11 @@ void CCSWeaponInfo::Parse(KeyValues *pKeyValuesData, const char *szWeaponName)
     m_flMaxSpeed = (float) pKeyValuesData->GetInt("MaxPlayerSpeed", 1);
 
     m_iDefaultPrice = m_iWeaponPrice = pKeyValuesData->GetInt("WeaponPrice", -1);
-    if (m_iWeaponPrice == -1)
-    {
-        // This weapon should have the price in its script.
-        Assert(false);
-    }
+    //if (m_iWeaponPrice == -1)
+    //{
+    //    // This weapon should have the price in its script.
+    //    Assert(false);
+    //}
 
     /*if ( CSGameRules()->IsBlackMarket() )
     {
@@ -297,10 +296,10 @@ void CCSWeaponInfo::Parse(KeyValues *pKeyValuesData, const char *szWeaponName)
             m_iMuzzleFlashStyle = CS_MUZZLEFLASH_NORM;
         }
     }
-    else
-    {
-        Assert(false);
-    }
+    //else
+    //{
+    //    Assert(false);
+    //}
 
     m_iPenetration = pKeyValuesData->GetInt("Penetration", 1);
     m_iDamage = pKeyValuesData->GetInt("Damage", 42); // Douglas Adams 1952 - 2001
@@ -361,7 +360,7 @@ void CCSWeaponInfo::Parse(KeyValues *pKeyValuesData, const char *szWeaponName)
     m_WeaponType = WEAPONTYPE_UNKNOWN;
     if (!pTypeString)
     {
-        Assert(false);
+        //Assert(false);
     }
     else if (Q_stricmp(pTypeString, "Knife") == 0)
     {
@@ -401,7 +400,7 @@ void CCSWeaponInfo::Parse(KeyValues *pKeyValuesData, const char *szWeaponName)
     }
     else
     {
-        Assert(false);
+        //Assert(false);
     }
 
     // Read the addon model.
