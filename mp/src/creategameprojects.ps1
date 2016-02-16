@@ -15,7 +15,7 @@ if (!$path)
         &$cmd "/c start steam://install/243750/"
     }
     catch {
-        "Steam is not running."
+        Write-Warning "Steam is not running. Can not launch installation pop-up"
     }
 	pause
 	exit
@@ -44,4 +44,6 @@ $data = @"
 </Project>
 "@
 
-$data | Out-File game\client\client_hl2.vcxproj.user utf8
+$data | Out-File game\client\client_momentum.vcxproj.user utf8
+
+Print "Data added to client_hl2mp.vcxproj"
