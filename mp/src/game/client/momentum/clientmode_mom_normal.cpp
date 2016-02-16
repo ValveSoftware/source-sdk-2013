@@ -61,8 +61,8 @@ protected:
         {
             if (!Q_strcmp(PANEL_TIMES, pzName))
             {
-                panel = new CClientTimesDisplay(this);
-            }
+				panel = new CClientTimesDisplay(this);
+			}
         }
 
         return panel;

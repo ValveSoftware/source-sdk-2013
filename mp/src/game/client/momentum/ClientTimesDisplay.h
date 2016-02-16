@@ -11,10 +11,12 @@
 #pragma once
 #endif
 
-#include <vgui_controls/EditablePanel.h>
-#include <game/client/iviewport.h>
 #include "GameEventListener.h"
+#include "cbase.h"
 #include "momentum/mom_shareddefs.h"
+#include <KeyValues.h>
+#include <game/client/iviewport.h>
+#include <vgui_controls/EditablePanel.h>
 
 #define TYPE_NOTEAM			0	// NOTEAM must be zero :)
 #define TYPE_TEAM			1	// a section for a single team	
@@ -52,9 +54,6 @@ public:
 
     virtual bool ShowAvatars()
     {
-#ifdef CSS_PERF_TEST
-        return false;
-#endif
         return IsPC();
     }
 
