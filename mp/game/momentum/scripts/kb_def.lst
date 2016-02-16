@@ -10,7 +10,7 @@
 "."				"+moveright"
 "SPACE"			"+jump"
 "CTRL"			"+duck"
-"TAB"			"+showscores"
+"TAB"			"+showtimes"
 "e"				"+use"
 "r"				"+reload"
 "SHIFT"			"+walk"

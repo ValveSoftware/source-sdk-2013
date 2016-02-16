@@ -14,6 +14,7 @@
 "mom_restart"	"#MOM_Controls_Restart"
 "mom_reset"		"#MOM_Controls_Reset"
 "showCPmenu"	"#MOM_Controls_ToggleMenu"
+"+showtimes"    "#MOM_Controls_ToggleTimes"
 "mom_practice"  "#MOM_Controls_Practice"
 "blank"			"=========================="
 "blank"			"#Valve_Combat_Title"
