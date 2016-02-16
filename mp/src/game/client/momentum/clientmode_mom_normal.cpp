@@ -5,6 +5,7 @@
 //=============================================================================
 #include "cbase.h"
 #include "clientmode_mom_normal.h"
+#include "momentum/mom_shareddefs.h"
 #include "vgui_int.h"
 #include "hud.h"
 #include <vgui/IInput.h>
@@ -52,7 +53,13 @@ protected:
         SetPaintBackgroundEnabled(false);
     }
 
-    //virtual void CreateDefaultPanels(void) { /* don't create any panels yet*/ }; We need panels!
+    virtual void CreateDefaultPanels(void) 
+    { 
+        AddNewPanel(CreatePanelByName(PANEL_TIMES), "PANEL_TIMES");
+
+        BaseClass::CreateDefaultPanels();// MOM_TODO: do we want the other panels?
+        /* don't create any panels yet*/ 
+    };
 };
 
 

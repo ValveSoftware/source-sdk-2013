@@ -18,4 +18,7 @@ typedef enum MOMGM
     MOMGM_ALLOWED, //not "official gamemode" but must be allowed for other reasons
     
 } GAMEMODES;
+
+#define PANEL_TIMES "times"
+
 #endif // MOM_SHAREDDEFS_H
