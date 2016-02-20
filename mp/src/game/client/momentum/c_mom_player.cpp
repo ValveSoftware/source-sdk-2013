@@ -17,7 +17,8 @@ END_RECV_TABLE()
 
 C_MomentumPlayer::C_MomentumPlayer()
 {
-
+    ConVarRef scissor("r_flashlightscissor");
+    scissor.SetValue("0");
 }
 
 C_MomentumPlayer::~C_MomentumPlayer()

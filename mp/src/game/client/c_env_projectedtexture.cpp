@@ -18,7 +18,7 @@
 #include "tier0/memdbgon.h"
 
 static ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
-static ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.0005", FCVAR_CHEAT  );
+static ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.00001", FCVAR_CHEAT  );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -151,24 +151,22 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 				VectorNormalize( vUp );
 			}
 		}
-		else
-		{
-			vForward = m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin();
-			VectorNormalize( vForward );
-
-			// JasonM - unimplemented
-			Assert (0);
-
-			//Quaternion q = DirectionToOrientation( dir );
-
-
-			//
-			// JasonM - set up vRight, vUp
-			//
-
-//			VectorNormalize( vRight );
-//			VectorNormalize( vUp );
-		}
+        else
+        {
+            // VXP: Fixing targeting
+            Vector vecToTarget;
+            QAngle vecAngles;
+            if (m_hTargetEntity == NULL)
+            {
+                vecAngles = GetAbsAngles();
+            }
+            else
+            {
+                vecToTarget = m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin();
+                VectorAngles(vecToTarget, vecAngles);
+            }
+            AngleVectors(vecAngles, &vForward, &vRight, &vUp);
+        }
 	}
 	else
 	{
@@ -221,15 +219,15 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 
 	g_pClientShadowMgr->SetFlashlightLightWorld( m_LightHandle, m_bLightWorld );
 
-	if ( bForceUpdate == false )
-	{
+	//if ( bForceUpdate == false )
+	//{
 		g_pClientShadowMgr->UpdateProjectedTexture( m_LightHandle, true );
-	}
+	//}
 }
 
 void C_EnvProjectedTexture::Simulate( void )
 {
-	UpdateLight( false );
+	UpdateLight( GetMoveParent() != NULL );
 
 	BaseClass::Simulate();
 }
