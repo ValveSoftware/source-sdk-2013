@@ -70,7 +70,7 @@ END_DATADESC()
 
 void CFuncTankTrain::Spawn( void )
 {
-	m_takedamage = true;
+	m_takedamage = DAMAGE_YES;
 	BaseClass::Spawn();
 }
 
