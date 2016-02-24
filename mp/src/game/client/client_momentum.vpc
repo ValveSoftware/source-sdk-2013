@@ -69,6 +69,7 @@ $Project "Client (Momentum)"
 				$File	"momentum\ui\timer.cpp"
                 $File   "momentum\ui\ClientTimesDisplay.h"
                 $File   "momentum\ui\ClientTimesDisplay.cpp"
+                $File	"hl2\hud_credits.cpp"
 			}
 
 			$File	"momentum\client_events.h"
