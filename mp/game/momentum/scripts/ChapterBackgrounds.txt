@@ -1,5 +1,4 @@
 "chapters"
 {
 	1	"background_01"
-    2   "background_02"
 }
