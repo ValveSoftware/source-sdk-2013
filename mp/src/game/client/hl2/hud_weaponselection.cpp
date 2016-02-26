@@ -253,6 +253,9 @@ void CHudWeaponSelection::OnThink( void )
 
 bool CHudWeaponSelection::HandleHudMenuInput(int iSlot)
 {
+    if (!IsHudMenuTakingInput())
+        return false;
+
     CHudMenuStatic *pHudMenu = dynamic_cast<CHudMenuStatic*>(GetHudMenu());
     if (pHudMenu)
     {
