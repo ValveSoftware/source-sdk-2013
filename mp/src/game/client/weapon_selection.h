@@ -81,7 +81,8 @@ public:
 	virtual bool IsHudMenuTakingInput();
 	virtual bool IsHudMenuPreventingWeaponSelection();
 
-	bool HandleHudMenuInput( int iSlot );
+	virtual bool HandleHudMenuInput( int iSlot );
+    virtual CHudElement* GetHudMenu();
 
 	static CBaseHudWeaponSelection *GetInstance();
 

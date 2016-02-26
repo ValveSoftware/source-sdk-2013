@@ -22,7 +22,6 @@ $Project "Client (Momentum)"
 {
 	$Folder	"Source Files"
 	{
-		$File	"hud_chat.cpp"
 		$File	"c_team_objectiveresource.cpp"
 		$File	"c_team_objectiveresource.h"
 
@@ -70,6 +69,8 @@ $Project "Client (Momentum)"
                 $File   "momentum\ui\ClientTimesDisplay.h"
                 $File   "momentum\ui\ClientTimesDisplay.cpp"
                 $File	"hl2\hud_credits.cpp"
+				$File   "hl2\hud_weaponselection.cpp"
+                $File	"hud_chat.cpp"
 			}
 
 			$File	"momentum\client_events.h"
@@ -133,9 +134,9 @@ $Project "Client (Momentum)"
 			$File   "momentum\c_mom_player.cpp"
 			$File   "momentum\c_mom_player.h"
 			$File   "momentum\c_te_shotgun_shot.cpp"
-			$File   "momentum\fx_cs_impacts.cpp"
 			$File   "momentum\fx_cs_muzzleflash.cpp"
 			$File   "momentum\fx_cs_weaponfx.cpp"
+            $File   "momentum\fx_mom_impacts.cpp"
 			$File   "$SRCDIR\game\shared\momentum\fx_cs_shared.h"
 			$File   "$SRCDIR\game\shared\momentum\fx_cs_shared.cpp"
             $File   "momentum\vgui_rootpanel_momentum.cpp"

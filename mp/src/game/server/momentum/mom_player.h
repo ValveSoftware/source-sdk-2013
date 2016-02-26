@@ -40,6 +40,9 @@ public:
         EmitSound("HL2Player.FlashLightOff");//MOM_TODO: change this?
     }
 
+    void Spawn();
+    void Precache();
+
     bool CanBreatheUnderwater() const { return true; }
 
     // LADDERS

@@ -27,6 +27,21 @@ CMomentumPlayer::~CMomentumPlayer()
 
 }
 
+void CMomentumPlayer::Precache()
+{
+    // Name of our entity's model
+#define	ENTITY_MODEL	"models/gibs/airboat_broken_engine.mdl"
+    PrecacheModel(ENTITY_MODEL);
+
+    BaseClass::Precache();
+}
+
+void CMomentumPlayer::Spawn()
+{
+    SetModel(ENTITY_MODEL);
+    BaseClass::Spawn();
+}
+
 void CMomentumPlayer::SurpressLadderChecks(const Vector& pos, const Vector& normal)
 {
     m_ladderSurpressionTimer.Start(1.0f);

@@ -7,6 +7,7 @@
 #include "cbase.h"
 #include "weapon_selection.h"
 #include "iclientmode.h"
+#include "hud_cp_menu.h"
 #include "history_resource.h"
 #include "input.h"
 #include "../hud_crosshair.h"
@@ -68,6 +69,11 @@ public:
 	virtual void HideSelection( void );
 
 	virtual void LevelInit();
+
+    //Momentum Overrides
+    virtual bool IsHudMenuTakingInput();
+    virtual bool HandleHudMenuInput(int);
+    virtual CHudElement *GetHudMenu();
 
 protected:
 	virtual void OnThink();
@@ -192,7 +198,8 @@ CHudWeaponSelection::CHudWeaponSelection( const char *pElementName ) : CBaseHudW
 {
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
-	m_bFadingOut = false;
+    m_bFadingOut = false;
+    SetHiddenBits(HIDEHUD_PLAYERDEAD);
 }
 
 //-----------------------------------------------------------------------------
@@ -244,6 +251,40 @@ void CHudWeaponSelection::OnThink( void )
 	}
 }
 
+bool CHudWeaponSelection::HandleHudMenuInput(int iSlot)
+{
+    CHudMenuStatic *pHudMenu = dynamic_cast<CHudMenuStatic*>(GetHudMenu());
+    if (pHudMenu)
+    {
+        pHudMenu->SelectMenuItem(iSlot);
+        return true;
+    }
+    else
+        return CBaseHudWeaponSelection::HandleHudMenuInput(iSlot);
+}
+
+bool CHudWeaponSelection::IsHudMenuTakingInput()
+{
+    CHudMenuStatic *pHudMenu = dynamic_cast<CHudMenuStatic*>(GetHudMenu());
+    if (pHudMenu)
+        return pHudMenu->IsMenuDisplayed();
+
+    return CBaseHudWeaponSelection::IsHudMenuTakingInput();
+}
+
+CHudElement *CHudWeaponSelection::GetHudMenu()
+{
+    C_CP_Menu *pHudMenu = (C_CP_Menu*) GET_HUDELEMENT(C_CP_Menu);
+    if (pHudMenu)
+        return pHudMenu;
+
+    CHudMenuStatic *pHudMenuStatic = (CHudMenuStatic*) GET_HUDELEMENT(CHudMenuStatic);
+    if (pHudMenuStatic)
+        return pHudMenuStatic;
+
+    return CBaseHudWeaponSelection::GetHudMenu();
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: returns true if the panel should draw
 //-----------------------------------------------------------------------------
@@ -262,7 +303,6 @@ bool CHudWeaponSelection::ShouldDraw()
 	bool bret = CBaseHudWeaponSelection::ShouldDraw();
 	if ( !bret )
 		return false;
-
 	// draw weapon selection a little longer if in fastswitch so we can see what we've selected
 	if ( hud_fastswitch.GetBool() && ( gpGlobals->curtime - m_flSelectionTime ) < (FASTSWITCH_DISPLAY_TIMEOUT + FASTSWITCH_FADEOUT_TIME) )
 		return true;

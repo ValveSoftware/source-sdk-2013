@@ -115,3 +115,9 @@ bool ClientModeMOMNormal::ShouldDrawCrosshair(void)
     return true;//MOM_TODO: reinstate the g_bRollingCredits when hud_credits is copied over.
     //return (g_bRollingCredits == false);
 }
+
+int ClientModeMOMNormal::HudElementKeyInput(int down, ButtonCode_t keynum, const char *pszCurrentBinding)
+{
+
+    return BaseClass::HudElementKeyInput(down, keynum, pszCurrentBinding);
+}

@@ -1,6 +1,7 @@
 #include "cbase.h"
 #include "kbutton.h"
 #include "input.h"
+#include "iclientmode.h"
 #include "momentum/mom_shareddefs.h"
 #include <game/client/iviewport.h>
 
