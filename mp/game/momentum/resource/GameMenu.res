@@ -47,22 +47,22 @@
 	}
 	"7"
 	{
-		"label" ""
-		"command" ""
+		"label" "#MOM_QuitToMenu"
+		"command" "engine disconnect"
 		"InGameOrder" "90"
+		"OnlyInGame" "1"
 	}
 	"8"
+	{
+		"label" ""
+		"command" ""
+		"InGameOrder" "100"
+	}
+	"9"
 	{
 		"label" "#GameUI_GameMenu_Quit"
 		"command" "QuitNoConfirm"
 		"InGameOrder" "110"
-	}
-	"9"
-	{
-		"label" "#MOM_QuitToMenu"
-		"command" "engine startupmenu"
-		"InGameOrder" "20"
-		"OnlyInGame" "1"
 	}
 }
 

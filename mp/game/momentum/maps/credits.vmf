@@ -1,8 +1,8 @@
 versioninfo
 {
 	"editorversion" "400"
-	"editorbuild" "6412"
-	"mapversion" "31"
+	"editorbuild" "6920"
+	"mapversion" "32"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "31"
+	"mapversion" "32"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -1094,7 +1094,7 @@ entity
 	"targetname" "credits"
 	connections
 	{
-		"OnCreditsDone" "commander,Command,startupmenu,0,-1"
+		"OnCreditsDone" "commander,Command,disconnect,0,-1"
 	}
 	"origin" "0 -112 32"
 	editor
