@@ -213,7 +213,7 @@ void CMomentum::PlayerSpawn(CBasePlayer* pPlayer)
         ConVarRef map("host_map");
         const char *pMapName = map.GetString();
 
-        if (gpGlobals->eLoadType == MapLoad_Background || !Q_strcmp(pMapName, "credits.bsp"))
+        if (gpGlobals->eLoadType == MapLoad_Background || !Q_strcmp(pMapName, "credits"))
         {
             //Hide timer/speedometer on background maps
             pPlayer->m_Local.m_iHideHUD |= HIDEHUD_WEAPONSELECTION;
@@ -226,7 +226,7 @@ void CMomentum::PlayerSpawn(CBasePlayer* pPlayer)
 
 
         //MOM_TODO: could this change to gamemode != ALLOWED ?
-        if (give_weapon.GetBool() && !Q_strcmp(pMapName, "credits.bsp") && !(Q_strnicmp(pMapName, "background", Q_strlen("background"))))
+        if (give_weapon.GetBool() && !Q_strcmp(pMapName, "credits") && !(Q_strnicmp(pMapName, "background", Q_strlen("background"))))
             pPlayer->Weapon_Create("weapon_momentum_gun");
         //MOM_TODO: keep track of holstering (convar?)
     }
