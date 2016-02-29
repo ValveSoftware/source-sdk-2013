@@ -55,10 +55,6 @@ public:
     void DoLateReflect();
     void CategorizePosition();
 
-    //Autobhop
-    virtual bool AllowAutoBhop(bool allowIt);
-    virtual bool AllowAutoBhop();
-
     // Duck
     virtual void Duck(void);
     virtual void FinishUnDuck(void);

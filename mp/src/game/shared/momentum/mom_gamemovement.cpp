@@ -168,16 +168,20 @@ bool CMomentumGameMovement::OnLadder(trace_t &trace)
 }
 
 void CMomentumGameMovement::HandleDuckingSpeedCrop()
+
 {
-    if (!m_iSpeedCropped && (player->GetFlags() & FL_DUCKING))
+    if (!m_iSpeedCropped & SPEED_CROPPED_DUCK)
     {
-        float frac = 0.34f;//0.33333333f;
-        mv->m_flForwardMove *= frac;
-        mv->m_flSideMove *= frac;
-        mv->m_flUpMove *= frac;
-        m_iSpeedCropped = true;
+        if ((mv->m_nButtons & IN_DUCK) || (player->m_Local.m_bDucking) || (player->GetFlags() & FL_DUCKING))
+        {
+            mv->m_flForwardMove *= DuckSpeedMultiplier;
+            mv->m_flSideMove *= DuckSpeedMultiplier;
+            mv->m_flUpMove *= DuckSpeedMultiplier;
+            m_iSpeedCropped |= SPEED_CROPPED_DUCK;
+        }
     }
 }
+
 
 bool CMomentumGameMovement::CanUnduck()
 {
