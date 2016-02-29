@@ -53,6 +53,10 @@ public:
     //SPAWNING
     CBaseEntity* EntSelectSpawnPoint();
 
+    //used by CMomentumGameMovement
+    bool m_duckUntilOnGround;
+    float m_flStamina;
+
     CNetworkVar(int, m_iShotsFired);
     CNetworkVar(int, m_iDirection);
     CNetworkVar(bool, m_bResumeZoom);

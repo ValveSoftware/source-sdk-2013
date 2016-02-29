@@ -55,6 +55,9 @@ public:
     void DoLateReflect();
     void CategorizePosition();
 
+    //Autobhop
+    virtual bool AllowAutoBhop(bool allowIt);
+    virtual bool AllowAutoBhop();
 
     // Duck
     virtual void Duck(void);
@@ -62,8 +65,8 @@ public:
     virtual void FinishDuck(void);
     virtual bool CanUnduck();
     virtual void HandleDuckingSpeedCrop();
-    virtual void CheckParameters(void) { BaseClass::CheckParameters(); }
-
+    virtual void CheckParameters(void);
+    virtual void ReduceTimers(void);
 private:
 
     float m_flReflectNormal = NO_REFL_NORMAL_CHANGE;//Used by rampboost fix

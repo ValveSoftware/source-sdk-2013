@@ -28,6 +28,8 @@ public:
     int m_iDirection;
     bool m_bResumeZoom;
     int m_iLastZoom;
+    bool m_duckUntilOnGround;
+    float m_flStamina;
 
     void GetBulletTypeParameters(
         int iBulletType,

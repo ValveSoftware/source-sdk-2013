@@ -13,6 +13,12 @@
 #define	STOP_EPSILON		0.1
 #define	MAX_CLIP_PLANES		5
 
+#define STAMINA_MAX				100.0
+#define STAMINA_COST_JUMP		25.0
+#define STAMINA_COST_FALL		20.0
+#define STAMINA_RECOVER_RATE	19.0
+#define CS_WALK_SPEED			135.0f
+
 extern bool g_bMovementOptimizations;
 // remove this eventually
 ConVar sv_ramp_fix("sv_ramp_fix", "1");
@@ -56,6 +62,28 @@ float CMomentumGameMovement::ClimbSpeed(void) const
 
 void CMomentumGameMovement::WalkMove()
 {
+    //MOM_TODO: enable this via some timer command or something so we can have stamina for scroll/kz modes
+    /*
+    if (player->m_flStamina > 0)
+    {
+        float flRatio;
+
+        flRatio = (STAMINA_MAX - ((player->m_flStamina / 1000.0) * STAMINA_RECOVER_RATE)) / STAMINA_MAX;
+
+        // This Goldsrc code was run with variable timesteps and it had framerate dependencies.
+        // People looking at Goldsrc for reference are usually 
+        // (these days) measuring the stoppage at 60fps or greater, so we need
+        // to account for the fact that Goldsrc was applying more stopping power
+        // since it applied the slowdown across more frames.
+        float flReferenceFrametime = 1.0f / 70.0f;
+        float flFrametimeRatio = gpGlobals->frametime / flReferenceFrametime;
+
+        flRatio = pow(flRatio, flFrametimeRatio);
+
+        mv->m_vecVelocity.x *= flRatio;
+        mv->m_vecVelocity.y *= flRatio;
+    }
+    */
     BaseClass::WalkMove();
     CheckForLadders(player->GetGroundEntity() != NULL);
 }
@@ -186,6 +214,9 @@ void CMomentumGameMovement::Duck(void)
     int buttonsPressed = buttonsChanged & mv->m_nButtons;			// The changed ones still down are "pressed"
     int buttonsReleased = buttonsChanged & mv->m_nOldButtons;		// The changed ones which were previously down are "released"
 
+    // Check to see if we are in the air.
+    bool bInAir = player->GetGroundEntity() == NULL && player->GetMoveType() != MOVETYPE_LADDER;
+
     if (mv->m_nButtons & IN_DUCK)
     {
         mv->m_nOldButtons |= IN_DUCK;
@@ -207,6 +238,49 @@ void CMomentumGameMovement::Duck(void)
 
     HandleDuckingSpeedCrop();
 
+    if (player->m_duckUntilOnGround)
+    {
+        if (!bInAir)
+        {
+            player->m_duckUntilOnGround = false;
+            if (CanUnduck())
+            {
+                FinishUnDuck();
+            }
+            return;
+        }
+        else
+        {
+            if (mv->m_vecVelocity.z > 0.0f)
+                return;
+
+            // Check if we can un-duck.  We want to unduck if we have space for the standing hull, and
+            // if it is less than 2 inches off the ground.
+            trace_t trace;
+            Vector newOrigin;
+            Vector groundCheck;
+
+            VectorCopy(mv->GetAbsOrigin(), newOrigin);
+            Vector hullSizeNormal = VEC_HULL_MAX - VEC_HULL_MIN;
+            Vector hullSizeCrouch = VEC_DUCK_HULL_MAX - VEC_DUCK_HULL_MIN;
+            newOrigin -= (hullSizeNormal - hullSizeCrouch);
+            groundCheck = newOrigin;
+            groundCheck.z -= player->GetStepSize();
+
+            UTIL_TraceHull(newOrigin, groundCheck, VEC_HULL_MIN, VEC_HULL_MAX, PlayerSolidMask(), player, COLLISION_GROUP_PLAYER_MOVEMENT, &trace);
+
+            if (trace.startsolid || trace.fraction == 1.0f)
+                return; // Can't even stand up, or there's no ground underneath us
+
+            player->m_duckUntilOnGround = false;
+            if (CanUnduck())
+            {
+                FinishUnDuck();
+            }
+            return;
+        }
+    }
+
     // Holding duck, in process of ducking or fully ducked?
     if ((mv->m_nButtons & IN_DUCK) || (player->m_Local.m_bDucking) || (player->GetFlags() & FL_DUCKING))
     {
@@ -221,7 +295,7 @@ void CMomentumGameMovement::Duck(void)
                 player->m_Local.m_bDucking = true;
             }
 
-            float duckmilliseconds = max(0.0f, 1000.0f - (float) player->m_Local.m_flDucktime);
+            float duckmilliseconds = max(0.0f, 1000.0f - (float)player->m_Local.m_flDucktime);
             float duckseconds = duckmilliseconds / 1000.0f;
 
             //time = max( 0.0, ( 1.0 - (float)player->m_Local.m_flDucktime / 1000.0 ) );
@@ -256,7 +330,7 @@ void CMomentumGameMovement::Duck(void)
                     player->m_Local.m_bDucking = true;  // or unducking
                 }
 
-                float duckmilliseconds = max(0.0f, 1000.0f - (float) player->m_Local.m_flDucktime);
+                float duckmilliseconds = max(0.0f, 1000.0f - (float)player->m_Local.m_flDucktime);
                 float duckseconds = duckmilliseconds / 1000.0f;
 
                 if (CanUnduck())
@@ -332,6 +406,7 @@ void CMomentumGameMovement::FinishUnDuck(void)
 //-----------------------------------------------------------------------------
 void CMomentumGameMovement::FinishDuck(void)
 {
+
     Vector hullSizeNormal = VEC_HULL_MAX - VEC_HULL_MIN;
     Vector hullSizeCrouch = VEC_DUCK_HULL_MAX - VEC_DUCK_HULL_MIN;
 
@@ -365,6 +440,7 @@ void CMomentumGameMovement::FinishDuck(void)
     // Recategorize position since ducking can change origin
     CategorizePosition();
 }
+
 
 
 void CMomentumGameMovement::PlayerMove()
@@ -477,6 +553,7 @@ bool CMomentumGameMovement::CheckJumpButton()
         return false;		// in air, so no effect
     }
 
+    //MOM_TODO: Enable or disable this via a command
     //if (mv->m_nOldButtons & IN_JUMP)
     //	return false;		// don't pogo stick
 
@@ -497,7 +574,7 @@ bool CMomentumGameMovement::CheckJumpButton()
     // if we weren't ducking, bots and hostages do a crouchjump programatically
     if ((!player || player->IsBot()) && !(mv->m_nButtons & IN_DUCK))
     {
-        //player->m_duckUntilOnGround = true;
+        player->m_duckUntilOnGround = true;
         FinishDuck();
     }
 
@@ -512,7 +589,19 @@ bool CMomentumGameMovement::CheckJumpButton()
     {
         mv->m_vecVelocity[2] += flGroundFactor * sqrt(2 * 800 * 57.0);  // 2 * gravity * height
     }
+    //MOM_TODO: enable this via command or something for scroll/kz modes
+    /*
+    if (player->m_flStamina > 0)
+    {
+        float flRatio;
 
+        flRatio = (STAMINA_MAX - ((player->m_flStamina / 1000.0) * STAMINA_RECOVER_RATE)) / STAMINA_MAX;
+
+        mv->m_vecVelocity[2] *= flRatio;
+    }
+
+    player->m_flStamina = (STAMINA_COST_JUMP / STAMINA_RECOVER_RATE) * 1000.0;
+    */
     FinishGravity();
 
     mv->m_outWishVel.z += mv->m_vecVelocity[2] - startz;
@@ -1193,6 +1282,35 @@ void CMomentumGameMovement::CategorizeGroundSurface(trace_t &pm)
         player->m_surfaceFriction = 1.0f;//fix for snow friction
 
     player->m_chTextureType = player->m_pSurfaceData->game.material;
+}
+
+void CMomentumGameMovement::CheckParameters(void)
+{
+    QAngle	v_angle;
+
+    //shift-walking useful for some maps with tight jumps
+    if (mv->m_nButtons & IN_SPEED)
+    {
+        mv->m_flClientMaxSpeed = CS_WALK_SPEED;
+    }
+
+    BaseClass::CheckParameters();
+}
+void CMomentumGameMovement::ReduceTimers(void)
+{
+    float frame_msec = 1000.0f * gpGlobals->frametime;
+
+    if (player->m_flStamina > 0)
+    {
+        player->m_flStamina -= frame_msec;
+
+        if (player->m_flStamina < 0)
+        {
+            player->m_flStamina = 0;
+        }
+    }
+
+    BaseClass::ReduceTimers();
 }
 
 // Expose our interface.
