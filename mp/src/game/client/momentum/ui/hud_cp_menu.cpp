@@ -21,11 +21,12 @@ DECLARE_HUDELEMENT(C_CP_Menu);
 CON_COMMAND(showCPmenu, "Opens the Checkpoint Menu.\n")
 {
     C_CP_Menu *cpMenu = GET_HUDELEMENT(C_CP_Menu);
-    if (!cpMenu || cpMenu->IsMenuDisplayed()) return;
+    if (!cpMenu) 
+        return;
+    else if (cpMenu->IsMenuDisplayed())
+        cpMenu->HideMenu();
     else
-    {
         cpMenu->ShowMenu();
-    }
 }
 
 //Overridden for CP menu functionality
