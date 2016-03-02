@@ -418,7 +418,7 @@ public:
         if (args.ArgC() > 1)
         {
             int sel = Q_atoi(args[1]);
-            CBasePlayer* cPlayer = UTIL_GetLocalPlayer();
+            CBasePlayer* cPlayer = UTIL_GetCommandClient();
             switch (sel)
             {
             case 1://create a checkpoint
