@@ -40,6 +40,7 @@ void CMomentumPlayer::Spawn()
 {
     SetModel(ENTITY_MODEL);
     BaseClass::Spawn();
+    AddFlag(FL_GODMODE);
 }
 
 void CMomentumPlayer::SurpressLadderChecks(const Vector& pos, const Vector& normal)

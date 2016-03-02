@@ -18,7 +18,7 @@ public:
     CMOMPlayerMove() :
         m_bWasInVehicle(false),
         m_bVehicleFlipped(false),
-        m_bInGodMode(false),
+        m_bInGodMode(true),
         m_bInNoClip(false)
     {
         m_vecSaveOrigin.Init();
