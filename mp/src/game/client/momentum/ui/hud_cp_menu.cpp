@@ -10,17 +10,12 @@ make checkpoints available for output to files
 */
 using namespace vgui;
 
-C_CP_Menu::C_CP_Menu(const char *pElementName) : CHudMenuStatic(pElementName)
-{
-    //SetHiddenBits(HIDEHUD_WEAPONSELECTION);
-};
-
-DECLARE_HUDELEMENT(C_CP_Menu);
+DECLARE_HUDELEMENT(CHudCPMenu);
 
 
 CON_COMMAND(showCPmenu, "Opens the Checkpoint Menu.\n")
 {
-    C_CP_Menu *cpMenu = GET_HUDELEMENT(C_CP_Menu);
+    CHudCPMenu *cpMenu = GET_HUDELEMENT(CHudCPMenu);
     if (!cpMenu) 
         return;
     else if (cpMenu->IsMenuDisplayed())
@@ -30,13 +25,13 @@ CON_COMMAND(showCPmenu, "Opens the Checkpoint Menu.\n")
 }
 
 //Overridden for CP menu functionality
-void C_CP_Menu::SelectMenuItem(int menu_item)
+void CHudCPMenu::SelectMenuItem(int menu_item)
 {
     engine->ServerCmd(VarArgs("cpmenu %i", menu_item));
     BaseClass::SelectMenuItem(menu_item);
 }
 
-void C_CP_Menu::ShowMenu()
+void CHudCPMenu::ShowMenu()
 {
     engine->ServerCmd("cpmenu");
     KeyValues* pKv = new KeyValues("CP Menu");

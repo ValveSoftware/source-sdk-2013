@@ -1,12 +1,14 @@
 #include "cbase.h"
 #include "hud_menu_static.h"
 
-class C_CP_Menu : public CHudMenuStatic {
+class CHudCPMenu : public CHudMenuStatic {
 
-	DECLARE_CLASS_SIMPLE(C_CP_Menu, CHudMenuStatic);
+	DECLARE_CLASS_SIMPLE(CHudCPMenu, CHudMenuStatic);
 
 public:
-	C_CP_Menu(const char*);
+    //This constructor (name) is determined by the DECLARE_HUDELEMENT macro,
+    //which means this element will be called CHudCPMenu in engine
+    CHudCPMenu::CHudCPMenu(const char *pElementName) : CHudMenuStatic(pElementName) {};
 
 	//Overrides
     virtual void ShowMenu();

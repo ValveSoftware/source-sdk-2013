@@ -277,7 +277,7 @@ bool CHudWeaponSelection::IsHudMenuTakingInput()
 
 CHudElement *CHudWeaponSelection::GetHudMenu()
 {
-    C_CP_Menu *pHudMenu = (C_CP_Menu*) GET_HUDELEMENT(C_CP_Menu);
+    CHudCPMenu *pHudMenu = (CHudCPMenu*) GET_HUDELEMENT(CHudCPMenu);
     if (pHudMenu)
         return pHudMenu;
 

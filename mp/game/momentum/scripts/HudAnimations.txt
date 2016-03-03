@@ -4,13 +4,13 @@ event LevelInit
 
 event MenuPulse
 {
-	Animate CPMenu		Blur		"7"			Linear	0.0		0.1
-	Animate CPMenu		Blur		"2"			Deaccel	0.1		0.1
-	Animate CPMenu		Blur		"7"			Linear	0.2		0.1
-	Animate CPMenu		Blur		"2"			Deaccel	0.3		0.1
-	Animate CPMenu		Blur		"7"			Linear	0.4		0.1
-	Animate CPMenu		Blur		"2"			Deaccel	0.5		0.1
-	Animate	CPMenu		Blur		"1"			Deaccel	0.6		0.4
+	Animate CHudMenuStatic		Blur		"7"			Linear	0.0		0.1
+	Animate CHudMenuStatic		Blur		"2"			Deaccel	0.1		0.1
+	Animate CHudMenuStatic		Blur		"7"			Linear	0.2		0.1
+	Animate CHudMenuStatic		Blur		"2"			Deaccel	0.3		0.1
+	Animate CHudMenuStatic		Blur		"7"			Linear	0.4		0.1
+	Animate CHudMenuStatic		Blur		"2"			Deaccel	0.5		0.1
+	Animate	CHudMenuStatic		Blur		"1"			Deaccel	0.6		0.4
 }
 
 event MenuOpen
@@ -18,25 +18,25 @@ event MenuOpen
 	StopEvent	MenuClose 0.0 
 
 	// fade in
-	Animate CPMenu Alpha 		"255"		Linear 0.0 0.1
-	Animate CPMenu SelectionAlpha 	"255"		Linear 0.0 0.1
-	Animate CPMenu FgColor		"FgColor"		Linear 0.0 0.1
-	Animate CPMenu MenuColor		"MenuColor"	Linear  0.0 0.1
-	Animate CPMenu ItemColor		"ItemColor"	Linear 0.0 0.1
-	Animate CPMenu TextScan		"1"		Linear 0.0 0.1
+	Animate CHudMenuStatic Alpha 		"255"		Linear 0.0 0.1
+	Animate CHudMenuStatic SelectionAlpha 	"255"		Linear 0.0 0.1
+	Animate CHudMenuStatic FgColor		"FgColor"		Linear 0.0 0.1
+	Animate CHudMenuStatic MenuColor		"MenuColor"	Linear  0.0 0.1
+	Animate CHudMenuStatic ItemColor		"ItemColor"	Linear 0.0 0.1
+	Animate CHudMenuStatic TextScan		"1"		Linear 0.0 0.1
 
 	// Undo any blur
-	Animate CPMenu		Blur		"1"			Linear	0.0		0.01
+	Animate CHudMenuStatic		Blur		"1"			Linear	0.0		0.01
 }
 
 event MenuClose
 {	
 	// Hide it
-	Animate CPMenu Alpha 		"0" Linear 0.0 1
-	Animate CPMenu SelectionAlpha 	"0" Linear 0.0 1
-	Animate CPMenu FgColor		"0 0 0 0" Linear 0.0 1
-	Animate CPMenu MenuColor		"0 0 0 0" Linear 0.0 1
-	Animate CPMenu ItemColor		"0 0 0 0" Linear 0.0 1
+	Animate CHudCPMenu Alpha 		"0" Linear 0.0 1
+	Animate CHudCPMenu SelectionAlpha 	"0" Linear 0.0 1
+	Animate CHudCPMenu FgColor		"0 0 0 0" Linear 0.0 1
+	Animate CHudCPMenu MenuColor		"0 0 0 0" Linear 0.0 1
+	Animate CHudCPMenu ItemColor		"0 0 0 0" Linear 0.0 1
 }
 
 event WeaponHighlight

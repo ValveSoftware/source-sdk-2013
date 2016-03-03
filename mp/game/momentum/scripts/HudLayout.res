@@ -1,5 +1,6 @@
 "Resource/HudLayout.res"
 {
+    //Speedometer
 	HudSpeedMeter
 		{
 				"fieldName"		"HudSpeedMeter"
@@ -15,6 +16,7 @@
                 "digit_xpos"	"50"
                 "digit_ypos"	"2"
 				}
+    //Timer
 	HudTimer
 		{
 				"fieldName"		"HudTimer"
@@ -36,9 +38,10 @@
 				"stage_xpos"	"50"
 				"stage_ypos"	"34"
 				}
-	CPMenu
+    //Checkpoint Menu
+	CHudCPMenu
 	{
-		"fieldName" "CPMenu"
+		"fieldName" "CHudCPMenu"
 		"PaintBackgroundType" "2"
 		"enabled" "1"
 		"visible" "1"
