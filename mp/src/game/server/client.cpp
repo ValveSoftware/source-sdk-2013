@@ -736,14 +736,14 @@ void kill_helper( const CCommand &args, bool bExplode )
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-CON_COMMAND(kill, "Kills the player with generic damage", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN)
+CON_COMMAND( kill, "Kills the player with generic damage" )
 {
 	kill_helper( args, false );
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-CON_COMMAND(explode, "Kills the player with explosive damage", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN)
+CON_COMMAND( explode, "Kills the player with explosive damage" )
 {
 	kill_helper( args, true );
 }
@@ -779,16 +779,14 @@ void killvector_helper( const CCommand &args, bool bExplode )
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-CON_COMMAND_F(killvector, "Kills a player applying force. Usage: killvector <player> <x value> <y value> <z value>", 
-    FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN)
+CON_COMMAND_F( killvector, "Kills a player applying force. Usage: killvector <player> <x value> <y value> <z value>", FCVAR_CHEAT )
 {
 	killvector_helper( args, false );
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-CON_COMMAND_F(explodevector, "Kills a player applying an explosive force. Usage: explodevector <player> <x value> <y value> <z value>", 
-    FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN)
+CON_COMMAND_F( explodevector, "Kills a player applying an explosive force. Usage: explodevector <player> <x value> <y value> <z value>", FCVAR_CHEAT )
 {
 	killvector_helper( args, false );
 }
