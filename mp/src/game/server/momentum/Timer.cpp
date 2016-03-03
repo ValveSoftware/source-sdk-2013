@@ -363,7 +363,7 @@ class CTimerCommands
 public:
     static void ResetToStart()
     {
-        CBasePlayer* cPlayer = UTIL_GetLocalPlayer();
+        CBasePlayer* cPlayer = UTIL_GetCommandClient();
         CTriggerTimerStart *start;
         if ((start = g_Timer.GetStartTrigger()) != NULL && cPlayer)
         {
@@ -384,7 +384,7 @@ public:
     static void ResetToCheckpoint()
     {
         CTriggerStage *stage;
-        CBaseEntity* pPlayer = UTIL_GetLocalPlayer();
+        CBaseEntity* pPlayer = UTIL_GetCommandClient();
         if ((stage = g_Timer.GetCurrentStage()) != NULL && pPlayer)
         {
             pPlayer->Teleport(&stage->WorldSpaceCenter(), NULL, &vec3_origin);
@@ -467,7 +467,7 @@ public:
 
     static void PracticeMove()
     {
-        CBasePlayer *pPlayer = ToBasePlayer(UTIL_GetCommandClient());
+        CBasePlayer *pPlayer = UTIL_GetCommandClient();
         if (!pPlayer)
             return;
         Vector velocity = pPlayer->GetAbsVelocity();
