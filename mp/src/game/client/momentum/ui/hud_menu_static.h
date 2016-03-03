@@ -42,7 +42,6 @@ public:
     virtual void SelectMenuItem(int menu_item);
     virtual void ShowMenu();
 
-
     void		ProcessText(void);
     void ShowMenu_KeyValueItems(KeyValues *pKV);
     virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
