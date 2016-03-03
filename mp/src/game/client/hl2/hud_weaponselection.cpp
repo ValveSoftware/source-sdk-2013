@@ -7,7 +7,7 @@
 #include "cbase.h"
 #include "weapon_selection.h"
 #include "iclientmode.h"
-#include "hud_cp_menu.h"
+#include "hud_menu_static.h"
 #include "history_resource.h"
 #include "input.h"
 #include "../hud_crosshair.h"
