@@ -72,8 +72,6 @@ public:
 
     //Momentum Overrides
     virtual bool IsHudMenuTakingInput();
-    virtual bool HandleHudMenuInput(int);
-    virtual CHudElement *GetHudMenu();
 
 protected:
 	virtual void OnThink();
@@ -251,41 +249,17 @@ void CHudWeaponSelection::OnThink( void )
 	}
 }
 
-bool CHudWeaponSelection::HandleHudMenuInput(int iSlot)
-{
-    if (!IsHudMenuTakingInput())
-        return false;
-
-    CHudMenuStatic *pHudMenu = dynamic_cast<CHudMenuStatic*>(GetHudMenu());
-    if (pHudMenu)
-    {
-        pHudMenu->SelectMenuItem(iSlot);
-        return true;
-    }
-    else
-        return CBaseHudWeaponSelection::HandleHudMenuInput(iSlot);
-}
-
+//-----------------------------------------------------------------------------
+// Purpose: This override is needed so that weapon selection does not happen when a custom static
+// menu is open.
+//-----------------------------------------------------------------------------
 bool CHudWeaponSelection::IsHudMenuTakingInput()
 {
-    CHudMenuStatic *pHudMenu = dynamic_cast<CHudMenuStatic*>(GetHudMenu());
+    CHudMenuStatic *pHudMenu = dynamic_cast<CHudMenuStatic*>(GET_HUDELEMENT(CHudMenuStatic));
     if (pHudMenu)
         return pHudMenu->IsMenuDisplayed();
 
     return CBaseHudWeaponSelection::IsHudMenuTakingInput();
-}
-
-CHudElement *CHudWeaponSelection::GetHudMenu()
-{
-    CHudCPMenu *pHudMenu = (CHudCPMenu*) GET_HUDELEMENT(CHudCPMenu);
-    if (pHudMenu)
-        return pHudMenu;
-
-    CHudMenuStatic *pHudMenuStatic = (CHudMenuStatic*) GET_HUDELEMENT(CHudMenuStatic);
-    if (pHudMenuStatic)
-        return pHudMenuStatic;
-
-    return CBaseHudWeaponSelection::GetHudMenu();
 }
 
 //-----------------------------------------------------------------------------

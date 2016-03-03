@@ -1,5 +1,5 @@
 #include "cbase.h"
-#include "hud_cp_menu.h"
+#include "hud_menu_static.h"
 
 #include "tier0/memdbgon.h"
 /*
@@ -10,37 +10,29 @@ make checkpoints available for output to files
 */
 using namespace vgui;
 
-DECLARE_HUDELEMENT(CHudCPMenu);
-
+static void SelectMenuItem(int menu_item)
+{
+    engine->ServerCmd(VarArgs("cpmenu %i", menu_item));
+}
 
 CON_COMMAND(showCPmenu, "Opens the Checkpoint Menu.\n")
 {
-    CHudCPMenu *cpMenu = GET_HUDELEMENT(CHudCPMenu);
+    CHudMenuStatic *cpMenu = GET_HUDELEMENT(CHudMenuStatic);
     if (!cpMenu) 
         return;
     else if (cpMenu->IsMenuDisplayed())
-        cpMenu->HideMenu();
+        cpMenu->HideMenu();//MOM_TODO: if another menu is open this will close it!
     else
-        cpMenu->ShowMenu();
-}
-
-//Overridden for CP menu functionality
-void CHudCPMenu::SelectMenuItem(int menu_item)
-{
-    engine->ServerCmd(VarArgs("cpmenu %i", menu_item));
-    BaseClass::SelectMenuItem(menu_item);
-}
-
-void CHudCPMenu::ShowMenu()
-{
-    engine->ServerCmd("cpmenu");
-    KeyValues* pKv = new KeyValues("CP Menu");
-    pKv->AddSubKey(new KeyValues("#MOM_Menu_CreateCP"));
-    pKv->AddSubKey(new KeyValues("#MOM_Menu_ToPreviousCP"));
-    pKv->AddSubKey(new KeyValues("#MOM_Menu_ToNextCP"));
-    pKv->AddSubKey(new KeyValues("#MOM_Menu_ToLastCP"));
-    pKv->AddSubKey(new KeyValues("#MOM_Menu_RemoveCurrentCP"));
-    pKv->AddSubKey(new KeyValues("#MOM_Menu_RemoveEveryCP"));
-    BaseClass::ShowMenu_KeyValueItems(pKv);
-    pKv->deleteThis();
+    {
+        engine->ServerCmd("cpmenu");
+        KeyValues* pKv = new KeyValues("CP Menu");
+        pKv->AddSubKey(new KeyValues("#MOM_Menu_CreateCP"));
+        pKv->AddSubKey(new KeyValues("#MOM_Menu_ToPreviousCP"));
+        pKv->AddSubKey(new KeyValues("#MOM_Menu_ToNextCP"));
+        pKv->AddSubKey(new KeyValues("#MOM_Menu_ToLastCP"));
+        pKv->AddSubKey(new KeyValues("#MOM_Menu_RemoveCurrentCP"));
+        pKv->AddSubKey(new KeyValues("#MOM_Menu_RemoveEveryCP"));
+        cpMenu->ShowMenu(pKv, SelectMenuItem);
+        pKv->deleteThis();
+    }
 }

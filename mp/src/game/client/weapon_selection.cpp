@@ -368,7 +368,7 @@ void CBaseHudWeaponSelection::UserCmd_Slot10(void)
 //-----------------------------------------------------------------------------
 bool CBaseHudWeaponSelection::IsHudMenuTakingInput()
 {
-    CHudMenu *pHudMenu = (CHudMenu*) GetHudMenu();
+    CHudMenu *pHudMenu = (CHudMenu*) GET_HUDELEMENT(CHudMenu);
 	return ( pHudMenu && pHudMenu->IsMenuOpen() );
 }
 
@@ -380,7 +380,7 @@ bool CBaseHudWeaponSelection::HandleHudMenuInput( int iSlot )
     if (!IsHudMenuTakingInput())
         return false;
 
-    CHudMenu *pHudMenu = (CHudMenu*)GetHudMenu();
+    CHudMenu *pHudMenu = (CHudMenu*) GET_HUDELEMENT(CHudMenu);
 
     if (pHudMenu)
     {
@@ -389,14 +389,6 @@ bool CBaseHudWeaponSelection::HandleHudMenuInput( int iSlot )
     }
     else
         return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns the CHudMenu that is open.
-//-----------------------------------------------------------------------------
-CHudElement *CBaseHudWeaponSelection::GetHudMenu()
-{
-    return GET_HUDELEMENT(CHudMenu);
 }
 
 //-----------------------------------------------------------------------------

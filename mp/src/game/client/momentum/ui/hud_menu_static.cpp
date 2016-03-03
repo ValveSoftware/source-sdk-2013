@@ -27,12 +27,6 @@ bool CHudMenuStatic::IsMenuDisplayed()
     return m_bMenuDisplayed && m_bMenuTakesInput;
 }
 
-//Override this!
-void CHudMenuStatic::ShowMenu()
-{
-
-}
-
 void CHudMenuStatic::Init(void)
 {
     m_nSelectedItem = -1;
@@ -85,6 +79,9 @@ void CHudMenuStatic::HideMenu(void)
 //Overridden because we want the menu to stay up after selection
 void CHudMenuStatic::SelectMenuItem(int menu_item)
 {
+    if (SelectFunc)
+        SelectFunc(menu_item);
+
     m_flSelectionTime = gpGlobals->realtime;
     m_nSelectedItem = menu_item;
     g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("MenuPulse");

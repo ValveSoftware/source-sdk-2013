@@ -82,6 +82,7 @@ protected:
 //-----------------------------------------------------------------------------
 ClientModeMOMNormal::ClientModeMOMNormal()
 {
+    m_pHudMenuStatic = NULL;
     m_pViewport = new CHudViewport();
     m_pViewport->Start(gameuifuncs, gameeventmanager);
 }
@@ -102,6 +103,8 @@ void ClientModeMOMNormal::Init()
 {
     BaseClass::Init();
 
+    m_pHudMenuStatic = static_cast<CHudMenuStatic*>(GET_HUDELEMENT(CHudMenuStatic));
+
     // Load up the combine control panel scheme
     g_hVGuiCombineScheme = vgui::scheme()->LoadSchemeFromFileEx(enginevgui->GetPanel(PANEL_CLIENTDLL), IsXbox() ? "resource/ClientScheme.res" : "resource/CombinePanelScheme.res", "CombineScheme");
     if (!g_hVGuiCombineScheme)
@@ -118,6 +121,14 @@ bool ClientModeMOMNormal::ShouldDrawCrosshair(void)
 
 int ClientModeMOMNormal::HudElementKeyInput(int down, ButtonCode_t keynum, const char *pszCurrentBinding)
 {
-
+    if (m_pHudMenuStatic && m_pHudMenuStatic->IsMenuDisplayed())
+    {
+        if (down >= 1 && keynum >= KEY_0 && keynum <= KEY_9)
+        {
+            m_pHudMenuStatic->SelectMenuItem(keynum - KEY_0);
+            return 0;//The hud menu static swallowed the key input
+        }
+    }
+        
     return BaseClass::HudElementKeyInput(down, keynum, pszCurrentBinding);
 }

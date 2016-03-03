@@ -13,6 +13,7 @@
 #endif
 
 #include "clientmode_shared.h"
+#include "hud_menu_static.h"
 #include <vgui_controls/EditablePanel.h>
 #include <vgui/Cursor.h>
 
@@ -38,6 +39,9 @@ public:
     virtual void	Init();
     virtual bool	ShouldDrawCrosshair(void);
     virtual int HudElementKeyInput(int down, ButtonCode_t keynum, const char *pszCurrentBinding);
+
+private:
+    CHudMenuStatic *m_pHudMenuStatic;
 };
 
 extern IClientMode *GetClientModeNormal();

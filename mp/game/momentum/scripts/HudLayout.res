@@ -38,15 +38,12 @@
 				"stage_xpos"	"50"
 				"stage_ypos"	"34"
 				}
-    //Checkpoint Menu
-	CHudCPMenu
-	{
-		"fieldName" "CHudCPMenu"
-		"PaintBackgroundType" "2"
-		"enabled" "1"
-		"visible" "1"
-		"MenuItemColor" "255 220 0 100"
-	}
+    //The design for in-game menus            
+    CHudMenuStatic
+    {
+         "fieldName" "CHudMenuStatic"
+         //You can override "MenuItemColor" etc here (I think)
+    }    
 	HudHealth [$WIN32]
 	{
 		"fieldName"		"HudHealth"

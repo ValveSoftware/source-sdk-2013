@@ -32,11 +32,11 @@ event MenuOpen
 event MenuClose
 {	
 	// Hide it
-	Animate CHudCPMenu Alpha 		"0" Linear 0.0 1
-	Animate CHudCPMenu SelectionAlpha 	"0" Linear 0.0 1
-	Animate CHudCPMenu FgColor		"0 0 0 0" Linear 0.0 1
-	Animate CHudCPMenu MenuColor		"0 0 0 0" Linear 0.0 1
-	Animate CHudCPMenu ItemColor		"0 0 0 0" Linear 0.0 1
+	Animate CHudMenuStatic Alpha 		"0" Linear 0.0 1
+	Animate CHudMenuStatic SelectionAlpha 	"0" Linear 0.0 1
+	Animate CHudMenuStatic FgColor		"0 0 0 0" Linear 0.0 1
+	Animate CHudMenuStatic MenuColor		"0 0 0 0" Linear 0.0 1
+	Animate CHudMenuStatic ItemColor		"0 0 0 0" Linear 0.0 1
 }
 
 event WeaponHighlight

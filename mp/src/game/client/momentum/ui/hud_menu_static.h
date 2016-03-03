@@ -39,15 +39,23 @@ public:
     void OnThink();
 
     //Overrides
+    //Called from a CON_COMMAND most likely.
+    //kv is the menu items, SelecFunc is the override/custom code for SelectMenuItem
+    virtual void ShowMenu(KeyValues* kv, void(*SelecFunc)(int))
+    {
+        SelectFunc = SelecFunc;
+        ShowMenu_KeyValueItems(kv);
+    }
     virtual void SelectMenuItem(int menu_item);
-    virtual void ShowMenu();
-
+    
     void		ProcessText(void);
     void ShowMenu_KeyValueItems(KeyValues *pKV);
     virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
     void PaintString(const wchar_t *text, int textlen, vgui::HFont& font, int x, int y);
 
 private:
+    void(*SelectFunc)(int);
+
     struct ProcessedLine
     {
         int	menuitem; // -1 for just text
@@ -70,7 +78,7 @@ private:
     bool			m_bMenuTakesInput;
     float           m_flSelectionTime;
 
-protected:
+private:
     CPanelAnimationVar(Color, m_TextColor, "TextColor", "FgColor");
     CPanelAnimationVar(vgui::HFont, textFont, "TextFont", "Default");
     CPanelAnimationVar(float, m_flOpenCloseTime, "OpenCloseTime", "1");
