@@ -227,6 +227,36 @@ private:
 
 };
 
+// CTriggerLimitMovement
+class CTriggerLimitMovement : public CBaseMomentumTrigger
+{
+    DECLARE_CLASS(CTriggerLimitMovement, CBaseMomentumTrigger);
+    DECLARE_DATADESC();
+
+public:
+    void Think();
+    void StartTouch(CBaseEntity *pOther);
+    void EndTouch(CBaseEntity *pOther);
+    COutputEvent m_nTryMove;
+
+private:
+    int m_ButtonRep;
+    //prevent player from jumping
+    const int LIMIT_JUMP = 0x2;
+    //prevent player from croching
+    const int LIMIT_CROUCH = 0x4;
+    //prevent player from bhopping
+    const int LIMIT_BHOP = 0x8;
+
+    enum limitMovementType
+    {
+        isLimitJump = 0,
+        isLimitCrouch,
+        isLimitBhop,
+    };
+};
+
+
 // CFuncShootBoost
 class CFuncShootBoost : public CBreakable
 {

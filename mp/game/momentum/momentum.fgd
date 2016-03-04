@@ -1,4 +1,4 @@
-@include "base.fgd"
+            @include "base.fgd"
 
 //-------------------------------------------------------------------------
 //
@@ -86,6 +86,17 @@
 	]
 ]
 
+@SolidClass base(Trigger) = trigger_momentum_limitmovement : "Trigger that prevents the player from doing specific movements."
+[
+	output OnTryMove(void) : "Fires when the player tries a specific movement"
+	spawnflags(flags) = 
+	[ 
+		2: "Prevent the player from jumping" : 0
+		4: "Prevent the player from ducking" : 0
+		8: "Prevent the player from bhopping" : 0
+	]
+]
+
 @FilterClass base(Targetname) = filter_activator_checkpoint : "Filter that checks to see if the player is at or above the given checkpoint number."
 [
 	checkpoint(integer) : "Minimum req. checkpoint" : -2 : "The minimum checkpoint the player needs to be at in order for the filter to accept the activator."
@@ -142,18 +153,4 @@
 		8 : "Modify player velocity on EndTouch" : 1
 		16 : "Use the direction vector as final force instead of calculating it by force amount" : 1
 	]
-]
-
-@PointClass base(env_sprite) sprite()  = ent_momentum_collectable : "Collectables that the player can collect"
-[
-	spawnflags(flags) =
-	[
-		1: "Start on" : 1
-		2: "Play Once" : 0
-	]
-	mode(choices) : "Sets the type of collectable" : 0 =
-    [
-        0 : "Local (Only needed for this map)"
-        1 : "Global (For campaing mode)"
-    ]
 ]
