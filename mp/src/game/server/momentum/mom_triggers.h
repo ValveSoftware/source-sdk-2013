@@ -231,13 +231,11 @@ private:
 class CTriggerLimitMovement : public CBaseMomentumTrigger
 {
     DECLARE_CLASS(CTriggerLimitMovement, CBaseMomentumTrigger);
-    DECLARE_DATADESC();
 
 public:
     void Think();
     void StartTouch(CBaseEntity *pOther);
     void EndTouch(CBaseEntity *pOther);
-    COutputEvent m_nTryMove;
 
 private:
     int m_ButtonRep;

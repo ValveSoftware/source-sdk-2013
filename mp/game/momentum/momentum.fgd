@@ -88,7 +88,6 @@
 
 @SolidClass base(Trigger) = trigger_momentum_limitmovement : "Trigger that prevents the player from doing specific movements."
 [
-	output OnTryMove(void) : "Fires when the player tries a specific movement"
 	spawnflags(flags) = 
 	[ 
 		2: "Prevent the player from jumping" : 0

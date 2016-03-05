@@ -418,13 +418,25 @@ void CTriggerUserInput::Spawn()
 //--------- CTriggerLimitMovement -------------------------------------------------------------------
 LINK_ENTITY_TO_CLASS(trigger_momentum_limitmovement, CTriggerLimitMovement);
 
-BEGIN_DATADESC(CTriggerLimitMovement)
-DEFINE_OUTPUT(m_nTryMove, "OnTryMove"),
-END_DATADESC()
-
 void CTriggerLimitMovement::Think()
 {
-    // MOM_TODO: Avoid Bhop
+    if (HasSpawnFlags(LIMIT_BHOP))
+    {
+        CBasePlayer *pPlayer = UTIL_GetListenServerHost();
+        if (pPlayer && IsTouching(pPlayer))
+        {
+            if (pPlayer->GetGroundEntity() == NULL)
+            {
+                // On air:
+                pPlayer->DisableButtons(IN_JUMP);
+            }
+            else
+            {
+                // On ground:
+                pPlayer->EnableButtons(IN_JUMP);
+            }
+        }
+    }
     BaseClass::Think();
 }
 
@@ -443,10 +455,6 @@ void CTriggerLimitMovement::StartTouch(CBaseEntity *pOther)
             {
                 pPlayer->DisableButtons(IN_DUCK);
             }
-            if (HasSpawnFlags(LIMIT_BHOP))
-            {
-                // MOM_TODO: Avoid Bhop
-            }
         }
     }
     BaseClass::StartTouch(pOther);
@@ -461,7 +469,6 @@ void CTriggerLimitMovement::EndTouch(CBaseEntity *pOther)
         {
             pPlayer->EnableButtons(IN_JUMP);
             pPlayer->EnableButtons(IN_DUCK);
-            pPlayer->m_Local.m_flJumpTime = 0;
         }
     }
     BaseClass::EndTouch(pOther);
