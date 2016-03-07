@@ -437,7 +437,6 @@ void CTriggerLimitMovement::Think()
                 if (m_BhopTimer.IsElapsed())
                 {
                     pPlayer->EnableButtons(IN_JUMP);
-                    pPlayer->DisableAutoBhop();
                     m_BhopTimer.Reset();
                 }
             }
