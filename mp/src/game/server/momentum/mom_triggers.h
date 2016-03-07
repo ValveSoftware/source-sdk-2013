@@ -238,7 +238,6 @@ public:
     void EndTouch(CBaseEntity *pOther);
 
 private:
-    int m_ButtonRep;
     //prevent player from jumping
     const int LIMIT_JUMP = 0x2;
     //prevent player from croching
