@@ -246,12 +246,8 @@ private:
     //prevent player from bhopping
     const int LIMIT_BHOP = 0x8;
 
-    enum limitMovementType
-    {
-        isLimitJump = 0,
-        isLimitCrouch,
-        isLimitBhop,
-    };
+    CountdownTimer m_BhopTimer;
+    const float FL_BHOP_TIMER = 0.15f;
 };
 
 

@@ -59,6 +59,8 @@ public:
     //used by CMomentumGameMovement
     bool m_duckUntilOnGround;
     float m_flStamina;
+    void EnableAutoBhop();
+    void DisableAutoBhop();
 
     CNetworkVar(int, m_iShotsFired);
     CNetworkVar(int, m_iDirection);
@@ -99,6 +101,8 @@ private:
     Vector m_lastLadderPos;
     EHANDLE g_pLastSpawn;
     bool SelectSpawnSpot(const char *pEntClassName, CBaseEntity* &pSpot);
+    bool b_AutoBhop;
+
     friend class CMomentumGameMovement;
 
 };

@@ -557,10 +557,13 @@ bool CMomentumGameMovement::CheckJumpButton()
         return false;		// in air, so no effect
     }
 
-    //MOM_TODO: Enable or disable this via a command
-    //if (mv->m_nOldButtons & IN_JUMP)
-    //	return false;		// don't pogo stick
-
+    //AUTOBHOP---
+    //only run this code if autobhop is disabled
+    if (!player->b_AutoBhop)
+    {
+        if (mv->m_nOldButtons & IN_JUMP)
+            return false;		// don't pogo stick
+    }
     // In the air now.
     SetGroundEntity(NULL);
 

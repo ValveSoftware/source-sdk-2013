@@ -41,6 +41,7 @@ void CMomentumPlayer::Spawn()
     SetModel(ENTITY_MODEL);
     BaseClass::Spawn();
     AddFlag(FL_GODMODE);
+    EnableAutoBhop();
 }
 
 void CMomentumPlayer::SurpressLadderChecks(const Vector& pos, const Vector& normal)
@@ -123,4 +124,12 @@ bool CMomentumPlayer::SelectSpawnSpot(const char *pEntClassName, CBaseEntity* &p
     }
 
     return false;
+}
+void CMomentumPlayer::EnableAutoBhop()
+{
+    b_AutoBhop = true;
+}
+void CMomentumPlayer::DisableAutoBhop()
+{
+    b_AutoBhop = false;
 }

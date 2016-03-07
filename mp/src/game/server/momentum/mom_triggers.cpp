@@ -420,23 +420,32 @@ LINK_ENTITY_TO_CLASS(trigger_momentum_limitmovement, CTriggerLimitMovement);
 
 void CTriggerLimitMovement::Think()
 {
-    if (HasSpawnFlags(LIMIT_BHOP))
+    CBasePlayer *pPlayer = UTIL_GetListenServerHost();
+    if (pPlayer && IsTouching(pPlayer))
     {
-        CBasePlayer *pPlayer = UTIL_GetListenServerHost();
-        if (pPlayer && IsTouching(pPlayer))
+        if (HasSpawnFlags(LIMIT_BHOP))
         {
-            if (pPlayer->GetGroundEntity() == NULL)
+            pPlayer->DisableButtons(IN_JUMP);
+            //if player in air
+            if (pPlayer->GetGroundEntity() != NULL)
             {
-                // On air:
-                pPlayer->DisableButtons(IN_JUMP);
-            }
-            else
-            {
-                // On ground:
-                pPlayer->EnableButtons(IN_JUMP);
+                //only start timer if we havent already started
+                if (!m_BhopTimer.HasStarted())
+                    m_BhopTimer.Start(FL_BHOP_TIMER);
+
+                //when finished
+                if (m_BhopTimer.IsElapsed())
+                {
+                    pPlayer->EnableButtons(IN_JUMP);
+                    m_BhopTimer.Reset();
+                }
             }
         }
     }
+    //figure out if elapsed or not
+    if (m_BhopTimer.GetRemainingTime() <= 0)
+        m_BhopTimer.Invalidate();
+    //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
     BaseClass::Think();
 }
 
@@ -444,7 +453,7 @@ void CTriggerLimitMovement::StartTouch(CBaseEntity *pOther)
 {
     if (pOther && pOther->IsPlayer())
     {
-        CBasePlayer *pPlayer = ToBasePlayer(pOther);
+        CMomentumPlayer *pPlayer = ToCMOMPlayer(pOther);
         if (pPlayer)
         {
             if (HasSpawnFlags(LIMIT_JUMP))
@@ -455,6 +464,12 @@ void CTriggerLimitMovement::StartTouch(CBaseEntity *pOther)
             {
                 pPlayer->DisableButtons(IN_DUCK);
             }
+            if (HasSpawnFlags(LIMIT_BHOP))
+            {
+                pPlayer->DisableButtons(IN_JUMP);
+                //MOM_TODO: Figure out why this doesnt work
+                pPlayer->DisableAutoBhop();
+            }
         }
     }
     BaseClass::StartTouch(pOther);
@@ -464,13 +479,15 @@ void CTriggerLimitMovement::EndTouch(CBaseEntity *pOther)
 {
     if (pOther && pOther->IsPlayer())
     {
-        CBasePlayer *pPlayer = ToBasePlayer(pOther);
+        CMomentumPlayer *pPlayer = ToCMOMPlayer(pOther);
         if (pPlayer)
         {
             pPlayer->EnableButtons(IN_JUMP);
             pPlayer->EnableButtons(IN_DUCK);
+            pPlayer->EnableAutoBhop();
         }
     }
+    m_BhopTimer.Reset();
     BaseClass::EndTouch(pOther);
 }
 //-----------------------------------------------------------------------------------------------

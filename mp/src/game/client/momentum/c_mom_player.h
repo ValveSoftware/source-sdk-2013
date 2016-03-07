@@ -23,13 +23,10 @@ public:
     bool CanGrabLadder(const Vector& pos, const Vector& normal);
 
 
-
     int m_iShotsFired;
     int m_iDirection;
     bool m_bResumeZoom;
     int m_iLastZoom;
-    bool m_duckUntilOnGround;
-    float m_flStamina;
 
     void GetBulletTypeParameters(
         int iBulletType,
@@ -63,6 +60,10 @@ private:
     CountdownTimer m_ladderSurpressionTimer;
     Vector m_lastLadderNormal;
     Vector m_lastLadderPos;
+
+    bool b_AutoBhop;
+    bool m_duckUntilOnGround;
+    float m_flStamina;
 
     friend class CMomentumGameMovement;
 };
