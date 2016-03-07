@@ -420,7 +420,7 @@ LINK_ENTITY_TO_CLASS(trigger_momentum_limitmovement, CTriggerLimitMovement);
 
 void CTriggerLimitMovement::Think()
 {
-    CBasePlayer *pPlayer = UTIL_GetListenServerHost();
+    CMomentumPlayer *pPlayer = ToCMOMPlayer(UTIL_GetListenServerHost());
     if (pPlayer && IsTouching(pPlayer))
     {
         if (HasSpawnFlags(LIMIT_BHOP))
@@ -437,12 +437,13 @@ void CTriggerLimitMovement::Think()
                 if (m_BhopTimer.IsElapsed())
                 {
                     pPlayer->EnableButtons(IN_JUMP);
+                    pPlayer->DisableAutoBhop();
                     m_BhopTimer.Reset();
                 }
             }
         }
     }
-    //figure out if elapsed or not
+    //figure out if timer elapsed or not
     if (m_BhopTimer.GetRemainingTime() <= 0)
         m_BhopTimer.Invalidate();
     //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
@@ -484,7 +485,9 @@ void CTriggerLimitMovement::EndTouch(CBaseEntity *pOther)
         {
             pPlayer->EnableButtons(IN_JUMP);
             pPlayer->EnableButtons(IN_DUCK);
-            pPlayer->EnableAutoBhop();
+            ConVarRef gm("mom_gamemode");
+            if (gm.GetInt() != MOMGM_SCROLL)
+                pPlayer->EnableAutoBhop();
         }
     }
     m_BhopTimer.Reset();

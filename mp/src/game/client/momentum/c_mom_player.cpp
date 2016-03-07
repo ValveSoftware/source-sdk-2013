@@ -10,6 +10,7 @@ RecvPropInt(RECVINFO(m_iShotsFired)),
 RecvPropInt(RECVINFO(m_iDirection)),
 RecvPropBool(RECVINFO(m_bResumeZoom)),
 RecvPropInt(RECVINFO(m_iLastZoom)),
+RecvPropInt(RECVINFO(m_bAutoBhop)),
 //RecvPropDataTable(RECVINFO_DT(m_HL2Local), 0, &REFERENCE_RECV_TABLE(DT_HL2Local)),
 //RecvPropBool(RECVINFO(m_fIsSprinting)),
 END_RECV_TABLE()

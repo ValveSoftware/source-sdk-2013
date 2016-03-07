@@ -22,11 +22,11 @@ public:
     void SurpressLadderChecks(const Vector& pos, const Vector& normal);
     bool CanGrabLadder(const Vector& pos, const Vector& normal);
 
-
     int m_iShotsFired;
     int m_iDirection;
     bool m_bResumeZoom;
     int m_iLastZoom;
+    bool m_bAutoBhop;
 
     void GetBulletTypeParameters(
         int iBulletType,
@@ -61,7 +61,6 @@ private:
     Vector m_lastLadderNormal;
     Vector m_lastLadderPos;
 
-    bool b_AutoBhop;
     bool m_duckUntilOnGround;
     float m_flStamina;
 
