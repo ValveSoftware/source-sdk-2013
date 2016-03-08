@@ -6,8 +6,7 @@ help us further (But it's not necessary, and if you ask us we'll very happy invi
 way even if you didn't submit a pull request!)
 
 
-When contributing, don't forget to add yourself to [sp/game/momentum/scripts/credits.txt](sp/game/momentum/scripts/credits.txt)
-under *Contributors* (You can find instructions of how-to inside said file)
+When writing the Pull Request comment, don't forget to ask to get listed in the contributors section of the web by providing a name/alias that will be displayed in the credits section of the mod. If you don't provide a name, we'll use your GitHub username
 
 **Every help we can get is welcomed**
 
