@@ -109,11 +109,14 @@ public:
     void SetIsLimitingSpeed(bool pIsLimitingSpeed);
     bool IsLimitingSpeedOnlyXY() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_ONLYXY); }
     void SetIsLimitingSpeedOnlyXY(bool pIsLimitingSpeedOnlyXY);
+    bool IsLimitBhop() { return HasSpawnFlags(SF_LIMIT_BHOP); }
+    void SetLimitBhop(bool bIsLimitBhop);
 
     void SetHasLookAngles(bool bHasLook);
     bool GetHasLookAngles() { return HasSpawnFlags(SF_USE_LOOKANGLES); }
     void SetLookAngles(QAngle newang);
     QAngle GetLookAngles() { return m_angLook; }
+    void Think();
 
 private:
     QAngle m_angLook = QAngle(0, 0, 0);
@@ -129,6 +132,12 @@ private:
     const int SF_USE_LOOKANGLES = 0x4;
     // Limit speed without taking into account hvel (Z axis)
     const int SF_LIMIT_LEAVE_SPEED_ONLYXY = 0x8;
+    // Limit bhop in start zone?
+    const int SF_LIMIT_BHOP = 0x16;
+
+    //bhop timer for limitbhop
+    CountdownTimer m_BhopTimer;
+    const float FL_BHOP_TIMER = 0.15f;
 };
 
 // CFilterCheckpoint

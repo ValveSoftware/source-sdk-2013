@@ -135,6 +135,24 @@ void CTriggerTimerStart::SetIsLimitingSpeedOnlyXY(bool pIsLimitingSpeedOnlyXY)
     }
 }
 
+void CTriggerTimerStart::SetLimitBhop(bool bIsLimitBhop)
+{
+    if (bIsLimitBhop)
+    {
+        if (!HasSpawnFlags(SF_LIMIT_BHOP))
+        {
+            AddSpawnFlags(SF_LIMIT_BHOP);
+        }
+    }
+    else
+    {
+        if (HasSpawnFlags(SF_LIMIT_BHOP))
+        {
+            RemoveSpawnFlags(SF_LIMIT_BHOP);
+        }
+    }
+}
+
 void CTriggerTimerStart::SetHasLookAngles(bool bHasLook)
 {
     if (bHasLook)
@@ -152,10 +170,42 @@ void CTriggerTimerStart::SetHasLookAngles(bool bHasLook)
         }
     }
 }
-
 void CTriggerTimerStart::SetLookAngles(QAngle newang)
 {
     m_angLook = newang;
+}
+void CTriggerTimerStart::Think()
+{
+    //for limit bhop in start zone
+    CMomentumPlayer *pPlayer = ToCMOMPlayer(UTIL_GetListenServerHost());
+    if (pPlayer && IsTouching(pPlayer))
+    {
+        DevLog("Player is touching the start zone\n");
+        if (HasSpawnFlags(SF_LIMIT_BHOP))
+        {
+            DevLog("Player is inside a limit bhop start zone\n");
+            pPlayer->DisableButtons(IN_JUMP);
+            //if player in air
+            if (pPlayer->GetGroundEntity() != NULL)
+            {
+                //only start timer if we havent already started
+                if (!m_BhopTimer.HasStarted())
+                    m_BhopTimer.Start(FL_BHOP_TIMER);
+
+                //when finished
+                if (m_BhopTimer.IsElapsed())
+                {
+                    pPlayer->EnableButtons(IN_JUMP);
+                    m_BhopTimer.Reset();
+                }
+            }
+        }
+    }
+    //figure out if timer elapsed or not
+    if (m_BhopTimer.GetRemainingTime() <= 0)
+        m_BhopTimer.Invalidate();
+    //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
+    BaseClass::Think();
 }
 //----------------------------------------------------------------------------------------------
 

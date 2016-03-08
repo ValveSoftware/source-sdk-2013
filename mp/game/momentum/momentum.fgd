@@ -40,6 +40,7 @@
 		2 : "Limit leave speed" : 1
 		4 : "Use look angles" : 0
 		8 : "Check only XY for leave speed check" : 1
+		16 : "Limit bhopping in the start zone" : 1
 	]
 ]
 

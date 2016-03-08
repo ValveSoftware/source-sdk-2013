@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "6920"
-	"mapversion" "93"
+	"mapversion" "94"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -26,7 +26,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "93"
+	"mapversion" "94"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -3689,7 +3689,7 @@ entity
 	"leavespeed" "290"
 	"lookangles" "0 0 0"
 	"origin" "400 -224 -112"
-	"spawnflags" "1"
+	"spawnflags" "25"
 	"StartDisabled" "0"
 	solid
 	{
