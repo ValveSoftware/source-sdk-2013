@@ -60,10 +60,16 @@ public:
     bool m_duckUntilOnGround;
     float m_flStamina;
 
+    void EnableAutoBhop();
+    void DisableAutoBhop();
+    bool HasAutoBhop();
+
     CNetworkVar(int, m_iShotsFired);
     CNetworkVar(int, m_iDirection);
     CNetworkVar(bool, m_bResumeZoom);
     CNetworkVar(int, m_iLastZoom);
+    CNetworkVar(bool, m_bAutoBhop);
+    
 
     void GetBulletTypeParameters(
         int iBulletType,
@@ -99,6 +105,7 @@ private:
     Vector m_lastLadderPos;
     EHANDLE g_pLastSpawn;
     bool SelectSpawnSpot(const char *pEntClassName, CBaseEntity* &pSpot);
+
     friend class CMomentumGameMovement;
 
 };

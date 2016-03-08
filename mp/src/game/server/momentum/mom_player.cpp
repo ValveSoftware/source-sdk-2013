@@ -8,6 +8,7 @@ SendPropInt(SENDINFO(m_iShotsFired)),
 SendPropInt(SENDINFO(m_iDirection)),
 SendPropBool(SENDINFO(m_bResumeZoom)),
 SendPropInt(SENDINFO(m_iLastZoom)),
+SendPropInt(SENDINFO(m_bAutoBhop)),
 END_SEND_TABLE()
 
 BEGIN_DATADESC(CMomentumPlayer)
@@ -41,6 +42,22 @@ void CMomentumPlayer::Spawn()
     SetModel(ENTITY_MODEL);
     BaseClass::Spawn();
     AddFlag(FL_GODMODE);
+    //do this here because we can't get a local player in the timer class
+    ConVarRef gm("mom_gamemode");
+    switch (gm.GetInt())
+    {
+        case MOMGM_BHOP:
+        case MOMGM_SURF:
+        case MOMGM_UNKNOWN:
+        default:
+            EnableAutoBhop();
+            break;
+        case MOMGM_SCROLL:
+            DisableAutoBhop();
+            break;
+    }
+        
+
 }
 
 void CMomentumPlayer::SurpressLadderChecks(const Vector& pos, const Vector& normal)
@@ -123,4 +140,18 @@ bool CMomentumPlayer::SelectSpawnSpot(const char *pEntClassName, CBaseEntity* &p
     }
 
     return false;
+}
+void CMomentumPlayer::EnableAutoBhop()
+{
+    m_bAutoBhop = true;
+    DevLog("Enabled autobhop\n");
+}
+void CMomentumPlayer::DisableAutoBhop()
+{
+    m_bAutoBhop = false;
+    DevLog("Disabled autobhop\n");
+}
+bool CMomentumPlayer::HasAutoBhop()
+{
+    return m_bAutoBhop;
 }

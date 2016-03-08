@@ -1,4 +1,5 @@
 # Momentum Mod
+![buildstatus](https://ci.appveyor.com/api/projects/status/github/momentum-mod/game?svg=true)
 
 Momentum Mod is a free stand-alone Source mod with Counter-Strike: Source physics
 dedicated to bhop and surfing while trying to improve them and simultaneously making

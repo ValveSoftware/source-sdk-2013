@@ -21,15 +21,13 @@ public:
 
     void SurpressLadderChecks(const Vector& pos, const Vector& normal);
     bool CanGrabLadder(const Vector& pos, const Vector& normal);
-
-
+    bool HasAutoBhop();
 
     int m_iShotsFired;
     int m_iDirection;
     bool m_bResumeZoom;
     int m_iLastZoom;
-    bool m_duckUntilOnGround;
-    float m_flStamina;
+    bool m_bAutoBhop;
 
     void GetBulletTypeParameters(
         int iBulletType,
@@ -63,6 +61,9 @@ private:
     CountdownTimer m_ladderSurpressionTimer;
     Vector m_lastLadderNormal;
     Vector m_lastLadderPos;
+
+    bool m_duckUntilOnGround;
+    float m_flStamina;
 
     friend class CMomentumGameMovement;
 };

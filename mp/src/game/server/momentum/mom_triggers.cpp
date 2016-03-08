@@ -41,38 +41,32 @@ END_DATADESC()
 
 void CTriggerTimerStart::EndTouch(CBaseEntity *pOther)
 {
-    ConVarRef cheatsRef("sv_cheats");
-    if (pOther->IsPlayer()) 
-    {  //do not start timer if player is in practice mode or has cheats on
-        if (!cheatsRef.GetBool() && pOther->GetMoveType() != MOVETYPE_NOCLIP)
-        { 
-            g_Timer.Start(gpGlobals->tickcount);
+    if (pOther->IsPlayer() && !g_Timer.IsPracticeMode(pOther)) //do not start timer if player is in practice mode.
+    {
+        g_Timer.Start(gpGlobals->tickcount);
 
-            if (IsLimitingSpeed())
+        if (IsLimitingSpeed())
+        {
+            Vector velocity = pOther->GetAbsVelocity();
+            if (IsLimitingSpeedOnlyXY())
             {
-                Vector velocity = pOther->GetAbsVelocity();
-                if (IsLimitingSpeedOnlyXY())
+                Vector2D vel2D = velocity.AsVector2D();
+                if (velocity.AsVector2D().IsLengthGreaterThan(m_fMaxLeaveSpeed))
                 {
-                    Vector2D vel2D = velocity.AsVector2D();
-                    if (velocity.AsVector2D().IsLengthGreaterThan(m_fMaxLeaveSpeed))
-                    {
-                        // Isn't it nice how Vector2D.h doesn't have Normalize() on it?
-                        // It only has a NormalizeInPlace... Not simple enough for me
-                        vel2D = ((vel2D / vel2D.Length()) * m_fMaxLeaveSpeed);
-                        pOther->SetAbsVelocity(Vector(vel2D.x, vel2D.y, velocity.z));
-                    }
+                    // Isn't it nice how Vector2D.h doesn't have Normalize() on it?
+                    // It only has a NormalizeInPlace... Not simple enough for me
+                    vel2D = ((vel2D / vel2D.Length()) * m_fMaxLeaveSpeed);
+                    pOther->SetAbsVelocity(Vector(vel2D.x, vel2D.y, velocity.z));
                 }
-                else
+            }
+            else
+            {
+                if (velocity.IsLengthGreaterThan(m_fMaxLeaveSpeed))
                 {
-                    if (velocity.IsLengthGreaterThan(m_fMaxLeaveSpeed))
-                    {
-                        pOther->SetAbsVelocity(velocity.Normalized() * m_fMaxLeaveSpeed);
-                    }
+                    pOther->SetAbsVelocity(velocity.Normalized() * m_fMaxLeaveSpeed);
                 }
             }
         }
-        else
-            DevWarning("You must turn off cheats or practice mode to start the timer!\n");
     }
     BaseClass::EndTouch(pOther);
 }
@@ -170,16 +164,10 @@ LINK_ENTITY_TO_CLASS(trigger_momentum_timer_stop, CTriggerTimerStop);
 
 void CTriggerTimerStop::StartTouch(CBaseEntity *pOther)
 {
-    ConVarRef cheatsRef("sv_cheats");
     BaseClass::StartTouch(pOther);
     // If timer is already stopped, there's nothing to stop (No run state effect to play)
     if (pOther->IsPlayer() && g_Timer.IsRunning())
-    {
-        if (!cheatsRef.GetBool())
-            g_Timer.Stop(true);
-        else
-            DevWarning("You must turn off cheats to use the timer!\n");
-    }
+        g_Timer.Stop(true);
 }
 //----------------------------------------------------------------------------------------------
 
@@ -420,12 +408,87 @@ void CTriggerUserInput::Spawn()
         m_ButtonRep = IN_RELOAD;
         break;
     default:
-        DevWarning("Passed unhandled key press\n");
+        DevWarning("Passed unhandled key press");
         break;
     }
     BaseClass::Spawn();
 }
 //-----------------------------------------------------------------------------------------------
+
+//--------- CTriggerLimitMovement -------------------------------------------------------------------
+LINK_ENTITY_TO_CLASS(trigger_momentum_limitmovement, CTriggerLimitMovement);
+
+void CTriggerLimitMovement::Think()
+{
+    CMomentumPlayer *pPlayer = ToCMOMPlayer(UTIL_GetListenServerHost());
+    if (pPlayer && IsTouching(pPlayer))
+    {
+        if (HasSpawnFlags(LIMIT_BHOP))
+        {
+            pPlayer->DisableButtons(IN_JUMP);
+            //if player in air
+            if (pPlayer->GetGroundEntity() != NULL)
+            {
+                //only start timer if we havent already started
+                if (!m_BhopTimer.HasStarted())
+                    m_BhopTimer.Start(FL_BHOP_TIMER);
+
+                //when finished
+                if (m_BhopTimer.IsElapsed())
+                {
+                    pPlayer->EnableButtons(IN_JUMP);
+                    m_BhopTimer.Reset();
+                }
+            }
+        }
+    }
+    //figure out if timer elapsed or not
+    if (m_BhopTimer.GetRemainingTime() <= 0)
+        m_BhopTimer.Invalidate();
+    //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
+    BaseClass::Think();
+}
+
+void CTriggerLimitMovement::StartTouch(CBaseEntity *pOther)
+{
+    if (pOther && pOther->IsPlayer())
+    {
+        CMomentumPlayer *pPlayer = ToCMOMPlayer(pOther);
+        if (pPlayer)
+        {
+            if (HasSpawnFlags(LIMIT_JUMP))
+            {
+                pPlayer->DisableButtons(IN_JUMP);
+            }
+            if (HasSpawnFlags(LIMIT_CROUCH))
+            {
+                pPlayer->DisableButtons(IN_DUCK);
+            }
+            if (HasSpawnFlags(LIMIT_BHOP))
+            {
+                pPlayer->DisableButtons(IN_JUMP);
+            }
+        }
+    }
+    BaseClass::StartTouch(pOther);
+}
+
+void CTriggerLimitMovement::EndTouch(CBaseEntity *pOther)
+{
+    if (pOther && pOther->IsPlayer())
+    {
+        CMomentumPlayer *pPlayer = ToCMOMPlayer(pOther);
+        if (pPlayer)
+        {
+            pPlayer->EnableButtons(IN_JUMP);
+            pPlayer->EnableButtons(IN_DUCK);
+        }
+    }
+    m_BhopTimer.Reset();
+    BaseClass::EndTouch(pOther);
+}
+//-----------------------------------------------------------------------------------------------
+
 
 //---------- CFuncShootBoost --------------------------------------------------------------------
 LINK_ENTITY_TO_CLASS(func_shootboost, CFuncShootBoost);
@@ -476,7 +539,7 @@ int CFuncShootBoost::OnTakeDamage(const CTakeDamageInfo &info)
         }
         if (m_Destination)
         {
-            if (((CBaseTrigger *) m_Destination)->IsTouching(pInflictor))
+            if (((CBaseTrigger *)m_Destination)->IsTouching(pInflictor))
             {
                 pInflictor->SetAbsVelocity(finalVel);
             }

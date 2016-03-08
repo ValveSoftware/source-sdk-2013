@@ -1,9 +1,6 @@
 # About contributing
 Contributing to the mod is very easy. Just fork the repo, make your desired changes
-and then send us a pull request and we'll happly revise it. Once your first pull request
-is approved, you can ask us to invite you to the Momentum Development Team, so you can
-help us further (But it's not necessary, and if you ask us we'll very happy invite you either
-way even if you didn't submit a pull request!)
+and then send us a pull request and we'll happly revise it.
 
 
 When writing the Pull Request comment, don't forget to ask to get listed in the contributors section of the web by providing a name/alias that will be displayed in the credits section of the mod. If you don't provide a name, we'll use your GitHub username
