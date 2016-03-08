@@ -62,7 +62,7 @@ public:
 
     void EnableAutoBhop();
     void DisableAutoBhop();
-    bool isAutoBhop();
+    bool HasAutoBhop();
 
     CNetworkVar(int, m_iShotsFired);
     CNetworkVar(int, m_iDirection);

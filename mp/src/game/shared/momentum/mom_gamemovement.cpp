@@ -559,9 +559,8 @@ bool CMomentumGameMovement::CheckJumpButton()
 
     //AUTOBHOP---
     //only run this code if autobhop is disabled
-    if (!player->m_bAutoBhop)
+    if (!player->HasAutoBhop())
     {
-        DevLog("autobhop is disabled!\n");
         if (mv->m_nOldButtons & IN_JUMP)
             return false;		// don't pogo stick
     }

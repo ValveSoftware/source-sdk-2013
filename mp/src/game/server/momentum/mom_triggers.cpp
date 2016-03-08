@@ -467,8 +467,6 @@ void CTriggerLimitMovement::StartTouch(CBaseEntity *pOther)
             if (HasSpawnFlags(LIMIT_BHOP))
             {
                 pPlayer->DisableButtons(IN_JUMP);
-                //MOM_TODO: Figure out why this doesnt work
-                pPlayer->DisableAutoBhop();
             }
         }
     }
@@ -484,9 +482,6 @@ void CTriggerLimitMovement::EndTouch(CBaseEntity *pOther)
         {
             pPlayer->EnableButtons(IN_JUMP);
             pPlayer->EnableButtons(IN_DUCK);
-            ConVarRef gm("mom_gamemode");
-            if (gm.GetInt() != MOMGM_SCROLL)
-                pPlayer->EnableAutoBhop();
         }
     }
     m_BhopTimer.Reset();

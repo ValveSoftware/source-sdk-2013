@@ -144,14 +144,14 @@ bool CMomentumPlayer::SelectSpawnSpot(const char *pEntClassName, CBaseEntity* &p
 void CMomentumPlayer::EnableAutoBhop()
 {
     m_bAutoBhop = true;
-    DevLog("enabled autobhop\n");
+    DevLog("Enabled autobhop\n");
 }
 void CMomentumPlayer::DisableAutoBhop()
 {
     m_bAutoBhop = false;
-    DevLog("disabled autobhop\n");
+    DevLog("Disabled autobhop\n");
 }
-bool CMomentumPlayer::isAutoBhop()
+bool CMomentumPlayer::HasAutoBhop()
 {
     return m_bAutoBhop;
 }

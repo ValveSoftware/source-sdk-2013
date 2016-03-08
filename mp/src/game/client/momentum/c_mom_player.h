@@ -21,6 +21,7 @@ public:
 
     void SurpressLadderChecks(const Vector& pos, const Vector& normal);
     bool CanGrabLadder(const Vector& pos, const Vector& normal);
+    bool HasAutoBhop();
 
     int m_iShotsFired;
     int m_iDirection;

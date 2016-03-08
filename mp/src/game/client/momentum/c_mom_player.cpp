@@ -54,3 +54,7 @@ bool C_MomentumPlayer::CanGrabLadder(const Vector& pos, const Vector& normal)
 
     return false;
 }
+bool C_MomentumPlayer::HasAutoBhop()
+{
+    return m_bAutoBhop;
+}
