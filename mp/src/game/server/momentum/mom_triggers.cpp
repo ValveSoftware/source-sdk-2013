@@ -190,10 +190,8 @@ void CTriggerTimerStart::Think()
     //is only called if we are inside (see StartTouch & EndTouch defined above)
     if (pPlayer)
     {
-        //DevLog("Player is touching the start zone\n");
         if (HasSpawnFlags(SF_LIMIT_BHOP))
         {
-            //DevLog("Player is inside a limit bhop start zone\n");
             pPlayer->DisableButtons(IN_JUMP);
             //if player in air
             if (pPlayer->GetGroundEntity() != NULL)
@@ -215,7 +213,11 @@ void CTriggerTimerStart::Think()
     if (m_BhopTimer.GetRemainingTime() <= 0)
         m_BhopTimer.Invalidate();
     //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
-    SetNextThink(gpGlobals->curtime);
+
+    //HACKHACK - this prevents think from running too fast, breaking the timer
+    //and preventing the player from jumping until the timer runs out
+    //Thinking every 0.25 seconds seems to feel good, but we can adjust this later
+    SetNextThink(gpGlobals->curtime + 0.25);
     BaseClass::Think();
 }
 //----------------------------------------------------------------------------------------------
@@ -507,6 +509,11 @@ void CTriggerLimitMovement::Think()
     if (m_BhopTimer.GetRemainingTime() <= 0)
         m_BhopTimer.Invalidate();
     //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
+
+    //HACKHACK - this prevents think from running too fast, breaking the timer
+    //and preventing the player from jumping until the timer runs out
+    //Thinking every 0.25 seconds seems to feel good, but we can adjust this later
+    SetNextThink(gpGlobals->curtime + 0.25);
     BaseClass::Think();
 }
 
