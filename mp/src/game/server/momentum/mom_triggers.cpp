@@ -71,6 +71,8 @@ void CTriggerTimerStart::EndTouch(CBaseEntity *pOther)
     //re-enable jump always on end touch
     CBasePlayer *pPlayer = ToBasePlayer(pOther);
     pPlayer->EnableButtons(IN_JUMP);
+    //stop thinking on end touch
+    SetNextThink(NULL);
     BaseClass::EndTouch(pOther);
 }
 
@@ -82,6 +84,8 @@ void CTriggerTimerStart::StartTouch(CBaseEntity *pOther)
         g_Timer.Stop(false);
         g_Timer.DispatchResetMessage();
     }
+    //start thinking
+    SetNextThink(gpGlobals->curtime);
     BaseClass::StartTouch(pOther);
 }
 
@@ -180,14 +184,16 @@ void CTriggerTimerStart::SetLookAngles(QAngle newang)
 void CTriggerTimerStart::Think()
 {
     //for limit bhop in start zone
-    DevLog("Thinking...\n");
-    CMomentumPlayer *pPlayer = ToCMOMPlayer(UTIL_GetListenServerHost());
-    if (pPlayer && IsTouching(pPlayer))
+    //DevLog("Thinking...\n");
+    CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+    //We don't check for player inside trigger here since the Think() function
+    //is only called if we are inside (see StartTouch & EndTouch defined above)
+    if (pPlayer)
     {
-        DevLog("Player is touching the start zone\n");
+        //DevLog("Player is touching the start zone\n");
         if (HasSpawnFlags(SF_LIMIT_BHOP))
         {
-            DevLog("Player is inside a limit bhop start zone\n");
+            //DevLog("Player is inside a limit bhop start zone\n");
             pPlayer->DisableButtons(IN_JUMP);
             //if player in air
             if (pPlayer->GetGroundEntity() != NULL)
@@ -209,6 +215,7 @@ void CTriggerTimerStart::Think()
     if (m_BhopTimer.GetRemainingTime() <= 0)
         m_BhopTimer.Invalidate();
     //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
+    SetNextThink(gpGlobals->curtime);
     BaseClass::Think();
 }
 //----------------------------------------------------------------------------------------------
