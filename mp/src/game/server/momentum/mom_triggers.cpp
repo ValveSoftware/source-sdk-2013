@@ -68,6 +68,9 @@ void CTriggerTimerStart::EndTouch(CBaseEntity *pOther)
             }
         }
     }
+    //re-enable jump always on end touch
+    CBasePlayer *pPlayer = ToBasePlayer(pOther);
+    pPlayer->EnableButtons(IN_JUMP);
     BaseClass::EndTouch(pOther);
 }
 
@@ -84,12 +87,12 @@ void CTriggerTimerStart::StartTouch(CBaseEntity *pOther)
 
 void CTriggerTimerStart::Spawn()
 {
-    BaseClass::Spawn();
     // We don't want negative velocities (We're checking against an absolute value)
     if (m_fMaxLeaveSpeed < 0)
         m_fMaxLeaveSpeed *= (-1);
-
     m_angLook.z = 0.0f; // Reset roll since mappers will never stop ruining everything.
+    BaseClass::Spawn();
+
 }
 
 void CTriggerTimerStart::SetMaxLeaveSpeed(float pMaxLeaveSpeed)
@@ -177,6 +180,7 @@ void CTriggerTimerStart::SetLookAngles(QAngle newang)
 void CTriggerTimerStart::Think()
 {
     //for limit bhop in start zone
+    DevLog("Thinking...\n");
     CMomentumPlayer *pPlayer = ToCMOMPlayer(UTIL_GetListenServerHost());
     if (pPlayer && IsTouching(pPlayer))
     {
