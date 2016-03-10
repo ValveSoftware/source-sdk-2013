@@ -122,7 +122,7 @@ private:
     QAngle m_angLook = QAngle(0, 0, 0);
 
     // How fast can the player leave the start trigger?
-    float m_fMaxLeaveSpeed = 280;
+    float m_fMaxLeaveSpeed = 290;
 
     // MOM_TODO: Why aren't these defines?
 
@@ -137,7 +137,11 @@ private:
 
     //bhop timer for limitbhop
     CountdownTimer m_BhopTimer;
-    const float FL_BHOP_TIMER = 0.15f;
+    const float FL_BHOP_TIMER = 0.8f;
+    float m_fBhopLeaveSpeed = 250;
+    bool m_bDidPlayerBhop;
+    bool m_bPlayerTouchedGround;
+
 };
 
 // CFilterCheckpoint

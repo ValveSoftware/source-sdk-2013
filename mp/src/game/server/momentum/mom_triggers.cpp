@@ -55,22 +55,32 @@ void CTriggerTimerStart::EndTouch(CBaseEntity *pOther)
                 {
                     // Isn't it nice how Vector2D.h doesn't have Normalize() on it?
                     // It only has a NormalizeInPlace... Not simple enough for me
-                    vel2D = ((vel2D / vel2D.Length()) * m_fMaxLeaveSpeed);
-                    pOther->SetAbsVelocity(Vector(vel2D.x, vel2D.y, velocity.z));
+                    if (m_bDidPlayerBhop)
+                    {
+                        vel2D = ((vel2D / vel2D.Length()) * m_fBhopLeaveSpeed);
+                        pOther->SetAbsVelocity(Vector(vel2D.x, vel2D.y, velocity.z));
+                    }
+                    else
+                    {
+                        vel2D = ((vel2D / vel2D.Length()) * m_fMaxLeaveSpeed);
+                        pOther->SetAbsVelocity(Vector(vel2D.x, vel2D.y, velocity.z));
+                    }
+
                 }
             }
+            //XYZ limit (this is likely never going to be used, or at least, it shouldn't be)
             else
             {
                 if (velocity.IsLengthGreaterThan(m_fMaxLeaveSpeed))
                 {
-                    pOther->SetAbsVelocity(velocity.Normalized() * m_fMaxLeaveSpeed);
+                    if (m_bDidPlayerBhop)
+                        pOther->SetAbsVelocity(velocity.Normalized() * m_fBhopLeaveSpeed);
+                    else
+                        pOther->SetAbsVelocity(velocity.Normalized() * m_fMaxLeaveSpeed);
                 }
             }
         }
     }
-    //re-enable jump always on end touch
-    CBasePlayer *pPlayer = ToBasePlayer(pOther);
-    pPlayer->EnableButtons(IN_JUMP);
     //stop thinking on end touch
     SetNextThink(NULL);
     BaseClass::EndTouch(pOther);
@@ -192,32 +202,53 @@ void CTriggerTimerStart::Think()
     {
         if (HasSpawnFlags(SF_LIMIT_BHOP))
         {
-            pPlayer->DisableButtons(IN_JUMP);
             //if player in air
-            if (pPlayer->GetGroundEntity() != NULL)
+            if (pPlayer->GetGroundEntity() == NULL)
             {
                 //only start timer if we havent already started
                 if (!m_BhopTimer.HasStarted())
-                    m_BhopTimer.Start(FL_BHOP_TIMER);
-
-                //when finished
-                if (m_BhopTimer.IsElapsed())
                 {
-                    pPlayer->EnableButtons(IN_JUMP);
+                    //DevLog("Timer Started!\n");
+                    m_BhopTimer.Start(FL_BHOP_TIMER);
+                }
+            }
+            //timer is still running
+            if (!m_BhopTimer.IsElapsed())
+            {
+                //timer is running and we are on ground
+                if (pPlayer->GetGroundEntity() != NULL)
+                {
+                    //DevLog("Player touched the ground\n");
+                    m_bPlayerTouchedGround = true;
+                }
+            }
+            //timer ran out and we touched the ground during the duration of the timer
+            else if (m_BhopTimer.IsElapsed() && m_bPlayerTouchedGround)
+            {
+                //we're in the air now, so we must have bhopped
+                if (pPlayer->GetGroundEntity() == NULL)
+                {
+                    m_bDidPlayerBhop = true;
+                    //DevLog("Player Bhopped\n");
+                }
+                //we're not in the air, so we are on the ground, so we didn't bhop.
+                else
+                {
+                    m_bDidPlayerBhop = false;
+                    //DevLog("Player Didn't Bhop\n");
                     m_BhopTimer.Reset();
                 }
             }
         }
     }
+    SetNextThink(gpGlobals->curtime);
+    //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
     //figure out if timer elapsed or not
     if (m_BhopTimer.GetRemainingTime() <= 0)
+    {
         m_BhopTimer.Invalidate();
-    //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
-
-    //HACKHACK - this prevents think from running too fast, breaking the timer
-    //and preventing the player from jumping until the timer runs out
-    //Thinking every 0.25 seconds seems to feel good, but we can adjust this later
-    SetNextThink(gpGlobals->curtime + 0.25);
+        //DevLog("Timer stopped!\n");
+    }
     BaseClass::Think();
 }
 //----------------------------------------------------------------------------------------------
