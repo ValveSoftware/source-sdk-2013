@@ -48,6 +48,7 @@ void CTriggerTimerStart::EndTouch(CBaseEntity *pOther)
 
         if (IsLimitingSpeed())
         {
+            DevLog("I'm Limiting speed\n");
             Vector velocity = pOther->GetAbsVelocity();
             if (IsLimitingSpeedOnlyXY())
             {
@@ -171,16 +172,16 @@ void CTriggerTimerStart::SetIsLimitingBhop(bool bIsLimitBhop)
 {
     if (bIsLimitBhop)
     {
-        if (!HasSpawnFlags(SF_LIMIT_BHOP))
+        if (!HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP))
         {
-            AddSpawnFlags(SF_LIMIT_BHOP);
+            AddSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP);
         }
     }
     else
     {
-        if (HasSpawnFlags(SF_LIMIT_BHOP))
+        if (HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP))
         {
-            RemoveSpawnFlags(SF_LIMIT_BHOP);
+            RemoveSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP);
         }
     }
 }
@@ -215,7 +216,7 @@ void CTriggerTimerStart::Think()
     //is only called if we are inside (see StartTouch & EndTouch defined above)
     if (pPlayer)
     {
-        if (HasSpawnFlags(SF_LIMIT_BHOP))
+        if (IsLimitingBhop())
         {
             //if player in air, only start timer if we havent already started
             if (pPlayer->GetGroundEntity() == NULL)

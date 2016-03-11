@@ -100,6 +100,8 @@ public:
     void EndTouch(CBaseEntity*);
     void StartTouch(CBaseEntity*);
     void Spawn();
+    void Think();
+
     // The start is always the first stage/checkpoint
     int GetCheckpointNumber() { return -1; }//Override
     int GetStageNumber() { return 1; }
@@ -107,18 +109,18 @@ public:
     void SetMaxLeaveSpeed(float pMaxSpeed);
     float GetBhopLeaveSpeed() { return m_fBhopLeaveSpeed; }
     void SetBhopLeaveSpeed(float pBhopLeaveSpeed);
-    bool IsLimitingSpeed() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED); }
-    void SetIsLimitingSpeed(bool pIsLimitingSpeed);
-    bool IsLimitingSpeedOnlyXY() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_ONLYXY); }
-    void SetIsLimitingSpeedOnlyXY(bool pIsLimitingSpeedOnlyXY);
-    bool IsLimitingBhop() { return HasSpawnFlags(SF_LIMIT_BHOP); }
-    void SetIsLimitingBhop(bool bIsLimitBhop);
-
-    void SetHasLookAngles(bool bHasLook);
-    bool GetHasLookAngles() { return HasSpawnFlags(SF_USE_LOOKANGLES); }
     void SetLookAngles(QAngle newang);
     QAngle GetLookAngles() { return m_angLook; }
-    void Think();
+
+    //spawnflags
+    bool IsLimitingSpeed() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED); }
+    void SetIsLimitingSpeed(bool pIsLimitingSpeed);
+    void SetHasLookAngles(bool bHasLook);
+    bool GetHasLookAngles() { return HasSpawnFlags(SF_USE_LOOKANGLES); }
+    bool IsLimitingSpeedOnlyXY() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_ONLYXY); }
+    void SetIsLimitingSpeedOnlyXY(bool pIsLimitingSpeedOnlyXY);
+    bool IsLimitingBhop() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP); }
+    void SetIsLimitingBhop(bool bIsLimitBhop);
 
 private:
     QAngle m_angLook = QAngle(0, 0, 0);
@@ -135,7 +137,7 @@ private:
     // Limit speed without taking into account hvel (Z axis)
     const int SF_LIMIT_LEAVE_SPEED_ONLYXY = 0x8;
     // Limit bhop in start zone?
-    const int SF_LIMIT_BHOP = 0x16;
+    const int SF_LIMIT_LEAVE_SPEED_BHOP = 0x16;
 
     //limitbhop stuff
     CountdownTimer m_BhopTimer;
