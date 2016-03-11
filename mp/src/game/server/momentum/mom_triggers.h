@@ -137,11 +137,12 @@ private:
     // Limit bhop in start zone?
     const int SF_LIMIT_BHOP = 0x16;
 
-    //bhop timer for limitbhop
+    //limitbhop stuff
     CountdownTimer m_BhopTimer;
+    //timer duration, should be ~1 jump and 1 bhop, ending when the player is in the air
     const float FL_BHOP_TIMER = 0.8f;
     float m_fBhopLeaveSpeed = 250;
-    bool m_bDidPlayerBhop;
+    bool m_bDidPlayerBhop {false};
     bool m_bPlayerTouchedGround;
 
 };

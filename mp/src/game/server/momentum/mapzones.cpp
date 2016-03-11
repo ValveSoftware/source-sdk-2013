@@ -37,7 +37,7 @@ CMapzone::~CMapzone()
 CMapzone::CMapzone(const int pType, Vector* pPos, QAngle* pRot, Vector* pScaleMins,
     Vector* pScaleMaxs, const int pIndex, const bool pShouldStop, const bool pShouldTilt,
     const float pHoldTime, const bool pLimitSpeed,
-    const float pMaxLeaveSpeed, const float pMaxBhopLeaveSpeed, const float flYaw,
+    const float pMaxLeaveSpeed, const float pBhopLeaveSpeed, const float flYaw,
     const string_t pLinkedEnt, const bool pCheckOnlyXY, const bool pLimitBhop)
 {
     m_type = pType;
@@ -51,7 +51,7 @@ CMapzone::CMapzone(const int pType, Vector* pPos, QAngle* pRot, Vector* pScaleMi
     m_holdTimeBeforeTeleport = pHoldTime;
     m_limitingspeed = pLimitSpeed;
     m_maxleavespeed = pMaxLeaveSpeed;
-    m_bhopleavespeed = pMaxBhopLeaveSpeed;
+    m_bhopleavespeed = pBhopLeaveSpeed;
     m_yaw = flYaw;
     m_linkedent = pLinkedEnt;
     m_onlyxycheck = pCheckOnlyXY;

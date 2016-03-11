@@ -51,32 +51,37 @@ void CTriggerTimerStart::EndTouch(CBaseEntity *pOther)
             Vector velocity = pOther->GetAbsVelocity();
             if (IsLimitingSpeedOnlyXY())
             {
+                // Isn't it nice how Vector2D.h doesn't have Normalize() on it?
+                // It only has a NormalizeInPlace... Not simple enough for me
                 Vector2D vel2D = velocity.AsVector2D();
-                if (velocity.AsVector2D().IsLengthGreaterThan(m_fMaxLeaveSpeed))
+                if (m_bDidPlayerBhop)
                 {
-                    // Isn't it nice how Vector2D.h doesn't have Normalize() on it?
-                    // It only has a NormalizeInPlace... Not simple enough for me
-                    if (m_bDidPlayerBhop)
+                    if (velocity.AsVector2D().IsLengthGreaterThan(m_fBhopLeaveSpeed))
                     {
                         vel2D = ((vel2D / vel2D.Length()) * m_fBhopLeaveSpeed);
                         pOther->SetAbsVelocity(Vector(vel2D.x, vel2D.y, velocity.z));
                     }
-                    else
+                }
+                else
+                {
+                    if (velocity.AsVector2D().IsLengthGreaterThan(m_fMaxLeaveSpeed))
                     {
                         vel2D = ((vel2D / vel2D.Length()) * m_fMaxLeaveSpeed);
                         pOther->SetAbsVelocity(Vector(vel2D.x, vel2D.y, velocity.z));
                     }
-
                 }
             }
             //XYZ limit (this is likely never going to be used, or at least, it shouldn't be)
             else
             {
-                if (velocity.IsLengthGreaterThan(m_fMaxLeaveSpeed))
+                if (m_bDidPlayerBhop)
                 {
-                    if (m_bDidPlayerBhop)
+                    if (velocity.IsLengthGreaterThan(m_fBhopLeaveSpeed))
                         pOther->SetAbsVelocity(velocity.Normalized() * m_fBhopLeaveSpeed);
-                    else
+                }
+                else
+                {
+                    if (velocity.IsLengthGreaterThan(m_fMaxLeaveSpeed))
                         pOther->SetAbsVelocity(velocity.Normalized() * m_fMaxLeaveSpeed);
                 }
             }
@@ -123,7 +128,7 @@ void CTriggerTimerStart::SetBhopLeaveSpeed(float pBhopMaxLeaveSpeed)
 {
     if (pBhopMaxLeaveSpeed < 0)
         pBhopMaxLeaveSpeed *= (-1.0f);
-    m_fMaxLeaveSpeed = pBhopMaxLeaveSpeed;
+    m_fBhopLeaveSpeed = pBhopMaxLeaveSpeed;
 }
 
 void CTriggerTimerStart::SetIsLimitingSpeed(bool pIsLimitingSpeed)
@@ -212,41 +217,37 @@ void CTriggerTimerStart::Think()
     {
         if (HasSpawnFlags(SF_LIMIT_BHOP))
         {
-            //if player in air
+            //if player in air, only start timer if we havent already started
             if (pPlayer->GetGroundEntity() == NULL)
             {
-                //only start timer if we havent already started
                 if (!m_BhopTimer.HasStarted())
                 {
-                    //DevLog("Timer Started!\n");
                     m_BhopTimer.Start(FL_BHOP_TIMER);
+                    //DevLog("Timer Started!\n");
                 }
             }
             //timer is still running
-            if (!m_BhopTimer.IsElapsed())
+            if (m_BhopTimer.HasStarted() && pPlayer->GetGroundEntity() != NULL && !m_bPlayerTouchedGround)
             {
-                //timer is running and we are on ground
-                if (pPlayer->GetGroundEntity() != NULL)
-                {
-                    //DevLog("Player touched the ground\n");
-                    m_bPlayerTouchedGround = true;
-                }
+                //DevLog("Player touched the ground\n");
+                m_bPlayerTouchedGround = true;
             }
             //timer ran out and we touched the ground during the duration of the timer
-            else if (m_BhopTimer.IsElapsed() && m_bPlayerTouchedGround)
+            if (m_BhopTimer.IsElapsed() && m_bPlayerTouchedGround)
             {
                 //we're in the air now, so we must have bhopped
                 if (pPlayer->GetGroundEntity() == NULL)
                 {
+                    //MOM_TODO: this will also get set off when we do mom_restart cus we are in the air and we haven't jumped yet
                     m_bDidPlayerBhop = true;
-                    //DevLog("Player Bhopped\n");
+                    DevLog("Player Bhopped\n");
                 }
                 //we're not in the air, so we are on the ground, so we didn't bhop.
                 else
                 {
                     m_bDidPlayerBhop = false;
                     //DevLog("Player Didn't Bhop\n");
-                    m_BhopTimer.Reset();
+                    //m_BhopTimer.Invalidate();
                 }
             }
         }
@@ -254,7 +255,7 @@ void CTriggerTimerStart::Think()
     SetNextThink(gpGlobals->curtime);
     //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
     //figure out if timer elapsed or not
-    if (m_BhopTimer.GetRemainingTime() <= 0)
+    if (m_BhopTimer.GetElapsedTime() > FL_BHOP_TIMER )
     {
         m_BhopTimer.Invalidate();
         //DevLog("Timer stopped!\n");
