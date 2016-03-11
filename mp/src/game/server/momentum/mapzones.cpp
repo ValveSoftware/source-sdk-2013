@@ -66,9 +66,9 @@ void CMapzone::SpawnZone()
         m_trigger = (CTriggerTimerStart *) CreateEntityByName("trigger_momentum_timer_start");
         ((CTriggerTimerStart *) m_trigger)->SetIsLimitingSpeed(m_limitingspeed);
         ((CTriggerTimerStart *) m_trigger)->SetMaxLeaveSpeed(m_maxleavespeed);
-        ((CTriggerTimerStart *)m_trigger)->SetBhopLeaveSpeed(m_bhopleavespeed);
+        ((CTriggerTimerStart *) m_trigger)->SetBhopLeaveSpeed(m_bhopleavespeed);
         ((CTriggerTimerStart *) m_trigger)->SetIsLimitingSpeedOnlyXY(m_onlyxycheck);
-        ((CTriggerTimerStart *)m_trigger)->SetLimitBhop(m_limitbhop);
+        ((CTriggerTimerStart *) m_trigger)->SetIsLimitingBhop(m_limitbhop);
         if ( m_yaw != NO_LOOK )
         {
             ((CTriggerTimerStart *) m_trigger)->SetHasLookAngles(true);
@@ -162,7 +162,7 @@ static void saveZonFile(const char* szMapName)
                 subKey->SetFloat("bhopleavespeed", pTrigger->GetBhopLeaveSpeed());
                 subKey->SetBool("limitingspeed", pTrigger->IsLimitingSpeed());
                 subKey->SetBool("onlyxy", pTrigger->IsLimitingSpeedOnlyXY());
-                subKey->SetBool("limitbhop", pTrigger->IsLimitBhop());
+                subKey->SetBool("limitingspeedbhop", pTrigger->IsLimitingBhop());
                 if (pTrigger->GetHasLookAngles())
                     subKey->SetFloat("yaw", pTrigger->GetLookAngles()[YAW] );
             }
@@ -374,7 +374,7 @@ bool CMapzoneData::LoadFromFile(const char *szMapName)
                 bhopleavespeed = cp->GetFloat("bhopleavespeed");
                 start_yaw = cp->GetFloat("yaw", NO_LOOK);
                 checkonlyxy = cp->GetBool("onlyxy", true);
-                limitbhop = cp->GetBool("limitbhop", true);
+                limitbhop = cp->GetBool("limitingspeedbhop", true);
             }
             else if (Q_strcmp(cp->GetName(), "checkpoint") == 0)
             {

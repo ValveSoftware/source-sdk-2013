@@ -167,7 +167,7 @@ void CTriggerTimerStart::SetIsLimitingSpeedOnlyXY(bool pIsLimitingSpeedOnlyXY)
     }
 }
 
-void CTriggerTimerStart::SetLimitBhop(bool bIsLimitBhop)
+void CTriggerTimerStart::SetIsLimitingBhop(bool bIsLimitBhop)
 {
     if (bIsLimitBhop)
     {
@@ -240,7 +240,7 @@ void CTriggerTimerStart::Think()
                 {
                     //MOM_TODO: this will also get set off when we do mom_restart cus we are in the air and we haven't jumped yet
                     m_bDidPlayerBhop = true;
-                    DevLog("Player Bhopped\n");
+                    //DevLog("Player Bhopped\n");
                 }
                 //we're not in the air, so we are on the ground, so we didn't bhop.
                 else

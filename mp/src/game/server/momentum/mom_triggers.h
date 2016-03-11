@@ -111,8 +111,8 @@ public:
     void SetIsLimitingSpeed(bool pIsLimitingSpeed);
     bool IsLimitingSpeedOnlyXY() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_ONLYXY); }
     void SetIsLimitingSpeedOnlyXY(bool pIsLimitingSpeedOnlyXY);
-    bool IsLimitBhop() { return HasSpawnFlags(SF_LIMIT_BHOP); }
-    void SetLimitBhop(bool bIsLimitBhop);
+    bool IsLimitingBhop() { return HasSpawnFlags(SF_LIMIT_BHOP); }
+    void SetIsLimitingBhop(bool bIsLimitBhop);
 
     void SetHasLookAngles(bool bHasLook);
     bool GetHasLookAngles() { return HasSpawnFlags(SF_USE_LOOKANGLES); }
@@ -142,6 +142,7 @@ private:
     //timer duration, should be ~1 jump and 1 bhop, ending when the player is in the air
     const float FL_BHOP_TIMER = 0.8f;
     float m_fBhopLeaveSpeed = 250;
+    //default false, so if SF_LIMIT_BHOP is not set we don't do any bhop limit stuff
     bool m_bDidPlayerBhop {false};
     bool m_bPlayerTouchedGround;
 
