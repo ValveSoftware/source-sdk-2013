@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "6920"
-	"mapversion" "94"
+	"mapversion" "96"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -26,7 +26,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "94"
+	"mapversion" "96"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -3686,10 +3686,11 @@ entity
 {
 	"id" "275"
 	"classname" "trigger_momentum_timer_start"
+	"bhopleavespeed" "250"
 	"leavespeed" "290"
 	"lookangles" "0 0 0"
 	"origin" "400 -224 -112"
-	"spawnflags" "25"
+	"spawnflags" "27"
 	"StartDisabled" "0"
 	solid
 	{

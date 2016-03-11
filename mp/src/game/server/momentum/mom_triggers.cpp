@@ -36,6 +36,7 @@ LINK_ENTITY_TO_CLASS(trigger_momentum_timer_start, CTriggerTimerStart);
 
 BEGIN_DATADESC(CTriggerTimerStart)
 DEFINE_KEYFIELD(m_fMaxLeaveSpeed, FIELD_FLOAT, "leavespeed"),
+DEFINE_KEYFIELD(m_fBhopLeaveSpeed, FIELD_FLOAT, "bhopleavespeed"),
 DEFINE_KEYFIELD(m_angLook, FIELD_VECTOR, "lookangles")
 END_DATADESC()
 
@@ -104,6 +105,8 @@ void CTriggerTimerStart::Spawn()
     // We don't want negative velocities (We're checking against an absolute value)
     if (m_fMaxLeaveSpeed < 0)
         m_fMaxLeaveSpeed *= (-1);
+    if (m_fBhopLeaveSpeed < 0)
+        m_fBhopLeaveSpeed *= (-1);
     m_angLook.z = 0.0f; // Reset roll since mappers will never stop ruining everything.
     BaseClass::Spawn();
 
@@ -114,6 +117,13 @@ void CTriggerTimerStart::SetMaxLeaveSpeed(float pMaxLeaveSpeed)
     if (pMaxLeaveSpeed < 0)
         pMaxLeaveSpeed *= (-1.0f);
     m_fMaxLeaveSpeed = pMaxLeaveSpeed;
+}
+
+void CTriggerTimerStart::SetBhopLeaveSpeed(float pBhopMaxLeaveSpeed)
+{
+    if (pBhopMaxLeaveSpeed < 0)
+        pBhopMaxLeaveSpeed *= (-1.0f);
+    m_fMaxLeaveSpeed = pBhopMaxLeaveSpeed;
 }
 
 void CTriggerTimerStart::SetIsLimitingSpeed(bool pIsLimitingSpeed)

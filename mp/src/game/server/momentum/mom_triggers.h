@@ -105,6 +105,8 @@ public:
     int GetStageNumber() { return 1; }
     float GetMaxLeaveSpeed() { return m_fMaxLeaveSpeed; }
     void SetMaxLeaveSpeed(float pMaxSpeed);
+    float GetBhopLeaveSpeed() { return m_fBhopLeaveSpeed; }
+    void SetBhopLeaveSpeed(float pBhopLeaveSpeed);
     bool IsLimitingSpeed() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED); }
     void SetIsLimitingSpeed(bool pIsLimitingSpeed);
     bool IsLimitingSpeedOnlyXY() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_ONLYXY); }

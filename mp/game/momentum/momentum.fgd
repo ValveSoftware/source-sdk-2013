@@ -33,14 +33,15 @@
 
 @SolidClass base(Trigger) = trigger_momentum_timer_start : "Trigger that starts the timer." 
 [
-	leavespeed(float) : "Max leave speed" : 290 : "Max speed (Units Per Second) the player will be able to leave the trigger if LIMIT LEAVE SPEED flag is set."
+	leavespeed(float) : "Max leave speed" : 290 : "Max speed (Units Per Second) the player will be able to leave the trigger if 'Limit Leave Speed' flag is set."
+	bhopleavespeed(float) : "Max leave speed if player bhopped" : 250 : "Max speed (Units Per Second) the player will be able to leave the trigger if they bhopped inside the start zone, and 'Limit leave speed if player bhopped' flag is set."
 	lookangles(angle) : "Look angles" : "0 0 0" : "Where player will look when teleported to start."
 	spawnflags(flags) =
 	[
 		2 : "Limit leave speed" : 1
 		4 : "Use look angles" : 0
 		8 : "Check only XY for leave speed check" : 1
-		16 : "Limit bhopping in the start zone" : 1
+		16 : "Limit leave speed if player bhopped" : 1
 	]
 ]
 
