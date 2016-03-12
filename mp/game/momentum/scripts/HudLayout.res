@@ -52,7 +52,7 @@
 		"ypos"			"460"
 		"visible"		"1"
 		"enabled"		"1"
-		"wide"			"100"
+		"wide"			"200"
 		"tall"			"20"
 		"TextFont"		"Default"
 	}    
