@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "6920"
-	"mapversion" "96"
+	"mapversion" "97"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -26,7 +26,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "96"
+	"mapversion" "97"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -3690,7 +3690,7 @@ entity
 	"leavespeed" "290"
 	"lookangles" "0 0 0"
 	"origin" "400 -224 -112"
-	"spawnflags" "27"
+	"spawnflags" "13"
 	"StartDisabled" "0"
 	solid
 	{
@@ -6360,7 +6360,7 @@ entity
 	"id" "2702"
 	"classname" "trigger_momentum_limitmovement"
 	"origin" "-208 -544 -32"
-	"spawnflags" "3"
+	"spawnflags" "33"
 	solid
 	{
 		"id" "2700"
@@ -6450,7 +6450,7 @@ entity
 	"id" "2709"
 	"classname" "trigger_momentum_limitmovement"
 	"origin" "-20 -542 -32"
-	"spawnflags" "9"
+	"spawnflags" "129"
 	solid
 	{
 		"id" "2710"
@@ -6540,7 +6540,7 @@ entity
 	"id" "2854"
 	"classname" "trigger_momentum_limitmovement"
 	"origin" "-384 -544 -32"
-	"spawnflags" "7"
+	"spawnflags" "97"
 	solid
 	{
 		"id" "2855"
