@@ -137,7 +137,7 @@ private:
     // Limit speed without taking into account hvel (Z axis)
     const int SF_LIMIT_LEAVE_SPEED_ONLYXY = 0x8;
     // Limit bhop in start zone?
-    const int SF_LIMIT_LEAVE_SPEED_BHOP = 0x16;
+    const int SF_LIMIT_LEAVE_SPEED_BHOP = 0x10;
 
     //limitbhop stuff
     CountdownTimer m_BhopTimer;
@@ -330,6 +330,6 @@ private:
     // Modify player velocity on EndTouch
     const int SF_PUSH_ONEND = 0x8;
     // Use the direction vector as final force instead of calculating it by force amount
-    const int SF_PUSH_DIRECTION_AS_FINAL_FORCE = 0x16;
+    const int SF_PUSH_DIRECTION_AS_FINAL_FORCE = 0x10;
 };
 #endif // TIMERTRIGGERS_H

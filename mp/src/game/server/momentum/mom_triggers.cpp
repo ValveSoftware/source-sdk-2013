@@ -48,7 +48,6 @@ void CTriggerTimerStart::EndTouch(CBaseEntity *pOther)
 
        if (IsLimitingSpeed())
         {
-            DevLog("I'm Limiting speed\n");
             Vector velocity = pOther->GetAbsVelocity();
             if (IsLimitingSpeedOnlyXY())
             {
@@ -116,7 +115,6 @@ void CTriggerTimerStart::SetIsLimitingSpeed(bool pIsLimitingSpeed)
         if (!HasSpawnFlags(SF_LIMIT_LEAVE_SPEED))
         {
             AddSpawnFlags(SF_LIMIT_LEAVE_SPEED);
-            DevLog("Added SF_LIMIT_LEAVE_SPEED\n");
         }
     }
     else
@@ -124,7 +122,6 @@ void CTriggerTimerStart::SetIsLimitingSpeed(bool pIsLimitingSpeed)
         if (HasSpawnFlags(SF_LIMIT_LEAVE_SPEED))
         {
             RemoveSpawnFlags(SF_LIMIT_LEAVE_SPEED);
-            DevLog("Removed SF_LIMIT_LEAVE_SPEED\n");
         }
     }
 }
@@ -154,7 +151,6 @@ void CTriggerTimerStart::SetIsLimitingBhop(bool bIsLimitBhop)
         if (!HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP))
         {
             AddSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP);
-            DevLog("Added SF_LIMIT_LEAVE_SPEED_BHOP\n");
         }
     }
     else
@@ -162,7 +158,6 @@ void CTriggerTimerStart::SetIsLimitingBhop(bool bIsLimitBhop)
         if (HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP))
         {
             RemoveSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP);
-            DevLog("Removed SF_LIMIT_LEAVE_SPEED_BHOP\n");
         }
     }
 }
@@ -190,7 +185,6 @@ void CTriggerTimerStart::SetLookAngles(QAngle newang)
 }
 void CTriggerTimerStart::Think()
 {
-    DevLog("Is limiting speed? (%i) Is limiting bhop speed? (%i)\n", IsLimitingSpeed(), IsLimitingBhop());
     debugoverlay->AddTextOverlay(vec3_origin, 0.1, "Is limiting speed? (%i) Is limiting bhop speed? (%i)", IsLimitingSpeed(), IsLimitingBhop());
     //for limit bhop in start zone
     //DevLog("Thinking...\n");
