@@ -9,6 +9,7 @@ SendPropInt(SENDINFO(m_iDirection)),
 SendPropBool(SENDINFO(m_bResumeZoom)),
 SendPropInt(SENDINFO(m_iLastZoom)),
 SendPropBool(SENDINFO(m_bAutoBhop)),
+SendPropBool(SENDINFO(m_bDidPlayerBhop)),
 END_SEND_TABLE()
 
 BEGIN_DATADESC(CMomentumPlayer)

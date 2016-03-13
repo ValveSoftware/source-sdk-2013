@@ -149,14 +149,9 @@ private:
     float m_fMaxLeaveSpeed = 290;
 
     //limitbhop stuff
-    CountdownTimer m_BhopTimer;
-    //timer duration, should be ~1 jump and 1 bhop, ending when the player is in the air
-    const float FL_BHOP_TIMER = 0.8f;
     float m_fBhopLeaveSpeed = 250;
     //default false, so if SF_LIMIT_BHOP is not set we don't do any bhop limit stuff
     bool m_bDidPlayerBhop {false};
-    bool m_bPlayerTouchedGround;
-
 };
 
 // CFilterCheckpoint

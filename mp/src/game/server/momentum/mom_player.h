@@ -63,12 +63,14 @@ public:
     void EnableAutoBhop();
     void DisableAutoBhop();
     bool HasAutoBhop();
+    bool DidPlayerBhop() { return m_bDidPlayerBhop; }
 
     CNetworkVar(int, m_iShotsFired);
     CNetworkVar(int, m_iDirection);
     CNetworkVar(bool, m_bResumeZoom);
     CNetworkVar(int, m_iLastZoom);
     CNetworkVar(bool, m_bAutoBhop);
+    CNetworkVar(bool, m_bDidPlayerBhop);
     
 
     void GetBulletTypeParameters(

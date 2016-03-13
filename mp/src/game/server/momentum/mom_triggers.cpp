@@ -185,58 +185,22 @@ void CTriggerTimerStart::SetLookAngles(QAngle newang)
 }
 void CTriggerTimerStart::Think()
 {
-    debugoverlay->AddTextOverlay(vec3_origin, 0.1, "Is limiting speed? (%i) Is limiting bhop speed? (%i)", IsLimitingSpeed(), IsLimitingBhop());
     //for limit bhop in start zone
-    //DevLog("Thinking...\n");
-    CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+    CMomentumPlayer *pPlayer = ToCMOMPlayer(UTIL_GetLocalPlayer());
     //We don't check for player inside trigger here since the Think() function
     //is only called if we are inside (see StartTouch & EndTouch defined above)
     if (pPlayer && IsLimitingBhop())
     {
-
-        //if player in air, only start timer if we havent already started
-        if (pPlayer->GetGroundEntity() == NULL)
+        if (pPlayer->DidPlayerBhop())
         {
-            if (!m_BhopTimer.HasStarted())
-            {
-                m_BhopTimer.Start(FL_BHOP_TIMER);
-                //DevLog("Timer Started!\n");
-            }
+            m_bDidPlayerBhop = true;
         }
-        //timer is still running
-        if (m_BhopTimer.HasStarted() && pPlayer->GetGroundEntity() != NULL && !m_bPlayerTouchedGround)
+        else
         {
-            //DevLog("Player touched the ground\n");
-            m_bPlayerTouchedGround = true;
+            m_bDidPlayerBhop = false;
         }
-        //timer ran out and we touched the ground during the duration of the timer
-        if (m_BhopTimer.IsElapsed() && m_bPlayerTouchedGround)
-        {
-            //we're in the air now, so we must have bhopped
-            if (pPlayer->GetGroundEntity() == NULL)
-            {
-                //MOM_TODO: this will also get set off when we do mom_restart cus we are in the air and we haven't jumped yet
-                m_bDidPlayerBhop = true;
-                //DevLog("Player Bhopped\n");
-            }
-            //we're not in the air, so we are on the ground, so we didn't bhop.
-            else
-            {
-                m_bDidPlayerBhop = false;
-                //DevLog("Player Didn't Bhop\n");
-                //m_BhopTimer.Invalidate();
-            }
-        }
-
     }
     SetNextThink(gpGlobals->curtime);
-    //DevLog("Bhop Timer Remaining Time:%f\n", m_BhopTimer.GetRemainingTime());
-    //figure out if timer elapsed or not
-    if (m_BhopTimer.GetElapsedTime() > FL_BHOP_TIMER)
-    {
-        m_BhopTimer.Invalidate();
-        //DevLog("Timer stopped!\n");
-    }
     BaseClass::Think();
 }
 //----------------------------------------------------------------------------------------------
