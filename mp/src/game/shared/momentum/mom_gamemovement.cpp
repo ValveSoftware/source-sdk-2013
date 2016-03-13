@@ -565,14 +565,11 @@ bool CMomentumGameMovement::CheckJumpButton()
             return false;		// don't pogo stick
     }
     //flag that player bhopped
-    if (mv->m_nOldButtons & IN_JUMP && player->GetGroundEntity() != NULL)
+    if (player->GetGroundEntity() != NULL)
     {
-        player->m_bDidPlayerBhop = true;
+        player->m_bDidPlayerBhop = (mv->m_nOldButtons & IN_JUMP) != 0;
     }
-    else if (player->GetGroundEntity() != NULL)
-    {
-        player->m_bDidPlayerBhop = false;
-    }
+    
     // In the air now.
     SetGroundEntity(NULL);
 
