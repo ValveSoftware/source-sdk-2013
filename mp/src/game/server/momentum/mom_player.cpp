@@ -8,7 +8,7 @@ SendPropInt(SENDINFO(m_iShotsFired)),
 SendPropInt(SENDINFO(m_iDirection)),
 SendPropBool(SENDINFO(m_bResumeZoom)),
 SendPropInt(SENDINFO(m_iLastZoom)),
-SendPropInt(SENDINFO(m_bAutoBhop)),
+SendPropBool(SENDINFO(m_bAutoBhop)),
 END_SEND_TABLE()
 
 BEGIN_DATADESC(CMomentumPlayer)
