@@ -95,7 +95,6 @@ void CTriggerTimerStart::Spawn()
     m_fBhopLeaveSpeed = abs(m_fBhopLeaveSpeed);
     m_angLook.z = 0.0f; // Reset roll since mappers will never stop ruining everything.
     BaseClass::Spawn();
-
 }
 
 void CTriggerTimerStart::SetMaxLeaveSpeed(float pMaxLeaveSpeed)
@@ -192,14 +191,11 @@ void CTriggerTimerStart::Think()
     if (pPlayer && IsLimitingBhop())
     {
         if (pPlayer->DidPlayerBhop())
-        {
             m_bDidPlayerBhop = true;
-        }
         else
-        {
             m_bDidPlayerBhop = false;
-        }
     }
+
     SetNextThink(gpGlobals->curtime);
     BaseClass::Think();
 }

@@ -64,6 +64,8 @@ public:
     void DisableAutoBhop();
     bool HasAutoBhop();
     bool DidPlayerBhop() { return m_bDidPlayerBhop; }
+    //think function for detecting if player bhopped
+    void CheckForBhop();
 
     CNetworkVar(int, m_iShotsFired);
     CNetworkVar(int, m_iDirection);
@@ -108,6 +110,9 @@ private:
     EHANDLE g_pLastSpawn;
     bool SelectSpawnSpot(const char *pEntClassName, CBaseEntity* &pSpot);
 
+    //for detecting bhop
+    float m_flTicksOnGround;
+    const int NUM_TICKS_TO_BHOP = 4;
     friend class CMomentumGameMovement;
 
 };
