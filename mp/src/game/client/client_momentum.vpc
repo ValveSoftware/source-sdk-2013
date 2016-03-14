@@ -63,6 +63,7 @@ $Project "Client (Momentum)"
                 }          
             
 			    $File	"momentum\ui\speedometer.cpp"
+			    $File 	"momentum\ui\versionwarn.cpp"
 			    $File   "momentum\ui\hud_cp_menu.cpp"
 				$File 	"momentum\ui\hud_menu_static.h"
 				$File 	"momentum\ui\hud_menu_static.cpp"

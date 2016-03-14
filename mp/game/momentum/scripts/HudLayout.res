@@ -43,7 +43,19 @@
     {
          "fieldName" "CHudMenuStatic"
          //You can override "MenuItemColor" etc here (I think)
-    }    
+    }
+	// Version warning
+	CHudVersionWarn
+	{
+		"fieldName"		"CHudVersionWarn"
+		"xpos"			"640"
+		"ypos"			"460"
+		"visible"		"1"
+		"enabled"		"1"
+		"wide"			"200"
+		"tall"			"20"
+		"TextFont"		"Default"
+	}    
 	HudHealth [$WIN32]
 	{
 		"fieldName"		"HudHealth"
