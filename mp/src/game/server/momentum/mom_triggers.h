@@ -8,6 +8,26 @@
 #include "filters.h"
 #include "func_break.h"
 
+// spawnflags 
+enum {
+    //CTriggerTimerStart
+    SF_LIMIT_LEAVE_SPEED = 0x0001,          // Limit max leave speed to m_fMaxLeaveSpeed?
+    SF_USE_LOOKANGLES = 0x0002,             // Use look angles?
+    SF_LIMIT_LEAVE_SPEED_ONLYXY = 0x0004,   // Limit speed without taking into account hvel (Z axis)
+    SF_LIMIT_LEAVE_SPEED_BHOP = 0x0008,     // Limit bhop in start zone?
+    //CTriggerOneHop
+    SF_TELEPORT_RESET_ONEHOP = 0x0010,      // Reset hop state if player hops onto another different onehop
+    //CTriggerLimitMove
+    LIMIT_JUMP = 0x0020,                    //prevent player from jumping
+    LIMIT_CROUCH = 0x0040,                  //prevent player from croching
+    LIMIT_BHOP = 0x0080,                    //prevent player from bhopping
+    //CFuncShootBost and CTriggerMomentumPush
+    SF_PUSH_DIRECTION_AS_FINAL_FORCE = 0x0100,  // Use the direction vector as final force instead of calculating it by force amount
+    //CTriggerMomentumPush
+    SF_PUSH_ONETOUCH = 0x0200,               // Only allow for one touch
+    SF_PUSH_ONSTART = 0x0400,                // Modify player velocity on StartTouch
+    SF_PUSH_ONEND = 0x0800,                  // Modify player velocity on EndTouch
+};
 // CBaseMomentumTrigger
 class CBaseMomentumTrigger : public CTriggerMultiple
 {
@@ -100,35 +120,38 @@ public:
     void EndTouch(CBaseEntity*);
     void StartTouch(CBaseEntity*);
     void Spawn();
+    void Think();
+
     // The start is always the first stage/checkpoint
     int GetCheckpointNumber() { return -1; }//Override
     int GetStageNumber() { return 1; }
     float GetMaxLeaveSpeed() { return m_fMaxLeaveSpeed; }
     void SetMaxLeaveSpeed(float pMaxSpeed);
-    bool IsLimitingSpeed() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED); }
-    void SetIsLimitingSpeed(bool pIsLimitingSpeed);
-    bool IsLimitingSpeedOnlyXY() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_ONLYXY); }
-    void SetIsLimitingSpeedOnlyXY(bool pIsLimitingSpeedOnlyXY);
-
-    void SetHasLookAngles(bool bHasLook);
-    bool GetHasLookAngles() { return HasSpawnFlags(SF_USE_LOOKANGLES); }
+    float GetBhopLeaveSpeed() { return m_fBhopLeaveSpeed; }
+    void SetBhopLeaveSpeed(float pBhopLeaveSpeed);
     void SetLookAngles(QAngle newang);
     QAngle GetLookAngles() { return m_angLook; }
+
+    //spawnflags
+    bool IsLimitingSpeed() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED); }
+    void SetIsLimitingSpeed(bool pIsLimitingSpeed);
+    void SetHasLookAngles(bool bHasLook);
+    bool GetHasLookAngles() { return HasSpawnFlags(SF_USE_LOOKANGLES); }
+    bool IsLimitingSpeedOnlyXY() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_ONLYXY); }
+    void SetIsLimitingSpeedOnlyXY(bool pIsLimitingSpeedOnlyXY);
+    bool IsLimitingBhop() { return HasSpawnFlags(SF_LIMIT_LEAVE_SPEED_BHOP); }
+    void SetIsLimitingBhop(bool bIsLimitBhop);
 
 private:
     QAngle m_angLook = QAngle(0, 0, 0);
 
     // How fast can the player leave the start trigger?
-    float m_fMaxLeaveSpeed = 280;
+    float m_fMaxLeaveSpeed = 290;
 
-    // MOM_TODO: Why aren't these defines?
-
-    // Limit max leave speed to m_fMaxLeaveSpeed?
-    const int SF_LIMIT_LEAVE_SPEED = 0x2;
-    // Use look angles?
-    const int SF_USE_LOOKANGLES = 0x4;
-    // Limit speed without taking into account hvel (Z axis)
-    const int SF_LIMIT_LEAVE_SPEED_ONLYXY = 0x8;
+    //limitbhop stuff
+    float m_fBhopLeaveSpeed = 250;
+    //default false, so if SF_LIMIT_BHOP is not set we don't do any bhop limit stuff
+    bool m_bDidPlayerBhop {false};
 };
 
 // CFilterCheckpoint
@@ -172,8 +195,6 @@ private:
     float m_fStartTouchedTime = 0.0f;
     // Seconds to hold before activating the teleport
     float m_fMaxHoldSeconds = 1;
-    // Reset hop state if player hops onto another different onehop
-    const int SF_TELEPORT_RESET_ONEHOP = 0x2;
 
 };
 
@@ -238,13 +259,6 @@ public:
     void EndTouch(CBaseEntity *pOther);
 
 private:
-    //prevent player from jumping
-    const int LIMIT_JUMP = 0x2;
-    //prevent player from croching
-    const int LIMIT_CROUCH = 0x4;
-    //prevent player from bhopping
-    const int LIMIT_BHOP = 0x8;
-
     CountdownTimer m_BhopTimer;
     const float FL_BHOP_TIMER = 0.15f;
 };
@@ -270,8 +284,6 @@ public:
     Vector m_vPushDir;
     // If not null, dictates which entity the attacker must be touching for the func to work
     CBaseEntity *m_Destination;
-    // Use the direction vector as final force instead of calculating it by force amount
-    const int SF_PUSH_DIRECTION_AS_FINAL_FORCE = 0x2;
 };
 
 // CTriggerMomentumPush
@@ -304,13 +316,5 @@ private:
     Vector m_vPushDir;
     // Pointer to the destination entity if a teleport is needed
     CBaseEntity *m_Destination;
-    // Only allow for one touch
-    const int SF_PUSH_ONETOUCH = 0x2;
-    // Modify player velocity on StartTouch
-    const int SF_PUSH_ONSTART = 0x4;
-    // Modify player velocity on EndTouch
-    const int SF_PUSH_ONEND = 0x8;
-    // Use the direction vector as final force instead of calculating it by force amount
-    const int SF_PUSH_DIRECTION_AS_FINAL_FORCE = 0x16;
 };
 #endif // TIMERTRIGGERS_H

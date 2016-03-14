@@ -37,8 +37,8 @@ CMapzone::~CMapzone()
 CMapzone::CMapzone(const int pType, Vector* pPos, QAngle* pRot, Vector* pScaleMins,
     Vector* pScaleMaxs, const int pIndex, const bool pShouldStop, const bool pShouldTilt,
     const float pHoldTime, const bool pLimitSpeed,
-    const float pMaxLeaveSpeed, const float flYaw,
-    const string_t pLinkedEnt, const bool pCheckOnlyXY)
+    const float pMaxLeaveSpeed, const float pBhopLeaveSpeed, const float flYaw,
+    const string_t pLinkedEnt, const bool pCheckOnlyXY, const bool pLimitBhop)
 {
     m_type = pType;
     m_pos = pPos;
@@ -51,9 +51,11 @@ CMapzone::CMapzone(const int pType, Vector* pPos, QAngle* pRot, Vector* pScaleMi
     m_holdTimeBeforeTeleport = pHoldTime;
     m_limitingspeed = pLimitSpeed;
     m_maxleavespeed = pMaxLeaveSpeed;
+    m_bhopleavespeed = pBhopLeaveSpeed;
     m_yaw = flYaw;
     m_linkedent = pLinkedEnt;
     m_onlyxycheck = pCheckOnlyXY;
+    m_limitbhop = pLimitBhop;
 }
 
 void CMapzone::SpawnZone()
@@ -64,7 +66,9 @@ void CMapzone::SpawnZone()
         m_trigger = (CTriggerTimerStart *) CreateEntityByName("trigger_momentum_timer_start");
         ((CTriggerTimerStart *) m_trigger)->SetIsLimitingSpeed(m_limitingspeed);
         ((CTriggerTimerStart *) m_trigger)->SetMaxLeaveSpeed(m_maxleavespeed);
+        ((CTriggerTimerStart *) m_trigger)->SetBhopLeaveSpeed(m_bhopleavespeed);
         ((CTriggerTimerStart *) m_trigger)->SetIsLimitingSpeedOnlyXY(m_onlyxycheck);
+        ((CTriggerTimerStart *) m_trigger)->SetIsLimitingBhop(m_limitbhop);
         if ( m_yaw != NO_LOOK )
         {
             ((CTriggerTimerStart *) m_trigger)->SetHasLookAngles(true);
@@ -85,7 +89,7 @@ void CMapzone::SpawnZone()
         break;
     case MOMZONETYPE_STOP:
         m_trigger = (CTriggerTimerStop *) CreateEntityByName("trigger_momentum_timer_stop");
-        m_trigger->SetName(MAKE_STRING("Ending Trigger"));
+        m_trigger->SetName(MAKE_STRING("End Trigger"));
         break;
     case MOMZONETYPE_ONEHOP:
         m_trigger = (CTriggerOnehop *) CreateEntityByName("trigger_momentum_onehop");
@@ -155,8 +159,10 @@ static void saveZonFile(const char* szMapName)
             if (pTrigger)
             {
                 subKey->SetFloat("leavespeed", pTrigger->GetMaxLeaveSpeed());
+                subKey->SetFloat("bhopleavespeed", pTrigger->GetBhopLeaveSpeed());
                 subKey->SetBool("limitingspeed", pTrigger->IsLimitingSpeed());
                 subKey->SetBool("onlyxy", pTrigger->IsLimitingSpeedOnlyXY());
+                subKey->SetBool("limitingspeedbhop", pTrigger->IsLimitingBhop());
                 if (pTrigger->GetHasLookAngles())
                     subKey->SetFloat("yaw", pTrigger->GetLookAngles()[YAW] );
             }
@@ -353,7 +359,9 @@ bool CMapzoneData::LoadFromFile(const char *szMapName)
             //int destinationIndex = -1;
             bool limitingspeed = true;
             bool checkonlyxy = true;
+            bool limitbhop = true;
             float maxleavespeed = 290.0f;
+            float bhopleavespeed = 250.0f;
             const char * linkedtrigger = NULL;
 
             float start_yaw = NO_LOOK;
@@ -363,8 +371,10 @@ bool CMapzoneData::LoadFromFile(const char *szMapName)
                 zoneType = MOMZONETYPE_START;
                 limitingspeed = cp->GetBool("limitingspeed");
                 maxleavespeed = cp->GetFloat("leavespeed");
+                bhopleavespeed = cp->GetFloat("bhopleavespeed");
                 start_yaw = cp->GetFloat("yaw", NO_LOOK);
                 checkonlyxy = cp->GetBool("onlyxy", true);
+                limitbhop = cp->GetBool("limitingspeedbhop", true);
             }
             else if (Q_strcmp(cp->GetName(), "checkpoint") == 0)
             {
@@ -418,7 +428,7 @@ bool CMapzoneData::LoadFromFile(const char *szMapName)
 
             // Add element
             m_zones.AddToTail(new CMapzone(zoneType, pos, rot, scaleMins, scaleMaxs, index, shouldStop, shouldTilt,
-                holdTime, limitingspeed, maxleavespeed, start_yaw, MAKE_STRING(linkedtrigger),checkonlyxy));
+                holdTime, limitingspeed, maxleavespeed, bhopleavespeed, start_yaw, MAKE_STRING(linkedtrigger), checkonlyxy, limitbhop));
         }
         DevLog("Successfully loaded map zone file %s!\n", zoneFilePath);
         toReturn = true;

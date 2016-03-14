@@ -564,6 +564,7 @@ bool CMomentumGameMovement::CheckJumpButton()
         if (mv->m_nOldButtons & IN_JUMP)
             return false;		// don't pogo stick
     }
+    
     // In the air now.
     SetGroundEntity(NULL);
 

@@ -63,12 +63,16 @@ public:
     void EnableAutoBhop();
     void DisableAutoBhop();
     bool HasAutoBhop();
+    bool DidPlayerBhop() { return m_bDidPlayerBhop; }
+    //think function for detecting if player bhopped
+    void CheckForBhop();
 
     CNetworkVar(int, m_iShotsFired);
     CNetworkVar(int, m_iDirection);
     CNetworkVar(bool, m_bResumeZoom);
     CNetworkVar(int, m_iLastZoom);
     CNetworkVar(bool, m_bAutoBhop);
+    CNetworkVar(bool, m_bDidPlayerBhop);
     
 
     void GetBulletTypeParameters(
@@ -106,6 +110,9 @@ private:
     EHANDLE g_pLastSpawn;
     bool SelectSpawnSpot(const char *pEntClassName, CBaseEntity* &pSpot);
 
+    //for detecting bhop
+    float m_flTicksOnGround;
+    const int NUM_TICKS_TO_BHOP = 4;
     friend class CMomentumGameMovement;
 
 };

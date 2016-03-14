@@ -21,8 +21,9 @@ class CMapzone
 public:
     CMapzone();
     CMapzone(const int, Vector*, QAngle*, Vector*, Vector*,
-        const int, const bool, const bool, const float,
-        const bool, const float, const float, const string_t, const bool);
+        const int, const bool, const bool, const float, 
+        const bool, const float, const float, const float, 
+        const string_t, const bool, const bool);
     ~CMapzone();
 
     void SpawnZone();
@@ -43,7 +44,9 @@ private:
     // startTrigger
     bool m_limitingspeed; // Limit leave speed?
     bool m_onlyxycheck; // Only checking speed in XY?
+    bool m_limitbhop;
     float m_maxleavespeed; // Max speed allowed
+    float m_bhopleavespeed; // Max speed if player bhopped
     float m_yaw; // Teleport yaw for start zone.
     string_t m_linkedent; // Entity name for teleporting to this entity (YESYES, It can be null!)
     Vector* m_pos;

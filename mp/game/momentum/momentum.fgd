@@ -33,13 +33,15 @@
 
 @SolidClass base(Trigger) = trigger_momentum_timer_start : "Trigger that starts the timer." 
 [
-	leavespeed(float) : "Max leave speed" : 290 : "Max speed (Units Per Second) the player will be able to leave the trigger if LIMIT LEAVE SPEED flag is set."
+	leavespeed(float) : "Max leave speed" : 290 : "Max speed (Units Per Second) the player will be able to leave the trigger if 'Limit Leave Speed' flag is set."
+	bhopleavespeed(float) : "Max leave speed if player bhopped" : 250 : "Max speed (Units Per Second) the player will be able to leave the trigger if they bhopped inside the start zone, and 'Limit leave speed if player bhopped' flag is set."
 	lookangles(angle) : "Look angles" : "0 0 0" : "Where player will look when teleported to start."
 	spawnflags(flags) =
 	[
-		2 : "Limit leave speed" : 1
-		4 : "Use look angles" : 0
-		8 : "Check only XY for leave speed check" : 1
+		1 : "Limit leave speed" : 1
+		2 : "Use look angles" : 0
+		4 : "Check only XY for leave speed check" : 1
+		8 : "Limit leave speed if player bhopped" : 1
 	]
 ]
 
@@ -90,9 +92,9 @@
 [
 	spawnflags(flags) = 
 	[ 
-		2: "Prevent the player from jumping" : 0
-		4: "Prevent the player from ducking" : 0
-		8: "Prevent the player from bhopping" : 0
+		32: "Prevent the player from jumping" : 0
+		64: "Prevent the player from ducking" : 0
+		128: "Prevent the player from bhopping" : 0
 	]
 ]
 
@@ -125,7 +127,7 @@
     ]
     spawnflags(flags) = 
 	[ 
-		2: "Use the direction vector as final force instead of calculating it by force amount" : 0
+		256: "Use the direction vector as final force instead of calculating it by force amount" : 0
 	]
 
     // THIS THROWS AN ERROR, BUT AS IT HIDES IT-> WE STAY WITH IT FOR NOW
@@ -147,9 +149,9 @@
     ]
 	spawnflags(flags) = 
 	[ 
-		2 : "Only allow for one touch before reseting" : 1
-		4 : "Modify player velocity on StartTouch" : 0
-		8 : "Modify player velocity on EndTouch" : 1
-		16 : "Use the direction vector as final force instead of calculating it by force amount" : 1
+		512 : "Only allow for one touch before reseting" : 1
+		1024 : "Modify player velocity on StartTouch" : 0
+		2048 : "Modify player velocity on EndTouch" : 1
+		256 : "Use the direction vector as final force instead of calculating it by force amount" : 1
 	]
 ]
