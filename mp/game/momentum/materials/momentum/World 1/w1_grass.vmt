@@ -1,0 +1,8 @@
+"LightmappedGeneric"
+{
+	"$basetexture" "momentum/World 1/w1_grass"
+	"$surfaceprop" "rock"
+	"%keywords" "sonic"
+	"$bumpmap" "momentum/World 1/w1_grass_nrm"
+	//made by zackchange for Sonic Generations texture pack
+}

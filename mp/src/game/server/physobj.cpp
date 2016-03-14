@@ -36,7 +36,7 @@ const char *GetMassEquivalent(float flMass);
 //
 // NOTE: Springs are not physical in the sense that they only create force, they do not collide with
 // anything or have any REAL constraints.  They can be stretched infinitely (though this will create
-// and infinite force), they can penetrate any other object (or spring). They do not occupy any space.
+// an infinite force), they can penetrate any other object (or spring). They do not occupy any space.
 // 
 
 #define SF_SPRING_ONLYSTRETCH		0x0001
@@ -1559,13 +1559,30 @@ CPhysMagnet::~CPhysMagnet( void )
 //-----------------------------------------------------------------------------
 void CPhysMagnet::Spawn( void )
 {
+    /*
 	Precache();
 
 	SetMoveType( MOVETYPE_NONE );
 	SetSolid( SOLID_VPHYSICS );
 	SetModel( STRING( GetModelName() ) );
+    */
+    SetMoveType(MOVETYPE_NONE);
+    SetSolid(SOLID_VPHYSICS);
 
-	m_takedamage = DAMAGE_EVENTS_ONLY;
+    char *szModel = (char *)STRING(GetModelName());
+    if (!szModel || !*szModel)
+    {
+        Warning("%s at %.0f, %.0f, %0.f missing modelname!\n", GetClassname(), GetAbsOrigin().x, GetAbsOrigin().y,
+                GetAbsOrigin().z);
+        UTIL_Remove(this);
+        return;
+    }
+
+    PrecacheModel(szModel);
+    SetModel(szModel);
+
+
+    m_takedamage = DAMAGE_EVENTS_ONLY;
 
 	solid_t tmpSolid;
 	PhysModelParseSolid( tmpSolid, this, GetModelIndex() );

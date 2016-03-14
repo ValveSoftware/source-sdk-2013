@@ -6,7 +6,7 @@
 
 $Macro SRCDIR		"..\.."
 $Macro GAMENAME 	"hl2mp" [!$SOURCESDK]
-$Macro GAMENAME 	"mod_hl2mp" [$SOURCESDK]
+$Macro GAMENAME 	"momentum" [$SOURCESDK]
 
 $Include "$SRCDIR\game\server\server_base.vpc"
 $Include "$SRCDIR\game\server\nav_mesh.vpc" [$SOURCESDK]
@@ -15,12 +15,12 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2,.\hl2,.\hl2mp,$SRCDIR\game\shared\hl2mp"
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2,.\hl2,.\hl2mp,$SRCDIR\game\shared\hl2mp;$SRCDIR\thirdparty\gason\src"
 		$PreprocessorDefinitions		"$BASE;HL2MP;HL2_DLL"
 	}
 }
 
-$Project "Server (HL2MP)"
+$Project "Server (Momentum)"
 {
 	$Folder	"Source Files"
 	{
@@ -60,6 +60,7 @@ $Project "Server (HL2MP)"
 		$File	"trigger_area_capture.h"
 		$File   "$SRCDIR\game\shared\teamplay_round_timer.cpp"
 		$File   "$SRCDIR\game\shared\teamplay_round_timer.h"
+		
 
 		$Folder	"HL2 DLL"
 		{

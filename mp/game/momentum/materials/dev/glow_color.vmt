@@ -1,0 +1,7 @@
+UnlitGeneric
+{
+    $basetexture red // or whatever you like
+    $ignorez 1
+    $model 1
+    $linearwrite 1
+}

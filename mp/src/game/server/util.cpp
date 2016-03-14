@@ -653,7 +653,7 @@ CBasePlayer *UTIL_GetLocalPlayer( void )
 #endif
 		}
 
-		return NULL;
+		//return NULL;
 	}
 
 	return UTIL_PlayerByIndex( 1 );

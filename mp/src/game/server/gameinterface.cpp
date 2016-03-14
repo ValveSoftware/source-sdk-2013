@@ -90,6 +90,10 @@
 #include "serverbenchmark_base.h"
 #include "querycache.h"
 
+//Momentum
+#include "momentum/server_events.h"
+#include "momentum/tickset.h"
+
 
 #ifdef TF_DLL
 #include "gc_clientsystem.h"
@@ -743,6 +747,9 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	gamestatsuploader->InitConnection();
 #endif
 
+    //Momentum
+    Momentum::OnServerDLLInit();
+
 	return true;
 }
 
@@ -849,10 +856,32 @@ float CServerGameDLL::GetTickInterval( void ) const
 	return tickinterval;
 }
 
+static void onTickRateChange(IConVar *var, const char* pOldValue, float fOldValue)
+{
+    float toCheck = ((ConVar*) var)->GetFloat();
+    if (toCheck == fOldValue) return;
+    if (toCheck < 0.01f || toCheck > 0.015f)
+    {
+        Warning("Cannot set a tickrate any lower than 66 or higher than 100!\n");
+        var->SetValue(((ConVar*) var)->GetDefault());
+        return;
+    }
+    bool result = TickSet::SetTickrate(toCheck);
+    if (result)
+    {
+        Msg("Successfully changed the tickrate to %f!\n", toCheck);
+        gpGlobals->interval_per_tick = toCheck;
+    }
+    else Warning("Failed to hook interval per tick, cannot set tick rate!\n");
+}
+
+static ConVar tickRate("sv_tickrate", "0.015", FCVAR_CHEAT | FCVAR_NOT_CONNECTED, "Changes the tickrate of the game.", onTickRateChange);
+
 // This is called when a new game is started. (restart, map)
 bool CServerGameDLL::GameInit( void )
 {
 	ResetGlobalState();
+    Momentum::GameInit();
 	engine->ServerCommand( "exec game.cfg\n" );
 	engine->ServerExecute( );
 	CBaseEntity::sm_bAccurateTriggerBboxChecks = true;
@@ -1141,6 +1170,9 @@ void CServerGameDLL::ServerActivate( edict_t *pEdictList, int edictCount, int cl
 #ifdef NEXT_BOT
 	TheNextBots().OnMapLoaded();
 #endif
+
+    //Momentum
+    Momentum::OnMapStart(gpGlobals->mapname.ToCStr());
 }
 
 //-----------------------------------------------------------------------------
@@ -1222,6 +1254,11 @@ void CServerGameDLL::GameFrame( bool simulating )
 
 	IGameSystem::FrameUpdatePreEntityThinkAllSystems();
 	GameStartFrame();
+
+
+    //Momentum
+    Momentum::OnGameFrameStart();
+
 
 #ifndef _XBOX
 #ifdef USE_NAV_MESH
@@ -1367,6 +1404,10 @@ void CServerGameDLL::OnQueryCvarValueFinished( QueryCvarCookie_t iCookie, edict_
 // Called when a level is shutdown (including changing levels)
 void CServerGameDLL::LevelShutdown( void )
 {
+    //Momentum
+    Momentum::OnMapEnd(gpGlobals->mapname.ToCStr());
+
+
 #ifndef NO_STEAM
 	IGameSystem::LevelShutdownPreClearSteamAPIContextAllSystems();
 

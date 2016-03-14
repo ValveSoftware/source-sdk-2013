@@ -1,0 +1,11 @@
+"lang"
+{
+	"Language" "German"
+	"Tokens"
+	{
+        //Main menu overrides    
+        "MOM_MapSelector_MainMenuOption" "MAP AUSWÄHLEN"
+        "MOM_Credits" "CREDITS"
+        "MOM_QuitToMenu" "ZURÜCK ZUM HAUPTMENÜ"
+	}
+}

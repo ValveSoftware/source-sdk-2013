@@ -75,8 +75,9 @@ public:
 	void			SetAbsOrigin( const Vector &vec );
 	const Vector	&GetAbsOrigin() const;
 
-private:
-	Vector			m_vecAbsOrigin;		// edict::origin
+    //no longer private so we can have late reflect :)
+	Vector			m_vecAbsOrigin;		// edict::origin 
+    
 };
 
 inline const Vector &CMoveData::GetAbsOrigin() const

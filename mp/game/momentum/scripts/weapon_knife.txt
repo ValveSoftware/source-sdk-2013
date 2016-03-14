@@ -1,0 +1,100 @@
+WeaponData
+{
+	"MaxPlayerSpeed"		"250"
+	"WeaponType"			"Knife"
+	"WeaponPrice"			"0"
+	"WeaponArmorRatio"		"1.7"
+	"CrosshairMinDistance"		"7"
+	"CrosshairDeltaDistance"	"3"
+	"Team"				"ANY"
+	"BuiltRightHanded"		"1"
+	"PlayerAnimationExtension"	"knife"
+	"MuzzleFlashScale"		"0"
+	"MuzzleFlashStyle"		"CS_MUZZLEFLASH_NONE"
+	"CanEquipWithShield"		"1"
+	
+	
+	// Weapon characteristics:
+	"Penetration"			"1"
+	"Damage"			"50"
+	"Range"				"4096"
+	"RangeModifier"			"0.99"
+	"Bullets"			"1"
+	
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"			"#Cstrike_WPNHUD_Knife"
+	"viewmodel"			"models/weapons/v_knife_t.mdl"
+	"playermodel"			"models/weapons/w_knife_t.mdl"
+	"shieldviewmodel"		"models/weapons/v_shield_knife_r.mdl"
+	"anim_prefix"			"anim"
+	"bucket"			"2"
+	"bucket_position"		"1"
+
+	"clip_size"			"-1"
+	"default_clip"			"1"
+	"primary_ammo"			"None"
+	"secondary_ammo"		"None"
+
+	"weight"			"0"
+	"item_flags"			"0"
+
+	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
+	SoundData
+	{
+		"reload"			"Default.Reload"
+		"empty"				"Default.ClipEmpty_Rifle"
+		"single_shot"		"Weapon_DEagle.Single"
+	}
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"font"		"CSweaponsSmall"
+				"character"	"J"
+		}
+		"weapon_s"
+		{	
+				"font"		"CSweapons"
+				"character"	"J"
+		}
+		"ammo"
+		{
+				"file"		"sprites/a_icons1"
+				"x"			"55"
+				"y"			"60"
+				"width"		"73"
+				"height"	"15"
+		}
+		"crosshair"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"0"
+				"y"			"48"
+				"width"		"24"
+				"height"	"24"
+		}
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"0"
+				"y"			"48"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+	ModelBounds
+	{
+		Viewmodel
+		{
+			Mins	"-2 -16 -15"
+			Maxs	"18 11 5"
+		}
+		World
+		{
+			Mins	"-2 -5 -5"
+			Maxs	"10 4 11"
+		}
+	}
+}

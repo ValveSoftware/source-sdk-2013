@@ -1,0 +1,9 @@
+"MOMsong.TiagreAtDawn"
+{
+// Thanks to The Rhino Burger http://therhinoburger.bandcamp.com/
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.5" // Really loud, take care!
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"*#music/triageatdawn.mp3"
+}
