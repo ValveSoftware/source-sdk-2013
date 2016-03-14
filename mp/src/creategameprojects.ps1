@@ -28,6 +28,8 @@ $momentum_sym = Join-Path $path momentum
 $momentum = [System.IO.Path]::GetFullPath("..\game\momentum")
 cmd /c mklink /d $momentum_sym $momentum
 
+"`nSymbolic link created in ..\Source SDK Base 2013 Multiplayer\momentum to ..\game\momentum\"
+
 $data = @"
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -46,4 +48,4 @@ $data = @"
 
 $data | Out-File game\client\client_momentum.vcxproj.user utf8
 
-Print "Data added to client_hl2mp.vcxproj"
+"`nDebug and launch added to client_momentum.vcxproj`n"
