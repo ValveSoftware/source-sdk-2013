@@ -1,4 +1,26 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
+//                       TOGL CODE LICENSE
+//
+//  Copyright 2011-2014 Valve Corporation
+//  All Rights Reserved.
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 //
 // cglmprogram.h
 //	GLMgr buffers (index / vertex)
@@ -43,6 +65,51 @@ struct GLMBuffLockParams
 #define GL_MAX_STATIC_BUFFERS	2
 
 extern void glBufferSubDataMaxSize( GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid *data, uint nMaxSizePerCall = 128 * 1024 );
+
+//===========================================================================//
+
+// Creates an immutable storage for a buffer object
+// https://www.opengl.org/registry/specs/ARB/buffer_storage.txt
+class CPersistentBuffer
+{
+public:
+
+	CPersistentBuffer();
+	~CPersistentBuffer();
+
+	void Init( EGLMBufferType type,uint nSize );
+	void Deinit();
+
+	void InsertFence();
+	void BlockUntilNotBusy();
+
+	void Append( uint nSize );
+
+	inline uint GetBytesRemaining() const { return m_nSize - m_nOffset; }
+	inline uint GetOffset() const { return m_nOffset; }
+	inline void *GetPtr() const { return m_pImmutablePersistentBuf; }
+	inline GLuint GetHandle() const { return m_nHandle; }
+
+private:
+
+	CPersistentBuffer( const CPersistentBuffer & );
+	CPersistentBuffer & operator= (const CPersistentBuffer &);
+
+	uint			m_nSize;
+
+	EGLMBufferType	m_type;
+	GLenum			m_buffGLTarget;			// GL_ARRAY_BUFFER_ARB / GL_ELEMENT_BUFFER_ARB	
+	GLuint			m_nHandle;				// handle of this program in the GL context
+
+	// Holds a pointer to the persistently mapped buffer
+	void*			m_pImmutablePersistentBuf;
+
+	uint			m_nOffset;
+
+#ifdef HAVE_GL_ARB_SYNC
+	GLsync			m_nSyncObj;
+#endif
+};
 
 //===============================================================================
 
@@ -92,7 +159,7 @@ public:
 	void DiscardAllSpans();
 		
 	bool IsValid( uint nOffset, uint nSize ) const;
-		
+
 private:
 	bool AllocDynamicBuf( uint nSize, GLDynamicBuf_t &buf );
 	void ReleaseDynamicBuf( GLDynamicBuf_t &buf );
@@ -120,6 +187,8 @@ class CGLMBuffer
 public:
 	void Lock( GLMBuffLockParams *pParams, char **pAddressOut );
 	void Unlock( int nActualSize = -1, const void *pActualData = NULL );
+
+	GLuint GetHandle() const;
 		
 	friend class GLMContext;			// only GLMContext can make CGLMBuffer objects
 	friend class GLMTester;	
@@ -159,6 +228,9 @@ public:
 	float					*m_pLastMappedAddress;
 
 	int						m_nPinnedMemoryOfs;
+
+	uint					m_nPersistentBufferStartOffset;
+	bool					m_bUsingPersistentBuffer;
 	
 	bool					m_bPseudo;				// true if the m_name is 0, and the backing is plain RAM
 			

@@ -66,12 +66,10 @@ const HFont INVALID_FONT = 0; // the value of an invalid font handle
 
 #include "tier1/strtools.h"
 
-#if defined( OSX ) // || defined( LINUX )
-// Set to 1 to use GetKernedCharWidth() instead of GetCharABCwide(). Alfred
-//  initially started using that code on the Mac because it did better
-//  kerning, but he was a leery about switching win32 over. I enabled this
-//  for Linux, but it causes some strings to look different than Windows. So
-//  I've disabled it for now. mikesart - 12/2012.
+#if 0 // defined( OSX ) // || defined( LINUX )
+// Disabled all platforms. Did a major cleanup of osxfont.cpp, and having this
+//  turned off renders much closer to Windows and Linux and also uses the same
+//  code paths (which is good).
 #define USE_GETKERNEDCHARWIDTH 1
 #else
 #define USE_GETKERNEDCHARWIDTH 0

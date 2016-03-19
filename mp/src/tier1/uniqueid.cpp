@@ -163,7 +163,7 @@ bool Unserialize( CUtlBuffer &buf, UniqueId_t &dest )
 	{
 		int nTextLen = buf.PeekStringLength();
 		char *pBuf = (char*)stackalloc( nTextLen );
-		buf.GetString( pBuf, nTextLen );
+		buf.GetStringManualCharCount( pBuf, nTextLen );
 		UniqueIdFromString( &dest, pBuf, nTextLen );
 	}
 	else

@@ -82,7 +82,7 @@ enum CreateTextureFlags_t
 	TEXTURE_CREATE_VERTEXTEXTURE       = 0x0040,	// for internal use only	
 	TEXTURE_CREATE_FALLBACK            = 0x0080,	// 360 only
 	TEXTURE_CREATE_NOD3DMEMORY         = 0x0100,	// 360 only
-	TEXTURE_CREATE_UNUSED3             = 0x0200,	// Dead
+	TEXTURE_CREATE_SYSMEM              = 0x0200,	// This texture should be alloc'd in the sysmem pool
 	TEXTURE_CREATE_UNUSED4             = 0x0400,	// Dead
 	TEXTURE_CREATE_UNUSED5		       = 0x0800,	// Dead
 	TEXTURE_CREATE_UNFILTERABLE_OK     = 0x1000,
@@ -611,6 +611,13 @@ public:
 
 	//extended clear buffers function with alpha independent from color
 	virtual void ClearBuffersObeyStencilEx( bool bClearColor, bool bClearAlpha, bool bClearDepth ) = 0;
+
+	// Allows copying a render target to another texture by specifying them both.
+	virtual void CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t srcRt, ShaderAPITextureHandle_t dstTex, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL ) = 0;
+
+	// Allows locking and unlocking of very specific surface types.
+	virtual void LockRect( void** pOutBits, int* pOutPitch, ShaderAPITextureHandle_t texHandle, int mipmap, int x, int y, int w, int h, bool bWrite, bool bRead ) = 0;
+	virtual void UnlockRect( ShaderAPITextureHandle_t texHandle, int mipmap ) = 0;
 };
 
 

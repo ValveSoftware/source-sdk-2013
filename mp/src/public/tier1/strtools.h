@@ -151,6 +151,26 @@ inline bool	StringHasPrefix             ( const char *str, const char *prefix ) 
 inline bool	StringHasPrefixCaseSensitive( const char *str, const char *prefix ) { return StringAfterPrefixCaseSensitive( str, prefix ) != NULL; }
 
 
+template< bool CASE_SENSITIVE > inline bool _V_strEndsWithInner( const char *pStr, const char *pSuffix )
+{
+	int nSuffixLen = V_strlen( pSuffix );
+	int nStringLen = V_strlen( pStr );
+	if ( nSuffixLen == 0 )
+		return true; // All strings end with the empty string (matches Java & .NET behaviour)
+	if ( nStringLen < nSuffixLen )
+		return false;
+	pStr += nStringLen - nSuffixLen;
+	if ( CASE_SENSITIVE )
+		return !V_strcmp(  pStr, pSuffix );
+	else
+		return !V_stricmp( pStr, pSuffix );
+}
+
+// Does 'pStr' end with 'pSuffix'? (case sensitive/insensitive variants)
+inline bool V_strEndsWith(  const char *pStr, const char *pSuffix ) { return _V_strEndsWithInner<TRUE>(  pStr, pSuffix ); }
+inline bool V_striEndsWith( const char *pStr, const char *pSuffix ) { return _V_strEndsWithInner<FALSE>( pStr, pSuffix ); }
+
+
 // Normalizes a float string in place.  
 // (removes leading zeros, trailing zeros after the decimal point, and the decimal point itself where possible)
 void			V_normalizeFloatString( char* pFloat );
@@ -220,6 +240,15 @@ template <size_t maxLenInChars> void V_strcpy_safe( OUT_Z_ARRAY char (&pDest)[ma
 	V_strncpy( pDest, pSrc, (int)maxLenInChars ); 
 }
 
+// A function which duplicates a string using new[] to allocate the new string.
+inline char *V_strdup( const char *pSrc )
+{
+	int nLen = V_strlen( pSrc );
+	char *pResult = new char [ nLen+1 ];
+	V_memcpy( pResult, pSrc, nLen+1 );
+	return pResult;
+}
+
 void V_wcsncpy( OUT_Z_BYTECAP(maxLenInBytes) wchar_t *pDest, wchar_t const *pSrc, int maxLenInBytes );
 template <size_t maxLenInChars> void V_wcscpy_safe( OUT_Z_ARRAY wchar_t (&pDest)[maxLenInChars], wchar_t const *pSrc ) 
 { 
@@ -245,6 +274,164 @@ template <size_t cchDest> char *V_strlwr_safe( INOUT_Z_ARRAY char (&pBuf)[cchDes
 	return _V_strnlwr( pBuf, (int)cchDest ); 
 }
 
+// Unicode string conversion policies - what to do if an illegal sequence is encountered
+enum EStringConvertErrorPolicy
+{
+	_STRINGCONVERTFLAG_SKIP =		1,
+	_STRINGCONVERTFLAG_FAIL =		2,
+	_STRINGCONVERTFLAG_ASSERT =		4,
+
+	STRINGCONVERT_REPLACE =			0,
+	STRINGCONVERT_SKIP =			_STRINGCONVERTFLAG_SKIP,
+	STRINGCONVERT_FAIL =			_STRINGCONVERTFLAG_FAIL,
+
+	STRINGCONVERT_ASSERT_REPLACE =	_STRINGCONVERTFLAG_ASSERT + STRINGCONVERT_REPLACE,
+	STRINGCONVERT_ASSERT_SKIP =		_STRINGCONVERTFLAG_ASSERT + STRINGCONVERT_SKIP,
+	STRINGCONVERT_ASSERT_FAIL =		_STRINGCONVERTFLAG_ASSERT + STRINGCONVERT_FAIL,
+}; 
+
+// Unicode (UTF-8, UTF-16, UTF-32) fundamental conversion functions.
+bool Q_IsValidUChar32( uchar32 uValue );
+int Q_UChar32ToUTF8Len( uchar32 uValue );
+int Q_UChar32ToUTF8( uchar32 uValue, char *pOut );
+int Q_UChar32ToUTF16Len( uchar32 uValue );
+int Q_UChar32ToUTF16( uchar32 uValue, uchar16 *pOut );
+
+// Validate that a Unicode string is well-formed and contains only valid code points
+bool Q_UnicodeValidate( const char *pUTF8 );
+bool Q_UnicodeValidate( const uchar16 *pUTF16 );
+bool Q_UnicodeValidate( const uchar32 *pUTF32 );
+
+// Returns length of string in Unicode code points (printed glyphs or non-printing characters)
+int Q_UnicodeLength( const char *pUTF8 );
+int Q_UnicodeLength( const uchar16 *pUTF16 );
+int Q_UnicodeLength( const uchar32 *pUTF32 );
+
+// Returns length of string in elements, not characters! These are analogous to Q_strlen and Q_wcslen
+inline int Q_strlen16( const uchar16 *puc16 ) { int nElems = 0; while ( puc16[nElems] ) ++nElems; return nElems; }
+inline int Q_strlen32( const uchar32 *puc32 ) { int nElems = 0; while ( puc32[nElems] ) ++nElems; return nElems; }
+
+
+// Repair invalid Unicode strings by dropping truncated characters and fixing improperly-double-encoded UTF-16 sequences.
+// Unlike conversion functions which replace with '?' by default, a repair operation assumes that you know that something
+// is wrong with the string (eg, mid-sequence truncation) and you just want to do the best possible job of cleaning it up.
+// You can pass a REPLACE or FAIL policy if you would prefer to replace characters with '?' or clear the entire string.
+// Returns nonzero on success, or 0 if the policy is FAIL and an invalid sequence was found.
+int Q_UnicodeRepair( char *pUTF8, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_SKIP );
+int Q_UnicodeRepair( uchar16 *pUTF16, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_SKIP );
+int Q_UnicodeRepair( uchar32 *pUTF32, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_SKIP );
+
+// Advance pointer forward by N Unicode code points (printed glyphs or non-printing characters), stopping at terminating null if encountered.
+char *Q_UnicodeAdvance( char *pUTF8, int nCharacters );
+uchar16 *Q_UnicodeAdvance( uchar16 *pUTF16, int nCharactersnCharacters );
+uchar32 *Q_UnicodeAdvance( uchar32 *pUTF32, int nChars );
+inline const char *Q_UnicodeAdvance( const char *pUTF8, int nCharacters ) { return Q_UnicodeAdvance( (char*) pUTF8, nCharacters ); }
+inline const uchar16 *Q_UnicodeAdvance( const uchar16 *pUTF16, int nCharacters ) { return Q_UnicodeAdvance( (uchar16*) pUTF16, nCharacters ); }
+inline const uchar32 *Q_UnicodeAdvance( const uchar32 *pUTF32, int nCharacters ) { return Q_UnicodeAdvance( (uchar32*) pUTF32, nCharacters ); }
+
+// Truncate to maximum of N Unicode code points (printed glyphs or non-printing characters)
+inline void Q_UnicodeTruncate( char *pUTF8, int nCharacters ) { *Q_UnicodeAdvance( pUTF8, nCharacters ) = 0; }
+inline void Q_UnicodeTruncate( uchar16 *pUTF16, int nCharacters ) { *Q_UnicodeAdvance( pUTF16, nCharacters ) = 0; }
+inline void Q_UnicodeTruncate( uchar32 *pUTF32, int nCharacters ) { *Q_UnicodeAdvance( pUTF32, nCharacters ) = 0; }
+
+
+// Conversion between Unicode string types (UTF-8, UTF-16, UTF-32). Deals with bytes, not element counts,
+// to minimize harm from the programmer mistakes which continue to plague our wide-character string code.
+// Returns the number of bytes written to the output, or if output is NULL, the number of bytes required.
+int Q_UTF8ToUTF16( const char *pUTF8, OUT_Z_BYTECAP(cubDestSizeInBytes) uchar16 *pUTF16, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF8ToUTF32( const char *pUTF8, OUT_Z_BYTECAP(cubDestSizeInBytes) uchar32 *pUTF32, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF16ToUTF8( const uchar16 *pUTF16, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUTF8, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF16ToUTF32( const uchar16 *pUTF16, OUT_Z_BYTECAP(cubDestSizeInBytes) uchar32 *pUTF32, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF32ToUTF8( const uchar32 *pUTF32, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUTF8, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF32ToUTF16( const uchar32 *pUTF32, OUT_Z_BYTECAP(cubDestSizeInBytes) uchar16 *pUTF16, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+
+// This is disgusting and exist only easily to facilitate having 16-bit and 32-bit wchar_t's on different platforms
+int Q_UTF32ToUTF32( const uchar32 *pUTF32Source, OUT_Z_BYTECAP(cubDestSizeInBytes) uchar32 *pUTF32Dest, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+
+// Conversion between count-limited UTF-n character arrays, including any potential NULL characters.
+// Output has a terminating NULL for safety; strip the last character if you want an unterminated string.
+// Returns the number of bytes written to the output, or if output is NULL, the number of bytes required.
+int Q_UTF8CharsToUTF16( const char *pUTF8, int nElements, OUT_Z_BYTECAP(cubDestSizeInBytes) uchar16 *pUTF16, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF8CharsToUTF32( const char *pUTF8, int nElements, OUT_Z_BYTECAP(cubDestSizeInBytes) uchar32 *pUTF32, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF16CharsToUTF8( const uchar16 *pUTF16, int nElements, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUTF8, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF16CharsToUTF32( const uchar16 *pUTF16, int nElements, OUT_Z_BYTECAP(cubDestSizeInBytes) uchar32 *pUTF32, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF32CharsToUTF8( const uchar32 *pUTF32, int nElements, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUTF8, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF32CharsToUTF16( const uchar32 *pUTF32, int nElements, OUT_Z_BYTECAP(cubDestSizeInBytes) uchar16 *pUTF16, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+
+// Decode a single UTF-8 character to a uchar32, returns number of UTF-8 bytes parsed
+int Q_UTF8ToUChar32( const char *pUTF8_, uchar32 &uValueOut, bool &bErrorOut );
+
+// Decode a single UTF-16 character to a uchar32, returns number of UTF-16 characters (NOT BYTES) consumed
+int Q_UTF16ToUChar32( const uchar16 *pUTF16, uchar32 &uValueOut, bool &bErrorOut );
+
+
+// NOTE: WString means either UTF32 or UTF16 depending on the platform and compiler settings.
+#if defined( _MSC_VER ) || defined( _WIN32 )
+#define Q_UTF8ToWString Q_UTF8ToUTF16
+#define Q_UTF8CharsToWString Q_UTF8CharsToUTF16
+#define Q_UTF32ToWString Q_UTF32ToUTF16
+#define Q_WStringToUTF8 Q_UTF16ToUTF8
+#define Q_WStringCharsToUTF8 Q_UTF16CharsToUTF8
+#define Q_WStringToUTF32 Q_UTF16ToUTF32
+#else
+#define Q_UTF8ToWString Q_UTF8ToUTF32
+#define Q_UTF8CharsToWString Q_UTF8CharsToUTF32
+#define Q_UTF32ToWString Q_UTF32ToUTF32
+#define Q_WStringToUTF8 Q_UTF32ToUTF8
+#define Q_WStringCharsToUTF8 Q_UTF32CharsToUTF8
+#define Q_WStringToUTF32 Q_UTF32ToUTF32
+#endif
+
+// These are legacy names which don't make a lot of sense but are used everywhere. Prefer the WString convention wherever possible
+#define V_UTF8ToUnicode Q_UTF8ToWString
+#define V_UnicodeToUTF8 Q_WStringToUTF8
+
+
+#ifdef WIN32
+// This function is ill-defined as it relies on the current ANSI code page. Currently Win32 only for tools.
+int Q_LocaleSpecificANSIToUTF8( const char *pANSI, int cubSrcInBytes, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUTF8, int cubDestSizeInBytes );
+#endif
+
+// Windows-1252 is mostly the same as ISO Latin-1, and probably what you want if you are 
+// saddled with an 8-bit ANSI string that originated on a Windows system.
+int Q_Windows1252CharsToUTF8( const char *pchSrc, int cchSrc, OUT_Z_BYTECAP(cchDestUTF8) char *pchDestUTF8, int cchDestUTF8 );
+
+// CP 437 is used for VGA console text and some old-school file formats such as ZIP. It
+// is also known as the "IBM PC OEM code page" and various related names. You probably
+// don't want to use this function unless you know for a fact that you're dealing with
+// old-school OEM code pages. Otherwise try the Windows-1252 function above.
+int Q_CP437CharsToUTF8( const char *pchSrc, int cchSrc, OUT_Z_BYTECAP(cchDestUTF8) char *pchDestUTF8, int cchDestUTF8 );
+
+// replaces characters in a UTF8 string with their identical-looking equivalent (non-roundtrippable)
+//
+// older version of API uses a small homoglyph table; newer version uses a larger one
+//
+// strings using old version are baked into the database, so we won't toss it quite yet,
+// but don't use it for new features.
+int Q_NormalizeUTF8Old( const char *pchSrc, OUT_Z_CAP(cchDest) char *pchDest, int cchDest );
+int Q_NormalizeUTF8( const char *pchSrc, OUT_Z_CAP(cchDest) char *pchDest, int cchDest );
+
+//-----------------------------------------------------------------------------
+// Purpose: replaces characters in a UTF8 string with similar-looking equivalents.
+// Only replaces with ASCII characters.. non-recognized characters will be replaced with ?
+// This operation is destructive (i.e. you can't roundtrip through the normalized
+// form).
+//-----------------------------------------------------------------------------
+template <size_t maxLenInChars> int Q_NormalizeUTF8ToASCII( OUT_Z_ARRAY char (&pchDest)[maxLenInChars], const char *pchSrc ) 
+{ 
+	int nResult = Q_NormalizeUTF8( pchSrc, pchDest, maxLenInChars );
+
+	// replace non ASCII characters with ?
+	for ( int i = 0; i < nResult; i++ )
+	{
+		if ( pchDest[i] > 127 || pchDest[i] < 0 )
+		{
+			pchDest[i] = '?';
+		}
+	}
+
+	return nResult;
+}
 
 // UNDONE: Find a non-compiler-specific way to do this
 #ifdef _WIN32
@@ -321,13 +508,29 @@ char *V_pretifymem( float value, int digitsafterdecimal = 2, bool usebinaryonek 
 // Prints out a pretified integer with comma separators (eg, 7,233,270,000)
 char *V_pretifynum( int64 value );
 
-// conversion functions wchar_t <-> char, returning the number of characters converted
-int V_UTF8ToUnicode( const char *pUTF8, OUT_Z_BYTECAP(cubDestSizeInBytes) wchar_t *pwchDest, int cubDestSizeInBytes );
-int V_UnicodeToUTF8( const wchar_t *pUnicode, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUTF8, int cubDestSizeInBytes );
-int V_UCS2ToUnicode( const ucs2 *pUCS2, OUT_Z_BYTECAP(cubDestSizeInBytes) wchar_t *pUnicode, int cubDestSizeInBytes );
-int V_UCS2ToUTF8( const ucs2 *pUCS2, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUTF8, int cubDestSizeInBytes );
-int V_UnicodeToUCS2( const wchar_t *pUnicode, int cubSrcInBytes, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUCS2, int cubDestSizeInBytes );
-int V_UTF8ToUCS2( const char *pUTF8, int cubSrcInBytes, OUT_Z_BYTECAP(cubDestSizeInBytes) ucs2 *pUCS2, int cubDestSizeInBytes );
+int _V_UCS2ToUnicode( const ucs2 *pUCS2, OUT_Z_BYTECAP(cubDestSizeInBytes) wchar_t *pUnicode, int cubDestSizeInBytes );
+template< typename T > inline int V_UCS2ToUnicode( const ucs2 *pUCS2, OUT_Z_BYTECAP(cubDestSizeInBytes) wchar_t *pUnicode, T cubDestSizeInBytes )
+{
+	return _V_UCS2ToUnicode( pUCS2, pUnicode, static_cast<int>(cubDestSizeInBytes) );
+}
+
+int _V_UCS2ToUTF8( const ucs2 *pUCS2, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUTF8, int cubDestSizeInBytes );
+template< typename T > inline int V_UCS2ToUTF8( const ucs2 *pUCS2, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUTF8, T cubDestSizeInBytes )
+{
+	return _V_UCS2ToUTF8( pUCS2, pUTF8, static_cast<int>(cubDestSizeInBytes) );
+}
+
+int _V_UnicodeToUCS2( const wchar_t *pUnicode, int cubSrcInBytes, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUCS2, int cubDestSizeInBytes );
+template< typename T, typename U > inline int V_UnicodeToUCS2( const wchar_t *pUnicode, T cubSrcInBytes, OUT_Z_BYTECAP(cubDestSizeInBytes) char *pUCS2, U cubDestSizeInBytes )
+{
+	return _V_UnicodeToUCS2( pUnicode, static_cast<int>(cubSrcInBytes), pUCS2, static_cast<int>(cubDestSizeInBytes) );
+}
+
+int _V_UTF8ToUCS2( const char *pUTF8, int cubSrcInBytes, OUT_Z_BYTECAP(cubDestSizeInBytes) ucs2 *pUCS2, int cubDestSizeInBytes );
+template< typename T, typename U > inline int V_UTF8ToUCS2( const char *pUTF8, T cubSrcInBytes, OUT_Z_BYTECAP(cubDestSizeInBytes) ucs2 *pUCS2, U cubDestSizeInBytes )
+{
+	return _V_UTF8ToUCS2( pUTF8, static_cast<int>(cubSrcInBytes), pUCS2, static_cast<int>(cubDestSizeInBytes) );
+}
 
 // strips leading and trailing whitespace; returns true if any characters were removed. UTF-8 and UTF-16 versions.
 bool Q_StripPrecedingAndTrailingWhitespace( char *pch );
@@ -573,6 +776,7 @@ public:
 		m_pwch = NULL;
 #if !defined( WIN32 ) && !defined(_WIN32)
 		m_pucs2 = NULL;
+		m_bCreatedUCS2 = false;
 #endif
 		m_bCreatedUTF16 = false;
 	}
@@ -584,6 +788,7 @@ public:
 		m_pwch = pwch;
 #if !defined( WIN32 ) && !defined(_WIN32)
 		m_pucs2 = NULL;
+		m_bCreatedUCS2 = false;
 #endif
 		m_bCreatedUTF16 = true;
 	}
@@ -594,7 +799,8 @@ public:
 		m_pch = NULL;
 		m_pwch = NULL;
 		m_pucs2 = pwch;
-		m_bCreatedUTF16 = true;
+		m_bCreatedUCS2 = true;
+		m_bCreatedUTF16 = false;
 	}
 #endif
 
@@ -652,6 +858,10 @@ public:
 		{
 			delete [] m_pwch;
 		}
+#if !defined( WIN32 ) && !defined(_WIN32)
+		if ( !m_bCreatedUCS2 && m_pucs2 )
+			delete [] m_pucs2;
+#endif
 	}
 
 private:
@@ -730,6 +940,8 @@ private:
 	// so we perform a second allocation that's just the size we need.
 	void PopulateUCS2()
 	{
+		if ( m_bCreatedUCS2 )
+			return;
 		if ( m_pch == NULL )
 			return;					// no UTF-8 string to convert
 		if ( m_pucs2 != NULL )
@@ -760,6 +972,7 @@ private:
 	const wchar_t *m_pwch;
 #if !defined( WIN32 ) && !defined(_WIN32)
 	const ucs2 *m_pucs2;
+	bool m_bCreatedUCS2;
 #endif
 	// "created as UTF-16", means our owned string is the UTF-8 string not the UTF-16 one.
 	bool m_bCreatedUTF16;
@@ -866,6 +1079,13 @@ size_t Q_URLDecode( OUT_CAP(nDecodeDestLen) char *pchDecodeDest, int nDecodeDest
 #define Q_qsort_s				V_qsort_s
 
 #endif // !defined( VSTDLIB_DLL_EXPORT )
+
+
+#ifdef POSIX
+#define FMT_WS L"%ls"
+#else
+#define FMT_WS L"%s"
+#endif
 
 
 #endif	// TIER1_STRTOOLS_H

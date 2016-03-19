@@ -269,7 +269,7 @@ void CBasePlayerAnimState::ComputeMainSequence()
 	int animDesired = SelectWeightedSequence( TranslateActivity(idealActivity) );
 
 #if !defined( HL1_CLIENT_DLL ) && !defined ( HL1_DLL )
-	if ( pPlayer->GetSequenceActivity( pPlayer->GetSequence() ) == pPlayer->GetSequenceActivity( animDesired ) )
+	if ( !ShouldResetMainSequence( pPlayer->GetSequence(), animDesired ) )
 		return;
 #endif
 
@@ -289,8 +289,13 @@ void CBasePlayerAnimState::ComputeMainSequence()
 #endif
 }
 
+bool CBasePlayerAnimState::ShouldResetMainSequence( int iCurrentSequence, int iNewSequence )
+{
+	if ( !GetOuter() )
+		return false;
 
-
+	return GetOuter()->GetSequenceActivity( iCurrentSequence ) != GetOuter()->GetSequenceActivity( iNewSequence );
+}
 
 
 void CBasePlayerAnimState::UpdateAimSequenceLayers(

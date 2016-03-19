@@ -18,14 +18,16 @@
 #include <KeyValues.h>
 #include "filesystem.h"
 #include <vstdlib/IKeyValuesSystem.h>
+#include "tier0/icommandline.h"
 
 #include <Color.h>
 #include <stdlib.h>
 #include "tier0/dbg.h"
 #include "tier0/mem.h"
-#include "utlvector.h"
 #include "utlbuffer.h"
 #include "utlhash.h"
+#include "utlvector.h"
+#include "utlqueue.h"
 #include "UtlSortVector.h"
 #include "convar.h"
 
@@ -84,16 +86,19 @@ public:
 	{
 		Assert( stackLevel >= 0 );
 		Assert( stackLevel < m_errorIndex );
-		m_errorStack[stackLevel] = symName;
+		if ( stackLevel < MAX_ERROR_STACK )
+			m_errorStack[stackLevel] = symName;
 	}
 
 	// Hit an error, report it and the parsing stack for context
 	void ReportError( const char *pError )
 	{
+		bool bSpewCR = false;
+
 		Warning( "KeyValues Error: %s in file %s\n", pError, m_pFilename );
 		for ( int i = 0; i < m_maxErrorIndex; i++ )
 		{
-			if ( m_errorStack[i] != INVALID_KEY_SYMBOL )
+			if ( i < MAX_ERROR_STACK && m_errorStack[i] != INVALID_KEY_SYMBOL )
 			{
 				if ( i < m_errorIndex )
 				{
@@ -103,9 +108,13 @@ public:
 				{
 					Warning( "(*%s*), ", KeyValues::CallGetStringForSymbol(m_errorStack[i]) );
 				}
+
+				bSpewCR = true;
 			}
 		}
-		Warning( "\n" );
+
+		if ( bSpewCR )
+			Warning( "\n" );
 	}
 
 private:
@@ -136,6 +145,10 @@ public:
 	void Reset( int symName )
 	{
 		g_KeyValuesErrorStack.Reset( m_stackLevel, symName );
+	}
+	int GetStackLevel() const
+	{
+		return m_stackLevel;
 	}
 private:
 	void Init( int symName )
@@ -630,15 +643,62 @@ void KeyValues::UsesConditionals(bool state)
 //-----------------------------------------------------------------------------
 // Purpose: Load keyValues from disk
 //-----------------------------------------------------------------------------
-bool KeyValues::LoadFromFile( IBaseFileSystem *filesystem, const char *resourceName, const char *pathID )
+bool KeyValues::LoadFromFile( IBaseFileSystem *filesystem, const char *resourceName, const char *pathID, bool refreshCache )
 {
 	Assert(filesystem);
 #ifdef WIN32
 	Assert( IsX360() || ( IsPC() && _heapchk() == _HEAPOK ) );
 #endif
+
+#ifdef STAGING_ONLY
+	static bool s_bCacheEnabled = !!CommandLine()->FindParm( "-enable_keyvalues_cache" );
+	const bool bUseCache = s_bCacheEnabled && ( s_pfGetSymbolForString == KeyValues::GetSymbolForStringClassic );
+#else
+	/*
+	People are cheating with the keyvalue cache enabled by doing the below, so disable it.
+
+	For example if one is to allow a blue demoman texture on sv_pure they
+	change it to this, "$basetexture" "temp/demoman_blue". Remember to move the
+	demoman texture to the temp folder in the materials folder. It will likely
+	not be there so make a new folder for it. Once the directory in the
+	demoman_blue vmt is changed to the temp folder and the vtf texture is in
+	the temp folder itself you are finally done.
+
+	I packed my mods into a vpk but I don't think it's required. Once in game
+	you must create a server via the create server button and select the map
+	that will load the custom texture before you join a valve server. I suggest
+	you only do this with player textures and such as they are always loaded.
+	After you load the map you join the valve server and the textures should
+	appear and work on valve servers.
+
+	This can be done on any sv_pure 1 server but it depends on what is type of
+	files are allowed. All valve servers allow temp files so that is the
+	example I used here."
+
+	So all vmt's files can bypass sv_pure 1. And I believe this mod is mostly
+	made of vmt files, so valve's sv_pure 1 bull is pretty redundant.
+	*/
+	const bool bUseCache = false;
+#endif
+
+	// If pathID is null, we cannot cache the result because that has a weird iterate-through-a-bunch-of-locations behavior.
+	const bool bUseCacheForRead = bUseCache && !refreshCache && pathID != NULL; 
+	const bool bUseCacheForWrite = bUseCache && pathID != NULL;
+
+	COM_TimestampedLog( "KeyValues::LoadFromFile(%s%s%s): Begin", pathID ? pathID : "", pathID && resourceName ? "/" : "", resourceName ? resourceName : "" );
+
+	// Keep a cache of keyvalues, try to load it here.
+	if ( bUseCacheForRead && KeyValuesSystem()->LoadFileKeyValuesFromCache( this, resourceName, pathID, filesystem ) ) {
+		COM_TimestampedLog( "KeyValues::LoadFromFile(%s%s%s): End / CacheHit", pathID ? pathID : "", pathID && resourceName ? "/" : "", resourceName ? resourceName : "" );
+		return true;
+	}
+
 	FileHandle_t f = filesystem->Open(resourceName, "rb", pathID);
 	if ( !f )
+	{
+		COM_TimestampedLog("KeyValues::LoadFromFile(%s%s%s): End / FileNotFound", pathID ? pathID : "", pathID && resourceName ? "/" : "", resourceName ? resourceName : "");
 		return false;
+	}
 
 	s_LastFileLoadingFrom = (char*)resourceName;
 
@@ -660,28 +720,41 @@ bool KeyValues::LoadFromFile( IBaseFileSystem *filesystem, const char *resourceN
 		buffer[fileSize+1] = 0; // double NULL terminating in case this is a unicode file
 		bRetOK = LoadFromBuffer( resourceName, buffer, filesystem );
 	}
+	
+	// The cache relies on the KeyValuesSystem string table, which will only be valid if we're
+	// using classic mode. 
+	if ( bUseCacheForWrite && bRetOK )
+	{
+		KeyValuesSystem()->AddFileKeyValuesToCache( this, resourceName, pathID );
+	}
 
-	((IFileSystem *)filesystem)->FreeOptimalReadBuffer( buffer );
+	( (IFileSystem *)filesystem )->FreeOptimalReadBuffer( buffer );
+
+	COM_TimestampedLog("KeyValues::LoadFromFile(%s%s%s): End / Success", pathID ? pathID : "", pathID && resourceName ? "/" : "", resourceName ? resourceName : "");
 
 	return bRetOK;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Save the keyvalues to disk
-//			Creates the path to the file if it doesn't exist 
+//			Creates the path to the file if it doesn't exist
 //-----------------------------------------------------------------------------
-bool KeyValues::SaveToFile( IBaseFileSystem *filesystem, const char *resourceName, const char *pathID, bool sortKeys /*= false*/, bool bAllowEmptyString /*= false*/ )
+bool KeyValues::SaveToFile( IBaseFileSystem *filesystem, const char *resourceName, const char *pathID, bool sortKeys /*= false*/, bool bAllowEmptyString /*= false*/, bool bCacheResult /*= false*/ )
 {
 	// create a write file
 	FileHandle_t f = filesystem->Open(resourceName, "wb", pathID);
 
 	if ( f == FILESYSTEM_INVALID_HANDLE )
 	{
-		DevMsg(1, "KeyValues::SaveToFile: couldn't open file \"%s\" in path \"%s\".\n", 
+		DevMsg(1, "KeyValues::SaveToFile: couldn't open file \"%s\" in path \"%s\".\n",
 			resourceName?resourceName:"NULL", pathID?pathID:"NULL" );
 		return false;
 	}
 
+	KeyValuesSystem()->InvalidateCacheForFile( resourceName, pathID );
+	if ( bCacheResult ) {
+		KeyValuesSystem()->AddFileKeyValuesToCache( this, resourceName, pathID );
+	}
 	RecursiveSaveToFile(filesystem, f, NULL, 0, sortKeys, bAllowEmptyString );
 	filesystem->Close(f);
 
@@ -1671,115 +1744,138 @@ void KeyValues::SetPtr( const char *keyName, void *value )
 	}
 }
 
-void KeyValues::RecursiveCopyKeyValues( KeyValues& src )
+//-----------------------------------------------------------------------------
+// Purpose: Copies the tree from the other KeyValues into this one, recursively
+// beginning with the root specified by rootSrc.
+//-----------------------------------------------------------------------------
+void KeyValues::CopyKeyValuesFromRecursive( const KeyValues& rootSrc )
 {
-	// garymcthack - need to check this code for possible buffer overruns.
-	
-	m_iKeyName = src.GetNameSymbol();
+	// This code used to be recursive, which was more elegant. Unfortunately, it also blew the stack for large 
+	// KeyValues. So now we have the iterative version which is uglier but doesn't blow the stack.
+	// This uses breadth-first traversal.
 
-	if( !src.m_pSub )
+	struct CopyStruct
 	{
-		m_iDataType = src.m_iDataType;
-		char buf[256];
-		switch( src.m_iDataType )
+		KeyValues* dst;
+		const KeyValues* src;
+	};
+
+	char tmp[256];
+	KeyValues* localDst = NULL;
+
+	CUtlQueue<CopyStruct> nodeQ;
+	nodeQ.Insert({ this, &rootSrc });
+
+	while ( nodeQ.Count() > 0 ) 
+	{
+		CopyStruct cs = nodeQ.RemoveAtHead();
+
+		// Process all the siblings of the current node. If anyone has a child, add it to the queue.
+		while (cs.src)
 		{
-		case TYPE_NONE:
-			break;
-		case TYPE_STRING:
-			if( src.m_sValue )
-			{
-				int len = Q_strlen(src.m_sValue) + 1;
-				m_sValue = new char[len];
-				Q_strncpy( m_sValue, src.m_sValue, len );
-			}
-			break;
-		case TYPE_INT:
-			{
-				m_iValue = src.m_iValue;
-				Q_snprintf( buf,sizeof(buf), "%d", m_iValue );
-				int len = Q_strlen(buf) + 1;
-				m_sValue = new char[len];
-				Q_strncpy( m_sValue, buf, len  );
-			}
-			break;
-		case TYPE_FLOAT:
-			{
-				m_flValue = src.m_flValue;
-				Q_snprintf( buf,sizeof(buf), "%f", m_flValue );
-				int len = Q_strlen(buf) + 1;
-				m_sValue = new char[len];
-				Q_strncpy( m_sValue, buf, len );
-			}
-			break;
-		case TYPE_PTR:
-			{
-				m_pValue = src.m_pValue;
-			}
-			break;
-		case TYPE_UINT64:
-			{
-				m_sValue = new char[sizeof(uint64)];
-				Q_memcpy( m_sValue, src.m_sValue, sizeof(uint64) );
-			}
-			break;
-		case TYPE_COLOR:
-			{
-				m_Color[0] = src.m_Color[0];
-				m_Color[1] = src.m_Color[1];
-				m_Color[2] = src.m_Color[2];
-				m_Color[3] = src.m_Color[3];
-			}
-			break;
-			
-		default:
-			{
-				// do nothing . .what the heck is this?
-				Assert( 0 );
-			}
-			break;
-		}
+			Assert( (cs.src != NULL) == (cs.dst != NULL) );
 
-	}
-#if 0
-	KeyValues *pDst = this;
-	for ( KeyValues *pSrc = src.m_pSub; pSrc; pSrc = pSrc->m_pPeer )
-	{
-		if ( pSrc->m_pSub )
-		{
-			pDst->m_pSub = new KeyValues( pSrc->m_pSub->getName() );
-			pDst->m_pSub->RecursiveCopyKeyValues( *pSrc->m_pSub );
-		}
-		else
-		{
-			// copy non-empty keys
-			if ( pSrc->m_sValue && *(pSrc->m_sValue) )
-			{
-				pDst->m_pPeer = new KeyValues( 
+			// Copy the node contents
+			cs.dst->CopyKeyValue( *cs.src, sizeof(tmp), tmp );
+
+			// Add children to the queue to process later. 
+			if (cs.src->m_pSub) {
+				cs.dst->m_pSub = localDst = new KeyValues( NULL );
+				nodeQ.Insert({ localDst, cs.src->m_pSub });
 			}
+
+			// Process siblings until we hit the end of the line. 
+			if (cs.src->m_pPeer) {
+				cs.dst->m_pPeer = new KeyValues( NULL );
+			}
+			else {
+				cs.dst->m_pPeer = NULL;
+			}
+
+			// Advance to the next peer.
+			cs.src = cs.src->m_pPeer;
+			cs.dst = cs.dst->m_pPeer;
 		}
-	}
-#endif
-
-	// Handle the immediate child
-	if( src.m_pSub )
-	{
-		m_pSub = new KeyValues( NULL );
-		m_pSub->RecursiveCopyKeyValues( *src.m_pSub );
-	}
-
-	// Handle the immediate peer
-	if( src.m_pPeer )
-	{
-		m_pPeer = new KeyValues( NULL );
-		m_pPeer->RecursiveCopyKeyValues( *src.m_pPeer );
 	}
 }
 
-KeyValues& KeyValues::operator=( KeyValues& src )
+//-----------------------------------------------------------------------------
+// Purpose: Copies a single KeyValue from src to this, using the provided temporary
+// buffer if the keytype requires it. Does NOT recurse.
+//-----------------------------------------------------------------------------
+void KeyValues::CopyKeyValue( const KeyValues& src, size_t tmpBufferSizeB, char* tmpBuffer )
+{
+	m_iKeyName = src.GetNameSymbol();
+
+	if ( src.m_pSub )
+		return;
+
+	m_iDataType = src.m_iDataType;
+		
+	switch( src.m_iDataType )
+	{
+	case TYPE_NONE:
+		break;
+	case TYPE_STRING:
+		if( src.m_sValue )
+		{
+			int len = Q_strlen(src.m_sValue) + 1;
+			m_sValue = new char[len];
+			Q_strncpy( m_sValue, src.m_sValue, len );
+		}
+		break;
+	case TYPE_INT:
+		{
+			m_iValue = src.m_iValue;
+			Q_snprintf( tmpBuffer, tmpBufferSizeB, "%d", m_iValue );
+			int len = Q_strlen(tmpBuffer) + 1;
+			m_sValue = new char[len];
+			Q_strncpy( m_sValue, tmpBuffer, len  );
+		}
+		break;
+	case TYPE_FLOAT:
+		{
+			m_flValue = src.m_flValue;
+			Q_snprintf( tmpBuffer, tmpBufferSizeB, "%f", m_flValue );
+			int len = Q_strlen(tmpBuffer) + 1;
+			m_sValue = new char[len];
+			Q_strncpy( m_sValue, tmpBuffer, len );
+		}
+		break;
+	case TYPE_PTR:
+		{
+			m_pValue = src.m_pValue;
+		}
+		break;
+	case TYPE_UINT64:
+		{
+			m_sValue = new char[sizeof(uint64)];
+			Q_memcpy( m_sValue, src.m_sValue, sizeof(uint64) );
+		}
+		break;
+	case TYPE_COLOR:
+		{
+			m_Color[0] = src.m_Color[0];
+			m_Color[1] = src.m_Color[1];
+			m_Color[2] = src.m_Color[2];
+			m_Color[3] = src.m_Color[3];
+		}
+		break;
+			
+	default:
+		{
+			// do nothing . .what the heck is this?
+			Assert( 0 );
+		}
+		break;
+	}
+}
+
+KeyValues& KeyValues::operator=( const KeyValues& src )
 {
 	RemoveEverything();
 	Init();	// reset all values
-	RecursiveCopyKeyValues( src );
+	CopyKeyValuesFromRecursive( src );
 	return *this;
 }
 
@@ -1878,6 +1974,25 @@ KeyValues *KeyValues::MakeCopy( void ) const
 	return newKeyValue;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+KeyValues *KeyValues::MakeCopy( bool copySiblings ) const
+{
+	KeyValues* rootDest = MakeCopy();
+	if ( !copySiblings )
+		return rootDest;
+
+	const KeyValues* curSrc = GetNextKey();
+	KeyValues* curDest = rootDest;
+	while (curSrc) {
+		curDest->SetNextKey( curSrc->MakeCopy() );
+		curDest = curDest->GetNextKey();
+		curSrc = curSrc->GetNextKey();
+	}
+
+	return rootDest;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Check if a keyName has no value assigned to it.
@@ -2243,6 +2358,8 @@ bool KeyValues::LoadFromBuffer( char const *resourceName, const char *pBuffer, I
 	if ( !pBuffer )
 		return true;
 
+	COM_TimestampedLog("KeyValues::LoadFromBuffer(%s%s%s): Begin", pPathID ? pPathID : "", pPathID && resourceName ? "/" : "", resourceName ? resourceName : "");
+
 	int nLen = Q_strlen( pBuffer );
 	CUtlBuffer buf( pBuffer, nLen, CUtlBuffer::READ_ONLY | CUtlBuffer::TEXT_BUFFER );
 
@@ -2255,7 +2372,11 @@ bool KeyValues::LoadFromBuffer( char const *resourceName, const char *pBuffer, I
 		buf.AssumeMemory( pUTF8Buf, nUTF8Len, nUTF8Len, CUtlBuffer::READ_ONLY | CUtlBuffer::TEXT_BUFFER );
 	}
 
-	return LoadFromBuffer( resourceName, buf, pFileSystem, pPathID );
+	bool retVal = LoadFromBuffer( resourceName, buf, pFileSystem, pPathID );
+
+	COM_TimestampedLog("KeyValues::LoadFromBuffer(%s%s%s): End", pPathID ? pPathID : "", pPathID && resourceName ? "/" : "", resourceName ? resourceName : "");
+
+	return retVal;
 }
 
 //-----------------------------------------------------------------------------
@@ -2266,6 +2387,12 @@ void KeyValues::RecursiveLoadFromBuffer( char const *resourceName, CUtlBuffer &b
 	CKeyErrorContext errorReport(this);
 	bool wasQuoted;
 	bool wasConditional;
+	if ( errorReport.GetStackLevel() > 100 )
+	{
+		g_KeyValuesErrorStack.ReportError( "RecursiveLoadFromBuffer:  recursion overflow" );
+		return;
+	}
+
 	// keep this out of the stack until a key is parsed
 	CKeyErrorContext errorKey( INVALID_KEY_SYMBOL );
 
@@ -2570,7 +2697,7 @@ bool KeyValues::ReadAsBinary( CUtlBuffer &buffer, int nStackDepth )
 
 		{
 			char token[KEYVALUES_TOKEN_SIZE];
-			buffer.GetString( token, KEYVALUES_TOKEN_SIZE-1 );
+			buffer.GetString( token );
 			token[KEYVALUES_TOKEN_SIZE-1] = 0;
 			dat->SetName( token );
 		}
@@ -2586,7 +2713,7 @@ bool KeyValues::ReadAsBinary( CUtlBuffer &buffer, int nStackDepth )
 		case TYPE_STRING:
 			{
 				char token[KEYVALUES_TOKEN_SIZE];
-				buffer.GetString( token, KEYVALUES_TOKEN_SIZE-1 );
+				buffer.GetString( token );
 				token[KEYVALUES_TOKEN_SIZE-1] = 0;
 
 				int len = Q_strlen( token );

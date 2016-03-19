@@ -42,8 +42,10 @@ struct DeathNoticeItem
 		iKillerID = -1;
 		iVictimID = -1;
 
-		iconPreKiller = NULL;
+		iconPreKillerName = NULL;
+		iconPostKillerName = NULL;
 		wzPreKillerText[0] = 0;
+		iconPostVictimName = NULL;
 	}
 
 	float GetExpiryTime();
@@ -56,8 +58,12 @@ struct DeathNoticeItem
 	CHudTexture *iconDeath;
 	CHudTexture *iconCritDeath;	// crit background icon
 
-	CHudTexture *iconPreKiller;
+	CHudTexture *iconPreKillerName;
+
+	CHudTexture *iconPostKillerName;
 	wchar_t		wzPreKillerText[32];
+
+	CHudTexture *iconPostVictimName;
 
 	bool		bSelfInflicted;
 	bool		bLocalPlayerInvolved;

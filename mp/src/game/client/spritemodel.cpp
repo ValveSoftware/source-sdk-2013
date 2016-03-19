@@ -201,7 +201,7 @@ static void AdjustSubRect(CEngineSprite *pSprite, int frame, float *pfLeft, floa
 	*pw = rc.right - rc.left;
 	*ph = rc.bottom - rc.top;
 
-	f = 1.0 / (float)pSprite->GetWidth();;
+	f = 1.0 / (float)pSprite->GetWidth();
 	*pfLeft = ((float)rc.left + 0.5) * f;
 	*pfRight = ((float)rc.right - 0.5) * f;
 
@@ -415,12 +415,14 @@ IMaterial *CEngineSprite::GetMaterial( RenderMode_t nRenderMode, int nFrame )
 		m_VideoMaterial->SetFrame( nFrame );
 	}
 	
-	
 	IMaterial *pMaterial = m_material[nRenderMode];
-	IMaterialVar* pFrameVar = pMaterial->FindVarFast( "$frame", &frameCache );
-	if ( pFrameVar )
+	if ( pMaterial )
 	{
-		pFrameVar->SetIntValue( nFrame );
+		IMaterialVar* pFrameVar = pMaterial->FindVarFast( "$frame", &frameCache );
+		if ( pFrameVar )
+		{
+			pFrameVar->SetIntValue( nFrame );
+		}
 	}
 
 	return pMaterial;

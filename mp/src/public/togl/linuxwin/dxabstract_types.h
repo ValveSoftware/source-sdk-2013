@@ -1,4 +1,26 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
+//                       TOGL CODE LICENSE
+//
+//  Copyright 2011-2014 Valve Corporation
+//  All Rights Reserved.
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 //
 // dxabstract_types.h
 //
@@ -48,10 +70,6 @@ class CGLMFBO;
 	#define TOGL_OVERLOAD	DLL_GLOBAL_IMPORT
 	#define TOGL_CLASS		DLL_CLASS_IMPORT
 	#define TOGL_GLOBAL		DLL_GLOBAL_IMPORT
-#endif
-
-#ifdef OSX
-#error "Do not use this header's types on OSX until togo is ported to Mac!"
 #endif
 
 #define TOGLMETHODCALLTYPE       __stdcall
@@ -175,6 +193,25 @@ typedef enum _D3DFORMAT D3DFORMAT;
 
 #define D3DSP_OPCODESPECIFICCONTROL_MASK 0x00ff0000
 #define D3DSP_OPCODESPECIFICCONTROL_SHIFT 16
+
+// Comparison for dynamic conditional instruction opcodes (i.e. if, breakc)
+typedef enum _D3DSHADER_COMPARISON
+{
+	// < = >
+	D3DSPC_RESERVED0= 0, // 0 0 0
+	D3DSPC_GT       = 1, // 0 0 1
+	D3DSPC_EQ       = 2, // 0 1 0
+	D3DSPC_GE       = 3, // 0 1 1
+	D3DSPC_LT       = 4, // 1 0 0
+	D3DSPC_NE       = 5, // 1 0 1
+	D3DSPC_LE       = 6, // 1 1 0
+	D3DSPC_RESERVED1= 7  // 1 1 1
+} D3DSHADER_COMPARISON;
+
+
+// Comparison is part of instruction opcode token:
+#define D3DSHADER_COMPARISON_SHIFT D3DSP_OPCODESPECIFICCONTROL_SHIFT
+#define D3DSHADER_COMPARISON_MASK  (0x7<<D3DSHADER_COMPARISON_SHIFT)
 
 
 /* Flags to construct D3DRS_COLORWRITEENABLE */
@@ -1004,12 +1041,7 @@ typedef enum _D3DSHADER_PARAM_REGISTER_TYPE
     D3DSPR_FORCE_DWORD  = 0x7fffffff,         // force 32-bit size enum
 } D3DSHADER_PARAM_REGISTER_TYPE;
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4201) // warning C4201: nonstandard extension used : nameless struct/union
-#endif
-
-typedef struct _D3DMATRIX 
+struct D3DMATRIX 
 {
     union 
 	{
@@ -1021,12 +1053,15 @@ typedef struct _D3DMATRIX
             float        _41, _42, _43, _44;
         };
         float m[4][4];
-    };
-} D3DMATRIX;
 
-#ifdef _MSC_VER
-#pragma warning(pop)
+    };
+
+#if defined( WIN32 )
+	operator void* ();
+	bool operator == ( CONST D3DMATRIX& src ) const;
 #endif
+};
+
 
 typedef struct _D3DVERTEXBUFFER_DESC
 {
@@ -1047,6 +1082,7 @@ public:
 	operator FLOAT* ();
 	float& operator()( int row, int column );
 	const float& operator()( int row, int column ) const;
+	bool operator != ( CONST D3DXMATRIX& src ) const;
 };
 
 typedef DWORD D3DCOLOR;
@@ -1681,7 +1717,7 @@ struct IDirect3DDevice9Params
 	D3DPRESENT_PARAMETERS	m_presentationParameters;
 };
 
-#define	D3D_MAX_STREAMS	4
+#define	D3D_MAX_STREAMS	5 //9
 struct D3DStreamDesc
 {
 	IDirect3DVertexBuffer9	*m_vtxBuffer;

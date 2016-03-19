@@ -1,4 +1,26 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
+//                       TOGL CODE LICENSE
+//
+//  Copyright 2011-2014 Valve Corporation
+//  All Rights Reserved.
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 //
 // glentrypoints.h
 //
@@ -12,10 +34,8 @@
 #ifdef DX_TO_GL_ABSTRACTION
 
 #include "tier0/platform.h"
-#include "tier0/dynfunction.h"
 #include "tier0/vprof_telemetry.h"
 #include "interface.h"
-
 #include "togl/rendermechanism.h"
 
 void *VoidFnPtrLookup_GlMgr(const char *fn, bool &okay, const bool bRequired, void *fallback=NULL);
@@ -277,7 +297,6 @@ public:
 	~COpenGLEntryPoints();
 
 	void ClearEntryPoints();
-
 	uint64 m_nTotalGLCycles, m_nTotalGLCalls;
 
 	int m_nOpenGLVersionMajor;  // if GL_VERSION is 2.1.0, this will be set to 2.
@@ -288,20 +307,26 @@ public:
 	char *m_pGLDriverStrings[cGLTotalDriverStrings];
 	GLDriverProvider_t m_nDriverProvider;		
 
-	#define GL_EXT(x,glmajor,glminor) bool m_bHave_##x;
-	#define GL_FUNC(ext,req,ret,fn,arg,call) CDynamicFunctionOpenGL< req, ret (APIENTRY *) arg, ret > fn;
-	#define GL_FUNC_VOID(ext,req,fn,arg,call) CDynamicFunctionOpenGL< req, void (APIENTRY *) arg, void > fn;
+#ifdef OSX
+#define GL_EXT(x,glmajor,glminor) bool m_bHave_##x;
+#define GL_FUNC(ext,req,ret,fn,arg,call) CDynamicFunctionOpenGL< req, ret (*) arg, ret > fn;
+#define GL_FUNC_VOID(ext,req,fn,arg,call) CDynamicFunctionOpenGL< req, void (*) arg, void > fn;
+#else
+#define GL_EXT(x,glmajor,glminor) bool m_bHave_##x;
+#define GL_FUNC(ext,req,ret,fn,arg,call) CDynamicFunctionOpenGL< req, ret (APIENTRY *) arg, ret > fn;
+#define GL_FUNC_VOID(ext,req,fn,arg,call) CDynamicFunctionOpenGL< req, void (APIENTRY *) arg, void > fn;
+#endif
 	#include "togl/glfuncs.inl"
 	#undef GL_FUNC_VOID
 	#undef GL_FUNC
 	#undef GL_EXT
-		
+
 	bool HasSwapTearExtension() const
 	{
 #ifdef _WIN32
-		return m_bHave_WGL_EXT_swap_control_tear;
+	return m_bHave_WGL_EXT_swap_control_tear;
 #else
-		return m_bHave_GLX_EXT_swap_control_tear;
+	return m_bHave_GLX_EXT_swap_control_tear;
 #endif
 	}
 };

@@ -45,6 +45,7 @@ $Configuration
 		$PreprocessorDefinitions		"$BASE;_OSX;OSX;_DARWIN_UNLIMITED_SELECT;FD_SETSIZE=10240;" [$OSXALL]
 		$PreprocessorDefinitions		"$BASE;OVERRIDE_V_DEFINES"	  [$OSXALL]						
 		$PreprocessorDefinitions		"$BASE;_LINUX;LINUX;" [$LINUXALL]
+		$PreprocessorDefinitions		"$BASE;PLATFORM_64BITS" [$LINUX64]
 		$SymbolVisibility				"hidden" 					[$POSIX]
 		$PreprocessorDefinitions		"$BASE;POSIX;_POSIX"		[$POSIX]
 

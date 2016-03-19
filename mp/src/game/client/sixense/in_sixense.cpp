@@ -2151,7 +2151,7 @@ void SixenseInput::SetPlayerHandPositions( CUserCmd *pCmd, float flFrametime )
 
 	// This 'slides' the hold origin if you pull the object back into the player
 	float min_z_dist = sixense_hold_slide_z_min_dist.GetFloat();
-	float xy_radius = sixense_hold_slide_xy_radius.GetFloat();;
+	float xy_radius = sixense_hold_slide_xy_radius.GetFloat();
 
 	if ( !m_bScalingLockedOneToOne && (Vector3( ss_right_pos[0], ss_right_pos[1], 0.0f ).length() < xy_radius) && (ss_right_pos[2] > min_z_dist) )
 	{

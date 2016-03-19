@@ -59,7 +59,7 @@ void CSceneCache::Restore( CUtlBuffer& buf  )
 	for ( int i = 0; i < c; ++i )
 	{
 		char soundname[ 512 ];
-		buf.GetString( soundname, sizeof( soundname ) );
+		buf.GetString( soundname );
 
 		int idx = soundemitterbase->GetSoundIndex( soundname );
 		if ( idx != -1 )

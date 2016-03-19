@@ -23,6 +23,7 @@
 #include "tier1/utlmemory.h"
 #include "tier1/utlblockmemory.h"
 #include "tier1/strtools.h"
+#include "vstdlib/random.h"
 
 #define FOR_EACH_VEC( vecName, iteratorName ) \
 	for ( int iteratorName = 0; iteratorName < (vecName).Count(); iteratorName++ )
@@ -63,6 +64,8 @@ public:
 	const T& Head() const;
 	T& Tail();
 	const T& Tail() const;
+	T& Random();
+	const T& Random() const;
 
 	// STL compatible member functions. These allow easier use of std::sort
 	// and they are forward compatible with the C++ 11 range-based for loops.
@@ -158,6 +161,8 @@ public:
 	int NumAllocated() const;	// Only use this if you really know what you're doing!
 
 	void Sort( int (__cdecl *pfnCompare)(const T *, const T *) );
+
+	void Shuffle( IUniformRandomStream* pSteam = NULL );
 
 #ifdef DBGFLAG_VALIDATE
 	void Validate( CValidator &validator, char *pchName );		// Validate our internal structures
@@ -674,6 +679,37 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::Size() const
 {
 	return m_Size;
+}
+
+template< typename T, class A >
+inline T& CUtlVector<T, A>::Random()
+{
+	Assert( m_Size > 0 );
+	return m_Memory[ RandomInt( 0, m_Size - 1 ) ];
+}
+
+template< typename T, class A >
+inline const T& CUtlVector<T, A>::Random() const
+{
+	Assert( m_Size > 0 );
+	return m_Memory[ RandomInt( 0, m_Size - 1 ) ];
+}
+
+
+//-----------------------------------------------------------------------------
+// Shuffle - Knuth/Fisher-Yates
+//-----------------------------------------------------------------------------
+template< typename T, class A >
+void CUtlVector<T, A>::Shuffle( IUniformRandomStream* pSteam )
+{
+	for ( int i = 0; i < m_Size; i++ )
+	{
+		int j = pSteam ? pSteam->RandomInt( i, m_Size - 1 ) : RandomInt( i, m_Size - 1 );
+		if ( i != j )
+		{
+			V_swap( m_Memory[ i ], m_Memory[ j ] );
+		}
+	}
 }
 
 template< typename T, class A >

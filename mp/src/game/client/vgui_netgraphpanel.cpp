@@ -492,6 +492,10 @@ void CNetGraphPanel::DrawTimes( vrect_t vrect, cmdinfo_t *cmdinfo, int x, int w,
 	{
 		i = ( m_OutgoingSequence - a ) & ( TIMINGS - 1 );
 		h = MIN( ( cmdinfo[i].cmd_lerp / 3.0 ) * LERP_HEIGHT, LERP_HEIGHT );
+		if ( h < 0 )
+		{
+			h = LERP_HEIGHT;
+		}
 
 		rcFill.x		= x + w -a - 1;
 		rcFill.width	= 1;
@@ -514,7 +518,9 @@ void CNetGraphPanel::DrawTimes( vrect_t vrect, cmdinfo_t *cmdinfo, int x, int w,
 
 			for ( j = start; j < h; j++ )
 			{
-				DrawLine(&rcFill, colors[j + extrap_point], 255 );	
+				int index = j + extrap_point;
+				Assert( (size_t)index < Q_ARRAYSIZE( colors ) );
+				DrawLine(&rcFill, colors[ index ], 255 );	
 				rcFill.y--;
 			}
 		}
@@ -532,7 +538,9 @@ void CNetGraphPanel::DrawTimes( vrect_t vrect, cmdinfo_t *cmdinfo, int x, int w,
 
 			for ( j = 0; j < h; j++ )
 			{
-				DrawLine(&rcFill, colors[j + oldh], 255 );	
+				int index = j + oldh;
+				Assert( (size_t)index < Q_ARRAYSIZE( colors ) );
+				DrawLine(&rcFill, colors[ index ], 255 );	
 				rcFill.y--;
 			}
 		}
@@ -1533,7 +1541,7 @@ public:
 		if ( netGraphPanel )
 		{
 			netGraphPanel->SetParent( (Panel *)NULL );
-			delete netGraphPanel;
+			netGraphPanel->MarkForDeletion();
 			netGraphPanel = NULL;
 		}
 	}

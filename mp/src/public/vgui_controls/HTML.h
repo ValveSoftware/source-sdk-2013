@@ -24,7 +24,6 @@
 #endif
 #include "steam/steam_api.h"
 
-class HTMLComboBoxHost;
 namespace vgui
 {
 
@@ -80,7 +79,7 @@ public:
 
 	// overridden to paint our special web browser texture
 	virtual void Paint();
-	
+
 	// pass messages to the texture component to tell it about resizes
 	virtual void OnSizeChanged(int wide,int tall);
 
@@ -124,7 +123,7 @@ public:
 	void AddHeader( const char *pchHeader, const char *pchValue );
 	void OnKillFocus();
 	void OnSetFocus();
-	
+
 	void Find( const char *pchSubStr );
 	void StopFind();
 	void FindNext();
@@ -147,7 +146,6 @@ public:
 	}
 #endif // DBGFLAG_VALIDATE
 
-	void PaintComboBox();
 	ISteamHTMLSurface *SteamHTMLSurface() { return m_SteamAPIContext.SteamHTMLSurface(); }
 
 	void OnHTMLMouseMoved( int x, int y )
@@ -159,20 +157,13 @@ public:
 protected:
 	virtual void ApplySchemeSettings( IScheme *pScheme );
 
-	friend class HTMLComboBoxHost;
 	vgui::Menu *m_pContextMenu;
-
 
 private:
 	STEAM_CALLBACK( HTML, BrowserNeedsPaint, HTML_NeedsPaint_t, m_NeedsPaint );
-	STEAM_CALLBACK( HTML, BrowserComboNeedsPaint, HTML_ComboNeedsPaint_t, m_ComboNeedsPaint );
 	STEAM_CALLBACK( HTML, BrowserStartRequest, HTML_StartRequest_t, m_StartRequest );
 	STEAM_CALLBACK( HTML, BrowserURLChanged, HTML_URLChanged_t, m_URLChanged );
 	STEAM_CALLBACK( HTML, BrowserFinishedRequest, HTML_FinishedRequest_t, m_FinishedRequest );
-	STEAM_CALLBACK( HTML, BrowserShowPopup, HTML_ShowPopup_t, m_ShowPopup );
-	STEAM_CALLBACK( HTML, BrowserHidePopup, HTML_HidePopup_t, m_HidePopup );
-	STEAM_CALLBACK( HTML, BrowserSizePopup, HTML_SizePopup_t, m_SizePopup );
-
 	STEAM_CALLBACK( HTML, BrowserOpenNewTab, HTML_OpenLinkInNewTab_t, m_LinkInNewTab );
 	STEAM_CALLBACK( HTML, BrowserSetHTMLTitle, HTML_ChangedTitle_t, m_ChangeTitle );
 	STEAM_CALLBACK( HTML, BrowserPopupHTMLWindow, HTML_NewWindow_t, m_NewWindow );
@@ -227,7 +218,6 @@ private:
 	};
 
 	CHTMLFindBar *m_pFindBar;
-	HTMLComboBoxHost *m_pComboBoxHost;
 
 	int m_iMouseX,m_iMouseY; // where the mouse is on the control
 
@@ -255,10 +245,7 @@ private:
 	// when the size has changed and reallocate the texture.
 	int m_allocedTextureWidth;
 	int m_allocedTextureHeight;
-	int m_iComboBoxTextureID; // vgui texture id of the combo box
-	bool m_bNeedsFullTextureUpload; 
-	int m_allocedComboBoxWidth;
-	int m_allocedComboBoxHeight;
+	bool m_bNeedsFullTextureUpload;
 	CUtlString m_sCurrentURL; // the url of our current page
 	// find in page state
 	bool m_bInFind;

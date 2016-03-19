@@ -1056,65 +1056,44 @@ bool CTeamControlPointMaster::IsBaseControlPoint( int iPointIndex )
 int	CTeamControlPointMaster::GetBaseControlPoint( int iTeam )
 {
 	int iRetVal = -1;
-	int nLowestValue = 999, nHighestValue = -1;
-	int iLowestIndex = 0, iHighestIndex = 0;
+	int nLowestValue = 999;
+	int nHighestValue = -1;
+	CTeamControlPoint *pLowestPoint = NULL;
+	CTeamControlPoint *pHighestPoint = NULL;
 
-	for( int i = 0 ; i < (int)m_ControlPoints.Count() ; i++ )
+	for( unsigned int i = 0 ; i < m_ControlPoints.Count() ; i++ )
 	{
 		CTeamControlPoint *pPoint = m_ControlPoints[i];
 
-		int iPointIndex = m_ControlPoints[i]->GetPointIndex();
-
-		if ( PlayingMiniRounds() && iTeam > LAST_SHARED_TEAM )
+		if ( !PlayingMiniRounds() || ( IsInRound( pPoint ) && ( iTeam > LAST_SHARED_TEAM ) ) )
 		{
-			if ( IsInRound( pPoint ) ) // is this point in the current round?
-			{
-				if ( iPointIndex > nHighestValue )
-				{
-					nHighestValue = iPointIndex;
-					iHighestIndex = i;
-				}
+			int nTempValue = pPoint->GetPointIndex();
 
-				if ( iPointIndex < nLowestValue )
-				{
-					nLowestValue = iPointIndex;
-					iLowestIndex = i;
-				}
-			}
-		}
-		else
-		{
-			if ( pPoint->GetDefaultOwner() != iTeam )
+			if ( nTempValue > nHighestValue )
 			{
-				continue;
+				nHighestValue = nTempValue;
+				pHighestPoint = pPoint;
 			}
 
-			// If it's the first or the last point, it's their base
-			if ( iPointIndex == 0 || iPointIndex == (((int)m_ControlPoints.Count())-1) )
+			if ( nTempValue < nLowestValue )
 			{
-				iRetVal = iPointIndex;
-				break;
+				nLowestValue = nTempValue;
+				pLowestPoint = pPoint;
 			}
 		}
 	}
 
-	if ( PlayingMiniRounds() && iTeam > LAST_SHARED_TEAM )
+	if ( pLowestPoint && pHighestPoint )
 	{
-		if ( nLowestValue != 999 && nHighestValue != -1 )
+		// which point is owned by this team?
+		if ( ( pLowestPoint->GetDefaultOwner() == iTeam && pHighestPoint->GetDefaultOwner() == iTeam ) || // if the same team owns both, take the highest value to be the last point
+				( pHighestPoint->GetDefaultOwner() == iTeam ) )
 		{
-			CTeamControlPoint *pLowestPoint = m_ControlPoints[iLowestIndex];
-			CTeamControlPoint *pHighestPoint = m_ControlPoints[iHighestIndex];
-
-			// which point is owned by this team?
-			if ( ( pLowestPoint->GetDefaultOwner() == iTeam && pHighestPoint->GetDefaultOwner() == iTeam ) || // if the same team owns both, take the highest value to be the last point
-				 ( pHighestPoint->GetDefaultOwner() == iTeam ) )
-			{
-				iRetVal = nHighestValue;
-			}
-			else if ( pLowestPoint->GetDefaultOwner() == iTeam )
-			{
-				iRetVal = nLowestValue;
-			}
+			iRetVal = nHighestValue;
+		}
+		else if ( pLowestPoint->GetDefaultOwner() == iTeam )
+		{
+			iRetVal = nLowestValue;
 		}
 	}
 	

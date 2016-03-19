@@ -181,7 +181,7 @@ bool KVPacker::ReadAsBinary( KeyValues *pNode, CUtlBuffer &buffer )
 		if ( ePackType == PACKTYPE_NULLMARKER )
 			break; // no more peers
 
-		buffer.GetString( token, KEYVALUES_TOKEN_SIZE-1 );
+		buffer.GetString( token );
 		token[KEYVALUES_TOKEN_SIZE-1] = 0;
 
 		dat->SetName( token );
@@ -198,7 +198,7 @@ bool KVPacker::ReadAsBinary( KeyValues *pNode, CUtlBuffer &buffer )
 			}
 		case PACKTYPE_STRING:
 			{
-				buffer.GetString( token, KEYVALUES_TOKEN_SIZE-1 );
+				buffer.GetString( token );
 				token[KEYVALUES_TOKEN_SIZE-1] = 0;
 				dat->SetStringValue( token );
 				break;
@@ -206,15 +206,26 @@ bool KVPacker::ReadAsBinary( KeyValues *pNode, CUtlBuffer &buffer )
 		case PACKTYPE_WSTRING:
 			{
 				int nLength = buffer.GetShort();
-				wchar_t *pTemp = (wchar_t *)stackalloc( sizeof(wchar_t) * ( 1 + nLength ) );
-
-				for( int k = 0; k < nLength; ++ k )
+				if ( nLength >= 0 && nLength*sizeof( uint16 ) <= (uint)buffer.GetBytesRemaining() )
 				{
-					pTemp[k] = buffer.GetShort();
-				}
-				pTemp[ nLength ] = 0;
+					if ( nLength > 0 )
+					{
+						wchar_t *pTemp = (wchar_t *)malloc( sizeof( wchar_t ) * (1 + nLength) );
 
-				dat->SetWString( NULL, pTemp );
+						for ( int k = 0; k < nLength; ++k )
+						{
+							pTemp[k] = buffer.GetShort(); // ugly, but preserving existing behavior
+						}
+
+						pTemp[nLength] = 0;
+						dat->SetWString( NULL, pTemp );
+
+						free( pTemp );
+					}
+					else
+						dat->SetWString( NULL, L"" );
+
+				}
 				break;
 			}
 

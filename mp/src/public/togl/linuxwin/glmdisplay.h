@@ -1,4 +1,26 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
+//                       TOGL CODE LICENSE
+//
+//  Copyright 2011-2014 Valve Corporation
+//  All Rights Reserved.
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 //
 // glmdisplay.h
 // display related stuff - used by both GLMgr and the CocoaMgr
@@ -10,20 +32,22 @@
 
 #pragma once
 
+#ifdef USE_SDL
+#include "SDL_opengl.h"
+#endif
+
 #ifdef OSX
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
 #include <OpenGL/CGLTypes.h>
 #include <OpenGL/CGLRenderers.h>
 #include <OpenGL/CGLCurrent.h>
-#include <ApplicationServices/ApplicationServices.h>
-#elif defined(DX_TO_GL_ABSTRACTION)
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include "tier0/platform.h"
-#else
-#error
+#endif
+
+#ifdef MAC_OS_X_VERSION_10_9
+typedef uint32_t CGDirectDisplayID;
+typedef uint32_t CGOpenGLDisplayMask;
+typedef double CGRefreshRate;
 #endif
 
 typedef void _PseudoNSGLContext;					// aka NSOpenGLContext
@@ -125,7 +149,7 @@ struct GLMRendererInfoFields
 	bool	m_intel;
 	bool	m_intel95x;
 	bool	m_intel3100;
-	bool	m_intelNewer;
+	bool	m_intelHD4000;
 
 	bool	m_nv;
 	bool	m_nvG7x;
@@ -169,6 +193,7 @@ struct GLMRendererInfoFields
 
 	//--------------------------- " bads " - known bad drivers
 	bool	m_badDriver1064NV;		// this is the bad NVIDIA driver on 10.6.4 - stutter, tex corruption, black screen issues
+	bool    m_badDriver108Intel;	// this is the bad Intel HD4000 driver on 10.8 - intermittent crash on GLSL compilation.
 };
 
 

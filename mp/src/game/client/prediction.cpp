@@ -45,6 +45,12 @@ static ConVar	cl_predictionentitydump( "cl_pdump", "-1", FCVAR_CHEAT, "Dump info
 static ConVar	cl_predictionentitydumpbyclass( "cl_pclass", "", FCVAR_CHEAT, "Dump entity by prediction classname." );
 static ConVar	cl_pred_optimize( "cl_pred_optimize", "2", 0, "Optimize for not copying data if didn't receive a network update (1), and also for not repredicting if there were no errors (2)." );
 
+#ifdef STAGING_ONLY
+// Do not ship this - testing a fix
+static ConVar	cl_pred_optimize_prefer_server_data( "cl_pred_optimize_prefer_server_data", "0", 0, "In the case where we have both server data and predicted data up to the same tick, choose server data over predicted data." );
+//
+#endif // STAGING_ONLY
+
 #endif
 
 extern IGameMovement *g_pGameMovement;
@@ -1401,6 +1407,11 @@ int CPrediction::ComputeFirstCommandToExecute( bool received_new_world_update, i
 	}
 	else
 	{
+#ifdef STAGING_ONLY	
+		int nPredictedLimit = cl_pred_optimize_prefer_server_data.GetBool() ? m_nCommandsPredicted - 1 : m_nCommandsPredicted;
+#else
+		int nPredictedLimit = m_nCommandsPredicted;		
+#endif // STAGING_ONLY
 		// Otherwise, there is a second optimization, wherein if we did receive an update, but no
 		//  values differed (or were outside their epsilon) and the server actually acknowledged running
 		//  one or more commands, then we can revert the entity to the predicted state from last frame, 
@@ -1409,7 +1420,7 @@ int CPrediction::ComputeFirstCommandToExecute( bool received_new_world_update, i
 		if ( cl_pred_optimize.GetInt() >= 2 && 
 			!m_bPreviousAckHadErrors && 
 			m_nCommandsPredicted > 0 && 
-			m_nServerCommandsAcknowledged <= m_nCommandsPredicted )
+			m_nServerCommandsAcknowledged <= nPredictedLimit )
 		{
 			// Copy all of the previously predicted data back into entity so we can skip repredicting it
 			// This is the final slot that we previously predicted

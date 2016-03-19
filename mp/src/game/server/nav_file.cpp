@@ -1318,12 +1318,11 @@ const CUtlVector< Place > *CNavMesh::GetPlacesFromNavFile( bool *hasUnnamedPlace
 	if ( IsX360() )
 	{
 		// 360 has compressed NAVs
-		CLZMA lzma;
-		if ( lzma.IsCompressed( (unsigned char *)fileBuffer.Base() ) )
+		if ( CLZMA::IsCompressed( (unsigned char *)fileBuffer.Base() ) )
 		{
-			int originalSize = lzma.GetActualSize( (unsigned char *)fileBuffer.Base() );
+			int originalSize = CLZMA::GetActualSize( (unsigned char *)fileBuffer.Base() );
 			unsigned char *pOriginalData = new unsigned char[originalSize];
-			lzma.Uncompress( (unsigned char *)fileBuffer.Base(), pOriginalData );
+			CLZMA::Uncompress( (unsigned char *)fileBuffer.Base(), pOriginalData );
 			fileBuffer.AssumeMemory( pOriginalData, originalSize, originalSize, CUtlBuffer::READ_ONLY );
 		}
 	}
@@ -1411,12 +1410,11 @@ NavErrorType CNavMesh::Load( void )
 	if ( IsX360() )
 	{
 		// 360 has compressed NAVs
-		CLZMA lzma;
-		if ( lzma.IsCompressed( (unsigned char *)fileBuffer.Base() ) )
+		if ( CLZMA::IsCompressed( (unsigned char *)fileBuffer.Base() ) )
 		{
-			int originalSize = lzma.GetActualSize( (unsigned char *)fileBuffer.Base() );
+			int originalSize = CLZMA::GetActualSize( (unsigned char *)fileBuffer.Base() );
 			unsigned char *pOriginalData = new unsigned char[originalSize];
-			lzma.Uncompress( (unsigned char *)fileBuffer.Base(), pOriginalData );
+			CLZMA::Uncompress( (unsigned char *)fileBuffer.Base(), pOriginalData );
 			fileBuffer.AssumeMemory( pOriginalData, originalSize, originalSize, CUtlBuffer::READ_ONLY );
 		}
 	}

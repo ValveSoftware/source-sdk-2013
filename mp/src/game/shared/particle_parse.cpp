@@ -567,4 +567,37 @@ void StopParticleEffects( CBaseEntity *pEntity )
 	}
 	static ConCommand particle_test_stop("particle_test_stop", CC_Particle_Test_Stop, "Stops all particle systems on the selected entities.\n\tArguments:   	{entity_name} / {class_name} / no argument picks what player is looking at ", FCVAR_CHEAT);
 
-#endif	//CLIENT_DLL
+#endif	//!CLIENT_DLL
+
+#if defined( CLIENT_DLL ) && defined( STAGING_ONLY )
+	
+	void CC_DispatchParticle( const CCommand& args )
+	{
+		C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+		if ( !pLocalPlayer )
+			return;
+
+		if ( args.ArgC() < 2 )
+		{
+			DevMsg( "Use: dispatch_particle {particle_name} {surface_offset_distance}\n" );
+			return;
+		}
+
+		float flSurfaceOffsetDistance = 0.f;
+		if ( args.ArgC() == 3 )
+		{
+			flSurfaceOffsetDistance = atof( args[2] );
+		}
+
+		Vector vForward;
+		pLocalPlayer->GetVectors( &vForward, NULL, NULL );
+		trace_t tr;
+		UTIL_TraceLine( pLocalPlayer->EyePosition(), pLocalPlayer->EyePosition() + vForward * 3000, MASK_SOLID_BRUSHONLY, NULL, &tr );
+	
+		Vector vTargetDeathPos = tr.endpos;
+		DispatchParticleEffect( args[1], vTargetDeathPos + flSurfaceOffsetDistance * tr.plane.normal, vec3_angle );
+	}
+
+	static ConCommand dispatch_particle( "dispatch_particle", CC_DispatchParticle, "Dispatch specified particle effect 50 units away from the lookat surface normal.\n\tArguments: {particle_name} {surface_offset_distance}", FCVAR_CHEAT );
+
+#endif // CLIENT_DLL && STAGING_ONLY

@@ -83,6 +83,9 @@ class IPartitionEnumerator
 {
 public:
 	virtual IterationRetval_t EnumElement( IHandleEntity *pHandleEntity ) = 0;
+	// XXX(johns): This should have a virtual destructor, but would be ABI breaking (non-versioned interface implemented
+	//             by the game)
+	// virtual ~IPartitionEnumerator(){}
 };
 
 

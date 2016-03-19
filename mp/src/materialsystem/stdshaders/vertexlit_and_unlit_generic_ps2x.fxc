@@ -358,8 +358,8 @@ float4 main( PS_INPUT i ) : COLOR
 	diffuseLighting = f3LightmapColor;
 #endif
 
-
 	float3 albedo = baseColor;
+
 	if (bBlendTintByBaseAlpha)
 	{
 		float3 tintedColor = albedo * g_DiffuseModulation.rgb;

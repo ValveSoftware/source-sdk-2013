@@ -43,6 +43,8 @@ class CUtlArray : public base_array_t
 {
 public:
 	typedef T ElemType_t;
+	typedef T* iterator;
+	typedef const T* const_iterator;
 
 	CUtlArray();
 	CUtlArray( T* pMemory, size_t count );
@@ -58,6 +60,13 @@ public:
 	const T& Element( int i ) const;
 	T& Random();
 	const T& Random() const;
+
+	// STL compatible member functions. These allow easier use of std::sort
+	// and they are forward compatible with the C++ 11 range-based for loops.
+	iterator begin();
+	const_iterator begin() const;
+	iterator end();
+	const_iterator end() const;
 
 	T* Base();
 	const T* Base() const;
@@ -128,6 +137,30 @@ inline CUtlArray<T, MAX_SIZE>::CUtlArray( CUtlArray const& vec )
 	{
 		m_Memory[n] = vec.m_Memory[n];
 	}
+}
+
+template< typename T, size_t MAX_SIZE >
+typename CUtlArray<T, MAX_SIZE>::iterator CUtlArray<T, MAX_SIZE>::begin()
+{ 
+	return Base(); 
+}
+
+template< typename T, size_t MAX_SIZE >
+typename CUtlArray<T, MAX_SIZE>::const_iterator CUtlArray<T, MAX_SIZE>::begin() const
+{ 
+	return Base(); 
+}
+
+template< typename T, size_t MAX_SIZE >
+typename CUtlArray<T, MAX_SIZE>::iterator CUtlArray<T, MAX_SIZE>::end()
+{ 
+	return Base() + Count(); 
+}
+
+template< typename T, size_t MAX_SIZE >
+typename CUtlArray<T, MAX_SIZE>::const_iterator CUtlArray<T, MAX_SIZE>::end() const
+{ 
+	return Base() + Count(); 
 }
 
 template< typename T, size_t MAX_SIZE >

@@ -22,6 +22,7 @@ CBaseModelPanel::CBaseModelPanel( vgui::Panel *pParent, const char *pName ): Bas
 	m_bForcePos = false;
 	m_bMousePressed = false;
 	m_bAllowRotation = false;
+	m_bAllowPitch = false;
 	m_bAllowFullManipulation = false;
 	m_bApplyManipulators = false;
 	m_bForcedCameraPosition = false;
@@ -43,6 +44,7 @@ void CBaseModelPanel::ApplySettings( KeyValues *inResourceData )
 
 	// Set whether we render to texture
 	m_bRenderToTexture = inResourceData->GetBool( "render_texture", true );
+	m_bUseParticle = inResourceData->GetBool( "use_particle", false );
 
 	// Grab and set the camera FOV.
 	float flFOV = GetCameraFOV();
@@ -51,6 +53,7 @@ void CBaseModelPanel::ApplySettings( KeyValues *inResourceData )
 
 	// Do we allow rotation on these panels.
 	m_bAllowRotation = inResourceData->GetBool( "allow_rot", false );
+	m_bAllowPitch = inResourceData->GetBool( "allow_pitch", false );
 
 	// Do we allow full manipulation on these panels.
 	m_bAllowFullManipulation = inResourceData->GetBool( "allow_manip", false );
@@ -64,7 +67,7 @@ void CBaseModelPanel::ApplySettings( KeyValues *inResourceData )
  		}
  	}
 
-	SetMouseInputEnabled( m_bAllowFullManipulation || m_bAllowRotation );
+	SetMouseInputEnabled( m_bAllowFullManipulation || m_bAllowRotation || m_bAllowPitch );
 }
 
 //-----------------------------------------------------------------------------
@@ -412,12 +415,15 @@ void CBaseModelPanel::OnMousePressed ( vgui::MouseCode code )
 		return;
 	}
 
-	if ( !m_bAllowRotation )
+	if ( !m_bAllowRotation && !m_bAllowPitch )
 		return;
 
 	RequestFocus();
 
 	EnableMouseCapture( true, code );
+
+	// Save where they clicked
+	input()->GetCursorPosition( m_nClickStartX, m_nClickStartY );
 
 	// Warp the mouse to the center of the screen
 	int width, height;
@@ -446,11 +452,14 @@ void CBaseModelPanel::OnMouseReleased( vgui::MouseCode code )
 		return;
 	}
 
-	if ( !m_bAllowRotation )
+	if ( !m_bAllowRotation && !m_bAllowPitch )
 		return;
 
 	EnableMouseCapture( false );
 	m_bMousePressed = false;
+
+	// Restore the cursor to where the clicked
+	input()->SetCursorPos( m_nClickStartX, m_nClickStartY );
 }
 
 //-----------------------------------------------------------------------------
@@ -467,7 +476,7 @@ void CBaseModelPanel::OnCursorMoved( int x, int y )
 		return;
 	}
 
-	if ( !m_bAllowRotation )
+	if ( !m_bAllowRotation && !m_bAllowPitch )
 		return;
 
 	if ( m_bMousePressed )
@@ -476,11 +485,25 @@ void CBaseModelPanel::OnCursorMoved( int x, int y )
 		int xpos, ypos;
 		input()->GetCursorPos( xpos, ypos );
 
-		// Only want the x delta.
-		float flDelta = xpos - m_nManipStartX;
+		if ( m_bAllowRotation )
+		{
+			// Only want the x delta.
+			float flDelta = xpos - m_nManipStartX;
 
-		// Apply the delta and rotate the player.
-		RotateYaw( flDelta );
+
+			// Apply the delta and rotate the player.
+			RotateYaw( flDelta );
+		}
+
+		if ( m_bAllowPitch )
+		{
+			// Only want the y delta.
+			float flDelta = ypos - m_nManipStartY;
+
+
+			// Apply the delta and rotate the player.
+			RotatePitch( flDelta );
+		}
 	}
 }
 
@@ -496,6 +519,23 @@ void CBaseModelPanel::RotateYaw( float flDelta )
 	else if ( m_angPlayer.y < -360.0f )
 	{
 		m_angPlayer.y = m_angPlayer.y + 360.0f;
+	}
+
+	SetModelAnglesAndPosition( m_angPlayer, m_vecPlayerPos );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseModelPanel::RotatePitch( float flDelta )
+{
+	m_angPlayer.x += flDelta;
+	if ( m_angPlayer.x > m_flMaxPitch )
+	{
+		m_angPlayer.x = m_flMaxPitch;
+	}
+	else if ( m_angPlayer.x < -m_flMaxPitch )
+	{
+		m_angPlayer.x = -m_flMaxPitch;
 	}
 
 	SetModelAnglesAndPosition( m_angPlayer, m_vecPlayerPos );
@@ -643,11 +683,158 @@ void CBaseModelPanel::LookAtBounds( const Vector &vecBoundsMin, const Vector &ve
 
 	// Clear the camera pivot and set position matrix.
 	ResetCameraPivot();
-	if (m_bAllowRotation )
+	if (m_bAllowRotation || m_bAllowPitch )
 	{
 		vecCameraOffset.x = 0.0f;
 	}
 	SetCameraOffset( Vector( 0.0f, -vecCameraOffset.x, -vecCameraOffset.y ) );
 	UpdateCameraTransform();
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+CBaseModelPanel::particle_data_t::~particle_data_t()
+{
+	if ( m_pParticleSystem )
+	{
+		delete m_pParticleSystem;
+		m_pParticleSystem = NULL;
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Allocate particle data
+//-----------------------------------------------------------------------------
+void CBaseModelPanel::particle_data_t::UpdateControlPoints( CStudioHdr *pStudioHdr, matrix3x4_t *pWorldMatrix, const CUtlVector< int >& vecAttachments, int iDefaultBone /*= 0*/, const Vector& vecParticleOffset /*= vec3_origin*/ )
+{
+	if ( m_pParticleSystem )
+	{
+		// Update control points which is updating the position of the particles
+		matrix3x4_t matAttachToWorld;
+		Vector vecPosition, vecForward, vecRight, vecUp;
+		if ( vecAttachments.Count() )
+		{
+			for ( int i = 0; i < vecAttachments.Count(); ++i )
+			{
+				const mstudioattachment_t& attach = pStudioHdr->pAttachment( vecAttachments[i] ); 
+				MatrixMultiply( pWorldMatrix[ attach.localbone ], attach.local, matAttachToWorld );
+
+				MatrixVectors( matAttachToWorld, &vecForward, &vecRight, &vecUp );
+				MatrixPosition( matAttachToWorld, vecPosition );
+
+				m_pParticleSystem->SetControlPointOrientation( i, vecForward, vecRight, vecUp );
+				m_pParticleSystem->SetControlPoint( i, vecPosition + vecParticleOffset );
+			}
+		}
+		else
+		{
+			matAttachToWorld = pWorldMatrix[iDefaultBone];
+			MatrixVectors( matAttachToWorld, &vecForward, &vecRight, &vecUp );
+			MatrixPosition( matAttachToWorld, vecPosition );
+			
+			m_pParticleSystem->SetControlPointOrientation( 0, vecForward, vecRight, vecUp );
+			m_pParticleSystem->SetControlPoint( 0, vecPosition + vecParticleOffset );
+		}
+	}
+
+	m_bIsUpdateToDate = true;
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Allocate particle data
+//-----------------------------------------------------------------------------
+CBaseModelPanel::particle_data_t *CBaseModelPanel::CreateParticleData( const char *pszParticleName )
+{
+	Assert( m_bUseParticle );
+	if ( !m_bUseParticle )
+		return NULL;
+
+	CParticleCollection *pParticle = g_pParticleSystemMgr->CreateParticleCollection( pszParticleName );
+	if ( !pParticle )
+		return NULL;
+
+	particle_data_t *pData = new particle_data_t;
+	pData->m_bIsUpdateToDate = false;
+	pData->m_pParticleSystem = pParticle;
+
+	m_particleList.AddToTail( pData );
+
+	return pData;
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: remove and delete particle data
+//-----------------------------------------------------------------------------
+bool CBaseModelPanel::SafeDeleteParticleData( particle_data_t **pData )
+{
+	if ( !m_bUseParticle )
+		return false;
+
+	if ( *pData )
+	{
+		FOR_EACH_VEC( m_particleList, i )
+		{
+			if ( *pData == m_particleList[i] )
+			{
+				delete *pData;
+				*pData = NULL;
+				m_particleList.FastRemove( i );
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseModelPanel::PrePaint3D( IMatRenderContext *pRenderContext )
+{
+	if ( !m_bUseParticle )
+		return;
+
+	// mark all effects need to be updated
+	FOR_EACH_VEC( m_particleList, i )
+	{
+		m_particleList[i]->m_bIsUpdateToDate = false;
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseModelPanel::PostPaint3D( IMatRenderContext *pRenderContext )
+{
+	if ( !m_bUseParticle )
+		return;
+
+	// This needs calling to reset various counters.
+	g_pParticleSystemMgr->SetLastSimulationTime( gpGlobals->curtime );
+
+	// Render Particles
+	pRenderContext->MatrixMode( MATERIAL_MODEL );
+	pRenderContext->PushMatrix();
+	pRenderContext->LoadIdentity( );
+
+	FOR_EACH_VEC( m_particleList, i )
+	{
+		if ( m_particleList[i]->m_bIsUpdateToDate )
+		{
+			m_particleList[i]->m_pParticleSystem->Simulate( gpGlobals->frametime, false );
+			m_particleList[i]->m_pParticleSystem->Render( pRenderContext );
+			m_particleList[i]->m_bIsUpdateToDate = false;
+		}
+	}
+
+	pRenderContext->MatrixMode( MATERIAL_MODEL );
+	pRenderContext->PopMatrix();
 }
 

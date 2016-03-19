@@ -128,14 +128,14 @@ public:
 		if ( loadingDiscPanel )
 		{
 			loadingDiscPanel->SetParent( (vgui::Panel *)NULL );
-			delete loadingDiscPanel;
+			loadingDiscPanel->MarkForDeletion();
 			loadingDiscPanel = NULL;
 		}
 
 		if ( m_pPauseDiscPanel )
 		{
 			m_pPauseDiscPanel->SetParent( (vgui::Panel *)NULL );
-			delete m_pPauseDiscPanel;
+			m_pPauseDiscPanel->MarkForDeletion();
 			m_pPauseDiscPanel = NULL;
 		}
 

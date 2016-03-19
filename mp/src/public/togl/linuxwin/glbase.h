@@ -1,4 +1,26 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
+//                       TOGL CODE LICENSE
+//
+//  Copyright 2011-2014 Valve Corporation
+//  All Rights Reserved.
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 //
 // glbase.h
 //
@@ -12,23 +34,16 @@
 #undef HAVE_GL_ARB_SYNC
 
 #ifndef OSX
-	#define HAVE_GL_ARB_SYNC 1
+#define HAVE_GL_ARB_SYNC 1
+#endif
+
+#ifdef USE_SDL
+#include "SDL_opengl.h"
 #endif
 
 #ifdef OSX
-	#include <OpenGL/OpenGL.h>
-	#include <OpenGL/gl.h>
-	#include <OpenGL/glext.h>
-	#include <OpenGL/CGLTypes.h>
-	#include <OpenGL/CGLRenderers.h>
-	#include <OpenGL/CGLCurrent.h>
-	#include <OpenGL/CGLProfiler.h>
-	#include <ApplicationServices/ApplicationServices.h>
-#elif defined(DX_TO_GL_ABSTRACTION)
-	#include <GL/gl.h>
-	#include <GL/glext.h>
-#else
-	#error
+#include <OpenGL/CGLCurrent.h>
+#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 #ifdef DX_TO_GL_ABSTRACTION
@@ -37,20 +52,18 @@
 	#endif
 	#undef CurrentTime
 
-	// prevent some conflicts in SDL headers...
-	#undef M_PI
-	#include <stdint.h>
-	#ifndef _STDINT_H_
-	#define _STDINT_H_ 1
+	#if defined( USE_SDL )
+		#include "SDL.h"
 	#endif
 #endif
 
 //===============================================================================
 // glue to call out to Obj-C land (these are in glmgrcocoa.mm)
 #ifdef OSX
-	bool			NewNSGLContext( unsigned long *attribs, PseudoNSGLContextPtr nsglShareCtx, PseudoNSGLContextPtr *nsglCtxOut, CGLContextObj *cglCtxOut );
+	typedef void _PseudoNSGLContext;					// aka NSOpenGLContext
+	typedef _PseudoNSGLContext	*PseudoNSGLContextPtr;
+	
 	CGLContextObj	GetCGLContextFromNSGL( PseudoNSGLContextPtr nsglCtx );
-	void			DelNSGLContext( PseudoNSGLContextPtr nsglCtx );
 #endif
 
 // Set TOGL_SUPPORT_NULL_DEVICE to 1 to support the NULL ref device

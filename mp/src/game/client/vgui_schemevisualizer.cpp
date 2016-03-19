@@ -178,11 +178,13 @@ void CSchemeVisualizer::AddFontsToList()
 {
 #ifdef POSIX
 	const char strOAccent[] = { (char)0xc3, (char)0x93, 0x00 };	// UTF-8 for U+00D3 (LATIN CAPITAL LETTER O WITH ACUTE)
+	const char strSkull[] = { (char)0xe2, (char)0x98, (char)0xa0, 0x00 };
 #else
 	const uint8 strOAccent[] = { 0xd3, 0x00	};
+	const char strSkull[] = "";
 #endif
 	// Stick an intl character in here to test accents (O')
-	CFmtStr fmtText( "ABCDEFGHIJKLMN%sPQRSTUVWXYZabcdefhijklmnopqrstuvwxyz0123456789!@#$%%^&*()-_=+", strOAccent );
+	CFmtStr fmtText( "ABCDEFGHIJKLMN%sPQRSTUVWXYZ%sabcdefhijklmnopqrstuvwxyz0123456789!@#$%%^&*()-_=+", strOAccent, strSkull );
 
 	const int nFontCount = m_pViewScheme->GetFontCount();
 

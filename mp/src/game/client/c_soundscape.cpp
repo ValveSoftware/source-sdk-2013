@@ -150,7 +150,7 @@ public:
 		{
 			Msg( "- %d: %s\n", i, m_soundscapes[i]->GetName() );
 		}
-		if ( m_forcedSoundscapeIndex )
+		if ( m_forcedSoundscapeIndex >= 0 )
 		{
 			Msg( "- PLAYING DEBUG SOUNDSCAPE: %d [%s]\n", m_forcedSoundscapeIndex, SoundscapeNameByIndex(m_forcedSoundscapeIndex) );
 		}

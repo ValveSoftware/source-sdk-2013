@@ -1,4 +1,27 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
+//                       TOGL CODE LICENSE
+//
+//  Copyright 2011-2014 Valve Corporation
+//  All Rights Reserved.
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
 #ifndef RENDERMECHANISM_H
 #define RENDERMECHANISM_H
 
@@ -8,10 +31,9 @@
 
 #include <GL/gl.h>
 #include <GL/glext.h>
+
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
-
-#if defined(LINUX) || defined(_WIN32)
 
 #include "togl/linuxwin/glmdebug.h"
 #include "togl/linuxwin/glbase.h"
@@ -28,25 +50,6 @@
 #include "togl/linuxwin/glmgr.h"
 #include "togl/linuxwin/dxabstract_types.h"
 #include "togl/linuxwin/dxabstract.h"
-
-#elif defined(OSX)
-#include "togl/osx/glmdebug.h"
-//#include "togl/osx/glbase.h"
-#include "togl/osx/glentrypoints.h"
-#include "togl/osx/glmdisplay.h"
-#include "togl/osx/glmdisplaydb.h"
-#include "togl/osx/glmgrbasics.h"
-#include "togl/osx/glmgrext.h"
-#include "togl/osx/cglmbuffer.h"
-#include "togl/osx/cglmtex.h"
-#include "togl/osx/cglmfbo.h"
-#include "togl/osx/cglmprogram.h"
-#include "togl/osx/cglmquery.h"
-#include "togl/osx/glmgr.h"
-#include "togl/osx/dxabstract_types.h"
-#include "togl/osx/dxabstract.h"
-
-#endif
 
 #else
 	//USE_ACTUAL_DX

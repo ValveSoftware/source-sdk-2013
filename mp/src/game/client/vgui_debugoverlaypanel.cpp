@@ -166,7 +166,8 @@ public:
 		if ( debugOverlayPanel )
 		{
 			debugOverlayPanel->SetParent( (vgui::Panel *)NULL );
-			delete debugOverlayPanel;
+			debugOverlayPanel->MarkForDeletion();
+			debugOverlayPanel = NULL;
 		}
 	}
 };

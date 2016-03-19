@@ -42,25 +42,25 @@ class CThirdPersonManager
 public:
 
 	CThirdPersonManager();
-	void	SetCameraOffsetAngles( Vector vecOffset ) { m_vecCameraOffset = vecOffset; }
-	Vector	GetCameraOffsetAngles( void ) { return m_vecCameraOffset; }
+	void	SetCameraOffsetAngles( const Vector& vecOffset ) { m_vecCameraOffset = vecOffset; }
+	const Vector&	GetCameraOffsetAngles( void ) const { return m_vecCameraOffset; }
 	
-	void	SetDesiredCameraOffset( Vector vecOffset ) { m_vecDesiredCameraOffset = vecOffset; }
-	Vector	GetDesiredCameraOffset( void );
+	void	SetDesiredCameraOffset( const Vector& vecOffset ) { m_vecDesiredCameraOffset = vecOffset; }
+	const Vector&	GetDesiredCameraOffset( void ) const { return m_vecDesiredCameraOffset; }
 
 	Vector	GetFinalCameraOffset( void );
 
-	void	SetCameraOrigin( Vector vecOffset ) { m_vecCameraOrigin = vecOffset; }
-	Vector	GetCameraOrigin( void ) { return m_vecCameraOrigin; }
+	void	SetCameraOrigin( const Vector& vecOffset ) { m_vecCameraOrigin = vecOffset; }
+	const Vector&	GetCameraOrigin( void ) const { return m_vecCameraOrigin; }
 
 	void	Update( void );
 
-	void	PositionCamera( CBasePlayer *pPlayer, QAngle angles );
+	void	PositionCamera( CBasePlayer *pPlayer, const QAngle& angles );
 
 	void	UseCameraOffsets( bool bUse ) { m_bUseCameraOffsets = bUse; }
 	bool	UsingCameraOffsets( void ) { return m_bUseCameraOffsets; }
 
-	QAngle	GetCameraViewAngles( void ) { return m_ViewAngles; }
+	const QAngle&	GetCameraViewAngles( void ) const { return m_ViewAngles; }
 
 	Vector	GetDistanceFraction( void );
 

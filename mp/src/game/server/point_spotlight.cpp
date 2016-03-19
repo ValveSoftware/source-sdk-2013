@@ -56,6 +56,7 @@ private:
 private:
 	bool	m_bSpotlightOn;
 	bool	m_bEfficientSpotlight;
+	bool	m_bIgnoreSolid;
 	Vector	m_vSpotlightTargetPos;
 	Vector	m_vSpotlightCurrentPos;
 	Vector	m_vSpotlightDir;
@@ -88,6 +89,7 @@ BEGIN_DATADESC( CPointSpotlight )
 	DEFINE_FIELD( m_vSpotlightDir,			FIELD_VECTOR ),
 	DEFINE_FIELD( m_nHaloSprite,			FIELD_INTEGER ),
 
+	DEFINE_KEYFIELD( m_bIgnoreSolid, FIELD_BOOLEAN, "IgnoreSolid" ),
 	DEFINE_KEYFIELD( m_flSpotlightMaxLength,FIELD_FLOAT, "SpotlightLength"),
 	DEFINE_KEYFIELD( m_flSpotlightGoalWidth,FIELD_FLOAT, "SpotlightWidth"),
 	DEFINE_KEYFIELD( m_flHDRColorScale, FIELD_FLOAT, "HDRColorScale" ),
@@ -118,6 +120,7 @@ CPointSpotlight::CPointSpotlight()
 #endif
 	m_flHDRColorScale = 1.0f;
 	m_nMinDXLevel = 0;
+	m_bIgnoreSolid = false;
 }
 
 
@@ -332,12 +335,21 @@ void CPointSpotlight::SpotlightCreate(void)
 
 	AngleVectors( GetAbsAngles(), &m_vSpotlightDir );
 
-	trace_t tr;
-	UTIL_TraceLine( GetAbsOrigin(), GetAbsOrigin() + m_vSpotlightDir * m_flSpotlightMaxLength, MASK_SOLID_BRUSHONLY, this, COLLISION_GROUP_NONE, &tr);
+	Vector vTargetPos;
+	if ( m_bIgnoreSolid )
+	{
+		vTargetPos = GetAbsOrigin() + m_vSpotlightDir * m_flSpotlightMaxLength;
+	}
+	else
+	{
+		trace_t tr;
+		UTIL_TraceLine( GetAbsOrigin(), GetAbsOrigin() + m_vSpotlightDir * m_flSpotlightMaxLength, MASK_SOLID_BRUSHONLY, this, COLLISION_GROUP_NONE, &tr );
+		vTargetPos = tr.endpos;
+	}
 
 	m_hSpotlightTarget = (CSpotlightEnd*)CreateEntityByName( "spotlight_end" );
 	m_hSpotlightTarget->Spawn();
-	m_hSpotlightTarget->SetAbsOrigin( tr.endpos );
+	m_hSpotlightTarget->SetAbsOrigin( vTargetPos );
 	m_hSpotlightTarget->SetOwnerEntity( this );
 	m_hSpotlightTarget->m_clrRender = m_clrRender;
 	m_hSpotlightTarget->m_Radius = m_flSpotlightMaxLength;
@@ -381,9 +393,17 @@ Vector CPointSpotlight::SpotlightCurrentPos(void)
 	AngleVectors( GetAbsAngles(), &m_vSpotlightDir );
 
 	//	Get beam end point.  Only collide with solid objects, not npcs
-	trace_t tr;
-	UTIL_TraceLine( GetAbsOrigin(), GetAbsOrigin() + (m_vSpotlightDir * 2 * m_flSpotlightMaxLength), MASK_SOLID_BRUSHONLY, this, COLLISION_GROUP_NONE, &tr );
-	return tr.endpos;
+	Vector vEndPos = GetAbsOrigin() + ( m_vSpotlightDir * 2 * m_flSpotlightMaxLength );
+	if ( m_bIgnoreSolid )
+	{
+		return vEndPos;
+	}
+	else
+	{
+		trace_t tr;
+		UTIL_TraceLine( GetAbsOrigin(), vEndPos, MASK_SOLID_BRUSHONLY, this, COLLISION_GROUP_NONE, &tr );
+		return tr.endpos;
+	}
 }
 
 //------------------------------------------------------------------------------

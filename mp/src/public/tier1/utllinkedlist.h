@@ -679,7 +679,8 @@ I CUtlLinkedList<T,S,ML,I,M>::AllocInternal( bool multilist )
 			Assert( m_Memory.IsValidIterator( it ) );
 			if ( !m_Memory.IsValidIterator( it ) )
 			{
-				ExecuteNTimes( 10, Warning( "CUtlLinkedList overflow! (exhausted memory allocator)\n" ) );
+				// We rarely if ever handle alloc failure. Continuing leads to corruption.
+				Error( "CUtlLinkedList overflow! (exhausted memory allocator)\n" );
 				return InvalidIndex();
 			}
 		}
@@ -687,7 +688,8 @@ I CUtlLinkedList<T,S,ML,I,M>::AllocInternal( bool multilist )
 		// We can overflow before the utlmemory overflows, since S != I
 		if ( !IndexInRange( m_Memory.GetIndex( it ) ) )
 		{
-			ExecuteNTimes( 10, Warning( "CUtlLinkedList overflow! (exhausted index range)\n" ) );
+			// We rarely if ever handle alloc failure. Continuing leads to corruption.
+			Error( "CUtlLinkedList overflow! (exhausted index range)\n" );
 			return InvalidIndex();
 		}
 

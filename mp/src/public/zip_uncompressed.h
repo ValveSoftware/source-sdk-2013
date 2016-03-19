@@ -14,6 +14,10 @@
 
 #define PKID( a, b ) (((b)<<24)|((a)<<16)|('K'<<8)|'P')
 
+// compressionMethod field
+#define ZIP_COMPRESSION_NONE  0
+#define ZIP_COMPRESSION_LZMA 14
+
 #pragma pack(1)
 
 struct ZIP_EndOfCentralDirRecord

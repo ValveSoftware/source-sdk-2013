@@ -12,6 +12,7 @@
 #include "input.h"
 #ifdef TF_CLIENT_DLL
 #include "cdll_util.h"
+#include "tf_gamerules.h"
 #endif
 #include "rope_helpers.h"
 #include "engine/ivmodelinfo.h"
@@ -639,6 +640,15 @@ bool CRopeManager::IsHolidayLightMode( void )
 	{
 		return false;
 	}
+
+#ifdef TF_CLIENT_DLL
+	if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
+	{
+		// We don't want to draw the lights for the grapple.
+		// They get left behind for a while and look bad.
+		return false;
+	}
+#endif
 
 	bool bDrawHolidayLights = false;
 
@@ -1638,12 +1648,12 @@ struct catmull_t
 };
 
 // bake out the terms of the catmull rom spline
-void Catmull_Rom_Spline_Matrix( const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, catmull_t &output )
+void Catmull_Rom_Spline_Matrix( const Vector &vecP1, const Vector &vecP2, const Vector &vecP3, const Vector &vecP4, catmull_t &output )
 {
-	output.t3 = 0.5f * ((-1*p1) + (3*p2) + (-3*p3) + p4);	// 0.5 t^3 * [ (-1*p1) + ( 3*p2) + (-3*p3) + p4 ]
-	output.t2 = 0.5f * ((2*p1) + (-5*p2) + (4*p3) - p4);		// 0.5 t^2 * [ ( 2*p1) + (-5*p2) + ( 4*p3) - p4 ]
-	output.t = 0.5f * ((-1*p1) + p3);						// 0.5 t * [ (-1*p1) + p3 ]
-	output.c = p2;											// p2
+	output.t3 = 0.5f * ( ( -1 * vecP1 ) + ( 3 * vecP2 ) + ( -3 * vecP3 ) + vecP4 );	// 0.5 t^3 * [ (-1*p1) + ( 3*p2) + (-3*p3) + p4 ]
+	output.t2 = 0.5f * ( ( 2 * vecP1 ) + ( -5 * vecP2 ) + ( 4 * vecP3 ) - vecP4 );		// 0.5 t^2 * [ ( 2*p1) + (-5*p2) + ( 4*p3) - p4 ]
+	output.t = 0.5f * ( ( -1 * vecP1 ) + vecP3 );						// 0.5 t * [ (-1*p1) + p3 ]
+	output.c = vecP2;											// p2
 }
 
 // evaluate one point on the spline, t is a vector of (t, t^2, t^3)

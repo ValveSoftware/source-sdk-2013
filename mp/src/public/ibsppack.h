@@ -28,6 +28,13 @@ public:
 	virtual void SetHDRMode( bool bHDR ) = 0;
 	virtual bool SwapBSPFile( IFileSystem *pFileSystem, const char *filename, const char *swapFilename, bool bSwapOnLoad, VTFConvertFunc_t pVTFConvertFunc, VHVFixupFunc_t pVHVFixupFunc, CompressFunc_t pCompressFunc ) = 0;
 
+	enum eRepackBSPFlags
+	{
+		eRepackBSP_CompressLumps    = 1 << 0,
+		eRepackBSP_CompressPackfile = 1 << 1
+	};
+	virtual bool RepackBSP( CUtlBuffer &inputBuffer, CUtlBuffer &outputBuffer, eRepackBSPFlags repackFlags ) = 0;
+
 	// used to get/set the pak file from a BSP
 	virtual bool GetPakFileLump( IFileSystem *pFileSystem, const char *pBSPFilename, void **pPakData, int *pPakSize ) = 0;
 	virtual bool SetPakFileLump( IFileSystem *pFileSystem, const char *pBSPFilename, const char *pNewFilename, void *pPakData, int pakSize ) = 0;
@@ -36,6 +43,6 @@ public:
 	virtual bool GetBSPDependants( IFileSystem *pFileSystem, const char *pBSPFilename, CUtlVector< CUtlString > *pList ) = 0;
 };
 
-#define IBSPPACK_VERSION_STRING "IBSPPACK003"
+#define IBSPPACK_VERSION_STRING "IBSPPACK004"
 
 #endif // IBSPPACK_H

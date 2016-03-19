@@ -119,9 +119,13 @@ inline CBaseEntity	*CBaseEntity::GetEffectEntity() const
 	return m_hEffectEntity.Get();
 }
 
-inline int CBaseEntity::GetPredictionRandomSeed( void )
+inline int CBaseEntity::GetPredictionRandomSeed( bool bUseUnSyncedServerPlatTime )
 {
+#ifdef GAME_DLL
+	return bUseUnSyncedServerPlatTime ? m_nPredictionRandomSeedServer : m_nPredictionRandomSeed;
+#else
 	return m_nPredictionRandomSeed;
+#endif
 }
 
 inline CBasePlayer *CBaseEntity::GetPredictionPlayer( void )

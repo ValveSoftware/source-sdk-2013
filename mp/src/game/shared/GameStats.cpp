@@ -46,6 +46,11 @@ extern const ConVar *sv_cheats;
 #endif
 #endif
 
+#ifdef CLIENT_DLL
+	// Ensure this is declared in the client dll so everyone finds the same one.
+	ConVar dev_loadtime_mainmenu("dev_loadtime_mainmenu", "0.0", FCVAR_HIDDEN );
+#endif
+
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
@@ -141,7 +146,7 @@ CBaseGameStats_Driver::CBaseGameStats_Driver( void ) :
 	m_bDidVoiceChat( false )
 
 {
-	m_szLoadedUserID[0] = 0;;
+	m_szLoadedUserID[0] = 0;
 	m_tLastUpload = 0;
 	m_LastUserCmd.Reset();
 }
@@ -1061,6 +1066,33 @@ void CBaseGameStats_Driver::SendData()
 	ResetData();
 }
 
+#ifdef CLIENT_DLL
+	// Adds the main menu load time to the specified key values, but only ever does the work once.
+	static void AddLoadTimeMainMenu( KeyValues* pKV )
+	{
+		Assert( pKV );
+		float loadTimeMainMenu = dev_loadtime_mainmenu.GetFloat();
+		if ( loadTimeMainMenu > 0.0f ) {
+			pKV->SetFloat( "LoadTimeMainMenu", loadTimeMainMenu );
+			// Only want to set this once, clear it to 0.0 here. The other code will only ever set it once.
+			dev_loadtime_mainmenu.SetValue( 0.0f );
+		}
+	}
+
+	// Adds the map load time to the specified key values, but clears the elapsed data to 0.0 for next computation.
+	static void AddLoadTimeMap(KeyValues* pKV)
+	{
+		static ConVarRef dev_loadtime_map_elapsed( "dev_loadtime_map_elapsed" );
+		float loadTimeMap = dev_loadtime_map_elapsed.GetFloat();
+		if ( loadTimeMap > 0.0f )
+		{
+			pKV->SetFloat( "LoadTimeMap", loadTimeMap );
+			dev_loadtime_map_elapsed.SetValue( 0.0f );
+		}
+	}
+
+#endif
+
 bool CBaseGameStats_Driver::AddBaseDataForSend( KeyValues *pKV, StatSendType_t sendType )
 {
 	switch ( sendType )
@@ -1074,6 +1106,12 @@ bool CBaseGameStats_Driver::AddBaseDataForSend( KeyValues *pKV, StatSendType_t s
 			pKVData->SetInt( "TotalLevelTime", m_flTotalTimeInLevels );
 			pKVData->SetInt( "NumLevels", m_iNumLevels );
 			pKV->AddSubKey( pKVData );
+
+			AddLoadTimeMainMenu( pKV );
+			// If the user quits directly from the map, we still want to (possibly) capture their map load time, so 
+			// do add it here. It will not be added if it was already attached to a session.
+			AddLoadTimeMap( pKV );
+
 			return true;
 		}
 #endif
@@ -1141,6 +1179,9 @@ bool CBaseGameStats_Driver::AddBaseDataForSend( KeyValues *pKV, StatSendType_t s
 			int mapTime = gpGlobals->realtime - m_flLevelStartTime;
 			pKV->SetInt( "MapTime", mapTime );
 
+			AddLoadTimeMainMenu(pKV);
+			AddLoadTimeMap(pKV);
+			
 			return true;
 		}
 #endif
@@ -1177,6 +1218,10 @@ void CBaseGameStats_Driver::ResetData()
 	OverWriteCharsWeHate( cpu.m_szProcessorID );
 	pKV->SetString( "CPUID", cpu.m_szProcessorID );
 	pKV->SetFloat( "CPUGhz", cpu.m_Speed * ( 1.0 / 1.0e9 ) );
+	pKV->SetUint64( "CPUModel", cpu.m_nModel );
+	pKV->SetUint64( "CPUFeatures0", cpu.m_nFeatures[ 0 ] );
+	pKV->SetUint64( "CPUFeatures1", cpu.m_nFeatures[ 1 ] );
+	pKV->SetUint64( "CPUFeatures2", cpu.m_nFeatures[ 2 ] );
 	pKV->SetInt( "NumCores", cpu.m_nPhysicalProcessors );
 
 	MaterialAdapterInfo_t gpu;

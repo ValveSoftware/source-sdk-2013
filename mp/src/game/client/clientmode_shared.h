@@ -66,7 +66,7 @@ public:
 	virtual void	Disable();
 	virtual void	Layout();
 
-	virtual void	ReloadScheme( void );
+	virtual void	ReloadScheme( bool flushLowLevel );
 	virtual void	OverrideView( CViewSetup *pSetup );
 	virtual bool	ShouldDrawDetailObjects( );
 	virtual bool	ShouldDrawEntity(C_BaseEntity *pEnt);

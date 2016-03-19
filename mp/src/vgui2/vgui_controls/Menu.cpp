@@ -2107,7 +2107,7 @@ void Menu::ActivateItemByRow(int row)
 //-----------------------------------------------------------------------------
 // Purpose: Return the number of items currently in the menu list
 //-----------------------------------------------------------------------------
-int Menu::GetItemCount()
+int Menu::GetItemCount() const
 {
 	return m_MenuItems.Count();
 }
@@ -2701,3 +2701,33 @@ void Menu::Validate( CValidator &validator, char *pchName )
 	validator.Pop();
 }
 #endif // DBGFLAG_VALIDATE
+
+
+MenuBuilder::MenuBuilder( Menu *pMenu, Panel *pActionTarget )
+	: m_pMenu( pMenu )
+	, m_pActionTarget( pActionTarget )
+	, m_pszLastCategory( NULL )
+{}
+
+MenuItem* MenuBuilder::AddMenuItem( const char *pszButtonText, const char *pszCommand, const char *pszCategoryName )
+{
+	AddSepratorIfNeeded( pszCategoryName );
+	return m_pMenu->GetMenuItem( m_pMenu->AddMenuItem( pszButtonText, new KeyValues( pszCommand ), m_pActionTarget ) );
+}
+
+MenuItem* MenuBuilder::AddCascadingMenuItem( const char *pszButtonText, Menu *pSubMenu, const char *pszCategoryName )
+{
+	AddSepratorIfNeeded( pszCategoryName );
+	return m_pMenu->GetMenuItem( m_pMenu->AddCascadingMenuItem( pszButtonText, m_pActionTarget, pSubMenu ) );
+}
+
+void MenuBuilder::AddSepratorIfNeeded( const char *pszCategoryName )
+{
+	// Add a separator if the categories are different
+	if ( m_pszLastCategory && V_stricmp( pszCategoryName, m_pszLastCategory ) != 0 )
+	{
+		m_pMenu->AddSeparator();
+	}
+
+	m_pszLastCategory = pszCategoryName;
+}

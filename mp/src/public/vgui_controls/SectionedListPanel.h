@@ -210,6 +210,8 @@ public:
 	void MoveSelectionDown( void );
 	void MoveSelectionUp( void );
 
+	ScrollBar *GetScrollBar( void ) { return m_pScrollBar; }
+
 protected:
 	virtual void PerformLayout();
 	virtual void ApplySchemeSettings(IScheme *pScheme);

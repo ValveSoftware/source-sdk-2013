@@ -120,8 +120,8 @@ public:
 	// File access. Set UsesEscapeSequences true, if resource file/buffer uses Escape Sequences (eg \n, \t)
 	void UsesEscapeSequences(bool state); // default false
 	void UsesConditionals(bool state); // default true
-	bool LoadFromFile( IBaseFileSystem *filesystem, const char *resourceName, const char *pathID = NULL );
-	bool SaveToFile( IBaseFileSystem *filesystem, const char *resourceName, const char *pathID = NULL, bool sortKeys = false, bool bAllowEmptyString = false );
+	bool LoadFromFile( IBaseFileSystem *filesystem, const char *resourceName, const char *pathID = NULL, bool refreshCache = false );
+	bool SaveToFile( IBaseFileSystem *filesystem, const char *resourceName, const char *pathID = NULL, bool sortKeys = false, bool bAllowEmptyString = false, bool bCacheResult = false );
 
 	// Read from a buffer...  Note that the buffer must be null terminated
 	bool LoadFromBuffer( char const *resourceName, const char *pBuffer, IBaseFileSystem* pFileSystem = NULL, const char *pPathID = NULL );
@@ -144,6 +144,8 @@ public:
 	//
 	KeyValues *GetFirstSubKey() { return m_pSub; }	// returns the first subkey in the list
 	KeyValues *GetNextKey() { return m_pPeer; }		// returns the next subkey
+	const KeyValues *GetNextKey() const { return m_pPeer; }		// returns the next subkey
+
 	void SetNextKey( KeyValues * pDat);
 	KeyValues *FindLastSubKey();	// returns the LAST subkey in the list.  This requires a linked list iteration to find the key.  Returns NULL if we don't have any children
 
@@ -203,7 +205,7 @@ public:
 	void operator delete( void *pMem );
 	void operator delete( void *pMem, int nBlockUse, const char *pFileName, int nLine );
 
-	KeyValues& operator=( KeyValues& src );
+	KeyValues& operator=( const KeyValues& src );
 
 	// Adds a chain... if we don't find stuff in this keyvalue, we'll look
 	// in the one we're chained to.
@@ -216,6 +218,10 @@ public:
 
 	// Allocate & create a new copy of the keys
 	KeyValues *MakeCopy( void ) const;
+
+	// Allocate & create a new copy of the keys, including the next keys. This is useful for top level files
+	// that don't use the usual convention of a root key with lots of children (like soundscape files).
+	KeyValues *MakeCopy( bool copySiblings ) const;
 
 	// Make a new copy of all subkeys, add them all to the passed-in keyvalues
 	void CopySubkeys( KeyValues *pParent ) const;
@@ -270,7 +276,9 @@ private:
 	KeyValues* CreateKeyUsingKnownLastChild( const char *keyName, KeyValues *pLastChild );
 	void AddSubkeyUsingKnownLastChild( KeyValues *pSubKey, KeyValues *pLastChild );
 
-	void RecursiveCopyKeyValues( KeyValues& src );
+	void CopyKeyValuesFromRecursive( const KeyValues& src );
+	void CopyKeyValue( const KeyValues& src, size_t tmpBufferSizeB, char* tmpBuffer );
+
 	void RemoveEverything();
 //	void RecursiveSaveToFile( IBaseFileSystem *filesystem, CUtlBuffer &buffer, int indentLevel );
 //	void WriteConvertedString( CUtlBuffer &buffer, const char *pszString );

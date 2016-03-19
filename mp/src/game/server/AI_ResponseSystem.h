@@ -18,6 +18,7 @@
 abstract_class IResponseFilter
 {
 public:
+	virtual ~IResponseFilter(){}
 	virtual bool IsValidResponse( ResponseType_t type, const char *pszValue ) = 0;
 };
 

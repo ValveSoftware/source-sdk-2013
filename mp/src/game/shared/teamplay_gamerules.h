@@ -87,7 +87,7 @@ public:
 	virtual bool TimerMayExpire( void ) { return true; }
 
 	// A game has been won by the specified team
-	virtual void SetWinningTeam( int team, int iWinReason, bool bForceMapReset = true, bool bSwitchTeams = false, bool bDontAddScore = false ) { return; }
+	virtual void SetWinningTeam( int team, int iWinReason, bool bForceMapReset = true, bool bSwitchTeams = false, bool bDontAddScore = false, bool bFinal = false ) { return; }
 	virtual void SetStalemate( int iReason, bool bForceMapReset = true, bool bSwitchTeams = false ) { return; }
 
 	// Used to determine if all players should switch teams

@@ -215,7 +215,7 @@ public:
 					{
 						Ep2LevelStats_t::EntityDeathsLump_t data;
 						char npcName[ 512 ];
-						LoadBuffer.GetString( npcName, sizeof( npcName ) );
+						LoadBuffer.GetString( npcName );
 						LoadBuffer.Get( &data, sizeof( data ) );
 						pItem->m_dictEntityDeaths.Insert( npcName, data );
 					}
@@ -229,7 +229,7 @@ public:
 					{
 						Ep2LevelStats_t::WeaponLump_t data;
 						char weaponName[ 512 ];
-						LoadBuffer.GetString( weaponName, sizeof( weaponName ) );
+						LoadBuffer.GetString( weaponName );
 						LoadBuffer.Get( &data, sizeof( data ) );
 						pItem->m_dictWeapons.Insert( weaponName, data );
 					}
@@ -240,7 +240,7 @@ public:
 					Assert( pItem );
 					Ep2LevelStats_t::SaveGameInfo_t *info = &pItem->m_SaveGameInfo;
 					char sz[ 512 ];
-					LoadBuffer.GetString( sz, sizeof( sz ) );
+					LoadBuffer.GetString( sz );
 					info->m_sCurrentSaveFile = sz;
 					info->m_nCurrentSaveFileTime = LoadBuffer.GetInt();
 					int c = LoadBuffer.GetInt();
@@ -277,7 +277,7 @@ public:
 						{
 							Ep2LevelStats_t::GenericStatsLump_t data;
 							char pchStatName[ 512 ];
-							LoadBuffer.GetString( pchStatName, sizeof( pchStatName ) );
+							LoadBuffer.GetString( pchStatName );
 							LoadBuffer.Get( &data, sizeof( data ) );
 							pItem->m_dictGeneric.Insert( pchStatName, data );
 						}

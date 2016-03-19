@@ -82,6 +82,23 @@ PLATFORM_INTERFACE void MinidumpSetUnhandledExceptionFunction( FnMiniDump pfn );
 // being silently swallowed. We should always call this at startup.
 PLATFORM_INTERFACE void EnableCrashingOnCrashes();
 
-#endif
+#endif // defined(_WIN32) && !defined(_X360)
+
+//
+// Minidump User Stream Info Comments.
+//
+// There currently is a single header string, and an array of 64 comment strings.
+//	MinidumpUserStreamInfoSetHeader() will set the single header string.
+//	MinidumpUserStreamInfoAppend() will round robin through and array and set the comment strings, overwriting old.
+PLATFORM_INTERFACE void MinidumpUserStreamInfoSetHeader( const char *pFormat, ... );
+PLATFORM_INTERFACE void MinidumpUserStreamInfoAppend( const char *pFormat, ... );
+
+// Retrieve the StreamInfo strings.
+//  Index 0: header string
+//  Index 1..: comment string
+//  Returns NULL when you've reached the end of the comment string array
+//  Empty strings ("\0") can be returned if comment hasn't been set
+PLATFORM_INTERFACE const char *MinidumpUserStreamInfoGet( int Index );
 
 #endif // MINIDUMP_H
+

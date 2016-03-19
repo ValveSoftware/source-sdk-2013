@@ -104,7 +104,7 @@ public:
 
 		Assert( iCapper != TEAM_UNASSIGNED );
 
-		return GetIconForTeam( index, iCapper );;
+		return GetIconForTeam( index, iCapper );
 	}
 
 	// Icon for the specified team

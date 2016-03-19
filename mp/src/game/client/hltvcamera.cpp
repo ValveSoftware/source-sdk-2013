@@ -736,7 +736,7 @@ void C_HLTVCamera::FireGameEvent( IGameEvent * event)
 	}
 
 	// after this only auto-director commands follow
-	// don't execute them is autodirector is off and PVS is unlocked
+	// don't execute them if autodirector is off and PVS is unlocked
 	if ( !spec_autodirector.GetBool() && !IsPVSLocked() )
 		return;
 

@@ -60,6 +60,7 @@ void CAM_ToThirdPerson(void)
 {
 	if ( cl_thirdperson.GetBool() == false )
 	{
+		g_ThirdPersonManager.SetDesiredCameraOffset( Vector( cam_idealdist.GetFloat(), cam_idealdistright.GetFloat(), cam_idealdistup.GetFloat() ) );
 		g_ThirdPersonManager.SetOverridingThirdPerson( true );
 	}
 

@@ -817,8 +817,6 @@ void CBreakable::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 //-----------------------------------------------------------------------------
 int CBreakable::OnTakeDamage( const CTakeDamageInfo &info )
 {
-	Vector	vecTemp;
-
 	CTakeDamageInfo subInfo = info;
 
 	// If attacker can't do at least the min required damage to us, don't take any damage from them
@@ -831,8 +829,6 @@ int CBreakable::OnTakeDamage( const CTakeDamageInfo &info )
 		m_bTookPhysicsDamage = false;
 		return 1;
 	}
-
-	vecTemp = subInfo.GetInflictor()->GetAbsOrigin() - WorldSpaceCenter();
 
 	if (!IsBreakable())
 		return 0;
