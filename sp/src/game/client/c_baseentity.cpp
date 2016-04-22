@@ -41,6 +41,10 @@
 #include "inetchannelinfo.h"
 #include "proto_version.h"
 
+#ifdef GLOWS_ENABLE
+#include "glow_outline_effect.h"
+#endif // GLOWS_ENABLE
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -472,6 +476,14 @@ BEGIN_RECV_TABLE_NOBASE(C_BaseEntity, DT_BaseEntity)
 	RecvPropInt		( RECVINFO( m_bSimulatedEveryTick ), 0, RecvProxy_InterpolationAmountChanged ),
 	RecvPropInt		( RECVINFO( m_bAnimatedEveryTick ), 0, RecvProxy_InterpolationAmountChanged ),
 	RecvPropBool	( RECVINFO( m_bAlternateSorting ) ),
+
+#ifdef GLOWS_ENABLE
+	RecvPropBool(RECVINFO(m_bGlowEnabled)),
+	RecvPropFloat(RECVINFO(m_fGlowRed)),
+	RecvPropFloat(RECVINFO(m_fGlowGreen)),
+	RecvPropFloat(RECVINFO(m_fGlowBlue)),
+	RecvPropFloat(RECVINFO(m_fGlowAlpha)),
+#endif // GLOWS_ENABLE
 
 #ifdef TF_CLIENT_DLL
 	RecvPropArray3( RECVINFO_ARRAY(m_nModelIndexOverrides),	RecvPropInt( RECVINFO(m_nModelIndexOverrides[0]) ) ),
@@ -961,6 +973,12 @@ C_BaseEntity::C_BaseEntity() :
 	m_bWasDeemedInvalid = false;
 #endif
 
+#ifdef GLOWS_ENABLE
+	m_pGlowEffect = NULL;
+	m_bGlowEnabled = false;
+	m_bOldGlowEnabled = false;
+#endif // GLOWS_ENABLE
+
 	ParticleProp()->Init( this );
 }
 
@@ -979,6 +997,10 @@ C_BaseEntity::~C_BaseEntity()
 #endif
 	RemoveFromInterpolationList();
 	RemoveFromTeleportList();
+
+#ifdef GLOWS_ENABLE
+	DestroyGlowEffect();
+#endif // GLOWS_ENABLE
 }
 
 void C_BaseEntity::Clear( void )
@@ -3261,6 +3283,10 @@ void C_BaseEntity::OnPreDataChanged( DataUpdateType_t type )
 {
 	m_hOldMoveParent = m_hNetworkMoveParent;
 	m_iOldParentAttachment = m_iParentAttachment;
+
+#ifdef GLOWS_ENABLE
+	m_bOldGlowEnabled = m_bGlowEnabled;
+#endif // GLOWS_ENABLE
 }
 
 void C_BaseEntity::OnDataChanged( DataUpdateType_t type )
@@ -3275,6 +3301,15 @@ void C_BaseEntity::OnDataChanged( DataUpdateType_t type )
 	{
 		UpdateVisibility();
 	}
+
+#ifdef GLOWS_ENABLE
+	if ( m_bOldGlowEnabled != m_bGlowEnabled )
+	{
+		UpdateGlowEffect();
+	}
+	// Need to make sure the color is right (to avoid having to "reboot" the glow)
+	SetGlowEffectColor(m_fGlowRed.Get(), m_fGlowGreen.Get(), m_fGlowBlue.Get());
+#endif // GLOWS_ENABLE
 }
 
 ClientThinkHandle_t C_BaseEntity::GetThinkHandle()
@@ -6424,6 +6459,71 @@ int C_BaseEntity::GetCreationTick() const
 {
 	return m_nCreationTick;
 }
+
+#ifdef GLOWS_ENABLE
+//-----------------------------------------------------------------------------
+// Purpose: Retuns the color vaules for the glow effect
+//-----------------------------------------------------------------------------
+void C_BaseEntity::GetGlowEffectColor(float *r, float *g, float *b)
+{
+	*r = m_fGlowRed.Get();
+	*g = m_fGlowGreen.Get();
+	*b = m_fGlowBlue.Get();
+}
+//-----------------------------------------------------------------------------
+// Purpose: Retuns the alpha vaule for the glow effect
+//-----------------------------------------------------------------------------
+void C_BaseEntity::GetGlowEffectAlpha(float *a)
+{
+	*a = m_fGlowAlpha.Get();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the color vaules for the glow effect
+//-----------------------------------------------------------------------------
+void C_BaseEntity::SetGlowEffectColor(float r, float g, float b)
+{
+	m_fGlowRed.Set(r);
+	m_fGlowGreen.Set(g);
+	m_fGlowBlue.Set(b);
+}
+//-----------------------------------------------------------------------------
+// Purpose: Sets the alpha vaule for the glow effect
+//-----------------------------------------------------------------------------
+void C_BaseEntity::SetGlowEffectAlpha(float a)
+{
+	m_fGlowAlpha.Set(a);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: (Re)starts the glow effect
+//-----------------------------------------------------------------------------
+void C_BaseEntity::UpdateGlowEffect(void)
+{
+	// destroy the existing effect
+	if (m_pGlowEffect)
+	{
+		DestroyGlowEffect();
+	}
+
+	// create a new effect
+	if (m_bGlowEnabled)
+		m_pGlowEffect = new CGlowObject(this,
+			Vector(m_fGlowRed.Get(), m_fGlowGreen.Get(), m_fGlowBlue.Get()), m_fGlowAlpha.Get(), true);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Deletes the glow effects pointer
+//-----------------------------------------------------------------------------
+void C_BaseEntity::DestroyGlowEffect(void)
+{
+	if (m_pGlowEffect)
+	{
+		delete m_pGlowEffect;
+		m_pGlowEffect = NULL;
+	}
+}
+#endif // GLOWS_ENABLE
 
 //------------------------------------------------------------------------------
 void CC_CL_Find_Ent( const CCommand& args )
