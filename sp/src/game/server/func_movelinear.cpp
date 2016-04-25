@@ -84,9 +84,15 @@ void CFuncMoveLinear::Spawn( void )
 		m_flMoveDistance = DotProductAbs( m_vecMoveDir, vecOBB ) - m_flLip;
 	}
 
+	/* BM: Fixing this based on: https://developer.valvesoftware.com/wiki/CFuncMoveLinear_Fix
 	m_vecPosition1 = GetAbsOrigin() - (m_vecMoveDir * m_flMoveDistance * m_flStartPosition);
 	m_vecPosition2 = m_vecPosition1 + (m_vecMoveDir * m_flMoveDistance);
 	m_vecFinalDest = GetAbsOrigin();
+	//*/
+	m_vecPosition1 = GetLocalOrigin() - (m_vecMoveDir * m_flMoveDistance * m_flStartPosition);
+	m_vecPosition2 = m_vecPosition1 + (m_vecMoveDir * m_flMoveDistance);
+	m_vecFinalDest = GetLocalOrigin();
+	//*/ The start & end positions are now calculated in local (parent) space.
 
 	SetTouch( NULL );
 
@@ -393,4 +399,17 @@ int CFuncMoveLinear::DrawDebugTextOverlays(void)
 		text_offset++;
 	}
 	return text_offset;
+}
+/* BM: Overriding this to run a fix when it is called */
+//-----------------------------------------------------------------------------
+// Purpose: Runs a fix atfer the base version clearly dosen't cut it.
+//-----------------------------------------------------------------------------
+void CFuncMoveLinear::SetParent( CBaseEntity *pParentEntity, int iAttachment )
+{
+	BaseClass::SetParent( pParentEntity, iAttachment );
+
+	// Recompute all positions
+	m_vecPosition1 = GetLocalOrigin() - (m_vecMoveDir * m_flMoveDistance * m_flStartPosition);
+	m_vecPosition2 = m_vecPosition1 + (m_vecMoveDir * m_flMoveDistance);
+	m_vecFinalDest = GetLocalOrigin();
 }

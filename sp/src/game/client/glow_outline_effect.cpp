@@ -18,7 +18,8 @@
 #ifdef GLOWS_ENABLE
 
 ConVar glow_outline_effect_enable( "glow_outline_effect_enable", "1", FCVAR_ARCHIVE, "Enable entity outline glow effects." );
-ConVar glow_outline_effect_width( "glow_outline_width", "10.0f", FCVAR_CHEAT, "Width of glow outline effect in screen space." );
+ConVar glow_outline_effect_width( "glow_outline_width", "20.0f", FCVAR_CHEAT, "Width of glow outline effect in screen space." );
+/* TODO: Is this ever used? It's passed to ApplyEntityGlowEffects(), but never referenced in its code. */
 
 extern bool g_bDumpRenderTargets; // in viewpostprocess.cpp
 
@@ -107,7 +108,7 @@ void CGlowObjectManager::RenderGlowModels( const CViewSetup *pSetup, int nSplitS
 	// Set override material for glow color
 	IMaterial *pMatGlowColor = NULL;
 
-	pMatGlowColor = materials->FindMaterial( "dev/glow_color", TEXTURE_GROUP_OTHER, true );
+	pMatGlowColor = materials->FindMaterial( GLOW_COLOR_VMT, TEXTURE_GROUP_OTHER, true );
 	g_pStudioRender->ForcedMaterialOverride( pMatGlowColor );
 
 	ShaderStencilState_t stencilState;
@@ -158,7 +159,7 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 	// Render objects into stencil buffer					 //
 	//=======================================================//
 	// Set override shader to the same simple shader we use to render the glow models
-	IMaterial *pMatGlowColor = materials->FindMaterial( "dev/glow_color", TEXTURE_GROUP_OTHER, true );
+	IMaterial *pMatGlowColor = materials->FindMaterial( GLOW_COLOR_VMT, TEXTURE_GROUP_OTHER, true );
 	g_pStudioRender->ForcedMaterialOverride( pMatGlowColor );
 
 	ShaderStencilState_t stencilStateDisable;
@@ -282,7 +283,7 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 		// blobs. Now we need to stencil out the original objects by only writing pixels that have no            //
 		// stencil bits set in the range we care about.                                                          //
 		//=======================================================================================================//
-		IMaterial *pMatHaloAddToScreen = materials->FindMaterial( "dev/halo_add_to_screen", TEXTURE_GROUP_OTHER, true );
+		IMaterial *pMatHaloAddToScreen = materials->FindMaterial( GLOW_HALO_VMT, TEXTURE_GROUP_OTHER, true );
 
 		// Do not fade the glows out at all (weight = 1.0)
 		IMaterialVar *pDimVar = pMatHaloAddToScreen->FindVar( "$C0_X", NULL );

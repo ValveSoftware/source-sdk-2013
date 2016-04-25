@@ -306,6 +306,14 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 	SendPropArray3( SENDINFO_ARRAY3(m_nModelIndexOverrides), SendPropInt( SENDINFO_ARRAY(m_nModelIndexOverrides), SP_MODEL_INDEX_BITS, 0 ) ),
 #endif
 
+#ifdef GLOWS_ENABLE
+	SendPropBool(SENDINFO(m_bGlowEnabled)),
+	SendPropFloat(SENDINFO(m_fGlowRed)),
+	SendPropFloat(SENDINFO(m_fGlowGreen)),
+	SendPropFloat(SENDINFO(m_fGlowBlue)),
+	SendPropFloat(SENDINFO(m_fGlowAlpha)),
+#endif // GLOWS_ENABLE
+
 END_SEND_TABLE()
 
 
@@ -412,6 +420,14 @@ CBaseEntity::CBaseEntity( bool bServerOnly )
 #ifndef _XBOX
 	AddEFlags( EFL_USE_PARTITION_WHEN_NOT_SOLID );
 #endif
+
+#ifdef GLOWS_ENABLE
+	m_bGlowEnabled.Set(false);
+	m_fGlowRed.Set(1.0f);
+	m_fGlowGreen.Set(0.0f);
+	m_fGlowBlue.Set(0.0f);
+	m_fGlowAlpha.Set(0.5f);
+#endif // GLOWS_ENABLE
 }
 
 //-----------------------------------------------------------------------------
@@ -1914,6 +1930,17 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_INPUTFUNC( FIELD_STRING, "DispatchEffect", InputDispatchEffect ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "DispatchResponse", InputDispatchResponse ),
 
+#ifdef GLOWS_ENABLE
+	DEFINE_INPUTFUNC(FIELD_VOID, "ToggleGlow", InputToggleGlow),
+	DEFINE_INPUTFUNC(FIELD_VOID, "StopGlowing", InputStopGlowing),
+	DEFINE_INPUTFUNC(FIELD_VOID, "StartGlowing", InputStartGlowing),
+	DEFINE_INPUTFUNC(FIELD_COLOR32, "SetGlowColor", InputSetGlowColor),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetGlowRed", InputSetGlowColorR),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetGlowGreen", InputSetGlowColorG),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetGlowBlue", InputSetGlowColorB),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetGlowAlpha", InputSetGlowColorA),
+#endif // GLOWS_ENABLE
+
 	// Entity I/O methods to alter context
 	DEFINE_INPUTFUNC( FIELD_STRING, "AddContext", InputAddContext ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "RemoveContext", InputRemoveContext ),
@@ -1984,6 +2011,11 @@ extern bool g_bReceivedChainedUpdateOnRemove;
 //-----------------------------------------------------------------------------
 void CBaseEntity::UpdateOnRemove( void )
 {
+
+#ifdef GLOWS_ENABLE
+	RemoveGlowEffect();
+#endif // GLOWS_ENABLE
+
 	g_bReceivedChainedUpdateOnRemove = true;
 
 	// Virtual call to shut down any looping sounds.
@@ -2055,6 +2087,118 @@ void CBaseEntity::UpdateOnRemove( void )
 		m_nModelIndex = -1;
 	}
 }
+
+#ifdef GLOWS_ENABLE
+//------------------------------------------------------------------------------
+// Purpose: Input for starting the glow effect
+//------------------------------------------------------------------------------
+void CBaseEntity::InputStartGlowing(inputdata_t &inputdata)
+{
+	AddGlowEffect();
+}
+//------------------------------------------------------------------------------
+// Purpose: Input for stopping the glow effect
+//------------------------------------------------------------------------------
+void CBaseEntity::InputStopGlowing(inputdata_t &inputdata)
+{
+	RemoveGlowEffect();
+}
+//------------------------------------------------------------------------------
+// Purpose: Input for toggling the glow effect
+//------------------------------------------------------------------------------
+void CBaseEntity::InputToggleGlow(inputdata_t &inputdata)
+{
+	if( IsGlowEffectActive() )
+		RemoveGlowEffect();
+	else
+		AddGlowEffect();
+}
+//------------------------------------------------------------------------------
+// Purpose: Input for setting the red value of the glow only
+//------------------------------------------------------------------------------
+void CBaseEntity::InputSetGlowColorR(inputdata_t &inputdata)
+{
+	SetGlowEffectColor(inputdata.value.Float(), m_fGlowGreen.Get(), m_fGlowBlue.Get());
+}
+//------------------------------------------------------------------------------
+// Purpose: Input for setting the green value of the glow only
+//------------------------------------------------------------------------------
+void CBaseEntity::InputSetGlowColorG(inputdata_t &inputdata)
+{
+	SetGlowEffectColor(m_fGlowRed.Get(), inputdata.value.Float(), m_fGlowBlue.Get());
+}
+//------------------------------------------------------------------------------
+// Purpose: Input for setting  the blue value of the glow only
+//------------------------------------------------------------------------------
+void CBaseEntity::InputSetGlowColorB(inputdata_t &inputdata)
+{
+	SetGlowEffectColor(m_fGlowRed.Get(), m_fGlowGreen.Get(), inputdata.value.Float());
+}
+//------------------------------------------------------------------------------
+// Purpose: Input for setting the alpha value of the glow
+//------------------------------------------------------------------------------
+void CBaseEntity::InputSetGlowColorA(inputdata_t &inputdata)
+{
+	SetGlowEffectAlpha(inputdata.value.Float());
+}
+//------------------------------------------------------------------------------
+// Purpose: Input for setting the color and alpha of the glow
+//------------------------------------------------------------------------------
+void CBaseEntity::InputSetGlowColor(inputdata_t &inputdata)
+{
+	color32 tempColor = inputdata.value.Color32();
+	/*
+		HACKHACK? The Color32 type is the only type with 4 members, but is
+			4 ints e.g. 255 255 255 100. The glow needs 4 floats.
+	*/
+	SetGlowEffectColor( (tempColor.r / 255.0f), (tempColor.g / 255.0f), (tempColor.b / 255.0f) );
+	SetGlowEffectAlpha(tempColor.a / 100.0f);
+
+	if (!IsGlowEffectActive())
+		AddGlowEffect();
+}
+//-----------------------------------------------------------------------------
+// Purpose: Sets the color of the glow
+//-----------------------------------------------------------------------------
+void CBaseEntity::SetGlowEffectColor(float r, float g, float b)
+{
+	m_fGlowRed.Set(r);
+	m_fGlowGreen.Set(g);
+	m_fGlowBlue.Set(b);
+}
+//-----------------------------------------------------------------------------
+// Purpose:  Sets the alpha of the glow
+//-----------------------------------------------------------------------------
+void CBaseEntity::SetGlowEffectAlpha(float a)
+{
+	m_fGlowAlpha.Set(a);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Adds the glow effect to this entity
+//-----------------------------------------------------------------------------
+void CBaseEntity::AddGlowEffect(void)
+{
+	if( (GetRenderMode() == kRenderNone) || (GetRenderMode() == kRenderEnvironmental) )
+		return;
+	SetTransmitState(FL_EDICT_ALWAYS); /* This already the defualt for most visible items in the world */	
+	m_bGlowEnabled.Set(true);
+}
+//-----------------------------------------------------------------------------
+// Purpose: Turns off the glow effect
+//-----------------------------------------------------------------------------
+void CBaseEntity::RemoveGlowEffect(void)
+{
+	m_bGlowEnabled.Set(false);
+}
+//-----------------------------------------------------------------------------
+// Purpose: Returns true when the glow is active
+//-----------------------------------------------------------------------------
+bool CBaseEntity::IsGlowEffectActive(void)
+{
+	return m_bGlowEnabled;
+}
+#endif // GLOWS_ENABLE
 
 //-----------------------------------------------------------------------------
 // capabilities

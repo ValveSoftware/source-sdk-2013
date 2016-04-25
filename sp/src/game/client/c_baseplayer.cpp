@@ -438,6 +438,12 @@ C_BasePlayer::C_BasePlayer() : m_iv_vecViewOffset( "C_BasePlayer::m_iv_vecViewOf
 	m_nForceVisionFilterFlags = 0;
 
 	ListenForGameEvent( "base_player_teleported" );
+	//*/
+	// At this point, the bugs that are being fixed are due to the bug-fixes...
+	// https://developer.valvesoftware.com/wiki/Env_projectedtexture/fixes#Fixing_cuts_in_projected_texture
+	//
+	ConVarRef scissor( "r_flashlightscissor" );
+	scissor.SetValue( "0" );
 }
 
 //-----------------------------------------------------------------------------

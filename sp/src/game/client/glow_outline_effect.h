@@ -16,6 +16,9 @@
 
 #ifdef GLOWS_ENABLE
 
+#define GLOW_COLOR_VMT "effects/glow_color"
+#define GLOW_HALO_VMT  "effects/halo_add_to_screen"
+
 class C_BaseEntity;
 class CViewSetup;
 class CMatRenderContextPtr;

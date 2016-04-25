@@ -17,8 +17,13 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+// https://developer.valvesoftware.com/wiki/Env_projectedtexture/fixes#Decreasing_shadow_bleeding_and_.22ghosting.22
+static ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "4", FCVAR_CHEAT );
+static ConVar mat_depthbias_shadowmap( "mat_depthbias_shadowmap", "0.00001", FCVAR_CHEAT );
+/*
 static ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
 static ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.0005", FCVAR_CHEAT  );
+//*/
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -151,6 +156,9 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 				VectorNormalize( vUp );
 			}
 		}
+		/*
+		//Swapping this out for the code from https://developer.valvesoftware.com/wiki/Env_projectedtexture/fixes
+		//
 		else
 		{
 			vForward = m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin();
@@ -169,6 +177,24 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 //			VectorNormalize( vRight );
 //			VectorNormalize( vUp );
 		}
+		//*/
+		else
+		{
+			// VXP: Fixing targeting
+			Vector vecToTarget;
+			QAngle vecAngles;
+			if ( m_hTargetEntity == NULL )
+			{
+				vecAngles = GetAbsAngles();
+			}
+			else
+			{
+				vecToTarget = m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin();
+				VectorAngles( vecToTarget, vecAngles );
+			}
+			AngleVectors( vecAngles, &vForward, &vRight, &vUp );
+		}
+		//*/
 	}
 	else
 	{
@@ -221,15 +247,19 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 
 	g_pClientShadowMgr->SetFlashlightLightWorld( m_LightHandle, m_bLightWorld );
 
-	if ( bForceUpdate == false )
-	{
+	//*/ https://developer.valvesoftware.com/wiki/Env_projectedtexture/fixes#Fixing_Parenting
+	//if ( bForceUpdate == false )
+	//{
 		g_pClientShadowMgr->UpdateProjectedTexture( m_LightHandle, true );
-	}
+	//}
+	//*/
 }
 
 void C_EnvProjectedTexture::Simulate( void )
 {
-	UpdateLight( false );
+	// Same Fix
+	//UpdateLight( false );
+	UpdateLight( GetMoveParent() != NULL );
 
 	BaseClass::Simulate();
 }

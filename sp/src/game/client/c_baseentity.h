@@ -59,6 +59,10 @@ class CEntityMapData;
 class ConVar;
 class CDmgAccumulator;
 
+#ifdef GLOWS_ENABLE
+class CGlowObject;
+#endif // GLOWS_ENABLE
+
 struct CSoundParameters;
 
 typedef unsigned int			AimEntsListHandle_t;
@@ -1673,6 +1677,28 @@ protected:
 
 	CThreadFastMutex m_CalcAbsolutePositionMutex;
 	CThreadFastMutex m_CalcAbsoluteVelocityMutex;
+
+#ifdef GLOWS_ENABLE
+public:
+	CGlowObject			*GetGlowObject(void) { return m_pGlowEffect; }
+	virtual void		GetGlowEffectColor(float *r, float *g, float *b);
+	virtual void		SetGlowEffectColor(float r, float g, float b);
+	virtual void		GetGlowEffectAlpha(float *a);
+	virtual void		SetGlowEffectAlpha(float a);
+
+protected:
+	virtual void		UpdateGlowEffect(void);
+	virtual void		DestroyGlowEffect(void);
+
+private:
+	bool				m_bGlowEnabled;
+	bool				m_bOldGlowEnabled;
+	CGlowObject			*m_pGlowEffect;
+	CNetworkVar(float,  m_fGlowRed);
+	CNetworkVar(float,  m_fGlowGreen);
+	CNetworkVar(float,  m_fGlowBlue);
+	CNetworkVar(float,  m_fGlowAlpha);
+#endif // GLOWS_ENABLE
 
 #ifdef TF_CLIENT_DLL
 	// TF prevents drawing of any entity attached to players that aren't items in the inventory of the player.

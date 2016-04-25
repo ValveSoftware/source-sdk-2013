@@ -45,7 +45,7 @@ public:
 	void Spawn( void );
 
 	// Filter out damage messages that don't contain blast damage (impervious to other forms of attack)
-	int	OnTakeDamage( const CTakeDamageInfo &info );
+	/*int	OnTakeDamage( const CTakeDamageInfo &info ); BM: this has to go */
 	void Event_Killed( const CTakeDamageInfo &info );
 	void Blocked( CBaseEntity *pOther )
 	{
@@ -70,10 +70,10 @@ END_DATADESC()
 
 void CFuncTankTrain::Spawn( void )
 {
-	m_takedamage = true;
+	m_takedamage = DAMAGE_YES; /* BM: true;? */
 	BaseClass::Spawn();
 }
-
+/* BM: What? I don't even...
 // Filter out damage messages that don't contain blast damage (impervious to other forms of attack)
 int	CFuncTankTrain::OnTakeDamage( const CTakeDamageInfo &info )
 {
@@ -82,7 +82,7 @@ int	CFuncTankTrain::OnTakeDamage( const CTakeDamageInfo &info )
 
 	return BaseClass::OnTakeDamage( info );
 }
-
+//*/
 
 //-----------------------------------------------------------------------------
 // Purpose: Called when the train is killed.

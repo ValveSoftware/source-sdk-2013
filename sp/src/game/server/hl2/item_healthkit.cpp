@@ -168,6 +168,9 @@ public:
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	virtual int	ObjectCaps( void ) { return BaseClass::ObjectCaps() | m_iCaps; }
 
+	void InputRecharge(inputdata_t &inputdata);
+	void InputSetCharge(inputdata_t &inputdata);
+
 	float m_flNextCharge; 
 	int		m_iReactivate ; // DeathMatch Delay until reactvated
 	int		m_iJuice;
@@ -179,6 +182,9 @@ public:
 
 	COutputFloat m_OutRemainingHealth;
 	COutputEvent m_OnPlayerUse;
+	COutputEvent m_OnHalfEmpty;
+	COutputEvent m_OnEmpty;
+	COutputEvent m_OnFull;
 
 	DECLARE_DATADESC();
 };
@@ -202,6 +208,12 @@ BEGIN_DATADESC( CWallHealth )
 
 	DEFINE_OUTPUT( m_OnPlayerUse, "OnPlayerUse" ),
 	DEFINE_OUTPUT( m_OutRemainingHealth, "OutRemainingHealth"),
+	DEFINE_OUTPUT( m_OnHalfEmpty, "OnHalfEmpty"),
+	DEFINE_OUTPUT( m_OnEmpty, "OnEmpty"),
+	DEFINE_OUTPUT( m_OnFull, "OnFull"),
+
+	DEFINE_INPUTFUNC(FIELD_VOID, "Recharge", InputRecharge),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "SetCharge", InputSetCharge),
 
 END_DATADESC()
 
@@ -373,14 +385,35 @@ void CWallHealth::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 		m_iJuice--;
 	}
 
-	// Send the output.
-	float flRemaining = m_iJuice / sk_healthcharger.GetFloat();
+	// Send the outputs
+
+	// That should be a little faster than reading the convar repeatedly
+	float flChargeSize = sk_healthcharger.GetFloat();
+
+	float flRemaining = m_iJuice / flChargeSize;
 	m_OutRemainingHealth.Set(flRemaining, pActivator, this);
+
+	float flJuice = m_iJuice;
+	if((flJuice <= flChargeSize /2.0f ) && (flJuice +1.0f > flChargeSize /2.0f )) // That'll (almost) always work
+		m_OnHalfEmpty.FireOutput(this, this);
 
 	// govern the rate of charge
 	m_flNextCharge = gpGlobals->curtime + 0.1;
 }
 
+void CWallHealth::InputSetCharge(inputdata_t &inputdata)
+{
+	m_iJuice = inputdata.value.Int();
+	m_nState = 0;
+	if (!m_iJuice)
+		Off();
+	if (m_iJuice = sk_healthcharger.GetFloat())
+		Recharge();
+}
+void CWallHealth::InputRecharge(inputdata_t &inputdata)
+{
+	Recharge();
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -389,10 +422,10 @@ void CWallHealth::Recharge(void)
 {
 	EmitSound( "WallHealth.Recharge" );
 	m_iJuice = sk_healthcharger.GetFloat();
-	m_nState = 0;			
+	m_nState = 0;
 	SetThink( NULL );
+	m_OnFull.FireOutput(this, this);
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -412,6 +445,7 @@ void CWallHealth::Off(void)
 	}
 	else
 		SetThink( NULL );
+	m_OnEmpty.FireOutput(this, this);
 }
 
 //-----------------------------------------------------------------------------
@@ -432,6 +466,9 @@ public:
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	virtual int	ObjectCaps( void ) { return BaseClass::ObjectCaps() | m_iCaps; }
 
+	void InputRecharge(inputdata_t &inputdata);
+	void InputSetCharge(inputdata_t &inputdata);
+
 	float m_flNextCharge; 
 	int		m_iReactivate ; // DeathMatch Delay until reactvated
 	int		m_iJuice;
@@ -443,6 +480,9 @@ public:
 
 	COutputFloat m_OutRemainingHealth;
 	COutputEvent m_OnPlayerUse;
+	COutputEvent m_OnHalfEmpty;
+	COutputEvent m_OnEmpty;
+	COutputEvent m_OnFull;
 
 	void StudioFrameAdvance ( void );
 
@@ -471,6 +511,12 @@ BEGIN_DATADESC( CNewWallHealth )
 
 	DEFINE_OUTPUT( m_OnPlayerUse, "OnPlayerUse" ),
 	DEFINE_OUTPUT( m_OutRemainingHealth, "OutRemainingHealth"),
+	DEFINE_OUTPUT( m_OnHalfEmpty, "OnHalfEmpty"),
+	DEFINE_OUTPUT( m_OnEmpty, "OnEmpty"),
+	DEFINE_OUTPUT( m_OnFull, "OnFull"),
+
+	DEFINE_INPUTFUNC(FIELD_VOID, "Recharge", InputRecharge),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "SetCharge", InputSetCharge),
 
 END_DATADESC()
 
@@ -684,14 +730,37 @@ void CNewWallHealth::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 		m_iJuice--;
 	}
 
-	// Send the output.
-	float flRemaining = m_iJuice / sk_healthcharger.GetFloat();
+	// Send the outputs
+
+	// That should be a little faster than reading the convar repeatedly
+	float flChargeSize = sk_healthcharger.GetFloat();
+
+	float flRemaining = m_iJuice / flChargeSize;
 	m_OutRemainingHealth.Set(flRemaining, pActivator, this);
+
+	float flJuice = m_iJuice;
+	if ((flJuice <= flChargeSize / 2.0f) && (flJuice + 1.0f > flChargeSize / 2.0f)) // That'll (almost) always work
+		m_OnHalfEmpty.FireOutput(this, this);
 
 	// govern the rate of charge
 	m_flNextCharge = gpGlobals->curtime + 0.1;
 }
 
+void CNewWallHealth::InputSetCharge(inputdata_t &inputdata)
+{
+	ResetSequence(LookupSequence("idle"));
+	m_flJuice = m_iJuice = inputdata.value.Int();
+	StudioFrameAdvance();
+	m_nState = 0;
+	if (!m_iJuice)
+		Off();
+	if (m_iJuice = sk_healthcharger.GetFloat())
+		Recharge();
+}
+void CNewWallHealth::InputRecharge(inputdata_t &inputdata)
+{
+	Recharge();
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -708,8 +777,9 @@ void CNewWallHealth::Recharge(void)
 	m_iReactivate = 0;
 
 	SetThink( NULL );
-}
 
+	m_OnFull.FireOutput(this, this);
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -739,5 +809,6 @@ void CNewWallHealth::Off(void)
 		else
 			SetThink( NULL );
 	}
+	m_OnEmpty.FireOutput(this, this);
 }
 
