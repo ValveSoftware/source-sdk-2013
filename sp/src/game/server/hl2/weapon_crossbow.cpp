@@ -24,6 +24,7 @@
 #include "rumble_shared.h"
 #include "gamestats.h"
 #include "decals.h"
+#include "func_break.h"
 
 #ifdef PORTAL
 	#include "portal_util_shared.h"
@@ -254,6 +255,14 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 		//Adrian: keep going through the glass.
 		if ( pOther->GetCollisionGroup() == COLLISION_GROUP_BREAKABLE_GLASS )
 			 return;
+
+		// Go through thin material types
+		if (FClassnameIs(pOther, "func_breakable") || FClassnameIs(pOther, "func_breakable_surf"))
+		{
+			CBreakable* pOtherEntity = static_cast<CBreakable*> (pOther);
+			if ((pOtherEntity->GetMaterialType() == matGlass) || (pOtherEntity->GetMaterialType() == matWeb))
+				return;
+		}
 
 		if ( !pOther->IsAlive() )
 		{
