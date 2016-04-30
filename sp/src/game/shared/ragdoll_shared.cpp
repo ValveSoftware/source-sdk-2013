@@ -48,6 +48,8 @@ void CRagdollLowViolenceManager::SetLowViolence( const char *pMapName )
 
 	// Turn the low violence ragdoll stuff off if we're in the HL2 Citadel maps because
 	// the player has the super gravity gun and fading ragdolls will break things.
+		// Seriously, you guys? The megaphyscannon should just disable fading...
+	bool hackery = false;
 	if( hl2_episodic.GetBool() )
 	{
 		if ( Q_stricmp( pMapName, "ep1_citadel_02" ) == 0 ||
@@ -55,6 +57,7 @@ void CRagdollLowViolenceManager::SetLowViolence( const char *pMapName )
 			Q_stricmp( pMapName, "ep1_citadel_03" ) == 0 )
 		{
 			m_bLowViolence = false;
+			hackery = true;
 		}
 	}
 	else
@@ -65,8 +68,11 @@ void CRagdollLowViolenceManager::SetLowViolence( const char *pMapName )
 			Q_stricmp( pMapName, "d3_breen_01" ) == 0 )
 		{
 			m_bLowViolence = false;
+			hackery = true;
 		}
 	}
+	if (hackery)
+		DevWarning("The ragdoll manager is forcing low violence OFF to disable fading for the super gravity gun. Fix this!");
 }
 
 class CRagdollCollisionRules : public IVPhysicsKeyHandler

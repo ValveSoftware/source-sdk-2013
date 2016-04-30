@@ -1722,10 +1722,6 @@ void CNPC_Hunter::Precache()
 	UTIL_PrecacheOther( "sparktrail" );
 
 	m_bInLargeOutdoorMap = false;
-	if( !Q_strnicmp( STRING(gpGlobals->mapname), "ep2_outland_12", 14) )
-	{
-		m_bInLargeOutdoorMap = true;
-	}
 
 	BaseClass::Precache();
 }
@@ -5291,10 +5287,9 @@ int CNPC_Hunter::GetSoundInterests()
 }
 
 //-----------------------------------------------------------------------------
-// Tells us whether the Hunter is acting in a large, outdoor map, 
-// currently only ep2_outland_12. This allows us to create logic
-// branches here in the AI code so that we can make choices that
-// tailor behavior to larger and smaller maps.
+// Tells us whether the Hunter is acting in a large, outdoor map.
+// This allows us to create logic branches here in the AI code so
+// that we can make choices that tailor behavior to larger and smaller maps.
 //-----------------------------------------------------------------------------
 bool CNPC_Hunter::IsInLargeOutdoorMap()
 {

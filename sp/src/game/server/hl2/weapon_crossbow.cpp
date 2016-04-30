@@ -215,16 +215,18 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 		VectorNormalize( vecNormalizedVel );
 
 #if defined(HL2_EPISODIC)
-		//!!!HACKHACK - specific hack for ep2_outland_10 to allow crossbow bolts to pass through her bounding box when she's crouched in front of the player
-		// (the player thinks they have clear line of sight because Alyx is crouching, but her BBOx is still full-height and blocks crossbow bolts.
-		if( GetOwnerEntity() && GetOwnerEntity()->IsPlayer() && pOther->Classify() == CLASS_PLAYER_ALLY_VITAL && FStrEq(STRING(gpGlobals->mapname), "ep2_outland_10") )
+		// HACKHACK: Allow crossbow bolts to pass through Alyx's bounding box when she's crouched in front of the player (now any ally)
+			// (the player thinks they have clear line of sight because Alyx is crouching, but her BBOx is still full-height and blocks crossbow bolts.
+		if( GetOwnerEntity() && GetOwnerEntity()->IsPlayer() && (pOther->Classify() == CLASS_PLAYER_ALLY_VITAL || pOther->Classify() == CLASS_PLAYER_ALLY) )
 		{
-			// Change the owner to stop further collisions with Alyx. We do this by making her the owner.
-			// The player won't get credit for this kill but at least the bolt won't magically disappear!
+			// Change the owner to stop further collisions with Alyx. We do this by making her the owner. (Thus, another hack is in ::FireBolt() )
+				// The player won't get credit for this kill but at least the bolt won't magically disappear!
 			SetOwnerEntity( pOther );
 			return;
+			// Fixme: There must be less hacky ways.
+				// Can't the bolt maybe add the npc to a list and igorne collisions? Why do we even hit BBoxes? Can't we just hit hitboxes or something?
 		}
-#endif//HL2_EPISODIC
+#endif // HL2_EPISODIC
 
 		if( GetOwnerEntity() && GetOwnerEntity()->IsPlayer() && pOther->IsNPC() )
 		{
@@ -649,21 +651,18 @@ void CWeaponCrossbow::FireBolt( void )
 	VectorAngles( vecAiming, angAiming );
 
 #if defined(HL2_EPISODIC)
-	// !!!HACK - the other piece of the Alyx crossbow bolt hack for Outland_10 (see ::BoltTouch() for more detail)
-	if( FStrEq(STRING(gpGlobals->mapname), "ep2_outland_10") )
-	{
+	// HACKHACK: the other piece of the Ally crossbow bolt hack (see ::BoltTouch() for more detail)
 		trace_t tr;
 		UTIL_TraceLine( vecSrc, vecSrc + vecAiming * 24.0f, MASK_SOLID, pOwner, COLLISION_GROUP_NONE, &tr );
 
-		if( tr.m_pEnt != NULL && tr.m_pEnt->Classify() == CLASS_PLAYER_ALLY_VITAL )
+		if( tr.m_pEnt != NULL && (tr.m_pEnt->Classify() == CLASS_PLAYER_ALLY_VITAL || tr.m_pEnt->Classify() == CLASS_PLAYER_ALLY) )
 		{
 			// If Alyx is right in front of the player, make sure the bolt starts outside of the player's BBOX, or the bolt
-			// will instantly collide with the player after the owner of the bolt is switched to Alyx in ::BoltTouch(). We 
+			// will instantly collide with the player after the owner of the bolt is switched to Alyx in ::BoltTouch(). We
 			// avoid this altogether by making it impossible for the bolt to collide with the player.
 			vecSrc += vecAiming * 24.0f;
 		}
-	}
-#endif
+#endif // HL2_EPISODIC
 
 	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate( vecSrc, angAiming, pOwner );
 

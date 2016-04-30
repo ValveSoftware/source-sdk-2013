@@ -140,6 +140,8 @@ void CSkyCamera::Activate( )
 				m_skyboxData.fog.colorPrimary.SetB( ( m_skyboxData.fog.colorPrimary.GetB() + m_skyboxData.fog.colorSecondary.GetB() ) * 0.5f );
 				m_skyboxData.fog.colorPrimary.SetA( ( m_skyboxData.fog.colorPrimary.GetA() + m_skyboxData.fog.colorSecondary.GetA() ) * 0.5f );
 				m_skyboxData.fog.colorSecondary = m_skyboxData.fog.colorPrimary;
+				//TODO: Just fix them.
+				DevMsg("This map was fog-hacked! Reset the colors to the average and don't forget to remove the map from the array in SkyCamera.cpp!\n");
 			}
 		}
 	}
