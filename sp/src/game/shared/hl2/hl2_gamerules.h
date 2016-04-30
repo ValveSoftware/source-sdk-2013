@@ -84,7 +84,6 @@ public:
 	bool	NPC_ShouldDropHealth( CBasePlayer *pRecipient );
 	void	NPC_DroppedHealth( void );
 	void	NPC_DroppedGrenade( void );
-	bool	MegaPhyscannonActive( void ) { return m_bMegaPhysgun;	}
 	
 	virtual bool IsAlyxInDarknessMode();
 
@@ -98,6 +97,9 @@ private:
 
 	int						DefaultFOV( void ) { return 75; }
 #endif
+public:
+	// Client needs this so we don't have to completely shut off low violence just to prevent ragdoll fading with the MegaPhysgun
+	bool	MegaPhyscannonActive( void ) { return m_bMegaPhysgun; }
 };
 
 

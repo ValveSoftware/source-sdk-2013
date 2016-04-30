@@ -14,6 +14,7 @@
 #include "tier0/vprof.h"
 #include "engine/ivdebugoverlay.h"
 #include "solidsetdefaults.h"
+#include "hl2_gamerules.h"
 //CLIENT
 #ifdef CLIENT_DLL 
 #include "c_fire_smoke.h"
@@ -32,48 +33,6 @@
 #include "tier0/memdbgon.h"
 
 CRagdollLowViolenceManager g_RagdollLVManager;
-
-void CRagdollLowViolenceManager::SetLowViolence( const char *pMapName )
-{
-	// set the value using the engine's low violence settings
-	m_bLowViolence = UTIL_IsLowViolence();
-
-#if !defined( CLIENT_DLL )
-	// the server doesn't worry about low violence during multiplayer games
-	if ( g_pGameRules->IsMultiplayer() )
-	{
-		m_bLowViolence = false;
-	}
-#endif
-
-	// Turn the low violence ragdoll stuff off if we're in the HL2 Citadel maps because
-	// the player has the super gravity gun and fading ragdolls will break things.
-		// Seriously, you guys? The megaphyscannon should just disable fading...
-	bool hackery = false;
-	if( hl2_episodic.GetBool() )
-	{
-		if ( Q_stricmp( pMapName, "ep1_citadel_02" ) == 0 ||
-			Q_stricmp( pMapName, "ep1_citadel_02b" ) == 0 ||
-			Q_stricmp( pMapName, "ep1_citadel_03" ) == 0 )
-		{
-			m_bLowViolence = false;
-			hackery = true;
-		}
-	}
-	else
-	{
-		if ( Q_stricmp( pMapName, "d3_citadel_03" ) == 0 ||
-			Q_stricmp( pMapName, "d3_citadel_04" ) == 0 ||
-			Q_stricmp( pMapName, "d3_citadel_05" ) == 0 ||
-			Q_stricmp( pMapName, "d3_breen_01" ) == 0 )
-		{
-			m_bLowViolence = false;
-			hackery = true;
-		}
-	}
-	if (hackery)
-		DevWarning("The ragdoll manager is forcing low violence OFF to disable fading for the super gravity gun. Fix this!");
-}
 
 class CRagdollCollisionRules : public IVPhysicsKeyHandler
 {
@@ -731,6 +690,10 @@ void CRagdollLRURetirement::LevelInitPreEntity( void )
 
 bool ShouldRemoveThisRagdoll( CBaseAnimating *pRagdoll )
 {
+	// Don't mess up the MegaPhyscannon!
+	if (HL2GameRules()->MegaPhyscannonActive())
+		return false;
+
 	if ( g_RagdollLVManager.IsLowViolence() )
 	{
 		return true;
@@ -809,6 +772,11 @@ bool ShouldRemoveThisRagdoll( CBaseAnimating *pRagdoll )
 void CRagdollLRURetirement::Update( float frametime ) // EPISODIC VERSION
 {
 	VPROF( "CRagdollLRURetirement::Update" );
+
+	// Don't mess up the MegaPhyscannon!
+	if (HL2GameRules()->MegaPhyscannonActive())
+		return;
+
 	// Compress out dead items
 	int i, next;
 
@@ -946,6 +914,11 @@ void CRagdollLRURetirement::Update( float frametime ) // EPISODIC VERSION
 void CRagdollLRURetirement::Update( float frametime ) // Non-episodic version
 {
 	VPROF( "CRagdollLRURetirement::Update" );
+
+	// Don't mess up the MegaPhyscannon!
+	if (HL2GameRules()->MegaPhyscannonActive())
+		return;
+
 	// Compress out dead items
 	int i, next;
 

@@ -1077,9 +1077,6 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		LevelInit_ParseAllEntities( pMapEntities );
 	}
 
-	// Check low violence settings for this map
-	g_RagdollLVManager.SetLowViolence( pMapName );
-
 	// Now that all of the active entities have been loaded in, precache any entities who need point_template parameters
 	//  to be parsed (the above code has loaded all point_template entities)
 	PrecachePointTemplates();
