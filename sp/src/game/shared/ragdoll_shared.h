@@ -116,7 +116,7 @@ extern CRagdollLRURetirement s_RagdollLRU;
 class CRagdollLowViolenceManager
 {
 public:
-	CRagdollLowViolenceManager(){ m_bLowViolence = UTIL_IsLowViolence(); }
+	CRagdollLowViolenceManager() { m_bLowViolence = false; }
 	bool IsLowViolence( void ){ return m_bLowViolence; }
 
 private:

@@ -14,7 +14,6 @@
 #include "tier0/vprof.h"
 #include "engine/ivdebugoverlay.h"
 #include "solidsetdefaults.h"
-#include "hl2_gamerules.h"
 //CLIENT
 #ifdef CLIENT_DLL 
 #include "c_fire_smoke.h"
@@ -690,10 +689,6 @@ void CRagdollLRURetirement::LevelInitPreEntity( void )
 
 bool ShouldRemoveThisRagdoll( CBaseAnimating *pRagdoll )
 {
-	// Don't mess up the MegaPhyscannon!
-	if (HL2GameRules()->MegaPhyscannonActive())
-		return false;
-
 	if ( g_RagdollLVManager.IsLowViolence() )
 	{
 		return true;
@@ -772,10 +767,6 @@ bool ShouldRemoveThisRagdoll( CBaseAnimating *pRagdoll )
 void CRagdollLRURetirement::Update( float frametime ) // EPISODIC VERSION
 {
 	VPROF( "CRagdollLRURetirement::Update" );
-
-	// Don't mess up the MegaPhyscannon!
-	if (HL2GameRules()->MegaPhyscannonActive())
-		return;
 
 	// Compress out dead items
 	int i, next;
@@ -914,10 +905,6 @@ void CRagdollLRURetirement::Update( float frametime ) // EPISODIC VERSION
 void CRagdollLRURetirement::Update( float frametime ) // Non-episodic version
 {
 	VPROF( "CRagdollLRURetirement::Update" );
-
-	// Don't mess up the MegaPhyscannon!
-	if (HL2GameRules()->MegaPhyscannonActive())
-		return;
 
 	// Compress out dead items
 	int i, next;

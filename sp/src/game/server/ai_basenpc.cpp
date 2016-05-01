@@ -10399,7 +10399,7 @@ bool CAI_BaseNPC::ShouldFadeOnDeath( void )
 	if ( g_RagdollLVManager.IsLowViolence() )
 	{
 		// Don't mess up the MegaPhyscannon!
-		return !HL2GameRules()->MegaPhyscannonActive();
+		return (GlobalEntity_GetState("super_phys_gun") != GLOBAL_ON); // 2=GLOBAL_DEAD
 	}
 	else
 	{
