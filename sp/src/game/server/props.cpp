@@ -5449,10 +5449,11 @@ public:
 		}
 		return true;
 	}
+	DECLARE_DATADESC();
 };
 LINK_ENTITY_TO_CLASS(prop_sphere, CPhysSphere);
 BEGIN_DATADESC(CPhysSphere)
-DEFINE_KEYFIELD(m_fRadius, FIELD_FLOAT, "radius"),
+	DEFINE_KEYFIELD(m_fRadius, FIELD_FLOAT, "radius"),
 END_DATADESC()
 
 //-----------------------------------------------------------------------------

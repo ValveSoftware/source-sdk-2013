@@ -407,7 +407,7 @@ void CWallHealth::InputSetCharge(inputdata_t &inputdata)
 	m_nState = 0;
 	if (!m_iJuice)
 		Off();
-	if (m_iJuice = sk_healthcharger.GetFloat())
+	if (m_iJuice == sk_healthcharger.GetFloat())
 		Recharge();
 }
 void CWallHealth::InputRecharge(inputdata_t &inputdata)
@@ -754,7 +754,7 @@ void CNewWallHealth::InputSetCharge(inputdata_t &inputdata)
 	m_nState = 0;
 	if (!m_iJuice)
 		Off();
-	if (m_iJuice = sk_healthcharger.GetFloat())
+	if (m_iJuice == sk_healthcharger.GetFloat())
 		Recharge();
 }
 void CNewWallHealth::InputRecharge(inputdata_t &inputdata)
