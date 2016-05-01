@@ -285,7 +285,9 @@ void CEntityFlame::FlameThink( void )
 		// Notify anything we're attached to
 		if ( m_hEntAttached )
 		{
-			CBaseCombatCharacter *pAttachedCC = m_hEntAttached->MyCombatCharacterPointer();
+			//Cannot directly cast networked variables
+			CBaseEntity *temp = m_hEntAttached;
+			CBaseCombatCharacter *pAttachedCC = (CBaseCombatCharacter *)temp;
 
 			if( pAttachedCC )
 			{
