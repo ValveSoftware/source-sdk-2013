@@ -84,8 +84,8 @@ public:
 	bool	NPC_ShouldDropHealth( CBasePlayer *pRecipient );
 	void	NPC_DroppedHealth( void );
 	void	NPC_DroppedGrenade( void );
-	bool	MegaPhyscannonActive( void ) { return m_bMegaPhysgun;	}
-	
+	bool    MegaPhyscannonActive(void) { return m_bMegaPhysgun; }
+
 	virtual bool IsAlyxInDarknessMode();
 
 private:

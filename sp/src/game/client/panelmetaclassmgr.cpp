@@ -234,6 +234,12 @@ CPanelMetaClassMgrImp::CPanelMetaClassMgrImp() : m_PanelTypeDict( true, 0, 32 )
 
 CPanelMetaClassMgrImp::~CPanelMetaClassMgrImp()
 {
+	while (m_MetaClassKeyValues.Count()>0)
+	{
+		if (m_MetaClassKeyValues[0])
+			m_MetaClassKeyValues[0]->deleteThis();
+		m_MetaClassKeyValues.RemoveAt(0);
+	}
 }
 
 

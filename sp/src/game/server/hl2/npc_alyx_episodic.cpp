@@ -42,8 +42,6 @@ extern Vector PointOnLineNearestPoint(const Vector& vStartPos, const Vector& vEn
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-bool g_HackOutland10DamageHack;
-
 int ACT_ALYX_DRAW_TOOL;
 int ACT_ALYX_IDLE_TOOL;
 int ACT_ALYX_ZAP_TOOL;
@@ -418,14 +416,6 @@ void CNPC_Alyx::Activate( void )
 	}
 
 	m_WeaponType = ComputeWeaponType();
-
-	// !!!HACKHACK for Overwatch, If we're in ep2_outland_10, do half damage to Combine
-	// Be advised, this will also happen in 10a, but this is not a problem.
-	g_HackOutland10DamageHack = false;
-	if( !Q_strnicmp( STRING(gpGlobals->mapname), "ep2_outland_10", 14) )
-	{
-		g_HackOutland10DamageHack = true;
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2311,19 +2301,6 @@ bool CNPC_Alyx::FCanCheckAttacks()
 	}
 
 	return BaseClass::FCanCheckAttacks();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Half damage against Combine Soldiers in outland_10
-//-----------------------------------------------------------------------------
-float CNPC_Alyx::GetAttackDamageScale( CBaseEntity *pVictim )
-{
-	if( g_HackOutland10DamageHack && pVictim->Classify() == CLASS_COMBINE )
-	{
-		return 0.75f;
-	}
-
-	return BaseClass::GetAttackDamageScale( pVictim );
 }
 
 //-----------------------------------------------------------------------------

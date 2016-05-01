@@ -19,8 +19,11 @@ ipch
 *.idb
 *.vcxproj
 *.sln
+<<<<<<< HEAD
 *.vpc_crc
 *.filters
+=======
+>>>>>>> support/build
 *.opendb
 
 # OSX/Linux build products

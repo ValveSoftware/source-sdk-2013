@@ -116,10 +116,7 @@ extern CRagdollLRURetirement s_RagdollLRU;
 class CRagdollLowViolenceManager
 {
 public:
-	CRagdollLowViolenceManager(){ m_bLowViolence = false; }
-	// Turn the low violence ragdoll stuff off if we're in the HL2 Citadel maps because
-	// the player has the super gravity gun and fading ragdolls will break things.
-	void SetLowViolence( const char *pMapName );
+	CRagdollLowViolenceManager() { m_bLowViolence = false; }
 	bool IsLowViolence( void ){ return m_bLowViolence; }
 
 private:

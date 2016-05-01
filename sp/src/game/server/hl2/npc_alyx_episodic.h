@@ -99,8 +99,6 @@ public:
 	bool	CanBeHitByMeleeAttack( CBaseEntity *pAttacker );
 	int		OnTakeDamage_Alive( const CTakeDamageInfo &info );
 	bool	FCanCheckAttacks();
-	float	GetAttackDamageScale( CBaseEntity *pVictim );
-
 
 	bool	HandleInteraction(int interactionType, void *data, CBaseCombatCharacter* sourceEnt);
 	virtual bool SpeakIfAllowed( AIConcept_t concept, const char *modifiers = NULL, bool bRespondingToPlayer = false, char *pszOutResponseChosen = NULL, size_t bufsize = 0 );

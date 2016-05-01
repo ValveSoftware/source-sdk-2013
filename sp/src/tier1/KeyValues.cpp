@@ -159,9 +159,12 @@ public:
 	}
 	~CLeakTrack()
 	{
-		if ( keys.Count() != 0 )
+		AssertMsg(keys.Count() == 0, VarArgs("keys.Count() is %i", keys.Count()));
+
+		for (int x = 0;x<keys.Count();x++)
 		{
-			Assert( 0 );
+			keys[x].kv->deleteThis();
+			keys.Remove(x);
 		}
 	}
 
