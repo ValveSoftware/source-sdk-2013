@@ -62,6 +62,7 @@ CHudAmmo::CHudAmmo( const char *pElementName ) : BaseClass(NULL, "HudAmmo"), CHu
 {
 	SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT | HIDEHUD_WEAPONSELECTION );
 
+	hudlcd->SetGlobalStat("(ammo_clip)", "0");
 	hudlcd->SetGlobalStat( "(ammo_primary)", "0" );
 	hudlcd->SetGlobalStat( "(ammo_secondary)", "0" );
 	hudlcd->SetGlobalStat( "(weapon_print_name)", "" );
@@ -126,8 +127,9 @@ void CHudAmmo::UpdatePlayerAmmo( C_BasePlayer *player )
 
 	if ( !wpn || !player || !wpn->UsesPrimaryAmmo() )
 	{
-		hudlcd->SetGlobalStat( "(ammo_primary)", "n/a" );
-        hudlcd->SetGlobalStat( "(ammo_secondary)", "n/a" );
+		hudlcd->SetGlobalStat("(ammo_clip)", "-");
+		hudlcd->SetGlobalStat("(ammo_primary)", "-");
+		hudlcd->SetGlobalStat("(ammo_secondary)", "-");
 
 		SetPaintEnabled(false);
 		SetPaintBackgroundEnabled(false);
@@ -155,8 +157,16 @@ void CHudAmmo::UpdatePlayerAmmo( C_BasePlayer *player )
 		ammo2 = player->GetAmmoCount(wpn->GetPrimaryAmmoType());
 	}
 
-	hudlcd->SetGlobalStat( "(ammo_primary)", VarArgs( "%d", ammo1 ) );
-	hudlcd->SetGlobalStat( "(ammo_secondary)", VarArgs( "%d", ammo2 ) );
+	// get the alt ammo
+	int altAmmo = wpn->Clip2();
+	if (altAmmo < 0) // Nothing uses clips of alt ammo...
+	{
+		altAmmo = player->GetAmmoCount(wpn->GetSecondaryAmmoType());
+	}
+
+	hudlcd->SetGlobalStat( "(ammo_clip)", VarArgs( "%d", ammo1 ) );
+	hudlcd->SetGlobalStat( "(ammo_primary)", VarArgs( "%d", ammo2 ) );
+	hudlcd->SetGlobalStat( "(ammo_secondary)", VarArgs( "%d", altAmmo ) );
 
 	if (wpn == m_hCurrentActiveWeapon)
 	{
@@ -199,6 +209,14 @@ void CHudAmmo::UpdateVehicleAmmo( C_BasePlayer *player, IClientVehicle *pVehicle
 		return;
 	}
 
+	const char* vecClass = pVehicleEnt->GetClassname();
+	hudlcd->SetGlobalStat("(weapon_name)", vecClass);
+	vecClass = StringAfterPrefix(vecClass, "class C_Prop");
+	hudlcd->SetGlobalStat("(weapon_print_name)", vecClass);
+
+	hudlcd->SetGlobalStat("(ammo_clip)", "-");
+	hudlcd->SetGlobalStat("(ammo_primary)", "-");
+
 	SetPaintEnabled(true);
 	SetPaintBackgroundEnabled(true);
 
@@ -216,6 +234,9 @@ void CHudAmmo::UpdateVehicleAmmo( C_BasePlayer *player, IClientVehicle *pVehicle
 		// we use clip ammo, so the second ammo is the total ammo
 		ammo2 = pVehicle->GetPrimaryAmmoCount();
 	}
+
+	hudlcd->SetGlobalStat("(ammo_clip)", VarArgs("%d", ammo1));
+	hudlcd->SetGlobalStat("(ammo_primary)", VarArgs("%d", ammo2));
 
 	if (pVehicleEnt == m_hCurrentVehicle)
 	{
