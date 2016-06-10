@@ -159,12 +159,9 @@ void CHudHealth::MsgFunc_Damage( bf_read &msg )
 	vecFrom.z = msg.ReadBitCoord();
 
 	// Actually took damage?
-	if ( damageTaken > 0 || armor > 0 )
+	if ( damageTaken > 0 )
 	{
-		if ( damageTaken > 0 )
-		{
-			// start the animation
-			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("HealthDamageTaken");
-		}
+		// start the animation
+		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("HealthDamageTaken");
 	}
 }
