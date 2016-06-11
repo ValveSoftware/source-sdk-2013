@@ -405,6 +405,8 @@ void CEnvMicrophone::Think(void)
 			}
 			nSound = pCurrentSound->NextSound();
 		}
+		else
+			break;
 	}
 
 	if( fHearSound )
