@@ -408,7 +408,7 @@ bool CBaseEntity::KeyValue( const char *szKeyName, const char *szValue )
 		}
 
 		// Do this so inherited classes looking for 'angles' don't have to bother with 'angle'
-		return KeyValue( "angles", szBuf );
+		return KeyValue( szKeyName, szBuf );
 	}
 
 	// NOTE: Have to do these separate because they set two values instead of one
