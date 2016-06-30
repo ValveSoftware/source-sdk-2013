@@ -1,0 +1,41 @@
+====================
+GAME DESIGN DOCUMENT
+====================
+
+MOD NAME : placeholder("Kaksteist Kuud")
+
+SINGLEPLAYER : YES
+
+MULTIPLAYER : WHO KNOWS
+
+GENRE :	Puzzler, First Person, Gallery/vista/atmospheric/story driven/
+
+SETTING : 
+		  1. HISTORICAL - Feudal Japan, Ancient Greece, Ancient Rome (vide DaiKatana)
+
+		  2. FUCKfTURISTIC - Turist in da fyuuchjar. Blade Runner/Deus Ex/MATRIX
+		  
+		  3. ABSTRACT - Antichamber / Portal clone
+		  
+		  4. COTIDIAN - City17, shit eastern european city, import half life 2 assets, clone level design
+		  
+		  
+		  420. MINIATURE NATURE - Bug's life cosmopolitan insect, already done (Insect infestation) > do it better + multiplayer, hijack old fanbase?
+		  
+====================		  
+	  GAMEPLAY	
+====================
+
+ -	Source physics puzzles
+ -	Interactive environment (hidden puzzle elements)
+ -	Physgun / modded gravity gun 
+ -	Removable debris/terrain with special gun [HARD-displacements complicated]
+
+ *	Plain obvious elements that are not actually conductive to solving of puzzle a la Antichamber
+
+ 
+====================
+	   STORY
+====================
+
+Once upon a time vote TRUMP 2016 lesduit lesgou oshit her kamm das Junge Mann hat eine Große Schwanz und niemals hat er nichts die Schreibstoffe geheimliches erreicht.	   
