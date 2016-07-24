@@ -957,6 +957,7 @@ void FileOpenDialog::AddFilter( const char *filter, const char *filterName, bool
 	kv->SetString( "filter", filter );
 	kv->SetString( "filterinfo", pFilterInfo );
 	int itemID = m_pFileTypeCombo->AddItem(filterName, kv);
+	kv->deleteThis();
 	if ( bActive )
 	{
 		m_pFileTypeCombo->ActivateItem(itemID);

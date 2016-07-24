@@ -190,9 +190,7 @@ END_SEND_TABLE();
 // This table encodes the CBaseCombatCharacter
 //-----------------------------------------------------------------------------
 IMPLEMENT_SERVERCLASS_ST(CBaseCombatCharacter, DT_BaseCombatCharacter)
-#ifdef GLOWS_ENABLE
-	SendPropBool( SENDINFO( m_bGlowEnabled ) ),
-#endif // GLOWS_ENABLE
+
 	// Data that only gets sent to the local player.
 	SendPropDataTable( "bcc_localdata", 0, &REFERENCE_SEND_TABLE(DT_BCCLocalPlayerExclusive), SendProxy_SendBaseCombatCharacterLocalDataTable ),
 
@@ -743,10 +741,6 @@ CBaseCombatCharacter::CBaseCombatCharacter( void )
 	m_impactEnergyScale = 1.0f;
 
 	m_bForceServerRagdoll = ai_force_serverside_ragdoll.GetBool();
-
-#ifdef GLOWS_ENABLE
-	m_bGlowEnabled.Set( false );
-#endif // GLOWS_ENABLE
 }
 
 //------------------------------------------------------------------------------
@@ -850,10 +844,6 @@ void CBaseCombatCharacter::UpdateOnRemove( void )
 		pOwner->DeathNotice( this );
 		SetOwnerEntity( NULL );
 	}
-
-#ifdef GLOWS_ENABLE
-	RemoveGlowEffect();
-#endif // GLOWS_ENABLE
 
 	// Chain at end to mimic destructor unwind order
 	BaseClass::UpdateOnRemove();
@@ -2095,7 +2085,12 @@ void CBaseCombatCharacter::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 			// !!!HACK - Don't give any ammo with the spawn equipment RPG in d3_c17_09. This is a chapter
 			// start and the map is way to easy if you start with 3 RPG rounds. It's fine if a player conserves
 			// them and uses them here, but it's not OK to start with enough ammo to bypass the snipers completely.
-			GiveAmmo( 0, pWeapon->m_iPrimaryAmmoType); 
+			GiveAmmo( 0, pWeapon->m_iPrimaryAmmoType);
+			/*
+				Dafug? We don't have to be this nice to players that start on this chapter. A mapper should
+				remove this rpg and maybe put another one wherever the next rockets are found.
+			//*/
+			Msg("You did not spawn with RPG rounds because of exploit. Move the rpg further up this map!\n");
 		}
 		else
 #endif // HL2_DLL
@@ -3229,33 +3224,6 @@ float CBaseCombatCharacter::GetSpreadBias( CBaseCombatWeapon *pWeapon, CBaseEnti
 		return pWeapon->GetSpreadBias(GetCurrentWeaponProficiency());
 	return 1.0;
 }
-
-#ifdef GLOWS_ENABLE
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CBaseCombatCharacter::AddGlowEffect( void )
-{
-	SetTransmitState( FL_EDICT_ALWAYS );
-	m_bGlowEnabled.Set( true );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CBaseCombatCharacter::RemoveGlowEffect( void )
-{
-	m_bGlowEnabled.Set( false );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CBaseCombatCharacter::IsGlowEffectActive( void )
-{
-	return m_bGlowEnabled;
-}
-#endif // GLOWS_ENABLE
 
 //-----------------------------------------------------------------------------
 // Assume everyone is average with every weapon. Override this to make exceptions.

@@ -16,6 +16,7 @@
 #include "hud_macros.h"
 #include "hud_numericdisplay.h"
 #include "iclientmode.h"
+#include "ihudlcd.h"
 
 #include "vgui_controls/AnimationController.h"
 #include "vgui/ILocalize.h"
@@ -75,6 +76,7 @@ void CHudBattery::Reset( void )
 {
 	SetLabelText(g_pVGuiLocalize->Find("#Valve_Hud_SUIT"));
 	SetDisplayValue(m_iBat);
+	hudlcd->SetGlobalStat("(suit_armor)", "-");
 }
 
 //-----------------------------------------------------------------------------
@@ -136,6 +138,7 @@ void CHudBattery::OnThink( void )
 	m_iBat = m_iNewBat;
 
 	SetDisplayValue(m_iBat);
+	hudlcd->SetGlobalStat("(suit_armor)", VarArgs("%d", m_iBat));
 }
 
 //-----------------------------------------------------------------------------

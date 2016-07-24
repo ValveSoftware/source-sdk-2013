@@ -65,6 +65,11 @@ extern ConVar replay_rendersetting_renderglow;
 #include "econ_item_description.h"
 #endif
 
+#ifdef GLOWS_ENABLE
+#include "clienteffectprecachesystem.h"
+#include "glow_outline_effect.h"
+#endif // GLOWS_ENABLE
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -73,6 +78,13 @@ extern ConVar replay_rendersetting_renderglow;
 class CHudWeaponSelection;
 class CHudChat;
 class CHudVote;
+
+#ifdef GLOWS_ENABLE
+CLIENTEFFECT_REGISTER_BEGIN(PrecachePostProcessingEffectsGlow)
+CLIENTEFFECT_MATERIAL(GLOW_COLOR_VMT)
+CLIENTEFFECT_MATERIAL(GLOW_HALO_VMT)
+CLIENTEFFECT_REGISTER_END_CONDITIONAL(engine->GetDXSupportLevel() >= 90)
+#endif // GLOWS_ENABLE
 
 static vgui::HContext s_hVGuiContext = DEFAULT_VGUI_CONTEXT;
 
@@ -767,7 +779,10 @@ bool ClientModeShared::DoPostScreenSpaceEffects( const CViewSetup *pSetup )
 		if ( !replay_rendersetting_renderglow.GetBool() )
 			return false;
 	}
-#endif 
+#endif
+#ifdef GLOWS_ENABLE
+	g_GlowObjectManager.RenderGlowEffects(pSetup, 0);
+#endif // GLOWS_ENABLE
 	return true;
 }
 

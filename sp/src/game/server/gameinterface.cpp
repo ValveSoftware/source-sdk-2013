@@ -565,6 +565,36 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CServerGameDLL, IServerGameDLL, INTERFACEVERSI
 // When bumping the version to this interface, check that our assumption is still valid and expose the older version in the same way
 COMPILE_TIME_ASSERT( INTERFACEVERSION_SERVERGAMEDLL_INT == 9 );
 
+/* BM: https://developer.valvesoftware.com/wiki/Mounting_multiple_games */
+static void MountAdditionalContent()
+{
+	KeyValues *pMainFile = new KeyValues("gameinfo.txt");
+#ifndef _WINDOWS
+	// case sensitivity
+	pMainFile->LoadFromFile(filesystem, "GameInfo.txt", "MOD");
+	if (!pMainFile)
+#endif
+		pMainFile->LoadFromFile(filesystem, "gameinfo.txt", "MOD");
+
+	if (pMainFile)
+	{
+		KeyValues* pFileSystemInfo = pMainFile->FindKey("FileSystem");
+		if (pFileSystemInfo)
+			for (KeyValues *pKey = pFileSystemInfo->GetFirstSubKey(); pKey; pKey = pKey->GetNextKey())
+			{
+			if (strcmp(pKey->GetName(), "AdditionalContentId") == 0)
+			{
+				int appid = abs(pKey->GetInt());
+				if (appid)
+					if (filesystem->MountSteamContent(-appid) != FILESYSTEM_MOUNT_OK)
+						Warning("Unable to mount extra content with appId: %i\n", appid);
+			}
+			}
+	}
+	pMainFile->deleteThis();
+}
+//*/
+
 bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory, 
 		CreateInterfaceFn physicsFactory, CreateInterfaceFn fileSystemFactory, 
 		CGlobalVars *pGlobals)
@@ -636,6 +666,9 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	// Yes, both the client and game .dlls will try to Connect, the soundemittersystem.dll will handle this gracefully
 	if ( !soundemitterbase->Connect( appSystemFactory ) )
 		return false;
+
+	/* BM: Called it; see above */
+	MountAdditionalContent();
 
 	// cache the globals
 	gpGlobals = pGlobals;
@@ -1043,9 +1076,6 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		// Now call the mod specific parse
 		LevelInit_ParseAllEntities( pMapEntities );
 	}
-
-	// Check low violence settings for this map
-	g_RagdollLVManager.SetLowViolence( pMapName );
 
 	// Now that all of the active entities have been loaded in, precache any entities who need point_template parameters
 	//  to be parsed (the above code has loaded all point_template entities)
@@ -2009,6 +2039,8 @@ void CServerGameDLL::LoadSpecificMOTDMsg( const ConVar &convar, const char *pszS
 		bFound = filesystem->ReadFile( szResolvedFilename, "GAME", buf );
 	}
 
+	/* BM: No MOtDs in SP; so quit complaining about it! */
+#ifdef HL2MP
 	if ( !bFound )
 	{
 		Msg( "'%s' not found; not loaded\n", szPreferredFilename );
@@ -2030,6 +2062,8 @@ void CServerGameDLL::LoadSpecificMOTDMsg( const ConVar &convar, const char *pszS
 	{
 		Msg( "Set %s from file '%s'.  ('%s' was not found.)\n", pszStringName, szResolvedFilename, szPreferredFilename );
 	}
+#endif // HL2MP
+	//*/
 
 	g_pStringTableInfoPanel->AddString( CBaseEntity::IsServer(), pszStringName, buf.TellPut(), buf.Base() );
 #endif

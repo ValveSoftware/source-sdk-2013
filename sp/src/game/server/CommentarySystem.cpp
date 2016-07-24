@@ -647,7 +647,7 @@ public:
 				{
 					Warning("Commentary: Failed to spawn commentary entity, type: '%s'\n", pNodeName );
 				}
-
+				pkvFile->deleteThis();
 				// Move to next entity
 				pkvNode = pkvNode->GetNextKey();
 			}

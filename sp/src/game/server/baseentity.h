@@ -668,6 +668,17 @@ public:
 	void InputFireUser3( inputdata_t &inputdata );
 	void InputFireUser4( inputdata_t &inputdata );
 
+#ifdef GLOWS_ENABLE
+	void InputToggleGlow(inputdata_t &inputdata);
+	void InputStopGlowing(inputdata_t &inputdata);
+	void InputStartGlowing( inputdata_t &inputdata);
+	void InputSetGlowColor( inputdata_t &inputdata);
+	void InputSetGlowColorR(inputdata_t &inputdata);
+	void InputSetGlowColorG(inputdata_t &inputdata);
+	void InputSetGlowColorB(inputdata_t &inputdata);
+	void InputSetGlowColorA(inputdata_t &inputdata);
+#endif // GLOWS_ENABLE
+
 	// Returns the origin at which to play an inputted dispatcheffect 
 	virtual void GetInputDispatchEffectPosition( const char *sInputString, Vector &pOrigin, QAngle &pAngles );
 
@@ -1791,6 +1802,22 @@ public:
 	{
 		return s_bAbsQueriesValid;
 	}
+
+#ifdef GLOWS_ENABLE
+public:
+	virtual void				AddGlowEffect(void);
+	virtual void				RemoveGlowEffect(void);
+	virtual void				SetGlowEffectColor(float r, float g, float b);
+	virtual void				SetGlowEffectAlpha(float a);
+	virtual bool				IsGlowEffectActive(void);
+
+protected:
+	CNetworkVar(bool,  m_bGlowEnabled);
+	CNetworkVar(float, m_fGlowRed);
+	CNetworkVar(float, m_fGlowGreen);
+	CNetworkVar(float, m_fGlowBlue);
+	CNetworkVar(float, m_fGlowAlpha);
+#endif // GLOWS_ENABLE
 };
 
 // Send tables exposed in this module.

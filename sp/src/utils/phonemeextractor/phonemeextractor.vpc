@@ -6,6 +6,8 @@
 
 $Macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$SRCDIR\..\game\bin\phonemeextractors"
+//Just let SAPI be SAPI -Andy
+$MACRO SAPIDIR		"C:\Program Files (x86)\Microsoft Speech SDK 5.1"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -43,12 +45,12 @@ $Project "Phonemeextractor"
 	
 	$Folder	"SAPI Header Files"
 	{ // These are dynamic because sapi might not be present in SDK branches, but we still want VPC to succeed.
-		$DynamicFile	"..\sapi51\Include\sapi.h"
-		$DynamicFile	"..\sapi51\Include\sapiddk.h"
-		$DynamicFile	"..\sapi51\Include\Spddkhlp.h"
-		$DynamicFile	"..\sapi51\Include\spdebug.h"
-		$DynamicFile	"..\sapi51\Include\sperror.h"
-		$DynamicFile	"..\sapi51\Include\sphelper.h"
+		$DynamicFile	"$SAPIDIR\Include\sapi.h"
+		$DynamicFile	"$SAPIDIR\Include\sapiddk.h"
+		$DynamicFile	"$SAPIDIR\Include\Spddkhlp.h"
+		$DynamicFile	"$SAPIDIR\Include\spdebug.h"
+		$DynamicFile	"$SAPIDIR\Include\sperror.h"
+		$DynamicFile	"$SAPIDIR\Include\sphelper.h"
 	}
 	
 	$Folder	"Public Header Files"
@@ -78,6 +80,6 @@ $Project "Phonemeextractor"
 	$Folder	"Link Libraries"
 	{
 		$Lib mathlib
-		$DynamicFile	"..\sapi51\lib\i386\sapi.lib"
+		$DynamicFile	"$SAPIDIR\sapi51\lib\i386\sapi.lib"
 	}
 }

@@ -357,26 +357,6 @@ END_DATADESC()
 // ###################################################################
 //	> FilterDamageType
 // ###################################################################
-class FilterDamageType : public CBaseFilter
-{
-	DECLARE_CLASS( FilterDamageType, CBaseFilter );
-	DECLARE_DATADESC();
-
-protected:
-
-	bool PassesFilterImpl(CBaseEntity *pCaller, CBaseEntity *pEntity )
-	{
-		ASSERT( false );
-	 	return true;
-	}
-
-	bool PassesDamageFilterImpl(const CTakeDamageInfo &info)
-	{
-	 	return info.GetDamageType() == m_iDamageType;
-	}
-
-	int m_iDamageType;
-};
 
 LINK_ENTITY_TO_CLASS( filter_damage_type, FilterDamageType );
 

@@ -34,7 +34,6 @@ int HudTransform( const Vector& point, Vector& screen );
 
 extern ConVar r_updaterefracttexture;
 extern int g_viewscene_refractUpdateFrame;
-extern bool g_bAllowMultipleRefractUpdatesPerScenePerFrame;
 bool DrawingShadowDepthView( void );
 bool DrawingMainView();
 
@@ -47,7 +46,7 @@ inline void UpdateRefractTexture( int x, int y, int w, int h, bool bForceUpdate 
 
 	CMatRenderContextPtr pRenderContext( materials );
 	ITexture *pTexture = GetPowerOfTwoFrameBufferTexture();
-	if ( IsPC() || bForceUpdate || g_bAllowMultipleRefractUpdatesPerScenePerFrame || (gpGlobals->framecount != g_viewscene_refractUpdateFrame) )
+	if ( IsPC() || IsX360() || bForceUpdate || (gpGlobals->framecount != g_viewscene_refractUpdateFrame) )
 	{
 		// forced or only once per frame 
 		Rect_t rect;
