@@ -57,4 +57,29 @@ protected:
 	virtual bool PassesDamageFilterImpl(const CTakeDamageInfo &info);
 };
 
+// ###################################################################
+//	> FilterDamageType
+// ###################################################################
+class FilterDamageType : public CBaseFilter
+{
+	DECLARE_CLASS(FilterDamageType, CBaseFilter);
+	DECLARE_DATADESC();
+
+protected:
+
+	bool PassesFilterImpl(CBaseEntity *pCaller, CBaseEntity *pEntity)
+	{
+		ASSERT(false);
+		return true;
+	}
+
+	bool PassesDamageFilterImpl(const CTakeDamageInfo &info)
+	{
+		return info.GetDamageType() == m_iDamageType;
+	}
+
+public:
+	int m_iDamageType;
+};
+
 #endif // FILTERS_H
