@@ -1,0 +1,4 @@
+bonus_maps_manifest
+{
+	"search"	"maps"
+}

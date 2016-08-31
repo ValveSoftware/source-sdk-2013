@@ -1,0 +1,196 @@
+// Channels
+//	CHAN_AUTO		= 0,
+//	CHAN_WEAPON		= 1,
+//	CHAN_VOICE		= 2,
+//	CHAN_ITEM		= 3,
+//	CHAN_BODY		= 4,
+//	CHAN_STREAM		= 5,		// allocate stream channel from the static or dynamic area
+//	CHAN_STATIC		= 6,		// allocate channel from the static area 
+// these can be set with "channel" "2" or "channel" "chan_voice"
+
+//-----------------------------------------------------------------------------
+// common attenuation values
+//-----------------------------------------------------------------------------
+
+// DON'T USE THESE - USE SNDLVL_ INSTEAD!!!
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f
+//	ATTN_IDLE		2.0f
+//	ATTN_STATIC		1.25f 
+//	ATTN_RICOCHET	1.5f
+//	ATTN_GUNFIRE	0.27f
+
+//	SNDLVL_NONE		= 0,
+//	SNDLVL_25dB		= 25,
+//	SNDLVL_30dB		= 30,
+//	SNDLVL_35dB		= 35,
+//	SNDLVL_40dB		= 40,
+//	SNDLVL_45dB		= 45,
+//	SNDLVL_50dB		= 50,	// 3.9
+//	SNDLVL_55dB		= 55,	// 3.0
+//	SNDLVL_IDLE		= 60,	// 2.0
+//	SNDLVL_TALKING	= 60,	// 2.0
+//	SNDLVL_60dB		= 60,	// 2.0
+//	SNDLVL_65dB		= 65,	// 1.5
+//	SNDLVL_STATIC	= 66,	// 1.25
+//	SNDLVL_70dB		= 70,	// 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	// 0.8
+//	SNDLVL_80dB		= 80,	// 0.7
+//	SNDLVL_85dB		= 85,	// 0.6
+//	SNDLVL_90dB		= 90,	// 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	// 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140,	// 0.27
+//	SNDLVL_140dB	= 140,	// 0.2
+//	SNDLVL_150dB	= 150,	// 0.2
+
+
+"AI_BaseNPC.BodyDrop_Heavy"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_75dB"
+	"pitch"	"90"
+
+	"rndwave"
+	{
+		"wave"	"physics/flesh/flesh_impact_hard1.wav"
+		"wave"	"physics/flesh/flesh_impact_hard2.wav"
+		"wave"	"physics/flesh/flesh_impact_hard3.wav"
+		"wave"	"physics/flesh/flesh_impact_hard4.wav"
+		"wave"	"physics/flesh/flesh_impact_hard5.wav"
+		"wave"	"physics/flesh/flesh_impact_hard6.wav"
+	}
+}
+
+"AI_BaseNPC.BodyDrop_Light"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.9"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"	"105"
+
+	"rndwave"
+	{
+		"wave"	"physics/flesh/flesh_impact_hard1.wav"
+		"wave"	"physics/flesh/flesh_impact_hard2.wav"
+		"wave"	"physics/flesh/flesh_impact_hard3.wav"
+		"wave"	"physics/flesh/flesh_impact_hard4.wav"
+		"wave"	"physics/flesh/flesh_impact_hard5.wav"
+		"wave"	"physics/flesh/flesh_impact_hard6.wav"
+	}
+}
+
+"AI_BaseNPC.SwishSound"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"npc/zombie/claw_miss2.wav"
+}
+
+"AI_BaseNPC.SentenceStop"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_60dB"
+
+	"wave"	"common/null.wav"
+}
+
+"BaseCombatCharacter.CorpseGib"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+	"rndwave"
+	{
+		"wave"	"physics/flesh/flesh_squishy_impact_hard2.wav"
+	}
+}
+
+"BaseCombatCharacter.StopWeaponSounds"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"common/null.wav"
+}
+
+"BaseCombatCharacter.AmmoPickup"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"items/ammo_pickup.wav"
+}
+
+"BaseCombatWeapon.WeaponDrop"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"	  "95,110"
+	"rndwave"
+	{
+		"wave"	"physics/metal/weapon_impact_hard1.wav"
+		"wave"	"physics/metal/weapon_impact_hard2.wav"
+		"wave"	"physics/metal/weapon_impact_hard3.wav"
+	}
+}
+
+"BaseCombatWeapon.WeaponMaterialize"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"	"150"
+
+	"wave"	"items/suitchargeok1.wav"
+}
+
+
+"General.BurningFlesh"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.45"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		 "npc/headcrab/headcrab_burning_loop2.wav" 
+}
+
+"General.BurningObject"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		 "ambient/fire/fire_small_loop2.wav" 
+}
+
+"General.StopBurning"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		 "common/null.wav" 
+}
+
+
+
+
+

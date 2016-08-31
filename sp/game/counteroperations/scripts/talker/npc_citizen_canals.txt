@@ -1,0 +1,61 @@
+//============================================================================================================
+// Canals specific criteria
+//============================================================================================================
+criterion "IsBarnacleCitizen01a" "BarnacleCitizen01a" "1" required
+criterion "IsAirlockCitizen1" "AirlockCitizen1" "1" required
+criterion "IsBoxcarCitizen01" "name" "boxcar_human" "required"
+
+
+//======================================================
+// The citizen who almost got eaten by a barnacle in 01a
+//======================================================
+response "BarnacleCitizen01aHello"
+{
+	scene "scenes/canals/d1_canals_01a_room4_citizen_hello.vcd"
+}
+
+rule BarnacleCitizen01aHello
+{
+	criteria		IsCitizen ConceptTalkHello IsBarnacleCitizen01a NPCIdle  PlayerNear SeePlayer
+	response		BarnacleCitizen01aHello
+}
+
+response "BarnacleCitizen01aIdle"
+{
+//	scene "scenes/canals/d1_canals_01a_room4_citizen_idle.vcd"
+}
+
+rule BarnacleCitizen01aIdle
+{
+	criteria		IsCitizen ConceptTalkIdle IsBarnacleCitizen01a NPCIdle
+	response		BarnacleCitizen01aIdle
+}
+
+//======================================================
+// Citizen in first airlock in eli_01
+//======================================================
+response "AirlockCitizen1Use"
+{
+	norepeat
+	scene "scenes/eli_lab/airlock_cit01.vcd"
+	scene "scenes/eli_lab/airlock_cit02.vcd"
+	scene "scenes/eli_lab/airlock_cit03.vcd"
+}
+
+rule BarnacleCitizen01aHello
+{
+	criteria		IsCitizen ConceptTalkUse IsAirlockCitizen1 NPCIdle
+	response		AirlockCitizen1Use
+}
+
+
+response BoxcarCitizen01Push
+{
+}
+
+rule BoxcarCitizen01Push
+{
+	criteria		IsCitizen  IsBoxcarCitizen01 ConceptTalkPlayerPushed SeenByPlayer NoRecentCombat
+	response		BoxcarCitizen01Push
+}
+

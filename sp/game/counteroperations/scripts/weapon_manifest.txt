@@ -1,0 +1,21 @@
+weapon_manifest
+{
+	"file"		"scripts/weapon_357.txt"
+	"file"		"scripts/weapon_alyxgun.txt"
+	"file"		"scripts/weapon_annabelle.txt"
+	"file"		"scripts/weapon_ar2.txt"
+	"file"		"scripts/weapon_bugbait.txt"
+	"file"		"scripts/weapon_citizenpackage.txt"
+	"file"		"scripts/weapon_citizensuitcase.txt"
+	"file"		"scripts/weapon_crossbow.txt"
+	"file"		"scripts/weapon_crowbar.txt"
+	"file"		"scripts/weapon_cubemap.txt"
+	"file"		"scripts/weapon_frag.txt"
+	"file"		"scripts/weapon_physcannon.txt"
+	"file"		"scripts/weapon_physgun.txt"
+	"file"		"scripts/weapon_pistol.txt"
+	"file"		"scripts/weapon_rpg.txt"
+	"file"		"scripts/weapon_shotgun.txt"
+	"file"		"scripts/weapon_smg1.txt"
+	"file"		"scripts/weapon_stunstick.txt"
+}

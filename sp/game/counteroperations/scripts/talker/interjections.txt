@@ -1,0 +1,41 @@
+// Test file for AIs acting in a scene being able to react to concepts triggered in the world
+criterion "IsMonitorKnockedOverConcept" "concept" "MonitorKnockedOver" "required"
+
+response "EliMonitor"
+{
+	scene "scenes/Jake/reaction_eli.vcd" defaultdelay
+}
+
+response "AlyxMonitor"
+{
+	scene "scenes/Jake/reaction_alyx.vcd" defaultdelay
+}
+
+response "BarneyMonitor"
+{
+	scene "scenes/Jake/reaction_barney.vcd" defaultdelay
+}
+
+rule EliMonitor
+{
+	criteria		IsMonitorKnockedOverConcept
+	"classname"		"npc_eli" required
+
+	response		EliMonitor
+}
+
+rule AlyxMonitor
+{
+	criteria		IsMonitorKnockedOverConcept 
+	"classname"		"npc_alyx" required
+
+	response		AlyxMonitor
+}
+
+rule BarneyMonitor
+{
+	criteria		IsMonitorKnockedOverConcept 
+	"classname"		"npc_barney" required
+
+	response		BarneyMonitor
+}

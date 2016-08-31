@@ -1,0 +1,189 @@
+/////////////
+// X360 button names
+//
+// A_BUTTON
+// B_BUTTON
+// X_BUTTON		
+// Y_BUTTON
+//		
+// L_SHOULDER
+// R_SHOULDER
+// L_TRIGGER
+// R_TRIGGER
+//
+// BACK		
+// START
+//
+// UP
+// DOWN
+// LEFT
+// RIGHT
+//
+// STICK1
+// STICK2
+//
+// S1_RIGHT
+// S1_LEFT		
+// S1_DOWN
+// S1_UP
+//
+// S2_RIGHT
+// S2_LEFT
+// S2_DOWN
+// S2_UP
+///////////////
+
+cheat_codes
+{
+
+// Classic cheats ported from HL2 XBox1
+
+	"GiveHealth"
+	{
+		"code"		"UP"
+		"code"		"UP"
+		"code"		"DOWN"
+		"code"		"DOWN"
+		"code"		"LEFT"
+		"code"		"RIGHT"
+		"code"		"LEFT"
+		"code"		"RIGHT"
+		"code"		"B_BUTTON"
+		"code"		"A_BUTTON"
+		"command"	"give item_healthkit"
+	}
+	"AllChapters"
+	{
+		"code"		"LEFT"
+		"code"		"LEFT"
+		"code"		"LEFT"
+		"code"		"LEFT"
+		"code"		"L_SHOULDER"
+		"code"		"RIGHT"
+		"code"		"RIGHT"
+		"code"		"RIGHT"
+		"code"		"RIGHT"
+		"code"		"R_SHOULDER"
+		"command"	"sv_unlockedchapters 15"
+	}
+	"Ammo"
+	{
+		"code"		"Y_BUTTON"
+		"code"		"B_BUTTON"
+		"code"		"A_BUTTON"
+		"code"		"X_BUTTON"
+		"code"		"R_SHOULDER"
+		"code"		"Y_BUTTON"
+		"code"		"X_BUTTON"
+		"code"		"A_BUTTON"
+		"code"		"B_BUTTON"
+		"code"		"R_SHOULDER"
+		"command"	"givecurrentammo"
+	}
+
+// More generic HL2 cheats
+
+	"God"
+	{
+		"code"		"L_SHOULDER"
+		"code"		"UP"
+		"code"		"R_SHOULDER"
+		"code"		"UP"
+		"code"		"L_SHOULDER"
+		"code"		"L_SHOULDER"
+		"code"		"UP"
+		"code"		"R_SHOULDER"
+		"code"		"R_SHOULDER"
+		"code"		"UP"
+
+		"command"	"god"
+	}
+
+// XBox CERT cheat for MS
+
+	"AA"
+	{
+		"code"		"Y_BUTTON"
+		"code"		"UP"
+		"code"		"Y_BUTTON"
+		"code"		"RIGHT"
+		"code"		"Y_BUTTON"
+		"code"		"DOWN"
+		"code"		"Y_BUTTON"
+		"code"		"LEFT"
+		"code"		"Y_BUTTON"
+		"code"		"UP"
+
+		"command"	"toggle mat_software_aa_strength"
+	}
+
+// Dev cheats
+
+	"Kill"
+	{
+		"dev"		"1"
+
+		"code"		"L_SHOULDER"
+		"code"		"DOWN"
+		"code"		"R_SHOULDER"
+		"code"		"DOWN"
+		"code"		"L_SHOULDER"
+		"code"		"L_SHOULDER"
+		"code"		"DOWN"
+		"code"		"R_SHOULDER"
+		"code"		"R_SHOULDER"
+		"code"		"DOWN"
+
+		"command"	"kill"
+	}
+	"NoClip"
+	{
+		"dev"		"1"
+
+		"code"		"UP"
+		"code"		"UP"
+		"code"		"UP"
+		"code"		"L_SHOULDER"
+		"code"		"UP"
+		"code"		"UP"
+		"code"		"UP"
+		"code"		"R_SHOULDER"
+		"code"		"UP"
+		"code"		"UP"
+
+		"command"	"noclip"
+	}
+	"NoTarget"
+	{
+		"dev"		"1"
+
+		"code"		"DOWN"
+		"code"		"DOWN"
+		"code"		"DOWN"
+		"code"		"L_SHOULDER"
+		"code"		"DOWN"
+		"code"		"DOWN"
+		"code"		"DOWN"
+		"code"		"R_SHOULDER"
+		"code"		"DOWN"
+		"code"		"DOWN"
+		"command"	"notarget"
+	}
+	"WireframeCycle"
+	{
+		"dev"		"1"
+
+		"code"		"L_SHOULDER"
+		"code"		"L_SHOULDER"
+		"code"		"R_SHOULDER"
+		"code"		"R_SHOULDER"
+		"code"		"L_SHOULDER"
+		"code"		"R_SHOULDER"
+		"code"		"L_SHOULDER"
+		"code"		"R_SHOULDER"
+		"code"		"LEFT"
+		"code"		"RIGHT"
+
+		"command"	"incrementvar mat_wireframe 0 3 1"
+	}
+}

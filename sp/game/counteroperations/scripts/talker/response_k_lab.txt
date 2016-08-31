@@ -1,0 +1,164 @@
+// Response file to make actors respond to player specific player actions
+
+criterion "IsPhysKnockedOverConcept" "concept" "PhysKnockedOver" "required"
+criterion "IsPhysKnockedOverNAGConcept" "concept" "PhysKnockedOverNAG" "required"
+//criterion "IsSecStationUsedConcept" "concept" "SecStationUsed" "required"
+criterion "IsFlubberTubeUsedConcept" "concept" "FlubberTubeUsed" "required"
+criterion "IsMiniBlowUpConcept" "concept" "MiniBlowUp" "required"
+
+
+//When the player knocks over physics objects
+response "KleinerPhys"
+{
+	scene "scenes/k_lab/kl_response01.vcd" defaultdelay
+	scene "scenes/k_lab/kl_response02.vcd" defaultdelay
+}
+
+response "AlyxPhys"
+{
+	sequential
+	norepeat
+	scene "scenes/k_lab/al_response01.vcd" defaultdelay
+	scene "scenes/k_lab/al_response02.vcd" defaultdelay
+	scene "scenes/k_lab/al_response03.vcd" defaultdelay
+	scene "scenes/k_lab/al_response04.vcd" defaultdelay
+	scene "scenes/k_lab/al_response05.vcd" defaultdelay
+}
+
+response "BarneyPhys"
+{
+	sequential
+	norepeat
+	scene "scenes/k_lab/ba_response01.vcd" defaultdelay
+	scene "scenes/k_lab/ba_response02.vcd" defaultdelay
+	scene "scenes/k_lab/ba_response03.vcd" defaultdelay
+	scene "scenes/k_lab/ba_response04.vcd" defaultdelay
+	scene "scenes/k_lab/ba_response05.vcd" defaultdelay
+}
+
+
+rule KleinerPhys
+{
+	criteria		IsPhysKnockedOverConcept
+	"classname"		"npc_kleiner" required
+
+	response		KleinerPhys
+}
+
+rule AlyxPhys
+{
+	criteria		IsPhysKnockedOverConcept 
+	"classname"		"npc_alyx" required
+
+	response		AlyxPhys
+}
+
+rule BarneyPhys
+{
+	criteria		IsPhysKnockedOverConcept 
+	"classname"		"npc_barney" required
+
+	response		BarneyPhys
+}
+
+
+//When the player knocks over physics objects (During NAGS)
+response "ALLPhysNAG"
+{
+	sequential
+	norepeat
+	scene "scenes/k_lab/kl_response01.vcd" 
+	scene "scenes/k_lab/kl_response02.vcd" 
+	scene "scenes/k_lab/ba_response02.vcd" 
+	scene "scenes/k_lab/al_response02.vcd" 
+	scene "scenes/k_lab/al_response03.vcd" 
+	scene "scenes/k_lab/ba_response03.vcd" 
+	scene "scenes/k_lab/kl_response01.vcd" 
+	scene "scenes/k_lab/al_response04.vcd" 
+	scene "scenes/k_lab/ba_response04.vcd" 
+	scene "scenes/k_lab/ba_response05.vcd" 
+	scene "scenes/k_lab/al_response05.vcd" 
+	scene "scenes/k_lab/kl_response02.vcd" 
+}
+
+
+rule AllPhysNAG
+{
+	criteria		IsPhysKnockedOverNAGConcept
+	response		AllPhysNAG
+}
+
+
+////When the player uses the security station (NOT USED)
+//response "AlyxSecurityM"
+//{
+//	scene "scenes/k_lab/al_response01.vcd" defaultdelay
+//	scene "scenes/k_lab/al_response05.vcd" defaultdelay
+//}
+//
+//
+//rule AlyxSecurityM
+//{
+//	criteria		IsSecStationUsedConcept
+//	"classname"		"npc_alyx" required
+//
+//	response		AlyxSecurityM
+//}
+//
+
+
+//When the player blows up the mini teleporter
+response "KleinerMiniBlow"
+{
+	scene "scenes/k_lab/kl_response02.vcd" defaultdelay
+}
+
+response "AlyxMiniBlow"
+{
+	scene "scenes/k_lab/al_response01.vcd" defaultdelay
+}
+
+response "BarneyMiniBlow"
+{
+	scene "scenes/k_lab/ba_response01.vcd" defaultdelay
+}
+
+
+rule KleinerMiniBlow
+{
+	criteria		IsMiniBlowUpConcept
+	"classname"		"npc_kleiner" required
+
+	response		KleinerMiniBlow
+}
+
+rule AlyxMiniBlow
+{
+	criteria		IsMiniBlowUpConcept 
+	"classname"		"npc_alyx" required
+
+	response		AlyxPhys
+}
+
+rule BarneyMiniBlow
+{
+	criteria		IsMiniBlowUpConcept 
+	"classname"		"npc_barney" required
+
+	response		BarneyMiniBlow
+}
+
+//ba_response01.vcd: "Whoops!"
+//ba_response02.vcd: "Careful."
+//ba_response03.vcd: "Be careful!"
+//ba_response04.vcd: "You're pushin' it, Gordon."
+//ba_response05.vcd: "You're pissin' me off, Gordon."
+
+//kl_response01.vcd: "Oh, do be careful."
+//kl_response02.vcd: "Dear me..."
+
+//al_response01.vcd: "uh-oh."
+//al_response02.vcd: "careful there."
+//al_response03.vcd: "careful."
+//al_response04.vcd: "take it easy, Gordon."
+//al_response05.vcd: "hmm."

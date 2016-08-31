@@ -1,0 +1,179 @@
+"NPC_Barnacle.FinalBite"	// bites head
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+	"rndwave"
+	{
+		"wave"		"npc/barnacle/barnacle_crunch2.wav"
+		"wave"		"npc/barnacle/barnacle_crunch3.wav"
+	}
+}
+
+"NPC_Barnacle.Chew"	// obsolete, use FinalBite and Digest
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/barnacle/bcl_chew1.wav"
+		"wave"	"npc/barnacle/bcl_chew2.wav"
+		"wave"	"npc/barnacle/barnacle_crunch2.wav"
+	}
+}
+
+"NPC_Barnacle.Alert"	// obsolete, use TongueStretch & PullPant
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		"npc/barnacle/bcl_alert2.wav"
+}
+
+"NPC_Barnacle.Die"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/barnacle/barnacle_die1.wav"
+		"wave"	"npc/barnacle/barnacle_die2.wav"
+	}
+}
+
+"NPC_Barnacle.TongueOut"	// barnacle tongue flops out
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.80"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+	"wave"	"npc/barnacle/barnacle_tongue2.wav"
+}
+
+"NPC_Barnacle.TongueStretch"	// barnacle tongue stretch as pulls up dinner
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.80"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/barnacle/barnacle_tongue_pull1.wav"
+		"wave"	"npc/barnacle/barnacle_tongue_pull2.wav"
+		"wave"	"npc/barnacle/barnacle_tongue_pull3.wav"
+	}
+}
+
+"NPC_Barnacle.PullPant"		// barnacle pants as it pulls up dinner
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/barnacle/barnacle_pull1.wav"
+		"wave"	"npc/barnacle/barnacle_pull2.wav"
+		"wave"	"npc/barnacle/barnacle_pull3.wav"
+		"wave"	"npc/barnacle/barnacle_pull4.wav"
+
+	}
+}
+
+"NPC_Barnacle.Grunt"	// barnacle calls, idle, to baby barnacles
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/barnacle/barnacle_grunt1.wav"
+		"wave"	"npc/barnacle/barnacle_grunt3.wav"
+		"wave"	"npc/barnacle/barnacle_grunt4.wav"
+
+	}
+}
+
+"NPC_Barnacle.BabyGrunt"	// baby barnacle, idle, calls back
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"		"150"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/barnacle/barnacle_grunt1.wav"
+		"wave"	"npc/barnacle/barnacle_grunt3.wav"
+		"wave"	"npc/barnacle/barnacle_grunt4.wav"
+
+	}
+}
+
+"NPC_Barnacle.Scream"	// barnacle screams just before FinalBite
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/barnacle/barnacle_bark1.wav"
+		"wave"	"npc/barnacle/barnacle_bark2.wav"
+	}
+}
+
+"NPC_Barnacle.Digest"	// barnacle digestion idle - after eating 
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/barnacle/barnacle_digesting1.wav"
+		"wave"	"npc/barnacle/barnacle_digesting2.wav"
+		"wave"	"npc/barnacle/barnacle_gulp1.wav"
+		"wave"	"npc/barnacle/barnacle_gulp2.wav"
+	}
+}
+
+"NPC_Barnacle.BreakNeck"	// Breaks the prey's neck as it grabs.
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+	"rndwave"
+	{
+		"wave"		"npc/barnacle/neck_snap1.wav"
+		"wave"		"npc/barnacle/neck_snap2.wav"
+	}
+}

@@ -1,0 +1,224 @@
+"NPC_BlackHeadcrab.Bite"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_poisonbite1.wav"
+		"wave"	"npc/headcrab_poison/ph_poisonbite2.wav"
+		"wave"	"npc/headcrab_poison/ph_poisonbite3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Attack"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_jump1.wav"
+		"wave"	"npc/headcrab_poison/ph_jump2.wav"
+		"wave"	"npc/headcrab_poison/ph_jump3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Footstep"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.600"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_60db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_step1.wav"
+		"wave"	"npc/headcrab_poison/ph_step2.wav"
+		"wave"	"npc/headcrab_poison/ph_step3.wav"
+		"wave"	"npc/headcrab_poison/ph_step4.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.FootstepWalk"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_60db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_step1.wav"
+		"wave"	"npc/headcrab_poison/ph_step2.wav"
+		"wave"	"npc/headcrab_poison/ph_step3.wav"
+		"wave"	"npc/headcrab_poison/ph_step4.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Telegraph"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_scream1.wav"
+		"wave"	"npc/headcrab_poison/ph_scream2.wav"
+		"wave"	"npc/headcrab_poison/ph_scream3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Threat"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_warning1.wav"
+		"wave"	"npc/headcrab_poison/ph_warning2.wav"
+		"wave"	"npc/headcrab_poison/ph_warning3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Alert"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_rattle1.wav"
+		"wave"	"npc/headcrab_poison/ph_rattle2.wav"
+		"wave"	"npc/headcrab_poison/ph_rattle3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_idle1.wav"
+		"wave"	"npc/headcrab_poison/ph_idle2.wav"
+		"wave"	"npc/headcrab_poison/ph_idle3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Talk"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_talk1.wav"
+		"wave"	"npc/headcrab_poison/ph_talk2.wav"
+		"wave"	"npc/headcrab_poison/ph_talk3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.AlertVoice"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_rattle1.wav"
+		"wave"	"npc/headcrab_poison/ph_rattle2.wav"
+		"wave"	"npc/headcrab_poison/ph_rattle3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_75db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_pain1.wav"
+		"wave"	"npc/headcrab_poison/ph_pain2.wav"
+		"wave"	"npc/headcrab_poison/ph_pain3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_85db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_rattle1.wav"
+		"wave"	"npc/headcrab_poison/ph_rattle2.wav"
+		"wave"	"npc/headcrab_poison/ph_rattle3.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.Impact"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_wallhit1.wav"
+		"wave"	"npc/headcrab_poison/ph_wallhit2.wav"
+	}
+}
+
+"NPC_BlackHeadcrab.ImpactAngry"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70db"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_wallpain1.wav"
+		"wave"	"npc/headcrab_poison/ph_wallpain2.wav"
+		"wave"	"npc/headcrab_poison/ph_wallpain3.wav"
+	}
+}

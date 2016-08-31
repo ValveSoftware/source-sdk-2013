@@ -1,0 +1,1175 @@
+//
+//
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+//
+// VOL_NORM		1.0f
+//
+//-----------------------------------------------------------------------------
+// common attenuation values
+//-----------------------------------------------------------------------------
+//
+// DON'T USE THESE - USE SNDLVL_ INSTEAD!!!
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f
+//	ATTN_IDLE		2.0f
+//	ATTN_STATIC		1.25f 
+//	ATTN_RICOCHET	1.5f
+//	ATTN_GUNFIRE	0.27f
+//
+//	SNDLVL_NONE		= 0,
+//	SNDLVL_25dB		= 25,
+//	SNDLVL_30dB		= 30,
+//	SNDLVL_35dB		= 35,
+//	SNDLVL_40dB		= 40,
+//	SNDLVL_45dB		= 45,
+//	SNDLVL_50dB		= 50,	= 3.9
+//	SNDLVL_55dB		= 55,	= 3.0
+//	SNDLVL_IDLE		= 60,	= 2.0
+//	SNDLVL_TALKING		= 60,	= 2.0
+//	SNDLVL_60dB		= 60,	= 2.0
+//	SNDLVL_65dB		= 65,	= 1.5
+//	SNDLVL_STATIC		= 66,	= 1.25
+//	SNDLVL_70dB		= 70,	= 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	= 0.8
+//	SNDLVL_80dB		= 80,	= 0.7
+//	SNDLVL_85dB		= 85,	= 0.6
+//	SNDLVL_90dB		= 90,	= 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	= 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140, = 0.27
+//	SNDLVL_140dB	= 140,	= 0.2
+//	SNDLVL_150dB	= 150,	= 0.2
+//
+
+
+
+
+"NPC_Barney.FootstepLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.000000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"player/footsteps/tile1.wav"
+		"wave"	"player/footsteps/tile2.wav"
+	}
+}
+
+"NPC_Barney.FootstepRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.000000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"player/footsteps/tile3.wav"
+		"wave"	"player/footsteps/tile4.wav"
+	}
+}
+
+"NPC_Barney.RunFootstepLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.750000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/combine_soldier/gear1.wav"
+		"wave"	"npc/combine_soldier/gear3.wav"
+		"wave"	"npc/combine_soldier/gear5.wav"
+	}
+}
+
+"NPC_Barney.RunFootstepRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.750000"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/combine_soldier/gear2.wav"
+		"wave"	"npc/combine_soldier/gear4.wav"
+		"wave"	"npc/combine_soldier/gear6.wav"
+	}
+}
+
+"npc_barney.ba_allclear"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_allclear.wav"
+}
+
+"npc_barney.ba_bringiton"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_bringiton.wav"
+}
+
+"npc_barney.ba_catchmybreath"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_catchmybreath.wav"
+}
+
+"npc_barney.ba_clearfornow"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_clearfornow.wav"
+}
+
+"npc_barney.ba_comehere01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.630000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_comehere01.wav"
+}
+
+"npc_barney.ba_comehere02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.660000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_comehere02.wav"
+}
+
+"npc_barney.ba_covermegord"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.660000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_covermegord.wav"
+}
+
+"npc_barney.ba_damnit"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_damnit.wav"
+}
+
+"npc_barney.ba_danger01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.580000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_danger01.wav"
+}
+
+"npc_barney.ba_danger02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.400000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_danger02.wav"
+}
+
+"npc_barney.ba_danger03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.450000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_danger03.wav"
+}
+
+"npc_barney.ba_danger04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.450000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_danger04.wav"
+}
+
+"npc_barney.ba_danger05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.570000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_danger05.wav"
+}
+
+"npc_barney.ba_downyougo"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.850000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_downyougo.wav"
+}
+
+"npc_barney.ba_duck"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_duck.wav"
+}
+
+"npc_barney.ba_followme01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_followme01.wav"
+}
+
+"npc_barney.ba_followme02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.700000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_followme02.wav"
+}
+
+"npc_barney.ba_followme03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_followme03.wav"
+}
+
+"npc_barney.ba_followme04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_followme04.wav"
+}
+
+"npc_barney.ba_followme05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_followme05.wav"
+}
+
+"npc_barney.ba_getaway"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_getaway.wav"
+}
+
+"npc_barney.ba_getdown"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_getdown.wav"
+}
+
+"npc_barney.ba_getoutofway"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_getoutofway.wav"
+}
+
+"npc_barney.ba_goingdown"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_goingdown.wav"
+}
+
+"npc_barney.ba_gordonhelp"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_gordonhelp.wav"
+}
+
+"npc_barney.ba_gotone"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_gotone.wav"
+}
+
+"npc_barney.ba_grenade01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_grenade01.wav"
+}
+
+"npc_barney.ba_grenade02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_grenade02.wav"
+}
+
+"npc_barney.ba_gurgle01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.350000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_gurgle01.wav"
+}
+
+"npc_barney.ba_gurgle02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.350000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_gurgle02.wav"
+}
+
+"npc_barney.ba_gurgle03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.400000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_gurgle03.wav"
+}
+
+"npc_barney.ba_haletsdoit"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.700000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_haletsdoit.wav"
+}
+
+"npc_barney.ba_headcrabs01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_headcrabs01.wav"
+}
+
+"npc_barney.ba_headcrabs02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_headcrabs02.wav"
+}
+
+"npc_barney.ba_headhumpers"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_headhumpers.wav"
+}
+
+"npc_barney.ba_healed01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_healed01.wav"
+}
+
+"npc_barney.ba_healed02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_healed02.wav"
+}
+
+"npc_barney.ba_healed03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_healed03.wav"
+}
+
+"npc_barney.ba_healed04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_healed04.wav"
+}
+
+"npc_barney.ba_healme01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.500000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_healme01.wav"
+}
+
+"npc_barney.ba_healme02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.500000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_healme02.wav"
+}
+
+"npc_barney.ba_healme03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.650000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_healme03.wav"
+}
+
+"npc_barney.ba_hereitcomes"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_hereitcomes.wav"
+}
+
+"npc_barney.ba_heretheycome01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_heretheycome01.wav"
+}
+
+"npc_barney.ba_heretheycome02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_heretheycome02.wav"
+}
+
+"npc_barney.ba_hurry01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.650000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_hurry01.wav"
+}
+
+"npc_barney.ba_hurry02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.650000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_hurry02.wav"
+}
+
+"npc_barney.ba_hurry03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.700000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_hurry03.wav"
+}
+
+"npc_barney.ba_hurryup"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.650000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_hurryup.wav"
+}
+
+"npc_barney.ba_imwithyou"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_imwithyou.wav"
+}
+
+"npc_barney.ba_incoming01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_incoming01.wav"
+}
+
+"npc_barney.ba_incoming02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_incoming02.wav"
+}
+
+"npc_barney.ba_laugh01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_laugh01.wav"
+}
+
+"npc_barney.ba_laugh02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_laugh02.wav"
+}
+
+"npc_barney.ba_laugh03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_laugh03.wav"
+}
+
+"npc_barney.ba_laugh04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_laugh04.wav"
+}
+
+"npc_barney.ba_letsdoit"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_letsdoit.wav"
+}
+
+"npc_barney.ba_letsgo"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_letsgo.wav"
+}
+
+"npc_barney.ba_littlehelphere"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_littlehelphere.wav"
+}
+
+"npc_barney.ba_lookout"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_lookout.wav"
+}
+
+"npc_barney.ba_losttouch"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_losttouch.wav"
+}
+
+"npc_barney.ba_no01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_no01.wav"
+}
+
+"npc_barney.ba_no02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_no02.wav"
+}
+
+"npc_barney.ba_ohshit01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_ohshit01.wav"
+}
+
+"npc_barney.ba_ohshit02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_ohshit02.wav"
+}
+
+"npc_barney.ba_ohshit03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".55"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_ohshit03.wav"
+}
+
+"npc_barney.ba_ohyeah"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".6"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_ohyeah.wav"
+}
+
+"npc_barney.ba_oldtimes"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".6"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_oldtimes.wav"
+}
+
+"npc_barney.ba_openfiregord"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_openfiregord.wav"
+}
+
+"npc_barney.ba_overhere01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_overhere01.wav"
+}
+
+"npc_barney.ba_overhere02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_overhere02.wav"
+}
+
+"npc_barney.ba_pain01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".6"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain01.wav"
+}
+
+"npc_barney.ba_pain02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".6"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain02.wav"
+}
+
+"npc_barney.ba_pain03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".3"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain03.wav"
+}
+
+"npc_barney.ba_pain04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.500"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain04.wav"
+}
+
+"npc_barney.ba_pain05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.500"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain05.wav"
+}
+
+"npc_barney.ba_pain06"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain06.wav"
+}
+
+"npc_barney.ba_pain07"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain07.wav"
+}
+
+"npc_barney.ba_pain08"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".4"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain08.wav"
+}
+
+"npc_barney.ba_pain09"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain09.wav"
+}
+
+"npc_barney.ba_pain10"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".4"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_pain10.wav"
+}
+
+"npc_barney.ba_regroup"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_regroup.wav"
+}
+
+"npc_barney.ba_run01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_run01.wav"
+}
+
+"npc_barney.ba_run02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_run02.wav"
+}
+
+"npc_barney.ba_soldiers"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".7"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_soldiers.wav"
+}
+
+"npc_barney.ba_thatwasclose01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".43"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_thatwasclose01.wav"
+}
+
+"npc_barney.ba_thatwasclose02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".45"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_thatwasclose02.wav"
+}
+
+"npc_barney.ba_thisisbad01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_thisisbad01.wav"
+}
+
+"npc_barney.ba_thisisbad02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_thisisbad02.wav"
+}
+
+"npc_barney.ba_turret"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_turret.wav"
+}
+
+"npc_barney.ba_uhohheretheycome"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_uhohheretheycome.wav"
+}
+
+"npc_barney.ba_wounded01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".43"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_wounded01.wav"
+}
+
+"npc_barney.ba_wounded02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_wounded02.wav"
+}
+
+"npc_barney.ba_wounded03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_wounded03.wav"
+}
+
+"npc_barney.ba_yell"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+
+	"wave"			"*vo/npc/Barney/ba_yell.wav"
+}
+
+"npc_barney.die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.500"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"*vo/npc/Barney/ba_ohshit03.wav"
+		"wave"	"*vo/npc/Barney/ba_pain03.wav"
+		"wave"	"*vo/npc/Barney/ba_pain10.wav"
+	}
+}
+

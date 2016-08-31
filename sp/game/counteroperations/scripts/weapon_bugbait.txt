@@ -1,0 +1,59 @@
+// Bug bait
+
+WeaponData
+{
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"	"#HL2_Bugbait"
+	"viewmodel"				"models/weapons/v_bugbait.mdl"
+	"playermodel"			"models/weapons/w_bugbait.mdl"
+	"anim_prefix"			"Grenade"
+	"bucket"				"5"
+	"bucket_position"		"0"
+	"bucket_360"			"3"
+	"bucket_position_360"	"2"
+
+	"clip_size"				"0"
+	"clip2_size"			"0"
+	"primary_ammo"			"None"
+	"secondary_ammo"		"None"
+	"default_clip"			"0"
+	"default_clip2"			"0"
+
+	"autoswitchto"			"0"
+	"autoswitchfrom"		"0"
+	"weight"				"0"
+	"item_flags"			"0"
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"font"		"WeaponIcons"
+				"character"	"j"
+		}
+		"weapon_s"
+		{	
+				"font"		"WeaponIconsSelected"
+				"character"	"j"
+		}
+		"ammo"
+		{
+				"font"		"WeaponIcons"
+				"character"	"j"
+		}
+		"crosshair"
+		{
+				"font"		"Crosshairs"
+				"character"	"Q"
+		}
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"48"
+				"y"			"72"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+}

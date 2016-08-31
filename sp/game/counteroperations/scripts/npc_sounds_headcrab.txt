@@ -1,0 +1,159 @@
+"NPC_HeadCrab.Burning"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.45"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"		 "npc/headcrab/headcrab_burning_loop2.wav" 
+}
+
+"NPC_HeadCrab.StopBurning"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		 "common/null.wav" 
+}
+
+"NPC_HeadCrab.Gib"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"physics/flesh/flesh_squishy_impact_hard2.wav"
+}
+
+"NPC_HeadCrab.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab/idle1.wav"
+		"wave"	"npc/headcrab/idle2.wav"
+		"wave"	"npc/headcrab/idle3.wav"
+	}
+}
+
+"NPC_HeadCrab.Alert"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"wave"			"npc/headcrab/alert1.wav"
+}
+
+"NPC_HeadCrab.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab/pain1.wav"
+		"wave"	"npc/headcrab/pain2.wav"
+		"wave"	"npc/headcrab/pain3.wav"
+	}
+}
+
+"NPC_HeadCrab.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab/die1.wav"
+		"wave"	"npc/headcrab/die2.wav"
+	}
+}
+
+"NPC_HeadCrab.Bite"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"wave"			"npc/headcrab/headbite.wav"
+}
+
+"NPC_Headcrab.Attack"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab/attack1.wav"
+		"wave"	"npc/headcrab/attack2.wav"
+		"wave"	"npc/headcrab/attack3.wav"
+	}
+}
+
+"NPC_Headcrab.Footstep"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.01"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/headcrab_poison/ph_step1.wav"
+		"wave"	"npc/headcrab_poison/ph_step2.wav"
+		"wave"	"npc/headcrab_poison/ph_step3.wav"
+		"wave"	"npc/headcrab_poison/ph_step4.wav"
+	}
+}
+
+"NPC_Headcrab.BurrowIn"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.4"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/antlion/digdown1.wav"
+}
+
+"NPC_Headcrab.BurrowOut"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.6"
+	
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion/digdown1.wav"
+	}
+}
+

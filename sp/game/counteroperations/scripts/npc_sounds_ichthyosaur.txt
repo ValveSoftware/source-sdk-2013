@@ -1,0 +1,101 @@
+"NPC_Ichthyosaur.Growl"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.600, 1.000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/ichthyosaur/water_growl1.wav"
+		"wave"	"npc/ichthyosaur/water_growl2.wav"
+		"wave"	"npc/ichthyosaur/water_growl3.wav"
+		"wave"	"npc/ichthyosaur/water_growl4.wav"
+		"wave"	"npc/ichthyosaur/water_growl5.wav"
+	}
+}
+
+"NPC_Ichthyosaur.AttackGrowl"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.600, 1.000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/ichthyosaur/attack_growl1.wav"
+		"wave"	"npc/ichthyosaur/attack_growl2.wav"
+		"wave"	"npc/ichthyosaur/attack_growl3.wav"
+	}
+}
+
+"NPC_Ichthyosaur.Bite"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/ichthyosaur/snap.wav"
+}
+
+"NPC_Ichthyosaur.BiteMiss"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/ichthyosaur/snap_miss.wav"
+}
+
+"WateryDeath.Warn"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"rndwave"
+	{
+		"wave"			"npc/ichthyosaur/ping1.wav"
+		"wave"			"npc/ichthyosaur/ping2.wav"
+		"wave"			"npc/ichthyosaur/water_growl1.wav"
+		"wave"			"npc/ichthyosaur/water_growl4.wav"
+		"wave"			"npc/ichthyosaur/water_growl5.wav"
+	}
+}
+
+"WateryDeath.Pull"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.600, 1.000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/ichthyosaur/attack_growl1.wav"
+		"wave"	"npc/ichthyosaur/attack_growl2.wav"
+		"wave"	"npc/ichthyosaur/attack_growl3.wav"
+	}
+}
+
+"WateryDeath.Bite"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/ichthyosaur/snap.wav"
+}
+

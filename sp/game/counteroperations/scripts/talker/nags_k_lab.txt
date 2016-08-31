@@ -1,0 +1,136 @@
+//-- K_Lab
+criterion "IsRailingNagConcept" "concept" "RailNag" "required"
+criterion "IsAIntroSodanagConcept" "concept" "AIntSodaNag" "required"
+criterion "IsHEVnagConcept" "concept" "HEVnag" "required"
+criterion "IsPlugNagConcept" "concept" "PlugNag" "required"
+criterion "IsSwitchNagConcept" "concept" "SwitchNag" "required"
+criterion "IsPortRoomNagConcept" "concept" "PortRoomNag" "required"
+criterion "IsTportNagConcept" "concept" "InTportNag" "required"
+
+
+//***============================================================================================================
+//***
+//*** Kleiner's Lab Nags
+//***
+//***============================================================================================================
+//============================================================================================================
+// Railing Nag (Alyx Intro)
+//============================================================================================================
+response "RailingNag"
+{
+	scene "scenes/k_lab/al_cmongordon.vcd"
+	scene "scenes/k_lab/al_thisway.vcd"
+}
+
+rule NagRailing
+{
+	criteria		IsRailingNagConcept
+	response		RailingNag
+}
+//============================================================================================================
+// Soda Machine Nags (Alyx Intro)
+//============================================================================================================
+response "NagAIntroSoda"
+{
+	scene "scenes/k_lab/al_kleinerswaiting.vcd" displayfirst
+	scene "scenes/k_lab/al_cmongordon.vcd"
+	scene "scenes/k_lab/al_thisway.vcd"
+}
+
+rule NagAIntroSoda
+{
+	criteria		IsAIntroSodanagConcept
+	response		NagAIntroSoda
+}
+
+//============================================================================================================
+// HEV Nags
+//============================================================================================================
+response "NagWearHEV"
+{
+	scene "scenes/k_lab/al_nagsuit01.vcd"
+	scene "scenes/k_lab/al_nagsuit02.vcd"
+	scene "scenes/k_lab/al_nagsuit03.vcd"
+	scene "scenes/k_lab/ba_nagsuit01.vcd"
+	scene "scenes/k_lab/ba_nagsuit02.vcd"
+	scene "scenes/k_lab/ba_nagsuit03.vcd"
+	scene "scenes/k_lab/kl_nagsuit01.vcd" displayfirst
+	scene "scenes/k_lab/kl_nagsuit02.vcd"
+	scene "scenes/k_lab/kl_nagsuit03.vcd"
+}
+
+rule NagWearHEV
+{
+	criteria		IsHEVnagConcept
+	response		NagWearHEV
+}
+
+
+//============================================================================================================
+// Plug Nags
+//============================================================================================================
+response "PlugInNag"
+{
+	scene "scenes/k_lab/al_nagplug01.vcd" displayfirst
+	scene "scenes/k_lab/al_nagplug02.vcd"
+	scene "scenes/k_lab/al_nagplug03.vcd"
+}
+
+rule NagPlugIn
+{
+	criteria		IsPlugNagConcept
+	response		PlugInNag
+}
+
+
+//============================================================================================================
+// Switch Nags
+//============================================================================================================
+response "ThrowSwitchNag"
+{
+	scene "scenes/k_lab/al_nagswitch01.vcd"
+	scene "scenes/k_lab/al_nagswitch02.vcd"
+	scene "scenes/k_lab/al_nagswitch03.vcd"
+	scene "scenes/k_lab/kl_nagswitch01.vcd" displayfirst
+	scene "scenes/k_lab/kl_nagswitch02.vcd"
+	scene "scenes/k_lab/kl_nagswitch03.vcd"
+}
+
+rule NagThrowSwitch
+{
+	criteria		IsSwitchNagConcept
+	response		ThrowSwitchNag
+}
+
+//============================================================================================================
+// Teleport Room Nags
+//============================================================================================================
+response "PortRoomNag"
+{
+	scene "scenes/k_lab/ba_nagportroom01.vcd"
+	scene "scenes/k_lab/al_nagteleport01.vcd" displayfirst
+	scene "scenes/k_lab/al_nagteleport02.vcd"
+}
+
+rule NagPortRoom
+{
+	criteria		IsPortRoomNagConcept
+	response		PortRoomNag
+}
+
+//============================================================================================================
+// Teleport Nags
+//============================================================================================================
+response "GoInTportNag"
+{
+	scene "scenes/k_lab/ba_nagtport01.vcd"
+	scene "scenes/k_lab/ba_nagtport02.vcd"
+	scene "scenes/k_lab/kl_nagtport01.vcd"
+	scene "scenes/k_lab/kl_nagtport02.vcd" displayfirst	
+}
+
+rule NagGoinTport
+{
+	criteria		IsTportNagConcept
+	response		GoInTportNag
+}

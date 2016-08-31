@@ -1,0 +1,110 @@
+"NPC_CombineCamera.Retire"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/turret_floor/retract.wav"
+}
+
+"NPC_CombineCamera.Deploy"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/turret_floor/deploy.wav"
+}
+
+"NPC_CombineCamera.Move"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"0.100"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/turret_floor/deploy.wav"
+}
+
+"NPC_CombineCamera.Active"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+	
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/roller/remote_yes.wav"
+}
+
+"NPC_CombineCamera.BecomeIdle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+	
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/roller/code2.wav"
+}
+
+"NPC_CombineCamera.Alert"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+	
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/scanner/cbot_servoscared.wav"
+}
+
+"NPC_CombineCamera.Angry"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"ambient/alarms/klaxon1.wav"
+}
+
+"NPC_CombineCamera.Ping"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/turret_floor/ping.wav"
+}
+
+"NPC_CombineCamera.Click"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.40"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/turret_floor/click1.wav"
+}
+
+"NPC_CombineCamera.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/turret_floor/die.wav"
+}
+

@@ -1,0 +1,59 @@
+//============================================================================================================
+// C17 Citizen criteria
+//============================================================================================================
+criterion "IsNamedCitizen" "name" "citizen" "required"
+criterion "IsMap_d3_c17_12" "map" "d3_c17_12" "required"
+
+criterion "IsNamedSupport_cit2" "name" "support_cit2" "required"
+criterion "IsMap_d3_c17_05" "map" "d3_c17_05" "required"
+
+criterion "Is06aGreeter" "name" "citizen_tunnel_reinforcement_1" "required"
+criterion "Is06aRubbleCit" "name" "citizen_rubble_tunnel" "required"
+criterion "IsMap_d3_c17_06a" "map" "d3_c17_06a" "required"
+
+criterion "Is13Greeter" "name" "citizen_story" "required"
+criterion "IsMap_d3_c17_13" "map" "d3_c17_13" "required"
+
+criterion "Is09Greeter" "name" "citizen_intro" "required"
+//============================================================================================================
+// Citizen Hello speech
+//============================================================================================================
+response "CitizenJoinSilently"
+{
+}
+
+rule 12_RPG_CitizenJoinSilent
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadIndividual IsNamedCitizen IsMap_d3_c17_12
+	response		CitizenJoinSilently
+}
+
+rule 05_FiresideCitJoinSilent
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadIndividual IsNamedSupport_cit2 IsMap_d3_c17_05
+	response		CitizenJoinSilently
+}
+
+rule 06a_GreeterCitJoinSilent
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadIndividual Is06aGreeter IsMap_d3_c17_06a
+	response		CitizenJoinSilently
+}
+
+rule 06a_RubbleCitJoinSilent
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadIndividual Is06aRubbleCit IsMap_d3_c17_06a
+	response		CitizenJoinSilently
+}
+
+rule 13_GreeterCitJoinSilent
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadIndividual Is13Greeter IsMap_d3_c17_13
+	response		CitizenJoinSilently
+}
+
+rule 09_GreeterCitJoinSilent
+{
+	criteria		IsCitizen ConceptJoinPlayer JoinSquadIndividual Is09Greeter IsMap_d3_c17_09
+	response		CitizenJoinSilently
+}

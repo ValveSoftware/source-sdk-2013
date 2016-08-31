@@ -1,0 +1,783 @@
+
+// Soundscapes for Citadel
+
+// trigger this soundscape at end, when 
+// all sounds should fade out and only music and dialog remain
+
+"d3_citadel.silence_and_dialog"
+{
+	"soundmixer"	"Citadel_Dialog_Only"
+}
+
+"d3_citadel.util_hits"
+{
+	"playrandom"
+	{
+		"time"		"8, 30"
+		"volume"	"0.5,0.75"
+		"pitch"		"90,110"
+		"soundlevel"	"SNDLVL_140dB"
+		"position"	"random"
+		"rndwave"
+		{
+			"wave"	"ambient/levels/citadel/strange_talk1.wav"
+			"wave"	"ambient/levels/citadel/strange_talk3.wav"
+			"wave"	"ambient/levels/citadel/strange_talk4.wav"
+			"wave"	"ambient/levels/citadel/strange_talk5.wav"
+			"wave"	"ambient/levels/citadel/strange_talk6.wav"
+			"wave"	"ambient/levels/citadel/strange_talk7.wav"
+			"wave"	"ambient/levels/citadel/strange_talk8.wav"
+			"wave"	"ambient/levels/citadel/strange_talk9.wav"
+			"wave"	"ambient/levels/citadel/strange_talk10.wav"
+			"wave"	"ambient/levels/citadel/strange_talk11.wav"
+
+		}
+	}
+}
+
+"d3_citadel.util_activity"
+{
+	"playrandom"
+	{
+		"time"		"8, 40"
+		"volume"	"0.25,0.45"
+		"pitch"		"90,110"
+		"soundlevel"	"SNDLVL_140dB"
+		"position"	"random"
+		"rndwave"
+		{
+			"wave"		"ambient/levels/streetwar/marching_distant1.wav"
+			"wave"		"ambient/levels/streetwar/city_chant1.wav"
+			"wave"		"ambient/levels/streetwar/strider_distant_walk1.wav"
+			"wave"		"ambient/levels/streetwar/gunship_distant2.wav"
+			"wave"		"ambient/levels/streetwar/strider_distant3.wav"
+		}
+	}
+}
+
+"d3_citadel.util_pods"
+{
+	"playrandom"
+	{
+		"time"		"6, 12"
+		"volume"	"0.15,0.2"
+		"pitch"		"90,110"
+		"soundlevel"	"0"
+		"rndwave"
+		{
+			"wave"	"*ambient/levels/citadel/citadel_flyer1.wav"
+			"wave"	"ambient/levels/citadel/citadel_hit1_adpcm.wav"
+		}
+	}
+}
+
+
+"d3_citadel.deep_dropoff_inside"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.4"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/citadel_drone_loop2.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_hits"
+		"volume"	"1.0"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_activity"
+		"volume"	"1.0"
+	}
+
+	"playrandom"
+	{
+		"time"		"30, 60"
+		"volume"	"0.15,0.25"
+		"pitch"		"90,110"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140db"
+		"rndwave"
+		{
+			"wave"	"*ambient/levels/citadel/citadel_ambient_voices1.wav"
+		}
+	}
+}
+
+"d3_citadel.pod_vista"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/citadel_drone_loop5.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.5"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/many_pods_loop1_adpcm.wav"
+	}
+
+	"playrandom"
+	{
+		"time"		"15, 45"
+		"volume"	"0.15,0.35"
+		"pitch"		"90,115"
+		"soundlevel"	"0"
+		"rndwave"
+		{
+			"wave"	"*ambient/levels/citadel/citadel_ambient_voices1.wav"
+			"wave"	"*ambient/levels/citadel/citadel_ambient_scream_loop1.wav"
+		}
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_pods"
+		"volume"	"1.0"
+	}
+}
+
+
+"d3_citadel.generic"
+{
+	"dsp"	"1"
+	"playlooping"
+	{
+		"volume"	"0.25"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/citadel_drone_loop6.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_hits"
+		"volume"	"1.0"
+	}
+
+	
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_activity"
+		"volume"	"1.0"
+	}
+
+	"playrandom"
+	{
+		"time"		"45, 120"
+		"volume"	"0.01,0.15"
+		"pitch"		"90,115"
+		"soundlevel"	"0"
+		"rndwave"
+		{
+			"wave"	"*ambient/levels/citadel/citadel_ambient_voices1.wav"
+			"wave"	"*ambient/levels/citadel/citadel_ambient_scream_loop1.wav"
+		}
+	}
+
+}
+
+"d3_citadel.generic_moody"
+{
+	"dsp"	"1"
+
+
+	"playlooping"
+	{
+		"volume"	"0.42"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/citadel_drone_loop4.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_hits"
+		"volume"	"1.0"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_activity"
+		"volume"	"1.0"
+	}
+
+	"playrandom"
+	{
+		"time"		"30, 60"
+		"volume"	"0.15,0.25"
+		"pitch"		"90,110"
+		"soundlevel"	"0"
+		"rndwave"
+		{
+			"wave"	"*ambient/levels/citadel/citadel_ambient_voices1.wav"
+		}
+	}
+}
+
+"d3_citadel.generic_moody2"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.35"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/citadel_drone_loop6.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_activity"
+		"volume"	"1.0"
+	}
+
+	"playrandom"
+	{
+		"time"		"30, 60"
+		"volume"	"0.1,0.15"
+		"pitch"		"90,110"
+		"soundlevel"	"0"
+		"rndwave"
+		{
+			"wave"	"*ambient/levels/citadel/citadel_ambient_voices1.wav"
+			"wave"	"*ambient/levels/citadel/citadel_ambient_scream_loop1.wav"	
+		}
+	}
+}
+
+
+
+"d3_citadel.stasis_room"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.5"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/field_loop1.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_hits"
+		"volume"	"0.8"
+	}
+
+	// position 0 - stasis field
+
+	"playlooping"
+	{
+		"volume"	"0.5"
+		"pitch"		"90,110"
+		"soundlevel"	"SNDLVL_120dB"
+		"position"	"0"
+		"wave"	")ambient/levels/citadel/extract_loop1.wav"
+	}
+}
+
+
+"d3_citadel.combine_ball_room"
+{
+	"dsp"	"1"
+
+	// position 0 - ball field
+
+	"playlooping"
+	{
+		"volume"	"1.0"
+		"pitch"		"100"
+		"position"	"0"
+		"soundlevel" "SNDLVL_120db"
+
+		"wave"		")ambient/levels/citadel/field_loop3.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.25"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/field_loop1.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_activity"
+		"volume"	"1.0"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_pods"
+		"volume"	"0.5"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_hits"
+		"volume"	"0.8"
+	}
+}
+
+
+"d3_citadel.general_control_room"
+{
+
+	"dsp"	"1"
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_muffled_light_combat"
+		"volume"	"1.0"
+	}
+
+// position 0 is combine computer terminal
+
+	"playsoundscape"
+	{
+		"name"	"combine.computer"
+		"volume"	"1.0"
+		"positionoverride"	"0"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/citadel_drone_loop6.wav"
+	}
+}
+
+"d3_citadel.alyx_teleport_control_room"
+{
+
+	"dsp"	"1"
+
+// position 0 is combine computer terminal
+
+	"playsoundscape"
+	{
+		"name"	"combine.computer"
+		"volume"	"1.0"
+		"positionoverride"	"0"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"d3_citadel.util_hits"
+		"volume"	"0.6"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.35"
+		"pitch"		"100"
+		"wave"		"*ambient/levels/citadel/citadel_drone_loop3.wav"
+	}
+
+	
+	"playrandom"
+	{
+		"time"		"3,5"
+		"volume"	"0.3, 0.55"
+		"pitch"		"95,105"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140db"
+		"rndwave"
+		{
+			"wave"	"ambient/levels/citadel/portal_beam_shoot1.wav"
+			"wave"	"ambient/levels/citadel/portal_beam_shoot2.wav"
+			"wave"	")ambient/levels/citadel/portal_beam_shoot3.wav"
+			"wave"	")ambient/levels/citadel/portal_beam_shoot4.wav"
+			"wave"	")ambient/levels/citadel/portal_beam_shoot5.wav"
+			"wave"	"ambient/levels/citadel/portal_beam_shoot6.wav"
+		}
+	}
+
+}
+
+"d3_citadel.final_portal_chamber"
+{
+
+	"dsp"	"1"
+
+// position 0,1 is combine computer terminal
+
+	"playsoundscape"
+	{
+		"name"	"combine.computer"
+		"volume"	"1.0"
+		"positionoverride"	"0"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"combine.computer"
+		"volume"	"1.0"
+		"positionoverride"	"1"
+	}
+
+// position 2 is the central column
+	
+
+	"playlooping"
+	{
+		"volume"	"0.6"
+		"pitch"		"100"
+		"soundlevel"	"SNDLVL_120db"
+		"position"	"2"
+		"wave"		"ambient/levels/citadel/portal_beam_loop1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.45"
+		"pitch"		"80"
+		"wave"		"ambient/levels/citadel/citadel_hub_ambience1.mp3"
+	}
+	
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_hits"
+		"volume"	"0.7"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_activity"
+		"volume"	"0.7"
+	}
+
+	"playrandom"
+	{
+		"time"		"30, 60"
+		"volume"	"0.2"
+		"pitch"		"90,110"
+		"soundlevel"	"0"
+		"rndwave"
+		{
+			"wave"	"*ambient/levels/citadel/citadel_ambient_voices1.wav"
+		}
+	}
+
+	"playrandom"
+	{
+		"time"		"5, 12"
+		"volume"	"0.8"
+		"pitch"		"90,110"
+		"soundlevel"	"SNDLVL_140db"
+		"position"	"random"
+		"rndwave"
+		{
+			"wave"	"ambient/atmosphere/thunder1.wav"
+			"wave"	"ambient/atmosphere/thunder2.wav"
+			"wave"	"ambient/atmosphere/thunder3.wav"
+			"wave"	"ambient/atmosphere/thunder4.wav"
+		}
+	}
+
+
+	"playrandom"
+	{
+		"time"		"2,8"
+		"volume"	"0.4, 0.8"
+		"pitch"		"95,105"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140dB"
+		"rndwave"
+		{
+			"wave"	"ambient/levels/citadel/portal_beam_shoot1.wav"
+			"wave"	"ambient/levels/citadel/portal_beam_shoot2.wav"
+			"wave"	")ambient/levels/citadel/portal_beam_shoot3.wav"
+			"wave"	")ambient/levels/citadel/portal_beam_shoot4.wav"
+			"wave"	")ambient/levels/citadel/portal_beam_shoot5.wav"
+			"wave"	"ambient/levels/citadel/portal_beam_shoot6.wav"
+		}
+	}
+
+}
+
+"d3_citadel.top_of_teleport_chamber"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.37"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/citadel_drone_loop1.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_medium_combat"
+		"volume"	"1.0"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_medium_combat"
+		"volume"	"0.7"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_heavy_combat_atmosphere"
+		"volume"	"0.7"
+	}
+
+}
+
+// d3_citadel_01
+
+"d3_citadel_01.pipe_entrance"
+{
+	"dsp"	"1"
+
+	"playlooping"
+	{
+		"volume"	"0.15"
+		"wave"		"ambient/levels/citadel/Drone1LP.wav"
+		"pitch"		"100"
+	}
+
+	// city siren
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"wave"		"ambient/alarms/city_siren_loop2.wav"
+		"pitch"		"100"
+		"attenuation"	"0"
+	}
+
+	"playrandom"
+	{
+		"time"		"5,7"
+		"volume"	"0.1,0.5"
+		"pitch"		"80,105"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140db"
+		
+		"rndwave"
+		{
+			"wave"	"ambient/wind/wind_snippet1.wav"
+			"wave"	"ambient/wind/wind_snippet2.wav"
+			"wave"	"ambient/wind/wind_snippet3.wav"
+		}
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_medium_combat"
+		"volume"	"0.5"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_medium_combat"
+		"volume"	"0.2"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_muffled_light_combat"
+		"volume"	"0.5"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_muffled_light_combat"
+		"volume"	"0.3"
+	}
+
+}
+
+"d3_citadel_01.cliffside1"
+{
+	"dsp"	"1"
+
+	"playrandom"
+	{
+		"time"		"2,9"
+		"volume"	"0.55,0.85"
+		"pitch"		"80,105"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140db"
+
+		"rndwave"
+		{
+			"wave"		"ambient/levels/streetwar/building_rubble1.wav"
+			"wave"		"ambient/levels/streetwar/building_rubble2.wav"
+			"wave"		"ambient/levels/streetwar/building_rubble3.wav"
+			"wave"		"ambient/levels/streetwar/building_rubble4.wav"
+			"wave"		"ambient/levels/streetwar/building_rubble5.wav"
+			"wave"		"ambient/materials/metal_stress4.wav"
+			"wave"		"ambient/materials/metal_stress5.wav"
+			"wave"		"ambient/materials/rustypipes1.wav"
+			"wave"		"ambient/materials/rustypipes2.wav"
+			"wave"		"ambient/materials/rustypipes3.wav"
+		}
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.5"
+		"wave"		"ambient/levels/citadel/citadel_drone_loop2.wav"
+		"pitch"		"95"
+	}
+
+
+	// city siren
+
+	"playlooping"
+	{
+		"volume"	"0.15"
+		"wave"		"ambient/alarms/city_siren_loop2.wav"
+		"pitch"		"100"
+	}
+
+	// wind
+	"playrandom"
+	{
+		"time"		"3, 9"
+		"volume"	"0.35, 0.7"
+		"pitch"		"95,105"
+		"position"	"random"
+		"soundlevel"	"SNDLVL_140db"
+		"rndwave"
+		{
+			"wave"	"ambient/wind/wind_hit1.wav"
+			"wave"	"ambient/wind/wind_hit2.wav"
+			"wave"	"ambient/wind/wind_hit3.wav"
+			"wave"	"ambient/wind/windgust.wav"
+			"wave"	"ambient/wind/wind_snippet5.wav"
+		}
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_medium_combat"
+		"volume"	"0.3"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_medium_combat"
+		"volume"	"0.2"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_muffled_light_combat"
+		"volume"	"0.3"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_muffled_light_combat"
+		"volume"	"0.2"
+	}
+
+}
+
+"d3_citadel_01.citadel_entrance"
+{
+	"dsp"	"1"
+
+	"playsoundscape"
+	{
+		"name"	"d3_citadel_01.cliffside1"
+		"volume"	"0.15"
+	}
+
+
+	"playlooping"
+	{
+		"volume"	"0.48"
+		"pitch"		"100"
+		"wave"		"*ambient/levels/citadel/citadel_drone_loop3.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"d3_citadel.util_hits"
+		"volume"	"0.65"
+	}
+
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_medium_combat"
+		"volume"	"0.3"
+	}
+	
+	"playsoundscape"
+	{
+		"name"		"streetwar.util_muffled_light_combat"
+		"volume"	"0.4"
+	}
+}
+
+// Breen office
+
+"d3_citadel.breen_field"
+{
+	"dsp"	"2"
+	"playlooping"
+	{
+		"volume"	"0.3"
+		"pitch"		"100"
+		"wave"		"ambient/levels/citadel/field_loop3.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"d3_citadel.generic"
+		"volume"	"0.5"
+	}
+
+}
+
+"d3_citadel.breen_hall"
+{
+	"dsp"	"25"
+	"playlooping"
+	{
+		"volume"	"0.25"
+		"pitch"		"100"
+		"wave"		"ambient/atmosphere/quiet_cellblock_amb.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"d3_citadel.generic"
+		"volume"	"0.7"
+	}
+}
+
+"d3_citadel.breen_office"
+{
+	"dsp"	"2"
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"pitch"		"100"
+		"wave"		"ambient/atmosphere/quiet_cellblock_amb.wav"
+	}
+
+	"playsoundscape"
+	{
+		"name"	"d3_citadel.generic"
+		"volume"	"0.65"
+	}
+}
+

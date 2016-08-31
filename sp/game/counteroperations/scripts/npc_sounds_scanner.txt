@@ -1,0 +1,458 @@
+"NPC_CScanner.Gib"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"			"npc/scanner/scanner_explode_crash1.wav"
+}
+
+// when diving, scanner bounces on obstacle 
+
+"NPC_CScanner.Shoot"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/scanner/scanner_electric1.wav"
+		"wave"	"npc/scanner/scanner_electric2.wav"
+	}
+}
+
+"NPC_CScanner.Alert"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"100, 150"
+
+	"soundlevel"	"SNDLVL_90dB"
+	"rndwave"
+	{
+		"wave"			"npc/scanner/scanner_scan5.wav"
+		"wave"			"npc/scanner/scanner_alert1.wav"
+	}
+}
+
+// NOTE: must be on CHAN_VOICE to kill all loops when scanner dies
+
+"NPC_CScanner.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"npc/scanner/scanner_explode_crash2.wav"
+}
+
+// NOTE: all 'short' loops must be on chan voice
+
+"NPC_CScanner.Combat"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.65"
+	"pitch"			"165,195"
+
+	"soundlevel"	"SNDLVL_85dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/scanner/scanner_scan_loop1.wav"
+		"wave"	"npc/scanner/scanner_scan_loop2.wav"
+		"wave"	"npc/scanner/scanner_combat_loop1.wav"
+	}
+}
+
+"NPC_CScanner.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.6"
+	"pitch"			"90,110"
+
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/scanner/scanner_scan1.wav"
+		"wave"	"npc/scanner/scanner_scan2.wav"
+		"wave"	"npc/scanner/scanner_scan4.wav"
+		"wave"	"npc/scanner/scanner_blip1.wav"
+		// "wave"	"npc/scanner/scanner_engine_loop4.wav"
+	}
+}
+
+"NPC_CScanner.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"100,120"
+
+	"soundlevel"	"SNDLVL_90dB"
+	"rndwave"
+	{
+		"wave"			"npc/scanner/scanner_pain1.wav"
+		"wave"			"npc/scanner/scanner_pain2.wav"
+		"wave"			"npc/scanner/scanner_talk1.wav"
+		"wave"			"npc/scanner/scanner_siren2.wav"
+		"wave"			"npc/scanner/cbot_servoscared.wav"
+	}
+}
+
+
+"NPC_CScanner.TakePhoto"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/scanner/scanner_photo1.wav"
+
+}
+
+"NPC_CScanner.AttackFlash"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.5"
+	"pitch"			"70"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/scanner/scanner_photo1.wav"
+}
+
+// scanner is diving to atttack
+
+"NPC_CScanner.DiveBomb"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"npc/scanner/scanner_siren2.wav"
+
+}
+
+"NPC_CScanner.DiveBombFlyby"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"rndwave"
+	{
+		"wave"			"npc/scanner/scanner_nearmiss1.wav"
+		"wave"			"npc/scanner/scanner_nearmiss2.wav"
+	}
+}
+
+// when scanner 'eye' wings open
+
+"NPC_CScanner.OpenEye"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.3"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/scanner/scanner_open3.wav"
+	
+}
+
+// when scanner light illuminates player
+
+"NPC_CScanner.Illuminate"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"70,80"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"npc/scanner/scanner_scan3.wav"
+}
+
+"NPC_CScanner.FlyLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"	"npc/scanner/cbot_fly_loop.wav"
+}
+
+
+
+
+//=====================================
+//=====================================
+// Shield Scanner entries
+//=====================================
+//=====================================
+
+"NPC_SScanner.Gib"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"			"npc/scanner/cbot_energyexplosion1.wav"
+}
+
+// when diving, scanner bounces on obstacle 
+
+"NPC_SScanner.Shoot"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/scanner/scanner_electric1.wav"
+		"wave"	"npc/scanner/scanner_electric2.wav"
+	}
+}
+
+"NPC_SScanner.Alert"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"100, 120"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"			"npc/scanner/scanner_talk2.wav"
+}
+
+// NOTE: must be on CHAN_VOICE to kill all loops when scanner dies
+
+"NPC_SScanner.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"npc/scanner/cbot_energyexplosion1.wav"
+}
+
+// NOTE: all 'short' loops must be on chan voice
+
+"NPC_SScanner.Combat"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.45"
+	"pitch"			"100,140"
+
+	"soundlevel"	"SNDLVL_85dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/scanner/combat_scan_loop1.wav"
+		"wave"	"npc/scanner/combat_scan_loop2.wav"
+		"wave"	"npc/scanner/combat_scan_loop4.wav"
+		"wave"	"npc/scanner/combat_scan_loop6.wav"
+	}
+}
+
+"NPC_SScanner.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.6"
+	"pitch"			"90,110"
+
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/scanner/combat_scan3.wav"
+		"wave"	"npc/scanner/combat_scan5.wav"
+	//	"wave"	"npc/scanner/combat_scan_loop5.wav"
+	}
+}
+
+"NPC_SScanner.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.5"
+	"pitch"			"100,105"
+
+	"soundlevel"	"SNDLVL_90dB"
+	"rndwave"
+	{
+		"wave"			"npc/scanner/combat_scan4.wav"
+		"wave"			"npc/scanner/cbot_servochatter.wav"
+
+	}
+}
+
+
+"NPC_SScanner.TakePhoto"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/scanner/combat_scan1.wav"
+
+}
+
+"NPC_SScanner.AttackFlash"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.5"
+	"pitch"			"140"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/scanner/combat_scan2.wav"
+}
+
+// scanner is diving to atttack
+
+"NPC_SScanner.DiveBomb"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"npc/scanner/combat_scan4.wav"
+
+}
+
+"NPC_SScanner.DiveBombFlyby"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"rndwave"
+	{
+		"wave"			"npc/scanner/scanner_nearmiss1.wav"
+		"wave"			"npc/scanner/scanner_nearmiss2.wav"
+	}
+}
+
+// when scanner 'eye' wings open
+
+"NPC_SScanner.OpenEye"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.3"
+	"pitch"			"80,90"
+
+	"soundlevel"	"SNDLVL_75dB"
+
+	"wave"			"npc/scanner/scanner_open3.wav"
+	
+}
+
+// when scanner light illuminates player
+
+"NPC_SScanner.Illuminate"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"70,80"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"npc/scanner/combat_scan2.wav"
+}
+
+"NPC_SScanner.FlyLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"soundlevel"	"SNDLVL_90db"
+	"volume"		"0.5"
+	"pitch"			"120"
+
+	"wave"	"npc/scanner/combat_scan_loop6.wav"
+}
+
+// Dropping a mine.
+"NPC_SScanner.DeployMine"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"1.0"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"wave"	"npc/scanner/scanner_siren1.wav"
+}
+
+
+
+// ******************************
+// NOT USED:
+"NPC_CScanner.Attention"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+	"wave"	"npc/scanner/scanner_scan3.wav"
+
+}
+// NOT USED:
+"NPC_CScanner.Scan"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"	"npc/scanner/scanner_scan3.wav"
+}
+// NOT USED:
+"NPC_CScanner.Proceed"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"	"npc/scanner/scanner_scan3.wav"
+}
+
+// NOT USED:
+"NPC_CScanner.Curious"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"	"npc/scanner/scanner_scan3.wav"
+}
+

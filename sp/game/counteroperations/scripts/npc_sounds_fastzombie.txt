@@ -1,0 +1,239 @@
+"NPC_FastZombie.LeapAttack"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.400"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/leap1.wav"
+}
+
+"NPC_FastZombie.FootstepRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/fast_zombie/foot4.wav"
+	}
+}
+
+"NPC_FastZombie.FootstepLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/fast_zombie/foot1.wav"
+		"wave"	"npc/fast_zombie/foot2.wav"
+		"wave"	"npc/fast_zombie/foot3.wav"
+	}
+}
+
+"NPC_FastZombie.AttackHit"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/fast_zombie/claw_strike1.wav"
+		"wave"	"npc/fast_zombie/claw_strike2.wav"
+		"wave"	"npc/fast_zombie/claw_strike3.wav"
+	}
+}
+
+"NPC_FastZombie.AttackMiss"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/fast_zombie/claw_miss1.wav"
+		"wave"	"npc/fast_zombie/claw_miss2.wav"
+	}
+}
+
+"NPC_FastZombie.Attack"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.600"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/leap1.wav"
+}
+
+"NPC_FastZombie.Pain"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.600"
+	"pitch"			"95, 105"
+
+	"soundlevel"		"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/leap1.wav"
+}
+
+"NPC_FastZombie.Die"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.600"
+	"pitch"			"95, 105"
+
+	"soundlevel"		"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/wake1.wav"
+}
+
+"NPC_FastZombie.Idle"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.600"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/fast_zombie/idle1.wav"
+		"wave"	"npc/fast_zombie/idle2.wav"
+		"wave"	"npc/fast_zombie/idle3.wav"
+	}
+}
+
+"NPC_FastZombie.AlertFar"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/fz_alert_far1.wav"
+}
+
+"NPC_FastZombie.AlertNear"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/fz_alert_close1.wav"
+}
+
+"NPC_FastZombie.GallopLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/fast_zombie/foot1.wav"
+		"wave"	"npc/fast_zombie/foot2.wav"
+	}
+}
+
+"NPC_FastZombie.GallopRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/fast_zombie/foot3.wav"
+		"wave"	"npc/fast_zombie/foot4.wav"
+	}
+}
+
+"NPC_FastZombie.Scream"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/fz_scream1.wav"
+}
+
+"NPC_FastZombie.RangeAttack"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/leap1.wav"
+}
+
+"NPC_FastZombie.Frenzy"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/fz_frenzy1.wav"
+}
+
+"NPC_FastZombie.Moan1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/breathe_loop1.wav"
+}
+
+
+"NPC_FastZombie.Gurgle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/fast_zombie/gurgle_loop1.wav"
+}
+
+"NPC_FastZombie.NoSound"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"common/null.wav"
+}

@@ -1,0 +1,1394 @@
+// HALF-LIFE 2 SPEECH SYSTEM SENTENCES.
+// Do not use TABS.  Separate sentence-names from wave definitions with single spaces only.
+// Sounds prefixed by "Q_" will be queued up for a while and played as soon as the NPC is allowed to speak
+
+
+//CHARACTER SECTION
+
+
+
+
+
+
+//COMBINE SOLDIER
+
+// COMBINE SOLDIER
+
+// V_ indicates 'virtual' name or number
+// last letter indicates type: 'S' = soldier
+
+// soldier names, remembered by speaker:
+
+V_MYNAMES0 leader {Len 0.4}
+V_MYNAMES1 flash {Len 0.4}
+V_MYNAMES2 ranger {Len 0.4}
+V_MYNAMES3 hunter {Len 0.4}
+V_MYNAMES4 blade {Len 0.4}
+V_MYNAMES5 scar {Len 0.4}
+V_MYNAMES6 hammer {Len 0.4}
+V_MYNAMES7 sweeper {Len 0.4}
+V_MYNAMES8 swift {Len 0.4}
+V_MYNAMES9 fist {Len 0.4}
+V_MYNAMES10 sword {Len 0.4}
+V_MYNAMES11 savage {Len 0.4}
+V_MYNAMES12 tracker {Len 0.4}
+V_MYNAMES13 slash {Len 0.4}
+V_MYNAMES14 razor {Len 0.4}
+V_MYNAMES15 stab {Len 0.4}
+V_MYNAMES16 spear {Len 0.4}
+V_MYNAMES17 striker {Len 0.4}
+V_MYNAMES18 dagger {Len 0.4}
+
+// air support names:
+
+V_RNDNAMES0 ghost {Len 0.4}
+V_RNDNAMES1 reaper {Len 0.4}
+V_RNDNAMES2 nomad {Len 0.4}
+V_RNDNAMES3 hurricane {Len 0.4}
+V_RNDNAMES4 phantom {Len 0.4}
+V_RNDNAMES5 judge {Len 0.4}
+V_RNDNAMES6 shadow {Len 0.4}
+V_RNDNAMES7 slam {Len 0.4}
+V_RNDNAMES8 stinger {Len 0.4}
+V_RNDNAMES9 storm {Len 0.4}
+V_RNDNAMES10 vamp {Len 0.4}
+V_RNDNAMES11 winder {Len 0.4}
+V_RNDNAMES12 star {Len 0.4}  
+
+//phonetic alphabet/codes:
+
+V_RNDCODES0 apex {Len 0.4}
+V_RNDCODES1 ion {Len 0.4}
+V_RNDCODES2 jet {Len 0.4}
+V_RNDCODES3 kilo {Len 0.4}
+V_RNDCODES4 mace {Len 0.4}
+V_RNDCODES5 nova {Len 0.4}
+V_RNDCODES6 payback {Len 0.4}
+V_RNDCODES7 sundown {Len 0.4}
+V_RNDCODES8 uniform {Len 0.4}
+V_RNDCODES9 boomer {Len 0.4}
+V_RNDCODES10 echo {Len 0.4}
+V_RNDCODES11 flatline {Len 0.4}
+V_RNDCODES12 helix {Len 0.4}
+V_RNDCODES13 ice {Len 0.4}
+V_RNDCODES14 quicksand {Len 0.4}
+V_RNDCODES15 payback {Len 0.4}
+V_RNDCODES16 ripcord {Len 0.4}
+
+//Numbers, remembered by speaker:
+
+V_MYNUMS0 zero {Len 0.4}
+V_MYNUMS1 one {Len 0.4}
+V_MYNUMS2 two {Len 0.4}
+V_MYNUMS3 three {Len 0.4}
+V_MYNUMS4 four {Len 0.4}
+V_MYNUMS5 five {Len 0.4}
+V_MYNUMS6 six {Len 0.4}
+V_MYNUMS7 seven {Len 0.4}
+V_MYNUMS8 eight {Len 0.4}
+V_MYNUMS9 niner {Len 0.4}
+
+// random numbers
+
+V_RNDNUMS0 zero {Len 0.4}
+V_RNDNUMS1 one {Len 0.4}
+V_RNDNUMS2 two {Len 0.4}
+V_RNDNUMS3 three {Len 0.4}
+V_RNDNUMS4 four {Len 0.4}
+V_RNDNUMS5 five {Len 0.4}
+V_RNDNUMS6 six {Len 0.4}
+V_RNDNUMS7 seven {Len 0.4}
+V_RNDNUMS8 eight {Len 0.4}
+V_RNDNUMS9 niner {Len 0.4}
+
+// numbers, must be in order, used for distance/heading to player use: V_DISTS or V_DIRS
+
+V_NUMBERSS0 zero {Len 0.4}
+V_NUMBERSS1 one {Len 0.4}
+V_NUMBERSS2 two {Len 0.4}
+V_NUMBERSS3 three {Len 0.4}
+V_NUMBERSS4 four {Len 0.4}
+V_NUMBERSS5 five {Len 0.4}
+V_NUMBERSS6 six {Len 0.4}
+V_NUMBERSS7 seven {Len 0.4}
+V_NUMBERSS8 eight {Len 0.4}
+V_NUMBERSS9 niner {Len 0.4}
+V_NUMBERSS10 ten {Len 0.4}
+V_NUMBERSS11 eleven {Len 0.4}
+V_NUMBERSS12 twelve {Len 0.4}
+V_NUMBERSS13 thirteen {Len 0.4}
+V_NUMBERSS14 fourteen {Len 0.4}
+V_NUMBERSS15 fifteen {Len 0.4}
+V_NUMBERSS16 sixteen {Len 0.4}
+V_NUMBERSS17 seventeen {Len 0.4}
+V_NUMBERSS18 eighteen {Len 0.4}
+V_NUMBERSS19 nineteen {Len 0.4}
+V_NUMBERSS20 twenty {Len 0.4}
+V_NUMBERSS21 thirty {Len 0.4}
+V_NUMBERSS22 fourty {Len 0.4}
+V_NUMBERSS23 fifty {Len 0.4}
+V_NUMBERSS24 sixty {Len 0.4}
+V_NUMBERSS25 seventy {Len 0.4}
+V_NUMBERSS26 eighty {Len 0.4}
+V_NUMBERSS27 ninety {Len 0.4}
+V_NUMBERSS28 onehundred {Len 0.4}
+V_NUMBERSS29 twohundred {Len 0.4}
+V_NUMBERSS30 threehundred {Len 0.4}
+
+// rnd global, used to designate target
+
+V_G0_PLAYERS0 freeman3 {len 0.5}
+V_G0_PLAYERS1 anticitizenone {len 0.5}
+V_G0_PLAYERS2 targetone {len 0.5}
+V_G0_PLAYERS3 priority1objective {len 0.5}
+V_G0_PLAYERS4 phantom {len 0.5}
+V_G0_PLAYERS5 ghost2 {len 0.5}
+
+// sequential gobal numbers, used for counting enemies down
+
+V_SEQGLOBNBRS0 zero {Len 0.4}
+V_SEQGLOBNBRS1 one {Len 0.4}
+V_SEQGLOBNBRS2 two {Len 0.4}
+V_SEQGLOBNBRS3 three {Len 0.4}
+V_SEQGLOBNBRS4 four {Len 0.4}
+V_SEQGLOBNBRS5 five {Len 0.4}
+V_SEQGLOBNBRS6 six {Len 0.4}
+V_SEQGLOBNBRS7 seven {Len 0.4}
+V_SEQGLOBNBRS8 eight {Len 0.4}
+V_SEQGLOBNBRS9 niner {Len 0.4}
+V_SEQGLOBNBRS10 ten {Len 0.4}
+V_SEQGLOBNBRS11 eleven {Len 0.4}
+V_SEQGLOBNBRS12 twelve {Len 0.4}
+V_SEQGLOBNBRS13 thirteen {Len 0.4}
+V_SEQGLOBNBRS14 fourteen {Len 0.4}
+V_SEQGLOBNBRS15 fifteen {Len 0.4}
+V_SEQGLOBNBRS16 sixteen {Len 0.4}
+V_SEQGLOBNBRS17 seventeen {Len 0.4}
+V_SEQGLOBNBRS18 eighteen {Len 0.4}
+V_SEQGLOBNBRS19 nineteen {Len 0.4}
+V_SEQGLOBNBRS20 twenty {Len 0.4}
+
+
+//PAIN
+COMBINE_PAIN0 npc/combine_soldier/pain1 {Len 0.30 closecaption NPC_Combine.Pain}
+COMBINE_PAIN1 npc/combine_soldier/pain2 {Len 0.30 closecaption NPC_Combine.Pain}
+COMBINE_PAIN2 npc/combine_soldier/pain3 {Len 0.26 closecaption NPC_Combine.Pain}
+
+//DIE
+COMBINE_DIE0 npc/combine_soldier/die1 V_IDIEDS {Len 0.62 closecaption NPC_Combine.Death}
+COMBINE_DIE1 npc/combine_soldier/die2 V_IDIEDS {Len 0.92 closecaption NPC_Combine.Death}
+COMBINE_DIE2 npc/combine_soldier/die3 V_IDIEDS {Len 0.80 closecaption NPC_Combine.Death}
+
+
+//KICK
+COMBINE_KICK0 npc/combine_soldier/kick1 {Len 0.26}
+COMBINE_KICK1 npc/combine_soldier/kick2 {Len 0.31}
+
+
+// I am about to start shooting
+// Marc, for any sentences you want to caption, just add the closecaption entry to the {Len} block as below
+// COMBINE_ANNOUNCE0 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS suppressing off1 {Len 0.96 closecaption}
+// To use a specified caption string, put it's name in there, too
+// COMBINE_ANNOUNCE0 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS suppressing off1 {Len 0.96 closecaption NPCSound.Caption}
+
+COMBINE_ANNOUNCE0 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS suppressing off1 {Len 0.96 closecaption NPC_Combine.Alert}
+COMBINE_ANNOUNCE1 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS gosharp off2 {Len 1.22 closecaption NPC_Combine.Alert}
+COMBINE_ANNOUNCE2 npc/combine_soldier/vo/(v100) on2 V_MYNAMES V_MYNUMS prosecuting off1 {Len 1.45 closecaption NPC_Combine.Alert}
+COMBINE_ANNOUNCE3 npc/combine_soldier/vo/(v100) on2 V_MYNAMES V_MYNUMS engaging off1 {Len 1.45 closecaption NPC_Combine.Alert}
+COMBINE_ANNOUNCE4 npc/combine_soldier/vo/(v100) on2 cover off1 {Len 1.45 closecaption NPC_Combine.Alert}
+
+// My enemy is close and I can see him
+
+COMBINE_ASSAULT0 npc/combine_soldier/vo/(v100) on1 contact V_G0_PLAYERS off1 {Len 0.87 closecaption NPC_Combine.Alert}
+COMBINE_ASSAULT1 npc/combine_soldier/vo/(v100) on1 contactconfirmprosecuting off1 {Len 1.23 closecaption NPC_Combine.Alert}
+COMBINE_ASSAULT2 npc/combine_soldier/vo/(v100) on2 contactconfim off1 {Len 1.08 closecaption NPC_Combine.Alert}
+COMBINE_ASSAULT3 npc/combine_soldier/vo/(v100) on2 targetmyradial V_DIRS degrees off3 {Len 1.45 closecaption NPC_Combine.Alert}
+
+// I am moving in
+
+COMBINE_FLANK0 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS closing off1 {Len 1.36 closecaption NPC_Combine.Coord}
+COMBINE_FLANK1 npc/combine_soldier/vo/(v100) on2 V_MYNAMES V_MYNUMS inbound off1 {Len 1.15 closecaption NPC_Combine.Coord}
+COMBINE_FLANK2 npc/combine_soldier/vo/(v100) on1 movein off2 {Len 1.15  closecaption NPC_Combine.Coord}
+COMBINE_FLANK3 npc/combine_soldier/vo/(v100) on2 V_MYNAMES V_MYNUMS sweepingin off1 {Len 1.15 closecaption NPC_Combine.Coord}
+COMBINE_FLANK4 npc/combine_soldier/vo/(v100) on1 coverme off1 {Len 1.15  closecaption NPC_Combine.Coord}
+COMBINE_FLANK5 npc/combine_soldier/vo/(v100) on1 V_MYNAMES unitisclosing off1 {Len 1.15 closecaption NPC_Combine.Coord}
+COMBINE_FLANK6 npc/combine_soldier/vo/(v100) on1 V_MYNAMES unitisinbound off1 {Len 1.15 closecaption NPC_Combine.Coord}
+COMBINE_FLANK7 npc/combine_soldier/vo/(v100) on1 V_MYNAMES unitismovingin off1 {Len 1.15 closecaption NPC_Combine.Coord}
+
+
+// I am still alert and pursuing enemy
+
+COMBINE_GO_ALERT0 npc/combine_soldier/vo/(v100) on1 alert1 off1 {Len 0.77  closecaption NPC_Combine.Coord}
+COMBINE_GO_ALERT1 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS executingfullresponse off1 {Len 0.77 closecaption NPC_Combine.Coord}
+
+// UNDONE: Nobody has seen enemy in 10 seconds
+
+COMBINE_LOST_LONG0 npc/combine_soldier/vo/(v100) on1 targetblackout off1 {Len 1.14 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_LONG1 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS lostcontact off1 {Len 1.08 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_LONG2 npc/combine_soldier/vo/(v100) on1 motioncheckallradials off1 {Len 1.05 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_LONG3 npc/combine_soldier/vo/(v100) on1 stayalertreportsightlines off1 {Len 1.05 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_LONG4 npc/combine_soldier/vo/(v100) on1 overwatch, teamdeployedandscanning off1 {Len 1.05 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_LONG5 npc/combine_soldier/vo/(v100) on1 overwatch, V_MYNAMES V_MYNUMS engagedincleanup off1 {Len 1.05 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_LONG6 npc/combine_soldier/vo/(v100) on1 readyweapons, stayalert off1 {Len 1.05 closecaption NPC_Combine.RadioChatter}
+
+// UNDONE: Nobody has seen enemy in 5 seconds
+
+COMBINE_LOST_SHORT0 npc/combine_soldier/vo/(v100) on1 targetisat shaddow4 off1 {Len 1.56 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_SHORT1 npc/combine_soldier/vo/(v100) on1 readyextractors off1 {Len 1.19 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_SHORT2 npc/combine_soldier/vo/(v100) on1 readycharges off1 {Len 1.13 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_SHORT3 npc/combine_soldier/vo/(v100) on1 fixsightlinesmovein  off1 {Len 1.13 closecaption NPC_Combine.RadioChatter}
+COMBINE_LOST_SHORT4 npc/combine_soldier/vo/(v100) on1 on1 containmentproceeding off1 {Len 0.98 closecaption NPC_Combine.RadioChatter}
+
+// I just saw a friendly die
+
+COMBINE_MAN_DOWN0 npc/combine_soldier/vo/(v100) on1 V_WHODIEDS onedown onedown off1 {Len 1.28 closecaption NPC_Combine.Alert}
+COMBINE_MAN_DOWN1 npc/combine_soldier/vo/(v100) on1 V_WHODIEDS onedutyvacated off1 {Len 1.41 closecaption NPC_Combine.Alert}
+COMBINE_MAN_DOWN2 npc/combine_soldier/vo/(v100) on2 heavyresistance off3 {Len 1.45 closecaption NPC_Combine.Alert}
+COMBINE_MAN_DOWN3 npc/combine_soldier/vo/(v100) on1 overwatchrequestreinforcement off3 {Len 1.45 closecaption NPC_Combine.Alert}
+COMBINE_MAN_DOWN4 npc/combine_soldier/vo/(v100) on1 V_WHODIEDS onedown, hardenthatposition off3 {Len 1.45 closecaption NPC_Combine.Alert}
+
+// UNDONE: Just found enemy after lost long
+
+COMBINE_REFIND_ENEMY0 npc/combine_soldier/vo/(v100) on1 target V_G0_PLAYERS, goactiveintercept off1 {Len 0.77 closecaption NPC_Combine.Alert}
+COMBINE_REFIND_ENEMY1 npc/combine_soldier/vo/(v100) on2 gosharp range V_DISTS off3 {Len 1.45 closecaption NPC_Combine.Alert}
+COMBINE_REFIND_ENEMY2 npc/combine_soldier/vo/(v100) on2 targetcontactat V_GRIDXS dash V_GRIDYS off3 {Len 1.45 closecaption NPC_Combine.Alert}
+COMBINE_REFIND_ENEMY3 npc/combine_soldier/vo/(v100) on2 viscon viscon(p110), range V_DISTS, bearing V_DIRS off3 {Len 1.45 closecaption NPC_Combine.Alert}
+
+// I am throwing a grenade
+
+COMBINE_THROW_GRENADE0 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS extractoraway off1 {Len 1.31 closecaption NPC_Combine.Grenade}
+COMBINE_THROW_GRENADE1 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS extractorislive off1 {Len 1.33 closecaption NPC_Combine.Grenade}
+COMBINE_THROW_GRENADE2 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS flush sharpzone off1 {Len 1.24 closecaption NPC_Combine.Grenade}
+COMBINE_THROW_GRENADE3 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS extractoraway sharpzone off1 {Len 1.24 closecaption NPC_Combine.Grenade}
+COMBINE_THROW_GRENADE4 npc/combine_soldier/vo/(v100) on1. six, five, four, three, two, one, flash flash(p105) flash(p110) off1 {Len 1.24 closecaption NPC_Combine.Grenade}
+
+//COMBINE_THROW1 npc/combine_soldier/vo/on1 (t30) take!(e75) this!(e100 t0) off1 {Len 1.03}
+//COMBINE_THROW2 npc/combine_soldier/vo/(v10) on1(p120) (t40) fire!(e90) in!(e90) the!(e60) hole!(e100) off1 {Len 1.37}
+
+// Enemy Grenade lands nearby (one man only)
+
+COMBINE_GREN0 npc/combine_soldier/vo/(v100) on1(p120) bouncerbouncer off1 {Len 1.17 closecaption NPC_Combine.Grenade}
+COMBINE_GREN1 npc/combine_soldier/vo/(v100) on1(p120) flaredown off1 {Len 1.17 closecaption NPC_Combine.Grenade}
+ 
+// Something dangerous nearby, need to run
+
+COMBINE_DANGER0 npc/combine_soldier/vo/(v100) on1(p120) displace off1 {Len 1.17}
+COMBINE_DANGER1 npc/combine_soldier/vo/(v100) on1(p120) displace2 off3 {Len 1.17}
+COMBINE_DANGER2 npc/combine_soldier/vo/(v100) on1(p120) ripcordripcord off1 {Len 1.17}
+
+// Player Alert - first contact and I'm the squad leader
+
+COMBINE_ALERT0 npc/combine_soldier/vo/(v100) on2(p110) contactconfim V_G0_PLAYERS, range V_DISTS meters, bearing V_DIRS degrees off1 {Len 1.13 closecaption NPC_Combine.Alert}
+COMBINE_ALERT1 npc/combine_soldier/vo/(v100) on1(p110) gosharpgosharp, V_DISTS meters off1 {Len 1.13 closecaption NPC_Combine.Alert}
+COMBINE_ALERT2 npc/combine_soldier/vo/(v100) on2(p110) callcontacttarget1, grid V_GRIDXS dash V_GRIDYS off1 {Len 1.13 closecaption NPC_Combine.Alert}
+COMBINE_ALERT3 npc/combine_soldier/vo/(v100) on1(p110) targetisat V_DISTS meters bearing V_DIRS degrees off1 {Len 1.13 closecaption NPC_Combine.Alert}
+COMBINE_ALERT4 npc/combine_soldier/vo/(v100) on1(p110) targetmyradial V_DIRS degrees off1 {Len 1.13 closecaption NPC_Combine.Alert}
+COMBINE_ALERT5 npc/combine_soldier/vo/(v100) on2(p110) contact V_G0_PLAYERS off3 {Len 1.13 closecaption NPC_Combine.Alert}
+COMBINE_ALERT6 npc/combine_soldier/vo/(v100) on1(p110) targetcontactat V_DISTS meters, bearing V_DIRS degrees off1 {Len 1.13 closecaption NPC_Combine.Alert}
+COMBINE_ALERT7 npc/combine_soldier/vo/(v100) on2(p110) designatetargetas V_G0_PLAYERS off1 {Len 1.13 closecaption NPC_Combine.Alert}
+COMBINE_ALERT8 npc/combine_soldier/vo/(v100) on1(p110) contactconfirmprosecuting off2 {Len 1.13 closecaption NPC_Combine.Alert}
+COMBINE_ALERT9 npc/combine_soldier/vo/(v100) on1(p110) contactconfim, designatetargetas V_G0_PLAYERS off1 {Len 1.13 closecaption NPC_Combine.Alert}
+
+// last soldier's hit damaged player significantly
+
+COMBINE_PLAYERHIT0 npc/combine_soldier/vo/(v100) targetcompromisedmovein off1 {Len 1.13}
+COMBINE_PLAYERHIT1 npc/combine_soldier/vo/(v100) affirmativewegothimnow off1 {Len 1.13}
+COMBINE_PLAYERHIT2 npc/combine_soldier/vo/(v100) thatsitwrapitup off2 {Len 1.13}
+
+// Monster Alert - first contact and I'm the squad leader
+
+COMBINE_MONST0 npc/combine_soldier/vo/(v100) confirmsectornotsterile off1 {Len 1.72 closecaption NPC_Combine.Alert}
+COMBINE_MONST1 npc/combine_soldier/vo/(v100) visualonexogens off1 {Len 1.72 closecaption NPC_Combine.Alert}
+COMBINE_MONST2 npc/combine_soldier/vo/(v100) overwatch sector V_SECTORS infected off1 {Len 1.72 closecaption NPC_Combine.Alert}
+
+// Monster Alert - by type
+
+COMBINE_MONST_BUGS0 npc/combine_soldier/vo/(v100) confirmsectornotsterile off1 {Len 1.72 closecaption NPC_Combine.Alert}
+COMBINE_MONST_BUGS1 npc/combine_soldier/vo/(v100) swarmoutbreakinsector V_SECTORS off1 {Len 1.72 closecaption NPC_Combine.Alert}
+COMBINE_MONST_BUGS2 npc/combine_soldier/vo/(v100) overwatch, weareinaninfestationzone, sector V_SECTORS off2 {Len 1.72 closecaption NPC_Combine.Alert}
+COMBINE_MONST_BUGS3 npc/combine_soldier/vo/(v100) overwatch, wehavenontaggedviromes, grid V_GRIDXS dash V_GRIDYS off1 {Len 1.72 closecaption NPC_Combine.Alert}
+
+COMBINE_MONST_CITIZENS0 npc/combine_soldier/vo/(v100) outbreak off1 {Len 1.72 closecaption NPC_Combine.Alert}
+
+COMBINE_MONST_CHARACTER0 npc/combine_soldier/vo/(v100) target, prioritytwoescapee off1 {Len 1.72 closecaption NPC_Combine.Alert}
+COMBINE_MONST_CHARACTER1 npc/combine_soldier/vo/(v100) outbreakstatusiscode hurricane off1 {Len 1.72 closecaption NPC_Combine.Alert}
+
+COMBINE_MONST_ZOMBIES0 npc/combine_soldier/vo/(v100) necrotics off3 {Len 1.72 closecaption NPC_Combine.Alert}
+COMBINE_MONST_ZOMBIES1 npc/combine_soldier/vo/(v100) necroticsinbound off1 {Len 1.72 closecaption NPC_Combine.Alert}
+COMBINE_MONST_ZOMBIES2 npc/combine_soldier/vo/(v100) overwatch, weareinaninfestationzone, sector V_SECTORS off2 {Len 1.72 closecaption NPC_Combine.Alert}
+
+COMBINE_MONST_PARASITES0 npc/combine_soldier/vo/(v100) callcontactparasitics off1 {Len 1.72 closecaption NPC_Combine.Alert}
+COMBINE_MONST_PARASITES1 npc/combine_soldier/vo/(v100) overwatch, wehavefreeparasites, sector V_SECTORS off1 {Len 1.72 closecaption NPC_Combine.Alert}
+
+// I killed a monster
+
+COMBINE_KILL_MONST0 npc/combine_soldier/vo/(v100) V_SEQGLOBNBRS cleaned off1 {Len 1.72 closecaption NPC_Combine.RadioChatter}
+COMBINE_KILL_MONST1 npc/combine_soldier/vo/(v100) V_SEQGLOBNBRS sterilized off3 {Len 1.72 closecaption NPC_Combine.RadioChatter}
+COMBINE_KILL_MONST2 npc/combine_soldier/vo/(v100) V_SEQGLOBNBRS contained off1 {Len 1.72 closecaption NPC_Combine.RadioChatter}
+
+// I was hit and it hurt. I'm taking cover (commented out in code)
+
+COMBINE_COVER0 npc/combine_soldier/vo/(v100) on1 coverhurt off1 {Len 0.95  closecaption NPC_Combine.Coord}
+COMBINE_COVER1 npc/combine_soldier/vo/(v100) on1 displace2 off1 {Len 0.95  closecaption NPC_Combine.Coord}
+COMBINE_COVER2 npc/combine_soldier/vo/(v100) on2 V_MYNAMES V_MYNUMS requestmedical off1 {Len 0.95 closecaption NPC_Combine.Coord}
+COMBINE_COVER3 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS requeststimdose off1 {Len 0.95 closecaption NPC_Combine.Coord}
+
+
+// I took damage but it didn't hurt much (commented out in code)
+
+COMBINE_TAUNT0 npc/combine_soldier/vo/(v100) on1(p110) targetineffective off1(p120) on1 {Len 1.32}
+COMBINE_TAUNT1 npc/combine_soldier/vo/(v100) on2(p110) bodypackholding off2(p120) on1 {Len 1.32}
+COMBINE_TAUNT2 npc/combine_soldier/vo/(v100) on1(p110) V_MYNAMES V_MYNUMS, fullactive off1(p120) on1 {Len 1.32}
+
+// I'm the last guy in the squad
+
+COMBINE_LAST_OF_SQUAD0 npc/combine_soldier/vo/(v100) on2 overwatchrequestreserveactivation off1 {len 1.5 closecaption NPC_Combine.Last}
+COMBINE_LAST_OF_SQUAD1 npc/combine_soldier/vo/(v100) on1 overwatch, sectorisnotsecure off3 {Len 1.28 closecaption NPC_Combine.Last}
+COMBINE_LAST_OF_SQUAD2 npc/combine_soldier/vo/(v100) on1 sector V_SECTORS, outbreak outbreak(p105) outbreak(p110) off1 {Len 1.28 closecaption NPC_Combine.Last}
+COMBINE_LAST_OF_SQUAD3 npc/combine_soldier/vo/(v100) on1 V_MYNAMES V_MYNUMS isfinalteamunitbackup off1 {Len 1.28 closecaption NPC_Combine.Last}
+COMBINE_LAST_OF_SQUAD4 npc/combine_soldier/vo/(v100) on1 overwatchteamisdown off1 {Len 1.28 closecaption NPC_Combine.Last}
+COMBINE_LAST_OF_SQUAD5 npc/combine_soldier/vo/(v100) on2 overwatchsectoroverrun off2 {Len 1.28 closecaption NPC_Combine.Last}
+COMBINE_LAST_OF_SQUAD6 npc/combine_soldier/vo/(v100) on1 overwatchrequestskyshield off1 {Len 0.95 closecaption NPC_Combine.Last}
+COMBINE_LAST_OF_SQUAD7 npc/combine_soldier/vo/(v100) on1 overwatchrequestwinder off1 {Len 0.95 closecaption NPC_Combine.Last}
+
+// player is dead
+
+COMBINE_PLAYER_DEAD0 npc/combine_soldier/vo/(v100) on1 overwatchconfirmhvtcontained off3 {Len 0.82}
+COMBINE_PLAYER_DEAD1 npc/combine_soldier/vo/(v100) on1 overwatchtarget1sterilized off1 {Len 1.87}
+COMBINE_PLAYER_DEAD2 npc/combine_soldier/vo/(v100) on2 overwatchtargetcontained off2 {Len 1.38}
+COMBINE_PLAYER_DEAD3 npc/combine_soldier/vo/(v100) on2 overwatch, stabilizationteamhassector off1 {Len 1.38}
+COMBINE_PLAYER_DEAD4 npc/combine_soldier/vo/(v100) on2 overwatch, V_G0_PLAYERS secure off3 {Len 1.38}
+COMBINE_PLAYER_DEAD5 npc/combine_soldier/vo/(v100) on1 overwatch, V_G0_PLAYERS delivered off1 {Len 1.38}
+COMBINE_PLAYER_DEAD6 npc/combine_soldier/vo/(v100) on1 overwatch, antiseptic administer off1 {Len 1.38}
+
+// Idle statement - my status, no enemy
+
+COMBINE_IDLE0 npc/combine_soldier/vo/(v30) on1 V_RNDNAMES V_RNDCODES V_RNDNUMS dash V_RNDNUMS off1 {Len 2.97 closecaption NPC_Combine.RadioChatter}
+COMBINE_IDLE1 npc/combine_soldier/vo/(v30) on1 overwatchreportspossiblehostiles off1 {Len 2.97 closecaption NPC_Combine.RadioChatter}
+COMBINE_IDLE2 npc/combine_soldier/vo/(v30) on1 ovewatchorders3ccstimboost off2 {Len 2.97 closecaption NPC_Combine.RadioChatter}
+COMBINE_IDLE3 npc/combine_soldier/vo/(v30) on2 stabilizationteamholding off1 {Len 2.97 closecaption NPC_Combine.RadioChatter}
+COMBINE_IDLE4 npc/combine_soldier/vo/(v30) on1 V_MYNAMES V_MYNUMS standingby] off1(p120) {Len 1.56 closecaption NPC_Combine.RadioChatter}
+
+// I'm asking a question while idle, which may be answered with affirmative
+
+COMBINE_QUEST0 npc/combine_soldier/vo/(v30) on1 readyweaponshostilesinbound off1(p120) {Len 1.56 closecaption NPC_Combine.RadioChatter}
+COMBINE_QUEST1 npc/combine_soldier/vo/(v30) on1 prepforcontact off3(p120) {Len 1.56 closecaption NPC_Combine.RadioChatter}
+COMBINE_QUEST2 npc/combine_soldier/vo/(v30) on2 skyshieldreportslostcontact, readyweapons off1(p120) {Len 1.56 closecaption NPC_Combine.RadioChatter}
+COMBINE_QUEST3 npc/combine_soldier/vo/(v30) on2 stayalert off3(p120) {Len 1.56 closecaption NPC_Combine.RadioChatter}
+COMBINE_QUEST4 npc/combine_soldier/vo/(v30) on2 weaponsoffsafeprepforcontact off2(p120) {Len 1.56 closecaption NPC_Combine.RadioChatter}
+COMBINE_QUEST5 npc/combine_soldier/vo/(v30) on1 overwatch isatcode V_RNDCODES V_RNDNUMS off1(p120) {Len 1.56 closecaption NPC_Combine.RadioChatter}
+
+// Answering affirmative
+
+COMBINE_ANSWER0 npc/combine_soldier/vo/(v30) on1 affirmative off1 {Len 1.57}
+COMBINE_ANSWER1 npc/combine_soldier/vo/(v30) on1 copy off1 {Len 1.57}
+COMBINE_ANSWER2 npc/combine_soldier/vo/(v30) on2 copythat off3 {Len 1.57}
+COMBINE_ANSWER3 npc/combine_soldier/vo/(v30) on1 affirmative2 off1 {Len 1.57}
+COMBINE_ANSWER4 npc/combine_soldier/vo/(v30) on1 copythat, V_RNDNAMES V_RNDCODES V_RNDNUMS dash V_RNDNUMS off1 {Len 1.57}
+
+// Answering all clear
+
+COMBINE_CLEAR0 npc/combine_soldier/vo/(v30) on1 V_MYNAMES V_MYNUMS hasnegativemovement grid V_GRIDXS dash V_GRIDYS on1 off2(p120) {Len 2.30}
+COMBINE_CLEAR1 npc/combine_soldier/vo/(v30) on1 V_MYNAMES V_MYNUMS isholdingatcode V_RNDCODES on1 off1(p120) {Len 2.30}
+COMBINE_CLEAR2 npc/combine_soldier/vo/(v30) on2 V_MYNAMES V_MYNUMS hasnegativemovement on1 off3(p120) {Len 2.30}
+COMBINE_CLEAR3 npc/combine_soldier/vo/(v30) on1 affirmative, noviscon on1 off1(p120) {Len 2.30}
+COMBINE_CLEAR4 npc/combine_soldier/vo/(v30) on1 sightlineisclear on1 off1(p120) {Len 2.30}
+COMBINE_CLEAR5 npc/combine_soldier/vo/(v30) on2 V_MYNAMES reportingclear on1 off3(p120) {Len 2.30}
+COMBINE_CLEAR6 npc/combine_soldier/vo/(v30) on1 sectorissecurenovison on1 off1(p120) {Len 2.30}
+
+// Questioning if all clear
+
+COMBINE_CHECK0 npc/combine_soldier/vo/(v30) on1 stayalertreportsightlines off3 {Len 1.63}
+COMBINE_CHECK1 npc/combine_soldier/vo/(v30) on2 reportallpositionsclear off3 {Len 1.63}
+COMBINE_CHECK2 npc/combine_soldier/vo/(v30) on1 reportallradialsfree off3 {Len 1.63}
+
+
+//-----------------------------------------------------------------------------
+// METROPOLICE STARTS HERE
+//-----------------------------------------------------------------------------
+
+// hl2 map names - 24 names max
+
+V_MAPNAME0 default
+V_MAPNAME1 trainstation
+V_MAPNAME2 canals
+V_MAPNAME3 eli
+V_MAPNAME4 town
+V_MAPNAME5 coast
+V_MAPNAME6 prison
+V_MAPNAME7 c17
+V_MAPNAME8 citadel
+
+// _MAP__ substring in word in sentence is replaced with _MAPxx where xx is mapnumber
+
+// location prefix by mapname (remembered) (duplicated for metropolice and overwatch)
+
+// map 0 default
+V_G1_LOCATION_MAP00P0 block
+V_G1_LOCATION_MAP00P1 zone
+V_G1_LOCATION_MAP00P2 sector
+
+// map 1 trainstation
+V_G1_LOCATION_MAP01P0 stationblock
+V_G1_LOCATION_MAP01P1 transitblock
+V_G1_LOCATION_MAP01P2 workforceintake
+
+// map 2 canals
+V_G1_LOCATION_MAP02P0 canalblock
+V_G1_LOCATION_MAP02P1 stormsystem
+V_G1_LOCATION_MAP02P2 wasteriver
+V_G1_LOCATION_MAP02P3 deservicedarea
+
+// map 3 eli
+V_G1_LOCATION_MAP03P0 industrialzone
+V_G1_LOCATION_MAP03P1 restrictedblock
+V_G1_LOCATION_MAP03P2 repurposedarea
+
+// map 4 town
+V_G1_LOCATION_MAP04P0 condemnedzone
+V_G1_LOCATION_MAP04P1 infestedzone
+V_G1_LOCATION_MAP04P2 nonpatrolregion
+
+// map 5 coast
+V_G1_LOCATION_MAP05P0 externaljurisdiction
+V_G1_LOCATION_MAP05P1 stabilizationjurisdiction
+V_G1_LOCATION_MAP05P2 outlandzone
+
+// map 6 prison
+V_G1_LOCATION_MAP06P0 externaljurisdiction
+V_G1_LOCATION_MAP06P1 stabilizationjurisdiction
+
+// map 7 c17
+V_G1_LOCATION_MAP07P0 residentialblock
+V_G1_LOCATION_MAP07P1 404zone
+V_G1_LOCATION_MAP07P2 distributionblock
+V_G1_LOCATION_MAP07P3 productionblock
+ 
+// map 8 citadel
+V_G1_LOCATION_MAP08P0 highpriorityregion
+V_G1_LOCATION_MAP08P1 terminalrestrictionzone
+V_G1_LOCATION_MAP08P2 controlsection
+
+
+
+// player names by mapname (remembered) (duplicated for metropolice and overwatch)
+
+V_G2_SUSPECT_MAP00P0 subject
+
+V_G2_SUSPECT_MAP01P0 citizen
+V_G2_SUSPECT_MAP01P1 UPI
+V_G2_SUSPECT_MAP01P2 subject
+
+V_G2_SUSPECT_MAP02P0 subject
+V_G2_SUSPECT_MAP02P1 noncitizen
+V_G2_SUSPECT_MAP02P2 sociocide
+V_G2_SUSPECT_MAP02P3 anticitizen
+
+V_G2_SUSPECT_MAP03P0 anticitizen
+V_G2_SUSPECT_MAP03P1 subject
+
+V_G2_SUSPECT_MAP04P0 freeman
+V_G2_SUSPECT_MAP04P1 subject
+V_G2_SUSPECT_MAP04P2 anticitizen
+
+V_G2_SUSPECT_MAP05P0 freeman
+V_G2_SUSPECT_MAP05P1 sociocide
+
+V_G2_SUSPECT_MAP06P0 freeman
+V_G2_SUSPECT_MAP06P1 infection
+
+V_G2_SUSPECT_MAP07P0 freeman
+
+V_G2_SUSPECT_MAP08P0 freeman
+
+// rnd address suffix (remembered) (duplicated for metropolice and overwatch)
+
+V_G3_NUMBP0 zero 
+V_G3_NUMBP1 one
+V_G3_NUMBP2 two
+V_G3_NUMBP3 three
+V_G3_NUMBP4 four
+V_G3_NUMBP5 five
+V_G3_NUMBP6 six
+V_G3_NUMBP7 seven
+V_G3_NUMBP8 eight
+V_G3_NUMBP9 nine
+
+
+// sequential global numbers, used for counting enemies down (duplicated for metropolice and overwatch)
+
+V_SEQG0_NBRP0 one {Len 0.4}
+V_SEQG0_NBRP1 two {Len 0.4}
+V_SEQG0_NBRP2 three {Len 0.4}
+V_SEQG0_NBRP3 four {Len 0.4}
+V_SEQG0_NBRP4 five {Len 0.4}
+V_SEQG0_NBRP5 six {Len 0.4}
+V_SEQG0_NBRP6 seven {Len 0.4}
+V_SEQG0_NBRP7 eight {Len 0.4}
+V_SEQG0_NBRP8 nine {Len 0.4}
+V_SEQG0_NBRP9 ten {Len 0.4}
+V_SEQG0_NBRP10 eleven {Len 0.4}
+V_SEQG0_NBRP11 twelve {Len 0.4}
+V_SEQG0_NBRP12 thirteen {Len 0.4}
+V_SEQG0_NBRP13 fourteen {Len 0.4}
+V_SEQG0_NBRP14 fifteen {Len 0.4}
+V_SEQG0_NBRP15 sixteen {Len 0.4}
+V_SEQG0_NBRP16 seventeen {Len 0.4}
+V_SEQG0_NBRP17 eighteen {Len 0.4}
+V_SEQG0_NBRP18 nineteen {Len 0.4}
+V_SEQG0_NBRP19 twenty {Len 0.4}
+
+// numbers, must be in order (duplicated for metropolice and overwatch)
+
+V_NUMBERSP0 zero {Len 0.4}
+V_NUMBERSP1 one {Len 0.4}
+V_NUMBERSP2 two {Len 0.4}
+V_NUMBERSP3 three {Len 0.4}
+V_NUMBERSP4 four {Len 0.4}
+V_NUMBERSP5 five {Len 0.4}
+V_NUMBERSP6 six {Len 0.4}
+V_NUMBERSP7 seven {Len 0.4}
+V_NUMBERSP8 eight {Len 0.4}
+V_NUMBERSP9 nine {Len 0.4}
+V_NUMBERSP10 ten {Len 0.4}
+V_NUMBERSP11 eleven {Len 0.4}
+V_NUMBERSP12 twelve {Len 0.4}
+V_NUMBERSP13 thirteen {Len 0.4}
+V_NUMBERSP14 fourteen {Len 0.4}
+V_NUMBERSP15 fifteen {Len 0.4}
+V_NUMBERSP16 sixteen {Len 0.4}
+V_NUMBERSP17 seventeen {Len 0.4}
+V_NUMBERSP18 eighteen {Len 0.4}
+V_NUMBERSP19 nineteen {Len 0.4}
+V_NUMBERSP20 twenty {Len 0.4}
+V_NUMBERSP21 thirty {Len 0.4}
+V_NUMBERSP22 fourty {Len 0.4}
+V_NUMBERSP23 fifty {Len 0.4}
+V_NUMBERSP24 sixty {Len 0.4}
+V_NUMBERSP25 seventy {Len 0.4}
+V_NUMBERSP26 eighty {Len 0.4}
+V_NUMBERSP27 ninety {Len 0.4}
+V_NUMBERSP28 onehundred {Len 0.4}
+V_NUMBERSP29 twohundred {Len 0.4}
+V_NUMBERSP30 threehundred {Len 0.4}
+
+// random codes, player is criminal (duplicated for metropolice and overwatch)
+
+V_RNDCODECRIM_P0 criminaltrespass63
+V_RNDCODECRIM_P1 nonsanctionedarson51
+V_RNDCODECRIM_P2 posession69
+V_RNDCODECRIM_P3 publicnoncompliance507
+V_RNDCODECRIM_P4 recklessoperation99
+V_RNDCODECRIM_P5 resistingpacification148
+V_RNDCODECRIM_P6 riot404
+V_RNDCODECRIM_P7 fugitive17f
+V_RNDCODECRIM_P8 weapon94
+V_RNDCODECRIM_P9 alarms62
+V_RNDCODECRIM_P10 assault243
+V_RNDCODECRIM_P11 illegalcarrying95
+V_RNDCODECRIM_P12 unlawfulentry603
+
+// random codes, player is not criminal (duplicated for metropolice and overwatch)
+
+V_RNDCODEPLR_P0 attemptedcrime27
+V_RNDCODEPLR_P1 disengaged647e
+V_RNDCODEPLR_P2 disturbingunity415
+V_RNDCODEPLR_P3 disturbancemental10-103m
+V_RNDCODEPLR_P4 illegalinoperation63s
+V_RNDCODEPLR_P5 threattoproperty51b
+
+// random action codes (duplicated for metropolice and overwatch)
+
+V_RNDACTP0 pressure
+V_RNDACTP1 document
+V_RNDACTP2 restrict
+V_RNDACTP3 intercede
+V_RNDACTP4 preserve
+V_RNDACTP5 search
+V_RNDACTP6 suspend
+V_RNDACTP7 investigate
+V_RNDACTP8 interlock
+V_RNDACTP9 isolate
+V_RNDACTP10 administer
+V_RNDACTP11 cauterize
+V_RNDACTP12 inject
+V_RNDACTP13 innoculate
+V_RNDACTP14 examine
+V_RNDACTP15 apply
+V_RNDACTP16 prosecute
+V_RNDACTP17 serve
+V_RNDACTP18 sterilize
+V_RNDACTP19 amputate
+V_RNDACTP20 lock
+
+
+// random number
+V_RNDNUMP0 zero {Len 0.4}
+V_RNDNUMP1 one {Len 0.4}
+V_RNDNUMP2 two {Len 0.4}
+V_RNDNUMP3 three {Len 0.4}
+V_RNDNUMP4 four {Len 0.4}
+V_RNDNUMP5 five {Len 0.4}
+V_RNDNUMP6 six {Len 0.4}
+V_RNDNUMP7 seven {Len 0.4}
+V_RNDNUMP8 eight {Len 0.4}
+V_RNDNUMP9 nine {Len 0.4}
+
+// unit names, remembered by speaker  (duplicated for metropolice and overwatch)
+
+V_MYNAMEP0 defender 
+V_MYNAMEP1 hero 
+V_MYNAMEP2 jury 
+V_MYNAMEP3 king 
+V_MYNAMEP4 line 
+V_MYNAMEP5 patrol 
+V_MYNAMEP6 quick 
+V_MYNAMEP7 roller 
+V_MYNAMEP8 stick 
+V_MYNAMEP9 tap 
+V_MYNAMEP10 union 
+V_MYNAMEP11 victor 
+V_MYNAMEP12 xray 
+V_MYNAMEP13 yellow 
+V_MYNAMEP14 vice
+
+
+// unit numbers, remembered by speaker: (duplicated for metropolice and overwatch)
+
+V_MYNUMP0 one
+V_MYNUMP1 two
+V_MYNUMP2 three
+V_MYNUMP3 four
+V_MYNUMP4 five
+V_MYNUMP5 six
+V_MYNUMP6 seven
+V_MYNUMP7 eight
+V_MYNUMP8 nine
+//V_MYNUMP9 15w40 
+//V_MYNUMP10 15w3
+//V_MYNUMP11 15r9
+//V_MYNUMP12 15l30
+//V_MYNUMP13 15w2
+//V_MYNUMP14 13x2
+//V_MYNUMP15 11x25
+//V_MYNUMP16 9l14
+//V_MYNUMP17 6r3
+
+//
+// Death sounds
+
+METROPOLICE_DIE0 npc/overwatch/radiovoice/(v80) die1 on3 unitdownat V_G1_LOCATION_MAP__P V_G3_NUMBP allteamsrespondcode3 V_IDIEDP off2 {Len 1.5 closecaption NPC_Combine.Death}
+METROPOLICE_DIE1 npc/overwatch/radiovoice/(v80) die2 on3 unitdownat V_G1_LOCATION_MAP__P V_G3_NUMBP V_IDIEDP off2 {Len 1.5 closecaption NPC_Combine.Death}
+METROPOLICE_DIE2 npc/overwatch/radiovoice/(v80) die3 on3 lostbiosignalforunit V_MYNAMEP V_MYNUMP V_IDIEDP off2 {Len 1.5 closecaption NPC_Combine.Death}
+METROPOLICE_DIE3 npc/overwatch/radiovoice/(v80) die1 on3 V_MYNAMEP V_MYNUMP unitdeserviced, remainingunitscontain V_IDIEDP off2 {Len 1.5 closecaption NPC_Combine.Death}
+METROPOLICE_DIE4 npc/overwatch/radiovoice/(v80) die2 on3 V_MYNAMEP V_MYNUMP unitdownat V_G1_LOCATION_MAP__P V_G3_NUMBP V_IDIEDP off2 {Len 1.5 closecaption NPC_Combine.Death}
+METROPOLICE_DIE5 npc/overwatch/radiovoice/(v80) die1 {Len 1.5 closecaption NPC_Combine.Death}
+METROPOLICE_DIE6 npc/overwatch/radiovoice/(v80) die2 {Len 1.5 closecaption NPC_Combine.Death}
+METROPOLICE_DIE7 npc/overwatch/radiovoice/(v80) die3 {Len 1.5 closecaption NPC_Combine.Death}
+METROPOLICE_DIE8 npc/overwatch/radiovoice/(v80) die1 {Len 1.5 closecaption NPC_Combine.Death}
+//
+// Alert sounds (unused currently) - see monst_player
+//
+METROPOLICE_GO_ALERT0 npc/metropolice/vo/(v100) on1 designatesuspectas V_G2_SUSPECT_MAP__P allunitscode2 off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_GO_ALERT1 npc/metropolice/vo/(v100) on2 thereheis V_DISTP meters off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_GO_ALERT2 npc/metropolice/vo/(v100) on2 contactwith243suspect, V_G1_LOCATION_MAP__P V_G3_NUMBP off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_GO_ALERT3 npc/metropolice/vo/(v100) on1 allunitsrespondcode3 off3 {Len 1.5 closecaption NPC_Combine.Alert}
+
+// location-specific alert sounds (unused currently)
+
+METROPOLICE_CANAL_ALERT0 npc/metropolice/vo/(v100) on1 suspectinstormrunoff V_G1_LOCATION_MAP__P V_G3_NUMBP off3 {Len 1.5 closecaption NPC_Combine.Alert}
+
+METROPOLICE_UPTHERE_ALERT0 npc/metropolice/vo/(v100) on1 hesupthere off4 {Len 1.5 closecaption NPC_Combine.Alert}
+
+METROPOLICE_WATER_ALERT0 npc/metropolice/vo/(v100) on1 suspectusingrestrictedcanals V_G1_LOCATION_MAP__P V_G3_NUMBP off3 {Len 1.5 closecaption NPC_Combine.Alert}
+
+//
+// Pain sounds
+//
+METROPOLICE_PAIN0 npc/metropolice/(v60) pain1 {Len 0.30 closecaption NPC_Combine.Pain}
+METROPOLICE_PAIN1 npc/metropolice/(v60) pain2 {Len 0.30 closecaption NPC_Combine.Pain}
+METROPOLICE_PAIN2 npc/metropolice/(v60) pain3 {Len 0.26 closecaption NPC_Combine.Pain}
+
+// Pain sounds (I'm still over 90% health, used only once)
+
+METROPOLICE_PAIN_LIGHT0 npc/metropolice/vo/(v100) on1 minorhitscontinuing off1 {Len 1.5 closecaption NPC_Combine.Pain}
+//METROPOLICE_PAIN_LIGHT1 npc/metropolice/vo/(v100) on1 V_MYNAMEP V_MYNUMP is10-108 off1 {Len 1.5 closecaption NPC_Combine.Pain}
+
+
+// Pain sounds (I'm under 25% health for the first time, used only once)
+
+
+METROPOLICE_PAIN_HEAVY0 npc/metropolice/vo/(v90) on1 11-99officerneedsassistance off1 {Len 1.5 closecaption NPC_Combine.Pain}
+METROPOLICE_PAIN_HEAVY1 npc/metropolice/vo/(v90) on1 officerneedshelp off1 {Len 1.5 closecaption NPC_Combine.Pain}
+METROPOLICE_PAIN_HEAVY2 npc/metropolice/vo/(v90) on1 dispatchIneed10-78 off4 {Len 1.5 closecaption NPC_Combine.Pain}
+METROPOLICE_PAIN_HEAVY3 npc/metropolice/vo/(v90) on1 officerneedsassistance off4 {Len 1.5 closecaption NPC_Combine.Pain}
+//METROPOLICE_PAIN_HEAVY3 npc/metropolice/vo/(v100) on1 V_MYNAMEP needsmedical11-99 off1 {Len 1.5 closecaption NPC_Combine.Pain}
+
+
+//
+// Idle sounds (precriminal)
+//
+
+// Simple idle sound, always used when not in squad, sometimes used when in squad
+METROPOLICE_IDLE0 npc/metropolice/vo/(v50) on1 unitis10-8standingby off4 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE1 npc/metropolice/vo/(v50) on2 unitisonduty10-8 off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE2 npc/metropolice/vo/(v50) on1 holdingon10-14duty off4 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE3 npc/metropolice/vo/(v50) on2 unitis10-65 off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE4 npc/metropolice/vo/(v50) on1 code7 off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE5 npc/overwatch/radiovoice/(v50) on3 V_RNDCODEPLR_P inprogress, respond off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE6 npc/overwatch/radiovoice/(v50) on3 airwatchcopiesnoactivity V_G1_LOCATION_MAP__P V_G3_NUMBP off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE7 npc/overwatch/radiovoice/(v50) on3 V_RNDACTP V_RNDNUMP V_RNDACTP off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+// Check with squadmates
+METROPOLICE_IDLE_CHECK0 npc/metropolice/vo/(v50) on1 V_G1_LOCATION_MAP__P V_G3_NUMBP ptatlocationreport off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK1 npc/metropolice/vo/(v50) on2 anyonepickup647e off4 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK2 npc/metropolice/vo/(v50) on2 stillgetting647e off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK3 npc/overwatch/radiovoice/(v50) on3 teamsreportstatus off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+
+// Response to the check with squadmates
+METROPOLICE_IDLE_CLEAR0 npc/metropolice/vo/(v50) on1 clearno647no10-107 off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CLEAR1 npc/metropolice/vo/(v50) on2 wearesociostablethislocation off4 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CLEAR2 npc/metropolice/vo/(v50) on1 blockisholdingcohesive off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CLEAR3 npc/metropolice/vo/(v50) on2 control100percent off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+// Ask a question to squadmates
+METROPOLICE_IDLE_QUEST0 npc/metropolice/vo/(v50) on1 anyonepickup647e off4 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST1 npc/metropolice/vo/(v50) on2 checkformiscount off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST2 npc/metropolice/vo/(v50) on1 catchthatbliponstabilization off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST3 npc/metropolice/vo/(v50) on2 pickingupnoncorplexindy off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST4 npc/overwatch/radiovoice/(v50) on3 confirmupialert off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST5 npc/overwatch/radiovoice/(v50) on3 recalibratesocioscan off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST6 npc/overwatch/radiovoice/(v50) on3 airwatchreportspossiblemiscount off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST7 npc/overwatch/radiovoice/(v50) on3 recalibratesocioscan, recievingconflictingdata off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+// Answer to a question asked
+METROPOLICE_IDLE_ANSWER0 npc/metropolice/vo/(v50) on1 copy off4 {Len 1.5}
+METROPOLICE_IDLE_ANSWER1 npc/metropolice/vo/(v50) on1 rodgerthat off1 {Len 1.5}
+METROPOLICE_IDLE_ANSWER2 npc/metropolice/vo/(v50) on2 ten4 off4 {Len 1.5}
+METROPOLICE_IDLE_ANSWER3 npc/metropolice/vo/(v50) on1 ten2 off1 {Len 1.5}
+METROPOLICE_IDLE_ANSWER4 npc/metropolice/vo/(v50) on2 ten97 off3 {Len 1.5}
+METROPOLICE_IDLE_ANSWER5 npc/metropolice/vo/(v50) on1 affirmative off1 {Len 1.5}
+METROPOLICE_IDLE_ANSWER6 npc/metropolice/vo/(v50) on2 affirmative2 off1 {Len 1.5}
+
+// Player is near, cop is harassing him
+METROPOLICE_IDLE_HARASS_PLAYER0 npc/metropolice/vo/(v70) on1 getoutofhere off1 {Len 1.5}
+METROPOLICE_IDLE_HARASS_PLAYER1 npc/metropolice/vo/(v70) on1 movealong off4 {Len 1.5}
+METROPOLICE_IDLE_HARASS_PLAYER2 npc/metropolice/vo/(v70) on1 vacatecitizen off4 {Len 1.5}
+METROPOLICE_IDLE_HARASS_PLAYER3 npc/metropolice/vo/(v70) on1 youwantamalcomplianceverdict off3 {Len 1.5}
+METROPOLICE_IDLE_HARASS_PLAYER4 npc/metropolice/vo/(v70) on1 lookingfortrouble off3 {Len 1.5}
+METROPOLICE_IDLE_HARASS_PLAYER5 npc/metropolice/vo/(v70) on2 possiblelevel3civilprivacyviolator off3 {Len 1.5}
+METROPOLICE_IDLE_HARASS_PLAYER6 npc/metropolice/vo/(v70) on2 possible647erequestairwatch off3 {Len 1.5} 
+METROPOLICE_IDLE_HARASS_PLAYER7 npc/metropolice/vo/(v70) on2 possible10-103alerttagunits off4 {Len 1.5}
+METROPOLICE_IDLE_HARASS_PLAYER8 npc/metropolice/vo/(v70) on2 gota10-107sendairwatch off3 {Len 1.5}
+
+//
+// Idle sounds (criminal)
+//
+
+V_RNDPUNISHP0 permanentoffworld
+V_RNDPUNISHP1 immediateamputation
+V_RNDPUNISHP2 halfreproductioncredits
+V_RNDPUNISHP3 halfrankpoints
+
+// Simple idle sound, always used when not in squad, sometimes used when in squad
+METROPOLICE_IDLE_CR0 npc/metropolice/vo/(v50) on1 ten97suspectisgoa off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR1 npc/metropolice/vo/(v50) on2 suspect11-6my1020is V_G1_LOCATION_MAP__P V_G3_NUMBP off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR2 npc/metropolice/vo/(v50) on1 ten8standingby off4 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR3 npc/metropolice/vo/(v50) on2 code100 off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR4 npc/overwatch/radiovoice/(v50) on3 allunitsbolfor243suspect off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR5 npc/overwatch/radiovoice/(v50) on3 suspectisnow187 off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR6 npc/overwatch/radiovoice/(v50) on3 V_RNDCODECRIM_P inprogress, allunitsat V_G1_LOCATION_MAP__P V_G3_NUMBP respond off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR7 npc/overwatch/radiovoice/(v50) on3 politistablizationmarginal off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR8 npc/overwatch/radiovoice/(v50) on3 restrictedincursioninprogress, officerat V_G1_LOCATION_MAP__P V_G3_NUMBP investigateandreport off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR9 npc/overwatch/radiovoice/(v50) on3 socialfractureinprogress off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR10 npc/overwatch/radiovoice/(v50) on3 prematuremissiontermination V_RNDPUNISHP off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR11 npc/overwatch/radiovoice/(v50) on3 preparevisualdownload off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR12 npc/overwatch/radiovoice/(v50) on3 leadersreportratios off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR13 npc/overwatch/radiovoice/(v50) on3 V_RNDCODECRIM_P inprogress, investigateandreport off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR14 npc/overwatch/radiovoice/(v50) on3 failuretotreatoutbreak off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR15 npc/overwatch/radiovoice/(v50) on3 antifatigueration3mg off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR16 npc/overwatch/radiovoice/(v50) on3 accomplicesoperating off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR17 npc/overwatch/radiovoice/(v50) on3 remindermemoryreplacement off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CR18 npc/overwatch/radiovoice/(v50) on3 reminder100credits off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+
+// Check with squadmates
+METROPOLICE_IDLE_CHECK_CR0 npc/metropolice/vo/(v50) on1 ptatlocationreport V_G1_LOCATION_MAP__P V_G3_NUMBP off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK_CR1 npc/metropolice/vo/(v50) on1 cprequestsallunitsreportin off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK_CR2 npc/metropolice/vo/(v50) on2 cpbolforthat243 off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK_CR3 npc/metropolice/vo/(v50) on1 localcptreportstatus off4 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK_CR4 npc/overwatch/radiovoice/(v50) on3 allunitsbolfor243suspect off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK_CR5 npc/overwatch/radiovoice/(v50) on3 statuson243suspect off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK_CR6 npc/overwatch/radiovoice/(v50) on3 reporton V_G2_SUSPECT_MAP__P off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_CHECK_CR7 npc/metropolice/vo/(v50) on1 reportsightingsaccomplices V_G2_SUSPECT_MAP__P off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+// Response to the check with squadmates
+METROPOLICE_IDLE_CLEAR_CR0 npc/metropolice/vo/(v50) on1 suspectlocationunknown off3 {Len 1.5}
+METROPOLICE_IDLE_CLEAR_CR1 npc/metropolice/vo/(v50) on1 clearandcode100 off1 {Len 1.5}
+METROPOLICE_IDLE_CLEAR_CR2 npc/metropolice/vo/(v50) on2 novisualonupi off4 {Len 1.5}
+METROPOLICE_IDLE_CLEAR_CR3 npc/metropolice/vo/(v50) on1 searchingforsuspect off4 {Len 1.5}
+METROPOLICE_IDLE_CLEAR_CR4 npc/metropolice/vo/(v50) on2 utlthatsuspect off1 {Len 1.5}
+
+// Ask a question to squadmates
+METROPOLICE_IDLE_QUEST_CR0 npc/metropolice/vo/(v50) on1 confirmadw off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST_CR1 npc/metropolice/vo/(v50) on1 allunitsbol34sat V_G1_LOCATION_MAP__P off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST_CR2 npc/metropolice/vo/(v50) on2 dispreportssuspectincursion V_G1_LOCATION_MAP__P V_G3_NUMBP off1 off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST_CR3 npc/metropolice/vo/(v50) on1 dispupdatingapb V_G2_SUSPECT_MAP__P off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST_CR4 npc/overwatch/radiovoice/(v50) on3 allunitsverdictcodeonsuspect V_G2_SUSPECT_MAP__P, isnow V_RNDACTP V_RNDNUMP V_RNDACTP off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST_CR5 npc/overwatch/radiovoice/(v50) on3 preparetoinnoculate V_G1_LOCATION_MAP__P off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_IDLE_QUEST_CR6 npc/overwatch/radiovoice/(v50) on3 allunitsreturntocode12 off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+// Answer to a question asked
+METROPOLICE_IDLE_ANSWER_CR0 npc/metropolice/vo/(v50) on1 copy off1 {Len 1.5}
+METROPOLICE_IDLE_ANSWER_CR1 npc/metropolice/vo/(v50) on1 rodgerthat off4 {Len 1.5}
+METROPOLICE_IDLE_ANSWER_CR2 npc/metropolice/vo/(v50) on2 ten4 off1 {Len 1.5}
+METROPOLICE_IDLE_ANSWER_CR3 npc/metropolice/vo/(v50) on1 ten2 off3 {Len 1.5}
+METROPOLICE_IDLE_ANSWER_CR4 npc/metropolice/vo/(v50) on2 ten97 off4 {Len 1.5}
+METROPOLICE_IDLE_ANSWER_CR5 npc/metropolice/vo/(v50) on2 affirmative off1 {Len 1.5}
+METROPOLICE_IDLE_ANSWER_CR6 npc/metropolice/vo/(v50) on1 affirmative2 off4 {Len 1.5}
+
+//
+// Preciminal harrasment (amplifying in nastiness)
+//
+
+// These are done in sequence as the player persistently pesters the cops
+
+METROPOLICE_MOVE_ALONG_A0 npc/metropolice/vo/(v60) on1 movealong3 off1 {Len 1.5  closecaption NPC_MetroPolice.MoveAlong1}
+METROPOLICE_MOVE_ALONG_A1 npc/metropolice/vo/(v60) on1 move off4 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong1}
+METROPOLICE_MOVE_ALONG_A2 npc/metropolice/vo/(v60) on1 keepmoving off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong1}
+
+METROPOLICE_MOVE_ALONG_B0 npc/metropolice/vo/(v70) on1 Isaidmovealong off1 {Len  1.5closecaption NPC_MetroPolice.MoveAlong2}
+METROPOLICE_MOVE_ALONG_B1 npc/metropolice/vo/(v70) on2 youwantamalcomplianceverdict off3 {Len 1.5closecaption NPC_MetroPolice.MoveAlong2}
+//METROPOLICE_MOVE_ALONG_B2 npc/metropolice/vo/(v70) on1 moveaway off4 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong2}
+
+METROPOLICE_MOVE_ALONG_C0 npc/metropolice/vo/(v80) on2 level3civilprivacyviolator off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong3}
+METROPOLICE_MOVE_ALONG_C1 npc/metropolice/vo/(v80) on2 malcompliant10107my1020 off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong3}
+METROPOLICE_MOVE_ALONG_C2 npc/metropolice/vo/(v80) on2 preparingtojudge10-107 off4 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong3}
+METROPOLICE_MOVE_ALONG_C3 npc/metropolice/vo/(v80) on2 readytoprosecutefinalwarning off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong}
+
+// These also are done in sequence as the player persistently pesters the cops
+
+METROPOLICE_BACK_UP_A0 npc/metropolice/vo/(v60) on1 backup off1 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong1}
+METROPOLICE_BACK_UP_A1 npc/metropolice/vo/(v60) on1 getoutofhere off4 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong1}
+METROPOLICE_BACK_UP_A2 npc/metropolice/vo/(v60) on2 firstwarningmove off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong1}
+
+METROPOLICE_BACK_UP_B0 npc/metropolice/vo/(v70) on1 movebackrightnow off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong2}
+METROPOLICE_BACK_UP_B1 npc/metropolice/vo/(v70) on1 secondwarning off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong2}
+//METROPOLICE_BACK_UP_B2 npc/metropolice/vo/(v70) on2 moveawayenforcementarea off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong2}
+
+METROPOLICE_BACK_UP_C0 npc/metropolice/vo/(v80) on2 issuingmalcompliantcitation off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong3}
+METROPOLICE_BACK_UP_C1 npc/metropolice/vo/(v80) on2 possiblelevel3civilprivacyviolator off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong3}
+METROPOLICE_BACK_UP_C2 npc/metropolice/vo/(v80) on1 finalwarning off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong3}
+METROPOLICE_BACK_UP_C3 npc/metropolice/vo/(v80) on2 preparingtojudge10-107 off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong3}
+METROPOLICE_BACK_UP_C4 npc/metropolice/vo/(v80) on2 readytoprosecutefinalwarning off3 {Len 1.5 closecaption NPC_MetroPolice.MoveAlong3}
+ 
+//
+// Baton
+//
+
+// Take out my baton
+METROPOLICE_ACTIVATE_BATON0 npc/metropolice/vo/(v100) on1 issuingmalcompliantcitation off3 {Len 1.5}
+METROPOLICE_ACTIVATE_BATON1 npc/metropolice/vo/(v100) on1 pacifying off4 {Len 1.5}
+METROPOLICE_ACTIVATE_BATON2 npc/metropolice/vo/(v100) on1 off3 {Len 1.5}
+
+// Put away my baton
+METROPOLICE_DEACTIVATE_BATON0 npc/metropolice/vo/(v100) on1 off3 {Len 1.5}
+
+//
+// I'm on fire! Yeouch!
+//
+
+METROPOLICE_ON_FIRE0 npc/metropolice/vo/(v100) on1 officerneedshelp V_IDIEDS {Len 1.5 closecaption NPC_Combine.Pain}
+METROPOLICE_ON_FIRE1 npc/metropolice/vo/(v100) on1 help V_IDIEDS {Len 1.5 closecaption NPC_Combine.Pain}
+METROPOLICE_ON_FIRE2 npc/metropolice/pain1 V_IDIEDS {Len 1.5 closecaption NPC_Combine.Pain}
+
+
+//
+// Misc
+//
+
+// My enemy is behind cover; I'm shooting out his cover
+METROPOLICE_SHOOT_COVER0 npc/metropolice/vo/(v100) on1 breakhiscover off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_SHOOT_COVER1 npc/metropolice/vo/(v100) on1 destroythatcover off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_SHOOT_COVER2 npc/metropolice/vo/(v100) on1 firingtoexposetarget off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_SHOOT_COVER3 npc/metropolice/vo/(v100) on2 firetodislocateinterpose off1 {Len 1.5 closecaption NPC_Combine.Alert}
+
+// I'm moving more than 20ft to get into a new shooting position
+METROPOLICE_FLANK0 npc/metropolice/vo/(v100) on1 V_MYNAMEP V_MYNUMP ismovingin off3 {Len 1.5}
+METROPOLICE_FLANK1 npc/metropolice/vo/(v100) on1 covermegoingin off1 {Len 1.5}
+METROPOLICE_FLANK2 npc/metropolice/vo/(v100) on2 V_MYNAMEP V_MYNUMP isclosingonsuspect off3 {Len 1.5}
+METROPOLICE_FLANK3 npc/metropolice/vo/(v100) on1 V_MYNAMEP V_MYNUMP converging off4 {Len 1.5}
+METROPOLICE_FLANK4 npc/overwatch/radiovoice/(v100) on3 suspendnegotiations officerclosingonsuspect off2 {Len 1.5}
+METROPOLICE_FLANK5 npc/overwatch/radiovoice/(v100) on3 officerclosingonsuspect off2 {Len 1.5}
+METROPOLICE_FLANK6 npc/overwatch/radiovoice/(v100) on3 allunitsapplyforwardpressure off2 {Len 1.5}
+
+// I heard something
+METROPOLICE_HEARD_SOMETHING0 npc/metropolice/vo/(v60) on1 V_MYNAMEP V_MYNUMP investigating10-103 off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_HEARD_SOMETHING1 npc/metropolice/vo/(v60) on2 Ihave10-30my10-20responding off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_HEARD_SOMETHING2 npc/metropolice/vo/(v60) on1 V_MYNAMEP V_MYNUMP is415b off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_HEARD_SOMETHING3 npc/metropolice/vo/(v60) on2 V_MYNAMEP V_MYNUMP responding2 off4 {Len 1.5 closecaption NPC_Combine.Alert}
+
+V_RNDCHARGEP0 capitalmalcompliance
+V_RNDCHARGEP1 violationofcivictrust
+V_RNDCHARGEP2 promotingcommunalunrest
+V_RNDCHARGEP3 failuretocomply
+V_RNDCHARGEP4 level5anticivilactivity
+V_RNDCHARGEP5 destrutionofcpt
+V_RNDCHARGEP6 devisivesociocidal
+V_RNDCHARGEP7 incitingpopucide
+V_RNDCHARGES8 inciting404
+
+V_RNDJUDGEP0 immediateamputation
+V_RNDJUDGEP1 terminalprosecution
+V_RNDJUDGEP2 disassociationfromcivic
+
+
+// The player is significantly hurt
+METROPOLICE_PLAYERHIT0 npc/metropolice/vo/(v100) on1 wegotadbherecancel10-102 off4 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_PLAYERHIT1 npc/metropolice/vo/(v100) on2 suspectisbleeding off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_PLAYERHIT2 npc/metropolice/vo/(v100) on1 V_G2_SUSPECT_MAP__P ispassive off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_PLAYERHIT3 npc/metropolice/vo/(v100) on2 readytoamputate V_G2_SUSPECT_MAP__P off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_PLAYERHIT4 npc/metropolice/vo/(v100) on1 get11-44inboundcleaningup off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_PLAYERHIT5 npc/overwatch/radiovoice/(v100) on1, on1, on1, on3 attentionyouhavebeenchargedwith V_RNDCHARGEP, preparetoreceiveverdict V_RNDJUDGEP off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_PLAYERHIT6 npc/overwatch/radiovoice/(v100) on1, on1, on1, on3 attention V_G2_SUSPECT_MAP__P, prepareforfinalsentencing off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_PLAYERHIT7 npc/overwatch/radiovoice/(v100) on1, on1, on1, on3 youarechargedwithterminal, completesentencingatwill off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_PLAYERHIT8 npc/overwatch/radiovoice/(v100) on1, on1, on1, on3 attention V_G2_SUSPECT_MAP__P, youarejudgedguilty, allunitsdeliverterminalverdict off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+//
+// Taking cover
+//
+
+// Taking cover because I have no ammo
+METROPOLICE_COVER_NO_AMMO0 npc/metropolice/vo/(v100) on1 backmeupImout off1 {Len 1.5}
+//METROPOLICE_COVER_NO_AMMO1 npc/metropolice/vo/(v100) on1 noverdictslefttakingcover off4
+
+// Taking cover because I have low ammo
+METROPOLICE_COVER_LOW_AMMO0 npc/metropolice/vo/(v100) on1 runninglowonverdicts off1 {Len 1.5}
+
+// Taking cover because I have taken heavy damage recently
+
+METROPOLICE_COVER_HEAVY_DAMAGE0 npc/metropolice/vo/(v80) on1 officerunderfiretakingcover off1 {Len 1.5}
+METROPOLICE_COVER_HEAVY_DAMAGE1 npc/metropolice/vo/(v80) on1 officerneedsassistance off4 {Len 1.5}
+METROPOLICE_COVER_HEAVY_DAMAGE2 npc/metropolice/vo/(v80) on1 takecover {Len 1.5}
+METROPOLICE_COVER_HEAVY_DAMAGE3 npc/metropolice/vo/(v80 p110) on1 movingtocover {Len 1.5}
+METROPOLICE_COVER_HEAVY_DAMAGE4 npc/metropolice/vo/(v80) on2 off1 {Len 1.5}
+METROPOLICE_COVER_HEAVY_DAMAGE5 npc/metropolice/vo/(v80) on1 off3 {Len 1.5}
+// METROPOLICE_COVER_HEAVY_DAMAGE3 npc/metropolice/vo/(v100) on1 V_MYNAMEP needsmedical11-99 off4 {Len 1.5}
+
+//
+// Lost/refound enemy
+//
+
+// (UNDONE?) I lost my enemy under 10 seconds ago
+METROPOLICE_LOST_SHORT0 npc/metropolice/vo/(v60) on1 V_G2_SUSPECT_MAP__P hidinglastseenatrange V_DISTP meters off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_LOST_SHORT1 npc/metropolice/vo/(v60) on2 sweepingforsuspect off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_LOST_SHORT2 npc/overwatch/radiovoice/(v50) on3 switchcomtotac3, reportplease off4 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+// (UNDONE?) I lost my enemy over 10 seconds ago
+METROPOLICE_LOST_LONG0 npc/metropolice/vo/(v60) on1 allunitsreportlocationsuspect off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_LOST_LONG1 npc/metropolice/vo/(v60) on1 V_MYNAMEP V_MYNUMP nocontact off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_LOST_LONG2 npc/metropolice/vo/(v60) on2 cpweneedtoestablishaperimeterat V_G1_LOCATION_MAP__P V_G3_NUMBP off3 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_LOST_LONG3 npc/metropolice/vo/(v60) on1 V_MYNAMEP V_MYNUMP utlsuspect off1 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_LOST_LONG4 npc/overwatch/radiovoice/(v60) on3 allunitsat V_G1_LOCATION_MAP__P V_G3_NUMBP, beginscanning10-0 off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+METROPOLICE_LOST_LONG5 npc/overwatch/radiovoice/(v60) on3 switchtotac5reporttocp off2 {Len 1.5 closecaption NPC_Combine.RadioChatter}
+
+// (UNDONE?) Just found enemy after lost long
+METROPOLICE_REFIND_ENEMY0 npc/metropolice/vo/(v100) on1 supsecthasmovednowto V_G1_LOCATION_MAP__P V_GRIDXP off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_REFIND_ENEMY1 npc/metropolice/vo/(v100) on1 thereheis off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_REFIND_ENEMY2 npc/metropolice/vo/(v100) on1 therehegoeshesat V_DISTP meters off1 {Len 1.5 closecaption NPC_Combine.Alert}
+
+//
+// Monster Alert - first contact and I'm the squad leader
+//
+
+METROPOLICE_MONST0 npc/metropolice/vo/(v100) on1 outbreak V_RNDNUMP V_RNDACTP off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST1 npc/metropolice/vo/(v100) on1 V_RNDACTP V_RNDNUMP off1 {Len 1.5 closecaption NPC_Combine.Alert}
+
+METROPOLICE_MONST_PLAYER0 npc/metropolice/vo/(v100) on1 V_G2_SUSPECT_MAP__P matchonapblikeness off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PLAYER1 npc/metropolice/vo/(v100) on1 confirmpriority1sighted off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PLAYER2 npc/metropolice/vo/(v100) on2 allunitsrespondcode3, V_G1_LOCATION_MAP__P V_G3_NUMBP off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PLAYER3 npc/metropolice/vo/(v100) on1 V_G2_SUSPECT_MAP__P location V_G1_LOCATION_MAP__P V_G3_NUMBP off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PLAYER4 npc/metropolice/vo/(v100) on1 designatesuspectas V_G2_SUSPECT_MAP__P allunitscode2 off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PLAYER5 npc/metropolice/vo/(v100) on2 thereheis V_DISTP meters off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PLAYER6 npc/metropolice/vo/(v100) on2 contactwith243suspect, V_G1_LOCATION_MAP__P V_G3_NUMBP off3 {Len 1.5 closecaption NPC_Combine.Alert}
+
+
+METROPOLICE_MONST_PLAYER_VEHICLE0 npc/metropolice/vo/(v100) on2 airwatchsubjectis505 off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PLAYER_VEHICLE1 npc/metropolice/vo/(v100) on2 subjectis505 off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PLAYER_VEHICLE2 npc/metropolice/vo/(v100) on2 subjectisnowhighspeed off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PLAYER_VEHICLE3 npc/metropolice/vo/(v100) on2 Ivegot408hereatlocation V_G1_LOCATION_MAP__P V_G3_NUMBP off3 {Len 1.5 closecaption NPC_Combine.Alert}
+
+METROPOLICE_MONST_BUGS0 npc/metropolice/vo/(v100) on1 bugs off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_BUGS1 npc/metropolice/vo/(v100) on1 bugsontheloose off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_BUGS2 npc/metropolice/vo/(v100) on2 outbreak V_RNDNUMP converging off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_BUGS3 npc/metropolice/vo/(v100) on1 outlandbioticinhere off4 {Len 1.5 closecaption NPC_Combine.Alert}
+
+METROPOLICE_MONST_CITIZENS0 npc/metropolice/vo/(v100) on1 noncitizen outbreak off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_CITIZENS1 npc/metropolice/vo/(v100) on2 shotsfiredhostilemalignants off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_CITIZENS2 npc/metropolice/vo/(v100) on1 possible404here V_G1_LOCATION_MAP__P V_G3_NUMBP off3 {Len 1.5 closecaption NPC_Combine.Alert}
+
+METROPOLICE_MONST_CHARACTER0 npc/metropolice/vo/(v100) on1 contactwithpriority2 off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_CHARACTER1 npc/metropolice/vo/(v100) on2 priority2anticitizenhere off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_CHARACTER2 npc/metropolice/vo/(v100) on1 gotoneaccomplicehere off4 {Len 1.5 closecaption NPC_Combine.Alert}
+
+METROPOLICE_MONST_ZOMBIES0 npc/metropolice/vo/(v100) on1 freenecrotics, converging V_G1_LOCATION_MAP__P V_G3_NUMBP off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_ZOMBIES1 npc/metropolice/vo/(v100) on1 necrotics malignant location V_G1_LOCATION_MAP__P V_G3_NUMBP off4 {Len 1.5 closecaption NPC_Combine.Alert}
+
+METROPOLICE_MONST_PARASITES0 npc/metropolice/vo/(v100) on1 non-taggedviromeshere off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MONST_PARASITES1 npc/metropolice/vo/(v100) on1 looseparasitics off4 {Len 1.5 closecaption NPC_Combine.Alert} 
+
+//
+// I killed a monster - by type
+//
+
+METROPOLICE_KILL_MONST0 npc/metropolice/vo/(v100) on1 ten91dcountis V_SEQG0_NBRP off1 {Len 1.5}
+METROPOLICE_KILL_MONST1 npc/metropolice/vo/(v100) on1 tag10-91d V_SEQG0_NBRP off1 {Len 1.5}
+METROPOLICE_KILL_MONST2 npc/metropolice/vo/(v100) on2 sterilize V_SEQG0_NBRP off4 {Len 1.5}
+
+METROPOLICE_KILL_BUGS0 npc/metropolice/vo/(v100) on1 tagonebug off1 {Len 1.5}
+METROPOLICE_KILL_BUGS1 npc/metropolice/vo/(v100) on1 sterilize V_SEQG0_NBRP off1 {Len 1.5}
+
+METROPOLICE_KILL_PLAYER0 npc/metropolice/vo/(v100) on2 sentencedelivered off3 {Len 1.5}
+METROPOLICE_KILL_PLAYER1 npc/metropolice/vo/(v100) on2 V_G2_SUSPECT_MAP__P ispassive off3 {Len 1.5}
+METROPOLICE_KILL_PLAYER2 npc/metropolice/vo/(v100) on2 finalverdictadministered off3 {Len 1.5}
+METROPOLICE_KILL_PLAYER3 npc/metropolice/vo/(v100) on2 protectioncomplete off3 {Len 1.5}
+METROPOLICE_KILL_PLAYER4 npc/metropolice/vo/(v100) on2 sentencedelivered off3 {Len 1.5}
+METROPOLICE_KILL_PLAYER5 npc/metropolice/vo/(v100) on2 classifyasdbthisblockready off3 {Len 1.5}
+METROPOLICE_KILL_PLAYER6 npc/overwatch/radiovoice/(v100) on3 rewardnotice off2 {Len 1.5}
+METROPOLICE_KILL_PLAYER7 npc/overwatch/radiovoice/(v100) on3 allunitsreturntocode12 off2 {Len 1.5}
+METROPOLICE_KILL_PLAYER8 npc/overwatch/radiovoice/(v100) on3 finalverdictadministered, allunitsbeginwhitnesssterilization off2 {Len 1.5}
+METROPOLICE_KILL_PLAYER9 npc/overwatch/radiovoice/(v100) on3 sociostabilizationrestored off2 {Len 1.5}
+
+
+METROPOLICE_KILL_CITIZENS0 npc/metropolice/vo/(v100) on2 V_SEQG0_NBRP sentencedelivered off4 {Len 1.5}
+METROPOLICE_KILL_CITIZENS1 npc/metropolice/vo/(v100) on2 V_SEQG0_NBRP expired off4 {Len 1.5}
+METROPOLICE_KILL_CITIZENS2 npc/metropolice/vo/(v100) on2 V_SEQG0_NBRP malignant off1 {Len 1.5}
+METROPOLICE_KILL_CITIZENS3 npc/metropolice/vo/(v100) on2 noncitizen expired off1 {Len 1.5}
+
+METROPOLICE_KILL_CHARACTER0 npc/metropolice/vo/(v100) on1 V_SEQG0_NBRP sentenced off1 {Len 1.5}
+METROPOLICE_KILL_CHARACTER1 npc/metropolice/vo/(v100) on2 dbcountis V_SEQG0_NBRP off4 {Len 1.5}
+METROPOLICE_KILL_CHARACTER2 npc/metropolice/vo/(v100) on1 suspend V_SEQG0_NBRP off1 {Len 1.5}
+
+METROPOLICE_KILL_ZOMBIES0 npc/metropolice/vo/(v100) on1 tagonenecrotic off1 {Len 1.5}
+METROPOLICE_KILL_ZOMBIES1 npc/metropolice/vo/(v100) on1 sterilize V_SEQG0_NBRP off4 {Len 1.5}
+
+METROPOLICE_KILL_PARASITES0 npc/metropolice/vo/(v100) on2 tagoneparasitic off1 {Len 1.5}
+METROPOLICE_KILL_PARASITES1 npc/metropolice/vo/(v100) on1 sterilize V_SEQG0_NBRP off1 {Len 1.5}
+
+
+//
+// Manhack sounds
+//
+
+// Deploying a manhack
+METROPOLICE_DEPLOY_MANHACK0 npc/metropolice/vo/(v90) on1 visceratordeployed off3 {Len 1.5}
+METROPOLICE_DEPLOY_MANHACK1 npc/metropolice/vo/(v90) on1 tenzerovisceratorishunting off3 {Len 1.5} 
+//METROPOLICE_DEPLOY_MANHACK2 npc/metropolice/vo/(v90) on1 allunitsvisceratorisactive off4 {Len 1.5}
+
+// My manhack was killed
+METROPOLICE_MANHACK_KILLED0 npc/metropolice/vo/(v80) on1 visceratorisoffgrid off3 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MANHACK_KILLED1 npc/metropolice/vo/(v80) on1 requestsecondaryviscerator off3 {Len 1.5 closecaption NPC_Combine.Alert}
+
+//
+// Squad sounds
+//
+
+// A squadmate died
+METROPOLICE_MAN_DOWN0 npc/metropolice/vo/(v100) on1 wehavea10-108 off1 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MAN_DOWN1 npc/metropolice/vo/(v100) on1 V_WHODIEDP isdown off4 {Len 1.5 closecaption NPC_Combine.Alert}
+METROPOLICE_MAN_DOWN2 npc/metropolice/vo/(v100) on1 V_WHODIEDP is10-108 off1 {Len 1.5 closecaption NPC_Combine.Alert}
+
+// My last squadmate died; I'm all that's left!
+METROPOLICE_LAST_OF_SQUAD0 npc/metropolice/vo/(v100) on1 officerdowncode3tomy10-20 off1 {Len 1.5 closecaption NPC_Combine.Last}
+METROPOLICE_LAST_OF_SQUAD1 npc/metropolice/vo/(v100) on1 officerdownIam10-99 off4 {Len 1.5 closecaption NPC_Combine.Last}
+METROPOLICE_LAST_OF_SQUAD2 npc/metropolice/vo/(v100) on1 cpisoverrunwehavenocontainment off3 {Len 1.5 closecaption NPC_Combine.Last}
+METROPOLICE_LAST_OF_SQUAD3 npc/overwatch/radiovoice/(v100) on3 engagingteamisnoncohesive, reinforcementteamscode3 off2 {Len 1.5 closecaption NPC_Combine.Last}
+
+//
+// Danger sounds - by type
+//
+METROPOLICE_DANGER_GREN0 npc/metropolice/vo/(v100) on1 grenade {Len 1.5}
+METROPOLICE_DANGER_GREN1 npc/metropolice/vo/(v100) on1 thatsagrenade {Len 1.5} 
+METROPOLICE_DANGER_GREN2 npc/metropolice/vo/(v100) on1 getdown {Len 1.5}
+
+METROPOLICE_DANGER_MANHACK0 npc/metropolice/vo/(v100) on1 lookoutrogueviscerator off4 {Len 1.5}
+METROPOLICE_DANGER_MANHACK1 npc/metropolice/vo/(v100) on1 visceratorisoc off1 {Len 1.5}
+
+METROPOLICE_DANGER_VEHICLE0 npc/metropolice/vo/(v100) on1 shit {Len 1.5}
+METROPOLICE_DANGER_VEHICLE1 npc/metropolice/vo/(v100) on1 watchit {Len 1.5}
+METROPOLICE_DANGER_VEHICLE2 npc/metropolice/vo/(v100) on1 lookout {Len 1.5}
+
+METROPOLICE_DANGER0 npc/metropolice/vo/(v100) on1 moveit {Len 1.5}
+METROPOLICE_DANGER1 npc/metropolice/vo/(v100) on1 lookout {Len 1.5}
+
+//
+// Func_tank behavior
+//
+
+// I'm moving to man a func_tank
+METROPOLICE_FT_APPROACH0 npc/metropolice/vo/(v80) on1 V_MYNAMEP V_MYNUMP on1 movingtohardpoint off3 {Len 1.5 closecaption NPC_Combine.Coord}
+
+// I've just manned a func_tank
+METROPOLICE_FT_MOUNT0 npc/metropolice/vo/(v80) on1 V_MYNAMEP V_MYNUMP on1 inpositionathardpoint off3 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_FT_MOUNT1 npc/metropolice/vo/(v80) on2 V_MYNAMEP V_MYNUMP on2 isathardpointreadytoprosecute off3 {Len 1.5 closecaption NPC_Combine.Coord}
+
+// I'm manning a func_tank and am scanning for enemies
+METROPOLICE_FT_SCAN0 npc/metropolice/vo/(v80) on1 hardpointscanning off3 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_FT_SCAN1 npc/metropolice/vo/(v80) on2 sweepingforsuspect off4 {Len 1.5 closecaption NPC_Combine.Coord}
+
+// I've dismounted the func_tank
+METROPOLICE_FT_DISMOUNT0 npc/metropolice/vo/(v80) on1 V_MYNAMEP V_MYNUMP dismountinghardpoint off3 {Len 1.5 closecaption NPC_Combine.Coord}
+
+
+//
+// Assault behavior
+//
+
+// I've hit my rally point, waiting to move out
+METROPOLICE_AS_HIT_RALLY0 npc/metropolice/vo/(v70) on1 V_MYNAMEP V_MYNUMP inposition off3 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_AS_HIT_RALLY1 npc/metropolice/vo/(v70) on2 V_MYNAMEP V_MYNUMP atcheckpoint off4 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_AS_HIT_RALLY2 npc/metropolice/vo/(v70) on1 V_MYNAMEP V_MYNUMP on1 isreadytogo off1 {Len 1.5 closecaption NPC_Combine.Coord}
+
+// I've hit my assault point, waiting to move out
+METROPOLICE_AS_HIT_ASSAULT0 npc/metropolice/vo/(v70) on1 V_MYNAMEP V_MYNUMP readytojudge  off3 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_AS_HIT_ASSAULT1 npc/metropolice/vo/(v70) on2 V_MYNAMEP V_MYNUMP inpositiononeready off4 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_AS_HIT_ASSAULT2 npc/metropolice/vo/(v70) on1 V_MYNAMEP V_MYNUMP isgo off1 {Len 1.5 closecaption NPC_Combine.Coord}
+
+// I'm squad leader, ordering squad to move to rally point
+METROPOLICE_AS_ADV_RALLY0 npc/metropolice/vo/(v70) on1 proceedtocheckpoints off1 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_AS_ADV_RALLY1 npc/metropolice/vo/(v70) on2 allunitscloseonsuspect off3 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_AS_ADV_RALLY2 npc/metropolice/vo/(v70) on1 allunitsmovein off4 {Len 1.5 closecaption NPC_Combine.Coord}
+
+
+// I'm squad leader, ordering squad to move to assault point
+METROPOLICE_AS_ADV_ASSAULT0 npc/metropolice/vo/(v100) on1 teaminpositionadvance off3 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_AS_ADV_ASSAULT1 npc/metropolice/vo/(v100) on2 ptgoagain off1 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_AS_ADV_ASSAULT2 npc/metropolice/vo/(v100) on1 assaultpointsecureadvance off4 {Len 1.5 closecaption NPC_Combine.Coord}
+//
+// Standoff behavior
+//
+
+// I'm squad leader telling squad to go into standoff
+METROPOLICE_SO_BEGIN0 npc/metropolice/vo/(v100) on1 holdthisposition off1 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_SO_BEGIN1 npc/metropolice/vo/(v100) on2 lockyourposition off4 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_SO_BEGIN2 npc/metropolice/vo/(v100) on1 allunitsmaintainthiscp off4 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_SO_BEGIN3 npc/overwatch/radiovoice/(v100) on3 lockdownlocationsacrificecode V_RNDACTP V_RNDNUMP off2 {Len 1.5 closecaption NPC_Combine.Coord}
+
+// I'm squad leader telling squad to end standoff
+METROPOLICE_SO_END0 npc/metropolice/vo/(v100) on1 cpiscompromised off1 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_SO_END1 npc/metropolice/vo/(v100) on1 establishnewcp off1 {Len 1.5 closecaption NPC_Combine.Coord}
+
+// I'm being forced to take cover
+METROPOLICE_SO_FORCE_COVER0 npc/metropolice/vo/(v100) on1 officerunderfiretakingcover off4 {Len 1.5}
+METROPOLICE_SO_FORCE_COVER1 npc/metropolice/vo/(v100) on2 movingtocover off4 {Len 1.5}
+METROPOLICE_SO_FORCE_COVER2 npc/metropolice/vo/(v100) on1 takecover off1 {Len 1.5}
+
+// I'm peeking over cover to see if I can see the enemy
+METROPOLICE_SO_PEEK0 npc/metropolice/vo/(v100) on1 goingtotakealook off1 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_SO_PEEK1 npc/metropolice/vo/(v100) on1 acquiringonvisual off4 {Len 1.5 closecaption NPC_Combine.Coord}
+
+
+//
+// First arrest encounter speech
+//
+
+// First cop who finds you tells you to freeze
+METROPOLICE_FREEZE0 npc/metropolice/vo/(v100) on1 holditrightthere off4 {Len 1.5}
+METROPOLICE_FREEZE1 npc/metropolice/vo/(v100) on1 prepareforjudgement off4 {Len 1.5}
+
+// First cop then tells his buddies to come over
+METROPOLICE_OVER_HERE0 npc/metropolice/vo/(v80) on1 movetoarrestpositions off3 {Len 1.5}
+METROPOLICE_OVER_HERE1 npc/metropolice/vo/(v80) on2 positiontocontain off4 {Len 1.5}
+METROPOLICE_OVER_HERE2 npc/metropolice/vo/(v80) on1 preparefor1015 off1 {Len 1.5}
+
+// First cop tells his buddies the player is fleeing if he does
+METROPOLICE_HES_RUNNING0 npc/metropolice/vo/(v100) on1 hesrunning off1 {Len 1.5}
+METROPOLICE_HES_RUNNING1 npc/metropolice/vo/(v100) on2 hesgone148 off4 {Len 1.5}
+
+// Other squad cops signal when they get in position
+METROPOLICE_ARREST_IN_POS0 npc/metropolice/vo/(v80) on1 V_MYNAMEP V_MYNUMP, inposition off1 {Len 1.5 closecaption NPC_Combine.Coord}
+METROPOLICE_ARREST_IN_POS1 npc/metropolice/vo/(v80) on2 V_MYNAMEP V_MYNUMP, readytoprosecute off3 {Len 1.5 closecaption NPC_Combine.Coord}
+
+// First cop tells his buddies to fire once they are all in position 
+METROPOLICE_TAKE_HIM_DOWN0 npc/overwatch/radiovoice/(v100) on3 allunitsdeliverterminalverdict off2 {Len 2.5 closecaption NPC_Combine.Coord} 
+METROPOLICE_TAKE_HIM_DOWN1 npc/overwatch/radiovoice/(v100) on3 allunitsverdictcodeis V_RNDJUDGEP off2 {Len 2.5 closecaption NPC_Combine.Coord}
+METROPOLICE_TAKE_HIM_DOWN2 npc/overwatch/radiovoice/(v100) on3 suspectmalignantverdictcodeis V_RNDJUDGEP off2 {Len 2.5 closecaption NPC_Combine.Coord}
+
+
+// Cop is hit by physics object thrown by player (not with physcannon)
+
+METROPOLICE_HIT_BY_PHYSOBJECT0 on1 preparingtojudge10-107 off1 {Len 1.5}
+METROPOLICE_HIT_BY_PHYSOBJECT1 on1 movebackrightnow off1 {Len 1.5}
+METROPOLICE_HIT_BY_PHYSOBJECT2 on1 holditrightthere off1 {Len 1.5}
+METROPOLICE_HIT_BY_PHYSOBJECT3 on1 V_MYNAMEP V_MYNUMP hasmalcompliant off1 {Len 1.5}
+METROPOLICE_HIT_BY_PHYSOBJECT4 on1 malcompliant10107my1020 off1 {Len 1.5}
+
+
+//-----------------------------------------------------------------------------
+// METROPOLICE ENDS HERE
+//-----------------------------------------------------------------------------
+
+
+
+// HEV Suit
+
+// powerup
+
+HEV_AAx hl1/fvox/bell
+
+//HEV_logon, powerarmor_on, atmospherics_on,vitalsigns_on, automedic_on, weaponselect_on, munitionview_on, communications_on, safe_day {Len 41.76}
+
+//HEV_A0 hl1/fvox/bell, HEV_logon {Len 11.07}
+
+//HEV_A1 hl1/fvox/blip blip(p130) powermove_on {Len 3.71}
+//HEV_A2 hl1/fvox/blip blip powerarmor_on {Len 4.42}
+//HEV_A3 hl1/fvox/blip blip(p130) atmospherics_on {Len 4.41}
+//HEV_A4 hl1/fvox/blip blip vitalsigns_on boop, boop, boop {Len 5.28}
+//HEV_A5 hl1/fvox/blip blip(p130) munitionview_on {Len 3.84}
+//HEV_A6 hl1/fvox/blip blip communications_on {Len 3.59}
+//HEV_A7 hl1/fvox/blip blip(p70) weaponselect_on {Len 3.97}
+//HEV_A8 hl1/fvox/blip blip(p70) automedic_on {Len 3.77}
+//HEV_A9 hl1/fvox/fuzz power_level_is onehundred percent {Len 4.14}
+//HEV_A10 hl1/fvox/safe_day, bell {Len 3.66}
+
+// medical
+HEV_DEAD0 hl1/fvox/beep beep, beep beep, beep, beep, flatline {Len 6.29 closecaption HEV.Flatline}
+HEV_DEAD1 hl1/fvox/beep beep, beep beep, beep, flatline {Len 5.82 closecaption HEV.Flatline}
+
+HEV_MED0 hl1/fvox/(p140) boop, boop, boop, (p100) innsuficient_medical {Len 1.41 closecaption HEV.insufficient_medical}
+HEV_MED1 hl1/fvox/(p140) boop, boop, boop, (p100) automedic_on {Len 4.92 closecaption HEV.automedic_on}
+HEV_MED2 hl1/fvox/(p140) boop, boop, boop, (p100) administering_medical {Len 1.41 closecaption HEV.administering_medical}
+
+HEV_HEAL0 hl1/fvox/(p140) boop, boop, boop, (p100) wound_sterilized, blip(p130 v50), blip(p130 v40), hiss, morphine_shot {Len 7.03 closecaption HEV.sterilized_morphine}
+HEV_HEAL1 hl1/fvox/(p140) boop, boop, boop, (p100) torniquette_applied, bleeding_stopped {Len 7.03 closecaption HEV.torni_bleed}
+HEV_HEAL2 hl1/fvox/(p140) boop, boop, boop, (p100) bleeding_stopped {Len 3.66 closecaption HEV.bleeding_stopped}
+HEV_HEAL3 hl1/fvox/(p140) boop, boop, boop, (p100) blood_plasma {Len 4.02 closecaption HEV.blood_plasma}
+HEV_HEAL4 hl1/fvox/(p140) boop, boop, boop, (p100) hiss, antitoxin_shot {Len 4.38 closecaption HEV.antitoxin_shot}
+HEV_HEAL5 hl1/fvox/(p140) boop, boop, boop, (p100) hiss, antidote_shot {Len 4.17 closecaption HEV.antidote_shot}
+HEV_HEAL6 hl1/fvox/(p140) boop, boop, boop, (p100) hiss, wound_sterilized {Len 4.16 closecaption HEV.wound_sterilized}
+HEV_HEAL7 hl1/fvox/(p140) boop, boop, boop, (p100) hiss, morphine_shot {Len 4.16 closecaption HEV.morphine_shot}
+HEV_HEAL8 hl1/fvox/(p140) boop, boop, boop, (p100) medical_repaired {Len 4.17 closecaption HEV.medical_repaired}
+
+
+HEV_DMG0 hl1/fvox/(p160) boop, boop, boop, (p100) minor_lacerations {Len 4.09 closecaption HEV.minor_lacerations}
+HEV_DMG1 hl1/fvox/(p160) boop, boop, boop, (p100) major_lacerations {Len 4.19 closecaption HEV.major_lacerations}
+HEV_DMG2 hl1/fvox/(p160) boop, boop, boop, (p100) internal_bleeding {Len 3.64 closecaption HEV.internal_bleeding}
+HEV_DMG3 hl1/fvox/(p160) boop, boop, boop, (p100) blood_toxins {Len 5.04 closecaption HEV.blood_toxins}
+HEV_DMG4 hl1/fvox/(p160) boop, boop, boop, (p100) minor_fracture {Len 3.67 closecaption HEV.minor_fracture}
+HEV_DMG5 hl1/fvox/(p160) boop, boop, boop, (p100) major_fracture {Len 3.67 closecaption HEV.major_fracture}
+HEV_DMG6 hl1/fvox/(p160) boop, boop, boop, (p100) blood_loss {Len 3.39 closecaption HEV.blood_loss}
+HEV_DMG7 hl1/fvox/(p140) boop, boop, boop, (p100) seek_medic {Len 3.92 closecaption HEV.seek_medic}
+
+
+
+HEV_HLTH0 hl1/fvox/(p120) beep, beep, (p100) health_dropping {Len 4.31 closecaption HEV.health_dropping}
+HEV_HLTH1 hl1/fvox/(p120) beep, beep, (p100) health_dropping2 {Len 3.68 closecaption HEV.health_dropping2}
+HEV_HLTH2 hl1/fvox/(p120) beep, beep, beep, (p100) health_critical {Len 4.32 closecaption HEV.health_critical}
+HEV_HLTH3 hl1/fvox/(p120) beep, beep, beep, (p100) near_death {Len 4.77 closecaption HEV.near_death}
+HEV_HLTH4 hl1/fvox/(p140) beep, beep, (p100) health_dropping2, evacuate_area {Len 5.93 closecaption HEV.health2_evac}
+HEV_HLTH5 hl1/fvox/(p140) beep, beep, beep, (p100) health_critical, evacuate_area {Len 6.52 closecaption HEV.health_crit_evac}
+HEV_HLTH6 hl1/fvox/(p140) beep, beep, beep, (p100) near_death, evacuate_area immediately {Len 8.22 closecaption HEV.near_death_evac}
+
+
+HEV_SHOCK hl1/fvox/(p120) beep, beep, (p100) warning, shock_damage {Len 4.05 closecaption HEV.shock_damage}
+HEV_FIRE hl1/fvox/(p120) beep, beep, (p100) warning, heat_damage {Len 4.77 closecaption HEV.heat_damage}
+
+// items
+HEV_AIM_ON hl1/fvox/blip targetting_system activated {Len 4.02 closecaption HEV.targetting_system_on}
+HEV_AIM_OFF hl1/fvox/blip targetting_system deactivated {Len 4.27 closecaption HEV.targetting_system_off}
+HEV_BATTERY hl1/fvox/blip get_battery acquired {Len 0.92}
+HEV_MEDKIT hl1/fvox/blip get_medkit(v80) {Len 0.11}
+
+HEV_PISTOL hl1/fvox/blip get_pistol acquired {Len 0.92}
+HEV_SHOTGUN hl1/fvox/blip get_shotgun {Len 0.11}
+HEV_GRENADE hl1/fvox/blip get_grenade acquired {Len 0.92}
+HEV_ASSAULT hl1/fvox/blip get_assault acquired {Len 0.92}
+HEV_44PISTOL hl1/fvox/blip get_44pistol acquired {Len 0.92}
+HEV_RPG hl1/fvox/blip get_rpg acquired {Len 0.92}
+HEV_SATCHEL hl1/fvox/blip get_satchel acquired {Len 0.92}
+HEV_TRIPMINE hl1/fvox/blip get_tripmine acquired {Len 0.92}
+HEV_HORNET hl1/fvox/blip get_alien_wpn {Len 0.11}
+HEV_SQUEEK hl1/fvox/blip get_alien_wpn {Len 0.11}
+HEV_EGON hl1/fvox/blip get_egon acquired {Len 0.92}
+HEV_GAUSS hl1/fvox/blip get_gauss acquired {Len 0.92}
+HEV_XBOW hl1/fvox/blip get_crossbow acquired {Len 0.92}
+
+HEV_9MM hl1/fvox/blip get_9mmclip acquired {Len 0.92}
+HEV_44AMMO hl1/fvox/blip get_44ammo acquired {Len 0.92}
+HEV_BUCKSHOT hl1/fvox/blip get_buckshot acquired {Len 0.92}
+HEV_BOLTS hl1/fvox/blip get_bolts acquired {Len 0.92}
+HEV_RPGAMMO hl1/fvox/blip get_rpgammo acquired {Len 0.92}
+HEV_AGRENADE hl1/fvox/blip get_assaultgren acquired {Len 0.92}
+HEV_EGONPOWER hl1/fvox/blip get_egonpower acquired {Len 0.92}
+
+// time
+
+//HEV_C1t hl1/fvox/bell time_is_now one AM
+//HEV_C13t hl1/fvox/bell time_is_now one PM
+
+// power levels
+
+HEV_D00 hl1/fvox/fuzz fuzz(p130), power_restored {Len 2.12 closecaption HEV.power_restored}
+HEV_D01 hl1/fvox/fuzz fuzz(p80), hev_shutdown {Len 4.99 closecaption HEV.hev_shutdown}
+
+HEV_0P hl1/fvox/fuzz fuzz, power_below five percent {Len 6.35}
+HEV_1P hl1/fvox/fuzz fuzz, power_restored(e30), ten percent {Len 2.75}
+HEV_2P hl1/fvox/fuzz fuzz, power_restored(e30), fifteen percent {Len 3.15}
+HEV_3P hl1/fvox/fuzz fuzz, power_restored(e30), twenty percent {Len 2.99}
+HEV_4P hl1/fvox/fuzz fuzz, power_restored(e30), twenty five percent {Len 3.87}
+HEV_5P hl1/fvox/fuzz fuzz, power_restored(e30), thirty percent {Len 3.04}
+HEV_6P hl1/fvox/fuzz fuzz, power_restored(e30), thirty five percent {Len 3.91}
+HEV_7P hl1/fvox/fuzz fuzz, power_restored(e30), fourty percent {Len 3.07}
+HEV_8P hl1/fvox/fuzz fuzz, power_restored(e30), fourty five percent {Len 3.95}
+HEV_9P hl1/fvox/fuzz fuzz, power_restored(e30), fifty percent {Len 3.17}
+HEV_10P hl1/fvox/fuzz fuzz, power_restored(e30), fifty five percent {Len 4.05}
+HEV_11P hl1/fvox/fuzz fuzz, power_restored(e30), sixty percent {Len 3.16}
+HEV_12P hl1/fvox/fuzz fuzz, power_restored(e30), sixty five percent {Len 4.04}
+HEV_13P hl1/fvox/fuzz fuzz, power_restored(e30), seventy percent {Len 3.12}
+HEV_14P hl1/fvox/fuzz fuzz, power_restored(e30), seventy five percent {Len 4.00}
+HEV_15P hl1/fvox/fuzz fuzz, power_restored(e30), eighty percent {Len 2.88}
+HEV_16P hl1/fvox/fuzz fuzz, power_restored(e30), eighty five percent {Len 3.76}
+HEV_17P hl1/fvox/fuzz fuzz, power_restored(e30), ninety percent {Len 3.12}
+HEV_18P hl1/fvox/fuzz fuzz, power_restored(e30), ninety five percent {Len 4.00}
+HEV_19P hl1/fvox/fuzz fuzz, power_level_is onehundred percent {Len 4.62}
+
+// weapon/ammo
+
+HEV_AMO0 hl1/fvox/blip ammo_depleted {Len 2.16 closecaption HEV.ammo_depleted}
+
+// suit
+
+HEV_V0 hl1/fvox/blip, voice_on {Len 3.17}
+HEV_V1 hl1/fvox/blip, voice_off {Len 3.06}
+
+
+HEV_E0 hl1/fvox/buzz buzz, armor_gone {Len 2.95 closecaption HEV.armor_gone}
+HEV_E1 hl1/fvox/buzz, armor_gone {Len 2.62 closecaption HEV.armor_gone}
+HEV_E2 hl1/fvox/buzz, hev_critical_fail {Len 4.75 closecaption HEV.hev_critical_fail}
+HEV_E3 hl1/fvox/buzz, hev_general_fail {Len 3.22 closecaption HEV.hev_general_fail}
+HEV_E4 hl1/fvox/buzz, hev_damage {Len 3.53 closecaption HEV.hev_damage}
+HEV_E5 hl1/fvox/buzz, powermove_overload {Len 4.98 closecaption HEV.powermove_overload}
+
+// time remaining countdown
+
+//HEV_F10t hl1/fvox/bell time_remaining ten seconds
+//HEV_F15t hl1/fvox/bell time_remaining fifteen seconds
+//HEV_F20t hl1/fvox/bell time_remaining twenty seconds
+//HEV_F30t hl1/fvox/bell time_remaining thirty seconds
+
+// detections
+
+HEV_DET0 hl1/fvox/blip blip blip, biohazard_detected {Len 3.67 closecaption HEV.biohazard_detected}
+HEV_DET1 hl1/fvox/blip blip blip, chemical_detected {Len 4.33 closecaption HEV.chemical_detected}
+HEV_DET2 hl1/fvox/blip blip blip, radiation_detected {Len 5.08 closecaption HEV.radiation_detected}
+HEV_DET3 hl1/fvox/blip blip blip, bio_reading {Len 2.93 closecaption HEV.bio_reading}
+HEV_DET4 hl1/fvox/blip blip blip, antitoxin_shot(e50), onehundred percent {Len 3.67 closecaption HEV.biohazard_detected}
+HEV_DET5 hl1/fvox/blip blip blip, antitoxin_shot(e25) radiation_detected(e50), onehundred percent {Len 5.37 closecaption HEV.radiation_detected}
+
+//HEV_GR0r hl1/fvox/range twenty meters(t60)
+//HEV_GR1r hl1/fvox/range nineteen meters
+//HEV_GR2r hl1/fvox/range eighteen meters
+
+
+

@@ -1,0 +1,199 @@
+"NPC_AntlionGuard.SniffFound"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_90db"
+
+	"wave"			"npc/antlion_guard/sniff_found1.wav"
+}
+
+"NPC_AntlionGuard.Shove"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"90,100"
+
+	"soundlevel"	"SNDLVL_90db"
+
+	"wave"			"npc/antlion_guard/shove1.wav"
+}
+
+"NPC_AntlionGuard.HitHard"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"pitch"			"90,100"
+
+	"soundlevel"	"SNDLVL_90db"
+
+	"wave"			"npc/antlion_guard/shove1.wav"
+}
+
+"NPC_AntlionGuard.StepLight"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.250, 0.500"
+	"pitch"			"70, 80"
+
+	"soundlevel"	"SNDLVL_85db"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion_guard/foot_light1.wav"
+		"wave"	"npc/antlion_guard/foot_light2.wav"
+	}
+}
+
+"NPC_AntlionGuard.StepHeavy"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.500, 0.750"
+	"pitch"			"70, 85"
+
+	"soundlevel"	"SNDLVL_90db"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion_guard/foot_heavy1.wav"
+		"wave"	"npc/antlion_guard/foot_heavy2.wav"
+	}
+}
+
+"NPC_AntlionGuard.Inside.StepLight" 
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.250, 0.500"
+	"pitch"			"70, 80"
+
+	"soundlevel"	"SNDLVL_85db"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion_guard/foot_light1.wav"
+		"wave"	"npc/antlion_guard/foot_light2.wav"
+	}
+}
+
+"NPC_AntlionGuard.Inside.StepHeavy" 
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.500, 0.750"
+	"pitch"			"70, 85"
+
+	"soundlevel"	"SNDLVL_90db"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion_guard/foot_heavy1.wav"
+		"wave"	"npc/antlion_guard/foot_heavy2.wav"
+	}
+}
+
+"NPC_AntlionGuard.Anger"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.850, 1.000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion_guard/angry1.wav"
+		"wave"	"npc/antlion_guard/angry2.wav"
+		"wave"	"npc/antlion_guard/angry3.wav"
+	}
+}
+
+
+"NPC_AntlionGuard.GrowlHigh"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_100db"
+
+	"wave"	"npc/antlion_guard/growl_high.wav"
+}
+
+"NPC_AntlionGuard.GrowlIdle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80db"
+
+	"wave"	"npc/antlion_guard/growl_idle.wav"
+}
+
+
+"NPC_AntlionGuard.BreathSound"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_75db"
+
+	"wave"	"npc/antlion_guard/growl_high.wav"
+}
+
+"NPC_AntlionGuard.Confused"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_90db"
+
+	"wave"	"npc/antlion_guard/confused1.wav"
+}
+
+"NPC_AntlionGuard.Roar"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.000"
+	"pitch"			"100"
+
+	"soundlevel"		"SNDLVL_100dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion_guard/angry1.wav"
+		"wave"	"npc/antlion_guard/angry2.wav"
+		"wave"	"npc/antlion_guard/angry3.wav"
+	}
+}
+
+
+"NPC_AntlionGuard.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"100"
+
+	"soundlevel"		"SNDLVL_100dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/antlion_guard/antlion_guard_die1.wav"
+		"wave"	"npc/antlion_guard/antlion_guard_die2.wav"
+	}
+}
+
+
+
+"NPC_AntlionGuard.Fallover"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"50,60"
+
+	"soundlevel"		"SNDLVL_110dB"
+
+	"wave"	"physics/body/body_medium_break2.wav"
+}

@@ -1,0 +1,298 @@
+//============================================================================================================
+criterion "IsTerminalBenchSitter" "terminal_benchsitter" "1" required
+criterion "IsTerminalPreCustoms" "pre_customs" "1" weight 2 required
+//the above was given a weight of 2 to override the "TrainGuy" criteria, which is based on TargetName
+
+criterion "IsTerminalWaitingLady" "waiting_lady" "1" required
+criterion "IsTerminalCustomsQueue" "customs_queue" "1" required
+criterion "IsTerminalPlatform" "terminal_platform" "1" required
+criterion "IsTerminalFoodLine" "food_line" "1" required
+criterion "IsPlazaCitizen" "plaza_citizen" "1" required
+criterion "IsPlazaBench" "plaza_bench" "1" required
+criterion "IsCourtyardCitizen" "courtyard_citizen" "1" required
+criterion "IsTerminalPacer" "terminal_pacer" "1" required
+criterion "IsTerminalWatchclock" "terminal_watchclock" "1" required
+criterion "IsTerminalLuggageGuy" "terminal_LuggageGuy" "1" required
+criterion "IsStandingTrainGuy" "name" "citizen_train_1" required
+criterion "IsSittingTrainGuy" "name" "citizen_train_2" required
+
+//============================================================================================================
+// Terminal specific Citizen Hello speech
+//============================================================================================================
+response "CitizenHelloTerminal"
+{
+
+}
+
+rule CitizenHelloTerminal
+{
+	criteria		IsCitizen ConceptTalkHello IsGordonPreCriminal NPCIdle  PlayerNear SeePlayer
+	response		CitizenHelloTerminal
+}
+
+//============================================================================================================
+// Terminal specific Citizen Idle speech
+//============================================================================================================
+response "CitizenTalkIdleTerminal"
+{
+
+}
+ 
+rule CitizenTalkIdle
+{
+	criteria      		IsCitizen ConceptTalkIdle IsGordonPreCriminal NPCIdle
+	response  		CitizenTalkIdleTerminal
+}
+
+//============================================================================================================
+// Terminal specific Citizen Questions & Responses speech
+//============================================================================================================
+response "CitizenAnswerTerminal"
+{
+
+}
+
+rule CitizenAnswerTerminal
+{
+	criteria		IsCitizen ConceptTalkAnswer IsGordonPreCriminal NPCIdle
+	response		CitizenAnswerTerminal
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenQuestionTerminal"
+{
+
+
+}
+
+rule CitizenQuestionTerminal
+{
+	criteria		IsCitizen ConceptTalkQuestion IsGordonPreCriminal NPCIdle
+	response		CitizenQuestionTerminal
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenUseBenchSitter"
+{
+norepeat
+scene "scenes/trainyard/cit_nerve.vcd"
+}
+
+rule CitizenUseBenchSitter
+{
+	criteria		IsCitizen ConceptTalkUse IsTerminalBenchSitter NPCIdle
+	response		CitizenUseBenchSitter
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenUsePacer"
+{
+scene "scenes/trainyard/cit_pacing.vcd"
+}
+
+rule CitizenUsePacer
+{
+	criteria		IsCitizen ConceptTalkUse IsTerminalPacer
+	response		CitizenUsePacer
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenUseWatchclock"
+{
+norepeat
+scene "scenes/trainyard/cit_water.vcd"
+}
+
+rule CitizenUseWatchclock
+{
+	criteria		IsCitizen ConceptTalkUse IsTerminalWatchclock NPCidle
+	response		CitizenUseWatchclock
+}
+//------------------------------------------------------------------------------------------------------------
+response "CitizenPreCustoms"
+{
+norepeat
+scene "scenes/trainyard/lookatplayer_02.vcd"
+}
+
+rule CitizenPreCustoms
+{
+	criteria		IsCitizen ConceptTalkUse IsTerminalPreCustoms NPCIdle
+	response		CitizenPreCustoms
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenUseLuggageGuy"
+{
+norepeat
+scene "scenes/trainyard/cit_tookcase.vcd"
+
+}
+
+rule CitizenUseLuggageGuy
+{
+	criteria		IsCitizen ConceptTalkUse IsTerminalLuggageGuy NPCIdle
+	response		CitizenUseLuggageGuy
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenWaitingLady"
+{
+norepeat
+scene "scenes/trainyard/cit_fence_woods.vcd"  
+
+}
+
+rule CitizenWaitingLady
+{
+	criteria		IsCitizen ConceptTalkUse IsTerminalWaitingLady NPCIdle
+	response		CitizenWaitingLady
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenCustomsQueue"
+{
+
+}
+
+rule CitizenCustomsQueue
+{
+	criteria		IsCitizen ConceptTalkUse IsTerminalCustomsQueue NPCIdle
+	response		CitizenCustomsQueue
+}
+
+rule CitizenCustomsQueueIdle
+{
+	criteria		IsCitizen ConceptTalkQuestion IsTerminalCustomsQueue NPCIdle
+	response		CitizenCustomsQueue
+}	
+
+
+//------------------------------------------------------------------------------------------------------------
+
+response "StandingTrainGuy"
+{
+norepeat
+scene "scenes/trainyard/cit_train_hookup.vcd"
+
+}
+
+rule StandingTrainGuy
+{
+	criteria		IsCitizen ConceptTalkUse IsStandingTrainGuy NPCIdle
+	response		StandingTrainGuy
+}
+
+//------------------------------------------------------------------------------------------------------------
+
+response "SittingTrainGuy" 
+{
+norepeat
+scene "scenes/trainyard/cit_train_reloc.vcd" speakonce
+}
+
+rule SittingTrainGuy
+{
+	criteria		IsCitizen ConceptTalkUse IsSittingTrainGuy NPCIdle
+	response		SittingTrainGuy
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenTerminalPlatform"
+{
+
+}
+
+rule CitizenTerminalPlatform
+{
+	criteria		IsCitizen ConceptTalkUse IsTerminalPlatform NPCIdle
+	response		CitizenTerminalPlatform
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenFoodLine"
+{
+scene "scenes/trainyard/$gender01/cit_foodline01.vcd"
+scene "scenes/trainyard/$gender01/cit_foodline02.vcd"
+scene "scenes/trainyard/$gender01/cit_foodline03.vcd"
+scene "scenes/trainyard/$gender01/cit_foodline04.vcd"
+}
+
+rule CitizenFoodLine
+{
+	criteria		IsCitizen ConceptTalkUse IsTerminalFoodLine NPCIdle
+	response		CitizenFoodLine
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenPlaza"
+{
+scene "scenes/trainyard/$gender01/cit_pedestrian01.vcd"
+scene "scenes/trainyard/$gender01/cit_pedestrian02.vcd"
+scene "scenes/trainyard/$gender01/cit_pedestrian03.vcd"
+scene "scenes/trainyard/$gender01/cit_pedestrian04.vcd"
+scene "scenes/trainyard/$gender01/cit_pedestrian05.vcd"
+
+}
+
+rule CitizenPlaza
+{
+	criteria		IsCitizen ConceptTalkUse IsPlazaCitizen NPCIdle
+	response		CitizenPlaza
+}
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenPlazaBench"
+{
+scene "scenes/trainyard/$gender01/cit_bench01.vcd"
+scene "scenes/trainyard/$gender01/cit_bench02.vcd"
+scene "scenes/trainyard/$gender01/cit_bench03.vcd"
+scene "scenes/trainyard/$gender01/cit_bench04.vcd"
+
+}
+
+rule CitizenPlazaBench
+{
+	criteria		IsCitizen ConceptTalkUse IsPlazaBench NPCIdle
+	response		CitizenPlazaBench
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+response "CitizenCourtyard"
+{
+//sequential
+scene "scenes/trainyard/cit_raid_use01.vcd"
+scene "scenes/trainyard/cit_raid_use02.vcd"
+
+
+}
+
+rule CitizenCourtyard
+{
+	criteria		IsCitizen ConceptTalkUse IsCourtyardCitizen NPCIdle
+	response		CitizenCourtyard
+}
+//============================================================================================================
+// Citizen responding to the player 'attacking' them with a physics object
+//============================================================================================================
+response "CitizenPlayerPhysAttackTerminal"
+{
+scene "scenes/trainyard/$gender01/cit_hit01.vcd"
+scene "scenes/trainyard/$gender01/cit_hit02.vcd"
+scene "scenes/trainyard/$gender01/cit_hit03.vcd"
+scene "scenes/trainyard/$gender01/cit_hit04.vcd"
+scene "scenes/trainyard/$gender01/cit_hit05.vcd"
+}
+
+rule CitizenPlayerPhysAttackTerminal
+{
+	criteria		IsCitizen ConceptTalkPlayerPhysAttack IsGordonPreCriminal 
+	response		CitizenPlayerPhysAttackTerminal
+}
+
+//============================================================================================================

@@ -1,0 +1,63 @@
+"NPC_CombineMine.Hop"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.8"
+	"pitch"		"95, 105"
+	"soundlevel"	"SNDLVL_80DB"
+	"wave"		"npc/roller/mine/rmine_blip3.wav"
+}
+
+"NPC_CombineMine.FlipOver"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.8"
+	"pitch"		"95, 105"
+	"soundlevel"	"SNDLVL_80DB"
+	"wave"		"npc/roller/mine/rmine_blip3.wav"
+}
+
+"NPC_CombineMine.TurnOn"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.8"
+	"pitch"		"95, 105"
+	"soundlevel"	"SNDLVL_80DB"
+	"wave"		"npc/roller/mine/combine_mine_deploy1.wav"
+}
+
+"NPC_CombineMine.TurnOff"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.8"
+	"pitch"		"95, 105"
+	"soundlevel"	"SNDLVL_80DB"
+	"wave"		"npc/roller/mine/combine_mine_deactivate1.wav"
+}
+
+"NPC_CombineMine.OpenHooks"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.8"
+	"pitch"		"95, 105"
+	"soundlevel"	"SNDLVL_80DB"
+	"wave"		"npc/roller/blade_in.wav"
+}
+
+"NPC_CombineMine.CloseHooks"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.8"
+	"pitch"		"95, 105"
+	"soundlevel"	"SNDLVL_80DB"
+	"wave"		"npc/roller/blade_cut.wav"
+}
+
+"NPC_CombineMine.ActiveLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8"
+	"pitch"		"95, 105"
+	"soundlevel"	"SNDLVL_80DB"
+	"wave"		"npc/roller/mine/combine_mine_active_loop1.wav"
+}
+

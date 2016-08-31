@@ -1,0 +1,233 @@
+"NPC_Strider.Alert"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.7"
+	"soundlevel"  	"SNDLVL_120dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/strider/striderx_alert2.wav"
+		"wave"	"npc/strider/striderx_alert4.wav"
+		"wave"	"npc/strider/striderx_alert5.wav"
+		"wave"	"npc/strider/striderx_alert6.wav"
+	}
+}
+
+"NPC_Strider.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.65"
+	"soundlevel"  	"SNDLVL_140dB"
+	"pitch"			"100,115"
+	"rndwave"
+	{
+		"wave"	"npc/strider/striderx_pain2.wav"
+		"wave"	"npc/strider/striderx_pain5.wav"
+		"wave"	"npc/strider/striderx_pain7.wav"
+		"wave"	"npc/strider/striderx_pain8.wav"
+	}
+}
+
+"NPC_Strider.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.4"
+	"soundlevel"  	"SNDLVL_120dB"
+	"pitch"			"100,110"
+	"rndwave"
+	{
+		"wave"	"npc/strider/striderx_idle1.wav"
+		"wave"	"npc/strider/striderx_idle2.wav"
+		"wave"	"npc/strider/striderx_idle3.wav"
+		"wave"	"npc/strider/striderx_idle4.wav"
+		"wave"	"npc/strider/striderx_idle7.wav"
+		"wave"	"npc/strider/striderx_idle8.wav"
+	}
+}
+
+"NPC_Strider.Death"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.9"
+	"pitch"			"80,120"
+	"soundlevel"  	"SNDLVL_140dB"
+
+	"wave"	"npc/strider/striderx_die1.wav"
+
+}
+
+
+
+"NPC_Strider.Charge"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_120dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/strider/charging.wav"
+	}
+}
+
+"NPC_Strider.Shoot"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_140dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/strider/fire.wav"
+	}
+}
+// mini gun is directional - different sound for pointing at player vs away
+
+"NPC_Strider.FireMinigun"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_130dB"
+	"pitch"	"98,103"
+	"rndwave"
+	{
+		"wave"	"<npc/strider/strider_minigun.wav"	
+		"wave"	"<npc/strider/strider_minigun2.wav"	
+	}
+}
+
+"NPC_Strider.Whoosh"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"	"SNDLVL_85dB"
+	"pitch"	"95, 105"
+	"rndwave"
+	{
+		"wave"	"npc/strider/strider_legstretch1.wav"
+		"wave"	"npc/strider/strider_legstretch2.wav"
+		"wave"	"npc/strider/strider_legstretch3.wav"
+	}
+}
+
+// was 0.8, 100dB
+
+"NPC_Strider.Footstep"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_120dB"
+	"pitch"	"100"
+	"rndwave"
+	{
+	"wave"	"^npc/strider/strider_step1.wav"
+	"wave"	"^npc/strider/strider_step2.wav"
+	"wave"	"^npc/strider/strider_step3.wav"
+	"wave"	"^npc/strider/strider_step4.wav"
+	"wave"	"^npc/strider/strider_step5.wav"
+	"wave"	"^npc/strider/strider_step6.wav"
+	}
+}
+
+"NPC_Strider.Creak"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_70dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/strider/creak1.wav"
+		"wave"	"npc/strider/creak2.wav"
+		"wave"	"npc/strider/creak3.wav"
+		"wave"	"npc/strider/creak4.wav"
+	}
+}
+
+"NPC_Strider.Skewer"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.8"
+	"soundlevel"	"SNDLVL_100dB"
+	"pitch"	"98, 102"
+
+	"wave"	"npc/strider/strider_skewer1.wav"
+}
+
+"NPC_Strider.RagdollDetach"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.7"
+	"soundlevel"	"SNDLVL_85dB"
+	"pitch"	"95, 105"
+	"rndwave"
+	{
+		"wave"	"npc/strider/strider_legstretch1.wav"
+		"wave"	"npc/strider/strider_legstretch2.wav"
+		"wave"	"npc/strider/strider_legstretch3.wav"
+	}
+}
+
+
+"NPC_Strider.OpenHatch"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_85dB"
+	"pitch"	"95, 105"
+	"rndwave"
+	{
+		"wave"	"npc/strider/fire.wav"
+	}
+}
+
+// STEVE: new sounds...
+
+// play this 2.12 second sound when strider is dead and ragdoll is falling
+
+"NPC_Strider.DieFalling"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.7"
+	"soundlevel"	"SNDLVL_85dB"
+	"pitch"	"95, 105"
+
+	"wave"	"npc/strider/strider_fall4.wav"
+}
+
+// play this sound when falling dead strider hits the ground. It will
+// automatically stop the DieFalling sound.
+
+"NPC_Strider.HitGround"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_140dB"
+	"pitch"		"100"
+
+	"wave"	"npc/strider/strider_explode_bodyfall1.wav"
+}
+
+// play this sound when skewer hits a body
+
+"NPC_Strider.SkewerHitBody"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.8"
+	"soundlevel"	"SNDLVL_100dB"
+	"pitch"	"98, 102"
+
+	"wave"	"npc/strider/strider_skewer_hit1.wav"
+}
+
+// play this when strider has skewered something
+
+"NPC_Strider.SkewerTalk"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"0.5"
+	"soundlevel"	"SNDLVL_100dB"
+	"pitch"	"98, 102"
+
+	"wave"	"npc/strider/striderx_skewer_talk1.wav"
+}

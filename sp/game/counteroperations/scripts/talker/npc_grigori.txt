@@ -1,0 +1,294 @@
+//============================================================================================================
+// Grigori criteria
+criterion "IsGrigori" "classname" "npc_monk" "required"
+//============================================================================================================
+
+//============================================================================================================
+// Grigori Idle speech
+//============================================================================================================
+response "GrigoriTalkIdle"
+{
+ scene "scenes/ravenholm/monk_rant01.vcd"
+ scene "scenes/ravenholm/monk_rant02.vcd"
+ scene "scenes/ravenholm/monk_rant03.vcd"
+ scene "scenes/ravenholm/monk_rant04.vcd"
+ scene "scenes/ravenholm/monk_rant05.vcd"
+ scene "scenes/ravenholm/monk_rant06.vcd"
+ scene "scenes/ravenholm/monk_rant07.vcd"
+ scene "scenes/ravenholm/monk_rant08.vcd"
+ scene "scenes/ravenholm/monk_rant09.vcd"
+ scene "scenes/ravenholm/monk_rant10.vcd"
+ scene "scenes/ravenholm/monk_rant11.vcd"
+ scene "scenes/ravenholm/monk_rant12.vcd"
+ scene "scenes/ravenholm/monk_rant13.vcd"
+ scene "scenes/ravenholm/monk_rant14.vcd"
+ scene "scenes/ravenholm/monk_rant15.vcd"
+ scene "scenes/ravenholm/monk_rant16.vcd"
+ scene "scenes/ravenholm/monk_rant17.vcd"
+ scene "scenes/ravenholm/monk_rant18.vcd"
+ scene "scenes/ravenholm/monk_rant19.vcd"
+ scene "scenes/ravenholm/monk_rant20.vcd"
+ scene "scenes/ravenholm/monk_rant21.vcd"
+ scene "scenes/ravenholm/monk_rant22.vcd"
+ scene "scenes/ravenholm/madlaugh01.vcd"
+ scene "scenes/ravenholm/madlaugh02.vcd"
+ scene "scenes/ravenholm/madlaugh03.vcd"
+ scene "scenes/ravenholm/madlaugh04.vcd"
+}
+ 
+rule GrigoriTalkIdle
+{
+ criteria      IsGrigori ConceptTalkIdle NPCIdle
+ response  	GrigoriTalkIdle
+}
+//---------------------
+
+
+
+//Mourning Conversation
+response "GrigoriMourn"
+{
+	scene "scenes/ravenholm/monk_mourn01.vcd"
+	scene "scenes/ravenholm/monk_mourn02.vcd"
+	scene "scenes/ravenholm/monk_mourn03.vcd"
+	scene "scenes/ravenholm/monk_mourn04.vcd"
+	scene "scenes/ravenholm/monk_mourn05.vcd"
+	scene "scenes/ravenholm/monk_mourn06.vcd"
+	scene "scenes/ravenholm/monk_mourn07.vcd"
+
+}
+rule GrigoriMourn
+{
+	criteria IsGrigori ConceptTalkIdle PlayerDead
+	response GrigoriMourn
+}
+
+
+//----------------------------------------------------------------------------
+response "GrigoriDeath"
+{
+//	scene "scenes/ravenholm/monk_death01.vcd"
+//	scene "scenes/ravenholm/monk_death02.vcd"
+//	scene "scenes/ravenholm/monk_death03.vcd"
+//	scene "scenes/ravenholm/monk_death04.vcd"
+//	scene "scenes/ravenholm/monk_death05.vcd"
+//	scene "scenes/ravenholm/monk_death06.vcd"
+	scene "scenes/ravenholm/monk_death07.vcd"
+}
+rule GrigoriDeath
+{
+	criteria IsGrigori ConceptTalkDeath
+	response GrigoriDeath
+}
+
+
+//----------------------------------------------------------------------------
+response "GrigoriHelpMe"
+{
+	scene "scenes/ravenholm/monk_helpme01.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_helpme02.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_helpme03.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_helpme04.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_helpme05.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_coverme01.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_coverme02.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_coverme03.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_coverme04.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_coverme05.vcd" defaultdelay
+	scene "scenes/ravenholm/monk_coverme06.vcd" defaultdelay
+}
+rule GrigoriHelpMe
+{
+	criteria IsGrigori ConceptTalkHelpMe
+	response GrigoriHelpMe
+}
+
+
+//----------------------------------------------------------------------------
+response "GrigoriDanger"
+{
+	scene "scenes/ravenholm/monk_danger01.vcd"
+	scene "scenes/ravenholm/monk_danger02.vcd"
+	scene "scenes/ravenholm/monk_danger03.vcd"
+}
+rule GrigoriDanger
+{
+	criteria IsGrigori ConceptTalkDanger
+	response GrigoriDanger
+}
+
+
+
+
+//----------------------------------------------------------------------------
+response "GrigoriHeal"
+{
+	scene "scenes/ravenholm/monk_givehealth01.vcd" delay 1
+
+
+}
+
+rule GrigoriHeal
+{
+	criteria		IsGrigori ConceptTalkHeal
+	response		GrigoriHeal
+}
+//---------------------------
+response "GrigoriGiveAmmo"
+{
+	scene "scenes/ravenholm/monk_giveammo01.vcd" delay 1
+
+}
+
+rule GrigoriGiveAmmo
+{
+	criteria		IsGrigori ConceptTalkGiveAmmo
+	response		GrigoriGiveAmmo
+}
+
+//============================================================================================================
+// Grigori Combat speech
+//============================================================================================================
+response "GrigoriAttacking" 
+{
+	scene "scenes/ravenholm/engage01.vcd"
+	scene "scenes/ravenholm/engage02.vcd"
+	scene "scenes/ravenholm/engage03.vcd"
+	scene "scenes/ravenholm/engage04.vcd"
+	scene "scenes/ravenholm/engage05.vcd"
+	scene "scenes/ravenholm/engage06.vcd"
+	scene "scenes/ravenholm/engage07.vcd"
+	scene "scenes/ravenholm/engage08.vcd"
+	scene "scenes/ravenholm/engage09.vcd"
+
+}
+
+rule GrigoriAttacking
+{
+	criteria		IsGrigori ConceptTalkAttacking
+	response		GrigoriAttacking
+}
+
+//============================================================================================================
+// Grigori Reloads Weapon
+//============================================================================================================
+//response "" 
+//{
+//	scene "scenes/ravenholm/monk_coverme01.vcd"
+//
+//}
+//
+//rule 
+//{
+//	criteria		
+//	response		
+//}
+//============================================================================================================
+// Grigori Reminds Player to Reload
+//============================================================================================================
+//response "" 
+//{
+//	scene "scenes/ravenholm/monk_reload01.vcd"
+//
+//}
+//
+//rule 
+//{
+//	criteria		
+//	response		
+//}
+
+
+
+//------------------------------------------------------------------------------------------------------------
+response "GrigoriWounded"
+{
+	scene "scenes/ravenholm/monk_pain01.vcd"
+	scene "scenes/ravenholm/monk_pain02.vcd"
+	scene "scenes/ravenholm/monk_pain03.vcd"
+	scene "scenes/ravenholm/monk_pain04.vcd"
+	scene "scenes/ravenholm/monk_pain05.vcd"
+	scene "scenes/ravenholm/monk_pain06.vcd"
+	scene "scenes/ravenholm/monk_pain07.vcd"
+	scene "scenes/ravenholm/monk_pain08.vcd"
+	scene "scenes/ravenholm/monk_pain09.vcd"
+	scene "scenes/ravenholm/monk_pain10.vcd"
+	scene "scenes/ravenholm/monk_pain11.vcd"
+
+}
+
+rule CitizenWounded
+{
+	criteria		IsGrigori  ConceptTalkWound
+	response		GrigoriWounded
+}
+//------------------------------------------------------------------------------------------------------------
+response "GrigoriWatchOut"
+{
+	scene "scenes/ravenholm/monk_blocked01.vcd"
+	scene "scenes/ravenholm/monk_blocked02.vcd"
+	scene "scenes/ravenholm/monk_blocked03.vcd"
+
+}
+
+rule CitizenWatchOut
+{
+	criteria		IsGrigori  ConceptTalkWatchout
+	response		GrigoriWatchout
+}
+//------------------------------------------------------------------------------------------------------------
+response "GrigoriEnemyDead"
+{
+	scene "scenes/ravenholm/monk_kill01.vcd"
+	scene "scenes/ravenholm/monk_kill02.vcd"
+	scene "scenes/ravenholm/monk_kill03.vcd"
+	scene "scenes/ravenholm/monk_kill04.vcd"
+	scene "scenes/ravenholm/monk_kill05.vcd"
+	scene "scenes/ravenholm/monk_kill06.vcd"
+	scene "scenes/ravenholm/monk_kill07.vcd"
+	scene "scenes/ravenholm/monk_kill08.vcd"
+	scene "scenes/ravenholm/monk_kill09.vcd"
+	scene "scenes/ravenholm/monk_kill10.vcd"
+	scene "scenes/ravenholm/monk_kill11.vcd"
+	scene "scenes/ravenholm/madlaugh01.vcd"
+	scene "scenes/ravenholm/madlaugh02.vcd"
+	scene "scenes/ravenholm/madlaugh03.vcd"
+}
+
+rule GrigoriEnemyDead
+{
+	criteria		IsGrigori ConceptEnemyDead 
+	response		GrigoriEnemyDead
+	rescenedelay 	3
+}
+
+//============================================================================================================
+// Grigori Leader speech
+//============================================================================================================
+
+
+//------------------------------------------------------------------------------------------------------------
+response "GrigoriLeadRetrieve"
+{
+	scene "scenes/ravenholm/monk_quicklybro.vcd"
+	scene "scenes/ravenholm/monk_followme.vcd"
+	scene "scenes/ravenholm/monk_stayclosebro.vcd"
+}
+
+rule GrigoriLeadRetrieve
+{
+	criteria		IsGrigori ConceptLeadRetrieve
+	response		GrigoriLeadRetrieve
+}
+
+response "GrigoriLeadCatchup"
+{
+	scene "scenes/ravenholm/monk_overhere.vcd"
+}
+
+rule GrigoriLeadCatchup
+{
+	criteria		IsGrigori ConceptLeadCatchup
+	response		GrigoriLeadCatchup
+}
+//============================================================================================================

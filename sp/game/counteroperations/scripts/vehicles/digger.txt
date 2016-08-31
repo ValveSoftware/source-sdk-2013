@@ -1,0 +1,90 @@
+// This is the mine digger vehicle for Ravenholm
+
+"vehicle"
+{
+	"wheelsperaxle"		"2"
+	"body"
+	{
+		"addgravity"			"0.2"
+		"tiltforce"			"5"
+		"tiltforceheight"		"64"
+		"countertorquefactor"		"0.5"
+		"keepuprighttorque"		"0.5"
+		"massCenterOverride"		"0 0 -24"
+	}
+	"engine"
+	{
+		"horsepower"			"150"
+		"maxrpm"			"4000"
+		"maxspeed"			"30"		// mph
+		"autotransmission"		"1"
+		"axleratio"				"3"
+		"gear"					"10.0"		// 1st gear
+		"shiftuprpm"			"5000"
+		"shiftdownrpm"			"0"
+	}
+	"steering"
+	{
+		"degrees"		"60"
+		"slowcarspeed"		"0"
+		"fastcarspeed"		"10"
+		"slowsteeringrate"	"2"
+		"faststeeringrate"	"0.75"
+	}
+
+	// front axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"		"22.5"
+			"mass"			"400"
+			"inertia"		"0.3"
+			"damping"		"0"
+			"rotdamping"	"0.02"
+			"material"		"rubbertire"
+		}
+		"suspension"
+		{
+			"springConstant"			"90"
+			"springDamping"				"10"
+			"stabilizerConstant"		"80"
+			"springDampingCompression"	"3"
+			"maxBodyForce"				"120"
+		}
+		"offset"		"0 64 25"
+		"wheeloffset"	"40 0 0"
+
+		"torquefactor"	"0.5"
+		"brakefactor"	"0.5"
+	}
+
+	// rear axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"		"22.5"
+			"mass"			"400"
+			"inertia"		"0.3"
+			"damping"		"0"
+			"rotdamping"	"0.02"
+			"material"		"rubbertire"
+		}
+		"suspension"
+		{
+			"springConstant"			"90"
+			"springDamping"				"10"
+			"stabilizerConstant"		"80"
+			"springDampingCompression"	"3"
+			"maxBodyForce"				"120"
+		}
+
+		"offset"		"0 -68 25"
+		"wheeloffset"	"40 0 0"
+		"torquefactor"	"0.5"
+		"brakefactor"	"1.5"
+	}
+}
+
+

@@ -1,0 +1,28 @@
+//
+// This file contains a command and an "ideal" key.  At startup, if a key is not bound for the
+// given command, the availability of the ideal key is checked.  If it is available, the key
+// is bound - otherwise the game will go through all keys until it finds one that is available
+// or it fails.
+//
+// If for any reason a mod binds a key to something nonsensical, like CS:S does, you can force
+// an override by specifying an "override_if" key/value.  For example, in CS:S, F6 is automatically
+// bound to quick save, which is a feature unused in the game.  So the "save_replay" subkey in cstrike
+// looks like this:
+//
+//	"save_replay"
+//	{
+//		"ideal_key"				"F6"
+//		"override_if"			"save quick"
+//	}
+//
+"scripts/newbindings.txt"
+{
+	"headtrack_reset_home_pos"
+	{
+		"ideal_key"				"p"			
+	}
+	"vr_toggle"
+	{
+		"ideal_key"				"F9"
+	}
+}

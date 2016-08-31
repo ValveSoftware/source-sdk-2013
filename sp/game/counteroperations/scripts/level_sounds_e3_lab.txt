@@ -1,0 +1,259 @@
+//*********************************************************
+// E3_lab
+
+e3_lab.ScannerMusicX
+{
+	// starts when scanners appear in window
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.5"
+	"soundlevel"  "SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+
+	"wave"	"#music/HL2_song8.wav"	
+}
+
+"E3_lab.alyx_snapout"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_snapout.wav"
+}
+
+"E3_lab.alyx_staringagain"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_staringagain.wav"
+}
+
+
+"E3_lab.kleiner_warming"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/kleiner_warming.wav"
+}
+
+
+
+"E3_lab.alyx_areyousure"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_areyousure.wav"
+}
+
+
+"E3_lab.kleiner_moduli"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/kleiner_moduli.wav"
+}
+
+
+"E3_lab.alyx_hopeso1"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_hopeso1.wav"
+}
+
+"E3_lab.alyx_hopeso2"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_hopeso2.wav"
+}
+
+
+"E3_lab.alyx_imsorry1"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_imsorrygordon1.wav"
+}
+
+
+"E3_lab.alyx_imsorry2"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_imsorrygordon2.wav"
+}
+
+
+"E3_lab.alyx_imsorry3"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_imsorrygordon3.wav"
+}
+
+
+"E3_lab.alyx_imsorry4"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_imsorrygordon4.wav"
+}
+
+
+"E3_lab.alyx_imsorry5"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_imsorrygordon5.wav"
+}
+
+
+"E3_lab.alyx_imsorry6"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_imsorrygordon6.wav"
+}
+
+
+
+"E3_lab.alyx_cmondoc"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_cmondoc.wav"
+}
+
+"E3_lab.kleiner_massless"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/kleiner_massless.wav"
+}
+
+
+"E3_lab.kleiner_careful"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/kleiner_careful.wav"
+}
+
+
+"E3_lab.alyx_scanners1"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_scanners1.wav"
+}
+
+
+"E3_lab.alyx_scanners2"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_scanners2.wav"
+}
+
+
+"E3_lab.alyx_scanners3"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_scanners3.wav"
+}
+
+
+"E3_lab.kleiner_fie"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/kleiner_fie.wav"
+}
+
+"E3_lab.alyx_thatsit"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_thatsit.wav"
+}
+
+
+"E3_lab.alyx_takethis"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_takethis.wav"
+}
+
+
+"E3_lab.alyx_getout"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_getout.wav"
+}
+
+"E3_lab.kleiner_onlymoment"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/kleiner_onlymoment.wav"
+}
+
+
+"E3_lab.alyx_toolate"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_105dB"
+	"pitch"		"PITCH_NORM"
+	"wave"	"*vo/e3_lab/alyx_toolate.wav"
+}

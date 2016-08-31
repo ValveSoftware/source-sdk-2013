@@ -1,0 +1,384 @@
+//
+//
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+//
+// VOL_NORM		1.0f
+//
+//-----------------------------------------------------------------------------
+// common attenuation values
+//-----------------------------------------------------------------------------
+//
+// DON'T USE THESE - USE SNDLVL_ INSTEAD!!!
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f
+//	ATTN_IDLE		2.0f
+//	ATTN_STATIC		1.25f 
+//	ATTN_RICOCHET	1.5f
+//	ATTN_GUNFIRE	0.27f
+//
+//	SNDLVL_NONE		= 0,
+//	SNDLVL_25dB		= 25,
+//	SNDLVL_30dB		= 30,
+//	SNDLVL_35dB		= 35,
+//	SNDLVL_40dB		= 40,
+//	SNDLVL_45dB		= 45,
+//	SNDLVL_50dB		= 50,	= 3.9
+//	SNDLVL_55dB		= 55,	= 3.0
+//	SNDLVL_IDLE		= 60,	= 2.0
+//	SNDLVL_TALKING		= 60,	= 2.0
+//	SNDLVL_60dB		= 60,	= 2.0
+//	SNDLVL_65dB		= 65,	= 1.5
+//	SNDLVL_STATIC		= 66,	= 1.25
+//	SNDLVL_70dB		= 70,	= 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	= 0.8
+//	SNDLVL_80dB		= 80,	= 0.7
+//	SNDLVL_85dB		= 85,	= 0.6
+//	SNDLVL_90dB		= 90,	= 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	= 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140, = 0.27
+//	SNDLVL_140dB	= 140,	= 0.2
+//	SNDLVL_150dB	= 150,	= 0.2
+//
+
+
+
+
+"Canals.d1_canals_01_breakhiscover"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/metropolice/vo/breakhiscover.wav"
+}
+
+"Canals.d1_canals_01_combine_shield_loop3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"ambient/machines/combine_shield_loop3.wav"
+}
+
+"Canals.d1_canals_01_combine_shield_touch_loop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/machines/combine_shield_touch_loop1.wav"
+}
+
+"Canals.d1_canals_01_train_idle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_80db"
+	"wave"			"ambient/machines/train_idle.wav"
+}
+
+"Canals.d1_canals_01_watchit"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/metropolice/vo/watchit.wav"
+}
+
+"Canals.d1_canals_01_chopper_rotor2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"vehicles/chopper_rotor2.wav"
+}
+
+"Canals.d1_canals_01_arrest_helpme"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"vo/canals/arrest_helpme.wav"
+}
+
+"Canals.d1_canals_01_fire"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"weapons/flaregun/fire.wav"
+}
+
+"Canals.d1_canals_01_chargeloop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"weapons/gauss/chargeloop.wav"
+}
+
+"Canals.d1_canals_01a_wood_box_impact_hard2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_box_impact_hard2.wav"
+}
+
+"Canals.d1_canals_01a_wood_box_impact_hard3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_box_impact_hard3.wav"
+}
+
+"Canals.d1_canals_01a_wood_furniture_break2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_furniture_break2.wav"
+}
+
+"Canals.d1_canals_01a_wood_plank_break1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_plank_break1.wav"
+}
+
+"Canals.d1_canals_01a_wood_plank_break2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_plank_break2.wav"
+}
+
+"Canals.d1_canals_01a_metal_groan"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/metal_groan.wav"
+}
+
+"Canals.d1_canals_01a_metal_stress1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/metal_stress1.wav"
+}
+
+"Canals.d1_canals_01a_shipgroan2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/shipgroan2.wav"
+}
+
+"Canals.d1_canals_01a_wood_creak3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"ambient/materials/wood_creak3.wav"
+}
+
+"Canals.d1_canals_01a_hiding02"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/metropolice/hiding02.wav"
+}
+
+"Canals.d1_canals_01a_acquiringonvisual"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/metropolice/vo/acquiringonvisual.wav"
+}
+
+"Canals.d1_canals_01a_movingtohardpoint2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/metropolice/vo/movingtohardpoint2.wav"
+}
+
+"Canals.d1_canals_01a_reinforcementteamscode3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"npc/metropolice/vo/reinforcementteamscode3.wav"
+}
+
+"Canals.d1_canals_01a_metal_box_break2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_box_break2.wav"
+}
+
+"Canals.d1_canals_01a_metal_large_debris1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_large_debris1.wav"
+}
+
+"Canals.d1_canals_01a_metal_large_debris2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_large_debris2.wav"
+}
+
+"Canals.d1_canals_01a_wood_box_break2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_box_break2.wav"
+}
+
+"Canals.d1_canals_01a_wood_crate_break1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_crate_break1.wav"
+}
+
+"Canals.d1_canals_01a_wood_crate_break2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_crate_break2.wav"
+}
+
+"Canals.d1_canals_01a_wood_crate_break4"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_crate_break4.wav"
+}
+
+"Canals.d1_canals_01a_wood_panel_impact_hard1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_panel_impact_hard1.wav"
+}
+
+"Canals.d1_canals_01a_wood_plank_break3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_plank_break3.wav"
+}
+
+"Canals.d1_canals_01a_wood_strain2"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_strain2.wav"
+}
+
+"Canals.d1_canals_01a_wood_strain3"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_strain3.wav"
+}
+
+"Canals.d1_canals_01a_wood_strain4"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/wood/wood_strain4.wav"
+}
+
+"Canals.d1_canals_01a_fire"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"0"
+	"wave"			"weapons/flaregun/fire.wav"
+}
+
+"Canals.d1_canals_03_metal_box_break1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"physics/metal/metal_box_break1.wav"
+}
+
+"Canals.d1_canals_03_pontoon_fast_water_loop1"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.75"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"			"vehicles/airboat/pontoon_fast_water_loop1.wav"
+}

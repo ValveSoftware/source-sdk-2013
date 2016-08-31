@@ -1,0 +1,156 @@
+"NPC_Crow.Hop"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.5"
+	"pitch"			"100, 200"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/crow/hop1.wav"
+		"wave"	"npc/crow/hop2.wav"
+	}
+}
+
+"NPC_Crow.Gib"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.7"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"physics/flesh/flesh_squishy_impact_hard1.wav"
+}
+
+"NPC_Crow.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/crow/idle1.wav"
+		"wave"	"npc/crow/idle2.wav"
+		"wave"	"npc/crow/idle3.wav"
+		"wave"	"npc/crow/idle4.wav"
+	}
+}
+
+"NPC_Crow.Alert"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_NORM"
+	"rndwave"
+	{
+		"wave"			"npc/crow/alert1.wav"
+		"wave"			"npc/crow/alert2.wav"
+		"wave"			"npc/crow/alert3.wav"
+	}
+}
+
+"NPC_Crow.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_NORM"
+	"rndwave"
+	{
+		"wave"			"npc/crow/pain1.wav"
+		"wave"			"npc/crow/pain2.wav"
+	}
+}
+
+"NPC_Crow.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"			"90,105"
+	"soundlevel"	"SNDLVL_TALKING"
+	"rndwave"
+	{
+		"wave"			"npc/crow/die1.wav"
+		"wave"			"npc/crow/die2.wav"
+	}
+}
+
+"NPC_Crow.Flap"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.5"
+	"pitch"			"90,120"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"wave"			"npc/crow/flap2.wav"
+}
+
+"NPC_Crow.Squawk"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.6"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_TALKING"
+	"rndwave"
+	{
+		"wave"			"npc/crow/crow2.wav"
+		"wave"			"npc/crow/crow3.wav"
+	}
+}
+
+"NPC_Pigeon.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.5"
+	"pitch"		"95,105"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"ambient/creatures/pigeon_idle1.wav"
+		"wave"	"ambient/creatures/pigeon_idle2.wav"
+		"wave"	"ambient/creatures/pigeon_idle3.wav"
+		"wave"	"ambient/creatures/pigeon_idle4.wav"
+	}
+}
+
+"NPC_Seagull.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.5"
+	"pitch"		"95,105"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"ambient/creatures/seagull_idle1.wav"
+		"wave"	"ambient/creatures/seagull_idle2.wav"
+		"wave"	"ambient/creatures/seagull_idle3.wav"
+	}
+}
+
+"NPC_Seagull.Pain"
+{	
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.8"
+	"pitch"		"100,115"
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"ambient/creatures/seagull_pain1.wav"
+		"wave"	"ambient/creatures/seagull_pain2.wav"
+		"wave"	"ambient/creatures/seagull_pain3.wav"
+	}
+}
+

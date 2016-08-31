@@ -1,0 +1,455 @@
+"NPC_MetroPolice.SentenceParameters"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.80"
+	"pitch"			"100,106"
+
+	"soundlevel"	"SNDLVL_90dB"
+	"wave"		"common/null.wav"
+}
+
+"NPC_MetroPolice.HitByVehicle"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/metropolice/hit_by_vehicle1.wav"
+		"wave"	"npc/metropolice/hit_by_vehicle2.wav"
+		"wave"	"npc/metropolice/hit_by_vehicle3.wav"
+	}
+}
+
+"NPC_MetroPolice.Shove"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"physics/flesh/flesh_impact_hard3.wav"
+		"wave"	"physics/flesh/flesh_impact_hard4.wav"
+		"wave"	"physics/flesh/flesh_impact_hard5.wav"
+	}
+}
+
+"NPC_MetroPolice.FootstepLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"pitch"		"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"player/footsteps/tile1.wav"
+		"wave"	"player/footsteps/tile2.wav"
+	}
+}
+
+"NPC_MetroPolice.FootstepRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"pitch"		"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"player/footsteps/tile3.wav"
+		"wave"	"player/footsteps/tile4.wav"
+	}
+}
+
+"NPC_MetroPolice.RunFootstepLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.55"
+	"pitch"		"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+
+		"wave"	"npc/metropolice/gear1.wav"
+		"wave"	"npc/metropolice/gear3.wav"
+		"wave"	"npc/metropolice/gear5.wav"
+	}
+}
+
+"NPC_MetroPolice.RunFootstepRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.55"
+	"pitch"		"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+
+		"wave"	"npc/metropolice/gear2.wav"
+		"wave"	"npc/metropolice/gear4.wav"
+		"wave"	"npc/metropolice/gear6.wav"
+	}
+}
+
+
+// **********************************************************
+// OBSOLETE:
+// metropolice should always use sentences.txt entries, 
+// the following should NOT be referenced.
+
+"NPC_MetroPolice.Alert"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"rndwave"
+	{
+		"wave"	"*npc/metropolice/vo/confirmpriority1sighted.wav"
+	}
+}
+
+"NPC_MetroPolice.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.500"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/metropolice/die1.wav"
+		"wave"	"npc/metropolice/die2.wav"
+		"wave"	"npc/metropolice/die3.wav"
+		"wave"	"npc/metropolice/die4.wav"
+	}
+}
+
+"NPC_MetroPolice.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"rndwave"
+	{
+		"wave"	"npc/metropolice/pain1.wav"
+		"wave"	"npc/metropolice/pain2.wav"
+		"wave"	"npc/metropolice/pain3.wav"
+		"wave"	"npc/metropolice/pain4.wav"
+	}
+}
+
+"NPC_MetroPolice.OnFireScream"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_85dB"
+
+	"rndwave"
+	{
+		"wave"	"*npc/metropolice/vo/officerneedshelp.wav"
+		"wave"	"*npc/metropolice/vo/help.wav"
+	}
+}
+
+"NPC_MetroPolice.LocateSpeech"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"rndwave"
+	{
+		"wave"	"*npc/metropolice/vo/thereheis.wav"
+	}
+}
+
+"NPC_MetroPolice.DeploySpeech"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"*npc/metropolice/vo/visceratordeployed.wav"
+	}
+}
+
+"NPC_MetroPolice.WaterSpeech"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"*npc/metropolice/vo/wasteriver.wav"
+		"wave"	"*npc/metropolice/vo/canal.wav"
+	}
+}
+
+"NPC_MetroPolice.HidingSpeech"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"*npc/metropolice/vo/searchingforsuspect.wav"
+		"wave"	"*npc/metropolice/vo/novisualonupi.wav"
+	}
+}
+
+"NPC_MetroPolice.Warn"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"*npc/metropolice/vo/holdit.wav"
+		"wave"	"*npc/metropolice/vo/dontmove.wav"
+	}
+}
+
+"NPC_MetroPolice.Freeze"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+	"wave"		"*npc/metropolice/vo/dontmove.wav"
+}
+
+"NPC_MetroPolice.Stay"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+	"wave"		"*npc/metropolice/vo/holdit.wav"
+}
+
+"NPC_MetroPolice.Customs.GoRight"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+	"wave"		"*npc/metropolice/vo/moveit2.wav"
+}
+
+"NPC_MetroPolice.Customs.GoLeft"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+	"wave"		"*npc/metropolice/vo/movealong3.wav"
+}
+
+"NPC_MetroPolice.Luggagescript.Warn"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_90dB"
+		"wave"	"*npc/metropolice/vo/firstwarningmove.wav"
+}
+
+"NPC_MetroPolice.Radio.On"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"rndwave"
+	{
+		"wave"	"npc/metropolice/vo/on1.wav"
+		"wave"	"npc/metropolice/vo/on2.wav"
+	}
+}
+
+"NPC_MetroPolice.Radio.Off"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"rndwave"
+	{
+		"wave"	"npc/metropolice/vo/off1.wav"
+		"wave"	"npc/metropolice/vo/off2.wav"
+	}
+}
+
+"NPC_MetroPolice.Cupcop.Intro"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc/metropolice/vo/standardloyaltycheck.wav"
+}
+
+"NPC_MetroPolice.Cupcop.PickUpTheCan"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc/metropolice/vo/pickupthecan1.wav"
+}
+
+
+"NPC_MetroPolice.Cupcop.PickUpTheCan.Nag"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"rndwave"
+	{
+		"wave"	"*npc/metropolice/vo/pickupthecan2.wav"
+		"wave"	"*npc/metropolice/vo/pickupthecan3.wav"
+		"wave"	"*npc/metropolice/vo/youknockeditover.wav"
+	}
+}
+
+"NPC_MetroPolice.Cupcop.PutItInTheTrash"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"rndwave"
+	{
+		"wave"			"*npc/metropolice/vo/putitinthetrash1.wav"
+		"wave"			"*npc/metropolice/vo/putitinthetrash2.wav"
+	}
+}
+
+"NPC_MetroPolice.Cupcop.Failure"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc\metropolice\vo\prepareforjudgement.wav"
+}
+
+"NPC_MetroPolice.Cupcop.Failure.Leave"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc\metropolice\vo\loyaltycheckfailure.wav"
+}
+
+"NPC_MetroPolice.Cupcop.Success"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc/metropolice/vo/citizensummoned.wav"
+}
+
+"NPC_MetroPolice.Cupcop.GoAway"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc/metropolice/vo/allrightyoucango.wav"
+}
+
+"NPC_MetroPolice.Cupcop.GoAway.Failure"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc/metropolice/vo/nowgetoutofhere.wav"
+}
+
+"NPC_MetroPolice.Cupcop.Chuckle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc/metropolice/vo/chuckle.wav"
+}
+
+"NPC_MetroPolice.onecontained"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc/combine_soldier/vo/onecontained.wav"
+}
+
+"NPC_MetroPolice.takedown"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"		"SNDLVL_90dB"
+	"wave"			"*npc/metropolice/takedown.wav"
+}

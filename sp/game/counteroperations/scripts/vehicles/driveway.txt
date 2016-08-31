@@ -1,0 +1,85 @@
+// This is the driveable APC vehicle for city (15 mph)
+"vehicle"
+{
+	"wheelsperaxle"		"2"
+	"body"
+	{
+		"addgravity"			"0.2"
+		"tiltforce"			"5"
+		"tiltforceheight"		"64"
+		"countertorquefactor"	"1"
+		"keepuprighttorque"		"0.5"
+	}
+	"engine"
+	{
+		"maxsteeringdegrees"		"60"
+		"maxsteeringspeed"		"30"		// mph
+		"horsepower"			"3000"
+		"maxrpm"			"15000"
+		"maxspeed"			"15"		// mph
+		"autotransmission"		"1"
+		"axleratio"				"3.8"
+		"gear"					"3.8"		// 1st gear
+		"gear"					"2.2"		// 2nd gear
+		"gear"					"1.3"		// 3rd gear
+		"gear"					"1.0"		// 4th gear
+		"gear"					"0.8"		// 5th gear
+		"shiftuprpm"			"15000"
+		"shiftdownrpm"			"500"
+	}
+
+	// front axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"		"25"
+			"mass"			"400"
+			"inertia"		"0.3"
+			"damping"		"0"
+			"rotdamping"	"0.02"
+			"material"		"rubbertire"
+		}
+		"suspension"
+		{
+			"springConstant"			"90"
+			"springDamping"				"10"
+			"stabilizerConstant"		"80"
+			"springDampingCompression"	"3"
+			"maxBodyForce"				"120"
+		}
+		"offset"		"0 64 25"
+		"wheeloffset"	"40 0 0"
+
+		"torquefactor"	"0.5"
+		"brakefactor"	"0.5"
+	}
+
+	// rear axle
+	"axle"
+	{
+		"wheel"
+		{
+			"radius"		"25"
+			"mass"			"400"
+			"inertia"		"0.3"
+			"damping"		"0"
+			"rotdamping"	"0.02"
+			"material"		"rubbertire"
+		}
+		"suspension"
+		{
+			"springConstant"			"90"
+			"springDamping"				"10"
+			"stabilizerConstant"		"80"
+			"springDampingCompression"	"3"
+			"maxBodyForce"				"120"
+		}
+		"offset"		"0 -68 25"
+		"wheeloffset"	"40 0 0"
+		"torquefactor"	"0.5"
+		"brakefactor"	"1.5"
+	}
+}
+
+

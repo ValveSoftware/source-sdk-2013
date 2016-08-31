@@ -1,0 +1,70 @@
+// Annabelle - Grigori's shotgun
+
+WeaponData
+{
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"		"#HL2_Annabelle"
+	"viewmodel"		"models/weapons/v_shotgun.mdl"
+	"playermodel"		"models/weapons/w_annabelle.mdl"
+	"anim_prefix"		"shotgun"
+	"bucket"			"2"
+	"bucket_position"		"1"
+	"clip_size"		"2"
+	"primary_ammo"		"357"
+	"secondary_ammo"	"None"
+
+	"weight"			"2"
+	"item_flags"		"0"
+
+	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
+	SoundData
+	{
+
+		"empty"				"Weapon_Shotgun.Empty"
+		"reload"			"Weapon_Shotgun.Reload"
+		"special1"			"Weapon_Shotgun.Special1"
+		"single_shot"		"Weapon_Shotgun.Single"
+		"double_shot"		"Weapon_Shotgun.Double"
+		// NPC WEAPON SOUNDS
+		"reload_npc"		"Weapon_Shotgun.NPC_Reload"
+		"single_shot_npc"	"Weapon_Shotgun.NPC_Single"
+	}
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"font"		"WeaponIcons"
+				"character"	"b"
+		}
+		"weapon_s"
+		{	
+				"font"		"WeaponIconsSelected"
+				"character"	"b"
+		}
+		"weapon_small"
+		{
+				"font"		"WeaponIconsSmall"
+				"character"	"b"
+		}
+		"ammo"
+		{
+				"font"		"WeaponIconsSmall"
+				"character"	"s"
+		}
+		"crosshair"
+		{
+				"font"		"Crosshairs"
+				"character"	"Q"
+		}
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"0"
+				"y"			"48"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+}

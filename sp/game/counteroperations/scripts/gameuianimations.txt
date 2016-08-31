@@ -1,0 +1,329 @@
+// sample animation script
+//
+//
+// commands:
+//	Animate <panel name> <variable> <target value> <interpolator> <start time> <duration>
+//		variables:
+//			FgColor
+//			BgColor
+//			Position
+//			Size
+//			Blur		(hud panels only)
+//			TextColor	(hud panels only)
+//			Ammo2Color	(hud panels only)
+//			Alpha		(hud weapon selection only)
+//			SelectionAlpha  (hud weapon selection only)
+//			TextScan	(hud weapon selection only)
+//
+//		interpolator:
+//			Linear
+//			Accel - starts moving slow, ends fast
+//			Deaccel - starts moving fast, ends slow
+//
+//	RunEvent <event name> <start time>
+//		starts another even running at the specified time
+//
+//	StopEvent <event name> <start time>
+//		stops another event that is current running at the specified time
+//
+//	StopAnimation <panel name> <variable> <start time>
+//		stops all animations refering to the specified variable in the specified panel
+//
+//	StopPanelAnimations <panel name> <start time>
+//		stops all active animations operating on the specified panel
+//
+//
+// Useful game console commands:
+//	cl_Animationinfo <hudelement name> or <panelname> 
+//		displays all the animatable variables for the hud element
+//
+
+//-----------------------------------------------------------------------------
+//	COMMON EVENTS
+//-----------------------------------------------------------------------------
+
+// No-operation event used for timing delays
+event Nothing
+{
+}
+
+// Setup menu system 
+event InitializeUILayout
+{
+	Animate GameMenu		Position	"80 230"	Linear	0.0	0.0
+}
+
+//-----------------------------------------------------------------------------
+//	MAIN MENU
+//-----------------------------------------------------------------------------
+
+event OpenMainMenu
+{	
+	RunEvent ShowMainMenu	0.0
+}
+
+event ShowMainMenu
+{
+	Animate GameMenu		Alpha	"255"		Linear	0.0	0.4
+	Animate	GameMenuButton	Alpha	"255"		Linear	0.0	0.4
+	Animate	GameMenuButton2	Alpha	"255"		Linear	0.0	0.4
+	Animate MainMenuFooter	Alpha	"255"		Linear	0.0	0.4
+	RunEvent ShowMatchmakingBasePanel	0.0
+	RunEvent ShowMatchmakingFooter		0.0
+}
+
+event HideMainMenu
+{
+	StopEvent ShowMainMenu	0.0
+
+	Animate GameMenu		Alpha	"0"		Linear	0.0	0.4
+	Animate	GameMenuButton	Alpha	"0"		Linear	0.0	0.4
+	Animate	GameMenuButton2	Alpha	"0"		Linear	0.0	0.4
+	Animate MainMenuFooter	Alpha	"0"		Linear	0.0	0.4
+	RunEvent HideMatchmakingBasePanel	0.0
+	RunEvent HideMatchmakingFooter		0.0
+}
+
+event InstantHideMainMenu
+{
+	StopEvent OpenMainMenu 0.0
+	StopEvent ShowMainMenu	0.0
+	StopEvent HideMainMenu 0.0
+	StopEvent CloseNewGameDialog	0.0
+	StopEvent ShowMatchmakingBasePanel	0.0
+	StopEvent ShowMatchmakingFooter 0.0
+
+	Animate GameMenu		Alpha	"0"		Linear	0.0	0.0
+	Animate	GameMenuButton	Alpha	"0"		Linear	0.0	0.0
+	Animate	GameMenuButton2	Alpha	"0"		Linear	0.0	0.0
+	Animate MainMenuFooter	Alpha	"0"		Linear	0.0	0.0
+	Animate MatchmakingBasePanel	Alpha	"0"		Linear	0.0	0.0
+	Animate WelcomeDialog			Alpha	"0"		Linear	0.0	0.0
+	Animate MatchmakingFooterPanel	Alpha	"0"		Linear	0.0	0.0
+}
+
+//-----------------------------------------------------------------------------
+//	MATCHMAKING MAIN MENU
+//-----------------------------------------------------------------------------
+
+event OpenMatchmakingBasePanel
+{	
+	RunEvent ShowMatchmakingBasePanel	0.0
+	RunEvent ShowMatchmakingFooter		0.0
+}
+
+event ShowMatchmakingBasePanel
+{
+	StopEvent HideMatchmakingBasePanel	0.0
+	
+	Animate MatchmakingBasePanel	Alpha	"255"		Linear	0.0	0.4
+	Animate WelcomeDialog			Alpha	"255"		Linear	0.0	0.4
+}
+
+event HideMatchmakingBasePanel
+{
+	StopEvent ShowMatchmakingBasePanel	0.0
+
+	Animate MatchmakingBasePanel	Alpha	"0"		Linear	0.0	0.4
+	Animate WelcomeDialog			Alpha	"0"		Linear	0.0	0.4
+}
+
+event ShowMatchmakingFooter
+{
+	StopEvent HideMatchmakingFooter	0.0
+
+	Animate MatchmakingFooterPanel	Alpha	"255"	Linear	0.0	0.4
+}
+
+event HideMatchmakingFooter
+{
+	StopEvent ShowMatchmakingFooter	0.0
+
+	Animate MatchmakingFooterPanel	Alpha	"0"		Linear	0.0	0.4
+}
+
+//-----------------------------------------------------------------------------
+//	IN-GAME MENU
+//-----------------------------------------------------------------------------
+
+// Open "PauseMenu"
+event OpenPauseMenu
+{
+	// hide all, state is unknown must be slammed
+	Animate GameMenu		Alpha		"0"			Linear	0.0	0.0
+	Animate	GameMenuButton	Alpha		"0"			Linear	0.0	0.0
+	Animate	GameMenuButton2	Alpha		"0"			Linear	0.0	0.0
+	Animate NewGameDialog	Alpha		"0"			Linear	0.0	0.0
+
+	Animate GameMenu		Alpha		"255"		Linear	0.0	0.0
+	Animate	GameMenuButton	Alpha		"255"		Linear	0.0	0.0
+	Animate	GameMenuButton2	Alpha		"255"		Linear	0.0	0.0
+}
+
+//-----------------------------------------------------------------------------
+//	NEW GAME DIALOG
+//-----------------------------------------------------------------------------
+
+event OpenNewGameDialog
+{
+	RunEvent HideMainMenu	0.0
+	
+	Animate NewGameFooter	Alpha	"255"	Linear	0.0	0.4
+}
+
+// Close "NewGame" and Open "MainMenu"
+event CloseNewGameDialog_OpenMainMenu
+{
+	Animate NewGameFooter	Alpha	"0"		Linear	0.0	0.4
+
+	RunEvent ShowMainMenu	0.4
+}
+
+// Close "NewGame" and prep for starting game
+event CloseNewGameDialog
+{
+	Animate NewGameFooter	Alpha	"0"		Linear	0.0	0.4
+	Animate NewGameDialog	Alpha	"0"		Linear	0.0	0.4
+}
+
+//-----------------------------------------------------------------------------
+//	COMMENTARY DIALOG
+//-----------------------------------------------------------------------------
+
+event OpenLoadSingleplayerCommentaryDialog
+{
+	RunEvent HideMainMenu	0.0
+	
+	Animate NewGameFooter	Alpha	"255"	Linear	0.0	0.4
+}
+
+//-----------------------------------------------------------------------------
+//	LOAD GAME DIALOG
+//-----------------------------------------------------------------------------
+
+event OpenLoadGameDialog
+{
+	RunEvent HideMainMenu	0.0
+	
+	Animate SaveGameFooter	Alpha	"255"		Linear	0.0	0.4
+}
+
+event CloseLoadGameDialog_OpenMainMenu
+{
+	Animate SaveGameFooter	Alpha	"0"			Linear	0.0	0.4
+
+	RunEvent ShowMainMenu	0.4
+}
+
+//-----------------------------------------------------------------------------
+//	SAVE GAME DIALOG
+//-----------------------------------------------------------------------------
+
+event OpenSaveGameDialog
+{
+	RunEvent HideMainMenu	0.0
+	
+	Animate SaveGameFooter	Alpha	"255"		Linear	0.0	0.4
+}
+
+event CloseSaveGameDialog_OpenMainMenu
+{
+	Animate SaveGameFooter	Alpha	"0"			Linear	0.0	0.4
+
+	RunEvent ShowMainMenu	0.4
+}
+
+//-----------------------------------------------------------------------------
+//	CONTROLLER DIALOG
+//-----------------------------------------------------------------------------
+
+event OpenControllerDialog
+{
+	RunEvent HideMainMenu	0.0
+	
+	Animate ControllerFooter	Alpha	"255"		Linear	0.0	0.4
+}
+
+event CloseControllerDialog_OpenMainMenu
+{
+	Animate ControllerFooter	Alpha	"0"			Linear	0.0	0.4
+
+	RunEvent ShowMainMenu	0.4
+}
+
+//-----------------------------------------------------------------------------
+//	OPTIONS DIALOG
+//-----------------------------------------------------------------------------
+
+event OpenOptionsDialog
+{
+	RunEvent HideMainMenu	0.0
+	
+	Animate OptionsFooter	Alpha	"255"		Linear	0.0	0.4
+}
+
+event CloseOptionsDialog_OpenMainMenu
+{
+	Animate OptionsFooter	Alpha	"0"			Linear	0.0	0.4
+
+	RunEvent ShowMainMenu	0.4
+}
+
+//-----------------------------------------------------------------------------
+//	QUIT DIALOG
+//-----------------------------------------------------------------------------
+
+// Open the Quit Dialog
+event Quit
+{
+	RunEvent HideMainMenu				0.0
+	RunEvent HideMatchmakingBasePanel	0.0
+}
+
+// Close "Quit" and Open "MainMenu"
+event CloseQuitDialog_OpenMainMenu
+{
+	RunEvent ShowMainMenu	0.0
+}
+
+// Close "Quit" and Open "MainMenu"
+event CloseQuitDialog_OpenMatchmakingMenu
+{
+	RunEvent ShowMatchmakingBasePanel 0.0
+}
+	
+event QuitNoConfirm
+{
+	RunEvent HideMatchmakingBasePanel	0.0
+}
+
+//-----------------------------------------------------------------------------
+//	MATCHMAKING LOBBY DIALOG
+//-----------------------------------------------------------------------------
+
+// Close matchmaking base panel and prep for starting game
+event CloseMatchmakingUI
+{
+	Animate MatchmakingBasePanel	Alpha	"0"		Linear	0.0	0.4
+	Animate SessionLobby_Host		Alpha	"0"		Linear	0.0	0.4
+	Animate SessionLobby_Client		Alpha	"0"		Linear	0.0	0.4
+}
+
+
+//-----------------------------------------------------------------------------
+//	ACHIEVEMENTS DIALOG
+//-----------------------------------------------------------------------------
+
+event OpenAchievementsDialog
+{
+	RunEvent HideMainMenu	0.0
+	
+	Animate SaveGameFooter	Alpha	"255"		Linear	0.0	0.4
+}
+
+event CloseAchievementsDialog_OpenMainMenu
+{
+	Animate SaveGameFooter	Alpha	"0"			Linear	0.0	0.4
+
+	RunEvent ShowMainMenu	0.4
+}

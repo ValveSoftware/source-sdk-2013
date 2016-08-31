@@ -1,0 +1,144 @@
+"NPC_PoisonZombie.Die"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/zombie_poison/pz_die1.wav"
+		"wave"	"npc/zombie_poison/pz_die2.wav"
+	}
+}
+
+"NPC_PoisonZombie.ThrowWarn"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/zombie_poison/pz_warn1.wav"
+		"wave"	"npc/zombie_poison/pz_warn2.wav"
+	}
+}
+
+"NPC_PoisonZombie.Throw"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/zombie_poison/pz_throw2.wav"
+		"wave"	"npc/zombie_poison/pz_throw3.wav"
+	}
+}
+
+"NPC_PoisonZombie.Idle"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"rndwave"
+	{
+		"wave"	"npc/zombie_poison/pz_idle2.wav"
+		"wave"	"npc/zombie_poison/pz_idle3.wav"
+		"wave"	"npc/zombie_poison/pz_idle4.wav"
+	}
+}
+
+"NPC_PoisonZombie.Pain"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/zombie_poison/pz_pain1.wav"
+		"wave"	"npc/zombie_poison/pz_pain2.wav"
+		"wave"	"npc/zombie_poison/pz_pain3.wav"
+	}
+}
+
+"NPC_PoisonZombie.Alert"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/zombie_poison/pz_alert1.wav"
+		"wave"	"npc/zombie_poison/pz_alert2.wav"
+	}
+}
+
+"NPC_PoisonZombie.Attack"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600"
+	"pitch"			"95, 105"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"rndwave"
+	{
+		"wave"	"npc/zombie_poison/pz_warn1.wav"
+		"wave"	"npc/zombie_poison/pz_warn2.wav"
+	}
+}
+
+"NPC_PoisonZombie.FootstepRight"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.600"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"wave"			"npc/zombie_poison/pz_right_foot1.wav"
+}
+
+"NPC_PoisonZombie.FootstepLeft"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.600"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"wave"			"npc/zombie_poison/pz_left_foot1.wav"
+}
+
+"NPC_PoisonZombie.FastBreath"
+{
+	"channel"		"CHAN_ITEM"
+	"soundlevel"	"SNDLVL_IDLE"
+
+	"wave"			"npc/zombie_poison/pz_breathe_loop2.wav"
+}
+
+"NPC_PoisonZombie.Moan1"
+{
+	"channel"		"CHAN_ITEM"
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"			"npc/zombie_poison/pz_breathe_loop1.wav"
+}

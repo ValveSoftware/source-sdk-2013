@@ -1,0 +1,2168 @@
+//
+//
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+// NOTE:  AUTOMATICALLY GENERATED FILE, ANY HAND EDITED COMMENTS WILL BE LOST!!!
+//
+// VOL_NORM		1.0f
+//
+//-----------------------------------------------------------------------------
+// common attenuation values
+//-----------------------------------------------------------------------------
+//
+// DON'T USE THESE - USE SNDLVL_ INSTEAD!!!
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f
+//	ATTN_IDLE		2.0f
+//	ATTN_STATIC		1.25f 
+//	ATTN_RICOCHET	1.5f
+//	ATTN_GUNFIRE	0.27f
+//
+//	SNDLVL_NONE		= 0,
+//	SNDLVL_25dB		= 25,
+//	SNDLVL_30dB		= 30,
+//	SNDLVL_35dB		= 35,
+//	SNDLVL_40dB		= 40,
+//	SNDLVL_45dB		= 45,
+//	SNDLVL_50dB		= 50,	= 3.9
+//	SNDLVL_55dB		= 55,	= 3.0
+//	SNDLVL_IDLE		= 60,	= 2.0
+//	SNDLVL_TALKING		= 60,	= 2.0
+//	SNDLVL_60dB		= 60,	= 2.0
+//	SNDLVL_65dB		= 65,	= 1.5
+//	SNDLVL_STATIC		= 66,	= 1.25
+//	SNDLVL_70dB		= 70,	= 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	= 0.8
+//	SNDLVL_80dB		= 80,	= 0.7
+//	SNDLVL_85dB		= 85,	= 0.6
+//	SNDLVL_90dB		= 90,	= 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	= 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140, = 0.27
+//	SNDLVL_140dB	= 140,	= 0.2
+//	SNDLVL_150dB	= 150,	= 0.2
+//
+
+"d1_town.FlameTrapExtinguish"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.000000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/fire/mtov_flame2.wav"
+}
+
+
+"d1_town.Music_Intro"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.6"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*#music/HL2_song7.mp3"
+}
+
+"d1_town.Music_Goodbye_Grigori"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.7"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*#music/Ravenholm_1.mp3"
+}
+
+"d1_town.Slicer"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.8, 1.0"
+	"pitch"			"85,115"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"ambient/machines/slicer1.wav"
+		"wave"	"ambient/machines/slicer2.wav"
+		"wave"	"ambient/machines/slicer3.wav"
+		"wave"	"ambient/machines/slicer4.wav"
+	}
+}
+
+"d1_town.TramHouseStart"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.700000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"plats/tram_move.wav"
+}
+
+"d1_town.TramMotorLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.700000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"plats/tram_motor.wav"
+}
+
+"d1_town.TramRidingLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.300000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"plats/tram_squeak.wav"
+}
+
+"d1_town.TramStop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.400000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"plats/tram_hit1.wav"
+}
+
+"d1_town.SlicerCartMotorLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.000000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/machines/engine4.wav"
+}
+
+"d1_town.SlicerCartWheelLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.400000"
+	"pitch"			"120"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/machines/train_wheels_loop1.wav"
+}
+
+"d1_town.SlicerCartStop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.500000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"plats/tram_hit1.wav"
+}
+
+"d1_town.CarTrapMotorLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.800000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/machines/machine3.wav"
+}
+
+"d1_town.CarStraining"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.800000"
+	"pitch"			"70,100"
+
+	"soundlevel"	"SNDLVL_90dB"
+
+	"rndwave"
+	{
+		"wave"	"ambient/materials/cartrap_rope1.wav"
+		"wave"	"ambient/materials/cartrap_rope2.wav"
+		"wave"	"ambient/materials/cartrap_rope3.wav"
+	}
+}
+
+"d1_town.CarRelease"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.800000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/machines/catapult_throw.wav"
+}
+
+"d1_town.CarHit"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.000000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_130dB"
+
+	"rndwave"
+	{
+		"wave"	"ambient/materials/cartrap_explode_impact1.wav"
+		"wave"	"ambient/materials/cartrap_explode_impact2.wav"
+	}
+}
+
+"d1_town.GateMotorLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.700000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/machines/engine1.wav"
+}
+
+"d1_town.GateStop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.000000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"doors/door_chainlink_close1.wav"
+}
+
+"d1_town.GateMovingLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.300000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"physics/metal/metal_chainlink_scrape_rough_loop1.wav"
+}
+
+"d1_town.FlameTrapIgnite"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.000000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/fire/ignite.wav"
+}
+
+"d1_town.LargeFireLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.850000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/fire/fire_big_loop1.wav"
+}
+
+"d1_town.MediumFireLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.700000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/fire/fire_med_loop1.wav"
+}
+
+"d1_town.SmallFireLoop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.500000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_70dB"
+
+	"wave"			"ambient/fire/fire_small_loop1.wav"
+}
+
+"d1_town.GasJet"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.800000"
+	"pitch"			"100"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"wave"			"ambient/gas/cannister_loop.wav"
+}
+
+"d1_town.Flies"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.1,0.3"
+	"pitch"			"95,115"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"rndwave"
+	{
+		"wave"	"ambient/creatures/flies1.wav"
+		"wave"	"ambient/creatures/flies2.wav"
+		"wave"	"ambient/creatures/flies3.wav"
+		"wave"	"ambient/creatures/flies4.wav"
+		"wave"	"ambient/creatures/flies5.wav"
+	}
+}
+
+"d1_town.Rats"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"0.1,0.3"
+	"pitch"			"95,115"
+
+	"soundlevel"	"SNDLVL_80dB"
+
+	"rndwave"
+	{
+		"wave"	"ambient/creatures/rats1.wav"
+		"wave"	"ambient/creatures/rats2.wav"
+		"wave"	"ambient/creatures/rats3.wav"
+		"wave"	"ambient/creatures/rats4.wav"
+	}
+}
+
+"ravenholm.pyre_purge"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/pyre_purge.wav"
+}
+
+"ravenholm.pyre_anotherlife"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/pyre_anotherlife.wav"
+}
+
+"ravenholm.pyre_looknot"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/pyre_looknot.wav"
+}
+
+"ravenholm.pyre_roadahead"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/pyre_roadahead.wav"
+}
+
+"ravenholm.pyre_keepeye"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/pyre_keepeye.wav"
+}
+
+"ravenholm.firetrap_welldone"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/firetrap_welldone.wav"
+}
+
+"ravenholm.firetrap_freeuse"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.780000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/firetrap_freeuse.wav"
+}
+
+"ravenholm.firetrap_lookout"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/firetrap_lookout.wav"
+}
+
+"ravenholm.firetrap_vigil"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.780000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/firetrap_vigil.wav"
+}
+
+"ravenholm.cartrap_better"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/cartrap_better.wav"
+}
+
+"ravenholm.cartrap_iamgrig"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/cartrap_iamgrig.wav"
+}
+
+"ravenholm.attic_apologize"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.950000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/attic_apologize.wav"
+}
+
+"ravenholm.shotgun_overhere"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_overhere.wav"
+}
+
+"ravenholm.shotgun_closer"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.700000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_closer.wav"
+}
+
+"ravenholm.shotgun_stirreduphell"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.900000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_stirreduphell.wav"
+}
+
+"ravenholm.shotgun_bettergun"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.780000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_bettergun.wav"
+}
+
+"ravenholm.shotgun_catch"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_catch.wav"
+}
+
+"ravenholm.shotgun_advice"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_advice.wav"
+}
+
+"ravenholm.shotgun_keepitclose"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_keepitclose.wav"
+}
+
+"ravenholm.shotgun_hush"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.650000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_hush.wav"
+}
+
+"ravenholm.shotgun_theycome"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_theycome.wav"
+}
+
+"ravenholm.shotgun_moveon"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.700000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_moveon.wav"
+}
+
+"ravenholm.aimforhead"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/aimforhead.wav"
+}
+
+"ravenholm.shotgun_toomany"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.900000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_toomany.wav"
+}
+
+"ravenholm.shotgun_outnumbered"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_outnumbered.wav"
+}
+
+"ravenholm.shotgun_hurry"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_hurry.wav"
+}
+
+"ravenholm.shotgun_run"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_run.wav"
+}
+
+"ravenholm.shotgun_outstreets"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_outstreets.wav"
+}
+
+"ravenholm.shotgun_tochurch"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/shotgun_tochurch.wav"
+}
+
+"ravenholm.climber_nag01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/climber_nag01.wav"
+}
+
+"ravenholm.climber_nag02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/climber_nag02.wav"
+}
+
+"ravenholm.climber_nag03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/climber_nag03.wav"
+}
+
+"ravenholm.wrongside_mendways"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.900000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/wrongside_mendways.wav"
+}
+
+"ravenholm.wrongside_town"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.950000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/wrongside_town.wav"
+}
+
+"ravenholm.wrongside_howcome"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/wrongside_howcome.wav"
+}
+
+"ravenholm.wrongside_seekchurch"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.900000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/wrongside_seekchurch.wav"
+}
+
+"ravenholm.bucket_thereyouare"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/bucket_thereyouare.wav"
+}
+
+"ravenholm.bucket_waited"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/bucket_waited.wav"
+}
+
+"ravenholm.bucket_patience"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/bucket_patience.wav"
+}
+
+"ravenholm.bucket_guardwell"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/bucket_guardwell.wav"
+}
+
+"ravenholm.bucket_oneminute"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/bucket_oneminute.wav"
+}
+
+"ravenholm.bucket_almost"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/bucket_almost.wav"
+}
+
+"ravenholm.bucket_stepin"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/bucket_stepin.wav"
+}
+
+"ravenholm.bucket_brake"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/bucket_brake.wav"
+}
+
+"ravenholm.yard_greetings"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_85dB"
+
+	"wave"			"*vo/ravenholm/yard_greetings.wav"
+}
+
+"ravenholm.yard_traps"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_85dB"
+
+	"wave"			"*vo/ravenholm/yard_traps.wav"
+}
+
+"ravenholm.yard_pieces"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/yard_pieces.wav"
+}
+
+"ravenholm.yard_device"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/yard_device.wav"
+}
+
+"ravenholm.yard_suspect"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.550000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_85dB"
+
+	"wave"			"*vo/ravenholm/yard_suspect.wav"
+}
+
+"ravenholm.yard_shepherd"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.700000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_85dB"
+
+	"wave"			"*vo/ravenholm/yard_shepherd.wav"
+}
+
+"ravenholm.grave_follow"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.600000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_85dB"
+
+	"wave"			"*vo/ravenholm/grave_follow.wav"
+}
+
+"ravenholm.grave_stayclose"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.750000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/grave_stayclose.wav"
+}
+
+"ravenholm.exit_hurry"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/exit_hurry.wav"
+}
+
+"ravenholm.exit_darkroad"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/exit_darkroad.wav"
+}
+
+"ravenholm.exit_mines"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/exit_mines.wav"
+}
+
+"ravenholm.exit_goquickly"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.950000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/exit_goquickly.wav"
+}
+
+"ravenholm.exit_farewell"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.850000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/exit_farewell.wav"
+}
+
+"ravenholm.exit_salvation"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/exit_salvation.wav"
+}
+
+"ravenholm.exit_nag01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/exit_nag01.wav"
+}
+
+"ravenholm.exit_nag02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.950000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/exit_nag02.wav"
+}
+
+"ravenholm.madlaugh01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/madlaugh01.wav"
+}
+
+"ravenholm.madlaugh02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".7"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/madlaugh02.wav"
+}
+
+"ravenholm.madlaugh03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/madlaugh03.wav"
+}
+
+"ravenholm.madlaugh04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".5"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/madlaugh04.wav"
+}
+
+"ravenholm.engage01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.580000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/engage01.wav"
+}
+
+"ravenholm.engage02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/engage02.wav"
+}
+
+"ravenholm.engage03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.900000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/engage03.wav"
+}
+
+"ravenholm.engage04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.920000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/engage04.wav"
+}
+
+"ravenholm.engage05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/engage05.wav"
+}
+
+"ravenholm.engage06"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.900000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/engage06.wav"
+}
+
+"ravenholm.engage07"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.650000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/engage07.wav"
+}
+
+"ravenholm.engage08"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.670000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/engage08.wav"
+}
+
+"ravenholm.engage09"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/engage09.wav"
+}
+
+"ravenholm.monk_kill01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.850000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill01.wav"
+}
+
+"ravenholm.monk_kill02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.950000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill02.wav"
+}
+
+"ravenholm.monk_kill03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.900000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill03.wav"
+}
+
+"ravenholm.monk_kill04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill04.wav"
+}
+
+"ravenholm.monk_kill05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.950000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill05.wav"
+}
+
+"ravenholm.monk_kill06"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.850000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill06.wav"
+}
+
+"ravenholm.monk_kill07"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill07.wav"
+}
+
+"ravenholm.monk_kill08"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.850000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill08.wav"
+}
+
+"ravenholm.monk_kill09"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.950000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill09.wav"
+}
+
+"ravenholm.monk_kill10"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill10.wav"
+}
+
+"ravenholm.monk_kill11"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.850000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_kill11.wav"
+}
+
+"ravenholm.monk_coverme01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_coverme01.wav"
+}
+
+"ravenholm.monk_coverme02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_coverme02.wav"
+}
+
+"ravenholm.monk_coverme03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_coverme03.wav"
+}
+
+"ravenholm.monk_coverme04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.800000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_coverme04.wav"
+}
+
+"ravenholm.monk_coverme05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_coverme05.wav"
+}
+
+"ravenholm.monk_coverme06"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"0.850000"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_coverme06.wav"
+}
+
+"ravenholm.monk_coverme07"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_coverme07.wav"
+}
+
+"ravenholm.monk_reload01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_reload01.wav"
+}
+
+"ravenholm.monk_reload02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_reload02.wav"
+}
+
+"ravenholm.monk_followme"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".95"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_followme.wav"
+}
+
+"ravenholm.monk_quicklybro"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".85"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_quicklybro.wav"
+}
+
+"ravenholm.monk_thruhere"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".85"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_thruhere.wav"
+}
+
+"ravenholm.monk_overhere"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".8"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_overhere.wav"
+}
+
+"ravenholm.monk_carefulthere"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_carefulthere.wav"
+}
+
+"ravenholm.monk_carefulbro"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".85"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_carefulbro.wav"
+}
+
+"ravenholm.monk_stayclosebro"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".73"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_stayclosebro.wav"
+}
+
+"ravenholm.monk_blocked01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_blocked01.wav"
+}
+
+"ravenholm.monk_blocked02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_blocked02.wav"
+}
+
+"ravenholm.monk_blocked03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_blocked03.wav"
+}
+
+"ravenholm.monk_excuse01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".78"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_excuse01.wav"
+}
+
+"ravenholm.monk_giveammo01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".83"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_giveammo01.wav"
+}
+
+"ravenholm.monk_giveammo02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_giveammo02.wav"
+}
+
+"ravenholm.monk_giveammo03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_giveammo03.wav"
+}
+
+"ravenholm.monk_givehealth01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_givehealth01.wav"
+}
+
+"ravenholm.monk_givehealth02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_givehealth02.wav"
+}
+
+"ravenholm.monk_death01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".75"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"*vo/ravenholm/monk_death01.wav"
+}
+
+"ravenholm.monk_death02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"*vo/ravenholm/monk_death02.wav"
+}
+
+"ravenholm.monk_death03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"*vo/ravenholm/monk_death03.wav"
+}
+
+"ravenholm.monk_death04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".75"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"*vo/ravenholm/monk_death04.wav"
+}
+
+"ravenholm.monk_death05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".7"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"*vo/ravenholm/monk_death05.wav"
+}
+
+"ravenholm.monk_death06"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"*vo/ravenholm/monk_death06.wav"
+}
+
+"ravenholm.monk_death07"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_120dB"
+
+	"wave"			"*vo/ravenholm/monk_death07.wav"
+}
+
+"ravenholm.monk_helpme01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_helpme01.wav"
+}
+
+"ravenholm.monk_helpme02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".95"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_helpme02.wav"
+}
+
+"ravenholm.monk_helpme03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".95"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_helpme03.wav"
+}
+
+"ravenholm.monk_helpme04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_helpme04.wav"
+}
+
+"ravenholm.monk_helpme05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_helpme05.wav"
+}
+
+"ravenholm.monk_danger01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_danger01.wav"
+}
+
+"ravenholm.monk_danger02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_danger02.wav"
+}
+
+"ravenholm.monk_danger03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_danger03.wav"
+}
+
+"ravenholm.monk_mourn01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_mourn01.wav"
+}
+
+"ravenholm.monk_mourn02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_mourn02.wav"
+}
+
+"ravenholm.monk_mourn03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".73"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_mourn03.wav"
+}
+
+"ravenholm.monk_mourn04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".85"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_mourn04.wav"
+}
+
+"ravenholm.monk_mourn05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_mourn05.wav"
+}
+
+"ravenholm.monk_mourn06"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_mourn06.wav"
+}
+
+"ravenholm.monk_mourn07"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_mourn07.wav"
+}
+
+"ravenholm.monk_pain01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".55"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_pain01.wav"
+}
+
+"ravenholm.monk_pain02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".57"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain02.wav"
+}
+
+"ravenholm.monk_pain03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".65"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain03.wav"
+}
+
+"ravenholm.monk_pain04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".65"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain04.wav"
+}
+
+"ravenholm.monk_pain05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".65"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain05.wav"
+}
+
+"ravenholm.monk_pain06"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".65"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_pain06.wav"
+}
+
+"ravenholm.monk_pain07"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".45"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain07.wav"
+}
+
+"ravenholm.monk_pain08"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain08.wav"
+}
+
+"ravenholm.monk_pain09"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".9"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain09.wav"
+}
+
+"ravenholm.monk_pain10"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".65"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain10.wav"
+}
+
+"ravenholm.monk_pain11"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".65"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain11.wav"
+}
+
+"ravenholm.monk_pain12"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".8"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_115dB"
+
+	"wave"			"*vo/ravenholm/monk_pain12.wav"
+}
+
+"ravenholm.monk_rant01"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant01.wav"
+}
+
+"ravenholm.monk_rant02"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".85"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant02.wav"
+}
+
+"ravenholm.monk_rant03"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".823"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant03.wav"
+}
+
+"ravenholm.monk_rant04"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".83"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant04.wav"
+}
+
+"ravenholm.monk_rant05"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".85"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant05.wav"
+}
+
+"ravenholm.monk_rant06"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".88"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant06.wav"
+}
+
+"ravenholm.monk_rant07"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".78"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant07.wav"
+}
+
+"ravenholm.monk_rant08"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".9"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant08.wav"
+}
+
+"ravenholm.monk_rant09"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".78"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant09.wav"
+}
+
+"ravenholm.monk_rant10"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".75"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant10.wav"
+}
+
+"ravenholm.monk_rant11"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".72"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant11.wav"
+}
+
+"ravenholm.monk_rant12"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".83"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant12.wav"
+}
+
+"ravenholm.monk_rant13"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant13.wav"
+}
+
+"ravenholm.monk_rant14"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".78"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant14.wav"
+}
+
+"ravenholm.monk_rant15"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".9"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant15.wav"
+}
+
+"ravenholm.monk_rant16"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".85"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant16.wav"
+}
+
+"ravenholm.monk_rant17"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".8"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant17.wav"
+}
+
+"ravenholm.monk_rant18"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".95"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant18.wav"
+}
+
+"ravenholm.monk_rant19"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".77"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant19.wav"
+}
+
+"ravenholm.monk_rant20"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		"1"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant20.wav"
+}
+
+"ravenholm.monk_rant21"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".88"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant21.wav"
+}
+
+"ravenholm.monk_rant22"
+{
+	"channel"		"CHAN_VOICE"
+	"volume"		".8"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_100dB"
+
+	"wave"			"*vo/ravenholm/monk_rant22.wav"
+}
+
