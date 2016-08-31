@@ -16,6 +16,7 @@ class CHL2MP_Player;
 #include "hl2_player.h"
 #include "simtimer.h"
 #include "soundenvelope.h"
+#include "hl2mp_playeranimstate.h"
 #include "hl2mp_player_shared.h"
 #include "hl2mp_gamerules.h"
 #include "utldict.h"
@@ -51,13 +52,17 @@ public:
 
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
+	DECLARE_PREDICTABLE();
+
+	// This passes the event to the client's and server's CHL2MPPlayerAnimState.
+	void			DoAnimationEvent( PlayerAnimEvent_t event, int nData = 0 );
+	void			SetupBones( matrix3x4_t *pBoneToWorld, int boneMask );
 
 	virtual void Precache( void );
 	virtual void Spawn( void );
 	virtual void PostThink( void );
 	virtual void PreThink( void );
 	virtual void PlayerDeathThink( void );
-	virtual void SetAnimation( PLAYER_ANIM playerAnim );
 	virtual bool HandleCommand_JoinTeam( int team );
 	virtual bool ClientCommand( const CCommand &args );
 	virtual void CreateViewModel( int viewmodelindex = 0 );
@@ -82,9 +87,8 @@ public:
 	void	PrecacheFootStepSounds( void );
 	bool	ValidatePlayerModel( const char *pModel );
 
-	QAngle GetAnimEyeAngles( void ) { return m_angEyeAngles.Get(); }
-
 	Vector GetAttackSpread( CBaseCombatWeapon *pWeapon, CBaseEntity *pTarget = NULL );
+	virtual Vector GetAutoaimVector( float flDelta );
 
 	void CheatImpulseCommands( int iImpulse );
 	void CreateRagdollEntity( void );
@@ -93,7 +97,8 @@ public:
 
 	void NoteWeaponFired( void );
 
-	void ResetAnimation( void );
+	void SetAnimation( PLAYER_ANIM playerAnim );
+
 	void SetPlayerModel( void );
 	void SetPlayerTeamModel( void );
 	Activity TranslateTeamActivity( Activity ActToTranslate );
@@ -140,8 +145,9 @@ public:
 		
 private:
 
+	CHL2MPPlayerAnimState *m_PlayerAnimState;
+
 	CNetworkQAngle( m_angEyeAngles );
-	CPlayerAnimState   m_PlayerAnimState;
 
 	int m_iLastWeaponFireUsercmd;
 	int m_iModelType;
@@ -161,7 +167,7 @@ private:
 	// This lets us rate limit the commands the players can execute so they don't overflow things like reliable buffers.
 	CUtlDict<float,int>	m_RateLimitLastCommandTimes;
 
-    bool m_bEnterObserver;
+	bool m_bEnterObserver;
 	bool m_bReady;
 };
 

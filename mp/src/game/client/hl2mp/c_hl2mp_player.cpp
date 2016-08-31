@@ -14,6 +14,9 @@
 #include "iviewrender_beams.h"			// flashlight beam
 #include "r_efx.h"
 #include "dlight.h"
+#include "c_basetempentity.h"
+#include "prediction.h"
+#include "bone_setup.h"
 
 // Don't alias here
 #if defined( CHL2MP_Player )
@@ -22,9 +25,23 @@
 
 LINK_ENTITY_TO_CLASS( player, C_HL2MP_Player );
 
-IMPLEMENT_CLIENTCLASS_DT(C_HL2MP_Player, DT_HL2MP_Player, CHL2MP_Player)
+BEGIN_RECV_TABLE_NOBASE( C_HL2MP_Player, DT_HL2MPLocalPlayerExclusive )
+	RecvPropVector( RECVINFO_NAME( m_vecNetworkOrigin, m_vecOrigin ) ),
+	RecvPropFloat( RECVINFO( m_angEyeAngles[0] ) ),
+//	RecvPropFloat( RECVINFO( m_angEyeAngles[1] ) ),
+END_RECV_TABLE()
+
+BEGIN_RECV_TABLE_NOBASE( C_HL2MP_Player, DT_HL2MPNonLocalPlayerExclusive )
+	RecvPropVector( RECVINFO_NAME( m_vecNetworkOrigin, m_vecOrigin ) ),
 	RecvPropFloat( RECVINFO( m_angEyeAngles[0] ) ),
 	RecvPropFloat( RECVINFO( m_angEyeAngles[1] ) ),
+END_RECV_TABLE()
+
+IMPLEMENT_CLIENTCLASS_DT(C_HL2MP_Player, DT_HL2MP_Player, CHL2MP_Player)
+
+	RecvPropDataTable( "hl2mplocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_HL2MPLocalPlayerExclusive) ),
+	RecvPropDataTable( "hl2mpnonlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_HL2MPNonLocalPlayerExclusive) ),
+
 	RecvPropEHandle( RECVINFO( m_hRagdoll ) ),
 	RecvPropInt( RECVINFO( m_iSpawnInterpCounter ) ),
 	RecvPropInt( RECVINFO( m_iPlayerSoundType) ),
@@ -33,7 +50,12 @@ IMPLEMENT_CLIENTCLASS_DT(C_HL2MP_Player, DT_HL2MP_Player, CHL2MP_Player)
 END_RECV_TABLE()
 
 BEGIN_PREDICTION_DATA( C_HL2MP_Player )
+	DEFINE_PRED_FIELD( m_flCycle, FIELD_FLOAT, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
 	DEFINE_PRED_FIELD( m_fIsWalking, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_nSequence, FIELD_INTEGER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_FIELD( m_flPlaybackRate, FIELD_FLOAT, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_ARRAY_TOL( m_flEncodedController, FIELD_FLOAT, MAXSTUDIOBONECTRLS, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE, 0.02f ),
+	DEFINE_PRED_FIELD( m_nNewSequenceParity, FIELD_INTEGER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
 END_PREDICTION_DATA()
 
 #define	HL2_WALK_SPEED 150
@@ -45,16 +67,16 @@ static ConVar cl_defaultweapon( "cl_defaultweapon", "weapon_physcannon", FCVAR_U
 
 void SpawnBlood (Vector vecSpot, const Vector &vecDir, int bloodColor, float flDamage);
 
-C_HL2MP_Player::C_HL2MP_Player() : m_PlayerAnimState( this ), m_iv_angEyeAngles( "C_HL2MP_Player::m_iv_angEyeAngles" )
+C_HL2MP_Player::C_HL2MP_Player() : m_iv_angEyeAngles( "C_HL2MP_Player::m_iv_angEyeAngles" )
 {
 	m_iIDEntIndex = 0;
 	m_iSpawnInterpCounterCache = 0;
 
-	m_angEyeAngles.Init();
-
 	AddVar( &m_angEyeAngles, &m_iv_angEyeAngles, LATCH_SIMULATION_VAR );
 
-	m_EntClientFlags |= ENTCLIENTFLAG_DONTUSEIK;
+//	m_EntClientFlags |= ENTCLIENTFLAG_DONTUSEIK;
+	m_PlayerAnimState = CreateHL2MPPlayerAnimState( this );
+
 	m_blinkTimer.Invalidate();
 
 	m_pFlashlightBeam = NULL;
@@ -63,6 +85,7 @@ C_HL2MP_Player::C_HL2MP_Player() : m_PlayerAnimState( this ), m_iv_angEyeAngles(
 C_HL2MP_Player::~C_HL2MP_Player( void )
 {
 	ReleaseFlashlight();
+	m_PlayerAnimState->Release();
 }
 
 int C_HL2MP_Player::GetIDTarget() const
@@ -162,6 +185,12 @@ CStudioHdr *C_HL2MP_Player::OnNewModel( void )
 	CStudioHdr *hdr = BaseClass::OnNewModel();
 	
 	Initialize( );
+
+	// Reset the players animation states, gestures
+	if ( m_PlayerAnimState )
+	{
+		m_PlayerAnimState->OnNewModel();
+	}
 
 	return hdr;
 }
@@ -271,7 +300,7 @@ int C_HL2MP_Player::DrawModel( int flags )
 	if ( !m_bReadyToDraw )
 		return 0;
 
-    return BaseClass::DrawModel(flags);
+	return BaseClass::DrawModel(flags);
 }
 
 //-----------------------------------------------------------------------------
@@ -305,24 +334,6 @@ void C_HL2MP_Player::DoImpactEffect( trace_t &tr, int nDamageType )
 
 void C_HL2MP_Player::PreThink( void )
 {
-	QAngle vTempAngles = GetLocalAngles();
-
-	if ( GetLocalPlayer() == this )
-	{
-		vTempAngles[PITCH] = EyeAngles()[PITCH];
-	}
-	else
-	{
-		vTempAngles[PITCH] = m_angEyeAngles[PITCH];
-	}
-
-	if ( vTempAngles[YAW] < 0.0f )
-	{
-		vTempAngles[YAW] += 360.0f;
-	}
-
-	SetLocalAngles( vTempAngles );
-
 	BaseClass::PreThink();
 
 	HandleSpeedChanges();
@@ -354,13 +365,6 @@ const QAngle &C_HL2MP_Player::EyeAngles()
 void C_HL2MP_Player::AddEntity( void )
 {
 	BaseClass::AddEntity();
-
-	QAngle vTempAngles = GetLocalAngles();
-	vTempAngles[PITCH] = m_angEyeAngles[PITCH];
-
-	SetLocalAngles( vTempAngles );
-		
-	m_PlayerAnimState.Update();
 
 	// Zero out model pitch, blending takes care of all of it.
 	SetLocalAnglesDim( X_INDEX, 0 );
@@ -457,7 +461,7 @@ const QAngle& C_HL2MP_Player::GetRenderAngles()
 	}
 	else
 	{
-		return m_PlayerAnimState.GetRenderAngles();
+		return m_PlayerAnimState->GetRenderAngles();
 	}
 }
 
@@ -780,7 +784,7 @@ void C_HL2MPRagdoll::Interp_Copy( C_BaseAnimatingOverlay *pSourceEntity )
 	
 	VarMapping_t *pSrc = pSourceEntity->GetVarMapping();
 	VarMapping_t *pDest = GetVarMapping();
-    	
+		
 	// Find all the VarMapEntry_t's that represent the same variable.
 	for ( int i = 0; i < pDest->m_Entries.Count(); i++ )
 	{
@@ -976,10 +980,140 @@ void C_HL2MPRagdoll::SetupWeights( const matrix3x4_t *pBoneToWorld, int nFlexWei
 	}
 }
 
-void C_HL2MP_Player::PostThink( void )
+void C_HL2MP_Player::UpdateClientSideAnimation()
 {
-	BaseClass::PostThink();
+	m_PlayerAnimState->Update( EyeAngles()[YAW], EyeAngles()[PITCH] );
 
-	// Store the eye angles pitch so the client can compute its animation state correctly.
-	m_angEyeAngles = EyeAngles();
+	BaseClass::UpdateClientSideAnimation();
+}
+
+// -------------------------------------------------------------------------------- //
+// Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
+// -------------------------------------------------------------------------------- //
+
+class C_TEPlayerAnimEvent : public C_BaseTempEntity
+{
+public:
+	DECLARE_CLASS( C_TEPlayerAnimEvent, C_BaseTempEntity );
+	DECLARE_CLIENTCLASS();
+
+	virtual void PostDataUpdate( DataUpdateType_t updateType )
+	{
+		// Create the effect.
+		C_HL2MP_Player *pPlayer = dynamic_cast< C_HL2MP_Player* >( m_hPlayer.Get() );
+		if ( pPlayer && !pPlayer->IsDormant() )
+		{
+			pPlayer->DoAnimationEvent( (PlayerAnimEvent_t)m_iEvent.Get(), m_nData );
+		}	
+	}
+
+public:
+	CNetworkHandle( CBasePlayer, m_hPlayer );
+	CNetworkVar( int, m_iEvent );
+	CNetworkVar( int, m_nData );
+};
+
+IMPLEMENT_CLIENTCLASS_EVENT( C_TEPlayerAnimEvent, DT_TEPlayerAnimEvent, CTEPlayerAnimEvent );
+
+BEGIN_RECV_TABLE_NOBASE( C_TEPlayerAnimEvent, DT_TEPlayerAnimEvent )
+	RecvPropEHandle( RECVINFO( m_hPlayer ) ),
+	RecvPropInt( RECVINFO( m_iEvent ) ),
+	RecvPropInt( RECVINFO( m_nData ) )
+END_RECV_TABLE()
+
+void C_HL2MP_Player::DoAnimationEvent( PlayerAnimEvent_t event, int nData )
+{
+	if ( IsLocalPlayer() )
+	{
+		if ( ( prediction->InPrediction() && !prediction->IsFirstTimePredicted() ) )
+			return;
+	}
+
+	MDLCACHE_CRITICAL_SECTION();
+	m_PlayerAnimState->DoAnimationEvent( event, nData );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_HL2MP_Player::CalculateIKLocks( float currentTime )
+{
+	if (!m_pIk) 
+		return;
+
+	int targetCount = m_pIk->m_target.Count();
+	if ( targetCount == 0 )
+		return;
+
+	// In TF, we might be attaching a player's view to a walking model that's using IK. If we are, it can
+	// get in here during the view setup code, and it's not normally supposed to be able to access the spatial
+	// partition that early in the rendering loop. So we allow access right here for that special case.
+	SpatialPartitionListMask_t curSuppressed = partition->GetSuppressedLists();
+	partition->SuppressLists( PARTITION_ALL_CLIENT_EDICTS, false );
+	CBaseEntity::PushEnableAbsRecomputations( false );
+
+	for (int i = 0; i < targetCount; i++)
+	{
+		trace_t trace;
+		CIKTarget *pTarget = &m_pIk->m_target[i];
+
+		if (!pTarget->IsActive())
+			continue;
+
+		switch( pTarget->type)
+		{
+		case IK_GROUND:
+			{
+				pTarget->SetPos( Vector( pTarget->est.pos.x, pTarget->est.pos.y, GetRenderOrigin().z ));
+				pTarget->SetAngles( GetRenderAngles() );
+			}
+			break;
+
+		case IK_ATTACHMENT:
+			{
+				C_BaseEntity *pEntity = NULL;
+				float flDist = pTarget->est.radius;
+
+				// FIXME: make entity finding sticky!
+				// FIXME: what should the radius check be?
+				for ( CEntitySphereQuery sphere( pTarget->est.pos, 64 ); ( pEntity = sphere.GetCurrentEntity() ) != NULL; sphere.NextEntity() )
+				{
+					C_BaseAnimating *pAnim = pEntity->GetBaseAnimating( );
+					if (!pAnim)
+						continue;
+
+					int iAttachment = pAnim->LookupAttachment( pTarget->offset.pAttachmentName );
+					if (iAttachment <= 0)
+						continue;
+
+					Vector origin;
+					QAngle angles;
+					pAnim->GetAttachment( iAttachment, origin, angles );
+
+					// debugoverlay->AddBoxOverlay( origin, Vector( -1, -1, -1 ), Vector( 1, 1, 1 ), QAngle( 0, 0, 0 ), 255, 0, 0, 0, 0 );
+
+					float d = (pTarget->est.pos - origin).Length();
+
+					if ( d >= flDist)
+						continue;
+
+					flDist = d;
+					pTarget->SetPos( origin );
+					pTarget->SetAngles( angles );
+					// debugoverlay->AddBoxOverlay( pTarget->est.pos, Vector( -pTarget->est.radius, -pTarget->est.radius, -pTarget->est.radius ), Vector( pTarget->est.radius, pTarget->est.radius, pTarget->est.radius), QAngle( 0, 0, 0 ), 0, 255, 0, 0, 0 );
+				}
+
+				if (flDist >= pTarget->est.radius)
+				{
+					// debugoverlay->AddBoxOverlay( pTarget->est.pos, Vector( -pTarget->est.radius, -pTarget->est.radius, -pTarget->est.radius ), Vector( pTarget->est.radius, pTarget->est.radius, pTarget->est.radius), QAngle( 0, 0, 0 ), 0, 0, 255, 0, 0 );
+					// no solution, disable ik rule
+					pTarget->IKFailed( );
+				}
+			}
+			break;
+		}
+	}
+
+	CBaseEntity::PopEnableAbsRecomputations();
+	partition->SuppressLists( curSuppressed, true );
 }

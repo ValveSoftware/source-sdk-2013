@@ -1081,7 +1081,7 @@ int CBasePlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			return 0;
 	}
 
- 	if ( IsInCommentaryMode() )
+	if ( IsInCommentaryMode() )
 	{
 		if( !ShouldTakeDamageInCommentaryMode( info ) )
 			return 0;
@@ -1468,7 +1468,7 @@ void CBasePlayer::PackDeadPlayerItems( void )
 
 	// get the game rules 
 	iWeaponRules = g_pGameRules->DeadPlayerWeapons( this );
- 	iAmmoRules = g_pGameRules->DeadPlayerAmmo( this );
+	iAmmoRules = g_pGameRules->DeadPlayerAmmo( this );
 
 	if ( iWeaponRules == GR_PLR_DROP_GUN_NO && iAmmoRules == GR_PLR_DROP_AMMO_NO )
 	{
@@ -1554,7 +1554,7 @@ void CBasePlayer::RemoveAllItems( bool removeSuit )
 
 	Weapon_SetLast( NULL );
 	RemoveAllWeapons();
- 	RemoveAllAmmo();
+	RemoveAllAmmo();
 
 	if ( removeSuit )
 	{
@@ -1638,7 +1638,7 @@ int CBasePlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			event->SetInt("attacker", 0 ); // hurt by "world"
 		}
 
-        gameeventmanager->FireEvent( event );
+		gameeventmanager->FireEvent( event );
 	}
 	
 	// Insert a combat sound so that nearby NPCs hear battle
@@ -2257,17 +2257,17 @@ bool CBasePlayer::StartObserverMode(int mode)
 	m_afPhysicsFlags |= PFLAG_OBSERVER;
 
 	// Holster weapon immediately, to allow it to cleanup
-    if ( GetActiveWeapon() )
+	if ( GetActiveWeapon() )
 		GetActiveWeapon()->Holster();
 
 	// clear out the suit message cache so we don't keep chattering
-    SetSuitUpdate(NULL, FALSE, 0);
+	SetSuitUpdate(NULL, FALSE, 0);
 
 	SetGroundEntity( (CBaseEntity *)NULL );
 	
 	RemoveFlag( FL_DUCKING );
 	
-    AddSolidFlags( FSOLID_NOT_SOLID );
+	AddSolidFlags( FSOLID_NOT_SOLID );
 
 	SetObserverMode( mode );
 
@@ -2277,7 +2277,7 @@ bool CBasePlayer::StartObserverMode(int mode)
 	}
 	
 	// Setup flags
-    m_Local.m_iHideHUD = HIDEHUD_HEALTH;
+	m_Local.m_iHideHUD = HIDEHUD_HEALTH;
 	m_takedamage = DAMAGE_NO;		
 
 	// Become invisible
@@ -2667,7 +2667,7 @@ bool CBasePlayer::IsValidObserverTarget(CBaseEntity * target)
 	CBasePlayer * player = ToBasePlayer( target );
 
 	/* Don't spec observers or players who haven't picked a class yet
- 	if ( player->IsObserver() )
+	if ( player->IsObserver() )
 		return false;	*/
 
 	if( player == this )
@@ -2759,10 +2759,10 @@ CBaseEntity * CBasePlayer::FindNextObserverTarget(bool bReverse)
 		currentIndex += iDir;
 
 		// Loop through the clients
-  		if (currentIndex > gpGlobals->maxClients)
-  			currentIndex = 1;
+		if (currentIndex > gpGlobals->maxClients)
+			currentIndex = 1;
 		else if (currentIndex < 1)
-  			currentIndex = gpGlobals->maxClients;
+			currentIndex = gpGlobals->maxClients;
 
 	} while ( currentIndex != startIndex );
 		
@@ -2872,6 +2872,10 @@ float CBasePlayer::GetHeldObjectMass( IPhysicsObject *pHeldObject )
 	return 0;
 }
 
+CBaseEntity	*CBasePlayer::GetHeldObject( void )
+{
+	return NULL;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose:	Server side of jumping rules.  Most jumping logic is already
@@ -4972,7 +4976,7 @@ void CBasePlayer::Spawn( void )
 
 	m_Local.m_bDucked = false;// This will persist over round restart if you hold duck otherwise. 
 	m_Local.m_bDucking = false;
-    SetViewOffset( VEC_VIEW_SCALED( this ) );
+	SetViewOffset( VEC_VIEW_SCALED( this ) );
 	Precache();
 	
 	m_bitsDamageType = 0;
@@ -5616,7 +5620,7 @@ void CSprayCan::Think( void )
 	CBasePlayer *pPlayer = ToBasePlayer( GetOwnerEntity() );
 	if ( pPlayer )
 	{
-       	int playernum = pPlayer->entindex();
+		int playernum = pPlayer->entindex();
 		
 		Vector forward;
 		trace_t	tr;	
@@ -5894,12 +5898,12 @@ void CBasePlayer::ImpulseCommands( )
 	switch (iImpulse)
 	{
 	case 100:
-        // temporary flashlight for level designers
-        if ( FlashlightIsOn() )
+		// temporary flashlight for level designers
+		if ( FlashlightIsOn() )
 		{
 			FlashlightTurnOff();
 		}
-        else 
+		else 
 		{
 			FlashlightTurnOn();
 		}
@@ -6430,7 +6434,7 @@ bool CBasePlayer::ClientCommand( const CCommand &args )
 		else
 		{
 			// switch to next spec mode if no parameter given
- 			mode = GetObserverMode() + 1;
+			mode = GetObserverMode() + 1;
 			
 			if ( mode > LAST_PLAYER_OBSERVERMODE )
 			{
@@ -8386,7 +8390,7 @@ void CBasePlayer::SetVCollisionState( const Vector &vecAbsOrigin, const Vector &
 	switch( collisionState )
 	{
 	case VPHYS_WALK:
- 		m_pShadowStand->SetPosition( vecAbsOrigin, vec3_angle, true );
+		m_pShadowStand->SetPosition( vecAbsOrigin, vec3_angle, true );
 		m_pShadowStand->SetVelocity( &vecAbsVelocity, NULL );
 		m_pShadowCrouch->EnableCollisions( false );
 		m_pPhysicsController->SetObject( m_pShadowStand );

@@ -41,6 +41,7 @@ ConVar sv_unlag_fixstuck( "sv_unlag_fixstuck", "0", FCVAR_DEVELOPMENTONLY, "Disa
 // Purpose: 
 //-----------------------------------------------------------------------------
 #define MAX_LAYER_RECORDS (CBaseAnimatingOverlay::MAX_OVERLAYS)
+#define MAX_POSE_PARAMETERS (CBaseAnimating::NUM_POSEPAREMETERS)
 
 struct LayerRecord
 {
@@ -112,6 +113,7 @@ public:
 	LayerRecord				m_layerRecords[MAX_LAYER_RECORDS];
 	int						m_masterSequence;
 	float					m_masterCycle;
+	float					m_poseParameters[MAX_POSE_PARAMETERS];
 };
 
 
@@ -318,6 +320,12 @@ void CLagCompensationManager::FrameUpdatePostEntityThink()
 		}
 		record.m_masterSequence = pPlayer->GetSequence();
 		record.m_masterCycle = pPlayer->GetCycle();
+
+		CStudioHdr *hdr = pPlayer->GetModelPtr();
+		for( int paramIndex = 0; paramIndex < hdr->GetNumPoseParameters(); paramIndex++ )
+		{
+			record.m_poseParameters[paramIndex] = pPlayer->GetPoseParameter( paramIndex );
+		}
 	}
 
 	//Clear the current player.
@@ -710,6 +718,24 @@ void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTar
 				currentLayer->m_nSequence = record->m_layerRecords[layerIndex].m_sequence;
 				currentLayer->m_flWeight = record->m_layerRecords[layerIndex].m_weight;
 			}
+		}
+	}
+
+	// Now do pose parameters
+	CStudioHdr *hdr = pPlayer->GetModelPtr();
+	for( int paramIndex = 0; paramIndex < hdr->GetNumPoseParameters(); paramIndex++ )
+	{
+		float poseParameter = record->m_poseParameters[paramIndex];
+		if( (frac > 0.0f)  &&  interpolationAllowed )
+		{
+			// These could wrap like cycles, but there's no way to know. In the most common case
+			// (move_x/move_y) it's correct to just lerp. Interpolation almost never happens anyways.
+			float prevPoseParameter = prevRecord->m_poseParameters[paramIndex];
+			pPlayer->SetPoseParameter( paramIndex, Lerp( frac, poseParameter, prevPoseParameter ) );
+		}
+		else
+		{
+			pPlayer->SetPoseParameter( paramIndex, poseParameter );
 		}
 	}
 	

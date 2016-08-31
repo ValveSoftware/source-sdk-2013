@@ -105,7 +105,17 @@ bool CWeaponHL2MPBase::IsPredicted() const
 { 
 	return true;
 }
-
+//Tony; override for animation purposes.
+bool CWeaponHL2MPBase::Reload( void )
+{
+	bool fRet = DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD );
+	if ( fRet )
+	{
+//		WeaponSound( RELOAD );
+		ToHL2MPPlayer(GetOwner())->DoAnimationEvent( PLAYERANIMEVENT_RELOAD );
+	}
+	return fRet;
+}
 void CWeaponHL2MPBase::WeaponSound( WeaponSound_t sound_type, float soundtime /* = 0.0f */ )
 {
 #ifdef CLIENT_DLL

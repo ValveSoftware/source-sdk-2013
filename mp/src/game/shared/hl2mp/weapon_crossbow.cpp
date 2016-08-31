@@ -433,9 +433,7 @@ private:
 	void	SetChargerState( ChargerState_t state );
 	void	DoLoadEffect( void );
 
-#ifndef CLIENT_DLL
 	DECLARE_ACTTABLE();
-#endif
 
 private:
 	
@@ -475,22 +473,24 @@ LINK_ENTITY_TO_CLASS( weapon_crossbow, CWeaponCrossbow );
 
 PRECACHE_WEAPON_REGISTER( weapon_crossbow );
 
-#ifndef CLIENT_DLL
-
 acttable_t	CWeaponCrossbow::m_acttable[] = 
 {
-	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_CROSSBOW,					false },
-	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_CROSSBOW,						false },
-	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_CROSSBOW,				false },
-	{ ACT_HL2MP_WALK_CROUCH,			ACT_HL2MP_WALK_CROUCH_CROSSBOW,				false },
-	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,	false },
-	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_CROSSBOW,			false },
-	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_CROSSBOW,					false },
+	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_CROSSBOW,					false },
+	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_CROSSBOW,				false },
+
+	{ ACT_MP_RUN,						ACT_HL2MP_RUN_CROSSBOW,						false },
+	{ ACT_MP_CROUCHWALK,				ACT_HL2MP_WALK_CROUCH_CROSSBOW,				false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,	false },
+
+	{ ACT_MP_RELOAD_STAND,				ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,			false },
+	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,			false },
+
+	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_CROSSBOW,					false },
 };
 
 IMPLEMENT_ACTTABLE(CWeaponCrossbow);
-
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -792,29 +792,34 @@ void CWeaponCrossbow::DoLoadEffect( void )
 	if ( pOwner == NULL )
 		return;
 
-	CBaseViewModel *pViewModel = pOwner->GetViewModel();
-
-	if ( pViewModel == NULL )
-		return;
-
+	//Tony; change this up a bit; on the server, dispatch an effect but don't send it to the client who fires
+	//on the client, create an effect either in the view model, or on the world model if first person.
 	CEffectData	data;
 
-#ifdef CLIENT_DLL
-	data.m_hEntity = pViewModel->GetRefEHandle();
-#else
-	data.m_nEntIndex = pViewModel->entindex();
-#endif
 	data.m_nAttachmentIndex = 1;
+	data.m_vOrigin = pOwner->GetAbsOrigin();
 
-	DispatchEffect( "CrossbowLoad", data );
+	CPASFilter filter( data.m_vOrigin );
+
+#ifdef GAME_DLL
+	filter.RemoveRecipient( pOwner );
+	data.m_nEntIndex = entindex();
+#else
+	CBaseViewModel *pViewModel = pOwner->GetViewModel();
+	if ( ShouldDrawUsingViewModel() && pViewModel != NULL )
+		data.m_hEntity = pViewModel->GetRefEHandle();
+	else
+		data.m_hEntity = GetRefEHandle();
+#endif
+
+	DispatchEffect( "CrossbowLoad", data, filter );
 
 #ifndef CLIENT_DLL
-
 	CSprite *pBlast = CSprite::SpriteCreate( CROSSBOW_GLOW_SPRITE2, GetAbsOrigin(), false );
 
 	if ( pBlast )
 	{
-		pBlast->SetAttachment( pOwner->GetViewModel(), 1 );
+		pBlast->SetAttachment( this, 1 );
 		pBlast->SetTransparency( kRenderTransAdd, 255, 255, 255, 255, kRenderFxNone );
 		pBlast->SetBrightness( 128 );
 		pBlast->SetScale( 0.2f );

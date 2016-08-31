@@ -231,9 +231,9 @@ END_RECV_TABLE()
 		RecvPropEHandle		( RECVINFO( m_hLastWeapon ) ),
 		RecvPropEHandle		( RECVINFO( m_hGroundEntity ) ),
 
- 		RecvPropFloat		( RECVINFO(m_vecVelocity[0]), 0, RecvProxy_LocalVelocityX ),
- 		RecvPropFloat		( RECVINFO(m_vecVelocity[1]), 0, RecvProxy_LocalVelocityY ),
- 		RecvPropFloat		( RECVINFO(m_vecVelocity[2]), 0, RecvProxy_LocalVelocityZ ),
+		RecvPropFloat		( RECVINFO(m_vecVelocity[0]), 0, RecvProxy_LocalVelocityX ),
+		RecvPropFloat		( RECVINFO(m_vecVelocity[1]), 0, RecvProxy_LocalVelocityY ),
+		RecvPropFloat		( RECVINFO(m_vecVelocity[2]), 0, RecvProxy_LocalVelocityZ ),
 
 		RecvPropVector		( RECVINFO( m_vecBaseVelocity ) ),
 
@@ -473,7 +473,7 @@ void C_BasePlayer::Spawn( void )
 
 	m_iFOV	= 0;	// init field of view.
 
-    SetModel( "models/player.mdl" );
+	SetModel( "models/player.mdl" );
 
 	Precache();
 
@@ -1871,6 +1871,13 @@ void C_BasePlayer::ThirdPersonSwitch( bool bThirdperson )
 					pBoneAttachment->AddEffects( EF_NODRAW );
 				}
 			}
+		}
+
+		//Notify weapon.
+		CBaseCombatWeapon *pWeapon = GetActiveWeapon();
+		if ( pWeapon )
+		{
+			pWeapon->ThirdPersonSwitch( bThirdperson );
 		}
 	}
 }

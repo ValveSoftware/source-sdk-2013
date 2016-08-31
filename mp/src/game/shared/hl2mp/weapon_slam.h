@@ -78,8 +78,8 @@ public:
 
 	CWeapon_SLAM();
 
-#ifndef CLIENT_DLL
 	DECLARE_ACTTABLE();
+#ifndef CLIENT_DLL
 	DECLARE_DATADESC();
 #endif
 

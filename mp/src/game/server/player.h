@@ -550,6 +550,7 @@ public:
 	virtual void			PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize = true ) {}
 	virtual void			ForceDropOfCarriedPhysObjects( CBaseEntity *pOnlyIfHoldindThis = NULL ) {}
 	virtual float			GetHeldObjectMass( IPhysicsObject *pHeldObject );
+	virtual CBaseEntity		*GetHeldObject( void );
 
 	void					CheckSuitUpdate();
 	void					SetSuitUpdate(const char *name, int fgroup, int iNoRepeat);
@@ -925,7 +926,7 @@ protected:
 	int						m_iTrain;				// Train control position
 
 	float					m_iRespawnFrames;	// used in PlayerDeathThink() to make sure players can always respawn
- 	unsigned int			m_afPhysicsFlags;	// physics flags - set when 'normal' physics should be revisited or overriden
+	unsigned int			m_afPhysicsFlags;	// physics flags - set when 'normal' physics should be revisited or overriden
 	
 	// Vehicles
 	CNetworkHandle( CBaseEntity, m_hVehicle );
