@@ -1,0 +1,3 @@
+This file contains random notes and tips we've come across in the course of this project
+
+SetTransmitState(FL_EDICT_ALWAYS); //Entity will always render regardless of visleaves
