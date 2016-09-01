@@ -1,0 +1,13 @@
+
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$Folder "sdk2013ce"
+		{
+			//$File	"$SRCDIR\game\shared\sdk2013ce\sdk2013ce_cvars.cpp"
+			//$File	"$SRCDIR\game\shared\sdk2013ce\sdk2013ce_cvars.h"
+		}
+	}
+}
