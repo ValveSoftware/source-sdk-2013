@@ -1,3 +1,5 @@
 This file contains random notes and tips we've come across in the course of this project
 
 SetTransmitState(FL_EDICT_ALWAYS); //Entity will always render regardless of visleaves
+SetTransmitState(FL_EDICT_DONTSEND); //Entity will never render even when in view
+SetTransmitState(FL_EDICT_PVSCHECK); //Entity will always render if it passes a visleaf check
