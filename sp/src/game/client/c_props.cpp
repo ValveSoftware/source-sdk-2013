@@ -22,15 +22,29 @@ IMPLEMENT_NETWORKCLASS_ALIASED( DynamicProp, DT_DynamicProp )
 
 BEGIN_NETWORK_TABLE( CDynamicProp, DT_DynamicProp )
 	RecvPropBool(RECVINFO(m_bUseHitboxesForRenderBox)),
+	//SDK2013CE DynamicPropGlow
+#ifdef GLOWS_ENABLE
+	RecvPropBool(RECVINFO(m_bGlowEnabled)),
+#endif // GLOWS_ENABLE
 END_NETWORK_TABLE()
 
 C_DynamicProp::C_DynamicProp( void )
 {
 	m_iCachedFrameCount = -1;
+	//SDK2013CE DynamicPropGlow
+#ifdef GLOWS_ENABLE
+	m_pGlowEffect = NULL;
+	m_bGlowEnabled = false;
+	m_bOldGlowEnabled = false;
+#endif // GLOWS_ENABLE
 }
 
 C_DynamicProp::~C_DynamicProp( void )
 {
+	//SDK2013CE DynamicPropGlow
+#ifdef GLOWS_ENABLE
+	DestroyGlowEffect();
+#endif // GLOWS_ENABLE
 }
 
 bool C_DynamicProp::TestBoneFollowers( const Ray_t &ray, unsigned int fContentsMask, trace_t& tr )
@@ -67,7 +81,68 @@ bool C_DynamicProp::TestCollision( const Ray_t &ray, unsigned int fContentsMask,
 	}
 	return BaseClass::TestCollision( ray, fContentsMask, tr );
 }
+//SDK2013CE DynamicPropGlow
+#ifdef GLOWS_ENABLE
+void C_DynamicProp::OnPreDataChanged(DataUpdateType_t updateType)
+{
+	BaseClass::OnPreDataChanged(updateType);
 
+
+	m_bOldGlowEnabled = m_bGlowEnabled;
+
+}
+void C_DynamicProp::OnDataChanged(DataUpdateType_t updateType)
+{
+	BaseClass::OnDataChanged(updateType);
+
+	if (m_bOldGlowEnabled != m_bGlowEnabled)
+	{
+		UpdateGlowEffect();
+	}
+}
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_DynamicProp::GetGlowEffectColor(float *r, float *g, float *b)
+{
+	*r = 0.76f;
+	*g = 0.76f;
+	*b = 0.76f;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_DynamicProp::UpdateGlowEffect(void)
+{
+	// destroy the existing effect
+	if (m_pGlowEffect)
+	{
+		DestroyGlowEffect();
+	}
+
+	// create a new effect
+	if (m_bGlowEnabled)
+	{
+		float r, g, b;
+		GetGlowEffectColor(&r, &g, &b);
+
+		m_pGlowEffect = new CGlowObject(this, Vector(r, g, b), 1.0, true);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_DynamicProp::DestroyGlowEffect(void)
+{
+	if (m_pGlowEffect)
+	{
+		delete m_pGlowEffect;
+		m_pGlowEffect = NULL;
+	}
+}
+#endif // GLOWS_ENABLE
 //-----------------------------------------------------------------------------
 // implements these so ragdolls can handle frustum culling & leaf visibility
 //-----------------------------------------------------------------------------

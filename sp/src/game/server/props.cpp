@@ -1836,6 +1836,8 @@ BEGIN_DATADESC( CDynamicProp )
 	DEFINE_INPUTFUNC( FIELD_VOID,		"EnableCollision",	InputEnableCollision ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"DisableCollision",	InputDisableCollision ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT,		"SetPlaybackRate",	InputSetPlaybackRate ),
+	DEFINE_INPUTFUNC( FIELD_VOID,		"EnableGlow",		InputEnableGlow),
+	DEFINE_INPUTFUNC(FIELD_VOID, "DisableGlow", InputDisableGlow),
 
 	// Outputs
 	DEFINE_OUTPUT( m_pOutputAnimBegun, "OnAnimationBegun" ),
@@ -1849,6 +1851,10 @@ BEGIN_DATADESC( CDynamicProp )
 END_DATADESC()
 
 IMPLEMENT_SERVERCLASS_ST(CDynamicProp, DT_DynamicProp)
+//SDK2013CE DynamicPropGlow
+#ifdef GLOWS_ENABLE
+	SendPropBool(SENDINFO(m_bGlowEnabled)),
+#endif // GLOWS_ENABLE
 	SendPropBool( SENDINFO( m_bUseHitboxesForRenderBox ) ),
 END_SEND_TABLE()
 
@@ -1863,6 +1869,10 @@ CDynamicProp::CDynamicProp()
 		UseClientSideAnimation();
 	}
 	m_iGoalSequence = -1;
+	//SDK2013CE DynamicPropGlow
+#ifdef GLOWS_ENABLE
+	m_bGlowEnabled.Set(false);
+#endif // GLOWS_ENABLE
 }
 
 
@@ -2108,10 +2118,49 @@ IPhysicsObject *CDynamicProp::GetRootPhysicsObjectForBreak()
 //-----------------------------------------------------------------------------
 void CDynamicProp::UpdateOnRemove( void )
 {
+	//SDK2013CE DynamicPropGlow
+#ifdef GLOWS_ENABLE
+	RemoveGlowEffect();
+#endif // GLOWS_ENABLE
 	m_BoneFollowerManager.DestroyBoneFollowers();
 	BaseClass::UpdateOnRemove();
 }
+//SDK2013CE DynamicPropGlow
+#ifdef GLOWS_ENABLE
+void CDynamicProp::Event_Killed(const CTakeDamageInfo &info)
+{
+	RemoveGlowEffect();
+	BaseClass::Event_Killed(info);
+}
+#endif // GLOWS_ENABLE
 
+//SDK2013CE DynamicPropGlow
+#ifdef GLOWS_ENABLE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CDynamicProp::AddGlowEffect(void)
+{
+	SetTransmitState(FL_EDICT_ALWAYS);
+	m_bGlowEnabled.Set(true);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CDynamicProp::RemoveGlowEffect(void)
+{
+	m_bGlowEnabled.Set(false);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CDynamicProp::IsGlowEffectActive(void)
+{
+	return m_bGlowEnabled;
+}
+#endif // GLOWS_ENABLE
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -2306,11 +2355,16 @@ void CDynamicProp::PropSetSequence( int nSequence )
 void CDynamicProp::InputTurnOn( inputdata_t &inputdata )
 {
 	RemoveEffects( EF_NODRAW );
+
 }
 
 void CDynamicProp::InputTurnOff( inputdata_t &inputdata )
 {
 	AddEffects( EF_NODRAW );
+	//SDK2013CE PropDynamicGlow
+#ifdef GLOWS_ENABLE
+	RemoveGlowEffect();
+#endif // GLOWS_ENABLE
 }
 
 void CDynamicProp::InputDisableCollision( inputdata_t &inputdata )
@@ -2323,6 +2377,17 @@ void CDynamicProp::InputEnableCollision( inputdata_t &inputdata )
 	RemoveSolidFlags( FSOLID_NOT_SOLID );
 }
 
+//SDK2013CE PropDynamicGlow
+#ifdef GLOWS_ENABLE
+void CDynamicProp::InputEnableGlow(inputdata_t &inputdata)
+{
+	AddGlowEffect();
+}
+void CDynamicProp::InputDisableGlow(inputdata_t &inputdata)
+{
+	RemoveGlowEffect();
+}
+#endif // GLOWS_ENABLE
 //-----------------------------------------------------------------------------
 // Purpose: Ornamental prop that follows a studio
 //-----------------------------------------------------------------------------
