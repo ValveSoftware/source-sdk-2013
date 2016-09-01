@@ -1,0 +1,9 @@
+/**********
+Glow for Prop_Dynamic
+**********/
+Author(s): Jesse Culver
+Files touched: c_props.cpp, c_props.h, clientmode_shared.cpp, props.cpp, prop.h
+Notes: Look for //SDK2013CE DynamicPropGlow
+Based upon code from https://developer.valvesoftware.com/wiki/L4D_Glow_Effect_(2013_SDK)
+When adding glow to an entity requires both a client side and server side version of the entity.
+Uses SendPropBool to transmit the state of the glow to client
