@@ -6,7 +6,7 @@ If you want to help contribute, message Wazanator on Steam or on Discord, or joi
 
 ## Source License
 
-               SOURCE 1 SDK LICENSE
+SOURCE 1 SDK LICENSE
 
 Source SDK Copyright(c) Valve Corp.  
 
