@@ -1,4 +1,12 @@
-               SOURCE 1 SDK LICENSE
+# Source SDK 2013 Community Edtion
+
+This is a variation of Source 2013 with community changes to make the game look, run, and play more efficiently and add tools for developers. Some examples are fixing env_projectedtexture, adding Bioshock's ShaderEditor, and more.
+
+If you want to help contribute, message Wazanator on Steam or on Discord, or join our Discord server: https://discord.gg/FZqp7Cf
+
+## Source License
+
+SOURCE 1 SDK LICENSE
 
 Source SDK Copyright(c) Valve Corp.  
 
@@ -6,7 +14,7 @@ THIS DOCUMENT DESCRIBES A CONTRACT BETWEEN YOU AND VALVE
 CORPORATION ("Valve").  PLEASE READ IT BEFORE DOWNLOADING OR USING 
 THE SOURCE ENGINE SDK ("SDK"). BY DOWNLOADING AND/OR USING THE 
 SOURCE ENGINE SDK YOU ACCEPT THIS LICENSE. IF YOU DO NOT AGREE TO 
-THE TERMS OF THIS LICENSE PLEASE DON’T DOWNLOAD OR USE THE SDK.  
+THE TERMS OF THIS LICENSE PLEASE DONâ€™T DOWNLOAD OR USE THE SDK.  
 
   You may, free of charge, download and use the SDK to develop a modified Valve game 
 running on the Source engine.  You may distribute your modified Valve game in source and 
