@@ -4,7 +4,9 @@ This is a variation of Source 2013 with community changes to make the game look,
 
 If you want to help contribute, message Wazanator on Steam or on Discord, or join our Discord server: https://discord.gg/FZqp7Cf
 
-Alternatively, you can view proposed changes to be added via this link: https://docs.google.com/document/d/1yRjjMOtkjO590ApCdRn00wWshT9KKOYO0ESQIKBveOw/edit The latest suggestions and changes will always be found on Discord and GitHub.
+Alternatively, you can view proposed changes to be added via this link: https://docs.google.com/document/d/1yRjjMOtkjO590ApCdRn00wWshT9KKOYO0ESQIKBveOw/edit The latest suggestions and changes will always be found on Discord and GitHub
+
+*At this time only Singleplayer mods are supported, Multiplayer support should be not-so far into the future.*
 
 ## Source License
 
