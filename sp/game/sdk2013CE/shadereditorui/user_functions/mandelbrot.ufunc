@@ -1,0 +1,15 @@
+"user_func"
+{
+	"szFunctionName"		"MandelBrot"
+	"szFilePath"		"shadereditorui\user_functions\mandelbrot.ufunc"
+	"iInline"		"0"
+	"szcode_global_num_strings"		"1"
+	"szcode_global_partial_00"		"static const int Iterations = 128;\r\nstatic const float2 Pan = float2(1, 0);\r\nstatic const float Zoom = 1;\r\nstatic const float Aspect = 1;\r\nstatic const float2 JuliaSeed = float2(0.39, -0.2);\r\nstatic const float3 ColorScale = float3(4, 5, 6);\r\n\r\nfloat ComputeValue(float2 v, float2 offset)\r\n{\r\n	float vxsquare = 0;\r\n	float vysquare = 0;\r\n\r\n	int iteration = 0;\r\n	int lastIteration = Iterations;\r\n\r\n	do\r\n	{\r\n		vxsquare = v.x*v.x;\r\n		vysquare = v.y*v.y;\r\n		\r\n		v = float2(vxsquare - vysquare, v.x * v.y * 2) + offset;\r\n		\r\n		iteration++;\r\n		\r\n		if ((lastIteration == Iterations) && (vxsquare + vysquare) > 4.0)\r\n		{\r\n			lastIteration = iteration + 1;\r\n		}\r\n	}\r\n	while (iteration < lastIteration);\r\n	\r\n	return (float(iteration) - (log(log(sqrt(v.x * v.x + v.y * v.y))) / log(2.0))) / float(Iterations);\r\n}\n"
+	"szcode_body_num_strings"		"1"
+	"szcode_body_partial_00"		"	float2 v = (uv - 0.5) * Zoom * float2(1, Aspect) - Pan;\r\n\r\n	float val = ComputeValue(v, v);\r\n\r\n	col = float4(sin(val * ColorScale.x), sin(val * ColorScale.y), sin(val * ColorScale.z), 1);"
+	"iEnvFlags"		"0"
+	"varName_In_0"		"uv"
+	"varType_In_0"		"2"
+	"varName_Out_0"		"col"
+	"varType_Out_0"		"8"
+}

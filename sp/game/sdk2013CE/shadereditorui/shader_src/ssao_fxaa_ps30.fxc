@@ -1,0 +1,97 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+
+// Constants
+const float2 _g_TexelSize		: register( c16 );
+
+// User code - globals
+#define FXAA_PC 1
+#define FXAA_HLSL_3 1
+#define FXAA_GREEN_AS_LUMA 1
+#define FXAA_DISCARD 1
+#define FXAA_QUALITY__PRESET 10
+
+#include "fxaa3_11.h"
+
+// User code - function bodies
+void DoFXAA( in sampler tex, in float2 uv, in float2 texelsize, out float4 col )
+{
+	col = FxaaPixelShader( uv,
+		(float4)0,
+		tex,
+		tex,
+		tex,
+		texelsize,
+		(float4)0,
+		(float4)0,
+		(float4)0,
+			// fxaaQualitySubpix
+			// This used to be the FXAA_QUALITY__SUBPIX define.
+			// It is here now to allow easier tuning.
+			// Choose the amount of sub-pixel aliasing removal.
+			// This can effect sharpness.
+			//   1.00 - upper limit (softer)
+			//   0.75 - default amount of filtering
+			//   0.50 - lower limit (sharper, less sub-pixel aliasing removal)
+			//   0.25 - almost off
+			//   0.00 - completely off
+		0.5,
+			// This used to be the FXAA_QUALITY__EDGE_THRESHOLD define.
+			// It is here now to allow easier tuning.
+			// The minimum amount of local contrast required to apply algorithm.
+			//   0.333 - too little (faster)
+			//   0.250 - low quality
+			//   0.166 - default
+			//   0.125 - high quality 
+			//   0.063 - overkill (slower)
+			// fxaaQualityEdgeThreshold
+		0.2,
+			// This used to be the FXAA_QUALITY__EDGE_THRESHOLD_MIN define.
+			// It is here now to allow easier tuning.
+			// Trims the algorithm from processing darks.
+			//   0.0833 - upper limit (default, the start of visible unfiltered edges)
+			//   0.0625 - high quality (faster)
+			//   0.0312 - visible limit (slower)
+			// Special notes when using FXAA_GREEN_AS_LUMA,
+			//   Likely want to set this to zero.
+			//   As colors that are mostly not-green
+			//   will appear very dark in the green channel!
+			//   Tune by looking at mostly non-green content,
+			//   then start at zero and increase until aliasing is a problem.
+		0.0833,
+		0, 0, 0, (float4)0 );
+}
+
+// Semantic structures
+struct PS_INPUT
+{
+	float2 vTexCoord_0			:	TEXCOORD0;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float4 _var0 = (float4)0;
+	DoFXAA( _Sampler_00, In.vTexCoord_0, _g_TexelSize, _var0 );
+	Out.vColor_0 = _var0;
+	return Out;
+}

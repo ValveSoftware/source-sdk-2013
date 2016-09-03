@@ -1,0 +1,58 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+
+// Constants
+const float2 _g_TexelSize		: register( c16 );
+
+// Arrays
+static const float g_cArray_253[5] =
+{
+	float( 0.054489f ),
+	float( 0.244201f ),
+	float( 0.402620f ),
+	float( 0.244201f ),
+	float( 0.054489f ),
+};
+
+// Semantic structures
+struct PS_INPUT
+{
+	float2 vTexCoord_0			:	TEXCOORD0;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float4 _var0 = float4( 0.000000, 0.000000, 0.000000, 0.000000 );
+	float2 _var1 = float2( 0.000000, 3.000000 ) * _g_TexelSize;
+	float2 _var2 = float2( 0.000000, 1.000000 ) * _g_TexelSize;
+	_var1 = In.vTexCoord_0 - _var1;
+	for ( int _var3 = 0; _var3 < 5; _var3++ )
+	{
+		_var1 = _var1 + _var2;
+		float4 _var4 = tex2D( _Sampler_00, _var1 ).rgba;
+		_var4 = _var4 * g_cArray_253[_var3];
+		_var0 = _var0 + _var4;
+	}
+	Out.vColor_0 = _var0;
+	return Out;
+}

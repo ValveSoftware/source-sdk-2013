@@ -1,0 +1,82 @@
+// *********************************
+// ** auto generated vertexshader **
+// *********************************
+
+
+// Includes
+#include "common_vs_fxc.h"
+
+
+// Semantic structures
+struct VS_INPUT
+{
+	float3 vPos					:	POSITION;
+	float3 vNormal				:	NORMAL;
+	float3 vTangent_S			:	TANGENT;
+	float3 vTangent_T			:	BINORMAL;
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float2 vTexCoord_1			:	TEXCOORD1;
+	float2 vTexCoord_2			:	TEXCOORD2;
+	float4 vColor_0				:	COLOR0;
+};
+
+struct VS_OUTPUT
+{
+	float4 vProjPos				:	POSITION;
+	float4 vTexCoord_0			:	TEXCOORD0;
+	float4 vTexCoord_1			:	TEXCOORD1;
+	float3 vTexCoord_2			:	TEXCOORD2;
+	float3 vTexCoord_3			:	TEXCOORD3;
+	float4 vTexCoord_4			:	TEXCOORD4;
+	float3 vTexCoord_5			:	TEXCOORD5;
+	float3 vTexCoord_6			:	TEXCOORD6;
+	float2 vTexCoord_7			:	TEXCOORD7;
+	float4 vColor_0				:	COLOR0;
+	float4 vColor_1				:	COLOR1;
+};
+
+// Entry point
+VS_OUTPUT main( const VS_INPUT In )
+{
+	VS_OUTPUT Out;
+	float3 _var0 = mul( float4(In.vPos.xyz,1), cModel[0] );
+	float2 _var1 = In.vTexCoord_0 * float( 1.000000 );
+	float2 _var2 = In.vTexCoord_0 * float( 0.120000 );
+	float2 _var3 = In.vTexCoord_1 + In.vTexCoord_2;
+	float3 _var4 = mul( float4(In.vNormal.xyz,1), cModel[0] );
+	float2 _var5 = In.vTexCoord_0 * float2( 5.000000, 5.000000 );
+	float3 _var6 = mul( float4(In.vTangent_S.xyz,1), cModel[0] );
+	float3 _var7 = mul( float4(In.vTangent_T.xyz,1), cModel[0] );
+	float2 _var8;
+	{
+		float2 center_def = float2( 0.5f, 0.5f );
+		float2 trans_def = float2( 0.0f, 0.0f );
+		float fs = sin( float( 45.000000 ) );
+		float fc = cos( float( 45.000000 ) );
+		float4 row_0 = float4( fc * float2( 4.000000, 4.000000 ).x, -fs * float2( 4.000000, 4.000000 ).x, 0, ( -center_def.x * fc + center_def.y * fs ) * float2( 4.000000, 4.000000 ).x + center_def.x + trans_def.x );
+		float4 row_1 = float4( fs * float2( 4.000000, 4.000000 ).y, fc * float2( 4.000000, 4.000000 ).y, 0, ( -center_def.x * fs - center_def.y * fc ) * float2( 4.000000, 4.000000 ).y + center_def.y + trans_def.y );
+		_var8.x = dot( float4( In.vTexCoord_0, 0, 1 ), row_0 );
+		_var8.y = dot( float4( In.vTexCoord_0, 0, 1 ), row_1 );
+	}
+	float4 _var9 = mul( float4(_var0.xyz,1), cViewProj );
+	float4 _var10 = float4( _var1, _var2 );
+	float2 _var11 = _var3 + In.vTexCoord_2;
+	_var4 = normalize( _var4 );
+	_var6 = normalize( _var6 );
+	_var7 = normalize( _var7 );
+	float4 _var12 = float4( _var3, _var11 );
+	float2 _var13 = _var11 + In.vTexCoord_2;
+	float4 _var14 = float4( _var13, _var5 );
+	Out.vProjPos = _var9;
+	Out.vTexCoord_0 = _var10;
+	Out.vTexCoord_1 = _var12;
+	Out.vTexCoord_2 = _var4;
+	Out.vTexCoord_3 = _var0;
+	Out.vTexCoord_4 = _var14;
+	Out.vTexCoord_5 = _var6;
+	Out.vTexCoord_6 = _var7;
+	Out.vTexCoord_7 = _var8;
+	Out.vColor_0 = _var9;
+	Out.vColor_1 = In.vColor_0;
+	return Out;
+}

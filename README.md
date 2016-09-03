@@ -1,8 +1,10 @@
 # Source SDK 2013 Community Edtion
 
-This is a variation of Source 2013 with community changes to make the game look, run, and play more efficiently and add tools for developers. Some examples are fixing env_projectedtexture, adding Bioshock's ShaderEditor, and more.
+This is a variation of Source 2013 with community changes to make the game look, run, and play more efficiently and add tools for developers. Some examples are fixing env_projectedtexture, adding Biohazard's ShaderEditor, and more.
 
 If you want to help contribute, message Wazanator on Steam or on Discord, or join our Discord server: https://discord.gg/FZqp7Cf
+
+Alternatively, you can view proposed changes to be added via this link: https://docs.google.com/document/d/1yRjjMOtkjO590ApCdRn00wWshT9KKOYO0ESQIKBveOw/edit The latest suggestions and changes will always be found on Discord and GitHub.
 
 ## Source License
 

@@ -1,0 +1,23 @@
+"rt_setup"
+{
+	"rt_00"
+	{
+		"rt_name"		"_rt_fbquarter_0"
+		"rt_imgformat"		"2"
+		"rt_sizemode"		"3"
+		"rt_depthmode"		"2"
+		"rt_flags"		"32780"
+		"rt_size_x"		"256"
+		"rt_size_y"		"256"
+	}
+	"rt_01"
+	{
+		"rt_name"		"_rt_fbquarter_1"
+		"rt_imgformat"		"2"
+		"rt_sizemode"		"3"
+		"rt_depthmode"		"2"
+		"rt_flags"		"32780"
+		"rt_size_x"		"256"
+		"rt_size_y"		"256"
+	}
+}

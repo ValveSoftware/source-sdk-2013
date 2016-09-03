@@ -286,13 +286,6 @@ public:
 	// IPositionWatcher
 	virtual void NotifyPositionChanged( CBaseEntity *pEntity );
 
-	//Prop Killed
-	//SDK2013CE DynamicPropGlow
-	//Added so we can stop glow on kill
-#ifdef GLOWS_ENABLE
-	virtual void			Event_Killed(const CTakeDamageInfo &info); 
-#endif // GLOWS_ENABLE
-
 	// Input handlers
 	void InputSetAnimation( inputdata_t &inputdata );
 	void InputSetDefaultAnimation( inputdata_t &inputdata );
@@ -301,11 +294,7 @@ public:
 	void InputDisableCollision( inputdata_t &inputdata );
 	void InputEnableCollision( inputdata_t &inputdata );
 	void InputSetPlaybackRate( inputdata_t &inputdata );
-	//SDK2013CE DynamicPropGlow
-#ifdef GLOWS_ENABLE
-	void InputEnableGlow(inputdata_t &inputdata);
-	void InputDisableGlow(inputdata_t &inputdata);
-#endif // GLOWS_ENABLE
+
 	COutputEvent		m_pOutputAnimBegun;
 	COutputEvent		m_pOutputAnimOver;
 
@@ -325,22 +314,12 @@ public:
 	bool				m_bDisableBoneFollowers;
 
 	CNetworkVar( bool, m_bUseHitboxesForRenderBox );
-	//SDK2013CE DynamicPropGlow
-#ifdef GLOWS_ENABLE
-	// Glows
-	void				AddGlowEffect(void);
-	void				RemoveGlowEffect(void);
-	bool				IsGlowEffectActive(void);
-#endif // GLOWS_ENABLE
+
 protected:
 	void FinishSetSequence( int nSequence );
 	void PropSetAnim( const char *szAnim );
 	void BoneFollowerHierarchyChanged();
-	//SDK2013CE DynamicPropGlow
-#ifdef GLOWS_ENABLE
-protected:
-	CNetworkVar(bool, m_bGlowEnabled);
-#endif // GLOWS_ENABLE
+
 	// Contained Bone Follower manager
 	CBoneFollowerManager	m_BoneFollowerManager;
 };

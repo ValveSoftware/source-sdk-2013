@@ -1,0 +1,160 @@
+"UNNAMEDSHADER"
+{
+	"vs_name"		"UNNAMEDSHADER_vs30"
+	"ps_name"		"UNNAMEDSHADER_ps30"
+	"dump_version"		"dumpver#001"
+	"i_sm"		"1"
+	"i_cull"		"0"
+	"i_ablend"		"0"
+	"fl_atestref"		"0.500000"
+	"i_dtest"		"1"
+	"i_dwrite"		"1"
+	"i_srgbw"		"1"
+	"i_vfmt_flags"		"2359559"
+	"i_vfmt_texcoords"		"2"
+	"i_vfmt_udata"		"0"
+	"i_vfmt_texcoordDim_0"		"2"
+	"i_vfmt_texcoordDim_1"		"2"
+	"i_vfmt_texcoordDim_2"		"2"
+	"i_vlit"		"0"
+	"i_vrefract"		"0"
+	"identifiers_VS"
+	{
+		"i_numdcombos"		"1"
+	}
+	"identifiers_PS"
+	{
+		"combo_0"
+		{
+			"sz_name"		"FLASHLIGHT"
+			"i_static"		"0"
+			"i_min"		"0"
+			"i_max"		"1"
+			"i_type"		"9"
+		}
+		"combo_1"
+		{
+			"sz_name"		"FLASHLIGHTDEPTHFILTERMODE"
+			"i_static"		"0"
+			"i_min"		"0"
+			"i_max"		"2"
+			"i_type"		"10"
+		}
+		"combo_2"
+		{
+			"sz_name"		"FLASHLIGHTSHADOWS"
+			"i_static"		"0"
+			"i_min"		"0"
+			"i_max"		"1"
+			"i_type"		"11"
+		}
+		"combo_3"
+		{
+			"sz_name"		"PIXELFOGTYPE"
+			"i_static"		"0"
+			"i_min"		"0"
+			"i_max"		"1"
+			"i_type"		"7"
+		}
+		"combo_4"
+		{
+			"sz_name"		"WRITEWATERFOGTODESTALPHA"
+			"i_static"		"0"
+			"i_min"		"0"
+			"i_max"		"1"
+			"i_type"		"8"
+		}
+		"econst_0"
+		{
+			"i_envconstidx"		"11"
+			"i_normregister"		"-1"
+			"i_econstsize"		"4"
+			"i_smartcomps"		"3"
+			"fl_smartdefault_00"		"0.000000"
+			"fl_smartdefault_01"		"0.000000"
+			"fl_smartdefault_02"		"0.000000"
+			"fl_smartdefault_03"		"0.000000"
+		}
+		"econst_1"
+		{
+			"i_envconstidx"		"7"
+			"i_normregister"		"0"
+			"i_econstsize"		"1"
+			"i_smartcomps"		"1"
+			"fl_smartdefault_00"		"0.000000"
+			"fl_smartdefault_01"		"0.000000"
+			"fl_smartdefault_02"		"0.000000"
+			"fl_smartdefault_03"		"0.000000"
+		}
+		"econst_2"
+		{
+			"i_envconstidx"		"1"
+			"i_normregister"		"1"
+			"i_econstsize"		"1"
+			"i_smartcomps"		"1"
+			"fl_smartdefault_00"		"0.000000"
+			"fl_smartdefault_01"		"0.000000"
+			"fl_smartdefault_02"		"0.000000"
+			"fl_smartdefault_03"		"0.000000"
+		}
+		"econst_3"
+		{
+			"i_envconstidx"		"12"
+			"i_normregister"		"0"
+			"i_econstsize"		"1"
+			"i_smartcomps"		"3"
+			"fl_smartdefault_00"		"0.000000"
+			"fl_smartdefault_01"		"0.000000"
+			"fl_smartdefault_02"		"0.000000"
+			"fl_smartdefault_03"		"0.000000"
+		}
+		"texsamp_0"
+		{
+			"sz_param"		"basetexture2"
+			"sz_fallback"		"Lights\White"
+			"i_sampidx"		"0"
+			"i_texmode"		"1"
+			"i_cubemap"		"0"
+			"i_srgb"		"1"
+		}
+		"texsamp_1"
+		{
+			"sz_param"		"basetexture2"
+			"sz_fallback"		"Lights\White"
+			"i_sampidx"		"1"
+			"i_texmode"		"0"
+			"i_cubemap"		"0"
+			"i_srgb"		"1"
+		}
+		"texsamp_2"
+		{
+			"sz_fallback"		"Lights\White"
+			"i_sampidx"		"2"
+			"i_texmode"		"3"
+			"i_cubemap"		"0"
+			"i_srgb"		"1"
+		}
+		"texsamp_3"
+		{
+			"i_sampidx"		"3"
+			"i_texmode"		"10"
+			"i_cubemap"		"0"
+			"i_srgb"		"1"
+		}
+		"texsamp_4"
+		{
+			"i_sampidx"		"4"
+			"i_texmode"		"11"
+			"i_cubemap"		"0"
+			"i_srgb"		"0"
+		}
+		"texsamp_5"
+		{
+			"i_sampidx"		"5"
+			"i_texmode"		"12"
+			"i_cubemap"		"0"
+			"i_srgb"		"0"
+		}
+		"i_numdcombos"		"48"
+	}
+}

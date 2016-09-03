@@ -1,0 +1,299 @@
+"canvas"
+{
+	"cfmt_version"		"canvasver#003"
+	"flowgraph_type"		"1"
+	"config"
+	{
+		"shadermodel"		"1"
+		"cull_mode"		"0"
+		"alpha_blending"		"0"
+		"depth_test"		"0"
+		"depth_write"		"0"
+		"srgb_write"		"0"
+	}
+	"Nodes"
+	{
+		"Node_000"
+		{
+			"iType"		"1"
+			"pos_x"		"-320.000000"
+			"pos_y"		"190.000000"
+			"size_x"		"55.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"0"
+			"enable_flex"		"0"
+			"enable_normal"		"0"
+			"enable_normal_compression"		"0"
+			"enable_blendweights"		"0"
+			"enable_tangentspace"		"0"
+			"enable_tangentspace_skinning"		"0"
+			"numTexcoords"		"1"
+			"numColor"		"0"
+			"dTFlag_Texcoords_0"		"2"
+			"dTFlag_Texcoords_1"		"2"
+			"dTFlag_Texcoords_2"		"2"
+			"dTFlag_Color_0"		"8"
+			"dTFlag_Color_1"		"8"
+		}
+		"Node_001"
+		{
+			"iType"		"27"
+			"pos_x"		"97.909302"
+			"pos_y"		"234.289230"
+			"size_x"		"80.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"0"
+				}
+			}
+			"swizzleString"		"x y z 1"
+		}
+		"Node_002"
+		{
+			"iType"		"4"
+			"pos_x"		"486.601898"
+			"pos_y"		"-345.167480"
+			"size_x"		"55.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"11"
+					"iTarget_jack"		"0"
+				}
+			}
+			"numColors"		"1"
+			"enable_Depth"		"0"
+		}
+		"Node_003"
+		{
+			"iType"		"3"
+			"pos_x"		"-318.953522"
+			"pos_y"		"-349.487518"
+			"size_x"		"55.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"0"
+			"numTexcoords"		"2"
+			"numColor"		"0"
+			"numTexcoord_Flag_0"		"2"
+			"numTexcoord_Flag_1"		"8"
+			"numTexcoord_Name_1"		"noiseCoords"
+			"numTexcoord_Flag_2"		"1"
+			"numTexcoord_Name_2"		"NoiseTC.zw"
+			"numTexcoord_Flag_3"		"1"
+			"numTexcoord_Flag_4"		"1"
+			"numTexcoord_Flag_5"		"1"
+			"numTexcoord_Flag_6"		"1"
+			"numTexcoord_Flag_7"		"1"
+			"numColor_Flag_0"		"8"
+			"numColor_Flag_1"		"8"
+		}
+		"Node_004"
+		{
+			"iType"		"2"
+			"pos_x"		"548.470947"
+			"pos_y"		"182.190765"
+			"size_x"		"55.000000"
+			"size_y"		"-39.000000"
+			"iPreview"		"0"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"1"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"10"
+					"iTarget_jack"		"0"
+				}
+			}
+			"numTexcoords"		"2"
+			"numColor"		"0"
+			"numTexcoord_Flag_0"		"2"
+			"numTexcoord_Flag_1"		"8"
+			"numTexcoord_Name_1"		"noiseCoords"
+			"numTexcoord_Flag_2"		"1"
+			"numTexcoord_Name_2"		"NoiseTC.zw"
+			"numTexcoord_Flag_3"		"1"
+			"numTexcoord_Flag_4"		"1"
+			"numTexcoord_Flag_5"		"1"
+			"numTexcoord_Flag_6"		"1"
+			"numTexcoord_Flag_7"		"1"
+			"numColor_Flag_0"		"8"
+			"numColor_Flag_1"		"8"
+		}
+		"Node_005"
+		{
+			"iType"		"94"
+			"pos_x"		"-325.796722"
+			"pos_y"		"-415.253204"
+			"size_x"		"84.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szParamname"		"waterNormal"
+			"iTextureType"		"0"
+			"IsCubemap"		"0"
+			"szDemoTexturePath"		"texture_samples\drew\water_droplets"
+			"szFallbackTexturePath"		"texture_samples\drew\water_droplets"
+			"iFallbackMode"		"4"
+		}
+		"Node_006"
+		{
+			"iType"		"19"
+			"pos_x"		"-54.000084"
+			"pos_y"		"10.352503"
+			"size_x"		"80.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"7"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"9"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_007"
+		{
+			"iType"		"12"
+			"pos_x"		"-306.697083"
+			"pos_y"		"-14.148090"
+			"size_x"		"50.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"flSmartVal0"		"0.000000"
+		}
+		"Node_008"
+		{
+			"iType"		"94"
+			"szName"		"Framebuffer"
+			"pos_x"		"-323.070618"
+			"pos_y"		"-518.036499"
+			"size_x"		"84.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"iTextureType"		"5"
+			"IsCubemap"		"0"
+			"szDemoTexturePath"		"_rt_FullFrameFB"
+			"szFallbackTexturePath"		"black"
+			"iFallbackMode"		"1"
+		}
+		"Node_009"
+		{
+			"iType"		"5"
+			"szName"		"speed of water ( time )"
+			"pos_x"		"-318.425201"
+			"pos_y"		"-104.446396"
+			"size_x"		"50.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.1"
+		}
+		"Node_010"
+		{
+			"iType"		"99"
+			"szName"		"Vertex Shader"
+			"pos_x"		"122.860550"
+			"pos_y"		"84.691269"
+			"size_x"		"89.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"6"
+					"iTarget_jack"		"0"
+				}
+			}
+			"varName_In_0"		"texCoords"
+			"varType_In_0"		"2"
+			"varName_In_1"		"time"
+			"varType_In_1"		"1"
+			"varName_Out_0"		"noiseCoords"
+			"varType_Out_0"		"8"
+			"szFunctionName"		"noiseCoords"
+			"iInline"		"1"
+			"szcode_body_num_strings"		"1"
+			"szcode_body_partial_00"		"	//this will be the var we will use to modify the coords\r\n	float4 distortedCoords;\r\n\r\n	//modify the texture coords\r\n	distortedCoords.xy = texCoords * 0.5; \r\n\r\n	//modify the texture coords ( z and w ) with time\r\n	distortedCoords.zw = texCoords * float2(1.0, 0.25) * 0.5 + float2(0.0, -time);\r\n\r\n	//modify the texture coords ( z ) with time\r\n	distortedCoords.z += (sin(time) + sin(time*0.5))*0.5 + 0.5;\r\n\r\n	//output our ( distortedCoords ) to our output named ( noiseCoords )\r\n	noiseCoords = distortedCoords;\r\n		"
+			"iEnvFlags"		"0"
+		}
+		"Node_011"
+		{
+			"iType"		"99"
+			"szName"		"Pixel Shader"
+			"pos_x"		"57.687988"
+			"pos_y"		"-367.631165"
+			"size_x"		"170.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"3"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"3"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"5"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_03"
+				{
+					"iTarget_node"		"8"
+					"iTarget_jack"		"0"
+				}
+			}
+			"varName_In_0"		"texCoords"
+			"varType_In_0"		"2"
+			"varName_In_1"		"noiseCoords"
+			"varType_In_1"		"8"
+			"varName_In_2"		"waterNormal"
+			"varType_In_2"		"128"
+			"varName_In_3"		"frameBuffer"
+			"varType_In_3"		"128"
+			"varName_Out_0"		"finalColor"
+			"varType_Out_0"		"8"
+			"szFunctionName"		"doWater"
+			"iInline"		"1"
+			"szcode_global_num_strings"		"1"
+			"szcode_global_partial_00"		"// Cryteks method. - Converted & modified by Drew \r\n// www.drewwatts.net\r\n// Enjoy ya dingus!\r\nstatic bool useChromaticAbberation = true;\r\nstatic float abberationStrength = 3.0; //chromatic aberration strength\n"
+			"szcode_body_num_strings"		"2"
+			"szcode_body_partial_00"		"	float4 noise0 = tex2D(waterNormal, noiseCoords.xy);\r\n	float4 noise1 = tex2D(waterNormal, noiseCoords.zw);\r\n\r\n	float4 noiseVec;\r\n	noiseVec.z = (noise0.z * 2.0 - 1.0) * 0.5 + (2.0 * noise1.w - 1.0);\r\n	noiseVec.xy = (noise0.xy * 2.0 - 1.0);\r\n\r\n	//refraction vector\r\n	float3 refraction = normalize(noiseVec.xyz * float3(0.01, 0.01, 1.0));\r\n\r\n	//distort the framebuffer \r\n	float4 frameColor = tex2D(frameBuffer, texCoords - refraction.xy*0.25);\r\n\r\n	//are we going to use chromatic abberation?\r\n	if (useChromaticAbberation)\r\n	{\r\n		//chromatic aberration value. It's a small value, but we can mutlply with abberationStrength\r\n		float3 ca = (0.0, 0.0, 0.0001) * abberationStrength; \r\n\r\n		//get the new refraction vectors \r\n		float3 refraction0 = normalize(noiseVec.xyz * float3(0.01, 0.01, 1.0) + ca ); \r\n		float3 refraction1 = normalize(noiseVec.xyz * float3(0.01, 0.01, 1.0) - ca);\r\n\r\n		//distort the red channel with refraction0\r\n		frameColor.r = tex2D(frameBuffer, texCoords - r"
+			"szcode_body_partial_01"		"efraction0.xy*0.25).r;\r\n		//distort the red channel with refraction1\r\n		frameColor.b = tex2D(frameBuffer, texCoords - refraction1.xy*0.25).b;\r\n	}\r\n\r\n	//modified refraction vector for our highlight\r\n	refraction = normalize(noiseVec.xyz*float3(0.025, 0.025, 1));\r\n\r\n	//do the highlight\r\n	float highlight = saturate(pow(refraction.x, 10.0) * 0.5) * 1.0;\r\n	//add the highlight to the distorted framebuffer\r\n	finalColor.rgb = frameColor.rgb + highlight;\r\n\r\n	//assign an alpha\r\n	finalColor.a = 1.0;\n"
+			"iEnvFlags"		"0"
+		}
+	}
+}

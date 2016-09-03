@@ -1,0 +1,1877 @@
+"canvas"
+{
+	"cfmt_version"		"canvasver#002"
+	"config"
+	{
+		"shadermodel"		"1"
+		"cull_mode"		"0"
+		"alpha_blending"		"0"
+		"depth_test"		"0"
+		"depth_write"		"0"
+		"srgb_write"		"0"
+	}
+	"Nodes"
+	{
+		"Node_000"
+		{
+			"iType"		"53"
+			"pos_x"		"463.674652"
+			"pos_y"		"-210.488373"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"16"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_001"
+		{
+			"iType"		"19"
+			"pos_x"		"601.121765"
+			"pos_y"		"-180.594849"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"92"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_002"
+		{
+			"iType"		"17"
+			"pos_x"		"750.381531"
+			"pos_y"		"-186.976593"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"1"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"91"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_003"
+		{
+			"iType"		"50"
+			"pos_x"		"174.049500"
+			"pos_y"		"-225.131470"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"103"
+					"iTarget_jack"		"3"
+				}
+			}
+		}
+		"Node_004"
+		{
+			"iType"		"19"
+			"pos_x"		"-173.927490"
+			"pos_y"		"-229.426270"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"18"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"5"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_005"
+		{
+			"iType"		"5"
+			"pos_x"		"-290.359222"
+			"pos_y"		"-295.938782"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"10"
+		}
+		"Node_006"
+		{
+			"iType"		"1"
+			"pos_x"		"-228.863312"
+			"pos_y"		"319.150818"
+			"size_x"		"55.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"0"
+			"enable_flex"		"0"
+			"enable_normal"		"0"
+			"enable_blendweights"		"0"
+			"enable_tangentspace"		"0"
+			"enable_tangentspace_skinning"		"0"
+			"numTexcoords"		"1"
+			"numColor"		"0"
+			"dTFlag_Texcoords"		"2"
+			"dTFlag_Color"		"8"
+		}
+		"Node_007"
+		{
+			"iType"		"19"
+			"pos_x"		"-41.806458"
+			"pos_y"		"210.270844"
+			"size_x"		"80.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"10"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"11"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_008"
+		{
+			"iType"		"27"
+			"pos_x"		"94.763428"
+			"pos_y"		"193.806198"
+			"size_x"		"80.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"7"
+					"iTarget_jack"		"0"
+				}
+			}
+			"swizzleString"		"xx"
+		}
+		"Node_009"
+		{
+			"iType"		"55"
+			"pos_x"		"221.642883"
+			"pos_y"		"229.859772"
+			"size_x"		"91.000000"
+			"size_y"		"-39.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"6"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"12"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"8"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iTexTrans_center"		"0"
+			"iTexTrans_rot"		"0"
+			"iTexTrans_scale"		"1"
+			"iTexTrans_trans"		"1"
+		}
+		"Node_010"
+		{
+			"iType"		"5"
+			"pos_x"		"-168.952637"
+			"pos_y"		"233.892334"
+			"size_x"		"50.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"szConstantString"		"2"
+		}
+		"Node_011"
+		{
+			"iType"		"12"
+			"pos_x"		"-183.612152"
+			"pos_y"		"159.546921"
+			"size_x"		"50.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+		}
+		"Node_012"
+		{
+			"iType"		"5"
+			"pos_x"		"104.579254"
+			"pos_y"		"146.036072"
+			"size_x"		"50.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.0001 0.0001"
+		}
+		"Node_013"
+		{
+			"iType"		"20"
+			"pos_x"		"71.140167"
+			"pos_y"		"499.231293"
+			"size_x"		"80.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"20"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"14"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_014"
+		{
+			"iType"		"65"
+			"pos_x"		"-49.716888"
+			"pos_y"		"455.953003"
+			"size_x"		"60.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+		}
+		"Node_015"
+		{
+			"iType"		"5"
+			"pos_x"		"66.941437"
+			"pos_y"		"442.331451"
+			"size_x"		"50.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"szConstantString"		"64"
+		}
+		"Node_016"
+		{
+			"iType"		"18"
+			"pos_x"		"346.230225"
+			"pos_y"		"-221.256073"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"3"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"102"
+					"iTarget_jack"		"2"
+				}
+			}
+		}
+		"Node_017"
+		{
+			"iType"		"60"
+			"pos_x"		"140.350861"
+			"pos_y"		"-951.976807"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"26"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_018"
+		{
+			"iType"		"3"
+			"pos_x"		"-597.301880"
+			"pos_y"		"-534.940308"
+			"size_x"		"55.000000"
+			"size_y"		"-39.000000"
+			"iPreview"		"0"
+			"numTexcoords"		"3"
+			"numColor"		"0"
+			"numTexcoord_Flag_0"		"2"
+			"numTexcoord_Name_0"		"UV 0"
+			"numTexcoord_Flag_1"		"2"
+			"numTexcoord_Name_1"		"UV 1"
+			"numTexcoord_Flag_2"		"2"
+			"numTexcoord_Name_2"		"Texel scale"
+			"numTexcoord_Flag_3"		"1"
+			"numTexcoord_Flag_4"		"1"
+			"numTexcoord_Flag_5"		"1"
+			"numTexcoord_Flag_6"		"1"
+			"numTexcoord_Flag_7"		"1"
+			"numColor_Flag_0"		"8"
+			"numColor_Flag_1"		"8"
+		}
+		"Node_019"
+		{
+			"iType"		"20"
+			"pos_x"		"213.357849"
+			"pos_y"		"473.199463"
+			"size_x"		"80.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"13"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"15"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_020"
+		{
+			"iType"		"5"
+			"pos_x"		"-48.920013"
+			"pos_y"		"512.142090"
+			"size_x"		"50.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"szConstantString"		"1"
+		}
+		"Node_021"
+		{
+			"iType"		"2"
+			"pos_x"		"424.612183"
+			"pos_y"		"313.672791"
+			"size_x"		"55.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"0"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"101"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"6"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"9"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_03"
+				{
+					"iTarget_node"		"19"
+					"iTarget_jack"		"0"
+				}
+			}
+			"numTexcoords"		"3"
+			"numColor"		"0"
+			"numTexcoord_Flag_0"		"2"
+			"numTexcoord_Name_0"		"UV 0"
+			"numTexcoord_Flag_1"		"2"
+			"numTexcoord_Name_1"		"UV 1"
+			"numTexcoord_Flag_2"		"2"
+			"numTexcoord_Name_2"		"Texel scale"
+			"numTexcoord_Flag_3"		"1"
+			"numTexcoord_Flag_4"		"1"
+			"numTexcoord_Flag_5"		"1"
+			"numTexcoord_Flag_6"		"1"
+			"numTexcoord_Flag_7"		"1"
+			"numColor_Flag_0"		"8"
+			"numColor_Flag_1"		"8"
+		}
+		"Node_022"
+		{
+			"iType"		"5"
+			"pos_x"		"-413.016083"
+			"pos_y"		"-1072.758057"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.3 0.59 0.11"
+		}
+		"Node_023"
+		{
+			"iType"		"23"
+			"pos_x"		"-320.019897"
+			"pos_y"		"-1048.719238"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"65"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"22"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_024"
+		{
+			"iType"		"5"
+			"pos_x"		"333.525726"
+			"pos_y"		"-878.604004"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.3 0.59 0.11"
+		}
+		"Node_025"
+		{
+			"iType"		"23"
+			"pos_x"		"280.829102"
+			"pos_y"		"-955.839111"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"17"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"24"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_026"
+		{
+			"iType"		"20"
+			"pos_x"		"13.819885"
+			"pos_y"		"-956.361328"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"65"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"27"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_027"
+		{
+			"iType"		"34"
+			"pos_x"		"-149.998428"
+			"pos_y"		"-1046.181152"
+			"size_x"		"104.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"28"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"78"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"23"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_028"
+		{
+			"iType"		"5"
+			"pos_x"		"-184.695190"
+			"pos_y"		"-950.453674"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"-0.1"
+		}
+		"Node_029"
+		{
+			"iType"		"5"
+			"pos_x"		"-155.751495"
+			"pos_y"		"-1184.955444"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"1"
+		}
+		"Node_030"
+		{
+			"iType"		"5"
+			"pos_x"		"-245.854233"
+			"pos_y"		"-1184.234985"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.5"
+		}
+		"Node_031"
+		{
+			"iType"		"34"
+			"pos_x"		"-215.099915"
+			"pos_y"		"-1269.376465"
+			"size_x"		"104.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"30"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"29"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"23"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_032"
+		{
+			"iType"		"5"
+			"pos_x"		"-59.328575"
+			"pos_y"		"-385.682373"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.5"
+		}
+		"Node_033"
+		{
+			"iType"		"18"
+			"pos_x"		"-1316.010376"
+			"pos_y"		"-716.106445"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"18"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"42"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_034"
+		{
+			"iType"		"24"
+			"pos_x"		"63.969193"
+			"pos_y"		"-463.902222"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"45"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_035"
+		{
+			"iType"		"24"
+			"pos_x"		"-1163.439819"
+			"pos_y"		"-712.743042"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"33"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_036"
+		{
+			"iType"		"18"
+			"pos_x"		"-1312.617554"
+			"pos_y"		"-832.547729"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"18"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"43"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_037"
+		{
+			"iType"		"24"
+			"pos_x"		"-1160.047241"
+			"pos_y"		"-829.184326"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"36"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_038"
+		{
+			"iType"		"34"
+			"pos_x"		"216.704910"
+			"pos_y"		"-474.557556"
+			"size_x"		"104.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"39"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"40"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"34"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_039"
+		{
+			"iType"		"5"
+			"pos_x"		"196.931091"
+			"pos_y"		"-388.285828"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"2"
+		}
+		"Node_040"
+		{
+			"iType"		"5"
+			"pos_x"		"286.014008"
+			"pos_y"		"-388.756104"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"-10"
+		}
+		"Node_041"
+		{
+			"iType"		"37"
+			"pos_x"		"-1026.420898"
+			"pos_y"		"-767.089844"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"35"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"37"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_042"
+		{
+			"iType"		"5"
+			"pos_x"		"-1406.134644"
+			"pos_y"		"-701.179077"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.4 0.5"
+		}
+		"Node_043"
+		{
+			"iType"		"5"
+			"pos_x"		"-1402.741821"
+			"pos_y"		"-817.620361"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.6 0.5"
+		}
+		"Node_044"
+		{
+			"iType"		"34"
+			"pos_x"		"-879.481873"
+			"pos_y"		"-791.222168"
+			"size_x"		"104.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"74"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"71"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"41"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_045"
+		{
+			"iType"		"18"
+			"pos_x"		"-74.996223"
+			"pos_y"		"-464.449890"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"18"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"32"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_046"
+		{
+			"iType"		"5"
+			"pos_x"		"-1450.968628"
+			"pos_y"		"-1125.375366"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0 1"
+		}
+		"Node_047"
+		{
+			"iType"		"5"
+			"pos_x"		"-1432.045776"
+			"pos_y"		"-989.069092"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"1 0"
+		}
+		"Node_048"
+		{
+			"iType"		"23"
+			"pos_x"		"-1325.664673"
+			"pos_y"		"-1133.754028"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"50"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"46"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_049"
+		{
+			"iType"		"23"
+			"pos_x"		"-1306.741577"
+			"pos_y"		"-997.447693"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"50"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"47"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_050"
+		{
+			"iType"		"25"
+			"pos_x"		"-1593.267944"
+			"pos_y"		"-1046.779175"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"45"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_051"
+		{
+			"iType"		"19"
+			"pos_x"		"-1138.864136"
+			"pos_y"		"-990.283142"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"49"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"60"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_052"
+		{
+			"iType"		"19"
+			"pos_x"		"-1151.666382"
+			"pos_y"		"-1141.724243"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"48"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"60"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_053"
+		{
+			"iType"		"5"
+			"pos_x"		"-940.444519"
+			"pos_y"		"-1076.191040"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"1"
+		}
+		"Node_054"
+		{
+			"iType"		"5"
+			"pos_x"		"-808.116821"
+			"pos_y"		"-907.380005"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"1"
+		}
+		"Node_055"
+		{
+			"iType"		"18"
+			"pos_x"		"-866.781982"
+			"pos_y"		"-1137.014282"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"53"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"59"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_056"
+		{
+			"iType"		"26"
+			"pos_x"		"-746.701233"
+			"pos_y"		"-1067.887817"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"57"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"55"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_057"
+		{
+			"iType"		"18"
+			"pos_x"		"-864.263672"
+			"pos_y"		"-986.921021"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"53"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"58"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_058"
+		{
+			"iType"		"53"
+			"pos_x"		"-1006.789734"
+			"pos_y"		"-991.632751"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"51"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_059"
+		{
+			"iType"		"53"
+			"pos_x"		"-1005.802185"
+			"pos_y"		"-1143.723022"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"52"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_060"
+		{
+			"iType"		"5"
+			"pos_x"		"-1230.503784"
+			"pos_y"		"-1076.726196"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.5"
+		}
+		"Node_061"
+		{
+			"iType"		"27"
+			"pos_x"		"1440.168213"
+			"pos_y"		"-943.351685"
+			"size_x"		"123.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"62"
+					"iTarget_jack"		"0"
+				}
+			}
+			"swizzleString"		"r g b 1"
+		}
+		"Node_062"
+		{
+			"iType"		"19"
+			"pos_x"		"1289.970459"
+			"pos_y"		"-936.860962"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"93"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"94"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_063"
+		{
+			"iType"		"21"
+			"pos_x"		"-682.400085"
+			"pos_y"		"-900.576172"
+			"size_x"		"100.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"54"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"56"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"44"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_064"
+		{
+			"iType"		"55"
+			"pos_x"		"-562.799194"
+			"pos_y"		"-769.083557"
+			"size_x"		"120.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"18"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"63"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iTexTrans_center"		"0"
+			"iTexTrans_rot"		"0"
+			"iTexTrans_scale"		"1"
+			"iTexTrans_trans"		"0"
+		}
+		"Node_065"
+		{
+			"iType"		"21"
+			"pos_x"		"-74.406296"
+			"pos_y"		"-719.279785"
+			"size_x"		"100.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"68"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"67"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"66"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_066"
+		{
+			"iType"		"34"
+			"pos_x"		"-340.682922"
+			"pos_y"		"-578.949707"
+			"size_x"		"104.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"69"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"70"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"41"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_067"
+		{
+			"iType"		"29"
+			"pos_x"		"-356.698975"
+			"pos_y"		"-824.546448"
+			"size_x"		"122.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"64"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iSRGB"		"0"
+			"iTextureType"		"5"
+			"IsCubemap"		"0"
+			"iLookupoverride"		"0"
+			"szDemoTexturePath"		"_rt_FullFrameFB"
+			"iFallbackMode"		"0"
+		}
+		"Node_068"
+		{
+			"iType"		"29"
+			"pos_x"		"-360.063995"
+			"pos_y"		"-718.471802"
+			"size_x"		"122.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"18"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iSRGB"		"0"
+			"iTextureType"		"5"
+			"IsCubemap"		"0"
+			"iLookupoverride"		"0"
+			"szDemoTexturePath"		"_rt_FullFrameFB"
+			"iFallbackMode"		"0"
+		}
+		"Node_069"
+		{
+			"iType"		"5"
+			"pos_x"		"-346.845215"
+			"pos_y"		"-493.701538"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"1"
+		}
+		"Node_070"
+		{
+			"iType"		"5"
+			"pos_x"		"-278.520996"
+			"pos_y"		"-496.406372"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.1"
+		}
+		"Node_071"
+		{
+			"iType"		"5"
+			"pos_x"		"-816.689148"
+			"pos_y"		"-708.678833"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.5"
+		}
+		"Node_072"
+		{
+			"iType"		"5"
+			"pos_x"		"640.592468"
+			"pos_y"		"-713.902466"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.35"
+		}
+		"Node_073"
+		{
+			"iType"		"5"
+			"pos_x"		"709.547424"
+			"pos_y"		"-716.607300"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.55"
+		}
+		"Node_074"
+		{
+			"iType"		"5"
+			"pos_x"		"-885.644104"
+			"pos_y"		"-705.973999"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.4"
+		}
+		"Node_075"
+		{
+			"iType"		"19"
+			"pos_x"		"-261.007019"
+			"pos_y"		"-97.164841"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"18"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"18"
+					"iTarget_jack"		"2"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_076"
+		{
+			"iType"		"81"
+			"pos_x"		"-249.904297"
+			"pos_y"		"-9.620949"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"i_num_comps"		"1"
+			"fl_value_min"		"0.000000"
+			"fl_value_max"		"10.000000"
+		}
+		"Node_077"
+		{
+			"iType"		"17"
+			"pos_x"		"-142.329498"
+			"pos_y"		"-97.917526"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"75"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"76"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_078"
+		{
+			"iType"		"5"
+			"pos_x"		"-94.592438"
+			"pos_y"		"-951.174011"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.5"
+		}
+		"Node_079"
+		{
+			"iType"		"4"
+			"pos_x"		"1628.385742"
+			"pos_y"		"-937.808289"
+			"size_x"		"55.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"61"
+					"iTarget_jack"		"0"
+				}
+			}
+			"numColors"		"1"
+			"enable_Depth"		"0"
+		}
+		"Node_080"
+		{
+			"iType"		"21"
+			"pos_x"		"961.547974"
+			"pos_y"		"-950.942322"
+			"size_x"		"100.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"89"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"65"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"38"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_081"
+		{
+			"iType"		"19"
+			"pos_x"		"40.308403"
+			"pos_y"		"-1097.238403"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"65"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"83"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_082"
+		{
+			"iType"		"5"
+			"pos_x"		"321.347473"
+			"pos_y"		"-1218.275513"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.9 1 0.9"
+		}
+		"Node_083"
+		{
+			"iType"		"5"
+			"pos_x"		"-1.634039"
+			"pos_y"		"-1199.789795"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"1.5 2.25 1.8"
+		}
+		"Node_084"
+		{
+			"iType"		"21"
+			"pos_x"		"200.846954"
+			"pos_y"		"-1095.319214"
+			"size_x"		"100.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"81"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"85"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"27"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_085"
+		{
+			"iType"		"5"
+			"pos_x"		"111.949905"
+			"pos_y"		"-1209.657715"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.762 1.78 0.5"
+		}
+		"Node_086"
+		{
+			"iType"		"5"
+			"pos_x"		"198.678452"
+			"pos_y"		"-1265.130371"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.381 0.89 0.25"
+		}
+		"Node_087"
+		{
+			"iType"		"21"
+			"pos_x"		"376.618958"
+			"pos_y"		"-1101.961914"
+			"size_x"		"100.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"84"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"82"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"31"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_088"
+		{
+			"iType"		"19"
+			"pos_x"		"539.894470"
+			"pos_y"		"-1103.041626"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"25"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"87"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_089"
+		{
+			"iType"		"19"
+			"pos_x"		"702.871216"
+			"pos_y"		"-1095.865234"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"88"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"90"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_090"
+		{
+			"iType"		"5"
+			"pos_x"		"654.197021"
+			"pos_y"		"-1216.122925"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"1.4"
+		}
+		"Node_091"
+		{
+			"iType"		"5"
+			"pos_x"		"723.098816"
+			"pos_y"		"-319.257813"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.9"
+		}
+		"Node_092"
+		{
+			"iType"		"5"
+			"pos_x"		"579.549622"
+			"pos_y"		"-319.953796"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.2"
+		}
+		"Node_093"
+		{
+			"iType"		"19"
+			"pos_x"		"1115.174316"
+			"pos_y"		"-941.947083"
+			"size_x"		"91.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"95"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"80"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_094"
+		{
+			"iType"		"61"
+			"pos_x"		"815.646973"
+			"pos_y"		"-791.105591"
+			"size_x"		"93.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"98"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_095"
+		{
+			"iType"		"21"
+			"pos_x"		"809.717651"
+			"pos_y"		"-594.945251"
+			"size_x"		"100.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"2"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"99"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"100"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_096"
+		{
+			"iType"		"5"
+			"pos_x"		"669.171814"
+			"pos_y"		"-498.493469"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.42"
+		}
+		"Node_097"
+		{
+			"iType"		"5"
+			"pos_x"		"600.216858"
+			"pos_y"		"-495.788635"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.38"
+		}
+		"Node_098"
+		{
+			"iType"		"34"
+			"pos_x"		"646.754700"
+			"pos_y"		"-799.150635"
+			"size_x"		"104.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"72"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"73"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"41"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_099"
+		{
+			"iType"		"5"
+			"pos_x"		"830.292847"
+			"pos_y"		"-510.106995"
+			"size_x"		"50.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szConstantString"		"1"
+		}
+		"Node_100"
+		{
+			"iType"		"34"
+			"pos_x"		"606.379089"
+			"pos_y"		"-581.036804"
+			"size_x"		"104.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"97"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"96"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"41"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_101"
+		{
+			"iType"		"27"
+			"pos_x"		"68.468102"
+			"pos_y"		"330.389618"
+			"size_x"		"80.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"6"
+					"iTarget_jack"		"0"
+				}
+			}
+			"swizzleString"		"x y z 1"
+		}
+		"Node_102"
+		{
+			"iType"		"29"
+			"pos_x"		"1.958828"
+			"pos_y"		"-96.032845"
+			"size_x"		"122.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"77"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iSRGB"		"0"
+			"iTextureType"		"1"
+			"IsCubemap"		"0"
+			"iLookupoverride"		"0"
+			"szDemoTexturePath"		"texture_samples\noise_2d"
+			"szFallbackTexturePath"		"texture_samples\noise_2d"
+			"iFallbackMode"		"4"
+		}
+		"Node_103"
+		{
+			"iType"		"29"
+			"pos_x"		"2.025377"
+			"pos_y"		"-221.102631"
+			"size_x"		"122.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"4"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iSRGB"		"0"
+			"iTextureType"		"1"
+			"IsCubemap"		"0"
+			"iLookupoverride"		"0"
+			"szDemoTexturePath"		"texture_samples\noise_2d"
+			"szFallbackTexturePath"		"texture_samples\noise_2d"
+			"iFallbackMode"		"4"
+		}
+	}
+}
