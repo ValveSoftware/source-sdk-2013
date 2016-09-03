@@ -1,0 +1,179 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+// Combos
+// DYNAMIC: "FLASHLIGHT"		"0..1"
+// DYNAMIC: "FLASHLIGHTSHADOWS"		"0..1"
+// DYNAMIC: "FLASHLIGHTDEPTHFILTERMODE"		"0..2"
+// DYNAMIC: "PIXELFOGTYPE"		"0..1"
+// DYNAMIC: "WRITEWATERFOGTODESTALPHA"		"0..1"
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+sampler _Sampler_01		: register( s1 );
+sampler _Sampler_02		: register( s2 );
+sampler _Sampler_03		: register( s3 );
+sampler _gSampler_Flashlight_Cookie		: register( s4 );
+sampler _gSampler_Flashlight_Depth		: register( s5 );
+sampler _gSampler_Flashlight_Random		: register( s6 );
+
+// Constants
+const float3 _g_VecOrig		: register( c16 );
+const float g_cData_parallax_geo_height		: register( c17 ); 		// Static
+const float4x4 g_cFlashlightWorldToTexture		: register( c12 );
+const float4x4 g_cCMatrix_ViewProj		: register( c18 );
+const float4 g_cFlashlightAttenuationFactors		: register( c8 );
+const float4 g_cFlashlightPos		: register( c9 );
+const float4 g_cShadowTweaks		: register( c7 );
+const float4 _g_FogParams		: register( c22 );
+
+// Semantic structures
+struct PS_INPUT
+{
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float4 vTexCoord_1			:	TEXCOORD1;
+	float3 vTexCoord_2			:	TEXCOORD2;
+	float3 vTexCoord_3			:	TEXCOORD3;
+	float2 vTexCoord_4			:	TEXCOORD4;
+	float3 vTexCoord_5			:	TEXCOORD5;
+	float3 vTexCoord_6			:	TEXCOORD6;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+	float vDepth				:	DEPTH;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float3 _var0 = float3( 0.000000, 0.000000, 0.000000 );
+	float2 _var1 = float2( 0.000000, 0.000000 );
+	float3x3 _var2 = { In.vTexCoord_5,
+				In.vTexCoord_6,
+				In.vTexCoord_2 };
+	float3 _var3 = In.vTexCoord_3 - _g_VecOrig;
+	float3 _var4 = _g_VecOrig - In.vTexCoord_3;
+	float3 _var5 = float3( 0.000000, 0.000000, 0.000000 );
+	float _var6 = _g_VecOrig.z;
+	_var3 = mul( _var2, _var3 );
+#if ( FLASHLIGHT == 0 )
+		float3 _var8 = (float3)0;
+		float2 _var7 = CalcParallaxUV_Relief( In.vTexCoord_0, _var3, g_cData_parallax_geo_height, In.vTexCoord_2, _var4,
+				_Sampler_00, 10, 30, 5, In.vTexCoord_3,
+				_var8, true, true );
+		_var5 = _var8;
+		_var1 = _var7;
+#endif
+#if ( FLASHLIGHT == 1 )
+		float3 _var10 = (float3)0;
+		float2 _var9 = CalcParallaxUV_Relief( In.vTexCoord_0, _var3, g_cData_parallax_geo_height, In.vTexCoord_2, _var4,
+				_Sampler_00, 8, 15, 5, In.vTexCoord_3,
+				_var10, false, true );
+		_var10 = _var10 * float( 0.900000 );
+		_var1 = _var9;
+		_var5 = _var10;
+#endif
+	_var1 = _var1;
+	_var5 = _var5;
+	float3 _var11 = tex2D( _Sampler_01, _var1 ).rgb;
+	float _var12 = _var5.x;
+	float _var13 = _var5.y;
+	float _var14 = _var5.z;
+	float3 _var15 = tex2D( _Sampler_02, _var1 ).rgb;
+	_var11 = _var11 * float( 2.000000 );
+	float3 _var16 = _var12 * In.vTexCoord_5;
+	float3 _var17 = _var13 * In.vTexCoord_6;
+	float _var18 = _var14 * g_cData_parallax_geo_height;
+	float _var19 = 1.0f - _var14;
+	_var11 = _var11 - float( 1.000000 );
+	_var16 = _var16 + _var17;
+	float3 _var20 = _var18 * In.vTexCoord_2;
+	_var19 = _var19 * _var19;
+#if ( FLASHLIGHT == 0 )
+		float2 _var21 = In.vTexCoord_1.xy;
+		float _var22 = dot( _var11, bumpBasis[0] );
+		float _var23 = dot( _var11, bumpBasis[1] );
+		float _var24 = dot( _var11, bumpBasis[2] );
+		float2 _var25 = In.vTexCoord_1.zw;
+		float3 _var26 = tex2D( _Sampler_03, In.vTexCoord_4 ).rgb;
+		float3 _var27 = tex2D( _Sampler_03, _var21 ).rgb;
+		_var22 = saturate( _var22 );
+		_var23 = saturate( _var23 );
+		_var24 = saturate( _var24 );
+		float3 _var28 = tex2D( _Sampler_03, _var25 ).rgb;
+		float2 _var29 = float2( _var22, _var23 );
+		float3 _var30 = float3( _var29, _var24 );
+		_var30 = _var30 * _var30;
+		float _var31 = _var30.x;
+		float _var32 = _var30.y;
+		float _var33 = _var30.z;
+		float _var34 = dot( float3( float( 1.000000 ), float( 1.000000 ), float( 1.000000 ) ), _var30 );
+		_var27 = _var27 * _var31;
+		_var28 = _var28 * _var32;
+		_var26 = _var26 * _var33;
+		_var34 = LIGHT_MAP_SCALE / _var34;
+		_var27 = _var27 + _var28;
+		_var27 = _var27 + _var26;
+		_var27 = _var27 * _var34;
+		_var0 = _var27;
+#endif
+	_var16 = _var16 + _var20;
+	_var15 = _var15 * _var19;
+	_var16 = In.vTexCoord_3 - _var16;
+	float4 _var35 = mul( float4(_var16.xyz,1), g_cCMatrix_ViewProj );
+	float _var36 = _var16.z;
+#if ( FLASHLIGHT == 1 )
+		float3 _var37 = mul( _var11, _var2 );
+		float4 _var38 = mul( float4(_var16.xyz,1), g_cFlashlightWorldToTexture );
+		float2 _var39 = _var35.xy;
+		float _var40 = _var35.w;
+		_var37 = normalize( _var37 );
+		_var39 = _var39 / _var40;
+		_var39 = _var39 * float( 0.500000 );
+		_var39 = _var39 + float( 0.500000 );
+		_var37 = DoFlashlight( g_cFlashlightPos.xyz, _var16, _var38, _var37,
+				g_cFlashlightAttenuationFactors.xyz, g_cFlashlightAttenuationFactors.w,
+				_gSampler_Flashlight_Cookie, _gSampler_Flashlight_Depth, _gSampler_Flashlight_Random,
+				FLASHLIGHTDEPTHFILTERMODE, FLASHLIGHTSHADOWS, true,
+				_var39, false, g_cShadowTweaks );
+		float3 _var41 = _var37;
+#if ( FLASHLIGHTSHADOWS == 1 )
+			float _var42 = dot( float3( float( 1.000000 ), float( 1.000000 ), float( 1.000000 ) ), _var37 );
+			if ( _var42 > float( 0.010000 ) )
+			{
+				float3 _var43 = _var16 - float3( g_cFlashlightPos.xyz );
+				_var43 = mul( _var2, _var43 );
+				_var43 = normalize( _var43 );
+				float _var44 = CalcParallaxedShadows_OneLight( In.vTexCoord_0, _var1, _var43,
+						In.vTexCoord_3, g_cData_parallax_geo_height, float( 1.000000 ), _Sampler_00 );
+				_var41 = _var41 * _var44;
+			}
+#endif
+		_var0 = _var41;
+#endif
+	_var0 = _var0;
+	float _var45 = _var35.z;
+	float _var46 = _var35.z;
+	float _var47 = _var35.w;
+	_var0 = _var0 * _var15;
+	_var6 = CalcPixelFogFactor( PIXELFOGTYPE, _g_FogParams, _var6, _var36, _var45 );
+	_var46 = _var46 / _var47;
+	float4 _var48 = float4( _var0.x, _var0.y, _var0.z, 1.000000 );
+	_var46 = saturate( _var46 );
+	_var48 = FinalOutput( _var48, _var6, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR, true, _var45 );
+	Out.vColor_0 = _var48;
+	Out.vDepth = _var46;
+	return Out;
+}

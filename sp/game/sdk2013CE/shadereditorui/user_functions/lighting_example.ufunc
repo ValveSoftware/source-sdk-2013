@@ -1,0 +1,18 @@
+"user_func"
+{
+	"szFunctionName"		"DoUserLighting"
+	"szFilePath"		"shadereditorui\user_functions\lighting_example.ufunc"
+	"iInline"		"0"
+	"szcode_global_num_strings"		"0"
+	"szcode_body_num_strings"		"1"
+	"szcode_body_partial_00"		"	light = (float3)0;\r\n	\r\n	float3 ambient = PixelShaderAmbientLight( normal, g_cAmbientCube );\r\n	float3 color;\r\n	float3 dir;\r\n\r\n	for ( int i = 0; i < NUM_LIGHTS; i++ )\r\n	{\r\n		GetLightData( g_cLightInfo, i, wpos, color, dir );\r\n\r\n		color *= attn[i] * saturate( dot( normal, dir ) * 0.5 + 0.5 );\r\n		\r\n		light += pow( color, 2 );\r\n	}\r\n\r\n	light = max( light, ambient );"
+	"iEnvFlags"		"1"
+	"varName_In_0"		"attn"
+	"varType_In_0"		"8"
+	"varName_In_1"		"wpos"
+	"varType_In_1"		"4"
+	"varName_In_2"		"normal"
+	"varType_In_2"		"4"
+	"varName_Out_0"		"light"
+	"varType_Out_0"		"4"
+}

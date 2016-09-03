@@ -1,0 +1,41 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+// Combos
+// DYNAMIC: "PIXELFOGTYPE"		"0..1"
+// DYNAMIC: "WRITEWATERFOGTODESTALPHA"		"0..1"
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+
+// Semantic structures
+struct PS_INPUT
+{
+	float3 vTexCoord_0			:	TEXCOORD0;
+	float3 vTexCoord_1			:	TEXCOORD1;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float3 _var0 = reflect( In.vTexCoord_0, In.vTexCoord_1 );
+	float4 _var1 = texCUBE( _Sampler_00, _var0 ).rgba;
+	_var1 = FinalOutput( _var1, float( 0.000000 ), PIXELFOGTYPE, TONEMAP_SCALE_LINEAR, true, float( 0.000000 ) );
+	Out.vColor_0 = _var1;
+	return Out;
+}

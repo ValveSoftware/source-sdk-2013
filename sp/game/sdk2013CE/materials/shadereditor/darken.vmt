@@ -1,0 +1,7 @@
+"unlitgeneric"
+{
+	"$basetexture" "shadereditor/darken"
+	"$translucent" "1"
+
+	"$vertexalpha" 1
+}

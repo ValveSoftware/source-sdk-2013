@@ -1,0 +1,80 @@
+Index: client/clientshadowmgr.cpp
+===================================================================
+--- client/clientshadowmgr.cpp	(revision 1)
++++ client/clientshadowmgr.cpp	(working copy)
+@@ -853,7 +853,13 @@
+ 	void RemoveShadowFromDirtyList( ClientShadowHandle_t handle );
+ 
+ 	// NOTE: this will ONLY return SHADOWS_NONE, SHADOWS_SIMPLE, or SHADOW_RENDER_TO_TEXTURE.
++public:
++	ShadowHandle_t GetShadowHandle( ClientShadowHandle_t clienthandle ){ return m_Shadows[ clienthandle ].m_ShadowHandle; };
++	int GetNumShadowDepthtextures(){ return m_DepthTextureCache.Count(); };
++	CTextureReference GetShadowDepthTex( int num ){ return m_DepthTextureCache[num]; };
++
+ 	ShadowType_t GetActualShadowCastType( ClientShadowHandle_t handle ) const;
++private:
+ 	ShadowType_t GetActualShadowCastType( IClientRenderable *pRenderable ) const;
+ 
+ 	// Builds a simple blobby shadow
+Index: client/detailobjectsystem.cpp
+===================================================================
+--- client/detailobjectsystem.cpp	(revision 1)
++++ client/detailobjectsystem.cpp	(working copy)
+@@ -22,6 +22,7 @@
+ #include "env_detail_controller.h"
+ #include "tier0/icommandline.h"
+ #include "c_world.h"
++#include "ShaderEditor/Grass/CGrassCluster.h"
+ 
+ //Tony; add the SDK into this as well by default.
+ #if defined(DOD_DLL) || defined(CSTRIKE_DLL) || defined( SDK_DLL )
+@@ -1940,6 +1941,13 @@
+ 	pSpritex4->m_RGBColor[nSubField][3] = 255;
+ 
+ 	pSpritex4->m_pSpriteDefs[nSubField] = pSDef;
++
++	_grassClusterInfo clusterHint;
++	clusterHint.orig = pos;
++	clusterHint.color.Init( color[0], color[1], color[2], 1 );
++	clusterHint.uv_min = pSDef->m_TexLR;
++	clusterHint.uv_max = pSDef->m_TexUL;
++	CGrassClusterManager::GetInstance()->AddClusterHint( clusterHint );
+ }
+ 
+ 
+Index: client/iclientshadowmgr.h
+===================================================================
+--- client/iclientshadowmgr.h	(revision 1)
++++ client/iclientshadowmgr.h	(working copy)
+@@ -101,6 +100,10 @@
+ 
+ 	virtual void ComputeShadowDepthTextures( const CViewSetup &pView ) = 0;
+ 
++	virtual ShadowHandle_t GetShadowHandle( ClientShadowHandle_t clienthandle ) = 0;
++	virtual ShadowType_t GetActualShadowCastType( ClientShadowHandle_t handle ) const = 0;
++	virtual int GetNumShadowDepthtextures() = 0;
++	virtual CTextureReference GetShadowDepthTex( int num ) = 0;
+ };
+ 
+ 
+Index: client/viewrender.cpp
+===================================================================
+--- client/viewrender.cpp	(revision 1)
++++ client/viewrender.cpp	(working copy)
+@@ -48,6 +48,7 @@
+ #include "keyvalues.h"
+ #include "renderparm.h"
+ #include "con_nprint.h"
++#include "ShaderEditor/Grass/CGrassCluster.h"
+ 
+ #ifdef PORTAL
+ //#include "C_Portal_Player.h"
+@@ -3856,6 +3870,8 @@
+ 	//
+ 	RopeManager()->DrawRenderCache( bShadowDepth );
+ 	g_pParticleSystemMgr->DrawRenderCache( bShadowDepth );
++
++	CGrassClusterManager::GetInstance()->RenderClusters( bShadowDepth );
+ }
+ 
+ 

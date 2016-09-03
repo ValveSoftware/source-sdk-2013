@@ -1,0 +1,9 @@
+"UnlitGeneric"
+{
+	$basetexture "shadereditor/ac_struct"
+	$translucent	1
+	$vertexcolor	0
+	$vertexalpha	0
+	$no_fullbright	1
+	$ignorez	1
+}

@@ -1,0 +1,228 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+
+// Constants
+const float2 _g_TexelSize		: register( c16 );
+
+// User code - globals
+#define PI		3.14159265
+
+//--------------------------------------------------------
+//a list of user parameters
+
+#define METHOD 0
+
+static float near = 7; //Z-near
+static float far = 192.0; //Z-far
+static float zScaleLinear = near / far;
+static float zScaleLinearRev = far / near;
+
+#if ( METHOD == 0 )
+static int samples = 3; //samples on the first ring (3 - 5)
+static int rings = 3; //ring count (3 - 5)
+static float radius_close = 6.0; //ao radius
+static float radius_far = 0.5; //ao radius
+#else
+static int samples = 24; //samples on the first ring (3 - 5)
+static float radius_close = 7.0; //ao radius
+static float radius_far = 1.5; //ao radius
+#endif
+
+static float dist_exp = 6.0f;
+
+static float diffarea = 0.45; //self-shadowing reduction
+static float gdisplace = 0.4; //gauss bell center
+
+static float lumInfluence = 0.4; //how much luminance affects occlusion
+static float aoBoost_far = 2.5f;
+static float aoBoost_close = 6.0f;
+
+static bool noise = true; //use noise instead of pattern for sample dithering?
+static bool onlyAO = true; //use only ambient occlusion pass?
+static bool fadeout = true;
+
+//--------------------------------------------------------
+
+float2 rand(float2 coord, float2 size) //generating noise/pattern texture for dithering
+{
+	float noiseX = ((frac(1.0-coord.x*(size.x/2.0))*0.25)+(frac(coord.y*(size.y/2.0))*0.75))*2.0-1.0;
+	float noiseY = ((frac(1.0-coord.x*(size.x/2.0))*0.75)+(frac(coord.y*(size.y/2.0))*0.25))*2.0-1.0;
+	
+	if (noise)
+	{
+		noiseX = frac(sin(dot(coord ,float2(12.9898,78.233))) * 43758.5453) * 2.0-1.0;
+		noiseY = frac(sin(dot(coord ,float2(12.9898,78.233)*2.0)) * 43758.5453) * 2.0-1.0;
+	}
+	return float2(noiseX,noiseY)*0.001;
+}
+
+float readDepth(in float2 coord, sampler tex)
+{
+	return tex2D(tex, coord ).a * zScaleLinear;
+	//return (2.0 * near) / (far + near - tex2D(tex, coord ).a * (far-near));
+}
+
+float readDepth(float linDepth)
+{
+	return linDepth * zScaleLinear;
+}
+
+float compareDepths(in float depth1, in float depth2,inout int far)
+{
+	float garea = 2.0; //gauss bell width    
+	float diff = (depth1 - depth2)*100.0; //depth difference (0-100)
+	//reduce left bell width to avoid self-shadowing 
+
+
+	if ( diff < gdisplace )
+	{
+	garea = diffarea;
+	}else{
+	far = 1;
+	}
+	
+	float gauss = pow(2.7182,-2.0*(diff-gdisplace)*(diff-gdisplace)/(garea*garea));
+	return gauss;
+}
+
+float calAO(float2 uv,float localDepth, float depth, float dw, float dh, sampler tex)
+{
+	float dd = (1.0-depth)*lerp( radius_far, radius_close, localDepth );
+
+	float temp = 0.0;
+	float temp2 = 0.0;
+	float coordw = uv.x + dw*dd;
+	float coordh = uv.y + dh*dd;
+	float coordw2 = uv.x - dw*dd;
+	float coordh2 = uv.y - dh*dd;
+	
+	float2 coord = float2(coordw , coordh);
+	float2 coord2 = float2(coordw2, coordh2);
+	
+	int far = 0;
+	temp = compareDepths(depth, readDepth(coord,tex),far);
+	//DEPTH EXTRAPOLATION:
+	if (far > 0)
+	{
+		temp2 = compareDepths(readDepth(coord2,tex),depth,far);
+		temp += (1.0-temp)*temp2;
+	}
+	
+	return temp;
+}
+
+// User code - function bodies
+void DoSSAO( in float2 uv, in float2 texelSize, in sampler color_depth, out float ao_out )
+{
+	float2 size = 1.0f / texelSize;
+
+	float2 noise = rand(uv,size);
+	float depthSample = tex2D(color_depth, uv ).a;
+	float depth = readDepth(depthSample);
+	depthSample = pow( (1.0f - depthSample), dist_exp );
+	float d;
+	
+	float w = texelSize.x/clamp(depth,0.25,1.0)+(noise.x*(1.0-noise.x));
+	float h = texelSize.y/clamp(depth,0.25,1.0)+(noise.y*(1.0-noise.y));
+	
+	float pw;
+	float ph;
+	
+	float ao;
+	float s;
+	
+	int ringsamples;
+
+#if (METHOD == 0)
+	for (int i = 1; i <= rings; i++)
+	{
+		ringsamples = i * samples;
+		for (int j = 0 ; j < ringsamples ; j += 1)
+		{
+			float step = PI*2.0 / float(ringsamples);
+			pw = (cos(float(j)*step)*float(i));
+			ph = (sin(float(j)*step)*float(i));
+			ao += calAO( uv, depthSample, depth, pw*w, ph*h, color_depth );
+			s += 1.0;
+		}
+	}
+	ao /= s;
+	ao = 1.0-ao;
+#else
+	float dl = PI*(3.0-sqrt(5.0));
+	float dz = 1.0/float(samples);
+	float l = 0.0;
+	float z = 1.0 - dz/2.0;
+
+	for (int i = 0; i <= samples; i ++)
+	{
+		float r = sqrt(1.0-z);
+
+		pw = cos(l)*r;
+		ph = sin(l)*r;
+		ao += calAO(uv,depthSample,depth,pw*w,ph*h,color_depth);
+		z = z - dz;
+		l = l + dl;
+	}
+
+	ao /= float(samples);
+	ao = 1.0-ao;
+#endif
+
+	float3 color = tex2D(color_depth,uv).rgb;
+	
+	float3 lumcoeff = float3(0.299,0.587,0.114);
+	float lum = dot(color.rgb, lumcoeff);
+	float3 luminance = float3(lum, lum, lum);
+
+	ao = pow( ao, lerp( aoBoost_far, aoBoost_close, depthSample ) );
+
+	//lum = lerp(ao,1.0,luminance*lumInfluence);
+	ao_out = lerp(ao,1.0,luminance*lumInfluence);
+
+	if ( fadeout )
+	{
+		float fade = depth * zScaleLinearRev;
+		ao_out = lerp( ao_out, 0.65, pow( fade, 3 ) );
+	}
+
+	//if(onlyAO)
+	//	ao = lum; //ambient occlusion only
+	//else
+	//	col = color * lum;
+}
+
+// Semantic structures
+struct PS_INPUT
+{
+	float2 vTexCoord_0			:	TEXCOORD0;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float _var0 = (float)0;
+	DoSSAO( In.vTexCoord_0, _g_TexelSize, _Sampler_00, _var0 );
+	float4 _var1 = float4( _var0.x, _var0.x, _var0.x, 1.000000 );
+	Out.vColor_0 = _var1;
+	return Out;
+}

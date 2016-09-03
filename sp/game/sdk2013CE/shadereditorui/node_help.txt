@@ -1,0 +1,751 @@
+"node_help"
+{
+	"0"
+	{
+			"name"		"Invalid"
+			"info"		"Invalid"
+			"code"		"Invalid"
+	}
+	
+    	"1"
+    	{  
+			"name"		"Vertex Shader Input"
+			"info"		"This node allows you to declare input semantics for your vertex shader.\n\nOutput A: By default, output A is the position of each vertex.\nOutput B: By default, output B is the texcoord0 semantic."
+	}
+	
+	"2"
+	{
+			"name"		"Vertex Shader Output"
+			"info"		"This node allows you to declare output semantics for your vertex shader. That information is then passed to the pixel shader input.\n\nInput A: By default input A is the projected position of each vertex.\nInput B: By default, input B is the texcoord0 semantic."
+	}
+	
+	"3"
+	{
+			"name"		"Pixel Shader Input"
+			"info"		"This node allows you to access data from the vertex shader output and other data such as vertex colors.\n\nOutput A: By default, output A is texcoords0 from the vertex shader. The other outputs are only used if you define them."
+	}
+	
+	"4"
+	{
+			"name"		"Pixel Shader Output"
+			"info"		"This node allows you to define the fragment output for your shader. The input must be four components per RT.\n\nInput A: Color0 is the default input.\nInput B: Color1-3 and Depth are optional inputs which can be enabled in the node properties."
+	}
+	
+	"5"
+	{
+			"name"		"Local Constant"
+			"info"		"This node allows you to declare a local vector which can be used in the vertex or pixel shader stages that can have up to 4 channels.\n\nOutput: The vector you entered into the node property window."
+			"code"		"float3 X = float3(1.0,0.0,0.0), Y = float3(0.0,1.0,0.0), Z = float3(0.0,0.0,1.0)"
+	}
+	
+	"6"
+	{		
+			"name"		"NOT_USED"
+			"info"		"NOT_USED"
+			"code"		"NOT_USED"
+	}
+	
+	"7"
+	{
+			"name"		"View Origin"
+			"info"		"This node represents the origin (position) of the view.\n\nOutput: The three-component view position vector."
+	}
+	
+	"8"
+	{
+			"name"		"View Forward"
+			"info"		"This node exposes the view forward vector in worldspace.\n\nOutput: The three-component view forward vector."
+	}
+	
+	"9"
+	{
+			"name"		"View Right"
+			"info"		"This node exposes the view right vector in worldspace.\n\nOutput: The three-component view right vector."
+	}
+	
+	"10"
+	{
+			"name"		"View Up"
+			"info"		"This node exposes the view up vector in worldspace.\n\nOutput: The three-component view up vector."
+	}
+	
+	"11"
+	{
+			"name"		"View Worldspace Depth"
+			"info"		"This node holds the value of zFar.\n\nOutput: The single-component zfar vector."
+	}
+	
+	"12"
+	{
+			"name"		"Time"
+			"info"		"This node is the current time represented as a float, it can be used as an input to various other nodes, such as sine.\n\nOutput: The single component time vector."
+	}
+	
+	"13"
+	{
+			"name"		"ModelViewProjection"
+			"info"		"This is a matrix node used only in the vertex shader to transform vertices from model- to projectionspace.\n\nOutput: The 4x4 ModelViewProjection matrix."
+	}
+	
+	"14"
+	{
+			"name"		"ViewProjection"
+			"info"		"This is a matrix node used only in the vertex shader to transform vertices from world- to projectionspace.\n\nOutput: The 4x4 ViewProjection matrix."
+	}
+	
+	"15"
+	{
+			"name"		"Model"
+			"info"		"This is a matrix node used only in the vertex shader to transform vertices into worldspace.\n\nOutput: The 4x3 Model matrix."
+	}
+	
+	"16"
+	{
+			"name"		"ViewModel"
+			"info"		"This matrix is possibly used to transform from view to world space. No idea.\n\nOutput: The 4x4 ViewModel matrix."
+	}
+	
+	"17"
+	{
+			"name"		"Add"
+			"info"		"This node is used to add two inputs.\n\nOutput: The sum of the two inputs. The datatype is determined by said inputs."
+			"code"		"A + B"
+	}
+	
+	"18"
+	{
+			"name"		"Subtract"
+			"info"		"This node is used to subtract two inputs.\n\nOutput: The difference of the two inputs. The datatype is determined by said inputs."
+			"code"		"A - B"
+	}
+	
+	"19"
+	{
+			"name"		"Multiply"
+			"info"		"This node is used to multiply two inputs.\n\nOutput: The product of the two inputs. The datatype is determined by said inputs."
+			"code"		"A * B"
+	}
+	
+	"20"
+	{		
+			"name"		"Divide"
+			"info"		"This node is used to divide two inputs.\n\nOutput: The division of the two inputs. The datatype is determined by said inputs."
+			"code"		"A / B"
+	}
+	
+	"21"
+	{
+			"name"		"Linear Interpolate"
+			"info"		"This node is used to linearly interpolate two inputs based on a third.\n\nOutput: The linearly interpolated vector of the two inputs based on the third. The datatype is determined by said inputs."
+			"code"		"lerp( A, B, 0.5 )"
+	}
+	
+	"22"
+	{
+			"name"		"Fractional Remainder"
+			"info"		"This node is used to calculate the fractional remainder of the input vector.\n\nOutput: The fractional remainder of the input vector. The datatype is determined by said input."
+			"code"		"frac( A )"
+	}
+	
+	"23"
+	{
+			"name"		"Dot product"
+			"info"		"This node is used to calculate the dot product of two input vectors.\n\nOutput: The single component dot product vector."
+			"code"		"dot( A, B )"
+	}
+	
+	"24"
+	{
+			"name"		"Length"
+			"info"		"This node is used to calculate the length of an input vector.\n\nOutput: The single component length vector of the input."
+			"code"		"length( A )"
+	}
+	
+	"25"
+	{
+			"name"		"Normalize"
+			"info"		"This node is used to normalize the input vector.\n\nOutput: The normalized input vector. The datatype is determined by said input."
+			"code"		"normalize( A )"
+	}
+	
+	"26"
+	{
+			"name"		"Append"
+			"info"		"This node is used to append multiple inputs into a single multi-component vector.\n\nOutput: The appended vector of the two inputs. The two inputs must not append to more than 4 channels or the node will error."
+			"code"		"float4( A.xy, B.zw )"
+	}
+	
+	"27"
+	{
+			"name"		"Swizzle"
+			"info"		"This node is used to selectively swizzle channels of multi-component inputs.\n\nOutput: The swizzled vector of the input. The format is determined by the swizzle settings." 
+			"code"		"A = B.xy"
+	}
+	
+	"28"
+	{
+			"name"		"NOT_USED"
+			"info"		"NOT_USED"
+			"code"		"NOT_USED"
+	}
+	
+	"29"
+	{
+			"name"		"Texture Sampler"
+			"info"		"This node is used to sample color from textures.\nThe 'VMT Fallback' path defines the texture which is loaded when the parameter is not defined in the VMT of a finished shader.\nThe 'DEMO' texture is SOLELY used by the editor!\n\nOutput: RGBA"
+			"code"		"tex2D( sampler, texcoord )"
+	}
+	
+	"30"
+	{
+			"name"		"Loop"
+			"info"		"This node is used in control flow, it allows you to loop code x amount of times to achieve effects such as blur.\n\nOutput: The current value of the iteration counter."
+			"code"		"for( int i = 0; i < 7; i++ ) { A += tex2D( sampler, texcoord + offset * i ) / 7; }"
+	}
+	
+	"31"
+	{
+			"name"		"Combo"
+			"info"		"This node allows you to declare combos, the nodes within the combo container will only be run if the combo condition is met.\n\nOutput: This node has no output."
+	}
+	
+	"32"
+	{
+			"name"		"Declare"
+			"info"		"This node is used to (re)declare variables when using control flow nodes.\n\nOutput: Same as input, but re-delcared in the scope of this node."
+	}
+	
+	"33"
+	{
+			"name"		"Assign"
+			"info"		"This node is used to assign variables to eachother, and is used with control flow nodes.\n\nOutput: Variable of input A, containing values of input B."
+			"code"		"A = B"
+	}
+	
+	"34"
+	{
+			"name"		"Smoothstep"
+			"info"		"This node is used to create a normalized hermite interpolation value for each component.\n\nOutput: The interpolated values in [0,1] range. The datatype is determined by said inputs."
+			"code"		"smoothstep( -2, 4, A )"
+	}
+	
+	"35"
+	{
+			"name"		"Step"
+			"info"		"This node is used to determine if input A is bigger or equal to input B.\n\nOutput: if X is greater than Y the output will be 1, else it will be 0."
+			"code"		"step( A, B ) or ( A >= B ) ? 1 : 0"
+	}
+	
+	"36"
+	{
+			"name"		"Clamp"
+			"info"		"This node is used to clamp the input vector.\n\nOutput: The clamped value of the input vector. The datatype is determined by the input."
+			"code"		"clamp( A, 0, 2 )"
+	}
+	
+	"37"
+	{
+			"name"		"Min"
+			"info"		"This node is used to select the smallest of the two inputs.\n\nOutput: The smallest of the two inputs. The datatype is determined by said inputs."
+			"code"		"min( A, B )"
+	}
+	
+	"38"
+	{
+			"name"		"Max"
+			"info"		"This node is used to select and return the largest of the two inputs.\n\nOutput: The largest of the two inputs. The datatype is determined by said inputs."
+			"code"		"max( A, B )"
+	}
+	
+	"39"
+	{
+			"name"		"Sine"
+			"info"		"This node is used to calculate the Sine function for the input vector.\n\nOutput: The value of the Sine function for the input vector. The datatype is determined by said input."
+			"code"		"sin( A )"
+	}
+	
+	"40"
+	{
+			"name"		"Cosine"
+			"info"		"This node is used to calculate the Cosine function for the input vector.\n\nOutput: The value of the Cosine function of the input vector. The datatype is determined by said input."
+			"code"		"cos( A )"
+	}
+	
+	"41"
+	{
+			"name"		"Tangent"
+			"info"		"This node is used to calculate the Tangent function for the input vector.\n\nOutput: The value of the Tangent function of the input vector. The datatype is determined by said input."
+			"code"		"tan( A )"
+	}
+	
+	"42"
+	{
+			"name"		"Arc Sine"
+			"info"		"This node is used to calculate the Arc Sine function for the input vector.\n\nOutput: The value of the Arc Sine function of the input vector. The datatype is determined by said input."
+			"code"		"asin( A )"
+	}
+	
+	"43"
+	{
+			"name"		"Arc Cosine"
+			"info"		"This node is used to calculate the Arc Cosine function for the input vector.\n\nOutput: The value of Arc Cosine function of the input vector. The datatype is determined by said input."
+			"code"		"acos( A )"
+	}
+	
+	"44"
+	{
+			"name"		"Arc Tangent"
+			"info"		"This node is used to calculate the Arc Tangent function for the input vector.\n\nOutput: The value of Arc Tangent function of the input vector. The datatype is determined by said input."
+			"code"		"atan( A )"
+	}
+	
+	"45"
+	{
+			"name"		"Hyperbolic Sine"
+			"info"		"This node is used to calculate the Hyperbolic Sine function for the input vector.\n\nOutput: The value of Hyperbolic Sine function of the input vector. The datatype is determined by said input."
+			"code"		"sinh( A )"
+	}
+	
+	"46"
+	{
+			"name"		"Hyperbolic Cosine"
+			"info"		"This node is used to calculate the Hyperbolic Cosine function for the input vector.\n\nOutput: The value of Hyperbolic Cosine function of the input vector. The datatype is determined by said input."
+			"code"		"cosh( A )"
+	}
+	
+	"47"
+	{
+			"name"		"Hyperbolic Tangent"
+			"info"		"This node is used to calculate the Hyperbolic Tangent function for the input vector.\n\nOutput: The value of Hyperbolic Tangent function of the input vector. The datatype is determined by said input."
+			"code"		"tanh( A )"
+	}
+	
+	"48"
+	{
+			"name"		"Arc Tangent 2"
+			"info"		"This node is used to angle of a 2D vector.\n\nOutput: The values in radians for each pair of components. The datatype is determined by said inputs."
+			"code"		"atan2( A, B )"
+	}
+	
+	"49"
+	{
+			"name"		"Power"
+			"info"		"This node is used to calculate the exponential power of input A based on input B.\n\nOutput: The exponential power of input A based on input B. The datatype is determined by said inputs."
+			"code"		"pow( A, 5 )"
+	}
+	
+	"50"
+	{
+			"name"		"Round"
+			"info"		"This node is used to round the input to the nearest whole number.\n\nOutput: The rounded input vector. The datatype is determined by said input."
+			"code"		"round( A )"
+	}
+	
+	"51"
+	{
+			"name"		"Floor"
+			"info"		"This node is used to round down the input vector.\n\nOutput: The floored input vector. The datatype is determined by said input."
+			"code"		"floor( A )"
+	}
+	
+	"52"
+	{
+			"name"		"Ceiling"
+			"info"		"This node is used to round up the input vector.\n\nOutput: The ceiling of the input vector. The datatype is determined by said input."
+			"code"		"ceil( A )"
+	}
+	
+	"53"
+	{
+			"name"		"Absolute"
+			"info"		"This node is used to make the input vector positive.\n\nOutput: The absolute of the input vector. The datatype is determined by said input."
+			"code"		"abs( A )"
+	}
+	
+	"54"
+	{
+			"name"		"Floating Point Remainder"
+			"info"		"This node is used to calculate the Floating Point Remainder of the first input divided by the second input.\n\nOutput: The Floating Point Remainder of the two divided inputs. The datatype is determined by said inputs."
+			"code"		"fmod( A, B )"
+	}
+	
+	"55"
+	{
+			"name"		"Texture Transform"
+			"info"		"This node is used to transform the texture coordinates by a matrix, this can be used to scale, translate or rotate textures.\n\nOutput: The modified two-component texture coordinate."
+			"code"		"tex2D(sampler, texcoord * float(5,2) + float2(5,1)); //This will offset the texture by 5 times along x and one time along y. It will also scale the texture 5 times along x and twice along y."
+	}
+	
+	"56"
+	{
+			"name"		"Degrees"
+			"info"		"This node is used to convert an input from radians into degrees.\n\nOutput: The input vector in degrees. The datatype is determined by said input."
+			"code"		"degrees( A )"
+	}
+	
+	"57"
+	{
+			"name"		"Radians"
+			"info"		"This node is used to convert an input from degrees into radians.\n\nOutput: The input vector in radians. The datatype is determined by said input."
+			"code"		"radians( A )"
+	}
+	
+	"58"
+	{
+			"name"		"Reflect"
+			"info"		"This node is used to reflect a vector along a normal.\n\nOutput: The reflected vector of input A. The datatype is determined by said inputs."
+			"code"		"reflect( Ray, Normal )"
+	}
+	
+	"59"
+	{
+			"name"		"Refract"
+			"info"		"This node is used to refract two inputs based on the index of refraction.\n\nOutput: The refraction of input A based on the index. The datatype is determined by said inputs."
+			"code"		"refract( Ray, Normal, Index )"
+	}
+	
+	"60"
+	{
+			"name"		"Saturate"
+			"info"		"This node is used to clamp the input vector between 0 and 1.\n\nOutput: The clamped input vector. The datatype is determined by said input."
+			"code"		"saturate( A )"
+	}
+	
+	"61"
+	{
+			"name"		"Invert"
+			"info"		"This node is used to invert the input vector.\n\nOutput: The inverse of the input. The datatype is determined by said input."
+			"code"		"1 - A"
+	}
+	
+	"62"
+	{
+			"name"		"Sign"
+			"info"		"This node is used to calculate the sign of the input vector. If the input is less than 0 it returns -1, if it's 0 it returns 0, and if it's greater than 0 it returns 1.\n\nOutput: The sign of the input vector. The datatype is detrmined by said input."
+			"code"		"sign( A )"
+	}
+	
+	"63"
+	{
+			"name"		"Square Root"
+			"info" 		"This node is used to calculate the Square Root of the input vector.\n\nOutput: The Square Root per-component of the input vector. The datatype is determined by said input."
+			"code"		"sqrt( A )"
+	}
+	
+	"64"
+	{
+			"name"		"Cross Product"
+			"info"		"This node is used to calculate the cross product of the inputs.\n\nOutput: The cross product of both inputs."
+			"code"		"cross( A, B )"
+	}
+	
+	"65"
+	{
+			"name"		"Framebuffer Texel Size"
+			"info"		"This node is used to find the framebuffer texel size, useful for shaders which blur or alter the framebuffer with a loop.\n\nOutput: The two-component texel size of the framebuffer texture."
+	}
+	
+	"66"
+	{
+			"name"		"Studio Model Vertex Lighting"
+			"info"		"This node calculates a models per-vertex lighting based on the inputs.\n\nOutput: The per-vertex lighting vector."
+	}
+	
+	"67"
+	{
+			"name"		"Studio Model Pixel Shader Lighting"
+			"info"		"This node calculates a models per-pixel lighting based on the inputs.\n\nOutput: The four-component per-pixel lighting vector."
+	}
+	
+	"68"
+	{
+			"name"		"Studio Model Skinning"
+			"info"		"This node skins vertices to bones of a model based on the inputs.\n\nOutput: The position of each vertex after skinning has been performed."
+	}
+	
+	"69"
+	{
+			"name"		"Studio Model Morph"
+			"info"		"This node applies morph offsets to vertices.\n\nOutput: The position of each vertex after morphing has been performed."
+	}
+	
+	"70"
+	{
+			"name"		"Fog Parameters"
+			"info"		"This node is used to access the fog parameters from the engine.\n\nOutput: The four-component fog parameter vector."
+	}
+	
+	"71"
+	{
+			"name"		"Fog"
+			"info"		"This node is used to compute fog for a position based on the inputs.\n\nOutput: The four-component fog factor."
+	}
+	
+	"72"
+	{
+			"name"		"Final"
+			"info"		"This node is used to compute the final overall colour of world geometry based on fog, color and depth inputs.\n\nOutput: The final color."
+	}
+	
+	"73"
+	{
+			"name"		"Matrix Compose"
+			"info"		"This node is used to compose a matrix out of three or four-component inputs.\n\nOutput: Generated matrix out of the inputs. The format is determined by said inputs."
+			"code"		"mat3x3 tangentSpace = mat3x3(tangent, binormal, normal)"
+	}
+	
+	"74"
+	{
+			"name"		"Studio Model Pixel Shader Specular"
+			"info"		"This node is used to compute the per-pixel specular lighting based on the inputs.\n\nOutput: The three-component specular vector."
+	}
+	
+	"75"
+	{
+			"name"		"Flashlight View Projection Matrix"
+			"info"		"This node is used to access the Flashlight View Projection Matrix, which is used for flashlight calculations.\n\nOutput: The 4x4 Flashlight View Projection Matrix."
+	}
+	
+	"76"
+	{
+			"name"		"Flashlight Calculation"
+			"info"		"This node calculates the Flashlight based on the inputs.\n\nOutput: The four-component lighting vector."
+	}
+	
+	"77"
+	{
+			"name"		"Constant Callback"
+			"info"		"This node is used to access constants defined by code.\n\nOutputs: The output of this node is determined by the datatype of the callback constant."
+	}
+	
+	"78"
+	{
+			"name"		"Valve Material Parameter - Mutable"
+			"info"		"This node is used to access mutable VMT Parameters which can be changed on the fly via code.\n\nOutput: The output of this node is determined by the datatype of the mutable parameter."
+	}
+	
+	"79"
+	{
+			"name"		"Valve Material Parameter - Static"
+			"info"		"This node is used to access static VMT Parameters, which cannot be altered without reloading the material.\n\nOutput: The output of this node is determined by the datatype of the static parameter."
+	}
+	
+	"80"
+	{
+			"name"		"Lightscale"
+			"info"		"This node is used to access the per-object light scale.\n\nOutput: The single component lighting vector."
+	}
+	
+	"81"
+	{
+			"name"		"Random"
+			"info"		"This node is used to generate random numbers.\n\nOutput: The multi-component random vector."
+	}
+	
+	"82"
+	{
+			"name"		"Base-e Logarithm"
+			"info"		"This node calculates the Base-e Logarithm of the input vector.\n\nOutput: The Base-e Logarithmic vector of the input. The datatype is determined by said input."
+			"code"		"log( A )"
+	}
+	
+	"83"
+	{
+			"name"		"Base-2 Logarithm"
+			"info"		"This node calculates the Base-2 Logarithm of the input vector.\n\nOutput: The Base-2 Logarithmic vector of the input. The datatype is determined by said input."
+			"code"		"log2( A )"
+	}
+	
+	"84"
+	{
+			"name"		"Base-10 Logarithm"
+			"info"		"This node calculates the Base-10 Logarithm of the input vector.\n\nOutput: The Base-2 Logarithmic vector of the input. The datatype is determined by said input."
+			"code"		"log10( A )"
+	}
+	
+	"85"
+	{
+			"name"		"Base-e Exponent"
+			"info"		"This node calculates the Base-e Exponent of the input vector.\n\nOutput: The Base-e Exponent of the input vector. The datatype is determined by said input."
+			"code"		"exp( A )"
+	}
+	
+	"86"
+	{
+			"name"		"Base-2 Exponent"
+			"info"		"This node calculates the Base-2 Exponent of the input vector.\n\nOutput: The Base-2 Exponent of the input vector. The datatype is determined by said input."
+			"code"		"exp2( A )"
+	}
+	
+	"87"
+	{
+			"name"		"Bump Basis"
+			"info"		"This node is used to access Valve's Bump Basis information for BSP normalmapping.\n\nOutput: The three three-component Bump Basis vectors."
+	}
+
+	"88"
+	{
+			"name"		"Directional Derivative X"
+			"info"		"This node is used to calculate the Directional Derivative X vector of the input.\n\nOutput: The Directional Derivative X vector of the input. The datatype is determined by said input."
+			"code"		"ddx( A )"
+	}
+	
+	"89"
+	{
+			"name"		"Directional Derivative Y"
+			"info"		"This node is used to calculate the Directional Derivative Y vector of the input.\n\nOutput: The Directional Derivative Y vector of the input. The datatype is determined by said input."
+			"code"		"ddy( A )"
+	}
+	
+	"90"
+	{
+			"name"		"Custom Matrix"
+			"info"		"This node allows you to choose from a list of matrices to use.\n\nOutput: The Matrix chosen in the properties window. The datatype is determined by the matrix you chose."
+	}
+	
+	"91"
+	{
+			"name"		"Array"
+			"info"		"This node allows you to declare an array for use with control flow nodes such as loops.\n\nOutput: The vector selected based on the X and Y inputs of the Array node. The format is determined by the format you set inside the Array properties window."
+			"code"		"float array[7] = { 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0 };"
+	}
+	
+	"92"
+	{
+			"name"		"Condition"
+			"info"		"This node allows you to use conditional statements, and along with the assign and declare nodes, you can make complex effects.\n\nOutput: This node has no output."
+			"code"		"if( A == 1 ) { B = 1; }"
+	}
+	
+	"93"
+	{
+			"name"		"Break"
+			"info"		"This node is used to escape up a level in control flow, but sadly source is too old so it doesn't support it!"
+			"code"		"for(int i = 0; i < 10; i++) { for int j = 0; j < 10; j++) { if ( condition == true; ) { break; } color += tex2D( sampler, texcoord + float2( i, j ) ) }"
+	}
+	
+	"94"
+	{
+			"name"		"Sampler object"
+			"info"		"This node is able to load and expose a texture to the shader. Useful for custom code nodes and requires for parallax mapping.\n\nOutput: A sampler object."
+			"code"		"tex2D( sampler, texcoord )"
+	}
+	
+	"95"
+	{
+			"name"		"Parallax Coordinate"
+			"info"		"This node is used to calculate the Parallax Coordinates.\n\nOutput: A two-component warped texture coord, three-component tangent offset."
+	}
+	
+	"96"
+	{
+			"name"		"Parallax Shadow"
+			"info"		"This node is used to calculate the Parallax Shadow.\n\nOutput: A single-component light vector."
+	}
+	
+	"97"
+	{
+			"name"		"Flashlight Position"
+			"info"		"This node represents the flashlight position in worlsspace.\n\nOutput: A three-component position vector."
+	}
+	
+	"98"
+	{
+			"name"		"Clip"
+			"info" 		"This node is used to discard pixels of your shader.\nIf any input value is smaller than zero, the pixel won't be drawn.\n\nOutput: The output equals the input."
+			"code"		"clip( tex2D( sampler, texcoord ).a - 0.5f )"
+	}
+	
+	"99"
+	{
+			"name"		"Custom Code"
+			"info"		"This node is used to type custom code and use it inside of the flowgraph.\n\nOutput: This node outputs whatever you have set in its properties, and in the format of your choice."
+	}
+	
+	"100"
+	{
+			"name"		"Distance"
+			"info"		"This node is used to calculate the distance between two inputs.\n\nOutput: The distance between two inputs. The format is determined by said inputs."
+			"code"		"dst( A, B )"
+	}
+	
+	"101"
+	{
+			"name"		"Vertex decompression"
+			"info"		"Decompresses vertex data in case the geometry provides it in a compressed format."
+	}
+
+
+	// PPE
+	"2001"
+	{
+			"name"		"Post processing input"
+			"info"		"First node of a post processing effect chain."
+	}
+
+	"2002"
+	{
+			"name"		"Post processing output"
+			"info"		"Last node of a post processing effect chain."
+	}
+
+	"2003"
+	{
+			"name"		"Clear buffers"
+			"info"		"Clear color and/or depth of the current RT. You MUST NOT clear depth if the RT does not use a depth buffer!"
+	}
+
+	"2004"
+	{
+			"name"		"Draw material"
+			"info"		"Draws a material onto the current RT.\nSelect 'Push target RT' to draw the material onto the reference target RT instead.\n\nBoth input RTs are used to build the UVs and viewport!"
+	}
+
+	"2005"
+	{
+			"name"		"Update framebuffer"
+			"info"		"Copy the current RT to the framebuffer copy texture, which shaders can access through the 'Framebuffer' parameter."
+	}
+
+	"2006"
+	{
+			"name"		"Push viewport"
+			"info"		"Push an RT as the new viewport onto the stack.\nEvery push must be followed by a pop."
+	}
+
+	"2007"
+	{
+			"name"		"Pop viewport"
+			"info"		"Pop the last RT from the stack.\nYou MUST NOT pop before having pushed anything."
+	}
+
+	"2008"
+	{
+			"name"		"Set rendertarget"
+			"info"		"Override the current RT and viewport without pushing."
+	}
+
+	"2009"
+	{
+			"name"		"Create rendertarget"
+			"info"		"Load a rendertarget by name."
+	}
+
+	"2010"
+	{
+			"name"		"Create material"
+			"info"		"Load a material or create a new one on the fly.\nYou can access these materials from the client if you specify a custom name on the 'general' tab!"
+	}
+
+	"2011"
+	{
+			"name"		"Copy rendertarget"
+			"info"		"Blit the current RT to another one."
+	}
+
+	"2012"
+	{
+			"name"		"Render view"
+			"info"		"Execute a view render callback.\nYou can register these from the client dll and specify the available options there.\nUse this to draw all sorts of stuff onto an RT to create masks or alike."
+	}
+}
