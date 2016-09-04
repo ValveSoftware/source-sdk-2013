@@ -1,7 +1,7 @@
 "GameInfo"
 {
-	game 		"My Mod" //This is what is shown on Steam
-	title 		"HALF-LIFE'" //This is the main menu title
+	game 		"SDK 2013 overhaul" //This is what is shown on Steam
+	title 		"SDK 2013 overhaul" //This is the main menu title
 	title2		"" //This goes under title1 as a subtitle, e.g. Episode 2
 
 	type		singleplayer_only
@@ -30,16 +30,6 @@
 		//
 		SearchPaths
 		{
-			// First, mount all user customizations.  This will search for VPKs and subfolders
-			// and mount them in alphabetical order.  The easiest way to distribute a mod is to
-			// pack up the custom content into a VPK.  To "install" a mod, just drop it in this
-			// folder.
-			//
-			// Note that this folder is scanned only when the game is booted.
-			game+mod			ep2/custom/*
-			game+mod			episodic/custom/*
-			game+mod			hl2/custom/*
-
 			// Now search loose files.  We'll set the directory containing the gameinfo.txt file
 			// as the first "mod" search path (after any user customizations).  This is also the one
 			// that's used when writing to the "mod" path.
@@ -66,7 +56,8 @@
 			//If you want to mount another games assets like Counter-Strike you would add them after this comment
 			//Example:    game    |all_source_engine_paths|cstrike/cstrike_pak.vpk
 
-			// Last, mount in shared HL2 loose files
+			// Last, mount in shared HL2 loose files, not loading the episodic path causes issues!
+			
 			game				|all_source_engine_paths|episodic
 			game				|all_source_engine_paths|hl2
 			platform			|all_source_engine_paths|platform
