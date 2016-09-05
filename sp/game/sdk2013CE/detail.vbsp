@@ -1,0 +1,377 @@
+detail
+{
+	
+	forest_floor_01
+	//for Ep2
+	{
+		"density" "450.0"
+
+		Group1
+		{
+			"alpha" "0"
+			Model1
+			// Position 5 in sheet
+			{
+				"sprite" "187 176 151 151 1024" 
+				"spritesize" "0.5 0.0 14 14"
+				"spriterandomscale" "0.2"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+			Model2
+			// Position 1 in sheet
+			{
+				"sprite" "21 15 151 150 1024" 
+				"spritesize" "0.5 0.0 18 18"
+				"spriterandomscale" "0.2"
+				"amount" "0.01"
+				"detailOrientation" "2"
+			}
+
+			Model3
+			// Position 2 in sheet
+			{
+				"sprite" "186 16 150 151 1024" 
+				"spritesize" "0.5 0.0 16 16"
+				"spriterandomscale" "0.3"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+			Model4
+			// Position 4 in sheet
+			{
+				"sprite" "22 178 148 147 1024" 
+				"spritesize" "0.5 0.0 18 18"
+				"spriterandomscale" "0.3"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+			Model5
+			// Position 3 in sheet
+			{
+				"sprite" "350 14 148 151 1024" 
+				"spritesize" "0.5 0.0 17 17"
+				"spriterandomscale" "0.3"
+				"amount" "0.05"
+				"detailOrientation" "2"
+			}
+			Model6
+			// Position 6 in sheet
+			{
+				"sprite" "348 176 148 146 1024" 
+				"spritesize" "0.5 0.0 18 18"
+				"spriterandomscale" "0.3"
+				"amount" "0.05"
+				"detailOrientation" "2"
+			}
+			Model7
+			// Position 7 in sheet
+			{
+				"sprite" "21 337 150 170 1024" 
+				"spritesize" "0.5 0.0 12 18"
+				"spriterandomscale" "0.2"
+				"amount" "0.05"
+				"detailOrientation" "2"
+			}
+
+			Model8
+			// Position 8 in sheet
+			{
+				"sprite" "185 337 152 152 1024" 
+				"spritesize" "0.5 0.0 16 16"
+				"spriterandomscale" "0.2"
+				"amount" "0.05"
+				"detailOrientation" "2"
+			}
+
+			Model9
+			// Position 9 in the sheet
+			{
+				"sprite" "347 364 143 115 1024" 
+				"spritesize" "0.5 0.0 16 16"
+				"spriterandomscale" "0.2"
+				"amount" "0.4"
+				"detailOrientation" "2"
+			}
+
+
+
+		}
+
+		Group2
+		{
+	
+			"alpha" "1"
+		}
+	}
+
+
+
+	canal_reeds2
+	{
+		"density" "750.0"
+
+
+		Group1
+		{
+	
+			"alpha" "0.0"
+		}
+		Group2
+		{
+	
+			"alpha" "0.2"
+		}
+		Group2a
+		{
+	
+			"alpha" "0.35"
+			Model1
+			{		
+				"sprite" "561 4 152 252 1024" 
+				"spritesize" "0.5 0.0 20 40"
+				"spriterandomscale" "0.2"
+				"amount" "0.8"
+				"detailOrientation" "2"
+				//"upright" "1.0"
+				//"model" "models/props_foliage/small_cattails.mdl"
+				//"amount" "0.2"
+			}
+		}
+		Group3
+		{
+	
+			"alpha" "0.75"
+			Model1
+			{
+				"sprite" "561 4 152 252 1024" 
+				"spritesize" "0.5 0.0 10 30"
+				"spriterandomscale" "0.2"
+				"amount" "0.6"
+				"detailOrientation" "2"
+				//"upright" "1.0"
+				//"model" "models/props_foliage/small_cattails.mdl"
+				//"amount" "0.2"
+			}
+		}
+		Group4
+		{
+			"alpha" "1.0"
+			
+			Model1
+			{
+				"sprite" "561 4 152 252 1024" 
+				"spritesize" "0.5 0.0 15 25"
+				"spriterandomscale" "0.3"
+				"amount" "0.2"
+				"detailOrientation" "2"
+
+				//"upright" "1.0"
+				//"model" "models/props_foliage/small_cattails.mdl"
+				//"amount" "0.2"
+			}
+			
+			Model2
+			// Position 9 in the sheet
+			{
+				"sprite" "347 364 143 115 1024" 
+				"spritesize" "0.5 0.0 16 16"
+				"spriterandomscale" "0.2"
+				"amount" "0.4"
+				"detailOrientation" "2"
+			}
+			
+			Model3
+			// Position 3 in sheet
+			{
+				"sprite" "350 14 148 151 1024" 
+				"spritesize" "0.5 0.0 17 17"
+				"spriterandomscale" "0.3"
+				"amount" "0.2"
+				"detailOrientation" "2"
+			}
+			
+			Model4
+			// Position 8 in sheet
+			{
+				"sprite" "185 337 152 152 1024" 
+				"spritesize" "0.5 0.0 16 16"
+				"spriterandomscale" "0.2"
+				"amount" "0.2"
+				"detailOrientation" "2"
+			}
+			
+		}
+	}
+
+
+	redgrass_alt
+	//alt version for ep2
+	{
+		"density" "500.0"
+
+		Group1
+		{
+			"alpha" "0"
+			
+			Model1
+			// Position 1 in sheet
+			{
+				"sprite" "21 15 151 150 1024" 
+				"spritesize" "0.5 0.0 18 18"
+				"spriterandomscale" "0.2"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+			Model2
+			// Position 3 in sheet
+			{
+				"sprite" "350 14 148 151 1024" 
+				"spritesize" "0.5 0.0 17 17"
+				"spriterandomscale" "0.3"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+			Model3
+			// Position 6 in sheet
+			{
+				"sprite" "348 176 148 146 1024" 
+				"spritesize" "0.5 0.0 18 18"
+				"spriterandomscale" "0.3"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+			Model4
+			// Position 7 in sheet
+			{
+				"sprite" "21 337 150 170 1024" 
+				"spritesize" "0.5 0.0 12 18"
+				"spriterandomscale" "0.2"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+			Model5
+			// Position 8 in sheet
+			{
+				"sprite" "185 337 152 152 1024" 
+				"spritesize" "0.5 0.0 16 16"
+				"spriterandomscale" "0.2"
+				"amount" "0.2"
+				"detailOrientation" "2"
+			}
+
+			Model6
+			// Position 9 in the sheet
+			{
+				"sprite" "347 364 143 115 1024" 
+				"spritesize" "0.5 0.0 16 16"
+				"spriterandomscale" "0.2"
+				"amount" "0.4"
+				"detailOrientation" "2"
+			}
+		}
+
+		Group2
+		{
+	
+			"alpha" "1"
+		}
+	}
+
+	citygrass_light
+	{
+		"density" "400.0"
+
+		Group1
+		{
+			"alpha" "1"
+
+			Model1
+			// Position 9 in the sheet
+			{
+				"sprite" "347 364 143 115 1024" 
+				"spritesize" "0.5 0.0 32 32"
+				"spriterandomscale" "0.2"
+				"amount" "0.6"
+				"detailOrientation" "2"
+			}
+
+			Model2
+			// Position 1 in sheet
+			{
+				"sprite" "21 15 151 150 1024" 
+				"spritesize" "0.5 0.0 18 18"
+				"spriterandomscale" "0.2"
+				"amount" "0.05"
+				"detailOrientation" "2"
+			}
+
+			Model3
+			// Position 3 in sheet
+			{
+				"sprite" "350 14 148 151 1024" 
+				"spritesize" "0.5 0.0 17 17"
+				"spriterandomscale" "0.3"
+				"amount" "0.05"
+				"detailOrientation" "2"
+			}
+
+			Model4
+			// Position 6 in sheet
+			{
+				"sprite" "348 176 148 146 1024" 
+				"spritesize" "0.5 0.0 18 18"
+				"spriterandomscale" "0.3"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+			Model5
+			// Position 8 in sheet
+			{
+				"sprite" "185 337 152 152 1024" 
+				"spritesize" "0.5 0.0 16 16"
+				"spriterandomscale" "0.2"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+			Model6
+			// Position 7 in sheet
+			{
+				"sprite" "21 337 150 170 1024" 
+				"spritesize" "0.5 0.0 12 18"
+				"spriterandomscale" "0.2"
+				"amount" "0.1"
+				"detailOrientation" "2"
+			}
+
+		}
+
+		Group3
+		{
+			"alpha" "0.5"
+		}
+
+		Group4
+		{
+			"alpha" "0.3"
+
+		}
+
+		Group5
+		{
+			"alpha" "0.0"
+
+		}
+	}
+
+
+}
