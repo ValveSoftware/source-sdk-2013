@@ -15,3 +15,9 @@ Author(s): Msalinas2877
 Files touched: viewrender.cpp
 Files added: ShaderEditorSystem.cpp, ShaderEditorSystem.h, SEdit_ModelRender.cpp, SEdit_ModelRender.h, SEdit_ModelRender.h, ISEdit_ModelRender.h, more files that i can't remember
 Notes: Run with the launch parameter "-shaderedit" to open SSE
+
+/*********
+Author(s): Marnamai
+Files touched: c_detailobjectsystem.cpp
+Notes: Enabled shape support / Fixed aspect ratio for detail.vbsp / Allowed vertex lit models
+/*********
