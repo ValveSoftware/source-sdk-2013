@@ -1,0 +1,58 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+#define SHADER_EDITOR_2013_COMPILE
+
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+sampler _Sampler_01		: register( s1 );
+
+// Constants
+const float2 g_cData_Random33		: register( c16 ); 		// Random gen
+
+// Semantic structures
+struct PS_INPUT
+{
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float2 vTexCoord_2			:	TEXCOORD2;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float4 _texLookup_7 = tex2D( _Sampler_00, In.vTexCoord_0 );
+	float3 _var0 = _texLookup_7.rgb;
+	float _var1 = _texLookup_7.a;
+	float2 _var2 = In.vTexCoord_0 * float( 10.000000 );
+	float2 _var3 = In.vTexCoord_0 * In.vTexCoord_2;
+	float _var4 = dot( _var0, float3( 0.300000, 0.590000, 0.110000 ) );
+	float _var5 = tex2D( _Sampler_01, _var2 ).g;
+	_var3 = _var3 + g_cData_Random33;
+	_var5 = round( _var5 );
+	float _var6 = tex2D( _Sampler_01, _var3 ).r;
+	_var5 = _var5 - _var6;
+	_var5 = abs( _var5 );
+	_var5 = _var5 * float( 0.400000 );
+	float3 _var7 = lerp( _var0, _var4, _var5 );
+	float _var8 = _var5 + float( 0.800000 );
+	_var7 = _var7 * _var8;
+	float4 _var9 = float4( _var7, _var1 );
+	Out.vColor_0 = _var9;
+	return Out;
+}

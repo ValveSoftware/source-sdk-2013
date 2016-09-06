@@ -1,0 +1,16 @@
+bin\dx_proxy.dll
+..\..\..\..\common\Source SDK Base 2013 Singleplayer\bin\tier0.dll
+..\..\..\..\common\Source SDK Base 2013 Singleplayer\bin\vstdlib.dll
+common_fxc.h
+common_hlsl_cpp_consts.h
+common_pragmas.h
+common_ps_fxc.h
+common_vs_fxc.h
+common_vertexlitgeneric_dx9.h
+common_lightmappedgeneric_fxc.h
+common_flashlight_fxc.h
+common_parallax.h
+..\..\..\..\common\Source SDK Base 2013 Singleplayer\bin\shadercompile.exe
+..\..\..\..\common\Source SDK Base 2013 Singleplayer\bin\shadercompile_dll.dll
+postproc_nightvision_vs30.fxc
+postproc_nightvision_ps30.fxc

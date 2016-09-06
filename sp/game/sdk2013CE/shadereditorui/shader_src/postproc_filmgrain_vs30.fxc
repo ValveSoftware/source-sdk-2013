@@ -1,0 +1,55 @@
+// *********************************
+// ** auto generated vertexshader **
+// *********************************
+
+#define SHADER_EDITOR_2013_COMPILE
+
+
+// Includes
+#include "common_vs_fxc.h"
+
+
+// Constants
+const float _g_Time		: register( c48 );
+const float2 _g_TexelSize		: register( c49 );
+
+// Semantic structures
+struct VS_INPUT
+{
+	float3 vPos					:	POSITION;
+	float2 vTexCoord_0			:	TEXCOORD0;
+};
+
+struct VS_OUTPUT
+{
+	float4 vProjPos				:	POSITION;
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float2 vTexCoord_1			:	TEXCOORD1;
+	float2 vTexCoord_2			:	TEXCOORD2;
+};
+
+// Entry point
+VS_OUTPUT main( const VS_INPUT In )
+{
+	VS_OUTPUT Out;
+	float4 _var0 = float4( In.vPos.x, In.vPos.y, In.vPos.z, 1.000000 );
+	float _var1 = float( 2.000000 ) * _g_Time;
+	float2 _var2 = float( 1.000000 ) / _g_TexelSize;
+	float2 _var3 = _var1.xx;
+	_var2 = _var2 / float( 64.000000 );
+	{
+		float2 center_def = float2( 0.5f, 0.5f );
+		float rot_def = float( 0.0f );
+		float fs = sin( rot_def );
+		float fc = cos( rot_def );
+		float4 row_0 = float4( fc * float2( 0.000100, 0.000100 ).x, -fs * float2( 0.000100, 0.000100 ).x, 0, ( -center_def.x * fc + center_def.y * fs ) * float2( 0.000100, 0.000100 ).x + center_def.x + _var3.x );
+		float4 row_1 = float4( fs * float2( 0.000100, 0.000100 ).y, fc * float2( 0.000100, 0.000100 ).y, 0, ( -center_def.x * fs - center_def.y * fc ) * float2( 0.000100, 0.000100 ).y + center_def.y + _var3.y );
+		_var3.x = dot( float4( In.vTexCoord_0, 0, 1 ), row_0 );
+		_var3.y = dot( float4( In.vTexCoord_0, 0, 1 ), row_1 );
+	}
+	Out.vProjPos = _var0;
+	Out.vTexCoord_0 = In.vTexCoord_0;
+	Out.vTexCoord_1 = _var3;
+	Out.vTexCoord_2 = _var2;
+	return Out;
+}

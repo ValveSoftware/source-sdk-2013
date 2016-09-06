@@ -1,6 +1,7 @@
 "canvas"
 {
-	"cfmt_version"		"canvasver#002"
+	"cfmt_version"		"canvasver#003"
+	"flowgraph_type"		"1"
 	"config"
 	{
 		"shadermodel"		"1"
@@ -134,13 +135,17 @@
 			"iPreview"		"0"
 			"enable_flex"		"0"
 			"enable_normal"		"0"
+			"enable_normal_compression"		"0"
 			"enable_blendweights"		"0"
 			"enable_tangentspace"		"0"
 			"enable_tangentspace_skinning"		"0"
 			"numTexcoords"		"1"
 			"numColor"		"0"
-			"dTFlag_Texcoords"		"2"
-			"dTFlag_Color"		"8"
+			"dTFlag_Texcoords_0"		"2"
+			"dTFlag_Texcoords_1"		"2"
+			"dTFlag_Texcoords_2"		"2"
+			"dTFlag_Color_0"		"8"
+			"dTFlag_Color_1"		"8"
 		}
 		"Node_007"
 		{
@@ -232,6 +237,7 @@
 			"size_x"		"50.000000"
 			"size_y"		"-17.000000"
 			"iPreview"		"1"
+			"flSmartVal0"		"0.000000"
 		}
 		"Node_012"
 		{
@@ -273,6 +279,7 @@
 			"size_x"		"60.000000"
 			"size_y"		"-17.000000"
 			"iPreview"		"1"
+			"flSmartVal0"		"0.000000"
 		}
 		"Node_015"
 		{

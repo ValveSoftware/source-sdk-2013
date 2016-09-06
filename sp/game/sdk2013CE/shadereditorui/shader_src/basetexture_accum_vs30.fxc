@@ -2,6 +2,8 @@
 // ** auto generated vertexshader **
 // *********************************
 
+#define SHADER_EDITOR_2013_COMPILE
+
 
 // Includes
 #include "common_vs_fxc.h"

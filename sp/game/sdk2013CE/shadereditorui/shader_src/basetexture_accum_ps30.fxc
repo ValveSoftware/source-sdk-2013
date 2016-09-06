@@ -2,6 +2,8 @@
 // ** auto generated pixelshader **
 // ********************************
 
+#define SHADER_EDITOR_2013_COMPILE
+
 
 // Includes
 #include "common_ps_fxc.h"
