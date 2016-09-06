@@ -27,3 +27,47 @@
 	// Outputs
 	output OnIgnite(void) : "Fired when this object catches fire."
 ]
+
+// lightprop("models/editor/spot.mdl") <---- use this once the orientation is unfucked
+@PointClass base(Targetname, Parentname, Angles) size(-2 -2 -2, 2 2 2) frustum(lightfov,nearz,farz,lightcolor,-1) = env_projectedtexture : 
+	"Projected texture entity."
+[
+	spawnflags(flags) =
+	[
+		1  : "Enabled"				: 1
+	]
+
+	target(target_destination)	: "target" : : "target"	
+	lightfov(float)				: "FOV" : "90.0" : "FOV"
+	nearz(float)				: "NearZ" : "4.0" : "Near Z for projected texture"
+	farz(float)					: "FarZ" : "750.0" : "Far Z for projected texture"	
+	
+	enableshadows(Choices) : "Enable Shadows" : 0 : "Enables/disables shadows from this projected texture." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	shadowquality(Choices) : "Shadow Quality" : 1 : "Quality of shadows." =
+	[
+		0 : "Low"
+		1 : "High"
+	]
+	lightonlytarget(Choices) : "Light Only Target" : 0 : "Limit flashlight effect to only effect target entity." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	lightworld(Choices) : "Light World" : 1 : "Control whether flashlight effects static world geometry." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	lightcolor(color255)		: "Light Color" : "255 255 255 200" : "Light Color RGB-Intensity"
+	cameraspace(integer)		: "Camera Space" : 0 : "Angles are interpreted as being relative to camera."
+	texturename(material)		: "Texture" : : "path/texture to be projected. Relative to main/materials/"
+
+	// Inputs
+	input TurnOn(void)		: "Turn on the texture"
+	input TurnOff(void)		: "Turn off the texture"
+	input SetFOV(float)		: "Set FOV"
+]
