@@ -1,0 +1,69 @@
+// *********************************
+// ** auto generated vertexshader **
+// *********************************
+
+#define SHADER_EDITOR_2013_COMPILE
+
+// Combos
+// DYNAMIC: "COMPRESSED_VERTS"		"0..1"
+// DYNAMIC: "SKINNING"		"0..1"
+// STATIC: "FLASHLIGHT"		"0..1"
+
+// Includes
+#include "common_vs_fxc.h"
+
+
+// Constants
+const float4x4 g_cFlashlightWorldToTexture		: register( c48 );
+
+// Semantic structures
+struct VS_INPUT
+{
+	float3 vPos					:	POSITION;
+	float4 vBoneWeights			:	BLENDWEIGHT;
+	float4 vBoneIndices			:	BLENDINDICES;
+	float4 vNormal				:	NORMAL;
+	float2 vTexCoord_0			:	TEXCOORD0;
+};
+
+struct VS_OUTPUT
+{
+	float4 vProjPos				:	POSITION;
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float3 vTexCoord_1			:	TEXCOORD1;
+	float3 vTexCoord_2			:	TEXCOORD2;
+	float4 vTexCoord_3			:	TEXCOORD3;
+	float4 vTexCoord_4			:	TEXCOORD4;
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+VS_OUTPUT main( const VS_INPUT In )
+{
+	VS_OUTPUT Out;
+	float3 _var0 = (float3)0;
+	DecompressVertex_Normal( In.vNormal, _var0 );
+	float4 _var1 = float4( 0.000000, 0.000000, 0.000000, 0.000000 );
+	float3 _var2 = (float3)0;
+	float3 _var3 = (float3)0;
+	SkinPositionAndNormal( SKINNING, float4( In.vPos, 1 ), _var0,
+			In.vBoneWeights, In.vBoneIndices,
+			_var2, _var3 );
+	float4 _var4 = mul( float4(_var2.xyz,1), cViewProj );
+#if ( FLASHLIGHT == 1 )
+		float4 _var5 = mul( float4(_var2.xyz,1), g_cFlashlightWorldToTexture );
+		_var1 = _var5;
+#endif
+	float4 _var6 = float4( GetVertexAttenForLight( _var2, 0 ),
+			GetVertexAttenForLight( _var2, 1 ),
+			GetVertexAttenForLight( _var2, 2 ),
+			GetVertexAttenForLight( _var2, 3 ) );
+	Out.vProjPos = _var4;
+	Out.vTexCoord_0 = In.vTexCoord_0;
+	Out.vTexCoord_1 = _var2;
+	Out.vTexCoord_2 = _var3;
+	Out.vTexCoord_3 = _var4;
+	Out.vTexCoord_4 = _var1;
+	Out.vColor_0 = _var6;
+	return Out;
+}

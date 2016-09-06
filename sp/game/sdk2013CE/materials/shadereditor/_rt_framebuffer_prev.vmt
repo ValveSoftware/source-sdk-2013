@@ -1,0 +1,5 @@
+"unlitgeneric"
+{
+	"$basetexture" "_rt_SEdit_FramebufferCopy"
+	$ignorez	1
+}

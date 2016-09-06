@@ -1,0 +1,81 @@
+"model_cubemap"
+{
+	"vs_name"		"model_cubemap_vs30"
+	"ps_name"		"model_cubemap_ps30"
+	"shader_filename"		"shadereditorui\canvas\model_cubemap.txt"
+	"dump_version"		"dumpver#001"
+	"i_sm"		"1"
+	"i_cull"		"0"
+	"i_ablend"		"0"
+	"fl_atestref"		"0.500000"
+	"i_dtest"		"1"
+	"i_dwrite"		"1"
+	"i_srgbw"		"1"
+	"i_vfmt_flags"		"7555"
+	"i_vfmt_texcoords"		"1"
+	"i_vfmt_udata"		"0"
+	"i_vfmt_texcoordDim_0"		"2"
+	"i_vfmt_texcoordDim_1"		"2"
+	"i_vfmt_texcoordDim_2"		"2"
+	"i_vlit"		"0"
+	"i_vrefract"		"0"
+	"identifiers_VS"
+	{
+		"combo_0"
+		{
+			"sz_name"		"COMPRESSED_VERTS"
+			"i_static"		"0"
+			"i_min"		"0"
+			"i_max"		"1"
+			"i_type"		"12"
+		}
+		"combo_1"
+		{
+			"sz_name"		"SKINNING"
+			"i_static"		"0"
+			"i_min"		"0"
+			"i_max"		"1"
+			"i_type"		"2"
+		}
+		"econst_0"
+		{
+			"i_envconstidx"		"1"
+			"i_normregister"		"0"
+			"i_econstsize"		"1"
+			"i_smartcomps"		"1"
+			"fl_smartdefault_00"		"0.000000"
+			"fl_smartdefault_01"		"0.000000"
+			"fl_smartdefault_02"		"0.000000"
+			"fl_smartdefault_03"		"0.000000"
+		}
+		"i_numdcombos"		"4"
+	}
+	"identifiers_PS"
+	{
+		"combo_0"
+		{
+			"sz_name"		"PIXELFOGTYPE"
+			"i_static"		"0"
+			"i_min"		"0"
+			"i_max"		"1"
+			"i_type"		"7"
+		}
+		"combo_1"
+		{
+			"sz_name"		"WRITEWATERFOGTODESTALPHA"
+			"i_static"		"0"
+			"i_min"		"0"
+			"i_max"		"1"
+			"i_type"		"8"
+		}
+		"texsamp_0"
+		{
+			"sz_fallback"		"white"
+			"i_sampidx"		"0"
+			"i_texmode"		"6"
+			"i_cubemap"		"1"
+			"i_srgb"		"1"
+		}
+		"i_numdcombos"		"4"
+	}
+}

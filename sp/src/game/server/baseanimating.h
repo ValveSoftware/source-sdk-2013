@@ -331,6 +331,15 @@ public:
 
 	bool PrefetchSequence( int iSequence );
 
+#ifdef GLOWS_ENABLE
+	// Glows
+	void	AddGlowEffect( void );
+	void	RemoveGlowEffect( void );
+	bool	IsGlowEffectActive( void );
+	void	InputEnableGlow( inputdata_t &inputdata );
+	void	InputDisableGlow( inputdata_t &inputdata );
+#endif // GLOWS_ENABLE
+
 private:
 	void LockStudioHdr();
 	void UnlockStudioHdr();
@@ -341,6 +350,11 @@ private:
 	void InputSetModelScale( inputdata_t &inputdata );
 
 	bool CanSkipAnimation( void );
+
+#ifdef GLOWS_ENABLE
+	void				UpdateGlowEffect(void);
+	void				DestroyGlowEffect(void);
+#endif
 
 public:
 	CNetworkVar( int, m_nForceBone );
@@ -355,6 +369,11 @@ public:
 
 	// was pev->framerate
 	CNetworkVar( float, m_flPlaybackRate );
+
+#ifdef GLOWS_ENABLE
+protected:
+	CNetworkVar( bool, m_bGlowEnabled );
+#endif // GLOWS_ENABLE
 
 public:
 	void InitStepHeightAdjust( void );

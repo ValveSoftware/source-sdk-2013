@@ -8,6 +8,19 @@
 // Group definitions //
 ///////////////////////
 
+
+$Group "sdk2013ce"
+{
+	"client"
+	"server"
+	"game_shader_dx9"
+	"tier1"
+	"vgui_controls"
+	"mathlib"
+	"raytrace"
+
+}
+
 $Group "gamedlls"
 {
 	"client"

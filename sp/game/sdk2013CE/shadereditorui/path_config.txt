@@ -1,0 +1,6 @@
+"paths"
+{
+	"compiler"		"sourcesdk/bin/source2007/bin"
+	"compiler_2006" 	"sourcesdk/bin/ep1/bin"
+	"compiler_swarm"	"alien swarm/bin"
+}

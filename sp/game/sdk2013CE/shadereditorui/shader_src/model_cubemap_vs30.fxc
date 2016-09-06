@@ -1,0 +1,50 @@
+// *********************************
+// ** auto generated vertexshader **
+// *********************************
+
+// Combos
+// DYNAMIC: "COMPRESSED_VERTS"		"0..1"
+// DYNAMIC: "SKINNING"		"0..1"
+
+// Includes
+#include "common_vs_fxc.h"
+
+
+// Constants
+const float3 _g_VecOrig		: register( c48 );
+
+// Semantic structures
+struct VS_INPUT
+{
+	float3 vPos					:	POSITION;
+	float4 vBoneWeights			:	BLENDWEIGHT;
+	float4 vBoneIndices			:	BLENDINDICES;
+	float4 vNormal				:	NORMAL;
+};
+
+struct VS_OUTPUT
+{
+	float4 vProjPos				:	POSITION;
+	float3 vTexCoord_0			:	TEXCOORD0;
+	float3 vTexCoord_1			:	TEXCOORD1;
+};
+
+// Entry point
+VS_OUTPUT main( const VS_INPUT In )
+{
+	VS_OUTPUT Out;
+	float3 _var0 = (float3)0;
+	DecompressVertex_Normal( In.vNormal, _var0 );
+	float3 _var1 = (float3)0;
+	float3 _var2 = (float3)0;
+	SkinPositionAndNormal( SKINNING, float4( In.vPos, 1 ), _var0,
+			In.vBoneWeights, In.vBoneIndices,
+			_var1, _var2 );
+	float4 _var3 = mul( float4(_var1.xyz,1), cViewProj );
+	float3 _var4 = _var1 - _g_VecOrig;
+	_var4 = normalize( _var4 );
+	Out.vProjPos = _var3;
+	Out.vTexCoord_0 = _var4;
+	Out.vTexCoord_1 = _var2;
+	return Out;
+}

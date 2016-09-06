@@ -26,6 +26,9 @@
 #include "ragdoll_shared.h"
 #include "tier0/threadtools.h"
 #include "datacache/idatacache.h"
+#ifdef GLOWS_ENABLE
+#include "glow_outline_effect.h"
+#endif // GLOWS_ENABLE
 
 #define LIPSYNC_POSEPARAM_NAME "mouth"
 #define NUM_HITBOX_FIRES	10
@@ -445,6 +448,11 @@ public:
 
 	virtual bool					IsViewModel() const;
 
+#ifdef GLOWS_ENABLE
+	CGlowObject			*GetGlowObject( void ){ return m_pGlowEffect; }
+	virtual void		GetGlowEffectColor( float *r, float *g, float *b );
+#endif // GLOWS_ENABLE
+
 protected:
 	// View models scale their attachment positions to account for FOV. To get the unmodified
 	// attachment position (like if you're rendering something else during the view model's DrawModel call),
@@ -462,6 +470,11 @@ protected:
 	virtual int						GetStudioBody( void ) { return m_nBody; }
 
 	virtual bool					CalcAttachments();
+
+#ifdef GLOWS_ENABLE	
+	virtual void					UpdateGlowEffect( void );
+	virtual void					DestroyGlowEffect( void );
+#endif // GLOWS_ENABLE
 
 private:
 	// This method should return true if the bones have changed + SetupBones needs to be called
@@ -621,6 +634,12 @@ private:
 	bool							m_bDynamicModelPending;
 	bool							m_bResetSequenceInfoOnLoad;
 	CRefCountedModelIndex			m_AutoRefModelIndex;
+
+#ifdef GLOWS_ENABLE
+	bool							m_bGlowEnabled;
+	bool							m_bOldGlowEnabled;
+	CGlowObject						*m_pGlowEffect;
+#endif // GLOWS_ENABLE
 public:
 	void							EnableDynamicModels() { m_bDynamicModelAllowed = true; }
 	bool							IsDynamicModelLoading() const { return m_bDynamicModelPending; }

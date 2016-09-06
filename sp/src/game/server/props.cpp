@@ -2112,7 +2112,6 @@ void CDynamicProp::UpdateOnRemove( void )
 	BaseClass::UpdateOnRemove();
 }
 
-
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CDynamicProp::HandleAnimEvent( animevent_t *pEvent )

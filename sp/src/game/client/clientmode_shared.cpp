@@ -10,6 +10,7 @@
 
 #include "cbase.h"
 #include "clientmode_shared.h"
+#include "clienteffectprecachesystem.h" //SDK2013CE L4DGlow
 #include "iinput.h"
 #include "view_shared.h"
 #include "iviewrender.h"
@@ -85,6 +86,13 @@ extern ConVar v_viewmodel_fov;
 extern ConVar voice_modenable;
 
 extern bool IsInCommentaryMode( void );
+
+//SDK2013CE L4DGlow
+//Wazanator
+CLIENTEFFECT_REGISTER_BEGIN(PrecachePostProcessingEffectsGlow)
+CLIENTEFFECT_MATERIAL( "dev/glow_color" )
+CLIENTEFFECT_MATERIAL( "dev/halo_add_to_screen" )
+CLIENTEFFECT_REGISTER_END_CONDITIONAL( engine->GetDXSupportLevel() >= 90 )
 
 #ifdef VOICE_VOX_ENABLE
 void VoxCallback( IConVar *var, const char *oldString, float oldFloat )
@@ -767,7 +775,10 @@ bool ClientModeShared::DoPostScreenSpaceEffects( const CViewSetup *pSetup )
 		if ( !replay_rendersetting_renderglow.GetBool() )
 			return false;
 	}
-#endif 
+#endif
+	//SDK2013CE L4DGlow
+	//Wazanator
+	g_GlowObjectManager.RenderGlowEffects(pSetup, 0);
 	return true;
 }
 

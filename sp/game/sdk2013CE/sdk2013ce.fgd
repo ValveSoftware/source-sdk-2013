@@ -1,0 +1,29 @@
+@include "base.fgd"
+@include "halflife2.fgd" //Remove this line if you don't want Half-Life 2 Entities
+//-------------------------------------------------------------------------
+//
+// Base Classes Override
+//
+//-------------------------------------------------------------------------
+@BaseClass = Studiomodel
+[
+	model(studio) : "World Model"
+	skin(integer) : "Skin" : 0 : "Some models have multiple versions of their textures, called skins. Set this to a number other than 0 to use that skin instead of the default."
+	modelscale(float) : "Model Scale" : "1.0" : "A multiplier for the size of the model."
+
+	disableshadows(choices) : "Disable Shadows" : 0 : "Used to disable dynamic shadows on this entity." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	// Inputs
+	input Skin(integer) : "Changes the model skin to the specified number."
+	input DisableShadow(void) : "Turn shadow off."
+	input EnableShadow(void) : "Turn shadow on."
+	input AlternativeSorting(bool) : "Used to attempt to fix sorting problems when rendering. True activates, false deactivates"
+	input SetModelScale(string) : "Takes two values separated by a space. The first is the target model scale. The second value is the number of seconds the change in scale will be spread over."
+
+	// Outputs
+	output OnIgnite(void) : "Fired when this object catches fire."
+]

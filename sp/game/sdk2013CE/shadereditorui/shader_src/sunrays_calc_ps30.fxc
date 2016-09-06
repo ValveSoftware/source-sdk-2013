@@ -1,0 +1,64 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+
+// Constants
+const float4 g_cData_sun_data		: register( c16 ); 		// Callback
+
+// Semantic structures
+struct PS_INPUT
+{
+	float2 vTexCoord_0			:	TEXCOORD0;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float3 _var0 = float3( 0.000000, 0.000000, 0.000000 );
+	float2 _var1 = In.vTexCoord_0;
+	float2 _var2 = g_cData_sun_data.xy;
+	float _var3 = float( 1.000000 );
+	float _var4 = g_cData_sun_data.z;
+	_var2 = In.vTexCoord_0 - _var2;
+	_var4 = saturate( _var4 );
+	float _var5 = length( _var2 );
+	float2 _var6 = _var2 / _var5;
+	float _var7 = smoothstep( float( 0.000000 ), float( 0.700000 ), _var5 );
+	_var6 = _var6 * _var7;
+	_var6 = _var6 * float( 0.011000 );
+	for ( int _var8 = 0; _var8 < 35; _var8++ )
+	{
+		float2 _var9 = _var6;
+		_var3 = _var3 * float( 0.950000 );
+		_var1 = _var1 - _var9;
+		float4 _texLookup_26 = tex2D( _Sampler_00, _var1 );
+		float3 _var10 = _texLookup_26.rgb;
+		float _var11 = _texLookup_26.a;
+		_var10 = _var10 * _var11;
+		_var10 = _var10 * _var3;
+		_var0 = _var0 + _var10;
+	}
+	_var0 = _var0 * float( 0.060000 );
+	_var0 = _var0 * _var4;
+	float4 _var12 = float4( _var0.x, _var0.y, _var0.z, 1.000000 );
+	Out.vColor_0 = _var12;
+	return Out;
+}

@@ -1,0 +1,79 @@
+"postproc_filmgrain"
+{
+	"vs_name"		"postproc_filmgrain_vs30"
+	"ps_name"		"postproc_filmgrain_ps30"
+	"shader_filename"		"shadereditorui\canvas\postproc_filmgrain.txt"
+	"dump_version"		"dumpver#001"
+	"i_sm"		"1"
+	"i_cull"		"0"
+	"i_ablend"		"0"
+	"fl_atestref"		"0.500000"
+	"i_dtest"		"0"
+	"i_dwrite"		"0"
+	"i_srgbw"		"0"
+	"i_vfmt_flags"		"262401"
+	"i_vfmt_texcoords"		"1"
+	"i_vfmt_udata"		"0"
+	"i_vfmt_texcoordDim_0"		"2"
+	"i_vfmt_texcoordDim_1"		"2"
+	"i_vfmt_texcoordDim_2"		"2"
+	"i_vlit"		"0"
+	"i_vrefract"		"1"
+	"identifiers_VS"
+	{
+		"econst_0"
+		{
+			"i_envconstidx"		"0"
+			"i_normregister"		"0"
+			"i_econstsize"		"1"
+			"i_smartcomps"		"1"
+			"fl_smartdefault_00"		"0.000000"
+			"fl_smartdefault_01"		"0.000000"
+			"fl_smartdefault_02"		"0.000000"
+			"fl_smartdefault_03"		"0.000000"
+		}
+		"econst_1"
+		{
+			"i_envconstidx"		"6"
+			"i_normregister"		"1"
+			"i_econstsize"		"1"
+			"i_smartcomps"		"1"
+			"fl_smartdefault_00"		"0.000000"
+			"fl_smartdefault_01"		"0.000000"
+			"fl_smartdefault_02"		"0.000000"
+			"fl_smartdefault_03"		"0.000000"
+		}
+		"i_numdcombos"		"1"
+	}
+	"identifiers_PS"
+	{
+		"econst_0"
+		{
+			"i_envconstidx"		"17"
+			"i_normregister"		"0"
+			"i_econstsize"		"1"
+			"i_smartcomps"		"1"
+			"sz_smartname"		"Random33"
+			"fl_smartdefault_00"		"0.000000"
+			"fl_smartdefault_01"		"10.000000"
+			"fl_smartdefault_02"		"0.000000"
+			"fl_smartdefault_03"		"0.000000"
+		}
+		"texsamp_0"
+		{
+			"i_sampidx"		"0"
+			"i_texmode"		"5"
+			"i_cubemap"		"0"
+			"i_srgb"		"0"
+		}
+		"texsamp_1"
+		{
+			"sz_fallback"		"texture_samples\noise_2d"
+			"i_sampidx"		"1"
+			"i_texmode"		"1"
+			"i_cubemap"		"0"
+			"i_srgb"		"0"
+		}
+		"i_numdcombos"		"1"
+	}
+}

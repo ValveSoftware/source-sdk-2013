@@ -1,0 +1,136 @@
+// *********************************
+// ** auto generated vertexshader **
+// *********************************
+
+// Combos
+// STATIC: "FLASHLIGHT"		"0..1"
+
+// Includes
+#include "common_vs_fxc.h"
+
+
+// Constants
+const float3 g_cData_Mutable_01		: register( c48 ); 		// Mutable
+const float g_cData_Mutable_02		: register( c49 ); 		// Mutable
+const float _g_Time		: register( c50 );
+const float4x4 g_cFlashlightWorldToTexture		: register( c51 );
+
+// User code - globals
+float3 triangle( float3 a )
+{
+	return abs( frac( a + 0.5f ) * 2.0f - 1.0f );
+}
+
+// User code - function bodies
+void UserFunction_195( in float3 var_00, out float3 var_01 )
+{
+	var_01 = triangle( var_00 );
+
+	var_01 = ( 3.0 - 2.000000000001 * var_01 ) * var_01 * var_01;
+}
+
+// Semantic structures
+struct VS_INPUT
+{
+	float3 vPos					:	POSITION;
+	float3 vNormal				:	NORMAL;
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float3 vTexCoord_1			:	TEXCOORD1;
+	float3 vTexCoord_2			:	TEXCOORD2;
+	float4 vColor_0				:	COLOR0;
+};
+
+struct VS_OUTPUT
+{
+	float4 vProjPos				:	POSITION;
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float3 vTexCoord_1			:	TEXCOORD1;
+	float4 vTexCoord_2			:	TEXCOORD2;
+	float4 vTexCoord_3			:	TEXCOORD3;
+	float3 vTexCoord_4			:	TEXCOORD4;
+	float vColor_0				:	COLOR0;
+};
+
+// Entry point
+VS_OUTPUT main( const VS_INPUT In )
+{
+	VS_OUTPUT Out;
+	float _var0 = dot( In.vTexCoord_2, In.vNormal );
+	float _var1 = In.vTexCoord_1.z;
+	float3 _var2 = In.vNormal * float( -0.900000 );
+	float _var3 = dot( In.vNormal, g_cData_Mutable_01 );
+	float _var4 = In.vTexCoord_1.y;
+	float _var5 = In.vTexCoord_1.x;
+	float _var6 = cos( g_cData_Mutable_02 );
+	float _var7 = In.vPos.x;
+	float _var8 = sin( g_cData_Mutable_02 );
+	float _var9 = In.vPos.y;
+	float _var10 = In.vPos.z;
+	float _var11 = _g_Time * float( 0.700000 );
+	float3 _var12 = In.vColor_0.xyz;
+	float4 _var13 = float4( 0.000000, 0.000000, 0.000000, 0.000000 );
+	float3 _var14 = _var0 * In.vNormal;
+	_var2 = _var1 * _var2;
+	float3 _var15 = _var3 * In.vNormal;
+	float _var16 = 1.0f - _var4;
+	float _var17 = _var6 * _var7;
+	float _var18 = _var8 * _var9;
+	float _var19 = _var9 * _var6;
+	float _var20 = _var8 * _var7;
+	float _var21 = _var4 * float( 0.400000 );
+	_var14 = In.vTexCoord_2 - _var14;
+	_var15 = g_cData_Mutable_01 - _var15;
+	float _var22 = _var16 * _var5;
+	_var17 = _var17 - _var18;
+	_var19 = _var19 + _var20;
+	_var12 = _var21 + _var12;
+	float _var23 = _var5 * _var16;
+	_var14 = _var14 * _var1;
+	_var15 = normalize( _var15 );
+	float2 _var24 = float2( _var17, _var19 );
+	_var14 = _var14 + _var2;
+	_var15 = _var15 * float( 2.000000 );
+	float3 _var25 = float3( _var24, _var10 );
+	_var15 = _var15 * _var22;
+	_var25 = _var25 * float( 0.005000 );
+	_var25 = _var25 + _var11;
+	float3 _var26 = (float3)0;
+	UserFunction_195( _var25, _var26 );
+	float3 _var27 = sin( _var25 );
+	float3 _var28 = abs( _var26 );
+	float3 _var29 = sign( _var26 );
+	_var27 = abs( _var27 );
+	_var28 = pow( _var28, float( 3.000000 ) );
+	float _var30 = dot( _var27, float3( 0.333333, 0.333333, 0.333333 ) );
+	_var29 = _var28 * _var29;
+	float3 _var31 = _var12 * _var30;
+	float _var32 = dot( _var28, float3( 0.333333, 0.333333, 0.333333 ) );
+	float _var33 = pow( _var30, float( 2.000000 ) );
+	_var15 = _var15 * _var29;
+	_var31 = lerp( _var12, _var31, float( 0.400000 ) );
+	_var32 = _var32 * _var33;
+	_var15 = In.vPos + _var15;
+	_var23 = _var23 * _var32;
+	_var14 = _var14 + _var15;
+	float4 _var34 = mul( float4(_var14.xyz,1), cModelViewProj );
+	float4 _var35 = _var34;
+#if ( FLASHLIGHT == 1 )
+		float4 _var36 = mul( float4(_var14.xyz,1), g_cFlashlightWorldToTexture );
+		float2 _var37 = _var34.xy;
+		float _var38 = _var34.z;
+		float _var39 = _var34.w;
+		_var13 = _var36;
+		_var38 = _var38 - float( 0.100000 );
+		float3 _var40 = float3( _var37, _var38 );
+		float4 _var41 = float4( _var40, _var39 );
+		_var35 = _var41;
+#endif
+	Out.vProjPos = _var35;
+	Out.vTexCoord_0 = In.vTexCoord_0;
+	Out.vTexCoord_1 = _var31;
+	Out.vTexCoord_2 = _var13;
+	Out.vTexCoord_3 = _var35;
+	Out.vTexCoord_4 = _var14;
+	Out.vColor_0 = _var23;
+	return Out;
+}

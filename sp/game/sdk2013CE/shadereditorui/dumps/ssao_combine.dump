@@ -1,0 +1,46 @@
+"ssao_combine"
+{
+	"vs_name"		"ssao_combine_vs30"
+	"ps_name"		"ssao_combine_ps30"
+	"shader_filename"		"shadereditorui\canvas\post_processing_shaders\ssao_combine.txt"
+	"dump_version"		"dumpver#001"
+	"i_sm"		"1"
+	"i_cull"		"0"
+	"i_ablend"		"0"
+	"fl_atestref"		"0.500000"
+	"i_dtest"		"0"
+	"i_dwrite"		"0"
+	"i_srgbw"		"0"
+	"i_vfmt_flags"		"262401"
+	"i_vfmt_texcoords"		"1"
+	"i_vfmt_udata"		"0"
+	"i_vfmt_texcoordDim_0"		"2"
+	"i_vfmt_texcoordDim_1"		"2"
+	"i_vfmt_texcoordDim_2"		"2"
+	"i_vlit"		"0"
+	"i_vrefract"		"1"
+	"identifiers_VS"
+	{
+		"i_numdcombos"		"1"
+	}
+	"identifiers_PS"
+	{
+		"texsamp_0"
+		{
+			"i_sampidx"		"0"
+			"i_texmode"		"5"
+			"i_cubemap"		"0"
+			"i_srgb"		"0"
+		}
+		"texsamp_1"
+		{
+			"sz_param"		"ssao_ref"
+			"sz_fallback"		"white"
+			"i_sampidx"		"1"
+			"i_texmode"		"0"
+			"i_cubemap"		"0"
+			"i_srgb"		"0"
+		}
+		"i_numdcombos"		"1"
+	}
+}
