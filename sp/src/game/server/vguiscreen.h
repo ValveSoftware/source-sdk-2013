@@ -76,6 +76,24 @@ private:
 	CNetworkVar( EHANDLE, m_hPlayerOwner );
 
 	friend CVGuiScreen *CreateVGuiScreen( const char *pScreenClassname, const char *pScreenType, CBaseEntity *pAttachedTo, CBaseEntity *pOwner, int nAttachmentIndex );
+
+public:
+	COutputEvent Output1;
+	COutputEvent Output2;
+	COutputEvent Output3;
+	COutputEvent Output4;
+	COutputEvent Output5;
+	COutputEvent Output6;
+	COutputEvent Output7;
+	COutputEvent Output8;
+	COutputEvent Output9;
+	COutputEvent Output10;
+	COutputEvent Output11;
+	COutputEvent Output12;
+	COutputEvent Output13;
+	COutputEvent Output14;
+	COutputEvent Output15;
+	COutputEvent Output16;
 };
 
 

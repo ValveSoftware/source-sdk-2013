@@ -867,6 +867,12 @@ void CHL2_Player::PreThink(void)
 	// Update weapon's ready status
 	UpdateWeaponPosture();
 
+	// If we're in VGUI mode we should avoid shooting
+	if ( GetVGUIMode() )
+	{
+		m_nButtons &= ~(IN_ATTACK|IN_ATTACK2);
+	}
+
 	// Disallow shooting while zooming
 	if ( IsX360() )
 	{
@@ -2934,6 +2940,17 @@ void CHL2_Player::UpdateWeaponPosture( void )
 		UTIL_TraceLine( EyePosition(), EyePosition() + vecAim * CHECK_FRIENDLY_RANGE, MASK_SHOT, this, COLLISION_GROUP_NONE, &tr );
 
 		CBaseEntity *aimTarget = tr.m_pEnt;
+
+		if ( GetVGUIMode() )
+		{
+			//We're over a friendly, drop our weapon
+			if ( Weapon_Lower() == false )
+			{
+				//FIXME: We couldn't lower our weapon!
+			}
+		 
+			return;
+		}
 
 		//If we're over something
 		if (  aimTarget && !tr.DidHitWorld() )

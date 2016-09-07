@@ -1059,7 +1059,7 @@ void C_BasePlayer::DetermineVguiInputMode( CUserCmd *pCmd )
 		SetVGuiScreenButtonState( m_pCurrentVguiScreen.Get(), pCmd->buttons );
 
 		// Kill all attack inputs if we're in vgui screen mode
-		pCmd->buttons &= ~(IN_ATTACK | IN_ATTACK2);
+		pCmd->buttons &= ~(IN_ATTACK | IN_ATTACK2 | IN_VALIDVGUIINPUT);
 		return;
 	}
 
@@ -1129,7 +1129,7 @@ void C_BasePlayer::DetermineVguiInputMode( CUserCmd *pCmd )
 //-----------------------------------------------------------------------------
 // Purpose: Input handling
 //-----------------------------------------------------------------------------
-bool C_BasePlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
+bool C_BasePlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd, bool bVguiUpdate )
 {
 	// Allow the vehicle to clamp the view angles
 	if ( IsInAVehicle() )
@@ -1183,7 +1183,27 @@ bool C_BasePlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	m_vecOldViewAngles = pCmd->viewangles;
 	
 	// Check to see if we're in vgui input mode...
-	DetermineVguiInputMode( pCmd );
+	if ( pCmd->buttons & IN_VALIDVGUIINPUT )
+	{
+		if (bVguiUpdate)
+		{
+			bool tempvguimode = IsInVGuiInputMode();
+			// Check to see if we're in vgui input mode...
+			DetermineVguiInputMode( pCmd );
+		 
+			if (tempvguimode == !IsInVGuiInputMode())
+			{
+				if (IsInVGuiInputMode())
+				{
+					engine->ClientCmd( "vguimode_true" );
+				}
+				else
+				{
+					engine->ClientCmd( "vguimode_false" );
+				}
+			}
+		}
+	}
 
 	return true;
 }
