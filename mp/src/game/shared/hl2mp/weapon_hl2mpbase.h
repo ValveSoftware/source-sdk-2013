@@ -45,6 +45,8 @@ public:
 
 		void Materialize( void );
 		virtual	int	ObjectCaps( void );
+
+		virtual void FallThink( void );						// make the weapon fall to the ground after spawning
 	#endif
 
 	// All predicted weapons need to implement and return true
