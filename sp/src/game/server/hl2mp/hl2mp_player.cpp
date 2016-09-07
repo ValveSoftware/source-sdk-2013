@@ -518,6 +518,8 @@ void CHL2MP_Player::ResetAnimation( void )
 			SetAnimation( PLAYER_WALK );
 		else if (GetWaterLevel() > 1)
 			SetAnimation( PLAYER_WALK );
+		else
+			SetAnimation( PLAYER_WALK );
 	}
 }
 

@@ -1,0 +1,288 @@
+DebugMenu
+{
+	"width"		"512"
+	"height"	"300"
+
+	Performance
+	{
+		r_speeds
+		{
+			"incrementcvar"	"r_speeds 0 10 1"
+		}
+		host_speeds
+		{
+			"togglecvar"	"host_speeds"
+		}
+		"FPS"
+		{
+			"togglecvar"	"cl_showfps"
+		}
+		"Position"
+		{
+			"togglecvar"	"cl_showpos"
+		}
+	}
+	"MatSys"
+	{
+		Fullbright
+		{
+			"incrementcvar"	"mat_fullbright 0 2 1"
+		}
+		"Buffer Primitives"
+		{
+			"togglecvar"	"mat_bufferprimitives"
+		}
+		WireFrame
+		{
+			"togglecvar"	"mat_wireframe"
+		}
+		Luxels
+		{
+			"togglecvar"	"mat_luxels"
+		}
+		DrawFlat
+		{
+			"togglecvar"	"mat_drawflat"
+		}
+		LightMapsOnly
+		{
+			"togglecvar"	"mat_lightmapsonly"
+		}
+		Normals
+		{
+			"togglecvar"	"mat_normals"
+		}
+		"Software Lighting"
+		{
+			"togglecvar"	"mat_softwarelighting"
+		}
+		"Reverse Depth"
+		{
+			"togglecvar"	"mat_reversedepth"
+		}
+		"Overbright"
+		{
+			"togglecvar"	"mat_overbright"
+		}
+	}
+	Renderer
+	{
+		r_speeds
+		{
+			"incrementcvar"	"r_speeds 0 10 1"
+		}
+
+		SkyBox
+		{
+			"togglecvar"	"r_drawskybox"
+		}
+		VGUI
+		{
+			"togglecvar"	"r_drawvgui"
+		}
+		World
+		{
+			"togglecvar"	"r_drawworld"
+		}
+		Displacements
+		{
+			"togglecvar"	"r_drawdisp"
+		}
+		Entities
+		{
+			"togglecvar"	"r_drawentities"
+		}
+		"View Model"
+		{
+			"togglecvar"	"r_drawviewmodel"
+		}
+		"Static Props"
+		{
+			"togglecvar"	"r_drawstaticprops"
+		}
+		"Detail Props"
+		{
+			"togglecvar"	"r_drawdetailprops"
+		}
+		Decals
+		{
+			"togglecvar"	"r_drawdecals"
+		}
+		"Brush Models"
+		{
+			"togglecvar"	"r_drawbrushmodels"
+		}
+		Lights
+		{
+			"togglecvar"	"r_drawlights"
+		}
+		Portals
+		{
+			"togglecvar"	"r_drawportals"
+		}
+		Beams
+		{
+			"togglecvar"	"r_drawbeams"
+		}
+		Ropes
+		{
+			"togglecvar"	"r_drawropes"
+		}
+		Sprites
+		{
+			"togglecvar"	"r_drawsprites"
+		}
+		Particles
+		{
+			"togglecvar"	"r_drawparticles"
+		}
+		"Water Surface"
+		{
+			"togglecvar"	"r_drawwatersurface"
+		}
+	}
+
+	Physics
+	{
+		"VPhysics wireframe"
+		{
+			"togglecvar"	"vcollide_wireframe"
+		}
+		"VPhysics axes"
+		{
+			"togglecvar"	"vcollide_axes"
+		}
+	}
+	AI
+	{
+		Disable
+		{
+			"command"	"ai_disable"
+		}
+		Resume
+		{
+			"command"	"ai_resume"
+		}
+		Step
+		{
+			"command"	"ai_step"
+		}
+		"Noclip"
+		{
+			"command"	"noclip"
+		}
+		"God"
+		{
+			"command"	"god"
+		}
+		"No Target"
+		{
+			"command"	"notarget"
+		}
+		Enemies
+		{
+			"command"		"npc_enemies"
+		}
+		Go
+		{
+			"command"		"npc_go"
+		}
+		"Go Random"
+		{
+			"command"		"npc_go_random"
+		}
+		Route
+		{
+			"command"		"npc_route"
+		}
+		Select
+		{
+			"command"		"npc_select"
+		}
+		Bipass
+		{
+			"command"		"npc_destroy"
+		}
+		Destroy
+		{
+			"command"		"npc_destroy"
+		}
+		Visibility
+		{
+			"command"		"npc_visibility"
+		}
+		Tasks
+		{
+			"command"		"npc_tasks"
+		}
+		Combat
+		{
+			"command"		"npc_combat"
+		}
+		Focus
+		{
+			"command"		"npc_focus"
+		}
+		Picker
+		{
+			"command"		"ent_picker"
+		}
+
+		Text
+		{
+			"command"		"ent_text"
+		}										
+
+		"Name"
+		{
+			"command"		"ent_name"
+		}
+
+		BBox
+		{
+			"command"		"ent_bbox"
+		}										
+
+		Messages
+		{
+			"command"		"ent_messages"
+		}
+
+		Pause
+		{
+			"command"		"ent_pause"
+		}										
+
+		Pivot
+		{
+			"command"		"ent_pivot"
+		}
+	}
+	"Node Graph"
+	{
+		Nodes
+		{
+			"command"		"ai_nodes"
+		}
+		"Next Hull"
+		{
+			"command"		"ai_next_hull"
+		}
+		"Show Hull"
+		{
+			"command"		"ai_show_hull"
+		}
+		"Show Connect"
+		{
+			"command"		"ai_show_connect"
+		}
+		"Show Visibility"
+		{
+			"command"		"ai_show_visibility"
+		}
+		"Show Graph Connect"
+		{
+			"command"		"ai_show_graph_connect"
+		}
+	}
+}

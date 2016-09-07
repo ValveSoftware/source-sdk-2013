@@ -835,7 +835,7 @@ void CLuminanceHistogramSystem::UpdateLuminanceRanges( void )
 
 		// This seems like a bad idea but it's fine for now
 		const char *sModsForOriginalAlgorithm[] = { "dod", "cstrike", "lostcoast", "hl1" };
-		for ( int i=0; i<3; i++ )
+		for ( int i=0; i<4; i++ )
 		{
 			if ( strlen( engine->GetGameDirectory() ) >= strlen( sModsForOriginalAlgorithm[i] ) )
 			{

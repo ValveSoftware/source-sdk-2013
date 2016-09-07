@@ -27,3 +27,47 @@
 	// Outputs
 	output OnIgnite(void) : "Fired when this object catches fire."
 ]
+
+@BaseClass base(Angles, DXLevelChoice) = prop_static_base
+[
+	model(studio) : "World Model"
+	scale(vector) : "Scale"
+	skin(integer) : "Skin" : 0 : "Some models have multiple versions of their textures, called skins. Set this to a number other than 0 to use that skin instead of the default."
+	solid(choices) : "Collisions" : 6 =
+	[
+		0: "Not Solid"
+		2: "Use Bounding Box"
+		6: "Use VPhysics"
+	]
+	disableshadows(choices) : "Disable Shadows" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	screenspacefade(choices) : "Screen Space Fade" : 0 : "The method by which the fading distance should be determined. If 'No', the fade distances is the distance from the player's view to the object, in inches. If 'Yes', the fade distance is the size of the object onscreen, in pixels." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	fademindist(float) : "Start Fade Dist/Pixels" : -1 : "Distance at which the prop starts to fade (<0 = use fademaxdist). If 'Screen Space Fade' is selected, this represents the number of pixels wide covered by the prop when it starts to fade."
+	fademaxdist(float) : "End Fade Dist/Pixels" : 0 : "Maximum distance at which the prop is visible (0 = don't fade out). If 'Screen Space Fade' is selected, this represents the *minimum* number of pixels wide covered by the prop when it fades."
+	fadescale(float) : "Fade Scale" : 1 : "If you specify a fade in the worldspawn, or if the engine is running under dx7 [hl2/ep1/portal] or dx8 [ep2/tf], then the engine will forcibly fade out props even if fademindist/fademaxdist isn't specified." +
+												 " This scale factor gives you some control over the fade. Using 0 here turns off the forcible fades." +
+												 " Numbers smaller than 1 cause the prop to fade out at further distances, and greater than 1 cause it to fade out at closer distances."
+	lightingorigin(target_destination) : "Lighting Origin" : "" : "Select an info_lighting to specify a location to sample lighting from, instead of using this entity's origin."
+	disablevertexlighting(choices) : "Disable Vertex lighting" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	disableselfshadowing(choices) : "Disable Self-Shadowing with vertex lighting" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	ignorenormals(choices) : "Ignore surface normal for computing vertex lighting" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+]

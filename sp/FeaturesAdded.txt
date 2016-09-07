@@ -1,6 +1,6 @@
-/**********
+**********
 Glow for CBaseAnimating and its desired classes
-**********/
+**********
 Author(s): Msalinas2877 & Wazanator
 Files touched: c_baseanimating.cpp, c_baseanimating.h, clientmode_shared.cpp, baseanimating.cpp, baseanimating.h
 Notes: Look for #ifdef GLOWS_ENABLE
@@ -8,10 +8,19 @@ Based upon code from https://developer.valvesoftware.com/wiki/L4D_Glow_Effect_(2
 When adding glow to an entity requires both a client side and server side version of the entity.
 Uses SendPropBool to transmit the state of the glow to client
 
-/**********
+**********
 Source Shader Editor
-**********/
+**********
 Author(s): Msalinas2877
 Files touched: viewrender.cpp
 Files added: ShaderEditorSystem.cpp, ShaderEditorSystem.h, SEdit_ModelRender.cpp, SEdit_ModelRender.h, SEdit_ModelRender.h, ISEdit_ModelRender.h, more files that i can't remember
 Notes: Run with the launch parameter "-shaderedit" to open SSE
+
+**********
+Prop Scaling
+**********
+Authors(s): DankParrot
+Files modified:
+	utils/vbsp/StaticProp.cpp
+		(and other related files)
+	game\sdk2013CE\sdk2013ce.fgd	
