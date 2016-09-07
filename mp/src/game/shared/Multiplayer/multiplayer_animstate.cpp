@@ -845,7 +845,7 @@ bool CMultiPlayerAnimState::HandleSwimming( Activity &idealActivity )
 			m_bFirstSwimFrame = false;
 		}
 
-		idealActivity = ACT_MP_SWIM;		
+		idealActivity = ACT_MP_RUN;
 		m_bInSwim = true;
 		return true;
 	}
