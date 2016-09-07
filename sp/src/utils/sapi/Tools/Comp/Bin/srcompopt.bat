@@ -1,1 +1,0 @@
-spcomp.exe "srcompopt.pro" -r

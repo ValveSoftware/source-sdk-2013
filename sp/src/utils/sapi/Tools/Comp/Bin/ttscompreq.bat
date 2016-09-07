@@ -1,1 +1,0 @@
-spcomp.exe "ttscompreq.pro" -r
