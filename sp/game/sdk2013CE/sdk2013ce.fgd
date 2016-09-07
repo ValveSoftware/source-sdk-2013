@@ -28,7 +28,6 @@
 	output OnIgnite(void) : "Fired when this object catches fire."
 ]
 
-<<<<<<< HEAD
 @BaseClass base(Angles, DXLevelChoice) = prop_static_base
 [
 	model(studio) : "World Model"
@@ -41,28 +40,10 @@
 		6: "Use VPhysics"
 	]
 	disableshadows(choices) : "Disable Shadows" : 0 =
-=======
-// lightprop("models/editor/spot.mdl") <---- use this once the orientation is unfucked
-@PointClass base(Targetname, Parentname, Angles) size(-2 -2 -2, 2 2 2) frustum(lightfov,nearz,farz,lightcolor,-1) = env_projectedtexture : 
-	"Projected texture entity."
-[
-	spawnflags(flags) =
-	[
-		1  : "Enabled"				: 1
-	]
-
-	target(target_destination)	: "target" : : "target"	
-	lightfov(float)				: "FOV" : "90.0" : "FOV"
-	nearz(float)				: "NearZ" : "4.0" : "Near Z for projected texture"
-	farz(float)					: "FarZ" : "750.0" : "Far Z for projected texture"	
-	
-	enableshadows(Choices) : "Enable Shadows" : 0 : "Enables/disables shadows from this projected texture." =
->>>>>>> origin/master
 	[
 		0 : "No"
 		1 : "Yes"
 	]
-<<<<<<< HEAD
 	screenspacefade(choices) : "Screen Space Fade" : 0 : "The method by which the fading distance should be determined. If 'No', the fade distances is the distance from the player's view to the object, in inches. If 'Yes', the fade distance is the size of the object onscreen, in pixels." =
 	[
 		0 : "No"
@@ -75,42 +56,18 @@
 												 " Numbers smaller than 1 cause the prop to fade out at further distances, and greater than 1 cause it to fade out at closer distances."
 	lightingorigin(target_destination) : "Lighting Origin" : "" : "Select an info_lighting to specify a location to sample lighting from, instead of using this entity's origin."
 	disablevertexlighting(choices) : "Disable Vertex lighting" : 0 =
-=======
-	shadowquality(Choices) : "Shadow Quality" : 1 : "Quality of shadows." =
-	[
-		0 : "Low"
-		1 : "High"
-	]
-	lightonlytarget(Choices) : "Light Only Target" : 0 : "Limit flashlight effect to only effect target entity." =
->>>>>>> origin/master
 	[
 		0 : "No"
 		1 : "Yes"
 	]
-<<<<<<< HEAD
 	disableselfshadowing(choices) : "Disable Self-Shadowing with vertex lighting" : 0 =
-=======
-	lightworld(Choices) : "Light World" : 1 : "Control whether flashlight effects static world geometry." =
->>>>>>> origin/master
 	[
 		0 : "No"
 		1 : "Yes"
 	]
-<<<<<<< HEAD
 	ignorenormals(choices) : "Ignore surface normal for computing vertex lighting" : 0 =
 	[
 		0 : "No"
 		1 : "Yes"
 	]
 ]
-=======
-	lightcolor(color255)		: "Light Color" : "255 255 255 200" : "Light Color RGB-Intensity"
-	cameraspace(integer)		: "Camera Space" : 0 : "Angles are interpreted as being relative to camera."
-	texturename(material)		: "Texture" : : "path/texture to be projected. Relative to main/materials/"
-
-	// Inputs
-	input TurnOn(void)		: "Turn on the texture"
-	input TurnOff(void)		: "Turn off the texture"
-	input SetFOV(float)		: "Set FOV"
-]
->>>>>>> origin/master

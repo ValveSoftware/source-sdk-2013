@@ -1,11 +1,3 @@
-//----------------------------------
-// CHANGES 
-//
-// Enabled shape support
-// Fixed aspect ratio for detail.vbsp
-// Allowed vertex lit models
-//----------------------------------
-
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Draws grasses and other small objects  
@@ -34,10 +26,14 @@
 #include <algorithm>
 #include "tier0/valve_minmax_on.h"
 
+#if defined(DOD_DLL) || defined(CSTRIKE_DLL)
 #define USE_DETAIL_SHAPES
+#endif
 
+#ifdef USE_DETAIL_SHAPES
 #include "engine/ivdebugoverlay.h"
 #include "playerenumerator.h"
+#endif
 
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 
@@ -1475,7 +1471,24 @@ void CDetailObjectSystem::LevelInitPreEntity()
 		}
 	}
 
-
+	if ( m_DetailObjects.Count() || m_DetailSpriteDict.Count() )
+	{
+		// There are detail objects in the level, so precache the material
+		PrecacheMaterial( DETAIL_SPRITE_MATERIAL );
+		IMaterial *pMat = m_DetailSpriteMaterial;
+		// adjust for non-square textures (cropped)
+		float flRatio = (float)( pMat->GetMappingWidth() ) / pMat->GetMappingHeight();
+		if ( flRatio > 1.0 )
+		{
+			for( int i = 0; i<m_DetailSpriteDict.Count(); i++ )
+			{
+				m_DetailSpriteDict[i].m_TexUL.y *= flRatio;
+				m_DetailSpriteDict[i].m_TexLR.y *= flRatio;
+				m_DetailSpriteDictFlipped[i].m_TexUL.y *= flRatio;
+				m_DetailSpriteDictFlipped[i].m_TexLR.y *= flRatio;
+			}
+		}
+	}
 
 	int detailPropLightingLump;
 	if( g_pMaterialSystemHardwareConfig->GetHDRType() != HDR_TYPE_NONE )
@@ -1499,30 +1512,13 @@ void CDetailObjectSystem::LevelInitPreEntity()
 
 void CDetailObjectSystem::LevelInitPostEntity()
 {
-	if (m_DetailObjects.Count() || m_DetailSpriteDict.Count())
+	const char *pDetailSpriteMaterial = DETAIL_SPRITE_MATERIAL;
+	C_World *pWorld = GetClientWorldEntity();
+	if ( pWorld && pWorld->GetDetailSpriteMaterial() && *(pWorld->GetDetailSpriteMaterial()) )
 	{
-		const char *pDetailSpriteMaterial = DETAIL_SPRITE_MATERIAL;
-		C_World *pWorld = GetClientWorldEntity();
-		if (pWorld && pWorld->GetDetailSpriteMaterial() && *(pWorld->GetDetailSpriteMaterial()))
-			pDetailSpriteMaterial = pWorld->GetDetailSpriteMaterial();
-
-		m_DetailSpriteMaterial.Init(pDetailSpriteMaterial, TEXTURE_GROUP_OTHER);
-		PrecacheMaterial(pDetailSpriteMaterial);
-		IMaterial *pMat = m_DetailSpriteMaterial;
-
-		// adjust for non-square textures (cropped)
-		float flRatio = pMat->GetMappingWidth() / pMat->GetMappingHeight();
-		if (flRatio > 1.0)
-		{
-			for (int i = 0; i<m_DetailSpriteDict.Count(); i++)
-			{
-				m_DetailSpriteDict[i].m_TexUL.y *= flRatio;
-				m_DetailSpriteDict[i].m_TexLR.y *= flRatio;
-				m_DetailSpriteDictFlipped[i].m_TexUL.y *= flRatio;
-				m_DetailSpriteDictFlipped[i].m_TexLR.y *= flRatio;
-			}
-		}
+		pDetailSpriteMaterial = pWorld->GetDetailSpriteMaterial(); 
 	}
+	m_DetailSpriteMaterial.Init( pDetailSpriteMaterial, TEXTURE_GROUP_OTHER );
 
 	if ( GetDetailController() )
 	{
@@ -1598,6 +1594,13 @@ void CDetailObjectSystem::UnserializeModelDict( CUtlBuffer& buf )
 		
 		DetailModelDict_t dict;
 		dict.m_pModel = (model_t *)engine->LoadModel( lump.m_Name, true );
+
+		// Don't allow vertex-lit models
+		if (modelinfo->IsModelVertexLit(dict.m_pModel))
+		{
+			Warning("Detail prop model %s is using vertex-lit materials!\nIt must use unlit materials!\n", lump.m_Name );
+			dict.m_pModel = (model_t *)engine->LoadModel( "models/error.mdl" );
+		}
 
 		m_DetailObjectDict.AddToTail( dict );
 	}

@@ -1,8 +1,8 @@
 "GameInfo"
 {
-	game 		"SDK 2013 CE" //This is what is shown on Steam
-	title 		"SDK 2013" //This is the main menu title
-	title2		"Community Edition" //This goes under title1 as a subtitle, e.g. Episode 2
+	game 		"SDK 2013 overhaul" //This is what is shown on Steam
+	title 		"SDK 2013 overhaul" //This is the main menu title
+	title2		"" //This goes under title1 as a subtitle, e.g. Episode 2
 
 	type		singleplayer_only
 
