@@ -1,1 +1,1 @@
-@start /D "%ProgramFiles(x86)%\Steam\steamapps\common\Source SDK Base 2013 Singleplayer\" hl2.exe -dev -console -novid -game "%CD%\game\sdk2013CE" -shaderedit -window -height 720
+@start /D "%ProgramFiles(x86)%\Steam\steamapps\common\Source SDK Base 2013 Singleplayer\" hl2.exe -console -novid -game "%CD%\game\sdk2013CE" -shaderedit -window -height 720
