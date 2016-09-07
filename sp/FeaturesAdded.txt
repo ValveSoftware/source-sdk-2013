@@ -16,6 +16,7 @@ Files touched: viewrender.cpp
 Files added: ShaderEditorSystem.cpp, ShaderEditorSystem.h, SEdit_ModelRender.cpp, SEdit_ModelRender.h, SEdit_ModelRender.h, ISEdit_ModelRender.h, more files that i can't remember
 Notes: Run with the launch parameter "-shaderedit" to open SSE
 
+<<<<<<< HEAD
 **********
 Prop Scaling
 **********
@@ -24,3 +25,10 @@ Files modified:
 	utils/vbsp/StaticProp.cpp
 		(and other related files)
 	game\sdk2013CE\sdk2013ce.fgd	
+=======
+/*********
+Author(s): Marnamai
+Files touched: c_detailobjectsystem.cpp
+Notes: Enabled shape support / Fixed aspect ratio for detail.vbsp / Allowed vertex lit models
+/*********
+>>>>>>> origin/master
