@@ -1,0 +1,5 @@
+<GRAMMAR LANGID="409">
+   <RULE NAME="firstrule" TOPLEVEL="ACTIVE">
+      <P>black</P> 
+   </RULE>
+</GRAMMAR>
