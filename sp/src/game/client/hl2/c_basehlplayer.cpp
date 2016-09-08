@@ -627,9 +627,9 @@ void C_BaseHLPlayer::PerformClientSideNPCSpeedModifiers( float flFrameTime, CUse
 //-----------------------------------------------------------------------------
 // Purpose: Input handling
 //-----------------------------------------------------------------------------
-bool C_BaseHLPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd , bool bVguiUpdate )
+bool C_BaseHLPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 {
-	bool bResult = BaseClass::CreateMove( flInputSampleTime, pCmd, bVguiUpdate );
+	bool bResult = BaseClass::CreateMove( flInputSampleTime, pCmd );
 
 	if ( !IsInAVehicle() )
 	{

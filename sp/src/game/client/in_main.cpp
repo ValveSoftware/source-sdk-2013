@@ -1218,10 +1218,8 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 		VectorCopy( m_angPreviousViewAngles, cmd->viewangles );
 	}
 
-	cmd->buttons |= IN_VALIDVGUIINPUT;
-
 	// Let the move manager override anything it wants to.
-	if ( g_pClientMode->CreateMove( input_sample_frametime, cmd, true ) )
+	if ( g_pClientMode->CreateMove( input_sample_frametime, cmd ) )
 	{
 		// Get current view angles after the client mode tweaks with it
 #ifdef SIXENSE

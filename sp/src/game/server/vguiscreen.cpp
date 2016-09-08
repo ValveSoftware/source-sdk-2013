@@ -37,23 +37,6 @@ PRECACHE_REGISTER( vgui_screen );
 //-----------------------------------------------------------------------------
 BEGIN_DATADESC( CVGuiScreen )
 
-	DEFINE_OUTPUT( Output1, "Output1" ),
-	DEFINE_OUTPUT( Output2, "Output2" ),
-	DEFINE_OUTPUT( Output3, "Output3" ),
-	DEFINE_OUTPUT( Output4, "Output4" ),
-	DEFINE_OUTPUT( Output5, "Output5" ),
-	DEFINE_OUTPUT( Output6, "Output6" ),
-	DEFINE_OUTPUT( Output7, "Output7" ),
-	DEFINE_OUTPUT( Output8, "Output8" ),
-	DEFINE_OUTPUT( Output9, "Output9" ),
-	DEFINE_OUTPUT( Output10, "Output10" ),
-	DEFINE_OUTPUT( Output11, "Output11" ),
-	DEFINE_OUTPUT( Output12, "Output12" ),
-	DEFINE_OUTPUT( Output13, "Output13" ),
-	DEFINE_OUTPUT( Output14, "Output14" ),
-	DEFINE_OUTPUT( Output15, "Output15" ),
-	DEFINE_OUTPUT( Output16, "Output16" ),
-
 	DEFINE_CUSTOM_FIELD( m_nPanelName, &g_VguiScreenStringOps ),
 	DEFINE_FIELD( m_nAttachmentIndex, FIELD_INTEGER ),
 //	DEFINE_FIELD( m_nOverlayMaterial, FIELD_INTEGER ),

@@ -81,7 +81,6 @@ public:
 	virtual void	PostRender();
 	virtual void	PostRenderVGui();
 	virtual void	ProcessInput(bool bActive);
-	virtual bool	CreateMove( float flInputSampleTime, CUserCmd *cmd, bool bVguiUpdate ) = 0;
 	virtual bool	CreateMove( float flInputSampleTime, CUserCmd *cmd );
 	virtual void	Update();
 
