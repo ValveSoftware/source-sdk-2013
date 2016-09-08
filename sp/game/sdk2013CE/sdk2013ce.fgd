@@ -168,3 +168,8 @@
 	output Output15(void) : "Fire output 15."
 	output Output16(void) : "Fire output 16."
 ]
+
+@PointClass base(BasePropPhysics, RenderFields) studioprop() sphere(radius) = prop_sphere : "Creates a perfect sphere."
+[
+	radius(float) : "Radius" : 12 : ""
+]
