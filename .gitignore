@@ -58,3 +58,4 @@ config.cfg
 *.vpc_crc
 *.pdb
 *.sentinel
+*.bak
