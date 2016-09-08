@@ -5466,8 +5466,6 @@ void CPropDoorRotating::InputSetSpeed(inputdata_t &inputdata)
 	DoorResume();
 }
 
-LINK_ENTITY_TO_CLASS( prop_sphere, CPhysSphere );
-
 
 // ------------------------------------------------------------------------------------------ //
 // Special version of func_physbox.
