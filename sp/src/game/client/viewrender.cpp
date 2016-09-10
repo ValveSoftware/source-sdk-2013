@@ -77,7 +77,9 @@
 // Projective textures
 #include "C_Env_Projected_Texture.h"
 
-#include "ShaderEditor/ShaderEditorSystem.h"
+//SSE
+#include "shadereditor/shadereditorsystem.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1360,6 +1362,7 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 
 	DrawWorldAndEntities( drawSkybox, view, nClearFlags, pCustomVisibility );
 
+	//SSE
 	VisibleFogVolumeInfo_t fogVolumeInfo;
 	render->GetVisibleFogVolume(view.origin, &fogVolumeInfo);
 	WaterRenderInfo_t info;
@@ -1992,7 +1995,8 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		if ( ( bDrew3dSkybox = pSkyView->Setup( view, &nClearFlags, &nSkyboxVisible ) ) != false )
 		{
 			AddViewToScene( pSkyView );
-			g_ShaderEditorSystem->UpdateSkymask();
+			//SSE
+			g_ShaderEditorSystem->UpdateSkymask(false, view.x, view.y, view.width, view.height);
 		}
 		SafeRelease( pSkyView );
 
@@ -2049,6 +2053,8 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 
 		// Now actually draw the viewmodel
 		DrawViewModels( view, whatToDraw & RENDERVIEW_DRAWVIEWMODEL );
+		//SSE
+		g_ShaderEditorSystem->UpdateSkymask(bDrew3dSkybox, view.x, view.y, view.width, view.height);
 
 		g_ShaderEditorSystem->UpdateSkymask(bDrew3dSkybox);
 
@@ -2088,6 +2094,8 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 			}
 			pRenderContext.SafeRelease();
 		}
+
+		//SSE
 		g_ShaderEditorSystem->CustomPostRender();
 
 		// And here are the screen-space effects
@@ -4994,10 +5002,6 @@ void CShadowDepthView::Draw()
 		render->Push3DView( (*this), VIEW_CLEAR_DEPTH, m_pRenderTarget, GetFrustum() );
 	}
 
-	pRenderContext.GetFrom(materials);
-	pRenderContext->PushRenderTargetAndViewport(m_pRenderTarget, m_pDepthTexture, 0, 0, m_pDepthTexture->GetMappingWidth(), m_pDepthTexture->GetMappingWidth());
-	pRenderContext.SafeRelease();
-
 	SetupCurrentView( origin, angles, VIEW_SHADOW_DEPTH_TEXTURE );
 
 	MDLCACHE_CRITICAL_SECTION();
@@ -5042,7 +5046,6 @@ void CShadowDepthView::Draw()
 		pRenderContext->CopyRenderTargetToTextureEx( m_pDepthTexture, -1, NULL, NULL );
 	}
 
-	pRenderContext->PopRenderTargetAndViewport();
 	render->PopView( GetFrustum() );
 
 #if defined( _X360 )

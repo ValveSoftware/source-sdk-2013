@@ -27,14 +27,6 @@ $Project "Client (SDK2013CE)"
 		$File	"c_team_objectiveresource.cpp"
 		$File	"c_team_objectiveresource.h"
 		
-		$Folder "sdk2013ce"
-		{
-		//$File	"sdk2013ce\c_lights.cpp"
-		//$File	"sdk2013ce\c_lights.h"
-		//$File	"sdk2013ce\c_sdk2013ce_util.cpp"
-		//$File	"sdk2013ce\c_sdk2013ce_util.h"
-		}
-		
 		$Folder	"HL2 DLL"
 		{
 			$File	"$SRCDIR\game\shared\hl2\basehlcombatweapon_shared.cpp"

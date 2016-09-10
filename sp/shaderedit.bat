@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-@start /D "%ProgramFiles(x86)%\Steam\steamapps\common\Source SDK Base 2013 Singleplayer\" hl2.exe -console -novid -game "%CD%\game\sdk2013CE" -shaderedit -window -height 720
-=======
 @echo off
 setlocal ENABLEDELAYEDEXPANSION
 
@@ -37,4 +34,3 @@ exit
 echo Error during launching game!
 pause
 exit
->>>>>>> refs/remotes/origin/master
