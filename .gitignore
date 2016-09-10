@@ -71,3 +71,4 @@ editor_config.txt
 *.pdb
 *.sentinel
 *.lib
+*.bak
