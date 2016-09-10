@@ -20,7 +20,7 @@ public:
 	virtual void Shutdown();
 
 	virtual void Update( float frametime );
-	virtual void PreRender();
+	virtual void InitialPreRender();
 	virtual void PostRender();
 
 #ifdef SOURCE_2006
@@ -29,7 +29,7 @@ public:
 	void CustomViewRender( int *viewId, const VisibleFogVolumeInfo_t &fogVolumeInfo, const WaterRenderInfo_t &waterRenderInfo );
 #endif
 	void CustomPostRender();
-	void UpdateSkymask( bool bCombineMode = false );
+	void UpdateSkymask( bool bCombineMode, int x, int y, int w, int h );
 
 	const bool IsReady();
 	int &GetViewIdForModify();
