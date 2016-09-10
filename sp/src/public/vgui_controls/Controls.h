@@ -21,6 +21,9 @@
 #include "vgui/KeyCode.h"
 #include "tier3/tier3.h"
 
+#define VGUI_INPUT_CTRL		(vgui::input()->IsKeyDown(KEY_LCONTROL) || vgui::input()->IsKeyDown(KEY_RCONTROL))
+#define VGUI_INPUT_SHIFT	(vgui::input()->IsKeyDown(KEY_LSHIFT) || vgui::input()->IsKeyDown(KEY_RSHIFT))
+#define VGUI_INPUT_ALT		(vgui::input()->IsKeyDown(KEY_LALT) || vgui::input()->IsKeyDown(KEY_RALT))
 
 namespace vgui
 {

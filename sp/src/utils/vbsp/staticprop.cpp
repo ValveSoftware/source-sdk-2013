@@ -529,7 +529,7 @@ static void AddStaticPropToLump( StaticPropBuild_t const& build )
 	for (int j = 0; j < leafList.Size(); ++j)
 	{
 		StaticPropLeafLump_t insert;
-		// TODO / FIXME: TEST TEST TEST * 2 <--- REMOVE IT
+		// TODO: This is where prop_static scaling would go if VBSP actually worked.
 		insert.m_Leaf = leafList[j];
 		s_StaticPropLeafLump.AddToTail( insert );
 	}
