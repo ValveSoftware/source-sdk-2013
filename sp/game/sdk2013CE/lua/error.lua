@@ -1,0 +1,1 @@
+this file should cause script errors

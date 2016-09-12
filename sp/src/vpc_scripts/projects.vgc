@@ -132,4 +132,3 @@ $Project "vvis_launcher"
 {
 	"utils\vvis_launcher\vvis_launcher.vpc" [$WIN32]
 }
-

@@ -89,6 +89,7 @@
 #include "tier3/tier3.h"
 #include "serverbenchmark_base.h"
 #include "querycache.h"
+#include "sdkCE\lua.h"
 
 
 #ifdef TF_DLL
@@ -234,6 +235,8 @@ static int		g_nCommandClientIndex = 0;
 
 // The chapter number of the current
 static int		g_nCurrentChapterIndex = -1;
+
+CLuaHandle* gameLua = NULL;
 
 #ifdef _DEBUG
 static ConVar sv_showhitboxes( "sv_showhitboxes", "-1", FCVAR_CHEAT, "Send server-side hitboxes for specified entity to client (NOTE:  this uses lots of bandwidth, use on listen server only)." );
@@ -742,6 +745,9 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	gamestatsuploader->InitConnection();
 #endif
 
+	// SourceCE Lua Scripting
+	gameLua = new CLuaHandle(filesystem);
+
 	return true;
 }
 
@@ -752,6 +758,8 @@ void CServerGameDLL::PostInit()
 
 void CServerGameDLL::DLLShutdown( void )
 {
+	// Last in, first out
+	delete gameLua;
 
 	// Due to dependencies, these are not autogamesystems
 	ModelSoundsCacheShutdown();
@@ -802,6 +810,7 @@ void CServerGameDLL::DLLShutdown( void )
 	DisconnectTier2Libraries();
 	ConVar_Unregister();
 	DisconnectTier1Libraries();
+
 }
 
 bool CServerGameDLL::ReplayInit( CreateInterfaceFn fnReplayFactory )
