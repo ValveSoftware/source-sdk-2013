@@ -89,7 +89,8 @@
 #include "tier3/tier3.h"
 #include "serverbenchmark_base.h"
 #include "querycache.h"
-#include "sdkCE\lua.h"
+
+#include "sdk2013ce/lua.h"
 
 
 #ifdef TF_DLL
@@ -235,8 +236,6 @@ static int		g_nCommandClientIndex = 0;
 
 // The chapter number of the current
 static int		g_nCurrentChapterIndex = -1;
-
-CLuaHandle* gameLua = NULL;
 
 #ifdef _DEBUG
 static ConVar sv_showhitboxes( "sv_showhitboxes", "-1", FCVAR_CHEAT, "Send server-side hitboxes for specified entity to client (NOTE:  this uses lots of bandwidth, use on listen server only)." );
@@ -746,7 +745,7 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 #endif
 
 	// SourceCE Lua Scripting
-	gameLua = new CLuaHandle(filesystem);
+	CLuaManager::init(filesystem);
 
 	return true;
 }
@@ -759,7 +758,7 @@ void CServerGameDLL::PostInit()
 void CServerGameDLL::DLLShutdown( void )
 {
 	// Last in, first out
-	delete gameLua;
+	CLuaManager::close();
 
 	// Due to dependencies, these are not autogamesystems
 	ModelSoundsCacheShutdown();
@@ -1062,6 +1061,9 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 
 	// load MOTD from file into stringtable
 	LoadMessageOfTheDay();
+
+	// Call Lua hook.
+	CLuaManager::call("LevelInit");
 
 	// Sometimes an ent will Remove() itself during its precache, so RemoveImmediate won't happen.
 	// This makes sure those ents get cleaned up.

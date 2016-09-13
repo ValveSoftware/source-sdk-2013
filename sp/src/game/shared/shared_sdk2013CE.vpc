@@ -3,7 +3,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories "$BASE;$SRCDIR\lua"
+		$AdditionalIncludeDirectories "$BASE;$SRCDIR\game\shared\sdk2013ce"
 	}
 }
 
@@ -12,10 +12,11 @@ $Project
 {
 	$Folder	"Source Files"
 	{
-		$Folder "sdkCE"
+		$Folder "sdk2013ce"
 		{
-			$File	"$SRCDIR\game\shared\sdkCE\lua.cpp"
-			$File	"$SRCDIR\game\shared\sdkCE\lua.h"
+			$File	"..\shared\sdk2013ce\lua.cpp"
+			$File	"..\shared\sdk2013ce\lua.h"
+		}
 	}
 	
 	$Folder "Header Files"
