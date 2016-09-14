@@ -7,14 +7,15 @@
 
 #include "lua.h"
 
-#define LUA_LIB_BEGIN()
-
-int _print(lua_State* state);
-int _error(lua_State* state);
-int _type(lua_State* state);
+LUA_FUNCTION(_assert);
+LUA_FUNCTION(_tostring);
+LUA_FUNCTION(_print);
+LUA_FUNCTION(_error);
+LUA_FUNCTION(_type);
 
 const luaL_Reg lib_base[] = {
 	{ "print", _print },
+	{ "tostring", _tostring },
 	{ "error", _error },
 	{ "type",  _type },
 	{ NULL, NULL }

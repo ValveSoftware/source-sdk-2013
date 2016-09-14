@@ -1403,6 +1403,9 @@ void CServerGameDLL::LevelShutdown( void )
 
 	g_nCurrentChapterIndex = -1;
 
+	// Call Lua hook.
+	CLuaManager::call("LevelShutdown");
+
 #ifndef _XBOX
 #ifdef USE_NAV_MESH
 	// reset the Navigation Mesh

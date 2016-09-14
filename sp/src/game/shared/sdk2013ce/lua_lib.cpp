@@ -5,28 +5,66 @@
 
 #include "lua_lib.h"
 
-int _print(lua_State* state)
+LUA_FUNCTION(_assert)
 {
-	//int args = lua_gettop(state);
+	LUA_ARGS_MIN(argc, 1);
 
-	const char* msg = lua_tostring(state, 1);
-	Msg(msg);
+	int v = lua_toboolean(state, 1);
+	const char* message;
+	if (argc > 1)
+		message = lua_tostring(state, 1);
+	else
+		message = "assertion failed!";
 
+	if (!v) {
+		luaL_error(state, message);
+	}
+
+	lua_pushboolean(state, v);
+
+	return 1;
+}
+
+LUA_FUNCTION(_tostring)
+{
+	LUA_ARGS_MIN(argc, 1);
+
+	lua_pushstring(state, luaL_tolstring(state, 1, NULL));
+
+	return 1;
+}
+
+LUA_FUNCTION(_print)
+{
+	LUA_ARGS(argc);
+
+	for (int i = 1; i <= argc; i++) {
+		Msg(luaL_tolstring(state, i, NULL));
+	}
+	Msg("\n");
+	
 	return 0;
 }
 
-int _error(lua_State* state)
+LUA_FUNCTION(_error)
 {
 	// The error message is on top of the stack.
 	// Fetch it, print it and then pop it off the stack.
-	const char* message = lua_tostring(state, -1);
+	const char* message = luaL_tolstring(state, -1, NULL);
+
+	//luaL_error(state, message);
 	Warning("[Lua] Error: %s\n", message);
+
 	lua_pop(state, 1);
 
 	return 0;
 }
 
-int _type(lua_State* state)
+LUA_FUNCTION(_type)
 {
-	return 0;
+	LUA_ARGS_MIN(argc, 1);
+
+	lua_pushstring(state, luaL_typename(state, 1));
+
+	return 1;
 }

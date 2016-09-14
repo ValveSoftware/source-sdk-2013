@@ -7,6 +7,14 @@
 
 #include "..\..\lua\lua.hpp"
 
+// All Lua functions are declared the same way.
+#define LUA_FUNCTION(name)	int name(lua_State* state)
+
+#define LUA_ARGS(argc)		int argc = lua_gettop(state)
+#define LUA_ARGS_MIN(argc, minArgs)		\
+	int argc = lua_gettop(state);		\
+	luaL_argcheck(state, argc >= minArgs, 1, "")
+
 class CLuaManager
 {
 private:

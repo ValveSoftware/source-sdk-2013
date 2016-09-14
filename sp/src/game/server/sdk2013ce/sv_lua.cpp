@@ -13,4 +13,4 @@ void cc_lua_run(const CCommand& cmd)
 
 }
 
-ConCommand lua_run("lua_run", cc_lua_run, "", FCVAR_CHEAT|FCVAR_SERVER_CAN_EXECUTE);
+ConCommand lua_run("lua_run", cc_lua_run, "", FCVAR_CHEAT);
