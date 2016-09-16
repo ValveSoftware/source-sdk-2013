@@ -90,7 +90,7 @@
 #include "serverbenchmark_base.h"
 #include "querycache.h"
 
-#include "sdk2013ce/lua.h"
+#include "sdk2013ce/scriptmanager.h"
 
 
 #ifdef TF_DLL
@@ -745,7 +745,7 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 #endif
 
 	// SourceCE Lua Scripting
-	CLuaManager::init(filesystem);
+	CScriptManager::Init(filesystem);
 
 	return true;
 }
@@ -758,7 +758,7 @@ void CServerGameDLL::PostInit()
 void CServerGameDLL::DLLShutdown( void )
 {
 	// Last in, first out
-	CLuaManager::close();
+	CScriptManager::Close();
 
 	// Due to dependencies, these are not autogamesystems
 	ModelSoundsCacheShutdown();
@@ -1063,7 +1063,7 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	LoadMessageOfTheDay();
 
 	// Call Lua hook.
-	CLuaManager::call("LevelInit");
+	CScriptManager::Call("LevelInit");
 
 	// Sometimes an ent will Remove() itself during its precache, so RemoveImmediate won't happen.
 	// This makes sure those ents get cleaned up.
@@ -1348,6 +1348,9 @@ void CServerGameDLL::PreClientUpdate( bool simulating )
 
 void CServerGameDLL::Think( bool finalTick )
 {
+
+	CScriptManager::Call("Think");
+	
 	if ( m_fAutoSaveDangerousTime != 0.0f && m_fAutoSaveDangerousTime < gpGlobals->curtime )
 	{
 		// The safety timer for a dangerous auto save has expired
@@ -1404,7 +1407,7 @@ void CServerGameDLL::LevelShutdown( void )
 	g_nCurrentChapterIndex = -1;
 
 	// Call Lua hook.
-	CLuaManager::call("LevelShutdown");
+	CScriptManager::Call("LevelShutdown");
 
 #ifndef _XBOX
 #ifdef USE_NAV_MESH

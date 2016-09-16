@@ -13,12 +13,18 @@ LUA_FUNCTION(_print);
 LUA_FUNCTION(_error);
 LUA_FUNCTION(_type);
 
+LUA_FUNCTION(_server_);
+
 const luaL_Reg lib_base[] = {
 	{ "print", _print },
 	{ "tostring", _tostring },
 	{ "error", _error },
 	{ "type",  _type },
 	{ NULL, NULL }
+};
+
+const luaL_Reg lib_server[] = {
+
 };
 
 #endif

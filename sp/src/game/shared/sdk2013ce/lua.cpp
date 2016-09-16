@@ -13,7 +13,7 @@
 lua_State* CLuaManager::state = NULL;
 
 // Wrap calls to lua_pcall etc in this.
-#define LUA_CATCH(x) if (x != LUA_OK) {_error(state);}
+#define LUA_CATCH(x) if ((x) != LUA_OK) {_error(state);}
 
 
 void CLuaManager::loadFile(IFileSystem* filesystem, const char* path)
@@ -96,7 +96,10 @@ void CLuaManager::doString(const char* str)
 // TODO
 void CLuaManager::call(const char* hook)
 {
+	DevMsg("[Lua] Calling hook %s\n", hook);
 
+	lua_getglobal(state, hook);
+	LUA_CATCH(lua_pcall(state, 0, 0, 0));
 }
 
 
@@ -123,7 +126,7 @@ void CLuaManager::init(IFileSystem* filesystem)
 	lua_pushliteral(state, LUA_VERSION);
 	lua_setfield(state, -2, "_VERSION");
 
-	loadDir(filesystem, "lua/startup");
+	loadDir(filesystem, "lua/init");
 }
 
 void CLuaManager::close()
