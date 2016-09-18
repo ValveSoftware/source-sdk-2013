@@ -93,11 +93,8 @@ void CLuaManager::doString(const char* str)
 	)
 }
 
-// TODO
 void CLuaManager::call(const char* hook)
 {
-	DevMsg("[Lua] Calling hook %s\n", hook);
-
 	lua_getglobal(state, hook);
 	LUA_CATCH(lua_pcall(state, 0, 0, 0));
 }
