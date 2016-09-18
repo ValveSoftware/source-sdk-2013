@@ -21,13 +21,15 @@
 // Global Savedata for changelevel trigger
 BEGIN_DATADESC( CGrenade_Brickbat )
 
-	DEFINE_FIELD( m_nType, FIELD_INTEGER ),
-	DEFINE_FIELD( m_bExplodes, FIELD_BOOLEAN ),
-	DEFINE_FIELD( m_bBounceToFlat, FIELD_BOOLEAN ),
+	DEFINE_FIELD(m_nType, FIELD_INTEGER),
+	DEFINE_FIELD(m_bExplodes, FIELD_BOOLEAN),
+	DEFINE_FIELD(m_bBounceToFlat, FIELD_BOOLEAN),
 
 	// Function Pointers
 	DEFINE_FUNCTION( BrickbatTouch ),
 	DEFINE_FUNCTION( BrickbatThink ),
+
+	
 
 END_DATADESC()
 

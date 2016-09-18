@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$envmap" "env_cubemap"
+	"$nocull" 1
+	"$model" 1
+	"%noToolTexture" 1
+}

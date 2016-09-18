@@ -1,0 +1,8 @@
+"Wireframe"
+{
+	// Original shader: Wireframe
+	"$color" "[ 0.90 0.50 0.50 ]"
+	"$ignorez" 1
+	"$decal" 1
+	"%noToolTexture" 1
+}

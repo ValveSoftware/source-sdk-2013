@@ -1,4 +1,12 @@
 
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories "$BASE;$SRCDIR\game\shared\sdk2013ce"
+	}
+}
+
 
 $Project
 {
@@ -6,8 +14,24 @@ $Project
 	{
 		$Folder "sdk2013ce"
 		{
-			//$File	"$SRCDIR\game\shared\sdk2013ce\sdk2013ce_cvars.cpp"
-			//$File	"$SRCDIR\game\shared\sdk2013ce\sdk2013ce_cvars.h"
+			$File	"..\shared\sdk2013ce\lua.cpp"
+			$File	"..\shared\sdk2013ce\lua.h"
 		}
+	}
+	
+	$Folder "Header Files"
+	{
+		// Lua
+		$File	"$SRCDIR\lua\lua.hpp"
+		
+		$File	"$SRCDIR\lua\lua.h"
+		$File	"$SRCDIR\lua\lauxlib.h"
+		$File	"$SRCDIR\lua\luaconf.h"
+		$File	"$SRCDIR\lua\lualib.h"
+	}
+	
+	$Folder "Link Libraries"
+	{
+		$Lib	liblua53
 	}
 }

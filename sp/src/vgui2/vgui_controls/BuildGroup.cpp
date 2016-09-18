@@ -584,12 +584,7 @@ bool BuildGroup::KeyCodeTyped(KeyCode code, Panel *panel)
 	int dx=0;
 	int dy=0;
 
-	bool shift = ( input()->IsKeyDown(KEY_LSHIFT) || input()->IsKeyDown(KEY_RSHIFT) );
-	bool ctrl = ( input()->IsKeyDown(KEY_LCONTROL) || input()->IsKeyDown(KEY_RCONTROL) );
-	bool alt = (input()->IsKeyDown(KEY_LALT) || input()->IsKeyDown(KEY_RALT));
-
-	
-	if ( ctrl && shift && alt && code == KEY_B)
+	if (VGUI_INPUT_CTRL && VGUI_INPUT_ALT && VGUI_INPUT_SHIFT && code == KEY_B)
 	{
 		// enable build mode
 		EditablePanel *ep = dynamic_cast< EditablePanel * >( panel );
@@ -631,7 +626,7 @@ bool BuildGroup::KeyCodeTyped(KeyCode code, Panel *panel)
 
 	}
 
-	if (ctrl)
+	if (VGUI_INPUT_CTRL)
 	{
 		switch (code)
 		{
@@ -662,7 +657,7 @@ bool BuildGroup::KeyCodeTyped(KeyCode code, Panel *panel)
 
 		panel->GetBounds(x,y,wide,tall);
 
-		if(shift)
+		if (VGUI_INPUT_SHIFT)
 		{
 			panel->SetSize(wide+dx,tall+dy);
 		}

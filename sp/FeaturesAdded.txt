@@ -18,6 +18,7 @@ Notes: Run with the launch parameter "-shaderedit" to open SSE
 
 **********
 Static Prop Scaling
+(UNFINISHED)
 **********
 Authors(s): DankParrot
 Files modified:

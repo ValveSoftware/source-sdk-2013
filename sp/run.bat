@@ -21,8 +21,10 @@ if not exist "%steampath%\steam.exe" (
 	) else set steampath=%ProgramFiles(x86)%
 )
 
-echo Running a game
-@start /D "%steampath%\steamapps\common\Source SDK Base 2013 Singleplayer" hl2.exe -dev -console -novid -game "%CD%\game\sdk2013CE"
+echo Running game...
+
+@start /D "%steampath%\steamapps\common\Source SDK Base 2013 Singleplayer" hl2.exe -dev -console -novid -game "%CD%\game\sdk2013CE" -condebug
+
 if %ERRORLEVEL% NEQ 0 goto error
 goto success
 

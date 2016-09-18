@@ -299,6 +299,7 @@ $Project "Server (SDK2013CE)"
 				$File	"hl2\weapon_flaregun.h"
 			}
 		}
+	
 	}
 }
 
