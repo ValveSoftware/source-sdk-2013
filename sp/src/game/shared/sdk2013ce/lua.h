@@ -25,6 +25,11 @@ private:
 
 	static void AddLibs();
 public:
+
+	static inline lua_State* GetState() {
+		return state;
+	}
+
 	static void init(IFileSystem* filesystem);
 	static void close();
 
