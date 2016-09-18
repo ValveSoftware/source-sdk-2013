@@ -5,41 +5,34 @@
 
 #include "lua_lib.h"
 
-LUA_FUNCTION(_assert)
+
+int luaopen_overrides(lua_State* state)
 {
-	LUA_ARGS_MIN(argc, 1);
+	// Lower level stuff has to be
+	// implemented in-engine (see lua_lib.h)
+	// so first of all we add the base lib.
+	// It gets to use the global namespace.
+	lua_pushglobaltable(state);
+	luaL_setfuncs(state, lib_base, 0);
 
-	int v = lua_toboolean(state, 1);
-	const char* message;
-	if (argc > 1)
-		message = lua_tostring(state, 1);
-	else
-		message = "assertion failed!";
+	// set _G
+	lua_pushvalue(state, -1);
+	lua_setfield(state, -2, "_G");
 
-	if (!v) {
-		luaL_error(state, message);
-	}
-
-	lua_pushboolean(state, v);
+	// set _VERSION
+	lua_pushliteral(state, LUA_VERSION);
+	lua_setfield(state, -2, "_VERSION");
 
 	return 1;
 }
 
-LUA_FUNCTION(_tostring)
-{
-	LUA_ARGS_MIN(argc, 1);
-
-	lua_pushstring(state, luaL_tolstring(state, 1, NULL));
-
-	return 1;
-}
 
 LUA_FUNCTION(_print)
 {
 	LUA_ARGS(argc);
 
 	for (int i = 1; i <= argc; i++) {
-		Msg(luaL_tolstring(state, i, NULL));
+		ConColorMsg(COLOR_CYAN, luaL_tolstring(state, i, NULL));
 	}
 	Msg("\n");
 	
@@ -58,13 +51,4 @@ LUA_FUNCTION(_error)
 	lua_pop(state, 1);
 
 	return 0;
-}
-
-LUA_FUNCTION(_type)
-{
-	LUA_ARGS_MIN(argc, 1);
-
-	lua_pushstring(state, luaL_typename(state, 1));
-
-	return 1;
 }

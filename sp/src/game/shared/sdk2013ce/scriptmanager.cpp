@@ -2,6 +2,8 @@
 #include "scriptmanager.h"
 
 
+#include "keyvalues.h"
+
 CScriptManager::CScriptManager()
 {
 }

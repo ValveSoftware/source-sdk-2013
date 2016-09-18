@@ -22,6 +22,8 @@ private:
 	~CLuaManager();
 
 	static lua_State* state;
+
+	static void AddLibs();
 public:
 	static void init(IFileSystem* filesystem);
 	static void close();
@@ -29,7 +31,7 @@ public:
 	// Load a file relative to the 'MOD' directory.
 	static void loadFile(IFileSystem* pFilesystem, const char* filename);
 	// Recursively load every .lua file in a folder.
-	static void loadDir(IFileSystem* pFilesystem, const char* dirname);
+	static void LoadDir(IFileSystem* pFilesystem, const char* dirname);
 
 	// Executes str.
 	static void doString(const char* str);

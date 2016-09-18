@@ -21,7 +21,7 @@
 --		- Override a rarely used operator,
 --		like __band (&) to use in inheritence
 --
---		
+--	
 
 function class (body)
 
@@ -60,6 +60,23 @@ function class (body)
 		return instance
 	end
 	
+	-- overrides a's memebers with b's
+	metaTable.__band = function(a, b)
+		local amt = getmetatable(a)
+		local bmt = getmetatable(b)
+		
+		for i in pairs(bmt.__class) do
+			amt.__class[i] = bmt.__class[i]
+		end
+		
+		amt.__new = bmt.__new
+		setmetatable(a, amt)
+		
+		return a
+		
+	end
+	
 	setmetatable(cl, metaTable)
 	return cl
 end
+
