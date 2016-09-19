@@ -15,6 +15,7 @@
 	int argc = lua_gettop(state);		\
 	luaL_argcheck(state, argc >= minArgs, 1, "")
 
+// TODO: Should extend IScriptingLanguage
 class CLuaManager
 {
 private:

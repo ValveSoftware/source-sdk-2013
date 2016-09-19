@@ -12,8 +12,6 @@
 LUA_FUNCTION(_print);
 LUA_FUNCTION(_error);
 
-LUA_FUCNTION(_AddConsoleCommand);
-
 const luaL_Reg lib_base[] = {
 	{ "print", _print },
 	{ "error", _error },
