@@ -411,7 +411,7 @@ void DrawMeasuredSections(void)
 #endif
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Purpose: Draw debug overlays
 //-----------------------------------------------------------------------------
 void DrawAllDebugOverlays( void ) 
 {
@@ -744,8 +744,20 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	gamestatsuploader->InitConnection();
 #endif
 
-	// SourceCE Lua Scripting
+	// SourceCE Scripting (Lua)
 	CScriptManager::Init(filesystem);
+	CScriptManager::AddHook("DLLInit");
+	CScriptManager::AddHook("PostInit");
+	CScriptManager::AddHook("GameInit");
+	CScriptManager::AddHook("LevelInit");
+
+	CScriptManager::AddHook("ClientConnect");
+	CScriptManager::AddHook("ClientActive");
+	
+
+	CScriptManager::AddHook("GameShutdown");
+	CScriptManager::AddHook("LevelShutdown");
+	CScriptManager::AddHook("DLLShutdown");
 
 	return true;
 }
@@ -753,12 +765,16 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 void CServerGameDLL::PostInit()
 {
 	IGameSystem::PostInitAllSystems();
+	CScriptManager::Call("PostInit");
 }
 
 void CServerGameDLL::DLLShutdown( void )
 {
+	CScriptManager::Call("DLLShutdown");
+
 	// Last in, first out
 	CScriptManager::Close();
+
 
 	// Due to dependencies, these are not autogamesystems
 	ModelSoundsCacheShutdown();
@@ -870,6 +886,8 @@ bool CServerGameDLL::GameInit( void )
 		gameeventmanager->FireEvent( event );
 	}
 
+	CScriptManager::Call("GameInit");
+
 	return true;
 }
 
@@ -878,6 +896,7 @@ bool CServerGameDLL::GameInit( void )
 void CServerGameDLL::GameShutdown( void )
 {
 	ResetGlobalState();
+	CScriptManager::Call("GameShutdown");
 }
 
 static bool g_OneWayTransition = false;
@@ -1601,6 +1620,7 @@ typedef struct
 	const char *pTitleName;
 } TITLECOMMENT;
 
+// TODO: replace this big dumb hardcoded list with something better
 // this list gets searched for the first partial match, so some are out of order
 static TITLECOMMENT gTitleComments[] =
 {
@@ -2623,8 +2643,9 @@ bool CServerGameClients::ClientConnect( edict_t *pEdict, const char *pszName, co
 {	
 	if ( !g_pGameRules )
 		return false;
-	
-	return g_pGameRules->ClientConnected( pEdict, pszName, pszAddress, reject, maxrejectlen );
+
+	// Pass args to game rules and scripting system.
+	return g_pGameRules->ClientConnected( pEdict, pszName, pszAddress, reject, maxrejectlen ) && CScriptManager::Call("ClientConnect", pEdict, pszName, pszAddress, reject, maxrejectlen);
 }
 
 //-----------------------------------------------------------------------------
@@ -2648,6 +2669,8 @@ void CServerGameClients::ClientActive( edict_t *pEdict, bool bLoadGame )
 			pEntity->PostClientActive();
 		}
 	}
+
+	CScriptManager::Call("ClientConnect", pEdict, bLoadGame);
 
 	// Tell the sound controller to check looping sounds
 	CBasePlayer *pPlayer = ( CBasePlayer * )CBaseEntity::Instance( pEdict );
@@ -3195,6 +3218,8 @@ void CServerGameClients::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pK
 	}
 }
 
+#pragma region Messaging
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -3392,6 +3417,8 @@ void MessageWriteBits( const void *pIn, int nBits )
 
 	g_pMsgBuffer->WriteBits( pIn, nBits );
 }
+
+#pragma endregion
 
 class CServerDLLSharedAppSystems : public IServerDLLSharedAppSystems
 {
