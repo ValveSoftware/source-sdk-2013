@@ -70,5 +70,4 @@ editor_config.txt
 *.vpc_crc
 *.pdb
 *.sentinel
-*.lib
 *.bak
