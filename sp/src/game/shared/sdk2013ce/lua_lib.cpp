@@ -3,6 +3,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#include "scriptmanager.h"
 #include "lua_lib.h"
 
 
@@ -13,7 +14,7 @@ int luaopen_overrides(lua_State* state)
 	// so first of all we add the base lib.
 	// It gets to use the global namespace.
 	lua_pushglobaltable(state);
-	luaL_setfuncs(state, lib_base, 0);
+	//luaL_setfuncs(state, lib_base, 0);
 
 	// set _G
 	lua_pushvalue(state, -1);
@@ -23,32 +24,35 @@ int luaopen_overrides(lua_State* state)
 	lua_pushliteral(state, LUA_VERSION);
 	lua_setfield(state, -2, "_VERSION");
 
+	// new way
+	CScriptManager::BindFunction(_print, "print");
+	CScriptManager::BindFunction(_error, "error");
+
 	return 1;
 }
 
+// these functions do it the deprecated way
 
-LUA_FUNCTION(_print)
+ScriptVariable_t* _print(ScriptVariable_t* args, int argc)
 {
-	LUA_ARGS(argc);
-
 	for (int i = 1; i <= argc; i++) {
-		ConColorMsg(COLOR_CYAN, luaL_tolstring(state, i, NULL));
+		ConColorMsg(COLOR_CYAN, args[i].ToString());
 	}
 	Msg("\n");
 	
-	return 0;
+	return nullptr;
 }
 
-LUA_FUNCTION(_error)
+ScriptVariable_t* _error(ScriptVariable_t* args, int argc)
 {
+	// TODO: Implement
+
 	// The error message is on top of the stack.
 	// Fetch it, print it and then pop it off the stack.
-	const char* message = luaL_tolstring(state, -1, NULL);
+	//const char* message = luaL_tolstring(state, -1, NULL);
 
 	//luaL_error(state, message);
-	Warning("[Lua] Error: %s\n", message);
+	Warning("[Script] Error: %s\n");
 
-	lua_pop(state, 1);
-
-	return 0;
+	return nullptr;
 }

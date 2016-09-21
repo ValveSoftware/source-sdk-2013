@@ -7,15 +7,23 @@
 
 void CScriptManager::AddHook(const char* HookName)
 {
-
+	// TODO!!
 }
 
-CScriptConCommand::CScriptConCommand(const char *pName, const char *pHelpString = 0, int flags = 0)
+
+void CScriptManager::BindFunction(BindFunction_t function, const char* funcName)
+{
+	// TODO!!
+}
+
+CScriptConCommand::CScriptConCommand(const char *pName, CScriptFunction* callback, const char *pHelpString = 0, int flags = 0)
 {
 	BaseClass::Create(pName, pHelpString, flags);
+	pCallback = callback;
 }
 
 void CScriptConCommand::Dispatch(const CCommand &cmd)
 {
-	// TODO
+	//pCallback->Call
+	// TODO!!
 }

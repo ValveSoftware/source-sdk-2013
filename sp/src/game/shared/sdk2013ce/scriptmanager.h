@@ -1,29 +1,60 @@
 #pragma once
-// Currently just inlined calls to CLuaManager.
-// To be replaced later with an actual script
-// manager somewhat like VScript.
-
 #include "lua.h"
 
+
+struct ScriptObject_t {
+	// TODO
+};
+
+union ScriptVariable_t {
+	const char* string;
+	int integer;
+	float number;
+	ScriptObject_t object;
+
+	const char* ToString()
+	{
+		// TODO
+	}
+};
+
+// C++ function that can be bound to a script function
+typedef ScriptVariable_t* (*BindFunction_t)(ScriptVariable_t* args, int argc);
+
+// Handle for calling a script function from C++
+class CScriptFunction
+{
+private:
+public:
+	int argc = 0;
+
+	CScriptFunction();
+	~CScriptFunction();
+
+	// length of args must == argc
+	void Call(ScriptVariable_t* args);
+};
+
+// static class to manage all scripts
 class CScriptManager
 {
 private:
 	CScriptManager()	{};
 	~CScriptManager()	{};
 
-	
-
 public:
 	static void AddHook(const char* hookname);
+	
+	// Binds the C function func to script function funcname
+	static void BindFunction(BindFunction_t func, const char* funcName);
 
 	static inline void Init(IFileSystem* filesystem) {
+		// TODO: Placeholder
 		CLuaManager::init(filesystem);
-		CScriptConCommand cc_TEST("cc_test");
-		Msg("CC_TEST: %d", cc_TEST.IsCommand());
-
 		
 	};
 	static inline void Close() {
+		// TODO: Placeholder
 		CLuaManager::close();
 	};
 
@@ -34,6 +65,7 @@ public:
 	// store function addresses in wam.
 	static inline int Call(const char* name, ...) {
 		// TODO Pass args and return value.
+		// TODO: Placeholder
 		CLuaManager::call(name);
 		return true;
 	};
@@ -41,20 +73,23 @@ public:
 
 class CScriptConCommand : ConCommandBase
 {
+private:
+	CScriptFunction* pCallback;
 public:
 	typedef ConCommandBase BaseClass;
 
-	CScriptConCommand(const char *pName, const char *pHelpString = 0, int flags = 0);
+	CScriptConCommand(const char *pName, CScriptFunction* callback, const char *pHelpString = 0, int flags = 0);
 
 	virtual ~CScriptConCommand(void);
 
-	virtual	bool IsCommand(void) const { return true; };
+	bool IsCommand(void) const { return true; };
 
 	// TODO
-	//virtual int AutoCompleteSuggest(const char *partial, CUtlVector< CUtlString > &commands);
+	//int AutoCompleteSuggest(const char *partial, CUtlVector< CUtlString > &commands);
 
-	virtual bool CanAutoComplete(void) { return false; };
+	bool CanAutoComplete(void) { return false; };
 
 	// Invoke the function
-	virtual void Dispatch(const CCommand &command);
+	void Dispatch(const CCommand &command);
+
 };

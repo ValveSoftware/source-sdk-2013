@@ -5,18 +5,14 @@
 #pragma once
 #endif
 
-#include "lua.h"
+#include "scriptmanager.h"
 
 // TODO: load, loadfile, dofile
 
-LUA_FUNCTION(_print);
-LUA_FUNCTION(_error);
+ScriptVariable_t* _print(ScriptVariable_t* args, int argc);
+ScriptVariable_t* _error(ScriptVariable_t* args, int argc);
 
-const luaL_Reg lib_base[] = {
-	{ "print", _print },
-	{ "error", _error },
-	{ NULL, NULL }
-};
+ScriptVariable_t* __print(ScriptVariable_t* args, int argc);
 
 int luaopen_overrides(lua_State* state);
 
