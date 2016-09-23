@@ -31,8 +31,6 @@ int luaopen_overrides(lua_State* state)
 	return 1;
 }
 
-// these functions do it the deprecated way
-
 ScriptVariable_t* _print(ScriptVariable_t* args, int argc)
 {
 	for (int i = 1; i <= argc; i++) {
