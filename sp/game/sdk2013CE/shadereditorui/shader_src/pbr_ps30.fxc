@@ -1,0 +1,179 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+#define SHADER_EDITOR_2013_COMPILE
+
+// Combos
+// DYNAMIC: "NUM_LIGHTS"		"0..4"
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+sampler _Sampler_01		: register( s1 );
+sampler _Sampler_02		: register( s2 );
+sampler _Sampler_03		: register( s3 );
+
+// Constants
+const float3 g_cAmbientCube[6]		: register( c0 );
+PixelShaderLightInfo g_cLightInfo[3]		: register( c6 );
+
+// User code - globals
+
+//
+
+const static float PI = 3.141592f;
+
+// GGX / Trowbridge-Reitz
+// [Walter et al. 2007, "Microfacet models for refraction through rough surfaces"]
+
+// D(A, H. N) = a^2 / (PI * (((NdotH * a^2 - NdotH) * NdotH + 1)^2))
+// where a = Roughness^2
+float D_GGX( float Roughness, float NoH )
+{
+	float a = Roughness * Roughness;
+	float a2 = a * a;
+	float d = ( NoH * a2 - NoH ) * NoH + 1;	// 2 mad
+	return a2 / ( PI*d*d );					// 4 mul, 1 rcp
+}
+
+float3 F_Schlick( float3 SpecularColor, float VoH )
+{
+	float Fc = pow( 1 - VoH, 5 );				// 1 sub, 3 mul
+	//return Fc + (1 - Fc) * SpecularColor;		// 1 add, 3 mad
+	
+	// Anything less than 2% is physically impossible and is instead considered to be shadowing
+	return saturate( 50.0 * SpecularColor.g ) * Fc + (1 - Fc) * SpecularColor;
+	
+}
+
+float G_Schlick(float Roughness, float NoV, float NoL)
+{
+	float k = pow(Roughness + 1, 2) / 8;
+	float G1_L = NoL / (NoL * (1 - k) + k);
+	float G1_V = NoV / (NoV * (1 - k) + k);
+	return G1_L * G1_V;
+}
+
+// User code - function bodies
+void LightDiffuse( in float4 LightAttn, in float3 WPos, in float3 WNormal, in float3 ViewDir, in float AmbientOcclusion, out float3 Light )
+{
+	Light = (float3)0;
+	
+	float3 Ambient = AmbientLight( WNormal, g_cAmbientCube );
+	Ambient *= AmbientOcclusion * AmbientOcclusion; // note squaring...
+	float3 Color;
+	float3 Dir;
+
+	for ( int i = 0; i < NUM_LIGHTS; i++ )
+	{
+		GetLightData( g_cLightInfo, i, WPos, Color, Dir );
+		float3 NdotL = dot(WNormal, Dir);
+	// Lambert
+		Light += saturate(NdotL * Color) * LightAttn[i];
+	// Half-Lambert
+		//Light += pow(saturate(NdotL * 0.5 + 0.5) * LightAttn[i] * Color, 2);
+	// Isotropic
+		//Light = pow( NdotL, Exponent ) * ( ( Exponent + 1.0 ) * 0.5 ); 
+	}
+	//
+	Light += Ambient * AmbientOcclusion * AmbientOcclusion;
+}
+void LightSpecular( in float3 WPos, in float3 WNormal, in float3 ViewDir, in float4 LightAttn, in float Roughness, in float AmbientOcclusion, in float3 SpecularColor, out float3 Specular )
+{
+	Specular = (float3)0;
+	float3 LColor;
+	float3 LDir;
+	
+	for (int i = 0; i < NUM_LIGHTS; i++) {
+		
+		GetLightData(g_cLightInfo, 0, WPos, LColor, LDir);
+		
+		// N = WNormal
+		float3 N = WNormal;
+		// L = Point -> Light
+		float3 L = LDir * -1;
+		// V = Point -> View
+		float3 V = ViewDir * -1;
+
+		float3 H = normalize(V + L);
+	
+		float3 NdotL = dot(N, L);
+		float3 NdotV = abs( dot(N, V) ) + 1e-5;
+		float3 NdotH = dot(N, H);
+		float3 VdotH = dot(V, H);
+	
+		float3 D = D_GGX(Roughness, NdotH);
+		// Fresnel
+		// Using 1.0f instead of SpecularColor
+		float3 F = F_Schlick(1.0f, VdotH);
+		float3 G = G_Schlick(Roughness, NdotV, NdotL);
+	
+		// Cook Torrance:
+		// Specular = D*G*F / (4*NdotL*NdotV)
+		//		or
+		// Specular = D*Vis*F
+		// Vis: (G / (4*NoL*NoV))
+
+		Specular = (D*G*F) / (4 * NdotL*NdotV);
+	}
+
+	Specular *= AmbientOcclusion;
+	Specular *= SpecularColor;
+}
+
+// Semantic structures
+struct PS_INPUT
+{
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float3 vTexCoord_1			:	TEXCOORD1;
+	float3 vTexCoord_2			:	TEXCOORD2;
+	float4 vTexCoord_3			:	TEXCOORD3;
+	float3 vTexCoord_5			:	TEXCOORD5;
+	float3 vTexCoord_6			:	TEXCOORD6;
+	float3 vTexCoord_7			:	TEXCOORD7;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float4 _texLookup_12 = tex2D( _Sampler_00, In.vTexCoord_0 );
+	float3 _var0 = _texLookup_12.rgb;
+	float _var1 = _texLookup_12.a;
+	float3 _var2 = tex2D( _Sampler_01, In.vTexCoord_0 ).rgb;
+	float3x3 _var3 = { In.vTexCoord_5,
+				In.vTexCoord_6,
+				In.vTexCoord_1 };
+	float _var4 = tex2D( _Sampler_02, In.vTexCoord_0 ).r;
+	float _var5 = tex2D( _Sampler_03, In.vTexCoord_0 ).r;
+	float3 _var6 = _var0;
+	_var2 = _var2 * float( 2.000000 );
+	_var5 = float( 1.000000 ) - _var5;
+	_var2 = _var2 - float( 1.000000 );
+	_var2 = normalize( _var2 );
+	_var2 = mul( _var2, _var3 );
+	_var2 = normalize( _var2 );
+	float3 _var7 = _var2;
+	float3 _var8 = (float3)0;
+	LightDiffuse( In.vTexCoord_3, In.vTexCoord_2, _var7, In.vTexCoord_7, _var4, _var8 );
+	float3 _var9 = (float3)0;
+	LightSpecular( In.vTexCoord_2, _var7, In.vTexCoord_7, In.vTexCoord_3, float( 1.000000 ), _var4, float3( 1.000000, 1.000000, 1.000000 ), _var9 );
+	_var6 = _var6 * _var8;
+	_var6 = _var6 + _var9;
+	float4 _var10 = float4( _var6, _var1 );
+	Out.vColor_0 = _var10;
+	return Out;
+}
