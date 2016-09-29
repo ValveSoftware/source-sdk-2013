@@ -10,12 +10,23 @@
 #include "lua.h"
 #include "lua_lib.h"
 
-lua_State* CLuaManager::state = NULL;
-
 // Wrap calls to lua_pcall etc in this.
-#define LUA_CATCH(x) if ((x) != LUA_OK) {_error(state);}
+// TODO: Convert lua_State to ScriptVariable_t
+#define LUA_CATCH(x) if ((x) != LUA_OK) {}
 
-void CLuaManager::loadFile(IFileSystem* filesystem, const char* path)
+int _lua_error(lua_State* state)
+{
+	// The error message is on top of the stack.
+	// Fetch it, print it and then pop it off the stack.
+	const char* message = luaL_tolstring(state, -1, NULL);
+
+	//luaL_error(state, message);
+	Warning("[Script] Error: %s\n", message);
+
+	return 0;
+}
+
+void CLuaManager::LoadFile(IFileSystem* filesystem, const char* path)
 {
 	ConDColorMsg(COLOR_CYAN, "[Lua] Loading %s\n", path);
 
@@ -73,7 +84,7 @@ void CLuaManager::LoadDir(IFileSystem* filesystem, const char* dir)
 				LoadDir(filesystem, path);
 			}
 		} else {
-			loadFile(filesystem, path);
+			LoadFile(filesystem, path);
 		}
 
 		pFileName = filesystem->FindNext(finder);
@@ -82,8 +93,13 @@ void CLuaManager::LoadDir(IFileSystem* filesystem, const char* dir)
 	filesystem->FindClose(finder);
 }
 
+void CLuaManager::DoFile(IFileSystem* pFilesystem, const char* filename)
+{
 
-void CLuaManager::doString(const char* str)
+}
+
+
+void CLuaManager::DoString(const char* str)
 {
 	ConDColorMsg(COLOR_CYAN, "[Lua] Running String: %s\n", str);
 
@@ -92,19 +108,49 @@ void CLuaManager::doString(const char* str)
 	)
 }
 
-void CLuaManager::call(const char* hook)
+void CLuaManager::Call(const char* hook)
 {
 	lua_getglobal(state, hook);
 	LUA_CATCH(lua_pcall(state, 0, 0, 0));
 }
 
+void CLuaManager::BindFunction(BindFunction_t func, const char* funcName)
+{
+	functionBinds.AddToTail({ funcName, (lua_CFunction)func });
 
-void CLuaManager::init(IFileSystem* filesystem)
+	// TODO: Do this at init or something
+	lua_pushglobaltable(state);
+	int funcC = functionBinds.Count();
+	luaL_Reg* l = new luaL_Reg[funcC];
+
+	functionBinds.CopyArray(l, funcC);
+	luaL_setfuncs(state, l, 0);
+}
+
+CUtlVector<const char*>* CLuaManager::GetBinds()
+{
+	int len = functionBinds.Count();
+
+	CUtlVector<const char*>* bindsList = new CUtlVector<const char*>();
+	for (int i = 0; i < len; i++)
+	{
+		bindsList->AddToTail(functionBinds[i].name);
+	}
+
+	return bindsList;
+}
+
+CUtlVector<const char*>* CLuaManager::GetHooks()
+{
+	return &hooks;
+}
+
+void CLuaManager::Init(IFileSystem* filesystem)
 {
 	ConColorMsg(COLOR_CYAN, "[Lua] Initializing\n");
 	
 	state = luaL_newstate();
-	lua_atpanic(state, _error);
+	//lua_atpanic(state, _error);
 
 	AddLibs();
 
@@ -143,7 +189,7 @@ void CLuaManager::AddLibs()
 	luaopen_overrides(state);
 }
 
-void CLuaManager::close()
+void CLuaManager::Close()
 {
 	ConColorMsg(COLOR_CYAN, "[Lua] Shutting down.\n");
 	lua_close(state);

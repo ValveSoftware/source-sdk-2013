@@ -12,6 +12,6 @@ common_flashlight_fxc.h
 common_parallax.h
 c:\program files (x86)\steam\steamapps\common\source sdk base 2013 singleplayer\bin\\shadercompile.exe
 c:\program files (x86)\steam\steamapps\common\source sdk base 2013 singleplayer\bin\\shadercompile_dll.dll
-0000CB_pbr_pos_preview_vs30.fxc
-0000CB_pbr_preview_vs30.fxc
-0000CB_pbr_preview_ps30.fxc
+0001B4_pbr_pos_preview_vs30.fxc
+0001B4_pbr_preview_vs30.fxc
+0001B4_pbr_preview_ps30.fxc

@@ -1,39 +1,13 @@
+#ifndef SCRIPT_MANAGER_H
+#define SCRIPT_MANAGER_H
+
+#ifdef _WIN32
 #pragma once
-#include "lua.h"
+#endif
+
+#include "IScriptingLanguage.h"
 
 
-struct ScriptObject_t {
-	// TODO
-};
-
-union ScriptVariable_t {
-	const char* string;
-	int integer;
-	float number;
-	ScriptObject_t object;
-
-	const char* ToString()
-	{
-		// TODO
-	}
-};
-
-// C++ function that can be bound to a script function
-typedef ScriptVariable_t* (*BindFunction_t)(ScriptVariable_t* args, int argc);
-
-// Handle for calling a script function from C++
-class CScriptFunction
-{
-private:
-public:
-	int argc = 0;
-
-	CScriptFunction();
-	~CScriptFunction();
-
-	// length of args must == argc
-	void Call(ScriptVariable_t* args);
-};
 
 // static class to manage all scripts
 class CScriptManager
@@ -43,19 +17,18 @@ private:
 	~CScriptManager()	{};
 
 public:
+	// TODO make this a proper array of languages or something
+	static IScriptingLanguage* lang;
+
 	static void AddHook(const char* hookname);
 	
 	// Binds the C function func to script function funcname
 	static void BindFunction(BindFunction_t func, const char* funcName);
 
-	static inline void Init(IFileSystem* filesystem) {
-		// TODO: Placeholder
-		CLuaManager::init(filesystem);
-		
-	};
-	static inline void Close() {
-		// TODO: Placeholder
-		CLuaManager::close();
+	static void Init(IFileSystem* filesystem);
+
+	static void Close() {
+		lang->Close();
 	};
 
 	// Call a scripting hook.
@@ -63,10 +36,9 @@ public:
 	// make hook calling 100x faster.
 	// i.e. catch when hook functions aren't defined,
 	// store function addresses in wam.
-	static inline int Call(const char* name, ...) {
-		// TODO Pass args and return value.
-		// TODO: Placeholder
-		CLuaManager::call(name);
+	static int Call(const char* name, ...) {
+		// TODO Args
+		lang->Call(name);
 		return true;
 	};
 };
@@ -80,7 +52,7 @@ public:
 
 	CScriptConCommand(const char *pName, CScriptFunction* callback, const char *pHelpString = 0, int flags = 0);
 
-	virtual ~CScriptConCommand(void);
+	virtual ~CScriptConCommand(void) {};
 
 	bool IsCommand(void) const { return true; };
 
@@ -93,3 +65,5 @@ public:
 	void Dispatch(const CCommand &command);
 
 };
+
+#endif

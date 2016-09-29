@@ -6,44 +6,53 @@
 #endif
 
 #include "..\..\lua\lua.hpp"
+#include "IScriptingLanguage.h"
 
-// All Lua functions are declared the same way.
-#define LUA_FUNCTION(name)	int name(lua_State* state)
+// Deprecated
+//#define LUA_FUNCTION(name)	int name(lua_State* state)
 
-#define LUA_ARGS(argc)		int argc = lua_gettop(state)
-#define LUA_ARGS_MIN(argc, minArgs)		\
-	int argc = lua_gettop(state);		\
-	luaL_argcheck(state, argc >= minArgs, 1, "")
+//#define LUA_ARGS(argc)		int argc = lua_gettop(state)
+//#define LUA_ARGS_MIN(argc, minArgs)		\
+//	int argc = lua_gettop(state);		\
+//	luaL_argcheck(state, argc >= minArgs, 1, "")
 
 // TODO: Should extend IScriptingLanguage
-class CLuaManager
+class CLuaManager : public IScriptingLanguage
 {
 private:
-	CLuaManager();
-	~CLuaManager();
+	lua_State* state;
 
-	static lua_State* state;
-
-	static void AddLibs();
+	void AddLibs();
+	
+	CUtlVector<luaL_Reg> functionBinds;
+	CUtlVector<const char*> hooks;
 public:
+	
+	CLuaManager(IFileSystem* filesystem) { Init(filesystem); };
 
-	static inline lua_State* GetState() {
+	inline lua_State* GetState() {
 		return state;
 	}
 
-	static void init(IFileSystem* filesystem);
-	static void close();
+	void Init(IFileSystem* filesystem);
+	void Close();
 
 	// Load a file relative to the 'MOD' directory.
-	static void loadFile(IFileSystem* pFilesystem, const char* filename);
+	void LoadFile(IFileSystem* pFilesystem, const char* filename);
 	// Recursively load every .lua file in a folder.
-	static void LoadDir(IFileSystem* pFilesystem, const char* dirname);
+	void LoadDir(IFileSystem* pFilesystem, const char* dirname);
+
+	void BindFunction(BindFunction_t func, const char* funcName);
+	CUtlVector<const char*>* GetBinds();
+	CUtlVector<const char*>* GetHooks();
 
 	// Executes str.
-	static void doString(const char* str);
+	void DoString(const char* str);
+	void DoFile(IFileSystem* pFilesystem, const char* filename);
 
 	// Calls hook hookName.
-	static void call(const char* hookName);
+	void Call(const char* hookName);
+	void AddHook(const char* hookName) { hooks.AddToTail(hookName); };
 };
 
 #endif

@@ -2,7 +2,7 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-
+#include "lua.h"
 #include "scriptmanager.h"
 #include "lua_lib.h"
 
@@ -43,8 +43,6 @@ ScriptVariable_t* _print(ScriptVariable_t* args, int argc)
 
 ScriptVariable_t* _error(ScriptVariable_t* args, int argc)
 {
-	// TODO: Implement
-
 	// The error message is on top of the stack.
 	// Fetch it, print it and then pop it off the stack.
 	//const char* message = luaL_tolstring(state, -1, NULL);
