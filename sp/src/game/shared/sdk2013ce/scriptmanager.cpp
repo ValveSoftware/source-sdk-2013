@@ -4,6 +4,8 @@
 #include "keyvalues.h"
 #include "scriptmanager.h"
 
+#include <functional>
+
 IScriptingLanguage* CScriptManager::lang = NULL;
 
 void CScriptFunction::Call(ScriptVariable_t* args)
@@ -22,10 +24,10 @@ void CScriptManager::AddHook(const char* HookName)
 	lang->AddHook(HookName);
 }
 
-
-void CScriptManager::BindFunction(BindFunction_t function, const char* funcName)
+template<typename F, typename... Args>
+void CScriptManager::BindFunction(F function, const char* funcName)
 {
-	
+	lang->BindFunction(funcName, function);
 }
 
 CScriptConCommand::CScriptConCommand(const char *pName, CScriptFunction* callback, const char *pHelpString /*= 0*/, int flags /*= 0*/)
