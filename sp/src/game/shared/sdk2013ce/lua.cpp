@@ -10,9 +10,13 @@
 #include "lua.h"
 #include "lua_lib.h"
 
+#include <functional>
+
 // Wrap calls to lua_pcall etc in this.
 // TODO: Convert lua_State to ScriptVariable_t
 #define LUA_CATCH(x) if ((x) != LUA_OK) {}
+
+#pragma region Internal
 
 int _lua_error(lua_State* state)
 {
@@ -25,6 +29,17 @@ int _lua_error(lua_State* state)
 
 	return 0;
 }
+
+template<typename Callable>
+int _lua_call(lua_State* state, Callable* pFunc)
+{
+
+}
+
+
+#pragma endregion
+
+
 
 void CLuaManager::LoadFile(IFileSystem* filesystem, const char* path)
 {
@@ -114,17 +129,20 @@ void CLuaManager::Call(const char* hook)
 	LUA_CATCH(lua_pcall(state, 0, 0, 0));
 }
 
-void CLuaManager::BindFunction(BindFunction_t func, const char* funcName)
+
+template<typename F>
+void CLuaManager::BindFunction(const char* funcName, F func)
 {
-	functionBinds.AddToTail({ funcName, (lua_CFunction)func });
+	using namespace std::placeholders;
+	// TODO Convert func to a std::function
+	std::function pFunc;
+	// Bind a lua_CFunction: cfunc(state) = _lua_call(state, pFunc)
+	auto cfunc = std::bind(_lua_call<std::function>, _1, &pFunc);
+	// Register the lua_CFunction
+	lua_register(state, funcName, cfunc);
 
-	// TODO: Do this at init or something
-	lua_pushglobaltable(state);
-	int funcC = functionBinds.Count();
-	luaL_Reg* l = new luaL_Reg[funcC];
-
-	functionBinds.CopyArray(l, funcC);
-	luaL_setfuncs(state, l, 0);
+	functionBinds.AddToTail({ funcName, cfunc });
+	
 }
 
 CUtlVector<const char*>* CLuaManager::GetBinds()
