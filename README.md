@@ -6,7 +6,7 @@ If you want to help contribute, message Wazanator on Steam or on Discord, or joi
 
 Alternatively, you can view proposed changes to be added via this link: https://docs.google.com/document/d/1yRjjMOtkjO590ApCdRn00wWshT9KKOYO0ESQIKBveOw/edit The latest suggestions and changes will always be found on Discord and GitHub
 
-*At this time only Singleplayer mods are supported, Multiplayer support should be not-so far into the future.*
+*At this time only Singleplayer mods are being worked on, Multiplayer updates should be not-so far into the future.*
 
 ## Source License
 
