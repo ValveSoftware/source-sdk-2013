@@ -25,8 +25,8 @@ int luaopen_overrides(lua_State* state)
 	lua_setfield(state, -2, "_VERSION");
 
 	// new way
-	//CScriptManager::BindFunction(_print, "print");
-	//CScriptManager::BindFunction(_error, "error");
+	CScriptManager::BindFunction(_print, "print");
+	CScriptManager::BindFunction(_error, "error");
 
 	return 1;
 }

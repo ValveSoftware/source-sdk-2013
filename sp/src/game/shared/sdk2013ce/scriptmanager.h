@@ -23,8 +23,7 @@ public:
 	static void AddHook(const char* hookname);
 	
 	// Binds the C function func to script function funcname
-	template<typename F, typename... Args>
-	static void BindFunction(F function, const char* funcName);
+	static void BindFunction(BindFunction_t func, const char* funcName);
 
 	static void Init(IFileSystem* filesystem);
 

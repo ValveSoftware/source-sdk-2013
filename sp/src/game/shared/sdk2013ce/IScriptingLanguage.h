@@ -32,6 +32,8 @@ union ScriptVariable_t {
 	}
 };
 
+// C++ function that can be bound to a script function
+typedef ScriptVariable_t* (*BindFunction_t)(ScriptVariable_t* args, int argc);
 
 // Handle for calling a script function from C++
 class CScriptFunction
@@ -61,8 +63,7 @@ public:
 	virtual void Call(const char* func)=0;
 	virtual CUtlVector<const char*>* GetHooks() = 0;
 
-	//template<typename F>
-	//virtual void BindFunction(const char* funcName, F func)=0;
+	virtual void BindFunction(BindFunction_t func, const char* funcName)=0;
 	virtual CUtlVector<const char*>* GetBinds() = 0;
 
 	

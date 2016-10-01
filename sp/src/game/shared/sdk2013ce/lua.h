@@ -16,6 +16,7 @@
 //	int argc = lua_gettop(state);		\
 //	luaL_argcheck(state, argc >= minArgs, 1, "")
 
+// TODO: Should extend IScriptingLanguage
 class CLuaManager : public IScriptingLanguage
 {
 private:
@@ -41,8 +42,7 @@ public:
 	// Recursively load every .lua file in a folder.
 	void LoadDir(IFileSystem* pFilesystem, const char* dirname);
 
-	template<typename F>
-	void BindFunction(const char* funcName, F func);
+	void BindFunction(BindFunction_t func, const char* funcName);
 	CUtlVector<const char*>* GetBinds();
 	CUtlVector<const char*>* GetHooks();
 
