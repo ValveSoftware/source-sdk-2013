@@ -8,6 +8,11 @@
 // Project definitions //
 /////////////////////////
 
+$Project "scripto"
+{
+	"scripto\scripto.vpc" [$WIN32]
+}
+
 $Project "captioncompiler"
 {
 	"utils\captioncompiler\captioncompiler.vpc" [$WIN32]

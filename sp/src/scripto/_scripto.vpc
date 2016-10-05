@@ -1,0 +1,30 @@
+//-----------------------------------------------------------------------------
+//	SCRIPTO.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$macro SRCDIR		".."
+ 
+$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;SCRIPTO_EXPORTS"
+	}
+}
+
+$Project "scripto"
+{
+	$Folder	"Source Files"
+	{
+		// todo
+	}
+
+	$Folder	"Header Files"
+	{
+		// todo
+	}
+}
