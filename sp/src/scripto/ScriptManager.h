@@ -5,8 +5,11 @@
 
 #include "IScriptingLanguage.h"
 
-template class DLL_API std::vector < IScriptingLanguage* >;
-template class DLL_API std::vector < const char* >;
+template class DLL_API CUtlMemory < IScriptingLanguage* >;
+template class DLL_API CUtlMemory < const char* >;
+
+template class DLL_API CUtlVector < IScriptingLanguage* >;
+template class DLL_API CUtlVector < const char* >;
 
 // (static) CScriptManager
 class DLL_API CScriptManager
@@ -15,9 +18,9 @@ private:
 	CScriptManager()	{};
 	~CScriptManager()	{};
 
-	static std::vector<IScriptingLanguage*> languages;
+	static CUtlVector<IScriptingLanguage*> languages;
 
-	static std::vector<const char*> hooks;
+	static CUtlVector<const char*> hooks;
 public:
 
 	// Add an IScriptingLanguage to the script manager
@@ -38,9 +41,10 @@ public:
 	// Register a hook
 	static void AddHook(const char* name);
 	// Call a  hook
-	static void CallHook(const char* name);
+	// TODO: Proper return types and args
+	static int CallHook(const char* name, ...);
 	// Get a list of all hook names
-	inline static std::vector<const char*> GetHooks() { return hooks; };
+	static CUtlVector<const char*>* GetHooks() { return &hooks; };
 
 	///////////////////////////////////////////////////////////
 	// Binds:
@@ -50,6 +54,6 @@ public:
 	//template<typename F>
 	//static void AddBind(const char* name, F func);
 	
-	//static std::vector<const char*> GetBinds();
+	//static CUtlVector<const char*> GetBinds();
 	
 };

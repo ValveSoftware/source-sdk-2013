@@ -141,32 +141,32 @@
 		}
 		"texsamp_0"
 		{
-			"sz_param"		"ambientocclusion"
-			"sz_fallback"		"white"
+			"sz_fallback"		"Dev\bump"
 			"i_sampidx"		"0"
-			"i_texmode"		"0"
+			"i_texmode"		"1"
 			"i_cubemap"		"0"
 			"i_srgb"		"0"
 		}
 		"texsamp_1"
 		{
-			"sz_fallback"		"Dev\bump"
+			"sz_fallback"		"white"
 			"i_sampidx"		"1"
-			"i_texmode"		"1"
+			"i_texmode"		"2"
 			"i_cubemap"		"0"
 			"i_srgb"		"0"
 		}
 		"texsamp_2"
 		{
+			"sz_param"		"gloss"
 			"sz_fallback"		"white"
 			"i_sampidx"		"2"
-			"i_texmode"		"2"
+			"i_texmode"		"0"
 			"i_cubemap"		"0"
 			"i_srgb"		"0"
 		}
 		"texsamp_3"
 		{
-			"sz_param"		"gloss"
+			"sz_param"		"ambientocclusion"
 			"sz_fallback"		"white"
 			"i_sampidx"		"3"
 			"i_texmode"		"0"
@@ -178,6 +178,15 @@
 			"sz_param"		"specular"
 			"sz_fallback"		"white"
 			"i_sampidx"		"4"
+			"i_texmode"		"0"
+			"i_cubemap"		"0"
+			"i_srgb"		"0"
+		}
+		"texsamp_5"
+		{
+			"sz_param"		"detail"
+			"sz_fallback"		"Dev\bump"
+			"i_sampidx"		"5"
 			"i_texmode"		"0"
 			"i_cubemap"		"0"
 			"i_srgb"		"0"

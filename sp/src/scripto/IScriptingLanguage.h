@@ -5,11 +5,12 @@
 class DLL_API IScriptingLanguage
 {
 	friend class CScriptManager;
-private:
-	IScriptingLanguage()	{};
-	~IScriptingLanguage()	{};
 
 public:
+
+	IScriptingLanguage()			{};
+	virtual ~IScriptingLanguage()	{};
+
 	virtual void Initialize()=0;
 	virtual void Terminate()=0;
 
@@ -20,5 +21,8 @@ public:
 
 	//template<typename F>
 	//virtual void AddBind(const char* name, F func);
+
+	// Amount of memory in use (in bytes)
+	virtual size_t GetMemoryUsage()=0;
 };
 
