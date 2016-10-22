@@ -133,7 +133,7 @@ inline float LoopingLerp_Hermite( float t, float p0, float p1, float p2 )
 			// see if we need to fix up p0
 			// important for vars that are decreasing from p0->p1->p2 where
 			// p1 is fixed up relative to p2, eg p0 = 0.2, p1 = 0.1, p2 = 0.9
-			if ( abs( p1 - p0 ) > 0.5 )
+			if ( fabs( p1 - p0 ) > 0.5 )
 			{
 				if ( p0 < p1 )
 					p0 += 1.0f;
