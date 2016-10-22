@@ -57,6 +57,7 @@ public:
 		BaseClass( parent, panelName )
 	{
 	}
+	virtual ~CSmallTextEntry() { }
 
 	virtual void ApplySchemeSettings( IScheme *scheme )
 	{
@@ -134,6 +135,7 @@ public:
 		}
 	}
 #pragma warning( default : 4355 )
+	virtual ~BuildModeLocalizedStringEditDialog() { }
 
 	virtual void DoModal(const char *token)
 	{
@@ -293,6 +295,7 @@ public:
 	{
 		m_hContext = context;
 	}
+	virtual ~CBuildModeNavCombo() { }
 	
 	virtual void OnShowMenu(Menu *menu)
 	{

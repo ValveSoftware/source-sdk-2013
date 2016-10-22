@@ -1346,9 +1346,9 @@ void BuildGroup::GetSettings( KeyValues *resourceData )
 		// do not get setting for ruler labels.
 		if (_showRulers) // rulers are visible
 		{
-			for (int i = 0; i < 4; i++)
+			for (int c = 0; c < 4; c++)
 			{
-				if (panel == _rulerNumber[i])
+				if (panel == _rulerNumber[c])
 				{
 					isRuler = true;
 					break;

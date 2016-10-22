@@ -64,6 +64,7 @@ class ColumnButton : public Button
 {
 public:
 	ColumnButton(vgui::Panel *parent, const char *name, const char *text);
+	virtual ~ColumnButton() { }
 
 	// Inherited from Button
 	virtual void ApplySchemeSettings(IScheme *pScheme);
@@ -128,6 +129,7 @@ class Dragger : public Panel
 {
 public:
 	Dragger(int column);
+	virtual ~Dragger() { }
 
 	// Inherited from Panel
 	virtual void OnMousePressed(MouseCode code);
@@ -1639,14 +1641,17 @@ void ListPanel::PerformLayout()
 	m_vbar->SetRangeWindow( rowsperpage );
 	m_vbar->SetRange( 0, visibleItemCount);	
 	m_vbar->SetButtonPressedScrollValue( 1 );
+	
+	int buttonMaxXPos;
+	{
+		int wide, tall;
+		GetSize(wide, tall);
+		m_vbar->SetPos(wide - (m_vbar->GetWide() + WINDOW_BORDER_WIDTH), 0);
+		m_vbar->SetSize(m_vbar->GetWide(), tall - 2);
+		m_vbar->InvalidateLayout();
 
-	int wide, tall;
-	GetSize( wide, tall );
-	m_vbar->SetPos(wide - (m_vbar->GetWide()+WINDOW_BORDER_WIDTH), 0);
-	m_vbar->SetSize(m_vbar->GetWide(), tall - 2);
-	m_vbar->InvalidateLayout();
-
-	int buttonMaxXPos = wide - (m_vbar->GetWide()+WINDOW_BORDER_WIDTH);
+		buttonMaxXPos = wide - (m_vbar->GetWide() + WINDOW_BORDER_WIDTH);
+	}
 	
 	int nColumns = m_CurrentColumns.Count();
 	// number of bars that can be resized
@@ -1940,9 +1945,7 @@ void ListPanel::OnSizeChanged(int wide, int tall)
 void ListPanel::Paint()
 {
 	if (m_bNeedsSort)
-	{
 		SortList();
-	}
 
 	// draw selection areas if any
 	int wide, tall;
@@ -1988,7 +1991,7 @@ void ListPanel::Paint()
 			if (!header->IsVisible())
 				continue;
 
-			int wide = header->GetWide();
+			int hWide = header->GetWide();
 
 			if (render)
 			{
@@ -2005,7 +2008,7 @@ void ListPanel::Paint()
 
 				render->SetPos( xpos, (drawcount * m_iRowHeight) + m_iTableStartY);
 
-				int right = min( xpos + wide, maxw );
+				int right = min( xpos + hWide, maxw );
 				int usew = right - xpos;
 				render->SetSize( usew, m_iRowHeight - 1 );
 
@@ -2038,7 +2041,7 @@ void ListPanel::Paint()
 			}
 			*/
 
-			x += wide;
+			x += hWide;
 		}
 
 		drawcount++;
@@ -2530,13 +2533,13 @@ void ListPanel::OnKeyCodePressed(KeyCode code)
 	// move the newly selected item to within the visible range
 	if ( nRowsPerPage < nTotalRows )
 	{
-		int nStartItem = m_vbar->GetValue();
-		if ( nSelectedRow < nStartItem )
+		int nStartItem2 = m_vbar->GetValue();
+		if ( nSelectedRow < nStartItem2)
 		{
 			// move the list back to match
 			m_vbar->SetValue( nSelectedRow );
 		}
-		else if ( nSelectedRow >= nStartItem + nRowsPerPage )
+		else if ( nSelectedRow >= nStartItem2 + nRowsPerPage )
 		{
 			// move list forward to match
 			m_vbar->SetValue( nSelectedRow - nRowsPerPage + 1);

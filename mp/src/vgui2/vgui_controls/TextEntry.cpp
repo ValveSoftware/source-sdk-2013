@@ -1437,7 +1437,7 @@ void TextEntry::OnCursorExited() // outside of window recieve drag scrolling tic
 //-----------------------------------------------------------------------------
 // Purpose: Handle selection of text by mouse
 //-----------------------------------------------------------------------------
-void TextEntry::OnCursorMoved(int x, int y)
+void TextEntry::OnCursorMoved(int xIn, int yIn)
 {
 	if (_mouseSelection)
 	{

@@ -46,6 +46,7 @@ public:
 
 		SetContentAlignment(Label::a_center);
 	}
+	virtual ~ScrollBarButton() { }
 
 	void OnMouseFocusTicked()
 	{

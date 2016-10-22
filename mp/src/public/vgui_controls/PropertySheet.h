@@ -33,7 +33,7 @@ class PropertySheet : public EditablePanel
 public:
 	PropertySheet(Panel *parent, const char *panelName, bool draggableTabs = false );
 	PropertySheet(Panel *parent, const char *panelName,ComboBox *combo);
-	~PropertySheet();
+	virtual ~PropertySheet();
 
 	virtual bool IsDraggableTab() const;
 	void		SetDraggableTabs( bool state );

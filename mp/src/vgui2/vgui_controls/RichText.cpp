@@ -54,6 +54,7 @@ public:
 		SetPaintEnabled(true);
 #endif
 	}
+	virtual ~ClickPanel() { }
 	
 	void SetTextIndex( int linkStartIndex, int viewStartIndex )
 	{
@@ -113,6 +114,7 @@ public:
 		SetPaintEnabled( false );
 		m_pRichText = pParent;
 	}
+	virtual ~RichTextInterior() { }
 
 /*	virtual IAppearance *GetAppearance()
 	{
@@ -1583,7 +1585,7 @@ void RichText::OnCursorExited()
 //-----------------------------------------------------------------------------
 // Purpose: Handle selection of text by mouse
 //-----------------------------------------------------------------------------
-void RichText::OnCursorMoved(int x, int y)
+void RichText::OnCursorMoved(int xIn, int yIn)
 {
 	if (_mouseSelection)
 	{

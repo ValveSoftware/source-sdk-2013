@@ -28,6 +28,7 @@ public:
 		SetPaintBackgroundEnabled( true );
 		SetPaintBorderEnabled( false );
 	}
+	virtual ~MenuSeparator() { }
 
 	virtual void Paint()
 	{

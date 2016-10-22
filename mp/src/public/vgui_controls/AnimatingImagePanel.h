@@ -27,6 +27,7 @@ class AnimatingImagePanel : public Panel
 
 public:
 	AnimatingImagePanel(Panel *parent, const char *name);
+	virtual ~AnimatingImagePanel() { }
 
 	// Add an image to the end of the list of animations
 	// image - pointer to the image to add to the end of the list
