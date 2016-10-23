@@ -9,9 +9,16 @@ int _lua_error(lua_State* L)
 	// Fetch it, print it and then pop it off the stack.
 	const char* message = luaL_tolstring(L, -1, NULL);
 
-	ScriptError("[Script] Error: %s\n", message);
+	ScriptError(message);
 
 	return 0;
+}
+
+template<typename F, typename R, typename... Args>
+int _lua_call(lua_State* L, F func)
+{
+	
+	return 1;
 }
 
 luaL_Reg libs[] = {
@@ -35,8 +42,7 @@ void CLuaLanguage::Initialize()
 
 	for (int i = 0; i < sizeof(libs); i++)
 	{
-		ScriptLog("Adding Lib: %s", libs[i].name);
-
+		ScriptLog("[Script] [Lua] Adding Lib: %s", libs[i].name);
 	}
 }
 
@@ -51,12 +57,15 @@ void CLuaLanguage::AddHook(const char* name)
 
 }
 
-void CLuaLanguage::CallHook(const char* name)
+bool CLuaLanguage::CallHook(const char* name, ...)
 {
 	lua_getglobal(L, name);
 
-	// 0 args, multiple returns
-	lua_call(L, 0, LUA_MULTRET);
+	// 0 args, 0 returns
+	lua_call(L, 0, 0);
+
+	// return bool
+	return true;
 }
 
 size_t CLuaLanguage::GetMemoryUsage()

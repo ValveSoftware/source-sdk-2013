@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cbase.h"
+#include <functional>
 
 class DLL_API IScriptingLanguage
 {
@@ -17,10 +18,7 @@ public:
 	// Register a hook
 	virtual void AddHook(const char* name)=0;
 	// Call a  hook
-	virtual void CallHook(const char* name)=0;
-
-	//template<typename F>
-	//virtual void AddBind(const char* name, F func);
+	virtual bool CallHook(const char* name, ...) = 0;
 
 	// Amount of memory in use (in bytes)
 	virtual size_t GetMemoryUsage()=0;

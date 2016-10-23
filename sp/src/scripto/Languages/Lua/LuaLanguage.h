@@ -18,7 +18,7 @@ public:
 	// Register a hook
 	void AddHook(const char* name);
 	// Call a  hook
-	void CallHook(const char* name);
+	bool CallHook(const char* name, ...);
 
 	size_t GetMemoryUsage();
 };

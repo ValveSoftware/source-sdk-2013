@@ -1,0 +1,126 @@
+<html>
+<head>
+<title>DRM Test</title>
+<script language="JavaScript">
+
+// Based on DRM detection code from https://github.com/google/shaka-player
+function probeSupport() {
+  var tests = [];
+  var testKeySystems = [
+    'org.w3.clearkey',
+    'com.widevine.alpha',
+  ];
+
+  var basicVideoCapabilities = [
+    { contentType: 'video/mp4; codecs="avc1.42E01E"' },
+    { contentType: 'video/webm; codecs="vp9"' }
+  ];
+
+  var basicConfig = {
+    videoCapabilities: basicVideoCapabilities
+  };
+  var offlineConfig = {
+    videoCapabilities: basicVideoCapabilities,
+    persistentState: 'required',
+    sessionTypes: ['persistent-license']
+  };
+
+  // Try the offline config first, then fall back to the basic config.
+  var configs = [offlineConfig, basicConfig];
+
+  var support = {};
+  testKeySystems.forEach(function(keySystem) {
+    var p = navigator.requestMediaKeySystemAccess(keySystem, configs)
+        .then(function(access) {
+          // We can't (yet) trust every browser to report the session types they
+          // support in access.getConfiguration().  Therefore, we create a
+          // MediaKeys object and try to create an offline session.
+          // https://goo.gl/gtYT3z, https://goo.gl/rvnB1g, https://goo.gl/z0URJ0
+          var mediaKeys = access.createMediaKeys();
+          var persistentState = false;
+          try {
+            // This will throw if persistent licenses are not supported.
+            mediaKeys.createSession('persistent-license');
+            persistentState = true;
+          } catch (e) {}
+
+          support[keySystem] = {persistentState: persistentState};
+        }, function() {
+          support[keySystem] = null;
+        });
+    tests.push(p);
+  });
+
+  return Promise.all(tests).then(function() {
+    return support;
+  });
+}
+
+function getWidevineCdmInfo() {
+  if (!('Widevine Content Decryption Module' in navigator.plugins)) {
+    return "Widevine CDM plugin not loaded.";
+  }
+
+  var plugin = navigator.plugins['Widevine Content Decryption Module'];
+  return "Widevine CDM plugin:\n" + JSON.stringify({
+    "name": plugin.name,
+    "filename": plugin.filename,
+    "description": plugin.description,
+  }, null, '  ')
+}
+
+function printSupport(support) {
+  var output = document.getElementById('output');
+  output.textContent = getWidevineCdmInfo() + "\n\nDRM Support:\n" + support;
+}
+
+function doTest() {
+  probeSupport().then(function(support) {
+    printSupport(JSON.stringify(support, null, '  '));
+  });
+}
+
+// Send a message to the browser process.
+function sendMessage() {
+  // Create the request object.
+  var request = {};
+  request.widevine_cdm_path =
+      document.getElementById("widevine_cdm_path").value;
+
+  // Results in a call to the OnQuery method in drm_test.cpp
+  window.cefQuery({
+    request: JSON.stringify(request),
+    onSuccess: function(response) {
+      alert('Widevine CDM plugin loaded successfully!');
+      // Registration succeeded so test again.
+      doTest();
+    },
+    onFailure: function(error_code, error_message) {
+      alert(error_message + ' (' + error_code + ')');
+    }
+  });
+}
+
+</script>
+
+</head>
+<body bgcolor="white" onload="doTest()">
+Important notes:
+<ul>
+<li>Clearkey support is built in and should always be enabled.</li>
+<li>Widevine support requires CDM binaries that must be downloaded from Google. Contact Google <a href="https://www.widevine.com/contact.html">here</a> for details.</li>
+<li>Widevine support is enabled by calling the CefRegisterWidevineCdm() function. See comments in cef_web_plugin.h for usage.</li>
+<li>The CefRegisterWidevineCdm() function can be called during runtime on Windows and OS X to register Widevine binaries. Use the below form to test this capability.</li>
+<li>Calling CefRegisterWidevineCdm() before CefInitialize() is required on Linux.</li>
+<li>Cefclient will call CefRegisterWidevineCdm() before CefInitialize() if "--widevine-cdm-path=&lt;path&gt;" is specified on the command-line.</li>
+<li>View extended media support information <a href="https://shaka-player-demo.appspot.com/support.html">here</a>.</li>
+<li>Test DRM video playback <a href="https://shaka-player-demo.appspot.com/demo/">here</a>. Select an "asset" that includes Clearkey or Widevine in the name.</li>
+</ul>
+
+<form>
+Widevine CDM Path: <input type="text" id="widevine_cdm_path" value="" size="40">
+<input type="button" onclick="sendMessage();" value="Load CDM">
+</form>
+<pre id="output"></pre>
+</body>
+</html>

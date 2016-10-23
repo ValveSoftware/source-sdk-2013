@@ -1,0 +1,15 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+compiler:
+  - g++
+  - clang
+
+before_script: cmake .
+
+script:
+  - make -j3
+  - ./xmltest

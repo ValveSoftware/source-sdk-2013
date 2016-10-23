@@ -11,6 +11,7 @@ template class DLL_API CUtlMemory < const char* >;
 template class DLL_API CUtlVector < IScriptingLanguage* >;
 template class DLL_API CUtlVector < const char* >;
 
+
 // (static) CScriptManager
 class DLL_API CScriptManager
 {
@@ -41,8 +42,8 @@ public:
 	// Register a hook
 	static void AddHook(const char* name);
 	// Call a  hook
-	// TODO: Proper return types and args
-	static int CallHook(const char* name, ...);
+	// Currently only supports boolean return types
+	static bool CallHook(const char* name, ...);
 	// Get a list of all hook names
 	static CUtlVector<const char*>* GetHooks() { return &hooks; };
 

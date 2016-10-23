@@ -18,18 +18,31 @@ int CScriptManager::AddLanguage(IScriptingLanguage* language)
 	return languages.Count();
 }
 
+
+
 void CScriptManager::AddHook(const char* name)
 {
+	ScriptLog("Added Hook: %s", name);
+
 	hooks.AddToTail(name);
 	for (int i = 0; i < languages.Count(); i++) {
 		languages[i]->AddHook(name);
 	}
 }
 
-int CScriptManager::CallHook(const char* name, ...)
+bool CScriptManager::CallHook(const char* name, ...)
 {
+	// TODO: System to pass all vargs
+
+	va_list args;
+	va_start(args, name);
+
+	bool ret;
 	for (int i = 0; i < languages.Count(); i++) {
-		languages[i]->CallHook(name);
+		 ret &= languages[i]->CallHook(name, args);
 	}
-	return 1;
+	
+	va_end(args);
+	
+	return ret;
 }

@@ -90,8 +90,8 @@
 #include "serverbenchmark_base.h"
 #include "querycache.h"
 
-#include "scripto.h"
-#include "Languages/Lua/LuaLanguage.h"
+#include "scripto/scripto.h"
+#include "scripto/lua.h"
 
 
 #ifdef TF_DLL
@@ -745,8 +745,10 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	gamestatsuploader->InitConnection();
 #endif
 
-
 	// SourceCE Scripting (Lua)
+
+	CScriptManager::AddLanguage(new CLuaLanguage());
+
 	CScriptManager::AddHook("DLLInit");
 	CScriptManager::AddHook("PostInit");
 	CScriptManager::AddHook("GameInit");

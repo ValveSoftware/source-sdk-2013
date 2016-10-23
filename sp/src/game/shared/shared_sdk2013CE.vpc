@@ -22,6 +22,6 @@ $Project
 	
 	$Folder "Link Libraries"
 	{
-		
+		$File "$SRCDIR\lib\public\scripto.lib"
 	}
 }

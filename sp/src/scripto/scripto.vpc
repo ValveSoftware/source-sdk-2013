@@ -28,7 +28,8 @@ $Configuration
 	{
 		$PreprocessorDefinitions		"$BASE;SCRIPTO_EXPORTS"
 		
-		$AdditionalIncludeDirectories	"$BASE;.\;$SRCDIR\thirdparty"
+		// more include dirs that work with visual studio
+		$AdditionalIncludeDirectories	"$BASE;.\;$SRCDIR\thirdparty;$(SolutionDir)\common;$(SolutionDir)\public;$(SolutionDir)\public\tier0;$(SolutionDir)\public\tier1;.\;$(ProjectDir);$(SolutionDir)\thirdparty"
 		
 		$Create/UsePrecompiledHeader	"Use Precompiled Header (/Yu)"
 		$Create/UsePCHThroughFile		"cbase.h"
@@ -39,6 +40,10 @@ $Configuration
 
 $Project "scripto"
 {
+	$Folder "Header Files"
+	{
+		$File ""
+	}
 	$Folder	"Source Files"
 	{
 		$File	"scripto.h"

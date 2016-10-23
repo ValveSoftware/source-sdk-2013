@@ -12,40 +12,32 @@
 
 #define SOURCE_ENGINE
 
-
 // standard libs
 #include <cstdarg>
 
 #ifdef SOURCE_ENGINE
 
-// tier0
+//tier0
 #include <tier0/dbg.h>
-//#include <tier0/platform.h>
-
 // tier1
 #include <tier1/utlvector.h>
-
-// tier2
-
-// tier3
-
-// shared
 #include <Color.h>
 
 #else
-
 // Non-source implementations
-
-template< class T >
-class CUtlMemory;
-
-template< class T, class A = CUtlMemory<T> >
-class CUtlVector;
-
 #endif
 
+#include "util.h"
 
-#define COLOR_CYAN Color(0, 255, 255, 255)
+//
+//	DEFINES
+//
 
-void ScriptLog(const char* msg, ...);
-void ScriptError(const char* msg, ...);
+#define COLOR_RED		Color(255, 64, 64, 255)
+#define COLOR_BLUE		Color(153, 204, 255, 255)
+#define COLOR_YELLOW	Color(255, 178, 0, 255)
+#define COLOR_GREEN		Color(153, 255, 153, 255)
+#define COLOR_GREY		Color(204, 204, 204, 255)
+#define COLOR_WHITE		Color(255, 255, 255, 255)
+#define COLOR_BLACK		Color(0, 0, 0, 255)
+#define COLOR_CYAN		Color(0, 255, 255, 255)
