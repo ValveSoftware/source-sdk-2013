@@ -148,7 +148,19 @@ $Project "Client (SDK2013CE)"
 		
 		$Folder "SourceCE"
 		{
+			$File "SourceCE\UI.cpp"
+			$File "SourceCE\UI.h"
+			$File "SourceCE\UIRender.h"
+			$File "SourceCE\vgui_uipanel.cpp"
+			$File "SourceCE\vgui_uipanel.h"
 			
+			$Folder "CEF"
+			{
+				$File "SourceCE\CEF\CEF.cpp"
+				$File "SourceCE\CEF\CEF.h"
+				$File "SourceCE\CEF\CEFApp.h"
+				$File "SourceCE\CEF\CEFCommon.h"
+			}
 		}
 	}
 	
