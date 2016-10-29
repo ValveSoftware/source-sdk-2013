@@ -1,0 +1,7 @@
+before_build:
+  - cmake .
+
+build_script:
+  - msbuild tinyxml2.sln /m /p:Configuration=Release /t:ALL_BUILD
+  - copy Release\xmltest.exe .\ && copy Release\tinyxml2.dll .\
+  - xmltest.exe

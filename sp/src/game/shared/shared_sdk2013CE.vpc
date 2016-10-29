@@ -3,7 +3,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories "$BASE;$SRCDIR\game\shared\sdk2013ce"
+		$AdditionalIncludeDirectories "$BASE;$SRCDIR\game\shared\sdk2013ce;$(SolutionDir)\thirdparty"
 	}
 }
 
@@ -12,26 +12,16 @@ $Project
 {
 	$Folder	"Source Files"
 	{
-		$Folder "sdk2013ce"
-		{
-			$File	"..\shared\sdk2013ce\lua.cpp"
-			$File	"..\shared\sdk2013ce\lua.h"
-		}
+		
 	}
 	
 	$Folder "Header Files"
 	{
-		// Lua
-		$File	"$SRCDIR\lua\lua.hpp"
 		
-		$File	"$SRCDIR\lua\lua.h"
-		$File	"$SRCDIR\lua\lauxlib.h"
-		$File	"$SRCDIR\lua\luaconf.h"
-		$File	"$SRCDIR\lua\lualib.h"
 	}
 	
 	$Folder "Link Libraries"
 	{
-		$Lib	liblua53
+		$File "$SRCDIR\lib\public\scripto.lib"
 	}
 }

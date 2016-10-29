@@ -18,6 +18,7 @@ $Group "sdk2013ce"
 	"vgui_controls"
 	"mathlib"
 	"raytrace"
+	"scripto"
 }
 
 $Group "gamedlls"

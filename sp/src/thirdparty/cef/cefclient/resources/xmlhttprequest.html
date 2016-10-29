@@ -1,0 +1,26 @@
+<html>
+<body bgcolor="white">
+<script language="JavaScript">
+function execXMLHttpRequest()
+{
+  xhr = new XMLHttpRequest();
+  xhr.open("GET", document.getElementById("url").value, true);
+  xhr.setRequestHeader('My-Custom-Header', 'Some Value');
+  xhr.onload = function(e) {
+    if (xhr.readyState === 4) {
+      var value = "Status Code: "+xhr.status;
+      if (xhr.status === 200)
+        value += "\n\n"+xhr.responseText;
+      document.getElementById('ta').value = value;
+    }
+  }
+  xhr.send();
+}
+</script>
+<form>
+URL: <input type="text" id="url" value="http://tests/request">
+<br/><input type="button" onclick="execXMLHttpRequest();" value="Execute XMLHttpRequest">
+<br/><textarea rows="10" cols="40" id="ta"></textarea>
+</form>
+</body>
+</html>

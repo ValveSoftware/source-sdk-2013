@@ -169,6 +169,10 @@ extern vgui::IInputInternal *g_InputInternal;
 #include "sixense/in_sixense.h"
 #endif
 
+// Source CE
+#include "scripto/scripto.h"
+#include "scripto/lua.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -342,6 +346,8 @@ bool g_bTextMode = false;
 class IClientPurchaseInterfaceV2 *g_pClientPurchaseInterface = (class IClientPurchaseInterfaceV2 *)(&g_bTextMode + 156);
 
 static ConVar *g_pcv_ThreadMode = NULL;
+
+CScriptManager g_scriptManager;
 
 //-----------------------------------------------------------------------------
 // Purpose: interface for gameui to modify voice bans
@@ -993,7 +999,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 	vgui::VGui_InitMatSysInterfacesList( "ClientDLL", &appSystemFactory, 1 );
 
-	// Add the client systems.	
+	// Add the client systems.
 	
 	// Client Leaf System has to be initialized first, since DetailObjectSystem uses it
 	IGameSystem::Add( GameStringSystem() );
@@ -1009,8 +1015,25 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	IGameSystem::Add( ClientSoundscapeSystem() );
 	IGameSystem::Add( PerfVisualBenchmark() );
 	IGameSystem::Add( MumbleSystem() );
+
+	// Source CE (see server/gameinterface.cpp)
 	
-	#if defined( TF_CLIENT_DLL )
+	g_scriptManager.AddLanguage(new CLuaLanguage());
+
+	/*g_scriptManager.AddHook("DLLInit");
+	g_scriptManager.AddHook("PostInit");
+	g_scriptManager.AddHook("GameInit");
+	g_scriptManager.AddHook("LevelInit");
+
+	g_scriptManager.AddHook("ClientConnect");
+	g_scriptManager.AddHook("ClientActive");
+
+
+	g_scriptManager.AddHook("GameShutdown");
+	g_scriptManager.AddHook("LevelShutdown");
+	g_scriptManager.AddHook("DLLShutdown");*/
+
+		#if defined( TF_CLIENT_DLL )
 	IGameSystem::Add( CustomTextureToolCacheGameSystem() );
 	IGameSystem::Add( TFSharedContentManager() );
 	#endif

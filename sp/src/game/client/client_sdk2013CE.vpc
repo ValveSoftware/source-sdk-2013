@@ -14,7 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	".\hl2;.\hl2\elements;$SRCDIR\game\shared\hl2;$SRCDIR\game\shared\episodic;..\..\public;$BASE;$SRCDIR\game\shared\sdk2013ce;$SRCDIR\game\client\sdk2013ce"
+		$AdditionalIncludeDirectories	".\hl2;.\hl2\elements;$SRCDIR\game\shared\hl2;$SRCDIR\game\shared\episodic;..\..\public;$BASE;$SRCDIR\game\shared\sdk2013ce;$SRCDIR\game\client\sdk2013ce;$SRCDIR\thirdparty"
 		$PreprocessorDefinitions		"$BASE;HL2_CLIENT_DLL;HL2_EPISODIC;SDK2013CE;SOURCE_2013;GLOWS_ENABLE"
 	}
 }
@@ -143,6 +143,23 @@ $Project "Client (SDK2013CE)"
 				$File	"$SRCDIR\game\client\ShaderEditor\ShaderEditorSystem.cpp"
 				$File	"$SRCDIR\game\client\ShaderEditor\SEdit_ModelRender.cpp"
 				//$File	"$SRCDIR\game\client\ShaderEditor\Grass\CGrassCluster.cpp"
+			}
+		}
+		
+		$Folder "SourceCE"
+		{
+			$File "SourceCE\UI.cpp"
+			$File "SourceCE\UI.h"
+			$File "SourceCE\UIRender.h"
+			$File "SourceCE\vgui_uipanel.cpp"
+			$File "SourceCE\vgui_uipanel.h"
+			
+			$Folder "CEF"
+			{
+				$File "SourceCE\CEF\CEF.cpp"
+				$File "SourceCE\CEF\CEF.h"
+				$File "SourceCE\CEF\CEFApp.h"
+				$File "SourceCE\CEF\CEFCommon.h"
 			}
 		}
 	}
