@@ -12,27 +12,27 @@ template class DLL_API CUtlVector < IScriptingLanguage* >;
 template class DLL_API CUtlVector < const char* >;
 
 
-// (static) CScriptManager
 class DLL_API CScriptManager
 {
 private:
-	CScriptManager()	{};
-	~CScriptManager()	{};
-
-	static CUtlVector<IScriptingLanguage*> languages;
-
-	static CUtlVector<const char*> hooks;
+	
+	CUtlVector<IScriptingLanguage*> languages;
+	CUtlVector<const char*> hooks;
 public:
+	CScriptManager();
+	~CScriptManager() {};
 
 	// Add an IScriptingLanguage to the script manager
 	// and return the language's internal ID
-	static int AddLanguage(IScriptingLanguage* language);
+	int AddLanguage(IScriptingLanguage* language);
 	
 	// Gets the IScriptingLanguage at ID for direct use
-	inline static IScriptingLanguage* GetLanguage(int id) { return languages[id]; };
+	IScriptingLanguage* GetLanguage(int id) { return languages[id]; };
+
+	int CountLanguages() { return languages.Count(); }
 
 	// Destroys the script engine.
-	static void Terminate();
+	void Terminate();
 
 	///////////////////////////////////////////////////////////
 	// Hooks:
@@ -40,12 +40,12 @@ public:
 	///////////////////////////////////////////////////////////
 
 	// Register a hook
-	static void AddHook(const char* name);
+	void AddHook(const char* name);
 	// Call a  hook
 	// Currently only supports boolean return types
-	static bool CallHook(const char* name, ...);
+	bool CallHook(const char* name, ...);
 	// Get a list of all hook names
-	static CUtlVector<const char*>* GetHooks() { return &hooks; };
+	CUtlVector<const char*>* GetHooks() { return &hooks; };
 
 	///////////////////////////////////////////////////////////
 	// Binds:
@@ -53,8 +53,8 @@ public:
 	///////////////////////////////////////////////////////////
 
 	//template<typename F>
-	//static void AddBind(const char* name, F func);
+	// void AddBind(const char* name, F func);
 	
-	//static CUtlVector<const char*> GetBinds();
+	// CUtlVector<const char*> GetBinds();
 	
 };

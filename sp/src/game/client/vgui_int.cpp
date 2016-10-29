@@ -197,9 +197,10 @@ bool VGui_Startup( CreateInterfaceFn appSystemFactory )
 //-----------------------------------------------------------------------------
 void VGui_CreateGlobalPanels( void )
 {
+	VPANEL gameRoot = enginevgui->GetPanel( PANEL_CLIENTDLL );
 	VPANEL gameToolParent = enginevgui->GetPanel( PANEL_CLIENTDLL_TOOLS );
 	VPANEL toolParent = enginevgui->GetPanel( PANEL_TOOLS );
-	VPANEL gameParent = enginevgui->GetPanel( PANEL_GAMEUIDLL );
+
 #if defined( TRACK_BLOCKING_IO )
 	VPANEL gameDLLPanel = enginevgui->GetPanel( PANEL_GAMEDLL );
 #endif
@@ -216,7 +217,7 @@ void VGui_CreateGlobalPanels( void )
 	netgraphpanel->Create( toolParent );
 	debugoverlaypanel->Create( gameToolParent );
 
-	uipanel->Create(gameParent);
+	uipanel->Create(gameRoot);
 
 #ifndef _X360
 	// Create mp3 player off of tool parent panel

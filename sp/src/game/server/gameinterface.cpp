@@ -93,6 +93,8 @@
 #include "scripto/scripto.h"
 #include "scripto/lua.h"
 
+CScriptManager g_scriptManager;
+
 
 #ifdef TF_DLL
 #include "gc_clientsystem.h"
@@ -709,7 +711,7 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 #ifdef CSTRIKE_DLL // BOTPORT: TODO: move these ifdefs out
 	InstallBotControl();
 #endif
-
+	
 	if ( !IGameSystem::InitAllSystems() )
 		return false;
 
@@ -747,20 +749,23 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 
 	// SourceCE Scripting (Lua)
 
-	CScriptManager::AddLanguage(new CLuaLanguage());
+	// client and server should have their own CScriptManager
+	g_scriptManager.AddLanguage(new CLuaLanguage());
 
-	CScriptManager::AddHook("DLLInit");
-	CScriptManager::AddHook("PostInit");
-	CScriptManager::AddHook("GameInit");
-	CScriptManager::AddHook("LevelInit");
+	g_scriptManager.AddHook("DLLInit");
+	g_scriptManager.AddHook("PostInit");
+	g_scriptManager.AddHook("GameInit");
+	g_scriptManager.AddHook("LevelInit");
 
-	CScriptManager::AddHook("ClientConnect");
-	CScriptManager::AddHook("ClientActive");
+	g_scriptManager.AddHook("ClientConnect");
+	g_scriptManager.AddHook("ClientActive");
 	
+	g_scriptManager.AddHook("GameShutdown");
+	g_scriptManager.AddHook("LevelShutdown");
+	g_scriptManager.AddHook("DLLShutdown");
 
-	CScriptManager::AddHook("GameShutdown");
-	CScriptManager::AddHook("LevelShutdown");
-	CScriptManager::AddHook("DLLShutdown");
+	
+	g_scriptManager.CallHook("DLLInit");
 
 	return true;
 }
@@ -768,15 +773,16 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 void CServerGameDLL::PostInit()
 {
 	IGameSystem::PostInitAllSystems();
-	CScriptManager::CallHook("PostInit");
+
+	g_scriptManager.CallHook("PostInit");
 }
 
 void CServerGameDLL::DLLShutdown( void )
 {
-	CScriptManager::CallHook("DLLShutdown");
+	g_scriptManager.CallHook("DLLShutdown");
 
 	// Last in, first out
-	CScriptManager::Terminate();
+	g_scriptManager.Terminate();
 
 
 	// Due to dependencies, these are not autogamesystems
@@ -889,7 +895,7 @@ bool CServerGameDLL::GameInit( void )
 		gameeventmanager->FireEvent( event );
 	}
 
-	CScriptManager::CallHook("GameInit");
+	g_scriptManager.CallHook("GameInit");
 
 	return true;
 }
@@ -899,7 +905,7 @@ bool CServerGameDLL::GameInit( void )
 void CServerGameDLL::GameShutdown( void )
 {
 	ResetGlobalState();
-	CScriptManager::CallHook("GameShutdown");
+	g_scriptManager.CallHook("GameShutdown");
 }
 
 static bool g_OneWayTransition = false;
@@ -1085,7 +1091,7 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	LoadMessageOfTheDay();
 
 	// Call Lua hook.
-	CScriptManager::CallHook("LevelInit");
+	g_scriptManager.CallHook("LevelInit");
 
 	// Sometimes an ent will Remove() itself during its precache, so RemoveImmediate won't happen.
 	// This makes sure those ents get cleaned up.
@@ -1371,7 +1377,7 @@ void CServerGameDLL::PreClientUpdate( bool simulating )
 void CServerGameDLL::Think( bool finalTick )
 {
 
-	CScriptManager::CallHook("Think");
+	g_scriptManager.CallHook("Think");
 	
 	if ( m_fAutoSaveDangerousTime != 0.0f && m_fAutoSaveDangerousTime < gpGlobals->curtime )
 	{
@@ -1429,7 +1435,7 @@ void CServerGameDLL::LevelShutdown( void )
 	g_nCurrentChapterIndex = -1;
 
 	// Call Lua hook.
-	CScriptManager::CallHook("LevelShutdown");
+	g_scriptManager.CallHook("LevelShutdown");
 
 #ifndef _XBOX
 #ifdef USE_NAV_MESH
@@ -2648,7 +2654,7 @@ bool CServerGameClients::ClientConnect( edict_t *pEdict, const char *pszName, co
 		return false;
 
 	// Pass args to game rules and scripting system.
-	return g_pGameRules->ClientConnected(pEdict, pszName, pszAddress, reject, maxrejectlen) && CScriptManager::CallHook("ClientConnect", pEdict, pszName, pszAddress, reject, maxrejectlen);
+	return g_pGameRules->ClientConnected(pEdict, pszName, pszAddress, reject, maxrejectlen) && g_scriptManager.CallHook("ClientConnect", pEdict, pszName, pszAddress, reject, maxrejectlen);
 }
 
 //-----------------------------------------------------------------------------
@@ -2673,7 +2679,8 @@ void CServerGameClients::ClientActive( edict_t *pEdict, bool bLoadGame )
 		}
 	}
 
-	CScriptManager::CallHook("ClientConnect", pEdict, bLoadGame);
+
+	g_scriptManager.CallHook("ClientActive", pEdict, bLoadGame);
 
 	// Tell the sound controller to check looping sounds
 	CBasePlayer *pPlayer = ( CBasePlayer * )CBaseEntity::Instance( pEdict );

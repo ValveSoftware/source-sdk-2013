@@ -148,8 +148,7 @@ $Project "Client (SDK2013CE)"
 		
 		$Folder "SourceCE"
 		{
-			$File	"SourceCE\UIElement.cpp"
-			$File	"SourceCE\UIElement.h"
+			
 		}
 	}
 	

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "lua/lua.hpp"
-#include "IScriptingLanguage.h"
+#include "../../IScriptingLanguage.h"
 
-class CLuaLanguage : public IScriptingLanguage
+class DLL_API CLuaLanguage : public IScriptingLanguage
 {
 private:
 

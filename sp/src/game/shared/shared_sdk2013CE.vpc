@@ -3,7 +3,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories "$BASE;$SRCDIR\game\shared\sdk2013ce"
+		$AdditionalIncludeDirectories "$BASE;$SRCDIR\game\shared\sdk2013ce;$(SolutionDir)\thirdparty"
 	}
 }
 

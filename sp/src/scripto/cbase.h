@@ -10,7 +10,9 @@
 #define DLL_API __declspec(dllimport)
 #endif
 
+#ifndef SOURCE_ENGINE
 #define SOURCE_ENGINE
+#endif
 
 // standard libs
 #include <cstdarg>
@@ -25,6 +27,7 @@
 
 #else
 // Non-source implementations
+
 #endif
 
 #include "util.h"

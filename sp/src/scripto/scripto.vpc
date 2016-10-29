@@ -40,6 +40,7 @@ $Configuration
 
 $Project "scripto"
 {
+	// TODO: Copy .lib file to lib\public
 	$Folder "Header Files"
 	{
 		$File ""
@@ -50,6 +51,10 @@ $Project "scripto"
 		
 		$File	"cbase.h"
 		$File	"cbase.cpp"
+		
+		$File	"util.h"
+		$File	"util.cpp"
+		
 		{
 			$Configuration
 			{

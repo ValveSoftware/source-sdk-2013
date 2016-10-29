@@ -42,7 +42,10 @@ void CLuaLanguage::Initialize()
 
 	for (int i = 0; i < sizeof(libs); i++)
 	{
-		ScriptLog("[Script] [Lua] Adding Lib: %s", libs[i].name);
+		// FIXME: This crahses the game
+		//if (libs[i].name != NULL) {
+			//ScriptLog("[Lua] Adding Lib: %s", libs[i].name);
+		//}
 	}
 }
 
@@ -59,12 +62,13 @@ void CLuaLanguage::AddHook(const char* name)
 
 bool CLuaLanguage::CallHook(const char* name, ...)
 {
-	lua_getglobal(L, name);
+	// FIXME: This crashes the game
+
+	//lua_getglobal(L, name);
 
 	// 0 args, 0 returns
-	lua_call(L, 0, 0);
+	//lua_call(L, 0, 0);
 
-	// return bool
 	return true;
 }
 

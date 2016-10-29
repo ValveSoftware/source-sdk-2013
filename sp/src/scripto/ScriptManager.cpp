@@ -1,8 +1,10 @@
 #include "cbase.h"
 #include "ScriptManager.h"
 
-CUtlVector<IScriptingLanguage*> CScriptManager::languages;
-CUtlVector<const char*> CScriptManager::hooks;
+CScriptManager::CScriptManager()
+{
+
+}
 
 void CScriptManager::Terminate()
 {
@@ -37,9 +39,9 @@ bool CScriptManager::CallHook(const char* name, ...)
 	va_list args;
 	va_start(args, name);
 
-	bool ret;
+	bool ret = true;
 	for (int i = 0; i < languages.Count(); i++) {
-		 ret &= languages[i]->CallHook(name, args);
+		ret &= languages[i]->CallHook(name, args);
 	}
 	
 	va_end(args);

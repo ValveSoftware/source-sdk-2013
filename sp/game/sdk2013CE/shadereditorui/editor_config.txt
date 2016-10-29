@@ -1,6 +1,6 @@
 "config"
 {
-	"preview_visible"		"1"
+	"preview_visible"		"0"
 	"p_x"		"936"
 	"p_y"		"330"
 	"p_sx"		"646"
@@ -14,7 +14,7 @@
 	"compile_auto_publish_to_materials"		"0"
 	"precache_auto_reload"		"1"
 	"warn_unsaved_changes"		"1"
-	"cedit_x"		"230"
+	"cedit_x"		"100"
 	"cedit_y"		"251"
 	"cedit_sx"		"1119"
 	"cedit_sy"		"584"
