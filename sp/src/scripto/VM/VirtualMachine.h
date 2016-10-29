@@ -1,6 +1,7 @@
 // Scripto Virtual Machine CONCEPT
 // Based off of Lua VM
 
+#include "VMInstruction.h"
 #include "VMState.h"
 #include "VMTypes.h"
 
