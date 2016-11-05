@@ -11,6 +11,8 @@
 #pragma once
 #endif
 
+#include "utlvector.h"
+
 #define TICK_INTERVAL			(gpGlobals->interval_per_tick)
 
 
