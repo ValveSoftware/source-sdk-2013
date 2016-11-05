@@ -931,9 +931,7 @@ extern "C" int __cdecl _CrtGetCheckCount( void )
 extern "C" void * __cdecl _aligned_offset_recalloc_dbg( void * memblock, size_t count, size_t size, size_t align, size_t offset, const char * f_name, int line_n )
 {
 	Assert( IsPC() || 0 );
-	void *pMem = ReallocUnattributed( memblock, size * count );
-	memset( pMem, 0, size * count );
-	return pMem;
+	return ReallocUnattributed( memblock, size * count );
 }
 
 extern "C" void * __cdecl _aligned_recalloc_dbg( void *memblock, size_t count, size_t size, size_t align, const char * f_name, int line_n )
