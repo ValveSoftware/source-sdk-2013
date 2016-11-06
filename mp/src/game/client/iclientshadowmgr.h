@@ -13,6 +13,7 @@
 #pragma once
 #endif
 
+#include "predictioncopy.h"
 #include "igamesystem.h"
 #include "icliententityinternal.h"
 #include "engine/ishadowmgr.h"

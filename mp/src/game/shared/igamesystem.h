@@ -11,6 +11,13 @@
 #pragma once
 #endif
 
+#ifdef CLIENT_DLL
+class C_BasePlayer;
+typedef C_BasePlayer CBasePlayer;
+#else
+class CBasePlayer;
+#endif
+
 //-----------------------------------------------------------------------------
 // Game systems are singleton objects in the client + server codebase responsible for
 // various tasks
@@ -18,7 +25,6 @@
 // order in which they are initialized and updated. They are shut down in
 // reverse order from which they are initialized.
 //-----------------------------------------------------------------------------
-
 
 // UNDONE: Do these need GameInit/GameShutdown as well?
 // UNDONE: Remove the Pre/Post entity semantics and rely on system ordering?
