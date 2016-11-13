@@ -5,12 +5,15 @@
 
 #include "IScriptingLanguage.h"
 
+#if defined(SCRIPTO_EXPORTS) && !defined(GAME_DLL) && !defined (CLIENT_DLL)
+
 template class DLL_API CUtlMemory < IScriptingLanguage* >;
 template class DLL_API CUtlMemory < const char* >;
 
 template class DLL_API CUtlVector < IScriptingLanguage* >;
 template class DLL_API CUtlVector < const char* >;
 
+#endif
 
 class DLL_API CScriptManager
 {
