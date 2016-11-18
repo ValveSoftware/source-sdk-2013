@@ -1,0 +1,14 @@
+[vpc crc file version 2]
+b9c20ec3 E:\Source Projects\source-sdk-2013\mp\src\devtools\bin\vpc.exe
+_Nc_VS2013/vpcgame:hl2mp_
+ed801fba fgdlib.vpc
+30577f77 ..\vpc_scripts\source_lib_base.vpc
+d752cf80 ..\vpc_scripts\platform_dirs.vpc
+6c4a5ff1 ..\vpc_scripts\source_base.vpc
+5dd0225a ..\vpc_scripts\source_lib_win32_base.vpc
+486b766d ..\vpc_scripts\version.vpc
+fe1ec01f ..\vpc_scripts\source_lib_win32_debug.vpc
+e9f55286 ..\vpc_scripts\source_lib_win32_release.vpc
+587f9e0b ..\vpc_scripts\source_win32_base.vpc
+346bda4a ..\vpc_scripts\source_video_base.vpc
+30bf2216 ..\vpc_scripts\definitions\win32_2010.def
