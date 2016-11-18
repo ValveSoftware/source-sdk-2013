@@ -1,0 +1,15 @@
+[vpc crc file version 2]
+b9c20ec3 E:\Source Projects\source-sdk-2013\mp\src\devtools\bin\vpc.exe
+_Nc_VS2013/vpcgame:hl2mp_
+751bc04e vtf2tga.vpc
+290b904f ..\..\vpc_scripts\source_exe_con_base.vpc
+d752cf80 ..\..\vpc_scripts\platform_dirs.vpc
+6c4a5ff1 ..\..\vpc_scripts\source_base.vpc
+567da593 ..\..\vpc_scripts\source_exe_con_win32_base.vpc
+f09eb9d1 ..\..\vpc_scripts\source_exe_win_win32_base.vpc
+486b766d ..\..\vpc_scripts\version.vpc
+846102f0 ..\..\vpc_scripts\loadaddress.vpc
+1e4c441a ..\..\vpc_scripts\source_exe_win_win32_debug.vpc
+19cd7b44 ..\..\vpc_scripts\source_exe_win_win32_release.vpc
+587f9e0b ..\..\vpc_scripts\source_win32_base.vpc
+30bf2216 ..\..\vpc_scripts\definitions\win32_2010.def

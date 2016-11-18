@@ -1,0 +1,15 @@
+[vpc crc file version 2]
+8209bbc3 E:\Source Projects\source-sdk-2013\sp\src\devtools\bin\vpc.exe
+_Nc_VS2013/vpcgame:valve_
+72cb08b1 motionmapper.vpc
+290b904f ..\..\vpc_scripts\source_exe_con_base.vpc
+d752cf80 ..\..\vpc_scripts\platform_dirs.vpc
+6c4a5ff1 ..\..\vpc_scripts\source_base.vpc
+567da593 ..\..\vpc_scripts\source_exe_con_win32_base.vpc
+f09eb9d1 ..\..\vpc_scripts\source_exe_win_win32_base.vpc
+486b766d ..\..\vpc_scripts\version.vpc
+846102f0 ..\..\vpc_scripts\loadaddress.vpc
+0d7192b8 ..\..\vpc_scripts\source_exe_win_win32_debug.vpc
+18e1f8e0 ..\..\vpc_scripts\source_exe_win_win32_release.vpc
+34c37fcf ..\..\vpc_scripts\source_win32_base.vpc
+30bf2216 ..\..\vpc_scripts\definitions\win32_2010.def

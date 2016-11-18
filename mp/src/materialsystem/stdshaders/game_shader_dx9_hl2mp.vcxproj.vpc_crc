@@ -1,0 +1,16 @@
+[vpc crc file version 2]
+b9c20ec3 E:\Source Projects\source-sdk-2013\mp\src\devtools\bin\vpc.exe
+_Nc_VS2013/vpcgame:hl2mp_
+e1fe1081 game_shader_dx9_hl2mp.vpc
+ee98a081 ..\..\materialsystem\stdshaders\game_shader_dx9_base.vpc
+4832e67a ..\..\vpc_scripts\source_dll_base.vpc
+d752cf80 ..\..\vpc_scripts\platform_dirs.vpc
+6c4a5ff1 ..\..\vpc_scripts\source_base.vpc
+34ca56eb ..\..\vpc_scripts\source_dll_win32_base.vpc
+486b766d ..\..\vpc_scripts\version.vpc
+846102f0 ..\..\vpc_scripts\loadaddress.vpc
+1355b11f ..\..\vpc_scripts\source_dll_win32_debug.vpc
+b0ea7ed5 ..\..\vpc_scripts\source_dll_win32_release.vpc
+587f9e0b ..\..\vpc_scripts\source_win32_base.vpc
+346bda4a ..\..\vpc_scripts\source_video_base.vpc
+30bf2216 ..\..\vpc_scripts\definitions\win32_2010.def
