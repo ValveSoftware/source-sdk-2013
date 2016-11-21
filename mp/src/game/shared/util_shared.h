@@ -19,7 +19,7 @@
 #include "shared_classnames.h"
 
 #ifdef CLIENT_DLL
-#include "cdll_client_int.h"
+#include "../client/cdll_client_int.h"
 #endif
 
 #ifdef PORTAL

@@ -57,10 +57,10 @@ enum InvalidatePhysicsBits_t
 
 
 #if defined( CLIENT_DLL )
-#include "c_baseentity.h"
-#include "c_baseanimating.h"
+#include "../client/c_baseentity.h"
+#include "../client/c_baseanimating.h"
 #else
-#include "baseentity.h"
+#include "../server/baseentity.h"
 
 #ifdef HL2_EPISODIC
 	#include "info_darknessmode_lightsource.h"

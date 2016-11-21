@@ -20,18 +20,9 @@ class Color
 {
 public:
 	// constructors
-	Color()
-	{
-		*((int *)this) = 0;
-	}
-	Color(int _r,int _g,int _b)
-	{
-		SetColor(_r, _g, _b, 0);
-	}
-	Color(int _r,int _g,int _b,int _a)
-	{
-		SetColor(_r, _g, _b, _a);
-	}
+	constexpr Color() : _color { (unsigned char)0, (unsigned char)0, (unsigned char)0, (unsigned char)0 } { }
+	constexpr Color(int _r, int _g, int _b) : _color { (unsigned char)_r, (unsigned char)_g, (unsigned char)_b, (unsigned char)0 } { }
+	constexpr Color(int _r, int _g, int _b, int _a) : _color { (unsigned char)_r, (unsigned char)_g, (unsigned char)_b, (unsigned char)_a } { }
 	
 	// set the color
 	// r - red component (0-255)
