@@ -17,9 +17,11 @@
 #include "engine/IEngineTrace.h"
 #include "engine/IStaticPropMgr.h"
 #include "shared_classnames.h"
+#include "shareddefs.h"
+#include "predictable_entity.h"
 
 #ifdef CLIENT_DLL
-#include "cdll_client_int.h"
+#include "../client/cdll_client_int.h"
 #endif
 
 #ifdef PORTAL

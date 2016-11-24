@@ -12,6 +12,8 @@
 #pragma once
 #endif
 
+#include "basehandle.h"
+
 
 //-----------------------------------------------------------------------------
 // Forward declarations

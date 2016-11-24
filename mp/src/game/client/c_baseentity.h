@@ -27,6 +27,7 @@
 #if !defined( NO_ENTITY_PREDICTION )
 #include "predictableid.h"
 #endif
+#include "predictable_entity.h"
 #include "soundflags.h"
 #include "shareddefs.h"
 #include "networkvar.h"

@@ -95,7 +95,7 @@ typedef DWORD COLORREF;
 #endif
 
 #ifndef INVALID_HANDLE_VALUE
-#define INVALID_HANDLE_VALUE ((HANDLE)-1)
+#define INVALID_HANDLE_VALUE ((HANDLE)(LONG_PTR)-1)
 #endif
 
 // typedef struct {

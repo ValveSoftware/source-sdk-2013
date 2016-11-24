@@ -528,10 +528,12 @@ public:
 			return;
 
 		// Debugging code to show column widths
-		int wide, tall;
-		GetSize(wide, tall);
-		surface()->DrawSetColor( 255,255,255,255 );
-		surface()->DrawOutlinedRect(0, 0, wide, tall);
+		{
+			int wide, tall;
+			GetSize(wide, tall);
+			surface()->DrawSetColor(255, 255, 255, 255);
+			surface()->DrawOutlinedRect(0, 0, wide, tall);
+		}
 
 		int colCount = m_pListPanel->GetColumnCountBySection(m_iSectionID);
 		if (m_pData && colCount >= 0)

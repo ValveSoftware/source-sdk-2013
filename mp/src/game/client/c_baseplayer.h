@@ -25,6 +25,8 @@
 #include "c_env_fog_controller.h"
 #include "igameevents.h"
 #include "GameEventListener.h"
+#include "vphysics_interface.h"
+#include "baseplayer_shared.h"
 
 #if defined USES_ECON_ITEMS
 #include "econ_item.h"

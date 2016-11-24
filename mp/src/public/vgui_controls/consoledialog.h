@@ -141,6 +141,7 @@ class CConsoleDialog : public vgui::Frame
 
 public:
 	CConsoleDialog( vgui::Panel *pParent, const char *pName, bool bStatusVersion );
+	virtual ~CConsoleDialog() { }
 
 	virtual void OnScreenSizeChanged( int iOldWide, int iOldTall );
 	virtual void Close();

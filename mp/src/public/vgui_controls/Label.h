@@ -32,7 +32,7 @@ public:
 	// Constructors
 	Label(Panel *parent, const char *panelName, const char *text);
 	Label(Panel *parent, const char *panelName, const wchar_t *wszText);
-	~Label();
+	virtual ~Label();
 
 public:
 	// Take the string and looks it up in the localization file to convert it to unicode

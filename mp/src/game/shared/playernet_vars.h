@@ -11,6 +11,7 @@
 #pragma once
 #endif
 
+#include "networkvar.h"
 #include "shared_classnames.h"
 
 #define NUM_AUDIO_LOCAL_SOUNDS	8

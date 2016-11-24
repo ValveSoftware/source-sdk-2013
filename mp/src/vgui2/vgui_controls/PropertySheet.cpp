@@ -46,6 +46,7 @@ public:
 	{
 		SetBlockDragChaining( true );
 	}
+	virtual ~ContextLabel() { }
 
 	virtual void OnMousePressed( MouseCode code )
 	{
@@ -268,23 +269,23 @@ public:
 				if ( !m_pParent->IsWithin( screenx, screeny ) )
 				{
 					Panel *page = reinterpret_cast< Panel * >( data->GetPtr( "propertypage" ) );
-					PropertySheet *sheet = reinterpret_cast< PropertySheet * >( data->GetPtr( "propertysheet" ) );
+					PropertySheet *pSheet = reinterpret_cast< PropertySheet * >( data->GetPtr( "propertysheet" ) );
 					char const *title = data->GetString( "tabname", "" );
-					if ( !page || !sheet )
+					if ( !page || !pSheet)
 						return;
 					
 					// Can only create if sheet was part of a ToolWindow derived object
-					ToolWindow *tw = dynamic_cast< ToolWindow * >( sheet->GetParent() );
+					ToolWindow *tw = dynamic_cast< ToolWindow * >(pSheet->GetParent() );
 					if ( tw )
 					{
 						IToolWindowFactory *factory = tw->GetToolWindowFactory();
 						if ( factory )
 						{
-							bool hasContextMenu = sheet->PageHasContextMenu( page );
-							sheet->RemovePage( page );
-							factory->InstanceToolWindow( tw->GetParent(), sheet->ShouldShowContextButtons(), page, title, hasContextMenu );
+							bool hasContextMenu = pSheet->PageHasContextMenu( page );
+							pSheet->RemovePage( page );
+							factory->InstanceToolWindow( tw->GetParent(), pSheet->ShouldShowContextButtons(), page, title, hasContextMenu );
 
-							if ( sheet->GetNumPages() == 0 )
+							if (pSheet->GetNumPages() == 0 )
 							{
 								tw->MarkForDeletion();
 							}
@@ -993,21 +994,23 @@ void PropertySheet::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	int x, y, wide, tall;
-	GetBounds(x, y, wide, tall);
-	if (_activePage)
 	{
-		int tabHeight = IsSmallTabs() ? m_iTabHeightSmall : m_iTabHeight;
+		int x, y, wide, tall;
+		GetBounds(x, y, wide, tall);
+		if (_activePage)
+		{
+			int tabHeight = IsSmallTabs() ? m_iTabHeightSmall : m_iTabHeight;
 
-		if(_showTabs)
-		{
-			_activePage->SetBounds(0, tabHeight, wide, tall - tabHeight);
+			if (_showTabs)
+			{
+				_activePage->SetBounds(0, tabHeight, wide, tall - tabHeight);
+			}
+			else
+			{
+				_activePage->SetBounds(0, 0, wide, tall);
+			}
+			_activePage->InvalidateLayout();
 		}
-		else
-		{
-			_activePage->SetBounds(0, 0, wide, tall );
-		}
-		_activePage->InvalidateLayout();
 	}
 
 	

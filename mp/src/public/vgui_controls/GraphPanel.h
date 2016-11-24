@@ -26,6 +26,7 @@ class GraphPanel : public Panel
 
 public:
 	GraphPanel(Panel *parent, const char *name);
+	virtual ~GraphPanel() { }
 	
 	// domain settings (x-axis settings)
 	// sets the window of samples to display

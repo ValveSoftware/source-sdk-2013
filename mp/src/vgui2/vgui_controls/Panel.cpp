@@ -159,6 +159,7 @@ class CDragDropHelperPanel : public Panel
 	DECLARE_CLASS_SIMPLE( CDragDropHelperPanel, Panel );
 public:
 	CDragDropHelperPanel();
+	virtual ~CDragDropHelperPanel() { }
 
 	virtual VPANEL IsWithinTraverse(int x, int y, bool traversePopups);
 	virtual void PostChildPaint();
@@ -1270,16 +1271,16 @@ void Panel::PaintTraverse( bool repaint, bool allowForce )
 		if ( GetBuildModeDialogCount() && IsBuildGroupEnabled() ) //&& HasFocus() )
 		{
 			// outline all selected panels 
-			CUtlVector<PHandle> *controlGroup = _buildGroup->GetControlGroup();
-			for (int i=0; i < controlGroup->Size(); ++i)
+			CUtlVector<PHandle> *controlGroupA = _buildGroup->GetControlGroup();
+			for (int i=0; i < controlGroupA->Size(); ++i)
 			{
 				// outline all selected panels 
-				CUtlVector<PHandle> *controlGroup = _buildGroup->GetControlGroup();
-				for (int i=0; i < controlGroup->Size(); ++i)
+				CUtlVector<PHandle> *controlGroupB = _buildGroup->GetControlGroup();
+				for (int k=0; k < controlGroupB->Size(); ++k)
 				{
-					surface()->PushMakeCurrent( ((*controlGroup)[i].Get())->GetVPanel(), false );
-					((*controlGroup)[i].Get())->PaintBuildOverlay();
-					surface()->PopMakeCurrent( ((*controlGroup)[i].Get())->GetVPanel() );
+					surface()->PushMakeCurrent( ((*controlGroupB)[k].Get())->GetVPanel(), false );
+					((*controlGroupB)[k].Get())->PaintBuildOverlay();
+					surface()->PopMakeCurrent( ((*controlGroupB)[k].Get())->GetVPanel() );
 				}	
 			
 				_buildGroup->DrawRulers();						
@@ -6960,7 +6961,6 @@ void Panel::OnFinishDragging( bool mousereleased, MouseCode code, bool abort /*=
 	m_pDragDrop->m_bDragging = false;
 
 	CUtlVector< KeyValues * >& data = m_pDragDrop->m_DragData;
-	int c = data.Count();
 
 	Panel *target = NULL;
 	bool shouldDrop = false;
@@ -7008,7 +7008,7 @@ void Panel::OnFinishDragging( bool mousereleased, MouseCode code, bool abort /*=
 			m_pDragDrop->m_hDropContextMenu = NULL;
 		}
 
-		for ( int i = 0 ; i < c; ++i )
+		for ( int i = 0 ; i < data.Count(); ++i )
 		{
 			KeyValues *msg = data[ i ];
 
@@ -7025,7 +7025,7 @@ void Panel::OnFinishDragging( bool mousereleased, MouseCode code, bool abort /*=
 			// Convert screen space coordintes to coordinates relative to drop window
 			target->ScreenToLocal( localmousex, localmousey );
 
-			for ( int i = 0 ; i < c; ++i )
+			for ( int i = 0 ; i < data.Count(); ++i )
 			{
 				KeyValues *msg = data[ i ];
 
@@ -7049,20 +7049,16 @@ void Panel::OnFinishDragging( bool mousereleased, MouseCode code, bool abort /*=
 	// Copy data ptrs out of data because OnPanelDropped might cause this panel to be deleted
 	// and our this ptr will be hosed...
 	CUtlVector< KeyValues * > temp;
-	for ( int i = 0 ; i < c; ++i )
-	{
+	for ( int i = 0 ; i < data.Count(); ++i )
 		temp.AddToTail( data[ i ] );
-	}
+
 	data.RemoveAll();
 
 	if ( shouldDrop && target )
-	{
 		target->OnPanelDropped( temp );
-	}
-	for ( int i = 0 ; i < c ; ++i )
-	{
+
+	for ( int i = 0 ; i < data.Count(); ++i )
         temp[ i ]->deleteThis();
-	}
 #endif
 }
 
@@ -7408,17 +7404,13 @@ void CDragDropHelperPanel::PostChildPaint()
 			else
 			{
 				CUtlVector< Panel * > temp;
-				CUtlVector< PHandle >& data = panel->GetDragDropInfo()->m_DragPanels;
+				CUtlVector< PHandle >& dragPanels = panel->GetDragDropInfo()->m_DragPanels;
 				CUtlVector< KeyValues * >& msglist = panel->GetDragDropInfo()->m_DragData;
-				int i, c;
-				c = data.Count();
-				for ( i = 0; i < c ; ++i )
+				for ( int k = 0; k < dragPanels.Count(); ++k )
 				{
-					Panel *pPanel = data[ i ].Get();
+					Panel *pPanel = dragPanels[ k ].Get();
 					if ( pPanel )
-					{
 						temp.AddToTail( pPanel );
-					}
 				}
 
 				dropPanel->OnDroppablePanelPaint( msglist, temp );

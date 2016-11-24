@@ -234,31 +234,33 @@ void CKeyBindingHelpDialog::PopulateList()
 	int i, j;
 
 	CUtlVector< ListInfo_t > maps;
-	vgui::Panel *pPanel = m_hPanel;
-	while ( pPanel->IsKeyBindingChainToParentAllowed() )
 	{
-		PanelKeyBindingMap *map = pPanel->GetKBMap();
-		while ( map )
+		vgui::Panel *pPanel = m_hPanel;
+		while (pPanel->IsKeyBindingChainToParentAllowed())
 		{
-			int k;
-			int c = maps.Count();
-			for ( k = 0; k < c; ++k )
+			PanelKeyBindingMap *map = pPanel->GetKBMap();
+			while (map)
 			{
-				if ( maps[k].m_pMap == map )
-					break;
+				int k;
+				int c = maps.Count();
+				for (k = 0; k < c; ++k)
+				{
+					if (maps[k].m_pMap == map)
+						break;
+				}
+				if (k == c)
+				{
+					int n = maps.AddToTail();
+					maps[n].m_pMap = map;
+					maps[n].m_pPanel = pPanel;
+				}
+				map = map->baseMap;
 			}
-			if ( k == c )
-			{
-				int k = maps.AddToTail( );
-				maps[k].m_pMap = map;
-				maps[k].m_pPanel = pPanel;
-			}
-			map = map->baseMap;
-		}
 
-		pPanel = pPanel->GetParent();
-		if ( !pPanel )
-			break;
+			pPanel = pPanel->GetParent();
+			if (!pPanel)
+				break;
+		}
 	}
 
 	CUtlRBTree< KeyValues *, int >	sorted( 0, 0, BindingLessFunc );

@@ -180,23 +180,25 @@ void PerforceFileExplorer::PopulateFileList()
 	Q_snprintf( pFilter, sizeof(pFilter), "%s\\*.*", m_CurrentDirectory.Get() );
 
 	// Find all files on disk
-	FileFindHandle_t h;
-	const char *pFileName = g_pFullFileSystem->FindFirstEx( pFilter, NULL, &h );
-	for ( ; pFileName; pFileName = g_pFullFileSystem->FindNext( h ) )
 	{
-		if ( !Q_stricmp( pFileName, ".." ) || !Q_stricmp( pFileName, "." ) )
-			continue;
-
-		if ( !Q_IsAbsolutePath( pFileName ) )
+		FileFindHandle_t h;
+		const char *pFileName = g_pFullFileSystem->FindFirstEx(pFilter, NULL, &h);
+		for (; pFileName; pFileName = g_pFullFileSystem->FindNext(h))
 		{
-			Q_snprintf( pFullFoundPath, sizeof(pFullFoundPath), "%s\\%s", m_CurrentDirectory.Get(), pFileName );
-			pFileName = pFullFoundPath;
-		}
+			if (!Q_stricmp(pFileName, "..") || !Q_stricmp(pFileName, "."))
+				continue;
 
-		int nItemID = m_pFileList->AddFile( pFileName, true );
-		m_pFileList->RefreshPerforceState( nItemID, true, NULL );
+			if (!Q_IsAbsolutePath(pFileName))
+			{
+				Q_snprintf(pFullFoundPath, sizeof(pFullFoundPath), "%s\\%s", m_CurrentDirectory.Get(), pFileName);
+				pFileName = pFullFoundPath;
+			}
+
+			int nItemID = m_pFileList->AddFile(pFileName, true);
+			m_pFileList->RefreshPerforceState(nItemID, true, NULL);
+		}
+		g_pFullFileSystem->FindClose(h);
 	}
-	g_pFullFileSystem->FindClose( h );
 
 	// Now find all files in perforce
 	CUtlVector<P4File_t> &fileList = p4->GetFileList( m_CurrentDirectory );

@@ -25,6 +25,9 @@ public:
 
 	// Check whether a particular parameter exists
 	virtual	const char	*CheckParm( const char *psz, const char **ppszValue = 0 ) const = 0;
+#ifdef TF2_SDK
+	virtual bool		HasParm(const char *parm) = 0;
+#endif
 	virtual void		RemoveParm( const char *parm ) = 0;
 	virtual void		AppendParm( const char *pszParm, const char *pszValues ) = 0;
 

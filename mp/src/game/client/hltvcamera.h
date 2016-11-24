@@ -11,6 +11,9 @@
 #endif
 
 #include "GameEventListener.h"
+#include "usercmd.h"
+
+class C_BaseEntity;
 
 class C_HLTVCamera : CGameEventListener
 {

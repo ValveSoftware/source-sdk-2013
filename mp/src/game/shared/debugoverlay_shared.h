@@ -12,6 +12,7 @@
 
 #include "engine/ivdebugoverlay.h"
 #include "mathlib/vector.h"
+#include "baseentity_shared.h"
 
 //=============================================================================
 // NDebugOverlay

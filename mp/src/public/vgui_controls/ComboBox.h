@@ -25,6 +25,8 @@ class ComboBoxButton : public vgui::Button
 {
 public:
 	ComboBoxButton(ComboBox *parent, const char *panelName, const char *text);
+	virtual ~ComboBoxButton() { }
+
 	virtual void ApplySchemeSettings(IScheme *pScheme);
 	virtual IBorder *GetBorder(bool depressed, bool armed, bool selected, bool keyfocus);
 	virtual void OnCursorExited();
@@ -50,7 +52,7 @@ class ComboBox : public TextEntry
 
 public:
 	ComboBox(Panel *parent, const char *panelName, int numLines, bool allowEdit);
-	~ComboBox();
+	virtual ~ComboBox();
 
 	// functions designed to be overriden
 	virtual void OnShowMenu(Menu *menu) {}

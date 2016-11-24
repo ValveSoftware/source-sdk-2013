@@ -96,6 +96,7 @@ public:
 	CInlineEditPanel() : vgui::Panel(NULL, "InlineEditPanel")
 	{
 	}
+	virtual ~CInlineEditPanel() { }
 
 	virtual void Paint()
 	{

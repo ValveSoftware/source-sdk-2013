@@ -11,6 +11,7 @@
 
 #include <vgui/VGUI.h>
 #include "client_virtualreality.h"
+#include "inputsystem/buttoncode.h"
 
 class CViewSetup;
 class C_BaseEntity;

@@ -28,7 +28,7 @@ class ImagePanel : public Panel
 	DECLARE_CLASS_SIMPLE( ImagePanel, Panel );
 public:
 	ImagePanel(Panel *parent, const char *name);
-	~ImagePanel();
+	virtual ~ImagePanel();
 
 	virtual void SetImage(IImage *image);
 	virtual void SetImage(const char *imageName);
