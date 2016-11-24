@@ -17,6 +17,8 @@
 #include "engine/IEngineTrace.h"
 #include "engine/IStaticPropMgr.h"
 #include "shared_classnames.h"
+#include "shareddefs.h"
+#include "predictable_entity.h"
 
 #ifdef CLIENT_DLL
 #include "../client/cdll_client_int.h"
