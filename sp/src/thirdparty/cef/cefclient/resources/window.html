@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>Window Test</title>
+<script>
+function send_message(test, params) {
+  var message = 'WindowTest.' + test;
+  if (typeof params != 'undefined')
+    message += ':' + params;
+
+  // Results in a call to the OnQuery method in window_test.cpp.
+  window.cefQuery({'request' : message});
+}
+
+function minimize() {
+  send_message('Minimize');
+}
+
+function maximize() {
+  send_message('Maximize');
+}
+
+function restore() {
+  minimize();
+  setTimeout(function() { send_message('Restore'); }, 1000);
+}
+
+function position() {
+  var x = parseInt(document.getElementById('x').value);
+  var y = parseInt(document.getElementById('y').value);
+  var width = parseInt(document.getElementById('width').value);
+  var height = parseInt(document.getElementById('height').value);
+  if (isNaN(x) || isNaN(y) || isNaN(width) || isNaN(height))
+    alert('Please specify a valid numeric value.');
+  else
+    send_message('Position', x + ',' + y + ',' + width + ',' + height);
+}
+</script>
+</head>
+<body bgcolor="white">
+<form>
+Click a button to perform the associated window action.
+<br/><input type="button" onclick="minimize();" value="Minimize">
+<br/><input type="button" onclick="maximize();" value="Maximize">
+<br/><input type="button" onclick="restore();" value="Restore"> (minimizes and then restores the window as topmost)
+<br/><input type="button" onclick="position();" value="Set Position"> X: <input type="text" size="4" id="x" value="200"> Y: <input type="text" size="4" id="y" value="100"> Width: <input type="text" size="4" id="width" value="800"> Height: <input type="text" size="4" id="height" value="600">
+</form>
+</body>
+</html>

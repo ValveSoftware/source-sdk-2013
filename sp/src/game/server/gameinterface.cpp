@@ -90,6 +90,11 @@
 #include "serverbenchmark_base.h"
 #include "querycache.h"
 
+#include "scripto/scripto.h"
+#include "scripto/lua.h"
+
+CScriptManager g_scriptManager;
+
 
 #ifdef TF_DLL
 #include "gc_clientsystem.h"
@@ -409,7 +414,7 @@ void DrawMeasuredSections(void)
 #endif
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Purpose: Draw debug overlays
 //-----------------------------------------------------------------------------
 void DrawAllDebugOverlays( void ) 
 {
@@ -706,7 +711,7 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 #ifdef CSTRIKE_DLL // BOTPORT: TODO: move these ifdefs out
 	InstallBotControl();
 #endif
-
+	
 	if ( !IGameSystem::InitAllSystems() )
 		return false;
 
@@ -742,16 +747,43 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	gamestatsuploader->InitConnection();
 #endif
 
+	// SourceCE Scripting (Lua)
+
+	// client and server should have their own CScriptManager
+	g_scriptManager.AddLanguage(new CLuaLanguage());
+
+	g_scriptManager.AddHook("DLLInit");
+	g_scriptManager.AddHook("PostInit");
+	g_scriptManager.AddHook("GameInit");
+	g_scriptManager.AddHook("LevelInit");
+
+	g_scriptManager.AddHook("ClientConnect");
+	g_scriptManager.AddHook("ClientActive");
+	
+	g_scriptManager.AddHook("GameShutdown");
+	g_scriptManager.AddHook("LevelShutdown");
+	g_scriptManager.AddHook("DLLShutdown");
+
+	
+	g_scriptManager.CallHook("DLLInit");
+
 	return true;
 }
 
 void CServerGameDLL::PostInit()
 {
 	IGameSystem::PostInitAllSystems();
+
+	g_scriptManager.CallHook("PostInit");
 }
 
 void CServerGameDLL::DLLShutdown( void )
 {
+	g_scriptManager.CallHook("DLLShutdown");
+
+	// Last in, first out
+	g_scriptManager.Terminate();
+
 
 	// Due to dependencies, these are not autogamesystems
 	ModelSoundsCacheShutdown();
@@ -802,6 +834,7 @@ void CServerGameDLL::DLLShutdown( void )
 	DisconnectTier2Libraries();
 	ConVar_Unregister();
 	DisconnectTier1Libraries();
+
 }
 
 bool CServerGameDLL::ReplayInit( CreateInterfaceFn fnReplayFactory )
@@ -862,6 +895,8 @@ bool CServerGameDLL::GameInit( void )
 		gameeventmanager->FireEvent( event );
 	}
 
+	g_scriptManager.CallHook("GameInit");
+
 	return true;
 }
 
@@ -870,6 +905,7 @@ bool CServerGameDLL::GameInit( void )
 void CServerGameDLL::GameShutdown( void )
 {
 	ResetGlobalState();
+	g_scriptManager.CallHook("GameShutdown");
 }
 
 static bool g_OneWayTransition = false;
@@ -1053,6 +1089,9 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 
 	// load MOTD from file into stringtable
 	LoadMessageOfTheDay();
+
+	// Call Lua hook.
+	g_scriptManager.CallHook("LevelInit");
 
 	// Sometimes an ent will Remove() itself during its precache, so RemoveImmediate won't happen.
 	// This makes sure those ents get cleaned up.
@@ -1337,6 +1376,9 @@ void CServerGameDLL::PreClientUpdate( bool simulating )
 
 void CServerGameDLL::Think( bool finalTick )
 {
+
+	g_scriptManager.CallHook("Think");
+	
 	if ( m_fAutoSaveDangerousTime != 0.0f && m_fAutoSaveDangerousTime < gpGlobals->curtime )
 	{
 		// The safety timer for a dangerous auto save has expired
@@ -1391,6 +1433,9 @@ void CServerGameDLL::LevelShutdown( void )
 	CBaseEntity::SetAllowPrecache( false );
 
 	g_nCurrentChapterIndex = -1;
+
+	// Call Lua hook.
+	g_scriptManager.CallHook("LevelShutdown");
 
 #ifndef _XBOX
 #ifdef USE_NAV_MESH
@@ -1584,6 +1629,7 @@ typedef struct
 	const char *pTitleName;
 } TITLECOMMENT;
 
+// TODO: replace this big dumb hardcoded list with something better
 // this list gets searched for the first partial match, so some are out of order
 static TITLECOMMENT gTitleComments[] =
 {
@@ -2606,8 +2652,9 @@ bool CServerGameClients::ClientConnect( edict_t *pEdict, const char *pszName, co
 {	
 	if ( !g_pGameRules )
 		return false;
-	
-	return g_pGameRules->ClientConnected( pEdict, pszName, pszAddress, reject, maxrejectlen );
+
+	// Pass args to game rules and scripting system.
+	return g_pGameRules->ClientConnected(pEdict, pszName, pszAddress, reject, maxrejectlen) && g_scriptManager.CallHook("ClientConnect", pEdict, pszName, pszAddress, reject, maxrejectlen);
 }
 
 //-----------------------------------------------------------------------------
@@ -2631,6 +2678,9 @@ void CServerGameClients::ClientActive( edict_t *pEdict, bool bLoadGame )
 			pEntity->PostClientActive();
 		}
 	}
+
+
+	g_scriptManager.CallHook("ClientActive", pEdict, bLoadGame);
 
 	// Tell the sound controller to check looping sounds
 	CBasePlayer *pPlayer = ( CBasePlayer * )CBaseEntity::Instance( pEdict );
@@ -3178,6 +3228,8 @@ void CServerGameClients::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pK
 	}
 }
 
+#pragma region Messaging
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -3375,6 +3427,8 @@ void MessageWriteBits( const void *pIn, int nBits )
 
 	g_pMsgBuffer->WriteBits( pIn, nBits );
 }
+
+#pragma endregion
 
 class CServerDLLSharedAppSystems : public IServerDLLSharedAppSystems
 {

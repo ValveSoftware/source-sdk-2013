@@ -1,0 +1,17 @@
+bin\dx_proxy.dll
+c:\program files (x86)\steam\steamapps\common\source sdk base 2013 singleplayer\bin\\tier0.dll
+c:\program files (x86)\steam\steamapps\common\source sdk base 2013 singleplayer\bin\\vstdlib.dll
+common_fxc.h
+common_hlsl_cpp_consts.h
+common_pragmas.h
+common_ps_fxc.h
+common_vs_fxc.h
+common_vertexlitgeneric_dx9.h
+common_lightmappedgeneric_fxc.h
+common_flashlight_fxc.h
+common_parallax.h
+c:\program files (x86)\steam\steamapps\common\source sdk base 2013 singleplayer\bin\\shadercompile.exe
+c:\program files (x86)\steam\steamapps\common\source sdk base 2013 singleplayer\bin\\shadercompile_dll.dll
+00006D_pbr_pos_preview_vs30.fxc
+00006D_pbr_preview_vs30.fxc
+00006D_pbr_preview_ps30.fxc

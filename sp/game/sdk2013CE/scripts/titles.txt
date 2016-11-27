@@ -1,0 +1,278 @@
+//TITLES FOR HALF-LIFE 2
+// Position command $position x y 
+// x & y are from 0 to 1 to be screen resolution independent
+// -1 means center in each dimension
+// Effect command $effect <effect number>
+// effect 0 is fade in/fade out
+// effect 1 is flickery credits
+// effect 2 is write out (training room)
+// Text color r g b command $color
+// fadein time fadeout time / hold time
+// $fadein (message fade in time - per character in effect 2)
+// $fadeout (message fade out time)
+// $holdtime (stay on the screen for this long)
+
+//INTRO TITLES
+// All centered for now
+$position -1 -1
+$effect 2
+// This is the final color
+$color 100 100 100
+// This is the highlight color
+$color2 240 110 0
+// This is the time it takes to fade each character
+$fadein 0.01
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.25
+// How long to hold the message on the screen (after it scans out)
+$holdtime 3.5
+// How long it takes to fade out the message after holding
+$fadeout 1.5
+
+
+//INTRO CREDITS
+// Test values -- JAY
+// Lower left
+$position 0.1 0.8
+$effect 1
+// Final fade-in color
+$color 128 128 128
+// This is the highlight/flash color
+$color2 0 0 0
+$fadein 1.5
+$fadeout 0.5
+$holdtime 1.2
+
+CR1
+{
+Testing 1
+}
+
+CR2
+{
+Testing 2
+}
+
+CR3
+{
+Testing 3
+}
+
+
+//INTRO TITLES
+// All centered for now
+$position -1 -1
+$effect 2
+// This is the final color
+$color 100 100 100
+// This is the highlight color
+$color2 240 110 0
+// This is the time it takes to fade each character
+$fadein 0.01
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.25
+// How long to hold the message on the screen (after it scans out)
+$holdtime 3.5
+// How long it takes to fade out the message after holding
+$fadeout 1.5
+
+
+GAMEOVER_ALLY
+{
+#HL2_GameOver_Ally
+}
+
+GAMEOVER_OBJECT
+{
+#HL2_GameOver_Object
+}
+
+GAMEOVER_TIMER
+{
+#HL2_GameOver_Timer
+}
+
+GAMEOVER_STUCK
+{
+#HL2_GameOver_Stuck
+}
+
+GAMEOVER_ALYXDEAD
+{
+#Episodic_GameOver_AlyxDead
+}
+
+GAMEOVER_ALYXLEFT
+{
+#EP2_GameOver_AlyxLeft
+}
+
+
+$fadein 0.03
+$holdtime 9
+
+
+//CHAPTER TITLES
+
+$fadein 0.01
+$holdtime 3.5
+$position -1 0.58
+
+EP2_CHAPTER1_TITLE
+{
+#ep2_Chapter1_Title
+}
+
+EP2_CHAPTER2_TITLE
+{
+#ep2_Chapter2_Title
+}
+
+EP2_CHAPTER3_TITLE
+{
+#ep2_Chapter3_Title
+}
+
+EP2_CHAPTER4_TITLE
+{
+#ep2_Chapter4_Title
+}
+
+EP2_CHAPTER5_TITLE
+{
+#ep2_Chapter5_Title
+}
+
+EP2_CHAPTER6_TITLE
+{
+#ep2_Chapter6_Title
+}
+
+EP2_CHAPTER7_TITLE
+{
+#ep2_Chapter7_Title
+}
+
+EP2_CHAPTER8_TITLE
+{
+#ep2_Chapter8_Title
+}
+
+EP2_CHAPTER9_TITLE
+{
+#ep2_Chapter9_Title
+}
+
+
+// In-Game messages
+$position 0.1 0.1
+$effect 2
+// This is the final color
+$color 100 100 100
+// This is the highlight color
+$color2 240 110 0
+// This is the time it takes to fade each character
+$fadein 0.00
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.0
+// How long to hold the message on the screen (after it scans out)
+$holdtime 0.01
+// How long it takes to fade out the message after holding
+$fadeout 0.01
+
+$boxsize 0.4
+$boxcolor 31 31 31 127
+
+GAMESAVING_360
+{
+#HL2_Saving
+}
+
+$position -1 0.65
+
+GAMESAVING
+{
+#HL2_Saving
+}
+
+// In-Game messages
+$position 0.1 0.1
+$effect 2
+// This is the final color
+$color 100 100 100
+// This is the highlight color
+$color2 240 110 0
+// This is the time it takes to fade each character
+$fadein 0.00
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.15
+// How long to hold the message on the screen (after it scans out)
+$holdtime 1.0
+// How long it takes to fade out the message after holding
+$fadeout 0.25
+
+$boxsize 0.4
+$boxcolor 31 31 31 127
+
+// The following message will clear any existing message of the given name
+$clearmessage GAMESAVING
+
+GAMESAVED_360
+{
+#HL2_Saved
+}
+
+$position -1 0.65
+
+GAMESAVED
+{
+#HL2_Saved
+}
+
+$clearmessage 0
+
+// Game title
+// This is a placeholder to hold the effects controls for the "Half-Life" title
+$position -1 -1
+// Only effect 0 is supported for game title
+$effect 0
+// This is the final color
+$color 180 180 180
+// Not used color2
+$color2 0 0 0
+// This is the time it takes to fade in the title
+$fadein 1.0
+// How long to hold the message on the screen (after it scans out)
+$holdtime 3.0
+// How long it takes to fade out the message after holding
+$fadeout 1.5
+
+$boxsize 0.0
+
+GAMETITLE
+{
+Half-Life
+}
+
+//HAZARD COURSE TEXT
+
+// Test values -- JAY
+$position -1 0.65
+// Scan-out text effect
+$effect 2
+// This is the final color
+$color 100 100 100
+// This is the highlight color
+$color2 0 200 50
+// This is the time it takes to fade each character
+$fadein 0.005
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.5
+// How long to hold the message on the screen (after it scans out)
+$holdtime 3.5
+// How long it takes to fade out the message after holding
+
+$fadeout 1.5
+$position -1 0.65
+$position -1 0.3
+

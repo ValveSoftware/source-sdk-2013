@@ -42,7 +42,6 @@ typedef unsigned long HCursor;
 #define MESSAGE_CURSOR_POS -1
 #define MESSAGE_CURRENT_KEYFOCUS -2
 
-
 class IInput : public IBaseInterface
 {
 public:

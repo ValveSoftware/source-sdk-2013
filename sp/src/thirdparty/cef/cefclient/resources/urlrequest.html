@@ -1,0 +1,27 @@
+<html>
+<body bgcolor="white">
+<script language="JavaScript">
+
+// Send a query to the browser process.
+function execURLRequest() {
+  document.getElementById('ta').value = 'Request pending...';
+
+  // Results in a call to the OnQuery method in urlrequest_test.cpp
+  window.cefQuery({
+    request: 'URLRequestTest:' + document.getElementById("url").value,
+    onSuccess: function(response) {
+      document.getElementById('ta').value = response;
+    },
+    onFailure: function(error_code, error_message) {
+      document.getElementById('ta').value = 'Failed with error ' + error_message + ' (' + error_code + ')';
+    }
+  });
+}
+</script>
+<form>
+URL: <input type="text" id="url" value="http://www.google.com">
+<br/><input type="button" onclick="execURLRequest();" value="Execute CefURLRequest">
+<br/><textarea rows="10" cols="40" id="ta"></textarea>
+</form>
+</body>
+</html>

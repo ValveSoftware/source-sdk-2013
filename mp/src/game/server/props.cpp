@@ -5429,29 +5429,38 @@ void CPropDoorRotating::InputSetRotationDistance( inputdata_t &inputdata )
 	CalculateDoorVolume( GetLocalAngles(), m_angRotationOpenBack, &m_vecBackBoundsMin, &m_vecBackBoundsMax );
 }
 
-// Debug sphere
 class CPhysSphere : public CPhysicsProp
 {
 	DECLARE_CLASS( CPhysSphere, CPhysicsProp );
+	DECLARE_DATADESC();
 public:
-	virtual bool OverridePropdata() { return true; }
+ 
+	float m_fRadius;
+ 
 	bool CreateVPhysics()
 	{
 		SetSolid( SOLID_BBOX );
-		SetCollisionBounds( -Vector(12,12,12), Vector(12,12,12) );
+		SetCollisionBounds( -Vector(m_fRadius), Vector(m_fRadius) );
 		objectparams_t params = g_PhysDefaultObjectParams;
 		params.pGameData = static_cast<void *>(this);
-		IPhysicsObject *pPhysicsObject = physenv->CreateSphereObject( 12, 0, GetAbsOrigin(), GetAbsAngles(), &params, false );
+		IPhysicsObject *pPhysicsObject = physenv->CreateSphereObject( m_fRadius, GetModelPtr()->GetRenderHdr()->textureindex, GetAbsOrigin(), GetAbsAngles(), &params, false );
+ 
 		if ( pPhysicsObject )
 		{
 			VPhysicsSetObject( pPhysicsObject );
 			SetMoveType( MOVETYPE_VPHYSICS );
 			pPhysicsObject->Wake();
 		}
-	
+ 
 		return true;
 	}
 };
+ 
+LINK_ENTITY_TO_CLASS( prop_sphere, CPhysSphere );
+ 
+BEGIN_DATADESC( CPhysSphere )
+	DEFINE_KEYFIELD( m_fRadius, FIELD_FLOAT, "radius"),
+END_DATADESC()
 
 void CPropDoorRotating::InputSetSpeed(inputdata_t &inputdata)
 {
@@ -5459,8 +5468,6 @@ void CPropDoorRotating::InputSetSpeed(inputdata_t &inputdata)
 	m_flSpeed = inputdata.value.Float();
 	DoorResume();
 }
-
-LINK_ENTITY_TO_CLASS( prop_sphere, CPhysSphere );
 
 
 // ------------------------------------------------------------------------------------------ //

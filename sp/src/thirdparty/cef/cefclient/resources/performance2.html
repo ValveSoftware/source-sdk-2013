@@ -1,0 +1,442 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Performance Tests (2)</title>
+        <style>
+            body { font-family: Tahoma, Serif; font-size: 9pt; }
+
+            .left { text-align: left; }
+            .right { text-align: right; }
+            .center { text-align: center; }
+
+            table.resultTable 
+            {
+                border: 1px solid black;
+                border-collapse: collapse;
+                empty-cells: show;
+                width: 100%;
+            }
+            table.resultTable td
+            {
+                padding: 2px 4px;
+                border: 1px solid black;
+            }
+            table.resultTable > thead > tr
+            {
+                font-weight: bold;
+                background: lightblue;
+            }
+            table.resultTable > tbody > tr:nth-child(odd)
+            {
+                background: white;
+            }
+            table.resultTable > tbody > tr:nth-child(even)
+            {
+                background: lightgray;
+            }
+
+            .hide { display: none; }
+        </style>
+    </head>
+    <body bgcolor="white">
+        <h1>Performance Tests (2)</h1>
+
+        <form id="sForm" onsubmit="runTestSuite();return false">
+            <table>
+                <tr>
+                    <td colspan="2">Settings:</td>
+                </tr>
+                <tr>
+                    <td class="right">Iterations:</td>
+                    <td><input id="sIterations" type="text" value="1000" required pattern="[0-9]+" /></td>
+                </tr>
+                <tr>
+                    <td class="right">Samples:</td>
+                    <td><input id="sSamples" type="text" value="100" required pattern="[0-9]+" /></td>
+                </tr>
+                <tr>
+                    <td class="right">Mode:</td>
+                    <td><input id="sAsync" name="sMode" type="radio" value="async" checked>Asynchronous</input>
+                        <input id="sSync" name="sMode" type="radio" value="sync">Synchronous</input>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"><button type="submit" id="sRun" autofocus>Run!</button></td>
+                </tr>
+            </table>
+        </form>
+
+
+        <div><span id="statusBox"></span> <progress id="progressBox" value="0" style="display:none"></progress></div>
+
+        <div style="padding-top:10px; padding-bottom:10px">
+        <table id="resultTable" class="resultTable">
+            <thead>
+                <tr>
+                    <td class="center" style="width:1%">Enabled</td>
+                    <td class="center" style="width:10%">Name</td>
+                    <td class="center" style="width:5%">Samples x Iterations</td>
+                    <td class="center" style="width:5%">Min,&nbsp;ms</td>
+                    <td class="center" style="width:5%">Avg,&nbsp;ms</td>
+                    <td class="center" style="width:5%">Max,&nbsp;ms</td>
+                    <td class="center" style="width:5%">Average calls/sec</td>
+                    <td class="center" style="width:5%">Measuring Inacurracy</td>
+                    <td class="center hide" style="width:5%">Memory, MB</td>
+                    <td class="center hide" style="width:5%">Memory delta, MB</td>
+                    <td class="center" style="width:55%">Description</td>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- result rows here -->
+            </tbody>
+        </table>
+        </div>
+
+<script type="text/javascript">
+(function () {
+    function getPrivateWorkingSet() {
+        return 0; // TODO: window.PerfTestGetPrivateWorkingSet();
+    }
+
+    var disableWarmUp = true;
+
+    var asyncExecution = true;
+    var testIterations = 1000;
+    var totalSamples = 100;
+    var sampleDelay = 0;
+
+    var collectSamples = false;
+
+    var tests = [];
+    var testIndex = -1;
+
+    function execTestFunc(test) {
+        try {
+            var begin = new Date();
+            test.func(test.totalIterations);
+            var end = new Date();
+            return (end - begin);
+        } catch (e) {
+            test.error = e.toString();
+            return 0;
+        }
+    }
+
+    function execTest(test) {
+        if (disableWarmUp) { test.warmedUp = true; }
+
+        function nextStep() {
+            if (asyncExecution) {
+                setTimeout(function () { execTest(test); }, sampleDelay);
+            } else {
+                execTest(test);
+            }
+        }
+
+        function nextTest() {
+            updateStatus(test);
+            appendResult(test);
+
+            return execNextTest();
+        }
+
+        updateStatus(test);
+        if (!test.warmedUp) {
+            execTestFunc(test);
+            if (!test.error) {
+                test.warmedUp = true;
+                test.beginMemory = getPrivateWorkingSet();
+                return nextStep();
+            } else {
+                return nextTest();
+            }
+        }
+
+        if (test.sample >= test.totalSamples) {
+            test.avg = test.total / test.totalSamples;
+            test.endMemory = getPrivateWorkingSet();
+            return nextTest();
+        }
+
+        if (test.skipped) return nextTest();
+
+        var elapsed = execTestFunc(test);
+        if (!test.error) {
+            test.total += elapsed;
+            if (!test.min) test.min = elapsed;
+            else if (test.min > elapsed) test.min = elapsed;
+            if (!test.max) test.max = elapsed;
+            else if (test.max < elapsed) test.max = elapsed;
+            if (collectSamples) {
+                test.results.push(elapsed);
+            }
+            test.sample++;
+            return nextStep();
+        } else {
+            return nextTest();
+        }
+    }
+
+    function updateStatus(test) {
+        var statusBox = document.getElementById("statusBox");
+        var progressBox = document.getElementById("progressBox");
+
+        if (test.skipped || test.error || test.sample >= test.totalSamples) {
+            statusBox.innerText = "";
+            progressBox.style.display = "none";
+        } else {
+            statusBox.innerText = (testIndex + 1) + "/" + tests.length + ": " + test.name + " (" + test.sample + "/" + test.totalSamples + ")";
+            progressBox.value = (test.sample / test.totalSamples);
+            progressBox.style.display = "inline";
+        }
+    }
+
+    function appendResult(test) {
+        if (test.name == "warmup") return;
+
+        var id = "testResultRow_" + test.index;
+
+        var nearBound = (test.max - test.avg) < (test.avg - test.min) ? test.max : test.min;
+        var memoryDelta = test.endMemory - test.beginMemory;
+        if (memoryDelta < 0) memoryDelta = "-" + Math.abs(memoryDelta).toFixed(2);
+        else memoryDelta = "+" + Math.abs(memoryDelta).toFixed(2);
+
+        var markup = ["<tr id='" + id + "'>",
+                      "<td class='left'><input type='checkbox' id='test_enabled_", test.index ,"' ", (!test.skipped ? "checked" : "") ," /></td>",
+                      "<td class='left'>", test.name, "</td>",
+                      "<td class='right'>", test.totalSamples, "x", test.totalIterations, "</td>",
+                      "<td class='right'>", test.skipped || test.error || !test.prepared ? "-" : test.min.toFixed(2), "</td>",
+                      "<td class='right'>", test.skipped || test.error || !test.prepared ? "-" : test.avg.toFixed(2), "</td>",
+                      "<td class='right'>", test.skipped || test.error || !test.prepared ? "-" : test.max.toFixed(2), "</td>",
+                      "<td class='right'>", test.skipped || test.error || !test.prepared ? "-" : (test.totalIterations * 1000 / test.avg).toFixed(2), "</td>",
+                      "<td class='right'>", test.skipped || test.error || !test.prepared ? "-" : ("&#x00B1; " + (Math.abs(test.avg - nearBound) / (test.avg) * (100)).toFixed(2) + "%"), "</td>",
+                      "<td class='right hide'>", test.skipped || test.error || !test.prepared ? "-" : test.endMemory.toFixed(2), "</td>",
+                      "<td class='right hide'>", test.skipped || test.error || !test.prepared ? "-" : memoryDelta, "</td>",
+                      "<td class='left'>", test.description, test.error ? (test.description ? "<br/>" : "") + "<span style='color:red'>" + test.error + "</span>" : "", "</td>",
+                      "</tr>"
+                      ].join("");
+        // test.results.join(", "), "<br/>",
+
+        var row = document.getElementById(id);
+        if (row) {
+            row.outerHTML = markup;
+        } else {
+            var tbody = document.getElementById("resultTable").tBodies[0];
+            tbody.insertAdjacentHTML("beforeEnd", markup);
+        }
+    }
+
+    function prepareQueuedTests() {
+        testIndex = -1;
+        for (var i = 0; i < tests.length; i++) {
+            var test = tests[i];
+            test.index = i;
+            test.prepared = false;
+            test.warmedUp = false;
+            test.sample = 0;
+            test.total = 0;
+            test.results = [];
+            test.error = false;
+            test.min = null;
+            test.avg = null;
+            test.max = null;
+            test.beginMemory = null;
+            test.endMemory = null;
+            test.totalIterations = parseInt(testIterations / test.complex);
+            test.totalSamples = parseInt(totalSamples / test.complex);
+
+            var skipElement = document.getElementById('test_enabled_' + test.index);
+            test.skipped = skipElement ? !skipElement.checked : (test.skipped || false);
+
+            if (test.totalIterations <= 0) test.totalIterations = 1;
+            if (test.totalSamples <= 0) test.totalSamples = 1;
+
+            appendResult(test);
+            test.prepared = true;
+        }
+    }
+
+    function queueTest(func, name, description) {
+        var test;
+        if (typeof func === "function") {
+            test = {
+                name: name,
+                func: func,
+                description: description
+            };
+        } else {
+            test = func;
+        }
+        test.warmedUp = false;
+        test.complex = test.complex || 1;
+        tests.push(test);
+    }
+
+    function execNextTest() {
+        testIndex++;
+        if (tests.length <= testIndex) {
+            return testSuiteFinished();
+        } else {
+            return execTest(tests[testIndex]);
+        }
+    }
+
+    function execQueuedTests() {
+        prepareQueuedTests();
+        execNextTest();
+    }
+
+    function setSettingsState(disabled) {
+        document.getElementById('sIterations').disabled = disabled;
+        document.getElementById('sSamples').disabled = disabled;
+        document.getElementById('sAsync').disabled = disabled;
+        document.getElementById('sSync').disabled = disabled;
+        document.getElementById('sRun').disabled = disabled;
+    }
+
+    function testSuiteFinished() {
+        setSettingsState(false);
+    }
+
+    window.runTestSuite = function () {
+        setSettingsState(true);
+
+        testIterations = parseInt(document.getElementById('sIterations').value);
+        totalSamples = parseInt(document.getElementById('sSamples').value);
+        asyncExecution = document.getElementById('sAsync').checked;
+
+        setTimeout(execQueuedTests, 0);
+    }
+
+    setTimeout(prepareQueuedTests, 0);
+
+    // Test queue.
+    queueTest({
+        name: "PerfTestReturnValue Default",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue();
+            }
+        },
+        description: "No arguments, returns int32 value.",
+        skipped: true,
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (0, Undefined)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(0);
+            }
+        },
+        description: "Int argument, returns undefined value."
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (1, Null)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(1);
+            }
+        },
+        description: "Int argument, returns null value."
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (2, Bool)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(2);
+            }
+        },
+        description: "Int argument, returns bool value."
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (3, Int)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(3);
+            }
+        },
+        description: "Int argument, returns int value."
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (4, UInt)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(4);
+            }
+        },
+        description: "Int argument, returns uint value."
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (5, Double)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(5);
+            }
+        },
+        description: "Int argument, returns double value."
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (6, Date)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(6);
+            }
+        },
+        description: "Int argument, returns date value.",
+        skipped: true,
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (7, String)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(7);
+            }
+        },
+        description: "Int argument, returns string value."
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (8, Object)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(8);
+            }
+        },
+        description: "Int argument, returns object value."
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (9, Array)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(9);
+            }
+        },
+        description: "Int argument, returns array value."
+    });
+
+    queueTest({
+        name: "PerfTestReturnValue (10, Function)",
+        func: function (count) {
+            for (var i = 0; i < count; i++) {
+                window.PerfTestReturnValue(10);
+            }
+        },
+        description: "Int argument, returns function value.",
+        skipped: true,
+    });
+    // add more tests to queueTest
+
+})();
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Performance Tests</title>
+    <style>
+      body { font-family: Tahoma, Serif; font-size: 9pt; }
+    </style>
+  </head>
+  <body bgcolor="white">
+    <h1>Performance Tests</h1>
+    <input type="button" value="Run Tests" onClick="run();" id="run"/> Filter: <input type="text" size="50" id="filters"/>
+    <div><span id="statusBox"></span> <progress id="progressBox" value="0" style="display:none"></progress></div>
+
+    <div style="padding-top:10px; padding-bottom:10px">
+    <table id="resultTable" border="1" cellspacing="1" cellpadding="4">
+      <thead>
+        <tr>
+          <td>Name</td>
+          <td>Iterations per Run</td>
+          <td>Avg (ms)</td>
+          <td>Min (ms)</td>
+          <td>Max (ms)</td>
+          <td>StdDev (ms)</td>
+          <td>Runs (ms)</td>
+        </tr>
+      </thead>
+      <!-- result rows here -->
+    </table>
+    </div>
+
+    <hr width="80%">
+
+    Result 1: <input type="text" size="100" id="result1"/>
+    <br/>Result 2: <input type="text" size="100" id="result2"/>
+    <br/><input type="button" value="Compare" onClick="compare();" id="compare"/>
+
+    <div style="padding-top:10px; padding-bottom:10px">
+    <table id="compareTable" border="1" cellspacing="1" cellpadding="4">
+      <thead>
+        <tr>
+          <td>Name</td>
+          <td>Result 1 Avg (ms)</td>
+          <td>Result 2 Avg (ms)</td>
+          <td>% Diff</td>
+        </tr>
+      </thead>
+      <!-- result rows here -->
+    </table>
+    </div>
+
+<script type="text/javascript">
+function run() {
+  var runElement = document.getElementById("run");
+  var filtersElement = document.getElementById("filters");
+  var compareElement = document.getElementById("compare");
+  var result1Element = document.getElementById("result1");
+  var result2Element = document.getElementById("result2");
+
+  // Number of runs for each test.
+  var testRuns = 10;
+
+  // Delay between test runs.
+  var runDelay = 0;
+
+  // Retrieve the list of all tests.
+  var allTests = window.GetPerfTests();
+
+  // Populated with the list of tests that will be run.
+  var tests = [];
+  var currentTest = 0;
+
+  var testList = filtersElement.value.trim();
+  if (testList.length > 0) {
+    // Include or exclude specific tests.
+    var included = [];
+    var excluded = [];
+
+    var testNames = testList.split(",");
+
+    // Identify included and excluded tests.
+    for (i = 0; i < testNames.length; ++i) {
+      var testName = testNames[i].trim();
+      if (testName[0] == '-') {
+        // Exclude the test.
+        excluded.push(testName.substr(1));
+      } else {
+        // Include the test.
+        included.push(testName);
+      }
+    }
+
+    if (included.length > 0) {
+      // Only use the included tests.
+      for (i = 0; i < allTests.length; ++i) {
+        var test = allTests[i];
+        var testName = test[0];
+        if (included.indexOf(testName) >= 0)
+          tests.push(test);
+      }
+    } else if (excluded.length > 0) {
+      // Use all tests except the excluded tests.
+      for (i = 0; i < allTests.length; ++i) {
+        var test = allTests[i];
+        var testName = test[0];
+        if (excluded.indexOf(testName) < 0)
+          tests.push(test);
+      }
+    }
+  } else {
+    // Run all tests.
+    tests = allTests;
+  }
+
+  function updateStatusComplete() {
+    var statusBox = document.getElementById("statusBox");
+    statusBox.innerText = 'All tests completed.';
+
+    runElement.disabled = false;
+    filtersElement.disabled = false;
+    result1Element.disabled = false;
+    result2Element.disabled = false;
+    compareElement.disabled = false;
+  }
+
+  function updateStatus(test) {
+    var statusBox = document.getElementById("statusBox");
+    var progressBox = document.getElementById("progressBox");
+
+    if (test.run >= test.totalRuns) {
+      statusBox.innerText = test.name + " completed.";
+      progressBox.style.display = 'none';
+    } else {
+      statusBox.innerText = test.name + " (" + test.run + "/" + test.totalRuns + ")";
+      progressBox.value = (test.run / test.totalRuns);
+      progressBox.style.display = 'inline';
+    }
+  }
+
+  function appendResult(test) {
+    var e = document.getElementById("resultTable");
+
+    // Calculate the average.
+    var avg = test.total / test.totalRuns;
+
+    // Calculate the standard deviation.
+    var sqsum = 0;
+    for (i = 0; i < test.results.length; ++i) {
+      var diff = test.results[i] - avg;
+      sqsum += diff * diff;
+    }
+    var stddev = Math.round(Math.sqrt(sqsum / test.totalRuns) * 100.0) / 100.0;
+
+    e.insertAdjacentHTML("beforeEnd", [
+        "<tr>",
+        "<td>", test.name, "</td>",
+        "<td>", test.iterations, "</td>",
+        "<td>", avg, "</td>",
+        "<td>", test.min, "</td>",
+        "<td>", test.max, "</td>",
+        "<td>", stddev, "</td>",
+        "<td>", test.results.join(", "), "</td>",
+        "<tr>"
+        ].join(""));
+
+    if (result1Element.value.length > 0)
+      result1Element.value += ",";
+    result1Element.value += test.name + "=" + avg;
+  }
+
+  // Execute the test function.
+  function execTestFunc(name) {
+    return window.RunPerfTest(name);
+  }
+
+  // Schedule the next test.
+  function nextTest(test) {
+    appendResult(test);
+    currentTest++;
+    runTest();
+  }
+
+  // Schedule the next step for the current test.
+  function nextTestStep(test) {
+    setTimeout(function () { execTest(test); }, runDelay);
+  }
+
+  // Perform the next step for the current test.
+  function execTest(test) {
+    updateStatus(test);
+
+    if (!test.warmedUp) {
+      execTestFunc(test.name);
+      test.warmedUp = true;
+      return nextTestStep(test);
+    }
+
+    if (test.run >= test.totalRuns)
+      return nextTest(test);
+
+    var elapsed = execTestFunc(test.name);
+    test.results.push(elapsed);
+
+    test.total += elapsed;
+    if (!test.min) test.min = elapsed;
+    else if (test.min > elapsed) test.min = elapsed;
+    if (!test.max) test.max = elapsed;
+    else if (test.max < elapsed) test.max = elapsed;
+
+    test.run++;
+
+    return nextTestStep(test);
+  }
+
+  function runTest() {
+    if (currentTest == tests.length) {
+      updateStatusComplete();
+      return;
+    }
+
+    var test = {
+        name: tests[currentTest][0],
+        iterations: tests[currentTest][1],
+        warmedUp: false,
+        total: 0,
+        totalRuns: testRuns,
+        run: 0,
+        results: []
+    };
+    setTimeout(function () { execTest(test); }, runDelay);
+  }
+
+  // Schedule the first test.
+  if (tests.length > 0) {
+    runElement.disabled = true;
+    filtersElement.disabled = true;
+    result1Element.value = "";
+    result1Element.disabled = true;
+    result2Element.disabled = true;
+    compareElement.disabled = true;
+
+    runTest();
+  }
+}
+
+function compare() {
+  var result1 = document.getElementById("result1").value.trim();
+  var result2 = document.getElementById("result2").value.trim();
+
+  if (result1.length == 0 || result2.length == 0)
+    return;
+
+  var r1values = result1.split(",");
+  var r2values = result2.split(",");
+  for (i = 0; i < r1values.length; ++i) {
+    var r1parts = r1values[i].split("=");
+    var r1name = r1parts[0].trim();
+    var r1val = r1parts[1].trim();
+
+    for (x = 0; x < r2values.length; ++x) {
+      var r2parts = r2values[x].split("=");
+      var r2name = r2parts[0].trim();
+      var r2val = r2parts[1].trim();
+
+      if (r2name == r1name) {
+        appendResult(r1name, r1val, r2val);
+
+        // Remove the matching index.
+        r2values.splice(x, 1);
+        break;
+      }
+    }
+  }
+  
+  function appendResult(name, r1val, r2val) {
+    var e = document.getElementById("compareTable");
+ 
+    // Calculate the percent difference.
+    var diff = Math.round(((r2val - r1val) / r1val) * 10000.0) / 100.0;
+
+    e.insertAdjacentHTML("beforeEnd", [
+        "<tr>",
+        "<td>", name, "</td>",
+        "<td>", r1val, "</td>",
+        "<td>", r2val, "</td>",
+        "<td>", diff, "</td>",
+        "<tr>"
+        ].join(""));
+  }
+}
+</script>
+
+  </body>
+</html>

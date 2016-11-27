@@ -1,0 +1,109 @@
+<html>
+  <head><title>OSR Test</title></head>
+  <style>
+  .red_hover:hover {color:red;}
+  #li { width: 530px; }
+  body {background:rgba(255, 0, 0, 0.5); }
+  input {-webkit-appearance: none; }
+  #LI11select {width: 75px;}
+  .dropdiv {
+    width:50px;
+    height:50px;
+    border:1px solid #aaaaaa;
+    float: left;
+  }
+  #dragdiv {
+    width: 30px;
+    height: 30px;
+    background-color: green;
+    margin: 10px;
+  }
+  #draghere {
+    position: relative;
+    z-index: -1;
+    top: 7px;
+    left: 7px;
+    opacity: 0.4;
+  }
+  </style>
+  <script>
+  function getElement(id) { return document.getElementById(id); }
+  function makeH1Red() { getElement('LI00').style.color='red'; }
+  function makeH1Black() { getElement('LI00').style.color='black'; }
+  function navigate() { location.href='?k='+getElement('editbox').value; }
+  function load() { var select = document.getElementById('LI11select');
+    for (var i = 1; i < 21; i++)
+      select.options.add(new Option('Option ' + i, i));
+  }
+
+  function onEventTest(event) {
+    var param = 'osr' + event.type;
+
+    if (event.type == "click")
+      param += event.button;
+
+    // Results in a call to the OnQuery method in os_rendering_unittest.cc.
+    if (window.testQuery)
+      window.testQuery({request: param});
+  }
+
+  function allowDrop(ev) {
+    ev.preventDefault();
+  }
+
+  function drag(ev) {
+    ev.dataTransfer.setData("Text",ev.target.id);
+  }
+
+  function drop(ev) {
+    var data=ev.dataTransfer.getData("Text");
+    ev.target.innerHTML = '';
+    var dragged = document.getElementById(data);
+    dragged.setAttribute('draggable', 'false');
+    ev.target.appendChild(dragged);
+    if (window.testQuery)
+      window.testQuery({request: "osrdrop"});
+  }
+  </script>
+  <body onfocus='onEventTest(event)' onblur='onEventTest(event)' onload='load();'>
+  <h1 id='LI00' onclick="onEventTest(event)">
+    OSR Testing h1 - Focus and blur
+    <select id='LI11select'>
+      <option value='0'>Default</option>
+    </select>
+    this page and will get this red black
+  </h1>
+  <ol>
+  <li id='LI01'>OnPaint should be called each time a page loads</li>
+  <li id='LI02' style='cursor:pointer;'><span>Move mouse
+      to require an OnCursorChange call</span></li>
+  <li id='LI03' onmousemove="onEventTest(event)"><span>Hover will color this with
+      red. Will trigger OnPaint once on enter and once on leave</span></li>
+  <li id='LI04'>Right clicking will show contextual menu and will request
+      GetScreenPoint</li>
+  <li id='LI05'>IsWindowRenderingDisabled should be true</li>
+  <li id='LI06'>WasResized should trigger full repaint if size changes.
+      </li>
+  <li id='LI07'>Invalidate should trigger OnPaint once</li>
+  <li id='LI08'>Click and write here with SendKeyEvent to trigger repaints:
+      <input id='editbox' type='text' value='' size="5"></li>
+  <li id='LI09'>Click here with SendMouseClickEvent to navigate:
+      <input id='btnnavigate' type='button' onclick='navigate()'
+      value='Click here to navigate' id='editbox' /></li>
+  <li id='LI10' title='EXPECTED_TOOLTIP'>Mouse over this element will
+      trigger show a tooltip</li>
+  </ol>
+  <div class="dropdiv" id="dropdiv" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <span id="draghere">Drag here</span>
+  </div>
+  <div class="dropdiv">
+    <div id="dragdiv" draggable="true" ondragstart="drag(event)"></div>
+  </div>
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  </body>
+</html>

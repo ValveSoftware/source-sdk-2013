@@ -1,0 +1,397 @@
+"canvas"
+{
+	"cfmt_version"		"canvasver#003"
+	"flowgraph_type"		"4"
+	"config_ppe"
+	{
+		"updatefbcopy"		"1"
+	}
+	"Nodes"
+	{
+		"Node_000"
+		{
+			"iType"		"2001"
+			"pos_x"		"-399.867645"
+			"pos_y"		"200.284698"
+			"size_x"		"55.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+		}
+		"Node_001"
+		{
+			"iType"		"2009"
+			"szName"		"_rt_fbhalf_rgba_0"
+			"pos_x"		"-507.830566"
+			"pos_y"		"-115.098801"
+			"size_x"		"96.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"szRTName"		"_rt_fbhalf_rgba_0"
+		}
+		"Node_002"
+		{
+			"iType"		"2009"
+			"szName"		"_rt_fbhalf_rgba_1"
+			"pos_x"		"-517.584412"
+			"pos_y"		"-332.170502"
+			"size_x"		"96.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"szRTName"		"_rt_fbhalf_rgba_1"
+		}
+		"Node_003"
+		{
+			"iType"		"2011"
+			"pos_x"		"-269.079987"
+			"pos_y"		"-805.249084"
+			"size_x"		"158.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"8"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"5"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"2"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_004"
+		{
+			"iType"		"2002"
+			"pos_x"		"809.365051"
+			"pos_y"		"-777.390442"
+			"size_x"		"55.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"12"
+					"iTarget_jack"		"0"
+				}
+			}
+		}
+		"Node_005"
+		{
+			"iType"		"2009"
+			"szName"		"_rt_fbhalf_rgba_2"
+			"pos_x"		"-440.479248"
+			"pos_y"		"-939.310242"
+			"size_x"		"96.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"szRTName"		"_rt_fbhalf_rgba_2"
+		}
+		"Node_006"
+		{
+			"iType"		"2010"
+			"pos_x"		"453.915344"
+			"pos_y"		"-903.704590"
+			"size_x"		"80.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"iInline"		"1"
+			"szVMTString_num_strings"		"1"
+			"szVMTString_partial_00"		"\'unlitgeneric\'\r\n{\r\n	\'$basetexture\'	\'_rt_fbhalf_rgba_2\'\r\n	\'$translucent\'	1\r\n}"
+		}
+		"Node_007"
+		{
+			"iType"		"2012"
+			"pos_x"		"-221.603882"
+			"pos_y"		"150.628510"
+			"size_x"		"181.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"1"
+					"iTarget_jack"		"0"
+				}
+			}
+			"szVRCName"		"Viewmodel_view"
+			"options_bool_amt"		"7"
+			"options_int_amt"		"7"
+			"options_float_amt"		"3"
+			"options_string_amt"		"0"
+			"options_bool_0"		"1"
+			"options_bool_1"		"1"
+			"options_bool_2"		"1"
+			"options_bool_3"		"0"
+			"options_bool_4"		"0"
+			"options_bool_5"		"0"
+			"options_bool_6"		"1"
+			"options_int_0"		"0"
+			"options_int_1"		"0"
+			"options_int_2"		"0"
+			"options_int_3"		"0"
+			"options_int_4"		"0"
+			"options_int_5"		"0"
+			"options_int_6"		"0"
+			"options_float_0"		"0.000000"
+			"options_float_1"		"0.000000"
+			"options_float_2"		"1.000000"
+			"iSceneDraw"		"0"
+		}
+		"Node_008"
+		{
+			"iType"		"2004"
+			"pos_x"		"-210.247681"
+			"pos_y"		"-429.678284"
+			"size_x"		"160.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"9"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"11"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"1"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_03"
+				{
+					"iTarget_node"		"2"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iSizingMode_Tg"		"0"
+			"iSizingMode_Src"		"0"
+			"iPushTg"		"1"
+			"iSHEETHINT_enable_tg"		"1"
+			"iSHEETHINT_enable_src"		"1"
+			"iDst_x"		"0"
+			"iDst_y"		"0"
+			"iDst_w"		"0"
+			"iDst_h"		"0"
+			"flSrcUV_x0"		"0.000000"
+			"flSrcUV_y0"		"0.000000"
+			"flSrcUV_x"		"0.000000"
+			"flSrcUV_y"		"0.000000"
+			"iSrc_w"		"0"
+			"iSrc_h"		"0"
+		}
+		"Node_009"
+		{
+			"iType"		"2004"
+			"pos_x"		"-196.906036"
+			"pos_y"		"-196.958389"
+			"size_x"		"160.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"7"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"10"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"2"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_03"
+				{
+					"iTarget_node"		"1"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iSizingMode_Tg"		"0"
+			"iSizingMode_Src"		"0"
+			"iPushTg"		"1"
+			"iSHEETHINT_enable_tg"		"1"
+			"iSHEETHINT_enable_src"		"1"
+			"iDst_x"		"0"
+			"iDst_y"		"0"
+			"iDst_w"		"0"
+			"iDst_h"		"0"
+			"flSrcUV_x0"		"0.000000"
+			"flSrcUV_y0"		"0.000000"
+			"flSrcUV_x"		"0.000000"
+			"flSrcUV_y"		"0.000000"
+			"iSrc_w"		"0"
+			"iSrc_h"		"0"
+		}
+		"Node_010"
+		{
+			"iType"		"2010"
+			"pos_x"		"-397.973328"
+			"pos_y"		"-227.517029"
+			"size_x"		"80.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"iInline"		"1"
+			"szVMTString_num_strings"		"1"
+			"szVMTString_partial_00"		"\'EDITOR_SHADER\'\r\n{\r\n	\'$SHADERNAME\'	\'gauss_blur_7_half_aceil_x\'\r\n\r\n	\'$basetexture\'	\'_rt_fbhalf_rgba_0\'\r\n}"
+		}
+		"Node_011"
+		{
+			"iType"		"2010"
+			"pos_x"		"-398.202271"
+			"pos_y"		"-481.477325"
+			"size_x"		"80.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"iInline"		"1"
+			"szVMTString_num_strings"		"1"
+			"szVMTString_partial_00"		"\'EDITOR_SHADER\'\r\n{\r\n	\'$SHADERNAME\'	\'gauss_blur_7_half_aceil_y\'\r\n\r\n	\'$basetexture\'	\'_rt_fbhalf_rgba_1\'\r\n}"
+		}
+		"Node_012"
+		{
+			"iType"		"2004"
+			"pos_x"		"567.805664"
+			"pos_y"		"-749.825623"
+			"size_x"		"160.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"13"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"6"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_03"
+				{
+					"iTarget_node"		"1"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iSizingMode_Tg"		"0"
+			"iSizingMode_Src"		"0"
+			"iPushTg"		"0"
+			"iSHEETHINT_enable_tg"		"0"
+			"iSHEETHINT_enable_src"		"1"
+			"iDst_x"		"0"
+			"iDst_y"		"0"
+			"iDst_w"		"0"
+			"iDst_h"		"0"
+			"flSrcUV_x0"		"0.000000"
+			"flSrcUV_y0"		"0.000000"
+			"flSrcUV_x"		"0.000000"
+			"flSrcUV_y"		"0.000000"
+			"iSrc_w"		"0"
+			"iSrc_h"		"0"
+		}
+		"Node_013"
+		{
+			"iType"		"2004"
+			"pos_x"		"0.811378"
+			"pos_y"		"-802.618103"
+			"size_x"		"160.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"3"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"14"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"5"
+					"iTarget_jack"		"0"
+				}
+			}
+			"iSizingMode_Tg"		"0"
+			"iSizingMode_Src"		"0"
+			"iPushTg"		"1"
+			"iSHEETHINT_enable_tg"		"1"
+			"iSHEETHINT_enable_src"		"0"
+			"iDst_x"		"0"
+			"iDst_y"		"0"
+			"iDst_w"		"0"
+			"iDst_h"		"0"
+			"flSrcUV_x0"		"0.000000"
+			"flSrcUV_y0"		"0.000000"
+			"flSrcUV_x"		"0.000000"
+			"flSrcUV_y"		"0.000000"
+			"iSrc_w"		"0"
+			"iSrc_h"		"0"
+		}
+		"Node_014"
+		{
+			"iType"		"2010"
+			"pos_x"		"-135.732941"
+			"pos_y"		"-987.250549"
+			"size_x"		"80.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"iInline"		"1"
+			"szVMTString_num_strings"		"1"
+			"szVMTString_partial_00"		"\'EDITOR_SHADER\'\r\n{\r\n	\'$SHADERNAME\'	\'basetexture_accum\'\r\n\r\n	\'$basetexture\'	\'_rt_fbhalf_rgba_0\'\r\n	\'$basetexture2\'	\'_rt_fbhalf_rgba_1\'\r\n}"
+		}
+		"Node_015"
+		{
+			"iType"		"1001"
+			"szName"		"Blur"
+			"pos_x"		"-660.086426"
+			"pos_y"		"-310.937012"
+			"size_x"		"84.000000"
+			"size_y"		"-30.000000"
+			"iPreview"		"0"
+			"container_extents_x"		"292.976227"
+			"container_extents_y"		"608.041748"
+			"container_extents_z"		"-292.976227"
+			"szConstantString"		"0.116582 0.302179 0.078568 0.75"
+		}
+		"Node_016"
+		{
+			"iType"		"1001"
+			"szName"		"Accumulation"
+			"pos_x"		"-616.056152"
+			"pos_y"		"-887.311157"
+			"size_x"		"84.000000"
+			"size_y"		"-30.000000"
+			"iPreview"		"0"
+			"container_extents_x"		"191.910278"
+			"container_extents_y"		"759.715332"
+			"container_extents_z"		"-191.910278"
+			"szConstantString"		"0.343832 0.461946 0.81629 0.75"
+		}
+	}
+}

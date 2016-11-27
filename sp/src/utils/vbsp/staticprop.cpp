@@ -45,6 +45,7 @@ struct StaticPropBuild_t
 	char const* m_pLightingOrigin;
 	Vector	m_Origin;
 	QAngle	m_Angles;
+	Vector  m_Scale;
 	int		m_Solid;
 	int		m_Skin;
 	int		m_Flags;
@@ -281,12 +282,14 @@ static CPhysCollide* GetCollisionModel( char const* pModelName )
 	SetCurrentModel( pStudioHdr );
 
 	lookup.m_pCollide = ComputeConvexHull( pStudioHdr );
+	// add to cache
 	s_ModelCollisionCache.Insert( lookup );
 
 	if ( !lookup.m_pCollide )
 	{
 		Warning("Bad geometry on \"%s\"!\n", pModelName );
 	}
+
 
 	// Debugging
 	if (g_DumpStaticProps)
@@ -473,10 +476,15 @@ static bool ComputeLightingOrigin( StaticPropBuild_t const& build, Vector& light
 //-----------------------------------------------------------------------------
 static void AddStaticPropToLump( StaticPropBuild_t const& build )
 {
+	// Scale the model
+
+
 	// Get the collision model
 	CPhysCollide* pConvexHull = GetCollisionModel( build.m_pModelName );
 	if (!pConvexHull)
 		return;
+
+
 
 	// Compute the leaves the static prop's convex hull hits
 	CUtlVector< unsigned short > leafList;
@@ -493,6 +501,7 @@ static void AddStaticPropToLump( StaticPropBuild_t const& build )
 	propLump.m_PropType = AddStaticPropDictLump( build.m_pModelName ); 
 	VectorCopy( build.m_Origin, propLump.m_Origin );
 	VectorCopy( build.m_Angles, propLump.m_Angles );
+
 	propLump.m_FirstLeaf = s_StaticPropLeafLump.Count();
 	propLump.m_LeafCount = leafList.Count();
 	propLump.m_Solid = build.m_Solid;
@@ -520,6 +529,7 @@ static void AddStaticPropToLump( StaticPropBuild_t const& build )
 	for (int j = 0; j < leafList.Size(); ++j)
 	{
 		StaticPropLeafLump_t insert;
+		// TODO: This is where prop_static scaling would go if VBSP actually worked.
 		insert.m_Leaf = leafList[j];
 		s_StaticPropLeafLump.AddToTail( insert );
 	}
@@ -592,6 +602,7 @@ void EmitStaticProps()
 
 			GetVectorForKey( &entities[i], "origin", build.m_Origin );
 			GetAnglesForKey( &entities[i], "angles", build.m_Angles );
+			GetVectorForKey(&entities[i], "scale", build.m_Scale);
 			build.m_pModelName = ValueForKey( &entities[i], "model" );
 			build.m_Solid = IntForKey( &entities[i], "solid" );
 			build.m_Skin = IntForKey( &entities[i], "skin" );

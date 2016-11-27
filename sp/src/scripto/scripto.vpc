@@ -1,0 +1,89 @@
+//-----------------------------------------------------------------------------
+//	SCRIPTO.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		".."
+
+$Macro OUTBINNAME	"Scripto"
+$Macro OUTBINDIR	"$SRCDIR\..\game\sdk2013ce\bin"
+ 
+$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration "Debug"
+{
+	$General
+	{
+		$OutputDirectory		".\Debug"			[$WIN32]
+		$IntermediateDirectory	".\Debug"			[$WIN32]
+		
+		
+	}
+}
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;SCRIPTO_EXPORTS"
+		
+		// more include dirs that work with visual studio
+		$AdditionalIncludeDirectories	"$BASE;.\;$SRCDIR\thirdparty;$(SolutionDir)\common;$(SolutionDir)\public;$(SolutionDir)\public\tier0;$(SolutionDir)\public\tier1;.\;$(ProjectDir);$(SolutionDir)\thirdparty"
+		
+		$Create/UsePrecompiledHeader	"Use Precompiled Header (/Yu)"
+		$Create/UsePCHThroughFile		"cbase.h"
+	}
+	
+	
+}
+
+$Project "scripto"
+{
+	// TODO: Copy .lib file to lib\public
+	$Folder "Header Files"
+	{
+		$File ""
+	}
+	$Folder	"Source Files"
+	{
+		$File	"scripto.h"
+		
+		$File	"cbase.h"
+		$File	"cbase.cpp"
+		
+		$File	"util.h"
+		$File	"util.cpp"
+		
+		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$Create/UsePrecompiledHeader	"Create (/Yc)"
+				}
+			}
+		}
+		
+		
+		$File	"ScriptManager.h"
+		$File	"ScriptManager.cpp"
+		
+		$File	"IScriptingLanguage.h"
+		$File	"IScriptingLanguage.cpp"
+		
+		$Folder	"Languages"
+		{
+			$Folder "Lua"
+			{
+				$File	"Languages\Lua\LuaLanguage.h"
+				$File	"Languages\Lua\LuaLanguage.cpp"
+			}
+		}
+	}
+	
+	$Folder "Link Libraries"
+	{
+		$File	"$SRCDIR\lib\public\liblua53.lib"
+	}
+}

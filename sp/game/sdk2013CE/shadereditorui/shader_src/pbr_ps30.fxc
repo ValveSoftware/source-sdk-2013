@@ -1,0 +1,182 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+#define SHADER_EDITOR_2013_COMPILE
+
+// Combos
+// DYNAMIC: "NUM_LIGHTS"		"0..4"
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+sampler _Sampler_01		: register( s1 );
+sampler _Sampler_02		: register( s2 );
+sampler _Sampler_03		: register( s3 );
+sampler _Sampler_04		: register( s4 );
+sampler _Sampler_05		: register( s5 );
+
+// Constants
+const float2 g_cData_tiling		: register( c16 ); 		// Static
+const float3 g_cAmbientCube[6]		: register( c0 );
+PixelShaderLightInfo g_cLightInfo[3]		: register( c6 );
+
+// User code - globals
+
+//const static float PI = 3.1415926535897932f;
+
+float Vis_SmithJointApprox( float Roughness, float NoV, float NoL )
+{
+	float a = Roughness * Roughness;
+	float Vis_SmithV = NoL * ( NoV * ( 1 - a ) + a );
+	float Vis_SmithL = NoV * ( NoL * ( 1 - a ) + a );
+	return 0.5 * (1 / (Vis_SmithV + Vis_SmithL) );
+}
+
+float Vis_Alt(float Roughness, float NoV, float NoL)
+{
+	float a = Roughness * Roughness;
+	float a2 = a*a;
+
+	float Vis_SmithV = NoV + sqrt( NoV * (NoV - NoV * a2) + a2 );
+	float Vis_SmithL = NoL + sqrt( NoL * (NoL - NoL * a2) + a2 );
+	return 1 / ( Vis_SmithV * Vis_SmithL );
+}
+
+const static float PI = 3.1415926535897932f;
+
+float D_GGX( float Roughness, float NoH )
+{
+	float a = Roughness * Roughness;
+	float a2 = a * a;
+	float d = ( NoH * a2 - NoH ) * NoH + 1;	// 2 mad
+	return a2 / ( PI*d*d );					// 4 mul, 1 rcp
+}
+
+float D_Blinn(float Roughness, float NoH)
+{
+	float a = Roughness * Roughness;
+	float a2 = a * a;
+	float n = 2 / a2 - 2;
+	return (n+2) / (2*PI) * pow( NoH, n );
+}
+
+float D_Beckmann( float Roughness, float NoH )
+{
+	float a = Roughness * Roughness;
+	float a2 = a * a;
+	float NoH2 = NoH * NoH;
+	return exp( (NoH2 - 1) / (a2 * NoH2) ) / ( PI * a2 * NoH2 * NoH2 );
+}
+
+
+// User code - function bodies
+void SpecularVisTerm( in float3 WPos, in float3 WNormal, in float3 EyeToWorld, in float Roughness, out float Vis )
+{
+	float3 ViewDir = EyeToWorld * -1; // Make it World->Eye
+
+	Vis = 0;
+	
+	float3 LColor;
+	float3 LDir;
+
+	for (int i = 0; i < NUM_LIGHTS; i++)
+	{
+		GetLightData(g_cLightInfo, i, WPos, LColor, LDir);
+
+		float NdotL = saturate(dot(WNormal, LDir * -1));
+		float NdotV = saturate(abs(dot(WNormal, ViewDir))+1e-5);
+		//float NdotV = saturate(dot(WNormal, ViewDir));
+		
+		Vis = Vis_Alt(Roughness, NdotV, NdotL);
+	}
+	
+}
+void DistTerm( in float3 WPos, in float3 WNormal, in float3 EyeToWorld, in float Roughness, out float D )
+{
+	float3 ViewDir = EyeToWorld * -1; // Make it World->Eye
+
+	D = 0;
+	
+	float3 LColor;
+	float3 LDir;
+
+	for (int i = 0; i < NUM_LIGHTS; i++)
+	{
+		GetLightData(g_cLightInfo, i, WPos, LColor, LDir);
+
+		float3 H = normalize(ViewDir + LDir);
+		float NdotH = (dot(WNormal, H));
+		
+		D = D_GGX(Roughness, NdotH);
+	}
+	
+}
+
+// Semantic structures
+struct PS_INPUT
+{
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float3 vTexCoord_1			:	TEXCOORD1;
+	float3 vTexCoord_2			:	TEXCOORD2;
+	float4 vTexCoord_3			:	TEXCOORD3;
+	float3 vTexCoord_5			:	TEXCOORD5;
+	float3 vTexCoord_6			:	TEXCOORD6;
+	float3 vTexCoord_7			:	TEXCOORD7;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float2 _var0 = g_cData_tiling * In.vTexCoord_0;
+	float3x3 _var1 = { In.vTexCoord_5,
+				In.vTexCoord_6,
+				In.vTexCoord_1 };
+	float3 _var2 = In.vTexCoord_7 * float( -1.000000 );
+	float4 _texLookup_18 = tex2D( _Sampler_00, _var0 );
+	float3 _var3 = _texLookup_18.rgb;
+	float _var4 = _texLookup_18.a;
+	float2 _var5 = float( 7.500000 ) * _var0;
+	float3 _var6 = tex2D( _Sampler_01, _var0 ).rgb;
+	float _var7 = tex2D( _Sampler_02, _var0 ).r;
+	float4 _var8 = tex2D( _Sampler_03, _var0 ).rgba;
+	float4 _var9 = tex2D( _Sampler_04, _var0 ).rgba;
+	float3 _var10 = tex2D( _Sampler_05, _var5 ).rgb;
+	_var6 = _var6 * float( 2.000000 );
+	_var7 = 1.0f - _var7;
+	_var10 = _var10 * float( 2.000000 );
+	_var6 = _var6 - float( 1.000000 );
+	_var3 = _var3 * _var10;
+	_var6 = normalize( _var6 );
+	float3 _var11 = _var3;
+	_var6 = mul( _var6, _var1 );
+	_var6 = normalize( _var6 );
+	float3 _var12 = PixelShaderDoLighting( In.vTexCoord_2, _var6, float3(0,0,0),
+			false, true, In.vTexCoord_3,
+			g_cAmbientCube, NUM_LIGHTS, g_cLightInfo,
+			false, false, 1.0f );
+	float _var13 = (float)0;
+	SpecularVisTerm( In.vTexCoord_2, _var6, In.vTexCoord_7, float( 1.000000 ), _var13 );
+	float _var14 = (float)0;
+	DistTerm( In.vTexCoord_2, _var6, In.vTexCoord_7, float( 1.000000 ), _var14 );
+	_var13 = _var13 * _var14;
+	_var13 = _var13 * float( 1.000000 );
+	_var12 = _var12 + _var13;
+	_var11 = _var11 * _var12;
+	float4 _var15 = float4( _var11, _var4 );
+	Out.vColor_0 = _var15;
+	return Out;
+}

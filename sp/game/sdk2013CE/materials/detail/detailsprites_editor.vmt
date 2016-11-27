@@ -1,0 +1,6 @@
+"EDITOR_SHADER"
+{
+	"$SHADERNAME" "detail_prop_shader"
+
+	"$basetexture" "detail/grass_sprites"
+}

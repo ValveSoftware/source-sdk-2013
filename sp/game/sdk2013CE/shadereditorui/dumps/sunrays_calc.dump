@@ -1,0 +1,51 @@
+"sunrays_calc"
+{
+	"vs_name"		"sunrays_calc_vs30"
+	"ps_name"		"sunrays_calc_ps30"
+	"shader_filename"		"shadereditorui\canvas\post_processing_shaders\sunrays_calc.txt"
+	"dump_version"		"dumpver#001"
+	"i_sm"		"1"
+	"i_cull"		"0"
+	"i_ablend"		"0"
+	"fl_atestref"		"0.500000"
+	"i_dtest"		"1"
+	"i_dwrite"		"1"
+	"i_srgbw"		"0"
+	"i_vfmt_flags"		"262401"
+	"i_vfmt_texcoords"		"1"
+	"i_vfmt_udata"		"0"
+	"i_vfmt_texcoordDim_0"		"2"
+	"i_vfmt_texcoordDim_1"		"2"
+	"i_vfmt_texcoordDim_2"		"2"
+	"i_vlit"		"0"
+	"i_vrefract"		"0"
+	"identifiers_VS"
+	{
+		"i_numdcombos"		"1"
+	}
+	"identifiers_PS"
+	{
+		"econst_0"
+		{
+			"i_envconstidx"		"14"
+			"i_normregister"		"0"
+			"i_econstsize"		"1"
+			"i_smartcomps"		"3"
+			"sz_smartname"		"sun_data"
+			"fl_smartdefault_00"		"0.000000"
+			"fl_smartdefault_01"		"0.000000"
+			"fl_smartdefault_02"		"0.000000"
+			"fl_smartdefault_03"		"0.000000"
+		}
+		"texsamp_0"
+		{
+			"sz_param"		"skymask"
+			"sz_fallback"		"_rt_SEdit_Skymask"
+			"i_sampidx"		"0"
+			"i_texmode"		"0"
+			"i_cubemap"		"0"
+			"i_srgb"		"0"
+		}
+		"i_numdcombos"		"1"
+	}
+}

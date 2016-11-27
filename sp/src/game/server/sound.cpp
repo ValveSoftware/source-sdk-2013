@@ -9,6 +9,9 @@
 //
 //			env_soundscape: controls what sound script an area uses.
 //
+//			BUGS FIXED (Community Edition):
+//				- Unstoppable sounds
+//				-
 //=============================================================================//
 
 #include "cbase.h"
@@ -37,7 +40,7 @@
 
 //-----------------------------------------------------------------------------
 // Purpose: Compute a suitable attenuation value given an audible radius
-// Input  : radius - 
+// Input  : radius -
 //			playEverywhere - (disable attenuation)
 //-----------------------------------------------------------------------------
 #define REFERENCE_dB			60.0
@@ -76,7 +79,7 @@ static soundlevel_t ComputeSoundlevel( float radius, bool playEverywhere )
 // SEE BELOW (in the typedescription for the class)
 typedef struct dynpitchvol
 {
-	// NOTE: do not change the order of these parameters 
+	// NOTE: do not change the order of these parameters
 	// NOTE: unless you also change order of rgdpvpreset array elements!
 	int preset;
 
@@ -93,7 +96,7 @@ typedef struct dynpitchvol
 						// Low Frequency Oscillator
 	int	lfotype;		// 0) off 1) square 2) triangle 3) random
 	int lforate;		// 0 - 1000, how fast lfo osciallates
-	
+
 	int lfomodpitch;	// 0-100 mod of current pitch. 0 is off.
 	int lfomodvol;		// 0-100 mod of current volume. 0 is off.
 
@@ -102,7 +105,7 @@ typedef struct dynpitchvol
 
 	int	cspincount;
 
-	int pitch;			
+	int pitch;
 	int spinupsav;
 	int spindownsav;
 	int pitchfrac;
@@ -122,11 +125,11 @@ typedef struct dynpitchvol
 
 // presets for runtime pitch and vol modulation of ambient sounds
 
-dynpitchvol_t rgdpvpreset[CDPVPRESETMAX] = 
+dynpitchvol_t rgdpvpreset[CDPVPRESETMAX] =
 {
-// pitch	pstart	spinup	spindwn	volrun	volstrt	fadein	fadeout	lfotype	lforate	modptch modvol	cspnup		
-{1,	255,	 75,	95,		95,		10,		1,		50,		95, 	0,		0,		0,		0,		0,		0,0,0,0,0,0,0,0,0,0}, 
-{2,	255,	 85,	70,		88,		10,		1,		20,		88,		0,		0,		0,		0,		0,		0,0,0,0,0,0,0,0,0,0}, 
+// pitch	pstart	spinup	spindwn	volrun	volstrt	fadein	fadeout	lfotype	lforate	modptch modvol	cspnup
+{1,	255,	 75,	95,		95,		10,		1,		50,		95, 	0,		0,		0,		0,		0,		0,0,0,0,0,0,0,0,0,0},
+{2,	255,	 85,	70,		88,		10,		1,		20,		88,		0,		0,		0,		0,		0,		0,0,0,0,0,0,0,0,0,0},
 {3,	255,	100,	50,		75,		10,		1,		10,		75,		0,		0,		0,		0,		0,		0,0,0,0,0,0,0,0,0,0},
 {4,	100,	100,	0,		0,		10,		1,		90,		90,		0,		0,		0,		0,		0,		0,0,0,0,0,0,0,0,0,0},
 {5,	100,	100,	0,		0,		10,		1,		80,		80,		0,		0,		0,		0,		0,		0,0,0,0,0,0,0,0,0,0},
@@ -147,10 +150,10 @@ dynpitchvol_t rgdpvpreset[CDPVPRESETMAX] =
 {20,255,	 75,	97,		90,		10,		1,		50,		90,		1,		40,		50,		0,		0,		0,0,0,0,0,0,0,0,0,0},
 {21,100,	100,	0,		0,		10,		1,		30,		50,		3,		15,		20,		0,		0,		0,0,0,0,0,0,0,0,0,0},
 {22,160,	160,	0,		0,		10,		1,		50,		50,		3,		500,	25,		0,		0,		0,0,0,0,0,0,0,0,0,0},
-{23,255,	 75,	88,		0,		10,		1,		40,		0,		0,		0,		0,		0,		5,		0,0,0,0,0,0,0,0,0,0}, 
-{24,200,	 20,	95,	    70,		10,		1,		70,		70,		3,		20,		50,		0,		0,		0,0,0,0,0,0,0,0,0,0}, 
-{25,180,	100,	50,		60,		10,		1,		40,		60,		2,		90,		100,	100,	0,		0,0,0,0,0,0,0,0,0,0}, 
-{26,60,		 60,	0,		0,		10,		1,		40,		70,		3,		80,		20,		50,		0,		0,0,0,0,0,0,0,0,0,0}, 
+{23,255,	 75,	88,		0,		10,		1,		40,		0,		0,		0,		0,		0,		5,		0,0,0,0,0,0,0,0,0,0},
+{24,200,	 20,	95,	    70,		10,		1,		70,		70,		3,		20,		50,		0,		0,		0,0,0,0,0,0,0,0,0,0},
+{25,180,	100,	50,		60,		10,		1,		40,		60,		2,		90,		100,	100,	0,		0,0,0,0,0,0,0,0,0,0},
+{26,60,		 60,	0,		0,		10,		1,		40,		70,		3,		80,		20,		50,		0,		0,0,0,0,0,0,0,0,0,0},
 {27,128,	 90,	10,		10,		10,		1,		20,		40,		1,		5,		10,		20,		0,		0,0,0,0,0,0,0,0,0,0}
 };
 
@@ -188,7 +191,7 @@ public:
 	float m_radius;
 	float m_flMaxRadius;
 	soundlevel_t m_iSoundLevel;		// dB value
-	dynpitchvol_t m_dpv;	
+	dynpitchvol_t m_dpv;
 
 	bool m_fActive;		// only true when the entity is playing a looping sound
 	bool m_fLooping;		// true when the sound played will loop
@@ -261,7 +264,7 @@ void CAmbientGeneric::Spawn( void )
     SetSolid( SOLID_NONE );
     SetMoveType( MOVETYPE_NONE );
 
-	// Set up think function for dynamic modification 
+	// Set up think function for dynamic modification
 	// of ambient sound's pitch or volume. Don't
 	// start thinking yet.
 
@@ -302,7 +305,7 @@ void CAmbientGeneric::ComputeMaxAudibleDistance( )
 		return;
 	}
 
-	// Sadly, there's no direct way of getting at this. 
+	// Sadly, there's no direct way of getting at this.
 	// We have to do an interative computation.
 	float flGain = enginesound->GetDistGainFromSoundLevel( m_iSoundLevel, m_radius );
 	if ( flGain <= MIN_AUDIBLE_VOLUME )
@@ -311,7 +314,7 @@ void CAmbientGeneric::ComputeMaxAudibleDistance( )
 		return;
 	}
 
-	float flMinRadius = m_radius; 
+	float flMinRadius = m_radius;
 	float flMaxRadius = m_radius * 2;
 	while ( true )
 	{
@@ -410,10 +413,13 @@ void CAmbientGeneric::InputFadeOut( inputdata_t &inputdata )
 
 	m_dpv.fadeout = inputdata.value.Float();
 
+	// enforce limits
 	if (m_dpv.fadeout > 100) m_dpv.fadeout = 100;
 	if (m_dpv.fadeout < 0) m_dpv.fadeout = 0;
 
+
 	if (m_dpv.fadeout > 0)
+		// fadeout = 0x6400 / fadeout * rate	(rate is 5Hz typically)
 		m_dpv.fadeout = ( 100 << 8 ) / ( m_dpv.fadeout * AMBIENT_GENERIC_UPDATE_RATE );
 
 	SetNextThink( gpGlobals->curtime + 0.1f );
@@ -431,9 +437,13 @@ void CAmbientGeneric::Precache( void )
 		}
 	}
 
+	// if not starting silent
 	if ( !FBitSet (m_spawnflags, SF_AMBIENT_SOUND_START_SILENT ) )
 	{
 		// start the sound ASAP
+
+		// FIXME: BUG? VDC claims that non-start-silent
+		// looping sounds can't be controlled
 		if (m_fLooping)
 			m_fActive = true;
 	}
@@ -453,6 +463,7 @@ void CAmbientGeneric::Activate( void )
 	{
 		if (m_sSourceEntName != NULL_STRING)
 		{
+			// search for source entity
 			m_hSoundSource = gEntList.FindEntityByName( NULL, m_sSourceEntName );
 			if ( m_hSoundSource != NULL )
 			{
@@ -474,12 +485,13 @@ void CAmbientGeneric::Activate( void )
 		}
 	}
 
+// DIRTY FILTHY HACKS
 #ifdef PORTAL
 		// This is the only way we can silence the radio sound from the first room without touching them map -- jdw
 		if ( PortalGameRules() && PortalGameRules()->ShouldRemoveRadio() )
-		{		
-			if ( V_strcmp( STRING( gpGlobals->mapname ), "testchmb_a_00" ) == 0 || 
-			    V_strcmp( STRING( gpGlobals->mapname ), "testchmb_a_11" ) == 0 || 
+		{
+			if ( V_strcmp( STRING( gpGlobals->mapname ), "testchmb_a_00" ) == 0 ||
+			    V_strcmp( STRING( gpGlobals->mapname ), "testchmb_a_11" ) == 0 ||
 			    V_strcmp( STRING( gpGlobals->mapname ), "testchmb_a_14" ) == 0 )
 			{
 				if ( V_strcmp( STRING( GetEntityName() ), "radio_sound" ) == 0 )
@@ -498,15 +510,15 @@ void CAmbientGeneric::Activate( void )
 		// If we are loading a saved game, we can't write into the init/signon buffer here, so just issue
 		//  as a regular sound message...
 		if ( gpGlobals->eLoadType == MapLoad_Transition ||
-			 gpGlobals->eLoadType == MapLoad_LoadGame || 
+			 gpGlobals->eLoadType == MapLoad_LoadGame ||
 			 g_pGameRules->InRoundRestart() )
 		{
 			flags = SND_NOFLAGS;
 		}
-	
-		// Tracker 76119:  8/12/07 ywb: 
+
+		// Tracker 76119:  8/12/07 ywb:
 		//  Make sure pitch and volume are set up to the correct value (especially after restoring a .sav file)
-		flags |= ( SND_CHANGE_PITCH | SND_CHANGE_VOL );  
+		flags |= ( SND_CHANGE_PITCH | SND_CHANGE_VOL );
 
 		// Don't bother sending over to client if volume is zero, though
 		if ( m_dpv.vol > 0 )
@@ -546,7 +558,7 @@ void CAmbientGeneric::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CAmbientGeneric::UpdateOnRemove( void )
 {
@@ -566,7 +578,7 @@ void CAmbientGeneric::UpdateOnRemove( void )
 //-----------------------------------------------------------------------------
 void CAmbientGeneric::RampThink( void )
 {
-	int pitch = m_dpv.pitch; 
+	int pitch = m_dpv.pitch;
 	int vol = m_dpv.vol;
 	int flags = 0;
 	int fChanged = 0;		// false if pitch and vol remain unchanged this round
@@ -588,7 +600,7 @@ void CAmbientGeneric::RampThink( void )
 			m_dpv.pitchfrac -= m_dpv.spindown;
 
 		pitch = m_dpv.pitchfrac >> 8;
-		
+
 		if (pitch > m_dpv.pitchrun)
 		{
 			pitch = m_dpv.pitchrun;
@@ -602,7 +614,7 @@ void CAmbientGeneric::RampThink( void )
 
 			// shut sound off
 			SendSound( SND_STOP );
-			
+
 			// return without setting m_flNextThink
 			return;
 		}
@@ -643,20 +655,20 @@ void CAmbientGeneric::RampThink( void )
 			m_dpv.vol = vol;
 			m_dpv.volfrac = vol << 8;
 			m_dpv.fadeout = 0;				// done with ramp down
-			
+
 			// shut sound off
 			SendSound( SND_STOP );
-			
+
 			// return without setting m_flNextThink
 			return;
 		}
 
-		if (vol > 100) 
+		if (vol > 100)
 		{
 			vol = 100;
 			m_dpv.volfrac = vol << 8;
 		}
-		if (vol < 1) 
+		if (vol < 1)
 		{
 			vol = 1;
 			m_dpv.volfrac = vol << 8;
@@ -702,14 +714,14 @@ void CAmbientGeneric::RampThink( void )
 				m_dpv.lfomult = 255;
 			else
 				m_dpv.lfomult = 0;
-			
+
 			break;
 		case LFO_RANDOM:
 			if (pos == 255)
 				m_dpv.lfomult = random->RandomInt(0, 255);
 			break;
 		case LFO_TRIANGLE:
-		default: 
+		default:
 			m_dpv.lfomult = pos;
 			break;
 		}
@@ -724,7 +736,7 @@ void CAmbientGeneric::RampThink( void )
 			if (pitch > 255) pitch = 255;
 			if (pitch < 1) pitch = 1;
 
-			
+
 			fChanged |= (prev != pitch);
 			flags |= SND_CHANGE_PITCH;
 		}
@@ -738,7 +750,7 @@ void CAmbientGeneric::RampThink( void )
 
 			if (vol > 100) vol = 100;
 			if (vol < 0) vol = 0;
-			
+
 			fChanged |= (prev != vol);
 			flags |= SND_CHANGE_VOL;
 		}
@@ -748,7 +760,7 @@ void CAmbientGeneric::RampThink( void )
 	// Send update to playing sound only if we actually changed
 	// pitch or volume in this routine.
 
-	if (flags && fChanged) 
+	if (flags && fChanged)
 	{
 		if (pitch == PITCH_NORM)
 			pitch = PITCH_NORM + 1; // don't send 'no pitch' !
@@ -756,7 +768,7 @@ void CAmbientGeneric::RampThink( void )
 		CBaseEntity* pSoundSource = m_hSoundSource;
 		if (pSoundSource)
 		{
-			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), 
+			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(),
 				STRING( m_iszSound ), (vol * 0.01), m_iSoundLevel, flags, pitch);
 		}
 	}
@@ -808,15 +820,15 @@ void CAmbientGeneric::InitModulationParms(void)
 	}
 
 	m_dpv.fadein = m_dpv.fadeinsav;
-	m_dpv.fadeout = 0; 
-	
+	m_dpv.fadeout = 0;
+
 	if (m_dpv.fadein)
 		m_dpv.vol = m_dpv.volstart;
 	else
 		m_dpv.vol = m_dpv.volrun;
 
 	m_dpv.spinup = m_dpv.spinupsav;
-	m_dpv.spindown = 0; 
+	m_dpv.spindown = 0;
 
 	if (m_dpv.spinup)
 		m_dpv.pitch = m_dpv.pitchstart;
@@ -833,8 +845,8 @@ void CAmbientGeneric::InitModulationParms(void)
 	m_dpv.lforate = abs(m_dpv.lforate);
 
 	m_dpv.cspincount = 1;
-	
-	if (m_dpv.cspinup) 
+
+	if (m_dpv.cspinup)
 	{
 		pitchinc = (255 - m_dpv.pitchstart) / m_dpv.cspinup;
 
@@ -857,8 +869,8 @@ void CAmbientGeneric::InputPlaySound( inputdata_t &inputdata )
 	if (!m_fActive)
 	{
 		//Adrian: Stop our current sound before starting a new one!
-		SendSound( SND_STOP ); 
-		
+		SendSound( SND_STOP );
+
 		ToggleSound();
 	}
 }
@@ -879,26 +891,34 @@ void CAmbientGeneric::SendSound( SoundFlags_t flags)
 {
 	char *szSoundFile = (char *)STRING( m_iszSound );
 	CBaseEntity* pSoundSource = m_hSoundSource;
-	if ( pSoundSource )
+	// TODO: Added VDC fixes here, test them
+	if ( pSoundSource != NULL )
 	{
 		if ( flags == SND_STOP )
 		{
-			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile, 
+			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile,
 						0, SNDLVL_NONE, flags, 0);
+			m_fActive = false;
 		}
 		else
 		{
-			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile, 
+			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile,
 				(m_dpv.vol * 0.01), m_iSoundLevel, flags, m_dpv.pitch);
+
+			// Keep active if looping sound
+			// (fix from Valve Developer Community)
+			if (m_fLooping)
+				m_fActive = true;
 		}
-	}	
+	}
 	else
 	{
-		if ( ( flags == SND_STOP ) && 
+		if ( ( flags == SND_STOP ) &&
 			( m_nSoundSourceEntIndex != -1 ) )
 		{
-			UTIL_EmitAmbientSound(m_nSoundSourceEntIndex, GetAbsOrigin(), szSoundFile, 
+			UTIL_EmitAmbientSound(m_nSoundSourceEntIndex, GetAbsOrigin(), szSoundFile,
 					0, SNDLVL_NONE, flags, 0);
+			m_fActive = false;
 		}
 	}
 }
@@ -917,15 +937,15 @@ void CAmbientGeneric::InputToggleSound( inputdata_t &inputdata )
 // Purpose: Turns an ambient sound on or off.  If the ambient is a looping sound,
 //			mark sound as active (m_fActive) if it's playing, innactive if not.
 //			If the sound is not a looping sound, never mark it as active.
-// Input  : pActivator - 
-//			pCaller - 
-//			useType - 
-//			value - 
+// Input  : pActivator -
+//			pCaller -
+//			useType -
+//			value -
 //-----------------------------------------------------------------------------
 void CAmbientGeneric::ToggleSound()
 {
 	// m_fActive is true only if a looping sound is playing.
-	
+
 	if ( m_fActive )
 	{// turn sound off
 
@@ -935,12 +955,12 @@ void CAmbientGeneric::ToggleSound()
 			// incremental spinup to max pitch
 
 			if (m_dpv.cspincount <= m_dpv.cspinup)
-			{	
+			{
 				int pitchinc;
 
 				// start a new spinup
 				m_dpv.cspincount++;
-				
+
 				pitchinc = (255 - m_dpv.pitchstart) / m_dpv.cspinup;
 
 				m_dpv.spinup = m_dpv.spinupsav;
@@ -951,12 +971,12 @@ void CAmbientGeneric::ToggleSound()
 
 				SetNextThink( gpGlobals->curtime + 0.1f );
 			}
-			
+
 		}
 		else
 		{
 			m_fActive = false;
-			
+
 			// HACKHACK - this makes the code in Precache() work properly after a save/restore
 			m_spawnflags |= SF_AMBIENT_SOUND_START_SILENT;
 
@@ -976,7 +996,7 @@ void CAmbientGeneric::ToggleSound()
 			}
 		}
 	}
-	else 
+	else
 	{// turn sound on
 
 		// only toggle if this is a looping sound.  If not looping, each
@@ -991,7 +1011,7 @@ void CAmbientGeneric::ToggleSound()
 			// shut sound off now - may be interrupting a long non-looping sound
 			SendSound( SND_STOP ); // stop sound
 		}
-			
+
 		// init all ramp params for startup
 
 		InitModulationParms();
@@ -1000,7 +1020,7 @@ void CAmbientGeneric::ToggleSound()
 
 		SetNextThink( gpGlobals->curtime + 0.1f );
 
-	} 
+	}
 }
 
 
@@ -1020,15 +1040,15 @@ bool CAmbientGeneric::KeyValue( const char *szKeyName, const char *szValue )
 	else if (FStrEq(szKeyName, "pitch"))
 	{
 		m_dpv.pitchrun = atoi(szValue);
-		
+
 		if (m_dpv.pitchrun > 255) m_dpv.pitchrun = 255;
 		if (m_dpv.pitchrun < 0) m_dpv.pitchrun = 0;
-	}		
+	}
 	// pitchstart
 	else if (FStrEq(szKeyName, "pitchstart"))
 	{
 		m_dpv.pitchstart = atoi(szValue);
-		
+
 		if (m_dpv.pitchstart > 255) m_dpv.pitchstart = 255;
 		if (m_dpv.pitchstart < 0) m_dpv.pitchstart = 0;
 	}
@@ -1036,19 +1056,19 @@ bool CAmbientGeneric::KeyValue( const char *szKeyName, const char *szValue )
 	else if (FStrEq(szKeyName, "spinup"))
 	{
 		m_dpv.spinup = atoi(szValue);
-		
+
 		if (m_dpv.spinup > 100) m_dpv.spinup = 100;
 		if (m_dpv.spinup < 0) m_dpv.spinup = 0;
 
 		if (m_dpv.spinup > 0)
 			m_dpv.spinup = (101 - m_dpv.spinup) * 64;
 		m_dpv.spinupsav = m_dpv.spinup;
-	}		
+	}
 	// spindown
 	else if (FStrEq(szKeyName, "spindown"))
 	{
 		m_dpv.spindown = atoi(szValue);
-		
+
 		if (m_dpv.spindown > 100) m_dpv.spindown = 100;
 		if (m_dpv.spindown < 0) m_dpv.spindown = 0;
 
@@ -1063,14 +1083,14 @@ bool CAmbientGeneric::KeyValue( const char *szKeyName, const char *szValue )
 
 		if (m_dpv.volstart > 10) m_dpv.volstart = 10;
 		if (m_dpv.volstart < 0) m_dpv.volstart = 0;
-		
+
 		m_dpv.volstart *= 10;	// 0 - 100
 	}
 	// legacy fadein
 	else if (FStrEq(szKeyName, "fadein"))
 	{
 		m_dpv.fadein = atoi(szValue);
-		
+
 		if (m_dpv.fadein > 100) m_dpv.fadein = 100;
 		if (m_dpv.fadein < 0) m_dpv.fadein = 0;
 
@@ -1082,7 +1102,7 @@ bool CAmbientGeneric::KeyValue( const char *szKeyName, const char *szValue )
 	else if (FStrEq(szKeyName, "fadeout"))
 	{
 		m_dpv.fadeout = atoi(szValue);
-		
+
 		if (m_dpv.fadeout > 100) m_dpv.fadeout = 100;
 		if (m_dpv.fadeout < 0) m_dpv.fadeout = 0;
 
@@ -1124,7 +1144,7 @@ bool CAmbientGeneric::KeyValue( const char *szKeyName, const char *szValue )
 	else if (FStrEq(szKeyName, "lforate"))
 	{
 		m_dpv.lforate = atoi(szValue);
-		
+
 		if (m_dpv.lforate > 1000) m_dpv.lforate = 1000;
 		if (m_dpv.lforate < 0) m_dpv.lforate = 0;
 
@@ -1171,11 +1191,11 @@ int fSentencesInit = false;
 // ===================== SENTENCE GROUPS, MAIN ROUTINES ========================
 
 // given sentence group index, play random sentence for given entity.
-// returns sentenceIndex - which sentence was picked 
-// Ipick is only needed if you plan on stopping the sound before playback is done (see SENTENCEG_Stop). 
+// returns sentenceIndex - which sentence was picked
+// Ipick is only needed if you plan on stopping the sound before playback is done (see SENTENCEG_Stop).
 // sentenceIndex can be used to find the name/length of the sentence
 
-int SENTENCEG_PlayRndI(edict_t *entity, int isentenceg, 
+int SENTENCEG_PlayRndI(edict_t *entity, int isentenceg,
 					  float volume, soundlevel_t soundlevel, int flags, int pitch)
 {
 	char name[64];
@@ -1241,7 +1261,7 @@ void SENTENCEG_PlaySentenceIndex( edict_t *entity, int iSentenceIndex, float vol
 }
 
 
-int SENTENCEG_PlayRndSz(edict_t *entity, const char *szgroupname, 
+int SENTENCEG_PlayRndSz(edict_t *entity, const char *szgroupname,
 					  float volume, soundlevel_t soundlevel, int flags, int pitch)
 {
 	char name[64];
@@ -1274,7 +1294,7 @@ int SENTENCEG_PlayRndSz(edict_t *entity, const char *szgroupname,
 
 // play sentences in sequential order from sentence group.  Reset after last sentence.
 
-int SENTENCEG_PlaySequentialSz(edict_t *entity, const char *szgroupname, 
+int SENTENCEG_PlaySequentialSz(edict_t *entity, const char *szgroupname,
 					  float volume, soundlevel_t soundlevel, int flags, int pitch, int ipick, int freset)
 {
 	char name[64];
@@ -1298,7 +1318,7 @@ int SENTENCEG_PlaySequentialSz(edict_t *entity, const char *szgroupname,
 		CBaseEntity::EmitSentenceByIndex( filter, ENTINDEX(entity), CHAN_VOICE, sentenceIndex, volume, soundlevel, flags, pitch );
 		return sentenceIndex;
 	}
-	
+
 	return -1;
 }
 
@@ -1311,7 +1331,7 @@ void SENTENCEG_Stop(edict_t *entity, int isentenceg, int ipick)
 {
 	char buffer[64];
 	char sznum[8];
-	
+
 	if (!fSentencesInit)
 		return;
 
@@ -1448,7 +1468,7 @@ int UTIL_EmitGroupnameSuit(edict_t *entity, const char *groupname)
 }
 
 // ===================== MATERIAL TYPE DETECTION, MAIN ROUTINES ========================
-// 
+//
 // Used to detect the texture the player is standing on, map the
 // texture name to a material type.  Play footstep sound based
 // on material type.

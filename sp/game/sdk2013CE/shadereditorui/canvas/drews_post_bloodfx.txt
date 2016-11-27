@@ -1,0 +1,299 @@
+"canvas"
+{
+	"cfmt_version"		"canvasver#003"
+	"flowgraph_type"		"1"
+	"config"
+	{
+		"shadermodel"		"1"
+		"cull_mode"		"0"
+		"alpha_blending"		"0"
+		"depth_test"		"0"
+		"depth_write"		"0"
+		"srgb_write"		"0"
+	}
+	"Nodes"
+	{
+		"Node_000"
+		{
+			"iType"		"1"
+			"pos_x"		"-320.000000"
+			"pos_y"		"190.000000"
+			"size_x"		"55.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"0"
+			"enable_flex"		"0"
+			"enable_normal"		"0"
+			"enable_normal_compression"		"0"
+			"enable_blendweights"		"0"
+			"enable_tangentspace"		"0"
+			"enable_tangentspace_skinning"		"0"
+			"numTexcoords"		"1"
+			"numColor"		"0"
+			"dTFlag_Texcoords_0"		"2"
+			"dTFlag_Texcoords_1"		"2"
+			"dTFlag_Texcoords_2"		"2"
+			"dTFlag_Color_0"		"8"
+			"dTFlag_Color_1"		"8"
+		}
+		"Node_001"
+		{
+			"iType"		"27"
+			"pos_x"		"97.909302"
+			"pos_y"		"234.289230"
+			"size_x"		"80.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"0"
+				}
+			}
+			"swizzleString"		"x y z 1"
+		}
+		"Node_002"
+		{
+			"iType"		"3"
+			"pos_x"		"-318.953522"
+			"pos_y"		"-349.487518"
+			"size_x"		"55.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"0"
+			"numTexcoords"		"2"
+			"numColor"		"0"
+			"numTexcoord_Flag_0"		"2"
+			"numTexcoord_Flag_1"		"8"
+			"numTexcoord_Name_1"		"noiseCoords"
+			"numTexcoord_Flag_2"		"1"
+			"numTexcoord_Name_2"		"NoiseTC.zw"
+			"numTexcoord_Flag_3"		"1"
+			"numTexcoord_Flag_4"		"1"
+			"numTexcoord_Flag_5"		"1"
+			"numTexcoord_Flag_6"		"1"
+			"numTexcoord_Flag_7"		"1"
+			"numColor_Flag_0"		"8"
+			"numColor_Flag_1"		"8"
+		}
+		"Node_003"
+		{
+			"iType"		"2"
+			"pos_x"		"548.470947"
+			"pos_y"		"182.190765"
+			"size_x"		"55.000000"
+			"size_y"		"-39.000000"
+			"iPreview"		"0"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"1"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"11"
+					"iTarget_jack"		"0"
+				}
+			}
+			"numTexcoords"		"2"
+			"numColor"		"0"
+			"numTexcoord_Flag_0"		"2"
+			"numTexcoord_Flag_1"		"8"
+			"numTexcoord_Name_1"		"noiseCoords"
+			"numTexcoord_Flag_2"		"1"
+			"numTexcoord_Name_2"		"NoiseTC.zw"
+			"numTexcoord_Flag_3"		"1"
+			"numTexcoord_Flag_4"		"1"
+			"numTexcoord_Flag_5"		"1"
+			"numTexcoord_Flag_6"		"1"
+			"numTexcoord_Flag_7"		"1"
+			"numColor_Flag_0"		"8"
+			"numColor_Flag_1"		"8"
+		}
+		"Node_004"
+		{
+			"iType"		"19"
+			"pos_x"		"-54.000084"
+			"pos_y"		"10.352503"
+			"size_x"		"80.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"5"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"6"
+					"iTarget_jack"		"0"
+				}
+			}
+			"i_mat_rotation"		"0"
+		}
+		"Node_005"
+		{
+			"iType"		"12"
+			"pos_x"		"-306.697083"
+			"pos_y"		"-14.148090"
+			"size_x"		"50.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"flSmartVal0"		"0.000000"
+		}
+		"Node_006"
+		{
+			"iType"		"5"
+			"szName"		"speed of water ( time )"
+			"pos_x"		"-305.144135"
+			"pos_y"		"-78.769691"
+			"size_x"		"50.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"szConstantString"		"0.1"
+		}
+		"Node_007"
+		{
+			"iType"		"94"
+			"szName"		"Framebuffer"
+			"pos_x"		"-325.044800"
+			"pos_y"		"-505.134583"
+			"size_x"		"84.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"iTextureType"		"5"
+			"IsCubemap"		"0"
+			"szDemoTexturePath"		"_rt_FullFrameFB"
+			"szFallbackTexturePath"		"black"
+			"iFallbackMode"		"1"
+		}
+		"Node_008"
+		{
+			"iType"		"4"
+			"pos_x"		"401.079163"
+			"pos_y"		"-438.672424"
+			"size_x"		"55.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"9"
+					"iTarget_jack"		"0"
+				}
+			}
+			"numColors"		"1"
+			"enable_Depth"		"0"
+		}
+		"Node_009"
+		{
+			"iType"		"99"
+			"szName"		"Pixel Shader"
+			"pos_x"		"5.122215"
+			"pos_y"		"-385.596191"
+			"size_x"		"170.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"2"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"2"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"10"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_03"
+				{
+					"iTarget_node"		"7"
+					"iTarget_jack"		"0"
+				}
+			}
+			"varName_In_0"		"texCoords"
+			"varType_In_0"		"2"
+			"varName_In_1"		"noiseCoords"
+			"varType_In_1"		"8"
+			"varName_In_2"		"waterNormal"
+			"varType_In_2"		"128"
+			"varName_In_3"		"frameBuffer"
+			"varType_In_3"		"128"
+			"varName_Out_0"		"finalColor"
+			"varType_Out_0"		"8"
+			"szFunctionName"		"doBlood"
+			"iInline"		"1"
+			"szcode_global_num_strings"		"1"
+			"szcode_global_partial_00"		"// Cryteks method. - Converted & modified by Drew \r\n// www.drewwatts.net\r\n// Enjoy ya dingus!\r\n\r\nstatic float4 bloodColor = float4(1.0, 0.20, 0.20, 0.0);\n"
+			"szcode_body_num_strings"		"2"
+			"szcode_body_partial_00"		"	float4 noise0 = tex2D(waterNormal, noiseCoords.xy);\r\n	float4 noise1 = tex2D(waterNormal, noiseCoords.zw);\r\n\r\n	float4 noiseVec;\r\n	noiseVec.z = (noise0.z * 2.0 - 1.0) * 0.5 + (2.0 * noise1.w - 1.0);\r\n	noiseVec.xy = (noise0.xy * 2.0 - 1.0);\r\n\r\n	// refraction vector\r\n	float3 refraction = normalize(noiseVec.xyz * float3(0.01, 0.01, 1.0));\r\n\r\n	// distort the framebuffer\r\n	float4 frameColor = tex2D(frameBuffer, texCoords - refraction.xy*0.25);\r\n\r\n	// gray frame\r\n	float4 frameBloody = dot(frameColor, float4(0.3, 0.59, 0.11, 0.0)); \r\n	// give it some color\r\n	frameBloody = (frameBloody * bloodColor);\r\n\r\n	// to mask our blood effect\r\n	float bloodMask = refraction.b;\r\n	bloodMask = pow(bloodMask, 5.0);\r\n\r\n	// modified refraction vector for our highlight\r\n	refraction = normalize(noiseVec.xyz * float3(0.025, 0.025, 1.0));\r\n\r\n	// do the highlight\r\n	float highlight = saturate(pow(refraction.x, 10.0) * 0.5) * 1.0;\r\n\r\n	// lerp between our blood, the and the frame, then a"
+			"szcode_body_partial_01"		"dd the highlight\r\n	finalColor.rgb = lerp(frameBloody.rgb, frameColor.rgb, bloodMask) + highlight;\r\n\r\n	//assign an alpha\r\n	finalColor.a = 1.0;\n"
+			"iEnvFlags"		"0"
+		}
+		"Node_010"
+		{
+			"iType"		"94"
+			"pos_x"		"-327.920715"
+			"pos_y"		"-409.590027"
+			"size_x"		"84.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"szParamname"		"waterNormal"
+			"iTextureType"		"0"
+			"IsCubemap"		"0"
+			"szDemoTexturePath"		"texture_samples\drew\water_droplets"
+			"szFallbackTexturePath"		"texture_samples\drew\water_droplets"
+			"iFallbackMode"		"4"
+		}
+		"Node_011"
+		{
+			"iType"		"99"
+			"szName"		"Vertex Shader"
+			"pos_x"		"114.897171"
+			"pos_y"		"75.757309"
+			"size_x"		"89.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"1"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"4"
+					"iTarget_jack"		"0"
+				}
+			}
+			"varName_In_0"		"texCoords"
+			"varType_In_0"		"2"
+			"varName_In_1"		"time"
+			"varType_In_1"		"1"
+			"varName_Out_0"		"noiseCoords"
+			"varType_Out_0"		"8"
+			"szFunctionName"		"noiseCoords"
+			"iInline"		"1"
+			"szcode_body_num_strings"		"1"
+			"szcode_body_partial_00"		"	//this will be the var we will use to modify the coords\r\n	float4 distortedCoords;\r\n\r\n	//modify the texture coords\r\n	distortedCoords.xy = texCoords * 0.5; \r\n\r\n	//modify the texture coords ( z and w ) with time\r\n	distortedCoords.zw = texCoords * float2(1.0, 0.25) * 0.5 + float2(0.0, -time);\r\n\r\n	//modify the texture coords ( z ) with time\r\n	distortedCoords.z += (sin(time) + sin(time*0.5))*0.5 + 0.5;\r\n\r\n	//output our ( distortedCoords ) to our output named ( noiseCoords )\r\n	noiseCoords = distortedCoords;\r\n		"
+			"iEnvFlags"		"0"
+		}
+	}
+}

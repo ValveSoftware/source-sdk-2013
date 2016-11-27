@@ -1,0 +1,30 @@
+"UnlitGeneric"
+{
+	$basetexture "shadereditor/arrow"
+	$translucent	1
+	$distancealpha	1
+	
+	$softedges		0
+	$edgesoftnessstart	0.5
+	$edgesoftnessend	0.45
+	$scaleedgesoftnessbasedonscreenres 0
+	
+	$glow		1
+	$glowcolor	"[0 0 0]"
+	$glowalpha	2.5
+	$glowstart	.0
+	$glowend	1
+
+	$outline 0
+	$outlinecolor "[0.3 0.3 0.3]"
+	$outlinealpha 0.7
+	$outlinestart0 0
+	$outlinestart1 0.02
+	$outlineend0 0.58
+	$outlineend1 0.6
+
+	$vertexcolor	1
+	$vertexalpha	1
+	$no_fullbright	1
+	$ignorez	1
+}

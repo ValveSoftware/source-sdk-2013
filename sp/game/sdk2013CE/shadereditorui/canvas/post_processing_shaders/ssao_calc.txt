@@ -1,0 +1,218 @@
+"canvas"
+{
+	"cfmt_version"		"canvasver#003"
+	"flowgraph_type"		"1"
+	"config"
+	{
+		"shadermodel"		"1"
+		"cull_mode"		"0"
+		"alpha_blending"		"0"
+		"depth_test"		"0"
+		"depth_write"		"0"
+		"srgb_write"		"0"
+	}
+	"Nodes"
+	{
+		"Node_000"
+		{
+			"iType"		"1"
+			"pos_x"		"-320.000000"
+			"pos_y"		"190.000000"
+			"size_x"		"55.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"0"
+			"enable_flex"		"0"
+			"enable_normal"		"0"
+			"enable_blendweights"		"0"
+			"enable_tangentspace"		"0"
+			"enable_tangentspace_skinning"		"0"
+			"numTexcoords"		"1"
+			"numColor"		"0"
+			"dTFlag_Texcoords_0"		"2"
+			"dTFlag_Texcoords_1"		"2"
+			"dTFlag_Texcoords_2"		"2"
+			"dTFlag_Color_0"		"8"
+			"dTFlag_Color_1"		"8"
+		}
+		"Node_001"
+		{
+			"iType"		"2"
+			"pos_x"		"265.000000"
+			"pos_y"		"190.000000"
+			"size_x"		"55.000000"
+			"size_y"		"-28.000000"
+			"iPreview"		"0"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"3"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"1"
+				}
+			}
+			"numTexcoords"		"1"
+			"numColor"		"0"
+			"numTexcoord_Flag_0"		"2"
+			"numTexcoord_Flag_1"		"2"
+			"numTexcoord_Flag_2"		"2"
+			"numTexcoord_Flag_3"		"2"
+			"numTexcoord_Flag_4"		"2"
+			"numTexcoord_Flag_5"		"2"
+			"numTexcoord_Flag_6"		"2"
+			"numTexcoord_Flag_7"		"2"
+			"numColor_Flag_0"		"8"
+			"numColor_Flag_1"		"8"
+		}
+		"Node_002"
+		{
+			"iType"		"3"
+			"pos_x"		"-348.387299"
+			"pos_y"		"-95.935318"
+			"size_x"		"55.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"numTexcoords"		"1"
+			"numColor"		"0"
+			"numTexcoord_Flag_0"		"2"
+			"numTexcoord_Flag_1"		"2"
+			"numTexcoord_Flag_2"		"2"
+			"numTexcoord_Flag_3"		"2"
+			"numTexcoord_Flag_4"		"2"
+			"numTexcoord_Flag_5"		"2"
+			"numTexcoord_Flag_6"		"2"
+			"numTexcoord_Flag_7"		"2"
+			"numColor_Flag_0"		"8"
+			"numColor_Flag_1"		"8"
+		}
+		"Node_003"
+		{
+			"iType"		"27"
+			"pos_x"		"-44.526688"
+			"pos_y"		"206.208878"
+			"size_x"		"80.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"0"
+					"iTarget_jack"		"0"
+				}
+			}
+			"swizzleString"		"x y z 1"
+		}
+		"Node_004"
+		{
+			"iType"		"94"
+			"pos_x"		"-332.935516"
+			"pos_y"		"-230.558411"
+			"size_x"		"84.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"iTextureType"		"5"
+			"IsCubemap"		"0"
+			"szDemoTexturePath"		"_rt_FullFrameFB"
+			"szFallbackTexturePath"		"white"
+			"iFallbackMode"		"0"
+		}
+		"Node_005"
+		{
+			"iType"		"65"
+			"pos_x"		"-327.089508"
+			"pos_y"		"-148.880356"
+			"size_x"		"70.000000"
+			"size_y"		"-50.000000"
+			"iPreview"		"1"
+			"flSmartVal0"		"2.000000"
+		}
+		"Node_006"
+		{
+			"iType"		"4"
+			"pos_x"		"293.722473"
+			"pos_y"		"-125.284317"
+			"size_x"		"55.000000"
+			"size_y"		"-17.000000"
+			"iPreview"		"0"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"7"
+					"iTarget_jack"		"0"
+				}
+			}
+			"numColors"		"1"
+			"enable_Depth"		"0"
+		}
+		"Node_007"
+		{
+			"iType"		"27"
+			"pos_x"		"123.001160"
+			"pos_y"		"-120.086807"
+			"size_x"		"121.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"8"
+					"iTarget_jack"		"0"
+				}
+			}
+			"swizzleString"		"r r r 1"
+		}
+		"Node_008"
+		{
+			"iType"		"99"
+			"pos_x"		"-117.711853"
+			"pos_y"		"-117.288940"
+			"size_x"		"155.000000"
+			"size_y"		"-80.000000"
+			"iPreview"		"1"
+			"bridges"
+			{
+				"jackIn_00"
+				{
+					"iTarget_node"		"2"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_01"
+				{
+					"iTarget_node"		"5"
+					"iTarget_jack"		"0"
+				}
+				"jackIn_02"
+				{
+					"iTarget_node"		"4"
+					"iTarget_jack"		"0"
+				}
+			}
+			"varName_In_0"		"uv"
+			"varType_In_0"		"2"
+			"varName_In_1"		"texelSize"
+			"varType_In_1"		"2"
+			"varName_In_2"		"color_depth"
+			"varType_In_2"		"128"
+			"varName_Out_0"		"ao_out"
+			"varType_Out_0"		"1"
+			"szFunctionName"		"DoSSAO"
+			"iInline"		"1"
+			"szcode_global_num_strings"		"4"
+			"szcode_global_partial_00"		"#define PI		3.14159265\r\n\r\n//--------------------------------------------------------\r\n//a list of user parameters\r\n\r\n#define METHOD 0\r\n\r\nstatic float near = 7; //Z-near\r\nstatic float far = 192.0; //Z-far\r\nstatic float zScaleLinear = near / far;\r\nstatic float zScaleLinearRev = far / near;\r\n\r\n#if ( METHOD == 0 )\r\nstatic int samples = 3; //samples on the first ring (3 - 5)\r\nstatic int rings = 3; //ring count (3 - 5)\r\nstatic float radius_close = 6.0; //ao radius\r\nstatic float radius_far = 0.5; //ao radius\r\n#else\r\nstatic int samples = 24; //samples on the first ring (3 - 5)\r\nstatic float radius_close = 7.0; //ao radius\r\nstatic float radius_far = 1.5; //ao radius\r\n#endif\r\n\r\nstatic float dist_exp = 6.0f;\r\n\r\nstatic float diffarea = 0.45; //self-shadowing reduction\r\nstatic float gdisplace = 0.4; //gauss bell center\r\n\r\nstatic float lumInfluence = 0.4; //how much luminance affects occlusion\r\nstatic float aoBoost_far = 2.5f;\r\nstatic float aoBoost_close = 6.0f;\"
+			"szcode_global_partial_01"		"r\n\r\nstatic bool noise = true; //use noise instead of pattern for sample dithering?\r\nstatic bool onlyAO = true; //use only ambient occlusion pass?\r\nstatic bool fadeout = true;\r\n\r\n//--------------------------------------------------------\r\n\r\nfloat2 rand(float2 coord, float2 size) //generating noise/pattern texture for dithering\r\n{\r\n	float noiseX = ((frac(1.0-coord.x*(size.x/2.0))*0.25)+(frac(coord.y*(size.y/2.0))*0.75))*2.0-1.0;\r\n	float noiseY = ((frac(1.0-coord.x*(size.x/2.0))*0.75)+(frac(coord.y*(size.y/2.0))*0.25))*2.0-1.0;\r\n	\r\n	if (noise)\r\n	{\r\n		noiseX = frac(sin(dot(coord ,float2(12.9898,78.233))) * 43758.5453) * 2.0-1.0;\r\n		noiseY = frac(sin(dot(coord ,float2(12.9898,78.233)*2.0)) * 43758.5453) * 2.0-1.0;\r\n	}\r\n	return float2(noiseX,noiseY)*0.001;\r\n}\r\n\r\nfloat readDepth(in float2 coord, sampler tex)\r\n{\r\n	return tex2D(tex, coord ).a * zScaleLinear;\r\n	//return (2.0 * near) / (far + near - tex2D(tex, coord ).a * (far-near));\r\n}\r\n\r\nfloat readDepth(float linD"
+			"szcode_global_partial_02"		"epth)\r\n{\r\n	return linDepth * zScaleLinear;\r\n}\r\n\r\nfloat compareDepths(in float depth1, in float depth2,inout int far)\r\n{\r\n	float garea = 2.0; //gauss bell width    \r\n	float diff = (depth1 - depth2)*100.0; //depth difference (0-100)\r\n	//reduce left bell width to avoid self-shadowing \r\n\r\n\r\n	if ( diff < gdisplace )\r\n	{\r\n	garea = diffarea;\r\n	}else{\r\n	far = 1;\r\n	}\r\n	\r\n	float gauss = pow(2.7182,-2.0*(diff-gdisplace)*(diff-gdisplace)/(garea*garea));\r\n	return gauss;\r\n}\r\n\r\nfloat calAO(float2 uv,float localDepth, float depth, float dw, float dh, sampler tex)\r\n{\r\n	float dd = (1.0-depth)*lerp( radius_far, radius_close, localDepth );\r\n\r\n	float temp = 0.0;\r\n	float temp2 = 0.0;\r\n	float coordw = uv.x + dw*dd;\r\n	float coordh = uv.y + dh*dd;\r\n	float coordw2 = uv.x - dw*dd;\r\n	float coordh2 = uv.y - dh*dd;\r\n	\r\n	float2 coord = float2(coordw , coordh);\r\n	float2 coord2 = float2(coordw2, coordh2);\r\n	\r\n	int far = 0;\r\n	temp = compareDepths(depth, readDepth(coo"
+			"szcode_global_partial_03"		"rd,tex),far);\r\n	//DEPTH EXTRAPOLATION:\r\n	if (far > 0)\r\n	{\r\n		temp2 = compareDepths(readDepth(coord2,tex),depth,far);\r\n		temp += (1.0-temp)*temp2;\r\n	}\r\n	\r\n	return temp;\r\n}\n"
+			"szcode_body_num_strings"		"2"
+			"szcode_body_partial_00"		"	float2 size = 1.0f / texelSize;\r\n\r\n	float2 noise = rand(uv,size);\r\n	float depthSample = tex2D(color_depth, uv ).a;\r\n	float depth = readDepth(depthSample);\r\n	depthSample = pow( (1.0f - depthSample), dist_exp );\r\n	float d;\r\n	\r\n	float w = texelSize.x/clamp(depth,0.25,1.0)+(noise.x*(1.0-noise.x));\r\n	float h = texelSize.y/clamp(depth,0.25,1.0)+(noise.y*(1.0-noise.y));\r\n	\r\n	float pw;\r\n	float ph;\r\n	\r\n	float ao;\r\n	float s;\r\n	\r\n	int ringsamples;\r\n\r\n#if (METHOD == 0)\r\n	for (int i = 1; i <= rings; i++)\r\n	{\r\n		ringsamples = i * samples;\r\n		for (int j = 0 ; j < ringsamples ; j += 1)\r\n		{\r\n			float step = PI*2.0 / float(ringsamples);\r\n			pw = (cos(float(j)*step)*float(i));\r\n			ph = (sin(float(j)*step)*float(i));\r\n			ao += calAO( uv, depthSample, depth, pw*w, ph*h, color_depth );\r\n			s += 1.0;\r\n		}\r\n	}\r\n	ao /= s;\r\n	ao = 1.0-ao;\r\n#else\r\n	float dl = PI*(3.0-sqrt(5.0));\r\n	float dz = 1.0/float(samples);\r\n	float l = 0.0;\r\n	float z = 1.0 - dz/2.0;\r\n\r"
+			"szcode_body_partial_01"		"\n	for (int i = 0; i <= samples; i ++)\r\n	{\r\n		float r = sqrt(1.0-z);\r\n\r\n		pw = cos(l)*r;\r\n		ph = sin(l)*r;\r\n		ao += calAO(uv,depthSample,depth,pw*w,ph*h,color_depth);\r\n		z = z - dz;\r\n		l = l + dl;\r\n	}\r\n\r\n	ao /= float(samples);\r\n	ao = 1.0-ao;\r\n#endif\r\n\r\n	float3 color = tex2D(color_depth,uv).rgb;\r\n	\r\n	float3 lumcoeff = float3(0.299,0.587,0.114);\r\n	float lum = dot(color.rgb, lumcoeff);\r\n	float3 luminance = float3(lum, lum, lum);\r\n\r\n	ao = pow( ao, lerp( aoBoost_far, aoBoost_close, depthSample ) );\r\n\r\n	//lum = lerp(ao,1.0,luminance*lumInfluence);\r\n	ao_out = lerp(ao,1.0,luminance*lumInfluence);\r\n\r\n	if ( fadeout )\r\n	{\r\n		float fade = depth * zScaleLinearRev;\r\n		ao_out = lerp( ao_out, 0.65, pow( fade, 3 ) );\r\n	}\r\n\r\n	//if(onlyAO)\r\n	//	ao = lum; //ambient occlusion only\r\n	//else\r\n	//	col = color * lum;"
+			"iEnvFlags"		"0"
+		}
+	}
+}

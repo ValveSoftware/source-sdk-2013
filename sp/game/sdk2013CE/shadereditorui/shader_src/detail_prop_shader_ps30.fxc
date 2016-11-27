@@ -1,0 +1,92 @@
+// ********************************
+// ** auto generated pixelshader **
+// ********************************
+
+// Combos
+// STATIC: "FLASHLIGHT"		"0..1"
+// DYNAMIC: "FLASHLIGHTDEPTHFILTERMODE"		"0..2"
+// DYNAMIC: "FLASHLIGHTSHADOWS"		"0..1"
+// DYNAMIC: "PIXELFOGTYPE"		"0..1"
+// DYNAMIC: "WRITEWATERFOGTODESTALPHA"		"0..1"
+
+// Includes
+#include "common_ps_fxc.h"
+#include "common_vertexlitgeneric_dx9.h"
+#include "common_lightmappedgeneric_fxc.h"
+#include "common_flashlight_fxc.h"
+#include "common_parallax.h"
+
+
+// Samplers
+sampler _Sampler_00		: register( s0 );
+sampler _gSampler_Flashlight_Cookie		: register( s1 );
+sampler _gSampler_Flashlight_Depth		: register( s2 );
+sampler _gSampler_Flashlight_Random		: register( s3 );
+
+// Constants
+const float3 g_cData_grass_spec_color		: register( c16 ); 		// Static
+const float3 _g_VecForward		: register( c17 );
+const float4 _g_FogParams		: register( c18 );
+const float3 _g_VecOrig		: register( c19 );
+const float4 g_cFlashlightAttenuationFactors		: register( c8 );
+const float4 g_cFlashlightPos		: register( c9 );
+const float4 g_cShadowTweaks		: register( c7 );
+
+// Semantic structures
+struct PS_INPUT
+{
+	float2 vTexCoord_0			:	TEXCOORD0;
+	float3 vTexCoord_1			:	TEXCOORD1;
+	float4 vTexCoord_2			:	TEXCOORD2;
+	float4 vTexCoord_3			:	TEXCOORD3;
+	float3 vTexCoord_4			:	TEXCOORD4;
+	float vColor_0				:	COLOR0;
+};
+
+struct PS_OUTPUT
+{
+	float4 vColor_0				:	COLOR0;
+};
+
+// Entry point
+PS_OUTPUT main( const PS_INPUT In )
+{
+	PS_OUTPUT Out;
+	float4 _texLookup_16 = tex2D( _Sampler_00, In.vTexCoord_0 );
+	float3 _var0 = _texLookup_16.rgb;
+	float _var1 = _texLookup_16.a;
+	float3 _var2 = float3( 0.000000, 0.000000, 0.000000 );
+	float3 _var3 = float3( 0.000000, 0.000000, 0.000000 );
+	float3 _var4 = float( -1.000000 ) * _g_VecForward;
+	float _var5 = _g_VecOrig.z;
+	float _var6 = In.vTexCoord_4.z;
+	float _var7 = In.vTexCoord_3.z;
+#if ( FLASHLIGHT == 0 )
+		float _var8 = smoothstep( float( 0.290000 ), float( 0.300000 ), _var1 );
+		_var3 = In.vTexCoord_1;
+		_var8 = In.vColor_0 * _var8;
+		float3 _var9 = _var8 * g_cData_grass_spec_color;
+		_var2 = _var9;
+#endif
+#if ( FLASHLIGHT == 1 )
+		float2 _var10 = In.vTexCoord_3.xy;
+		float _var11 = In.vTexCoord_3.w;
+		_var10 = _var10 / _var11;
+		_var4 = DoFlashlight( g_cFlashlightPos.xyz, In.vTexCoord_4, In.vTexCoord_2, _var4,
+				g_cFlashlightAttenuationFactors.xyz, g_cFlashlightAttenuationFactors.w,
+				_gSampler_Flashlight_Cookie, _gSampler_Flashlight_Depth, _gSampler_Flashlight_Random,
+				FLASHLIGHTDEPTHFILTERMODE, FLASHLIGHTSHADOWS, true,
+				_var10, false, g_cShadowTweaks );
+		_var3 = _var4;
+#endif
+	_var0 = _var0 + _var2;
+	_var3 = _var3;
+	float _var12 = _var1 - float( 0.100000 );
+	_var5 = CalcPixelFogFactor( PIXELFOGTYPE, _g_FogParams, _var5, _var6, _var7 );
+	_var0 = _var0 * _var3;
+	clip( _var12 );
+	float4 _var13 = float4( _var0, _var12 );
+	_var13 = FinalOutput( _var13, _var5, PIXELFOGTYPE, TONEMAP_SCALE_GAMMA, true, _var7 );
+	Out.vColor_0 = _var13;
+	return Out;
+}

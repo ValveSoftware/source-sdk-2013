@@ -1,0 +1,7 @@
+"EDITOR_SHADER"
+{
+	"$SHADERNAME" "detail_prop_shader"
+
+	"$basetexture" "detail/grass_lawn_cut_dark"
+	"$grass_spec_color" "[0.7 0.6 0.5]"
+}

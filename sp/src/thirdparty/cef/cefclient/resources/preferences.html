@@ -1,0 +1,319 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Preferences Test</title>
+
+  <!-- When using the mode "code" it's important to specify charset utf-8 -->
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+
+  <!-- jsoneditor project from https://github.com/josdejong/jsoneditor/
+       script hosting from http://cdnjs.com/libraries/jsoneditor -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/4.2.1/jsoneditor.min.css" rel="stylesheet" type="text/css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/4.2.1/jsoneditor.min.js"></script>
+</head>
+<body bgcolor="white">
+  <!-- Header -->
+  <div id="simple_links">
+    [ <b>Simple</b> ]
+    [ <a href="#" onClick="toggleView(); return false;">Advanced</a> ]
+  </div>
+  <div id="advanced_links" style="display:none">
+    [ <a href="#" onClick="toggleView(); return false;">Simple</a> ]
+    [ <b>Advanced</b> ]
+  </div>
+
+  <!-- Simple view -->
+  <div id="simple">
+    <p>
+      This page supports display and configuration of a few sample preferences.
+      <table width="100%" style="border: 1px solid #97B0F8">
+        <tr>
+          <td>
+            <input type="checkbox" id="enable_spellchecking"/> Enable spell checking
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <br/>
+            <input type="checkbox" id="allow_running_insecure_content"/> Allow running insecure content
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <br/>
+            Proxy type:
+            <select id="proxy_type" onChange="proxyTypeChange()">
+              <option value="direct">Direct</option>
+              <option value="auto_detect">Auto-Detect</option>
+              <option value="pac_script">PAC Script</option>
+              <option value="fixed_servers">Fixed Servers</option>
+              <option value="system">System</option>
+            </select>
+            <input id="proxy_value" type="text" size="80" disabled/>
+          </td>
+        </tr>
+      </table>
+      <table border="0" width="100%">
+        <tr>
+          <td align="left">
+            <input type="button" value="Refresh" onClick="refreshSimple()"/>
+          </td>
+          <td align="right">
+            <input type="button" value="Apply Changes" onClick="applySimpleChanges()"/>
+          </td>
+        </tr>
+      </table>
+    </p>
+  </div>
+
+  <!-- Advanced view -->
+  <div id="advanced" style="display:none">
+    <p>
+      This page displays all preferences organized in a tree structure. Arbitrary changes are
+      allowed, however <b>changing preferences in arbitrary ways may result in crashes</b>. If you
+      experience a crash while setting preferences then run a Debug build of CEF/Chromium and watch
+      for DCHECKs in the Chromium code to figure out what went wrong.
+    </p>
+    <div id="jsoneditor" style="width: 100%; height: 100%;"></div>
+    <table border="0" width="100%">
+      <tr>
+        <td align="left">
+          <input type="button" value="Refresh" onClick="refreshEditor()"/>
+          <input type="checkbox" id="hide_defaults"/> Show modified preferences only
+        </td>
+        <td align="right">
+          <input type="button" value="Apply Changes" onClick="applyEditorChanges()"/>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    // Reference to the JSONEditor.
+    var editor = null;
+
+    // Preferences state information.
+    var preferences_state = null;
+
+    // Toggle between the simple and advanced views.
+    function toggleView() {
+      var simple = document.getElementById("simple");
+      var advanced = document.getElementById("advanced");
+      var simple_links = document.getElementById("simple_links");
+      var advanced_links = document.getElementById("advanced_links");
+
+      if (simple.style.display == "none") {
+        // Show the simple view.
+        simple.style.display = "";
+        simple_links.style.display = "";
+        advanced.style.display = "none";
+        advanced_links.style.display = "none";
+
+        // Refresh the simple view contents.
+        refreshSimple();
+      } else {
+        // Show the advanced view.
+        simple.style.display = "none";
+        simple_links.style.display = "none";
+        advanced.style.display = "";
+        advanced_links.style.display = "";
+
+        if (editor == null) {
+          // Create the editor.
+          editor = new JSONEditor(document.getElementById("jsoneditor"));
+        }
+
+        // Refesh the editor contents.
+        refreshEditor();
+      }
+    }
+
+    // Send a request to C++.
+    function sendRequest(request, onSuccessCallback) {
+      // Results in a call to the OnQuery method in preferences_test.cpp.
+      window.cefQuery({
+        request: JSON.stringify(request),
+        onSuccess: onSuccessCallback,
+        onFailure: function(error_code, error_message) {
+          alert(error_message + ' (' + error_code + ')');
+        }
+      });
+    }
+
+    // Get the preferences and execute |onSuccessCallback| with the resulting
+    // JSON object.
+    function getPreferences(include_defaults, onSuccessCallback) {
+      // Create the request object.
+      var request = {};
+      request.name = "preferences_get";
+      request.include_defaults = include_defaults;
+
+      // Send the request to C++.
+      sendRequest(
+        request,
+        function(response) {
+          onSuccessCallback(JSON.parse(response));
+        }
+      );
+    }
+
+    // Set the preferences.
+    function setPreferences(preferences) {
+      // Create the request object.
+      var request = {};
+      request.name = "preferences_set";
+      request.preferences = preferences;
+
+      // Send the request to C++.
+      sendRequest(
+        request,
+        function(response) {
+          // Show the informative response message.
+          alert(response);
+        }
+      );
+    }
+
+    // Get the global preference state.
+    function getPreferenceState() {
+      // Create the request object.
+      var request = {};
+      request.name = "preferences_state";
+
+      // Send the request to C++.
+      sendRequest(
+        request,
+        function(response) {
+          // Populate the global state object.
+          preferences_state = JSON.parse(response);
+
+          // Refresh the simple view contents.
+          refreshSimple();
+        }
+      );
+    }
+
+    // Refresh the editor view contents.
+    function refreshEditor() {
+      include_defaults = !document.getElementById("hide_defaults").checked;
+      getPreferences(include_defaults, function(response) {
+        // Set the JSON in the editor.
+        editor.set(response);
+      });
+    }
+
+    // Apply changes from the editor view.
+    function applyEditorChanges() {
+      setPreferences(editor.get());
+    }
+
+    // Refresh the simple view contents.
+    function refreshSimple() {
+      getPreferences(true, function(response) {
+        // Spellcheck settings.
+        if (preferences_state.spellcheck_disabled) {
+          // Cannot enable spell checking when disabled via the command-line.
+          document.getElementById("enable_spellchecking").checked = false;
+          document.getElementById("enable_spellchecking").disabled = true;
+        } else {
+          document.getElementById("enable_spellchecking").checked =
+              response.browser.enable_spellchecking;
+        }
+
+        // Web content settings.
+        if (preferences_state.allow_running_insecure_content) {
+          // Cannot disable running insecure content when enabled via the
+          // command-line.
+          document.getElementById("allow_running_insecure_content").checked =
+              true;
+          document.getElementById("allow_running_insecure_content").disabled =
+              true;
+        } else {
+          document.getElementById("allow_running_insecure_content").checked =
+              response.webkit.webprefs.allow_running_insecure_content;
+        }
+
+        // Proxy settings.
+        document.getElementById("proxy_type").value = response.proxy.mode;
+
+        // Some proxy modes have associated values.
+        if (response.proxy.mode == "pac_script")
+          proxy_value = response.proxy.pac_url;
+        else if (response.proxy.mode == "fixed_servers")
+          proxy_value = response.proxy.server;
+        else
+          proxy_value = null;
+
+        if (proxy_value != null)
+          document.getElementById("proxy_value").value = proxy_value;
+        document.getElementById("proxy_value").disabled = (proxy_value == null);
+
+        if (preferences_state.proxy_configured) {
+          // Cannot modify proxy settings that are configured via the command-
+          // line.
+          document.getElementById("proxy_type").disabled = true;
+          document.getElementById("proxy_value").disabled = true;
+        }
+      });
+    }
+
+    // Apply changes from the simple view.
+    function applySimpleChanges() {
+      has_preferences = false;
+      preferences = {};
+
+      // Spellcheck settings.
+      if (!preferences_state.spellcheck_disabled) {
+        has_preferences = true;
+
+        preferences.browser = {};
+        preferences.browser.enable_spellchecking =
+            document.getElementById("enable_spellchecking").checked;
+      }
+
+      // Web content settings.
+      if (!preferences_state.allow_running_insecure_content) {
+        has_preferences = true;
+
+        preferences.webkit = {};
+        preferences.webkit.webprefs = {};
+        preferences.webkit.webprefs.allow_running_insecure_content =
+            document.getElementById("allow_running_insecure_content").checked;
+      }
+
+      // Proxy settings.
+      if (!preferences_state.proxy_configured) {
+        has_preferences = true;
+
+        preferences.proxy = {};
+        preferences.proxy.mode = document.getElementById("proxy_type").value;
+
+        // Some proxy modes have associated values.
+        if (preferences.proxy.mode == "pac_script") {
+          preferences.proxy.pac_script =
+              document.getElementById("proxy_value").value;
+        } else  if (preferences.proxy.mode == "fixed_servers") {
+          preferences.proxy.server =
+              document.getElementById("proxy_value").value;
+        }
+      }
+
+      if (has_preferences)
+        setPreferences(preferences);
+    }
+
+    // Called when the proxy type is changed.
+    function proxyTypeChange() {
+      proxy_type = document.getElementById("proxy_type").value;
+      document.getElementById("proxy_value").value = "";
+
+      // Only enable the value field for the proxy modes that require it.
+      document.getElementById("proxy_value").disabled =
+          (proxy_type != "pac_script" && proxy_type != "fixed_servers");
+    }
+
+    // Retrieve global preferences state.
+    getPreferenceState();
+  </script>
+</body>
+</html>

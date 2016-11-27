@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>Dialog Test</title>
+<script>
+function show_alert() {
+  alert("I am an alert box!");
+}
+
+function show_confirm() {
+  var r = confirm("Press a button");
+  var msg = r ? "You pressed OK!" : "You pressed Cancel!";
+  document.getElementById('cm').innerText = msg;
+}
+
+function show_prompt() {
+  var name = prompt("Please enter your name" ,"Harry Potter");
+  if (name != null && name != "")
+    document.getElementById('pm').innerText = "Hello " + name + "!";
+}
+
+window.onbeforeunload = function() {
+  return 'This is an onbeforeunload message.';
+}
+
+function update_time() {
+  document.getElementById('time').innerText = new Date().toLocaleString();
+}
+
+function setup() {
+  update_time();
+  setInterval(update_time, 1000);
+}
+
+function show_file_dialog(element, test) {
+  var message = 'DialogTest.' + test;
+  var target = document.getElementById(element);
+
+  // Results in a call to the OnQuery method in dialog_test.cpp
+  window.cefQuery({
+    request: message,
+    onSuccess: function(response) {
+      target.innerText = response;
+    },
+    onFailure: function(error_code, error_message) {}
+  });
+}
+
+window.addEventListener('load', setup, false);
+</script>
+</head>
+<body bgcolor="white">
+<form>
+Click a button to show the associated dialog type.
+<br/><input type="button" onclick="show_alert();" value="Show Alert">
+<br/><input type="button" onclick="show_confirm();" value="Show Confirm"> <span id="cm"></span>
+<br/><input type="button" onclick="show_prompt();" value="Show Prompt"> <span id="pm"></span>
+<br/>input type="file": <input type="file" name="pic" accept="text/*,.js,.css,image/*">
+<br/><input type="button" onclick="show_file_dialog('fo', 'FileOpen');" value="Show File Open"> <span id="fo"></span>
+<br/><input type="button" onclick="show_file_dialog('fom', 'FileOpenMultiple');" value="Show File Open Multiple"> <span id="fom"></span>
+<br/><input type="button" onclick="show_file_dialog('fof', 'FileOpenFolder');" value="Show File Open Folder"> <span id="fof"></span>
+<br/><input type="button" onclick="show_file_dialog('fs', 'FileSave');" value="Show File Save"> <span id="fs"></span>
+<p id="time"></p>
+</form>
+</body>
+</html>
