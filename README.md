@@ -1,6 +1,8 @@
 # Source SDK 2013 Community Edtion
 
-This is a variation of Source 2013 with community changes to make the game look, run, and play more efficiently and add tools for developers. Some examples are fixing env_projectedtexture, adding Biohazard's ShaderEditor, and more.
+This is a variation of Source 2013 with community changes to make the game look, run, and play more efficiently and add tools for developers. Some examples are implementing Physically Based Rendering, adding Biohazard's ShaderEditor, implementing CSM, and more.
+
+If you want to use this mod in your own creations, add attribution to your mod (say that you used this branch and give a link to it). We recommend you use the GitHub client when downloading this because we update frequently.
 
 If you want to help contribute, message Wazanator on Steam or on Discord, or join our Discord server: https://discord.gg/FZqp7Cf
 
