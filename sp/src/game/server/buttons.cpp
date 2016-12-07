@@ -898,6 +898,11 @@ void CRotButton::Spawn( void )
 
 	SetUse(&CRotButton::ButtonUse);
 
+	if (HasSpawnFlags(SF_BUTTON_LOCKED))
+	{
+		m_bLocked = true;
+	}
+	
 	//
 	// If touching activates the button, set its touch function.
 	//
