@@ -1003,7 +1003,7 @@ void BuildGammaTable( float gamma, float texGamma, float brightness, int overbri
 // convert texture to linear 0..1 value
 inline float TexLightToLinear( int c, int exponent )
 {
-	extern float power2_n[256]; 
+	extern ALIGN128 float power2_n[256];
 	Assert( exponent >= -128 && exponent <= 127 );
 	return ( float )c * power2_n[exponent+128];
 }
