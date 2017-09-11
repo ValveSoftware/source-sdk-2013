@@ -359,7 +359,7 @@ CCommand::CCommand( int nArgC, const char **ppArgV )
 		{
 			*pSBuf++ = '\"';
 		}
-		memcpy( pSBuf, ppArgV[i], nLen );
+		memcpy( pSBuf, ppArgV[i], nLen+1 );
 		pSBuf += nLen;
 		if ( bContainsSpace )
 		{
