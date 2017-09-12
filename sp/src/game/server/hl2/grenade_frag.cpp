@@ -248,7 +248,13 @@ void CGrenadeFrag::VPhysicsUpdate( IPhysicsObject *pPhysics )
 #else
 	UTIL_TraceLine( start, start + vel * gpGlobals->frametime, CONTENTS_HITBOX|CONTENTS_MONSTER|CONTENTS_SOLID, &filter, &tr );
 #endif
-	if ( tr.startsolid )
+
+	// Integrate this check into the below solid test, to compensate bug that caused the frag to traverse solids
+	// when player throws it close to edges and aiming to them
+	CUtlVector<CBaseEntity *> list;
+	PhysGetListOfPenetratingEntities(this, list);
+
+	if ( tr.startsolid || !list.IsEmpty() )
 	{
 		if ( !m_inSolid )
 		{
@@ -256,10 +262,13 @@ void CGrenadeFrag::VPhysicsUpdate( IPhysicsObject *pPhysics )
 			vel *= -GRENADE_COEFFICIENT_OF_RESTITUTION; // bounce backwards
 			pPhysics->SetVelocity( &vel, NULL );
 		}
+
 		m_inSolid = true;
 		return;
 	}
+
 	m_inSolid = false;
+
 	if ( tr.DidHit() )
 	{
 		Vector dir = vel;
