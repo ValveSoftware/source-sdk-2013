@@ -233,7 +233,7 @@ void CacheOptimizedTriangle::ChangeIntoIntersectionFormat(void)
 
 }
 
-int n_intersection_calculations=0;
+//int n_intersection_calculations=0;
 
 int CacheOptimizedTriangle::ClassifyAgainstAxisSplit(int split_plane, float split_value)
 {
@@ -476,7 +476,7 @@ void RayTracingEnvironment::Trace4Rays(const FourRays &rays, fltx4 TMin, fltx4 T
 				TriIntersectData_t const *tri = &( OptimizedTriangleList[tnum].m_Data.m_IntersectData );
 				if ( ( mailboxids[mbox_slot] != tnum ) && ( tri->m_nTriangleID != skip_id ) )
 				{
-					n_intersection_calculations++;
+					//n_intersection_calculations++;
 					mailboxids[mbox_slot] = tnum;
 					// compute plane intersection
 
