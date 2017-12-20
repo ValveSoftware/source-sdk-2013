@@ -440,6 +440,8 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 		pVehicle->ProcessMovement( player, g_pMoveData );
 	}
 			
+    RunPostThink( player );
+
 	// Copy output
 	FinishMove( player, ucmd, g_pMoveData );
 
@@ -453,8 +455,6 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	VPROF_SCOPE_BEGIN( "moveHelper->ProcessImpacts" );
 	moveHelper->ProcessImpacts();
 	VPROF_SCOPE_END();
-
-	RunPostThink( player );
 
 	g_pGameMovement->FinishTrackPredictionErrors( player );
 
