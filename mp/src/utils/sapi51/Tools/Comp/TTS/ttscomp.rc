@@ -1,0 +1,532 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Japanese resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING1             "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+    IDS_STRING5             "SpeakStop   é∏îs"
+    IDS_STRING6             "Ç±ÇÃí∑Ç¢ï∂éöóÒÇÕèIóπÇ≥ÇπÇ»Ç¢Ç≈Ç≠ÇæÇ≥Ç¢ÅBéüÇÃÉRÅ[ÉhÇ≈ï˙ÇΩÇÍÇ‹Ç∑ÅBÉGÉìÉWÉìÇÕä‘à·Ç¢Ç»Ç≠ê≥ÇµÇ≠è¡ãéÇ∑ÇÈÇÕÇ∏Ç≈Ç∑ÅB"
+    IDS_STRING7             "SpeakDestroy  é∏îs"
+    IDS_STRING8             "Ç›Ç»Ç≥ÇÒ <BOOKMARK MARK=""12""/> Ç±ÇÒÇ…ÇøÇÕ"
+    IDS_STRING9             "SAPI required Eventing  é∏îs"
+    IDS_STRING10            "Ç±ÇÍÇÕÉeÉXÉgÇ≈Ç∑ÅB"
+    IDS_STRING11            "âΩÇ∆Ç©Ç©ÇÒÇ∆Ç©ÅBâΩÇ∆Ç©Ç©ÇÒÇ∆Ç©ÅBâΩÇ∆Ç©Ç©ÇÒÇ∆Ç©ÅB BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç© BâΩÇ∆Ç©Ç©ÇÒÇ∆Ç©"
+    IDS_STRING12            "Initialization function é∏îs"
+    IDS_STRING13            "ISpVoice::Speak é∏îs"
+    IDS_STRING14            "ISpTTSEngine::GetOutputFormat é∏îs"
+    IDS_STRING15            "SAPI feature(optional) events  é∏îs"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING16            "ISpVoice::SetRate é∏îs"
+    IDS_STRING17            "ISpVoice::GetRate é∏îs"
+    IDS_STRING18            "ISpVoice::SetVolume é∏îs"
+    IDS_STRING19            "ISpVoice::GetVolume é∏îs"
+    IDS_STRING20            " ÉuÉbÉNÉ}Å[ÉNÅB <BOOKMARK MARK=""123""/> ÉeÉXÉgÅB"
+    IDS_STRING21            "123"
+    IDS_STRING22            "Engine bookmark  é∏îs"
+    IDS_STRING23            "Ç›Ç»Ç≥ÇÒÇ±ÇÒÇ…ÇøÇÕ"
+    IDS_STRING24            "Ç›Ç»Ç≥ÇÒ <SILENCE MSEC=""8000""/> Ç±ÇÒÇ…ÇøÇÕ"
+    IDS_STRING25            "Engine Silence tag   é∏îs"
+    IDS_STRING26            "<SAPI>ENGLISH  LANGUAGE</SAPI>"
+    IDS_STRING27            "<SPELL>ENGLISH  LANGUAGE</SPELL>"
+    IDS_STRING28            "Engine Spell   é∏îs"
+    IDS_STRING29            "Engine Pronounce   é∏îs"
+    IDS_STRING30            "<RATE SPEED=""-5"">Ç±ÇÒÇ…ÇøÇÕ</RATE>"
+    IDS_STRING31            "<RATE SPEED=""5"">Ç±ÇÒÇ…ÇøÇÕ</RATE>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING32            "Engine rate   é∏îs"
+    IDS_STRING33            "<VOLUME LEVEL=""100"">Ç±ÇÒÇ…ÇøÇÕ</VOLUME>"
+    IDS_STRING34            "<VOLUME LEVEL=""1"">Ç±ÇÒÇ…ÇøÇÕ</VOLUME>"
+    IDS_STRING35            "Engine volumeE   é∏îs"
+    IDS_STRING36            "<PITCH MIDDLE=""0"">±ÇÒÇ…ÇøÇÕ</PITCH>"
+    IDS_STRING37            "<PITCH MIDDLE=""-10"">±ÇÒÇ…ÇøÇÕ</PITCH>"
+    IDS_STRING38            "<PITCH MIDDLE=""+10"">±ÇÒÇ…ÇøÇÕ</PITCH>"
+    IDS_STRING39            "Engine pitch   é∏îs"
+    IDS_STRING41            "Ç›Ç»Ç≥ÇÒ <SILENCE MSEC=""%d""/> Ç±ÇÒÇ…ÇøÇÕ"
+    IDS_STRING42            "<EMPH>Ç±ÇÒÇ…ÇøÇÕ</EMPH>"
+    IDS_STRING43            "<PRON SYM=""É\ÉâÉÇÉZÉiÉJÉCÉXÉgÉâÉnÉJÉeÉ`ÉXÉC"">Ç±ÇÒÇ…ÇøÇÕ</PRON>"
+    IDS_STRING44            "<RATE SPEED=""%d"">Ç±ÇÒÇ…ÇøÇÕ</RATE>"
+    IDS_STRING45            "<VOLUME LEVEL=""%d"">Ç±ÇÒÇ…ÇøÇÕ</VOLUME>"
+    IDS_STRING46            "<PITCH MIDDLE=""%d"">Ç±ÇÒÇ…ÇøÇÕ</PITCH>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING48            "ÉNÉCÉäÉäÉâ"
+    IDS_STRING49            "<PARTOFSP PART=""noun"">%s</PARTOFSP>"
+    IDS_STRING50            "<PARTOFSP PART=""verb"">%s</PARTOFSP>"
+    IDS_STRING51            "Engine partofspeech   é∏îs"
+    IDS_STRING52            "É\ÉâÉÇÉZÉiÉJÉCÉXÉgÉâÉnÉJÉeÉ`ÉXÉCÉ}É`ÉZÉ`É~ÉCÉgÉCÉJÉCÉTÉJÉJÉâÉgÉZÉCÉCÉ\ÉCÉ~ÉLÉjÉ~ÉC"
+    IDS_STRING53            " <BOOKMARK MARK='1234'/>Ç±ÇÃï∂éöóÒÇÕÉäÉAÉãÉ^ÉCÉÄÇÃë¨ìxÇ∆âπó ÉeÉXÉgÇ≈égÇ¢Ç‹Ç∑ÅBë¨ìxÇ∆âπó ÇÕíÜÇ…çáÇÌÇπÇ‹Ç∑ÅBÉGÉìÉWÉìÇÕÅAÇ±ÇÃïœâªÇì«Ç›éÊÇËÇ‹Ç∑ÅB"
+    IDS_STRING54            "Real time SetRate   é∏îs"
+    IDS_STRING55            "Real time SetVolume   é∏îs"
+    IDS_STRING56            "ìå"
+    IDS_STRING57            "<PRON SYM=""ÉNÉCÉäÉäÉâÉeÉâÉXÉäÉVÉCÉ~ÉJÉCÉXÉJÉCÉTÉJÉìÉâÉiÉeÉjÉVÉNÉJÉâÉgÉZÉâÉmÉCÉ~ÉNÉCÉXÉC"">ìå</PRON>"
+    IDS_STRING59            "ISpVoice::Skip é∏îs"
+    IDS_STRING60            "ISpVoice::SetOutput é∏îs"
+    IDS_STRING61            "ISpVoice::WaitUntilDone é∏îs"
+    IDS_STRING62            "ISpVoice::WaitForNotifyEvent é∏îs"
+    IDS_STRING63            "<SAPI>Ç¢ÇøÅB Ç…ÅB Ç≥ÇÒÅB ÇÊÇÒÅB Ç≤ÅB ÇÎÇ≠ÅB ÇµÇøÅB ÇÕÇøÅB Ç´Ç„Ç§ÅB Ç∂Ç„Ç§ÅB<BOOKMARK MARK=""123""/>ÅBÇ¢ÇøÅB Ç…ÅB Ç≥ÇÒÅB ÇÊÇÒÅB Ç≤ÅB ÇÎÇ≠ÅB ÇµÇøÅB ÇÕÇøÅB Ç´Ç„Ç§ÅB Ç∂Ç„Ç§ÅB</SAPI>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING64            "ÉRÉìÉsÉÖÅ[É^"
+    IDS_STRING65            "This is the TTS Compliance "
+    IDS_STRING66            "Non-SAPI tags   é∏îs"
+    IDS_STRING67            "<SOMEBOGUSTAGS> Non-SAPI tags  </SOMEBOGUSTAGS>"
+    IDS_STRING68            "<SAPI>ï∑Ç±Ç¶Ç‹Ç∑Ç©ÅHÅ@Ç‹Ç∑Ç©ÅH</SAPI>"
+    IDS_STRING69            "<SAPI><EMPH>ï∑Ç±Ç¶Ç‹Ç∑Ç©ÅHÅ@</EMPH>Ç‹Ç∑Ç©ÅH</SAPI>"
+    IDS_STRING70            "Engine Emph tag  é∏îs"
+    IDS_STRING71            "ÉìÉâÉiÉ`ÉXÉCÉiÉgÉjÉ~ÉLÉ}É`ÉZÉ`É~ÉCÉgÉCÉJÉCÉ~ÉLÉjÉ~ÉCÉ`É~ÉVÉJÉCÉgÉJÉjÉ~ÉLÉZÉXÉâÉ~ÉiÉ~É\ÉjÉ`ÉJÉjÉâÉ~"
+    IDS_STRING74            "App Lexicon   é∏îs"
+    IDS_STRING75            "User Lexicon   é∏îs"
+    IDS_STRING76            "ÉnÉã"
+    IDS_STRING77            "TTSSymToPhoneId é∏îs"
+    IDS_STRING78            "Out of memory!"
+    IDS_STRING79            "ISpStream::Seek é∏îs"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING81            "SPCreateStreamOnHGlobal or create CTestStream é∏îs"
+    IDS_STRING82            "GetAmpFromSamples é∏îs"
+    IDS_STRING83            "GetWStrFromRes é∏îs"
+    IDS_STRING84            "new CSpStreamFormat or AssignFormat é∏îs"
+    IDS_STRING85            "CoCreateInstance é∏îs"
+    IDS_STRING86            "GetPronunciations é∏îs"
+    IDS_STRING87            "AddPronunciation é∏îs"
+    IDS_STRING88            "t_SpeakTwoStreams é∏îs"
+    IDS_STRING89            "RemovePronunciation é∏îs"
+    IDS_STRING90            "Get stream size é∏îs"
+    IDS_STRING91            "GetFreqFromSamples é∏îs"
+    IDS_STRING93            "SPBindToFile é∏îs"
+    IDS_STRING94            "ÉNÉCÉäÉäÉâÉNÉCÉäÉäÉâÉeÉâÉXÉäÉVÉìÉâÉiÉ`ÉXÉCÉiÉgÉjÉ~ÉLÉ}É`ÉZÉ`É~ÉCÉgÉCÉJÉCÉ~ÉLÉjÉ~ÉCÉ`É~ÉVÉJÉCÉgÉJÉjÉ~ÉLÉZÉXÉâÉ~ÉiÉ~É\ÉjÉ`ÉJÉjÉâÉ~"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING96            "RegRecursiveCopyKey é∏îs"
+    IDS_STRING97            "RegRecursiveDeleteKey é∏îs"
+    IDS_STRING98            "CreateAppLexicon é∏îs"
+    IDS_STRING99            "<context id='date_mdy'>12/21/99</context><context id='date_mdy'>12.21.00</context> <context id='date_mdy'>12-21-9999</context>"
+    IDS_STRING100           "<context id='date_dmy'>21/12/00</context><context id='date_dmy'>21.12.33</context><context id='date_dmy'>21-12-1999</context>"
+    IDS_STRING101           "<context id='date_ymd'>99/12/21</context><context id='date_ymd'>99.12.21</context> <context id='date_ymd'>1999-12-21</context>"
+    IDS_STRING102           "<context id='date_ym'>99-12</context><context id='date_ym'>1999.12</context><context id='date_ym'>99/12</context>"
+    IDS_STRING103           "<context id='date_my'>12-99</context><context id='date_my'>12.1999</context><context id='date_my'>12/99</context>"
+    IDS_STRING104           "<context id='date_dm'>21.12</context> <context id='date_dm'>21-12</context> <context id='date_dm'>21/12</context>"""
+    IDS_STRING105           "<context id='date_md'>12-21</context> <context id='date_md'>12.21</context> <context id='date_md'>12/21</context>"
+    IDS_STRING106           "<context ID = 'date_year'> 1999</context> <context ID = 'date_year'> 2001</context>"
+    IDS_STRING107           "<context id='time'>12:30:10</context><context id='time'>12:30</context><context id='time'>1'21""</context>"
+    IDS_STRING108           "<context id='number_cardinal'>3432</context>"
+    IDS_STRING109           "<context id='number_digit'>3432</context>"
+    IDS_STRING110           "<context id='number_fraction'>3/15</context>"
+    IDS_STRING111           "<context id='number_decimal'>423.12433</context>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING112           "<context id='phone_number'>(425)706-2693</context>"
+    IDS_STRING113           "<context id='currency'> \\ 12312.91</context>"
+    IDS_STRING114           "<context id='web_url'>http://www.Microsoft.com</context>"
+    IDS_STRING115           "<context id='email_address'>bob@microsoft.com</context>"
+    IDS_STRING116           "<context ID = 'address'>óXï÷î‘çÜÅ@996-8890Å@ìåãûìsç`ãÊòZñ{ñÿÅ@1-5-6</context> "
+    IDS_STRING117           "<context ID = 'address_postal'> A2C 4X5</context> "
+    IDS_STRING118           "<CONTEXT ID = 'MS_My_Context'>ÉeÉXÉg</CONTEXT>"
+    IDS_STRING119           "MSN ÉÅÅ[ÉãÉ}ÉKÉWÉìÇ∆MSN ÉÅÅ[ÉäÉìÉOÉäÉXÉgÇÃÉTÅ[ÉrÉXäJénÇ…ÇÊÇËÅAÉÜÅ[ÉUÅ[ÇÕÅA16,000éèÇâzÇ¶ÇÈÉÅÅ[ÉãÉ}ÉKÉWÉìÇ∆ÅA11,000à»è„ÇÃÉÅÅ[ÉäÉìÉOÉäÉXÉgÇÃèÓïÒÇÅAMSNè„Ç≈óòópÇ≈Ç´ÇÈÇÊÇ§Ç…Ç»ÇËÇ‹Ç∑ÅB My name is Frances Sandy Joseph Hill Alam Jr. I was born in <context id='date_mdy'>12/1/2006</context>, <context id='TIME'>12:30:11</context>pm on 123 St., St. Luis. I weight 6.23456789 lb I got my B.S., M.S., and Ph.D from Flintstone Univ. in Mars planet. I have created many 3D pictures. I have to pay $123123123123.5 tax every year. It costs about 85% of my income. Anyway, life is a box of M & M chocolate. Usually I watch DVD and listen MTV on VH1 between 3pm to 12am w/o Mathew. If you like, Go to http://www.DoesNotExist.com/ and send your comments to ttsengines@hotmail.com or call me at <context id='phone_number'>(888)888-CONTEXT</context>, or mail to:  <context  ID='address'>1845666 9th Ave. NE Earth,  WA 98188 </context>."
+    IDS_STRING120           "GetEvents é∏îs"
+    IDS_STRING121           "ÉìÉâÉiÉ`ÉXÉCÉiÉgÉjÉ~ÉLÉ}É`ÉZÉ`É~ÉCÉgÉCÉJÉCÉ~ÉLÉjÉ~ÉCÉ`É~ÉVÉJÉCÉgÉJÉjÉ~ÉLÉZÉXÉâÉ~ÉiÉ~É\ÉjÉ`ÉJÉjÉâÉ~"
+    IDS_STRING122           "ÉNÉCÉäÉäÉâ"
+END
+
+#endif    // Japanese resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING1             "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+    IDS_STRING5             "SpeakStop ≤‚ ‘ ß∞‹°£"
+    IDS_STRING6             "’‚ «“ª∏ˆ≤ªª·±ªÕÍ≥…µƒ≥§◊÷∑˚¥Æ£¨“ÚŒ™Œ“√«‘⁄œ¬“ª––≥Ã–Ú¿Ô Õ∑≈¡ÀÀ¸°£Œ“√«∆⁄Õ˚“˝«Êƒ‹’˝»∑µÿ«Â¿Ì°£"
+    IDS_STRING7             "SpeakDestroy ≤‚ ‘ ß∞‹°£"
+    IDS_STRING8             "ƒ„∫√<BOOKMARK MARK=""12""/>  ¿ΩÁ°£"
+    IDS_STRING9             "SAPI required Events ≤‚ ‘ ß∞‹£°"
+    IDS_STRING10            "’‚ «“ª∏ˆ≤‚ ‘°£"
+    IDS_STRING11            "∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√∫√"
+    IDS_STRING12            "≥ı ºªØ∫Ø ˝ ß∞‹°£"
+    IDS_STRING13            "ISpVoice::Speak  ß∞‹°£"
+    IDS_STRING14            "ISpTTSEngine::GetOutputFormat  ß∞‹°£"
+    IDS_STRING15            "SAPI feature(optional) events ≤‚ ‘ ß∞‹£°"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING16            "ISpVoice::SetRate  ß∞‹°£"
+    IDS_STRING17            "ISpVoice::GetRate  ß∞‹°£"
+    IDS_STRING18            "ISpVoice::SetVolume  ß∞‹°£"
+    IDS_STRING19            "ISpVoice::GetVolume  ß∞‹°£"
+    IDS_STRING20            "  È°£«©°£ <BOOKMARK MARK=""123""/> ≤‚ ‘°£"
+    IDS_STRING21            "123"
+    IDS_STRING22            "Engine BOOKMARK ≤‚ ‘ ß∞‹£°"
+    IDS_STRING23            "ƒ„∫√£¨ ¿ΩÁ°£"
+    IDS_STRING24            "ƒ„∫√ <SILENCE MSEC=""8000""/>  ¿ΩÁ°£"
+    IDS_STRING25            "Engine Silence tag ≤‚ ‘ ß∞‹£°"
+    IDS_STRING26            "<SAPI>ENGLISH  LANGUAGE</SAPI>"
+    IDS_STRING27            "<SPELL>ENGLISH  LANGUAGE</SPELL>"
+    IDS_STRING28            "Engine Spell tag ≤‚ ‘ ß∞‹£°"
+    IDS_STRING29            "Engine Pron tag ≤‚ ‘ ß∞‹£°"
+    IDS_STRING30            "<RATE SPEED=""-5"">ƒ„∫√ ¿ΩÁ</RATE>"
+    IDS_STRING31            "<RATE SPEED=""5"">ƒ„∫√ ¿ΩÁ</RATE>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING32            "Engine Rate ≤‚ ‘ ß∞‹£°"
+    IDS_STRING33            "<VOLUME LEVEL=""100"">ƒ„∫√</VOLUME>"
+    IDS_STRING34            "<VOLUME LEVEL=""1"">ƒ„∫√</VOLUME>"
+    IDS_STRING35            "Engine Volume ≤‚ ‘ ß∞‹£°"
+    IDS_STRING36            "<PITCH MIDDLE=""0"">ƒ„∫√</PITCH>"
+    IDS_STRING37            "<PITCH MIDDLE=""-10"">ƒ„∫√</PITCH>"
+    IDS_STRING38            "<PITCH MIDDLE=""+10"">ƒ„∫√</PITCH>"
+    IDS_STRING39            "Engine Pitch ≤‚ ‘ ß∞‹£°"
+    IDS_STRING41            "ƒ„∫√ <SILENCE MSEC=""%d""/>  ¿ΩÁ°£"
+    IDS_STRING42            "<EMPH>ƒ„∫√</EMPH>"
+    IDS_STRING43            "<PRON SYM=""jiao 1 ao 4 nin 2 hao 3"">ƒ„∫√</PRON>"
+    IDS_STRING44            "<RATE SPEED=""%d"">ƒ„∫√</RATE>"
+    IDS_STRING45            "<VOLUME LEVEL=""%d"">ƒ„∫√</VOLUME>"
+    IDS_STRING46            "<PITCH MIDDLE=""%d"">ƒ„∫√</PITCH>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING48            "hao 3 kuai 4"
+    IDS_STRING49            "<PARTOFSP PART=""noun"">%s</PARTOFSP>"
+    IDS_STRING50            "<PARTOFSP PART=""verb"">%s</PARTOFSP>"
+    IDS_STRING51            "Engine Part Of Speech ≤‚ ‘ ß∞‹£°"
+    IDS_STRING52            "shou 3 shu 4 mu 4 lu 4 di 4 zhei 5 wo 3 wu 2 lun 4 xi 1 fang 1 xiao 3 xie 3 she 2 ma 3 mao 1 meng 4 shao 4 nian 2"
+    IDS_STRING53            "’‚ <BOOKMARK MARK=""1234""/>∏ˆ◊÷∑˚¥Æ±ª”√◊ˆ µ ± ˝¬ ∫Õ“Ù¡ø≤‚ ‘°£À¸µƒ ˝¬ ∫Õ“Ù¡ø‘⁄÷–º‰±ªµ˜’˚°£“˝«Ê“Ú∏√ µ––’‚–©µ˜’˚°£"
+    IDS_STRING54            "Engine Real time SetRate ≤‚ ‘ ß∞‹£°"
+    IDS_STRING55            "Engine Real time SetVolume ≤‚ ‘ ß∞‹£°"
+    IDS_STRING56            "ƒ„"
+    IDS_STRING57            "<PRON SYM=""shan 4 liang 2 chao 1 yue 4 jing 1 chang 2 qi 4 che 1 chi 2 dao 4 shou 3 shu 4 mu 4 lu 4 di 4 zhei 5 wo 3 wu 2 lun 4 xi 1 fang 1 xiao 3 xie 3 she 2 ma 3 mao 1 meng 4 shao 4 nian 2 feng 1 fen 1 bie 2 fa 1 zhan 3"">ƒ„</PRON>"
+    IDS_STRING59            "ISpVoice::Skip  ß∞‹"
+    IDS_STRING60            "ISpVoice::SetOutput  ß∞‹"
+    IDS_STRING61            "ISpVoice::WaitUntilDone  ß∞‹"
+    IDS_STRING62            "ISpVoice::WaitForNotifyEvent  ß∞‹"
+    IDS_STRING63            "<SAPI>æ‰◊”“ª°£æ‰◊”∂˛°£æ‰◊”»˝°£æ‰◊”Àƒ°£æ‰◊”ŒÂ°£æ‰◊”¡˘°£æ‰◊”∆ﬂ°£æ‰◊”∞À°£æ‰◊”æ≈°£ æ‰◊” Æ°£ <BOOKMARK MARK=""123""/>°£ æ‰◊”“ª°£æ‰◊”∂˛°£æ‰◊”»˝°£æ‰◊”Àƒ°£æ‰◊”ŒÂ°£æ‰◊”¡˘°£æ‰◊”∆ﬂ°£æ‰◊”∞À°£æ‰◊”°£ æ‰◊” Æ°£ </SAPI>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING64            "ƒ„"
+    IDS_STRING65            "’‚ «“ª∏ˆ‘ƒ∂¡»Ìº˛“ª÷¬–‘µƒ≤‚ ‘"
+    IDS_STRING66            "Engine Non SAPI tags ≤‚ ‘ ß∞‹£°"
+    IDS_STRING67            "<SOMEBOGUSTAGS>’‚ «“ª∏ˆ∑«±Í◊º≤‚ ‘</SOMEBOGUSTAGS>"
+    IDS_STRING68            "<SAPI>ƒ„ƒ‹Ã˝º˚Œ“¬?</SAPI>"
+    IDS_STRING69            "<SAPI><EMPH>ƒ„ƒ‹Ã˝º˚</EMPH>Œ“¬?</SAPI>"
+    IDS_STRING70            "Engine EMPH ≤‚ ‘ ß∞‹£°"
+    IDS_STRING71            "jian 3 cha 2 chan 3 ye 4 shou 3 shu 4 mu 4 lu 4 di 4 zhei 5 wo 3 wu 2 lun 4 xi 1 fang 1 xiao 3 xie 3 she 2 ma 3 mao 1 meng 4 shao 4 nian 2 fo 2 chuang 4 ye 4 lun 2 chuan 2 fu 4 qin 1 kan 4 fei 1 fan 4 er 3 nu 3 li 4 a 1 fei 1 lu 4 di 4"
+    IDS_STRING74            "App Lexicon ≤‚ ‘ ß∞‹£°"
+    IDS_STRING75            "User Lexicon ≤‚ ‘ ß∞‹£°"
+    IDS_STRING76            "◊ˆ"
+    IDS_STRING77            "TTSSymToPhoneId  ß∞‹"
+    IDS_STRING78            "ƒ⁄¥Ê≤ªπª!"
+    IDS_STRING79            "ISpStream::Seek  ß∞‹"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING81            "SPCreateStreamOnHGlobal or create CTestStream  ß∞‹"
+    IDS_STRING82            "GetAmpFromSamples  ß∞‹"
+    IDS_STRING83            "GetWStrFromRes  ß∞‹"
+    IDS_STRING84            "CSpStreamFormat or AssignFormat  ß∞‹"
+    IDS_STRING85            "CoCreateInstance  ß∞‹"
+    IDS_STRING86            "GetPronunciation  ß∞‹"
+    IDS_STRING87            "AddPronunciation  ß∞‹"
+    IDS_STRING88            "t_SpeakTwoStreams  ß∞‹"
+    IDS_STRING89            "RemovePronunciation  ß∞‹"
+    IDS_STRING90            "Get stream size  ß∞‹"
+    IDS_STRING91            "GetFreqFromSamples  ß∞‹"
+    IDS_STRING93            "SPBindToFile  ß∞‹"
+    IDS_STRING94            "fei 1 fei 1 shu 4 mu 4 lu 4 di 4 zhei 5 wo 3 wu 2 lun 4 xi 1 fang 1 xiao 3 xie 3 she 2 ma 3 mao 1 meng 4 ga 1 ma 3 gan 1 jing 4 tie 3 qi 4 ni 3 hao 3 hao 3"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING96            "RegRecursiveCopyKey  ß∞‹"
+    IDS_STRING97            "RegRecursiveDeleteKey  ß∞‹"
+    IDS_STRING98            "CreateAppLexicon  ß∞‹"
+    IDS_STRING99            "<context id='date_mdy'>12/21/99</context><context id='date_mdy'>12.21.00</context> <context id='date_mdy'>12-21-9999</context>"
+    IDS_STRING100           "<context id='date_dmy'>21/12/00</context><context id='date_dmy'>21.12.33</context><context id='date_dmy'>21-12-1999</context>"
+    IDS_STRING101           "<context id='date_ymd'>99/12/21</context><context id='date_ymd'>99.12.21</context> <context id='date_ymd'>1999-12-21</context>"
+    IDS_STRING102           "<context id='date_ym'>99-12</context><context id='date_ym'>1999.12</context><context id='date_ym'>99/12</context>"
+    IDS_STRING103           "<context id='date_my'>12-99</context><context id='date_my'>12.1999</context><context id='date_my'>12/99</context>"
+    IDS_STRING104           "<context id='date_dm'>21.12</context> <context id='date_dm'>21-12</context> <context id='date_dm'>21/12</context>"""
+    IDS_STRING105           "<context id='date_md'>12-21</context> <context id='date_md'>12.21</context> <context id='date_md'>12/21</context>"
+    IDS_STRING106           "<context ID = 'date_year'> 1999</context> <context ID = 'date_year'> 2001</context>"
+    IDS_STRING107           "<context id='time'>12:30:10</context><context id='time'>12:30</context><context id='time'>1'21""</context>"
+    IDS_STRING108           "<context id='number_cardinal'>3432</context>"
+    IDS_STRING109           "<context id='number_digit'>3432</context>"
+    IDS_STRING110           "<context id='number_fraction'>3/15</context>"
+    IDS_STRING111           "<context id='number_decimal'>423.12433</context>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING112           "<context id='phone_number'>(425)706-2693</context>"
+    IDS_STRING113           "<context id='currency'> £§ 12312.91</context>"
+    IDS_STRING114           "<context id='web_url'>http://www.Microsoft.com</context>"
+    IDS_STRING115           "<context id='email_address'>bob@microsoft.com</context>"
+    IDS_STRING116           "<context ID = 'address'>÷–π˙…œ∫£ –ƒœæ©¬∑178∫≈ 3 ≈™ 4  “ ” ’˛±‡¬Î 203203</context> "
+    IDS_STRING117           "<context ID = 'address_postal'>A2C 4X5</context> "
+    IDS_STRING118           "<CONTEXT ID = 'MS_My_Context'>ƒ„∫√</CONTEXT>"
+    IDS_STRING119           "Œ“µƒ√˚◊÷Ω–¥Û…Ω°£ Œ“≥ˆ…Ì”⁄<context id='date_mdy'>12/1/2006</context> <context id='TIME'>12:30:11</context>pm ±±æ© –’“≤ªµΩ¥ÛΩ÷°£Œ“”– 6.23456789lb°£Œ“”– B.S. M.S. ∫Õ Ph.D. Œ“√øƒÍ“™∏∂≥ˆ £§123123123123.5 µƒÀ∞°£’‚ « ¥Û‘º’º85%Œ“µƒ ’»Î°£Œﬁ¬€»Á∫Œ£¨…˙√¸æÕœÒ“ª∫– M&M «…øÀ¡¶°£Õ®≥£Œ“ø¥DVD¥”3pmµΩ12pm°£»Áπ˚ƒ„œÎ£¨«Îø¥Õ¯¬Á http://www.DoesNotExist.com°£ Õ¨ ±«Î¿¥µÁ◊”” º˛µΩ£∫ttsengines@hotmial.com£¨ ªÚ‘Ú¿¥µÁ <context id='phone_number'>(888)888-CONTEXT</context> £¨ ªÚ‘Ú¿¥–≈«Îºƒ <context  ID='address'> ÷–π˙±±æ©”ˆµΩ¥ÛΩ÷20∫≈£¨µÿ«Ú£¨Ã´—Ùœµ 98008°£</context>"
+    IDS_STRING120           "GetEvents   ß∞‹"
+    IDS_STRING121           "fei 1 fei 1 shu 4 mu 4 lu 4 di 4 zhei 5 wo 3 wu 2 lun 4 xi 1 fang 1 xiao 3 xie 3 she 2 ma 3 mao 1 meng 4 ga 1 ma 3 gan 1 jing 4 tie 3 qi 4 ni 3 hao 3 hao 3"
+    IDS_STRING122           "fei 1 fei 1 shu 4 mu 4 lu 4 di 4"
+END
+
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""version.rc2""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING1             "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+    IDS_STRING5             "SpeakStop test failed."
+    IDS_STRING6             "This is a long string of text that will not complete because we release it in the next line of code. We expect the engine to clean-up correctly and not fault."
+    IDS_STRING7             "SpeakDestroy test failed."
+    IDS_STRING8             "Hello <BOOKMARK MARK=""12""/> world."
+    IDS_STRING9             "SAPI required Eventing test failed!"
+    IDS_STRING10            "This is a test."
+    IDS_STRING11            "blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah."
+    IDS_STRING12            "Initialization function failed. Skipping tests."
+    IDS_STRING13            "ISpVoice::Speak failed"
+    IDS_STRING14            "ISpTTSEngine::GetOutputFormat failed"
+    IDS_STRING15            "SAPI feature Eventing test failed!"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING16            "ISpVoice::SetRate failed"
+    IDS_STRING17            "ISpVoice::GetRate failed"
+    IDS_STRING18            "ISpVoice::SetVolume failed"
+    IDS_STRING19            "ISpVoice::GetVolume failed"
+    IDS_STRING20            " Book. mark. <BOOKMARK MARK='123'/> test1."
+    IDS_STRING21            "123"
+    IDS_STRING22            "Engine bookmark test failed."
+    IDS_STRING23            "Hello world."
+    IDS_STRING24            "Hello <SILENCE MSEC=""8000""/> world."
+    IDS_STRING25            "Engine Silence tag test failed!"
+    IDS_STRING26            "<SAPI>ENGLISH  LANGUAGE</SAPI>"
+    IDS_STRING27            "<SPELL>ENGLISH  LANGUAGE</SPELL>"
+    IDS_STRING28            "Engine Spell test failed!"
+    IDS_STRING29            "Engine Pronounce test failed!"
+    IDS_STRING30            "<RATE SPEED=""-5"">hello world</RATE>"
+    IDS_STRING31            "<RATE SPEED=""5"">hello world</RATE>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING32            "Engine rate test failed!"
+    IDS_STRING33            "<VOLUME LEVEL=""100"">hello</VOLUME>"
+    IDS_STRING34            "<VOLUME LEVEL=""1"">hello</VOLUME>"
+    IDS_STRING35            "Engine volume test failed!"
+    IDS_STRING36            "<PITCH MIDDLE=""0"">a</PITCH>"
+    IDS_STRING37            "<PITCH MIDDLE=""-10"">a</PITCH>"
+    IDS_STRING38            "<PITCH MIDDLE=""+10"">a</PITCH>"
+    IDS_STRING39            "Engine pitch test failed!"
+    IDS_STRING41            "Hello <SILENCE MSEC=""%d""/> world."
+    IDS_STRING42            "<EMPH>hello</EMPH>"
+    IDS_STRING43            "<PRON SYM=""aa n th ow p ow l ow jh iy"">hello</PRON>"
+    IDS_STRING44            "<RATE SPEED=""%d"">hello</RATE>"
+    IDS_STRING45            "<VOLUME LEVEL=""%d"">hello</VOLUME>"
+    IDS_STRING46            "<PITCH MIDDLE=""%d"">hello</PITCH>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING48            "h l ow"
+    IDS_STRING49            "<PARTOFSP PART=""noun"">%s</PARTOFSP>"
+    IDS_STRING50            "<PARTOFSP PART=""verb"">%s</PARTOFSP>"
+    IDS_STRING51            "Engine partofspeech test failed!"
+    IDS_STRING52            "n ow n p r ow n ow aa ae ah ao aw b ch eh er"
+    IDS_STRING53            "This <BOOKMARK MARK='1234'/>string is used in the real time rate and volume tests. It's rate and volume are adjusted mid stream. Engines should pick these changes up."
+    IDS_STRING54            "Real time SetRate test failed!"
+    IDS_STRING55            "Real time SetVolume test failed."
+    IDS_STRING56            "a"
+    IDS_STRING57            "<PRON SYM=""aa n th ow p ow l ow jh iy aa n th ow p ow l ow jh iy aa n th ow p ow l ow jh iy"">a</PRON>"
+    IDS_STRING59            "ISpVoice::Skip failed"
+    IDS_STRING60            "ISpVoice::SetOutput failed"
+    IDS_STRING61            "ISpVoice::WaitUntilDone failed"
+    IDS_STRING62            "ISpVoice::WaitForNotifyEvent failed"
+    IDS_STRING63            "<SAPI>one.  two.  three. four. five. six.  seven. eight. nine. ten. <BOOKMARK MARK=""123""/>bookmark event.  one.  two.  three. four. five. six.  seven. eight. nine. ten. </SAPI>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING64            "Computer"
+    IDS_STRING65            "This is the TTS Compliance Test"
+    IDS_STRING66            "Non-SAPI tags Test Failed"
+    IDS_STRING67            "<SOMEBOGUSTAGS> Non-SAPI tags test </SOMEBOGUSTAGS>"
+    IDS_STRING68            "<SAPI>Do you hear me?</SAPI>"
+    IDS_STRING69            "<SAPI><EMPH>Do you hear</EMPH>me?</SAPI>"
+    IDS_STRING70            "Engine Emph tag test failed"
+    IDS_STRING71            "dh aa n th ow p ow l ow jh iy aa n th ow p ow l ow jh iy aa n th ow p ow l ow jh ch ow ao ah ow ow p ow l ow jh ch ow ao ah ow"
+    IDS_STRING74            "App Lexicon test failed"
+    IDS_STRING75            "User Lexicon test failed!"
+    IDS_STRING76            "test"
+    IDS_STRING77            "TTSSymToPhoneId failed"
+    IDS_STRING78            "Out of memory!"
+    IDS_STRING79            "ISpStream::Seek failed"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING81            "SPCreateStreamOnHGlobal or create CTestStream failed"
+    IDS_STRING82            "GetAmpFromSamples failed"
+    IDS_STRING83            "GetWStrFromRes failed"
+    IDS_STRING84            "new CSpStreamFormat or AssignFormat failed"
+    IDS_STRING85            "CoCreateInstance failed"
+    IDS_STRING86            "GetPronunciations failed"
+    IDS_STRING87            "AddPronunciation failed"
+    IDS_STRING88            "t_SpeakTwoStreams failed"
+    IDS_STRING89            "RemovePronunciation failed"
+    IDS_STRING90            "Get stream size failed"
+    IDS_STRING91            "GetFreqFromSamples failed"
+    IDS_STRING93            "SPBindToFile failed"
+    IDS_STRING94            "h eh l ow w er l d h eh l ow w er l d h eh l ow w er l d h eh l ow w er l d"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING96            "RegRecursiveCopyKey failed"
+    IDS_STRING97            "RegRecursiveDeleteKey failed"
+    IDS_STRING98            "CreateAppLexicon failed"
+    IDS_STRING99            "<context id='date_mdy'>12/21/99</context><context id='date_mdy'>12.21.00</context> <context id='date_mdy'>12-21-9999</context>"
+    IDS_STRING100           "<context id='date_dmy'>21/12/00</context><context id='date_dmy'>21.12.33</context><context id='date_dmy'>21-12-1999</context>"
+    IDS_STRING101           "<context id='date_ymd'>99/12/21</context><context id='date_ymd'>99.12.21</context> <context id='date_ymd'>1999-12-21</context>"
+    IDS_STRING102           "<context id='date_ym'>99-12</context><context id='date_ym'>1999.12</context><context id='date_ym'>99/12</context>"
+    IDS_STRING103           "<context id='date_my'>12-99</context><context id='date_my'>12.1999</context><context id='date_my'>12/99</context>"
+    IDS_STRING104           "<context id='date_dm'>21.12</context> <context id='date_dm'>21-12</context> <context id='date_dm'>21/12</context>"""
+    IDS_STRING105           "<context id='date_md'>12-21</context> <context id='date_md'>12.21</context> <context id='date_md'>12/21</context>"
+    IDS_STRING106           "<context ID = 'date_year'> 1999</context> <context ID = 'date_year'> 2001</context>"
+    IDS_STRING107           "<context id='time'>12:30:10</context><context id='time'>12:30</context><context id='time'>1'21""</context>"
+    IDS_STRING108           "<context id='number_cardinal'>3432</context>"
+    IDS_STRING109           "<context id='number_digit'>3432</context>"
+    IDS_STRING110           "<context id='number_fraction'>3/15</context>"
+    IDS_STRING111           "<context id='number_decimal'>423.12433</context>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING112           "<context id='phone_number'>(425)706-2693</context>"
+    IDS_STRING113           "<context id='currency'>$12312.90</context>"
+    IDS_STRING114           "<context id='web_url'>http://www.Microsoft.com</context>"
+    IDS_STRING115           "<context id='email_address'>bob@microsoft.com</context>"
+    IDS_STRING116           "<context ID = 'address'>One Microsoft Way, Redmond, WA, 98052</context> "
+    IDS_STRING117           "<context ID = 'address_postal'> A2C 4X5</context> "
+    IDS_STRING118           "<CONTEXT ID = 'MS_My_Context'> text </CONTEXT>"
+    IDS_STRING119           "My name is Frances Sandy Joseph Hill Alam Jr. I was born in <context id='date_mdy'>12/1/2006</context>, <context id='TIME'>12:30:11</context>pm on 123 St., St. Luis. I weight 6.23456789 lb I got my B.S., M.S., and Ph.D from Flintstone Univ. in Mars planet. I have created many 3D pictures. I have to pay $123123123123.5 tax every year. It costs about 85% of my income. Anyway, life is a box of M & M chocolate. Usually I watch DVD and listen MTV on VH1 between 3pm to 12am w/o Mathew. If you like, Go to http://www.DoesNotExist.com/ and send your comments to ttsengines@hotmail.com or call me at <context id='phone_number'>(888)888-CONTEXT</context>, or mail to:  <context  ID='address'>1845666 9th Ave. NE Earth,  WA 98188 </context>."
+    IDS_STRING120           "GetEvents failed"
+    IDS_STRING121           "aa dh aa n th ow p ow l ow jh iy aa n th ow p ow l ow jh iy aa n th ow p ow l ow jh ch ow ao ah ow ow p ow l ow jh ch ow ao ah ow"
+    IDS_STRING122           "aa dh aa n th ow"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "version.rc2"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

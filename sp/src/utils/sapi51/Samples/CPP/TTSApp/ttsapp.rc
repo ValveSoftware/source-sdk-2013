@@ -1,0 +1,197 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APPICON             ICON    DISCARDABLE     "res\\appicon.ico"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""version.rc2""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MAIN DIALOG DISCARDABLE  0, 0, 379, 223
+STYLE DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "SAPI5 TTSAPP"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    PUSHBUTTON      "About",IDC_ABOUT,313,194,54,14
+    PUSHBUTTON      "Open File",IDB_OPEN,313,16,54,14
+    PUSHBUTTON      "Speak",IDB_SPEAK,313,38,54,14
+    PUSHBUTTON      "Pause",IDB_PAUSE,313,60,54,14
+    PUSHBUTTON      "Stop",IDB_STOP,313,82,54,14
+    PUSHBUTTON      "Skip",IDB_SKIP,313,104,29,13
+    EDITTEXT        IDC_SKIP_EDIT,342,104,25,13,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_SKIP_SPIN,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,361,55,10,14
+    PUSHBUTTON      "Speak .wav",IDB_SPEAKWAV,313,125,54,14
+    PUSHBUTTON      "Reset",IDB_RESET,313,147,54,14
+    PUSHBUTTON      "Save to .wav",IDC_SAVETOWAV,313,169,54,14
+    CONTROL         "",IDE_EDITBOX,"RichEdit20A",WS_BORDER | WS_VSCROLL | 
+                    WS_TABSTOP | 0x44,102,7,198,118
+    LTEXT           "Voice",IDC_STATIC,99,138,33,9
+    COMBOBOX        IDC_COMBO_VOICES,135,136,156,58,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Rate",IDC_STATIC,99,157,24,10
+    CONTROL         "Slider1",IDC_RATE_SLIDER,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,130,155,167,14
+    LTEXT           "Volume",IDC_STATIC,99,177,24,10
+    CONTROL         "Slider1",IDC_VOLUME_SLIDER,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,130,175,167,14
+    LTEXT           "Format",IDC_STATIC,99,197,33,9
+    COMBOBOX        IDC_COMBO_OUTPUT,135,195,156,86,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Show all events",IDC_EVENTS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,19,190,63,10
+    CONTROL         "Process XML",IDC_SPEAKXML,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,19,204,63,10
+    EDITTEXT        IDC_DEBUG,9,102,80,84,ES_MULTILINE | ES_READONLY | 
+                    WS_VSCROLL | WS_HSCROLL | NOT WS_TABSTOP
+    GROUPBOX        "Mouth Position",IDC_MOUTHPOS,9,7,80,91
+    CONTROL         "",IDC_CHARACTER,"Static",SS_BLACKFRAME,12,17,74,75
+    GROUPBOX        "Options",IDC_STATIC,307,3,65,185
+END
+
+IDD_ABOUT DIALOG DISCARDABLE  0, 0, 313, 68
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION
+CAPTION "About TTSApp"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDI_APPICON,IDC_STATIC,7,7,20,20
+    LTEXT           "TTSApp ",IDC_STATIC,37,7,56,8
+    LTEXT           "(c) 2001 Microsoft Corporation. All rights reserved.",
+                    IDC_STATIC,37,23,267,8
+    DEFPUSHBUTTON   "OK",IDOK,266,7,40,14,WS_GROUP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_MAIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 372
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 216
+    END
+
+    IDD_ABOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 306
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 60
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_MICFULL             BITMAP  DISCARDABLE     "res\\mic.bmp"
+IDB_MICEYESCLO          BITMAP  DISCARDABLE     "res\\mic eyes closed.bmp"
+IDB_MICEYESNAR          BITMAP  DISCARDABLE     "res\\mic_eyes_narrow.bmp"
+IDB_MICMOUTH10          BITMAP  DISCARDABLE     "res\\mic_mouth_10.bmp"
+IDB_MICMOUTH11          BITMAP  DISCARDABLE     "res\\mic_mouth_11.bmp"
+IDB_MICMOUTH12          BITMAP  DISCARDABLE     "res\\mic_mouth_12.bmp"
+IDB_MICMOUTH13          BITMAP  DISCARDABLE     "res\\mic_mouth_13.bmp"
+IDB_MICMOUTH2           BITMAP  DISCARDABLE     "res\\mic_mouth_2.bmp"
+IDB_MICMOUTH3           BITMAP  DISCARDABLE     "res\\mic_mouth_3.bmp"
+IDB_MICMOUTH4           BITMAP  DISCARDABLE     "res\\mic_mouth_4.bmp"
+IDB_MICMOUTH5           BITMAP  DISCARDABLE     "res\\mic_mouth_5.bmp"
+IDB_MICMOUTH6           BITMAP  DISCARDABLE     "res\\mic_mouth_6.bmp"
+IDB_MICMOUTH7           BITMAP  DISCARDABLE     "res\\mic_mouth_7.bmp"
+IDB_MICMOUTH8           BITMAP  DISCARDABLE     "res\\mic_mouth_8.bmp"
+IDB_MICMOUTH9           BITMAP  DISCARDABLE     "res\\mic_mouth_9.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_SAVE_NOTIFY         "WAV file successfully written!"
+    IDS_NOTIFY_TITLE        "File Saved"
+    IDS_SAVE_ERROR          "An error was encountered attempting to save to a .wav file.  Please make sure that the file is not in use by another application."
+    IDS_VOICE_INIT_ERROR    "The voice could not be initialized.  Please select a different TTS voice and/or a different audio output device."
+    IDS_UNSUPPORTED_FORMAT  "The selected format is not supported by the current default audio output device.  Please either select a different format, or select a different default audio output device from the Speech Control Panel."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "version.rc2"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

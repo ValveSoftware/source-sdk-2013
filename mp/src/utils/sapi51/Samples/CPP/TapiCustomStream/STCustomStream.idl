@@ -1,0 +1,63 @@
+// STCustomStream.idl : IDL source for STCustomStream.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (STCustomStream.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+
+	[
+		object,
+		uuid(C78CDA8E-DC97-4B4A-964E-2CEDAC7145A7),
+		dual,
+		helpstring("IASRStream Interface"),
+		pointer_default(unique)
+	]
+	interface IASRStream : IDispatch
+	{
+		[id(1), helpstring("method InitSRRenderStream")] HRESULT InitSRRenderStream(IUnknown *pRenderTerminal);
+		[id(2), helpstring("method PurgeStream")] HRESULT PurgeStream();
+		[id(3), helpstring("method PurgeStream")] HRESULT RestartStream();
+
+	};
+	[
+		object,
+		uuid(006FF399-A14C-4767-9347-65A4388B7B14),
+		dual,
+		helpstring("ITTSStream Interface"),
+		pointer_default(unique)
+	]
+	interface ITTSStream : IDispatch
+	{
+		[id(1), helpstring("method InitTTSCaptureStream")] HRESULT InitTTSCaptureStream(IUnknown *pCaptureTerminal);
+	};
+
+[
+	uuid(EDAEECD8-0D75-499E-9B69-187ACACF2C05),
+	version(1.0),
+	helpstring("STCustomStream 1.0 Type Library")
+]
+library STCUSTOMSTREAMLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(6CD93B97-482E-409B-B2EB-128231F0FEA1),
+		helpstring("ASRStream Class")
+	]
+	coclass ASRStream
+	{
+		[default] interface IASRStream;
+	};
+	[
+		uuid(B827D5CC-96FA-4A1E-9877-D54586D433F4),
+		helpstring("TTSStream Class")
+	]
+	coclass TTSStream
+	{
+		[default] interface ITTSStream;
+	};
+};
