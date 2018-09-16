@@ -1,0 +1,49 @@
+/*****************************************************************************
+* TtsEng.idl *
+*------------*
+*   Description:
+*       This idl file is for the sample SAPI5 Text To Speech Engine.
+*-----------------------------------------------------------------------------
+*   Creation: 09/17/99
+*  Copyright (c) Microsoft Corporation. All rights reserved.
+*****************************************************************************/
+//--- Import base idl
+import "oaidl.idl";
+import "ocidl.idl";
+import "sapiddk.idl";
+
+//=== Forward References ======================================================
+
+//=== Constants ===============================================================
+
+//=== Interface definitions ===================================================
+typedef struct VOICEITEM
+{
+    LPCWSTR pText;
+    ULONG   ulTextLen;
+    ULONG   ulNumAudioBytes;
+    BYTE*   pAudio;
+} VOICEITEM;
+
+
+//=== CoClass definitions =====================================================
+[
+	uuid(7192AA2F-F759-43e9-91E7-226371EF6B2F),
+	version(1.0),
+	helpstring("Sample TTS Engine 1.0 Type Library")
+]
+library SAMPLETTSENGLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(A832755E-9C2A-40b4-89B2-3A92EE705852),
+		helpstring("SampleTTSEngine Class")
+	]
+	coclass SampleTTSEngine
+	{
+		[default] interface ISpTTSEngine;
+        interface ISpObjectWithToken;
+	};
+};

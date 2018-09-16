@@ -1,0 +1,23 @@
+HKCR
+{
+	Simpleaudio.SpAudioPlug.1 = s 'SpAudioPlug Class'
+	{
+		CLSID = s '{F0CB433F-9453-466A-A35E-95909872E2A8}'
+	}
+	Simpleaudio.SpAudioPlug = s 'SpAudioPlug Class'
+	{
+		CLSID = s '{F0CB433F-9453-466A-A35E-95909872E2A8}'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {F0CB433F-9453-466A-A35E-95909872E2A8} = s 'SpAudioPlug Class'
+		{
+			ProgID = s 'Simpleaudio.SpAudioPlug.1'
+			VersionIndependentProgID = s 'Simpleaudio.SpAudioPlug'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'both'
+			}
+		}
+	}
+}

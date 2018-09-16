@@ -1,0 +1,257 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.h"
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_DICTPAD             ICON    DISCARDABLE     "dictpad.ICO"
+IDI_SMALL               ICON    DISCARDABLE     "SMALL.ICO"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDC_DICTPAD MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM SEPARATOR
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tCtrl+X",               IDM_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "&Voice"
+    BEGIN
+        MENUITEM "Listen for &Dictation",       IDM_DICTATION_MODE, CHECKED
+        MENUITEM "Listen for &Commands",        IDM_COMMAND_MODE
+        MENUITEM "&Grammars active\tCtrl+M",    IDM_MIC_TOGGLE
+        MENUITEM "Play&back\tCtrl+P",           IDM_PLAY
+        MENUITEM SEPARATOR
+        MENUITEM "&Add/Delete Word(s)...",      IDM_ADDREMOVEWORDS
+        MENUITEM SEPARATOR
+        MENUITEM "Select &Whole Words",         IDM_WHOLE_WORDS, CHECKED
+        MENUITEM "S&hared recognition engine",  IDM_SHAREDENGINE
+        MENUITEM SEPARATOR
+        MENUITEM "&Voice Training...",          IDM_VOICE_TRAINING
+        MENUITEM "Micro&phone Setup...",        IDM_MICROPHONE_SETUP
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About ...",                  IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDC_DICTPAD ACCELERATORS MOVEABLE PURE 
+BEGIN
+    "/",            IDM_ABOUT,              ASCII,  ALT, NOINVERT
+    "?",            IDM_ABOUT,              ASCII,  ALT, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "C",            IDM_COMMAND_MODE,       VIRTKEY, ALT, NOINVERT
+    "D",            IDM_DICTATION_MODE,     VIRTKEY, ALT, NOINVERT
+    "M",            IDM_MIC_TOGGLE,         VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            IDM_PLAY,               VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  22, 17, 230, 62
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "System"
+BEGIN
+    ICON            IDI_DICTPAD,IDC_MYICON,14,9,20,20
+    LTEXT           "DictPad ",IDC_STATIC,49,10,58,8,SS_NOPREFIX
+    LTEXT           "(c) 2001 Microsoft Corporation.",IDC_STATIC,49,23,177,
+                    11
+    DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
+    LTEXT           "All rights reserved.",IDC_STATIC,49,39,177,11
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""resource.h""\r\n"
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""SapiSDKCommon.rc2""\r\n"
+    "#include ""chs_dictpad.rc""\r\n"
+    "#include ""jpn_dictpad.rc""\r\n"
+    "#include ""version.rc2""\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""chs_dictpad.rc""\r\n"
+    "#include ""jpn_dictpad.rc""\r\n"
+    "\r\n"
+    "\0"
+END
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SRGRAMMAR
+//
+
+IDR_COMMAND_MODE_CFG    SRGRAMMAR DISCARDABLE   "cmdmode.cfg"
+IDR_DICTATION_MODE_CFG  SRGRAMMAR DISCARDABLE   "dictmode.cfg"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_TOOLBAR TOOLBAR DISCARDABLE  16, 16
+BEGIN
+    BUTTON      IDB_DICTMODE
+    BUTTON      IDB_COMMANDMODE
+    SEPARATOR
+    BUTTON      IDB_PLAY
+    BUTTON      IDB_MICTOGGLE
+    BUTTON      65535
+    BUTTON      65535
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_TOOLBAR             BITMAP  DISCARDABLE     "toolbar1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_APP_TITLE           "Dictpad"
+    IDC_DICTPAD             "DICTPAD"
+    IDM_PLAY                "Play"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDM_FONT                "Allow selection of a different font "
+    IDM_DICTATION_MODE      "Dictation"
+    IDM_COMMAND_MODE        "Command"
+    IDS_ADD                 "Add"
+    IDS_CHANGE              "Change"
+    IDS_NONEWWORDS          "No new words"
+    IDS_NOWORDSADDED        "No new words have been added to the lexicon."
+    IDS_WAITING             "..."
+    IDS_INVALIDFILEFORMAT   "Invalid file format"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDM_MIC_TOGGLE          "Grammars active/inactive"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CANNOTOPEN          "This file cannot be opened by Dictpad"
+    IDS_ERRORSAVING         "Dictpad encountered an error while saving to this file"
+    IDS_CANNOTSAVE          "Error saving to file"
+    IDS_CONFIRMCLOSE        "The text of this file has changed since the last save.  Do you wish to save this file?"
+    IDS_MICROPHONESETUPWIZARD "Microphone Setup Wizard"
+    IDS_ACCESSDENIED        "Cannot save to file: Access denied."
+    IDS_CANNOTSWITCHMODES   "Error switching modes"
+    IDS_CANNOTFILENEW       "A new file could not be opened."
+    IDS_UPDATEERROR         "An error occurred updating the Dictpad document.  Dictpad will now exit."
+    IDS_UNSUPPORTEDLANG     "Error: The language of the engine is unsupported"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "SapiSDKCommon.rc2"
+#include "chs_dictpad.rc"
+#include "jpn_dictpad.rc"
+#include "version.rc2"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,89 @@
+<GRAMMAR LANGID="409">
+    <DEFINE>
+        <ID NAME="FROM" VAL="1"/>
+        <ID NAME="TO" VAL="2"/>
+        <ID NAME="SUIT" VAL="3"/>
+        <ID NAME="COLOR" VAL="4"/>
+        <ID NAME="RANK" VAL="5"/>
+        <ID NAME="ColorRed" VAL="11101"/>
+        <ID NAME="ColorBlack" VAL="10011"/>
+    </DEFINE>
+   <RULE NAME="newgame" TOPLEVEL="ACTIVE">
+      <P>new +game</P><O>-please</O>
+   </RULE>
+   <RULE NAME="playcard" TOPLEVEL="ACTIVE" EXPORT="1">
+      <O>please</O>
+      <P>play the</P>
+      <O>...</O>
+      <RULEREF NAME="card"/>
+      <O>please</O>
+   </RULE>
+   <RULE NAME="movecard" TOPLEVEL="ACTIVE">
+      <O>please</O>
+      <P>
+         <L>
+            <P>move</P>
+            <P>put</P>
+         </L>
+         <P>the</P>
+      </P> 
+      <RULEREF PROPNAME="from" PROPID="FROM" NAME="card"/>
+      <O>
+         <L>
+            <P>on</P>
+            <P>to</P>
+         </L>
+         <P>the</P>
+         <RULEREF PROPNAME="to" PROPID="TO" NAME="card"/>
+      </O>
+      <O>please</O>
+   </RULE>
+   <RULE NAME="card">
+      <L>
+         <P>
+            <LN PROPNAME="color" PROPID="COLOR">
+               <PN VAL="ColorRed">red</PN>
+               <PN VAL="ColorBlack">black</PN>
+            </LN>
+            <RULEREF NAME="rank"/>
+         </P>
+         <P>
+            <RULEREF NAME="rank"/>
+            <O>
+               <P>of</P>
+               <LN PROPNAME="suit" PROPID="SUIT">
+                  <PN VAL="0">clubs</PN>
+                  <PN VAL="1">hearts</PN>
+                  <PN VAL="2">diamonds</PN>
+                  <PN VAL="3">spades</PN>
+               </LN>
+            </O>
+         </P>
+         <LN PROPNAME="suit" PROPID="SUIT">
+            <PN VAL="0">club</PN>
+            <PN VAL="1">heart</PN>
+            <PN VAL="2">diamond</PN>
+            <PN VAL="3">spade</PN>
+         </LN>
+      </L>
+   </RULE>
+   <RULE NAME="rank">
+      <LN PROPNAME="rank" PROPID="RANK">
+         <PN VAL="1">ace</PN>
+         <PN VAL="2">two</PN>
+         <PN VAL="3">three</PN>
+         <PN VAL="4">four</PN>
+         <PN VAL="5">five</PN>
+         <PN VAL="6">six</PN>
+         <PN VAL="7">seven</PN>
+         <PN VAL="8">eight</PN>
+         <PN VAL="9">nine</PN>
+         <PN VAL="10">ten</PN>
+         <PN VAL="11">jack</PN>
+         <PN VAL="12">queen</PN>
+         <PN VAL="13">king</PN>
+         <PN VAL="12">lady</PN>
+         <PN VAL="13">emperor</PN>
+      </LN>
+   </RULE>
+</GRAMMAR>

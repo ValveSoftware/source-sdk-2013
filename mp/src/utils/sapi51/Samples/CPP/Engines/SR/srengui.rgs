@@ -1,0 +1,26 @@
+HKCR
+{
+	SampleSrEngineUI.SampleSrEngineUI.1 = s 'Sample SR Engine Class'
+	{
+		CLSID = s '{B84714C0-3BFD-405D-83C5-E9C486826AD5}'
+	}
+	SampleSrEngineUI.SampleSrEngineUI = s 'Sample SR Engine Class'
+	{
+		CLSID = s '{B84714C0-3BFD-405D-83C5-E9C486826AD5}'
+		CurVer = s 'SampleSrEngineUI.SampleSrEngineUI.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {B84714C0-3BFD-405D-83C5-E9C486826AD5} = s 'SampleSrEngineUI Class'
+		{
+			ProgID = s 'SampleSrEngineUI.SampleSrEngineUI.1'
+			VersionIndependentProgID = s 'SampleSrEngineUI.SampleSrEngineUI'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{41B89B6C-9399-11D2-9623-00C04F8EE628}'
+		}
+	}
+}

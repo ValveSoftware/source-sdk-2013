@@ -1,0 +1,27 @@
+<GRAMMAR LANGID="409">
+   <RULE NAME="playcard" TOPLEVEL="ACTIVE">
+      <O>please</O>
+      <P>play the</P>
+      <RULEREF NAME="rank"/>
+      <O>please</O>
+   </RULE>
+   <RULE NAME="rank">
+      <L PROPNAME="rank">
+         <P VALSTR="1">ace</P>
+         <P VALSTR="2">two</P>
+         <P VALSTR="3">three</P>
+         <P VALSTR="4">four</P>
+         <P VALSTR="5">five</P>
+         <P VALSTR="6">six</P>
+         <P VALSTR="7">seven</P>
+         <P VALSTR="8">eight</P>
+         <P VALSTR="9">nine</P>
+         <P VALSTR="10">ten</P>
+         <P VALSTR="11">jack</P>
+         <P VALSTR="12">queen</P>
+         <P VALSTR="13">king</P>
+         <P VALSTR="12">lady</P>
+         <P VALSTR="13">emperor</P>
+      </L>
+   </RULE>
+</GRAMMAR>
