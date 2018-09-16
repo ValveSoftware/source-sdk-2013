@@ -1,0 +1,26 @@
+HKCR
+{
+	STCustomStream.ASRStream.1 = s 'ASRStream Class'
+	{
+		CLSID = s '{6CD93B97-482E-409B-B2EB-128231F0FEA1}'
+	}
+	STCustomStream.ASRStream = s 'ASRStream Class'
+	{
+		CLSID = s '{6CD93B97-482E-409B-B2EB-128231F0FEA1}'
+		CurVer = s 'STCustomStream.ASRStream.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {6CD93B97-482E-409B-B2EB-128231F0FEA1} = s 'ASRStream Class'
+		{
+			ProgID = s 'STCustomStream.ASRStream.1'
+			VersionIndependentProgID = s 'STCustomStream.ASRStream'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{EDAEECD8-0D75-499E-9B69-187ACACF2C05}'
+		}
+	}
+}

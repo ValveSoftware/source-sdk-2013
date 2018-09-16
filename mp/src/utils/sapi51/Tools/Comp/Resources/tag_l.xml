@@ -1,0 +1,9 @@
+<GRAMMAR LANGID="409">
+   <RULE NAME="firstrule" TOPLEVEL="ACTIVE">
+      <L>
+         <P>move</P>
+         <P>put</P>
+	     <P>get</P>
+      </L>
+   </RULE>
+</GRAMMAR>

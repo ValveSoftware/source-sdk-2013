@@ -1,0 +1,26 @@
+<GRAMMAR LANGID="409">
+    <DEFINE>
+        <ID NAME="VID_Counter" VAL="1"/>
+        <ID NAME="VID_Place" VAL="253"/>
+        <ID NAME="VID_Navigation" VAL="254"/>
+    </DEFINE>
+    <RULE ID="VID_Navigation" TOPLEVEL="ACTIVE">
+        <O>Please</O>
+        <P>
+            <L>
+                <P>Enter</P>
+                <P>Go to</P>
+            </L>
+        </P>
+        <O>the</O>
+        <RULEREF REFID="VID_Place" /> 
+    </RULE>
+    <RULE ID="VID_Place" >
+        <L PROPID="VID_Place">
+            <P VAL="VID_Counter">counter</P>
+            <P VAL="VID_Counter">shop</P>
+            <P VAL="VID_Counter">store</P>
+        </L>
+    </RULE>
+
+</GRAMMAR>

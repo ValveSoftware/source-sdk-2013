@@ -1,0 +1,226 @@
+<!-- Copyright @ 2001 Microsoft Corporation All Rights Reserved. -->
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>TTS Demo</TITLE>
+
+<SCRIPT LANGUAGE="JavaScript">
+
+// Create the Sapi SpVoice object
+var VoiceObj = new ActiveXObject("Sapi.SpVoice");
+
+// ChangeVoice() function:
+// 		This function sets the newly selected voice choice from the Voice 
+//		Select box on the Voice object.
+function ChangeVoice() {
+	var i = parseInt( idsVoices.value );
+	VoiceObj.Voice = VoiceObj.GetVoices().Item(i);
+}
+
+// ChangeAudioOutput() function:
+//		This function sets the newly selected audio output choice from the
+//		Audio Output Select box on the Voice object.
+function ChangeAudioOutput() {
+	var i = parseInt( idsAudioOutputs.value );
+	VoiceObj.AudioOutput = VoiceObj.GetAudioOutputs().Item(i);
+}
+
+// IncRate() function:
+//		This function increases the speaking rate by 1 up to a maximum
+//		of 10.
+function IncRate() {
+	if( VoiceObj.Rate < 10 )
+	{
+		VoiceObj.Rate = VoiceObj.Rate + 1;
+	}
+}
+
+// DecRate() function:
+//		This function decreases the speaking rate by -1 down to a minimum
+//		of -10.
+function DecRate() {
+	if( VoiceObj.Rate > -10 )
+	{
+		VoiceObj.Rate = VoiceObj.Rate - 1;
+	}
+}
+
+// IncVol() function:
+//		This function increases the speaking volume by 10 up to a maximum
+//		of 100.
+function IncVol() {
+	if( VoiceObj.Volume < 100 )
+	{
+		VoiceObj.Volume = VoiceObj.Volume + 10;
+	}
+}
+
+// DecVol() function:
+//		This function decreases the speaking volume by -10 down to a minimum
+//		of 0.
+function DecVol() {
+	if( VoiceObj.Volume > 9 )
+	{
+		VoiceObj.Volume = VoiceObj.Volume - 10;
+	}
+}
+
+// SpeakText() function:
+//		This function gets the text from the textbox and sends it to the
+//		Voice object's Speak() function. The value "1" for the second
+//      		parameter corresponds to the SVSFlagsAsync value in the SpeechVoiceSpeakFlags
+//		enumerated type.
+function SpeakText() {
+	if( idbSpeakText.value == "SpeakText" )
+	{
+		// Speak the string in the edit box
+		try
+		{
+			VoiceObj.Speak( idTextBox.value, 1 );
+		}
+		catch(exception)
+		{
+			alert("Speak error");
+		}
+	}
+	else if( idbSpeakText.value == "Stop" )
+	{
+		// Speak empty string to Stop current speaking. The value "2" for 
+		// the second parameter corresponds to the SVSFPurgeBeforeSpeak
+		// value in the SpeechVoiceSpeakFlags enumerated type.
+		VoiceObj.Speak( "", 2 );
+	}
+}
+
+</SCRIPT>
+
+<SCRIPT FOR="window" EVENT="OnQuit()" LANGUAGE="JavaScript">
+	// Clean up voice object
+	delete VoiceObj;
+</SCRIPT>
+
+</HEAD>
+
+
+
+
+
+<BODY>
+<H1 align=center>Simple TTS (DHTML)</H1>
+<H1 align=center><FONT size=3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </FONT>
+<IMG alt="" border=2 hspace=0 id=idImage src="mouthclo.bmp">&nbsp; </H1>
+<H1 align=center>  
+<TEXTAREA ID=idTextBox COLS=50 ROWS=10 WRAP=VIRTUAL>Enter text you wish spoken here</TEXTAREA>
+</H1>
+
+<P align=center><STRONG><STRONG> 
+Rate&nbsp;<STRONG> 
+<INPUT id=idbIncRate name=button1 type=button onclick=IncRate() value="    +    "></STRONG>&nbsp;
+<INPUT id=idbDecRate name=button2 type=button onclick=DecRate() value="    -    " style="LEFT: 237px; TOP: 292px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</STRONG>&nbsp; 
+
+Volume&nbsp;<STRONG><STRONG> 
+<INPUT id=idbIncVol name=button3 onclick=IncVol() style="LEFT: 67px; TOP: 318px" type=button value="    +    ">&nbsp;
+<INPUT id=idbDecVol name=button4 onclick=DecVol() type=button value="    -    " style="LEFT: 134px; TOP: 377px">
+</STRONG></STRONG></STRONG></P>
+ 
+<P align=center><STRONG><BUTTON id=idbSpeakText onclick=SpeakText(); 
+   style="HEIGHT: 24px; LEFT: 363px; TOP: 332px; WIDTH: 178px">SpeakText</BUTTON></STRONG></P>
+ 
+<P align=center><STRONG>Voice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   <STRONG>Audio Output&nbsp;</STRONG></STRONG></P>
+<P align=center> 
+
+<SELECT id=idsVoices name=Voices onchange=ChangeVoice() style="FONT-FAMILY: serif; HEIGHT: 21px; WIDTH: 179px"> </SELECT>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+
+<SELECT id=idsAudioOutputs name=AudioOutputs onchange=ChangeAudioOutput() style="HEIGHT: 22px; WIDTH: 179px">  </SELECT>
+ 
+
+<SCRIPT LANGUAGE="JavaScript">
+// Code in the BODY of the webpage is used to initialize controls and
+// to handle SAPI events
+
+/***** Initializer code *****/
+InitializeControls();
+
+function InitializeControls()
+{
+	// Initialize the Voices and AudioOutput Select boxes
+	var VoicesToken = VoiceObj.GetVoices();
+	var AudioOutputsToken = VoiceObj.GetAudioOutputs();
+
+	// Add correct strings to Voice Select box
+	for( var i=0; i<VoicesToken.Count; i++ )
+	{
+		var oOption = document.createElement("OPTION");
+		idsVoices.options.add(oOption);
+		oOption.innerText = VoicesToken.Item(i).GetDescription();
+		oOption.value = i;
+	}
+
+	// Add correct strings to Audio Output Select box
+	for( var i=0; i<AudioOutputsToken.Count; i++ )
+	{
+		var oOption = document.createElement("OPTION");
+		idsAudioOutputs.options.add(oOption);
+		oOption.innerText = AudioOutputsToken.Item(i).GetDescription();
+		oOption.value = i;
+	}	
+}
+
+/***** Event handling code *****/
+// These functions are used to handle the SAPI events
+
+// Handle StartStream event	
+function VoiceObj::StartStream() {
+	idbSpeakText.value = "Stop";
+}
+
+// Handle EndStream event	
+function VoiceObj::EndStream() {
+	idbSpeakText.value = "SpeakText";
+	idImage.src = "mouthclo.bmp";
+}
+
+// Handle Viseme event	
+function VoiceObj::Viseme(StreamNum, StreamPos, Duration, VisemeType, Feature, VisemeId) {
+	// Map the VisemeId to the appropriate .bmp
+	if( VisemeId == 15 || VisemeId == 17 || VisemeId == 18 || VisemeId ==21 )
+	{
+		idImage.src = "mouthop1.bmp";
+	}
+	else if( VisemeId == 14 || VisemeId == 16 || VisemeId == 19 || VisemeId == 20 )
+	{
+		idImage.src = "mouthop2.bmp";
+	}
+	else if( VisemeId == 4 || VisemeId == 6 || VisemeId == 9 || VisemeId == 12 )
+	{
+		idImage.src = "mouthop3.bmp";
+	}
+	else if( VisemeId == 1 || VisemeId == 2 || VisemeId == 3 || VisemeId == 11 )
+	{
+		idImage.src = "mouthop4.bmp";
+	}
+	else if( VisemeId == 7 || VisemeId == 8 )
+	{
+		idImage.src = "mouthnar.bmp";
+	}
+	else if( VisemeId == 5 || VisemeId == 10 || VisemeId == 13 )
+	{
+		idImage.src = "mouthmed.bmp";
+	}
+	else
+	{
+		idImage.src = "mouthclo.bmp";
+	}
+}
+</SCRIPT>
+
+
+
+<STRONG>
+<HR></STRONG>
+<P></P>
+
+</BODY>
+</HTML>

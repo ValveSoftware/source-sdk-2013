@@ -1,0 +1,10 @@
+<GRAMMAR LANGID="409">
+    <RULE NAME="SELECT" EXPORT="1" TOPLEVEL="ACTIVE">
+        <P> The weather of </P> <TEXTBUFFER PROPNAME="City"/>
+        <L>
+            <P> Nice </P>
+            <P> Rainy </P>
+        </L>
+    </RULE>
+</GRAMMAR>
+

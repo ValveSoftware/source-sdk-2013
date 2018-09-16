@@ -1,0 +1,26 @@
+HKCR
+{
+	STCustomStream.TTSStream.1 = s 'TTSStream Class'
+	{
+		CLSID = s '{B827D5CC-96FA-4A1E-9877-D54586D433F4}'
+	}
+	STCustomStream.TTSStream = s 'TTSStream Class'
+	{
+		CLSID = s '{B827D5CC-96FA-4A1E-9877-D54586D433F4}'
+		CurVer = s 'STCustomStream.TTSStream.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {B827D5CC-96FA-4A1E-9877-D54586D433F4} = s 'TTSStream Class'
+		{
+			ProgID = s 'STCustomStream.TTSStream.1'
+			VersionIndependentProgID = s 'STCustomStream.TTSStream'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{EDAEECD8-0D75-499E-9B69-187ACACF2C05}'
+		}
+	}
+}

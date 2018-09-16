@@ -1,0 +1,59 @@
+// simpleaudio.idl : IDL source for simpleaudio.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (simpleaudio.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "sapi.idl";
+
+
+typedef [hidden] enum DISPID_SpAudioPlug
+{
+    DISPID_SAPInit = 1000,
+    DISPID_SAPSetData,
+    DISPID_SAPGetData
+} DISPID_SpAudioPlug;
+
+
+	
+[
+	object,
+	uuid(1CE52E86-6B75-4749-BBAC-3D23626DA468),
+	dual,
+	helpstring("ISpAudioPlug Interface"),
+	pointer_default(unique)
+]
+interface ISpAudioPlug : IDispatch
+{
+
+	[helpstring("Init"), id(DISPID_SAPInit)]
+	HRESULT Init([in] VARIANT_BOOL fWrite, [in] SpeechAudioFormatType FormatType);
+
+	[helpstring("SetData"), id(DISPID_SAPSetData)] 
+	HRESULT SetData([in] VARIANT vData, [out, retval] long * pWritten);
+
+	[helpstring("GetData"), id(DISPID_SAPGetData)] 
+	HRESULT GetData([out, retval] VARIANT* vData);
+};
+
+[
+	uuid(17709AA0-2512-4FFE-BB24-1F6C535DEBCA),
+	version(1.0),
+	helpstring("simpleaudio 1.0 Type Library")
+]
+library SIMPLEAUDIOLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+	
+	[
+		uuid(F0CB433F-9453-466A-A35E-95909872E2A8),
+		helpstring("SpAudioPlug Class")
+	]
+	coclass SpAudioPlug
+	{
+		[default] interface ISpAudioPlug;
+	};
+};
