@@ -15,13 +15,24 @@
 // automatically hooks in the system's callbacks
 CEntityClassList<CSkyCamera> g_SkyList;
 template <> CSkyCamera *CEntityClassList<CSkyCamera>::m_pClassList = NULL;
+#ifdef MAPBASE
+CHandle<CSkyCamera> g_hActiveSkybox = NULL;
+#endif
 
 //-----------------------------------------------------------------------------
 // Retrives the current skycamera
 //-----------------------------------------------------------------------------
 CSkyCamera*	GetCurrentSkyCamera()
 {
+#ifdef MAPBASE
+	if ( g_hActiveSkybox.Get() == NULL )
+	{
+		g_hActiveSkybox = GetSkyCameraList();
+	}
+	return g_hActiveSkybox.Get();
+#else
 	return g_SkyList.m_pClassList;
+#endif
 }
 
 CSkyCamera*	GetSkyCameraList()
@@ -38,6 +49,10 @@ BEGIN_DATADESC( CSkyCamera )
 	DEFINE_KEYFIELD( m_skyboxData.scale, FIELD_INTEGER, "scale" ),
 	DEFINE_FIELD( m_skyboxData.origin, FIELD_VECTOR ),
 	DEFINE_FIELD( m_skyboxData.area, FIELD_INTEGER ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_skyboxData.skycolor, FIELD_COLOR32, "skycolor" ),
+	DEFINE_KEYFIELD( m_bUseAnglesForSky, FIELD_BOOLEAN, "use_angles_for_sky" ),
+#endif
 
 	// Quiet down classcheck
 	// DEFINE_FIELD( m_skyboxData, sky3dparams_t ),
@@ -55,6 +70,32 @@ BEGIN_DATADESC( CSkyCamera )
 	DEFINE_KEYFIELD( m_skyboxData.fog.start,			FIELD_FLOAT, "fogstart" ),
 	DEFINE_KEYFIELD( m_skyboxData.fog.end,				FIELD_FLOAT, "fogend" ),
 	DEFINE_KEYFIELD( m_skyboxData.fog.maxdensity,		FIELD_FLOAT, "fogmaxdensity" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_skyboxData.fog.farz, FIELD_FLOAT, "farz" ),
+#endif
+
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "ForceUpdate", InputForceUpdate ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "StartUpdating", InputStartUpdating ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "StopUpdating", InputStopUpdating ),
+
+	DEFINE_INPUTFUNC( FIELD_VOID, "ActivateSkybox", InputActivateSkybox ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "DeactivateSkybox", InputDeactivateSkybox ),
+
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetFogStartDist", InputSetFogStartDist ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetFogEndDist", InputSetFogEndDist ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetFogMaxDensity", InputSetFogMaxDensity ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOnFog", InputTurnOnFog ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOffFog", InputTurnOffFog ),
+	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetFogColor", InputSetFogColor ),
+	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetFogColorSecondary", InputSetFogColorSecondary ),
+
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetFarZ", InputSetFarZ ),
+
+	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetSkyColor", InputSetSkyColor ),
+
+	DEFINE_THINKFUNC( Update ),
+#endif
 
 END_DATADESC()
 
@@ -93,6 +134,9 @@ CSkyCamera::CSkyCamera()
 {
 	g_SkyList.Insert( this );
 	m_skyboxData.fog.maxdensity = 1.0f;
+#ifdef MAPBASE
+	m_skyboxData.skycolor.Init(0, 0, 0, 0);
+#endif
 }
 
 CSkyCamera::~CSkyCamera()
@@ -102,7 +146,23 @@ CSkyCamera::~CSkyCamera()
 
 void CSkyCamera::Spawn( void ) 
 { 
+#ifdef MAPBASE
+	if (HasSpawnFlags(SF_SKY_MASTER))
+		g_hActiveSkybox = this;
+
+	if (HasSpawnFlags(SF_SKY_START_UPDATING) && GetCurrentSkyCamera() == this)
+	{
+		SetThink( &CSkyCamera::Update );
+		SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+	}
+
+	// Must be absolute now that the sky_camera can be parented
+	m_skyboxData.origin = GetAbsOrigin();
+	if (m_bUseAnglesForSky)
+		m_skyboxData.angles = GetAbsAngles();
+#else
 	m_skyboxData.origin = GetLocalOrigin();
+#endif
 	m_skyboxData.area = engine->GetArea( m_skyboxData.origin );
 	
 	Precache();
@@ -145,3 +205,152 @@ void CSkyCamera::Activate( )
 	}
 #endif
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CSkyCamera::AcceptInput( const char *szInputName, CBaseEntity *pActivator, CBaseEntity *pCaller, variant_t Value, int outputID )
+{
+	if (!BaseClass::AcceptInput( szInputName, pActivator, pCaller, Value, outputID ))
+		return false;
+
+	if (g_hActiveSkybox == this)
+	{
+		// Most inputs require an update
+		Update();
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Update sky position mid-game
+//-----------------------------------------------------------------------------
+void CSkyCamera::Update()
+{
+	m_skyboxData.origin = GetAbsOrigin();
+	if (m_bUseAnglesForSky)
+		m_skyboxData.angles = GetAbsAngles();
+
+	// Getting into another area is unlikely, but if it's not expensive, I guess it's okay.
+	m_skyboxData.area = engine->GetArea( m_skyboxData.origin );
+
+	if ( m_bUseAngles )
+	{
+		AngleVectors( GetAbsAngles(), &m_skyboxData.fog.dirPrimary.GetForModify() );
+		m_skyboxData.fog.dirPrimary.GetForModify() *= -1.0f; 
+	}
+
+#ifdef MAPBASE_MP
+	// Updates client data, this completely ignores m_pOldSkyCamera
+	CBasePlayer *pPlayer = NULL;
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
+	{
+		pPlayer = UTIL_PlayerByIndex(i);
+		if (pPlayer)
+			pPlayer->m_Local.m_skybox3d.CopyFrom(m_skyboxData);
+	}
+#else
+	// Updates client data, this completely ignores m_pOldSkyCamera
+	CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+	if (pPlayer)
+	{
+		pPlayer->m_Local.m_skybox3d.CopyFrom(m_skyboxData);
+	}
+#endif
+
+	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+}
+
+void CSkyCamera::InputForceUpdate( inputdata_t &inputdata )
+{
+	Update();
+
+	// Updates client data, this completely ignores m_pOldSkyCamera
+	CBasePlayer *pPlayer = NULL;
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
+	{
+		pPlayer = UTIL_PlayerByIndex( i );
+		if (pPlayer)
+			pPlayer->m_Local.m_skybox3d.CopyFrom( m_skyboxData );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CSkyCamera::InputStartUpdating( inputdata_t &inputdata )
+{
+	if (GetCurrentSkyCamera() == this)
+	{
+		SetThink( &CSkyCamera::Update );
+		SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+	}
+
+	// If we become the current sky camera later, remember that we want to update
+	AddSpawnFlags( SF_SKY_START_UPDATING );
+}
+
+void CSkyCamera::InputStopUpdating( inputdata_t &inputdata )
+{
+	SetThink( NULL );
+	SetNextThink( TICK_NEVER_THINK );
+	RemoveSpawnFlags( SF_SKY_START_UPDATING );
+}
+
+//-----------------------------------------------------------------------------
+// Activate!
+//-----------------------------------------------------------------------------
+void CSkyCamera::InputActivateSkybox( inputdata_t &inputdata )
+{
+	CSkyCamera *pActiveSky = GetCurrentSkyCamera();
+	if (pActiveSky && pActiveSky->GetNextThink() != TICK_NEVER_THINK && pActiveSky != this)
+	{
+		// Deactivate that skybox
+		pActiveSky->SetThink( NULL );
+		pActiveSky->SetNextThink( TICK_NEVER_THINK );
+	}
+
+	g_hActiveSkybox = this;
+
+	if (HasSpawnFlags( SF_SKY_START_UPDATING ))
+		InputStartUpdating( inputdata );
+}
+
+//-----------------------------------------------------------------------------
+// Deactivate!
+//-----------------------------------------------------------------------------
+void CSkyCamera::InputDeactivateSkybox( inputdata_t &inputdata )
+{
+	if (GetCurrentSkyCamera() == this)
+	{
+		g_hActiveSkybox = NULL;
+
+		// ClientData doesn't catch this immediately
+		CBasePlayer *pPlayer = NULL;
+		for (int i = 1; i <= gpGlobals->maxClients; i++)
+		{
+			pPlayer = UTIL_PlayerByIndex( i );
+			if (pPlayer)
+				pPlayer->m_Local.m_skybox3d.area = 255;
+		}
+	}
+
+	SetThink( NULL );
+	SetNextThink( TICK_NEVER_THINK );
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Input handlers for setting fog stuff.
+//------------------------------------------------------------------------------
+void CSkyCamera::InputSetFogStartDist( inputdata_t &inputdata ) { m_skyboxData.fog.start = inputdata.value.Float(); }
+void CSkyCamera::InputSetFogEndDist( inputdata_t &inputdata ) { m_skyboxData.fog.end = inputdata.value.Float(); }
+void CSkyCamera::InputSetFogMaxDensity( inputdata_t &inputdata ) { m_skyboxData.fog.maxdensity = inputdata.value.Float(); }
+void CSkyCamera::InputTurnOnFog( inputdata_t &inputdata ) { m_skyboxData.fog.enable = true; }
+void CSkyCamera::InputTurnOffFog( inputdata_t &inputdata ) { m_skyboxData.fog.enable = false; }
+void CSkyCamera::InputSetFogColor( inputdata_t &inputdata ) { m_skyboxData.fog.colorPrimary = inputdata.value.Color32(); }
+void CSkyCamera::InputSetFogColorSecondary( inputdata_t &inputdata ) { m_skyboxData.fog.colorSecondary = inputdata.value.Color32(); }
+
+void CSkyCamera::InputSetFarZ( inputdata_t &inputdata ) { m_skyboxData.fog.farz = inputdata.value.Int(); }
+#endif

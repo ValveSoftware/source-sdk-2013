@@ -44,6 +44,11 @@ public:
 	void	InputFadeTo( inputdata_t &inputdata );
 	void	InputSetFadeColor( inputdata_t &inputdata );
 
+#ifdef MAPBASE
+	void	InputSetDrawSky( inputdata_t &inputdata ) { m_bDrawSky = inputdata.value.Bool(); }
+	void	InputSetDrawSky2( inputdata_t &inputdata ) { m_bDrawSky2 = inputdata.value.Bool(); }
+#endif
+
 	bool	GetIncludedPVSOrigin( Vector *pOrigin, CBaseEntity **ppCamera );
 
 private:
@@ -61,6 +66,10 @@ private:
 	CNetworkVar( float, m_flBlendStartTime );
 	CNetworkVar( int, m_iStartFOV );
 	CNetworkVar( bool, m_bActive );
+#ifdef MAPBASE
+	CNetworkVar( bool, m_bDrawSky );
+	CNetworkVar( bool, m_bDrawSky2 );
+#endif
 
 	// Fov & fov blends
 	CNetworkVar( int, m_iNextFOV );

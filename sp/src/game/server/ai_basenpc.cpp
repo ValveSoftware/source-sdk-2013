@@ -95,6 +95,10 @@
 	#include "prop_portal_shared.h"
 #endif
 
+#ifdef MAPBASE
+#include "mapbase/matchers.h"
+#endif
+
 #include "env_debughistory.h"
 #include "collisionutils.h"
 
@@ -155,6 +159,12 @@ ConVar	ai_test_moveprobe_ignoresmall( "ai_test_moveprobe_ignoresmall", "0" );
 #ifdef HL2_EPISODIC
 extern ConVar ai_vehicle_avoidance;
 #endif // HL2_EPISODIC
+
+#ifdef MAPBASE
+extern ISoundEmitterSystemBase *soundemitterbase;
+
+ConVar	ai_dynint_always_enabled( "ai_dynint_always_enabled", "0", FCVAR_NONE, "Makes the \"Don't Care\" setting equivalent to \"Yes\"." );
+#endif
 
 #ifndef _RETAIL
 #define ShouldUseEfficiency()			( ai_use_think_optimizations.GetBool() && ai_use_efficiency.GetBool() )
@@ -660,11 +670,62 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 
 ConVar	ai_block_damage( "ai_block_damage","0" );
 
+#ifdef MAPBASE
+bool CAI_BaseNPC::FriendlyFireEnabled()
+{
+	if (m_FriendlyFireOverride != TRS_NONE)
+		return m_FriendlyFireOverride == TRS_TRUE;
+
+	if (HL2GameRules()->GlobalFriendlyFire() != TRS_NONE)
+		return HL2GameRules()->GlobalFriendlyFire() == TRS_TRUE;
+
+	return !(CapabilitiesGet() & bits_CAP_FRIENDLY_DMG_IMMUNE);
+}
+
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::InputSetFriendlyFire( inputdata_t &inputdata )
+{
+	m_FriendlyFireOverride = TO_THREESTATE(inputdata.value.Int());
+}
+#endif
+
 bool CAI_BaseNPC::PassesDamageFilter( const CTakeDamageInfo &info )
 {
 	if ( ai_block_damage.GetBool() )
 		return false;
 	// FIXME: hook a friendly damage filter to the npc instead?
+#ifdef MAPBASE
+	if ( !FriendlyFireEnabled() && info.GetAttacker() && info.GetAttacker() != this && !info.IsForceFriendlyFire() )
+	{
+		// check attackers relationship with me
+		CBaseCombatCharacter *npcEnemy = info.GetAttacker()->MyCombatCharacterPointer();
+
+		if ( npcEnemy && npcEnemy->IRelationType( this ) == D_LI )
+		{
+			m_fNoDamageDecal = true;
+
+			if ( npcEnemy->IsPlayer() )
+			{
+				m_OnDamagedByPlayer.FireOutput( info.GetAttacker(), this );
+				// This also counts as being harmed by player's squad.
+				m_OnDamagedByPlayerSquad.FireOutput( info.GetAttacker(), this );
+			}
+
+			return false;
+		}
+
+		if ( IServerVehicle *pVehicle = info.GetAttacker()->GetServerVehicle() )
+		{
+			m_fNoDamageDecal = true;
+			if (pVehicle->GetPassenger() && pVehicle->GetPassenger()->IRelationType(this) != D_LI)
+			{
+				// MAPBASE FIXME: Players could probably bail from their cars to kill NPCs with this!
+				// Is there a "last passenger" variable we could use?
+				return false;
+			}
+		}
+	}
+#else
 	if ( (CapabilitiesGet() & bits_CAP_FRIENDLY_DMG_IMMUNE) && info.GetAttacker() && info.GetAttacker() != this )
 	{
 		// check attackers relationship with me
@@ -692,6 +753,7 @@ bool CAI_BaseNPC::PassesDamageFilter( const CTakeDamageInfo &info )
 			return false;
 		}
 	}
+#endif
 	
 	if ( !BaseClass::PassesDamageFilter( info ) )
 	{
@@ -714,7 +776,11 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		return 0;
 
 	if ( GetSleepState() == AISS_WAITING_FOR_THREAT )
+#ifdef MAPBASE
+		Wake( info.GetAttacker() );
+#else
 		Wake();
+#endif
 
 	// NOTE: This must happen after the base class is called; we need to reduce
 	// health before the pain sound, since some NPCs use the final health
@@ -776,7 +842,12 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		else
 		{
 			// See if the person that injured me is an NPC.
+#ifdef MAPBASE
+			// Sometimes I find these things and I can't just sit idly by.
+			CAI_BaseNPC *pAttacker = info.GetAttacker()->MyNPCPointer();
+#else
 			CAI_BaseNPC *pAttacker = dynamic_cast<CAI_BaseNPC *>( info.GetAttacker() );
+#endif
 			CBasePlayer *pPlayer = AI_GetSinglePlayer();
 
 			if( pAttacker && pAttacker->IsAlive() && pPlayer )
@@ -1013,7 +1084,11 @@ void CAI_BaseNPC::OnFriendDamaged( CBaseCombatCharacter *pSquadmate, CBaseEntity
 		float distSqToThreat = ( GetAbsOrigin() - pAttacker->GetAbsOrigin() ).LengthSqr();
 
 		if ( GetSleepState() != AISS_AWAKE && distSqToThreat < Square( 20 * 12 ) )
+#ifdef MAPBASE
+			Wake( pAttacker );
+#else
 			Wake();
+#endif
 
 		if ( distSqToThreat < Square( 50 * 12 ) )
 			ForceGatherConditions();
@@ -1182,7 +1257,12 @@ void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 		break;
 	}
 
+#ifdef MAPBASE
+	bool bBloodAllowed = DamageFilterAllowsBlood( info );
+	if ( subInfo.GetDamage() >= 1.0 && !(subInfo.GetDamageType() & DMG_SHOCK ) && bBloodAllowed )
+#else
 	if ( subInfo.GetDamage() >= 1.0 && !(subInfo.GetDamageType() & DMG_SHOCK ) )
+#endif
 	{
 		if( !IsPlayer() || ( IsPlayer() && g_pGameRules->IsMultiplayer() ) )
 		{
@@ -1197,6 +1277,12 @@ void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 			m_fNoDamageDecal = true;
 		}
 	}
+#ifdef MAPBASE
+	else if (!bBloodAllowed)
+	{
+		m_fNoDamageDecal = true;
+	}
+#endif
 
 	// Airboat gun will impart major force if it's about to kill him....
 	if ( info.GetDamageType() & DMG_AIRBOAT )
@@ -1286,7 +1372,12 @@ bool CAI_BaseNPC::PlayerInSpread( const Vector &sourcePos, const Vector &targetP
 	{
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 
+#ifdef MAPBASE
+		// "> D_FR" means it isn't D_HT, D_FR, or D_ER (error disposition)
+		if ( pPlayer && ( !ignoreHatedPlayers || IRelationType( pPlayer ) > D_FR ) )
+#else
 		if ( pPlayer && ( !ignoreHatedPlayers || IRelationType( pPlayer ) != D_HT ) )
+#endif
 		{
 			if ( PointInSpread( pPlayer, sourcePos, targetPos, pPlayer->WorldSpaceCenter(), flSpread, maxDistOffCenter ) )
 				return true;
@@ -1738,6 +1829,55 @@ void CAI_BaseNPC::ClearIgnoreConditions( int *pConditions, int nConditions )
 	}
 }
 
+#ifdef MAPBASE
+//------------------------------------------------------------------------------
+// Purpose: Adds a condition to this NPC, integral or not
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputSetCondition( inputdata_t &inputdata )
+{
+	const char *pszCondition = inputdata.value.String();
+	if (!pszCondition || !pszCondition[0])
+		return;
+
+	int iCondition = atoi(pszCondition);
+	if (iCondition == 0)
+	{
+		// Convert from string
+		iCondition = GetConditionID(pszCondition);
+	}
+
+	SetCondition(iCondition);
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Removes a condition from this NPC, integral or not
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputClearCondition( inputdata_t &inputdata )
+{
+	const char *pszCondition = inputdata.value.String();
+	if (!pszCondition || !pszCondition[0])
+		return;
+
+	int iCondition = atoi(pszCondition);
+	if (iCondition == 0)
+	{
+		// Convert from string
+		iCondition = GetConditionID(pszCondition);
+	}
+
+	ClearCondition(iCondition);
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Sets our think to CallNPCThink() in case SetThinkNull was fired before
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputSetThinkNPC( inputdata_t &inputdata )
+{
+	SetThink ( &CAI_BaseNPC::CallNPCThink );
+	SetNextThink(gpGlobals->curtime + inputdata.value.Float());
+}
+#endif
+
 //---------------------------------------------------------
 //---------------------------------------------------------
 bool CAI_BaseNPC::HasInterruptCondition( int iCondition )
@@ -1934,6 +2074,15 @@ bool CAI_BaseNPC::QueryHearSound( CSound *pSound )
 		if ( !IsPlayerAlly() )
 			return false;
 	}
+
+#ifdef MAPBASE
+	if ( pSound->SoundContext() & SOUND_CONTEXT_OWNER_ALLIES )
+	{
+		CBaseCombatCharacter *pOwner = ToBaseCombatCharacter(pSound->m_hOwner);
+		if (!pOwner || pOwner->IRelationType(this) != D_LI)
+			return false;
+	}
+#endif
 
 	if ( pSound->IsSoundType( SOUND_PLAYER ) && GetState() == NPC_STATE_IDLE && !FVisible( pSound->GetSoundReactOrigin() ) )
 	{
@@ -3354,6 +3503,9 @@ void CAI_BaseNPC::UpdateSleepState( bool bInPVS )
 {
 	if ( GetSleepState() > AISS_AWAKE )
 	{
+#ifdef MAPBASE
+#define Wake() Wake(pLocalPlayer)
+#endif
 		CBasePlayer *pLocalPlayer = AI_GetSinglePlayer();
 		if ( !pLocalPlayer )
 		{
@@ -3414,6 +3566,9 @@ void CAI_BaseNPC::UpdateSleepState( bool bInPVS )
 				}
 			}
 		}
+#ifdef MAPBASE
+#undef Wake
+#endif
 	}
 	else
 	{
@@ -4176,6 +4331,24 @@ int CAI_BaseNPC::CapabilitiesGet( void ) const
 	return capability;
 }
 
+#ifdef MAPBASE
+//------------------------------------------------------------------------------
+// Purpose: Adds capabilities to this NPC
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputAddCapabilities( inputdata_t &inputdata )
+{
+	CapabilitiesAdd(inputdata.value.Int());
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Removes capabilities from this NPC
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputRemoveCapabilities( inputdata_t &inputdata )
+{
+	CapabilitiesRemove(inputdata.value.Int());
+}
+#endif
+
 // Set capability mask
 int CAI_BaseNPC::CapabilitiesAdd( int capability )
 {
@@ -4414,10 +4587,39 @@ void CAI_BaseNPC::Wake( bool bFireOutput )
 	if ( GetSleepState() != AISS_AWAKE )
 	{
 		m_nWakeTick = gpGlobals->tickcount;
+#ifndef MAPBASE
 		SetSleepState( AISS_AWAKE );
+#endif
 		RemoveEffects( EF_NODRAW );
 		if ( bFireOutput )
+#ifdef MAPBASE
+		{
+			// Activator is based on sleep state
+			CBaseEntity *pActivator = this;
+
+			switch (GetSleepState())
+			{
+			case AISS_WAITING_FOR_THREAT:
+				pActivator = GetEnemy();
+				break;
+
+			case AISS_WAITING_FOR_PVS:
+			case AISS_AUTO_PVS:
+			case AISS_AUTO_PVS_AFTER_PVS:
+				pActivator = UTIL_GetLocalPlayer();
+				break;
+
+			case AISS_WAITING_FOR_INPUT:
+				// I can't really do this here, but InputWake() uses the new function with pActivator, so it's fine
+				break;
+			}
+
+			m_OnWake.FireOutput( pActivator, this );
+		}
+		SetSleepState( AISS_AWAKE );
+#else
 			m_OnWake.FireOutput( this, this );
+#endif
 
 		if ( m_bWakeSquad && GetSquad() )
 		{
@@ -4434,6 +4636,37 @@ void CAI_BaseNPC::Wake( bool bFireOutput )
 		}
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::Wake( CBaseEntity *pActivator )
+{
+	if ( GetSleepState() != AISS_AWAKE )
+	{
+		m_nWakeTick = gpGlobals->tickcount;
+		RemoveEffects( EF_NODRAW );
+
+		m_OnWake.FireOutput( pActivator, this );
+
+		SetSleepState( AISS_AWAKE );
+
+		if ( m_bWakeSquad && GetSquad() )
+		{
+			AISquadIter_t iter;
+			for ( CAI_BaseNPC *pSquadMember = GetSquad()->GetFirstMember( &iter ); pSquadMember; pSquadMember = GetSquad()->GetNextMember( &iter ) )
+			{
+				if ( pSquadMember->IsAlive() && pSquadMember != this )
+				{
+					pSquadMember->m_bWakeSquad = false;
+					pSquadMember->Wake(pActivator);
+				}
+			}
+
+		}
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -4750,8 +4983,22 @@ void CAI_BaseNPC::PrescheduleThink( void )
 	CheckForScriptedNPCInteractions();
 #endif
 
+#ifdef MAPBASE
+	// Please excuse the readability here.
+	if (CapabilitiesGet() & bits_CAP_USE_WEAPONS)
+	{
+		// If we should have our gun out, fetch it
+		if ( ShouldUnholsterWeapon() && m_iDesiredWeaponState == DESIREDWEAPONSTATE_IGNORE )
+		{
+			SetDesiredWeaponState( DESIREDWEAPONSTATE_UNHOLSTERED );
+		}
+
+	// If our desired weapon state is not the current, fix it
+	if( (m_iDesiredWeaponState == DESIREDWEAPONSTATE_HOLSTERED || m_iDesiredWeaponState == DESIREDWEAPONSTATE_UNHOLSTERED || m_iDesiredWeaponState == DESIREDWEAPONSTATE_HOLSTERED_DESTROYED ) )
+#else
 	// If we use weapons, and our desired weapon state is not the current, fix it
 	if( (CapabilitiesGet() & bits_CAP_USE_WEAPONS) && (m_iDesiredWeaponState == DESIREDWEAPONSTATE_HOLSTERED || m_iDesiredWeaponState == DESIREDWEAPONSTATE_UNHOLSTERED || m_iDesiredWeaponState == DESIREDWEAPONSTATE_HOLSTERED_DESTROYED ) )
+#endif
 	{
 		if ( IsAlive() && !IsInAScript() )
 		{
@@ -4774,6 +5021,9 @@ void CAI_BaseNPC::PrescheduleThink( void )
 			m_iDesiredWeaponState = DESIREDWEAPONSTATE_IGNORE;
 		}
 	}
+#ifdef MAPBASE
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -5130,6 +5380,62 @@ NPC_STATE CAI_BaseNPC::SelectIdealState( void )
 	return m_IdealNPCState;
 }
 
+#ifdef MAPBASE
+//------------------------------------------------------------------------------
+// Purpose: Creates a new weapon and makes us equip it.
+//------------------------------------------------------------------------------
+CBaseCombatWeapon *CAI_BaseNPC::GiveWeapon( string_t iszWeaponName, bool bDiscardCurrent )
+{
+	CBaseCombatWeapon *pWeapon = Weapon_Create( STRING(iszWeaponName) );
+	if ( !pWeapon )
+	{
+		Warning( "Couldn't create weapon %s to give NPC %s.\n", STRING(iszWeaponName), GetDebugName() );
+		return NULL;
+	}
+
+	// If I have a weapon already, drop it
+	if ( bDiscardCurrent && GetActiveWeapon() )
+	{
+		Weapon_Drop( GetActiveWeapon() );
+	}
+
+	// If I have a name, make my weapon match it with "_weapon" appended
+	if ( GetEntityName() != NULL_STRING )
+	{
+		pWeapon->SetName( AllocPooledString(UTIL_VarArgs("%s_weapon", STRING(GetEntityName()) )) );
+	}
+
+	Weapon_Equip( pWeapon );
+
+	// Handle this case
+	OnGivenWeapon( pWeapon );
+
+	return pWeapon;
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Creates a new weapon and puts it in our inventory.
+//------------------------------------------------------------------------------
+CBaseCombatWeapon *CAI_BaseNPC::GiveWeaponHolstered( string_t iszWeaponName )
+{
+	CBaseCombatWeapon *pWeapon = Weapon_Create( STRING(iszWeaponName) );
+	if ( !pWeapon )
+	{
+		Warning( "Couldn't create weapon %s to give NPC %s.\n", STRING(iszWeaponName), GetDebugName() );
+		return NULL;
+	}
+
+	// If I have a name, make my weapon match it with "_weapon" appended
+	if ( GetEntityName() != NULL_STRING )
+	{
+		pWeapon->SetName( AllocPooledString(UTIL_VarArgs("%s_weapon", STRING(GetEntityName()) )) );
+	}
+
+	Weapon_EquipHolstered( pWeapon );
+
+	return pWeapon;
+}
+#else
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void CAI_BaseNPC::GiveWeapon( string_t iszWeaponName )
@@ -5158,6 +5464,7 @@ void CAI_BaseNPC::GiveWeapon( string_t iszWeaponName )
 	// Handle this case
 	OnGivenWeapon( pWeapon );
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Rather specific function that tells us if an NPC is in the process of 
@@ -5599,6 +5906,11 @@ void CAI_BaseNPC::GatherEnemyConditions( CBaseEntity *pEnemy )
 				EHANDLE hEnemy;
 				hEnemy.Set( GetEnemy() );
 
+#ifdef MAPBASE
+				if (hEnemy->IsPlayer())
+					m_OnFoundPlayer.Set(hEnemy, hEnemy, this);
+				m_OnFoundEnemy.Set(hEnemy, hEnemy, this);
+#else
 				if (GetEnemy()->IsPlayer())
 				{
 					m_OnFoundPlayer.Set(hEnemy, this, this);
@@ -5608,6 +5920,7 @@ void CAI_BaseNPC::GatherEnemyConditions( CBaseEntity *pEnemy )
 				{
 					m_OnFoundEnemy.Set(hEnemy, this, this);
 				}
+#endif
 			}
 			Remember( bits_MEMORY_HAD_LOS );
 		}
@@ -5904,6 +6217,104 @@ CAI_BaseNPC *CAI_BaseNPC::CreateCustomTarget( const Vector &vecOrigin, float dur
 #endif// HL2_DLL
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: This is used by TranslateActivity() before anything else.
+// Input  : eNewActivity - 
+// Output : Activity
+//-----------------------------------------------------------------------------
+Activity CAI_BaseNPC::TranslateCrouchActivity( Activity eNewActivity )
+{
+	if (CapabilitiesGet() & bits_CAP_DUCK)
+	{
+		// ========================================================================
+		// The main issue with cover hint nodes is that crouch activities are not translated at the right time
+		// in the activity translation process. Weapons aren't given a chance to translate from them
+		// and therefore the crouch activities on many NPCs are inaccessible.
+		// 
+		// Regular, non-hint-node crouching seen on Combine soldiers and Episodic Alyx
+		// seemingly don't work when put here, so don't bother.
+		// ========================================================================
+		Activity nCoverActivity = eNewActivity;
+		if (eNewActivity == ACT_RELOAD)
+		{
+			nCoverActivity = GetReloadActivity(GetHintNode());
+		}
+		// INCOVER is synonymous with crouching at crouch cover nodes.
+		// Any time we need to crouch at cover is when INCOVER is valid.
+		else if (HasMemory(bits_MEMORY_INCOVER))
+		{
+			if (eNewActivity == ACT_IDLE || eNewActivity == ACT_COVER)
+			{
+				// They stick to cover sometimes, but that might just be when they can't path to the enemy.
+				if (GetState() == NPC_STATE_COMBAT /*&& !IsCurSchedule(SCHED_COMBAT_STAND, false)*/)
+					nCoverActivity = GetCoverActivity(GetHintNode());
+			}
+			else if (eNewActivity == ACT_RANGE_ATTACK1)
+			{
+				// Soldiers are the only ones I've seen attack while INCOVER,
+				// so I don't think we have to give it its own function.
+				CAI_Hint *pHint = GetHintNode();
+				if (pHint)
+				{
+					if (pHint->HintType() == HINT_TACTICAL_COVER_LOW || pHint->HintType() == HINT_TACTICAL_COVER_MED)
+					{
+						nCoverActivity = ACT_RANGE_ATTACK1_LOW;
+					}
+				}
+			}
+		}
+
+		if (nCoverActivity != ACT_IDLE)
+			eNewActivity = nCoverActivity;
+
+		/*
+		// ---------------------------------------------------------------
+		// Some NPCs don't have a cover activity defined so just use idle
+		// ---------------------------------------------------------------
+		if (nCoverActivity != eNewActivity)
+		{
+			if (SelectWeightedSequence(nCoverActivity) != ACTIVITY_NOT_AVAILABLE)
+			{
+				eNewActivity = nCoverActivity;
+			}
+			else if (eNewActivity == ACT_COVER)
+			{
+				// Untranslated ACT_COVER should revert to ACT_IDLE
+				eNewActivity = ACT_IDLE;
+			}
+		}
+		*/
+	}
+
+	return eNewActivity;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Backup activity (NPC version of Weapon_BackupActivity)
+//			This only gets called if the NPC absolutely does not have an animation.
+//			This means if we don't return another activity, the NPC will most likely T-pose.
+// Input  : eNewActivity - 
+// Output : Activity
+//-----------------------------------------------------------------------------
+Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
+{
+	//if (eNewActivity == ACT_DROP_WEAPON)
+	//	return TranslateActivity(ACT_IDLE);
+
+	// Accounts for certain act busy activities that aren't on all NPCs.
+	if (eNewActivity == ACT_BUSY_QUEUE || eNewActivity == ACT_BUSY_STAND)
+		return TranslateActivity(ACT_IDLE);
+
+	// GetCoverActivity() should have this covered.
+	// ---------------------------------------------
+	//if (eNewActivity == ACT_COVER)
+	//	return TranslateActivity(ACT_IDLE);
+	
+	return eNewActivity;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : eNewActivity - 
@@ -5911,6 +6322,27 @@ CAI_BaseNPC *CAI_BaseNPC::CreateCustomTarget( const Vector &vecOrigin, float dur
 //-----------------------------------------------------------------------------
 Activity CAI_BaseNPC::NPC_TranslateActivity( Activity eNewActivity )
 {
+#ifdef MAPBASE
+	Assert( eNewActivity != ACT_INVALID );
+
+	if (IsCrouching())
+	{
+		switch (eNewActivity)
+		{
+		case ACT_RANGE_ATTACK1:		eNewActivity = ACT_RANGE_ATTACK1_LOW; break;
+		case ACT_RELOAD:			eNewActivity = ACT_RELOAD_LOW; break;
+		case ACT_IDLE:				eNewActivity = ACT_CROUCHIDLE; break;
+
+		// ====
+		// HACK : LEIPZIG 06 -	The underlying problem is that the AR2 and SMG1 cannot map IDLE_ANGRY to a crouched equivalent automatically
+		//						which causes the character to pop up and down in their idle state of firing while crouched. -- jdw
+		case ACT_IDLE_ANGRY_SMG1:
+		case ACT_IDLE_ANGRY_AR2:
+			eNewActivity = ACT_RANGE_AIM_LOW;
+			break;
+		}
+	}
+#else
 	Assert( eNewActivity != ACT_INVALID );
 
 	if (eNewActivity == ACT_RANGE_ATTACK1)
@@ -5967,6 +6399,7 @@ Activity CAI_BaseNPC::NPC_TranslateActivity( Activity eNewActivity )
 			return nCoverActivity;
 		}
 	}
+#endif
 	return eNewActivity;
 }
 
@@ -5985,6 +6418,13 @@ Activity CAI_BaseNPC::TranslateActivity( Activity idealActivity, Activity *pIdea
 	Activity weaponTranslation;
 	Activity last;
 	Activity current;
+
+#ifdef MAPBASE
+	// Crouch activities are translated before everything else.
+	idealActivity = TranslateCrouchActivity( idealActivity );
+	//if ( idealWeaponActivity != idealActivity /*&& HaveSequenceForActivity(idealWeaponActivity)*/ )
+	//	idealActivity = idealWeaponActivity;
+#endif
 
 	idealWeaponActivity = Weapon_TranslateActivity( idealActivity, &bIdealWeaponRequired );
 	if ( pIdealWeaponActivity )
@@ -6013,6 +6453,12 @@ Activity CAI_BaseNPC::TranslateActivity( Activity idealActivity, Activity *pIdea
 	
 	if ( HaveSequenceForActivity( weaponTranslation ) )
 		return weaponTranslation;
+#ifdef MAPBASE
+	// This is used so NPCs can use any weapon, restored AR2 activities on one NPC don't T-pose another, etc.
+	Activity backupActivity = Weapon_BackupActivity(baseTranslation, bWeaponRequired);
+	if (baseTranslation != backupActivity && HaveSequenceForActivity(backupActivity))
+		return backupActivity;
+#endif
 	
 	if ( bWeaponRequired )
 	{
@@ -6037,6 +6483,22 @@ Activity CAI_BaseNPC::TranslateActivity( Activity idealActivity, Activity *pIdea
 
 	if ( idealActivity != idealWeaponActivity && HaveSequenceForActivity( idealActivity ) )
 		return idealActivity;
+
+#ifdef MAPBASE
+	// We absolutely do not have an activity for this.
+	// Do the same as above, but with any backup activity we may have available.
+	backupActivity = NPC_BackupActivity(baseTranslation);
+	if (backupActivity != baseTranslation && HaveSequenceForActivity(backupActivity))
+		return backupActivity;
+
+	backupActivity = NPC_BackupActivity(idealWeaponActivity);
+	if (backupActivity != idealWeaponActivity && HaveSequenceForActivity(backupActivity))
+		return backupActivity;
+
+	backupActivity = NPC_BackupActivity(idealActivity);
+	if (backupActivity != idealActivity && HaveSequenceForActivity(backupActivity))
+		return backupActivity;
+#endif
 
 	Assert( !HaveSequenceForActivity( idealActivity ) );
 	if ( idealActivity == ACT_RUN )
@@ -6983,7 +7445,11 @@ void CAI_BaseNPC::OnChangeActiveWeapon( CBaseCombatWeapon *pOldWeapon, CBaseComb
 //-----------------------------------------------------------------------------
 bool CAI_BaseNPC::CanHolsterWeapon( void )
 {
+#ifdef MAPBASE
+	int seq = SelectWeightedSequence( TranslateActivity(ACT_DISARM) );
+#else
 	int seq = SelectWeightedSequence( ACT_DISARM );
+#endif
 	return (seq >= 0);
 }
 
@@ -6995,12 +7461,22 @@ int	CAI_BaseNPC::HolsterWeapon( void )
 	if ( IsWeaponHolstered() )
 		return -1;
 
+#ifdef COMPANION_HOLSTER_WORKAROUND
+	Activity activity = TranslateActivity( ACT_DISARM );
+	int iHolsterGesture = FindGestureLayer( activity );
+	if ( iHolsterGesture != -1 )
+		return iHolsterGesture;
+
+	int iLayer = AddGesture( activity, true );
+	//iLayer = AddGesture( ACT_GESTURE_DISARM, true );
+#else
 	int iHolsterGesture = FindGestureLayer( ACT_DISARM );
 	if ( iHolsterGesture != -1 )
 		return iHolsterGesture;
 
 	int iLayer = AddGesture( ACT_DISARM, true );
 	//iLayer = AddGesture( ACT_GESTURE_DISARM, true );
+#endif
 
 	if (iLayer != -1)
 	{
@@ -7022,6 +7498,13 @@ int	CAI_BaseNPC::HolsterWeapon( void )
 		ClearCondition(COND_NO_PRIMARY_AMMO);
 		ClearCondition(COND_NO_SECONDARY_AMMO);
 	}
+#ifdef MAPBASE
+	else
+	{
+		// We don't have the animation, so just make our weapon holster instantaneously.
+		DoHolster();
+	}
+#endif
 
 	return iLayer;
 }
@@ -7034,19 +7517,42 @@ int CAI_BaseNPC::UnholsterWeapon( void )
 	if ( !IsWeaponHolstered() )
  		return -1;
 
+#ifdef COMPANION_HOLSTER_WORKAROUND
+	Activity activity = TranslateActivity( ACT_ARM );
+	int iHolsterGesture = FindGestureLayer( activity );
+#else
 	int iHolsterGesture = FindGestureLayer( ACT_ARM );
+#endif
 	if ( iHolsterGesture != -1 )
 		return iHolsterGesture;
 
+#ifdef MAPBASE
+	int i = m_iLastHolsteredWeapon >= 0 && GetWeapon(m_iLastHolsteredWeapon) ? m_iLastHolsteredWeapon : -1;
+	if (i == -1)
+	{
+		// Set i to the first weapon you can find
+		for (i = 0; i < WeaponCount(); i++)
+		{
+			if (GetWeapon(i))
+				break;
+		}
+	}
+#else
 	// Deploy the first weapon you can find
 	for (int i = 0; i < WeaponCount(); i++)
+#endif
 	{
 		if ( GetWeapon( i ))
 		{
 			SetActiveWeapon( GetWeapon(i) );
 
+#ifdef COMPANION_HOLSTER_WORKAROUND
+			int iLayer = AddGesture( activity, true );
+			//iLayer = AddGesture( ACT_GESTURE_ARM, true );
+#else
 			int iLayer = AddGesture( ACT_ARM, true );
 			//iLayer = AddGesture( ACT_GESTURE_ARM, true );
+#endif
 
 			if (iLayer != -1)
 			{
@@ -7056,6 +7562,13 @@ int CAI_BaseNPC::UnholsterWeapon( void )
 
 				m_iDesiredWeaponState = DESIREDWEAPONSTATE_CHANGING;
 			}
+#ifdef MAPBASE
+			else
+			{
+				// We don't have the animation, so just make our weapon unholster instantaneously.
+				DoUnholster();
+			}
+#endif
 
 			// Refill the clip
 			if ( GetActiveWeapon()->UsesClipsForAmmo1() )
@@ -7096,6 +7609,26 @@ void CAI_BaseNPC::InputHolsterAndDestroyWeapon( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CAI_BaseNPC::InputUnholsterWeapon( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	// Support for unholstering a specific weapon
+	if (inputdata.value.String())
+	{
+		if (IsWeaponHolstered())
+		{
+			for (int i=0;i<MAX_WEAPONS;i++)
+			{
+				// These are both pooled, so if they're the same classname they should point to the same address
+				if ( m_hMyWeapons[i].Get() && m_hMyWeapons[i]->m_iClassname == inputdata.value.StringID() )
+				{
+					//Weapon_Switch(m_hMyWeapons[i]);
+					//DoHolster();
+					m_iLastHolsteredWeapon = i;
+				}
+			}
+		}
+	}
+#endif
+
 	m_iDesiredWeaponState = DESIREDWEAPONSTATE_UNHOLSTERED;
 }
 
@@ -7120,6 +7653,190 @@ bool CAI_BaseNPC::IsWeaponStateChanging( void )
 {
 	return ( m_iDesiredWeaponState == DESIREDWEAPONSTATE_CHANGING || m_iDesiredWeaponState == DESIREDWEAPONSTATE_CHANGING_DESTROY );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Allows NPC to holster from more than just the animation event
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::DoHolster( void )
+{
+	// Cache off the weapon.
+	CBaseCombatWeapon *pWeapon = GetActiveWeapon(); 
+
+	if (pWeapon)
+	{
+		// Mark this as our last weapon
+		for (int i = 0; i < MAX_WEAPONS; i++)
+		{
+			if (m_hMyWeapons[i].Get() == pWeapon)
+			{
+				m_iLastHolsteredWeapon = i;
+				break;
+			}
+		}
+
+ 		GetActiveWeapon()->Holster();
+		SetActiveWeapon( NULL );
+
+		//Force the NPC to recalculate it's arrival activity since it'll most likely be wrong now that we don't have a weapon out.
+		GetNavigator()->SetArrivalSequence( ACT_INVALID );
+
+		if ( m_iDesiredWeaponState == DESIREDWEAPONSTATE_CHANGING_DESTROY )
+		{
+			// Get rid of it!
+			UTIL_Remove( pWeapon );
+		}
+
+		if ( m_iDesiredWeaponState != DESIREDWEAPONSTATE_IGNORE )
+		{
+			m_iDesiredWeaponState = DESIREDWEAPONSTATE_IGNORE;
+			m_Activity = ACT_RESET;
+		}
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Allows NPC to unholster from more than just the animation event
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::DoUnholster( void )
+{
+	if (GetActiveWeapon())
+	{
+		GetActiveWeapon()->Deploy();
+
+		//Force the NPC to recalculate it's arrival activity since it'll most likely be wrong now.
+		GetNavigator()->SetArrivalSequence( ACT_INVALID );
+
+		if ( m_iDesiredWeaponState != DESIREDWEAPONSTATE_IGNORE )
+		{
+			m_iDesiredWeaponState = DESIREDWEAPONSTATE_IGNORE;
+			m_Activity = ACT_RESET;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Give the NPC in question the weapon specified
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputGiveWeaponHolstered( inputdata_t &inputdata )
+{
+	string_t iszWeaponName = inputdata.value.StringID();
+	if ( iszWeaponName != NULL_STRING )
+	{
+		GiveWeaponHolstered( iszWeaponName );
+	}
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Makes the NPC change to the specified weapon via successive holster/unholster animations, creates it if it doesn't exist
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputChangeWeapon( inputdata_t &inputdata )
+{
+	CBaseCombatWeapon *pSwitchTo = NULL; // The weapon itself
+	int iSwitchTo; // Index in m_hMyWeapons
+	for (int i=0;i<MAX_WEAPONS;i++)
+	{
+		// These are both pooled, so if they're the same classname they should point to the same address
+		if ( m_hMyWeapons[i].Get() && m_hMyWeapons[i]->m_iClassname == inputdata.value.StringID() )
+		{
+			pSwitchTo = m_hMyWeapons[i];
+			iSwitchTo = i;
+			break;
+		}
+	}
+
+	if (!pSwitchTo)
+	{
+		// We must not have it
+		pSwitchTo = GiveWeaponHolstered(inputdata.value.StringID());
+		for (int i = 0; i<MAX_WEAPONS; i++)
+		{
+			if (m_hMyWeapons[i].Get() == pSwitchTo)
+			{
+				iSwitchTo = i;
+				break;
+			}
+		}
+
+		if (!pSwitchTo)
+			return;
+	}
+
+	if (!GetActiveWeapon())
+	{
+		m_iLastHolsteredWeapon = iSwitchTo;
+		UnholsterWeapon();
+	}
+	else
+	{
+		int iHolsterLayer = HolsterWeapon();
+		if (GetLayerActivity(iHolsterLayer) == -1)
+		{
+			Weapon_Switch(pSwitchTo);
+			return;
+		}
+
+		variant_t variant;
+		variant.SetString(pSwitchTo->m_iClassname);
+		g_EventQueue.AddEvent(this, "UnholsterWeapon", variant, GetLayerDuration(iHolsterLayer) /*+ 0.65*/, this, this);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Makes the NPC pick up the specified weapon if it can
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputPickupWeapon( inputdata_t &inputdata )
+{
+	string_t iszWeaponName = inputdata.value.StringID();
+	if (iszWeaponName == NULL_STRING)
+		return;
+
+	// Searching "generically" could potentially get a weapon already held by someone.
+	CBaseEntity *pEntity = gEntList.FindEntityByNameNearest(STRING(iszWeaponName), GetLocalOrigin(), 0, this, inputdata.pActivator, inputdata.pCaller);
+	CBaseCombatWeapon *pWeapon = NULL;
+	if (pEntity)
+		pWeapon = pEntity->MyCombatWeaponPointer();
+
+	if (!pEntity || !pWeapon)
+		return;
+
+	m_flNextWeaponSearchTime = gpGlobals->curtime + 10.0;
+	// Now lock the weapon for several seconds while we go to pick it up.
+	pWeapon->Lock( 10.0, this );
+	SetTarget( pWeapon );
+	SetSchedule(SCHED_NEW_WEAPON);
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Makes the NPC pick up the specified item if it can
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputPickupItem( inputdata_t &inputdata )
+{
+	string_t iszItemName = inputdata.value.StringID();
+	if (iszItemName == NULL_STRING)
+		return;
+
+	// Searching "generically" could potentially get a weapon already held by someone.
+	CBaseEntity *pEntity = gEntList.FindEntityByNameNearest(STRING(iszItemName), GetLocalOrigin(), 0, this, inputdata.pActivator, inputdata.pCaller);
+	if (!pEntity)
+		return;
+
+	SetTarget( pEntity );
+
+	// Can apply to anything, not just healthkits
+	SetSchedule(SCHED_GET_HEALTHKIT);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Set up the shot regulator based on the equipped weapon
@@ -7152,6 +7869,7 @@ void CAI_BaseNPC::InitRelationshipTable(void)
 }
 
 
+#ifndef MAPBASE // Moved to CBaseCombatCharacter
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -7236,6 +7954,28 @@ void CAI_BaseNPC::AddRelationship( const char *pszRelationship, CBaseEntity *pAc
 				}
 				else
 				{
+#ifdef MAPBASE
+					if (!Q_strnicmp(entityString, "CLASS_", 5))
+					{
+						// Go through all of the classes and find which one this is
+						Class_T resultClass = CLASS_NONE;
+						for (int i = 0; i < NUM_AI_CLASSES; i++)
+						{
+							if (FStrEq(g_pGameRules->AIClassText(i), entityString))
+							{
+								resultClass = (Class_T)i;
+							}
+						}
+						
+						if (resultClass != CLASS_NONE)
+						{
+							AddClassRelationship( resultClass, disposition, priority );
+							bFoundEntity = true;
+						}
+					}
+					
+					if (!bFoundEntity)
+#endif
 					DevWarning( "Couldn't set relationship to unknown entity or class (%s)!\n", entityString );
 				}
 			}
@@ -7244,6 +7984,7 @@ void CAI_BaseNPC::AddRelationship( const char *pszRelationship, CBaseEntity *pAc
 		entityString		= strtok(NULL," ");
 	}
 }
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -7966,6 +8707,24 @@ Activity CAI_BaseNPC::GetReloadActivity( CAI_Hint* pHint )
 			case HINT_TACTICAL_COVER_LOW:
 			case HINT_TACTICAL_COVER_MED:
 			{
+#ifdef MAPBASE
+				if (HasMemory(bits_MEMORY_INCOVER))
+				{
+					// Don't do that trace thing. INCOVER means we're already crouching.
+					nReloadActivity = ACT_RELOAD_LOW;
+				}
+				else
+				{
+					Vector vEyePos = GetAbsOrigin() + GetCrouchEyeOffset();
+					// Check if this location will block the threat's line of sight to me
+					trace_t tr;
+					AI_TraceLOS(vEyePos, GetEnemy()->EyePosition(), this, &tr);
+					if (tr.fraction != 1.0)
+					{
+						nReloadActivity = ACT_RELOAD_LOW;
+					}
+				}
+#else
 				if (SelectWeightedSequence( ACT_RELOAD_LOW ) != ACTIVITY_NOT_AVAILABLE)
 				{
 					Vector vEyePos = GetAbsOrigin() + EyeOffset(ACT_RELOAD_LOW);
@@ -7977,6 +8736,7 @@ Activity CAI_BaseNPC::GetReloadActivity( CAI_Hint* pHint )
 						nReloadActivity = ACT_RELOAD_LOW;
 					}
 				}
+#endif
 				break;
 			}
 		}
@@ -8001,12 +8761,24 @@ Activity CAI_BaseNPC::GetCoverActivity( CAI_Hint *pHint )
 		switch (pHint->HintType())
 		{
 			case HINT_TACTICAL_COVER_MED:
+#ifndef MAPBASE // I know what you're thinking, but ACT_COVER_MED is pretty much deprecated at this point anyway.
 			{
 				nCoverActivity = ACT_COVER_MED;
+#ifdef MAPBASE
+				// Some NPCs lack ACT_COVER_MED, but could easily use ACT_COVER_LOW.
+				if (SelectWeightedSequence(nCoverActivity) == ACTIVITY_NOT_AVAILABLE)
+					nCoverActivity = ACT_COVER_LOW;
+#endif
 				break;
 			}
+#endif
 			case HINT_TACTICAL_COVER_LOW:
 			{
+#ifdef MAPBASE
+				if (pHint->HintActivityName() != NULL_STRING)
+					nCoverActivity = (Activity)CAI_BaseNPC::GetActivityID( STRING(pHint->HintActivityName()) );
+				else
+#endif
 				nCoverActivity = ACT_COVER_LOW;
 				break;
 			}
@@ -8014,7 +8786,11 @@ Activity CAI_BaseNPC::GetCoverActivity( CAI_Hint *pHint )
 	}
 
 	if ( nCoverActivity == ACT_INVALID )
+#ifdef MAPBASE
+		nCoverActivity = ACT_IDLE;
+#else
 		nCoverActivity = ACT_COVER;
+#endif
 
 	return nCoverActivity;
 }
@@ -8382,8 +9158,12 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 		{
   			if ( GetActiveWeapon() )
   			{
+#ifdef MAPBASE
+				GetActiveWeapon()->Reload_NPC();
+#else
   				GetActiveWeapon()->WeaponSound( RELOAD_NPC );
   				GetActiveWeapon()->m_iClip1 = GetActiveWeapon()->GetMaxClip1(); 
+#endif
   				ClearCondition(COND_LOW_PRIMARY_AMMO);
   				ClearCondition(COND_NO_PRIMARY_AMMO);
   				ClearCondition(COND_NO_SECONDARY_AMMO);
@@ -8433,6 +9213,11 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 		{
 			if (pEvent->event == AE_NPC_HOLSTER)
 			{
+#ifdef MAPBASE
+				CBaseCombatWeapon *pWeapon = GetActiveWeapon();
+				if (DoHolster())
+					m_OnHolsterWeapon.Set(pWeapon, pWeapon, this);
+#else
 				// Cache off the weapon.
 				CBaseCombatWeapon *pWeapon = GetActiveWeapon(); 
 
@@ -8455,11 +9240,16 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 					m_iDesiredWeaponState = DESIREDWEAPONSTATE_IGNORE;
 					m_Activity = ACT_RESET;
 				}
+#endif
 
 				return;
 			}
 			else if (pEvent->event == AE_NPC_DRAW)
 			{
+#ifdef MAPBASE
+				if (DoUnholster())
+					m_OnUnholsterWeapon.Set(GetActiveWeapon(), GetActiveWeapon(), this);
+#else
 				if (GetActiveWeapon())
 				{
 					GetActiveWeapon()->Deploy();
@@ -8473,6 +9263,7 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 						m_Activity = ACT_RESET;
 					}
 				}
+#endif
 				return;
 			}
 			else if ( pEvent->event == AE_NPC_BODYDROP_HEAVY )
@@ -9887,6 +10678,7 @@ int CAI_BaseNPC::PlayScriptedSentence( const char *pszSentence, float delay, flo
 	return PlaySentence( pszSentence, delay, volume, soundlevel, pListener );
 }
 
+#ifndef MAPBASE // Moved to CBaseCombatCharacter
 //-----------------------------------------------------------------------------
 // Purpose:
 // Input  :
@@ -9961,6 +10753,7 @@ CBaseEntity *CAI_BaseNPC::FindNamedEntity( const char *name, IEntityFindFilter *
 
 	return NULL;
 }
+#endif
 
 
 void CAI_BaseNPC::CorpseFallThink( void )
@@ -10345,6 +11138,51 @@ void CAI_BaseNPC::PickupWeapon( CBaseCombatWeapon *pWeapon )
 	m_iszPendingWeapon = NULL_STRING;
 }
 
+#ifdef MAPBASE
+extern ConVar sk_healthvial;
+
+//------------------------------------------------------------------------------
+// Purpose: Moved from CNPC_Citizen to CAI_BaseNPC for new pickup input
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::PickupItem( CBaseEntity *pItem )
+{
+	// Must cache number of elements in case any fire only once (therefore being removed after being fired)
+	int iNumElements = m_OnItemPickup.NumberOfElements();
+	if (iNumElements > 0)
+		m_OnItemPickup.Set( pItem, pItem, this );
+
+	Assert( pItem != NULL );
+	if( FClassnameIs( pItem, "item_healthkit" ) )
+	{
+		if ( TakeHealth( sk_healthkit.GetFloat(), DMG_GENERIC ) )
+		{
+			RemoveAllDecals();
+			UTIL_Remove( pItem );
+		}
+	}
+	else if( FClassnameIs( pItem, "item_healthvial" ) )
+	{
+		if ( TakeHealth( sk_healthvial.GetFloat(), DMG_GENERIC ) )
+		{
+			RemoveAllDecals();
+			UTIL_Remove( pItem );
+		}
+	}
+	else if ( FClassnameIs(pItem, "item_ammo_ar2_altfire") || FClassnameIs(pItem, "item_ammo_smg1_grenade") ||
+		FClassnameIs(pItem, "weapon_frag") )
+	{
+		AddGrenades( 1 );
+		UTIL_Remove( pItem );
+	}
+
+	// Only warn if we didn't have any elements of OnItemPickup
+	else if (iNumElements <= 0)
+	{
+		DevMsg("%s doesn't know how to pick up %s!\n", GetClassname(), pItem->GetClassname() );
+	}
+}
+#endif
+
 //=========================================================
 // DropItem - dead npc drops named item
 //=========================================================
@@ -10619,6 +11457,9 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_FIELD( m_iInteractionPlaying,	FIELD_INTEGER ),
 	DEFINE_UTLVECTOR(m_ScriptedInteractions,FIELD_EMBEDDED),
 	DEFINE_FIELD( m_flInteractionYaw,		FIELD_FLOAT ),
+#ifdef MAPBASE
+	DEFINE_INPUT( m_iDynamicInteractionsAllowed,		FIELD_INTEGER, "SetDynamicInteractions" ),
+#endif
 	DEFINE_EMBEDDED( m_CheckOnGroundTimer ),
 	DEFINE_FIELD( m_vDefaultEyeOffset,		FIELD_VECTOR ),
   	DEFINE_FIELD( m_flNextEyeLookTime,		FIELD_TIME ),
@@ -10629,7 +11470,11 @@ BEGIN_DATADESC( CAI_BaseNPC )
     DEFINE_FIELD( m_flHeadYaw,				FIELD_FLOAT ),
     DEFINE_FIELD( m_flHeadPitch,				FIELD_FLOAT ),
     DEFINE_FIELD( m_flOriginalYaw,			FIELD_FLOAT ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bInAScript,			FIELD_BOOLEAN, "SpawnWithStartScripting" ),
+#else
 	DEFINE_FIELD( m_bInAScript,				FIELD_BOOLEAN ),
+#endif
     DEFINE_FIELD( m_scriptState,				FIELD_INTEGER ),
 	DEFINE_FIELD( m_hCine,					FIELD_EHANDLE ),
 	DEFINE_CUSTOM_FIELD( m_ScriptArrivalActivity,	ActivityDataOps() ),
@@ -10650,6 +11495,9 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_KEYFIELD( m_bIgnoreUnseenEnemies, FIELD_BOOLEAN , "ignoreunseenenemies"),
 	DEFINE_EMBEDDED( m_ShotRegulator ),
 	DEFINE_FIELD( m_iDesiredWeaponState,	FIELD_INTEGER ),
+#ifdef MAPBASE
+	DEFINE_FIELD( m_iLastHolsteredWeapon,	FIELD_INTEGER ),
+#endif
 	// 							m_pSquad					Saved specially in ai_saverestore.cpp
 	DEFINE_KEYFIELD(m_SquadName,				FIELD_STRING, "squadname" ),
     DEFINE_FIELD( m_iMySquadSlot,				FIELD_INTEGER ),
@@ -10692,6 +11540,10 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_FIELD( m_bImportanRagdoll,			FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bPlayerAvoidState,			FIELD_BOOLEAN ),
 
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_FriendlyFireOverride,	FIELD_INTEGER, "FriendlyFireOverride" ),
+#endif
+
 	// Satisfy classcheck
 	// DEFINE_FIELD( m_ScheduleHistory, CUtlVector < AIScheduleChoice_t > ),
 
@@ -10733,11 +11585,20 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_OUTPUT( m_OnForcedInteractionStarted,	"OnForcedInteractionStarted" ),
 	DEFINE_OUTPUT( m_OnForcedInteractionAborted,	"OnForcedInteractionAborted" ),
 	DEFINE_OUTPUT( m_OnForcedInteractionFinished,	"OnForcedInteractionFinished" ),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnItemPickup, "OnItemPickup" ),
+#endif
 
 	// Inputs
+#ifndef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetRelationship", InputSetRelationship ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetEnemyFilter", InputSetEnemyFilter ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetHealthFraction", InputSetHealthFraction ),
+#else
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetHealth", InputSetHealth ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_VOID, "BeginRappel", InputBeginRappel ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetSquad", InputSetSquad ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Wake", InputWake ),
@@ -10754,11 +11615,34 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_INPUTFUNC( FIELD_VOID,	"DisableSpeedModifier", InputDisableSpeedModifier ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetSpeedModRadius", InputSetSpeedModifierRadius ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetSpeedModSpeed", InputSetSpeedModifierSpeed ),
+#ifndef MAPBASE // Moved to CBaseCombatCharacter
 	DEFINE_INPUTFUNC( FIELD_VOID,	"HolsterWeapon", InputHolsterWeapon ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"HolsterAndDestroyWeapon", InputHolsterAndDestroyWeapon ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"UnholsterWeapon", InputUnholsterWeapon ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_STRING,	"ForceInteractionWithNPC", InputForceInteractionWithNPC ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "UpdateEnemyMemory", InputUpdateEnemyMemory ),
+
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetFriendlyFire", InputSetFriendlyFire ),
+
+	DEFINE_INPUTFUNC( FIELD_STRING, "GiveWeaponHolstered", InputGiveWeaponHolstered ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "ChangeWeapon", InputChangeWeapon ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "PickupWeapon", InputPickupWeapon ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "PickupItem", InputPickupItem ),
+	DEFINE_OUTPUT( m_OnHolsterWeapon,	"OnHolsterWeapon" ),
+	DEFINE_OUTPUT( m_OnUnholsterWeapon,	"OnUnholsterWeapon" ),
+
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "AddCapabilities", InputAddCapabilities ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "RemoveCapabilities", InputRemoveCapabilities ),
+
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetCondition", InputSetCondition ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "ClearCondition", InputClearCondition ),
+
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetHintGroup", InputSetHintGroup ),
+
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetThinkNPC", InputSetThinkNPC ),
+#endif
 
 	// Function pointers
 	DEFINE_USEFUNC( NPCUse ),
@@ -10822,6 +11706,9 @@ BEGIN_SIMPLE_DATADESC( ScriptedNPCInteraction_t )
 	DEFINE_FIELD( vecRelativeOrigin,			FIELD_VECTOR	),
 	DEFINE_FIELD( angRelativeAngles,			FIELD_VECTOR	),
 	DEFINE_FIELD( vecRelativeVelocity,			FIELD_VECTOR	),
+#ifdef MAPBASE
+	DEFINE_FIELD( vecRelativeEndPos,				FIELD_VECTOR	),
+#endif
 	DEFINE_FIELD( flDelay,						FIELD_FLOAT		),
 	DEFINE_FIELD( flDistSqr,					FIELD_FLOAT		),
 	DEFINE_FIELD( iszMyWeapon,					FIELD_STRING	),
@@ -10830,6 +11717,9 @@ BEGIN_SIMPLE_DATADESC( ScriptedNPCInteraction_t )
 	DEFINE_FIELD( matDesiredLocalToWorld,		FIELD_VMATRIX	),
 	DEFINE_FIELD( bValidOnCurrentEnemy,			FIELD_BOOLEAN	),
 	DEFINE_FIELD( flNextAttemptTime,			FIELD_TIME		),
+#ifdef MAPBASE
+	DEFINE_FIELD( MiscCriteria,					FIELD_STRING	),//DEFINE_UTLVECTOR( MiscCriteria, FIELD_EMBEDDED ),
+#endif
 END_DATADESC()
 
 //-------------------------------------
@@ -11242,6 +12132,36 @@ bool CAI_BaseNPC::KeyValue( const char *szKeyName, const char *szValue )
 	return bResult;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::GetKeyValue( const char *szKeyName, char *szValue, int iMaxLen )
+{
+	// Why was GetKeyValue("squadname") pointless again?
+	/*
+	if (FStrEq(szKeyName, "squadname"))
+	{
+		// "squadname" does change initially and in InputSetSquad(), but not in SetSquad() itself.
+		// Probably not in any other function that changes the squad either. This is needed so we get
+		// an accurate reading of the squad name.
+		GetSquad() ?
+			Q_strncpy(szValue, GetSquad()->GetName(), iMaxLen) :
+			Q_strncpy(szValue, "", iMaxLen);
+	}
+	else*/ if (FStrEq(szKeyName, "additionalequipment"))
+	{
+		if (GetActiveWeapon())
+			Q_strncpy(szValue, GetActiveWeapon()->GetClassname(), iMaxLen);
+		else
+			return false;
+	}
+	else
+		return BaseClass::GetKeyValue(szKeyName, szValue, iMaxLen);
+
+	return true;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Debug function to make this NPC freeze in place (or unfreeze).
 //-----------------------------------------------------------------------------
@@ -11374,6 +12294,10 @@ CAI_BaseNPC::CAI_BaseNPC(void)
 	m_bInChoreo = true; // assume so until call to UpdateEfficiency()
 	
 	SetCollisionGroup( COLLISION_GROUP_NPC );
+
+#ifdef MAPBASE
+	m_iDynamicInteractionsAllowed = TRS_NONE;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -11521,6 +12445,7 @@ CAI_Pathfinder *CAI_BaseNPC::CreatePathfinder()
 	return new CAI_Pathfinder( this );
 }
 
+#ifndef MAPBASE
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -11528,6 +12453,7 @@ void CAI_BaseNPC::InputSetRelationship( inputdata_t &inputdata )
 {
 	AddRelationship( inputdata.value.String(), inputdata.pActivator );
 }
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -11540,6 +12466,39 @@ void CAI_BaseNPC::InputSetEnemyFilter( inputdata_t &inputdata )
 	m_hEnemyFilter = dynamic_cast<CBaseFilter*>(pFilter);
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::InputSetHealthFraction( inputdata_t &inputdata )
+{
+	// npc_helicopter uses SetHealth() instead of the regular NPC practice of TakeHealth() and TakeDamage().
+	// It also also uses 50, 75, etc. and scales it by 0.01 for some reason.
+	// We're using the same model as InputSetHealth() and just letting npc_helicopter override it. No big deal.
+	// We're also adding support for its "whole number * 0.01" thing too.
+	float flFactor = inputdata.value.Float();
+	if ( flFactor > 1.0f )
+	{
+		flFactor *= 0.01f;
+	}
+
+	// Excuse the complication...
+	float flNewHealth = (GetMaxHealth() * flFactor);
+	int iNewHealth = (int)flNewHealth;
+	if (flNewHealth < (GetMaxHealth() / 2))
+		iNewHealth = (int)ceil(flNewHealth);
+
+	int iDelta = abs(GetHealth() - iNewHealth);
+	if ( iNewHealth > GetHealth() )
+	{
+		TakeHealth( iDelta, DMG_GENERIC );
+	}
+	else if ( iNewHealth < GetHealth() )
+	{
+		TakeDamage( CTakeDamageInfo( this, this, iDelta, DMG_GENERIC ) );
+	}
+}
+#else
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -11556,6 +12515,7 @@ void CAI_BaseNPC::InputSetHealth( inputdata_t &inputdata )
 		TakeDamage( CTakeDamageInfo( this, this, iDelta, DMG_GENERIC ) );
 	}
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -11598,7 +12558,11 @@ void CAI_BaseNPC::InputSetSquad( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CAI_BaseNPC::InputWake( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	Wake( inputdata.pActivator );
+#else
 	Wake();
+#endif
 
 	// Check if we have a path to follow.  This is normally done in StartNPC,
 	// but putting the NPC to sleep will cancel it, so we have to do it again.
@@ -11625,10 +12589,16 @@ void CAI_BaseNPC::InputForgetEntity( inputdata_t &inputdata )
 {
 	const char *pszEntityToForget = inputdata.value.String();
 
+#ifndef MAPBASE // I would assume this was here for a reason, but wildcards have nothing to do with ClearMemory(), so I really have no idea.
 	if ( g_pDeveloper->GetInt() && pszEntityToForget[strlen( pszEntityToForget ) - 1] == '*' )
 		DevMsg( "InputForgetEntity does not support wildcards\n" );
+#endif
 
+#ifdef MAPBASE
+	CBaseEntity *pEntity = gEntList.FindEntityGeneric( NULL, pszEntityToForget, this, inputdata.pActivator, inputdata.pCaller );
+#else
 	CBaseEntity *pEntity = gEntList.FindEntityByName( NULL, pszEntityToForget );
+#endif
 	if ( pEntity )
 	{
 		if ( GetEnemy() == pEntity )
@@ -11660,7 +12630,11 @@ void CAI_BaseNPC::InputIgnoreDangerSounds( inputdata_t &inputdata )
 void CAI_BaseNPC::InputUpdateEnemyMemory( inputdata_t &inputdata )
 {
 	const char *pszEnemy = inputdata.value.String();
+#ifdef MAPBASE
+	CBaseEntity *pEnemy = gEntList.FindEntityByName( NULL, pszEnemy, this, inputdata.pActivator, inputdata.pCaller );
+#else
 	CBaseEntity *pEnemy = gEntList.FindEntityByName( NULL, pszEnemy );
+#endif
 
 	if( pEnemy )
 	{
@@ -11800,7 +12774,11 @@ bool CAI_BaseNPC::CineCleanup()
 		if ( m_hForcedInteractionPartner )
 		{
 			// We've finished a forced interaction. Let the mapmaker know.
+#ifdef MAPBASE
+			m_OnForcedInteractionFinished.FireOutput( m_hInteractionPartner, this );
+#else
 			m_OnForcedInteractionFinished.FireOutput( this, this );
+#endif
 		}
 
 		// Clear interaction partner, because we're not running a scripted sequence anymore
@@ -12129,7 +13107,19 @@ bool CAI_BaseNPC::OnCalcBaseMove( AILocalMoveGoal_t *pMoveGoal,
 {
 	if ( pMoveGoal->directTrace.pObstruction )
 	{
+#ifdef MAPBASE
+		CBaseEntity *pObstruction = pMoveGoal->directTrace.pObstruction;
+		CBasePropDoor *pPropDoor = dynamic_cast<CBasePropDoor *>( pObstruction );
+
+		// It could be another entity (e.g. a func_brush) parented to a blank door
+		if (!pPropDoor && pObstruction->GetParent())
+		{
+			pObstruction = pObstruction->GetParent();
+			pPropDoor = dynamic_cast<CBasePropDoor *>( pObstruction );
+		}
+#else
 		CBasePropDoor *pPropDoor = dynamic_cast<CBasePropDoor *>( pMoveGoal->directTrace.pObstruction );
+#endif
 		if ( pPropDoor && OnUpcomingPropDoor( pMoveGoal, pPropDoor, distClear, pResult ) )
 		{
 			return true;
@@ -12221,7 +13211,11 @@ bool CAI_BaseNPC::OnUpcomingPropDoor( AILocalMoveGoal_t *pMoveGoal,
 		m_hOpeningDoor = NULL;
 	}
 
+#ifdef MAPBASE
+	if ((CapabilitiesGet() & bits_CAP_DOORS_GROUP) && !pDoor->IsDoorLocked() && (pDoor->IsDoorClosed() || pDoor->IsDoorClosing()) && pDoor->PassesDoorFilter(this))
+#else
 	if ((CapabilitiesGet() & bits_CAP_DOORS_GROUP) && !pDoor->IsDoorLocked() && (pDoor->IsDoorClosed() || pDoor->IsDoorClosing()))
+#endif
 	{
 		AI_Waypoint_t *pOpenDoorRoute = NULL;
 
@@ -12950,6 +13944,182 @@ void CAI_BaseNPC::ParseScriptedNPCInteractions( void )
 				ScriptedNPCInteraction_t sInteraction;
 				sInteraction.iszInteractionName = AllocPooledString( pkvNode->GetName() );
 
+#ifdef MAPBASE
+				// The method for parsing dynamic interactions has been reworked.
+				// Unknown values are now stored as response contexts to test against response criteria.
+
+				bool bValidInteraction = true;
+
+				// Default values
+				UTIL_StringToVector( sInteraction.vecRelativeOrigin.Base(), "0 0 0" );
+				sInteraction.flDelay = 10.0;
+				sInteraction.flDistSqr = (DSS_MAX_DIST * DSS_MAX_DIST);
+
+				// Misc. response criteria
+				char *szCriteria = "";
+
+				KeyValues *pCurNode = pkvNode->GetFirstSubKey();
+				const char *szName = NULL;
+				const char *szValue = NULL;
+				while (pCurNode)
+				{
+					szName = pCurNode->GetName();
+					szValue = pCurNode->GetString();
+
+					if (!szName || !szValue)
+					{
+						DevWarning("ERROR: Invalid dynamic interaction string\n");
+						pCurNode = pCurNode->GetNextKey();
+					}
+
+					if (!Q_strncmp(szName, "classname", 9))
+					{
+						bool pass = false;
+						if (Q_strstr(szValue, "!="))
+						{
+							szValue += 2;
+							pass = true;
+						}
+
+						if (!FStrEq(GetClassname(), szValue))
+							pass = !pass;
+					}
+					else if (!Q_strncmp(szName, "mapbase", 7))
+					{
+						sInteraction.iFlags |= SCNPC_FLAG_MAPBASE_ADDITION;
+					}
+					else if (!Q_strncmp(szName, "trigger", 7))
+					{
+						if (!Q_strncmp(szValue, "auto_in_combat", 14))
+							sInteraction.iTriggerMethod = SNPCINT_AUTOMATIC_IN_COMBAT;
+					}
+					else if (!Q_strncmp(szValue, "loop_break_trigger", 18))
+					{
+						char szTrigger[256];
+						Q_strncpy( szTrigger, szValue, sizeof(szTrigger) );
+						char *pszParam = strtok( szTrigger, " " );
+						while (pszParam)
+						{
+							if ( !Q_strncmp( pszParam, "on_damage", 9) )
+							{
+								sInteraction.iLoopBreakTriggerMethod |= SNPCINT_LOOPBREAK_ON_DAMAGE;
+							}
+							else if ( !Q_strncmp( pszParam, "on_flashlight_illum", 19) )
+							{
+								sInteraction.iLoopBreakTriggerMethod |= SNPCINT_LOOPBREAK_ON_FLASHLIGHT_ILLUM;
+							}
+
+							pszParam = strtok(NULL," ");
+						}
+					}
+					else if (!Q_strncmp(szName, "origin_relative", 15))
+						UTIL_StringToVector( sInteraction.vecRelativeOrigin.Base(), szValue );
+					else if (!Q_strncmp(szName, "angles_relative", 15))
+					{
+						sInteraction.iFlags |= SCNPC_FLAG_TEST_OTHER_ANGLES;
+						UTIL_StringToVector( sInteraction.angRelativeAngles.Base(), szValue );
+					}
+					else if (!Q_strncmp(szName, "velocity_relative", 17))
+					{
+						sInteraction.iFlags |= SCNPC_FLAG_TEST_OTHER_VELOCITY;
+						UTIL_StringToVector( sInteraction.vecRelativeVelocity.Base(), szValue );
+					}
+#ifdef MAPBASE
+					else if (!Q_strncmp(szName, "end_position", 12))
+					{
+						sInteraction.iFlags |= SCNPC_FLAG_TEST_END_POSITION;
+						UTIL_StringToVector( sInteraction.vecRelativeEndPos.Base(), szValue );
+					}
+#endif
+
+					else if (!Q_strncmp(szName, "entry_sequence", 14))
+						sInteraction.sPhases[SNPCINT_ENTRY].iszSequence = AllocPooledString( szValue );
+					else if (!Q_strncmp(szName, "entry_activity", 14))
+						sInteraction.sPhases[SNPCINT_ENTRY].iActivity = GetActivityID( szValue );
+
+					else if (!Q_strncmp(szName, "sequence", 8))
+						sInteraction.sPhases[SNPCINT_SEQUENCE].iszSequence = AllocPooledString( szValue );
+					else if (!Q_strncmp(szName, "activity", 8))
+						sInteraction.sPhases[SNPCINT_SEQUENCE].iActivity = GetActivityID( szValue );
+
+					else if (!Q_strncmp(szName, "exit_sequence", 13))
+						sInteraction.sPhases[SNPCINT_EXIT].iszSequence = AllocPooledString( szValue );
+					else if (!Q_strncmp(szName, "exit_activity", 13))
+						sInteraction.sPhases[SNPCINT_EXIT].iActivity = GetActivityID(szValue);
+
+					else if (!Q_strncmp(szName, "delay", 5))
+						sInteraction.flDelay = atof(szValue);
+					else if (!Q_strncmp(szName, "origin_max_delta", 16))
+						sInteraction.flDistSqr = atof(szValue);
+
+					else if (!Q_strncmp(szName, "loop_in_action", 14) && !FStrEq(szValue, "0"))
+						sInteraction.iFlags |= SCNPC_FLAG_LOOP_IN_ACTION;
+
+					else if (!Q_strncmp(szName, "dont_teleport_at_end", 20))
+					{
+						if ( !Q_stricmp( szValue, "me" ) || !Q_stricmp( szValue, "both" ) )
+							sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_ME;
+						else if ( !Q_stricmp( szValue, "them" ) || !Q_stricmp( szValue, "both" ) ) 
+							sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_THEM;
+					}
+
+					else if (!Q_strncmp(szName, "needs_weapon", 12))
+					{
+						if ( !Q_strncmp( szValue, "ME", 2 ) )
+							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
+						else if ( !Q_strncmp( szValue, "THEM", 4 ) ) 
+							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
+						else if ( !Q_strncmp( szValue, "BOTH", 4 ) ) 
+						{
+							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
+							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
+						}
+					}
+
+					else if (!Q_strncmp(szName, "weapon_mine", 11))
+					{
+						sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
+						sInteraction.iszMyWeapon = AllocPooledString( szValue );
+					}
+					else if (!Q_strncmp(szName, "weapon_theirs", 13))
+					{
+						sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
+						sInteraction.iszTheirWeapon = AllocPooledString( szValue );
+					}
+
+					// Add anything else to our miscellaneous criteria
+					else
+					{
+						szCriteria = UTIL_VarArgs("%s,%s:%s", szCriteria, szName, szValue);
+
+						/*
+						ResponseContext_t context;
+						context.m_iszName = AllocPooledString(szName);
+						context.m_iszValue = AllocPooledString(szValue);
+						context.m_fExpirationTime = 0.0;
+
+						DevMsg("ADDING CONTEXT: \"%s, %s\"\n", szName, szValue);
+
+						sInteraction.MiscCriteria.AddToTail(context);
+						*/
+					}
+
+					pCurNode = pCurNode->GetNextKey();
+				}
+
+				if (!bValidInteraction)
+				{
+					DevMsg("Scripted interaction %s rejected by %s\n", pkvNode->GetName(), GetClassname());
+					pkvNode = pkvNode->GetNextKey();
+					continue;
+				}
+
+				if (szCriteria[0] == ',')
+				{
+					szCriteria += 1;
+					sInteraction.MiscCriteria = AllocPooledString(szCriteria);
+				}
+#else
 				// Trigger method
 				const char *pszTrigger = pkvNode->GetString( "trigger", NULL );
 				if ( pszTrigger )
@@ -13099,6 +14269,7 @@ void CAI_BaseNPC::ParseScriptedNPCInteractions( void )
 					sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
 					sInteraction.iszTheirWeapon = AllocPooledString( pszWeaponName );
 				}
+#endif
 
 				// Add it to the list
 				AddScriptedNPCInteraction( &sInteraction );
@@ -13336,6 +14507,11 @@ void CAI_BaseNPC::StartScriptedNPCInteraction( CAI_BaseNPC *pOtherNPC, ScriptedN
 //-----------------------------------------------------------------------------
 bool CAI_BaseNPC::CanRunAScriptedNPCInteraction( bool bForced )
 {
+#ifdef MAPBASE
+	if ( m_iDynamicInteractionsAllowed == TRS_FALSE && !bForced )
+		return false;
+#endif
+
   	if ( m_NPCState != NPC_STATE_IDLE && m_NPCState != NPC_STATE_ALERT && m_NPCState != NPC_STATE_COMBAT  )
  		return false;
 
@@ -13419,6 +14595,11 @@ void CAI_BaseNPC::CheckForScriptedNPCInteractions( void )
 		if ( pInteraction->flNextAttemptTime > gpGlobals->curtime )
 			continue;
 
+#ifdef MAPBASE
+		if ( !InteractionIsAllowed(pNPC, pInteraction) )
+			continue;
+#endif
+
 		Vector vecOrigin;
 		QAngle angAngles;
 		if ( InteractionCouldStart( pNPC, pInteraction, vecOrigin, angAngles ) )
@@ -13472,22 +14653,81 @@ void CAI_BaseNPC::CalculateValidEnemyInteractions( void )
 				continue;
 
 			// Check the specific weapon type
+#ifdef MAPBASE
+			if ( pInteraction->iszMyWeapon != NULL_STRING )
+			{
+				const char *myweapon = STRING(pInteraction->iszMyWeapon);
+				bool pass = false;
+				if (Q_strstr(myweapon, "!="))
+				{
+					myweapon += 2;
+					pass = true;
+				}
+
+				if (Q_strstr(myweapon, "WEPCLASS"))
+					pass = (GetActiveWeapon()->WeaponClassFromString(myweapon) == GetActiveWeapon()->WeaponClassify()) ? !pass : pass;
+				else
+					pass = (GetActiveWeapon()->m_iClassname == pInteraction->iszMyWeapon) ? !pass : pass;
+
+				if (!pass)
+					continue;
+			}
+#else
 			if ( pInteraction->iszMyWeapon != NULL_STRING && GetActiveWeapon()->m_iClassname != pInteraction->iszMyWeapon )
 				continue;
+#endif
 		}
 		if ( pInteraction->iFlags & SCNPC_FLAG_NEEDS_WEAPON_THEM )
 		{
 			if ( !pNPC->GetActiveWeapon() )
 				continue;
 
+#ifdef MAPBASE
+			if ( pInteraction->iszTheirWeapon != NULL_STRING )
+			{
+				const char *theirweapon = STRING(pInteraction->iszTheirWeapon);
+				bool pass = false;
+				if (Q_strstr(theirweapon, "!="))
+				{
+					theirweapon += 2;
+					pass = true;
+				}
+
+				if (Q_strstr(theirweapon, "WEPCLASS"))
+					pass = (pNPC->GetActiveWeapon()->WeaponClassFromString(theirweapon) == pNPC->GetActiveWeapon()->WeaponClassify()) ? !pass : pass;
+				else
+					pass = (pNPC->GetActiveWeapon()->m_iClassname == pInteraction->iszTheirWeapon) ? !pass : pass;
+
+				if (!pass)
+					continue;
+			}
+#else
 			// Check the specific weapon type
 			if ( pInteraction->iszTheirWeapon != NULL_STRING && pNPC->GetActiveWeapon()->m_iClassname != pInteraction->iszTheirWeapon )
 				continue;
+#endif
 		}
 
 		// Script needs the other NPC, so make sure they're not dead
 		if ( !pNPC->IsAlive() )
 			continue;
+
+#ifdef MAPBASE
+		// If they have an interaction with the same name, it means we're not supposed to engage with them
+		bool bSame = false;
+		for ( int i2 = 0; i2 < pNPC->m_ScriptedInteractions.Count(); i2++ )
+		{
+			// These strings are pooled, so this works
+			if (m_ScriptedInteractions[i].iszInteractionName == pNPC->m_ScriptedInteractions[i2].iszInteractionName)
+			{
+				bSame = true;
+				break;
+			}
+		}
+
+		if (bSame)
+			continue;
+#endif
 
 		// Use sequence? or activity?
 		if ( pInteraction->sPhases[SNPCINT_SEQUENCE].iActivity != ACT_INVALID )
@@ -13504,6 +14744,50 @@ void CAI_BaseNPC::CalculateValidEnemyInteractions( void )
 			if ( pNPC->LookupSequence( STRING(pInteraction->sPhases[SNPCINT_SEQUENCE].iszSequence) ) == -1 )
 				continue;
 		}
+
+#ifdef MAPBASE
+		if (pInteraction->MiscCriteria != NULL_STRING)
+		{
+			// Test against response system criteria
+			AI_CriteriaSet set;
+			ModifyOrAppendCriteria( set );
+			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+			if( pPlayer )
+				pPlayer->ModifyOrAppendPlayerCriteria( set );
+			ReAppendContextCriteria( set );
+
+			DevMsg("Testing %s misc criteria\n", pInteraction->MiscCriteria);
+
+			int index;
+			const char *criteriavalue;
+			char key[128];
+			char value[128];
+			const char *p = STRING(pInteraction->MiscCriteria);
+			while ( p )
+			{
+				p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL );
+
+				index = set.FindCriterionIndex(key);
+				if (index != -1)
+				{
+					criteriavalue = set.GetValue(index);
+					if (!Matcher_Match(value, criteriavalue))
+					{
+						continue;
+					}
+				}
+				else
+				{
+					// Test with empty string in case our criteria is != or something
+					criteriavalue = "";
+					if (!Matcher_Match(value, criteriavalue))
+					{
+						continue;
+					}
+				}
+			}
+		}
+#endif
 
 		pInteraction->bValidOnCurrentEnemy = true;
 		bFound = true;
@@ -13572,7 +14856,11 @@ void CAI_BaseNPC::CheckForcedNPCInteractions( void )
 		if ( m_hForcedInteractionPartner )
 		{
 			// We've aborted a forced interaction. Let the mapmaker know.
+#ifdef MAPBASE
+			m_OnForcedInteractionAborted.FireOutput( pNPC, this );
+#else
 			m_OnForcedInteractionAborted.FireOutput( this, this );
+#endif
 		}
 
 		CleanupForcedInteraction();
@@ -13582,7 +14870,11 @@ void CAI_BaseNPC::CheckForcedNPCInteractions( void )
 	}
 
 	StartScriptedNPCInteraction( pNPC, pInteraction, vecOrigin, angAngles );
+#ifdef MAPBASE
+	m_OnForcedInteractionStarted.FireOutput( pNPC, this );
+#else
 	m_OnForcedInteractionStarted.FireOutput( this, this );
+#endif
 }
 
 
@@ -13648,6 +14940,25 @@ bool CanNPCsTradePlaces( CAI_BaseNPC *pNPC1, CAI_BaseNPC *pNPC2, bool bDebug )
 	return true;
 }
 
+#ifdef MAPBASE
+bool CAI_BaseNPC::InteractionIsAllowed( CAI_BaseNPC *pOtherNPC, ScriptedNPCInteraction_t *pInteraction )
+{
+	// Now that female citizens have hunter interactions, Alyx is vulnerable to being murdered by hunters *dynamically*!
+	// Citizens also have antlion interaction kill animations, so antlions could potentially murder her as well.
+	// 
+	// Forced interactions should still work, but this prevents regular interactions from targeting vital allies.
+	// Hopefully there aren't any maps that already have hunters murder Barneys.
+	if (pOtherNPC->Classify() == CLASS_PLAYER_ALLY_VITAL)
+		return false;
+
+	// This convar allows all NPCs to perform Mapbase interactions for both testing and player fun.
+	if (ai_dynint_always_enabled.GetBool() && m_iDynamicInteractionsAllowed != TRS_FALSE)
+		return true;
+
+	// m_iDynamicInteractionsAllowed == TRS_FALSE case is already handled in CanRunAScriptedNPCInteraction().
+	return !(pInteraction->iFlags & SCNPC_FLAG_MAPBASE_ADDITION && m_iDynamicInteractionsAllowed == TRS_NONE);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -13788,6 +15099,34 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 		}
 		return false;
 	}
+
+#ifdef MAPBASE
+	// Make sure we could fit at the sequence end position too.
+	if (pInteraction->iFlags & SCNPC_FLAG_TEST_END_POSITION)
+	{
+		VMatrix matTestToWorld;
+		matTestToWorld.SetupMatrixOrgAngles(pInteraction->vecRelativeEndPos, angMyCurrent);
+		MatrixMultiply( matMeToWorld, matTestToWorld, matLocalToWorld );
+		Vector vecPos = (matLocalToWorld.GetTranslation());
+
+		// Start from the NPC's position.
+		AI_TraceHull( pOtherNPC->GetAbsOrigin(), vecPos, GetHullMins(), GetHullMaxs(), MASK_SOLID, &traceFilter, &tr );
+		if ( tr.fraction != 1.0 )
+		{
+			if ( bDebug )
+			{
+				NDebugOverlay::Box( vecPos, GetHullMins(), GetHullMaxs(), 255,0,0, 100, 1.0 );
+			}
+			return false;
+		}
+		else if ( bDebug )
+		{
+			//NDebugOverlay::Box( vecPos, GetHullMins(), GetHullMaxs(), 0,255,0, 100, 1.0 );
+
+			NDebugOverlay::Axis( vecPos, angAngles, 20, true, 10.0 );
+		}
+	}
+#endif
 
 	// If the NPCs are swapping places during this interaction, make sure they can fit at each
 	// others' origins before allowing the interaction.
@@ -13985,6 +15324,9 @@ void CAI_BaseNPC::ModifyOrAppendCriteria( AI_CriteriaSet& set )
 		set.AppendCriteria( "timesinceseenplayer", "-1" );
 	}
 
+#ifdef MAPBASE
+	ModifyOrAppendEnemyCriteria(set, GetEnemy());
+#else
 	// Append distance to my enemy
 	if ( GetEnemy() )
 	{
@@ -13994,7 +15336,95 @@ void CAI_BaseNPC::ModifyOrAppendCriteria( AI_CriteriaSet& set )
 	{
 		set.AppendCriteria( "distancetoenemy", "-1" );
 	}
+#endif
+
+#ifdef MAPBASE
+	// Append our gender
+	// I know scenes can use $gender01, but some rules now use more than scenes.
+	const char *modelname = STRING(GetModelName());
+	if (modelname)
+	{
+		set.AppendCriteria( "gender", UTIL_VarArgs("%i", soundemitterbase->GetActorGender(modelname)) );
+	}
+
+	if (IsInSquad())
+	{
+		set.AppendCriteria( "insquad", "1" );
+		set.AppendCriteria( "squadmates", UTIL_VarArgs( "%i", GetSquad()->NumMembers() ) );
+		set.AppendCriteria( "isleader", GetSquad()->IsLeader(this) ? "0" : "1" );
+	}
+	else
+	{
+		set.AppendCriteria( "insquad", "0" );
+	}
+#endif
 }
+
+#ifdef MAPBASE
+// Went for a different structure that directly takes AI_CriteriaSet for modifiers
+/*
+#define GetModifiersFromCriteria( function, output, maxlen ) AI_CriteriaSet set; \
+	function; \
+	for (int i = 0; i < set.GetCount(); i++) { Q_snprintf(output, maxlen, "%s,%s:%s", output, set.GetName(i), set.GetValue(i)); } \
+	memmove(output, output + 1, strlen(output + 1) + 1); \
+	*/
+
+//-----------------------------------------------------------------------------
+// Purpose: Appends enemy criteria so some classes could re-define it for, say, killing something
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::ModifyOrAppendEnemyCriteria( AI_CriteriaSet& set, CBaseEntity *pEnemy )
+{
+	if ( pEnemy )
+	{
+		set.AppendCriteria( "enemy", pEnemy->GetClassname() );
+		set.AppendCriteria( "enemyclass", g_pGameRules->AIClassText( pEnemy->Classify() ) ); // UTIL_VarArgs("%i", pEnemy->Classify())
+		set.AppendCriteria( "distancetoenemy", UTIL_VarArgs( "%f", EnemyDistance(pEnemy) ) );
+		set.AppendCriteria( "timesincecombat", "-1" );
+	}
+	else
+	{
+		if ( GetLastEnemyTime() == 0.0 )
+			set.AppendCriteria( "timesincecombat", "999999.0" );
+		else
+			set.AppendCriteria( "timesincecombat", UTIL_VarArgs( "%f", gpGlobals->curtime - GetLastEnemyTime() ) );
+
+		set.AppendCriteria( "distancetoenemy", "-1" );
+	}
+}
+
+/*
+//-----------------------------------------------------------------------------
+// Purpose: Gets enemy criteria in context form
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::GetEnemyCriteriaModifiers( CBaseEntity *pEnemy, char *szCriteria, int iMaxLen )
+{
+	GetModifiersFromCriteria(ModifyOrAppendEnemyCriteria(set, pEnemy), szCriteria, iMaxLen);
+}
+*/
+
+//-----------------------------------------------------------------------------
+// Purpose: Appends damage criteria for pain sounds, death sounds, etc.
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::ModifyOrAppendDamageCriteria( AI_CriteriaSet& set, const CTakeDamageInfo &info )
+{
+	if ( info.GetAttacker() && info.GetAttacker() != this )
+		set.AppendCriteria("attacker", info.GetAttacker()->GetClassname());
+	else
+		set.AppendCriteria("attacker", "");
+
+	set.AppendCriteria("damagetype", UTIL_VarArgs("%i", info.GetDamageType()));
+}
+
+/*
+//-----------------------------------------------------------------------------
+// Purpose: Gets damage criteria in context form
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::GetDamageCriteriaModifiers( const CTakeDamageInfo &info, char *szCriteria, int iMaxLen )
+{
+	GetModifiersFromCriteria(ModifyOrAppendDamageCriteria(set, info), szCriteria, iMaxLen);
+}
+*/
+#endif
 
 //-----------------------------------------------------------------------------
 // If I were crouching at my current location, could I shoot this target?
@@ -14038,6 +15468,16 @@ bool CAI_BaseNPC::IsCrouchedActivity( Activity activity )
 		case ACT_COVER_PISTOL_LOW:
 		case ACT_COVER_SMG1_LOW:
 		case ACT_RELOAD_SMG1_LOW:
+#ifdef MAPBASE
+		//case ACT_RELOAD_AR2_LOW:
+		case ACT_RELOAD_PISTOL_LOW:
+		case ACT_RELOAD_SHOTGUN_LOW:
+
+		case ACT_RANGE_AIM_LOW:
+		case ACT_RANGE_AIM_AR2_LOW:
+		case ACT_RANGE_AIM_SMG1_LOW:
+		case ACT_RANGE_AIM_PISTOL_LOW:
+#endif
 			return true;
 	}
 

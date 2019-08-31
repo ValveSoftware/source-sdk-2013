@@ -15,6 +15,9 @@
 #include "items.h"
 #include "item_dynamic_resupply.h"
 #include "npc_vortigaunt_episodic.h"
+#ifdef MAPBASE
+#include "filters.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -659,6 +662,16 @@ void CAntlionGrub::GrubTouch( CBaseEntity *pOther )
 	IPhysicsObject *pPhysOther = pOther->VPhysicsGetObject(); // bool bThrown = ( pTarget->VPhysicsGetObject()->GetGameFlags() & FVPHYSICS_WAS_THROWN ) != 0;
 	if ( pOther->IsPlayer() || FClassnameIs(pOther,"npc_vortigaunt") || ( pPhysOther && (pPhysOther->GetGameFlags() & FVPHYSICS_WAS_THROWN )) )
 	{
+#ifdef MAPBASE
+		if (m_hDamageFilter)
+		{
+			// Don't squash if they don't pass our damage filter
+			CBaseFilter *pFilter = static_cast<CBaseFilter*>(m_hDamageFilter.Get());
+			if (pFilter && !pFilter->PassesFilter(this, pOther))
+				return;
+		}
+#endif
+
 		m_OnAgitated.FireOutput( pOther, pOther );
 		Squash( pOther, true, true );
 	}

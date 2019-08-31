@@ -145,6 +145,10 @@ public:
 
 	void Init( int iEntIndex, int iRandomSeed, float flTime, int iWindDir, float flInitialWindSpeed );
 
+#ifdef MAPBASE
+	void SetLocation( const Vector &location );
+#endif
+
 	// Method to update the wind speed
 	// Time passed in here is global time, not delta time
 	// The function returns the time at which it must be called again
@@ -157,6 +161,10 @@ public:
 
 	CNetworkVar( int, m_iMinWind );			// the slowest the wind can normally blow
 	CNetworkVar( int, m_iMaxWind );			// the fastest the wind can normally blow
+#ifdef MAPBASE
+	CNetworkVar( float, m_windRadius );		// the radius this entity affects with its windiness, so a map can have multiple
+	CNetworkVar( float, m_windRadiusInner );		// the inner-radius for noticable distance fading
+#endif
 	CNetworkVar( int, m_iMinGust );			// the slowest that a gust can be
 	CNetworkVar( int, m_iMaxGust );			// the fastest that a gust can be
 
@@ -166,9 +174,16 @@ public:
 	CNetworkVar( float, m_flGustDuration );	// max time between gusts
 
 	CNetworkVar( int, m_iGustDirChange );	// max number of degrees wind dir changes on gusts.
+#ifdef MAPBASE
+	CNetworkVector( m_location );			// The location of this wind controller
+#endif
 	int m_iszGustSound;		// name of the wind sound to play for gusts.
 	int m_iWindDir;			// wind direction (yaw)
 	float m_flWindSpeed;	// the wind speed
+
+#ifdef MAPBASE
+	Vector m_currentWindVector;	// For all the talk of proper prediction, we ended up just storing and returning through a static vector.  Now we can have multiple env_wind, so we need this in here.
+#endif
 
 	CNetworkVar( int, m_iInitialWindDir );
 	CNetworkVar( float, m_flInitialWindSpeed );
@@ -227,6 +242,19 @@ private:
 	CEnvWindShared( const CEnvWindShared & ); // not defined, not accessible
 };
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+inline void CEnvWindShared::SetLocation( const Vector &location )
+{
+	m_location = location;
+}
+
+
+//-----------------------------------------------------------------------------
+// Method to sample the wind speed at a particular location
+//-----------------------------------------------------------------------------
+Vector GetWindspeedAtLocation( const Vector &location );
+#endif
 
 //-----------------------------------------------------------------------------
 // Method to sample the windspeed at a particular time

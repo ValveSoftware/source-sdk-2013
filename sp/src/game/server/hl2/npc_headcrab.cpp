@@ -218,6 +218,10 @@ BEGIN_DATADESC( CBaseHeadcrab )
 	DEFINE_INPUTFUNC( FIELD_VOID, "StartHangingFromCeiling", InputStartHangingFromCeiling ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DropFromCeiling", InputDropFromCeiling ),
 
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnLeap, "OnLeap" ),
+#endif
+
 	// Function Pointers
 	DEFINE_THINKFUNC( EliminateRollAndPitch ),
 	DEFINE_THINKFUNC( ThrowThink ),
@@ -482,6 +486,11 @@ void CBaseHeadcrab::Leap( const Vector &vecVel )
 	m_bMidJump = true;
 	SetThink( &CBaseHeadcrab::ThrowThink );
 	SetNextThink( gpGlobals->curtime );
+
+#ifdef MAPBASE
+	// We usually leap at an enemy, so use that as the activator
+	m_OnLeap.FireOutput(GetEnemy(), this);
+#endif
 }
 
 
@@ -926,7 +935,11 @@ void CBaseHeadcrab::LeapTouch( CBaseEntity *pOther )
 {
 	m_bMidJump = false;
 
+#ifdef MAPBASE
+	if ( IRelationType( pOther ) <= D_FR )
+#else
 	if ( IRelationType( pOther ) == D_HT )
+#endif
 	{
 		// Don't hit if back on ground
 		if ( !( GetFlags() & FL_ONGROUND ) )

@@ -124,9 +124,9 @@
 #include "flesh_interior_blended_pass_helper.h"
 
 // Auto generated inc files
-#include "flesh_interior_blended_pass_vs20.inc"
-#include "flesh_interior_blended_pass_ps20.inc"
-#include "flesh_interior_blended_pass_ps20b.inc"
+#include "sdk_flesh_interior_blended_pass_vs20.inc"
+#include "sdk_flesh_interior_blended_pass_ps20.inc"
+#include "sdk_flesh_interior_blended_pass_ps20b.inc"
 
 void InitParamsFleshInteriorBlendedPass( CBaseVSShader *pShader, IMaterialVar** params, const char *pMaterialName, FleshInteriorBlendedPassVars_t &info )
 {
@@ -177,21 +177,21 @@ void DrawFleshInteriorBlendedPass( CBaseVSShader *pShader, IMaterialVar** params
 		bool bUseStaticControlFlow = g_pHardwareConfig->SupportsStaticControlFlow();
 
 		// Vertex Shader
-		DECLARE_STATIC_VERTEX_SHADER( flesh_interior_blended_pass_vs20 );
+		DECLARE_STATIC_VERTEX_SHADER( sdk_flesh_interior_blended_pass_vs20 );
 		SET_STATIC_VERTEX_SHADER_COMBO( HALFLAMBERT, IS_FLAG_SET( MATERIAL_VAR_HALFLAMBERT ) );
 		SET_STATIC_VERTEX_SHADER_COMBO( USE_STATIC_CONTROL_FLOW, bUseStaticControlFlow );
-		SET_STATIC_VERTEX_SHADER( flesh_interior_blended_pass_vs20 );
+		SET_STATIC_VERTEX_SHADER( sdk_flesh_interior_blended_pass_vs20 );
 
 		// Pixel Shader
 		if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
-			DECLARE_STATIC_PIXEL_SHADER( flesh_interior_blended_pass_ps20b );
-			SET_STATIC_PIXEL_SHADER( flesh_interior_blended_pass_ps20b );
+			DECLARE_STATIC_PIXEL_SHADER( sdk_flesh_interior_blended_pass_ps20b );
+			SET_STATIC_PIXEL_SHADER( sdk_flesh_interior_blended_pass_ps20b );
 		}
 		else
 		{
-			DECLARE_STATIC_PIXEL_SHADER( flesh_interior_blended_pass_ps20 );
-			SET_STATIC_PIXEL_SHADER( flesh_interior_blended_pass_ps20 );
+			DECLARE_STATIC_PIXEL_SHADER( sdk_flesh_interior_blended_pass_ps20 );
+			SET_STATIC_PIXEL_SHADER( sdk_flesh_interior_blended_pass_ps20 );
 		}
 
 		// Textures
@@ -224,14 +224,14 @@ void DrawFleshInteriorBlendedPass( CBaseVSShader *pShader, IMaterialVar** params
 		// Set Vertex Shader Combos
 		LightState_t lightState = { 0, false, false };
 		pShaderAPI->GetDX9LightState( &lightState );
-		DECLARE_DYNAMIC_VERTEX_SHADER( flesh_interior_blended_pass_vs20 );
+		DECLARE_DYNAMIC_VERTEX_SHADER( sdk_flesh_interior_blended_pass_vs20 );
 		SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG, pShaderAPI->GetSceneFogMode() == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
 		SET_DYNAMIC_VERTEX_SHADER_COMBO( SKINNING, pShaderAPI->GetCurrentNumBones() > 0 );
 		SET_DYNAMIC_VERTEX_SHADER_COMBO( DYNAMIC_LIGHT, lightState.HasDynamicLight() );
 		SET_DYNAMIC_VERTEX_SHADER_COMBO( STATIC_LIGHT, lightState.m_bStaticLight ? 1 : 0 );
 		SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
 		SET_DYNAMIC_VERTEX_SHADER_COMBO( NUM_LIGHTS, bUseStaticControlFlow ? 0 : lightState.m_nNumLights );
-		SET_DYNAMIC_VERTEX_SHADER( flesh_interior_blended_pass_vs20 );
+		SET_DYNAMIC_VERTEX_SHADER( sdk_flesh_interior_blended_pass_vs20 );
 
 		// Set Vertex Shader Constants 
 		pShader->SetAmbientCubeDynamicStateVertexShader();
@@ -300,13 +300,13 @@ void DrawFleshInteriorBlendedPass( CBaseVSShader *pShader, IMaterialVar** params
 		// Set Pixel Shader Combos
 		if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
-			DECLARE_DYNAMIC_PIXEL_SHADER( flesh_interior_blended_pass_ps20b );
-			SET_DYNAMIC_PIXEL_SHADER( flesh_interior_blended_pass_ps20b );
+			DECLARE_DYNAMIC_PIXEL_SHADER( sdk_flesh_interior_blended_pass_ps20b );
+			SET_DYNAMIC_PIXEL_SHADER( sdk_flesh_interior_blended_pass_ps20b );
 		}
 		else
 		{
-			DECLARE_DYNAMIC_PIXEL_SHADER( flesh_interior_blended_pass_ps20 );
-			SET_DYNAMIC_PIXEL_SHADER( flesh_interior_blended_pass_ps20 );
+			DECLARE_DYNAMIC_PIXEL_SHADER( sdk_flesh_interior_blended_pass_ps20 );
+			SET_DYNAMIC_PIXEL_SHADER( sdk_flesh_interior_blended_pass_ps20 );
 		}
 
 		// Bind textures

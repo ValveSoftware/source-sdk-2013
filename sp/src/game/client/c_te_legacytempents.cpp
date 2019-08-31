@@ -597,8 +597,12 @@ bool C_LocalTempEntity::Frame( float frametime, int framenumber )
 
 	if ( flags & FTENT_WINDBLOWN )
 	{
+#ifdef MAPBASE
+		Vector vecWind = GetWindspeedAtLocation( GetAbsOrigin() );
+#else
 		Vector vecWind;
 		GetWindspeedAtTime( gpGlobals->curtime, vecWind );
+#endif
 
 		for ( int i = 0 ; i < 2 ; i++ )
 		{

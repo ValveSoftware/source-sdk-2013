@@ -177,7 +177,7 @@ BEGIN_DATADESC( CNPC_Barnacle )
 	DEFINE_INPUTFUNC( FIELD_VOID, "DropTongue", InputDropTongue ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetDropTongueSpeed", InputSetDropTongueSpeed ),
 
-#ifdef HL2_EPISODIC
+#if HL2_EPISODIC || MAPBASE
 	DEFINE_INPUTFUNC( FIELD_VOID, "LetGo", InputLetGo ),
 	DEFINE_OUTPUT( m_OnGrab,     "OnGrab" ),
 	DEFINE_OUTPUT( m_OnRelease, "OnRelease" ),
@@ -1355,7 +1355,7 @@ void CNPC_Barnacle::InputDropTongue( inputdata_t &inputdata )
 void CNPC_Barnacle::AttachTongueToTarget( CBaseEntity *pTouchEnt, Vector vecGrabPos )
 {
 
-#if HL2_EPISODIC
+#if HL2_EPISODIC || MAPBASE
 	m_OnGrab.Set( pTouchEnt, this, this );
 #endif
 
@@ -1873,7 +1873,7 @@ void CNPC_Barnacle::RemoveRagdoll( bool bDestroyRagdoll )
 void CNPC_Barnacle::LostPrey( bool bRemoveRagdoll )
 {
 	
-#if HL2_EPISODIC
+#if HL2_EPISODIC || MAPBASE
 	m_OnRelease.Set( GetEnemy(), this, this );
 #endif
 
@@ -2213,6 +2213,11 @@ bool CNPC_Barnacle::IsPoisonous( CBaseEntity *pVictim )
 	if ( FClassnameIs(pVictim,"npc_headcrab_black") )
 		return true;
 
+#ifdef MAPBASE
+	if (FClassnameIs( pVictim, "npc_poisonzombie" ))
+		return true;
+#endif
+
 	if ( FClassnameIs(pVictim,"npc_antlion") &&
 		 static_cast<CNPC_Antlion *>(pVictim)->IsWorker()
 		)
@@ -2220,10 +2225,12 @@ bool CNPC_Barnacle::IsPoisonous( CBaseEntity *pVictim )
 	
 	return false;
 }
+#endif
 
 
 
 
+#if HL2_EPISODIC || MAPBASE
 //=========================================================
 // script input to immediately abandon whatever I am lifting
 //=========================================================
@@ -2240,8 +2247,10 @@ void CNPC_Barnacle::InputLetGo( inputdata_t &inputdata )
 		LostPrey( false );
 	}
 }
+#endif
 
 
+#if HL2_EPISODIC
 // Barnacle has custom impact damage tables, so it can take grave damage from sawblades.
 static impactentry_t barnacleLinearTable[] =
 {

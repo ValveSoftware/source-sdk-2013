@@ -1,0 +1,602 @@
+//========= Copyright Valve Corporation, All rights reserved. ============//
+//
+// Purpose: 
+//
+//=============================================================================//
+
+#ifndef AI_GRENADE_H
+#define AI_GRENADE_H
+#ifdef _WIN32
+#pragma once
+#endif
+
+// I wish I didn't have to #include all this, but I don't really have a choice.
+// I guess something similar to CAI_BehaviorHost's backbridges could be tried.
+#include "cbase.h"
+#include "ai_basenpc.h"
+#include "npcevent.h"
+#include "grenade_frag.h"
+#include "basegrenade_shared.h"
+#include "ai_squad.h"
+#include "GlobalStrings.h"
+
+#define COMBINE_AE_GREN_TOSS		( 7 )
+
+#define COMBINE_GRENADE_THROW_SPEED 650
+#define COMBINE_GRENADE_TIMER		3.5
+#define COMBINE_GRENADE_FLUSH_TIME	3.0		// Don't try to flush an enemy who has been out of sight for longer than this.
+#define COMBINE_GRENADE_FLUSH_DIST	256.0	// Don't try to flush an enemy who has moved farther than this distance from the last place I saw him.
+
+#define	COMBINE_MIN_GRENADE_CLEAR_DIST	250
+
+#define	DEFINE_AIGRENADE_DATADESC() \
+	DEFINE_KEYFIELD( m_iNumGrenades, FIELD_INTEGER, "NumGrenades" ),	\
+	DEFINE_FIELD( m_flNextGrenadeCheck, FIELD_TIME ),	\
+	DEFINE_FIELD( m_hForcedGrenadeTarget, FIELD_EHANDLE ),	\
+	DEFINE_FIELD( m_flNextAltFireTime, FIELD_TIME ),	\
+	DEFINE_FIELD( m_vecAltFireTarget, FIELD_VECTOR ),	\
+	DEFINE_FIELD( m_vecTossVelocity, FIELD_VECTOR ),	\
+	DEFINE_INPUTFUNC( FIELD_STRING,	"ThrowGrenadeAtTarget",	InputThrowGrenadeAtTarget ),	\
+	DEFINE_INPUTFUNC( FIELD_INTEGER,	"SetGrenades",	InputSetGrenades ),	\
+	DEFINE_INPUTFUNC( FIELD_INTEGER,	"AddGrenades",	InputAddGrenades ),	\
+	DEFINE_OUTPUT(m_OnThrowGrenade, "OnThrowGrenade"),	\
+	DEFINE_OUTPUT(m_OnOutOfGrenades, "OnOutOfGrenades"),  \
+
+// Use extern float GetCurrentGravity( void );
+#define SMGGrenadeArc(shootpos, targetpos) \
+	Vector vecShootPos = shootpos; \
+	Vector vecThrow = (targetpos - vecShootPos); \
+	float time = vecThrow.Length() / 600.0; \
+	vecThrow = vecThrow * (1.0 / time); \
+	vecThrow.z += (GetCurrentGravity() * 0.5) * time * 0.5; \
+	Vector vecFace = vecShootPos + (vecThrow * 0.5); \
+	AddFacingTarget(vecFace, 1.0, 0.5); \
+
+// Mask used for Combine ball hull traces.
+// This used MASK_SHOT before, but this has been changed to MASK_SHOT_HULL.
+// Hopefully this doesn't have any major consequences...
+#define MASK_COMBINE_BALL_LOS MASK_SHOT_HULL
+
+extern int COMBINE_AE_BEGIN_ALTFIRE;
+extern int COMBINE_AE_ALTFIRE;
+
+//-----------------------------------------------------------------------------
+//
+// Template class for NPCs using grenades or weapon alt-fire stuff.
+// You'll still have to use DEFINE_AIGRENADE_DATADESC() in your derived class's datadesc.
+// 
+// I wanted to have these functions defined in a CPP file, but template class definitions must be in the header.
+// Please excuse the bloat below the class definition.
+//
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+class CAI_GrenadeUser : public BASE_NPC
+{
+	DECLARE_CLASS_NOFRIEND( CAI_GrenadeUser, BASE_NPC );
+public:
+	void AddGrenades( int inc, CBaseEntity *pLastGrenade = NULL )
+	{
+		m_iNumGrenades += inc;
+		if (m_iNumGrenades <= 0)
+			m_OnOutOfGrenades.Set( pLastGrenade, pLastGrenade, this );
+	}
+
+	virtual bool	IsAltFireCapable() { return false; }
+	virtual bool	IsGrenadeCapable() { return true; }
+	inline bool		HasGrenades() { return m_iNumGrenades > 0; }
+
+	void InputSetGrenades( inputdata_t &inputdata ) { AddGrenades( inputdata.value.Int() - m_iNumGrenades ); }
+	void InputAddGrenades( inputdata_t &inputdata ) { AddGrenades( inputdata.value.Int() ); }
+	void InputThrowGrenadeAtTarget( inputdata_t &inputdata );
+
+	virtual void DelayGrenadeCheck( float delay ) { m_flNextGrenadeCheck = gpGlobals->curtime + delay; }
+
+	void 			HandleAnimEvent( animevent_t *pEvent );
+
+	// Soldiers use "lefthand", cops use "LHand", and citizens use "anim_attachment_LH"
+	virtual const char*		GetGrenadeAttachment() { return "anim_attachment_LH"; }
+
+	Vector			GetAltFireTarget() { return m_vecAltFireTarget; }
+	virtual bool	CanAltFireEnemy( bool bUseFreeKnowledge );
+	void			DelayAltFireAttack( float flDelay );
+	void			DelaySquadAltFireAttack( float flDelay );
+
+	virtual bool	CanGrenadeEnemy( bool bUseFreeKnowledge = true );
+	bool			CanThrowGrenade( const Vector &vecTarget );
+	bool			CheckCanThrowGrenade( const Vector &vecTarget );
+
+protected:
+
+	void			StartTask_FaceAltFireTarget( const Task_t *pTask );
+	void			StartTask_GetPathToForced( const Task_t *pTask );
+	void			StartTask_DeferSquad( const Task_t *pTask );
+
+	void			RunTask_FaceAltFireTarget( const Task_t *pTask );
+	void			RunTask_GetPathToForced( const Task_t *pTask );
+	void			RunTask_FaceTossDir( const Task_t *pTask );
+
+protected: // We can't have any private saved variables because only derived classes use the datadescs
+
+	int m_iNumGrenades;
+	float m_flNextGrenadeCheck;
+	EHANDLE m_hForcedGrenadeTarget;
+
+	float			m_flNextAltFireTime;
+	Vector			m_vecAltFireTarget;
+	Vector			m_vecTossVelocity;
+
+	COutputEHANDLE	m_OnThrowGrenade;
+	COutputEHANDLE	m_OnOutOfGrenades;
+};
+
+//------------------------------------------------------------------------------
+// Purpose: Handle animation events
+//------------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::HandleAnimEvent( animevent_t *pEvent )
+{
+	if ( pEvent->event == COMBINE_AE_BEGIN_ALTFIRE )
+	{
+		EmitSound( "Weapon_CombineGuard.Special1" );
+		//SpeakIfAllowed( TLK_CMB_THROWGRENADE, "altfire:1" );
+		return;
+	}
+	if ( pEvent->event == COMBINE_AE_ALTFIRE )
+	{
+		animevent_t fakeEvent;
+
+		fakeEvent.pSource = this;
+		fakeEvent.event = EVENT_WEAPON_AR2_ALTFIRE;
+		GetActiveWeapon()->Operator_HandleAnimEvent( &fakeEvent, this );
+
+		// Stop other squad members from combine balling for a while.
+		DelaySquadAltFireAttack( 10.0f );
+
+		AddGrenades(-1);
+
+		return;
+	}
+
+	if ( pEvent->event == COMBINE_AE_GREN_TOSS )
+	{
+		Vector vecSpin;
+		vecSpin.x = random->RandomFloat( -1000.0, 1000.0 );
+		vecSpin.y = random->RandomFloat( -1000.0, 1000.0 );
+		vecSpin.z = random->RandomFloat( -1000.0, 1000.0 );
+
+		Vector vecStart;
+		GetAttachment( GetGrenadeAttachment(), vecStart );
+
+		if( m_NPCState == NPC_STATE_SCRIPT )
+		{
+			// Use a fixed velocity for grenades thrown in scripted state.
+			// Grenades thrown from a script do not count against grenades remaining for the AI to use.
+			Vector forward, up, vecThrow;
+
+			GetVectors( &forward, NULL, &up );
+			vecThrow = forward * 750 + up * 175;
+
+			CBaseEntity *pGrenade = Fraggrenade_Create( vecStart, vec3_angle, vecThrow, vecSpin, this, COMBINE_GRENADE_TIMER, true );
+			m_OnThrowGrenade.Set(pGrenade, pGrenade, this);
+		}
+		else
+		{
+			// Use the Velocity that AI gave us.
+			CBaseEntity *pGrenade = Fraggrenade_Create( vecStart, vec3_angle, m_vecTossVelocity, vecSpin, this, COMBINE_GRENADE_TIMER, true );
+			m_OnThrowGrenade.Set(pGrenade, pGrenade, this);
+			AddGrenades(-1, pGrenade);
+		}
+
+		// wait six seconds before even looking again to see if a grenade can be thrown.
+		m_flNextGrenadeCheck = gpGlobals->curtime + 6;
+		return;
+	}
+
+	BaseClass::HandleAnimEvent( pEvent );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Force the combine soldier to throw a grenade at the target
+//			If I'm a combine elite, fire my combine ball at the target instead.
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::InputThrowGrenadeAtTarget( inputdata_t &inputdata )
+{
+	// Ignore if we're inside a scripted sequence
+	if ( m_NPCState == NPC_STATE_SCRIPT && m_hCine )
+		return;
+
+	CBaseEntity *pEntity = gEntList.FindEntityByName( NULL, inputdata.value.String(), this, inputdata.pActivator, inputdata.pCaller );
+	if ( !pEntity )
+	{
+		DevMsg("%s (%s) received ThrowGrenadeAtTarget input, but couldn't find target entity '%s'\n", GetClassname(), GetDebugName(), inputdata.value.String() );
+		return;
+	}
+
+	m_hForcedGrenadeTarget = pEntity;
+	m_flNextGrenadeCheck = 0;
+
+	ClearSchedule( "Told to throw grenade via input" );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+bool CAI_GrenadeUser<BASE_NPC>::CanAltFireEnemy( bool bUseFreeKnowledge )
+{
+	if (!HasGrenades())
+		return false;
+
+	if (!IsAltFireCapable())
+		return false;
+
+	if (!GetActiveWeapon())
+		return false;
+
+	if (IsCrouching())
+		return false;
+
+	if ( gpGlobals->curtime < m_flNextAltFireTime || gpGlobals->curtime < m_flNextGrenadeCheck )
+		return false;
+
+	if( !GetEnemy() )
+		return false;
+
+	if (!EntIsClass(GetActiveWeapon(), gm_isz_class_AR2) && !EntIsClass(GetActiveWeapon(), gm_isz_class_SMG1))
+		return false;
+
+	CBaseEntity *pEnemy = GetEnemy();
+
+	Vector vecTarget;
+
+	// Determine what point we're shooting at
+	if( bUseFreeKnowledge )
+	{
+		vecTarget = GetEnemies()->LastKnownPosition( pEnemy ) + (pEnemy->GetViewOffset()*0.75);// approximates the chest
+	}
+	else
+	{
+		vecTarget = GetEnemies()->LastSeenPosition( pEnemy ) + (pEnemy->GetViewOffset()*0.75);// approximates the chest
+	}
+
+	// Trace a hull about the size of the combine ball (don't shoot through grates!)
+	trace_t tr;
+
+	Vector mins( -12, -12, -12 );
+	Vector maxs( 12, 12, 12 );
+
+	Vector vShootPosition = EyePosition();
+
+	if ( GetActiveWeapon() )
+	{
+		GetActiveWeapon()->GetAttachment( "muzzle", vShootPosition );
+	}
+
+	// Trace a hull about the size of the combine ball.
+	UTIL_TraceHull( vShootPosition, vecTarget, mins, maxs, MASK_COMBINE_BALL_LOS, this, COLLISION_GROUP_NONE, &tr );
+
+	float flLength = (vShootPosition - vecTarget).Length();
+
+	flLength *= tr.fraction;
+
+	// If the ball can travel at least 65% of the distance to the player then let the NPC shoot it.
+	// (unless it hit the world)
+	if( tr.fraction >= 0.65 && (!tr.m_pEnt || !tr.m_pEnt->IsWorld()) && flLength > 128.0f )
+	{
+		// Target is valid
+		m_vecAltFireTarget = vecTarget;
+		return true;
+	}
+
+
+	// Check again later
+	m_vecAltFireTarget = vec3_origin;
+	m_flNextGrenadeCheck = gpGlobals->curtime + 1.0f;
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::DelayAltFireAttack( float flDelay )
+{
+	float flNextAltFire = gpGlobals->curtime + flDelay;
+
+	if( flNextAltFire > m_flNextAltFireTime )
+	{
+		// Don't let this delay order preempt a previous request to wait longer.
+		m_flNextAltFireTime = flNextAltFire;
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::DelaySquadAltFireAttack( float flDelay )
+{
+	// Make sure to delay my own alt-fire attack.
+	DelayAltFireAttack( flDelay );
+
+	AISquadIter_t iter;
+	CAI_BaseNPC *pSquadmate = m_pSquad ? m_pSquad->GetFirstMember( &iter ) : NULL;
+	while ( pSquadmate )
+	{
+		CAI_GrenadeUser *pUser = dynamic_cast<CAI_GrenadeUser*>(pSquadmate);
+		if( pUser && pUser->IsAltFireCapable() )
+		{
+			pUser->DelayAltFireAttack( flDelay );
+		}
+
+		pSquadmate = m_pSquad->GetNextMember( &iter );
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+bool CAI_GrenadeUser<BASE_NPC>::CanGrenadeEnemy( bool bUseFreeKnowledge )
+{
+	CBaseEntity *pEnemy = GetEnemy();
+
+	Assert( pEnemy != NULL );
+
+	if( pEnemy )
+	{
+		// I'm not allowed to throw grenades during dustoff
+		if ( IsCurSchedule(SCHED_DROPSHIP_DUSTOFF) )
+			return false;
+
+		if( bUseFreeKnowledge )
+		{
+			// throw to where we think they are.
+			return CanThrowGrenade( GetEnemies()->LastKnownPosition( pEnemy ) );
+		}
+		else
+		{
+			// hafta throw to where we last saw them.
+			return CanThrowGrenade( GetEnemies()->LastSeenPosition( pEnemy ) );
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return true if the combine has grenades, hasn't checked lately, and
+//			can throw a grenade at the target point.
+// Input  : &vecTarget - 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+bool CAI_GrenadeUser<BASE_NPC>::CanThrowGrenade( const Vector &vecTarget )
+{
+	if( m_iNumGrenades < 1 )
+	{
+		// Out of grenades!
+		return false;
+	}
+
+	if (!IsGrenadeCapable())
+	{
+		// Must be capable of throwing grenades
+		return false;
+	}
+
+	if ( gpGlobals->curtime < m_flNextGrenadeCheck )
+	{
+		// Not allowed to throw another grenade right now.
+		return false;
+	}
+
+	float flDist;
+	flDist = ( vecTarget - GetAbsOrigin() ).Length();
+
+	if( flDist > 1024 || flDist < 128 )
+	{
+		// Too close or too far!
+		m_flNextGrenadeCheck = gpGlobals->curtime + 1; // one full second.
+		return false;
+	}
+
+	// -----------------------
+	// If moving, don't check.
+	// -----------------------
+	if ( m_flGroundSpeed != 0 )
+		return false;
+
+	// ---------------------------------------------------------------------
+	// Are any of my squad members near the intended grenade impact area?
+	// ---------------------------------------------------------------------
+	if ( m_pSquad )
+	{
+		if (m_pSquad->SquadMemberInRange( vecTarget, COMBINE_MIN_GRENADE_CLEAR_DIST ))
+		{
+			// crap, I might blow my own guy up. Don't throw a grenade and don't check again for a while.
+			m_flNextGrenadeCheck = gpGlobals->curtime + 1; // one full second.
+
+			// Tell my squad members to clear out so I can get a grenade in
+			// Mapbase uses a new context here that gets all nondescript allies away since this code is shared between Combine and non-Combine now.
+			CSoundEnt::InsertSound( SOUND_MOVE_AWAY | SOUND_CONTEXT_OWNER_ALLIES, vecTarget, COMBINE_MIN_GRENADE_CLEAR_DIST, 0.1, this );
+			return false;
+		}
+	}
+
+	return CheckCanThrowGrenade( vecTarget );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if the combine can throw a grenade at the specified target point
+// Input  : &vecTarget - 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+bool CAI_GrenadeUser<BASE_NPC>::CheckCanThrowGrenade( const Vector &vecTarget )
+{
+	//NDebugOverlay::Line( EyePosition(), vecTarget, 0, 255, 0, false, 5 );
+
+	// ---------------------------------------------------------------------
+	// Check that throw is legal and clear
+	// ---------------------------------------------------------------------
+	// FIXME: this is only valid for hand grenades, not RPG's
+	Vector vecToss;
+	Vector vecMins = -Vector(4,4,4);
+	Vector vecMaxs = Vector(4,4,4);
+	if( FInViewCone( vecTarget ) && CBaseEntity::FVisible( vecTarget ) )
+	{
+		vecToss = VecCheckThrow( this, EyePosition(), vecTarget, COMBINE_GRENADE_THROW_SPEED, 1.0, &vecMins, &vecMaxs );
+	}
+	else
+	{
+		// Have to try a high toss. Do I have enough room?
+		trace_t tr;
+		AI_TraceLine( EyePosition(), EyePosition() + Vector( 0, 0, 64 ), MASK_SHOT, this, COLLISION_GROUP_NONE, &tr );
+		if( tr.fraction != 1.0 )
+		{
+			return false;
+		}
+
+		vecToss = VecCheckToss( this, EyePosition(), vecTarget, -1, 1.0, true, &vecMins, &vecMaxs );
+	}
+
+	if ( vecToss != vec3_origin )
+	{
+		m_vecTossVelocity = vecToss;
+
+		// don't check again for a while.
+		m_flNextGrenadeCheck = gpGlobals->curtime + 1; // 1/3 second.
+		return true;
+	}
+	else
+	{
+		// don't check again for a while.
+		m_flNextGrenadeCheck = gpGlobals->curtime + 1; // one full second.
+		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Task helpers
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::StartTask_FaceAltFireTarget( const Task_t *pTask )
+{
+	SetIdealActivity( (Activity)(int)pTask->flTaskData );
+	GetMotor()->SetIdealYawToTargetAndUpdate( m_vecAltFireTarget, AI_KEEP_YAW_SPEED );
+}
+
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::StartTask_GetPathToForced( const Task_t *pTask )
+{
+	if ( !m_hForcedGrenadeTarget )
+	{
+		TaskFail(FAIL_NO_ENEMY);
+		return;
+	}
+
+	float flMaxRange = 2000;
+	float flMinRange = 0;
+
+	Vector vecEnemy = m_hForcedGrenadeTarget->GetAbsOrigin();
+	Vector vecEnemyEye = vecEnemy + m_hForcedGrenadeTarget->GetViewOffset();
+
+	Vector posLos;
+	bool found = false;
+
+	if ( GetTacticalServices()->FindLateralLos( vecEnemyEye, &posLos ) )
+	{
+		float dist = ( posLos - vecEnemyEye ).Length();
+		if ( dist < flMaxRange && dist > flMinRange )
+			found = true;
+	}
+
+	if ( !found && GetTacticalServices()->FindLos( vecEnemy, vecEnemyEye, flMinRange, flMaxRange, 1.0, &posLos ) )
+	{
+		found = true;
+	}
+
+	if ( !found )
+	{
+		TaskFail( FAIL_NO_SHOOT );
+	}
+	else
+	{
+		// else drop into run task to offer an interrupt
+		m_vInterruptSavePosition = posLos;
+	}
+}
+
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::StartTask_DeferSquad( const Task_t *pTask )
+{
+	if ( m_pSquad )
+	{
+		// iterate my squad and stop everyone from throwing grenades for a little while.
+		AISquadIter_t iter;
+
+		CAI_BaseNPC *pSquadmate = m_pSquad ? m_pSquad->GetFirstMember( &iter ) : NULL;
+		while ( pSquadmate )
+		{
+			pSquadmate->DelayGrenadeCheck(5);
+
+			pSquadmate = m_pSquad->GetNextMember( &iter );
+		}
+	}
+
+	TaskComplete();
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::RunTask_FaceAltFireTarget( const Task_t *pTask )
+{
+	GetMotor()->SetIdealYawToTargetAndUpdate( m_vecAltFireTarget, AI_KEEP_YAW_SPEED );
+
+	// New Mapbase thing that fixes forced alt-fires not changing weapon yaw/pitch
+	SetAim( m_vecAltFireTarget - Weapon_ShootPosition() );
+
+	if (IsActivityFinished())
+	{
+		TaskComplete();
+	}
+}
+
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::RunTask_GetPathToForced( const Task_t *pTask )
+{
+	if ( !m_hForcedGrenadeTarget )
+	{
+		TaskFail(FAIL_NO_ENEMY);
+		return;
+	}
+
+	if ( GetTaskInterrupt() > 0 )
+	{
+		ClearTaskInterrupt();
+
+		Vector vecEnemy = m_hForcedGrenadeTarget->GetAbsOrigin();
+		AI_NavGoal_t goal( m_vInterruptSavePosition, ACT_RUN, AIN_HULL_TOLERANCE );
+
+		GetNavigator()->SetGoal( goal, AIN_CLEAR_TARGET );
+		GetNavigator()->SetArrivalDirection( vecEnemy - goal.dest );
+	}
+	else
+	{
+		TaskInterrupt();
+	}
+}
+
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::RunTask_FaceTossDir( const Task_t *pTask )
+{
+	// project a point along the toss vector and turn to face that point.
+	GetMotor()->SetIdealYawToTargetAndUpdate( GetLocalOrigin() + m_vecTossVelocity * 64, AI_KEEP_YAW_SPEED );
+
+	if ( FacingIdeal() )
+	{
+		TaskComplete( true );
+	}
+}
+
+#endif

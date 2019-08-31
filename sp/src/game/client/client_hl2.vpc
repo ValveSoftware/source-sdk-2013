@@ -74,7 +74,7 @@ $Project "Client (HL2)"
 			$File	"hl2\c_weapon__stubs_hl2.cpp"
 			$File	"hl2\c_weapon_crossbow.cpp"
 			$File	"hl2\c_weapon_physcannon.cpp"
-			$File	"hl2\c_weapon_stunstick.cpp"
+			$File	"hl2\c_weapon_stunstick.cpp" [!$MAPBASE] // See client_mapbase.vpc
 			$File	"$SRCDIR\game\shared\hl2\citadel_effects_shared.h"
 			$File	"hl2\clientmode_hlnormal.cpp"
 			$File	"hl2\clientmode_hlnormal.h"

@@ -8,8 +8,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-DEFINE_FALLBACK_SHADER( EyeRefract, EyeRefract_dx9 )
-BEGIN_VS_SHADER( EyeRefract_dx9, "Help for Eyes" )
+DEFINE_FALLBACK_SHADER( SDK_EyeRefract, SDK_EyeRefract_dx9 )
+BEGIN_VS_SHADER( SDK_EyeRefract_dx9, "Help for SDK_EyeRefract" )
 	BEGIN_SHADER_PARAMS
 		SHADER_PARAM( IRIS, SHADER_PARAM_TYPE_TEXTURE, "shadertest/BaseTexture", "iris texture" )
 		SHADER_PARAM( IRISFRAME, SHADER_PARAM_TYPE_INTEGER, "0", "frame for the iris texture" )

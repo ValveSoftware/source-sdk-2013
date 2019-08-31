@@ -769,7 +769,11 @@ void CAISound::InputInsertSound( inputdata_t &inputdata )
 
 	if( m_iszProxyEntityName != NULL_STRING )
 	{
+#ifdef MAPBASE
+		CBaseEntity *pProxy = gEntList.FindEntityByName( NULL, m_iszProxyEntityName, this, inputdata.pActivator, inputdata.pCaller );
+#else
 		CBaseEntity *pProxy = gEntList.FindEntityByName( NULL, m_iszProxyEntityName );
+#endif
 
 		if( pProxy )
 		{
@@ -781,7 +785,26 @@ void CAISound::InputInsertSound( inputdata_t &inputdata )
 		}
 	}
 
+#ifdef MAPBASE
+	EHANDLE hOwner = this;
+	if (m_target != NULL_STRING)
+	{
+		CBaseEntity *pProxy = gEntList.FindEntityByName( NULL, m_target, this, inputdata.pActivator, inputdata.pCaller );
+
+		if( pProxy )
+		{
+			hOwner = pProxy;
+		}
+		else
+		{
+			DevWarning("Warning- ai_sound cannot find owner entity named '%s'. Using self.\n", STRING(m_target) );
+		}
+	}
+
+	g_pSoundEnt->InsertSound( m_iSoundType | m_iSoundContext, vecLocation, iVolume, m_flDuration, hOwner );
+#else
 	g_pSoundEnt->InsertSound( m_iSoundType, vecLocation, iVolume, m_flDuration, this );
+#endif
 }
 
 void CAISound::InputEmitAISound( inputdata_t &inputdata )
@@ -790,7 +813,11 @@ void CAISound::InputEmitAISound( inputdata_t &inputdata )
 
 	if( m_iszProxyEntityName != NULL_STRING )
 	{
+#ifdef MAPBASE
+		CBaseEntity *pProxy = gEntList.FindEntityByName( NULL, m_iszProxyEntityName, this, inputdata.pActivator, inputdata.pCaller );
+#else
 		CBaseEntity *pProxy = gEntList.FindEntityByName( NULL, m_iszProxyEntityName );
+#endif
 
 		if( pProxy )
 		{
@@ -802,7 +829,26 @@ void CAISound::InputEmitAISound( inputdata_t &inputdata )
 		}
 	}
 
+#ifdef MAPBASE
+	EHANDLE hOwner = this;
+	if (m_target != NULL_STRING)
+	{
+		CBaseEntity *pProxy = gEntList.FindEntityByName( NULL, m_target, this, inputdata.pActivator, inputdata.pCaller );
+
+		if( pProxy )
+		{
+			hOwner = pProxy;
+		}
+		else
+		{
+			DevWarning("Warning- ai_sound cannot find owner entity named '%s'. Using self.\n", STRING(m_target) );
+		}
+	}
+
+	g_pSoundEnt->InsertSound( m_iSoundType | m_iSoundContext, vecLocation, m_iVolume, m_flDuration, hOwner );
+#else
 	g_pSoundEnt->InsertSound( m_iSoundType | m_iSoundContext, vecLocation, m_iVolume, m_flDuration, this );
+#endif
 }
 
 

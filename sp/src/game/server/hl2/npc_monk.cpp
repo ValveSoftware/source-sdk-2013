@@ -16,6 +16,9 @@
 #include "ai_behavior.h"
 #include "ai_behavior_assault.h"
 #include "ai_behavior_lead.h"
+#ifdef MAPBASE
+#include "ai_behavior_functank.h"
+#endif
 #include "npcevent.h"
 #include "ai_playerally.h"
 #include "ai_senses.h"
@@ -103,6 +106,10 @@ private:
 	
 	CAI_AssaultBehavior		m_AssaultBehavior;
 	CAI_LeadBehavior		m_LeadBehavior;
+#ifdef MAPBASE
+	CAI_FuncTankBehavior	m_FuncTankBehavior;
+#endif
+
 	int						m_iNumZombies;
 	int						m_iDangerousZombies;
 	bool					m_bPerfectAccuracy;
@@ -113,6 +120,9 @@ private:
 BEGIN_DATADESC( CNPC_Monk )
 //					m_AssaultBehavior
 //					m_LeadBehavior
+#ifdef MAPBASE
+//					m_FuncTankBehavior
+#endif
 	DEFINE_FIELD( m_iNumZombies, FIELD_INTEGER ),
 	DEFINE_FIELD( m_iDangerousZombies, FIELD_INTEGER ),
 	DEFINE_FIELD( m_bPerfectAccuracy, FIELD_BOOLEAN ),
@@ -132,6 +142,9 @@ bool CNPC_Monk::CreateBehaviors()
 {
 	AddBehavior( &m_LeadBehavior );
 	AddBehavior( &m_AssaultBehavior );
+#ifdef MAPBASE
+	AddBehavior( &m_FuncTankBehavior );
+#endif
 	
 	return BaseClass::CreateBehaviors();
 }
@@ -665,6 +678,17 @@ int CNPC_Monk::SelectFailSchedule( int failedSchedule, int failedTask, AI_TaskFa
 	{
 		if( HasCondition( COND_CAN_RANGE_ATTACK1 ) )
 		{
+#ifdef MAPBASE
+			// I thought it would be a nice touch.
+			if (RandomInt(1, 2) == 1 && CanRunAScriptedNPCInteraction(false))
+			{
+				for ( int i = 0; i < m_ScriptedInteractions.Count(); i++ )
+				{
+					m_ScriptedInteractions[i].flNextAttemptTime = gpGlobals->curtime;
+				}
+			}
+#endif
+
 			// Most likely backed into a corner. Just blaze away.
 			return SCHED_MONK_RANGE_ATTACK1;
 		}

@@ -11,7 +11,7 @@
 
 extern ConVar r_flashlight_version2;
 
-BEGIN_VS_SHADER( UnlitGeneric, "Help for UnlitGeneric" )
+BEGIN_VS_SHADER( SDK_UnlitGeneric, "Help for SDK_UnlitGeneric" )
 
 	BEGIN_SHADER_PARAMS
 		SHADER_PARAM( ALBEDO, SHADER_PARAM_TYPE_TEXTURE, "shadertest/BaseTexture", "albedo (Base texture with no baked lighting)" )
@@ -186,6 +186,8 @@ BEGIN_VS_SHADER( UnlitGeneric, "Help for UnlitGeneric" )
 	{
 		VertexLitGeneric_DX9_Vars_t vars;
 		SetupVars( vars );
+		
+		ConVarRef r_flashlight_version2 = ConVarRef( "r_flashlight_version2" );
 
 		bool bNewFlashlightPath = IsX360() || ( r_flashlight_version2.GetInt() != 0 );
 		if ( ( pShaderShadow == NULL ) && ( pShaderAPI != NULL ) && !bNewFlashlightPath && pShaderAPI->InFlashlightMode() ) // Not snapshotting && flashlight pass

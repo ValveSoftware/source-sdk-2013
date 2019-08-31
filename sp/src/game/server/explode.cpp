@@ -111,6 +111,9 @@ public:
 
 	// Input handlers
 	void InputExplode( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetIgnoredEntity( inputdata_t &inputdata );
+#endif
 
 	DECLARE_DATADESC();
 
@@ -150,6 +153,9 @@ BEGIN_DATADESC( CEnvExplosion )
 
 	// Inputs
 	DEFINE_INPUTFUNC(FIELD_VOID, "Explode", InputExplode),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC(FIELD_EHANDLE, "SetIgnoredEntity", InputSetIgnoredEntity),
+#endif
 
 END_DATADESC()
 
@@ -368,6 +374,16 @@ void CEnvExplosion::InputExplode( inputdata_t &inputdata )
 		}
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for setting the ignored entity.
+//-----------------------------------------------------------------------------
+void CEnvExplosion::InputSetIgnoredEntity( inputdata_t &inputdata )
+{
+	m_hEntityIgnore = inputdata.value.Entity();
+}
+#endif
 
 
 void CEnvExplosion::Smoke( void )

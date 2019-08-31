@@ -168,6 +168,11 @@ private:
 
 	bool		m_bRolledOutroCredits;
 	float		m_flLogoLength;
+
+#ifdef MAPBASE
+	// Custom credits.txt, defaults to that
+	string_t	m_iszCreditsFile;
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( env_credits, CCredits );
@@ -178,6 +183,10 @@ BEGIN_DATADESC( CCredits )
 	DEFINE_INPUTFUNC( FIELD_VOID, "ShowLogo", InputShowLogo ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetLogoLength", InputSetLogoLength ),
 	DEFINE_OUTPUT( m_OnCreditsDone, "OnCreditsDone"),
+
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_iszCreditsFile, FIELD_STRING, "CreditsFile" ),
+#endif
 
 	DEFINE_FIELD( m_bRolledOutroCredits, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_flLogoLength, FIELD_FLOAT )
@@ -226,6 +235,9 @@ void CCredits::RollOutroCredits()
 
 	UserMessageBegin( user, "CreditsMsg" );
 		WRITE_BYTE( 3 );
+#ifdef MAPBASE
+		WRITE_STRING( STRING(m_iszCreditsFile) );
+#endif
 	MessageEnd();
 }
 
@@ -250,12 +262,18 @@ void CCredits::InputShowLogo( inputdata_t &inputdata )
 	{
 		UserMessageBegin( user, "LogoTimeMsg" );
 			WRITE_FLOAT( m_flLogoLength );
+#ifdef MAPBASE
+			WRITE_STRING( STRING(m_iszCreditsFile) );
+#endif
 		MessageEnd();
 	}
 	else
 	{
 		UserMessageBegin( user, "CreditsMsg" );
 			WRITE_BYTE( 1 );
+#ifdef MAPBASE
+			WRITE_STRING( STRING(m_iszCreditsFile) );
+#endif
 		MessageEnd();
 	}
 }
@@ -274,5 +292,8 @@ void CCredits::InputRollCredits( inputdata_t &inputdata )
 
 	UserMessageBegin( user, "CreditsMsg" );
 		WRITE_BYTE( 2 );
+#ifdef MAPBASE
+		WRITE_STRING( STRING(m_iszCreditsFile) );
+#endif
 	MessageEnd();
 }

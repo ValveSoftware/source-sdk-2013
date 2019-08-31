@@ -281,6 +281,9 @@ public:
 	float				Yaw( void );
 	CAI_Node			*GetNode( void );
 	string_t			GetGroup( void ) const			{ return m_NodeData.strGroup;	}
+#ifdef MAPBASE
+	void				SetGroup( string_t iszNewGroup );
+#endif
 	CBaseEntity			*User( void ) const				{ return m_hHintOwner; };
 	Hint_e				HintType( void ) const			{ return (Hint_e)m_NodeData.nHintType;  };
 	void				SetHintType( int hintType, bool force = false );
@@ -305,6 +308,10 @@ public:
 	bool				HintMatchesCriteria( CAI_BaseNPC *pNPC, const CHintCriteria &hintCriteria, const Vector &position, float *flNearestDistance, bool bIgnoreLock = false, bool bIgnoreHintType = false );
 	bool				IsInNodeFOV( CBaseEntity *pOther );
 
+#ifdef MAPBASE
+	void				NPCHandleStartNav( CAI_BaseNPC *pNPC, bool bDefaultFacing );
+#endif
+
 private:
 	void				Spawn( void );
 	virtual void		Activate();
@@ -317,6 +324,9 @@ private:
 	// Input handlers
 	void				InputEnableHint( inputdata_t &inputdata );
 	void				InputDisableHint( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void				InputSetHintGroup( inputdata_t &inputdata );
+#endif
 
 private:
 

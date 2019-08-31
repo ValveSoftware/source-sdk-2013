@@ -34,6 +34,9 @@ public:
 
 	void		InputStart( inputdata_t &inputdata );
 	void		InputStop( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void		InputDestroyImmediately( inputdata_t &inputdata );
+#endif
 	void		StartParticleSystemThink( void );
 
 	enum { kMAXCONTROLPOINTS = 63 }; ///< actually one less than the total number of cpoints since 0 is assumed to be me
@@ -47,6 +50,9 @@ protected:
 	string_t			m_iszEffectName;
 	
 	CNetworkVar( bool,	m_bActive );
+#ifdef MAPBASE
+	CNetworkVar( bool, m_bDestroyImmediately );
+#endif
 	CNetworkVar( int,	m_iEffectIndex )
 	CNetworkVar( float,	m_flStartTime );	// Time at which this effect was started.  This is used after restoring an active effect.
 

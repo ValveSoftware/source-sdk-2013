@@ -28,7 +28,11 @@
 #define ROPE_COLLIDE			(1<<2)		// Collide with the world?
 #define ROPE_SIMULATE			(1<<3)		// Is the rope valid?
 #define ROPE_BREAKABLE			(1<<4)		// Can the endpoints detach?
+#ifdef MAPBASE
+#define ROPE_USE_WIND			(1<<5)		// Wind simulation on this rope.
+#else
 #define ROPE_NO_WIND			(1<<5)		// No wind simulation on this rope.
+#endif
 #define ROPE_INITIAL_HANG		(1<<6)		// By default, ropes will simulate for a bit internally when they 
 											// are created so they sag, but dynamically created ropes for things
 											// like harpoons don't want this.

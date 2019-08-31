@@ -56,6 +56,13 @@ struct IntroData_t
 
 	// Fade overriding for the intro
 	float	m_flCurrentFadeColor[4];
+
+#ifdef MAPBASE
+	// Draws the skybox.
+	bool	m_bDrawSky;
+	// Draws the skybox in the secondary camera as well.
+	bool	m_bDrawSky2;
+#endif
 };
 
 // Robin, make this point at something to get intro mode.
@@ -452,7 +459,11 @@ private:
 	// Water-related methods
 	void			DrawWorldAndEntities( bool drawSkybox, const CViewSetup &view, int nClearFlags, ViewCustomVisibility_t *pCustomVisibility = NULL );
 
+#ifdef MAPBASE
+	virtual void			ViewDrawScene_Intro( const CViewSetup &view, int nClearFlags, const IntroData_t &introData, bool bDrew3dSkybox = false, SkyboxVisibility_t nSkyboxVisible = SKYBOX_NOT_VISIBLE, bool bDrawViewModel = false, ViewCustomVisibility_t *pCustomVisibility = NULL );
+#else
 	virtual void			ViewDrawScene_Intro( const CViewSetup &view, int nClearFlags, const IntroData_t &introData );
+#endif
 
 #ifdef PORTAL 
 	// Intended for use in the middle of another ViewDrawScene call, this allows stencils to be drawn after opaques but before translucents are drawn in the main view.

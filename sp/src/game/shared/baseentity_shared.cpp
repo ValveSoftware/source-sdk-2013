@@ -408,7 +408,11 @@ bool CBaseEntity::KeyValue( const char *szKeyName, const char *szValue )
 		}
 
 		// Do this so inherited classes looking for 'angles' don't have to bother with 'angle'
+#ifdef MAPBASE
+		return KeyValue( "angles", szBuf );
+#else
 		return KeyValue( szKeyName, szBuf );
+#endif
 	}
 
 	// NOTE: Have to do these separate because they set two values instead of one
@@ -1668,6 +1672,19 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 	}
 #endif // SERVER_DLL
 
+#ifdef MAPBASE
+	if (info.m_pIgnoreEntList != NULL)
+	{
+		for (int i = 0; i < info.m_pIgnoreEntList->Count(); i++)
+		{
+			if (info.m_pIgnoreEntList->Element(i))
+			{
+				traceFilter.AddEntityToIgnore(info.m_pIgnoreEntList->Element(i));
+			}
+		}
+	}
+#endif
+
 	bool bUnderwaterBullets = ShouldDrawUnderwaterBulletBubbles();
 	bool bStartedInWater = false;
 	if ( bUnderwaterBullets )
@@ -2138,7 +2155,11 @@ void CBaseEntity::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 
 		int blood = BloodColor();
 		
+#if defined(MAPBASE) && defined(GAME_DLL)
+		if ( blood != DONT_BLEED && DamageFilterAllowsBlood( info ) )
+#else
 		if ( blood != DONT_BLEED )
+#endif
 		{
 			SpawnBlood( vecOrigin, vecDir, blood, info.GetDamage() );// a little surface blood.
 			TraceBleed( info.GetDamage(), vecDir, ptr, info.GetDamageType() );

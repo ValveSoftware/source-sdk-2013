@@ -205,7 +205,11 @@ BEGIN_DATADESC( CNPC_BaseZombie )
 
 	DEFINE_SOUNDPATCH( m_pMoanSound ),
 	DEFINE_FIELD( m_fIsTorso, FIELD_BOOLEAN ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_fIsHeadless, FIELD_BOOLEAN, "Headless" ),
+#else
 	DEFINE_FIELD( m_fIsHeadless, FIELD_BOOLEAN ),
+#endif
 	DEFINE_FIELD( m_flNextFlinch, FIELD_TIME ),
 	DEFINE_FIELD( m_bHeadShot, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_flBurnDamage, FIELD_FLOAT ),
@@ -219,6 +223,10 @@ BEGIN_DATADESC( CNPC_BaseZombie )
 	DEFINE_FIELD( m_iMoanSound, FIELD_INTEGER ),
 	DEFINE_FIELD( m_hObstructor, FIELD_EHANDLE ),
 	DEFINE_FIELD( m_bIsSlumped, FIELD_BOOLEAN ),
+
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnSwattedProp, "OnSwattedProp" ),
+#endif
 
 END_DATADESC()
 
@@ -311,6 +319,12 @@ bool CNPC_BaseZombie::FindNearestPhysicsObject( int iMaxMass )
 				 pEntity->VPhysicsGetObject()->IsAsleep() && 
 				 pEntity->VPhysicsGetObject()->IsMoveable() )
 			{
+#ifdef MAPBASE
+				// Don't swat props that don't want to be swatted
+				if (pEntity->HasSpawnFlags(SF_PHYSPROP_NO_ZOMBIE_SWAT) && dynamic_cast<CPhysicsProp*>(pEntity))
+					return ITERATION_CONTINUE;
+#endif
+
 				return CFlaggedEntitiesEnum::EnumElement( pHandleEntity );
 			}
 			return ITERATION_CONTINUE;
@@ -716,6 +730,11 @@ bool CNPC_BaseZombie::ShouldBecomeTorso( const CTakeDamageInfo &info, float flDa
 	if ( info.GetDamageType() & DMG_REMOVENORAGDOLL )
 		return false;
 
+#ifdef MAPBASE
+	if ( HasSpawnFlags(SF_ZOMBIE_NO_TORSO) )
+		return false;
+#endif
+
 	if ( m_fIsTorso )
 	{
 		// Already split.
@@ -761,7 +780,11 @@ bool CNPC_BaseZombie::ShouldBecomeTorso( const CTakeDamageInfo &info, float flDa
 //-----------------------------------------------------------------------------
 HeadcrabRelease_t CNPC_BaseZombie::ShouldReleaseHeadcrab( const CTakeDamageInfo &info, float flDamageThreshold )
 {
+#ifdef MAPBASE
+	if ( m_iHealth <= 0 && !m_fIsHeadless )
+#else
 	if ( m_iHealth <= 0 )
+#endif
 	{
 		if ( info.GetDamageType() & DMG_REMOVENORAGDOLL )
 			return RELEASE_NO;
@@ -853,7 +876,11 @@ int CNPC_BaseZombie::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 	bool bSquashed = IsSquashed(info);
 	bool bKilledByVehicle = ( ( info.GetDamageType() & DMG_VEHICLE ) != 0 );
 
+#ifdef MAPBASE
+	if ( !m_fIsTorso && (bChopped || bSquashed) && !bKilledByVehicle && !(info.GetDamageType() & DMG_REMOVENORAGDOLL) && !HasSpawnFlags(SF_ZOMBIE_NO_TORSO) )
+#else
 	if( !m_fIsTorso && (bChopped || bSquashed) && !bKilledByVehicle && !(info.GetDamageType() & DMG_REMOVENORAGDOLL) )
+#endif
 	{
 		if( bChopped )
 		{
@@ -1081,6 +1108,14 @@ void CNPC_BaseZombie::DieChopped( const CTakeDamageInfo &info )
 			ReleaseHeadcrab( EyePosition(), forceVector * 0.005, true, false, false );
 		}
 	}
+
+#ifdef MAPBASE
+	// Hack for fast zombies using base torso rules.
+	if (m_iHealth > 0)
+	{
+		SetHealth( 0 );
+	}
+#endif
 
 	float flFadeTime = 0.0;
 
@@ -1558,6 +1593,10 @@ void CNPC_BaseZombie::HandleAnimEvent( animevent_t *pEvent )
 			AngularImpulse angVelocity( random->RandomFloat(-180, 180), 20, random->RandomFloat(-360, 360) );
 
 			pPhysObj->AddVelocity( &v, &angVelocity );
+
+#ifdef MAPBASE
+			m_OnSwattedProp.Set(pPhysicsEntity, pPhysicsEntity, this);
+#endif
 
 			// If we don't put the object scan time well into the future, the zombie
 			// will re-select the object he just hit as it is flying away from him.

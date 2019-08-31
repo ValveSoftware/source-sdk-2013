@@ -18,6 +18,9 @@ $include "$SRCDIR\vpc_scripts\protobuf_builder.vpc"
 $Include "$SRCDIR\vpc_scripts\source_replay.vpc"	[$TF]
 $Include "$SRCDIR\game\protobuf_include.vpc"
 
+// Mapbase stuff
+$Include "$SRCDIR\game\server\server_mapbase.vpc"	[$MAPBASE]
+
 $Configuration	"Debug"
 {
 	$General

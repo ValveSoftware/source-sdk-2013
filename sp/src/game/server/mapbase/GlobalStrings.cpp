@@ -1,0 +1,123 @@
+//========= Copyright Valve Corporation, All rights reserved. ==================
+//
+// Purpose: See GlobalStrings.h for more information.
+//
+// $NoKeywords: $
+//=============================================================================
+
+#include "cbase.h"
+#include "GlobalStrings.h"
+
+
+// Global strings must be initially declared here.
+// Be sure to sync them with the externs in GlobalStrings.h.
+
+// -------------------------------------------------------------
+// 
+// Classnames
+// 
+// -------------------------------------------------------------
+
+#ifdef HL2_DLL
+string_t gm_isz_class_Shotgun;
+string_t gm_isz_class_SMG1;
+string_t gm_isz_class_AR2;
+string_t gm_isz_class_Pistol;
+string_t gm_isz_class_Stunstick;
+string_t gm_isz_class_Crowbar;
+string_t gm_isz_class_RPG;
+string_t gm_isz_class_357;
+string_t gm_isz_class_Grenade;
+string_t gm_isz_class_Physcannon;
+string_t gm_isz_class_Crossbow;
+
+string_t gm_isz_class_Strider;
+string_t gm_isz_class_Gunship;
+string_t gm_isz_class_Dropship;
+string_t gm_isz_class_FloorTurret;
+string_t gm_isz_class_CScanner;
+string_t gm_isz_class_ClawScanner;
+#endif
+
+string_t gm_isz_class_Bullseye;
+
+string_t gm_isz_class_PropPhysics;
+string_t gm_isz_class_PropPhysicsOverride;
+string_t gm_isz_class_FuncPhysbox;
+string_t gm_isz_class_EnvFire;
+
+// -------------------------------------------------------------
+
+string_t gm_isz_name_player;
+string_t gm_isz_name_activator;
+
+// -------------------------------------------------------------
+
+// -------------------------------------------------------------
+
+// Does the classname of this entity match the string_t?
+// 
+// This function is for comparing global strings and allows us to change how we compare them quickly.
+inline bool EntIsClass( CBaseEntity *ent, string_t str2 )
+{
+	//return ent->ClassMatches(str2);
+
+	// Since classnames are pooled, the global string and the entity's classname should point to the same string in memory.
+	// As long as this rule is preserved, we only need a pointer comparison. A string comparison isn't necessary.
+	// Feel free to correct me if I'm disastrously wrong.
+	return ent->m_iClassname == str2;
+}
+
+inline void SetGlobalString( string_t &string, const char *text )
+{
+	//string = AllocPooledString(text);
+
+	// Entities usually allocate global strings every time one of them spawns, meaning the string could've already been allocated either
+	// by the same type of entity already being spawned or some other means.
+	// If it's already allocated, we could easily just use "Find" instead of "Alloc". There's a fallback if we don't find it in the string pool.
+	string = FindPooledString( text );
+	if (string == NULL_STRING)
+		string = AllocPooledString( text );
+}
+
+// We know it hasn't been allocated yet
+#define INITIALIZE_GLOBAL_STRING(string, text) string = AllocPooledString(text) //SetGlobalString(string, text)
+
+void InitGlobalStrings()
+{
+#ifdef HL2_DLL
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Shotgun, "weapon_shotgun");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_SMG1, "weapon_smg1");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_AR2, "weapon_ar2");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Pistol, "weapon_pistol");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Stunstick, "weapon_stunstick");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Crowbar, "weapon_crowbar");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_RPG, "weapon_rpg");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_357, "weapon_357");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Grenade, "weapon_frag");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Physcannon, "weapon_physcannon");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Crossbow, "weapon_crossbow");
+
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Strider, "npc_strider");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Gunship, "npc_combinegunship");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Dropship, "npc_combinedropship");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_FloorTurret, "npc_turret_floor");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_CScanner, "npc_cscanner");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_ClawScanner, "npc_clawscanner");
+#endif
+
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Bullseye, "npc_bullseye");
+
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_PropPhysics, "prop_physics");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_PropPhysicsOverride, "prop_physics_override");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_FuncPhysbox, "func_physbox"); 
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_EnvFire, "env_fire");
+
+	INITIALIZE_GLOBAL_STRING(gm_isz_name_player, "!player");
+	INITIALIZE_GLOBAL_STRING(gm_isz_name_activator, "!activator");
+}
+
+// -------------------------------------------------------------
+
+
+

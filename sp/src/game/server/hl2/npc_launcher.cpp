@@ -62,6 +62,9 @@ public:
 	//	Outputs
 	// ----------------
 	COutputEvent		m_OnLaunch;					// Triggered when missile is launched.
+#ifdef MAPBASE
+	COutputEHANDLE		m_OutMissile;				// Passes the missile.
+#endif
 
 	// ----------------
 	//	Inputs
@@ -126,6 +129,9 @@ BEGIN_DATADESC( CNPC_Launcher )
 	DEFINE_INPUTFUNC( FIELD_VOID, "ClearEnemyEntity", InputClearEnemy ),
 
 	DEFINE_OUTPUT( m_OnLaunch, "OnLaunch" ),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OutMissile, "OutMissile" ),
+#endif
 
 	// Function Pointers
 	DEFINE_THINKFUNC( LauncherThink ),
@@ -278,6 +284,13 @@ void CNPC_Launcher::LaunchGrenade( CBaseEntity* pEnemy )
 		pGrenade->SetDamage(m_flDamage);
 		pGrenade->SetDamageRadius(m_flDamageRadius);
 		pGrenade->Launch(m_flLaunchSpeed,m_sPathCornerName);
+
+#ifdef MAPBASE
+		if (GetOwnerEntity())
+			pGrenade->SetOwnerEntity(GetOwnerEntity());
+
+		m_OutMissile.Set(pGrenade, pGrenade, this);
+#endif
 	}
 	else
 	{
@@ -292,6 +305,13 @@ void CNPC_Launcher::LaunchGrenade( CBaseEntity* pEnemy )
 		pGrenade->SetDamage(m_flDamage);
 		pGrenade->SetDamageRadius(m_flDamageRadius);
 		pGrenade->Launch(this,pEnemy,vLaunchVelocity,m_flHomingSpeed,GetGravity(),m_nSmokeTrail);
+
+#ifdef MAPBASE
+		if (GetOwnerEntity())
+			pGrenade->SetOwnerEntity(GetOwnerEntity());
+
+		m_OutMissile.Set(pGrenade, pGrenade, this);
+#endif
 	}
 
 	CPASAttenuationFilter filter( this, 0.3 );

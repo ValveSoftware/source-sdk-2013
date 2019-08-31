@@ -54,7 +54,12 @@ public:
 		flFOV = m_flFOV;
 	}
 	virtual void DrawHudElements();
+#ifdef MAPBASE
+	virtual bool IsPassengerUsingStandardWeapons( int nRole = VEHICLE_ROLE_DRIVER ) { return m_bAllowStandardWeapons; }
+	bool	m_bAllowStandardWeapons;
+#else
 	virtual bool IsPassengerUsingStandardWeapons( int nRole = VEHICLE_ROLE_DRIVER ) { return false; }
+#endif
 	virtual void UpdateViewAngles( C_BasePlayer *pLocalPlayer, CUserCmd *pCmd );
 	virtual C_BaseCombatCharacter *GetPassenger( int nRole );
 	virtual int	GetPassengerRole( C_BaseCombatCharacter *pPassenger );
@@ -107,6 +112,9 @@ IMPLEMENT_CLIENTCLASS_DT(C_PropVehicleChoreoGeneric, DT_PropVehicleChoreoGeneric
 	RecvPropFloat( RECVINFO( m_vehicleView.flYawMax ) ),
 	RecvPropFloat( RECVINFO( m_vehicleView.flPitchMin ) ),
 	RecvPropFloat( RECVINFO( m_vehicleView.flPitchMax ) ),
+#ifdef MAPBASE
+	RecvPropBool( RECVINFO( m_bAllowStandardWeapons ) ),
+#endif
 END_RECV_TABLE()
 
 

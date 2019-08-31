@@ -143,6 +143,9 @@ public:
 	void		InputJumpAtTarget( inputdata_t &inputdata );
 
 	void		SetFollowTarget( CBaseEntity *pTarget );
+#ifdef MAPBASE
+	void		InputSetFollowTarget( inputdata_t &inputdata );
+#endif
 	int			TranslateSchedule( int scheduleType );
 
 	virtual		Activity NPC_TranslateActivity( Activity baseAct );

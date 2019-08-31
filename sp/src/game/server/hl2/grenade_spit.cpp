@@ -131,7 +131,19 @@ void CGrenadeSpit::GrenadeSpitTouch( CBaseEntity *pOther )
 	if ( pOther->IsSolidFlagSet(FSOLID_VOLUME_CONTENTS | FSOLID_TRIGGER) )
 	{
 		// Some NPCs are triggers that can take damage (like antlion grubs). We should hit them.
+#ifdef MAPBASE
+		// But some physics objects that are also triggers (like weapons) shouldn't go through this check.
+		// 
+		// Note: rpg_missile has the same code, except it properly accounts for weapons in a different way.
+		// This was discovered after I implemented this and both work fine, but if this ever causes problems,
+		// use rpg_missile's implementation:
+		// 
+		// if ( pOther->IsSolidFlagSet(FSOLID_TRIGGER|FSOLID_VOLUME_CONTENTS) && pOther->GetCollisionGroup() != COLLISION_GROUP_WEAPON )
+		// 
+		if ( pOther->GetMoveType() == MOVETYPE_NONE && (( pOther->m_takedamage == DAMAGE_NO ) || ( pOther->m_takedamage == DAMAGE_EVENTS_ONLY )) )
+#else
 		if ( ( pOther->m_takedamage == DAMAGE_NO ) || ( pOther->m_takedamage == DAMAGE_EVENTS_ONLY ) )
+#endif
 			return;
 	}
 

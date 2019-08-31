@@ -20,6 +20,9 @@
 
 #ifdef HL2_DLL
 #include "npc_playercompanion.h"
+#ifdef MAPBASE
+#include "hl2_player.h"
+#endif
 #endif // HL2_DLL
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -479,7 +482,11 @@ bool CGlobalEntityList::IsEntityPtr( void *pTest )
 // Input  : pStartEntity - Last entity found, NULL to start a new iteration.
 //			szName - Classname to search for.
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+CBaseEntity *CGlobalEntityList::FindEntityByClassname( CBaseEntity *pStartEntity, const char *szName, IEntityFindFilter *pFilter )
+#else
 CBaseEntity *CGlobalEntityList::FindEntityByClassname( CBaseEntity *pStartEntity, const char *szName )
+#endif
 {
 	const CEntInfo *pInfo = pStartEntity ? GetEntInfoPtr( pStartEntity->GetRefEHandle() )->m_pNext : FirstEntInfo();
 
@@ -492,8 +499,18 @@ CBaseEntity *CGlobalEntityList::FindEntityByClassname( CBaseEntity *pStartEntity
 			continue;
 		}
 
+#ifdef MAPBASE
+		if ( pEntity->ClassMatches(szName) )
+		{
+			if ( pFilter && !pFilter->ShouldFindEntity(pEntity) )
+				continue;
+
+			return pEntity;
+		}
+#else
 		if ( pEntity->ClassMatches(szName) )
 			return pEntity;
+#endif
 	}
 
 	return NULL;
@@ -551,12 +568,60 @@ CBaseEntity *CGlobalEntityList::FindEntityProcedural( const char *szName, CBaseE
 		}
 		else if ( FStrEq( pName, "picker" ) )
 		{
+#ifdef MAPBASE_MP
+			// TODO: Player could be activator instead
+			CBasePlayer *pPlayer = ToBasePlayer(pSearchingEntity);
+			return FindPickerEntity( pPlayer ? pPlayer : UTIL_PlayerByIndex(1) );
+#else
 			return FindPickerEntity( UTIL_PlayerByIndex(1) );
+#endif
 		}
 		else if ( FStrEq( pName, "self" ) )
 		{
 			return pSearchingEntity;
 		}
+#ifdef MAPBASE
+		else if ( FStrEq( pName, "parent" ) )
+		{
+			return pSearchingEntity ? pSearchingEntity->GetParent() : NULL;
+		}
+		else if ( FStrEq( pName, "owner" ) )
+		{
+			return pSearchingEntity ? pSearchingEntity->GetOwnerEntity() : NULL;
+		}
+		else if ( FStrEq( pName, "plrsquadrep" ) )
+		{
+#ifdef HL2_DLL
+			CHL2_Player *pPlayer = static_cast<CHL2_Player*>(UTIL_PlayerByIndex(1));
+			if (pPlayer)
+			{
+				return pPlayer->GetSquadCommandRepresentative();
+			}
+#endif
+		}
+		else if (strchr(pName, ':'))
+		{
+			char name[128];
+			Q_strncpy(name, pName, strchr(pName, ':')-pName+1);
+
+			CBaseEntity *pEntity = FindEntityProcedural(UTIL_VarArgs("!%s", name), pSearchingEntity, pActivator, pCaller);
+			if (pEntity && pEntity->IsNPC())
+			{
+				char *target = (Q_strstr(pName, ":") + 1);
+				if (target[0] != '!')
+					target = UTIL_VarArgs("!%s", target);
+
+				return pEntity->MyNPCPointer()->FindNamedEntity(target);
+			}
+		}
+		else if (pSearchingEntity && pSearchingEntity->IsCombatCharacter())
+		{
+			// Perhaps the entity itself has the answer?
+			// This opens up new possibilities. The weird filter is there so it doesn't go through this twice.
+			CNullEntityFilter pFilter;
+			return pSearchingEntity->MyCombatCharacterPointer()->FindNamedEntity(szName, &pFilter);
+		}
+#endif
 		else 
 		{
 			Warning( "Invalid entity search name %s\n", szName );
@@ -917,6 +982,20 @@ CBaseEntity *CGlobalEntityList::FindEntityByClassnameWithin( CBaseEntity *pStart
 //				or Use handler, NULL otherwise.
 // Output : Returns a pointer to the found entity, NULL if none.
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+CBaseEntity *CGlobalEntityList::FindEntityGeneric( CBaseEntity *pStartEntity, const char *szName, CBaseEntity *pSearchingEntity, CBaseEntity *pActivator, CBaseEntity *pCaller, IEntityFindFilter *pFilter )
+{
+	CBaseEntity *pEntity = NULL;
+
+	pEntity = gEntList.FindEntityByName( pStartEntity, szName, pSearchingEntity, pActivator, pCaller, pFilter );
+	if (!pEntity)
+	{
+		pEntity = gEntList.FindEntityByClassname( pStartEntity, szName, pFilter );
+	}
+
+	return pEntity;
+}
+#else
 CBaseEntity *CGlobalEntityList::FindEntityGeneric( CBaseEntity *pStartEntity, const char *szName, CBaseEntity *pSearchingEntity, CBaseEntity *pActivator, CBaseEntity *pCaller )
 {
 	CBaseEntity *pEntity = NULL;
@@ -929,6 +1008,7 @@ CBaseEntity *CGlobalEntityList::FindEntityGeneric( CBaseEntity *pStartEntity, co
 
 	return pEntity;
 } 
+#endif
 
 
 //-----------------------------------------------------------------------------

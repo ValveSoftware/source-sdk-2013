@@ -64,6 +64,13 @@ public:
 	void Set( fieldtype_t ftype, void *data );
 	void SetOther( void *data );
 	bool Convert( fieldtype_t newType );
+#ifdef MAPBASE
+	// Special conversion specifically for FIELD_EHANDLE with !activator, etc.
+	bool Convert( fieldtype_t newType, CBaseEntity *pSelf, CBaseEntity *pActivator, CBaseEntity *pCaller );
+	// Hands over the value + the field type.
+	// ex: "Otis (String)", "3 (Integer)", or "npc_combine_s (Entity)"
+	const char *GetDebug();
+#endif
 
 	static typedescription_t m_SaveBool[];
 	static typedescription_t m_SaveInt[];

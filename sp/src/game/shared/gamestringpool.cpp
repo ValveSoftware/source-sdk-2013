@@ -12,6 +12,9 @@
 #include "igamesystem.h"
 #endif
 #include "gamestringpool.h"
+#if defined(MAPBASE) && defined(GAME_DLL)
+#include "mapbase/GlobalStrings.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -26,6 +29,9 @@ class CGameStringPool : public CBaseGameSystem
 #endif
 {
 	virtual char const *Name() { return "CGameStringPool"; }
+#if defined(MAPBASE) && defined(GAME_DLL)
+	virtual void LevelInitPreEntity() { InitGlobalStrings(); }
+#endif
 	virtual void LevelShutdownPostEntity() { FreeAll(); }
 
 	void FreeAll()

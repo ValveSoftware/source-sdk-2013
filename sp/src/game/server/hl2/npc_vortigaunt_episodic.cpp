@@ -581,6 +581,28 @@ bool CNPC_Vortigaunt::InnateWeaponLOSCondition( const Vector &ownerPos, const Ve
 	UTIL_PredictedPosition( this, flTimeDelta, &vecNewOwnerPos );
 	UTIL_PredictedPosition( GetEnemy(), flTimeDelta, &vecNewTargetPos );
 
+#ifdef MAPBASE
+	// This fix was created by DKY.
+	// His original comment is below.
+
+	/*
+
+	Fix for LOS test failures when the Vort is attempting to find a viable
+	shoot position-- Valve's "predict where we'll be in a moment" hack (as
+	described above) completely breaks SCHED_ESTABLISH_LINE_OF_FIRE because it
+	causes all LOS checks to fail for every node if the Vort's current position
+	is not a valid shooting position.
+	- Thank you, dky.tehkingd.u!
+
+	*/
+
+	// Determine the Vort's predicted position delta
+	Vector ownerDelta = vecNewOwnerPos - GetAbsOrigin();
+
+	// Offset our requested LOS check location by the predicted delta.
+	vecNewOwnerPos = ownerPos + ownerDelta;
+#endif
+
 	Vector vecDelta = vecNewTargetPos - GetEnemy()->GetAbsOrigin();
 	Vector vecFinalTargetPos = GetEnemy()->BodyTarget( vecNewOwnerPos ) + vecDelta;
 
@@ -2776,7 +2798,12 @@ bool CNPC_Vortigaunt::CanFlinch( void )
 	if ( IsCurSchedule( SCHED_VORTIGAUNT_DISPEL_ANTLIONS ) || IsCurSchedule( SCHED_RANGE_ATTACK1 ) )
 		return false;
 
+#ifdef MAPBASE
+	// This skips CAI_PlayerAlly's CanFlinch() function since Episodic vorts can flinch to begin with.
+	return CAI_BaseActor::CanFlinch();
+#else
 	return BaseClass::CanFlinch();
+#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -13,10 +13,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-DEFINE_FALLBACK_SHADER( eyes, Eyes_dx8 )
+DEFINE_FALLBACK_SHADER( SDK_Eyes, SDK_Eyes_dx8 )
 
-BEGIN_VS_SHADER( Eyes_dx8, 
-			  "Help for Eyes" )
+BEGIN_VS_SHADER( SDK_Eyes_dx8, 
+			  "Help for SDK_Eyes" )
 			  
 	BEGIN_SHADER_PARAMS
 		SHADER_PARAM_OVERRIDE( BASETEXTURE, SHADER_PARAM_TYPE_TEXTURE, "models/alyx/eyeball_l", "iris texture", 0 )

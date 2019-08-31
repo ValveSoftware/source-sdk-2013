@@ -411,6 +411,20 @@ void CC_NPC_Create( const CCommand &args )
 		{
 			baseNPC->SetName( AllocPooledString( args[2] ) );
 		}
+#ifdef MAPBASE
+		else if ( args.ArgC() > 3 )
+		{
+			baseNPC->SetName( AllocPooledString( args[2] ) );
+
+			// Pass in any additional parameters.
+			for ( int i = 3; i + 1 < args.ArgC(); i += 2 )
+			{
+				const char *pKeyName = args[i];
+				const char *pValue = args[i+1];
+				baseNPC->KeyValue( pKeyName, pValue );
+			}
+		}
+#endif
 
 		DispatchSpawn(baseNPC);
 		// Now attempt to drop into the world

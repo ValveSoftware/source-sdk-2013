@@ -23,7 +23,15 @@ class CPointTeleport : public CBaseEntity
 public:
 	void	Activate( void );
 
+#ifdef MAPBASE
+	void TeleportEntity( CBaseEntity *pTarget, const Vector &vecPosition, const QAngle &angAngles );
+#endif
+
 	void InputTeleport( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputTeleportEntity( inputdata_t &inputdata );
+	void InputTeleportToCurrentPos( inputdata_t &inputdata );
+#endif
 
 private:
 	
@@ -45,6 +53,10 @@ BEGIN_DATADESC( CPointTeleport )
 	DEFINE_FIELD( m_vSaveAngles, FIELD_VECTOR ),
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Teleport", InputTeleport ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "TeleportEntity", InputTeleportEntity ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "TeleportToCurrentPos", InputTeleportToCurrentPos ),
+#endif
 
 END_DATADESC()
 
@@ -107,6 +119,34 @@ void CPointTeleport::Activate( void )
 	BaseClass::Activate();
 }
 
+#ifdef MAPBASE
+//------------------------------------------------------------------------------
+// Purpose:
+//------------------------------------------------------------------------------
+void CPointTeleport::TeleportEntity( CBaseEntity *pTarget, const Vector &vecPosition, const QAngle &angAngles )
+{
+	// in episodic, we have a special spawn flag that forces Gordon into a duck
+#ifdef HL2_EPISODIC
+	if ( (m_spawnflags & SF_TELEPORT_INTO_DUCK) && pTarget->IsPlayer() ) 
+	{
+		CBasePlayer *pPlayer = ToBasePlayer( pTarget );
+		if ( pPlayer != NULL )
+		{
+			pPlayer->m_nButtons |= IN_DUCK;
+			pPlayer->AddFlag( FL_DUCKING );
+			pPlayer->m_Local.m_bDucked = true;
+			pPlayer->m_Local.m_bDucking = true;
+			pPlayer->m_Local.m_flDucktime = 0.0f;
+			pPlayer->SetViewOffset( VEC_DUCK_VIEW_SCALED( pPlayer ) );
+			pPlayer->SetCollisionBounds( VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX );
+		}
+	}		
+#endif
+
+	pTarget->Teleport( &vecPosition, &angAngles, NULL );
+}
+#endif
+
 //------------------------------------------------------------------------------
 // Purpose:
 //------------------------------------------------------------------------------
@@ -124,6 +164,9 @@ void CPointTeleport::InputTeleport( inputdata_t &inputdata )
 		return;
 	}
 
+#ifdef MAPBASE
+	TeleportEntity( pTarget, m_vSaveOrigin, m_vSaveAngles );
+#else
 	// in episodic, we have a special spawn flag that forces Gordon into a duck
 #ifdef HL2_EPISODIC
 	if ( (m_spawnflags & SF_TELEPORT_INTO_DUCK) && pTarget->IsPlayer() ) 
@@ -143,5 +186,49 @@ void CPointTeleport::InputTeleport( inputdata_t &inputdata )
 #endif
 
 	pTarget->Teleport( &m_vSaveOrigin, &m_vSaveAngles, NULL );
+#endif
 }
+
+#ifdef MAPBASE
+//------------------------------------------------------------------------------
+// Purpose:
+//------------------------------------------------------------------------------
+void CPointTeleport::InputTeleportEntity( inputdata_t &inputdata )
+{
+	if ( !inputdata.value.Entity() )
+	{
+		Warning( "%s unable to find entity from TeleportEntity\n", GetDebugName() );
+		return;
+	}
+
+	// If teleport object is in a movement hierarchy, remove it first
+	if ( EntityMayTeleport( inputdata.value.Entity() ) == false )
+	{
+		Warning("ERROR: (%s) can't teleport object (%s) as it has a parent (%s)!\n",GetDebugName(),inputdata.value.Entity()->GetDebugName(),inputdata.value.Entity()->GetMoveParent()->GetDebugName());
+		return;
+	}
+
+	TeleportEntity( inputdata.value.Entity(), m_vSaveOrigin, m_vSaveAngles );
+}
+
+//------------------------------------------------------------------------------
+// Purpose:
+//------------------------------------------------------------------------------
+void CPointTeleport::InputTeleportToCurrentPos( inputdata_t &inputdata )
+{
+	// Attempt to find the entity in question
+	CBaseEntity *pTarget = gEntList.FindEntityByName( NULL, m_target, this, inputdata.pActivator, inputdata.pCaller );
+	if ( pTarget == NULL )
+		return;
+
+	// If teleport object is in a movement hierarchy, remove it first
+	if ( EntityMayTeleport( pTarget ) == false )
+	{
+		Warning("ERROR: (%s) can't teleport object (%s) as it has a parent (%s)!\n",GetDebugName(),pTarget->GetDebugName(),pTarget->GetMoveParent()->GetDebugName());
+		return;
+	}
+
+	TeleportEntity( pTarget, GetAbsOrigin(), GetAbsAngles() );
+}
+#endif
 

@@ -18,6 +18,9 @@
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 #include "entityblocker.h"
 #include "npcevent.h"
+#ifdef MAPBASE
+#include "interval.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -58,6 +61,9 @@ BEGIN_DATADESC( CAI_ActBusyBehavior )
 	DEFINE_FIELD( m_bInQueue, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_iCurrentBusyAnim, FIELD_INTEGER ),
 	DEFINE_FIELD( m_hActBusyGoal, FIELD_EHANDLE ),
+#ifdef MAPBASE
+	DEFINE_FIELD( m_hNextActBusyGoal, FIELD_EHANDLE ),
+#endif
 	DEFINE_FIELD( m_bNeedToSetBounds, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_hSeeEntity, FIELD_EHANDLE ),
 	DEFINE_FIELD( m_fTimeLastSawSeeEntity, FIELD_TIME ),
@@ -65,6 +71,9 @@ BEGIN_DATADESC( CAI_ActBusyBehavior )
 	DEFINE_FIELD( m_bExitedBusyToDueSeeEnemy, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_iNumConsecutivePathFailures, FIELD_INTEGER ),
 	DEFINE_FIELD( m_bAutoFireWeapon, FIELD_BOOLEAN ),
+#ifdef MAPBASE
+	DEFINE_FIELD( m_flNextAutoFireTime, FIELD_TIME ),
+#endif
 	DEFINE_FIELD( m_flDeferUntil, FIELD_TIME ),
 	DEFINE_FIELD( m_iNumEnemiesInSafeZone, FIELD_INTEGER ),
 END_DATADESC();
@@ -91,7 +100,11 @@ public:
 	virtual void LevelShutdownPostEntity( void );
 
 	// Read in the data from the anim data file
+#ifdef MAPBASE
+	void ParseAnimDataFile( const char *file = "scripts/actbusy.txt" );
+#else
 	void ParseAnimDataFile( void );
+#endif
 
 	// Parse a keyvalues section into an act busy anim
 	bool ParseActBusyFromKV( busyanim_t *pAnim, KeyValues *pSection );
@@ -106,6 +119,13 @@ protected:
 };
 
 CActBusyAnimData g_ActBusyAnimDataSystem;
+
+#ifdef MAPBASE
+void ParseCustomActbusyFile( const char *file )
+{
+	g_ActBusyAnimDataSystem.ParseAnimDataFile(file);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Inherited from IAutoServerSystem
@@ -126,10 +146,18 @@ void CActBusyAnimData::LevelShutdownPostEntity( void )
 //-----------------------------------------------------------------------------
 // Clear out the stats + their history
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+void CActBusyAnimData::ParseAnimDataFile( const char *file )
+#else
 void CActBusyAnimData::ParseAnimDataFile( void )
+#endif
 {
 	KeyValues *pKVAnimData = new KeyValues( "ActBusyAnimDatafile" );
+#ifdef MAPBASE
+	if ( pKVAnimData->LoadFromFile( filesystem, file ) )
+#else
 	if ( pKVAnimData->LoadFromFile( filesystem, "scripts/actbusy.txt" ) )
+#endif
 	{
 		// Now try and parse out each act busy anim
 		KeyValues *pKVAnim = pKVAnimData->GetFirstSubKey();
@@ -207,6 +235,10 @@ bool CActBusyAnimData::ParseActBusyFromKV( busyanim_t *pAnim, KeyValues *pSectio
 		pAnim->iBusyInterruptType = BA_INT_NONE;
 	}
 
+#ifdef MAPBASE
+	pAnim->bTranslateActivity = pSection->GetBool("translateactivity", false);
+#endif
+
 	return true;
 }
 
@@ -271,7 +303,11 @@ void CAI_ActBusyBehavior::Enable( CAI_ActBusyGoal *pGoal, float flRange, bool bV
 	m_bMovingToBusy = false;
 	m_bNeedsToPlayExitAnim = false;
 	m_bLeaving = false;
+#ifdef MAPBASE
+	m_flNextBusySearchTime = gpGlobals->curtime + (m_hActBusyGoal.Get() ? m_hActBusyGoal->NextBusySearchInterval().start : ai_actbusy_search_time.GetFloat());
+#else
 	m_flNextBusySearchTime = gpGlobals->curtime + ai_actbusy_search_time.GetFloat();
+#endif
 	m_flEndBusyAt = 0;
 	m_bVisibleOnly = bVisibleOnly;
 	m_bInQueue = dynamic_cast<CAI_ActBusyQueueGoal*>(m_hActBusyGoal.Get()) != NULL;
@@ -354,6 +390,16 @@ void CAI_ActBusyBehavior::ForceActBusy( CAI_ActBusyGoal *pGoal, CAI_Hint *pHintN
 {
 	Assert( !m_bLeaving );
 
+#ifdef MAPBASE
+	if ( m_bNeedsToPlayExitAnim && !bTeleportToBusy )
+	{
+		if ( HasAnimForActBusy( m_iCurrentBusyAnim, BA_EXIT ) )
+		{
+			m_hNextActBusyGoal = pGoal;
+			//m_bNextActBusyVisOnly = bVisibleOnly;
+		}
+	}
+#else
 	if ( m_bNeedsToPlayExitAnim )
 	{
 		// If we hit this, the mapmaker's told this NPC to actbusy somewhere while it's still in an actbusy.
@@ -364,6 +410,7 @@ void CAI_ActBusyBehavior::ForceActBusy( CAI_ActBusyGoal *pGoal, CAI_Hint *pHintN
 			return;
 		}
 	}
+#endif
 
 	if ( ai_debug_actbusy.GetInt() == 4 )
 	{
@@ -379,7 +426,18 @@ void CAI_ActBusyBehavior::ForceActBusy( CAI_ActBusyGoal *pGoal, CAI_Hint *pHintN
 		Msg("\n");
 	}
 
+#ifdef MAPBASE
+	if (!m_hNextActBusyGoal)
+	{
+		Enable( pGoal, m_flBusySearchRange, bVisibleOnly );
+	}
+	else
+	{
+		Enable( NULL, m_flBusySearchRange, bVisibleOnly );
+	}
+#else
 	Enable( pGoal, m_flBusySearchRange, bVisibleOnly );
+#endif
 	m_bForceActBusy = true;
 	m_flForcedMaxTime = flMaxTime;
 	m_bTeleportToBusy = bTeleportToBusy;
@@ -703,7 +761,12 @@ bool CAI_ActBusyBehavior::ShouldIgnoreSound( CSound *pSound )
 //-----------------------------------------------------------------------------
 void CAI_ActBusyBehavior::OnFriendDamaged( CBaseCombatCharacter *pSquadmate, CBaseEntity *pAttacker )
 {
+#ifdef MAPBASE
+	// Now that this has been extended beyond Alyx, it doesn't just need to be the player anymore
+	if( IsCombatActBusy() && IsInSafeZone( pAttacker ) )
+#else
 	if( IsCombatActBusy() && pSquadmate->IsPlayer() && IsInSafeZone( pAttacker ) )
+#endif
 	{
 		SetCondition( COND_ACTBUSY_AWARE_OF_ENEMY_IN_SAFE_ZONE ); // Break the actbusy, if we're running it.
 		m_flDeferUntil = gpGlobals->curtime + 4.0f;	// Stop actbusying and go deal with that enemy!!
@@ -804,7 +867,12 @@ void CAI_ActBusyBehavior::GatherConditions( void )
 				SetCondition( COND_ACTBUSY_LOST_SEE_ENTITY );
 				m_hActBusyGoal->NPCLostSeeEntity( GetOuter() );
 
+#ifdef MAPBASE
+				// Now that this has been extended beyond Alyx, this could just apply to player allies in general
+				if( IsCombatActBusy() && (m_hSeeEntity->IsPlayer() && GetOuter()->IsPlayerAlly()) )
+#else
 				if( IsCombatActBusy() && (GetOuter()->Classify() == CLASS_PLAYER_ALLY_VITAL && m_hSeeEntity->IsPlayer()) )
+#endif
 				{
 					// Defer any actbusying for several seconds. This serves as a heuristic for waiting
 					// for the player to settle after moving out of the room. This helps Alyx pick a more
@@ -892,13 +960,21 @@ void CAI_ActBusyBehavior::GatherConditions( void )
 		}
 	}
 
+#ifdef MAPBASE
+	if( m_bAutoFireWeapon && m_flNextAutoFireTime <= gpGlobals->curtime && random->RandomInt(0, 4) <= 3 )
+#else
 	if( m_bAutoFireWeapon && random->RandomInt(0, 5) <= 3 )
+#endif
 	{
 		CBaseCombatWeapon *pWeapon = GetOuter()->GetActiveWeapon();
 
 		if( pWeapon )
 		{
 			pWeapon->Operator_ForceNPCFire( GetOuter(), false );
+#ifdef MAPBASE
+			pWeapon->DoMuzzleFlash();
+			m_flNextAutoFireTime = gpGlobals->curtime + pWeapon->GetFireRate();
+#endif
 		}
 	}
 
@@ -1158,7 +1234,11 @@ int CAI_ActBusyBehavior::SelectScheduleWhileNotBusy( int iBase )
 		}
 		else
 		{
+#ifdef MAPBASE
+			m_flNextBusySearchTime = gpGlobals->curtime + (m_hActBusyGoal ? RandomInterval(m_hActBusyGoal->NextBusySearchInterval()) : RandomFloat(ai_actbusy_search_time.GetFloat(), ai_actbusy_search_time.GetFloat()*2));
+#else
 			m_flNextBusySearchTime = gpGlobals->curtime + RandomFloat(ai_actbusy_search_time.GetFloat(), ai_actbusy_search_time.GetFloat()*2);
+#endif
 		}
 
 		// We may already have a node
@@ -1348,6 +1428,23 @@ int CAI_ActBusyBehavior::SelectSchedule()
 	// If we're supposed to be leaving, find a leave node and exit
 	if ( m_bLeaving )
 		return SelectScheduleForLeaving();
+
+#ifdef MAPBASE
+	if (m_hNextActBusyGoal)
+	{
+		if (m_bBusy)
+		{
+			m_flEndBusyAt = gpGlobals->curtime;
+		}
+		else
+		{
+			// Next busy
+			// (the parameters should've been safely stored when we transferred)
+			Enable(m_hNextActBusyGoal, m_flBusySearchRange, m_bVisibleOnly);
+			m_hNextActBusyGoal = NULL;
+		}
+	}
+#endif
 
 	// NPCs should not be busy if the actbusy behaviour has been disabled, or if they've received player squad commands
 	bool bShouldNotBeBusy = (!m_bEnabled || HasCondition( COND_PLAYER_ADDED_TO_SQUAD ) || HasCondition( COND_RECEIVED_ORDERS ) );
@@ -1615,7 +1712,20 @@ bool CAI_ActBusyBehavior::HasAnimForActBusy( int iActBusy, busyanimparts_t AnimP
 
 	// Try and play the activity second
 	if ( pBusyAnim->iActivities[AnimPart] != ACT_INVALID )
+#ifdef MAPBASE
+	{
+		if (pBusyAnim->bTranslateActivity == true)
+		{
+			return GetOuter()->HaveSequenceForActivity( GetOuter()->TranslateActivity(pBusyAnim->iActivities[AnimPart]) );
+		}
+		else
+		{
+			return GetOuter()->HaveSequenceForActivity( pBusyAnim->iActivities[AnimPart] );
+		}
+	}
+#else
 		return GetOuter()->HaveSequenceForActivity( pBusyAnim->iActivities[AnimPart] );
+#endif
 
 	return false;
 }
@@ -1677,7 +1787,11 @@ bool CAI_ActBusyBehavior::PlayAnimForActBusy( busyanimparts_t AnimPart )
 	// Try and play the activity second
 	if ( pBusyAnim->iActivities[AnimPart] != ACT_INVALID )
 	{
+#ifdef MAPBASE
+		GetOuter()->SetIdealActivity( pBusyAnim->bTranslateActivity ? GetOuter()->TranslateActivity(pBusyAnim->iActivities[AnimPart]) : pBusyAnim->iActivities[AnimPart] );
+#else
 		GetOuter()->SetIdealActivity( pBusyAnim->iActivities[AnimPart] );
+#endif
 		return true;
 	}
 
@@ -2196,7 +2310,11 @@ void CAI_ActBusyBehavior::NotifyBusyEnding( void )
 	}
 	else
 	{
+#ifdef MAPBASE
+		m_flNextBusySearchTime = gpGlobals->curtime + (m_hActBusyGoal ? RandomInterval(m_hActBusyGoal->NextBusySearchInterval()) : RandomFloat(ai_actbusy_search_time.GetFloat(), ai_actbusy_search_time.GetFloat()*2));
+#else
 		m_flNextBusySearchTime = gpGlobals->curtime + (RandomFloat(ai_actbusy_search_time.GetFloat(), ai_actbusy_search_time.GetFloat()*2));
+#endif
 	}
 }
 
@@ -2306,6 +2424,12 @@ BEGIN_DATADESC( CAI_ActBusyGoal )
 	DEFINE_KEYFIELD( m_bVisibleOnly, FIELD_BOOLEAN, "visibleonly" ),
 	DEFINE_KEYFIELD( m_iType, FIELD_INTEGER, "type" ),
 	DEFINE_KEYFIELD( m_bAllowCombatActBusyTeleport, FIELD_BOOLEAN, "allowteleport" ),
+#ifdef MAPBASE
+	// interval_t's can be saved. No instance of its use exists in vanilla Source 2013,
+	// so it's either an unused field type or something used in the engine. It appears to be functional either way.
+	// I added built-in keyvalue support as an experiment, and this keyvalue is part of said experiment.
+	DEFINE_KEYFIELD( m_NextBusySearch, FIELD_INTERVAL, "NextBusy" ),
+#endif
 	DEFINE_KEYFIELD( m_iszSeeEntityName, FIELD_STRING, "SeeEntity" ),
 	DEFINE_KEYFIELD( m_flSeeEntityTimeout, FIELD_FLOAT, "SeeEntityTimeout" ),
 	DEFINE_KEYFIELD( m_iszSafeZoneVolume, FIELD_STRING, "SafeZone" ),
@@ -2316,10 +2440,18 @@ BEGIN_DATADESC( CAI_ActBusyGoal )
 	DEFINE_INPUTFUNC( FIELD_STRING, "ForceNPCToActBusy", InputForceNPCToActBusy ),
 	DEFINE_INPUTFUNC( FIELD_EHANDLE, "ForceThisNPCToActBusy", InputForceThisNPCToActBusy ),
 	DEFINE_INPUTFUNC( FIELD_EHANDLE, "ForceThisNPCToLeave", InputForceThisNPCToLeave ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "ForceThisNPCToStopBusy", InputForceThisNPCToStopBusy ),
+#endif
 
 	// Outputs
 	DEFINE_OUTPUT( m_OnNPCStartedBusy, "OnNPCStartedBusy" ),
 	DEFINE_OUTPUT( m_OnNPCFinishedBusy, "OnNPCFinishedBusy" ),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnNPCStartedLeavingBusy, "OnNPCStartedLeavingBusy" ),
+	DEFINE_OUTPUT( m_OnNPCMovingToBusy, "OnNPCMovingToBusy" ),
+	DEFINE_OUTPUT( m_OnNPCAbortedMoveTo, "OnNPCAbortedMoveTo" ),
+#endif
 	DEFINE_OUTPUT( m_OnNPCLeft, "OnNPCLeft" ),
 	DEFINE_OUTPUT( m_OnNPCLostSeeEntity, "OnNPCLostSeeEntity" ),
 	DEFINE_OUTPUT( m_OnNPCSeeEnemy, "OnNPCSeeEnemy" ),
@@ -2586,12 +2718,30 @@ void CAI_ActBusyGoal::InputForceThisNPCToLeave( inputdata_t &inputdata )
 	pBehavior->ForceActBusyLeave();
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Forces a specific NPC to stop acting busy
+//-----------------------------------------------------------------------------
+void CAI_ActBusyGoal::InputForceThisNPCToStopBusy( inputdata_t &inputdata )
+{
+	CAI_ActBusyBehavior *pBehavior = GetBusyBehaviorForNPC( inputdata.value.Entity(), "InputForceThisNPCToStopBusy" );
+	if ( !pBehavior )
+		return;
+
+	// Just stop busying
+	pBehavior->StopBusying();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *pNPC - 
 //-----------------------------------------------------------------------------
 void CAI_ActBusyGoal::NPCMovingToBusy( CAI_BaseNPC *pNPC )
 {
+#ifdef MAPBASE
+	m_OnNPCMovingToBusy.Set( pNPC, pNPC, this );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2608,6 +2758,9 @@ void CAI_ActBusyGoal::NPCStartedBusy( CAI_BaseNPC *pNPC )
 //-----------------------------------------------------------------------------
 void CAI_ActBusyGoal::NPCStartedLeavingBusy( CAI_BaseNPC *pNPC )
 {
+#ifdef MAPBASE
+	m_OnNPCStartedLeavingBusy.Set( pNPC, pNPC, this );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2616,6 +2769,9 @@ void CAI_ActBusyGoal::NPCStartedLeavingBusy( CAI_BaseNPC *pNPC )
 //-----------------------------------------------------------------------------
 void CAI_ActBusyGoal::NPCAbortedMoveTo( CAI_BaseNPC *pNPC )
 {
+#ifdef MAPBASE
+	m_OnNPCAbortedMoveTo.Set( pNPC, pNPC, this );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2649,6 +2805,24 @@ void CAI_ActBusyGoal::NPCSeeEnemy( CAI_BaseNPC *pNPC )
 {
 	m_OnNPCSeeEnemy.Set( pNPC, pNPC, this );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+interval_t &CAI_ActBusyGoal::NextBusySearchInterval()
+{
+	if (m_NextBusySearch.start == 0)
+	{
+		// Return an interval_t version of the convar
+		static interval_t defaultInterval;
+		defaultInterval.start = ai_actbusy_search_time.GetFloat();
+		defaultInterval.range = ai_actbusy_search_time.GetFloat(); // Range is end - start, so we don't have to multiply it here
+		return defaultInterval;
+	}
+
+	return m_NextBusySearch;
+}
+#endif
 
 //==========================================================================================================
 // ACT BUSY QUEUE

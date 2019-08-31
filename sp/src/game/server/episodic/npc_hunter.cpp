@@ -63,6 +63,9 @@
 #include "weapon_striderbuster.h"
 #include "monstermaker.h"
 #include "weapon_rpg.h"
+#ifdef MAPBASE
+#include "mapbase/GlobalStrings.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -201,11 +204,19 @@ int g_interactionHunterFoundEnemy = 0;
 //-----------------------------------------------------------------------------
 // Local stuff.
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+#define s_iszStriderClassname gm_isz_class_Strider
+#define s_iszPhysPropClassname gm_isz_class_PropPhysics
+static string_t s_iszStriderBusterClassname;
+static string_t s_iszMagnadeClassname;
+static string_t s_iszHuntersToRunOver;
+#else
 static string_t s_iszStriderClassname;
 static string_t s_iszStriderBusterClassname;
 static string_t s_iszMagnadeClassname;
 static string_t s_iszPhysPropClassname;
 static string_t s_iszHuntersToRunOver;
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -1973,11 +1984,17 @@ void CNPC_Hunter::Activate()
 {
 	BaseClass::Activate();
 
+#ifdef MAPBASE
+	s_iszStriderBusterClassname = AllocPooledString( "weapon_striderbuster" );
+	s_iszMagnadeClassname = AllocPooledString( "npc_grenade_magna" );
+	s_iszHuntersToRunOver = AllocPooledString( "hunters_to_run_over" );
+#else
 	s_iszStriderBusterClassname = AllocPooledString( "weapon_striderbuster" );
 	s_iszStriderClassname  = AllocPooledString( "npc_strider" );
 	s_iszMagnadeClassname = AllocPooledString( "npc_grenade_magna" );
 	s_iszPhysPropClassname = AllocPooledString( "prop_physics" );
 	s_iszHuntersToRunOver = AllocPooledString( "hunters_to_run_over" );
+#endif
 	
 	// If no one has initialized the hunters to run over counter, just zero it out.
 	if ( !GlobalEntity_IsInTable( s_iszHuntersToRunOver ) )
@@ -4089,7 +4106,11 @@ bool CNPC_Hunter::HandleChargeImpact( Vector vecImpact, CBaseEntity *pEntity )
 	}
 
 	// Hit anything we don't like
+#ifdef MAPBASE
+	if ( IRelationType( pEntity ) <= D_FR && ( GetNextAttack() < gpGlobals->curtime ) )
+#else
 	if ( IRelationType( pEntity ) == D_HT && ( GetNextAttack() < gpGlobals->curtime ) )
+#endif
 	{
 		EmitSound( "NPC_Hunter.ChargeHitEnemy" );
 
@@ -4371,7 +4392,11 @@ void CNPC_Hunter::HandleAnimEvent( animevent_t *pEvent )
 //-----------------------------------------------------------------------------
 void CNPC_Hunter::AddEntityRelationship( CBaseEntity *pEntity, Disposition_t nDisposition, int nPriority )
 {
+#ifdef MAPBASE
+	if ( nDisposition == D_HT && pEntity->ClassMatches(gm_isz_class_Bullseye) )
+#else
 	if ( nDisposition ==  D_HT && pEntity->ClassMatches("npc_bullseye") )
+#endif
 		UpdateEnemyMemory( pEntity, pEntity->GetAbsOrigin() );
 	BaseClass::AddEntityRelationship( pEntity, nDisposition, nPriority );
 }
@@ -5006,7 +5031,11 @@ int CNPC_Hunter::RangeAttack2Conditions( float flDot, float flDist )
 	{
 		return COND_TOO_FAR_TO_ATTACK;
 	}
+#ifdef MAPBASE
+	else if ( !bIsBuster && ( !GetEnemy() || !GetEnemy()->ClassMatches( gm_isz_class_Bullseye ) ) && flDist < hunter_flechette_min_range.GetFloat() )
+#else
 	else if ( !bIsBuster && ( !GetEnemy() || !GetEnemy()->ClassMatches( "npc_bullseye" ) ) && flDist < hunter_flechette_min_range.GetFloat() )
+#endif
 	{
 		return COND_TOO_CLOSE_TO_ATTACK;
 	}
@@ -5611,6 +5640,40 @@ int CNPC_Hunter::OnTakeDamage( const CTakeDamageInfo &info )
 			}
 		}
 	}
+#ifdef MAPBASE
+	else if (info.GetDamageType() == DMG_CLUB &&
+		info.GetInflictor() && info.GetInflictor()->IsNPC())
+	{
+		// If the *inflictor* is a NPC doing club damage, it's most likely an antlion guard or even another hunter charging us.
+		// Add DMG_CRUSH so we ragdoll immediately if we die.
+		myInfo.AddDamageType( DMG_CRUSH );
+	}
+
+
+	// "So, do you know what the alternative fire method does on the AR2? It kills hunters. How did--"
+	// "No, only Freeman's does it!"
+	// "What do you mean 'Only Freeman's does it'?"
+	// "Only energy balls fired by the player can dissolve hunters. Energy balls fired by NPCs only do a metered amount of damage."
+	// "...Huh. Well, in that case, we'll just use rocket launchers."
+	// 
+	// That instructor was straight-up lying to those rebels, but now he's telling the truth.
+	// Hunters die to NPC balls instantly and act like it was a player ball.
+	// Implementation is sketchy, but it was the best I could do.
+	if (myInfo.GetDamageType() & DMG_DISSOLVE &&
+		info.GetAttacker() && info.GetAttacker()->IsNPC() &&
+		info.GetInflictor() && info.GetInflictor()->ClassMatches("prop_combine_ball"))
+	{
+		// We divide by the ally damage scale to counter its usage in OnTakeDamage_Alive.
+		myInfo.SetDamage( (float)GetMaxHealth() / sk_hunter_citizen_damage_scale.GetFloat() );
+
+		myInfo.AddDamageType( DMG_CRUSH );
+		//myInfo.SetDamagePosition( info.GetInflictor()->GetAbsOrigin() );
+		//myInfo.SetDamageForce( info.GetInflictor()->GetAbsVelocity() );
+
+		// Make the NPC's ball explode
+		info.GetInflictor()->AcceptInput( "Explode", this, this, variant_t(), 0 );
+	}
+#endif
 	
 	return BaseClass::OnTakeDamage( myInfo );
 }

@@ -387,6 +387,9 @@ BEGIN_DATADESC( CPhysBox )
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableMotion", InputDisableMotion ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "ForceDrop", InputForceDrop ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableFloating", InputDisableFloating ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetDebris", InputSetDebris ),
+#endif
 
 	// Function pointers
 	DEFINE_ENTITYFUNC( BreakTouch ),
@@ -689,6 +692,25 @@ void CPhysBox::InputDisableFloating( inputdata_t &inputdata )
 	PhysEnableFloating( VPhysicsGetObject(), false );
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Adds or removes the debris spawnflag.
+//-----------------------------------------------------------------------------
+void CPhysBox::InputSetDebris( inputdata_t &inputdata )
+{
+	if (inputdata.value.Bool())
+	{
+		AddSpawnFlags(SF_PHYSBOX_DEBRIS);
+		SetCollisionGroup(COLLISION_GROUP_DEBRIS);
+	}
+	else
+	{
+		RemoveSpawnFlags(SF_PHYSBOX_DEBRIS);
+		SetCollisionGroup(COLLISION_GROUP_INTERACTIVE); // Is this the default collision group?
+	}
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: If we're being held by the player's hand/physgun, force it to drop us
 //-----------------------------------------------------------------------------
@@ -871,6 +893,9 @@ BEGIN_DATADESC( CPhysExplosion )
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "Explode", InputExplode ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "ExplodeAndRemove", InputExplodeAndRemove ),
+#endif
 
 	// Outputs 
 	DEFINE_OUTPUT( m_OnPushedPlayer, "OnPushedPlayer" ),
@@ -888,10 +913,19 @@ void CPhysExplosion::Spawn( void )
 float CPhysExplosion::GetRadius( void )
 {
 	float radius = m_radius;
+#ifdef MAPBASE
+	if ( radius == 0 )
+#else
 	if ( radius <= 0 )
+#endif
 	{
 		// Use the same radius as combat
 		radius = m_damage * 2.5;
+
+#ifdef MAPBASE
+		if (radius < 0)
+			radius *= -1;
+#endif
 	}
 
 	return radius;
@@ -924,6 +958,17 @@ void CPhysExplosion::InputExplode( inputdata_t &inputdata )
 	Explode( inputdata.pActivator, inputdata.pCaller );
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPhysExplosion::InputExplodeAndRemove( inputdata_t &inputdata )
+{
+	Explode( inputdata.pActivator, inputdata.pCaller );
+	UTIL_Remove(this);
+}
+#endif
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -935,6 +980,13 @@ void CPhysExplosion::Explode( CBaseEntity *pActivator, CBaseEntity *pCaller )
 	Vector		vecSpot, vecOrigin;
 
 	falloff = 1.0 / 2.5;
+
+#ifdef MAPBASE
+	// For negative damage handling
+	float damage = m_damage;
+	if (damage < 0)
+		damage *= -1.0f;
+#endif
 
 	// iterate on all entities in the vicinity.
 	// I've removed the traceline heuristic from phys explosions. SO right now they will
@@ -986,7 +1038,11 @@ void CPhysExplosion::Explode( CBaseEntity *pActivator, CBaseEntity *pCaller )
 				}
 
 				adjustedDamage =  flDist * falloff;
+#ifdef MAPBASE
+				adjustedDamage = damage - adjustedDamage;
+#else
 				adjustedDamage = m_damage - adjustedDamage;
+#endif
 		
 				if ( adjustedDamage < 1 )
 				{
@@ -994,7 +1050,19 @@ void CPhysExplosion::Explode( CBaseEntity *pActivator, CBaseEntity *pCaller )
 				}
 
 				CTakeDamageInfo info( this, this, adjustedDamage, DMG_BLAST );
+#ifdef MAPBASE
+				// Negative damage handling
+				Vector vecDir = (vecSpot - vecOrigin);
+				if (m_damage < 0)
+				{
+					vecDir *= -1.0f;
+					vecOrigin += vecDir;
+					NDebugOverlay::Cross3D(vecOrigin, 2.0f, 255, 255, 0, true, 1.0f);
+				}
+				CalculateExplosiveDamageForce( &info, vecDir, vecOrigin );
+#else
 				CalculateExplosiveDamageForce( &info, (vecSpot - vecOrigin), vecOrigin );
+#endif
 	
 				if ( HasSpawnFlags( SF_PHYSEXPLOSION_PUSH_PLAYER ) )
 				{
@@ -1019,7 +1087,11 @@ void CPhysExplosion::Explode( CBaseEntity *pActivator, CBaseEntity *pCaller )
 							pEntity->ViewPunch( vecDeltaAngles );
 						}
 
+#ifdef MAPBASE
+						Vector vecPush = (vecPushDir*damage*flFalloff*2.0f);
+#else
 						Vector vecPush = (vecPushDir*m_damage*flFalloff*2.0f);
+#endif
 						if ( pEntity->GetFlags() & FL_BASEVELOCITY )
 						{
 							vecPush = vecPush + pEntity->GetBaseVelocity();
@@ -1242,6 +1314,16 @@ public:
 		SetMoveType( MOVETYPE_VPHYSICS );
 		SetSolid( SOLID_VPHYSICS );
 		m_takedamage = DAMAGE_EVENTS_ONLY;
+
+#ifdef MAPBASE
+		// If we don't have an owner entity, it means this wasn't spawned by a phys_convert and this is safe.
+		if ( !GetOwnerEntity() )
+		{
+			VPhysicsInitNormal( SOLID_VPHYSICS, 0, HasSpawnFlags(SF_PHYSBOX_DEBRIS) );
+			if ( HasSpawnFlags(SF_PHYSBOX_ASLEEP) )
+				SetCollisionGroup( COLLISION_GROUP_DEBRIS );
+		}
+#endif
 	}
 };
 
@@ -1258,6 +1340,16 @@ public:
 		SetMoveType( MOVETYPE_VPHYSICS );
 		SetSolid( SOLID_VPHYSICS );
 		m_takedamage = DAMAGE_EVENTS_ONLY;
+
+#ifdef MAPBASE
+		// If we don't have an owner entity, it means this wasn't spawned by a phys_convert and this is safe.
+		if ( !GetOwnerEntity() )
+		{
+			VPhysicsInitNormal( SOLID_VPHYSICS, 0, HasSpawnFlags(SF_PHYSPROP_DEBRIS) );
+			if ( HasSpawnFlags(SF_PHYSPROP_START_ASLEEP) )
+				SetCollisionGroup( COLLISION_GROUP_DEBRIS );
+		}
+#endif
 	}
 
 	int ObjectCaps()
@@ -1333,6 +1425,10 @@ static CBaseEntity *CreateSimplePhysicsObject( CBaseEntity *pEntity, bool create
 	pPhysEntity->KeyValue( "model", STRING(pEntity->GetModelName()) );
 	pPhysEntity->SetAbsOrigin( pEntity->GetAbsOrigin() );
 	pPhysEntity->SetAbsAngles( pEntity->GetAbsAngles() );
+#ifdef MAPBASE
+	// So the entity knows it's being spawned by a phys_convert
+	pPhysEntity->SetOwnerEntity( pEntity );
+#endif
 	pPhysEntity->Spawn();
 	if ( !TransferPhysicsObject( pEntity, pPhysEntity, !createAsleep ) )
 	{
@@ -1342,6 +1438,36 @@ static CBaseEntity *CreateSimplePhysicsObject( CBaseEntity *pEntity, bool create
 	}
 	return pPhysEntity;
 }
+
+#ifdef MAPBASE
+// Creates func_brush and prop_physics instead, because why not?
+static CBaseEntity *CreateConventionalPhysicsObject( CBaseEntity *pEntity, bool createAsleep, bool createAsDebris )
+{
+	CBaseEntity *pPhysEntity = NULL;
+	int modelindex = pEntity->GetModelIndex();
+	const model_t *model = modelinfo->GetModel( modelindex );
+	if ( model && modelinfo->GetModelType(model) == mod_brush )
+	{
+		pPhysEntity = CreateEntityByName( "func_physbox" );
+	}
+	else
+	{
+		pPhysEntity = CreateEntityByName( "prop_physics_override" );
+	}
+
+	pPhysEntity->KeyValue( "model", STRING(pEntity->GetModelName()) );
+	pPhysEntity->SetAbsOrigin( pEntity->GetAbsOrigin() );
+	pPhysEntity->SetAbsAngles( pEntity->GetAbsAngles() );
+	pPhysEntity->Spawn();
+	if ( !TransferPhysicsObject( pEntity, pPhysEntity, !createAsleep ) )
+	{
+		pPhysEntity->VPhysicsInitNormal( SOLID_VPHYSICS, 0, createAsleep );
+		if ( createAsDebris )
+			pPhysEntity->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
+	}
+	return pPhysEntity;
+}
+#endif
 
 #define SF_CONVERT_ASLEEP		0x0001
 #define SF_CONVERT_AS_DEBRIS	0x0002
@@ -1357,11 +1483,22 @@ public:
 	// Input handlers
 	void InputConvertTarget( inputdata_t &inputdata );
 
+#ifdef MAPBASE
+	enum
+	{
+		CONVERT_ENTITYTYPE_SIMPLE, // simple_physics_prop, simple_physics_brush, etc.
+		CONVERT_ENTITYTYPE_CONVENTIONAL, // prop_physics, func_physbox, etc.
+	};
+#endif
+
 	DECLARE_DATADESC();
 
 private:
 	string_t		m_swapModel;
 	float			m_flMassOverride;
+#ifdef MAPBASE
+	int				m_iPhysicsEntityType = CONVERT_ENTITYTYPE_SIMPLE;
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( phys_convert, CPhysConvert );
@@ -1370,6 +1507,9 @@ BEGIN_DATADESC( CPhysConvert )
 
 	DEFINE_KEYFIELD( m_swapModel,		FIELD_STRING,	"swapmodel" ),
 	DEFINE_KEYFIELD( m_flMassOverride,	FIELD_FLOAT,	"massoverride" ),
+#ifdef MAPBASE
+	DEFINE_INPUT( m_iPhysicsEntityType,	FIELD_INTEGER,	"SetConversionType" ),
+#endif
 	
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "ConvertTarget", InputConvertTarget ),
@@ -1432,7 +1572,16 @@ void CPhysConvert::InputConvertTarget( inputdata_t &inputdata )
 		}
 
 		// created phys object, now move hierarchy over
+#ifdef MAPBASE
+		CBaseEntity *pPhys;
+		switch (m_iPhysicsEntityType)
+		{
+			case CONVERT_ENTITYTYPE_CONVENTIONAL:	pPhys = CreateConventionalPhysicsObject( pEntity, createAsleep, createAsDebris ); break;
+			default:								pPhys = CreateSimplePhysicsObject( pEntity, createAsleep, createAsDebris ); break;
+		}
+#else
 		CBaseEntity *pPhys = CreateSimplePhysicsObject( pEntity, createAsleep, createAsDebris );
+#endif
 		if ( pPhys )
 		{
 			// Override the mass if specified
@@ -1444,6 +1593,22 @@ void CPhysConvert::InputConvertTarget( inputdata_t &inputdata )
 					pPhysObj->SetMass( m_flMassOverride );
 				}
 			}
+
+#ifdef MAPBASE
+			pPhys->m_nRenderMode = pEntity->m_nRenderMode;
+			pPhys->m_nRenderFX = pEntity->m_nRenderFX;
+			const color32 rclr = pEntity->GetRenderColor();
+			pPhys->SetRenderColor(rclr.r, rclr.g, rclr.b, rclr.a);
+			if (pEntity->GetBaseAnimating() /*&& pPhys->GetBaseAnimating()*/)
+			{
+				CBaseAnimating *pEntityAnimating = pEntity->GetBaseAnimating();
+				CBaseAnimating *pPhysAnimating = pPhys->GetBaseAnimating();
+
+				pPhysAnimating->m_nSkin = pEntityAnimating->m_nSkin;
+				pPhysAnimating->m_nBody = pEntityAnimating->m_nBody;
+				pPhysAnimating->SetModelScale(pEntityAnimating->GetModelScale());
+			}
+#endif
 
 			pPhys->SetName( pEntity->GetEntityName() );
 			UTIL_TransferPoseParameters( pEntity, pPhys );
@@ -1463,6 +1628,9 @@ void CPhysConvert::InputConvertTarget( inputdata_t &inputdata )
 #define SF_MAGNET_SUCK				0x0004
 #define SF_MAGNET_ALLOWROTATION		0x0008
 #define SF_MAGNET_COAST_HACK		0x0010
+#ifdef MAPBASE
+#define SF_MAGNET_PREVENT_PICKUP	0x0020
+#endif
 
 LINK_ENTITY_TO_CLASS( phys_magnet, CPhysMagnet );
 
@@ -1559,6 +1727,16 @@ CPhysMagnet::~CPhysMagnet( void )
 //-----------------------------------------------------------------------------
 void CPhysMagnet::Spawn( void )
 {
+#ifdef MAPBASE
+	// Crashes otherwise
+	if (GetModelName() == NULL_STRING)
+	{
+		Warning("WARNING: %s spawned with no model name\n", GetDebugName());
+		UTIL_Remove(this);
+		return;
+	}
+#endif
+
 	Precache();
 
 	SetMoveType( MOVETYPE_NONE );
@@ -1586,6 +1764,13 @@ void CPhysMagnet::Spawn( void )
 	{
 		VPhysicsGetObject()->EnableMotion( false );
 	}
+
+#ifdef MAPBASE
+	if ( HasSpawnFlags(SF_MAGNET_PREVENT_PICKUP) )
+	{
+		PhysSetGameFlags(VPhysicsGetObject(), FVPHYSICS_NO_PLAYER_PICKUP);
+	}
+#endif
 
 	m_bActive = true;
 	m_pConstraintGroup = NULL;
@@ -1740,6 +1925,20 @@ void CPhysMagnet::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 
 	BaseClass::VPhysicsCollision( index, pEvent );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CPhysMagnet::CanBePickedUpByPhyscannon( void )
+{
+	if ( HasSpawnFlags( SF_MAGNET_PREVENT_PICKUP ) )
+		return false;
+
+	return true;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

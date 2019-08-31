@@ -30,6 +30,10 @@ public:
 	void InputTurnOff(inputdata_t &inputdata);
 	void InputToggle(inputdata_t &inputdata);
 	void InputHurt(inputdata_t &inputdata);
+
+#ifdef MAPBASE
+	bool KeyValue( const char *szKeyName, const char *szValue );
+#endif
 	
 	DECLARE_DATADESC();
 
@@ -179,4 +183,22 @@ void CPointHurt::InputHurt( inputdata_t &data )
 
 	HurtThink();
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CPointHurt::KeyValue( const char *szKeyName, const char *szValue )
+{
+	// Additional OR flags
+	if (FStrEq( szKeyName, "damageor" ) || FStrEq( szKeyName, "damagepresets" ))
+	{
+		m_bitsDamageType |= atoi(szValue);
+	}
+	else
+		return BaseClass::KeyValue( szKeyName, szValue );
+
+	return true;
+}
+#endif
 

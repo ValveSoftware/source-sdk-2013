@@ -18,6 +18,13 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef MAPBASE
+// This turned out to be causing major issues with VPhysics collision.
+// It's deactivated until a fix is found.
+// See prediction.cpp as well.
+//#define PLAYER_COMMAND_FIX 1
+#endif
+
 extern IGameMovement *g_pGameMovement;
 extern CMoveData *g_pMoveData;	// This is a global because it is subclassed by each game.
 extern ConVar sv_noclipduringpause;
@@ -417,6 +424,13 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 		player->pl.v_angle = ucmd->viewangles + player->pl.anglechange;
 	}
 
+#ifdef PLAYER_COMMAND_FIX
+	// Let server invoke any needed impact functions
+	VPROF_SCOPE_BEGIN( "moveHelper->ProcessImpacts" );
+	moveHelper->ProcessImpacts();
+	VPROF_SCOPE_END();
+#endif
+
 	// Call standard client pre-think
 	RunPreThink( player );
 
@@ -438,16 +452,22 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 		VPROF( "pVehicle->ProcessMovement()" );
 		pVehicle->ProcessMovement( player, g_pMoveData );
 	}
+
+#ifdef PLAYER_COMMAND_FIX
+	RunPostThink( player );
+#endif
 			
 	// Copy output
 	FinishMove( player, ucmd, g_pMoveData );
 
+#ifndef PLAYER_COMMAND_FIX
 	// Let server invoke any needed impact functions
 	VPROF_SCOPE_BEGIN( "moveHelper->ProcessImpacts" );
 	moveHelper->ProcessImpacts();
 	VPROF_SCOPE_END();
 
 	RunPostThink( player );
+#endif
 
 	g_pGameMovement->FinishTrackPredictionErrors( player );
 

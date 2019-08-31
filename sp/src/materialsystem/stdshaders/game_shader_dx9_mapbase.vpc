@@ -1,0 +1,54 @@
+//-----------------------------------------------------------------------------
+//	game_shader_dx9_mapbase.vpc
+//
+//	Project Script for Mapbase shader changes
+//-----------------------------------------------------------------------------
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$File	"cloak_blended_pass_helper.cpp"
+		$File	"emissive_scroll_blended_pass_helper.cpp"
+		$File	"flesh_interior_blended_pass_helper.cpp"
+		$File	"lightmappedgeneric_dx9.cpp"
+		$File	"lightmappedgeneric_dx9_helper.cpp"
+		$File	"lightmappedreflective.cpp"
+		$File	"skin_dx9_helper.cpp"
+		$File	"unlitgeneric_dx9.cpp"
+		$File	"vertexlitgeneric_dx9.cpp"
+		$File	"vertexlitgeneric_dx9_helper.cpp"
+		
+		$File	"common_flashlight_fxc.h"
+		$File	"lightmappedgeneric_dx9_helper.h"
+		$File	"lightmappedgeneric_ps2_3_x.h"
+		
+		$File	"worldtwotextureblend.cpp"
+		$File	"worldvertextransition.cpp"
+		$File	"worldvertextransition_dx8_helper.cpp"
+		$File	"refract.cpp"
+		$File	"refract_dx9_helper.cpp"
+		
+		$File	"water.cpp"
+		$File	"depthwrite.cpp"
+		//$File	"cable_dx9.cpp"
+		$File	"splinerope.cpp"
+		
+		//$File	"eyes.cpp"
+		$File	"eyes_dx9.cpp"
+		$File	"eyes_dx8_dx9_helper.cpp"
+		$File	"eyeball.cpp"
+		$File	"eyeglint_dx9.cpp"
+		$File	"eye_refract.cpp"
+		$File	"eye_refract_helper.cpp"
+		$File	"teeth.cpp"
+		
+		//$File	"sprite.cpp"
+		$File	"sprite_dx9.cpp"
+		
+		$File	"decalmodulate_dx9.cpp"
+	}
+
+	//$Shaders	"mapbase_dx9_20b.txt"
+	//$Shaders	"mapbase_dx9_30.txt"
+}

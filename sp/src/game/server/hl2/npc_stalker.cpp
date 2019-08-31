@@ -126,7 +126,14 @@ BEGIN_DATADESC( CNPC_Stalker )
 	DEFINE_FIELD( m_flNextBreatheSoundTime, FIELD_TIME ),
 	DEFINE_FIELD( m_flNextScrambleSoundTime, FIELD_TIME ),
 	DEFINE_FIELD( m_nextSmokeTime, FIELD_TIME ),
+#ifdef MAPBASE
+	// Funnily enough, we can very easily treat this as a boolean value in Hammer
+	// since "0" means don't attack and "1" means attack. There is no unique behavior beyond 1.
+	DEFINE_KEYFIELD( m_iPlayerAggression, FIELD_INTEGER, "Aggression" ),
+	DEFINE_KEYFIELD( m_bBleed, FIELD_BOOLEAN, "Bleed" ),
+#else
 	DEFINE_FIELD( m_iPlayerAggression, FIELD_INTEGER ),
+#endif
 	DEFINE_FIELD( m_flNextScreamTime, FIELD_TIME ),
 
 	// Function Pointers
@@ -300,7 +307,9 @@ void CNPC_Stalker::Spawn( void )
 
 	m_flDistTooFar	= MAX_STALKER_FIRE_RANGE;
 
+#ifndef MAPBASE
 	m_iPlayerAggression = 0;
+#endif
 
 	GetSenses()->SetDistLook(MAX_STALKER_FIRE_RANGE - 1);
 }
@@ -328,6 +337,11 @@ void CNPC_Stalker::Precache( void )
 	PrecacheScriptSound( "NPC_Stalker.Scream" );
 	PrecacheScriptSound( "NPC_Stalker.Pain" );
 	PrecacheScriptSound( "NPC_Stalker.Die" );
+
+#ifdef MAPBASE
+	if (m_bBleed)
+		PrecacheParticleSystem( "blood_impact_synth_01" );
+#endif
 
 	BaseClass::Precache();
 }
@@ -388,6 +402,33 @@ void CNPC_Stalker::Event_Killed( const CTakeDamageInfo &info )
 	KillAttackBeam();
 	BaseClass::Event_Killed( info );
 }
+
+#ifdef MAPBASE
+extern void DispatchParticleEffect( const char *pszParticleName, Vector vecOrigin, QAngle vecAngles, CBaseEntity *pEntity = NULL );
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CNPC_Stalker::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
+{
+	// Is it insane to desire for stalkers to bleed? No.
+	// Is it insane to port the hunter's blood particle system because
+	// it fits with the fact stalkers probably don't run on regular blood anymore? Maybe.
+	if (m_bBleed)
+	{
+		if ( ( inputInfo.GetDamageType() & DMG_BULLET ) ||
+			 ( inputInfo.GetDamageType() & DMG_BUCKSHOT ) ||
+			 ( inputInfo.GetDamageType() & DMG_CLUB ) ||
+			 ( inputInfo.GetDamageType() & DMG_NEVERGIB ) )
+		{
+			QAngle vecAngles;
+			VectorAngles( ptr->plane.normal, vecAngles );
+			DispatchParticleEffect( "blood_impact_synth_01", ptr->endpos, vecAngles );
+		}
+	}
+
+	BaseClass::TraceAttack( inputInfo, vecDir, ptr, pAccumulator );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -1106,6 +1147,30 @@ void CNPC_Stalker::DrawAttackBeam(void)
 	*/
 }
 
+#ifdef MAPBASE
+//------------------------------------------------------------------------------
+// Purpose: Fixes stalker beam cleanup not working correctly
+//------------------------------------------------------------------------------
+void CNPC_Stalker::UpdateOnRemove( void )
+{
+	if (m_pBeam)
+	{
+		StopSound(m_pBeam->entindex(), "NPC_Stalker.BurnWall" );
+		StopSound(m_pBeam->entindex(), "NPC_Stalker.BurnFlesh" );
+
+		UTIL_Remove( m_pLightGlow );
+		UTIL_Remove( m_pBeam);
+		m_pBeam = NULL;
+		m_bPlayingHitWall = false;
+		m_bPlayingHitFlesh = false;
+
+		SetThink(NULL);
+	}
+
+	BaseClass::UpdateOnRemove();
+}
+#endif
+
 //------------------------------------------------------------------------------
 // Purpose : Draw attack beam and do damage / decals
 // Input   :
@@ -1168,7 +1233,11 @@ bool CNPC_Stalker::InnateWeaponLOSCondition( const Vector &ownerPos, const Vecto
 	}
 	else if (pBCC) 
 	{
+#ifdef MAPBASE
+		if (IRelationType( pBCC ) <= D_FR)
+#else
 		if (IRelationType( pBCC ) == D_HT)
+#endif
 		{
 			return true;
 		}

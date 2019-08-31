@@ -19,12 +19,42 @@
 	#define CHalfLife2Proxy C_HalfLife2Proxy
 #endif
 
+#if MAPBASE && GAME_DLL
+#define FRIENDLY_FIRE_GLOBALNAME "friendly_fire_override"
+#endif
+
 
 class CHalfLife2Proxy : public CGameRulesProxy
 {
 public:
 	DECLARE_CLASS( CHalfLife2Proxy, CGameRulesProxy );
 	DECLARE_NETWORKCLASS();
+
+#if defined(MAPBASE) && defined(GAME_DLL)
+	bool KeyValue( const char *szKeyName, const char *szValue );
+	bool GetKeyValue( const char *szKeyName, char *szValue, int iMaxLen );
+
+	virtual int	Save( ISave &save );
+	virtual int	Restore( IRestore &restore );
+	virtual void UpdateOnRemove();
+
+	// Inputs
+	void InputEpisodicOn( inputdata_t &inputdata );
+	void InputEpisodicOff( inputdata_t &inputdata );
+	void InputSetFriendlyFire( inputdata_t &inputdata );
+	void InputSetDefaultCitizenType( inputdata_t &inputdata );
+	void InputSetLegacyFlashlight( inputdata_t &inputdata );
+	void InputSetPlayerSquadAutosummon( inputdata_t &inputdata );
+	void InputSetStunstickPickupBehavior( inputdata_t &inputdata );
+
+	// These are written to from HL2GameRules on save and given to HL2GameRules on restore
+	int m_save_DefaultCitizenType;
+	char m_save_LegacyFlashlight;
+	bool m_save_PlayerSquadAutosummonDisabled;
+	int m_save_StunstickPickupBehavior;
+
+	DECLARE_DATADESC();
+#endif
 };
 
 
@@ -88,10 +118,30 @@ public:
 	
 	virtual bool IsAlyxInDarknessMode();
 
+#ifdef MAPBASE
+	int				GetDefaultCitizenType();
+	void			SetDefaultCitizenType(int val);
+
+	ThreeState_t	GlobalFriendlyFire();
+	void			SetGlobalFriendlyFire(ThreeState_t val);
+
+	bool			AutosummonDisabled();
+	void			SetAutosummonDisabled(bool toggle);
+
+	int				GetStunstickPickupBehavior();
+	void			SetStunstickPickupBehavior(int val);
+#endif
+
 private:
 
 	float	m_flLastHealthDropTime;
 	float	m_flLastGrenadeDropTime;
+
+#ifdef MAPBASE
+	int		m_DefaultCitizenType;
+	bool	m_bPlayerSquadAutosummonDisabled;
+	int		m_StunstickPickupBehavior;
+#endif
 
 	void AdjustPlayerDamageTaken( CTakeDamageInfo *pInfo );
 	float AdjustPlayerDamageInflicted( float damage );

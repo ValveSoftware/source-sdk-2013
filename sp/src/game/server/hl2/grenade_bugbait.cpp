@@ -200,6 +200,11 @@ void CGrenadeBugBait::BugBaitTouch( CBaseEntity *pOther )
 	// Tell all spawners to now fight to this position
 	g_AntlionMakerManager.BroadcastFightGoal( GetAbsOrigin() );
 
+#ifdef MAPBASE
+	m_OnDetonate.FireOutput(GetThrower(), this);
+	m_OnDetonate_OutPosition.Set(GetAbsOrigin(), GetThrower(), this);
+#endif
+
 	//Go away
 	UTIL_Remove( this );
 }

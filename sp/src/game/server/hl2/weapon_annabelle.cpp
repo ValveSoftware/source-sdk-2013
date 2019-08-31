@@ -82,6 +82,9 @@ END_DATADESC()
 
 acttable_t	CWeaponAnnabelle::m_acttable[] = 
 {
+#ifdef MAPBASE
+	{ ACT_IDLE,						ACT_IDLE_SMG1,						false },
+#endif
 	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_SMG1,				true },
 	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_SHOTGUN,			true },
 	{ ACT_RELOAD,					ACT_RELOAD_SMG1,					true },

@@ -17,6 +17,9 @@
 #include "soundenvelope.h"
 #include "engine/IEngineSound.h"
 #include "ammodef.h"
+#ifdef MAPBASE
+#include "AI_ResponseSystem.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -74,6 +77,18 @@ envelopePoint_t envZombieMoanIgnited[] =
 		0.5f, 1.0f,
 	},
 };
+
+#ifdef MAPBASE
+//------------------------------------------------------------------------------
+// Move these to CNPC_BaseZombie if other zombies end up using the response system
+//------------------------------------------------------------------------------
+#define TLK_ZOMBIE_PAIN "TLK_WOUND"
+#define TLK_ZOMBIE_DEATH "TLK_DEATH"
+#define TLK_ZOMBIE_ALERT "TLK_STARTCOMBAT"
+#define TLK_ZOMBIE_IDLE "TLK_QUESTION"
+#define TLK_ZOMBIE_ATTACK "TLK_MELEE"
+#define TLK_ZOMBIE_MOAN "TLK_MOAN"
+#endif
 
 
 //=============================================================================
@@ -263,6 +278,17 @@ void CZombie::Spawn( void )
 {
 	Precache();
 
+#ifdef MAPBASE
+	if( Q_strstr( GetClassname(), "torso" ) )
+	{
+		// This was placed as an npc_zombie_torso
+		m_fIsTorso = true;
+	}
+	else
+	{
+		m_fIsTorso = false;
+	}
+#else
 	if( FClassnameIs( this, "npc_zombie" ) )
 	{
 		m_fIsTorso = false;
@@ -274,6 +300,7 @@ void CZombie::Spawn( void )
 	}
 
 	m_fIsHeadless = false;
+#endif
 
 #ifdef HL2_EPISODIC
 	SetBloodColor( BLOOD_COLOR_ZOMBIE );
@@ -999,3 +1026,284 @@ AI_BEGIN_CUSTOM_NPC( npc_zombie, CZombie )
 AI_END_CUSTOM_NPC()
 
 //=============================================================================
+
+#ifdef MAPBASE
+class CZombieCustom : public CZombie
+{
+	DECLARE_DATADESC();
+	DECLARE_CLASS( CZombieCustom, CZombie );
+
+public:
+	CZombieCustom();
+
+	void Spawn( void );
+	void Precache( void );
+
+#ifdef EXPANDED_RESPONSE_SYSTEM_USAGE
+	DeclareResponseSystem()
+	void SpeakIfAllowed(const char *concept);
+	void ModifyOrAppendCriteria( AI_CriteriaSet& set );
+
+	void PainSound( const CTakeDamageInfo &info );
+	void DeathSound( const CTakeDamageInfo &info );
+	void AlertSound( void );
+	void IdleSound( void );
+	void AttackSound( void );
+
+	const char *GetMoanSound( int nSound );
+#endif
+
+	void SetZombieModel( void );
+
+	virtual const char *GetLegsModel( void ) { return STRING(m_iszLegsModel); }
+	virtual const char *GetTorsoModel( void ) { return STRING(m_iszTorsoModel); }
+	virtual const char *GetHeadcrabClassname( void ) { return STRING(m_iszHeadcrabClassname); }
+	virtual const char *GetHeadcrabModel( void ) { return STRING(m_iszHeadcrabModel); }
+
+	string_t m_iszLegsModel;
+	string_t m_iszTorsoModel;
+	string_t m_iszHeadcrabClassname;
+	string_t m_iszHeadcrabModel;
+};
+
+BEGIN_DATADESC( CZombieCustom )
+
+	DEFINE_KEYFIELD( m_iszLegsModel, FIELD_STRING, "LegsModel" ),
+	DEFINE_KEYFIELD( m_iszTorsoModel, FIELD_STRING, "TorsoModel" ),
+	DEFINE_KEYFIELD( m_iszHeadcrabClassname, FIELD_STRING, "HeadcrabClassname" ),
+	DEFINE_KEYFIELD( m_iszHeadcrabModel, FIELD_STRING, "HeadcrabModel" ),
+
+END_DATADESC()
+
+LINK_ENTITY_TO_CLASS( npc_zombie_custom, CZombieCustom );
+LINK_ENTITY_TO_CLASS( npc_zombie_custom_torso, CZombieCustom );
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CZombieCustom::CZombieCustom()
+{
+	m_iszLegsModel = AllocPooledString( CZombie::GetLegsModel() );
+	m_iszTorsoModel = AllocPooledString( CZombie::GetTorsoModel() );
+	m_iszHeadcrabClassname = AllocPooledString( CZombie::GetHeadcrabClassname() );
+	m_iszHeadcrabModel = AllocPooledString( CZombie::GetHeadcrabModel() );
+
+	SetModelName( AllocPooledString("models/zombie/classic.mdl") );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CZombieCustom::Spawn( void )
+{
+	int iHealth = m_iHealth;
+
+	BaseClass::Spawn();
+
+	if (iHealth > 0)
+	{
+		m_iMaxHealth = iHealth;
+		m_iHealth = iHealth;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CZombieCustom::Precache( void )
+{
+	BaseClass::Precache();
+
+	PrecacheModel(STRING(GetModelName()));
+
+	if (m_iszLegsModel != NULL_STRING)
+		PrecacheModel( STRING(m_iszLegsModel) );
+
+	if (m_iszTorsoModel != NULL_STRING)
+		PrecacheModel( STRING(m_iszTorsoModel) );
+
+	if (m_iszHeadcrabClassname != NULL_STRING)
+		UTIL_PrecacheOther( STRING(m_iszHeadcrabClassname) );
+
+	if (m_iszHeadcrabModel != NULL_STRING)
+		PrecacheModel( STRING(m_iszHeadcrabModel) );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CZombieCustom::SetZombieModel( void )
+{
+	Hull_t lastHull = GetHullType();
+
+	if ( m_fIsTorso )
+	{
+		SetModel( GetTorsoModel() );
+		SetHullType( HULL_TINY );
+	}
+	else
+	{
+		SetModel( STRING(GetModelName()) );
+		SetHullType( HULL_HUMAN );
+	}
+
+	SetBodygroup( ZOMBIE_BODYGROUP_HEADCRAB, !m_fIsHeadless );
+
+	SetHullSizeNormal( true );
+	SetDefaultEyeOffset();
+	SetActivity( ACT_IDLE );
+
+	// hull changed size, notify vphysics
+	// UNDONE: Solve this generally, systematically so other
+	// NPCs can change size
+	if ( lastHull != GetHullType() )
+	{
+		if ( VPhysicsGetObject() )
+		{
+			SetupVPhysicsHull();
+		}
+	}
+}
+
+#ifdef EXPANDED_RESPONSE_SYSTEM_USAGE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CZombieCustom::PainSound( const CTakeDamageInfo &info )
+{
+	SpeakIfAllowed( TLK_ZOMBIE_PAIN );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CZombieCustom::DeathSound( const CTakeDamageInfo &info ) 
+{
+	SpeakIfAllowed( TLK_ZOMBIE_DEATH );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CZombieCustom::AlertSound( void )
+{
+	SpeakIfAllowed( TLK_ZOMBIE_ALERT );
+
+	// Don't let a moan sound cut off the alert sound.
+	m_flNextMoanSound += random->RandomFloat( 2.0, 4.0 );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns a moan sound for this class of zombie.
+//-----------------------------------------------------------------------------
+const char *CZombieCustom::GetMoanSound( int nSound )
+{
+	// This whole thing is really complicated and largely a copy-paste of CBaseEntity::DispatchResponse().
+
+	AddContext( "moansound", UTIL_VarArgs("%i", nSound & 4), 5.0f );
+
+	IResponseSystem *rs = GetResponseSystem();
+	if ( !rs )
+		return "NPC_BaseZombie.Moan1";
+
+	AI_CriteriaSet set;
+	set.AppendCriteria( "concept", TLK_ZOMBIE_MOAN, CONCEPT_WEIGHT );
+	ModifyOrAppendCriteria( set );
+	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	if( pPlayer )
+		pPlayer->ModifyOrAppendPlayerCriteria( set );
+	ReAppendContextCriteria( set );
+
+	AI_Response result;
+	rs->FindBestResponse(set, result);
+
+	// Get the response and turn it into something we can use
+	char response[256];
+	result.GetResponse(response, sizeof(response));
+	switch (result.GetType())
+	{
+		case RESPONSE_SENTENCE:
+			{
+				if (response[0] != '!')
+				{
+					SENTENCEG_PlayRndSz( edict(), response, 1, result.GetSoundLevel(), 0, PITCH_NORM );
+					break;
+				}
+				int sentenceIndex = SENTENCEG_Lookup( response );
+				if( sentenceIndex == -1 )
+				{
+					// sentence not found
+					break;
+				}
+
+				// Not sure how else to get around this
+				CPASAttenuationFilter filter( this );
+				CBaseEntity::EmitSentenceByIndex( filter, entindex(), CHAN_VOICE, sentenceIndex, 1, result.GetSoundLevel(), 0, PITCH_NORM );
+				return "AI_BaseNPC.SentenceStop";
+			}
+			break;
+		case RESPONSE_SCENE:
+			{
+				extern const char *GetFirstSoundInScene(const char *pszScene);
+
+				// Expand gender string
+				GenderExpandString( response, response, sizeof( response ) );
+
+				// Trust that it's been precached
+				Q_strncpy(response, GetFirstSoundInScene(response), sizeof(response));
+			}
+			break;
+	}
+
+	const char *szSound = response;
+	return szSound;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Play a random idle sound.
+//-----------------------------------------------------------------------------
+void CZombieCustom::IdleSound( void )
+{
+	if( GetState() == NPC_STATE_IDLE && random->RandomFloat( 0, 1 ) == 0 )
+	{
+		// Moan infrequently in IDLE state.
+		return;
+	}
+
+	SpeakIfAllowed( TLK_ZOMBIE_IDLE );
+	MakeAISpookySound( 360.0f );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Play a random attack sound.
+//-----------------------------------------------------------------------------
+void CZombieCustom::AttackSound( void )
+{
+	SpeakIfAllowed( TLK_ZOMBIE_ATTACK );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Speak concept
+//-----------------------------------------------------------------------------
+void CZombieCustom::SpeakIfAllowed(const char *concept)
+{
+	DispatchResponse(concept);
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CZombieCustom::ModifyOrAppendCriteria( AI_CriteriaSet& set )
+{
+	BaseClass::ModifyOrAppendCriteria( set );
+
+	set.AppendCriteria( "slumped", IsSlumped() ? "1" : "0" );
+
+	// Does this or a name already exist?
+	set.AppendCriteria( "onfire", IsOnFire() ? "1" : "0" );
+
+	// Custom zombies (and zombie torsos) must make zombie sounds.
+	// This can be overridden with response contexts.
+	set.AppendCriteria( "classname", "npc_zombie" );
+}
+#endif
+#endif

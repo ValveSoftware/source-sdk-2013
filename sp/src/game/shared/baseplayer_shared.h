@@ -53,6 +53,17 @@ enum stepsoundtimes_t
 
 void CopySoundNameWithModifierToken( char *pchDest, const char *pchSource, int nMaxLenInChars, const char *pchToken );
 
+#ifdef MAPBASE
+// Internal player spawnflags.
+// These are only meant to be used internally or accessed via logic_playerproxy.
+// I'm sure this isn't a bad idea whatsoever...
+// 
+// Be sure to update the SendPropInt() entry for m_spawnflags in player.cpp when you add any new spawnflags!
+#define SF_PLAYER_NO_GEIGER			(1 << 0)
+#define SF_PLAYER_HIDE_SQUAD_HUD	(1 << 1)
+#define SF_PLAYER_SUPPRESS_FIRING	(1 << 2)
+#endif
+
 // Shared header file for players
 #if defined( CLIENT_DLL )
 #define CBasePlayer C_BasePlayer

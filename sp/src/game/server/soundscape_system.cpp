@@ -136,6 +136,16 @@ bool CSoundscapeSystem::Init()
 		mapSoundscapeFilename = UTIL_VarArgs( "scripts/soundscapes_%s.txt", mapname );
 	}
 
+#ifdef MAPBASE
+	if (filesystem->FileExists(UTIL_VarArgs("maps/%s_soundscapes.txt", mapname)))
+	{
+		// A Mapbase-specific file exists. Load that instead.
+		// Any additional soundscape files, like the original scripts/soundscapes version,
+		// could be loaded through #include and/or #base.
+		mapSoundscapeFilename = UTIL_VarArgs("maps/%s_soundscapes.txt", mapname);
+	}
+#endif
+
 	KeyValues *manifest = new KeyValues( SOUNDSCAPE_MANIFEST_FILE );
 	if ( filesystem->LoadKeyValues( *manifest, IFileSystem::TYPE_SOUNDSCAPE, SOUNDSCAPE_MANIFEST_FILE, "GAME" ) )
 	{

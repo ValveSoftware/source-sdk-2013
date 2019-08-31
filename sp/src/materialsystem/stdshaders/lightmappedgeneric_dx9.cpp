@@ -9,12 +9,11 @@
 #include "BaseVSShader.h"
 #include "convar.h"
 #include "lightmappedgeneric_dx9_helper.h"
+#include "SDK_lightmappedgeneric_ps20b.inc"
+#include "SDK_lightmappedgeneric_vs20.inc"
 
-static LightmappedGeneric_DX9_Vars_t s_info;
-
-
-BEGIN_VS_SHADER( LightmappedGeneric,
-				 "Help for LightmappedGeneric" )
+BEGIN_VS_SHADER( SDK_LightmappedGeneric,
+				 "Help for SDK_LightmappedGeneric" )
 
 	BEGIN_SHADER_PARAMS
 		SHADER_PARAM( ALBEDO, SHADER_PARAM_TYPE_TEXTURE, "shadertest/BaseTexture", "albedo (Base texture with no baked lighting)" )
@@ -22,8 +21,9 @@ BEGIN_VS_SHADER( LightmappedGeneric,
 		SHADER_PARAM( DETAIL, SHADER_PARAM_TYPE_TEXTURE, "shadertest/detail", "detail texture" )
 		SHADER_PARAM( DETAILFRAME, SHADER_PARAM_TYPE_INTEGER, "0", "frame number for $detail" )
 		SHADER_PARAM( DETAILSCALE, SHADER_PARAM_TYPE_FLOAT, "4", "scale of the detail texture" )
-
-		SHADER_PARAM( ALPHA2, SHADER_PARAM_TYPE_FLOAT, "1", "" )
+		SHADER_PARAM( TRANSLUCENT, SHADER_PARAM_TYPE_BOOL, "0", "" )
+		SHADER_PARAM( ALPHATEST, SHADER_PARAM_TYPE_BOOL, "0", "" )
+		SHADER_PARAM( ALPHATESTREFERENCE, SHADER_PARAM_TYPE_FLOAT, "0.5", "" )
 
 		// detail (multi-) texturing
 		SHADER_PARAM( DETAILBLENDMODE, SHADER_PARAM_TYPE_INTEGER, "0", "mode for combining detail texture with base. 0=normal, 1= additive, 2=alpha blend detail over base, 3=crossfade" )
@@ -49,6 +49,10 @@ BEGIN_VS_SHADER( LightmappedGeneric,
 		SHADER_PARAM( BUMPMASK, SHADER_PARAM_TYPE_TEXTURE, "models/shadertest/shader3_normal", "bump map" )
 		SHADER_PARAM( BASETEXTURE2, SHADER_PARAM_TYPE_TEXTURE, "shadertest/lightmappedtexture", "Blended texture" )
 		SHADER_PARAM( FRAME2, SHADER_PARAM_TYPE_INTEGER, "0", "frame number for $basetexture2" )
+#ifdef MAPBASE
+		// This needs to be a SHADER_PARAM_TYPE_STRING so it isn't considered "defined" by default.
+		SHADER_PARAM( BASETEXTURETRANSFORM2, SHADER_PARAM_TYPE_STRING, "center .5 .5 scale 1 1 rotate 0 translate 0 0", "$basetexture2 texcoord transform" )
+#endif
 		SHADER_PARAM( BASETEXTURENOENVMAP, SHADER_PARAM_TYPE_BOOL, "0", "" )
 		SHADER_PARAM( BASETEXTURE2NOENVMAP, SHADER_PARAM_TYPE_BOOL, "0", "" )
 		SHADER_PARAM( DETAIL_ALPHA_MASK_BASE_TEXTURE, SHADER_PARAM_TYPE_BOOL, "0", 
@@ -56,15 +60,10 @@ BEGIN_VS_SHADER( LightmappedGeneric,
 			"detail alpha=1, you get detail*base*lightmap" )
 		SHADER_PARAM( LIGHTWARPTEXTURE, SHADER_PARAM_TYPE_TEXTURE, "", "light munging lookup texture" )
 		SHADER_PARAM( BLENDMODULATETEXTURE, SHADER_PARAM_TYPE_TEXTURE, "", "texture to use r/g channels for blend range for" )
-		SHADER_PARAM( MASKEDBLENDING, SHADER_PARAM_TYPE_INTEGER, "0", "blend using texture with no vertex alpha. For using texture blending on non-displacements" )
 		SHADER_PARAM( BLENDMASKTRANSFORM, SHADER_PARAM_TYPE_MATRIX, "center .5 .5 scale 1 1 rotate 0 translate 0 0", "$blendmodulatetexture texcoord transform" )
+		SHADER_PARAM( MASKEDBLENDING, SHADER_PARAM_TYPE_INTEGER, "0", "blend using texture with no vertex alpha. For using texture blending on non-displacements" )
 		SHADER_PARAM( SSBUMP, SHADER_PARAM_TYPE_INTEGER, "0", "whether or not to use alternate bumpmap format with height" )
 		SHADER_PARAM( SEAMLESS_SCALE, SHADER_PARAM_TYPE_FLOAT, "0", "Scale factor for 'seamless' texture mapping. 0 means to use ordinary mapping" )
-		SHADER_PARAM( ALPHATESTREFERENCE, SHADER_PARAM_TYPE_FLOAT, "0.0", "" )	
-
-		SHADER_PARAM( SOFTEDGES, SHADER_PARAM_TYPE_BOOL, "0", "Enable soft edges to distance coded textures.")
-	    SHADER_PARAM( EDGESOFTNESSSTART, SHADER_PARAM_TYPE_FLOAT, "0.6", "Start value for soft edges for distancealpha.");
-		SHADER_PARAM( EDGESOFTNESSEND, SHADER_PARAM_TYPE_FLOAT, "0.5", "End value for soft edges for distancealpha.");
 
 		SHADER_PARAM( OUTLINE, SHADER_PARAM_TYPE_BOOL, "0", "Enable outline for distance coded textures.")
 		SHADER_PARAM( OUTLINECOLOR, SHADER_PARAM_TYPE_COLOR, "[1 1 1]", "color of outline for distance coded images." )
@@ -73,6 +72,15 @@ BEGIN_VS_SHADER( LightmappedGeneric,
 		SHADER_PARAM( OUTLINESTART1, SHADER_PARAM_TYPE_FLOAT, "0.0", "inner start value for outline")
 		SHADER_PARAM( OUTLINEEND0, SHADER_PARAM_TYPE_FLOAT, "0.0", "inner end value for outline")
 		SHADER_PARAM( OUTLINEEND1, SHADER_PARAM_TYPE_FLOAT, "0.0", "outer end value for outline")
+
+		SHADER_PARAM( SOFTEDGES, SHADER_PARAM_TYPE_BOOL, "0", "Enable soft edges to distance coded textures.")
+	    SHADER_PARAM( EDGESOFTNESSSTART, SHADER_PARAM_TYPE_FLOAT, "0.6", "Start value for soft edges for distancealpha.")
+		SHADER_PARAM( EDGESOFTNESSEND, SHADER_PARAM_TYPE_FLOAT, "0.5", "End value for soft edges for distancealpha.")
+
+		SHADER_PARAM( PHONG, SHADER_PARAM_TYPE_BOOL, "0", "enables phong lighting" )
+		SHADER_PARAM( PHONGBOOST, SHADER_PARAM_TYPE_FLOAT, "1.0", "Phong overbrightening factor (specular mask channel should be authored to account for this)" )
+		SHADER_PARAM( PHONGFRESNELRANGES, SHADER_PARAM_TYPE_VEC3, "[0  0.5  1]", "Parameters for remapping fresnel output" )
+		SHADER_PARAM( PHONGEXPONENT, SHADER_PARAM_TYPE_FLOAT, "5.0", "Phong exponent for local specular lights" )
 END_SHADER_PARAMS
 
 	void SetupVars( LightmappedGeneric_DX9_Vars_t& info )
@@ -82,8 +90,6 @@ END_SHADER_PARAMS
 		info.m_nBaseTextureTransform = BASETEXTURETRANSFORM;
 		info.m_nAlbedo = ALBEDO;
 		info.m_nSelfIllumTint = SELFILLUMTINT;
-
-		info.m_nAlpha2 = ALPHA2;
 
 		info.m_nDetail = DETAIL;
 		info.m_nDetailFrame = DETAILFRAME;
@@ -111,6 +117,9 @@ END_SHADER_PARAMS
 		info.m_nBumpMask = BUMPMASK;
 		info.m_nBaseTexture2 = BASETEXTURE2;
 		info.m_nBaseTexture2Frame = FRAME2;
+#ifdef MAPBASE
+		info.m_nBaseTexture2Transform = BASETEXTURETRANSFORM2;
+#endif
 		info.m_nBaseTextureNoEnvmap = BASETEXTURENOENVMAP;
 		info.m_nBaseTexture2NoEnvmap = BASETEXTURE2NOENVMAP;
 		info.m_nDetailAlphaMaskBaseTexture = DETAIL_ALPHA_MASK_BASE_TEXTURE;
@@ -134,6 +143,11 @@ END_SHADER_PARAMS
 		info.m_nOutlineStart1 = OUTLINESTART1;
 		info.m_nOutlineEnd0 = OUTLINEEND0;
 		info.m_nOutlineEnd1 = OUTLINEEND1;
+
+		info.m_nPhong = PHONG;
+		info.m_nPhongBoost = PHONGBOOST;
+		info.m_nPhongFresnelRanges = PHONGFRESNELRANGES;
+		info.m_nPhongExponent = PHONGEXPONENT;
 	}
 
 	SHADER_FALLBACK
@@ -147,18 +161,22 @@ END_SHADER_PARAMS
 	// Set up anything that is necessary to make decisions in SHADER_FALLBACK.
 	SHADER_INIT_PARAMS()
 	{
-		SetupVars( s_info );
-		InitParamsLightmappedGeneric_DX9( this, params, pMaterialName, s_info );
+		LightmappedGeneric_DX9_Vars_t info;
+		SetupVars( info );
+		InitParamsLightmappedGeneric_DX9( this, params, pMaterialName, info );
 	}
 
 	SHADER_INIT
 	{
-		SetupVars( s_info );
-		InitLightmappedGeneric_DX9( this, params, s_info );
+		LightmappedGeneric_DX9_Vars_t info;
+		SetupVars( info );
+		InitLightmappedGeneric_DX9( this, params, info );
 	}
 
 	SHADER_DRAW
 	{
-		DrawLightmappedGeneric_DX9( this, params, pShaderAPI, pShaderShadow, s_info, pContextDataPtr );
+		LightmappedGeneric_DX9_Vars_t info;
+		SetupVars( info );
+		DrawLightmappedGeneric_DX9( this, params, pShaderAPI, pShaderShadow, info, pContextDataPtr );
 	}
 END_SHADER

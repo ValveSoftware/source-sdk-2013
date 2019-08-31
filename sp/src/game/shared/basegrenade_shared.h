@@ -111,6 +111,12 @@ public:
 	}
 
 	void				Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+
+#ifdef MAPBASE
+	void				InputSetDamage( inputdata_t &inputdata );
+	void				InputDetonate( inputdata_t &inputdata );
+#endif
+
 #endif
 
 public:
@@ -128,6 +134,11 @@ protected:
 
 	CNetworkVar( float, m_flDamage );		// Damage to inflict.
 	string_t m_iszBounceSound;	// The sound to make on bouncing.  If not NULL, overrides the BounceSound() function.
+
+#if defined(MAPBASE) && !defined(CLIENT_DLL)
+	COutputEvent m_OnDetonate;
+	COutputVector m_OnDetonate_OutPosition;
+#endif
 
 private:
 	CNetworkHandle( CBaseEntity, m_hThrower );					// Who threw this grenade

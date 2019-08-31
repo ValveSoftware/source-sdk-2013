@@ -12,6 +12,9 @@
 #include "eventqueue.h"
 #include "ai_behavior_lead.h"
 #include "gameinterface.h"
+#ifdef MAPBASE
+#include "mapbase/matchers.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -338,6 +341,9 @@ BEGIN_DATADESC( CAI_PlayerAlly )
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SpeakResponseConcept",	InputSpeakResponseConcept ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "MakeGameEndAlly", InputMakeGameEndAlly ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "MakeRegularAlly", InputMakeRegularAlly ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING, "AskQuestion", InputAskQuestion ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "AnswerQuestion", InputAnswerQuestion ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "AnswerQuestionHello", InputAnswerQuestionHello ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnableSpeakWhileScripting", InputEnableSpeakWhileScripting ),
@@ -725,8 +731,13 @@ bool CAI_PlayerAlly::SelectQuestionAndAnswerSpeech( AISpeechSelection_t *pSelect
 		return false;
 
 	// if there is a friend nearby to speak to, play sentence, set friend's response time, return
+#ifdef MAPBASE
+	CAI_PlayerAlly *pFriend = dynamic_cast<CAI_PlayerAlly *>(FindSpeechTarget( AIST_NPCS | AIST_NOT_GAGGED ));
+	if ( pFriend && !pFriend->IsMoving() )
+#else
 	CAI_PlayerAlly *pFriend = dynamic_cast<CAI_PlayerAlly *>(FindSpeechTarget( AIST_NPCS ));
 	if ( pFriend && !pFriend->IsMoving() && !pFriend->HasSpawnFlags(SF_NPC_GAG) )
+#endif
 		return SelectQuestionFriend( pFriend, pSelection );
 
 	return false;
@@ -816,7 +827,17 @@ bool CAI_PlayerAlly::SelectQuestionFriend( CBaseEntity *pFriend, AISpeechSelecti
 
 	// If we haven't said hello, say hello first.
 	// Only ever say hello to NPCs other than my type.
+#ifdef MAPBASE
+	// Why only say hello to NPCs other than my type?
+	// Are citizens a hivemind? Do they not greet each other?
+	// They don't have any responses for it anyway, so SelectSpeechResponse() will fail
+	// and TLK_HELLO_NPC will be marked as spoken.
+	// 
+	// Responses could be added so modders/mappers can take advantage of this.
+	if ( !GetExpresser()->SpokeConcept( TLK_HELLO_NPC ) )
+#else
 	if ( !GetExpresser()->SpokeConcept( TLK_HELLO_NPC  ) && !FClassnameIs( this, pFriend->GetClassname()) )
+#endif
 	{
 		if ( SelectSpeechResponse( TLK_HELLO_NPC, NULL, pFriend, pSelection ) )
 			return true;
@@ -843,6 +864,74 @@ bool CAI_PlayerAlly::SelectAnswerFriend( CBaseEntity *pFriend, AISpeechSelection
 
 	return SelectSpeechResponse( TLK_ANSWER, NULL, pFriend, pSelection );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Asks a question now.
+//-----------------------------------------------------------------------------
+bool CAI_PlayerAlly::AskQuestionNow( CBaseEntity *pSpeechTarget, int iQARandomNumber, const char *concept )
+{
+	m_hPotentialSpeechTarget = pSpeechTarget;
+	m_iQARandomNumber = iQARandomNumber;
+
+	if (!m_hPotentialSpeechTarget)
+		m_hPotentialSpeechTarget = /*dynamic_cast<CAI_PlayerAlly *>*/(FindSpeechTarget( AIST_NPCS | AIST_NOT_GAGGED ));
+
+	if (m_iQARandomNumber == -1)
+		m_iQARandomNumber = RandomInt(0, 100);
+
+	AISpeechSelection_t selection;
+	SelectSpeechResponse( concept, NULL, m_hPotentialSpeechTarget.Get(), &selection );
+
+	SetSpeechTarget( selection.hSpeechTarget );
+	ClearPendingSpeech();
+
+	if (!selection.pResponse)
+		return false;
+
+	// Speak immediately
+	return SpeakDispatchResponse( selection.concept.c_str(), selection.pResponse );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CAI_PlayerAlly::InputAskQuestion( inputdata_t &inputdata )
+{
+	CBaseEntity *pSpeechTarget = NULL;
+	int iQARandomNumber = 0;
+	const char *concept = TLK_QUESTION;
+
+	// I didn't feel like using strtok today.
+	CUtlStringList vecStrings;
+	V_SplitString(inputdata.value.String(), " ", vecStrings);
+	FOR_EACH_VEC( vecStrings, i )
+	{
+		// 0 : QA Number (-1 for N/A)
+		// 1 : Speech Target
+		// 2 : Concept
+		switch (i)
+		{
+			case 0:		iQARandomNumber = atoi(vecStrings[i]); break;
+			case 1:		pSpeechTarget = gEntList.FindEntityByName(NULL, vecStrings[i], this, inputdata.pActivator, inputdata.pCaller); break;
+			case 2:		concept = vecStrings[i]; break;
+		}
+	}
+
+	if (pSpeechTarget == NULL)
+	{
+		CAI_PlayerAlly *pFriend = dynamic_cast<CAI_PlayerAlly *>(FindSpeechTarget( AIST_NPCS | AIST_NOT_GAGGED ));
+		if ( pFriend )
+			pSpeechTarget = pFriend;
+	}
+	else if (pSpeechTarget == this)
+	{
+		pSpeechTarget = NULL;
+	}
+
+	AskQuestionNow(pSpeechTarget, iQARandomNumber, concept);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1077,6 +1166,24 @@ void CAI_PlayerAlly::Touch( CBaseEntity *pOther )
 	}
 }
 
+#ifdef MAPBASE
+ConVar mapbase_ally_flinching("mapbase_ally_flinching", "1", FCVAR_ARCHIVE, "Enables/disables the new flinching animations.");
+//-----------------------------------------------------------------------------
+// Purpose: This is to adjust for the new citizen flinching animations,
+// as they would exist on all NPCs that use citizen animations.
+// 
+// Vortigaunts and Alyx in the Episodes are the only ones who can flinch normally,
+// and that's been rectified with their own functions. (they currently skip CAI_PlayerAlly's implementation)
+//-----------------------------------------------------------------------------
+bool CAI_PlayerAlly::CanFlinch( void )
+{
+	if (mapbase_ally_flinching.GetBool() != true)
+		return false;
+
+	return BaseClass::CanFlinch();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CAI_PlayerAlly::OnKilledNPC( CBaseCombatCharacter *pKilled )
@@ -1087,6 +1194,10 @@ void CAI_PlayerAlly::OnKilledNPC( CBaseCombatCharacter *pKilled )
 			( pKilled->MyNPCPointer()->GetLastPlayerDamageTime() == 0 ||
 			  gpGlobals->curtime - pKilled->MyNPCPointer()->GetLastPlayerDamageTime() > 5 ) )
 		{
+#ifdef MAPBASE
+			m_hPotentialSpeechTarget = pKilled;
+			SetSpeechTarget(pKilled);
+#endif
 			SpeakIfAllowed( TLK_ENEMY_DEAD );
 		}
 	}
@@ -1174,8 +1285,14 @@ void CAI_PlayerAlly::Event_Killed( const CTakeDamageInfo &info )
 		CBasePlayer *player = AI_GetSinglePlayer();
 		if ( player )
 		{
+#ifdef MAPBASE
+			variant_t variant;
+			variant.SetEntity(this);
+			player->AcceptInput( "OnSquadMemberKilled", info.GetAttacker(), this, variant, 0 );
+#else
 			variant_t emptyVariant;
 			player->AcceptInput( "OnSquadMemberKilled", this, this, emptyVariant, 0 );
+#endif
 		}
 	}
 
@@ -1185,6 +1302,10 @@ void CAI_PlayerAlly::Event_Killed( const CTakeDamageInfo &info )
 	CAI_PlayerAlly *pMourner = dynamic_cast<CAI_PlayerAlly *>(FindSpeechTarget( AIST_NPCS ));
 	if ( pMourner )
 	{
+#ifdef MAPBASE
+		pMourner->m_hPotentialSpeechTarget = this;
+		pMourner->SetSpeechTarget(this);
+#endif
 		pMourner->SpeakIfAllowed( TLK_ALLY_KILLED );
 	}
 
@@ -1286,6 +1407,11 @@ bool CAI_PlayerAlly::IsValidSpeechTarget( int flags, CBaseEntity *pEntity )
 		// Don't bother people who don't want to be bothered
 		if ( !pNPC->CanBeUsedAsAFriend() )
 			return false;
+
+#ifdef MAPBASE
+		if (flags & AIST_NOT_GAGGED && pNPC->HasSpawnFlags(SF_NPC_GAG))
+			return false;
+#endif
 	}
 	
 	if ( flags & AIST_FACING_TARGET )
@@ -1591,6 +1717,19 @@ bool CAI_PlayerAlly::SpeakIfAllowed( AIConcept_t concept, const char *modifiers,
 	return false;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool CAI_PlayerAlly::SpeakIfAllowed( AIConcept_t concept, AI_CriteriaSet& modifiers, bool bRespondingToPlayer, char *pszOutResponseChosen, size_t bufsize ) 
+{ 
+	if ( IsAllowedToSpeak( concept, bRespondingToPlayer ) )
+	{
+		return Speak( concept, modifiers, pszOutResponseChosen, bufsize );
+	}
+	return false;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CAI_PlayerAlly::ModifyOrAppendCriteria( AI_CriteriaSet& set )
@@ -1602,6 +1741,11 @@ void CAI_PlayerAlly::ModifyOrAppendCriteria( AI_CriteriaSet& set )
 		set.AppendCriteria( "speechtarget", m_hPotentialSpeechTarget->GetClassname() );
 		set.AppendCriteria( "speechtargetname", STRING(m_hPotentialSpeechTarget->GetEntityName()) );
 		set.AppendCriteria( "randomnum", UTIL_VarArgs("%d", m_iQARandomNumber) );
+
+#ifdef MAPBASE
+		// Speech target contexts.
+		m_hPotentialSpeechTarget->AppendContextToCriteria(set, "speechtarget_");
+#endif
 	}
 
 	// Do we have a speech filter? If so, append it's criteria too
@@ -1618,11 +1762,13 @@ void CAI_PlayerAlly::OnSpokeConcept( AIConcept_t concept, AI_Response *response 
 	CAI_AllySpeechManager *pSpeechManager = GetAllySpeechManager();
 	pSpeechManager->OnSpokeConcept( this, concept, response );
 
+#ifndef MAPBASE // This has been moved directly to CAI_Expresser
 	if( response != NULL && (response->GetParams()->flags & AI_ResponseParams::RG_WEAPONDELAY) )
 	{
 		// Stop shooting, as instructed, so that my speech can be heard.
 		GetShotRegulator()->FireNoEarlierThan( gpGlobals->curtime + response->GetWeaponDelay() );
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

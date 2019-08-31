@@ -19,7 +19,13 @@
 #include "threads.h"
 #include "pacifier.h"
 
+#ifdef MAPBASE
+// This was suggested in that Source 2013 pull request that fixed Vrad.
+// I trust their judgement on this.
+#define	MAX_THREADS	32
+#else
 #define	MAX_THREADS	16
+#endif
 
 
 class CRunThreadsData

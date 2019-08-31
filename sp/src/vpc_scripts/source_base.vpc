@@ -15,6 +15,14 @@
 // rel/tf_beta branch:
 //$Conditional TF_BETA	"1"
 
+//-----------------------------------------------------------------------------
+// Mapbase conditional, equivalent to (and required for) our MAPBASE preprocessor defined below
+$Conditional MAPBASE	"1"
+
+// Toggles Mapbase's RPC implementation
+$Conditional MAPBASE_RPC	"1"
+//-----------------------------------------------------------------------------
+
 $Configuration "Debug"
 {
 	$Compiler
@@ -27,6 +35,9 @@ $Configuration "Debug"
 // Need to revisit the code to make things run with the _RETAIL preprocessor definition
 // This line was added in the previous check-in, but had previously not been defined in this branch
 //		$PreprocessorDefinitions		"$BASE;_RETAIL"		[$RETAIL]
+
+		// Mapbase base definitions
+		$PreprocessorDefinitions		"$BASE;MAPBASE"		[$MAPBASE]
 	}
 }
 
@@ -42,5 +53,8 @@ $Configuration "Release"
 // Need to revisit the code to make things run with the _RETAIL preprocessor definition
 // This line was added in the previous check-in, but had previously not been defined in this branch
 //		$PreprocessorDefinitions		"$BASE;_RETAIL"		[$RETAIL]
+
+		// Mapbase base definitions
+		$PreprocessorDefinitions		"$BASE;MAPBASE"		[$MAPBASE]
 	}
 }

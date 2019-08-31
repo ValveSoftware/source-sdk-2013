@@ -225,7 +225,14 @@ public:
 	virtual void		Weapon_HandleAnimEvent( animevent_t *pEvent );
 	CBaseCombatWeapon*	Weapon_OwnsThisType( const char *pszWeapon, int iSubType = 0 ) const;  // True if already owns a weapon of this class
 	virtual bool		Weapon_CanUse( CBaseCombatWeapon *pWeapon );		// True is allowed to use this class of weapon
+#ifdef MAPBASE
+	virtual Activity	Weapon_BackupActivity( Activity activity, bool weaponTranslationWasRequired = false, CBaseCombatWeapon *pSpecificWeapon = NULL );
 	virtual void		Weapon_Equip( CBaseCombatWeapon *pWeapon );			// Adds weapon to player
+	virtual void		Weapon_EquipHolstered( CBaseCombatWeapon *pWeapon );	// Pretty much only useful for NPCs
+	virtual void		Weapon_HandleEquip( CBaseCombatWeapon *pWeapon );
+#else
+	virtual void		Weapon_Equip( CBaseCombatWeapon *pWeapon );			// Adds weapon to player
+#endif
 	virtual bool		Weapon_EquipAmmoOnly( CBaseCombatWeapon *pWeapon );	// Adds weapon ammo to player, leaves weapon
 	bool				Weapon_Detach( CBaseCombatWeapon *pWeapon );		// Clear any pointers to the weapon.
 	virtual void		Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget = NULL, const Vector *pVelocity = NULL );
@@ -288,7 +295,29 @@ public:
 
 	// Killed a character
 	void InputKilledNPC( inputdata_t &inputdata );
+#ifdef MAPBASE
+
+	void InputGiveWeapon( inputdata_t &inputdata );
+	void InputDropWeapon( inputdata_t &inputdata );
+	void InputPickupWeaponInstant( inputdata_t &inputdata );
+	COutputEvent	m_OnWeaponEquip;
+	COutputEvent	m_OnWeaponDrop;
+
+	virtual void	InputHolsterWeapon( inputdata_t &inputdata );
+	virtual void	InputHolsterAndDestroyWeapon( inputdata_t &inputdata );
+	virtual void	InputUnholsterWeapon( inputdata_t &inputdata );
+	void			InputSwitchToWeapon( inputdata_t &inputdata );
+
+	COutputEHANDLE	m_OnKilledEnemy;
+	COutputEHANDLE	m_OnKilledPlayer;
+	virtual void OnKilledNPC( CBaseCombatCharacter *pKilled ); 
+
+	virtual	CBaseEntity *FindNamedEntity( const char *pszName, IEntityFindFilter *pFilter = NULL );
+
+	COutputFloat	m_OnHealthChanged;
+#else
 	virtual void OnKilledNPC( CBaseCombatCharacter *pKilled ) {}; 
+#endif
 
 	// Exactly one of these happens immediately after killed (gibbed may happen later when the corpse gibs)
 	// Character gibbed or faded out (violence controls) (only fired once)
@@ -327,6 +356,11 @@ public:
 	virtual Disposition_t	IRelationType( CBaseEntity *pTarget );
 	virtual int				IRelationPriority( CBaseEntity *pTarget );
 
+#ifdef MAPBASE
+	void					AddRelationship( const char *pszRelationship, CBaseEntity *pActivator );
+	void					InputSetRelationship( inputdata_t &inputdata );
+#endif
+
 	virtual void			SetLightingOriginRelative( CBaseEntity *pLightingOrigin );
 
 protected:
@@ -342,6 +376,9 @@ public:
 
 	// Blood color (see BLOOD_COLOR_* macros in baseentity.h)
 	void SetBloodColor( int nBloodColor );
+#ifdef MAPBASE
+	void InputSetBloodColor( inputdata_t &inputdata );
+#endif
 
 	// Weapons..
 	CBaseCombatWeapon*	GetActiveWeapon() const;
@@ -349,7 +386,11 @@ public:
 	CBaseCombatWeapon*	GetWeapon( int i ) const;
 	bool				RemoveWeapon( CBaseCombatWeapon *pWeapon );
 	virtual void		RemoveAllWeapons();
+#ifdef MAPBASE
+	WeaponProficiency_t GetCurrentWeaponProficiency();
+#else
 	WeaponProficiency_t GetCurrentWeaponProficiency() { return m_CurrentWeaponProficiency; }
+#endif
 	void				SetCurrentWeaponProficiency( WeaponProficiency_t iProficiency ) { m_CurrentWeaponProficiency = iProficiency; }
 	virtual WeaponProficiency_t CalcWeaponProficiency( CBaseCombatWeapon *pWeapon );
 	virtual	Vector		GetAttackSpread( CBaseCombatWeapon *pWeapon, CBaseEntity *pTarget = NULL );
@@ -362,10 +403,18 @@ public:
 	// Relationships
 	static void			AllocateDefaultRelationships( );
 	static void			SetDefaultRelationship( Class_T nClass, Class_T nClassTarget,  Disposition_t nDisposition, int nPriority );
+#ifdef MAPBASE
+	static Disposition_t	GetDefaultRelationshipDisposition( Class_T nClassSource, Class_T nClassTarget );
+	static int				GetDefaultRelationshipPriority( Class_T nClassSource, Class_T nClassTarget );
+	int						GetDefaultRelationshipPriority( Class_T nClassTarget );
+#endif
 	Disposition_t		GetDefaultRelationshipDisposition( Class_T nClassTarget );
 	virtual void		AddEntityRelationship( CBaseEntity *pEntity, Disposition_t nDisposition, int nPriority );
 	virtual bool		RemoveEntityRelationship( CBaseEntity *pEntity );
 	virtual void		AddClassRelationship( Class_T nClass, Disposition_t nDisposition, int nPriority );
+#ifdef MAPBASE
+	virtual bool		RemoveClassRelationship( Class_T nClass );
+#endif
 
 	virtual void		ChangeTeam( int iTeamNum );
 
@@ -450,7 +499,9 @@ public:
 public:
 	// returns the last body region that took damage
 	int	LastHitGroup() const				{ return m_LastHitGroup; }
+#ifndef MAPBASE // For filter_damage_transfer
 protected:
+#endif
 	void SetLastHitGroup( int nHitGroup )	{ m_LastHitGroup = nHitGroup; }
 
 public:
@@ -502,6 +553,11 @@ private:
 	// Weapon proficiency gets calculated each time an NPC changes his weapon, and then
 	// cached off as the CurrentWeaponProficiency.
 	WeaponProficiency_t m_CurrentWeaponProficiency;
+
+#ifdef MAPBASE
+	// Weapon proficiency can be overridden with this.
+	WeaponProficiency_t m_ProficiencyOverride = WEAPON_PROFICIENCY_INVALID;
+#endif
 
 	// ---------------
 	//  Relationships

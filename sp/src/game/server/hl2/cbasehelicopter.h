@@ -215,6 +215,10 @@ protected:
 
 	EHANDLE			m_hRotorWash;	// Attached rotorwash entity
 
+#ifdef MAPBASE
+	bool			m_bAllowAnyDamage;
+#endif
+
 	// Inputs
 	void			InputActivate( inputdata_t &inputdata );
 

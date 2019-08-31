@@ -34,6 +34,18 @@ BEGIN_DATADESC( CTripmineGrenade )
 	DEFINE_FIELD( m_pBeam,		FIELD_CLASSPTR ),
 	DEFINE_FIELD( m_posOwner,		FIELD_POSITION_VECTOR ),
 	DEFINE_FIELD( m_angleOwner,	FIELD_VECTOR ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_flPowerUpTime, FIELD_FLOAT, "PowerUpTime" ),
+	DEFINE_FIELD( m_hAttacker,	FIELD_EHANDLE ),
+
+	// Inputs
+	DEFINE_INPUTFUNC( FIELD_VOID, "Activate", InputActivate ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Deactivate", InputDeactivate ),
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "SetOwner", InputSetOwner ),
+
+	// Outputs
+	DEFINE_OUTPUT( m_OnExplode, "OnExplode" ),
+#endif
 
 	// Function Pointers
 	DEFINE_THINKFUNC( WarningThink ),
@@ -49,6 +61,10 @@ CTripmineGrenade::CTripmineGrenade()
 	m_vecEnd.Init();
 	m_posOwner.Init();
 	m_angleOwner.Init();
+
+#ifdef MAPBASE
+	m_flPowerUpTime = 2.0;
+#endif
 }
 
 void CTripmineGrenade::Spawn( void )
@@ -65,18 +81,46 @@ void CTripmineGrenade::Spawn( void )
 
 	SetCycle( 0.0f );
 	m_nBody			= 3;
+#ifdef MAPBASE
+	if (m_flDamage == 0)
+		m_flDamage		= sk_plr_dmg_tripmine.GetFloat();
+	if (m_DmgRadius == 0)
+		m_DmgRadius		= sk_tripmine_radius.GetFloat();
+#else
 	m_flDamage		= sk_plr_dmg_tripmine.GetFloat();
 	m_DmgRadius		= sk_tripmine_radius.GetFloat();
+#endif
 
 	ResetSequenceInfo( );
 	m_flPlaybackRate	= 0;
 	
 	UTIL_SetSize(this, Vector( -4, -4, -2), Vector(4, 4, 2));
 
+#ifdef MAPBASE
+	if (!HasSpawnFlags(SF_TRIPMINE_START_INACTIVE))
+	{
+		if (m_flPowerUpTime > 0)
+		{
+			m_flPowerUp = gpGlobals->curtime + m_flPowerUpTime;
+	
+			SetThink( &CTripmineGrenade::PowerupThink );
+			SetNextThink( gpGlobals->curtime + 0.2 );
+		}
+		else
+		{
+			MakeBeam( );
+			RemoveSolidFlags( FSOLID_NOT_SOLID );
+			m_bIsLive			= true;
+
+			//EmitSound( "TripmineGrenade.Activate" );
+		}
+	}
+#else
 	m_flPowerUp = gpGlobals->curtime + 2.0;
 	
 	SetThink( &CTripmineGrenade::PowerupThink );
 	SetNextThink( gpGlobals->curtime + 0.2 );
+#endif
 
 	m_takedamage		= DAMAGE_YES;
 
@@ -222,7 +266,11 @@ void CTripmineGrenade::BeamBreakThink( void  )
 	if (pBCC || fabs( m_flBeamLength - tr.fraction ) > 0.001)
 	{
 		m_iHealth = 0;
+#ifdef MAPBASE
+		Event_Killed( CTakeDamageInfo( (CBaseEntity*)m_hOwner, pEntity, 100, GIB_NORMAL ) );
+#else
 		Event_Killed( CTakeDamageInfo( (CBaseEntity*)m_hOwner, this, 100, GIB_NORMAL ) );
+#endif
 		return;
 	}
 
@@ -254,6 +302,10 @@ void CTripmineGrenade::Event_Killed( const CTakeDamageInfo &info )
 {
 	m_takedamage		= DAMAGE_NO;
 
+#ifdef MAPBASE
+	m_hAttacker = info.GetAttacker();
+#endif
+
 	SetThink( &CTripmineGrenade::DelayDeathThink );
 	SetNextThink( gpGlobals->curtime + 0.25 );
 
@@ -271,6 +323,48 @@ void CTripmineGrenade::DelayDeathThink( void )
 	ExplosionCreate( GetAbsOrigin() + m_vecDir * 8, GetAbsAngles(), m_hOwner, GetDamage(), 200, 
 		SF_ENVEXPLOSION_NOSPARKS | SF_ENVEXPLOSION_NODLIGHTS | SF_ENVEXPLOSION_NOSMOKE, 0.0f, this);
 
+#ifdef MAPBASE
+	m_OnExplode.FireOutput(m_hAttacker.Get(), this);
+#endif
+
 	UTIL_Remove( this );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose:
+// Input  :
+// Output :
+//-----------------------------------------------------------------------------
+void CTripmineGrenade::InputActivate( inputdata_t &inputdata )
+{
+	if (m_flPowerUpTime > 0)
+	{
+		m_flPowerUp = gpGlobals->curtime + m_flPowerUpTime;
+	
+		SetThink( &CTripmineGrenade::PowerupThink );
+		SetNextThink( gpGlobals->curtime + 0.2 );
+	}
+	else
+	{
+		MakeBeam( );
+		RemoveSolidFlags( FSOLID_NOT_SOLID );
+		m_bIsLive			= true;
+
+		//EmitSound( "TripmineGrenade.Activate" );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+// Input  :
+// Output :
+//-----------------------------------------------------------------------------
+void CTripmineGrenade::InputDeactivate( inputdata_t &inputdata )
+{
+	KillBeam( );
+	//AddSolidFlags( FSOLID_NOT_SOLID );
+	m_bIsLive = false;
+}
+#endif
 

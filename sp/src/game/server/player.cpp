@@ -80,6 +80,9 @@
 #ifdef HL2_DLL
 #include "combine_mine.h"
 #include "weapon_physcannon.h"
+#ifdef MAPBASE
+#include "mapbase/GlobalStrings.h"
+#endif
 #endif
 
 ConVar autoaim_max_dist( "autoaim_max_dist", "2160" ); // 2160 = 180 feet
@@ -435,6 +438,12 @@ BEGIN_DATADESC( CBasePlayer )
 
 	DEFINE_FIELD( m_autoKickDisabled, FIELD_BOOLEAN ),
 
+#ifdef MAPBASE
+	DEFINE_FIELD( m_bInTriggerFall, FIELD_BOOLEAN ),
+
+	DEFINE_FIELD( m_bDrawPlayerModelExternally, FIELD_BOOLEAN ),
+#endif
+
 	// Function Pointers
 	DEFINE_FUNCTION( PlayerDeathThink ),
 
@@ -443,6 +452,9 @@ BEGIN_DATADESC( CBasePlayer )
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetHUDVisibility", InputSetHUDVisibility ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetFogController", InputSetFogController ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "HandleMapEvent", InputHandleMapEvent ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetSuppressAttacks", InputSetSuppressAttacks ),
+#endif
 
 	DEFINE_FIELD( m_nNumCrouches, FIELD_INTEGER ),
 	DEFINE_FIELD( m_bDuckToggled, FIELD_BOOLEAN ),
@@ -526,6 +538,30 @@ void CBasePlayer::DestroyViewModels( void )
 		m_hViewModel.Set( i, NULL );
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBasePlayer::CreateHandModel(int index, int iOtherVm)
+{
+	Assert(index >= 0 && index < MAX_VIEWMODELS && iOtherVm >= 0 && iOtherVm < MAX_VIEWMODELS );
+
+	if (GetViewModel(index))
+		return;
+
+	CBaseViewModel *vm = (CBaseViewModel *)CreateEntityByName("hand_viewmodel");
+	if (vm)
+	{
+		vm->SetAbsOrigin(GetAbsOrigin());
+		vm->SetOwner(this);
+		vm->SetIndex(index);
+		DispatchSpawn(vm);
+		vm->FollowEntity(GetViewModel(iOtherVm), true);
+		m_hViewModel.Set(index, vm);
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Static member function to create a player of the specified class
@@ -906,7 +942,11 @@ void CBasePlayer::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &v
 			//  If an NPC check if friendly fire is disallowed
 			// --------------------------------------------------
 			CAI_BaseNPC *pNPC = info.GetAttacker()->MyNPCPointer();
+#ifdef MAPBASE
+			if ( pNPC && (pNPC->CapabilitiesGet() & bits_CAP_NO_HIT_PLAYER) && pNPC->IRelationType( this ) <= D_FR )
+#else
 			if ( pNPC && (pNPC->CapabilitiesGet() & bits_CAP_NO_HIT_PLAYER) && pNPC->IRelationType( this ) != D_HT )
+#endif
 				return;
 
 			// Prevent team damage here so blood doesn't appear
@@ -945,10 +985,22 @@ void CBasePlayer::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &v
 			break;
 		}
 
+#ifdef MAPBASE
+
+		// Damage filter bleed control needs to exist on all DLLs
+		bool bShouldBleed = 
+#ifdef HL2_EPISODIC
+			!g_pGameRules->Damage_ShouldNotBleed( info.GetDamageType() ) &&
+#endif
+			DamageFilterAllowsBlood( info );
+
+		if ( bShouldBleed )
+#else
 #ifdef HL2_EPISODIC
 		// If this damage type makes us bleed, then do so
 		bool bShouldBleed = !g_pGameRules->Damage_ShouldNotBleed( info.GetDamageType() );
 		if ( bShouldBleed )
+#endif
 #endif
 		{
 			SpawnBlood(ptr->endpos, vecDir, BloodColor(), info.GetDamage());// a little surface blood.
@@ -4026,6 +4078,12 @@ void CBasePlayer::CheckTimeBasedDamage()
 			case itbd_Acid:
 //				OnTakeDamage(pev, pev, ACID_DAMAGE, DMG_GENERIC);
 				bDuration = ACID_DURATION;
+#ifdef MAPBASE
+				// Prevents ant workers from inducing the Flash Plague, flashing the player's screen every time they take damage henceforth.
+				// I think people came up with a different name, but I can't bother to look for it right now.
+				// This fix might prevent other acid damage stuff as well, so it's not episodic-exclusive.
+				m_bitsDamageType &= ~(DMG_ACID);
+#endif
 				break;
 			case itbd_SlowBurn:
 //				OnTakeDamage(pev, pev, SLOWBURN_DAMAGE, DMG_GENERIC);
@@ -4145,6 +4203,12 @@ void CBasePlayer::UpdateGeigerCounter( void )
 	{
 		range = clamp( (int)range * 4, 0, 255 );
 	}
+
+#ifdef MAPBASE
+	// If the geiger is disabled, just use 255
+	if (HasSpawnFlags(SF_PLAYER_NO_GEIGER))
+		range = 255;
+#endif
 
 	if (range != m_igeigerRangePrev)
 	{
@@ -4983,6 +5047,9 @@ void CBasePlayer::Spawn( void )
 	enginesound->SetPlayerDSP( user, 0, false );
 
 	CreateViewModel();
+#ifdef MAPBASE
+	CreateHandModel();
+#endif
 
 	SetCollisionGroup( COLLISION_GROUP_PLAYER );
 
@@ -5890,6 +5957,10 @@ void CBasePlayer::ImpulseCommands( )
 			CBaseCombatWeapon *pWeapon;
 
 			pWeapon = GetActiveWeapon();
+#ifdef MAPBASE
+			if (!pWeapon)
+				return;
+#endif
 			
 			if( pWeapon->IsEffectActive( EF_NODRAW ) )
 			{
@@ -6017,7 +6088,11 @@ static void CreateJeep( CBasePlayer *pPlayer )
 	// Cheat to create a jeep in front of the player
 	Vector vecForward;
 	AngleVectors( pPlayer->EyeAngles(), &vecForward );
+#if defined(HL2_EPISODIC) && defined(MAPBASE)
+	CBaseEntity *pJeep = (CBaseEntity *)CreateEntityByName( "prop_vehicle_jeep_old" );
+#else
 	CBaseEntity *pJeep = (CBaseEntity *)CreateEntityByName( "prop_vehicle_jeep" );
+#endif
 	if ( pJeep )
 	{
 		Vector vecOrigin = pPlayer->GetAbsOrigin() + vecForward * 256 + Vector(0,0,64);
@@ -6519,7 +6594,22 @@ bool CBasePlayer::ClientCommand( const CCommand &args )
 			angle.y = atof( args[5] );
 			angle.z = 0.0f;
 
+#ifdef MAPBASE
+			#define SPECGOTO_MAX_VALUE 0xFFFF/2.0f
+
+            // This could crash the game somehow if not checked.. Thanks to Nairda.
+            if (abs(angle.x) <= 360.0f && abs(angle.y) <= 360.0f && abs(origin.x) < SPECGOTO_MAX_VALUE &&
+                abs(origin.y) < SPECGOTO_MAX_VALUE && abs(origin.z) < SPECGOTO_MAX_VALUE)
+            {
+                JumptoPosition(origin, angle);
+            }
+            else
+            {
+                engine->ClientPrintf(edict(), "spec_goto: Out-of-bounds");
+            }
+#else
 			JumptoPosition( origin, angle );
+#endif
 		}
 		
 		return true;
@@ -6594,7 +6684,11 @@ bool CBasePlayer::BumpWeapon( CBaseCombatWeapon *pWeapon )
 		if( Weapon_EquipAmmoOnly( pWeapon ) )
 		{
 			// Only remove me if I have no ammo left
+#ifdef MAPBASE
+			if ( pWeapon->HasPrimaryAmmo() || pWeapon->HasSecondaryAmmo() )
+#else
 			if ( pWeapon->HasPrimaryAmmo() )
+#endif
 				return false;
 
 			UTIL_Remove( pWeapon );
@@ -6605,10 +6699,56 @@ bool CBasePlayer::BumpWeapon( CBaseCombatWeapon *pWeapon )
 			return false;
 		}
 	}
+#ifdef MAPBASE
+	// --------------------------------------------------------------------------------
+	// If we own a weapon in the same position take the ammo but leave the weapon behind
+	// --------------------------------------------------------------------------------
+	if (!pWeapon->HasSpawnFlags(SF_WEAPON_USED)) // Make sure we're being used and not being bumped
+	{
+		for (int i=0;i<MAX_WEAPONS;i++) 
+		{
+			if (m_hMyWeapons[i] &&
+				pWeapon->GetSlot() == m_hMyWeapons[i]->GetSlot() &&
+				pWeapon->GetPosition() == m_hMyWeapons[i]->GetPosition())
+			{
+				//Weapon_EquipAmmoOnly( pWeapon );
+
+				// I'm too lazy to make my own version of Weapon_EquipAmmoOnly that doesn't check if we already have the weapon first 
+				int	primaryGiven	= (pWeapon->UsesClipsForAmmo1()) ? pWeapon->m_iClip1 : pWeapon->GetPrimaryAmmoCount();
+				int secondaryGiven	= (pWeapon->UsesClipsForAmmo2()) ? pWeapon->m_iClip2 : pWeapon->GetSecondaryAmmoCount();
+
+				int takenPrimary   = GiveAmmo( primaryGiven, pWeapon->m_iPrimaryAmmoType); 
+				int takenSecondary = GiveAmmo( secondaryGiven, pWeapon->m_iSecondaryAmmoType); 
+				
+				if( pWeapon->UsesClipsForAmmo1() )
+				{
+					pWeapon->m_iClip1 -= takenPrimary;
+				}
+				else
+				{
+					pWeapon->SetPrimaryAmmoCount( pWeapon->GetPrimaryAmmoCount() - takenPrimary );
+				}
+
+				if( pWeapon->UsesClipsForAmmo2() )
+				{
+					pWeapon->m_iClip2 -= takenSecondary;
+				}
+				else
+				{
+					pWeapon->SetSecondaryAmmoCount( pWeapon->GetSecondaryAmmoCount() - takenSecondary );
+				}
+
+				return false;
+			}
+		}
+	}
+#endif
 	// -------------------------
 	// Otherwise take the weapon
 	// -------------------------
+#ifndef MAPBASE
 	else 
+#endif
 	{
 		pWeapon->CheckRespawn();
 
@@ -6631,6 +6771,7 @@ bool CBasePlayer::BumpWeapon( CBaseCombatWeapon *pWeapon )
 				UTIL_HudHintText( this, hint.Access() );
 			}
 
+#ifndef MAPBASE // See CBasePlayer::Weapon_Equip.
 			// Always switch to a newly-picked up weapon
 			if ( !PlayerHasMegaPhysCannon() )
 			{
@@ -6642,6 +6783,7 @@ bool CBasePlayer::BumpWeapon( CBaseCombatWeapon *pWeapon )
 
 				Weapon_Switch( pWeapon );
 			}
+#endif
 #endif
 		}
 		return true;
@@ -7328,6 +7470,24 @@ void CBasePlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
 	BaseClass::Weapon_Equip( pWeapon );
 
+#ifdef MAPBASE
+	// So, I discovered that BumpWeapon seems to have some deprecated code.
+	// It automatically switches the player to all new weapons. Sounds normal, right?
+	// Except that's *also* handled here. Since the BumpWeapon code implied the player could pick up weapons while carrying the mega physcannon,
+	// I assumed it was some old, deprecated code and, since I needed to remove a piece of (also deprecated) code in it, I decided to remove it entirely
+	// and hand weapon switching to this alone. Seems straightforward, right?
+	// 
+	// Well, it turns out, this code was more complicated than I thought and used various weights and stuff to determine if a weapon was worth automatically switching to.
+	// It doesn't automatically switch to most of the weapons. Even though I seem to be right about that old code being deprecated,
+	// I got irritated and...uh...replaced the correct Weapon_Equip code with the old deprecated code from BumpWeapon.
+	// 
+	// Trust me. It was hard and pointless to get used to. You'll thank me later.
+
+	if ( !PlayerHasMegaPhysCannon() )
+	{
+		Weapon_Switch( pWeapon );
+	}
+#else
 	bool bShouldSwitch = g_pGameRules->FShouldSwitchWeapon( this, pWeapon );
 
 #ifdef HL2_DLL
@@ -7343,7 +7503,50 @@ void CBasePlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 	{
 		Weapon_Switch( pWeapon );
 	}
+#endif
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Activity CBasePlayer::Weapon_TranslateActivity( Activity baseAct, bool *pRequired )
+{
+#ifdef HL2_DLL
+	// HAAAAAAAAAAAAAACKS!
+	if (GetActiveWeapon())
+	{
+		int translated = baseAct;
+		int iActOffset = (baseAct - ACT_HL2MP_IDLE);
+
+		string_t iszClassname = GetActiveWeapon()->m_iClassname;
+		if (iszClassname == gm_isz_class_Pistol || iszClassname == gm_isz_class_357)
+			translated = (ACT_HL2MP_IDLE_PISTOL + iActOffset);
+		else if (iszClassname == gm_isz_class_SMG1)
+			translated = (ACT_HL2MP_IDLE_SMG1 + iActOffset);
+		else if (iszClassname == gm_isz_class_AR2)
+			translated = (ACT_HL2MP_IDLE_AR2 + iActOffset);
+		else if (iszClassname == gm_isz_class_Shotgun)
+			translated = (ACT_HL2MP_IDLE_SHOTGUN + iActOffset);
+		else if (iszClassname == gm_isz_class_RPG)
+			translated = (ACT_HL2MP_IDLE_RPG + iActOffset);
+		else if (iszClassname == gm_isz_class_Grenade)
+			translated = (ACT_HL2MP_IDLE_GRENADE + iActOffset);
+		else if (iszClassname == gm_isz_class_Physcannon)
+			translated = (ACT_HL2MP_IDLE_PHYSGUN + iActOffset);
+		else if (iszClassname == gm_isz_class_Crossbow)
+			translated = (ACT_HL2MP_IDLE_CROSSBOW + iActOffset);
+		else if (iszClassname == gm_isz_class_Crowbar || iszClassname == gm_isz_class_Stunstick)
+			translated = (ACT_HL2MP_IDLE_MELEE + iActOffset);
+
+		if (translated != baseAct)
+			return (Activity)translated;
+	}
+#endif
+
+	return BaseClass::Weapon_TranslateActivity( baseAct, pRequired );
+}
+#endif
 
 
 //=========================================================
@@ -7764,12 +7967,22 @@ void CRevertSaved::LoadThink( void )
 #define SF_SPEED_MOD_SUPPRESS_SPEED		(1<<5)
 #define SF_SPEED_MOD_SUPPRESS_ATTACK	(1<<6)
 #define SF_SPEED_MOD_SUPPRESS_ZOOM		(1<<7)
+#ifdef MAPBASE
+// Needs to be inverse because suppressing the flashlight is already default behavior
+// and we don't want to break compatibility for existing speedmods
+#define SF_SPEED_MOD_DONT_SUPPRESS_FLASHLIGHT	(1<<8)
+#endif
 
 class CMovementSpeedMod : public CPointEntity
 {
 	DECLARE_CLASS( CMovementSpeedMod, CPointEntity );
 public:
 	void InputSpeedMod(inputdata_t &data);
+
+#ifdef MAPBASE
+	void InputEnable(inputdata_t &data);
+	void InputDisable(inputdata_t &data);
+#endif
 
 private:
 	int GetDisabledButtonMask( void );
@@ -7781,6 +7994,10 @@ LINK_ENTITY_TO_CLASS( player_speedmod, CMovementSpeedMod );
 
 BEGIN_DATADESC( CMovementSpeedMod )
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "ModifySpeed", InputSpeedMod ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+#endif
 END_DATADESC()
 	
 int CMovementSpeedMod::GetDisabledButtonMask( void )
@@ -7850,6 +8067,10 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 				pPlayer->HideViewModels();
 			}
 
+#ifdef MAPBASE
+			if ( !HasSpawnFlags( SF_SPEED_MOD_DONT_SUPPRESS_FLASHLIGHT ) )
+			{
+#endif
 			// Turn off the flashlight
 			if ( pPlayer->FlashlightIsOn() )
 			{
@@ -7858,6 +8079,9 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 			
 			// Disable the flashlight's further use
 			pPlayer->SetFlashlightEnabled( false );
+#ifdef MAPBASE
+			}
+#endif
 			pPlayer->DisableButtons( GetDisabledButtonMask() );
 
 			// Hide the HUD
@@ -7892,6 +8116,91 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 		pPlayer->SetLaggedMovementValue( data.value.Float() );
 	}
 }
+
+#ifdef MAPBASE
+void CMovementSpeedMod::InputEnable(inputdata_t &data)
+{
+	CBasePlayer *pPlayer = NULL;
+
+	if ( data.pActivator && data.pActivator->IsPlayer() )
+	{
+		pPlayer = (CBasePlayer *)data.pActivator;
+	}
+	else if ( !g_pGameRules->IsDeathmatch() )
+	{
+		pPlayer = UTIL_GetLocalPlayer();
+	}
+
+	if ( pPlayer )
+	{
+		// Holster weapon immediately, to allow it to cleanup
+		if ( HasSpawnFlags( SF_SPEED_MOD_SUPPRESS_WEAPONS ) )
+		{
+			if ( pPlayer->GetActiveWeapon() )
+			{
+				pPlayer->Weapon_SetLast( pPlayer->GetActiveWeapon() );
+				pPlayer->GetActiveWeapon()->Holster();
+				pPlayer->ClearActiveWeapon();
+			}
+			
+			pPlayer->HideViewModels();
+		}
+
+		// Turn off the flashlight
+		if ( pPlayer->FlashlightIsOn() )
+		{
+			pPlayer->FlashlightTurnOff();
+		}
+		
+		// Disable the flashlight's further use
+		pPlayer->SetFlashlightEnabled( false );
+		pPlayer->DisableButtons( GetDisabledButtonMask() );
+
+		// Hide the HUD
+		if ( HasSpawnFlags( SF_SPEED_MOD_SUPPRESS_HUD ) )
+		{
+			pPlayer->m_Local.m_iHideHUD |= HIDEHUD_ALL;
+		}
+	}
+}
+
+void CMovementSpeedMod::InputDisable(inputdata_t &data)
+{
+	CBasePlayer *pPlayer = NULL;
+
+	if ( data.pActivator && data.pActivator->IsPlayer() )
+	{
+		pPlayer = (CBasePlayer *)data.pActivator;
+	}
+	else if ( !g_pGameRules->IsDeathmatch() )
+	{
+		pPlayer = UTIL_GetLocalPlayer();
+	}
+
+	if ( pPlayer )
+	{
+		// Bring the weapon back
+		if  ( HasSpawnFlags( SF_SPEED_MOD_SUPPRESS_WEAPONS ) && pPlayer->GetActiveWeapon() == NULL )
+		{
+			pPlayer->SetActiveWeapon( pPlayer->Weapon_GetLast() );
+			if ( pPlayer->GetActiveWeapon() )
+			{
+				pPlayer->GetActiveWeapon()->Deploy();
+			}
+		}
+
+		// Allow the flashlight again
+		pPlayer->SetFlashlightEnabled( true );
+		pPlayer->EnableButtons( GetDisabledButtonMask() );
+
+		// Restore the HUD
+		if ( HasSpawnFlags( SF_SPEED_MOD_SUPPRESS_HUD ) )
+		{
+			pPlayer->m_Local.m_iHideHUD &= ~HIDEHUD_ALL;
+		}
+	}
+}
+#endif
 
 
 void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID)
@@ -7956,6 +8265,14 @@ void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const voi
 
 		SendPropInt			( SENDINFO( m_nWaterLevel ), 2, SPROP_UNSIGNED ),
 		SendPropFloat		( SENDINFO( m_flLaggedMovementValue ), 0, SPROP_NOSCALE ),
+
+#ifdef MAPBASE
+		// Transmitted from the server for internal player spawnflags.
+		// See baseplayer_shared.h for more details.
+		SendPropInt			( SENDINFO( m_spawnflags ), 3, SPROP_UNSIGNED ),
+
+		SendPropBool		( SENDINFO( m_bDrawPlayerModelExternally ) ),
+#endif
 
 	END_SEND_TABLE()
 
@@ -8675,6 +8992,19 @@ void CBasePlayer::InputSetHUDVisibility( inputdata_t &inputdata )
 		m_Local.m_iHideHUD |= HIDEHUD_ALL;
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata -
+//-----------------------------------------------------------------------------
+void CBasePlayer::InputSetSuppressAttacks( inputdata_t &inputdata )
+{
+	inputdata.value.Bool() ?
+		AddSpawnFlags( SF_PLAYER_SUPPRESS_FIRING ) :
+		RemoveSpawnFlags( SF_PLAYER_SUPPRESS_FIRING );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Set the fog controller data per player.

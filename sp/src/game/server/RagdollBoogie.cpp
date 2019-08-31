@@ -15,6 +15,9 @@
 #include "effect_dispatch_data.h"
 #include "te_effect_dispatch.h"
 #include "IEffects.h"
+#ifdef MAPBASE
+#include "saverestore_utlvector.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -266,3 +269,137 @@ void CRagdollBoogie::BoogieThink( void )
 
 	SetNextThink( gpGlobals->curtime + random->RandomFloat( 0.1, 0.2f ) );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Allows mappers to control ragdoll dancing
+//-----------------------------------------------------------------------------
+class CPointRagdollBoogie : public CBaseEntity 
+{
+	DECLARE_DATADESC();
+	DECLARE_CLASS( CPointRagdollBoogie, CBaseEntity );
+
+public:
+	bool ApplyBoogie(CBaseEntity *pTarget, CBaseEntity *pActivator);
+
+	void InputActivate( inputdata_t &inputdata );
+	void InputDeactivate( inputdata_t &inputdata );
+	void InputBoogieTarget( inputdata_t &inputdata );
+
+private:
+	float m_flStartTime;
+	float m_flBoogieLength;
+	float m_flMagnitude;
+
+	// This allows us to remove active boogies later.
+	CUtlVector<EHANDLE> m_Boogies;
+};
+
+//-----------------------------------------------------------------------------
+// Save/load 
+//-----------------------------------------------------------------------------
+BEGIN_DATADESC( CPointRagdollBoogie )
+
+	DEFINE_KEYFIELD( m_flStartTime, FIELD_FLOAT, "StartTime" ),
+	DEFINE_KEYFIELD( m_flBoogieLength, FIELD_FLOAT, "BoogieLength" ),
+	DEFINE_KEYFIELD( m_flMagnitude, FIELD_FLOAT, "Magnitude" ),
+
+	// Think this should be handled by StartTouch/etc.
+//	DEFINE_FIELD( m_nSuppressionCount, FIELD_INTEGER ),
+
+	DEFINE_UTLVECTOR( m_Boogies, FIELD_EHANDLE ),
+
+	// Inputs
+	DEFINE_INPUTFUNC( FIELD_VOID, "Activate", InputActivate ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Deactivate", InputDeactivate ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "BoogieTarget", InputBoogieTarget ),
+
+END_DATADESC()
+
+LINK_ENTITY_TO_CLASS( point_ragdollboogie, CPointRagdollBoogie );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+bool CPointRagdollBoogie::ApplyBoogie( CBaseEntity *pTarget, CBaseEntity *pActivator )
+{
+	if (dynamic_cast<CRagdollProp*>(pTarget))
+	{
+		m_Boogies.AddToTail(CRagdollBoogie::Create(pTarget, m_flMagnitude, gpGlobals->curtime + m_flStartTime, m_flBoogieLength, GetSpawnFlags()));
+	}
+	else if (pTarget->MyCombatCharacterPointer())
+	{
+		// Basically CBaseCombatCharacter::BecomeRagdollBoogie(), but adjusted to our needs
+		CTakeDamageInfo info(this, pActivator, 1.0f, DMG_GENERIC);
+
+		CBaseEntity *pRagdoll = CreateServerRagdoll(pTarget->MyCombatCharacterPointer(), 0, info, COLLISION_GROUP_INTERACTIVE_DEBRIS, true);
+
+		pRagdoll->SetCollisionBounds(CollisionProp()->OBBMins(), CollisionProp()->OBBMaxs());
+
+		m_Boogies.AddToTail(CRagdollBoogie::Create(pRagdoll, m_flMagnitude, gpGlobals->curtime + m_flStartTime, m_flBoogieLength, GetSpawnFlags()));
+
+		CTakeDamageInfo ragdollInfo(this, pActivator, 10000.0, DMG_GENERIC | DMG_REMOVENORAGDOLL);
+		ragdollInfo.SetDamagePosition(WorldSpaceCenter());
+		ragdollInfo.SetDamageForce(Vector(0, 0, 1));
+		ragdollInfo.SetForceFriendlyFire(true);
+		pTarget->TakeDamage(ragdollInfo);
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CPointRagdollBoogie::InputActivate( inputdata_t &inputdata )
+{
+	CBaseEntity *pEnt = gEntList.FindEntityByName(NULL, STRING(m_target), this, inputdata.pActivator, inputdata.pCaller);
+	while (pEnt)
+	{
+		ApplyBoogie(pEnt, inputdata.pActivator);
+
+		pEnt = gEntList.FindEntityByName(pEnt, STRING(m_target), this, inputdata.pActivator, inputdata.pCaller);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CPointRagdollBoogie::InputDeactivate( inputdata_t &inputdata )
+{
+	if (m_Boogies.Count() == 0)
+		return;
+
+	for (int i = 0; i < m_Boogies.Count(); i++)
+	{
+		UTIL_Remove(m_Boogies[i]);
+	}
+
+	//m_Boogies.RemoveAll();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CPointRagdollBoogie::InputBoogieTarget( inputdata_t &inputdata )
+{
+	CBaseEntity *pEnt = gEntList.FindEntityByName(NULL, inputdata.value.String(), this, inputdata.pActivator, inputdata.pCaller);
+	while (pEnt)
+	{
+		if (!ApplyBoogie(pEnt, inputdata.pActivator))
+		{
+			Warning("%s was unable to apply ragdoll boogie to %s, classname %s.\n", GetDebugName(), pEnt->GetDebugName(), pEnt->GetClassname());
+		}
+
+		pEnt = gEntList.FindEntityByName(pEnt, inputdata.value.String(), this, inputdata.pActivator, inputdata.pCaller);
+	}
+}
+#endif

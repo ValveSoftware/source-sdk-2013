@@ -75,6 +75,10 @@ public:
 	virtual float GetOpenInterval(void) = 0;
 	// }
 
+#ifdef MAPBASE
+	virtual bool PassesDoorFilter(CBaseEntity *pEntity) { return true; }
+#endif
+
 protected:
 
 	enum DoorState_t
@@ -163,6 +167,10 @@ private:
 	void InputOpenAwayFrom(inputdata_t &inputdata);
 	void InputToggle(inputdata_t &inputdata);
 	void InputUnlock(inputdata_t &inputdata);
+#ifdef MAPBASE
+	void InputAllowPlayerUse(inputdata_t &inputdata);
+	void InputDisallowPlayerUse(inputdata_t &inputdata);
+#endif
 
 	void SetDoorBlocker( CBaseEntity *pBlocker );
 

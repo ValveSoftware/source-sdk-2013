@@ -60,9 +60,15 @@ BEGIN_DATADESC( CPointTemplate )
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "ForceSpawn", InputForceSpawn ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "ForceSpawnRandomTemplate", InputForceSpawnRandomTemplate ),
+#endif
 
 	// Outputs
 	DEFINE_OUTPUT( m_pOutputOnSpawned, "OnEntitySpawned" ),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_pOutputOutEntity, "OutSpawnedEntity" ),
+#endif
 
 END_DATADESC()
 
@@ -406,4 +412,75 @@ void CPointTemplate::InputForceSpawn( inputdata_t &inputdata )
 	
 	// Fire our output
 	m_pOutputOnSpawned.FireOutput( this, this );
+
+#ifdef MAPBASE
+	for ( int i = 0; i < hNewEntities.Count(); i++ )
+	{
+		m_pOutputOutEntity.Set(hNewEntities[i], hNewEntities[i], this);
+	}
+#endif
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Randomly spawns one of our templates.
+//			This is copied from CreateInstance().
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CPointTemplate::InputForceSpawnRandomTemplate( inputdata_t &inputdata )
+{
+	CBaseEntity *pEntity = NULL;
+	char *pMapData;
+
+	// Index for our m_hTemplates
+	int iIndex = RandomInt(0, GetNumTemplates() - 1);
+
+	// Index for the template itself in the global template list
+	int iTemplateIndex = m_hTemplates[iIndex].iTemplateIndex;
+
+	// Some templates have Entity I/O connecting the entities within the template.
+	// Unique versions of these templates need to be created whenever they're instanced.
+	if ( AllowNameFixup() && Templates_IndexRequiresEntityIOFixup( iTemplateIndex ) )
+	{
+		// This template requires instancing. 
+		// Create a new mapdata block and ask the template system to fill it in with
+		// a unique version (with fixed Entity I/O connections).
+		pMapData = Templates_GetEntityIOFixedMapData( iTemplateIndex );
+	}
+	else
+	{
+		// Use the unmodified mapdata
+		pMapData = (char*)STRING( Templates_FindByIndex( iTemplateIndex ) );
+	}
+
+	// Create the entity from the mapdata
+	MapEntity_ParseEntity( pEntity, pMapData, NULL );
+	if ( pEntity == NULL )
+	{
+		Msg("Failed to initialize templated entity with mapdata: %s\n", pMapData );
+		return;
+	}
+
+	// Get a matrix that'll convert from world to the new local space
+	VMatrix matNewTemplateToWorld, matStoredLocalToWorld;
+	matNewTemplateToWorld.SetupMatrixOrgAngles( GetAbsOrigin(), GetAbsAngles() );
+	MatrixMultiply( matNewTemplateToWorld, m_hTemplates[iIndex].matEntityToTemplate, matStoredLocalToWorld );
+
+	// Get the world origin & angles from the stored local coordinates
+	Vector vecNewOrigin;
+	QAngle vecNewAngles;
+	vecNewOrigin = matStoredLocalToWorld.GetTranslation();
+	MatrixToAngles( matStoredLocalToWorld, vecNewAngles );
+
+	// Set its origin & angles
+	pEntity->SetAbsOrigin( vecNewOrigin );
+	pEntity->SetAbsAngles( vecNewAngles );
+
+	// Spawn it
+	DispatchSpawn(pEntity);
+
+	// Fire our output
+	m_pOutputOnSpawned.FireOutput( this, this );
+	m_pOutputOutEntity.Set(pEntity, pEntity, this);
+}
+#endif

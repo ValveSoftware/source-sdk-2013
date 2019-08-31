@@ -52,6 +52,9 @@ BEGIN_DATADESC( CAI_ScriptConditions )
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "SatisfyConditions", InputSatisfyConditions ),
+#endif
 
 	//---------------------------------
 
@@ -195,12 +198,20 @@ bool CAI_ScriptConditions::EvalState( const EvalArgs_t &args )
 			-1, // NPC_STATE_PLAYDEAD
 			-1, // NPC_STATE_PRONE
 			-1, // NPC_STATE_DEAD
+#ifdef MAPBASE
+			3, // A "Don't care" for the maximum value
+#endif
 	};
 
 	int valState = stateVals[pNpc->m_NPCState];
 
 	if ( valState < 0 )
 	{
+#ifdef MAPBASE
+		if (m_fMinState == 0)
+			return true;
+#endif
+
 		if ( pNpc->m_NPCState == NPC_STATE_SCRIPT && m_fScriptStatus >= TRS_TRUE )
 			return true;
 
@@ -675,6 +686,25 @@ void CAI_ScriptConditions::InputDisable( inputdata_t &inputdata )
 	m_bLeaveAsleep = true;
 	Disable();
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+
+void CAI_ScriptConditions::InputSatisfyConditions( inputdata_t &inputdata )
+{
+	// This satisfies things.
+	CBaseEntity *pActivator = HasSpawnFlags(SF_ACTOR_AS_ACTIVATOR) ? inputdata.value.Entity() : this;
+	m_OnConditionsSatisfied.FireOutput(pActivator, this);
+
+
+	//All done!
+	if ( m_ElementList.Count() == 1 )
+	{
+		Disable();
+		m_ElementList.Purge();
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 

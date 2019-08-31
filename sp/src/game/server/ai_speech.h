@@ -157,10 +157,19 @@ public:
 	// --------------------------------
 	
 	bool Speak( AIConcept_t concept, const char *modifiers = NULL, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
+#ifdef MAPBASE
+	bool Speak( AIConcept_t concept, AI_CriteriaSet& modifiers, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
+	AI_Response *SpeakFindResponse( AIConcept_t concept, AI_CriteriaSet& modifiers );
+	void MergeModifiers( AI_CriteriaSet& set, const char *modifiers );
+#endif
 
 	// These two methods allow looking up a response and dispatching it to be two different steps
 	AI_Response *SpeakFindResponse( AIConcept_t concept, const char *modifiers = NULL );
+#ifdef MAPBASE
+	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response *response, IRecipientFilter *filter = NULL, const char *modifiers = NULL );
+#else
 	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response *response, IRecipientFilter *filter = NULL );
+#endif
 	float GetResponseDuration( AI_Response *response );
 
 	virtual int SpeakRawSentence( const char *pszSentence, float delay, float volume = VOL_NORM, soundlevel_t soundlevel = SNDLVL_TALKING, CBaseEntity *pListener = NULL );
@@ -204,6 +213,11 @@ protected:
 	void DumpHistories();
 
 	void SpeechMsg( CBaseEntity *pFlex, PRINTF_FORMAT_STRING const char *pszFormat, ... );
+
+#ifdef MAPBASE
+	// Handles context operators
+	char *ParseApplyContext( const char *szContext );
+#endif
 
 	// --------------------------------
 	
@@ -281,9 +295,15 @@ public:
 	virtual void	NoteSpeaking( float duration, float delay );
 
 	virtual bool 	Speak( AIConcept_t concept, const char *modifiers = NULL, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
+#ifdef MAPBASE
+	virtual bool 	Speak( AIConcept_t concept, AI_CriteriaSet& modifiers, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
+#endif
 
 	// These two methods allow looking up a response and dispatching it to be two different steps
 	AI_Response *	SpeakFindResponse( AIConcept_t concept, const char *modifiers = NULL );
+#ifdef MAPBASE
+	AI_Response *	SpeakFindResponse( AIConcept_t concept, AI_CriteriaSet& modifiers );
+#endif
 	bool 			SpeakDispatchResponse( AIConcept_t concept, AI_Response *response );
 	virtual void	PostSpeakDispatchResponse( AIConcept_t concept, AI_Response *response ) { return; }
 	float 			GetResponseDuration( AI_Response *response );
@@ -323,6 +343,18 @@ inline bool CAI_ExpresserHost<BASE_NPC>::Speak( AIConcept_t concept, const char 
 	AssertOnce( this->GetExpresser()->GetOuter() == this );
 	return this->GetExpresser()->Speak( concept, modifiers, pszOutResponseChosen, bufsize, filter ); 
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Version of Speak() that takes a direct AI_CriteriaSet for modifiers.
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+inline bool CAI_ExpresserHost<BASE_NPC>::Speak( AIConcept_t concept, AI_CriteriaSet& modifiers, char *pszOutResponseChosen /*=NULL*/, size_t bufsize /* = 0 */, IRecipientFilter *filter /* = NULL */ ) 
+{
+	AssertOnce( this->GetExpresser()->GetOuter() == this );
+	return this->GetExpresser()->Speak( concept, modifiers, pszOutResponseChosen, bufsize, filter ); 
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -364,6 +396,16 @@ inline AI_Response *CAI_ExpresserHost<BASE_NPC>::SpeakFindResponse( AIConcept_t 
 {
 	return this->GetExpresser()->SpeakFindResponse( concept, modifiers );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+inline AI_Response *CAI_ExpresserHost<BASE_NPC>::SpeakFindResponse( AIConcept_t concept, AI_CriteriaSet& modifiers )
+{
+	return this->GetExpresser()->SpeakFindResponse( concept, modifiers );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

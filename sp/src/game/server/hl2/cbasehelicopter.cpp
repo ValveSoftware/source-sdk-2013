@@ -101,6 +101,10 @@ BEGIN_DATADESC( CBaseHelicopter )
 	DEFINE_FIELD( m_bSuppressSound,		FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_flStartupTime,	FIELD_TIME ),
 
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bAllowAnyDamage, FIELD_BOOLEAN, "AllowAnyDamage" ),
+#endif
+
 	DEFINE_FIELD( m_cullBoxMins,	FIELD_VECTOR ),
 	DEFINE_FIELD( m_cullBoxMaxs,	FIELD_VECTOR ),
 
@@ -193,8 +197,15 @@ void CBaseHelicopter::Spawn( void )
 
 	AddFlag( FL_NPC );
 
+#ifdef MAPBASE
+	if (m_flMaxSpeed == 0)
+		m_flMaxSpeed = BASECHOPPER_MAX_SPEED;
+	if (m_flMaxSpeedFiring == 0)
+		m_flMaxSpeedFiring = BASECHOPPER_MAX_FIRING_SPEED;
+#else
 	m_flMaxSpeed = BASECHOPPER_MAX_SPEED;
 	m_flMaxSpeedFiring = BASECHOPPER_MAX_FIRING_SPEED;
+#endif
 	m_takedamage = DAMAGE_AIM;
 
 	// Don't start up if the level designer has asked the 
@@ -1110,6 +1121,11 @@ void CBaseHelicopter::InputDisableRotorSound( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CBaseHelicopter::InputKill( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	// Finally, an InputKill override that makes sense.
+	m_OnKilled.FireOutput( inputdata.pActivator, this );
+#endif
+
 	StopRotorWash();
 
 	m_bSuppressSound = true;
@@ -1269,7 +1285,11 @@ void CBaseHelicopter::TraceAttack( const CTakeDamageInfo &info, const Vector &ve
 	// Take no damage from trace attacks unless it's blast damage. RadiusDamage() sometimes calls
 	// TraceAttack() as a means for delivering blast damage. Usually when the explosive penetrates
 	// the target. (RPG missiles do this sometimes).
+#ifdef MAPBASE
+	if ( info.GetDamageType() & (DMG_BLAST|DMG_AIRBOAT) || m_bAllowAnyDamage )
+#else
 	if( info.GetDamageType() & (DMG_BLAST|DMG_AIRBOAT) )
+#endif
 	{
 		BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
 	}
@@ -1520,9 +1540,23 @@ bool CBaseHelicopter::ChooseEnemy( void )
 			// New enemy! Clear the timers and set conditions.
 			SetEnemy( pNewEnemy );
 			m_flLastSeen = m_flPrevSeen = gpGlobals->curtime;
+#ifdef MAPBASE
+			Remember( ( pNewEnemy->IsPlayer() ) ? bits_MEMORY_HAD_PLAYER : bits_MEMORY_HAD_ENEMY );
+#endif
 		}
 		else
 		{
+#ifdef MAPBASE
+			if (!pNewEnemy)
+			{
+				if ( HasMemory( bits_MEMORY_HAD_PLAYER ) )
+				{
+					m_OnLostPlayer.FireOutput( GetEnemy(), this );
+				}
+				m_OnLostEnemy.FireOutput( GetEnemy(), this );
+			}
+#endif
+
 			SetEnemy( NULL );
 			SetState( NPC_STATE_ALERT );
 		}
@@ -1542,6 +1576,45 @@ bool CBaseHelicopter::ChooseEnemy( void )
 //-----------------------------------------------------------------------------
 void CBaseHelicopter::GatherEnemyConditions( CBaseEntity *pEnemy )
 {
+#ifdef MAPBASE
+	// ---------------------------
+	//  Ported from CAI_BaseNPC. Need it to fire outputs without setting all kinds of conditions
+	// ---------------------------
+	if ( HasCondition( COND_NEW_ENEMY ) || GetSenses()->GetTimeLastUpdate( GetEnemy() ) == gpGlobals->curtime )
+	{
+		bool bSensesDidSee = GetSenses()->DidSeeEntity( pEnemy );
+
+		if ( !bSensesDidSee && ( ( EnemyDistance( pEnemy ) >= GetSenses()->GetDistLook() ) || !FVisible( pEnemy, MASK_BLOCKLOS ) ) )
+		{
+			// No LOS to enemy
+			if (HasMemory( bits_MEMORY_HAD_LOS ))
+			{
+				// Send output event
+				if (GetEnemy()->IsPlayer())
+				{
+					m_OnLostPlayerLOS.FireOutput( GetEnemy(), this );
+				}
+				m_OnLostEnemyLOS.FireOutput( GetEnemy(), this );
+			}
+			Forget( bits_MEMORY_HAD_LOS );
+		}
+		else
+		{
+			if (!HasMemory( bits_MEMORY_HAD_LOS ))
+			{
+				// Send output event
+				EHANDLE hEnemy;
+				hEnemy.Set( GetEnemy() );
+
+				if (GetEnemy()->IsPlayer())
+					m_OnFoundPlayer.Set(hEnemy, hEnemy, this);
+				m_OnFoundEnemy.Set(hEnemy, hEnemy, this);
+			}
+			Remember( bits_MEMORY_HAD_LOS );
+		}
+	}
+#endif
+
 	// -------------------
 	// If enemy is dead
 	// -------------------
@@ -1595,3 +1668,103 @@ void ExpandBBox(Vector &vecMins, Vector &vecMaxs)
 	vecMins.Init(-maxval, -maxval, -maxval);
 	vecMaxs.Init(maxval, maxval, maxval);
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// A custom helicopter 
+//-----------------------------------------------------------------------------
+class CNPC_CustomHelicopter : public CBaseHelicopter
+{
+public:
+	DECLARE_CLASS( CNPC_CustomHelicopter, CBaseHelicopter );
+	DECLARE_DATADESC();
+
+	CNPC_CustomHelicopter();
+	~CNPC_CustomHelicopter();
+
+	virtual void	Precache( void );
+	virtual void	Spawn( void );
+
+	void	InitializeRotorSound( void );
+
+	float GetAcceleration( void ) { return m_flAcceleration; }
+
+	float			m_flAcceleration;
+
+	string_t		m_iszRotorSound;
+	string_t		m_iszRotorBlast;
+};
+
+LINK_ENTITY_TO_CLASS( npc_helicopter_custom, CNPC_CustomHelicopter );
+
+BEGIN_DATADESC( CNPC_CustomHelicopter )
+
+	DEFINE_KEYFIELD( m_flMaxSpeed,		FIELD_FLOAT, "MaxSpeed" ),
+	DEFINE_KEYFIELD( m_flMaxSpeedFiring,	FIELD_FLOAT, "MaxSpeedfiring" ),
+
+	DEFINE_KEYFIELD( m_flAcceleration,		FIELD_FLOAT, "Acceleration" ),
+
+	DEFINE_KEYFIELD( m_iszRotorSound,	FIELD_STRING, "RotorSound" ),
+	DEFINE_KEYFIELD( m_iszRotorBlast,	FIELD_STRING, "RotorBlast" ),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+CNPC_CustomHelicopter::CNPC_CustomHelicopter()
+{
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+CNPC_CustomHelicopter::~CNPC_CustomHelicopter()
+{
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CNPC_CustomHelicopter::Precache( void )
+{
+	PrecacheModel( STRING(GetModelName()) );
+
+	PrecacheScriptSound( STRING(m_iszRotorSound) );
+	PrecacheScriptSound( STRING(m_iszRotorBlast) );
+
+	BaseClass::Precache();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CNPC_CustomHelicopter::Spawn( void )
+{
+	SetModel( STRING(GetModelName()) );
+
+	BaseClass::Spawn();
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Create our rotor sound
+//------------------------------------------------------------------------------
+void CNPC_CustomHelicopter::InitializeRotorSound( void )
+{
+	if ( !m_pRotorSound )
+	{
+		CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+		CPASAttenuationFilter filter( this );
+
+		m_pRotorSound = controller.SoundCreate( filter, entindex(), STRING(m_iszRotorSound) );
+		m_pRotorBlast = controller.SoundCreate( filter, entindex(), STRING(m_iszRotorBlast) );
+	}
+	else
+	{
+		Assert(m_pRotorSound);
+		Assert(m_pRotorBlast);
+	}
+
+	BaseClass::InitializeRotorSound();
+}
+#endif

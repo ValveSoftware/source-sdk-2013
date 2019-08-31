@@ -481,6 +481,18 @@ public:
 	string_t				m_iszTarget7;
 	string_t				m_iszTarget8;
 
+#ifdef MAPBASE
+	void					SetTarget(int nTarget, string_t pTargetName, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL);
+	void					InputSetTarget1(inputdata_t &inputdata);
+	void					InputSetTarget2(inputdata_t &inputdata);
+	void					InputSetTarget3(inputdata_t &inputdata);
+	void					InputSetTarget4(inputdata_t &inputdata);
+	void					InputSetTarget5(inputdata_t &inputdata);
+	void					InputSetTarget6(inputdata_t &inputdata);
+	void					InputSetTarget7(inputdata_t &inputdata);
+	void					InputSetTarget8(inputdata_t &inputdata);
+#endif
+
 	EHANDLE					m_hTarget1;
 	EHANDLE					m_hTarget2;
 	EHANDLE					m_hTarget3;
@@ -710,6 +722,17 @@ BEGIN_DATADESC( CSceneEntity )
 	DEFINE_INPUTFUNC( FIELD_VOID, "StopWaitingForActor", 	InputStopWaitingForActor ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "Trigger", InputTriggerEvent ),
 
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget1", InputSetTarget1 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget2", InputSetTarget2 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget3", InputSetTarget3 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget4", InputSetTarget4 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget5", InputSetTarget5 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget6", InputSetTarget6 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget7", InputSetTarget7 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget8", InputSetTarget8 ),
+#endif
+
 	DEFINE_KEYFIELD( m_iPlayerDeathBehavior, FIELD_INTEGER, "onplayerdeath" ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "ScriptPlayerDeath", InputScriptPlayerDeath ),
 
@@ -915,6 +938,68 @@ float CSceneEntity::GetSoundSystemLatency( void )
 	// Assume 100 msec sound system latency
 	return SOUND_SYSTEM_LATENCY_DEFAULT;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// I copied CSceneEntity's PrecacheScene to a unique static function so PrecacheInstancedScene()
+// can precache loose scene files without having to use a CSceneEntity.
+//-----------------------------------------------------------------------------
+void PrecacheChoreoScene( CChoreoScene *scene )
+{
+	Assert( scene );
+
+	// Iterate events and precache necessary resources
+	for ( int i = 0; i < scene->GetNumEvents(); i++ )
+	{
+		CChoreoEvent *event = scene->GetEvent( i );
+		if ( !event )
+			continue;
+
+		// load any necessary data
+		switch (event->GetType() )
+		{
+		default:
+			break;
+		case CChoreoEvent::SPEAK:
+			{
+				// Defined in SoundEmitterSystem.cpp
+				// NOTE:  The script entries associated with .vcds are forced to preload to avoid
+				//  loading hitches during triggering
+				CBaseEntity::PrecacheScriptSound( event->GetParameters() );
+
+				if ( event->GetCloseCaptionType() == CChoreoEvent::CC_MASTER && 
+					 event->GetNumSlaves() > 0 )
+				{
+					char tok[ CChoreoEvent::MAX_CCTOKEN_STRING ];
+					if ( event->GetPlaybackCloseCaptionToken( tok, sizeof( tok ) ) )
+					{
+						CBaseEntity::PrecacheScriptSound( tok );
+					}
+				}
+			}
+			break;
+		case CChoreoEvent::SUBSCENE:
+			{
+				// Only allow a single level of subscenes for now
+				if ( !scene->IsSubScene() )
+				{
+					CChoreoScene *subscene = event->GetSubScene();
+					if ( !subscene )
+					{
+						subscene = ChoreoLoadScene( event->GetParameters(), NULL, &g_TokenProcessor, LocalScene_Printf );
+						subscene->SetSubScene( true );
+						event->SetSubScene( subscene );
+
+						// Now precache it's resources, if any
+						PrecacheChoreoScene( subscene );
+					}
+				}
+			}
+			break;
+		}
+	}
+}
+#endif
 		
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -2109,7 +2194,11 @@ void CSceneEntity::InputPitchShiftPlayback( inputdata_t &inputdata )
 
 void CSceneEntity::InputTriggerEvent( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	CBaseEntity *pActivator = inputdata.pActivator;
+#else
 	CBaseEntity *pActivator = this; // at some point, find this from the inputdata
+#endif
 	switch ( inputdata.value.Int() )
 	{
 	case 1:
@@ -2266,6 +2355,107 @@ void CSceneEntity::InputInterjectResponse( inputdata_t &inputdata )
 		}
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CSceneEntity::SetTarget( int nTarget, string_t pTargetName, CBaseEntity *pActivator, CBaseEntity *pCaller )
+{
+	if (/*m_bIsPlayingBack ||*/ !nTarget)
+	{
+		return;
+	}
+
+	switch (nTarget)
+	{
+	case 1:		m_iszTarget1 = pTargetName; break;
+	case 2:		m_iszTarget2 = pTargetName; break;
+	case 3:		m_iszTarget3 = pTargetName; break;
+	case 4:		m_iszTarget4 = pTargetName; break;
+	case 5:		m_iszTarget5 = pTargetName; break;
+	case 6:		m_iszTarget6 = pTargetName; break;
+	case 7:		m_iszTarget7 = pTargetName; break;
+	case 8:		m_iszTarget8 = pTargetName; break;
+	}
+
+	// Reset our handle.
+	// Internal functions set them when they're null anyway.
+	switch (nTarget)
+	{
+	case 1:		m_hTarget1 = NULL; break;
+	case 2:		m_hTarget2 = NULL; break;
+	case 3:		m_hTarget3 = NULL; break;
+	case 4:		m_hTarget4 = NULL; break;
+	case 5:		m_hTarget5 = NULL; break;
+	case 6:		m_hTarget6 = NULL; break;
+	case 7:		m_hTarget7 = NULL; break;
+	case 8:		m_hTarget8 = NULL; break;
+	}
+
+	//CBaseEntity *pTarget = gEntList.FindEntityByName(NULL, pTargetName, this, pActivator, pCaller);
+	//if (!pTarget)
+	//{
+	//	DevWarning("%s (%s) could not find SetTarget entity %s!\n", GetClassname(), GetDebugName(), pTargetName);
+	//	return;
+	//}
+
+	/*
+	switch (nTarget)
+	{
+	case 1:		m_hTarget1 = pTarget; break;
+	case 2:		m_hTarget2 = pTarget; break;
+	case 3:		m_hTarget3 = pTarget; break;
+	case 4:		m_hTarget4 = pTarget; break;
+	case 5:		m_hTarget5 = pTarget; break;
+	case 6:		m_hTarget6 = pTarget; break;
+	case 7:		m_hTarget7 = pTarget; break;
+	case 8:		m_hTarget8 = pTarget; break;
+	}
+	*/
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CSceneEntity::InputSetTarget1( inputdata_t &inputdata )
+{
+	SetTarget(1, inputdata.value.StringID(), inputdata.pActivator, inputdata.pCaller);
+}
+
+void CSceneEntity::InputSetTarget2( inputdata_t &inputdata )
+{
+	SetTarget(2, inputdata.value.StringID(), inputdata.pActivator, inputdata.pCaller);
+}
+
+void CSceneEntity::InputSetTarget3( inputdata_t &inputdata )
+{
+	SetTarget(3, inputdata.value.StringID(), inputdata.pActivator, inputdata.pCaller);
+}
+
+void CSceneEntity::InputSetTarget4( inputdata_t &inputdata )
+{
+	SetTarget(4, inputdata.value.StringID(), inputdata.pActivator, inputdata.pCaller);
+}
+
+void CSceneEntity::InputSetTarget5( inputdata_t &inputdata )
+{
+	SetTarget(5, inputdata.value.StringID(), inputdata.pActivator, inputdata.pCaller);
+}
+
+void CSceneEntity::InputSetTarget6( inputdata_t &inputdata )
+{
+	SetTarget(6, inputdata.value.StringID(), inputdata.pActivator, inputdata.pCaller);
+}
+
+void CSceneEntity::InputSetTarget7( inputdata_t &inputdata )
+{
+	SetTarget(7, inputdata.value.StringID(), inputdata.pActivator, inputdata.pCaller);
+}
+
+void CSceneEntity::InputSetTarget8( inputdata_t &inputdata )
+{
+	SetTarget(8, inputdata.value.StringID(), inputdata.pActivator, inputdata.pCaller);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -3354,6 +3544,44 @@ CChoreoScene *CSceneEntity::LoadScene( const char *filename, IChoreoEventCallbac
 
 	// binary compiled vcd
 	void *pBuffer;
+#ifdef MAPBASE
+	// 
+	// Raw scene file support
+	// 
+	CChoreoScene *pScene;
+	int fileSize;
+
+	// First, check if it's in scenes.image...
+	if ( CopySceneFileIntoMemory( loadfile, &pBuffer, &fileSize ) )
+	{
+		pScene = new CChoreoScene( NULL );
+		CUtlBuffer buf( pBuffer, fileSize, CUtlBuffer::READ_ONLY );
+		if ( !pScene->RestoreFromBinaryBuffer( buf, loadfile, &g_ChoreoStringPool ) )
+		{
+			Warning( "CSceneEntity::LoadScene: Unable to load binary scene '%s'\n", loadfile );
+			delete pScene;
+			pScene = NULL;
+		}
+	}
+	// Next, check if it's a loose file...
+	else if (filesystem->ReadFileEx( loadfile, "MOD", &pBuffer, true ))
+	{
+		g_TokenProcessor.SetBuffer((char*)pBuffer);
+		pScene = ChoreoLoadScene( loadfile, NULL, &g_TokenProcessor, LocalScene_Printf );
+	}
+	// Okay, it's definitely missing.
+	else
+	{
+		MissingSceneWarning( loadfile );
+		return NULL;
+	}
+
+	if (pScene)
+	{
+		pScene->SetPrintFunc( LocalScene_Printf );
+		pScene->SetEventCallbackInterface( pCallback );
+	}
+#else
 	int fileSize;
 	if ( !CopySceneFileIntoMemory( loadfile, &pBuffer, &fileSize ) )
 	{
@@ -3374,6 +3602,7 @@ CChoreoScene *CSceneEntity::LoadScene( const char *filename, IChoreoEventCallbac
 		pScene->SetPrintFunc( LocalScene_Printf );
 		pScene->SetEventCallbackInterface( pCallback );
 	}
+#endif
 
 	FreeSceneFileMemory( pBuffer );
 	return pScene;
@@ -3858,6 +4087,72 @@ CBaseEntity *CSceneEntity::FindNamedEntity( const char *name, CBaseEntity *pActo
 
 	return entity;
 }
+
+#ifdef MAPBASE
+const char *GetFirstSoundInScene(const char *pszScene)
+{
+	SceneCachedData_t sceneData;
+	if ( scenefilecache->GetSceneCachedData( pszScene, &sceneData ) )
+	{
+		if ( sceneData.numSounds > 0 )
+		{
+			// 0 is the first index...right?
+			short stringId = scenefilecache->GetSceneCachedSound( sceneData.sceneId, 0 );
+
+			// Trust that it's been precached
+			return scenefilecache->GetSceneString( stringId );
+		}
+	}
+	else
+	{
+		void *pBuffer = NULL;
+		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, false, true ))
+		{
+			g_TokenProcessor.SetBuffer((char*)pBuffer);
+			CChoreoScene *pScene = ChoreoLoadScene( pszScene, NULL, &g_TokenProcessor, LocalScene_Printf );
+			if (pScene)
+			{
+				for (int i = 0; i < pScene->GetNumEvents(); i++)
+				{
+					CChoreoEvent *pEvent = pScene->GetEvent(i);
+
+					if (pEvent->GetType() == CChoreoEvent::SPEAK)
+						return pEvent->GetParameters();
+				}
+			}
+		}
+	}
+
+	return NULL;
+}
+
+const char *GetFirstSoundInScene(CChoreoScene *scene)
+{
+	for ( int i = 0; i < scene->GetNumEvents(); i++ )
+	{
+		CChoreoEvent *pEvent = scene->GetEvent( i );
+
+		if (pEvent->GetType() == CChoreoEvent::SPEAK)
+			return pEvent->GetParameters();
+	}
+
+	return NULL;
+}
+
+CBaseEntity *UTIL_FindNamedSceneEntity(const char *name, CBaseEntity *pActor, CSceneEntity *scene, bool bBaseFlexOnly, bool bUseClear)
+{
+	if (scene)
+	{
+		CBaseEntity *pEnt = scene->FindNamedEntity(name, pActor, bBaseFlexOnly, bUseClear);
+		return pEnt;
+	}
+	else
+	{
+		//Warning("SCENE NOT FOUND!\n");
+		return NULL;
+	}
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -4619,8 +4914,41 @@ int GetSceneSpeechCount( char const *pszScene )
 	{
 		return cachedData.numSounds;
 	}
+#ifdef MAPBASE
+	else
+	{
+		void *pBuffer = NULL;
+		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, false, true ))
+		{
+			int iNumSounds = 0;
+
+			g_TokenProcessor.SetBuffer((char*)pBuffer);
+			CChoreoScene *pScene = ChoreoLoadScene( pszScene, NULL, &g_TokenProcessor, LocalScene_Printf );
+			if (pScene)
+			{
+				for (int i = 0; i < pScene->GetNumEvents(); i++)
+				{
+					CChoreoEvent *pEvent = pScene->GetEvent(i);
+
+					if (pEvent->GetType() == CChoreoEvent::SPEAK)
+						iNumSounds++;
+				}
+			}
+
+			return iNumSounds;
+		}
+	}
+#endif
 	return 0;
 }
+
+#ifdef MAPBASE
+CON_COMMAND(mapbase_scene_precache, "Just work")
+{
+	DevMsg("Attempting to precache %s...\n", args[1]);
+	PrecacheInstancedScene(args[1]);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Used for precaching instanced scenes
@@ -4645,12 +4973,31 @@ void PrecacheInstancedScene( char const *pszScene )
 	SceneCachedData_t sceneData;
 	if ( !scenefilecache->GetSceneCachedData( pszScene, &sceneData ) )
 	{
+#ifdef MAPBASE
+		char loadfile[MAX_PATH];
+		Q_strncpy( loadfile, pszScene, sizeof( loadfile ) );
+		Q_SetExtension( loadfile, ".vcd", sizeof( loadfile ) );
+		Q_FixSlashes( loadfile );
+
+		// Attempt to precache manually
+		void *pBuffer = NULL;
+		if (filesystem->ReadFileEx( loadfile, "MOD", &pBuffer, false, true ))
+		{
+			g_TokenProcessor.SetBuffer((char*)pBuffer);
+			CChoreoScene *pScene = ChoreoLoadScene( loadfile, NULL, &g_TokenProcessor, LocalScene_Printf );
+			if (pScene)
+			{
+				PrecacheChoreoScene(pScene);
+			}
+		}
+#else
 		// Scenes are sloppy and don't always exist.
 		// A scene that is not in the pre-built cache image, but on disk, is a true error.
 		if ( developer.GetInt() && ( IsX360() && ( g_pFullFileSystem->GetDVDMode() != DVDMODE_STRICT ) && g_pFullFileSystem->FileExists( pszScene, "GAME" ) ) )
 		{
 			Warning( "PrecacheInstancedScene: Missing scene '%s' from scene image cache.\nRebuild scene image cache!\n", pszScene );
 		}
+#endif
 	}
 	else
 	{
@@ -4848,6 +5195,15 @@ void CInstancedSceneEntity::OnLoaded()
 {
 	BaseClass::OnLoaded();
 	SetBackground( m_bIsBackground );
+
+#ifdef MAPBASE
+	// It looks like !Target1 in those default NPC scenes was a freaking lie.
+	if (m_hOwner)
+	{
+		m_hTarget1 = m_hOwner;
+		m_iszTarget1 = m_hOwner->GetEntityName();
+	}
+#endif
 }
 
 bool g_bClientFlex = true;

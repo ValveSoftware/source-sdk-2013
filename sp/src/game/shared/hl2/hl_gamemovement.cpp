@@ -283,7 +283,11 @@ bool CHL2GameMovement::ContinueForcedMove()
 //-----------------------------------------------------------------------------
 bool CHL2GameMovement::OnLadder( trace_t &trace )
 {
+#ifdef HL2_USES_FUNC_LADDER_CODE
+	return ( GetLadder() != NULL ) ? true : BaseClass::OnLadder(trace);
+#else
 	return ( GetLadder() != NULL ) ? true : false;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -377,6 +381,104 @@ void CHL2GameMovement::Findladder( float maxdist, CFuncLadder **ppLadder, Vector
 	ladderOrigin = bestOrigin;
 
 }
+
+#ifdef MAPBASE
+bool CHL2GameMovement::ForcePlayerOntoLadder(CFuncLadder *ladder)
+{
+	Vector topPosition;
+	Vector bottomPosition;
+
+	ladder->GetTopPosition(topPosition);
+	ladder->GetBottomPosition(bottomPosition);
+
+	Vector closest;
+	CalcClosestPointOnLineSegment(mv->GetAbsOrigin(), bottomPosition, topPosition, closest, NULL);
+
+	StartForcedMove( true, player->MaxSpeed(), closest, ladder );
+
+	return true;
+}
+
+bool CHL2GameMovement::MountPlayerOntoLadder(CFuncLadder *ladder)
+{
+	Vector topPosition;
+	Vector bottomPosition;
+
+	ladder->GetTopPosition(topPosition);
+	ladder->GetBottomPosition(bottomPosition);
+
+	Vector closest;
+	CalcClosestPointOnLineSegment(mv->GetAbsOrigin(), bottomPosition, topPosition, closest, NULL);
+
+#if 0
+	// Compute parametric distance along ladder vector...
+	float oldt;
+	CalcDistanceSqrToLine( mv->GetAbsOrigin(), topPosition, bottomPosition, &oldt );
+	
+	// Perform the move accounting for any base velocity.
+	VectorAdd (mv->m_vecVelocity, player->GetBaseVelocity(), mv->m_vecVelocity);
+	TryPlayerMove();
+	VectorSubtract (mv->m_vecVelocity, player->GetBaseVelocity(), mv->m_vecVelocity);
+
+	// Pressed buttons are "changed(xor)" and'ed with the mask of currently held buttons
+	bool pressing_forward_or_side = mv->m_flForwardMove != 0.0f || mv->m_flSideMove != 0.0f;
+
+	Vector ladderVec = topPosition - bottomPosition;
+	float LadderLength = VectorNormalize( ladderVec );
+	// This test is not perfect by any means, but should help a bit
+	bool moving_along_ladder = false;
+	if ( pressing_forward_or_side )
+	{
+		float fwdDot = m_vecForward.Dot( ladderVec );
+		if ( fabs( fwdDot ) > 0.9f )
+		{
+			moving_along_ladder = true;
+		}
+	}
+
+	// Compute parametric distance along ladder vector...
+	float newt;
+	CalcDistanceSqrToLine( mv->GetAbsOrigin(), topPosition, bottomPosition, &newt );
+
+	// Fudge of 2 units
+	float tolerance = 1.0f / LadderLength;
+
+	bool wouldleaveladder = false;
+	// Moving pPast top or bottom?
+	if ( newt < -tolerance )
+	{
+		wouldleaveladder = newt < oldt;
+	}
+	else if ( newt > ( 1.0f + tolerance ) )
+	{
+		wouldleaveladder = newt > oldt;
+	}
+
+	// See if we are near the top or bottom but not moving
+	float dist1sqr, dist2sqr;
+
+	dist1sqr = ( topPosition - mv->GetAbsOrigin() ).LengthSqr();
+	dist2sqr = ( bottomPosition - mv->GetAbsOrigin() ).LengthSqr();
+
+	float dist = MIN( dist1sqr, dist2sqr );
+	bool neardismountnode = ( dist < 16.0f * 16.0f ) ? true : false;
+	float ladderUnitsPerTick = ( MAX_CLIMB_SPEED * gpGlobals->interval_per_tick );
+	bool neardismountnode2 = ( dist < ladderUnitsPerTick * ladderUnitsPerTick ) ? true : false;
+
+	// Really close to node, cvar is set, and pressing a key, then simulate a +USE
+	bool auto_dismount_use = ( neardismountnode2 && 
+								sv_autoladderdismount.GetBool() && 
+								pressing_forward_or_side && 
+								!moving_along_ladder );
+
+	bool fully_underwater = ( player->GetWaterLevel() == WL_Eyes ) ? true : false;
+#endif
+
+	StartForcedMove( true, player->MaxSpeed(), closest, ladder );
+
+	return true;
+}
+#endif
 
 static bool NearbyDismountLessFunc( const NearbyDismount_t& lhs, const NearbyDismount_t& rhs )
 {
@@ -527,6 +629,9 @@ void CHL2GameMovement::FullLadderMove()
 	Assert( ladder );
 	if ( !ladder )
 	{
+#ifdef HL2_USES_FUNC_LADDER_CODE
+		BaseClass::FullLadderMove();
+#endif
 		return;
 	}
 
@@ -887,7 +992,11 @@ bool CHL2GameMovement::LadderMove( void )
 	if ( player->GetMoveType() == MOVETYPE_NOCLIP )
 	{
 		SetLadder( NULL );
+#ifdef HL2_USES_FUNC_LADDER_CODE
+		return BaseClass::LadderMove();
+#else
 		return false;
+#endif
 	}
 
 	// If being forced to mount/dismount continue to act like we are on the ladder
@@ -954,7 +1063,11 @@ bool CHL2GameMovement::LadderMove( void )
 			}
 		}
 
+#ifdef HL2_USES_FUNC_LADDER_CODE
+		return BaseClass::LadderMove();
+#else
 		return false;
+#endif
 	}
 
 	if ( !ladder && 
@@ -968,7 +1081,11 @@ bool CHL2GameMovement::LadderMove( void )
 	ladder = GetLadder();
 	if ( !ladder )
 	{
+#ifdef HL2_USES_FUNC_LADDER_CODE
+		return BaseClass::LadderMove();
+#else
 		return false;
+#endif
 	}
 
 	// Don't play the deny sound
@@ -1032,7 +1149,11 @@ bool CHL2GameMovement::LadderMove( void )
 		{
 			mv->m_vecVelocity.z = mv->m_vecVelocity.z + 50;
 		}
+#ifdef HL2_USES_FUNC_LADDER_CODE
+		return BaseClass::LadderMove();
+#else
 		return false;
+#endif
 	}
 
 	if ( forwardSpeed != 0 || rightSpeed != 0 )
@@ -1064,7 +1185,11 @@ bool CHL2GameMovement::LadderMove( void )
 			player->SetMoveType( MOVETYPE_WALK );
 			// Remove from ladder
 			SetLadder( NULL );
+#ifdef HL2_USES_FUNC_LADDER_CODE
+			return BaseClass::LadderMove();
+#else
 			return false;
+#endif
 		}
 
 		bool ishorizontal = fabs( topPosition.z - bottomPosition.z ) < 64.0f ? true : false;

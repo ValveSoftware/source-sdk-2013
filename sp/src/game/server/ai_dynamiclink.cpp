@@ -15,6 +15,14 @@
 #include "ai_link.h"
 #include "ai_network.h"
 #include "ai_networkmanager.h"
+#ifdef MAPBASE
+#include "ai_hint.h"
+#include "ai_basenpc.h"
+#include "filters.h"
+#include "point_template.h"
+#include "TemplateEntities.h"
+#include "mapentities.h"
+#endif
 #include "saverestore_utlvector.h"
 #include "editor_sendcommand.h"
 #include "bitstring.h"
@@ -168,6 +176,156 @@ void CAI_DynamicLinkController::InputSetInvert( inputdata_t &inputdata )
 		m_ControlledLinks[i]->m_bInvertAllow = m_bInvertAllow;
 	}
 }
+
+#ifdef MAPBASE
+//=============================================================================
+//	>> CAI_CustomLinkController
+//	Uses the specified link class
+//=============================================================================
+class CAI_CustomLinkController : public CAI_DynamicLinkController
+{
+	DECLARE_CLASS( CAI_CustomLinkController, CAI_DynamicLinkController );
+public:
+	CAI_CustomLinkController();
+
+	void GenerateLinksFromVolume();
+	int GetReferenceLinkIndex();
+	
+	string_t					m_iszReferenceLinkTemplate;
+	int							m_iReferenceLink;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(info_template_link_controller, CAI_CustomLinkController);
+
+BEGIN_DATADESC( CAI_CustomLinkController )
+
+	DEFINE_KEYFIELD( m_iszReferenceLinkTemplate, FIELD_STRING, "ReferenceTemplate" ),
+	//DEFINE_FIELD( m_iReferenceLink, FIELD_INTEGER ), // I don't know if this should be saved. It's only a cached variable, so not saving it shouldn't hurt anything.
+
+END_DATADESC()
+
+CAI_CustomLinkController::CAI_CustomLinkController()
+{
+	m_iReferenceLink = -1;
+}
+
+int CAI_CustomLinkController::GetReferenceLinkIndex()
+{
+	if (m_iReferenceLink != -1)
+		return m_iReferenceLink;
+
+	CBaseEntity *pEnt =  gEntList.FindEntityByName(NULL, STRING(m_iszReferenceLinkTemplate), this);
+	if (CPointTemplate *pTemplate = dynamic_cast<CPointTemplate*>(pEnt))
+	{
+		Assert(pTemplate->GetTemplateEntity(0));
+
+		m_iReferenceLink = pTemplate->GetTemplateIndexForTemplate(0);
+		return m_iReferenceLink;
+	}
+
+	return -1;
+}
+
+void CAI_CustomLinkController::GenerateLinksFromVolume()
+{
+	Assert( m_ControlledLinks.Count() == 0 );
+
+	int nNodes = g_pBigAINet->NumNodes();
+	CAI_Node **ppNodes = g_pBigAINet->AccessNodes();
+
+	float MinDistCareSq = 0;
+	if (m_bUseAirLinkRadius)
+	{
+		 MinDistCareSq = Square(MAX_AIR_NODE_LINK_DIST + 0.1);
+	}
+	else
+	{
+		 MinDistCareSq = Square(MAX_NODE_LINK_DIST + 0.1);
+	}
+
+	const Vector &origin = WorldSpaceCenter();
+	Vector vAbsMins, vAbsMaxs;
+	CollisionProp()->WorldSpaceAABB( &vAbsMins, &vAbsMaxs );
+	vAbsMins -= Vector( 1, 1, 1 );
+	vAbsMaxs += Vector( 1, 1, 1 );
+
+	int iReference = GetReferenceLinkIndex();
+	if (iReference == -1)
+	{
+		Warning("WARNING! %s reference link is invalid!\n", GetDebugName());
+		return;
+	}
+
+	// Get the map data before the loop
+	char *pMapData = (char*)STRING( Templates_FindByIndex( iReference ) );
+
+	// Make sure the entity is a dynamic link before doing anything
+	CBaseEntity *pEntity = NULL;
+	MapEntity_ParseEntity( pEntity, pMapData, NULL );
+	if ( !dynamic_cast<CAI_DynamicLink*>(pEntity) )
+	{
+		Warning("WARNING! %s reference link is not a node link!\n", GetDebugName());
+		UTIL_RemoveImmediate(pEntity);
+		return;
+	}
+
+	UTIL_RemoveImmediate(pEntity);
+
+	for ( int i = 0; i < nNodes; i++ )
+	{
+		CAI_Node *pNode = ppNodes[i];
+		const Vector &nodeOrigin = pNode->GetOrigin();
+		if ( origin.DistToSqr(nodeOrigin) < MinDistCareSq )
+		{
+			int nLinks = pNode->NumLinks();
+			for ( int j = 0; j < nLinks; j++ )
+			{
+				CAI_Link *pLink = pNode->GetLinkByIndex( j );
+				int iLinkDest = pLink->DestNodeID( i );
+				if ( iLinkDest > i )
+				{
+					const Vector &originOther = ppNodes[iLinkDest]->GetOrigin();
+					if ( origin.DistToSqr(originOther) < MinDistCareSq )
+					{
+						if ( IsBoxIntersectingRay( vAbsMins, vAbsMaxs, nodeOrigin, originOther - nodeOrigin ) )
+						{
+							Assert( IsBoxIntersectingRay( vAbsMins, vAbsMaxs, originOther, nodeOrigin - originOther ) );
+
+							CBaseEntity *pEntity = NULL;
+
+							// Create the entity from the mapdata
+							MapEntity_ParseEntity( pEntity, pMapData, NULL );
+							if ( pEntity == NULL )
+							{
+								Msg("%s failed to initialize templated link with mapdata: %s\n", GetDebugName(), pMapData );
+								return;
+							}
+
+							// We already made sure it was an info_node_link template earlier.
+							CAI_DynamicLink *pLink = static_cast<CAI_DynamicLink*>(pEntity);
+
+							pLink->m_nSrcID = i;
+							pLink->m_nDestID = iLinkDest;
+							pLink->m_nSrcEditID = g_pAINetworkManager->GetEditOps()->GetWCIdFromNodeId( pLink->m_nSrcID );
+							pLink->m_nDestEditID = g_pAINetworkManager->GetEditOps()->GetWCIdFromNodeId( pLink->m_nDestID );
+							pLink->m_nLinkState = m_nLinkState;
+							pLink->m_strAllowUse = m_strAllowUse;
+							pLink->m_bInvertAllow = m_bInvertAllow;
+							pLink->m_bFixedUpIds = true;
+							pLink->m_bNotSaved = true;
+
+							pLink->Spawn();
+							m_ControlledLinks.AddToTail( pLink );
+						}
+					}
+				}
+			}
+		}
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 
@@ -578,6 +736,242 @@ CAI_DynamicLink::~CAI_DynamicLink(void) {
 		}
 	}
 }
+
+#ifdef MAPBASE
+//------------------------------------------------------------------------------
+// Purpose : Determines if usage is allowed by a NPC, whether the link is disabled or not.
+//			This was created for info_node_link derivatives.
+// Input   :
+// Output  :
+//------------------------------------------------------------------------------
+bool CAI_DynamicLink::UseAllowed(CAI_BaseNPC *pNPC, bool bFromEnd)
+{
+	if (!(FindLink()->m_LinkInfo & bits_LINK_OFF))
+		return true;
+
+	if ( m_strAllowUse == NULL_STRING )
+			return false;
+
+	const char *pszAllowUse = STRING( m_strAllowUse );
+	if ( m_bInvertAllow )
+	{
+		// Exlude only the specified entity name or classname
+		if ( !pNPC->NameMatches(pszAllowUse) && !pNPC->ClassMatches( pszAllowUse ) )
+			return true;
+	}
+	else
+	{
+		// Exclude everything but the allowed entity name or classname
+		if ( pNPC->NameMatches( pszAllowUse) || pNPC->ClassMatches( pszAllowUse ) )
+			return true;
+	}
+
+	return false;
+}
+
+//=============================================================================
+//	>> CAI_DynanicLinkOneWay
+//=============================================================================
+class CAI_DynamicLinkOneWay : public CAI_DynamicLink
+{
+	DECLARE_CLASS( CAI_DynamicLinkOneWay, CAI_DynamicLink );
+public:
+	virtual bool			UseAllowed(CAI_BaseNPC *pNPC, bool bFromEnd);
+	//virtual void			SetLinkState( void );
+
+	bool					m_bNormalWhenEnabled;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(info_node_link_oneway, CAI_DynamicLinkOneWay);
+
+BEGIN_DATADESC( CAI_DynamicLinkOneWay )
+
+	DEFINE_KEYFIELD( m_bNormalWhenEnabled, FIELD_BOOLEAN, "Usage" ),
+
+END_DATADESC()
+
+//------------------------------------------------------------------------------
+// Purpose : Determines if usage is allowed by a NPC.
+//			This was created for info_node_link derivatives.
+// Input   :
+// Output  :
+//------------------------------------------------------------------------------
+bool CAI_DynamicLinkOneWay::UseAllowed(CAI_BaseNPC *pNPC, bool bFromEnd)
+{
+	if (m_bNormalWhenEnabled)
+		return (m_nLinkState == LINK_OFF && bFromEnd) ? BaseClass::UseAllowed(pNPC, bFromEnd) : true;
+
+	if (bFromEnd || m_nLinkState == LINK_OFF)
+		return BaseClass::UseAllowed(pNPC, bFromEnd);
+
+	return true;
+}
+
+#if 0
+//------------------------------------------------------------------------------
+// Purpose : Updates network link state if dynamic link state has changed
+// Input   :
+// Output  :
+//------------------------------------------------------------------------------
+void CAI_DynamicLinkOneWay::SetLinkState(void)
+{
+	if (m_bNormalWhenEnabled)
+		return BaseClass::SetLinkState();
+
+	if ( !gm_bInitialized )
+	{
+		// Safe to quietly return. Consistency will be enforced when InitDynamicLinks() is called
+		return;
+	}
+
+	if (m_nSrcID == NO_NODE || m_nDestID == NO_NODE)
+	{
+		Vector pos = GetAbsOrigin();
+		DevWarning("ERROR: Dynamic link at %f %f %f pointing to invalid node ID!!\n", pos.x, pos.y, pos.z);
+		return;
+	}
+
+	CAI_Node *	pSrcNode = g_pBigAINet->GetNode(m_nSrcID, false);
+	if ( pSrcNode )
+	{
+		CAI_Link* pLink = FindLink();
+		if ( pLink )
+		{
+			// One-way always registers as off so it always calls UseAllowed()
+			pLink->m_pDynamicLink = this;
+			pLink->m_LinkInfo |= bits_LINK_OFF;
+		}
+		else
+		{
+			DevMsg("Dynamic Link Error: (%s) unable to form between nodes %d and %d\n", GetDebugName(), m_nSrcID, m_nDestID );
+		}
+	}
+}
+#endif
+
+//=============================================================================
+//	>> CAI_DynamicLinkFilter
+//=============================================================================
+class CAI_DynamicLinkFilter : public CAI_DynamicLink
+{
+	DECLARE_CLASS( CAI_DynamicLinkFilter, CAI_DynamicLink );
+public:
+	virtual bool			UseAllowed(CAI_BaseNPC *pNPC, bool bFromEnd);
+	//virtual void			SetLinkState( void );
+
+	bool					m_bNormalWhenEnabled;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(info_node_link_filtered, CAI_DynamicLinkFilter);
+
+BEGIN_DATADESC( CAI_DynamicLinkFilter )
+
+	DEFINE_KEYFIELD( m_bNormalWhenEnabled, FIELD_BOOLEAN, "Usage" ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetLinkFilter", InputSetDamageFilter ),
+
+END_DATADESC()
+
+//------------------------------------------------------------------------------
+// Purpose : Determines if usage is allowed by a NPC.
+//			This was created for info_node_link derivatives.
+// Input   :
+// Output  :
+//------------------------------------------------------------------------------
+bool CAI_DynamicLinkFilter::UseAllowed(CAI_BaseNPC *pNPC, bool bFromEnd)
+{
+	if ( !m_hDamageFilter )
+	{
+		m_hDamageFilter = gEntList.FindEntityByName( NULL, m_iszDamageFilterName );
+		if (!m_hDamageFilter)
+		{
+			Warning("%s (%s) couldn't find filter \"%s\"!\n", GetClassname(), GetDebugName(), STRING(m_iszDamageFilterName));
+			return BaseClass::UseAllowed(pNPC, bFromEnd);
+		}
+	}
+
+	CBaseFilter *pFilter = (CBaseFilter *)(m_hDamageFilter.Get());
+
+	if (m_bNormalWhenEnabled)
+		return (m_nLinkState == LINK_OFF) ? (pFilter->PassesFilter(this, pNPC) || BaseClass::UseAllowed(pNPC, bFromEnd)) : true;
+
+	if (m_nLinkState == LINK_OFF)
+		return BaseClass::UseAllowed(pNPC, bFromEnd);
+
+	return pFilter->PassesFilter(this, pNPC);
+}
+
+//=============================================================================
+//	>> CAI_DynamicLinkLogic
+//=============================================================================
+class CAI_DynamicLinkLogic : public CAI_DynamicLink
+{
+	DECLARE_CLASS( CAI_DynamicLinkLogic, CAI_DynamicLink );
+public:
+	virtual bool			UseAllowed(CAI_BaseNPC *pNPC, bool bFromEnd);
+	virtual bool			FinalUseAllowed(CAI_BaseNPC *pNPC, bool bFromEnd);
+
+	COutputEvent			m_OnUsageAccepted;
+	COutputEvent			m_OnUsageAcceptedWhileDisabled;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(info_node_link_logic, CAI_DynamicLinkLogic);
+
+BEGIN_DATADESC( CAI_DynamicLinkLogic )
+
+	DEFINE_OUTPUT( m_OnUsageAccepted, "OnUsageAccepted" ),
+	DEFINE_OUTPUT( m_OnUsageAcceptedWhileDisabled, "OnUsageAcceptedWhileDisabled" ),
+
+END_DATADESC()
+
+//------------------------------------------------------------------------------
+// Purpose : Determines if usage is allowed by a NPC.
+//			This was created for info_node_link derivatives.
+// Input   :
+// Output  :
+//------------------------------------------------------------------------------
+bool CAI_DynamicLinkLogic::UseAllowed(CAI_BaseNPC *pNPC, bool bFromEnd)
+{
+	// 
+	// If the link is off, we want to fire "OnUsageAcceptedWhileDisabled", but we have to make sure
+	// the rest of the pathfinding calculations work. Yes, they might do all of this just to find a disabled link,
+	// but we have to fire the output somehow.
+	// 
+	// Links already enabled go through regular usage rules.
+	// 
+	if (m_nLinkState == LINK_OFF)
+		return true;
+	else
+		return BaseClass::UseAllowed( pNPC, bFromEnd );
+}
+
+//------------------------------------------------------------------------------
+// Purpose : After nothing else is left, finally determines if usage is allowed by a NPC.
+//			This was created for info_node_link derivatives.
+// Input   :
+// Output  :
+//------------------------------------------------------------------------------
+bool CAI_DynamicLinkLogic::FinalUseAllowed(CAI_BaseNPC *pNPC, bool bFromEnd)
+{
+	if (m_nLinkState == LINK_ON)
+	{
+		m_OnUsageAccepted.FireOutput(pNPC, this);
+		return true;
+	}
+	else
+	{
+		m_OnUsageAcceptedWhileDisabled.FireOutput(pNPC, this);
+
+		// We skipped the usage rules before. Do them now.
+		return BaseClass::UseAllowed(pNPC, bFromEnd);
+	}
+}
+#endif
 
 LINK_ENTITY_TO_CLASS(info_radial_link_controller, CAI_RadialLinkController);
 

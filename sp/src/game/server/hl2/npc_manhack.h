@@ -155,7 +155,11 @@ public:
 	float GetMaxEnginePower();
 
 	// INPCInteractive Functions
+#ifdef MAPBASE
+	virtual bool	CanInteractWith( CAI_BaseNPC *pUser );
+#else
 	virtual bool	CanInteractWith( CAI_BaseNPC *pUser ) { return false; } // Disabled for now (sjb)
+#endif
 	virtual	bool	HasBeenInteractedWith()	{ return m_bHackedByAlyx; }
 	virtual void	NotifyInteraction( CAI_BaseNPC *pUser )
 	{
@@ -163,6 +167,9 @@ public:
 		KillSprites(0.0f);
 		m_bHackedByAlyx = true; 
 		StartEye();
+#ifdef MAPBASE
+		m_OnHacked.FireOutput(pUser, this);
+#endif
 	}
 
 	virtual void	InputPowerdown( inputdata_t &inputdata )
@@ -254,6 +261,9 @@ private:
 	CSprite			*m_pLightGlow;
 	
 	CHandle<SmokeTrail>	m_hSmokeTrail;
+#ifdef MAPBASE
+	EHANDLE			m_hPrevOwner;
+#endif
 
 	int				m_iPanel1;
 	int				m_iPanel2;

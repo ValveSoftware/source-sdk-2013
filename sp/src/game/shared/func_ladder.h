@@ -59,6 +59,11 @@ public:
 	void	InputEnable( inputdata_t &inputdata );
 	void	InputDisable( inputdata_t &inputdata );
 
+#ifdef MAPBASE
+	void	InputForcePlayerOn( inputdata_t &inputdata );
+	void	InputCheckPlayerOn( inputdata_t &inputdata );
+#endif
+
 	bool	IsEnabled() const;
 
 	void	PlayerGotOn( CBasePlayer *pPlayer );

@@ -597,6 +597,17 @@ bool CAI_Pathfinder::IsLinkUsable(CAI_Link *pLink, int startID)
 	// --------------------------------------------------------------------------
 	// Skip if link turned off
 	// --------------------------------------------------------------------------
+#ifdef MAPBASE
+	if (pLink->m_pDynamicLink)
+	{
+		if (!pLink->m_pDynamicLink->UseAllowed(GetOuter(), startID == pLink->m_pDynamicLink->m_nDestID))
+			return false;
+	}
+	else if (pLink->m_LinkInfo & bits_LINK_OFF)
+	{
+		return false;
+	}
+#else
 	if (pLink->m_LinkInfo & bits_LINK_OFF)
 	{
 		CAI_DynamicLink *pDynamicLink = pLink->m_pDynamicLink;
@@ -618,6 +629,7 @@ bool CAI_Pathfinder::IsLinkUsable(CAI_Link *pLink, int startID)
 				return false;
 		}
 	}
+#endif
 
 	// --------------------------------------------------------------------------			
 	//  Get the destination nodeID
@@ -691,6 +703,12 @@ bool CAI_Pathfinder::IsLinkUsable(CAI_Link *pLink, int startID)
 			return false;
 		}
 	}
+#ifdef MAPBASE
+	if (pLink->m_pDynamicLink)
+	{
+		return pLink->m_pDynamicLink->FinalUseAllowed(GetOuter(), startID == pLink->m_pDynamicLink->m_nDestID);
+	}
+#endif
 	return true;
 }
 

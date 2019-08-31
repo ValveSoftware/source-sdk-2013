@@ -31,6 +31,13 @@ public:
 	bool	IsReadinessCapable() { return false; }
 	void	DeathSound( const CTakeDamageInfo &info );
 
+#ifdef MAPBASE
+	// Alyx was never meant to automatically unholster her weapon in non-episodic Half-Life 2.
+	// Now that all allies can holster/unholster, this is a precaution in case it breaks anything.
+	// Try OnFoundEnemy > UnholsterWeapon if you want Alyx to automatically unholster in non-episodic HL2 maps.
+	bool	CanUnholsterWeapon() { return false; }
+#endif
+
 	EHANDLE	m_hEmpTool;
 
 	DECLARE_DATADESC();

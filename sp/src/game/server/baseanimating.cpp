@@ -27,6 +27,11 @@
 #include "datacache/idatacache.h"
 #include "smoke_trail.h"
 #include "props.h"
+#ifdef MAPBASE
+#include "ai_speech.h"
+#include "gib.h"
+#include "CRagdollMagnet.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -202,9 +207,16 @@ BEGIN_DATADESC( CBaseAnimating )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "IgniteNumHitboxFires", InputIgniteNumHitboxFires ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "IgniteHitboxFireScale", InputIgniteHitboxFireScale ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "BecomeRagdoll", InputBecomeRagdoll ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "CreateSeparateRagdoll", InputCreateSeparateRagdoll ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "CreateSeparateRagdollClient", InputCreateSeparateRagdollClient ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetLightingOriginHack", InputSetLightingOriginRelative ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetLightingOrigin", InputSetLightingOrigin ),
 	DEFINE_OUTPUT( m_OnIgnite, "OnIgnite" ),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnServerRagdoll, "OnServerRagdoll" ),
+#endif
 
 	DEFINE_INPUT( m_fadeMinDist, FIELD_FLOAT, "fademindist" ),
 	DEFINE_INPUT( m_fadeMaxDist, FIELD_FLOAT, "fademaxdist" ),
@@ -212,6 +224,12 @@ BEGIN_DATADESC( CBaseAnimating )
 
 	DEFINE_KEYFIELD( m_flModelScale, FIELD_FLOAT, "modelscale" ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetModelScale", InputSetModelScale ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING,	"SetModel",	InputSetModel ),
+
+	DEFINE_INPUTFUNC( FIELD_FLOAT,	"SetCycle",	InputSetCycle ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT,	"SetPlaybackRate",	InputSetPlaybackRate ),
+#endif
 
 	DEFINE_FIELD( m_fBoneCacheFlags, FIELD_SHORT ),
 
@@ -528,7 +546,11 @@ void CBaseAnimating::StudioFrameAdvance()
 //-----------------------------------------------------------------------------
 // Set the relative lighting origin
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+void CBaseAnimating::SetLightingOriginRelative( string_t strLightingOriginRelative, inputdata_t *inputdata )
+#else
 void CBaseAnimating::SetLightingOriginRelative( string_t strLightingOriginRelative )
+#endif
 {
 	if ( strLightingOriginRelative == NULL_STRING )
 	{
@@ -536,7 +558,11 @@ void CBaseAnimating::SetLightingOriginRelative( string_t strLightingOriginRelati
 	}
 	else
 	{
+#ifdef MAPBASE
+		CBaseEntity *pLightingOrigin = gEntList.FindEntityByName( NULL, strLightingOriginRelative, this, inputdata ? inputdata->pActivator : NULL, inputdata ? inputdata->pCaller : NULL );
+#else
 		CBaseEntity *pLightingOrigin = gEntList.FindEntityByName( NULL, strLightingOriginRelative );
+#endif
 		if ( !pLightingOrigin )
 		{
 			DevWarning( "%s: Could not find info_lighting_relative '%s'!\n", GetClassname(), STRING( strLightingOriginRelative ) );
@@ -566,7 +592,11 @@ void CBaseAnimating::SetLightingOriginRelative( string_t strLightingOriginRelati
 //-----------------------------------------------------------------------------
 // Set the lighting origin
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+void CBaseAnimating::SetLightingOrigin( string_t strLightingOrigin, inputdata_t *inputdata )
+#else
 void CBaseAnimating::SetLightingOrigin( string_t strLightingOrigin )
+#endif
 {
 	if ( strLightingOrigin == NULL_STRING )
 	{
@@ -574,7 +604,11 @@ void CBaseAnimating::SetLightingOrigin( string_t strLightingOrigin )
 	}
 	else
 	{
+#ifdef MAPBASE
+		CBaseEntity *pLightingOrigin = gEntList.FindEntityByName( NULL, strLightingOrigin, this, inputdata ? inputdata->pActivator : NULL, inputdata ? inputdata->pCaller : NULL );
+#else
 		CBaseEntity *pLightingOrigin = gEntList.FindEntityByName( NULL, strLightingOrigin );
+#endif
 		if ( !pLightingOrigin )
 		{
 			DevWarning( "%s: Could not find lighting origin entity named '%s'!\n", GetClassname(), STRING( strLightingOrigin ) );
@@ -597,9 +631,15 @@ void CBaseAnimating::SetLightingOrigin( string_t strLightingOrigin )
 //-----------------------------------------------------------------------------
 void CBaseAnimating::InputSetLightingOriginRelative( inputdata_t &inputdata )
 { 
+#ifdef MAPBASE
+	// Pass our input data now.
+	// (and stop doing that MAKE_STRING nonsense)
+	SetLightingOriginRelative( inputdata.value.StringID(), &inputdata );
+#else
 	// Find our specified target
 	string_t strLightingOriginRelative = MAKE_STRING( inputdata.value.String() );
 	SetLightingOriginRelative( strLightingOriginRelative );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -608,9 +648,15 @@ void CBaseAnimating::InputSetLightingOriginRelative( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CBaseAnimating::InputSetLightingOrigin( inputdata_t &inputdata )
 { 
+#ifdef MAPBASE
+	// Pass our input data now.
+	// (and stop doing that MAKE_STRING nonsense)
+	SetLightingOrigin( inputdata.value.StringID(), &inputdata );
+#else
 	// Find our specified target
 	string_t strLightingOrigin = MAKE_STRING( inputdata.value.String() );
 	SetLightingOrigin( strLightingOrigin );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -623,6 +669,37 @@ void CBaseAnimating::InputSetModelScale( inputdata_t &inputdata )
 
 	SetModelScale( vecScale.x, vecScale.y );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Sets our current model
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetModel( inputdata_t &inputdata )
+{
+	const char *szModel = inputdata.value.String();
+	if (PrecacheModel(szModel) != -1)
+	{
+		SetModelName(AllocPooledString(szModel));
+		SetModel(szModel);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets our current cycle
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetCycle( inputdata_t &inputdata )
+{
+	SetCycle( inputdata.value.Float() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets our current cycle
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetPlaybackRate( inputdata_t &inputdata )
+{
+	SetPlaybackRate( inputdata.value.Float() );
+}
+#endif
 
 
 //=========================================================
@@ -1145,6 +1222,21 @@ void CBaseAnimating::HandleAnimEvent( animevent_t *pEvent )
 			EmitSound( pEvent->options );
 			return;
 		}
+#ifdef MAPBASE
+		else if ( pEvent->event == AE_NPC_RESPONSE )
+		{
+			if (!MyNPCPointer()->GetExpresser()->IsSpeaking())
+			{
+				DispatchResponse( pEvent->options );
+			}
+			return;
+		}
+		else if ( pEvent->event == AE_NPC_RESPONSE_FORCED )
+		{
+			DispatchResponse( pEvent->options );
+			return;
+		}
+#endif
 		else if ( pEvent->event == AE_RAGDOLL )
 		{
 			// Convert to ragdoll immediately
@@ -3538,6 +3630,44 @@ void CBaseAnimating::InputBecomeRagdoll( inputdata_t &inputdata )
 {
 	BecomeRagdollOnClient( vec3_origin );
 }
+
+#ifdef MAPBASE
+void CBaseAnimating::InputCreateSeparateRagdoll( inputdata_t &inputdata )
+{
+	CTakeDamageInfo info( this, inputdata.pActivator, 0.0f, DMG_GENERIC );
+
+	// See if there's a ragdoll magnet that should influence our force.
+	CRagdollMagnet *pMagnet = CRagdollMagnet::FindBestMagnet( this );
+	if( pMagnet )
+	{
+		info.SetDamageForce(pMagnet->GetForceVector( this ));
+		pMagnet->m_OnUsed.Set(info.GetDamageForce(), this, pMagnet);
+	}
+
+	CreateServerRagdoll( this, 0, info, COLLISION_GROUP_INTERACTIVE_DEBRIS, true );
+}
+
+void CBaseAnimating::InputCreateSeparateRagdollClient( inputdata_t &inputdata )
+{
+	// I remember there being a reason why this must be initialized to all 0's...
+	Vector forceVector = Vector(0.0f, 0.0f, 0.0f);
+
+	// See if there's a ragdoll magnet that should influence our force.
+	CRagdollMagnet *pMagnet = CRagdollMagnet::FindBestMagnet( this );
+	if( pMagnet )
+	{
+		forceVector += pMagnet->GetForceVector( this );
+		pMagnet->m_OnUsed.Set(forceVector, this, pMagnet);
+	}
+
+	CBaseEntity *pRagdoll = CreateRagGib( STRING( GetModelName() ), GetAbsOrigin(), GetAbsAngles(), forceVector, 25.0f );
+
+	if (pRagdoll->GetBaseAnimating())
+	{
+		pRagdoll->GetBaseAnimating()->CopyAnimationDataFrom( this );
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

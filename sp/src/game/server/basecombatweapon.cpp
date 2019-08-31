@@ -342,7 +342,11 @@ bool CBaseCombatWeapon::WeaponLOSCondition( const Vector &ownerPos, const Vector
 
 	if ( pBCC ) 
 	{
+#ifdef MAPBASE
+		if ( npcOwner->IRelationType( pBCC ) <= D_FR )
+#else
 		if ( npcOwner->IRelationType( pBCC ) == D_HT )
+#endif
 			return true;
 
 		if ( bSetConditions )
@@ -716,6 +720,11 @@ void CBaseCombatWeapon::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 	{
 		m_OnPlayerUse.FireOutput( pActivator, pCaller );
 
+#ifdef MAPBASE
+		// Mark that we're being +USE'd, not bumped
+		AddSpawnFlags(SF_WEAPON_USED);
+#endif
+
 		//
 		// Bump the weapon to try equipping it before picking it up physically. This is
 		// important in a few spots in the game where the player could potentially +use pickup
@@ -729,6 +738,10 @@ void CBaseCombatWeapon::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 		{
 			pPlayer->PickupObject( this );
 		}
+
+#ifdef MAPBASE
+		RemoveSpawnFlags(SF_WEAPON_USED);
+#endif
 	}
 }
 

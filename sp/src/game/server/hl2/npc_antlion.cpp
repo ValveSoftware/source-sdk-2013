@@ -247,6 +247,9 @@ BEGIN_DATADESC( CNPC_Antlion )
 	DEFINE_INPUTFUNC( FIELD_VOID,	"IgnoreBugbait", InputIgnoreBugbait ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"HearBugbait", InputHearBugbait ),
 	DEFINE_INPUTFUNC( FIELD_STRING,	"JumpAtTarget", InputJumpAtTarget ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING,	"SetFollowTarget", InputSetFollowTarget ),
+#endif
 
 	DEFINE_OUTPUT( m_OnReachFightGoal, "OnReachedFightGoal" ),
 	DEFINE_OUTPUT( m_OnUnBurrowed, "OnUnBurrowed" ),
@@ -361,6 +364,43 @@ void CNPC_Antlion::Spawn( void )
 	BaseClass::Spawn();
 
 	m_nSkin = random->RandomInt( 0, ANTLION_SKIN_COUNT-1 );
+
+#if defined(MAPBASE) && defined(HL2_EPISODIC)
+	// Implement dynamic interactions here since we can't recompile the model
+	if (GetModelPtr())
+	{
+		ScriptedNPCInteraction_t sInteraction01;
+		sInteraction01.iszInteractionName = AllocPooledString( "antlion_v_soldier_01" );
+		sInteraction01.sPhases[SNPCINT_SEQUENCE].iszSequence = AllocPooledString( "antlion_soldier_DI_01" );
+
+		sInteraction01.vecRelativeOrigin = Vector(224, 0, 0);
+		sInteraction01.angRelativeAngles = QAngle(0, 180, 0);
+		//sInteraction01.iFlags |= SCNPC_FLAG_TEST_OTHER_ANGLES;
+		sInteraction01.iFlags |= SCNPC_FLAG_TEST_END_POSITION;
+		sInteraction01.vecRelativeEndPos = Vector(312, -10, 0);
+		sInteraction01.iTriggerMethod = SNPCINT_AUTOMATIC_IN_COMBAT;
+		sInteraction01.flDelay = 15.0f;
+		sInteraction01.iFlags |= SCNPC_FLAG_MAPBASE_ADDITION;
+		sInteraction01.flDistSqr = (8 * 8);
+
+
+		ScriptedNPCInteraction_t sInteraction02;
+		sInteraction02.iszInteractionName = AllocPooledString( "antlion_v_soldier_02" );
+		sInteraction02.sPhases[SNPCINT_SEQUENCE].iszSequence = AllocPooledString( "antlion_soldier_DI_02" );
+
+		sInteraction02.vecRelativeOrigin = Vector(64, 0, 0);
+		sInteraction02.angRelativeAngles = QAngle(0, 180, 0);
+		//sInteraction01.iFlags |= SCNPC_FLAG_TEST_OTHER_ANGLES;
+		sInteraction02.iTriggerMethod = SNPCINT_AUTOMATIC_IN_COMBAT;
+		sInteraction02.flDelay = 7.5f;
+		sInteraction02.iFlags |= SCNPC_FLAG_MAPBASE_ADDITION;
+		sInteraction02.flDistSqr = (8 * 8);
+
+
+		AddScriptedNPCInteraction(&sInteraction01);
+		AddScriptedNPCInteraction(&sInteraction02);
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -657,7 +697,11 @@ void CNPC_Antlion::MeleeAttack( float distance, float damage, QAngle &viewPunch,
 		vecForceDir = ( pHurt->WorldSpaceCenter() - WorldSpaceCenter() );
 
 		//FIXME: Until the interaction is setup, kill combine soldiers in one hit -- jdw
+#ifdef MAPBASE
+		if ( pHurt->Classify() == CLASS_COMBINE && FClassnameIs( pHurt, "npc_combine_s" ) && GlobalEntity_GetState("antlion_noinstakill") != GLOBAL_ON )
+#else
 		if ( FClassnameIs( pHurt, "npc_combine_s" ) )
+#endif
 		{
 			CTakeDamageInfo	dmgInfo( this, this, pHurt->m_iHealth+25, DMG_SLASH );
 			CalculateMeleeDamageForce( &dmgInfo, vecForceDir, pHurt->GetAbsOrigin() );
@@ -2465,6 +2509,38 @@ int CNPC_Antlion::SelectSchedule( void )
 						return SCHED_ANTLION_WORKER_RANGE_ATTACK1;
 					}
 				}
+
+#ifdef MAPBASE
+				// "Nemesis" is assigned to enemies we hate with 10+ priority.
+				// Since bugbait targets are given 99 priority, this means the AI here usually only applies
+				// when the antlion worker is following bugbait.
+				// 
+				// This is just so antlion workers are more potent when commanded by bugbait,
+				// which wasn't explored in the official games, but may be used in HL2 mods.
+				if ( m_hFollowTarget && IsAllied() /*HasCondition( COND_SEE_NEMESIS )*/ )
+				{
+					// Establish LOF if we can't see the enemy
+					if ( HasCondition( COND_ENEMY_OCCLUDED ) )
+						return SCHED_ESTABLISH_LINE_OF_FIRE;
+
+					// See if we need to destroy breakable cover
+					if ( HasCondition( COND_WEAPON_SIGHT_OCCLUDED ) )
+						return SCHED_SHOOT_ENEMY_COVER;
+
+					// Just face as usual if we're not too close to attack,
+					// otherwise fall back to base class and charge like any other antlion
+					if ( !HasCondition( COND_TOO_CLOSE_TO_ATTACK ) )
+					{
+						// Run around randomly if our target is looking in our direction
+						if ( HasCondition( COND_BEHIND_ENEMY ) == false )
+							return SCHED_ANTLION_WORKER_RUN_RANDOM;
+
+						return SCHED_COMBAT_FACE;
+					}
+				}
+				else
+				{
+#endif
 				
 				// Back up, we're too near an enemy or can't see them
 				if ( HasCondition( COND_TOO_CLOSE_TO_ATTACK ) || HasCondition( COND_ENEMY_OCCLUDED ) )
@@ -2480,6 +2556,9 @@ int CNPC_Antlion::SelectSchedule( void )
 
 				// Face our target and continue to fire
 				return SCHED_COMBAT_FACE;
+#ifdef MAPBASE
+				}
+#endif
 			}
 			else
 			{
@@ -2887,7 +2966,11 @@ int CNPC_Antlion::MeleeAttack1Conditions( float flDot, float flDist )
 	AI_TraceHull( WorldSpaceCenter(), GetEnemy()->WorldSpaceCenter(), -Vector(8,8,8), Vector(8,8,8), MASK_NPCSOLID, this, COLLISION_GROUP_NONE, &tr );
 
 	// If the hit entity isn't our target and we don't hate it, don't hit it
+#ifdef MAPBASE
+	if ( tr.m_pEnt != GetEnemy() && tr.fraction < 1.0f && IRelationType( tr.m_pEnt ) > D_FR )
+#else
 	if ( tr.m_pEnt != GetEnemy() && tr.fraction < 1.0f && IRelationType( tr.m_pEnt ) != D_HT )
+#endif
 		return 0;
 
 #else
@@ -4224,6 +4307,25 @@ void CNPC_Antlion::SetFollowTarget( CBaseEntity *pTarget )
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CNPC_Antlion::InputSetFollowTarget( inputdata_t &inputdata )
+{
+	if ( IsAlive() == false )
+		return;
+
+	CBaseEntity *pEntity = gEntList.FindEntityByName( NULL, inputdata.value.String(), NULL, inputdata.pActivator, inputdata.pCaller );
+
+	if ( pEntity != NULL )
+	{
+		SetFollowTarget( pEntity );
+	}
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Output : Returns true on success, false on failure.
@@ -4438,7 +4540,15 @@ bool CNPC_Antlion::IsHeavyDamage( const CTakeDamageInfo &info )
 bool CNPC_Antlion::CanRunAScriptedNPCInteraction( bool bForced /*= false*/ )
 {
 	// Workers shouldn't do DSS's because they explode
+#ifdef MAPBASE
+	// Now that antlions have their DI restored, one might want workers to use them as well.
+	// Forced interactions are allowed now, but I went a step further and enabling dynamic interactions
+	// will disregard this check. This will allow vortigaunts to use dangerous melee interactions with workers,
+	// but if you're concerned about that just turn the antlion's interactions off.
+	if ( IsWorker() && !bForced && m_iDynamicInteractionsAllowed != TRS_TRUE )
+#else
 	if ( IsWorker() )
+#endif
 		return false;
 
 	return BaseClass::CanRunAScriptedNPCInteraction( bForced );

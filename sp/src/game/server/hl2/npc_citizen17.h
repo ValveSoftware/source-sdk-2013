@@ -11,6 +11,9 @@
 #include "npc_playercompanion.h"
 
 #include "ai_behavior_functank.h"
+#ifdef MAPBASE
+#include "ai_behavior_rappel.h"
+#endif
 
 struct SquadCandidate_t;
 
@@ -33,6 +36,9 @@ struct SquadCandidate_t;
 #define SF_CITIZEN_RANDOM_HEAD_MALE	( 1 << 22 )	//4194304
 #define SF_CITIZEN_RANDOM_HEAD_FEMALE ( 1 << 23 )//8388608
 #define SF_CITIZEN_USE_RENDER_BOUNDS ( 1 << 24 )//16777216
+#ifdef MAPBASE
+#define SF_CITIZEN_PLAYER_TOGGLE_SQUAD ( 1 << 25 ) //33554432		Prevents the citizen from joining the squad automatically, but still being commandable if the player toggles it
+#endif
 
 //-------------------------------------
 // Animation events
@@ -130,7 +136,9 @@ public:
 	void 			HandleAnimEvent( animevent_t *pEvent );
 	void			TaskFail( AI_TaskFailureCode_t code );
 
+#ifndef MAPBASE // Moved to CAI_BaseNPC
 	void 			PickupItem( CBaseEntity *pItem );
+#endif
 
 	void 			SimpleUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 
@@ -161,6 +169,11 @@ public:
 	// Damage handling
 	//---------------------------------
 	int 			OnTakeDamage_Alive( const CTakeDamageInfo &info );
+
+#ifdef MAPBASE
+	//---------------------------------
+	void			ModifyOrAppendCriteria( AI_CriteriaSet& set );
+#endif
 	
 	//---------------------------------
 	// Commander mode
@@ -179,6 +192,9 @@ public:
 	void 			MoveOrder( const Vector &vecDest, CAI_BaseNPC **Allies, int numAllies );
 	void			OnMoveOrder();
 	void 			CommanderUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+#ifdef MAPBASE
+	bool			ShouldAllowSquadToggleUse( CBasePlayer *pPlayer );
+#endif
 	bool			ShouldSpeakRadio( CBaseEntity *pListener );
 	void			OnMoveToCommandGoalFailed();
 	void			AddToPlayerSquad();
@@ -195,6 +211,10 @@ public:
 	void			AddInsignia();
 	void			RemoveInsignia();
 	bool			SpeakCommandResponse( AIConcept_t concept, const char *modifiers = NULL );
+
+#ifdef MAPBASE
+	virtual void	SetPlayerAvoidState( void );
+#endif
 	
 	//---------------------------------
 	// Scanner interaction
@@ -235,6 +255,9 @@ public:
 	void 			InputStartPatrolling( inputdata_t &inputdata );
 	void 			InputStopPatrolling( inputdata_t &inputdata );
 	void			InputSetCommandable( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void			InputSetUnCommandable( inputdata_t &inputdata );
+#endif
 	void			InputSetMedicOn( inputdata_t &inputdata );
 	void			InputSetMedicOff( inputdata_t &inputdata );
 	void			InputSetAmmoResupplierOn( inputdata_t &inputdata );
@@ -303,6 +326,10 @@ private:
 	bool			m_bWasInPlayerSquad;
 	float			m_flTimeLastCloseToPlayer;
 	string_t		m_iszDenyCommandConcept;
+#ifdef MAPBASE
+	bool			m_bTossesMedkits;
+	bool			m_bAlternateAiming;
+#endif
 
 	CSimpleSimTimer	m_AutoSummonTimer;
 	Vector			m_vAutoSummonAnchor;
@@ -326,9 +353,22 @@ private:
 	COutputEvent		m_OnStationOrder; 
 	COutputEvent		m_OnPlayerUse;
 	COutputEvent		m_OnNavFailBlocked;
+#ifdef MAPBASE
+	COutputEvent		m_OnHealedNPC;
+	COutputEvent		m_OnHealedPlayer;
+	COutputEHANDLE		m_OnThrowMedkit;
+	COutputEvent		m_OnGiveAmmo;
+#endif
 
 	//-----------------------------------------------------
 	CAI_FuncTankBehavior	m_FuncTankBehavior;
+#ifdef MAPBASE
+	CAI_RappelBehavior		m_RappelBehavior;
+
+	// Rappel
+	virtual bool IsWaitingToRappel( void ) { return m_RappelBehavior.IsWaitingToRappel(); }
+	void BeginRappel() { m_RappelBehavior.BeginRappel(); }
+#endif
 
 	CHandle<CAI_FollowGoal>	m_hSavedFollowGoalEnt;
 

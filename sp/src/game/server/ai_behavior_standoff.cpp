@@ -516,7 +516,11 @@ int CAI_StandoffBehavior::SelectScheduleCheckCover( void )
 	if ( GetOuter()->GetShotRegulator()->IsInRestInterval() )
 	{
 		StandoffMsg( "Regulated to not shoot\n" );
+#ifdef MAPBASE
+		if ( GetHintType() == HINT_TACTICAL_COVER_LOW || GetHintType() == HINT_TACTICAL_COVER_MED )
+#else
 		if ( GetHintType() == HINT_TACTICAL_COVER_LOW )
+#endif
 			SetPosture( AIP_CROUCHING );
 		else
 			SetPosture( AIP_STANDING );
@@ -1067,10 +1071,18 @@ void CAI_StandoffBehavior::UnlockHintNode()
 
 Activity CAI_StandoffBehavior::GetCoverActivity()
 {
+#ifdef MAPBASE
+	// This does two things:
+	// A. Allows medium cover nodes to be used, kind of.
+	// B. GetCoverActivity() already checks everything we checked here.
+	Activity coveract = GetOuter()->GetCoverActivity( GetHintNode() );
+	return coveract == ACT_IDLE ? ACT_INVALID : coveract;
+#else
 	CAI_Hint *pHintNode = GetHintNode();
 	if ( pHintNode && pHintNode->HintType() == HINT_TACTICAL_COVER_LOW )
 		return GetOuter()->GetCoverActivity( pHintNode );
 	return ACT_INVALID;
+#endif
 }
 
 
@@ -1114,7 +1126,12 @@ void CAI_MappedActivityBehavior_Temporary::UpdateTranslateActivityMap()
 	{
 		if ( !mappings[i].pszWeapon || stricmp( mappings[i].pszWeapon, pszWeaponClass ) == 0 )
 		{
+#ifdef MAPBASE
+			// Check backup activity
+			if ( HaveSequenceForActivity( mappings[i].translation ) || HaveSequenceForActivity( GetOuter()->Weapon_TranslateActivity( mappings[i].translation ) ) || HaveSequenceForActivity( GetOuter()->Weapon_BackupActivity( mappings[i].translation ) ) )
+#else
 			if ( HaveSequenceForActivity( mappings[i].translation ) || HaveSequenceForActivity( GetOuter()->Weapon_TranslateActivity( mappings[i].translation ) ) )
+#endif
 			{
 				Assert( m_ActivityMap.Find( MAKE_ACTMAP_KEY( mappings[i].posture, mappings[i].activity ) ) == m_ActivityMap.InvalidIndex() );
 				m_ActivityMap.Insert( MAKE_ACTMAP_KEY( mappings[i].posture, mappings[i].activity ), mappings[i].translation );

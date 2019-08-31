@@ -36,6 +36,13 @@
 #define	SIZE_AMMO_AR2_ALTFIRE		1
 
 #define SF_ITEM_START_CONSTRAINED	0x00000001
+#ifdef MAPBASE
+// Copied from CBaseCombatWeapon's flags, including any additions we made to those.
+// I really, REALLY hope no item uses their own spawnflags either.
+#define SF_ITEM_NO_PLAYER_PICKUP	(1<<1)
+#define SF_ITEM_NO_PHYSCANNON_PUNT (1<<2)
+#define SF_ITEM_NO_NPC_PICKUP	(1<<3)
+#endif
 
 
 class CItem : public CBaseAnimating, public CDefaultPlayerPickupVPhysics
@@ -77,6 +84,18 @@ public:
 #if defined( HL2MP ) || defined( TF_DLL )
 	void	FallThink( void );
 	float  m_flNextResetCheckTime;
+#endif
+
+#ifdef MAPBASE
+	// This is in CBaseEntity, but I can't find a use for it anywhere.
+	// Must not have been fully implemented. Please remove this if it turns out to be something important.
+	virtual bool IsCombatItem() { return true; }
+
+	void	InputEnablePlayerPickup( inputdata_t &inputdata );
+	void	InputDisablePlayerPickup( inputdata_t &inputdata );
+	void	InputEnableNPCPickup( inputdata_t &inputdata );
+	void	InputDisableNPCPickup( inputdata_t &inputdata );
+	void	InputBreakConstraint( inputdata_t &inputdata );
 #endif
 
 	DECLARE_DATADESC();

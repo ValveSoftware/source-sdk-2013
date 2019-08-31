@@ -7,7 +7,10 @@
 
 #include "cbase.h"
 #include "npcevent.h"
+#include "weapon_stunstick.h"
+#ifdef HL2MP
 #include "weapon_hl2mpbasebasebludgeon.h"
+#endif
 #include "IEffects.h"
 #include "debugoverlay_shared.h"
 
@@ -26,7 +29,7 @@
 	#include "fx_quad.h"
 	#include "fx.h"
 
-	extern void DrawHalo( IMaterial* pMaterial, const Vector &source, float scale, float const *color, float flHDRColorScale );
+	extern void DrawHalo( IMaterial* pMaterial, const Vector &source, float scale, float const *color, float flHDRColorScale = 1.0f );
 	extern void FormatViewModelAttachment( Vector &vOrigin, bool bInverse );
 
 #endif
@@ -36,97 +39,10 @@
 
 extern ConVar metropolice_move_and_melee;
 
-#define	STUNSTICK_RANGE				75.0f
-#define	STUNSTICK_REFIRE			0.8f
-#define	STUNSTICK_BEAM_MATERIAL		"sprites/lgtning.vmt"
-#define STUNSTICK_GLOW_MATERIAL		"sprites/light_glow02_add"
-#define STUNSTICK_GLOW_MATERIAL2	"effects/blueflare1"
-#define STUNSTICK_GLOW_MATERIAL_NOZ	"sprites/light_glow02_add_noz"
-
-#ifdef CLIENT_DLL
-#define CWeaponStunStick C_WeaponStunStick
+#ifdef MAPBASE
+ConVar    sk_plr_dmg_stunstick	( "sk_plr_dmg_stunstick","0");
+ConVar    sk_npc_dmg_stunstick	( "sk_npc_dmg_stunstick","0");
 #endif
-
-class CWeaponStunStick : public CBaseHL2MPBludgeonWeapon
-{
-	DECLARE_CLASS( CWeaponStunStick, CBaseHL2MPBludgeonWeapon );
-	
-public:
-
-	CWeaponStunStick();
-
-	DECLARE_NETWORKCLASS(); 
-	DECLARE_PREDICTABLE();
-
-#ifndef CLIENT_DLL
-	DECLARE_ACTTABLE();
-#endif
-
-#ifdef CLIENT_DLL
-	virtual int				DrawModel( int flags );
-	virtual void			ClientThink( void );
-	virtual void			OnDataChanged( DataUpdateType_t updateType );
-	virtual RenderGroup_t	GetRenderGroup( void );
-	virtual void			ViewModelDrawn( C_BaseViewModel *pBaseViewModel );
-	
-#endif
-
-	virtual void Precache();
-
-	void		Spawn();
-
-	float		GetRange( void )		{ return STUNSTICK_RANGE; }
-	float		GetFireRate( void )		{ return STUNSTICK_REFIRE; }
-
-
-	bool		Deploy( void );
-	bool		Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
-	
-	void		Drop( const Vector &vecVelocity );
-	void		ImpactEffect( trace_t &traceHit );
-	void		SecondaryAttack( void )	{}
-	void		SetStunState( bool state );
-	bool		GetStunState( void );
-
-#ifndef CLIENT_DLL
-	void		Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
-	int			WeaponMeleeAttack1Condition( float flDot, float flDist );
-#endif
-	
-	float		GetDamageForActivity( Activity hitActivity );
-
-	CWeaponStunStick( const CWeaponStunStick & );
-
-private:
-
-#ifdef CLIENT_DLL
-
-	#define	NUM_BEAM_ATTACHMENTS	9
-
-	struct stunstickBeamInfo_t
-	{
-		int IDs[2];		// 0 - top, 1 - bottom
-	};
-
-	stunstickBeamInfo_t		m_BeamAttachments[NUM_BEAM_ATTACHMENTS];	// Lookup for arc attachment points on the head of the stick
-	int						m_BeamCenterAttachment;						// "Core" of the effect (center of the head)
-
-	void	SetupAttachmentPoints( void );
-	void	DrawFirstPersonEffects( void );
-	void	DrawThirdPersonEffects( void );
-	void	DrawEffects( void );
-	bool	InSwing( void );
-
-	bool	m_bSwungLastFrame;
-
-	#define	FADE_DURATION	0.25f
-
-	float	m_flFadeTime;
-
-#endif
-
-	CNetworkVar( bool, m_bActive );
-};
 
 //-----------------------------------------------------------------------------
 // CWeaponStunStick
@@ -153,6 +69,7 @@ PRECACHE_WEAPON_REGISTER( weapon_stunstick );
 
 acttable_t	CWeaponStunStick::m_acttable[] = 
 {
+#ifdef HL2MP
 	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_SLAM, true },
 	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_MELEE,					false },
 	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_MELEE,					false },
@@ -161,6 +78,9 @@ acttable_t	CWeaponStunStick::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_MELEE,	false },
 	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_MELEE,			false },
 	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_MELEE,					false },
+#endif
+	{ ACT_MELEE_ATTACK1,				ACT_MELEE_ATTACK_SWING,	true },
+	{ ACT_IDLE_ANGRY,					ACT_IDLE_ANGRY_MELEE,	true },
 };
 
 IMPLEMENT_ACTTABLE(CWeaponStunStick);
@@ -213,7 +133,14 @@ void CWeaponStunStick::Precache()
 //-----------------------------------------------------------------------------
 float CWeaponStunStick::GetDamageForActivity( Activity hitActivity )
 {
+#ifdef MAPBASE
+	if ( ( GetOwner() != NULL ) && ( GetOwner()->IsPlayer() ) )
+		return sk_plr_dmg_stunstick.GetFloat();
+	
+	return sk_npc_dmg_stunstick.GetFloat();
+#else
 	return 40.0f;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -474,7 +401,18 @@ void CWeaponStunStick::Drop( const Vector &vecVelocity )
 	SetStunState( false );
 
 #ifndef CLIENT_DLL
+#ifdef MAPBASE
+#ifdef HL2MP
+	if (!GetOwner() || GetOwner()->IsNPC())
+		BaseClass::Drop(vecVelocity);
+	else
+		UTIL_Remove( this );
+#else
+	BaseClass::Drop(vecVelocity);
+#endif
+#else
 	UTIL_Remove( this );
+#endif
 #endif
 
 }
@@ -566,7 +504,11 @@ int C_WeaponStunStick::DrawModel( int flags )
 		return 0;
 
 	// Only render these on the transparent pass
+#ifdef MAPBASE
+	if ( m_bActive && flags & STUDIO_TRANSPARENCY )
+#else
 	if ( flags & STUDIO_TRANSPARENCY )
+#endif
 	{
 		DrawEffects();
 		return 1;
@@ -842,6 +784,40 @@ void C_WeaponStunStick::DrawFirstPersonEffects( void )
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Draw our special effects
+//-----------------------------------------------------------------------------
+void C_WeaponStunStick::DrawNPCEffects( void )
+{
+	if ( m_bActive )
+	{
+		Vector	vecOrigin;
+		QAngle	vecAngles;
+		float	color[3];
+
+		color[0] = color[1] = color[2] = random->RandomFloat( 0.1f, 0.2f );
+
+		GetAttachment( 1, vecOrigin, vecAngles );
+
+		Vector	vForward;
+		AngleVectors( vecAngles, &vForward );
+
+		Vector vEnd = vecOrigin - vForward * 1.0f;
+
+		IMaterial *pMaterial = materials->FindMaterial( "effects/stunstick", NULL, false );
+
+		CMatRenderContextPtr pRenderContext( materials );
+		pRenderContext->Bind( pMaterial );
+		DrawHalo( pMaterial, vEnd, random->RandomFloat( 4.0f, 6.0f ), color );
+
+		color[0] = color[1] = color[2] = random->RandomFloat( 0.9f, 1.0f );
+
+		DrawHalo( pMaterial, vEnd, random->RandomFloat( 2.0f, 3.0f ), color );
+	}
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Draw our special effects
 //-----------------------------------------------------------------------------
@@ -851,6 +827,13 @@ void C_WeaponStunStick::DrawEffects( void )
 	{
 		DrawFirstPersonEffects();
 	}
+#ifdef MAPBASE
+	else if ( GetOwner() && GetOwner()->IsNPC() )
+	{
+		// Original HL2 stunstick FX
+		DrawNPCEffects();
+	}
+#endif
 	else
 	{
 		DrawThirdPersonEffects();

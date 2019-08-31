@@ -50,6 +50,12 @@ bool CAI_FuncTankBehavior::CanSelectSchedule()
 	if ( !m_hFuncTank )
 		return false;
 
+#ifdef MAPBASE
+	// We're glued to our func_tank, don't get off of it
+	if ( m_hFuncTank->m_bControllerGlued )
+		return true;
+#endif
+
 	// Are you alive, in a script?
 	if ( !GetOuter()->IsInterruptable() )
 		return false;
@@ -92,6 +98,20 @@ void CAI_FuncTankBehavior::PrescheduleThink()
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CAI_FuncTankBehavior::IsInterruptable( void )
+{
+	if ( m_hFuncTank && m_hFuncTank->m_bControllerGlued )
+		return false;
+
+	return BaseClass::IsInterruptable();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -114,6 +134,15 @@ int	CAI_FuncTankBehavior::SelectSchedule()
 	// If we are not mounted to a func_tank look for one.
 	if ( !IsMounted() )
 	{
+#ifdef MAPBASE
+		// Forced mounts use a special schedule.
+		// If our outer is parented, automatically grab the tank if we're in its control volume.
+		if (HasCondition(COND_FUNCTANK_FORCED) || (GetOuter()->GetParent() && m_hFuncTank->m_hControlVolume))
+		{
+			return SCHED_FORCE_MOUNT_FUNCTANK;
+		}
+#endif
+
 		return SCHED_MOVE_TO_FUNCTANK;
 	}
 
@@ -180,6 +209,10 @@ void CAI_FuncTankBehavior::Dismount( void )
 
 	// Set this condition to force breakout of any func_tank behavior schedules
 	SetCondition( COND_FUNCTANK_DISMOUNT );
+
+#ifdef MAPBASE
+	ClearCondition( COND_FUNCTANK_FORCED );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -204,7 +237,11 @@ int CAI_FuncTankBehavior::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	if ( m_hFuncTank && bValidDismountAttacker == true )
 	{
+#ifdef MAPBASE
+		if ( !m_hFuncTank->IsEntityInViewCone( pAttacker ) && !m_hFuncTank->m_bControllerGlued )
+#else
 		if ( !m_hFuncTank->IsEntityInViewCone( pAttacker ) )
+#endif
 		{
 			SetCondition( COND_FUNCTANK_DISMOUNT );
 		}
@@ -571,7 +608,12 @@ void CAI_FuncTankBehavior::GatherConditions()
 		}
 	}
 
+#ifdef MAPBASE
+	// So they don't unholster every time there's a tank in the map looking for NPCs
+	if (!m_hFuncTank && m_bMounted)
+#else
 	if ( !m_hFuncTank )
+#endif
 	{
 		m_bMounted = false;
 		GetOuter()->SetDesiredWeaponState( DESIREDWEAPONSTATE_UNHOLSTERED );
@@ -704,6 +746,9 @@ AI_BEGIN_CUSTOM_SCHEDULE_PROVIDER( CAI_FuncTankBehavior )
 	DECLARE_TASK( TASK_FUNCTANK_ANNOUNCE_SCAN )
 
 	DECLARE_CONDITION( COND_FUNCTANK_DISMOUNT )
+#ifdef MAPBASE
+	DECLARE_CONDITION( COND_FUNCTANK_FORCED )
+#endif
 
 	//=========================================================
 	//=========================================================
@@ -772,5 +817,21 @@ AI_BEGIN_CUSTOM_SCHEDULE_PROVIDER( CAI_FuncTankBehavior )
 		""
 		"	Interrupts"
 	)	
+
+#ifdef MAPBASE
+	//=========================================================
+	//=========================================================
+	DEFINE_SCHEDULE 
+	(
+		SCHED_FORCE_MOUNT_FUNCTANK,
+
+		"	Tasks"
+		"		TASK_STOP_MOVING			0"
+		"		TASK_FACE_FUNCTANK			0"
+		"		TASK_HOLSTER_WEAPON			0"
+		"	"
+		"	Interrupts"
+	)
+#endif
 
 AI_END_CUSTOM_SCHEDULE_PROVIDER()

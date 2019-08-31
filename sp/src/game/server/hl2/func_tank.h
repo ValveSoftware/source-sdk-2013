@@ -55,6 +55,20 @@ enum TANKBULLET
 
 #define MORTAR_BLAST_RADIUS	350
 
+#ifdef MAPBASE
+// This moves variables related to ammo types from CFuncTank to CFuncTankGun, as CFuncTankGun and its derivatives are the only classes that use it.
+// It also completely replaces the legacy "bullet" keyvalue with the AmmoType keyvalue, making bullet translate to the ammo type variable directly.
+// This fixes the issue where some func_tanks don't fire any bullets.
+// 
+// This code was created in September-October 2018 and moving existing variables like this seems risky and somewhat pointless, but the nature of func_tanks
+// make this unlikely to cause any problems and helps my OCD.
+// 
+// Disable this preprocessor if it causes problems.
+#define AMMOTYPE_MOVED 1
+
+class CTraceFilterSimple;
+#endif
+
 
 //			Custom damage
 //			env_laser (duration is 0.5 rate of fire)
@@ -134,6 +148,13 @@ public:
 	virtual void DoMuzzleFlash( void );
 	virtual const char *GetTracerType( void );
 
+#ifdef MAPBASE
+	virtual CTraceFilterSimple GetTraceFilter();
+
+	// Needed because func_tankairboatgun needs the barrel
+	int			GetGunBarrelAttachment() { return m_nBarrelAttachment; }
+#endif
+
 protected:
 	virtual float GetShotSpeed() { return 0; }
 
@@ -179,6 +200,10 @@ protected:
 
 private:
 	void InputFindNPCToManTank( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputTeleportNPCToManTank( inputdata_t &inputdata );
+	void InputForceNPCToManTank( inputdata_t &inputdata );
+#endif
 	void InputStopFindingNPCs( inputdata_t &inputdata );
 	void InputStartFindingNPCs( inputdata_t &inputdata );
 	void InputForceNPCOff( inputdata_t &inputdata );
@@ -217,7 +242,11 @@ private:
 	bool RotateTankToAngles( const QAngle &angles, float *pDistX = NULL, float *pDistY = NULL );
 
 	// We lost our target! 
+#ifdef MAPBASE
+	void LostTarget( CBaseEntity *pTarget );
+#else
 	void LostTarget( void );
+#endif
 
 	// Purpose: 
 	void ComputeLeadingPosition( const Vector &vecShootPosition, CBaseEntity *pTarget, Vector *pLeadPosition );
@@ -237,6 +266,7 @@ protected:
 	int						m_iBulletDamage; // 0 means use Bullet type's default damage
 	int						m_iBulletDamageVsPlayer; // Damage vs player. 0 means use m_iBulletDamage
 
+#ifndef AMMOTYPE_MOVED
 #ifdef HL2_EPISODIC
 	string_t				m_iszAmmoType;		// The name of the ammodef that we use when we fire. Bullet damage still comes from keyvalues.
 	int						m_iAmmoType;		// The cached index of the ammodef that we use when we fire.
@@ -244,7 +274,9 @@ protected:
 	int						m_iSmallAmmoType;
 	int						m_iMediumAmmoType;
 	int						m_iLargeAmmoType;
-#endif // HL2_EPISODIC
+#endif // HL2_EPISODIC  
+#endif // !AMMOTYPE_MOVED
+
 
 	int						m_spread;		// firing spread
 
@@ -254,6 +286,15 @@ protected:
 	EHANDLE					m_hFuncTankTarget;
 
 	int						m_nBulletCount;
+
+#ifdef MAPBASE
+	bool					m_bDontHitController;
+	string_t				m_iszTraceFilter;
+	CHandle<CBaseFilter>	m_hTraceFilter;
+
+	// Created to nullify aiming problems when the func_tank is on a vehicle or the player is too close to the barrel
+	float					m_flPlayerBBoxDist;
+#endif
 
 private:
 
@@ -293,6 +334,19 @@ private:
 	string_t				m_iszSpriteSmoke;
 	string_t				m_iszSpriteFlash;
 
+#ifdef MAPBASE
+public:
+	// This is kind of tricky to implement.
+	// Some derived classes already have their own shoot sound variables, making this one redundant, etc.
+	// To rectify this, m_iszShootSound replaces all of them and takes their keyfield names.
+	// It's like the TF spy of func_tank.
+	string_t				m_iszShootSound;
+
+	// NPC controllers cannot leave. >:)
+	bool					m_bControllerGlued;
+private:
+#endif
+
 	string_t				m_iszMaster;	// Master entity (game_team_master or multisource)
 
 	string_t				m_soundStartRotate;
@@ -327,9 +381,16 @@ private:
 	float					m_flNextLeadFactor;
 	float					m_flNextLeadFactorTime;
 
+#ifdef MAPBASE
+public:
+	COutputEvent			m_OnFire;
+	COutputEHANDLE			m_OnLoseTarget;
+	COutputEHANDLE			m_OnAquireTarget;
+#else
 	COutputEvent			m_OnFire;
 	COutputEvent			m_OnLoseTarget;
 	COutputEvent			m_OnAquireTarget;
+#endif
 	COutputEvent			m_OnAmmoDepleted;
 	COutputEvent			m_OnGotController;
 	COutputEvent			m_OnLostController;

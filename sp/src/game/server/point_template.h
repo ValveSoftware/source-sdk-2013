@@ -52,6 +52,9 @@ public:
 
 	// Inputs
 	void			InputForceSpawn( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void			InputForceSpawnRandomTemplate( inputdata_t &inputdata );
+#endif
 
 	virtual void	PerformPrecache();
 
@@ -67,6 +70,9 @@ private:
 	CUtlVector< template_t >		m_hTemplates;
 
 	COutputEvent					m_pOutputOnSpawned;
+#ifdef MAPBASE
+	COutputEHANDLE					m_pOutputOutEntity;
+#endif
 };
 
 #endif // POINT_TEMPLATE_H

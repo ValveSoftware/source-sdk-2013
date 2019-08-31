@@ -11,9 +11,17 @@
 #include "engine/IEngineSound.h"
 
 #if defined( CLIENT_DLL )
+#ifdef HL2MP
 	#include "c_hl2mp_player.h"
 #else
+	#include "hl2_player_shared.h"
+#endif
+#else
+#ifdef HL2MP
 	#include "hl2mp_player.h"
+#else
+	#include "hl2_player.h"
+#endif
 	#include "grenade_tripmine.h"
 	#include "grenade_satchel.h"
 	#include "entitylist.h"
@@ -24,6 +32,11 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+#ifndef HL2MP
+#define ToHL2MPPlayer(ent) dynamic_cast<CHL2_Player*>(ent)
+#define CHL2MP_Player CHL2_Player
+#endif
 
 #define	SLAM_PRIMARY_VOLUME		450
 
@@ -114,7 +127,9 @@ void CWeapon_SLAM::Spawn( )
 
 	Precache( );
 
+#if defined(HL2MP) || !defined(CLIENT_DLL)
 	FallInit();// get ready to fall down
+#endif
 
 	m_tSlamState		= (int)SLAM_SATCHEL_THROW;
 	m_flWallSwitchTime	= 0;
@@ -754,6 +769,14 @@ void CWeapon_SLAM::ItemPostFrame( void )
 	}
 
 	SLAMThink();
+
+#ifdef MAPBASE
+	if (pOwner->HasSpawnFlags( SF_PLAYER_SUPPRESS_FIRING ))
+	{
+		WeaponIdle();
+		return;
+	}
+#endif
 
 	if ((pOwner->m_nButtons & IN_ATTACK2) && (m_flNextSecondaryAttack <= gpGlobals->curtime))
 	{

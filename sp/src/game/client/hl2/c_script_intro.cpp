@@ -53,6 +53,10 @@ private:
 	float	m_flBlendStartTime;
 	bool	m_bActive;
 	EHANDLE	m_hCameraEntity;
+#ifdef MAPBASE
+	bool	m_bDrawSky;
+	bool	m_bDrawSky2;
+#endif
 
 	// Fades
 	float	m_flFadeColor[3];			// Server's desired fade color
@@ -71,6 +75,10 @@ IMPLEMENT_CLIENTCLASS_DT( C_ScriptIntro, DT_ScriptIntro, CScriptIntro )
 	RecvPropFloat( RECVINFO( m_flNextBlendTime ) ),
 	RecvPropFloat( RECVINFO( m_flBlendStartTime ) ),
 	RecvPropBool( RECVINFO( m_bActive ) ),
+#ifdef MAPBASE
+	RecvPropBool( RECVINFO( m_bDrawSky ) ),
+	RecvPropBool( RECVINFO( m_bDrawSky2 ) ),
+#endif
 	
 	// Fov & fov blends 
 	RecvPropInt( RECVINFO( m_iFOV ) ),
@@ -140,6 +148,10 @@ void C_ScriptIntro::PostDataUpdate( DataUpdateType_t updateType )
 	m_IntroData.m_vecCameraViewAngles = m_vecCameraViewAngles;
 	m_IntroData.m_Passes.SetCount( 0 );
 
+#ifdef MAPBASE
+	m_IntroData.m_bDrawSky = m_bDrawSky;
+#endif
+
 	// Find/Create our first pass
 	IntroDataBlendPass_t *pass1;
 	if ( m_IntroData.m_Passes.Count() == 0 )
@@ -161,6 +173,9 @@ void C_ScriptIntro::PostDataUpdate( DataUpdateType_t updateType )
 	else
 	{
 		m_IntroData.m_bDrawPrimary = true;
+#ifdef MAPBASE
+		m_IntroData.m_bDrawSky2 = m_bDrawSky2;
+#endif
 	}
 
 	// If we're currently blending to a new mode, set the second pass

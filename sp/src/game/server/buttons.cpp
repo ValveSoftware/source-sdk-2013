@@ -898,6 +898,13 @@ void CRotButton::Spawn( void )
 
 	SetUse(&CRotButton::ButtonUse);
 
+#ifdef MAPBASE
+	if (HasSpawnFlags(SF_BUTTON_LOCKED))
+	{
+		m_bLocked = true;
+	}
+#endif
+
 	//
 	// If touching activates the button, set its touch function.
 	//

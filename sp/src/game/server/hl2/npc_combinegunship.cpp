@@ -51,6 +51,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef MAPBASE
+#define BELLYBLAST
+#endif
+
 #define GUNSHIP_MSG_BIG_SHOT			1
 #define GUNSHIP_MSG_STREAKS				2
 
@@ -370,6 +374,10 @@ private:
 	int				m_iDoSmokePuff;
 	int				m_iAmmoType;
 	int				m_iBurstSize;
+
+#ifdef MAPBASE
+	int				m_iHealthIncrements;
+#endif
 	
 	bool			m_fBlindfire;
 	bool			m_fOmniscient;
@@ -420,7 +428,11 @@ BEGIN_DATADESC( CNPC_CombineGunship )
 
 	DEFINE_FIELD( m_flNextGroundAttack,FIELD_TIME ),
 	DEFINE_FIELD( m_bIsGroundAttacking,FIELD_BOOLEAN ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bCanGroundAttack, FIELD_BOOLEAN, "CanGroundAttack" ),
+#else
 	DEFINE_FIELD( m_bCanGroundAttack,	FIELD_BOOLEAN ),
+#endif
 	DEFINE_FIELD( m_flGroundAttackTime,FIELD_TIME ),
 	DEFINE_FIELD( m_pRotorWashModel,	FIELD_CLASSPTR ),
 	DEFINE_FIELD( m_pSmokeTrail,		FIELD_EHANDLE ),
@@ -437,6 +449,9 @@ BEGIN_DATADESC( CNPC_CombineGunship )
 	DEFINE_FIELD( m_iDoSmokePuff,		FIELD_INTEGER ),
 	DEFINE_FIELD( m_iAmmoType,			FIELD_INTEGER ),
 	DEFINE_FIELD( m_iBurstSize,		FIELD_INTEGER ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_iHealthIncrements, FIELD_INTEGER, "HealthIncrements" ),
+#endif
 	DEFINE_FIELD( m_flBurstDelay,		FIELD_FLOAT ),
 	DEFINE_FIELD( m_fBlindfire,		FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_fOmniscient,		FIELD_BOOLEAN ),
@@ -552,6 +567,11 @@ void CNPC_CombineGunship::Spawn( void )
 
 	m_iMaxHealth = m_iHealth = 100;
 
+#ifdef MAPBASE
+	if (m_iHealthIncrements == 0)
+		m_iHealthIncrements = sk_gunship_health_increments.GetInt();
+#endif
+
 	m_flFieldOfView = -0.707; // 270 degrees
 
 	m_fHelicopterFlags |= BITS_HELICOPTER_GUN_ON;
@@ -601,8 +621,10 @@ void CNPC_CombineGunship::Spawn( void )
 	m_bPreFire			= false;
 	m_bInvulnerable		= false;
 	
+#ifndef MAPBASE // Spawnflag has been replaced with KV
 	// See if we should start being able to attack
 	m_bCanGroundAttack	= ( m_spawnflags & SF_GUNSHIP_NO_GROUND_ATTACK ) ? false : true;
+#endif
 
 	m_flEndDestructTime = 0;
 
@@ -2831,7 +2853,13 @@ void CNPC_CombineGunship::MakeTracer( const Vector &vecTracerSrc, const trace_t 
 void CNPC_CombineGunship::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 	// Reflect bullets
+#ifdef MAPBASE
+	// There's a keyvalue that allows any damage, but still reflect if the bullets wouldn't pass our damage filter.
+	if ( info.GetDamageType() & DMG_BULLET &&
+		(!m_bAllowAnyDamage || !PassesDamageFilter(info)) )
+#else
 	if ( info.GetDamageType() & DMG_BULLET )
+#endif
 	{
 		if ( random->RandomInt( 0, 2 ) == 0 )
 		{
@@ -2912,7 +2940,11 @@ void CNPC_CombineGunship::FireDamageOutputsUpto( int iDamageNumber )
 int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 {
 	// Allow npc_kill to kill me
+#ifdef MAPBASE
+	if ( inputInfo.GetDamageType() != DMG_GENERIC && !m_bAllowAnyDamage )
+#else
 	if ( inputInfo.GetDamageType() != DMG_GENERIC )
+#endif
 	{
 		// Ignore mundane bullet damage.
 		if ( ( inputInfo.GetDamageType() & DMG_BLAST ) == false )
@@ -2945,7 +2977,11 @@ int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 	{
 		// Take a percentage of our health away
 		// Adjust health for damage
+#ifdef MAPBASE
+		int iHealthIncrements = m_iHealthIncrements;
+#else
 		int iHealthIncrements = sk_gunship_health_increments.GetInt();
+#endif
 		if ( g_pGameRules->IsSkillLevel( SKILL_EASY ) )
 		{
 			iHealthIncrements = ceil( iHealthIncrements * 0.5 );

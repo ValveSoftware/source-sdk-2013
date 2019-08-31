@@ -530,7 +530,11 @@ void CAI_PassengerBehaviorCompanion::GatherConditions( void )
 	AIEnemiesIter_t iter;
 	for( AI_EnemyInfo_t *pEMemory = GetEnemies()->GetFirst(&iter); pEMemory != NULL; pEMemory = GetEnemies()->GetNext(&iter) )
 	{
+#ifdef MAPBASE
+		if( GetOuter()->IRelationType( pEMemory->hEnemy ) <= D_FR )
+#else
 		if( GetOuter()->IRelationType( pEMemory->hEnemy ) == D_HT )
+#endif
 		{
 			if( pEMemory->timeLastSeen == gpGlobals->curtime )
 			{

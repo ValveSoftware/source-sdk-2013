@@ -22,6 +22,10 @@
 #include "ai_behavior_passenger_companion.h"
 #endif
 
+#ifdef MAPBASE
+#include "mapbase/ai_grenade.h"
+#endif
+
 #if defined( _WIN32 )
 #pragma once
 #endif
@@ -85,15 +89,25 @@ public:
 
 class CPhysicsProp;
 
+#ifdef MAPBASE
+// If you think about it, this is really unnecessary.
+//#define COMPANION_MELEE_ATTACK 1
+#endif
+
 //-----------------------------------------------------------------------------
 //
 // CLASS: CNPC_PlayerCompanion
 //
 //-----------------------------------------------------------------------------
-
+#ifdef MAPBASE
+class CNPC_PlayerCompanion : public CAI_GrenadeUser<CAI_PlayerAlly>
+{
+	DECLARE_CLASS( CNPC_PlayerCompanion, CAI_GrenadeUser<CAI_PlayerAlly> );
+#else
 class CNPC_PlayerCompanion : public CAI_PlayerAlly
 {
 	DECLARE_CLASS( CNPC_PlayerCompanion, CAI_PlayerAlly );
+#endif
 
 public:
 	//---------------------------------
@@ -189,7 +203,9 @@ public:
 
 	virtual			void ReadinessLevelChanged( int iPriorLevel ) { 	}
 
+#ifndef MAPBASE
 	void			InputGiveWeapon( inputdata_t &inputdata );
+#endif
 
 #ifdef HL2_EPISODIC
 	//---------------------------------
@@ -217,6 +233,13 @@ public:
 public:
 
 	virtual void	OnPlayerKilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info );
+#ifdef MAPBASE
+	// This is just here to overwrite ai_playerally's TLK_ENEMY_DEAD
+	virtual void	OnKilledNPC(CBaseCombatCharacter *pKilled) {}
+
+	virtual void	Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info );
+	virtual void	DoCustomCombatAI( void );
+#endif
 
 	//---------------------------------
 	//---------------------------------
@@ -256,6 +279,11 @@ public:
 	bool			Weapon_CanUse( CBaseCombatWeapon *pWeapon );
 	void			Weapon_Equip( CBaseCombatWeapon *pWeapon );
 	void			PickupWeapon( CBaseCombatWeapon *pWeapon );
+
+#if COMPANION_MELEE_ATTACK
+	bool			KeyValue( const char *szKeyName, const char *szValue );
+	int				MeleeAttack1Conditions( float flDot, float flDist );
+#endif
 	
 	bool 			FindCoverPos( CBaseEntity *pEntity, Vector *pResult);
 	bool			FindCoverPosInRadius( CBaseEntity *pEntity, const Vector &goalPos, float coverRadius, Vector *pResult );
@@ -308,6 +336,22 @@ public:
 
 	bool			AllowReadinessValueChange( void );
 
+#ifdef MAPBASE
+	virtual bool IsAltFireCapable() { return (m_iGrenadeCapabilities & GRENCAP_ALTFIRE) != 0; }
+	virtual bool IsGrenadeCapable() { return (m_iGrenadeCapabilities & GRENCAP_GRENADE) != 0; }
+
+private:
+
+	enum eGrenadeCapabilities
+	{
+		GRENCAP_GRENADE = (1 << 0),
+		GRENCAP_ALTFIRE = (1 << 1),
+	};
+
+	// Determines whether this NPC is allowed to use grenades or alt-fire stuff.
+	eGrenadeCapabilities m_iGrenadeCapabilities;
+#endif
+
 protected:
 	//-----------------------------------------------------
 	// Conditions, Schedules, Tasks
@@ -326,10 +370,25 @@ protected:
 		SCHED_PC_FAIL_TAKE_COVER_TURRET,
 		SCHED_PC_FAKEOUT_MORTAR,
 		SCHED_PC_GET_OFF_COMPANION,
+#ifdef COMPANION_MELEE_ATTACK
+		SCHED_PC_MELEE_AND_MOVE_AWAY,
+#endif
+#ifdef MAPBASE
+		SCHED_PC_AR2_ALTFIRE,
+		SCHED_PC_MOVE_TO_FORCED_GREN_LOS,
+		SCHED_PC_FORCED_GRENADE_THROW,
+		SCHED_PC_RANGE_ATTACK2,		// Grenade throw
+#endif
 		NEXT_SCHEDULE,
 
 		TASK_PC_WAITOUT_MORTAR = BaseClass::NEXT_TASK,
 		TASK_PC_GET_PATH_OFF_COMPANION,
+#ifdef MAPBASE
+		TASK_PC_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET,
+		TASK_PC_GET_PATH_TO_FORCED_GREN_LOS,
+		TASK_PC_DEFER_SQUAD_GRENADES,
+		TASK_PC_FACE_TOSS_DIR,
+#endif
 		NEXT_TASK,
 	};
 
@@ -406,11 +465,25 @@ protected:
 
 	//-----------------------------------------------------
 
+#ifdef MAPBASE
+	static string_t gm_iszMortarClassname;
+	#define gm_iszFloorTurretClassname gm_isz_class_FloorTurret
+	static string_t gm_iszGroundTurretClassname;
+	#define gm_iszShotgunClassname gm_isz_class_Shotgun
+	static string_t	gm_iszRollerMineClassname;
+	#define gm_iszSMG1Classname gm_isz_class_SMG1
+	#define gm_iszAR2Classname gm_isz_class_AR2
+#else
 	static string_t gm_iszMortarClassname;
 	static string_t gm_iszFloorTurretClassname;
 	static string_t gm_iszGroundTurretClassname;
 	static string_t gm_iszShotgunClassname;
 	static string_t	gm_iszRollerMineClassname;
+#ifdef MAPBASE
+	static string_t gm_iszSMG1Classname;
+	static string_t gm_iszAR2Classname;
+#endif
+#endif
 
 	//-----------------------------------------------------
 
@@ -423,6 +496,10 @@ protected:
 	void	InputDisableWeaponPickup( inputdata_t &inputdata );
 
 	COutputEvent	m_OnWeaponPickup;
+
+#if COMPANION_MELEE_ATTACK
+	int		m_nMeleeDamage;
+#endif
 
 	CStopwatch		m_SpeechWatch_PlayerLooking;
 

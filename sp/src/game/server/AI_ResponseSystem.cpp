@@ -22,6 +22,9 @@
 #include "stringpool.h"
 #include "fmtstr.h"
 #include "multiplay_gamerules.h"
+#ifdef MAPBASE
+#include "mapbase/matchers.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -57,6 +60,9 @@ public:
 		minequals = false;
 		usemax = false;
 		maxequals = false;
+#ifdef MAPBASE
+		isbit = false;
+#endif
 		maxval = 0.0f;
 		minval = 0.0f;
 
@@ -99,6 +105,14 @@ public:
 			return;
 		}
 
+#ifdef MAPBASE
+		if (isbit)
+		{
+			DevMsg( "    matcher:  &%s%s\n", notequal ? "~" : "", GetToken() );
+			return;
+		}
+#endif
+		
 		if ( notequal )
 		{
 			DevMsg( "    matcher:  !=%s\n", GetToken() );
@@ -118,6 +132,9 @@ public:
 	bool	minequals : 1;  //5
 	bool	usemax : 1;     //6
 	bool	maxequals : 1;  //7
+#ifdef MAPBASE
+	bool	isbit : 1; //8
+#endif
 
 	void	SetToken( char const *s )
 	{
@@ -461,7 +478,11 @@ struct Rule
 		m_bMatchOnce = false;
 		m_bEnabled = true;
 		m_szContext = NULL;
+#ifdef MAPBASE
+		m_iContextFlags = 0;
+#else
 		m_bApplyContextToWorld = false;
+#endif
 	}
 
 	Rule& operator =( const Rule& src )
@@ -487,7 +508,11 @@ struct Rule
 		SetContext( src.m_szContext );
 		m_bMatchOnce = src.m_bMatchOnce;
 		m_bEnabled = src.m_bEnabled;
+#ifdef MAPBASE
+		m_iContextFlags = src.m_iContextFlags;
+#else
 		m_bApplyContextToWorld = src.m_bApplyContextToWorld;
+#endif
 		return *this;
 	}
 
@@ -511,7 +536,11 @@ struct Rule
 		SetContext( src.m_szContext );
 		m_bMatchOnce = src.m_bMatchOnce;
 		m_bEnabled = src.m_bEnabled;
+#ifdef MAPBASE
+		m_iContextFlags = src.m_iContextFlags;
+#else
 		m_bApplyContextToWorld = src.m_bApplyContextToWorld;
+#endif
 	}
 
 	~Rule()
@@ -530,14 +559,22 @@ struct Rule
 	bool	IsEnabled() const { return m_bEnabled; }
 	void	Disable() { m_bEnabled = false; }
 	bool	IsMatchOnce() const { return m_bMatchOnce; }
+#ifdef MAPBASE
+	bool	IsApplyContextToWorld() const { return (m_iContextFlags & APPLYCONTEXT_WORLD) != 0; }
+#else
 	bool	IsApplyContextToWorld() const { return m_bApplyContextToWorld; }
+#endif
 
 	// Indices into underlying criteria and response dictionaries
 	CUtlVector< unsigned short >	m_Criteria;
 	CUtlVector< unsigned short>		m_Responses;
 
 	char				*m_szContext;
+#ifdef MAPBASE
+	int					m_iContextFlags;
+#else
 	bool				m_bApplyContextToWorld : 1;
+#endif
 
 	bool				m_bMatchOnce : 1;
 	bool				m_bEnabled : 1;
@@ -668,7 +705,11 @@ public:
 	
 	void		ParseOneResponse( const char *responseGroupName, ResponseGroup& group );
 
+#ifdef MAPBASE
+	void		ParseInclude( CStringPool &includedFiles, const char *scriptfile = NULL );
+#else
 	void		ParseInclude( CStringPool &includedFiles );
+#endif
 	void		ParseResponse( void );
 	void		ParseCriterion( void );
 	void		ParseRule( void );
@@ -865,6 +906,7 @@ void CResponseSystem::ResolveToken( Matcher& matcher, char *token, size_t bufsiz
 }
 
 
+#ifndef MAPBASE // Moved to matchers.h
 static bool AppearsToBeANumber( char const *token )
 {
 	if ( atof( token ) != 0.0f )
@@ -881,6 +923,7 @@ static bool AppearsToBeANumber( char const *token )
 
 	return true;
 }
+#endif
 
 void CResponseSystem::ComputeMatcher( Criteria *c, Matcher& matcher )
 {
@@ -905,6 +948,9 @@ void CResponseSystem::ComputeMatcher( Criteria *c, Matcher& matcher )
 	bool lt = false;
 	bool eq = false;
 	bool nt = false;
+#ifdef MAPBASE
+	bool bit = false;
+#endif
 
 	bool done = false;
 	while ( !done )
@@ -937,6 +983,17 @@ void CResponseSystem::ComputeMatcher( Criteria *c, Matcher& matcher )
 				// Convert raw token to real token in case token is an enumerated type specifier
 				ResolveToken( matcher, token, sizeof( token ), rawtoken );
 
+#ifdef MAPBASE
+				// Bits are an entirely different and independent story
+				if (bit)
+				{
+					matcher.isbit = true;
+					matcher.notequal = nt;
+
+					matcher.isnumeric = true;
+				}
+				else
+#endif
 				// Fill in first data set
 				if ( gt )
 				{
@@ -978,6 +1035,13 @@ void CResponseSystem::ComputeMatcher( Criteria *c, Matcher& matcher )
 		case '!':
 			nt = true;
 			break;
+#ifdef MAPBASE
+		case '~':
+			nt = true;
+		case '&':
+			bit = true;
+			break;
+#endif
 		default:
 			rawtoken[ n++ ] = *in;
 			break;
@@ -1002,6 +1066,19 @@ bool CResponseSystem::CompareUsingMatcher( const char *setValue, Matcher& m, boo
 		bool found = false;
 		v = LookupEnumeration( setValue, found );
 	}
+
+#ifdef MAPBASE
+	// Bits are always a different story
+	if (m.isbit)
+	{
+		int v1 = v;
+		int v2 = atoi(m.GetToken());
+		if (m.notequal)
+			return (v1 & v2) == 0;
+		else
+			return (v1 & v2) != 0;
+	}
+#endif
 	
 	int minmaxcount = 0;
 
@@ -1052,7 +1129,11 @@ bool CResponseSystem::CompareUsingMatcher( const char *setValue, Matcher& m, boo
 		}
 		else
 		{
+#ifdef MAPBASE
+			if ( Matcher_NamesMatch(m.GetToken(), setValue) )
+#else
 			if ( !Q_stricmp( setValue, m.GetToken() ) )
+#endif
 				return false;
 		}
 
@@ -1069,7 +1150,12 @@ bool CResponseSystem::CompareUsingMatcher( const char *setValue, Matcher& m, boo
 		return v == (float)atof( m.GetToken() );
 	}
 
+#ifdef MAPBASE
+	// Wildcards.
+	return Matcher_NamesMatch(m.GetToken(), setValue) ? true : false;
+#else
 	return !Q_stricmp( setValue, m.GetToken() ) ? true : false;
+#endif
 }
 
 bool CResponseSystem::Compare( const char *setValue, Criteria *c, bool verbose /*= false*/ )
@@ -1745,11 +1831,19 @@ bool CResponseSystem::FindBestResponse( const AI_CriteriaSet& set, AI_Response& 
 	char ruleName[ 128 ];
 	char responseName[ 128 ];
 	const char *context;
+#ifdef MAPBASE
+	int contextflags;
+#else
 	bool bcontexttoworld;
+#endif
 	ruleName[ 0 ] = 0;
 	responseName[ 0 ] = 0;
 	context = NULL;
+#ifdef MAPBASE
+	contextflags = 0;
+#else
 	bcontexttoworld = false;
+#endif
 	if ( bestRule != -1 )
 	{
 		Rule *r = &m_Rules[ bestRule ];
@@ -1770,12 +1864,20 @@ bool CResponseSystem::FindBestResponse( const AI_CriteriaSet& set, AI_Response& 
 			r->Disable();
 		}
 		context = r->GetContext();
+#ifdef MAPBASE
+		contextflags = r->m_iContextFlags;
+#else
 		bcontexttoworld = r->IsApplyContextToWorld();
+#endif
 
 		valid = true;
 	}
 
+#ifdef MAPBASE
+	response.Init( responseType, responseName, set, rp, ruleName, context, contextflags );
+#else
 	response.Init( responseType, responseName, set, rp, ruleName, context, bcontexttoworld );
+#endif
 
 	if ( showResult )
 	{
@@ -1894,11 +1996,42 @@ void CResponseSystem::Precache()
 	}
 }
 
+#ifdef MAPBASE
+void CResponseSystem::ParseInclude( CStringPool &includedFiles, const char *scriptfile )
+#else
 void CResponseSystem::ParseInclude( CStringPool &includedFiles )
+#endif
 {
 	char includefile[ 256 ];
 	ParseToken();
+#ifdef MAPBASE
+	if (scriptfile)
+	{
+		// Gets first path
+		// (for example, an #include from a file in resource/script/resp will return resource)
+		size_t len = strlen(scriptfile)-1;
+		for (size_t i = 0; i < len; i++)
+		{
+			if (scriptfile[i] == CORRECT_PATH_SEPARATOR || scriptfile[i] == INCORRECT_PATH_SEPARATOR)
+			{
+				len = i;
+			}
+		}
+		Q_strncpy(includefile, scriptfile, len+1);
+
+		if (len+1 != strlen(scriptfile))
+		{
+			Q_snprintf(includefile, sizeof(includefile), "%s/%s", includefile, token);
+		}
+		else
+			includefile[0] = '\0';
+	}
+
+	if (!includefile[0])
+		Q_snprintf( includefile, sizeof( includefile ), "scripts/%s", token );
+#else
 	Q_snprintf( includefile, sizeof( includefile ), "scripts/%s", token );
+#endif
 
 	// check if the file is already included
 	if ( includedFiles.Find( includefile ) != NULL )
@@ -1939,8 +2072,19 @@ void CResponseSystem::LoadFromBuffer( const char *scriptfile, const char *buffer
 
 		if ( !Q_stricmp( token, "#include" ) )
 		{
+#ifdef MAPBASE
+			ParseInclude( includedFiles, scriptfile );
+#else
 			ParseInclude( includedFiles );
+#endif
 		}
+#ifdef MAPBASE
+		else if ( !Q_stricmp( token, "#base" ) )
+		{
+			// Actual #base in the future?
+			ParseInclude( includedFiles, scriptfile );
+		}
+#endif
 		else if ( !Q_stricmp( token, "response" ) )
 		{
 			ParseResponse();
@@ -2324,6 +2468,16 @@ void CResponseSystem::ParseResponse( void )
 		ParseOneResponse( responseGroupName, newGroup );
 	}
 
+#ifdef MAPBASE
+	short existing = m_Responses.Find( responseGroupName );
+	if ( existing != m_Responses.InvalidIndex() )
+	{
+		//ResponseWarning( "Additional definition for response '%s', overwriting\n", responseGroupName );
+		m_Responses[existing] = newGroup;
+		m_Responses.SetElementName(existing, responseGroupName);
+		return;
+	}
+#endif
 	m_Responses.Insert( responseGroupName, newGroup );
 }
 
@@ -2405,11 +2559,22 @@ int CResponseSystem::ParseOneCriterion( const char *criterionName )
 		ComputeMatcher( &newCriterion, newCriterion.matcher );
 	}
 
+#ifdef MAPBASE
+	short existing = m_Criteria.Find( criterionName );
+	if ( existing != m_Criteria.InvalidIndex() )
+	{
+		//ResponseWarning( "Additional definition for criteria '%s', overwriting\n", criterionName );
+		m_Criteria[existing] = newCriterion;
+		m_Criteria.SetElementName(existing, criterionName);
+		return existing;
+	}
+#else
 	if ( m_Criteria.Find( criterionName ) != m_Criteria.InvalidIndex() )
 	{
 		ResponseWarning( "Multiple definitions for criteria '%s'\n", criterionName );
 		return m_Criteria.InvalidIndex();
 	}
+#endif
 
 	int idx = m_Criteria.Insert( criterionName, newCriterion );
 	return idx;
@@ -2475,12 +2640,22 @@ void CResponseSystem::ParseEnumeration( void )
 		{
 			m_Enumerations.Insert( sz, newEnum );
 		}
+#ifdef MAPBASE
+		else
+		{
+			short existing = m_Enumerations.Find( sz );
+			//ResponseWarning( "Additional definition for enumeration '%s', overwriting\n", sz );
+			m_Enumerations[existing] = newEnum;
+			m_Enumerations.SetElementName(existing, sz);
+		}
+#else
 		/*
 		else
 		{
 			ResponseWarning( "Ignoring duplication enumeration '%s'\n", sz );
 		}
 		*/
+#endif
 	}
 }
 
@@ -2531,9 +2706,27 @@ void CResponseSystem::ParseRule( void )
 
 		if ( !Q_stricmp( token, "applyContextToWorld" ) )
 		{
+#ifdef MAPBASE
+			newRule.m_iContextFlags |= APPLYCONTEXT_WORLD;
+#else
 			newRule.m_bApplyContextToWorld = true;
+#endif
 			continue;
 		}
+
+#ifdef MAPBASE
+		if ( !Q_stricmp( token, "applyContextToSquad" ) )
+		{
+			newRule.m_iContextFlags |= APPLYCONTEXT_SQUAD;
+			continue;
+		}
+
+		if ( !Q_stricmp( token, "applyContextToEnemy" ) )
+		{
+			newRule.m_iContextFlags |= APPLYCONTEXT_ENEMY;
+			continue;
+		}
+#endif
 
 		if ( !Q_stricmp( token, "applyContext" ) )
 		{
@@ -2606,6 +2799,16 @@ void CResponseSystem::ParseRule( void )
 
 	if ( validRule )
 	{
+#ifdef MAPBASE
+		short existing = m_Rules.Find( ruleName );
+		if ( existing != m_Rules.InvalidIndex() )
+		{
+			//ResponseWarning( "Additional definition for rule '%s', overwriting\n", ruleName );
+			m_Rules[existing] = newRule;
+			m_Rules.SetElementName(existing, ruleName);
+			return;
+		}
+#endif
 		m_Rules.Insert( ruleName, newRule );
 	}
 	else
@@ -2791,7 +2994,11 @@ void CResponseSystem::CopyRuleFrom( Rule *pSrcRule, int iRule, CResponseSystem *
 	dstRule.SetContext( pSrcRule->GetContext() );
 	dstRule.m_bMatchOnce = pSrcRule->m_bMatchOnce;
 	dstRule.m_bEnabled = pSrcRule->m_bEnabled;
+#ifdef MAPBASE
+	dstRule.m_iContextFlags = pSrcRule->m_iContextFlags;
+#else
 	dstRule.m_bApplyContextToWorld = pSrcRule->m_bApplyContextToWorld;
+#endif
 
 	// Copy off criteria.
 	CopyCriteriaFrom( pSrcRule, &dstRule, pCustomSystem );
@@ -2805,6 +3012,10 @@ void CResponseSystem::CopyRuleFrom( Rule *pSrcRule, int iRule, CResponseSystem *
 	// Add rule.
 	pCustomSystem->m_Rules.Insert( m_Rules.GetElementName( iRule ), dstRule );
 }
+
+#ifdef MAPBASE
+ConVar mapbase_rs_clear("mapbase_rs_clear", "1");
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: A special purpose response system associated with a custom entity
@@ -2853,6 +3064,32 @@ public:
 		Clear();
 		delete this;
 	}
+
+#ifdef MAPBASE
+	// From an old version of Mapbase's map-specific response system stuff.
+	/*
+	#define CopyRSDict(dict) for (unsigned int i = 0; i < dict.Count(); i++) \
+		{ \
+			rs->dict.Insert(dict.GetElementName(i), dict[i]); \
+		} \
+
+	bool MergeWithMain(bool bRemoveThis = true)
+	{
+		extern IResponseSystem *g_pResponseSystem;
+		CResponseSystem *rs = static_cast<CResponseSystem*>(g_pResponseSystem);
+
+		CopyRSDict(m_Responses);
+		CopyRSDict(m_Criteria);
+		CopyRSDict(m_Rules);
+		CopyRSDict(m_Enumerations);
+
+		if (mapbase_rs_clear.GetBool())
+			Release();
+
+		return true;
+	}
+	*/
+#endif
 private:
 
 	char *m_pszScriptFile;
@@ -3050,6 +3287,254 @@ CON_COMMAND( rr_reloadresponsesystems, "Reload all response system scripts." )
 	}
 #endif
 }
+
+#ifdef MAPBASE
+// Designed for extern magic, this gives the <, >, etc. of response system criteria to the outside world.
+// Mostly just used for Matcher_Match in matchers.h.
+bool ResponseSystemCompare(const char *criterion, const char *value)
+{
+	Criteria criteria;
+	criteria.value = CopyString( criterion );
+	defaultresponsesytem.ComputeMatcher(&criteria, criteria.matcher);
+	return defaultresponsesytem.CompareUsingMatcher(value, criteria.matcher, true);
+
+	return false;
+}
+
+// Another version that returns the criterion without the operators.
+// I ended up not using this, but feel free to uncomment it.
+// Just keep in mind it was scrapped before I could test it...
+/*
+const char *ResponseSystemCompare(const char *criterion, const char *value, bool bReturnToken)
+{
+	CResponseSystem *responsesys = dynamic_cast<CResponseSystem*>(g_pResponseSystem);
+	if (responsesys)
+	{
+		Criteria criteria;
+		criteria.value = CopyString( criterion );
+		responsesys->ComputeMatcher(&criteria, criteria.matcher);
+		return responsesys->CompareUsingMatcher(value, criteria.matcher, true) ? criteria.matcher.GetToken() : NULL;
+	}
+	return NULL;
+}
+*/
+
+//-----------------------------------------------------------------------------
+// CResponseFilePrecacher
+//
+// Purpose: Precaches a single talker file. That's it.
+// 
+// It copies from a bunch of the original Response System class and therefore it's really messy.
+// Despite the horrors a normal programmer might find in here, I think it performs better than anything else I could've come up with.
+//-----------------------------------------------------------------------------
+class CResponseFilePrecacher
+{
+public:
+
+	// Stuff copied from the Response System.
+	// Direct copy-pastes are very compact, to say the least.
+	inline bool ParseToken( void )
+	{
+		if ( m_bUnget )
+		{ m_bUnget = false; return true; }
+		if ( m_ScriptStack.Count() <= 0 )
+		{ return false; }
+
+		m_ScriptStack[ 0 ].currenttoken = engine->ParseFile( m_ScriptStack[ 0 ].currenttoken, token, sizeof( token ) );
+		m_ScriptStack[ 0 ].tokencount++;
+		return m_ScriptStack[ 0 ].currenttoken != NULL ? true : false;
+	}
+
+	CUtlVector< CResponseSystem::ScriptEntry >		m_ScriptStack;
+	bool m_bUnget;
+	char		token[ 1204 ];
+
+
+	void PrecacheResponse( const char *response, byte type )
+	{
+		switch ( type )
+		{
+		default:
+			break;
+		case RESPONSE_SCENE:
+			{
+				DevMsg("Precaching scene %s...\n", response);
+
+				// fixup $gender references
+				char file[_MAX_PATH];
+				Q_strncpy( file, response, sizeof(file) );
+				char *gender = strstr( file, "$gender" );
+				if ( gender )
+				{
+					// replace with male & female
+					const char *postGender = gender + strlen("$gender");
+					*gender = 0;
+					char genderFile[_MAX_PATH];
+
+					Q_snprintf( genderFile, sizeof(genderFile), "%smale%s", file, postGender);
+					PrecacheInstancedScene( genderFile );
+
+					Q_snprintf( genderFile, sizeof(genderFile), "%sfemale%s", file, postGender);
+					PrecacheInstancedScene( genderFile );
+				}
+				else
+				{
+					PrecacheInstancedScene( file );
+				}
+			}
+			break;
+		case RESPONSE_SPEAK:
+			{
+				DevMsg("Precaching sound %s...\n", response);
+				CBaseEntity::PrecacheScriptSound( response );
+			}
+			break;
+		}
+	}
+	
+	bool IsRootCommand()
+	{
+		if (!Q_stricmp( token, "#include" ) || !Q_stricmp( token, "response" )
+			|| !Q_stricmp( token, "enumeration" ) || !Q_stricmp( token, "criteria" )
+			|| !Q_stricmp( token, "criterion" ) || !Q_stricmp( token, "rule" ))
+			return true;
+		return false;
+	}
+
+	void ParseResponse( void )
+	{
+		// Must go to response group name
+		ParseToken();
+
+		while ( 1 )
+		{
+			ParseToken();
+
+			if ( !Q_stricmp( token, "{" ) )
+			{
+				while ( 1 )
+				{
+					ParseToken();
+					if ( !Q_stricmp( token, "}" ) )
+						break;
+
+					byte type = ComputeResponseType( token );
+					if (type == RESPONSE_NONE)
+						continue;
+
+					ParseToken();
+					char *value = CopyString( token );
+
+					PrecacheResponse(value, type);
+				}
+				break;
+			}
+
+			byte type = ComputeResponseType( token );
+			if (type == RESPONSE_NONE)
+				break;
+
+			ParseToken();
+			char *value = CopyString( token );
+
+			PrecacheResponse(value, type);
+
+			break;
+		}
+	}
+
+	bool LoadFromBuffer(const char *scriptfile, unsigned char *buffer, CStringPool &includedFiles)
+	{
+		includedFiles.Allocate( scriptfile );
+
+		CResponseSystem::ScriptEntry e;
+		e.name = filesystem->FindOrAddFileName( scriptfile );
+		e.buffer = buffer;
+		e.currenttoken = (char *)e.buffer;
+		e.tokencount = 0;
+		m_ScriptStack.AddToHead( e );
+
+		while ( 1 )
+		{
+			ParseToken();
+			if ( !token[0] )
+			{
+				break;
+			}
+
+			if ( !Q_stricmp( token, "response" ) )
+			{
+				ParseResponse();
+			}
+			else if ( !Q_stricmp( token, "#include" ) || !Q_stricmp( token, "#base" ) )
+			{
+				// Compacted version of ParseInclude(), including new changes.
+				// Look at that if you want to read.
+				char includefile[ 256 ];
+				ParseToken();
+				if (scriptfile) { size_t len = strlen(scriptfile)-1;
+					for (size_t i = 0; i < len; i++)
+					{ if (scriptfile[i] == CORRECT_PATH_SEPARATOR || scriptfile[i] == INCORRECT_PATH_SEPARATOR)
+						{ len = i; }
+					} Q_strncpy(includefile, scriptfile, len+1);
+					if (len+1 != strlen(scriptfile))
+					{ Q_snprintf(includefile, sizeof(includefile), "%s/%s", includefile, token); }
+					else includefile[0] = '\0';
+				} if (!includefile[0]) Q_snprintf( includefile, sizeof( includefile ), "scripts/%s", token );
+
+				if ( includedFiles.Find( includefile ) == NULL )
+				{
+					MEM_ALLOC_CREDIT();
+
+					// Try and load it
+					CUtlBuffer buf;
+					if ( filesystem->ReadFile( includefile, "GAME", buf ) )
+					{
+						LoadFromBuffer( includefile, (unsigned char *)buf.PeekGet(), includedFiles );
+					}
+				}
+			}
+		}
+
+		if ( m_ScriptStack.Count() > 0 )
+			m_ScriptStack.Remove( 0 );
+
+		return true;
+	}
+};
+
+// Loads a file directly to the main response system
+bool LoadResponseSystemFile(const char *scriptfile)
+{
+	CUtlBuffer buf;
+	if ( !filesystem->ReadFile( scriptfile, "GAME", buf ) )
+	{
+		return false;
+	}
+
+	// This is a really messy and specialized system that precaches the responses and only the responses of a talker file.
+	CStringPool includedFiles;
+	CResponseFilePrecacher *rs = new CResponseFilePrecacher();
+	if (!rs || !rs->LoadFromBuffer(scriptfile, (unsigned char *)buf.PeekGet(), includedFiles))
+	{
+		Warning( "Failed to load response system data from %s", scriptfile );
+		delete rs;
+		return false;
+	}
+	delete rs;
+
+	CStringPool includedFiles2;
+	defaultresponsesytem.LoadFromBuffer(scriptfile, (const char *)buf.PeekGet(), includedFiles2);
+
+	return true;
+}
+
+// Called from Mapbase manifests to flush
+void ReloadResponseSystem()
+{
+	defaultresponsesytem.ReloadAllResponseSystems();
+}
+#endif
 
 static short RESPONSESYSTEM_SAVE_RESTORE_VERSION = 1;
 

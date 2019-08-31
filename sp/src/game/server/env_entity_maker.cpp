@@ -38,6 +38,10 @@ public:
 	void		 CheckSpawnThink( void );
 	void		 InputForceSpawn( inputdata_t &inputdata );
 	void		 InputForceSpawnAtEntityOrigin( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void		 InputForceSpawnAtEntityCenter( inputdata_t &inputdata );
+	void		 InputForceSpawnAtPosition( inputdata_t &inputdata );
+#endif
 
 private:
 
@@ -62,6 +66,9 @@ private:
 
 	COutputEvent	m_pOutputOnSpawned;
 	COutputEvent	m_pOutputOnFailedSpawn;
+#ifdef MAPBASE
+	COutputEHANDLE	m_pOutputOutEntity;
+#endif
 };
 
 BEGIN_DATADESC( CEnvEntityMaker )
@@ -79,10 +86,17 @@ BEGIN_DATADESC( CEnvEntityMaker )
 	// Outputs
 	DEFINE_OUTPUT( m_pOutputOnSpawned, "OnEntitySpawned" ),
 	DEFINE_OUTPUT( m_pOutputOnFailedSpawn, "OnEntityFailedSpawn" ),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_pOutputOutEntity, "OutSpawnedEntity" ),
+#endif
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "ForceSpawn", InputForceSpawn ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "ForceSpawnAtEntityOrigin", InputForceSpawnAtEntityOrigin ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING, "ForceSpawnAtEntityCenter", InputForceSpawnAtEntityCenter ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "ForceSpawnAtPosition", InputForceSpawnAtPosition ),
+#endif
 
 	// Functions
 	DEFINE_THINKFUNC( CheckSpawnThink ),
@@ -201,6 +215,11 @@ void CEnvEntityMaker::SpawnEntity( Vector vecAlternateOrigin, QAngle vecAlternat
 		for ( int i = 0; i < hNewEntities.Count(); i++ )
 		{
 			CBaseEntity *pEntity = hNewEntities[i];
+
+#ifdef MAPBASE
+			m_pOutputOutEntity.Set(pEntity, pEntity, this);
+#endif
+
 			if ( pEntity->GetMoveType() == MOVETYPE_NONE )
 				continue;
 
@@ -238,6 +257,15 @@ void CEnvEntityMaker::SpawnEntity( Vector vecAlternateOrigin, QAngle vecAlternat
 			}
 		}
 	}
+#ifdef MAPBASE
+	else
+	{
+		for ( int i = 0; i < hNewEntities.Count(); i++ )
+		{
+			m_pOutputOutEntity.Set(hNewEntities[i], hNewEntities[i], this);
+		}
+	}
+#endif
 }
 
 
@@ -364,3 +392,30 @@ void CEnvEntityMaker::InputForceSpawnAtEntityOrigin( inputdata_t &inputdata )
 		SpawnEntity( pTargetEntity->GetAbsOrigin(), pTargetEntity->GetAbsAngles() );
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CEnvEntityMaker::InputForceSpawnAtEntityCenter( inputdata_t &inputdata )
+{
+	CBaseEntity *pTargetEntity = gEntList.FindEntityByName( NULL, inputdata.value.String(), this, inputdata.pActivator, inputdata.pCaller );
+		
+	if( pTargetEntity )
+	{
+		SpawnEntity( pTargetEntity->WorldSpaceCenter(), pTargetEntity->GetAbsAngles() );
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CEnvEntityMaker::InputForceSpawnAtPosition(inputdata_t &inputdata)
+{
+	Vector vecPos;
+	inputdata.value.Vector3D(vecPos);
+	if (vecPos != vec3_origin && vecPos.IsValid())
+	{
+		SpawnEntity(vecPos, GetLocalAngles());
+	}
+}
+#endif // MAPBASE
+

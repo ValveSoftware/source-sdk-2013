@@ -20,6 +20,37 @@
 
 #include "ai_behavior.h"
 
+#ifdef MAPBASE
+#include "ai_goalentity.h"
+
+//=========================================================
+//=========================================================
+class CAI_FearGoal : public CAI_GoalEntity
+{
+	DECLARE_CLASS( CAI_FearGoal, CAI_GoalEntity );
+public:
+	CAI_FearGoal()
+	{
+	}
+
+	void EnableGoal( CAI_BaseNPC *pAI );
+	void DisableGoal( CAI_BaseNPC *pAI );
+
+	// Inputs
+	virtual void InputActivate( inputdata_t &inputdata );
+	virtual void InputDeactivate( inputdata_t &inputdata );
+
+	// Note that the outer is the caller in these outputs
+	//COutputEvent	m_OnSeeFearEntity;
+	COutputEvent	m_OnArriveAtFearNode;
+
+	DECLARE_DATADESC();
+
+protected:
+	// Put something here
+};
+#endif
+
 class CAI_FearBehavior : public CAI_SimpleBehavior
 {
 	DECLARE_CLASS( CAI_FearBehavior, CAI_SimpleBehavior );
@@ -55,6 +86,17 @@ public:
 	CAI_Hint *FindFearWithdrawalDest();
 	void BuildScheduleTestBits();
 	int TranslateSchedule( int scheduleType );
+
+#ifdef MAPBASE
+	virtual Activity	NPC_TranslateActivity( Activity activity );
+
+	virtual void OnRestore();
+	virtual void SetParameters( CAI_FearGoal *pGoal, string_t target );
+	CHandle<CAI_FearGoal> m_hFearGoal;
+
+	// Points to goal's fear target
+	string_t m_iszFearTarget;
+#endif
 
 	
 	enum

@@ -100,6 +100,10 @@ BEGIN_DATADESC( CAI_ScriptedSequence )
 	DEFINE_KEYFIELD( m_iPlayerDeathBehavior, FIELD_INTEGER, "onplayerdeath" ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "ScriptPlayerDeath", InputScriptPlayerDeath ),
 
+#ifdef MAPBASE
+	DEFINE_FIELD( m_hActivator, FIELD_EHANDLE ),
+#endif
+
 	// Outputs
 	DEFINE_OUTPUT(m_OnBeginSequence, "OnBeginSequence"),
 	DEFINE_OUTPUT(m_OnEndSequence, "OnEndSequence"),
@@ -179,18 +183,31 @@ void CAI_ScriptedSequence::ScriptEntityCancel( CBaseEntity *pentCine, bool bPret
 		if ( bPretendSuccess )
 		{
 			// We need to pretend that this sequence actually finished fully
+#ifdef MAPBASE
+			pCineTarget->m_OnEndSequence.FireOutput(pEntity, pCineTarget);
+			pCineTarget->m_OnPostIdleEndSequence.FireOutput(pEntity, pCineTarget);
+#else
 			pCineTarget->m_OnEndSequence.FireOutput(NULL, pCineTarget);
 			pCineTarget->m_OnPostIdleEndSequence.FireOutput(NULL, pCineTarget);
+#endif
 		}
 		else
 		{
 			// Fire the cancel
+#ifdef MAPBASE
+			pCineTarget->m_OnCancelSequence.FireOutput(pEntity, pCineTarget);
+#else
  			pCineTarget->m_OnCancelSequence.FireOutput(NULL, pCineTarget);
+#endif
 
 			if ( pCineTarget->m_startTime == 0 )
 			{
 				// If start time is 0, this sequence never actually ran. Fire the failed output.
+#ifdef MAPBASE
+				pCineTarget->m_OnCancelFailedSequence.FireOutput(pEntity, pCineTarget);
+#else
 				pCineTarget->m_OnCancelFailedSequence.FireOutput(NULL, pCineTarget);
+#endif
 			}
 		}
 	}
@@ -332,6 +349,18 @@ void CAI_ScriptedSequence::InputMoveToPosition( inputdata_t &inputdata )
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Sets our target NPC with the generic SetTarget input.
+//-----------------------------------------------------------------------------
+void CAI_ScriptedSequence::InputSetTarget( inputdata_t &inputdata )
+{
+	m_hActivator = inputdata.pActivator;
+	m_iszEntity = AllocPooledString(inputdata.value.String());
+	m_hTargetEnt = NULL;
+}
+#endif
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Input handler that activates the scripted sequence.
@@ -343,6 +372,14 @@ void CAI_ScriptedSequence::InputBeginSequence( inputdata_t &inputdata )
 
 	// Start the script as soon as possible.
 	m_bWaitForBeginSequence = false;
+
+#ifdef MAPBASE
+	m_hActivator = inputdata.pActivator;
+
+	// TODO: Investigate whether this is necessary
+	//if (FStrEq(STRING(m_iszEntity), "!activator"))
+	//	SetTarget(NULL);
+#endif
 		
 	// do I already know who I should use?
 	CBaseEntity *pEntity = GetTarget();
@@ -521,7 +558,11 @@ CAI_BaseNPC *CAI_ScriptedSequence::FindScriptEntity( )
 	{
 		interrupt = SS_INTERRUPT_BY_NAME;
 		
+#ifdef MAPBASE
+		pEntity = gEntList.FindEntityByNameWithin( m_hLastFoundEntity, STRING( m_iszEntity ), GetAbsOrigin(), m_flRadius, this, m_hActivator );
+#else
 		pEntity = gEntList.FindEntityByNameWithin( m_hLastFoundEntity, STRING( m_iszEntity ), GetAbsOrigin(), m_flRadius );
+#endif
 		if (!pEntity)
 		{
 			pEntity = gEntList.FindEntityByClassnameWithin( m_hLastFoundEntity, STRING( m_iszEntity ), GetAbsOrigin(), m_flRadius );
@@ -792,10 +833,17 @@ void CAI_ScriptedSequence::ScriptThink( void )
 // Purpose: Callback for firing the begin sequence output. Called by the NPC that
 //			is running the script as it starts the action seqeunce.
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+void CAI_ScriptedSequence::OnBeginSequence( CBaseEntity *pActor )
+{
+	m_OnBeginSequence.FireOutput( pActor, this );
+}
+#else
 void CAI_ScriptedSequence::OnBeginSequence( void )
 {
 	m_OnBeginSequence.FireOutput( this, this );
 }
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -964,7 +1012,11 @@ void CAI_ScriptedSequence::SequenceDone( CAI_BaseNPC *pNPC )
 		}
 	}
 
+#ifdef MAPBASE
+	m_OnEndSequence.FireOutput(pNPC, this);
+#else
 	m_OnEndSequence.FireOutput(NULL, this);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1576,6 +1628,9 @@ private:
 	// Input handlers
 	void InputStartSchedule( inputdata_t &inputdata );
 	void InputStopSchedule( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetTarget( inputdata_t &inputdata );
+#endif
 
 	CAI_BaseNPC *FindScriptEntity(  bool bCyclic );
 
@@ -1897,6 +1952,17 @@ void CAI_ScriptedSchedule::InputStopSchedule( inputdata_t &inputdata )
 		}
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Sets our target NPC with the generic SetTarget input.
+//-----------------------------------------------------------------------------
+void CAI_ScriptedSchedule::InputSetTarget( inputdata_t &inputdata )
+{
+	m_hActivator = inputdata.pActivator;
+	m_iszEntity = AllocPooledString( inputdata.value.String() );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: If the target entity appears to be running this scripted schedule break it
@@ -2220,6 +2286,320 @@ int CAI_ScriptedSentence::StartSentence( CAI_BaseNPC *pTarget )
 
 	return sentenceIndex;
 }
+
+#ifdef MAPBASE
+class CAI_ScriptedFace : public CPointEntity
+{
+public:
+	DECLARE_CLASS( CAI_ScriptedFace, CPointEntity );
+
+	CAI_ScriptedFace();
+
+	// Input handlers
+	void InputBeginFacing( inputdata_t &inputdata );
+	//void InputCancelFacing( inputdata_t &inputdata );
+
+	DECLARE_DATADESC();
+
+	void Begin(CBaseEntity *pActivator, CBaseEntity *pCaller);
+
+private:
+	string_t m_iszFaceTarget;
+
+	// False = Entity, True = Position
+	bool m_bTargetType;
+
+	bool m_bGrabAll;
+
+	float m_flImportance;
+	float m_flDuration;
+
+	COutputEvent m_OnBeginFace;
+};
+
+
+BEGIN_DATADESC( CAI_ScriptedFace )
+
+	DEFINE_KEYFIELD( m_iszFaceTarget, FIELD_STRING, "SetFaceTarget" ),
+	DEFINE_KEYFIELD( m_bTargetType, FIELD_BOOLEAN, "TargetType" ),
+	DEFINE_KEYFIELD( m_bGrabAll, FIELD_BOOLEAN, "GrabAll" ),
+	DEFINE_KEYFIELD( m_flImportance, FIELD_FLOAT, "Importance" ),
+	DEFINE_KEYFIELD( m_flDuration, FIELD_FLOAT, "Duration" ),
+
+	// Inputs
+	DEFINE_INPUTFUNC(FIELD_VOID, "BeginFacing", InputBeginFacing),
+
+	// Outputs
+	DEFINE_OUTPUT(m_OnBeginFace, "OnBeginFace"),
+
+END_DATADESC()
+
+
+
+LINK_ENTITY_TO_CLASS( scripted_face, CAI_ScriptedFace );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : 
+//-----------------------------------------------------------------------------
+CAI_ScriptedFace::CAI_ScriptedFace()
+{
+	m_flDuration = 5.0f;
+	m_flImportance = 9999;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : 
+//-----------------------------------------------------------------------------
+void CAI_ScriptedFace::Begin(CBaseEntity *pActivator, CBaseEntity *pCaller)
+{
+	Vector position;
+	CBaseEntity *pFaceTarget;
+
+	if (m_bTargetType)
+		UTIL_StringToVector(position.Base(), STRING(m_iszFaceTarget));
+
+	CBaseEntity *pTarget;
+	CAI_BaseNPC *pNPC;
+	if (m_bGrabAll)
+	{
+		pTarget = gEntList.FindEntityGeneric(NULL, STRING(m_target), this, pActivator, pCaller);
+		while (pTarget)
+		{
+			pNPC = pTarget->MyNPCPointer();
+			if (!pNPC)
+			{
+				Warning("%s tried to grab %s, but it is not a NPC!\n", GetDebugName(), pTarget->GetDebugName());
+				pTarget = gEntList.FindEntityGeneric(pTarget, STRING(m_target), this, pActivator, pCaller);
+				continue;
+			}
+
+			DevMsg("Grabbed one of many\n");
+
+			if (!m_bTargetType)
+			{
+				pFaceTarget = gEntList.FindEntityByNameNearest(STRING(m_iszFaceTarget), pTarget->GetLocalOrigin(), 0, this, pActivator, pCaller);
+				if (pFaceTarget)
+				{
+					pNPC->GetMotor()->AddFacingTarget(pFaceTarget, m_flImportance, m_flDuration);
+					pNPC->GetMotor()->SetIdealYawToTarget( pFaceTarget->GetAbsOrigin() );
+					m_OnBeginFace.FireOutput(pFaceTarget, pTarget);
+				}
+			}
+			else
+			{
+				pNPC->GetMotor()->AddFacingTarget(position, m_flImportance, m_flDuration);
+			}
+
+			pTarget = gEntList.FindEntityGeneric(pTarget, STRING(m_target), this, pActivator, pCaller);
+		}
+	}
+	else
+	{
+		pTarget = gEntList.FindEntityGeneric(NULL, STRING(m_target), this, pActivator, pCaller);
+		if (pTarget)
+		{
+			pNPC = pTarget->MyNPCPointer();
+			if (!pNPC)
+			{
+				Warning("%s tried to grab %s, but it is not a NPC!\n", GetDebugName(), pTarget->GetDebugName());
+				pTarget = gEntList.FindEntityGeneric(pTarget, STRING(m_target), this, pActivator, pCaller);
+				return;
+			}
+
+			if (!m_bTargetType)
+			{
+				pFaceTarget = gEntList.FindEntityByNameNearest(STRING(m_iszFaceTarget), pTarget->GetLocalOrigin(), 0, this, pActivator, pCaller);
+				if (pFaceTarget)
+				{
+					pNPC->GetMotor()->AddFacingTarget(pFaceTarget, m_flImportance, m_flDuration);
+					m_OnBeginFace.FireOutput(pFaceTarget, pTarget);
+				}
+			}
+			else
+			{
+				pNPC->GetMotor()->AddFacingTarget(position, m_flImportance, m_flDuration);
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : 
+//-----------------------------------------------------------------------------
+void CAI_ScriptedFace::InputBeginFacing( inputdata_t &inputdata )
+{
+	Begin(inputdata.pActivator, inputdata.pCaller);
+}
+
+
+
+//-----------------------------------------------------------------------------
+// This isn't exclusive to NPCs, so it could be moved if needed.
+//-----------------------------------------------------------------------------
+class CScriptedSound : public CPointEntity
+{
+public:
+	DECLARE_CLASS( CScriptedSound, CPointEntity );
+	DECLARE_DATADESC();
+
+	void Precache();
+
+	CBaseEntity *GetTarget(inputdata_t &inputdata);
+
+	// Input handlers
+	void InputPlaySound( inputdata_t &inputdata );
+	void InputPlaySoundOnEntity( inputdata_t &inputdata );
+	void InputStopSound( inputdata_t &inputdata );
+	void InputSetSound( inputdata_t &inputdata );
+
+private:
+	string_t m_message;
+
+	bool m_bGrabAll;
+};
+
+
+BEGIN_DATADESC( CScriptedSound )
+
+	DEFINE_KEYFIELD( m_message, FIELD_STRING, "message" ),
+	DEFINE_KEYFIELD( m_bGrabAll, FIELD_BOOLEAN, "GrabAll" ),
+
+	// Inputs
+	DEFINE_INPUTFUNC(FIELD_VOID, "PlaySound", InputPlaySound),
+	DEFINE_INPUTFUNC(FIELD_EHANDLE, "PlaySoundOnEntity", InputPlaySoundOnEntity),
+	DEFINE_INPUTFUNC(FIELD_VOID, "StopSound", InputStopSound),
+	DEFINE_INPUTFUNC(FIELD_STRING, "SetSound", InputSetSound),
+
+END_DATADESC()
+
+
+
+LINK_ENTITY_TO_CLASS( scripted_sound, CScriptedSound );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : 
+//-----------------------------------------------------------------------------
+void CScriptedSound::Precache()
+{
+	//PrecacheScriptSound(STRING(m_message));
+
+	BaseClass::Precache();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : 
+//-----------------------------------------------------------------------------
+CBaseEntity *CScriptedSound::GetTarget(inputdata_t &inputdata)
+{
+	CBaseEntity *pEntity = NULL;
+	if (m_target == NULL_STRING)
+	{
+		// Use this as the default source entity
+		pEntity = this;
+		m_bGrabAll = false;
+	}
+	else
+	{
+		pEntity = gEntList.FindEntityGeneric(NULL, STRING(m_target), this, inputdata.pActivator, inputdata.pCaller);
+	}
+
+	return pEntity;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : 
+//-----------------------------------------------------------------------------
+void CScriptedSound::InputPlaySound( inputdata_t &inputdata )
+{
+	PrecacheScriptSound(STRING(m_message));
+
+	CBaseEntity *pEntity = GetTarget(inputdata);
+	const char *sound = STRING(m_message);
+	if (m_bGrabAll)
+	{
+		//if (pEntity)
+		//{
+		//	pEntity->PrecacheScriptSound(sound);
+		//}
+
+		while (pEntity)
+		{
+			pEntity->EmitSound(sound);
+			pEntity = gEntList.FindEntityGeneric(pEntity, STRING(m_target), this, inputdata.pActivator, inputdata.pCaller);
+		}
+	}
+	else if (pEntity)
+	{
+		//pEntity->PrecacheScriptSound(sound);
+		pEntity->EmitSound(sound);
+	}
+	else
+	{
+		Warning("%s unable to find target entity %s!\n", GetDebugName(), STRING(m_target));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : 
+//-----------------------------------------------------------------------------
+void CScriptedSound::InputPlaySoundOnEntity( inputdata_t &inputdata )
+{
+	inputdata.value.Entity()->PrecacheScriptSound(STRING(m_message));
+	inputdata.value.Entity()->EmitSound(STRING(m_message));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : 
+//-----------------------------------------------------------------------------
+void CScriptedSound::InputStopSound( inputdata_t &inputdata )
+{
+	CBaseEntity *pEntity = GetTarget(inputdata);
+	const char *sound = STRING(m_message);
+	if (m_bGrabAll)
+	{
+		while (pEntity)
+		{
+			pEntity->StopSound(sound);
+			pEntity = gEntList.FindEntityGeneric(pEntity, STRING(m_target), this, inputdata.pActivator, inputdata.pCaller);
+		}
+	}
+	else if (pEntity)
+	{
+		pEntity->StopSound(sound);
+	}
+	else
+	{
+		Warning("%s unable to find target entity %s!\n", GetDebugName(), STRING(m_target));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : 
+//-----------------------------------------------------------------------------
+void CScriptedSound::InputSetSound( inputdata_t &inputdata )
+{
+	PrecacheScriptSound(inputdata.value.String());
+	m_message = inputdata.value.StringID();
+}
+#endif
 
 
 

@@ -14,6 +14,11 @@
 #include "saverestore_utlvector.h"
 #include "vstdlib/random.h"
 #include "gameinterface.h"
+#ifdef MAPBASE
+#include "mapbase/variant_tools.h"
+#include "mapbase/matchers.h"
+#include "mapbase/datadesc_mod.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -32,12 +37,24 @@ public:
 	DECLARE_CLASS( CLogicCompareInteger, CLogicalEntity );
 
 	// outputs
+#ifdef MAPBASE
+	COutputVariant m_OnEqual;
+	COutputVariant m_OnNotEqual;
+#else
 	COutputEvent m_OnEqual;
 	COutputEvent m_OnNotEqual;
+#endif
 
 	// data
+#ifdef MAPBASE
+	variant_t m_iValue;
+	bool m_iShouldCompareToValue;
+	bool m_bStrLenAllowed = true;
+	int DrawDebugTextOverlays(void);
+#else
 	int m_iIntegerValue;
 	int m_iShouldCompareToValue;
+#endif
 
 	DECLARE_DATADESC();
 
@@ -45,6 +62,10 @@ public:
 
 	// Input handlers
 	void InputValue( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputValueNoFire( inputdata_t &inputdata );
+	void InputSetIntegerValue( inputdata_t &inputdata );
+#endif
 	void InputCompareValues( inputdata_t &inputdata );
 };
 
@@ -57,12 +78,22 @@ BEGIN_DATADESC( CLogicCompareInteger )
 	DEFINE_OUTPUT( m_OnEqual, "OnEqual" ),
 	DEFINE_OUTPUT( m_OnNotEqual, "OnNotEqual" ),
 
+#ifdef MAPBASE
+	DEFINE_KEYVARIANT( m_iValue, "IntegerValue" ),
+	DEFINE_KEYFIELD( m_iShouldCompareToValue, FIELD_BOOLEAN, "ShouldComparetoValue" ),
+	DEFINE_KEYFIELD( m_bStrLenAllowed, FIELD_BOOLEAN, "StrLenAllowed" ),
+#else
 	DEFINE_KEYFIELD( m_iIntegerValue, FIELD_INTEGER, "IntegerValue" ),
 	DEFINE_KEYFIELD( m_iShouldCompareToValue, FIELD_INTEGER, "ShouldComparetoValue" ),
+#endif
 
 	DEFINE_FIELD( m_AllIntCompares, FIELD_INPUT ),
 
 	DEFINE_INPUTFUNC( FIELD_INPUT, "InputValue", InputValue ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_INPUT, "InputValueNoFire", InputValueNoFire ),
+	DEFINE_INPUTFUNC( FIELD_INPUT, "SetReferenceValue", InputSetIntegerValue ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_INPUT, "CompareValues", InputCompareValues ),
 
 END_DATADESC()
@@ -75,9 +106,14 @@ END_DATADESC()
 //-----------------------------------------------------------------------------
 void CLogicCompareInteger::InputValue( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	// Parse the input value, regardless of field type
+	inputdata.value = Variant_ParseInput(inputdata);
+#else
 	// make sure it's an int, if it can't be converted just throw it away
 	if ( !inputdata.value.Convert(FIELD_INTEGER) )
 		return;
+#endif
 
 	// update the value list with the new value
 	m_AllIntCompares.AddValue( inputdata.value, inputdata.nOutputID );
@@ -85,12 +121,38 @@ void CLogicCompareInteger::InputValue( inputdata_t &inputdata )
 	// if we haven't already this frame, send a message to ourself to update and fire
 	if ( !m_AllIntCompares.m_bUpdatedThisFrame )
 	{
+#ifdef MAPBASE
+		// Need to wait for all inputs to arrive
+		g_EventQueue.AddEvent( this, "CompareValues", 0.01, inputdata.pActivator, this, inputdata.nOutputID );
+#else
 		// TODO: need to add this event with a lower priority, so it gets called after all inputs have arrived
 		g_EventQueue.AddEvent( this, "CompareValues", 0, inputdata.pActivator, this, inputdata.nOutputID );
+#endif
 		m_AllIntCompares.m_bUpdatedThisFrame = TRUE;
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Adds to the list of compared values without firing
+//-----------------------------------------------------------------------------
+void CLogicCompareInteger::InputValueNoFire( inputdata_t &inputdata )
+{
+	// Parse the input value, regardless of field type
+	inputdata.value = Variant_ParseInput(inputdata);
+
+	// update the value list with the new value
+	m_AllIntCompares.AddValue( inputdata.value, inputdata.nOutputID );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets our reference value
+//-----------------------------------------------------------------------------
+void CLogicCompareInteger::InputSetIntegerValue( inputdata_t &inputdata )
+{
+	m_iValue = Variant_ParseInput(inputdata);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Forces a recompare
@@ -100,6 +162,30 @@ void CLogicCompareInteger::InputCompareValues( inputdata_t &inputdata )
 	m_AllIntCompares.m_bUpdatedThisFrame = FALSE;
 
 	// loop through all the values comparing them
+#ifdef MAPBASE
+	variant_t value = m_iValue;
+	CMultiInputVar::inputitem_t *input = m_AllIntCompares.m_InputList;
+
+	if ( !m_iShouldCompareToValue && input )
+	{
+		value = input->value;
+	}
+
+	while ( input )
+	{
+		if ( !Variant_Equal(value, input->value, m_bStrLenAllowed) )
+		{
+			// false
+			m_OnNotEqual.Set( input->value, inputdata.pActivator, this );
+			return;
+		}
+
+		input = input->next;
+	}
+
+	// true! all values equal
+	m_OnEqual.Set( value, inputdata.pActivator, this );
+#else
 	int value = m_iIntegerValue;
 	CMultiInputVar::inputitem_t *input = m_AllIntCompares.m_InputList;
 
@@ -122,7 +208,41 @@ void CLogicCompareInteger::InputCompareValues( inputdata_t &inputdata )
 
 	// true! all values equal
 	m_OnEqual.FireOutput( inputdata.pActivator, this );
+#endif
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Draw any debug text overlays
+// Output : Current text offset from the top
+//-----------------------------------------------------------------------------
+int CLogicCompareInteger::DrawDebugTextOverlays( void ) 
+{
+	int text_offset = BaseClass::DrawDebugTextOverlays();
+
+	if (m_debugOverlays & OVERLAY_TEXT_BIT) 
+	{
+		char tempstr[512];
+
+		Q_snprintf(tempstr, sizeof(tempstr), "    Reference Value: %s", m_iValue.GetDebug());
+		EntityText(text_offset, tempstr, 0);
+		text_offset++;
+
+		int count = 1;
+		CMultiInputVar::inputitem_t *input = m_AllIntCompares.m_InputList;
+		while ( input )
+		{
+			Q_snprintf(tempstr, sizeof(tempstr), "    Value %i: %s", count, input->value.GetDebug());
+			EntityText(text_offset, tempstr, 0);
+			text_offset++;
+
+			count++;
+			input = input->next;
+		}
+	}
+	return text_offset;
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -844,6 +964,39 @@ void CC_Global_Set( const CCommand &args )
 
 static ConCommand global_set( "global_set", CC_Global_Set, "global_set <globalname> <state>: Sets the state of the given env_global (0 = OFF, 1 = ON, 2 = DEAD).", FCVAR_CHEAT );
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Console command to set the counter of a global
+//-----------------------------------------------------------------------------
+void CC_Global_Counter( const CCommand &args )
+{
+	const char *szGlobal = args[1];
+	const char *szCounter = args[2];
+
+	if ( szGlobal == NULL || szCounter == NULL )
+	{
+		Msg( "Usage: global_counter <globalname> <counter>: Sets the counter of the given env_global.\n" );
+		return;
+	}
+
+	int nCounter = atoi( szCounter );
+
+	int nIndex = GlobalEntity_GetIndex( szGlobal );
+
+	if ( nIndex >= 0 )
+	{
+		GlobalEntity_SetCounter( nIndex, nCounter );
+	}
+	else
+	{
+		nIndex = GlobalEntity_Add( szGlobal, STRING( gpGlobals->mapname ), GLOBAL_ON );
+		GlobalEntity_SetCounter( nIndex, nCounter );
+	}
+}
+
+static ConCommand global_counter( "global_counter", CC_Global_Counter, "global_counter <globalname> <counter>: Sets the counter of the given env_global.", FCVAR_CHEAT );
+#endif
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Holds a global state that can be queried by other entities to change
@@ -857,6 +1010,10 @@ public:
 	DECLARE_CLASS( CEnvGlobal, CLogicalEntity );
 
 	void Spawn( void );
+
+#ifdef MAPBASE
+	bool KeyValue( const char *szKeyName, const char *szValue );
+#endif
 
 	// Input handlers
 	void InputTurnOn( inputdata_t &inputdata );
@@ -897,7 +1054,11 @@ BEGIN_DATADESC( CEnvGlobal )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "AddToCounter",	InputAddToCounter ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "GetCounter",	InputGetCounter ),
 	
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_outCounter, "OutCounter" ),
+#else
 	DEFINE_OUTPUT( m_outCounter, "Counter" ),
+#endif
 
 END_DATADESC()
 
@@ -938,6 +1099,24 @@ void CEnvGlobal::Spawn( void )
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Cache user entity field values until spawn is called.
+// Input  : szKeyName - Key to handle.
+//			szValue - Value for key.
+// Output : Returns true if the key was handled, false if not.
+//-----------------------------------------------------------------------------
+bool CEnvGlobal::KeyValue( const char *szKeyName, const char *szValue )
+{
+	// Any "Counter" outputs are changed to "OutCounter" before spawning.
+	if (FStrEq(szKeyName, "Counter") && strchr(szValue, ','))
+	{
+		return BaseClass::KeyValue( "OutCounter", szValue );
+	}
+
+	return BaseClass::KeyValue( szKeyName, szValue );
+}
+#endif
 
 //------------------------------------------------------------------------------
 // Purpose:
@@ -1297,7 +1476,11 @@ void CMultiSource::Register(void)
 class CMathCounter : public CLogicalEntity
 {
 	DECLARE_CLASS( CMathCounter, CLogicalEntity );
+#ifdef MAPBASE
+protected:
+#else
 private:
+#endif
 	float m_flMin;		// Minimum clamp value. If min and max are BOTH zero, no clamping is done.
 	float m_flMax;		// Maximum clamp value.
 	bool m_bHitMin;		// Set when we reach or go below our minimum value, cleared if we go above it again.
@@ -1310,6 +1493,9 @@ private:
 
 	int DrawDebugTextOverlays(void);
 
+#ifdef MAPBASE
+	virtual
+#endif
 	void UpdateOutValue(CBaseEntity *pActivator, float fNewValue);
 
 	// Inputs
@@ -1324,12 +1510,20 @@ private:
 	void InputGetValue( inputdata_t &inputdata );
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetMinValueNoFire( inputdata_t &inputdata );
+	void InputSetMaxValueNoFire( inputdata_t &inputdata );
+#endif
 
 	// Outputs
 	COutputFloat m_OutValue;
 	COutputFloat m_OnGetValue;	// Used for polling the counter value.
 	COutputEvent m_OnHitMin;
 	COutputEvent m_OnHitMax;
+#ifdef MAPBASE
+	COutputEvent m_OnChangedFromMin;
+	COutputEvent m_OnChangedFromMax;
+#endif
 
 	DECLARE_DATADESC();
 };
@@ -1360,12 +1554,20 @@ BEGIN_DATADESC( CMathCounter )
 	DEFINE_INPUTFUNC(FIELD_VOID, "GetValue", InputGetValue),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetMaxValueNoFire", InputSetMaxValueNoFire ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetMinValueNoFire", InputSetMinValueNoFire ),
+#endif
 
 	// Outputs
 	DEFINE_OUTPUT(m_OutValue, "OutValue"),
 	DEFINE_OUTPUT(m_OnHitMin, "OnHitMin"),
 	DEFINE_OUTPUT(m_OnHitMax, "OnHitMax"),
 	DEFINE_OUTPUT(m_OnGetValue, "OnGetValue"),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnChangedFromMin, "OnChangedFromMin" ),
+	DEFINE_OUTPUT( m_OnChangedFromMax, "OnChangedFromMax" ),
+#endif
 
 END_DATADESC()
 
@@ -1382,7 +1584,11 @@ bool CMathCounter::KeyValue(const char *szKeyName, const char *szValue)
 	//
 	if (!stricmp(szKeyName, "startvalue"))
 	{
+#ifdef MAPBASE
+		m_OutValue.Init(atof(szValue));
+#else
 		m_OutValue.Init(atoi(szValue));
+#endif
 		return(true);
 	}
 
@@ -1477,6 +1683,29 @@ void CMathCounter::InputSetHitMin( inputdata_t &inputdata )
 	}
 	UpdateOutValue( inputdata.pActivator, m_OutValue.Get() );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Change min/max
+//-----------------------------------------------------------------------------
+void CMathCounter::InputSetMaxValueNoFire( inputdata_t &inputdata )
+{
+	m_flMax = inputdata.value.Float();
+	if ( m_flMax < m_flMin )
+	{
+		m_flMin = m_flMax;
+	}
+}
+
+void CMathCounter::InputSetMinValueNoFire( inputdata_t &inputdata )
+{
+	m_flMin = inputdata.value.Float();
+	if ( m_flMax < m_flMin )
+	{
+		m_flMax = m_flMin;
+	}
+}
+#endif
 
 	
 //-----------------------------------------------------------------------------
@@ -1636,6 +1865,14 @@ void CMathCounter::UpdateOutValue(CBaseEntity *pActivator, float fNewValue)
 		}
 		else
 		{
+#ifdef MAPBASE
+			// Fire an output if we just changed from the maximum value
+			if ( m_OutValue.Get() == m_flMax )
+			{
+				m_OnChangedFromMax.FireOutput( pActivator, this );
+			}
+#endif
+
 			m_bHitMax = false;
 		}
 
@@ -1652,6 +1889,13 @@ void CMathCounter::UpdateOutValue(CBaseEntity *pActivator, float fNewValue)
 		}
 		else
 		{
+#ifdef MAPBASE
+			// Fire an output if we just changed from the maximum value
+			if ( m_OutValue.Get() == m_flMin )
+			{
+				m_OnChangedFromMin.FireOutput( pActivator, this );
+			}
+#endif
 			m_bHitMin = false;
 		}
 
@@ -1660,6 +1904,409 @@ void CMathCounter::UpdateOutValue(CBaseEntity *pActivator, float fNewValue)
 
 	m_OutValue.Set(fNewValue, pActivator, this);
 }
+
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Advanced math_counter with advanced calculation capabilities.
+//-----------------------------------------------------------------------------
+class CMathCounterAdvanced : public CMathCounter
+{
+	DECLARE_CLASS( CMathCounterAdvanced, CMathCounter );
+private:
+
+	bool m_bPreserveValue;
+	bool m_bAlwaysOutputAsInt;
+
+	void UpdateOutValue(CBaseEntity *pActivator, float fNewValue);
+
+	void InputSetValueToPi( inputdata_t &inputdata );
+
+	void InputPower( inputdata_t &inputdata );
+	void InputSquareRoot( inputdata_t &inputdata );
+
+	void InputRound( inputdata_t &inputdata );
+	void InputFloor( inputdata_t &inputdata );
+	void InputCeiling( inputdata_t &inputdata );
+	void InputTrunc( inputdata_t &inputdata );
+
+	void InputSine( inputdata_t &inputdata );
+	void InputCosine( inputdata_t &inputdata );
+	void InputTangent( inputdata_t &inputdata );
+
+	void InputRandomInt( inputdata_t &inputdata );
+	void InputRandomFloat( inputdata_t &inputdata );
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(math_counter_advanced, CMathCounterAdvanced);
+
+
+BEGIN_DATADESC( CMathCounterAdvanced )
+
+	// Keys
+	DEFINE_INPUT(m_bPreserveValue, FIELD_BOOLEAN, "PreserveValue"),
+	DEFINE_INPUT(m_bAlwaysOutputAsInt, FIELD_BOOLEAN, "AlwaysOutputAsInt"),
+
+	// Inputs
+	DEFINE_INPUTFUNC(FIELD_VOID, "SetValueToPi", InputSetValueToPi),
+
+	DEFINE_INPUTFUNC(FIELD_VOID, "SquareRoot", InputSquareRoot),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "Power", InputPower),
+
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "Round", InputRound),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "Floor", InputFloor),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "Ceil", InputCeiling),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "Trunc", InputTrunc),
+
+	DEFINE_INPUTFUNC(FIELD_VOID, "Sin", InputSine),
+	DEFINE_INPUTFUNC(FIELD_VOID, "Cos", InputCosine),
+	DEFINE_INPUTFUNC(FIELD_VOID, "Tan", InputTangent),
+
+	DEFINE_INPUTFUNC(FIELD_STRING, "RandomInt", InputRandomInt),
+	DEFINE_INPUTFUNC(FIELD_STRING, "RandomFloat", InputRandomFloat),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for setting the current value to pi.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputSetValueToPi( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring SET TO PI because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	float fNewValue = M_PI;
+	UpdateOutValue( inputdata.pActivator, fNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for calculating the square root of the current value.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputSquareRoot( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring SQUARE ROOT because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	float fNewValue = sqrt(m_OutValue.Get());
+	UpdateOutValue( inputdata.pActivator, fNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for exponentiation of the current value. Use 2 to square it.
+// Input  : Integer value to raise the current value's power.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputPower( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring POWER!!! because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	float fNewValue = pow(m_OutValue.Get(), inputdata.value.Int());
+	UpdateOutValue( inputdata.pActivator, fNewValue );
+}
+
+// 
+// For some reason, I had trouble finding the original math functions at first.
+// Then I just randomly stumbled upon them, bright as day.
+// Oh well. These might be faster anyway.
+// 
+FORCEINLINE int RoundToNumber(int input, int number)
+{
+	(input < 0 && number > 0) ? number *= -1 : 0;
+	int result = (input + (number / 2));
+	result -= (result % number);
+	return result;
+}
+
+// Warning: Negative numbers should be ceiled
+FORCEINLINE int FloorToNumber(int input, int number)
+{
+	return (input - (input % number));
+}
+
+FORCEINLINE int CeilToNumber(int input, int number)
+{
+	(input < 0 && number > 0) ? number *= -1 : 0;
+	int result = (input - (input % number));
+	return result != input ? result + number : result;
+}
+
+FORCEINLINE int TruncToNumber(int input, int number)
+{
+	//(input < 0 && number > 0) ? number *= -1 : 0;
+	return (input - (input % number));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for rounding an integer to the specified number. (e.g. 126 rounding to 10 = 130, 1523 rounding to 5 = 1525)
+// Input  : Integer value to round the current value to.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputRound( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring ROUND because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iMultiple = inputdata.value.Int();
+	int iNewValue;
+	if (iMultiple != 0)
+	{
+		// Round to the nearest input number.
+		iNewValue = RoundToNumber(m_OutValue.Get(), iMultiple);
+	}
+	else
+	{
+		// 0 just rounds floats.
+		iNewValue = static_cast<int>(m_OutValue.Get() + 0.5f);
+	}
+
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for flooring an integer to the specified number. (e.g. 126 flooring to 10 = 120, 1528 flooring to 5 = 1525)
+// Input  : Integer value to floor the current value to.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputFloor( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring FLOOR because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iMultiple = inputdata.value.Int();
+	int iNewValue;
+	if (iMultiple != 0)
+	{
+		iNewValue = m_OutValue.Get();
+		if (iNewValue >= 0)
+		{
+			// Floor to the nearest input number.
+			iNewValue = FloorToNumber(m_OutValue.Get(), iMultiple);
+		}
+		else
+		{
+			// We have to do it differently for negatives.
+			iNewValue = CeilToNumber(m_OutValue.Get(), iMultiple);
+		}
+	}
+	else
+	{
+		// 0 just floors floats.
+		iNewValue = static_cast<int>(m_OutValue.Get());
+	}
+
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for ceiling an integer to the specified number. (e.g. 126 ceiling to 10 = 130, 1523 ceiling to 50 = 1550)
+// Input  : Integer value to ceil the current value to.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputCeiling( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring CEIL because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iMultiple = inputdata.value.Int();
+	int iNewValue;
+	if (iMultiple != 0)
+	{
+		// Ceil to the nearest input number.
+		iNewValue = CeilToNumber(m_OutValue.Get(), iMultiple);
+	}
+	else
+	{
+		// 0 just ceils floats.
+		iNewValue = static_cast<int>(m_OutValue.Get()) + (m_OutValue.Get() != 0 ? 1 : 0);
+	}
+
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for truncating an integer to the specified number. (e.g. 126 rounding to 10 = 120, -1523 rounding to 5 = 1520)
+// Input  : Integer value to truncate the current value to.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputTrunc( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring TRUNC because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iMultiple = inputdata.value.Int();
+	int iNewValue;
+	if (iMultiple != 0)
+	{
+		// Floor always truncates negative numbers if we don't tell it not to
+		iNewValue = FloorToNumber(m_OutValue.Get(), iMultiple);
+	}
+	else
+	{
+		// 0 just ceils floats.
+		iNewValue = static_cast<int>(m_OutValue.Get());
+		if (iNewValue < 0)
+			iNewValue += 1;
+	}
+
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for applying sine to the current value.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputSine( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring SINE because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	float fNewValue = sin(m_OutValue.Get());
+	UpdateOutValue( inputdata.pActivator, fNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for applying cosine to the current value.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputCosine( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring SINE because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	float fNewValue = cos(m_OutValue.Get());
+	UpdateOutValue( inputdata.pActivator, fNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for applying tangent to the current value.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputTangent( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring SINE because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	float fNewValue = tan(m_OutValue.Get());
+	UpdateOutValue( inputdata.pActivator, fNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for random int generation.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputRandomInt( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring RANDOMINT because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int i1 = 0;
+	int i2 = 0;
+
+	char szInput[128];
+	Q_strncpy( szInput, inputdata.value.String(), sizeof(szInput) );
+	char *sSpace = strchr( szInput, ' ' );
+	if ( sSpace )
+	{
+		i1 = atoi(szInput);
+		i2 = atoi(sSpace+1);
+	}
+	else
+	{
+		// No space, assume anything from 0 to X
+		i2 = atoi(szInput);
+	}
+
+	float fNewValue = RandomInt(i1, i2);
+	UpdateOutValue( inputdata.pActivator, fNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for random float generation.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputRandomFloat( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring RANDOMFLOAT because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	float f1 = 0;
+	float f2 = 0;
+
+	char szInput[128];
+	Q_strncpy( szInput, inputdata.value.String(), sizeof(szInput) );
+	char *sSpace = strchr( szInput, ' ' );
+	if ( sSpace )
+	{
+		f1 = atof(szInput);
+		f2 = atof(sSpace+1);
+	}
+	else
+	{
+		// No space, assume anything from 0 to X
+		f2 = atof(szInput);
+	}
+
+	float fNewValue = RandomFloat(f1, f2);
+	UpdateOutValue( inputdata.pActivator, fNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the value to the new value, clamping and firing the output value.
+// Input  : fNewValue - Value to set.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::UpdateOutValue(CBaseEntity *pActivator, float fNewValue)
+{
+	if (m_bAlwaysOutputAsInt)
+		fNewValue = roundf(fNewValue);
+
+	if (m_bPreserveValue)
+	{
+		//float fOriginal = m_OutValue.Get();
+		//DevMsg("Preserve Before: %f\n", fOriginal);
+		//BaseClass::UpdateOutValue(pActivator, fNewValue);
+		//DevMsg("Preserve After: %f\n", fOriginal);
+		//m_OutValue.Init(fOriginal);
+
+		variant_t var;
+		var.SetFloat(fNewValue);
+		m_OutValue.FireOutput( var, pActivator, this );
+	}
+	else
+	{
+		BaseClass::UpdateOutValue(pActivator, fNewValue);
+	}
+}
+#endif
 
 
 
@@ -1678,6 +2325,10 @@ class CLogicCase : public CLogicalEntity
 private:
 	string_t m_nCase[MAX_LOGIC_CASES];
 
+#ifdef MAPBASE
+	bool m_bMultipleCasesAllowed;
+#endif
+
 	int m_nShuffleCases;
 	int m_nLastShuffleCase;
 	unsigned char m_uchShuffleCaseMap[MAX_LOGIC_CASES];
@@ -1694,6 +2345,9 @@ private:
 	// Outputs
 	COutputEvent m_OnCase[MAX_LOGIC_CASES];		// Fired when the input value matches one of the case values.
 	COutputVariant m_OnDefault;					// Fired when no match was found.
+#ifdef MAPBASE
+	COutputVariant m_OnUsed;					// Fired when this entity receives any input at all.
+#endif
 
 	DECLARE_DATADESC();
 };
@@ -1723,6 +2377,10 @@ BEGIN_DATADESC( CLogicCase )
 	DEFINE_KEYFIELD(m_nCase[13], FIELD_STRING, "Case14"),
 	DEFINE_KEYFIELD(m_nCase[14], FIELD_STRING, "Case15"),
 	DEFINE_KEYFIELD(m_nCase[15], FIELD_STRING, "Case16"),
+
+#ifdef MAPBASE
+	DEFINE_KEYFIELD(m_bMultipleCasesAllowed, FIELD_BOOLEAN, "MultipleCasesAllowed"),
+#endif
 	
 	DEFINE_FIELD( m_nShuffleCases, FIELD_INTEGER ),
 	DEFINE_FIELD( m_nLastShuffleCase, FIELD_INTEGER ),
@@ -1752,6 +2410,9 @@ BEGIN_DATADESC( CLogicCase )
 	DEFINE_OUTPUT(m_OnCase[15], "OnCase16"),
 
 	DEFINE_OUTPUT(m_OnDefault, "OnDefault"),
+#ifdef MAPBASE
+	DEFINE_OUTPUT(m_OnUsed, "OnUsed"),
+#endif
 
 END_DATADESC()
 
@@ -1775,16 +2436,35 @@ void CLogicCase::Spawn( void )
 //-----------------------------------------------------------------------------
 void CLogicCase::InputValue( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	m_OnUsed.Set(inputdata.value, inputdata.pActivator, this);
+	bool bFoundCase = false;
+#endif
 	const char *pszValue = inputdata.value.String();
 	for (int i = 0; i < MAX_LOGIC_CASES; i++)
 	{
+#ifdef MAPBASE
+		if ((m_nCase[i] != NULL_STRING) && Matcher_Compare(STRING(m_nCase[i]), pszValue))
+		{
+			m_OnCase[i].FireOutput( inputdata.pActivator, this );
+
+			if (!m_bMultipleCasesAllowed)
+				return;
+			else if (!bFoundCase)
+				bFoundCase = true;
+		}
+#else
 		if ((m_nCase[i] != NULL_STRING) && !stricmp(STRING(m_nCase[i]), pszValue))
 		{
 			m_OnCase[i].FireOutput( inputdata.pActivator, this );
 			return;
 		}
+#endif
 	}
 	
+#ifdef MAPBASE
+	if (!bFoundCase)
+#endif
 	m_OnDefault.Set( inputdata.value, inputdata.pActivator, this );
 }
 
@@ -1916,23 +2596,50 @@ class CLogicCompare : public CLogicalEntity
 public:
 	int DrawDebugTextOverlays(void);
 
+#ifdef MAPBASE
+	void Spawn();
+#endif
+
 private:
 	// Inputs
 	void InputSetValue( inputdata_t &inputdata );
 	void InputSetValueCompare( inputdata_t &inputdata );
 	void InputSetCompareValue( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetCompareValueCompare( inputdata_t &inputdata );
+#endif
 	void InputCompare( inputdata_t &inputdata );
 
+#ifdef MAPBASE
+	void DoCompare(CBaseEntity *pActivator, variant_t value);
+#else
 	void DoCompare(CBaseEntity *pActivator, float flInValue);
+#endif
 
+#ifdef MAPBASE
+	bool m_bStrLenAllowed = true;
+	bool m_bGreaterThanOrEqual;
+	variant_t m_InValue;					// Place to hold the last input value for a recomparison.
+	variant_t m_CompareValue;				// The value to compare the input value against.
+#else
 	float m_flInValue;					// Place to hold the last input value for a recomparison.
 	float m_flCompareValue;				// The value to compare the input value against.
+#endif
 
 	// Outputs
+#ifdef MAPBASE
+	COutputVariant m_OnLessThan;			// Fired when the input value is less than the compare value.
+	COutputVariant m_OnEqualTo;			// Fired when the input value is equal to the compare value.
+	COutputVariant m_OnNotEqualTo;		// Fired when the input value is not equal to the compare value.
+	COutputVariant m_OnGreaterThan;		// Fired when the input value is greater than the compare value.
+	COutputVariant m_OnLessThanOrEqualTo;			// Fired when the input value is less than or equal to the compare value.
+	COutputVariant m_OnGreaterThanOrEqualTo;		// Fired when the input value is greater than or equal to the compare value.
+#else
 	COutputFloat m_OnLessThan;			// Fired when the input value is less than the compare value.
 	COutputFloat m_OnEqualTo;			// Fired when the input value is equal to the compare value.
 	COutputFloat m_OnNotEqualTo;		// Fired when the input value is not equal to the compare value.
 	COutputFloat m_OnGreaterThan;		// Fired when the input value is greater than the compare value.
+#endif
 
 	DECLARE_DATADESC();
 };
@@ -1943,13 +2650,26 @@ LINK_ENTITY_TO_CLASS(logic_compare, CLogicCompare);
 BEGIN_DATADESC( CLogicCompare )
 
 	// Keys
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bStrLenAllowed, FIELD_BOOLEAN, "StrLenAllowed" ),
+	DEFINE_KEYVARIANT(m_CompareValue, "CompareValue"),
+	DEFINE_KEYVARIANT(m_InValue, "InitialValue"),
+#else
 	DEFINE_KEYFIELD(m_flCompareValue, FIELD_FLOAT, "CompareValue"),
 	DEFINE_KEYFIELD(m_flInValue, FIELD_FLOAT, "InitialValue"),
+#endif
 
 	// Inputs
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC(FIELD_INPUT, "SetValue", InputSetValue),
+	DEFINE_INPUTFUNC(FIELD_INPUT, "SetValueCompare", InputSetValueCompare),
+	DEFINE_INPUTFUNC(FIELD_INPUT, "SetCompareValue", InputSetCompareValue),
+	DEFINE_INPUTFUNC(FIELD_INPUT, "SetCompareValueCompare", InputSetCompareValueCompare),
+#else
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetValue", InputSetValue),
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetValueCompare", InputSetValueCompare),
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetCompareValue", InputSetCompareValue),
+#endif
 	DEFINE_INPUTFUNC(FIELD_VOID, "Compare", InputCompare),
 
 	// Outputs
@@ -1957,18 +2677,40 @@ BEGIN_DATADESC( CLogicCompare )
 	DEFINE_OUTPUT(m_OnNotEqualTo, "OnNotEqualTo"),
 	DEFINE_OUTPUT(m_OnGreaterThan, "OnGreaterThan"),
 	DEFINE_OUTPUT(m_OnLessThan, "OnLessThan"),
+#ifdef MAPBASE
+	DEFINE_OUTPUT(m_OnGreaterThanOrEqualTo, "OnGreaterThanOrEqualTo"),
+	DEFINE_OUTPUT(m_OnLessThanOrEqualTo, "OnLessThanOrEqualTo"),
+#endif
 
 END_DATADESC()
 
 
 
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for a new input value without performing a comparison.
+//-----------------------------------------------------------------------------
+void CLogicCompare::Spawn()
+{
+	// Empty initial values are equivalent to 0
+	if (m_InValue.FieldType() == FIELD_STRING && m_InValue.String()[0] == '\0')
+		m_InValue.SetInt( 0 );
+
+	BaseClass::Spawn();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Input handler for a new input value without performing a comparison.
 //-----------------------------------------------------------------------------
 void CLogicCompare::InputSetValue( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	m_InValue = Variant_ParseInput(inputdata);
+#else
 	m_flInValue = inputdata.value.Float();
+#endif
 }
 
 
@@ -1977,8 +2719,13 @@ void CLogicCompare::InputSetValue( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CLogicCompare::InputSetValueCompare( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	m_InValue = Variant_ParseInput(inputdata);
+	DoCompare( inputdata.pActivator, m_InValue );
+#else
 	m_flInValue = inputdata.value.Float();
 	DoCompare( inputdata.pActivator, m_flInValue );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1986,15 +2733,34 @@ void CLogicCompare::InputSetValueCompare( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CLogicCompare::InputSetCompareValue( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	m_CompareValue = Variant_ParseInput(inputdata);
+#else
 	m_flCompareValue = inputdata.value.Float();
+#endif
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for a new input value and doing the comparison.
+//-----------------------------------------------------------------------------
+void CLogicCompare::InputSetCompareValueCompare( inputdata_t &inputdata )
+{
+	m_CompareValue = Variant_ParseInput(inputdata);
+	DoCompare( inputdata.pActivator, m_InValue );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Input handler for forcing a recompare of the last input value.
 //-----------------------------------------------------------------------------
 void CLogicCompare::InputCompare( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	DoCompare( inputdata.pActivator, m_InValue );
+#else
 	DoCompare( inputdata.pActivator, m_flInValue );
+#endif
 }
 
 
@@ -2003,6 +2769,33 @@ void CLogicCompare::InputCompare( inputdata_t &inputdata )
 //			output(s) based on the comparison result.
 // Input  : flInValue - Value to compare against the comparison value.
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+void CLogicCompare::DoCompare(CBaseEntity *pActivator, variant_t value)
+{
+	if (Variant_Equal(value, m_CompareValue, m_bStrLenAllowed))
+	{
+		m_OnEqualTo.Set(value, pActivator, this);
+
+		m_OnLessThanOrEqualTo.Set(value, pActivator, this);
+		m_OnGreaterThanOrEqualTo.Set(value, pActivator, this);
+	}
+	else
+	{
+		m_OnNotEqualTo.Set(value, pActivator, this);
+
+		if (Variant_Greater(m_InValue, m_CompareValue, m_bStrLenAllowed))
+		{
+			m_OnGreaterThan.Set(value, pActivator, this);
+			m_OnGreaterThanOrEqualTo.Set(value, pActivator, this);
+		}
+		else
+		{
+			m_OnLessThan.Set(value, pActivator, this);
+			m_OnLessThanOrEqualTo.Set(value, pActivator, this);
+		}
+	}
+}
+#else
 void CLogicCompare::DoCompare(CBaseEntity *pActivator, float flInValue)
 {
 	if (flInValue == m_flCompareValue)
@@ -2023,6 +2816,7 @@ void CLogicCompare::DoCompare(CBaseEntity *pActivator, float flInValue)
 		}
 	}
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Draw any debug text overlays
@@ -2037,12 +2831,20 @@ int CLogicCompare::DrawDebugTextOverlays( void )
 		char tempstr[512];
 
 		// print duration
+#ifdef MAPBASE
+		Q_snprintf(tempstr,sizeof(tempstr),"    Initial Value: %s", m_InValue.GetDebug());
+#else
 		Q_snprintf(tempstr,sizeof(tempstr),"    Initial Value: %f", m_flInValue);
+#endif
 		EntityText(text_offset,tempstr,0);
 		text_offset++;
 
 		// print hold time
+#ifdef MAPBASE
+		Q_snprintf(tempstr,sizeof(tempstr),"    Compare Value: %s", m_CompareValue.GetDebug());
+#else
 		Q_snprintf(tempstr,sizeof(tempstr),"    Compare Value: %f", m_flCompareValue);
+#endif
 		EntityText(text_offset,tempstr,0);
 		text_offset++;
 	}
@@ -2746,3 +3548,2903 @@ int CLogicBranchList::DrawDebugTextOverlays( void )
 
 	return text_offset;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Prints messages to the console.
+//-----------------------------------------------------------------------------
+class CLogicConsole : public CLogicalEntity
+{
+public:
+
+	DECLARE_CLASS( CLogicConsole, CLogicalEntity );
+
+	// Keys
+	int m_iDevLevel = 1;
+	Color m_MsgColor = Color(210, 250, 255, 255);
+	Color m_WarningColor = Color(255, 210, 210, 255);
+	bool m_bNewLineNotAuto = false;
+
+	// TODO: Replace "append" with variable arguments?
+	inline void LCMsg(const char *msg, const char *append = NULL) { ConColorMsg(m_MsgColor, msg, append); }
+	inline void LCDevMsg(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ConColorMsg(m_MsgColor, msg, append) : 0; }
+	inline void LCWarning(const char *msg, const char *append = NULL) { ConColorMsg(m_WarningColor, msg, append); }
+	inline void LCDevWarning(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ConColorMsg(m_WarningColor, msg, append) : 0; }
+
+	//inline void LCMsg(const char *msg, const char *append = NULL) { ColorSpewMessage(SPEW_MESSAGE, &m_MsgColor, msg, append); }
+	//inline void LCDevMsg(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ColorSpewMessage(SPEW_MESSAGE, &m_MsgColor, msg, append) : 0; }
+	//inline void LCWarning(const char *msg, const char *append = NULL) { ColorSpewMessage(SPEW_MESSAGE, &m_WarningColor, msg, append); }
+	//inline void LCDevWarning(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ColorSpewMessage(SPEW_MESSAGE, &m_WarningColor, msg, append) : 0; }
+
+	// Inputs
+	void InputSendMsg( inputdata_t &inputdata ) { !m_bNewLineNotAuto ? LCMsg("%s\n", inputdata.value.String()) : LCMsg("%s", inputdata.value.String()); }
+	void InputSendWarning( inputdata_t &inputdata ) { !m_bNewLineNotAuto ? LCWarning("%s\n", inputdata.value.String()) : LCWarning("%s", inputdata.value.String()); }
+	void InputSendDevMsg( inputdata_t &inputdata ) { !m_bNewLineNotAuto ? LCDevMsg(m_iDevLevel, "%s\n", inputdata.value.String()) : LCDevMsg(m_iDevLevel, "%s", inputdata.value.String()); }
+	void InputSendDevWarning( inputdata_t &inputdata ) { !m_bNewLineNotAuto ? LCDevWarning(m_iDevLevel, "%s\n", inputdata.value.String()) : LCDevWarning(m_iDevLevel, "%s", inputdata.value.String()); }
+
+	void InputNewLine( inputdata_t &inputdata ) { LCMsg("\n"); }
+	void InputDevNewLine( inputdata_t &inputdata ) { LCDevMsg(m_iDevLevel, "\n"); }
+
+	void InputClearConsole( inputdata_t &inputdata ) { engine->ServerCommand("clear"); }
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(logic_console, CLogicConsole);
+
+
+BEGIN_DATADESC( CLogicConsole )
+
+	DEFINE_INPUT( m_iDevLevel, FIELD_INTEGER, "SetDevLvl" ),
+	DEFINE_INPUT( m_MsgColor, FIELD_COLOR32, "SetMsgColor" ),
+	DEFINE_INPUT( m_WarningColor, FIELD_COLOR32, "SetWarningColor" ),
+	DEFINE_INPUT( m_bNewLineNotAuto, FIELD_BOOLEAN, "SetNewLineNotAuto" ),
+
+	DEFINE_INPUTFUNC( FIELD_STRING, "SendMsg", InputSendMsg ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SendWarning", InputSendWarning ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SendDevMsg", InputSendDevMsg ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SendDevWarning", InputSendDevWarning ),
+
+	DEFINE_INPUTFUNC( FIELD_VOID, "NewLine", InputNewLine ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "DevNewLine", InputDevNewLine ),
+
+END_DATADESC()
+
+ConVar sv_allow_logic_convar("sv_allow_logic_convar", "1");
+//-----------------------------------------------------------------------------
+// Purpose: Gets console variables for the evil mapper.
+//-----------------------------------------------------------------------------
+class CLogicConvar : public CLogicalEntity
+{
+public:
+
+	DECLARE_CLASS( CLogicConvar, CLogicalEntity );
+
+	// Keys
+	string_t m_iszConVar;
+	string_t m_iszCompareValue;
+
+	const char *GetConVarString( inputdata_t &inputdata );
+
+	// Inputs
+	void InputGetValue( inputdata_t &inputdata );
+	void InputTest( inputdata_t &inputdata );
+
+	// Outputs
+	COutputEvent m_OnTrue;
+	COutputEvent m_OnFalse;
+	COutputString m_OutValue;
+	COutputEvent m_OnDenied;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(logic_convar, CLogicConvar);
+
+
+BEGIN_DATADESC( CLogicConvar )
+
+	DEFINE_INPUT( m_iszConVar, FIELD_STRING, "SetConVar" ),
+	DEFINE_INPUT( m_iszCompareValue, FIELD_STRING, "SetTestValue" ),
+
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetValue", InputGetValue ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Test", InputTest ),
+
+	DEFINE_OUTPUT(m_OnTrue, "OnTrue"),
+	DEFINE_OUTPUT(m_OnFalse, "OnFalse"),
+	DEFINE_OUTPUT(m_OutValue, "OutValue"),
+	DEFINE_OUTPUT(m_OnDenied, "OnDenied"),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+const char *CLogicConvar::GetConVarString( inputdata_t &inputdata )
+{
+	if (!sv_allow_logic_convar.GetBool())
+	{
+		m_OnDenied.FireOutput(this, this);
+
+		//return ConVarRef("<null>", true);
+		return NULL;
+	}
+
+	ConVarRef pCVar = ConVarRef(STRING(m_iszConVar), true);
+	if (!pCVar.IsValid())
+	{
+		// It's not a convar, so check if it's a common cheat command a player might be using
+		CBasePlayer *pPlayer = ToBasePlayer( inputdata.pActivator );
+		if (!pPlayer && AI_IsSinglePlayer())
+			pPlayer = UTIL_PlayerByIndex( 1 );
+
+		if (pPlayer)
+		{
+			const char *pszCVar = STRING( m_iszConVar );
+			if (FStrEq( pszCVar, "god" ))
+				return (pPlayer->GetFlags() & FL_GODMODE) ? "1" : "0";
+			if (FStrEq( pszCVar, "notarget" ))
+				return (pPlayer->GetFlags() & FL_NOTARGET) ? "1" : "0";
+			if (FStrEq( pszCVar, "noclip" ))
+				return (pPlayer->IsEFlagSet(EFL_NOCLIP_ACTIVE)) ? "1" : "0";
+		}
+
+		Warning("Warning: %s has invalid convar \"%s\"\n", GetDebugName(), STRING(m_iszConVar));
+	}
+
+	return pCVar.GetString();
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicConvar::InputGetValue( inputdata_t &inputdata )
+{
+	const char *pCVarString = GetConVarString(inputdata);
+	if (pCVarString != NULL)
+		m_OutValue.Set( AllocPooledString( pCVarString ), inputdata.pActivator, this );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicConvar::InputTest( inputdata_t &inputdata )
+{
+	const char *pCVarString = GetConVarString(inputdata);
+	if (pCVarString)
+	{
+		if (Matcher_Compare( STRING( m_iszCompareValue ), pCVarString ))
+		{
+			m_OnTrue.FireOutput(inputdata.pActivator, this);
+		}
+		else
+		{
+			m_OnFalse.FireOutput(inputdata.pActivator, this);
+		}
+	}
+}
+
+#define MAX_LOGIC_FORMAT_PARAMETERS 8
+//-----------------------------------------------------------------------------
+// Purpose: Takes a string and a bunch of parameters and spits out a formatted string.
+//-----------------------------------------------------------------------------
+class CLogicFormat : public CLogicalEntity
+{
+public:
+
+	DECLARE_CLASS( CLogicFormat, CLogicalEntity );
+
+	// Keys
+	string_t m_iszInput;
+	string_t m_iszParameter[MAX_LOGIC_FORMAT_PARAMETERS];
+	string_t m_iszBackupParameter;
+
+	void FormatString(const char *szStringToFormat, char *szOutput, int outputlen);
+
+	// Inputs
+	void InputGetFormattedString( inputdata_t &inputdata );
+
+	// Outputs
+	COutputString m_OutFormattedString;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(logic_format, CLogicFormat);
+
+
+BEGIN_DATADESC( CLogicFormat )
+
+	DEFINE_INPUT( m_iszInput, FIELD_STRING, "SetInputValue" ),
+	DEFINE_INPUT( m_iszParameter[0], FIELD_STRING, "SetParameter0" ),
+	DEFINE_INPUT( m_iszParameter[1], FIELD_STRING, "SetParameter1" ),
+	DEFINE_INPUT( m_iszParameter[2], FIELD_STRING, "SetParameter2" ),
+	DEFINE_INPUT( m_iszParameter[3], FIELD_STRING, "SetParameter3" ),
+	DEFINE_INPUT( m_iszParameter[4], FIELD_STRING, "SetParameter4" ),
+	DEFINE_INPUT( m_iszParameter[5], FIELD_STRING, "SetParameter5" ),
+	DEFINE_INPUT( m_iszParameter[6], FIELD_STRING, "SetParameter6" ),
+	DEFINE_INPUT( m_iszParameter[7], FIELD_STRING, "SetParameter7" ),
+	DEFINE_INPUT( m_iszBackupParameter, FIELD_STRING, "SetBackupParameter" ),
+
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetFormattedValue", InputGetFormattedString ),
+
+	DEFINE_OUTPUT(m_OutFormattedString, "OutFormattedValue"),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicFormat::InputGetFormattedString( inputdata_t &inputdata )
+{
+	char szFormatted[256];
+	if (m_iszInput != NULL_STRING)
+	{
+		FormatString(STRING(m_iszInput), szFormatted, sizeof(szFormatted));
+		m_OutFormattedString.Set(AllocPooledString(szFormatted), inputdata.pActivator, this);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// I'm bad at coding.
+//-----------------------------------------------------------------------------
+void CLogicFormat::FormatString(const char *szStringToFormat, char *szOutput, int outputlen)
+{
+	const char *szParameters[MAX_LOGIC_FORMAT_PARAMETERS];
+	for (int i = 0; i < MAX_LOGIC_FORMAT_PARAMETERS; i++)
+	{
+		if (m_iszParameter[i] != NULL_STRING)
+		{
+			szParameters[i] = STRING(m_iszParameter[i]);
+		}
+		else if (m_iszBackupParameter != NULL_STRING)
+		{
+			szParameters[i] = STRING(m_iszBackupParameter);
+		}
+		else
+		{
+			szParameters[i] = "<null>";
+		}
+	}
+
+	char szFormatted[256] = { 0 }; // Needed so garbage isn't spewed at the beginning
+	//Q_snprintf(szFormatted, sizeof(szFormatted), szInput, szParameters);
+
+	char szInput[256];
+	Q_strncpy(szInput, szStringToFormat, sizeof(szInput));
+
+	bool inparam = (szInput[0] == '{');
+	int curparam = 0;
+	char *szToken = strtok(szInput, "{");
+	while (szToken != NULL)
+	{
+		if (inparam)
+		{
+			curparam = atoi(szToken);
+			if (curparam < MAX_LOGIC_FORMAT_PARAMETERS /*&& szParameters[curparam] != NULL*/) //if (curparam < MAX_FORMAT_PARAMETERS)
+			{
+				Q_snprintf(szFormatted, sizeof(szFormatted), "%s%s", szFormatted, szParameters[curparam]);
+			}
+			else
+			{
+				Warning("Warning: Parameter %i out of bounds in \"%s\"\n", curparam, szStringToFormat);
+
+				// This might not be the best way to do this, but
+				// reaching it is supposed to be the result of a mistake anyway.
+				m_iszBackupParameter != NULL_STRING ?
+					Q_snprintf(szFormatted, sizeof(szFormatted), "%s%s", szFormatted, STRING(m_iszBackupParameter)) :
+					Q_snprintf(szFormatted, sizeof(szFormatted), "%s<null>", szFormatted);
+			}
+
+			inparam = false;
+			szToken = strtok(NULL, "{");
+		}
+		else
+		{
+			Q_snprintf(szFormatted, sizeof(szFormatted), "%s%s", szFormatted, szToken);
+
+			inparam = true;
+			szToken = strtok(NULL, "}");
+		}
+	}
+
+	Q_strncpy(szOutput, szFormatted, outputlen);
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Accesses a keyvalue from a specific entity
+// Mostly ported from Half-Laugh.
+//-----------------------------------------------------------------------------
+class CLogicKeyfieldAccessor : public CLogicalEntity
+{
+	DECLARE_CLASS(CLogicKeyfieldAccessor, CLogicalEntity);
+
+protected:
+	CBaseEntity *GetTarget(CBaseEntity *pCaller, CBaseEntity *pActivator);
+
+	virtual bool TestKey(CBaseEntity *pTarget, const char *szKeyName);
+	virtual bool SetKeyValue(CBaseEntity *pTarget, const char *szKeyName, const char *szValue);
+	virtual bool SetKeyValueBits(CBaseEntity *pTarget, const char *szKeyName, int iValue, bool bRemove = false);
+
+	// Inputs
+	void InputTest(inputdata_t &inputdata);
+	void InputTestKey(inputdata_t &inputdata);
+	void InputTestTarget(inputdata_t &inputdata);
+
+	void InputSetKey(inputdata_t &inputdata);
+
+	void InputSetValue(inputdata_t &inputdata);
+	void InputAddBits(inputdata_t &inputdata);
+	void InputRemoveBits(inputdata_t &inputdata);
+
+	//bool ReadUnregisteredKeyfields(CBaseEntity *pTarget, const char *szKeyName, variant_t *variant);
+
+	COutputVariant m_OutValue;
+	COutputEvent m_OnFailed;
+
+	string_t m_iszKey;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(logic_keyfield, CLogicKeyfieldAccessor);
+
+
+BEGIN_DATADESC(CLogicKeyfieldAccessor)
+
+DEFINE_KEYFIELD( m_iszKey, FIELD_STRING, "keyname" ),
+
+// Inputs
+DEFINE_INPUTFUNC(FIELD_VOID, "Test", InputTest),
+DEFINE_INPUTFUNC(FIELD_STRING, "TestKey", InputTestKey),
+DEFINE_INPUTFUNC(FIELD_STRING, "TestTarget", InputTestTarget),
+DEFINE_INPUTFUNC(FIELD_STRING, "SetKey", InputSetKey),
+
+DEFINE_INPUTFUNC(FIELD_STRING, "SetValue", InputSetValue),
+DEFINE_INPUTFUNC(FIELD_INTEGER, "AddBits", InputAddBits),
+DEFINE_INPUTFUNC(FIELD_INTEGER, "RemoveBits", InputRemoveBits),
+
+DEFINE_OUTPUT( m_OutValue, "OutValue" ),
+DEFINE_OUTPUT( m_OnFailed, "OnFailed" ),
+
+END_DATADESC()
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+inline CBaseEntity *CLogicKeyfieldAccessor::GetTarget(CBaseEntity *pCaller, CBaseEntity *pActivator)
+{
+	return gEntList.FindEntityByName(NULL, m_target, this, pActivator, pCaller);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CLogicKeyfieldAccessor::TestKey(CBaseEntity *pTarget, const char *szKeyName)
+{
+	variant_t variant;
+	if (pTarget->ReadKeyField(szKeyName, &variant) || ReadUnregisteredKeyfields(pTarget, szKeyName, &variant))
+	{
+		m_OutValue.Set(variant, pTarget, this);
+		return true;
+	}
+	else
+	{
+		m_OnFailed.FireOutput(pTarget, this);
+		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CLogicKeyfieldAccessor::SetKeyValue(CBaseEntity *pTarget, const char *szKeyName, const char *szValue)
+{
+	if (pTarget->KeyValue(szKeyName, szValue))
+	{
+		// We'll still fire OutValue
+		variant_t variant;
+		if (!pTarget->ReadKeyField(szKeyName, &variant))
+			ReadUnregisteredKeyfields(pTarget, szKeyName, &variant);
+
+		m_OutValue.Set(variant, pTarget, this);
+		return true;
+	}
+	else
+	{
+		m_OnFailed.FireOutput(pTarget, this);
+		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CLogicKeyfieldAccessor::SetKeyValueBits(CBaseEntity *pTarget, const char *szKeyName, int iValue, bool bRemove)
+{
+	variant_t variant;
+	if ((pTarget->ReadKeyField(szKeyName, &variant) || ReadUnregisteredKeyfields(pTarget, szKeyName, &variant)) && variant.FieldType() == FIELD_INTEGER)
+	{
+		if (bRemove)
+			variant.SetInt(variant.Int() & ~iValue);
+		else
+			variant.SetInt(variant.Int() | iValue);
+
+		pTarget->KeyValue(szKeyName, UTIL_VarArgs("%i", variant.Int()));
+
+		m_OutValue.Set(variant, pTarget, this);
+		return true;
+	}
+	else
+	{
+		m_OnFailed.FireOutput(pTarget, this);
+		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicKeyfieldAccessor::InputTest(inputdata_t &inputdata)
+{
+	CBaseEntity *pTarget = GetTarget(inputdata.pCaller, inputdata.pActivator);
+	if (pTarget && m_iszKey != NULL_STRING)
+	{
+		TestKey(pTarget, STRING(m_iszKey));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicKeyfieldAccessor::InputTestKey(inputdata_t &inputdata)
+{
+	const char *input = inputdata.value.String();
+	CBaseEntity *pTarget = GetTarget(inputdata.pCaller, inputdata.pActivator);
+	if (input && pTarget)
+	{
+		TestKey(pTarget, input);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicKeyfieldAccessor::InputTestTarget(inputdata_t &inputdata)
+{
+	m_target = inputdata.value.StringID();
+	CBaseEntity *pTarget = gEntList.FindEntityByName(NULL, inputdata.value.StringID(), this, inputdata.pCaller, inputdata.pActivator);
+	if (pTarget && m_iszKey != NULL_STRING)
+	{
+		TestKey(pTarget, STRING(m_iszKey));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicKeyfieldAccessor::InputSetKey(inputdata_t &inputdata)
+{
+	m_iszKey = inputdata.value.StringID();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicKeyfieldAccessor::InputSetValue(inputdata_t &inputdata)
+{
+	const char *input = inputdata.value.String();
+	CBaseEntity *pTarget = GetTarget(inputdata.pCaller, inputdata.pActivator);
+	if (input && pTarget)
+	{
+		SetKeyValue(pTarget, STRING(m_iszKey), input);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicKeyfieldAccessor::InputAddBits(inputdata_t &inputdata)
+{
+	int input = inputdata.value.Int();
+	CBaseEntity *pTarget = GetTarget(inputdata.pCaller, inputdata.pActivator);
+	if (input && pTarget)
+	{
+		SetKeyValueBits(pTarget, STRING(m_iszKey), input, false);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicKeyfieldAccessor::InputRemoveBits(inputdata_t &inputdata)
+{
+	int input = inputdata.value.Int();
+	CBaseEntity *pTarget = GetTarget(inputdata.pCaller, inputdata.pActivator);
+	if (input && pTarget)
+	{
+		SetKeyValueBits(pTarget, STRING(m_iszKey), input, true);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Clamps the input value between two values
+//-----------------------------------------------------------------------------
+class CMathClamp : public CLogicalEntity
+{
+public:
+
+	DECLARE_CLASS( CMathClamp, CLogicalEntity );
+
+	// Keys
+	variant_t m_Max;
+	variant_t m_Min;
+
+	// Inputs
+	void InputClampValue( inputdata_t &inputdata );
+
+	float ClampValue(float input, float min, float max, int *bounds);
+	void ClampValue(variant_t var, inputdata_t *inputdata);
+
+	// Outputs
+	COutputVariant m_OutValue;
+	COutputVariant m_OnBeforeMin;
+	COutputVariant m_OnBeyondMax;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(math_clamp, CMathClamp);
+
+
+BEGIN_DATADESC( CMathClamp )
+
+	DEFINE_INPUT( m_Max, FIELD_INPUT, "SetMax" ),
+	DEFINE_INPUT( m_Min, FIELD_INPUT, "SetMin" ),
+
+	DEFINE_INPUTFUNC( FIELD_INPUT, "ClampValue", InputClampValue ),
+
+	DEFINE_OUTPUT(m_OutValue, "OutValue"),
+	DEFINE_OUTPUT(m_OnBeforeMin, "OnBeforeMin"),
+	DEFINE_OUTPUT(m_OnBeyondMax, "OnBeyondMax"),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathClamp::InputClampValue( inputdata_t &inputdata )
+{
+	ClampValue(inputdata.value, &inputdata);
+}
+
+//-----------------------------------------------------------------------------
+// "bounds" returns 1 if the number was less than min, 2 if more than max. Must not be NULL
+//-----------------------------------------------------------------------------
+inline float CMathClamp::ClampValue(float input, float min, float max, int *bounds)
+{
+	if ( max < min )
+	{
+		Warning("WARNING: Max value (%i) less than min value (%i) in %s!\n", max, min, GetDebugName());
+		return max;
+	}
+	else if( input < min )
+	{
+		*bounds = 1;
+		return min;
+	}
+	else if( input > max )
+	{
+		*bounds = 2;
+		return max;
+	}
+	else
+		return input;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathClamp::ClampValue(variant_t var, inputdata_t *inputdata)
+{
+	// Don't convert up here in case of invalid type
+
+	int nBounds;
+
+	switch (var.FieldType())
+	{
+		case FIELD_FLOAT:
+		{
+			m_Max.Convert(var.FieldType());
+			m_Min.Convert(var.FieldType());
+
+			var.SetFloat(ClampValue(var.Float(), m_Max.Float(), m_Min.Float(), &nBounds));
+		} break;
+		case FIELD_INTEGER:
+		{
+			m_Max.Convert(var.FieldType());
+			m_Min.Convert(var.FieldType());
+
+			var.SetInt(ClampValue(var.Int(), m_Max.Int(), m_Min.Int(), &nBounds));
+		} break;
+		case FIELD_VECTOR:
+		{
+			m_Max.Convert(var.FieldType());
+			m_Min.Convert(var.FieldType());
+
+			Vector min;
+			Vector max;
+			m_Min.Vector3D(min);
+			m_Max.Vector3D(max);
+
+			Vector vec;
+			var.Vector3D(vec);
+
+			vec.x = ClampValue(vec.x, min.x, max.x, &nBounds);
+			vec.y = ClampValue(vec.y, min.y, max.y, &nBounds);
+			vec.z = ClampValue(vec.z, min.z, max.z, &nBounds);
+
+			var.SetVector3D(vec);
+		} break;
+		default:
+		{
+			Warning("Error: Unsupported value %s in math_clamp %s\n", var.GetDebug(), STRING(GetEntityName()));
+			return;
+		}
+	}
+
+	if (inputdata)
+	{
+		m_OutValue.Set(var, inputdata->pActivator, this);
+		if (nBounds == 1)
+			m_OnBeforeMin.Set(var, inputdata->pActivator, this);
+		else if (nBounds == 2)
+			m_OnBeyondMax.Set(var, inputdata->pActivator, this);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Bits calculations.
+//-----------------------------------------------------------------------------
+class CMathBits : public CLogicalEntity
+{
+	DECLARE_CLASS( CMathBits, CLogicalEntity );
+private:
+
+	bool m_bDisabled;
+
+	bool KeyValue(const char *szKeyName, const char *szValue);
+
+	void UpdateOutValue(CBaseEntity *pActivator, int iNewValue);
+
+	int DrawDebugTextOverlays(void);
+
+	// Inputs
+	void InputAdd( inputdata_t &inputdata );
+	void InputSubtract( inputdata_t &inputdata );
+	void InputShiftLeft( inputdata_t &inputdata );
+	void InputShiftRight( inputdata_t &inputdata );
+	void InputApplyAnd( inputdata_t &inputdata );
+	void InputApplyOr( inputdata_t &inputdata );
+	void InputSetValue( inputdata_t &inputdata );
+	void InputSetValueNoFire( inputdata_t &inputdata );
+	void InputGetValue( inputdata_t &inputdata );
+	void InputEnable( inputdata_t &inputdata );
+	void InputDisable( inputdata_t &inputdata );
+	void InputContainsBits( inputdata_t &inputdata );
+	void InputContainsAllBits( inputdata_t &inputdata );
+
+	// Outputs
+	COutputInt m_OutValue;
+	COutputInt m_OnGetValue;
+	COutputEvent m_OnTrue;
+	COutputEvent m_OnFalse;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(math_bits, CMathBits);
+
+
+BEGIN_DATADESC( CMathBits )
+
+	// Keys
+	DEFINE_KEYFIELD(m_bDisabled, FIELD_BOOLEAN, "StartDisabled" ),
+
+	// Inputs
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "Add", InputAdd),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "Subtract", InputSubtract),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "ShiftLeft", InputShiftLeft),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "ShiftRight", InputShiftRight),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "ApplyAnd", InputApplyAnd),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "ApplyOr", InputApplyOr),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "SetValue", InputSetValue),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "SetValueNoFire", InputSetValueNoFire),
+	DEFINE_INPUTFUNC(FIELD_VOID, "GetValue", InputGetValue),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "ContainsBits", InputContainsBits),
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "ContainsAllBits", InputContainsAllBits),
+
+	// Outputs
+	DEFINE_OUTPUT(m_OutValue, "OutValue"),
+	DEFINE_OUTPUT(m_OnGetValue, "OnGetValue"),
+	DEFINE_OUTPUT(m_OnTrue, "OnTrue"),
+	DEFINE_OUTPUT(m_OnFalse, "OnFalse"),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles key values from the BSP before spawn is called.
+//-----------------------------------------------------------------------------
+bool CMathBits::KeyValue(const char *szKeyName, const char *szValue)
+{
+	//
+	// Set the initial value of the counter.
+	//
+	if (!stricmp(szKeyName, "startvalue"))
+	{
+		m_OutValue.Init(atoi(szValue));
+		return(true);
+	}
+
+	return(BaseClass::KeyValue(szKeyName, szValue));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for adding to the accumulator value.
+// Input  : Bit value to add.
+//-----------------------------------------------------------------------------
+void CMathBits::InputAdd( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring ADD because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iNewValue = m_OutValue.Get() | inputdata.value.Int();
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for subtracting from the current value.
+// Input  : Bit value to subtract.
+//-----------------------------------------------------------------------------
+void CMathBits::InputSubtract( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring SUBTRACT because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iNewValue = m_OutValue.Get() & ~inputdata.value.Int();
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for shifting from the current value.
+// Input  : Bit value to shift by.
+//-----------------------------------------------------------------------------
+void CMathBits::InputShiftLeft( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring SHIFTLEFT because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iNewValue = m_OutValue.Get() << inputdata.value.Int();
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for shifting from the current value.
+// Input  : Bit value to shift by.
+//-----------------------------------------------------------------------------
+void CMathBits::InputShiftRight( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring SHIFTRIGHT because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iNewValue = m_OutValue.Get() >> inputdata.value.Int();
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for applying & to the current value.
+// Input  : Bit value to shift by.
+//-----------------------------------------------------------------------------
+void CMathBits::InputApplyAnd( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring APPLYAND because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iNewValue = m_OutValue.Get() & inputdata.value.Int();
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for applying | to the current value.
+// Input  : Bit value to shift by.
+//-----------------------------------------------------------------------------
+void CMathBits::InputApplyOr( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring APPLYOR because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	int iNewValue = m_OutValue.Get() | inputdata.value.Int();
+	UpdateOutValue( inputdata.pActivator, iNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for updating the value.
+// Input  : Bit value to set.
+//-----------------------------------------------------------------------------
+void CMathBits::InputSetValue( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring SETVALUE because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	UpdateOutValue( inputdata.pActivator, inputdata.value.Int() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for updating the value.
+// Input  : Bit value to set.
+//-----------------------------------------------------------------------------
+void CMathBits::InputSetValueNoFire( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring SETVALUENOFIRE because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	m_OutValue.Init( inputdata.value.Int() );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathBits::InputGetValue( inputdata_t &inputdata )
+{
+	int iOutValue = m_OutValue.Get();
+	m_OnGetValue.Set( iOutValue, inputdata.pActivator, inputdata.pCaller );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for checking whether a bit is stored.
+// Input  : Bit value to check.
+//-----------------------------------------------------------------------------
+void CMathBits::InputContainsBits( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring CONTAINS BITS because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	if (m_OutValue.Get() & inputdata.value.Int())
+		m_OnTrue.FireOutput(inputdata.pActivator, this);
+	else
+		m_OnFalse.FireOutput(inputdata.pActivator, this);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for checking whether all of the specified bits are stored.
+// Input  : Bit value to check.
+//-----------------------------------------------------------------------------
+void CMathBits::InputContainsAllBits( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Bits %s ignoring CONTAINS ALL BITS because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	bool bResult = false;
+	int iInput = inputdata.value.Int();
+	int iValue = m_OutValue.Get();
+
+	for (int i = 1, n = 0; n < 32; (i <<= 1), n++)
+	{
+		DevMsg("%i\n", i);
+		if (iInput & i)
+		{
+			if (!(iValue & i))
+			{
+				DevMsg("%i does not go into %i\n", i, iValue);
+				bResult = false;
+				break;
+			}
+			else if (!bResult)
+			{
+				bResult = true;
+			}
+		}
+	}
+
+	if (bResult)
+		m_OnTrue.FireOutput(inputdata.pActivator, this);
+	else
+		m_OnFalse.FireOutput(inputdata.pActivator, this);
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathBits::InputEnable( inputdata_t &inputdata )
+{
+	m_bDisabled = false;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathBits::InputDisable( inputdata_t &inputdata )
+{
+	m_bDisabled = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the value to the new value, firing the output value.
+// Input  : iNewValue - Value to set.
+//-----------------------------------------------------------------------------
+void CMathBits::UpdateOutValue(CBaseEntity *pActivator, int iNewValue)
+{
+	m_OutValue.Set(iNewValue, pActivator, this);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Draw any debug text overlays
+// Input  :
+// Output : Current text offset from the top
+//-----------------------------------------------------------------------------
+int CMathBits::DrawDebugTextOverlays( void ) 
+{
+	int text_offset = BaseClass::DrawDebugTextOverlays();
+
+	if (m_debugOverlays & OVERLAY_TEXT_BIT) 
+	{
+		char tempstr[512];
+
+		Q_snprintf(tempstr,sizeof(tempstr),"current value: %i", m_OutValue.Get());
+		EntityText(text_offset,tempstr,0);
+		text_offset++;
+
+		if( m_bDisabled )
+		{	
+			Q_snprintf(tempstr,sizeof(tempstr),"*DISABLED*");		
+		}
+		else
+		{
+			Q_snprintf(tempstr,sizeof(tempstr),"Enabled.");
+		}
+		EntityText(text_offset,tempstr,0);
+		text_offset++;
+
+	}
+	return text_offset;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Vector calculations.
+//-----------------------------------------------------------------------------
+class CMathVector : public CLogicalEntity
+{
+	DECLARE_CLASS( CMathVector, CLogicalEntity );
+private:
+
+	bool m_bDisabled;
+
+	bool KeyValue(const char *szKeyName, const char *szValue);
+	bool KeyValue( const char *szKeyName, const Vector &vecValue );
+
+	void UpdateOutValue(CBaseEntity *pActivator, Vector &vecNewValue);
+
+	int DrawDebugTextOverlays(void);
+
+	// Inputs
+	void InputAdd( inputdata_t &inputdata );
+	void InputSubtract( inputdata_t &inputdata );
+	void InputDivide( inputdata_t &inputdata );
+	void InputMultiply( inputdata_t &inputdata );
+	void InputSetValue( inputdata_t &inputdata );
+	void InputSetValueNoFire( inputdata_t &inputdata );
+	void InputGetValue( inputdata_t &inputdata );
+	void InputEnable( inputdata_t &inputdata );
+	void InputDisable( inputdata_t &inputdata );
+
+	void InputNormalize( inputdata_t &inputdata );
+
+	void SetCoordinate(float value, char coord, CBaseEntity *pActivator);
+	void GetCoordinate(char coord, CBaseEntity *pActivator);
+	void AddCoordinate(float value, char coord, CBaseEntity *pActivator);
+	void SubtractCoordinate(float value, char coord, CBaseEntity *pActivator);
+
+	void InputSetX( inputdata_t &inputdata ) { SetCoordinate(inputdata.value.Float(), 'X', inputdata.pActivator); }
+	void InputSetY( inputdata_t &inputdata ) { SetCoordinate(inputdata.value.Float(), 'Y', inputdata.pActivator); }
+	void InputSetZ( inputdata_t &inputdata ) { SetCoordinate(inputdata.value.Float(), 'Z', inputdata.pActivator); }
+	void InputGetX( inputdata_t &inputdata ) { GetCoordinate('X', inputdata.pActivator); }
+	void InputGetY( inputdata_t &inputdata ) { GetCoordinate('Y', inputdata.pActivator); }
+	void InputGetZ( inputdata_t &inputdata ) { GetCoordinate('Z', inputdata.pActivator); }
+	void InputAddX( inputdata_t &inputdata ) { AddCoordinate(inputdata.value.Float(), 'X', inputdata.pActivator); }
+	void InputAddY( inputdata_t &inputdata ) { AddCoordinate(inputdata.value.Float(), 'Y', inputdata.pActivator); }
+	void InputAddZ( inputdata_t &inputdata ) { AddCoordinate(inputdata.value.Float(), 'Z', inputdata.pActivator); }
+	void InputSubtractX( inputdata_t &inputdata ) { SubtractCoordinate(inputdata.value.Float(), 'X', inputdata.pActivator); }
+	void InputSubtractY( inputdata_t &inputdata ) { SubtractCoordinate(inputdata.value.Float(), 'Y', inputdata.pActivator); }
+	void InputSubtractZ( inputdata_t &inputdata ) { SubtractCoordinate(inputdata.value.Float(), 'Z', inputdata.pActivator); }
+
+	// Outputs
+	COutputVector m_OutValue;
+	COutputFloat m_OutX;
+	COutputFloat m_OutY;
+	COutputFloat m_OutZ;
+
+	COutputVector m_OnGetValue;
+	COutputFloat m_OnGetX;
+	COutputFloat m_OnGetY;
+	COutputFloat m_OnGetZ;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(math_vector, CMathVector);
+
+
+BEGIN_DATADESC( CMathVector )
+
+	// Keys
+	DEFINE_KEYFIELD(m_bDisabled, FIELD_BOOLEAN, "StartDisabled" ),
+
+	// Inputs
+	DEFINE_INPUTFUNC(FIELD_VECTOR, "Add", InputAdd),
+	DEFINE_INPUTFUNC(FIELD_VECTOR, "Subtract", InputSubtract),
+	DEFINE_INPUTFUNC(FIELD_VECTOR, "Divide", InputDivide),
+	DEFINE_INPUTFUNC(FIELD_VECTOR, "Multiply", InputMultiply),
+	DEFINE_INPUTFUNC(FIELD_VECTOR, "SetValue", InputSetValue),
+	DEFINE_INPUTFUNC(FIELD_VECTOR, "SetValueNoFire", InputSetValueNoFire),
+	DEFINE_INPUTFUNC(FIELD_VOID, "GetValue", InputGetValue),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+
+	DEFINE_INPUTFUNC(FIELD_VOID, "Normalize", InputNormalize),
+
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetX", InputSetX),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetY", InputSetY),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetZ", InputSetZ),
+	DEFINE_INPUTFUNC(FIELD_VOID, "GetX", InputGetX),
+	DEFINE_INPUTFUNC(FIELD_VOID, "GetY", InputGetY),
+	DEFINE_INPUTFUNC(FIELD_VOID, "GetZ", InputGetZ),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "AddX", InputAddX),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "AddY", InputAddY),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "AddZ", InputAddZ),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SubtractX", InputSubtractX),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SubtractY", InputSubtractY),
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "SubtractZ", InputSubtractZ),
+
+	// Outputs
+	DEFINE_OUTPUT(m_OutValue, "OutValue"),
+	DEFINE_OUTPUT(m_OutX, "OutX"),
+	DEFINE_OUTPUT(m_OutY, "OutY"),
+	DEFINE_OUTPUT(m_OutZ, "OutZ"),
+
+	DEFINE_OUTPUT(m_OnGetValue, "OnGetValue"),
+	DEFINE_OUTPUT(m_OnGetX, "OnGetX"),
+	DEFINE_OUTPUT(m_OnGetY, "OnGetY"),
+	DEFINE_OUTPUT(m_OnGetZ, "OnGetZ"),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles key values from the BSP before spawn is called.
+//-----------------------------------------------------------------------------
+bool CMathVector::KeyValue(const char *szKeyName, const char *szValue)
+{
+	//
+	// Set the initial value of the counter.
+	//
+	if (!stricmp(szKeyName, "startvalue"))
+	{
+		Vector vec;
+		UTIL_StringToVector( vec.Base(), szValue );
+		m_OutValue.Init(vec);
+		return(true);
+	}
+
+	return(BaseClass::KeyValue(szKeyName, szValue));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles key values from the BSP before spawn is called.
+//-----------------------------------------------------------------------------
+bool CMathVector::KeyValue( const char *szKeyName, const Vector &vecValue ) 
+{
+	//
+	// Set the initial value of the counter.
+	//
+	if (!stricmp(szKeyName, "startvalue"))
+	{
+		m_OutValue.Init(vecValue);
+		return true;
+	}
+
+	// So, CLogicalEntity descends from CBaseEntity...
+	// Yup.
+	// ...and CBaseEntity has a version of KeyValue that takes vectors.
+	// Yup.
+	// Since it's virtual, I could easily override it just like I could with a KeyValue that takes strings, right?
+	// Sounds right to me.
+	// So let me override it.
+	// *No suitable function exists*
+	return CBaseEntity::KeyValue(szKeyName, vecValue);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for adding to the accumulator value.
+// Input  : Bit value to add.
+//-----------------------------------------------------------------------------
+void CMathVector::InputAdd( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring ADD because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector vec;
+	inputdata.value.Vector3D(vec);
+	Vector cur;
+	m_OutValue.Get(cur);
+	UpdateOutValue( inputdata.pActivator, cur + vec );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for subtracting from the current value.
+// Input  : Bit value to subtract.
+//-----------------------------------------------------------------------------
+void CMathVector::InputSubtract( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring SUBTRACT because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector vec;
+	inputdata.value.Vector3D(vec);
+	Vector cur;
+	m_OutValue.Get(cur);
+	UpdateOutValue( inputdata.pActivator, cur - vec );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for multiplying the current value.
+// Input  : Float value to multiply the value by.
+//-----------------------------------------------------------------------------
+void CMathVector::InputDivide( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring DIVIDE because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector vec;
+	inputdata.value.Vector3D(vec);
+	Vector cur;
+	m_OutValue.Get(cur);
+
+	if (vec.x != 0)
+		cur.x /= vec.x;
+	if (vec.y != 0)
+		cur.y /= vec.y;
+	if (vec.z != 0)
+		cur.z /= vec.z;
+
+	UpdateOutValue( inputdata.pActivator, cur );
+
+	//if (vec.x != 0 && vec.y != 0 && vec.z != 0)
+	//{
+	//	UpdateOutValue( inputdata.pActivator, cur / vec );
+	//}
+	//else
+	//{
+	//	DevMsg( 1, "LEVEL DESIGN ERROR: Divide by zero in math_vector\n" );
+	//	UpdateOutValue( inputdata.pActivator, cur );
+	//}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for multiplying the current value.
+// Input  : Float value to multiply the value by.
+//-----------------------------------------------------------------------------
+void CMathVector::InputMultiply( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring MULTIPLY because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector vec;
+	inputdata.value.Vector3D(vec);
+	Vector cur;
+	m_OutValue.Get(cur);
+	UpdateOutValue( inputdata.pActivator, cur * vec );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for updating the value.
+// Input  : Bit value to set.
+//-----------------------------------------------------------------------------
+void CMathVector::InputSetValue( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring SETVALUE because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector vec;
+	inputdata.value.Vector3D(vec);
+	UpdateOutValue( inputdata.pActivator, vec );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for updating the value.
+// Input  : Bit value to set.
+//-----------------------------------------------------------------------------
+void CMathVector::InputSetValueNoFire( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring SETVALUENOFIRE because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector vec;
+	inputdata.value.Vector3D(vec);
+	m_OutValue.Init( vec );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputGetValue( inputdata_t &inputdata )
+{
+	Vector cur;
+	m_OutValue.Get(cur);
+	m_OnGetValue.Set( cur, inputdata.pActivator, inputdata.pCaller );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputEnable( inputdata_t &inputdata )
+{
+	m_bDisabled = false;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputDisable( inputdata_t &inputdata )
+{
+	m_bDisabled = true;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputNormalize( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring NORMALIZE because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector cur;
+	m_OutValue.Get(cur);
+	VectorNormalize(cur);
+	UpdateOutValue( inputdata.pActivator, cur );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::SetCoordinate(float value, char coord, CBaseEntity *pActivator)
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring SET%c because it is disabled\n", GetDebugName(), coord );
+		return;
+	}
+
+	Vector vec;
+	m_OutValue.Get(vec);
+	switch (coord)
+	{
+		case 'X':	vec.x = value; break;
+		case 'Y':	vec.y = value; break;
+		case 'Z':	vec.z = value; break;
+	}
+	UpdateOutValue( pActivator, vec );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::GetCoordinate(char coord, CBaseEntity *pActivator)
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring SET%c because it is disabled\n", GetDebugName(), coord );
+		return;
+	}
+
+	Vector vec;
+	m_OutValue.Get(vec);
+	switch (coord)
+	{
+		case 'X':	m_OnGetX.Set(vec.x, pActivator, this); break;
+		case 'Y':	m_OnGetY.Set(vec.y, pActivator, this); break;
+		case 'Z':	m_OnGetZ.Set(vec.z, pActivator, this); break;
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::AddCoordinate(float value, char coord, CBaseEntity *pActivator)
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring ADD%c because it is disabled\n", GetDebugName(), coord );
+		return;
+	}
+
+	Vector vec;
+	m_OutValue.Get(vec);
+	switch (coord)
+	{
+		case 'X':	vec.x += value; break;
+		case 'Y':	vec.y += value; break;
+		case 'Z':	vec.z += value; break;
+	}
+	UpdateOutValue( pActivator, vec );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::SubtractCoordinate(float value, char coord, CBaseEntity *pActivator)
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring SUBTRACT%c because it is disabled\n", GetDebugName(), coord );
+		return;
+	}
+
+	Vector vec;
+	m_OutValue.Get(vec);
+	switch (coord)
+	{
+		case 'X':	vec.x += value; break;
+		case 'Y':	vec.y += value; break;
+		case 'Z':	vec.z += value; break;
+	}
+	UpdateOutValue( pActivator, vec );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the value to the new value, firing the output value.
+// Input  : vecNewValue - Value to set.
+//-----------------------------------------------------------------------------
+void CMathVector::UpdateOutValue(CBaseEntity *pActivator, Vector &vecNewValue)
+{
+	m_OutValue.Set(vecNewValue, pActivator, this);
+
+	m_OutX.Set(vecNewValue.x, pActivator, this);
+	m_OutY.Set(vecNewValue.y, pActivator, this);
+	m_OutZ.Set(vecNewValue.z, pActivator, this);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Draw any debug text overlays
+// Input  :
+// Output : Current text offset from the top
+//-----------------------------------------------------------------------------
+int CMathVector::DrawDebugTextOverlays( void ) 
+{
+	int text_offset = BaseClass::DrawDebugTextOverlays();
+
+	if (m_debugOverlays & OVERLAY_TEXT_BIT) 
+	{
+		char tempstr[512];
+		Vector cur;
+		m_OutValue.Get(cur);
+
+		Q_snprintf(tempstr, sizeof(tempstr), "current value: [%g %g %g]", (double)cur[0], (double)cur[1], (double)cur[2]);
+		EntityText(text_offset,tempstr,0);
+		text_offset++;
+
+		if( m_bDisabled )
+		{	
+			Q_snprintf(tempstr,sizeof(tempstr),"*DISABLED*");		
+		}
+		else
+		{
+			Q_snprintf(tempstr,sizeof(tempstr),"Enabled.");
+		}
+		EntityText(text_offset,tempstr,0);
+		text_offset++;
+
+	}
+	return text_offset;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Accesses/modifies any field in a datadesc based on its internal name.
+//			Oh boy.
+//-----------------------------------------------------------------------------
+class CLogicFieldAccessor : public CLogicKeyfieldAccessor
+{
+	DECLARE_CLASS(CLogicFieldAccessor, CLogicKeyfieldAccessor);
+
+private:
+	bool TestKey(CBaseEntity *pTarget, const char *szKeyName);
+	bool SetKeyValue(CBaseEntity *pTarget, const char *szKeyName, const char *szValue);
+	bool SetKeyValueBits(CBaseEntity *pTarget, const char *szKeyName, int iValue, bool bRemove = false);
+
+	//DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(logic_datadesc_accessor, CLogicFieldAccessor);
+
+
+//BEGIN_DATADESC(CLogicFieldAccessor)
+
+//END_DATADESC()
+
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CLogicFieldAccessor::TestKey(CBaseEntity *pTarget, const char *szKeyName)
+{
+	variant_t var;
+	for ( datamap_t *dmap = pTarget->GetDataDescMap(); dmap != NULL; dmap = dmap->baseMap )
+	{
+		// search through all the readable fields in the data description, looking for a match
+		for ( int i = 0; i < dmap->dataNumFields; i++ )
+		{
+			if ( dmap->dataDesc[i].flags & (FTYPEDESC_SAVE | FTYPEDESC_KEY) )
+			{
+				DevMsg("Field Name: %s,\n", dmap->dataDesc[i].fieldName);
+				if ( Matcher_NamesMatch(szKeyName, dmap->dataDesc[i].fieldName) )
+				{
+					fieldtype_t fieldtype = dmap->dataDesc[i].fieldType;
+					switch (fieldtype)
+					{
+						case FIELD_TIME:		fieldtype = FIELD_FLOAT; break;
+						case FIELD_MODELNAME:	fieldtype = FIELD_STRING; break;
+						case FIELD_SOUNDNAME:	fieldtype = FIELD_STRING; break;
+						// There's definitely more of them. Add when demand becomes prevalent
+					}
+
+					var.Set( fieldtype, ((char*)pTarget) + dmap->dataDesc[i].fieldOffset[ TD_OFFSET_NORMAL ] );
+					DevMsg("FIELD TYPE: %i\n", fieldtype);
+					m_OutValue.Set(var, pTarget, this);
+					return true;
+				}
+			}
+		}
+	}
+
+	m_OnFailed.FireOutput(pTarget, this);
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CLogicFieldAccessor::SetKeyValue(CBaseEntity *pTarget, const char *szKeyName, const char *szValue)
+{
+	for ( datamap_t *dmap = pTarget->GetDataDescMap(); dmap != NULL; dmap = dmap->baseMap )
+	{
+		// search through all the readable fields in the data description, looking for a match
+		for ( int i = 0; i < dmap->dataNumFields; i++ )
+		{
+			if ( dmap->dataDesc[i].flags & (FTYPEDESC_SAVE | FTYPEDESC_KEY) )
+			{
+				DevMsg("Field Name: %s,\n", dmap->dataDesc[i].fieldName);
+				if ( Matcher_NamesMatch(szKeyName, dmap->dataDesc[i].fieldName) )
+				{
+					// Copied from ::ParseKeyvalue...
+					fieldtype_t fieldtype = FIELD_VOID;
+					typedescription_t *pField = &dmap->dataDesc[i];
+					char *data = Datadesc_SetFieldString( szValue, pTarget, pField, &fieldtype );
+
+					if (!data)
+					{
+						Warning( "%s cannot set field of type %i.\n", GetDebugName(), dmap->dataDesc[i].fieldType );
+					}
+					else if (fieldtype != FIELD_VOID)
+					{
+						variant_t var;
+						var.Set(fieldtype, data);
+						m_OutValue.Set(var, pTarget, this);
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	m_OnFailed.FireOutput(pTarget, this);
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CLogicFieldAccessor::SetKeyValueBits(CBaseEntity *pTarget, const char *szKeyName, int iValue, bool bRemove)
+{
+	variant_t var;
+	for ( datamap_t *dmap = pTarget->GetDataDescMap(); dmap != NULL; dmap = dmap->baseMap )
+	{
+		// search through all the readable fields in the data description, looking for a match
+		for ( int i = 0; i < dmap->dataNumFields; i++ )
+		{
+			if ( dmap->dataDesc[i].flags & (FTYPEDESC_SAVE | FTYPEDESC_KEY) )
+			{
+				DevMsg("Field Name: %s,\n", dmap->dataDesc[i].fieldName);
+				if ( Matcher_NamesMatch(szKeyName, dmap->dataDesc[i].fieldName) )
+				{
+					fieldtype_t fieldtype = dmap->dataDesc[i].fieldType;
+					if (fieldtype != FIELD_INTEGER)
+						break;
+
+					var.Set( fieldtype, ((char*)pTarget) + dmap->dataDesc[i].fieldOffset[ TD_OFFSET_NORMAL ] );
+
+					if (bRemove)
+						var.SetInt(var.Int() & ~iValue);
+					else
+						var.SetInt(var.Int() | iValue);
+
+					DevMsg("FIELD TYPE: %i\n", fieldtype);
+					m_OutValue.Set(var, pTarget, this);
+					return true;
+				}
+			}
+		}
+	}
+
+	m_OnFailed.FireOutput(pTarget, this);
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Passes global variables, like curtime.
+//-----------------------------------------------------------------------------
+class CGameGlobalVars : public CLogicalEntity
+{
+	DECLARE_CLASS( CGameGlobalVars, CLogicalEntity );
+private:
+
+	// Inputs
+	void InputGetCurtime( inputdata_t &inputdata ) { m_OutCurtime.Set(gpGlobals->curtime, inputdata.pActivator, this); }
+	void InputGetFrameCount( inputdata_t &inputdata ) { m_OutFrameCount.Set(gpGlobals->framecount, inputdata.pActivator, this); }
+	void InputGetFrametime( inputdata_t &inputdata ) { m_OutFrametime.Set(gpGlobals->frametime, inputdata.pActivator, this); }
+	void InputGetTickCount( inputdata_t &inputdata ) { m_OutTickCount.Set(gpGlobals->tickcount, inputdata.pActivator, this); }
+	void InputGetIntervalPerTick( inputdata_t &inputdata ) { m_OutIntervalPerTick.Set(gpGlobals->interval_per_tick, inputdata.pActivator, this); }
+
+	// Outputs
+	COutputFloat m_OutCurtime;
+	COutputInt m_OutFrameCount;
+	COutputFloat m_OutFrametime;
+	COutputInt m_OutTickCount;
+	COutputInt m_OutIntervalPerTick;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(game_globalvars, CGameGlobalVars);
+
+
+BEGIN_DATADESC( CGameGlobalVars )
+
+	// Inputs
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetCurtime", InputGetCurtime ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetFrameCount", InputGetFrameCount ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetFrametime", InputGetFrametime ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetTickCount", InputGetTickCount ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetIntervalPerTick", InputGetIntervalPerTick ),
+
+	// Outputs
+	DEFINE_OUTPUT(m_OutCurtime, "OutCurtime"),
+	DEFINE_OUTPUT(m_OutFrameCount, "OutFrameCount"),
+	DEFINE_OUTPUT(m_OutFrametime, "OutFrametime"),
+	DEFINE_OUTPUT(m_OutTickCount, "OutTickCount"),
+	DEFINE_OUTPUT(m_OutIntervalPerTick, "OutIntervalPerTick"),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//void CGameGlobalVars::InputGetCurtime( inputdata_t &inputdata )
+//{
+//	m_OutCurtime.Set(gpGlobals->curtime, inputdata.pActivator, this);
+//}
+
+
+#define MathModCalc(val1, val2, op) \
+	switch (op) \
+	{ \
+		case '+':	val1 += val2; break; \
+		case '-':	val1 -= val2; break; \
+		case '*':	val1 *= val2; break; \
+		case '/':	val1 /= val2; break; \
+	} \
+
+//-----------------------------------------------------------------------------
+// Purpose: Modifies values on the fly.
+//-----------------------------------------------------------------------------
+class CMathMod : public CLogicalEntity
+{
+	DECLARE_CLASS( CMathMod, CLogicalEntity );
+private:
+
+	bool KeyValue(const char *szKeyName, const char *szValue);
+
+	// Inputs
+	void InputSetMod( inputdata_t &inputdata );
+	void InputSetOperator( inputdata_t &inputdata );
+
+	void InputModInt( inputdata_t &inputdata );
+	void InputModFloat( inputdata_t &inputdata );
+	void InputModVector( inputdata_t &inputdata );
+
+	// Outputs
+	COutputInt m_OutInt;
+	COutputFloat m_OutFloat;
+	COutputVector m_OutVector;
+
+	int m_Operator;
+
+	variant_t m_Mod;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(math_mod, CMathMod);
+
+
+BEGIN_DATADESC( CMathMod )
+
+	DEFINE_KEYFIELD( m_Operator, FIELD_INTEGER, "SetOperator" ),
+
+	// Inputs
+	DEFINE_INPUTFUNC( FIELD_INPUT, "SetMod", InputSetMod ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetOperator", InputSetOperator ),
+
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "ModInt", InputModInt ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "ModFloat", InputModFloat ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "ModVector", InputModVector ),
+
+	// Outputs
+	DEFINE_OUTPUT(m_OutInt, "OutInt"),
+	DEFINE_OUTPUT(m_OutFloat, "OutFloat"),
+	DEFINE_OUTPUT(m_OutVector, "OutVector"),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles key values from the BSP before spawn is called.
+//-----------------------------------------------------------------------------
+bool CMathMod::KeyValue(const char *szKeyName, const char *szValue)
+{
+	if (!stricmp(szKeyName, "startvalue"))
+	{
+		// It converts later anyway
+		m_Mod.SetString(AllocPooledString(szValue));
+		return true;
+	}
+
+	return BaseClass::KeyValue(szKeyName, szValue);
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathMod::InputSetMod( inputdata_t &inputdata )
+{
+	m_Mod = inputdata.value;
+	//if (inputdata.value.FieldType() == FIELD_STRING)
+	//	m_Mod = Variant_Parse(inputdata.value.String());
+	//else
+	//	m_Mod = inputdata.value;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathMod::InputSetOperator( inputdata_t &inputdata )
+{
+	m_Operator = inputdata.value.String()[0];
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathMod::InputModInt( inputdata_t &inputdata )
+{
+	m_Mod.Convert(FIELD_INTEGER);
+
+	DevMsg("Operator is %c you see\n", m_Operator);
+
+	int out = inputdata.value.Int();
+	MathModCalc(out, m_Mod.Int(), m_Operator);
+
+	m_OutInt.Set( out, inputdata.pActivator, this );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathMod::InputModFloat( inputdata_t &inputdata )
+{
+	m_Mod.Convert(FIELD_FLOAT);
+
+	float out = inputdata.value.Float();
+	MathModCalc(out, m_Mod.Float(), m_Operator);
+
+	m_OutFloat.Set( out, inputdata.pActivator, this );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathMod::InputModVector( inputdata_t &inputdata )
+{
+	m_Mod.Convert(FIELD_VECTOR);
+
+	Vector out;
+	inputdata.value.Vector3D(out);
+	Vector mod;
+	m_Mod.Vector3D(mod);
+	MathModCalc(out, mod, m_Operator);
+
+	m_OutVector.Set( out, inputdata.pActivator, this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Gets an entity's model information.
+//-----------------------------------------------------------------------------
+class CLogicModelInfo : public CLogicalEntity
+{
+	DECLARE_CLASS( CLogicModelInfo, CLogicalEntity );
+private:
+
+	CBaseAnimating *GetTarget(inputdata_t &inputdata);
+
+	// Inputs
+	//void InputSetTarget( inputdata_t &inputdata ) { BaseClass::InputSetTarget(inputdata); m_hTarget = NULL; }
+	void InputGetNumSkins( inputdata_t &inputdata );
+	void InputLookupSequence( inputdata_t &inputdata );
+
+	// Outputs
+	COutputInt m_OutNumSkins;
+	COutputInt m_OnHasSequence;
+	COutputEvent m_OnLacksSequence;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(logic_modelinfo, CLogicModelInfo);
+
+
+BEGIN_DATADESC( CLogicModelInfo )
+
+	// Inputs
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetNumSkins", InputGetNumSkins ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "LookupSequence", InputLookupSequence ),
+
+	// Outputs
+	DEFINE_OUTPUT(m_OutNumSkins, "OutNumSkins"),
+	DEFINE_OUTPUT(m_OnHasSequence, "OnHasSequence"),
+	DEFINE_OUTPUT(m_OnLacksSequence, "OnLacksSequence"),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+inline CBaseAnimating *CLogicModelInfo::GetTarget(inputdata_t &inputdata)
+{
+	CBaseEntity *pEntity = gEntList.FindEntityByName(NULL, STRING(m_target), this, inputdata.pActivator, inputdata.pCaller);
+	if (!pEntity || !pEntity->GetBaseAnimating())
+		return NULL;
+	return pEntity->GetBaseAnimating();
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicModelInfo::InputGetNumSkins( inputdata_t &inputdata )
+{
+	CBaseAnimating *pAnimating = GetTarget(inputdata);
+	if (pAnimating && pAnimating->GetModelPtr())
+	{
+		m_OutNumSkins.Set(pAnimating->GetModelPtr()->numskinfamilies(), pAnimating, this);
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicModelInfo::InputLookupSequence( inputdata_t &inputdata )
+{
+	CBaseAnimating *pAnimating = GetTarget(inputdata);
+	if (pAnimating && pAnimating->GetModelPtr())
+	{
+		int index = pAnimating->LookupSequence(inputdata.value.String());
+
+		if (index != ACT_INVALID)
+			m_OnHasSequence.Set(index, pAnimating, this);
+		else
+			m_OnLacksSequence.FireOutput(pAnimating, this);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Checks and calculates an entity's position.
+//-----------------------------------------------------------------------------
+class CLogicEntityPosition : public CLogicalEntity
+{
+	DECLARE_CLASS( CLogicEntityPosition, CLogicalEntity );
+private:
+	EHANDLE m_hTarget;
+
+	int m_iPositionType;
+	enum
+	{
+		POSITION_ORIGIN = 0,
+		POSITION_LOCAL,
+		POSITION_BBOX,
+		POSITION_EYES,
+		POSITION_EARS,
+		POSITION_ATTACHMENT,
+	};
+
+	// Something that accompanies the position type, like an attachment name.
+	string_t m_iszPositionParameter;
+
+	CBaseEntity *GetTarget(CBaseEntity *pActivator, CBaseEntity *pCaller);
+
+	Vector GetPosition(CBaseEntity *pEntity);
+
+	// Inputs
+	void InputGetPosition( inputdata_t &inputdata );
+	void InputSetPosition( inputdata_t &inputdata );
+	void InputPredictPosition( inputdata_t &inputdata );
+
+	void InputSetTarget( inputdata_t &inputdata ) { BaseClass::InputSetTarget(inputdata); m_hTarget = NULL; }
+
+	// Outputs
+	COutputVector m_OutPosition;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(logic_entity_position, CLogicEntityPosition);
+
+BEGIN_DATADESC( CLogicEntityPosition )
+
+	// Keys
+	DEFINE_FIELD( m_hTarget, FIELD_EHANDLE ),
+	DEFINE_KEYFIELD( m_iPositionType, FIELD_INTEGER, "PositionType" ),
+	DEFINE_KEYFIELD( m_iszPositionParameter, FIELD_STRING, "PositionParameter" ),
+
+	// Inputs
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetPosition", InputGetPosition ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetPosition", InputSetPosition ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "PredictPosition", InputPredictPosition ),
+
+	// Outputs
+	DEFINE_OUTPUT(m_OutPosition, "OutPosition"),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+inline CBaseEntity *CLogicEntityPosition::GetTarget(CBaseEntity *pActivator, CBaseEntity *pCaller)
+{
+	// Always reset with procedurals
+	if (!m_hTarget || STRING(m_target)[0] == '!')
+		m_hTarget = gEntList.FindEntityByName(NULL, STRING(m_target), this, pActivator, pCaller);
+	return m_hTarget.Get();
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+Vector CLogicEntityPosition::GetPosition(CBaseEntity *pEntity)
+{
+	Vector vecPosition = vec3_origin;
+	switch (m_iPositionType)
+	{
+		case POSITION_ORIGIN:			vecPosition = pEntity->GetAbsOrigin(); break;
+		case POSITION_LOCAL:			vecPosition = pEntity->GetLocalOrigin(); break;
+		case POSITION_BBOX:				vecPosition = pEntity->WorldSpaceCenter(); break;
+		case POSITION_EYES:				vecPosition = pEntity->EyePosition(); break;
+		case POSITION_EARS:				vecPosition = pEntity->EarPosition(); break;
+		case POSITION_ATTACHMENT:
+		{
+			CBaseAnimating *pAnimating = pEntity->GetBaseAnimating();
+			if (!pAnimating)
+			{
+				Warning("%s wants to measure one of %s's attachments, but %s doesn't support them!\n", GetDebugName(), pEntity->GetDebugName(), pEntity->GetDebugName());
+				break;
+			}
+
+			pAnimating->GetAttachment(STRING(m_iszPositionParameter), vecPosition);
+		} break;
+	}
+	return vecPosition;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicEntityPosition::InputGetPosition( inputdata_t &inputdata )
+{
+	CBaseEntity *pEntity = GetTarget(inputdata.pActivator, inputdata.pCaller);
+	if (!pEntity)
+		m_OutPosition.Set(vec3_origin, NULL, this);
+
+	m_OutPosition.Set(GetPosition(pEntity), pEntity, this);
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicEntityPosition::InputSetPosition( inputdata_t &inputdata )
+{
+	CBaseEntity *pEntity = GetTarget(inputdata.pActivator, inputdata.pCaller);
+	if (!pEntity)
+	{
+		Warning("%s can't find entity %s for SetPosition!\n", GetDebugName(), STRING(m_target));
+		return;
+	}
+
+	Vector vec;
+	inputdata.value.Vector3D(vec);
+
+	// If the position is local, they might want to move local origin instead
+	if (m_iPositionType == POSITION_LOCAL)
+		pEntity->SetLocalOrigin(vec);
+	else
+		pEntity->SetAbsOrigin(vec);
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicEntityPosition::InputPredictPosition( inputdata_t &inputdata )
+{
+	CBaseEntity *pEntity = GetTarget(inputdata.pActivator, inputdata.pCaller);
+	if (!pEntity)
+		m_OutPosition.Set(vec3_origin, NULL, this);
+
+	Vector vecPosition;
+	UTIL_PredictedPosition(pEntity, GetPosition(pEntity), inputdata.value.Float(), &vecPosition);
+
+	m_OutPosition.Set(vecPosition, pEntity, this);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Accesses context values
+//-----------------------------------------------------------------------------
+class CLogicContextAccessor : public CLogicalEntity
+{
+	DECLARE_CLASS(CLogicContextAccessor, CLogicalEntity);
+
+public:
+	CBaseEntity *GetTarget(CBaseEntity *pCaller, CBaseEntity *pActivator);
+
+	bool TestContext(CBaseEntity *pTarget, const char *szKeyName);
+	void SetContext(CBaseEntity *pTarget, const char *szKeyName, string_t szValue);
+
+	// Inputs
+	void InputTest(inputdata_t &inputdata);
+	void InputTestContext(inputdata_t &inputdata);
+	void InputTestTarget(inputdata_t &inputdata);
+
+	void InputSetContext(inputdata_t &inputdata);
+
+	void InputSetValue(inputdata_t &inputdata);
+
+	//bool ReadUnregisteredKeyfields(CBaseEntity *pTarget, const char *szKeyName, variant_t *variant);
+
+	COutputString m_OutValue;
+	COutputEvent m_OnFailed;
+
+	string_t m_iszContext;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS(logic_context_accessor, CLogicContextAccessor);
+
+
+BEGIN_DATADESC(CLogicContextAccessor)
+
+DEFINE_KEYFIELD( m_iszContext, FIELD_STRING, "context" ),
+
+// Inputs
+DEFINE_INPUTFUNC(FIELD_VOID, "Test", InputTest),
+DEFINE_INPUTFUNC(FIELD_STRING, "TestContext", InputTestContext),
+DEFINE_INPUTFUNC(FIELD_STRING, "TestTarget", InputTestTarget),
+DEFINE_INPUTFUNC(FIELD_STRING, "SetContext", InputSetContext),
+DEFINE_INPUTFUNC(FIELD_STRING, "SetValue", InputSetValue),
+
+DEFINE_OUTPUT( m_OutValue, "OutValue" ),
+DEFINE_OUTPUT( m_OnFailed, "OnFailed" ),
+
+END_DATADESC()
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+inline CBaseEntity *CLogicContextAccessor::GetTarget(CBaseEntity *pCaller, CBaseEntity *pActivator)
+{
+	return gEntList.FindEntityByName(NULL, m_target, this, pActivator, pCaller);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CLogicContextAccessor::TestContext(CBaseEntity *pTarget, const char *szKeyName)
+{
+	int idx = pTarget->FindContextByName( szKeyName );
+	if ( idx != -1 )
+	{
+		m_OutValue.Set(FindPooledString(pTarget->GetContextValue(idx)), pTarget, this);
+		return true;
+	}
+	else
+	{
+		m_OnFailed.FireOutput(pTarget, this);
+		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicContextAccessor::SetContext(CBaseEntity *pTarget, const char *szKeyName, string_t szValue)
+{
+	pTarget->AddContext(szKeyName, STRING(szValue));
+
+	m_OutValue.Set(szValue, pTarget, this);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicContextAccessor::InputTest(inputdata_t &inputdata)
+{
+	CBaseEntity *pTarget = GetTarget(inputdata.pCaller, inputdata.pActivator);
+	if (pTarget && m_iszContext != NULL_STRING)
+	{
+		TestContext(pTarget, STRING(m_iszContext));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicContextAccessor::InputTestContext(inputdata_t &inputdata)
+{
+	const char *input = inputdata.value.String();
+	CBaseEntity *pTarget = GetTarget(inputdata.pCaller, inputdata.pActivator);
+	if (input && pTarget)
+	{
+		TestContext(pTarget, input);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicContextAccessor::InputTestTarget(inputdata_t &inputdata)
+{
+	m_target = inputdata.value.StringID();
+	CBaseEntity *pTarget = gEntList.FindEntityByName(NULL, inputdata.value.StringID(), this, inputdata.pCaller, inputdata.pActivator);
+	if (pTarget && m_iszContext != NULL_STRING)
+	{
+		TestContext(pTarget, STRING(m_iszContext));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicContextAccessor::InputSetContext(inputdata_t &inputdata)
+{
+	m_iszContext = inputdata.value.StringID();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicContextAccessor::InputSetValue(inputdata_t &inputdata)
+{
+	CBaseEntity *pTarget = GetTarget(inputdata.pCaller, inputdata.pActivator);
+	if (pTarget)
+	{
+		SetContext(pTarget, STRING(m_iszContext), inputdata.value.StringID());
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Replicates light pattern functionality.
+//-----------------------------------------------------------------------------
+class CMathLightPattern : public CLogicalEntity
+{
+	DECLARE_CLASS( CMathLightPattern, CLogicalEntity );
+private:
+
+
+	string_t m_iszPattern;
+
+	bool m_bDisabled;
+
+	void Spawn();
+	bool KeyValue( const char *szKeyName, const char *szValue );
+
+	void OutputCurPattern();
+
+	void StartPatternThink();
+	void PatternThink();
+	unsigned char m_NextLetter = 0;
+
+	// How fast the pattern should be
+	float m_flPatternSpeed = 0.1f;
+
+	inline bool VerifyPatternValid() { return (m_iszPattern != NULL_STRING && STRING( m_iszPattern )[0] != '\0'); }
+
+	// Inputs
+	void InputSetStyle( inputdata_t &inputdata );
+	void InputSetPattern( inputdata_t &inputdata );
+	void InputEnable( inputdata_t &inputdata );
+	void InputDisable( inputdata_t &inputdata );
+	void InputToggle( inputdata_t &inputdata );
+
+	// Outputs
+	COutputFloat m_OutValue;
+	COutputString m_OutLetter;
+	COutputEvent m_OnLightOn;
+	COutputEvent m_OnLightOff;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS( math_lightpattern, CMathLightPattern );
+
+BEGIN_DATADESC( CMathLightPattern )
+
+	// Keys
+	DEFINE_KEYFIELD(m_iszPattern, FIELD_STRING, "pattern"),
+	DEFINE_KEYFIELD(m_bDisabled, FIELD_BOOLEAN, "StartDisabled" ),
+	DEFINE_KEYFIELD(m_flPatternSpeed, FIELD_FLOAT, "PatternSpeed"),
+
+	// Inputs
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetStyle", InputSetStyle ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetPattern", InputSetPattern ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Toggle", InputToggle ),
+
+	// Outputs
+	DEFINE_OUTPUT(m_OutValue, "OutValue"),
+	DEFINE_OUTPUT(m_OutLetter, "OutLetter"),
+	DEFINE_OUTPUT(m_OnLightOn, "OnLightOn"),
+	DEFINE_OUTPUT(m_OnLightOff, "OnLightOff"),
+
+	DEFINE_THINKFUNC( PatternThink ),
+	DEFINE_FIELD( m_NextLetter, FIELD_CHARACTER ),
+
+END_DATADESC()
+
+extern const char *GetDefaultLightstyleString( int styleIndex );
+
+static const char *s_pLightPatternContext = "PatternContext";
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathLightPattern::Spawn()
+{
+	BaseClass::Spawn();
+
+	if (!m_bDisabled && VerifyPatternValid())
+		StartPatternThink();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathLightPattern::OutputCurPattern()
+{
+	// This code looks messy, but it does what it's supposed to and is safe enough.
+	// First, we get the next letter in the pattern sequence.
+	// Next, we calculate its integral proximity to the character 'a' (fully dark)
+	// and calculate its approximate brightness by dividing it by the number of letters in the alphabet other than a.
+	// We output that brightness value for things like projected textures and other custom intensity values
+	// so they could replicate the patterns of their corresponding vrad lights.
+	char cLetter = STRING(m_iszPattern)[m_NextLetter];
+	int iValue = (cLetter - 'a');
+	float flResult = iValue != 0 ? ((float)iValue / 25.0f) : 0.0f;
+	m_OutValue.Set(flResult, this, this);
+
+	// User-friendly "Light on, light off" outputs
+	if (flResult > 0)
+		m_OnLightOn.FireOutput(this, this);
+	else
+		m_OnLightOff.FireOutput(this, this);
+
+	// Create a string with cLetter and a null terminator.
+	char szLetter[2] = { cLetter, '\0' };
+	m_OutLetter.Set( AllocPooledString(szLetter), this, this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathLightPattern::StartPatternThink()
+{
+	// Output our current/next one immediately.
+	OutputCurPattern();
+
+	// Start thinking now.
+	SetContextThink( &CMathLightPattern::PatternThink, gpGlobals->curtime, s_pLightPatternContext );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathLightPattern::PatternThink()
+{
+	// Output our current/next one
+	OutputCurPattern();
+
+	// Increment
+	m_NextLetter++;
+	if (STRING(m_iszPattern)[m_NextLetter] == '\0')
+		m_NextLetter = 0;
+
+	//m_OutLetter.Set(AllocPooledString(UTIL_VarArgs("%c", m_NextLetter)), this, this);
+
+	SetNextThink( gpGlobals->curtime + m_flPatternSpeed, s_pLightPatternContext );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CMathLightPattern::KeyValue( const char *szKeyName, const char *szValue )
+{
+	if ( FStrEq( szKeyName, "style" ) )
+	{
+		m_iszPattern = AllocPooledString(GetDefaultLightstyleString(atoi(szValue)));
+	}
+	else
+		return BaseClass::KeyValue( szKeyName, szValue );
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathLightPattern::InputSetStyle( inputdata_t &inputdata )
+{
+	m_iszPattern = AllocPooledString(GetDefaultLightstyleString(inputdata.value.Int()));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathLightPattern::InputSetPattern( inputdata_t &inputdata )
+{
+	m_iszPattern = inputdata.value.StringID();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathLightPattern::InputEnable( inputdata_t &inputdata )
+{
+	if (VerifyPatternValid())
+		StartPatternThink();
+	else
+		Warning("%s tried to enable without valid pattern\n", GetDebugName());
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathLightPattern::InputDisable( inputdata_t &inputdata )
+{
+	SetContextThink( NULL, TICK_NEVER_THINK, s_pLightPatternContext );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathLightPattern::InputToggle( inputdata_t &inputdata )
+{
+	if (GetNextThink(s_pLightPatternContext) != TICK_NEVER_THINK)
+		InputDisable(inputdata);
+	else
+		InputEnable(inputdata);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sequences for keypads, etc.
+//-----------------------------------------------------------------------------
+#define MAX_SEQUENCE_CASES 16
+
+class CLogicSequence : public CLogicalEntity
+{
+	DECLARE_CLASS( CLogicSequence, CLogicalEntity );
+public:
+	CLogicSequence();
+
+	void Activate();
+
+	bool KeyValue( const char *szKeyName, const char *szValue );
+
+	void TestCase( int iCase, string_t iszValue, CBaseEntity *pActivator );
+	void SequenceComplete( string_t iszValue, CBaseEntity *pActivator );
+
+private:
+	string_t	m_iszCase[MAX_SEQUENCE_CASES];
+	int			m_iNumCases;
+
+	bool m_bDisabled;
+
+	bool m_bDontIncrementOnPass;
+
+	// Inputs
+	void InputEnable( inputdata_t &inputdata );
+	void InputDisable( inputdata_t &inputdata );
+	void InputToggle( inputdata_t &inputdata );
+	void InputInValue( inputdata_t &inputdata );
+	void InputSetCurrentCase( inputdata_t &inputdata );
+	void InputSetCurrentCaseNoFire( inputdata_t &inputdata );
+	void InputIncrementSequence( inputdata_t &inputdata );
+	void InputResetSequence( inputdata_t &inputdata );
+
+	// Outputs
+	COutputInt		m_CurCase;
+	COutputString	m_OnCasePass;
+	COutputString	m_OnCaseFail;
+	COutputString	m_OnSequenceComplete;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS( logic_sequence, CLogicSequence );
+
+
+BEGIN_DATADESC( CLogicSequence )
+
+	// Keys
+	DEFINE_KEYFIELD( m_iszCase[0], FIELD_STRING, "Case01" ),
+	DEFINE_KEYFIELD( m_iszCase[1], FIELD_STRING, "Case02" ),
+	DEFINE_KEYFIELD( m_iszCase[2], FIELD_STRING, "Case03" ),
+	DEFINE_KEYFIELD( m_iszCase[3], FIELD_STRING, "Case04" ),
+	DEFINE_KEYFIELD( m_iszCase[4], FIELD_STRING, "Case05" ),
+	DEFINE_KEYFIELD( m_iszCase[5], FIELD_STRING, "Case06" ),
+	DEFINE_KEYFIELD( m_iszCase[6], FIELD_STRING, "Case07" ),
+	DEFINE_KEYFIELD( m_iszCase[7], FIELD_STRING, "Case08" ),
+	DEFINE_KEYFIELD( m_iszCase[8], FIELD_STRING, "Case09" ),
+	DEFINE_KEYFIELD( m_iszCase[9], FIELD_STRING, "Case10" ),
+	DEFINE_KEYFIELD( m_iszCase[10], FIELD_STRING, "Case11" ),
+	DEFINE_KEYFIELD( m_iszCase[11], FIELD_STRING, "Case12" ),
+	DEFINE_KEYFIELD( m_iszCase[12], FIELD_STRING, "Case13" ),
+	DEFINE_KEYFIELD( m_iszCase[13], FIELD_STRING, "Case14" ),
+	DEFINE_KEYFIELD( m_iszCase[14], FIELD_STRING, "Case15" ),
+	DEFINE_KEYFIELD( m_iszCase[15], FIELD_STRING, "Case16" ),
+
+	// This doesn't need to be saved, it can be assigned every Activate()
+	//DEFINE_FIELD( m_iNumCases, FIELD_INTEGER ),
+
+	DEFINE_KEYFIELD( m_bDisabled, FIELD_BOOLEAN, "StartDisabled" ),
+
+	DEFINE_KEYFIELD( m_bDontIncrementOnPass, FIELD_BOOLEAN, "DontIncrementOnPass" ),
+
+	// Inputs
+	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Toggle", InputToggle ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "InValue", InputInValue ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetCurrentCase", InputSetCurrentCase ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetCurrentCaseNoFire", InputSetCurrentCaseNoFire ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "IncrementSequence", InputIncrementSequence ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "ResetSequence", InputResetSequence ),
+
+	// Outputs
+	DEFINE_OUTPUT( m_CurCase, "OutCurCase" ),
+	DEFINE_OUTPUT( m_OnCasePass, "OnCasePass" ),
+	DEFINE_OUTPUT( m_OnCaseFail, "OnCaseFail" ),
+	DEFINE_OUTPUT( m_OnSequenceComplete, "OnSequenceComplete" ),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CLogicSequence::CLogicSequence()
+{
+	m_CurCase.Init( 1 );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::Activate( void )
+{
+	BaseClass::Activate();
+
+	// Count number of cases
+	for (m_iNumCases = 0; m_iNumCases < MAX_SEQUENCE_CASES; m_iNumCases++)
+	{
+		if (m_iszCase[m_iNumCases] == NULL_STRING)
+			break;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Cache user entity field values until spawn is called.
+// Input  : szKeyName - Key to handle.
+//			szValue - Value for key.
+// Output : Returns true if the key was handled, false if not.
+//-----------------------------------------------------------------------------
+bool CLogicSequence::KeyValue( const char *szKeyName, const char *szValue )
+{
+	if (FStrEq( szKeyName, "StartCase" ))
+	{
+		m_CurCase.Init( atoi(szValue) );
+	}
+	else
+		return BaseClass::KeyValue( szKeyName, szValue );
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::TestCase( int iCase, string_t iszValue, CBaseEntity *pActivator )
+{
+	if (m_bDisabled)
+	{
+		DevMsg("%s ignoring case test because it is disabled\n", GetDebugName());
+		return;
+	}
+
+	// Arrays are 0-based, so the index is (iCase - 1)
+	int iIndex = iCase - 1;
+	if (iIndex >= m_iNumCases)
+	{
+		DevMsg("%s ignoring case test because the current case %i is greater than or equal to the number of cases %i\n", GetDebugName(), iCase, m_iNumCases);
+		return;
+	}
+
+	if (Matcher_Match( STRING( m_iszCase[iIndex] ), STRING(iszValue) ))
+	{
+		m_OnCasePass.Set( iszValue, pActivator, this );
+
+		if (!m_bDontIncrementOnPass)
+		{
+			m_CurCase.Set(iCase + 1, pActivator, this);
+
+			if (m_CurCase.Get() > m_iNumCases)
+			{
+				// Sequence complete!
+				SequenceComplete(iszValue, pActivator);
+			}
+		}
+		else
+		{
+			m_CurCase.Set(iCase, pActivator, this);
+		}
+	}
+	else
+	{
+		m_OnCaseFail.Set( iszValue, pActivator, this );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::SequenceComplete( string_t iszValue, CBaseEntity *pActivator )
+{
+	m_OnSequenceComplete.Set( iszValue, pActivator, this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::InputEnable( inputdata_t &inputdata )
+{
+	m_bDisabled = false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::InputDisable( inputdata_t &inputdata )
+{
+	m_bDisabled = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::InputToggle( inputdata_t &inputdata )
+{
+	m_bDisabled = (m_bDisabled == false);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::InputInValue( inputdata_t &inputdata )
+{
+	TestCase( m_CurCase.Get(), inputdata.value.StringID(), inputdata.pActivator );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::InputSetCurrentCase( inputdata_t &inputdata )
+{
+	m_CurCase.Set( inputdata.value.Int(), inputdata.pActivator, this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::InputSetCurrentCaseNoFire( inputdata_t &inputdata )
+{
+	m_CurCase.Init( inputdata.value.Int() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::InputIncrementSequence( inputdata_t &inputdata )
+{
+	int iInc = inputdata.value.Int();
+	m_CurCase.Set( m_CurCase.Get() + (iInc != 0 ? iInc : 1), inputdata.pActivator, this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogicSequence::InputResetSequence( inputdata_t &inputdata )
+{
+	m_CurCase.Set( 1, inputdata.pActivator, this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Generates various types of numbers based on existing material proxies
+//-----------------------------------------------------------------------------
+class CMathGenerate : public CLogicalEntity
+{
+public:
+	DECLARE_CLASS( CMathGenerate, CLogicalEntity );
+	CMathGenerate();
+
+	enum GenerateType_t
+	{
+		GENERATE_SINE_WAVE,
+		GENERATE_LINEAR_RAMP,
+		GENERATE_UNIFORM_NOISE,
+		GENERATE_GAUSSIAN_NOISE,
+		GENERATE_EXPONENTIAL,
+	};
+
+	// Keys
+	float m_flMax;
+	float m_flMin;
+
+	float m_flParam1;
+	float m_flParam2;
+
+	bool m_bDisabled;
+
+	GenerateType_t m_iGenerateType;
+
+	// Inputs
+	void InputSetValue( inputdata_t &inputdata );
+	void InputSetValueNoFire( inputdata_t &inputdata );
+	void InputSetGenerateType( inputdata_t &inputdata );
+
+	void InputEnable( inputdata_t &inputdata );
+	void InputDisable( inputdata_t &inputdata );
+	void InputToggle( inputdata_t &inputdata );
+
+	// Basic functions
+	void Spawn();
+	bool KeyValue( const char *szKeyName, const char *szValue );
+
+	void StartGenerating();
+	void StopGenerating();
+
+	// Number generation functions
+	void GenerateSineWave();
+	void GenerateLinearRamp();
+	void GenerateUniformNoise();
+	void GenerateGaussianNoise();
+	void GenerateExponential();
+
+	// The gaussian stream normally only exists on the client, so we use our own.
+	static CGaussianRandomStream m_GaussianStream;
+
+	// Outputs
+	COutputFloat m_Value;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS( math_generate, CMathGenerate );
+
+
+BEGIN_DATADESC( CMathGenerate )
+
+	DEFINE_INPUT( m_flMax, FIELD_FLOAT, "SetHitMax" ),
+	DEFINE_INPUT( m_flMin, FIELD_FLOAT, "SetHitMin" ),
+	DEFINE_INPUT( m_flParam1, FIELD_FLOAT, "SetParam1" ),
+	DEFINE_INPUT( m_flParam2, FIELD_FLOAT, "SetParam2" ),
+	DEFINE_KEYFIELD( m_bDisabled, FIELD_BOOLEAN, "StartDisabled" ),
+
+	DEFINE_KEYFIELD( m_iGenerateType, FIELD_INTEGER, "GenerateType" ),
+
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetValue", InputSetValue ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetValueNoFire", InputSetValueNoFire ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetGenerateType", InputSetGenerateType ),
+
+	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Toggle", InputToggle ),
+
+	DEFINE_OUTPUT( m_Value, "OutValue" ),
+
+	DEFINE_THINKFUNC( GenerateSineWave ),
+	DEFINE_THINKFUNC( GenerateLinearRamp ),
+	DEFINE_THINKFUNC( GenerateUniformNoise ),
+	DEFINE_THINKFUNC( GenerateGaussianNoise ),
+	DEFINE_THINKFUNC( GenerateExponential ),
+
+END_DATADESC()
+
+CGaussianRandomStream CMathGenerate::m_GaussianStream;
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CMathGenerate::CMathGenerate()
+{
+	m_GaussianStream.AttachToStream( random );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMathGenerate::Spawn()
+{
+	BaseClass::Spawn();
+
+	if (!m_bDisabled)
+		StartGenerating();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CMathGenerate::KeyValue( const char *szKeyName, const char *szValue )
+{
+	if (FStrEq( szKeyName, "InitialValue" ))
+	{
+		m_Value.Init( atof(szValue) );
+	}
+	else
+		return BaseClass::KeyValue( szKeyName, szValue );
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::InputSetValue( inputdata_t &inputdata )
+{
+	m_Value.Set(inputdata.value.Float(), inputdata.pActivator, this);
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::InputSetValueNoFire( inputdata_t &inputdata )
+{
+	m_Value.Init(inputdata.value.Float());
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::InputSetGenerateType( inputdata_t &inputdata )
+{
+	m_iGenerateType = (GenerateType_t)inputdata.value.Int();
+
+	if (GetNextThink() != TICK_NEVER_THINK)
+	{
+		// Change our generation function if we're already generating.
+		// StartGenerating() should set to the new function.
+		StartGenerating();
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::InputEnable( inputdata_t &inputdata )
+{
+	m_bDisabled = false;
+	StartGenerating();
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::InputDisable( inputdata_t &inputdata )
+{
+	m_bDisabled = true;
+	StopGenerating();
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::InputToggle( inputdata_t &inputdata )
+{
+	m_bDisabled ? InputEnable(inputdata) : InputDisable(inputdata);
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::StartGenerating()
+{
+	// Correct any min/max quirks here
+	if (m_flMin > m_flMax)
+	{
+		float flTemp = m_flMin;
+		m_flMin = m_flMax;
+		m_flMax = flTemp;
+	}
+
+	switch (m_iGenerateType)
+	{
+		case GENERATE_SINE_WAVE:
+			SetThink( &CMathGenerate::GenerateSineWave );
+			break;
+		case GENERATE_LINEAR_RAMP:
+			SetThink( &CMathGenerate::GenerateLinearRamp );
+			break;
+		case GENERATE_UNIFORM_NOISE:
+			SetThink( &CMathGenerate::GenerateUniformNoise );
+			break;
+		case GENERATE_GAUSSIAN_NOISE:
+			SetThink( &CMathGenerate::GenerateGaussianNoise );
+			break;
+		case GENERATE_EXPONENTIAL:
+			SetThink( &CMathGenerate::GenerateExponential );
+			break;
+
+		default:
+			Warning("%s is set to invalid generation type %i! It won't do anything now.\n", GetDebugName(), m_iGenerateType);
+			StopGenerating();
+			return;
+	}
+
+	// All valid types should fall through to this
+	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::StopGenerating()
+{
+	SetThink(NULL);
+	SetNextThink( TICK_NEVER_THINK );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::GenerateSineWave()
+{
+	// CSineProxy in mathproxy.cpp
+	float flSineTimeOffset = m_flParam2;
+	float flSinePeriod = m_flParam1;
+	float flValue;
+
+	if (flSinePeriod == 0)
+		flSinePeriod = 1;
+
+	// get a value in [0,1]
+	flValue = ( sin( 2.0f * M_PI * (gpGlobals->curtime - flSineTimeOffset) / flSinePeriod ) * 0.5f ) + 0.5f;
+	// get a value in [min,max]	
+	flValue = ( m_flMax - m_flMin ) * flValue + m_flMin;
+	
+	m_Value.Set( flValue, NULL, this );
+
+	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::GenerateLinearRamp()
+{
+	// CLinearRampProxy in mathproxy.cpp
+
+	// Param1 = rate
+	m_Value.Set( m_flParam1 * gpGlobals->curtime + m_Value.Get(), NULL, this );
+
+	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::GenerateUniformNoise()
+{
+	// CUniformNoiseProxy in mathproxy.cpp
+
+	m_Value.Set( random->RandomFloat( m_flMin, m_flMax ), NULL, this );
+
+	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::GenerateGaussianNoise()
+{
+	// CGaussianNoiseProxy in mathproxy.cpp
+
+	float flMean = m_flParam1;
+	float flStdDev = m_flParam2;
+	float flVal = m_GaussianStream.RandomFloat( flMean, flStdDev );
+
+	// clamp
+	if (flVal < m_flMin)
+		flVal = m_flMin;
+	else if (flVal > m_flMax)
+		flVal = m_flMax;
+
+	m_Value.Set( flVal, NULL, this );
+
+	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::GenerateExponential()
+{
+	// CExponentialProxy in mathproxy.cpp
+
+	// Param1 = scale
+	// Param2 = offset
+	float flVal = m_flParam1 * exp( m_Value.Get() + m_flParam2 );
+
+	// clamp
+	if (flVal < m_flMin)
+		flVal = m_flMin;
+	else if (flVal > m_flMax)
+		flVal = m_flMax;
+
+	m_Value.Set( flVal, NULL, this );
+
+	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+}
+#endif

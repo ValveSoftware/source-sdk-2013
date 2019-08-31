@@ -17,6 +17,12 @@
 #include "physics_bone_follower.h"
 #include "ai_baseactor.h"
 #include "ai_senses.h"
+#ifdef MAPBASE
+/*
+#include "ai_basenpc_flyer.h"
+#include "player_pickup.h"
+*/
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -470,3 +476,97 @@ void CNPC_Furniture::DrawDebugGeometryOverlays( void )
 
 	BaseClass::DrawDebugGeometryOverlays();
 }
+
+#ifdef MAPBASE
+/*
+//=========================================================
+// Generic flying monster
+//=========================================================
+
+class CGenericFlyingMonster : public CAI_BaseFlyingBot
+{
+public:
+	DECLARE_CLASS( CGenericFlyingMonster, CAI_BaseFlyingBot );
+
+	CGenericFlyingMonster();
+
+	void	Spawn( void );
+	void	Precache( void );
+	int		GetSoundInterests ( void );
+};
+
+LINK_ENTITY_TO_CLASS( monster_flying_generic, CGenericFlyingMonster );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CGenericFlyingMonster::CGenericFlyingMonster()
+{
+}
+
+//=========================================================
+// GetSoundInterests - generic NPC can't hear.
+//=========================================================
+int CGenericFlyingMonster::GetSoundInterests ( void )
+{
+	return	NULL;
+}
+
+//=========================================================
+// Spawn
+//=========================================================
+void CGenericFlyingMonster::Spawn()
+{
+	Precache();
+
+	SetModel( STRING( GetModelName() ) );
+
+	if ( FStrEq( STRING( GetModelName() ), "models/player.mdl" ) || FStrEq( STRING( GetModelName() ), "models/holo.mdl" ) )
+		UTIL_SetSize(this, VEC_HULL_MIN, VEC_HULL_MAX);
+	else
+		UTIL_SetSize(this, NAI_Hull::Mins(HULL_HUMAN), NAI_Hull::Maxs(HULL_HUMAN));
+
+	SetSolid( SOLID_BBOX );
+	AddSolidFlags( FSOLID_NOT_STANDABLE );
+	SetMoveType( MOVETYPE_FLY );
+	m_bloodColor		= BLOOD_COLOR_RED;
+	m_flFieldOfView		= 0.5;// indicates the width of this NPC's forward view cone ( as a dotproduct result )
+	m_NPCState			= NPC_STATE_NONE;
+	
+	CapabilitiesAdd( bits_CAP_MOVE_FLY );
+
+	SetNavType( NAV_FLY );
+
+	AddFlag( FL_FLY );
+
+	NPCInit();
+	if ( !HasSpawnFlags(SF_GENERICNPC_NOTSOLID) )
+	{
+		trace_t tr;
+		UTIL_TraceEntity( this, GetAbsOrigin(), GetAbsOrigin(), MASK_SOLID, &tr );
+		if ( tr.startsolid )
+		{
+			Msg("Placed npc_generic in solid!!! (%s)\n", STRING(GetModelName()) );
+			m_spawnflags |= SF_GENERICNPC_NOTSOLID;
+		}
+	}
+
+	if ( HasSpawnFlags(SF_GENERICNPC_NOTSOLID) )
+	{
+		AddSolidFlags( FSOLID_NOT_SOLID );
+		m_takedamage = DAMAGE_NO;
+		VPhysicsDestroyObject();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: precaches all resources this NPC needs
+//-----------------------------------------------------------------------------
+void CGenericFlyingMonster::Precache()
+{
+	BaseClass::Precache();
+
+	PrecacheModel( STRING( GetModelName() ) );
+}
+*/
+#endif

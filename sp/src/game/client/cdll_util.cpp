@@ -703,6 +703,24 @@ int UTIL_EntitiesAlongRay( C_BaseEntity **pList, int listMax, const Ray_t &ray, 
 	return rayEnum.GetCount();
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Pass in an array of pointers and an array size, it fills the array and returns the number inserted
+// Input  : **pList - 
+//			listMax - 
+//			&point - 
+//			flagMask - 
+// Output : int
+//-----------------------------------------------------------------------------
+int UTIL_EntitiesAtPoint( C_BaseEntity **pList, int listMax, const Vector &point, int flagMask, int partitionMask )
+{
+	CFlaggedEntitiesEnum rayEnum( pList, listMax, flagMask );
+	partition->EnumerateElementsAtPoint( partitionMask, point, false, &rayEnum );
+
+	return rayEnum.GetCount();
+}
+#endif
+
 CEntitySphereQuery::CEntitySphereQuery( const Vector &center, float radius, int flagMask, int partitionMask )
 {
 	m_listIndex = 0;

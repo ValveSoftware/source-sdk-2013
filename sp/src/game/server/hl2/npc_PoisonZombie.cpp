@@ -285,7 +285,11 @@ void CNPC_PoisonZombie::Spawn( void )
 {
 	Precache();
 
+#ifndef MAPBASE // Controlled by KV
 	m_fIsTorso = m_fIsHeadless = false;
+#else
+	m_fIsTorso = false;
+#endif
 
 #ifdef HL2_EPISODIC
 	SetBloodColor( BLOOD_COLOR_ZOMBIE );
@@ -632,10 +636,16 @@ void CNPC_PoisonZombie::BreatheOffShort( void )
 {
 	if ( m_bNearEnemy )
 	{
+#ifdef MAPBASE
+		if (m_pFastBreathSound)
+#endif
 		ENVELOPE_CONTROLLER.SoundPlayEnvelope( m_pFastBreathSound, SOUNDCTRL_CHANGE_VOLUME, envPoisonZombieBreatheVolumeOffShort, ARRAYSIZE(envPoisonZombieBreatheVolumeOffShort) );
 	}
 	else
 	{
+#ifdef MAPBASE
+		if (m_pSlowBreathSound)
+#endif
 		ENVELOPE_CONTROLLER.SoundPlayEnvelope( m_pSlowBreathSound, SOUNDCTRL_CHANGE_VOLUME, envPoisonZombieBreatheVolumeOffShort, ARRAYSIZE(envPoisonZombieBreatheVolumeOffShort) );
 	}
 }

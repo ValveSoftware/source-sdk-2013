@@ -84,6 +84,10 @@ OUTPUTS:
 #include "tier1/strtools.h"
 #include "datacache/imdlcache.h"
 #include "env_debughistory.h"
+#ifdef MAPBASE
+#include "mapbase/variant_tools.h"
+#include "mapbase/matchers.h"
+#endif
 
 #include "tier0/vprof.h"
 
@@ -272,7 +276,12 @@ void CBaseEntityOutput::FireOutput(variant_t Value, CBaseEntity *pActivator, CBa
 			//
 			variant_t ValueOverride;
 			ValueOverride.SetString( ev->m_iParameter );
+#ifdef MAPBASE
+			// I found this while making point_advanced_finder. FireOutput()'s own delay parameter doesn't work with...uh...parameters.
+			g_EventQueue.AddEvent( STRING(ev->m_iTarget), STRING(ev->m_iTargetInput), ValueOverride, ev->m_flDelay + fDelay, pActivator, pCaller, ev->m_iIDStamp );
+#else
 			g_EventQueue.AddEvent( STRING(ev->m_iTarget), STRING(ev->m_iTargetInput), ValueOverride, ev->m_flDelay, pActivator, pCaller, ev->m_iIDStamp );
+#endif
 		}
 
 		if ( ev->m_flDelay )
@@ -922,6 +931,72 @@ void CEventQueue::ServiceEvents( void )
 		{
 			// In the context the event, the searching entity is also the caller
 			CBaseEntity *pSearchingEntity = pe->m_pCaller;
+#ifdef MAPBASE
+			//===============================================================
+			// 
+			// This is the code that the I/O system uses to look for its targets.
+			// 
+			// I wanted a good way to access a COutputEHANDLE's handle parameter.
+			// Sure, you could do it through logic_register_activator, but what if that's not good enough?
+			// 
+			// Basic gEntList searches, which this originally used, would require extra implementation for another entity pointer to be passed.
+			// Without changing the way entity searching works, I just created a custom version of it here.
+			// 
+			// Yes, all of this for mere "!output" support.
+			// 
+			// I don't think there's much harm in this anyway. It's functionally identical and might even run a few nanoseconds faster
+			// since we don't need to check for filters or call the same loop over and over again.
+			// 
+			//===============================================================
+			const char *szName = STRING(pe->m_iTarget);
+			if ( szName[0] == '!' )
+			{
+				CBaseEntity *target = gEntList.FindEntityProcedural( szName, pSearchingEntity, pe->m_pActivator, pe->m_pCaller );
+
+				if (!target)
+				{
+					// Here's the !output I was talking about.
+					// It only checks for it if we're looking for a procedural entity ('!' confirmed)
+					// and we didn't find one from FindEntityProcedural.
+					if (FStrEq(szName, "!output"))
+					{
+						pe->m_VariantValue.Convert( FIELD_EHANDLE );
+						target = pe->m_VariantValue.Entity();
+					}
+				}
+
+				if (target)
+				{
+					// pump the action into the target
+					target->AcceptInput( STRING(pe->m_iTargetInput), pe->m_pActivator, pe->m_pCaller, pe->m_VariantValue, pe->m_iOutputID );
+					targetFound = true;
+				}
+			}
+			else
+			{
+				const CEntInfo *pInfo = gEntList.FirstEntInfo();
+
+				for ( ;pInfo; pInfo = pInfo->m_pNext )
+				{
+					CBaseEntity *ent = (CBaseEntity *)pInfo->m_pEntity;
+					if ( !ent )
+					{
+						DevWarning( "NULL entity in global entity list!\n" );
+						continue;
+					}
+
+					if ( !ent->GetEntityName() )
+						continue;
+
+					if ( ent->NameMatches( szName ) )
+					{
+						// pump the action into the target
+						ent->AcceptInput( STRING(pe->m_iTargetInput), pe->m_pActivator, pe->m_pCaller, pe->m_VariantValue, pe->m_iOutputID );
+						targetFound = true;
+					}
+				}
+			}
+#else
 			CBaseEntity *target = NULL;
 			while ( 1 )
 			{
@@ -933,6 +1008,7 @@ void CEventQueue::ServiceEvents( void )
 				target->AcceptInput( STRING(pe->m_iTargetInput), pe->m_pActivator, pe->m_pCaller, pe->m_VariantValue, pe->m_iOutputID );
 				targetFound = true;
 			}
+#endif
 		}
 
 		// direct pointer
@@ -1252,6 +1328,23 @@ void variant_t::Set( fieldtype_t ftype, void *data )
 		break;
 	}
 
+#ifdef MAPBASE
+	// There's this output class called COutputVariant which could output any data type, like a FIELD_INPUT input function.
+	// Well...nobody added support for it. It was there, but it wasn't functional.
+	// Mapbase adds support for it so you could variant your outputs as you please.
+	case FIELD_INPUT:
+	{
+		variant_t *variant = (variant_t*)data;
+
+		// Pretty much just copying over its stored value.
+		fieldType = variant->FieldType();
+		variant->SetOther(data);
+
+		Set(fieldType, data);
+		break;
+	}
+#endif
+
 	case FIELD_EHANDLE:		eVal = *((EHANDLE *)data);			break;
 	case FIELD_CLASSPTR:	eVal = *((CBaseEntity **)data);		break;
 	case FIELD_VOID:		
@@ -1292,6 +1385,10 @@ void variant_t::SetOther( void *data )
 	}
 }
 
+#ifdef MAPBASE
+// This way we don't have to use string comparisons when reading failed conversions
+static const char *g_szNoConversion = "No conversion to string";
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Converts the variant to a new type. This function defines which I/O
@@ -1323,6 +1420,24 @@ bool variant_t::Convert( fieldtype_t newType )
 	{
 		return true;
 	}
+
+#ifdef MAPBASE
+	if (newType == FIELD_STRING)
+	{
+		// I got a conversion error when I tried to convert int to string. I'm actually quite baffled.
+		// Was that case really not handled before? Did I do something that overrode something that already did this?
+		const char *szString = ToString();
+
+		// g_szNoConversion is returned in ToString() when we can't convert to a string,
+		// so this is safe and it lets us get away with a pointer comparison.
+		if (szString != g_szNoConversion)
+		{
+			SetString(AllocPooledString(szString));
+			return true;
+		}
+		return false;
+	}
+#endif
 
 	switch ( fieldType )
 	{
@@ -1441,8 +1556,14 @@ bool variant_t::Convert( fieldtype_t newType )
 					CBaseEntity *ent = NULL;
 					if ( iszVal != NULL_STRING )
 					{
+#ifdef MAPBASE
+						// We search by both entity name and class name now.
+						// We also have an entirely new version of Convert specifically for !activators on FIELD_EHANDLE.
+						ent = gEntList.FindEntityGeneric( NULL, STRING(iszVal) );
+#else
 						// FIXME: do we need to pass an activator in here?
 						ent = gEntList.FindEntityByName( NULL, iszVal );
+#endif
 					}
 					SetEntity( ent );
 					return true;
@@ -1452,6 +1573,7 @@ bool variant_t::Convert( fieldtype_t newType )
 			break;
 		}
 
+#ifndef MAPBASE // ToString() above handles this
 		case FIELD_EHANDLE:
 		{
 			switch ( newType )
@@ -1469,11 +1591,63 @@ bool variant_t::Convert( fieldtype_t newType )
 			}
 			break;
 		}
+#endif
+
+#ifdef MAPBASE
+		case FIELD_VOID:
+		{
+			// Many fields already turn into some equivalent of "NULL" when given a null string_t.
+			// This takes advantage of that and allows FIELD_VOID to be converted to more than just empty strings.
+			SetString(NULL_STRING);
+			return Convert(newType);
+		}
+#endif
 	}
 
 	// invalid conversion
 	return false;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Only for when something like !activator needs to become a FIELD_EHANDLE, or when that's a possibility.
+//-----------------------------------------------------------------------------
+bool variant_t::Convert( fieldtype_t newType, CBaseEntity *pSelf, CBaseEntity *pActivator, CBaseEntity *pCaller )
+{
+	// Support for turning !activator, !caller, and !self into a FIELD_EHANDLE.
+	// Extremely necessary.
+	if (newType == FIELD_EHANDLE)
+	{
+		if (newType == fieldType)
+			return true;
+
+		CBaseEntity *ent = NULL;
+		if (iszVal != NULL_STRING)
+		{
+			ent = gEntList.FindEntityGeneric(NULL, STRING(iszVal), pSelf, pActivator, pCaller);
+		}
+		SetEntity(ent);
+		return true;
+	}
+
+#if 0 // This was scrapped almost immediately. See the Trello card for details.
+	// Serves as a way of converting the name of the !activator, !caller, or !self into a string
+	// without passing the text "!activator" and stuff.
+	else if (fieldType == FIELD_STRING && STRING(iszVal)[0] == '&')
+	{
+		const char *val = STRING(iszVal) + 1;
+
+		#define GetRealName(string, ent) if (FStrEq(val, string)) { if (ent) {SetString(ent->GetEntityName());} return true; }
+
+		GetRealName("!activator", pActivator)
+		else GetRealName("!caller", pCaller)
+		else GetRealName("!self", pSelf)
+	}
+#endif
+
+	return Convert(newType);
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -1542,13 +1716,22 @@ const char *variant_t::ToString( void ) const
 
 	case FIELD_EHANDLE:
 		{
+#ifdef MAPBASE
+			// This is a really bad idea.
+			const char *pszName = (Entity()) ? Entity()->GetDebugName() : "<<null entity>>";
+#else
 			const char *pszName = (Entity()) ? STRING(Entity()->GetEntityName()) : "<<null entity>>";
+#endif
 			Q_strncpy( szBuf, pszName, 512 );
 			return (szBuf);
 		}
 	}
 
+#ifdef MAPBASE
+	return g_szNoConversion;
+#else
 	return("No conversion to string");
+#endif
 }
 
 #define classNameTypedef variant_t // to satisfy DEFINE... macros
@@ -1756,6 +1939,21 @@ class CVariantSaveDataOps : public CDefSaveRestoreOps
 		// Don't no how to. This is okay, since objects of this type
 		// are always born clean before restore, and not reused
 	}
+
+#ifdef MAPBASE
+	// Parses a keyvalue string into a variant_t.
+	// We could just turn it into a string since variant_t can convert it later, but this keyvalue is probably a variant_t for a reason,
+	// meaning it might use strings and numbers completely differently without converting them.
+	// As a result, we try to read it to figure out what type it is.
+	virtual bool Parse( const SaveRestoreFieldInfo_t &fieldInfo, char const* szValue )
+	{
+		variant_t *var = (variant_t*)fieldInfo.pField;
+
+		*var = Variant_Parse(szValue);
+
+		return true;
+	}
+#endif
 };
 
 CVariantSaveDataOps g_VariantSaveDataOps;

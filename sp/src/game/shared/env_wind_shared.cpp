@@ -77,12 +77,19 @@
 //-----------------------------------------------------------------------------
 // globals
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+static CUtlLinkedList< CEnvWindShared * > s_windControllers;
+#else
 static Vector s_vecWindVelocity( 0, 0, 0 );
-
+#endif
 
 CEnvWindShared::CEnvWindShared() : m_WindAveQueue(10), m_WindVariationQueue(10)
 {
 	m_pWindSound = NULL;
+#ifdef MAPBASE
+	s_windControllers.AddToTail( this );
+	m_windRadius = -1.0f;
+#endif
 }
 
 CEnvWindShared::~CEnvWindShared()
@@ -91,6 +98,9 @@ CEnvWindShared::~CEnvWindShared()
 	{
 		CSoundEnvelopeController::GetController().Shutdown( m_pWindSound );
 	}
+#ifdef MAPBASE
+	s_windControllers.FindAndRemove( this );
+#endif
 }
 
 void CEnvWindShared::Init( int nEntIndex, int iRandomSeed, float flTime, 
@@ -103,6 +113,13 @@ void CEnvWindShared::Init( int nEntIndex, int iRandomSeed, float flTime,
 	m_Stream.SetSeed( iRandomSeed );
 	m_WindVariationStream.SetSeed( iRandomSeed );
 	m_iWindDir = m_iInitialWindDir = iInitialWindYaw;
+#ifdef MAPBASE
+	// Bound it for networking as a postive integer
+	m_iInitialWindDir = (int)( anglemod( m_iInitialWindDir ) );
+
+	if (m_windRadiusInner == 0.0f)
+		m_windRadiusInner = m_windRadius;
+#endif
 
 	m_flAveWindSpeed = m_flWindSpeed = m_flInitialWindSpeed = flInitialWindSpeed;
 
@@ -218,9 +235,15 @@ float CEnvWindShared::WindThink( float flTime )
 
 			// We're about to exit, let's set the wind velocity...
 			QAngle vecWindAngle( 0, m_iWindDir + m_flWindAngleVariation, 0 );
+#ifdef MAPBASE
+			AngleVectors( vecWindAngle, &m_currentWindVector );
+			float flTotalWindSpeed = m_flWindSpeed * m_flWindSpeedVariation;
+			m_currentWindVector *= flTotalWindSpeed;
+#else
 			AngleVectors( vecWindAngle, &s_vecWindVelocity );
 			float flTotalWindSpeed = m_flWindSpeed * m_flWindSpeedVariation;
 			s_vecWindVelocity *= flTotalWindSpeed;
+#endif
 
 			// If we reached a steady state, we don't need to be called until the switch time
 			// Otherwise, we should be called immediately
@@ -278,9 +301,67 @@ float CEnvWindShared::WindThink( float flTime )
 //-----------------------------------------------------------------------------
 void ResetWindspeed()
 {
+#ifdef MAPBASE
+	FOR_EACH_LL( s_windControllers, it )
+	{
+		s_windControllers[it]->m_currentWindVector.Init( 0, 0, 0 );
+	}
+#else
 	s_vecWindVelocity.Init( 0, 0, 0 );
+#endif
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// GetWindspeedAtTime was never finished to actually take time in to consideration.  We don't need 
+// features that aren't written, but we do need to have multiple wind controllers on a map, so
+// we need to find the one that is affecting the given location and return its speed.
+// 
+// NEW WITH MAPBASE: Inner-radius!
+// You can now choose an inner-radius for your wind, which allows for varying intensities at different distances.
+// This can mix in with a global wind controller or even other wind controllers.
+// (note: wind is additive and does not blend into itself, maybe fix that sometime)
+//-----------------------------------------------------------------------------
+Vector GetWindspeedAtLocation( const Vector &location )
+{
+	Vector wind = Vector( 0, 0, 0 );
+
+	FOR_EACH_LL( s_windControllers, it )
+	{
+		CEnvWindShared *thisWindController = s_windControllers[it];
+		float distance = (thisWindController->m_location - location).Length();
+
+		if( distance < thisWindController->m_windRadius )
+		{
+			if (distance > thisWindController->m_windRadiusInner)
+			{
+				// New with Mapbase: Inner-radius!
+				wind += thisWindController->m_currentWindVector *
+					((distance - thisWindController->m_windRadiusInner) / (thisWindController->m_windRadius - thisWindController->m_windRadiusInner));
+			}
+			else
+			{
+				// This location is within our area of influence, so return our computer wind vector
+				return thisWindController->m_currentWindVector;
+			}
+		}
+	}
+
+	FOR_EACH_LL( s_windControllers, it )
+	{
+		CEnvWindShared *thisWindController = s_windControllers[it];
+
+		if( thisWindController->m_windRadius == -1.0f )
+		{
+			// We do a second search for a global controller so you don't have to worry about order in the list.  
+			//wind += thisWindController->m_currentWindVector;
+			wind = VectorLerp( wind, thisWindController->m_currentWindVector, 1.0f );
+		}
+	}
+
+	return wind;// No wind
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Method to sample the windspeed at a particular time
@@ -289,5 +370,16 @@ void GetWindspeedAtTime( float flTime, Vector &vecVelocity )
 {
 	// For now, ignore history and time.. fix later when we use wind to affect
 	// client-side prediction
+#ifdef MAPBASE
+	if ( s_windControllers.Count() == 0 )
+	{
+		vecVelocity.Init( 0, 0, 0 );
+	}
+	else
+	{
+		VectorCopy( s_windControllers[ s_windControllers.Head() ]->m_currentWindVector, vecVelocity );
+	}
+#else
 	VectorCopy( s_vecWindVelocity, vecVelocity );
+#endif
 }

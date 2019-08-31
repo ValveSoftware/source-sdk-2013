@@ -57,7 +57,19 @@ enum
 	SOUND_CONTEXT_ALLIES_ONLY		= 0x10000000, // Only player allies can hear this sound
 	SOUND_CONTEXT_PLAYER_VEHICLE	= 0x20000000, // HACK: need this because we're not treating the SOUND_xxx values as true bit values! See switch in OnListened.
 
+#ifdef MAPBASE
+	// You know, I wouldn't mind this approach of leaving types and contexts on the same int
+	// since there can be so many CSounds at any given time.
+	// It's just that there's very little room to expand and a lot of the contexts are very specific and/or useless.
+	// If this doesn't work, replace SOUND_CONTEXT_PLAYER_VEHICLE with owner server vehicle checks.
+
+	// Only heard by NPCs the owner likes. Needed for shared grenade code.
+	SOUND_CONTEXT_OWNER_ALLIES		= 0x40000000,
+
+	ALL_CONTEXTS			= 0x3FF00000,
+#else
 	ALL_CONTEXTS			= 0xFFF00000,
+#endif
 
 	ALL_SCENTS				= SOUND_CARCASS | SOUND_MEAT | SOUND_GARBAGE,
 

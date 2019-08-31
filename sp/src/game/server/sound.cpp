@@ -182,6 +182,9 @@ public:
 	void InputVolume( inputdata_t &inputdata );
 	void InputFadeIn( inputdata_t &inputdata );
 	void InputFadeOut( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetSound( inputdata_t &inputdata );
+#endif
 
 	DECLARE_DATADESC();
 
@@ -197,6 +200,10 @@ public:
 	string_t m_sSourceEntName;
 	EHANDLE m_hSoundSource;	// entity from which the sound comes
 	int		m_nSoundSourceEntIndex; // In case the entity goes away before we finish stopping the sound...
+
+#ifdef MAPBASE
+	int		m_iSoundFlags;
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( ambient_generic, CAmbientGeneric );
@@ -209,6 +216,10 @@ BEGIN_DATADESC( CAmbientGeneric )
 	// recomputed in Activate()
 	// DEFINE_FIELD( m_hSoundSource, EHANDLE ),
 	// DEFINE_FIELD( m_nSoundSourceEntIndex, FIELD_INTERGER ),
+
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_iSoundFlags, FIELD_INTEGER, "soundflags" ),
+#endif
 
 	DEFINE_FIELD( m_flMaxRadius, FIELD_FLOAT ),
 	DEFINE_FIELD( m_fActive, FIELD_BOOLEAN ),
@@ -233,6 +244,9 @@ BEGIN_DATADESC( CAmbientGeneric )
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "Volume", InputVolume ),
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "FadeIn", InputFadeIn ),
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "FadeOut", InputFadeOut ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC(FIELD_STRING, "SetSound", InputSetSound ),
+#endif
 
 END_DATADESC()
 
@@ -418,6 +432,24 @@ void CAmbientGeneric::InputFadeOut( inputdata_t &inputdata )
 
 	SetNextThink( gpGlobals->curtime + 0.1f );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CAmbientGeneric::InputSetSound( inputdata_t &inputdata )
+{
+	m_iszSound = inputdata.value.StringID();
+	if (STRING(m_iszSound)[0] != '!')
+	{
+		PrecacheScriptSound(STRING(m_iszSound));
+	}
+
+	// Try to refresh the sound
+	if (m_fActive)
+		SendSound(SND_NOFLAGS);
+}
+#endif
 
 
 void CAmbientGeneric::Precache( void )
@@ -858,6 +890,19 @@ void CAmbientGeneric::InputPlaySound( inputdata_t &inputdata )
 	{
 		//Adrian: Stop our current sound before starting a new one!
 		SendSound( SND_STOP ); 
+
+#ifdef MAPBASE
+		// Procedural handling like !activator
+		if (STRING(m_sSourceEntName)[0] == '!')
+		{
+			CBaseEntity *pEntity = gEntList.FindEntityProcedural(STRING(m_sSourceEntName), this, inputdata.pActivator, inputdata.pCaller);
+			if (pEntity)
+			{
+				m_hSoundSource = pEntity;
+				m_nSoundSourceEntIndex = pEntity->entindex();
+			}
+		}
+#endif
 		
 		ToggleSound();
 	}
@@ -877,6 +922,45 @@ void CAmbientGeneric::InputStopSound( inputdata_t &inputdata )
 
 void CAmbientGeneric::SendSound( SoundFlags_t flags)
 {
+#ifdef MAPBASE
+	int iFlags = flags != SND_STOP ? ((int)flags | m_iSoundFlags) : flags;
+	char *szSoundFile = (char *)STRING( m_iszSound );
+	CBaseEntity* pSoundSource = m_hSoundSource;
+	if ( pSoundSource )
+	{
+		if ( iFlags & SND_STOP )
+		{
+			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile, 
+						0, SNDLVL_NONE, iFlags, 0);
+
+			m_fActive = false;
+		}
+		else
+		{
+			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile, 
+				(m_dpv.vol * 0.01), m_iSoundLevel, iFlags, m_dpv.pitch);
+
+			// Only mark active if this is a looping sound.  If not looping, each
+			// trigger will cause the sound to play.  If the sound is still
+			// playing from a previous trigger press, it will be shut off
+			// and then restarted.
+
+			if (m_fLooping)
+				m_fActive = true;
+		}
+	}	
+	else
+	{
+		if ( ( iFlags & SND_STOP ) && 
+			( m_nSoundSourceEntIndex != -1 ) )
+		{
+			UTIL_EmitAmbientSound(m_nSoundSourceEntIndex, GetAbsOrigin(), szSoundFile, 
+					0, SNDLVL_NONE, iFlags, 0);
+
+			m_fActive = false;
+		}
+	}
+#else
 	char *szSoundFile = (char *)STRING( m_iszSound );
 	CBaseEntity* pSoundSource = m_hSoundSource;
 	if ( pSoundSource )
@@ -901,6 +985,7 @@ void CAmbientGeneric::SendSound( SoundFlags_t flags)
 					0, SNDLVL_NONE, flags, 0);
 		}
 	}
+#endif
 }
 
 
@@ -909,6 +994,19 @@ void CAmbientGeneric::SendSound( SoundFlags_t flags)
 //-----------------------------------------------------------------------------
 void CAmbientGeneric::InputToggleSound( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	// Procedural handling like !activator
+	if (STRING(m_sSourceEntName)[0] == '!')
+	{
+		CBaseEntity *pEntity = gEntList.FindEntityProcedural(STRING(m_sSourceEntName), this, inputdata.pActivator, inputdata.pCaller);
+		if (pEntity)
+		{
+			m_hSoundSource = pEntity;
+			m_nSoundSourceEntIndex = pEntity->entindex();
+		}
+	}
+#endif
+
 	ToggleSound();
 }
 

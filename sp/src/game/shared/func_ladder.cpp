@@ -5,12 +5,19 @@
 //=============================================================================//
 #include "cbase.h"
 #include "func_ladder.h"
+#ifdef MAPBASE
+#include "hl_gamemovement.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 #if !defined( CLIENT_DLL )
 /*static*/ ConVar sv_showladders( "sv_showladders", "0", 0, "Show bbox and dismount points for all ladders (must be set before level load.)\n" );
+#endif
+
+#if MAPBASE
+extern IGameMovement *g_pGameMovement;
 #endif
 
 CUtlVector< CFuncLadder * >	CFuncLadder::s_Ladders;
@@ -105,7 +112,11 @@ void CFuncLadder::Spawn()
 		}
 
 		// Force geometry overlays on, but only if developer 2 is set...
+#ifdef MAPBASE
+		if ( sv_showladders.GetBool() )
+#else
 		if ( developer.GetInt() > 1 )
+#endif
 		{
 			m_debugOverlays |= OVERLAY_TEXT_BIT;
 		}
@@ -385,6 +396,26 @@ void CFuncLadder::InputDisable( inputdata_t &inputdata )
 	m_bDisabled = true;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CFuncLadder::InputForcePlayerOn( inputdata_t &inputdata )
+{
+	static_cast<CHL2GameMovement*>(g_pGameMovement)->ForcePlayerOntoLadder(this);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CFuncLadder::InputCheckPlayerOn( inputdata_t &inputdata )
+{
+	static_cast<CHL2GameMovement*>(g_pGameMovement)->MountPlayerOntoLadder(this);
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *pPlayer - 
@@ -462,6 +493,10 @@ BEGIN_DATADESC( CFuncLadder )
 	DEFINE_KEYFIELD( m_surfacePropName,FIELD_STRING,	"ladderSurfaceProperties" ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "ForcePlayerOn", InputForcePlayerOn ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "CheckPlayerOn", InputCheckPlayerOn ),
+#endif
 
 	DEFINE_OUTPUT(	m_OnPlayerGotOnLadder,	"OnPlayerGotOnLadder" ),
 	DEFINE_OUTPUT(	m_OnPlayerGotOffLadder,	"OnPlayerGotOffLadder" ),

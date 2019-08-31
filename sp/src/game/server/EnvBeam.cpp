@@ -48,6 +48,11 @@ public:
 	void InputTurnOff( inputdata_t &inputdata );
 	void InputToggle( inputdata_t &inputdata );
 	void InputStrikeOnce( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputAmplitude( inputdata_t &inputdata );
+	void InputSetStartEntity( inputdata_t &inputdata ) { m_iszStartEntity = inputdata.value.StringID(); }
+	void InputSetEndEntity( inputdata_t &inputdata ) { m_iszEndEntity = inputdata.value.StringID(); }
+#endif
 
 	void TurnOn( void );
 	void TurnOff( void );
@@ -123,6 +128,11 @@ BEGIN_DATADESC( CEnvBeam )
 	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOff", InputTurnOff ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Toggle", InputToggle ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "StrikeOnce", InputStrikeOnce ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "Amplitude", InputAmplitude ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetStartEntity", InputSetStartEntity ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetEndEntity", InputSetEndEntity ),
+#endif
 
 	DEFINE_OUTPUT( m_OnTouchedByEntity, "OnTouchedByEntity" ),
 
@@ -287,6 +297,17 @@ void CEnvBeam::InputStrikeOnce( inputdata_t &inputdata )
 }
 
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for amplitude
+//-----------------------------------------------------------------------------
+void CEnvBeam::InputAmplitude( inputdata_t &inputdata )
+{
+	m_noiseAmplitude = inputdata.value.Float();
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Purpose: Turns the lightning on. If it is set for interval refiring, it will
 //			begin doing so. If it is set to be continually on, it will do so.
@@ -383,11 +404,53 @@ void CEnvBeam::Strike( void )
 
 	m_speed = clamp( (int) m_speed, 0, (int) MAX_BEAM_SCROLLSPEED );
 	
+#ifdef MAPBASE
+	bool pointStart = IsStaticPointEntity( pStart );
+	bool pointEnd = IsStaticPointEntity( pEnd );
+#else
 	int pointStart = IsStaticPointEntity( pStart );
 	int pointEnd = IsStaticPointEntity( pEnd );
+#endif
 
 	if ( pointStart || pointEnd )
 	{
+#ifdef MAPBASE
+		if ( m_spawnflags & SF_BEAM_RING )
+		{
+			te->BeamRing( filter, 0.0,
+				pStart->entindex(), 
+				pEnd->entindex(), 
+				m_spriteTexture, 
+				0,	// No halo
+				m_frameStart,
+				(int)m_flFrameRate,
+				m_life,
+				m_boltWidth,
+				0,	// No spread
+				m_noiseAmplitude,
+				m_clrRender->r, m_clrRender->g, m_clrRender->b, m_clrRender->a,
+				m_speed );
+		}
+		else
+		{
+			te->BeamEntPoint( filter, 0.0,
+				pStart->entindex(),
+				&pStart->GetAbsOrigin(),
+				pEnd->entindex(),
+				&pEnd->GetAbsOrigin(),
+				m_spriteTexture,
+				0,	// No halo
+				m_frameStart,
+				(int)m_flFrameRate,
+				m_life,
+				m_boltWidth,
+				m_boltWidth,	// End width
+				0,				// No fade
+				m_noiseAmplitude,
+				m_clrRender->r,	m_clrRender->g,	m_clrRender->b,	m_clrRender->a,
+				m_speed );
+		}
+#else
 		if ( m_spawnflags & SF_BEAM_RING )
 		{
 			// don't work
@@ -410,6 +473,7 @@ void CEnvBeam::Strike( void )
 			m_noiseAmplitude,
 			m_clrRender->r,	m_clrRender->g,	m_clrRender->b,	m_clrRender->a,
 			m_speed );
+#endif
 	}
 	else
 	{

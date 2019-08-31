@@ -251,7 +251,12 @@ CAssaultPoint *CAI_AssaultBehavior::FindAssaultPoint( string_t iszAssaultPointNa
 	CUtlVector<CAssaultPoint*>pAssaultPoints;
 	CUtlVector<CAssaultPoint*>pClearAssaultPoints;
 
+#ifdef MAPBASE
+	// Prevents non-assault points (e.g. rally points) from crashing the game
+	CAssaultPoint *pAssaultEnt = dynamic_cast<CAssaultPoint*>(gEntList.FindEntityByName( NULL, iszAssaultPointName ));
+#else
 	CAssaultPoint *pAssaultEnt = (CAssaultPoint *)gEntList.FindEntityByName( NULL, iszAssaultPointName );
+#endif
 
 	while( pAssaultEnt != NULL )
 	{

@@ -494,6 +494,11 @@ enum sharedtasks_e
 		// First task of all schedules for playing back scripted sequences
 		TASK_PRE_SCRIPT,
 
+#ifdef MAPBASE
+		// Faces the actual interaction angles instead of just facing the enemy
+		TASK_FACE_INTERACTION_ANGLES,
+#endif
+
 		// ======================================
 		// IMPORTANT: This must be the last enum
 		// ======================================

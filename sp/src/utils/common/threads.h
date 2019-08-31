@@ -16,9 +16,15 @@
 #pragma once
 
 
+#ifdef MAPBASE
+// This was suggested in that Source 2013 pull request that fixed Vrad.
+// I trust their judgement on this.
+#define MAX_TOOL_THREADS	32
+#else
 // Arrays that are indexed by thread should always be MAX_TOOL_THREADS+1
 // large so THREADINDEX_MAIN can be used from the main thread.
 #define MAX_TOOL_THREADS	16
+#endif
 #define THREADINDEX_MAIN	(MAX_TOOL_THREADS)
 
 

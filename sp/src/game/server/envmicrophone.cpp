@@ -44,6 +44,10 @@ BEGIN_DATADESC( CEnvMicrophone )
 	DEFINE_KEYFIELD(m_iszListenFilter, FIELD_STRING, "ListenFilter"),
 	DEFINE_FIELD(m_hListenFilter, FIELD_EHANDLE),
 	DEFINE_FIELD(m_hSpeaker, FIELD_EHANDLE),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD(m_iszLandmarkName, FIELD_STRING, "landmark"),
+	DEFINE_FIELD(m_hLandmark, FIELD_EHANDLE),
+#endif
 	// DEFINE_FIELD(m_bAvoidFeedback, FIELD_BOOLEAN),	// DONT SAVE
 	DEFINE_KEYFIELD(m_iSpeakerDSPPreset, FIELD_INTEGER, "speaker_dsp_preset" ),
 	DEFINE_KEYFIELD(m_flMaxRange, FIELD_FLOAT, "MaxRange"),
@@ -52,6 +56,9 @@ BEGIN_DATADESC( CEnvMicrophone )
 	DEFINE_INPUTFUNC(FIELD_VOID, "Enable", InputEnable),
 	DEFINE_INPUTFUNC(FIELD_VOID, "Disable", InputDisable),
 	DEFINE_INPUTFUNC(FIELD_STRING, "SetSpeakerName", InputSetSpeakerName),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC(FIELD_INTEGER, "SetDSPPreset", InputSetDSPPreset),
+#endif
 
 	DEFINE_OUTPUT(m_SoundLevel, "SoundLevel"),
 	DEFINE_OUTPUT(m_OnRoutedSound, "OnRoutedSound" ),
@@ -190,6 +197,13 @@ void CEnvMicrophone::ActivateSpeaker( void )
 			s_Microphones.AddToTail( this );
 		}
 	}
+
+#ifdef MAPBASE
+	if (m_iszLandmarkName != NULL_STRING)
+	{
+		m_hLandmark = gEntList.FindEntityByName(NULL, m_iszLandmarkName, this, NULL, NULL);
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -233,6 +247,18 @@ void CEnvMicrophone::InputSetSpeakerName( inputdata_t &inputdata )
 {
 	SetSpeakerName( inputdata.value.StringID() );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CEnvMicrophone::InputSetDSPPreset( inputdata_t &inputdata )
+{
+	m_iSpeakerDSPPreset = inputdata.value.Int();
+	ActivateSpeaker();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Checks whether this microphone can hear a given sound, and at what
@@ -473,6 +499,21 @@ MicrophoneResult_t CEnvMicrophone::SoundPlayed( int entindex, const char *soundn
 		}
 	}
 
+#ifdef MAPBASE
+	// Something similar to trigger_teleport landmarks for sounds transmitting to speaker
+	Vector vecOrigin = m_hSpeaker->GetAbsOrigin();
+	if (m_hLandmark)
+	{
+		Vector vecSoundPos;
+		if (pOrigin)
+			vecSoundPos = *pOrigin;
+		else if (CBaseEntity *pEntity = CBaseEntity::Instance(engine->PEntityOfEntIndex(entindex)))
+			vecSoundPos = pEntity->GetAbsOrigin();
+
+		vecOrigin += (vecSoundPos - m_hLandmark->GetAbsOrigin());
+	}
+#endif
+
 	m_bAvoidFeedback = true;
 
 	// Add the speaker flag. Detected at playback and applies the speaker filter.
@@ -486,7 +527,11 @@ MicrophoneResult_t CEnvMicrophone::SoundPlayed( int entindex, const char *soundn
 	ep.m_SoundLevel = soundlevel;
 	ep.m_nFlags = iFlags;
 	ep.m_nPitch = iPitch;
+#ifdef MAPBASE
+	ep.m_pOrigin = &vecOrigin;
+#else
 	ep.m_pOrigin = &m_hSpeaker->GetAbsOrigin();
+#endif
 	ep.m_flSoundTime = soundtime;
 	ep.m_nSpeakerEntity = entindex;
 

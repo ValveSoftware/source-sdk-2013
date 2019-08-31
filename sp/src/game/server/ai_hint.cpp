@@ -890,6 +890,9 @@ BEGIN_DATADESC( CAI_Hint )
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID,		"EnableHint",		InputEnableHint ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"DisableHint",		InputDisableHint ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING,		"SetHintGroup",		InputSetHintGroup ),
+#endif
 
 	// Outputs
 	DEFINE_OUTPUT( m_OnNPCStartedUsing,	"OnNPCStartedUsing" ),
@@ -912,6 +915,18 @@ void CAI_Hint::InputDisableHint( inputdata_t &inputdata )
 {
 	m_NodeData.iDisabled		= true;
 }
+
+#ifdef MAPBASE
+void CAI_Hint::SetGroup( string_t iszNewGroup )
+{
+	m_NodeData.strGroup = iszNewGroup;
+}
+
+void CAI_Hint::InputSetHintGroup( inputdata_t &inputdata )
+{
+	SetGroup(inputdata.value.StringID());
+}
+#endif
 
 
 //------------------------------------------------------------------------------
@@ -1074,6 +1089,40 @@ bool CAI_Hint::IsInNodeFOV( CBaseEntity *pOther )
 
 	return false;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// An easy way of engaging certain hint parameters on certain hint types that didn't use it before.
+//-----------------------------------------------------------------------------
+void CAI_Hint::NPCHandleStartNav( CAI_BaseNPC *pNPC, bool bDefaultFacing )
+{
+	Assert( pNPC != NULL );
+
+	HintIgnoreFacing_t facing = GetIgnoreFacing();
+	if (facing == HIF_DEFAULT)
+		facing = bDefaultFacing ? HIF_YES : HIF_NO;
+
+	if (facing == HIF_YES)
+		pNPC->GetNavigator()->SetArrivalDirection(GetDirection());
+
+	if (HintActivityName() != NULL_STRING)
+	{
+		Activity hintActivity = (Activity)CAI_BaseNPC::GetActivityID( STRING(HintActivityName()) );
+		if ( hintActivity != ACT_INVALID )
+		{
+			pNPC->GetNavigator()->SetArrivalActivity( pNPC->GetHintActivity(HintType(), hintActivity) );
+		}
+		else
+		{
+			int iSequence = pNPC->LookupSequence(STRING(HintActivityName()));
+			if ( iSequence != ACT_INVALID )
+			{
+				pNPC->GetNavigator()->SetArrivalSequence( iSequence );
+			}
+		}
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Locks the node for use by an AI for hints
@@ -1425,6 +1474,15 @@ int CAI_Hint::DrawDebugTextOverlays(void)
 		Q_snprintf(tempstr,sizeof(tempstr),"delay %f", MAX( 0.0f, m_flNextUseTime - gpGlobals->curtime ) ) ;
 		EntityText(text_offset,tempstr,0);
 		text_offset++;
+
+#ifdef MAPBASE
+		if (m_NodeData.strGroup != NULL_STRING)
+		{
+			Q_snprintf(tempstr,sizeof(tempstr),"hintgroup %s", STRING(m_NodeData.strGroup) ) ;
+			EntityText(text_offset,tempstr,0);
+			text_offset++;
+		}
+#endif
 
 		if ( m_NodeData.iDisabled )
 		{

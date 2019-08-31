@@ -11,7 +11,11 @@
 #pragma once
 #endif
 
+#ifdef MAPBASE
+#include "baseentity.h"
+#else
 #include "basetoggle.h"
+#endif
 #include "entityoutput.h"
 
 //
@@ -33,15 +37,24 @@ enum
 	SF_TRIG_TOUCH_DEBRIS 					= 0x400,	// Will touch physics debris objects
 	SF_TRIGGER_ONLY_NPCS_IN_VEHICLES		= 0X800,	// *if* NPCs can fire this trigger, only NPCs in vehicles do so (respects player ally flag too)
 	SF_TRIGGER_DISALLOW_BOTS                = 0x1000,   // Bots are not allowed to fire this trigger
+#ifdef MAPBASE
+	SF_TRIGGER_ALLOW_ITEMS					= 0x2000,	// MOVETYPE_FLYGRAVITY (Weapons, items, flares, etc.) can fire this trigger
+#endif
 };
 
 // DVS TODO: get rid of CBaseToggle
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+#define CBaseToggle CBaseEntity
+#endif
 class CBaseTrigger : public CBaseToggle
 {
 	DECLARE_CLASS( CBaseTrigger, CBaseToggle );
+#ifdef MAPBASE
+#undef CBaseToggle
+#endif
 public:
 	CBaseTrigger();
 	
@@ -95,6 +108,19 @@ protected:
 
 	// Entities currently being touched by this trigger
 	CUtlVector< EHANDLE >	m_hTouchingEntities;
+
+#ifdef MAPBASE
+	// We don't descend from CBaseToggle anymore. These have to be defined here now.
+	EHANDLE		m_hActivator;
+	float		m_flWait;
+	string_t	m_sMaster;		// If this button has a master switch, this is the targetname.
+								// A master switch must be of the multisource type. If all 
+								// of the switches in the multisource have been triggered, then
+								// the button will be allowed to operate. Otherwise, it will be
+								// deactivated.
+
+	virtual float	GetDelay( void ) { return m_flWait; }
+#endif
 
 	DECLARE_DATADESC();
 };
@@ -171,6 +197,10 @@ public:
 	{
 		// This field came along after levels were built so the field defaults to 20 here in the constructor.
 		m_flDamageCap = 20.0f;
+#ifdef MAPBASE
+		// Uh, same here.
+		m_flHurtRate = 0.5f;
+#endif
 	}
 
 	DECLARE_CLASS( CTriggerHurt, CBaseTrigger );
@@ -183,6 +213,10 @@ public:
 	bool HurtEntity( CBaseEntity *pOther, float damage );
 	int HurtAllTouchers( float dt );
 
+#ifdef MAPBASE
+	bool KeyValue( const char *szKeyName, const char *szValue );
+#endif
+
 	DECLARE_DATADESC();
 
 	float	m_flOriginalDamage;	// Damage as specified by the level designer.
@@ -193,6 +227,9 @@ public:
 	int		m_bitsDamageInflict;	// DMG_ damage type that the door or tigger does
 	int		m_damageModel;
 	bool	m_bNoDmgForce;		// Should damage from this trigger impart force on what it's hurting
+#ifdef MAPBASE
+	float	m_flHurtRate;
+#endif
 
 	enum
 	{

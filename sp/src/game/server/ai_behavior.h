@@ -130,6 +130,9 @@ public:
 	void BridgeModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet );
 	void BridgeTeleport( const Vector *newPosition, const QAngle *newAngles, const Vector *newVelocity );
 	void BridgeHandleAnimEvent( animevent_t *pEvent );
+#ifdef MAPBASE
+	bool BridgeCanUnholsterWeapon( void );
+#endif
 
 	virtual void GatherConditions();
 	virtual void GatherConditionsNotActive() { return; } // Override this and your behavior will call this in place of GatherConditions() when your behavior is NOT the active one.
@@ -215,6 +218,9 @@ protected:
 	virtual void ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet );
 	virtual void Teleport( const Vector *newPosition, const QAngle *newAngles, const Vector *newVelocity );
 	virtual void HandleAnimEvent( animevent_t *pEvent );
+#ifdef MAPBASE
+	virtual bool CanUnholsterWeapon( void );
+#endif
 
 	virtual bool ShouldAlwaysThink();
 
@@ -361,6 +367,11 @@ public:
 
 	virtual void		 BackBridge_HandleAnimEvent( animevent_t *pEvent ) = 0;
 
+#ifdef MAPBASE
+	// For func_tank behavior
+	virtual bool		 BackBridge_CanUnholsterWeapon( void ) = 0;
+#endif
+
 //-------------------------------------
 
 };
@@ -457,6 +468,9 @@ public:
 	Activity		GetFlinchActivity( bool bHeavyDamage, bool bGesture );
 	bool			OnCalcBaseMove( AILocalMoveGoal_t *pMoveGoal, float distClear, AIMoveResult_t *pResult );
 	void			HandleAnimEvent( animevent_t *pEvent );
+#ifdef MAPBASE
+	bool			CanUnholsterWeapon( void );
+#endif
 	
 	bool			ShouldAlwaysThink();
 
@@ -516,6 +530,11 @@ private:
 	void			BackBridge_Teleport( const Vector *newPosition, const QAngle *newAngles, const Vector *newVelocity );
 
 	void			BackBridge_HandleAnimEvent( animevent_t *pEvent );
+
+#ifdef MAPBASE
+	// For func_tank behavior
+	bool			 BackBridge_CanUnholsterWeapon( void );
+#endif
 
 	CAI_BehaviorBase **AccessBehaviors();
 	int				NumBehaviors();
@@ -886,6 +905,15 @@ inline void CAI_BehaviorBase::BridgeHandleAnimEvent( animevent_t *pEvent )
 {
 	HandleAnimEvent( pEvent );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+
+inline bool CAI_BehaviorBase::BridgeCanUnholsterWeapon( void )
+{
+	return CanUnholsterWeapon();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 
@@ -1462,6 +1490,16 @@ inline void CAI_BehaviorHost<BASE_NPC>::BackBridge_HandleAnimEvent( animevent_t 
 	BaseClass::HandleAnimEvent( pEvent );
 }
 
+#ifdef MAPBASE
+//-------------------------------------
+
+template <class BASE_NPC>
+inline bool CAI_BehaviorHost<BASE_NPC>::BackBridge_CanUnholsterWeapon( void )
+{
+	return BaseClass::CanUnholsterWeapon();
+}
+#endif
+
 //-------------------------------------
 
 template <class BASE_NPC>
@@ -1864,6 +1902,19 @@ inline void CAI_BehaviorHost<BASE_NPC>::HandleAnimEvent( animevent_t *pEvent )
 
 	return BaseClass::HandleAnimEvent( pEvent );
 }
+
+#ifdef MAPBASE
+//-------------------------------------
+
+template <class BASE_NPC>
+inline bool CAI_BehaviorHost<BASE_NPC>::CanUnholsterWeapon( void )
+{
+	if ( m_pCurBehavior )
+		return m_pCurBehavior->BridgeCanUnholsterWeapon();
+
+	return BaseClass::CanUnholsterWeapon();
+}
+#endif
 
 //-------------------------------------
 

@@ -19,6 +19,11 @@ struct WeaponProficiencyInfo_t
 
 enum WeaponProficiency_t
 {
+#ifdef MAPBASE
+	// For the override
+	WEAPON_PROFICIENCY_INVALID = -1,
+#endif
+
 	WEAPON_PROFICIENCY_POOR = 0,
 	WEAPON_PROFICIENCY_AVERAGE,
 	WEAPON_PROFICIENCY_GOOD,

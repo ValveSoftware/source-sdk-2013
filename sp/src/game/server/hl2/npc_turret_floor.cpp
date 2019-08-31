@@ -40,6 +40,15 @@ ConVar	g_debug_turret( "g_debug_turret", "0" );
 
 extern ConVar physcannon_tracelength;
 
+#if defined(MAPBASE) && defined(HL2_EPISODIC)
+extern ConVar npc_alyx_interact_turrets;
+#endif
+
+#ifdef MAPBASE
+// m_iKeySkin has been replaced with the original m_nSkin so we can make it show up in Hammer, etc.
+#define m_iKeySkin m_nSkin
+#endif
+
 // Interactions
 int	g_interactionTurretStillStanding	= 0;
 
@@ -132,6 +141,10 @@ BEGIN_DATADESC( CNPC_FloorTurret )
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DepleteAmmo", InputDepleteAmmo ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "RestoreAmmo", InputRestoreAmmo ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "CreateSprite", InputCreateSprite ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "DestroySprite", InputDestroySprite ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_VOID, "SelfDestruct", InputSelfDestruct ),
 
 	DEFINE_OUTPUT( m_OnDeploy, "OnDeploy" ),
@@ -288,10 +301,12 @@ void CNPC_FloorTurret::Spawn( void )
 			// add one mod 4
 			nextSkin = (nextSkin + 1) & 0x03;
 		}
+#ifndef MAPBASE
 		else
 		{	// at least make sure that it's in the right range
 			m_nSkin = clamp(m_iKeySkin,1,4);
 		}
+#endif
 	}
 
 	BaseClass::Spawn();
@@ -1545,7 +1560,11 @@ bool CNPC_FloorTurret::PreThink( turretState_e state )
 void CNPC_FloorTurret::SetEyeState( eyeState_t state )
 {
 	// Must have a valid eye to affect
+#ifdef MAPBASE
+	if ( !m_hEyeGlow && !HasSpawnFlags(SF_FLOOR_TURRET_NO_SPRITE) )
+#else
 	if ( !m_hEyeGlow )
+#endif
 	{
 		// Create our eye sprite
 		m_hEyeGlow = CSprite::SpriteCreate( FLOOR_TURRET_GLOW_SPRITE, GetLocalOrigin(), false );
@@ -1775,6 +1794,39 @@ void CNPC_FloorTurret::InputRestoreAmmo( inputdata_t &inputdata )
 	RemoveSpawnFlags( SF_FLOOR_TURRET_OUT_OF_AMMO );
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Creates the sprite if it has been destroyed
+//-----------------------------------------------------------------------------
+void CNPC_FloorTurret::InputCreateSprite( inputdata_t &inputdata )
+{
+	if (m_hEyeGlow)
+		return;
+
+	m_hEyeGlow = CSprite::SpriteCreate( FLOOR_TURRET_GLOW_SPRITE, GetLocalOrigin(), false );
+	if ( !m_hEyeGlow )
+		return;
+
+	m_hEyeGlow->SetTransparency( kRenderWorldGlow, 255, 0, 0, 128, kRenderFxNoDissipation );
+	m_hEyeGlow->SetAttachment( this, m_iEyeAttachment );
+
+	RemoveSpawnFlags(SF_FLOOR_TURRET_NO_SPRITE);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Destroys the sprite
+//-----------------------------------------------------------------------------
+void CNPC_FloorTurret::InputDestroySprite( inputdata_t &inputdata )
+{
+	if (!m_hEyeGlow)
+		return;
+
+	UTIL_Remove(m_hEyeGlow);
+	m_hEyeGlow = NULL;
+	AddSpawnFlags(SF_FLOOR_TURRET_NO_SPRITE);
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Allow players and npc's to turn the turret on and off
 //-----------------------------------------------------------------------------
@@ -1993,6 +2045,20 @@ int CNPC_FloorTurret::DrawDebugTextOverlays( void )
 
 	return text_offset;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Option to restore Alyx's interactions with non-rollermines
+//-----------------------------------------------------------------------------
+bool CNPC_FloorTurret::CanInteractWith( CAI_BaseNPC *pUser )
+{
+#ifdef HL2_EPISODIC
+	return npc_alyx_interact_turrets.GetBool();
+#else
+	return false;
+#endif
+}
+#endif
 
 void CNPC_FloorTurret::UpdateMuzzleMatrix()
 {

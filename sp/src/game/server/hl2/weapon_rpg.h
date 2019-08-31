@@ -196,6 +196,10 @@ public:
 
 	virtual void Drop( const Vector &vecVelocity );
 
+#ifdef MAPBASE
+	bool	SupportsBackupActivity(Activity activity);
+#endif
+
 	int		GetMinBurst() { return 1; }
 	int		GetMaxBurst() { return 1; }
 	float	GetMinRestTime() { return 4.0; }

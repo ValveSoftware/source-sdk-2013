@@ -233,7 +233,6 @@ private:
 	CBasePlayer *m_pParent; 
 };
 
-
 class CBasePlayer : public CBaseCombatCharacter
 {
 public:
@@ -264,6 +263,10 @@ public:
 	CBaseViewModel			*GetViewModel( int viewmodelindex = 0, bool bObserverOK = true );
 	void					HideViewModels( void );
 	void					DestroyViewModels( void );
+
+#ifdef MAPBASE
+	virtual void			CreateHandModel( int viewmodelindex = 1, int iOtherVm = 0 );
+#endif
 
 	CPlayerState			*PlayerData( void ) { return &pl; }
 	
@@ -416,6 +419,9 @@ public:
 	virtual bool			Weapon_ShouldSelectItem( CBaseCombatWeapon *pWeapon );
 	void					Weapon_DropSlot( int weaponSlot );
 	CBaseCombatWeapon		*Weapon_GetLast( void ) { return m_hLastWeapon.Get(); }
+#ifdef MAPBASE
+	virtual Activity		Weapon_TranslateActivity( Activity baseAct, bool *pRequired = NULL );
+#endif
 
 	virtual void			OnMyWeaponFired( CBaseCombatWeapon *weapon );	// call this when this player fires a weapon to allow other systems to react
 	virtual float			GetTimeSinceWeaponFired( void ) const;			// returns the time, in seconds, since this player fired a weapon
@@ -766,6 +772,9 @@ public:
 	void	InputSetHealth( inputdata_t &inputdata );
 	void	InputSetHUDVisibility( inputdata_t &inputdata );
 	void	InputHandleMapEvent( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void	InputSetSuppressAttacks( inputdata_t &inputdata );
+#endif
 
 	surfacedata_t *GetSurfaceData( void ) { return m_pSurfaceData; }
 	void SetLadderNormal( Vector vecLadderNormal ) { m_vecLadderNormal = vecLadderNormal; }
@@ -890,6 +899,10 @@ public:
 #if defined USES_ECON_ITEMS
 	CEconWearable			*GetWearable( int i ) { return m_hMyWearables[i]; }
 	int						GetNumWearables( void ) { return m_hMyWearables.Count(); }
+#endif
+
+#ifdef MAPBASE
+	bool					m_bInTriggerFall;
 #endif
 
 private:
@@ -1091,6 +1104,10 @@ public:
 	float					m_flForwardMove;
 	float					m_flSideMove;
 	int						m_nNumCrateHudHints;
+
+#ifdef MAPBASE
+	CNetworkVar( bool, m_bDrawPlayerModelExternally );
+#endif
 
 private:
 

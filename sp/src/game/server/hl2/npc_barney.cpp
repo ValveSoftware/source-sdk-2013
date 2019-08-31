@@ -111,6 +111,9 @@ END_DATADESC()
 //-----------------------------------------------------------------------------
 void CNPC_Barney::SelectModel()
 {
+#ifdef MAPBASE
+	if (GetModelName() == NULL_STRING)
+#endif
 	SetModelName( AllocPooledString( BARNEY_MODEL ) );
 }
 

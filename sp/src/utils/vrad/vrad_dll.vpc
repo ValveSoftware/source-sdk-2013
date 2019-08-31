@@ -6,6 +6,7 @@
 
 $Macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINNAME	"mapbase_vrad_dll"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 

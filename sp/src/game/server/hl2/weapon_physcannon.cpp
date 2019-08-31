@@ -40,6 +40,9 @@
 #include "ai_interactions.h"
 #include "rumble_shared.h"
 #include "gamestats.h"
+#ifdef MAPBASE
+#include "mapbase/GlobalStrings.h"
+#endif
 // NVNT haptic utils
 #include "haptics/haptic_utils.h"
 
@@ -141,6 +144,10 @@ public:
 		// Handle grate entities differently
 		if ( HasContentsGrate( pEntity ) )
 		{
+#ifdef MAPBASE
+			if (pEntity->CanBePickedUpByPhyscannon())
+				return true;
+#else
 			// See if it's a grabbable physics prop
 			CPhysicsProp *pPhysProp = dynamic_cast<CPhysicsProp *>(pEntity);
 			if ( pPhysProp != NULL )
@@ -166,6 +173,7 @@ public:
 				// Somehow had a classname that didn't match the class!
 				Assert(0);
 			}
+#endif
 
 			// Don't bother with any other sort of grated entity
 			return false;
@@ -438,10 +446,12 @@ static void ComputePlayerMatrix( CBasePlayer *pPlayer, matrix3x4_t &out )
 // Purpose: 
 //-----------------------------------------------------------------------------
 // derive from this so we can add save/load data to it
+#ifndef MAPBASE // Moved to weapon_physcannon.h for point_physics_control
 struct game_shadowcontrol_params_t : public hlshadowcontrol_params_t
 {
 	DECLARE_SIMPLE_DATADESC();
 };
+#endif
 
 BEGIN_SIMPLE_DATADESC( game_shadowcontrol_params_t )
 	
@@ -808,7 +818,14 @@ void CGrabController::AttachEntity( CBasePlayer *pPlayer, CBaseEntity *pEntity, 
 	CPhysicsProp *pProp = dynamic_cast<CPhysicsProp *>(pEntity);
 	if ( pProp )
 	{
+#ifdef MAPBASE
+		// If the prop has custom carry angles, don't override them
+		// (regular PreferredCarryAngles() code should cover it)
+		if (!pProp->m_bUsesCustomCarryAngles)
+			m_bHasPreferredCarryAngles = pProp->GetPropDataAngles( "preferred_carryangles", m_vecPreferredCarryAngles );
+#else
 		m_bHasPreferredCarryAngles = pProp->GetPropDataAngles( "preferred_carryangles", m_vecPreferredCarryAngles );
+#endif
 		m_flDistanceOffset = pProp->GetCarryDistanceOffset();
 	}
 	else
@@ -2084,6 +2101,10 @@ bool CWeaponPhysCannon::EntityAllowsPunts( CBaseEntity *pEntity )
 
 	if ( pEntity->HasSpawnFlags( SF_WEAPON_NO_PHYSCANNON_PUNT ) )
 	{
+#ifdef MAPBASE
+		if (pEntity->IsBaseCombatWeapon() || pEntity->IsCombatItem())
+			return false;
+#else
 		CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>(pEntity);
 
 		if ( pWeapon != NULL )
@@ -2093,6 +2114,7 @@ bool CWeaponPhysCannon::EntityAllowsPunts( CBaseEntity *pEntity )
 				return false;
 			}
 		}
+#endif
 	}
 
 	return true;
@@ -2448,7 +2470,11 @@ bool CWeaponPhysCannon::AttachObject( CBaseEntity *pObject, const Vector &vPosit
 	}
 
 #if defined(HL2_DLL)
+#ifdef MAPBASE
+	if( physcannon_right_turrets.GetBool() && EntIsClass(pObject, gm_isz_class_FloorTurret) )
+#else
 	if( physcannon_right_turrets.GetBool() && pObject->ClassMatches("npc_turret_floor") )
+#endif
 	{
 		// We just picked up a turret. Is it already upright?
 		Vector vecUp;
@@ -3287,6 +3313,15 @@ void CWeaponPhysCannon::ItemPostFrame()
 		return;
 	}
 
+#ifdef MAPBASE
+	if (pOwner->HasSpawnFlags( SF_PLAYER_SUPPRESS_FIRING ))
+	{
+		m_nAttack2Debounce = 0;
+		WeaponIdle();
+		return;
+	}
+#endif
+
 	//Check for object in pickup range
 	if ( m_bActive == false )
 	{
@@ -3458,6 +3493,12 @@ bool CWeaponPhysCannon::CanPickupObject( CBaseEntity *pTarget )
 	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
 	if ( pOwner && pOwner->GetGroundEntity() == pTarget )
 		return false;
+
+#ifdef MAPBASE
+	// The gravity gun can't pick up vehicles.
+	if ( pTarget->GetServerVehicle() )
+		return false;
+#endif
 
 	if ( !IsMegaPhysCannon() )
 	{

@@ -30,6 +30,13 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef MAPBASE
+// This turned out to be causing major issues with VPhysics collision.
+// It's deactivated until a fix is found.
+// See player_command.cpp as well.
+//#define PLAYER_COMMAND_FIX 1
+#endif
+
 IPredictionSystem *IPredictionSystem::g_pPredictionSystems = NULL;
 
 #if !defined( NO_ENTITY_PREDICTION )
@@ -903,9 +910,15 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 		pVehicle->ProcessMovement( player, g_pMoveData );
 	}
 
+#ifdef PLAYER_COMMAND_FIX
+	RunPostThink( player );
+
+	FinishMove( player, ucmd, g_pMoveData );
+#else
 	FinishMove( player, ucmd, g_pMoveData );
 
 	RunPostThink( player );
+#endif
 
 	g_pGameMovement->FinishTrackPredictionErrors( player );
 

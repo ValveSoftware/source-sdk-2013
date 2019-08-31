@@ -361,7 +361,11 @@ bool CManifest::LoadVMFManifestUserPrefs( const char *pszFileName )
 	UserNameSize = sizeof( UserName );
 	if ( GetUserName( UserName, &UserNameSize ) == 0 )
 	{
+#ifdef MAPBASE
+		strcpy( UserName, "default" );
+#else
 		strcpy( UserPrefsFileName, "default" );
+#endif
 	}
 
 	sprintf( UserPrefsFileName, "\\%s.vmm_prefs", UserName );

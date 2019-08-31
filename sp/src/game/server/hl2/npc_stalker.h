@@ -46,8 +46,18 @@ public:
 	float				m_bPlayingHitFlesh;
 	CBeam*				m_pBeam;
 	CSprite*			m_pLightGlow;
+#ifdef MAPBASE
+	// This is a keyvalue now, so we have to initialize the value through somewhere that isn't Spawn()
+	int					m_iPlayerAggression = 0;
+	bool				m_bBleed;
+#else
 	int					m_iPlayerAggression;
+#endif
 	float				m_flNextScreamTime;
+
+#ifdef MAPBASE
+	void				UpdateOnRemove( void );
+#endif
 
 	void				KillAttackBeam(void);
 	void				DrawAttackBeam(void);
@@ -97,6 +107,9 @@ public:
 	void			PainSound( const CTakeDamageInfo &info );
 
 	void			Event_Killed( const CTakeDamageInfo &info );
+#ifdef MAPBASE
+	void			TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator );
+#endif
 	void			DoSmokeEffect( const Vector &position );
 
 	void			AddZigZagToPath(void);

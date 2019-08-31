@@ -42,6 +42,10 @@ extern int AE_ZOMBIE_POUND;
 #define ZOMBIE_BLOOD_RIGHT_HAND		1
 #define ZOMBIE_BLOOD_BOTH_HANDS		2
 #define ZOMBIE_BLOOD_BITE			3
+
+#ifdef MAPBASE
+#define SF_ZOMBIE_NO_TORSO ( 1 << 15 )
+#endif
 	
 
 enum HeadcrabRelease_t
@@ -259,6 +263,9 @@ protected:
 	float	m_flBurnDamageResetTime;	// Time at which we reset the burn damage.
 
 	EHANDLE m_hPhysicsEnt;
+#ifdef MAPBASE
+	COutputEHANDLE m_OnSwattedProp;
+#endif
 
 	float m_flNextMoanSound;
 	float m_flNextSwat;

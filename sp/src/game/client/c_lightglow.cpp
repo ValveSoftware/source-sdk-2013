@@ -102,6 +102,10 @@ public:
 	C_LightGlowOverlay	m_Glow;
 
 	float				m_flGlowProxySize;
+
+#ifdef MAPBASE
+	bool				m_bDisabled;
+#endif
 };
 
 static void RecvProxy_HDRColorScale( const CRecvProxyData *pData, void *pStruct, void *pOut )
@@ -123,6 +127,9 @@ IMPLEMENT_CLIENTCLASS_DT_NOBASE( C_LightGlow, DT_LightGlow, CLightGlow )
 	RecvPropQAngles( RECVINFO_NAME( m_angNetworkAngles, m_angRotation ) ),
 	RecvPropInt( RECVINFO_NAME(m_hNetworkMoveParent, moveparent), 0, RecvProxy_IntToMoveParent ),
 	RecvPropFloat(RECVINFO(m_flGlowProxySize)),
+#ifdef MAPBASE
+	RecvPropBool( RECVINFO( m_bDisabled ) ),
+#endif
 	RecvPropFloat("HDRColorScale", 0, SIZEOF_IGNORE, 0, RecvProxy_HDRColorScale),
 END_RECV_TABLE()
 
@@ -202,7 +209,11 @@ void C_LightGlow::OnDataChanged( DataUpdateType_t updateType )
 void C_LightGlow::ClientThink( void )
 {
 	Vector mins = GetAbsOrigin();
+#ifdef MAPBASE
+	if ( engine->IsBoxVisible( mins, mins ) && !m_bDisabled )
+#else
 	if ( engine->IsBoxVisible( mins, mins ) )
+#endif
 	{
 		m_Glow.Activate();
 	}

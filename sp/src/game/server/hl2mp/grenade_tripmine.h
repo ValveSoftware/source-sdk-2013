@@ -15,6 +15,9 @@
 
 class CBeam;
 
+#ifdef MAPBASE
+#define SF_TRIPMINE_START_INACTIVE (1 << 0)
+#endif
 
 class CTripmineGrenade : public CBaseGrenade
 {
@@ -37,8 +40,23 @@ public:
 	void MakeBeam( void );
 	void KillBeam( void );
 
+#ifdef MAPBASE
+	void PowerUp();
+
+	void InputActivate( inputdata_t &inputdata );
+	void InputDeactivate( inputdata_t &inputdata );
+	void InputSetOwner( inputdata_t &inputdata ) { m_hOwner = inputdata.value.Entity(); }
+
+	COutputEvent m_OnExplode;
+#endif
+
 public:
 	EHANDLE		m_hOwner;
+
+#ifdef MAPBASE
+	float		m_flPowerUpTime;
+	EHANDLE		m_hAttacker;
+#endif
 
 private:
 	float		m_flPowerUp;

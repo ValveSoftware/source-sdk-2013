@@ -25,6 +25,13 @@
 #define GAMEMOVEMENT_TIME_TO_UNDUCK			( TIME_TO_UNDUCK * 1000.0f )		// ms
 #define GAMEMOVEMENT_TIME_TO_UNDUCK_INV		( GAMEMOVEMENT_DUCK_TIME - GAMEMOVEMENT_TIME_TO_UNDUCK )
 
+#ifdef MAPBASE
+// reddit.com/r/SourceEngine/comments/8vx53b/how_to_get_brush_ladders_working/
+// 
+// Implements code that allows func_ladder to be used in HL2.
+#define HL2_USES_FUNC_LADDER_CODE 1
+#endif
+
 enum
 {
 	SPEED_CROPPED_RESET = 0,

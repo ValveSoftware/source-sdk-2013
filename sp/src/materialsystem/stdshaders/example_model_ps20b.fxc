@@ -80,7 +80,7 @@ float4 main( PS_INPUT i ) : COLOR
 	float3 result = baseColor.rgb * g_DiffuseModulation.rgb * diffuseLighting;
 	float alpha = g_DiffuseModulation.a * baseColor.a;
 
-	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.z, i.worldPos.z, i.projPos.z );
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.xyz, i.worldPos, i.projPos.z );
 
 #if WRITEWATERFOGTODESTALPHA && ( PIXELFOGTYPE == PIXEL_FOG_TYPE_HEIGHT )
 	alpha = fogFactor;

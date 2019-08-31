@@ -125,11 +125,31 @@ void CAI_PolicingBehavior::HostSpeakSentence( const char *pSentence, SentencePri
 
 	if ( pCop != NULL )
 	{
+#ifdef METROPOLICE_USES_RESPONSE_SYSTEM
+		pCop->SpeakIfAllowed( pSentence, nSoundPriority, nCriteria );
+#else
 		CAI_Sentence< CNPC_MetroPolice > *pSentences = pCop->GetSentences();
 
 		pSentences->Speak( pSentence, nSoundPriority, nCriteria );
+#endif
 	}
 }
+
+#ifdef METROPOLICE_USES_RESPONSE_SYSTEM
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CAI_PolicingBehavior::HostSpeakSentence( const char *pSentence, const char *modifiers, SentencePriority_t nSoundPriority, SentenceCriteria_t nCriteria )
+{
+	// If we're a cop, turn the baton on
+	CNPC_MetroPolice *pCop = dynamic_cast<CNPC_MetroPolice *>(GetOuter());
+
+	if ( pCop != NULL )
+	{
+		pCop->SpeakIfAllowed( pSentence, modifiers, nSoundPriority, nCriteria );
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -214,6 +234,9 @@ void CAI_PolicingBehavior::AnnouncePolicing( void )
 		"METROPOLICE_MOVE_ALONG_C",
 	};
 
+#ifdef METROPOLICE_USES_RESPONSE_SYSTEM
+	HostSpeakSentence(TLK_COP_MOVE_ALONG, UTIL_VarArgs("numwarnings:%i", m_nNumWarnings), SENTENCE_PRIORITY_MEDIUM, SENTENCE_CRITERIA_NORMAL);
+#else
 	if ( m_nNumWarnings <= 3 )
 	{
 		HostSpeakSentence( pWarnings[ m_nNumWarnings - 1 ], SENTENCE_PRIORITY_MEDIUM, SENTENCE_CRITERIA_NORMAL );
@@ -226,6 +249,7 @@ void CAI_PolicingBehavior::AnnouncePolicing( void )
 		int iSentence = RandomInt( 0, 1 );
 		HostSpeakSentence( pWarnings[ iSentence ], SENTENCE_PRIORITY_MEDIUM, SENTENCE_CRITERIA_NORMAL );
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

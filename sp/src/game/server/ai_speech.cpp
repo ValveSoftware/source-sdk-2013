@@ -16,6 +16,9 @@
 #include "AI_Criteria.h"
 #include "isaverestore.h"
 #include "sceneentity.h"
+#ifdef MAPBASE
+#include "ai_squad.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -275,6 +278,17 @@ static const int LEN_SPECIFIC_SCENE_MODIFIER = strlen( AI_SPECIFIC_SCENE_MODIFIE
 //-----------------------------------------------------------------------------
 AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, const char *modifiers /*= NULL*/ )
 {
+#ifdef MAPBASE
+	AI_CriteriaSet set;
+
+	if (modifiers)
+	{
+		MergeModifiers(set, modifiers);
+	}
+
+	// Now return the code in the new function.
+	return SpeakFindResponse(concept, set);
+#else
 	IResponseSystem *rs = GetOuter()->GetResponseSystem();
 	if ( !rs )
 	{
@@ -318,6 +332,131 @@ AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, const char *
 		if( pPlayer )
 			pPlayer->ModifyOrAppendPlayerCriteria( set );
 	}
+
+#ifdef MAPBASE
+	GetOuter()->ReAppendContextCriteria( set );
+#endif
+
+	// Now that we have a criteria set, ask for a suitable response
+	AI_Response *result = new AI_Response;
+	Assert( result && "new AI_Response: Returned a NULL AI_Response!" );
+	bool found = rs->FindBestResponse( set, *result, this );
+
+	if ( rr_debugresponses.GetInt() == 3 )
+	{
+		if ( ( GetOuter()->MyNPCPointer() && GetOuter()->m_debugOverlays & OVERLAY_NPC_SELECTED_BIT ) || GetOuter()->IsPlayer() )
+		{
+			const char *pszName;
+			if ( GetOuter()->IsPlayer() )
+			{
+				pszName = ((CBasePlayer*)GetOuter())->GetPlayerName();
+			}
+			else
+			{
+				pszName = GetOuter()->GetDebugName();
+			}
+
+			if ( found )
+			{
+				char response[ 256 ];
+				result->GetResponse( response, sizeof( response ) );
+
+				Warning( "RESPONSERULES: %s spoke '%s'. Found response '%s'.\n", pszName, concept, response );
+			}
+			else
+			{
+				Warning( "RESPONSERULES: %s spoke '%s'. Found no matching response.\n", pszName, concept );
+			}
+		}
+	}
+
+	if ( !found )
+	{
+		//Assert( !"rs->FindBestResponse: Returned a NULL AI_Response!" );
+		delete result;
+		return NULL;
+	}
+
+	char response[ 256 ];
+	result->GetResponse( response, sizeof( response ) );
+
+	if ( !response[0] )
+	{
+		delete result;
+		return NULL;
+	}
+
+	if ( result->GetOdds() < 100 && random->RandomInt( 1, 100 ) <= result->GetOdds() )
+	{
+		delete result;
+		return NULL;
+	}
+
+	return result;
+#endif
+}
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Merges modifiers with set.
+//-----------------------------------------------------------------------------
+void CAI_Expresser::MergeModifiers( AI_CriteriaSet& set, const char *modifiers )
+{
+	char copy_modifiers[ 255 ];
+	const char *pCopy;
+	char key[ 128 ] = { 0 };
+	char value[ 128 ] = { 0 };
+
+	Q_strncpy( copy_modifiers, modifiers, sizeof( copy_modifiers ) );
+	pCopy = copy_modifiers;
+
+	while( pCopy )
+	{
+		pCopy = SplitContext( pCopy, key, sizeof( key ), value, sizeof( value ), NULL );
+
+		if( *key && *value )
+		{
+			set.AppendCriteria( key, value, CONCEPT_WEIGHT );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Searches for a possible response, takes an AI_CriteriaSet instead.
+// Input  : concept - 
+//			NULL - 
+// Output : AI_Response
+//-----------------------------------------------------------------------------
+AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, AI_CriteriaSet &modifiers )
+{
+	IResponseSystem *rs = GetOuter()->GetResponseSystem();
+	if ( !rs )
+	{
+		Assert( !"No response system installed for CAI_Expresser::GetOuter()!!!" );
+		return NULL;
+	}
+
+	AI_CriteriaSet set;
+	// Always include the concept name
+	set.AppendCriteria( "concept", concept, CONCEPT_WEIGHT );
+
+	// Tier 1: Criteria
+	// Let our outer fill in most match criteria
+	GetOuter()->ModifyOrAppendCriteria( set );
+
+	// Append local player criteria to set, but not if this is a player doing the talking
+	if ( !GetOuter()->IsPlayer() )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+		if( pPlayer )
+			pPlayer->ModifyOrAppendPlayerCriteria( set );
+	}
+
+	// Tier 2: Modifiers
+	set.MergeSet(modifiers);
+
+	// Tier 3: Contexts
+	GetOuter()->ReAppendContextCriteria( set );
 
 	// Now that we have a criteria set, ask for a suitable response
 	AI_Response *result = new AI_Response;
@@ -376,15 +515,44 @@ AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, const char *
 
 	return result;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Dispatches the result
 // Input  : *response - 
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *result, IRecipientFilter *filter,  const char *modifiers )
+#else
 bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *result, IRecipientFilter *filter /* = NULL */ )
+#endif
 {
 	char response[ 256 ];
 	result->GetResponse( response, sizeof( response ) );
+
+#ifdef MAPBASE
+	if (response[0] == '$')
+	{
+		response[0] = '\0';
+		const char *replace = GetOuter()->GetContextValue(response);
+		if (!replace)
+		{
+			replace = modifiers;
+
+			char key[128] = { 0 };
+			char value[128] = { 0 };
+			replace = SplitContext(replace, key, sizeof(key), value, sizeof(value), NULL);
+			replace = value;
+		}
+
+		if (replace)
+		{
+			DevMsg("Replacing %s with %s...\n", response, GetOuter()->GetContextValue(response));
+			Q_strncpy(response, replace, sizeof(response));
+			GetOuter()->PrecacheScriptSound( response );
+		}
+	}
+#endif
 
 	float delay = result->GetDelay();
 	
@@ -475,6 +643,57 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *res
 			NDebugOverlay::Text( vPrintPos, CFmtStr( "%s: %s", concept, response ), true, 1.5 );
 		}
 
+#ifdef MAPBASE
+		if (result->GetContext())
+		{
+			const char *pszContext = result->GetContext();
+
+			// Check for operators
+			char *pOperator = Q_strstr(pszContext, ":")+1;
+			if (pOperator && (pOperator[0] == '+' || pOperator[0] == '-' ||
+				pOperator[0] == '*' || pOperator[0] == '/'))
+			{
+				pszContext = ParseApplyContext(pszContext);
+			}
+
+			int iContextFlags = result->GetContextFlags();
+			if ( iContextFlags & APPLYCONTEXT_SQUAD )
+			{
+				CAI_BaseNPC *pNPC = GetOuter()->MyNPCPointer();
+				if (pNPC && pNPC->GetSquad())
+				{
+					AISquadIter_t iter;
+					CAI_BaseNPC *pSquadmate = pNPC->GetSquad()->GetFirstMember( &iter );
+					while ( pSquadmate )
+					{
+						pSquadmate->AddContext( pszContext );
+
+						pSquadmate = pNPC->GetSquad()->GetNextMember( &iter );
+					}
+				}
+			}
+			if ( iContextFlags & APPLYCONTEXT_ENEMY )
+			{
+				CBaseEntity *pEnemy = GetOuter()->GetEnemy();
+				if ( pEnemy )
+				{
+					pEnemy->AddContext( pszContext );
+				}
+			}
+			if ( iContextFlags & APPLYCONTEXT_WORLD )
+			{
+				CBaseEntity *pEntity = CBaseEntity::Instance( engine->PEntityOfEntIndex( 0 ) );
+				if ( pEntity )
+				{
+					pEntity->AddContext( pszContext );
+				}
+			}
+			if ( iContextFlags == 0 || iContextFlags & APPLYCONTEXT_SELF )
+			{
+				GetOuter()->AddContext( pszContext );
+			}
+		}
+#else
 		if ( result->IsApplyContextToWorld() )
 		{
 			CBaseEntity *pEntity = CBaseEntity::Instance( engine->PEntityOfEntIndex( 0 ) );
@@ -487,6 +706,7 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *res
 		{
 			GetOuter()->AddContext( result->GetContext() );
 		}
+#endif
 		SetSpokeConcept( concept, result );
 	}
 	else
@@ -568,6 +788,32 @@ bool CAI_Expresser::Speak( AIConcept_t concept, const char *modifiers /*= NULL*/
 	
 	return spoke;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Uses an AI_CriteriaSet directly instead of using context-format modifier text.
+// Input  : concept - 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CAI_Expresser::Speak( AIConcept_t concept, AI_CriteriaSet& modifiers, char *pszOutResponseChosen /* = NULL*/, size_t bufsize /* = 0 */, IRecipientFilter *filter /* = NULL */ )
+{
+	AI_Response *result = SpeakFindResponse( concept, modifiers );
+	if ( !result )
+	{
+		return false;
+	}
+
+	SpeechMsg( GetOuter(), "%s (%p) spoke %s (%f)\n", STRING(GetOuter()->GetEntityName()), GetOuter(), concept, gpGlobals->curtime );
+
+	bool spoke = SpeakDispatchResponse( concept, result, filter );
+	if ( pszOutResponseChosen )
+	{
+		result->GetResponse( pszOutResponseChosen, bufsize );
+	}
+	
+	return spoke;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -821,8 +1067,32 @@ void CAI_Expresser::SetSpokeConcept( AIConcept_t concept, AI_Response *response,
 		slot->response = response;
 	}
 
+#ifdef MAPBASE
+	// This "weapondelay" was just in player allies before.
+	// Putting it here eliminates the need to implement OnSpokeConcept on all NPCs for weapondelay.
+	if ( bCallback )
+	{
+		if( response != NULL && (response->GetParams()->flags & AI_ResponseParams::RG_WEAPONDELAY) )
+		{
+			if ( GetOuter()->IsNPC() )
+			{
+				// Stop shooting, as instructed, so that my speech can be heard.
+				GetOuter()->MyNPCPointer()->GetShotRegulator()->FireNoEarlierThan( gpGlobals->curtime + response->GetWeaponDelay() );
+			}
+			else
+			{
+				char szResponse[64];
+				response->GetName(szResponse, sizeof(szResponse));
+				Warning("%s response %s wants to use weapondelay, but %s is not a NPC!\n", GetOuter()->GetDebugName(), szResponse, GetOuter()->GetDebugName());
+			}
+		}
+
+		GetSink()->OnSpokeConcept( concept, response );
+	}
+#else
 	if ( bCallback )
 		GetSink()->OnSpokeConcept( concept, response );
+#endif
 }
 
 //-------------------------------------
@@ -894,6 +1164,66 @@ void CAI_Expresser::SpeechMsg( CBaseEntity *pFlex, const char *pszFormat, ... )
 	UTIL_LogPrintf( string );
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+char *CAI_Expresser::ParseApplyContext( const char *szContext )
+{
+	char szKey[128];
+	char szValue[128];
+	float flDuration = 0.0;
+
+	SplitContext(szContext, szKey, sizeof(szKey), szValue, sizeof(szValue), &flDuration);
+
+	// This is the value without the operator
+	const char *pszValue = szValue + 1;
+
+	// This is the operator itself
+	char cOperator = szValue[0];
+
+	// This is the value to operate with (e.g. the "7" in "+7")
+	float flNewValue = atof( pszValue );
+
+	if (flNewValue == 0.0f)
+	{
+		// If it's really 0, then this is a waste of time
+		Warning("\"%s\" was detected by applyContext operators as an operable number, but it's not.\n", szValue);
+		return strdup(szContext);
+	}
+
+	// This is the existing value; will be operated upon and become the final assignment
+	float flValue = 0.0f;
+	const char *szExistingValue = GetOuter()->GetContextValue(szKey);
+	if (szExistingValue)
+		flValue = atof(szExistingValue);
+
+	// Do the operation based on what the character was
+	switch (cOperator)
+	{
+		case '+':		flValue += flNewValue;	break;
+		case '-':		flValue -= flNewValue;	break;
+		case '*':		flValue *= flNewValue;	break;
+		case '/':		flValue /= flNewValue;	break;
+	}
+
+	Q_snprintf(szValue, sizeof(szValue), "%f", flValue);
+
+	// Remove all trailing 0's from the float to maintain whole integers
+	int i;
+	for (i = strlen(szValue)-1; szValue[i] == '0'; i--)
+	{
+		szValue[i] = '\0';
+	}
+
+	// If there were only zeroes past the period, this is a whole number. Remove the period
+	if (szValue[i] == '.')
+		szValue[i] = '\0';
+
+	return UTIL_VarArgs("%s:%s:%f", szKey, szValue, flDuration);
+}
+#endif
+
 
 //-----------------------------------------------------------------------------
 
@@ -912,6 +1242,7 @@ void CAI_ExpresserHost_NPC_DoModifyOrAppendCriteria( CAI_BaseNPC *pSpeaker, AI_C
 		set.AppendCriteria( "npcstate", UTIL_VarArgs( "[NPCState::%s]", pStateNames[pSpeaker->m_NPCState] ) );
 	}
 
+#ifndef MAPBASE
 	if ( pSpeaker->GetEnemy() )
 	{
 		set.AppendCriteria( "enemy", pSpeaker->GetEnemy()->GetClassname() );
@@ -924,6 +1255,7 @@ void CAI_ExpresserHost_NPC_DoModifyOrAppendCriteria( CAI_BaseNPC *pSpeaker, AI_C
 		else
 			set.AppendCriteria( "timesincecombat", UTIL_VarArgs( "%f", gpGlobals->curtime - pSpeaker->GetLastEnemyTime() ) );
 	}
+#endif
 
 	set.AppendCriteria( "speed", UTIL_VarArgs( "%.3f", pSpeaker->GetSmoothedVelocity().Length() ) );
 

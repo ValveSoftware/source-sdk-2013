@@ -34,12 +34,28 @@ BEGIN_DATADESC( CBaseGrenade )
 	DEFINE_FIELD( m_hThrower, FIELD_EHANDLE ),
 	//					m_fRegisteredSound ???
 	DEFINE_FIELD( m_bIsLive, FIELD_BOOLEAN ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_DmgRadius, FIELD_FLOAT, "Radius" ),
+#else
 	DEFINE_FIELD( m_DmgRadius, FIELD_FLOAT ),
+#endif
 	DEFINE_FIELD( m_flDetonateTime, FIELD_TIME ),
 	DEFINE_FIELD( m_flWarnAITime, FIELD_TIME ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_flDamage, FIELD_FLOAT, "Damage" ),
+#else
 	DEFINE_FIELD( m_flDamage, FIELD_FLOAT ),
+#endif
 	DEFINE_FIELD( m_iszBounceSound, FIELD_STRING ),
 	DEFINE_FIELD( m_bHasWarnedAI,	FIELD_BOOLEAN ),
+
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetDamage", InputSetDamage ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Detonate", InputDetonate ),
+
+	DEFINE_OUTPUT( m_OnDetonate, "OnDetonate" ),
+	DEFINE_OUTPUT( m_OnDetonate_OutPosition, "OnDetonate_OutPosition" ),
+#endif
 
 	// Function Pointers
 	DEFINE_THINKFUNC( Smoke ),
@@ -180,6 +196,11 @@ void CBaseGrenade::Explode( trace_t *pTrace, int bitsDamageType )
 
 	EmitSound( "BaseGrenade.Explode" );
 
+#ifdef MAPBASE
+	m_OnDetonate.FireOutput(GetThrower(), this);
+	m_OnDetonate_OutPosition.Set(GetAbsOrigin(), GetThrower(), this);
+#endif
+
 	SetThink( &CBaseGrenade::SUB_Remove );
 	SetTouch( NULL );
 	SetSolid( SOLID_NONE );
@@ -258,6 +279,25 @@ void CBaseGrenade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 	// Pass up so we still call any custom Use function
 	BaseClass::Use( pActivator, pCaller, useType, value );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseGrenade::InputSetDamage( inputdata_t &inputdata )
+{
+	SetDamage( inputdata.value.Float() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseGrenade::InputDetonate( inputdata_t &inputdata )
+{
+	Detonate();
+}
+#endif
+
 #endif
 
 //-----------------------------------------------------------------------------

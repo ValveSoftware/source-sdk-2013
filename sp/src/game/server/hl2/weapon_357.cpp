@@ -39,8 +39,43 @@ public:
 
 	float	WeaponAutoAimScale()	{ return 0.6f; }
 
+#ifdef MAPBASE
+	int		CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }
+
+	virtual int	GetMinBurst() { return 1; }
+	virtual int	GetMaxBurst() { return 1; }
+	virtual float	GetMinRestTime( void ) { return 1.0f; }
+	virtual float	GetMaxRestTime( void ) { return 2.5f; }
+
+	virtual float GetFireRate( void ) { return 1.0f; }
+
+	virtual const Vector& GetBulletSpread( void )
+	{
+		static Vector cone = VECTOR_CONE_15DEGREES;
+		if (!GetOwner() || !GetOwner()->IsNPC())
+			return cone;
+
+		static Vector AllyCone = VECTOR_CONE_2DEGREES;
+		static Vector NPCCone = VECTOR_CONE_5DEGREES;
+
+		if( GetOwner()->MyNPCPointer()->IsPlayerAlly() )
+		{
+			// 357 allies should be cooler
+			return AllyCone;
+		}
+
+		return NPCCone;
+	}
+
+	void	FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, Vector &vecShootOrigin, Vector &vecShootDir );
+	void	Operator_ForceNPCFire( CBaseCombatCharacter  *pOperator, bool bSecondary );
+#endif
+
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
+#ifdef MAPBASE
+	DECLARE_ACTTABLE();
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( weapon_357, CWeapon357 );
@@ -53,6 +88,29 @@ END_SEND_TABLE()
 BEGIN_DATADESC( CWeapon357 )
 END_DATADESC()
 
+#ifdef MAPBASE
+acttable_t	CWeapon357::m_acttable[] =
+{
+	{ ACT_IDLE,						ACT_IDLE_PISTOL,				true },
+	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_PISTOL,			true },
+	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_PISTOL,		true },
+	{ ACT_RELOAD,					ACT_RELOAD_PISTOL,				true },
+	{ ACT_WALK_AIM,					ACT_WALK_AIM_PISTOL,			true },
+	{ ACT_RUN_AIM,					ACT_RUN_AIM_PISTOL,				true },
+	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_PISTOL,true },
+	{ ACT_RELOAD_LOW,				ACT_RELOAD_PISTOL_LOW,			false },
+	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_PISTOL_LOW,	false },
+	{ ACT_COVER_LOW,				ACT_COVER_PISTOL_LOW,			false },
+	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_PISTOL_LOW,		false },
+	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_PISTOL,		false },
+	{ ACT_WALK,						ACT_WALK_PISTOL,				false },
+	{ ACT_RUN,						ACT_RUN_PISTOL,					false },
+};
+
+
+IMPLEMENT_ACTTABLE( CWeapon357 );
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -60,6 +118,13 @@ CWeapon357::CWeapon357( void )
 {
 	m_bReloadsSingly	= false;
 	m_bFiresUnderwater	= false;
+
+#ifdef MAPBASE
+	m_fMinRange1		= 24;
+	m_fMaxRange1		= 1000;
+	m_fMinRange2		= 24;
+	m_fMaxRange2		= 200;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -87,8 +152,56 @@ void CWeapon357::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChara
 
 				break;
 			}
+#ifdef MAPBASE
+		case EVENT_WEAPON_PISTOL_FIRE:
+			{
+				Vector vecShootOrigin, vecShootDir;
+				vecShootOrigin = pOperator->Weapon_ShootPosition();
+
+				CAI_BaseNPC *npc = pOperator->MyNPCPointer();
+				ASSERT( npc != NULL );
+
+				vecShootDir = npc->GetActualShootTrajectory( vecShootOrigin );
+
+				FireNPCPrimaryAttack( pOperator, vecShootOrigin, vecShootDir );
+			}
+			break;
+		default:
+			BaseClass::Operator_HandleAnimEvent( pEvent, pOperator );
+			break;
+#endif
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeapon357::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, Vector &vecShootOrigin, Vector &vecShootDir )
+{
+	CSoundEnt::InsertSound( SOUND_COMBAT|SOUND_CONTEXT_GUNFIRE, pOperator->GetAbsOrigin(), SOUNDENT_VOLUME_PISTOL, 0.2, pOperator, SOUNDENT_CHANNEL_WEAPON, pOperator->GetEnemy() );
+
+	WeaponSound( SINGLE_NPC );
+	pOperator->FireBullets( 1, vecShootOrigin, vecShootDir, VECTOR_CONE_PRECALCULATED, MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 0 );
+	pOperator->DoMuzzleFlash();
+	m_iClip1 = m_iClip1 - 1;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Some things need this. (e.g. the new Force(X)Fire inputs or blindfire actbusy)
+//-----------------------------------------------------------------------------
+void CWeapon357::Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary )
+{
+	// Ensure we have enough rounds in the clip
+	m_iClip1++;
+
+	Vector vecShootOrigin, vecShootDir;
+	QAngle	angShootDir;
+	GetAttachment( LookupAttachment( "muzzle" ), vecShootOrigin, angShootDir );
+	AngleVectors( angShootDir, &vecShootDir );
+	FireNPCPrimaryAttack( pOperator, vecShootOrigin, vecShootDir );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose:

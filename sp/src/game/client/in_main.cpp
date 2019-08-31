@@ -1219,6 +1219,9 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 	}
 
 	// Let the move manager override anything it wants to.
+#ifdef VGUI_SCREEN_FIX
+	cmd->buttons |= IN_VALIDVGUIINPUT;
+#endif
 	if ( g_pClientMode->CreateMove( input_sample_frametime, cmd ) )
 	{
 		// Get current view angles after the client mode tweaks with it

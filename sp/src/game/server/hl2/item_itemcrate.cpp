@@ -8,6 +8,9 @@
 #include "props.h"
 #include "items.h"
 #include "item_dynamic_resupply.h"
+#ifdef MAPBASE
+#include "point_template.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -16,6 +19,9 @@ const char *pszItemCrateModelName[] =
 {
 	"models/items/item_item_crate.mdl",
 	"models/items/item_beacon_crate.mdl",
+#ifdef MAPBASE
+	"models/items/item_item_crate.mdl", // Custom model placeholder/fallback, this should never be selected
+#endif
 };
 
 //-----------------------------------------------------------------------------
@@ -39,14 +45,28 @@ public:
 	virtual void VPhysicsCollision( int index, gamevcollisionevent_t *pEvent );
 	virtual void OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t reason );
 
+#ifdef MAPBASE
+	// Item crates always override prop data for custom models
+	bool OverridePropdata( void ) { return true; }
+#endif
+
 protected:
 	virtual void OnBreak( const Vector &vecVelocity, const AngularImpulse &angVel, CBaseEntity *pBreaker );
+
+#ifdef MAPBASE
+	bool ShouldRandomizeAngles( CBaseEntity *pEnt );
+	#define ITEM_ITEMCRATE_TEMPLATE_TARGET m_strAlternateMaster
+	CPointTemplate *FindTemplate();
+#endif
 
 private:
 	// Crate types. Add more!
 	enum CrateType_t
 	{
 		CRATE_SPECIFIC_ITEM = 0,
+#ifdef MAPBASE
+		CRATE_POINT_TEMPLATE,
+#endif
 		CRATE_TYPE_COUNT,
 	};
 
@@ -54,6 +74,9 @@ private:
 	{
 		CRATE_APPEARANCE_DEFAULT = 0,
 		CRATE_APPEARANCE_RADAR_BEACON,
+#ifdef MAPBASE
+		CRATE_APPEARANCE_CUSTOM,
+#endif
 	};
 
 private:
@@ -64,6 +87,9 @@ private:
 	CrateAppearance_t	m_CrateAppearance;
 
 	COutputEvent m_OnCacheInteraction;
+#ifdef MAPBASE
+	COutputEHANDLE m_OnItem;
+#endif
 };
 
 
@@ -82,6 +108,9 @@ BEGIN_DATADESC( CItem_ItemCrate )
 	DEFINE_KEYFIELD( m_CrateAppearance, FIELD_INTEGER, "CrateAppearance" ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Kill", InputKill ),
 	DEFINE_OUTPUT( m_OnCacheInteraction, "OnCacheInteraction" ),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnItem, "OnItem" ),
+#endif
 
 END_DATADESC()
 
@@ -92,8 +121,17 @@ END_DATADESC()
 void CItem_ItemCrate::Precache( void )
 {
 	// Set this here to quiet base prop warnings
+#ifdef MAPBASE
+	// Set our model name here instead of in Spawn() so we could use custom crates.
+	if (m_CrateAppearance != CRATE_APPEARANCE_CUSTOM)
+		SetModelName(AllocPooledString(pszItemCrateModelName[m_CrateAppearance]));
+
+	PrecacheModel( STRING(GetModelName()) );
+	SetModel( STRING(GetModelName()) );
+#else
 	PrecacheModel( pszItemCrateModelName[m_CrateAppearance] );
 	SetModel( pszItemCrateModelName[m_CrateAppearance] );
+#endif
 
 	BaseClass::Precache();
 	if ( m_CrateType == CRATE_SPECIFIC_ITEM )
@@ -118,7 +156,9 @@ void CItem_ItemCrate::Spawn( void )
 	}
 
 	DisableAutoFade();
+#ifndef MAPBASE
 	SetModelName( AllocPooledString( pszItemCrateModelName[m_CrateAppearance] ) );
+#endif
 
 	if ( NULL_STRING == m_strItemClass )
 	{
@@ -128,7 +168,11 @@ void CItem_ItemCrate::Spawn( void )
 	}
 
 	Precache( );
+#ifdef MAPBASE
+	SetModel( STRING(GetModelName()) );
+#else
 	SetModel( pszItemCrateModelName[m_CrateAppearance] );
+#endif
 	AddEFlags( EFL_NO_ROTORWASH_PUSH );
 	BaseClass::Spawn( );
 }
@@ -140,6 +184,12 @@ void CItem_ItemCrate::Spawn( void )
 //-----------------------------------------------------------------------------
 void CItem_ItemCrate::InputKill( inputdata_t &data )
 {
+#ifdef MAPBASE
+	// Why is this its own function anyway?
+	// It just overwrites the death notice stuff.
+	m_OnKilled.FireOutput(data.pActivator, this);
+#endif
+
 	UTIL_Remove( this );
 }
 
@@ -178,6 +228,34 @@ void CItem_ItemCrate::VPhysicsCollision( int index, gamevcollisionevent_t *pEven
 }
 
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Finds the template for CRATE_POINT_TEMPLATE.
+//-----------------------------------------------------------------------------
+inline CPointTemplate *CItem_ItemCrate::FindTemplate()
+{
+	return dynamic_cast<CPointTemplate *>(gEntList.FindEntityByName( NULL, STRING(ITEM_ITEMCRATE_TEMPLATE_TARGET) ));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CItem_ItemCrate::ShouldRandomizeAngles( CBaseEntity *pEnt )
+{
+	// Angles probably not supposed to be randomized.
+	if (m_CrateType == CRATE_POINT_TEMPLATE)
+		return false;
+
+	// If we have only one NPC, it's probably supposed to spawn correctly.
+	// (if we have a bunch, it's probably a gag)
+	if (m_nItemCount == 1 && pEnt->IsNPC())
+		return false;
+
+	return true;
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -189,7 +267,31 @@ void CItem_ItemCrate::OnBreak( const Vector &vecVelocity, const AngularImpulse &
 
 	m_OnCacheInteraction.FireOutput(pBreaker,this);
 
+#ifdef MAPBASE
+	int iCount = m_nItemCount;
+	CUtlVector<CBaseEntity*> hNewEntities;
+	CPointTemplate *pTemplate = FindTemplate();
+
+	if (m_CrateType == CRATE_POINT_TEMPLATE)
+	{
+		if (pTemplate && pTemplate->CreateInstance(GetLocalOrigin(), GetLocalAngles(), &hNewEntities))
+		{
+			iCount = hNewEntities.Count() * m_nItemCount;
+		}
+		else
+		{
+			// This only runs if our template can't be found or its template instancing didn't work.
+			Warning("item_item_crate %s with CRATE_POINT_TEMPLATE couldn't find point_template %s! Falling back to CRATE_SPECIFIC_ITEM...\n", GetDebugName(), STRING(ITEM_ITEMCRATE_TEMPLATE_TARGET));
+			m_CrateType = CRATE_SPECIFIC_ITEM;
+		}
+	}
+#endif
+
+#ifdef MAPBASE
+	for ( int i = 0; i < iCount; i++ )
+#else
 	for ( int i = 0; i < m_nItemCount; ++i )
+#endif
 	{
 		CBaseEntity *pSpawn = NULL;
 		switch( m_CrateType )
@@ -198,6 +300,25 @@ void CItem_ItemCrate::OnBreak( const Vector &vecVelocity, const AngularImpulse &
 			pSpawn = CreateEntityByName( STRING(m_strItemClass) );
 			break;
 
+#ifdef MAPBASE
+		case CRATE_POINT_TEMPLATE:
+		{
+			if (i >= hNewEntities.Count())
+			{
+				if (!pTemplate || !pTemplate->CreateInstance(GetLocalOrigin(), GetLocalAngles(), &hNewEntities))
+				{
+					pSpawn = NULL;
+					i = iCount;
+					break;
+				}
+
+				i = 0;
+				iCount -= hNewEntities.Count();
+			}
+			pSpawn = hNewEntities[i];
+		} break;
+#endif
+
 		default:
 			break;
 		}
@@ -205,6 +326,55 @@ void CItem_ItemCrate::OnBreak( const Vector &vecVelocity, const AngularImpulse &
 		if ( !pSpawn )
 			return;
 
+#ifdef MAPBASE
+		Vector vecOrigin;
+		CollisionProp()->RandomPointInBounds(Vector(0.25, 0.25, 0.25), Vector(0.75, 0.75, 0.75), &vecOrigin);
+		pSpawn->SetAbsOrigin(vecOrigin);
+
+		if (ShouldRandomizeAngles(pSpawn))
+		{
+			// Give a little randomness...
+			QAngle vecAngles;
+			vecAngles.x = random->RandomFloat(-20.0f, 20.0f);
+			vecAngles.y = random->RandomFloat(0.0f, 360.0f);
+			vecAngles.z = random->RandomFloat(-20.0f, 20.0f);
+			pSpawn->SetAbsAngles(vecAngles);
+
+			Vector vecActualVelocity;
+			vecActualVelocity.Random(-10.0f, 10.0f);
+			//		vecActualVelocity += vecVelocity;
+			pSpawn->SetAbsVelocity(vecActualVelocity);
+
+			QAngle angVel;
+			AngularImpulseToQAngle(angImpulse, angVel);
+			pSpawn->SetLocalAngularVelocity(angVel);
+		}
+		else
+		{
+			// Only modify the Y value.
+			QAngle vecAngles;
+			vecAngles.x = 0;
+			vecAngles.y = GetLocalAngles().y;
+			vecAngles.z = 0;
+			pSpawn->SetAbsAngles(vecAngles);
+		}
+
+		// We handle dynamic resupplies differently
+		bool bDynResup = FClassnameIs( pSpawn, "item_dynamic_resupply" );
+		if (!bDynResup)
+			m_OnItem.Set(pSpawn, pSpawn, this);
+		else if (m_OnItem.NumberOfElements() > 0)
+		{
+			// This is here so it could fire OnItem for each item
+			CEventAction *ourlist = m_OnItem.GetActionList();
+			char outputdata[256];
+			for (CEventAction *ev = ourlist; ev != NULL; ev = ev->m_pNext)
+			{
+				Q_snprintf(outputdata, sizeof(outputdata), "%s,%s,%s,%f,%i", STRING(ev->m_iTarget), STRING(ev->m_iTargetInput), STRING(ev->m_iParameter), ev->m_flDelay, ev->m_nTimesToFire);
+				pSpawn->KeyValue("OnItem", outputdata);
+			}
+		}
+#else
 		// Give a little randomness...
 		Vector vecOrigin;
 		CollisionProp()->RandomPointInBounds( Vector(0.25, 0.25, 0.25), Vector( 0.75, 0.75, 0.75 ), &vecOrigin );
@@ -224,6 +394,7 @@ void CItem_ItemCrate::OnBreak( const Vector &vecVelocity, const AngularImpulse &
 		QAngle angVel;
 		AngularImpulseToQAngle( angImpulse, angVel );
 		pSpawn->SetLocalAngularVelocity( angVel );
+#endif
 
 		// If we're creating an item, it can't be picked up until it comes to rest
 		// But only if it wasn't broken by a vehicle
@@ -236,7 +407,11 @@ void CItem_ItemCrate::OnBreak( const Vector &vecVelocity, const AngularImpulse &
 		pSpawn->Spawn();
 
 		// Avoid missing items drops by a dynamic resupply because they don't think immediately
+#ifdef MAPBASE
+		if (bDynResup)
+#else
 		if ( FClassnameIs( pSpawn, "item_dynamic_resupply" ) )
+#endif
 		{
 			if ( m_strAlternateMaster != NULL_STRING )
 			{

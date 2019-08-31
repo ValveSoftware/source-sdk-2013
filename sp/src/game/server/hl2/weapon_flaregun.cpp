@@ -19,6 +19,7 @@
 #include "tier0/memdbgon.h"
 
 
+#ifndef MAPBASE
 /********************************************************************
  NOTE: if you are looking at this file becase you would like flares 
  to be considered as fires (and thereby trigger gas traps), be aware 
@@ -37,6 +38,13 @@
  For some partial work towards this end, see changelist 192474.
 
  ********************************************************************/
+#else
+// ================================================================ //
+// I've fixed this...more or less. env_firesensor detects flares now.
+// I tried to integrate it with the greater fire system, but I found that too difficult.
+// I probably didn't try hard enough. You could fix this yourself if you think it's a big issue.
+// ================================================================ //
+#endif
 
 
 #define	FLARE_LAUNCH_SPEED	1500
@@ -119,6 +127,21 @@ void KillFlare( CBaseEntity *pOwnerEntity, CBaseEntity *pEntity, float flKillTim
 		}
 	}
 }
+
+#ifdef MAPBASE
+// For prop_flare debugging.
+float GetEnvFlareLifetime( CBaseEntity *pEntity )
+{
+	CFlare *pFlare = static_cast< CFlare *>( pEntity );
+
+	if ( pFlare )
+	{
+		return pFlare->m_flTimeBurnOut - gpGlobals->curtime;
+	}
+
+	return 0.0f;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

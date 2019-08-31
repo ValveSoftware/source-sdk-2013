@@ -30,7 +30,11 @@ class CBounceBomb : public CBaseAnimating, public CDefaultPlayerPickupVPhysics
 	DECLARE_CLASS( CBounceBomb, CBaseAnimating );
 
 public:
+#ifdef MAPBASE
+	CBounceBomb() { m_pWarnSound = NULL; m_bPlacedByPlayer = false; m_flExplosionDelay = 0.5f; }
+#else
 	CBounceBomb() { m_pWarnSound = NULL; m_bPlacedByPlayer = false; }
+#endif
 	void Precache();
 	void Spawn();
 	void OnRestore();
@@ -104,6 +108,9 @@ private:
 	float	m_flIgnoreWorldTime;
 
 	bool	m_bDisarmed;
+#ifdef MAPBASE
+	int		m_iInitialState;
+#endif
 
 	bool	m_bPlacedByPlayer;
 
@@ -121,6 +128,12 @@ private:
 
 	COutputEvent	m_OnPulledUp;
 	void InputDisarm( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputBounce( inputdata_t &inputdata );
+	void InputBounceAtTarget( inputdata_t &inputdata );
+	COutputEvent	m_OnTriggered;
+	COutputEvent	m_OnExplode;
+#endif
 };
 
 

@@ -17,11 +17,16 @@
 #include "ispatialpartition.h"
 #include "collisionutils.h"
 #include "tier0/vprof.h"
+#ifdef MAPBASE
+#include "weapon_flaregun.h"
+#include "mapbase/GlobalStrings.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 
+#ifndef MAPBASE
 /********************************************************************
  NOTE: if you are looking at this file becase you would like flares 
  to be considered as fires (and thereby trigger gas traps), be aware 
@@ -40,7 +45,13 @@
  For some partial work towards this end, see changelist 192474.
 
  ********************************************************************/
-
+#else
+// ================================================================ //
+// env_firesensors now have the ability to sense flares, toggled via spawnflag.
+// This is different from integrating it with the greater fire system and easily preserves original behavior.
+// You could try treating flares as real fires yourself if you think it's an issue.
+// ================================================================ //
+#endif
 
 
 
@@ -243,7 +254,11 @@ IterationRetval_t CFireSphere::EnumElement( IHandleEntity *pHandleEntity )
 	{
 		// UNDONE: Measure which of these is faster
 //		CFire *pFire = dynamic_cast<CFire *>(pEntity);
+#ifdef MAPBASE
+		if ( !EntIsClass( pEntity, gm_isz_class_EnvFire ) )
+#else
 		if ( !FClassnameIs( pEntity, "env_fire" ) )
+#endif
 			return ITERATION_CONTINUE;
 
 		CFire *pFire = static_cast<CFire *>(pEntity);
@@ -995,7 +1010,11 @@ void CFire::Update( float simTime )
 		{
 			continue;
 		}
+#ifdef MAPBASE
+		else if ( EntIsClass( pOther, gm_isz_class_EnvFire ) )
+#else
 		else if ( FClassnameIs( pOther, "env_fire" ) )
+#endif
 		{
 			if ( fireCount < ARRAYSIZE(pFires) )
 			{
@@ -1307,6 +1326,9 @@ void CEnvFireSource::InputDisable( inputdata_t &inputdata )
 // CEnvFireSensor detects changes in heat
 //==================================================
 #define SF_FIRESENSOR_START_ON	1
+#ifdef MAPBASE
+#define SF_FIRESENSOR_ACCEPT_FLARES 2
+#endif
 
 class CEnvFireSensor : public CBaseEntity
 {
@@ -1318,6 +1340,9 @@ public:
 	void TurnOff();
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
+#ifdef MAPBASE
+	int DrawDebugTextOverlays(void);
+#endif
 
 	DECLARE_DATADESC();
 
@@ -1328,6 +1353,10 @@ private:
 	float			m_targetLevel;
 	float			m_targetTime;
 	float			m_levelTime;
+#ifdef MAPBASE
+	// Only stored for access in debug overlays, don't save
+	float			m_curheat;
+#endif
 
 	COutputEvent	m_OnHeatLevelStart;
 	COutputEvent	m_OnHeatLevelEnd;
@@ -1385,6 +1414,28 @@ void CEnvFireSensor::Think()
 		heat += pFires[i]->GetHeatLevel();
 	}
 
+#ifdef MAPBASE
+	if (HasSpawnFlags(SF_FIRESENSOR_ACCEPT_FLARES))
+	{
+		// Also look for nearby flares
+		CBaseEntity *pEntity = gEntList.FindEntityByClassnameWithin( NULL, "env_flare", GetAbsOrigin(), m_radius );
+		while (pEntity)
+		{
+			CFlare *pFlare = static_cast<CFlare*>(pEntity);
+			if (pFlare)
+			{
+				heat += (pFlare->m_flTimeBurnOut > -1.0 ? (pFlare->m_flTimeBurnOut - gpGlobals->curtime) : 32);
+			}
+
+			pEntity = gEntList.FindEntityByClassnameWithin( pEntity, "env_flare", GetAbsOrigin(), m_radius );
+		}
+	}
+#endif
+
+#ifdef MAPBASE
+	m_curheat = heat;
+#endif
+
 	if ( heat >= m_targetLevel )
 	{
 		m_levelTime += time;
@@ -1441,6 +1492,28 @@ void CEnvFireSensor::InputDisable( inputdata_t &inputdata )
 {
 	TurnOff();
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Draw any debug text overlays
+// Output : Current text offset from the top
+//-----------------------------------------------------------------------------
+int CEnvFireSensor::DrawDebugTextOverlays( void ) 
+{
+	int text_offset = BaseClass::DrawDebugTextOverlays();
+
+	if (m_debugOverlays & OVERLAY_TEXT_BIT) 
+	{
+		char tempstr[512];
+
+		// print flame size
+		Q_snprintf(tempstr, sizeof(tempstr), "    Current Heat: %f", m_curheat);
+		EntityText(text_offset,tempstr,0);
+		text_offset++;
+	}
+	return text_offset;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Draw any debug text overlays

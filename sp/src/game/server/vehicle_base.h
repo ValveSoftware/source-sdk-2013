@@ -192,6 +192,12 @@ public:
 	void	InputUnlock( inputdata_t &inputdata );
 	void	InputTurnOn( inputdata_t &inputdata );
 	void	InputTurnOff( inputdata_t &inputdata );
+#ifdef MAPBASE
+	virtual void	InputEnterVehicle( inputdata_t &inputdata );
+	virtual void	InputEnterVehicleImmediate( inputdata_t &inputdata );
+	virtual void	InputExitVehicle( inputdata_t &inputdata );
+	virtual void	InputExitVehicleImmediate( inputdata_t &inputdata );
+#endif
 
 	// Locals
 	void	ResetUseKey( CBasePlayer *pPlayer );
@@ -250,6 +256,10 @@ protected:
 
 	COutputFloat		m_attackaxis;
 	COutputFloat		m_attack2axis;
+
+#ifdef MAPBASE
+	COutputEvent		m_OnPlayerUse;
+#endif
 
 	CNetworkHandle( CBasePlayer, m_hPlayer );
 public:

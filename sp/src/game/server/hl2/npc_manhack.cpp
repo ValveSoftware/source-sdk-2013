@@ -78,6 +78,10 @@
 
 #define	MANHACK_CHARGE_MIN_DIST	200
 
+#if defined(MAPBASE) && defined(HL2_EPISODIC)
+extern ConVar npc_alyx_interact_manhacks;
+#endif
+
 ConVar	sk_manhack_health( "sk_manhack_health","0");
 ConVar	sk_manhack_melee_dmg( "sk_manhack_melee_dmg","0");
 ConVar	sk_manhack_v2( "sk_manhack_v2","1");
@@ -149,7 +153,11 @@ BEGIN_DATADESC( CNPC_Manhack )
 	DEFINE_FIELD( m_bGib,					FIELD_BOOLEAN),
 	DEFINE_FIELD( m_bHeld,					FIELD_BOOLEAN),
 	
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bHackedByAlyx, FIELD_BOOLEAN, "Hacked" ),
+#else
 	DEFINE_FIELD( m_bHackedByAlyx,			FIELD_BOOLEAN),
+#endif
 	DEFINE_FIELD( m_vecLoiterPosition,		FIELD_POSITION_VECTOR),
 	DEFINE_FIELD( m_fTimeNextLoiterPulse,	FIELD_TIME),
 
@@ -159,6 +167,9 @@ BEGIN_DATADESC( CNPC_Manhack )
 	DEFINE_FIELD( m_flBladeSpeed,				FIELD_FLOAT),
 	DEFINE_KEYFIELD( m_bIgnoreClipbrushes,	FIELD_BOOLEAN, "ignoreclipbrushes" ),
 	DEFINE_FIELD( m_hSmokeTrail,				FIELD_EHANDLE),
+#ifdef MAPBASE
+	DEFINE_FIELD( m_hPrevOwner,					FIELD_EHANDLE ),
+#endif
 
 	// DEFINE_FIELD( m_pLightGlow,				FIELD_CLASSPTR ),
 	// DEFINE_FIELD( m_pEyeGlow,					FIELD_CLASSPTR ),
@@ -1519,7 +1530,11 @@ void CNPC_Manhack::Slice( CBaseEntity *pHitEntity, float flInterval, trace_t &tr
 	pHitEntity->TakeDamage( info );
 
 	// Spawn some extra blood where we hit
+#ifdef MAPBASE
+	if ( pHitEntity->BloodColor() == DONT_BLEED || (m_bHackedByAlyx && !pHitEntity->PassesDamageFilter(info)) )
+#else
 	if ( pHitEntity->BloodColor() == DONT_BLEED )
+#endif
 	{
 		CEffectData data;
 		Vector velocity = GetCurrentVelocity();
@@ -2453,7 +2468,9 @@ void CNPC_Manhack::Spawn(void)
 	SetCollisionGroup( COLLISION_GROUP_NONE );
 
 	m_bHeld = false;
+#ifndef MAPBASE
 	m_bHackedByAlyx = false;
+#endif
 	StopLoitering();
 }
 
@@ -3007,6 +3024,11 @@ void CNPC_Manhack::OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t r
 	}
 	else
 	{
+#ifdef MAPBASE
+		// Store the previous owner in case of npc_maker
+		m_hPrevOwner.Set(GetOwnerEntity());
+#endif
+
 		// Suppress collisions between the manhack and the player; we're currently bumping
 		// almost certainly because it's not purely a physics object.
 		SetOwnerEntity( pPhysGunUser );
@@ -3023,7 +3045,13 @@ void CNPC_Manhack::OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t r
 void CNPC_Manhack::OnPhysGunDrop( CBasePlayer *pPhysGunUser, PhysGunDrop_t Reason )
 {
 	// Stop suppressing collisions between the manhack and the player
+#ifndef MAPBASE
 	SetOwnerEntity( NULL );
+#else
+	SetOwnerEntity( m_hPrevOwner );
+
+	m_hPrevOwner = NULL;
+#endif
 
 	m_bHeld = false;
 
@@ -3087,6 +3115,20 @@ float CNPC_Manhack::GetMaxEnginePower()
 
 	return 1.0f;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Option to restore Alyx's interactions with non-rollermines
+//-----------------------------------------------------------------------------
+bool CNPC_Manhack::CanInteractWith( CAI_BaseNPC *pUser )
+{
+#ifdef HL2_EPISODIC
+	return npc_alyx_interact_manhacks.GetBool();
+#else
+	return false;
+#endif
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -3199,16 +3241,44 @@ void CNPC_Manhack::SetEyeState( int state )
 			if ( m_pEyeGlow )
 			{
 				//Toggle our state
+#ifdef MAPBASE
+				// Something from Half-Laugh.
+				// Makes it easier to distinguish between hostile and friendly manhacks.
+				if( m_bHackedByAlyx )
+				{
+					m_pEyeGlow->SetColor( 0, 0, 255 );
+					m_pEyeGlow->SetScale( 0.35f, 0.6f );
+				}
+				else
+				{
+					m_pEyeGlow->SetColor( 255, 128, 0 );
+					m_pEyeGlow->SetScale( 0.15f, 0.1f );
+				}
+#else
 				m_pEyeGlow->SetColor( 255, 128, 0 );
 				m_pEyeGlow->SetScale( 0.15f, 0.1f );
+#endif
 				m_pEyeGlow->SetBrightness( 164, 0.1f );
 				m_pEyeGlow->m_nRenderFX = kRenderFxStrobeFast;
 			}
 			
 			if ( m_pLightGlow )
 			{
+#ifdef MAPBASE
+				if( m_bHackedByAlyx )
+				{
+					m_pLightGlow->SetColor( 0, 0, 255 );
+					m_pLightGlow->SetScale( 0.35f, 0.6f );
+				}
+				else
+				{
+					m_pLightGlow->SetColor( 255, 128, 0 );
+					m_pLightGlow->SetScale( 0.15f, 0.1f );
+				}
+#else
 				m_pLightGlow->SetColor( 255, 128, 0 );
 				m_pLightGlow->SetScale( 0.15f, 0.1f );
+#endif
 				m_pLightGlow->SetBrightness( 164, 0.1f );
 				m_pLightGlow->m_nRenderFX = kRenderFxStrobeFast;
 			}

@@ -83,7 +83,11 @@ BEGIN_DATADESC( CEnvTonemapController )
 	DEFINE_INPUTFUNC( FIELD_VOID, "UseDefaultAutoExposure", InputUseDefaultAutoExposure ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "UseDefaultBloomScale", InputUseDefaultBloomScale ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetBloomScale", InputSetBloomScale ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetBloomScaleRange", InputSetBloomScaleRange ),
+#else
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetBloomScaleRange", InputSetBloomScaleRange ),
+#endif
 END_DATADESC()
 
 IMPLEMENT_SERVERCLASS_ST( CEnvTonemapController, DT_EnvTonemapController )

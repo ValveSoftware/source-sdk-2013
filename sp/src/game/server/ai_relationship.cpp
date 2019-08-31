@@ -7,6 +7,9 @@
 #include "cbase.h"
 #include "ndebugoverlay.h"
 #include "ai_basenpc.h"
+#ifdef MAPBASE
+#include "mapbase/matchers.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -34,6 +37,9 @@ public:
 	void Activate();
 
 	void SetActive( bool bActive );
+#ifdef MAPBASE
+	virtual
+#endif
 	void ChangeRelationships( int disposition, int iReverting, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL );
 
 	void ApplyRelationship( CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL );
@@ -45,11 +51,20 @@ public:
 
 	bool IsASubject( CBaseEntity *pEntity );
 	bool IsATarget( CBaseEntity *pEntity );
+#ifdef MAPBASE
+	// Assume no insane person already has "CLASS_" at the beginning of an entity's (class)name.
+	inline bool IsSubjectClassify() { return Q_strncmp(STRING(m_target), "CLASS_", 6) == 0; }
+	inline bool IsTargetClassify() { return Q_strncmp(STRING(m_target), "CLASS_", 6) == 0; }
+#endif
 
 	void OnEntitySpawned( CBaseEntity *pEntity );
 	void OnEntityDeleted( CBaseEntity *pEntity );
 
+#ifdef MAPBASE
+protected:
+#else
 private:
+#endif
 
 	void	ApplyRelationshipThink( void );
 	CBaseEntity *FindEntityForProceduralName( string_t iszName, CBaseEntity *pActivator, CBaseEntity *pCaller );
@@ -259,6 +274,12 @@ bool CAI_Relationship::IsASubject( CBaseEntity *pEntity )
 	if( pEntity->ClassMatches( m_iszSubject ) )
 		return true;
 
+#ifdef MAPBASE
+	// Hopefully doesn't impact performance.
+	if (Matcher_NamesMatch(STRING(m_iszSubject), g_pGameRules->AIClassText((pEntity->Classify()))))
+		return true;
+#endif
+
 	return false;
 }
 
@@ -271,6 +292,12 @@ bool CAI_Relationship::IsATarget( CBaseEntity *pEntity )
 
 	if( pEntity->ClassMatches( m_target ) )
 		return true;
+
+#ifdef MAPBASE
+	// Hopefully doesn't impact performance.
+	if (Matcher_NamesMatch(STRING(m_target), g_pGameRules->AIClassText((pEntity->Classify()))))
+		return true;
+#endif
 
 	return false;
 }
@@ -493,4 +520,134 @@ void CAI_Relationship::ChangeRelationships( int disposition, int iReverting, CBa
 		}
 	}
 }
+
+#ifdef MAPBASE
+//=========================================================
+//=========================================================
+class CAI_ClassRelationship : public CAI_Relationship
+{
+	DECLARE_CLASS( CAI_ClassRelationship, CAI_Relationship );
+
+public:
+
+	// Must override CAI_Relationship
+	void Spawn() { m_bIsActive = false; }
+
+	bool KeyValue( const char *szKeyName, const char *szValue );
+
+	void ChangeRelationships( int disposition, int iReverting, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL );
+
+	inline bool SubjectUsingClassify() { return m_iSubjectClass != NUM_AI_CLASSES; }
+	inline bool TargetUsingClassify() { return m_iTargetClass != NUM_AI_CLASSES; }
+
+protected:
+
+	Class_T		m_iSubjectClass;
+	Class_T		m_iTargetClass;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS( ai_relationship_classify, CAI_ClassRelationship );
+
+BEGIN_DATADESC( CAI_ClassRelationship )
+
+	DEFINE_FIELD( m_iSubjectClass, FIELD_INTEGER ),
+	DEFINE_FIELD( m_iTargetClass, FIELD_INTEGER ),
+
+END_DATADESC()
+
+//-----------------------------------------------------------------------------
+// Purpose: Caches entity key values until spawn is called.
+// Input  : szKeyName - 
+//			szValue - 
+// Output : 
+//-----------------------------------------------------------------------------
+bool CAI_ClassRelationship::KeyValue( const char *szKeyName, const char *szValue )
+{
+	// Override regular subject and target from ai_relationship
+	if (FStrEq(szKeyName, "subject"))
+	{
+		m_iSubjectClass = (Class_T)atoi(szValue);
+
+		// Direct string maybe
+		if (m_iSubjectClass == CLASS_NONE)
+		{
+			for (int i = 0; i < NUM_AI_CLASSES; i++)
+			{
+				if (FStrEq(szValue, g_pGameRules->AIClassText(i)))
+				{
+					m_iSubjectClass = (Class_T)i;
+				}
+			}
+		}
+	}
+	else if (FStrEq(szKeyName, "target"))
+	{
+		m_iTargetClass = (Class_T)atoi(szValue);
+
+		// Direct string maybe
+		if (m_iTargetClass == CLASS_NONE)
+		{
+			for (int i = 0; i < NUM_AI_CLASSES; i++)
+			{
+				if (FStrEq(szValue, g_pGameRules->AIClassText(i)))
+				{
+					m_iTargetClass = (Class_T)i;
+				}
+			}
+		}
+	}
+	else
+		return BaseClass::KeyValue(szKeyName, szValue);
+
+	return true;
+}
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+void CAI_ClassRelationship::ChangeRelationships( int disposition, int iReverting, CBaseEntity *pActivator, CBaseEntity *pCaller )
+{
+ 	if( iReverting != NOT_REVERTING && m_iPreviousDisposition == -1 )
+	{
+		// Trying to revert without having ever set the relationships!
+		DevMsg( 2, "ai_relationship cannot revert changes before they are applied!\n");
+		return;
+	}
+
+	if ( m_iPreviousDisposition == -1 && iReverting == NOT_REVERTING )
+	{
+		// Set previous disposition.
+		m_iPreviousDisposition = CBaseCombatCharacter::GetDefaultRelationshipDisposition( m_iSubjectClass, m_iTargetClass );
+		m_iPreviousRank = CBaseCombatCharacter::GetDefaultRelationshipPriority( m_iSubjectClass, m_iTargetClass );
+	}
+
+	// We can't actually reset to "default" without resetting all class relationships period, so we just use the previous disposition.
+	// There probably wouldn't be much overlap with this entity anyway.
+	if ( iReverting == REVERTING_TO_PREV || iReverting == REVERTING_TO_DEFAULT )
+	{
+		CBaseCombatCharacter::SetDefaultRelationship(m_iSubjectClass, m_iTargetClass, (Disposition_t)m_iPreviousDisposition, m_iPreviousRank );
+
+		if( m_bReciprocal )
+		{
+			CBaseCombatCharacter::SetDefaultRelationship(m_iTargetClass, m_iSubjectClass, (Disposition_t)m_iPreviousDisposition, m_iPreviousRank );
+		}
+	}
+	else if( CBaseCombatCharacter::GetDefaultRelationshipDisposition( m_iSubjectClass, m_iTargetClass ) != disposition || 
+		     CBaseCombatCharacter::GetDefaultRelationshipPriority( m_iSubjectClass, m_iTargetClass ) != m_iRank )
+	{
+		// Apply the relationship to the subject
+		CBaseCombatCharacter::SetDefaultRelationship(m_iSubjectClass, m_iTargetClass, (Disposition_t)disposition, m_iRank );
+
+		// Notification flags can't be used here. Sorry.
+
+		// This relationship is applied to target and subject alike
+		if ( m_bReciprocal )
+		{
+			// Apply the relationship to the target
+			CBaseCombatCharacter::SetDefaultRelationship(m_iTargetClass, m_iSubjectClass, (Disposition_t)disposition, m_iRank );
+		}
+	}
+}
+#endif
 

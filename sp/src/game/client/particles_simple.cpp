@@ -308,8 +308,12 @@ void CSimpleEmitter::UpdateVelocity( SimpleParticle *pParticle, float timeDelta 
 {
 	if (pParticle->m_iFlags & SIMPLE_PARTICLE_FLAG_WINDBLOWN)
 	{
+#ifdef MAPBASE
+		Vector vecWind = GetWindspeedAtLocation( pParticle->m_Pos );
+#else
 		Vector vecWind;
 		GetWindspeedAtTime( gpGlobals->curtime, vecWind );
+#endif
 
 		for ( int i = 0 ; i < 2 ; i++ )
 		{

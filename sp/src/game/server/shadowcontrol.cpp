@@ -40,6 +40,9 @@ private:
 	CNetworkColor32( m_shadowColor );
 	CNetworkVar( float, m_flShadowMaxDist );
 	CNetworkVar( bool, m_bDisableShadows );
+#ifdef MAPBASE
+	CNetworkVar( bool, m_bEnableLocalLightShadows );
+#endif
 };
 
 LINK_ENTITY_TO_CLASS(shadow_control, CShadowControl);
@@ -48,12 +51,18 @@ BEGIN_DATADESC( CShadowControl )
 
 	DEFINE_KEYFIELD( m_flShadowMaxDist, FIELD_FLOAT, "distance" ),
 	DEFINE_KEYFIELD( m_bDisableShadows, FIELD_BOOLEAN, "disableallshadows" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bEnableLocalLightShadows, FIELD_BOOLEAN, "enableshadowsfromlocallights" ),
+#endif
 
 	// Inputs
 	DEFINE_INPUT( m_shadowColor,		FIELD_COLOR32, "color" ),
 	DEFINE_INPUT( m_shadowDirection,	FIELD_VECTOR, "direction" ),
 	DEFINE_INPUT( m_flShadowMaxDist,	FIELD_FLOAT, "SetDistance" ),
 	DEFINE_INPUT( m_bDisableShadows,	FIELD_BOOLEAN, "SetShadowsDisabled" ),
+#ifdef MAPBASE
+	DEFINE_INPUT( m_bEnableLocalLightShadows,	FIELD_BOOLEAN, "SetShadowsFromLocalLightsEnabled" ),
+#endif
 
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetAngles", InputSetAngles ),
 
@@ -62,9 +71,17 @@ END_DATADESC()
 
 IMPLEMENT_SERVERCLASS_ST_NOBASE(CShadowControl, DT_ShadowControl)
 	SendPropVector(SENDINFO(m_shadowDirection), -1,  SPROP_NOSCALE ),
+#ifdef MAPBASE
+	/*SendPropInt(SENDINFO(m_shadowColor),	32, SPROP_UNSIGNED, SendProxy_Color32ToInt32 ),*/
+	SendPropInt(SENDINFO(m_shadowColor),	32, SPROP_UNSIGNED, SendProxy_Color32ToInt ),
+#else
 	SendPropInt(SENDINFO(m_shadowColor),	32, SPROP_UNSIGNED),
+#endif
 	SendPropFloat(SENDINFO(m_flShadowMaxDist), 0, SPROP_NOSCALE ),
 	SendPropBool(SENDINFO(m_bDisableShadows)),
+#ifdef MAPBASE
+	SendPropBool(SENDINFO(m_bEnableLocalLightShadows)),
+#endif
 END_SEND_TABLE()
 
 
@@ -74,6 +91,9 @@ CShadowControl::CShadowControl()
 	m_flShadowMaxDist = 50.0f;
 	m_shadowColor.Init( 64, 64, 64, 0 );
 	m_bDisableShadows = false;
+#ifdef MAPBASE
+	m_bEnableLocalLightShadows = false;
+#endif
 }
 
 

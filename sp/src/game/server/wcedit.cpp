@@ -450,6 +450,19 @@ Vector *g_EntityPositions = NULL;
 QAngle *g_EntityOrientations = NULL;
 string_t *g_EntityClassnames = NULL;
 
+#ifdef MAPBASE // VDC Memory Leak Fixes
+class GlobalCleanUp : public CAutoGameSystem
+{
+	void Shutdown()
+	{
+		delete [] g_EntityPositions;
+		delete [] g_EntityOrientations;
+		delete [] g_EntityClassnames;
+		delete this;
+	}
+};
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Saves the entity's position for future communication with Hammer
 //-----------------------------------------------------------------------------
@@ -460,6 +473,9 @@ void NWCEdit::RememberEntityPosition( CBaseEntity *pEntity )
 
 	if ( !g_EntityPositions )
 	{
+#ifdef MAPBASE // VDC Memory Leak Fixes
+		new GlobalCleanUp();
+#endif
 		g_EntityPositions = new Vector[NUM_ENT_ENTRIES];
 		g_EntityOrientations = new QAngle[NUM_ENT_ENTRIES];
 		// have to save these too because some entities change the classname on spawn (e.g. prop_physics_override, physics_prop)

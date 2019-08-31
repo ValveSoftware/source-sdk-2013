@@ -1,0 +1,152 @@
+//======= Copyright © 1996-2006, Valve Corporation, All rights reserved. ======
+
+//	STATIC: "INTRO"						"0..1"
+//  STATIC: "USE_STATIC_CONTROL_FLOW"	"0..1" [vs20]
+
+//	DYNAMIC: "COMPRESSED_VERTS"			"0..1"
+//	DYNAMIC: "DOWATERFOG"				"0..1"
+//	DYNAMIC: "SKINNING"					"0..1"
+//	DYNAMIC: "STATIC_LIGHT"				"0..1"
+//  DYNAMIC: "MORPHING"					"0..1" [vs30]
+//  DYNAMIC: "NUM_LIGHTS"				"0..2" [vs20]
+
+// If using static control flow on Direct3D, we should use the NUM_LIGHTS=0 combo
+//  SKIP: $USE_STATIC_CONTROL_FLOW && ( $NUM_LIGHTS > 0 ) [vs20]
+
+#include "vortwarp_vs20_helper.h"
+
+static const int g_FogType			= DOWATERFOG;
+static const bool g_bSkinning		= SKINNING ? true : false;
+
+const float4 cTeethLighting			:  register( SHADER_SPECIFIC_CONST_0 );
+#if INTRO
+const float4 const4	:  register( SHADER_SPECIFIC_CONST_1 );
+#define g_Time const4.w
+#define modelOrigin const4.xyz
+#endif
+
+#ifdef SHADER_MODEL_VS_3_0
+// NOTE: cMorphTargetTextureDim.xy = target dimensions,
+//		 cMorphTargetTextureDim.z = 4tuples/morph
+const float3 cMorphTargetTextureDim			: register( SHADER_SPECIFIC_CONST_6 );
+const float4 cMorphSubrect					: register( SHADER_SPECIFIC_CONST_7 );
+
+sampler2D morphSampler : register( D3DVERTEXTEXTURESAMPLER0, s0 );
+#endif
+
+struct VS_INPUT
+{
+	// This is all of the stuff that we ever use.
+	float4 vPos				: POSITION;
+	float4 vBoneWeights		: BLENDWEIGHT;
+	float4 vBoneIndices		: BLENDINDICES;
+	float4 vNormal			: NORMAL;
+	float2 vTexCoord0		: TEXCOORD0;
+	float4 vUserData		: TANGENT;			// Sign for cross product in w
+
+	// Position and normal/tangent deltas
+	float3 vPosFlex			: POSITION1;
+	float3 vNormalFlex		: NORMAL1;
+#ifdef SHADER_MODEL_VS_3_0
+	float vVertexID			: POSITION2;
+#endif
+};
+
+struct VS_OUTPUT
+{
+    float4 projPos							: POSITION;
+#if !defined( _X360 )    	
+	float  fog								: FOG;
+#endif
+	float2 baseTexCoord						: TEXCOORD0;
+	float4 worldVertToEyeVector_Darkening	: TEXCOORD1;
+	float3x3 tangentSpaceTranspose			: TEXCOORD2;
+	//	     second row						: TEXCOORD3;
+	//	     third row						: TEXCOORD4;
+	float4 worldPos_projPosZ				: TEXCOORD5;
+	float2 lightAtten01						: TEXCOORD6;
+	float2 lightAtten23						: TEXCOORD7;
+};
+
+VS_OUTPUT main( const VS_INPUT v )
+{
+	VS_OUTPUT o = ( VS_OUTPUT )0;
+
+	float4 vPosition = v.vPos;
+	float3 vNormal;
+	float4 vTangent;
+	DecompressVertex_NormalTangent( v.vNormal, v.vUserData, vNormal, vTangent );
+
+#if !defined( SHADER_MODEL_VS_3_0 ) || !MORPHING
+	ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal, vTangent.xyz );
+#else
+	ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, v.vVertexID, float3( 0, 0, 0 ), 
+		vPosition.xyz, vNormal, vTangent.xyz );
+#endif
+
+	// Perform skinning
+	float3 worldNormal, worldPos, worldTangentS, worldTangentT;
+	SkinPositionNormalAndTangentSpace( g_bSkinning, vPosition, vNormal, vTangent,
+										v.vBoneWeights, v.vBoneIndices, worldPos,
+										worldNormal, worldTangentS, worldTangentT );
+
+#if INTRO
+	WorldSpaceVertexProcess( g_Time, modelOrigin, worldPos, worldNormal, worldTangentS, worldTangentT );
+#endif
+
+	// Always normalize since flex path is controlled by runtime
+	// constant not a shader combo and will always generate the normalization
+	worldNormal   = normalize( worldNormal );
+	worldTangentS = normalize( worldTangentS );
+	worldTangentT = normalize( worldTangentT );
+
+	// Transform into projection space
+	float4 vProjPos = mul( float4( worldPos, 1 ), cViewProj );
+	o.projPos = vProjPos;
+	vProjPos.z = dot( float4( worldPos, 1 ), cViewProjZ );
+
+	o.worldPos_projPosZ = float4( worldPos, vProjPos.z );
+#if !defined( _X360 )
+	// Set fixed-function fog factor
+	o.fog = CalcFog( worldPos, vProjPos, g_FogType );
+#endif
+	// Needed for specular
+	o.worldVertToEyeVector_Darkening.xyz = cEyePos - worldPos;
+
+	// Special darkening of lights for mouth open/close
+	o.worldVertToEyeVector_Darkening.w = cTeethLighting.w * saturate( dot( worldNormal, cTeethLighting.xyz ) );;
+
+	// Scalar light attenuation (mouth darkening applied in pixel shader)
+#if defined( SHADER_MODEL_VS_2_0 ) && ( !USE_STATIC_CONTROL_FLOW )
+	o.lightAtten01.xy = float2(0,0);
+	o.lightAtten23.xy = float2(0,0);
+	#if ( NUM_LIGHTS > 0 )
+		o.lightAtten01.x = GetVertexAttenForLight( worldPos, 0, false );
+	#endif
+	#if ( NUM_LIGHTS > 1 )
+		o.lightAtten01.y = GetVertexAttenForLight( worldPos, 1, false );
+	#endif
+	#if ( NUM_LIGHTS > 2 )
+		o.lightAtten23.x = GetVertexAttenForLight( worldPos, 2, false );
+	#endif
+	#if ( NUM_LIGHTS > 3 )
+		o.lightAtten23.y = GetVertexAttenForLight( worldPos, 3, false );
+	#endif
+#else
+	o.lightAtten01.x = GetVertexAttenForLight( worldPos, 0, true );
+	o.lightAtten01.y = GetVertexAttenForLight( worldPos, 1, true );
+	o.lightAtten23.x = GetVertexAttenForLight( worldPos, 2, true );
+	o.lightAtten23.y = GetVertexAttenForLight( worldPos, 3, true );
+#endif
+
+	o.baseTexCoord = v.vTexCoord0;
+
+	// Tangent space transform
+	o.tangentSpaceTranspose[0] = float3( worldTangentS.x, worldTangentT.x, worldNormal.x );
+	o.tangentSpaceTranspose[1] = float3( worldTangentS.y, worldTangentT.y, worldNormal.y );
+	o.tangentSpaceTranspose[2] = float3( worldTangentS.z, worldTangentT.z, worldNormal.z );
+
+	return o;
+}
+
+

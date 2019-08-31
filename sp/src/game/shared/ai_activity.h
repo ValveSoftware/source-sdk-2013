@@ -11,6 +11,46 @@
 #pragma once
 #endif
 
+#ifdef MAPBASE
+
+// Mapbase adds a few shared activities.
+// 
+// These used to be placed in between existing activities, as outside of the code activities are based off of strings.
+// This seemed like a bad idea, but no problems arose at the time.
+// I later discovered that apparently some things in MP use the direct integers instead of the enum names.
+// I retroactively put all custom activities at the bottom of the enum instead.
+// Their placements in activitylist.cpp and ai_activity.cpp have not been changed.
+
+// AR2 ACTIVITY FIX
+// You know all of those AR2 activities that citizens and combine soldiers have?
+// Yeah, those are unused. It appears Valve forgot to implement them.
+// 
+// What could be 20-40 different animations on two different characters are not even defined in code.
+// I didn't even realize they were unused until I saw ACT_RELOAD_AR2, so I don't blame them for never realizing this.
+// They work surprisingly well for probably never being tested in-game.
+// 
+// 1 = Add activities directly
+// 2 = Add activities as custom activities (todo)
+// 
+// 2 should only be preferable if adding them like this breaks something.
+#define AR2_ACTIVITY_FIX 1
+
+// COMPANION HOLSTER WORKAROUND
+// I introduced a separate holster/unholster animation to male_shared
+// and female_shared and I realized it might conflict with Alyx's animation.
+// 
+// I came up with a solution--ACT_ARM_RIFLE and its disarm counterpart--to solve it.
+// I didn't think about the fact I could've named them the same as Alyx's so her animations would overwrite it...
+// ...so this has been deactivated.
+//#define COMPANION_HOLSTER_WORKAROUND 1
+
+// SHARED COMBINE ACTIVITIES
+// This turns ACT_COMBINE_AR2_ALTFIRE and ACT_COMBINE_THROW_GRENADE into shared activities.
+// This is necessary so other NPCs to use them without having to rely on a bunch of custom activities.
+#define SHARED_COMBINE_ACTIVITIES 1
+
+#endif
+
 #define ACTIVITY_NOT_AVAILABLE		-1
 
 typedef enum
@@ -2106,6 +2146,42 @@ typedef enum
 	ACT_SPELL_VM_IDLE, 
 	ACT_SPELL_VM_ARM, 
 	ACT_SPELL_VM_FIRE,
+
+#if AR2_ACTIVITY_FIX == 1
+	ACT_IDLE_AR2,
+	ACT_IDLE_ANGRY_AR2,
+
+	ACT_IDLE_AR2_RELAXED,
+	ACT_IDLE_AR2_STIMULATED,
+	ACT_WALK_AR2_RELAXED,
+	ACT_RUN_AR2_RELAXED,
+	ACT_WALK_AR2_STIMULATED,
+	ACT_RUN_AR2_STIMULATED,
+
+	ACT_IDLE_AIM_AR2_STIMULATED,
+	ACT_WALK_AIM_AR2_STIMULATED,
+	ACT_RUN_AIM_AR2_STIMULATED,
+
+	ACT_WALK_AR2,
+	ACT_WALK_AIM_AR2,
+	ACT_RUN_AR2,
+	ACT_RUN_AIM_AR2,
+
+	ACT_RELOAD_AR2,
+	//ACT_RELOAD_AR2_LOW,
+
+	ACT_GESTURE_RELOAD_AR2,
+#endif
+
+#ifdef SHARED_COMBINE_ACTIVITIES
+	ACT_COMBINE_THROW_GRENADE,
+	ACT_COMBINE_AR2_ALTFIRE,
+#endif
+
+#ifdef COMPANION_HOLSTER_WORKAROUND
+	ACT_ARM_RIFLE,
+	ACT_DISARM_RIFLE,
+#endif
 
 	// this is the end of the global activities, private per-monster activities start here.
 	LAST_SHARED_ACTIVITY,

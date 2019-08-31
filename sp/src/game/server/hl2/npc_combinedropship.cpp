@@ -175,6 +175,11 @@ public:
 	virtual int OnTakeDamage( const CTakeDamageInfo &info );
 	virtual void Event_Killed( const CTakeDamageInfo &info );
 
+#ifdef MAPBASE
+	// NOTE: This function is shared across containers and dropships; this is the container's version
+	bool AllowsAnyDamage( const CTakeDamageInfo &info );
+#endif
+
 private:
 	enum
 	{
@@ -247,6 +252,11 @@ public:
 	void	MakeTracer( const Vector &vecTracerSrc, const trace_t &tr, int iTracerType );
 	int		OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo );
 
+#ifdef MAPBASE
+	// NOTE: This function is shared across containers and dropships; this is the dropship's version
+	bool AllowsAnyDamage() { return m_bAllowAnyDamage; }
+#endif
+
 	// Input handlers.
 	void	InputLandLeave( inputdata_t &inputdata );
 	void	InputLandTake( inputdata_t &inputdata );
@@ -254,6 +264,9 @@ public:
 	void	InputDropMines( inputdata_t &inputdata );
 	void	InputDropStrider( inputdata_t &inputdata );
 	void	InputDropAPC( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void	InputDropCargo( inputdata_t &inputdata );
+#endif
 
 	void	InputPickup( inputdata_t &inputdata );
 	void	InputSetGunRange( inputdata_t &inputdata );
@@ -317,6 +330,9 @@ private:
 	EHANDLE		m_hPickupTarget;
 	int			m_iContainerMoveType;
 	bool		m_bWaitForDropoffInput;
+#ifdef MAPBASE
+	bool		m_bDontEmitDanger;
+#endif
 
 	DECLARE_DATADESC();
 	DEFINE_CUSTOM_AI;
@@ -614,6 +630,23 @@ void CCombineDropshipContainer::Event_Killed( const CTakeDamageInfo &info )
 }
 
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CCombineDropshipContainer::AllowsAnyDamage( const CTakeDamageInfo &info )
+{
+	if (GetOwnerEntity())
+	{
+		CNPC_CombineDropship *pDropship = assert_cast<CNPC_CombineDropship *>(GetOwnerEntity());
+		return pDropship->AllowsAnyDamage() && pDropship->PassesDamageFilter(info);
+	}
+
+	return false;
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Damage effects 
 //-----------------------------------------------------------------------------
@@ -623,7 +656,11 @@ int CCombineDropshipContainer::OnTakeDamage( const CTakeDamageInfo &info )
 		return 0;
 
 	// Airboat guns + explosive damage is all that can hurt it
+#ifdef MAPBASE
+	if (( info.GetDamageType() & (DMG_BLAST | DMG_AIRBOAT) ) == 0 && !AllowsAnyDamage(info) )
+#else
 	if (( info.GetDamageType() & (DMG_BLAST | DMG_AIRBOAT) ) == 0 )
+#endif
 		return 0;
 
 	CTakeDamageInfo dmgInfo = info;
@@ -764,6 +801,9 @@ BEGIN_DATADESC( CNPC_CombineDropship )
 	DEFINE_FIELD( m_hPickupTarget, FIELD_EHANDLE ),
 	DEFINE_FIELD( m_iContainerMoveType, FIELD_INTEGER ),
 	DEFINE_FIELD( m_bWaitForDropoffInput, FIELD_BOOLEAN ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bDontEmitDanger, FIELD_BOOLEAN, "DontEmitDanger" ),
+#endif
 	DEFINE_FIELD( m_hLandTarget, FIELD_EHANDLE ),
 	DEFINE_FIELD( m_bHasDroppedOff, FIELD_BOOLEAN ),
 	DEFINE_KEYFIELD( m_bInvulnerable, FIELD_BOOLEAN, "Invulnerable" ),
@@ -810,6 +850,9 @@ BEGIN_DATADESC( CNPC_CombineDropship )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "DropMines", InputDropMines ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DropStrider", InputDropStrider ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DropAPC", InputDropAPC ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "DropCargo", InputDropCargo ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_STRING, "Pickup", InputPickup ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetGunRange", InputSetGunRange ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "NPCFinishDustoff", InputNPCFinishDustoff ),
@@ -896,6 +939,11 @@ void CNPC_CombineDropship::Spawn( void )
 			m_iMachineGunBaseAttachment = m_hContainer->LookupAttachment( "gun_base" );
 			// NOTE: gun_ref must have the same position as gun_base, but rotates with the gun
 			m_iMachineGunRefAttachment = m_hContainer->LookupAttachment( "gun_ref" );
+
+#ifdef MAPBASE
+			m_poseWeapon_Pitch = m_hContainer->LookupPoseParameter("weapon_pitch"); //added these two lines
+			m_poseWeapon_Yaw = m_hContainer->LookupPoseParameter("weapon_yaw");
+#endif
 		}
 		break;
 
@@ -1399,7 +1447,11 @@ int CNPC_CombineDropship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 	// code above to see how to do it.
 	if ( m_hContainer && !m_bInvulnerable )
 	{
+#ifdef MAPBASE
+		if ( (inputInfo.GetDamageType() & DMG_AIRBOAT) || (m_iCrateType == CRATE_SOLDIER) || m_bAllowAnyDamage )
+#else
 		if ( (inputInfo.GetDamageType() & DMG_AIRBOAT) || (m_iCrateType == CRATE_SOLDIER) )
+#endif
 		{
 			m_hContainer->TakeDamage( inputInfo );
 		}
@@ -1754,11 +1806,59 @@ void CNPC_CombineDropship::InputDropAPC( inputdata_t &inputdata )
 
 	UTIL_SetSize( this, DROPSHIP_BBOX_MIN, DROPSHIP_BBOX_MAX );
 
+#ifdef MAPBASE
+	m_OnFinishedDropoff.FireOutput( m_hContainer, this );
+	m_hContainer = NULL;
+#else
 	m_hContainer = NULL;
 	m_OnFinishedDropoff.FireOutput( this, this );
+#endif
 	SetLandingState( LANDING_NO );
 	m_hLandTarget = NULL;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CNPC_CombineDropship::InputDropCargo( inputdata_t &inputdata )
+{
+	if ( !m_hContainer )
+	{
+		Warning("npc_combinedropship %s was told to drop cargo, but isn't carrying any!\n", STRING(GetEntityName()) );
+		return;
+	}
+
+	m_hContainer->SetParent(NULL, 0);
+//	m_hContainer->SetOwnerEntity(NULL);
+
+	Vector vecAbsVelocity = GetAbsVelocity();
+	if ( vecAbsVelocity.z > 0 )
+	{
+		vecAbsVelocity.z = 0.0f;
+	}
+	if ( m_hContainer->GetHealth() > 0 )
+	{
+		vecAbsVelocity = vec3_origin;
+	}
+
+	m_hContainer->SetAbsVelocity( vecAbsVelocity );
+	m_hContainer->SetMoveType( (MoveType_t)m_iContainerMoveType );
+
+	// If the container has a physics object, remove it's shadow
+	IPhysicsObject *pPhysicsObject = m_hContainer->VPhysicsGetObject();
+	if ( pPhysicsObject )
+	{
+		pPhysicsObject->RemoveShadowController();
+	}
+
+	UTIL_SetSize( this, DROPSHIP_BBOX_MIN, DROPSHIP_BBOX_MAX );
+
+	m_OnFinishedDropoff.FireOutput( m_hContainer, this );
+	m_hContainer = NULL;
+	SetLandingState( LANDING_NO );
+	m_hLandTarget = NULL;
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -1796,13 +1896,19 @@ void CNPC_CombineDropship::DropSoldierContainer( )
 
 	UTIL_SetSize( this, DROPSHIP_BBOX_MIN, DROPSHIP_BBOX_MAX );
 
+#ifndef MAPBASE
 	m_hContainer = NULL;
+#endif
 	SetLandingState( LANDING_NO );
 	m_hLandTarget = NULL;
 
 	if ( m_bHasDroppedOff )
 	{
+#ifdef MAPBASE
+		m_OnContainerShotDownAfterDropoff.FireOutput( m_hContainer, this );
+#else
 		m_OnContainerShotDownAfterDropoff.FireOutput( this, this );
+#endif
 	}
 	else
 	{
@@ -1812,8 +1918,16 @@ void CNPC_CombineDropship::DropSoldierContainer( )
 			Msg("Dropship died, troops not unloaded: %d\n", iTroopsNotUnloaded );
 		}
 
+#ifdef MAPBASE
+		m_OnContainerShotDownBeforeDropoff.Set( iTroopsNotUnloaded, m_hContainer, this );
+#else
 		m_OnContainerShotDownBeforeDropoff.Set( iTroopsNotUnloaded, this, this );
+#endif
 	}
+
+#ifdef MAPBASE
+	m_hContainer = NULL;
+#endif
 }
 
 
@@ -2082,10 +2196,17 @@ void CNPC_CombineDropship::PrescheduleThink( void )
 			// place danger sounds 1 foot above ground to get troops to scatter if they are below dropship
 			Vector vecBottom = GetAbsOrigin();
 			vecBottom.z += WorldAlignMins().z;
+#ifdef MAPBASE
+			if (!m_bDontEmitDanger)
+			{
+#endif
 			Vector vecSpot = vecBottom + Vector(0, 0, -1) * (flAltitude - 12 );
 			CSoundEnt::InsertSound( SOUND_DANGER, vecSpot, 400, 0.1, this, 0 );
 			CSoundEnt::InsertSound( SOUND_PHYSICS_DANGER, vecSpot, 400, 0.1, this, 1 );
 //			NDebugOverlay::Cross3D( vecSpot, -Vector(4,4,4), Vector(4,4,4), 255, 0, 255, false, 10.0f );
+#ifdef MAPBASE
+			}
+#endif
 
 			// now check to see if player is below us, if so, cause heat damage to them (i.e. get them to move)
 			trace_t tr;
@@ -2257,7 +2378,11 @@ void CNPC_CombineDropship::PrescheduleThink( void )
 				SetLandingState( LANDING_NO );
 				m_hLandTarget = NULL;
 				m_bHasDroppedOff = true;
+#ifdef MAPBASE
+				m_OnFinishedDropoff.FireOutput( m_hContainer, this );
+#else
 				m_OnFinishedDropoff.FireOutput( this, this );
+#endif
 			}
 
 			if ( m_hContainer )
@@ -2317,7 +2442,11 @@ void CNPC_CombineDropship::PrescheduleThink( void )
 						m_hContainer->SetMoveType( MOVETYPE_PUSH );
 						m_hContainer->SetGroundEntity( NULL );
 
+#ifdef MAPBASE
+						m_OnFinishedPickup.FireOutput( m_hContainer, this );
+#else
 						m_OnFinishedPickup.FireOutput( this, this );
+#endif
 						SetLandingState( LANDING_NO );
 					}
 				}
@@ -2395,6 +2524,9 @@ void CNPC_CombineDropship::SpawnTroop( void )
 	QAngle vecDeployEndAngles;
 	m_hContainer->GetAttachment( m_iAttachmentTroopDeploy, vecDeployEndPoint, vecDeployEndAngles );
 	vecDeployEndPoint = GetDropoffFinishPosition( vecDeployEndPoint, NULL, vecNPCMins, vecNPCMaxs );
+#ifdef MAPBASE
+	if (!m_bDontEmitDanger)
+#endif
 	CSoundEnt::InsertSound( SOUND_DANGER, vecDeployEndPoint, 120.0f, 2.0f, this );
 
 	// Make sure there are no NPCs on the spot

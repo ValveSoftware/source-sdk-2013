@@ -37,6 +37,9 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CRopeKeyframe, DT_RopeKeyframe )
 	SendPropInt( SENDINFO(m_Slack), 12 ),
 	SendPropInt( SENDINFO(m_RopeLength), 15 ),
 	SendPropInt( SENDINFO(m_fLockedPoints), 4, SPROP_UNSIGNED ),
+#ifdef MAPBASE
+	SendPropInt( SENDINFO(m_nChangeCount), 8, SPROP_UNSIGNED ),
+#endif
 	SendPropInt( SENDINFO(m_RopeFlags), ROPE_NUMFLAGS, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO(m_nSegments), 4, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO(m_bConstrainBetweenEndpoints) ),
@@ -86,6 +89,11 @@ BEGIN_DATADESC( CRopeKeyframe )
 	DEFINE_INPUTFUNC( FIELD_VECTOR,	"SetForce",			InputSetForce ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"Break",			InputBreak ),
 
+#ifdef MAPBASE
+	// Outputs
+	DEFINE_OUTPUT( m_OnBreak, "OnBreak" ),
+#endif
+
 END_DATADESC()
 
 
@@ -109,7 +117,12 @@ CRopeKeyframe::CRopeKeyframe()
 	m_RopeLength = 20;
 	m_fLockedPoints = (int) (ROPE_LOCK_START_POINT | ROPE_LOCK_END_POINT); // by default, both points are locked
 	m_flScrollSpeed = 0;
+#ifdef MAPBASE
+	// Because of the keyvalue switch
+	m_RopeFlags = ROPE_SIMULATE | ROPE_INITIAL_HANG | ROPE_USE_WIND;
+#else
 	m_RopeFlags = ROPE_SIMULATE | ROPE_INITIAL_HANG;
+#endif
 	m_iRopeMaterialModelIndex = -1;
 	m_Subdiv = 2;
 
@@ -201,10 +214,19 @@ CRopeKeyframe* CRopeKeyframe::Create(
 	int iEndAttachment,
 	int ropeWidth,
 	const char *pMaterialName,
+#ifdef MAPBASE
+	int numSegments,
+	const char *pClassName
+#else
 	int numSegments
+#endif
 	)
 {
+#ifdef MAPBASE
+	CRopeKeyframe *pRet = (CRopeKeyframe*)CreateEntityByName( pClassName );
+#else
 	CRopeKeyframe *pRet = (CRopeKeyframe*)CreateEntityByName( "keyframe_rope" );
+#endif
 	if( !pRet )
 		return NULL;
 
@@ -218,6 +240,9 @@ CRopeKeyframe* CRopeKeyframe::Create(
 	pRet->SetMaterial( pMaterialName );
 	pRet->m_Width = ropeWidth;
 	pRet->m_nSegments = clamp( numSegments, 2, ROPE_MAX_SEGMENTS );
+#ifdef MAPBASE
+	pRet->Spawn();
+#endif
 
 	return pRet;
 }
@@ -230,10 +255,19 @@ CRopeKeyframe* CRopeKeyframe::CreateWithSecondPointDetached(
 	int ropeWidth,
 	const char *pMaterialName,
 	int numSegments,
+#ifdef MAPBASE
+	bool bInitialHang,
+	const char *pClassName
+#else
 	bool bInitialHang
+#endif
 	)
 {
+#ifdef MAPBASE
+	CRopeKeyframe *pRet = (CRopeKeyframe*)CreateEntityByName( pClassName );
+#else
 	CRopeKeyframe *pRet = (CRopeKeyframe*)CreateEntityByName( "keyframe_rope" );
+#endif
 	if( !pRet )
 		return NULL;
 
@@ -329,6 +363,26 @@ void CRopeKeyframe::Init()
 
 	m_bStartPointValid = (m_hStartPoint.Get() != NULL);
 	m_bEndPointValid = (m_hEndPoint.Get() != NULL);
+
+#ifdef MAPBASE
+	// Sanity-check the rope texture scale before it goes over the wire
+	if ( m_TextureScale < 0.1f )
+	{
+		Vector origin = GetAbsOrigin();
+		GetEndPointPos( 0, origin );
+		DevMsg( "move_rope has TextureScale less than 0.1 at (%2.2f, %2.2f, %2.2f)\n",
+			origin.x, origin.y, origin.z );
+		m_TextureScale = 0.1f;
+	}
+	else if ( m_TextureScale > 10.0f )
+	{
+		Vector origin = GetAbsOrigin();
+		GetEndPointPos( 0, origin );
+		DevMsg( "move_rope has TextureScale greater than 10 at (%2.2f, %2.2f, %2.2f)\n",
+			origin.x, origin.y, origin.z );
+		m_TextureScale = 10.0f;
+	}
+#endif
 }
 
 
@@ -552,16 +606,28 @@ void CRopeKeyframe::InputSetForce( inputdata_t &inputdata )
 void CRopeKeyframe::InputBreak( inputdata_t &inputdata )
 {
 	//Route through the damage code
+#ifdef MAPBASE
+	Break(inputdata.pActivator);
+#else
 	Break();
+#endif
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Breaks the rope
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+bool CRopeKeyframe::Break( CBaseEntity *pActivator )
+#else
 bool CRopeKeyframe::Break( void )
+#endif
 {
 	DetachPoint( 0 );
+
+#ifdef MAPBASE
+	m_OnBreak.FireOutput(pActivator ? pActivator : this, this);
+#endif
 
 	// Find whoever references us and detach us from them.
 	// UNDONE: PERFORMANCE: This is very slow!!!
@@ -585,6 +651,10 @@ bool CRopeKeyframe::Break( void )
 //-----------------------------------------------------------------------------
 void CRopeKeyframe::NotifyPositionChanged( CBaseEntity *pEntity )
 {
+#ifdef MAPBASE
+	++m_nChangeCount;
+#endif
+
 	// Update our bbox?
 	UpdateBBox( false );
 
@@ -619,7 +689,11 @@ int CRopeKeyframe::OnTakeDamage( const CTakeDamageInfo &info )
 	if( !(m_RopeFlags & ROPE_BREAKABLE) )
 		return false;
 
+#ifdef MAPBASE
+	Break(info.GetAttacker());
+#else
 	Break();
+#endif
 	return 0;
 }
 
@@ -629,6 +703,14 @@ void CRopeKeyframe::Precache()
 	m_iRopeMaterialModelIndex = PrecacheModel( STRING( m_strRopeMaterialModel ) );
 	BaseClass::Precache();
 }
+
+#ifdef MAPBASE
+void CRopeKeyframe::Spawn( void )
+{
+	BaseClass::Spawn();
+	Precache();
+}
+#endif
 
 
 void CRopeKeyframe::DetachPoint( int iPoint )
@@ -650,10 +732,17 @@ void CRopeKeyframe::EnableCollision()
 void CRopeKeyframe::EnableWind( bool bEnable )
 {
 	int flag = 0;
+#ifdef MAPBASE
+	if ( bEnable )
+		flag |= ROPE_USE_WIND;
+
+	if ( (m_RopeFlags & ROPE_USE_WIND) != flag )
+#else
 	if ( !bEnable )
 		flag |= ROPE_NO_WIND;
 
 	if ( (m_RopeFlags & ROPE_NO_WIND) != flag )
+#endif
 	{
 		m_RopeFlags |= flag;
 	}
@@ -698,6 +787,20 @@ bool CRopeKeyframe::KeyValue( const char *szKeyName, const char *szValue )
 	{
 		// Legacy support for the RopeShader parameter.
 		int iShader = atoi( szValue );
+#ifdef MAPBASE
+		if ( iShader == 0 )
+		{
+			m_strRopeMaterialModel = AllocPooledString( "cable/cable.vmt" );
+		}
+		else if ( iShader == 1 )
+		{
+			m_strRopeMaterialModel = AllocPooledString( "cable/rope.vmt" );
+		}
+		else
+		{
+			m_strRopeMaterialModel = AllocPooledString( "cable/chain.vmt" );
+		}
+#else
 		if ( iShader == 0 )
 		{
 			m_iRopeMaterialModelIndex = PrecacheModel( "cable/cable.vmt" );
@@ -710,6 +813,7 @@ bool CRopeKeyframe::KeyValue( const char *szKeyName, const char *szValue )
 		{
 			m_iRopeMaterialModelIndex = PrecacheModel( "cable/chain.vmt" );
 		}
+#endif
 	}
 	else if ( stricmp( szKeyName, "RopeMaterial" ) == 0 )
 	{
@@ -725,12 +829,28 @@ bool CRopeKeyframe::KeyValue( const char *szKeyName, const char *szValue )
 			SetMaterial( str );
 		}
 	}
+#ifdef MAPBASE
+	else if( stricmp( szKeyName, "UseWind" ) == 0 )
+	{
+		if( atoi( szValue ) == 1 )
+			m_RopeFlags |= ROPE_USE_WIND;
+		else
+			m_RopeFlags &= ~ROPE_USE_WIND;
+	}
+#endif
 	else if ( stricmp( szKeyName, "NoWind" ) == 0 )
 	{
+#ifdef MAPBASE
+		if ( atoi( szValue ) != 1 )
+		{
+			m_RopeFlags |= ROPE_USE_WIND;
+		}
+#else
 		if ( atoi( szValue ) == 1 )
 		{
 			m_RopeFlags |= ROPE_NO_WIND;
 		}
+#endif
 	}
 	
 	return BaseClass::KeyValue( szKeyName, szValue );
@@ -749,7 +869,9 @@ void CRopeKeyframe::InputSetScrollSpeed( inputdata_t &inputdata )
 void CRopeKeyframe::SetMaterial( const char *pName )
 {
 	m_strRopeMaterialModel = AllocPooledString( pName );
+#ifndef MAPBASE
 	m_iRopeMaterialModelIndex = PrecacheModel( STRING( m_strRopeMaterialModel ) );
+#endif
 }
 
 int CRopeKeyframe::UpdateTransmitState()

@@ -20,9 +20,16 @@ BEGIN_DATADESC( CRagdollMagnet )
 	DEFINE_KEYFIELD( m_force,		FIELD_FLOAT, "force" ),
 	DEFINE_KEYFIELD( m_axis,		FIELD_VECTOR, "axis" ),
 	DEFINE_KEYFIELD( m_bDisabled,	FIELD_BOOLEAN,	"StartDisabled" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_BoneTarget,	FIELD_STRING, "BoneTarget" ),
+#endif
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnUsed, "OnUsed" ),
+#endif
 
 END_DATADESC()
 
@@ -111,9 +118,36 @@ CRagdollMagnet *CRagdollMagnet::FindBestMagnet( CBaseEntity *pNPC )
 //
 // NOTE: This function assumes pNPC is within this magnet's radius.
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+Vector CRagdollMagnet::GetForceVector( CBaseEntity *pNPC, int *pBone )
+#else
 Vector CRagdollMagnet::GetForceVector( CBaseEntity *pNPC )
+#endif
 {
 	Vector vecForceToApply;
+
+#ifdef MAPBASE
+	Vector vecNPCPos = pNPC->WorldSpaceCenter();
+
+	if (pBone)
+	{
+		CBaseAnimating *pAnimating = pNPC->GetBaseAnimating();
+		Assert( pAniamting != NULL );
+
+		const char *szBoneTarget = BoneTarget();
+		Assert( szBoneTarget != NULL );
+
+		int iBone = pAnimating->LookupBone( szBoneTarget );
+
+		if (iBone != -1)
+		{
+			matrix3x4_t bonetoworld;
+			pAnimating->GetBoneTransform( iBone, bonetoworld );
+			MatrixPosition( bonetoworld, vecNPCPos );
+			*pBone = iBone;
+		}
+	}
+#endif
 
 	if( IsBarMagnet() )
 	{
@@ -121,10 +155,17 @@ Vector CRagdollMagnet::GetForceVector( CBaseEntity *pNPC )
 		Vector vecForceDir;
 		Vector vecClosest;
 
+#ifdef MAPBASE
+		CalcClosestPointOnLineSegment( vecNPCPos, GetAbsOrigin(), m_axis, vecClosest, NULL );
+
+		vecForceDir = (vecClosest - vecNPCPos );
+		VectorNormalize( vecForceDir );
+#else
 		CalcClosestPointOnLineSegment( pNPC->WorldSpaceCenter(), GetAbsOrigin(), m_axis, vecClosest, NULL );
 
 		vecForceDir = (vecClosest - pNPC->WorldSpaceCenter() );
 		VectorNormalize( vecForceDir );
+#endif
 
 		vecForceToApply = vecForceDir * m_force;
 	}
@@ -132,7 +173,11 @@ Vector CRagdollMagnet::GetForceVector( CBaseEntity *pNPC )
 	{
 		Vector vecForce;
 
+#ifdef MAPBASE
+		vecForce = GetAbsOrigin() - vecNPCPos;
+#else
 		vecForce = GetAbsOrigin() - pNPC->WorldSpaceCenter();
+#endif
 		VectorNormalize( vecForce );
 
 		vecForceToApply = vecForce * m_force;

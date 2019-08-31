@@ -10,6 +10,9 @@
 
 #include "common_ps_fxc.h"
 
+#if defined(SHADER_MODEL_PS_3_0)
+#define NEW_SHADOW_FILTERS // Comment if you want to enable retail shadow filter.
+#endif
 
 // JasonM - TODO: remove this simpleton version
 float DoShadow( sampler DepthSampler, float4 texCoord )
@@ -100,12 +103,16 @@ float DoShadowNvidiaCheap( sampler DepthSampler, const float4 shadowMapPos )
 	return dot(vTaps, float4(0.25, 0.25, 0.25, 0.25));
 }
 
+#if defined( NEW_SHADOW_FILTERS )
+float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float3 shadowMapPos )
+#else
 float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float4 shadowMapPos )
+#endif
 {
-	float fTexelEpsilon = 1.0f / 1024.0f;
+	float fTexelEpsilon = 1.0f / 512.0f;
 
-	float ooW = 1.0f / shadowMapPos.w;								// 1 / w
-	float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
+	//float ooW = 1.0f; //1.0f / shadowMapPos.w;								// 1 / w
+	float3 shadowMapCenter_objDepth = shadowMapPos.xyz; // * ooW;		// Do both projections at once
 
 	float2 shadowMapCenter = shadowMapCenter_objDepth.xy;			// Center of shadow filter
 	float objDepth = shadowMapCenter_objDepth.z;					// Object depth in shadow space
@@ -138,61 +145,80 @@ float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float4 shadowMapPos )
 //	4	20	33	20	4
 //	1	4	7	4	1
 //
+#if defined( NEW_SHADOW_FILTERS )
+float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float3 shadowMapPos, const float2 vShadowTweaks )
+#else
 float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float4 shadowMapPos )
+#endif
 {
-	float fEpsilon    = 1.0f / 512.0f;
-	float fTwoEpsilon = 2.0f * fEpsilon;
+#if defined( NEW_SHADOW_FILTERS )
+	float fEpsilonX    = vShadowTweaks.x;
+	float fTwoEpsilonX = 2.0f * fEpsilonX;
+	float fEpsilonY    = vShadowTweaks.y;
+	float fTwoEpsilonY = 2.0f * fEpsilonY;
+#else
+	float fEpsilonX    = 1.0 / 512.0;
+	float fTwoEpsilonX = 2.0f * fEpsilonX;
+	float fEpsilonY    = fEpsilonX;
+	float fTwoEpsilonY = fTwoEpsilonX;
+#endif
 
+#if defined( NEW_SHADOW_FILTERS )	
+	// I guess we don't need this one.
+	// float ooW = 1.0f / shadowMapPos.w;							// 1 / w
+	float3 shadowMapCenter_objDepth = shadowMapPos;					// Do both projections at once
+#else
 	float ooW = 1.0f / shadowMapPos.w;								// 1 / w
 	float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
+#endif
 
 	float2 shadowMapCenter = shadowMapCenter_objDepth.xy;			// Center of shadow filter
 	float objDepth = shadowMapCenter_objDepth.z;					// Object depth in shadow space
 
 	float4 vOneTaps;
-	vOneTaps.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilon,  fTwoEpsilon ), objDepth, 1 ) ).x;
-	vOneTaps.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilon,  fTwoEpsilon ), objDepth, 1 ) ).x;
-	vOneTaps.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilon, -fTwoEpsilon ), objDepth, 1 ) ).x;
-	vOneTaps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilon, -fTwoEpsilon ), objDepth, 1 ) ).x;
+	vOneTaps.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilonX,  fTwoEpsilonY ), objDepth, 1 ) ).x;
+	vOneTaps.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilonX,  fTwoEpsilonY ), objDepth, 1 ) ).x;
+	vOneTaps.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilonX, -fTwoEpsilonY ), objDepth, 1 ) ).x;
+	vOneTaps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilonX, -fTwoEpsilonY ), objDepth, 1 ) ).x;
 	float flOneTaps = dot( vOneTaps, float4(1.0f / 331.0f, 1.0f / 331.0f, 1.0f / 331.0f, 1.0f / 331.0f));
 
 	float4 vSevenTaps;
-	vSevenTaps.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilon,  0 ), objDepth, 1 ) ).x;
-	vSevenTaps.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilon,  0 ), objDepth, 1 ) ).x;
-	vSevenTaps.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  0, -fTwoEpsilon ), objDepth, 1 ) ).x;
-	vSevenTaps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  0, -fTwoEpsilon ), objDepth, 1 ) ).x;
+	vSevenTaps.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilonX,  0 ), objDepth, 1 ) ).x;
+	vSevenTaps.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilonX,  0 ), objDepth, 1 ) ).x;
+	vSevenTaps.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  0, fTwoEpsilonY ), objDepth, 1 ) ).x;
+	vSevenTaps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  0, -fTwoEpsilonY ), objDepth, 1 ) ).x;
 	float flSevenTaps = dot( vSevenTaps, float4( 7.0f / 331.0f, 7.0f / 331.0f, 7.0f / 331.0f, 7.0f / 331.0f ) );
 
 	float4 vFourTapsA, vFourTapsB;
-	vFourTapsA.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilon,  fEpsilon    ), objDepth, 1 ) ).x;
-	vFourTapsA.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilon,     fTwoEpsilon ), objDepth, 1 ) ).x;
-	vFourTapsA.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilon,     fTwoEpsilon ), objDepth, 1 ) ).x;
-	vFourTapsA.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilon,  fEpsilon    ), objDepth, 1 ) ).x;
-	vFourTapsB.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilon, -fEpsilon    ), objDepth, 1 ) ).x;
-	vFourTapsB.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilon,    -fTwoEpsilon ), objDepth, 1 ) ).x;
-	vFourTapsB.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilon,    -fTwoEpsilon ), objDepth, 1 ) ).x;
-	vFourTapsB.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilon, -fEpsilon    ), objDepth, 1 ) ).x;
+	vFourTapsA.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilonX,  fEpsilonY    ), objDepth, 1 ) ).x;
+	vFourTapsA.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilonX,     fTwoEpsilonY ), objDepth, 1 ) ).x;
+	vFourTapsA.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilonX,     fTwoEpsilonY ), objDepth, 1 ) ).x;
+	vFourTapsA.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilonX,  fEpsilonY    ), objDepth, 1 ) ).x;
+	vFourTapsB.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTwoEpsilonX, -fEpsilonY    ), objDepth, 1 ) ).x;
+	vFourTapsB.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilonX,    -fTwoEpsilonY ), objDepth, 1 ) ).x;
+	vFourTapsB.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilonX,    -fTwoEpsilonY ), objDepth, 1 ) ).x;
+	vFourTapsB.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilonX, -fEpsilonY    ), objDepth, 1 ) ).x;
 	float flFourTapsA = dot( vFourTapsA, float4( 4.0f / 331.0f, 4.0f / 331.0f, 4.0f / 331.0f, 4.0f / 331.0f ) );
 	float flFourTapsB = dot( vFourTapsB, float4( 4.0f / 331.0f, 4.0f / 331.0f, 4.0f / 331.0f, 4.0f / 331.0f ) );
 
 	float4 v20Taps;
-	v20Taps.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilon,  fEpsilon ), objDepth, 1 ) ).x;
-	v20Taps.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilon,  fEpsilon ), objDepth, 1 ) ).x;
-	v20Taps.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilon, -fEpsilon ), objDepth, 1 ) ).x;
-	v20Taps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilon, -fEpsilon ), objDepth, 1 ) ).x;
+	v20Taps.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilonX,  fEpsilonY ), objDepth, 1 ) ).x;
+	v20Taps.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilonX,  fEpsilonY ), objDepth, 1 ) ).x;
+	v20Taps.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilonX, -fEpsilonY ), objDepth, 1 ) ).x;
+	v20Taps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilonX, -fEpsilonY ), objDepth, 1 ) ).x;
 	float fl20Taps = dot( v20Taps, float4(20.0f / 331.0f, 20.0f / 331.0f, 20.0f / 331.0f, 20.0f / 331.0f));
 
 	float4 v33Taps;
-	v33Taps.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilon,  0 ), objDepth, 1 ) ).x;
-	v33Taps.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilon,  0 ), objDepth, 1 ) ).x;
-	v33Taps.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  0, -fEpsilon ), objDepth, 1 ) ).x;
-	v33Taps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  0, -fEpsilon ), objDepth, 1 ) ).x;
+	v33Taps.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilonX,  0 ), objDepth, 1 ) ).x;
+	v33Taps.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilonX,  0 ), objDepth, 1 ) ).x;
+	v33Taps.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  0, fEpsilonY ), objDepth, 1 ) ).x;
+	v33Taps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  0, -fEpsilonY ), objDepth, 1 ) ).x;
 	float fl33Taps = dot( v33Taps, float4(33.0f / 331.0f, 33.0f / 331.0f, 33.0f / 331.0f, 33.0f / 331.0f));
 
 	float flCenterTap = tex2Dproj( DepthSampler, float4( shadowMapCenter, objDepth, 1 ) ).x * (55.0f / 331.0f);
 
 	// Sum all 25 Taps
-	return flOneTaps + flSevenTaps + +flFourTapsA + flFourTapsB + fl20Taps + fl33Taps + flCenterTap;
+	return flOneTaps + flSevenTaps + flFourTapsA + flFourTapsB + fl20Taps + fl33Taps + flCenterTap;
 }
 
 
@@ -601,7 +627,12 @@ float DoFlashlightShadow( sampler DepthSampler, sampler RandomRotationSampler, f
 
 #if !defined( _X360 ) //PC
 	if( nShadowLevel == NVIDIA_PCF_POISSON )
+#if defined( NEW_SHADOW_FILTERS ) && defined( SHADER_MODEL_PS_3_0 )
+		// Let's replace noise filter with gaussian blur, like in Portal 2.
+		flShadow = DoShadowNvidiaPCF5x5Gaussian( DepthSampler, vProjCoords, float2( 1.0 / 2048.0, 1.0 / 2048.0 ) );
+#else
 		flShadow = DoShadowPoisson16Sample( DepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, vShadowTweaks, true, false );
+#endif	
 	else if( nShadowLevel == ATI_NOPCF )
 		flShadow = DoShadowPoisson16Sample( DepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, vShadowTweaks, false, false );
 	else if( nShadowLevel == ATI_NO_PCF_FETCH4 )
@@ -660,6 +691,12 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 {
 	float3 vProjCoords = flashlightSpacePosition.xyz / flashlightSpacePosition.w;
 	float3 flashlightColor = float3(1,1,1);
+	
+	// Blixibon - Fix for flashlight textures without Clamp S/T
+#if defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+	clip( vProjCoords.xyz );
+	clip( 1-vProjCoords.xyz );
+#endif
 
 #if ( defined( _X360 ) )
 
@@ -691,6 +728,7 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 
 
 #if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+	flashlightColor *= flashlightSpacePosition.w > 0;
 	flashlightColor *= cFlashlightColor.xyz;						// Flashlight color
 #endif
 
@@ -702,7 +740,7 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 	float endFalloffFactor = RemapValClamped( dist, farZ, 0.6f * farZ, 0.0f, 1.0f );
 
 	// Attenuation for light and to fade out shadow over distance
-	float fAtten = saturate( dot( attenuationFactors, float3( 1.0f, 1.0f/dist, 1.0f/distSquared ) ) );
+	float fAtten = saturate( endFalloffFactor * dot( attenuationFactors, float3( 1.0f, 1.0f/dist, 1.0f/distSquared ) ) );
 
 	// Shadowing and coloring terms
 #if (defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0))
@@ -722,7 +760,9 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 		diffuseLighting *= saturate( dot( L.xyz, worldNormal.xyz ) ); // Lambertian (not Half-Lambert) term
 #endif
 	diffuseLighting *= flashlightColor;
-	diffuseLighting *= endFalloffFactor;
+	
+	// Blixibon - Now calculating endFalloffFactor directly from fAtten
+	//diffuseLighting *= endFalloffFactor;
 
 	// Specular term (masked by diffuse)
 	specularLighting = diffuseLighting * SpecularLight ( worldNormal, L, fSpecularExponent, vEyeDir, bDoSpecularWarp, specularWarpSampler, fFresnel );
@@ -734,29 +774,28 @@ float3 DoFlashlight( float3 flashlightPos, float3 worldPos, float4 flashlightSpa
 					sampler RandomRotationSampler, int nShadowLevel, bool bDoShadows, bool bAllowHighQuality,
 					const float2 vScreenPos, bool bClip, float4 vShadowTweaks = float4(3/1024.0f, 0.0005f, 0.0f, 0.0f), bool bHasNormal = true )
 {
-	float3 vProjCoords = flashlightSpacePosition.xyz / flashlightSpacePosition.w;
-	float3 flashlightColor = float3(1,1,1);
-
-#if ( defined( _X360 ) )
-
-	float3 ltz = vProjCoords.xyz < float3( 0.0f, 0.0f, 0.0f );
-	float3 gto = vProjCoords.xyz > float3( 1.0f, 1.0f, 1.0f );
-
-	[branch]
-	if ( dot(ltz + gto, float3(1,1,1)) > 0 )
+	if ( flashlightSpacePosition.w < 0 )
 	{
-		if ( bClip )
-		{
-			clip(-1);
-		}
 		return float3(0,0,0);
 	}
 	else
 	{
-		flashlightColor = tex2D( FlashlightSampler, vProjCoords );
+		float3 vProjCoords = flashlightSpacePosition.xyz / flashlightSpacePosition.w;
+		float3 flashlightColor = float3(1,1,1);
+		
+		// Blixibon - Fix for flashlight textures without Clamp S/T
+#if defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+		clip( vProjCoords.xyz );
+		clip( 1-vProjCoords.xyz );
+#endif
+
+#if ( defined( _X360 ) )
+
+		float3 ltz = vProjCoords.xyz < float3( 0.0f, 0.0f, 0.0f );
+		float3 gto = vProjCoords.xyz > float3( 1.0f, 1.0f, 1.0f );
 
 		[branch]
-		if ( dot(flashlightColor.xyz, float3(1,1,1)) <= 0 )
+		if ( dot(ltz + gto, float3(1,1,1)) > 0 )
 		{
 			if ( bClip )
 			{
@@ -764,58 +803,74 @@ float3 DoFlashlight( float3 flashlightPos, float3 worldPos, float4 flashlightSpa
 			}
 			return float3(0,0,0);
 		}
-	}
+		else
+		{
+			flashlightColor = tex2D( FlashlightSampler, vProjCoords );
+
+			[branch]
+			if ( dot(flashlightColor.xyz, float3(1,1,1)) <= 0 )
+			{
+				if ( bClip )
+				{
+					clip(-1);
+				}
+				return float3(0,0,0);
+			}
+		}
 #else
-	flashlightColor = tex2D( FlashlightSampler, vProjCoords );
+		flashlightColor = tex2D( FlashlightSampler, vProjCoords );
 #endif
 
 #if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
-	flashlightColor *= cFlashlightColor.xyz;						// Flashlight color
+		flashlightColor *= cFlashlightColor.xyz;						// Flashlight color
 #endif
 
-	float3 delta = flashlightPos - worldPos;
-	float3 L = normalize( delta );
-	float distSquared = dot( delta, delta );
-	float dist = sqrt( distSquared );
+		float3 delta = flashlightPos - worldPos;
+		float3 L = normalize( delta );
+		float distSquared = dot( delta, delta );
+		float dist = sqrt( distSquared );
 
-	float endFalloffFactor = RemapValClamped( dist, farZ, 0.6f * farZ, 0.0f, 1.0f );
+		float endFalloffFactor = RemapValClamped( dist, farZ, 0.6f * farZ, 0.0f, 1.0f );
 
-	// Attenuation for light and to fade out shadow over distance
-	float fAtten = saturate( dot( attenuationFactors, float3( 1.0f, 1.0f/dist, 1.0f/distSquared ) ) );
+		// Attenuation for light and to fade out shadow over distance
+		float fAtten = saturate( endFalloffFactor * dot( attenuationFactors, float3( 1.0f, 1.0f/dist, 1.0f/distSquared ) ) );
 
-	// Shadowing and coloring terms
+		// Shadowing and coloring terms
 #if (defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0))
-	if ( bDoShadows )
-	{
-		float flShadow = DoFlashlightShadow( FlashlightDepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, nShadowLevel, vShadowTweaks, bAllowHighQuality );
-		float flAttenuated = lerp( flShadow, 1.0f, vShadowTweaks.y );	// Blend between fully attenuated and not attenuated
-		flShadow = saturate( lerp( flAttenuated, flShadow, fAtten ) );	// Blend between shadow and above, according to light attenuation
-		flashlightColor *= flShadow;									// Shadow term
-	}
+		if ( bDoShadows )
+		{
+			float flShadow = DoFlashlightShadow( FlashlightDepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, nShadowLevel, vShadowTweaks, bAllowHighQuality );
+			float flAttenuated = lerp( flShadow, 1.0f, vShadowTweaks.y );	// Blend between fully attenuated and not attenuated
+			flShadow = saturate( lerp( flAttenuated, flShadow, fAtten ) );	// Blend between shadow and above, according to light attenuation
+			flashlightColor *= flShadow;									// Shadow term
+		}
 #endif
 
-	float3 diffuseLighting = fAtten;
+		float3 diffuseLighting = fAtten;
 
-	float flLDotWorldNormal;
-	if ( bHasNormal )
-	{
-		flLDotWorldNormal = dot( L.xyz, worldNormal.xyz );
-	}
-	else
-	{
-		flLDotWorldNormal = 1.0f;
-	}
+		float flLDotWorldNormal;
+		if ( bHasNormal )
+		{
+			flLDotWorldNormal = dot( L.xyz, worldNormal.xyz );
+		}
+		else
+		{
+			flLDotWorldNormal = 1.0f;
+		}
 
 #if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
-	diffuseLighting *= saturate( flLDotWorldNormal + flFlashlightNoLambertValue ); // Lambertian term
+		diffuseLighting *= saturate( flLDotWorldNormal + flFlashlightNoLambertValue ); // Lambertian term
 #else
-	diffuseLighting *= saturate( flLDotWorldNormal ); // Lambertian (not Half-Lambert) term
+		diffuseLighting *= saturate( flLDotWorldNormal ); // Lambertian (not Half-Lambert) term
 #endif
 
-	diffuseLighting *= flashlightColor;
-	diffuseLighting *= endFalloffFactor;
+		diffuseLighting *= flashlightColor;
+		
+		// Blixibon - Now calculating endFalloffFactor directly from fAtten
+		//diffuseLighting *= endFalloffFactor;
 
-	return diffuseLighting;
+		return diffuseLighting;
+	}
 }
 
 #endif //#ifndef COMMON_FLASHLIGHT_FXC_H_

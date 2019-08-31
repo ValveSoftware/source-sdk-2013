@@ -21,6 +21,9 @@
 #include "ndebugoverlay.h"
 #include "soundscape.h"
 #include "AI_ResponseSystem.h"
+#ifdef MAPBASE
+#include "sceneentity.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -34,6 +37,10 @@ extern ISaveRestoreOps *responseSystemSaveRestoreOps;
 LINK_ENTITY_TO_CLASS( env_speaker, CSpeaker );
 
 BEGIN_DATADESC( CSpeaker )
+
+#ifdef MAPBASE
+	DEFINE_FIELD( m_hTarget, FIELD_EHANDLE ),
+#endif
 
 	DEFINE_KEYFIELD( m_delayMin, FIELD_FLOAT, "delaymin" ),
 	DEFINE_KEYFIELD( m_delayMax, FIELD_FLOAT, "delaymax" ),
@@ -49,6 +56,10 @@ BEGIN_DATADESC( CSpeaker )
 	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOn", InputTurnOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOff", InputTurnOff ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Toggle", InputToggle ),
+
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnSpeak, "OnSpeak" ),
+#endif
 
 END_DATADESC()
 
@@ -180,6 +191,103 @@ void CSpeaker::SpeakerThink( void )
 	g_AIFriendliesTalkSemaphore.Acquire( 5, this );		
 	g_AIFoesTalkSemaphore.Acquire( 5, this );		
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+inline CBaseEntity *CSpeaker::GetTarget()
+{
+	if (!m_hTarget && m_target != NULL_STRING)
+		m_hTarget = gEntList.FindEntityByName(NULL, STRING(m_target), this, NULL, this);
+	return m_hTarget;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Copied from CBaseEntity so we could use a !target for everything
+// Input  : *conceptName - 
+//-----------------------------------------------------------------------------
+void CSpeaker::DispatchResponse( const char *conceptName )
+{
+	IResponseSystem *rs = GetResponseSystem();
+	if ( !rs )
+		return;
+
+	CBaseEntity *pTarget = GetTarget();
+	if (!pTarget)
+		pTarget = this;
+
+	// See CBaseEntity and stuff...
+	AI_CriteriaSet set;
+	set.AppendCriteria( "concept", conceptName, CONCEPT_WEIGHT );
+	ModifyOrAppendCriteria( set );
+	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	if( pPlayer )
+		pPlayer->ModifyOrAppendPlayerCriteria( set );
+	ReAppendContextCriteria( set );
+	AI_Response result;
+	bool found = rs->FindBestResponse( set, result );
+	if ( !found )
+	{
+		return;
+	}
+
+	// Handle the response here...
+	char response[ 256 ];
+	result.GetResponse( response, sizeof( response ) );
+	if (response[0] == '$')
+	{
+		response[0] = '\0';
+		DevMsg("Replacing %s with %s...\n", response, GetContextValue(response));
+		Q_strncpy(response, GetContextValue(response), sizeof(response));
+		PrecacheScriptSound( response );
+	}
+
+	switch ( result.GetType() )
+	{
+	case RESPONSE_SPEAK:
+		{
+			pTarget->EmitSound( response );
+		}
+		break;
+	case RESPONSE_SENTENCE:
+		{
+			int sentenceIndex = SENTENCEG_Lookup( response );
+			if( sentenceIndex == -1 )
+			{
+				// sentence not found
+				break;
+			}
+
+			// FIXME:  Get pitch from npc?
+			CPASAttenuationFilter filter( pTarget );
+			CBaseEntity::EmitSentenceByIndex( filter, pTarget->entindex(), CHAN_VOICE, sentenceIndex, 1, result.GetSoundLevel(), 0, PITCH_NORM );
+		}
+		break;
+	case RESPONSE_SCENE:
+		{
+			CBaseFlex *pFlex = NULL;
+			if (pTarget != this)
+			{
+				// Attempt to get flex on the target
+				pFlex = dynamic_cast<CBaseFlex*>(pTarget);
+			}
+			InstancedScriptedScene(pFlex, response);
+		}
+		break;
+	case RESPONSE_PRINT:
+		{
+
+		}
+		break;
+	default:
+		break;
+	}
+
+	// AllocPooledString?
+	m_OnSpeak.Set(MAKE_STRING(response), pTarget, this);
+}
+#endif
 
 
 void CSpeaker::InputTurnOn( inputdata_t &inputdata )

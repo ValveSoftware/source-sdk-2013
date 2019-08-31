@@ -43,6 +43,9 @@
 
 static ConVar sk_apc_missile_damage("sk_apc_missile_damage", "15");
 ConVar rpg_missle_use_custom_detonators( "rpg_missle_use_custom_detonators", "1" );
+#ifdef MAPBASE
+ConVar weapon_rpg_use_old_behavior("weapon_rpg_use_old_behavior", "0");
+#endif
 
 #define APC_MISSILE_DAMAGE	sk_apc_missile_damage.GetFloat()
 
@@ -2039,7 +2042,20 @@ bool CWeaponRPG::WeaponLOSCondition( const Vector &ownerPos, const Vector &targe
 			Vector vecShootDir = npcOwner->GetActualShootTrajectory( vecMuzzle );
 
 			// Make sure I have a good 10 feet of wide clearance in front, or I'll blow my teeth out.
+#ifdef MAPBASE
+			// Oh, and don't collide with ourselves or our owner. That would be stupid.
+			if (!weapon_rpg_use_old_behavior.GetBool())
+			{
+				CTraceFilterSkipTwoEntities pTraceFilter( this, GetOwner(), COLLISION_GROUP_NONE );
+				AI_TraceHull( vecMuzzle, vecMuzzle + vecShootDir * (10.0f*12.0f), Vector( -24, -24, -24 ), Vector( 24, 24, 24 ), MASK_NPCSOLID, &pTraceFilter, &tr );
+			}
+			else
+			{
+#endif
 			AI_TraceHull( vecMuzzle, vecMuzzle + vecShootDir * (10.0f*12.0f), Vector( -24, -24, -24 ), Vector( 24, 24, 24 ), MASK_NPCSOLID, NULL, &tr );
+#ifdef MAPBASE
+			}
+#endif
 
 			if( tr.fraction != 1.0f )
 				bResult = false;
@@ -2089,7 +2105,20 @@ int CWeaponRPG::WeaponRangeAttack1Condition( float flDot, float flDist )
 		Vector vecShootDir = pOwner->GetActualShootTrajectory( vecMuzzle );
 
 		// Make sure I have a good 10 feet of wide clearance in front, or I'll blow my teeth out.
+#ifdef MAPBASE
+		// Oh, and don't collide with ourselves or our owner. That would be stupid.
+		if (!weapon_rpg_use_old_behavior.GetBool())
+		{
+			CTraceFilterSkipTwoEntities pTraceFilter( this, GetOwner(), COLLISION_GROUP_NONE );
+			AI_TraceHull( vecMuzzle, vecMuzzle + vecShootDir * (10.0f*12.0f), Vector( -24, -24, -24 ), Vector( 24, 24, 24 ), MASK_NPCSOLID, &pTraceFilter, &tr );
+		}
+		else
+		{
+#endif
 		AI_TraceHull( vecMuzzle, vecMuzzle + vecShootDir * (10.0f*12.0f), Vector( -24, -24, -24 ), Vector( 24, 24, 24 ), MASK_NPCSOLID, NULL, &tr );
+#ifdef MAPBASE
+		}
+#endif
 
 		if( tr.fraction != 1.0 )
 		{
@@ -2212,6 +2241,23 @@ void CWeaponRPG::UpdateLaserEffects( void )
 		m_hLaserMuzzleSprite->SetScale( 0.1f + random->RandomFloat( -0.025f, 0.025f ) );
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CWeaponRPG::SupportsBackupActivity(Activity activity)
+{
+	// NPCs shouldn't use their SMG activities to aim and fire RPGs while running.
+	if (activity == ACT_RUN_AIM ||
+		activity == ACT_WALK_AIM ||
+		activity == ACT_RUN_CROUCH_AIM ||
+		activity == ACT_WALK_CROUCH_AIM)
+		return false;
+
+	return true;
+}
+#endif
 
 //=============================================================================
 // Laser Dot

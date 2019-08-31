@@ -349,6 +349,14 @@ void CWeaponBugBait::ItemPostFrame( void )
 	if ( pOwner == NULL )
 		return;
 
+#ifdef MAPBASE
+	if (pOwner->HasSpawnFlags( SF_PLAYER_SUPPRESS_FIRING ))
+	{
+		WeaponIdle();
+		return;
+	}
+#endif
+
 	// See if we're cocked and ready to throw
 	if ( m_bDrawBackFinished )
 	{

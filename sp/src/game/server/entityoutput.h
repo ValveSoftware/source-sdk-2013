@@ -78,6 +78,12 @@ public:
 	/// Delete every single action in the action list. 
 	void DeleteAllElements( void ) ;
 
+#ifdef MAPBASE
+	// Needed for ReplaceOutput, hopefully not bad
+	CEventAction *GetActionList() { return m_ActionList; }
+	void SetActionList(CEventAction *newlist) { m_ActionList = newlist; }
+#endif
+
 protected:
 	variant_t m_Value;
 	CEventAction *m_ActionList;

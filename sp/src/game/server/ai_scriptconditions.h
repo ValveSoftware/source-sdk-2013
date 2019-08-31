@@ -159,6 +159,9 @@ private:
 	// Input handlers
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSatisfyConditions( inputdata_t &inputdata );
+#endif
 
 	// Output handlers
 	COutputEvent	m_OnConditionsSatisfied;

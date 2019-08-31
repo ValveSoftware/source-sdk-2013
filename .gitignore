@@ -54,3 +54,24 @@ config.cfg
 # shader files
 *.tmp
 
+# Unnecessary files
+*.lib
+*.filters
+*.vpc_crc
+*.sentinel
+
+# Backup files
+*.bak
+
+# Build folders
+sp/src/.vs/
+sp/src/game/client/Debug_mod_episodic/
+sp/src/game/client/Debug_mod_hl2/
+sp/src/game/client/Release_mod_episodic/
+sp/src/game/client/Release_mod_hl2/
+sp/src/game/server/Debug_mod_episodic/
+sp/src/game/server/Debug_mod_hl2/
+sp/src/game/server/Release_mod_episodic/
+sp/src/game/server/Release_mod_hl2/
+sp/src/*/Debug/
+sp/src/*/Release/

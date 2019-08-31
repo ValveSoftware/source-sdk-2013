@@ -547,7 +547,11 @@ bool CNPC_CombineCamera::FVisible(CBaseEntity *pEntity, int traceMask, CBaseEnti
 	// If we hit something that's okay to hit anyway, still fire
 	if ( pHitEntity && pHitEntity->MyCombatCharacterPointer() )
 	{
+#ifdef MAPBASE
+		if (IRelationType(pHitEntity) <= D_FR)
+#else
 		if (IRelationType(pHitEntity) == D_HT)
+#endif
 			return true;
 	}
 

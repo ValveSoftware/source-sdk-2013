@@ -176,6 +176,22 @@ void AI_CriteriaSet::Describe()
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Merges another AI_CriteriaSet without clearing
+// Input  : src - 
+//-----------------------------------------------------------------------------
+void AI_CriteriaSet::MergeSet( const AI_CriteriaSet& src )
+{
+	for ( short i = src.m_Lookup.FirstInorder(); 
+		i != src.m_Lookup.InvalidIndex(); 
+		i = src.m_Lookup.NextInorder( i ) )
+	{
+		m_Lookup.Insert( src.m_Lookup[ i ] );
+	}
+}
+#endif
+
 BEGIN_SIMPLE_DATADESC( AI_ResponseParams )
 	DEFINE_FIELD( flags,	FIELD_SHORT ),
 	DEFINE_FIELD( odds,	FIELD_SHORT ),	
@@ -202,7 +218,11 @@ AI_Response::AI_Response()
 	m_pCriteria = NULL;
 	m_szMatchingRule[0]=0;
 	m_szContext = NULL;
+#ifdef MAPBASE
+	m_iContextFlags = 0;
+#else
 	m_bApplyContextToWorld = false;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -215,7 +235,11 @@ AI_Response::AI_Response( const AI_Response &from )
 	m_pCriteria = NULL;
 	m_szContext = NULL;
 	SetContext( from.m_szContext );
+#ifdef MAPBASE
+	m_iContextFlags = from.m_iContextFlags;
+#else
 	m_bApplyContextToWorld = from.m_bApplyContextToWorld;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -237,7 +261,11 @@ AI_Response &AI_Response::operator=( const AI_Response &from )
 	m_pCriteria = NULL;
 	m_szContext = NULL;
 	SetContext( from.m_szContext );
+#ifdef MAPBASE
+	m_iContextFlags = from.m_iContextFlags;
+#else
 	m_bApplyContextToWorld = from.m_bApplyContextToWorld;
+#endif
 	return *this;
 }
 
@@ -255,8 +283,31 @@ void AI_Response::Init( ResponseType_t type, const char *responseName, const AI_
 	Q_strncpy( m_szMatchingRule, ruleName ? ruleName : "NULL", sizeof( m_szMatchingRule ) );
 	m_Params = responseparams;
 	SetContext( applyContext );
+#ifdef MAPBASE
+	bApplyContextToWorld ? m_iContextFlags = APPLYCONTEXT_WORLD : m_iContextFlags = 0;
+#else
 	m_bApplyContextToWorld = bApplyContextToWorld;
+#endif
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *response - 
+//			*criteria - 
+//-----------------------------------------------------------------------------
+void AI_Response::Init( ResponseType_t type, const char *responseName, const AI_CriteriaSet& criteria, const AI_ResponseParams& responseparams, const char *ruleName, const char *applyContext, int iContextFlags )
+{
+	m_Type = type;
+	Q_strncpy( m_szResponseName, responseName, sizeof( m_szResponseName ) );
+	// Copy underlying criteria
+	m_pCriteria = new AI_CriteriaSet( criteria );
+	Q_strncpy( m_szMatchingRule, ruleName ? ruleName : "NULL", sizeof( m_szMatchingRule ) );
+	m_Params = responseparams;
+	SetContext( applyContext );
+	m_iContextFlags = iContextFlags;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -274,7 +325,19 @@ void AI_Response::Describe()
 	}
 	if ( m_szContext )
 	{
+#ifdef MAPBASE
+		DevMsg( "Contexts to set '%s' on ", m_szContext );
+		if (m_iContextFlags & APPLYCONTEXT_WORLD)
+			DevMsg("world, ");
+		else if (m_iContextFlags & APPLYCONTEXT_SQUAD)
+			DevMsg("squad, ");
+		else if (m_iContextFlags & APPLYCONTEXT_ENEMY)
+			DevMsg("enemy, ");
+		else
+			DevMsg("speaker, ");
+#else
 		DevMsg( "Contexts to set '%s' on %s, ", m_szContext, m_bApplyContextToWorld ? "world" : "speaker" );
+#endif
 	}
 
 	DevMsg( "response %s = '%s'\n", DescribeResponse( (ResponseType_t)m_Type ),  m_szResponseName );

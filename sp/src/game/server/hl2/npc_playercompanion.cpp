@@ -31,11 +31,19 @@
 #include "grenade_frag.h"
 #include <KeyValues.h>
 #include "physics_npc_solver.h"
+#ifdef MAPBASE
+#include "mapbase/GlobalStrings.h"
+#include "world.h"
+#endif
 
 ConVar ai_debug_readiness("ai_debug_readiness", "0" );
 ConVar ai_use_readiness("ai_use_readiness", "1" ); // 0 = off, 1 = on, 2 = on for player squad only
 ConVar ai_readiness_decay( "ai_readiness_decay", "120" );// How many seconds it takes to relax completely
 ConVar ai_new_aiming( "ai_new_aiming", "1" );
+
+#ifdef COMPANION_MELEE_ATTACK
+ConVar sk_companion_melee_damage("sk_companion_melee_damage", "25");
+#endif
 
 #define GetReadinessUse()	ai_use_readiness.GetInt()
 
@@ -46,6 +54,11 @@ extern ConVar g_debug_transitions;
 int AE_COMPANION_PRODUCE_FLARE;
 int AE_COMPANION_LIGHT_FLARE;
 int AE_COMPANION_RELEASE_FLARE;
+#if COMPANION_MELEE_ATTACK
+#define AE_PC_MELEE 3
+
+#define COMPANION_MELEE_DIST 64.0
+#endif
 
 #define MAX_TIME_BETWEEN_BARRELS_EXPLODING			5.0f
 #define MAX_TIME_BETWEEN_CONSECUTIVE_PLAYER_KILLS	3.0f
@@ -97,7 +110,9 @@ BEGIN_DATADESC( CNPC_PlayerCompanion )
 #endif	// HL2_EPISODIC
 //------------------------------------------------------------------------------
 
+#ifndef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_STRING, "GiveWeapon",			InputGiveWeapon ),
+#endif
 
 	DEFINE_FIELD( m_flReadiness,			FIELD_FLOAT ),
 	DEFINE_FIELD( m_flReadinessSensitivity,	FIELD_FLOAT ),
@@ -130,6 +145,11 @@ BEGIN_DATADESC( CNPC_PlayerCompanion )
 
 	DEFINE_OUTPUT( m_OnWeaponPickup, "OnWeaponPickup" ),
 
+#ifdef MAPBASE
+	DEFINE_AIGRENADE_DATADESC()
+	DEFINE_INPUT( m_iGrenadeCapabilities, FIELD_INTEGER, "SetGrenadeCapabilities" ),
+#endif
+
 END_DATADESC()
 
 //-----------------------------------------------------------------------------
@@ -137,11 +157,21 @@ END_DATADESC()
 
 CNPC_PlayerCompanion::eCoverType CNPC_PlayerCompanion::gm_fCoverSearchType;
 bool CNPC_PlayerCompanion::gm_bFindingCoverFromAllEnemies;
+#ifdef MAPBASE
+string_t CNPC_PlayerCompanion::gm_iszMortarClassname;
+string_t CNPC_PlayerCompanion::gm_iszGroundTurretClassname;
+string_t CNPC_PlayerCompanion::gm_iszRollerMineClassname;
+#else
 string_t CNPC_PlayerCompanion::gm_iszMortarClassname;
 string_t CNPC_PlayerCompanion::gm_iszFloorTurretClassname;
 string_t CNPC_PlayerCompanion::gm_iszGroundTurretClassname;
 string_t CNPC_PlayerCompanion::gm_iszShotgunClassname;
 string_t CNPC_PlayerCompanion::gm_iszRollerMineClassname;
+#ifdef MAPBASE
+string_t CNPC_PlayerCompanion::gm_iszSMG1Classname;
+string_t CNPC_PlayerCompanion::gm_iszAR2Classname;
+#endif
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -175,11 +205,21 @@ bool CNPC_PlayerCompanion::CreateBehaviors()
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::Precache()
 {
+#ifdef MAPBASE
+	SetGlobalString(gm_iszMortarClassname, "func_tankmortar");
+	SetGlobalString(gm_iszGroundTurretClassname, "npc_turret_ground");
+	SetGlobalString(gm_iszRollerMineClassname, "npc_rollermine");
+#else
 	gm_iszMortarClassname = AllocPooledString( "func_tankmortar" );
 	gm_iszFloorTurretClassname = AllocPooledString( "npc_turret_floor" );
 	gm_iszGroundTurretClassname = AllocPooledString( "npc_turret_ground" );
 	gm_iszShotgunClassname = AllocPooledString( "weapon_shotgun" );
 	gm_iszRollerMineClassname = AllocPooledString( "npc_rollermine" );
+#ifdef MAPBASE
+	gm_iszSMG1Classname = AllocPooledString( "weapon_smg1" );
+	gm_iszAR2Classname = AllocPooledString( "weapon_ar2" );
+#endif
+#endif
 
 	PrecacheModel( STRING( GetModelName() ) );
 	
@@ -187,6 +227,10 @@ void CNPC_PlayerCompanion::Precache()
 	// The flare we're able to pull out
 	PrecacheModel( "models/props_junk/flare.mdl" );
 #endif // HL2_EPISODIC
+
+#ifdef MAPBASE
+	PrecacheScriptSound( "Weapon_CombineGuard.Special1" );
+#endif
 
 	BaseClass::Precache();
 }
@@ -244,6 +288,10 @@ void CNPC_PlayerCompanion::Spawn()
 
 	m_hFlare = NULL;
 #endif // HL2_EPISODIC
+
+#if COMPANION_MELEE_ATTACK
+	m_nMeleeDamage = sk_companion_melee_damage.GetInt();
+#endif
 
 	BaseClass::Spawn();
 }
@@ -315,8 +363,13 @@ Disposition_t CNPC_PlayerCompanion::IRelationType( CBaseEntity *pTarget )
 		else if ( baseRelationship == D_HT && 
 				  pTarget->IsNPC() && 
 				  ((CAI_BaseNPC *)pTarget)->GetActiveWeapon() && 
+#ifdef MAPBASE
+				  (EntIsClass( ((CAI_BaseNPC *)pTarget)->GetActiveWeapon(), gm_iszShotgunClassname ) &&
+				  ( !GetActiveWeapon() || !EntIsClass( GetActiveWeapon(), gm_iszShotgunClassname ) ) ) )
+#else
 				  ((CAI_BaseNPC *)pTarget)->GetActiveWeapon()->ClassMatches( gm_iszShotgunClassname ) &&
 				  ( !GetActiveWeapon() || !GetActiveWeapon()->ClassMatches( gm_iszShotgunClassname ) ) )
+#endif
 		{
 			if ( (pTarget->GetAbsOrigin() - GetAbsOrigin()).LengthSqr() < Square( 25 * 12 ) )
 			{
@@ -496,6 +549,14 @@ void CNPC_PlayerCompanion::GatherConditions()
 		DoCustomSpeechAI();
 	}
 
+#ifdef MAPBASE
+	// Alyx's custom combat AI copied to CNPC_PlayerCompanion for reasons specified in said function.
+	if ( m_NPCState == NPC_STATE_COMBAT )
+	{
+		DoCustomCombatAI();
+	}
+#endif
+
 	if ( AI_IsSinglePlayer() && hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
 	{
 		Vector los = ( UTIL_GetLocalPlayer()->EyePosition() - EyePosition() );
@@ -538,7 +599,12 @@ void CNPC_PlayerCompanion::DoCustomSpeechAI( void )
 	}	
 
 	// Mention the player is dead
+#ifdef MAPBASE
+	// (unless we hate them)
+	if ( HasCondition( COND_TALKER_PLAYER_DEAD ) && (!pPlayer || IRelationType(pPlayer) > D_FR) )
+#else
 	if ( HasCondition( COND_TALKER_PLAYER_DEAD ) )
+#endif
 	{
 		SpeakIfAllowed( TLK_PLDEAD );
 	}
@@ -572,6 +638,15 @@ void CNPC_PlayerCompanion::BuildScheduleTestBits()
 	{
 		SetCustomInterruptCondition( COND_PLAYER_PUSHING );
 	}
+
+#if COMPANION_MELEE_ATTACK
+	if (IsCurSchedule(SCHED_RANGE_ATTACK1) ||
+		IsCurSchedule(SCHED_BACK_AWAY_FROM_ENEMY) ||
+		IsCurSchedule(SCHED_RUN_FROM_ENEMY))
+	{
+		SetCustomInterruptCondition( COND_CAN_MELEE_ATTACK1 );
+	}
+#endif
 
 	if ( ( ConditionInterruptsCurSchedule( COND_GIVE_WAY ) || 
 		   IsCurSchedule(SCHED_HIDE_AND_RELOAD ) || 
@@ -714,6 +789,46 @@ int CNPC_PlayerCompanion::SelectSchedule()
 			return BaseClass::SelectSchedule();
 		}
 	}
+
+#ifdef MAPBASE
+	if ( m_hForcedGrenadeTarget )
+	{
+		// Can't throw at the target, so lets try moving to somewhere where I can see it
+		if ( !FVisible( m_hForcedGrenadeTarget ) )
+		{
+			return SCHED_PC_MOVE_TO_FORCED_GREN_LOS;
+		}
+		else if ( m_flNextGrenadeCheck < gpGlobals->curtime )
+		{
+			Vector vecTarget = m_hForcedGrenadeTarget->WorldSpaceCenter();
+
+			// The fact we have a forced grenade target overrides whether we're marked as "capable".
+			// If we're *only* alt-fire capable, use an energy ball. If not, throw a grenade.
+			if (!IsAltFireCapable() || IsGrenadeCapable())
+			{
+				Vector vecTarget = m_hForcedGrenadeTarget->WorldSpaceCenter();
+				{
+					// If we can, throw a grenade at the target. 
+					// Ignore grenade count / distance / etc
+					if ( CheckCanThrowGrenade( vecTarget ) )
+					{
+						m_hForcedGrenadeTarget = NULL;
+						return SCHED_PC_FORCED_GRENADE_THROW;
+					}
+				}
+			}
+			else
+			{
+				if ( FVisible( m_hForcedGrenadeTarget ) )
+				{
+					m_vecAltFireTarget = vecTarget;
+					m_hForcedGrenadeTarget = NULL;
+					return SCHED_PC_AR2_ALTFIRE;
+				}
+			}
+		}
+	}
+#endif
 
 	int nSched = SelectFlinchSchedule();
 	if ( nSched != SCHED_NONE )
@@ -873,10 +988,39 @@ bool CNPC_PlayerCompanion::IgnorePlayerPushing( void )
 //-----------------------------------------------------------------------------
 int CNPC_PlayerCompanion::SelectScheduleCombat()
 {
+#if COMPANION_MELEE_ATTACK
+	if ( HasCondition( COND_CAN_MELEE_ATTACK1 ) )
+	{
+		DevMsg("Returning melee attack schedule\n");
+		return SCHED_MELEE_ATTACK1;
+	}
+#endif
+
 	if ( CanReload() && (HasCondition ( COND_NO_PRIMARY_AMMO ) || HasCondition(COND_LOW_PRIMARY_AMMO)) )
 	{
 		return SCHED_HIDE_AND_RELOAD;
 	}
+
+#ifdef MAPBASE
+	if ( HasGrenades() && GetEnemy() && !HasCondition(COND_SEE_ENEMY) )
+	{
+		// We don't see our enemy. If it hasn't been long since I last saw him,
+		// and he's pretty close to the last place I saw him, throw a grenade in 
+		// to flush him out. A wee bit of cheating here...
+
+		float flTime;
+		float flDist;
+
+		flTime = gpGlobals->curtime - GetEnemies()->LastTimeSeen( GetEnemy() );
+		flDist = ( GetEnemy()->GetAbsOrigin() - GetEnemies()->LastSeenPosition( GetEnemy() ) ).Length();
+
+		//Msg("Time: %f   Dist: %f\n", flTime, flDist );
+		if ( flTime <= COMBINE_GRENADE_FLUSH_TIME && flDist <= COMBINE_GRENADE_FLUSH_DIST && CanGrenadeEnemy( false ) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
+		{
+			return SCHED_RANGE_ATTACK2;
+		}
+	}
+#endif
 	
 	return SCHED_NONE;
 }
@@ -907,6 +1051,14 @@ bool CNPC_PlayerCompanion::ShouldDeferToFollowBehavior()
 		// Unarmed allies should arm themselves as soon as the opportunity presents itself.
 		return false;
 	}
+
+#if COMPANION_MELEE_ATTACK
+	if (HasCondition(COND_CAN_MELEE_ATTACK1) /*&& !GetFollowBehavior().IsActive()*/)
+	{
+		// We should only get melee condition if we're not moving
+		return false;
+	}
+#endif
 
 	// Even though assault and act busy are placed ahead of the follow behavior in precedence, the below
 	// code is necessary because we call ShouldDeferToFollowBehavior BEFORE we call the generic
@@ -978,6 +1130,10 @@ int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType )
 						pWeapon->Clip1() < ( pWeapon->GetMaxClip1() * .75 ) &&
 						pPlayer->GetAmmoCount( pWeapon->GetPrimaryAmmoType() ) )
 					{
+#ifdef MAPBASE
+						// Less annoying
+						if ( !pWeapon->m_bInReload && (gpGlobals->curtime - GetLastEnemyTime()) > 5.0f )
+#endif
 						SpeakIfAllowed( TLK_PLRELOAD );
 					}
 				}
@@ -1009,6 +1165,14 @@ int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType )
 		return SCHED_PC_FLEE_FROM_BEST_SOUND;
 
 	case SCHED_ESTABLISH_LINE_OF_FIRE:
+#ifdef MAPBASE
+		if ( CanAltFireEnemy(false) && OccupyStrategySlot(SQUAD_SLOT_SPECIAL_ATTACK) )
+		{
+			// If this companion has the balls to alt-fire the enemy's last known position,
+			// do so!
+			return SCHED_PC_AR2_ALTFIRE;
+		}
+#endif
 	case SCHED_MOVE_TO_WEAPON_RANGE:
 		if ( IsMortar( GetEnemy() ) )
 			return SCHED_TAKE_COVER_FROM_ENEMY;
@@ -1017,13 +1181,21 @@ int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType )
 	case SCHED_CHASE_ENEMY:
 		if ( IsMortar( GetEnemy() ) )
 			return SCHED_TAKE_COVER_FROM_ENEMY;
+#ifdef MAPBASE
+		if ( GetEnemy() && EntIsClass( GetEnemy(), gm_isz_class_Gunship ) )
+#else
 		if ( GetEnemy() && FClassnameIs( GetEnemy(), "npc_combinegunship" ) )
+#endif
 			return SCHED_ESTABLISH_LINE_OF_FIRE;
 		break;
 
 	case SCHED_ESTABLISH_LINE_OF_FIRE_FALLBACK:
 		// If we're fighting a gunship, try again
+#ifdef MAPBASE
+		if ( GetEnemy() && EntIsClass( GetEnemy(), gm_isz_class_Gunship ) )
+#else
 		if ( GetEnemy() && FClassnameIs( GetEnemy(), "npc_combinegunship" ) )
+#endif
 			return SCHED_ESTABLISH_LINE_OF_FIRE;
 		break;
 
@@ -1034,9 +1206,43 @@ int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType )
 		if ( GetShotRegulator()->IsInRestInterval() )
 			return SCHED_STANDOFF;
 
+#ifdef MAPBASE
+		if (CanAltFireEnemy( true ) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ))
+		{
+			// Since I'm holding this squadslot, no one else can try right now. If I die before the shot 
+			// goes off, I won't have affected anyone else's ability to use this attack at their nearest
+			// convenience.
+			return SCHED_PC_AR2_ALTFIRE;
+		}
+
+		if ( !OccupyStrategySlotRange( SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2 ) )
+		{
+			// Throw a grenade if not allowed to engage with weapon.
+			if ( CanGrenadeEnemy() )
+			{
+				if ( OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
+				{
+					return SCHED_RANGE_ATTACK2;
+				}
+			}
+
+			return SCHED_STANDOFF;
+		}
+#else
 		if( !OccupyStrategySlotRange( SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2 ) )
 			return SCHED_STANDOFF;
+#endif
 		break;
+
+#if COMPANION_MELEE_ATTACK
+	//case SCHED_BACK_AWAY_FROM_ENEMY:
+	//	if (HasCondition(COND_CAN_MELEE_ATTACK1))
+	//		return SCHED_MELEE_ATTACK1;
+	//	break;
+
+	case SCHED_MELEE_ATTACK1:
+		return SCHED_PC_MELEE_AND_MOVE_AWAY;
+#endif
 
 	case SCHED_FAIL_TAKE_COVER:
 		if ( IsEnemyTurret() )
@@ -1046,16 +1252,52 @@ int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType )
 		break;
 	case SCHED_RUN_FROM_ENEMY_FALLBACK:
 		{
+#if COMPANION_MELEE_ATTACK
+			if (HasCondition(COND_CAN_MELEE_ATTACK1) && !HasCondition(COND_HEAVY_DAMAGE))
+			{
+				return SCHED_MELEE_ATTACK1;
+			}
+#endif
 			if ( HasCondition( COND_CAN_RANGE_ATTACK1 ) )
 			{
 				return SCHED_RANGE_ATTACK1;
 			}
 			break;
 		}
+
+#ifdef MAPBASE
+	case SCHED_TAKE_COVER_FROM_ENEMY:
+		{
+			if ( m_pSquad )
+			{
+				// Have to explicitly check innate range attack condition as may have weapon with range attack 2
+				if ( HasCondition(COND_CAN_RANGE_ATTACK2)		&&
+					OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
+				{
+					SpeakIfAllowed("TLK_THROWGRENADE");
+					return SCHED_PC_RANGE_ATTACK2;
+				}
+			}
+		}
+		break;
+	case SCHED_HIDE_AND_RELOAD:
+		{
+			if( CanGrenadeEnemy() && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) && random->RandomInt( 0, 100 ) < 20 )
+			{
+				// If I COULD throw a grenade and I need to reload, 20% chance I'll throw a grenade before I hide to reload.
+				return SCHED_PC_RANGE_ATTACK2;
+			}
+		}
+		break;
+#endif
 	}
 
 	return BaseClass::TranslateSchedule( scheduleType );
 }
+
+#ifdef MAPBASE
+//extern float GetCurrentGravity( void );
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -1114,6 +1356,23 @@ void CNPC_PlayerCompanion::StartTask( const Task_t *pTask )
 		}
 		break;
 
+#ifdef MAPBASE
+	case TASK_PC_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET:
+		StartTask_FaceAltFireTarget( pTask );
+		break;
+
+	case TASK_PC_GET_PATH_TO_FORCED_GREN_LOS:
+		StartTask_GetPathToForced( pTask );
+		break;
+
+	case TASK_PC_DEFER_SQUAD_GRENADES:
+		StartTask_DeferSquad( pTask );
+		break;
+
+	case TASK_PC_FACE_TOSS_DIR:
+		break;
+#endif
+
 	default:
 		BaseClass::StartTask( pTask );
 		break;
@@ -1160,6 +1419,20 @@ void CNPC_PlayerCompanion::RunTask( const Task_t *pTask )
 				ChainRunTask( TASK_MOVE_AWAY_PATH, 48 );
 			}
 			break;
+
+#ifdef MAPBASE
+		case TASK_PC_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET:
+			RunTask_FaceAltFireTarget( pTask );
+			break;
+
+		case TASK_PC_GET_PATH_TO_FORCED_GREN_LOS:
+			RunTask_GetPathToForced( pTask );
+			break;
+
+		case TASK_PC_FACE_TOSS_DIR:
+			RunTask_FaceTossDir( pTask );
+			break;
+#endif
 
 		default:
 			BaseClass::RunTask( pTask );
@@ -1366,6 +1639,21 @@ Activity CNPC_PlayerCompanion::NPC_TranslateActivity( Activity activity )
 			activity = ACT_RUN_PROTECTED;
 	}
 
+#ifdef COMPANION_HOLSTER_WORKAROUND
+	if (activity == ACT_DISARM || activity == ACT_ARM)
+	{
+		CBaseCombatWeapon *pWeapon = GetActiveWeapon() ? GetActiveWeapon() : m_hWeapons[m_iLastHolsteredWeapon];
+		if (pWeapon && pWeapon->WeaponClassify() != WEPCLASS_HANDGUN)
+		{
+			switch (activity)
+			{
+			case ACT_DISARM:	return ACT_DISARM_RIFLE;
+			case ACT_ARM:		return ACT_ARM_RIFLE;
+			}
+		}
+	}
+#endif
+
 	activity = BaseClass::NPC_TranslateActivity( activity );
 
 	if ( activity == ACT_IDLE  )
@@ -1375,6 +1663,15 @@ Activity CNPC_PlayerCompanion::NPC_TranslateActivity( Activity activity )
 			activity = ACT_IDLE_ANGRY;
 		}
 	}
+
+#ifdef MAPBASE
+	// Vorts use ACT_RANGE_ATTACK2, but they should translate to ACT_VORTIGAUNT_DISPEL
+	// before that reaches this code...
+	if (activity == ACT_RANGE_ATTACK2)
+	{
+		activity = ACT_COMBINE_THROW_GRENADE;
+	}
+#endif
 
 	return TranslateActivityReadiness( activity );
 }
@@ -1449,13 +1746,43 @@ void CNPC_PlayerCompanion::HandleAnimEvent( animevent_t *pEvent )
 	case EVENT_WEAPON_RELOAD:
 		if ( GetActiveWeapon() )
 		{
+#ifdef MAPBASE
+			GetActiveWeapon()->Reload_NPC();
+#else
 			GetActiveWeapon()->WeaponSound( RELOAD_NPC );
 			GetActiveWeapon()->m_iClip1 = GetActiveWeapon()->GetMaxClip1(); 
+#endif
 			ClearCondition(COND_LOW_PRIMARY_AMMO);
 			ClearCondition(COND_NO_PRIMARY_AMMO);
 			ClearCondition(COND_NO_SECONDARY_AMMO);
 		}
 		break;
+
+#if COMPANION_MELEE_ATTACK
+	case AE_PC_MELEE:
+		{
+			CBaseEntity *pHurt = CheckTraceHullAttack(COMPANION_MELEE_DIST, -Vector(16, 16, 18), Vector(16, 16, 18), 0, DMG_CLUB);
+			CBaseCombatCharacter* pBCC = ToBaseCombatCharacter(pHurt);
+			if (pBCC)
+			{
+				Vector forward, up;
+				AngleVectors(GetLocalAngles(), &forward, NULL, &up);
+
+				if (pBCC->IsPlayer())
+				{
+					pBCC->ViewPunch(QAngle(-12, -7, 0));
+					pHurt->ApplyAbsVelocityImpulse(forward * 100 + up * 50);
+				}
+
+				CTakeDamageInfo info(this, this, m_nMeleeDamage, DMG_CLUB);
+				CalculateMeleeDamageForce(&info, forward, pBCC->GetAbsOrigin());
+				pBCC->TakeDamage(info);
+
+				EmitSound("NPC_Combine.WeaponBash");
+			}
+			break;
+		}
+#endif
 
 	default:
 		BaseClass::HandleAnimEvent( pEvent );
@@ -1533,6 +1860,20 @@ void CNPC_PlayerCompanion::ModifyOrAppendCriteria( AI_CriteriaSet& set )
 		set.AppendCriteria( "hurt_by_fire", "1" );
 	}
 
+#ifdef MAPBASE
+	// Ported from Alyx.
+	AIEnemiesIter_t iter;
+	int iNumEnemies = 0;
+	for ( AI_EnemyInfo_t *pEMemory = GetEnemies()->GetFirst(&iter); pEMemory != NULL; pEMemory = GetEnemies()->GetNext(&iter) )
+	{
+		if ( pEMemory->hEnemy->IsAlive() && ( pEMemory->hEnemy->Classify() != CLASS_BULLSEYE ) )
+		{
+			iNumEnemies++;
+		}
+	}
+	set.AppendCriteria( "num_enemies", UTIL_VarArgs( "%d", iNumEnemies ) );
+#endif
+
 	if ( m_bReadinessCapable )
 	{
 		switch( GetReadinessLevel() )
@@ -1574,11 +1915,35 @@ bool CNPC_PlayerCompanion::IsReadinessCapable()
 		return false;
 #endif
 
+#ifdef MAPBASE
+#ifdef HL2_EPISODIC
+	if (GetActiveWeapon())
+#else
+	// We already know we have a weapon due to the check above
+#endif
+	{
+		// Rather than looking up the activity string, we just make sure our weapon accepts a few basic readiness activity overrides.
+		// This lets us make sure our weapon is readiness-capable to begin with.
+		CBaseCombatWeapon *pWeapon = GetActiveWeapon();
+		if ( pWeapon->ActivityOverride(ACT_IDLE_RELAXED, NULL) == ACT_IDLE_RELAXED &&
+			pWeapon->ActivityOverride( ACT_IDLE_STIMULATED, NULL ) == ACT_IDLE_STIMULATED &&
+			pWeapon->ActivityOverride( ACT_IDLE_AGITATED, NULL ) == ACT_IDLE_AGITATED )
+			return false;
+
+#ifdef MAPBASE
+		if (EntIsClass(GetActiveWeapon(), gm_isz_class_RPG))
+#else
+		if (FClassnameIs( GetActiveWeapon(), "weapon_rpg" ))
+#endif
+			return false;
+	}
+#else
 	if( GetActiveWeapon() && LookupActivity("ACT_IDLE_AIM_RIFLE_STIMULATED") == ACT_INVALID )
 		return false;
 
 	if( GetActiveWeapon() && FClassnameIs( GetActiveWeapon(), "weapon_rpg" ) )
 		return false;
+#endif
 
 	return true;
 }
@@ -2329,7 +2694,11 @@ Vector CNPC_PlayerCompanion::GetActualShootPosition( const Vector &shootOrigin )
 //------------------------------------------------------------------------------
 WeaponProficiency_t CNPC_PlayerCompanion::CalcWeaponProficiency( CBaseCombatWeapon *pWeapon )
 {
+#ifdef MAPBASE
+	if ( EntIsClass(pWeapon, gm_iszAR2Classname) )
+#else
 	if( FClassnameIs( pWeapon, "weapon_ar2" ) )
+#endif
 	{
 		return WEAPON_PROFICIENCY_VERY_GOOD;
 	}
@@ -2346,7 +2715,11 @@ bool CNPC_PlayerCompanion::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 		// If this weapon is a shotgun, take measures to control how many
 		// are being used in this squad. Don't allow a companion to pick up
 		// a shotgun if a squadmate already has one.
+#ifdef MAPBASE
+		if (EntIsClass(pWeapon, gm_iszShotgunClassname))
+#else
 		if( pWeapon->ClassMatches( gm_iszShotgunClassname ) )
+#endif
 		{
 			return (NumWeaponsInSquad("weapon_shotgun") < 1 );
 		}
@@ -2366,6 +2739,15 @@ bool CNPC_PlayerCompanion::ShouldLookForBetterWeapon()
 	if ( m_bDontPickupWeapons )
 		return false;
 
+#ifdef MAPBASE
+	// Now that citizens can holster weapons, they might look for a new one while unarmed.
+	// Since that could already be worked around with OnHolster > DisableWeaponPickup, I decided to keep it that way in case it's desirable.
+
+	// Don't look for a new weapon if we have secondary ammo for our current one.
+	if (m_iNumGrenades > 0 && IsAltFireCapable() && GetActiveWeapon() && GetActiveWeapon()->UsesSecondaryAmmo())
+		return false;
+#endif
+
 	return BaseClass::ShouldLookForBetterWeapon();
 }
 
@@ -2382,9 +2764,93 @@ void CNPC_PlayerCompanion::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 void CNPC_PlayerCompanion::PickupWeapon( CBaseCombatWeapon *pWeapon )
 {
 	BaseClass::PickupWeapon( pWeapon );
+#ifdef MAPBASE
+	SetPotentialSpeechTarget( pWeapon );
+	SetSpeechTarget(pWeapon);
+	SpeakIfAllowed( TLK_NEWWEAPON );
+	m_OnWeaponPickup.FireOutput( pWeapon, this );
+#else
 	SpeakIfAllowed( TLK_NEWWEAPON );
 	m_OnWeaponPickup.FireOutput( this, this );
+#endif
 }
+
+#if COMPANION_MELEE_ATTACK
+//-----------------------------------------------------------------------------
+// Purpose: Cache user entity field values until spawn is called.
+// Input  : szKeyName - Key to handle.
+//			szValue - Value for key.
+// Output : Returns true if the key was handled, false if not.
+//-----------------------------------------------------------------------------
+bool CNPC_PlayerCompanion::KeyValue( const char *szKeyName, const char *szValue )
+{
+	// MeleeAttack01 restoration, see CNPC_PlayerCompanion::MeleeAttack1Conditions
+	if (FStrEq(szKeyName, "EnableMeleeAttack"))
+	{
+		if (!FStrEq(szValue, "0"))
+			CapabilitiesAdd( bits_CAP_INNATE_MELEE_ATTACK1 );
+		else
+			CapabilitiesRemove( bits_CAP_INNATE_MELEE_ATTACK1 );
+
+		return true;
+	}
+
+	return BaseClass::KeyValue( szKeyName, szValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: For unused citizen melee attack (vorts might use this too)
+// Input  :
+// Output :
+//-----------------------------------------------------------------------------
+int CNPC_PlayerCompanion::MeleeAttack1Conditions ( float flDot, float flDist )
+{
+	if (!GetActiveWeapon())
+		return COND_NONE;
+
+	if (IsMoving())
+	{
+		// Is moving, cond_none
+		return COND_NONE;
+	}
+
+	if (flDist > COMPANION_MELEE_DIST)
+	{
+		return COND_NONE; // COND_TOO_FAR_TO_ATTACK;
+	}
+	else if (flDot < 0.7)
+	{
+		return COND_NONE; // COND_NOT_FACING_ATTACK;
+	}
+
+	if (GetEnemy())
+	{
+		// Check Z
+		if ( fabs(GetEnemy()->GetAbsOrigin().z - GetAbsOrigin().z) > 64 )
+			return COND_NONE;
+
+		if ( GetEnemy()->MyCombatCharacterPointer() && GetEnemy()->MyCombatCharacterPointer()->GetHullType() == HULL_TINY )
+		{
+			return COND_NONE;
+		}
+	}
+
+	// Make sure not trying to kick through a window or something. 
+	trace_t tr;
+	Vector vecSrc, vecEnd;
+
+	vecSrc = WorldSpaceCenter();
+	vecEnd = GetEnemy()->WorldSpaceCenter();
+
+	AI_TraceLine(vecSrc, vecEnd, MASK_SHOT, this, COLLISION_GROUP_NONE, &tr);
+	if( tr.m_pEnt != GetEnemy() )
+	{
+		return COND_NONE;
+	}
+
+	return COND_CAN_MELEE_ATTACK1;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -2880,11 +3346,19 @@ bool CNPC_PlayerCompanion::OverrideMove( float flInterval )
 
 	if ( !overrode && GetNavigator()->GetGoalType() != GOALTYPE_NONE )
 	{
+#ifdef MAPBASE
+		#define iszEnvFire gm_isz_class_EnvFire
+#else
 		string_t iszEnvFire = AllocPooledString( "env_fire" );
+#endif
 		string_t iszBounceBomb = AllocPooledString( "combine_mine" );
 
 #ifdef HL2_EPISODIC			
+#ifdef MAPBASE
+		#define iszNPCTurretFloor gm_isz_class_FloorTurret
+#else
 		string_t iszNPCTurretFloor = AllocPooledString( "npc_turret_floor" );
+#endif
 		string_t iszEntityFlame = AllocPooledString( "entityflame" );
 #endif // HL2_EPISODIC
 
@@ -3503,6 +3977,7 @@ void CNPC_PlayerCompanion::InputDisableWeaponPickup( inputdata_t &inputdata )
 	m_bDontPickupWeapons = true;
 }
 
+#ifndef MAPBASE // See CAI_BaseNPC::InputGiveWeapon()
 //------------------------------------------------------------------------------
 // Purpose: Give the NPC in question the weapon specified
 //------------------------------------------------------------------------------
@@ -3522,6 +3997,7 @@ void CNPC_PlayerCompanion::InputGiveWeapon( inputdata_t &inputdata )
 		}
 	}
 }
+#endif
 
 #if HL2_EPISODIC
 //------------------------------------------------------------------------------
@@ -3570,6 +4046,9 @@ void CNPC_PlayerCompanion::OnPlayerKilledOther( CBaseEntity *pVictim, const CTak
 	}
 
 	CBaseEntity *pInflictor = info.GetInflictor();
+#ifdef MAPBASE
+	AI_CriteriaSet modifiers;
+#else
 	int		iNumBarrels = 0;
 	int		iConsecutivePlayerKills = 0;
 	bool	bPuntedGrenade = false;
@@ -3578,6 +4057,7 @@ void CNPC_PlayerCompanion::OnPlayerKilledOther( CBaseEntity *pVictim, const CTak
 	bool	bVictimWasAttacker = false;
 	bool	bHeadshot = false;
 	bool	bOneShot = false;
+#endif
 
 	if ( dynamic_cast<CBreakableProp *>( pInflictor ) && ( info.GetDamageType() & DMG_BLAST ) )
 	{
@@ -3590,7 +4070,11 @@ void CNPC_PlayerCompanion::OnPlayerKilledOther( CBaseEntity *pVictim, const CTak
 		m_iNumConsecutiveBarrelsExploded++;
 		m_fLastBarrelExploded = gpGlobals->curtime;
 
+#ifdef MAPBASE
+		modifiers.AppendCriteria( "num_barrels", UTIL_VarArgs("%i", m_iNumConsecutiveBarrelsExploded) );
+#else
 		iNumBarrels = m_iNumConsecutiveBarrelsExploded;
+#endif
 	}
 	else
 	{
@@ -3602,7 +4086,11 @@ void CNPC_PlayerCompanion::OnPlayerKilledOther( CBaseEntity *pVictim, const CTak
 		}
 		m_iNumConsecutivePlayerKills++;
 		m_fLastPlayerKill = gpGlobals->curtime;
+#ifdef MAPBASE
+		modifiers.AppendCriteria( "consecutive_player_kills", UTIL_VarArgs("%i", m_iNumConsecutivePlayerKills) );
+#else
 		iConsecutivePlayerKills = m_iNumConsecutivePlayerKills;
+#endif
 	}
 
 	// don't comment on kills when she can't see the victim
@@ -3612,29 +4100,53 @@ void CNPC_PlayerCompanion::OnPlayerKilledOther( CBaseEntity *pVictim, const CTak
 	}
 
 	// check if the player killed an enemy by punting a grenade
+#ifdef MAPBASE
+	modifiers.AppendCriteria( "punted_grenade", ( pInflictor && Fraggrenade_WasPunted( pInflictor ) && Fraggrenade_WasCreatedByCombine( pInflictor ) ) ? "1" : "0" );
+#else
 	if ( pInflictor && Fraggrenade_WasPunted( pInflictor ) && Fraggrenade_WasCreatedByCombine( pInflictor ) )
 	{
 		bPuntedGrenade = true;
 	}
+#endif
 
 	// check if the victim was Alyx's enemy
+#ifdef MAPBASE
+	modifiers.AppendCriteria( "victim_was_enemy", GetEnemy() == pVictim ? "1" : "0" );
+#else
 	if ( GetEnemy() == pVictim )
 	{
 		bVictimWasEnemy = true;
 	}
+#endif
 
 	AI_EnemyInfo_t *pEMemory = GetEnemies()->Find( pVictim );
 	if ( pEMemory != NULL ) 
 	{
 		// was Alyx being mobbed by this enemy?
+#ifdef MAPBASE
+		modifiers.AppendCriteria( "victim_was_mob", pEMemory->bMobbedMe ? "1" : "0" );
+		modifiers.AppendCriteria( "victim_was_attacker", pEMemory->timeLastReceivedDamageFrom > 0 ? "1" : "0" );
+#else
 		bVictimWasMob = pEMemory->bMobbedMe;
 
 		// has Alyx recieved damage from this enemy?
 		if ( pEMemory->timeLastReceivedDamageFrom > 0 ) {
 			bVictimWasAttacker = true;
 		}
+#endif
 	}
+#ifdef MAPBASE
+	else
+	{
+		modifiers.AppendCriteria( "victim_was_mob", "0" );
+		modifiers.AppendCriteria( "victim_was_attacker", "0" );
+	}
+#endif
 
+#ifdef MAPBASE
+	modifiers.AppendCriteria( "headshot", ((pCombatVictim->LastHitGroup() == HITGROUP_HEAD) && (info.GetDamageType() & DMG_BULLET)) ? "1" : "0" );
+	modifiers.AppendCriteria( "oneshot", ((pCombatVictim->GetDamageCount() == 1) && (info.GetDamageType() & DMG_BULLET)) ? "1" : "0" );
+#else
 	// Was it a headshot?
 	if ( ( pCombatVictim->LastHitGroup() == HITGROUP_HEAD ) && ( info.GetDamageType() & DMG_BULLET ) )
 	{
@@ -3646,17 +4158,144 @@ void CNPC_PlayerCompanion::OnPlayerKilledOther( CBaseEntity *pVictim, const CTak
 	{
 		bOneShot = true;
 	}
+#endif
 
+#ifdef MAPBASE
+	ModifyOrAppendEnemyCriteria(modifiers, pVictim);
+#else
 	// set up the speech modifiers
 	CFmtStrN<512> modifiers( "num_barrels:%d,distancetoplayerenemy:%f,playerAmmo:%s,consecutive_player_kills:%d,"
 		"punted_grenade:%d,victim_was_enemy:%d,victim_was_mob:%d,victim_was_attacker:%d,headshot:%d,oneshot:%d",
 		iNumBarrels, EnemyDistance( pVictim ), info.GetAmmoName(), iConsecutivePlayerKills,
 		bPuntedGrenade, bVictimWasEnemy, bVictimWasMob, bVictimWasAttacker, bHeadshot, bOneShot );
+#endif
 
 	SpeakIfAllowed( TLK_PLAYER_KILLED_NPC, modifiers );
 
 	BaseClass::OnPlayerKilledOther( pVictim, info );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CNPC_PlayerCompanion::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info )
+{
+	if ( pVictim )
+	{
+		if (pVictim->IsPlayer() || (pVictim->IsNPC() &&
+			( pVictim->MyNPCPointer()->GetLastPlayerDamageTime() == 0 ||
+			  gpGlobals->curtime - pVictim->MyNPCPointer()->GetLastPlayerDamageTime() > 5 )) )
+		{
+			AI_CriteriaSet modifiers;
+
+			AI_EnemyInfo_t *pEMemory = GetEnemies()->Find( pVictim );
+			if ( pEMemory != NULL ) 
+			{
+				modifiers.AppendCriteria( "victim_was_mob", pEMemory->bMobbedMe ? "1" : "0" );
+				modifiers.AppendCriteria( "victim_was_attacker", pEMemory->timeLastReceivedDamageFrom > 0 ? "1" : "0" );
+			}
+			else
+			{
+				modifiers.AppendCriteria( "victim_was_mob", "0" );
+				modifiers.AppendCriteria( "victim_was_attacker", "0" );
+			}
+
+			CBaseCombatCharacter *pCombatVictim = pVictim->MyCombatCharacterPointer();
+			if (pCombatVictim)
+			{
+				modifiers.AppendCriteria( "headshot", ((pCombatVictim->LastHitGroup() == HITGROUP_HEAD) && (info.GetDamageType() & DMG_BULLET)) ? "1" : "0" );
+				modifiers.AppendCriteria( "oneshot", ((pCombatVictim->GetDamageCount() == 1) && (info.GetDamageType() & DMG_BULLET)) ? "1" : "0" );
+			}
+			else
+			{
+				modifiers.AppendCriteria( "headshot", "0" );
+				modifiers.AppendCriteria( "oneshot", "0" );
+			}
+
+			SetPotentialSpeechTarget( pVictim );
+			SetSpeechTarget( pVictim );
+			SpeakIfAllowed( TLK_ENEMY_DEAD, modifiers );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles stuff ported from Alyx.
+// 
+// For some reason, I thought Alyx's mobbed AI was used to measure enemy count for criteria stuff, which I wanted citizens to use.
+// Now that I realize enemy counting for criteria is elsewhere and this is used for just mobbing in general, I deactivated it
+// since it would barely be used and I don't know what kind of an impact it has on performance.
+// 
+// If you want to use it, feel free to re-activate.
+//-----------------------------------------------------------------------------
+void CNPC_PlayerCompanion::DoCustomCombatAI( void )
+{
+	/*
+	#define COMPANION_MIN_MOB_DIST_SQR Square(120)		// Any enemy closer than this adds to the 'mob'
+	#define COMPANION_MIN_CONSIDER_DIST	Square(1200)	// Only enemies within this range are counted and considered to generate AI speech
+
+	AIEnemiesIter_t iter;
+
+	float visibleEnemiesScore = 0.0f;
+	float closeEnemiesScore = 0.0f;
+
+	for ( AI_EnemyInfo_t *pEMemory = GetEnemies()->GetFirst(&iter); pEMemory != NULL; pEMemory = GetEnemies()->GetNext(&iter) )
+	{
+		if ( IRelationType( pEMemory->hEnemy ) != D_NU && IRelationType( pEMemory->hEnemy ) != D_LI && pEMemory->hEnemy->GetAbsOrigin().DistToSqr(GetAbsOrigin()) <= COMPANION_MIN_CONSIDER_DIST )
+		{
+			if( pEMemory->hEnemy && pEMemory->hEnemy->IsAlive() && gpGlobals->curtime - pEMemory->timeLastSeen <= 0.5f && pEMemory->hEnemy->Classify() != CLASS_BULLSEYE )
+			{
+				if( pEMemory->hEnemy->GetAbsOrigin().DistToSqr(GetAbsOrigin()) <= COMPANION_MIN_MOB_DIST_SQR )
+				{
+					closeEnemiesScore += 1.0f;
+				}
+				else
+				{
+					visibleEnemiesScore += 1.0f;
+				}
+			}
+		}
+	}
+
+	if( closeEnemiesScore > 2 )
+	{
+		SetCondition( COND_MOBBED_BY_ENEMIES );
+
+		// mark anyone in the mob as having mobbed me
+		for ( AI_EnemyInfo_t *pEMemory = GetEnemies()->GetFirst(&iter); pEMemory != NULL; pEMemory = GetEnemies()->GetNext(&iter) )
+		{
+			if ( pEMemory->bMobbedMe )
+				continue;
+
+			if ( IRelationType( pEMemory->hEnemy ) != D_NU && IRelationType( pEMemory->hEnemy ) != D_LI && pEMemory->hEnemy->GetAbsOrigin().DistToSqr(GetAbsOrigin()) <= COMPANION_MIN_CONSIDER_DIST )
+			{
+				if( pEMemory->hEnemy && pEMemory->hEnemy->IsAlive() && gpGlobals->curtime - pEMemory->timeLastSeen <= 0.5f && pEMemory->hEnemy->Classify() != CLASS_BULLSEYE )
+				{
+					if( pEMemory->hEnemy->GetAbsOrigin().DistToSqr(GetAbsOrigin()) <= COMPANION_MIN_MOB_DIST_SQR )
+					{
+						pEMemory->bMobbedMe = true;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		ClearCondition( COND_MOBBED_BY_ENEMIES );
+	}
+
+	// Say a combat thing
+	if( HasCondition( COND_MOBBED_BY_ENEMIES ) )
+	{
+		SpeakIfAllowed( TLK_MOBBED );
+	}
+	else if( visibleEnemiesScore > 4 )
+	{
+		SpeakIfAllowed( TLK_MANY_ENEMIES );
+	}
+	*/
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -3712,10 +4351,20 @@ AI_BEGIN_CUSTOM_NPC( player_companion_base, CNPC_PlayerCompanion )
 
 	DECLARE_TASK( TASK_PC_WAITOUT_MORTAR )
 	DECLARE_TASK( TASK_PC_GET_PATH_OFF_COMPANION )
+#ifdef MAPBASE
+	DECLARE_TASK( TASK_PC_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET )
+	DECLARE_TASK( TASK_PC_GET_PATH_TO_FORCED_GREN_LOS )
+	DECLARE_TASK( TASK_PC_DEFER_SQUAD_GRENADES )
+	DECLARE_TASK( TASK_PC_FACE_TOSS_DIR )
+#endif
 
 	DECLARE_ANIMEVENT( AE_COMPANION_PRODUCE_FLARE )
 	DECLARE_ANIMEVENT( AE_COMPANION_LIGHT_FLARE )
 	DECLARE_ANIMEVENT( AE_COMPANION_RELEASE_FLARE )
+#ifdef MAPBASE
+	DECLARE_ANIMEVENT( COMBINE_AE_BEGIN_ALTFIRE )
+	DECLARE_ANIMEVENT( COMBINE_AE_ALTFIRE )
+#endif
 
 	//=========================================================
 	// > TakeCoverFromBestSound
@@ -3844,6 +4493,107 @@ AI_BEGIN_CUSTOM_NPC( player_companion_base, CNPC_PlayerCompanion )
 		"	Interrupts"
 		""
 	)
+
+#ifdef COMPANION_MELEE_ATTACK
+	DEFINE_SCHEDULE
+	(
+		SCHED_PC_MELEE_AND_MOVE_AWAY,
+
+		"	Tasks"
+		"		TASK_STOP_MOVING		0"
+		"		TASK_FACE_ENEMY			0"
+		"		TASK_ANNOUNCE_ATTACK	1"	// 1 = primary attack
+		"		TASK_MELEE_ATTACK1		0"
+		"		TASK_SET_SCHEDULE			SCHEDULE:SCHED_MOVE_AWAY_FROM_ENEMY"
+		""
+		"	Interrupts"
+		"		COND_NEW_ENEMY"
+		"		COND_ENEMY_DEAD"
+		//"		COND_LIGHT_DAMAGE"
+		"		COND_HEAVY_DAMAGE"
+		"		COND_ENEMY_OCCLUDED"
+	)
+#endif
+
+#ifdef MAPBASE
+	//=========================================================
+	// AR2 Alt Fire Attack
+	//=========================================================
+	DEFINE_SCHEDULE
+	(
+	SCHED_PC_AR2_ALTFIRE,
+
+	"	Tasks"
+	"		TASK_STOP_MOVING									0"
+	"		TASK_ANNOUNCE_ATTACK								1"
+	"		TASK_PC_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET		ACTIVITY:ACT_COMBINE_AR2_ALTFIRE"
+	""
+	"	Interrupts"
+	"		COND_TOO_CLOSE_TO_ATTACK"
+	)
+
+	//=========================================================
+	// Move to LOS of the mapmaker's forced grenade throw target
+	//=========================================================
+	DEFINE_SCHEDULE
+	(
+	SCHED_PC_MOVE_TO_FORCED_GREN_LOS,
+
+	"	Tasks "
+	"		TASK_SET_TOLERANCE_DISTANCE					48"
+	"		TASK_PC_GET_PATH_TO_FORCED_GREN_LOS			0"
+	"		TASK_SPEAK_SENTENCE							1"
+	"		TASK_RUN_PATH								0"
+	"		TASK_WAIT_FOR_MOVEMENT						0"
+	"	"
+	"	Interrupts "
+	"		COND_NEW_ENEMY"
+	"		COND_ENEMY_DEAD"
+	"		COND_CAN_MELEE_ATTACK1"
+	"		COND_CAN_MELEE_ATTACK2"
+	"		COND_HEAR_DANGER"
+	"		COND_HEAR_MOVE_AWAY"
+	"		COND_HEAVY_DAMAGE"
+	)
+
+	//=========================================================
+	// Mapmaker forced grenade throw
+	//=========================================================
+	DEFINE_SCHEDULE
+	(
+	SCHED_PC_FORCED_GRENADE_THROW,
+
+	"	Tasks"
+	"		TASK_STOP_MOVING					0"
+	"		TASK_PC_FACE_TOSS_DIR				0"
+	"		TASK_ANNOUNCE_ATTACK				2"	// 2 = grenade
+	"		TASK_PLAY_SEQUENCE					ACTIVITY:ACT_RANGE_ATTACK2"
+	"		TASK_PC_DEFER_SQUAD_GRENADES	0"
+	""
+	"	Interrupts"
+	)
+
+	//=========================================================
+	// 	SCHED_PC_RANGE_ATTACK2	
+	//
+	//	secondary range attack. Overriden because base class stops attacking when the enemy is occluded.
+	//	combines's grenade toss requires the enemy be occluded.
+	//=========================================================
+	DEFINE_SCHEDULE
+	(
+	SCHED_PC_RANGE_ATTACK2,
+
+	"	Tasks"
+	"		TASK_STOP_MOVING					0"
+	"		TASK_PC_FACE_TOSS_DIR			0"
+	"		TASK_ANNOUNCE_ATTACK				2"	// 2 = grenade
+	"		TASK_PLAY_SEQUENCE					ACTIVITY:ACT_RANGE_ATTACK2"
+	"		TASK_PC_DEFER_SQUAD_GRENADES	0"
+	"		TASK_SET_SCHEDULE					SCHEDULE:SCHED_HIDE_AND_RELOAD"	// don't run immediately after throwing grenade.
+	""
+	"	Interrupts"
+	)
+#endif
 
 AI_END_CUSTOM_NPC()
 

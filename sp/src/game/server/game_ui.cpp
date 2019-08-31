@@ -38,6 +38,9 @@ public:
 	// Input handlers
 	void InputDeactivate( inputdata_t &inputdata );
 	void InputActivate( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputGetButtons( inputdata_t &inputdata );
+#endif
 
 	void Think( void );
 	void Deactivate( CBaseEntity *pActivator );
@@ -54,6 +57,14 @@ public:
 	COutputEvent		m_pressedBack;
 	COutputEvent		m_pressedAttack;
 	COutputEvent		m_pressedAttack2;
+#ifdef MAPBASE
+	COutputEvent		m_pressedUse;
+	COutputEvent		m_pressedJump;
+	COutputEvent		m_pressedCrouch;
+	COutputEvent		m_pressedAttack3;
+	COutputEvent		m_pressedSprint;
+	COutputEvent		m_pressedReload;
+#endif
 	
 	COutputEvent		m_unpressedMoveLeft;
 	COutputEvent		m_unpressedMoveRight;
@@ -61,11 +72,23 @@ public:
 	COutputEvent		m_unpressedBack;
 	COutputEvent		m_unpressedAttack;
 	COutputEvent		m_unpressedAttack2;
+#ifdef MAPBASE
+	COutputEvent		m_unpressedUse;
+	COutputEvent		m_unpressedJump;
+	COutputEvent		m_unpressedCrouch;
+	COutputEvent		m_unpressedAttack3;
+	COutputEvent		m_unpressedSprint;
+	COutputEvent		m_unpressedReload;
+#endif
 
 	COutputFloat		m_xaxis;
 	COutputFloat		m_yaxis;
 	COutputFloat		m_attackaxis;
 	COutputFloat		m_attack2axis;
+
+#ifdef MAPBASE
+	COutputInt			m_OutButtons;
+#endif
 
 	bool				m_bForceUpdate;
 	int					m_nLastButtonState;
@@ -84,6 +107,9 @@ BEGIN_DATADESC( CGameUI )
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Deactivate", InputDeactivate ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "Activate", InputActivate ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetButtons", InputGetButtons ),
+#endif
 
 	DEFINE_OUTPUT( m_playerOn, "PlayerOn" ),
 	DEFINE_OUTPUT( m_playerOff, "PlayerOff" ),
@@ -94,6 +120,14 @@ BEGIN_DATADESC( CGameUI )
 	DEFINE_OUTPUT( m_pressedBack, "PressedBack" ),
 	DEFINE_OUTPUT( m_pressedAttack, "PressedAttack" ),
 	DEFINE_OUTPUT( m_pressedAttack2, "PressedAttack2" ),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_pressedUse, "PressedUse" ),
+	DEFINE_OUTPUT( m_pressedJump, "PressedJump" ),
+	DEFINE_OUTPUT( m_pressedCrouch, "PressedCrouch" ),
+	DEFINE_OUTPUT( m_pressedAttack3, "PressedAttack3" ),
+	DEFINE_OUTPUT( m_pressedSprint, "PressedSprint" ),
+	DEFINE_OUTPUT( m_pressedReload, "PressedReload" ),
+#endif
 
 	DEFINE_OUTPUT( m_unpressedMoveLeft, "UnpressedMoveLeft" ),
 	DEFINE_OUTPUT( m_unpressedMoveRight, "UnpressedMoveRight" ),
@@ -101,6 +135,16 @@ BEGIN_DATADESC( CGameUI )
 	DEFINE_OUTPUT( m_unpressedBack, "UnpressedBack" ),
 	DEFINE_OUTPUT( m_unpressedAttack, "UnpressedAttack" ),
 	DEFINE_OUTPUT( m_unpressedAttack2, "UnpressedAttack2" ),
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_unpressedUse, "UnpressedUse" ),
+	DEFINE_OUTPUT( m_unpressedJump, "UnpressedJump" ),
+	DEFINE_OUTPUT( m_unpressedCrouch, "UnpressedCrouch" ),
+	DEFINE_OUTPUT( m_unpressedAttack3, "UnpressedAttack3" ),
+	DEFINE_OUTPUT( m_unpressedSprint, "UnpressedSprint" ),
+	DEFINE_OUTPUT( m_unpressedReload, "UnpressedReload" ),
+
+	DEFINE_OUTPUT( m_OutButtons, "OutButtons" ),
+#endif
 
 	DEFINE_OUTPUT( m_xaxis, "XAxis" ),
 	DEFINE_OUTPUT( m_yaxis, "YAxis" ),
@@ -297,6 +341,13 @@ void CGameUI::Think( void )
 	if ((( pPlayer->m_afButtonPressed & IN_USE ) && ( m_spawnflags & SF_GAMEUI_USE_DEACTIVATES )) ||
 		(( pPlayer->m_afButtonPressed & IN_JUMP ) && ( m_spawnflags & SF_GAMEUI_JUMP_DEACTIVATES )))
 	{
+#ifdef MAPBASE
+		if (pPlayer->m_afButtonPressed & IN_USE)
+			m_pressedUse.FireOutput( pPlayer, this, 0 );
+		if (pPlayer->m_afButtonPressed & IN_JUMP)
+			m_pressedJump.FireOutput( pPlayer, this, 0 );
+#endif
+
 		Deactivate( pPlayer );
 		return;
 	}
@@ -380,6 +431,80 @@ void CGameUI::Think( void )
 		}
 	}
 
+#ifdef MAPBASE
+	if ( nButtonsChanged & IN_USE )
+	{
+		if ( m_nLastButtonState & IN_USE )
+		{
+			m_unpressedUse.FireOutput( pPlayer, this, 0 );
+		}
+		else
+		{
+			m_pressedUse.FireOutput( pPlayer, this, 0 );
+		}
+	}
+
+	if ( nButtonsChanged & IN_JUMP )
+	{
+		if ( m_nLastButtonState & IN_JUMP )
+		{
+			m_unpressedJump.FireOutput( pPlayer, this, 0 );
+		}
+		else
+		{
+			m_pressedJump.FireOutput( pPlayer, this, 0 );
+		}
+	}
+
+	if ( nButtonsChanged & IN_DUCK )
+	{
+		if ( m_nLastButtonState & IN_DUCK )
+		{
+			m_unpressedCrouch.FireOutput( pPlayer, this, 0 );
+		}
+		else
+		{
+			m_pressedCrouch.FireOutput( pPlayer, this, 0 );
+		}
+	}
+
+	if ( nButtonsChanged & IN_ATTACK3 )
+	{
+		if ( m_nLastButtonState & IN_ATTACK3 )
+		{
+			m_unpressedAttack3.FireOutput( pPlayer, this, 0 );
+		}
+		else
+		{
+			m_pressedAttack3.FireOutput( pPlayer, this, 0 );
+		}
+	}
+
+	if ( nButtonsChanged & IN_SPEED )
+	{
+		if ( m_nLastButtonState & IN_SPEED )
+		{
+			m_unpressedSprint.FireOutput( pPlayer, this, 0 );
+		}
+		else
+		{
+			m_pressedSprint.FireOutput( pPlayer, this, 0 );
+		}
+	}
+
+	if ( nButtonsChanged & IN_RELOAD )
+	{
+		if ( m_nLastButtonState & IN_RELOAD )
+		{
+			m_unpressedReload.FireOutput( pPlayer, this, 0 );
+		}
+		else
+		{
+			m_pressedReload.FireOutput( pPlayer, this, 0 );
+		}
+	}
+#endif
+
 	// Setup for the next frame
 	m_nLastButtonState = pPlayer->m_nButtons;
 
@@ -437,3 +562,13 @@ void CGameUI::Think( void )
 
 	m_bForceUpdate = false;
 }
+
+#ifdef MAPBASE
+//------------------------------------------------------------------------------
+// Purpose: Gets and outputs the player's current buttons
+//------------------------------------------------------------------------------
+void CGameUI::InputGetButtons( inputdata_t &inputdata )
+{
+	m_OutButtons.Set(m_player ? m_player->m_nButtons : m_nLastButtonState, m_player, this);
+}
+#endif

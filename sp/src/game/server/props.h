@@ -39,6 +39,11 @@ public:
 	// Don't treat as a live target
 	virtual bool IsAlive( void ) { return false; }
 	virtual bool OverridePropdata() { return true; }
+
+#ifdef MAPBASE
+	// Attempt to replace a dynamic_cast
+	virtual bool IsPropPhysics() { return false; }
+#endif
 };
 
 
@@ -58,10 +63,18 @@ public:
 	virtual void Precache();
 	virtual float GetAutoAimRadius() { return 24.0f; }
 
+#ifdef MAPBASE
+	virtual bool KeyValue( const char *szKeyName, const char *szValue );
+#endif
+
 	void BreakablePropTouch( CBaseEntity *pOther );
 
 	virtual int OnTakeDamage( const CTakeDamageInfo &info );
 	void Event_Killed( const CTakeDamageInfo &info );
+#ifdef MAPBASE
+	// Marks Break() as virtual
+	virtual
+#endif
 	void Break( CBaseEntity *pBreaker, const CTakeDamageInfo &info );
 	void BreakThink( void );
 	void AnimateThink( void );
@@ -72,6 +85,10 @@ public:
 	void InputAddHealth( inputdata_t &inputdata );
 	void InputRemoveHealth( inputdata_t &inputdata );
 	void InputSetHealth( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetInteraction( inputdata_t &inputdata );
+	void InputRemoveInteraction( inputdata_t &inputdata );
+#endif
 
 	int	 GetNumBreakableChunks( void ) { return m_iNumBreakableChunks; }
 
@@ -85,6 +102,11 @@ public:
 	{
 		if ( HasInteraction( PROPINTER_PHYSGUN_LAUNCH_SPIN_Z ) )
 			return true;
+
+#ifdef MAPBASE
+		if ( m_bUsesCustomCarryAngles )
+			return true;
+#endif
 
 		return false; 
 	}
@@ -111,6 +133,10 @@ public:
 	int				m_iMinHealthDmg;
 
 	QAngle			m_preferredCarryAngles;
+#ifdef MAPBASE
+	// Indicates whether the prop is using the keyvalue carry angles.
+	bool			m_bUsesCustomCarryAngles;
+#endif
 
 public:
 // IBreakableWithPropData
@@ -196,6 +222,9 @@ public:
 	virtual	CBasePlayer *HasPhysicsAttacker( float dt );
 
 #ifdef HL2_EPISODIC
+#ifdef MAPBASE
+	virtual float GetFlareLifetime() { return 30.0f; }
+#endif
 	void CreateFlare( float flLifetime );
 #endif //HL2_EPISODIC
 
@@ -243,7 +272,14 @@ private:
 	mp_break_t m_mpBreakMode;
 
 	EHANDLE					m_hLastAttacker;		// Last attacker that harmed me.
+#ifdef MAPBASE
+protected:
+	// Needs to be protected for prop_flare entity usage
 	EHANDLE					m_hFlareEnt;
+private:
+#else
+	EHANDLE					m_hFlareEnt;
+#endif
 	string_t				m_iszPuntSound;
 	bool					m_bUsePuntSound;
 };
@@ -343,6 +379,11 @@ public:
 	bool CreateVPhysics( void );
 	bool OverridePropdata( void );
 
+#ifdef MAPBASE
+	// Attempt to replace a dynamic_cast
+	virtual bool IsPropPhysics() { return true; }
+#endif
+
 	virtual void VPhysicsUpdate( IPhysicsObject *pPhysics );
 	virtual void VPhysicsCollision( int index, gamevcollisionevent_t *pEvent );
 
@@ -351,6 +392,9 @@ public:
 	void InputEnableMotion( inputdata_t &inputdata );
 	void InputDisableMotion( inputdata_t &inputdata );
 	void InputDisableFloating( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetDebris( inputdata_t &inputdata );
+#endif
 
 	void EnableMotion( void );
 	bool CanBePickedUpByPhyscannon( void );

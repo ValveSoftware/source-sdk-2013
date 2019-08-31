@@ -16,6 +16,9 @@
 #include "tier1/KeyValues.h"
 #include "toolframework/itoolframework.h"
 #include "toolframework_client.h"
+#ifdef MAPBASE
+#include "viewrender.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -83,7 +86,29 @@ static inline bool ShouldDrawLocalPlayerViewModel( void )
 #if defined( PORTAL )
 	return false;
 #else
+
+#ifdef MAPBASE
+	// We shouldn't draw the viewmodel externally.
+	C_BasePlayer *localplayer = C_BasePlayer::GetLocalPlayer();
+	if (localplayer)
+	{
+		if (localplayer->m_bDrawPlayerModelExternally)
+		{
+			// If this isn't the main view, draw the weapon.
+			view_id_t viewID = CurrentViewID();
+			if (viewID != VIEW_MAIN && viewID != VIEW_INTRO_CAMERA)
+				return false;
+		}
+
+		// Since we already have the local player, check its own ShouldDrawThisPlayer() to avoid extra checks
+		return localplayer->ShouldDrawThisPlayer();
+	}
+	else
+		return false;
+#else
 	return !C_BasePlayer::ShouldDrawLocalPlayer();
+#endif
+
 #endif
 }
 
@@ -432,6 +457,12 @@ bool C_BaseCombatWeapon::ShouldDraw( void )
 		if ( !ShouldDrawLocalPlayerViewModel() )
 			return true;
 
+#ifdef MAPBASE
+		// We're drawing this in non-main views, handle it in DrawModel()
+		if ( pLocalPlayer->m_bDrawPlayerModelExternally )
+			return true;
+#endif
+
 		// don't draw active weapon if not in some kind of 3rd person mode, the viewmodel will do that
 		return false;
 	}
@@ -480,6 +511,16 @@ int C_BaseCombatWeapon::DrawModel( int flags )
 
 	if ( localplayer && localplayer->IsObserver() && GetOwner() )
 	{
+#ifdef MAPBASE
+		if (localplayer->m_bDrawPlayerModelExternally)
+		{
+			// If this isn't the main view, draw the weapon.
+			view_id_t viewID = CurrentViewID();
+			if (viewID != VIEW_MAIN && viewID != VIEW_INTRO_CAMERA)
+				return BaseClass::DrawModel( flags );
+		}
+#endif
+
 		// don't draw weapon if chasing this guy as spectator
 		// we don't check that in ShouldDraw() since this may change
 		// without notification 

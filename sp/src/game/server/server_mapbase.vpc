@@ -1,0 +1,82 @@
+//-----------------------------------------------------------------------------
+//	SERVER_MAPBASE.VPC
+//
+//	Project Base Script
+//-----------------------------------------------------------------------------
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;ASW_PROJECTED_TEXTURES;DYNAMIC_RTT_SHADOWS"
+	}
+}
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$File	"logic_random_outputs.cpp"
+		$File	"point_entity_finder.cpp"
+		$File	"env_projectedtexture.h"
+		$File	"env_global_light.cpp"
+		$File	"skyboxswapper.cpp"
+
+		$Folder	"Mapbase"
+		{
+			$File	"$SRCDIR\game\shared\mapbase\mapbase_shared.cpp"
+			$File	"$SRCDIR\game\shared\mapbase\mapbase_rpc.cpp"
+			$File	"$SRCDIR\game\shared\mapbase\MapEdit.cpp"
+			$File	"$SRCDIR\game\shared\mapbase\MapEdit.h"
+			
+			$File	"mapbase\ai_grenade.cpp"
+			$File	"mapbase\ai_grenade.h"
+			$File	"mapbase\ai_monitor.cpp"
+			$File	"mapbase\ai_weaponmodifier.cpp"
+			$File	"mapbase\closecaption_entity.cpp"
+			$File	"mapbase\datadesc_mod.cpp"
+			$File	"mapbase\datadesc_mod.h"
+			$File	"mapbase\expandedrs_combine.h"
+			$File	"mapbase\func_clientclip.cpp"
+			$File	"mapbase\GlobalStrings.cpp"
+			$File	"mapbase\GlobalStrings.h"
+			$File	"mapbase\logic_externaldata.cpp"
+			$File	"mapbase\logic_skill.cpp"
+			$File	"mapbase\matchers.h"
+			$File	"mapbase\point_advanced_finder.cpp"
+			$File	"mapbase\point_copy_size.cpp"
+			$File	"mapbase\point_damageinfo.cpp"
+			$File	"mapbase\point_entity_replace.cpp"
+			//$File	"mapbase\point_physics_control.cpp" // Backlogged
+			$File	"mapbase\point_projectile.cpp"
+			$File	"mapbase\point_radiation_source.cpp"
+			$File	"mapbase\SystemConvarMod.cpp"
+			$File	"mapbase\SystemConvarMod.h"
+			$File	"mapbase\variant_tools.h"
+			
+			$File	"mapbase\logic_eventlistener.cpp"
+			$File	"mapbase\logic_register_activator.cpp"
+		}
+		
+		$Folder "HL2 DLL"
+		{
+			// Original stunstick files are conditional'd out in the HL2 VPCs
+			$File	"$SRCDIR\game\shared\hl2mp\weapon_stunstick.cpp"
+			$File	"$SRCDIR\game\shared\hl2mp\weapon_stunstick.h"
+		}
+		
+		$Folder	"HL2MP"
+		{
+			$Folder	"Weapons"
+			{
+				$File	"hl2mp\grenade_satchel.cpp"
+				$File	"hl2mp\grenade_satchel.h"
+				$File	"hl2mp\grenade_tripmine.cpp"
+				$File	"hl2mp\grenade_tripmine.h"
+				
+				$File	"$SRCDIR\game\shared\hl2mp\weapon_slam.cpp"
+				$File	"$SRCDIR\game\shared\hl2mp\weapon_slam.h"
+			}
+		}
+	}
+}

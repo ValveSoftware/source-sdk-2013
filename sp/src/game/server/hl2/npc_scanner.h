@@ -51,6 +51,9 @@ public:
 	virtual char	*GetScannerSoundPrefix( void );
 	void			Spawn(void);
 	void			Activate();
+#ifdef MAPBASE
+	bool			KeyValue( const char *szKeyName, const char *szValue );
+#endif
 	void			StartTask( const Task_t *pTask );
 	void			UpdateOnRemove( void );
 	void			DeployMine();
@@ -67,6 +70,10 @@ public:
 	void			InputInspectTargetSpotlight( inputdata_t &inputdata );
 	void			InputDeployMine( inputdata_t &inputdata );
 	void			InputEquipMine( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void			InputDisablePhotos( inputdata_t &inputdata );
+	void			InputEnablePhotos( inputdata_t &inputdata );
+#endif
 	void			InputShouldInspect( inputdata_t &inputdata );
 
 	void			InspectTarget( inputdata_t &inputdata, ScannerFlyMode_t eFlyMode );

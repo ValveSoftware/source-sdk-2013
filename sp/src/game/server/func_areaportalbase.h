@@ -95,6 +95,10 @@ public:
 	// see into area 2.
 	virtual bool	UpdateVisibility( const Vector &vOrigin, float fovDistanceAdjustFactor, bool &bIsOpenOnClient );
 
+#ifdef MAPBASE
+	// For func_areaportal_oneway.
+	unsigned short GetPortalListElement() { return m_AreaPortalsElement; }
+#endif
 
 public:
 

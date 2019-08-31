@@ -115,8 +115,10 @@ public:
 	void HandleAnimEvent( animevent_t *pEvent );
 
 	// Inputs
+#ifndef MAPBASE
 	void InputEnterVehicleImmediate( inputdata_t &inputdata );
 	void InputEnterVehicle( inputdata_t &inputdata );
+#endif
 	void InputExitVehicle( inputdata_t &inputdata );
 	void InputLock( inputdata_t &inputdata );
 	void InputUnlock( inputdata_t &inputdata );
@@ -188,8 +190,10 @@ BEGIN_DATADESC( CPropVehiclePrisonerPod )
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "Lock",	InputLock ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Unlock",	InputUnlock ),
+#ifndef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnterVehicle", InputEnterVehicle ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnterVehicleImmediate", InputEnterVehicleImmediate ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_VOID, "ExitVehicle", InputExitVehicle ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Open", InputOpen ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Close", InputClose ),
@@ -583,6 +587,7 @@ void CPropVehiclePrisonerPod::InputUnlock( inputdata_t &inputdata )
 }
 
 
+#ifndef MAPBASE
 //-----------------------------------------------------------------------------
 // Purpose: Force the player to enter the vehicle.
 //-----------------------------------------------------------------------------
@@ -645,6 +650,7 @@ void CPropVehiclePrisonerPod::InputEnterVehicleImmediate( inputdata_t &inputdata
 		Assert( 0 );
 	}
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Force the player to exit the vehicle.

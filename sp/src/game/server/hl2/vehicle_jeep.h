@@ -118,6 +118,10 @@ private:
 	void		InputShowHudHint( inputdata_t &inputdata );
 	void		InputStartRemoveTauCannon( inputdata_t &inputdata );
 	void		InputFinishRemoveTauCannon( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void		InputDisablePhysGun( inputdata_t &data );
+	void		InputEnablePhysGun( inputdata_t &data );
+#endif
 
 protected:
 

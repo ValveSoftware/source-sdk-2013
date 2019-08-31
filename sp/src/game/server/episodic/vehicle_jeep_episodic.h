@@ -105,8 +105,10 @@ private:
 	void	InputAddBusterToCargo( inputdata_t &data );
 	void	InputSetCargoVisibility( inputdata_t &data );
 	void	InputOutsideTransition( inputdata_t &data );
+#ifndef MAPBASE
 	void	InputDisablePhysGun( inputdata_t &data );
 	void	InputEnablePhysGun( inputdata_t &data );
+#endif
 	void	InputCreateLinkController( inputdata_t &data );
 	void	InputDestroyLinkController( inputdata_t &data );
 	void	CreateAvoidanceZone( void );
@@ -115,6 +117,10 @@ private:
 	bool	m_bExitLocked;
 	bool	m_bAddingCargo;
 	bool	m_bBlink;
+
+#ifdef MAPBASE
+	bool	m_bNoHazardLights;
+#endif
 
 	float	m_flCargoStartTime;	// Time when the cargo was first added to the vehicle (used for animating into hold)
 	float	m_flNextAvoidBroadcastTime; // Next time we'll warn entity to move out of us

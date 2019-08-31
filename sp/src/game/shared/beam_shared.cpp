@@ -773,7 +773,9 @@ void CBeam::BeamDamage( trace_t *ptr )
 	if ( ptr->fraction != 1.0 && ptr->m_pEnt != NULL )
 	{
 		CBaseEntity *pHit = ptr->m_pEnt;
+#ifndef MAPBASE
 		if ( pHit )
+#endif
 		{
 			ClearMultiDamage();
 			Vector dir = ptr->endpos - GetAbsOrigin();

@@ -44,5 +44,12 @@ void PrecacheInstancedScene( char const *pszScene );
 char const *GetSceneFilename( CBaseEntity *ent );
 void ReloadSceneFromDisk( CBaseEntity *ent );
 
+#ifdef MAPBASE
+const char *GetFirstSoundInScene(const char *pszScene);
+const char *GetFirstSoundInScene(CChoreoScene *scene);
+
+CBaseEntity *UTIL_FindNamedSceneEntity(const char *name, CBaseEntity *pActor, CSceneEntity *scene, bool bBaseFlexOnly = false, bool bUseClear = false);
+#endif
+
 
 #endif // SCENEENTITY_H

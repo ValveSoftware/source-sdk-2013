@@ -93,6 +93,14 @@ void CBaseHLBludgeonWeapon::ItemPostFrame( void )
 	if ( pOwner == NULL )
 		return;
 
+#ifdef MAPBASE
+	if (pOwner->HasSpawnFlags( SF_PLAYER_SUPPRESS_FIRING ))
+	{
+		WeaponIdle();
+		return;
+	}
+#endif
+
 	if ( (pOwner->m_nButtons & IN_ATTACK) && (m_flNextPrimaryAttack <= gpGlobals->curtime) )
 	{
 		PrimaryAttack();
@@ -363,12 +371,27 @@ void CBaseHLBludgeonWeapon::Swing( int bIsSecondary )
 
 		// We want to test the first swing again
 		Vector testEnd = swingStart + forward * GetRange();
+
+#ifdef MAPBASE
+		// Sound has been moved here since we're using the other melee sounds now
+		WeaponSound( SINGLE );
+#endif
 		
 		// See if we happened to hit water
 		ImpactWater( swingStart, testEnd );
 	}
 	else
 	{
+#ifdef MAPBASE
+		// Other melee sounds
+		if (traceHit.m_pEnt && traceHit.m_pEnt->IsWorld())
+			WeaponSound(MELEE_HIT_WORLD);
+		else if (traceHit.m_pEnt && !traceHit.m_pEnt->PassesDamageFilter(triggerInfo))
+			WeaponSound(MELEE_MISS);
+		else
+			WeaponSound(MELEE_HIT);
+#endif
+
 		Hit( traceHit, nHitActivity, bIsSecondary ? true : false );
 	}
 
@@ -379,6 +402,8 @@ void CBaseHLBludgeonWeapon::Swing( int bIsSecondary )
 	m_flNextPrimaryAttack = gpGlobals->curtime + GetFireRate();
 	m_flNextSecondaryAttack = gpGlobals->curtime + SequenceDuration();
 
+#ifndef MAPBASE
 	//Play swing sound
 	WeaponSound( SINGLE );
+#endif
 }

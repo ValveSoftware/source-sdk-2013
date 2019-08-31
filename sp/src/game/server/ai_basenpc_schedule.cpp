@@ -981,6 +981,9 @@ bool CAI_BaseNPC::FindCoverFromEnemy( bool bNodesOnly, float flMinDistance, floa
 	if (GetHintNode())
 	{
 		GetNavigator()->SetArrivalActivity( GetCoverActivity( GetHintNode() ) );
+#ifdef MAPBASE
+		if (GetHintNode()->GetIgnoreFacing() != HIF_NO)
+#endif
 		GetNavigator()->SetArrivalDirection( GetHintNode()->GetDirection() );
 	}
 	
@@ -1584,6 +1587,39 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 		// track head to the client for a while.
 		SetWait( pTask->flTaskData );
 		break;
+
+#ifdef MAPBASE
+	case TASK_FACE_INTERACTION_ANGLES:
+		{
+			if ( !m_hForcedInteractionPartner )
+			{
+				TaskFail( FAIL_NO_TARGET );
+				return;
+			}
+
+			// Get our running interaction from our partner,
+			// as this should only run with the NPC "receiving" the interaction
+			ScriptedNPCInteraction_t *pInteraction = m_hForcedInteractionPartner->GetRunningDynamicInteraction();
+
+			// Get our target's origin
+			Vector vecTarget = m_hForcedInteractionPartner->GetAbsOrigin();
+
+			// Face the angles the interaction actually wants us at, opposite to the partner
+			float angInteractionAngle = pInteraction->angRelativeAngles.y;
+			angInteractionAngle += 180.0f;
+
+			GetMotor()->SetIdealYaw( CalcIdealYaw( vecTarget ) + angInteractionAngle );
+
+			if (FacingIdeal())
+				TaskComplete();
+			else
+			{
+				GetMotor()->SetIdealYaw( CalcReasonableFacing( true ) );
+				SetTurnActivity();
+			}
+		}
+		break;
+#endif
 
 	case TASK_FACE_ENEMY:
 		{
@@ -2767,6 +2803,13 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 
 			string_t iszArrivalText;
 
+#ifdef MAPBASE
+			if ( m_hCine->m_iszPreIdle != NULL_STRING )
+			{
+				iszArrivalText = m_hCine->m_iszPreIdle;
+			}
+			else
+#endif
 			if ( m_hCine->m_iszEntry != NULL_STRING )
 			{
 				iszArrivalText = m_hCine->m_iszEntry;
@@ -3380,6 +3423,36 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 		}
 		break;
 
+#ifdef MAPBASE
+	case TASK_FACE_INTERACTION_ANGLES:
+		{
+			if ( !m_hForcedInteractionPartner )
+			{
+				TaskFail( FAIL_NO_TARGET );
+				return;
+			}
+
+			// Get our running interaction from our partner,
+			// as this should only run with the NPC "receiving" the interaction
+			ScriptedNPCInteraction_t *pInteraction = m_hForcedInteractionPartner->GetRunningDynamicInteraction();
+
+			// Get our target's origin
+			Vector vecTarget = m_hForcedInteractionPartner->GetAbsOrigin();
+
+			// Face the angles the interaction actually wants us at, opposite to the partner
+			float angInteractionAngle = pInteraction->angRelativeAngles.y;
+			angInteractionAngle += 180.0f;
+
+			GetMotor()->SetIdealYawAndUpdate( CalcIdealYaw( vecTarget ) + angInteractionAngle, AI_KEEP_YAW_SPEED );
+
+			if (IsWaitFinished())
+			{
+				TaskComplete();
+			}
+		}
+		break;
+#endif
+
 	case TASK_FIND_COVER_FROM_BEST_SOUND:
 		{
 			switch( GetTaskInterrupt() )
@@ -3668,9 +3741,24 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 							{
 								if( GetNavigator()->SetGoal(vecGoal) )
 								{
+#ifdef MAPBASE
+									// Pushaway destinations could be an entire floor above.
+									// That would get frustrating. Only go to hints within a path distance of 300 units,
+									// only slightly above our initial search conditions.
+									if (GetNavigator()->BuildAndGetPathDistToGoal() < 300.0f)
+									{
+										// NOTE: Remove this DevMsg() when this is tested!
+										DevMsg("Player Withdrawal Destination Dist: %f\n", GetNavigator()->GetPathDistToGoal());
+										pHint->NPCHandleStartNav(this, false);
+										pHint->DisableForSeconds( 0.1f ); // Force others to find their own.
+										TaskComplete();
+										break;
+									}
+#else
 									pHint->DisableForSeconds( 0.1f ); // Force others to find their own.
 									TaskComplete();
 									break;
+#endif
 								}
 							}
 						}
@@ -3881,7 +3969,11 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 			if ( m_hCine && m_hCine->IsTimeToStart() )
 			{
 				TaskComplete();
+#ifdef MAPBASE
+				m_hCine->OnBeginSequence(this);
+#else
 				m_hCine->OnBeginSequence();
+#endif
 
 				// If we have an entry, we have to play it first
 				if ( m_hCine->m_iszEntry != NULL_STRING )

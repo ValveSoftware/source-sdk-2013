@@ -32,6 +32,9 @@ public:
 protected:
 	int			m_iEffectIndex;
 	bool		m_bActive;
+#ifdef MAPBASE
+	bool		m_bDestroyImmediately;
+#endif
 	bool		m_bOldActive;
 	float		m_flStartTime;	// Time at which the effect started
 
@@ -56,6 +59,9 @@ BEGIN_RECV_TABLE_NOBASE( C_ParticleSystem, DT_ParticleSystem )
 
 	RecvPropInt( RECVINFO( m_iEffectIndex ) ),
 	RecvPropBool( RECVINFO( m_bActive ) ),
+#ifdef MAPBASE
+	RecvPropBool( RECVINFO( m_bDestroyImmediately ) ),
+#endif
 	RecvPropFloat( RECVINFO( m_flStartTime ) ),
 
 	RecvPropArray3( RECVINFO_ARRAY(m_hControlPointEnts), RecvPropEHandle( RECVINFO( m_hControlPointEnts[0] ) ) ),
@@ -108,9 +114,18 @@ void C_ParticleSystem::PostDataUpdate( DataUpdateType_t updateType )
 				SetNextClientThink( gpGlobals->curtime );
 			}
 			else
+#ifdef MAPBASE
+			{
+				if (!m_bDestroyImmediately)
+					ParticleProp()->StopEmission();
+				else
+					ParticleProp()->StopEmissionAndDestroyImmediately();
+			}
+#else
 			{
 						ParticleProp()->StopEmission();
 					}
+#endif
 		}
 	}
 }

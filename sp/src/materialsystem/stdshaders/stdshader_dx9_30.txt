@@ -7,4 +7,40 @@
 //	    _vs30.vcs
 //
 
-// There are no examples of such shaders in the SDK, but add yours here.
+SDK_skin_ps20b.fxc
+SDK_skin_vs20.fxc
+SDK_vertexlit_and_unlit_generic_bump_ps20b.fxc
+SDK_vertexlit_and_unlit_generic_bump_vs20.fxc
+SDK_vertexlit_and_unlit_generic_ps20b.fxc
+SDK_vertexlit_and_unlit_generic_vs20.fxc
+
+SDK_cloak_blended_pass_ps2x.fxc
+SDK_cloak_blended_pass_vs20.fxc
+SDK_emissive_scroll_blended_pass_ps2x.fxc
+SDK_emissive_scroll_blended_pass_vs20.fxc
+
+SDK_flashlight_ps2x.fxc
+SDK_lightmappedgeneric_flashlight_vs20.fxc
+SDK_lightmappedgeneric_flashlight_ps2x.fxc
+SDK_lightmappedgeneric_ps20b.fxc
+SDK_lightmappedgeneric_vs20.fxc
+
+SDK_depthwrite_ps2x.fxc
+SDK_depthwrite_vs20.fxc
+
+SDK_eyes_ps2x.fxc
+SDK_eyes_vs20.fxc
+SDK_eye_refract_ps2x.fxc
+SDK_eye_refract_vs20.fxc
+SDK_eyes_flashlight_ps2x.fxc
+SDK_eyes_flashlight_vs20.fxc
+
+SDK_teeth_ps2x.fxc
+SDK_teeth_vs20.fxc
+SDK_teeth_bump_ps2x.fxc
+SDK_teeth_bump_vs20.fxc
+SDK_teeth_flashlight_ps2x.fxc
+SDK_teeth_flashlight_vs20.fxc
+
+SDK_decalmodulate_ps2x.fxc
+SDK_decalmodulate_vs20.fxc

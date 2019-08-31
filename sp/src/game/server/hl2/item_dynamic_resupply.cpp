@@ -116,6 +116,10 @@ private:
 	float	m_flDesiredAmmo[ NUM_AMMO_ITEMS ];
 
 	bool m_bIsMaster;
+
+#ifdef MAPBASE
+	COutputEHANDLE m_OnItem;
+#endif
 };
 
 LINK_ENTITY_TO_CLASS(item_dynamic_resupply, CItem_DynamicResupply);
@@ -152,6 +156,10 @@ BEGIN_DATADESC( CItem_DynamicResupply )
 
 	DEFINE_FIELD( m_version, FIELD_INTEGER ),
 	DEFINE_FIELD( m_bIsMaster, FIELD_BOOLEAN ),
+
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnItem, "OnItem" ),
+#endif
 
 	// Silence, Classcheck!
 //	DEFINE_ARRAY( m_flDesiredHealth, FIELD_FLOAT,  NUM_HEALTH_ITEMS  ),
@@ -282,6 +290,11 @@ void CItem_DynamicResupply::CheckPVSThink( void )
 //-----------------------------------------------------------------------------
 void CItem_DynamicResupply::InputKill( inputdata_t &data )
 {
+#ifdef MAPBASE
+	// What's the point of this being its own function?
+	m_OnKilled.FireOutput( data.pActivator, this );
+#endif
+
 	UTIL_Remove( this );
 }
 
@@ -345,7 +358,12 @@ void CItem_DynamicResupply::SpawnFullItem( CItem_DynamicResupply *pMaster, CBase
 		// If we're supposed to fallback to just a health vial, do that and finish.
 		if ( pMaster->HasSpawnFlags(SF_DYNAMICRESUPPLY_FALLBACK_TO_VIAL) )
 		{
+#ifdef MAPBASE
+			CBaseEntity *pItem = CBaseEntity::Create("item_healthvial", GetAbsOrigin(), GetAbsAngles(), this);
+			m_OnItem.Set(pItem, pItem, this);
+#else
 			CBaseEntity::Create( "item_healthvial", GetAbsOrigin(), GetAbsAngles(), this );
+#endif
 
 			if ( iDebug )
 			{
@@ -364,7 +382,12 @@ void CItem_DynamicResupply::SpawnFullItem( CItem_DynamicResupply *pMaster, CBase
 	{
 		if ( flChoice <= flRatio[i] )
 		{
+#ifdef MAPBASE
+			CBaseEntity *pItem = CBaseEntity::Create( g_DynamicResupplyAmmoItems[i].sEntityName, GetAbsOrigin(), GetAbsAngles(), this );
+			m_OnItem.Set(pItem, pItem, this);
+#else
 			CBaseEntity::Create( g_DynamicResupplyAmmoItems[i].sEntityName, GetAbsOrigin(), GetAbsAngles(), this );
+#endif
 
 			if ( iDebug )
 			{
@@ -546,6 +569,10 @@ bool CItem_DynamicResupply::SpawnItemFromRatio( int nCount, DynamicResupplyItems
 	pEnt->SetAbsVelocity( GetAbsVelocity() );
 	pEnt->SetLocalAngularVelocity( GetLocalAngularVelocity() );
 
+#ifdef MAPBASE
+	m_OnItem.Set(pEnt, pEnt, this);
+#endif
+
 	// Move the entity up so that it doesn't go below the spawn origin
 	Vector vecWorldMins, vecWorldMaxs;
 	pEnt->CollisionProp()->WorldSpaceAABB( &vecWorldMins, &vecWorldMaxs );
@@ -653,5 +680,10 @@ void DynamicResupply_InitFromAlternateMaster( CBaseEntity *pTargetEnt, string_t 
 	pTargetResupply->RemoveSpawnFlags( SF_DYNAMICRESUPPLY_USE_MASTER );
 	memcpy( pTargetResupply->m_flDesiredHealth, pMasterResupply->m_flDesiredHealth, sizeof( pMasterResupply->m_flDesiredHealth ) );
 	memcpy( pTargetResupply->m_flDesiredAmmo, pMasterResupply->m_flDesiredAmmo, sizeof( pMasterResupply->m_flDesiredAmmo ) );
+
+#ifdef MAPBASE
+	if (pMasterResupply->HasSpawnFlags(SF_DYNAMICRESUPPLY_FALLBACK_TO_VIAL))
+		pTargetResupply->AddSpawnFlags(SF_DYNAMICRESUPPLY_FALLBACK_TO_VIAL);
+#endif
 
 }

@@ -20,9 +20,17 @@
 #include "AI_Criteria.h"
 #include "ragdoll_shared.h"
 #include "hierarchy.h"
+#ifdef MAPBASE
+#include "decals.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+#ifdef MAPBASE
+ConVar ragdoll_autointeractions("ragdoll_autointeractions", "1", FCVAR_NONE, "Controls whether we should rely on hardcoded keyvalues or automatic flesh checks for ragdoll physgun interactions.");
+#define IsBody() VPhysicsIsFlesh()
+#endif
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -83,9 +91,17 @@ BEGIN_DATADESC(CRagdollProp)
 
 	DEFINE_KEYFIELD( m_bStartDisabled, FIELD_BOOLEAN, "StartDisabled" ),
 
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "StartRagdollBoogie", InputStartRadgollBoogie ),
+#else
 	DEFINE_INPUTFUNC( FIELD_VOID, "StartRagdollBoogie", InputStartRadgollBoogie ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnableMotion", InputEnableMotion ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableMotion", InputDisableMotion ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "Wake", InputWake ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Sleep", InputSleep ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable",		InputTurnOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable",	InputTurnOff ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "FadeAndRemove", InputFadeAndRemove ),
@@ -359,7 +375,11 @@ void CRagdollProp::OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t r
 	}
 	m_bHasBeenPhysgunned = true;
 
+#ifdef MAPBASE
+	if( (ragdoll_autointeractions.GetBool() == true && IsBody()) || HasPhysgunInteraction( "onpickup", "boogie" ) )
+#else
 	if( HasPhysgunInteraction( "onpickup", "boogie" ) )
+#endif
 	{
 		if ( reason == PUNTED_BY_CANNON )
 		{
@@ -397,7 +417,11 @@ void CRagdollProp::OnPhysGunDrop( CBasePlayer *pPhysGunUser, PhysGunDrop_t Reaso
 	m_hPhysicsAttacker = pPhysGunUser;
 	m_flLastPhysicsInfluenceTime = gpGlobals->curtime;
 
+#ifdef MAPBASE
+	if( (ragdoll_autointeractions.GetBool() == true && IsBody()) || HasPhysgunInteraction( "onpickup", "boogie" ) )
+#else
 	if( HasPhysgunInteraction( "onpickup", "boogie" ) )
+#endif
 	{
 		CRagdollBoogie::Create( this, 150, gpGlobals->curtime, 3.0f, SF_RAGDOLL_BOOGIE_ELECTRICAL );
 	}
@@ -416,7 +440,11 @@ void CRagdollProp::OnPhysGunDrop( CBasePlayer *pPhysGunUser, PhysGunDrop_t Reaso
 	if ( Reason != LAUNCHED_BY_CANNON )
 		return;
 
+#ifdef MAPBASE
+	if( (ragdoll_autointeractions.GetBool() == true && IsBody()) || HasPhysgunInteraction( "onlaunch", "spin_zaxis" ) )
+#else
 	if( HasPhysgunInteraction( "onlaunch", "spin_zaxis" ) )
+#endif
 	{
 		Vector vecAverageCenter( 0, 0, 0 );
 
@@ -615,8 +643,21 @@ void CRagdollProp::HandleFirstCollisionInteractions( int index, gamevcollisionev
 		}
 	}
 
+#ifdef MAPBASE
+	int iVPhysicsFlesh = VPhysicsGetFlesh();
+	bool bRagdollAutoInt = (ragdoll_autointeractions.GetBool() == true && iVPhysicsFlesh);
+	bool bAlienBloodSplat = HasPhysgunInteraction( "onfirstimpact", "alienbloodsplat" );
+	if (bRagdollAutoInt && !bAlienBloodSplat)
+	{
+		// Alien blood?
+		bAlienBloodSplat = (iVPhysicsFlesh == CHAR_TEX_ALIENFLESH || iVPhysicsFlesh == CHAR_TEX_ANTLION);
+	}
+
+	if( bRagdollAutoInt || bAlienBloodSplat || HasPhysgunInteraction( "onfirstimpact", "bloodsplat" ) )
+#else
 	bool bAlienBloodSplat = HasPhysgunInteraction( "onfirstimpact", "alienbloodsplat" );
 	if( bAlienBloodSplat || HasPhysgunInteraction( "onfirstimpact", "bloodsplat" ) )
+#endif
 	{
 		IPhysicsObject *pObj = VPhysicsGetObject();
  
@@ -646,7 +687,11 @@ void CRagdollProp::ClearFlagsThink( void )
 //-----------------------------------------------------------------------------
 AngularImpulse CRagdollProp::PhysGunLaunchAngularImpulse()
 {
+#ifdef MAPBASE
+	if( (ragdoll_autointeractions.GetBool() == true && IsBody()) || HasPhysgunInteraction( "onlaunch", "spin_zaxis" ) )
+#else
 	if( HasPhysgunInteraction( "onlaunch", "spin_zaxis" ) )
+#endif
 	{
 		// Don't add in random angular impulse if this object is supposed to spin in a specific way.
 		AngularImpulse ang( 0, 0, 0 );
@@ -1069,6 +1114,23 @@ int CRagdollProp::VPhysicsGetObjectList( IPhysicsObject **pList, int listMax )
 	return m_ragdoll.listCount;
 }
 
+#ifdef MAPBASE
+int CRagdollProp::VPhysicsGetFlesh()
+{
+	IPhysicsObject *pList[VPHYSICS_MAX_OBJECT_LIST_COUNT];
+	int count = VPhysicsGetObjectList( pList, ARRAYSIZE(pList) );
+	for ( int i = 0; i < count; i++ )
+	{
+		int material = pList[i]->GetMaterialIndex();
+		const surfacedata_t *pSurfaceData = physprops->GetSurfaceData( material );
+		// Is flesh ?, don't allow pickup
+		if ( pSurfaceData->game.material == CHAR_TEX_ANTLION || pSurfaceData->game.material == CHAR_TEX_FLESH || pSurfaceData->game.material == CHAR_TEX_BLOODYFLESH || pSurfaceData->game.material == CHAR_TEX_ALIENFLESH )
+			return pSurfaceData->game.material;
+	}
+	return 0;
+}
+#endif
+
 void CRagdollProp::UpdateNetworkDataFromVPhysics( IPhysicsObject *pPhysics, int index )
 {
 	Assert(index < m_ragdoll.listCount);
@@ -1441,6 +1503,12 @@ CBaseEntity *CreateServerRagdoll( CBaseAnimating *pAnimating, int forceBone, con
 	maxs = pAnimating->CollisionProp()->OBBMaxs();
 	pRagdoll->CollisionProp()->SetCollisionBounds( mins, maxs );
 
+#ifdef MAPBASE
+	variant_t variant;
+	variant.SetEntity(pRagdoll);
+	pAnimating->FireNamedOutput("OnServerRagdoll", variant, pRagdoll, pAnimating);
+#endif
+
 	return pRagdoll;
 }
 
@@ -1682,6 +1750,38 @@ void CRagdollProp::InputDisableMotion( inputdata_t &inputdata )
 {
 	DisableMotion();
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Input handler to start the physics prop simulating.
+//-----------------------------------------------------------------------------
+void CRagdollProp::InputWake( inputdata_t &inputdata )
+{
+	for ( int iRagdoll = 0; iRagdoll < m_ragdoll.listCount; ++iRagdoll )
+	{
+		IPhysicsObject *pPhysicsObject = m_ragdoll.list[ iRagdoll ].pObject;
+		if ( pPhysicsObject != NULL )
+		{
+			pPhysicsObject->Wake();
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler to stop the physics prop simulating.
+//-----------------------------------------------------------------------------
+void CRagdollProp::InputSleep( inputdata_t &inputdata )
+{
+	for ( int iRagdoll = 0; iRagdoll < m_ragdoll.listCount; ++iRagdoll )
+	{
+		IPhysicsObject *pPhysicsObject = m_ragdoll.list[ iRagdoll ].pObject;
+		if ( pPhysicsObject != NULL )
+		{
+			pPhysicsObject->Sleep();
+		}
+	}
+}
+#endif
 
 void CRagdollProp::InputTurnOn( inputdata_t &inputdata )
 {

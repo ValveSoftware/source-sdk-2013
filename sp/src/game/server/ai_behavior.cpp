@@ -411,6 +411,17 @@ void CAI_BehaviorBase::HandleAnimEvent( animevent_t *pEvent )
 	m_pBackBridge->BackBridge_HandleAnimEvent( pEvent );
 }
 
+#ifdef MAPBASE
+//-------------------------------------
+
+bool CAI_BehaviorBase::CanUnholsterWeapon( void )
+{
+	Assert( m_pBackBridge != NULL );
+
+	return m_pBackBridge->BackBridge_CanUnholsterWeapon();
+}
+#endif
+
 //-------------------------------------
 
 bool CAI_BehaviorBase::NotifyChangeBehaviorStatus( bool fCanFinishSchedule )

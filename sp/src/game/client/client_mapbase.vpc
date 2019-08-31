@@ -1,0 +1,51 @@
+//-----------------------------------------------------------------------------
+//	CLIENT_MAPBASE.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;ASW_PROJECTED_TEXTURES;DYNAMIC_RTT_SHADOWS"
+		
+		$PreprocessorDefinitions		"$BASE;MAPBASE_RPC;DISCORD_RPC;STEAM_RPC"	[$MAPBASE_RPC]
+	}
+}
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$File	"c_env_global_light.cpp"
+		$File	"worldlight.cpp"
+		$File	"worldlight.h"
+	
+		$Folder	"Mapbase"
+		{
+			$File	"$SRCDIR\game\shared\mapbase\mapbase_shared.cpp"
+			$File	"$SRCDIR\game\shared\mapbase\mapbase_rpc.cpp"
+			$File	"$SRCDIR\game\shared\mapbase\MapEdit.cpp"
+			$File	"$SRCDIR\game\shared\mapbase\MapEdit.h"
+			
+			$File	"mapbase\c_func_clientclip.cpp"
+		}
+		
+		$Folder "HL2 DLL"
+		{
+			// Original stunstick files are conditional'd out in the HL2 VPCs
+			$File	"$SRCDIR\game\shared\hl2mp\weapon_stunstick.cpp"
+			$File	"$SRCDIR\game\shared\hl2mp\weapon_stunstick.h"
+		}
+		
+		$Folder	"HL2MP"
+		{
+			$Folder	"Weapons"
+			{
+				$File	"$SRCDIR\game\shared\hl2mp\weapon_slam.cpp"
+				$File	"$SRCDIR\game\shared\hl2mp\weapon_slam.h"
+			}
+		}
+	}
+}

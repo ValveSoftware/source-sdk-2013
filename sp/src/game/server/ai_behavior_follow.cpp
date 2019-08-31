@@ -20,6 +20,9 @@
 
 #ifdef HL2_EPISODIC
 	#include "info_darknessmode_lightsource.h"
+#ifdef MAPBASE
+	#include "globalstate.h"
+#endif
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -403,7 +406,11 @@ bool CAI_FollowBehavior::SetFollowGoal( CAI_FollowGoal *pGoal, bool fFinishCurSc
 		}
 
 		SetFollowTarget( pGoal->GetGoalEntity() );
+#ifdef MAPBASE
+		Assert( pGoal->m_iFormation < AIF_NUM_FORMATIONS );
+#else
 		Assert( pGoal->m_iFormation == AIF_SIMPLE || pGoal->m_iFormation == AIF_WIDE || pGoal->m_iFormation == AIF_MEDIUM || pGoal->m_iFormation == AIF_SIDEKICK || pGoal->m_iFormation == AIF_VORTIGAUNT );
+#endif
 		SetParameters( AI_FollowParams_t( (AI_Formations_t)pGoal->m_iFormation ) );
 		m_hFollowGoalEnt = pGoal;
 		m_flTimeUpdatedFollowPosition = 0;
@@ -764,7 +771,12 @@ void CAI_FollowBehavior::GatherConditions( void )
 
 #ifdef HL2_EPISODIC
 	// Let followers know if the player is lit in the darkness
+#ifdef MAPBASE
+	// If the darkness mode counter is 1, follow behavior is not affected by darkness.
+	if ( GetFollowTarget()->IsPlayer() && HL2GameRules()->IsAlyxInDarknessMode() && GlobalEntity_GetCounter("ep_alyx_darknessmode") != 1 )
+#else
 	if ( GetFollowTarget()->IsPlayer() && HL2GameRules()->IsAlyxInDarknessMode() )
+#endif
 	{
 		if ( LookerCouldSeeTargetInDarkness( GetOuter(), GetFollowTarget() ) )
 		{
@@ -907,6 +919,11 @@ void CAI_FollowBehavior::ClearFollowPoint()
 {
 	if ( GetHintNode() && GetHintNode()->HintType() == HINT_FOLLOW_WAIT_POINT )
 	{
+#ifdef MAPBASE
+		// If we were in range, we were probably already using it
+		if ((GetHintNode()->GetAbsOrigin() - GetFollowTarget()->GetAbsOrigin()).LengthSqr() < Square(MAX(m_FollowNavGoal.followPointTolerance, GetGoalRange())))
+			GetHintNode()->NPCStoppedUsing(GetOuter());
+#endif
 		GetHintNode()->Unlock();
 		SetHintNode( NULL );
 	}
@@ -931,7 +948,14 @@ CAI_Hint *CAI_FollowBehavior::FindFollowPoint()
 
 	CHintCriteria hintCriteria;
 	hintCriteria.SetHintType( HINT_FOLLOW_WAIT_POINT );
+#ifdef MAPBASE
+	// NOTE: Does this make them stop following?
+	hintCriteria.SetGroup( GetOuter()->GetHintGroup() );
+	hintCriteria.SetFlag( bits_HINT_NODE_VISIBLE | bits_HINT_NODE_NEAREST | bits_HINT_NODE_USE_GROUP );
+	//hintCriteria.SetFlag( bits_HINT_NODE_VISIBLE | bits_HINT_NODE_NEAREST );
+#else
 	hintCriteria.SetFlag( bits_HINT_NODE_VISIBLE | bits_HINT_NODE_NEAREST );
+#endif
 
 	// Add the search position
 	hintCriteria.AddIncludePosition( GetGoalPosition(), MAX( m_FollowNavGoal.followPointTolerance, GetGoalRange() ) );
@@ -1033,6 +1057,9 @@ int CAI_FollowBehavior::SelectScheduleFollowPoints()
 		{
 			if ( bNewHint || distSqToPoint > WAIT_HINT_MIN_DIST )
 				return SCHED_FOLLOWER_GO_TO_WAIT_POINT;
+#ifdef MAPBASE
+			GetHintNode()->NPCStartedUsing(GetOuter());
+#endif
 			if ( !ShouldIgnoreFollowPointFacing() )
 				return SCHED_FOLLOWER_STAND_AT_WAIT_POINT;
 		}

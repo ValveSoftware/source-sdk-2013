@@ -54,6 +54,10 @@
 #include "econ_wearable.h"
 #endif
 
+#ifdef MAPBASE
+#include "viewrender.h"
+#endif
+
 // NVNT haptics system interface
 #include "haptics/ihaptics.h"
 
@@ -176,6 +180,10 @@ BEGIN_RECV_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	// 3d skybox data
 	RecvPropInt(RECVINFO(m_skybox3d.scale)),
 	RecvPropVector(RECVINFO(m_skybox3d.origin)),
+#ifdef MAPBASE
+	RecvPropVector(RECVINFO(m_skybox3d.angles)),
+	RecvPropInt( RECVINFO( m_skybox3d.skycolor ), 0, RecvProxy_IntToColor32 ),
+#endif
 	RecvPropInt(RECVINFO(m_skybox3d.area)),
 
 	// 3d skybox fog data
@@ -187,6 +195,9 @@ BEGIN_RECV_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	RecvPropFloat( RECVINFO( m_skybox3d.fog.start ) ),
 	RecvPropFloat( RECVINFO( m_skybox3d.fog.end ) ),
 	RecvPropFloat( RECVINFO( m_skybox3d.fog.maxdensity ) ),
+#ifdef MAPBASE
+	RecvPropFloat( RECVINFO( m_skybox3d.fog.farz ) ),
+#endif
 
 	// fog data
 	RecvPropEHandle( RECVINFO( m_PlayerFog.m_hCtrl ) ),
@@ -244,6 +255,14 @@ END_RECV_TABLE()
 
 		RecvPropInt			( RECVINFO( m_nWaterLevel ) ),
 		RecvPropFloat		( RECVINFO( m_flLaggedMovementValue )),
+
+#ifdef MAPBASE
+		// Transmitted from the server for internal player spawnflags.
+		// See baseplayer_shared.h for more details.
+		RecvPropInt			( RECVINFO( m_spawnflags ) ),
+
+		RecvPropBool		( RECVINFO( m_bDrawPlayerModelExternally ) ),
+#endif
 
 	END_RECV_TABLE()
 
@@ -1054,6 +1073,16 @@ void C_BasePlayer::DetermineVguiInputMode( CUserCmd *pCmd )
 
 	// If we're in vgui mode *and* we're holding down mouse buttons,
 	// stay in vgui mode even if we're outside the screen bounds
+#ifdef VGUI_SCREEN_FIX
+	if (m_pCurrentVguiScreen.Get() && (pCmd->buttons & (IN_ATTACK | IN_ATTACK2 | IN_VALIDVGUIINPUT)))
+	{
+		SetVGuiScreenButtonState( m_pCurrentVguiScreen.Get(), pCmd->buttons );
+
+		// Kill all attack inputs if we're in vgui screen mode
+		pCmd->buttons &= ~(IN_ATTACK | IN_ATTACK2 | IN_VALIDVGUIINPUT);
+		return;
+	}
+#else
 	if (m_pCurrentVguiScreen.Get() && (pCmd->buttons & (IN_ATTACK | IN_ATTACK2)) )
 	{
 		SetVGuiScreenButtonState( m_pCurrentVguiScreen.Get(), pCmd->buttons );
@@ -1062,6 +1091,7 @@ void C_BasePlayer::DetermineVguiInputMode( CUserCmd *pCmd )
 		pCmd->buttons &= ~(IN_ATTACK | IN_ATTACK2);
 		return;
 	}
+#endif
 
 	// We're not in vgui input mode if we're moving, or have hit a key
 	// that will make us move...
@@ -1183,7 +1213,12 @@ bool C_BasePlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	m_vecOldViewAngles = pCmd->viewangles;
 	
 	// Check to see if we're in vgui input mode...
+#ifdef VGUI_SCREEN_FIX
+	if(pCmd->buttons & IN_VALIDVGUIINPUT)
+		DetermineVguiInputMode( pCmd );
+#else
 	DetermineVguiInputMode( pCmd );
+#endif
 
 	return true;
 }
@@ -1385,11 +1420,34 @@ bool C_BasePlayer::ShouldInterpolate()
 
 bool C_BasePlayer::ShouldDraw()
 {
+#ifdef MAPBASE
+	// We have to "always draw" a player with m_bDrawPlayerModelExternally in order to show up in whatever rendering list all of the views use, 
+	// but we can't put this in ShouldDrawThisPlayer() because we would have no way of knowing if it stomps the other checks that draw the player model anyway.
+	// As a result, we have to put it here in the central ShouldDraw() function. DrawModel() makes sure we only draw in non-main views and nothing's drawing the model anyway.
+	return (ShouldDrawThisPlayer() || m_bDrawPlayerModelExternally) && BaseClass::ShouldDraw();
+#else
 	return ShouldDrawThisPlayer() && BaseClass::ShouldDraw();
+#endif
 }
 
 int C_BasePlayer::DrawModel( int flags )
 {
+#ifdef MAPBASE
+	if (m_bDrawPlayerModelExternally)
+	{
+		// Draw the player in any view except the main or "intro" view, both of which are default first-person views.
+		view_id_t viewID = CurrentViewID();
+		if (viewID == VIEW_MAIN || viewID == VIEW_INTRO_CAMERA)
+		{
+			// Make sure the player model wouldn't draw anyway...
+			if (!ShouldDrawThisPlayer())
+				return 0;
+		}
+
+		return BaseClass::DrawModel( flags );
+	}
+#endif
+
 #ifndef PORTAL
 	// In Portal this check is already performed as part of
 	// C_Portal_Player::DrawModel()
@@ -1398,6 +1456,7 @@ int C_BasePlayer::DrawModel( int flags )
 		return 0;
 	}
 #endif
+
 	return BaseClass::DrawModel( flags );
 }
 

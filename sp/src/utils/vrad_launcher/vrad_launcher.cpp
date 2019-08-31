@@ -103,6 +103,18 @@ int main(int argc, char* argv[])
 		if (mode && (! both_arg))
 			continue;
 		
+#ifdef MAPBASE
+		// Coming through!
+		if ( !pModule )
+		{
+			// With this, we just load the DLL with our filename.
+			// This allows for custom DLLs without having to bother with the launcher.
+			char filename[64];
+			Q_FileBase(argv[0], filename, sizeof(filename));
+			Q_snprintf(dllName, sizeof(dllName), "%s%s", filename, "_dll.dll");
+			pModule = Sys_LoadModule( dllName );
+		}
+#endif
 
 		// If it didn't load the module above, then use the 
 		if ( !pModule )

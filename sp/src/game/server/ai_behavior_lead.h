@@ -125,7 +125,11 @@ public:
 	bool Connect( CAI_LeadBehaviorHandler *);
 	bool Disconnect( CAI_LeadBehaviorHandler *);
 
+#ifdef MAPBASE
+	void SetWaitForWeapon( string_t iszWeaponName, float flTimeout = 60 ) { m_weaponname = iszWeaponName; m_flWeaponSafetyTimeOut = gpGlobals->curtime + flTimeout; }
+#else
 	void SetWaitForWeapon( string_t iszWeaponName ) { m_weaponname = iszWeaponName; m_flWeaponSafetyTimeOut = gpGlobals->curtime + 60; }
+#endif
 
 	enum
 	{

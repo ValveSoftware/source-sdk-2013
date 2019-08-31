@@ -48,6 +48,25 @@ class CUserCmd;
 #define	SF_WEAPON_START_CONSTRAINED	(1<<0)	
 #define SF_WEAPON_NO_PLAYER_PICKUP	(1<<1)
 #define SF_WEAPON_NO_PHYSCANNON_PUNT (1<<2)
+#ifdef MAPBASE
+// I really, REALLY hope no weapon uses their own spawnflags.
+// If you want yours to use spawnflags, start at 16 just to be safe.
+
+// Prevents NPCs from picking up the weapon.
+#define SF_WEAPON_NO_NPC_PICKUP	(1<<3)
+// Prevents the weapon from filling up to max automatically
+// when picked up by the player or dropped.
+#define SF_WEAPON_PRESERVE_AMMO (1<<4)
+
+// ----------------------------------------------
+// Internal Spawnflags
+// 
+// For all of the weapons that show up in-game, I personally feel like
+// this beats adding new variables by at least a long shot.
+// ----------------------------------------------
+#define SF_WEAPON_NO_AUTO_SWITCH_WHEN_EMPTY (1<<5) // So weapons with ammo preserved at 0 don't switch.
+#define SF_WEAPON_USED (1<<6) // Weapon is being +USE'd, not bumped
+#endif
 
 //Percent
 #define	CLIP_PERC_THRESHOLD		0.75f	
@@ -90,6 +109,26 @@ namespace vgui2
 {
 	typedef unsigned long HFont;
 }
+
+#ifdef MAPBASE
+// ------------------
+// Weapon classes
+// ------------------
+// I found myself in situations where this is useful.
+// Their purpose is similar to Class_T on NPCs.
+
+enum WeaponClass_t
+{
+	WEPCLASS_INVALID = 0,
+
+	WEPCLASS_HANDGUN,
+	WEPCLASS_RIFLE,
+	WEPCLASS_SHOTGUN,
+	WEPCLASS_HEAVY,
+
+	WEPCLASS_MELEE,
+};
+#endif
 
 // -----------------------------------------
 //	Vector cones
@@ -173,11 +212,24 @@ public:
 	virtual void			Spawn( void );
 	virtual void			Precache( void );
 
+#ifdef MAPBASE
+	void					SetAmmoFromMapper( float flAmmo, bool bSecondary = false );
+	virtual bool			KeyValue( const char *szKeyName, const char *szValue );
+	virtual bool			GetKeyValue( const char *szKeyName, char *szValue, int iMaxLen );
+#endif
+
 	void					MakeTracer( const Vector &vecTracerSrc, const trace_t &tr, int iTracerType );
 
 	// Subtypes are used to manage multiple weapons of the same type on the player.
 	virtual int				GetSubType( void ) { return m_iSubType; }
 	virtual void			SetSubType( int iType ) { m_iSubType = iType; }
+
+#ifdef MAPBASE
+	virtual WeaponClass_t	WeaponClassify();
+	static WeaponClass_t	WeaponClassFromString(const char *str);
+
+	virtual bool			SupportsBackupActivity(Activity activity);
+#endif
 
 	virtual void			Equip( CBaseCombatCharacter *pOwner );
 	virtual void			Drop( const Vector &vecVelocity );
@@ -264,6 +316,10 @@ public:
 	virtual bool			Reload( void );
 	bool					DefaultReload( int iClipSize1, int iClipSize2, int iActivity );
 	bool					ReloadsSingly( void ) const;
+#ifdef MAPBASE
+	// Originally created for the crossbow, can be used to add special NPC reloading behavior
+	virtual void			Reload_NPC( void ) { WeaponSound(RELOAD_NPC); m_iClip1 = GetMaxClip1(); }
+#endif
 
 	virtual bool			AutoFiresFullClip( void ) { return false; }
 	virtual bool			CanOverload( void ) { return false; }
@@ -438,6 +494,19 @@ public:
 
 	virtual int				UpdateTransmitState( void );
 
+#ifdef MAPBASE
+	void					InputSetAmmo1( inputdata_t &inputdata );
+	void					InputSetAmmo2( inputdata_t &inputdata );
+	void					InputGiveDefaultAmmo( inputdata_t &inputdata );
+	void					InputEnablePlayerPickup( inputdata_t &inputdata );
+	void					InputDisablePlayerPickup( inputdata_t &inputdata );
+	void					InputEnableNPCPickup( inputdata_t &inputdata );
+	void					InputDisableNPCPickup( inputdata_t &inputdata );
+	void					InputBreakConstraint( inputdata_t &inputdata );
+	void					InputForceFire( inputdata_t &inputdata, bool bSecondary = false );
+	void					InputForcePrimaryFire( inputdata_t &inputdata );
+	void					InputForceSecondaryFire( inputdata_t &inputdata );
+#endif
 	void					InputHideWeapon( inputdata_t &inputdata );
 	void					Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 
@@ -600,6 +669,18 @@ public:
 
 	CNetworkVar( bool, m_bFlipViewModel );
 
+#ifdef MAPBASE
+#ifdef CLIENT_DLL
+	int				m_spawnflags;
+
+	inline bool		HasSpawnFlags( int flags ) { return (m_spawnflags & flags) != 0; }
+	inline void		RemoveSpawnFlags( int flags ) { m_spawnflags &= ~flags; }
+	inline void		AddSpawnFlags( int flags ) { m_spawnflags |= flags; }
+#else
+	//IMPLEMENT_NETWORK_VAR_FOR_DERIVED(m_spawnflags);
+#endif
+#endif
+
 	IPhysicsConstraint		*GetConstraint() { return m_pConstraint; }
 
 private:
@@ -622,6 +703,9 @@ protected:
 	COutputEvent			m_OnPlayerPickup;	// Fired when the player picks up the weapon.
 	COutputEvent			m_OnNPCPickup;		// Fired when an NPC picks up the weapon.
 	COutputEvent			m_OnCacheInteraction;	// For awarding lambda cache achievements in HL2 on 360. See .FGD file for details 
+#ifdef MAPBASE
+	COutputEvent			m_OnDropped;
+#endif
 
 #else // Client .dll only
 	bool					m_bJustRestored;

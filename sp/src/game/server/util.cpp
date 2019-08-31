@@ -295,6 +295,14 @@ int UTIL_EntitiesInSphere( const Vector &center, float radius, CFlaggedEntitiesE
 	return pEnum->GetCount();
 }
 
+#ifdef MAPBASE
+int UTIL_EntitiesAtPoint( const Vector &point, CFlaggedEntitiesEnum *pEnum )
+{
+	partition->EnumerateElementsAtPoint( PARTITION_ENGINE_NON_STATIC_EDICTS, point, false, pEnum );
+	return pEnum->GetCount();
+}
+#endif
+
 CEntitySphereQuery::CEntitySphereQuery( const Vector &center, float radius, int flagMask )
 {
 	m_listIndex = 0;
@@ -1290,9 +1298,19 @@ void UTIL_SetModel( CBaseEntity *pEntity, const char *pModelName )
 	int i = modelinfo->GetModelIndex( pModelName );
 	if ( i == -1 )	
 	{
+#if defined(MAPBASE) && !defined(_DEBUG)
+		// Throwing a program-terminating error might be a little too much since we could just precache it here.
+		// If we're not in debug mode, just let it off with a nice warning.
+		if (int newi = CBaseEntity::PrecacheModel(pModelName))
+		{
+			i = newi;
+			Warning("%s was not precached\n", pModelName);
+		}
+#else
 		Error("%i/%s - %s:  UTIL_SetModel:  not precached: %s\n", pEntity->entindex(),
 			STRING( pEntity->GetEntityName() ),
 			pEntity->GetClassname(), pModelName);
+#endif
 	}
 
 	CBaseAnimating *pAnimating = pEntity->GetBaseAnimating();
@@ -1783,6 +1801,40 @@ void UTIL_PrecacheOther( const char *szClassname, const char *modelName )
 
 	UTIL_RemoveImmediate( pEntity );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Tests whether this entity exists in the dictionary and if it does, precaches it. (as opposed to complaining when it's missing)
+// Input  : *szClassname - 
+//			*modelName - 
+//-----------------------------------------------------------------------------
+bool UTIL_TestPrecacheOther( const char *szClassname, const char *modelName )
+{
+#if defined( PRECACHE_OTHER_ONCE )
+	// already done this one?, if not, mark as done
+	if ( !g_PrecacheOtherList.AddOrMarkPrecached( szClassname ) )
+		return true;
+#endif
+
+	// If we can't create it, it probably does not exist
+	CBaseEntity	*pEntity = CreateEntityByName( szClassname );
+	if (!pEntity)
+		return false;
+
+	// If we have a specified model, set it before calling precache
+	if ( modelName && modelName[0] )
+	{
+		pEntity->SetModelName( AllocPooledString( modelName ) );
+	}
+	
+	if (pEntity)
+		pEntity->Precache( );
+
+	UTIL_RemoveImmediate( pEntity );
+
+	return true;
+}
+#endif
 
 //=========================================================
 // UTIL_LogPrintf - Prints a logged message to console.
@@ -2450,6 +2502,44 @@ void UTIL_PredictedPosition( CBaseEntity *pTarget, float flTimeDelta, Vector *ve
 	//Get the result
 	(*vecPredictedPosition) = pTarget->GetAbsOrigin() + ( vecPredictedVel * flTimeDelta );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Same as above, except you don't have to use the absolute origin and can use your own position to predict from.
+//-----------------------------------------------------------------------------
+void UTIL_PredictedPosition( CBaseEntity *pTarget, Vector &vecActualPosition, float flTimeDelta, Vector *vecPredictedPosition )
+{
+	if ( ( pTarget == NULL ) || ( vecPredictedPosition == NULL ) )
+		return;
+
+	Vector	vecPredictedVel;
+	CBasePlayer	*pPlayer = ToBasePlayer( pTarget );
+	if ( pPlayer != NULL )
+	{
+		if ( pPlayer->IsInAVehicle() )
+			vecPredictedVel = pPlayer->GetVehicleEntity()->GetSmoothedVelocity();
+		else
+			vecPredictedVel = pPlayer->GetSmoothedVelocity();
+	}
+	else
+	{
+		CBaseCombatCharacter *pCCTarget = pTarget->MyCombatCharacterPointer();
+		if ( pCCTarget != NULL && pCCTarget->IsInAVehicle() )
+			vecPredictedVel = pCCTarget->GetVehicleEntity()->GetSmoothedVelocity();
+		else
+		{
+			CBaseAnimating *pAnimating = dynamic_cast<CBaseAnimating *>(pTarget);
+			if ( pAnimating != NULL )
+				vecPredictedVel = pAnimating->GetGroundSpeedVelocity();
+			else
+				vecPredictedVel = pTarget->GetSmoothedVelocity();
+		}
+	}
+
+	// Get the result
+	(*vecPredictedPosition) = vecActualPosition + ( vecPredictedVel * flTimeDelta );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Points the destination entity at the target entity

@@ -131,6 +131,11 @@ struct VertexLitGeneric_DX9_Vars_t
 
 	int m_nTintReplacesBaseColor;
 
+#ifdef MAPBASE
+	// Parameter ported from Alien Swarm. See bPhongHalfLambert in DrawSkin_DX9_Internal() for more info.
+	int m_nPhongDisableHalfLambert;
+#endif
+
 };
 
 void InitParamsVertexLitGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, const char *pMaterialName, bool bVertexLitGeneric, VertexLitGeneric_DX9_Vars_t &info );

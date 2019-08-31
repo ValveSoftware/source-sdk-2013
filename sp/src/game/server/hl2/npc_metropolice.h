@@ -24,13 +24,26 @@
 #include "ai_behavior_police.h"
 #include "ai_behavior_follow.h"
 #include "ai_sentence.h"
+#ifdef MAPBASE
+#include "mapbase/ai_grenade.h"
+#endif
 #include "props.h"
+#ifdef EXPANDED_RESPONSE_SYSTEM_USAGE
+#include "mapbase/expandedrs_combine.h"
+#define METROPOLICE_USES_RESPONSE_SYSTEM 1
+#endif
 
 class CNPC_MetroPolice;
 
+#ifdef MAPBASE
+class CNPC_MetroPolice : public CAI_GrenadeUser<CAI_BaseActor>
+{
+	DECLARE_CLASS( CNPC_MetroPolice, CAI_GrenadeUser<CAI_BaseActor> );
+#else
 class CNPC_MetroPolice : public CAI_BaseActor
 {
 	DECLARE_CLASS( CNPC_MetroPolice, CAI_BaseActor );
+#endif
 	DECLARE_DATADESC();
 
 public:
@@ -46,6 +59,14 @@ public:
 	float		MaxYawSpeed( void );
 	void		HandleAnimEvent( animevent_t *pEvent );
 	Activity NPC_TranslateActivity( Activity newActivity );
+#ifdef MAPBASE
+	Activity Weapon_TranslateActivity( Activity baseAct, bool *pRequired );
+
+	virtual int			UnholsterWeapon( void );
+	virtual void		OnChangeRunningBehavior( CAI_BehaviorBase *pOldBehavior,  CAI_BehaviorBase *pNewBehavior );
+
+	const char*		GetGrenadeAttachment() { return "LHand"; }
+#endif
 
 	Vector		EyeDirection3D( void )	{ return CAI_BaseHumanoid::EyeDirection3D(); } // cops don't have eyes
 
@@ -87,6 +108,12 @@ public:
 
 	// Speaking
 	virtual void SpeakSentence( int nSentenceType );
+#ifdef METROPOLICE_USES_RESPONSE_SYSTEM
+	bool			SpeakIfAllowed( const char *concept, SentencePriority_t sentencepriority = SENTENCE_PRIORITY_NORMAL, SentenceCriteria_t sentencecriteria = SENTENCE_CRITERIA_IN_SQUAD );
+	bool			SpeakIfAllowed( const char *concept, const char *modifiers, SentencePriority_t sentencepriority = SENTENCE_PRIORITY_NORMAL, SentenceCriteria_t sentencecriteria = SENTENCE_CRITERIA_IN_SQUAD );
+	bool			SpeakIfAllowed( const char *concept, AI_CriteriaSet& modifiers, SentencePriority_t sentencepriority = SENTENCE_PRIORITY_NORMAL, SentenceCriteria_t sentencecriteria = SENTENCE_CRITERIA_IN_SQUAD );
+	void			ModifyOrAppendCriteria( AI_CriteriaSet& set );
+#endif
 
 	// Set up the shot regulator based on the equipped weapon
 	virtual void OnUpdateShotRegulator( );
@@ -101,7 +128,9 @@ public:
 	void	SetBatonState( bool state );
 	bool	BatonActive( void );
 
+#ifndef METROPOLICE_USES_RESPONSE_SYSTEM
 	CAI_Sentence< CNPC_MetroPolice > *GetSentences() { return &m_Sentences; }
+#endif
 
 	virtual	bool		AllowedToIgnite( void ) { return true; }
 
@@ -164,8 +193,19 @@ private:
 
 	// Inputs
 	void InputEnableManhackToss( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputDisableManhackToss( inputdata_t &inputdata );
+	void InputDeployManhack( inputdata_t &inputdata );
+	void InputAddManhacks( inputdata_t &inputdata );
+	void InputSetManhacks( inputdata_t &inputdata );
+#endif
 	void InputSetPoliceGoal( inputdata_t &inputdata );
 	void InputActivateBaton( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputAdministerJustice( inputdata_t &inputdata );
+	void InputAddWarnings( inputdata_t &inputdata );
+	void InputSetWarnings( inputdata_t &inputdata );
+#endif
 
 	void NotifyDeadFriend ( CBaseEntity* pFriend );
 
@@ -361,6 +401,11 @@ private:
 		SCHED_METROPOLICE_ALERT_FACE_BESTSOUND,
 		SCHED_METROPOLICE_RETURN_TO_PRECHASE,
 		SCHED_METROPOLICE_SMASH_PROP,
+#ifdef MAPBASE
+		SCHED_METROPOLICE_FORCED_GRENADE_THROW,
+		SCHED_METROPOLICE_MOVE_TO_FORCED_GREN_LOS,
+		SCHED_METROPOLICE_RANGE_ATTACK2,
+#endif
 	};
 
 	enum 
@@ -387,6 +432,11 @@ private:
 		TASK_METROPOLICE_WAIT_FOR_SENTENCE,
 		TASK_METROPOLICE_GET_PATH_TO_PRECHASE,
 		TASK_METROPOLICE_CLEAR_PRECHASE,
+#ifdef MAPBASE
+		TASK_METROPOLICE_GET_PATH_TO_FORCED_GREN_LOS,
+		TASK_METROPOLICE_DEFER_SQUAD_GRENADES,
+		TASK_METROPOLICE_FACE_TOSS_DIR,
+#endif
 	};
 
 private:
@@ -441,6 +491,10 @@ private:
 	// Outputs
 	COutputEvent	m_OnStunnedPlayer;
 	COutputEvent	m_OnCupCopped;
+#ifdef MAPBASE
+	COutputEHANDLE	m_OnHitByPhysicsObject;
+	COutputEHANDLE	m_OutManhack;
+#endif
 
 	AIHANDLE		m_hManhack;
 	CHandle<CPhysicsProp>	m_hBlockingProp;
@@ -453,7 +507,9 @@ private:
 	CAI_PolicingBehavior	m_PolicingBehavior;
 	CAI_FollowBehavior		m_FollowBehavior;
 
+#ifndef METROPOLICE_USES_RESPONSE_SYSTEM
 	CAI_Sentence< CNPC_MetroPolice > m_Sentences;
+#endif
 
 	int				m_nRecentDamage;
 	float			m_flRecentDamageTime;

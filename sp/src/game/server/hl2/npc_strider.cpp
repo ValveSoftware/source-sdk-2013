@@ -54,6 +54,10 @@
 #include "filters.h"
 #include "saverestore_utlvector.h"
 #include "eventqueue.h"
+#ifdef MAPBASE
+#include "npc_basescanner.h"
+#include "mapbase/GlobalStrings.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -328,6 +332,11 @@ BEGIN_DATADESC( CNPC_Strider )
 	DEFINE_FIELD( m_hCannonTarget,		FIELD_EHANDLE ),
 	DEFINE_EMBEDDED( m_AttemptCannonLOSTimer ),
 
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_strStompFilter,		FIELD_STRING, "stompfilter" ),
+	DEFINE_FIELD( m_hStompFilter,		FIELD_EHANDLE ),
+#endif
+
 	DEFINE_FIELD( m_flSpeedScale, FIELD_FLOAT ),
 	DEFINE_FIELD( m_flTargetSpeedScale, FIELD_FLOAT ),
 
@@ -391,6 +400,10 @@ BEGIN_DATADESC( CNPC_Strider )
 	DEFINE_INPUTFUNC( FIELD_STRING, "EnableCollisionWith", InputEnableCollisionWith ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Explode", InputExplode ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "ScaleGroundSpeed", InputScaleGroundSpeed ),
+
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetStompFilter", InputSetStompFilter ),
+#endif
 
 	// Function Pointers
 //	DEFINE_FUNCTION( JumpTouch ),
@@ -1105,7 +1118,11 @@ void CNPC_Strider::GatherConditions()
 				// Don't switch targets if shooting at a bullseye! Level designers depend on bullseyes.
 				if( GetEnemy() && m_pMinigun->IsShooting() && GetTimeEnemyAcquired() != gpGlobals->curtime )
 				{
+#ifdef MAPBASE
+					if( m_pMinigun->IsOnTarget( 3 ) && !EntIsClass( GetEnemy(), gm_isz_class_Bullseye ) )
+#else
 					if( m_pMinigun->IsOnTarget( 3 ) && !FClassnameIs( GetEnemy(), "npc_bullseye" ) )
+#endif
 					{
 						if( m_iVisibleEnemies > 1 )
 						{
@@ -1993,7 +2010,11 @@ Disposition_t CNPC_Strider::IRelationType( CBaseEntity *pTarget )
 //---------------------------------------------------------
 void CNPC_Strider::AddEntityRelationship( CBaseEntity *pEntity, Disposition_t nDisposition, int nPriority )
 {
+#ifdef MAPBASE
+	if ( nDisposition ==  D_HT && EntIsClass(pEntity, gm_isz_class_Bullseye) )
+#else
 	if ( nDisposition ==  D_HT && pEntity->ClassMatches("npc_bullseye") )
+#endif
 		UpdateEnemyMemory( pEntity, pEntity->GetAbsOrigin() );
 	BaseClass::AddEntityRelationship( pEntity, nDisposition, nPriority );
 }
@@ -2361,6 +2382,16 @@ void CNPC_Strider::InputScaleGroundSpeed( inputdata_t &inputdata )
 	m_flTargetSpeedScale = inputdata.value.Float();
 }
 
+#ifdef MAPBASE
+//---------------------------------------------------------
+//---------------------------------------------------------
+void CNPC_Strider::InputSetStompFilter( inputdata_t &inputdata )
+{
+	m_strStompFilter = inputdata.value.StringID();
+	m_hStompFilter = NULL;
+}
+#endif
+
 //---------------------------------------------------------
 //---------------------------------------------------------
 bool CNPC_Strider::FVisible( CBaseEntity *pEntity, int traceMask, CBaseEntity **ppBlocker )
@@ -2426,7 +2457,11 @@ bool CNPC_Strider::IsValidEnemy( CBaseEntity *pTarget )
 //---------------------------------------------------------
 bool CNPC_Strider::UpdateEnemyMemory( CBaseEntity *pEnemy, const Vector &position, CBaseEntity *pInformer )
 {
+#ifdef MAPBASE
+	if (dynamic_cast<CNPC_BaseScanner*>(pInformer))
+#else
 	if( pInformer && FClassnameIs( pInformer, "npc_cscanner" ) )
+#endif
 	{
 		EmitSound( "NPC_Strider.Alert" );
 		// Move Strider's focus to this location and make strider mad at it
@@ -2556,6 +2591,14 @@ int CNPC_Strider::MeleeAttack1Conditions( float flDot, float flDist )
 	{
 		return COND_NONE;
 	}
+
+#ifdef MAPBASE
+	if (GetStompFilter())
+	{
+		if (!GetStompFilter()->PassesFilter(this, pEnemy))
+			return COND_NONE;
+	}
+#endif
 
 	// recompute this because the base class function does not work for the strider
 	flDist = StriderEnemyDistance( pEnemy );
@@ -4377,6 +4420,35 @@ void CNPC_Strider::StompHit( int followerBoneIndex )
 		UTIL_Remove( pNPC );
 	}
 }
+
+#ifdef MAPBASE
+//---------------------------------------------------------
+//---------------------------------------------------------
+CBaseFilter *CNPC_Strider::GetStompFilter()
+{
+	if (m_hStompFilter)
+		return m_hStompFilter;
+
+	if (m_strStompFilter != NULL_STRING)
+	{
+		CBaseEntity *pEntity = gEntList.FindEntityByName(NULL, m_strStompFilter);
+		if (pEntity)
+		{
+			m_hStompFilter = dynamic_cast<CBaseFilter*>(pEntity);
+			if (m_hStompFilter)
+				return m_hStompFilter;
+			else
+				Warning("%s stomp filter %s not a filter!", GetDebugName(), STRING(m_strStompFilter));
+		}
+		else
+		{
+			Warning("%s stomp filter not found!", GetDebugName(), STRING(m_strStompFilter));
+		}
+	}
+
+	return NULL;
+}
+#endif
 
 //---------------------------------------------------------
 //---------------------------------------------------------

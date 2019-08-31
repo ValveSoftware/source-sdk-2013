@@ -51,6 +51,11 @@ CPointCamera::CPointCamera()
 	
 	m_bFogEnable = false;
 
+#ifdef MAPBASE
+	// Equivalent to SKYBOX_2DSKYBOX_VISIBLE, the original sky setting
+	m_iSkyMode = 2;
+#endif
+
 	g_PointCameraList.Insert( this );
 }
 
@@ -222,6 +227,9 @@ BEGIN_DATADESC( CPointCamera )
 	DEFINE_KEYFIELD( m_flFogEnd,	FIELD_FLOAT, "fogEnd" ),
 	DEFINE_KEYFIELD( m_flFogMaxDensity,	FIELD_FLOAT, "fogMaxDensity" ),
 	DEFINE_KEYFIELD( m_bUseScreenAspectRatio, FIELD_BOOLEAN, "UseScreenAspectRatio" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_iSkyMode, FIELD_INTEGER, "SkyMode" ),
+#endif
 	DEFINE_FIELD( m_bActive,		FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bIsOn,			FIELD_BOOLEAN ),
 
@@ -237,6 +245,9 @@ BEGIN_DATADESC( CPointCamera )
 	DEFINE_INPUTFUNC( FIELD_VOID, "SetOnAndTurnOthersOff", InputSetOnAndTurnOthersOff ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "SetOn", InputSetOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "SetOff", InputSetOff ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetSkyMode", InputSetSkyMode ),
+#endif
 
 END_DATADESC()
 
@@ -250,4 +261,216 @@ IMPLEMENT_SERVERCLASS_ST( CPointCamera, DT_PointCamera )
 	SendPropFloat( SENDINFO( m_flFogMaxDensity ), 0, SPROP_NOSCALE ),	
 	SendPropInt( SENDINFO( m_bActive ), 1, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_bUseScreenAspectRatio ), 1, SPROP_UNSIGNED ),
+#ifdef MAPBASE
+	SendPropInt( SENDINFO( m_iSkyMode ) ),
+#endif
 END_SEND_TABLE()
+
+#ifdef MAPBASE
+
+//=============================================================================
+// Orthographic point_camera 
+//=============================================================================
+
+BEGIN_DATADESC( CPointCameraOrtho )
+
+	DEFINE_KEYFIELD( m_bOrtho, FIELD_BOOLEAN, "IsOrtho" ),
+	DEFINE_ARRAY( m_OrthoDimensions, FIELD_FLOAT, CPointCameraOrtho::NUM_ORTHO_DIMENSIONS ),
+
+	DEFINE_ARRAY( m_TargetOrtho, FIELD_FLOAT, CPointCameraOrtho::NUM_ORTHO_DIMENSIONS ),
+	DEFINE_FIELD( m_TargetOrthoDPS, FIELD_FLOAT ),
+
+	DEFINE_FUNCTION( ChangeOrthoThink ),
+
+	// Input
+	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetOrthoEnabled", InputSetOrthoEnabled ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING, "ScaleOrtho", InputScaleOrtho ),
+#endif
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetOrthoTop", InputSetOrthoTop ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetOrthoBottom", InputSetOrthoBottom ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetOrthoLeft", InputSetOrthoLeft ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetOrthoRight", InputSetOrthoRight ),
+
+END_DATADESC()
+
+IMPLEMENT_SERVERCLASS_ST( CPointCameraOrtho, DT_PointCameraOrtho )
+	SendPropInt( SENDINFO( m_bOrtho ), 1, SPROP_UNSIGNED ),
+	SendPropArray( SendPropFloat(SENDINFO_ARRAY(m_OrthoDimensions), CPointCameraOrtho::NUM_ORTHO_DIMENSIONS, SPROP_NOSCALE ), m_OrthoDimensions ),
+END_SEND_TABLE()
+
+LINK_ENTITY_TO_CLASS( point_camera_ortho, CPointCameraOrtho );
+
+CPointCameraOrtho::~CPointCameraOrtho()
+{
+}
+
+CPointCameraOrtho::CPointCameraOrtho()
+{
+}
+
+void CPointCameraOrtho::Spawn( void )
+{
+	BaseClass::Spawn();
+
+	// If 0, get the FOV
+	if (m_OrthoDimensions[ORTHO_TOP] == 0.0f)
+		m_OrthoDimensions.Set( ORTHO_TOP, GetFOV() );
+
+	// If 0, get the negative top ortho
+	if (m_OrthoDimensions[ORTHO_BOTTOM] == 0.0f)
+		m_OrthoDimensions.Set( ORTHO_BOTTOM, -m_OrthoDimensions[ORTHO_TOP] );
+
+	// If 0, get the top ortho
+	if (m_OrthoDimensions[ORTHO_LEFT] == 0.0f)
+		m_OrthoDimensions.Set( ORTHO_LEFT, m_OrthoDimensions[ORTHO_TOP] );
+
+	// If 0, get the negative left ortho
+	if (m_OrthoDimensions[ORTHO_RIGHT] == 0.0f)
+		m_OrthoDimensions.Set( ORTHO_RIGHT, -m_OrthoDimensions[ORTHO_LEFT] );
+}
+
+bool CPointCameraOrtho::KeyValue( const char *szKeyName, const char *szValue )
+{
+	if ( strncmp( szKeyName, "Ortho", 5 ) == 0 )
+	{
+		int iOrtho = atoi(szKeyName + 5);
+		m_OrthoDimensions.Set( iOrtho, atof( szValue ) );
+	}
+	else
+		return BaseClass::KeyValue( szKeyName, szValue );
+
+	return true;
+}
+
+bool CPointCameraOrtho::GetKeyValue( const char *szKeyName, char *szValue, int iMaxLen )
+{
+	if ( strncmp( szKeyName, "Ortho", 5 ) )
+	{
+		int iOrtho = atoi(szKeyName + 5);
+		Q_snprintf( szValue, iMaxLen, "%f", m_OrthoDimensions[iOrtho] );
+	}
+	else
+		return BaseClass::GetKeyValue( szKeyName, szValue, iMaxLen );
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPointCameraOrtho::ChangeOrtho( int iType, const char *szChange )
+{
+	// Parse the keyvalue data
+	char parseString[255];
+	Q_strncpy( parseString, szChange, sizeof( parseString ) );
+
+	// Get Ortho
+	char *pszParam = strtok( parseString, " " );
+	if (pszParam)
+	{
+		m_TargetOrtho[iType] = atof( pszParam );
+	}
+	else
+	{
+		// Assume no change
+		m_TargetOrtho[iType] = m_OrthoDimensions[iType];
+	}
+
+	// Get Time
+	float flChangeTime;
+	pszParam = strtok( NULL, " " );
+	if (pszParam)
+	{
+		flChangeTime = atof( pszParam );
+	}
+	else
+	{
+		// Assume 1 second
+		flChangeTime = 1.0;
+	}
+
+	m_TargetOrthoDPS = ( m_TargetOrtho[iType] - m_OrthoDimensions[iType] ) / flChangeTime;
+
+	SetThink( &CPointCameraOrtho::ChangeOrthoThink );
+	SetNextThink( gpGlobals->curtime );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPointCameraOrtho::InputScaleOrtho( inputdata_t &inputdata )
+{
+	// Parse the keyvalue data
+	char parseString[255];
+	Q_strncpy( parseString, inputdata.value.String(), sizeof( parseString ) );
+
+	// Get Scale
+	float flScale = 1.0f;
+	char *pszParam = strtok( parseString, " " );
+	if (pszParam)
+	{
+		flScale = atof( pszParam );
+	}
+
+	// Get Time
+	float flChangeTime = 1.0f;
+	pszParam = strtok( NULL, " " );
+	if (pszParam)
+	{
+		flChangeTime = atof( pszParam );
+	}
+
+	int iLargest = 0;
+	for (int i = 0; i < NUM_ORTHO_DIMENSIONS; i++)
+	{
+		m_TargetOrtho[i] = flScale * m_OrthoDimensions[i];
+
+		if (m_TargetOrtho[iLargest] <= m_TargetOrtho[i])
+			iLargest = i;
+	}
+
+	m_TargetOrthoDPS = (m_TargetOrtho[iLargest] - m_OrthoDimensions[iLargest]) / flChangeTime;
+
+	SetThink( &CPointCameraOrtho::ChangeOrthoThink );
+	SetNextThink( gpGlobals->curtime );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPointCameraOrtho::ChangeOrthoThink( void )
+{
+	SetNextThink( gpGlobals->curtime + CAM_THINK_INTERVAL );
+
+	int iChanging = 0;
+	for (int i = 0; i < NUM_ORTHO_DIMENSIONS; i++)
+	{
+		float newDim = m_OrthoDimensions[i];
+		if (newDim == m_TargetOrtho[i])
+			continue;
+
+		newDim += m_TargetOrthoDPS * CAM_THINK_INTERVAL;
+
+		if (m_TargetOrthoDPS < 0)
+		{
+			if (newDim <= m_TargetOrtho[i])
+			{
+				newDim = m_TargetOrtho[i];
+			}
+		}
+		else
+		{
+			if (newDim >= m_TargetOrtho[i])
+			{
+				newDim = m_TargetOrtho[i];
+			}
+		}
+
+		m_OrthoDimensions.Set(i, newDim);
+	}
+
+	if (iChanging == 0)
+		SetThink( NULL );
+}
+#endif

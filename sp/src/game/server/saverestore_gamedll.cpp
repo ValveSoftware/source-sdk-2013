@@ -93,6 +93,17 @@ bool ParseKeyvalue( void *pObject, typedescription_t *pFields, int iNumFields, c
 				UTIL_StringToColor32( (color32 *) ((char *)pObject + fieldOffset), szValue );
 				return true;
 
+#ifdef MAPBASE
+			case FIELD_EHANDLE:
+				((CBaseHandle*)((char*)pObject + fieldOffset))->Set(gEntList.FindEntityByName(NULL, szValue));
+				return true;
+
+			case FIELD_INTERVAL:
+				extern interval_t ReadInterval( const char *pString );
+				(*(interval_t*)((char *)pObject + fieldOffset)) = ReadInterval( szValue );
+				return true;
+#endif
+
 			case FIELD_CUSTOM:
 			{
 				SaveRestoreFieldInfo_t fieldInfo =
@@ -106,7 +117,9 @@ bool ParseKeyvalue( void *pObject, typedescription_t *pFields, int iNumFields, c
 			}
 
 			default:
+#ifndef MAPBASE
 			case FIELD_INTERVAL: // Fixme, could write this if needed
+#endif
 			case FIELD_CLASSPTR:
 			case FIELD_MODELINDEX:
 			case FIELD_MATERIALINDEX:

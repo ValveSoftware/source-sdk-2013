@@ -41,9 +41,15 @@ public:
 	Vector4D(void);
 	Vector4D(vec_t X, vec_t Y, vec_t Z, vec_t W);
 	Vector4D(const float *pFloat);
+#ifdef MAPBASE
+	Vector4D(const Vector& vec, vec_t W);
+#endif
 
 	// Initialization
 	void Init(vec_t ix=0.0f, vec_t iy=0.0f, vec_t iz=0.0f, vec_t iw=0.0f);
+#ifdef MAPBASE
+	void Init( const Vector& vec, vec_t W );
+#endif
 
 	// Got any nasty NAN's?
 	bool IsValid() const;
@@ -222,6 +228,14 @@ inline Vector4D::Vector4D(const float *pFloat)
 	Assert( IsValid() );
 }
 
+#ifdef MAPBASE
+inline Vector4D::Vector4D(const Vector& vec, vec_t W )
+{ 
+	x = vec.x; y = vec.y; z = vec.z; w = W;
+	Assert( IsValid() );
+}
+#endif
+
 
 //-----------------------------------------------------------------------------
 // copy constructor
@@ -242,6 +256,14 @@ inline void Vector4D::Init( vec_t ix, vec_t iy, vec_t iz, vec_t iw )
 	x = ix; y = iy; z = iz;	w = iw;
 	Assert( IsValid() );
 }
+
+#ifdef MAPBASE
+inline void Vector4D::Init( const Vector& vec, vec_t iw )
+{
+	x = vec.x; y = vec.y; z = vec.z; w = iw;
+	Assert( IsValid() );
+}
+#endif
 
 inline void Vector4D::Random( vec_t minVal, vec_t maxVal )
 {

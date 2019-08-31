@@ -65,6 +65,10 @@ public:
 	void InputFadeAndRespawn( inputdata_t &inputdata );
 	void InputKill( inputdata_t &inputdata );
 	void InputSocketed( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetLifetime( inputdata_t &inputdata );
+	void InputAddLifetime( inputdata_t &inputdata );
+#endif
 
 	enum
 	{

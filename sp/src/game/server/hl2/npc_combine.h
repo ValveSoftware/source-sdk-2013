@@ -21,6 +21,14 @@
 #include "ai_behavior_actbusy.h"
 #include "ai_sentence.h"
 #include "ai_baseactor.h"
+#ifdef MAPBASE
+#include "mapbase/ai_grenade.h"
+#endif
+#ifdef EXPANDED_RESPONSE_SYSTEM_USAGE
+#include "mapbase/expandedrs_combine.h"
+//#define CAI_Sentence CAI_SentenceTalker
+#define COMBINE_SOLDIER_USES_RESPONSE_SYSTEM 1
+#endif
 
 // Used when only what combine to react to what the spotlight sees
 #define SF_COMBINE_NO_LOOK	(1 << 16)
@@ -30,11 +38,19 @@
 //=========================================================
 //	>> CNPC_Combine
 //=========================================================
+#ifdef MAPBASE
+class CNPC_Combine : public CAI_GrenadeUser<CAI_BaseActor>
+{
+	DECLARE_DATADESC();
+	DEFINE_CUSTOM_AI;
+	DECLARE_CLASS( CNPC_Combine, CAI_GrenadeUser<CAI_BaseActor> );
+#else
 class CNPC_Combine : public CAI_BaseActor
 {
 	DECLARE_DATADESC();
 	DEFINE_CUSTOM_AI;
 	DECLARE_CLASS( CNPC_Combine, CAI_BaseActor );
+#endif
 
 public:
 	CNPC_Combine();
@@ -42,8 +58,10 @@ public:
 	// Create components
 	virtual bool	CreateComponents();
 
+#ifndef MAPBASE
 	bool			CanThrowGrenade( const Vector &vecTarget );
 	bool			CheckCanThrowGrenade( const Vector &vecTarget );
+#endif
 	virtual	bool	CanGrenadeEnemy( bool bUseFreeKnowledge = true );
 	virtual bool	CanAltFireEnemy( bool bUseFreeKnowledge );
 	int				GetGrenadeConditions( float flDot, float flDist );
@@ -69,7 +87,15 @@ public:
 	void InputStopPatrolling( inputdata_t &inputdata );
 	void InputAssault( inputdata_t &inputdata );
 	void InputHitByBugbait( inputdata_t &inputdata );
+#ifndef MAPBASE
 	void InputThrowGrenadeAtTarget( inputdata_t &inputdata );
+#else
+	void InputSetElite( inputdata_t &inputdata );
+
+	void InputDropGrenade( inputdata_t &inputdata );
+
+	void InputSetTacticalVariant( inputdata_t &inputdata );
+#endif
 
 	bool			UpdateEnemyMemory( CBaseEntity *pEnemy, const Vector &position, CBaseEntity *pInformer = NULL );
 
@@ -78,9 +104,17 @@ public:
 	void			Activate();
 
 	Class_T			Classify( void );
+#ifdef MAPBASE
+	bool			IsElite();
+	bool			IsAltFireCapable();
+	const char*		GetGrenadeAttachment() { return "lefthand"; }
+#else
 	bool			IsElite() { return m_fIsElite; }
+#endif
+#ifndef MAPBASE
 	void			DelayAltFireAttack( float flDelay );
 	void			DelaySquadAltFireAttack( float flDelay );
+#endif
 	float			MaxYawSpeed( void );
 	bool			ShouldMoveAndShoot();
 	bool			OverrideMoveFacing( const AILocalMoveGoal_t &move, float flInterval );;
@@ -90,7 +124,9 @@ public:
 	Vector			EyeOffset( Activity nActivity );
 	Vector			EyePosition( void );
 	Vector			BodyTarget( const Vector &posSrc, bool bNoisy = true );
+#ifndef MAPBASE
 	Vector			GetAltFireTarget();
+#endif
 
 	void			StartTask( const Task_t *pTask );
 	void			RunTask( const Task_t *pTask );
@@ -98,6 +134,10 @@ public:
 	void			GatherConditions();
 	virtual void	PrescheduleThink();
 
+#ifdef MAPBASE
+	Activity		Weapon_TranslateActivity( Activity baseAct, bool *pRequired = NULL );
+	Activity		NPC_BackupActivity( Activity eNewActivity );
+#endif
 	Activity		NPC_TranslateActivity( Activity eNewActivity );
 	void			BuildScheduleTestBits( void );
 	virtual int		SelectSchedule( void );
@@ -125,8 +165,13 @@ public:
 	// -------------
 	// Sounds
 	// -------------
+#ifdef MAPBASE
+	void			DeathSound( const CTakeDamageInfo &info );
+	void			PainSound( const CTakeDamageInfo &info );
+#else
 	void			DeathSound( void );
 	void			PainSound( void );
+#endif
 	void			IdleSound( void );
 	void			AlertSound( void );
 	void			LostEnemySound( void );
@@ -143,6 +188,12 @@ public:
 
 	// Speaking
 	void			SpeakSentence( int sentType );
+#ifdef COMBINE_SOLDIER_USES_RESPONSE_SYSTEM
+	bool			SpeakIfAllowed( const char *concept, SentencePriority_t sentencepriority = SENTENCE_PRIORITY_NORMAL, SentenceCriteria_t sentencecriteria = SENTENCE_CRITERIA_IN_SQUAD );
+	bool			SpeakIfAllowed( const char *concept, const char *modifiers, SentencePriority_t sentencepriority = SENTENCE_PRIORITY_NORMAL, SentenceCriteria_t sentencecriteria = SENTENCE_CRITERIA_IN_SQUAD );
+	bool			SpeakIfAllowed( const char *concept, AI_CriteriaSet& modifiers, SentencePriority_t sentencepriority = SENTENCE_PRIORITY_NORMAL, SentenceCriteria_t sentencecriteria = SENTENCE_CRITERIA_IN_SQUAD );
+	void			ModifyOrAppendCriteria( AI_CriteriaSet& set );
+#endif
 
 	virtual int		TranslateSchedule( int scheduleType );
 	void			OnStartSchedule( int scheduleType );
@@ -151,7 +202,9 @@ public:
 
 protected:
 	void			SetKickDamage( int nDamage ) { m_nKickDamage = nDamage; }
+#ifndef COMBINE_SOLDIER_USES_RESPONSE_SYSTEM
 	CAI_Sentence< CNPC_Combine > *GetSentences() { return &m_Sentences; }
+#endif
 
 private:
 	//=========================================================
@@ -257,26 +310,39 @@ private:
 
 private:
 	int				m_nKickDamage;
+#ifndef MAPBASE
 	Vector			m_vecTossVelocity;
 	EHANDLE			m_hForcedGrenadeTarget;
+#else
+	// Underthrow grenade at target
+	bool			m_bUnderthrow;
+#endif
 	bool			m_bShouldPatrol;
 	bool			m_bFirstEncounter;// only put on the handsign show in the squad's first encounter.
 
 	// Time Variables
 	float			m_flNextPainSoundTime;
 	float			m_flNextAlertSoundTime;
+#ifndef MAPBASE
 	float			m_flNextGrenadeCheck;	
+#endif
 	float			m_flNextLostSoundTime;
 	float			m_flAlertPatrolTime;		// When to stop doing alert patrol
+#ifndef MAPBASE
 	float			m_flNextAltFireTime;		// Elites only. Next time to begin considering alt-fire attack.
+#endif
 
 	int				m_nShots;
 	float			m_flShotDelay;
 	float			m_flStopMoveShootTime;
 
+#ifndef COMBINE_SOLDIER_USES_RESPONSE_SYSTEM
 	CAI_Sentence< CNPC_Combine > m_Sentences;
+#endif
 
+#ifndef MAPBASE
 	int			m_iNumGrenades;
+#endif
 	CAI_AssaultBehavior			m_AssaultBehavior;
 	CCombineStandoffBehavior	m_StandoffBehavior;
 	CAI_FollowBehavior			m_FollowBehavior;
@@ -287,7 +353,9 @@ private:
 public:
 	int				m_iLastAnimEventHandled;
 	bool			m_fIsElite;
+#ifndef MAPBASE
 	Vector			m_vecAltFireTarget;
+#endif
 
 	int				m_iTacticalVariant;
 	int				m_iPathfindingVariant;

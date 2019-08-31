@@ -76,6 +76,9 @@ public:
 	void InputDisableMotion( inputdata_t &inputdata );
 	void InputForceDrop( inputdata_t &inputdata );
 	void InputDisableFloating( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetDebris( inputdata_t &inputdata );
+#endif
 
 	DECLARE_DATADESC();
 	
@@ -120,6 +123,9 @@ public:
 
 	// Input handlers
 	void InputExplode( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputExplodeAndRemove( inputdata_t &inputdata );
+#endif
 
 	DECLARE_DATADESC();
 private:
@@ -187,6 +193,9 @@ public:
 	void	Precache( void );
 	void	Touch( CBaseEntity *pOther );
 	void	VPhysicsCollision( int index, gamevcollisionevent_t *pEvent );
+#ifdef MAPBASE
+	bool	CanBePickedUpByPhyscannon( void );
+#endif
 	void	DoMagnetSuck( CBaseEntity *pOther );
 	void	SetConstraintGroup( IPhysicsConstraintGroup *pGroup );
 

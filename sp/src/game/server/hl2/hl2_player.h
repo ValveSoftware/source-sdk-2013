@@ -107,6 +107,13 @@ public:
 	virtual void		Splash( void );
 	virtual void 		ModifyOrAppendPlayerCriteria( AI_CriteriaSet& set );
 
+#ifdef MAPBASE
+	void				ResetAnimation( void );
+	void				SetAnimation( PLAYER_ANIM playerAnim );
+
+	virtual const char *GetOverrideStepSound( const char *pszBaseStepSoundName );
+#endif
+
 	void				DrawDebugGeometryOverlays(void);
 
 	virtual Vector		EyeDirection2D( void );
@@ -139,6 +146,11 @@ public:
 	
 	void SetFlashlightEnabled( bool bState );
 
+#ifdef MAPBASE
+	// Needed for logic_playerproxy
+	float GetFlashlightBattery();
+#endif
+
 	// Apply a battery
 	bool ApplyBattery( float powerMultiplier = 1.0 );
 
@@ -158,6 +170,17 @@ public:
 	CAI_BaseNPC *GetSquadCommandRepresentative();
 	int GetNumSquadCommandables();
 	int GetNumSquadCommandableMedics();
+
+#ifdef MAPBASE
+	void InputSquadForceSummon( inputdata_t &inputdata );
+	void InputSquadForceGoTo( inputdata_t &inputdata );
+
+	void InputEnableGeigerCounter( inputdata_t &inputdata );
+	void InputDisableGeigerCounter( inputdata_t &inputdata );
+
+	void InputShowSquadHUD( inputdata_t &inputdata );
+	void InputHideSquadHUD( inputdata_t &inputdata );
+#endif
 
 	// Locator
 	void UpdateLocatorPosition( const Vector &vecPosition );
@@ -194,6 +217,19 @@ public:
 	void				InputIgnoreFallDamageWithoutReset( inputdata_t &inputdata );
 	void				InputEnableFlashlight( inputdata_t &inputdata );
 	void				InputDisableFlashlight( inputdata_t &inputdata );
+
+#ifdef MAPBASE
+	void				InputAddArmor( inputdata_t &inputdata );
+	void				InputRemoveArmor( inputdata_t &inputdata );
+	void				InputSetArmor( inputdata_t &inputdata );
+
+	void				InputAddAuxPower( inputdata_t &inputdata );
+	void				InputRemoveAuxPower( inputdata_t &inputdata );
+	void				InputSetAuxPower( inputdata_t &inputdata );
+
+	void				InputTurnFlashlightOn( inputdata_t &inputdata );
+	void				InputTurnFlashlightOff( inputdata_t &inputdata );
+#endif
 
 	const impactdamagetable_t &GetPhysicsImpactDamageTable();
 	virtual int			OnTakeDamage( const CTakeDamageInfo &info );

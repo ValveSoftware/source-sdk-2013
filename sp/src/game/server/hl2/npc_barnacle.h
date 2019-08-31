@@ -145,6 +145,19 @@ private:
 
 
 
+#ifdef MAPBASE
+
+#if HL2_EPISODIC
+	/// Decides whether something should poison the barnacle upon eating
+	static bool IsPoisonous( CBaseEntity *pVictim );
+	const impactdamagetable_t &GetPhysicsImpactDamageTable( void );
+#endif
+
+	// Regular HL2 DLL has these now
+	void InputLetGo( inputdata_t &inputdata );
+	COutputEHANDLE m_OnGrab, m_OnRelease;
+
+#else
 #if HL2_EPISODIC
 	/// Decides whether something should poison the barnacle upon eating
 	static bool IsPoisonous( CBaseEntity *pVictim );
@@ -153,6 +166,7 @@ private:
 	COutputEHANDLE m_OnGrab, m_OnRelease;
 
 	const impactdamagetable_t &GetPhysicsImpactDamageTable( void );
+#endif
 #endif
 
 	CNetworkVar( float, m_flAltitude );

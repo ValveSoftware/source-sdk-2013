@@ -14,6 +14,9 @@
 #include "smoke_trail.h"
 #include "physics_bone_follower.h"
 #include "physics_prop_ragdoll.h"
+#ifdef MAPBASE
+#include "filters.h"
+#endif
 
 #if defined( _WIN32 )
 #pragma once
@@ -171,6 +174,10 @@ public:
 	void			InputDisableMoveToLOS( inputdata_t &inputdata );
 	void			InputExplode( inputdata_t &inputdata );
 	void			InputScaleGroundSpeed( inputdata_t &inputdata );
+
+#ifdef MAPBASE
+	void			InputSetStompFilter( inputdata_t &inputdata );
+#endif
 
 	//---------------------------------
 	// Combat
@@ -356,6 +363,10 @@ public:
 	Vector			BackFootHit( float eventtime );
 	void			StompHit( int followerBoneIndex );
 
+#ifdef MAPBASE
+	CBaseFilter		*GetStompFilter();
+#endif
+
 	void			FootFX( const Vector &origin );
 	Vector			CalculateStompHitPosition( CBaseEntity *pEnemy );
 	bool			IsLegBoneFollower( CBoneFollower *pFollower );
@@ -451,6 +462,11 @@ private:
 
 	EHANDLE			m_hCannonTarget;
 	CSimpleSimTimer	m_AttemptCannonLOSTimer;
+
+#ifdef MAPBASE
+	string_t				m_strStompFilter;
+	CHandle<CBaseFilter>	m_hStompFilter;
+#endif
 
 	float			m_flSpeedScale;
 	float			m_flTargetSpeedScale;

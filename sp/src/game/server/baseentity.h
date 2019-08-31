@@ -663,10 +663,70 @@ public:
 	void InputDisableShadow( inputdata_t &inputdata );
 	void InputEnableShadow( inputdata_t &inputdata );
 	void InputAddOutput( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputChangeVariable( inputdata_t &inputdata );
+#endif
 	void InputFireUser1( inputdata_t &inputdata );
 	void InputFireUser2( inputdata_t &inputdata );
 	void InputFireUser3( inputdata_t &inputdata );
 	void InputFireUser4( inputdata_t &inputdata );
+
+#ifdef MAPBASE
+	void InputPassUser1( inputdata_t &inputdata );
+	void InputPassUser2( inputdata_t &inputdata );
+	void InputPassUser3( inputdata_t &inputdata );
+	void InputPassUser4( inputdata_t &inputdata );
+
+	void InputFireRandomUser( inputdata_t &inputdata );
+	void InputPassRandomUser( inputdata_t &inputdata );
+
+	virtual void InputSetTarget( inputdata_t &inputdata );
+	virtual void InputSetOwnerEntity( inputdata_t &inputdata );
+
+	virtual void InputAddHealth( inputdata_t &inputdata );
+	virtual void InputRemoveHealth( inputdata_t &inputdata );
+	virtual void InputSetHealth( inputdata_t &inputdata );
+
+	virtual void InputSetMaxHealth( inputdata_t &inputdata );
+
+	void InputFireOutput( inputdata_t &inputdata );
+	void InputRemoveOutput( inputdata_t &inputdata );
+	//virtual void InputCancelOutput( inputdata_t &inputdata ); // Find a way to implement this
+	void InputReplaceOutput( inputdata_t &inputdata );
+	void InputAcceptInput( inputdata_t &inputdata );
+	virtual void InputCancelPending( inputdata_t &inputdata );
+
+	void InputFreeChildren( inputdata_t &inputdata );
+
+	void InputSetLocalOrigin( inputdata_t &inputdata );
+	void InputSetLocalAngles( inputdata_t &inputdata );
+	void InputSetLocalVelocity( inputdata_t &inputdata );
+	void InputSetLocalAngularVelocity( inputdata_t &inputdata );
+
+	void InputAddSpawnFlags( inputdata_t &inputdata );
+	void InputRemoveSpawnFlags( inputdata_t &inputdata );
+	void InputSetRenderMode( inputdata_t &inputdata );
+	void InputSetRenderFX( inputdata_t &inputdata );
+	void InputAddEffects( inputdata_t &inputdata );
+	void InputRemoveEffects( inputdata_t &inputdata );
+	void InputDrawEntity( inputdata_t &inputdata );
+	void InputUndrawEntity( inputdata_t &inputdata );
+	void InputAddEFlags( inputdata_t &inputdata );
+	void InputRemoveEFlags( inputdata_t &inputdata );
+	void InputSetMoveType( inputdata_t &inputdata );
+	void InputSetCollisionGroup( inputdata_t &inputdata );
+
+	void InputTouch( inputdata_t &inputdata );
+
+	virtual void InputKilledNPC( inputdata_t &inputdata );
+
+	void InputKillIfNotVisible( inputdata_t &inputdata );
+	void InputKillWhenNotVisible( inputdata_t &inputdata );
+
+	void InputSetThinkNull( inputdata_t &inputdata );
+
+	COutputEvent m_OnKilled;
+#endif
 
 	// Returns the origin at which to play an inputted dispatcheffect 
 	virtual void GetInputDispatchEffectPosition( const char *sInputString, Vector &pOrigin, QAngle &pAngles );
@@ -841,12 +901,28 @@ protected:
 #endif
 
 	void RemoveExpiredConcepts( void );
+#ifdef MAPBASE
+	// Some new code needs to access these functions from outside of the class.
+public:
+#endif
 	int	GetContextCount() const;						// Call RemoveExpiredConcepts to clean out expired concepts
 	const char *GetContextName( int index ) const;		// note: context may be expired
 	const char *GetContextValue( int index ) const; 	// note: context may be expired
 	bool ContextExpired( int index ) const;
 	int FindContextByName( const char *name ) const;
+#ifndef MAPBASE
 public:
+#endif
+
+#ifdef MAPBASE
+	bool	HasContext( const char *name, const char *value ) const;
+	bool	HasContext( string_t name, string_t value ) const; // NOTE: string_t version only compares pointers!
+	bool	HasContext( const char *nameandvalue ) const;
+	const char *GetContextValue( const char *contextName ) const;
+	void	RemoveContext( const char *nameandvalue );
+	void	AddContext( const char *name, const char *value, float duration = 0.0f );
+#endif
+
 	void	AddContext( const char *nameandvalue );
 
 protected:
@@ -891,6 +967,12 @@ public:
 	// Call this to do a TraceAttack on an entity, performs filtering. Don't call TraceAttack() directly except when chaining up to base class
 	void			DispatchTraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator = NULL );
 	virtual bool	PassesDamageFilter( const CTakeDamageInfo &info );
+#ifdef MAPBASE
+	// Special filter functions made for the "damage" family of filters, including filter_damage_transfer.
+	bool			PassesFinalDamageFilter( const CTakeDamageInfo &info );
+	bool			DamageFilterAllowsBlood( const CTakeDamageInfo &info );
+	bool			DamageFilterDamageMod( CTakeDamageInfo &info );
+#endif
 
 
 protected:
@@ -1049,6 +1131,10 @@ public:
 	void					SUB_CallUseToggle( void ) { this->Use( this, this, USE_TOGGLE, 0 ); }
 	void					SUB_PerformFadeOut( void );
 	virtual	bool			SUB_AllowedToFade( void );
+#ifdef MAPBASE
+	// For KillWhenNotVisible
+	void					SUB_RemoveWhenNotVisible( void );
+#endif
 
 	// change position, velocity, orientation instantly
 	// passing NULL means no change
@@ -1128,6 +1214,9 @@ public:
 #endif
 	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& set );
 	void			AppendContextToCriteria( AI_CriteriaSet& set, const char *prefix = "" );
+#ifdef MAPBASE
+	void			ReAppendContextCriteria( AI_CriteriaSet& set );
+#endif
 	void			DumpResponseCriteria( void );
 	
 private:
@@ -1448,6 +1537,11 @@ public:
 	// Callbacks for the physgun/cannon picking up an entity
 	virtual	CBasePlayer		*HasPhysicsAttacker( float dt ) { return NULL; }
 
+#ifdef MAPBASE
+	// This function needed to be extended to phys_magnet and I didn't like the dynamic_casts.
+	virtual bool			CanBePickedUpByPhyscannon() { return false; }
+#endif
+
 	// UNDONE: Make this data?
 	virtual unsigned int	PhysicsSolidMaskForEntity( void ) const;
 
@@ -1686,6 +1780,12 @@ private:
 	CNetworkVar( bool, m_bAlternateSorting );
 
 	// User outputs. Fired when the "FireInputX" input is triggered.
+#ifdef MAPBASE
+	COutputVariant m_OutUser1;
+	COutputVariant m_OutUser2;
+	COutputVariant m_OutUser3;
+	COutputVariant m_OutUser4;
+#endif
 	COutputEvent m_OnUser1;
 	COutputEvent m_OnUser2;
 	COutputEvent m_OnUser3;
