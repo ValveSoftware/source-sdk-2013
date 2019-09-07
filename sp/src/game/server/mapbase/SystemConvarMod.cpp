@@ -89,7 +89,9 @@ void CV_InitMod()
 
 void CVEnt_Precache(CMapbaseCVarModEntity *modent)
 {
-	// Maybe add some security/notification stuff here later
+	if (Q_strstr(STRING(modent->m_target), "sv_allow_logic_convar"))
+		return;
+
 	CV_InitMod();
 }
 void CVEnt_Activate(CMapbaseCVarModEntity *modent, CBaseEntity *pActivator = UTIL_GetLocalPlayer())

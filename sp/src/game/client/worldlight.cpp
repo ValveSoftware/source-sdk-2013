@@ -120,6 +120,14 @@ void CWorldLights::Clear()
 //-----------------------------------------------------------------------------
 bool CWorldLights::Init()
 {
+#ifdef MAPBASE
+	// Moved to its own clientside interface after I found out it was possible
+	// (still have no idea how or why this works)
+	if ((g_pEngineServer = serverengine) == NULL)
+		return false;
+
+	return true;
+#else
 	factorylist_t factories;
 	FactoryList_Retrieve(factories);
 
@@ -127,6 +135,7 @@ bool CWorldLights::Init()
 		return false;
 
 	return true;
+#endif
 }
 
 //-----------------------------------------------------------------------------

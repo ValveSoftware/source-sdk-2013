@@ -255,7 +255,8 @@ void CGameEnd::InputGameEnd( inputdata_t &inputdata )
 #ifdef MAPBASE
 void CGameEnd::InputGameEndSP( inputdata_t &inputdata )
 {
-	// Things like mapping competitions should operate with given strings for specific endings (e.g. background maps).
+	// This basically just acts as a shortcut for the "startupmenu force"/disconnection command.
+	// Things like mapping competitions could change this code based on given strings for specific endings (e.g. background maps).
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
 	if (pPlayer)
 		engine->ClientCommand(pPlayer->edict(), "startupmenu force");

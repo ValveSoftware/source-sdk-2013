@@ -219,6 +219,9 @@ IEngineReplay *g_pEngineReplay = NULL;
 IEngineClientReplay *g_pEngineClientReplay = NULL;
 IReplaySystem *g_pReplay = NULL;
 #endif
+#ifdef MAPBASE
+IVEngineServer	*serverengine = NULL;
+#endif
 
 IHaptics* haptics = NULL;// NVNT haptics system interface singleton
 
@@ -946,6 +949,15 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	if ( IsPC() && (g_pEngineReplay = (IEngineReplay *)appSystemFactory( ENGINE_REPLAY_INTERFACE_VERSION, NULL )) == NULL )
 		return false;
 	if ( IsPC() && (g_pEngineClientReplay = (IEngineClientReplay *)appSystemFactory( ENGINE_REPLAY_CLIENT_INTERFACE_VERSION, NULL )) == NULL )
+		return false;
+#endif
+
+#ifdef MAPBASE
+	// Implements the server engine interface on the client.
+	// I'm extremely confused as to how this is even possible, but Saul Rennison's worldlight did it.
+	// If it's really this possible, why wasn't it available before?
+	// Hopefully there's no SP-only magic going on here, because I want to use this for RPC.
+	if ( (serverengine = (IVEngineServer*)appSystemFactory(INTERFACEVERSION_VENGINESERVER, NULL )) == NULL )
 		return false;
 #endif
 

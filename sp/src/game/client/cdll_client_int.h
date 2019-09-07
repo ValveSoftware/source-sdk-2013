@@ -110,6 +110,9 @@ extern IReplayManager *g_pReplayManager;
 extern IReplayScreenshotManager *g_pReplayScreenshotManager;
 extern IEngineReplay *g_pEngineReplay;
 extern IEngineClientReplay *g_pEngineClientReplay;
+#ifdef MAPBASE
+extern IVEngineServer *serverengine;
+#endif
 
 //=============================================================================
 // HPE_BEGIN

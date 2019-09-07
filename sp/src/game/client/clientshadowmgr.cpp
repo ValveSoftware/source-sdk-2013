@@ -1451,9 +1451,6 @@ void CClientShadowMgr::InitDepthTextureShadows()
 	VPROF_BUDGET( "CClientShadowMgr::InitDepthTextureShadows", VPROF_BUDGETGROUP_SHADOW_DEPTH_TEXTURING );
 
 #if defined(MAPBASE) //&& !defined(ASW_PROJECTED_TEXTURES)
-	// SAUL: start benchmark timer
-	//CFastTimer timer;
-	//timer.Start();
  	// SAUL: set m_nDepthTextureResolution to the depth resolution we want
 	m_nDepthTextureResolution = r_flashlightdepthres.GetInt();
 #endif
@@ -1525,11 +1522,6 @@ void CClientShadowMgr::InitDepthTextureShadows()
 
 		materials->EndRenderTargetAllocation();
 	}
-
-#if defined(MAPBASE) && !defined(ASW_PROJECTED_TEXTURES)
-	//timer.End();
-	//DevMsg("InitDepthTextureShadows took %.2f msec\n", timer.GetDuration().GetMillisecondsF());
-#endif
 }
 
 void CClientShadowMgr::ShutdownDepthTextureShadows() 

@@ -717,9 +717,9 @@ bool CAI_BaseNPC::PassesDamageFilter( const CTakeDamageInfo &info )
 		if ( IServerVehicle *pVehicle = info.GetAttacker()->GetServerVehicle() )
 		{
 			m_fNoDamageDecal = true;
-			if (pVehicle->GetPassenger() && pVehicle->GetPassenger()->IRelationType(this) != D_LI)
+			if (pVehicle->GetPassenger() && pVehicle->GetPassenger()->IRelationType(this) == D_LI)
 			{
-				// MAPBASE FIXME: Players could probably bail from their cars to kill NPCs with this!
+				// Players could bail from their cars to kill NPCs with this!
 				// Is there a "last passenger" variable we could use?
 				return false;
 			}
@@ -4571,6 +4571,20 @@ void CAI_BaseNPC::SetState( NPC_STATE State )
 	// Notify the character that its state has changed.
 	if( fNotifyChange )
 	{
+#ifdef MAPBASE
+		// Doing OnStateChange here instead of in OnStateChange() to prevent override shenanigans.
+
+		// Assume our enemy is the activator.
+		// States that don't have an enemy have a NULL activator, which is fine.
+		CBaseEntity *pActivator = GetEnemy();
+		
+		// If we entered a script, use the scripted_sequence as the activator
+		if (m_NPCState == NPC_STATE_SCRIPT)
+			pActivator = m_hCine;
+
+		m_OnStateChange.Set(m_NPCState, pActivator, this);
+#endif
+
 		OnStateChange( OldState, m_NPCState );
 	}
 }
@@ -11642,6 +11656,8 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetHintGroup", InputSetHintGroup ),
 
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetThinkNPC", InputSetThinkNPC ),
+
+	DEFINE_OUTPUT( m_OnStateChange,	"OnStateChange" ),
 #endif
 
 	// Function pointers
@@ -14091,17 +14107,6 @@ void CAI_BaseNPC::ParseScriptedNPCInteractions( void )
 					else
 					{
 						szCriteria = UTIL_VarArgs("%s,%s:%s", szCriteria, szName, szValue);
-
-						/*
-						ResponseContext_t context;
-						context.m_iszName = AllocPooledString(szName);
-						context.m_iszValue = AllocPooledString(szValue);
-						context.m_fExpirationTime = 0.0;
-
-						DevMsg("ADDING CONTEXT: \"%s, %s\"\n", szName, szValue);
-
-						sInteraction.MiscCriteria.AddToTail(context);
-						*/
 					}
 
 					pCurNode = pCurNode->GetNextKey();

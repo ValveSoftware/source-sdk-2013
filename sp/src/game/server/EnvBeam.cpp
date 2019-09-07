@@ -50,8 +50,8 @@ public:
 	void InputStrikeOnce( inputdata_t &inputdata );
 #ifdef MAPBASE
 	void InputAmplitude( inputdata_t &inputdata );
-	void InputSetStartEntity( inputdata_t &inputdata ) { m_iszStartEntity = inputdata.value.StringID(); }
-	void InputSetEndEntity( inputdata_t &inputdata ) { m_iszEndEntity = inputdata.value.StringID(); }
+	void InputSetStartEntity( inputdata_t &inputdata ) { m_iszStartEntity = inputdata.value.StringID(); BeamUpdateVars(); }
+	void InputSetEndEntity( inputdata_t &inputdata ) { m_iszEndEntity = inputdata.value.StringID(); BeamUpdateVars(); }
 #endif
 
 	void TurnOn( void );

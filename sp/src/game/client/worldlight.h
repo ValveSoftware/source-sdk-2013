@@ -27,6 +27,9 @@ public:
 	// Find the brightest light source at a point
 	//-------------------------------------------------------------------------
 	bool GetBrightestLightSource(const Vector &vecPosition, Vector &vecLightPos, Vector &vecLightBrightness);
+#ifdef MAPBASE
+	bool GetCumulativeLightSource(const Vector &vecPosition, Vector &vecLightPos, float flMinBrightnessSqr);
+#endif
 
 	// CAutoGameSystem overrides
 public:

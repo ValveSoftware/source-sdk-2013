@@ -1673,7 +1673,7 @@ bool CNPC_LabTurret::UpdateFacing( void )
 
 	// Update pitch
 	// Pitch is faster than the others, but it also kind of jiggles when targetting.
-	float flDiff = AngleNormalize( UTIL_ApproachAngle(  vecGoalLocalAngles.x, 0.0, 0.15f * MaxYawSpeed() ) );
+	float flDiff = AngleNormalize( UTIL_ApproachAngle(  vecGoalLocalAngles.x, 0.0, (GetActivity() != ACT_CEILING_TURRET_CLOSE ? 0.15f : 0.1f) * MaxYawSpeed() ) );
 	
 	SetPoseParameter( m_poseAim_Pitch, GetPoseParameter( m_poseAim_Pitch ) + ( flDiff * 2.0f ) );
 

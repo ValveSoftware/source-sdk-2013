@@ -72,11 +72,9 @@ BEGIN_VS_SHADER( SDK_DecalModulate_dx9,
 	SHADER_DRAW
 	{
 #ifdef MAPBASE
-		// TEST 1 - Check game DLL stuff since the issue is that mod2x is modding flashlight brightness because it's not gray
-		// 
-		// NOTE: Maybe the decals not appearing is a SORTING issue!
-		// The flashlight part is transparent and overlaid on top of the decal!
-		// 
+		// It is now believed the decals not appearing is a sorting issue.
+		// The flashlight part is transparent and overlaid on top of the decal.
+		// When a fix is found, this flashlight code could be removed.
 		bool bHasFlashlight = UsingFlashlight( params );
 #endif
 		SHADOW_STATE

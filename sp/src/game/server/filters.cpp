@@ -1431,13 +1431,13 @@ public:
 
 	bool RedirectToFilter( CBaseEntity *pCaller, CBaseEntity *pEntity )
 	{
-		if (GetTargetFilter())
+		if (GetTargetFilter() && pEntity)
 		{
 			CBaseFilter *pFilter = static_cast<CBaseFilter*>(GetTargetFilter());
 			return pFilter->PassesFilter(pCaller, pEntity);
 		}
 
-		return false;
+		return pEntity != NULL;
 	}
 
 	bool RedirectToDamageFilter( CBaseEntity *pCaller, const CTakeDamageInfo &info )
@@ -1448,7 +1448,7 @@ public:
 			return pFilter->PassesDamageFilter(pCaller, info);
 		}
 
-		return false;
+		return true;
 	}
 
 	virtual bool PassesDamageFilterImpl( CBaseEntity *pCaller, const CTakeDamageInfo &info )

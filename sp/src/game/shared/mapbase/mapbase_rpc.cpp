@@ -1,7 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: Carries the Mapbase CAutoGameSystem that loads manifest among other things.
-//			Also includes code that does not fit anywhere else.
+// Purpose: Mapbase's RPC implementation.
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -12,12 +11,15 @@
 
 #ifdef STEAM_RPC
 #include "clientsteamcontext.h"
+#include "steam/steamclientpublic.h"
 #endif
 
 #ifdef DISCORD_RPC
 #include "discord_rpc.h"
 #include <time.h>
 #endif
+
+#include "c_playerresource.h"
 
 #endif
 
@@ -231,6 +233,24 @@ END_DATADESC()
 static ConVar cl_discord_appid("cl_discord_appid", "582595088719413250", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
 static int64_t startTimestamp = time(0);
 
+//
+
+int MapbaseRPC_GetPlayerCount()
+{
+	int iNumPlayers = 0;
+
+	if (g_PR)
+	{
+		for (; iNumPlayers <= gpGlobals->maxClients; iNumPlayers++)
+		{
+			if (!g_PR->IsConnected( iNumPlayers ))
+				break;
+		}
+	}
+
+	return iNumPlayers;
+}
+
 //-----------------------------------------------------------------------------
 // Discord RPC handlers
 //-----------------------------------------------------------------------------
@@ -328,11 +348,6 @@ void MapbaseRPC_Update( int iRPCMask, int iType, const char *pMapName )
 #ifdef STEAM_RPC
 void MapbaseRPC_UpdateSteam( int iType, const char *pMapName )
 {
-	if (!steamapicontext->SteamFriends())
-	{
-		DevMsg("No Friends! :(\n");
-	}
-
 	const char *pszStatus = NULL;
 
 	if (g_Metadata[RPC_STEAM] != NULL)
@@ -376,11 +391,33 @@ void MapbaseRPC_UpdateSteam( int iType, const char *pMapName )
 		}
 	}
 
-	DevMsg("Updating Steam\n");
+	DevMsg( "Updating Steam\n" );
+
 	if (pszStatus)
 	{
 		steamapicontext->SteamFriends()->SetRichPresence( "gamestatus", pszStatus );
 		steamapicontext->SteamFriends()->SetRichPresence( "steam_display", "#SteamRPC_Status" );
+
+		if (gpGlobals->maxClients > 1)
+		{
+			// Players in server
+			const CSteamID *serverID = serverengine->GetGameServerSteamID();
+			if (serverID)
+			{
+				char szGroupID[32];
+				Q_snprintf(szGroupID, sizeof(szGroupID), "%i", serverID->GetAccountID());
+
+				char szGroupSize[8];
+				Q_snprintf(szGroupSize, sizeof(szGroupSize), "%i", MapbaseRPC_GetPlayerCount());
+
+				steamapicontext->SteamFriends()->SetRichPresence( "steam_player_group", szGroupID );
+				steamapicontext->SteamFriends()->SetRichPresence( "steam_player_group_size", szGroupSize );
+			}
+			else
+			{
+				DevWarning("Steam RPC cannot update player count (no server ID)\n");
+			}
+		}
 	}
 }
 #endif
@@ -401,23 +438,29 @@ void MapbaseRPC_UpdateSteam( int iType, const char *pMapName )
 
 void MapbaseRPC_GetDiscordParameters( DiscordRichPresence &discordPresence, int iType, const char *pMapName )
 {
+	static char details[128];
+	static char state[128];
+
+	details[0] = '\0';
+	state[0] = '\0';
+
 	if (g_Metadata[RPC_DISCORD] != NULL)
 	{
 		C_MapbaseMetadata *pMetadata = static_cast<C_MapbaseMetadata*>(g_Metadata[RPC_DISCORD].Get());
 
 		if (pMetadata->m_iszRPCState[0] != NULL)
-			discordPresence.state = pMetadata->m_iszRPCState;
+			Q_strncpy( state, pMetadata->m_iszRPCState, sizeof(state) );
 		else
-			discordPresence.state = g_iszGameName;
+			Q_strncpy( state, g_iszGameName, sizeof(state) );
 
 		if (pMetadata->m_iszRPCDetails[0] != NULL)
-			discordPresence.details = pMetadata->m_iszRPCDetails;
+			Q_strncpy( details, pMetadata->m_iszRPCDetails, sizeof(details) );
 		else
 		{
 			if (engine->IsLevelMainMenuBackground())
-				discordPresence.details = VarArgs("Main Menu (%s)", pMapName ? pMapName : "N/A");
+				Q_snprintf( details, sizeof(details), "Main Menu (%s)", pMapName ? pMapName : "N/A" );
 			else
-				discordPresence.details = VarArgs("Map: %s", pMapName ? pMapName : "N/A");
+				Q_snprintf( details, sizeof(details), "%s", pMapName ? pMapName : "N/A" );
 		}
 	}
 	else
@@ -427,8 +470,8 @@ void MapbaseRPC_GetDiscordParameters( DiscordRichPresence &discordPresence, int 
 			case RPCSTATE_INIT:
 			case RPCSTATE_LEVEL_SHUTDOWN:
 				{
-					discordPresence.state = g_iszGameName;
-					discordPresence.details = "Main Menu";
+					Q_strncpy( state, g_iszGameName, sizeof(state) );
+					Q_strncpy( details, "Main Menu", sizeof(details) );
 				} break;
 			case RPCSTATE_LEVEL_INIT:
 			default:
@@ -436,17 +479,25 @@ void MapbaseRPC_GetDiscordParameters( DiscordRichPresence &discordPresence, int 
 					// Say we're in the main menu if it's a background map
 					if (engine->IsLevelMainMenuBackground())
 					{
-						discordPresence.state = g_iszGameName;
-						discordPresence.details = VarArgs("Main Menu (%s)", pMapName ? pMapName : "N/A");
+						Q_snprintf( details, sizeof(details), "Main Menu (%s)", pMapName ? pMapName : "N/A" );
 					}
 					else
 					{
-						discordPresence.state = g_iszGameName;
-						discordPresence.details = VarArgs("Map: %s", pMapName ? pMapName : "N/A");
+						Q_snprintf( details, sizeof(details), "%s", pMapName ? pMapName : "N/A" );
 					}
 				} break;
 		}
 	}
+
+	if (gpGlobals->maxClients > 1)
+	{
+		Q_snprintf( details, sizeof(details), "%s (%i/%i)", details, MapbaseRPC_GetPlayerCount(), gpGlobals->maxClients );
+	}
+
+	if (state[0] != '\0')
+		discordPresence.state = state;
+	if (details[0] != '\0')
+		discordPresence.details = details;
 
 	// Generic Mapbase logo. Specific to the Mapbase Discord application.
 	discordPresence.smallImageKey = "mb_logo_general";
