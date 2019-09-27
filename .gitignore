@@ -26,6 +26,7 @@ ipch
 *.xcodeproj/
 obj*/
 !devtools/*.mak
+sp/src/devtools/makefile_base_posix.mak.link
 !utils/smdlexp/smdlexp.mak
 
 # Specific Source build products
