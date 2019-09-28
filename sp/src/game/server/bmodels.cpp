@@ -1392,6 +1392,9 @@ public:
 
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetFilter( inputdata_t &inputdata );
+#endif
 
 private:
 
@@ -1414,6 +1417,9 @@ BEGIN_DATADESC( CFuncVPhysicsClip )
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "SetFilter", InputSetFilter ),
+#endif
 
 END_DATADESC()
 
@@ -1485,3 +1491,19 @@ void CFuncVPhysicsClip::InputDisable( inputdata_t &inputdata )
 	VPhysicsGetObject()->EnableCollisions(false);
 	m_bDisabled = true;
 }
+
+#ifdef MAPBASE
+void CFuncVPhysicsClip::InputSetFilter( inputdata_t &inputdata )
+{
+	if (inputdata.value.Entity())
+	{
+		m_iFilterName = inputdata.value.Entity()->GetEntityName();
+		m_hFilter = dynamic_cast<CBaseFilter *>(inputdata.value.Entity().Get());
+	}
+	else
+	{
+		m_iFilterName = NULL_STRING;
+		m_hFilter = NULL;
+	}
+}
+#endif

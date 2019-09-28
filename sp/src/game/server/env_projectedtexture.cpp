@@ -351,6 +351,14 @@ void CEnvProjectedTexture::Activate( void )
 	SetThink( &CEnvProjectedTexture::InitialThink );
 	SetNextThink( gpGlobals->curtime + 0.1f );
 
+#ifdef MAPBASE
+	if (m_bProjectedTextureVersion == 0 && GetMoveParent())
+	{
+		// Pre-Mapbase projected textures should use the VDC parenting fix.
+		m_bAlwaysUpdate = true;
+	}
+#endif
+
 	BaseClass::Activate();
 }
 

@@ -104,6 +104,16 @@ BEGIN_DATADESC( CBounceBomb )
 	DEFINE_FIELD( m_flTimeGrabbed, FIELD_TIME ),
 	DEFINE_FIELD( m_iMineState, FIELD_INTEGER ),
 
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bFilterExclusive, FIELD_BOOLEAN, "FilterExclusive" ),
+	DEFINE_KEYFIELD( m_iszEnemyFilter, FIELD_STRING, "enemyfilter" ),
+	DEFINE_FIELD( m_hEnemyFilter, FIELD_EHANDLE ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetEnemyFilter", InputSetEnemyFilter ),
+	DEFINE_KEYFIELD( m_iszFriendFilter, FIELD_STRING, "friendfilter" ),
+	DEFINE_FIELD( m_hFriendFilter, FIELD_EHANDLE ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetFriendFilter", InputSetFriendFilter ),
+#endif
+
 	// Physics Influence
 	DEFINE_FIELD( m_hPhysicsAttacker, FIELD_EHANDLE ),
 	DEFINE_FIELD( m_flLastPhysicsInfluenceTime, FIELD_TIME ),
@@ -145,6 +155,13 @@ void CBounceBomb::Precache()
 
 	gm_iszFloorTurretClassname = AllocPooledString( "npc_turret_floor" );
 	gm_iszGroundTurretClassname = AllocPooledString( "npc_turret_ground" );
+
+#ifdef MAPBASE
+	if (m_iszEnemyFilter != NULL_STRING)
+		m_hEnemyFilter = dynamic_cast<CBaseFilter*>(gEntList.FindEntityByName(NULL, STRING(m_iszEnemyFilter), this));
+	if (m_iszFriendFilter != NULL_STRING)
+		m_hFriendFilter = dynamic_cast<CBaseFilter*>(gEntList.FindEntityByName( NULL, STRING(m_iszFriendFilter), this ));
+#endif
 }
 
 //---------------------------------------------------------
@@ -877,6 +894,27 @@ float CBounceBomb::FindNearestNPC()
 			if( pNPC->EyePosition().z < GetAbsOrigin().z )
 				continue;
 
+#ifdef MAPBASE
+			bool bPassesFilter = false;
+			if (m_hEnemyFilter || m_hFriendFilter)
+			{
+				// If we have an enemy or friend filter, always accept those who pass it
+				// If we're only supposed to be using filters, only find entities that pass one of them
+
+				if (m_hEnemyFilter && m_hEnemyFilter->PassesFilter( this, pNPC ))
+					bPassesFilter = true;
+
+				else if (m_hFriendFilter && m_hFriendFilter->PassesFilter( this, pNPC ))
+					bPassesFilter = true;
+
+				if (m_bFilterExclusive && !bPassesFilter)
+					continue;
+			}
+			
+			if (!bPassesFilter)
+			{
+#endif
+
 			// Disregard things that want to be disregarded
 			if( pNPC->Classify() == CLASS_NONE )
 				continue; 
@@ -888,6 +926,10 @@ float CBounceBomb::FindNearestNPC()
 			// Disregard turrets
 			if( pNPC->m_iClassname == gm_iszFloorTurretClassname || pNPC->m_iClassname == gm_iszGroundTurretClassname )
 				continue;
+
+#ifdef MAPBASE
+			}
+#endif
 
 
 			float flDist = (GetAbsOrigin() - pNPC->GetAbsOrigin()).LengthSqr();
@@ -925,9 +967,28 @@ float CBounceBomb::FindNearestNPC()
 
 	if( pPlayer && !(pPlayer->GetFlags() & FL_NOTARGET) )
 	{
+#ifdef MAPBASE
+		bool bPassesFilter = true;
+		if ((m_hEnemyFilter || m_hFriendFilter) && m_bFilterExclusive)
+		{
+			// If we have an enemy or friend filter, and that's all we're supposed to be using,
+			// don't accept the player if they don't pass our filters
+
+			if (m_hEnemyFilter && !m_hEnemyFilter->PassesFilter( this, pPlayer ))
+				bPassesFilter = false;
+
+			else if (m_hFriendFilter && !m_hFriendFilter->PassesFilter( this, pPlayer ))
+				bPassesFilter = false;
+		}
+#endif
+
 		float flDist = (pPlayer->GetAbsOrigin() - GetAbsOrigin() ).LengthSqr();
 
+#ifdef MAPBASE
+		if( flDist < flNearest && FVisible( pPlayer, MASK_SOLID_BRUSHONLY ) && bPassesFilter )
+#else
 		if( flDist < flNearest && FVisible( pPlayer, MASK_SOLID_BRUSHONLY ) )
+#endif
 		{
 			flNearest = flDist;
 			SetNearestNPC( pPlayer );
@@ -943,8 +1004,9 @@ float CBounceBomb::FindNearestNPC()
 			if( m_bFoeNearest )
 			{
 				// Changing state to where a friend is nearest.
-
+#ifndef MAPBASE
 				if( IsFriend( m_hNearestNPC ) )
+#endif
 				{
 					// Friend
 					UpdateLight( true, 0, 255, 0, 190 );
@@ -970,6 +1032,14 @@ float CBounceBomb::FindNearestNPC()
 //---------------------------------------------------------
 bool CBounceBomb::IsFriend( CBaseEntity *pEntity )
 {
+#ifdef MAPBASE
+	if (m_hFriendFilter && m_hFriendFilter->PassesFilter(this, pEntity))
+		return true;
+
+	if (m_hEnemyFilter && m_hEnemyFilter->PassesFilter(this, pEntity))
+		return false;
+#endif
+
 	int classify = pEntity->Classify();
 	bool bIsCombine = false;
 
@@ -1234,6 +1304,22 @@ void CBounceBomb::InputDisarm( inputdata_t &inputdata )
 }
 
 #ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBounceBomb::InputSetEnemyFilter( inputdata_t &inputdata )
+{
+	m_iszEnemyFilter = inputdata.value.StringID();
+	m_hEnemyFilter = dynamic_cast<CBaseFilter*>(gEntList.FindEntityByName( NULL, STRING(m_iszEnemyFilter), this ));
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBounceBomb::InputSetFriendFilter( inputdata_t &inputdata )
+{
+	m_iszFriendFilter = inputdata.value.StringID();
+	m_hFriendFilter = dynamic_cast<CBaseFilter*>(gEntList.FindEntityByName( NULL, STRING(m_iszFriendFilter), this ));
+}
+
 //---------------------------------------------------------
 //---------------------------------------------------------
 void CBounceBomb::InputBounce( inputdata_t &inputdata )

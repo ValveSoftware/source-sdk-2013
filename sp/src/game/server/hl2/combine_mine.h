@@ -24,6 +24,9 @@ class CSoundPatch;
 #define BOUNCEBOMB_EXPLODE_RADIUS	125.0
 #define BOUNCEBOMB_EXPLODE_DAMAGE	150.0
 #include "player_pickup.h"
+#ifdef MAPBASE
+#include "filters.h"
+#endif
 
 class CBounceBomb : public CBaseAnimating, public CDefaultPlayerPickupVPhysics
 {
@@ -125,6 +128,19 @@ private:
 	float					m_flTimeGrabbed;
 	IPhysicsConstraint		*m_pConstraint;
 	int						m_iMineState;
+
+#ifdef MAPBASE
+	// Makes the filters the exclusive factor in determining friend/foe
+	bool		m_bFilterExclusive;
+
+	string_t	m_iszEnemyFilter;
+	CHandle<CBaseFilter>	m_hEnemyFilter;
+	void InputSetEnemyFilter( inputdata_t &inputdata );
+
+	string_t	m_iszFriendFilter;
+	CHandle<CBaseFilter>	m_hFriendFilter;
+	void InputSetFriendFilter( inputdata_t &inputdata );
+#endif
 
 	COutputEvent	m_OnPulledUp;
 	void InputDisarm( inputdata_t &inputdata );

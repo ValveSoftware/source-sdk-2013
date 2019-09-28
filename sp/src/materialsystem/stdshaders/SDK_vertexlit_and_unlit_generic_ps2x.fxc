@@ -169,13 +169,17 @@ const float3 g_DetailTint : register( c10 );
 
 
 // Calculate unified fog
-float CalcPixelFogFactorConst( float fPixelFogType, const float4 fogParams, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ )
+float CalcPixelFogFactorConst( float fPixelFogType, const float4 fogParams, const float3 vEyePos, const float3 vWorldPos, const float flProjPosZ )
 {
-	float flDepthBelowWater = fPixelFogType*fogParams.y - flWorldPosZ;  // above water = negative, below water = positive
+	/*float flDepthBelowWater = fPixelFogType*fogParams.y - flWorldPosZ;  // above water = negative, below water = positive
 	float flDepthBelowEye = fPixelFogType*flEyePosZ - flWorldPosZ;		// above eye = negative, below eye = positive
 	// if fPixelFogType == 0, then flDepthBelowWater == flDepthBelowEye and frac will be 1
 	float frac = (flDepthBelowEye == 0) ? 1 : saturate(flDepthBelowWater/flDepthBelowEye);
-	return saturate( min(fogParams.z, flProjPosZ * fogParams.w * frac - fogParams.x) );
+	return saturate( min(fogParams.z, flProjPosZ * fogParams.w * frac - fogParams.x) );*/
+
+	float fRangeFog = CalcRangeFogFactorNonFixedFunction( vWorldPos, vEyePos, fogParams.z, fogParams.x, fogParams.w );
+	float fHeightFog = CalcWaterFogAlpha( fogParams.y, vEyePos.z, vWorldPos.z, flProjPosZ, fogParams.w );
+	return lerp( fRangeFog, fHeightFog, fPixelFogType );
 }
 
 // Blend both types of Fog and lerp to get result
@@ -474,7 +478,7 @@ float4 main( PS_INPUT i ) : COLOR
 	#endif
 	return FinalOutput( float4( result.rgb, alpha ), fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR, false, i.projPos.z );
 #else // 2b or higher
-	float fogFactor = CalcPixelFogFactor( g_fPixelFogType, g_FogParams, g_EyePos.xyz, i.worldPos_projPosZ.xyz, i.projPos.z );
+	float fogFactor = CalcPixelFogFactorConst( g_fPixelFogType, g_FogParams, g_EyePos.xyz, i.worldPos_projPosZ.xyz, i.projPos.z );
 	alpha = lerp( alpha, fogFactor, g_fWriteWaterFogToDestAlpha ); // Use the fog factor if it's height fog
 	return FinalOutputConst( float4( result.rgb, alpha ), fogFactor, g_fPixelFogType, TONEMAP_SCALE_LINEAR, g_fWriteDepthToAlpha, i.projPos.z );
 #endif

@@ -1017,7 +1017,7 @@ int CNPC_PlayerCompanion::SelectScheduleCombat()
 		//Msg("Time: %f   Dist: %f\n", flTime, flDist );
 		if ( flTime <= COMBINE_GRENADE_FLUSH_TIME && flDist <= COMBINE_GRENADE_FLUSH_DIST && CanGrenadeEnemy( false ) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
 		{
-			return SCHED_RANGE_ATTACK2;
+			return SCHED_PC_RANGE_ATTACK2;
 		}
 	}
 #endif
@@ -1222,7 +1222,7 @@ int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType )
 			{
 				if ( OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
 				{
-					return SCHED_RANGE_ATTACK2;
+					return SCHED_PC_RANGE_ATTACK2;
 				}
 			}
 

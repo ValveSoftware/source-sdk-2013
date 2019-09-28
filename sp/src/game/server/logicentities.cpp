@@ -3245,10 +3245,26 @@ class CLogicCollisionPair : public CLogicalEntity
 	DECLARE_CLASS( CLogicCollisionPair, CLogicalEntity );
 public:
 
+#ifdef MAPBASE
+	// !activator, !caller, etc. support
+	void EnableCollisions( bool bEnable, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL )
+	{
+		IPhysicsObject *pPhysics0 = NULL;
+		IPhysicsObject *pPhysics1 = NULL;
+
+		CBaseEntity *pEntity0 = gEntList.FindEntityByName( NULL, m_nameAttach1, this, pActivator, pCaller );
+		if (pEntity0)
+			pPhysics0 = pEntity0->VPhysicsGetObject();
+
+		CBaseEntity *pEntity1 = gEntList.FindEntityByName( NULL, m_nameAttach2, this, pActivator, pCaller );
+		if (pEntity1)
+			pPhysics1 = pEntity1->VPhysicsGetObject();
+#else
 	void EnableCollisions( bool bEnable )
 	{
 		IPhysicsObject *pPhysics0 = FindPhysicsObjectByNameOrWorld( m_nameAttach1, this );
 		IPhysicsObject *pPhysics1 = FindPhysicsObjectByNameOrWorld( m_nameAttach2, this );
+#endif
 
 		// need two different objects to do anything
 		if ( pPhysics0 && pPhysics1 && pPhysics0 != pPhysics1 )
@@ -3283,14 +3299,22 @@ public:
 	{
 		if ( m_succeeded && m_disabled )
 			return;
+#ifdef MAPBASE
+		EnableCollisions( false, inputdata.pActivator, inputdata.pCaller );
+#else
 		EnableCollisions( false );
+#endif
 	}
 
 	void InputEnableCollisions( inputdata_t &inputdata )
 	{
 		if ( m_succeeded && !m_disabled )
 			return;
+#ifdef MAPBASE
+		EnableCollisions( true, inputdata.pActivator, inputdata.pCaller );
+#else
 		EnableCollisions( true );
+#endif
 	}
 	// If Activate() becomes PostSpawn()
 	//void OnRestore() { Activate(); }
@@ -6390,7 +6414,15 @@ void CMathGenerate::GenerateLinearRamp()
 	// CLinearRampProxy in mathproxy.cpp
 
 	// Param1 = rate
-	m_Value.Set( m_flParam1 * gpGlobals->curtime + m_Value.Get(), NULL, this );
+	float flVal = m_flParam1 * gpGlobals->curtime + m_Value.Get();
+
+	// clamp
+	if (flVal < m_flMin)
+		flVal = m_flMin;
+	else if (flVal > m_flMax)
+		flVal = m_flMax;
+
+	m_Value.Set( flVal, NULL, this );
 
 	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
 }

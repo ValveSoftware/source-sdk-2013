@@ -1044,6 +1044,9 @@ public:
 	float m_flTimeoutDuration;	// Number of seconds after start touch to fire anyway
 	bool m_bTimeoutFired;		// True if the OnTimeout output fired since the last StartTouch.
 	EHANDLE m_hActivator;		// The entity that triggered us.
+#ifdef MAPBASE
+	bool m_bUseLOS;				// Makes lookers use LOS calculations in addition to viewcone calculations
+#endif
 
 	void Spawn( void );
 	void Touch( CBaseEntity *pOther );
@@ -1070,6 +1073,9 @@ BEGIN_DATADESC( CTriggerLook )
 	DEFINE_KEYFIELD( m_flTimeoutDuration, FIELD_FLOAT, "timeout" ),
 	DEFINE_FIELD( m_bTimeoutFired, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_hActivator, FIELD_EHANDLE ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bUseLOS, FIELD_BOOLEAN, "UseLOS" ),
+#endif
 
 	DEFINE_OUTPUT( m_OnTimeout, "OnTimeout" ),
 
@@ -1192,7 +1198,11 @@ void CTriggerLook::Touch(CBaseEntity *pOther)
 		VectorNormalize(vTargetDir);
 
 		float fDotPr = DotProduct(vLookDir,vTargetDir);
+#ifdef MAPBASE
+		if (fDotPr > m_flFieldOfView && (!m_bUseLOS || pOther->FVisible(pOther)))
+#else
 		if (fDotPr > m_flFieldOfView)
+#endif
 		{
 			// Is it the first time I'm looking?
 			if (m_flLookTimeTotal == -1)
@@ -4428,6 +4438,10 @@ int CTriggerImpact::DrawDebugTextOverlays(void)
 
 const int SF_TRIGGER_MOVE_AUTODISABLE				= 0x80;		// disable auto movement
 const int SF_TRIGGER_AUTO_DUCK						= 0x800;	// Duck automatically
+#ifdef MAPBASE
+const int SF_TRIGGER_AUTO_WALK						= 0x1000;
+const int SF_TRIGGER_DISABLE_JUMP					= 0x2000;
+#endif
 
 class CTriggerPlayerMovement : public CBaseTrigger
 {
@@ -4485,6 +4499,18 @@ void CTriggerPlayerMovement::StartTouch( CBaseEntity *pOther )
 		pPlayer->ForceButtons( IN_DUCK );
 	}
 
+#ifdef MAPBASE
+	if ( HasSpawnFlags( SF_TRIGGER_AUTO_WALK ) )
+	{
+		pPlayer->ForceButtons( IN_WALK );
+	}
+
+	if ( HasSpawnFlags( SF_TRIGGER_DISABLE_JUMP ) )
+	{
+		pPlayer->DisableButtons( IN_JUMP );
+	}
+#endif
+
 	// UNDONE: Currently this is the only operation this trigger can do
 	if ( HasSpawnFlags(SF_TRIGGER_MOVE_AUTODISABLE) )
 	{
@@ -4506,6 +4532,18 @@ void CTriggerPlayerMovement::EndTouch( CBaseEntity *pOther )
 	{
 		pPlayer->UnforceButtons( IN_DUCK );
 	}
+
+#ifdef MAPBASE
+	if ( HasSpawnFlags( SF_TRIGGER_AUTO_WALK ) )
+	{
+		pPlayer->UnforceButtons( IN_WALK );
+	}
+
+	if ( HasSpawnFlags( SF_TRIGGER_DISABLE_JUMP ) )
+	{
+		pPlayer->EnableButtons( IN_JUMP );
+	}
+#endif
 
 	if ( HasSpawnFlags(SF_TRIGGER_MOVE_AUTODISABLE) )
 	{

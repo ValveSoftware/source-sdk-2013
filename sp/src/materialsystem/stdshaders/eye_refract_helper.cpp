@@ -437,7 +437,7 @@ void Draw_Eyes_Refract_Internal( CBaseVSShader *pShader, IMaterialVar** params, 
 			{
 				params[info.m_nEntityOrigin]->GetVecValue( timeVec, 3 );
 			}
-			pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_6, timeVec, 1 );
+			pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_5, timeVec, 1 );
 		}
 	}
 	pShader->Draw();

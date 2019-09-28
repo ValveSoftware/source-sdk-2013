@@ -141,9 +141,6 @@ void CBaseCombatWeapon::GiveDefaultAmmo( void )
 	// If I use clips, set my clips to the default
 	if ( UsesClipsForAmmo1() )
 	{
-#ifdef MAPBASE
-		if (!HasSpawnFlags(SF_WEAPON_PRESERVE_AMMO))
-#endif
 		m_iClip1 = AutoFiresFullClip() ? 0 : GetDefaultClip1();
 	}
 	else
@@ -153,9 +150,6 @@ void CBaseCombatWeapon::GiveDefaultAmmo( void )
 	}
 	if ( UsesClipsForAmmo2() )
 	{
-#ifdef MAPBASE
-		if (!HasSpawnFlags(SF_WEAPON_PRESERVE_AMMO))
-#endif
 		m_iClip2 = GetDefaultClip2();
 	}
 	else
@@ -184,6 +178,10 @@ void CBaseCombatWeapon::Spawn( void )
 	// Assume 
 	m_nViewModelIndex = 0;
 
+#ifdef MAPBASE
+	// Don't reset to default ammo if we're supposed to use the keyvalue
+	if (!HasSpawnFlags( SF_WEAPON_PRESERVE_AMMO ))
+#endif
 	GiveDefaultAmmo();
 
 	if ( GetWorldModel() )
@@ -1735,7 +1733,7 @@ void CBaseCombatWeapon::InputBreakConstraint( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CBaseCombatWeapon::InputForceFire( inputdata_t &inputdata, bool bSecondary )
 {
-	CBaseCombatCharacter *pOperator = ToBaseCombatCharacter(GetOwnerEntity());
+	CBaseCombatCharacter *pOperator = GetOwner();
 
 	if (!pOperator)
 	{

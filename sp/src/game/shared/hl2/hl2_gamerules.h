@@ -47,7 +47,9 @@ public:
 	void InputSetPlayerSquadAutosummon( inputdata_t &inputdata );
 	void InputSetStunstickPickupBehavior( inputdata_t &inputdata );
 
-	// These are written to from HL2GameRules on save and given to HL2GameRules on restore
+	// Gamerules classes don't seem to support datadescs, so the hl2_gamerules entity takes the current values
+	// from the actual gamerules and saves them in the entity itself, where they're saved via the entity's own datadesc.
+	// When the save is loaded, the entity sets the main gamerules values according to what was saved.
 	int m_save_DefaultCitizenType;
 	char m_save_LegacyFlashlight;
 	bool m_save_PlayerSquadAutosummonDisabled;

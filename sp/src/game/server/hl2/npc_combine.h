@@ -107,6 +107,7 @@ public:
 #ifdef MAPBASE
 	bool			IsElite();
 	bool			IsAltFireCapable();
+	bool			IsGrenadeCapable();
 	const char*		GetGrenadeAttachment() { return "lefthand"; }
 #else
 	bool			IsElite() { return m_fIsElite; }
@@ -316,6 +317,7 @@ private:
 #else
 	// Underthrow grenade at target
 	bool			m_bUnderthrow;
+	bool			m_bAlternateCapable;
 #endif
 	bool			m_bShouldPatrol;
 	bool			m_bFirstEncounter;// only put on the handsign show in the squad's first encounter.

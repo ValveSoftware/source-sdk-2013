@@ -132,8 +132,8 @@ void CNPC_GroundTurret::Spawn( void )
 		DevMsg("ERROR! npc_ground_turret with no parent!\n");
 #ifndef MAPBASE
 		UTIL_Remove(this);
-#endif
 		return;
+#endif
 	}
 
 	m_flTimeNextShoot = gpGlobals->curtime;

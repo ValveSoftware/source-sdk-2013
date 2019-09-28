@@ -35,6 +35,8 @@ public:
 		REPLACEMENTTYPE_CLASSNAME, // Replace with entity of specified classname
 		REPLACEMENTTYPE_TEMPLATE, // Replace with a point_template's contents
 		REPLACEMENTTYPE_TEMPLATE_RELATIVE, // Replace with a point_template's contents, maintaining relative position
+		REPLACEMENTTYPE_RANDOM_TEMPLATE, // Replace with one of a point_template's templates, randomly selected
+		REPLACEMENTTYPE_RANDOM_TEMPLATE_RELATIVE, // Replace with one of a point_template's templates, randomly selected, maintaining relative position
 	};
 
 	// Where the replacement entit(ies) should replace at.
@@ -176,23 +178,13 @@ void CPointEntityReplace::HandleReplacement(CBaseEntity *pEntity, CBaseEntity *p
 	{
 		pReplacement->m_nRenderMode = pEntity->m_nRenderMode;
 		pReplacement->m_nRenderFX = pEntity->m_nRenderFX;
-		const color32 rclr = pEntity->GetRenderColor();
-		pReplacement->SetRenderColor(rclr.r, rclr.g, rclr.b, rclr.a);
+		pReplacement->m_clrRender = pEntity->m_clrRender;
 		if (pEntity->GetBaseAnimating() && pReplacement->GetBaseAnimating())
 		{
 			CBaseAnimating *pEntityAnimating = pEntity->GetBaseAnimating();
 			CBaseAnimating *pReplacementAnimating = pReplacement->GetBaseAnimating();
 
 			pReplacementAnimating->CopyAnimationDataFrom(pEntityAnimating);
-
-			//pReplacementAnimating->SetCycle(pEntityAnimating->GetCycle());
-			//pReplacementAnimating->IncrementInterpolationFrame();
-			//pReplacementAnimating->SetSequence(pEntityAnimating->GetSequence());
-			//pReplacementAnimating->m_flAnimTime = pEntityAnimating->m_flAnimTime;
-			//pReplacementAnimating->m_nBody = pEntityAnimating->m_nBody;
-			//pReplacementAnimating->m_nSkin = pEntityAnimating->m_nSkin;
-			if (pEntityAnimating->GetModelScale() != pReplacementAnimating->GetModelScale())
-				pReplacementAnimating->SetModelScale(pEntityAnimating->GetModelScale());
 
 			for ( int iPose = 0; iPose < MAXSTUDIOPOSEPARAM; ++iPose )
 			{
@@ -407,8 +399,6 @@ void CPointEntityReplace::ReplaceEntity(CBaseEntity *pEntity, inputdata_t &input
 					if (m_iReplacementType != REPLACEMENTTYPE_TEMPLATE_RELATIVE)
 					{
 						// We have to do this again.
-						//pTemplateEntity->SetAbsOrigin( vecOrigin );
-						//pTemplateEntity->SetAbsAngles( angAngles );
 						pTemplateEntity->Teleport( &vecOrigin, &angAngles, &vecVelocity );
 					}
 
@@ -428,12 +418,45 @@ void CPointEntityReplace::ReplaceEntity(CBaseEntity *pEntity, inputdata_t &input
 					m_OnReplace.Set(pTemplateEntity, pTemplateEntity, pCaller);
 				}
 			}
-
-			// Templates with only one entity probably need to stay in the specified position.
-			if (hNewEntities.Count() == 1)
+		} break;
+		case REPLACEMENTTYPE_RANDOM_TEMPLATE:
+		case REPLACEMENTTYPE_RANDOM_TEMPLATE_RELATIVE:
+		{
+			CPointTemplate *pTemplate = dynamic_cast<CPointTemplate*>(GetReplacementEntity(&inputdata));
+			if (!pTemplate)
 			{
-				hNewEntities[0]->SetAbsOrigin( vecOrigin );
-				hNewEntities[0]->SetAbsAngles( angAngles );
+				Warning("%s unable to retrieve entity %s. It either does not exist or is not a point_template.\n", GetDebugName(), STRING(m_iszReplacementEntity));
+				return;
+			}
+
+			CBaseEntity *pTemplateEntity = NULL;
+			if ( !pTemplate->CreateSpecificInstance( RandomInt(0, pTemplate->GetNumTemplates() - 1), vecOrigin, angAngles, &pTemplateEntity ) )
+				return;
+
+			if (pTemplateEntity)
+			{
+				HandleReplacement(pEntity, pTemplateEntity);
+
+				if (m_iReplacementType != REPLACEMENTTYPE_RANDOM_TEMPLATE_RELATIVE)
+				{
+					// We have to do this again.
+					pTemplateEntity->Teleport( &vecOrigin, &angAngles, &vecVelocity );
+				}
+
+				if (pTemplateEntity->VPhysicsGetObject())
+				{
+					AngularImpulse angImpulse;
+					QAngleToAngularImpulse(angAngles, angImpulse);
+					pTemplateEntity->VPhysicsGetObject()->SetVelocityInstantaneous(&vecVelocity, &angImpulse);
+				}
+				else
+				{
+					pTemplateEntity->SetAbsVelocity(vecVelocity);
+					pTemplateEntity->SetBaseVelocity( vec3_origin );
+					pTemplateEntity->SetLocalAngularVelocity(angVelocity);
+				}
+
+				m_OnReplace.Set(pTemplateEntity, pTemplateEntity, pCaller);
 			}
 		} break;
 	}

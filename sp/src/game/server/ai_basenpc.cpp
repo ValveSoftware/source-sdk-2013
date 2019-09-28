@@ -7815,14 +7815,41 @@ void CAI_BaseNPC::InputPickupWeapon( inputdata_t &inputdata )
 	if (iszWeaponName == NULL_STRING)
 		return;
 
-	// Searching "generically" could potentially get a weapon already held by someone.
-	CBaseEntity *pEntity = gEntList.FindEntityByNameNearest(STRING(iszWeaponName), GetLocalOrigin(), 0, this, inputdata.pActivator, inputdata.pCaller);
+	// Doing a custom search implementation to prevent us from trying to pick up other people's weapons
+	// Also works generically so you could do things like "PickupWeapon > weapon_smg1" to pick up the nearest SMG
+	float flCurDist = MAX_TRACE_LENGTH;
 	CBaseCombatWeapon *pWeapon = NULL;
-	if (pEntity)
-		pWeapon = pEntity->MyCombatWeaponPointer();
 
-	if (!pEntity || !pWeapon)
+	CBaseEntity *pSearch = NULL;
+	while ((pSearch = gEntList.FindEntityGeneric(pSearch, STRING(iszWeaponName), this, inputdata.pActivator, inputdata.pCaller)) != NULL)
+	{
+		if (!pSearch->edict())
+			continue;
+
+		// Don't pick up non-weapons or weapons we can't use
+		CBaseCombatWeapon *pSearchWeapon = pSearch->MyCombatWeaponPointer();
+		if (!pSearchWeapon || pSearchWeapon->GetOwner() || pSearchWeapon->IsLocked(this))
+			continue;
+
+		// If the weapon is marked to deny NPC pickup, only reject it if we're not searching for this weapon specifically.
+		// It might only have that spawnflag to prevent other NPCs from picking it up automatically.
+		// If we're searching for any weapon in general though (classnames or wildcards), don't use it.
+		if (pSearchWeapon->HasSpawnFlags( SF_WEAPON_NO_NPC_PICKUP ) && iszWeaponName != pSearchWeapon->GetEntityName())
+			continue;
+
+		float flDist = (pSearch->GetAbsOrigin() - GetAbsOrigin()).LengthSqr();
+		if (flDist < flCurDist)
+		{
+			pWeapon = pSearchWeapon;
+			flCurDist = flDist;
+		}
+	}
+
+	if (!pWeapon)
+	{
+		Msg("%s couldn't find %s to pick up\n", GetDebugName(), STRING(iszWeaponName));
 		return;
+	}
 
 	m_flNextWeaponSearchTime = gpGlobals->curtime + 10.0;
 	// Now lock the weapon for several seconds while we go to pick it up.
@@ -7840,8 +7867,8 @@ void CAI_BaseNPC::InputPickupItem( inputdata_t &inputdata )
 	if (iszItemName == NULL_STRING)
 		return;
 
-	// Searching "generically" could potentially get a weapon already held by someone.
-	CBaseEntity *pEntity = gEntList.FindEntityByNameNearest(STRING(iszItemName), GetLocalOrigin(), 0, this, inputdata.pActivator, inputdata.pCaller);
+	// Searching generically allows for things like "PickupItem > item_health*" to pick up the nearest healthkit
+	CBaseEntity *pEntity = gEntList.FindEntityGenericNearest(STRING(iszItemName), GetLocalOrigin(), 0, this, inputdata.pActivator, inputdata.pCaller);
 	if (!pEntity)
 		return;
 

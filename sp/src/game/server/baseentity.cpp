@@ -278,6 +278,10 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 	SendPropInt		(SENDINFO(m_nRenderMode),	8, SPROP_UNSIGNED ),
 	SendPropInt		(SENDINFO(m_fEffects),		EF_MAX_BITS, SPROP_UNSIGNED),
 	SendPropInt		(SENDINFO(m_clrRender),	32, SPROP_UNSIGNED),
+#ifdef MAPBASE
+	// Keep consistent with VIEW_ID_COUNT in viewrender.h
+	SendPropInt		(SENDINFO(m_iViewHideFlags),	9, SPROP_UNSIGNED ),
+#endif
 	SendPropInt		(SENDINFO(m_iTeamNum),		TEAMNUM_NUM_BITS, 0),
 	SendPropInt		(SENDINFO(m_CollisionGroup), 5, SPROP_UNSIGNED),
 	SendPropFloat	(SENDINFO(m_flElasticity), 0, SPROP_COORD),
@@ -1822,6 +1826,9 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_KEYFIELD( m_fEffects, FIELD_INTEGER, "effects" ),
 	DEFINE_KEYFIELD( m_clrRender, FIELD_COLOR32, "rendercolor" ),
 	DEFINE_GLOBAL_KEYFIELD( m_nModelIndex, FIELD_SHORT, "modelindex" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_iViewHideFlags, FIELD_INTEGER, "viewhideflags" ),
+#endif
 #if !defined( NO_ENTITY_PREDICTION )
 	// DEFINE_FIELD( m_PredictableID, CPredictableId ),
 #endif
@@ -2037,6 +2044,7 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "RemoveSpawnFlags", InputRemoveSpawnFlags ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetRenderMode", InputSetRenderMode ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetRenderFX", InputSetRenderFX ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetViewHideFlags", InputSetViewHideFlags ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "AddEffects", InputAddEffects ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "RemoveEffects", InputRemoveEffects ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnableDraw", InputDrawEntity ),
@@ -5677,7 +5685,11 @@ public:
 		{
 			const char *target = "", *action = "Use";
 			variant_t value;
+#ifdef MAPBASE
+			float delay = 0;
+#else
 			int delay = 0;
+#endif
 
 			target = STRING( AllocPooledString(command.Arg( 1 ) ) );
 
@@ -5715,7 +5727,11 @@ public:
 			}
 			if ( command.ArgC() >= 5 )
 			{
+#ifdef MAPBASE
+				delay = atof( command.Arg( 4 ) );
+#else
 				delay = atoi( command.Arg( 4 ) );
+#endif
 			}
 
 			g_EventQueue.AddEvent( target, action, value, delay, pPlayer, pPlayer );
@@ -7594,6 +7610,14 @@ void CBaseEntity::InputSetRenderMode( inputdata_t& inputdata )
 void CBaseEntity::InputSetRenderFX( inputdata_t& inputdata )
 {
 	m_nRenderFX = inputdata.value.Int();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets our view hide flags.
+//-----------------------------------------------------------------------------
+void CBaseEntity::InputSetViewHideFlags( inputdata_t& inputdata )
+{
+	m_iViewHideFlags = inputdata.value.Int();
 }
 
 //-----------------------------------------------------------------------------

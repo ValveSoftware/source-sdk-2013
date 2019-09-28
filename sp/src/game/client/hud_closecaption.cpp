@@ -2562,8 +2562,10 @@ void CHudCloseCaption::Flush()
 
 void CHudCloseCaption::InitCaptionDictionary( const char *dbfile )
 {
+#ifndef MAPBASE // Nbc66
 	if ( m_CurrentLanguage.IsValid() && !Q_stricmp( m_CurrentLanguage.String(), dbfile ) )
 		return;
+#endif
 
 	m_CurrentLanguage = dbfile;
 
@@ -2602,6 +2604,7 @@ void CHudCloseCaption::InitCaptionDictionary( const char *dbfile )
 
 			AsyncCaption_t& entry = m_AsyncCaptions[ m_AsyncCaptions.AddToTail() ];
 
+#ifndef MAPBASE // Nbc66
 			// Read the header
 			filesystem->Read( &entry.m_Header, sizeof( entry.m_Header ), fh );
 			if ( entry.m_Header.magic != COMPILED_CAPTION_FILEID )
@@ -2612,6 +2615,7 @@ void CHudCloseCaption::InitCaptionDictionary( const char *dbfile )
 				Error( "Invalid directory size %d for %s\n", entry.m_Header.directorysize, fullpath );
 			//if ( entry.m_Header.blocksize != MAX_BLOCK_SIZE )
 			//	Error( "Invalid block size %d, expecting %d for %s\n", entry.m_Header.blocksize, MAX_BLOCK_SIZE, fullpath );
+#endif
 
 			int directoryBytes = entry.m_Header.directorysize * sizeof( CaptionLookup_t );
 			entry.m_CaptionDirectory.EnsureCapacity( entry.m_Header.directorysize );
@@ -2776,7 +2780,14 @@ void OnCaptionLanguageChanged( IConVar *pConVar, const char *pOldString, float f
 		{
 			if ( g_pFullFileSystem->FileExists( fn ) )
 			{
+#ifdef MAPBASE // Nbc66
+				char dbfile[512];
+				Q_snprintf( dbfile, sizeof( dbfile ), "resource/closecaption_%s.txt", var.GetString() );
 				g_pVGuiLocalize->AddFile( fn, "GAME", true );
+				hudCloseCaption->InitCaptionDictionary( dbfile );
+#else
+				g_pVGuiLocalize->AddFile( fn, "GAME", true );
+#endif
 			}
 			else
 			{
@@ -2804,6 +2815,12 @@ void OnCaptionLanguageChanged( IConVar *pConVar, const char *pOldString, float f
 			hudCloseCaption->InitCaptionDictionary( dbfile );
 		}
 	}
+#ifdef MAPBASE // Nbc66
+	if (!engine->IsInGame())
+	{
+		engine->ClientCmd_Unrestricted( "hud_reloadscheme" );
+	}
+#endif
 	DevMsg( "cc_lang = %s\n", var.GetString() );
 }
 

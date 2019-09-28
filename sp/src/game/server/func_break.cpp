@@ -220,6 +220,10 @@ bool CBreakable::KeyValue( const char *szKeyName, const char *szValue )
 		int object = atoi( szValue );
 		if ( object > 0 && object < ARRAYSIZE(pSpawnObjects) )
 			m_iszSpawnObject = MAKE_STRING( pSpawnObjects[object] );
+#ifdef MAPBASE
+		else
+			m_iszSpawnObject = AllocPooledString(szValue);
+#endif
 	}
 	else if (FStrEq(szKeyName, "propdata") )
 	{
@@ -431,24 +435,6 @@ void CBreakable::Precache( void )
 	case matCinderBlock:
 		pGibName = "ConcreteChunks";
 		break;
-
-#ifdef MAPBASE
-	case matComputer:
-		pGibName = "ComputerGibs";
-		break;
-
-	case matCeilingTile:
-		pGibName = "CeilingTile";
-		break;
-
-	case matFlesh:
-		pGibName = "FleshGibs";
-		break;
-
-	case matWeb:
-		pGibName = "WebGibs";
-		break;
-#endif
 
 #endif
 

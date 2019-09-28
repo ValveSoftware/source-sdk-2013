@@ -44,7 +44,7 @@ extern bool g_bCacheLegacyFlashlightStatus;
 
 BEGIN_DATADESC( CHalfLife2Proxy )
 
-	// These get the gamerules values on save and writes to them on restore
+	// These get the gamerules values on save and write to them on restore
 	DEFINE_FIELD( m_save_DefaultCitizenType, FIELD_INTEGER ),
 	DEFINE_FIELD( m_save_LegacyFlashlight, FIELD_CHARACTER ),
 	DEFINE_FIELD( m_save_PlayerSquadAutosummonDisabled, FIELD_BOOLEAN ),
@@ -316,6 +316,10 @@ ConVar	sk_plr_dmg_buckshot		( "sk_plr_dmg_buckshot","0", FCVAR_REPLICATED);
 ConVar	sk_npc_dmg_buckshot		( "sk_npc_dmg_buckshot","0", FCVAR_REPLICATED);
 ConVar	sk_max_buckshot			( "sk_max_buckshot","0", FCVAR_REPLICATED);
 ConVar	sk_plr_num_shotgun_pellets( "sk_plr_num_shotgun_pellets","7", FCVAR_REPLICATED);
+#ifdef MAPBASE
+ConVar	sk_plr_num_shotgun_pellets_double( "sk_plr_num_shotgun_pellets_double","12", FCVAR_REPLICATED);
+ConVar	sk_npc_num_shotgun_pellets( "sk_npc_num_shotgun_pellets","8", FCVAR_REPLICATED);
+#endif
 
 ConVar	sk_plr_dmg_rpg_round	( "sk_plr_dmg_rpg_round","0", FCVAR_REPLICATED);
 ConVar	sk_npc_dmg_rpg_round	( "sk_npc_dmg_rpg_round","0", FCVAR_REPLICATED);

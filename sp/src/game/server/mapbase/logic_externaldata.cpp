@@ -45,6 +45,7 @@ public:
 
 	bool m_bSaveEachChange;
 	bool m_bReloadBeforeEachAction;
+	string_t m_iszMapname;
 
 	COutputString m_OutValue;
 };
@@ -57,6 +58,7 @@ BEGIN_DATADESC( CLogicExternalData )
 	//DEFINE_KEYFIELD( m_iszBlock, FIELD_STRING, "Block" ),
 	DEFINE_KEYFIELD( m_bSaveEachChange, FIELD_BOOLEAN, "SaveEachChange" ),
 	DEFINE_KEYFIELD( m_bReloadBeforeEachAction, FIELD_BOOLEAN, "ReloadBeforeEachAction" ),
+	DEFINE_KEYFIELD( m_iszMapname, FIELD_STRING, "Mapname" ),
 
 	// This should be cached each load
 	//DEFINE_ARRAY( m_iszFile, FIELD_CHARACTER, MAX_PATH ),
@@ -147,7 +149,10 @@ void CLogicExternalData::Activate()
 {
 	BaseClass::Activate();
 
-	Q_snprintf(m_iszFile, sizeof(m_iszFile), "maps/%s_externaldata.txt", gpGlobals->mapname);
+	if (m_iszMapname == NULL_STRING || STRING(m_iszMapname)[0] == '\0')
+		m_iszMapname = gpGlobals->mapname;
+
+	Q_snprintf(m_iszFile, sizeof(m_iszFile), "maps/%s_externaldata.txt", STRING(m_iszMapname));
 	DevMsg("LOGIC_EXTERNALDATA: %s\n", m_iszFile);
 	
 	// This handles !self, etc. even though the end result could just be assigning to itself.

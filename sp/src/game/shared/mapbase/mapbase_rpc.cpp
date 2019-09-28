@@ -465,12 +465,13 @@ void MapbaseRPC_GetDiscordParameters( DiscordRichPresence &discordPresence, int 
 	}
 	else
 	{
+		Q_strncpy( state, g_iszGameName, sizeof(state) );
+
 		switch (iType)
 		{
 			case RPCSTATE_INIT:
 			case RPCSTATE_LEVEL_SHUTDOWN:
 				{
-					Q_strncpy( state, g_iszGameName, sizeof(state) );
 					Q_strncpy( details, "Main Menu", sizeof(details) );
 				} break;
 			case RPCSTATE_LEVEL_INIT:

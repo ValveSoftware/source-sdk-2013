@@ -734,6 +734,91 @@ END_DATADESC()
 //-----------------------------------------------------------------------------
 void CLogicMirrorMovement::DoMeasure( Vector &vecOrigin, QAngle &angAngles )
 {
+	
+	matrix3x4_t matRefToMeasure, matWorldToMeasure;
+	switch( m_nMeasureType )
+	{
+	case MEASURE_POSITION:
+		MatrixInvert( m_hMeasureTarget->EntityToWorldTransform(), matWorldToMeasure );
+		break;
+
+	case MEASURE_EYE_POSITION:
+		AngleIMatrix( m_hMeasureTarget->EyeAngles(), m_hMeasureTarget->EyePosition(), matWorldToMeasure );
+		break;
+
+	case MEASURE_ATTACHMENT:
+		if (CBaseAnimating *pAnimating = m_hMeasureTarget->GetBaseAnimating())
+		{
+			if (m_iAttachment <= 0)
+				m_iAttachment = m_hMeasureTarget->GetBaseAnimating()->LookupAttachment(STRING(m_strAttachment));
+
+			if (m_iAttachment == -1)
+				Warning("WARNING: %s requesting invalid attachment %s on %s!\n", GetDebugName(), STRING(m_strAttachment), m_hMeasureTarget->GetDebugName());
+			else
+				pAnimating->GetAttachment(m_iAttachment, matWorldToMeasure);
+		}
+		else
+		{
+			Warning("WARNING: %s requesting attachment point on non-animating entity %s!\n", GetDebugName(), m_hMeasureTarget->GetDebugName());
+		}
+		break;
+	}
+
+	ConcatTransforms( matWorldToMeasure, m_hMeasureReference->EntityToWorldTransform(), matRefToMeasure );
+
+	// If we have spawn flags, we might be supposed to ignore something
+	if (GetSpawnFlags() > 0)
+	{
+		if (HasSpawnFlags( SF_LOGIC_MEASURE_MOVEMENT_USE_IGNORE_FLAGS_FOR_ORIGIN ))
+		{
+			// Get the position from the matrix's column directly and re-assign it
+			Vector vecPosition;
+			MatrixGetColumn( matRefToMeasure, 3, vecPosition );
+
+			HandleIgnoreFlags( vecPosition.Base() );
+
+			MatrixSetColumn( vecPosition, 3, matRefToMeasure );
+		}
+		else
+		{
+			// Get the angles from the matrix and re-assign it
+			QAngle angMod;
+			MatrixAngles( matWorldToMeasure, angMod );
+
+			HandleIgnoreFlags( angMod.Base() );
+
+			AngleMatrix( angMod, matWorldToMeasure );
+		}
+	}
+	
+	// Apply the scale factor
+	if ( ( m_flScale != 0.0f ) && ( m_flScale != 1.0f ) )
+	{
+		Vector vecTranslation;
+		MatrixGetColumn( matRefToMeasure, 3, vecTranslation );
+		vecTranslation /= m_flScale;
+		MatrixSetColumn( vecTranslation, 3, matRefToMeasure );
+	}
+
+	MatrixScaleBy( -1.0f, matRefToMeasure );
+
+	QAngle angRot;
+	Vector vecPos;
+	MatrixAngles( matRefToMeasure, angRot );
+	MatrixPosition( matRefToMeasure, vecPos );
+	angRot.z *= -1.0f;
+	vecPos.z *= -1.0f;
+	AngleMatrix( angRot, vecPos, matWorldToMeasure );
+
+	// Now apply the new matrix to the new reference point
+	matrix3x4_t matMeasureToRef, matNewTargetToWorld;
+	MatrixInvert( matRefToMeasure, matMeasureToRef );
+
+	ConcatTransforms( m_hTargetReference->EntityToWorldTransform(), matMeasureToRef, matNewTargetToWorld );
+
+	MatrixAngles( matNewTargetToWorld, angAngles, vecOrigin );
+
+	/*
 	VMatrix matPortal1ToWorldInv, matPortal2ToWorld;
 	MatrixInverseGeneral( m_hMeasureReference->EntityToWorldTransform(), matPortal1ToWorldInv );
 	switch( m_nMeasureType )
@@ -820,5 +905,6 @@ void CLogicMirrorMovement::DoMeasure( Vector &vecOrigin, QAngle &angAngles )
 
 	vecOrigin = ptNewPosition;
 	angAngles = qNewAngles;
+	*/
 }
 #endif

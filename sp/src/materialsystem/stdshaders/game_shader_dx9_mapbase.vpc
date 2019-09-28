@@ -47,6 +47,9 @@ $Project
 		$File	"sprite_dx9.cpp"
 		
 		$File	"decalmodulate_dx9.cpp"
+		
+		$File	"unlittwotexture_dx9.cpp"
+		$File	"MonitorScreen_dx9.cpp"
 	}
 
 	//$Shaders	"mapbase_dx9_20b.txt"

@@ -522,7 +522,7 @@ AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, AI_CriteriaS
 // Input  : *response - 
 //-----------------------------------------------------------------------------
 #ifdef MAPBASE
-bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *result, IRecipientFilter *filter,  const char *modifiers )
+bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *result, IRecipientFilter *filter, AI_CriteriaSet *modifiers )
 #else
 bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *result, IRecipientFilter *filter /* = NULL */ )
 #endif
@@ -533,23 +533,43 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *res
 #ifdef MAPBASE
 	if (response[0] == '$')
 	{
-		response[0] = '\0';
-		const char *replace = GetOuter()->GetContextValue(response);
-		if (!replace)
-		{
-			replace = modifiers;
+		const char *context = response + 1;
+		const char *replace = GetOuter()->GetContextValue(context);
 
-			char key[128] = { 0 };
-			char value[128] = { 0 };
-			replace = SplitContext(replace, key, sizeof(key), value, sizeof(value), NULL);
-			replace = value;
+		// If we can't find the context, check modifiers
+		if (!replace && modifiers)
+		{
+			for (int i = 0; i < modifiers->GetCount(); i++)
+			{
+				if (FStrEq(context, modifiers->GetName(i)))
+				{
+					replace = modifiers->GetValue(i);
+					break;
+				}
+			}
 		}
 
 		if (replace)
 		{
-			DevMsg("Replacing %s with %s...\n", response, GetOuter()->GetContextValue(response));
+			DevMsg("Replacing %s with %s...\n", response, replace);
 			Q_strncpy(response, replace, sizeof(response));
-			GetOuter()->PrecacheScriptSound( response );
+
+			// Precache it now because it may not have been precached before
+			switch ( result->GetType() )
+			{
+			case RESPONSE_SPEAK:
+				{
+					GetOuter()->PrecacheScriptSound( response );
+				}
+				break;
+
+			case RESPONSE_SCENE:
+				{
+					// TODO: Gender handling?
+					PrecacheInstancedScene( response );
+				}
+				break;
+			}
 		}
 	}
 #endif
@@ -805,7 +825,7 @@ bool CAI_Expresser::Speak( AIConcept_t concept, AI_CriteriaSet& modifiers, char 
 
 	SpeechMsg( GetOuter(), "%s (%p) spoke %s (%f)\n", STRING(GetOuter()->GetEntityName()), GetOuter(), concept, gpGlobals->curtime );
 
-	bool spoke = SpeakDispatchResponse( concept, result, filter );
+	bool spoke = SpeakDispatchResponse( concept, result, filter, &modifiers );
 	if ( pszOutResponseChosen )
 	{
 		result->GetResponse( pszOutResponseChosen, bufsize );

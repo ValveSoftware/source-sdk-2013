@@ -166,7 +166,7 @@ public:
 	// These two methods allow looking up a response and dispatching it to be two different steps
 	AI_Response *SpeakFindResponse( AIConcept_t concept, const char *modifiers = NULL );
 #ifdef MAPBASE
-	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response *response, IRecipientFilter *filter = NULL, const char *modifiers = NULL );
+	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response *response, IRecipientFilter *filter = NULL, AI_CriteriaSet *modifiers = NULL );
 #else
 	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response *response, IRecipientFilter *filter = NULL );
 #endif

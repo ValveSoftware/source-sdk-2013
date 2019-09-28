@@ -1875,6 +1875,15 @@ QAngle CFuncTank::AimBarrelAt( const Vector &parentTarget )
 	{
 		return GetLocalAngles();
 	}
+#ifdef MAPBASE
+	else if ( m_barrelPos.LengthSqr() == 0.0f )
+	{
+		// Do a simpler calculation that doesn't take barrel into account
+		float targetToCenterYaw = atan2( target.y, target.x );
+		float targetToCenterPitch = atan2( target.z, sqrt( quadTargetXY ) );
+		return QAngle( -RAD2DEG( targetToCenterPitch ), RAD2DEG( targetToCenterYaw ), 0 );
+	}
+#endif
 	else
 	{
 		// We're trying to aim the offset barrel at an arbitrary point.

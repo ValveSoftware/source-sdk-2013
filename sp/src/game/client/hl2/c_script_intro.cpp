@@ -10,6 +10,9 @@
 #include "iviewrender.h"
 #include "view_shared.h"
 #include "viewrender.h"
+#ifdef MAPBASE
+#include "c_point_camera.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -175,6 +178,14 @@ void C_ScriptIntro::PostDataUpdate( DataUpdateType_t updateType )
 		m_IntroData.m_bDrawPrimary = true;
 #ifdef MAPBASE
 		m_IntroData.m_bDrawSky2 = m_bDrawSky2;
+
+		// If it's a point_camera and it's ortho, send it to the intro data
+		// Change this code if the purpose of m_hCameraEntity in intro data ever goes beyond ortho
+		C_PointCamera *pCamera = dynamic_cast<C_PointCamera*>(m_hCameraEntity.Get());
+		if (pCamera && pCamera->IsOrtho())
+		{
+			m_IntroData.m_hCameraEntity = m_hCameraEntity;
+		}
 #endif
 	}
 

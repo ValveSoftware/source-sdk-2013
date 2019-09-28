@@ -49,6 +49,9 @@ public:
 
 	// Template instancing
 	bool			CreateInstance( const Vector &vecOrigin, const QAngle &vecAngles, CUtlVector<CBaseEntity*> *pEntities );
+#ifdef MAPBASE
+	bool			CreateSpecificInstance( int iTemplate, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity **pOutEntity );
+#endif
 
 	// Inputs
 	void			InputForceSpawn( inputdata_t &inputdata );

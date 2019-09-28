@@ -284,9 +284,7 @@ BEGIN_DATADESC( CPointCameraOrtho )
 
 	// Input
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetOrthoEnabled", InputSetOrthoEnabled ),
-#ifdef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_STRING, "ScaleOrtho", InputScaleOrtho ),
-#endif
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetOrthoTop", InputSetOrthoTop ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetOrthoBottom", InputSetOrthoBottom ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetOrthoLeft", InputSetOrthoLeft ),

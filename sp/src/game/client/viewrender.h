@@ -51,6 +51,10 @@ struct IntroData_t
 	bool	m_bDrawPrimary;
 	Vector	m_vecCameraView;
 	QAngle	m_vecCameraViewAngles;
+#ifdef MAPBASE
+	// Used for ortho views
+	CHandle<C_PointCamera> m_hCameraEntity;
+#endif
 	float	m_playerViewFOV;
 	CUtlVector<IntroDataBlendPass_t> m_Passes;
 

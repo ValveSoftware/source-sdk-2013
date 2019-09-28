@@ -41,6 +41,10 @@
 extern ConVar sk_plr_dmg_crossbow;
 extern ConVar sk_npc_dmg_crossbow;
 
+#ifdef MAPBASE
+ConVar weapon_crossbow_new_hit_locations( "weapon_crossbow_new_hit_locations", "1", FCVAR_NONE, "Toggles new crossbow knockback that properly pushes back the correct limbs." );
+#endif
+
 void TE_StickyBolt( IRecipientFilter& filter, float delay,	Vector vecDirection, const Vector *origin );
 
 #define	BOLT_SKIN_NORMAL	0
@@ -288,6 +292,38 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 			return;
 		}
 #endif//HL2_EPISODIC
+
+#ifdef MAPBASE
+		if (weapon_crossbow_new_hit_locations.GetInt() > 0)
+		{
+			// A very experimental and weird way of getting a crossbow bolt to deal accurate knockback.
+			CBaseAnimating *pOtherAnimating = pOther->GetBaseAnimating();
+			if (pOtherAnimating && pOtherAnimating->GetModelPtr() && pOtherAnimating->GetModelPtr()->numbones() > 1)
+			{
+				int iClosestBone = -1;
+				float flCurDistSqr = Square(128.0f);
+				matrix3x4_t bonetoworld;
+				Vector vecBonePos;
+				for (int i = 0; i < pOtherAnimating->GetModelPtr()->numbones(); i++)
+				{
+					pOtherAnimating->GetBoneTransform( i, bonetoworld );
+					MatrixPosition( bonetoworld, vecBonePos );
+
+					float flDist = vecBonePos.DistToSqr(GetLocalOrigin());
+					if (flDist < flCurDistSqr)
+					{
+						iClosestBone = i;
+						flCurDistSqr = flDist;
+					}
+				}
+
+				if (iClosestBone != -1)
+				{
+					tr.physicsbone = pOtherAnimating->GetPhysicsBone(iClosestBone);
+				}
+			}
+		}
+#endif
 
 		if( GetOwnerEntity() && GetOwnerEntity()->IsPlayer() && pOther->IsNPC() )
 		{

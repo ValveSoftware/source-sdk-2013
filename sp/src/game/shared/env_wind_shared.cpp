@@ -320,7 +320,6 @@ void ResetWindspeed()
 // NEW WITH MAPBASE: Inner-radius!
 // You can now choose an inner-radius for your wind, which allows for varying intensities at different distances.
 // This can mix in with a global wind controller or even other wind controllers.
-// (note: wind is additive and does not blend into itself, maybe fix that sometime)
 //-----------------------------------------------------------------------------
 Vector GetWindspeedAtLocation( const Vector &location )
 {

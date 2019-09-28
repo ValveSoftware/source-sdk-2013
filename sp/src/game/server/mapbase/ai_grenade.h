@@ -61,6 +61,17 @@ extern int COMBINE_AE_BEGIN_ALTFIRE;
 extern int COMBINE_AE_ALTFIRE;
 
 //-----------------------------------------------------------------------------
+// Other classes can use this and access some CAI_GrenadeUser functions.
+//-----------------------------------------------------------------------------
+class CAI_GrenadeUserSink
+{
+public:
+	CAI_GrenadeUserSink() { }
+
+	virtual bool			UsingOnThrowGrenade() { return false; }
+};
+
+//-----------------------------------------------------------------------------
 //
 // Template class for NPCs using grenades or weapon alt-fire stuff.
 // You'll still have to use DEFINE_AIGRENADE_DATADESC() in your derived class's datadesc.
@@ -70,10 +81,12 @@ extern int COMBINE_AE_ALTFIRE;
 //
 //-----------------------------------------------------------------------------
 template <class BASE_NPC>
-class CAI_GrenadeUser : public BASE_NPC
+class CAI_GrenadeUser : public BASE_NPC, public CAI_GrenadeUserSink
 {
 	DECLARE_CLASS_NOFRIEND( CAI_GrenadeUser, BASE_NPC );
 public:
+	CAI_GrenadeUser() : CAI_GrenadeUserSink() { }
+
 	void AddGrenades( int inc, CBaseEntity *pLastGrenade = NULL )
 	{
 		m_iNumGrenades += inc;
@@ -104,6 +117,9 @@ public:
 	virtual bool	CanGrenadeEnemy( bool bUseFreeKnowledge = true );
 	bool			CanThrowGrenade( const Vector &vecTarget );
 	bool			CheckCanThrowGrenade( const Vector &vecTarget );
+
+	// For OnThrowGrenade + point_entity_replace, see grenade_frag.cpp
+	bool			UsingOnThrowGrenade() { return m_OnThrowGrenade.NumberOfElements() > 0; }
 
 protected:
 
@@ -176,13 +192,14 @@ void CAI_GrenadeUser<BASE_NPC>::HandleAnimEvent( animevent_t *pEvent )
 			GetVectors( &forward, NULL, &up );
 			vecThrow = forward * 750 + up * 175;
 
-			CBaseEntity *pGrenade = Fraggrenade_Create( vecStart, vec3_angle, vecThrow, vecSpin, this, COMBINE_GRENADE_TIMER, true );
+			// This code is used by player allies now, so it's only "combine spawned" if the thrower isn't allied with the player.
+			CBaseEntity *pGrenade = Fraggrenade_Create( vecStart, vec3_angle, vecThrow, vecSpin, this, COMBINE_GRENADE_TIMER, !IsPlayerAlly() );
 			m_OnThrowGrenade.Set(pGrenade, pGrenade, this);
 		}
 		else
 		{
 			// Use the Velocity that AI gave us.
-			CBaseEntity *pGrenade = Fraggrenade_Create( vecStart, vec3_angle, m_vecTossVelocity, vecSpin, this, COMBINE_GRENADE_TIMER, true );
+			CBaseEntity *pGrenade = Fraggrenade_Create( vecStart, vec3_angle, m_vecTossVelocity, vecSpin, this, COMBINE_GRENADE_TIMER, !IsPlayerAlly() );
 			m_OnThrowGrenade.Set(pGrenade, pGrenade, this);
 			AddGrenades(-1, pGrenade);
 		}

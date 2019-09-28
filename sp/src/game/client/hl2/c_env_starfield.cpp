@@ -90,6 +90,11 @@ void C_EnvStarfield::ClientThink( void )
 	if ( !m_bOn || !m_flDensity ) 
 		return;
 
+#ifdef MAPBASE
+	if ( engine->IsPaused() )
+		return;
+#endif
+
 	PMaterialHandle	hParticleMaterial = m_pEmitter->GetPMaterial( "effects/spark_noz" );
 
 	// Find a start & end point for the particle

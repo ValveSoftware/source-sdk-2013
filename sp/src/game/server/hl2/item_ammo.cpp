@@ -68,6 +68,8 @@ BEGIN_DATADESC( CItemAmmo )
 
 END_DATADESC()
 
+// Almost all instances of CItem below are for declaring the base class, which is now CItemAmmo.
+// This is here so we don't have to #ifdef all of them.
 #define CItem CItemAmmo
 
 #else

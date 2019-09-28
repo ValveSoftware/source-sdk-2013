@@ -3303,6 +3303,18 @@ void CBaseAnimating::CopyAnimationDataFrom( CBaseAnimating *pSource )
 	this->m_flAnimTime = pSource->m_flAnimTime;
 	this->m_nBody = pSource->m_nBody;
 	this->m_nSkin = pSource->m_nSkin;
+#ifdef MAPBASE
+	this->m_clrRender = pSource->m_clrRender;
+	this->m_nRenderMode = pSource->m_nRenderMode;
+	this->m_nRenderFX = pSource->m_nRenderFX;
+	this->m_iViewHideFlags = pSource->m_iViewHideFlags;
+	this->m_fadeMinDist = pSource->m_fadeMinDist;
+	this->m_fadeMaxDist = pSource->m_fadeMaxDist;
+	this->m_flFadeScale = pSource->m_flFadeScale;
+
+	if (this->GetModelScale() != pSource->GetModelScale())
+		this->SetModelScale( pSource->GetModelScale() );
+#endif
 	this->LockStudioHdr();
 }
 

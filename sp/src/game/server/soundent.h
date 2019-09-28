@@ -59,17 +59,15 @@ enum
 
 #ifdef MAPBASE
 	// You know, I wouldn't mind this approach of leaving types and contexts on the same int
-	// since there can be so many CSounds at any given time.
-	// It's just that there's very little room to expand and a lot of the contexts are very specific and/or useless.
+	// since it was important in the GoldSrc era with how many CSounds there can be at any given time.
+	// I'm just frustrated that this system was retained in Source with very specific and/or useless contexts with very little room to expand.
 	// If this doesn't work, replace SOUND_CONTEXT_PLAYER_VEHICLE with owner server vehicle checks.
 
 	// Only heard by NPCs the owner likes. Needed for shared grenade code.
 	SOUND_CONTEXT_OWNER_ALLIES		= 0x40000000,
-
-	ALL_CONTEXTS			= 0x3FF00000,
-#else
-	ALL_CONTEXTS			= 0xFFF00000,
 #endif
+
+	ALL_CONTEXTS			= 0xFFF00000,
 
 	ALL_SCENTS				= SOUND_CARCASS | SOUND_MEAT | SOUND_GARBAGE,
 

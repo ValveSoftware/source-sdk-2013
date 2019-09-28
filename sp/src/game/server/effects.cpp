@@ -2506,7 +2506,7 @@ public:
 	int m_iCount;
 	float m_flDelay;
 	Vector m_vecGibSize;
-	Vector m_vecGibVelocity;
+	float m_flGibSpeed;
 	int m_iRandomization;
 	float m_flLifetime;
 	int m_iGibFlags;
@@ -2518,7 +2518,7 @@ BEGIN_DATADESC( CBreakableGibShooter )
 	DEFINE_INPUT( m_iCount, FIELD_INTEGER, "SetCount" ),
 	DEFINE_INPUT( m_flDelay, FIELD_FLOAT, "SetDelay" ),
 	DEFINE_INPUT( m_vecGibSize, FIELD_VECTOR, "SetGibSize" ),
-	DEFINE_INPUT( m_vecGibVelocity, FIELD_VECTOR, "SetGibVelocity" ),
+	DEFINE_INPUT( m_flGibSpeed, FIELD_FLOAT, "SetGibSpeed" ),
 	DEFINE_INPUT( m_iRandomization, FIELD_INTEGER, "SetRandomization" ),
 	DEFINE_INPUT( m_flLifetime, FIELD_FLOAT, "SetLifetime" ),
 	DEFINE_INPUT( m_iGibFlags, FIELD_INTEGER, "SetGibFlags" ),
@@ -2584,7 +2584,11 @@ void CBreakableGibShooter::Shoot( void )
 			slaveFlag = BREAK_SLAVE;
 		}
 
-		te->BreakModel( filter, m_flDelay, GetAbsOrigin(), GetAbsAngles(), m_vecGibSize, m_vecGibVelocity, iModelIndex, m_iRandomization, 1, m_flLifetime, m_iGibFlags | slaveFlag );
+		Vector vecShootDir;
+		AngleVectors( GetAbsAngles(), &vecShootDir );
+		VectorNormalize( vecShootDir );
+
+		te->BreakModel( filter, m_flDelay, GetAbsOrigin(), GetAbsAngles(), m_vecGibSize, vecShootDir * m_flGibSpeed, iModelIndex, m_iRandomization, 1, m_flLifetime, m_iGibFlags | slaveFlag );
 	}
 }
 

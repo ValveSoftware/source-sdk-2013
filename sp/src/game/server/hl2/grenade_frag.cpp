@@ -11,6 +11,9 @@
 #include "Sprite.h"
 #include "SpriteTrail.h"
 #include "soundent.h"
+#ifdef MAPBASE
+#include "mapbase/ai_grenade.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -126,8 +129,31 @@ void CGrenadeFrag::Spawn( void )
 	SetCollisionGroup( COLLISION_GROUP_WEAPON );
 	CreateVPhysics();
 
+#ifdef MAPBASE
+	if (GetThrower() && GetThrower()->IsNPC())
+	{
+		// One of OnThrowGrenade's useful applications is replacing it with another entity using point_entity_replace.
+		// However, the grenade is always able to let out a blip before being replaced, which can be confusing/undesirable.
+		// This code checks to see if OnThrowGrenade is being used for anything, in which case the first blip will be very slightly delayed.
+		// This doesn't interfere with when the grenade actually detonates and shouldn't be noticable if the grenade is kept by OnThrowGrenade anyway.
+		CAI_GrenadeUserSink *pGrenadeUser = dynamic_cast<CAI_GrenadeUserSink*>(GetThrower());
+		if (pGrenadeUser && pGrenadeUser->UsingOnThrowGrenade())
+		{
+			// We delay the blip by 0.05, so replacement must occur within that period in order to skip the blip.
+			m_flNextBlipTime = gpGlobals->curtime + 0.05f;
+		}
+	}
+
+	// Do the blip if m_flNextBlipTime wasn't changed
+	if (m_flNextBlipTime <= gpGlobals->curtime)
+	{
+		BlipSound();
+		m_flNextBlipTime = gpGlobals->curtime + FRAG_GRENADE_BLIP_FREQUENCY;
+	}
+#else
 	BlipSound();
 	m_flNextBlipTime = gpGlobals->curtime + FRAG_GRENADE_BLIP_FREQUENCY;
+#endif
 
 	AddSolidFlags( FSOLID_NOT_STANDABLE );
 

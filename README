@@ -2,16 +2,17 @@
 
 This repository contains the code and game files of the Source 2013 modification known as Mapbase.
 
-The projected texture fixes within the "ASW_PROJECTED_TEXTURES" preprocessor are from Insolence 2013. (https://github.com/95Navigator/insolence-2013)
-The projected texture fixes within the "C17EP1_PROJECTED_TEXTURES" preprocessor are from City 17: Episode One. (https://github.com/KyleGospo/City-17-Episode-One-Source)
-The vortigaunt LOS fix is from Half-Life 2: Community Edition, more specifically dky.tehkingd.u. (https://gitlab.com/RaraCerberus/HL2CE)
+The projected texture fixes within the "ASW_PROJECTED_TEXTURES" preprocessor and most of the shader changes involving projected textures are cumulative changes from Insolence's repository using fixes from Alien Swarm, G-String, and City 17: Episode One. (https://github.com/95Navigator/insolence-2013, https://github.com/Biohazard90/g-string_2013, https://github.com/KyleGospo/City-17-Episode-One-Source)
+The original code for phong reflections on LightmappedGeneric-derived shaders are from City 17: Episode One. (https://github.com/KyleGospo/City-17-Episode-One-Source)
+The Alien Swarm-based radial fog and rope code as well as the multiple skybox support are from Half-Life 2: Downfall. (https://github.com/DownFall-Team/DownFall)
 The dynamic RTT shadow angles code is from Saul Rennison on the VDC. (https://developer.valvesoftware.com/wiki/Dynamic_RTT_shadow_angles_in_Source_2007)
+The vortigaunt LOS fix is from Half-Life 2: Community Edition (dky.tehkingd.u in particular). (https://gitlab.com/RaraCerberus/HL2CE)
 Various other code and contributions were based off of pull requests in the Source 2013 SDK (https://github.com/ValveSoftware/source-sdk-2013/pulls) and snippets on the Valve Developer Community (http://developer.valvesoftware.com/).
 
 All of the work mentioned above was open source when it was borrowed.
 
-Miscellaneous credits can be found here:
-https://trello.com/c/cnaEy4Jr
+More credits can be found here:
+https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Credits
 
 Please see the Source SDK 2013 license below:
 

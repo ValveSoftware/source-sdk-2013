@@ -1275,6 +1275,10 @@ public:
 
 	CNetworkColor32( m_clrRender );
 
+#ifdef MAPBASE
+	int								m_iViewHideFlags;
+#endif
+
 private:
 	
 	// Model for rendering
