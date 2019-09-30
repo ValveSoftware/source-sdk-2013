@@ -160,7 +160,6 @@ bool CNPC_PlayerCompanion::gm_bFindingCoverFromAllEnemies;
 #ifdef MAPBASE
 string_t CNPC_PlayerCompanion::gm_iszMortarClassname;
 string_t CNPC_PlayerCompanion::gm_iszGroundTurretClassname;
-string_t CNPC_PlayerCompanion::gm_iszRollerMineClassname;
 #else
 string_t CNPC_PlayerCompanion::gm_iszMortarClassname;
 string_t CNPC_PlayerCompanion::gm_iszFloorTurretClassname;
@@ -206,9 +205,8 @@ bool CNPC_PlayerCompanion::CreateBehaviors()
 void CNPC_PlayerCompanion::Precache()
 {
 #ifdef MAPBASE
-	SetGlobalString(gm_iszMortarClassname, "func_tankmortar");
-	SetGlobalString(gm_iszGroundTurretClassname, "npc_turret_ground");
-	SetGlobalString(gm_iszRollerMineClassname, "npc_rollermine");
+	gm_iszMortarClassname = AllocPooledString( "func_tankmortar" );
+	gm_iszGroundTurretClassname = AllocPooledString( "npc_turret_ground" );
 #else
 	gm_iszMortarClassname = AllocPooledString( "func_tankmortar" );
 	gm_iszFloorTurretClassname = AllocPooledString( "npc_turret_floor" );

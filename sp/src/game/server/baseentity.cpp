@@ -8012,10 +8012,31 @@ void CBaseEntity::DispatchResponse( const char *conceptName )
 #ifdef MAPBASE
 	if (response[0] == '$')
 	{
-		response[0] = '\0';
-		DevMsg("Replacing %s with %s...\n", response, GetContextValue(response));
-		Q_strncpy(response, GetContextValue(response), sizeof(response));
-		PrecacheScriptSound( response );
+		const char *context = response + 1;
+		const char *replace = GetContextValue(context);
+
+		if (replace)
+		{
+			DevMsg("Replacing %s with %s...\n", response, replace);
+			Q_strncpy(response, replace, sizeof(response));
+
+			// Precache it now because it may not have been precached before
+			switch ( result.GetType() )
+			{
+			case RESPONSE_SPEAK:
+				{
+					PrecacheScriptSound( response );
+				}
+				break;
+
+			case RESPONSE_SCENE:
+				{
+					// TODO: Gender handling?
+					PrecacheInstancedScene( response );
+				}
+				break;
+			}
+		}
 	}
 #endif
 	switch ( result.GetType() )

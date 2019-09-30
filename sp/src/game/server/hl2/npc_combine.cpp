@@ -42,7 +42,7 @@ int g_fCombineQuestion;				// true if an idle grunt asked a question. Cleared wh
 #ifdef MAPBASE
 ConVar npc_combine_idle_walk_easy("npc_combine_idle_walk_easy", "1");
 ConVar npc_combine_unarmed_anims("npc_combine_unarmed_anims", "1");
-ConVar npc_combine_altfire_alliesonly("npc_combine_altfire_alliesonly", "0");
+ConVar npc_combine_altfire_not_allies_only( "npc_combine_altfire_not_allies_only", "1" );
 #endif
 
 #define COMBINE_SKIN_DEFAULT		0
@@ -3362,7 +3362,7 @@ bool CNPC_Combine::CanAltFireEnemy( bool bUseFreeKnowledge )
 	// "Our weapons alone cannot take down the antlion guard!"
 	// "Wait, you're an elite, don't you have, like, disintegration balls or somethi--"
 	// "SHUT UP!"
-	if ( npc_combine_altfire_alliesonly.GetBool() && !pEnemy->IsPlayer() && (!pEnemy->IsNPC() || !pEnemy->MyNPCPointer()->IsPlayerAlly()) )
+	if ( !npc_combine_altfire_not_allies_only.GetBool() && !pEnemy->IsPlayer() && (!pEnemy->IsNPC() || !pEnemy->MyNPCPointer()->IsPlayerAlly()) )
 #else
 	if( !pEnemy->IsPlayer() && (!pEnemy->IsNPC() || !pEnemy->MyNPCPointer()->IsPlayerAlly()) )
 #endif

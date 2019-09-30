@@ -47,6 +47,7 @@ extern string_t gm_isz_class_Dropship;
 extern string_t gm_isz_class_FloorTurret;
 extern string_t gm_isz_class_CScanner;
 extern string_t gm_isz_class_ClawScanner;
+extern string_t gm_isz_class_Rollermine;
 #endif
 
 extern string_t gm_isz_class_Bullseye;
@@ -67,8 +68,6 @@ extern string_t gm_isz_name_activator;
 // 
 // This function is for comparing global strings and allows us to change how we compare them quickly.
 extern bool EntIsClass( CBaseEntity *ent, string_t str2 );
-
-extern void SetGlobalString( string_t &string, const char *text );
 
 // -------------------------------------------------------------
 

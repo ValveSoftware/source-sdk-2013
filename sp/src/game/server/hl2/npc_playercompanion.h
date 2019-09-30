@@ -470,7 +470,7 @@ protected:
 	#define gm_iszFloorTurretClassname gm_isz_class_FloorTurret
 	static string_t gm_iszGroundTurretClassname;
 	#define gm_iszShotgunClassname gm_isz_class_Shotgun
-	static string_t	gm_iszRollerMineClassname;
+	#define gm_iszRollerMineClassname gm_isz_class_Rollermine
 	#define gm_iszSMG1Classname gm_isz_class_SMG1
 	#define gm_iszAR2Classname gm_isz_class_AR2
 #else

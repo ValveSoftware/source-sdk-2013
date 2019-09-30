@@ -37,6 +37,7 @@ string_t gm_isz_class_Dropship;
 string_t gm_isz_class_FloorTurret;
 string_t gm_isz_class_CScanner;
 string_t gm_isz_class_ClawScanner;
+string_t gm_isz_class_Rollermine;
 #endif
 
 string_t gm_isz_class_Bullseye;
@@ -68,18 +69,6 @@ inline bool EntIsClass( CBaseEntity *ent, string_t str2 )
 	return ent->m_iClassname == str2;
 }
 
-inline void SetGlobalString( string_t &string, const char *text )
-{
-	//string = AllocPooledString(text);
-
-	// Entities usually allocate global strings every time one of them spawns, meaning the string could've already been allocated either
-	// by the same type of entity already being spawned or some other means.
-	// If it's already allocated, we could easily just use "Find" instead of "Alloc". There's a fallback if we don't find it in the string pool.
-	string = FindPooledString( text );
-	if (string == NULL_STRING)
-		string = AllocPooledString( text );
-}
-
 // We know it hasn't been allocated yet
 #define INITIALIZE_GLOBAL_STRING(string, text) string = AllocPooledString(text) //SetGlobalString(string, text)
 
@@ -104,6 +93,7 @@ void InitGlobalStrings()
 	INITIALIZE_GLOBAL_STRING(gm_isz_class_FloorTurret, "npc_turret_floor");
 	INITIALIZE_GLOBAL_STRING(gm_isz_class_CScanner, "npc_cscanner");
 	INITIALIZE_GLOBAL_STRING(gm_isz_class_ClawScanner, "npc_clawscanner");
+	INITIALIZE_GLOBAL_STRING(gm_isz_class_Rollermine, "npc_rollermine");
 #endif
 
 	INITIALIZE_GLOBAL_STRING(gm_isz_class_Bullseye, "npc_bullseye");

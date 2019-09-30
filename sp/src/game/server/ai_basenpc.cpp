@@ -14674,7 +14674,12 @@ void CAI_BaseNPC::CalculateValidEnemyInteractions( void )
 		// If we have a damage filter that prevents us hurting the enemy,
 		// don't interact with him, since most interactions kill the enemy.
 		// Create a fake damage info to test it with.
+#ifdef MAPBASE
+		// DMG_PREVENT_PHYSICS_FORCE can be used to identify dynamic interaction tests
+		CTakeDamageInfo tempinfo( this, this, vec3_origin, vec3_origin, 1.0, DMG_BULLET | DMG_PREVENT_PHYSICS_FORCE );
+#else
 		CTakeDamageInfo tempinfo( this, this, vec3_origin, vec3_origin, 1.0, DMG_BULLET );
+#endif
 		if ( !pNPC->PassesDamageFilter( tempinfo ) )
 			continue;
 
