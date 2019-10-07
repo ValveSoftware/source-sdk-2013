@@ -24,7 +24,7 @@ VideoPanel::VideoPanel( unsigned int nXPos, unsigned int nYPos, unsigned int nHe
 	m_nPlaybackHeight( 0 ),
 	m_bAllowAlternateMedia( allowAlternateMedia )
 {
-	vgui::VPANEL pParent = enginevgui->GetPanel( PANEL_GAMEUIDLL );
+	vgui::VPANEL pParent = enginevgui->GetPanel( PANEL_ROOT );
 	SetParent( pParent );
 	SetVisible( false );
 	
