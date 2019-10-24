@@ -14,7 +14,7 @@
 
 static LightmappedGeneric_DX9_Vars_t s_info;
 
-static LightmappedGeneric_DX9_Vars_t s_info_editor;
+//static LightmappedGeneric_DX9_Vars_t s_info_editor;
 
 
 DEFINE_FALLBACK_SHADER( SDK_WorldVertexTransition, SDK_WorldVertexTransition_DX9 )
@@ -72,6 +72,15 @@ BEGIN_VS_SHADER( SDK_WorldVertexTransition_DX9, "Help for SDK_WorldVertexTransit
 		SHADER_PARAM( PHONGBOOST, SHADER_PARAM_TYPE_FLOAT, "1.0", "Phong overbrightening factor (specular mask channel should be authored to account for this)" )
 		SHADER_PARAM( PHONGFRESNELRANGES, SHADER_PARAM_TYPE_VEC3, "[0  0.5  1]", "Parameters for remapping fresnel output" )
 		SHADER_PARAM( PHONGEXPONENT, SHADER_PARAM_TYPE_FLOAT, "5.0", "Phong exponent for local specular lights" )
+
+#ifdef PARALLAX_CORRECTED_CUBEMAPS
+		// Parallax cubemaps
+		SHADER_PARAM( ENVMAPPARALLAX, SHADER_PARAM_TYPE_BOOL, "0", "Enables parallax correction code for env_cubemaps" )
+		SHADER_PARAM( ENVMAPPARALLAXOBB1, SHADER_PARAM_TYPE_VEC4, "[1 0 0 0]", "The first line of the parallax correction OBB matrix" )
+		SHADER_PARAM( ENVMAPPARALLAXOBB2, SHADER_PARAM_TYPE_VEC4, "[0 1 0 0]", "The second line of the parallax correction OBB matrix" )
+		SHADER_PARAM( ENVMAPPARALLAXOBB3, SHADER_PARAM_TYPE_VEC4, "[0 0 1 0]", "The third line of the parallax correction OBB matrix" )
+		SHADER_PARAM( ENVMAPORIGIN, SHADER_PARAM_TYPE_VEC3, "[0 0 0]", "The world space position of the env_cubemap being corrected" )
+#endif
 	END_SHADER_PARAMS
 
 	void SetupVars( LightmappedGeneric_DX9_Vars_t& info )
@@ -128,6 +137,15 @@ BEGIN_VS_SHADER( SDK_WorldVertexTransition_DX9, "Help for SDK_WorldVertexTransit
 		info.m_nPhongBoost = PHONGBOOST;
 		info.m_nPhongFresnelRanges = PHONGFRESNELRANGES;
 		info.m_nPhongExponent = PHONGEXPONENT;
+
+#ifdef PARALLAX_CORRECTED_CUBEMAPS
+		// Parallax cubemaps
+		info.m_nEnvmapParallax = ENVMAPPARALLAX;
+		info.m_nEnvmapParallaxObb1 = ENVMAPPARALLAXOBB1;
+		info.m_nEnvmapParallaxObb2 = ENVMAPPARALLAXOBB2;
+		info.m_nEnvmapParallaxObb3 = ENVMAPPARALLAXOBB3;
+		info.m_nEnvmapOrigin = ENVMAPORIGIN;
+#endif
 	}
 
 	SHADER_FALLBACK
@@ -142,8 +160,8 @@ BEGIN_VS_SHADER( SDK_WorldVertexTransition_DX9, "Help for SDK_WorldVertexTransit
 	{
 		SetupVars( s_info );
 		InitParamsLightmappedGeneric_DX9( this, params, pMaterialName, s_info );
-		SetupVars( s_info_editor );
-		SwapLayers( s_info_editor );
+		//SetupVars( s_info_editor );
+		//SwapLayers( s_info_editor );
 	}
 
 	SHADER_INIT
@@ -154,30 +172,27 @@ BEGIN_VS_SHADER( SDK_WorldVertexTransition_DX9, "Help for SDK_WorldVertexTransit
 
 	SHADER_DRAW
 	{
-		if ( UsingEditor( params ) )
-			DrawLightmappedGeneric_DX9( this, params, pShaderAPI, pShaderShadow, s_info_editor, pContextDataPtr );
-		else
+		//if ( UsingEditor( params ) )
+		//	DrawLightmappedGeneric_DX9( this, params, pShaderAPI, pShaderShadow, s_info_editor, pContextDataPtr );
+		//else
 			DrawLightmappedGeneric_DX9( this, params, pShaderAPI, pShaderShadow, s_info, pContextDataPtr );
 	}
 
 private:
 	// This hack is from Half-Life 2: Downfall in order to support WorldVertexTransition in Hammer.
+	// We get around this through a different hack in the shader code itself now.
 	// Original comment:
 	//    "Hack to make hammer display WVT in non-inverted way.
 	//    It worked ok in standard WVT because of special editor-only shader.
 	//    Why Valve just didn't inverted vertex alpha directly in hammer code? oO"
-	static FORCEINLINE void SwapLayers( LightmappedGeneric_DX9_Vars_t &info )
-	{
-		V_swap( info.m_nBaseTexture, info.m_nBaseTexture2 );
-		V_swap( info.m_nBaseTextureFrame, info.m_nBaseTexture2Frame );
-		V_swap( info.m_nBaseTextureNoEnvmap, info.m_nBaseTexture2NoEnvmap );
-		V_swap( info.m_nBumpmap, info.m_nBumpmap2 );
-		V_swap( info.m_nBumpFrame, info.m_nBumpFrame2 );
-		V_swap( info.m_nBumpTransform, info.m_nBumpTransform2 );
-
-		// I added this part myself, but it's no longer needed now that I've extended the hack into the actual shader code.
-		//info.m_nBlendModulateTexture = 0;
-		//info.m_nBlendMaskTransform = 0;
-	}
+	//static FORCEINLINE void SwapLayers( LightmappedGeneric_DX9_Vars_t &info )
+	//{
+	//	V_swap( info.m_nBaseTexture, info.m_nBaseTexture2 );
+	//	V_swap( info.m_nBaseTextureFrame, info.m_nBaseTexture2Frame );
+	//	V_swap( info.m_nBaseTextureNoEnvmap, info.m_nBaseTexture2NoEnvmap );
+	//	V_swap( info.m_nBumpmap, info.m_nBumpmap2 );
+	//	V_swap( info.m_nBumpFrame, info.m_nBumpFrame2 );
+	//	V_swap( info.m_nBumpTransform, info.m_nBumpTransform2 );
+	//}
 END_SHADER
 

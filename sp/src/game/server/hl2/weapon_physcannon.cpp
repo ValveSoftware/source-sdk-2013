@@ -1163,7 +1163,11 @@ void CPlayerPickupController::Use( CBaseEntity *pActivator, CBaseEntity *pCaller
 			Vector vecLaunch;
 			m_pPlayer->EyeVectors( &vecLaunch );
 			// JAY: Scale this with mass because some small objects really go flying
+#ifdef MAPBASE
+			float massFactor = pPhys ? clamp( pPhys->GetMass(), 0.5, 15 ) : 7.5;
+#else
 			float massFactor = clamp( pPhys->GetMass(), 0.5, 15 );
+#endif
 			massFactor = RemapVal( massFactor, 0.5, 15, 0.5, 4 );
 			vecLaunch *= player_throwforce.GetFloat() * massFactor;
 

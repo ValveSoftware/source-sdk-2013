@@ -177,12 +177,6 @@ CPropJeep::CPropJeep( void )
 
 	m_bUnableToFire = true;
 	m_flAmmoCrateCloseTime = 0;
-
-#ifdef MAPBASE
-	// Turn prop_vehicle_jeep_olds into prop_vehicle_jeeps
-	if (FStrEq(GetClassname(), "prop_vehicle_jeep_old"))
-		SetClassname("prop_vehicle_jeep");
-#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -41,6 +41,10 @@ BEGIN_DATADESC( CNPC_BaseScanner )
 	DEFINE_FIELD( m_flAttackFarDist,	FIELD_FLOAT ),
 	DEFINE_FIELD( m_flAttackRange,	FIELD_FLOAT ),
 
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_flCustomMaxSpeed, FIELD_FLOAT, "CustomFlightSpeed" ),
+#endif
+
 	DEFINE_FIELD( m_nPoseTail,				FIELD_INTEGER ),
 	DEFINE_FIELD( m_nPoseDynamo,			FIELD_INTEGER ),
 	DEFINE_FIELD( m_nPoseFlare,				FIELD_INTEGER ),
@@ -52,7 +56,11 @@ BEGIN_DATADESC( CNPC_BaseScanner )
 	DEFINE_FIELD( m_pSmokeTrail,			FIELD_CLASSPTR ),
 
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetDistanceOverride", InputSetDistanceOverride ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetFlightSpeed", InputSetFlightSpeed ),
+#else
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetFlightSpeed", InputSetFlightSpeed ),
+#endif
 
 	DEFINE_THINKFUNC( DiveBombSoundThink ),
 END_DATADESC()
@@ -861,12 +869,16 @@ void CNPC_BaseScanner::SpeakSentence( int sentenceType )
 //-----------------------------------------------------------------------------
 void CNPC_BaseScanner::InputSetFlightSpeed(inputdata_t &inputdata)
 {
+#ifdef MAPBASE
+	m_flCustomMaxSpeed = inputdata.value.Float();
+#else
 	//FIXME: Currently unsupported
 
 	/*
 	m_flFlightSpeed = inputdata.value.Int();
 	m_bFlightSpeedOverridden = (m_flFlightSpeed > 0);
 	*/
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1655,6 +1667,11 @@ void CNPC_BaseScanner::PainSound( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 float CNPC_BaseScanner::GetMaxSpeed()
 {
+#ifdef MAPBASE
+	if (m_flCustomMaxSpeed > 0.0f)
+		return m_flCustomMaxSpeed;
+#endif
+
 	return SCANNER_MAX_SPEED;
 }
 

@@ -54,7 +54,8 @@
 
 // Mask used for Combine ball hull traces.
 // This used MASK_SHOT before, but this has been changed to MASK_SHOT_HULL.
-// Hopefully this doesn't have any major consequences...
+// This fixes the existing problem of soldiers trying to fire energy balls through grates,
+// but it's also important to prevent soldiers from blowing themselves up with their newfound SMG grenades.
 #define MASK_COMBINE_BALL_LOS MASK_SHOT_HULL
 
 extern int COMBINE_AE_BEGIN_ALTFIRE;

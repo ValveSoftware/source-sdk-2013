@@ -7,6 +7,7 @@ The original code for phong reflections on LightmappedGeneric-derived shaders ar
 The Alien Swarm-based radial fog and rope code as well as the multiple skybox support are from Half-Life 2: Downfall. (https://github.com/DownFall-Team/DownFall)
 The dynamic RTT shadow angles code is from Saul Rennison on the VDC. (https://developer.valvesoftware.com/wiki/Dynamic_RTT_shadow_angles_in_Source_2007)
 The vortigaunt LOS fix is from Half-Life 2: Community Edition (dky.tehkingd.u in particular). (https://gitlab.com/RaraCerberus/HL2CE)
+The parallax corrected cubemap code (which is partly in Mapbase's code, but not yet usable) was originally created by Brian Charles. (https://developer.valvesoftware.com/wiki/Parallax_Corrected_Cubemaps)
 Various other code and contributions were based off of pull requests in the Source 2013 SDK (https://github.com/ValveSoftware/source-sdk-2013/pulls) and snippets on the Valve Developer Community (http://developer.valvesoftware.com/).
 
 All of the work mentioned above was open source when it was borrowed.

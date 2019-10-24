@@ -990,7 +990,12 @@ void CNPC_CScanner::DeployMine()
 //-----------------------------------------------------------------------------
 float CNPC_CScanner::GetMaxSpeed()
 {
+#ifdef MAPBASE
+	// Don't stomp custom max speed in base class
+	if( IsStriderScout() && m_flCustomMaxSpeed <= 0.0f )
+#else
 	if( IsStriderScout() )
+#endif
 	{
 		return SCANNER_SCOUT_MAX_SPEED;
 	}

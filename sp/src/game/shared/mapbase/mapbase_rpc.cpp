@@ -19,6 +19,7 @@
 #include <time.h>
 #endif
 
+#include "filesystem.h"
 #include "c_playerresource.h"
 
 #endif
@@ -91,7 +92,9 @@ static EHANDLE g_Metadata[NUM_RPCS];
 class CMapbaseMetadata : public CBaseEntity
 {
 public:
+#ifndef CLIENT_DLL
 	DECLARE_DATADESC();
+#endif
 	DECLARE_NETWORKCLASS();
 	DECLARE_CLASS( CMapbaseMetadata, CBaseEntity );
 
@@ -204,6 +207,7 @@ BEGIN_NETWORK_TABLE_NOBASE(CMapbaseMetadata, DT_MapbaseMetadata)
 
 END_NETWORK_TABLE()
 
+#ifndef CLIENT_DLL
 BEGIN_DATADESC( CMapbaseMetadata )
 
 	// Inputs
@@ -211,26 +215,31 @@ BEGIN_DATADESC( CMapbaseMetadata )
 	DEFINE_INPUT( m_iszRPCDetails, FIELD_STRING, "SetRPCDetails" ),
 
 END_DATADESC()
+#endif
 
 #ifdef MAPBASE_RPC
 //-----------------------------------------------------------------------------
 // Purpose: Mapbase's special integration with rich presence clients, most notably Discord.
 // 
-// This only has Discord as of writing, but similar/derived implementaton could expand to
-// other clients in the future, maybe even Steam.
+// This only has Discord and crude groundwork for Steam as of writing,
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------
 // !!! FOR MODS !!!
 // 
 // Create your own Discord "application" if you want to change what info/images show up, etc.
-// You can find the convar that controls this in cdll_client_int.cpp.
+// You can change the app ID in "scripts/mapbase_rpc.txt". It's located in the shared content VPK and the mod templates.
+// You could override that file in your mod to change it to your own app ID.
 // 
-// This code automatically shows the mod's title in the details, but it's easy to change if you want things to be chapter-specific, etc.
+// This code automatically shows the mod's title in the details, but it's easy to change this code if you want things to be chapter-specific, etc.
 // 
 //-----------------------------------------
 
-static ConVar cl_discord_appid("cl_discord_appid", "582595088719413250", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
+// Changing the default value of the convars below will not work.
+// Use "scripts/mapbase_rpc.txt" instead.
+static ConVar cl_discord_appid("cl_discord_appid", "582595088719413250", FCVAR_NONE);
+static ConVar cl_discord_largeimage("cl_discord_largeimage", "mb_logo_episodic", FCVAR_NONE);
+static ConVar cl_discord_largeimage_text("cl_discord_largeimage_text", "Half-Life 2", FCVAR_NONE);
 static int64_t startTimestamp = time(0);
 
 //
@@ -289,6 +298,22 @@ static void HandleDiscordJoinRequest(const DiscordUser* request)
 
 void MapbaseRPC_Init()
 {
+	// First, load the config
+	// (we need its values immediately)
+	KeyValues *pKV = new KeyValues( "MapbaseRPC" );
+	if (pKV->LoadFromFile( filesystem, "scripts/mapbase_rpc.txt" ))
+	{
+		const char *szAppID = pKV->GetString("discord_appid", cl_discord_appid.GetString());
+		cl_discord_appid.SetValue(szAppID);
+
+		const char *szLargeImage = pKV->GetString("discord_largeimage", cl_discord_largeimage.GetString());
+		cl_discord_largeimage.SetValue(szLargeImage);
+
+		const char *szLargeImageText = pKV->GetString("discord_largeimage_text", cl_discord_largeimage_text.GetString());
+		cl_discord_largeimage_text.SetValue( szLargeImageText );
+	}
+	pKV->deleteThis();
+
 	// Steam RPC
 	if (steamapicontext->SteamFriends())
 		steamapicontext->SteamFriends()->ClearRichPresence();
@@ -423,19 +448,6 @@ void MapbaseRPC_UpdateSteam( int iType, const char *pMapName )
 #endif
 
 #ifdef DISCORD_RPC
-// Game-Specfic Image
-// These are specific to the Mapbase Discord application, so you'll want to modify this for your own mod.
-#if HL2_EPISODIC
-#define DISCORD_GAME_IMAGE "mb_logo_episodic"
-#define DISCORD_GAME_IMAGE_TEXT "Half-Life 2 Episodic"
-#elif HL2_CLIENT_DLL
-#define DISCORD_GAME_IMAGE "mb_logo_hl2"
-#define DISCORD_GAME_IMAGE_TEXT "Half-Life 2"
-#else
-#define DISCORD_GAME_IMAGE "mb_logo_general"
-#define DISCORD_GAME_IMAGE_TEXT "Mapbase"
-#endif
-
 void MapbaseRPC_GetDiscordParameters( DiscordRichPresence &discordPresence, int iType, const char *pMapName )
 {
 	static char details[128];
@@ -504,10 +516,8 @@ void MapbaseRPC_GetDiscordParameters( DiscordRichPresence &discordPresence, int 
 	discordPresence.smallImageKey = "mb_logo_general";
 	discordPresence.smallImageText = "Mapbase";
 
-#ifdef DISCORD_GAME_IMAGE
-	discordPresence.largeImageKey = DISCORD_GAME_IMAGE;
-	discordPresence.largeImageText = DISCORD_GAME_IMAGE_TEXT;
-#endif
+	discordPresence.largeImageKey = cl_discord_largeimage.GetString();
+	discordPresence.largeImageText = cl_discord_largeimage_text.GetString();
 }
 
 void MapbaseRPC_UpdateDiscord( int iType, const char *pMapName )

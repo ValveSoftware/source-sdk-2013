@@ -214,7 +214,11 @@ void CGameUI::Deactivate( CBaseEntity *pActivator )
 	}
 	else
 	{
+#ifdef MAPBASE
+		Warning("%s Deactivate(): I have no player when called by %s!\n", GetEntityName().ToCStr(), pActivator ? pActivator->GetEntityName().ToCStr() : "(null)");
+#else
 		Warning("%s Deactivate(): I have no player when called by %s!\n", GetEntityName().ToCStr(), pActivator->GetEntityName().ToCStr());
+#endif
 	}
 	
 	// Stop thinking

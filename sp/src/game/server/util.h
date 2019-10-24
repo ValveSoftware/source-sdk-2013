@@ -206,7 +206,7 @@ inline bool FStrEq( string_t str1, string_t str2 )
 }
 #endif
 
-const char *nexttoken(char *token, const char *str, char sep);
+const char *nexttoken(char *token, const char *str, char sep, size_t tokenLen);
 
 // Misc. Prototypes
 void		UTIL_SetSize			(CBaseEntity *pEnt, const Vector &vecMin, const Vector &vecMax);

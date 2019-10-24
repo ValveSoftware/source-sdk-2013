@@ -4701,7 +4701,11 @@ void CBaseVPhysicsTrigger::EndTouch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 bool CBaseVPhysicsTrigger::PassesTriggerFilters( CBaseEntity *pOther )
 {
+#ifdef MAPBASE
+	if ( !pOther->VPhysicsGetObject() )
+#else
 	if ( pOther->GetMoveType() != MOVETYPE_VPHYSICS && !pOther->IsPlayer() )
+#endif
 		return false;
 
 #ifdef MAPBASE

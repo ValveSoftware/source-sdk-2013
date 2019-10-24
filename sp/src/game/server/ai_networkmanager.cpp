@@ -70,7 +70,7 @@ CON_COMMAND( ai_debug_node_connect, "Debug the attempted connection between two 
 
 ConVar g_ai_norebuildgraph( "ai_norebuildgraph", "0" );
 #ifdef MAPBASE
-ConVar g_ai_nographrebuildmessage( "ai_nographrebuildmessage", "0", FCVAR_ARCHIVE, "Stops the \"Node graph out of date\" message from appearing when rbeuilding node graph" );
+ConVar g_ai_nographrebuildmessage( "ai_nographrebuildmessage", "0", FCVAR_ARCHIVE, "Stops the \"Node graph out of date\" message from appearing when rebuilding node graph" );
 #endif
 
 

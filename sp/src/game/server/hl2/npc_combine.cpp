@@ -1556,14 +1556,14 @@ Activity CNPC_Combine::NPC_TranslateActivity( Activity eNewActivity )
 		}
 	}
 #ifdef MAPBASE
-	else if (!GetActiveWeapon() && npc_combine_unarmed_anims.GetBool())
+	else if (!GetActiveWeapon() && npc_combine_unarmed_anims.GetBool() && HaveSequenceForActivity(ACT_IDLE_UNARMED))
 	{
 		if (eNewActivity == ACT_IDLE || eNewActivity == ACT_IDLE_ANGRY)
 			eNewActivity = ACT_IDLE_UNARMED;
 		else if (eNewActivity == ACT_WALK)
 			eNewActivity = ACT_WALK_UNARMED;
 	}
-	else if (eNewActivity == ACT_WALK && m_NPCState == NPC_STATE_IDLE && npc_combine_idle_walk_easy.GetBool())
+	else if (eNewActivity == ACT_WALK && m_NPCState == NPC_STATE_IDLE && npc_combine_idle_walk_easy.GetBool() && HaveSequenceForActivity(ACT_WALK_EASY))
 	{
 		eNewActivity = ACT_WALK_EASY;
 	}
@@ -3528,11 +3528,7 @@ Vector CNPC_Combine::EyePosition( void )
 //-----------------------------------------------------------------------------
 Vector CNPC_Combine::GetAltFireTarget()
 {
-#ifdef MAPBASE
-	Assert( IsAltFireCapable() );
-#else
 	Assert( IsElite() );
-#endif
 
 	return m_vecAltFireTarget;
 }

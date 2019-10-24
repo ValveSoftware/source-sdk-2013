@@ -1259,15 +1259,11 @@ CClientShadowMgr::CClientShadowMgr() :
 	m_nPrevFrameCount( -1 ),
 #endif
 	m_RenderToTextureActive( false ),
-#ifdef ASW_PROJECTED_TEXTURES
-	m_bDepthTextureActive( false ),
-#else
-	m_bDepthTextureActive( false )
-#endif
 #ifdef DYNAMIC_RTT_SHADOWS
 	m_bShadowFromWorldLights( false ),
-	m_bSuppressShadowFromWorldLights( false )
+	m_bSuppressShadowFromWorldLights( false ),
 #endif
+	m_bDepthTextureActive( false )
 {
 	m_nDepthTextureResolution = r_flashlightdepthres.GetInt();
 	m_bThreaded = false;

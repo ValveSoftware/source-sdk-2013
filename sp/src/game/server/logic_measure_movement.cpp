@@ -276,7 +276,7 @@ void CLogicMeasureMovement::MeasureThink( )
 		if (m_bOutputPosition)
 		{
 			m_OutPosition.Set(vecNewOrigin, m_hTarget.Get(), this);
-			m_OutAngles.Set(Vector(vecNewAngles.x, vecNewAngles.y, vecNewAngles.z), m_hTarget.Get(), this);
+			m_OutAngles.Set(*(reinterpret_cast<Vector*>(vecNewAngles.Base())), m_hTarget.Get(), this);
 		}
 
 		if (HasSpawnFlags( SF_LOGIC_MEASURE_MOVEMENT_TELEPORT ))
@@ -369,31 +369,6 @@ void CLogicMeasureMovement::DoMeasure( Vector &vecOrigin, QAngle &angAngles )
 	}
 
 	ConcatTransforms( matWorldToMeasure, m_hMeasureReference->EntityToWorldTransform(), matRefToMeasure );
-
-	// If we have spawn flags, we might be supposed to ignore something
-	if (GetSpawnFlags() > 0)
-	{
-		if (HasSpawnFlags( SF_LOGIC_MEASURE_MOVEMENT_USE_IGNORE_FLAGS_FOR_ORIGIN ))
-		{
-			// Get the position from the matrix's column directly and re-assign it
-			Vector vecPosition;
-			MatrixGetColumn( matRefToMeasure, 3, vecPosition );
-
-			HandleIgnoreFlags( vecPosition.Base() );
-
-			MatrixSetColumn( vecPosition, 3, matRefToMeasure );
-		}
-		else
-		{
-			// Get the angles from the matrix and re-assign it
-			QAngle angMod;
-			MatrixAngles( matWorldToMeasure, angMod );
-
-			HandleIgnoreFlags( angMod.Base() );
-
-			AngleMatrix( angMod, matWorldToMeasure );
-		}
-	}
 	
 	// Apply the scale factor
 	if ( ( m_flScale != 0.0f ) && ( m_flScale != 1.0f ) )
@@ -408,9 +383,27 @@ void CLogicMeasureMovement::DoMeasure( Vector &vecOrigin, QAngle &angAngles )
 	matrix3x4_t matMeasureToRef, matNewTargetToWorld;
 	MatrixInvert( matRefToMeasure, matMeasureToRef );
 
+	// Handle origin ignorance
+	if (HasSpawnFlags( SF_LOGIC_MEASURE_MOVEMENT_USE_IGNORE_FLAGS_FOR_ORIGIN ))
+	{
+		// Get the position from the matrix's column directly and re-assign it
+		Vector vecPosition;
+		MatrixGetColumn( matRefToMeasure, 3, vecPosition );
+
+		HandleIgnoreFlags( vecPosition.Base() );
+
+		MatrixSetColumn( vecPosition, 3, matRefToMeasure );
+	}
+
 	ConcatTransforms( m_hTargetReference->EntityToWorldTransform(), matMeasureToRef, matNewTargetToWorld );
 
 	MatrixAngles( matNewTargetToWorld, angAngles, vecOrigin );
+
+	// If our spawnflags are greater than 0 (and don't just contain our default "TELEPORT" flag), we might need to ignore one of our angles.
+	if (GetSpawnFlags() && GetSpawnFlags() != SF_LOGIC_MEASURE_MOVEMENT_TELEPORT && !HasSpawnFlags(SF_LOGIC_MEASURE_MOVEMENT_USE_IGNORE_FLAGS_FOR_ORIGIN))
+	{
+		HandleIgnoreFlags( angAngles.Base() );
+	}
 }
 
 
@@ -765,31 +758,6 @@ void CLogicMirrorMovement::DoMeasure( Vector &vecOrigin, QAngle &angAngles )
 	}
 
 	ConcatTransforms( matWorldToMeasure, m_hMeasureReference->EntityToWorldTransform(), matRefToMeasure );
-
-	// If we have spawn flags, we might be supposed to ignore something
-	if (GetSpawnFlags() > 0)
-	{
-		if (HasSpawnFlags( SF_LOGIC_MEASURE_MOVEMENT_USE_IGNORE_FLAGS_FOR_ORIGIN ))
-		{
-			// Get the position from the matrix's column directly and re-assign it
-			Vector vecPosition;
-			MatrixGetColumn( matRefToMeasure, 3, vecPosition );
-
-			HandleIgnoreFlags( vecPosition.Base() );
-
-			MatrixSetColumn( vecPosition, 3, matRefToMeasure );
-		}
-		else
-		{
-			// Get the angles from the matrix and re-assign it
-			QAngle angMod;
-			MatrixAngles( matWorldToMeasure, angMod );
-
-			HandleIgnoreFlags( angMod.Base() );
-
-			AngleMatrix( angMod, matWorldToMeasure );
-		}
-	}
 	
 	// Apply the scale factor
 	if ( ( m_flScale != 0.0f ) && ( m_flScale != 1.0f ) )
@@ -814,9 +782,27 @@ void CLogicMirrorMovement::DoMeasure( Vector &vecOrigin, QAngle &angAngles )
 	matrix3x4_t matMeasureToRef, matNewTargetToWorld;
 	MatrixInvert( matRefToMeasure, matMeasureToRef );
 
+	// Handle origin ignorance
+	if (HasSpawnFlags( SF_LOGIC_MEASURE_MOVEMENT_USE_IGNORE_FLAGS_FOR_ORIGIN ))
+	{
+		// Get the position from the matrix's column directly and re-assign it
+		Vector vecPosition;
+		MatrixGetColumn( matRefToMeasure, 3, vecPosition );
+
+		HandleIgnoreFlags( vecPosition.Base() );
+
+		MatrixSetColumn( vecPosition, 3, matRefToMeasure );
+	}
+
 	ConcatTransforms( m_hTargetReference->EntityToWorldTransform(), matMeasureToRef, matNewTargetToWorld );
 
 	MatrixAngles( matNewTargetToWorld, angAngles, vecOrigin );
+
+	// If our spawnflags are greater than 0 (and don't just contain our default "TELEPORT" flag), we might need to ignore one of our angles.
+	if (GetSpawnFlags() && GetSpawnFlags() != SF_LOGIC_MEASURE_MOVEMENT_TELEPORT && !HasSpawnFlags(SF_LOGIC_MEASURE_MOVEMENT_USE_IGNORE_FLAGS_FOR_ORIGIN))
+	{
+		HandleIgnoreFlags( angAngles.Base() );
+	}
 
 	/*
 	VMatrix matPortal1ToWorldInv, matPortal2ToWorld;

@@ -132,7 +132,7 @@ Vector CRagdollMagnet::GetForceVector( CBaseEntity *pNPC )
 	if (pBone)
 	{
 		CBaseAnimating *pAnimating = pNPC->GetBaseAnimating();
-		Assert( pAniamting != NULL );
+		Assert( pAnimating != NULL );
 
 		const char *szBoneTarget = BoneTarget();
 		Assert( szBoneTarget != NULL );

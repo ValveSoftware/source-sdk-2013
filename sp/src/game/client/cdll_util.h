@@ -89,7 +89,7 @@ void	NormalizeAngles( QAngle& angles );
 void	InterpolateAngles( const QAngle& start, const QAngle& end, QAngle& output, float frac );
 void	InterpolateVector( float frac, const Vector& src, const Vector& dest, Vector& output );
 
-const char *nexttoken(char *token, const char *str, char sep);
+const char *nexttoken(char *token, const char *str, char sep, size_t tokenLen);
 
 //-----------------------------------------------------------------------------
 // Base light indices to avoid index collision

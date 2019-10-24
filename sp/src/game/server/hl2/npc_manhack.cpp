@@ -1531,7 +1531,7 @@ void CNPC_Manhack::Slice( CBaseEntity *pHitEntity, float flInterval, trace_t &tr
 
 	// Spawn some extra blood where we hit
 #ifdef MAPBASE
-	if ( pHitEntity->BloodColor() == DONT_BLEED || (m_bHackedByAlyx && !pHitEntity->PassesDamageFilter(info)) )
+	if ( pHitEntity->BloodColor() == DONT_BLEED || (IRelationType(pHitEntity) > D_FR && !pHitEntity->PassesDamageFilter(info)) )
 #else
 	if ( pHitEntity->BloodColor() == DONT_BLEED )
 #endif

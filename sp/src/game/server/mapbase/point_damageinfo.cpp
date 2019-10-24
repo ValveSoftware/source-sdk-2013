@@ -45,14 +45,17 @@ public:
 
 	void InputSetDamage( inputdata_t &inputdata ) { m_info.SetDamage(inputdata.value.Float()); }
 	void InputSetMaxDamage( inputdata_t &inputdata ) { m_info.SetMaxDamage(inputdata.value.Float()); }
-	//void InputSetDamageBonus( inputdata_t &inputdata ) { m_info.SetDamageBonus(inputdata.value.Float()); }
+	void InputSetDamageBonus( inputdata_t &inputdata ) { m_info.SetDamageBonus(inputdata.value.Float()); }
 
 	void InputSetDamageType( inputdata_t &inputdata ) { m_info.SetDamageType(inputdata.value.Int()); }
 	void InputSetDamageCustom( inputdata_t &inputdata ) { m_info.SetDamageCustom(inputdata.value.Int()); }
-	//void InputSetDamageStats( inputdata_t &inputdata ) { m_info.SetDamageStats(inputdata.value.Int()); }
+	void InputSetDamageStats( inputdata_t &inputdata ) { m_info.SetDamageStats(inputdata.value.Int()); }
 	void InputSetForceFriendlyFire( inputdata_t &inputdata ) { m_info.SetForceFriendlyFire(inputdata.value.Bool()); }
 
 	void InputSetAmmoType( inputdata_t &inputdata ) { m_info.SetAmmoType(inputdata.value.Int()); }
+
+	void InputSetPlayerPenetrationCount( inputdata_t &inputdata ) { m_info.SetPlayerPenetrationCount( inputdata.value.Int() ); }
+	void InputSetDamagedOtherPlayers( inputdata_t &inputdata ) { m_info.SetDamagedOtherPlayers( inputdata.value.Int() ); }
 
 	void InputSetDamageForce( inputdata_t &inputdata ) { Vector vec; inputdata.value.Vector3D(vec); m_info.SetDamageForce(vec); }
 	void InputSetDamagePosition( inputdata_t &inputdata ) { Vector vec; inputdata.value.Vector3D(vec); m_info.SetDamagePosition(vec); }
@@ -92,12 +95,14 @@ BEGIN_DATADESC( CPointDamageInfo )
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetWeapon", InputSetWeapon ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetDamage", InputSetDamage ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetMaxDamage", InputSetMaxDamage ),
-	//DEFINE_INPUTFUNC( FIELD_FLOAT, "SetDamageBonus", InputSetDamageBonus ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetDamageBonus", InputSetDamageBonus ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetDamageType", InputSetDamageType ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetDamageCustom", InputSetDamageCustom ),
-	//DEFINE_INPUTFUNC( FIELD_INTEGER, "SetDamageStats", InputSetDamageStats ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetDamageStats", InputSetDamageStats ),
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetForceFriendlyFire", InputSetForceFriendlyFire ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetAmmoType", InputSetAmmoType ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetPlayerPenetrationCount", InputSetPlayerPenetrationCount ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetDamagedOtherPlayers", InputSetDamagedOtherPlayers ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetDamageForce", InputSetDamageForce ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetDamagePosition", InputSetDamagePosition ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetReportedPosition", InputSetReportedPosition ),
@@ -139,29 +144,27 @@ bool CPointDamageInfo::KeyValue( const char *szKeyName, const char *szValue )
 		m_info.SetDamage(atof(szValue));
 	else if (FStrEq(szKeyName, "MaxDamage"))
 		m_info.SetMaxDamage(atof(szValue));
-	//else if (FStrEq(szKeyName, "DamageBonus"))
-	//	m_info.SetDamageBonus(atof(szValue));
+	else if (FStrEq(szKeyName, "DamageBonus"))
+		m_info.SetDamageBonus(atof(szValue));
 
-	else if (FStrEq(szKeyName, "DamageType"))
+	else if (FStrEq(szKeyName, "DamageType") || FStrEq(szKeyName, "DamagePresets"))
 		m_info.AddDamageType(atoi(szValue));
 	else if (FStrEq(szKeyName, "DamageOr"))
 		m_info.AddDamageType(atoi(szValue));
 	else if (FStrEq(szKeyName, "DamageCustom"))
 		m_info.SetDamageCustom(atoi(szValue));
-	//else if (FStrEq(szKeyName, "DamageStats"))
-	//	m_info.SetDamageStats(atoi(szValue));
+	else if (FStrEq(szKeyName, "DamageStats"))
+		m_info.SetDamageStats(atoi(szValue));
 	else if (FStrEq(szKeyName, "ForceFriendlyFire"))
 		m_info.SetForceFriendlyFire(FStrEq(szValue, "1"));
 
 	else if (FStrEq(szKeyName, "AmmoType"))
 		m_info.SetAmmoType(atoi(szValue));
 
-	/*
 	else if (FStrEq(szKeyName, "PlayerPenetrationCount"))
 		m_info.SetPlayerPenetrationCount(atoi(szValue));
 	else if (FStrEq(szKeyName, "DamagedOtherPlayers"))
 		m_info.SetDamagedOtherPlayers(atoi(szValue));
-	*/
 
 	else
 	{
@@ -214,27 +217,25 @@ bool CPointDamageInfo::GetKeyValue( const char *szKeyName, char *szValue, int iM
 		Q_snprintf(szValue, iMaxLen, "%f", m_info.GetDamage());
 	else if (FStrEq(szKeyName, "MaxDamage"))
 		Q_snprintf(szValue, iMaxLen, "%f", m_info.GetMaxDamage());
-	//else if (FStrEq(szKeyName, "DamageBonus"))
-	//	Q_snprintf(szValue, iMaxLen, "%f", m_info.GetDamageBonus());
+	else if (FStrEq(szKeyName, "DamageBonus"))
+		Q_snprintf(szValue, iMaxLen, "%f", m_info.GetDamageBonus());
 
 	else if (FStrEq(szKeyName, "DamageType"))
 		Q_snprintf(szValue, iMaxLen, "%i", m_info.GetDamageType());
 	else if (FStrEq(szKeyName, "DamageCustom"))
 		Q_snprintf(szValue, iMaxLen, "%i", m_info.GetDamageCustom());
-	//else if (FStrEq(szKeyName, "DamageStats"))
-	//	Q_snprintf(szValue, iMaxLen, "%i", m_info.GetDamageStats());
+	else if (FStrEq(szKeyName, "DamageStats"))
+		Q_snprintf(szValue, iMaxLen, "%i", m_info.GetDamageStats());
 	else if (FStrEq(szKeyName, "ForceFriendlyFire"))
 		Q_snprintf(szValue, iMaxLen, "%s", m_info.IsForceFriendlyFire() ? "1" : "0");
 
 	else if (FStrEq(szKeyName, "AmmoType"))
 		Q_snprintf(szValue, iMaxLen, "%i", m_info.GetAmmoType());
 
-	/*
 	else if (FStrEq(szKeyName, "PlayerPenetrationCount"))
 		Q_snprintf(szValue, iMaxLen, "%i", m_info.GetPlayerPenetrationCount());
 	else if (FStrEq(szKeyName, "DamagedOtherPlayers"))
 		Q_snprintf(szValue, iMaxLen, "%i", m_info.GetDamagedOtherPlayers());
-	*/
 
 	else if (FStrEq(szKeyName, "DamageForce"))
 		Q_snprintf(szValue, iMaxLen, "%f %f %f", m_info.GetDamageForce().x, m_info.GetDamageForce().y, m_info.GetDamageForce().z);
@@ -272,8 +273,6 @@ void CPointDamageInfo::ApplyDamage( const char *target, inputdata_t &inputdata )
 {
 	if (m_iszAttacker != NULL_STRING)
 		m_info.SetAttacker( gEntList.FindEntityByName(NULL, STRING(m_iszAttacker), this, inputdata.pActivator, inputdata.pCaller) );
-	else
-		m_info.SetAttacker( this );
 
 	if (m_iszInflictor != NULL_STRING)
 		m_info.SetInflictor( gEntList.FindEntityByName(NULL, STRING(m_iszInflictor), this, inputdata.pActivator, inputdata.pCaller) );
@@ -284,8 +283,6 @@ void CPointDamageInfo::ApplyDamage( const char *target, inputdata_t &inputdata )
 		{
 			m_info.SetInflictor(pBCC->GetActiveWeapon());
 		}
-		else
-			m_info.SetInflictor(this);
 	}
 
 	if (m_iszWeapon != NULL_STRING)
@@ -297,9 +294,16 @@ void CPointDamageInfo::ApplyDamage( const char *target, inputdata_t &inputdata )
 		{
 			m_info.SetWeapon(pBCC->GetActiveWeapon());
 		}
-		else
-			m_info.SetWeapon(this);
 	}
+
+	if (!m_info.GetAttacker())
+		m_info.SetAttacker( this );
+
+	if (!m_info.GetInflictor())
+		m_info.SetInflictor( this );
+
+	if (!m_info.GetWeapon())
+		m_info.SetWeapon( this );
 
 	CBaseEntity *pTarget = NULL;
 	if (m_iMaxEnts > 0)
@@ -309,10 +313,7 @@ void CPointDamageInfo::ApplyDamage( const char *target, inputdata_t &inputdata )
 			pTarget = gEntList.FindEntityGeneric(pTarget, target, this, inputdata.pActivator, inputdata.pCaller);
 			if (pTarget)
 			{
-				pTarget->TakeDamage(m_info);
-				m_OnApplyDamage.FireOutput(pTarget, this);
-				if (pTarget->m_lifeState == LIFE_DYING)
-					m_OnApplyDeath.FireOutput(pTarget, this);
+				HandleDamage( pTarget );
 			}
 		}
 	}
@@ -321,10 +322,7 @@ void CPointDamageInfo::ApplyDamage( const char *target, inputdata_t &inputdata )
 		pTarget = gEntList.FindEntityGeneric(NULL, target, this, inputdata.pActivator, inputdata.pCaller);
 		while (pTarget)
 		{
-			pTarget->TakeDamage(m_info);
-			m_OnApplyDamage.FireOutput(pTarget, this);
-			if (pTarget->m_lifeState == LIFE_DYING)
-				m_OnApplyDeath.FireOutput(pTarget, this);
+			HandleDamage( pTarget );
 			pTarget = gEntList.FindEntityGeneric(pTarget, target, this, inputdata.pActivator, inputdata.pCaller);
 		}
 	}

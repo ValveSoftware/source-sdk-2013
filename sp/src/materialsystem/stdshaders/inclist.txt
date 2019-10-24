@@ -16,7 +16,7 @@ fxctmp9_tmp\SDK_lightmappedgeneric_vs30.inc
 fxctmp9_tmp\SDK_depthwrite_ps30.inc
 fxctmp9_tmp\SDK_depthwrite_vs30.inc
 fxctmp9_tmp\SDK_eyes_ps30.inc
-fxctmp9_tmp\SDK_eyes_vs30.inc
+fxctmp9_tmp\SDK_Eyes_vs30.inc
 fxctmp9_tmp\SDK_eye_refract_ps30.inc
 fxctmp9_tmp\SDK_eye_refract_vs30.inc
 fxctmp9_tmp\SDK_eyes_flashlight_ps30.inc

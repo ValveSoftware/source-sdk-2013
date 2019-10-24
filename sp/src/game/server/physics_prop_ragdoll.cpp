@@ -751,14 +751,14 @@ void CRagdollProp::InitRagdoll( const Vector &forceVector, int forceBone, const 
 	if ( m_anglesOverrideString != NULL_STRING && Q_strlen(m_anglesOverrideString.ToCStr()) > 0 )
 	{
 		char szToken[2048];
-		const char *pStr = nexttoken(szToken, STRING(m_anglesOverrideString), ',');
+		const char *pStr = nexttoken(szToken, STRING(m_anglesOverrideString), ',', sizeof(szToken));
 		// anglesOverride is index,angles,index,angles (e.g. "1, 22.5 123.0 0.0, 2, 0 0 0, 3, 0 0 180.0")
 		while ( szToken[0] != 0 )
 		{
 			int objectIndex = atoi(szToken);
 			// sanity check to make sure this token is an integer
 			Assert( atof(szToken) == ((float)objectIndex) );
-			pStr = nexttoken(szToken, pStr, ',');
+			pStr = nexttoken(szToken, pStr, ',', sizeof(szToken));
 			Assert( szToken[0] );
 			if ( objectIndex >= m_ragdoll.listCount )
 			{
@@ -785,7 +785,7 @@ void CRagdollProp::InitRagdoll( const Vector &forceVector, int forceBone, const 
 				MatrixSetColumn( out, 3, pBoneToWorld[boneIndex] );
 				element.pObject->SetPositionMatrix( pBoneToWorld[boneIndex], true );
 			}
-			pStr = nexttoken(szToken, pStr, ',');
+			pStr = nexttoken(szToken, pStr, ',', sizeof(szToken));
 		}
 	}
 

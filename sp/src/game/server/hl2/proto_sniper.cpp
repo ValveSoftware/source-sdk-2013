@@ -602,7 +602,7 @@ bool CProtoSniper::QuerySeeEntity( CBaseEntity *pEntity, bool bOnlyHateOrFearIfN
 {
 	Disposition_t disp = IRelationType(pEntity);
 #ifdef MAPBASE
-	if( disp <= D_FR )
+	if( disp > D_FR )
 #else
 	if( disp != D_HT )
 #endif

@@ -90,9 +90,9 @@ public:
 			if ( m_bSelfCollisions )
 			{
 				char szToken[256];
-				const char *pStr = nexttoken(szToken, pValue, ',');
+				const char *pStr = nexttoken(szToken, pValue, ',', sizeof(szToken));
 				int index0 = atoi(szToken);
-				nexttoken( szToken, pStr, ',' );
+				nexttoken( szToken, pStr, ',' , sizeof(szToken) );
 				int index1 = atoi(szToken);
 
 				m_pSet->EnableCollisions( index0, index1 );

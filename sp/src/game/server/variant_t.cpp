@@ -141,15 +141,15 @@ variant_t Variant_Parse(const char *szValue)
 // Passes strings to Variant_Parse, uses the other input data for finding procedural entities.
 variant_t Variant_ParseInput(inputdata_t inputdata)
 {
-	if (inputdata.value.FieldType() != FIELD_STRING)
-		return inputdata.value;
-
-	if (inputdata.value.String()[0] == '!')
+	if (inputdata.value.FieldType() == FIELD_STRING)
 	{
-		variant_t var = variant_t();
-		var.SetEntity(gEntList.FindEntityProcedural(inputdata.value.String(), inputdata.pCaller, inputdata.pActivator, inputdata.pCaller));
-		if (var.Entity())
-			return var;
+		if (inputdata.value.String()[0] == '!')
+		{
+			variant_t var = variant_t();
+			var.SetEntity(gEntList.FindEntityProcedural(inputdata.value.String(), inputdata.pCaller, inputdata.pActivator, inputdata.pCaller));
+			if (var.Entity())
+				return var;
+		}
 	}
 
 	return Variant_Parse(inputdata.value.String());

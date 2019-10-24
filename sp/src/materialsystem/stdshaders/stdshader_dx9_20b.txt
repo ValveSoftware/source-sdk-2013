@@ -56,7 +56,7 @@ SDK_WorldVertexTransition_ps2x.fxc
 SDK_WorldVertexTransition_vs20.fxc
 SDK_refract_ps2x.fxc
 SDK_Refract_vs20.fxc
-SDK_Water_ps2x.fxc
+SDK_water_ps2x.fxc
 SDK_Water_vs20.fxc
 SDK_WaterCheap_ps2x.fxc
 SDK_WaterCheap_vs20.fxc

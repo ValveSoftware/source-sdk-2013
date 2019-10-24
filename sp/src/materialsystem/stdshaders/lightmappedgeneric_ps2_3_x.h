@@ -33,6 +33,8 @@
 //  SKIP: $BASETEXTURETRANSFORM2 && !$BASETEXTURE2
 //  SKIP: $BASETEXTURETRANSFORM2 && $SEAMLESS
 
+//  SKIP: $SWAP_VERTEX_BLEND && !$BASETEXTURE2
+
 // debug crap:
 // NOSKIP: $DETAILTEXTURE
 // NOSKIP: $CUBEMAP
@@ -109,6 +111,12 @@ const float4 g_FlashlightAttenuationFactors	: register( c13 );
 const float3 g_FlashlightPos				: register( c14 );
 const float4x4 g_FlashlightWorldToTexture	: register( c15 ); // through c18
 const float4 g_ShadowTweaks					: register( c19 );
+
+#if PARALLAXCORRECT
+// Parallax cubemaps
+const float3 cubemapPos						: register(c21);
+const float4x4 obbMatrix					: register(c22); //through c25
+#endif
 
 
 sampler BaseTextureSampler		: register( s0 );
@@ -340,7 +348,17 @@ HALF4 main( PS_INPUT i ) : COLOR
 #if MASKEDBLENDING
 	float blendfactor=0.5;
 #else
+	
+#if SWAP_VERTEX_BLEND
+	// Blixibon - Hammer apparently has a bug that causes the vertex blend to get swapped.
+	// Hammer uses a special internal shader to nullify this, but it doesn't work with custom shaders.
+	// Downfall got around this by swapping around the base textures in the DLL code when drawn by the editor.
+	// Doing it here in the shader itself allows us to retain other properties, like FANCY_BLENDING.
+	float blendfactor=1.0f-i.vertexBlendX_fogFactorW.r;
+#else
 	float blendfactor=i.vertexBlendX_fogFactorW.r;
+#endif
+
 #endif
 
 	if( bBaseTexture2 )
@@ -351,18 +369,8 @@ HALF4 main( PS_INPUT i ) : COLOR
 		float minb=modt.g-modt.r;
 		float maxb=modt.g+modt.r;
 #else
-	
-#	if FANCY_BLENDING == 2
-		// Blixibon - Accompanies the Downfall hack that swaps textures in the editor,
-		// allows $blendmodulatetexture to be seen in Hammer
-		float modtg = 1.0f-modt.g;
-		float minb=max(0,modtg-modt.r);
-		float maxb=min(1,modtg+modt.r);
-#	else
 		float minb=max(0,modt.g-modt.r);
 		float maxb=min(1,modt.g+modt.r);
-#	endif
-
 #endif
 		blendfactor=smoothstep(minb,maxb,blendfactor);
 #endif
@@ -450,7 +458,7 @@ HALF4 main( PS_INPUT i ) : COLOR
 	albedo *= baseColor;
 	if( !bBaseAlphaEnvmapMask && !bSelfIllum )
 	{
-		alpha *= baseColor.a;
+		alpha *= blendedAlpha; // Blixibon - Replaced baseColor.a with blendedAlpha
 	}
 
 	if( bDetailTexture )
@@ -563,7 +571,7 @@ HALF4 main( PS_INPUT i ) : COLOR
 	if( bSelfIllum )
 	{
 		float3 selfIllumComponent = g_SelfIllumTint.xyz * albedo.xyz;
-		diffuseComponent = lerp( diffuseComponent, selfIllumComponent, baseColor.a );
+		diffuseComponent = lerp( diffuseComponent, selfIllumComponent, blendedAlpha ); // Blixibon - Replaced baseColor.a with blendedAlpha
 	}
 
 	HALF3 specularLighting = HALF3( 0.0f, 0.0f, 0.0f );
@@ -578,6 +586,23 @@ HALF4 main( PS_INPUT i ) : COLOR
 		HALF fresnel = 1.0 - dot( worldSpaceNormal, eyeVect );
 		fresnel = pow( fresnel, 5.0 );
 		fresnel = fresnel * g_OneMinusFresnelReflection + g_FresnelReflection;
+		
+#if PARALLAXCORRECT
+		//Parallax correction (2_0b and beyond)
+        //Adapted from http://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
+        float3 worldPos = i.worldPos_projPosZ.xyz;
+        float3 positionLS = mul(float4(worldPos, 1), obbMatrix);
+        float3 rayLS = mul(reflectVect, (float3x3) obbMatrix);
+
+        float3 firstPlaneIntersect = (float3(1.0f, 1.0f, 1.0f) - positionLS) / rayLS;
+        float3 secondPlaneIntersect = (-positionLS) / rayLS;
+        float3 furthestPlane = max(firstPlaneIntersect, secondPlaneIntersect);
+        float distance = min(furthestPlane.x, min(furthestPlane.y, furthestPlane.z));
+
+        // Use distance in WS directly to recover intersection
+        float3 intersectPositionWS = worldPos + reflectVect * distance;
+        reflectVect = intersectPositionWS - cubemapPos;
+#endif
 		
 		specularLighting = ENV_MAP_SCALE * texCUBE( EnvmapSampler, reflectVect );
 		specularLighting *= specularFactor;

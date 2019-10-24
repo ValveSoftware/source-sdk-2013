@@ -1736,6 +1736,12 @@ void CAI_PlayerAlly::ModifyOrAppendCriteria( AI_CriteriaSet& set )
 {
 	BaseClass::ModifyOrAppendCriteria( set );
 
+#ifdef MAPBASE
+	// For the below speechtarget criteria
+	if (GetSpeechTarget() && !m_hPotentialSpeechTarget)
+		m_hPotentialSpeechTarget = GetSpeechTarget();
+#endif
+
 	if ( m_hPotentialSpeechTarget )
 	{
 		set.AppendCriteria( "speechtarget", m_hPotentialSpeechTarget->GetClassname() );

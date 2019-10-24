@@ -771,6 +771,10 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			(info.m_nBlendModulateTexture != -1) &&
 			(params[info.m_nBlendModulateTexture]->IsTexture() );
 		bool hasNormalMapAlphaEnvmapMask = IS_FLAG_SET( MATERIAL_VAR_NORMALMAPALPHAENVMAPMASK );
+#ifdef PARALLAX_CORRECTED_CUBEMAPS
+		// Parallax cubemaps
+		bool hasParallaxCorrection = params[info.m_nEnvmapParallax]->GetIntValue() > 0;
+#endif
 
 		if ( hasFlashlight && !IsX360() )				
 		{
@@ -1114,17 +1118,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURENOENVMAP,  params[info.m_nBaseTextureNoEnvmap]->GetIntValue() );
 					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURE2NOENVMAP, params[info.m_nBaseTexture2NoEnvmap]->GetIntValue() );
 					SET_STATIC_PIXEL_SHADER_COMBO( WARPLIGHTING, hasLightWarpTexture );
-#ifdef MAPBASE
-					// There's a bug in Hammer that causes $basetexture and $basetexture2 to be swapped.
-					// Downfall had a hack to swap them back in the editor, but I noticed $blendmodulatetexture showed up in the editor with the new shader.
-					// Unfortunately, it became inverted in the editor, so I had to clear $blendmodulatetexture in the editor too, but
-					// I became interested in the idea of seeing it there, as it would greatly assist with editing those kinds of textures.
-					// So interested, in fact, that I added a setting to FANCY_BLENDING that swaps $blendmodulatetexture, intended to be used with the Downfall hack.
-					// It only tests whether it's in the editor right now, but you could turn it into an actual shader parameter if you want.
-					SET_STATIC_PIXEL_SHADER_COMBO( FANCY_BLENDING, bHasBlendModulateTexture ? (pShader->UsingEditor( params ) ? 2 : 1) : 0 );
-#else
 					SET_STATIC_PIXEL_SHADER_COMBO( FANCY_BLENDING, bHasBlendModulateTexture );
-#endif
 					SET_STATIC_PIXEL_SHADER_COMBO( MASKEDBLENDING, bMaskedBlending);
 					//SET_STATIC_PIXEL_SHADER_COMBO( RELIEF_MAPPING, bReliefMapping );
 					SET_STATIC_PIXEL_SHADER_COMBO( SEAMLESS, bSeamlessMapping );
@@ -1138,6 +1132,18 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 #endif
 #ifdef MAPBASE
 					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURETRANSFORM2, hasBaseTextureTransform2 );
+					// Hammer apparently has a bug that causes the vertex blend to get swapped.
+					// Hammer uses a special internal shader to nullify this, but it doesn't work with custom shaders.
+					// Downfall got around this by swapping around the base textures in the DLL code when drawn by the editor.
+					// Doing it here in the shader itself allows us to retain other properties, like FANCY_BLENDING.
+					// TODO: Could we do this here in the DLL and swap the alpha before it's passed to the shader?
+					SET_STATIC_PIXEL_SHADER_COMBO( SWAP_VERTEX_BLEND, hasBaseTexture2 && pShader->UsingEditor(params) );
+#endif
+#ifdef PARALLAX_CORRECTED_CUBEMAPS
+					// Parallax cubemaps enabled for 2_0b and onwards
+					SET_STATIC_PIXEL_SHADER_COMBO( PARALLAXCORRECT, hasParallaxCorrection );
+#else
+					SET_STATIC_PIXEL_SHADER_COMBO( PARALLAXCORRECT, false );
 #endif
 					SET_STATIC_PIXEL_SHADER( sdk_lightmappedgeneric_ps30 );
 				}
@@ -1158,12 +1164,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURENOENVMAP,  params[info.m_nBaseTextureNoEnvmap]->GetIntValue() );
 					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURE2NOENVMAP, params[info.m_nBaseTexture2NoEnvmap]->GetIntValue() );
 					SET_STATIC_PIXEL_SHADER_COMBO( WARPLIGHTING, hasLightWarpTexture );
-#ifdef MAPBASE
-					// See the comment in the 3.0 shader block for more info on this.
-					SET_STATIC_PIXEL_SHADER_COMBO( FANCY_BLENDING, bHasBlendModulateTexture ? (pShader->UsingEditor( params ) ? 2 : 1) : 0 );
-#else
 					SET_STATIC_PIXEL_SHADER_COMBO( FANCY_BLENDING, bHasBlendModulateTexture );
-#endif
 					SET_STATIC_PIXEL_SHADER_COMBO( MASKEDBLENDING, bMaskedBlending);
 					SET_STATIC_PIXEL_SHADER_COMBO( RELIEF_MAPPING, bReliefMapping );
 					SET_STATIC_PIXEL_SHADER_COMBO( SEAMLESS, bSeamlessMapping );
@@ -1177,6 +1178,14 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 #endif
 #ifdef MAPBASE
 					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURETRANSFORM2, hasBaseTextureTransform2 );
+					// See the comment in the 3.0 shader block for more info on this.
+					SET_STATIC_PIXEL_SHADER_COMBO( SWAP_VERTEX_BLEND, hasBaseTexture2 && pShader->UsingEditor(params) );
+#endif
+#ifdef PARALLAX_CORRECTED_CUBEMAPS
+					// Parallax cubemaps enabled for 2_0b and onwards
+					SET_STATIC_PIXEL_SHADER_COMBO( PARALLAXCORRECT, hasParallaxCorrection );
+#else
+					SET_STATIC_PIXEL_SHADER_COMBO( PARALLAXCORRECT, false );
 #endif
 					SET_STATIC_PIXEL_SHADER( sdk_lightmappedgeneric_ps20b );
 				}
@@ -1491,6 +1500,30 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			{
 				pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER3, info.m_nBlendModulateTexture, -1 );
 			}
+
+#ifdef PARALLAX_CORRECTED_CUBEMAPS
+			// Parallax cubemaps
+			if (hasParallaxCorrection)
+			{
+				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 21, params[info.m_nEnvmapOrigin]->GetVecValue() );
+
+				float* vecs[3];
+				vecs[0] = const_cast<float*>(params[info.m_nEnvmapParallaxObb1]->GetVecValue());
+				vecs[1] = const_cast<float*>(params[info.m_nEnvmapParallaxObb2]->GetVecValue());
+				vecs[2] = const_cast<float*>(params[info.m_nEnvmapParallaxObb3]->GetVecValue());
+				float matrix[4][4];
+				for (int i = 0; i < 3; i++)
+				{
+					for (int j = 0; j < 4; j++)
+					{
+						matrix[i][j] = vecs[i][j];
+					}
+				}
+				matrix[3][0] = matrix[3][1] = matrix[3][2] = 0;
+				matrix[3][3] = 1;
+				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 22, &matrix[0][0], 4 );
+			}
+#endif
 
 			pContextData->m_SemiStaticCmdsOut.End();
 		}

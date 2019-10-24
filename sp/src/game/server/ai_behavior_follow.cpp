@@ -921,7 +921,7 @@ void CAI_FollowBehavior::ClearFollowPoint()
 	{
 #ifdef MAPBASE
 		// If we were in range, we were probably already using it
-		if ((GetHintNode()->GetAbsOrigin() - GetFollowTarget()->GetAbsOrigin()).LengthSqr() < Square(MAX(m_FollowNavGoal.followPointTolerance, GetGoalRange())))
+		if (GetFollowTarget() && (GetHintNode()->GetAbsOrigin() - GetFollowTarget()->GetAbsOrigin()).LengthSqr() < Square(MAX(m_FollowNavGoal.followPointTolerance, GetGoalRange())))
 			GetHintNode()->NPCStoppedUsing(GetOuter());
 #endif
 		GetHintNode()->Unlock();
