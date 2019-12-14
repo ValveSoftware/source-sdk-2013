@@ -376,6 +376,9 @@ BEGIN_DATADESC( CWorld )
 
 	// keyvalues are parsed from map, but not saved/loaded
 	DEFINE_KEYFIELD( m_iszChapterTitle, FIELD_STRING, "chaptertitle" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bChapterTitleNoMessage, FIELD_BOOLEAN, "chaptertitlenomessage" ),
+#endif
 	DEFINE_KEYFIELD( m_bStartDark,		FIELD_BOOLEAN, "startdark" ),
 	DEFINE_KEYFIELD( m_bDisplayTitle,	FIELD_BOOLEAN, "gametitle" ),
 	DEFINE_FIELD( m_WorldMins, FIELD_VECTOR ),
@@ -407,6 +410,9 @@ IMPLEMENT_SERVERCLASS_ST(CWorld, DT_WORLD)
 	SendPropFloat	(SENDINFO(m_flMinPropScreenSpaceWidth), 0, SPROP_NOSCALE ),
 	SendPropStringT (SENDINFO(m_iszDetailSpriteMaterial) ),
 	SendPropInt		(SENDINFO(m_bColdWorld), 1, SPROP_UNSIGNED ),
+#ifdef MAPBASE
+	SendPropStringT (SENDINFO(m_iszChapterTitle) ),
+#endif
 END_SEND_TABLE()
 
 //
@@ -678,6 +684,23 @@ void CWorld::Precache( void )
 	// Call all registered precachers.
 	CPrecacheRegister::Precache();	
 
+#ifdef MAPBASE
+	if ( m_iszChapterTitle.Get() != NULL_STRING && !m_bChapterTitleNoMessage )
+	{
+		DevMsg( 2, "Chapter title: %s\n", STRING(m_iszChapterTitle.Get()) );
+		CMessage *pMessage = (CMessage *)CBaseEntity::Create( "env_message", vec3_origin, vec3_angle, NULL );
+		if ( pMessage )
+		{
+			pMessage->SetMessage( m_iszChapterTitle.Get() );
+			m_iszChapterTitle.Set( NULL_STRING );
+
+			// send the message entity a play message command, delayed by 1 second
+			pMessage->AddSpawnFlags( SF_MESSAGE_ONCE );
+			pMessage->SetThink( &CMessage::SUB_CallUseToggle );
+			pMessage->SetNextThink( gpGlobals->curtime + 1.0f );
+		}
+	}
+#else
 	if ( m_iszChapterTitle != NULL_STRING )
 	{
 		DevMsg( 2, "Chapter title: %s\n", STRING(m_iszChapterTitle) );
@@ -693,6 +716,7 @@ void CWorld::Precache( void )
 			pMessage->SetNextThink( gpGlobals->curtime + 1.0f );
 		}
 	}
+#endif
 
 	g_iszFuncBrushClassname = AllocPooledString("func_brush");
 }

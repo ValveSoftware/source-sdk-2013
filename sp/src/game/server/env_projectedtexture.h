@@ -54,12 +54,21 @@ public:
 	void InputSetSpotlightFrame( inputdata_t &inputdata );
 	void InputSetBrightness( inputdata_t &inputdata );
 	void InputSetColorTransitionTime( inputdata_t &inputdata );
+	void InputSetConstant( inputdata_t &inputdata ) { m_flConstantAtten = CorrectConstantAtten(inputdata.value.Float()); }
+	void InputSetLinear( inputdata_t &inputdata ) { m_flLinearAtten = CorrectLinearAtten(inputdata.value.Float()); }
+	void InputSetQuadratic( inputdata_t &inputdata ) { m_flQuadraticAtten = CorrectQuadraticAtten(inputdata.value.Float()); }
+	void InputSetShadowAtten( inputdata_t &inputdata ) { m_flShadowAtten = inputdata.value.Float(); }
 	void InputSetNearZ( inputdata_t &inputdata );
 	void InputSetFarZ( inputdata_t &inputdata );
 	void InputAlwaysDrawOn( inputdata_t &inputdata ) { m_bAlwaysDraw = true; }
 	void InputAlwaysDrawOff( inputdata_t &inputdata ) { m_bAlwaysDraw = false; }
 	void InputStopFollowingTarget( inputdata_t &inputdata ) { m_bDontFollowTarget = true; }
 	void InputStartFollowingTarget( inputdata_t &inputdata ) { m_bDontFollowTarget = false; }
+
+	// Corrects keyvalue/input attenuation for internal FlashlightEffect_t attenuation.
+	float CorrectConstantAtten( float fl ) { return fl * 0.5f; }
+	float CorrectLinearAtten( float fl ) { return fl * 100.0f; }
+	float CorrectQuadraticAtten( float fl ) { return fl * 10000.0f; }
 #endif
 
 	void InitialThink( void );
@@ -91,11 +100,17 @@ private:
 	CNetworkVar( float, m_flFarZ );
 	CNetworkVar( int, m_nShadowQuality );
 #ifdef MAPBASE
+	CNetworkVar( float, m_flConstantAtten );
+	CNetworkVar( float, m_flLinearAtten );
+	CNetworkVar( float, m_flQuadraticAtten );
+	CNetworkVar( float, m_flShadowAtten );
+
 	CNetworkVar( bool, m_bAlwaysDraw );
 
 	// 1 = New projected texture
 	// 0 = Non-Mapbase projected texture, e.g. one that uses the VDC parenting fix instead of the spawnflag
-	CNetworkVar( bool, m_bProjectedTextureVersion );
+	// Not needed on the client right now, change to CNetworkVar when it actually is needed
+	bool m_bProjectedTextureVersion;
 #endif
 };
 #endif

@@ -152,6 +152,29 @@ public:
 	{
 		m_Value.Vector3D(vec);
 	}
+
+#ifdef MAPBASE
+	// Shortcut to using QAngles in Vector outputs, makes it look cleaner and allows easy modification
+	void Init( const QAngle &value )
+	{
+		// reinterpret_cast<const Vector&>(value)
+		m_Value.SetAngle3D( value );
+	}
+
+	// Shortcut to using QAngles in Vector outputs, makes it look cleaner and allows easy modification
+	void Set( const QAngle &value, CBaseEntity *pActivator, CBaseEntity *pCaller )
+	{
+		// reinterpret_cast<const Vector&>(value)
+		m_Value.SetAngle3D( value );
+		FireOutput( m_Value, pActivator, pCaller );
+	}
+
+	// Shortcut to using QAngles in Vector outputs, makes it look cleaner and allows easy modification
+	void Get( QAngle &ang )
+	{
+		m_Value.Angle3D(ang);
+	}
+#endif
 };
 
 

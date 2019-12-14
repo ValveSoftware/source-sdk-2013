@@ -52,10 +52,26 @@ public:
 
 	bool IsColdWorld( void );
 
+#ifdef MAPBASE
+	inline const char *GetChapterTitle()
+	{
+		return STRING(m_iszChapterTitle.Get());
+	}
+#endif
+
 private:
 	DECLARE_DATADESC();
 
+#ifdef MAPBASE
+	// Now needs to show up on the client for RPC
+	CNetworkVar( string_t, m_iszChapterTitle );
+
+	// Suppresses m_iszChapterTitle's env_message creation,
+	// allowing it to only be used for saves and RPC
+	bool m_bChapterTitleNoMessage;
+#else
 	string_t m_iszChapterTitle;
+#endif
 
 	CNetworkVar( float, m_flWaveHeight );
 	CNetworkVector( m_WorldMins );

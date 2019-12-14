@@ -2900,6 +2900,9 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 			//
 			if ( m_hCine->m_iszPreIdle != NULL_STRING )
 			{
+#ifdef MAPBASE
+				m_hCine->OnPreIdleSequence( this );
+#endif
 				m_hCine->StartSequence( ( CAI_BaseNPC * )this, m_hCine->m_iszPreIdle, false );
 				if ( FStrEq( STRING( m_hCine->m_iszPreIdle ), STRING( m_hCine->m_iszPlay ) ) )
 				{

@@ -49,6 +49,8 @@ BEGIN_DATADESC(CScriptIntro)
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_bDrawSky, FIELD_BOOLEAN, "DrawSky" ),
 	DEFINE_KEYFIELD( m_bDrawSky2, FIELD_BOOLEAN, "DrawSky2" ),
+
+	DEFINE_KEYFIELD( m_bUseEyePosition, FIELD_BOOLEAN, "UseEyePosition" ),
 #endif
 
 	// Inputs
@@ -83,6 +85,7 @@ IMPLEMENT_SERVERCLASS_ST( CScriptIntro, DT_ScriptIntro )
 #ifdef MAPBASE
 	SendPropBool( SENDINFO( m_bDrawSky ) ),
 	SendPropBool( SENDINFO( m_bDrawSky2 ) ),
+	SendPropBool( SENDINFO( m_bUseEyePosition ) ),
 #endif
 
 	// Fov & fov blends

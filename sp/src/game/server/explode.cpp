@@ -17,6 +17,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef MAPBASE
+ConVar explosion_sparks("explosion_sparks", "0", FCVAR_NONE);
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Spark shower, created by the explosion entity.
 //-----------------------------------------------------------------------------
@@ -358,7 +362,11 @@ void CEnvExplosion::InputExplode( inputdata_t &inputdata )
 	SetNextThink( gpGlobals->curtime + 0.3 );
 
 	// Only do these effects if we're not submerged
+#ifdef MAPBASE
+	if ( explosion_sparks.GetBool() && !(UTIL_PointContents( GetAbsOrigin() ) & CONTENTS_WATER) )
+#else
 	if ( UTIL_PointContents( GetAbsOrigin() ) & CONTENTS_WATER )
+#endif
 	{
 		// draw sparks
 		if ( !( m_spawnflags & SF_ENVEXPLOSION_NOSPARKS ) )

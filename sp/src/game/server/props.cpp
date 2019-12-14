@@ -755,6 +755,41 @@ void CBreakableProp::HandleInteractionStick( int index, gamevcollisionevent_t *p
 	}
 }
 
+#ifdef MAPBASE
+extern int g_interactionBarnacleVictimBite;
+extern ConVar npc_barnacle_ignite;
+//-----------------------------------------------------------------------------
+// Purpose:  Uses the new CBaseEntity interaction implementation
+// Input  :  The type of interaction, extra info pointer, and who started it
+// Output :	 true  - if sub-class has a response for the interaction
+//			 false - if sub-class has no response
+//-----------------------------------------------------------------------------
+bool CBreakableProp::HandleInteraction( int interactionType, void *data, CBaseCombatCharacter* sourceEnt )
+{
+#ifdef HL2_EPISODIC
+	// Allows flares to ignite barnacles.
+	if ( interactionType == g_interactionBarnacleVictimBite )
+	{
+		if ( npc_barnacle_ignite.GetBool() && sourceEnt->IsOnFire() == false )
+		{
+			sourceEnt->Ignite( 25.0f );
+			KillFlare( this, m_hFlareEnt, PROP_FLARE_IGNITE_SUBSTRACT );
+			IGameEvent *event = gameeventmanager->CreateEvent( "flare_ignite_npc" );
+			if ( event )
+			{
+				event->SetInt( "entindex", sourceEnt->entindex() );
+				gameeventmanager->FireEvent( event );
+			}
+		}
+
+		return true;
+	}
+#endif
+
+	return BaseClass::HandleInteraction(interactionType, data, sourceEnt);
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Turn on prop debugging mode
 //-----------------------------------------------------------------------------

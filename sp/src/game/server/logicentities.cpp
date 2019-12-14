@@ -18,6 +18,7 @@
 #include "mapbase/variant_tools.h"
 #include "mapbase/matchers.h"
 #include "mapbase/datadesc_mod.h"
+#include "activitylist.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -1917,6 +1918,7 @@ private:
 
 	bool m_bPreserveValue;
 	bool m_bAlwaysOutputAsInt;
+	float m_flLerpPercent;
 
 	void UpdateOutValue(CBaseEntity *pActivator, float fNewValue);
 
@@ -1937,6 +1939,8 @@ private:
 	void InputRandomInt( inputdata_t &inputdata );
 	void InputRandomFloat( inputdata_t &inputdata );
 
+	void InputLerpTo( inputdata_t &inputdata );
+
 	DECLARE_DATADESC();
 };
 
@@ -1948,6 +1952,7 @@ BEGIN_DATADESC( CMathCounterAdvanced )
 	// Keys
 	DEFINE_INPUT(m_bPreserveValue, FIELD_BOOLEAN, "PreserveValue"),
 	DEFINE_INPUT(m_bAlwaysOutputAsInt, FIELD_BOOLEAN, "AlwaysOutputAsInt"),
+	DEFINE_INPUT(m_flLerpPercent, FIELD_FLOAT, "SetLerpPercent"),
 
 	// Inputs
 	DEFINE_INPUTFUNC(FIELD_VOID, "SetValueToPi", InputSetValueToPi),
@@ -1966,6 +1971,8 @@ BEGIN_DATADESC( CMathCounterAdvanced )
 
 	DEFINE_INPUTFUNC(FIELD_STRING, "RandomInt", InputRandomInt),
 	DEFINE_INPUTFUNC(FIELD_STRING, "RandomFloat", InputRandomFloat),
+
+	DEFINE_INPUTFUNC(FIELD_FLOAT, "LerpTo", InputLerpTo),
 
 END_DATADESC()
 
@@ -2277,6 +2284,21 @@ void CMathCounterAdvanced::InputRandomFloat( inputdata_t &inputdata )
 	}
 
 	float fNewValue = RandomFloat(f1, f2);
+	UpdateOutValue( inputdata.pActivator, fNewValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Input handler for random float generation.
+//-----------------------------------------------------------------------------
+void CMathCounterAdvanced::InputLerpTo( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Counter %s ignoring LERPTO because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	float fNewValue = m_OutValue.Get() + (inputdata.value.Float() - m_OutValue.Get()) * m_flLerpPercent;
 	UpdateOutValue( inputdata.pActivator, fNewValue );
 }
 
@@ -3058,6 +3080,11 @@ int CLogicBranch::DrawDebugTextOverlays( void )
 	return text_offset;
 }
 
+#ifdef MAPBASE
+extern void MapbaseGameLog_Record( const char *szContext );
+extern ConVar mapbase_game_log_on_autosave;
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Autosaves when triggered
 //-----------------------------------------------------------------------------
@@ -3094,6 +3121,13 @@ END_DATADESC()
 //-----------------------------------------------------------------------------
 void CLogicAutosave::InputSave( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	if (mapbase_game_log_on_autosave.GetBool())
+	{
+		MapbaseGameLog_Record( "autosave" );
+	}
+#endif
+
 	if ( m_bForceNewLevelUnit )
 	{
 		engine->ClearSaveDir();
@@ -3107,6 +3141,13 @@ void CLogicAutosave::InputSave( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CLogicAutosave::InputSaveDangerous( inputdata_t &inputdata )
 {
+#ifdef MAPBASE
+	if (mapbase_game_log_on_autosave.GetBool())
+	{
+		MapbaseGameLog_Record( "autosave_dangerous" );
+	}
+#endif
+
 	CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
 
 	if ( g_ServerGameDLL.m_fAutoSaveDangerousTime != 0.0f && g_ServerGameDLL.m_fAutoSaveDangerousTime >= gpGlobals->curtime )
@@ -3609,7 +3650,9 @@ public:
 	void InputNewLine( inputdata_t &inputdata ) { LCMsg("\n"); }
 	void InputDevNewLine( inputdata_t &inputdata ) { LCDevMsg(m_iDevLevel, "\n"); }
 
-	void InputClearConsole( inputdata_t &inputdata ) { engine->ServerCommand("clear"); }
+	// MAPBASE MP TODO: "ClearConsoleOnTarget"
+	// (and make this input broadcast to all players)
+	void InputClearConsole( inputdata_t &inputdata ) { UTIL_GetLocalPlayer() ? engine->ClientCommand(UTIL_GetLocalPlayer()->edict(), "clear") : NULL; }
 
 	DECLARE_DATADESC();
 };
@@ -3631,6 +3674,8 @@ BEGIN_DATADESC( CLogicConsole )
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "NewLine", InputNewLine ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DevNewLine", InputDevNewLine ),
+
+	DEFINE_INPUTFUNC( FIELD_VOID, "ClearConsole", InputClearConsole ),
 
 END_DATADESC()
 
@@ -3696,23 +3741,31 @@ const char *CLogicConvar::GetConVarString( inputdata_t &inputdata )
 	ConVarRef pCVar = ConVarRef(STRING(m_iszConVar), true);
 	if (!pCVar.IsValid())
 	{
-		// It's not a convar, so check if it's a common cheat command a player might be using
+		const char *pszCVar = STRING( m_iszConVar );
 		CBasePlayer *pPlayer = ToBasePlayer( inputdata.pActivator );
 		if (!pPlayer && AI_IsSinglePlayer())
 			pPlayer = UTIL_PlayerByIndex( 1 );
 
 		if (pPlayer)
 		{
-			const char *pszCVar = STRING( m_iszConVar );
+			// Check if it's a common cheat command a player might be using
 			if (FStrEq( pszCVar, "god" ))
 				return (pPlayer->GetFlags() & FL_GODMODE) ? "1" : "0";
 			if (FStrEq( pszCVar, "notarget" ))
 				return (pPlayer->GetFlags() & FL_NOTARGET) ? "1" : "0";
 			if (FStrEq( pszCVar, "noclip" ))
 				return (pPlayer->IsEFlagSet(EFL_NOCLIP_ACTIVE)) ? "1" : "0";
+
+			// It might be a client convar
+			// This function returns a blank string if the convar doesn't exist, so we have to put this at the end
+			const char *pszClientValue = engine->GetClientConVarValue( pPlayer->GetClientIndex(), pszCVar );
+			if (pszClientValue)
+			{
+				return pszClientValue;
+			}
 		}
 
-		Warning("Warning: %s has invalid convar \"%s\"\n", GetDebugName(), STRING(m_iszConVar));
+		//Warning("Warning: %s has invalid convar \"%s\"\n", GetDebugName(), STRING(m_iszConVar));
 	}
 
 	return pCVar.GetString();
@@ -4587,6 +4640,7 @@ private:
 	void InputDisable( inputdata_t &inputdata );
 
 	void InputNormalize( inputdata_t &inputdata );
+	void InputNormalizeAngles( inputdata_t &inputdata );
 
 	void SetCoordinate(float value, char coord, CBaseEntity *pActivator);
 	void GetCoordinate(char coord, CBaseEntity *pActivator);
@@ -4640,6 +4694,7 @@ BEGIN_DATADESC( CMathVector )
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
 
 	DEFINE_INPUTFUNC(FIELD_VOID, "Normalize", InputNormalize),
+	DEFINE_INPUTFUNC(FIELD_VOID, "NormalizeAngles", InputNormalizeAngles),
 
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetX", InputSetX),
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetY", InputSetY),
@@ -4876,6 +4931,24 @@ void CMathVector::InputNormalize( inputdata_t &inputdata )
 	Vector cur;
 	m_OutValue.Get(cur);
 	VectorNormalize(cur);
+	UpdateOutValue( inputdata.pActivator, cur );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputNormalizeAngles( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring NORMALIZEANGLES because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector cur;
+	m_OutValue.Get(cur);
+	cur.x = AngleNormalize(cur.x);
+	cur.y = AngleNormalize(cur.y);
+	cur.z = AngleNormalize(cur.z);
 	UpdateOutValue( inputdata.pActivator, cur );
 }
 
@@ -5354,6 +5427,7 @@ private:
 	//void InputSetTarget( inputdata_t &inputdata ) { BaseClass::InputSetTarget(inputdata); m_hTarget = NULL; }
 	void InputGetNumSkins( inputdata_t &inputdata );
 	void InputLookupSequence( inputdata_t &inputdata );
+	void InputLookupActivity( inputdata_t &inputdata );
 
 	// Outputs
 	COutputInt m_OutNumSkins;
@@ -5371,6 +5445,7 @@ BEGIN_DATADESC( CLogicModelInfo )
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "GetNumSkins", InputGetNumSkins ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "LookupSequence", InputLookupSequence ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "LookupActivity", InputLookupActivity ),
 
 	// Outputs
 	DEFINE_OUTPUT(m_OutNumSkins, "OutNumSkins"),
@@ -5417,6 +5492,34 @@ void CLogicModelInfo::InputLookupSequence( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicModelInfo::InputLookupActivity( inputdata_t &inputdata )
+{
+	CBaseAnimating *pAnimating = GetTarget(inputdata);
+	if (pAnimating && pAnimating->GetModelPtr())
+	{
+		int iActivity = ActivityList_IndexForName(inputdata.value.String());
+		if (iActivity == -1)
+		{
+			// Check if it's a raw activity ID
+			iActivity = atoi(inputdata.value.String());
+			if (!ActivityList_NameForIndex(iActivity))
+			{
+				Msg("%s received invalid LookupActivity %s\n", inputdata.value.String());
+				return;
+			}
+		}
+
+		int index = pAnimating->SelectWeightedSequence((Activity)iActivity);
+
+		if (index != ACT_INVALID)
+			m_OnHasSequence.Set(index, pAnimating, this);
+		else
+			m_OnLacksSequence.FireOutput(pAnimating, this);
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Checks and calculates an entity's position.
 //-----------------------------------------------------------------------------
 class CLogicEntityPosition : public CLogicalEntity
@@ -5441,7 +5544,8 @@ private:
 
 	CBaseEntity *GetTarget(CBaseEntity *pActivator, CBaseEntity *pCaller);
 
-	Vector GetPosition(CBaseEntity *pEntity);
+	const Vector &GetPosition(CBaseEntity *pEntity);
+	const QAngle &GetAngles(CBaseEntity *pEntity);
 
 	// Inputs
 	void InputGetPosition( inputdata_t &inputdata );
@@ -5452,6 +5556,7 @@ private:
 
 	// Outputs
 	COutputVector m_OutPosition;
+	COutputVector m_OutAngles;
 
 	DECLARE_DATADESC();
 };
@@ -5472,6 +5577,7 @@ BEGIN_DATADESC( CLogicEntityPosition )
 
 	// Outputs
 	DEFINE_OUTPUT(m_OutPosition, "OutPosition"),
+	DEFINE_OUTPUT(m_OutAngles, "OutAngles"),
 
 END_DATADESC()
 
@@ -5487,16 +5593,15 @@ inline CBaseEntity *CLogicEntityPosition::GetTarget(CBaseEntity *pActivator, CBa
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-Vector CLogicEntityPosition::GetPosition(CBaseEntity *pEntity)
+const Vector &CLogicEntityPosition::GetPosition(CBaseEntity *pEntity)
 {
-	Vector vecPosition = vec3_origin;
 	switch (m_iPositionType)
 	{
-		case POSITION_ORIGIN:			vecPosition = pEntity->GetAbsOrigin(); break;
-		case POSITION_LOCAL:			vecPosition = pEntity->GetLocalOrigin(); break;
-		case POSITION_BBOX:				vecPosition = pEntity->WorldSpaceCenter(); break;
-		case POSITION_EYES:				vecPosition = pEntity->EyePosition(); break;
-		case POSITION_EARS:				vecPosition = pEntity->EarPosition(); break;
+		case POSITION_ORIGIN:			return pEntity->GetAbsOrigin();
+		case POSITION_LOCAL:			return pEntity->GetLocalOrigin();
+		case POSITION_BBOX:				return pEntity->WorldSpaceCenter();
+		case POSITION_EYES:				return pEntity->EyePosition();
+		case POSITION_EARS:				return pEntity->EarPosition();
 		case POSITION_ATTACHMENT:
 		{
 			CBaseAnimating *pAnimating = pEntity->GetBaseAnimating();
@@ -5506,10 +5611,47 @@ Vector CLogicEntityPosition::GetPosition(CBaseEntity *pEntity)
 				break;
 			}
 
+			// Attachment position doesn't originate anywhere, so use a static variable
+			static Vector vecPosition;
 			pAnimating->GetAttachment(STRING(m_iszPositionParameter), vecPosition);
+			return vecPosition;
+		}
+	}
+
+	return vec3_origin;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+const QAngle &CLogicEntityPosition::GetAngles(CBaseEntity *pEntity)
+{
+	const QAngle *angAngles = &vec3_angle;
+	switch (m_iPositionType)
+	{
+	case POSITION_BBOX:
+		case POSITION_EARS:
+		case POSITION_ORIGIN:			angAngles = &pEntity->GetAbsAngles(); break;
+		case POSITION_LOCAL:			angAngles = &pEntity->GetLocalAngles(); break;
+		case POSITION_EYES:				angAngles = &pEntity->EyeAngles(); break;
+		case POSITION_ATTACHMENT:
+		{
+			CBaseAnimating *pAnimating = pEntity->GetBaseAnimating();
+			if (!pAnimating)
+			{
+				Warning("%s wants to measure one of %s's attachments, but %s doesn't support them!\n", GetDebugName(), pEntity->GetDebugName(), pEntity->GetDebugName());
+				break;
+			}
+
+			// Attachment angles don't originate anywhere, so use a static variable
+			static QAngle AttachmentAngles;
+			matrix3x4_t attachmentToWorld;
+			pAnimating->GetAttachment( pAnimating->LookupAttachment( STRING( m_iszPositionParameter ) ), attachmentToWorld );
+			MatrixAngles( attachmentToWorld, AttachmentAngles );
+			angAngles = &AttachmentAngles;
 		} break;
 	}
-	return vecPosition;
+
+	return *angAngles;
 }
 
 //-----------------------------------------------------------------------------
@@ -5518,9 +5660,14 @@ void CLogicEntityPosition::InputGetPosition( inputdata_t &inputdata )
 {
 	CBaseEntity *pEntity = GetTarget(inputdata.pActivator, inputdata.pCaller);
 	if (!pEntity)
-		m_OutPosition.Set(vec3_origin, NULL, this);
+	{
+		m_OutPosition.Set( vec3_origin, NULL, this );
+		m_OutAngles.Set( vec3_angle, NULL, this );
+		return;
+	}
 
-	m_OutPosition.Set(GetPosition(pEntity), pEntity, this);
+	m_OutPosition.Set( GetPosition(pEntity), pEntity, this );
+	m_OutAngles.Set( GetAngles(pEntity), pEntity, this );
 }
 
 //-----------------------------------------------------------------------------
@@ -5550,12 +5697,20 @@ void CLogicEntityPosition::InputPredictPosition( inputdata_t &inputdata )
 {
 	CBaseEntity *pEntity = GetTarget(inputdata.pActivator, inputdata.pCaller);
 	if (!pEntity)
-		m_OutPosition.Set(vec3_origin, NULL, this);
+	{
+		m_OutPosition.Set( vec3_origin, NULL, this );
+		m_OutAngles.Set( vec3_angle, NULL, this );
+		return;
+	}
 
 	Vector vecPosition;
 	UTIL_PredictedPosition(pEntity, GetPosition(pEntity), inputdata.value.Float(), &vecPosition);
 
-	m_OutPosition.Set(vecPosition, pEntity, this);
+	QAngle angAngles;
+	UTIL_PredictedAngles(pEntity, GetAngles(pEntity), inputdata.value.Float(), &angAngles);
+
+	m_OutPosition.Set( vecPosition, pEntity, this );
+	m_OutAngles.Set( angAngles, pEntity, this );
 }
 
 //-----------------------------------------------------------------------------
@@ -6190,11 +6345,15 @@ public:
 	// Inputs
 	void InputSetValue( inputdata_t &inputdata );
 	void InputSetValueNoFire( inputdata_t &inputdata );
+	void InputGetValue( inputdata_t &inputdata );
 	void InputSetGenerateType( inputdata_t &inputdata );
 
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
 	void InputToggle( inputdata_t &inputdata );
+
+	void UpdateOutValue( float fNewValue, CBaseEntity *pActivator = NULL );
+	void UpdateOutValueSine( float fNewValue, CBaseEntity *pActivator = NULL );
 
 	// Basic functions
 	void Spawn();
@@ -6213,8 +6372,16 @@ public:
 	// The gaussian stream normally only exists on the client, so we use our own.
 	static CGaussianRandomStream m_GaussianStream;
 
+	bool m_bHitMin;		// Set when we reach or go below our minimum value, cleared if we go above it again.
+	bool m_bHitMax;		// Set when we reach or exceed our maximum value, cleared if we fall below it again.
+
 	// Outputs
-	COutputFloat m_Value;
+	COutputFloat m_OutValue;
+	COutputFloat m_OnGetValue;	// Used for polling the counter value.
+	COutputEvent m_OnHitMin;
+	COutputEvent m_OnHitMax;
+	COutputEvent m_OnChangedFromMin;
+	COutputEvent m_OnChangedFromMax;
 
 	DECLARE_DATADESC();
 };
@@ -6232,15 +6399,24 @@ BEGIN_DATADESC( CMathGenerate )
 
 	DEFINE_KEYFIELD( m_iGenerateType, FIELD_INTEGER, "GenerateType" ),
 
+	DEFINE_FIELD( m_bHitMax, FIELD_BOOLEAN ),
+	DEFINE_FIELD( m_bHitMin, FIELD_BOOLEAN ),
+
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetValue", InputSetValue ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetValueNoFire", InputSetValueNoFire ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetValue", InputGetValue ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetGenerateType", InputSetGenerateType ),
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Toggle", InputToggle ),
 
-	DEFINE_OUTPUT( m_Value, "OutValue" ),
+	DEFINE_OUTPUT( m_OutValue, "OutValue" ),
+	DEFINE_OUTPUT( m_OnHitMin, "OnHitMin" ),
+	DEFINE_OUTPUT( m_OnHitMax, "OnHitMax" ),
+	DEFINE_OUTPUT( m_OnGetValue, "OnGetValue" ),
+	DEFINE_OUTPUT( m_OnChangedFromMin, "OnChangedFromMin" ),
+	DEFINE_OUTPUT( m_OnChangedFromMax, "OnChangedFromMax" ),
 
 	DEFINE_THINKFUNC( GenerateSineWave ),
 	DEFINE_THINKFUNC( GenerateLinearRamp ),
@@ -6278,7 +6454,7 @@ bool CMathGenerate::KeyValue( const char *szKeyName, const char *szValue )
 {
 	if (FStrEq( szKeyName, "InitialValue" ))
 	{
-		m_Value.Init( atof(szValue) );
+		m_OutValue.Init( atof(szValue) );
 	}
 	else
 		return BaseClass::KeyValue( szKeyName, szValue );
@@ -6290,14 +6466,22 @@ bool CMathGenerate::KeyValue( const char *szKeyName, const char *szValue )
 //-----------------------------------------------------------------------------
 void CMathGenerate::InputSetValue( inputdata_t &inputdata )
 {
-	m_Value.Set(inputdata.value.Float(), inputdata.pActivator, this);
+	UpdateOutValue(inputdata.value.Float(), inputdata.pActivator);
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CMathGenerate::InputSetValueNoFire( inputdata_t &inputdata )
 {
-	m_Value.Init(inputdata.value.Float());
+	m_OutValue.Init(inputdata.value.Float());
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathGenerate::InputGetValue( inputdata_t &inputdata )
+{
+	float flOutValue = m_OutValue.Get();
+	m_OnGetValue.Set( flOutValue, inputdata.pActivator, inputdata.pCaller );
 }
 
 //-----------------------------------------------------------------------------
@@ -6335,6 +6519,123 @@ void CMathGenerate::InputDisable( inputdata_t &inputdata )
 void CMathGenerate::InputToggle( inputdata_t &inputdata )
 {
 	m_bDisabled ? InputEnable(inputdata) : InputDisable(inputdata);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the value to the new value, clamping and firing the output value.
+// Input  : fNewValue - Value to set.
+//-----------------------------------------------------------------------------
+void CMathGenerate::UpdateOutValue( float fNewValue, CBaseEntity *pActivator )
+{
+	if ((m_flMin != 0) || (m_flMax != 0))
+	{
+		//
+		// Fire an output any time we reach or exceed our maximum value.
+		//
+		if ( fNewValue >= m_flMax || (m_iGenerateType == GENERATE_SINE_WAVE && fNewValue >= (m_flMax * 0.995f)) )
+		{
+			if ( !m_bHitMax )
+			{
+				m_bHitMax = true;
+				m_OnHitMax.FireOutput( pActivator, this );
+			}
+		}
+		else
+		{
+			// Fire an output if we just changed from the maximum value
+			if ( m_OutValue.Get() == m_flMax )
+			{
+				m_OnChangedFromMax.FireOutput( pActivator, this );
+			}
+
+			m_bHitMax = false;
+		}
+
+		//
+		// Fire an output any time we reach or go below our minimum value.
+		//
+		if ( fNewValue <= m_flMin )
+		{
+			if ( !m_bHitMin )
+			{
+				m_bHitMin = true;
+				m_OnHitMin.FireOutput( pActivator, this );
+			}
+		}
+		else
+		{
+			// Fire an output if we just changed from the maximum value
+			if ( m_OutValue.Get() == m_flMin )
+			{
+				m_OnChangedFromMin.FireOutput( pActivator, this );
+			}
+
+			m_bHitMin = false;
+		}
+
+		fNewValue = clamp(fNewValue, m_flMin, m_flMax);
+	}
+
+	m_OutValue.Set(fNewValue, pActivator, this);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the value to the new value, clamping and firing the output value.
+//			Sine generation needs to use a different function to account for skips and imprecision.
+// Input  : fNewValue - Value to set.
+//-----------------------------------------------------------------------------
+void CMathGenerate::UpdateOutValueSine( float fNewValue, CBaseEntity *pActivator )
+{
+	if ((m_flMin != 0) || (m_flMax != 0))
+	{
+		//
+		// Fire an output any time we reach or exceed our maximum value.
+		//
+		if ( fNewValue >= (m_flMax * 0.995f) )
+		{
+			if ( !m_bHitMax )
+			{
+				m_bHitMax = true;
+				m_OnHitMax.FireOutput( pActivator, this );
+			}
+		}
+		else
+		{
+			// Fire an output if we just changed from the maximum value
+			if ( m_bHitMax )
+			{
+				m_OnChangedFromMax.FireOutput( pActivator, this );
+			}
+
+			m_bHitMax = false;
+		}
+
+		//
+		// Fire an output any time we reach or go below our minimum value.
+		//
+		if ( fNewValue <= (m_flMin * 1.005f) )
+		{
+			if ( !m_bHitMin )
+			{
+				m_bHitMin = true;
+				m_OnHitMin.FireOutput( pActivator, this );
+			}
+		}
+		else
+		{
+			// Fire an output if we just changed from the maximum value
+			if ( m_bHitMin )
+			{
+				m_OnChangedFromMin.FireOutput( pActivator, this );
+			}
+
+			m_bHitMin = false;
+		}
+
+		//fNewValue = clamp(fNewValue, m_flMin, m_flMax);
+	}
+
+	m_OutValue.Set(fNewValue, pActivator, this);
 }
 
 //-----------------------------------------------------------------------------
@@ -6402,7 +6703,7 @@ void CMathGenerate::GenerateSineWave()
 	// get a value in [min,max]	
 	flValue = ( m_flMax - m_flMin ) * flValue + m_flMin;
 	
-	m_Value.Set( flValue, NULL, this );
+	UpdateOutValueSine( flValue );
 
 	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
 }
@@ -6414,7 +6715,7 @@ void CMathGenerate::GenerateLinearRamp()
 	// CLinearRampProxy in mathproxy.cpp
 
 	// Param1 = rate
-	float flVal = m_flParam1 * gpGlobals->curtime + m_Value.Get();
+	float flVal = m_flParam1 * gpGlobals->curtime + m_OutValue.Get();
 
 	// clamp
 	if (flVal < m_flMin)
@@ -6422,7 +6723,7 @@ void CMathGenerate::GenerateLinearRamp()
 	else if (flVal > m_flMax)
 		flVal = m_flMax;
 
-	m_Value.Set( flVal, NULL, this );
+	UpdateOutValue( flVal );
 
 	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
 }
@@ -6433,7 +6734,7 @@ void CMathGenerate::GenerateUniformNoise()
 {
 	// CUniformNoiseProxy in mathproxy.cpp
 
-	m_Value.Set( random->RandomFloat( m_flMin, m_flMax ), NULL, this );
+	UpdateOutValue( random->RandomFloat( m_flMin, m_flMax ) );
 
 	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
 }
@@ -6454,7 +6755,7 @@ void CMathGenerate::GenerateGaussianNoise()
 	else if (flVal > m_flMax)
 		flVal = m_flMax;
 
-	m_Value.Set( flVal, NULL, this );
+	UpdateOutValue( flVal );
 
 	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
 }
@@ -6467,7 +6768,7 @@ void CMathGenerate::GenerateExponential()
 
 	// Param1 = scale
 	// Param2 = offset
-	float flVal = m_flParam1 * exp( m_Value.Get() + m_flParam2 );
+	float flVal = m_flParam1 * exp( m_OutValue.Get() + m_flParam2 );
 
 	// clamp
 	if (flVal < m_flMin)
@@ -6475,7 +6776,7 @@ void CMathGenerate::GenerateExponential()
 	else if (flVal > m_flMax)
 		flVal = m_flMax;
 
-	m_Value.Set( flVal, NULL, this );
+	UpdateOutValue( flVal );
 
 	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
 }

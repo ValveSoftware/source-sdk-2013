@@ -369,6 +369,11 @@ BEGIN_DATADESC( CPropJeepEpisodic )
 
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetCargoHopperVisibility",   InputSetCargoVisibility ),
 
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "EnableHazardLights", InputEnableHazardLights ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "DisableHazardLights", InputDisableHazardLights ),
+#endif
+
 END_DATADESC();
 
 IMPLEMENT_SERVERCLASS_ST(CPropJeepEpisodic, DT_CPropJeepEpisodic)
@@ -1421,6 +1426,26 @@ void CPropJeepEpisodic::DestroyHazardLights( void )
 
 	SetContextThink( NULL, gpGlobals->curtime, "HazardBlink" );
 }
+
+#ifdef MAPBASE
+void CPropJeepEpisodic::InputEnableHazardLights( inputdata_t &data )
+{
+	if (m_bNoHazardLights)
+	{
+		m_bNoHazardLights = false;
+		CreateHazardLights();
+	}
+}
+
+void CPropJeepEpisodic::InputDisableHazardLights( inputdata_t &data )
+{
+	if (!m_bNoHazardLights)
+	{
+		m_bNoHazardLights = true;
+		DestroyHazardLights();
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

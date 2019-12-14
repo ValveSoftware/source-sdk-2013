@@ -297,7 +297,7 @@ public:
 
 	~CCommandRedirect()
 	{
-		g_pCommandRedirects.AddToTail(this);
+		g_pCommandRedirects.FindAndRemove(this);
 		/*
 		for (int i = 0; i < g_pCommandRedirects.Count(); i++)
 		{
@@ -1790,7 +1790,16 @@ bool CHL2_Player::CommanderFindGoal( commandgoal_t *pGoal )
 	
 	//---------------------------------
 	// MASK_SHOT on purpose! So that you don't hit the invisible hulls of the NPCs.
+#ifdef MAPBASE
+	// Get either our +USE entity or the gravity gun entity
+	CBaseEntity *pHeldEntity = GetPlayerHeldEntity(this);
+	if ( !pHeldEntity )
+		PhysCannonGetHeldEntity( GetActiveWeapon() );
+
+	CTraceFilterSkipTwoEntities filter( this, pHeldEntity, COLLISION_GROUP_INTERACTIVE_DEBRIS );
+#else
 	CTraceFilterSkipTwoEntities filter( this, PhysCannonGetHeldEntity( GetActiveWeapon() ), COLLISION_GROUP_INTERACTIVE_DEBRIS );
+#endif
 
 	UTIL_TraceLine( EyePosition(), EyePosition() + forward * MAX_COORD_RANGE, MASK_SHOT, &filter, &tr );
 

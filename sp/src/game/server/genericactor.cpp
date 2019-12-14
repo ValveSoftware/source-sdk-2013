@@ -17,6 +17,9 @@
 #include "tier1/strtools.h"
 #include "vstdlib/random.h"
 #include "engine/IEngineSound.h"
+#ifdef MAPBASE
+#include "ai_speech.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -148,10 +151,11 @@ void CGenericActor::Spawn()
 	m_flFieldOfView		= 0.5;// indicates the width of this NPC's forward view cone ( as a dotproduct result )
 	m_NPCState			= NPC_STATE_NONE;
 	
-	CapabilitiesAdd( bits_CAP_MOVE_GROUND | bits_CAP_OPEN_DOORS );
-
 #ifdef MAPBASE
 	CapabilitiesAdd( bits_CAP_SQUAD );
+	CapabilitiesAdd( bits_CAP_MOVE_GROUND | bits_CAP_DOORS_GROUP );
+#else
+	CapabilitiesAdd( bits_CAP_MOVE_GROUND | bits_CAP_OPEN_DOORS );
 #endif
 	
 	// remove head turn if no eyes or forward attachment
@@ -187,6 +191,163 @@ void CGenericActor::Precache()
 
 
 
+#ifdef MAPBASE
+//=========================================================
+#define TLK_ACTOR_PAIN "TLK_WOUND"
+#define TLK_ACTOR_DEATH "TLK_DEATH"
+#define TLK_ACTOR_ALERT "TLK_STARTCOMBAT"
+#define TLK_ACTOR_IDLE "TLK_IDLE"
+#define TLK_ACTOR_FEAR "TLK_FEAR"
+#define TLK_ACTOR_LOSTENEMY "TLK_LOSTENEMY"
+#define TLK_ACTOR_FOUNDENEMY "TLK_REFINDENEMY"
+//=========================================================
+// Enhanced generic actor with built-in response system usage, weapon capabilities, and more.
+//=========================================================
+class CGenericActorCustom : public CGenericActor
+{
+private:
+	DECLARE_CLASS( CGenericActorCustom, CGenericActor );
+public:
+	//DECLARE_DATADESC();
+
+	CGenericActorCustom() { }
+	void Spawn( void );
+	void Precache( void );
+
+	bool KeyValue( const char *szKeyName, const char *szValue );
+
+	void SpeakIfAllowed( const char *concept, AI_CriteriaSet *modifiers = NULL );
+	void ModifyOrAppendCriteria( AI_CriteriaSet& set );
+
+	void PainSound( const CTakeDamageInfo &info );
+	void DeathSound( const CTakeDamageInfo &info );
+	void AlertSound( void );
+	void IdleSound( void );
+	void FearSound( void );
+	void LostEnemySound( void );
+	void FoundEnemySound( void );
+};
+
+LINK_ENTITY_TO_CLASS( generic_actor_custom, CGenericActorCustom );
+
+//BEGIN_DATADESC( CGenericActorCustom )
+//END_DATADESC()
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::Spawn()
+{
+	BaseClass::Spawn();
+
+	CapabilitiesAdd( bits_CAP_USE_WEAPONS );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::Precache()
+{
+	BaseClass::Precache();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Cache user entity field values until spawn is called.
+// Input  : szKeyName - Key to handle.
+//			szValue - Value for key.
+// Output : Returns true if the key was handled, false if not.
+//-----------------------------------------------------------------------------
+bool CGenericActorCustom::KeyValue( const char *szKeyName, const char *szValue )
+{
+	if (FStrEq(szKeyName, "UseShotRegulator"))
+	{
+		if (atoi(szValue) > 0)
+			CapabilitiesAdd( bits_CAP_USE_SHOT_REGULATOR );
+		else
+			CapabilitiesRemove( bits_CAP_USE_SHOT_REGULATOR );
+
+		return true;
+	}
+
+	return BaseClass::KeyValue( szKeyName, szValue );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Speak concept
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::SpeakIfAllowed( const char *concept, AI_CriteriaSet *modifiers )
+{
+	Speak( concept, modifiers ? *modifiers : AI_CriteriaSet() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::ModifyOrAppendCriteria( AI_CriteriaSet& set )
+{
+	BaseClass::ModifyOrAppendCriteria( set );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::PainSound( const CTakeDamageInfo &info )
+{
+	AI_CriteriaSet modifiers;
+	ModifyOrAppendDamageCriteria( modifiers, info );
+	SpeakIfAllowed( TLK_ACTOR_PAIN, &modifiers );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::DeathSound( const CTakeDamageInfo &info )
+{
+	AI_CriteriaSet modifiers;
+	ModifyOrAppendDamageCriteria( modifiers, info );
+	SpeakIfAllowed( TLK_ACTOR_DEATH, &modifiers );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::AlertSound( void )
+{
+	SpeakIfAllowed( TLK_ACTOR_ALERT );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::IdleSound( void )
+{
+	SpeakIfAllowed( TLK_ACTOR_IDLE );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::FearSound( void )
+{
+	SpeakIfAllowed( TLK_ACTOR_FEAR );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::LostEnemySound( void )
+{
+	SpeakIfAllowed( TLK_ACTOR_LOSTENEMY );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CGenericActorCustom::FoundEnemySound( void )
+{
+	SpeakIfAllowed( TLK_ACTOR_FOUNDENEMY );
+}
+#endif
 
 
 

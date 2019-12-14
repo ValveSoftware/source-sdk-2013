@@ -89,6 +89,9 @@
 #include "tier3/tier3.h"
 #include "serverbenchmark_base.h"
 #include "querycache.h"
+#ifdef MAPBASE
+#include "world.h"
+#endif
 
 
 #ifdef TF_DLL
@@ -701,6 +704,9 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	IGameSystem::Add( SoundEmitterSystem() );
 
 	// load Mod specific game events ( MUST be before InitAllSystems() so it can pickup the mod specific events)
+#ifdef MAPBASE
+	gameeventmanager->LoadEventsFromFile("resource/MapbaseEvents.res");
+#endif
 	gameeventmanager->LoadEventsFromFile("resource/ModEvents.res");
 
 #ifdef CSTRIKE_DLL // BOTPORT: TODO: move these ifdefs out
@@ -1733,6 +1739,17 @@ void CServerGameDLL::GetTitleName( const char *pMapName, char* pTitleBuff, int t
 			return;
 		}
 	}
+
+#ifdef MAPBASE
+	// Check the world entity for a chapter title.
+	if ( CWorld *pWorld = GetWorldEntity() )
+	{
+		const char *pWorldChapter = pWorld->GetChapterTitle();
+		if ( pWorldChapter && pWorldChapter[0] != '\0' )
+			Q_strncpy( chapterTitle, pWorldChapter, sizeof( chapterTitle ) );
+	}
+#endif
+
 	Q_strncpy( pTitleBuff, pMapName, titleBuffSize );
 }
 #endif
@@ -1770,6 +1787,16 @@ void CServerGameDLL::GetSaveComment( char *text, int maxlength, float flMinutes,
 			break;
 		}
 	}
+
+#ifdef MAPBASE
+	// Check the world entity for a chapter title.
+	if ( CWorld *pWorld = GetWorldEntity() )
+	{
+		const char *pWorldChapter = pWorld->GetChapterTitle();
+		if ( pWorldChapter && pWorldChapter[0] != '\0' )
+			pName = pWorldChapter;
+	}
+#endif
 	
 	// If we didn't get one, use the designer's map name, or the BSP name itself
 	if ( !pName )
@@ -2064,6 +2091,16 @@ void UpdateChapterRestrictions( const char *mapname )
 			break;
 		}
 	}
+
+#ifdef MAPBASE
+	// Check the world entity for a chapter title.
+	if ( CWorld *pWorld = GetWorldEntity() )
+	{
+		const char *pWorldChapter = pWorld->GetChapterTitle();
+		if ( pWorldChapter && pWorldChapter[0] != '\0' )
+			Q_strncpy( chapterTitle, pWorldChapter, sizeof( chapterTitle ) );
+	}
+#endif
 
 	if ( !chapterTitle[0] )
 		return;

@@ -49,6 +49,10 @@ public:
 	inline const CHandle<CBaseEntity> &Entity(void) const;
 	inline color32 Color32(void) const					{ return rgbaVal; }
 	inline void Vector3D(Vector &vec) const;
+#ifdef MAPBASE
+	// Gets angles from a vector
+	inline void Angle3D(QAngle &ang) const;
+#endif
 
 	fieldtype_t FieldType( void ) { return fieldType; }
 
@@ -59,6 +63,10 @@ public:
 	void SetEntity( CBaseEntity *val );
 	void SetVector3D( const Vector &val ) { vecVal[0] = val[0]; vecVal[1] = val[1]; vecVal[2] = val[2]; fieldType = FIELD_VECTOR; }
 	void SetPositionVector3D( const Vector &val ) { vecVal[0] = val[0]; vecVal[1] = val[1]; vecVal[2] = val[2]; fieldType = FIELD_POSITION_VECTOR; }
+#ifdef MAPBASE
+	// Passes in angles as a vector
+	void SetAngle3D( const QAngle &val ) { vecVal[0] = val[0]; vecVal[1] = val[1]; vecVal[2] = val[2]; fieldType = FIELD_VECTOR; }
+#endif
 	void SetColor32( color32 val ) { rgbaVal = val; fieldType = FIELD_COLOR32; }
 	void SetColor32( int r, int g, int b, int a ) { rgbaVal.r = r; rgbaVal.g = g; rgbaVal.b = b; rgbaVal.a = a; fieldType = FIELD_COLOR32; }
 	void Set( fieldtype_t ftype, void *data );
@@ -111,6 +119,25 @@ inline void variant_t::Vector3D(Vector &vec) const
 		vec = vec3_origin;
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Returns this variant as angles.
+//-----------------------------------------------------------------------------
+inline void variant_t::Angle3D(QAngle &ang) const
+{
+	if (( fieldType == FIELD_VECTOR ) || ( fieldType == FIELD_POSITION_VECTOR ))
+	{
+		ang[0] =  vecVal[0];
+		ang[1] =  vecVal[1];
+		ang[2] =  vecVal[2];
+	}
+	else
+	{
+		ang = vec3_angle;
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Returns this variant as an EHANDLE.

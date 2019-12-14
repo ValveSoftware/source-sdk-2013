@@ -2037,6 +2037,8 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetLocalOrigin", InputSetLocalOrigin ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetLocalAngles", InputSetLocalAngles ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetAbsOrigin", InputSetAbsOrigin ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetAbsAngles", InputSetAbsAngles ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetLocalVelocity", InputSetLocalVelocity ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetLocalAngularVelocity", InputSetLocalAngularVelocity ),
 
@@ -7092,7 +7094,7 @@ const char *CBaseEntity::GetContextValue( const char *contextName ) const
 {
 	int idx = FindContextByName( contextName );
 	if ( idx == -1 )
-		return NULL;
+		return "";
 
 	return m_ResponseContexts[ idx ].m_iszValue.ToCStr();
 }
@@ -7555,9 +7557,29 @@ void CBaseEntity::InputSetLocalOrigin( inputdata_t& inputdata )
 //-----------------------------------------------------------------------------
 void CBaseEntity::InputSetLocalAngles( inputdata_t& inputdata )
 {
+	QAngle ang;
+	inputdata.value.Angle3D(ang);
+	SetLocalAngles(ang);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets our origin.
+//-----------------------------------------------------------------------------
+void CBaseEntity::InputSetAbsOrigin( inputdata_t& inputdata )
+{
 	Vector vec;
 	inputdata.value.Vector3D(vec);
-	SetLocalAngles(QAngle(vec.x, vec.y, vec.z));
+	SetAbsOrigin(vec);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets our angles.
+//-----------------------------------------------------------------------------
+void CBaseEntity::InputSetAbsAngles( inputdata_t& inputdata )
+{
+	QAngle ang;
+	inputdata.value.Angle3D(ang);
+	SetAbsAngles(ang);
 }
 
 //-----------------------------------------------------------------------------
@@ -8746,6 +8768,130 @@ void CBaseEntity::SetCollisionBoundsFromModel()
 }
 
 
+#ifdef MAPBASE
+extern int EntityFactory_AutoComplete( const char *cmdname, CUtlVector< CUtlString > &commands, CUtlRBTree< CUtlString > &symbols, char *substring, int checklen = 0 );
+
+//------------------------------------------------------------------------------
+// Purpose: Create an entity of the given type
+//------------------------------------------------------------------------------
+class CEntCreateAutoCompletionFunctor : public ICommandCallback, public ICommandCompletionCallback
+{
+public:
+	virtual bool CreateAimed() { return false; }
+
+	virtual void CommandCallback( const CCommand &args )
+	{
+		MDLCACHE_CRITICAL_SECTION();
+
+		CBasePlayer *pPlayer = UTIL_GetCommandClient();
+		if (!pPlayer)
+		{
+			return;
+		}
+
+		// Don't allow regular users to create point_servercommand entities for the same reason as blocking ent_fire
+		if ( !Q_stricmp( args[1], "point_servercommand" ) )
+		{
+			if ( engine->IsDedicatedServer() )
+			{
+				// We allow people with disabled autokick to do it, because they already have rcon.
+				if ( pPlayer->IsAutoKickDisabled() == false )
+					return;
+			}
+			else if ( gpGlobals->maxClients > 1 )
+			{
+				// On listen servers with more than 1 player, only allow the host to create point_servercommand.
+				CBasePlayer *pHostPlayer = UTIL_GetListenServerHost();
+				if ( pPlayer != pHostPlayer )
+					return;
+			}
+		}
+
+		bool allowPrecache = CBaseEntity::IsPrecacheAllowed();
+		CBaseEntity::SetAllowPrecache( true );
+
+		// Try to create entity
+		CBaseEntity *entity = dynamic_cast< CBaseEntity * >( CreateEntityByName(args[1]) );
+		if (entity)
+		{
+			// Pass in any additional parameters.
+			for ( int i = 2; i + 1 < args.ArgC(); i += 2 )
+			{
+				const char *pKeyName = args[i];
+				const char *pValue = args[i+1];
+				entity->KeyValue( pKeyName, pValue );
+			}
+
+			DispatchSpawn(entity);
+
+			// Now attempt to drop into the world
+			trace_t tr;
+			Vector forward;
+			pPlayer->EyeVectors( &forward );
+			UTIL_TraceLine(pPlayer->EyePosition(),
+				pPlayer->EyePosition() + forward * MAX_TRACE_LENGTH,MASK_SOLID, 
+				pPlayer, COLLISION_GROUP_NONE, &tr );
+			if ( tr.fraction != 1.0 )
+			{
+				// Raise the end position a little up off the floor, place the npc and drop him down
+				tr.endpos.z += 12;
+
+				if (CreateAimed())
+				{
+					QAngle angles;
+					VectorAngles( forward, angles );
+					angles.x = 0;
+					angles.z = 0;
+					entity->Teleport( &tr.endpos, &angles, NULL );
+				}
+				else
+				{
+					entity->Teleport( &tr.endpos, NULL, NULL );
+				}
+
+				UTIL_DropToFloor( entity, MASK_SOLID );
+			}
+
+			entity->Activate();
+		}
+		CBaseEntity::SetAllowPrecache( allowPrecache );
+	}
+
+	virtual int CommandCompletionCallback( const char *partial, CUtlVector< CUtlString > &commands )
+	{
+		if ( !g_pGameRules )
+		{
+			return 0;
+		}
+
+		const char *cmdname = CreateAimed() ? "ent_create_aimed" : "ent_create";
+
+		char *substring = (char *)partial;
+		if ( Q_strstr( partial, cmdname ) )
+		{
+			substring = (char *)partial + strlen( cmdname ) + 1;
+		}
+
+		int checklen = Q_strlen( substring );
+
+		CUtlRBTree< CUtlString > symbols( 0, 0, UtlStringLessFunc );
+		return EntityFactory_AutoComplete( cmdname, commands, symbols, substring, checklen );
+	}
+};
+
+static CEntCreateAutoCompletionFunctor g_EntCreateAutoComplete;
+static ConCommand ent_create("ent_create", &g_EntCreateAutoComplete, "Creates an entity of the given type where the player is looking.  Additional parameters can be passed in in the form: ent_create <entity name> <param 1 name> <param 1> <param 2 name> <param 2>...<param N name> <param N>", FCVAR_GAMEDLL | FCVAR_CHEAT, &g_EntCreateAutoComplete);
+
+class CEntCreateAimedAutoCompletionFunctor : public CEntCreateAutoCompletionFunctor
+{
+public:
+	virtual bool CreateAimed() { return true; }
+};
+
+static CEntCreateAimedAutoCompletionFunctor g_EntCreateAimedAutoComplete;
+
+static ConCommand ent_create_aimed("ent_create_aimed", &g_EntCreateAimedAutoComplete, "Creates an entity of the given type where the player is looking.  Additional parameters can be passed in in the form: ent_create_aimed <entity name> <param 1 name> <param 1> <param 2 name> <param 2>...<param N name> <param N>", FCVAR_CHEAT, &g_EntCreateAimedAutoComplete);
+#else
 //------------------------------------------------------------------------------
 // Purpose: Create an NPC of the given type
 //------------------------------------------------------------------------------
@@ -8816,6 +8962,7 @@ void CC_Ent_Create( const CCommand& args )
 	CBaseEntity::SetAllowPrecache( allowPrecache );
 }
 static ConCommand ent_create("ent_create", CC_Ent_Create, "Creates an entity of the given type where the player is looking.  Additional parameters can be passed in in the form: ent_create <entity name> <param 1 name> <param 1> <param 2 name> <param 2>...<param N name> <param N>", FCVAR_GAMEDLL | FCVAR_CHEAT);
+#endif
 
 //------------------------------------------------------------------------------
 // Purpose: Teleport a specified entity to where the player is looking

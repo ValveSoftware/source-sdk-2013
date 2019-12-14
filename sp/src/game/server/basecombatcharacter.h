@@ -333,6 +333,12 @@ public:
 
 	virtual bool			BecomeRagdollBoogie( CBaseEntity *pKiller, const Vector &forceVector, float duration, int flags );
 
+#ifdef MAPBASE
+	// A version of BecomeRagdollBoogie() that allows the color to change and returns the entity itself instead.
+	// In order to avoid breaking anything, it doesn't change the original function.
+	virtual CBaseEntity		*BecomeRagdollBoogie( CBaseEntity *pKiller, const Vector &forceVector, float duration, int flags, const Vector *vecColor );
+#endif
+
 	CBaseEntity				*FindHealthItem( const Vector &vecPosition, const Vector &range );
 
 

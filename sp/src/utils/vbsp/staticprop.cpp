@@ -102,6 +102,7 @@ isstaticprop_ret IsStaticProp( studiohdr_t* pHdr )
 	if (!(pHdr->flags & STUDIOHDR_FLAGS_STATIC_PROP))
 		return RET_FAIL_NOT_MARKED_STATIC_PROP;
 
+#ifndef MAPBASE
 	// If it's got a propdata section in the model's keyvalues, it's not allowed to be a prop_static
 	KeyValues *modelKeyValues = new KeyValues(pHdr->pszName());
 	if ( StudioKeyValues( pHdr, modelKeyValues ) )
@@ -117,6 +118,7 @@ isstaticprop_ret IsStaticProp( studiohdr_t* pHdr )
 		}
 	}
 	modelKeyValues->deleteThis();
+#endif
 
 	return RET_VALID;
 }
@@ -166,11 +168,7 @@ bool LoadStudioModel( char const* pModelName, char const* pEntityType, CUtlBuffe
 	}
 
 	isstaticprop_ret isStaticProp = IsStaticProp(pHdr);
-#ifdef MAPBASE
-	if ( isStaticProp != RET_VALID && strcmp(pEntityType, "prop_static_override") != 0 )
-#else
 	if ( isStaticProp != RET_VALID )
-#endif
 	{
 		if ( isStaticProp == RET_FAIL_NOT_MARKED_STATIC_PROP )
 		{
@@ -244,11 +242,7 @@ CPhysCollide* ComputeConvexHull( studiohdr_t* pStudioHdr )
 //-----------------------------------------------------------------------------
 // Add, find collision model in cache
 //-----------------------------------------------------------------------------
-#ifdef MAPBASE
-static CPhysCollide* GetCollisionModel( char const* pModelName, bool bOverridePropdata = false )
-#else
 static CPhysCollide* GetCollisionModel( char const* pModelName )
-#endif
 {
 	// Convert to a common string
 	char* pTemp = (char*)_alloca(strlen(pModelName) + 1);
@@ -271,11 +265,7 @@ static CPhysCollide* GetCollisionModel( char const* pModelName )
 
 	// Load the studio model file
 	CUtlBuffer buf;
-#ifdef MAPBASE
-	if (!LoadStudioModel(pModelName, bOverridePropdata ? "prop_static_override" : "prop_static", buf))
-#else
 	if (!LoadStudioModel(pModelName, "prop_static", buf))
-#endif
 	{
 		Warning("Error loading studio model \"%s\"!\n", pModelName );
 
@@ -486,11 +476,7 @@ static bool ComputeLightingOrigin( StaticPropBuild_t const& build, Vector& light
 static void AddStaticPropToLump( StaticPropBuild_t const& build )
 {
 	// Get the collision model
-#ifdef MAPBASE
-	CPhysCollide* pConvexHull = GetCollisionModel( build.m_pModelName, (build.m_Flags & STATIC_PROP_OVERRIDE_PROPDATA) > 0 );
-#else
 	CPhysCollide* pConvexHull = GetCollisionModel( build.m_pModelName );
-#endif
 	if (!pConvexHull)
 		return;
 
@@ -602,11 +588,7 @@ void EmitStaticProps()
 	for ( i = 0; i < num_entities; ++i)
 	{
 		char* pEntity = ValueForKey(&entities[i], "classname");
-#ifdef MAPBASE
-		if (!strncmp(pEntity, "prop_static", 11) || !strcmp(pEntity, "static_prop"))
-#else
 		if (!strcmp(pEntity, "static_prop") || !strcmp(pEntity, "prop_static"))
-#endif
 		{
 			StaticPropBuild_t build;
 
@@ -638,14 +620,6 @@ void EmitStaticProps()
 			{
 				build.m_Flags |= STATIC_PROP_SCREEN_SPACE_FADE;
 			}
-
-#ifdef MAPBASE
-			//if (IntForKey(&entities[i], "override_propdata") == 1)
-			if (!strcmp(pEntity + 11, "_override"))
-			{
-				build.m_Flags |= STATIC_PROP_OVERRIDE_PROPDATA;
-			}
-#endif
 
 			const char *pKey = ValueForKey( &entities[i], "fadescale" );
 			if ( pKey && pKey[0] )

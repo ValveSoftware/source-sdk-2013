@@ -52,20 +52,17 @@ class CUserCmd;
 // I really, REALLY hope no weapon uses their own spawnflags.
 // If you want yours to use spawnflags, start at 16 just to be safe.
 
-// Prevents NPCs from picking up the weapon.
-#define SF_WEAPON_NO_NPC_PICKUP	(1<<3)
-// Prevents the weapon from filling up to max automatically
-// when picked up by the player or dropped.
-#define SF_WEAPON_PRESERVE_AMMO (1<<4)
+#define SF_WEAPON_NO_NPC_PICKUP	(1<<3) // Prevents NPCs from picking up the weapon.
+#define SF_WEAPON_PRESERVE_AMMO (1<<4) // Prevents the weapon from filling up to max automatically when dropped or picked up by players.
+#define SF_WEAPON_PRESERVE_NAME	(1<<5) // Prevents the weapon's name from being cleared upon being picked up by a player.
 
 // ----------------------------------------------
-// Internal Spawnflags
-// 
-// For all of the weapons that show up in-game, I personally feel like
-// this beats adding new variables by at least a long shot.
+// These spawnflags are not supposed to be used by level designers.
+// They're just my way of trying to avoid adding new variables
+// that have to stay in memory and save/load.
 // ----------------------------------------------
-#define SF_WEAPON_NO_AUTO_SWITCH_WHEN_EMPTY (1<<5) // So weapons with ammo preserved at 0 don't switch.
-#define SF_WEAPON_USED (1<<6) // Weapon is being +USE'd, not bumped
+#define SF_WEAPON_NO_AUTO_SWITCH_WHEN_EMPTY (1<<6) // So weapons with ammo preserved at 0 don't switch.
+#define SF_WEAPON_USED (1<<7) // Weapon is being +USE'd, not bumped
 #endif
 
 //Percent

@@ -620,6 +620,14 @@ void CGameRules::OnSkillLevelChanged( int iNewLevel )
 		pEntity->AcceptInput("SkillLevelChanged", UTIL_GetLocalPlayer(), NULL, varNewLevel, 0);
 		pEntity = gEntList.FindEntityByClassname(pEntity, "logic_skill");
 	}
+
+	// Fire game event for difficulty level changed
+	IGameEvent *event = gameeventmanager->CreateEvent("skill_changed");
+	if (event)
+	{
+		event->SetInt("skill_level", iNewLevel);
+		gameeventmanager->FireEvent(event);
+	}
 }
 #endif
 

@@ -17,10 +17,13 @@
 #ifdef DISCORD_RPC
 #include "discord_rpc.h"
 #include <time.h>
+#include "c_world.h"
 #endif
 
 #include "filesystem.h"
 #include "c_playerresource.h"
+#include <vgui_controls/Controls.h> 
+#include <vgui/ILocalize.h>
 
 #endif
 
@@ -448,6 +451,35 @@ void MapbaseRPC_UpdateSteam( int iType, const char *pMapName )
 #endif
 
 #ifdef DISCORD_RPC
+void MapbaseRPC_GetDiscordMapInfo( char *pDetails, size_t iSize, const char *pMapName )
+{
+	if (!pMapName)
+		pMapName = "N/A";
+
+	// Say we're in the main menu if it's a background map
+	if (engine->IsLevelMainMenuBackground())
+	{
+		Q_snprintf( pDetails, iSize, "Main Menu (%s)", pMapName );
+	}
+	else
+	{
+		C_World *pWorld = GetClientWorldEntity();
+		if ( pWorld && pWorld->m_iszChapterTitle[0] != '\0' )
+		{
+			// Show the chapter title first
+			const char *pChapterTitle = g_pVGuiLocalize->FindAsUTF8( pWorld->m_iszChapterTitle );
+			if (!pChapterTitle || pChapterTitle[0] == '\0')
+				pChapterTitle = pWorld->m_iszChapterTitle;
+
+			Q_snprintf( pDetails, iSize, "%s (%s)", pChapterTitle, pMapName );
+		}
+		else
+		{
+			Q_snprintf( pDetails, iSize, "%s", pMapName );
+		}
+	}
+}
+
 void MapbaseRPC_GetDiscordParameters( DiscordRichPresence &discordPresence, int iType, const char *pMapName )
 {
 	static char details[128];
@@ -469,10 +501,7 @@ void MapbaseRPC_GetDiscordParameters( DiscordRichPresence &discordPresence, int 
 			Q_strncpy( details, pMetadata->m_iszRPCDetails, sizeof(details) );
 		else
 		{
-			if (engine->IsLevelMainMenuBackground())
-				Q_snprintf( details, sizeof(details), "Main Menu (%s)", pMapName ? pMapName : "N/A" );
-			else
-				Q_snprintf( details, sizeof(details), "%s", pMapName ? pMapName : "N/A" );
+			MapbaseRPC_GetDiscordMapInfo( details, sizeof(details), pMapName );
 		}
 	}
 	else
@@ -489,15 +518,7 @@ void MapbaseRPC_GetDiscordParameters( DiscordRichPresence &discordPresence, int 
 			case RPCSTATE_LEVEL_INIT:
 			default:
 				{
-					// Say we're in the main menu if it's a background map
-					if (engine->IsLevelMainMenuBackground())
-					{
-						Q_snprintf( details, sizeof(details), "Main Menu (%s)", pMapName ? pMapName : "N/A" );
-					}
-					else
-					{
-						Q_snprintf( details, sizeof(details), "%s", pMapName ? pMapName : "N/A" );
-					}
+					MapbaseRPC_GetDiscordMapInfo( details, sizeof(details), pMapName );
 				} break;
 		}
 	}

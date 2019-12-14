@@ -40,6 +40,10 @@ ConVar	sk_barnacle_health( "sk_barnacle_health","0");
 
 static ConVar npc_barnacle_swallow( "npc_barnacle_swallow", "0", 0, "Use prototype swallow code." );
 
+#ifdef MAPBASE
+ConVar npc_barnacle_ignite( "npc_barnacle_ignite", "0", FCVAR_NONE, "Allows barnacles to be ignited by flares and beyond." );
+#endif
+
 const char *CNPC_Barnacle::m_szGibNames[NUM_BARNACLE_GIBS] =
 {
 	"models/gibs/hgibs.mdl",
@@ -69,6 +73,9 @@ int	g_interactionBarnacleVictimDangle	= 0;
 int	g_interactionBarnacleVictimReleased	= 0;
 int	g_interactionBarnacleVictimGrab		= 0;
 int g_interactionBarnacleVictimBite     = 0;
+#ifdef MAPBASE
+int g_interactionBarnacleVictimFinalBite = 0;
+#endif
 
 LINK_ENTITY_TO_CLASS( npc_barnacle, CNPC_Barnacle );
 
@@ -187,7 +194,9 @@ BEGIN_DATADESC( CNPC_Barnacle )
 	DEFINE_THINKFUNC( BarnacleThink ),
 	DEFINE_THINKFUNC( WaitTillDead ),
 
+#ifndef MAPBASE
 	DEFINE_FIELD( m_bSwallowingBomb, FIELD_BOOLEAN ),
+#endif
 
 END_DATADESC()
 
@@ -275,7 +284,9 @@ void CNPC_Barnacle::Spawn()
 	m_cGibs				= 0;
 	m_bLiftingPrey		= false;
 	m_bSwallowingPrey	= false;
+#ifndef MAPBASE
 	m_bSwallowingBomb	= false;
+#endif
 	m_flDigestFinish	= 0;
 	m_takedamage		= DAMAGE_YES;
 	m_pConstraint		= NULL;
@@ -406,6 +417,16 @@ void CNPC_Barnacle::PlayerHasIlluminatedNPC( CBasePlayer *pPlayer, float flDot )
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CNPC_Barnacle::AllowedToIgnite( void )
+{
+	return npc_barnacle_ignite.GetBool();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Initialize tongue position when first spawned
 // Input  :
@@ -509,7 +530,11 @@ void CNPC_Barnacle::BarnacleThink ( void )
 	}
 	else if ( GetEnemy()  )
 	{
+#ifdef MAPBASE
+		if ( m_bLiftingPrey )
+#else
  		if ( m_bLiftingPrey || m_bSwallowingBomb == true )
+#endif
 		{	
 			LiftPrey();
 		}
@@ -1145,6 +1170,24 @@ void CNPC_Barnacle::LiftPhysicsObject( float flBiteZOffset )
 		// If we got a physics prop, wait until the thing has settled down
 		m_bLiftingPrey = false;
 
+#ifdef MAPBASE
+		Vector tipPos = m_vecTip.Get();
+		Activity curAct = GetActivity();
+
+		// Other, non-character entities use this now
+		if (pVictim->DispatchInteraction( g_interactionBarnacleVictimBite, &tipPos, this ))
+		{
+			// Make sure the interaction isn't making us use an irregular activity
+			// (e.g. biting)
+			if (GetActivity() == curAct)
+				SetActivity( (Activity)ACT_BARNACLE_TASTE_SPIT );
+		}
+		else
+		{
+			// Start the spit animation.
+			SetActivity( (Activity)ACT_BARNACLE_TASTE_SPIT );
+		}
+#else
 		if ( hl2_episodic.GetBool() )
 		{
 			CBounceBomb *pBounce = dynamic_cast<CBounceBomb *>( pVictim );
@@ -1181,6 +1224,7 @@ void CNPC_Barnacle::LiftPhysicsObject( float flBiteZOffset )
 
 			pBCC->DispatchInteraction( g_interactionBarnacleVictimBite, &tipPos, this );
 		}
+#endif
 #endif
 	}
 	else
@@ -1577,6 +1621,18 @@ void CNPC_Barnacle::BitePrey( void )
 
 	CBaseCombatCharacter *pVictim = GetEnemyCombatCharacterPointer();
 
+#ifdef MAPBASE
+	if ( pVictim == NULL )
+	{
+		if ( GetEnemy() )
+		{
+			Vector tipPos = m_vecTip.Get();
+			GetEnemy()->DispatchInteraction( g_interactionBarnacleVictimFinalBite, &tipPos, this );
+		}
+
+		return;
+	}
+#else
 #ifdef HL2_EPISODIC
  	if ( pVictim == NULL )
 	{
@@ -1614,6 +1670,7 @@ void CNPC_Barnacle::BitePrey( void )
 	{	
 		return;
 	}
+#endif
 
 	EmitSound( "NPC_Barnacle.FinalBite" );
 
@@ -1699,6 +1756,12 @@ void CNPC_Barnacle::BitePrey( void )
 		return;
 	}
 
+#endif
+
+#ifdef MAPBASE
+	Vector tipPos = m_vecTip.Get();
+	if (pVictim->DispatchInteraction( g_interactionBarnacleVictimFinalBite, &tipPos, this ))
+		return;
 #endif
 
 	// Players are never swallowed, nor is anything we don't have a ragdoll for
@@ -1885,13 +1948,20 @@ void CNPC_Barnacle::LostPrey( bool bRemoveRagdoll )
 		PhysEnableEntityCollisions( this, pEnemy );
 #endif
 
+#ifdef MAPBASE
+		// These can be CBaseEntity-based now
+		pEnemy->DispatchInteraction( g_interactionBarnacleVictimReleased, NULL, this );
+#endif
+
 		//No one survives being snatched by a barnacle anymore, so leave
 		// this flag set so that their entity gets removed.
 		//GetEnemy()->RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE );
 		CBaseCombatCharacter *pVictim = GetEnemyCombatCharacterPointer();
 		if ( pVictim )
 		{
+#ifndef MAPBASE
 			pVictim->DispatchInteraction( g_interactionBarnacleVictimReleased, NULL, this );
+#endif
 			pVictim->RemoveEFlags( EFL_IS_BEING_LIFTED_BY_BARNACLE );
 
 			if ( m_hRagdoll )
@@ -2721,6 +2791,9 @@ AI_BEGIN_CUSTOM_NPC( npc_barnacle, CNPC_Barnacle )
 	DECLARE_INTERACTION( g_interactionBarnacleVictimReleased )
 	DECLARE_INTERACTION( g_interactionBarnacleVictimGrab )
 	DECLARE_INTERACTION( g_interactionBarnacleVictimBite )
+#ifdef MAPBASE
+	DECLARE_INTERACTION( g_interactionBarnacleVictimFinalBite )
+#endif
 
 	// Conditions
 		

@@ -1524,6 +1524,30 @@ bool CBaseCombatCharacter::BecomeRagdollBoogie( CBaseEntity *pKiller, const Vect
 	return true;
 }
 
+#ifdef MAPBASE
+CBaseEntity *CBaseCombatCharacter::BecomeRagdollBoogie( CBaseEntity *pKiller, const Vector &forceVector, float duration, int flags, const Vector *vecColor )
+{
+	Assert( CanBecomeRagdoll() );
+
+	CTakeDamageInfo info( pKiller, pKiller, 1.0f, DMG_GENERIC );
+
+	info.SetDamageForce( forceVector );
+
+	CBaseEntity *pRagdoll = CreateServerRagdoll( this, 0, info, COLLISION_GROUP_INTERACTIVE_DEBRIS, true );
+
+	pRagdoll->SetCollisionBounds( CollisionProp()->OBBMins(), CollisionProp()->OBBMaxs() );
+
+	CBaseEntity *pBoogie = CRagdollBoogie::Create( pRagdoll, 200, gpGlobals->curtime, duration, flags, vecColor );
+
+	CTakeDamageInfo ragdollInfo( pKiller, pKiller, 10000.0, DMG_GENERIC | DMG_REMOVENORAGDOLL );
+	ragdollInfo.SetDamagePosition( WorldSpaceCenter() );
+	ragdollInfo.SetDamageForce( Vector( 0, 0, 1 ) );
+	TakeDamage( ragdollInfo );
+
+	return pBoogie;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -4020,6 +4044,11 @@ void CBaseCombatCharacter::InputPickupWeaponInstant( inputdata_t &inputdata )
 	if (inputdata.value.Entity() && inputdata.value.Entity()->IsBaseCombatWeapon())
 	{
 		CBaseCombatWeapon *pWeapon = inputdata.value.Entity()->MyCombatWeaponPointer();
+		if (pWeapon->GetOwner())
+		{
+			Msg("Ignoring PickupWeaponInstant on %s because %s already has an owner\n", GetDebugName(), pWeapon->GetDebugName());
+			return;
+		}
 
 		if (CBaseCombatWeapon *pExistingWeapon = Weapon_OwnsThisType(pWeapon->GetClassname()))
 		{
@@ -4036,6 +4065,8 @@ void CBaseCombatCharacter::InputPickupWeaponInstant( inputdata_t &inputdata )
 		{
 			Weapon_Equip(pWeapon);
 		}
+
+		pWeapon->OnPickedUp( this );
 	}
 	else
 	{

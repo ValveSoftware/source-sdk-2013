@@ -276,7 +276,7 @@ void CLogicMeasureMovement::MeasureThink( )
 		if (m_bOutputPosition)
 		{
 			m_OutPosition.Set(vecNewOrigin, m_hTarget.Get(), this);
-			m_OutAngles.Set(*(reinterpret_cast<Vector*>(vecNewAngles.Base())), m_hTarget.Get(), this);
+			m_OutAngles.Set(vecNewAngles, m_hTarget.Get(), this);
 		}
 
 		if (HasSpawnFlags( SF_LOGIC_MEASURE_MOVEMENT_TELEPORT ))

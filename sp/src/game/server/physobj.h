@@ -37,6 +37,9 @@
 #define SF_PHYSBOX_NEVER_PICK_UP			0x200000		// Physcannon will never be able to pick this up.
 #define SF_PHYSBOX_NEVER_PUNT				0x400000		// Physcannon will never be able to punt this object.
 #define SF_PHYSBOX_PREVENT_PLAYER_TOUCH_ENABLE 0x800000		// If set, the player will not cause the object to enable its motion when bumped into
+#ifdef MAPBASE
+#define SF_PHYSBOX_RADIUS_PICKUP			0x1000000		// Allows this object to be picked up in a radius, useful for smaller objects. Based on the prop_physics input
+#endif
 
 // UNDONE: Hook collisions into the physics system to generate touch functions and take damage on falls
 // UNDONE: Base class PhysBrush

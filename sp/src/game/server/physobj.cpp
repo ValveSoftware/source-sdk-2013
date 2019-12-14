@@ -565,6 +565,13 @@ int CPhysBox::ObjectCaps()
 		}
 	}
 
+#ifdef MAPBASE
+	if ( HasSpawnFlags( SF_PHYSBOX_RADIUS_PICKUP ) )
+	{
+		caps |= FCAP_USE_IN_RADIUS;
+	}
+#endif
+
 	return caps;
 }
 

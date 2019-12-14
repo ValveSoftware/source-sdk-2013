@@ -226,6 +226,7 @@ BEGIN_DATADESC( CNPC_BaseZombie )
 
 #ifdef MAPBASE
 	DEFINE_OUTPUT( m_OnSwattedProp, "OnSwattedProp" ),
+	DEFINE_OUTPUT( m_OnCrab, "OnCrab" ),
 #endif
 
 END_DATADESC()
@@ -1089,6 +1090,10 @@ bool CNPC_BaseZombie::ShouldIgniteZombieGib( void )
 #endif 
 }
 
+#ifdef MAPBASE
+extern CBaseAnimating *CreateServerRagdollSubmodel( CBaseAnimating *pOwner, const char *pModelName, const Vector &position, const QAngle &angles, int collisionGroup );
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Handle the special case of a zombie killed by a physics chopper.
 //-----------------------------------------------------------------------------
@@ -1138,9 +1143,32 @@ void CNPC_BaseZombie::DieChopped( const CTakeDamageInfo &info )
 		vecLegsForce.z *= -10;
 	}
 
+#ifdef MAPBASE
+	CBaseEntity *pLegGib = NULL;
+	if ( m_bForceServerRagdoll )
+	{
+		pLegGib = CreateServerRagdollSubmodel( this, GetLegsModel(), GetAbsOrigin(), GetAbsAngles(), COLLISION_GROUP_INTERACTIVE_DEBRIS );
+		pLegGib->VPhysicsGetObject()->AddVelocity(&vecLegsForce, NULL);
+		if (ShouldIgniteZombieGib())
+			static_cast<CBaseAnimating*>(pLegGib)->Ignite( random->RandomFloat( 8.0, 12.0 ), false );
+
+		if ( flFadeTime > 0.0 )
+		{
+			pLegGib->SUB_StartFadeOut( flFadeTime );
+		}
+	}
+	else
+		pLegGib = CreateRagGib( GetLegsModel(), GetAbsOrigin(), GetAbsAngles(), vecLegsForce, flFadeTime, ShouldIgniteZombieGib() );
+#else
 	CBaseEntity *pLegGib = CreateRagGib( GetLegsModel(), GetAbsOrigin(), GetAbsAngles(), vecLegsForce, flFadeTime, ShouldIgniteZombieGib() );
+#endif
 	if ( pLegGib )
 	{
+#ifdef MAPBASE
+		// Inherit some misc. properties
+		pLegGib->m_iViewHideFlags = m_iViewHideFlags;
+#endif
+
 		CopyRenderColorTo( pLegGib );
 	}
 
@@ -1157,7 +1185,25 @@ void CNPC_BaseZombie::DieChopped( const CTakeDamageInfo &info )
 	QAngle TorsoAngles;
 	TorsoAngles = GetAbsAngles();
 	TorsoAngles.x -= 90.0f;
+#ifdef MAPBASE
+	CBaseEntity *pTorsoGib = NULL;
+	if ( m_bForceServerRagdoll )
+	{
+		pTorsoGib = CreateServerRagdollSubmodel( this, GetTorsoModel(), GetAbsOrigin() + Vector( 0, 0, 64 ), TorsoAngles, COLLISION_GROUP_INTERACTIVE_DEBRIS );
+		pTorsoGib->VPhysicsGetObject()->AddVelocity(&forceVector, NULL);
+		if (ShouldIgniteZombieGib())
+			static_cast<CBaseAnimating*>(pLegGib)->Ignite( random->RandomFloat( 8.0, 12.0 ), false );
+
+		if ( flFadeTime > 0.0 )
+		{
+			pTorsoGib->SUB_StartFadeOut( flFadeTime );
+		}
+	}
+	else
+		pTorsoGib = CreateRagGib( GetTorsoModel(), GetAbsOrigin() + Vector( 0, 0, 64 ), TorsoAngles, forceVector, flFadeTime, ShouldIgniteZombieGib() );
+#else
 	CBaseEntity *pTorsoGib = CreateRagGib( GetTorsoModel(), GetAbsOrigin() + Vector( 0, 0, 64 ), TorsoAngles, forceVector, flFadeTime, ShouldIgniteZombieGib() );
+#endif
 	if ( pTorsoGib )
 	{
 		CBaseAnimating *pAnimating = dynamic_cast<CBaseAnimating*>(pTorsoGib);
@@ -1165,6 +1211,11 @@ void CNPC_BaseZombie::DieChopped( const CTakeDamageInfo &info )
 		{
 			pAnimating->SetBodygroup( ZOMBIE_BODYGROUP_HEADCRAB, !m_fIsHeadless );
 		}
+
+#ifdef MAPBASE
+		// Inherit some misc. properties
+		pTorsoGib->m_iViewHideFlags = m_iViewHideFlags;
+#endif
 
 		pTorsoGib->SetOwnerEntity( this );
 		CopyRenderColorTo( pTorsoGib );
@@ -2294,7 +2345,23 @@ void CNPC_BaseZombie::BecomeTorso( const Vector &vecTorsoForce, const Vector &ve
 	if ( m_fIsTorso == true )
 	{
 		// -40 on Z to make up for the +40 on Z that we did above. This stops legs spawning above the head.
+#ifdef MAPBASE
+		CBaseEntity *pGib = NULL;
+		if ( m_bForceServerRagdoll )
+		{
+			pGib = CreateServerRagdollSubmodel( this, GetLegsModel(), GetAbsOrigin() - Vector(0, 0, 40), GetAbsAngles(), COLLISION_GROUP_INTERACTIVE_DEBRIS );
+			pGib->VPhysicsGetObject()->AddVelocity( &vecLegsForce, NULL );
+
+			if (flFadeTime > 0.0)
+			{
+				pGib->SUB_StartFadeOut( flFadeTime );
+			}
+		}
+		else
+			pGib = CreateRagGib( GetLegsModel(), GetAbsOrigin() - Vector(0, 0, 40), GetAbsAngles(), vecLegsForce, flFadeTime );
+#else
 		CBaseEntity *pGib = CreateRagGib( GetLegsModel(), GetAbsOrigin() - Vector(0, 0, 40), GetAbsAngles(), vecLegsForce, flFadeTime );
+#endif
 
 		// don't collide with this thing ever
 		if ( pGib )
@@ -2430,7 +2497,22 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 	if( fRagdollCrab )
 	{
 		//Vector vecForce = Vector( 0, 0, random->RandomFloat( 700, 1100 ) );
+#ifdef MAPBASE
+		CBaseEntity *pGib = NULL;
+		if ( m_bForceServerRagdoll )
+		{
+			pGib = CreateServerRagdollSubmodel( this, GetHeadcrabModel(), vecOrigin, GetLocalAngles(), COLLISION_GROUP_INTERACTIVE_DEBRIS );
+			pGib->VPhysicsGetObject()->AddVelocity(&vecVelocity, NULL);
+			if (ShouldIgniteZombieGib())
+				static_cast<CBaseAnimating*>(pGib)->Ignite( random->RandomFloat( 8.0, 12.0 ), false );
+
+			pGib->SUB_StartFadeOut( 15 );
+		}
+		else
+			pGib = CreateRagGib( GetHeadcrabModel(), vecOrigin, GetLocalAngles(), vecVelocity, 15, ShouldIgniteZombieGib() );
+#else
 		CBaseEntity *pGib = CreateRagGib( GetHeadcrabModel(), vecOrigin, GetLocalAngles(), vecVelocity, 15, ShouldIgniteZombieGib() );
+#endif
 
 		if ( pGib )
 		{
@@ -2448,6 +2530,11 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 				UTIL_Remove(pGib);
 				return;
 			}
+
+#ifdef MAPBASE
+			// Inherit some misc. properties
+			pGib->m_iViewHideFlags = m_iViewHideFlags;
+#endif
 
 			pGib->SetOwnerEntity( this );
 			CopyRenderColorTo( pGib );
@@ -2488,6 +2575,12 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 		
 		// add on the parent flags
 		pCrab->AddSpawnFlags( m_spawnflags & ZOMBIE_CRAB_INHERITED_SPAWNFLAGS );
+
+#ifdef MAPBASE
+		// Inherit some misc. properties
+		pCrab->m_bForceServerRagdoll = m_bForceServerRagdoll;
+		pCrab->m_iViewHideFlags = m_iViewHideFlags;
+#endif
 		
 		// make me the crab's owner to avoid collision issues
 		pCrab->SetOwnerEntity( this );
@@ -2541,6 +2634,10 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 		CopyRenderColorTo( pCrab );
 
 		pCrab->Activate();
+
+#ifdef MAPBASE
+		m_OnCrab.Set( pCrab, pCrab, this );
+#endif
 	}
 
 	if( fRemoveHead )

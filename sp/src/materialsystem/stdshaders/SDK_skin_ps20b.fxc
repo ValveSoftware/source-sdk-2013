@@ -170,7 +170,7 @@ float4 main( PS_INPUT i ) : COLOR
 	float4 stretchColor = tex2D( StretchSampler, i.baseTexCoordDetailTexCoord.xy );
 
 	// Apply wrinkle blend to only RGB.  Alpha comes from the base texture
-	baseColor.rgb = flTextureAmount * baseColor + flWrinkleAmount * wrinkleColor +  flStretchAmount * stretchColor;
+	baseColor.rgb = flTextureAmount * baseColor.rgb + flWrinkleAmount * wrinkleColor.rgb +  flStretchAmount * stretchColor.rgb;
 #endif
 
 #if DETAILTEXTURE
@@ -235,7 +235,7 @@ float4 main( PS_INPUT i ) : COLOR
 			envMapColor = (ENV_MAP_SCALE *
 							lerp(1, fFresnelRanges, g_EnvMapFresnel.x) *
 							lerp(fEnvMapMask, 1-fEnvMapMask, g_fInvertPhongMask)) *
-							texCUBE( EnvmapSampler, vReflect ) *
+							texCUBE( EnvmapSampler, vReflect ).xyz *
 							g_EnvmapTint_ShadowTweaks.xyz;
 		}
 	}
@@ -332,7 +332,7 @@ float4 main( PS_INPUT i ) : COLOR
 		float flSelfIllumFresnel = ( pow( saturate( dot( vVertexNormal.xyz, vEyeDir.xyz ) ), g_SelfIllumScaleBiasExpBrightness.z ) * g_SelfIllumScaleBiasExpBrightness.x ) + g_SelfIllumScaleBiasExpBrightness.y;
 		diffuseComponent = lerp( diffuseComponent, g_SelfIllumTint_and_DetailBlendFactor.rgb * albedo * g_SelfIllumScaleBiasExpBrightness.w, baseColor.a * saturate( flSelfIllumFresnel ) );
 #else
-		float3 vSelfIllumMask = tex2D( SelfIllumMaskSampler, i.baseTexCoordDetailTexCoord.xy );
+		float3 vSelfIllumMask = tex2D( SelfIllumMaskSampler, i.baseTexCoordDetailTexCoord.xy ).xyz;
 		vSelfIllumMask = lerp( baseColor.aaa, vSelfIllumMask, g_SelfIllumMaskControl );
 		diffuseComponent = lerp( diffuseComponent, g_SelfIllumTint_and_DetailBlendFactor.rgb * albedo, vSelfIllumMask );
 #endif

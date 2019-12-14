@@ -56,6 +56,10 @@ IMPLEMENT_CLIENTCLASS_DT( C_EnvProjectedTexture, DT_EnvProjectedTexture, CEnvPro
 	RecvPropFloat(	 RECVINFO( m_flFarZ )	),
 	RecvPropInt(	 RECVINFO( m_nShadowQuality )	),
 #ifdef MAPBASE
+	RecvPropFloat(	 RECVINFO( m_flConstantAtten ) ),
+	RecvPropFloat(	 RECVINFO( m_flLinearAtten ) ),
+	RecvPropFloat(	 RECVINFO( m_flQuadraticAtten ) ),
+	RecvPropFloat(	 RECVINFO( m_flShadowAtten ) ),
 	RecvPropBool(	 RECVINFO( m_bAlwaysDraw )	),
 
 	// Not needed on the client right now, change when it actually is needed
@@ -89,6 +93,10 @@ C_EnvProjectedTexture *C_EnvProjectedTexture::Create( )
 	pEnt->m_bState = true;
 #ifdef MAPBASE
 	pEnt->m_bAlwaysDraw = false;
+	pEnt->m_flConstantAtten = 0.0f;
+	pEnt->m_flLinearAtten = 100.0f;
+	pEnt->m_flQuadraticAtten = 0.0f;
+	pEnt->m_flShadowAtten = 0.0f;
 	//pEnt->m_bProjectedTextureVersion = 1;
 #endif
 
@@ -381,18 +389,23 @@ void C_EnvProjectedTexture::UpdateLight( void )
 
 		float flAlpha = m_flCurrentLinearFloatLightAlpha * ( 1.0f / 255.0f );
 
-		state.m_fQuadraticAtten = 0.0;
-		state.m_fLinearAtten = 100;
-		state.m_fConstantAtten = 0.0f;
-		state.m_FarZAtten = m_flFarZ;
 #ifdef MAPBASE
+		state.m_fConstantAtten = m_flConstantAtten;
+		state.m_fLinearAtten = m_flLinearAtten;
+		state.m_fQuadraticAtten = m_flQuadraticAtten;
+		state.m_FarZAtten = m_flFarZ;
 		state.m_Color[0] = (m_CurrentLinearFloatLightColor.x * ( 1.0f / 255.0f ) * flAlpha) * m_flCurrentBrightnessScale;
 		state.m_Color[1] = (m_CurrentLinearFloatLightColor.y * ( 1.0f / 255.0f ) * flAlpha) * m_flCurrentBrightnessScale;
 		state.m_Color[2] = (m_CurrentLinearFloatLightColor.z * ( 1.0f / 255.0f ) * flAlpha) * m_flCurrentBrightnessScale;
 		state.m_Color[3] = 0.0f; // fixme: need to make ambient work m_flAmbient;
 		state.m_flShadowSlopeScaleDepthBias = mat_slopescaledepthbias_shadowmap.GetFloat();
 		state.m_flShadowDepthBias = mat_depthbias_shadowmap.GetFloat();
+		state.m_flShadowAtten = m_flShadowAtten;
 #else
+		state.m_fQuadraticAtten = 0.0;
+		state.m_fLinearAtten = 100;
+		state.m_fConstantAtten = 0.0f;
+		state.m_FarZAtten = m_flFarZ;
 		state.m_fBrightnessScale = m_flBrightnessScale;
 		state.m_Color[0] = m_CurrentLinearFloatLightColor.x * ( 1.0f / 255.0f ) * flAlpha;
 		state.m_Color[1] = m_CurrentLinearFloatLightColor.y * ( 1.0f / 255.0f ) * flAlpha;

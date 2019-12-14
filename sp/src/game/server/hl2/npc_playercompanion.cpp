@@ -276,7 +276,7 @@ void CNPC_PlayerCompanion::Spawn()
 
 	m_AnnounceAttackTimer.Set( 10, 30 );
 
-#ifdef HL2_EPISODIC
+#if HL2_EPISODIC && !MAPBASE // Mapbase permits this flag since the warning can be distracting and stripping the flag might break some HL2 maps in Episodic mods
 	// We strip this flag because it's been made obsolete by the StartScripting behavior
 	if ( HasSpawnFlags( SF_NPC_ALTCOLLISION ) )
 	{
@@ -306,7 +306,7 @@ int CNPC_PlayerCompanion::Restore( IRestore &restore )
 		m_StandoffBehavior.SetActive( false );
 	}
 
-#ifdef HL2_EPISODIC
+#if HL2_EPISODIC && !MAPBASE // Mapbase permits this flag since the warning can be distracting and stripping the flag might break some HL2 maps in Episodic mods
 	// We strip this flag because it's been made obsolete by the StartScripting behavior
 	if ( HasSpawnFlags( SF_NPC_ALTCOLLISION ) )
 	{

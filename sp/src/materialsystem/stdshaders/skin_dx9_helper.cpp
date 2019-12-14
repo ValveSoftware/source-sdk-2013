@@ -992,18 +992,18 @@ void DrawSkin_DX9( CBaseVSShader *pShader, IMaterialVar** params, IShaderDynamic
 				   CBasePerMaterialContextData **pContextDataPtr )
 
 {
-	ConVarRef r_flashlight_version2 = ConVarRef( "r_flashlight_version2" );
+	//ConVarRef r_flashlight_version2 = ConVarRef( "r_flashlight_version2" );
 
 	bool bHasFlashlight = pShader->UsingFlashlight( params );
-	if ( bHasFlashlight && ( IsX360() || r_flashlight_version2.GetBool() ) )
-	{
-		DrawSkin_DX9_Internal( pShader, params, pShaderAPI,
-			pShaderShadow, false, info, vertexCompression, pContextDataPtr++ );
-		if ( pShaderShadow )
-		{
-			pShader->SetInitialShadowState( );
-		}
-	}
+	//if ( bHasFlashlight && ( IsX360() || r_flashlight_version2.GetBool() ) )
+	//{
+	//	DrawSkin_DX9_Internal( pShader, params, pShaderAPI,
+	//		pShaderShadow, false, info, vertexCompression, pContextDataPtr++ );
+	//	if ( pShaderShadow )
+	//	{
+	//		pShader->SetInitialShadowState( );
+	//	}
+	//}
 	DrawSkin_DX9_Internal( pShader, params, pShaderAPI,
 		pShaderShadow, bHasFlashlight, info, vertexCompression, pContextDataPtr );
 }

@@ -284,7 +284,7 @@ public:
 	void ModifyOrAppendCriteria( AI_CriteriaSet& set );
 
 	virtual CAI_Expresser *CreateExpresser( void );
-	virtual CAI_Expresser *GetExpresser() { return m_pExpresser;  }
+	virtual CAI_Expresser *GetExpresser() { return m_pExpresser; }
 	virtual void		PostConstructor( const char *szClassname );
 #endif
 

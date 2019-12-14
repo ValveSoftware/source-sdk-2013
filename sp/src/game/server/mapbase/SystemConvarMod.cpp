@@ -92,19 +92,17 @@ void CVEnt_Precache(CMapbaseCVarModEntity *modent)
 	if (Q_strstr(STRING(modent->m_target), "sv_allow_logic_convar"))
 		return;
 
+#ifdef MAPBASE_MP
+	if (gpGlobals->maxClients > 1 && !modent->m_bUseServer)
+	{
+		Warning("WARNING: %s is using the local player in a multiplayer game and will not function.\n", modent->GetDebugName());
+	}
+#endif
+
 	CV_InitMod();
 }
-void CVEnt_Activate(CMapbaseCVarModEntity *modent, CBaseEntity *pActivator = UTIL_GetLocalPlayer())
+void CVEnt_Activate(CMapbaseCVarModEntity *modent)
 {
-	edict_t *edict = pActivator ? pActivator->edict() : NULL;
-	if (!edict)
-		return;
-
-	SetChangingCVars( modent );
-
-	if (m_ModEntities.Find(modent) == m_ModEntities.InvalidIndex())
-		m_ModEntities.AddToTail(modent);
-
 	const char *pszCommands = STRING( modent->m_target );
 	if ( Q_strnchr(pszCommands, '^', MAX_CONVARMOD_STRING_SIZE) )
 	{
@@ -123,8 +121,29 @@ void CVEnt_Activate(CMapbaseCVarModEntity *modent, CBaseEntity *pActivator = UTI
 		pszCommands = szTmp;
 	}
 
-	engine->ClientCommand( edict, pszCommands );
-	engine->ClientCommand( edict, "mapbase_cvarsnotchanging\n" );
+	if (modent->m_bUseServer)
+	{
+		SetChangingCVars( modent );
+
+		engine->ServerCommand( pszCommands );
+		engine->ServerCommand( "mapbase_cvarsnotchanging" );
+	}
+	else
+	{
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+		edict_t *edict = pPlayer ? pPlayer->edict() : NULL;
+		if (edict)
+		{
+			SetChangingCVars( modent );
+
+			engine->ClientCommand( edict, pszCommands );
+			engine->ClientCommand( edict, "mapbase_cvarsnotchanging" );
+		}
+		else
+		{
+			Warning("%s unable to find local player edict\n", modent->GetDebugName());
+		}
+	}
 }
 void CVEnt_Deactivate(CMapbaseCVarModEntity *modent)
 {
@@ -173,6 +192,7 @@ LINK_ENTITY_TO_CLASS( mapbase_convar_mod, CMapbaseCVarModEntity );
 BEGIN_DATADESC( CMapbaseCVarModEntity )
 
 	DEFINE_UTLVECTOR( m_ModifiedConvars, FIELD_EMBEDDED ),
+	DEFINE_KEYFIELD( m_bUseServer, FIELD_BOOLEAN, "UseServer" ),
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "Activate", InputActivate ),

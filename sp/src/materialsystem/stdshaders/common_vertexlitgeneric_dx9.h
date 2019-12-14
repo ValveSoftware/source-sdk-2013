@@ -116,7 +116,7 @@ float3 DiffuseTerm(const bool bHalfLambert, const float3 worldNormal, const floa
 	float3 fOut = float3( fResult, fResult, fResult );
 	if ( bDoLightingWarp )
 	{
-		fOut = 2.0f * tex1D( lightWarpSampler, fResult );
+		fOut = 2.0f * tex1D( lightWarpSampler, fResult ).xyz;
 	}
 
 	return fOut;
@@ -146,7 +146,7 @@ float3 PixelShaderGetLightVector( const float3 worldPos, PixelShaderLightInfo cL
 	}
 	else
 	{
-		return normalize( cLightInfo[nLightIndex].pos - worldPos );
+		return normalize( cLightInfo[nLightIndex].pos.xyz - worldPos );
 	}
 }
 
@@ -181,7 +181,7 @@ void SpecularAndRimTerms( const float3 vWorldNormal, const float3 vLightDir, con
 
 	// Optionally warp as function of scalar specular and fresnel
 	if ( bDoSpecularWarp )
-		specularLighting *= tex2D( specularWarpSampler, float2(specularLighting.x, fFresnel) ); // Sample at { (L.R)^k, fresnel }
+		specularLighting *= tex2D( specularWarpSampler, float2(specularLighting.x, fFresnel) ).xyz; // Sample at { (L.R)^k, fresnel }
 
 	specularLighting *= saturate(dot( vWorldNormal, vLightDir ));		// Mask with N.L
 	specularLighting *= color;											// Modulate with light color
@@ -286,19 +286,19 @@ float3 PixelShaderDoLightingLinear( const float3 worldPos, const float3 worldNor
 	if ( nNumLights > 0 )
 	{
 		linearColor += PixelShaderDoGeneralDiffuseLight( lightAtten.x, worldPos, worldNormal, NormalizeSampler,
-														 cLightInfo[0].pos, cLightInfo[0].color, bHalfLambert,
+														 cLightInfo[0].pos.xyz, cLightInfo[0].color.xyz, bHalfLambert,
 														 bDoAmbientOcclusion, fAmbientOcclusion,
 														 bDoLightingWarp, lightWarpSampler );
 		if ( nNumLights > 1 )
 		{
 			linearColor += PixelShaderDoGeneralDiffuseLight( lightAtten.y, worldPos, worldNormal, NormalizeSampler,
-															 cLightInfo[1].pos, cLightInfo[1].color, bHalfLambert,
+															 cLightInfo[1].pos.xyz, cLightInfo[1].color.xyz, bHalfLambert,
 															 bDoAmbientOcclusion, fAmbientOcclusion,
 															 bDoLightingWarp, lightWarpSampler );
 			if ( nNumLights > 2 )
 			{
 				linearColor += PixelShaderDoGeneralDiffuseLight( lightAtten.z, worldPos, worldNormal, NormalizeSampler,
-																 cLightInfo[2].pos, cLightInfo[2].color, bHalfLambert,
+																 cLightInfo[2].pos.xyz, cLightInfo[2].color.xyz, bHalfLambert,
 																 bDoAmbientOcclusion, fAmbientOcclusion,
 																 bDoLightingWarp, lightWarpSampler );
 				if ( nNumLights > 3 )

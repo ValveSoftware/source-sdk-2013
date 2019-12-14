@@ -814,6 +814,10 @@ void CBaseCombatWeapon::OnPickedUp( CBaseCombatCharacter *pNewOwner )
 		// Robin: We don't want to delete weapons the player has picked up, so 
 		// clear the name of the weapon. This prevents wildcards that are meant 
 		// to find NPCs finding weapons dropped by the NPCs as well.
+#ifdef MAPBASE
+		// Level designers might want some weapons to preserve their original names, however.
+		if ( !HasSpawnFlags(SF_WEAPON_PRESERVE_NAME) )
+#endif
 		SetName( NULL_STRING );
 	}
 	else

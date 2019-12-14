@@ -118,6 +118,9 @@ BEGIN_DATADESC( CAI_ScriptedSequence )
 	DEFINE_OUTPUT(m_OnScriptEvent[5], "OnScriptEvent06"),
 	DEFINE_OUTPUT(m_OnScriptEvent[6], "OnScriptEvent07"),
 	DEFINE_OUTPUT(m_OnScriptEvent[7], "OnScriptEvent08"),
+#ifdef MAPBASE
+	DEFINE_OUTPUT(m_OnPreIdleSequence, "OnPreIdleSequence"),
+#endif
 
 END_DATADESC()
 
@@ -838,6 +841,11 @@ void CAI_ScriptedSequence::OnBeginSequence( CBaseEntity *pActor )
 {
 	m_OnBeginSequence.FireOutput( pActor, this );
 }
+
+void CAI_ScriptedSequence::OnPreIdleSequence( CBaseEntity *pActor )
+{
+	m_OnPreIdleSequence.FireOutput( pActor, this );
+}
 #else
 void CAI_ScriptedSequence::OnBeginSequence( void )
 {
@@ -1125,7 +1133,11 @@ void CAI_ScriptedSequence::PostIdleDone( CAI_BaseNPC *pNPC )
 	}
 
 	//Msg("%s finished post idle at %0.2f\n", pNPC->GetDebugName(), gpGlobals->curtime );
+#ifdef MAPBASE
+	m_OnPostIdleEndSequence.FireOutput(pNPC, this);
+#else
 	m_OnPostIdleEndSequence.FireOutput(NULL, this);
+#endif
 }
 
 

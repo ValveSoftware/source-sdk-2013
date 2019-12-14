@@ -33,14 +33,7 @@ Vector g_vSplashColor( 0.5, 0.5, 0.5 );
 float g_flSplashScale = 0.15;
 float g_flSplashLifetime = 0.5f;
 float g_flSplashAlpha = 0.3f;
-#ifdef MAPBASE
-// Rain splash stuff based on Tony Sergei's VDC code
-// (r_RainParticle can be found in effects.cpp on the server as well)
-ConVar r_RainParticle("r_RainParticle", "Rain_01_impact", FCVAR_CHEAT | FCVAR_REPLICATED);
-ConVar r_RainSplashPercentage( "r_RainSplashPercentage", "99", FCVAR_CHEAT ); // N% chance of a rain particle making a splash.
-#else
 ConVar r_RainSplashPercentage( "r_RainSplashPercentage", "20", FCVAR_CHEAT ); // N% chance of a rain particle making a splash.
-#endif
 
 
 float GUST_INTERVAL_MIN = 1;
@@ -331,20 +324,6 @@ inline bool CClient_Precipitation::SimulateRain( CPrecipitationParticle* pPartic
 		}
 	}
 
-#ifdef MAPBASE
-	// Based on Tony Sergi's code on the VDC. This version re-uses m_Splashes instead of dispatching the effect immediately.
-	trace_t trace;
-	UTIL_TraceLine(vOldPos, pParticle->m_Pos, MASK_SOLID_BRUSHONLY, this, COLLISION_GROUP_NONE, &trace);
-
-	if (trace.fraction < 1 || trace.DidHit())
-	{
-		if (RandomInt(0, 100) <= r_RainSplashPercentage.GetInt())
-			m_Splashes.AddToTail( trace.endpos );
-
-		// Tell the framework it's time to remove the particle from the list
-		return false;
-	}
-#else
 		// No longer in the air? punt.
 		if ( !IsInAir( pParticle->m_Pos ) )
 		{
@@ -365,7 +344,6 @@ inline bool CClient_Precipitation::SimulateRain( CPrecipitationParticle* pPartic
 			// Tell the framework it's time to remove the particle from the list
 			return false;
 		}
-#endif
 
 	// We still want this particle
 	return true;
@@ -572,15 +550,7 @@ void CClient_Precipitation::CreateWaterSplashes()
 		
 		if ( CurrentViewForward().Dot( vSplash - CurrentViewOrigin() ) > 1 )
 		{
-#ifdef MAPBASE
-			// Use a particle or 
-			if ( r_RainParticle.GetString()[0] != NULL )
-				DispatchParticleEffect(r_RainParticle.GetString(), vSplash, QAngle(RandomFloat(0, 360), RandomFloat(0, 360), RandomFloat(0, 360)), NULL);
-			else
-				FX_WaterRipple( vSplash, g_flSplashScale, &g_vSplashColor, g_flSplashLifetime, g_flSplashAlpha );
-#else
 			FX_WaterRipple( vSplash, g_flSplashScale, &g_vSplashColor, g_flSplashLifetime, g_flSplashAlpha );
-#endif
 		}
 	}
 	m_Splashes.Purge();
@@ -698,13 +668,6 @@ void CClient_Precipitation::Precache( )
 
 		case PRECIPITATION_TYPE_RAIN:
 			Assert( m_nPrecipType == PRECIPITATION_TYPE_RAIN );
-#ifdef MAPBASE
-			if (r_RainParticle.GetString()[0] != NULL)
-			{
-				PrecacheParticleSystem( r_RainParticle.GetString() );
-				DevMsg("Rain particle system \"%s\" precached!\n", r_RainParticle.GetString());
-			}
-#endif
 			m_Speed	= RAIN_SPEED;
 			m_MatHandle = materials->FindMaterial( "particle/rain", TEXTURE_GROUP_CLIENT_EFFECTS );
 			m_InitialRamp = 1.0f;

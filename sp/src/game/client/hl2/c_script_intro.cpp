@@ -59,6 +59,7 @@ private:
 #ifdef MAPBASE
 	bool	m_bDrawSky;
 	bool	m_bDrawSky2;
+	bool	m_bUseEyePosition;
 #endif
 
 	// Fades
@@ -81,6 +82,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_ScriptIntro, DT_ScriptIntro, CScriptIntro )
 #ifdef MAPBASE
 	RecvPropBool( RECVINFO( m_bDrawSky ) ),
 	RecvPropBool( RECVINFO( m_bDrawSky2 ) ),
+	RecvPropBool( RECVINFO( m_bUseEyePosition ) ),
 #endif
 	
 	// Fov & fov blends 
@@ -181,10 +183,13 @@ void C_ScriptIntro::PostDataUpdate( DataUpdateType_t updateType )
 
 		// If it's a point_camera and it's ortho, send it to the intro data
 		// Change this code if the purpose of m_hCameraEntity in intro data ever goes beyond ortho
-		C_PointCamera *pCamera = dynamic_cast<C_PointCamera*>(m_hCameraEntity.Get());
-		if (pCamera && pCamera->IsOrtho())
+		if ( Q_strncmp(m_hCameraEntity->GetClassname(), "point_camera", 12) == 0 )
 		{
-			m_IntroData.m_hCameraEntity = m_hCameraEntity;
+			C_PointCamera *pCamera = dynamic_cast<C_PointCamera*>(m_hCameraEntity.Get());
+			if (pCamera && pCamera->IsOrtho())
+			{
+				m_IntroData.m_hCameraEntity = m_hCameraEntity;
+			}
 		}
 #endif
 	}
@@ -265,8 +270,21 @@ void C_ScriptIntro::ClientThink( void )
 
 	if ( m_hCameraEntity )
 	{
+#ifdef MAPBASE
+		if ( m_bUseEyePosition )
+		{
+			m_IntroData.m_vecCameraView = m_hCameraEntity->EyePosition();
+			m_IntroData.m_vecCameraViewAngles = m_hCameraEntity->EyeAngles();
+		}
+		else
+		{
+			m_IntroData.m_vecCameraView = m_hCameraEntity->GetAbsOrigin();
+			m_IntroData.m_vecCameraViewAngles = m_hCameraEntity->GetAbsAngles();
+		}
+#else
 		m_IntroData.m_vecCameraView = m_hCameraEntity->GetAbsOrigin();
 		m_IntroData.m_vecCameraViewAngles = m_hCameraEntity->GetAbsAngles();
+#endif
 	}
 
 	CalculateFOV();

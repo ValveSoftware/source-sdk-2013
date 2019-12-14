@@ -44,6 +44,12 @@ BEGIN_DATADESC( CEnvProjectedTexture )
 	DEFINE_KEYFIELD( m_flBrightnessScale, FIELD_FLOAT, "brightnessscale" ),
 	DEFINE_FIELD( m_LightColor, FIELD_COLOR32 ), 
 	DEFINE_KEYFIELD( m_flColorTransitionTime, FIELD_FLOAT, "colortransitiontime" ),
+#ifdef MAPBASE
+	DEFINE_FIELD( m_flConstantAtten, FIELD_FLOAT ),
+	DEFINE_FIELD( m_flLinearAtten, FIELD_FLOAT ),
+	DEFINE_FIELD( m_flQuadraticAtten, FIELD_FLOAT ),
+	DEFINE_KEYFIELD( m_flShadowAtten, FIELD_FLOAT, "shadowatten" ),
+#endif
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOn", InputTurnOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOff", InputTurnOff ),
@@ -66,9 +72,14 @@ BEGIN_DATADESC( CEnvProjectedTexture )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetSpotlightFrame", InputSetSpotlightFrame ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetBrightness", InputSetBrightness ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetColorTransitionTime", InputSetColorTransitionTime ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetQuadratic", InputSetQuadratic ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetLinear", InputSetLinear ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetConstant", InputSetConstant ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetShadowAtten", InputSetShadowAtten ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetNearZ", InputSetNearZ ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetFarZ", InputSetFarZ ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "AlwaysDrawOn", InputAlwaysDrawOn ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "AlwaysDrawOff", InputAlwaysDrawOff ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "StopFollowingTarget", InputStopFollowingTarget ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "StartFollowingTarget", InputStartFollowingTarget ),
 #endif
@@ -100,6 +111,10 @@ IMPLEMENT_SERVERCLASS_ST( CEnvProjectedTexture, DT_EnvProjectedTexture )
 	SendPropFloat( SENDINFO( m_flFarZ ),  18, SPROP_ROUNDDOWN, 0.0f, 1500.0f ),
 	SendPropInt( SENDINFO( m_nShadowQuality ), 1, SPROP_UNSIGNED ),  // Just one bit for now
 #ifdef MAPBASE
+	SendPropFloat( SENDINFO( m_flConstantAtten ) ),
+	SendPropFloat( SENDINFO( m_flLinearAtten ) ),
+	SendPropFloat( SENDINFO( m_flQuadraticAtten ) ),
+	SendPropFloat( SENDINFO( m_flShadowAtten ) ),
 	SendPropBool( SENDINFO( m_bAlwaysDraw ) ),
 
 	// Not needed on the client right now, change when it actually is needed
@@ -128,11 +143,21 @@ CEnvProjectedTexture::CEnvProjectedTexture( void )
 	m_nSpotlightTextureFrame = 0;
 	m_flBrightnessScale = 1.0f;
 	m_LightColor.Init( 255, 255, 255, 255 );
+#ifdef MAPBASE
+	m_flColorTransitionTime = 0.0f;
+#else
 	m_flColorTransitionTime = 0.5f;
+#endif
 	m_flAmbient = 0.0f;
 	m_flNearZ = 4.0f;
 	m_flFarZ = 750.0f;
 	m_nShadowQuality = 0;
+#ifdef MAPBASE
+	m_flQuadraticAtten = 0.0f;
+	m_flLinearAtten = 100.0f;
+	m_flConstantAtten = 0.0f;
+	m_flShadowAtten = 0.0f;
+#endif
 }
 
 void UTIL_ColorStringToLinearFloatColor( Vector &color, const char *pString )
@@ -195,6 +220,20 @@ bool CEnvProjectedTexture::KeyValue( const char *szKeyName, const char *szValue 
 		Q_strcpy( m_SpotlightTextureName.GetForModify(), szValue );
 #endif
 	}
+#ifdef MAPBASE
+	else if ( FStrEq( szKeyName, "constant_attn" ) )
+	{
+		m_flConstantAtten = CorrectConstantAtten( atof( szValue ) );
+	}
+	else if ( FStrEq( szKeyName, "linear_attn" ) )
+	{
+		m_flLinearAtten = CorrectLinearAtten( atof( szValue ) );
+	}
+	else if ( FStrEq( szKeyName, "quadratic_attn" ) )
+	{
+		m_flQuadraticAtten = CorrectQuadraticAtten( atof( szValue ) );
+	}
+#endif
 	else
 	{
 		return BaseClass::KeyValue( szKeyName, szValue );
@@ -215,6 +254,26 @@ bool CEnvProjectedTexture::GetKeyValue( const char *szKeyName, char *szValue, in
 		Q_snprintf( szValue, iMaxLen, "%s", m_SpotlightTextureName.Get() );
 		return true;
 	}
+#ifdef MAPBASE
+	else if ( FStrEq( szKeyName, "constant_attn" ) )
+	{
+		// Undo correction
+		Q_snprintf( szValue, iMaxLen, "%f", m_flConstantAtten *= 2.0f );
+		return true;
+	}
+	else if ( FStrEq( szKeyName, "linear_attn" ) )
+	{
+		// Undo correction
+		Q_snprintf( szValue, iMaxLen, "%f", m_flLinearAtten *= 0.01f );
+		return true;
+	}
+	else if ( FStrEq( szKeyName, "quadratic_attn" ) )
+	{
+		// Undo correction
+		Q_snprintf( szValue, iMaxLen, "%f", m_flQuadraticAtten *= 0.0001f );
+		return true;
+	}
+#endif
 	return BaseClass::GetKeyValue( szKeyName, szValue, iMaxLen );
 }
 

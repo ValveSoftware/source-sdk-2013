@@ -34,6 +34,12 @@ class CUtlBuffer;
 // this will output glview files for the given brushmodel.  Brushmodel 1 is the world, 2 is the first brush entity, etc.
 #define DEBUG_BRUSHMODEL 0
 
+#ifdef MAPBASE
+// Activates compiler code for parallax corrected cubemaps
+// https://developer.valvesoftware.com/wiki/Parallax_Corrected_Cubemaps
+#define PARALLAX_CORRECTED_CUBEMAPS 1
+#endif
+
 struct portal_t;
 struct node_t;
 
@@ -607,7 +613,12 @@ void SaveVertexNormals( void );
 
 //=============================================================================
 // cubemap.cpp
+#ifdef PARALLAX_CORRECTED_CUBEMAPS
+extern char* g_pParallaxObbStrs[MAX_MAP_CUBEMAPSAMPLES];
+void Cubemap_InsertSample( const Vector& origin, int size, char* pParallaxObbStr );
+#else
 void Cubemap_InsertSample( const Vector& origin, int size );
+#endif
 void Cubemap_CreateDefaultCubemaps( void );
 void Cubemap_SaveBrushSides( const char *pSideListStr );
 void Cubemap_FixupBrushSidesMaterials( void );

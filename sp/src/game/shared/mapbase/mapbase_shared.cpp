@@ -74,6 +74,8 @@ ConVar mapbase_load_actbusy("mapbase_load_actbusy", "1", FCVAR_ARCHIVE, "Should 
 #endif
 
 #ifdef GAME_DLL
+extern void MapbaseGameLog_Init();
+
 extern void ParseCustomActbusyFile(const char *file);
 
 extern bool LoadResponseSystemFile(const char *scriptfile);
@@ -202,6 +204,13 @@ public:
 			ParseGenericManifest();
 		}
 	}
+
+#ifdef GAME_DLL
+	virtual void LevelInitPostEntity()
+	{
+		MapbaseGameLog_Init();
+	}
+#endif
 
 	virtual void LevelShutdownPreEntity()
 	{

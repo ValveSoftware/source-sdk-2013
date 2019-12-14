@@ -192,7 +192,7 @@ float4 DecompressNormal( sampler NormalSampler, float2 tc, int nDecompressionMod
 HALF3 NormalizeWithCubemap( sampler normalizeSampler, HALF3 input )
 {
 //	return texCUBE( normalizeSampler, input ) * 2.0f - 1.0f;
-	return texCUBE( normalizeSampler, input );
+	return texCUBE( normalizeSampler, input ).xyz;
 }
 
 /*
@@ -208,6 +208,13 @@ HALF4 EnvReflect( sampler envmapSampler,
 	return texCUBE( envmapSampler, reflect );
 }
 */
+
+// Vectorized smoothstep for doing three smoothsteps at once.  Used by uberlight
+float3 smoothstep3( float3 edge0, float3 edge1, float3 OneOverWidth, float3 x )
+{
+	x = saturate((x - edge0) * OneOverWidth);	// Scale, bias and saturate x to the range of zero to one
+	return x*x*(3-2*x);							// Evaluate polynomial
+}
 
 float CalcWaterFogAlpha( const float flWaterZ, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ, const float flFogOORange )
 {

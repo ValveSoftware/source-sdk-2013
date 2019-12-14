@@ -42,6 +42,7 @@ public:
 	bool NewCVar( ConVarRef *var, const char *pOldString, CBaseEntity *modent );
 
 	CUtlVector< modifiedconvars_t > m_ModifiedConvars;
+	bool m_bUseServer;
 
 	DECLARE_DATADESC();
 };

@@ -40,6 +40,13 @@ public:
 #ifdef MAPBASE
 	void	InputSetBrightness( inputdata_t &inputdata );
 	void	InputSetColorTransitionTime( inputdata_t &inputdata );
+	void	InputSetXOffset( inputdata_t &inputdata ) { m_flEastOffset = inputdata.value.Float(); }
+	void	InputSetYOffset( inputdata_t &inputdata ) { m_flForwardOffset = inputdata.value.Float(); }
+	void	InputSetOrthoSize( inputdata_t &inputdata ) { m_flOrthoSize = inputdata.value.Float(); }
+	void	InputSetDistance( inputdata_t &inputdata ) { m_flSunDistance = inputdata.value.Float(); }
+	void	InputSetFOV( inputdata_t &inputdata ) { m_flFOV = inputdata.value.Float(); }
+	void	InputSetNearZDistance( inputdata_t &inputdata ) { m_flNearZ = inputdata.value.Float(); }
+	void	InputSetNorthOffset( inputdata_t &inputdata ) { m_flNorthOffset = inputdata.value.Float(); }
 #endif
 
 	virtual int	ObjectCaps( void ) { return BaseClass::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
@@ -101,14 +108,19 @@ BEGIN_DATADESC( CGlobalLight )
 	DEFINE_KEYFIELD( m_flColorTransitionTime, FIELD_FLOAT, "colortransitiontime" ),
 
 	// Inputs
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetXOffset", InputSetXOffset ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetYOffset", InputSetYOffset ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetOrthoSize", InputSetOrthoSize ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetDistance", InputSetDistance ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetFOV", InputSetFOV ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetNearZDistance", InputSetNearZDistance ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetNorthOffset", InputSetNorthOffset ),
+#else
 	DEFINE_INPUT( m_flSunDistance,		FIELD_FLOAT, "SetDistance" ),
 	DEFINE_INPUT( m_flFOV,				FIELD_FLOAT, "SetFOV" ),
 	DEFINE_INPUT( m_flNearZ,			FIELD_FLOAT, "SetNearZDistance" ),
 	DEFINE_INPUT( m_flNorthOffset,			FIELD_FLOAT, "SetNorthOffset" ),
-#ifdef MAPBASE
-	DEFINE_INPUT( m_flEastOffset,			FIELD_FLOAT, "SetXOffset" ),
-	DEFINE_INPUT( m_flForwardOffset,		FIELD_FLOAT, "SetYOffset" ),
-	DEFINE_INPUT( m_flOrthoSize,			FIELD_FLOAT, "SetOrthoSize" ),
 #endif
 
 	DEFINE_INPUTFUNC( FIELD_COLOR32, "LightColor", InputSetLightColor ),
@@ -183,7 +195,11 @@ int CGlobalLight::UpdateTransmitState()
 
 bool CGlobalLight::KeyValue( const char *szKeyName, const char *szValue )
 {
+#ifdef MAPBASE
+	if ( FStrEq( szKeyName, "lightcolor" ) || FStrEq( szKeyName, "color" ) )
+#else
 	if ( FStrEq( szKeyName, "color" ) )
+#endif
 	{
 		float tmp[4];
 		UTIL_StringToFloatArray( tmp, 4, szValue );

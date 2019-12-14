@@ -104,6 +104,10 @@ private:
 	void	InputEnableRadarDetectEnemies( inputdata_t &data );
 	void	InputAddBusterToCargo( inputdata_t &data );
 	void	InputSetCargoVisibility( inputdata_t &data );
+#ifdef MAPBASE
+	void	InputEnableHazardLights( inputdata_t &data );
+	void	InputDisableHazardLights( inputdata_t &data );
+#endif
 	void	InputOutsideTransition( inputdata_t &data );
 #ifndef MAPBASE
 	void	InputDisablePhysGun( inputdata_t &data );

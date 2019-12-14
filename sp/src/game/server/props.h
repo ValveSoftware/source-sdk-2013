@@ -119,6 +119,11 @@ public:
 	void	HandleFirstCollisionInteractions( int index, gamevcollisionevent_t *pEvent );
 	void	HandleInteractionStick( int index, gamevcollisionevent_t *pEvent );
 	void	StickAtPosition( const Vector &stickPosition, const Vector &savePosition, const QAngle &saveAngles );
+
+#ifdef MAPBASE
+	// Uses the new CBaseEntity interaction implementation
+	bool	HandleInteraction( int interactionType, void *data, CBaseCombatCharacter* sourceEnt );
+#endif
 	
 	// Disable auto fading under dx7 or when level fades are specified
 	void	DisableAutoFade();

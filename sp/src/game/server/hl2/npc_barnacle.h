@@ -84,6 +84,10 @@ public:
 	int				OnTakeDamage_Alive( const CTakeDamageInfo &info );
 	void			PlayerHasIlluminatedNPC( CBasePlayer *pPlayer, float flDot );
 
+#ifdef MAPBASE
+	bool			AllowedToIgnite( void );
+#endif
+
 	// The tongue's vphysics updated
 	void OnTongueTipUpdated();
 
@@ -209,7 +213,9 @@ private:
 	Vector						m_vLastEnemyPos;
 	float						m_flLastPull;
 	CSimpleSimTimer				m_StuckTimer;
+#ifndef MAPBASE // Handled by interactions now
 	bool						m_bSwallowingBomb;
+#endif
 #ifdef HL2_EPISODIC
 	bool						m_bSwallowingPoison;
 #endif

@@ -69,6 +69,7 @@ private:
 #ifdef MAPBASE
 	CNetworkVar( bool, m_bDrawSky );
 	CNetworkVar( bool, m_bDrawSky2 );
+	CNetworkVar( bool, m_bUseEyePosition );
 #endif
 
 	// Fov & fov blends

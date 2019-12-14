@@ -83,6 +83,11 @@ public:
 	void OpenHooks( bool bSilent = false );
 	void CloseHooks();
 
+#ifdef MAPBASE
+	// Uses the new CBaseEntity interaction implementation and replaces the dynamic_casting from npc_barnacle
+	bool	HandleInteraction( int interactionType, void *data, CBaseCombatCharacter* sourceEnt );
+#endif
+
 	DECLARE_DATADESC();
 
 	static string_t gm_iszFloorTurretClassname;

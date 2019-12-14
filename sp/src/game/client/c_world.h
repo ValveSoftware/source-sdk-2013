@@ -56,6 +56,9 @@ public:
 	float	m_flMinPropScreenSpaceWidth;
 	float	m_flMaxPropScreenSpaceWidth;
 	bool	m_bColdWorld;
+#ifdef MAPBASE
+	char	m_iszChapterTitle[64];
+#endif
 
 private:
 	void	RegisterSharedActivities( void );

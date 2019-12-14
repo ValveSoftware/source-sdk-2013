@@ -82,6 +82,7 @@
 #include "weapon_physcannon.h"
 #ifdef MAPBASE
 #include "mapbase/GlobalStrings.h"
+#include "mapbase/matchers.h"
 #endif
 #endif
 
@@ -7982,10 +7983,16 @@ public:
 #ifdef MAPBASE
 	void InputEnable(inputdata_t &data);
 	void InputDisable(inputdata_t &data);
+
+	void InputSetAdditionalButtons(inputdata_t &data);
 #endif
 
 private:
 	int GetDisabledButtonMask( void );
+
+#ifdef MAPBASE
+	int m_iAdditionalButtons;
+#endif
 
 	DECLARE_DATADESC();
 };
@@ -7997,6 +8004,9 @@ BEGIN_DATADESC( CMovementSpeedMod )
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+
+	DEFINE_KEYFIELD( m_iAdditionalButtons, FIELD_INTEGER, "AdditionalButtons" ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetAdditionalButtons", InputSetAdditionalButtons ),
 #endif
 END_DATADESC()
 	
@@ -8033,6 +8043,13 @@ int CMovementSpeedMod::GetDisabledButtonMask( void )
 	{
 		nMask |= IN_ZOOM;
 	}
+
+#ifdef MAPBASE
+	if ( m_iAdditionalButtons != 0 )
+	{
+		nMask |= m_iAdditionalButtons;
+	}
+#endif
 
 	return nMask;
 }
@@ -8102,8 +8119,15 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 				}
 			}
 
+#ifdef MAPBASE
+			if ( !HasSpawnFlags( SF_SPEED_MOD_DONT_SUPPRESS_FLASHLIGHT ) )
+			{
+#endif
 			// Allow the flashlight again
 			pPlayer->SetFlashlightEnabled( true );
+#ifdef MAPBASE
+			}
+#endif
 			pPlayer->EnableButtons( GetDisabledButtonMask() );
 
 			// Restore the HUD
@@ -8199,6 +8223,120 @@ void CMovementSpeedMod::InputDisable(inputdata_t &data)
 			pPlayer->m_Local.m_iHideHUD &= ~HIDEHUD_ALL;
 		}
 	}
+}
+
+void CMovementSpeedMod::InputSetAdditionalButtons(inputdata_t &data)
+{
+	CBasePlayer *pPlayer = NULL;
+
+	if ( data.pActivator && data.pActivator->IsPlayer() )
+	{
+		pPlayer = (CBasePlayer *)data.pActivator;
+	}
+	else if ( !g_pGameRules->IsDeathmatch() )
+	{
+		pPlayer = UTIL_GetLocalPlayer();
+	}
+
+	bool bAlreadyDisabled = false;
+	if ( pPlayer )
+	{
+		bAlreadyDisabled = (pPlayer->m_afButtonDisabled & GetDisabledButtonMask()) != 0;
+	}
+
+	m_iAdditionalButtons = data.value.Int();
+
+	// If we were already disabling buttons, re-disable them
+	if ( bAlreadyDisabled )
+	{
+		// We should probably do something better than this.
+		pPlayer->m_afButtonForced = GetDisabledButtonMask();
+	}
+}
+#endif
+
+#ifdef MAPBASE
+class CLogicPlayerInfo : public CPointEntity
+{
+	DECLARE_CLASS( CLogicPlayerInfo, CPointEntity );
+public:
+	void InputGetPlayerInfo( inputdata_t &inputdata );
+	void InputGetPlayerByID( inputdata_t &inputdata );
+	void InputGetPlayerByName( inputdata_t &inputdata );
+
+	void GetPlayerInfo( CBasePlayer *pPlayer );
+
+	COutputInt m_OutUserID;
+	COutputString m_OutPlayerName;
+	COutputEHANDLE m_OutPlayerEntity;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS( logic_playerinfo, CLogicPlayerInfo );
+
+BEGIN_DATADESC( CLogicPlayerInfo )
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "GetPlayerInfo", InputGetPlayerInfo ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "GetPlayerByID", InputGetPlayerByID ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "GetPlayerByName", InputGetPlayerByName ),
+
+	DEFINE_OUTPUT( m_OutUserID, "OutUserID" ),
+	DEFINE_OUTPUT( m_OutPlayerName, "OutPlayerName" ),
+	DEFINE_OUTPUT( m_OutPlayerEntity, "OutPlayerEntity" ),
+END_DATADESC()
+	
+
+void CLogicPlayerInfo::InputGetPlayerInfo( inputdata_t &inputdata )
+{
+	CBasePlayer *pPlayer = ToBasePlayer(inputdata.value.Entity());
+
+	// If there was no entity to begin with, try the local player
+	if (!pPlayer && !inputdata.value.Entity())
+		pPlayer = UTIL_GetLocalPlayer();
+
+	if (pPlayer)
+		GetPlayerInfo( pPlayer );
+}
+
+void CLogicPlayerInfo::InputGetPlayerByID( inputdata_t &inputdata )
+{
+	for (int i = 1; i < gpGlobals->maxClients; i++)
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if (pPlayer)
+		{
+			if (Matcher_NamesMatch( inputdata.value.String(), UTIL_VarArgs("%i", pPlayer->GetUserID()) ))
+			{
+				GetPlayerInfo( pPlayer );
+				return;
+			}
+		}
+	}
+}
+
+void CLogicPlayerInfo::InputGetPlayerByName( inputdata_t &inputdata )
+{
+	for (int i = 1; i < gpGlobals->maxClients; i++)
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if (pPlayer)
+		{
+			if (Matcher_NamesMatch( inputdata.value.String(), pPlayer->GetPlayerName() ))
+			{
+				GetPlayerInfo( pPlayer );
+				return;
+			}
+		}
+	}
+}
+
+void CLogicPlayerInfo::GetPlayerInfo( CBasePlayer *pPlayer )
+{
+	m_OutUserID.Set( pPlayer->GetUserID(), pPlayer, this );
+
+	m_OutPlayerName.Set( AllocPooledString(pPlayer->GetPlayerName()), pPlayer, this );
+
+	m_OutPlayerEntity.Set( pPlayer, pPlayer, this );
 }
 #endif
 

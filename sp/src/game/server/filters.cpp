@@ -171,6 +171,12 @@ class CFilterMultiple : public CBaseFilter
 	bool PassesDamageFilterImpl(const CTakeDamageInfo &info);
 #endif
 	void Activate(void);
+
+#ifdef MAPBASE
+	bool BloodAllowed( CBaseEntity *pCaller, const CTakeDamageInfo &info );
+	bool PassesFinalDamageFilter( CBaseEntity *pCaller, const CTakeDamageInfo &info );
+	bool DamageMod( CBaseEntity *pCaller, CTakeDamageInfo &info );
+#endif
 };
 
 LINK_ENTITY_TO_CLASS(filter_multi, CFilterMultiple);
@@ -304,9 +310,9 @@ bool CFilterMultiple::PassesDamageFilterImpl(const CTakeDamageInfo &info)
 			{
 				CBaseFilter* pFilter = (CBaseFilter *)(m_hFilter[i].Get());
 #ifdef MAPBASE
-				if (!pFilter->PassesDamageFilter(pCaller, info))
+				if (pFilter->PassesDamageFilter(pCaller, info))
 #else
-				if (!pFilter->PassesDamageFilter(info))
+				if (pFilter->PassesDamageFilter(info))
 #endif
 				{
 					return true;
@@ -316,6 +322,125 @@ bool CFilterMultiple::PassesDamageFilterImpl(const CTakeDamageInfo &info)
 		return false;
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if blood should be allowed, false if not.
+// Input  : pEntity - Entity to test.
+//-----------------------------------------------------------------------------
+bool CFilterMultiple::BloodAllowed( CBaseEntity *pCaller, const CTakeDamageInfo &info )
+{
+	// Test against each filter
+	if (m_nFilterType == FILTER_AND)
+	{
+		for (int i=0;i<MAX_FILTERS;i++)
+		{
+			if (m_hFilter[i] != NULL)
+			{
+				CBaseFilter* pFilter = (CBaseFilter *)(m_hFilter[i].Get());
+				if (!pFilter->BloodAllowed(pCaller, info))
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	else  // m_nFilterType == FILTER_OR
+	{
+		for (int i=0;i<MAX_FILTERS;i++)
+		{
+			if (m_hFilter[i] != NULL)
+			{
+				CBaseFilter* pFilter = (CBaseFilter *)(m_hFilter[i].Get());
+				if (pFilter->BloodAllowed(pCaller, info))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if the entity passes our filter, false if not.
+// Input  : pEntity - Entity to test.
+//-----------------------------------------------------------------------------
+bool CFilterMultiple::PassesFinalDamageFilter( CBaseEntity *pCaller, const CTakeDamageInfo &info )
+{
+	// Test against each filter
+	if (m_nFilterType == FILTER_AND)
+	{
+		for (int i=0;i<MAX_FILTERS;i++)
+		{
+			if (m_hFilter[i] != NULL)
+			{
+				CBaseFilter* pFilter = (CBaseFilter *)(m_hFilter[i].Get());
+				if (!pFilter->PassesFinalDamageFilter(pCaller, info))
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	else  // m_nFilterType == FILTER_OR
+	{
+		for (int i=0;i<MAX_FILTERS;i++)
+		{
+			if (m_hFilter[i] != NULL)
+			{
+				CBaseFilter* pFilter = (CBaseFilter *)(m_hFilter[i].Get());
+				if (pFilter->PassesFinalDamageFilter(pCaller, info))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if damage should be modded, false if not.
+// Input  : pEntity - Entity to test.
+//-----------------------------------------------------------------------------
+bool CFilterMultiple::DamageMod( CBaseEntity *pCaller, CTakeDamageInfo &info )
+{
+	// Test against each filter
+	if (m_nFilterType == FILTER_AND)
+	{
+		for (int i=0;i<MAX_FILTERS;i++)
+		{
+			if (m_hFilter[i] != NULL)
+			{
+				CBaseFilter* pFilter = (CBaseFilter *)(m_hFilter[i].Get());
+				if (!pFilter->DamageMod(pCaller, info))
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	else  // m_nFilterType == FILTER_OR
+	{
+		for (int i=0;i<MAX_FILTERS;i++)
+		{
+			if (m_hFilter[i] != NULL)
+			{
+				CBaseFilter* pFilter = (CBaseFilter *)(m_hFilter[i].Get());
+				if (pFilter->DamageMod(pCaller, info))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+}
+#endif
 
 
 // ###################################################################

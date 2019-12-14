@@ -1283,6 +1283,38 @@ void CBounceBomb::CloseHooks()
 #endif
 }
 
+#ifdef MAPBASE
+extern int g_interactionBarnacleVictimBite;
+extern int g_interactionBarnacleVictimFinalBite;
+extern int ACT_BARNACLE_BITE_SMALL_THINGS;
+//-----------------------------------------------------------------------------
+// Purpose:  Uses the new CBaseEntity interaction implementation and
+//			 replaces the dynamic_casting from npc_barnacle
+// Input  :  The type of interaction, extra info pointer, and who started it
+// Output :	 true  - if sub-class has a response for the interaction
+//			 false - if sub-class has no response
+//-----------------------------------------------------------------------------
+bool CBounceBomb::HandleInteraction( int interactionType, void *data, CBaseCombatCharacter* sourceEnt )
+{
+	// This was originally done in npc_barnacle itself, but
+	// we've transitioned to interactions so we could extend special behavior to others
+	// without just adding more casting.
+	if ( interactionType == g_interactionBarnacleVictimBite )
+	{
+		Assert( sourceEnt && sourceEnt->IsNPC() );
+		sourceEnt->MyNPCPointer()->SetActivity( (Activity)ACT_BARNACLE_BITE_SMALL_THINGS );
+		return true;
+	}
+	else if ( interactionType == g_interactionBarnacleVictimFinalBite )
+	{
+		ExplodeThink();
+		return true;
+	}
+
+	return BaseClass::HandleInteraction(interactionType, data, sourceEnt);
+}
+#endif
+
 //---------------------------------------------------------
 //---------------------------------------------------------
 void CBounceBomb::InputDisarm( inputdata_t &inputdata )

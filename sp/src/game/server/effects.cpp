@@ -1504,12 +1504,6 @@ void CItemSoda::CanTouch ( CBaseEntity *pOther )
 // technology demo
 //=========================================================
 
-#ifdef MAPBASE
-// I would leave this on the client, but it sems as if I could only precache the particle system on the server for some reason.
-// That desn't sound right...look into this further later.
-ConVar r_RainParticle( "r_RainParticle", "Rain_01_impact", FCVAR_CHEAT | FCVAR_REPLICATED );
-#endif
-
 class CPrecipitation : public CBaseEntity
 {
 public:
@@ -1546,9 +1540,6 @@ void CPrecipitation::Spawn( void )
 	PrecacheMaterial( "effects/fleck_ash2" );
 	PrecacheMaterial( "effects/fleck_ash3" );
 	PrecacheMaterial( "effects/ember_swirling001" );
-#ifdef MAPBASE
-	PrecacheParticleSystem( r_RainParticle.GetString() );
-#endif
 
 	Precache();
 	SetSolid( SOLID_NONE );							// Remove model & collisions

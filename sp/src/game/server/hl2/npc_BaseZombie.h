@@ -265,6 +265,7 @@ protected:
 	EHANDLE m_hPhysicsEnt;
 #ifdef MAPBASE
 	COutputEHANDLE m_OnSwattedProp;
+	COutputEHANDLE m_OnCrab;
 #endif
 
 	float m_flNextMoanSound;

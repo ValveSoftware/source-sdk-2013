@@ -3504,7 +3504,13 @@ void CNPC_Hunter::StartTask( const Task_t *pTask )
 		{
 			SetLastAttackTime( gpGlobals->curtime );
 			
+#ifdef MAPBASE
+			// The "VS_PLAYER" animation looks better than the regular animation when used against non-humans
+			if ( GetEnemy() && (GetEnemy()->IsPlayer() ||
+				(GetEnemy()->IsCombatCharacter() && GetEnemy()->MyCombatCharacterPointer()->GetHullType() != HULL_HUMAN)) )
+#else
 			if ( GetEnemy() && GetEnemy()->IsPlayer() )
+#endif
 			{
 				ResetIdealActivity( ( Activity )ACT_HUNTER_MELEE_ATTACK1_VS_PLAYER );
 			}

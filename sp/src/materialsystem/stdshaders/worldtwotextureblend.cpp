@@ -487,10 +487,10 @@ END_SHADER_PARAMS
 
 	SHADER_DRAW
 	{
-		ConVarRef r_flashlight_version2 = ConVarRef( "r_flashlight_version2" );
+		//ConVarRef r_flashlight_version2 = ConVarRef( "r_flashlight_version2" );
 
 		bool bHasFlashlight = UsingFlashlight( params );
-		if ( bHasFlashlight && ( IsX360() || r_flashlight_version2.GetInt() ) )
+		if ( bHasFlashlight /*&& ( IsX360() || r_flashlight_version2.GetInt() )*/ )
 		{
 			DrawPass( params, pShaderAPI, pShaderShadow, false, vertexCompression );
 			SHADOW_STATE

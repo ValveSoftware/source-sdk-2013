@@ -1715,13 +1715,15 @@ void DrawLightmappedGeneric_DX9(CBaseVSShader *pShader, IMaterialVar** params,
 {
 	bool hasFlashlight = pShader->UsingFlashlight( params );
 
-	ConVarRef r_flashlight_version2 = ConVarRef( "r_flashlight_version2" );
-
-	if ( !IsX360() && !r_flashlight_version2.GetInt() )
-	{
-		DrawLightmappedGeneric_DX9_Internal( pShader, params, hasFlashlight, pShaderAPI, pShaderShadow, info, pContextDataPtr );
-		return;
-	}
-	
 	DrawLightmappedGeneric_DX9_Internal( pShader, params, hasFlashlight, pShaderAPI, pShaderShadow, info, pContextDataPtr );
+
+	//ConVarRef r_flashlight_version2 = ConVarRef( "r_flashlight_version2" );
+	//
+	//if ( !IsX360() && !r_flashlight_version2.GetInt() )
+	//{
+	//	DrawLightmappedGeneric_DX9_Internal( pShader, params, hasFlashlight, pShaderAPI, pShaderShadow, info, pContextDataPtr );
+	//	return;
+	//}
+	//
+	//DrawLightmappedGeneric_DX9_Internal( pShader, params, hasFlashlight, pShaderAPI, pShaderShadow, info, pContextDataPtr );
 }

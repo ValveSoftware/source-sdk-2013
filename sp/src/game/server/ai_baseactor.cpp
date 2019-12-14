@@ -1934,7 +1934,7 @@ void CAI_BaseActor::OnStateChange( NPC_STATE OldState, NPC_STATE NewState )
 {
 	PlayExpressionForState( NewState );
 
-#ifdef HL2_EPISODIC
+#if defined(HL2_EPISODIC) || defined(MAPBASE)
 	// If we've just switched states, ensure we stop any scenes that asked to be stopped
 	if ( OldState == NPC_STATE_IDLE )
 	{

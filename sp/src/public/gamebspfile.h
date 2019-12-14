@@ -139,10 +139,6 @@ enum
 	
 	STATIC_PROP_NO_SELF_SHADOWING = 0x80,					// disable self shadowing in vrad
 
-#ifdef MAPBASE
-	STATIC_PROP_OVERRIDE_PROPDATA = 0x100,
-#endif
-
 	STATIC_PROP_WC_MASK		= 0xd8,							// all flags settable in hammer (?)
 };
 

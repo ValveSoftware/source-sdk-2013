@@ -28,9 +28,17 @@ class CRagdollBoogie : public CBaseEntity
 	DECLARE_CLASS( CRagdollBoogie, CBaseEntity );
 
 public:
+#ifdef MAPBASE
+	static CRagdollBoogie	*Create( CBaseEntity *pTarget, float flMagnitude, float flStartTime, float flLengthTime = 0.0f, int nSpawnFlags = 0, const Vector *vecColor = NULL );
+#else
 	static CRagdollBoogie	*Create( CBaseEntity *pTarget, float flMagnitude, float flStartTime, float flLengthTime = 0.0f, int nSpawnFlags = 0 );
+#endif
 	static void IncrementSuppressionCount( CBaseEntity *pTarget );
 	static void DecrementSuppressionCount( CBaseEntity *pTarget );
+
+#ifdef MAPBASE
+	void SetColor( const Vector &vecColor ) { m_vecColor = vecColor; }
+#endif
 
 	void Spawn();
 
@@ -45,6 +53,10 @@ private:
 	float m_flBoogieLength;
 	float m_flMagnitude;
 	int	m_nSuppressionCount;
+
+#ifdef MAPBASE
+	Vector m_vecColor = Vector(1, 1, 1);
+#endif
 };
 
 #endif // RAGDOLLBOOGIE_H

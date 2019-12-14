@@ -88,6 +88,11 @@ private:
 	int			m_nSpotlightTextureFrame;
 	int			m_nShadowQuality;
 #ifdef MAPBASE
+	float		m_flConstantAtten;
+	float		m_flLinearAtten;
+	float		m_flQuadraticAtten;
+	float		m_flShadowAtten;
+
 	bool		m_bAlwaysDraw;
 	//bool		m_bProjectedTextureVersion;
 #endif
