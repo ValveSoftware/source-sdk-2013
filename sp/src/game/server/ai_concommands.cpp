@@ -450,9 +450,12 @@ public:
 				angles.z = 0;
 			}
 
+			// Pass through the player's vehicle
+			CTraceFilterSkipTwoEntities filter( pPlayer, pPlayer->GetVehicleEntity(), COLLISION_GROUP_NONE );
 			AI_TraceLine(pPlayer->EyePosition(),
 				pPlayer->EyePosition() + forward * MAX_TRACE_LENGTH,MASK_NPCSOLID, 
-				pPlayer, COLLISION_GROUP_NONE, &tr );
+				&filter, &tr );
+
 			if ( tr.fraction != 1.0)
 			{
 				if (baseNPC->CapabilitiesGet() & bits_CAP_MOVE_FLY)

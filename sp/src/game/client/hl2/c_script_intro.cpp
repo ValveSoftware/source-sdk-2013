@@ -183,7 +183,7 @@ void C_ScriptIntro::PostDataUpdate( DataUpdateType_t updateType )
 
 		// If it's a point_camera and it's ortho, send it to the intro data
 		// Change this code if the purpose of m_hCameraEntity in intro data ever goes beyond ortho
-		if ( Q_strncmp(m_hCameraEntity->GetClassname(), "point_camera", 12) == 0 )
+		if ( m_hCameraEntity && Q_strncmp(m_hCameraEntity->GetClassname(), "point_camera", 12) == 0 )
 		{
 			C_PointCamera *pCamera = dynamic_cast<C_PointCamera*>(m_hCameraEntity.Get());
 			if (pCamera && pCamera->IsOrtho())

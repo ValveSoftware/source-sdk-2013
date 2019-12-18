@@ -120,6 +120,7 @@ BEGIN_DATADESC( CAI_ScriptedSequence )
 	DEFINE_OUTPUT(m_OnScriptEvent[7], "OnScriptEvent08"),
 #ifdef MAPBASE
 	DEFINE_OUTPUT(m_OnPreIdleSequence, "OnPreIdleSequence"),
+	DEFINE_OUTPUT(m_OnFoundNPC, "OnFoundNPC"),
 #endif
 
 END_DATADESC()
@@ -803,6 +804,10 @@ void CAI_ScriptedSequence::StartScript( void )
 			DevWarning( "scripted_sequence %d:%s - restarting dormant entity %d:%s : %.1f:%.1f\n", entindex(), GetDebugName(), pTarget->entindex(), pTarget->GetDebugName(), gpGlobals->curtime, pTarget->GetNextThink() );
 			pTarget->SetNextThink( gpGlobals->curtime );
 		}
+
+#ifdef MAPBASE
+		m_OnFoundNPC.FireOutput( pTarget, this );
+#endif
 	}
 }
 

@@ -522,7 +522,14 @@ bool CNewRecharge::KeyValue( const char *szKeyName, const char *szValue )
 
 void CNewRecharge::Precache( void )
 {
+#ifdef MAPBASE
+	if ( GetModelName() == NULL_STRING )
+		SetModelName( AllocPooledString(HEALTH_CHARGER_MODEL_NAME) );
+
+	PrecacheModel( STRING(GetModelName()) );
+#else
 	PrecacheModel( HEALTH_CHARGER_MODEL_NAME );
+#endif
 
 	PrecacheScriptSound( "SuitRecharge.Deny" );
 	PrecacheScriptSound( "SuitRecharge.Start" );
@@ -564,7 +571,11 @@ void CNewRecharge::Spawn()
 	SetSolid( SOLID_VPHYSICS );
 	CreateVPhysics();
 
+#ifdef MAPBASE
+	SetModel( STRING(GetModelName()) );
+#else
 	SetModel( HEALTH_CHARGER_MODEL_NAME );
+#endif
 	AddEffects( EF_NOSHADOW );
 
 	ResetSequence( LookupSequence( "idle" ) );
@@ -576,7 +587,10 @@ void CNewRecharge::Spawn()
 	if (m_iJuice == 0)
 		UpdateJuice( MaxJuice() );
 	else if (m_iJuice == -1)
+	{
 		UpdateJuice( 0 );
+		ResetSequence( LookupSequence( "empty" ) );
+	}
 	else
 		UpdateJuice( m_iJuice );
 #else
@@ -683,22 +697,22 @@ void CNewRecharge::InputRecharge( inputdata_t &inputdata )
 
 void CNewRecharge::InputSetCharge( inputdata_t &inputdata )
 {
-	ResetSequence( LookupSequence( "idle" ) );
-
 	int iJuice = inputdata.value.Int();
 
 	m_flJuice = m_iMaxJuice = m_iJuice = iJuice;
+
+	ResetSequence( m_iJuice > 0 ? LookupSequence( "idle" ) : LookupSequence( "empty" ) );
 	StudioFrameAdvance();
 }
 
 #ifdef MAPBASE
 void CNewRecharge::InputSetChargeNoMax( inputdata_t &inputdata )
 {
-	ResetSequence( LookupSequence( "idle" ) );
-
 	m_flJuice = inputdata.value.Float();
 
 	UpdateJuice(m_flJuice);
+
+	ResetSequence( m_iJuice > 0 ? LookupSequence( "idle" ) : LookupSequence( "empty" ) );
 	StudioFrameAdvance();
 }
 #endif

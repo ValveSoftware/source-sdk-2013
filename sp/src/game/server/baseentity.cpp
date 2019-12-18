@@ -2053,6 +2053,8 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableDraw", InputUndrawEntity ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "AddEFlags", InputAddEFlags ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "RemoveEFlags", InputRemoveEFlags ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "AddSolidFlags", InputAddSolidFlags ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "RemoveSolidFlags", InputRemoveSolidFlags ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetMoveType", InputSetMoveType ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetCollisionGroup", InputSetCollisionGroup ),
 
@@ -7691,6 +7693,22 @@ void CBaseEntity::InputRemoveEFlags( inputdata_t& inputdata )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Adds solid flags.
+//-----------------------------------------------------------------------------
+void CBaseEntity::InputAddSolidFlags( inputdata_t& inputdata )
+{
+	AddSolidFlags(inputdata.value.Int());
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Removes solid flags.
+//-----------------------------------------------------------------------------
+void CBaseEntity::InputRemoveSolidFlags( inputdata_t& inputdata )
+{
+	RemoveSolidFlags(inputdata.value.Int());
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Sets the movetype.
 //-----------------------------------------------------------------------------
 void CBaseEntity::InputSetMoveType( inputdata_t& inputdata )
@@ -8828,9 +8846,13 @@ public:
 			trace_t tr;
 			Vector forward;
 			pPlayer->EyeVectors( &forward );
+
+			// Pass through the player's vehicle
+			CTraceFilterSkipTwoEntities filter( pPlayer, pPlayer->GetVehicleEntity(), COLLISION_GROUP_NONE );
 			UTIL_TraceLine(pPlayer->EyePosition(),
 				pPlayer->EyePosition() + forward * MAX_TRACE_LENGTH,MASK_SOLID, 
-				pPlayer, COLLISION_GROUP_NONE, &tr );
+				&filter, &tr );
+
 			if ( tr.fraction != 1.0 )
 			{
 				// Raise the end position a little up off the floor, place the npc and drop him down

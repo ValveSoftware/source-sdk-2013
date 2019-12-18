@@ -221,6 +221,7 @@ private:
 	COutputEvent m_OnScriptEvent[MAX_SCRIPT_EVENTS];
 #ifdef MAPBASE
 	COutputEvent m_OnPreIdleSequence;
+	COutputEvent m_OnFoundNPC;
 #endif
 
 	static void ScriptEntityCancel( CBaseEntity *pentCine, bool bPretendSuccess = false );

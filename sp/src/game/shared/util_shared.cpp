@@ -219,6 +219,15 @@ bool PassServerEntityFilter( const IHandleEntity *pTouch, const IHandleEntity *p
 	if ( !pEntTouch || !pEntPass )
 		return true;
 
+#ifdef MAPBASE
+	// don't clip against own missiles
+	if ( pEntTouch->GetOwnerEntity() == pEntPass && !pEntTouch->IsSolidFlagSet(FSOLID_COLLIDE_WITH_OWNER) )
+		return false;
+	
+	// don't clip against owner
+	if ( pEntPass->GetOwnerEntity() == pEntTouch && !pEntPass->IsSolidFlagSet(FSOLID_COLLIDE_WITH_OWNER) )
+		return false;
+#else
 	// don't clip against own missiles
 	if ( pEntTouch->GetOwnerEntity() == pEntPass )
 		return false;
@@ -226,6 +235,7 @@ bool PassServerEntityFilter( const IHandleEntity *pTouch, const IHandleEntity *p
 	// don't clip against owner
 	if ( pEntPass->GetOwnerEntity() == pEntTouch )
 		return false;	
+#endif
 
 
 	return true;

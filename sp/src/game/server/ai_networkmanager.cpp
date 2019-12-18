@@ -70,7 +70,7 @@ CON_COMMAND( ai_debug_node_connect, "Debug the attempted connection between two 
 
 ConVar g_ai_norebuildgraph( "ai_norebuildgraph", "0" );
 #ifdef MAPBASE
-ConVar g_ai_nographrebuildmessage( "ai_nographrebuildmessage", "0", FCVAR_ARCHIVE, "Stops the \"Node graph out of date\" message from appearing when rebuilding node graph" );
+ConVar g_ai_norebuildgraphmessage( "ai_norebuildgraphmessage", "0", FCVAR_ARCHIVE, "Stops the \"Node graph out of date\" message from appearing when rebuilding node graph" );
 #endif
 
 
@@ -1114,7 +1114,7 @@ void CAI_NetworkManager::DelayedInit( void )
 
 			DevMsg( "Node Graph out of Date. Rebuilding... (%d, %d, %d)\n", (int)m_bDontSaveGraph, (int)!CAI_NetworkManager::NetworksLoaded(), (int) engine->IsInEditMode() );
 #ifdef MAPBASE
-			if (!g_ai_nographrebuildmessage.GetBool())
+			if (!g_ai_norebuildgraphmessage.GetBool())
 				UTIL_CenterPrintAll( "Node Graph out of Date. Rebuilding...\n" );
 
 			// Do it much sooner after map load

@@ -1917,8 +1917,15 @@ public:
 				return false;
 		}
 
-		info.ScaleDamage(m_flDamageMultiplier);
-		info.AddDamage(m_flDamageAddend);
+		if (m_flDamageMultiplier != 1.0f)
+			info.ScaleDamage(m_flDamageMultiplier);
+		if (m_flDamageAddend != 0.0f)
+			info.AddDamage(m_flDamageAddend);
+
+		if (m_iDamageBitsAdded != 0)
+			info.AddDamageType(m_iDamageBitsAdded);
+		if (m_iDamageBitsRemoved != 0)
+			info.AddDamageType(~m_iDamageBitsRemoved);
 
 		if (m_iszNewAttacker != NULL_STRING)
 		{
@@ -1948,6 +1955,8 @@ public:
 
 	float m_flDamageMultiplier	= 1.0f;
 	float m_flDamageAddend;
+	int m_iDamageBitsAdded;
+	int m_iDamageBitsRemoved;
 
 	string_t m_iszNewAttacker;		EHANDLE m_hNewAttacker;
 	string_t m_iszNewInflictor;		EHANDLE m_hNewInflictor;
@@ -1970,6 +1979,8 @@ BEGIN_DATADESC( CFilterDamageMod )
 
 	DEFINE_INPUT( m_flDamageMultiplier,	FIELD_FLOAT, "SetDamageMultiplier" ),
 	DEFINE_INPUT( m_flDamageAddend,		FIELD_FLOAT, "SetDamageAddend" ),
+	DEFINE_INPUT( m_iDamageBitsAdded,	FIELD_INTEGER, "SetDamageBitsAdded" ),
+	DEFINE_INPUT( m_iDamageBitsRemoved,	FIELD_INTEGER, "SetDamageBitsRemoved" ),
 
 	DEFINE_KEYFIELD( m_iSecondaryFilterMode,	FIELD_INTEGER, "SecondaryFilterMode" ),
 

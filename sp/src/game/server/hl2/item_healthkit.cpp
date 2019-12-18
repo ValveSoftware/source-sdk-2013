@@ -438,7 +438,7 @@ public:
 	void InputSetChargeNoMax( inputdata_t &inputdata );
 	void UpdateJuice( int newJuice );
 	float MaxJuice() const;
-	int SetInitialCharge( void );
+	void SetInitialCharge( void );
 	int		m_iMaxJuice;
 	int		m_iIncrementValue;
 #endif
@@ -544,13 +544,15 @@ bool CNewWallHealth::KeyValue(  const char *szKeyName, const char *szValue )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CNewWallHealth::SetInitialCharge( void )
+void CNewWallHealth::SetInitialCharge( void )
 {
-	if ( m_iMaxJuice == 0 )
+	if ( m_iMaxJuice != 0 )
 	{
-		m_iMaxJuice = sk_healthcharger.GetFloat();
+		// It must've been overridden by the mapper
+		return;
 	}
-	return m_iMaxJuice;
+
+	m_iMaxJuice = sk_healthcharger.GetFloat();
 }
 
 //-----------------------------------------------------------------------------
@@ -574,7 +576,11 @@ void CNewWallHealth::Spawn(void)
 	SetSolid( SOLID_VPHYSICS );
 	CreateVPhysics();
 
+#ifdef MAPBASE
+	SetModel( STRING(GetModelName()) );
+#else
 	SetModel( HEALTH_CHARGER_MODEL_NAME );
+#endif
 	AddEffects( EF_NOSHADOW );
 
 	ResetSequence( LookupSequence( "idle" ) );
@@ -583,13 +589,16 @@ void CNewWallHealth::Spawn(void)
 	if (m_iIncrementValue == 0)
 		m_iIncrementValue = 1;
 
-	int iMaxJuice = SetInitialCharge();
+	SetInitialCharge();
 
 	// In case the juice was overridden
 	if (m_iJuice == 0)
 		UpdateJuice( MaxJuice() );
 	else if (m_iJuice == -1)
+	{
 		UpdateJuice( 0 );
+		ResetSequence( LookupSequence( "empty" ) );
+	}
 	else
 		UpdateJuice( m_iJuice );
 #else
@@ -605,7 +614,7 @@ void CNewWallHealth::Spawn(void)
 
 	m_flJuice = m_iJuice;
 #ifdef MAPBASE
-	SetCycle( 1.0f - ( m_flJuice /  iMaxJuice ) );
+	SetCycle( 1.0f - ( m_flJuice / MaxJuice() ) );
 #else
 	SetCycle( 1.0f - ( m_flJuice /  sk_healthcharger.GetFloat() ) );
 #endif
@@ -638,7 +647,14 @@ bool CNewWallHealth::CreateVPhysics(void)
 //-----------------------------------------------------------------------------
 void CNewWallHealth::Precache(void)
 {
+#ifdef MAPBASE
+	if ( GetModelName() == NULL_STRING )
+		SetModelName( AllocPooledString(HEALTH_CHARGER_MODEL_NAME) );
+
+	PrecacheModel( STRING(GetModelName()) );
+#else
 	PrecacheModel( HEALTH_CHARGER_MODEL_NAME );
+#endif
 
 	PrecacheScriptSound( "WallHealth.Deny" );
 	PrecacheScriptSound( "WallHealth.Start" );
@@ -651,7 +667,7 @@ void CNewWallHealth::StudioFrameAdvance( void )
 	m_flPlaybackRate = 0;
 
 #ifdef MAPBASE
-	float flMaxJuice = MaxJuice();
+	float flMaxJuice = MaxJuice() + 0.1f;
 #else
 	float flMaxJuice = sk_healthcharger.GetFloat();
 #endif
@@ -707,21 +723,21 @@ void CNewWallHealth::InputRecharge( inputdata_t &inputdata )
 
 void CNewWallHealth::InputSetCharge( inputdata_t &inputdata )
 {
-	ResetSequence( LookupSequence( "idle" ) );
-
 	int iJuice = inputdata.value.Int();
 
 	m_flJuice = m_iMaxJuice = m_iJuice = iJuice;
+
+	ResetSequence( m_iJuice > 0 ? LookupSequence( "idle" ) : LookupSequence( "empty" ) );
 	StudioFrameAdvance();
 }
 
 void CNewWallHealth::InputSetChargeNoMax( inputdata_t &inputdata )
 {
-	ResetSequence( LookupSequence( "idle" ) );
-
 	m_flJuice = inputdata.value.Float();
 
 	UpdateJuice(m_flJuice);
+
+	ResetSequence( m_iJuice > 0 ? LookupSequence( "idle" ) : LookupSequence( "empty" ) );
 	StudioFrameAdvance();
 }
 #endif

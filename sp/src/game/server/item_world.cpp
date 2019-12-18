@@ -358,6 +358,11 @@ bool UTIL_ItemCanBeTouchedByPlayer( CBaseEntity *pItem, CBasePlayer *pPlayer )
 	// so we have to make sure we're not dealing with a weapon for this check after all.
 	if (pItem->HasSpawnFlags(SF_ITEM_NO_PLAYER_PICKUP) && !pItem->IsBaseCombatWeapon())
 		return false;
+
+	// Fortunately, unlike the above code, this flag is identical in between weapons and items
+	// and can safely be used without identifying the entity.
+	if (pItem->HasSpawnFlags(SF_ITEM_ALWAYS_TOUCHABLE))
+		return true;
 #endif
 
 	// For now, always allow a vehicle riding player to pick up things they're driving over

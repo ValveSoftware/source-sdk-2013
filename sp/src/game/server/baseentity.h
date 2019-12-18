@@ -716,6 +716,8 @@ public:
 	void InputUndrawEntity( inputdata_t &inputdata );
 	void InputAddEFlags( inputdata_t &inputdata );
 	void InputRemoveEFlags( inputdata_t &inputdata );
+	void InputAddSolidFlags( inputdata_t &inputdata );
+	void InputRemoveSolidFlags( inputdata_t &inputdata );
 	void InputSetMoveType( inputdata_t &inputdata );
 	void InputSetCollisionGroup( inputdata_t &inputdata );
 

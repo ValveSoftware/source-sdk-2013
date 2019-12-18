@@ -42,6 +42,8 @@
 #define SF_ITEM_NO_PLAYER_PICKUP	(1<<1)
 #define SF_ITEM_NO_PHYSCANNON_PUNT (1<<2)
 #define SF_ITEM_NO_NPC_PICKUP	(1<<3)
+
+#define SF_ITEM_ALWAYS_TOUCHABLE	(1<<6) // This needs to stay synced with the weapon spawnflag
 #endif
 
 

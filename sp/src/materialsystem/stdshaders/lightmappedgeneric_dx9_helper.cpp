@@ -177,6 +177,9 @@ void InitParamsLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** pa
 	if( !g_pConfig->UseSpecular() && params[info.m_nEnvmap]->IsDefined() && params[info.m_nBaseTexture]->IsDefined() )
 	{
 		params[info.m_nEnvmap]->SetUndefined();
+#ifdef PARALLAX_CORRECTED_CUBEMAPS
+		params[info.m_nEnvmapParallax]->SetUndefined();
+#endif
 	}
 
 	if( !params[info.m_nBaseTextureNoEnvmap]->IsDefined() )

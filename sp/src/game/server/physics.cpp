@@ -514,7 +514,12 @@ int CCollisionEvent::ShouldCollide_2( IPhysicsObject *pObj0, IPhysicsObject *pOb
 	if ( pEntity0->edict() && pEntity1->edict() )
 	{
 		// don't collide with your owner
+#ifdef MAPBASE
+		if ( (pEntity0->GetOwnerEntity() == pEntity1 && !pEntity0->IsSolidFlagSet(FSOLID_COLLIDE_WITH_OWNER))
+		|| (pEntity1->GetOwnerEntity() == pEntity0 && !pEntity1->IsSolidFlagSet(FSOLID_COLLIDE_WITH_OWNER)) )
+#else
 		if ( pEntity0->GetOwnerEntity() == pEntity1 || pEntity1->GetOwnerEntity() == pEntity0 )
+#endif
 			return 0;
 	}
 

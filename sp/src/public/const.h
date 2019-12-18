@@ -250,7 +250,14 @@ enum SolidFlags_t
 	FSOLID_ROOT_PARENT_ALIGNED	= 0x0100,	// Collisions are defined in root parent's local coordinate space
 	FSOLID_TRIGGER_TOUCH_DEBRIS	= 0x0200,	// This trigger will touch debris objects
 
+#ifdef MAPBASE
+	// From https://developer.valvesoftware.com/wiki/Owner
+	FSOLID_COLLIDE_WITH_OWNER	= 0X0400,
+
+	FSOLID_MAX_BITS = 11
+#else
 	FSOLID_MAX_BITS	= 10
+#endif
 };
 
 //-----------------------------------------------------------------------------

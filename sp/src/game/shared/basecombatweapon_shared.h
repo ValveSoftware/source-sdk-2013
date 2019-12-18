@@ -55,6 +55,7 @@ class CUserCmd;
 #define SF_WEAPON_NO_NPC_PICKUP	(1<<3) // Prevents NPCs from picking up the weapon.
 #define SF_WEAPON_PRESERVE_AMMO (1<<4) // Prevents the weapon from filling up to max automatically when dropped or picked up by players.
 #define SF_WEAPON_PRESERVE_NAME	(1<<5) // Prevents the weapon's name from being cleared upon being picked up by a player.
+#define SF_WEAPON_ALWAYS_TOUCHABLE	(1<<6) // Makes a weapon always touchable/pickupable, even through walls.
 
 // ----------------------------------------------
 // These spawnflags are not supposed to be used by level designers.

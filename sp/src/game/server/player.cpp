@@ -6673,7 +6673,11 @@ bool CBasePlayer::BumpWeapon( CBaseCombatWeapon *pWeapon )
 	else
 	{
 		// Don't let the player fetch weapons through walls (use MASK_SOLID so that you can't pickup through windows)
+#ifdef MAPBASE
+		if( (pWeapon->FVisible( this, MASK_SOLID ) == false && !(GetFlags() & FL_NOTARGET)) && !HasSpawnFlags(SF_WEAPON_ALWAYS_TOUCHABLE) )
+#else
 		if( pWeapon->FVisible( this, MASK_SOLID ) == false && !(GetFlags() & FL_NOTARGET) )
+#endif
 			return false;
 	}
 	

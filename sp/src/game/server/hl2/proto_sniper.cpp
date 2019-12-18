@@ -1072,7 +1072,11 @@ void CProtoSniper::Spawn( void )
 	// Point the cursor straight ahead so that the sniper's
 	// first sweep of the laser doesn't look weird.
 	Vector vecForward;
+#ifdef MAPBASE
+	AngleVectors( GetAbsAngles(), &vecForward );
+#else
 	AngleVectors( GetLocalAngles(), &vecForward );
+#endif
 	m_vecPaintCursor = GetBulletOrigin() + vecForward * 1024;
 
 	m_fWeaponLoaded = true;
@@ -1287,7 +1291,11 @@ Vector CProtoSniper::GetBulletOrigin( void )
 	else
 	{
 		Vector vecForward;
+#ifdef MAPBASE
+		AngleVectors( GetAbsAngles(), &vecForward );
+#else
 		AngleVectors( GetLocalAngles(), &vecForward );
+#endif
 		return WorldSpaceCenter() + vecForward * 20;
 	}
 }
@@ -1428,7 +1436,7 @@ void CProtoSniper::Event_Killed( const CTakeDamageInfo &info )
 		else
 		{
 			Vector vecForward;
-			AngleVectors( GetLocalAngles(), &vecForward );
+			AngleVectors( GetAbsAngles(), &vecForward );
 			float flForce = random->RandomFloat( 500, 700 ) * 10;
 
 			vecForce = (vecForward * flForce) + Vector(0, 0, 600);
@@ -1451,7 +1459,7 @@ void CProtoSniper::Event_Killed( const CTakeDamageInfo &info )
 		CBaseEntity *pGib;
 #ifdef MAPBASE
 		bool bShouldIgnite = IsOnFire() || HasSpawnFlags(SF_SNIPER_DIE_ON_FIRE);
-		pGib = CreateRagGib( STRING(GetModelName()), GetLocalOrigin(), GetLocalAngles(), vecForce, flFadeTime, bShouldIgnite );
+		pGib = CreateRagGib( STRING(GetModelName()), GetAbsOrigin(), GetAbsAngles(), vecForce, flFadeTime, bShouldIgnite );
 #else
 		bool bShouldIgnite = IsOnFire() || hl2_episodic.GetBool();
 		pGib = CreateRagGib( "models/combine_soldier.mdl", GetLocalOrigin(), GetLocalAngles(), (vecForward * flForce) + Vector(0, 0, 600), flFadeTime, bShouldIgnite );
@@ -1929,7 +1937,11 @@ int CProtoSniper::RangeAttack1Conditions ( float flDot, float flDist )
 
 			float flDist;
 
+#ifdef MAPBASE
+			flDist = ( GetAbsOrigin() - GetEnemy()->GetAbsOrigin() ).Length2D();
+#else
 			flDist = ( GetLocalOrigin() - GetEnemy()->GetLocalOrigin() ).Length2D();
+#endif
 
 			if( flDist <= m_flPatience )
 			{
@@ -2027,7 +2039,11 @@ bool CProtoSniper::FireBullet( const Vector &vecTarget, bool bDirectShot )
 
 	vecBulletOrigin = GetBulletOrigin();
 
+#ifdef MAPBASE
+	pBullet = (CSniperBullet *)Create( "sniperbullet", GetBulletOrigin(), GetAbsAngles(), NULL );
+#else
 	pBullet = (CSniperBullet *)Create( "sniperbullet", GetBulletOrigin(), GetLocalAngles(), NULL );
+#endif
 
 	Assert( pBullet != NULL );
 
@@ -2128,10 +2144,18 @@ void CProtoSniper::StartTask( const Task_t *pTask )
 		// Otherwise, sweep from wherever the cursor was.
 		if( m_hSweepTarget->HasSpawnFlags( SF_SNIPERTARGET_SNAPTO ) )
 		{
+#ifdef MAPBASE
+			m_vecPaintCursor = m_hSweepTarget->GetAbsOrigin();
+#else
 			m_vecPaintCursor = m_hSweepTarget->GetLocalOrigin();
+#endif
 		}
 
+#ifdef MAPBASE
+		LaserOn( m_hSweepTarget->GetAbsOrigin(), vec3_origin );
+#else
 		LaserOn( m_hSweepTarget->GetLocalOrigin(), vec3_origin );
+#endif
 		break;
 
 	case TASK_SNIPER_PAINT_ENEMY:
@@ -2200,7 +2224,11 @@ void CProtoSniper::StartTask( const Task_t *pTask )
 			else
 			{
 				// Try to start the laser where the player can't miss seeing it!
+#ifdef MAPBASE
+				AngleVectors( GetEnemy()->GetAbsAngles(), &vecCursor );
+#else
 				AngleVectors( GetEnemy()->GetLocalAngles(), &vecCursor );
+#endif
 				vecCursor = vecCursor * 300;
 				vecCursor += GetEnemy()->EyePosition();				
 				LaserOn( vecCursor, Vector( 16, 16, 16 ) );
@@ -2334,7 +2362,11 @@ void CProtoSniper::RunTask( const Task_t *pTask )
 
 			if ( m_hSweepTarget->HasSpawnFlags( SF_SNIPERTARGET_SHOOTME ) )
 			{
+#ifdef MAPBASE
+				FireBullet( m_hSweepTarget->GetAbsOrigin(), false );
+#else
 				FireBullet( m_hSweepTarget->GetLocalOrigin(), false );
+#endif
 				TaskComplete(); // Force a reload.
 			}
 
@@ -2343,7 +2375,11 @@ void CProtoSniper::RunTask( const Task_t *pTask )
 				// Bump the timer up, update the cursor, paint the new target!
 				// This is done regardless of whether we just fired at the current target.
 
+#ifdef MAPBASE
+				m_vecPaintCursor = m_hSweepTarget->GetAbsOrigin();
+#else
 				m_vecPaintCursor = m_hSweepTarget->GetLocalOrigin();
+#endif
 				if( IsSweepingRandomly() )
 				{
 					// If sweeping randomly, just pick another target.
@@ -2533,7 +2569,11 @@ Vector CProtoSniper::EyePosition( void )
 {
 	if( m_spawnflags & SF_SNIPER_HIDDEN )
 	{
+#ifdef MAPBASE
+		return GetAbsOrigin();
+#else
 		return GetLocalOrigin();
+#endif
 	}
 	else
 	{
@@ -2672,7 +2712,11 @@ Vector CProtoSniper::LeadTarget( CBaseEntity *pTarget )
 			vecAngle.x = 0;
 			vecAngle.z = 0;
 
+#ifdef MAPBASE
+			vecAngle.y += pTarget->GetAbsAngles().y;
+#else
 			vecAngle.y += pTarget->GetLocalAngles().y;
+#endif
 
 			AngleVectors( vecAngle, &vecVelocity );
 
@@ -2707,7 +2751,11 @@ Vector CProtoSniper::LeadTarget( CBaseEntity *pTarget )
 	{
 		Vector vecBulletOrigin;
 		vecBulletOrigin = GetBulletOrigin();
+#ifdef MAPBASE
+		CPVSFilter filter( GetAbsOrigin() );
+#else
 		CPVSFilter filter( GetLocalOrigin() );
+#endif
 		te->ShowLine( filter, 0.0, &vecBulletOrigin, &vecAdjustedShot );
 	}
 
@@ -2906,7 +2954,11 @@ bool CProtoSniper::FVisible( CBaseEntity *pEntity, int traceMask, CBaseEntity **
 		vecVerticalOffset = SNIPER_TARGET_VERTICAL_OFFSET;
 	}
 
+#ifdef MAPBASE
+	AngleVectors( pEntity->GetAbsAngles(), NULL, &vecRight, NULL );
+#else
 	AngleVectors( pEntity->GetLocalAngles(), NULL, &vecRight, NULL );
+#endif
 
 	vecEye = vecRight * SNIPER_EYE_DIST - vecVerticalOffset;
 	UTIL_TraceLine( EyePosition(), pEntity->EyePosition() + vecEye, MASK_BLOCKLOS, this, COLLISION_GROUP_NONE, &tr );
