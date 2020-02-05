@@ -394,7 +394,11 @@ bool CBaseFlex::ClearSceneEvent( CSceneEventInfo *info, bool fastKill, bool canc
 //			expression - 
 //			duration - 
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+void CBaseFlex::AddSceneEvent( CChoreoScene *scene, CChoreoEvent *event, CBaseEntity *pTarget, CSceneEntity *pSceneEnt )
+#else
 void CBaseFlex::AddSceneEvent( CChoreoScene *scene, CChoreoEvent *event, CBaseEntity *pTarget )
+#endif
 {
 	if ( !scene || !event )
 	{
@@ -419,7 +423,11 @@ void CBaseFlex::AddSceneEvent( CChoreoScene *scene, CChoreoEvent *event, CBaseEn
 	info.m_hTarget		= pTarget;
 	info.m_bStarted	= false;
 
+#ifdef MAPBASE
+	if (StartSceneEvent( &info, scene, event, actor, pTarget, pSceneEnt ))
+#else
 	if (StartSceneEvent( &info, scene, event, actor, pTarget ))
+#endif
 	{
 		m_SceneEvents.AddToTail( info );
 	}
@@ -735,7 +743,11 @@ bool CBaseFlex::StartMoveToSceneEvent( CSceneEventInfo *info, CChoreoScene *scen
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+bool CBaseFlex::StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event, CChoreoActor *actor, CBaseEntity *pTarget, CSceneEntity *pSceneEnt )
+#else
 bool CBaseFlex::StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event, CChoreoActor *actor, CBaseEntity *pTarget )
+#endif
 {
 	switch ( event->GetType() )
 	{

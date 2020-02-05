@@ -301,6 +301,10 @@ static void HandleDiscordJoinRequest(const DiscordUser* request)
 
 void MapbaseRPC_Init()
 {
+	// Only init if RPC is enabled
+	if (mapbase_rpc_enabled.GetInt() <= 0)
+		return;
+
 	// First, load the config
 	// (we need its values immediately)
 	KeyValues *pKV = new KeyValues( "MapbaseRPC" );
@@ -463,15 +467,20 @@ void MapbaseRPC_GetDiscordMapInfo( char *pDetails, size_t iSize, const char *pMa
 	}
 	else
 	{
+		// Show the chapter title first
+		const char *szChapterTitle = NULL;
+
 		C_World *pWorld = GetClientWorldEntity();
 		if ( pWorld && pWorld->m_iszChapterTitle[0] != '\0' )
 		{
-			// Show the chapter title first
-			const char *pChapterTitle = g_pVGuiLocalize->FindAsUTF8( pWorld->m_iszChapterTitle );
-			if (!pChapterTitle || pChapterTitle[0] == '\0')
-				pChapterTitle = pWorld->m_iszChapterTitle;
+			szChapterTitle = g_pVGuiLocalize->FindAsUTF8( pWorld->m_iszChapterTitle );
+			if (!szChapterTitle || szChapterTitle[0] == '\0')
+				szChapterTitle = pWorld->m_iszChapterTitle;
+		}
 
-			Q_snprintf( pDetails, iSize, "%s (%s)", pChapterTitle, pMapName );
+		if (szChapterTitle)
+		{
+			Q_snprintf( pDetails, iSize, "%s (%s)", szChapterTitle, pMapName );
 		}
 		else
 		{

@@ -203,7 +203,12 @@ float4 main( PS_INPUT i ) : COLOR
 #endif
 
 	float specularFactor = 1.0f;
+#if !DETAILTEXTURE
+	// Blixibon - $bumpmap transform support
+	float4 normalTexel = tex2D( BumpmapSampler, i.detailTexCoord_atten3.xy );
+#else
 	float4 normalTexel = tex2D( BumpmapSampler, i.baseTexCoord2_tangentSpaceVertToEyeVectorXY.xy );
+#endif
 	float3 tangentSpaceNormal = normalTexel * 2.0f - 1.0f;
 
 	if ( bNormalMapAlphaEnvmapMask )

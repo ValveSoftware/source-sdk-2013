@@ -136,6 +136,7 @@ void CNPC_CombineS::DeathSound( const CTakeDamageInfo &info )
 }
 
 
+#ifndef MAPBASE // Moved to CAI_GrenadeUser
 //-----------------------------------------------------------------------------
 // Purpose: Soldiers use CAN_RANGE_ATTACK2 to indicate whether they can throw
 //			a grenade. Because they check only every half-second or so, this
@@ -157,6 +158,7 @@ void CNPC_CombineS::ClearAttackConditions( )
 		SetCondition( COND_CAN_RANGE_ATTACK2 );
 	}
 }
+#endif
 
 void CNPC_CombineS::PrescheduleThink( void )
 {

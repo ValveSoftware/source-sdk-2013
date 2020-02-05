@@ -72,7 +72,11 @@ public:
 	void				RemoveChoreoScene( CChoreoScene *scene, bool canceled = false );
 
 	// Start the specifics of an scene event
+#ifdef MAPBASE
+	virtual bool		StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event, CChoreoActor *actor, CBaseEntity *pTarget, CSceneEntity *pSceneEnt = NULL );
+#else
 	virtual bool		StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event, CChoreoActor *actor, CBaseEntity *pTarget );
+#endif
 
 	// Manipulation of events for the object
 	// Should be called by think function to process all scene events
@@ -91,7 +95,11 @@ public:
 	virtual	bool		ClearSceneEvent( CSceneEventInfo *info, bool fastKill, bool canceled );
 
 	// Add the event to the queue for this actor
+#ifdef MAPBASE
+	void				AddSceneEvent( CChoreoScene *scene, CChoreoEvent *event, CBaseEntity *pTarget = NULL, CSceneEntity *pSceneEnt = NULL );
+#else
 	void				AddSceneEvent( CChoreoScene *scene, CChoreoEvent *event, CBaseEntity *pTarget = NULL );
+#endif
 
 	// Remove the event from the queue for this actor
 	void				RemoveSceneEvent( CChoreoScene *scene, CChoreoEvent *event, bool fastKill );

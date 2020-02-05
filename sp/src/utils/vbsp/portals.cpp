@@ -920,6 +920,9 @@ void FindAreas_r (node_t *node)
 	FloodAreas_r (node, NULL);
 }
 
+#ifdef MAPBASE
+extern qboolean	noleaktest;
+#endif
 
 void ReportAreaportalLeak( tree_t *tree, node_t *node )
 {
@@ -968,6 +971,14 @@ void ReportAreaportalLeak( tree_t *tree, node_t *node )
 			AreaportalLeakFile( tree, pStart, pBest, pBest->nodes[s] );
 		}
 	}
+
+#ifdef MAPBASE
+	if (!noleaktest)
+	{
+		Warning( ("--- AREAPORTAL LEAK ---\n") );
+		exit(0);
+	}
+#endif
 }
 
 

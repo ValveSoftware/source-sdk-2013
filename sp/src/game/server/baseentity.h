@@ -680,6 +680,8 @@ public:
 	void InputFireRandomUser( inputdata_t &inputdata );
 	void InputPassRandomUser( inputdata_t &inputdata );
 
+	void InputSetEntityName( inputdata_t &inputdata );
+
 	virtual void InputSetTarget( inputdata_t &inputdata );
 	virtual void InputSetOwnerEntity( inputdata_t &inputdata );
 

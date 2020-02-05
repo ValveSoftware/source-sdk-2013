@@ -61,7 +61,7 @@ bool		g_DisableWaterLighting = false;
 bool		g_bAllowDetailCracks = false;
 bool		g_bNoVirtualMesh = false;
 #ifdef MAPBASE
-bool		g_bNoDefaultCubemaps = false;
+bool		g_bNoDefaultCubemaps = true;
 #endif
 
 float		g_defaultLuxelSize = DEFAULT_LUXEL_SIZE;
@@ -1156,9 +1156,12 @@ int RunVBSP( int argc, char **argv )
 			EnableFullMinidumps( true );
 		}
 #ifdef MAPBASE
-		else if ( !Q_stricmp( argv[i], "-nodefaultcubemap" ) )
+		// Thanks to Mapbase's shader changes, default cubemaps are no longer needed.
+		// The command has been switched from "-nodefaultcubemap" to "-defaultcubemap",
+		// meaning maps are compiled without them by default.
+		else if ( !Q_stricmp( argv[i], "-defaultcubemap" ) )
 		{
-			g_bNoDefaultCubemaps = true;
+			g_bNoDefaultCubemaps = false;
 		}
 #endif
 		else if (argv[i][0] == '-')

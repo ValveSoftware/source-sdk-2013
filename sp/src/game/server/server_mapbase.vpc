@@ -29,6 +29,8 @@ $Project
 			$File	"$SRCDIR\game\shared\mapbase\mapbase_game_log.cpp"
 			$File	"$SRCDIR\game\shared\mapbase\MapEdit.cpp"
 			$File	"$SRCDIR\game\shared\mapbase\MapEdit.h"
+			$File	"$SRCDIR\game\shared\mapbase\matchers.cpp"
+			$File	"$SRCDIR\game\shared\mapbase\matchers.h"
 			
 			$File	"mapbase\ai_grenade.cpp"
 			$File	"mapbase\ai_grenade.h"
@@ -43,7 +45,6 @@ $Project
 			$File	"mapbase\GlobalStrings.h"
 			$File	"mapbase\logic_externaldata.cpp"
 			$File	"mapbase\logic_skill.cpp"
-			$File	"mapbase\matchers.h"
 			$File	"mapbase\point_advanced_finder.cpp"
 			$File	"mapbase\point_copy_size.cpp"
 			$File	"mapbase\point_damageinfo.cpp"

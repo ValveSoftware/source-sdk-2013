@@ -1727,9 +1727,41 @@ static TITLECOMMENT gTitleComments[] =
 #endif
 };
 
+#ifdef MAPBASE
+extern CUtlVector<MODTITLECOMMENT> *Mapbase_GetChapterMaps();
+extern CUtlVector<MODCHAPTER> *Mapbase_GetChapterList();
+#endif
+
 #ifdef _XBOX
 void CServerGameDLL::GetTitleName( const char *pMapName, char* pTitleBuff, int titleBuffSize )
 {
+#ifdef MAPBASE
+	// Check the world entity for a chapter title
+	if ( CWorld *pWorld = GetWorldEntity() )
+	{
+		const char *pWorldChapter = pWorld->GetChapterTitle();
+		if ( pWorldChapter && pWorldChapter[0] != '\0' )
+		{
+			Q_strncpy( chapterTitle, pWorldChapter, sizeof( chapterTitle ) );
+			return;
+		}
+	}
+
+	// Look in the mod's chapter list
+	CUtlVector<MODTITLECOMMENT> *ModChapterComments = Mapbase_GetChapterMaps();
+	if (ModChapterComments->Count() > 0)
+	{
+		for ( int i = 0; i < ModChapterComments->Count(); i++ )
+		{
+			if ( !Q_strnicmp( mapname, ModChapterComments->Element(i).pBSPName, strlen(ModChapterComments->Element(i).pBSPName) ) )
+			{
+				Q_strncpy( pTitleBuff, ModChapterComments->Element(i).pTitleName, titleBuffSize );
+				return;
+			}
+		}
+	}
+#endif
+
 	// Try to find a matching title comment for this mapname
 	for ( int i = 0; i < ARRAYSIZE(gTitleComments); i++ )
 	{
@@ -1739,16 +1771,6 @@ void CServerGameDLL::GetTitleName( const char *pMapName, char* pTitleBuff, int t
 			return;
 		}
 	}
-
-#ifdef MAPBASE
-	// Check the world entity for a chapter title.
-	if ( CWorld *pWorld = GetWorldEntity() )
-	{
-		const char *pWorldChapter = pWorld->GetChapterTitle();
-		if ( pWorldChapter && pWorldChapter[0] != '\0' )
-			Q_strncpy( chapterTitle, pWorldChapter, sizeof( chapterTitle ) );
-	}
-#endif
 
 	Q_strncpy( pTitleBuff, pMapName, titleBuffSize );
 }
@@ -1789,7 +1811,35 @@ void CServerGameDLL::GetSaveComment( char *text, int maxlength, float flMinutes,
 	}
 
 #ifdef MAPBASE
-	// Check the world entity for a chapter title.
+	// Look in the mod's chapter list
+	CUtlVector<MODTITLECOMMENT> *ModChapterComments = Mapbase_GetChapterMaps();
+	if (ModChapterComments->Count() > 0)
+	{
+		for ( int i = 0; i < ModChapterComments->Count(); i++ )
+		{
+			if ( !Q_strnicmp( mapname, ModChapterComments->Element(i).pBSPName, strlen(ModChapterComments->Element(i).pBSPName) ) )
+			{
+				// found one
+				int j;
+
+				// Got a message, post-process it to be save name friendly
+				Q_strncpy( comment, ModChapterComments->Element(i).pTitleName, sizeof( comment ) );
+				pName = comment;
+				j = 0;
+				// Strip out CRs
+				while ( j < 64 && comment[j] )
+				{
+					if ( comment[j] == '\n' || comment[j] == '\r' )
+						comment[j] = 0;
+					else
+						j++;
+				}
+				break;
+			}
+		}
+	}
+
+	// Check the world entity for a chapter title
 	if ( CWorld *pWorld = GetWorldEntity() )
 	{
 		const char *pWorldChapter = pWorld->GetChapterTitle();
@@ -2093,6 +2143,58 @@ void UpdateChapterRestrictions( const char *mapname )
 	}
 
 #ifdef MAPBASE
+	// Look in the mod's chapter list
+	CUtlVector<MODTITLECOMMENT> *ModChapterComments = Mapbase_GetChapterMaps();
+	if (ModChapterComments->Count() > 0)
+	{
+		for ( int i = 0; i < ModChapterComments->Count(); i++ )
+		{
+			if ( !Q_strnicmp( mapname, ModChapterComments->Element(i).pBSPName, strlen(ModChapterComments->Element(i).pBSPName) ) )
+			{
+				// found
+				Q_strncpy( chapterTitle, ModChapterComments->Element(i).pTitleName, sizeof( chapterTitle ) );
+				int j = 0;
+				while ( j < 64 && chapterTitle[j] )
+				{
+					if ( chapterTitle[j] == '\n' || chapterTitle[j] == '\r' )
+						chapterTitle[j] = 0;
+					else
+						j++;
+				}
+
+				// Mods can order their own custom chapter names,
+				// allowing for more flexible string name usage, multiple names in one chapter, etc.
+				CUtlVector<MODCHAPTER> *ModChapterList = Mapbase_GetChapterList();
+				for ( int i = 0; i < ModChapterList->Count(); i++ )
+				{
+					if ( !Q_strnicmp( chapterTitle, ModChapterList->Element(i).pChapterName, strlen(chapterTitle) ) )
+					{
+						// ok we have the string, see if it's newer
+						int nNewChapter = ModChapterList->Element(i).iChapter;
+						int nUnlockedChapter = sv_unlockedchapters.GetInt();
+
+						if ( nUnlockedChapter < nNewChapter )
+						{
+							// ok we're at a higher chapter, unlock
+							sv_unlockedchapters.SetValue( nNewChapter );
+
+							// HACK: Call up through a better function than this? 7/23/07 - jdw
+							if ( IsX360() )
+							{
+								engine->ServerCommand( "host_writeconfig\n" );
+							}
+						}
+
+						g_nCurrentChapterIndex = nNewChapter;
+						return;
+					}
+				}
+
+				break;
+			}
+		}
+	}
+
 	// Check the world entity for a chapter title.
 	if ( CWorld *pWorld = GetWorldEntity() )
 	{

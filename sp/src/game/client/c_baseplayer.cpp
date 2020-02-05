@@ -133,6 +133,16 @@ void RecvProxy_LocalVelocityZ( const CRecvProxyData *pData, void *pStruct, void 
 void RecvProxy_ObserverTarget( const CRecvProxyData *pData, void *pStruct, void *pOut );
 void RecvProxy_ObserverMode  ( const CRecvProxyData *pData, void *pStruct, void *pOut );
 
+#ifdef MAPBASE
+// Needs to shift bits back
+void RecvProxy_ShiftPlayerSpawnflags( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	C_BasePlayer *pPlayer = (C_BasePlayer *)pStruct;
+
+	pPlayer->m_spawnflags = (pData->m_Value.m_Int) << 16;
+}
+#endif
+
 // -------------------------------------------------------------------------------- //
 // RecvTable for CPlayerState.
 // -------------------------------------------------------------------------------- //
@@ -259,7 +269,7 @@ END_RECV_TABLE()
 #ifdef MAPBASE
 		// Transmitted from the server for internal player spawnflags.
 		// See baseplayer_shared.h for more details.
-		RecvPropInt			( RECVINFO( m_spawnflags ) ),
+		RecvPropInt			( RECVINFO( m_spawnflags ), 0, RecvProxy_ShiftPlayerSpawnflags ),
 
 		RecvPropBool		( RECVINFO( m_bDrawPlayerModelExternally ) ),
 #endif

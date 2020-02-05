@@ -273,8 +273,7 @@ void C_ScriptIntro::ClientThink( void )
 #ifdef MAPBASE
 		if ( m_bUseEyePosition )
 		{
-			m_IntroData.m_vecCameraView = m_hCameraEntity->EyePosition();
-			m_IntroData.m_vecCameraViewAngles = m_hCameraEntity->EyeAngles();
+			m_hCameraEntity->GetEyePosition( m_IntroData.m_vecCameraView, m_IntroData.m_vecCameraViewAngles );
 		}
 		else
 		{
@@ -368,4 +367,131 @@ void C_ScriptIntro::CalculateAlpha( void )
 
 	m_IntroData.m_flCurrentFadeColor[3] = flNewAlpha;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+class C_PlayerViewProxy : public C_BaseEntity
+{
+	DECLARE_CLASS( C_PlayerViewProxy, C_BaseEntity );
+public:
+	DECLARE_CLIENTCLASS();
+
+	Vector	EyePosition( void );			// position of eyes
+	const QAngle &EyeAngles( void );		// Direction of eyes in world space
+	void GetEyePosition( Vector &vecOrigin, QAngle &angAngles );
+	const QAngle &LocalEyeAngles( void );	// Direction of eyes
+	Vector	EarPosition( void );			// position of ears
+
+#ifdef MAPBASE_MP
+	C_BasePlayer	*GetPlayer() { return m_bEnabled ? (m_hPlayer.Get() ? m_hPlayer.Get() : C_BasePlayer::GetLocalPlayer()) : NULL; }
+#else
+	C_BasePlayer	*GetPlayer() { return m_bEnabled ? C_BasePlayer::GetLocalPlayer() : NULL; }
+#endif
+
+public:
+#ifdef MAPBASE_MP
+	CHandle<C_BasePlayer> m_hPlayer;
+#endif
+
+	bool	m_bEnabled;
+};
+
+IMPLEMENT_CLIENTCLASS_DT( C_PlayerViewProxy, DT_PlayerViewProxy, CPlayerViewProxy )
+#ifdef MAPBASE_MP
+	RecvPropEHandle( RECVINFO( m_hPlayer ) ),
+#endif
+	RecvPropBool( RECVINFO( m_bEnabled ) ),
+END_RECV_TABLE()
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Vector C_PlayerViewProxy::EyePosition( void )
+{
+	C_BasePlayer *pPlayer = GetPlayer();
+	if (pPlayer)
+	{
+		//Vector vecPlayerOffset = m_hPlayer.Get()->EyePosition() - m_hPlayer.Get()->GetAbsOrigin();
+		//return GetAbsOrigin() + vecPlayerOffset;
+
+		Vector vecOrigin;
+		QAngle angAngles;
+		float fldummy;
+		pPlayer->CalcView( vecOrigin, angAngles, fldummy, fldummy, fldummy );
+
+		return GetAbsOrigin() + (vecOrigin - pPlayer->GetAbsOrigin());
+	}
+	else
+		return BaseClass::EyePosition();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const QAngle &C_PlayerViewProxy::EyeAngles( void )
+{
+	C_BasePlayer *pPlayer = GetPlayer();
+	if (pPlayer)
+	{
+		Vector vecOrigin;
+		static QAngle angAngles;
+		float fldummy;
+		pPlayer->CalcView( vecOrigin, angAngles, fldummy, fldummy, fldummy );
+
+		return angAngles;
+
+		//return m_hPlayer.Get()->EyeAngles();
+	}
+	else
+		return BaseClass::EyeAngles();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_PlayerViewProxy::GetEyePosition( Vector &vecOrigin, QAngle &angAngles )
+{
+	C_BasePlayer *pPlayer = GetPlayer();
+	if (pPlayer)
+	{
+		float fldummy;
+		pPlayer->CalcView( vecOrigin, angAngles, fldummy, fldummy, fldummy );
+
+		vecOrigin = GetAbsOrigin() + (vecOrigin - pPlayer->GetAbsOrigin());
+	}
+	else
+	{
+		BaseClass::GetEyePosition( vecOrigin, angAngles );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const QAngle &C_PlayerViewProxy::LocalEyeAngles( void )
+{
+	C_BasePlayer *pPlayer = GetPlayer();
+	if (pPlayer)
+		return pPlayer->LocalEyeAngles();
+	else
+		return BaseClass::LocalEyeAngles();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Vector C_PlayerViewProxy::EarPosition( void )
+{
+	C_BasePlayer *pPlayer = GetPlayer();
+	if (pPlayer)
+	{
+		Vector vecPlayerOffset = pPlayer->GetAbsOrigin() - pPlayer->EarPosition();
+		return GetAbsOrigin() + vecPlayerOffset;
+	}
+	else
+		return BaseClass::EarPosition();
+}
+#endif
 

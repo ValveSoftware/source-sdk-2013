@@ -251,9 +251,16 @@ void C_GlobalLight::ClientThink()
 		state.m_fLinearAtten = m_flSunDistance * 2.0f;
 		state.m_fConstantAtten = 0.0f;
 		state.m_FarZAtten = m_flSunDistance * 2.0f;
+#ifdef MAPBASE
+		float flAlpha = m_flCurrentLinearFloatLightAlpha * (1.0f / 255.0f);
+		state.m_Color[0] = (m_CurrentLinearFloatLightColor.x * ( 1.0f / 255.0f ) * flAlpha) * m_flCurrentBrightnessScale;
+		state.m_Color[1] = (m_CurrentLinearFloatLightColor.y * ( 1.0f / 255.0f ) * flAlpha) * m_flCurrentBrightnessScale;
+		state.m_Color[2] = (m_CurrentLinearFloatLightColor.z * ( 1.0f / 255.0f ) * flAlpha) * m_flCurrentBrightnessScale;
+#else
 		state.m_Color[0] = m_CurrentLinearFloatLightColor.x * ( 1.0f / 255.0f ) * m_flCurrentLinearFloatLightAlpha;
 		state.m_Color[1] = m_CurrentLinearFloatLightColor.y * ( 1.0f / 255.0f ) * m_flCurrentLinearFloatLightAlpha;
 		state.m_Color[2] = m_CurrentLinearFloatLightColor.z * ( 1.0f / 255.0f ) * m_flCurrentLinearFloatLightAlpha;
+#endif
 		state.m_Color[3] = 0.0f; // fixme: need to make ambient work m_flAmbient;
 		state.m_NearZ = 4.0f;
 		state.m_FarZ = m_flSunDistance * 2.0f;

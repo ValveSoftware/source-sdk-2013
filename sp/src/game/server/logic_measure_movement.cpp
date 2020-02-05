@@ -27,6 +27,9 @@
 
 // Uses "Teleport" instead of "SetAbsOrigin" for smoother movement
 #define SF_LOGIC_MEASURE_MOVEMENT_TELEPORT ( 1 << 4 )
+
+// Specifically refuse to set the target's angles, rather than just turning them to 0
+#define SF_LOGIC_MEASURE_MOVEMENT_DONT_SET_ANGLES ( 1 << 5 )
 #endif
 
 //-----------------------------------------------------------------------------
@@ -281,12 +284,14 @@ void CLogicMeasureMovement::MeasureThink( )
 
 		if (HasSpawnFlags( SF_LOGIC_MEASURE_MOVEMENT_TELEPORT ))
 		{
-			m_hTarget->Teleport( &vecNewOrigin, &vecNewAngles, NULL );
+			m_hTarget->Teleport( &vecNewOrigin, !HasSpawnFlags(SF_LOGIC_MEASURE_MOVEMENT_DONT_SET_ANGLES) ? &vecNewAngles : NULL, NULL );
 		}
 		else
 		{
 			m_hTarget->SetAbsOrigin( vecNewOrigin );
-			m_hTarget->SetAbsAngles( vecNewAngles );
+
+			if (!HasSpawnFlags(SF_LOGIC_MEASURE_MOVEMENT_DONT_SET_ANGLES))
+				m_hTarget->SetAbsAngles( vecNewAngles );
 		}
 #else
 		matrix3x4_t matRefToMeasure, matWorldToMeasure;
@@ -388,11 +393,11 @@ void CLogicMeasureMovement::DoMeasure( Vector &vecOrigin, QAngle &angAngles )
 	{
 		// Get the position from the matrix's column directly and re-assign it
 		Vector vecPosition;
-		MatrixGetColumn( matRefToMeasure, 3, vecPosition );
+		MatrixGetColumn( matMeasureToRef, 3, vecPosition );
 
 		HandleIgnoreFlags( vecPosition.Base() );
 
-		MatrixSetColumn( vecPosition, 3, matRefToMeasure );
+		MatrixSetColumn( vecPosition, 3, matMeasureToRef );
 	}
 
 	ConcatTransforms( m_hTargetReference->EntityToWorldTransform(), matMeasureToRef, matNewTargetToWorld );

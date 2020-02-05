@@ -1908,9 +1908,9 @@ public:
 			switch (m_iSecondaryFilterMode)
 			{
 				case REDIRECT_MUST_PASS_TO_DAMAGE_CALLER:
-				case REDIRECT_MUST_PASS_TO_ACT:				bPass = (RedirectToDamageFilter(pCaller, info));
+				case REDIRECT_MUST_PASS_TO_ACT:				bPass = (RedirectToDamageFilter( pCaller, info )); break;
 
-				case REDIRECT_MUST_PASS_ACTIVATORS:			bPass = (info.GetAttacker() && RedirectToFilter(pCaller, info.GetAttacker()));
+				case REDIRECT_MUST_PASS_ACTIVATORS:			bPass = (info.GetAttacker() && RedirectToFilter(pCaller, info.GetAttacker())); break;
 			}
 
 			if (!bPass)

@@ -3369,6 +3369,7 @@ private:
 #ifdef MAPBASE
 	float		m_flHeavyShotInterval = 0.2f;
 	int			m_iHeavyShotSpread;
+	bool		m_bUseDamageKV;
 #endif
 };
 
@@ -3388,6 +3389,7 @@ BEGIN_DATADESC( CFuncTankAirboatGun )
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_flHeavyShotInterval,	FIELD_FLOAT, "heavy_shot_interval" ),
 	DEFINE_KEYFIELD( m_iHeavyShotSpread,	FIELD_INTEGER, "heavy_shot_spread" ),
+	DEFINE_KEYFIELD( m_bUseDamageKV,		FIELD_BOOLEAN, "use_damage_kv" ),
 #endif
 
 #ifdef MAPBASE
@@ -3684,6 +3686,17 @@ void CFuncTankAirboatGun::Fire( int bulletCount, const Vector &barrelEnd, const 
 	info.m_vecDirShooting = forward;
 	info.m_flDistance = 4096;
 	info.m_iAmmoType = ammoType;
+
+#ifdef MAPBASE
+	info.m_pAttacker = pAttacker;
+	info.m_pAdditionalIgnoreEnt = GetParent();
+
+	if (m_bUseDamageKV)
+	{
+		info.m_flDamage = m_iBulletDamage;
+		info.m_iPlayerDamage = m_iBulletDamageVsPlayer;
+	}
+#endif
 
 	if ( gpGlobals->curtime >= m_flNextHeavyShotTime )
 	{

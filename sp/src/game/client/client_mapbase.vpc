@@ -29,6 +29,8 @@ $Project
 			$File	"$SRCDIR\game\shared\mapbase\mapbase_game_log.cpp"
 			$File	"$SRCDIR\game\shared\mapbase\MapEdit.cpp"
 			$File	"$SRCDIR\game\shared\mapbase\MapEdit.h"
+			$File	"$SRCDIR\game\shared\mapbase\matchers.cpp"
+			$File	"$SRCDIR\game\shared\mapbase\matchers.h"
 			
 			$File	"mapbase\c_func_clientclip.cpp"
 		}

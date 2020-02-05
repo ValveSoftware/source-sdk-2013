@@ -409,3 +409,254 @@ void CScriptIntro::InputSetFadeColor( inputdata_t &inputdata )
 	m_flFadeColor.Set( 1, flG );
 	m_flFadeColor.Set( 2, flB );
 }
+
+#ifdef MAPBASE
+class CPlayerViewProxy : public CBaseEntity
+{
+public:
+	DECLARE_CLASS( CPlayerViewProxy, CBaseEntity );
+	DECLARE_DATADESC();
+	DECLARE_SERVERCLASS();
+
+	CPlayerViewProxy();
+
+	void Spawn( void );
+	int UpdateTransmitState( void );
+
+	void ActivateEnt( CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL );
+	void DeactivateEnt();
+	void MeasureThink();
+
+	Vector	EyePosition( void );			// position of eyes
+	const QAngle &EyeAngles( void );		// Direction of eyes in world space
+	const QAngle &LocalEyeAngles( void );	// Direction of eyes
+	Vector	EarPosition( void );			// position of ears
+
+	// Inputs
+	void	InputActivate( inputdata_t &inputdata );
+	void	InputDeactivate( inputdata_t &inputdata );
+
+#ifdef MAPBASE_MP
+	// TODO: Mapbase MP should use reception filter or something to determine which player's eye position is offset
+	CNetworkVar( CHandle<CBasePlayer>, m_hPlayer );
+#else
+	CHandle<CBasePlayer>	m_hPlayer;
+#endif
+
+	string_t m_iszMeasureReference;
+	EHANDLE m_hMeasureReference;
+	string_t m_iszTargetReference;
+	EHANDLE m_hTargetReference;
+
+	CNetworkVar( float, m_flScale );
+
+	CNetworkVar( bool, m_bEnabled );
+};
+
+LINK_ENTITY_TO_CLASS( info_player_view_proxy, CPlayerViewProxy );
+
+BEGIN_DATADESC( CPlayerViewProxy )
+
+	// Keys
+	DEFINE_FIELD( m_hPlayer, FIELD_EHANDLE ),
+	DEFINE_KEYFIELD( m_iszMeasureReference, FIELD_STRING, "MeasureReference" ),
+	DEFINE_FIELD( m_hMeasureReference, FIELD_EHANDLE ),
+	DEFINE_KEYFIELD( m_iszTargetReference, FIELD_STRING, "TargetReference" ),
+	DEFINE_FIELD( m_hTargetReference, FIELD_EHANDLE ),
+	DEFINE_KEYFIELD( m_flScale, FIELD_FLOAT, "TargetScale" ),
+	DEFINE_KEYFIELD( m_bEnabled, FIELD_BOOLEAN, "Enabled" ),
+
+	// Inputs
+	DEFINE_INPUTFUNC( FIELD_VOID, "Activate", InputActivate ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Deactivate", InputDeactivate ),
+
+	DEFINE_THINKFUNC( MeasureThink ),
+
+END_DATADESC()
+
+IMPLEMENT_SERVERCLASS_ST( CPlayerViewProxy, DT_PlayerViewProxy )
+#ifdef MAPBASE_MP
+	SendPropEHandle( SENDINFO( m_hPlayer ) ),
+#endif
+	SendPropBool( SENDINFO( m_bEnabled ) ),
+END_SEND_TABLE()
+
+CPlayerViewProxy::CPlayerViewProxy()
+{
+	m_flScale = 1.0f;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPlayerViewProxy::Spawn( void )
+{
+	if (m_bEnabled)
+		ActivateEnt();
+}
+
+//------------------------------------------------------------------------------
+// Purpose : Send even though we don't have a model.
+//------------------------------------------------------------------------------
+int CPlayerViewProxy::UpdateTransmitState()
+{
+	return SetTransmitState( FL_EDICT_ALWAYS );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPlayerViewProxy::MeasureThink( void )
+{
+	if (m_hPlayer.Get() == NULL)
+	{
+		// Player has disappeared! Stopping measure
+		return;
+	}
+
+	if (m_bEnabled && m_hMeasureReference.Get() && m_hTargetReference.Get())
+	{
+		matrix3x4_t matRefToMeasure, matWorldToMeasure;
+		MatrixInvert( m_hPlayer.Get()->EntityToWorldTransform(), matWorldToMeasure );
+		ConcatTransforms( matWorldToMeasure, m_hMeasureReference.Get()->EntityToWorldTransform(), matRefToMeasure );
+
+		// Apply the scale factor
+		if ( ( m_flScale != 0.0f ) && ( m_flScale != 1.0f ) )
+		{
+			Vector vecTranslation;
+			MatrixGetColumn( matRefToMeasure, 3, vecTranslation );
+			vecTranslation /= m_flScale;
+			MatrixSetColumn( vecTranslation, 3, matRefToMeasure );
+		}
+
+		// Now apply the new matrix to the new reference point
+		matrix3x4_t matMeasureToRef, matNewTargetToWorld;
+		MatrixInvert( matRefToMeasure, matMeasureToRef );
+		ConcatTransforms( m_hTargetReference.Get()->EntityToWorldTransform(), matMeasureToRef, matNewTargetToWorld );
+
+		Vector vecOrigin;
+		QAngle angAngles;
+		MatrixAngles( matNewTargetToWorld, angAngles, vecOrigin );
+		Teleport( &vecOrigin, &angAngles, NULL );
+
+		SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+	}
+	//else
+	//{
+	//	SetAbsOrigin( m_hPlayer.Get()->GetAbsOrigin() );
+	//	SetAbsAngles( m_hPlayer.Get()->GetAbsAngles() );
+	//}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Vector CPlayerViewProxy::EyePosition( void )
+{
+	if (m_hPlayer.Get())
+	{
+		//Vector vecPlayerOffset = m_hPlayer.Get()->EyePosition() - m_hPlayer.Get()->GetAbsOrigin();
+		//return GetAbsOrigin() + vecPlayerOffset;
+
+		Vector vecOrigin;
+		QAngle angAngles;
+		float fldummy;
+		m_hPlayer->CalcView( vecOrigin, angAngles, fldummy, fldummy, fldummy );
+
+		return GetAbsOrigin() + (vecOrigin - m_hPlayer->GetAbsOrigin());
+	}
+	else
+		return BaseClass::EyePosition();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const QAngle &CPlayerViewProxy::EyeAngles( void )
+{
+	if (m_hPlayer.Get())
+	{
+		Vector vecOrigin;
+		static QAngle angAngles;
+		float fldummy;
+		m_hPlayer->CalcView( vecOrigin, angAngles, fldummy, fldummy, fldummy );
+
+		return angAngles;
+
+		//return m_hPlayer.Get()->EyeAngles();
+	}
+	else
+		return BaseClass::EyeAngles();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const QAngle &CPlayerViewProxy::LocalEyeAngles( void )
+{
+	if (m_hPlayer.Get())
+		return m_hPlayer.Get()->LocalEyeAngles();
+	else
+		return BaseClass::LocalEyeAngles();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Vector CPlayerViewProxy::EarPosition( void )
+{
+	if (m_hPlayer.Get())
+	{
+		Vector vecPlayerOffset = m_hPlayer.Get()->EarPosition() - m_hPlayer.Get()->GetAbsOrigin();
+		return GetAbsOrigin() + vecPlayerOffset;
+	}
+	else
+		return BaseClass::EarPosition();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPlayerViewProxy::ActivateEnt( CBaseEntity *pActivator, CBaseEntity *pCaller )
+{
+	m_bEnabled = true;
+
+	m_hMeasureReference = gEntList.FindEntityByName( NULL, m_iszMeasureReference, this, pActivator, pCaller );
+	m_hTargetReference = gEntList.FindEntityByName( NULL, m_iszTargetReference, this, pActivator, pCaller );
+
+	// Do something else in Mapbase MP
+	m_hPlayer = UTIL_GetLocalPlayer();
+
+	SetThink( &CPlayerViewProxy::MeasureThink );
+	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPlayerViewProxy::DeactivateEnt( void )
+{
+	m_bEnabled = false;
+
+	m_hMeasureReference = NULL;
+	m_hTargetReference = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CPlayerViewProxy::InputActivate( inputdata_t &inputdata )
+{
+	ActivateEnt(inputdata.pActivator, inputdata.pCaller);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CPlayerViewProxy::InputDeactivate( inputdata_t &inputdata )
+{
+	DeactivateEnt();
+}
+#endif

@@ -33,6 +33,10 @@ END_DATADESC()
 int AE_ALYX_EMPTOOL_ATTACHMENT;
 int AE_ALYX_EMPTOOL_SEQUENCE;
 
+#ifdef MAPBASE
+ConVar sk_alyx_health( "sk_alyx_health", "80" );
+#endif
+
 //=========================================================
 // Classify - indicates this NPC's place in the 
 // relationship table.
@@ -127,7 +131,11 @@ void CNPC_Alyx::Spawn()
 
 	AddEFlags( EFL_NO_DISSOLVE | EFL_NO_MEGAPHYSCANNON_RAGDOLL | EFL_NO_PHYSCANNON_INTERACTION );
 
+#ifdef MAPBASE
+	m_iHealth = sk_alyx_health.GetInt();
+#else
 	m_iHealth			= 80;
+#endif
 
 	NPCInit();
 }

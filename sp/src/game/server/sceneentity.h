@@ -39,6 +39,10 @@ bool IsRunningScriptedScene( CBaseFlex *pActor, bool bIgnoreInstancedScenes = tr
 bool IsRunningScriptedSceneAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes = true );
 bool IsRunningScriptedSceneWithSpeech( CBaseFlex *pActor, bool bIgnoreInstancedScenes = false );
 bool IsRunningScriptedSceneWithSpeechAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes = false );
+#ifdef MAPBASE
+bool IsRunningScriptedSceneWithFlexAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes = false, const char *pszNotThisScene = NULL );
+CUtlVector< CHandle< CSceneEntity > > *GetActiveSceneList();
+#endif
 float GetSceneDuration( char const *pszScene );
 int GetSceneSpeechCount( char const *pszScene );
 bool IsInInterruptableScenes( CBaseFlex *pActor );

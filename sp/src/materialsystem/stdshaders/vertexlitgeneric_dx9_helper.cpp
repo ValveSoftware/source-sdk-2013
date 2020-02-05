@@ -969,6 +969,18 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 					pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant4( 10, 1, 1, 1, 1 );
 				}
 			}
+#ifdef MAPBASE
+			else if ( bHasEnvmapMask && info.m_nEnvmapMaskTransform != -1 )
+			{
+				// Use $envmapmasktransform when there is no detail texture taking up this space
+				pContextData->m_SemiStaticCmdsOut.SetVertexShaderTextureTransform( VERTEX_SHADER_SHADER_SPECIFIC_CONST_4, info.m_nEnvmapMaskTransform );
+			}
+			else if ( bHasBump && info.m_nBumpTransform != -1 )
+			{
+				// Use $bumptransform when there is no detail texture taking up this space
+				pContextData->m_SemiStaticCmdsOut.SetVertexShaderTextureTransform( VERTEX_SHADER_SHADER_SPECIFIC_CONST_4, info.m_nBumpTransform );
+			}
+#endif
 			if ( bDistanceAlpha )
 			{
 				float flSoftStart = GetFloatParam( info.m_nEdgeSoftnessStart, params );

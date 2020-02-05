@@ -231,13 +231,10 @@ void CAI_BaseActor::SetModel( const char *szModelName )
 //-----------------------------------------------------------------------------
 
 #ifdef MAPBASE
-// Half-Laugh had a nasty way of implementing CSceneEntity into StartSceneEvent and I'm both afraid to do it here
-// and I don't remember exactly how I did it. This is extremely important because
-// it's the only way we can access !target1, !target2, etc. Please revisit this later.
-#define STARTSCENEEVENT_HAS_CSCENEENTITY 0
-#endif
-
+bool CAI_BaseActor::StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event, CChoreoActor *actor, CBaseEntity *pTarget, CSceneEntity *pSceneEnt )
+#else
 bool CAI_BaseActor::StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event, CChoreoActor *actor, CBaseEntity *pTarget )
+#endif
 {
 	Assert( info );
 	Assert( info->m_pScene );
@@ -382,18 +379,13 @@ bool CAI_BaseActor::StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene,
 					CBaseEntity *pEnt = gEntList.FindEntityByName(NULL, sTarget, this);
 					if (!pEnt)
 					{
-#if STARTSCENEEVENT_HAS_CSCENEENTITY
 						DevMsg("%s not found with normal search, slamming to scene ent\n", sTarget);
-						pEnt = UTIL_FindNamedSceneEntity(sTarget, this, csceneent);
+						pEnt = UTIL_FindNamedSceneEntity(sTarget, this, pSceneEnt);
 						if (!pEnt)
 						{
 							DevWarning("%s slammed to self!\n", sTarget);
 							pEnt = this;
 						}
-#else
-						DevWarning("%s slammed to self!\n", sTarget);
-						pEnt = this;
-#endif
 					}
 
 					if (pEnt && sInput)
@@ -402,10 +394,9 @@ bool CAI_BaseActor::StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene,
 						if (bParameter && sParameter)
 						{
 							const char *strParam = sParameter;
-#if STARTSCENEEVENT_HAS_CSCENEENTITY
 							if (strParam[0] == '!')
 							{
-								CBaseEntity *pParamEnt = UTIL_FindNamedSceneEntity(strParam, this, csceneent);
+								CBaseEntity *pParamEnt = UTIL_FindNamedSceneEntity(strParam, this, pSceneEnt);
 								if (pParamEnt && pParamEnt->GetEntityName() != NULL_STRING && !gEntList.FindEntityProcedural(strParam))
 								{
 									// We make sure it's a scene entity that can't be found with entlist procedural so we can translate !target# without messing with !activators, etc.
@@ -413,7 +404,6 @@ bool CAI_BaseActor::StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene,
 									strParam = pParamEnt->GetEntityName().ToCStr();
 								}
 							}
-#endif
 
 							if (strParam)
 							{

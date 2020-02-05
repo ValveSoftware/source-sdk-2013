@@ -2017,6 +2017,8 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_OUTPUT( m_OnUser4, "OnUser4" ),
 
 #ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetEntityName", InputSetEntityName ),
+
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget", InputSetTarget ),
 	DEFINE_INPUTFUNC( FIELD_EHANDLE, "SetOwnerEntity", InputSetOwnerEntity ),
 
@@ -7034,7 +7036,7 @@ bool CBaseEntity::HasContext( const char *name, const char *value ) const
 			if (value == NULL)
 				return true;
 			else
-				return Matcher_Compare(STRING(m_ResponseContexts[i].m_iszValue), value);
+				return Matcher_Match(STRING(m_ResponseContexts[i].m_iszValue), value);
 		}
 	}
 
@@ -7223,6 +7225,14 @@ void CBaseEntity::InputPassRandomUser( inputdata_t& inputdata )
 
 
 #ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Sets the entity's targetname.
+//-----------------------------------------------------------------------------
+void CBaseEntity::InputSetEntityName( inputdata_t& inputdata )
+{
+	SetName( inputdata.value.StringID() );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Sets the generic target field.
 //-----------------------------------------------------------------------------

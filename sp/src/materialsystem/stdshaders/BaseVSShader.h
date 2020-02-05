@@ -25,6 +25,11 @@
 #define SUPPORT_DX8 1
 #define SUPPORT_DX7 1
 #endif
+
+#ifdef MAPBASE
+extern ConVar mat_specular_disable_on_missing;
+#endif
+
 //-----------------------------------------------------------------------------
 // Helper macro for vertex shaders
 //-----------------------------------------------------------------------------

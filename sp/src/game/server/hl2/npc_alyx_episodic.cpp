@@ -75,6 +75,10 @@ bool IsInCommentaryMode( void );
 #define ALYX_MIN_ENEMY_HEALTH_TO_CROUCH			15
 #define ALYX_CROUCH_DELAY						5			// Time after crouching before Alyx will crouch again
 
+#ifdef MAPBASE
+ConVar sk_alyx_health( "sk_alyx_health", "80" );
+#endif
+
 //-----------------------------------------------------------------------------
 // Interactions
 //-----------------------------------------------------------------------------
@@ -346,7 +350,11 @@ void CNPC_Alyx::Spawn()
 
 	AddEFlags( EFL_NO_DISSOLVE | EFL_NO_MEGAPHYSCANNON_RAGDOLL | EFL_NO_PHYSCANNON_INTERACTION );
 
+#ifdef MAPBASE
+	m_iHealth = sk_alyx_health.GetInt();
+#else
 	m_iHealth			= 80;
+#endif
 	m_bloodColor		= DONT_BLEED;
 
 	NPCInit();
@@ -409,7 +417,15 @@ void CNPC_Alyx::Activate( void )
 {
 	// Alyx always kicks her health back up to full after loading a savegame.
 	// Avoids problems with players saving the game in places where she dies immediately afterwards.
+#ifdef MAPBASE
+	// Alyx's health can be >80 thanks to the new convar, and we don't want a 1000-health Alyx to reload
+	// from 1 health to 1000 health, so this should only kick in if her health is less than her default
+	// (we also probably don't want this to happen if she's not an ally)
+	if (IsPlayerAlly() && m_iHealth < 80)
+		m_iHealth = 80;
+#else
 	m_iHealth = 80;
+#endif
 
 	BaseClass::Activate();
 
@@ -3227,7 +3243,12 @@ bool CNPC_Alyx::PlayerInSpread( const Vector &sourcePos, const Vector &targetPos
 	{
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 
+#ifdef MAPBASE
+		// "> D_FR" means it isn't D_HT, D_FR, or D_ER (error disposition)
+		if ( pPlayer && ( !ignoreHatedPlayers || IRelationType( pPlayer ) > D_FR ) && !(pPlayer->GetFlags() & FL_NOTARGET) )
+#else
 		if ( pPlayer && ( !ignoreHatedPlayers || IRelationType( pPlayer ) != D_HT ) )
+#endif
 		{
 			//If the player is being lifted by a barnacle then go ahead and ignore the player and shoot.
 #ifdef HL2_EPISODIC

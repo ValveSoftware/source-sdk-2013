@@ -2575,20 +2575,41 @@ void COrnamentProp::InputDetach( inputdata_t &inputdata )
 }
 
 #ifdef MAPBASE
+#define SF_INTERACTABLE_USE_INTERACTS					512	// Allows +USE interaction.
+#define SF_INTERACTABLE_TOUCH_INTERACTS					1024 // Allows touch interaction.
+#define SF_INTERACTABLE_IGNORE_COMMANDS_WHEN_LOCKED		2048 // Completely ignores player commands when locked.
+#define SF_INTERACTABLE_RADIUS_USE						4096 // Uses radius +USE
+
 //-----------------------------------------------------------------------------
 // Purpose: Button prop for +USEable dynamic props
 //-----------------------------------------------------------------------------
-class CButtonProp : public CDynamicProp
+class CInteractableProp : public CDynamicProp
 {
-	DECLARE_CLASS( CButtonProp, CDynamicProp );
+	DECLARE_CLASS( CInteractableProp, CDynamicProp );
 public:
 	DECLARE_DATADESC();
 
-	// Remember to precache
-	//void Spawn();
+	void Spawn();
+	void Precache();
 	//void Activate();
 
+	int	ObjectCaps()
+	{
+		int caps = BaseClass::ObjectCaps();
+		
+		if (HasSpawnFlags(SF_INTERACTABLE_USE_INTERACTS) && (!HasSpawnFlags( SF_INTERACTABLE_IGNORE_COMMANDS_WHEN_LOCKED ) || !m_bLocked))
+		{
+			caps |= FCAP_IMPULSE_USE;
+		
+			if (HasSpawnFlags(SF_INTERACTABLE_RADIUS_USE))
+				caps |= FCAP_USE_IN_RADIUS;
+		}
+
+		return caps;
+	};
+
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void InteractablePropTouch( CBaseEntity *pOther );
 
 	void SetPushSequence(int iSequence);
 	void PushThink();
@@ -2596,6 +2617,16 @@ public:
 	// Input handlers
 	void InputLock( inputdata_t &inputdata );
 	void InputUnlock( inputdata_t &inputdata );
+	void InputPress( inputdata_t &inputdata );
+
+	void InputEnableUseInteraction( inputdata_t &inputdata ) { AddSpawnFlags(SF_INTERACTABLE_USE_INTERACTS); }
+	void InputDisableUseInteraction( inputdata_t &inputdata ) { RemoveSpawnFlags(SF_INTERACTABLE_USE_INTERACTS); }
+	void InputEnableTouchInteraction( inputdata_t &inputdata ) { AddSpawnFlags( SF_INTERACTABLE_TOUCH_INTERACTS ); }
+	void InputDisableTouchInteraction( inputdata_t &inputdata ) { RemoveSpawnFlags( SF_INTERACTABLE_TOUCH_INTERACTS ); }
+	void InputStartIgnoringCommandsWhenLocked( inputdata_t &inputdata ) { AddSpawnFlags( SF_INTERACTABLE_IGNORE_COMMANDS_WHEN_LOCKED ); }
+	void InputStopIgnoringCommandsWhenLocked( inputdata_t &inputdata ) { RemoveSpawnFlags( SF_INTERACTABLE_IGNORE_COMMANDS_WHEN_LOCKED ); }
+	void InputEnableRadiusInteract( inputdata_t &inputdata ) { AddSpawnFlags( SF_INTERACTABLE_RADIUS_USE ); }
+	void InputDisableRadiusInteract( inputdata_t &inputdata ) { RemoveSpawnFlags( SF_INTERACTABLE_RADIUS_USE ); }
 
 	COutputEvent m_OnPressed;
 	COutputEvent m_OnLockedUse;
@@ -2608,41 +2639,86 @@ public:
 
 private:
 	float m_flCooldownTime;
-	bool m_bOutting; // Currently in out sequence
+
+	int m_iCurSequence = INTERACTSEQ_NONE; // Currently in a sequence
+	enum
+	{
+		INTERACTSEQ_NONE = -1,
+		INTERACTSEQ_IN,
+		INTERACTSEQ_OUT,
+		INTERACTSEQ_LOCKED,
+	};
 
 	string_t	m_iszPressedSound;
 	string_t	m_iszLockedSound;
 
 	string_t	m_iszInSequence;
 	string_t	m_iszOutSequence;
+	string_t	m_iszLockedSequence;
 };
 
-LINK_ENTITY_TO_CLASS( prop_button, CButtonProp );	
+LINK_ENTITY_TO_CLASS( prop_interactable, CInteractableProp );
 
-BEGIN_DATADESC( CButtonProp )
+BEGIN_DATADESC( CInteractableProp )
 
 	DEFINE_KEYFIELD( m_bLocked, FIELD_BOOLEAN, "Locked" ),
 	DEFINE_INPUT( m_flCooldown, FIELD_FLOAT, "SetCooldown" ),
 	DEFINE_FIELD( m_flCooldownTime, FIELD_TIME ),
-	DEFINE_FIELD( m_bOutting, FIELD_BOOLEAN ),
+	DEFINE_FIELD( m_iCurSequence, FIELD_INTEGER ),
 
 	DEFINE_KEYFIELD( m_iszPressedSound, FIELD_STRING, "PressedSound" ),
 	DEFINE_KEYFIELD( m_iszLockedSound, FIELD_STRING, "LockedSound" ),
 	DEFINE_KEYFIELD( m_iszInSequence, FIELD_STRING, "InSequence" ),
 	DEFINE_KEYFIELD( m_iszOutSequence, FIELD_STRING, "OutSequence" ),
+	DEFINE_KEYFIELD( m_iszLockedSequence, FIELD_STRING, "LockedSequence" ),
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID,	"Lock",		InputLock ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"Unlock",	InputUnlock ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"Press",	InputPress ),
 
+	DEFINE_INPUTFUNC( FIELD_VOID,	"EnableUseInteraction",		InputEnableUseInteraction ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"DisableUseInteraction",	InputDisableUseInteraction ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"EnableTouchInteraction",	InputEnableTouchInteraction ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"DisableTouchInteraction",	InputDisableTouchInteraction ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"StartIgnoringCommandsWhenLocked",	InputStartIgnoringCommandsWhenLocked ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"StopIgnoringCommandsWhenLocked",	InputStopIgnoringCommandsWhenLocked ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"EnableRadiusInteract",		InputEnableRadiusInteract ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"DisableRadiusInteract",	InputDisableRadiusInteract ),
+
+	// Outputs
 	DEFINE_OUTPUT( m_OnPressed, "OnPressed" ),
 	DEFINE_OUTPUT( m_OnLockedUse, "OnLockedUse" ),
 	DEFINE_OUTPUT( m_OnIn, "OnIn" ),
 	DEFINE_OUTPUT( m_OnOut, "OnOut" ),
 
 	DEFINE_THINKFUNC( PushThink ),
+	DEFINE_ENTITYFUNC( InteractablePropTouch ),
 
 END_DATADESC()
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CInteractableProp::Spawn( void )
+{
+	BaseClass::Spawn();
+
+	SetTouch( &CInteractableProp::InteractablePropTouch );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CInteractableProp::Precache( void )
+{
+	BaseClass::Precache();
+
+	if (m_iszPressedSound != NULL_STRING)
+		PrecacheScriptSound( STRING(m_iszPressedSound) );
+	if (m_iszLockedSound != NULL_STRING)
+		PrecacheScriptSound( STRING(m_iszLockedSound) );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -2651,22 +2727,27 @@ END_DATADESC()
 //			useType - 
 //			value - 
 //-----------------------------------------------------------------------------
-void CButtonProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+void CInteractableProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 	if (m_flCooldownTime > gpGlobals->curtime)
 		return;
+
+	int nSequence = -1;
 
 	if (m_bLocked)
 	{
 		m_OnLockedUse.FireOutput( pActivator, this );
 		EmitSound(STRING(m_iszLockedSound));
-		return;
+		nSequence = LookupSequence( STRING( m_iszLockedSequence ) );
+		m_iCurSequence = INTERACTSEQ_LOCKED;
 	}
-
-	m_OnPressed.FireOutput( pActivator, this );
-	EmitSound(STRING(m_iszPressedSound));
-
-	int nSequence = LookupSequence( STRING(m_iszInSequence) );
+	else
+	{
+		m_OnPressed.FireOutput( pActivator, this );
+		EmitSound(STRING(m_iszPressedSound));
+		nSequence = LookupSequence( STRING( m_iszInSequence ) );
+		m_iCurSequence = INTERACTSEQ_IN;
+	}
 
 	if ( nSequence > ACTIVITY_NOT_AVAILABLE )
 	{
@@ -2681,8 +2762,23 @@ void CButtonProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 
 //-----------------------------------------------------------------------------
 // Purpose: 
+// Input  : *pOther - 
 //-----------------------------------------------------------------------------
-void CButtonProp::InputLock( inputdata_t &inputdata )
+void CInteractableProp::InteractablePropTouch( CBaseEntity *pOther )
+{
+	// Do base touch function first
+	BreakablePropTouch( pOther );
+
+	if ( HasSpawnFlags(SF_INTERACTABLE_TOUCH_INTERACTS) && (!HasSpawnFlags(SF_INTERACTABLE_IGNORE_COMMANDS_WHEN_LOCKED) || !m_bLocked) && pOther->IsPlayer() )
+	{
+		Use( pOther, pOther, USE_ON, 0 );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CInteractableProp::InputLock( inputdata_t &inputdata )
 {
 	m_bLocked = true;
 }
@@ -2690,7 +2786,7 @@ void CButtonProp::InputLock( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CButtonProp::InputUnlock( inputdata_t &inputdata )
+void CInteractableProp::InputUnlock( inputdata_t &inputdata )
 {
 	m_bLocked = false;
 }
@@ -2698,7 +2794,15 @@ void CButtonProp::InputUnlock( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CButtonProp::SetPushSequence(int iSequence)
+void CInteractableProp::InputPress( inputdata_t &inputdata )
+{
+	Use( inputdata.pActivator, inputdata.pCaller, USE_ON, 0 );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CInteractableProp::SetPushSequence( int iSequence )
 {
 	m_iGoalSequence = iSequence;
 
@@ -2711,7 +2815,7 @@ void CButtonProp::SetPushSequence(int iSequence)
 		FinishSetSequence( nNextSequence );
 	}
 
-	SetThink( &CButtonProp::PushThink );
+	SetThink( &CInteractableProp::PushThink );
 	if ( GetNextThink() <= gpGlobals->curtime )
 		SetNextThink( gpGlobals->curtime + flInterval );
 }
@@ -2719,13 +2823,15 @@ void CButtonProp::SetPushSequence(int iSequence)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CButtonProp::PushThink()
+void CInteractableProp::PushThink()
 {
 	if ( m_nPendingSequence != -1 )
 	{
 		FinishSetSequence( m_nPendingSequence );
 		m_nPendingSequence = -1;
 	}
+
+	SetNextThink( gpGlobals->curtime + 0.1f );
 
 	if ( ((m_iTransitionDirection > 0 && GetCycle() >= 0.999f) || (m_iTransitionDirection < 0 && GetCycle() <= 0.0f)) && !SequenceLoops() )
 	{
@@ -2735,33 +2841,49 @@ void CButtonProp::PushThink()
 			m_pOutputAnimOver.FireOutput(NULL, this);
 		}
 
-		if (m_bOutting)
+		if (m_iCurSequence == INTERACTSEQ_OUT)
 		{
 			m_OnOut.FireOutput( NULL, this );
+
+			m_iCurSequence = INTERACTSEQ_NONE;
 		}
 		else
 		{
 			m_OnIn.FireOutput( NULL, this );
 		}
 	}
-	else
-	{
-		SetNextThink( gpGlobals->curtime + 0.1f );
-	}
 
 	StudioFrameAdvance();
 	DispatchAnimEvents(this);
 	m_BoneFollowerManager.UpdateBoneFollowers(this);
 
-	if (m_flCooldownTime < gpGlobals->curtime && !m_bOutting)
+	if (m_flCooldownTime < gpGlobals->curtime)
 	{
-		int nSequence = LookupSequence( STRING(m_iszOutSequence) );
-		if ( nSequence > ACTIVITY_NOT_AVAILABLE )
+		if (m_iCurSequence == INTERACTSEQ_IN)
 		{
-			SetPushSequence(nSequence);
+			int nSequence = LookupSequence( STRING(m_iszOutSequence) );
+			if ( m_iszOutSequence != NULL_STRING && nSequence > ACTIVITY_NOT_AVAILABLE )
+			{
+				m_iCurSequence = INTERACTSEQ_OUT;
+				SetPushSequence(nSequence);
 
-			// We still fire our inherited animation outputs
-			m_pOutputAnimBegun.FireOutput( NULL, this );
+				// We still fire our inherited animation outputs
+				m_pOutputAnimBegun.FireOutput( NULL, this );
+			}
+			else
+			{
+				m_iCurSequence = INTERACTSEQ_NONE;
+			}
+		}
+
+		if (m_iCurSequence == INTERACTSEQ_NONE)
+		{
+			if (m_iszDefaultAnim != NULL_STRING)
+			{
+				PropSetAnim( STRING( m_iszDefaultAnim ) );
+			}
+
+			SetNextThink( TICK_NEVER_THINK );
 		}
 	}
 }

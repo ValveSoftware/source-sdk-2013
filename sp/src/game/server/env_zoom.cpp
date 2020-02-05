@@ -23,6 +23,10 @@ public:
 
 	void	InputZoom( inputdata_t &inputdata );
 	void	InputUnZoom( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void	InputUnZoomWithRate( inputdata_t &inputdata );
+	void	InputSetZoomRate( inputdata_t &inputdata );
+#endif
 
 	int	GetFOV( void ) { return m_nFOV;	}
 	float GetSpeed( void ) { return m_flSpeed;	}
@@ -43,6 +47,10 @@ BEGIN_DATADESC( CEnvZoom )
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Zoom", InputZoom ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "UnZoom", InputUnZoom ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID, "UnZoomWithRate", InputUnZoomWithRate ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetZoomRate", InputSetZoomRate ),
+#endif
 
 END_DATADESC()
 
@@ -113,4 +121,30 @@ void CEnvZoom::InputUnZoom( inputdata_t &inputdata )
 		pPlayer->SetFOV( this, 0 );
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CEnvZoom::InputUnZoomWithRate( inputdata_t &inputdata )
+{
+	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+
+	if ( pPlayer )
+	{
+		// Stuff the values
+		pPlayer->SetFOV( this, 0, m_flSpeed, m_nFOV );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CEnvZoom::InputSetZoomRate( inputdata_t &inputdata )
+{
+	m_flSpeed = inputdata.value.Float();
+}
+#endif
 

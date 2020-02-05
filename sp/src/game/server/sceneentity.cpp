@@ -139,6 +139,12 @@ public:
 			bool			IsRunningScriptedSceneWithSpeech( CBaseFlex *pActor, bool bIgnoreInstancedScenes );
 			bool			IsRunningScriptedSceneWithSpeechAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes );
 
+#ifdef MAPBASE
+			bool			IsRunningScriptedSceneWithFlexAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes, const char *pszNotThisScene = NULL );
+
+			CUtlVector< CHandle< CSceneEntity > > *GetActiveSceneList();
+#endif
+
 
 private:
 
@@ -1575,7 +1581,11 @@ void CSceneEntity::DispatchEndGesture( CChoreoScene *scene, CBaseFlex *actor, CC
 void CSceneEntity::DispatchStartGeneric( CChoreoScene *scene, CBaseFlex *actor, CChoreoEvent *event )
 {
 	CBaseEntity *pTarget = FindNamedEntity( event->GetParameters2( ) );
+#ifdef MAPBASE
+	actor->AddSceneEvent( scene, event, pTarget, this );
+#else
 	actor->AddSceneEvent( scene, event, pTarget );
+#endif
 }
 
 
@@ -5668,6 +5678,40 @@ bool CSceneManager::IsRunningScriptedSceneWithSpeechAndNotPaused( CBaseFlex *pAc
 }
 
 
+#ifdef MAPBASE
+bool CSceneManager::IsRunningScriptedSceneWithFlexAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes, const char *pszNotThisScene )
+{
+	int c = m_ActiveScenes.Count();
+	for ( int i = 0; i < c; i++ )
+	{
+		CSceneEntity *pScene = m_ActiveScenes[ i ].Get();
+		if ( !pScene ||
+			 !pScene->IsPlayingBack() ||
+			 pScene->IsPaused() ||
+			 ( bIgnoreInstancedScenes && dynamic_cast<CInstancedSceneEntity *>(pScene) != NULL ) ||
+			 ( pszNotThisScene == NULL || Q_strcmp( pszNotThisScene, STRING(pScene->m_iszSceneFile) ) == 0 )
+			)
+		{
+			continue;
+		}
+		
+		if ( pScene->InvolvesActor( pActor ) )
+		{
+			if ( pScene->HasFlexAnimation() )
+				return true;
+		}
+	}
+	return false;
+}
+
+
+CUtlVector< CHandle< CSceneEntity > > *CSceneManager::GetActiveSceneList()
+{
+	return &m_ActiveScenes;
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *actor - 
@@ -5752,6 +5796,18 @@ bool IsRunningScriptedSceneWithSpeechAndNotPaused( CBaseFlex *pActor, bool bIgno
 {
 	return GetSceneManager()->IsRunningScriptedSceneWithSpeechAndNotPaused( pActor, bIgnoreInstancedScenes );
 }
+
+#ifdef MAPBASE
+bool IsRunningScriptedSceneWithFlexAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes, const char *pszNotThisScene )
+{
+	return GetSceneManager()->IsRunningScriptedSceneWithFlexAndNotPaused( pActor, bIgnoreInstancedScenes, pszNotThisScene );
+}
+
+CUtlVector< CHandle< CSceneEntity > > *GetActiveSceneList()
+{
+	return GetSceneManager()->GetActiveSceneList();
+}
+#endif
 
 
 //===========================================================================================================

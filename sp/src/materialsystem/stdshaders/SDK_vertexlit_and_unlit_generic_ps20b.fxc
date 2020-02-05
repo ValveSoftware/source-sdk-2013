@@ -328,7 +328,12 @@ float4 main( PS_INPUT i ) : COLOR
 	float4 envmapMaskTexel;
 	if( bEnvmapMask )
 	{
+#if !DETAILTEXTURE
+		// Blixibon - $envmapmask transform support
+		envmapMaskTexel = tex2D( EnvmapMaskSampler, i.detailTexCoord.xy );
+#else
 		envmapMaskTexel = tex2D( EnvmapMaskSampler, i.baseTexCoord.xy );
+#endif
 		specularFactor *= envmapMaskTexel.xyz;	
 	}
 

@@ -170,7 +170,11 @@ CGlobalLight::CGlobalLight()
 #else
 	Q_strcpy( m_TextureName.GetForModify(), "effects/flashlight001" );
 #endif
+#ifdef MAPBASE
+	m_LightColor.Init( 255, 255, 255, 255 );
+#else
 	m_LightColor.Init( 255, 255, 255, 1 );
+#endif
 	m_flColorTransitionTime = 0.5f;
 	m_flSunDistance = 10000.0f;
 	m_flFOV = 5.0f;

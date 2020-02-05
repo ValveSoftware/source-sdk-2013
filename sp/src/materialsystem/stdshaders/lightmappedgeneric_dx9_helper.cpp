@@ -241,6 +241,21 @@ void InitParamsLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** pa
 	}
 }
 
+#ifdef MAPBASE
+// Created for the missing cubemap solution below
+void LoadLightmappedGenericEnvmap( CBaseVSShader *pShader, IMaterialVar** params, LightmappedGeneric_DX9_Vars_t &info )
+{
+	if ( !IS_FLAG_SET(MATERIAL_VAR_ENVMAPSPHERE) )
+	{
+		pShader->LoadCubeMap( info.m_nEnvmap, g_pHardwareConfig->GetHDRType() == HDR_TYPE_NONE ? TEXTUREFLAGS_SRGB : 0 );
+	}
+	else
+	{
+		pShader->LoadTexture( info.m_nEnvmap );
+	}
+}
+#endif
+
 void InitLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, LightmappedGeneric_DX9_Vars_t &info )
 {
 	if ( g_pConfig->UseBumpmapping() && params[info.m_nBumpmap]->IsDefined() )
@@ -303,6 +318,20 @@ void InitLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, 
 		
 	if (params[info.m_nEnvmap]->IsDefined())
 	{
+#ifdef MAPBASE
+		LoadLightmappedGenericEnvmap( pShader, params, info );
+
+		if (mat_specular_disable_on_missing.GetBool())
+		{
+			// Revert to defaultcubemap when the envmap texture is missing
+			// (should be equivalent to toolsblack in Mapbase)
+			if (params[info.m_nEnvmap]->GetTextureValue()->IsError())
+			{
+				params[info.m_nEnvmap]->SetStringValue( "engine/defaultcubemap" );
+				LoadLightmappedGenericEnvmap( pShader, params, info );
+			}
+		}
+#else
 		if ( !IS_FLAG_SET(MATERIAL_VAR_ENVMAPSPHERE) )
 		{
 			pShader->LoadCubeMap( info.m_nEnvmap, g_pHardwareConfig->GetHDRType() == HDR_TYPE_NONE ? TEXTUREFLAGS_SRGB : 0 );
@@ -311,6 +340,7 @@ void InitLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, 
 		{
 			pShader->LoadTexture( info.m_nEnvmap );
 		}
+#endif
 
 		if ( !g_pHardwareConfig->SupportsCubeMaps() )
 		{

@@ -842,9 +842,9 @@ bool CRopeKeyframe::KeyValue( const char *szKeyName, const char *szValue )
 	{
 #ifdef MAPBASE
 		if ( atoi( szValue ) != 1 )
-		{
 			m_RopeFlags |= ROPE_USE_WIND;
-		}
+		else
+			m_RopeFlags &= ~ROPE_USE_WIND;
 #else
 		if ( atoi( szValue ) == 1 )
 		{

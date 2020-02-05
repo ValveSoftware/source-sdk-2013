@@ -11,11 +11,6 @@
 #include <string.h>
 #include "BaseVSShader.h"
 
-#ifdef MAPBASE
-// This requires custom compilers, but anyone ahead of us on that should be able to use this anyway
-#define PARALLAX_CORRECTED_CUBEMAPS 1
-#endif
-
 //-----------------------------------------------------------------------------
 // Forward declarations
 //-----------------------------------------------------------------------------

@@ -4,6 +4,15 @@
 //	Project Script for Mapbase shader changes
 //-----------------------------------------------------------------------------
 
+$Configuration
+{
+	$Compiler
+	{
+		// https://developer.valvesoftware.com/wiki/Parallax_Corrected_Cubemaps
+		$PreprocessorDefinitions		"$BASE;PARALLAX_CORRECTED_CUBEMAPS"
+	}
+}
+
 $Project
 {
 	$Folder	"Source Files"

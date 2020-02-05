@@ -85,6 +85,7 @@ private:
 #ifdef MAPBASE
 	string_t	m_iszLandmarkName;
 	EHANDLE		m_hLandmark;
+	float		m_flPitchScale = 1.0f;
 #endif
 
 	COutputFloat m_SoundLevel;			// Fired when the sampled volume level changes.

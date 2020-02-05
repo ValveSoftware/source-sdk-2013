@@ -47,6 +47,7 @@ BEGIN_DATADESC( CEnvMicrophone )
 #ifdef MAPBASE
 	DEFINE_KEYFIELD(m_iszLandmarkName, FIELD_STRING, "landmark"),
 	DEFINE_FIELD(m_hLandmark, FIELD_EHANDLE),
+	DEFINE_KEYFIELD(m_flPitchScale, FIELD_FLOAT, "PitchScale"),
 #endif
 	// DEFINE_FIELD(m_bAvoidFeedback, FIELD_BOOLEAN),	// DONT SAVE
 	DEFINE_KEYFIELD(m_iSpeakerDSPPreset, FIELD_INTEGER, "speaker_dsp_preset" ),
@@ -526,10 +527,14 @@ MicrophoneResult_t CEnvMicrophone::SoundPlayed( int entindex, const char *soundn
 	ep.m_flVolume = flVolume;
 	ep.m_SoundLevel = soundlevel;
 	ep.m_nFlags = iFlags;
-	ep.m_nPitch = iPitch;
 #ifdef MAPBASE
+	if (m_flPitchScale != 1.0f)
+		ep.m_nPitch = (int)((float)iPitch * m_flPitchScale);
+	else
+		ep.m_nPitch = iPitch;
 	ep.m_pOrigin = &vecOrigin;
 #else
+	ep.m_nPitch = iPitch;
 	ep.m_pOrigin = &m_hSpeaker->GetAbsOrigin();
 #endif
 	ep.m_flSoundTime = soundtime;

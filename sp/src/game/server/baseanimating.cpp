@@ -210,6 +210,7 @@ BEGIN_DATADESC( CBaseAnimating )
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_VOID, "CreateSeparateRagdoll", InputCreateSeparateRagdoll ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "CreateSeparateRagdollClient", InputCreateSeparateRagdollClient ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetPoseParameter", InputSetPoseParameter ),
 #endif
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetLightingOriginHack", InputSetLightingOriginRelative ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetLightingOrigin", InputSetLightingOrigin ),
@@ -3677,6 +3678,34 @@ void CBaseAnimating::InputCreateSeparateRagdollClient( inputdata_t &inputdata )
 	if (pRagdoll->GetBaseAnimating())
 	{
 		pRagdoll->GetBaseAnimating()->CopyAnimationDataFrom( this );
+	}
+}
+
+void CBaseAnimating::InputSetPoseParameter( inputdata_t &inputdata )
+{
+	char token[64];
+	Q_strncpy( token, inputdata.value.String(), sizeof(token) );
+	char *sChar = strchr( token, ' ' );
+	if ( sChar )
+	{
+		*sChar = '\0';
+
+		// Name
+		const int index = LookupPoseParameter( token );
+		if (index == -1)
+		{
+			Warning("SetPoseParameter: Could not find pose parameter \"%s\" on %s\n", token, GetDebugName());
+			return;
+		}
+
+		// Value
+		const float value = atof( sChar+1 );
+
+		SetPoseParameter( index, value );
+	}
+	else
+	{
+		Warning("SetPoseParameter: \"%s\" is invalid; format is \"<pose parameter name> <value>\"\n", inputdata.value.String());
 	}
 }
 #endif

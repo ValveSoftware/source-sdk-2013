@@ -185,7 +185,12 @@ float4 main( PS_INPUT i ) : COLOR
 
 	float3 worldSpaceNormal, tangentSpaceNormal;
 	float fSpecMask = 1.0f;
+#if !DETAILTEXTURE
+	// Blixibon - $bumpmap transform support
+	float4 normalTexel = tex2D( NormalMapSampler, i.baseTexCoordDetailTexCoord.zw );
+#else
 	float4 normalTexel = tex2D( NormalMapSampler, i.baseTexCoordDetailTexCoord.xy );
+#endif
 
 #if WRINKLEMAP
 	float4 wrinkleNormal = tex2D( NormalWrinkleSampler,	i.baseTexCoordDetailTexCoord.xy );

@@ -2466,7 +2466,7 @@ void CLogicCase::InputValue( inputdata_t &inputdata )
 	for (int i = 0; i < MAX_LOGIC_CASES; i++)
 	{
 #ifdef MAPBASE
-		if ((m_nCase[i] != NULL_STRING) && Matcher_Compare(STRING(m_nCase[i]), pszValue))
+		if ((m_nCase[i] != NULL_STRING) && Matcher_Match(STRING(m_nCase[i]), pszValue))
 		{
 			m_OnCase[i].FireOutput( inputdata.pActivator, this );
 
@@ -3787,7 +3787,7 @@ void CLogicConvar::InputTest( inputdata_t &inputdata )
 	const char *pCVarString = GetConVarString(inputdata);
 	if (pCVarString)
 	{
-		if (Matcher_Compare( STRING( m_iszCompareValue ), pCVarString ))
+		if (Matcher_Match( STRING( m_iszCompareValue ), pCVarString ))
 		{
 			m_OnTrue.FireOutput(inputdata.pActivator, this);
 		}
@@ -4611,6 +4611,11 @@ int CMathBits::DrawDebugTextOverlays( void )
 	return text_offset;
 }
 
+// These spawnflags control math_vector dimensions.
+#define SF_MATH_VECTOR_DISABLE_X ( 1 << 0 )
+#define SF_MATH_VECTOR_DISABLE_Y ( 1 << 1 )
+#define SF_MATH_VECTOR_DISABLE_Z ( 1 << 2 )
+
 //-----------------------------------------------------------------------------
 // Purpose: Vector calculations.
 //-----------------------------------------------------------------------------
@@ -4639,8 +4644,16 @@ private:
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
 
+	void PointAt( Vector &origin, Vector &target, Vector &out );
+	void InputPointAtLocation( inputdata_t &inputdata );
+	void InputPointAtEntity( inputdata_t &inputdata );
+
 	void InputNormalize( inputdata_t &inputdata );
 	void InputNormalizeAngles( inputdata_t &inputdata );
+	void InputVectorAngles( inputdata_t &inputdata );
+	void InputAngleVectorForward( inputdata_t &inputdata );
+	void InputAngleVectorRight( inputdata_t &inputdata );
+	void InputAngleVectorUp( inputdata_t &inputdata );
 
 	void SetCoordinate(float value, char coord, CBaseEntity *pActivator);
 	void GetCoordinate(char coord, CBaseEntity *pActivator);
@@ -4693,8 +4706,15 @@ BEGIN_DATADESC( CMathVector )
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
 
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "PointAtLocation", InputPointAtLocation ),
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "PointAtEntity", InputPointAtEntity ),
+
 	DEFINE_INPUTFUNC(FIELD_VOID, "Normalize", InputNormalize),
 	DEFINE_INPUTFUNC(FIELD_VOID, "NormalizeAngles", InputNormalizeAngles),
+	DEFINE_INPUTFUNC(FIELD_VOID, "VectorAngles", InputVectorAngles),
+	DEFINE_INPUTFUNC(FIELD_VOID, "AngleVectorForward", InputAngleVectorForward),
+	DEFINE_INPUTFUNC(FIELD_VOID, "AngleVectorRight", InputAngleVectorRight),
+	DEFINE_INPUTFUNC(FIELD_VOID, "AngleVectorUp", InputAngleVectorUp),
 
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetX", InputSetX),
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "SetY", InputSetY),
@@ -4920,6 +4940,68 @@ void CMathVector::InputDisable( inputdata_t &inputdata )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+void CMathVector::PointAt( Vector &origin, Vector &target, Vector &out )
+{
+	out = origin - target;
+	VectorNormalize( out );
+
+	QAngle ang;
+	VectorAngles( out, ang );
+
+	out[0] = ang[0];
+	out[1] = ang[1];
+	out[2] = ang[2];
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputPointAtLocation( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring POINTATLOCATION because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector cur;
+	m_OutValue.Get(cur);
+
+	Vector location;
+	inputdata.value.Vector3D( location );
+
+	PointAt( cur, location, cur );
+
+	UpdateOutValue( inputdata.pActivator, cur );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputPointAtEntity( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring POINTATENTITY because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	if (!inputdata.value.Entity())
+	{
+		Warning("%s received no entity to point at\n", GetDebugName());
+		return;
+	}
+
+	Vector cur;
+	m_OutValue.Get(cur);
+
+	Vector location = inputdata.value.Entity()->GetAbsOrigin();
+
+	PointAt( cur, location, cur );
+
+	UpdateOutValue( inputdata.pActivator, cur );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void CMathVector::InputNormalize( inputdata_t &inputdata )
 {
 	if( m_bDisabled )
@@ -4949,6 +5031,71 @@ void CMathVector::InputNormalizeAngles( inputdata_t &inputdata )
 	cur.x = AngleNormalize(cur.x);
 	cur.y = AngleNormalize(cur.y);
 	cur.z = AngleNormalize(cur.z);
+	UpdateOutValue( inputdata.pActivator, cur );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputVectorAngles( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring VECTORANGLES because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector cur;
+	QAngle ang;
+	m_OutValue.Get(cur);
+	VectorAngles(cur, ang);
+	UpdateOutValue( inputdata.pActivator, Vector(ang.x, ang.y, ang.z) );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputAngleVectorForward( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring ANGLEVECTORFORWARD because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector cur;
+	m_OutValue.Get(cur);
+	AngleVectors(QAngle(cur.x, cur.y, cur.z), &cur);
+	UpdateOutValue( inputdata.pActivator, cur );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputAngleVectorRight( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring ANGLEVECTORRIGHT because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector cur;
+	m_OutValue.Get(cur);
+	AngleVectors(QAngle(cur.x, cur.y, cur.z), NULL, &cur, NULL);
+	UpdateOutValue( inputdata.pActivator, cur );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CMathVector::InputAngleVectorUp( inputdata_t &inputdata )
+{
+	if( m_bDisabled )
+	{
+		DevMsg("Math Vector %s ignoring ANGLEVECTORUP because it is disabled\n", GetDebugName() );
+		return;
+	}
+
+	Vector cur;
+	m_OutValue.Get(cur);
+	AngleVectors(QAngle(cur.x, cur.y, cur.z), NULL, NULL, &cur);
 	UpdateOutValue( inputdata.pActivator, cur );
 }
 
@@ -5041,6 +5188,13 @@ void CMathVector::SubtractCoordinate(float value, char coord, CBaseEntity *pActi
 //-----------------------------------------------------------------------------
 void CMathVector::UpdateOutValue(CBaseEntity *pActivator, Vector &vecNewValue)
 {
+	if (HasSpawnFlags( SF_MATH_VECTOR_DISABLE_X ))
+		vecNewValue.x = 0;
+	if (HasSpawnFlags( SF_MATH_VECTOR_DISABLE_Y ))
+		vecNewValue.y = 0;
+	if (HasSpawnFlags( SF_MATH_VECTOR_DISABLE_Z ))
+		vecNewValue.z = 0;
+
 	m_OutValue.Set(vecNewValue, pActivator, this);
 
 	m_OutX.Set(vecNewValue.x, pActivator, this);
@@ -5422,6 +5576,7 @@ class CLogicModelInfo : public CLogicalEntity
 private:
 
 	CBaseAnimating *GetTarget(inputdata_t &inputdata);
+	int GetPoseParameterIndex(CBaseAnimating *pTarget);
 
 	// Inputs
 	//void InputSetTarget( inputdata_t &inputdata ) { BaseClass::InputSetTarget(inputdata); m_hTarget = NULL; }
@@ -5429,10 +5584,21 @@ private:
 	void InputLookupSequence( inputdata_t &inputdata );
 	void InputLookupActivity( inputdata_t &inputdata );
 
+	void InputSetPoseParameterName( inputdata_t &inputdata );
+	void InputSetPoseParameterValue( inputdata_t &inputdata );
+	void InputGetPoseParameter( inputdata_t &inputdata );
+
 	// Outputs
 	COutputInt m_OutNumSkins;
 	COutputInt m_OnHasSequence;
 	COutputEvent m_OnLacksSequence;
+
+	COutputFloat m_OutPoseParameterValue;
+
+	// KeyValues
+
+	string_t m_iszPoseParameterName;
+	int m_iPoseParameterIndex = -1;
 
 	DECLARE_DATADESC();
 };
@@ -5442,15 +5608,22 @@ LINK_ENTITY_TO_CLASS(logic_modelinfo, CLogicModelInfo);
 
 BEGIN_DATADESC( CLogicModelInfo )
 
+	DEFINE_KEYFIELD( m_iszPoseParameterName, FIELD_STRING, "PoseParameterName" ),
+	DEFINE_FIELD( m_iPoseParameterIndex, FIELD_INTEGER ),
+
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "GetNumSkins", InputGetNumSkins ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "LookupSequence", InputLookupSequence ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "LookupActivity", InputLookupActivity ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetPoseParameterName", InputSetPoseParameterName ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetPoseParameterValue", InputSetPoseParameterValue ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "GetPoseParameter", InputGetPoseParameter ),
 
 	// Outputs
 	DEFINE_OUTPUT(m_OutNumSkins, "OutNumSkins"),
 	DEFINE_OUTPUT(m_OnHasSequence, "OnHasSequence"),
 	DEFINE_OUTPUT(m_OnLacksSequence, "OnLacksSequence"),
+	DEFINE_OUTPUT(m_OutPoseParameterValue, "OutPoseParameterValue"),
 
 END_DATADESC()
 
@@ -5462,6 +5635,15 @@ inline CBaseAnimating *CLogicModelInfo::GetTarget(inputdata_t &inputdata)
 	if (!pEntity || !pEntity->GetBaseAnimating())
 		return NULL;
 	return pEntity->GetBaseAnimating();
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+inline int CLogicModelInfo::GetPoseParameterIndex(CBaseAnimating *pTarget)
+{
+	if (m_iPoseParameterIndex == -1)
+		m_iPoseParameterIndex = pTarget->LookupPoseParameter(STRING(m_iszPoseParameterName));
+	return m_iPoseParameterIndex;
 }
 
 //-----------------------------------------------------------------------------
@@ -5516,6 +5698,55 @@ void CLogicModelInfo::InputLookupActivity( inputdata_t &inputdata )
 			m_OnHasSequence.Set(index, pAnimating, this);
 		else
 			m_OnLacksSequence.FireOutput(pAnimating, this);
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicModelInfo::InputSetPoseParameterName( inputdata_t &inputdata )
+{
+	m_iszPoseParameterName = inputdata.value.StringID();
+	m_iPoseParameterIndex = -1;
+
+	CBaseAnimating *pAnimating = GetTarget(inputdata);
+	if (pAnimating && pAnimating->GetModelPtr())
+	{
+		if (GetPoseParameterIndex(pAnimating) == -1)
+			Warning("%s: Pose parameter \"%s\" does not exist on %s\n", GetDebugName(), inputdata.value.String(), STRING(pAnimating->GetModelName()));
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicModelInfo::InputSetPoseParameterValue( inputdata_t &inputdata )
+{
+	CBaseAnimating *pAnimating = GetTarget(inputdata);
+	if (pAnimating && pAnimating->GetModelPtr())
+	{
+		int index = GetPoseParameterIndex(pAnimating);
+		if (index != -1)
+		{
+			pAnimating->SetPoseParameter( index, inputdata.value.Float() );
+		}
+		else
+			Warning("%s: Pose parameter \"%s\" does not exist on %s\n", GetDebugName(), STRING(m_iszPoseParameterName), STRING(pAnimating->GetModelName()));
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicModelInfo::InputGetPoseParameter( inputdata_t &inputdata )
+{
+	CBaseAnimating *pAnimating = GetTarget(inputdata);
+	if (pAnimating && pAnimating->GetModelPtr())
+	{
+		int index = GetPoseParameterIndex(pAnimating);
+		if (index != -1)
+		{
+			m_OutPoseParameterValue.Set( pAnimating->GetPoseParameter( index ), pAnimating, this );
+		}
+		else
+			Warning("%s: Pose parameter \"%s\" does not exist on %s\n", GetDebugName(), inputdata.value.String(), STRING(pAnimating->GetModelName()));
 	}
 }
 

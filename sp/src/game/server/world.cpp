@@ -395,6 +395,10 @@ BEGIN_DATADESC( CWorld )
 	DEFINE_KEYFIELD( m_iszDetailSpriteMaterial, FIELD_STRING, "detailmaterial" ),
 	DEFINE_KEYFIELD( m_bColdWorld,		FIELD_BOOLEAN, "coldworld" ),
 
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetChapterTitle", InputSetChapterTitle ),
+#endif
+
 END_DATADESC()
 
 
@@ -755,3 +759,10 @@ bool CWorld::IsColdWorld( void )
 {
 	return m_bColdWorld;
 }
+
+#ifdef MAPBASE
+void CWorld::InputSetChapterTitle( inputdata_t &inputdata )
+{
+	m_iszChapterTitle.Set( inputdata.value.StringID() );
+}
+#endif

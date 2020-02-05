@@ -101,7 +101,11 @@ public:
 
 	virtual void			SetModel( const char *szModelName );
 
+#ifdef MAPBASE
+	virtual bool			StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event, CChoreoActor *actor, CBaseEntity *pTarget, CSceneEntity *pSceneEnt = NULL );
+#else
 	virtual	bool			StartSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event, CChoreoActor *actor, CBaseEntity *pTarget );
+#endif
 	virtual bool			ProcessSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event );
 	virtual	bool			ClearSceneEvent( CSceneEventInfo *info, bool fastKill, bool canceled );
 	virtual bool			CheckSceneEventCompletion( CSceneEventInfo *info, float currenttime, CChoreoScene *scene, CChoreoEvent *event );

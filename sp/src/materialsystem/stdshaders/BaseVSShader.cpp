@@ -54,6 +54,10 @@ static ConVar mat_fullbright( "mat_fullbright","0", FCVAR_CHEAT );
 // NOTE: This is externed in BaseVSShader.h so it needs to be here
 ConVar r_flashlightbrightness( "r_flashlightbrightness", "0.25", FCVAR_CHEAT );
 
+#ifdef MAPBASE
+ConVar mat_specular_disable_on_missing( "mat_specular_disable_on_missing", "1", FCVAR_ARCHIVE, "Disables specular reflections on a material when the envmap cannot be found." );
+#endif
+
 // These functions are to be called from the shaders.
 
 //-----------------------------------------------------------------------------

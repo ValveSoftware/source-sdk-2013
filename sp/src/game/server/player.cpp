@@ -8352,6 +8352,17 @@ void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const voi
 
 	pOut->m_Int = ( data & mask );
 }
+
+#ifdef MAPBASE
+// Needs to shift bits since network table only sends the player ones
+void SendProxy_ShiftPlayerSpawnflags( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID )
+{
+	int *pInt = (int *)pVarData;
+
+	pOut->m_Int = (*pInt) >> 16;
+}
+#endif
+
 // -------------------------------------------------------------------------------- //
 // SendTable for CPlayerState.
 // -------------------------------------------------------------------------------- //
@@ -8411,7 +8422,7 @@ void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const voi
 #ifdef MAPBASE
 		// Transmitted from the server for internal player spawnflags.
 		// See baseplayer_shared.h for more details.
-		SendPropInt			( SENDINFO( m_spawnflags ), 3, SPROP_UNSIGNED ),
+		SendPropInt			( SENDINFO( m_spawnflags ), 3, SPROP_UNSIGNED, SendProxy_ShiftPlayerSpawnflags ),
 
 		SendPropBool		( SENDINFO( m_bDrawPlayerModelExternally ) ),
 #endif

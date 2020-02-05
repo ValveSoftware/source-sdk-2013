@@ -24,6 +24,7 @@
 #include "soundscape_system.h"
 #include "AI_ResponseSystem.h"
 #include "mapbase/SystemConvarMod.h"
+#include "gameinterface.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -170,7 +171,11 @@ public:
 			if (!gameinfo->GetBool("hide_mod_name", false))
 			{
 				// Store the game's name
-				Q_strncpy(g_iszGameName, gameinfo->GetString("game"), sizeof(g_iszGameName));
+				const char *pszGameName = gameinfo->GetString("game_rpc", NULL);
+				if (pszGameName == NULL)
+					pszGameName = gameinfo->GetString("game");
+
+				Q_strncpy(g_iszGameName, pszGameName, sizeof(g_iszGameName));
 			}
 		}
 		gameinfo->deleteThis();
@@ -370,6 +375,51 @@ BEGIN_DATADESC_NO_BASE( CMapbaseSystem )
 END_DATADESC()
 
 #ifdef GAME_DLL
+static CUtlVector<MODTITLECOMMENT> g_MapbaseChapterMaps;
+static CUtlVector<MODCHAPTER> g_MapbaseChapterList;
+CUtlVector<MODTITLECOMMENT> *Mapbase_GetChapterMaps()
+{
+	if (g_MapbaseChapterMaps.Count() == 0)
+	{
+		// Check the chapter list
+		KeyValues *chapterlist = new KeyValues("ChapterList");
+		if (chapterlist->LoadFromFile(filesystem, "scripts/chapters.txt", "MOD"))
+		{
+			KeyValues *pKey = chapterlist->GetFirstSubKey();
+			if (pKey)
+			{
+				if (Q_stricmp( pKey->GetName(), "Chapters" ) == 0)
+				{
+					for (KeyValues *pChapters = pKey->GetFirstSubKey(); pChapters; pChapters = pChapters->GetNextKey())
+					{
+						int index = g_MapbaseChapterList.AddToTail();
+						g_MapbaseChapterList[index].iChapter = atoi(pChapters->GetName());
+						Q_strncpy(g_MapbaseChapterList[index].pChapterName, pChapters->GetString(), sizeof(g_MapbaseChapterList[index]));
+					}
+				}
+
+				for (pKey = pKey->GetNextKey(); pKey; pKey = pKey->GetNextKey())
+				{
+					int index = g_MapbaseChapterMaps.AddToTail();
+					Q_strncpy(g_MapbaseChapterMaps[index].pBSPName, pKey->GetName(), sizeof(g_MapbaseChapterMaps[index].pBSPName));
+					Q_strncpy(g_MapbaseChapterMaps[index].pTitleName, pKey->GetString(), sizeof(g_MapbaseChapterMaps[index].pTitleName));
+
+					//comment.pBSPName = pKey->GetName();
+					//comment.pTitleName = pKey->GetString();
+				}
+			}
+		}
+		chapterlist->deleteThis();
+	}
+
+	return &g_MapbaseChapterMaps;
+}
+
+CUtlVector<MODCHAPTER> *Mapbase_GetChapterList()
+{
+	return &g_MapbaseChapterList;
+}
+
 ThreeState_t Flashlight_GetLegacyVersionKey()
 {
 	KeyValues *gameinfo = new KeyValues( "GameInfo" );

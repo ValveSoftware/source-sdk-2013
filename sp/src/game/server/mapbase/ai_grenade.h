@@ -110,6 +110,8 @@ public:
 	// Soldiers use "lefthand", cops use "LHand", and citizens use "anim_attachment_LH"
 	virtual const char*		GetGrenadeAttachment() { return "anim_attachment_LH"; }
 
+	void			ClearAttackConditions( void );
+
 	Vector			GetAltFireTarget() { return m_vecAltFireTarget; }
 	virtual bool	CanAltFireEnemy( bool bUseFreeKnowledge );
 	void			DelayAltFireAttack( float flDelay );
@@ -490,6 +492,31 @@ bool CAI_GrenadeUser<BASE_NPC>::CheckCanThrowGrenade( const Vector &vecTarget )
 		// don't check again for a while.
 		m_flNextGrenadeCheck = gpGlobals->curtime + 1; // one full second.
 		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: This was copied from soldier code for general AI grenades.
+//			
+//			"Soldiers use CAN_RANGE_ATTACK2 to indicate whether they can throw
+//			a grenade. Because they check only every half-second or so, this
+//			condition must persist until it is updated again by the code
+//			that determines whether a grenade can be thrown, so prevent the 
+//			base class from clearing it out. (sjb)"
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::ClearAttackConditions()
+{
+	bool fCanRangeAttack2 = IsGrenadeCapable() && HasCondition( COND_CAN_RANGE_ATTACK2 );
+
+	// Call the base class.
+	BaseClass::ClearAttackConditions();
+
+	if( fCanRangeAttack2 )
+	{
+		// We don't allow the base class to clear this condition because we
+		// don't sense for it every frame.
+		SetCondition( COND_CAN_RANGE_ATTACK2 );
 	}
 }
 

@@ -57,6 +57,8 @@ public:
 	{
 		return STRING(m_iszChapterTitle.Get());
 	}
+
+	void InputSetChapterTitle( inputdata_t &inputdata );
 #endif
 
 private:

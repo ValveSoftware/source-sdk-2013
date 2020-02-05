@@ -300,6 +300,7 @@ public:
 #ifdef MAPBASE
 	void InputCreateSeparateRagdoll( inputdata_t &inputdata );
 	void InputCreateSeparateRagdollClient( inputdata_t &inputdata );
+	void InputSetPoseParameter( inputdata_t &inputdata );
 #endif
 
 	// Dissolve, returns true if the ragdoll has been created
