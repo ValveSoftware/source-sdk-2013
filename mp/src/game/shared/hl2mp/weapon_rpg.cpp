@@ -1248,7 +1248,7 @@ void CAPCMissile::ComputeActualDotPosition( CLaserDot *pLaserDot, Vector *pActua
 
 #define	RPG_BEAM_SPRITE		"effects/laser1.vmt"
 #define	RPG_BEAM_SPRITE_NOZ	"effects/laser1_noz.vmt"
-#define	RPG_LASER_SPRITE	"sprites/redglow1"
+#define	RPG_LASER_SPRITE	"sprites/redglow1.vmt"
 
 //=============================================================================
 // RPG
@@ -1361,7 +1361,6 @@ void CWeaponRPG::Precache( void )
 	PrecacheScriptSound( "Missile.Accelerate" );
 
 	// Laser dot...
-	PrecacheModel( "sprites/redglow1.vmt" );
 	PrecacheModel( RPG_LASER_SPRITE );
 	PrecacheModel( RPG_BEAM_SPRITE );
 	PrecacheModel( RPG_BEAM_SPRITE_NOZ );
