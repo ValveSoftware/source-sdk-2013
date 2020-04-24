@@ -646,7 +646,7 @@ void CNPC_MetroPolice::Spawn( void )
 		m_iHealth = sk_metropolice_simple_health.GetFloat();
 	}
 
-	m_flFieldOfView		= -0.2;// indicates the width of this NPC's forward view cone ( as a dotproduct result )
+	m_flFieldOfView		= 0.05;// indicates the width of this NPC's forward view cone ( as a dotproduct result )
 	m_NPCState			= NPC_STATE_NONE;
 	if ( !HasSpawnFlags( SF_NPC_START_EFFICIENT ) )
 	{
@@ -2382,6 +2382,15 @@ void CNPC_MetroPolice::FireBullets( const FireBulletsInfo_t &info )
 {
 	CBaseEntity *pEnemy = GetEnemy();
 	bool bIsPlayer = pEnemy && pEnemy->IsPlayer();
+
+	// Near miss if
+	if (bIsPlayer &&																				// enemy is player
+		pEnemy->GetAbsVelocity().Length() > assert_cast<CBasePlayer*>(pEnemy)->MaxSpeed() * 0.6f &&	// player runs fast enough
+		GetAbsOrigin().DistTo(pEnemy->GetAbsOrigin()) > 320.0f)										// distance to player is big enough
+	{
+		m_nBurstMode = BURST_DELIBERATELY_MISS;
+	}
+
 	if ( bIsPlayer && IsCurrentlyFiringBurst() )
 	{
 		FireBulletsInfo_t actualInfo = info;
@@ -5103,6 +5112,14 @@ bool CNPC_MetroPolice::QueryHearSound( CSound *pSound )
 //-----------------------------------------------------------------------------
 void CNPC_MetroPolice::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 {
+	/*if (IsAlive())
+	{
+		Task_t t;
+		t.iTask = TASK_METROPOLICE_DIE_INSTANTLY;
+		StartTask(&t);
+		return;
+	}*/
+
 	BaseClass::VPhysicsCollision( index, pEvent );
 
 	int otherIndex = !index;

@@ -91,6 +91,9 @@
 ConVar mp_usehwmmodels( "mp_usehwmmodels", "0", NULL, "Enable the use of the hw morph models. (-1 = never, 1 = always, 0 = based upon GPU)" ); // -1 = never, 0 = if hasfastvertextextures, 1 = always
 #endif
 
+// Camera Bob
+bool bStep = false;
+
 bool UseHWMorphModels()
 {
 // #ifdef CLIENT_DLL 
@@ -514,18 +517,19 @@ void CBasePlayer::UpdateStepSound( surfacedata_t *psurface, const Vector &vecOri
 	float velrun;
 	float velwalk;
 	int	fLadder;
+	ConVarRef mv_viewbob_enabled("mv_viewbob_enabled");
 
 	if ( m_flStepSoundTime > 0 )
 	{
-		m_flStepSoundTime -= 1000.0f * gpGlobals->frametime;
+		m_flStepSoundTime -= (GetMoveType() == MOVETYPE_LADDER ? 1250.0f : 1000.0f) * gpGlobals->frametime;
 		if ( m_flStepSoundTime < 0 )
 		{
 			m_flStepSoundTime = 0;
 		}
 	}
 
-	if ( m_flStepSoundTime > 0 )
-		return;
+	if ( !mv_viewbob_enabled.GetBool() && m_flStepSoundTime > 0 )
+	 	return;
 
 	if ( GetFlags() & (FL_FROZEN|FL_ATCONTROLS))
 		return;
@@ -655,8 +659,32 @@ void CBasePlayer::UpdateStepSound( surfacedata_t *psurface, const Vector &vecOri
 	{
 		fvol *= 0.65;
 	}
+	
+	// Base step sound on view bob
+	if (mv_viewbob_enabled.GetBool())
+	{
+		ConVarRef mv_viewbob_scale("mv_viewbob_scale");
+		float xconst = abs(GetAbsVelocity().Length() * mv_viewbob_scale.GetFloat() / (fLadder ? VIEWBOB_FRACTION_LADDER : VIEWBOB_FRACTION_GROUND));
 
-	PlayStepSound( feet, psurface, fvol, false );
+		if (m_Local.m_vecPunchAngleVel.GetX() > xconst * 0.29)
+		{
+			if (!bStep)
+			{
+				bStep = true;
+				PlayStepSound(feet, psurface, fvol, false);
+			}
+		}
+		else
+		{
+			bStep = false;
+		}
+	}
+
+	// Base step sound on set interval
+	else
+	{
+		PlayStepSound(feet, psurface, fvol, false);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -743,7 +771,7 @@ void CBasePlayer::PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, flo
 	ep.m_nFlags = 0;
 	ep.m_nPitch = params.pitch;
 	ep.m_pOrigin = &vecOrigin;
-
+	
 	EmitSound( filter, entindex(), ep );
 
 	// Kyle says: ugggh. This function may as well be called "PerformPileOfDesperateGameSpecificFootstepHacks".

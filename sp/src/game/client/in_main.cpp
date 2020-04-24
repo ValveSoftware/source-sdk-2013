@@ -121,6 +121,10 @@ kbutton_t	in_moveright;
 // Display the netgraph
 kbutton_t	in_graph;  
 kbutton_t	in_joyspeed;		// auto-speed key from the joystick (only works for player movement, not vehicles)
+kbutton_t	in_drop;
+kbutton_t	in_leanleft;
+kbutton_t	in_leanright;
+kbutton_t	in_turnaround;
 
 static	kbutton_t	in_klook;
 kbutton_t	in_left;
@@ -154,9 +158,9 @@ void IN_CenterView_f (void)
 {
 	QAngle viewangles;
 
-	if ( UsingMouselook() == false )
+	if ( true ) // if ( UsingMouselook() == false )
 	{
-		if ( !::input->CAM_InterceptingMouse() )
+		if ( true ) // if ( !::input->CAM_InterceptingMouse() )
 		{
 			engine->GetViewAngles( viewangles );
 			viewangles[PITCH] = 0;
@@ -490,6 +494,14 @@ void IN_Grenade2Down( const CCommand &args ) { KeyDown( &in_grenade2, args[1] );
 void IN_XboxStub( const CCommand &args ) { /*do nothing*/ }
 void IN_Attack3Down( const CCommand &args ) { KeyDown(&in_attack3, args[1] );}
 void IN_Attack3Up( const CCommand &args ) { KeyUp(&in_attack3, args[1] );}
+void IN_DropDown( const CCommand &args ) { KeyDown(&in_drop, args[1]); }
+void IN_DropUp( const CCommand &args ) { KeyUp(&in_drop, args[1]); }
+void IN_LeanleftUp(const CCommand &args) { KeyUp(&in_leanleft, args[1]); }
+void IN_LeanleftDown(const CCommand &args) { KeyDown(&in_leanleft, args[1]); }
+void IN_LeanrightUp(const CCommand &args) { KeyUp(&in_leanright, args[1]); }
+void IN_LeanrightDown(const CCommand &args) { KeyDown(&in_leanright, args[1]); }
+void IN_TurnAroundUp(const CCommand &args) { KeyUp(&in_turnaround, args[1]); }
+void IN_TurnAroundDown(const CCommand &args) { KeyDown(&in_turnaround, args[1]); }
 
 void IN_DuckToggle( const CCommand &args ) 
 { 
@@ -1469,6 +1481,10 @@ int CInput::GetButtonBits( int bResetState )
 	CalcButtonBits( bits, IN_GRENADE1, s_ClearInputState, &in_grenade1, bResetState );
 	CalcButtonBits( bits, IN_GRENADE2, s_ClearInputState, &in_grenade2, bResetState );
 	CalcButtonBits( bits, IN_ATTACK3, s_ClearInputState, &in_attack3, bResetState );
+	CalcButtonBits( bits, IN_DROP, s_ClearInputState, &in_drop, bResetState);
+	CalcButtonBits( bits, IN_LEANLEFT, s_ClearInputState, &in_leanleft, bResetState);
+	CalcButtonBits( bits, IN_LEANRIGHT, s_ClearInputState, &in_leanright, bResetState);
+	CalcButtonBits( bits, IN_TURNAROUND, s_ClearInputState, &in_turnaround, bResetState);
 
 	if ( KeyState(&in_ducktoggle) )
 	{
@@ -1626,6 +1642,14 @@ static ConCommand endgrenade2( "-grenade2", IN_Grenade2Up );
 static ConCommand startgrenade2( "+grenade2", IN_Grenade2Down );
 static ConCommand startattack3("+attack3", IN_Attack3Down);
 static ConCommand endattack3("-attack3", IN_Attack3Up);
+static ConCommand startdrop("+drop", IN_DropDown);
+static ConCommand enddrop("-drop", IN_DropUp);
+static ConCommand startleanleft("+leanleft", IN_LeanleftDown);
+static ConCommand endleanleft("-leanleft", IN_LeanleftUp);
+static ConCommand startleanright("+leanright", IN_LeanrightDown);
+static ConCommand endleanright("-leanright", IN_LeanrightUp);
+static ConCommand startturnaround("+turnaround", IN_TurnAroundDown);
+static ConCommand endturnaround("-turnaround", IN_TurnAroundUp);
 
 #ifdef TF_CLIENT_DLL
 static ConCommand toggle_duck( "toggle_duck", IN_DuckToggle );

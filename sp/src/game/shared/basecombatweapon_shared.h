@@ -49,6 +49,10 @@ class CUserCmd;
 #define SF_WEAPON_NO_PLAYER_PICKUP	(1<<1)
 #define SF_WEAPON_NO_PHYSCANNON_PUNT (1<<2)
 
+// Iron sight timings
+#define IRONSIGHT_IN_TIME 0.35f	// sec
+#define IRONSIGHT_OUT_TIME 0.2f	// sec
+
 //Percent
 #define	CLIP_PERC_THRESHOLD		0.75f	
 
@@ -235,10 +239,11 @@ public:
 	virtual bool			ReloadOrSwitchWeapons( void );
 	virtual void			OnActiveStateChanged( int iOldState ) { return; }
 	virtual bool			HolsterOnDetach() { return false; }
-	virtual bool			IsHolstered(){ return false; }
+	virtual bool			IsHolstered(){ return b_Holstered; }
 	virtual void			Detach() {}
 
 	// Weapon behaviour
+	virtual void			ProcessLadderMove( void );				// called when player is climbing a ladder
 	virtual void			ItemPreFrame( void );					// called each frame by the player PreThink
 	virtual void			ItemPostFrame( void );					// called each frame by the player PostThink
 	virtual void			ItemBusyFrame( void );					// called each frame by the player PostThink, if the player's not ready to attack yet
@@ -249,6 +254,8 @@ public:
 																	// either reloads, switches weapons, or plays an empty sound.
 
 	virtual bool			ShouldBlockPrimaryFire() { return false; }
+	bool					m_bWeaponIsLowered;
+	bool					b_Holstered = false;
 
 #ifdef CLIENT_DLL
 	virtual void			CreateMove( float flInputSampleTime, CUserCmd *pCmd, const QAngle &vecOldViewAngles ) {}
@@ -358,6 +365,19 @@ public:
 	virtual bool			UsesClipsForAmmo1( void ) const;
 	virtual bool			UsesClipsForAmmo2( void ) const;
 	bool					IsMeleeWeapon() const;
+
+	// Iron sight offset accessors
+	Vector					GetIronsightPositionOffset(void) const;
+	QAngle					GetIronsightAngleOffset(void) const;
+	float					GetIronsightFOVOffset(void) const;
+
+	// Iron sight related functions
+	virtual bool			HasIronsights(void) { return true; } //default yes; override and return false for weapons with no ironsights (like weapon_crowbar)
+	bool					IsIronsighted(void);
+	void					ToggleIronsights(void);
+	void					EnableIronsights(void);
+	void					DisableIronsights(void);
+	void					SetIronsightTime(void);
 
 	// derive this function if you mod uses encrypted weapon info files
 	virtual const unsigned char *GetEncryptionKey( void );
@@ -553,6 +573,11 @@ public:
 	// Weapon art
 	CNetworkVar( int, m_iViewModelIndex );
 	CNetworkVar( int, m_iWorldModelIndex );
+
+	// Iron sights networked vars
+	CNetworkVar(bool, m_bIsIronsighted);
+	CNetworkVar(float, m_flIronsightedTime);
+
 	// Sounds
 	float					m_flNextEmptySoundTime;				// delay on empty sound playing
 

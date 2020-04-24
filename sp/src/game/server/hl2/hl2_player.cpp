@@ -79,7 +79,7 @@ extern int gEvilImpulse101;
 
 ConVar sv_autojump( "sv_autojump", "0" );
 
-ConVar hl2_walkspeed( "hl2_walkspeed", "150" );
+ConVar hl2_walkspeed( "hl2_walkspeed", "275" ); // 150
 ConVar hl2_normspeed( "hl2_normspeed", "190" );
 ConVar hl2_sprintspeed( "hl2_sprintspeed", "320" );
 
@@ -570,6 +570,23 @@ void CHL2_Player::PreThink(void)
 		NDebugOverlay::Box( predPos, NAI_Hull::Mins( GetHullType() ), NAI_Hull::Maxs( GetHullType() ), 0, 255, 0, 0, 0.01f );
 		NDebugOverlay::Line( GetAbsOrigin(), predPos, 0, 255, 0, 0, 0.01f );
 	}
+
+	// If drop button is pressed
+	if (m_afButtonPressed & IN_DROP)
+	{
+		if (IsAlive() &&
+			!IsInAVehicle() &&
+			HasWeapons())
+		{
+			DropActiveWeapon();
+		}
+	}
+
+	// check for null ground entity
+	/*if (!strcmp(GetGroundEntity()->GetClassname(), "npc_metropolice"))
+	{
+		ToBaseCombatCharacter(GetGroundEntity())->InputBecomeRagdoll(inputdata_t());
+	}*/
 
 #ifdef HL2_EPISODIC
 	if( m_hLocatorTargetEntity != NULL )
@@ -2792,6 +2809,24 @@ void CHL2_Player::PlayerUse ( void )
 	if ( ! ((m_nButtons | m_afButtonPressed | m_afButtonReleased) & IN_USE) )
 		return;
 
+	// Stomp combine ( DISABLED )
+	if (GetGroundEntity() != NULL && false)
+	{
+		if (!strcmp(GetGroundEntity()->GetClassname(), "npc_metropolice"))
+		{
+			CTakeDamageInfo info;
+
+			info.SetAttacker(this);
+			info.SetInflictor(this);
+			info.SetDamage(GetGroundEntity()->GetMaxHealth());
+			info.SetDamageType(0);
+			info.SetDamageForce(Vector(0.1, 0.1, 0.1));
+
+			// GetGroundEntity()->TakeDamage(info);
+			GetGroundEntity()->Event_Killed(info);
+		}
+	}
+
 	if ( m_afButtonPressed & IN_USE )
 	{
 		// Currently using a latched entity?
@@ -2915,6 +2950,14 @@ void CHL2_Player::PlayerUse ( void )
 }
 
 ConVar	sv_show_crosshair_target( "sv_show_crosshair_target", "0" );
+
+void CHL2_Player::DropActiveWeapon(void)
+{
+	Vector VecForward;
+	EyeVectors(&VecForward, NULL, NULL);
+	VecForward *= 20000.0f;
+	BaseClass::Weapon_Drop(GetActiveWeapon(), NULL, &VecForward);
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Updates the posture of the weapon from lowered to ready

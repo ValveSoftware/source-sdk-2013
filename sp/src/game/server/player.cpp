@@ -69,6 +69,7 @@
 #include "dt_utlvector_send.h"
 #include "vote_controller.h"
 #include "ai_speech.h"
+#include "func_breakablesurf.h"
 
 #if defined USES_ECON_ITEMS
 #include "econ_wearable.h"
@@ -107,10 +108,10 @@ bool IsInCommentaryMode( void );
 bool IsListeningToCommentary( void );
 
 #if !defined( CSTRIKE_DLL )
-ConVar cl_sidespeed( "cl_sidespeed", "450", FCVAR_REPLICATED | FCVAR_CHEAT );
+ConVar cl_sidespeed( "cl_sidespeed", "215", FCVAR_REPLICATED | FCVAR_CHEAT );
 ConVar cl_upspeed( "cl_upspeed", "320", FCVAR_REPLICATED | FCVAR_CHEAT );
 ConVar cl_forwardspeed( "cl_forwardspeed", "450", FCVAR_REPLICATED | FCVAR_CHEAT );
-ConVar cl_backspeed( "cl_backspeed", "450", FCVAR_REPLICATED | FCVAR_CHEAT );
+ConVar cl_backspeed( "cl_backspeed", "175", FCVAR_REPLICATED | FCVAR_CHEAT );
 #endif // CSTRIKE_DLL
 
 // This is declared in the engine, too
@@ -3807,7 +3808,7 @@ void CBasePlayer::HandleFuncTrain(void)
 
 
 void CBasePlayer::PreThink(void)
-{						
+{
 	if ( g_fGameOver || m_iPlayerLocked )
 		return;         // intermission or finale
 
@@ -4498,6 +4499,31 @@ void CBasePlayer::ForceOrigin( const Vector &vecOrigin )
 void CBasePlayer::PostThink()
 {
 	m_vecSmoothedVelocity = m_vecSmoothedVelocity * SMOOTHING_FACTOR + GetAbsVelocity() * ( 1 - SMOOTHING_FACTOR );
+
+	// If enough speed to shatter glass
+	if (GetLocalVelocity().Length() >= (MaxSpeed() * 0.6f))
+	{
+		// Use player velocity as trace direction
+		Vector vecDir = GetAbsVelocity();
+		VectorNormalize(vecDir);
+
+		// Trace from feet if falling
+		Vector vecAbsStart = GetAbsVelocity().z > 0 ? EyePosition() : GetAbsOrigin();
+		Vector vecAbsEnd = vecAbsStart + (vecDir * 38);
+
+		// Trace for upcoming glass
+		trace_t tr;
+		UTIL_TraceLine(vecAbsStart, vecAbsEnd, MASK_ALL, this, COLLISION_GROUP_NONE, &tr);
+
+		// If hit - shatter
+		if (tr.m_pEnt)
+		{
+			if (((CBaseEntity *)tr.m_pEnt)->GetCollisionGroup() == COLLISION_GROUP_BREAKABLE_GLASS)
+			{
+				((CBreakableSurface *)tr.m_pEnt)->Die(this, GetLocalVelocity());
+			}
+		}
+	}
 
 	if ( !g_fGameOver && !m_iPlayerLocked )
 	{
@@ -6542,6 +6568,20 @@ bool CBasePlayer::ClientCommand( const CCommand &args )
 		{
 			pl->DumpPerfToRecipient( this, nRecords );
 		}
+		return true;
+	}
+	else if (stricmp(cmd, "toggle_ironsight") == 0)
+	{
+		CBaseCombatWeapon *pWeapon = GetActiveWeapon();
+		if (pWeapon != NULL)
+			pWeapon->ToggleIronsights();
+
+		return true;
+	}
+	else if (stricmp(cmd, "turn_complete") == 0)
+	{
+		Turn(0);
+
 		return true;
 	}
 

@@ -248,6 +248,49 @@ void CBaseViewModel::DestroyControlPanels()
 #endif
 }
 
+void CBaseViewModel::CalcIronsights(Vector &pos, QAngle &ang)
+{
+	CBaseCombatWeapon *pWeapon = GetOwningWeapon();
+
+	if (!pWeapon)
+		return;
+
+	float delta;
+	float fElapsed = gpGlobals->curtime - pWeapon->m_flIronsightedTime;
+	float fLimit = pWeapon->IsIronsighted() ? IRONSIGHT_OUT_TIME : IRONSIGHT_IN_TIME;
+	if (fElapsed > fLimit)
+	{
+		delta = 1.0f;
+	}
+	else
+	{
+		delta = SimpleSpline(fElapsed / fLimit);
+	}
+
+	float exp = (pWeapon->IsIronsighted()) ?
+		(delta > 1.0f) ? 1.0f : delta : //normal blending
+		(delta > 1.0f) ? 0.0f : 1.0f - delta; //reverse interpolation
+
+	if (exp <= 0.001f) //fully not ironsighted; save performance
+		return;
+
+	Vector newPos = pos;
+	QAngle newAng = ang;
+
+	Vector vForward, vRight, vUp, vOffset;
+	AngleVectors(newAng, &vForward, &vRight, &vUp);
+	vOffset = pWeapon->GetIronsightPositionOffset();
+
+	newPos += vForward * vOffset.x;
+	newPos += vRight * vOffset.y;
+	newPos += vUp * vOffset.z;
+	newAng += pWeapon->GetIronsightAngleOffset();
+	//fov is handled by CBaseCombatWeapon
+
+	pos += (newPos - pos) * exp;
+	ang += (newAng - ang) * exp;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *pEntity - 
@@ -392,14 +435,14 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 
 	CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
 	//Allow weapon lagging
-	if ( pWeapon != NULL )
+	if (pWeapon != NULL && !pWeapon->IsIronsighted())
 	{
 #if defined( CLIENT_DLL )
-		if ( !prediction->InPrediction() )
+		if (!prediction->InPrediction())
 #endif
 		{
 			// add weapon-specific bob 
-			pWeapon->AddViewmodelBob( this, vmorigin, vmangles );
+			pWeapon->AddViewmodelBob(this, vmorigin, vmangles);
 #if defined ( CSTRIKE_DLL )
 			CalcViewModelLag( vmorigin, vmangles, vmangoriginal );
 #endif
@@ -425,6 +468,8 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	{
 		g_ClientVirtualReality.OverrideViewModelTransform( vmorigin, vmangles, pWeapon && pWeapon->ShouldUseLargeViewModelVROverride() );
 	}
+
+	CalcIronsights(vmorigin, vmangles);
 
 	SetLocalOrigin( vmorigin );
 	SetLocalAngles( vmangles );
@@ -478,7 +523,7 @@ void CBaseViewModel::CalcViewModelLag( Vector& origin, QAngle& angles, QAngle& o
 		Vector vDifference;
 		VectorSubtract( forward, m_vecLastFacing, vDifference );
 
-		float flSpeed = 5.0f;
+		float flSpeed = 20.0f;
 
 		// If we start to lag too far behind, we'll increase the "catch up" speed.  Solves the problem with fast cl_yawspeed, m_yaw or joysticks
 		//  rotating quickly.  The old code would slam lastfacing with origin causing the viewmodel to pop to a new position
@@ -514,9 +559,9 @@ void CBaseViewModel::CalcViewModelLag( Vector& origin, QAngle& angles, QAngle& o
 	}
 
 	//FIXME: These are the old settings that caused too many exposed polys on some models
-	VectorMA( origin, -pitch * 0.035f,	forward,	origin );
-	VectorMA( origin, -pitch * 0.03f,		right,	origin );
-	VectorMA( origin, -pitch * 0.02f,		up,		origin);
+	// VectorMA( origin, -pitch * 0.035f,	forward,	origin );
+	// VectorMA( origin, -pitch * 0.03f,		right,	origin );
+	// VectorMA( origin, -pitch * 0.02f,		up,		origin);
 }
 
 //-----------------------------------------------------------------------------

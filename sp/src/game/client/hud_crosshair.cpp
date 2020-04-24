@@ -29,7 +29,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-ConVar crosshair( "crosshair", "1", FCVAR_ARCHIVE );
+ConVar crosshair( "crosshair", "0", FCVAR_HIDDEN, "toggle crosshair (feature disabled)", true, 0, true, 0 );
 ConVar cl_observercrosshair( "cl_observercrosshair", "1", FCVAR_ARCHIVE );
 
 using namespace vgui;

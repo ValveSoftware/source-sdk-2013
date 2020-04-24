@@ -19,9 +19,9 @@
 #define CTEXTURESMAX		512			// max number of textures loaded
 #define CBTEXTURENAMEMAX	13			// only load first n chars of name
 
-#define GAMEMOVEMENT_DUCK_TIME				1000.0f		// ms
-#define GAMEMOVEMENT_JUMP_TIME				510.0f		// ms approx - based on the 21 unit height jump
-#define GAMEMOVEMENT_JUMP_HEIGHT			21.0f		// units
+#define GAMEMOVEMENT_DUCK_TIME				300.0f		// ms
+#define GAMEMOVEMENT_JUMP_TIME				337.5f		// ms approx - based on the 36.75 unit height jump
+#define GAMEMOVEMENT_JUMP_HEIGHT			36.75f		// units
 #define GAMEMOVEMENT_TIME_TO_UNDUCK			( TIME_TO_UNDUCK * 1000.0f )		// ms
 #define GAMEMOVEMENT_TIME_TO_UNDUCK_INV		( GAMEMOVEMENT_DUCK_TIME - GAMEMOVEMENT_TIME_TO_UNDUCK )
 
@@ -109,6 +109,23 @@ protected:
 	// Only used by players.  Moves along the ground when player is a MOVETYPE_WALK.
 	virtual void	WalkMove( void );
 
+	// Leaning mechanics
+	bool			CanLean();
+	void			SetLeanEyeOffset(float fLeanFraction);
+	void			Lean();
+
+	void			CheckTurnAround();
+	void			TurnAround();
+
+	CBaseEntity		*GetVaultEntity();
+
+	bool			ShouldBounce();
+	bool			ShouldVault();
+	bool			ShouldClimbUp();
+	bool			ShouldWallClimbTurn();
+
+	void			IronSightsSlowMo();
+
 	// Try to keep a walking player on the ground when running down slopes etc
 	void			StayOnGround( void );
 
@@ -143,6 +160,9 @@ protected:
 	// Decompoosed gravity
 	void			StartGravity( void );
 	void			FinishGravity( void );
+	
+	// Add upper velocity on jump
+	void			Jump(surfacedata_t *surface);
 
 	// Apply normal ( undecomposed ) gravity
 	void			AddGravity( void );

@@ -56,7 +56,11 @@ ConVar mat_hdr_uncapexposure( "mat_hdr_uncapexposure", "0", FCVAR_CHEAT );
 ConVar mat_force_bloom("mat_force_bloom","0", FCVAR_CHEAT);
 ConVar mat_disable_bloom("mat_disable_bloom","0");
 ConVar mat_debug_bloom("mat_debug_bloom","0", FCVAR_CHEAT);
-ConVar mat_colorcorrection( "mat_colorcorrection", "0" );
+ConVar mat_colorcorrection( "mat_colorcorrection", "1" );
+
+// Velocity based bloomscale
+ConVar mat_bloom_velocity_based("mat_bloom_velocity_based", "1", FCVAR_ARCHIVE, "Increase bloom based on player velocity", true, 0, true, 1);
+ConVar mat_bloom_velocity_based_scale("mat_bloom_velocity_based_scale", "1.5", FCVAR_ARCHIVE, "Bloom scale factor based on player velocity", true, 1, true, 3.0f);
 
 ConVar mat_accelerate_adjust_exposure_down( "mat_accelerate_adjust_exposure_down", "3.0", FCVAR_CHEAT );
 ConVar mat_hdr_manual_tonemap_rate( "mat_hdr_manual_tonemap_rate", "1.0" );
@@ -772,6 +776,12 @@ static float GetCurrentBloomScale( void )
 	else
 	{
 		flCurrentBloomScale = mat_bloomscale.GetFloat();
+
+		if (mat_bloom_velocity_based.GetInt() == 1)
+		{
+			C_BasePlayer *player = C_BasePlayer::GetLocalPlayer();
+			flCurrentBloomScale *= (player->GetLocalVelocity().Length() / player->MaxSpeed() * (mat_bloom_velocity_based_scale.GetFloat() - 1)) + 1;
+		}
 	}
 	return flCurrentBloomScale;
 }
@@ -786,6 +796,7 @@ static void GetExposureRange( float *flAutoExposureMin, float *flAutoExposureMax
 	else
 	{
 		*flAutoExposureMin = mat_autoexposure_min.GetFloat();
+		
 	}
 
 	// Get max

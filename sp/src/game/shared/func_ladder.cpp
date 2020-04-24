@@ -10,7 +10,7 @@
 #include "tier0/memdbgon.h"
 
 #if !defined( CLIENT_DLL )
-/*static*/ ConVar sv_showladders( "sv_showladders", "0", 0, "Show bbox and dismount points for all ladders (must be set before level load.)\n" );
+/*static*/ ConVar sv_showladders( "sv_showladders", "1", 0, "Show bbox and dismount points for all ladders (must be set before level load.)\n" );
 #endif
 
 CUtlVector< CFuncLadder * >	CFuncLadder::s_Ladders;
@@ -389,11 +389,25 @@ void CFuncLadder::InputDisable( inputdata_t &inputdata )
 // Purpose: 
 // Input  : *pPlayer - 
 //-----------------------------------------------------------------------------
-void CFuncLadder::PlayerGotOn( CBasePlayer *pPlayer )
+void CFuncLadder::PlayerGotOn(CBasePlayer *pPlayer)
 {
+	CBaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
+	if (pWeapon)
+	{
+		pWeapon->DisableIronsights();
+	}
+
 #if !defined( CLIENT_DLL )
 	m_OnPlayerGotOnLadder.FireOutput(this, pPlayer);
-	pPlayer->EmitSound( "Ladder.StepRight" );
+	if (pPlayer->GetGroundEntity() != NULL)
+	{
+		pPlayer->EmitSound("Ladder.StepRight");
+	}
+	else
+	{
+		pPlayer->EmitSound("Player.Swim");
+		pPlayer->ViewPunch(QAngle(5 * (pPlayer->GetAbsVelocity().Length() / 100), 0, 0));
+	}
 #endif
 }
 

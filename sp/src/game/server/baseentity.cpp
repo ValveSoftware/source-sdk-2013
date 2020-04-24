@@ -256,6 +256,7 @@ void SendProxy_Angles( const SendProp *pProp, const void *pStruct, const void *p
 	pOut->m_Vector[ 2 ] = anglemod( a->z );
 }
 
+
 // This table encodes the CBaseEntity data.
 IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 	SendPropDataTable( "AnimTimeMustBeFirst", 0, &REFERENCE_SEND_TABLE(DT_AnimTimeMustBeFirst), SendProxy_ClientSideAnimation ),
@@ -295,6 +296,9 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 
 #if !defined( NO_ENTITY_PREDICTION )
 	SendPropDataTable( "predictable_id", 0, &REFERENCE_SEND_TABLE( DT_PredictableId ), SendProxy_SendPredictableId ),
+	SendPropFloat(SENDINFO(m_fViewLean)),
+	SendPropFloat(SENDINFO(m_fTurnAmount)),
+	// SendPropFloat(SENDINFO(m_fTurnAmount), 8, SendProxy_TurnAmount),
 #endif
 
 	// FIXME: Collapse into another flag field?
@@ -1873,6 +1877,8 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_FIELD( m_angRotation, FIELD_VECTOR ),
 
 	DEFINE_KEYFIELD( m_vecViewOffset, FIELD_VECTOR, "view_ofs" ),
+	DEFINE_FIELD( m_fViewLean, FIELD_FLOAT),
+	// DEFINE_FIELD( m_fTurnAmount, FIELD_FLOAT),
 
 	DEFINE_FIELD( m_fFlags, FIELD_INTEGER ),
 #if !defined( NO_ENTITY_PREDICTION )
@@ -2783,7 +2789,7 @@ bool CBaseEntity::FVisible( CBaseEntity *pEntity, int traceMask, CBaseEntity **p
 #endif
 
 	Vector vecLookerOrigin = EyePosition();//look through the caller's 'eyes'
-	Vector vecTargetOrigin = pEntity->EyePosition();
+	Vector vecTargetOrigin = pEntity->EyePosition() - pEntity->GetViewOffset(); // take notice of view offset 
 
 	trace_t tr;
 	if ( !IsXbox() && ai_LOS_mode.GetBool() )

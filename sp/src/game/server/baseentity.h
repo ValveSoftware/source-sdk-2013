@@ -1172,6 +1172,11 @@ public:
 	virtual const QAngle &LocalEyeAngles( void );	// Direction of eyes
 	virtual Vector	EarPosition( void );			// position of ears
 
+	void	SetViewLean(float fDeg);
+	float	GetViewLean();
+
+	void	Turn(float fDeg);
+
 	Vector	EyePosition( void ) const;			// position of eyes
 	const QAngle &EyeAngles( void ) const;		// Direction of eyes in world space
 	const QAngle &LocalEyeAngles( void ) const;	// Direction of eyes
@@ -1699,6 +1704,13 @@ private:
 
 	// was pev->view_ofs ( FIXME:  Move somewhere up the hierarch, CBaseAnimating, etc. )
 	CNetworkVectorForDerived( m_vecViewOffset );
+
+	// Lean degreees
+	CNetworkVar( float, m_fViewLean );
+
+	// Turn amount
+	CNetworkVar( float, m_fTurnAmount );
+	
 
 private:
 	// dynamic model state tracking

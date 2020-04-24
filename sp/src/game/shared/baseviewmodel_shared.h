@@ -46,6 +46,8 @@ public:
 
 	bool IsViewable(void) { return false; }
 
+	void					CalcIronsights(Vector &pos, QAngle &ang);
+
 	virtual void					UpdateOnRemove( void );
 
 	// Weapon client handling

@@ -17,8 +17,9 @@ ipch
 *.sdf
 *.opensdf
 *.idb
-*.vcxproj
+*.vcxproj*
 *.sln
+*.pdb
 
 # OSX/Linux build products
 *.mak
@@ -54,3 +55,22 @@ config.cfg
 # shader files
 *.tmp
 
+# map files
+*.bsp
+*.vmf
+*.ain
+*.vmx
+*.prt
+*.sav
+*.HL[0-3]
+
+# texture files
+*.vmt
+*.vtf
+*.tga
+
+# built stuff, cache, databases, misc.
+*.dat
+*.cache
+*.dt
+*.sentinel

@@ -120,6 +120,9 @@ public:
 	void				InitVCollision( const Vector &vecAbsOrigin, const Vector &vecAbsVelocity );
 	WeaponProficiency_t CalcWeaponProficiency( CBaseCombatWeapon *pWeapon );
 
+	// Weapon drop
+	void				DropActiveWeapon( void );
+
 	Class_T				Classify ( void );
 
 	// from CBasePlayer

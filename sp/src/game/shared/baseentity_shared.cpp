@@ -160,6 +160,35 @@ const Vector& CBaseEntity::GetViewOffset() const
 	return m_vecViewOffset; 
 }
 
+//-----------------------------------------------------------------------------
+// Sets roll part of the view angle
+//-----------------------------------------------------------------------------
+void CBaseEntity::SetViewLean(float fDeg)
+{
+	if (IsPlayer())
+	{
+		m_fViewLean = fDeg;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Returns roll part of the view angle
+//-----------------------------------------------------------------------------
+float CBaseEntity::GetViewLean()
+{
+	return m_fViewLean;
+}
+
+//-----------------------------------------------------------------------------
+// Adds to player's yaw part of the view angle
+//-----------------------------------------------------------------------------
+void CBaseEntity::Turn(float fDeg)
+{
+	if (IsPlayer())
+	{
+		m_fTurnAmount = fDeg;
+	}
+}
 
 //-----------------------------------------------------------------------------
 // center point of entity

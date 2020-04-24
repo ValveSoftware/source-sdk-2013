@@ -1,6 +1,6 @@
 "GameInfo"
 {
-	game 		"My First Episodic Mod"
+	game 		"Neus"
 	title 		"HALF-LIFE'"
 	title2		""
 	supportsvr	1
@@ -70,6 +70,7 @@
 
 			// Where the game's binaries are
 			gamebin				episodic/bin
+			gamebin				|gameinfo_path|bin
 
 			// Last, mount in shared HL2 loose files
 			game				|all_source_engine_paths|episodic

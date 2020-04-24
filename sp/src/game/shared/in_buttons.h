@@ -37,5 +37,9 @@
 #define IN_GRENADE1		(1 << 23)	// grenade 1
 #define IN_GRENADE2		(1 << 24)	// grenade 2
 #define	IN_ATTACK3		(1 << 25)
+#define IN_DROP			(1 << 26)	// weapon drop
+#define IN_LEANLEFT		(1 << 27)
+#define IN_LEANRIGHT	(1 << 28)
+#define IN_TURNAROUND	(1 << 29)	// turn player around
 
 #endif // IN_BUTTONS_H

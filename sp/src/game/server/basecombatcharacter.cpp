@@ -2025,10 +2025,10 @@ void CBaseCombatCharacter::Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector
 		{
 			vecThrow = *pVelocity;
 			float flLen = vecThrow.Length();
-			if (flLen > 400)
+			if (flLen > 1000) // 400
 			{
 				VectorNormalize(vecThrow);
-				vecThrow *= 400;
+				vecThrow *= 1000;
 			}
 		}
 		else

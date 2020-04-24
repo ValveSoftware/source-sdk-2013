@@ -14,6 +14,10 @@
 
 float GetCurrentGravity( void );
 
+// Viewbob fractions
+#define VIEWBOB_FRACTION_GROUND 10000.0f
+#define VIEWBOB_FRACTION_LADDER 1500.0f
+
 extern ConVar sv_gravity;
 extern ConVar sv_stopspeed;
 extern ConVar sv_noclipaccelerate;

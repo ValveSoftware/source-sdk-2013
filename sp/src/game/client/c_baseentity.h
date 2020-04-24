@@ -1329,6 +1329,12 @@ public:
 
 	int								m_iHealth;
 
+	// Lean degrees
+	float							m_fViewLean;
+
+	// Turn degrees
+	float							m_fTurnAmount;
+
 	// was pev->speed
 	float							m_flSpeed;
 
@@ -1379,6 +1385,11 @@ public:
 	void							HierarchyUpdateMoveParent();
 
 	virtual bool					IsDeflectable() { return false; }
+
+	void							SetViewLean(float fDeg);
+	float							GetViewLean();
+
+	void							Turn(float fDeg);
 
 protected:
 	int								m_nFXComputeFrame;

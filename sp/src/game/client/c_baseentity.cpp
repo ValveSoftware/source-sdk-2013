@@ -467,6 +467,8 @@ BEGIN_RECV_TABLE_NOBASE(C_BaseEntity, DT_BaseEntity)
 	RecvPropInt( RECVINFO ( m_iTextureFrameIndex ) ),
 #if !defined( NO_ENTITY_PREDICTION )
 	RecvPropDataTable( "predictable_id", 0, 0, &REFERENCE_RECV_TABLE( DT_PredictableId ) ),
+	RecvPropFloat(RECVINFO(m_fViewLean)),
+	RecvPropFloat(RECVINFO(m_fTurnAmount)),
 #endif
 
 	RecvPropInt		( RECVINFO( m_bSimulatedEveryTick ), 0, RecvProxy_InterpolationAmountChanged ),
@@ -498,6 +500,8 @@ BEGIN_PREDICTION_DATA_NO_BASE( C_BaseEntity )
 //	DEFINE_PRED_FIELD( m_flSimulationTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_fFlags, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD_TOL( m_vecViewOffset, FIELD_VECTOR, FTYPEDESC_INSENDTABLE, 0.25f ),
+	DEFINE_PRED_FIELD( m_fViewLean, FIELD_FLOAT, FTYPEDESC_INSENDTABLE),
+	// DEFINE_PRED_FIELD( m_fTurnAmount, FIELD_FLOAT, FTYPEDESC_INSENDTABLE),
 	DEFINE_PRED_FIELD( m_nModelIndex, FIELD_SHORT, FTYPEDESC_INSENDTABLE | FTYPEDESC_MODELINDEX ),
 	DEFINE_PRED_FIELD( m_flFriction, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iTeamNum, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
@@ -3162,6 +3166,20 @@ void C_BaseEntity::TextureAnimationWrapped()
 
 void C_BaseEntity::ClientThink()
 {
+	if (IsPlayer())
+	{
+		// Set view parameters based on received values
+		QAngle viewAngles;
+		engine->GetViewAngles(viewAngles);
+
+		viewAngles.z = m_fViewLean;
+		viewAngles.y += m_fTurnAmount;
+
+		engine->SetViewAngles(viewAngles);
+
+		// can't reset turn amount on client, this will do for now
+		engine->ServerCmd("turn_complete");
+	}
 }
 
 void C_BaseEntity::Simulate()

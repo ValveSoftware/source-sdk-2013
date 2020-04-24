@@ -350,6 +350,7 @@ void CNPC_Combine::Spawn( void )
 	m_flNextAltFireTime = gpGlobals->curtime;
 
 	NPCInit();
+	Msg("spawned!\n");
 }
 
 //-----------------------------------------------------------------------------
