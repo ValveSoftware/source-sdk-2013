@@ -94,8 +94,6 @@ bool bHasVaulted = false;
 bool bBounceLeft = false;
 float fBounceAngle = 0;
 float m_flJumpTime = 0.0f;
-surfacedata_t *pVaultSurface = NULL;
-CBaseEntity *pJumpGroundEntity = NULL;
 
 // Turn around
 ConVar mv_turn_around_left("mv_turn_around_left", "0", FCVAR_ARCHIVE, "Manual turn direction (1 - left, 0 - right)", true, 0, true, 1);
@@ -1973,45 +1971,6 @@ void CGameMovement::TurnAround()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Returns entity to vault off of (NULL if not present)
-//-----------------------------------------------------------------------------
-CBaseEntity *CGameMovement::GetVaultEntity()
-{
-	// Setup trace end position
-	Vector vecEndPos = player->GetAbsOrigin();
-	vecEndPos.z -= BOUNCE_FLOOR_DIST;
-
-	// Trace down
-	trace_t tr;
-	TracePlayerBBox(player->GetAbsOrigin(),
-		vecEndPos,
-		PlayerSolidMask(),
-		COLLISION_GROUP_PLAYER_MOVEMENT,
-		tr);
-	pVaultSurface = physprops->GetSurfaceData(tr.surface.surfaceProps);
-
-	return tr.m_pEnt;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Check if we are far enough from ground to bounce
-//-----------------------------------------------------------------------------
-bool CGameMovement::ShouldBounce()
-{
-	// Shouldn't bounce if too close to ground
-	return (GetVaultEntity() == NULL);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Check if we are close enough to an obstacle to vault
-//-----------------------------------------------------------------------------
-bool CGameMovement::ShouldVault()
-{
-	CBaseEntity *pVaultEntity = GetVaultEntity();
-	return (pVaultEntity /* && pVaultEntity != pJumpGroundEntity */ );
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CGameMovement::AirMove( void )
@@ -2023,23 +1982,35 @@ void CGameMovement::AirMove( void )
 	float		wishspeed;
 	Vector forward, right, up;
 
+	// Setup trace end position
+	Vector vecEndPos = player->GetAbsOrigin();
+	vecEndPos.z -= BOUNCE_FLOOR_DIST;
+
+	// Trace down
+	trace_t tr_bottom;
+	TracePlayerBBox(player->GetAbsOrigin(),
+		vecEndPos,
+		PlayerSolidMask(),
+		COLLISION_GROUP_PLAYER_MOVEMENT,
+		tr_bottom);
+
 	// Do we meet the requirements to bounce?
 	if (!bHasBounced && (m_flJumpTime < (GAMEMOVEMENT_JUMP_TIME * 0.9)) && !bIsCapped)
 	{
 		// Vault
 		if (!bHasVaulted &&							// haven't vaulted yet
 			mv->m_nButtons & IN_JUMP &&				// jump key is held
-			ShouldVault() &&						// close enough to the vault obstacle
+			tr_bottom.m_pEnt &&						// close enough to the vault obstacle
 			player->GetAbsVelocity().z > -150.0f)	// not falling too fast
 		{
 			mv->m_vecVelocity[2] = 0;
-			Jump(pVaultSurface);
+			Jump(physprops->GetSurfaceData(tr_bottom.surface.surfaceProps));
 			player->ViewPunch(QAngle(10, 0, 0));
 			bHasVaulted = true;
 			m_flJumpTime = GAMEMOVEMENT_JUMP_TIME;
 		}
 		// Bounce (tic tac)
-		else if (ShouldBounce())
+		else if (tr_bottom.m_pEnt == NULL)
 		{
 			Vector vecDir;
 			trace_t tr;
@@ -3099,9 +3070,6 @@ bool CGameMovement::CheckJumpButton( void )
 	// Still updating the eye position.
 	if ( player->m_Local.m_flDuckJumpTime > 0.0f )
 		return false;
-
-	// Store ground entity
-	pJumpGroundEntity = player->GetGroundEntity();
 
 	// In the air now.
     SetGroundEntity( NULL );

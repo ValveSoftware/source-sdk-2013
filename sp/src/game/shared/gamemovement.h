@@ -117,10 +117,6 @@ protected:
 	void			CheckTurnAround();
 	void			TurnAround();
 
-	CBaseEntity		*GetVaultEntity();
-
-	bool			ShouldBounce();
-	bool			ShouldVault();
 	bool			ShouldClimbUp();
 	bool			ShouldWallClimbTurn();
 
