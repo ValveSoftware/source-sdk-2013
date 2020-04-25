@@ -4836,7 +4836,7 @@ void CGameMovement::FinishDuck(void)
 	// Shake screen if sliding
 	if (bIsSliding)
 	{
-		UTIL_ScreenShake(player->GetAbsOrigin(), 1, 15, GAMEMOVEMENT_SLIDE_TIME * 0.001f * 0.5, -1, SHAKE_START, false);
+		// UTIL_ScreenShake(player->GetAbsOrigin(), 1, 15, GAMEMOVEMENT_SLIDE_TIME * 0.001f * 0.5, -1, SHAKE_START, false);
 	}
 }
 
@@ -5036,7 +5036,7 @@ void CGameMovement::Duck( void )
 
 						player->StopSound(strSlideSoundName);
 						player->SetFOV(player, player->GetDefaultFOV(), 0.4f);
-						UTIL_ScreenShake(player->GetAbsOrigin(), -1, -1, -1, -1, SHAKE_STOP, false);
+						// UTIL_ScreenShake(player->GetAbsOrigin(), -1, -1, -1, -1, SHAKE_STOP, false);
 					}
 					else
 					{
