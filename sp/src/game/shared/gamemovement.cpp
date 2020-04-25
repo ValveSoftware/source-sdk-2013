@@ -2441,7 +2441,7 @@ void CGameMovement::WalkMove( void )
 	bool bIronSighted = pWeapon && pWeapon->m_bIsIronsighted;
 
 	// Apply cap when walking, aiming, leaning or ducking
-	if (mv->m_nButtons & IN_WALK || bIronSighted || bLeaning || mv->m_nButtons & IN_DUCK)
+	if (mv->m_nButtons & IN_WALK || bIronSighted || bLeaning || (player->GetFlags() & FL_DUCKING))
 	{
 		if (!bIsCapped)
 		{
@@ -2450,7 +2450,7 @@ void CGameMovement::WalkMove( void )
 		}
 
 		// Do not cap speed when ducking
-		if (!(mv->m_nButtons & IN_DUCK))
+		if (!(player->GetFlags() & FL_DUCKING))
 		{
 			mv->m_vecVelocity *= fWalkSpeedCropFraction;
 		}
