@@ -4972,7 +4972,6 @@ void CGameMovement::Duck( void )
 					m_fSlideDirection = mv->m_vecViewAngles.y;
 
 					player->EmitSound(strSlideSoundName);
-					player->SetFOV(player, player->GetDefaultFOV() + GAMEMOVEMENT_SLIDE_EXTRA_FOV, 0.4f);
 					player->ViewPunch(QAngle(10, 0, 0));
 				}
 			}
@@ -5011,7 +5010,6 @@ void CGameMovement::Duck( void )
 						player->m_flStepSoundTime = 0;
 
 						player->StopSound(strSlideSoundName);
-						player->SetFOV(player, player->GetDefaultFOV(), 0.4f);
 						// UTIL_ScreenShake(player->GetAbsOrigin(), -1, -1, -1, -1, SHAKE_STOP, false);
 					}
 					else
@@ -5168,6 +5166,16 @@ void CGameMovement::Duck( void )
 			// set the eye height to the non-ducked height
 			SetDuckedEyeOffset(0.0f);
 		}
+	}
+
+	// Increate FOV when sliding or slope sliding
+	if (bIsSliding || bSlopeSliding)
+	{
+		player->SetFOV(player, player->GetDefaultFOV() + GAMEMOVEMENT_SLIDE_EXTRA_FOV, 0.4f);
+	}
+	else
+	{
+		player->SetFOV(player, player->GetDefaultFOV(), 0.4f);
 	}
 }
 
