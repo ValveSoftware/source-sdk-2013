@@ -85,6 +85,9 @@ float m_fSlideInitialSpeed = 0.0f;
 float m_fSlideDirection = 0.0f;
 char *strSlideSoundName = "Carpet.Scrape";
 
+// Slope sliding
+bool bSlopeSliding = false;
+
 // Bouncing
 #define BOUNCE_ANGLE_SCALE 0.8f
 #define BOUNCE_WALLCLIMB_CUTOFF_DEG 70.0f
@@ -1980,7 +1983,7 @@ void CGameMovement::AirMove( void )
 	float		fmove, smove;
 	Vector		wishdir;
 	float		wishspeed;
-	Vector forward, right, up;
+	Vector		forward, right, up;
 
 	// Setup trace end position
 	Vector vecEndPos = player->GetAbsOrigin();
@@ -2137,12 +2140,24 @@ void CGameMovement::AirMove( void )
 		}
 	}
 
+	// If a sufrace is one unit under us and we're falling - we're sliding off a slope
+	bSlopeSliding = tr_bottom.startpos.DistTo(tr_bottom.endpos) < 1 && player->GetAbsVelocity().z < 0;
+
+	if (bSlopeSliding)
+	{
+		if (mv->m_nButtons & IN_JUMP)
+		{
+			mv->m_vecVelocity[2] = 0;
+			Jump(physprops->GetSurfaceData(tr_bottom.surface.surfaceProps));
+		}
+	}
+
 	IronSightsSlowMo();
 	Lean();
 	CheckTurnAround();
 
-	// Do not air accelerate mid-turnaround
-	if (!m_fTurnTime)
+	// Do not air accelerate mid-turnaround or mid-slopeslide
+	if (!m_fTurnTime && !bSlopeSliding)
 	{
 		AngleVectors(mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles
 
@@ -2958,12 +2973,6 @@ void CGameMovement::Jump(surfacedata_t *surface)
 		float flSpeedAddition = fabs(mv->m_flForwardMove * flSpeedBoostPerc);
 		float flMaxSpeed = mv->m_flMaxSpeed + (mv->m_flMaxSpeed * flSpeedBoostPerc);
 		float flNewSpeed = (flSpeedAddition + mv->m_vecVelocity.Length2D());
-
-		// If we're over the maximum, we want to only boost as much as will get us to the goal speed
-		if (flNewSpeed > flMaxSpeed)
-		{
-			flSpeedAddition -= flNewSpeed - flMaxSpeed;
-		}
 
 		if (mv->m_flForwardMove < 0.0f)
 			flSpeedAddition *= -1.0f;
@@ -4931,10 +4940,10 @@ void CGameMovement::Duck( void )
 	HandleDuckingSpeedCrop();
 
 	// If the player is holding down the duck button, the player is in duck transition, ducking, duck-jumping, or sliding.
-	if ( ( mv->m_nButtons & IN_DUCK ) || player->m_Local.m_bDucking  || bInDuck || bDuckJump || bIsSliding )
+	if ( ( mv->m_nButtons & IN_DUCK ) || player->m_Local.m_bDucking  || bInDuck || bDuckJump || bIsSliding || bSlopeSliding )
 	{
 		// DUCK
-		if ( ( mv->m_nButtons & IN_DUCK ) || bDuckJump || bIsSliding )
+		if ( ( mv->m_nButtons & IN_DUCK ) || bDuckJump || bIsSliding || bSlopeSliding )
 		{
 // XBOX SERVER ONLY
 #if !defined(CLIENT_DLL)
@@ -4948,9 +4957,8 @@ void CGameMovement::Duck( void )
 				}
 			}
 #endif
-
 			// Have the duck button pressed, but the player currently isn't in the duck position.
-			if ( ( buttonsPressed & IN_DUCK ) && !bInDuck && !bDuckJump && !bDuckJumpTime )
+			if ((buttonsPressed & IN_DUCK && !bInDuck && !bDuckJump && !bDuckJumpTime) || bSlopeSliding)
 			{
 				player->m_Local.m_flDucktime = GAMEMOVEMENT_DUCK_TIME;
 				player->m_Local.m_bDucking = true;
