@@ -88,6 +88,7 @@ char *strSlideSoundName = "Carpet.Scrape";
 // Slope sliding
 #define SLOPE_SLIDE_MAX_SPEED 700.0f
 #define SLOPE_SLIDE_JUMP_TIME_CUTOFF 150.0f
+#define SLOPE_MIN_ANGLE_DEG 30.0f
 bool bSlopeSliding = false;
 bool bHasJumpedOffSlope = false;
 float m_fSlopeSlideJumpTimeout = 0.0f;
@@ -4459,13 +4460,15 @@ void CGameMovement::CategorizePosition( void )
 		// Try and move down.
 		TryTouchGround( bumpOrigin, point, GetPlayerMins(), GetPlayerMaxs(), MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT, pm );
 		
+		float flSteepnessCutoff = (floorf(sin(DEG2RAD(90.0f - SLOPE_MIN_ANGLE_DEG)) * 100) / 100);
+
 		// Was on ground, but now suddenly am not.  If we hit a steep plane, we are not on ground
-		if ( !pm.m_pEnt || pm.plane.normal[2] < 0.7 )
+		if (!pm.m_pEnt || pm.plane.normal[2] < flSteepnessCutoff)
 		{
 			// Test four sub-boxes, to see if any of them would have found shallower slope we could actually stand on
 			TryTouchGroundInQuadrants( bumpOrigin, point, MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT, pm );
 
-			if ( !pm.m_pEnt || pm.plane.normal[2] < 0.7 )
+			if (!pm.m_pEnt || pm.plane.normal[2] < flSteepnessCutoff)
 			{
 				SetGroundEntity( NULL );
 				// probably want to add a check for a +z velocity too!
