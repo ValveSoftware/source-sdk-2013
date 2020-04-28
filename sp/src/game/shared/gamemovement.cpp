@@ -1985,6 +1985,7 @@ void CGameMovement::AirMove( void )
 	Vector		wishdir;
 	float		wishspeed;
 	Vector		forward, right, up;
+	bool		bSlopeTraced = false;
 
 	// Setup trace end position
 	Vector vecEndPos = player->GetAbsOrigin();
@@ -1998,8 +1999,52 @@ void CGameMovement::AirMove( void )
 		COLLISION_GROUP_PLAYER_MOVEMENT,
 		tr_bottom);
 
+	// Trace a unit in all 4 directions from bottom entity endpos
+	if (tr_bottom.DidHit())
+	{
+		trace_t tr_bottom_roundtrace;
+		for (int xDir = -1; xDir <= 1 && !bSlopeTraced; xDir += 2)
+		{
+			for (int yDir = -1; yDir <= 1 && !bSlopeTraced; yDir += 2)
+			{
+				UTIL_TraceLine(tr_bottom.endpos, *(new Vector(
+					tr_bottom.endpos.x + (ceilf(player->GetAbsAngles().x) * xDir),
+					tr_bottom.endpos.y + (ceilf(player->GetAbsAngles().y) * yDir),
+					tr_bottom.endpos.z
+					)), MASK_ALL, player, COLLISION_GROUP_PLAYER_MOVEMENT, &tr_bottom_roundtrace);
+
+				// If there is anything found around - it's considered a slope
+				if (tr_bottom_roundtrace.DidHit())
+				{
+					bSlopeTraced = true;
+				}
+			}
+		}
+	}
+
+	// If a sufrace is one unit under us and we're falling - we're sliding off a slope
+	bSlopeSliding = tr_bottom.DidHit() && tr_bottom.startpos.DistTo(tr_bottom.endpos) < 1 && player->GetAbsVelocity().z < 0;
+
+	if (bSlopeSliding)
+	{
+		// Clamp player slope slide speed to set amount
+		if (player->GetAbsVelocity().Length() > SLOPE_SLIDE_MAX_SPEED)
+		{
+			float frac = SLOPE_SLIDE_MAX_SPEED / player->GetAbsVelocity().Length();
+			mv->m_vecVelocity[0] *= frac;
+			mv->m_vecVelocity[1] *= frac;
+		}
+
+		// Allow jumping off of slopes if fast enough
+		if (mv->m_nButtons & IN_JUMP)
+		{
+			mv->m_vecVelocity[2] = 0;
+			Jump(physprops->GetSurfaceData(tr_bottom.surface.surfaceProps));
+		}
+	}
+
 	// Do we meet the requirements to bounce?
-	if (!bHasBounced && (m_flJumpTime < (GAMEMOVEMENT_JUMP_TIME * 0.9)) && !bIsCapped)
+	else if (!bHasBounced && (m_flJumpTime < (GAMEMOVEMENT_JUMP_TIME * 0.9)) && !bIsCapped && !bSlopeTraced)
 	{
 		// Vault
 		if (!bHasVaulted &&							// haven't vaulted yet
@@ -2138,27 +2183,6 @@ void CGameMovement::AirMove( void )
 					player->ViewPunch(QAngle(0, 3 * (bBounceLeft ? -1 : 1), 0));
 				}
 			}
-		}
-	}
-
-	// If a sufrace is one unit under us and we're falling - we're sliding off a slope
-	bSlopeSliding = tr_bottom.startpos.DistTo(tr_bottom.endpos) < 1 && player->GetAbsVelocity().z < 0;
-
-	if (bSlopeSliding)
-	{
-		// Clamp player slope slide speed to set amount
-		if (player->GetAbsVelocity().Length() > SLOPE_SLIDE_MAX_SPEED)
-		{
-			float frac = SLOPE_SLIDE_MAX_SPEED / player->GetAbsVelocity().Length();
-			mv->m_vecVelocity[0] *= frac;
-			mv->m_vecVelocity[1] *= frac;
-		}
-
-		// Allow jumping off of slopes
-		if (mv->m_nButtons & IN_JUMP)
-		{
-			mv->m_vecVelocity[2] = 0;
-			Jump(physprops->GetSurfaceData(tr_bottom.surface.surfaceProps));
 		}
 	}
 
