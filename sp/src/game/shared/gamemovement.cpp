@@ -86,6 +86,7 @@ float m_fSlideDirection = 0.0f;
 char *strSlideSoundName = "Carpet.Scrape";
 
 // Slope sliding
+#define SLOPE_SLIDE_MAX_SPEED 700.0f
 bool bSlopeSliding = false;
 
 // Bouncing
@@ -2145,6 +2146,15 @@ void CGameMovement::AirMove( void )
 
 	if (bSlopeSliding)
 	{
+		// Clamp player slope slide speed to set amount
+		if (player->GetAbsVelocity().Length() > SLOPE_SLIDE_MAX_SPEED)
+		{
+			float frac = SLOPE_SLIDE_MAX_SPEED / player->GetAbsVelocity().Length();
+			mv->m_vecVelocity[0] *= frac;
+			mv->m_vecVelocity[1] *= frac;
+		}
+
+		// Allow jumping off of slopes
 		if (mv->m_nButtons & IN_JUMP)
 		{
 			mv->m_vecVelocity[2] = 0;
