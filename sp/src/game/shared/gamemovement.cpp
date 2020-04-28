@@ -136,6 +136,9 @@ bool bIsCapped = false;
 int nInitialAmmo = 0;
 float fInitialScale = -1.0f;
 
+// Min slope angle used in slope steepness logic
+#define SLOPE_MIN_ANGLE floorf(sin(DEG2RAD(90.0f - SLOPE_MIN_ANGLE_DEG)) * 100) / 100
+
 // [MD] I'll remove this eventually. For now, I want the ability to A/B the optimizations.
 bool g_bMovementOptimizations = true;
 
@@ -1997,7 +2000,6 @@ void CGameMovement::AirMove( void )
 	Vector		wishdir;
 	float		wishspeed;
 	Vector		forward, right, up;
-	bool		bSlopeTraced = false;
 
 	// Setup trace end position
 	Vector vecEndPos = player->GetAbsOrigin();
@@ -2011,29 +2013,8 @@ void CGameMovement::AirMove( void )
 		COLLISION_GROUP_PLAYER_MOVEMENT,
 		tr_bottom);
 
-	// Trace a unit in all 4 directions from bottom entity endpos
-	if (tr_bottom.DidHit())
-	{
-		trace_t tr_bottom_roundtrace;
-		for (int xDir = -1; xDir <= 1 && !bSlopeTraced; xDir += 2)
-		{
-			for (int yDir = -1; yDir <= 1 && !bSlopeTraced; yDir += 2)
-			{
-				UTIL_TraceLine(tr_bottom.endpos, *(new Vector(
-					tr_bottom.endpos.x + (ceilf(player->GetAbsAngles().x) * xDir),
-					tr_bottom.endpos.y + (ceilf(player->GetAbsAngles().y) * yDir),
-					tr_bottom.endpos.z
-					)), MASK_ALL, player, COLLISION_GROUP_PLAYER_MOVEMENT, &tr_bottom_roundtrace);
-
-				// If there is anything found around - it's considered a slope
-				if (tr_bottom_roundtrace.DidHit())
-				{
-					bSlopeTraced = true;
-				}
-			}
-		}
-	}
-
+	// Decide if traced solid is a slope
+	bool bSlopeTraced = tr_bottom.DidHit() && tr_bottom.plane.normal[2] < SLOPE_MIN_ANGLE;
 	bool bOldSlopeSliding = bSlopeSliding;
 
 	// If a sufrace is one unit under us and we're falling - we're sliding off a slope
@@ -4460,15 +4441,13 @@ void CGameMovement::CategorizePosition( void )
 		// Try and move down.
 		TryTouchGround( bumpOrigin, point, GetPlayerMins(), GetPlayerMaxs(), MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT, pm );
 		
-		float flSteepnessCutoff = (floorf(sin(DEG2RAD(90.0f - SLOPE_MIN_ANGLE_DEG)) * 100) / 100);
-
 		// Was on ground, but now suddenly am not.  If we hit a steep plane, we are not on ground
-		if (!pm.m_pEnt || pm.plane.normal[2] < flSteepnessCutoff)
+		if (!pm.m_pEnt || pm.plane.normal[2] < SLOPE_MIN_ANGLE)
 		{
 			// Test four sub-boxes, to see if any of them would have found shallower slope we could actually stand on
 			TryTouchGroundInQuadrants( bumpOrigin, point, MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT, pm );
 
-			if (!pm.m_pEnt || pm.plane.normal[2] < flSteepnessCutoff)
+			if (!pm.m_pEnt || pm.plane.normal[2] < SLOPE_MIN_ANGLE)
 			{
 				SetGroundEntity( NULL );
 				// probably want to add a check for a +z velocity too!
