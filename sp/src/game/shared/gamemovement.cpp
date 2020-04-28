@@ -89,6 +89,7 @@ char *strSlideSoundName = "Carpet.Scrape";
 #define SLOPE_SLIDE_MAX_SPEED 700.0f
 #define SLOPE_SLIDE_JUMP_TIME_CUTOFF 150.0f
 bool bSlopeSliding = false;
+bool bHasJumpedOffSlope = false;
 float m_fSlopeSlideJumpTimeout = 0.0f;
 
 // Bouncing
@@ -2058,6 +2059,7 @@ void CGameMovement::AirMove( void )
 		{
 			mv->m_vecVelocity[2] = 0;
 			Jump(physprops->GetSurfaceData(tr_bottom.surface.surfaceProps));
+			bHasJumpedOffSlope = true;
 		}
 	}
 
@@ -2209,7 +2211,7 @@ void CGameMovement::AirMove( void )
 	CheckTurnAround();
 
 	// Do not air accelerate mid-turnaround or mid-slopeslide
-	if (!m_fTurnTime && !bSlopeSliding)
+	if (!m_fTurnTime && !bSlopeSliding && !bHasJumpedOffSlope)
 	{
 		AngleVectors(mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles
 
@@ -2473,6 +2475,7 @@ void CGameMovement::WalkMove( void )
 	// On ground, therefore reset bounce
 	bHasBounced = false;
 	bHasVaulted = false;
+	bHasJumpedOffSlope = false;
 	m_fPreviousTurn = 0;
 
 	CBaseCombatWeapon *pWeapon = player->GetActiveWeapon();
