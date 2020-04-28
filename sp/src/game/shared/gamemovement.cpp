@@ -2472,9 +2472,10 @@ void CGameMovement::WalkMove( void )
 		player->ViewPunch(QAngle(yoffset, xoffset, 0));
 	}
 
-	// On ground, therefore reset bounce
+	// On ground, therefore reset bounces and slope slides
 	bHasBounced = false;
 	bHasVaulted = false;
+	bSlopeSliding = false;
 	bHasJumpedOffSlope = false;
 	m_fPreviousTurn = 0;
 
