@@ -87,7 +87,9 @@ char *strSlideSoundName = "Carpet.Scrape";
 
 // Slope sliding
 #define SLOPE_SLIDE_MAX_SPEED 700.0f
+#define SLOPE_SLIDE_JUMP_TIME_CUTOFF 150.0f
 bool bSlopeSliding = false;
+float m_fSlopeSlideJumpTimeout = 0.0f;
 
 // Bouncing
 #define BOUNCE_ANGLE_SCALE 0.8f
@@ -1235,6 +1237,14 @@ void CGameMovement::ReduceTimers( void )
 			m_fTurnTimeout = 0;
 		}
 	}
+	if (m_fSlopeSlideJumpTimeout > 0)
+	{
+		m_fSlopeSlideJumpTimeout -= frame_msec;
+		if (m_fSlopeSlideJumpTimeout < 0)
+		{
+			m_fSlopeSlideJumpTimeout = 0;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2022,11 +2032,19 @@ void CGameMovement::AirMove( void )
 		}
 	}
 
+	bool bOldSlopeSliding = bSlopeSliding;
+
 	// If a sufrace is one unit under us and we're falling - we're sliding off a slope
 	bSlopeSliding = tr_bottom.DidHit() && tr_bottom.startpos.DistTo(tr_bottom.endpos) < 1 && player->GetAbsVelocity().z < 0;
 
 	if (bSlopeSliding)
 	{
+		// Start jump timeout if only just started sliding
+		if (!bOldSlopeSliding)
+		{
+			m_fSlopeSlideJumpTimeout = SLOPE_SLIDE_JUMP_TIME_CUTOFF;
+		}
+
 		// Clamp player slope slide speed to set amount
 		if (player->GetAbsVelocity().Length() > SLOPE_SLIDE_MAX_SPEED)
 		{
@@ -2035,8 +2053,8 @@ void CGameMovement::AirMove( void )
 			mv->m_vecVelocity[1] *= frac;
 		}
 
-		// Allow jumping off of slopes if fast enough
-		if (mv->m_nButtons & IN_JUMP)
+		// Allow jumping off of slopes if timeout is clear
+		if (mv->m_nButtons & IN_JUMP && m_fSlopeSlideJumpTimeout == 0)
 		{
 			mv->m_vecVelocity[2] = 0;
 			Jump(physprops->GetSurfaceData(tr_bottom.surface.surfaceProps));
