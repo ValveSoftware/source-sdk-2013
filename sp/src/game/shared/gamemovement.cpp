@@ -3009,8 +3009,6 @@ void CGameMovement::Jump(surfacedata_t *surface)
 		// to not accumulate over time.
 		float flSpeedBoostPerc = (!pMoveData->m_bIsSprinting && !player->m_Local.m_bDucked) ? 0.2f : 0.1f; // 0.5f : 0.1f
 		float flSpeedAddition = fabs(mv->m_flForwardMove * flSpeedBoostPerc);
-		float flMaxSpeed = mv->m_flMaxSpeed + (mv->m_flMaxSpeed * flSpeedBoostPerc);
-		float flNewSpeed = (flSpeedAddition + mv->m_vecVelocity.Length2D());
 
 		if (mv->m_flForwardMove < 0.0f)
 			flSpeedAddition *= -1.0f;
