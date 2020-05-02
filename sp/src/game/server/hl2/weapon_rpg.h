@@ -165,6 +165,9 @@ private:
 //-----------------------------------------------------------------------------
 CAPCMissile *FindAPCMissileInCone( const Vector &vecOrigin, const Vector &vecDirection, float flAngle );
 
+#ifdef MAPBASE
+extern ConVar weapon_rpg_fire_rate;
+#endif
 
 //-----------------------------------------------------------------------------
 // RPG
@@ -182,7 +185,11 @@ public:
 	void	Precache( void );
 
 	void	PrimaryAttack( void );
+#ifdef MAPBASE
+	virtual float GetFireRate( void ) { return weapon_rpg_fire_rate.GetFloat(); };
+#else
 	virtual float GetFireRate( void ) { return 1; };
+#endif
 	void	ItemPostFrame( void );
 
 	void	Activate( void );

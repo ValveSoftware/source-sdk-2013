@@ -61,6 +61,12 @@
 extern int COMBINE_AE_BEGIN_ALTFIRE;
 extern int COMBINE_AE_ALTFIRE;
 
+enum eGrenadeCapabilities
+{
+	GRENCAP_GRENADE = (1 << 0),
+	GRENCAP_ALTFIRE = (1 << 1),
+};
+
 //-----------------------------------------------------------------------------
 // Other classes can use this and access some CAI_GrenadeUser functions.
 //-----------------------------------------------------------------------------
@@ -156,7 +162,9 @@ void CAI_GrenadeUser<BASE_NPC>::HandleAnimEvent( animevent_t *pEvent )
 {
 	if ( pEvent->event == COMBINE_AE_BEGIN_ALTFIRE )
 	{
-		EmitSound( "Weapon_CombineGuard.Special1" );
+		if (GetActiveWeapon())
+			GetActiveWeapon()->WeaponSound( SPECIAL1 );
+
 		//SpeakIfAllowed( TLK_CMB_THROWGRENADE, "altfire:1" );
 		return;
 	}
@@ -166,7 +174,10 @@ void CAI_GrenadeUser<BASE_NPC>::HandleAnimEvent( animevent_t *pEvent )
 
 		fakeEvent.pSource = this;
 		fakeEvent.event = EVENT_WEAPON_AR2_ALTFIRE;
-		GetActiveWeapon()->Operator_HandleAnimEvent( &fakeEvent, this );
+
+		// Weapon could've been dropped while playing animation
+		if (GetActiveWeapon())
+			GetActiveWeapon()->Operator_HandleAnimEvent( &fakeEvent, this );
 
 		// Stop other squad members from combine balling for a while.
 		DelaySquadAltFireAttack( 10.0f );

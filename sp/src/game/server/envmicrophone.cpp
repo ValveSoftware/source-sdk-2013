@@ -48,6 +48,7 @@ BEGIN_DATADESC( CEnvMicrophone )
 	DEFINE_KEYFIELD(m_iszLandmarkName, FIELD_STRING, "landmark"),
 	DEFINE_FIELD(m_hLandmark, FIELD_EHANDLE),
 	DEFINE_KEYFIELD(m_flPitchScale, FIELD_FLOAT, "PitchScale"),
+	DEFINE_KEYFIELD(m_nChannel, FIELD_INTEGER, "channel"),
 #endif
 	// DEFINE_FIELD(m_bAvoidFeedback, FIELD_BOOLEAN),	// DONT SAVE
 	DEFINE_KEYFIELD(m_iSpeakerDSPPreset, FIELD_INTEGER, "speaker_dsp_preset" ),
@@ -59,6 +60,8 @@ BEGIN_DATADESC( CEnvMicrophone )
 	DEFINE_INPUTFUNC(FIELD_STRING, "SetSpeakerName", InputSetSpeakerName),
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC(FIELD_INTEGER, "SetDSPPreset", InputSetDSPPreset),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetPitchScale", InputSetPitchScale ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetChannel", InputSetChannel ),
 #endif
 
 	DEFINE_OUTPUT(m_SoundLevel, "SoundLevel"),
@@ -258,6 +261,24 @@ void CEnvMicrophone::InputSetDSPPreset( inputdata_t &inputdata )
 {
 	m_iSpeakerDSPPreset = inputdata.value.Int();
 	ActivateSpeaker();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CEnvMicrophone::InputSetPitchScale( inputdata_t &inputdata )
+{
+	m_flPitchScale = inputdata.value.Float();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CEnvMicrophone::InputSetChannel( inputdata_t &inputdata )
+{
+	m_nChannel = inputdata.value.Int();
 }
 #endif
 
@@ -522,7 +543,11 @@ MicrophoneResult_t CEnvMicrophone::SoundPlayed( int entindex, const char *soundn
 	CPASAttenuationFilter filter( m_hSpeaker );
 
 	EmitSound_t ep;
+#ifdef MAPBASE
+	ep.m_nChannel = m_nChannel;
+#else
 	ep.m_nChannel = CHAN_STATIC;
+#endif
 	ep.m_pSoundName = soundname;
 	ep.m_flVolume = flVolume;
 	ep.m_SoundLevel = soundlevel;

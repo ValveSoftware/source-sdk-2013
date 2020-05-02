@@ -1899,6 +1899,14 @@ public:
 		return true;
 	}
 
+	bool PassesDamageFilterImpl( CBaseEntity *pCaller, const CTakeDamageInfo &info )
+	{
+		if (GetTargetFilter() && m_iSecondaryFilterMode == REDIRECT_MUST_PASS_TO_DAMAGE_CALLER)
+			return RedirectToDamageFilter( pCaller, info );
+
+		return true;
+	}
+
 	bool DamageMod( CBaseEntity *pCaller, CTakeDamageInfo &info )
 	{
 		if (GetTargetFilter())

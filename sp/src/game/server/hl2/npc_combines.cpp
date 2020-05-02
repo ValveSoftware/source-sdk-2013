@@ -96,7 +96,12 @@ void CNPC_CombineS::Precache()
 {
 	const char *pModelName = STRING( GetModelName() );
 
+#ifdef MAPBASE
+	// Need to do this for dirt variant
+	if( !Q_strnicmp( pModelName, "models/combine_super_sold", 25 ) )
+#else
 	if( !Q_stricmp( pModelName, "models/combine_super_soldier.mdl" ) )
+#endif
 	{
 		m_fIsElite = true;
 	}

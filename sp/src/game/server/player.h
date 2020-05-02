@@ -627,6 +627,10 @@ public:
 	void					PlayWearableAnimsForPlaybackEvent( wearableanimplayback_t iPlayback );
 #endif
 
+#ifdef MAPBASE
+	bool					ShouldUseVisibilityCache( CBaseEntity *pEntity );
+#endif
+
 public:
 	// Player Physics Shadow
 	void					SetupVPhysicsShadow( const Vector &vecAbsOrigin, const Vector &vecAbsVelocity, CPhysCollide *pStandModel, const char *pStandHullName, CPhysCollide *pCrouchModel, const char *pCrouchHullName );

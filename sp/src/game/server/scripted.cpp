@@ -2424,8 +2424,11 @@ void CScriptedSound::InputPlaySound( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CScriptedSound::InputPlaySoundOnEntity( inputdata_t &inputdata )
 {
-	inputdata.value.Entity()->PrecacheScriptSound(STRING(m_message));
-	inputdata.value.Entity()->EmitSound(STRING(m_message));
+	if (inputdata.value.Entity())
+	{
+		inputdata.value.Entity()->PrecacheScriptSound(STRING(m_message));
+		inputdata.value.Entity()->EmitSound(STRING(m_message));
+	}
 }
 
 //-----------------------------------------------------------------------------

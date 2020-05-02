@@ -136,6 +136,10 @@ public:
 	virtual bool		FVisible( const Vector &vecTarget, int traceMask = MASK_BLOCKLOS, CBaseEntity **ppBlocker = NULL )	{ return BaseClass::FVisible( vecTarget, traceMask, ppBlocker ); }
 	static void			ResetVisibilityCache( CBaseCombatCharacter *pBCC = NULL );
 
+#ifdef MAPBASE
+	virtual bool		ShouldUseVisibilityCache( CBaseEntity *pEntity );
+#endif
+
 #ifdef PORTAL
 	virtual	bool		FVisibleThroughPortal( const CProp_Portal *pPortal, CBaseEntity *pEntity, int traceMask = MASK_BLOCKLOS, CBaseEntity **ppBlocker = NULL );
 #endif

@@ -1876,6 +1876,46 @@ void CAI_BaseNPC::InputSetThinkNPC( inputdata_t &inputdata )
 	SetThink ( &CAI_BaseNPC::CallNPCThink );
 	SetNextThink(gpGlobals->curtime + inputdata.value.Float());
 }
+
+//------------------------------------------------------------------------------
+// Purpose: Sets our look distance
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputSetDistLook( inputdata_t &inputdata )
+{
+	if ( inputdata.value.Float() != 0.0f )
+	{
+		SetDistLook( inputdata.value.Float() );
+	}
+	else
+	{
+		SetDistLook( 2048.0 );
+
+		if ( HasSpawnFlags( SF_NPC_LONG_RANGE ) )
+		{
+			SetDistLook( 6000.0 );
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Purpose: Sets our distance too far
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputSetDistTooFar( inputdata_t &inputdata )
+{
+	if ( inputdata.value.Float() != 0.0f )
+	{
+		m_flDistTooFar = inputdata.value.Float();
+	}
+	else
+	{
+		m_flDistTooFar = 1024.0;
+
+		if ( HasSpawnFlags( SF_NPC_LONG_RANGE ) )
+		{
+			m_flDistTooFar = 1e9f;
+		}
+	}
+}
 #endif
 
 //---------------------------------------------------------
@@ -11599,6 +11639,8 @@ BEGIN_DATADESC( CAI_BaseNPC )
 
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_FriendlyFireOverride,	FIELD_INTEGER, "FriendlyFireOverride" ),
+
+	DEFINE_KEYFIELD( m_flSpeedModifier, FIELD_FLOAT, "BaseSpeedModifier" ),
 #endif
 
 	// Satisfy classcheck
@@ -11699,6 +11741,11 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetHintGroup", InputSetHintGroup ),
 
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetThinkNPC", InputSetThinkNPC ),
+
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetDistLook", InputSetDistLook ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetDistTooFar", InputSetDistTooFar ),
+
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetSpeedModifier", InputSetSpeedModifier ),
 
 	DEFINE_OUTPUT( m_OnStateChange,	"OnStateChange" ),
 #endif
@@ -12356,6 +12403,7 @@ CAI_BaseNPC::CAI_BaseNPC(void)
 
 #ifdef MAPBASE
 	m_iDynamicInteractionsAllowed = TRS_NONE;
+	m_flSpeedModifier = 1.0f;
 #endif
 }
 
@@ -13967,6 +14015,34 @@ void CAI_BaseNPC::InputSetSpeedModifierSpeed( inputdata_t &inputdata )
 	m_iSpeedModSpeed = inputdata.value.Int();
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Get movement speed, multipled by modifier
+//-----------------------------------------------------------------------------
+float CAI_BaseNPC::GetSequenceGroundSpeed( CStudioHdr *pStudioHdr, int iSequence )
+{
+	float t = SequenceDuration( pStudioHdr, iSequence );
+
+	if (t > 0)
+	{
+		return (GetSequenceMoveDist( pStudioHdr, iSequence ) * m_flSpeedModifier / t);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Hammer input to change the speed of the NPC (based on 1upD's npc_shadow_walker code)
+// Not to be confused with the inputs above
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::InputSetSpeedModifier( inputdata_t &inputdata )
+{
+	this->m_flSpeedModifier = inputdata.value.Float();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -15534,6 +15610,12 @@ bool CAI_BaseNPC::IsCrouchedActivity( Activity activity )
 		case ACT_RANGE_AIM_AR2_LOW:
 		case ACT_RANGE_AIM_SMG1_LOW:
 		case ACT_RANGE_AIM_PISTOL_LOW:
+
+		case ACT_RANGE_ATTACK1_LOW:
+		case ACT_RANGE_ATTACK_AR2_LOW:
+		case ACT_RANGE_ATTACK_SMG1_LOW:
+		case ACT_RANGE_ATTACK_PISTOL_LOW:
+		case ACT_RANGE_ATTACK2_LOW:
 #endif
 			return true;
 	}

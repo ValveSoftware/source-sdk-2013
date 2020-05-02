@@ -96,7 +96,7 @@ struct LightmappedGeneric_DX9_Vars_t
 
 #ifdef PARALLAX_CORRECTED_CUBEMAPS
 	// Parallax cubemaps
-	int m_nEnvmapParallax;
+	int m_nEnvmapParallax; // Needed for editor
 	int m_nEnvmapParallaxObb1;
 	int m_nEnvmapParallaxObb2;
 	int m_nEnvmapParallaxObb3;

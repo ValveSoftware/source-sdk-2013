@@ -373,6 +373,10 @@ private:
 	COutputFloat	m_OnContainerShotDownBeforeDropoff;
 	COutputEvent	m_OnContainerShotDownAfterDropoff;
 
+#ifdef MAPBASE
+	COutputEHANDLE	m_OnSpawnNPC;
+#endif
+
 protected:
 	// Because the combine dropship is a leaf class, we can use
 	// static variables to store this information, and save some memory.
@@ -866,6 +870,10 @@ BEGIN_DATADESC( CNPC_CombineDropship )
 	DEFINE_OUTPUT( m_OnContainerShotDownBeforeDropoff, "OnCrateShotDownBeforeDropoff" ),
 	DEFINE_OUTPUT( m_OnContainerShotDownAfterDropoff, "OnCrateShotDownAfterDropoff" ),
 
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnSpawnNPC, "OnSpawnNPC" ),
+#endif
+
 END_DATADESC()
 
 
@@ -955,6 +963,9 @@ void CNPC_CombineDropship::Spawn( void )
 		m_hContainer->SetOwnerEntity(this);
 		m_hContainer->Spawn();
 		m_hContainer->SetAbsOrigin( GetAbsOrigin() - Vector( 0, 0 , 100 ) );
+#ifdef MAPBASE
+		m_OnSpawnNPC.Set( m_hContainer, m_hContainer, this );
+#endif
 		break;
 
 	case CRATE_APC:
@@ -2602,6 +2613,10 @@ void CNPC_CombineDropship::SpawnTroop( void )
 	pSequence->AcceptInput( "BeginSequence", this, this, emptyVariant, 0 );
 
 	m_hLastTroopToLeave = pNPC;
+
+#ifdef MAPBASE
+	m_OnSpawnNPC.Set( pNPC, pNPC, this );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2765,7 +2780,12 @@ float CNPC_CombineDropship::GetAltitude( void )
 //-----------------------------------------------------------------------------
 void CNPC_CombineDropship::DropMine( void )
 {
+#ifdef MAPBASE
+	CBaseEntity *pMine = NPC_Rollermine_DropFromPoint( GetAbsOrigin(), this, STRING( m_sRollermineTemplateData ) );
+	m_OnSpawnNPC.Set( pMine, pMine, this );
+#else
 	NPC_Rollermine_DropFromPoint( GetAbsOrigin(), this, STRING(m_sRollermineTemplateData) );
+#endif
 }
 
 //------------------------------------------------------------------------------

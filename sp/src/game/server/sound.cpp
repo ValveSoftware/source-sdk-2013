@@ -173,6 +173,9 @@ public:
 
 	void ToggleSound();
 	void SendSound( SoundFlags_t flags );
+#ifdef MAPBASE
+	void SoundEnd();
+#endif
 
 	// Input handlers
 	void InputPlaySound( inputdata_t &inputdata );
@@ -203,6 +206,8 @@ public:
 
 #ifdef MAPBASE
 	int		m_iSoundFlags;
+
+	COutputEvent m_OnSoundFinished;
 #endif
 };
 
@@ -235,6 +240,9 @@ BEGIN_DATADESC( CAmbientGeneric )
 
 	// Function Pointers
 	DEFINE_FUNCTION( RampThink ),
+#ifdef MAPBASE
+	DEFINE_THINKFUNC( SoundEnd ),
+#endif
 
 	// Inputs
 	DEFINE_INPUTFUNC(FIELD_VOID, "PlaySound", InputPlaySound ),
@@ -246,6 +254,8 @@ BEGIN_DATADESC( CAmbientGeneric )
 	DEFINE_INPUTFUNC(FIELD_FLOAT, "FadeOut", InputFadeOut ),
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC(FIELD_STRING, "SetSound", InputSetSound ),
+
+	DEFINE_OUTPUT( m_OnSoundFinished, "OnSoundFinished" ),
 #endif
 
 END_DATADESC()
@@ -254,6 +264,10 @@ END_DATADESC()
 #define SF_AMBIENT_SOUND_EVERYWHERE			1
 #define SF_AMBIENT_SOUND_START_SILENT		16
 #define SF_AMBIENT_SOUND_NOT_LOOPING		32
+
+#ifdef MAPBASE
+static const char *g_SoundEndContext = "SoundEnd";
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -933,12 +947,17 @@ void CAmbientGeneric::SendSound( SoundFlags_t flags)
 			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile, 
 						0, SNDLVL_NONE, iFlags, 0);
 
+			SetContextThink( NULL, TICK_NEVER_THINK, g_SoundEndContext );
+
 			m_fActive = false;
 		}
 		else
 		{
+			float duration = 0.0f;
 			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile, 
-				(m_dpv.vol * 0.01), m_iSoundLevel, iFlags, m_dpv.pitch);
+				(m_dpv.vol * 0.01), m_iSoundLevel, iFlags, m_dpv.pitch, 0.0f, &duration);
+
+			SetContextThink( &CAmbientGeneric::SoundEnd, gpGlobals->curtime + duration, g_SoundEndContext );
 
 			// Only mark active if this is a looping sound.  If not looping, each
 			// trigger will cause the sound to play.  If the sound is still
@@ -956,6 +975,8 @@ void CAmbientGeneric::SendSound( SoundFlags_t flags)
 		{
 			UTIL_EmitAmbientSound(m_nSoundSourceEntIndex, GetAbsOrigin(), szSoundFile, 
 					0, SNDLVL_NONE, iFlags, 0);
+
+			SetContextThink( NULL, TICK_NEVER_THINK, g_SoundEndContext );
 
 			m_fActive = false;
 		}
@@ -987,6 +1008,13 @@ void CAmbientGeneric::SendSound( SoundFlags_t flags)
 	}
 #endif
 }
+
+#ifdef MAPBASE
+void CAmbientGeneric::SoundEnd()
+{
+	m_OnSoundFinished.FireOutput(this, this);
+}
+#endif
 
 
 //-----------------------------------------------------------------------------

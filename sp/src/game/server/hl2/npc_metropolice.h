@@ -66,6 +66,9 @@ public:
 	virtual void		OnChangeRunningBehavior( CAI_BehaviorBase *pOldBehavior,  CAI_BehaviorBase *pNewBehavior );
 
 	const char*		GetGrenadeAttachment() { return "LHand"; }
+
+	virtual bool IsAltFireCapable() { return (m_iGrenadeCapabilities & GRENCAP_ALTFIRE) != 0; }
+	virtual bool IsGrenadeCapable() { return (m_iGrenadeCapabilities & GRENCAP_GRENADE) != 0; }
 #endif
 
 	Vector		EyeDirection3D( void )	{ return CAI_BaseHumanoid::EyeDirection3D(); } // cops don't have eyes
@@ -242,6 +245,21 @@ private:
 	int SelectAirboatCombatSchedule();
 	int SelectAirboatRangeAttackSchedule();
 
+#ifdef MAPBASE
+	int SelectBehaviorOverrideSchedule();
+
+	bool IsCrouchedActivity( Activity activity );
+
+	// This is something Valve did with Combine soldiers so they would throw grenades during standoffs.
+	// We're using a similar thing here so metrocops deploy manhacks.
+	class CMetroPoliceStandoffBehavior : public CAI_ComponentWithOuter<CNPC_MetroPolice, CAI_StandoffBehavior>
+	{
+		typedef CAI_ComponentWithOuter<CNPC_MetroPolice, CAI_StandoffBehavior> BaseClass;
+
+		virtual int SelectScheduleAttack();
+	};
+#endif
+
 	// Handle flinching
 	bool IsHeavyDamage( const CTakeDamageInfo &info );
 
@@ -405,6 +423,7 @@ private:
 		SCHED_METROPOLICE_FORCED_GRENADE_THROW,
 		SCHED_METROPOLICE_MOVE_TO_FORCED_GREN_LOS,
 		SCHED_METROPOLICE_RANGE_ATTACK2,
+		SCHED_METROPOLICE_AR2_ALTFIRE,
 #endif
 	};
 
@@ -436,6 +455,7 @@ private:
 		TASK_METROPOLICE_GET_PATH_TO_FORCED_GREN_LOS,
 		TASK_METROPOLICE_DEFER_SQUAD_GRENADES,
 		TASK_METROPOLICE_FACE_TOSS_DIR,
+		TASK_METROPOLICE_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET,
 #endif
 	};
 
@@ -494,13 +514,20 @@ private:
 #ifdef MAPBASE
 	COutputEHANDLE	m_OnHitByPhysicsObject;
 	COutputEHANDLE	m_OutManhack;
+
+	// Determines whether this NPC is allowed to use grenades or alt-fire stuff.
+	eGrenadeCapabilities m_iGrenadeCapabilities;
 #endif
 
 	AIHANDLE		m_hManhack;
 	CHandle<CPhysicsProp>	m_hBlockingProp;
 
 	CAI_ActBusyBehavior		m_ActBusyBehavior;
+#ifdef MAPBASE
+	CMetroPoliceStandoffBehavior	m_StandoffBehavior;
+#else
 	CAI_StandoffBehavior	m_StandoffBehavior;
+#endif
 	CAI_AssaultBehavior		m_AssaultBehavior;
 	CAI_FuncTankBehavior	m_FuncTankBehavior;
 	CAI_RappelBehavior		m_RappelBehavior;

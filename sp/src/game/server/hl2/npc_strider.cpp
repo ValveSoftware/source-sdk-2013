@@ -442,6 +442,11 @@ CNPC_Strider::CNPC_Strider()
 //---------------------------------------------------------
 CNPC_Strider::~CNPC_Strider()
 {
+#ifdef MAPBASE
+	if (m_hFocus)
+		UTIL_Remove( m_hFocus );
+#endif
+
 	delete m_pMinigun;
 }
 

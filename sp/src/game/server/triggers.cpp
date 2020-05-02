@@ -1036,7 +1036,11 @@ class CTriggerLook : public CTriggerOnce
 	DECLARE_CLASS( CTriggerLook, CTriggerOnce );
 public:
 
+#ifdef MAPBASE
+	CUtlVector<EHANDLE> m_hLookTargets;
+#else
 	EHANDLE m_hLookTarget;
+#endif
 	float m_flFieldOfView;
 	float m_flLookTime;			// How long must I look for
 	float m_flLookTimeTotal;	// How long have I looked
@@ -1046,6 +1050,7 @@ public:
 	EHANDLE m_hActivator;		// The entity that triggered us.
 #ifdef MAPBASE
 	bool m_bUseLOS;				// Makes lookers use LOS calculations in addition to viewcone calculations
+	bool m_bUseLookEntityAsCaller;	// Fires OnTrigger with the seen entity
 #endif
 
 	void Spawn( void );
@@ -1058,7 +1063,11 @@ public:
 
 private:
 
+#ifdef MAPBASE
+	void Trigger(CBaseEntity *pActivator, bool bTimeout, CBaseEntity *pCaller = NULL);
+#else
 	void Trigger(CBaseEntity *pActivator, bool bTimeout);
+#endif
 	void TimeoutThink();
 
 	COutputEvent m_OnTimeout;
@@ -1067,7 +1076,11 @@ private:
 LINK_ENTITY_TO_CLASS( trigger_look, CTriggerLook );
 BEGIN_DATADESC( CTriggerLook )
 
+#ifdef MAPBASE
+	DEFINE_UTLVECTOR( m_hLookTargets, FIELD_EHANDLE ),
+#else
 	DEFINE_FIELD( m_hLookTarget, FIELD_EHANDLE ),
+#endif
 	DEFINE_FIELD( m_flLookTimeTotal, FIELD_FLOAT ),
 	DEFINE_FIELD( m_flLookTimeLast, FIELD_TIME ),
 	DEFINE_KEYFIELD( m_flTimeoutDuration, FIELD_FLOAT, "timeout" ),
@@ -1075,6 +1088,7 @@ BEGIN_DATADESC( CTriggerLook )
 	DEFINE_FIELD( m_hActivator, FIELD_EHANDLE ),
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_bUseLOS, FIELD_BOOLEAN, "UseLOS" ),
+	DEFINE_KEYFIELD( m_bUseLookEntityAsCaller, FIELD_BOOLEAN, "LookEntityCaller" ),
 #endif
 
 	DEFINE_OUTPUT( m_OnTimeout, "OnTimeout" ),
@@ -1093,7 +1107,9 @@ END_DATADESC()
 //------------------------------------------------------------------------------
 void CTriggerLook::Spawn( void )
 {
+#ifndef MAPBASE
 	m_hLookTarget = NULL;
+#endif
 	m_flLookTimeTotal = -1;
 	m_bTimeoutFired = false;
 
@@ -1158,6 +1174,17 @@ void CTriggerLook::Touch(CBaseEntity *pOther)
 	// --------------------------------
 	// Make sure we have a look target
 	// --------------------------------
+#ifdef MAPBASE
+	if (m_hLookTargets.Count() <= 0)
+	{
+		CBaseEntity *pEntity = gEntList.FindEntityByName( NULL, m_target, this, m_hActivator, this );
+		while (pEntity)
+		{
+			m_hLookTargets.AddToTail(pEntity);
+			pEntity = gEntList.FindEntityByName( pEntity, m_target, this, m_hActivator, this );
+		}
+	}
+#else
 	if (m_hLookTarget == NULL)
 	{
 		m_hLookTarget = GetNextTarget();
@@ -1166,6 +1193,7 @@ void CTriggerLook::Touch(CBaseEntity *pOther)
 			return;
 		}
 	}
+#endif
 
 	// This is designed for single player only
 	// so we'll always have the same player
@@ -1194,15 +1222,52 @@ void CTriggerLook::Touch(CBaseEntity *pOther)
 			vLookDir = ((CBaseCombatCharacter*)pOther)->EyeDirection3D( );
 		}
 
+#ifdef MAPBASE
+		// Check if the player is looking at any of the entities, even if they turn to look at another entity candidate.
+		// This is how we're doing support for multiple entities without redesigning trigger_look.
+		EHANDLE hLookingAtEntity = NULL;
+		for (int i = 0; i < m_hLookTargets.Count(); i++)
+		{
+			Vector vTargetDir = m_hLookTargets[i]->GetAbsOrigin() - pOther->EyePosition();
+			VectorNormalize(vTargetDir);
+
+			float fDotPr = DotProduct(vLookDir,vTargetDir);
+			if (fDotPr > m_flFieldOfView && (!m_bUseLOS || pOther->FVisible(pOther)))
+			{
+				hLookingAtEntity = m_hLookTargets[i];
+				break;
+			}
+		}
+
+		if (hLookingAtEntity != NULL)
+		{
+			// Is it the first time I'm looking?
+			if (m_flLookTimeTotal == -1)
+			{
+				m_flLookTimeLast	= gpGlobals->curtime;
+				m_flLookTimeTotal	= 0;
+			}
+			else
+			{
+				m_flLookTimeTotal	+= gpGlobals->curtime - m_flLookTimeLast;
+				m_flLookTimeLast	=  gpGlobals->curtime;
+			}
+
+			if (m_flLookTimeTotal >= m_flLookTime)
+			{
+				Trigger(pOther, false, hLookingAtEntity);
+			}
+		}
+		else
+		{
+			m_flLookTimeTotal	= -1;
+		}
+#else
 		Vector vTargetDir = m_hLookTarget->GetAbsOrigin() - pOther->EyePosition();
 		VectorNormalize(vTargetDir);
 
 		float fDotPr = DotProduct(vLookDir,vTargetDir);
-#ifdef MAPBASE
-		if (fDotPr > m_flFieldOfView && (!m_bUseLOS || pOther->FVisible(pOther)))
-#else
 		if (fDotPr > m_flFieldOfView)
-#endif
 		{
 			// Is it the first time I'm looking?
 			if (m_flLookTimeTotal == -1)
@@ -1225,6 +1290,7 @@ void CTriggerLook::Touch(CBaseEntity *pOther)
 		{
 			m_flLookTimeTotal	= -1;
 		}
+#endif
 	}
 }
 
@@ -1232,7 +1298,11 @@ void CTriggerLook::Touch(CBaseEntity *pOther)
 //-----------------------------------------------------------------------------
 // Purpose: Called when the trigger is fired by look logic or timeout.
 //-----------------------------------------------------------------------------
+#ifdef MAPBASE
+void CTriggerLook::Trigger(CBaseEntity *pActivator, bool bTimeout, CBaseEntity *pCaller)
+#else
 void CTriggerLook::Trigger(CBaseEntity *pActivator, bool bTimeout)
+#endif
 {
 	if (bTimeout)
 	{
@@ -1245,7 +1315,11 @@ void CTriggerLook::Trigger(CBaseEntity *pActivator, bool bTimeout)
 	else
 	{
 		// Fire because the player looked at the target.
+#ifdef MAPBASE
+		m_OnTrigger.FireOutput(pActivator, m_bUseLookEntityAsCaller ? pCaller : this);
+#else
 		m_OnTrigger.FireOutput(pActivator, this);
+#endif
 		m_flLookTimeTotal = -1;
 
 		// Cancel the timeout think.

@@ -35,6 +35,9 @@
 // Spawn flags
 #define SF_BREAKABLESURF_CRACK_DECALS				0x00000001
 #define SF_BREAKABLESURF_DAMAGE_FROM_HELD_OBJECTS	0x00000002
+#ifdef MAPBASE
+#define SF_BREAKABLESURF_PLAY_BREAK_SOUND			0x00000004
+#endif
 
 //#############################################################################
 //  > CWindowPane
@@ -611,7 +614,15 @@ void CBreakableSurface::Die( CBaseEntity *pBreaker, const Vector &vAttackDir )
 		return;
 
 	// Play a break sound
+#ifdef MAPBASE
+	if ( HasSpawnFlags(SF_BREAKABLESURF_PLAY_BREAK_SOUND) )
+	{
+		Vector centerPos = (m_vLLVertex + m_vURVertex) / 2;
+		PhysBreakSound( this, VPhysicsGetObject(), centerPos );
+	}
+#else
 	PhysBreakSound( this, VPhysicsGetObject(), GetAbsOrigin() );
+#endif
 
 	m_bIsBroken = true;
 	m_iHealth = 0.0f;

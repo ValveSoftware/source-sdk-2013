@@ -56,6 +56,8 @@ public:
 	void InputSetSpeakerName( inputdata_t &inputdata );
 #ifdef MAPBASE
 	void InputSetDSPPreset( inputdata_t &inputdata );
+	void InputSetPitchScale( inputdata_t &inputdata );
+	void InputSetChannel( inputdata_t &inputdata );
 #endif
 
 	DECLARE_DATADESC();
@@ -86,6 +88,7 @@ private:
 	string_t	m_iszLandmarkName;
 	EHANDLE		m_hLandmark;
 	float		m_flPitchScale = 1.0f;
+	int			m_nChannel = CHAN_STATIC;
 #endif
 
 	COutputFloat m_SoundLevel;			// Fired when the sampled volume level changes.

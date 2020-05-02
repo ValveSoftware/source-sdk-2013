@@ -573,7 +573,7 @@ static bool PatchEnvmapForMaterialAndDependents( const char *pMaterialName, cons
 	GeneratePatchedName( pMaterialName, info, true, pPatchedMaterialName, 1024 );
 
 #ifdef PARALLAX_CORRECTED_CUBEMAPS
-	MaterialPatchInfo_t pPatchInfo[6];
+	MaterialPatchInfo_t pPatchInfo[7];
 #else
 	MaterialPatchInfo_t pPatchInfo[2];
 #endif
@@ -593,9 +593,11 @@ static bool PatchEnvmapForMaterialAndDependents( const char *pMaterialName, cons
 	{
 		V_SplitString( pParallaxObbMatrix, ";", matRowList );
 
+		// Needed for editor
 		pPatchInfo[nPatchCount].m_pKey = "$envMapParallax";
 		pPatchInfo[nPatchCount].m_pValue = "1";
 		++nPatchCount;
+
 		pPatchInfo[nPatchCount].m_pKey = "$envMapParallaxOBB1";
 		pPatchInfo[nPatchCount].m_pValue = matRowList[0];
 		++nPatchCount;

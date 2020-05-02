@@ -176,6 +176,8 @@ protected:
 	virtual const char *GetDieSound()		{ return "NPC_CeilingTurret.Die"; }
 
 	virtual float		GetFireRate(bool bFightingPlayer = false)		{ return bFightingPlayer ? 0.5f : 0.1f; }
+
+	virtual void		SetIdleGoalAngles()		{ m_vecGoalAngles = GetAbsAngles(); }
 #endif
 	
 #ifdef MAPBASE
@@ -629,15 +631,6 @@ bool CNPC_CeilingTurret::UpdateFacing( void )
 		NDebugOverlay::Cross3D( vecMuzzle, -Vector(2,2,2), Vector(2,2,2), 255, 0, 0, false, 0.05 );
 		NDebugOverlay::Cross3D( vecMuzzle+(vecGoalDir*256), -Vector(2,2,2), Vector(2,2,2), 255, 0, 0, false, 0.05 );
 		NDebugOverlay::Line( vecMuzzle, vecMuzzle+(vecGoalDir*256), 255, 0, 0, false, 0.05 );
-
-#ifdef MAPBASE
-		NDebugOverlay::Cross3D( vecMuzzle, -Vector(2,2,2), Vector(2,2,2), 0, 255, 0, false, 0.05 );
-		NDebugOverlay::Cross3D( vecMuzzle+(vecGoalLocalDir*256), -Vector(2,2,2), Vector(2,2,2), 0, 255, 0, false, 0.05 );
-		NDebugOverlay::Line( vecMuzzle, vecMuzzle+(vecGoalLocalDir*256), 0, 255, 0, false, 0.05 );
-
-		DevMsg("Pitch: %f, Yaw: %f\n", GetPoseParameter( m_poseAim_Pitch ), GetPoseParameter( m_poseAim_Yaw ));
-		DevMsg("Goal Angles: [%f, %f, %f]\n", m_vecGoalAngles.x, m_vecGoalAngles.y, m_vecGoalAngles.z);
-#endif
 	}
 
 	QAngle vecGoalLocalAngles;
@@ -645,10 +638,6 @@ bool CNPC_CeilingTurret::UpdateFacing( void )
 
 	// Update pitch
 	float flDiff = AngleNormalize( UTIL_ApproachAngle(  vecGoalLocalAngles.x, 0.0, 0.1f * MaxYawSpeed() ) );
-
-#ifdef MAPBASE
-	DevMsg("flDiff = %f\n", flDiff);
-#endif
 	
 	SetPoseParameter( m_poseAim_Pitch, GetPoseParameter( m_poseAim_Pitch ) + ( flDiff / 1.5f ) );
 
@@ -656,10 +645,6 @@ bool CNPC_CeilingTurret::UpdateFacing( void )
 	{
 		bMoved = true;
 	}
-
-#ifdef MAPBASE
-	DevMsg("flDiff Yaw = %f\n\n", flDiff);
-#endif
 
 	// Update yaw
 	flDiff = AngleNormalize( UTIL_ApproachAngle(  vecGoalLocalAngles.y, 0.0, 0.1f * MaxYawSpeed() ) );
@@ -1313,7 +1298,11 @@ void CNPC_CeilingTurret::DeathThink( void )
 		return;
 
 	//Level out our angles
+#ifdef MAPBASE
+	SetIdleGoalAngles();
+#else
 	m_vecGoalAngles = GetAbsAngles();
+#endif
 	SetNextThink( gpGlobals->curtime );
 
 	if ( m_lifeState != LIFE_DEAD )
@@ -1429,6 +1418,8 @@ public:
 	const char *GetTracerType( void ) { return "Tracer"; }
 	bool		PreThink( turretState_e state );
 
+	void		SetIdleGoalAngles();
+
 	void		Precache( void );
 	void		Spawn();
 	Activity	NPC_TranslateActivity( Activity activity );
@@ -1527,6 +1518,8 @@ void CNPC_LabTurret::Spawn( void )
 {
 	BaseClass::Spawn();
 
+	m_iAmmoType = GetAmmoDef()->Index( "SMG1" );
+
 	if (m_bMirrored)
 		SetActivity((Activity)ACT_CEILING_TURRET_MIRROR_CLOSED_IDLE);
 
@@ -1574,6 +1567,25 @@ bool CNPC_LabTurret::PreThink( turretState_e state )
 #endif
 
 	return BaseClass::PreThink(state);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CNPC_LabTurret::SetIdleGoalAngles( void )
+{
+	m_vecGoalAngles = GetAbsAngles();
+
+	if (m_bMirrored)
+	{
+		//m_vecGoalAngles.x = AngleNormalize( m_vecGoalAngles.x + 90 );
+		m_vecGoalAngles.y = AngleNormalize( m_vecGoalAngles.y + 270 );
+	}
+	else
+	{
+		//m_vecGoalAngles.x = AngleNormalize( m_vecGoalAngles.x + 270 );
+		m_vecGoalAngles.y = AngleNormalize( m_vecGoalAngles.y + 90 );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1653,10 +1665,6 @@ bool CNPC_LabTurret::UpdateFacing( void )
 	{
 		// Update yaw
 		float flDiff = AngleNormalize( UTIL_ApproachAngle( vecGoalLocalAngles.y, 0.0, 0.1f * MaxYawSpeed() ) );
-
-#ifdef MAPBASE
-		DevMsg("Arm Yaw = %f, Diff: %f\n", GetPoseParameter( m_poseMove_Yaw ), flDiff);
-#endif
 
 		SetPoseParameter( m_poseMove_Yaw, GetPoseParameter( m_poseMove_Yaw ) + ( flDiff / 1.5f ) * 0.5f );
 

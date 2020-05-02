@@ -123,6 +123,10 @@ ConVar	metropolice_chase_use_follow( "metropolice_chase_use_follow", "0" );
 ConVar  metropolice_move_and_melee("metropolice_move_and_melee", "1" );
 ConVar  metropolice_charge("metropolice_charge", "1" );
 
+#ifdef MAPBASE
+ConVar	metropolice_new_component_behavior("metropolice_new_component_behavior", "1");
+#endif
+
 // How many clips of pistol ammo a metropolice carries.
 #define METROPOLICE_NUM_CLIPS			5
 #define METROPOLICE_BURST_RELOAD_COUNT	20
@@ -256,6 +260,7 @@ BEGIN_DATADESC( CNPC_MetroPolice )
 
 #ifdef MAPBASE
 	DEFINE_AIGRENADE_DATADESC()
+	DEFINE_INPUT( m_iGrenadeCapabilities, FIELD_INTEGER, "SetGrenadeCapabilities" ),
 #endif
 
 END_DATADESC()
@@ -503,6 +508,9 @@ void CNPC_MetroPolice::NotifyDeadFriend( CBaseEntity* pFriend )
 //-----------------------------------------------------------------------------
 CNPC_MetroPolice::CNPC_MetroPolice()
 {
+#ifdef MAPBASE
+	m_iGrenadeCapabilities = GRENCAP_GRENADE;
+#endif
 }
 
 
@@ -1508,12 +1516,8 @@ void CNPC_MetroPolice::OnUpdateShotRegulator( )
 {
 	BaseClass::OnUpdateShotRegulator();
 
-#ifdef MAPBASE
-	if ( GetActiveWeapon() && GetActiveWeapon()->WeaponClassify() == WEPCLASS_HANDGUN )
-#else
 	// FIXME: This code (except the burst interval) could be used for all weapon types 
 	if( Weapon_OwnsThisType( "weapon_pistol" ) )
-#endif
 	{
 		if ( m_nBurstMode == BURST_NOT_ACTIVE )
 		{
@@ -4383,6 +4387,148 @@ int CNPC_MetroPolice::SelectAirboatCombatSchedule()
 }
 
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Standoff schedule selection 
+//-----------------------------------------------------------------------------
+int CNPC_MetroPolice::SelectBehaviorOverrideSchedule()
+{
+	// Announce a new enemy
+	if ( HasCondition( COND_NEW_ENEMY ) )
+	{
+		AnnounceEnemyType( GetEnemy() );
+	}
+
+	int nResult = SelectScheduleNewEnemy();
+	if ( nResult != SCHED_NONE )
+		return nResult;
+
+	if (!HasBaton() && ((float)m_nRecentDamage / (float)GetMaxHealth()) > RECENT_DAMAGE_THRESHOLD)
+	{
+		m_nRecentDamage = 0;
+		m_flRecentDamageTime = 0;
+#ifdef METROPOLICE_USES_RESPONSE_SYSTEM
+		SpeakIfAllowed(TLK_COP_COVER_HEAVY_DAMAGE, SENTENCE_PRIORITY_MEDIUM, SENTENCE_CRITERIA_NORMAL);
+#else
+		m_Sentences.Speak( "METROPOLICE_COVER_HEAVY_DAMAGE", SENTENCE_PRIORITY_MEDIUM, SENTENCE_CRITERIA_NORMAL );
+#endif
+
+		return SCHED_TAKE_COVER_FROM_ENEMY;
+	}
+
+	if ( HasCondition( COND_CAN_RANGE_ATTACK1 ) )
+	{
+		nResult = SelectRangeAttackSchedule();
+		if ( !GetShotRegulator()->IsInRestInterval() && nResult != SCHED_METROPOLICE_ADVANCE && nResult != SCHED_RANGE_ATTACK1 )
+			return nResult;
+	}
+
+	if ( HasCondition( COND_TOO_CLOSE_TO_ATTACK ) )
+	{
+		return SCHED_BACK_AWAY_FROM_ENEMY;
+	}
+	
+	if ( HasCondition( COND_LOW_PRIMARY_AMMO ) || HasCondition( COND_NO_PRIMARY_AMMO ) )
+	{
+		AnnounceOutOfAmmo( );
+		return SCHED_HIDE_AND_RELOAD;
+	}
+
+	if ( HasCondition(COND_WEAPON_SIGHT_OCCLUDED) && !HasBaton() )
+	{
+		// If they are hiding behind something that we can destroy, start shooting at it.
+		CBaseEntity *pBlocker = GetEnemyOccluder();
+		if ( pBlocker && pBlocker->GetHealth() > 0 && OccupyStrategySlotRange( SQUAD_SLOT_POLICE_ATTACK_OCCLUDER1, SQUAD_SLOT_POLICE_ATTACK_OCCLUDER2 ) )
+		{
+#ifdef METROPOLICE_USES_RESPONSE_SYSTEM
+			SpeakIfAllowed(TLK_COP_SHOOTCOVER);
+#else
+			m_Sentences.Speak( "METROPOLICE_SHOOT_COVER" );
+#endif
+			return SCHED_SHOOT_ENEMY_COVER;
+		}
+	}
+
+	if (HasCondition(COND_ENEMY_OCCLUDED))
+	{
+		if ( GetEnemy() && !(GetEnemy()->GetFlags() & FL_NOTARGET) )
+		{
+			if ( HasGrenades() )
+			{
+				// We don't see our enemy. If it hasn't been long since I last saw him,
+				// and he's pretty close to the last place I saw him, throw a grenade in 
+				// to flush him out. A wee bit of cheating here...
+
+				float flTime;
+				float flDist;
+
+				flTime = gpGlobals->curtime - GetEnemies()->LastTimeSeen( GetEnemy() );
+				flDist = ( GetEnemy()->GetAbsOrigin() - GetEnemies()->LastSeenPosition( GetEnemy() ) ).Length();
+
+				//Msg("Time: %f   Dist: %f\n", flTime, flDist );
+				if ( flTime <= COMBINE_GRENADE_FLUSH_TIME && flDist <= COMBINE_GRENADE_FLUSH_DIST && CanGrenadeEnemy( false ) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
+				{
+					return SCHED_RANGE_ATTACK2;
+				}
+			}
+		}
+	}
+
+	// If you can't attack, but you can deploy a manhack, do it!
+	if( CanDeployManhack() && OccupyStrategySlot( SQUAD_SLOT_POLICE_DEPLOY_MANHACK ) )
+		return SCHED_METROPOLICE_DEPLOY_MANHACK;
+
+	return SCHED_NONE;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CNPC_MetroPolice::IsCrouchedActivity( Activity activity )
+{
+	Activity realActivity = TranslateActivity(activity);
+
+	switch ( realActivity )
+	{
+		case ACT_RELOAD_LOW:
+		case ACT_COVER_LOW:
+		case ACT_COVER_PISTOL_LOW:
+		case ACT_COVER_SMG1_LOW:
+		case ACT_RELOAD_SMG1_LOW:
+		//case ACT_RELOAD_AR2_LOW:
+		case ACT_RELOAD_PISTOL_LOW:
+		case ACT_RELOAD_SHOTGUN_LOW:
+
+			// These animations aren't actually "low" on metrocops
+		//case ACT_RANGE_AIM_LOW:
+		//case ACT_RANGE_AIM_AR2_LOW:
+		//case ACT_RANGE_AIM_SMG1_LOW:
+		//case ACT_RANGE_AIM_PISTOL_LOW:
+
+		//case ACT_RANGE_ATTACK1_LOW:
+		//case ACT_RANGE_ATTACK_AR2_LOW:
+		//case ACT_RANGE_ATTACK_SMG1_LOW:
+		//case ACT_RANGE_ATTACK_PISTOL_LOW:
+		//case ACT_RANGE_ATTACK2_LOW:
+			return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Standoff schedule selection 
+//-----------------------------------------------------------------------------
+int CNPC_MetroPolice::CMetroPoliceStandoffBehavior::SelectScheduleAttack()
+{
+	int result = metropolice_new_component_behavior.GetBool() ? GetOuter()->SelectBehaviorOverrideSchedule() : SCHED_NONE;
+	if (result == SCHED_NONE)
+		result = BaseClass::SelectScheduleAttack();
+	return result;
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : &info - 
@@ -4641,13 +4787,29 @@ int CNPC_MetroPolice::SelectSchedule( void )
 		if ( m_flNextGrenadeCheck < gpGlobals->curtime )
 		{
 			Vector vecTarget = m_hForcedGrenadeTarget->WorldSpaceCenter();
+
+			// The fact we have a forced grenade target overrides whether we're marked as "capable".
+			// If we're *only* alt-fire capable, use an energy ball. If not, throw a grenade.
+			if (!IsAltFireCapable() || IsGrenadeCapable())
 			{
-				// If we can, throw a grenade at the target. 
-				// Ignore grenade count / distance / etc
-				if ( CheckCanThrowGrenade( vecTarget ) )
+				Vector vecTarget = m_hForcedGrenadeTarget->WorldSpaceCenter();
 				{
+					// If we can, throw a grenade at the target. 
+					// Ignore grenade count / distance / etc
+					if ( CheckCanThrowGrenade( vecTarget ) )
+					{
+						m_hForcedGrenadeTarget = NULL;
+						return SCHED_METROPOLICE_FORCED_GRENADE_THROW;
+					}
+				}
+			}
+			else
+			{
+				if ( FVisible( m_hForcedGrenadeTarget ) )
+				{
+					m_vecAltFireTarget = vecTarget;
 					m_hForcedGrenadeTarget = NULL;
-					return SCHED_METROPOLICE_FORCED_GRENADE_THROW;
+					return SCHED_METROPOLICE_AR2_ALTFIRE;
 				}
 			}
 		}
@@ -4876,6 +5038,14 @@ int CNPC_MetroPolice::TranslateSchedule( int scheduleType )
 			if ( nSched != SCHED_NONE )
 				return nSched;
 		}
+#ifdef MAPBASE
+		if ( CanAltFireEnemy(false) && OccupyStrategySlot(SQUAD_SLOT_SPECIAL_ATTACK) )
+		{
+			// If this metrocop has the balls to alt-fire the enemy's last known position,
+			// do so!
+			return SCHED_METROPOLICE_AR2_ALTFIRE;
+		}
+#endif
 		return SCHED_METROPOLICE_ESTABLISH_LINE_OF_FIRE;		
 		
 	case SCHED_WAKE_ANGRY:
@@ -4901,6 +5071,16 @@ int CNPC_MetroPolice::TranslateSchedule( int scheduleType )
 		{
 			return SCHED_METROPOLICE_DRAW_PISTOL;
 		}
+
+#ifdef MAPBASE
+		if (CanAltFireEnemy( true ) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ))
+		{
+			// Since I'm holding this squadslot, no one else can try right now. If I die before the shot 
+			// goes off, I won't have affected anyone else's ability to use this attack at their nearest
+			// convenience.
+			return SCHED_METROPOLICE_AR2_ALTFIRE;
+		}
+#endif
 
 #ifdef MAPBASE
 		if (GetActiveWeapon() && EntIsClass(GetActiveWeapon(), gm_isz_class_SMG1))
@@ -5153,6 +5333,10 @@ void CNPC_MetroPolice::StartTask( const Task_t *pTask )
 		break;
 
 	case TASK_METROPOLICE_FACE_TOSS_DIR:
+		break;
+
+	case TASK_METROPOLICE_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET:
+		StartTask_FaceAltFireTarget( pTask );
 		break;
 #endif
 
@@ -5520,6 +5704,10 @@ void CNPC_MetroPolice::RunTask( const Task_t *pTask )
 		break;
 
 #ifdef MAPBASE
+	case TASK_METROPOLICE_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET:
+		RunTask_FaceAltFireTarget( pTask );
+		break;
+
 	case TASK_METROPOLICE_GET_PATH_TO_FORCED_GREN_LOS:
 		RunTask_GetPathToForced( pTask );
 		break;
@@ -5901,6 +6089,10 @@ AI_BEGIN_CUSTOM_NPC( npc_metropolice, CNPC_MetroPolice )
 	DECLARE_ANIMEVENT( AE_METROPOLICE_START_DEPLOY );
 	DECLARE_ANIMEVENT( AE_METROPOLICE_DRAW_PISTOL );
 	DECLARE_ANIMEVENT( AE_METROPOLICE_DEPLOY_MANHACK );
+#ifdef MAPBASE
+	DECLARE_ANIMEVENT( COMBINE_AE_BEGIN_ALTFIRE )
+	DECLARE_ANIMEVENT( COMBINE_AE_ALTFIRE )
+#endif
 
 	DECLARE_SQUADSLOT( SQUAD_SLOT_POLICE_CHARGE_ENEMY );
 	DECLARE_SQUADSLOT( SQUAD_SLOT_POLICE_HARASS );
@@ -5948,6 +6140,7 @@ AI_BEGIN_CUSTOM_NPC( npc_metropolice, CNPC_MetroPolice )
 	DECLARE_TASK( TASK_METROPOLICE_GET_PATH_TO_FORCED_GREN_LOS )
 	DECLARE_TASK( TASK_METROPOLICE_DEFER_SQUAD_GRENADES )
 	DECLARE_TASK( TASK_METROPOLICE_FACE_TOSS_DIR )
+	DECLARE_TASK( TASK_METROPOLICE_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET )
 #endif
 
 	DECLARE_CONDITION( COND_METROPOLICE_ON_FIRE );
@@ -6629,6 +6822,22 @@ DEFINE_SCHEDULE
  "		TASK_SET_SCHEDULE					SCHEDULE:SCHED_HIDE_AND_RELOAD"	// don't run immediately after throwing grenade.
  ""
  "	Interrupts"
+ )
+
+ //=========================================================
+ // AR2 Alt Fire Attack
+ //=========================================================
+ DEFINE_SCHEDULE
+ (
+ SCHED_METROPOLICE_AR2_ALTFIRE,
+
+ "	Tasks"
+ "		TASK_STOP_MOVING									0"
+ "		TASK_ANNOUNCE_ATTACK								1"
+ "		TASK_METROPOLICE_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET		ACTIVITY:ACT_COMBINE_AR2_ALTFIRE"
+ ""
+ "	Interrupts"
+ "		COND_TOO_CLOSE_TO_ATTACK"
  )
 #endif
 

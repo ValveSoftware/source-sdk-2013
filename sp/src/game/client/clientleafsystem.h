@@ -52,7 +52,11 @@ class CClientRenderablesList : public CRefCounted<>
 public:
 	enum
 	{
+#ifdef MAPBASE
+		MAX_GROUP_ENTITIES = 16834 // According to ficool2, this limit is bogus/not enforced by the engine and can be "safely" raised.
+#else
 		MAX_GROUP_ENTITIES = 4096
+#endif
 	};
 
 	struct CEntry

@@ -59,6 +59,7 @@ $Project
 		
 		$File	"unlittwotexture_dx9.cpp"
 		$File	"MonitorScreen_dx9.cpp"
+		$File	"shatteredglass.cpp"
 	}
 
 	//$Shaders	"mapbase_dx9_20b.txt"

@@ -73,11 +73,16 @@ ConVar ai_force_serverside_ragdoll( "ai_force_serverside_ragdoll", "0" );
 
 ConVar nb_last_area_update_tolerance( "nb_last_area_update_tolerance", "4.0", FCVAR_CHEAT, "Distance a character needs to travel in order to invalidate cached area" ); // 4.0 tested as sweet spot (for wanderers, at least). More resulted in little benefit, less quickly diminished benefit [7/31/2008 tom]
 
+#ifdef MAPBASE
+// ShouldUseVisibilityCache() is used as an actual function now
+ConVar ai_use_visibility_cache( "ai_use_visibility_cache", "1" );
+#else
 #ifndef _RETAIL
 ConVar ai_use_visibility_cache( "ai_use_visibility_cache", "1" );
 #define ShouldUseVisibilityCache() ai_use_visibility_cache.GetBool()
 #else
 #define ShouldUseVisibilityCache() true
+#endif
 #endif
 
 BEGIN_DATADESC( CBaseCombatCharacter )
@@ -366,11 +371,16 @@ bool CBaseCombatCharacter::FVisible( CBaseEntity *pEntity, int traceMask, CBaseE
 {
 	VPROF( "CBaseCombatCharacter::FVisible" );
 
+#ifdef MAPBASE
+	if ( traceMask != MASK_BLOCKLOS || !ShouldUseVisibilityCache( pEntity ) || pEntity == this || !ai_use_visibility_cache.GetBool()
+		 )
+#else
 	if ( traceMask != MASK_BLOCKLOS || !ShouldUseVisibilityCache() || pEntity == this
 #if defined(HL2_DLL)
 		 || Classify() == CLASS_BULLSEYE || pEntity->Classify() == CLASS_BULLSEYE 
 #endif
 		 )
+#endif
 	{
 		return BaseClass::FVisible( pEntity, traceMask, ppBlocker );
 	}
@@ -475,6 +485,17 @@ void CBaseCombatCharacter::ResetVisibilityCache( CBaseCombatCharacter *pBCC )
 		g_VisibilityCache.RemoveAt( removals[i] );
 	}
 }
+
+#ifdef MAPBASE
+bool CBaseCombatCharacter::ShouldUseVisibilityCache( CBaseEntity *pEntity )
+{
+#ifdef HL2_DLL
+	return Classify() != CLASS_BULLSEYE && pEntity->Classify() != CLASS_BULLSEYE;
+#else
+	return true;
+#endif
+}
+#endif
 
 #ifdef PORTAL
 bool CBaseCombatCharacter::FVisibleThroughPortal( const CProp_Portal *pPortal, CBaseEntity *pEntity, int traceMask, CBaseEntity **ppBlocker )
@@ -4070,7 +4091,7 @@ void CBaseCombatCharacter::InputPickupWeaponInstant( inputdata_t &inputdata )
 	}
 	else
 	{
-		Warning("%s received PickupWeaponInstant with invalid entity %s\n", inputdata.value.Entity() ? "null" : inputdata.value.Entity()->GetDebugName());
+		Warning("%s received PickupWeaponInstant with invalid entity %s\n", GetDebugName(), inputdata.value.Entity() ? "null" : inputdata.value.Entity()->GetDebugName());
 	}
 }
 

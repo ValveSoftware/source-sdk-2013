@@ -89,6 +89,7 @@ BEGIN_DATADESC( CBounceBomb )
 	DEFINE_KEYFIELD( m_bDisarmed, FIELD_BOOLEAN, "StartDisarmed" ),
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_iInitialState, FIELD_INTEGER, "InitialState" ),
+	DEFINE_KEYFIELD( m_bCheapWarnSound, FIELD_BOOLEAN, "CheapWarnSound" ),
 #endif
 	DEFINE_KEYFIELD( m_iModification, FIELD_INTEGER, "Modification" ),
 
@@ -306,8 +307,12 @@ void CBounceBomb::SetMineState( int iState )
 	{
 	case MINE_STATE_DORMANT:
 		{
+#ifdef MAPBASE
+			SilenceWarnSound( 0.1 );
+#else
 			CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
 			controller.SoundChangeVolume( m_pWarnSound, 0.0, 0.1 );
+#endif
 			UpdateLight( false, 0, 0, 0, 0 );
 			SetThink( NULL );
 		}
@@ -315,8 +320,12 @@ void CBounceBomb::SetMineState( int iState )
 
 	case MINE_STATE_CAPTIVE:
 		{
+#ifdef MAPBASE
+			SilenceWarnSound( 0.2 );
+#else
 			CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
 			controller.SoundChangeVolume( m_pWarnSound, 0.0, 0.2 );
+#endif
 
 			// Unhook
 			unsigned int flags = VPhysicsGetObject()->GetCallbackFlags();
@@ -359,8 +368,12 @@ void CBounceBomb::SetMineState( int iState )
 			// Scare NPC's
 			CSoundEnt::InsertSound( SOUND_DANGER, GetAbsOrigin(), 300, 1.0f, this );
 
+#ifdef MAPBASE
+			SilenceWarnSound( 0.2 );
+#else
 			CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
 			controller.SoundChangeVolume( m_pWarnSound, 0.0, 0.2 );
+#endif
 
 			SetTouch( &CBounceBomb::ExplodeTouch );
 			unsigned int flags = VPhysicsGetObject()->GetCallbackFlags();
@@ -822,7 +835,11 @@ void CBounceBomb::Wake( bool bAwake )
 
 	CReliableBroadcastRecipientFilter filter;
 	
+#ifdef MAPBASE
+	if( !m_pWarnSound && !m_bCheapWarnSound )
+#else
 	if( !m_pWarnSound )
+#endif
 	{
 		m_pWarnSound = controller.SoundCreate( filter, entindex(), "NPC_CombineMine.ActiveLoop" );
 		controller.Play( m_pWarnSound, 1.0, PITCH_NORM  );
@@ -834,7 +851,11 @@ void CBounceBomb::Wake( bool bAwake )
 		if( m_bFoeNearest )
 		{
 			EmitSound( "NPC_CombineMine.TurnOn" );
+#ifdef MAPBASE
+			UpdateWarnSound( 1.0, 0.1 );
+#else
 			controller.SoundChangeVolume( m_pWarnSound, 1.0, 0.1 );
+#endif
 		}
 
 		unsigned char r, g, b;
@@ -860,7 +881,11 @@ void CBounceBomb::Wake( bool bAwake )
 		}
 
 		SetNearestNPC( NULL );
+#ifdef MAPBASE
+		SilenceWarnSound( 0.1 );
+#else
 		controller.SoundChangeVolume( m_pWarnSound, 0.0, 0.1 );
+#endif
 		UpdateLight( false, 0, 0, 0, 0 );
 	}
 
@@ -1312,6 +1337,50 @@ bool CBounceBomb::HandleInteraction( int interactionType, void *data, CBaseComba
 	}
 
 	return BaseClass::HandleInteraction(interactionType, data, sourceEnt);
+}
+
+//-----------------------------------------------------------------------------
+void CBounceBomb::UpdateWarnSound( float flVolume, float flDelta )
+{
+	CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+	if (m_bCheapWarnSound && !m_pWarnSound)
+	{
+		CReliableBroadcastRecipientFilter filter;
+		//m_pWarnSound = controller.SoundCreate( filter, entindex(), "NPC_CombineMine.ActiveLoop" );
+		//controller.Play( m_pWarnSound, flVolume, PITCH_NORM );
+
+		EmitSound_t params;
+		params.m_pSoundName = "NPC_CombineMine.ActiveLoop";
+		params.m_flVolume = flVolume;
+		params.m_nPitch = PITCH_NORM;
+
+		EmitSound( filter, entindex(), params );
+	}
+	else
+	{
+		controller.SoundChangeVolume( m_pWarnSound, flVolume, flDelta );
+	}
+}
+
+void CBounceBomb::SilenceWarnSound( float flDelta )
+{
+	CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+	if (m_bCheapWarnSound)
+	{
+		//if ( m_pWarnSound )
+		//{
+		//	controller.SoundDestroy( m_pWarnSound );
+		//}
+
+		StopSound( "NPC_CombineMine.ActiveLoop" );
+	}
+	else
+	{
+		if ( m_pWarnSound )
+		{
+			controller.SoundChangeVolume( m_pWarnSound, 0.0, flDelta );
+		}
+	}
 }
 #endif
 

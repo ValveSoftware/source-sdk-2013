@@ -86,6 +86,9 @@ public:
 #ifdef MAPBASE
 	// Uses the new CBaseEntity interaction implementation and replaces the dynamic_casting from npc_barnacle
 	bool	HandleInteraction( int interactionType, void *data, CBaseCombatCharacter* sourceEnt );
+
+	void	UpdateWarnSound( float flVolume, float flDelta );
+	void	SilenceWarnSound( float flDelta );
 #endif
 
 	DECLARE_DATADESC();
@@ -118,6 +121,7 @@ private:
 	bool	m_bDisarmed;
 #ifdef MAPBASE
 	int		m_iInitialState;
+	bool	m_bCheapWarnSound;
 #endif
 
 	bool	m_bPlacedByPlayer;

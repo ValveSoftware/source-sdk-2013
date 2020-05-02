@@ -3978,6 +3978,11 @@ void CNPC_Citizen::Heal()
 
 	CBaseEntity *pTarget = GetTarget();
 
+#ifdef MAPBASE
+	if ( !pTarget )
+		return;
+#endif
+
 	Vector target = pTarget->GetAbsOrigin() - GetAbsOrigin();
 	if ( target.Length() > HEAL_TARGET_RANGE * 2 )
 		return;

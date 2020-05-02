@@ -33,6 +33,7 @@ public:
 	void Precache( void );
 
 	void Spawn( void );
+	void CvarModActivate();
 
 	void OnRestore( void );
 

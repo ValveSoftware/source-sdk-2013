@@ -91,3 +91,5 @@ SDK_decalmodulate_vs20.fxc
 SDK_unlittwotexture_ps2x.fxc
 SDK_unlittwotexture_vs20.fxc
 SDK_monitorscreen_ps2x.fxc
+SDK_ShatteredGlass_ps2x.fxc
+SDK_ShatteredGlass_vs20.fxc

@@ -342,12 +342,6 @@ public:
 
 private:
 
-	enum eGrenadeCapabilities
-	{
-		GRENCAP_GRENADE = (1 << 0),
-		GRENCAP_ALTFIRE = (1 << 1),
-	};
-
 	// Determines whether this NPC is allowed to use grenades or alt-fire stuff.
 	eGrenadeCapabilities m_iGrenadeCapabilities;
 #endif

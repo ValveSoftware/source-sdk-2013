@@ -195,6 +195,10 @@ ConVar  sv_player_display_usercommand_errors( "sv_player_display_usercommand_err
 
 ConVar  player_debug_print_damage( "player_debug_print_damage", "0", FCVAR_CHEAT, "When true, print amount and type of all damage received by player to console." );
 
+#ifdef MAPBASE
+ConVar	player_use_visibility_cache( "player_use_visibility_cache", "0", FCVAR_NONE, "Allows the player to use the visibility cache." );
+#endif
+
 
 void CC_GiveCurrentAmmo( void )
 {
@@ -5749,6 +5753,25 @@ CBaseEntity	*CBasePlayer::GiveNamedItem( const char *pszName, int iSubType )
 
 	DispatchSpawn( pent );
 
+#ifdef MAPBASE
+	if ( pWeapon )
+	{
+		for (int i=0;i<MAX_WEAPONS;i++) 
+		{
+			if ( m_hMyWeapons[i].Get() && m_hMyWeapons[i]->GetSlot() == pWeapon->GetSlot() && m_hMyWeapons[i]->GetPosition() == pWeapon->GetPosition() )
+			{
+				// Make sure it matches the subtype
+				if ( m_hMyWeapons[i]->GetSubType() == iSubType )
+				{
+					// Don't use this weapon if the slot is already occupied
+					UTIL_Remove( pWeapon );
+					return NULL;
+				}
+			}
+		}
+	}
+#endif
+
 	if ( pent != NULL && !(pent->IsMarkedForDeletion()) ) 
 	{
 		pent->Touch( this );
@@ -7650,6 +7673,23 @@ void CBasePlayer::PlayWearableAnimsForPlaybackEvent( wearableanimplayback_t iPla
 	}
 }
 #endif // USES_ECON_ITEMS
+
+#ifdef MAPBASE
+bool CBasePlayer::ShouldUseVisibilityCache( CBaseEntity *pEntity )
+{
+	// In CBaseEntity::FVisible(), players are allowed to see through CONTENTS_BLOCKLOS, which is used for
+	// nodraw, block LOS brushes, etc. This is so some code doesn't erronesouly assume the player can't see
+	// an entity (when the player can, in fact, see it) and therefore do something the player is not supposed to see.
+	// 
+	// However, to reduce the number of traces FVisible() runs, CBaseCombatCharacter uses a "visibility cache" shared
+	// by all entities derived from it. The player is normally a part of this visibility cache, so when it runs a trace
+	// through a CONTENTS_BLOCKLOS surface, the visibility cache assumes entities can now see through it and therefore
+	// NPCs to see through the brush which should normally block their LOS.
+	// 
+	// This solution stops the player from using the visibility cache altogether, toggled by a convar.
+	return player_use_visibility_cache.GetBool();
+}
+#endif
 
 //================================================================================
 // TEAM HANDLING

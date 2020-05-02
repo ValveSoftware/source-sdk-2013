@@ -1041,6 +1041,10 @@ public:
 	const CAI_Senses *	GetSenses() const	{ return m_pSenses; }
 	
 	void				SetDistLook( float flDistLook );
+#ifdef MAPBASE
+	void				InputSetDistLook( inputdata_t &inputdata );
+	void				InputSetDistTooFar( inputdata_t &inputdata );
+#endif
 
 	virtual bool		QueryHearSound( CSound *pSound );
 	virtual bool		QuerySeeEntity( CBaseEntity *pEntity, bool bOnlyHateOrFearIfNPC = false );
@@ -2275,6 +2279,15 @@ public:
 	void				InputDisableSpeedModifier( inputdata_t &inputdata ) { m_bSpeedModActive = false; }
 	void				InputSetSpeedModifierRadius( inputdata_t &inputdata );
 	void				InputSetSpeedModifierSpeed( inputdata_t &inputdata );
+
+#ifdef MAPBASE
+	// Hammer input to change the speed of the NPC (based on 1upD's npc_shadow_walker code)
+	// Not to be confused with the inputs above
+	virtual float		GetSequenceGroundSpeed( CStudioHdr *pStudioHdr, int iSequence );
+	inline float		GetSequenceGroundSpeed( int iSequence ) { return GetSequenceGroundSpeed( GetModelPtr(), iSequence ); }
+	void				InputSetSpeedModifier( inputdata_t &inputdata );
+	float				m_flSpeedModifier;
+#endif
 
 	virtual bool		ShouldProbeCollideAgainstEntity( CBaseEntity *pEntity );
 

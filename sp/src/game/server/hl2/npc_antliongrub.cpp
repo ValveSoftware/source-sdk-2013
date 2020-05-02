@@ -857,6 +857,13 @@ void CGrubNugget::Spawn( void )
 {
 	Precache();
 	
+#ifdef MAPBASE
+	if ( GetModelName() != NULL_STRING )
+	{
+		SetModel( STRING(GetModelName()) );
+	}
+	else
+#endif
 	if ( m_nDenomination == NUGGET_LARGE )
 	{
 		SetModel( "models/grub_nugget_large.mdl" );
@@ -888,6 +895,10 @@ void CGrubNugget::Precache( void )
 	PrecacheModel("models/grub_nugget_small.mdl");
 	PrecacheModel("models/grub_nugget_medium.mdl");
 	PrecacheModel("models/grub_nugget_large.mdl");
+#ifdef MAPBASE
+	if (GetModelName() != NULL_STRING)
+		PrecacheModel( STRING(GetModelName()) );
+#endif
 
 	PrecacheScriptSound( "GrubNugget.Touch" );
 	PrecacheScriptSound( "NPC_Antlion_Grub.Explode" );

@@ -285,6 +285,35 @@ void CWeaponStunStick::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseComba
 				CBasePlayer *pPlayer = ToBasePlayer( pHurt );
 
 				bool bFlashed = false;
+
+#ifdef MAPBASE
+				CNPC_MetroPolice *pCop = dynamic_cast<CNPC_MetroPolice *>(pOperator);
+
+				if ( pCop != NULL && pPlayer != NULL )
+				{
+					// See if we need to knock out this target
+					if ( pCop->ShouldKnockOutTarget( pHurt ) )
+					{
+						float yawKick = random->RandomFloat( -48, -24 );
+
+						//Kick the player angles
+						pPlayer->ViewPunch( QAngle( -16, yawKick, 2 ) );
+
+						color32 white = {255,255,255,255};
+						UTIL_ScreenFade( pPlayer, white, 0.2f, 1.0f, FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT );
+						bFlashed = true;
+						
+						pCop->KnockOutTarget( pHurt );
+
+						break;
+					}
+					else
+					{
+						// Notify that we've stunned a target
+						pCop->StunnedTarget( pHurt );
+					}
+				}
+#endif
 				
 				// Punch angles
 				if ( pPlayer != NULL && !(pPlayer->GetFlags() & FL_GODMODE) )

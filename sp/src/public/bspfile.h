@@ -59,7 +59,11 @@
 // 16 bit short limits
 #define	MAX_MAP_MODELS					1024
 #define	MAX_MAP_BRUSHES					8192
+#ifdef MAPBASE
+#define	MAX_MAP_ENTITIES				65536 // According to ficool2, this limit is bogus/not enforced by the engine and can be "safely" raised.
+#else
 #define	MAX_MAP_ENTITIES				8192
+#endif
 #define	MAX_MAP_TEXINFO					12288
 #define MAX_MAP_TEXDATA					2048
 #define MAX_MAP_DISPINFO				2048
@@ -90,9 +94,17 @@
 #define	MAX_MAP_LIGHTING				0x1000000
 #define	MAX_MAP_VISIBILITY				0x1000000			// increased BSPVERSION 7
 #define	MAX_MAP_TEXTURES				1024
+#ifdef MAPBASE
+#define MAX_MAP_WORLDLIGHTS				65536 // According to ficool2, this limit is bogus/not enforced by the engine and can be "safely" raised.
+#else
 #define MAX_MAP_WORLDLIGHTS				8192
+#endif
 #define MAX_MAP_CUBEMAPSAMPLES			1024
+#ifdef MAPBASE
+#define MAX_MAP_OVERLAYS				8192 // According to ficool2, this limit is bogus/not enforced by the engine and can be "safely" raised.
+#else
 #define MAX_MAP_OVERLAYS				512 
+#endif
 #define MAX_MAP_WATEROVERLAYS			16384
 #define MAX_MAP_TEXDATA_STRING_DATA		256000
 #define MAX_MAP_TEXDATA_STRING_TABLE	65536

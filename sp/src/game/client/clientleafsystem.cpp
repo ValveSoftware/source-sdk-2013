@@ -1433,10 +1433,12 @@ inline void AddRenderableToRenderList( CClientRenderablesList &renderList, IClie
 		pEntry->m_RenderHandle = renderHandle;
 		curCount++;
 	}
+#ifndef MAPBASE // According to ficool2, this message can cause significant lag
 	else
 	{
 		engine->Con_NPrintf( 10, "Warning: overflowed CClientRenderablesList group %d", group );
 	}
+#endif
 }
 
 

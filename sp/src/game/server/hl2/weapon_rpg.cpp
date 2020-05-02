@@ -44,7 +44,8 @@
 static ConVar sk_apc_missile_damage("sk_apc_missile_damage", "15");
 ConVar rpg_missle_use_custom_detonators( "rpg_missle_use_custom_detonators", "1" );
 #ifdef MAPBASE
-ConVar weapon_rpg_use_old_behavior("weapon_rpg_use_old_behavior", "0");
+ConVar weapon_rpg_use_old_behavior( "weapon_rpg_use_old_behavior", "0" );
+ConVar weapon_rpg_fire_rate( "weapon_rpg_fire_rate", "4.0" );
 #endif
 
 #define APC_MISSILE_DAMAGE	sk_apc_missile_damage.GetFloat()
