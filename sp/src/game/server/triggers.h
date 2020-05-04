@@ -244,4 +244,98 @@ public:
 	CUtlVector<EHANDLE>	m_hurtEntities;
 };
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+class CTriggerCamera : public CBaseEntity
+{
+public:
+	DECLARE_CLASS( CTriggerCamera, CBaseEntity );
+	// script description
+	DECLARE_ENT_SCRIPTDESC();
+
+#ifdef MAPBASE
+	CTriggerCamera();
+
+	void UpdateOnRemove();
+#endif
+
+	void Spawn( void );
+	bool KeyValue( const char *szKeyName, const char *szValue );
+	void Enable( void );
+	void Disable( void );
+
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void FollowTarget( void );
+	void StartCameraShot( const char *pszShotType, CBaseEntity *pSceneEntity, CBaseEntity *pActor1, CBaseEntity *pActor2, float duration );
+	int ScriptGetFov(void);
+	void ScriptSetFov(int iFOV, float rate);
+#ifdef MAPBASE
+	void MoveThink( void );
+#endif
+	void Move(void);
+
+	// Always transmit to clients so they know where to move the view to
+	virtual int UpdateTransmitState();
+	
+	DECLARE_DATADESC();
+
+	// Input handlers
+	void InputEnable( inputdata_t &inputdata );
+	void InputDisable( inputdata_t &inputdata );
+
+#ifdef MAPBASE
+	void InputSetFOV( inputdata_t &inputdata );
+	void InputSetFOVRate( inputdata_t &inputdata );
+#endif
+
+private:
+	EHANDLE m_hPlayer;
+	EHANDLE m_hTarget;
+
+	// used for moving the camera along a path (rail rides)
+	CBaseEntity *m_pPath;
+	string_t m_sPath;
+	float m_flWait;
+	float m_flReturnTime;
+	float m_flStopTime;
+	float m_moveDistance;
+	float m_targetSpeed;
+	float m_initialSpeed;
+	float m_acceleration;
+	float m_deceleration;
+	int	  m_state;
+	Vector m_vecMoveDir;
+
+#ifdef MAPBASE
+	float m_fov;
+	float m_fovSpeed;
+
+	bool m_bDontSetPlayerView;
+#endif
+
+	string_t m_iszTargetAttachment;
+	int	  m_iAttachmentIndex;
+	bool  m_bSnapToGoal;
+
+#if HL2_EPISODIC
+	bool  m_bInterpolatePosition;
+
+	// these are interpolation vars used for interpolating the camera over time
+	Vector m_vStartPos, m_vEndPos;
+	float m_flInterpStartTime;
+
+	const static float kflPosInterpTime; // seconds
+#endif
+
+	int   m_nPlayerButtons;
+	int m_nOldTakeDamage;
+
+private:
+	COutputEvent m_OnEndFollow;
+#ifdef MAPBASE
+	COutputEvent m_OnStartFollow;
+#endif
+};
+
 #endif // TRIGGERS_H

@@ -1959,7 +1959,7 @@ extern "C" void Sys_Error( char *error, ... )
 //			*mapData - pointer a block of entity map data
 // Output : -1 if the entity was not successfully created; 0 on success
 //-----------------------------------------------------------------------------
-int DispatchSpawn( CBaseEntity *pEntity )
+int DispatchSpawn( CBaseEntity *pEntity, bool bRunVScripts )
 {
 	if ( pEntity )
 	{
@@ -1973,6 +1973,12 @@ int DispatchSpawn( CBaseEntity *pEntity )
 		// is this necessary?
 		//pEntity->SetAbsMins( pEntity->GetOrigin() - Vector(1,1,1) );
 		//pEntity->SetAbsMaxs( pEntity->GetOrigin() + Vector(1,1,1) );
+
+		if (bRunVScripts)
+		{
+			pEntity->RunVScripts();
+			pEntity->RunPrecacheScripts();
+		}
 
 #if defined(TRACK_ENTITY_MEMORY) && defined(USE_MEM_DEBUG)
 		const char *pszClassname = NULL;
@@ -2040,6 +2046,11 @@ int DispatchSpawn( CBaseEntity *pEntity )
 		}
 
 		gEntList.NotifySpawn( pEntity );
+
+		if( bRunVScripts )
+		{
+			pEntity->RunOnPostSpawnScripts();
+		}
 	}
 
 	return 0;

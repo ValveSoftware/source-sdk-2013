@@ -223,6 +223,8 @@ IReplaySystem *g_pReplay = NULL;
 IVEngineServer	*serverengine = NULL;
 #endif
 
+IScriptManager *scriptmanager = NULL;
+
 IHaptics* haptics = NULL;// NVNT haptics system interface singleton
 
 //=============================================================================
@@ -963,6 +965,11 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 	if (!g_pMatSystemSurface)
 		return false;
+
+	if ( !CommandLine()->CheckParm( "-noscripting") )
+	{
+		scriptmanager = (IScriptManager *)appSystemFactory( VSCRIPT_INTERFACE_VERSION, NULL );
+	}
 
 #ifdef WORKSHOP_IMPORT_ENABLED
 	if ( !ConnectDataModel( appSystemFactory ) )

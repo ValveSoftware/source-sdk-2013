@@ -142,6 +142,9 @@ public:
 
 	// Makes sure we've got at least this much memory
 	void			EnsureCapacity( int num );
+	
+	// Access for direct read into buffer
+	void *			AccessForDirectRead( int nBytes );
 
 	// Attaches the buffer to external memory....
 	void			SetExternalBuffer( void* pMemory, int nSize, int nInitialPut, int nFlags = 0 );
@@ -1094,6 +1097,14 @@ inline void	CUtlBuffer::CopyBuffer( const void *pubData, int cubData )
 	{
 		Put( pubData, cubData );
 	}
+}
+
+inline void *CUtlBuffer::AccessForDirectRead( int nBytes )
+{
+	Assert( m_Get == 0 && m_Put == 0 && m_nMaxPut == 0 );
+	EnsureCapacity( nBytes );
+	m_nMaxPut = nBytes;
+	return Base();
 }
 
 #endif // UTLBUFFER_H
