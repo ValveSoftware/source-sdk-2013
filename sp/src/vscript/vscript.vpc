@@ -1,0 +1,54 @@
+//-----------------------------------------------------------------------------
+//	VSCRIPT.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$macro SRCDIR		".."
+ 
+$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;.\squirrel\include"
+
+		// Squirrel third party library is full of warnings, so we disable warnings as errors
+		 $TreatWarningsAsErrors	"No"
+	}
+}
+
+$Project "VScript"
+{
+	$Folder	"Source Files"
+	{
+
+		$File	"vscript.cpp"
+		$File	"vscript_squirrel.cpp"
+
+		$Folder "squirrel"
+		{
+			$File	".\squirrel\sqstdlib\sqstdaux.cpp"
+			$File	".\squirrel\sqstdlib\sqstdblob.cpp"
+			$File	".\squirrel\sqstdlib\sqstdio.cpp"
+			$File	".\squirrel\sqstdlib\sqstdmath.cpp"
+			$File	".\squirrel\sqstdlib\sqstdrex.cpp"
+			$File	".\squirrel\sqstdlib\sqstdstream.cpp"
+			$File	".\squirrel\sqstdlib\sqstdstring.cpp"
+			$File	".\squirrel\sqstdlib\sqstdsystem.cpp"
+			$File	".\squirrel\squirrel\sqapi.cpp"
+			$File	".\squirrel\squirrel\sqbaselib.cpp"
+			$File	".\squirrel\squirrel\sqclass.cpp"
+			$File	".\squirrel\squirrel\sqcompiler.cpp"
+			$File	".\squirrel\squirrel\sqdebug.cpp"
+			$File	".\squirrel\squirrel\sqfuncstate.cpp"
+			$File	".\squirrel\squirrel\sqlexer.cpp"
+			$File	".\squirrel\squirrel\sqmem.cpp"
+			$File	".\squirrel\squirrel\sqobject.cpp"
+			$File	".\squirrel\squirrel\sqstate.cpp"
+			$File	".\squirrel\squirrel\sqtable.cpp"
+			$File	".\squirrel\squirrel\sqvm.cpp"
+		}
+	}
+}

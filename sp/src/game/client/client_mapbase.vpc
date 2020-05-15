@@ -11,6 +11,8 @@ $Configuration
 		$PreprocessorDefinitions		"$BASE;ASW_PROJECTED_TEXTURES;DYNAMIC_RTT_SHADOWS"
 		
 		$PreprocessorDefinitions		"$BASE;MAPBASE_RPC;DISCORD_RPC;STEAM_RPC"	[$MAPBASE_RPC]
+
+		$PreprocessorDefinitions		"$BASE;MAPBASE_VSCRIPT"	[$MAPBASE_VSCRIPT]
 	}
 }
 
@@ -50,5 +52,10 @@ $Project
 				$File	"$SRCDIR\game\shared\hl2mp\weapon_slam.h"
 			}
 		}
+	}
+
+	$Folder	"Link Libraries"
+	{
+		$Lib	"vscript" [$MAPBASE_VSCRIPT]
 	}
 }

@@ -31,6 +31,12 @@ extern ScriptClassDesc_t * GetScriptDesc( CBaseEntity * );
 
 #endif // VMPROFILE
 
+#ifdef MAPBASE_VSCRIPT
+// This is to ensure a dependency exists between the vscript library and the game DLLs
+extern int vscript_token;
+int vscript_token_hack = vscript_token;
+#endif
+
 
 
 HSCRIPT VScriptCompileScript( const char *pszScriptName, bool bWarnMissing )
