@@ -1340,7 +1340,7 @@ CBaseEntityOutput *CBaseEntity::FindNamedOutput( const char *pszOutput )
 			typedescription_t *dataDesc = &dmap->dataDesc[i];
 			if ( ( dataDesc->fieldType == FIELD_CUSTOM ) && ( dataDesc->flags & FTYPEDESC_OUTPUT ) )
 			{
-				CBaseEntityOutput *pOutput = ( CBaseEntityOutput * )( ( int )this + ( int )dataDesc->fieldOffset );
+				CBaseEntityOutput *pOutput = ( CBaseEntityOutput * )( ( int )this + ( int )dataDesc->fieldOffset[0] );
 				if ( !Q_stricmp( dataDesc->externalName, pszOutput ) )
 				{
 					return pOutput;
@@ -7147,6 +7147,7 @@ const char *CBaseEntity::GetContextValue( int index ) const
 	}
 
 	return  m_ResponseContexts[ index ].m_iszValue.ToCStr();
+
 }
 
 //-----------------------------------------------------------------------------
