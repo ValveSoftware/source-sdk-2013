@@ -195,14 +195,6 @@ SQUserPointer TYPETAG_VECTOR = "VectorTypeTag";
 
 namespace SQVector
 {
-
-	SQInteger Destruct(SQUserPointer p, SQInteger size)
-	{
-		Vector* v = (Vector*)p;
-		delete v;
-		return 0;
-	}
-
 	SQInteger Construct(HSQUIRRELVM vm)
 	{
 		// TODO: There must be a nicer way to store the data with the actual instance, there are
@@ -221,9 +213,9 @@ namespace SQVector
 			return sq_throwerror(vm, "Expected Vector(float x, float y, float z)");
 		}
 
-		Vector* v = new Vector(x, y, z);
-		sq_setinstanceup(vm, 1, v);
-		sq_setreleasehook(vm, 1, &Destruct);
+		SQUserPointer p;
+		sq_getinstanceup(vm, 1, &p, 0);
+		new (p) Vector(x, y, z);
 
 		return 0;
 	}
@@ -298,12 +290,11 @@ namespace SQVector
 			return sq_throwerror(vm, "Expected (Vector, Vector)");
 		}
 
-		Vector* ret = new Vector((*v1) + (*v2));
-
 		sq_getclass(vm, 1);
 		sq_createinstance(vm, -1);
-		sq_setinstanceup(vm, -1, ret);
-		sq_setreleasehook(vm, -1, &Destruct);
+		SQUserPointer p;
+		sq_getinstanceup(vm, -1, &p, 0);
+		new(p) Vector((*v1) + (*v2));
 		sq_remove(vm, -2);
 
 		return 1;
@@ -321,12 +312,11 @@ namespace SQVector
 			return sq_throwerror(vm, "Expected (Vector, Vector)");
 		}
 
-		Vector* ret = new Vector((*v1) - (*v2));
-
 		sq_getclass(vm, 1);
 		sq_createinstance(vm, -1);
-		sq_setinstanceup(vm, -1, ret);
-		sq_setreleasehook(vm, -1, &Destruct);
+		SQUserPointer p;
+		sq_getinstanceup(vm, -1, &p, 0);
+		new(p) Vector((*v1) - (*v2));
 		sq_remove(vm, -2);
 
 		return 1;
@@ -350,12 +340,11 @@ namespace SQVector
 		if ((paramType & SQOBJECT_NUMERIC) &&
 			SQ_SUCCEEDED(sq_getfloat(vm, 2, &s)))
 		{
-			Vector* ret = new Vector((*v1) * s);
-
 			sq_getclass(vm, 1);
 			sq_createinstance(vm, -1);
-			sq_setinstanceup(vm, -1, ret);
-			sq_setreleasehook(vm, -1, &Destruct);
+			SQUserPointer p;
+			sq_getinstanceup(vm, -1, &p, 0);
+			new(p) Vector((*v1) * s);
 			sq_remove(vm, -2);
 
 			return 1;
@@ -363,13 +352,11 @@ namespace SQVector
 		else if (paramType == OT_INSTANCE &&
 			SQ_SUCCEEDED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v2, TYPETAG_VECTOR)))
 		{
-
-			Vector* ret = new Vector((*v1) * (*v2));
-
 			sq_getclass(vm, 1);
 			sq_createinstance(vm, -1);
-			sq_setinstanceup(vm, -1, ret);
-			sq_setreleasehook(vm, -1, &Destruct);
+			SQUserPointer p;
+			sq_getinstanceup(vm, -1, &p, 0);
+			new(p) Vector((*v1) * (*v2));
 			sq_remove(vm, -2);
 
 			return 1;
@@ -398,12 +385,11 @@ namespace SQVector
 		if ((paramType & SQOBJECT_NUMERIC) &&
 			SQ_SUCCEEDED(sq_getfloat(vm, 2, &s)))
 		{
-			Vector* ret = new Vector((*v1) / s);
-
 			sq_getclass(vm, 1);
 			sq_createinstance(vm, -1);
-			sq_setinstanceup(vm, -1, ret);
-			sq_setreleasehook(vm, -1, &Destruct);
+			SQUserPointer p;
+			sq_getinstanceup(vm, -1, &p, 0);
+			new(p) Vector((*v1) / s);
 			sq_remove(vm, -2);
 
 			return 1;
@@ -411,13 +397,11 @@ namespace SQVector
 		else if (paramType == OT_INSTANCE &&
 			SQ_SUCCEEDED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v2, TYPETAG_VECTOR)))
 		{
-
-			Vector* ret = new Vector((*v1) / (*v2));
-
 			sq_getclass(vm, 1);
 			sq_createinstance(vm, -1);
-			sq_setinstanceup(vm, -1, ret);
-			sq_setreleasehook(vm, -1, &Destruct);
+			SQUserPointer p;
+			sq_getinstanceup(vm, -1, &p, 0);
+			new(p) Vector((*v1) / (*v2));
 			sq_remove(vm, -2);
 
 			return 1;
@@ -494,12 +478,11 @@ namespace SQVector
 			return sq_throwerror(vm, "Expected (Vector)");
 		}
 
-		Vector* ret = new Vector(v1->Normalized());
-
 		sq_getclass(vm, 1);
 		sq_createinstance(vm, -1);
-		sq_setinstanceup(vm, -1, ret);
-		sq_setreleasehook(vm, -1, &Destruct);
+		SQUserPointer p;
+		sq_getinstanceup(vm, -1, &p, 0);
+		new(p) Vector((*v1).Normalized());
 		sq_remove(vm, -2);
 
 		return 1;
@@ -534,12 +517,11 @@ namespace SQVector
 			return sq_throwerror(vm, "Expected (Vector, Vector)");
 		}
 
-		Vector* ret = new Vector(v1->Cross(*v2));
-
 		sq_getclass(vm, 1);
 		sq_createinstance(vm, -1);
-		sq_setinstanceup(vm, -1, ret);
-		sq_setreleasehook(vm, -1, &Destruct);
+		SQUserPointer p;
+		sq_getinstanceup(vm, -1, &p, 0);
+		new(p) Vector((*v1).Cross(*v2));
 		sq_remove(vm, -2);
 
 		return 1;
@@ -570,6 +552,7 @@ namespace SQVector
 		sq_pushstring(v, _SC("Vector"), -1);
 		sq_newclass(v, SQFalse);
 		sq_settypetag(v, -1, TYPETAG_VECTOR);
+		sq_setclassudsize(v, -1, sizeof(Vector));
 		SQInteger i = 0;
 		while (funcs[i].name != 0) {
 			const SQRegFunction& f = funcs[i];
@@ -658,9 +641,9 @@ void PushVariant(HSQUIRRELVM vm, const ScriptVariant_t& value)
 		assert(pSquirrelVM);
 		sq_pushobject(vm, pSquirrelVM->vectorClass_);
 		sq_createinstance(vm, -1);
-		// Valve, wtf is with this wierd lifetime?
-		sq_setinstanceup(vm, -1, new Vector(value));
-		sq_setreleasehook(vm, -1, SQVector::Destruct);
+		SQUserPointer p;
+		sq_getinstanceup(vm, -1, &p, 0);
+		new(p) Vector(value);
 		sq_remove(vm, -2);
 		break;
 	}
@@ -914,7 +897,7 @@ SQInteger destructor_stub(SQUserPointer p, SQInteger size)
 {
 	auto classInstanceData = (ClassInstanceData*)p;
 	classInstanceData->desc->m_pfnDestruct(classInstanceData->instance);
-	delete classInstanceData;
+	classInstanceData->~ClassInstanceData();
 	return 0;
 }
 
@@ -922,8 +905,7 @@ SQInteger destructor_stub_instance(SQUserPointer p, SQInteger size)
 {
 	auto classInstanceData = (ClassInstanceData*)p;
 	// We don't call destructor here because this is owned by the game
-	delete classInstanceData;
-
+	classInstanceData->~ClassInstanceData();
 	return 0;
 }
 
@@ -956,8 +938,11 @@ SQInteger constructor_stub(HSQUIRRELVM vm)
 		return sq_throwobject(vm);
 	}
 
-	auto classInstanceData = new ClassInstanceData(instance, pClassDesc);
-	sq_setinstanceup(vm, 1, classInstanceData);
+	{
+		SQUserPointer p;
+		sq_getinstanceup(vm, 1, &p, 0);
+		new(p) ClassInstanceData(instance, pClassDesc);
+	}
 
 	sq_setreleasehook(vm, 1, &destructor_stub);
 
@@ -1424,6 +1409,8 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 
 	sq_settypetag(vm_, -1, pClassDesc);
 
+	sq_setclassudsize(vm_, -1, sizeof(ClassInstanceData));
+
 	sq_pushstring(vm_, "constructor", -1);
 	sq_pushuserpointer(vm_, pClassDesc);
 	sq_newclosure(vm_, constructor_stub, 1);
@@ -1488,12 +1475,10 @@ HSCRIPT SquirrelVM::RegisterInstance(ScriptClassDesc_t* pDesc, void* pInstance)
 		return nullptr;
 	}
 
-	ClassInstanceData* classInstanceData = new ClassInstanceData(pInstance, pDesc);
-
-	if (SQ_FAILED(sq_setinstanceup(vm_, -1, classInstanceData)))
 	{
-		delete classInstanceData;
-		sq_pop(vm_, 3);
+		SQUserPointer p;
+		sq_getinstanceup(vm_, -1, &p, 0);
+		new(p) ClassInstanceData(pInstance, pDesc);
 	}
 
 	sq_setreleasehook(vm_, -1, &destructor_stub_instance);
@@ -1536,8 +1521,7 @@ void SquirrelVM::RemoveInstance(HSCRIPT hInstance)
 	SQUserPointer self;
 	sq_getinstanceup(vm_, -1, &self, nullptr);
 
-	auto classInstanceData = (ClassInstanceData*)self;
-	delete classInstanceData;
+	((ClassInstanceData*)self)->~ClassInstanceData();
 
 	sq_setinstanceup(vm_, -1, nullptr);
 	sq_setreleasehook(vm_, -1, nullptr);
@@ -2439,9 +2423,9 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 			float x = pBuffer->GetFloat();
 			float y = pBuffer->GetFloat();
 			float z = pBuffer->GetFloat();
-			Vector* v = new Vector(x, y, z);
-			sq_setinstanceup(vm_, -1, v);
-			sq_setreleasehook(vm_, -1, SQVector::Destruct);
+			SQUserPointer p;
+			sq_getinstanceup(vm_, -1, &p, 0);
+			new(p) Vector(x, y, z);
 		}
 		else if (typetag)
 		{
@@ -2467,8 +2451,11 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 					break;
 				}
 
-				auto classInstanceData = new ClassInstanceData(instance, pClassDesc, instanceName);
-				sq_setinstanceup(vm_, -1, classInstanceData);
+				{
+					SQUserPointer p;
+					sq_getinstanceup(vm_, -1, &p, 0);
+					new(p) ClassInstanceData(instance, pClassDesc, instanceName);
+				}
 				sq_setreleasehook(vm_, -1, &destructor_stub);
 			}
 		}
