@@ -911,12 +911,8 @@ SQInteger destructor_stub_instance(SQUserPointer p, SQInteger size)
 
 SQInteger constructor_stub(HSQUIRRELVM vm)
 {
-	SQInteger top = sq_gettop(vm);
-
-	SQUserPointer userptr = nullptr;
-	sq_getuserpointer(vm, top, &userptr);
-
-	ScriptClassDesc_t* pClassDesc = (ScriptClassDesc_t*)userptr;
+	ScriptClassDesc_t* pClassDesc = nullptr;
+	sq_gettypetag(vm, 1, (SQUserPointer*)&pClassDesc);
 
 	if (!pClassDesc->m_pfnConstruct)
 	{
@@ -1412,8 +1408,7 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 	sq_setclassudsize(vm_, -1, sizeof(ClassInstanceData));
 
 	sq_pushstring(vm_, "constructor", -1);
-	sq_pushuserpointer(vm_, pClassDesc);
-	sq_newclosure(vm_, constructor_stub, 1);
+	sq_newclosure(vm_, constructor_stub, 0);
 	sq_newslot(vm_, -3, SQFalse);
 
 	for (int i = 0; i < pClassDesc->m_FunctionBindings.Count(); ++i)
