@@ -1,6 +1,7 @@
 #include "vscript/ivscript.h"
 #include "tier1/utlbuffer.h"
 #include "tier1/utlmap.h"
+#include "tier1/utlstring.h"
 
 #include "squirrel.h"
 #include "sqstdaux.h"
@@ -598,10 +599,7 @@ struct ClassInstanceData
 
 	void* instance;
 	ScriptClassDesc_t* desc;
-
-	// TODO: Should we be using UtlString here? It appears this is a pool allocation
-	// which should live for the life of the game, if not the life the object atleast
-	const char* instanceId;
+	CUtlString instanceId;
 };
 
 bool CreateParamCheck(const ScriptFunctionBinding_t& func, char* output)
@@ -1873,6 +1871,9 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 		{
 			break;
 		}
+		sq_getdelegate(vm_, idx);
+		WriteObject(pBuffer, writeState, -1);
+		sq_poptop(vm_);
 		int count = sq_getsize(vm_, idx);
 		sq_push(vm_, idx);
 		sq_pushnull(vm_);
@@ -2237,9 +2238,16 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 			break;
 		}
 
+		ReadObject(pBuffer, readState);
+
 		int count = pBuffer->GetInt();
 		sq_newtableex(vm_, count);
 		sq_getstackobj(vm_, -1, obj);
+
+		sq_push(vm_, -2);
+		sq_setdelegate(vm_, -2);
+
+		sq_remove(vm_, -2);
 
 		for (int i = 0; i < count; ++i)
 		{
@@ -2459,7 +2467,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 					break;
 				}
 
-				auto classInstanceData = new ClassInstanceData(instance, pClassDesc);
+				auto classInstanceData = new ClassInstanceData(instance, pClassDesc, instanceName);
 				sq_setinstanceup(vm_, -1, classInstanceData);
 				sq_setreleasehook(vm_, -1, &destructor_stub);
 			}
