@@ -1,0 +1,28 @@
+version: 0.0.{build}
+
+platform:
+ - x86
+ - x64
+
+configuration:
+ - Debug
+ - Release
+
+clone_folder: c:\sq
+
+before_build:
+ - mkdir build
+ - cd build
+ - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %platform%
+ - echo %platform%
+ - if %platform%==X64 (cmake .. -G "Visual Studio 14 2015 Win64")
+ - if %platform%==x86 (cmake .. -G "Visual Studio 14 2015")
+
+build_script:
+ - cmake --build . --config %configuration% -- /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+artifacts:
+ - path: build\*\%configuration%\*.exe
+ - path: build\*\%configuration%\*.dll
+
+test: off
