@@ -390,6 +390,10 @@ public:
 
 	bool					ScriptIsPlayerNoclipping(void);
 
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT					VScriptGetExpresser();
+#endif
+
 	// View model prediction setup
 	void					CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, float &zFar, float &fov );
 

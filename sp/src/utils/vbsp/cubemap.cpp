@@ -689,7 +689,7 @@ static int Cubemap_CreateTexInfo( int originalTexInfo, int origin[3] )
 #ifdef PARALLAX_CORRECTED_CUBEMAPS
 	// Append origin info if this cubemap has a parallax OBB
 	char originAppendedString[1024] = "";
-	if (g_pParallaxObbStrs[cubemapIndex][0] != '\0')
+	if (g_pParallaxObbStrs[cubemapIndex] && g_pParallaxObbStrs[cubemapIndex][0] != '\0')
 	{
 		Q_snprintf(originAppendedString, 1024, "%s;[%d %d %d]", g_pParallaxObbStrs[cubemapIndex], origin[0], origin[1], origin[2]);
 	}

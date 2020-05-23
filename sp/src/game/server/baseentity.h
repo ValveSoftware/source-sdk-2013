@@ -754,6 +754,9 @@ public:
 	void InputRunScript(inputdata_t& inputdata);
 	void InputRunScriptFile(inputdata_t& inputdata);
 	void InputCallScriptFunction(inputdata_t& inputdata);
+#ifdef MAPBASE_VSCRIPT
+	void InputRunScriptQuotable(inputdata_t& inputdata);
+#endif
 
 	bool RunScriptFile(const char* pScriptFile, bool bUseRootScope = false);
 	bool RunScript(const char* pScriptText, const char* pDebugFilename = "CBaseEntity::RunScript");
@@ -1990,6 +1993,17 @@ public:
 
 	const Vector& ScriptGetBoundingMins(void);
 	const Vector& ScriptGetBoundingMaxs(void);
+
+#ifdef MAPBASE_VSCRIPT
+	bool	ScriptIsVisible( const Vector &vecSpot ) { return FVisible( vecSpot ); }
+	bool	ScriptIsEntVisible( HSCRIPT pEntity ) { return FVisible( ToEnt( pEntity ) ); }
+	bool	ScriptIsVisibleWithMask( const Vector &vecSpot, int traceMask ) { return FVisible( vecSpot, traceMask ); }
+
+	void ScriptAddContext( const char *name, const char *value, float duration = 0.0f );
+	const char *ScriptGetContext( const char *name );
+
+	int ScriptClassify(void);
+#endif
 
 	string_t		m_iszVScripts;
 	string_t		m_iszScriptThinkFunction;

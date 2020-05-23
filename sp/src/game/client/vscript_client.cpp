@@ -113,10 +113,16 @@ bool VScriptClientInit()
 
 				//g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
 
+#ifdef MAPBASE_VSCRIPT
+				IGameSystem::RegisterVScriptAllSystems();
+
+				RegisterSharedScriptFunctions();
+#else
 				if ( scriptLanguage == SL_SQUIRREL )
 				{
 					//g_pScriptVM->Run( g_Script_vscript_client );
 				}
+#endif
 
 				VScriptRunScript( "mapspawn", false );
 

@@ -132,6 +132,24 @@ BEGIN_SCRIPTDESC_ROOT( CScriptKeyValues, "Wrapper class over KeyValues instance"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValueString, "GetKeyString", "Given a KeyValues object and a key name, return associated string value" );
 	DEFINE_SCRIPTFUNC_NAMED( ScriptIsKeyValueEmpty, "IsKeyEmpty", "Given a KeyValues object and a key name, return true if key name has no value" );
 	DEFINE_SCRIPTFUNC_NAMED( ScriptReleaseKeyValues, "ReleaseKeyValues", "Given a root KeyValues object, release its contents" );
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetName, "GetName", "Given a KeyValues object, return its name" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetInt, "GetInt", "Given a KeyValues object, return its own associated integer value" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetFloat, "GetFloat", "Given a KeyValues object, return its own associated float value" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetString, "GetString", "Given a KeyValues object, return its own associated string value" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBool, "GetBool", "Given a KeyValues object, return its own associated bool value" );
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueInt, "SetKeyInt", "Given a KeyValues object and a key name, set associated integer value" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueFloat, "SetKeyFloat", "Given a KeyValues object and a key name, set associated float value" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueBool, "SetKeyBool", "Given a KeyValues object and a key name, set associated bool value" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueString, "SetKeyString", "Given a KeyValues object and a key name, set associated string value" );
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetName, "SetName", "Given a KeyValues object, set its name" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetInt, "SetInt", "Given a KeyValues object, set its own associated integer value" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetFloat, "SetFloat", "Given a KeyValues object, set its own associated float value" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetBool, "SetBool", "Given a KeyValues object, set its own associated bool value" );
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetString, "SetString", "Given a KeyValues object, set its own associated string value" );
+#endif
 END_SCRIPTDESC();
 
 HSCRIPT CScriptKeyValues::ScriptFindKey( const char *pszName )
@@ -208,6 +226,84 @@ void CScriptKeyValues::ScriptReleaseKeyValues( )
 	m_pKeyValues->deleteThis();
 	m_pKeyValues = NULL;
 }
+
+#ifdef MAPBASE_VSCRIPT
+const char *CScriptKeyValues::ScriptGetName()
+{
+	const char *psz = m_pKeyValues->GetName();
+	return psz;
+}
+
+int CScriptKeyValues::ScriptGetInt()
+{
+	int i = m_pKeyValues->GetInt();
+	return i;
+}
+
+float CScriptKeyValues::ScriptGetFloat()
+{
+	float f = m_pKeyValues->GetFloat();
+	return f;
+}
+
+const char *CScriptKeyValues::ScriptGetString()
+{
+	const char *psz = m_pKeyValues->GetString();
+	return psz;
+}
+
+bool CScriptKeyValues::ScriptGetBool()
+{
+	bool b = m_pKeyValues->GetBool();
+	return b;
+}
+
+
+void CScriptKeyValues::ScriptSetKeyValueInt( const char *pszName, int iValue )
+{
+	m_pKeyValues->SetInt( pszName, iValue );
+}
+
+void CScriptKeyValues::ScriptSetKeyValueFloat( const char *pszName, float flValue )
+{
+	m_pKeyValues->SetFloat( pszName, flValue );
+}
+
+void CScriptKeyValues::ScriptSetKeyValueString( const char *pszName, const char *pszValue )
+{
+	m_pKeyValues->SetString( pszName, pszValue );
+}
+
+void CScriptKeyValues::ScriptSetKeyValueBool( const char *pszName, bool bValue )
+{
+	m_pKeyValues->SetBool( pszName, bValue );
+}
+
+void CScriptKeyValues::ScriptSetName( const char *pszValue )
+{
+	m_pKeyValues->SetName( pszValue );
+}
+
+void CScriptKeyValues::ScriptSetInt( int iValue )
+{
+	m_pKeyValues->SetInt( NULL, iValue );
+}
+
+void CScriptKeyValues::ScriptSetFloat( float flValue )
+{
+	m_pKeyValues->SetFloat( NULL, flValue );
+}
+
+void CScriptKeyValues::ScriptSetString( const char *pszValue )
+{
+	m_pKeyValues->SetString( NULL, pszValue );
+}
+
+void CScriptKeyValues::ScriptSetBool( bool bValue )
+{
+	m_pKeyValues->SetBool( NULL, bValue );
+}
+#endif
 
 
 // constructors
@@ -438,10 +534,16 @@ bool VScriptServerInit()
 
 				g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
 
+#ifdef MAPBASE_VSCRIPT
+				IGameSystem::RegisterVScriptAllSystems();
+
+				RegisterSharedScriptFunctions();
+#else
 				if ( scriptLanguage == SL_SQUIRREL )
 				{
 					//g_pScriptVM->Run( g_Script_vscript_server );
 				}
+#endif
 
 				VScriptRunScript( "mapspawn", false );
 

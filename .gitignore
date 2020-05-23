@@ -53,6 +53,7 @@ config.cfg
 
 # shader files
 *.tmp
+*.vcs
 
 # Unnecessary files
 *.lib
@@ -75,3 +76,14 @@ sp/src/game/server/Release_mod_episodic/
 sp/src/game/server/Release_mod_hl2/
 sp/src/*/Debug/
 sp/src/*/Release/
+sp/game/*.dll
+sp/game/*.pdb
+sp/game/*.exe
+sp/src/utils/*.dll
+sp/src/utils/*.pdb
+sp/src/utils/*.exe
+sp/src/utils/*.res
+sp/src/materialsystem/*.dll
+sp/src/materialsystem/*.pdb
+sp/src/vgui2/*.dll
+sp/src/vgui2/*.pdb

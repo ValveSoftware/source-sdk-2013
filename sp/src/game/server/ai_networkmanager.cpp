@@ -948,6 +948,13 @@ void CAI_NetworkManager::InitializeAINetworks()
 		}
 	}
 
+#ifdef MAPBASE_VSCRIPT
+	if (g_pScriptVM)
+	{
+		g_pScriptVM->RegisterInstance( g_pBigAINet, "AINetwork" );
+	}
+#endif
+
 	// Reset node counter used during load
 	CNodeEnt::m_nNodeCount = 0;
 

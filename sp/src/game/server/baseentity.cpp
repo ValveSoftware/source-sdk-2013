@@ -2030,6 +2030,9 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_INPUTFUNC(FIELD_STRING, "RunScriptFile", InputRunScriptFile),
 	DEFINE_INPUTFUNC(FIELD_STRING, "RunScriptCode", InputRunScript),
 	DEFINE_INPUTFUNC(FIELD_STRING, "CallScriptFunction", InputCallScriptFunction),
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_INPUTFUNC(FIELD_STRING, "RunScriptCodeQuotable", InputRunScriptQuotable),
+#endif
 
 #ifdef MAPBASE
 	DEFINE_OUTPUT( m_OutUser1, "OutUser1" ),
@@ -2190,6 +2193,17 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( KeyValueFromVector, "__KeyValueFromVector", SCRIPT_HIDE )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetModelKeyValues, "GetModelKeyValues", "Get a KeyValue class instance on this entity's model")
+
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsVisible, "IsVisible", "Check if the specified position can be visible to this entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsEntVisible, "IsEntVisible", "Check if the specified entity can be visible to this entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsVisibleWithMask, "IsVisibleWithMask", "Check if the specified position can be visible to this entity with a specific trace mask." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetContext, "GetContext", "Get a response context value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddContext, "AddContext", "Add a response context value" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptClassify, "Classify", "Get Class_T class ID" )
+#endif
 	
 	DEFINE_SCRIPTFUNC( ValidateScriptScope, "Ensure that an entity's script scope has been created" )
 	DEFINE_SCRIPTFUNC( GetScriptScope, "Retrieve the script-side data associated with an entity" )
@@ -8014,6 +8028,33 @@ void CBaseEntity::InputCallScriptFunction(inputdata_t& inputdata)
 	CallScriptFunction(inputdata.value.String(), NULL);
 }
 
+#ifdef MAPBASE_VSCRIPT
+//---------------------------------------------------------
+// Send the string to the VM as source code and execute it
+//---------------------------------------------------------
+void CBaseEntity::InputRunScriptQuotable(inputdata_t& inputdata)
+{
+	CUtlStringList vecStrings;
+	V_SplitString( inputdata.value.String(), "''", vecStrings );
+	if (vecStrings.Count() > 1)
+	{
+		char szQuotableCode[1024];
+		Q_strncpy( szQuotableCode, vecStrings[0], sizeof( szQuotableCode ) );
+
+		for ( int i = 1; i < vecStrings.Count(); i++ )
+		{
+			Q_snprintf( szQuotableCode, sizeof( szQuotableCode ), "%s\"%s", szQuotableCode, vecStrings[i] );
+		}
+
+		RunScript( szQuotableCode, "InputRunScriptQuotable" );
+	}
+	else
+	{
+		RunScript( inputdata.value.String(), "InputRunScriptQuotable" );
+	}
+}
+#endif
+
 // #define VMPROFILE	// define to profile vscript calls
 
 #ifdef VMPROFILE
@@ -9473,6 +9514,29 @@ const Vector& CBaseEntity::ScriptGetBoundingMaxs(void)
 {
 	return m_Collision.OBBMaxs();
 }
+
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptAddContext( const char *name, const char *value, float duration )
+{
+	AddContext( name, value, duration );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+const char *CBaseEntity::ScriptGetContext( const char *name )
+{
+	return GetContextValue( name );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int CBaseEntity::ScriptClassify( void )
+{
+	return (int)Classify();
+}
+#endif
 
 
 #ifdef MAPBASE

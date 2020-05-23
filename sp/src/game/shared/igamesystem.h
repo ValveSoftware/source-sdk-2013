@@ -98,6 +98,13 @@ public:
 	static CBasePlayer *RunCommandPlayer();
 	static CUserCmd *RunCommandUserCmd();
 #endif
+
+#ifdef MAPBASE_VSCRIPT
+	// This should be abstract, but there's a lot of systems which derive from
+	// this interface that would need to have this declared
+	virtual void RegisterVScript() { ; }
+	static void RegisterVScriptAllSystems();
+#endif
 };
 
 class IGameSystemPerFrame : public IGameSystem

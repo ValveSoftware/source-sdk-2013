@@ -76,6 +76,19 @@ void InitRefract_DX9( CBaseVSShader *pShader, IMaterialVar** params, Refract_DX9
 	if( params[info.m_nEnvmap]->IsDefined() )
 	{
 		pShader->LoadCubeMap( info.m_nEnvmap, TEXTUREFLAGS_SRGB  );
+
+#ifdef MAPBASE
+		if (mat_specular_disable_on_missing.GetBool())
+		{
+			// Revert to defaultcubemap when the envmap texture is missing
+			// (should be equivalent to toolsblack in Mapbase)
+			if (!IS_FLAG_SET( MATERIAL_VAR_MODEL ) && params[info.m_nEnvmap]->GetTextureValue()->IsError())
+			{
+				params[info.m_nEnvmap]->SetStringValue( "engine/defaultcubemap" );
+				pShader->LoadCubeMap( info.m_nEnvmap, TEXTUREFLAGS_SRGB );
+			}
+		}
+#endif
 	}
 	if( params[info.m_nRefractTintTexture]->IsDefined() )
 	{

@@ -170,6 +170,15 @@ public:
 	void					ClearExpression();
 	const char *			GetExpression();
 
+#ifdef MAPBASE_VSCRIPT
+	//---------------------------------
+
+	void	ScriptAddLookTarget( HSCRIPT pTarget, float flImportance, float flDuration, float flRamp = 0.0 ) { AddLookTarget(ToEnt(pTarget), flImportance, flDuration, flRamp); }
+	void	ScriptAddLookTargetPos( const Vector &vecPosition, float flImportance, float flDuration, float flRamp = 0.0 ) { AddLookTarget(vecPosition, flImportance, flDuration, flRamp); }
+
+	//---------------------------------
+#endif
+
 	enum
 	{
 		SCENE_AI_BLINK = 1,
@@ -190,6 +199,9 @@ public:
 
 
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 private:
 	enum
 	{
