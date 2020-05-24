@@ -527,6 +527,20 @@ namespace SQVector
 		return 1;
 	}
 
+	SQInteger ToString(HSQUIRRELVM vm)
+	{
+		Vector* v1 = nullptr;
+
+		if (sq_gettop(vm) != 1 ||
+			SQ_FAILED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v1, TYPETAG_VECTOR)))
+		{
+			return sq_throwerror(vm, "Expected (Vector)");
+		}
+
+		sqstd_pushstringf(vm, "(vector: (%f, %f, %f))", v1->x, v1->y, v1->z);
+		return 1;
+	}
+
 	static const SQRegFunction funcs[] = {
 		{_SC("constructor"), Construct,0,nullptr},
 		{_SC("_get"), Get, 2, _SC(".s")},
@@ -543,6 +557,7 @@ namespace SQVector
 		{_SC("_div"), Divide, 2, _SC("..")},
 		{_SC("Dot"), Dot, 2, _SC("..")},
 		{_SC("Cross"), Cross, 2, _SC("..")},
+		{_SC("_tostring"), ToString, 1, _SC(".")},
 
 		{nullptr,(SQFUNCTION)0,0,nullptr}
 	};
@@ -943,6 +958,36 @@ SQInteger constructor_stub(HSQUIRRELVM vm)
 	sq_setreleasehook(vm, 1, &destructor_stub);
 
 	return 0;
+}
+
+SQInteger tostring_stub(HSQUIRRELVM vm)
+{
+	ClassInstanceData* classInstanceData = nullptr;
+	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
+
+	char buffer[128] = "";
+
+	if (classInstanceData &&
+		classInstanceData->instance &&
+		classInstanceData->desc->pHelper &&
+		classInstanceData->desc->pHelper->ToString(classInstanceData->instance, buffer, sizeof(buffer)))
+	{
+		sq_pushstring(vm, buffer, -1);
+	}
+	else if (classInstanceData)
+	{
+		sqstd_pushstringf(vm, "(%s : 0x%p)", classInstanceData->desc->m_pszScriptName, classInstanceData->instance);
+	}
+	else
+	{
+		HSQOBJECT obj;
+		sq_resetobject(&obj);
+		sq_getstackobj(vm, 1, &obj);
+		// Semi-based on SQVM::ToString default case
+		sqstd_pushstringf(vm, "(%s: 0x%p)", IdType2Name(obj._type), (void*)_rawval(obj));
+	}
+
+	return 1;
 }
 
 struct SquirrelSafeCheck
@@ -1427,6 +1472,11 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 	sq_pushstring(vm_, "constructor", -1);
 	sq_newclosure(vm_, constructor_stub, 0);
 	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "_tostring", -1);
+	sq_newclosure(vm_, tostring_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+	
 
 	for (int i = 0; i < pClassDesc->m_FunctionBindings.Count(); ++i)
 	{
@@ -1947,7 +1997,7 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 				sq_poptop(vm_);
 			}
 		}
-		
+
 		if (_closure(obj)->_env)
 		{
 			sq_pushobject(vm_, _closure(obj)->_env->_obj);
