@@ -817,7 +817,6 @@ bool getVariant(HSQUIRRELVM vm, SQInteger idx, ScriptVariant_t& variant)
 			tag == TYPETAG_VECTOR &&
 			SQ_SUCCEEDED(sq_getinstanceup(vm, idx, (SQUserPointer*)&v, TYPETAG_VECTOR)))
 		{
-			// TODO: This actually ends up pointing to the same data it seems error prone
 			variant = new Vector(*v);
 			variant.m_flags |= SV_FREE;
 			return true;
@@ -1206,11 +1205,13 @@ void SquirrelVM::Shutdown()
 
 bool SquirrelVM::ConnectDebugger()
 {
+	// TODO: Debugger support
 	return false;
 }
 
 void SquirrelVM::DisconnectDebugger()
 {
+	// TODO: Debugger support
 }
 
 ScriptLanguage_t SquirrelVM::GetLanguage()
@@ -1225,10 +1226,12 @@ const char* SquirrelVM::GetLanguageName()
 
 void SquirrelVM::AddSearchPath(const char* pszSearchPath)
 {
+	// TODO: Search path support
 }
 
 bool SquirrelVM::Frame(float simTime)
 {
+	// TODO: Frame support
 	return false;
 }
 
@@ -1254,7 +1257,7 @@ ScriptStatus_t SquirrelVM::Run(const char* pszScript, bool bWait)
 HSCRIPT SquirrelVM::CompileScript(const char* pszScript, const char* pszId)
 {
 	SquirrelSafeCheck safeCheck(vm_);
-	// TODO: sq_setcompilererrorhandler
+
 	Assert(vm_);
 	if (pszId == nullptr) pszId = "<unnamed>";
 	if (SQ_FAILED(sq_compilebuffer(vm_, pszScript, strlen(pszScript), pszId, SQTrue)))
@@ -1300,7 +1303,6 @@ ScriptStatus_t SquirrelVM::Run(HSCRIPT hScript, HSCRIPT hScope, bool bWait)
 	sq_pop(vm_, 1);
 	if (SQ_FAILED(result))
 	{
-		// TODO: sq_getlasterror
 		return SCRIPT_ERROR;
 	}
 	return SCRIPT_DONE;
@@ -1316,7 +1318,6 @@ ScriptStatus_t SquirrelVM::Run(HSCRIPT hScript, bool bWait)
 	sq_pop(vm_, 1);
 	if (SQ_FAILED(result))
 	{
-		// TODO: sq_getlasterror
 		return SCRIPT_ERROR;
 	}
 	return SCRIPT_DONE;
@@ -2771,16 +2772,19 @@ void SquirrelVM::RemoveOrphanInstances()
 void SquirrelVM::DumpState()
 {
 	SquirrelSafeCheck safeCheck(vm_);
+	// TODO: Dump state
 }
 
 void SquirrelVM::SetOutputCallback(ScriptOutputFunc_t pFunc)
 {
 	SquirrelSafeCheck safeCheck(vm_);
+	// TODO: Support output callbacks
 }
 
 void SquirrelVM::SetErrorCallback(ScriptErrorFunc_t pFunc)
 {
 	SquirrelSafeCheck safeCheck(vm_);
+	// TODO: Support error callbacks
 }
 
 bool SquirrelVM::RaiseException(const char* pszExceptionText)
