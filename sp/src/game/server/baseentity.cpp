@@ -2203,6 +2203,19 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddContext, "AddContext", "Add a response context value" )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptClassify, "Classify", "Get Class_T class ID" )
+
+	DEFINE_SCRIPTFUNC( GetSpawnFlags, "Get spawnflags" )
+	DEFINE_SCRIPTFUNC( AddSpawnFlags, "Add spawnflag(s)" )
+	DEFINE_SCRIPTFUNC( RemoveSpawnFlags, "Remove spawnflag(s)" )
+	DEFINE_SCRIPTFUNC( ClearSpawnFlags, "Clear spawnflag(s)" )
+	DEFINE_SCRIPTFUNC( HasSpawnFlags, "Check if the entity has specific spawnflag(s) ticked" )
+
+	DEFINE_SCRIPTFUNC( GetEffects, "Get effects" )
+	DEFINE_SCRIPTFUNC( AddEffects, "Add effect(s)" )
+	DEFINE_SCRIPTFUNC( RemoveEffects, "Remove effect(s)" )
+	DEFINE_SCRIPTFUNC( ClearEffects, "Clear effect(s)" )
+	DEFINE_SCRIPTFUNC( SetEffects, "Set effect(s)" )
+	DEFINE_SCRIPTFUNC( IsEffectActive, "Check if an effect is active" )
 #endif
 	
 	DEFINE_SCRIPTFUNC( ValidateScriptScope, "Ensure that an entity's script scope has been created" )
@@ -8034,18 +8047,9 @@ void CBaseEntity::InputCallScriptFunction(inputdata_t& inputdata)
 //---------------------------------------------------------
 void CBaseEntity::InputRunScriptQuotable(inputdata_t& inputdata)
 {
-	CUtlStringList vecStrings;
-	V_SplitString( inputdata.value.String(), "''", vecStrings );
-	if (vecStrings.Count() > 1)
+	char szQuotableCode[1024];
+	if (V_StrSubst( inputdata.value.String(), "''", "\"", szQuotableCode, sizeof( szQuotableCode ), false ))
 	{
-		char szQuotableCode[1024];
-		Q_strncpy( szQuotableCode, vecStrings[0], sizeof( szQuotableCode ) );
-
-		for ( int i = 1; i < vecStrings.Count(); i++ )
-		{
-			Q_snprintf( szQuotableCode, sizeof( szQuotableCode ), "%s\"%s", szQuotableCode, vecStrings[i] );
-		}
-
 		RunScript( szQuotableCode, "InputRunScriptQuotable" );
 	}
 	else

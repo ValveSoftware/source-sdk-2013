@@ -1220,18 +1220,26 @@ public:
 	HSCRIPT				VScriptFindEnemyMemory( HSCRIPT pEnemy );
 
 	int					VScriptGetState();
-	const char*			VScriptGetHintGroup() { return STRING( GetHintGroup() ); }
 
-	const char			*VScriptGetSchedule();
-	int					VScriptGetScheduleID() { return GetCurSchedule()->GetId(); }
+	const char*			VScriptGetHintGroup() { return STRING( GetHintGroup() ); }
+	HSCRIPT				VScriptGetHintNode();
+
+	const char*			ScriptGetActivity() { return GetActivityName( GetActivity() ); }
+	int					ScriptGetActivityID() { return GetActivity(); }
+	void				ScriptSetActivity( const char *szActivity ) { SetActivity( (Activity)GetActivityID( szActivity ) ); }
+	void				ScriptSetActivityID( int iActivity ) { SetActivity((Activity)iActivity); }
+
+	const char*			VScriptGetSchedule();
+	int					VScriptGetScheduleID();
 	void				VScriptSetSchedule( const char *szSchedule );
 	void				VScriptSetScheduleID( int iSched ) { SetSchedule( iSched ); }
-	const char			*VScriptGetTask();
+	const char*			VScriptGetTask();
+	int					VScriptGetTaskID();
 
-	bool				VScriptHasCondition( const char *szCondition );
+	bool				VScriptHasCondition( const char *szCondition ) { return HasCondition( GetConditionID( szCondition ) ); }
 	bool				VScriptHasConditionID( int iCondition ) { return HasCondition( iCondition ); }
-	void				VScriptSetCondition( const char *szCondition );
-	void				VScriptClearCondition( const char *szCondition );
+	void				VScriptSetCondition( const char *szCondition ) { SetCondition( GetConditionID( szCondition ) ); }
+	void				VScriptClearCondition( const char *szCondition ) { ClearCondition( GetConditionID( szCondition ) ); }
 
 	HSCRIPT				VScriptGetExpresser();
 #endif

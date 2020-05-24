@@ -401,7 +401,7 @@ CAI_Schedule *CAI_BaseNPC::GetScheduleOfType( int scheduleType )
 			}
 
 			g_pScriptVM->SetValue( "schedule", GetSchedulingSymbols()->ScheduleIdToSymbol( newSchedule ) );
-			g_pScriptVM->SetValue( "schedule_id", newSchedule );
+			g_pScriptVM->SetValue( "schedule_id", scheduleType ); // Use the local ID
 
 			ScriptVariant_t functionReturn;
 			m_ScriptScope.Call( hFunc, &functionReturn );

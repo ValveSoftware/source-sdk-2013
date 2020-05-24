@@ -734,6 +734,13 @@ int CAI_BaseNPC::VScriptGetState()
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+HSCRIPT CAI_BaseNPC::VScriptGetHintNode()
+{
+	return ToHScript( GetHintNode() );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 const char *CAI_BaseNPC::VScriptGetSchedule()
 {
 	const char *pName = NULL;
@@ -742,6 +749,21 @@ const char *CAI_BaseNPC::VScriptGetSchedule()
 		pName = "Unknown";
 
 	return pName;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int CAI_BaseNPC::VScriptGetScheduleID()
+{
+	int iSched = GetCurSchedule()->GetId();
+	
+	// Local IDs are needed to correspond with user-friendly enums
+	if ( AI_IdIsGlobal( iSched ) )
+	{
+		iSched = GetClassScheduleIdSpace()->ScheduleGlobalToLocal(iSched);
+	}
+
+	return iSched;
 }
 
 //-----------------------------------------------------------------------------
@@ -767,23 +789,14 @@ const char *CAI_BaseNPC::VScriptGetTask()
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-bool CAI_BaseNPC::VScriptHasCondition( const char *szCondition )
+int CAI_BaseNPC::VScriptGetTaskID()
 {
-	return HasCondition( GetConditionID( szCondition ) );
-}
+	const Task_t *pTask = GetTask();
+	int iID = -1;
+	if (pTask)
+		iID = GetTaskID( TaskName( pTask->iTask ) );
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void CAI_BaseNPC::VScriptSetCondition( const char *szCondition )
-{
-	SetCondition( GetConditionID( szCondition ) );
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void CAI_BaseNPC::VScriptClearCondition( const char *szCondition )
-{
-	ClearCondition( GetConditionID( szCondition ) );
+	return iID;
 }
 
 //-----------------------------------------------------------------------------
@@ -11899,7 +11912,7 @@ BEGIN_DATADESC( CAI_BaseNPC )
 END_DATADESC()
 
 #ifdef MAPBASE_VSCRIPT
-BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class shared all NPCs derive from." )
+BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPCs derive from." )
 
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetEnemy, "GetEnemy", "Get the NPC's current enemy." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptSetEnemy, "SetEnemy", "Set the NPC's current enemy." )
@@ -11907,20 +11920,28 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class shared 
 
 	DEFINE_SCRIPTFUNC_NAMED( VScriptFindEnemyMemory, "FindEnemyMemory", "Get information about the NPC's current enemy." )
 
-	DEFINE_SCRIPTFUNC_NAMED( VScriptGetHintGroup, "GetHintGroup", "Get the name of the NPC's hint group." )
-
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetState, "GetNPCState", "Get the NPC's current state." )
+
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetHintGroup, "GetHintGroup", "Get the name of the NPC's hint group." )
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetHintNode, "GetHintNode", "Get the NPC's current AI hint." )
 
 	DEFINE_SCRIPTFUNC( CapabilitiesGet, "Get the capabilities the NPC currently possesses." )
 	DEFINE_SCRIPTFUNC( CapabilitiesAdd, "Add capabilities to the NPC." )
 	DEFINE_SCRIPTFUNC( CapabilitiesRemove, "Remove capabilities from the NPC." )
 	DEFINE_SCRIPTFUNC( CapabilitiesClear, "Clear capabilities for the NPC." )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetActivity, "GetActivity", "Get the NPC's current activity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetActivityID, "GetActivityID", "Get the NPC's current activity ID." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetActivity, "SetActivity", "Set the NPC's current activity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetActivityID, "SetActivityID", "Set the NPC's current activity ID." )
+	DEFINE_SCRIPTFUNC( ResetActivity, "Reset the NPC's current activity." )
+
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetSchedule, "GetSchedule", "Get the NPC's current schedule." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetScheduleID, "GetScheduleID", "Get the NPC's current schedule ID." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptSetSchedule, "SetSchedule", "Set the NPC's current schedule." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptSetScheduleID, "SetScheduleID", "Set the NPC's current schedule ID." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetTask, "GetTask", "Get the NPC's current task." )
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetTaskID, "GetTaskID", "Get the NPC's current task ID." )
 	DEFINE_SCRIPTFUNC( ClearSchedule, "Clear the NPC's current schedule for the specified reason." )
 
 	DEFINE_SCRIPTFUNC_NAMED( VScriptHasCondition, "HasCondition", "Get whether the NPC has a condition." )
