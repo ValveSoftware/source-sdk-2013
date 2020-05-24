@@ -504,6 +504,19 @@ namespace SQVector
 		return 1;
 	}
 
+	SQInteger ToKVString(HSQUIRRELVM vm)
+	{
+		Vector* v1 = nullptr;
+
+		if (sq_gettop(vm) != 1 ||
+			SQ_FAILED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v1, TYPETAG_VECTOR)))
+		{
+			return sq_throwerror(vm, "Expected (Vector)");
+		}
+
+		sqstd_pushstringf(vm, "%f %f %f", v1->x, v1->y, v1->z);
+		return 1;
+	}
 
 	SQInteger Cross(HSQUIRRELVM vm)
 	{
@@ -527,6 +540,70 @@ namespace SQVector
 		return 1;
 	}
 
+	SQInteger ToString(HSQUIRRELVM vm)
+	{
+		Vector* v1 = nullptr;
+
+		if (sq_gettop(vm) != 1 ||
+			SQ_FAILED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v1, TYPETAG_VECTOR)))
+		{
+			return sq_throwerror(vm, "Expected (Vector)");
+		}
+
+		sqstd_pushstringf(vm, "(vector: (%f, %f, %f))", v1->x, v1->y, v1->z);
+		return 1;
+	}
+
+	SQInteger TypeOf(HSQUIRRELVM vm)
+	{
+		sq_pushstring(vm, "Vector", -1);
+		return 1;
+	}
+
+	SQInteger Nexti(HSQUIRRELVM vm)
+	{
+		Vector* v1 = nullptr;
+
+		if (sq_gettop(vm) != 2 ||
+			SQ_FAILED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v1, TYPETAG_VECTOR)))
+		{
+			return sq_throwerror(vm, "Expected (Vector)");
+		}
+
+		HSQOBJECT obj;
+		sq_resetobject(&obj);
+		sq_getstackobj(vm, 2, &obj);
+
+		const char* curkey = nullptr;
+
+		if (sq_isnull(obj))
+		{
+			curkey = "w";
+		}
+		else if (sq_isstring(obj))
+		{
+			curkey = sq_objtostring(&obj);
+		}
+		else
+		{
+			return sq_throwerror(vm, "Invalid iteartor");
+		}
+
+		Assert(curkey && curkey[0] >= 'w' && curkey[0] <= 'z');
+
+		if (curkey[0] == 'z')
+		{
+			// Reached the end
+			sq_pushnull(vm);
+			return 1;
+		}
+
+		char newkey = curkey[0] + 1;
+		sq_pushstring(vm, &newkey, 1);
+
+		return 1;
+	}
+
 	static const SQRegFunction funcs[] = {
 		{_SC("constructor"), Construct,0,nullptr},
 		{_SC("_get"), Get, 2, _SC(".s")},
@@ -540,9 +617,14 @@ namespace SQVector
 		{_SC("Length2D"), Length2D, 1, _SC(".")},
 		{_SC("Length2DSqr"), Length2DSqr, 1, _SC(".")},
 		{_SC("Normalized"), Normalized, 1, _SC(".")},
+		{_SC("Norm"), Normalized, 1, _SC(".")},
 		{_SC("_div"), Divide, 2, _SC("..")},
 		{_SC("Dot"), Dot, 2, _SC("..")},
 		{_SC("Cross"), Cross, 2, _SC("..")},
+		{_SC("ToKVString"), ToKVString, 1, _SC(".")},
+		{_SC("_tostring"), ToString, 1, _SC(".")},
+		{_SC("_typeof"), TypeOf, 1, _SC(".")},
+		{_SC("_nexti"), Nexti, 2, _SC("..")},
 
 		{nullptr,(SQFUNCTION)0,0,nullptr}
 	};
@@ -735,7 +817,6 @@ bool getVariant(HSQUIRRELVM vm, SQInteger idx, ScriptVariant_t& variant)
 			tag == TYPETAG_VECTOR &&
 			SQ_SUCCEEDED(sq_getinstanceup(vm, idx, (SQUserPointer*)&v, TYPETAG_VECTOR)))
 		{
-			// TODO: This actually ends up pointing to the same data it seems error prone
 			variant = new Vector(*v);
 			variant.m_flags |= SV_FREE;
 			return true;
@@ -945,6 +1026,36 @@ SQInteger constructor_stub(HSQUIRRELVM vm)
 	return 0;
 }
 
+SQInteger tostring_stub(HSQUIRRELVM vm)
+{
+	ClassInstanceData* classInstanceData = nullptr;
+	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
+
+	char buffer[128] = "";
+
+	if (classInstanceData &&
+		classInstanceData->instance &&
+		classInstanceData->desc->pHelper &&
+		classInstanceData->desc->pHelper->ToString(classInstanceData->instance, buffer, sizeof(buffer)))
+	{
+		sq_pushstring(vm, buffer, -1);
+	}
+	else if (classInstanceData)
+	{
+		sqstd_pushstringf(vm, "(%s : 0x%p)", classInstanceData->desc->m_pszScriptName, classInstanceData->instance);
+	}
+	else
+	{
+		HSQOBJECT obj;
+		sq_resetobject(&obj);
+		sq_getstackobj(vm, 1, &obj);
+		// Semi-based on SQVM::ToString default case
+		sqstd_pushstringf(vm, "(%s: 0x%p)", IdType2Name(obj._type), (void*)_rawval(obj));
+	}
+
+	return 1;
+}
+
 struct SquirrelSafeCheck
 {
 	SquirrelSafeCheck(HSQUIRRELVM vm, int outputCount = 0) :
@@ -976,17 +1087,18 @@ void printfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 	va_start(args, format);
 	char buffer[256];
 	vsprintf(buffer, format, args);
-	Msg("vscript: %s\n", buffer);
+	Msg("%s", buffer);
 	va_end(args);
 }
 
 void errorfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 {
+	// NOTE: This is only separate from printfunc to make it easier to add breakpoints
 	va_list args;
 	va_start(args, format);
 	char buffer[256];
 	vsprintf(buffer, format, args);
-	Msg("vscript: (ERRORR) %s\n", buffer);
+	Msg("%s", buffer);
 	va_end(args);
 }
 
@@ -1031,40 +1143,48 @@ bool SquirrelVM::Init()
 	}
 
 	if (Run(
-		"class CSimpleCallChainer\n"
-		"{\n"
-		"	function constructor(prefixString, scopeForThis, exactMatch)\n"
-		"	{\n"
-		"		prefix = prefixString;\n"
-		"		scope = scopeForThis;\n"
-		"		chain = [];\n"
-		"		scope[\"Dispatch\" + prefixString] <- Call.bindenv(this);\n"
-		"	}\n"
-		"\n"
-		"	function PostScriptExecute()\n"
-		"	{\n"
-		"		local func = null;\n"
-		"		try {\n"
-		"			func = scope[prefix];\n"
-		"		} catch(e) {\n"
-		"			return;\n"
-		"		}\n"
-		"		if (typeof(func) != \"function\")\n"
-		"			return;\n"
-		"		chain.push(func);\n"
-		"	}\n"
-		"\n"
-		"	function Call()\n"
-		"	{\n"
-		"		foreach (func in chain)\n"
-		"		{\n"
-		"			func.pcall(scope);\n"
-		"		}\n"
-		"	}\n"
-		"	prefix = null;\n"
-		"	scope= null;\n"
-		"	chain = [];\n"
-		"}") != SCRIPT_DONE)
+		R"script(
+		function printl( text )
+		{
+			return print(text + "\n");
+		}
+
+		class CSimpleCallChainer
+		{
+			function constructor(prefixString, scopeForThis, exactMatch)
+			{
+				prefix = prefixString;
+				scope = scopeForThis;
+				chain = [];
+				scope["Dispatch" + prefixString] <- Call.bindenv(this);
+			}
+
+			function PostScriptExecute()
+			{
+				local func = null;
+				try {
+					func = scope[prefix];
+				} catch(e) {
+					return;
+				}
+				if (typeof(func) != "function")
+					return;
+				chain.push(func);
+			}
+
+			function Call()
+			{
+				foreach (func in chain)
+				{
+					func.pcall(scope);
+				}
+			}
+			prefix = null;
+			scope= null;
+			chain = [];
+		}
+
+		)script") != SCRIPT_DONE)
 	{
 		this->Shutdown();
 		return false;
@@ -1085,11 +1205,13 @@ void SquirrelVM::Shutdown()
 
 bool SquirrelVM::ConnectDebugger()
 {
+	// TODO: Debugger support
 	return false;
 }
 
 void SquirrelVM::DisconnectDebugger()
 {
+	// TODO: Debugger support
 }
 
 ScriptLanguage_t SquirrelVM::GetLanguage()
@@ -1104,10 +1226,12 @@ const char* SquirrelVM::GetLanguageName()
 
 void SquirrelVM::AddSearchPath(const char* pszSearchPath)
 {
+	// TODO: Search path support
 }
 
 bool SquirrelVM::Frame(float simTime)
 {
+	// TODO: Frame support
 	return false;
 }
 
@@ -1133,7 +1257,7 @@ ScriptStatus_t SquirrelVM::Run(const char* pszScript, bool bWait)
 HSCRIPT SquirrelVM::CompileScript(const char* pszScript, const char* pszId)
 {
 	SquirrelSafeCheck safeCheck(vm_);
-	// TODO: sq_setcompilererrorhandler
+
 	Assert(vm_);
 	if (pszId == nullptr) pszId = "<unnamed>";
 	if (SQ_FAILED(sq_compilebuffer(vm_, pszScript, strlen(pszScript), pszId, SQTrue)))
@@ -1179,7 +1303,6 @@ ScriptStatus_t SquirrelVM::Run(HSCRIPT hScript, HSCRIPT hScope, bool bWait)
 	sq_pop(vm_, 1);
 	if (SQ_FAILED(result))
 	{
-		// TODO: sq_getlasterror
 		return SCRIPT_ERROR;
 	}
 	return SCRIPT_DONE;
@@ -1195,7 +1318,6 @@ ScriptStatus_t SquirrelVM::Run(HSCRIPT hScript, bool bWait)
 	sq_pop(vm_, 1);
 	if (SQ_FAILED(result))
 	{
-		// TODO: sq_getlasterror
 		return SCRIPT_ERROR;
 	}
 	return SCRIPT_DONE;
@@ -1427,6 +1549,11 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 	sq_pushstring(vm_, "constructor", -1);
 	sq_newclosure(vm_, constructor_stub, 0);
 	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "_tostring", -1);
+	sq_newclosure(vm_, tostring_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
 
 	for (int i = 0; i < pClassDesc->m_FunctionBindings.Count(); ++i)
 	{
@@ -1710,13 +1837,40 @@ int	SquirrelVM::GetNumTableEntries(HSCRIPT hScope)
 int SquirrelVM::GetKeyValue(HSCRIPT hScope, int nIterator, ScriptVariant_t* pKey, ScriptVariant_t* pValue)
 {
 	SquirrelSafeCheck safeCheck(vm_);
-	// TODO: How does this work does it expect to output to pKey and pValue as an array from nIterator
-	// elements or does it expect nIterator to be an index in hScrope, if so how does that work without
-	// without depending on squirrel internals not public API for getting the iterator (which is opaque)
-	// or do you iterate until that point and output the value? If it should be iterator then this should
-	// be a HSCRIPT for ease of use.
-	Assert(!"GetKeyValue is not implemented");
-	return 0;
+
+	if (hScope)
+	{
+		Assert(hScope != INVALID_HSCRIPT);
+		HSQOBJECT* scope = (HSQOBJECT*)hScope;
+		sq_pushobject(vm_, *scope);
+	}
+	else
+	{
+		sq_pushroottable(vm_);
+	}
+
+	if (nIterator == -1)
+	{
+		sq_pushnull(vm_);
+	}
+	else
+	{
+		sq_pushinteger(vm_, nIterator);
+	}
+
+	SQInteger nextiter = -1;
+
+	if (SQ_SUCCEEDED(sq_next(vm_, -2)))
+	{
+		if (pKey) getVariant(vm_, -2, *pKey);
+		if (pValue) getVariant(vm_, -1, *pValue);
+
+		sq_getinteger(vm_, -3, &nextiter);
+		sq_pop(vm_, 2);
+	}
+	sq_pop(vm_, 2);
+
+	return nextiter;
 }
 
 bool SquirrelVM::GetValue(HSCRIPT hScope, const char* pszKey, ScriptVariant_t* pValue)
@@ -1947,7 +2101,7 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 				sq_poptop(vm_);
 			}
 		}
-		
+
 		if (_closure(obj)->_env)
 		{
 			sq_pushobject(vm_, _closure(obj)->_env->_obj);
@@ -2504,8 +2658,6 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 			}
 		}
 
-
-
 		if (typetag == TYPETAG_VECTOR)
 		{
 			float x = pBuffer->GetFloat();
@@ -2647,16 +2799,19 @@ void SquirrelVM::RemoveOrphanInstances()
 void SquirrelVM::DumpState()
 {
 	SquirrelSafeCheck safeCheck(vm_);
+	// TODO: Dump state
 }
 
 void SquirrelVM::SetOutputCallback(ScriptOutputFunc_t pFunc)
 {
 	SquirrelSafeCheck safeCheck(vm_);
+	// TODO: Support output callbacks
 }
 
 void SquirrelVM::SetErrorCallback(ScriptErrorFunc_t pFunc)
 {
 	SquirrelSafeCheck safeCheck(vm_);
+	// TODO: Support error callbacks
 }
 
 bool SquirrelVM::RaiseException(const char* pszExceptionText)
