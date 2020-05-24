@@ -1088,17 +1088,18 @@ void printfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 	va_start(args, format);
 	char buffer[256];
 	vsprintf(buffer, format, args);
-	Msg("vscript: %s\n", buffer);
+	Msg("%s", buffer);
 	va_end(args);
 }
 
 void errorfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 {
+	// NOTE: This is only separate from printfunc to make it easier to add breakpoints
 	va_list args;
 	va_start(args, format);
 	char buffer[256];
 	vsprintf(buffer, format, args);
-	Msg("vscript: (ERRORR) %s\n", buffer);
+	Msg("%s", buffer);
 	va_end(args);
 }
 
@@ -1143,40 +1144,48 @@ bool SquirrelVM::Init()
 	}
 
 	if (Run(
-		"class CSimpleCallChainer\n"
-		"{\n"
-		"	function constructor(prefixString, scopeForThis, exactMatch)\n"
-		"	{\n"
-		"		prefix = prefixString;\n"
-		"		scope = scopeForThis;\n"
-		"		chain = [];\n"
-		"		scope[\"Dispatch\" + prefixString] <- Call.bindenv(this);\n"
-		"	}\n"
-		"\n"
-		"	function PostScriptExecute()\n"
-		"	{\n"
-		"		local func = null;\n"
-		"		try {\n"
-		"			func = scope[prefix];\n"
-		"		} catch(e) {\n"
-		"			return;\n"
-		"		}\n"
-		"		if (typeof(func) != \"function\")\n"
-		"			return;\n"
-		"		chain.push(func);\n"
-		"	}\n"
-		"\n"
-		"	function Call()\n"
-		"	{\n"
-		"		foreach (func in chain)\n"
-		"		{\n"
-		"			func.pcall(scope);\n"
-		"		}\n"
-		"	}\n"
-		"	prefix = null;\n"
-		"	scope= null;\n"
-		"	chain = [];\n"
-		"}") != SCRIPT_DONE)
+		R"script(
+		function printl( text )
+		{
+			return print(text + "\n");
+		}
+
+		class CSimpleCallChainer
+		{
+			function constructor(prefixString, scopeForThis, exactMatch)
+			{
+				prefix = prefixString;
+				scope = scopeForThis;
+				chain = [];
+				scope["Dispatch" + prefixString] <- Call.bindenv(this);
+			}
+
+			function PostScriptExecute()
+			{
+				local func = null;
+				try {
+					func = scope[prefix];
+				} catch(e) {
+					return;
+				}
+				if (typeof(func) != "function")
+					return;
+				chain.push(func);
+			}
+
+			function Call()
+			{
+				foreach (func in chain)
+				{
+					func.pcall(scope);
+				}
+			}
+			prefix = null;
+			scope= null;
+			chain = [];
+		}
+
+		)script") != SCRIPT_DONE)
 	{
 		this->Shutdown();
 		return false;
