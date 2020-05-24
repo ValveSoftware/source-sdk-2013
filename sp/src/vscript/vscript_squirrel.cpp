@@ -504,6 +504,19 @@ namespace SQVector
 		return 1;
 	}
 
+	SQInteger ToKVString(HSQUIRRELVM vm)
+	{
+		Vector* v1 = nullptr;
+
+		if (sq_gettop(vm) != 1 ||
+			SQ_FAILED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v1, TYPETAG_VECTOR)))
+		{
+			return sq_throwerror(vm, "Expected (Vector)");
+		}
+
+		sqstd_pushstringf(vm, "%f %f %f", v1->x, v1->y, v1->z);
+		return 1;
+	}
 
 	SQInteger Cross(HSQUIRRELVM vm)
 	{
@@ -541,6 +554,56 @@ namespace SQVector
 		return 1;
 	}
 
+	SQInteger TypeOf(HSQUIRRELVM vm)
+	{
+		sq_pushstring(vm, "Vector", -1);
+		return 1;
+	}
+
+	SQInteger Nexti(HSQUIRRELVM vm)
+	{
+		Vector* v1 = nullptr;
+
+		if (sq_gettop(vm) != 2 ||
+			SQ_FAILED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v1, TYPETAG_VECTOR)))
+		{
+			return sq_throwerror(vm, "Expected (Vector)");
+		}
+
+		HSQOBJECT obj;
+		sq_resetobject(&obj);
+		sq_getstackobj(vm, 2, &obj);
+
+		const char* curkey = nullptr;
+
+		if (sq_isnull(obj))
+		{
+			curkey = "w";
+		}
+		else if (sq_isstring(obj))
+		{
+			curkey = sq_objtostring(&obj);
+		}
+		else
+		{
+			return sq_throwerror(vm, "Invalid iteartor");
+		}
+
+		Assert(curkey && curkey[0] >= 'w' && curkey[0] <= 'z');
+
+		if (curkey[0] == 'z')
+		{
+			// Reached the end
+			sq_pushnull(vm);
+			return 1;
+		}
+
+		char newkey = curkey[0] + 1;
+		sq_pushstring(vm, &newkey, 1);
+
+		return 1;
+	}
+
 	static const SQRegFunction funcs[] = {
 		{_SC("constructor"), Construct,0,nullptr},
 		{_SC("_get"), Get, 2, _SC(".s")},
@@ -554,10 +617,14 @@ namespace SQVector
 		{_SC("Length2D"), Length2D, 1, _SC(".")},
 		{_SC("Length2DSqr"), Length2DSqr, 1, _SC(".")},
 		{_SC("Normalized"), Normalized, 1, _SC(".")},
+		{_SC("Norm"), Normalized, 1, _SC(".")},
 		{_SC("_div"), Divide, 2, _SC("..")},
 		{_SC("Dot"), Dot, 2, _SC("..")},
 		{_SC("Cross"), Cross, 2, _SC("..")},
+		{_SC("ToKVString"), ToKVString, 1, _SC(".")},
 		{_SC("_tostring"), ToString, 1, _SC(".")},
+		{_SC("_typeof"), TypeOf, 1, _SC(".")},
+		{_SC("_nexti"), Nexti, 2, _SC("..")},
 
 		{nullptr,(SQFUNCTION)0,0,nullptr}
 	};
@@ -1476,7 +1543,7 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 	sq_pushstring(vm_, "_tostring", -1);
 	sq_newclosure(vm_, tostring_stub, 0);
 	sq_newslot(vm_, -3, SQFalse);
-	
+
 
 	for (int i = 0; i < pClassDesc->m_FunctionBindings.Count(); ++i)
 	{
@@ -2553,8 +2620,6 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 				sq_pop(vm_, 1);
 			}
 		}
-
-
 
 		if (typetag == TYPETAG_VECTOR)
 		{
