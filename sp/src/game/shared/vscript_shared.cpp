@@ -85,7 +85,11 @@ HSCRIPT VScriptCompileScript( const char *pszScriptName, bool bWarnMissing )
 	{
 		bool bResult = filesystem->ReadFile( scriptPath, "GAME", bufferScript );
 
+#ifdef MAPBASE_VSCRIPT
+		if ( !bResult && bWarnMissing )
+#else
 		if( !bResult )
+#endif
 		{
 			Warning( "Script not found (%s) \n", scriptPath.operator const char *() );
 			Assert( "Error running script" );
