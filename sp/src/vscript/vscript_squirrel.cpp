@@ -1837,13 +1837,40 @@ int	SquirrelVM::GetNumTableEntries(HSCRIPT hScope)
 int SquirrelVM::GetKeyValue(HSCRIPT hScope, int nIterator, ScriptVariant_t* pKey, ScriptVariant_t* pValue)
 {
 	SquirrelSafeCheck safeCheck(vm_);
-	// TODO: How does this work does it expect to output to pKey and pValue as an array from nIterator
-	// elements or does it expect nIterator to be an index in hScrope, if so how does that work without
-	// without depending on squirrel internals not public API for getting the iterator (which is opaque)
-	// or do you iterate until that point and output the value? If it should be iterator then this should
-	// be a HSCRIPT for ease of use.
-	Assert(!"GetKeyValue is not implemented");
-	return 0;
+
+	if (hScope)
+	{
+		Assert(hScope != INVALID_HSCRIPT);
+		HSQOBJECT* scope = (HSQOBJECT*)hScope;
+		sq_pushobject(vm_, *scope);
+	}
+	else
+	{
+		sq_pushroottable(vm_);
+	}
+
+	if (nIterator == -1)
+	{
+		sq_pushnull(vm_);
+	}
+	else
+	{
+		sq_pushinteger(vm_, nIterator);
+	}
+
+	SQInteger nextiter = -1;
+
+	if (SQ_SUCCEEDED(sq_next(vm_, -2)))
+	{
+		if (pKey) getVariant(vm_, -2, *pKey);
+		if (pValue) getVariant(vm_, -1, *pValue);
+
+		sq_getinteger(vm_, -3, &nextiter);
+		sq_pop(vm_, 2);
+	}
+	sq_pop(vm_, 2);
+
+	return nextiter;
 }
 
 bool SquirrelVM::GetValue(HSCRIPT hScope, const char* pszKey, ScriptVariant_t* pValue)
