@@ -16,6 +16,9 @@
 #ifdef _WIN32
 //#include "vscript_client_nut.h"
 #endif
+#ifdef MAPBASE_VSCRIPT
+#include "c_world.h"
+#endif
 
 extern IScriptManager *scriptmanager;
 extern ScriptClassDesc_t * GetScriptDesc( CBaseEntity * );
@@ -73,6 +76,14 @@ bool VScriptClientInit()
 		ScriptLanguage_t scriptLanguage = SL_DEFAULT;
 
 		char const *pszScriptLanguage;
+#ifdef MAPBASE_VSCRIPT
+		if (GetClientWorldEntity()->GetScriptLanguage() != SL_NONE)
+		{
+			// Allow world entity to override script language
+			scriptLanguage = GetClientWorldEntity()->GetScriptLanguage();
+		}
+		else
+#endif
 		if ( CommandLine()->CheckParm( "-scriptlang", &pszScriptLanguage ) )
 		{
 			if( !Q_stricmp(pszScriptLanguage, "gamemonkey") )

@@ -2032,6 +2032,7 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_INPUTFUNC(FIELD_STRING, "CallScriptFunction", InputCallScriptFunction),
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_INPUTFUNC(FIELD_STRING, "RunScriptCodeQuotable", InputRunScriptQuotable),
+	DEFINE_INPUTFUNC(FIELD_VOID, "ClearScriptScope", InputClearScriptScope),
 #endif
 
 #ifdef MAPBASE
@@ -4337,6 +4338,10 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 
 							g_pScriptVM->SetValue( "activator", ( pActivator ) ? ScriptVariant_t( pActivator->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
 							g_pScriptVM->SetValue( "caller", ( pCaller ) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
+#ifdef MAPBASE_VSCRIPT
+							Value.SetScriptVariant( functionReturn );
+							g_pScriptVM->SetValue( "parameter", functionReturn );
+#endif
 
 							if( CallScriptFunction( szScriptFunctionName, &functionReturn ) )
 							{
@@ -4353,6 +4358,9 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 						{
 							g_pScriptVM->ClearValue( "activator" );
 							g_pScriptVM->ClearValue( "caller" );
+#ifdef MAPBASE_VSCRIPT
+							g_pScriptVM->ClearValue( "parameter" );
+#endif
 						}
 					}
 					else if ( dmap->dataDesc[i].flags & FTYPEDESC_KEY )
@@ -8056,6 +8064,14 @@ void CBaseEntity::InputRunScriptQuotable(inputdata_t& inputdata)
 	{
 		RunScript( inputdata.value.String(), "InputRunScriptQuotable" );
 	}
+}
+
+//---------------------------------------------------------
+// Clear this entity's script scope
+//---------------------------------------------------------
+void CBaseEntity::InputClearScriptScope(inputdata_t& inputdata)
+{
+	m_ScriptScope.Term();
 }
 #endif
 

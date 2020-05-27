@@ -393,6 +393,9 @@ BEGIN_DATADESC( CWorld )
 	DEFINE_KEYFIELD( m_flMaxPropScreenSpaceWidth, FIELD_FLOAT, "maxpropscreenwidth" ),
 	DEFINE_KEYFIELD( m_flMinPropScreenSpaceWidth, FIELD_FLOAT, "minpropscreenwidth" ),
 	DEFINE_KEYFIELD( m_iszDetailSpriteMaterial, FIELD_STRING, "detailmaterial" ),
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_KEYFIELD( m_iScriptLanguage, FIELD_INTEGER, "vscriptlanguage" ),
+#endif
 	DEFINE_KEYFIELD( m_bColdWorld,		FIELD_BOOLEAN, "coldworld" ),
 
 #ifdef MAPBASE
@@ -416,6 +419,9 @@ IMPLEMENT_SERVERCLASS_ST(CWorld, DT_WORLD)
 	SendPropInt		(SENDINFO(m_bColdWorld), 1, SPROP_UNSIGNED ),
 #ifdef MAPBASE
 	SendPropStringT (SENDINFO(m_iszChapterTitle) ),
+#endif
+#ifdef MAPBASE_VSCRIPT
+	SendPropInt		(SENDINFO(m_iScriptLanguage), 2, SPROP_UNSIGNED ),
 #endif
 END_SEND_TABLE()
 
@@ -475,6 +481,10 @@ CWorld::CWorld( )
 	
 	SetSolid( SOLID_BSP );
 	SetMoveType( MOVETYPE_NONE );
+
+#ifdef MAPBASE_VSCRIPT
+	m_iScriptLanguage = SL_NONE;
+#endif
 
 	m_bColdWorld = false;
 }

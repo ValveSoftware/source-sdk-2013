@@ -756,6 +756,7 @@ public:
 	void InputCallScriptFunction(inputdata_t& inputdata);
 #ifdef MAPBASE_VSCRIPT
 	void InputRunScriptQuotable(inputdata_t& inputdata);
+	void InputClearScriptScope(inputdata_t& inputdata);
 #endif
 
 	bool RunScriptFile(const char* pScriptFile, bool bUseRootScope = false);

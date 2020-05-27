@@ -17,6 +17,10 @@
 
 class CBaseEntity;
 
+#ifdef MAPBASE_VSCRIPT
+struct ScriptVariant_t;
+#endif
+
 
 //
 // A variant class for passing data in entity input/output connections.
@@ -78,6 +82,10 @@ public:
 	// Hands over the value + the field type.
 	// ex: "Otis (String)", "3 (Integer)", or "npc_combine_s (Entity)"
 	const char *GetDebug();
+#endif
+
+#ifdef MAPBASE_VSCRIPT
+	void SetScriptVariant( ScriptVariant_t &var );
 #endif
 
 	static typedescription_t m_SaveBool[];
