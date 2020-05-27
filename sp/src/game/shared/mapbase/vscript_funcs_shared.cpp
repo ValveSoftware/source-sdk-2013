@@ -19,6 +19,57 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+class CScriptConvarLookup
+{
+public:
+
+#ifndef CLIENT_DLL
+	const char *GetClientConvarValue( const char *pszConVar, int entindex )
+	{
+		return engine->GetClientConVarValue( entindex, pszConVar );
+	}
+#endif
+
+	const char *GetStr( const char *pszConVar )
+	{
+		ConVarRef cvar( pszConVar );
+		return cvar.GetString();
+	}
+
+	float GetFloat( const char *pszConVar )
+	{
+		ConVarRef cvar( pszConVar );
+		return cvar.GetFloat();
+	}
+
+	void SetValue( const char *pszConVar, const char *pszValue )
+	{
+		ConVarRef cvar( pszConVar );
+		if (!cvar.IsValid())
+			return;
+
+		// FCVAR_NOT_CONNECTED can be used to protect specific convars from nefarious interference
+		if (cvar.IsFlagSet(FCVAR_NOT_CONNECTED))
+			return;
+
+		cvar.SetValue( pszValue );
+	}
+
+private:
+} g_ScriptConvarLookup;
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptConvarLookup, "Convars", SCRIPT_SINGLETON "Provides an interface for getting and setting convars." )
+#ifndef CLIENT_DLL
+	DEFINE_SCRIPTFUNC( GetClientConvarValue, "Returns the convar value for the entindex as a string. Only works with client convars with the FCVAR_USERINFO flag." )
+#endif
+	DEFINE_SCRIPTFUNC( GetStr, "Returns the convar as a string. May return null if no such convar." )
+	DEFINE_SCRIPTFUNC( GetFloat, "Returns the convar as a float. May return null if no such convar." )
+	DEFINE_SCRIPTFUNC( SetValue, "Sets the value of the convar. Supported types are bool, int, float, string." )
+END_SCRIPTDESC();
+
 #ifndef CLIENT_DLL
 extern ConVar sv_script_think_interval;
 
@@ -179,6 +230,8 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunction( g_pScriptVM, PrecacheEntityFromTable, "Precache an entity from KeyValues in a table." );
 	ScriptRegisterFunction( g_pScriptVM, SpawnEntityFromTable, "Native function for entity spawning." );
 #endif
+
+	g_pScriptVM->RegisterInstance( &g_ScriptConvarLookup, "Convars" );
 
 	// Functions unique to Mapbase
 #ifndef CLIENT_DLL

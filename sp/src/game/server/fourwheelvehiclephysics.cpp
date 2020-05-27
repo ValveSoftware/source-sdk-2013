@@ -148,6 +148,39 @@ BEGIN_DATADESC_NO_BASE( CFourWheelVehiclePhysics )
 	DEFINE_FIELD( m_bLastSkid, FIELD_BOOLEAN ),
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_SCRIPTDESC_ROOT( CFourWheelVehiclePhysics, "Handler for four-wheel vehicle physics." )
+
+	DEFINE_SCRIPTFUNC( SetThrottle, "Sets the throttle." )
+	DEFINE_SCRIPTFUNC( SetMaxThrottle, "Sets the max throttle." )
+	DEFINE_SCRIPTFUNC( SetMaxReverseThrottle, "Sets the max reverse throttle." )
+	DEFINE_SCRIPTFUNC( SetSteering, "Sets the steering." )
+	DEFINE_SCRIPTFUNC( SetSteeringDegrees, "Sets the degrees of steering." )
+	DEFINE_SCRIPTFUNC( SetAction, "Sets the action." )
+	DEFINE_SCRIPTFUNC( SetHandbrake, "Sets the handbrake." )
+	DEFINE_SCRIPTFUNC( SetBoost, "Sets the boost." )
+	DEFINE_SCRIPTFUNC( SetHasBrakePedal, "Sets whether a handbrake pedal exists." )
+
+	DEFINE_SCRIPTFUNC( SetDisableEngine, "Sets whether the engine is disabled." )
+	DEFINE_SCRIPTFUNC( IsEngineDisabled, "Checks whether the engine is disabled." )
+
+	DEFINE_SCRIPTFUNC( EnableMotion, "Enables vehicle motion." )
+	DEFINE_SCRIPTFUNC( DisableMotion, "Disables vehicle motion." )
+
+	DEFINE_SCRIPTFUNC( GetSpeed, "Gets the speed." )
+	DEFINE_SCRIPTFUNC( GetMaxSpeed, "Gets the max speed." )
+	DEFINE_SCRIPTFUNC( GetRPM, "Gets the RPM." )
+	DEFINE_SCRIPTFUNC( GetThrottle, "Gets the throttle." )
+	DEFINE_SCRIPTFUNC( HasBoost, "Checks if the vehicle has the ability to boost." )
+	DEFINE_SCRIPTFUNC( BoostTimeLeft, "Gets how much time is left in any current boost." )
+	DEFINE_SCRIPTFUNC( IsBoosting, "Checks if the vehicle is boosting." )
+	DEFINE_SCRIPTFUNC( GetHLSpeed, "Gets HL speed." )
+	DEFINE_SCRIPTFUNC( GetSteering, "Gets the steeering." )
+	DEFINE_SCRIPTFUNC( GetSteeringDegrees, "Gets the degrees of steeering." )
+
+END_SCRIPTDESC();
+#endif
+
 
 //-----------------------------------------------------------------------------
 // Constructor

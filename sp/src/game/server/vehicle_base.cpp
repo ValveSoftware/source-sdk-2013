@@ -66,6 +66,15 @@ BEGIN_DATADESC( CPropVehicle )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CPropVehicle, CBaseAnimating, "The base class for four-wheel physics vehicles." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetVehicleType, "GetVehicleType", "Get a vehicle's type." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPhysics, "GetPhysics", "Get a vehicle's physics." )
+
+END_SCRIPTDESC();
+#endif
+
 LINK_ENTITY_TO_CLASS( prop_vehicle, CPropVehicle );
 
 //-----------------------------------------------------------------------------
@@ -226,6 +235,23 @@ void CPropVehicle::InputHandBrakeOff( inputdata_t &inputdata )
 	m_VehiclePhysics.ReleaseHandbrake();
 }
 
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+HSCRIPT CPropVehicle::ScriptGetPhysics()
+{
+	HSCRIPT hScript = NULL;
+	CFourWheelVehiclePhysics *pPhysics = GetPhysics();
+	if (pPhysics)
+	{
+		hScript = g_pScriptVM->RegisterInstance( pPhysics );
+	}
+
+	return hScript;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -378,6 +404,19 @@ BEGIN_DATADESC( CPropVehicleDriveable )
 	DEFINE_FIELD( m_hKeepUpright, FIELD_EHANDLE ),
 
 END_DATADESC()
+
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CPropVehicleDriveable, CPropVehicle, "The base class for driveable vehicles." )
+
+	DEFINE_SCRIPTFUNC( IsOverturned, "Check if the vehicle is overturned." )
+	DEFINE_SCRIPTFUNC( IsVehicleBodyInWater, "Check if the vehicle's body is submerged in water." )
+	DEFINE_SCRIPTFUNC( StartEngine, "Start the engine." )
+	DEFINE_SCRIPTFUNC( StopEngine, "Stop the engine." )
+	DEFINE_SCRIPTFUNC( IsEngineOn, "Check if the engine is on." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetDriver, "GetDriver", "Get a vehicle's driver, which could be either a player or a npc_vehicledriver." )
+
+END_SCRIPTDESC();
+#endif
 
 
 LINK_ENTITY_TO_CLASS( prop_vehicle_driveable, CPropVehicleDriveable );

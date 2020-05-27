@@ -160,6 +160,7 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_ShootPosition, "ShootPosition", "Get the character's shoot position." )
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_DropAll, "DropAllWeapons", "Make the character drop all of its weapons." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptEquipWeapon, "EquipWeapon", "Make the character equip the specified weapon entity. If they don't already own the weapon, they will acquire it instantly." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAmmoCount, "GetAmmoCount", "Get the ammo count of the specified ammo type." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAmmoCount, "SetAmmoCount", "Set the ammo count of the specified ammo type." )
@@ -4374,6 +4375,42 @@ HSCRIPT CBaseCombatCharacter::GetScriptWeaponIndex( int i )
 HSCRIPT CBaseCombatCharacter::GetScriptWeaponByType( const char *pszWeapon, int iSubType )
 {
 	return ToHScript( Weapon_OwnsThisType( pszWeapon, iSubType ) );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseCombatCharacter::ScriptEquipWeapon( HSCRIPT hWeapon )
+{
+	CBaseEntity *pEntity = ToEnt( hWeapon );
+	CBaseCombatWeapon *pWeapon = pEntity->MyCombatWeaponPointer();
+	if (!pEntity || !pWeapon)
+		return;
+
+	if (pWeapon->GetOwner() == this)
+	{
+		// Switch to this weapon
+		Weapon_Switch( pWeapon );
+	}
+	else
+	{
+		if (CBaseCombatWeapon *pExistingWeapon = Weapon_OwnsThisType( pWeapon->GetClassname() ))
+		{
+			// Drop our existing weapon then!
+			Weapon_Drop( pExistingWeapon );
+		}
+
+		if (IsNPC())
+		{
+			Weapon_Equip( pWeapon );
+			MyNPCPointer()->OnGivenWeapon( pWeapon );
+		}
+		else
+		{
+			Weapon_Equip( pWeapon );
+		}
+
+		pWeapon->OnPickedUp( this );
+	}
 }
 
 //-----------------------------------------------------------------------------

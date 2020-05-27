@@ -27,6 +27,9 @@ class CAI_GoalEntity : public CBaseEntity,
 					   public IEntityListener
 {
 	DECLARE_CLASS( CAI_GoalEntity, CBaseEntity );
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 public:
 	CAI_GoalEntity()
 	 :	m_iszActor(NULL_STRING),

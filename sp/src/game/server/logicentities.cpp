@@ -3799,7 +3799,8 @@ BEGIN_DATADESC( CLogicConsole )
 
 END_DATADESC()
 
-ConVar sv_allow_logic_convar("sv_allow_logic_convar", "1");
+ConVar sv_allow_logic_convar( "sv_allow_logic_convar", "1", FCVAR_NOT_CONNECTED );
+
 //-----------------------------------------------------------------------------
 // Purpose: Gets console variables for the evil mapper.
 //-----------------------------------------------------------------------------
