@@ -1217,7 +1217,7 @@ void CBaseEntity::EmitSound( const char *soundname, HSOUNDSCRIPTHANDLE& handle, 
 	EmitSound( filter, entindex(), params, handle );
 }
 
-#if !defined ( CLIENT_DLL )
+#if !defined ( CLIENT_DLL ) || defined( MAPBASE_VSCRIPT )
 void CBaseEntity::ScriptEmitSound( const char *soundname )
 {
 	EmitSound( soundname );
@@ -1499,7 +1499,7 @@ HSOUNDSCRIPTHANDLE CBaseEntity::PrecacheScriptSound( const char *soundname )
 #endif
 }
 
-#if !defined ( CLIENT_DLL )
+#if !defined ( CLIENT_DLL ) || defined( MAPBASE_VSCRIPT )
 // Same as server version of above, but signiture changed so it can be deduced by the macros
 void CBaseEntity::VScriptPrecacheScriptSound(const char* soundname)
 {

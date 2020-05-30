@@ -1133,6 +1133,26 @@ public:
 	const Vector& ScriptGetLeft(void) { static Vector vecLeft; GetVectors(NULL, &vecLeft, NULL); return vecLeft; }
 	const Vector& ScriptGetUp(void) { static Vector vecUp; GetVectors(NULL, NULL, &vecUp); return vecUp; }
 
+#ifdef MAPBASE_VSCRIPT
+	const char* ScriptGetModelName( void ) const { return STRING(GetModelName()); }
+
+	void ScriptEmitSound(const char* soundname);
+	float ScriptSoundDuration(const char* soundname, const char* actormodel);
+
+	void VScriptPrecacheScriptSound(const char* soundname);
+
+	const Vector& ScriptEyePosition(void) { static Vector vec; vec = EyePosition(); return vec; }
+	const Vector& ScriptGetAngles(void) { static Vector vec; QAngle qa = GetAbsAngles(); vec.x = qa.x; vec.y = qa.y; vec.z = qa.z; return vec; }
+
+	const Vector& ScriptGetBoundingMins( void ) { return m_Collision.OBBMins(); }
+	const Vector& ScriptGetBoundingMaxs( void ) { return m_Collision.OBBMaxs(); }
+
+	HSCRIPT ScriptGetMoveParent( void );
+	HSCRIPT ScriptGetRootMoveParent();
+	HSCRIPT ScriptFirstMoveChild( void );
+	HSCRIPT ScriptNextMovePeer( void );
+#endif
+
 	// Stubs on client
 	void	NetworkStateManualMode( bool activate )		{ }
 	void	NetworkStateChanged()						{ }

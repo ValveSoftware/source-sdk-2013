@@ -431,6 +431,35 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLeft, "GetLeftVector", "Get the left vector of the entity"  )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetUp, "GetUpVector", "Get the up vector of the entity"  )
 	DEFINE_SCRIPTFUNC( GetTeamNumber, "Gets this entity's team" )
+
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC( GetHealth, "" )
+	DEFINE_SCRIPTFUNC( GetMaxHealth, "" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetModelName, "GetModelName", "Returns the name of the model" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptEmitSound, "EmitSound", "Plays a sound from this entity." )
+	DEFINE_SCRIPTFUNC_NAMED( VScriptPrecacheScriptSound, "PrecacheSoundScript", "Precache a sound for later playing." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSoundDuration, "GetSoundDuration", "Returns float duration of the sound. Takes soundname and optional actormodelname." )
+
+	DEFINE_SCRIPTFUNC( GetClassname, "" )
+	DEFINE_SCRIPTFUNC_NAMED( GetEntityName, "GetName", "" )
+
+	DEFINE_SCRIPTFUNC_NAMED( WorldSpaceCenter, "GetCenter", "Get vector to center of object - absolute coords" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptEyePosition, "EyePosition", "Get vector to eye position - absolute coords" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAngles, "GetAngles", "Get entity pitch, yaw, roll as a vector" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoundingMins, "GetBoundingMins", "Get a vector containing min bounds, centered on object" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoundingMaxs, "GetBoundingMaxs", "Get a vector containing max bounds, centered on object" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetMoveParent, "GetMoveParent", "If in hierarchy, retrieves the entity's parent" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRootMoveParent, "GetRootMoveParent", "If in hierarchy, walks up the hierarchy to find the root parent" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptFirstMoveChild,  "FirstMoveChild", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptNextMovePeer, "NextMovePeer", "" )
+
+	DEFINE_SCRIPTFUNC( GetEffects, "Get effects" )
+	DEFINE_SCRIPTFUNC( IsEffectActive, "Check if an effect is active" )
+#endif
 END_SCRIPTDESC();
 
 #ifndef NO_ENTITY_PREDICTION
@@ -6481,6 +6510,35 @@ HSCRIPT C_BaseEntity::GetScriptInstance()
 	}
 	return m_hScriptInstance;
 }
+
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT C_BaseEntity::ScriptGetMoveParent( void )
+{
+	return ToHScript( GetMoveParent() );
+}
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT C_BaseEntity::ScriptGetRootMoveParent()
+{
+	return ToHScript( GetRootMoveParent() );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT C_BaseEntity::ScriptFirstMoveChild( void )
+{
+	return ToHScript( FirstMoveChild() );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT C_BaseEntity::ScriptNextMovePeer( void )
+{
+	return ToHScript( NextMovePeer() );
+}
+#endif
 
 //------------------------------------------------------------------------------
 void CC_CL_Find_Ent( const CCommand& args )
