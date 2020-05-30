@@ -2200,10 +2200,14 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptIsEntVisible, "IsEntVisible", "Check if the specified entity can be visible to this entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptIsVisibleWithMask, "IsVisibleWithMask", "Check if the specified position can be visible to this entity with a specific trace mask." )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptTakeDamage, "TakeDamage", "Apply damage to this entity with a given info handle" )
+
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetContext, "GetContext", "Get a response context value" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddContext, "AddContext", "Add a response context value" )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptClassify, "Classify", "Get Class_T class ID" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValue, "GetKeyValue", "Get a keyvalue" )
 
 	DEFINE_SCRIPTFUNC( GetSpawnFlags, "Get spawnflags" )
 	DEFINE_SCRIPTFUNC( AddSpawnFlags, "Add spawnflag(s)" )
@@ -9538,6 +9542,19 @@ const Vector& CBaseEntity::ScriptGetBoundingMaxs(void)
 #ifdef MAPBASE_VSCRIPT
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+int CBaseEntity::ScriptTakeDamage( HSCRIPT pInfo )
+{
+	if (pInfo)
+	{
+		CTakeDamageInfo *info = HScriptToClass<CTakeDamageInfo>( pInfo ); //ToDamageInfo( pInfo );
+		return OnTakeDamage( *info );
+	}
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void CBaseEntity::ScriptAddContext( const char *name, const char *value, float duration )
 {
 	AddContext( name, value, duration );
@@ -9555,6 +9572,15 @@ const char *CBaseEntity::ScriptGetContext( const char *name )
 int CBaseEntity::ScriptClassify( void )
 {
 	return (int)Classify();
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+const char *CBaseEntity::ScriptGetKeyValue( const char *pszKeyName )
+{
+	static char szValue[128];
+	GetKeyValue( pszKeyName, szValue, sizeof(szValue) );
+	return szValue;
 }
 #endif
 

@@ -312,8 +312,6 @@ HSCRIPT CLogicExternalData::ScriptGetKeyValueBlock( void )
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-extern CScriptKeyValues *ToScriptKeyValues( HSCRIPT hKV );
-
 void CLogicExternalData::ScriptSetKeyValues( HSCRIPT hKV )
 {
 	if (m_pRoot)
@@ -322,7 +320,7 @@ void CLogicExternalData::ScriptSetKeyValues( HSCRIPT hKV )
 		m_pRoot = NULL;
 	}
 
-	CScriptKeyValues *pKV = ToScriptKeyValues(hKV);
+	CScriptKeyValues *pKV = HScriptToClass<CScriptKeyValues>( hKV );
 	if (pKV)
 	{
 		m_pRoot = pKV->m_pKeyValues;
@@ -337,7 +335,7 @@ void CLogicExternalData::ScriptSetKeyValueBlock( HSCRIPT hKV )
 		m_pBlock = NULL;
 	}
 
-	CScriptKeyValues *pKV = ToScriptKeyValues(hKV);
+	CScriptKeyValues *pKV = HScriptToClass<CScriptKeyValues>( hKV );
 	if (pKV)
 	{
 		m_pBlock = pKV->m_pKeyValues;
