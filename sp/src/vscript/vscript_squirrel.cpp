@@ -199,6 +199,7 @@ public:
 	HSQUIRRELVM vm_ = nullptr;
 	HSQOBJECT lastError_;
 	HSQOBJECT vectorClass_;
+	HSQOBJECT regexpClass_;
 };
 
 SQUserPointer TYPETAG_VECTOR = "VectorTypeTag";
@@ -1209,6 +1210,33 @@ bool SquirrelVM::Init()
 
 		sqstd_seterrorhandlers(vm_);
 
+		{
+			// Unfortunately we can not get the pattern from a regexp instance
+			// so we need to wrap it with our own to get it.
+			if (Run(R"script(
+				class regexp extends regexp  
+				{
+					constructor(pattern) 
+					{
+						base.constructor(pattern);
+						pattern_ = pattern;
+					}
+					pattern_="";
+				}
+			)script") == SCRIPT_ERROR)
+			{
+				this->Shutdown();
+				return false;
+			}
+
+			sq_resetobject(&regexpClass_);
+			sq_pushstring(vm_, "regexp", -1);
+			sq_rawget(vm_, -2);
+			sq_getstackobj(vm_, -1, &regexpClass_);
+			sq_addref(vm_, &regexpClass_);
+			sq_pop(vm_, 1);
+		}
+
 		sq_pop(vm_, 1);
 	}
 
@@ -1315,7 +1343,6 @@ bool SquirrelVM::Init()
 		return false;
 	}
 
-
 	return true;
 }
 
@@ -1323,6 +1350,9 @@ void SquirrelVM::Shutdown()
 {
 	if (vm_)
 	{
+		sq_release(vm_, &vectorClass_);
+		sq_release(vm_, &regexpClass_);
+
 		sq_close(vm_);
 		vm_ = nullptr;
 	}
@@ -2283,18 +2313,9 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 			// so we just check against the only class we need to deal with at the moment
 			// which is "regexp"
 			const char* builtinName = nullptr;
+			if (_class(obj) == _class(regexpClass_))
 			{
-				HSQOBJECT builtin;
-				sq_resetobject(&builtin);
-				sq_pushroottable(vm_);
-				sq_pushstring(vm_, "regexp", -1);
-				sq_rawget(vm_, -2);
-				sq_getstackobj(vm_, -1, &builtin);
-				sq_pop(vm_, 2);
-				if (_class(obj) == _class(builtin))
-				{
-					builtinName = "regexp";
-				}
+				builtinName = "regexp";
 			}
 
 			if (builtinName)
@@ -2358,6 +2379,16 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 		sq_getclass(vm_, idx);
 		WriteObject(pBuffer, writeState, -1);
 		sq_pop(vm_, 1);
+
+		if (_instance(obj)->_class == _class(regexpClass_))
+		{
+			sq_push(vm_, idx);
+			sq_pushstring(vm_, "pattern_", -1);
+			sq_rawget(vm_, -2);
+			WriteObject(pBuffer, writeState, -1);
+			sq_pop(vm_, 2);
+			break;
+		}
 
 		{
 			// HACK: No way to get the default values part from accessing the class directly
@@ -2732,15 +2763,29 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 
 		ReadObject(pBuffer, readState);
 
+		HSQOBJECT klass;
+		sq_resetobject(&klass);
+		sq_getstackobj(vm_, -1, &klass);
+		if (_class(klass) == _class(regexpClass_))
+		{
+			sq_pushnull(vm_);
+			ReadObject(pBuffer, readState);
+			sq_call(vm_, 2, SQTrue, SQFalse);
+
+			sq_getstackobj(vm_, -1, obj);
+			sq_addref(vm_, obj);
+
+			sq_remove(vm_, -2);
+
+			break;
+		}
+
 		SQUserPointer typetag;
 		sq_gettypetag(vm_, -1, &typetag);
 
 		if (typetag && typetag != TYPETAG_VECTOR &&
 			((ScriptClassDesc_t*)typetag)->m_pszDescription[0] == SCRIPT_SINGLETON[0])
 		{
-			HSQOBJECT klass;
-			sq_resetobject(&klass);
-			sq_getstackobj(vm_, -1, &klass);
 			sq_poptop(vm_);
 
 			Assert(sq_isclass(klass));
