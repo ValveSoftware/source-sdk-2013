@@ -34,7 +34,7 @@ $Project
 			$File	"$SRCDIR\game\shared\mapbase\matchers.cpp"
 			$File	"$SRCDIR\game\shared\mapbase\matchers.h"
 			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_shared.cpp" [$MAPBASE_VSCRIPT]
-			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_hl2.cpp" [$MAPBASE_VSCRIPT && ($HL2||$EPISODIC)]
+			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_hl2.cpp" [$MAPBASE_VSCRIPT]
 			
 			$File	"mapbase\c_func_clientclip.cpp"
 		}

@@ -50,7 +50,6 @@ public:
 			}
 			else
 			{
-				DevMsg( "VScript NetPropManager: Prop name is \"%s\"\n", pProp->GetName() );
 				if (FStrEq( pProp->GetName(), pszPropName ))
 					return pProp;
 			}
@@ -646,6 +645,8 @@ void RegisterSharedScriptFunctions()
 	// 
 	ScriptRegisterFunction( g_pScriptVM, RandomFloat, "Generate a random floating point number within a range, inclusive." );
 	ScriptRegisterFunction( g_pScriptVM, RandomInt, "Generate a random integer within a range, inclusive." );
+
+	ScriptRegisterFunction( g_pScriptVM, AngleDiff, "Returns the number of degrees difference between two yaw angles." );
 
 #ifndef CLIENT_DLL
 	ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::BoxDirection, "DebugDrawBoxDirection", "Draw a debug forward box" );
