@@ -343,7 +343,7 @@ public:
 private:
 } g_ScriptConvarLookup;
 
-BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptConvarLookup, "Convars", SCRIPT_SINGLETON "Provides an interface for getting and setting convars." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptConvarLookup, "CConvars", SCRIPT_SINGLETON "Provides an interface for getting and setting convars." )
 #ifndef CLIENT_DLL
 	DEFINE_SCRIPTFUNC( GetClientConvarValue, "Returns the convar value for the entindex as a string. Only works with client convars with the FCVAR_USERINFO flag." )
 #endif

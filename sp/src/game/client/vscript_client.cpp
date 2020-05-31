@@ -13,9 +13,7 @@
 #include "characterset.h"
 #include "isaverestore.h"
 #include "gamerules.h"
-#ifdef _WIN32
-//#include "vscript_client_nut.h"
-#endif
+#include "vscript_client.nut"
 #ifdef MAPBASE_VSCRIPT
 #include "c_world.h"
 #include "proxyentity.h"
@@ -405,12 +403,12 @@ bool VScriptClientInit()
 				IGameSystem::RegisterVScriptAllSystems();
 
 				RegisterSharedScriptFunctions();
-#else
-				if ( scriptLanguage == SL_SQUIRREL )
-				{
-					//g_pScriptVM->Run( g_Script_vscript_client );
-				}
 #endif
+
+				if (scriptLanguage == SL_SQUIRREL)
+				{
+					g_pScriptVM->Run( g_Script_vscript_client );
+				}
 
 				VScriptRunScript( "mapspawn", false );
 
