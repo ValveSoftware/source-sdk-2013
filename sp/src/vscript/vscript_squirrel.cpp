@@ -1112,6 +1112,66 @@ void errorfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 	va_end(args);
 }
 
+const char * ScriptDataTypeToName(ScriptDataType_t datatype)
+{
+	switch (datatype)
+	{
+	case FIELD_VOID:		return "void";
+	case FIELD_FLOAT:		return "float";
+	case FIELD_CSTRING:		return "string";
+	case FIELD_VECTOR:		return "Vector";
+	case FIELD_INTEGER:		return "int";
+	case FIELD_BOOLEAN:		return "bool";
+	case FIELD_CHARACTER:	return "char";
+	case FIELD_HSCRIPT:		return "handle";
+	default:				return "<unknown>";
+	}
+}
+
+void RegisterDocumentation(HSQUIRRELVM vm, const ScriptFuncDescriptor_t& pFuncDesc, ScriptClassDesc_t* pClassDesc = nullptr)
+{
+	SquirrelSafeCheck safeCheck(vm);
+
+	if (pFuncDesc.m_pszDescription && pFuncDesc.m_pszDescription[0] == SCRIPT_HIDE[0])
+		return;
+
+	char name[256] = "";
+
+	if (pClassDesc)
+	{
+		V_strcat_safe(name, pClassDesc->m_pszScriptName);
+		V_strcat_safe(name, "::");
+	}
+
+	V_strcat_safe(name, pFuncDesc.m_pszScriptName);
+
+
+	char signature[256] = "";
+	V_snprintf(signature, sizeof(signature), "%s %s(", ScriptDataTypeToName(pFuncDesc.m_ReturnType), name);
+
+	for (int i = 0; i < pFuncDesc.m_Parameters.Count(); ++i)
+	{
+		if (i != 0)
+			V_strcat_safe(signature, ", ");
+
+		V_strcat_safe(signature, ScriptDataTypeToName(pFuncDesc.m_Parameters[i]));
+	}
+
+	V_strcat_safe(signature, ")");
+
+	// RegisterHelp(name, signature, description)
+	sq_pushroottable(vm);
+	sq_pushstring(vm, "RegisterHelp", -1);
+	sq_get(vm, -2);
+	sq_remove(vm, -2);
+	sq_pushroottable(vm);
+	sq_pushstring(vm, name, -1);
+	sq_pushstring(vm, signature, -1);
+	sq_pushstring(vm, pFuncDesc.m_pszDescription ? pFuncDesc.m_pszDescription : "", -1);
+	sq_call(vm, 4, SQFalse, SQFalse);
+	sq_pop(vm, 1);
+}
+
 
 bool SquirrelVM::Init()
 {
@@ -1192,6 +1252,61 @@ bool SquirrelVM::Init()
 			prefix = null;
 			scope= null;
 			chain = [];
+		}
+
+		DocumentedFuncs <- {}
+
+		function RegisterHelp(name, signature, description)
+		{
+			if (description.len() && description[0] == '#')
+			{
+				// This is an alias function, could use split() if we could guarantee
+				// that ':' would not occur elsewhere in the description and Squirrel had
+				// a convience join() function -- It has split()
+				local colon = description.find(":");
+				if (colon == null)
+					colon = description.len();
+				local alias = description.slice(1, colon);
+				description = description.slice(colon + 1);
+				name = alias;
+				signature = null;
+			}
+			DocumentedFuncs[name] <- [signature, description];
+		}
+
+		function PrintHelp(pattern = "*")
+		{
+			local foundMatches = false;
+			foreach(name, doc in DocumentedFuncs)
+			{
+				if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
+				{
+					foundMatches = true;
+					printl("Function:    " + name);
+					if (doc[0] == null)
+					{
+						// Is an aliased function
+						print("Signature:   function " + name + "(");
+						foreach(k,v in this[name].getinfos()["parameters"])
+						{
+							if (k == 0 && v == "this") continue;
+							if (k > 1) print(", ");
+							print(v);
+						}
+						printl(")");
+					}
+					else
+					{
+						printl("Signature:   " + doc[0]);
+					}
+					if (doc[1].len())
+						printl("Description: " + doc[1]);
+					print("\n");
+				}
+			}
+
+			if (!foundMatches)
+				printl("Pattern " + pattern + " not found");
 		}
 
 		)script") != SCRIPT_DONE)
@@ -1516,6 +1631,8 @@ void SquirrelVM::RegisterFunction(ScriptFunctionBinding_t* pScriptFunction)
 	sq_newslot(vm_, -3, isStatic);
 
 	sq_pop(vm_, 1);
+
+	RegisterDocumentation(vm_, pScriptFunction->m_desc);
 }
 
 bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
@@ -1587,6 +1704,8 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 		sq_setparamscheck(vm_, scriptFunction.m_desc.m_Parameters.Count() + 1, typemask);
 		bool isStatic = false;
 		sq_newslot(vm_, -3, isStatic);
+
+		RegisterDocumentation(vm_, scriptFunction.m_desc, pClassDesc);
 	}
 
 	sq_pushstring(vm_, pClassDesc->m_pszScriptName, -1);
