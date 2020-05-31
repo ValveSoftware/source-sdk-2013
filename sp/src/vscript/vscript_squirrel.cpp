@@ -52,8 +52,18 @@ struct WriteStateMap
 struct ReadStateMap
 {
 	CUtlMap<int, HSQOBJECT> cache;
-	ReadStateMap() : cache(DefLessFunc(int))
+	HSQUIRRELVM vm_;
+	ReadStateMap(HSQUIRRELVM vm) : cache(DefLessFunc(int)), vm_(vm)
 	{}
+
+	~ReadStateMap()
+	{
+		FOR_EACH_MAP_FAST(cache, i)
+		{
+			HSQOBJECT& obj = cache[i];
+			sq_release(vm_, &obj);
+		}
+	}
 
 	bool CheckCache(CUtlBuffer* pBuffer, HSQOBJECT** obj)
 	{
@@ -2415,6 +2425,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 		int count = pBuffer->GetInt();
 		sq_newtableex(vm_, count);
 		sq_getstackobj(vm_, -1, obj);
+		sq_addref(vm_, obj);
 
 		sq_push(vm_, -2);
 		sq_setdelegate(vm_, -2);
@@ -2442,6 +2453,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 		int count = pBuffer->GetInt();
 		sq_newarray(vm_, count);
 		sq_getstackobj(vm_, -1, obj);
+		sq_addref(vm_, obj);
 
 		for (int i = 0; i < count; ++i)
 		{
@@ -2469,6 +2481,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 				break;
 			}
 			sq_getstackobj(vm_, -1, obj);
+			sq_addref(vm_, obj);
 		}
 		else
 		{
@@ -2492,6 +2505,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 			}
 
 			*obj = ret;
+			sq_addref(vm_, obj);
 			sq_pushobject(vm_, *obj);
 		}
 
@@ -2553,6 +2567,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 			}
 			sq_remove(vm_, -2);
 			sq_getstackobj(vm_, -1, obj);
+			sq_addref(vm_, obj);
 		}
 		else if (classType == ScriptClassType)
 		{
@@ -2565,6 +2580,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 
 			sq_newclass(vm_, hasBase);
 			sq_getstackobj(vm_, -1, obj);
+			sq_addref(vm_, obj);
 
 			sq_pushnull(vm_);
 			ReadObject(pBuffer, readState);
@@ -2623,6 +2639,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 				{
 					foundSingleton = true;
 					*obj = singleton;
+					sq_addref(vm_, obj);
 					sq_pop(vm_, 2);
 					break;
 				}
@@ -2642,6 +2659,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 
 		sq_createinstance(vm_, -1);
 		sq_getstackobj(vm_, -1, obj);
+		sq_addref(vm_, obj);
 
 		sq_remove(vm_, -2);
 
@@ -2731,6 +2749,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 
 		vm_->Push(ret);
 		sq_getstackobj(vm_, -1, obj);
+		sq_addref(vm_, obj);
 	}
 	case OT_OUTER: //internal usage only
 	{
@@ -2751,6 +2770,7 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 		sq_poptop(vm_);
 		vm_->Push(outer);
 		sq_getstackobj(vm_, -1, obj);
+		sq_addref(vm_, obj);
 
 		break;
 	}
@@ -2768,13 +2788,14 @@ void SquirrelVM::ReadState(CUtlBuffer* pBuffer)
 {
 	SquirrelSafeCheck safeCheck(vm_);
 
-	ReadStateMap readState;
+	ReadStateMap readState(vm_);
 
 	sq_pushroottable(vm_);
 
 	HSQOBJECT* obj = nullptr;
 	readState.CheckCache(pBuffer, &obj);
 	sq_getstackobj(vm_, -1, obj);
+	sq_addref(vm_, obj);
 
 	int count = pBuffer->GetInt();
 
