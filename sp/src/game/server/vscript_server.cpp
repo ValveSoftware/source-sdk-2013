@@ -15,9 +15,7 @@
 #include "sceneentity.h"		// for exposing scene precache function
 #include "isaverestore.h"
 #include "gamerules.h"
-#ifdef _WIN32
-//#include "vscript_server_nut.h"
-#endif
+#include "vscript_server.nut"
 #ifdef MAPBASE_VSCRIPT
 #include "world.h"
 #endif
@@ -555,12 +553,12 @@ bool VScriptServerInit()
 				IGameSystem::RegisterVScriptAllSystems();
 
 				RegisterSharedScriptFunctions();
-#else
-				if ( scriptLanguage == SL_SQUIRREL )
-				{
-					//g_pScriptVM->Run( g_Script_vscript_server );
-				}
 #endif
+
+				if (scriptLanguage == SL_SQUIRREL)
+				{
+					g_pScriptVM->Run( g_Script_vscript_server );
+				}
 
 				VScriptRunScript( "mapspawn", false );
 
