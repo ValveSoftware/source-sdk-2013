@@ -39,6 +39,17 @@ extern ScriptClassDesc_t * GetScriptDesc( CBaseEntity * );
 #endif // VMPROFILE
 
 #ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+// Purpose: A base class for VScript-utilizing clientside classes which can persist
+//			across levels, requiring their scripts to be shut down manually.
+//-----------------------------------------------------------------------------
+abstract_class IClientScriptPersistable
+{
+public:
+	virtual void TermScript() = 0;
+};
+
+CUtlVector<IClientScriptPersistable*> g_ScriptPersistableList;
 
 #define SCRIPT_MAT_PROXY_MAX_VARS 8
 
@@ -46,7 +57,7 @@ extern ScriptClassDesc_t * GetScriptDesc( CBaseEntity * );
 // Purpose: A material proxy which runs a VScript and allows it to read/write
 //			to material variables.
 //-----------------------------------------------------------------------------
-class CScriptMaterialProxy : public IMaterialProxy
+class CScriptMaterialProxy : public IMaterialProxy, public IClientScriptPersistable
 {
 public:
 	CScriptMaterialProxy();
@@ -57,10 +68,12 @@ public:
 	virtual void OnBind( void *pRenderable );
 	virtual IMaterial *GetMaterial() { return NULL; }
 
-	// It would be more preferable to init the script stuff in Init(), but
-	// the VM isn't usually active by that time, so we have to init it when
-	// it's first called in OnBind().
+	// Proxies can persist across levels and aren't bound to a loaded map.
+	// The VM, however, is bound to the loaded map, so the proxy's script variables persisting
+	// causes problems when they're used in a new level with a new VM.
+	// As a result, we call InitScript() and TermScript() during OnBind and when the level is unloaded respectively.
 	bool InitScript();
+	void TermScript();
 
 	bool ValidateIndex(int i)
 	{
@@ -206,7 +219,21 @@ bool CScriptMaterialProxy::InitScript()
 		return false;
 	}
 
+	g_ScriptPersistableList.AddToTail( this );
 	return true;
+}
+
+void CScriptMaterialProxy::TermScript()
+{
+	if ( m_hScriptInstance )
+	{
+		g_pScriptVM->RemoveInstance( m_hScriptInstance );
+		m_hScriptInstance = NULL;
+	}
+
+	m_hFuncOnBind = NULL;
+
+	m_ScriptScope.Term();
 }
 
 void CScriptMaterialProxy::OnBind( void *pRenderable )
@@ -434,6 +461,18 @@ void VScriptClientTerm()
 {
 	if( g_pScriptVM != NULL )
 	{
+#ifdef MAPBASE_VSCRIPT
+		// Things like proxies can persist across levels, so we have to shut down their scripts manually
+		for (int i = g_ScriptPersistableList.Count()-1; i >= 0; i--)
+		{
+			if (g_ScriptPersistableList[i])
+			{
+				g_ScriptPersistableList[i]->TermScript();
+				g_ScriptPersistableList.FastRemove( i );
+			}
+		}
+#endif
+
 		if( g_pScriptVM )
 		{
 			scriptmanager->DestroyVM( g_pScriptVM );
