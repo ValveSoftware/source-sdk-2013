@@ -802,7 +802,7 @@ bool getVariant(HSQUIRRELVM vm, SQInteger idx, ScriptVariant_t& variant)
 		{
 			return false;
 		}
-		variant = (bool)val;
+		variant = val ? true : false;
 		return true;
 	}
 	case OT_STRING:
@@ -911,7 +911,7 @@ SQInteger function_stub(HSQUIRRELVM vm)
 			SQBool val = 0;
 			if (SQ_FAILED(sq_getbool(vm, i + 2, &val)))
 				return sq_throwerror(vm, "Expected bool");
-			params[i] = (bool)val;
+			params[i] = val ? true : false;
 			break;
 		}
 		case FIELD_CHARACTER:
