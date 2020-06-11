@@ -1675,8 +1675,16 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 	// Check if class name is already taken
 	if (sq_get(vm_, -2) == SQ_OK)
 	{
-		sq_pop(vm_, 2);
-		return false;
+		HSQOBJECT obj;
+		sq_resetobject(&obj);
+		sq_getstackobj(vm_, -1, &obj);
+		if (!sq_isnull(obj))
+		{
+			sq_pop(vm_, 2);
+			return false;
+		}
+
+		sq_pop(vm_, 1);
 	}
 
 	// Register base in case it doesn't exist
