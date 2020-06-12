@@ -15,6 +15,7 @@
 #include "gamerules.h"
 #include "vscript_client.nut"
 #ifdef MAPBASE_VSCRIPT
+#include "mapbase/matchers.h"
 #include "c_world.h"
 #include "proxyentity.h"
 #include "materialsystem/imaterial.h"
@@ -39,6 +40,67 @@ extern ScriptClassDesc_t * GetScriptDesc( CBaseEntity * );
 #endif // VMPROFILE
 
 #ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+// Purpose: A clientside variant of CScriptEntityIterator.
+//-----------------------------------------------------------------------------
+class CScriptClientEntityIterator
+{
+public:
+	HSCRIPT First() { return Next(NULL); }
+
+	HSCRIPT Next( HSCRIPT hStartEntity )
+	{
+		return ToHScript( ClientEntityList().NextBaseEntity( ToEnt( hStartEntity ) ) );
+	}
+
+	HSCRIPT CreateByClassname( const char *className )
+	{
+		return ToHScript( CreateEntityByName( className ) );
+	}
+
+	HSCRIPT FindByClassname( HSCRIPT hStartEntity, const char *szName )
+	{
+		const CEntInfo *pInfo = hStartEntity ? ClientEntityList().GetEntInfoPtr( ToEnt( hStartEntity )->GetRefEHandle() )->m_pNext : ClientEntityList().FirstEntInfo();
+		for ( ;pInfo; pInfo = pInfo->m_pNext )
+		{
+			C_BaseEntity *ent = (C_BaseEntity *)pInfo->m_pEntity;
+			if ( !ent )
+				continue;
+
+			if ( Matcher_Match( szName, ent->GetClassname() ) )
+				return ToHScript( ent );
+		}
+
+		return NULL;
+	}
+
+	HSCRIPT FindByName( HSCRIPT hStartEntity, const char *szName )
+	{
+		const CEntInfo *pInfo = hStartEntity ? ClientEntityList().GetEntInfoPtr( ToEnt( hStartEntity )->GetRefEHandle() )->m_pNext : ClientEntityList().FirstEntInfo();
+		for ( ;pInfo; pInfo = pInfo->m_pNext )
+		{
+			C_BaseEntity *ent = (C_BaseEntity *)pInfo->m_pEntity;
+			if ( !ent )
+				continue;
+
+			if ( Matcher_Match( szName, ent->GetEntityName() ) )
+				return ToHScript( ent );
+		}
+
+		return NULL;
+	}
+
+private:
+} g_ScriptEntityIterator;
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptClientEntityIterator, "CEntities", SCRIPT_SINGLETON "The global list of entities" )
+	DEFINE_SCRIPTFUNC( First, "Begin an iteration over the list of entities" )
+	DEFINE_SCRIPTFUNC( Next, "Continue an iteration over the list of entities, providing reference to a previously found entity" )
+	DEFINE_SCRIPTFUNC( CreateByClassname, "Creates an entity by classname" )
+	DEFINE_SCRIPTFUNC( FindByClassname, "Find entities by class name. Pass 'null' to start an iteration, or reference to a previously found entity to continue a search"  )
+	DEFINE_SCRIPTFUNC( FindByName, "Find entities by name. Pass 'null' to start an iteration, or reference to a previously found entity to continue a search"  )
+END_SCRIPTDESC();
+
 //-----------------------------------------------------------------------------
 // Purpose: A base class for VScript-utilizing clientside classes which can persist
 //			across levels, requiring their scripts to be shut down manually.
@@ -424,12 +486,14 @@ bool VScriptClientInit()
 					GameRules()->RegisterScriptFunctions();
 				}
 
-				//g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
-
 #ifdef MAPBASE_VSCRIPT
+				g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
+
 				IGameSystem::RegisterVScriptAllSystems();
 
 				RegisterSharedScriptFunctions();
+#else
+				//g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
 #endif
 
 				if (scriptLanguage == SL_SQUIRREL)
