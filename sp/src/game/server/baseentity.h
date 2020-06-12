@@ -1981,6 +1981,10 @@ public:
 	const Vector& ScriptGetLeft(void) { static Vector vecLeft; GetVectors(NULL, &vecLeft, NULL); return vecLeft; }
 	const Vector& ScriptGetUp(void) { static Vector vecUp; GetVectors(NULL, NULL, &vecUp); return vecUp; }
 
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT ScriptEntityToWorldTransform(void) { return ScriptCreateMatrixInstance( EntityToWorldTransform() ); }
+#endif
+
 	const char* ScriptGetModelName(void) const;
 	HSCRIPT ScriptGetModelKeyValues(void);
 
@@ -2001,6 +2005,7 @@ public:
 	bool	ScriptIsVisibleWithMask( const Vector &vecSpot, int traceMask ) { return FVisible( vecSpot, traceMask ); }
 
 	int		ScriptTakeDamage( HSCRIPT pInfo );
+	void	ScriptFireBullets( HSCRIPT pInfo );
 
 	void ScriptAddContext( const char *name, const char *value, float duration = 0.0f );
 	const char *ScriptGetContext( const char *name );

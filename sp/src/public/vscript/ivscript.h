@@ -190,6 +190,10 @@ DECLARE_DEDUCE_FIELDTYPE( FIELD_BOOLEAN,	bool );
 DECLARE_DEDUCE_FIELDTYPE( FIELD_CHARACTER,	char );
 DECLARE_DEDUCE_FIELDTYPE( FIELD_HSCRIPT,	HSCRIPT );
 DECLARE_DEDUCE_FIELDTYPE( FIELD_VARIANT,	ScriptVariant_t );
+#ifdef MAPBASE_VSCRIPT
+DECLARE_DEDUCE_FIELDTYPE( FIELD_VECTOR,		QAngle );
+DECLARE_DEDUCE_FIELDTYPE( FIELD_VECTOR,		const QAngle& );
+#endif
 
 #define ScriptDeduceType( T ) ScriptDeducer<T>::FIELD_TYPE
 
@@ -211,6 +215,10 @@ DECLARE_NAMED_FIELDTYPE( bool,	"boolean" );
 DECLARE_NAMED_FIELDTYPE( char,	"character" );
 DECLARE_NAMED_FIELDTYPE( HSCRIPT,	"hscript" );
 DECLARE_NAMED_FIELDTYPE( ScriptVariant_t,	"variant" );
+#ifdef MAPBASE_VSCRIPT
+DECLARE_NAMED_FIELDTYPE( QAngle, "vector" );
+DECLARE_NAMED_FIELDTYPE( const QAngle&, "vector" );
+#endif
 
 inline const char * ScriptFieldTypeName( int16 eType)
 {
@@ -327,6 +335,11 @@ struct ScriptVariant_t
 	ScriptVariant_t( const Vector *val, bool bCopy = false ) :	m_flags( 0 ), m_type( FIELD_VECTOR )	{ if ( !bCopy ) { m_pVector = val; } else { m_pVector = new Vector( *val ); m_flags |= SV_FREE; } }
 	ScriptVariant_t( const char *val , bool bCopy = false ) :	m_flags( 0 ), m_type( FIELD_CSTRING )	{ if ( !bCopy ) { m_pszString = val; } else { m_pszString = strdup( val ); m_flags |= SV_FREE; } }
 
+#ifdef MAPBASE_VSCRIPT
+	ScriptVariant_t( const QAngle &val, bool bCopy = false ) :	m_flags( 0 ), m_type( FIELD_VECTOR )	{ if ( !bCopy ) { m_pAngle = &val; } else { m_pAngle = new QAngle( val ); m_flags |= SV_FREE; } }
+	ScriptVariant_t( const QAngle *val, bool bCopy = false ) :	m_flags( 0 ), m_type( FIELD_VECTOR )	{ if ( !bCopy ) { m_pAngle = val; } else { m_pAngle = new QAngle( *val ); m_flags |= SV_FREE; } }
+#endif
+
 	bool IsNull() const						{ return (m_type == FIELD_VOID ); }
 
 	operator int() const					{ Assert( m_type == FIELD_INTEGER );	return m_int; }
@@ -336,6 +349,9 @@ struct ScriptVariant_t
 	operator char() const					{ Assert( m_type == FIELD_CHARACTER );	return m_char; }
 	operator bool() const					{ Assert( m_type == FIELD_BOOLEAN );	return m_bool; }
 	operator HSCRIPT() const				{ Assert( m_type == FIELD_HSCRIPT );	return m_hScript; }
+#ifdef MAPBASE_VSCRIPT
+	operator const QAngle &() const			{ Assert( m_type == FIELD_VECTOR );		static QAngle vecNull(0, 0, 0); return (m_pAngle) ? *m_pAngle : vecNull; }
+#endif
 
 	void operator=( int i ) 				{ m_type = FIELD_INTEGER; m_int = i; }
 	void operator=( float f ) 				{ m_type = FIELD_FLOAT; m_float = f; }
@@ -346,6 +362,10 @@ struct ScriptVariant_t
 	void operator=( char c )				{ m_type = FIELD_CHARACTER; m_char = c; }
 	void operator=( bool b ) 				{ m_type = FIELD_BOOLEAN; m_bool = b; }
 	void operator=( HSCRIPT h ) 			{ m_type = FIELD_HSCRIPT; m_hScript = h; }
+#ifdef MAPBASE_VSCRIPT
+	void operator=( const QAngle &vec )		{ m_type = FIELD_VECTOR; m_pAngle = &vec; }
+	void operator=( const QAngle *vec )		{ m_type = FIELD_VECTOR; m_pAngle = vec; }
+#endif
 
 	void Free()								{ if ( ( m_flags & SV_FREE ) && ( m_type == FIELD_HSCRIPT || m_type == FIELD_VECTOR || m_type == FIELD_CSTRING ) ) delete m_pszString; } // Generally only needed for return results
 
@@ -475,6 +495,10 @@ struct ScriptVariant_t
 		char			m_char;
 		bool			m_bool;
 		HSCRIPT			m_hScript;
+#ifdef MAPBASE_VSCRIPT
+		// This uses FIELD_VECTOR, so it's considered a Vector in the VM (just like save/restore)
+		const QAngle *	m_pAngle;
+#endif
 	};
 
 	int16				m_type;

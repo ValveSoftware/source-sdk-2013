@@ -339,6 +339,18 @@ static float FrameTime()
 	return gpGlobals->frametime;
 }
 
+#ifdef MAPBASE_VSCRIPT
+static int MaxPlayers()
+{
+	return gpGlobals->maxClients;
+}
+
+static float IntervalPerTick()
+{
+	return gpGlobals->interval_per_tick;
+}
+#endif
+
 static void SendToConsole( const char *pszCommand )
 {
 	CBasePlayer *pPlayer = UTIL_GetLocalPlayerOrListenServerHost();
@@ -532,6 +544,10 @@ bool VScriptServerInit()
 
 				ScriptRegisterFunction( g_pScriptVM, Time, "Get the current server time" );
 				ScriptRegisterFunction( g_pScriptVM, FrameTime, "Get the time spent on the server in the last frame" );
+#ifdef MAPBASE_VSCRIPT
+				ScriptRegisterFunction( g_pScriptVM, MaxPlayers, "Get the maximum number of players allowed on this server" );
+				ScriptRegisterFunction( g_pScriptVM, IntervalPerTick, "Get the interval used between each tick" );
+#endif
 				ScriptRegisterFunction( g_pScriptVM, DoEntFire, SCRIPT_ALIAS( "EntFire", "Generate and entity i/o event" ) );
 				ScriptRegisterFunctionNamed( g_pScriptVM, DoEntFireByInstanceHandle, "EntFireByHandle", "Generate and entity i/o event. First parameter is an entity instance." );
 				ScriptRegisterFunction( g_pScriptVM, DoUniqueString, SCRIPT_ALIAS( "UniqueString", "Generate a string guaranteed to be unique across the life of the script VM, with an optional root string. Useful for adding data to tables when not sure what keys are already in use in that table." ) );

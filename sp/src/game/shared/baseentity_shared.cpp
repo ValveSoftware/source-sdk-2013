@@ -1599,6 +1599,27 @@ typedef CTraceFilterSimpleList CBulletsTraceFilter;
 
 void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 {
+#if defined(MAPBASE_VSCRIPT) && defined(GAME_DLL)
+	if (m_ScriptScope.IsInitialized())
+	{
+		CFireBulletsInfoAccessor pInfo( const_cast<FireBulletsInfo_t*>(&info) );
+		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( &pInfo );
+
+		g_pScriptVM->SetValue( "info", hInfo );
+
+		ScriptVariant_t functionReturn;
+		if ( CallScriptFunction( "FireBullets", &functionReturn ) )
+		{
+			if (!functionReturn.m_bool)
+				return;
+		}
+
+		g_pScriptVM->RemoveInstance( hInfo );
+
+		g_pScriptVM->ClearValue( "info" );
+	}
+#endif
+
 	static int	tracerCount;
 	trace_t		tr;
 	CAmmoDef*	pAmmoDef	= GetAmmoDef();

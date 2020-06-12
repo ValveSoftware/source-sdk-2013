@@ -189,6 +189,9 @@ public:
 	virtual bool GetAttachment( int iAttachment, matrix3x4_t &attachmentToWorld );
 	const Vector& ScriptGetAttachmentOrigin(int iAttachment);
 	const Vector& ScriptGetAttachmentAngles(int iAttachment);
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT ScriptGetAttachmentMatrix(int iAttachment);
+#endif
 
 	// These return the attachment in the space of the entity
 	bool GetAttachmentLocal( const char *szName, Vector &origin, QAngle &angles );

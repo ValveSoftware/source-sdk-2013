@@ -353,8 +353,6 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptConvarLookup, "CConvars", SCRIPT_SINGLETON "
 END_SCRIPTDESC();
 
 #ifndef CLIENT_DLL
-extern ConVar sv_script_think_interval;
-
 void AddThinkToEnt( HSCRIPT entity, const char *pszFuncName )
 {
 	CBaseEntity *pEntity = ToEnt( entity );
@@ -366,7 +364,7 @@ void AddThinkToEnt( HSCRIPT entity, const char *pszFuncName )
 	else
 		pEntity->m_iszScriptThinkFunction = AllocPooledString(pszFuncName);
 
-	pEntity->SetContextThink( &CBaseEntity::ScriptThink, gpGlobals->curtime + sv_script_think_interval.GetFloat(), "ScriptThink" );
+	pEntity->SetContextThink( &CBaseEntity::ScriptThink, gpGlobals->curtime, "ScriptThink" );
 }
 
 HSCRIPT EntIndexToHScript( int index )
@@ -436,6 +434,7 @@ HSCRIPT SpawnEntityFromTable( const char *pszClassname, HSCRIPT hKV )
 	ParseScriptTableKeyValues( pEntity, hKV );
 
 	DispatchSpawn( pEntity );
+	pEntity->Activate();
 
 	return ToHScript( pEntity );
 }
@@ -486,6 +485,7 @@ HSCRIPT SpawnEntityFromKeyValues( const char *pszClassname, HSCRIPT hKV )
 	}
 
 	DispatchSpawn( pEntity );
+	pEntity->Activate();
 
 	return ToHScript( pEntity );
 }
@@ -634,7 +634,130 @@ static HSCRIPT ScriptTraceHullComplex( const Vector &vecStart, const Vector &vec
 	return hScript;
 }
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+BEGIN_SCRIPTDESC_ROOT_NAMED( CFireBulletsInfoAccessor, "FireBulletsInfo_t", "Handle for accessing FireBulletsInfo_t info." )
+	DEFINE_SCRIPTFUNC( GetShots, "Gets the number of shots which should be fired." )
+	DEFINE_SCRIPTFUNC( SetShots, "Sets the number of shots which should be fired." )
+
+	DEFINE_SCRIPTFUNC( GetSource, "Gets the source of the bullets." )
+	DEFINE_SCRIPTFUNC( SetSource, "Sets the source of the bullets." )
+	DEFINE_SCRIPTFUNC( GetDirShooting, "Gets the direction of the bullets." )
+	DEFINE_SCRIPTFUNC( SetDirShooting, "Sets the direction of the bullets." )
+	DEFINE_SCRIPTFUNC( GetSpread, "Gets the spread of the bullets." )
+	DEFINE_SCRIPTFUNC( SetSpread, "Sets the spread of the bullets." )
+
+	DEFINE_SCRIPTFUNC( GetDistance, "Gets the distance the bullets should travel." )
+	DEFINE_SCRIPTFUNC( SetDistance, "Sets the distance the bullets should travel." )
+
+	DEFINE_SCRIPTFUNC( GetAmmoType, "Gets the ammo type the bullets should use." )
+	DEFINE_SCRIPTFUNC( SetAmmoType, "Sets the ammo type the bullets should use." )
+
+	DEFINE_SCRIPTFUNC( GetTracerFreq, "Gets the tracer frequency." )
+	DEFINE_SCRIPTFUNC( SetTracerFreq, "Sets the tracer frequency." )
+
+	DEFINE_SCRIPTFUNC( GetDamage, "Gets the damage the bullets should deal. 0 = use ammo type" )
+	DEFINE_SCRIPTFUNC( SetDamage, "Sets the damage the bullets should deal. 0 = use ammo type" )
+	DEFINE_SCRIPTFUNC( GetPlayerDamage, "Gets the damage the bullets should deal when hitting the player. 0 = use regular damage" )
+	DEFINE_SCRIPTFUNC( SetPlayerDamage, "Sets the damage the bullets should deal when hitting the player. 0 = use regular damage" )
+
+	DEFINE_SCRIPTFUNC( GetFlags, "Gets the flags the bullets should use." )
+	DEFINE_SCRIPTFUNC( SetFlags, "Sets the flags the bullets should use." )
+
+	DEFINE_SCRIPTFUNC( GetDamageForceScale, "Gets the scale of the damage force applied by the bullets." )
+	DEFINE_SCRIPTFUNC( SetDamageForceScale, "Sets the scale of the damage force applied by the bullets." )
+
+	DEFINE_SCRIPTFUNC( GetAttacker, "Gets the entity considered to be the one who fired the bullets." )
+	DEFINE_SCRIPTFUNC( SetAttacker, "Sets the entity considered to be the one who fired the bullets." )
+	DEFINE_SCRIPTFUNC( GetAdditionalIgnoreEnt, "Gets the optional entity which the bullets should ignore." )
+	DEFINE_SCRIPTFUNC( SetAdditionalIgnoreEnt, "Sets the optional entity which the bullets should ignore." )
+
+	DEFINE_SCRIPTFUNC( GetPrimaryAttack, "Gets whether the bullets came from a primary attack." )
+	DEFINE_SCRIPTFUNC( SetPrimaryAttack, "Sets whether the bullets came from a primary attack." )
+
+	//DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
+END_SCRIPTDESC();
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+HSCRIPT CFireBulletsInfoAccessor::GetAttacker()
+{
+	return ToHScript( m_info->m_pAttacker );
+}
+
+void CFireBulletsInfoAccessor::SetAttacker( HSCRIPT value )
+{
+	m_info->m_pAttacker = ToEnt( value );
+}
+
+HSCRIPT CFireBulletsInfoAccessor::GetAdditionalIgnoreEnt()
+{
+	return ToHScript( m_info->m_pAdditionalIgnoreEnt );
+}
+
+void CFireBulletsInfoAccessor::SetAdditionalIgnoreEnt( HSCRIPT value )
+{
+	m_info->m_pAdditionalIgnoreEnt = ToEnt( value );
+}
+
+static HSCRIPT CreateFireBulletsInfo( int cShots, const Vector &vecSrc, const Vector &vecDirShooting,
+	const Vector &vecSpread, float iDamage, HSCRIPT pAttacker )
+{
+	// The script is responsible for deleting this via DestroyFireBulletsInfo().
+	FireBulletsInfo_t *info = new FireBulletsInfo_t();
+	CFireBulletsInfoAccessor *bulletsInfo = new CFireBulletsInfoAccessor( info );
+
+	HSCRIPT hScript = g_pScriptVM->RegisterInstance( bulletsInfo );
+
+	bulletsInfo->SetShots( cShots );
+	bulletsInfo->SetSource( vecSrc );
+	bulletsInfo->SetDirShooting( vecDirShooting );
+	bulletsInfo->SetSpread( vecSpread );
+	bulletsInfo->SetDamage( iDamage );
+	bulletsInfo->SetAttacker( pAttacker );
+
+	return hScript;
+}
+
+static void DestroyFireBulletsInfo( HSCRIPT hBulletsInfo )
+{
+	if (hBulletsInfo)
+	{
+		CFireBulletsInfoAccessor *pInfo = (CFireBulletsInfoAccessor*)g_pScriptVM->GetInstanceValue( hBulletsInfo, GetScriptDescForClass( CFireBulletsInfoAccessor ) );
+		if (pInfo)
+		{
+			g_pScriptVM->RemoveInstance( hBulletsInfo );
+			pInfo->Destroy();
+		}
+	}
+}
+
+// For the function in baseentity.cpp
+FireBulletsInfo_t *GetFireBulletsInfoFromInfo( HSCRIPT hBulletsInfo )
+{
+	if (hBulletsInfo)
+	{
+		CFireBulletsInfoAccessor *pInfo = (CFireBulletsInfoAccessor*)g_pScriptVM->GetInstanceValue( hBulletsInfo, GetScriptDescForClass( CFireBulletsInfoAccessor ) );
+		if (pInfo)
+		{
+			return pInfo->GetInfo();
+		}
+	}
+
+	return NULL;
+}
+
+//=============================================================================
+//=============================================================================
+
 bool ScriptMatcherMatch( const char *pszQuery, const char *szValue ) { return Matcher_Match( pszQuery, szValue ); }
+
+//=============================================================================
+//=============================================================================
+
+extern void RegisterMathScriptFunctions();
 
 void RegisterSharedScriptFunctions()
 {
@@ -643,10 +766,6 @@ void RegisterSharedScriptFunctions()
 	// some of the code normally available in games like L4D2 or Valve's original VScript DLL.
 	// Instead, that code is recreated here, shared between server and client.
 	// 
-	ScriptRegisterFunction( g_pScriptVM, RandomFloat, "Generate a random floating point number within a range, inclusive." );
-	ScriptRegisterFunction( g_pScriptVM, RandomInt, "Generate a random integer within a range, inclusive." );
-
-	ScriptRegisterFunction( g_pScriptVM, AngleDiff, "Returns the number of degrees difference between two yaw angles." );
 
 #ifndef CLIENT_DLL
 	ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::BoxDirection, "DebugDrawBoxDirection", "Draw a debug forward box" );
@@ -678,12 +797,17 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateMeleeDamageForce, "CalculateMeleeDamageForce", "Fill out a damage info handle with a damage force for a melee impact." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptGuessDamageForce, "GuessDamageForce", "Try and guess the physics force to use." );
 
+	ScriptRegisterFunction( g_pScriptVM, CreateFireBulletsInfo, "Creates FireBullets info." );
+	ScriptRegisterFunction( g_pScriptVM, DestroyFireBulletsInfo, "Destroys FireBullets info." );
+
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptTraceLineComplex, "TraceLineComplex", "Complex version of TraceLine which takes 2 points, an ent to ignore, a trace mask, and a collision group. Returns a handle which can access all trace info." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptTraceHullComplex, "TraceHullComplex", "Takes 2 points, min/max hull bounds, an ent to ignore, a trace mask, and a collision group to trace to a point using a hull. Returns a handle which can access all trace info." );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatcherMatch, "Matcher_Match", "Compares a string to a query using Mapbase's matcher system, supporting wildcards, RS matchers, etc." );
 	ScriptRegisterFunction( g_pScriptVM, Matcher_NamesMatch, "Compares a string to a query using Mapbase's matcher system using wildcards only." );
 	ScriptRegisterFunction( g_pScriptVM, AppearsToBeANumber, "Checks if the given string appears to be a number." );
+
+	RegisterMathScriptFunctions();
 
 #ifdef CLIENT_DLL
 	VScriptRunScript( "vscript_client", true );
