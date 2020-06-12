@@ -273,6 +273,8 @@ void RegisterMathScriptFunctions()
 	// 
 	// matrix3x4_t
 	// 
+	g_pScriptVM->RegisterClass( GetScriptDescForClass( CScriptMatrix3x4 ) );
+
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptFreeMatrixInstance, "FreeMatrixInstance", "Frees an allocated matrix instance." );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptConcatTransforms, "ConcatTransforms", "Concatenates two transformation matrices into another matrix." );
