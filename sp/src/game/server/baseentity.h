@@ -1969,8 +1969,14 @@ public:
 	HSCRIPT ScriptNextMovePeer(void);
 
 	const Vector& ScriptEyePosition(void) { static Vector vec; vec = EyePosition(); return vec; }
+#ifdef MAPBASE_VSCRIPT
+	const QAngle& ScriptEyeAngles(void) { static QAngle ang; ang = EyeAngles(); return ang; }
+	void ScriptSetAngles(const QAngle angles) { Teleport(NULL, &angles, NULL); }
+	const QAngle& ScriptGetAngles(void) { return GetAbsAngles(); }
+#else
 	void ScriptSetAngles(float fPitch, float fYaw, float fRoll) { QAngle angles(fPitch, fYaw, fRoll); Teleport(NULL, &angles, NULL); }
 	const Vector& ScriptGetAngles(void) { static Vector vec; QAngle qa = GetAbsAngles(); vec.x = qa.x; vec.y = qa.y; vec.z = qa.z; return vec; }
+#endif
 
 	void ScriptSetSize(const Vector& mins, const Vector& maxs) { UTIL_SetSize(this, mins, maxs); }
 	void ScriptUtilRemove(void) { UTIL_Remove(this); }

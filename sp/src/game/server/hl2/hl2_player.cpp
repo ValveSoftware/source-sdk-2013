@@ -593,6 +593,18 @@ BEGIN_DATADESC( CHL2_Player )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CHL2_Player, CBasePlayer, "The HL2 player entity." )
+
+	DEFINE_SCRIPTFUNC_NAMED( SuitPower_Drain, "RemoveAuxPower", "Removes from the player's available aux power." )
+	DEFINE_SCRIPTFUNC_NAMED( SuitPower_Charge, "AddAuxPower", "Adds to the player's available aux power." )
+	DEFINE_SCRIPTFUNC_NAMED( SuitPower_SetCharge, "SetAuxPower", "Sets the player's available aux power." )
+	DEFINE_SCRIPTFUNC_NAMED( SuitPower_GetCurrentPercentage, "GetAuxPower", "Gets the player's available aux power." )
+	DEFINE_SCRIPTFUNC( GetFlashlightBattery, "Gets the energy available in the player's flashlight. If the legacy (aux power-based) flashlight is enabled, this returns the aux power." )
+
+END_SCRIPTDESC();
+#endif
+
 CHL2_Player::CHL2_Player()
 {
 	m_nNumMissPositions	= 0;
@@ -4678,7 +4690,7 @@ void CLogicPlayerProxy::InputRequestPlayerFlashBattery( inputdata_t &inputdata )
 
 // If it's the EP2 flashlight, it returns the flashlight battery. If it's the legacy flashlight, it returns the aux power.
 // Note that this is on CHL2_Player, not CLogicPlayerProxy.
-inline float CHL2_Player::GetFlashlightBattery()
+float CHL2_Player::GetFlashlightBattery()
 {
 #ifdef HL2_EPISODIC
 	return Flashlight_UseLegacyVersion() ? SuitPower_GetCurrentPercentage() : m_HL2Local.m_flFlashBattery;

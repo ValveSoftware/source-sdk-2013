@@ -485,6 +485,19 @@ BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseCombatCharacter, "The player entity." )
 
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetExpresser, "GetExpresser", "Gets a handle for this player's expresser." )
 
+	DEFINE_SCRIPTFUNC( FragCount, "Gets the number of frags (kills) this player has in a multiplayer game." )
+	DEFINE_SCRIPTFUNC( DeathCount, "Gets the number of deaths this player has had in a multiplayer game." )
+	DEFINE_SCRIPTFUNC( IsConnected, "Returns true if this player is connected." )
+	DEFINE_SCRIPTFUNC( IsDisconnecting, "Returns true if this player is disconnecting." )
+	DEFINE_SCRIPTFUNC( IsSuitEquipped, "Returns true if this player had the HEV suit equipped." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ArmorValue, "GetArmor", "Gets the player's armor." )
+	DEFINE_SCRIPTFUNC_NAMED( SetArmorValue, "SetArmor", "Sets the player's armor." )
+
+	DEFINE_SCRIPTFUNC( FlashlightIsOn, "Returns true if the flashlight is on." )
+	DEFINE_SCRIPTFUNC( FlashlightTurnOn, "Turns on the flashlight." )
+	DEFINE_SCRIPTFUNC( FlashlightTurnOff, "Turns off the flashlight." )
+
 END_SCRIPTDESC();
 #else
 BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseAnimating, "The player entity." )
