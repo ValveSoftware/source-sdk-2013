@@ -14,6 +14,10 @@
 
 #include "networkvar.h" // todo: change this when DECLARE_CLASS is moved into a better location.
 
+#ifdef MAPBASE_VSCRIPT
+#include "vscript/ivscript.h"
+#endif
+
 // Used to initialize m_flBaseDamage to something that we know pretty much for sure
 // hasn't been modified by a user. 
 #define BASEDAMAGE_NOT_SPECIFIED	FLT_MAX
@@ -101,6 +105,15 @@ public:
 	// Given a damage type (composed of the #defines above), fill out a string with the appropriate text.
 	// For designer debug output.
 	static void		DebugGetDamageTypeString(unsigned int DamageType, char *outbuf, int outbuflength );
+
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT			ScriptGetInflictor() const;
+	void			ScriptSetInflictor( HSCRIPT pInflictor );
+	HSCRIPT			ScriptGetWeapon() const;
+	void			ScriptSetWeapon( HSCRIPT pWeapon );
+	HSCRIPT			ScriptGetAttacker() const;
+	void			ScriptSetAttacker( HSCRIPT pAttacker );
+#endif
 
 
 //private:

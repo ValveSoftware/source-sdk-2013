@@ -480,6 +480,13 @@ C_BasePlayer::~C_BasePlayer()
 		s_pLocalPlayer = NULL;
 	}
 
+#ifdef MAPBASE_VSCRIPT
+	if ( IsLocalPlayer() && g_pScriptVM )
+	{
+		g_pScriptVM->SetValue( "player", SCRIPT_VARIANT_NULL );
+	}
+#endif
+
 	delete m_pFlashlight;
 }
 
@@ -974,6 +981,16 @@ void C_BasePlayer::OnRestore()
 		input->ClearInputButton( IN_ATTACK | IN_ATTACK2 );
 		// GetButtonBits() has to be called for the above to take effect
 		input->GetButtonBits( 0 );
+
+#ifdef MAPBASE_VSCRIPT
+		// HACK: (03/25/09) Then the player goes across a transition it doesn't spawn and register
+		// it's instance. We're hacking around this for now, but this will go away when we get around to 
+		// having entities cross transitions and keep their script state.
+		if ( g_pScriptVM )
+		{
+			g_pScriptVM->SetValue( "player", GetScriptInstance() );
+		}
+#endif
 	}
 
 	// For ammo history icons to current value so they don't flash on level transtions

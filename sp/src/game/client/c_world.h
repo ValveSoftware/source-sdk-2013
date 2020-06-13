@@ -41,6 +41,10 @@ public:
 	float GetWaveHeight() const;
 	const char *GetDetailSpriteMaterial() const;
 
+#ifdef MAPBASE_VSCRIPT
+	ScriptLanguage_t GetScriptLanguage() { return (ScriptLanguage_t)m_iScriptLanguage; }
+#endif
+
 public:
 	enum
 	{
@@ -58,6 +62,9 @@ public:
 	bool	m_bColdWorld;
 #ifdef MAPBASE
 	char	m_iszChapterTitle[64];
+#endif
+#ifdef MAPBASE_VSCRIPT
+	int		m_iScriptLanguage;
 #endif
 
 private:

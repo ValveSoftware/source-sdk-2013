@@ -79,6 +79,10 @@ public:
 	virtual void			LevelInitPreEntity();
 #endif
 
+#ifdef MAPBASE_VSCRIPT
+	virtual void			RegisterScriptFunctions( void );
+#endif
+
 private:
 	// Rules change for the mega physgun
 	CNetworkVar( bool, m_bMegaPhysgun );

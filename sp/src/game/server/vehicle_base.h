@@ -109,6 +109,12 @@ public:
 	void InputHandBrakeOff( inputdata_t &inputdata );
 
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+
+	HSCRIPT	ScriptGetPhysics();
+	int		ScriptGetVehicleType() { return GetVehicleType(); }
+#endif
 
 #ifdef HL2_EPISODIC
 	void AddPhysicsChild( CBaseEntity *pChild );
@@ -166,6 +172,9 @@ class CPropVehicleDriveable : public CPropVehicle, public IDrivableVehicle, publ
 	DECLARE_CLASS( CPropVehicleDriveable, CPropVehicle );
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 public:
 	CPropVehicleDriveable( void );
 	~CPropVehicleDriveable( void );
@@ -237,6 +246,10 @@ public:
 
 	// If this is a vehicle, returns the vehicle interface
 	virtual IServerVehicle *GetServerVehicle() { return m_pServerVehicle; }
+
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT		ScriptGetDriver() { return ToHScript( GetDriver() ); }
+#endif
 
 protected:
 

@@ -44,6 +44,18 @@ BEGIN_DATADESC( CBaseFilter )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CBaseFilter, CBaseEntity, "All entities which could be used as filters." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptPassesFilter, "PassesFilter", "Check if the given caller and entity pass the filter." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptPassesDamageFilter, "PassesDamageFilter", "Check if the given caller and damage info pass the damage filter." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptPassesFinalDamageFilter, "PassesFinalDamageFilter", "Used by filter_damage_redirect to distinguish between standalone filter calls and actually damaging an entity. Returns true if there's no unique behavior." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptBloodAllowed, "BloodAllowed", "Check if the given caller and damage info allow for the production of blood." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptDamageMod, "DamageMod", "Mods the damage info with the given caller." )
+
+END_SCRIPTDESC();
+#endif
+
 //-----------------------------------------------------------------------------
 
 bool CBaseFilter::PassesFilterImpl( CBaseEntity *pCaller, CBaseEntity *pEntity )
@@ -142,6 +154,14 @@ void CBaseFilter::InputSetField( inputdata_t& inputdata )
 }
 #endif
 
+#ifdef MAPBASE_VSCRIPT
+bool CBaseFilter::ScriptPassesFilter( HSCRIPT pCaller, HSCRIPT pEntity ) { return PassesFilter( ToEnt(pCaller), ToEnt(pEntity) ); }
+bool CBaseFilter::ScriptPassesDamageFilter( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? PassesDamageFilter( ToEnt( pCaller ), *const_cast<const CTakeDamageInfo*>(HScriptToClass<CTakeDamageInfo>( pInfo )) ) : NULL; }
+bool CBaseFilter::ScriptPassesFinalDamageFilter( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? PassesFinalDamageFilter( ToEnt( pCaller ), *const_cast<const CTakeDamageInfo*>(HScriptToClass<CTakeDamageInfo>( pInfo )) ) : NULL; }
+bool CBaseFilter::ScriptBloodAllowed( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? BloodAllowed( ToEnt( pCaller ), *const_cast<const CTakeDamageInfo*>(HScriptToClass<CTakeDamageInfo>( pInfo )) ) : NULL; }
+bool CBaseFilter::ScriptDamageMod( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? DamageMod( ToEnt( pCaller ), *HScriptToClass<CTakeDamageInfo>( pInfo ) ) : NULL; }
+#endif
+
 
 // ###################################################################
 //	> FilterMultiple
@@ -223,6 +243,13 @@ void CFilterMultiple::Activate( void )
 				Warning("filter_multi: Tried to add entity (%s) which is not a filter entity!\n", STRING( m_iFilterName[i] ) );
 				continue;
 			}
+#ifdef MAPBASE
+			else if ( pFilter == this )
+			{
+				Warning("filter_multi: Tried to add itself!\n");
+				continue;
+			}
+#endif
 
 			// Take this entity and increment out array pointer
 			m_hFilter[nNextFilter] = pFilter;
@@ -2107,5 +2134,154 @@ BEGIN_DATADESC( CFilterDamageLogic )
 
 	DEFINE_OUTPUT( m_OutForceFriendlyFire, "OutForceFriendlyFire" ),
 
+END_DATADESC()
+#endif
+
+#ifdef MAPBASE_VSCRIPT
+// ###################################################################
+//	> CFilterScript
+// ###################################################################
+class CFilterScript : public CBaseFilter
+{
+	DECLARE_CLASS( CFilterScript, CBaseFilter );
+	DECLARE_DATADESC();
+
+public:
+	bool PassesFilterImpl( CBaseEntity *pCaller, CBaseEntity *pEntity )
+	{
+		if (m_ScriptScope.IsInitialized())
+		{
+			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
+			g_pScriptVM->SetValue( "activator", (pEntity) ? ScriptVariant_t( pEntity->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
+
+			ScriptVariant_t functionReturn;
+			if (!CallScriptFunction( "PassesFilter", &functionReturn ))
+			{
+				Warning("%s: No PassesFilter function\n", GetDebugName());
+			}
+
+			g_pScriptVM->ClearValue( "caller" );
+			g_pScriptVM->ClearValue( "activator" );
+
+			return functionReturn.m_bool;
+		}
+
+		Warning("%s: No script scope, cannot filter\n", GetDebugName());
+		return false;
+	}
+
+	bool PassesDamageFilterImpl( CBaseEntity *pCaller, const CTakeDamageInfo &info )
+	{
+		if (m_ScriptScope.IsInitialized())
+		{
+			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
+
+			g_pScriptVM->SetValue( "info", pInfo );
+			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
+
+			ScriptVariant_t functionReturn;
+			if (!CallScriptFunction( "PassesDamageFilter", &functionReturn ))
+			{
+				// Fall back to main filter function
+				return PassesFilterImpl( pCaller, info.GetAttacker() );
+			}
+
+			g_pScriptVM->RemoveInstance( pInfo );
+
+			g_pScriptVM->ClearValue( "info" );
+			g_pScriptVM->ClearValue( "caller" );
+
+			return functionReturn.m_bool;
+		}
+
+		Warning("%s: No script scope, cannot filter\n", GetDebugName());
+		return false;
+	}
+
+	bool PassesFinalDamageFilter( CBaseEntity *pCaller, const CTakeDamageInfo &info )
+	{
+		if (m_ScriptScope.IsInitialized())
+		{
+			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
+
+			g_pScriptVM->SetValue( "info", pInfo );
+			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
+
+			ScriptVariant_t functionReturn;
+			if (!CallScriptFunction( "PassesFinalDamageFilter", &functionReturn ))
+			{
+				return BaseClass::PassesFinalDamageFilter( pCaller, info );
+			}
+
+			g_pScriptVM->RemoveInstance( pInfo );
+
+			g_pScriptVM->ClearValue( "info" );
+			g_pScriptVM->ClearValue( "caller" );
+
+			return functionReturn.m_bool;
+		}
+
+		Warning("%s: No script scope, cannot filter\n", GetDebugName());
+		return false;
+	}
+
+	bool BloodAllowed( CBaseEntity *pCaller, const CTakeDamageInfo &info )
+	{
+		if (m_ScriptScope.IsInitialized())
+		{
+			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
+
+			g_pScriptVM->SetValue( "info", pInfo );
+			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
+
+			ScriptVariant_t functionReturn;
+			if (!CallScriptFunction( "BloodAllowed", &functionReturn ))
+			{
+				return BaseClass::BloodAllowed( pCaller, info );
+			}
+
+			g_pScriptVM->RemoveInstance( pInfo );
+
+			g_pScriptVM->ClearValue( "info" );
+			g_pScriptVM->ClearValue( "caller" );
+
+			return functionReturn.m_bool;
+		}
+
+		Warning("%s: No script scope, cannot filter\n", GetDebugName());
+		return false;
+	}
+
+	bool DamageMod( CBaseEntity *pCaller, CTakeDamageInfo &info )
+	{
+		if (m_ScriptScope.IsInitialized())
+		{
+			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( &info );
+
+			g_pScriptVM->SetValue( "info", pInfo );
+			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
+
+			ScriptVariant_t functionReturn;
+			if (!CallScriptFunction( "DamageMod", &functionReturn ))
+			{
+				return BaseClass::DamageMod( pCaller, info );
+			}
+
+			g_pScriptVM->RemoveInstance( pInfo );
+
+			g_pScriptVM->ClearValue( "info" );
+			g_pScriptVM->ClearValue( "caller" );
+
+			return functionReturn.m_bool;
+		}
+
+		Warning("%s: No script scope, cannot filter\n", GetDebugName());
+		return false;
+	}
+};
+
+LINK_ENTITY_TO_CLASS( filter_script, CFilterScript );
+
+BEGIN_DATADESC( CFilterScript )
 END_DATADESC()
 #endif

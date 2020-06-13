@@ -16,6 +16,9 @@
 #include "ai_navigator.h"
 #include "world.h"
 #include "ai_moveprobe.h"
+#ifdef MAPBASE_VSCRIPT
+#include "ai_hint.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -30,6 +33,53 @@ extern float MOVE_HEIGHT_EPSILON;
 // For now we just have one AINetwork called "BigNet".  At some
 // later point we will probabaly have multiple AINetworkds per level
 CAI_Network*		g_pBigAINet;			
+
+#ifdef MAPBASE_VSCRIPT
+BEGIN_SCRIPTDESC_ROOT( CAI_Network, SCRIPT_SINGLETON "The global list of AI nodes." )
+	DEFINE_SCRIPTFUNC( NumNodes, "Number of nodes in the level" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNodePosition, "GetNodePosition", "Get position of node using a generic human hull" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNodePositionWithHull, "GetNodePositionWithHull", "Get position of node using the specified hull" )
+	DEFINE_SCRIPTFUNC( GetNodeYaw, "Get yaw of node" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptNearestNodeToPoint, "NearestNodeToPoint", "Get ID of nearest node" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptNearestNodeToPointWithNPC, "NearestNodeToPointForNPC", "Get ID of nearest node using the specified NPC's properties" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNodeType, "GetNodeType", "Get a node's type" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNodeHint, "GetNodeHint", "Get a node's hint" )
+END_SCRIPTDESC();
+
+HSCRIPT CAI_Network::ScriptGetNodeHint( int nodeID )
+{
+	CAI_Node *pNode = GetNode( nodeID );
+	if (!pNode)
+		return NULL;
+
+	return ToHScript( pNode->GetHint() );
+}
+
+int CAI_Network::ScriptGetNodeType( int nodeID )
+{
+	CAI_Node *pNode = GetNode( nodeID );
+	if (!pNode)
+		return NULL;
+
+	return (int)pNode->GetType();
+}
+
+int CAI_Network::ScriptNearestNodeToPointWithNPC( HSCRIPT hNPC, const Vector &vecPosition, bool bCheckVisibility )
+{
+	CBaseEntity *pEnt = ToEnt( hNPC );
+	if (!pEnt || !pEnt->MyNPCPointer())
+	{
+		Warning("vscript: NearestNodeToPointWithNPC - Invalid NPC\n");
+		return NO_NODE;
+	}
+
+	return NearestNodeToPoint( pEnt->MyNPCPointer(), vecPosition, bCheckVisibility );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 

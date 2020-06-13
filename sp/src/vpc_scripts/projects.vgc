@@ -111,6 +111,11 @@ $Project "vrad_launcher"
 	"utils\vrad_launcher\vrad_launcher.vpc" [$WIN32]
 }
 
+$Project "vscript"
+{
+	"vscript\vscript.vpc"
+}
+
 $Project "vtf2tga"
 {
 	"utils\vtf2tga\vtf2tga.vpc" [$WIN32]

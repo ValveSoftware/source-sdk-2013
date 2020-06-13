@@ -282,6 +282,17 @@ IMPLEMENT_SERVERCLASS_ST(CBaseAnimating, DT_BaseAnimating)
 
 END_SEND_TABLE()
 
+BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
+
+	DEFINE_SCRIPTFUNC( LookupAttachment, "Get the named attachement id"  )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentOrigin, "GetAttachmentOrigin", "Get the attachement id's origin vector"  )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentAngles, "GetAttachmentAngles", "Get the attachement id's angles as a p,y,r vector"  )
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentMatrix, "GetAttachmentMatrix", "Get the attachement id's matrix transform" )
+#endif
+	DEFINE_SCRIPTFUNC( IsSequenceFinished, "Ask whether the main sequence is done playing" )
+	DEFINE_SCRIPTFUNC( SetBodygroup, "Sets a bodygroup")
+END_SCRIPTDESC();
 
 CBaseAnimating::CBaseAnimating()
 {
@@ -2117,6 +2128,45 @@ bool CBaseAnimating::GetAttachment( int iAttachment, Vector &absOrigin, Vector *
 	return bRet;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Returns the world location and world angles of an attachment to vscript caller
+// Input  : attachment name
+// Output :	location and angles
+//-----------------------------------------------------------------------------
+const Vector& CBaseAnimating::ScriptGetAttachmentOrigin( int iAttachment )
+{	
+
+	static Vector absOrigin;
+	static QAngle qa;
+
+	CBaseAnimating::GetAttachment( iAttachment, absOrigin, qa );
+
+	return absOrigin;
+}
+
+const Vector& CBaseAnimating::ScriptGetAttachmentAngles( int iAttachment )
+{	
+
+	static Vector absOrigin;
+	static Vector absAngles;
+	static QAngle qa;
+
+	CBaseAnimating::GetAttachment( iAttachment, absOrigin, qa );
+	absAngles.x = qa.x;
+	absAngles.y = qa.y;
+	absAngles.z = qa.z;
+	return absAngles;
+}
+
+#ifdef MAPBASE_VSCRIPT
+HSCRIPT CBaseAnimating::ScriptGetAttachmentMatrix( int iAttachment )
+{	
+	static matrix3x4_t matrix;
+
+	CBaseAnimating::GetAttachment( iAttachment, matrix );
+	return ScriptCreateMatrixInstance( matrix );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Returns the attachment in local space

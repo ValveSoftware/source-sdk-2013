@@ -1,0 +1,86 @@
+Squirrel 3.1 stable
+--------------------------------------------------------
+What is in this distribution?
+
+squirrel
+    static library implementing the compiler and interpreter of the language
+
+sqstdlib
+    the standard utility libraries
+
+sq
+    stand alone interpreter
+
+doc
+    The manual
+
+etc
+    a minimalistic embedding sample
+
+samples
+    samples programs
+
+
+HOW TO COMPILE
+---------------------------------------------------------
+CMAKE USERS
+.........................................................
+If you want to build the shared libraries under Windows using Visual
+Studio, you will have to use CMake version 3.4 or newer. If not, an
+earlier version will suffice. For a traditional out-of-source build
+under Linux, type something like
+
+ $ mkdir build # Create temporary build directory
+ $ cd build
+ $ cmake .. # CMake will determine all the necessary information,
+            # including the platform (32- vs. 64-bit)
+ $ make
+ $ make install
+ $ cd ..; rm -r build
+
+The default installation directory will be /usr/local on Unix platforms,
+and C:/Program Files/squirrel on Windows. The binaries will go into bin/
+and the libraries into lib/. You can change this behavior by calling CMake like
+this:
+
+ $ cmake .. -DCMAKE_INSTALL_PREFIX=/some/path/on/your/system
+
+With the CMAKE_INSTALL_BINDIR and CMAKE_INSTALL_LIBDIR options, the directories
+the binaries & libraries will go in (relative to CMAKE_INSTALL_PREFIX)
+can be specified. For instance,
+
+ $ cmake .. -DCMAKE_INSTALL_LIBDIR=lib64
+
+will install the libraries into a 'lib64' subdirectory in the top
+source directory. The public header files will be installed into the directory
+the value of CMAKE_INSTALL_INCLUDEDIR points to. If you want only the
+binaries and no headers, just set -DSQ_DISABLE_HEADER_INSTALLER=ON, and no
+header files will be installed.
+
+Under Windows, it is probably easiest to use the CMake GUI interface,
+although invoking CMake from the command line as explained above
+should work as well.
+
+GCC USERS
+.........................................................
+There is a very simple makefile that compiles all libraries and exes
+from the root of the project run 'make'
+
+for 32 bits systems
+
+ $ make
+
+for 64 bits systems
+
+ $ make sq64
+
+VISUAL C++ USERS
+.........................................................
+Open squirrel.dsw from the root project directory and build(dho!)
+
+DOCUMENTATION GENERATION
+.........................................................
+To be able to compile the documentation, make sure that you have Python
+installed and the packages sphinx and sphinx_rtd_theme. Browse into doc/
+and use either the Makefile for GCC-based platforms or make.bat for
+Windows platforms.

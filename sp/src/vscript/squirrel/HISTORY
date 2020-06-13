@@ -1,0 +1,533 @@
+***version 3.2 stable***
+-added sq_tailcall
+-added rawcall keyword
+-added post call initializer syntax
+-added table.keys() and table.values()
+-added table.filter()
+-additional parameters in array.map() and array.apply()
+-additional optional initializer in array.reduce()
+-closure.call() is now a "native tailcall" and the invoked function can now be suspended
+-fixed sq_newmember and sq_rawnewmember properly pop parameters
+-fixed capturing free variable on for loop counter before a break statement
+-fixed \u in lexer
+-various bugfixes
+
+***version 3.1.1 stable***
+-sq_gettypetag doesn't set last error(it's treated as SQBool function but keeps a SQRESULT for backward compatibility)
+-fixed _set method in userdata delegates
+-fixed some warnings
+
+***version 3.1 stable***
+-added slice range for tolower and toupper
+-added startswith() and endswith() in string lib
+-added SQ_EXCLUDE_DEFAULT_MEMFUNCTIONS to exclude default mem fuction from compilation
+-added sq_getreleasehook
+-added thread.wakeupthrow()
+-added sq_pushthread
+-added \u and \U escape sequence for UTF8,UTF16 or UCS4 characters
+-added CMake scripts(thx Fabian Wolff)
+-the escape character \x is based on sizeof(SQChar)
+-fixed several warnings(thx Markus Oberhumer)
+-fixed optimizer bug in compound arith oprators(+=,-= etc...)
+-fixed sq_getrefvmcount() (thx Gerrit)
+-fixed sq_getrefcount() when no references were added with sq_addref() (thx Gerrit)
+-fixed bug in string.tointeger() (thx Domingo)
+-fixed weakref comparison in 32bit builds using doubles(thx Domingo)
+-fixed compiler bug(thx Peter)
+-fixed some error in the documentation(thx Alexander)
+-fixed some error reporting in compiler(thx Alexander)
+-fixed incorrect optional semicolon after "if block"(thx Alexander)
+-fixed crash bug in compiler related to compound arith operators(+=,-= etc...) (thx Jeff1)
+
+***2015-01-10      ***
+***version 3.1 RC 1***
+-added new header sqconfig.h for all optional type declarations(unicode, 64bits etc..)
+-added sq_setsharedforeignptr sq_getsharedforeignptr
+-added sq_setsharedreleasehook sq_getsharedreleasehook
+-added escape() in sqstd string library
+-added __LINE__ and __FILE__ (thx mingodad)
+-widechar support on gcc builds
+-now boolean can be used in constants
+-reduced dependencies on C runtime library
+-newthread and sq_newthread() no longer reinitialize the root table on friend VMs(thx Lucas Cardellini)
+-exceptions in the _inherited metamethod are propagated(thx Lucas Cardellini)
+-'in' operator performance improvement(thx unagipai and mingodad)
+-fixes crash in compiler when trying to write 'base'
+-fixed bug in switch statement when using locals as case values (thx mingodad)
+-fixed bug in print()(thx Lucas Cardellini)
+
+***2013-08-30          ***
+***version 3.1 beta 1***
+-added new scoping rule(root attached to closures)
+-added closure.setroot() closure.getroot()
+-added sq_setclosureroot() and sq_getclosureroot()
+-added sq_setvmreleasehook() and sq_getvmreleasehook()
+-added documentaion for sq_getbase()
+-now string.tointeger() accepts an optional parameter 'base'
+-now format accepts zeroes in the format string (thx mingodad)
+-fixed bug in sqstd_createfile() (thx mingodad)
+-minor buxfixes
+
+***2012-11-10          ***
+***version 3.0.4 stable***
+-sq_deleteslot slot now pops the key in case of failure
+-fixed bug when _get metamethod throws null
+-fixed a bug in rstrip
+-added some error handling
+-minor bugfixes
+
+***2012-06-19          ***
+***version 3.1.0 alpha 1***
+-changed in and instanceof operator precendence
+-root object in closures
+-added closure.setroot closure.getroot
+-added sq_setclosureroot and sq_getclosureroot
+
+***version 3.0.3 stable***
+-improved error messages for _cmp(when a non integer value is returned) (thx Yexo)
+-added class.newmember() built in method (thx Nam)
+-added class.rawnewmember()  built in method (thx Nam)
+-added sq_rawnewmember() (thx Nam)
+-added sq_getversion()
+-added sq_typeof()
+-added sq_getclosurename()
+-added file.close() in stdlib
+-documented closure.getinfos() built-in method
+-fixed string iteration doesn't return negative numbers for characters > 127
+-fixed bug in tofloat() when converting a string with scientific notation without a decimal point (thx wr2)
+-fixed potential infinite loop in array.sort() when the _cmp function is inconsistent (thx Yexo)
+-fixed obscure bug in the compiler(thx yishin)
+-fixed some minor bug
+
+***2011-11-28          ***
+***version 3.0.2 stable***
+-added sq_gethash API
+-now array.sort() is implemented with heapsort
+-now floats in scientific notation also accept numbers with no '.' (eg. 1e+6 or 1e6)
+-fixed some warning
+-fixed some documentation
+-fixed bug in GC
+
+***2011-09-08          ***
+***version 3.0.1 stable***
+-added # as alternative symbol for "line comment"(mostly useful for shell scripts)
+-added sq_throwobject() to throw an arbitrary object from the C API
+-added alignement flag for userdata types, SQ_ALIGNMENT (thx Shigemasa)
+-added rawset() and rawget() to class and instance default delegate
+-changed bytecode format now ensures matching integer size and float size
+-now inherited classes also inherit userdatasize
+-added SQUIRREL_VERSION_NUMBER in squirrel.h and _versionnumber_ global symbol
+-fixed sq_getmemberhandle
+-fixed sq_getrefcount
+-refactored some sqstdio code
+-refactored some clone code
+-refactored some stuff in the string lib
+-added -s and -fno-exceptions in GCC makefile(better performance when using GCC)
+
+***2011-03-13        ***
+***version 3.0 stable***
+-added sq_getcallee()
+-sq_getfreevariable() also works for native closures
+-minior optimizations
+-removed several warning when compiling with GCC 4.x
+-fixed some errors in the documentation
+-fixed bug when using SQUSEDOUBLE and 32bits intengers
+-fixed bug when invoking generators with closure.call() (thx huntercool)
+
+***2010-12-19                           ***
+***version 3.0 release candidate 1(RC 1)***
+-improved metamethods error handling
+-added parameter 'isstatic' to _newmember metamethod(thx G.Meyer)
+-added sq_getrefcount() to return number of refences from C++(thx G.Meyer)
+
+***2010-11-07        ***
+***version 3.0 beta 3***
+-license changed to "MIT license"
+-added sq_resurrectunreachable() and resurrectunreachable()
+-added callee() built in function, returns the current running closure
+-added thread.getstackinfos()
+-added sq_objtouserpointer()
+-added sq_newtableex()
+-various refactoring and optimizations
+-fixed several 64bits issues regarding integer to string conversions
+-fixed some bugs when SQUSEDOUBLE is used in 32bits systems
+
+***2010-08-18          ***
+***version 3.0 beta 2.1***
+-fixed bug in class constructor
+-fixed bug in compound arith
+
+***2010-08-12        ***
+***version 3.0 beta 2***
+-class methods can be added or replaced after the class as been instantiated
+-JSON compliant table syntax, this is currently an experimental feature (thx atai)
+-sq_getsize() now returns userdatasize for classes and instances
+-now setroottable() and setconsttable() return the previous value of the respective table
+-fixed bug in compound arith operators when used on a free variable (thx ellon)
+-fixed some x64 minor bugs
+-fixed minor bug in the compiler
+-refactored some VM internals
+-documented sq_getmemberhandle, sq_getbyhandle, sq_setbyhandle to set and get value from classes
+
+***2009-11-15        ***
+***version 3.0 beta 1***
+-various refactoring and optimizations
+-fixed bug in free variables (thx mokehehe)
+-fixed bug in functions with default parameters (thx ara & Yexo)
+-fixed bug in exception handling
+-improved error propagation in _set and _get metamethods ( and 'throw null' for clean failure)
+-added sq_getmemberhandle, sq_getbyhandle, sq_setbyhandle to set and get value from classes
+
+***2009-06-30         ***
+***version 3.0 alpha 2***
+-added real free variables(thx Paul Ruizendaal)
+-added refactored function call implementation and compiler(thx Paul Ruizendaal)
+-added sq_getfunctioninfo
+-added compile time flag SQUSEDOUBLE to use double precision floats
+-added global slot _floatsize_ int the base lib to recognize single precision and double precision builds
+-sq_wakeupvm can now resume the vm with an exception
+-added sqstd_format
+-now blobs can be cloned
+-generators can now be instantiated by calling sq_call() or closure.call()
+-fixed debughook bug
+-fixed cooroutine error propagation
+
+***2008-07-23         ***
+***version 3.0 alpha 1***
+-first branch from 2.x source tree
+-added 'base' keyword
+-removed 'delegate' keyword
+-now compiled scripts are vararg functions
+-added setdelegate() and getdelegate() table builtin methods
+-added <=> 3 ways compare operator
+-added lambda expression @(a,b) a + b
+-added local function statement
+-added array built-in map(),reduce(),apply(),filter() and find()
+-generators hold only a weak reference of the enviroment object
+-removed 'vargv' and 'vargc' keywords
+-now var args are passed as an array called vargv(as a paramter)
+-removed 'parent' keyword
+-added class getbase() built in method
+-instanceof doesn't throw an exception if the left expression is not a class
+-lexical scoping for free variables(free variables are no longer in the second parameter list)
+-sq_setprintfunc accept error func
+-sq_geterrorfunc()
+-added sq_arrayremove() and sq_arrayinsert()
+-error() built in function(works like print but prints using the errorfunc)
+-added native debug hook
+
+***2008-02-17        ***
+***version 2.2 stable***
+-added _newslot metamethod in classes
+-added enums added constants
+-added sq_pushconsttable, sq_setconsttable
+-added default param
+-added octal literals(thx Dinosaur)
+-fixed debug hook, 'calls' and 'returns' are properly notified in the same number.
+-fixed a coroutine bug
+
+***2007-07-29          ***
+***version 2.1.2 stable***
+-new behaviour for generators iteration using foreach
+now when a generator is iterated by foreach the value returned by a 'return val' statement
+will terminate the iteration but will not be returned as foreach iteration
+-added sq_setclassudsize()
+-added sq_clear()
+-added table.clear(), array.clear()
+-fixed sq_cmp() (thx jyuill)
+-fixed minor bugs
+
+***2006-08-21          ***
+***version 2.1.1 stable***
+-vm refactoring
+-optimized internal function memory layout
+-new global symbol _version_ (is the version string)
+-code size optimization for float literals(on 32bits float builts)
+-now the raw ref API(sq_addref etc...) is fully reentrant.
+-fixed a bug in sq_getdelegate() now pushes null if the object doesn't have a delegate(thx MatzeB)
+-improved C reference performances in NO_GARBAGE_COLLECTOR builds
+-sq_getlocal() now enumerates also outer values.
+-fixed regexp library for GCC users.
+
+***2006-03-19        ***
+***version 2.1 stable***
+-added static class fields, new keyword static
+-added 64bits architecture support
+-added global slot _intsize_ int the base lib to recognize 32bits and 64bits builds
+-added functions with fixed environment, closure.bindenv() built-in function
+-all types except userdata and null implement the tostring() method
+-string concatenation now invokes metamethod _tostring
+-new metamethods for class objects _newmember and _inherited
+-sq_call() sq_resume() sq_wakeupvm() have a new signature
+-new C referencing implementation(scales more with the amount of references)
+-refactored hash table
+-new api functions sq_newslot(),sq_tobool(),sq_getbase(), sq_instanceof(), sq_bindenv()
+-the api func sq_createslot was deprecated but still supported in form of C macro on top of sq_newslot
+-sq_setreleasehook() now also works for classes
+-stream.readstr() and stream.writestr() have been deprecated(this affects file and blob)
+-fixed squirrel.h undeclared api calls
+-fixed few minor bugs
+-SQChar is now defined as wchar_t
+-removed warning when building with -Wall -pedantic for GCC users
+-added new std io function writeclosuretofile()
+-added new std string functions strip(),rstrip(),lstrip() and split()
+-regular expressions operators (+,*) now have more POSIX greedyness behaviour
+-class constructors are now invoked as normal functions
+
+***2005-10-02          ***
+***version 2.0.5 stable***
+-fixed some 64bits incompatibilities (thx sarge)
+-fixed minor bug in the stdlib format() function (thx Rick)
+-fixed a bug in dofile() that was preventing to compile empty files
+-added new API sq_poptop() & sq_getfreevariable()
+-some performance improvements
+
+***2005-08-14          ***
+***version 2.0.4 stable***
+-weak references and related API calls
+-added sq_objtobool()
+-class instances memory policies improved(1 mem allocation for the whole instance)
+-typetags are now declared as SQUserPointer instead of unsigned int
+-first pass for 64bits compatibility
+-fixed minor bug in the stdio stream
+-fixed a bug in format()
+-fixed bug in string.tointeger() and string.tofloat()
+
+***2005-06-24          ***
+***version 2.0.3 stable***
+-dofile() and loadfile() in the iolib now can decode ASCII, UTF8 files UCS2 big-endian and little-endian
+-sq_setparamscheck() : now typemesk can check for null
+-added string escape sequence \xhhhh
+-fixed some C++ standard incompatibilities
+
+***2005-05-15          ***
+***version 2.0.2 stable***
+-performances improvements (expecially for GCC users)
+-removed all dependencies from C++ exception handling
+-various bugfixes
+
+***2005-04-12        ***
+***version 2.0.1 stable***
+-various bugfixes
+-sq_setparamscheck() now allows spaces in the typemask
+
+***2005-04-03        ***
+***version 2.0 stable***
+-added API sq_gettypetag()
+-added built-in function to the bool type(tointeger, tostring etc...)
+
+***2005-02-27                           ***
+***version 2.0 release candidate 1(RC 1)***
+-added API sq_reseterror()
+-modified sq_release()
+-now class instances can be cloned
+-various bufixes
+
+***2005-01-26        ***
+***version 2.0 beta 1***
+-added bool type
+-class properties can be redefined in a derived class
+-added ops *= /= and %=
+-new syntax for class attributes declaration </ and /> instead of ( and )
+-increased the max number of literals per function from 65535 to 16777215
+-now free variables have proper lexical scoping
+-added API sq_createinstance(), sq_pushbool(), sq_getbool()
+-added built-in function type()
+-added built-in function obj.rawin(key) in table,class and instance
+-sq_rawget() and sq_rawset() now work also on classes and instances
+-the VM no longer uses C++ exception handling (more suitable for embedded devices)
+-various bufixes
+
+***2004-12-21         ***
+***version 2.0 alpha 2***
+-globals scoping changed, now if :: is omitted the VM automatically falls back on the root table
+-various bufixes
+-added class level attributes
+
+***2004-12-12         ***
+***version 2.0 alpha 1***
+-codebase branch from version 1.x
+-added classes
+-added functions with variable number of parameters(vargc & vargv and the ...)
+-0 and 0.0 are now considered 'false' by all conditional statements(if,while,for,?,do-while)
+-added new api functions sq_newclass() sq_setinstanceup() sq_getinstanceup() sq_getattributes() sq_setattributes()
+-modified api sq_settypetag()
+
+***2004-11-01        ***
+***version 1.0 stable***
+-fixed some minor bug
+-improved operator 'delete' performances
+-added scientific notation for float numbers( eg. 2.e16 or 2.e-2)
+
+***2004-08-30        ***
+***version 1.0 release candidate 2(RC 2)***
+-fixed bug in the vm(thx Pierre Renaux)
+-fixed bug in the optimizer(thx Pierre Renaux)
+-fixed some bug in the documentation(thx JD)
+-added new api functions for raw object handling
+-removed nested multiline comments
+-reduced memory footprint in C references
+
+***2004-08-23        ***
+***version 1.0 release candidate 1(RC 1)***
+-fixed division by zero
+-the 'in' operator and obj.rawget() do not query the default delegate anymore
+-added function sq_getprintfunc()
+-added new standard library 'auxlib'(implements default error handlers)
+
+***2004-07-12        ***
+***version 1.0 beta 4***
+-fixed a bug in the integer.tochar() built-in method
+-fixed unary minus operator
+-fixed bug in dofile()
+-fixed inconsistency between != and == operators(on float/integer comparison)
+-added javascript style unsigned right shift operator '>>>'
+-added array(size) constructor built-in function
+-array.resize(size,[fill]) built-in function accepts an optional 'fill' value
+-improved debug API, added sq_getclosureinfo() and sq_setnativeclosurename()
+
+***2004-05-23        ***
+***version 1.0 beta 3***
+-minor vm bug fixes
+-string allocation is now faster
+-tables and array memory usage is now less conservative(they shrink)
+-added regular expression routines in the standard library
+-The 'c' expression now accepts only 1 character(thx irbrian)
+-multiline strings <[ ]> have been substituted with C# style verbatim strings (eg. @"string")
+-added new keyword 'parent' for accessing the delegate of tables and unserdata
+-The metamethod '_clone' has been renamed '_cloned'
+-the _delslot metamethod's behaviour and prototype have been changed
+-new default function in the integer and float object 'tochar()'
+-the built-in function chcode2string has been removed
+-the default method [table].getdelegate() has been removed
+-new api sq_rawdeleteslot()
+-new table built-in method rawdelete(key)
+-the dynamic mudule loading has been removed from the standard distribution
+-some optimizations in the VM
+
+***2004-04-21        ***
+***version 1.0 beta 2***
+-minor compiler/parser bug fixes
+-sq_newclosure has a different prototype, the "paramscheck" of paramter has been moved to the new function sq_setparamscheck()
+-sq_setparamscheck allows to add automatic parameters type checking in native closures
+-sq_compile() lost the lineinfo parameter
+-new api sq_enabledebuginfo() globally sets compiler's debug info generation
+-added consistency check on bytecode serialization
+-fixed += operator, now works on strings like +
+-added global slot in the base lib _charsize_ to recognize unicode builds from ascii builds runtime
+-added registry table
+-new api call sq_pushregistrytable()
+-added type tag to the userdata type sq_settypetag()
+-sq_getuserdata now queries the userdata typetag
+-the built in function collect_garbage() as been renamed collectgarbage() for consistency reasons
+-new standard libraries(sqlibs are now obsolete)
+
+***2004-02-20        ***
+***version 1.0 beta 1***
+-fixed a bug in the compiler (thanks Martin Kofler)
+-fixed bug in the switch case statement
+-fixed the _unm metamethod
+-fixed minor bugs in the API
+-fixed automatic stack resizing
+-first beta version
+    first pass code clean up in the VM and base lib
+    first pass code coverege test has been done on VM and built-in lib
+-new VM creation API sq_open() sq_close() (sq_newvm and sq_releasevm are now obsolete)
+-new api allows to specifiy a "print" function to output text(sq_printfunc)
+-added some small optimizations
+-new cooperative multi-threading capabilities in the base library(coroutines), VMs are now a built in type("thread")
+-new built in functions have been added for manipulating the new "thread" type
+-friend virtual machines share the same root table, error handler and debug hook by default
+-new compile time options
+
+***2004-01-19       ***
+***version 0.9 alpha***
+-fixed a garbage collection bug
+-fixed some API bugs(thanks to Joshua Jensen)
+-fixed tail calls (in the version 0.8 the tail call optimization was erroneously disabled)
+-new function parameters semantic, now passing a wrong number of parameters generates an exception
+-native closures have now a built in parameter number checking
+-sq_rawget and sq_rawset now work also on arrays
+-sq_getsize now woks also on userdata
+-the userdata release hook prototype is changed(now passes the size of the userdata)
+-the lexer reader function now returns an integer instead of a char that allows better error checking on the input(thx Joshua Jensen)
+-faster compiler
+-try/catch blocks do not cause any runtime memory allocation anymore
+
+***2003-12-06       ***
+***version 0.8 alpha***
+-fixed a bug that was preventing to have callable userdata throught the metamethod _call
+-fixed a garbage collection bug
+-fixed == operator now can compare correctly different types
+-new built in method getstackinfos(level)
+-improved line informations precision for the debug hook
+-new api call sq_compilebuffer()
+-new built-in api function compilestring()
+-new syntactic sugar for function declarations inside tables
+-the debug API has been finalized
+
+***2003-11-17       ***
+***version 0.7 alpha***
+-fixed critical bug SQInteger the tail call system
+-fixed bug in the continue statement code generation
+-fixed func call param issue(thanks to Rewoonenco Andrew)
+-added _delslot metamethod(thanks to Rewoonenco Andrew)
+-new multiline string expression ( delimited by <[ and ]> )
+-normal strings ("") do not allow embedded new line anymore
+-reduced vm memory footprint(C refs are shared between friend VMs)
+-new api method sq_deleteslot()
+-new debug hook event 'r' is triggered when a function returns
+
+***2003-11-04       ***
+***version 0.6 alpha***
+-fixed switch statement(was executing the default case after a break)
+-sq_call() doesn't pop the closure (just the params)
+-the vm execution can be suspended from the C API anytime (micro-threads)
+-new api calls sq_suspendvm() sq_wakeupvm() sq_getvmstate() and sq_reservestack()
+
+***2003-10-13       ***
+***version 0.5 alpha***
+-fixed some minor bug
+-tested with non ASCII identifiers in unicode mode(I've tried chinese chars)
+-added built-in function string.find()
+-the built-in function array.sort() optionally accepts a cmp(a,b) function
+-the debug hook function now has a new prototype debug_hook(event_type,sourcefile,line,functionname)
+-fixed some debug info imprecision
+
+***2003-10-01       ***
+***version 0.4 alpha***
+-faster VM
+-sq_call will pop arguments and closure also in case of failure
+-fixed a bug in sq_remove
+-now the VM detects delegation cycles(and throws an exception)
+-new operators ++ and --
+-new operator ',' comma operator
+-fixed some expression precedence issue
+-fixed bug in sq_arraypop
+
+***2003-09-15       ***
+***version 0.3 alpha***
+-fixed a bug in array::insert()
+-optional Unicode core(define SQUNICODE or _UNICODE on Win32)
+-sq_compiler uses a new reader function SQLEXREADFUNC
+-the debug hook passes 'l' instead of 'line' for line callbacks
+    and 'c' instead of 'call' for call callbacks
+-new array.extend() bulit-in function
+-new API sq_clone()
+
+***2003-09-10           ***
+***version 0.2 pre-alpha***
+-new completely reentrant VM (sq_open and sq_close are now obsolete)
+-sq_newvm() has a new prototype
+-allocators are now global and linked in the VM
+-_newslot meta method added
+-rawset creates a slot if doesn't exists
+-the compiler error callback pass the vm handle(thanks Pierre Renaux)
+-sq_setforeignptr() sq_getforeingptr() are now public
+-sq_resume() now is possible to resume generators from C
+-sq_getlasterror() retrieve the last thrown error
+-improved docs
+
+***2003-09-06           ***
+***version 0.1 pre-alpha***
+first release

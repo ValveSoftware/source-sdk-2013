@@ -20,6 +20,10 @@ struct template_t
 	DECLARE_SIMPLE_DATADESC();
 };
 
+void ScriptInstallPreSpawnHook();
+bool ScriptPreInstanceSpawn( CScriptScope *pScriptScope, CBaseEntity *pChild, string_t iszKeyValueData );
+void ScriptPostSpawn( CScriptScope *pScriptScope, CBaseEntity **ppEntities, int nEntities );
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -52,6 +56,7 @@ public:
 #ifdef MAPBASE
 	bool			CreateSpecificInstance( int iTemplate, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity **pOutEntity );
 #endif
+	void			CreationComplete(const CUtlVector<CBaseEntity*>& entities);
 
 	// Inputs
 	void			InputForceSpawn( inputdata_t &inputdata );

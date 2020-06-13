@@ -1801,6 +1801,22 @@ void CBaseCombatWeapon::InputHideWeapon( inputdata_t &inputdata )
 		SetWeaponVisible( false );
 	}
 }
+
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+const char *CBaseCombatWeapon::ScriptGetPrimaryAmmoType()
+{
+	return GetPrimaryAmmoType() <= GetAmmoDef()->m_nAmmoIndex ? GetAmmoDef()->m_AmmoType[GetPrimaryAmmoType()].pName : NULL;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+const char *CBaseCombatWeapon::ScriptGetSecondaryAmmoType()
+{
+	return GetSecondaryAmmoType() <= GetAmmoDef()->m_nAmmoIndex ? GetAmmoDef()->m_AmmoType[GetSecondaryAmmoType()].pName : NULL;
+}
+#endif
 #endif
 
 //-----------------------------------------------------------------------------
@@ -2870,6 +2886,48 @@ END_PREDICTION_DATA()
 
 // Special hack since we're aliasing the name C_BaseCombatWeapon with a macro on the client
 IMPLEMENT_NETWORKCLASS_ALIASED( BaseCombatWeapon, DT_BaseCombatWeapon )
+
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all equippable weapons." )
+
+	DEFINE_SCRIPTFUNC( Clip1, "Get the weapon's current primary ammo." )
+	DEFINE_SCRIPTFUNC( Clip2, "Get the weapon's current secondary ammo." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetClip1, "SetClip1", "Set the weapon's current primary ammo." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetClip2, "SetClip2", "Set the weapon's current secondary ammo." )
+	DEFINE_SCRIPTFUNC( GetMaxClip1, "Get the weapon's maximum primary ammo." )
+	DEFINE_SCRIPTFUNC( GetMaxClip2, "Get the weapon's maximum secondary ammo." )
+	DEFINE_SCRIPTFUNC( GetDefaultClip1, "Get the weapon's default primary ammo." )
+	DEFINE_SCRIPTFUNC( GetDefaultClip2, "Get the weapon's default secondary ammo." )
+
+	DEFINE_SCRIPTFUNC( HasAnyAmmo, "Check if the weapon currently has ammo or doesn't need ammo." )
+	DEFINE_SCRIPTFUNC( HasPrimaryAmmo, "Check if the weapon currently has ammo or doesn't need primary ammo." )
+	DEFINE_SCRIPTFUNC( HasSecondaryAmmo, "Check if the weapon currently has ammo or doesn't need secondary ammo." )
+	DEFINE_SCRIPTFUNC( UsesPrimaryAmmo, "Check if the weapon uses primary ammo." )
+	DEFINE_SCRIPTFUNC( UsesSecondaryAmmo, "Check if the weapon uses secondary ammo." )
+	DEFINE_SCRIPTFUNC( GiveDefaultAmmo, "Fill the weapon back up to default ammo." )
+
+	DEFINE_SCRIPTFUNC( UsesClipsForAmmo1, "Check if the weapon uses clips for primary ammo." )
+	DEFINE_SCRIPTFUNC( UsesClipsForAmmo2, "Check if the weapon uses clips for secondary ammo." )
+
+#ifndef CLIENT_DLL
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPrimaryAmmoType, "GetPrimaryAmmoType", "Get the weapon's primary ammo type." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSecondaryAmmoType, "GetSecondaryAmmoType", "Get the weapon's secondary ammo type." )
+#endif
+
+	DEFINE_SCRIPTFUNC( GetSubType, "Get the weapon's subtype." )
+	DEFINE_SCRIPTFUNC( SetSubType, "Set the weapon's subtype." )
+
+	DEFINE_SCRIPTFUNC( GetFireRate, "Get the weapon's firing rate." )
+
+	DEFINE_SCRIPTFUNC( GetWorldModel, "Get the weapon's world model." )
+	DEFINE_SCRIPTFUNC( GetViewModel, "Get the weapon's view model." )
+
+	DEFINE_SCRIPTFUNC( GetWeight, "Get the weapon's weight." )
+
+	DEFINE_SCRIPTFUNC( CanBePickedUpByNPCs, "Check if the weapon can be picked up by NPCs." )
+
+END_SCRIPTDESC();
+#endif
 
 #if !defined( CLIENT_DLL )
 //-----------------------------------------------------------------------------

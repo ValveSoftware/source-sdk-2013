@@ -196,6 +196,9 @@ public:
 	DECLARE_CLASS( CBaseCombatWeapon, BASECOMBATWEAPON_DERIVED_FROM );
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 							CBaseCombatWeapon();
 	virtual 				~CBaseCombatWeapon();
@@ -446,6 +449,12 @@ public:
 	virtual void			Activate( void );
 
 	virtual bool ShouldUseLargeViewModelVROverride() { return false; }
+
+#ifdef MAPBASE_VSCRIPT
+	void				ScriptSetClip1( int ammo ) { m_iClip1 = ammo; }
+	void				ScriptSetClip2( int ammo ) { m_iClip2 = ammo; }
+#endif
+
 public:
 // Server Only Methods
 #if !defined( CLIENT_DLL )
@@ -509,6 +518,11 @@ public:
 	void					Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 
 	virtual CDmgAccumulator	*GetDmgAccumulator( void ) { return NULL; }
+
+#ifdef MAPBASE_VSCRIPT
+	const char*				ScriptGetPrimaryAmmoType();
+	const char*				ScriptGetSecondaryAmmoType();
+#endif
 
 // Client only methods
 #else

@@ -79,6 +79,9 @@ class CHL2_Player : public CBasePlayer
 {
 public:
 	DECLARE_CLASS( CHL2_Player, CBasePlayer );
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 	CHL2_Player();
 	~CHL2_Player( void );

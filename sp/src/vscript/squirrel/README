@@ -1,0 +1,33 @@
+The programming language SQUIRREL 3.1 stable
+
+--------------------------------------------------
+This project has successfully been compiled and run on
+ * Windows (x86 and amd64)
+ * Linux (x86, amd64 and ARM)
+ * Illumos (x86 and amd64)
+ * FreeBSD (x86 and ARM)
+
+The following compilers have been confirmed to be working:
+    MS Visual C++  6.0 (all on x86 and amd64)
+                   7.0   |
+                   7.1   v
+                   8.0
+                   9.0
+                  10.0
+                  12.0  ---
+    MinGW gcc 3.2 (mingw special 20020817-1)
+    Cygnus gcc 3.2
+    Linux gcc 3.2.3
+              4.0.0 (x86 and amd64)
+              5.3.1 (amd64)
+    Illumos gcc 4.0.0 (x86 and amd64)
+    ARM Linux gcc 4.6.3 (Raspberry Pi Model B)
+
+
+Feedback and suggestions are appreciated
+project page - http://www.squirrel-lang.org
+community forums - http://forum.squirrel-lang.org
+wiki - http://wiki.squirrel-lang.org
+author - alberto@demichelis.net
+
+END OF README

@@ -36,6 +36,7 @@ public:
 	m_pEvent( 0 ),
 	m_pScene( 0 ),
 	m_pActor( 0 ),
+	m_hSceneEntity(0),
 	m_bStarted( false ),
 	m_iLayer( -1 ),
 	m_iPriority( 0 ),
@@ -62,6 +63,8 @@ public:
 
 	// Current actor
 	CChoreoActor	*m_pActor;
+
+	CHandle< CSceneEntity >	m_hSceneEntity;
 
 	// Set after the first time the event has been configured ( allows
 	//  bumping markov index only at start of event playback, not every frame )

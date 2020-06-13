@@ -1,0 +1,62 @@
+//-----------------------------------------------------------------------------
+//	VSCRIPT.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$macro SRCDIR		".."
+ 
+$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;.\squirrel\include"
+	}
+}
+
+$Project "VScript"
+{
+	$Folder	"Source Files"
+	{
+
+		$File	"vscript.cpp"
+		$File	"vscript_squirrel.cpp"
+
+		$Folder "squirrel"
+		{
+			$File	".\squirrel\sqstdlib\sqstdaux.cpp"		\
+					".\squirrel\sqstdlib\sqstdblob.cpp"		\
+					".\squirrel\sqstdlib\sqstdio.cpp"		\
+					".\squirrel\sqstdlib\sqstdmath.cpp"		\
+					".\squirrel\sqstdlib\sqstdrex.cpp"		\
+					".\squirrel\sqstdlib\sqstdstream.cpp"	\
+					".\squirrel\sqstdlib\sqstdstring.cpp"	\
+					".\squirrel\sqstdlib\sqstdsystem.cpp"	\
+					".\squirrel\squirrel\sqapi.cpp"			\
+					".\squirrel\squirrel\sqbaselib.cpp"		\
+					".\squirrel\squirrel\sqclass.cpp"		\
+					".\squirrel\squirrel\sqcompiler.cpp"	\
+					".\squirrel\squirrel\sqdebug.cpp"		\
+					".\squirrel\squirrel\sqfuncstate.cpp"	\
+					".\squirrel\squirrel\sqlexer.cpp"		\
+					".\squirrel\squirrel\sqmem.cpp"			\
+					".\squirrel\squirrel\sqobject.cpp"		\
+					".\squirrel\squirrel\sqstate.cpp"		\
+					".\squirrel\squirrel\sqtable.cpp"		\
+					".\squirrel\squirrel\sqvm.cpp"
+			{
+				$Configuration
+				{
+					$Compiler
+					{
+						// Squirrel third party library is full of warnings
+						$AdditionalOptions		"$BASE /wd4100 /wd4611 /wd4127 /wd4244 /wd4702 /wd4706 /wd4800"
+						$TreatWarningsAsErrors	"No"
+					}
+				}
+			}
+		}
+	}
+}

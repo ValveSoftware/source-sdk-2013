@@ -61,6 +61,10 @@ public:
 	void InputSetChapterTitle( inputdata_t &inputdata );
 #endif
 
+#ifdef MAPBASE_VSCRIPT
+	ScriptLanguage_t GetScriptLanguage() { return (ScriptLanguage_t)(m_iScriptLanguage.Get()); }
+#endif
+
 private:
 	DECLARE_DATADESC();
 
@@ -83,6 +87,10 @@ private:
 	CNetworkVar( float, m_flMinPropScreenSpaceWidth );
 	CNetworkVar( float, m_flMaxPropScreenSpaceWidth );
 	CNetworkVar( string_t, m_iszDetailSpriteMaterial );
+
+#ifdef MAPBASE_VSCRIPT
+	CNetworkVar( int, m_iScriptLanguage );
+#endif
 
 	// start flags
 	CNetworkVar( bool, m_bStartDark );

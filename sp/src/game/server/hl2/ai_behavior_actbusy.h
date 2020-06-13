@@ -239,6 +239,12 @@ public:
 	interval_t &NextBusySearchInterval();
 #endif
 
+#ifdef MAPBASE_VSCRIPT
+	void ScriptForceBusy( HSCRIPT hNPC, HSCRIPT hHint, bool bTeleportOnly );
+	void ScriptForceBusyComplex( HSCRIPT hNPC, HSCRIPT hHint, bool bTeleportOnly, bool bVisibleOnly, bool bUseNearestBusy, float flMaxTime, int activity, HSCRIPT pSeeEntity );
+	void ScriptStopBusy( HSCRIPT hNPC );
+#endif
+
 protected:
 	CAI_ActBusyBehavior *GetBusyBehaviorForNPC( const char *pszActorName, CBaseEntity *pActivator, CBaseEntity *pCaller, const char *sInputName );
 	CAI_ActBusyBehavior *GetBusyBehaviorForNPC( CBaseEntity *pEntity, const char *sInputName );
@@ -257,6 +263,9 @@ protected:
 #endif
 
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 protected:
 	float			m_flBusySearchRange;

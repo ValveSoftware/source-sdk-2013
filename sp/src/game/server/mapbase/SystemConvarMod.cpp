@@ -91,8 +91,9 @@ void CV_InitMod()
 
 void CVEnt_Precache(CMapbaseCVarModEntity *modent)
 {
-	if (Q_strstr(STRING(modent->m_target), "sv_allow_logic_convar"))
-		return;
+	// Now protected by FCVAR_NOT_CONNECTED
+	//if (Q_strstr(STRING(modent->m_target), "sv_allow_logic_convar"))
+	//	return;
 
 #ifdef MAPBASE_MP
 	if (gpGlobals->maxClients > 1 && !modent->m_bUseServer)

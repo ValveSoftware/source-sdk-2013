@@ -119,6 +119,9 @@ public:
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
 	DECLARE_PREDICTABLE();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 public:
 
@@ -406,6 +409,31 @@ public:
 	virtual	Vector		GetAttackSpread( CBaseCombatWeapon *pWeapon, CBaseEntity *pTarget = NULL );
 	virtual	float		GetSpreadBias(  CBaseCombatWeapon *pWeapon, CBaseEntity *pTarget );
 	virtual void		DoMuzzleFlash();
+
+#ifdef MAPBASE_VSCRIPT // DO NOT COMMIT; WAIT UNTIL FULL MERGE (5/15/2020)
+	HSCRIPT				GetScriptActiveWeapon();
+	HSCRIPT				GetScriptWeaponIndex( int i );
+	HSCRIPT				GetScriptWeaponByType( const char *pszWeapon, int iSubType = 0 );
+
+	void				ScriptEquipWeapon( HSCRIPT hWeapon );
+
+	int					ScriptGetAmmoCount( const char *szName ) const;
+	void				ScriptSetAmmoCount( const char *szName, int iCount );
+
+	int					ScriptRelationType( HSCRIPT pTarget );
+	int					ScriptRelationPriority( HSCRIPT pTarget );
+	void				ScriptSetRelationship( HSCRIPT pTarget, int disposition, int priority );
+
+	HSCRIPT				GetScriptVehicleEntity();
+
+	bool				ScriptInViewCone( const Vector &vecSpot ) { return FInViewCone( vecSpot ); }
+	bool				ScriptEntInViewCone( HSCRIPT pEntity ) { return FInViewCone( ToEnt( pEntity ) ); }
+
+	bool				ScriptInAimCone( const Vector &vecSpot ) { return FInAimCone( vecSpot ); }
+	bool				ScriptEntInAimCone( HSCRIPT pEntity ) { return FInAimCone( ToEnt( pEntity ) ); }
+
+	const Vector&		ScriptBodyAngles( void ) { static Vector vec; QAngle qa = BodyAngles(); vec.x = qa.x; vec.y = qa.y; vec.z = qa.z; return vec; }
+#endif
 
 	// Interactions
 	static void			InitInteractionSystem();

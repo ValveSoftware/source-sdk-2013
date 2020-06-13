@@ -63,6 +63,7 @@ public:
 
 	void ParseEventAction( const char *EventData );
 	void AddEventAction( CEventAction *pEventAction );
+	void RemoveEventAction( CEventAction *pEventAction );
 
 	int Save( ISave &save );
 	int Restore( IRestore &restore, int elementCount );
