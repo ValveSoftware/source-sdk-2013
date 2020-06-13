@@ -10,17 +10,20 @@ function UniqueString( string = "" )
 	return DoUniqueString( string.tostring() );
 }
 
-function EntFire( target, action, value = null, delay = 0.0, activator = null )
+function EntFire( target, action, value = null, delay = 0.0, activator = null, caller = null )
 {
 	if ( !value )
 	{
 		value = "";
 	}
 	
-	local caller = null;
 	if ( "self" in this )
 	{
-		caller = self;
+		if ( !caller )
+		{
+			caller = self;
+		}
+
 		if ( !activator )
 		{
 			activator = self;
@@ -28,6 +31,29 @@ function EntFire( target, action, value = null, delay = 0.0, activator = null )
 	}
 	
 	DoEntFire( target.tostring(), action.tostring(), value.tostring(), delay, activator, caller ); 
+}
+
+function EntFireByHandle( target, action, value = null, delay = 0.0, activator = null, caller = null )
+{
+	if ( !value )
+	{
+		value = "";
+	}
+	
+	if ( "self" in this )
+	{
+		if ( !caller )
+		{
+			caller = self;
+		}
+
+		if ( !activator )
+		{
+			activator = self;
+		}
+	}
+	
+	DoEntFireByInstanceHandle( target, action.tostring(), value.tostring(), delay, activator, caller ); 
 }
 
 function __ReplaceClosures( script, scope )

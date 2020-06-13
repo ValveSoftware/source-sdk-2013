@@ -752,6 +752,42 @@ FireBulletsInfo_t *GetFireBulletsInfoFromInfo( HSCRIPT hBulletsInfo )
 //=============================================================================
 //=============================================================================
 
+static void ScriptEntitiesInBox( HSCRIPT hTable, int listMax, const Vector &hullMin, const Vector &hullMax, int iMask )
+{
+	CBaseEntity *list[1024];
+	int count = UTIL_EntitiesInBox( list, listMax, hullMin, hullMax, iMask );
+
+	for ( int i = 0; i < count; i++ )
+	{
+		g_pScriptVM->SetValue( hTable, STRING(list[i]->GetEntityName()), ToHScript( list[i] ) );
+	}
+}
+
+static void ScriptEntitiesAtPoint( HSCRIPT hTable, int listMax, const Vector &point, int iMask )
+{
+	CBaseEntity *list[1024];
+	int count = UTIL_EntitiesAtPoint( list, listMax, point, iMask );
+
+	for ( int i = 0; i < count; i++ )
+	{
+		g_pScriptVM->SetValue( hTable, STRING(list[i]->GetEntityName()), ToHScript( list[i] ) );
+	}
+}
+
+static void ScriptEntitiesInSphere( HSCRIPT hTable, int listMax, const Vector &center, float radius, int iMask )
+{
+	CBaseEntity *list[1024];
+	int count = UTIL_EntitiesInSphere( list, listMax, center, radius, iMask );
+
+	for ( int i = 0; i < count; i++ )
+	{
+		g_pScriptVM->SetValue( hTable, STRING(list[i]->GetEntityName()), ToHScript( list[i] ) );
+	}
+}
+
+//=============================================================================
+//=============================================================================
+
 bool ScriptMatcherMatch( const char *pszQuery, const char *szValue ) { return Matcher_Match( pszQuery, szValue ); }
 
 //=============================================================================
@@ -802,6 +838,10 @@ void RegisterSharedScriptFunctions()
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptTraceLineComplex, "TraceLineComplex", "Complex version of TraceLine which takes 2 points, an ent to ignore, a trace mask, and a collision group. Returns a handle which can access all trace info." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptTraceHullComplex, "TraceHullComplex", "Takes 2 points, min/max hull bounds, an ent to ignore, a trace mask, and a collision group to trace to a point using a hull. Returns a handle which can access all trace info." );
+
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptEntitiesInBox, "EntitiesInBox", "Gets all entities which are within a worldspace box." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptEntitiesAtPoint, "EntitiesAtPoint", "Gets all entities which are intersecting a point in space." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptEntitiesInSphere, "EntitiesInSphere", "Gets all entities which are within a sphere." );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatcherMatch, "Matcher_Match", "Compares a string to a query using Mapbase's matcher system, supporting wildcards, RS matchers, etc." );
 	ScriptRegisterFunction( g_pScriptVM, Matcher_NamesMatch, "Compares a string to a query using Mapbase's matcher system using wildcards only." );

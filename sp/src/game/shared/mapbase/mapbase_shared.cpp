@@ -374,6 +374,9 @@ public:
 	void LoadActbusyFile( const char *szScript ) { LoadFromValue( szScript, MANIFEST_ACTBUSY, false ); }
 #endif
 
+	const char *GetModName() { return g_iszGameName; }
+	bool IsCoreMapbase() { return g_bMapbaseCore; }
+
 	virtual void RegisterVScript()
 	{
 		g_pScriptVM->RegisterInstance( this, "Mapbase" );
@@ -397,6 +400,8 @@ BEGIN_SCRIPTDESC_ROOT( CMapbaseSystem, SCRIPT_SINGLETON "All-purpose Mapbase sys
 	DEFINE_SCRIPTFUNC( LoadTalkerFile, "Loads a custom talker file." )
 	DEFINE_SCRIPTFUNC( LoadActbusyFile, "Loads a custom actbusy file." )
 #endif
+	DEFINE_SCRIPTFUNC( GetModName, "Gets the name of the mod. This is the name which shows up on Steam, RPC, etc." )
+	DEFINE_SCRIPTFUNC( IsCoreMapbase, "Indicates whether this is one of the original Mapbase mods or just a separate mod using its code." )
 END_SCRIPTDESC();
 #endif
 

@@ -4355,7 +4355,7 @@ void CBaseCombatCharacter::DoMuzzleFlash()
 	}
 }
 
-#ifdef MAPBASE_VSCRIPT // DO NOT COMMIT; WAIT UNTIL FULL MERGE (5/15/2020)
+#ifdef MAPBASE_VSCRIPT
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 HSCRIPT CBaseCombatCharacter::GetScriptActiveWeapon()
