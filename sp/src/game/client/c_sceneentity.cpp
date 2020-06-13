@@ -823,10 +823,10 @@ CChoreoScene *C_SceneEntity::LoadScene( const char *filename )
 	if ( bufsize > 0 )
 	{
 		// Definitely in scenes.image
-		pBuffer = new char[ bufsize ];
+		pBuffer = malloc( bufsize );
 		if ( !scenefilecache->GetSceneData( filename, (byte *)pBuffer, bufsize ) )
 		{
-			delete[] pBuffer;
+			free( pBuffer );
 			return NULL;
 		}
 
@@ -866,10 +866,10 @@ CChoreoScene *C_SceneEntity::LoadScene( const char *filename )
 	if ( bufsize <= 0 )
 		return NULL;
 
-	pBuffer = new char[ bufsize ];
+	pBuffer = malloc( bufsize );
 	if ( !scenefilecache->GetSceneData( filename, (byte *)pBuffer, bufsize ) )
 	{
-		delete[] pBuffer;
+		free( pBuffer );
 		return NULL;
 	}
 
@@ -897,7 +897,7 @@ CChoreoScene *C_SceneEntity::LoadScene( const char *filename )
 	}
 #endif
 
-	delete[] pBuffer;
+	free( pBuffer );
 	return pScene;
 }
 
