@@ -72,6 +72,10 @@ ConVar g_debug_headcrab( "g_debug_headcrab", "0", FCVAR_CHEAT );
 //------------------------------------
 #define SF_HEADCRAB_START_HIDDEN		(1 << 16)
 #define SF_HEADCRAB_START_HANGING		(1 << 17)
+#ifdef MAPBASE
+#define SF_HEADCRAB_DONT_DROWN			(1 << 18)
+#define SF_HEADCRAB_NO_MELEE_INSTAKILL	(1 << 19)
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -1045,7 +1049,11 @@ void CBaseHeadcrab::GatherConditions( void )
 
 	BaseClass::GatherConditions();
 
+#ifdef MAPBASE
+	if (GetWaterLevel() > 1 && m_lifeState == LIFE_ALIVE && !HasSpawnFlags( SF_HEADCRAB_DONT_DROWN ))
+#else
 	if( m_lifeState == LIFE_ALIVE && GetWaterLevel() > 1 )
+#endif
 	{
 		// Start Drowning!
 		SetCondition( COND_HEADCRAB_IN_WATER );
@@ -1725,7 +1733,12 @@ int CBaseHeadcrab::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 	//
 	// Certain death from melee bludgeon weapons!
 	//
+#ifdef MAPBASE
+	// (unless the mapper said no)
+	if ( info.GetDamageType() & DMG_CLUB && !HasSpawnFlags( SF_HEADCRAB_NO_MELEE_INSTAKILL ) )
+#else
 	if ( info.GetDamageType() & DMG_CLUB )
+#endif
 	{
 		info.SetDamage( m_iHealth );
 	}

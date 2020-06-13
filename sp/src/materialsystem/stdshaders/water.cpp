@@ -151,6 +151,19 @@ BEGIN_VS_SHADER( SDK_Water_DX90,
 		if ( params[ENVMAP]->IsDefined() )
 		{
 			LoadCubeMap( ENVMAP, TEXTUREFLAGS_SRGB );
+
+#ifdef MAPBASE
+			if (mat_specular_disable_on_missing.GetBool())
+			{
+				// Revert to defaultcubemap when the envmap texture is missing
+				// (should be equivalent to toolsblack in Mapbase)
+				if (params[ENVMAP]->GetTextureValue()->IsError())
+				{
+					params[ENVMAP]->SetStringValue( "engine/defaultcubemap" );
+					LoadCubeMap( ENVMAP, TEXTUREFLAGS_SRGB );
+				}
+			}
+#endif
 		}
 		if ( params[NORMALMAP]->IsDefined() )
 		{

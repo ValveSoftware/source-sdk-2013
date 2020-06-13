@@ -1,39 +1,36 @@
-Thanks for your interest in the Source SDK 2013 project.  When you make a
-contribution to the project (e.g. create an Issue or submit a Pull Request)
-(a "Contribution"), Valve wants to be able to use your Contribution to improve
-the SDK and other Valve products. 
+This file details how to contribute to the Mapbase project on GitHub:
+	https://github.com/mapbase-source/source-sdk-2013
 
-As a condition of providing a Contribution, you agree that: 
-- You grant Valve a non-exclusive, irrevocable, royalty-free, worldwide license
-to make, use, sell, reproduce, modify, distribute (directly and indirectly),
-and publicly display and perform the Contribution, and any derivative works
-that Valve may make from the Contribution, under any intellectual property you
-own or have the right to license. 
-- You warrant and represent that the Contribution is your original creation,
-that you have the authority to grant this license to Valve, and that this
-license does not require the permission of any third party.  Otherwise, you
-provide your Contribution "as is" without warranties.  
+For the original Source SDK 2013 contribution guidelines, click here:
+	https://github.com/ValveSoftware/source-sdk-2013/blob/master/CONTRIBUTING
 
-Should you wish to submit a suggestion or work that is not your original
-creation, you may submit it to Valve separate from any Contribution,
-explicitly identifying it as sourced from a third party, stating the details
-of its origin, and informing Valve of any license or other restriction of
-which you are personally aware. 
+---
 
+Mapbase is a project which many Source modders draw from, so it has its own unique standards
+for contributions which differ from other projects, but it is still an open-source repository
+that is always open to contributions.
 
-Valve is happy to accept pull requests and issues in the source-sdk-2013
-repository in these cases:
- * Changes that fix bugs in the SDK deployment process itself. The repository
-   should build out of the box, and anything that prevents that is a pull
-   request we want.
- * High priority bugs in HL2, the Episodes, or HL2MP that can be fixed in
-   client.dll or server.dll.
+Whenever you contribute to the Mapbase repository, you must keep in mind that any contributions
+made could be deployed to all mods utilizing Mapbase, which can include everything from high-profile
+Steam mods to amateur HL2 maps.
 
-For other changes we suggest that you issue a pull request to one of these
-fine community-maintained repositories instead: 
-  https://developer.valvesoftware.com/wiki/Source-sdk-2013-community-repos
+All contributions must follow the following rules:
 
-If you are going to make a pull request, please keep them as granular as
-possible. Pull requests with 3-4 unrelated changes in them aren't going to
-be accepted.
+ * A contribution must be aligned with Mapbase's goals and priorities and should not be "subjective"
+   or related to a specific mod or type of mod. For example, fixing an existing issue or adding a
+   new tool for mappers to use is usually fine, but adding a new custom weapon with its own assets
+   is usually not fit for Mapbase.
+   
+ * All content in a contribution must be either already legally open-source or done with the
+   full permission of the contribution's original creator(s).
+   
+ * A code contribution should typically follow Mapbase's preprocessor conventions unless it's a massive
+   feature which makes fundamental changes to several different parts of the code (e.g. reductor's VScript PR).
+   When following these standards, all changes should be nested within "#ifdef MAPBASE", "#ifndef MAPBASE", etc.
+   
+If your contribution is accepted, you may be listed in Mapbase's credits:
+	https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Credits#Contributors
+	
+You may also receive the "Contributor" or "Major Contributor" role on Mapbase's Discord server if you are
+a member of it.
 
