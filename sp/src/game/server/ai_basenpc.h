@@ -547,6 +547,9 @@ public:
 	
 	DECLARE_DATADESC();
 	DECLARE_SERVERCLASS();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 	virtual int			Save( ISave &save ); 
 	virtual int			Restore( IRestore &restore );
@@ -1205,6 +1208,40 @@ public:
 	virtual Vector		GetAltFireTarget() { return GetEnemy() ? GetEnemy()->BodyTarget(Weapon_ShootPosition()) : vec3_origin; }
 	virtual void		DelayGrenadeCheck(float delay) { ; }
 	virtual void		AddGrenades( int inc, CBaseEntity *pLastGrenade = NULL ) { ; }
+#endif
+
+#ifdef MAPBASE_VSCRIPT
+	// VScript stuff uses "VScript" instead of just "Script" to avoid
+	// confusion with NPC_STATE_SCRIPT or StartScripting
+	HSCRIPT				VScriptGetEnemy();
+	void				VScriptSetEnemy( HSCRIPT pEnemy );
+	Vector				VScriptGetEnemyLKP();
+
+	HSCRIPT				VScriptFindEnemyMemory( HSCRIPT pEnemy );
+
+	int					VScriptGetState();
+
+	const char*			VScriptGetHintGroup() { return STRING( GetHintGroup() ); }
+	HSCRIPT				VScriptGetHintNode();
+
+	const char*			ScriptGetActivity() { return GetActivityName( GetActivity() ); }
+	int					ScriptGetActivityID() { return GetActivity(); }
+	void				ScriptSetActivity( const char *szActivity ) { SetActivity( (Activity)GetActivityID( szActivity ) ); }
+	void				ScriptSetActivityID( int iActivity ) { SetActivity((Activity)iActivity); }
+
+	const char*			VScriptGetSchedule();
+	int					VScriptGetScheduleID();
+	void				VScriptSetSchedule( const char *szSchedule );
+	void				VScriptSetScheduleID( int iSched ) { SetSchedule( iSched ); }
+	const char*			VScriptGetTask();
+	int					VScriptGetTaskID();
+
+	bool				VScriptHasCondition( const char *szCondition ) { return HasCondition( GetConditionID( szCondition ) ); }
+	bool				VScriptHasConditionID( int iCondition ) { return HasCondition( iCondition ); }
+	void				VScriptSetCondition( const char *szCondition ) { SetCondition( GetConditionID( szCondition ) ); }
+	void				VScriptClearCondition( const char *szCondition ) { ClearCondition( GetConditionID( szCondition ) ); }
+
+	HSCRIPT				VScriptGetExpresser();
 #endif
 
 	//-----------------------------------------------------

@@ -143,6 +143,28 @@ public:
 		return m_list.Count();
 	}
 
+#ifdef MAPBASE_VSCRIPT
+	virtual void RegisterVScript()
+	{
+		g_pScriptVM->RegisterInstance( this, "Globals" );
+	}
+
+	int ScriptAddEntity( const char *pGlobalname, const char *pMapName, int state )
+	{
+		return AddEntity( pGlobalname, pMapName, (GLOBALESTATE)state );
+	}
+
+	void ScriptSetState( int globalIndex, int state )
+	{
+		SetState( globalIndex, (GLOBALESTATE)state );
+	}
+
+	int ScriptGetState( int globalIndex )
+	{
+		return (int)GetState( globalIndex );
+	}
+#endif
+
 	void			Reset( void );
 	int				Save( ISave &save );
 	int				Restore( IRestore &restore );
@@ -323,3 +345,15 @@ CON_COMMAND(server_game_time, "Gives the game time in seconds (server's curtime)
 
 	ShowServerGameTime();
 }
+
+#ifdef MAPBASE_VSCRIPT
+BEGIN_SCRIPTDESC_ROOT( CGlobalState, SCRIPT_SINGLETON "Global state system." )
+	DEFINE_SCRIPTFUNC( GetIndex, "Gets the index of the specified global name. Returns -1 if it does not exist." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddEntity, "AddGlobal", "Adds a new global with a specific map name and state. Returns its index." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetState, "GetState", "Gets the state of the specified global." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetState, "SetState", "Sets the state of the specified global." )
+	DEFINE_SCRIPTFUNC( GetCounter, "Gets the counter of the specified global." )
+	DEFINE_SCRIPTFUNC( SetCounter, "Sets the counter of the specified global." )
+	DEFINE_SCRIPTFUNC( AddToCounter, "Adds to the counter of the specified global." )
+END_SCRIPTDESC();
+#endif

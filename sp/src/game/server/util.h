@@ -237,6 +237,24 @@ CBasePlayer* UTIL_GetLocalPlayer( void );
 // get the local player on a listen server
 CBasePlayer *UTIL_GetListenServerHost( void );
 
+//-----------------------------------------------------------------------------
+// Purpose: Convenience function so we don't have to make this check all over
+//-----------------------------------------------------------------------------
+static CBasePlayer * UTIL_GetLocalPlayerOrListenServerHost( void )
+{
+	if ( gpGlobals->maxClients > 1 )
+	{
+		if ( engine->IsDedicatedServer() )
+		{
+			return NULL;
+		}
+
+		return UTIL_GetListenServerHost();
+	}
+
+	return UTIL_GetLocalPlayer();
+}
+
 CBasePlayer* UTIL_PlayerByUserId( int userID );
 CBasePlayer* UTIL_PlayerByName( const char *name ); // not case sensitive
 

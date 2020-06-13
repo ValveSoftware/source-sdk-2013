@@ -16,6 +16,9 @@ class CLogicExternalData : public CLogicalEntity
 {
 	DECLARE_CLASS( CLogicExternalData, CLogicalEntity );
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 public:
 	~CLogicExternalData();
@@ -33,6 +36,16 @@ public:
 	void InputSetBlock( inputdata_t &inputdata );
 	void InputSave( inputdata_t &inputdata );
 	void InputReload( inputdata_t &inputdata );
+
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT			ScriptGetKeyValues( void );
+	HSCRIPT			ScriptGetKeyValueBlock( void );
+
+	void			ScriptSetKeyValues( HSCRIPT hKV );
+	void			ScriptSetKeyValueBlock( HSCRIPT hKV );
+
+	void			ScriptSetBlock( const char *szNewBlock, HSCRIPT hActivator = NULL, HSCRIPT hCaller = NULL );
+#endif
 
 	char m_iszFile[MAX_PATH];
 
@@ -75,6 +88,21 @@ BEGIN_DATADESC( CLogicExternalData )
 	DEFINE_OUTPUT(m_OutValue, "OutValue"),
 
 END_DATADESC()
+
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CLogicExternalData, CBaseEntity, "An entity which loads keyvalues from an external data file." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValues, "GetKeyValues", "Gets the external data expressed in CScriptKeyValues." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValueBlock, "GetKeyValueBlock", "Gets the current external data block expressed in CScriptKeyValues." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValues, "SetKeyValues", "Sets the external data from a CScriptKeyValues object." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueBlock, "SetKeyValues", "Sets the current external data block from a CScriptKeyValues object." )
+
+	DEFINE_SCRIPTFUNC( LoadFile, "Loads external data from the external file." )
+	DEFINE_SCRIPTFUNC( SaveFile, "Saves the external data to the external file." )
+
+END_SCRIPTDESC();
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -243,3 +271,95 @@ void CLogicExternalData::InputReload( inputdata_t &inputdata )
 {
 	LoadFile();
 }
+
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT CLogicExternalData::ScriptGetKeyValues( void )
+{
+	if (m_bReloadBeforeEachAction)
+		LoadFile();
+
+	HSCRIPT hScript = NULL;
+	if (m_pRoot)
+	{
+		// Does this need to be destructed or freed? m_pScriptModelKeyValues apparently doesn't.
+		CScriptKeyValues *pKV = new CScriptKeyValues( m_pRoot );
+		hScript = g_pScriptVM->RegisterInstance( pKV );
+	}
+
+	return hScript;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT CLogicExternalData::ScriptGetKeyValueBlock( void )
+{
+	if (m_bReloadBeforeEachAction)
+		LoadFile();
+
+	HSCRIPT hScript = NULL;
+	if (m_pBlock)
+	{
+		// Does this need to be destructed or freed? m_pScriptModelKeyValues apparently doesn't.
+		CScriptKeyValues *pKV = new CScriptKeyValues( m_pBlock );
+		hScript = g_pScriptVM->RegisterInstance( pKV );
+	}
+
+	return hScript;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+void CLogicExternalData::ScriptSetKeyValues( HSCRIPT hKV )
+{
+	if (m_pRoot)
+	{
+		m_pRoot->deleteThis();
+		m_pRoot = NULL;
+	}
+
+	CScriptKeyValues *pKV = HScriptToClass<CScriptKeyValues>( hKV );
+	if (pKV)
+	{
+		m_pRoot = pKV->m_pKeyValues;
+	}
+}
+
+void CLogicExternalData::ScriptSetKeyValueBlock( HSCRIPT hKV )
+{
+	if (m_pBlock)
+	{
+		m_pBlock->deleteThis();
+		m_pBlock = NULL;
+	}
+
+	CScriptKeyValues *pKV = HScriptToClass<CScriptKeyValues>( hKV );
+	if (pKV)
+	{
+		m_pBlock = pKV->m_pKeyValues;
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CLogicExternalData::ScriptSetBlock( const char *szNewBlock, HSCRIPT hActivator, HSCRIPT hCaller )
+{
+	CBaseEntity *pActivator = ToEnt( hActivator );
+	CBaseEntity *pCaller = ToEnt( hCaller );
+	string_t iszNewTarget = AllocPooledString(szNewBlock);
+	if (STRING(iszNewTarget)[0] == '!')
+	{
+		if (FStrEq(STRING(iszNewTarget), "!self"))
+			iszNewTarget = GetEntityName();
+		else if (pActivator && FStrEq(STRING(iszNewTarget), "!activator"))
+			iszNewTarget = pActivator->GetEntityName();
+		else if (pCaller && FStrEq(STRING(iszNewTarget), "!caller"))
+			iszNewTarget = pCaller->GetEntityName();
+	}
+
+	m_target = iszNewTarget;
+	LoadFile();
+}
+#endif

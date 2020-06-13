@@ -133,6 +133,8 @@ void PrecachePointTemplates()
 void CPointTemplate::Spawn( void )
 {
 	Precache();
+	ScriptInstallPreSpawnHook();
+	ValidateScriptScope();
 }
 
 void CPointTemplate::Precache()
@@ -345,7 +347,7 @@ bool CPointTemplate::CreateInstance( const Vector &vecOrigin, const QAngle &vecA
 
 		// Some templates have Entity I/O connecting the entities within the template.
 		// Unique versions of these templates need to be created whenever they're instanced.
-		if ( AllowNameFixup() && Templates_IndexRequiresEntityIOFixup( iTemplateIndex ) )
+		if ( AllowNameFixup() && ( Templates_IndexRequiresEntityIOFixup( iTemplateIndex ) || m_ScriptScope.IsInitialized() ) )
 		{
 			// This template requires instancing. 
 			// Create a new mapdata block and ask the template system to fill it in with
@@ -381,7 +383,15 @@ bool CPointTemplate::CreateInstance( const Vector &vecOrigin, const QAngle &vecA
 		pEntity->SetAbsOrigin( vecNewOrigin );
 		pEntity->SetAbsAngles( vecNewAngles );
 
-		pSpawnList[i].m_pEntity = pEntity;
+		if (ScriptPreInstanceSpawn(&m_ScriptScope, pEntity, Templates_FindByIndex(iTemplateIndex)))
+		{
+			pSpawnList[i].m_pEntity = pEntity;
+		}
+		else
+		{
+			pSpawnList[i].m_pEntity = NULL;
+			UTIL_RemoveImmediate(pEntity);
+		}
 		pSpawnList[i].m_nDepth = 0;
 		pSpawnList[i].m_pDeferredParent = NULL;
 	}
@@ -426,7 +436,7 @@ bool CPointTemplate::CreateSpecificInstance( int iTemplate, const Vector &vecOri
 
 	// Some templates have Entity I/O connecting the entities within the template.
 	// Unique versions of these templates need to be created whenever they're instanced.
-	if ( AllowNameFixup() && Templates_IndexRequiresEntityIOFixup( iTemplateIndex ) )
+	if ( AllowNameFixup() && ( Templates_IndexRequiresEntityIOFixup( iTemplateIndex ) || m_ScriptScope.IsInitialized() ) )
 	{
 		// This template requires instancing. 
 		// Create a new mapdata block and ask the template system to fill it in with
@@ -475,6 +485,17 @@ bool CPointTemplate::CreateSpecificInstance( int iTemplate, const Vector &vecOri
 #endif
 
 //-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+void CPointTemplate::CreationComplete( const CUtlVector<CBaseEntity*> &entities )
+{
+	if ( !entities.Count() )
+		return;
+
+	ScriptPostSpawn( &m_ScriptScope, (CBaseEntity **)entities.Base(), entities.Count() );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : &inputdata - 
 //-----------------------------------------------------------------------------
@@ -514,3 +535,72 @@ void CPointTemplate::InputForceSpawnRandomTemplate( inputdata_t &inputdata )
 	m_pOutputOutEntity.Set(pEntity, pEntity, this);
 }
 #endif
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void ScriptInstallPreSpawnHook()
+{
+#ifdef IS_WINDOWS_PC
+	if ( !g_pScriptVM->ValueExists( "__ExecutePreSpawn " ) )
+	{
+		//g_pScriptVM->Run( g_Script_spawn_helper );
+	}
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:	This function is called after a spawner creates its child entity
+//			but before the keyvalues are injected. This gives us an 
+//			opportunity to change any keyvalues before the entity is 
+//			configured and spawned. In this case, we see if there is a VScript
+//			that wants to change anything about this entity. 
+//-----------------------------------------------------------------------------
+bool ScriptPreInstanceSpawn( CScriptScope *pScriptScope, CBaseEntity *pChild, string_t iszKeyValueData )
+{
+	if ( !pScriptScope->IsInitialized() )
+		return true;
+
+	ScriptVariant_t result;
+	if ( pScriptScope->Call( "__ExecutePreSpawn", &result, ToHScript( pChild ) ) != SCRIPT_DONE )
+		return true;
+
+	if ( ( result.m_type == FIELD_BOOLEAN && !result.m_bool ) || ( result.m_type == FIELD_INTEGER && !result.m_int ) )
+		return false;
+
+	return true;
+
+}
+
+void ScriptPostSpawn( CScriptScope *pScriptScope, CBaseEntity **ppEntities, int nEntities )
+{
+	if ( !pScriptScope->IsInitialized() )
+		return;
+
+	HSCRIPT hPostSpawnFunc = pScriptScope->LookupFunction( "PostSpawn" );
+
+	if ( !hPostSpawnFunc )
+		return;
+
+	ScriptVariant_t varEntityMakerResultTable;
+	if ( !g_pScriptVM->GetValue( *pScriptScope, "__EntityMakerResult", &varEntityMakerResultTable ) )
+		return;
+
+	if ( varEntityMakerResultTable.m_type != FIELD_HSCRIPT )
+		return;
+
+	HSCRIPT hEntityMakerResultTable = varEntityMakerResultTable.m_hScript;
+	char szEntName[256];
+	for ( int i = 0; i < nEntities; i++ )
+	{
+		V_strncpy( szEntName, ppEntities[i]->GetEntityNameAsCStr(), ARRAYSIZE(szEntName) );
+		char *pAmpersand = V_strrchr( szEntName, '&' );
+		if ( pAmpersand )
+			*pAmpersand = 0;
+		g_pScriptVM->SetValue( hEntityMakerResultTable, szEntName, ToHScript( ppEntities[i] ) );
+	}
+	pScriptScope->Call( hPostSpawnFunc, NULL, hEntityMakerResultTable );
+	pScriptScope->Call( "__FinishSpawn" );
+	g_pScriptVM->ReleaseValue( varEntityMakerResultTable );
+	g_pScriptVM->ReleaseFunction( hPostSpawnFunc );
+}

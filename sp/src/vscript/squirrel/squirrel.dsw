@@ -1,0 +1,77 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "sq"=.\sq\sq.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sqlibs
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name squirrel
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sqstdlib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sqstdlib"=.\sqstdlib\sqstdlib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/squirrel", HAAAAAAA
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "squirrel"=.\squirrel\squirrel.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/squirrel", HAAAAAAA
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+    begin source code control
+    "$/squirrel", HAAAAAAA
+    .
+    end source code control
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

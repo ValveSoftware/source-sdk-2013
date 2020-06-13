@@ -44,6 +44,7 @@ public:
 
 	DECLARE_DATADESC();
 	DECLARE_SERVERCLASS();
+	DECLARE_ENT_SCRIPTDESC();
 
 	virtual void SetModel( const char *szModelName );
 	virtual void Activate();
@@ -186,6 +187,11 @@ public:
 	bool GetAttachment( int iAttachment, Vector &absOrigin, QAngle &absAngles );
 	int GetAttachmentBone( int iAttachment );
 	virtual bool GetAttachment( int iAttachment, matrix3x4_t &attachmentToWorld );
+	const Vector& ScriptGetAttachmentOrigin(int iAttachment);
+	const Vector& ScriptGetAttachmentAngles(int iAttachment);
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT ScriptGetAttachmentMatrix(int iAttachment);
+#endif
 
 	// These return the attachment in the space of the entity
 	bool GetAttachmentLocal( const char *szName, Vector &origin, QAngle &angles );

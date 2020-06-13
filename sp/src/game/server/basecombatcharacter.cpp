@@ -150,6 +150,44 @@ BEGIN_DATADESC( CBaseCombatCharacter )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by players and NPCs." )
+
+	DEFINE_SCRIPTFUNC_NAMED( GetScriptActiveWeapon, "GetActiveWeapon", "Get the character's active weapon entity." )
+	DEFINE_SCRIPTFUNC( WeaponCount, "Get the number of weapons a character possesses." )
+	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponIndex, "GetWeapon", "Get a specific weapon in the character's inventory." )
+	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponByType, "FindWeapon", "Find a specific weapon in the character's inventory by its classname." )
+
+	DEFINE_SCRIPTFUNC_NAMED( Weapon_ShootPosition, "ShootPosition", "Get the character's shoot position." )
+	DEFINE_SCRIPTFUNC_NAMED( Weapon_DropAll, "DropAllWeapons", "Make the character drop all of its weapons." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptEquipWeapon, "EquipWeapon", "Make the character equip the specified weapon entity. If they don't already own the weapon, they will acquire it instantly." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAmmoCount, "GetAmmoCount", "Get the ammo count of the specified ammo type." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAmmoCount, "SetAmmoCount", "Set the ammo count of the specified ammo type." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRelationType, "GetRelationship", "Get a character's relationship to a specific entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRelationPriority, "GetRelationPriority", "Get a character's relationship priority for a specific entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetRelationship, "SetRelationship", "Set a character's relationship with a specific entity." )
+
+	DEFINE_SCRIPTFUNC_NAMED( GetScriptVehicleEntity, "GetVehicleEntity", "Get the entity for a character's current vehicle if they're in one." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptInViewCone, "InViewCone", "Check if the specified position is in the character's viewcone." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptEntInViewCone, "EntInViewCone", "Check if the specified entity is in the character's viewcone." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptInAimCone, "InAimCone", "Check if the specified position is in the character's aim cone." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptEntInViewCone, "EntInAimCone", "Check if the specified entity is in the character's aim cone." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptBodyAngles, "BodyAngles", "Get the body's angles." )
+	DEFINE_SCRIPTFUNC( BodyDirection2D, "Get the body's 2D direction." )
+	DEFINE_SCRIPTFUNC( BodyDirection3D, "Get the body's 3D direction." )
+	DEFINE_SCRIPTFUNC( HeadDirection2D, "Get the head's 2D direction." )
+	DEFINE_SCRIPTFUNC( HeadDirection3D, "Get the head's 3D direction." )
+	DEFINE_SCRIPTFUNC( EyeDirection2D, "Get the eyes' 2D direction." )
+	DEFINE_SCRIPTFUNC( EyeDirection3D, "Get the eyes' 3D direction." )
+
+END_SCRIPTDESC();
+#endif
+
 
 BEGIN_SIMPLE_DATADESC( Relationship_t )
 	DEFINE_FIELD( entity,			FIELD_EHANDLE ),
@@ -4316,6 +4354,114 @@ void CBaseCombatCharacter::DoMuzzleFlash()
 		BaseClass::DoMuzzleFlash();
 	}
 }
+
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseCombatCharacter::GetScriptActiveWeapon()
+{
+	return ToHScript( GetActiveWeapon() );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseCombatCharacter::GetScriptWeaponIndex( int i )
+{
+	return ToHScript( GetWeapon( i ) );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseCombatCharacter::GetScriptWeaponByType( const char *pszWeapon, int iSubType )
+{
+	return ToHScript( Weapon_OwnsThisType( pszWeapon, iSubType ) );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseCombatCharacter::ScriptEquipWeapon( HSCRIPT hWeapon )
+{
+	CBaseEntity *pEntity = ToEnt( hWeapon );
+	CBaseCombatWeapon *pWeapon = pEntity->MyCombatWeaponPointer();
+	if (!pEntity || !pWeapon)
+		return;
+
+	if (pWeapon->GetOwner() == this)
+	{
+		// Switch to this weapon
+		Weapon_Switch( pWeapon );
+	}
+	else
+	{
+		if (CBaseCombatWeapon *pExistingWeapon = Weapon_OwnsThisType( pWeapon->GetClassname() ))
+		{
+			// Drop our existing weapon then!
+			Weapon_Drop( pExistingWeapon );
+		}
+
+		if (IsNPC())
+		{
+			Weapon_Equip( pWeapon );
+			MyNPCPointer()->OnGivenWeapon( pWeapon );
+		}
+		else
+		{
+			Weapon_Equip( pWeapon );
+		}
+
+		pWeapon->OnPickedUp( this );
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int CBaseCombatCharacter::ScriptGetAmmoCount( const char *szName ) const
+{
+	return GetAmmoCount( GetAmmoDef()->Index(szName) );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseCombatCharacter::ScriptSetAmmoCount( const char *szName, int iCount )
+{
+	int iType = GetAmmoDef()->Index( szName );
+	if (iType == -1)
+	{
+		Warning("\"%s\" is not a valid ammo type\n", szName);
+		return;
+	}
+
+	return SetAmmoCount( iCount, iType );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int CBaseCombatCharacter::ScriptRelationType( HSCRIPT pTarget )
+{
+	return (int)IRelationType( ToEnt( pTarget ) );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int CBaseCombatCharacter::ScriptRelationPriority( HSCRIPT pTarget )
+{
+	return IRelationPriority( ToEnt( pTarget ) );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseCombatCharacter::ScriptSetRelationship( HSCRIPT pTarget, int disposition, int priority )
+{
+	AddEntityRelationship( ToEnt( pTarget ), (Disposition_t)disposition, priority );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseCombatCharacter::GetScriptVehicleEntity()
+{
+	return ToHScript( GetVehicleEntity() );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: return true if given target cant be seen because of fog

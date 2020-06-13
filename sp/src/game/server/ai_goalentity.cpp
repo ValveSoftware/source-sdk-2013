@@ -38,6 +38,15 @@ BEGIN_DATADESC( CAI_GoalEntity )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CAI_GoalEntity, CBaseEntity, "The base class for goal entities used to control NPC behavior." )
+
+	DEFINE_SCRIPTFUNC( IsActive, "Check if the goal entity is active." )
+	DEFINE_SCRIPTFUNC( NumActors, "Get the number of actors using this goal entity." )
+
+END_SCRIPTDESC();
+#endif
+
 
 //-------------------------------------
 

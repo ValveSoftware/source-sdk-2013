@@ -900,6 +900,23 @@ BEGIN_DATADESC( CAI_Hint )
 
 END_DATADESC( );
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CAI_Hint, CBaseEntity, "An entity which gives contextual pointers for NPCs." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetHintType, "GetHintType", "Get the hint's type ID." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetUser, "GetUser", "Get the hint's current user." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetHintGroup, "GetHintGroup", "Get the name of the hint's group." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetHintActivity, "GetHintActivity", "Get the name of the hint activity." )
+
+	DEFINE_SCRIPTFUNC( IsDisabled, "Check if the hint is disabled." )
+	DEFINE_SCRIPTFUNC( IsLocked, "Check if the hint is locked." )
+	DEFINE_SCRIPTFUNC( GetNodeId, "Get the hint's node ID." )
+	DEFINE_SCRIPTFUNC( Yaw, "Get the hint's yaw." )
+	DEFINE_SCRIPTFUNC( GetDirection, "Get the hint's direction." )
+
+END_SCRIPTDESC();
+#endif
+
 //------------------------------------------------------------------------------
 // Purpose : 
 //------------------------------------------------------------------------------

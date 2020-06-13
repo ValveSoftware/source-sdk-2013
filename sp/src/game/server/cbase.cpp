@@ -396,6 +396,28 @@ void CBaseEntityOutput::AddEventAction( CEventAction *pEventAction )
 	m_ActionList = pEventAction;
 }
 
+void CBaseEntityOutput::RemoveEventAction( CEventAction *pEventAction )
+{
+	CEventAction *pAction = GetActionList();
+	CEventAction *pPrevAction = NULL;
+	while ( pAction )
+	{
+		if ( pAction == pEventAction )
+		{
+			if ( !pPrevAction )
+			{
+				m_ActionList = NULL;
+			}
+			else
+			{
+				pPrevAction->m_pNext = pAction->m_pNext;
+			}
+			return;
+		}
+		pAction = pAction->m_pNext;
+	}
+}
+
 
 // save data description for the event queue
 BEGIN_SIMPLE_DATADESC( CBaseEntityOutput )

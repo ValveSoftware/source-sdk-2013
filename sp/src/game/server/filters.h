@@ -38,6 +38,9 @@ class CBaseFilter : public CLogicalEntity
 public:
 
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 	bool PassesFilter( CBaseEntity *pCaller, CBaseEntity *pEntity );
 #ifdef MAPBASE
@@ -54,6 +57,14 @@ public:
 	bool PassesDamageFilter( const CTakeDamageInfo &info );
 #else
 	bool PassesDamageFilter( const CTakeDamageInfo &info );
+#endif
+
+#ifdef MAPBASE_VSCRIPT
+	bool ScriptPassesFilter( HSCRIPT pCaller, HSCRIPT pEntity );
+	bool ScriptPassesDamageFilter( HSCRIPT pCaller, HSCRIPT pInfo );
+	bool ScriptPassesFinalDamageFilter( HSCRIPT pCaller, HSCRIPT pInfo );
+	bool ScriptBloodAllowed( HSCRIPT pCaller, HSCRIPT pInfo );
+	bool ScriptDamageMod( HSCRIPT pCaller, HSCRIPT pInfo );
 #endif
 
 	bool m_bNegated;

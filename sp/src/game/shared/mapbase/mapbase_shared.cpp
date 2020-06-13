@@ -244,7 +244,7 @@ public:
 		pKV->deleteThis();
 	}
 	
-	void AddManifestFile( const char *file, bool bDontStore = false )
+	void AddManifestFile( const char *file )
 	{
 		KeyValues *pKV = new KeyValues(file);
 		if ( !pKV->LoadFromFile( filesystem, file ) )
@@ -364,6 +364,24 @@ public:
 			}
 		}
 	}
+
+#ifdef MAPBASE_VSCRIPT
+	void ScriptAddManifestFile( const char *szScript ) { AddManifestFile( szScript ); }
+
+	void LoadSoundscriptFile( const char *szScript ) { LoadFromValue(szScript, MANIFEST_SOUNDSCRIPTS, false); }
+#ifndef CLIENT_DLL
+	void LoadTalkerFile( const char *szScript ) { LoadFromValue( szScript, MANIFEST_TALKER, false ); }
+	void LoadActbusyFile( const char *szScript ) { LoadFromValue( szScript, MANIFEST_ACTBUSY, false ); }
+#endif
+
+	const char *GetModName() { return g_iszGameName; }
+	bool IsCoreMapbase() { return g_bMapbaseCore; }
+
+	virtual void RegisterVScript()
+	{
+		g_pScriptVM->RegisterInstance( this, "Mapbase" );
+	}
+#endif
 };
 
 CMapbaseSystem	g_MapbaseSystem;
@@ -373,6 +391,19 @@ BEGIN_DATADESC_NO_BASE( CMapbaseSystem )
 	//DEFINE_UTLVECTOR( m_StoredManifestFiles, FIELD_STRING ),
 
 END_DATADESC()
+
+#ifdef MAPBASE_VSCRIPT
+BEGIN_SCRIPTDESC_ROOT( CMapbaseSystem, SCRIPT_SINGLETON "All-purpose Mapbase system primarily used for map-specific files." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddManifestFile, "AddManifestFile", "Loads a manifest file." )
+	DEFINE_SCRIPTFUNC( LoadSoundscriptFile, "Loads a custom soundscript file." )
+#ifndef CLIENT_DLL
+	DEFINE_SCRIPTFUNC( LoadTalkerFile, "Loads a custom talker file." )
+	DEFINE_SCRIPTFUNC( LoadActbusyFile, "Loads a custom actbusy file." )
+#endif
+	DEFINE_SCRIPTFUNC( GetModName, "Gets the name of the mod. This is the name which shows up on Steam, RPC, etc." )
+	DEFINE_SCRIPTFUNC( IsCoreMapbase, "Indicates whether this is one of the original Mapbase mods or just a separate mod using its code." )
+END_SCRIPTDESC();
+#endif
 
 #ifdef GAME_DLL
 static CUtlVector<MODTITLECOMMENT> g_MapbaseChapterMaps;
@@ -437,7 +468,7 @@ ThreeState_t Flashlight_GetLegacyVersionKey()
 
 static void CC_Mapbase_LoadManifestFile( const CCommand& args )
 {
-	g_MapbaseSystem.AddManifestFile(args[1], args[2]);
+	g_MapbaseSystem.AddManifestFile(args[1]);
 }
 
 static ConCommand mapbase_loadmanifestfile("mapbase_loadmanifestfile", CC_Mapbase_LoadManifestFile, "Loads a Mapbase manifest file. If you don't want this to be saved and found when reloaded, type a '1' after the file path." );

@@ -98,6 +98,15 @@ BEGIN_DATADESC( CAI_BaseActor )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CAI_BaseActor, CAI_BaseNPC, "The base class for NPCs which act in complex choreo scenes." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddLookTarget, "AddLookTarget", "Add a potential look target for this actor." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddLookTargetPos, "AddLookTargetPos", "Add a potential look target position for this actor." )
+
+END_SCRIPTDESC();
+#endif
+
 
 BEGIN_SIMPLE_DATADESC( CAI_InterestTarget_t )
 	DEFINE_FIELD( m_eType,		FIELD_INTEGER ),

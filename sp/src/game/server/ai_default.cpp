@@ -386,6 +386,44 @@ CAI_Schedule *CAI_BaseNPC::GetScheduleOfType( int scheduleType )
 	scheduleType = TranslateSchedule( scheduleType );
 	AI_PROFILE_SCOPE_END();
 
+#ifdef MAPBASE_VSCRIPT
+	if ( m_ScriptScope.IsInitialized() )
+	{
+		// Some of this code should know if there's a function first, so look
+		// up the function beforehand instead of using CallScriptFunction()
+		HSCRIPT hFunc = m_ScriptScope.LookupFunction( "NPC_TranslateSchedule" );
+		if (hFunc)
+		{
+			int newSchedule = scheduleType;
+			if ( AI_IdIsLocal( newSchedule ) )
+			{
+				newSchedule = GetClassScheduleIdSpace()->ScheduleLocalToGlobal(newSchedule);
+			}
+
+			g_pScriptVM->SetValue( "schedule", GetSchedulingSymbols()->ScheduleIdToSymbol( newSchedule ) );
+			g_pScriptVM->SetValue( "schedule_id", scheduleType ); // Use the local ID
+
+			ScriptVariant_t functionReturn;
+			m_ScriptScope.Call( hFunc, &functionReturn );
+
+			if (functionReturn.m_type == FIELD_INTEGER)
+			{
+				newSchedule = functionReturn.m_int;
+			}
+			else
+			{
+				newSchedule = GetScheduleID( functionReturn.m_pszString );
+			}
+
+			if (newSchedule != scheduleType && newSchedule > -1)
+				scheduleType = newSchedule;
+
+			g_pScriptVM->ClearValue( "schedule" );
+			g_pScriptVM->ClearValue( "schedule_id" );
+		}
+	}
+#endif
+
 	// Get a pointer to that schedule
 	CAI_Schedule *schedule = GetSchedule(scheduleType);
 
