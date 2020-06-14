@@ -56,19 +56,6 @@ string_t gm_isz_name_activator;
 
 // -------------------------------------------------------------
 
-// Does the classname of this entity match the string_t?
-// 
-// This function is for comparing global strings and allows us to change how we compare them quickly.
-inline bool EntIsClass( CBaseEntity *ent, string_t str2 )
-{
-	//return ent->ClassMatches(str2);
-
-	// Since classnames are pooled, the global string and the entity's classname should point to the same string in memory.
-	// As long as this rule is preserved, we only need a pointer comparison. A string comparison isn't necessary.
-	// Feel free to correct me if I'm disastrously wrong.
-	return ent->m_iClassname == str2;
-}
-
 // We know it hasn't been allocated yet
 #define INITIALIZE_GLOBAL_STRING(string, text) string = AllocPooledString(text) //SetGlobalString(string, text)
 

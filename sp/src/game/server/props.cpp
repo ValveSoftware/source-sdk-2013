@@ -6263,7 +6263,7 @@ public:
 		if (m_debugOverlays & OVERLAY_TEXT_BIT)
 		{
 			char tempstr[512];
-			Q_snprintf(tempstr, sizeof(tempstr), "Flare Duration: %d", GetEnvFlareLifetime(m_hFlareEnt));
+			Q_snprintf(tempstr, sizeof(tempstr), "Flare Duration: %f", GetEnvFlareLifetime(m_hFlareEnt));
 			EntityText(text_offset, tempstr, 0);
 			text_offset++;
 		}

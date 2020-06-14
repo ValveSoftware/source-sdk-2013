@@ -20,7 +20,7 @@ private:
 
 	// Used by gamerules to fire OnSkillChanged.
 	// Passes the level it changed to as well.
-	void InputSkillLevelChanged(inputdata_t &inputdata) { m_bListeningForSkillChanges ? m_OnSkillChanged.Set(inputdata.value.Int(), inputdata.pActivator, this) : 0; }
+	void InputSkillLevelChanged(inputdata_t &inputdata) { m_bListeningForSkillChanges ? m_OnSkillChanged.Set(inputdata.value.Int(), inputdata.pActivator, this) : (void)0; }
 
 	COutputInt m_OnSkillChanged;
 	COutputEvent m_OnEasy;

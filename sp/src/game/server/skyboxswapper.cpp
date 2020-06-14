@@ -52,7 +52,7 @@ void CSkyboxSwapper::Precache( void )
 {
 	if ( Q_strlen( m_iszSkyboxName.ToCStr() ) == 0 )
 	{
-		Warning( "skybox_swapper (%s) has no skybox specified!\n", GetEntityName() );
+		Warning( "skybox_swapper (%s) has no skybox specified!\n", STRING(GetEntityName()) );
 		return;
 	}
 
@@ -73,7 +73,7 @@ void CSkyboxSwapper::InputTrigger( inputdata_t &inputdata )
 	static ConVarRef skyname( "sv_skyname", false );
 	if ( !skyname.IsValid() )
 	{
-		Warning( "skybox_swapper (%s) trigger input failed - cannot find 'sv_skyname' convar!\n", GetEntityName() );
+		Warning( "skybox_swapper (%s) trigger input failed - cannot find 'sv_skyname' convar!\n", STRING(GetEntityName()) );
 		return;
 	}
 	skyname.SetValue( m_iszSkyboxName.ToCStr() );

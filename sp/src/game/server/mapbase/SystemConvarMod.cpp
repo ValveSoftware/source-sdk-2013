@@ -72,7 +72,7 @@ void CV_GlobalChange_Mapbase( IConVar *var, const char *pOldString, float flOldV
 //-----------------------------------------------------------------------------
 void CC_MapbaseNotChangingCVars( void )
 {
-	SetChangingCVars( false );
+	SetChangingCVars( NULL );
 }
 static ConCommand mapbase_cvarsnotchanging("mapbase_cvarsnotchanging", CC_MapbaseNotChangingCVars, "An internal command used for ConVar modification.", FCVAR_HIDDEN);
 

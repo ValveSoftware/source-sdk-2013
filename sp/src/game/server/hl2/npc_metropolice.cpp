@@ -1139,13 +1139,6 @@ void CNPC_MetroPolice::SpeakSentence( int nSentenceType )
 #ifdef METROPOLICE_USES_RESPONSE_SYSTEM
 //=========================================================
 //=========================================================
-inline bool CNPC_MetroPolice::SpeakIfAllowed( const char *concept, SentencePriority_t sentencepriority, SentenceCriteria_t sentencecriteria )
-{
-	return SpeakIfAllowed( concept, NULL, sentencepriority, sentencecriteria );
-}
-
-//=========================================================
-//=========================================================
 bool CNPC_MetroPolice::SpeakIfAllowed( const char *concept, const char *modifiers, SentencePriority_t sentencepriority, SentenceCriteria_t sentencecriteria )
 {
 	AI_CriteriaSet set;

@@ -94,9 +94,9 @@ ifeq ($(OS),Linux)
 		# So symbols like _Z16ClearMultiDamagev should show up when you do "nm server_srv.so" in TF2.
 		STRIP_FLAGS = -x
 	endif
-	# core2 = MMX, SSE, SSE2, SSE3, SSSE3
-	MARCH_TARGET = core2
-	MTUNE_TARGET = sandybridge
+	# nocona = MMX, SSE, SSE2, SSE3
+	MARCH_TARGET = nocona
+	MTUNE_TARGET = generic
 
 	ifeq ($(CXX),clang++)
 		# Clang does not support -mfpmath=sse because it uses whatever
@@ -174,7 +174,7 @@ ifeq ($(OS),Linux)
 	LIB_END_EXE = -Wl,--end-group -lm -ldl $(LIBSTDCXX) -lpthread 
 
 	LIB_START_SHLIB = $(PATHWRAP) -static-libgcc -Wl,--start-group
-	LIB_END_SHLIB = -Wl,--end-group -lm -ldl $(LIBSTDCXXPIC) -lpthread -l:$(LD_SO) -Wl,--version-script=$(SRCROOT)/devtools/version_script.linux.txt
+	LIB_END_SHLIB = -Wl,--end-group $(SRCROOT)/devtools/gcc9+support.o -lm -ldl $(LIBSTDCXXPIC) -lpthread -l:$(LD_SO) -Wl,--version-script=$(SRCROOT)/devtools/version_script.linux.txt
 
 endif
 

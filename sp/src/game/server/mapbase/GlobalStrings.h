@@ -5,6 +5,12 @@
 // $NoKeywords: $
 //=============================================================================
 
+#ifndef MAPBASE_GLOBAL_STRINGS_H
+#define MAPBASE_GLOBAL_STRINGS_H
+#ifdef _WIN32
+#pragma once
+#endif
+
 #include "cbase.h"
 
 // -------------------------------------------------------------
@@ -67,10 +73,20 @@ extern string_t gm_isz_name_activator;
 // Does the classname of this entity match the string_t?
 // 
 // This function is for comparing global strings and allows us to change how we compare them quickly.
-extern bool EntIsClass( CBaseEntity *ent, string_t str2 );
+inline bool EntIsClass( CBaseEntity *ent, string_t str2 )
+{
+	//return ent->ClassMatches(str2);
+
+	// Since classnames are pooled, the global string and the entity's classname should point to the same string in memory.
+	// As long as this rule is preserved, we only need a pointer comparison. A string comparison isn't necessary.
+	// Feel free to correct me if I'm disastrously wrong.
+	return ent->m_iClassname == str2;
+}
 
 // -------------------------------------------------------------
 
-extern void InitGlobalStrings();
+void InitGlobalStrings();
 
 // -------------------------------------------------------------
+
+#endif

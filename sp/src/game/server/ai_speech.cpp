@@ -441,7 +441,7 @@ void CAI_Expresser::MergeModifiers( AI_CriteriaSet& set, const char *modifiers )
 //			NULL - 
 // Output : AI_Response
 //-----------------------------------------------------------------------------
-AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, AI_CriteriaSet &modifiers )
+AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, const AI_CriteriaSet &modifiers )
 {
 	IResponseSystem *rs = GetOuter()->GetResponseSystem();
 	if ( !rs )
@@ -536,7 +536,7 @@ AI_Response *CAI_Expresser::SpeakFindResponse( AIConcept_t concept, AI_CriteriaS
 // Input  : *response - 
 //-----------------------------------------------------------------------------
 #ifdef MAPBASE
-bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *result, IRecipientFilter *filter, AI_CriteriaSet *modifiers )
+bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *result, IRecipientFilter *filter, const AI_CriteriaSet *modifiers )
 #else
 bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t concept, AI_Response *result, IRecipientFilter *filter /* = NULL */ )
 #endif
@@ -833,7 +833,7 @@ bool CAI_Expresser::Speak( AIConcept_t concept, const char *modifiers /*= NULL*/
 // Input  : concept - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CAI_Expresser::Speak( AIConcept_t concept, AI_CriteriaSet& modifiers, char *pszOutResponseChosen /* = NULL*/, size_t bufsize /* = 0 */, IRecipientFilter *filter /* = NULL */ )
+bool CAI_Expresser::Speak( AIConcept_t concept, const AI_CriteriaSet& modifiers, char *pszOutResponseChosen /* = NULL*/, size_t bufsize /* = 0 */, IRecipientFilter *filter /* = NULL */ )
 {
 	AI_Response *result = SpeakFindResponse( concept, modifiers );
 	if ( !result )
