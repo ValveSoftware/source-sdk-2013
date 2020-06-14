@@ -83,13 +83,15 @@ static const char *g_pszRPCNames[] = {
 // There can be only one...for each RPC.
 static EHANDLE g_Metadata[NUM_RPCS];
 
-#define CMapbaseMetadata C_MapbaseMetadata
-
 // Don't update constantly
 #define RPC_UPDATE_COOLDOWN 5.0f
 
 // How long to wait before updating in case multiple variables are changing
 #define RPC_UPDATE_WAIT 0.25f
+#endif
+
+#ifdef CLIENT_DLL
+#define CMapbaseMetadata C_MapbaseMetadata
 #endif
 
 class CMapbaseMetadata : public CBaseEntity
@@ -101,6 +103,7 @@ public:
 	DECLARE_NETWORKCLASS();
 	DECLARE_CLASS( CMapbaseMetadata, CBaseEntity );
 
+#ifdef MAPBASE_RPC
 #ifdef CLIENT_DLL
 	~C_MapbaseMetadata()
 	{
@@ -174,15 +177,18 @@ public:
 		return SetTransmitState( FL_EDICT_ALWAYS );
 	}
 #endif
+#endif
 
 #ifdef CLIENT_DLL
-	// Built-in update spam limiter
-	float m_flRPCUpdateTimer = RPC_UPDATE_COOLDOWN;
-
 	char m_iszRPCState[128];
 	char m_iszRPCDetails[128];
 
+#ifdef MAPBASE_RPC
+	// Built-in update spam limiter
+	float m_flRPCUpdateTimer = RPC_UPDATE_COOLDOWN;
+
 	int		m_spawnflags;
+#endif
 #else
 	CNetworkVar( string_t, m_iszRPCState );
 	CNetworkVar( string_t, m_iszRPCDetails );
@@ -198,6 +204,7 @@ IMPLEMENT_NETWORKCLASS_ALIASED(MapbaseMetadata, DT_MapbaseMetadata)
 
 BEGIN_NETWORK_TABLE_NOBASE(CMapbaseMetadata, DT_MapbaseMetadata)
 
+#ifdef MAPBASE_RPC
 #ifdef CLIENT_DLL
 	RecvPropString(RECVINFO(m_iszRPCState)),
 	RecvPropString(RECVINFO(m_iszRPCDetails)),
@@ -206,6 +213,7 @@ BEGIN_NETWORK_TABLE_NOBASE(CMapbaseMetadata, DT_MapbaseMetadata)
 	SendPropStringT(SENDINFO(m_iszRPCState) ),
 	SendPropStringT(SENDINFO(m_iszRPCDetails) ),
 	SendPropInt( SENDINFO(m_spawnflags), 8, SPROP_UNSIGNED ),
+#endif
 #endif
 
 END_NETWORK_TABLE()
