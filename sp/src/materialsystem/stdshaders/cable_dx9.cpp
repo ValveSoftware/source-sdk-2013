@@ -8,9 +8,9 @@
 
 #include "BaseVSShader.h"
 
-#include "sdk_cable_vs20.inc"
-#include "sdk_cable_ps20.inc"
-#include "sdk_cable_ps20b.inc"
+#include "SDK_cable_vs20.inc"
+#include "SDK_cable_ps20.inc"
+#include "SDK_cable_ps20b.inc"
 #include "cpp_shader_constant_register_map.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

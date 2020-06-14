@@ -6,7 +6,7 @@
 //===========================================================================//
 
 #include "BaseVSShader.h"
-#include "mathlib/VMatrix.h"
+#include "mathlib/vmatrix.h"
 #include "common_hlsl_cpp_consts.h" // hack hack hack!
 
 #include "SDK_lightmappedreflective_vs20.inc"

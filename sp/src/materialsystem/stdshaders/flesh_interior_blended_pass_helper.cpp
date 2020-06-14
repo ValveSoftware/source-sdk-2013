@@ -124,9 +124,9 @@
 #include "flesh_interior_blended_pass_helper.h"
 
 // Auto generated inc files
-#include "sdk_flesh_interior_blended_pass_vs20.inc"
-#include "sdk_flesh_interior_blended_pass_ps20.inc"
-#include "sdk_flesh_interior_blended_pass_ps20b.inc"
+#include "SDK_flesh_interior_blended_pass_vs20.inc"
+#include "SDK_flesh_interior_blended_pass_ps20.inc"
+#include "SDK_flesh_interior_blended_pass_ps20b.inc"
 
 void InitParamsFleshInteriorBlendedPass( CBaseVSShader *pShader, IMaterialVar** params, const char *pMaterialName, FleshInteriorBlendedPassVars_t &info )
 {

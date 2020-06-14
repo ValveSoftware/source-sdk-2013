@@ -85,7 +85,7 @@
 ==================================================================================================== */
 
 #include "BaseVSShader.h"
-#include "mathlib/VMatrix.h"
+#include "mathlib/vmatrix.h"
 #include "emissive_scroll_blended_pass_helper.h"
 #include "convar.h"
 

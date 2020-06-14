@@ -9,9 +9,9 @@
 #include "BaseVSShader.h"
 #include "shaderlib/cshader.h"
 
-#include "sdk_eyeglint_vs20.inc"
-#include "sdk_eyeglint_ps20.inc"
-#include "sdk_eyeglint_ps20b.inc"
+#include "SDK_eyeglint_vs20.inc"
+#include "SDK_eyeglint_ps20.inc"
+#include "SDK_eyeglint_ps20b.inc"
 
 DEFINE_FALLBACK_SHADER( SDK_EyeGlint, SDK_EyeGlint_dx9 )
 BEGIN_VS_SHADER( SDK_EyeGlint_dx9, "Help for SDK_EyeGlint" )

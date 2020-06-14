@@ -29,7 +29,7 @@ SDK_depthwrite_ps2x.fxc
 SDK_depthwrite_vs20.fxc
 
 SDK_eyes_ps2x.fxc
-SDK_Eyes_vs20.fxc
+SDK_eyes_vs20.fxc
 SDK_eye_refract_ps2x.fxc
 SDK_eye_refract_vs20.fxc
 SDK_eyes_flashlight_ps2x.fxc

@@ -130,7 +130,7 @@
 ==================================================================================================== */
 
 #include "BaseVSShader.h"
-#include "mathlib/VMatrix.h"
+#include "mathlib/vmatrix.h"
 #include "cloak_blended_pass_helper.h"
 #include "convar.h"
 

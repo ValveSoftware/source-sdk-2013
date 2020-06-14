@@ -3,9 +3,9 @@
 #include "BaseVSShader.h"
 #include "convar.h"
 
-#include "sdk_splinerope_ps20.inc"
-#include "sdk_splinerope_ps20b.inc"
-#include "sdk_splinerope_vs20.inc"
+#include "SDK_splinerope_ps20.inc"
+#include "SDK_splinerope_ps20b.inc"
+#include "SDK_splinerope_vs20.inc"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
