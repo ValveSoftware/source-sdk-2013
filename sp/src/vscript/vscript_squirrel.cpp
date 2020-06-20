@@ -1071,7 +1071,7 @@ SQInteger IsValid_stub(HSQUIRRELVM vm)
 {
 	ClassInstanceData* classInstanceData = nullptr;
 	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
-	sq_pushbool(vm, classInstanceData == nullptr);
+	sq_pushbool(vm, classInstanceData != nullptr);
 	return 1;
 }
 
