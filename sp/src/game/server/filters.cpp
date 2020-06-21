@@ -1461,7 +1461,7 @@ public:
 			return TestEntityTriggerIntersection_Accurate(pVolume, pTarget);
 		else
 		{
-			Msg("%s cannot find target entity %s, returning false\n", STRING(m_iszVolumeTester));
+			Msg("%s cannot find target entity %s, returning false\n", GetDebugName(), STRING(m_iszVolumeTester));
 			return false;
 		}
 	}

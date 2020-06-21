@@ -119,11 +119,11 @@ public:
 #if AI_MONITOR_USE_UTLVECTOR
 	inline void			SetCondition( int iCondition ) { m_Conditions.HasElement(iCondition) ? NULL : m_Conditions.AddToTail(iCondition); }
 	inline void			ClearCondition( int iCondition ) { m_Conditions.FindAndRemove(iCondition); }
-	inline bool			HasCondition( int iCondition ) { m_Conditions.HasElement(iCondition); }
+	inline bool			HasCondition( int iCondition ) { return m_Conditions.HasElement(iCondition); }
 #else
 	inline void			SetCondition( int iCondition ) { m_Conditions.Set(iCondition); }
 	inline void			ClearCondition( int iCondition ) { m_Conditions.Clear(iCondition); }
-	inline bool			HasCondition( int iCondition ) { m_Conditions.IsBitSet(iCondition); }
+	inline bool			HasCondition( int iCondition ) { return m_Conditions.IsBitSet(iCondition); }
 #endif
 
 	static int			GetConditionID(const char* condName) { return CAI_BaseNPC::GetSchedulingSymbols()->ConditionSymbolToId(condName); }
@@ -150,11 +150,11 @@ public:
 #if AI_MONITOR_USE_UTLVECTOR
 	inline void			SetSchedule( int iSchedule ) { m_Schedules.HasElement(iSchedule) ? NULL : m_Schedules.AddToTail(iSchedule); }
 	inline void			ClearSchedule( int iSchedule ) { m_Schedules.FindAndRemove(iSchedule); }
-	inline bool			HasSchedule( int iSchedule ) { m_Schedules.HasElement(iSchedule); }
+	inline bool			HasSchedule( int iSchedule ) { return m_Schedules.HasElement(iSchedule); }
 #else
 	inline void			SetSchedule( int iSchedule ) { m_Schedules.Set(iSchedule); }
 	inline void			ClearSchedule( int iSchedule ) { m_Schedules.Clear(iSchedule); }
-	inline bool			HasSchedule( int iSchedule ) { m_Schedules.IsBitSet(iSchedule); }
+	inline bool			HasSchedule( int iSchedule ) { return m_Schedules.IsBitSet(iSchedule); }
 #endif
 
 	static int			GetScheduleID(const char* schedName) { return CAI_BaseNPC::GetSchedulingSymbols()->ScheduleSymbolToId(schedName); }
@@ -179,7 +179,7 @@ public:
 
 	inline void			SetHint( int iHint ) { m_Hints.HasElement(iHint) ? NULL : m_Hints.AddToTail(iHint); }
 	inline void			ClearHint( int iHint ) { m_Hints.FindAndRemove(iHint); }
-	inline bool			HasHint( int iHint ) { m_Hints.HasElement(iHint); }
+	inline bool			HasHint( int iHint ) { return m_Hints.HasElement(iHint); }
 
 	// Only register a hint as "being used" when the NPC is this distance away or less
 	float m_flDistanceFromHint;

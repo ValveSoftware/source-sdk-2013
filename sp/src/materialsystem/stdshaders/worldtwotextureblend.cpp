@@ -11,8 +11,8 @@
 #include "convar.h"
 
 #include "SDK_lightmappedgeneric_vs20.inc"
-#include "SDK_WorldTwoTextureBlend_ps20.inc"
-#include "SDK_WorldTwoTextureBlend_ps20b.inc"
+#include "SDK_worldtwotextureblend_ps20.inc"
+#include "SDK_worldtwotextureblend_ps20b.inc"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

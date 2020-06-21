@@ -9,8 +9,8 @@
 #include "vertexlitgeneric_dx9_helper.h"
 #include "skin_dx9_helper.h"
 
-#include "SDK_VertexLit_and_unlit_Generic_vs20.inc"
-#include "SDK_VertexLit_and_unlit_Generic_bump_vs20.inc"
+#include "SDK_vertexlit_and_unlit_generic_vs20.inc"
+#include "SDK_vertexlit_and_unlit_generic_bump_vs20.inc"
 
 //#include "SDK_vertexlit_and_unlit_generic_ps20.inc"
 #include "SDK_vertexlit_and_unlit_generic_ps20b.inc"

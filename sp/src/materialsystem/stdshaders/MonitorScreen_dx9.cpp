@@ -5,9 +5,9 @@
 //=============================================================================//
 
 #include "BaseVSShader.h"
-#include "sdk_unlittwotexture_vs20.inc"
-#include "sdk_monitorscreen_ps20.inc"
-#include "sdk_monitorscreen_ps20b.inc"
+#include "SDK_unlittwotexture_vs20.inc"
+#include "SDK_monitorscreen_ps20.inc"
+#include "SDK_monitorscreen_ps20b.inc"
 #include "cpp_shader_constant_register_map.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

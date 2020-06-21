@@ -15,9 +15,9 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#include "sdk_sprite_vs20.inc"
-#include "sdk_sprite_ps20.inc"
-#include "sdk_sprite_ps20b.inc"
+#include "SDK_sprite_vs20.inc"
+#include "SDK_sprite_ps20.inc"
+#include "SDK_sprite_ps20b.inc"
 
 // WARNING!  Change these in engine/SpriteGn.h if you change them here!
 #define SPR_VP_PARALLEL_UPRIGHT		0

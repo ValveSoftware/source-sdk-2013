@@ -4258,17 +4258,8 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 				{
 					// found a match
 
-					char szBuffer[256];
 					// mapper debug message
-					if (pCaller != NULL)
-					{
-						Q_snprintf( szBuffer, sizeof(szBuffer), "(%0.2f) input %s: %s.%s(%s)\n", gpGlobals->curtime, STRING(pCaller->m_iName.Get()), GetDebugName(), szInputName, Value.String() );
-					}
-					else
-					{
-						Q_snprintf( szBuffer, sizeof(szBuffer), "(%0.2f) input <NULL>: %s.%s(%s)\n", gpGlobals->curtime, GetDebugName(), szInputName, Value.String() );
-					}
-					DevMsg( 2, "%s", szBuffer );
+					DevMsg( 2, "(%0.2f) input %s: %s.%s(%s)\n", gpGlobals->curtime, pCaller ? STRING(pCaller->m_iName.Get()) : "<NULL>", GetDebugName(), szInputName, Value.String() );
 					ADD_DEBUG_HISTORY( HISTORY_ENTITY_IO, szBuffer );
 
 					if (m_debugOverlays & OVERLAY_MESSAGE_BIT)

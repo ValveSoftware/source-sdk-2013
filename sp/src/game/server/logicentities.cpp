@@ -3752,14 +3752,14 @@ public:
 
 	// TODO: Replace "append" with variable arguments?
 	inline void LCMsg(const char *msg, const char *append = NULL) { ConColorMsg(m_MsgColor, msg, append); }
-	inline void LCDevMsg(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ConColorMsg(m_MsgColor, msg, append) : 0; }
+	inline void LCDevMsg(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ConColorMsg(m_MsgColor, msg, append) : (void)0; }
 	inline void LCWarning(const char *msg, const char *append = NULL) { ConColorMsg(m_WarningColor, msg, append); }
-	inline void LCDevWarning(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ConColorMsg(m_WarningColor, msg, append) : 0; }
+	inline void LCDevWarning(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ConColorMsg(m_WarningColor, msg, append) : (void)0; }
 
 	//inline void LCMsg(const char *msg, const char *append = NULL) { ColorSpewMessage(SPEW_MESSAGE, &m_MsgColor, msg, append); }
-	//inline void LCDevMsg(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ColorSpewMessage(SPEW_MESSAGE, &m_MsgColor, msg, append) : 0; }
+	//inline void LCDevMsg(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ColorSpewMessage(SPEW_MESSAGE, &m_MsgColor, msg, append) : (void)0; }
 	//inline void LCWarning(const char *msg, const char *append = NULL) { ColorSpewMessage(SPEW_MESSAGE, &m_WarningColor, msg, append); }
-	//inline void LCDevWarning(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ColorSpewMessage(SPEW_MESSAGE, &m_WarningColor, msg, append) : 0; }
+	//inline void LCDevWarning(int lvl, const char *msg, const char *append = NULL) { developer.GetInt() >= lvl ? ColorSpewMessage(SPEW_MESSAGE, &m_WarningColor, msg, append) : (void)0; }
 
 	// Inputs
 	void InputSendMsg( inputdata_t &inputdata ) { !m_bNewLineNotAuto ? LCMsg("%s\n", inputdata.value.String()) : LCMsg("%s", inputdata.value.String()); }
@@ -3772,7 +3772,7 @@ public:
 
 	// MAPBASE MP TODO: "ClearConsoleOnTarget"
 	// (and make this input broadcast to all players)
-	void InputClearConsole( inputdata_t &inputdata ) { UTIL_GetLocalPlayer() ? engine->ClientCommand(UTIL_GetLocalPlayer()->edict(), "clear") : NULL; }
+	void InputClearConsole( inputdata_t &inputdata ) { UTIL_GetLocalPlayer() ? engine->ClientCommand(UTIL_GetLocalPlayer()->edict(), "clear") : (void)0; }
 
 	DECLARE_DATADESC();
 };
@@ -4320,7 +4320,7 @@ inline float CMathClamp::ClampValue(float input, float min, float max, int *boun
 {
 	if ( max < min )
 	{
-		Warning("WARNING: Max value (%i) less than min value (%i) in %s!\n", max, min, GetDebugName());
+		Warning("WARNING: Max value (%f) less than min value (%f) in %s!\n", max, min, GetDebugName());
 		return max;
 	}
 	else if( input < min )
@@ -4750,7 +4750,7 @@ private:
 	bool KeyValue(const char *szKeyName, const char *szValue);
 	bool KeyValue( const char *szKeyName, const Vector &vecValue );
 
-	void UpdateOutValue(CBaseEntity *pActivator, Vector &vecNewValue);
+	void UpdateOutValue(CBaseEntity *pActivator, Vector vecNewValue);
 
 	int DrawDebugTextOverlays(void);
 
@@ -5307,7 +5307,7 @@ void CMathVector::SubtractCoordinate(float value, char coord, CBaseEntity *pActi
 // Purpose: Sets the value to the new value, firing the output value.
 // Input  : vecNewValue - Value to set.
 //-----------------------------------------------------------------------------
-void CMathVector::UpdateOutValue(CBaseEntity *pActivator, Vector &vecNewValue)
+void CMathVector::UpdateOutValue(CBaseEntity *pActivator, Vector vecNewValue)
 {
 	if (HasSpawnFlags( SF_MATH_VECTOR_DISABLE_X ))
 		vecNewValue.x = 0;
@@ -5808,7 +5808,7 @@ void CLogicModelInfo::InputLookupActivity( inputdata_t &inputdata )
 			iActivity = atoi(inputdata.value.String());
 			if (!ActivityList_NameForIndex(iActivity))
 			{
-				Msg("%s received invalid LookupActivity %s\n", inputdata.value.String());
+				Msg("%s received invalid LookupActivity %s\n", GetDebugName(), inputdata.value.String());
 				return;
 			}
 		}
@@ -5896,8 +5896,8 @@ private:
 
 	CBaseEntity *GetTarget(CBaseEntity *pActivator, CBaseEntity *pCaller);
 
-	const Vector &GetPosition(CBaseEntity *pEntity);
-	const QAngle &GetAngles(CBaseEntity *pEntity);
+	Vector GetPosition(CBaseEntity *pEntity);
+	QAngle GetAngles(CBaseEntity *pEntity);
 
 	// Inputs
 	void InputGetPosition( inputdata_t &inputdata );
@@ -5945,7 +5945,7 @@ inline CBaseEntity *CLogicEntityPosition::GetTarget(CBaseEntity *pActivator, CBa
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-const Vector &CLogicEntityPosition::GetPosition(CBaseEntity *pEntity)
+Vector CLogicEntityPosition::GetPosition(CBaseEntity *pEntity)
 {
 	switch (m_iPositionType)
 	{
@@ -5963,8 +5963,7 @@ const Vector &CLogicEntityPosition::GetPosition(CBaseEntity *pEntity)
 				break;
 			}
 
-			// Attachment position doesn't originate anywhere, so use a static variable
-			static Vector vecPosition;
+			Vector vecPosition;
 			pAnimating->GetAttachment(STRING(m_iszPositionParameter), vecPosition);
 			return vecPosition;
 		}
@@ -5975,16 +5974,15 @@ const Vector &CLogicEntityPosition::GetPosition(CBaseEntity *pEntity)
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-const QAngle &CLogicEntityPosition::GetAngles(CBaseEntity *pEntity)
+QAngle CLogicEntityPosition::GetAngles(CBaseEntity *pEntity)
 {
-	const QAngle *angAngles = &vec3_angle;
 	switch (m_iPositionType)
 	{
 	case POSITION_BBOX:
 		case POSITION_EARS:
-		case POSITION_ORIGIN:			angAngles = &pEntity->GetAbsAngles(); break;
-		case POSITION_LOCAL:			angAngles = &pEntity->GetLocalAngles(); break;
-		case POSITION_EYES:				angAngles = &pEntity->EyeAngles(); break;
+		case POSITION_ORIGIN:			return pEntity->GetAbsAngles(); break;
+		case POSITION_LOCAL:			return pEntity->GetLocalAngles(); break;
+		case POSITION_EYES:				return pEntity->EyeAngles(); break;
 		case POSITION_ATTACHMENT:
 		{
 			CBaseAnimating *pAnimating = pEntity->GetBaseAnimating();
@@ -5994,16 +5992,15 @@ const QAngle &CLogicEntityPosition::GetAngles(CBaseEntity *pEntity)
 				break;
 			}
 
-			// Attachment angles don't originate anywhere, so use a static variable
-			static QAngle AttachmentAngles;
+			QAngle AttachmentAngles;
 			matrix3x4_t attachmentToWorld;
 			pAnimating->GetAttachment( pAnimating->LookupAttachment( STRING( m_iszPositionParameter ) ), attachmentToWorld );
 			MatrixAngles( attachmentToWorld, AttachmentAngles );
-			angAngles = &AttachmentAngles;
+			return AttachmentAngles;
 		} break;
 	}
 
-	return *angAngles;
+	return vec3_angle;
 }
 
 //-----------------------------------------------------------------------------

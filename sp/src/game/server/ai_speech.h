@@ -158,15 +158,15 @@ public:
 	
 	bool Speak( AIConcept_t concept, const char *modifiers = NULL, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
 #ifdef MAPBASE
-	bool Speak( AIConcept_t concept, AI_CriteriaSet& modifiers, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
-	AI_Response *SpeakFindResponse( AIConcept_t concept, AI_CriteriaSet& modifiers );
+	bool Speak( AIConcept_t concept, const AI_CriteriaSet& modifiers, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
+	AI_Response *SpeakFindResponse( AIConcept_t concept, const AI_CriteriaSet& modifiers );
 	void MergeModifiers( AI_CriteriaSet& set, const char *modifiers );
 #endif
 
 	// These two methods allow looking up a response and dispatching it to be two different steps
 	AI_Response *SpeakFindResponse( AIConcept_t concept, const char *modifiers = NULL );
 #ifdef MAPBASE
-	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response *response, IRecipientFilter *filter = NULL, AI_CriteriaSet *modifiers = NULL );
+	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response *response, IRecipientFilter *filter = NULL, const AI_CriteriaSet *modifiers = NULL );
 #else
 	bool SpeakDispatchResponse( AIConcept_t concept, AI_Response *response, IRecipientFilter *filter = NULL );
 #endif
@@ -306,13 +306,13 @@ public:
 
 	virtual bool 	Speak( AIConcept_t concept, const char *modifiers = NULL, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
 #ifdef MAPBASE
-	virtual bool 	Speak( AIConcept_t concept, AI_CriteriaSet& modifiers, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
+	virtual bool 	Speak( AIConcept_t concept, const AI_CriteriaSet& modifiers, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );
 #endif
 
 	// These two methods allow looking up a response and dispatching it to be two different steps
 	AI_Response *	SpeakFindResponse( AIConcept_t concept, const char *modifiers = NULL );
 #ifdef MAPBASE
-	AI_Response *	SpeakFindResponse( AIConcept_t concept, AI_CriteriaSet& modifiers );
+	AI_Response *	SpeakFindResponse( AIConcept_t concept, const AI_CriteriaSet& modifiers );
 #endif
 	bool 			SpeakDispatchResponse( AIConcept_t concept, AI_Response *response );
 	virtual void	PostSpeakDispatchResponse( AIConcept_t concept, AI_Response *response ) { return; }
@@ -359,7 +359,7 @@ inline bool CAI_ExpresserHost<BASE_NPC>::Speak( AIConcept_t concept, const char 
 // Version of Speak() that takes a direct AI_CriteriaSet for modifiers.
 //-----------------------------------------------------------------------------
 template <class BASE_NPC>
-inline bool CAI_ExpresserHost<BASE_NPC>::Speak( AIConcept_t concept, AI_CriteriaSet& modifiers, char *pszOutResponseChosen /*=NULL*/, size_t bufsize /* = 0 */, IRecipientFilter *filter /* = NULL */ ) 
+inline bool CAI_ExpresserHost<BASE_NPC>::Speak( AIConcept_t concept, const AI_CriteriaSet& modifiers, char *pszOutResponseChosen /*=NULL*/, size_t bufsize /* = 0 */, IRecipientFilter *filter /* = NULL */ ) 
 {
 	AssertOnce( this->GetExpresser()->GetOuter() == this );
 	return this->GetExpresser()->Speak( concept, modifiers, pszOutResponseChosen, bufsize, filter ); 
@@ -411,7 +411,7 @@ inline AI_Response *CAI_ExpresserHost<BASE_NPC>::SpeakFindResponse( AIConcept_t 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 template <class BASE_NPC>
-inline AI_Response *CAI_ExpresserHost<BASE_NPC>::SpeakFindResponse( AIConcept_t concept, AI_CriteriaSet& modifiers )
+inline AI_Response *CAI_ExpresserHost<BASE_NPC>::SpeakFindResponse( AIConcept_t concept, const AI_CriteriaSet& modifiers )
 {
 	return this->GetExpresser()->SpeakFindResponse( concept, modifiers );
 }

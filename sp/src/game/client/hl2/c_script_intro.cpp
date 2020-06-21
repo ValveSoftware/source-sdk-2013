@@ -440,7 +440,8 @@ const QAngle &C_PlayerViewProxy::EyeAngles( void )
 		float fldummy;
 		pPlayer->CalcView( vecOrigin, angAngles, fldummy, fldummy, fldummy );
 
-		return GetAbsAngles() + (angAngles - pPlayer->GetAbsAngles());
+		angAngles = GetAbsAngles() + (angAngles - pPlayer->GetAbsAngles());
+		return angAngles;
 
 		//return m_hPlayer.Get()->EyeAngles();
 	}
@@ -474,8 +475,11 @@ void C_PlayerViewProxy::GetEyePosition( Vector &vecOrigin, QAngle &angAngles )
 const QAngle &C_PlayerViewProxy::LocalEyeAngles( void )
 {
 	C_BasePlayer *pPlayer = GetPlayer();
-	if (pPlayer)
-		return GetAbsAngles() + (pPlayer->LocalEyeAngles() - pPlayer->GetAbsAngles());
+	if (pPlayer) {
+		static QAngle angAngles;
+		angAngles = GetAbsAngles() + (pPlayer->LocalEyeAngles() - pPlayer->GetAbsAngles());
+		return angAngles;
+	}
 	else
 		return BaseClass::LocalEyeAngles();
 }

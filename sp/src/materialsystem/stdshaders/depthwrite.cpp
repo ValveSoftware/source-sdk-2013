@@ -8,13 +8,13 @@
 
 #include "BaseVSShader.h"
 
-#include "sdk_depthwrite_ps20.inc"
-#include "sdk_depthwrite_ps20b.inc"
-#include "sdk_depthwrite_vs20.inc"
+#include "SDK_depthwrite_ps20.inc"
+#include "SDK_depthwrite_ps20b.inc"
+#include "SDK_depthwrite_vs20.inc"
 
 #if !defined( _X360 )
-#include "sdk_depthwrite_ps30.inc"
-#include "sdk_depthwrite_vs30.inc"
+#include "SDK_depthwrite_ps30.inc"
+#include "SDK_depthwrite_vs30.inc"
 #endif
 
 BEGIN_VS_SHADER_FLAGS( SDK_DepthWrite, "Help for Depth Write", SHADER_NOT_EDITABLE )

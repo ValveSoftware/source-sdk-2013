@@ -9,14 +9,20 @@
 
 #include "matchers.h"
 #include "fmtstr.h"
+
+// glibc (Linux) uses these tokens when including <regex>, so we must not #define them
+#undef max
+#undef min
 #include <regex>
+#undef MINMAX_H
+#include "minmax.h"
 
 ConVar mapbase_wildcards_enabled("mapbase_wildcards_enabled", "1", FCVAR_NONE, "Toggles Mapbase's '?' wildcard and true '*' features. Useful for maps that have '?' in their targetnames.");
 ConVar mapbase_regex_enabled("mapbase_regex_enabled", "1", FCVAR_NONE, "Toggles Mapbase's regex matching handover.");
 
 #ifdef CLIENT_DLL
 // FIXME: There is no clientside equivalent to the RS code
-bool ResponseSystemCompare(const char *criterion, const char *value) { return Matcher_NamesMatch(criterion, value); }
+static bool ResponseSystemCompare(const char *criterion, const char *value) { return Matcher_NamesMatch(criterion, value); }
 #else
 extern bool ResponseSystemCompare(const char *criterion, const char *value);
 #endif
@@ -32,21 +38,20 @@ extern bool ResponseSystemCompare(const char *criterion, const char *value);
 // AppearsToBeANumber - Response System-based function which checks if the string might be a number.
 //=============================================================================
 
-inline bool Matcher_Match(const char *pszQuery, const char *szValue)
+bool Matcher_Match(const char *pszQuery, const char *szValue)
 {
 	// I wasn't kidding when I said all this did was hijack response system matching.
 	return ResponseSystemCompare(pszQuery, szValue);
 }
 
-inline bool Matcher_Match(const char *pszQuery, int iValue) { return Matcher_Match(pszQuery, CNumStr(iValue)); }
-inline bool Matcher_Match(const char *pszQuery, float flValue) { return Matcher_Match(pszQuery, CNumStr(flValue)); }
+bool Matcher_Match(const char *pszQuery, int iValue) { return Matcher_Match(pszQuery, CNumStr(iValue)); }
+bool Matcher_Match(const char *pszQuery, float flValue) { return Matcher_Match(pszQuery, CNumStr(flValue)); }
 
 // -------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------
 
 // The recursive part of Mapbase's modified version of Valve's NamesMatch().
-// This part is no longer inlined since it's recursive.
-/*FORCEINLINE*/ bool Matcher_RunCharCompare(const char *pszQuery, const char *szValue)
+bool Matcher_RunCharCompare(const char *pszQuery, const char *szValue)
 {
 	// This matching model is based off of the ASW SDK
 	while ( *szValue && *pszQuery )
@@ -119,7 +124,7 @@ bool Matcher_Regex(const char *pszQuery, const char *szValue)
 }
 
 // The entry point for Mapbase's modified version of Valve's NamesMatch().
-FORCEINLINE bool Matcher_NamesMatch(const char *pszQuery, const char *szValue)
+bool Matcher_NamesMatch(const char *pszQuery, const char *szValue)
 {
 	if ( szValue == NULL )
 		return (*pszQuery == 0 || *pszQuery == '*');
@@ -142,7 +147,7 @@ FORCEINLINE bool Matcher_NamesMatch(const char *pszQuery, const char *szValue)
 	return Matcher_RunCharCompare( pszQuery, szValue );
 }
 
-FORCEINLINE bool Matcher_NamesMatch_Classic(const char *pszQuery, const char *szValue)
+bool Matcher_NamesMatch_Classic(const char *pszQuery, const char *szValue)
 {
 	if ( szValue == NULL )
 		return (!pszQuery || *pszQuery == 0 || *pszQuery == '*');
@@ -178,7 +183,7 @@ FORCEINLINE bool Matcher_NamesMatch_Classic(const char *pszQuery, const char *sz
 	return false;
 }
 
-FORCEINLINE bool Matcher_NamesMatch_MutualWildcard(const char *pszQuery, const char *szValue)
+bool Matcher_NamesMatch_MutualWildcard(const char *pszQuery, const char *szValue)
 {
 	if ( szValue == NULL )
 		return (!pszQuery || *pszQuery == 0 || *pszQuery == '*');
@@ -219,7 +224,7 @@ FORCEINLINE bool Matcher_NamesMatch_MutualWildcard(const char *pszQuery, const c
 
 // Matcher_Compare is a deprecated alias originally used when Matcher_Match didn't support wildcards.
 /*
-inline bool Matcher_Compare(const char *pszQuery, const char *szValue)
+bool Matcher_Compare(const char *pszQuery, const char *szValue)
 {
 	return Matcher_Match(pszQuery, szValue);
 #if 0
