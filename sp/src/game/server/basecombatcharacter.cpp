@@ -3959,16 +3959,6 @@ bool CBaseCombatCharacter::IsGlowEffectActive( void )
 }
 #endif // GLOWS_ENABLE
 
-#ifdef MAPBASE
-//-----------------------------------------------------------------------------
-// Mapbase adds proficiency override
-//-----------------------------------------------------------------------------
-inline WeaponProficiency_t CBaseCombatCharacter::GetCurrentWeaponProficiency()
-{
-	return (m_ProficiencyOverride > WEAPON_PROFICIENCY_INVALID) ? m_ProficiencyOverride : m_CurrentWeaponProficiency;
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Assume everyone is average with every weapon. Override this to make exceptions.
 //-----------------------------------------------------------------------------

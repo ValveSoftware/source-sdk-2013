@@ -10,23 +10,23 @@
 #include "eyes_dx8_dx9_helper.h"
 #include "cpp_shader_constant_register_map.h"
 #include "SDK_Eyes.inc"
-#include "sdk_eyes_flashlight_vs11.inc"
-#include "sdk_eyes_flashlight_ps11.inc"
+#include "SDK_eyes_flashlight_vs11.inc"
+#include "SDK_eyes_flashlight_ps11.inc"
 
 #ifdef STDSHADER_DX9_DLL_EXPORT
 
-#include "sdk_eyes_vs20.inc"
-#include "sdk_eyes_ps20.inc"
-#include "sdk_eyes_ps20b.inc"
-#include "sdk_eyes_flashlight_vs20.inc"
-#include "sdk_eyes_flashlight_ps20.inc"
-#include "sdk_eyes_flashlight_ps20b.inc"
+#include "SDK_eyes_vs20.inc"
+#include "SDK_eyes_ps20.inc"
+#include "SDK_eyes_ps20b.inc"
+#include "SDK_eyes_flashlight_vs20.inc"
+#include "SDK_eyes_flashlight_ps20.inc"
+#include "SDK_eyes_flashlight_ps20b.inc"
 
 #ifndef _X360
-#include "sdk_eyes_vs30.inc"
-#include "sdk_eyes_ps30.inc"
-#include "sdk_eyes_flashlight_vs30.inc"
-#include "sdk_eyes_flashlight_ps30.inc"
+#include "SDK_eyes_vs30.inc"
+#include "SDK_eyes_ps30.inc"
+#include "SDK_eyes_flashlight_vs30.inc"
+#include "SDK_eyes_flashlight_ps30.inc"
 #endif
 
 #endif

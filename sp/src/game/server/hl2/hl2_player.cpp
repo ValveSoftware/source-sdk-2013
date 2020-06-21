@@ -2193,7 +2193,7 @@ void CHL2_Player::InputSquadForceGoTo( inputdata_t &inputdata )
 	}
 	else
 	{
-		goal.m_pGoalEntity = var.FieldType() == FIELD_EHANDLE ? var.Entity() : gEntList.FindEntityByNameNearest(var.String(), pPlayerSquadLeader->GetAbsOrigin(), 0, this, inputdata.pActivator, inputdata.pCaller);
+		goal.m_pGoalEntity = var.FieldType() == FIELD_EHANDLE ? var.Entity().Get() : gEntList.FindEntityByNameNearest(var.String(), pPlayerSquadLeader->GetAbsOrigin(), 0, this, inputdata.pActivator, inputdata.pCaller);
 		goal.m_vecGoalLocation = vec3_invalid;
 	}
 

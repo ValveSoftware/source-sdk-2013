@@ -704,14 +704,6 @@ Class_T	CNPC_Combine::Classify ( void )
 
 #ifdef MAPBASE
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-inline bool CNPC_Combine::IsElite( void )
-{
-	return m_fIsElite;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Function for gauging whether we're capable of alt-firing.
 //-----------------------------------------------------------------------------
 bool CNPC_Combine::IsAltFireCapable( void )
@@ -2930,14 +2922,6 @@ void CNPC_Combine::SpeakSentence( int sentenceType )
 }
 
 #ifdef COMBINE_SOLDIER_USES_RESPONSE_SYSTEM
-//=========================================================
-//=========================================================
-inline bool CNPC_Combine::SpeakIfAllowed( const char *concept, SentencePriority_t sentencepriority, SentenceCriteria_t sentencecriteria )
-{
-	return SpeakIfAllowed( concept, NULL, sentencepriority, sentencecriteria );
-}
-
-//=========================================================
 //=========================================================
 bool CNPC_Combine::SpeakIfAllowed( const char *concept, const char *modifiers, SentencePriority_t sentencepriority, SentenceCriteria_t sentencecriteria )
 {

@@ -134,10 +134,13 @@ void LoadHudTextures( CUtlDict< CHudTexture *, int >& list, const char *szFilena
 				pTemp = pTemp->GetNextKey();
 			}
 		}
-	}
 
-	// Failed for some reason. Delete the Key data and abort.
-	pKeyValuesData->deleteThis();
+		pKeyValuesData->deleteThis();
+	}
+	else
+	{
+		Warning( "Unable to read script %s.\n", szFilenameWithoutExtension );
+	}
 }
 
 //-----------------------------------------------------------------------------

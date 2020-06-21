@@ -13,9 +13,9 @@
 #include "SDK_WaterCheap_vs20.inc"
 #include "SDK_WaterCheap_ps20.inc"
 #include "SDK_WaterCheap_ps20b.inc"
-#include "sdk_water_vs20.inc"
+#include "SDK_Water_vs20.inc"
 #include "SDK_Water_ps20.inc"
-#include "sdk_water_ps20b.inc"
+#include "SDK_Water_ps20b.inc"
 
 #ifndef _X360
 static ConVar r_waterforceexpensive( "r_waterforceexpensive", "0", FCVAR_ARCHIVE );

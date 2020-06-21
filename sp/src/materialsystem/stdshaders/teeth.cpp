@@ -7,23 +7,23 @@
 #include "BaseVSShader.h"
 #include "cpp_shader_constant_register_map.h"
 
-#include "sdk_teeth_vs20.inc"
-#include "sdk_teeth_flashlight_vs20.inc"
-#include "sdk_teeth_bump_vs20.inc"
-#include "sdk_teeth_ps20.inc"
-#include "sdk_teeth_ps20b.inc"
-#include "sdk_teeth_flashlight_ps20.inc"
-#include "sdk_teeth_flashlight_ps20b.inc"
-#include "sdk_teeth_bump_ps20.inc"
-#include "sdk_teeth_bump_ps20b.inc"
+#include "SDK_teeth_vs20.inc"
+#include "SDK_teeth_flashlight_vs20.inc"
+#include "SDK_teeth_bump_vs20.inc"
+#include "SDK_teeth_ps20.inc"
+#include "SDK_teeth_ps20b.inc"
+#include "SDK_teeth_flashlight_ps20.inc"
+#include "SDK_teeth_flashlight_ps20b.inc"
+#include "SDK_teeth_bump_ps20.inc"
+#include "SDK_teeth_bump_ps20b.inc"
 
 #ifndef _X360
-#include "sdk_teeth_vs30.inc"
-#include "sdk_teeth_ps30.inc"
-#include "sdk_teeth_bump_vs30.inc"
-#include "sdk_teeth_bump_ps30.inc"
-#include "sdk_teeth_flashlight_vs30.inc"
-#include "sdk_teeth_flashlight_ps30.inc"
+#include "SDK_teeth_vs30.inc"
+#include "SDK_teeth_ps30.inc"
+#include "SDK_teeth_bump_vs30.inc"
+#include "SDK_teeth_bump_ps30.inc"
+#include "SDK_teeth_flashlight_vs30.inc"
+#include "SDK_teeth_flashlight_ps30.inc"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!

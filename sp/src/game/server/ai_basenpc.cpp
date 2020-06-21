@@ -15115,7 +15115,7 @@ void CAI_BaseNPC::CalculateValidEnemyInteractions( void )
 				pPlayer->ModifyOrAppendPlayerCriteria( set );
 			ReAppendContextCriteria( set );
 
-			DevMsg("Testing %s misc criteria\n", pInteraction->MiscCriteria);
+			DevMsg("Testing %s misc criteria\n", STRING(pInteraction->MiscCriteria));
 
 			int index;
 			const char *criteriavalue;

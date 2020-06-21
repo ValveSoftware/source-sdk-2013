@@ -162,9 +162,9 @@ void MapbaseGameLog_Record( const char *szContext )
 						continue;
 
 					if ( pPlayer->GetActiveWeapon() == pWeapon )
-						pKVWeapons->SetString(pWeapon->GetClassname(), CFmtStrN<32>("%i; %i (active)", pWeapon->m_iClip1, pWeapon->m_iClip2));
+						pKVWeapons->SetString(pWeapon->GetClassname(), CFmtStrN<32>("%i; %i (active)", pWeapon->m_iClip1.Get(), pWeapon->m_iClip2.Get()));
 					else
-						pKVWeapons->SetString(pWeapon->GetClassname(), CFmtStrN<32>("%i; %i", pWeapon->m_iClip1, pWeapon->m_iClip2));
+						pKVWeapons->SetString(pWeapon->GetClassname(), CFmtStrN<32>("%i; %i", pWeapon->m_iClip1.Get(), pWeapon->m_iClip2.Get()));
 				}
 			}
 
@@ -209,7 +209,7 @@ void MapbaseGameLog_Record( const char *szContext )
 		}
 	}
 
-	CFmtStrN<MAX_PATH> pathfmt("map_logs/%s_log_%i.txt", gpGlobals->mapname, pGameLoggerEnt->m_iSaveID);
+	CFmtStrN<MAX_PATH> pathfmt("map_logs/%s_log_%i.txt", STRING(gpGlobals->mapname), pGameLoggerEnt->m_iSaveID);
 
 	pGameLoggerEnt->m_flLastLogTime = gpGlobals->curtime;
 	pGameLoggerEnt->m_iSaveID++;
@@ -219,7 +219,7 @@ void MapbaseGameLog_Record( const char *szContext )
 
 	if (pKV->SaveToFile( g_pFullFileSystem, pathfmt, "MOD" ))
 	{
-		Msg("Saved game log file to \"%s\"\n", pathfmt);
+		Msg("Saved game log file to \"%s\"\n", pathfmt.Get());
 	}
 
 	pKV->deleteThis();

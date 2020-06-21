@@ -9,13 +9,13 @@
 //#include "eyes_flashlight_vs11.inc"
 //#include "eyes_flashlight_ps11.inc"
 
-#include "sdk_eye_refract_vs20.inc"
-#include "sdk_eye_refract_ps20.inc"
-#include "sdk_eye_refract_ps20b.inc"
+#include "SDK_eye_refract_vs20.inc"
+#include "SDK_eye_refract_ps20.inc"
+#include "SDK_eye_refract_ps20b.inc"
 
 #ifndef _X360
-#include "sdk_eye_refract_vs30.inc"
-#include "sdk_eye_refract_ps30.inc"
+#include "SDK_eye_refract_vs30.inc"
+#include "SDK_eye_refract_ps30.inc"
 #endif
 
 #include "convar.h"

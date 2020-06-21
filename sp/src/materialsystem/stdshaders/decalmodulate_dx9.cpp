@@ -9,13 +9,13 @@
 #include "BaseVSShader.h"
 #include "cpp_shader_constant_register_map.h"
 
-#include "sdk_decalmodulate_vs20.inc"
-#include "sdk_decalmodulate_ps20.inc"
-#include "sdk_decalmodulate_ps20b.inc"
+#include "SDK_decalmodulate_vs20.inc"
+#include "SDK_decalmodulate_ps20.inc"
+#include "SDK_decalmodulate_ps20b.inc"
 
 #ifndef _X360
-#include "sdk_decalmodulate_vs30.inc"
-#include "sdk_decalmodulate_ps30.inc"
+#include "SDK_decalmodulate_vs30.inc"
+#include "SDK_decalmodulate_ps30.inc"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!

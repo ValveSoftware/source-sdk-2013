@@ -16,11 +16,11 @@
 #include "SDK_lightmappedgeneric_ps30.inc"
 #include "SDK_lightmappedgeneric_vs30.inc"
 
-#include "sdk_lightmappedgeneric_flashlight_vs20.inc"
-#include "sdk_lightmappedgeneric_flashlight_vs30.inc"
-#include "sdk_lightmappedgeneric_flashlight_ps20.inc"
-#include "sdk_lightmappedgeneric_flashlight_ps20b.inc"
-#include "sdk_lightmappedgeneric_flashlight_ps30.inc"
+#include "SDK_lightmappedgeneric_flashlight_vs20.inc"
+#include "SDK_lightmappedgeneric_flashlight_vs30.inc"
+#include "SDK_lightmappedgeneric_flashlight_ps20.inc"
+#include "SDK_lightmappedgeneric_flashlight_ps20b.inc"
+#include "SDK_lightmappedgeneric_flashlight_ps30.inc"
 
 
 #include "tier0/memdbgon.h"
