@@ -1055,7 +1055,12 @@ void CNPC_MetroPolice::SpeakSentence( int nSentenceType )
 					{
 						if ( SpeakIfAllowed( TLK_COP_PLAYERHIT, SENTENCE_PRIORITY_HIGH ) )
 						{
+#ifdef MAPBASE
+							if (GetSquad())
+								GetSquad()->SquadRemember(bits_MEMORY_PLAYER_HURT);
+#else
 							m_pSquad->SquadRemember(bits_MEMORY_PLAYER_HURT);
+#endif
 						}
 					}
 				}

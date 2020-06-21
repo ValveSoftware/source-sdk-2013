@@ -414,6 +414,7 @@ public:
 	HSCRIPT				GetScriptActiveWeapon();
 	HSCRIPT				GetScriptWeaponIndex( int i );
 	HSCRIPT				GetScriptWeaponByType( const char *pszWeapon, int iSubType = 0 );
+	void				GetScriptAllWeapons( HSCRIPT hTable );
 
 	void				ScriptEquipWeapon( HSCRIPT hWeapon );
 

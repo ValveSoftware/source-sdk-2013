@@ -1210,6 +1210,7 @@ BEGIN_RECV_TABLE_NOBASE(CEnvWindShared, DT_EnvWindShared)
 	RecvPropFloat	(RECVINFO(m_windRadius)),
 	RecvPropFloat	(RECVINFO(m_windRadiusInner)),
 	RecvPropVector	(RECVINFO(m_location)),
+	RecvPropFloat	(RECVINFO(m_flTreeSwayScale)),
 #endif
 END_RECV_TABLE()
 

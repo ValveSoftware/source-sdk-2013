@@ -70,6 +70,9 @@
 #include "IEffects.h"
 #include "engine/IEngineSound.h"
 #include "sharedInterface.h"
+#ifdef CLIENT_DLL
+#include "renderparm.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -89,6 +92,7 @@ CEnvWindShared::CEnvWindShared() : m_WindAveQueue(10), m_WindVariationQueue(10)
 #ifdef MAPBASE
 	s_windControllers.AddToTail( this );
 	m_windRadius = -1.0f;
+	m_flTreeSwayScale = 1.0f;
 #endif
 }
 
@@ -180,6 +184,31 @@ void CEnvWindShared::UpdateWindSound( float flTotalWindSpeed )
 }
 
 
+#ifdef MAPBASE
+#define TREE_SWAY_UPDATE_TIME 2.0f
+
+void CEnvWindShared::UpdateTreeSway( float flTime )
+{
+#ifdef CLIENT_DLL
+	while( flTime >= m_flSwayTime )
+	{
+		// Since the wind is constantly changing, but we need smooth values, we cache them off here.
+		m_PrevSwayVector = m_CurrentSwayVector;
+		m_CurrentSwayVector = m_flTreeSwayScale != 1.0f ? (m_currentWindVector * m_flTreeSwayScale) : m_currentWindVector;
+		m_flSwayTime += TREE_SWAY_UPDATE_TIME;
+	}
+
+	// Update vertex shader
+	float flPercentage = ( 1 - ( ( m_flSwayTime - flTime ) / TREE_SWAY_UPDATE_TIME ) );
+	CMatRenderContextPtr pRenderContext( g_pMaterialSystem );
+	// Dividing by 2 helps the numbers the shader is expecting stay in line with other expected game values.
+	Vector vecWind = Lerp( flPercentage, m_PrevSwayVector, m_CurrentSwayVector ) / 25.f;
+	pRenderContext->SetVectorRenderingParameter( VECTOR_RENDERPARM_WIND_DIRECTION, vecWind );
+#endif
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Updates the wind speed
 //-----------------------------------------------------------------------------
@@ -195,6 +224,14 @@ float CEnvWindShared::WindThink( float flTime )
 	// frequency of calls to this function we produce the same wind speeds...
 
 	ComputeWindVariation( flTime );
+
+#if defined(MAPBASE) && defined(CLIENT_DLL)
+	if (m_flTreeSwayScale != 0.0f)
+	{
+		// Update Tree Sway
+		UpdateTreeSway( flTime );
+	}
+#endif
 
 	while (true)
 	{

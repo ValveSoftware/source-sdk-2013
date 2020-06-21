@@ -980,7 +980,7 @@ void CBasePlayer::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &v
 			// --------------------------------------------------
 			CAI_BaseNPC *pNPC = info.GetAttacker()->MyNPCPointer();
 #ifdef MAPBASE
-			if ( pNPC && (pNPC->CapabilitiesGet() & bits_CAP_NO_HIT_PLAYER) && pNPC->IRelationType( this ) <= D_FR )
+			if ( pNPC && (pNPC->CapabilitiesGet() & bits_CAP_NO_HIT_PLAYER) && pNPC->IRelationType( this ) > D_FR )
 #else
 			if ( pNPC && (pNPC->CapabilitiesGet() & bits_CAP_NO_HIT_PLAYER) && pNPC->IRelationType( this ) != D_HT )
 #endif

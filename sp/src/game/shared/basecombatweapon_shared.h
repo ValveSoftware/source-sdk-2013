@@ -519,11 +519,6 @@ public:
 
 	virtual CDmgAccumulator	*GetDmgAccumulator( void ) { return NULL; }
 
-#ifdef MAPBASE_VSCRIPT
-	const char*				ScriptGetPrimaryAmmoType();
-	const char*				ScriptGetSecondaryAmmoType();
-#endif
-
 // Client only methods
 #else
 

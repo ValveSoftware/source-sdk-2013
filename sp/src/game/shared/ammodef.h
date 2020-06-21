@@ -72,6 +72,9 @@ public:
 	Ammo_t				m_AmmoType[MAX_AMMO_TYPES];
 
 	Ammo_t				*GetAmmoOfIndex(int nAmmoIndex);
+#ifdef MAPBASE
+	const char*			Name(int nAmmoIndex);
+#endif
 	int					Index(const char *psz);
 	int					PlrDamage(int nAmmoIndex);
 	int					NPCDamage(int nAmmoIndex);

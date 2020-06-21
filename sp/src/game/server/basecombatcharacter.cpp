@@ -157,6 +157,7 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC( WeaponCount, "Get the number of weapons a character possesses." )
 	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponIndex, "GetWeapon", "Get a specific weapon in the character's inventory." )
 	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponByType, "FindWeapon", "Find a specific weapon in the character's inventory by its classname." )
+	DEFINE_SCRIPTFUNC_NAMED( GetScriptAllWeapons, "GetAllWeapons", "Get the character's weapon inventory." )
 
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_ShootPosition, "ShootPosition", "Get the character's shoot position." )
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_DropAll, "DropAllWeapons", "Make the character drop all of its weapons." )
@@ -4375,6 +4376,19 @@ HSCRIPT CBaseCombatCharacter::GetScriptWeaponIndex( int i )
 HSCRIPT CBaseCombatCharacter::GetScriptWeaponByType( const char *pszWeapon, int iSubType )
 {
 	return ToHScript( Weapon_OwnsThisType( pszWeapon, iSubType ) );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseCombatCharacter::GetScriptAllWeapons( HSCRIPT hTable )
+{
+	for (int i=0;i<MAX_WEAPONS;i++)
+	{
+		if (m_hMyWeapons[i]) 
+		{
+			g_pScriptVM->SetValue( hTable, m_hMyWeapons[i]->GetClassname(), ToHScript( m_hMyWeapons[i] ) );
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------

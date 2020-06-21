@@ -1594,6 +1594,7 @@ BEGIN_DATADESC( CEnvWind )
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_EnvWindShared.m_windRadius, FIELD_FLOAT, "windradius" ),
 	DEFINE_KEYFIELD( m_EnvWindShared.m_windRadiusInner, FIELD_FLOAT, "windradiusinner" ),
+	DEFINE_KEYFIELD( m_EnvWindShared.m_flTreeSwayScale, FIELD_FLOAT, "treeswayscale" ),
 #endif
 
 // Just here to quiet down classcheck
@@ -1601,6 +1602,20 @@ BEGIN_DATADESC( CEnvWind )
 
 	DEFINE_FIELD( m_EnvWindShared.m_iWindDir, FIELD_INTEGER ),
 	DEFINE_FIELD( m_EnvWindShared.m_flWindSpeed, FIELD_FLOAT ),
+
+#ifdef MAPBASE
+	DEFINE_INPUT( m_EnvWindShared.m_iMinWind, FIELD_INTEGER, "SetMinWind" ),
+	DEFINE_INPUT( m_EnvWindShared.m_iMaxWind, FIELD_INTEGER, "SetMaxWind" ),
+	DEFINE_INPUT( m_EnvWindShared.m_iMinGust, FIELD_INTEGER, "SetMinGust" ),
+	DEFINE_INPUT( m_EnvWindShared.m_iMaxGust, FIELD_INTEGER, "SetMaxGust" ),
+	DEFINE_INPUT( m_EnvWindShared.m_flMinGustDelay, FIELD_FLOAT, "SetMinGustDelay" ),
+	DEFINE_INPUT( m_EnvWindShared.m_flMaxGustDelay, FIELD_FLOAT, "SetMaxGustDelay" ),
+	DEFINE_INPUT( m_EnvWindShared.m_iGustDirChange, FIELD_INTEGER, "SetGustDirChange" ),
+	DEFINE_INPUT( m_EnvWindShared.m_flGustDuration, FIELD_FLOAT, "SetGustDuration" ),
+	DEFINE_INPUT( m_EnvWindShared.m_windRadius, FIELD_FLOAT, "SetWindRadius" ),
+	DEFINE_INPUT( m_EnvWindShared.m_windRadiusInner, FIELD_FLOAT, "SetWindRadiusInner" ),
+	DEFINE_INPUT( m_EnvWindShared.m_flTreeSwayScale, FIELD_FLOAT, "SetTreeSwayScale" ),
+#endif
 
 	DEFINE_OUTPUT( m_EnvWindShared.m_OnGustStart, "OnGustStart" ),
 	DEFINE_OUTPUT( m_EnvWindShared.m_OnGustEnd,	"OnGustEnd" ),
@@ -1634,6 +1649,7 @@ BEGIN_SEND_TABLE_NOBASE(CEnvWindShared, DT_EnvWindShared)
 	SendPropFloat	(SENDINFO(m_windRadius), 0, SPROP_NOSCALE),
 	SendPropFloat	(SENDINFO(m_windRadiusInner), 0, SPROP_NOSCALE),
 	SendPropVector	(SENDINFO(m_location), -1, SPROP_COORD),
+	SendPropFloat	(SENDINFO(m_flTreeSwayScale), 0, SPROP_NOSCALE),
 #endif
 END_SEND_TABLE()
 

@@ -183,6 +183,10 @@ public:
 
 #ifdef MAPBASE
 	Vector m_currentWindVector;	// For all the talk of proper prediction, we ended up just storing and returning through a static vector.  Now we can have multiple env_wind, so we need this in here.
+	Vector m_CurrentSwayVector;
+	Vector m_PrevSwayVector;
+
+	CNetworkVar( float, m_flTreeSwayScale );
 #endif
 
 	CNetworkVar( int, m_iInitialWindDir );
@@ -211,7 +215,12 @@ private:
 	// Updates the wind sound
 	void UpdateWindSound( float flTotalWindSpeed );
 
+#ifdef MAPBASE
+	void UpdateTreeSway( float flTime );
+#endif
+
 	float	m_flVariationTime;
+	float	m_flSwayTime;
 	float	m_flSimTime;		// What's the time I last simulated up to?
 	float	m_flSwitchTime;		// when do I actually switch from gust to not gust
 	float	m_flAveWindSpeed;	// the average wind speed

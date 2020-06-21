@@ -190,6 +190,27 @@ public:
 		m_bDONT_GAMMA_CONVERT_VERTEX_COLOR = true;
 #endif
 	}
+private:
+	int m_nTREESWAY;
+#ifdef _DEBUG
+	bool m_bTREESWAY;
+#endif
+public:
+	void SetTREESWAY( int i )
+	{
+		Assert( i >= 0 && i <= 2 );
+		m_nTREESWAY = i;
+#ifdef _DEBUG
+		m_bTREESWAY = true;
+#endif
+	}
+	void SetTREESWAY( bool i )
+	{
+		m_nTREESWAY = i ? 1 : 0;
+#ifdef _DEBUG
+		m_bTREESWAY = true;
+#endif
+	}
 public:
 	sdk_vertexlit_and_unlit_generic_vs20_Static_Index( )
 	{
@@ -229,19 +250,23 @@ public:
 		m_bDONT_GAMMA_CONVERT_VERTEX_COLOR = false;
 #endif // _DEBUG
 		m_nDONT_GAMMA_CONVERT_VERTEX_COLOR = 0;
+#ifdef _DEBUG
+		m_bTREESWAY = false;
+#endif // _DEBUG
+		m_nTREESWAY = 0;
 	}
 	int GetIndex()
 	{
 		// Asserts to make sure that we aren't using any skipped combinations.
 		// Asserts to make sure that we are setting all of the combination vars.
 #ifdef _DEBUG
-		bool bAllStaticVarsDefined = m_bVERTEXCOLOR && m_bCUBEMAP && m_bHALFLAMBERT && m_bFLASHLIGHT && m_bSEAMLESS_BASE && m_bSEAMLESS_DETAIL && m_bSEPARATE_DETAIL_UVS && m_bUSE_STATIC_CONTROL_FLOW && m_bDONT_GAMMA_CONVERT_VERTEX_COLOR;
+		bool bAllStaticVarsDefined = m_bVERTEXCOLOR && m_bCUBEMAP && m_bHALFLAMBERT && m_bFLASHLIGHT && m_bSEAMLESS_BASE && m_bSEAMLESS_DETAIL && m_bSEPARATE_DETAIL_UVS && m_bUSE_STATIC_CONTROL_FLOW && m_bDONT_GAMMA_CONVERT_VERTEX_COLOR && m_bTREESWAY;
 		Assert( bAllStaticVarsDefined );
 #endif // _DEBUG
-		return ( 192 * m_nVERTEXCOLOR ) + ( 384 * m_nCUBEMAP ) + ( 768 * m_nHALFLAMBERT ) + ( 1536 * m_nFLASHLIGHT ) + ( 3072 * m_nSEAMLESS_BASE ) + ( 6144 * m_nSEAMLESS_DETAIL ) + ( 12288 * m_nSEPARATE_DETAIL_UVS ) + ( 24576 * m_nUSE_STATIC_CONTROL_FLOW ) + ( 49152 * m_nDONT_GAMMA_CONVERT_VERTEX_COLOR ) + 0;
+		return ( 192 * m_nVERTEXCOLOR ) + ( 384 * m_nCUBEMAP ) + ( 768 * m_nHALFLAMBERT ) + ( 1536 * m_nFLASHLIGHT ) + ( 3072 * m_nSEAMLESS_BASE ) + ( 6144 * m_nSEAMLESS_DETAIL ) + ( 12288 * m_nSEPARATE_DETAIL_UVS ) + ( 24576 * m_nUSE_STATIC_CONTROL_FLOW ) + ( 49152 * m_nDONT_GAMMA_CONVERT_VERTEX_COLOR ) + ( 98304 * m_nTREESWAY ) + 0;
 	}
 };
-#define shaderStaticTest_sdk_vertexlit_and_unlit_generic_vs20 vsh_forgot_to_set_static_VERTEXCOLOR + vsh_forgot_to_set_static_CUBEMAP + vsh_forgot_to_set_static_HALFLAMBERT + vsh_forgot_to_set_static_FLASHLIGHT + vsh_forgot_to_set_static_SEAMLESS_BASE + vsh_forgot_to_set_static_SEAMLESS_DETAIL + vsh_forgot_to_set_static_SEPARATE_DETAIL_UVS + vsh_forgot_to_set_static_USE_STATIC_CONTROL_FLOW + vsh_forgot_to_set_static_DONT_GAMMA_CONVERT_VERTEX_COLOR + 0
+#define shaderStaticTest_sdk_vertexlit_and_unlit_generic_vs20 vsh_forgot_to_set_static_VERTEXCOLOR + vsh_forgot_to_set_static_CUBEMAP + vsh_forgot_to_set_static_HALFLAMBERT + vsh_forgot_to_set_static_FLASHLIGHT + vsh_forgot_to_set_static_SEAMLESS_BASE + vsh_forgot_to_set_static_SEAMLESS_DETAIL + vsh_forgot_to_set_static_SEPARATE_DETAIL_UVS + vsh_forgot_to_set_static_USE_STATIC_CONTROL_FLOW + vsh_forgot_to_set_static_DONT_GAMMA_CONVERT_VERTEX_COLOR + vsh_forgot_to_set_static_TREESWAY + 0
 class sdk_vertexlit_and_unlit_generic_vs20_Dynamic_Index
 {
 private:

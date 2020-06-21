@@ -43,6 +43,27 @@ public:
 		m_bCOLOR_DEPTH = true;
 #endif
 	}
+private:
+	int m_nTREESWAY;
+#ifdef _DEBUG
+	bool m_bTREESWAY;
+#endif
+public:
+	void SetTREESWAY( int i )
+	{
+		Assert( i >= 0 && i <= 2 );
+		m_nTREESWAY = i;
+#ifdef _DEBUG
+		m_bTREESWAY = true;
+#endif
+	}
+	void SetTREESWAY( bool i )
+	{
+		m_nTREESWAY = i ? 1 : 0;
+#ifdef _DEBUG
+		m_bTREESWAY = true;
+#endif
+	}
 public:
 	sdk_depthwrite_vs20_Static_Index( )
 	{
@@ -54,19 +75,23 @@ public:
 		m_bCOLOR_DEPTH = false;
 #endif // _DEBUG
 		m_nCOLOR_DEPTH = 0;
+#ifdef _DEBUG
+		m_bTREESWAY = false;
+#endif // _DEBUG
+		m_nTREESWAY = 0;
 	}
 	int GetIndex()
 	{
 		// Asserts to make sure that we aren't using any skipped combinations.
 		// Asserts to make sure that we are setting all of the combination vars.
 #ifdef _DEBUG
-		bool bAllStaticVarsDefined = m_bONLY_PROJECT_POSITION && m_bCOLOR_DEPTH;
+		bool bAllStaticVarsDefined = m_bONLY_PROJECT_POSITION && m_bCOLOR_DEPTH && m_bTREESWAY;
 		Assert( bAllStaticVarsDefined );
 #endif // _DEBUG
-		return ( 4 * m_nONLY_PROJECT_POSITION ) + ( 4 * m_nCOLOR_DEPTH ) + 0;
+		return ( 4 * m_nONLY_PROJECT_POSITION ) + ( 4 * m_nCOLOR_DEPTH ) + ( 8 * m_nTREESWAY ) + 0;
 	}
 };
-#define shaderStaticTest_sdk_depthwrite_vs20 vsh_forgot_to_set_static_ONLY_PROJECT_POSITION + vsh_forgot_to_set_static_COLOR_DEPTH + 0
+#define shaderStaticTest_sdk_depthwrite_vs20 vsh_forgot_to_set_static_ONLY_PROJECT_POSITION + vsh_forgot_to_set_static_COLOR_DEPTH + vsh_forgot_to_set_static_TREESWAY + 0
 class sdk_depthwrite_vs20_Dynamic_Index
 {
 private:

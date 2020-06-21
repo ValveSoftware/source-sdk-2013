@@ -125,6 +125,9 @@ bool CAI_RappelBehavior::KeyValue( const char *szKeyName, const char *szValue )
 
 void CAI_RappelBehavior::Precache()
 {
+#ifdef MAPBASE
+	CBaseEntity::PrecacheModel( "cable/cable_rappel.vmt" );
+#endif
 	CBaseEntity::PrecacheModel( "cable/cable.vmt" );
 }
 
@@ -386,7 +389,11 @@ void CAI_RappelBehavior::CreateZipline()
 		if( attachment > 0 )
 		{
 			CBeam *pBeam;
+#ifdef MAPBASE
+			pBeam = CBeam::BeamCreate( "cable/cable_rappel.vmt", 1 );
+#else
 			pBeam = CBeam::BeamCreate( "cable/cable.vmt", 1 );
+#endif
 			pBeam->SetColor( 150, 150, 150 );
 			pBeam->SetWidth( 0.3 );
 			pBeam->SetEndWidth( 0.3 );

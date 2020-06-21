@@ -55,6 +55,9 @@ BEGIN_DATADESC( CPointTemplate )
 	DEFINE_KEYFIELD( m_iszTemplateEntityNames[14], FIELD_STRING, "Template15"),
 	DEFINE_KEYFIELD( m_iszTemplateEntityNames[15], FIELD_STRING, "Template16"),
 	DEFINE_UTLVECTOR( m_hTemplateEntities, FIELD_CLASSPTR ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bFixupExpanded, FIELD_BOOLEAN, "FixupMode" ),
+#endif
 
 	DEFINE_UTLVECTOR( m_hTemplates, FIELD_EMBEDDED ),
 

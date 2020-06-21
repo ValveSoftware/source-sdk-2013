@@ -159,6 +159,70 @@ string_t Templates_FindByTargetName(const char *pszName)
 	return NULL_STRING;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: A new version of name fixup which targets all instances of a name
+//			in a keyvalue, including output parameters.
+//-----------------------------------------------------------------------------
+void Templates_NewNameFixup( CUtlVector< grouptemplate_t > &GroupTemplates, int i, int iCount, CEntityMapData *mapData, CUtlDict< int, int > &KeyInstanceCount, char *keyName, char *value )
+{
+	do 
+	{
+		// Ignore targetnames
+		if ( !stricmp( keyName, "targetname" ) )
+			continue;
+
+		// Add to the count for this 
+		int idx = KeyInstanceCount.Find( keyName );
+		if ( idx == KeyInstanceCount.InvalidIndex() )
+		{
+			idx = KeyInstanceCount.Insert( keyName, 0 );
+		}
+		KeyInstanceCount[idx]++;
+
+		// Loop through our group templates
+		for ( int iTName = 0; iTName < iCount; iTName++ )
+		{
+			char *pName = GroupTemplates[iTName].pszName;
+			if (strstr( value, pName ) == NULL)
+				continue;
+
+			if ( template_debug.GetInt() )
+			{
+				Msg("Template Connection Found: Key %s (\"%s\") in entity named \"%s\"(%d) matches entity %d's targetname\n", keyName, value, GroupTemplates[i].pszName, i, iTName );
+			}
+
+			char newvalue[MAPKEY_MAXLENGTH];
+			char fixedup[MAPKEY_MAXLENGTH];
+			Q_strncpy( fixedup, pName, MAPKEY_MAXLENGTH );
+			Q_strncat( fixedup, ENTITYIO_FIXUP_STRING, sizeof( fixedup ), COPY_ALL_CHARACTERS );
+
+			// Get the current key instance. (-1 because it's this one we're changing)
+			int nKeyInstance = KeyInstanceCount[idx] - 1;
+
+			// Add our IO value to the targetname
+			V_StrSubst( value, pName, fixedup, newvalue, MAPKEY_MAXLENGTH );
+
+			if ( template_debug.GetInt() )
+			{
+				Msg("	Fixed up value: Key %s with \"%s\" in entity named \"%s\"(%d) has become \"%s\"\n", keyName, value, GroupTemplates[i].pszName, i, newvalue );
+			}
+
+			mapData->SetValue( keyName, newvalue, nKeyInstance );
+			Q_strncpy( value, newvalue, MAPKEY_MAXLENGTH );
+			
+			// Remember we changed this targetname
+			GroupTemplates[iTName].bChangeTargetname = true;
+
+			// Set both entity's flags telling them their template needs fixup when it's spawned
+			g_Templates[ GroupTemplates[i].iIndex ]->bNeedsEntityIOFixup = true;
+			g_Templates[ GroupTemplates[iTName].iIndex ]->bNeedsEntityIOFixup = true;
+		}
+	} 
+	while ( mapData->GetNextKey(keyName, value) );
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: A CPointTemplate has asked us to reconnect all the entity I/O links
 //			inside it's templates. Go through the keys and add look for values
@@ -207,6 +271,14 @@ void Templates_ReconnectIOForGroup( CPointTemplate *pGroup )
 			// Loop through our keys
 			if ( !mapData->GetFirstKey(keyName, value) )
 				continue;
+
+#ifdef MAPBASE
+			if ( pGroup->NameFixupExpanded() )
+			{
+				Templates_NewNameFixup( GroupTemplates, i, iCount, mapData, KeyInstanceCount, keyName, value );
+				continue;
+			}
+#endif
 
 			do 
 			{

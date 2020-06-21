@@ -2041,6 +2041,29 @@ void CAI_BaseNPC::InputSetDistTooFar( inputdata_t &inputdata )
 		}
 	}
 }
+
+//------------------------------------------------------------------------------
+// Purpose:
+//------------------------------------------------------------------------------
+void CAI_BaseNPC::InputSetTarget( inputdata_t &inputdata )
+{
+	m_target = inputdata.value.StringID();
+
+	if ( m_target != NULL_STRING )// this npc has a target
+	{
+		// Find the npc's initial target entity, stash it
+		SetGoalEnt( gEntList.FindEntityByName( NULL, m_target ) );
+
+		if ( !GetGoalEnt() )
+		{
+			Warning( "ReadyNPC()--%s couldn't find target %s\n", GetClassname(), STRING(m_target));
+		}
+		else
+		{
+			StartTargetHandling( GetGoalEnt() );
+		}
+	}
+}
 #endif
 
 //---------------------------------------------------------

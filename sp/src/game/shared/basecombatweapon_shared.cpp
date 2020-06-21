@@ -1801,22 +1801,6 @@ void CBaseCombatWeapon::InputHideWeapon( inputdata_t &inputdata )
 		SetWeaponVisible( false );
 	}
 }
-
-#ifdef MAPBASE_VSCRIPT
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-const char *CBaseCombatWeapon::ScriptGetPrimaryAmmoType()
-{
-	return GetPrimaryAmmoType() <= GetAmmoDef()->m_nAmmoIndex ? GetAmmoDef()->m_AmmoType[GetPrimaryAmmoType()].pName : NULL;
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-const char *CBaseCombatWeapon::ScriptGetSecondaryAmmoType()
-{
-	return GetSecondaryAmmoType() <= GetAmmoDef()->m_nAmmoIndex ? GetAmmoDef()->m_AmmoType[GetSecondaryAmmoType()].pName : NULL;
-}
-#endif
 #endif
 
 //-----------------------------------------------------------------------------
@@ -2910,8 +2894,8 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all
 	DEFINE_SCRIPTFUNC( UsesClipsForAmmo2, "Check if the weapon uses clips for secondary ammo." )
 
 #ifndef CLIENT_DLL
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPrimaryAmmoType, "GetPrimaryAmmoType", "Get the weapon's primary ammo type." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSecondaryAmmoType, "GetSecondaryAmmoType", "Get the weapon's secondary ammo type." )
+	DEFINE_SCRIPTFUNC( GetPrimaryAmmoType, "Get the weapon's primary ammo type." )
+	DEFINE_SCRIPTFUNC( GetSecondaryAmmoType, "Get the weapon's secondary ammo type." )
 #endif
 
 	DEFINE_SCRIPTFUNC( GetSubType, "Get the weapon's subtype." )
