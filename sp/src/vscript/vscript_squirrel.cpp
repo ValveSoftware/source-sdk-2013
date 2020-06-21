@@ -1067,6 +1067,14 @@ SQInteger tostring_stub(HSQUIRRELVM vm)
 	return 1;
 }
 
+SQInteger IsValid_stub(HSQUIRRELVM vm)
+{
+	ClassInstanceData* classInstanceData = nullptr;
+	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
+	sq_pushbool(vm, classInstanceData != nullptr);
+	return 1;
+}
+
 struct SquirrelSafeCheck
 {
 	SquirrelSafeCheck(HSQUIRRELVM vm, int outputCount = 0) :
@@ -1717,6 +1725,10 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 
 	sq_pushstring(vm_, "_tostring", -1);
 	sq_newclosure(vm_, tostring_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "IsValid", -1);
+	sq_newclosure(vm_, IsValid_stub, 0);
 	sq_newslot(vm_, -3, SQFalse);
 
 
