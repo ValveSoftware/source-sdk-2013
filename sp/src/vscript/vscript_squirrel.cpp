@@ -2249,7 +2249,7 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 
 		SQInteger nparams = 0, nfreevars = 0;
 		sq_getclosureinfo(vm_, idx, &nparams, &nfreevars);
-		if (nfreevars == 0)
+		if (nfreevars == 0 && _closure(obj)->_function->_defaultparams == 0)
 		{
 			pBuffer->PutChar(0);
 
@@ -2276,6 +2276,14 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 			for (int i = 0; i < noutervalues; ++i)
 			{
 				sq_pushobject(vm_, _closure(obj)->_outervalues[i]);
+				WriteObject(pBuffer, writeState, -1);
+				sq_poptop(vm_);
+			}
+
+			int ndefaultparams = _closure(obj)->_function->_ndefaultparams;
+			for (int i = 0; i < ndefaultparams; ++i)
+			{
+				sq_pushobject(vm_, _closure(obj)->_defaultparams[i]);
 				WriteObject(pBuffer, writeState, -1);
 				sq_poptop(vm_);
 			}
@@ -2671,6 +2679,17 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 				sq_resetobject(&obj);
 				sq_getstackobj(vm_, -1, &obj);
 				_closure(ret)->_outervalues[i] = obj;
+				sq_poptop(vm_);
+			}
+
+			int ndefaultparams = _closure(ret)->_function->_ndefaultparams;
+			for (int i = 0; i < ndefaultparams; ++i)
+			{
+				ReadObject(pBuffer, readState);
+				HSQOBJECT obj;
+				sq_resetobject(&obj);
+				sq_getstackobj(vm_, -1, &obj);
+				_closure(ret)->_defaultparams[i] = obj;
 				sq_poptop(vm_);
 			}
 
