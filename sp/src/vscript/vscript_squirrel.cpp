@@ -499,6 +499,22 @@ namespace SQVector
 		return 1;
 	}
 
+	SQInteger Norm(HSQUIRRELVM vm)
+	{
+		Vector* v1 = nullptr;
+
+		if (sq_gettop(vm) != 1 ||
+			SQ_FAILED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v1, TYPETAG_VECTOR)))
+		{
+			return sq_throwerror(vm, "Expected (Vector)");
+		}
+
+		float len = v1->NormalizeInPlace();
+		sq_pushfloat(vm, len);
+
+		return 1;
+	}
+
 	SQInteger Dot(HSQUIRRELVM vm)
 	{
 		Vector* v1 = nullptr;
@@ -628,7 +644,7 @@ namespace SQVector
 		{_SC("Length2D"), Length2D, 1, _SC(".")},
 		{_SC("Length2DSqr"), Length2DSqr, 1, _SC(".")},
 		{_SC("Normalized"), Normalized, 1, _SC(".")},
-		{_SC("Norm"), Normalized, 1, _SC(".")},
+		{_SC("Norm"), Norm, 1, _SC(".")},
 		{_SC("_div"), Divide, 2, _SC("..")},
 		{_SC("Dot"), Dot, 2, _SC("..")},
 		{_SC("Cross"), Cross, 2, _SC("..")},
