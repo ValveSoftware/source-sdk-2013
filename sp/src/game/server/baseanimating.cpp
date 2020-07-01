@@ -289,6 +289,12 @@ BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentAngles, "GetAttachmentAngles", "Get the attachement id's angles as a p,y,r vector"  )
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentMatrix, "GetAttachmentMatrix", "Get the attachement id's matrix transform" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPoseParameter, "GetPoseParameter", "Get the specified pose parameter's value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetPoseParameter, "SetPoseParameter", "Set the specified pose parameter to the specified value" )
+	DEFINE_SCRIPTFUNC( LookupBone, "Get the named bone id" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoneTransform, "GetBoneTransform", "Get the transform for the specified bone" )
+	DEFINE_SCRIPTFUNC( Dissolve, "" )
+	DEFINE_SCRIPTFUNC( Scorch, "Makes the entity darker from scorching" )
 #endif
 	DEFINE_SCRIPTFUNC( IsSequenceFinished, "Ask whether the main sequence is done playing" )
 	DEFINE_SCRIPTFUNC( SetBodygroup, "Sets a bodygroup")
@@ -2165,6 +2171,36 @@ HSCRIPT CBaseAnimating::ScriptGetAttachmentMatrix( int iAttachment )
 
 	CBaseAnimating::GetAttachment( iAttachment, matrix );
 	return ScriptCreateMatrixInstance( matrix );
+}
+
+float CBaseAnimating::ScriptGetPoseParameter( const char* szName )
+{
+	CStudioHdr* pHdr = GetModelPtr();
+	if (pHdr == NULL)
+		return 0.0f;
+
+	int iPoseParam = LookupPoseParameter( pHdr, szName );
+	return GetPoseParameter( iPoseParam );
+}
+
+void CBaseAnimating::ScriptSetPoseParameter( const char* szName, float fValue )
+{
+	CStudioHdr* pHdr = GetModelPtr();
+	if (pHdr == NULL)
+		return;
+
+	int iPoseParam = LookupPoseParameter( pHdr, szName );
+	SetPoseParameter( pHdr, iPoseParam, fValue );
+}
+
+extern matrix3x4_t *ToMatrix3x4( HSCRIPT hMat );
+
+void CBaseAnimating::ScriptGetBoneTransform( int iBone, HSCRIPT hTransform )
+{
+	if (hTransform == NULL)
+		return;
+
+	GetBoneTransform( iBone, *ToMatrix3x4( hTransform ) );
 }
 #endif
 

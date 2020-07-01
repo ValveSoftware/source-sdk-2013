@@ -2288,15 +2288,6 @@ bool CBaseCombatWeapon::DefaultReload( int iClipSize1, int iClipSize2, int iActi
 #endif
 	SendWeaponAnim( iActivity );
 
-#ifdef MAPBASE
-	// TEMPTEMP
-#ifdef CLIENT_DLL
-	//DevMsg("Client SF from primary attack: %i\n", m_spawnflags);
-#else
-	//DevMsg("Server SF from primary attack: %i\n", m_spawnflags);
-#endif
-#endif
-
 	// Play the player's reload animation
 	if ( pOwner->IsPlayer() )
 	{

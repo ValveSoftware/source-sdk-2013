@@ -2020,6 +2020,17 @@ public:
 
 	bool ScriptAddOutput( const char *pszOutputName, const char *pszTarget, const char *pszAction, const char *pszParameter, float flDelay, int iMaxTimes );
 	const char *ScriptGetKeyValue( const char *pszKeyName );
+
+	const Vector& ScriptGetColorVector();
+	int ScriptGetColorR()	{ return m_clrRender.GetR(); }
+	int ScriptGetColorG()	{ return m_clrRender.GetG(); }
+	int ScriptGetColorB()	{ return m_clrRender.GetB(); }
+	int ScriptGetAlpha()	{ return m_clrRender.GetA(); }
+	void ScriptSetColorVector( const Vector& vecColor );
+	void ScriptSetColorR( int iVal )	{ SetRenderColorR( iVal ); }
+	void ScriptSetColorG( int iVal )	{ SetRenderColorG( iVal ); }
+	void ScriptSetColorB( int iVal )	{ SetRenderColorB( iVal ); }
+	void ScriptSetAlpha( int iVal )		{ SetRenderColorA( iVal ); }
 #endif
 
 	string_t		m_iszVScripts;

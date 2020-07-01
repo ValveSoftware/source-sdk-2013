@@ -364,6 +364,7 @@ void MapbaseRPC_Init()
 void MapbaseRPC_Shutdown()
 {
 	// Discord RPC
+	Discord_ClearPresence();
 	Discord_Shutdown();
 
 	// Steam RPC

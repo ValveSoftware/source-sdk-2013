@@ -191,6 +191,10 @@ public:
 	const Vector& ScriptGetAttachmentAngles(int iAttachment);
 #ifdef MAPBASE_VSCRIPT
 	HSCRIPT ScriptGetAttachmentMatrix(int iAttachment);
+	float	ScriptGetPoseParameter(const char* szName);
+	void	ScriptSetPoseParameter(const char* szName, float fValue);
+
+	void	ScriptGetBoneTransform( int iBone, HSCRIPT hTransform );
 #endif
 
 	// These return the attachment in the space of the entity

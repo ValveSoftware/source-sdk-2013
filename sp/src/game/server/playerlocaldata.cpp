@@ -61,6 +61,7 @@ BEGIN_SEND_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	SendPropVector	(SENDINFO_STRUCTELEM(m_skybox3d.origin),      -1,  SPROP_COORD),
 #ifdef MAPBASE
 	SendPropVector	(SENDINFO_STRUCTELEM(m_skybox3d.angles),      -1,  SPROP_COORD),
+	SendPropEHandle	(SENDINFO_STRUCTELEM(m_skybox3d.skycamera)),
 	SendPropInt	(SENDINFO_STRUCTELEM(m_skybox3d.skycolor),      32,  (SPROP_COORD|SPROP_UNSIGNED), SendProxy_Color32ToInt),
 #endif
 	SendPropInt	(SENDINFO_STRUCTELEM(m_skybox3d.area),	8, SPROP_UNSIGNED ),
@@ -128,6 +129,7 @@ BEGIN_SIMPLE_DATADESC( sky3dparams_t )
 	DEFINE_FIELD( origin, FIELD_VECTOR ),
 #ifdef MAPBASE
 	DEFINE_FIELD( angles, FIELD_VECTOR ),
+	DEFINE_FIELD( skycamera, FIELD_EHANDLE ),
 	DEFINE_FIELD( skycolor, FIELD_COLOR32 ),
 #endif
 	DEFINE_FIELD( area, FIELD_INTEGER ),

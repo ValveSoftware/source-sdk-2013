@@ -102,6 +102,9 @@ struct sky3dparams_t
 	// Skybox angle support
 	CNetworkQAngle( angles );
 
+	// Skybox entity-based option
+	CNetworkHandle( CBaseEntity, skycamera );
+
 	// Sky clearcolor
 	CNetworkColor32( skycolor );
 #endif

@@ -198,24 +198,25 @@ public:
 		// Shared Mapbase localization file
 		g_pVGuiLocalize->AddFile( "resource/mapbase_%language%.txt" );
 #endif
+	}
+
+	virtual void LevelInitPostEntity()
+	{
 		// Check for a generic "mapname_manifest.txt" file and load it.
-		if (filesystem->FileExists(AUTOLOADED_MANIFEST_FILE, "GAME") /*&& !FStrEq(name, "closecaption")*/)
+		if (filesystem->FileExists( AUTOLOADED_MANIFEST_FILE, "GAME" ) /*&& !FStrEq(name, "closecaption")*/)
 		{
-			AddManifestFile(AUTOLOADED_MANIFEST_FILE);
+			AddManifestFile( AUTOLOADED_MANIFEST_FILE );
 		}
 		else
 		{
 			// Load the generic script instead.
 			ParseGenericManifest();
 		}
-	}
 
 #ifdef GAME_DLL
-	virtual void LevelInitPostEntity()
-	{
 		MapbaseGameLog_Init();
-	}
 #endif
+	}
 
 	virtual void LevelShutdownPreEntity()
 	{

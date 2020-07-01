@@ -56,7 +56,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptMatrix3x4, "matrix3x4_t", "A 3x4 matrix tran
 
 END_SCRIPTDESC();
 
-inline matrix3x4_t *ToMatrix3x4( HSCRIPT hMat ) { return HScriptToClass<CScriptMatrix3x4>( hMat )->GetMatrix(); }
+matrix3x4_t *ToMatrix3x4( HSCRIPT hMat ) { return HScriptToClass<CScriptMatrix3x4>( hMat )->GetMatrix(); }
 
 HSCRIPT ScriptCreateMatrixInstance( matrix3x4_t &matrix )
 {

@@ -607,7 +607,7 @@ CBaseEntity *CGlobalEntityList::FindEntityProcedural( const char *szName, CBaseE
 			CBaseEntity *pEntity = FindEntityProcedural(UTIL_VarArgs("!%s", name), pSearchingEntity, pActivator, pCaller);
 			if (pEntity && pEntity->IsNPC())
 			{
-				char *target = (Q_strstr(pName, ":") + 1);
+				const char *target = (Q_strstr(pName, ":") + 1);
 				if (target[0] != '!')
 					target = UTIL_VarArgs("!%s", target);
 

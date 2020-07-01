@@ -192,6 +192,7 @@ BEGIN_RECV_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	RecvPropVector(RECVINFO(m_skybox3d.origin)),
 #ifdef MAPBASE
 	RecvPropVector(RECVINFO(m_skybox3d.angles)),
+	RecvPropEHandle(RECVINFO(m_skybox3d.skycamera)),
 	RecvPropInt( RECVINFO( m_skybox3d.skycolor ), 0, RecvProxy_IntToColor32 ),
 #endif
 	RecvPropInt(RECVINFO(m_skybox3d.area)),

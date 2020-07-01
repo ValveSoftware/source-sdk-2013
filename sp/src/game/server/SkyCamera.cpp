@@ -94,7 +94,7 @@ BEGIN_DATADESC( CSkyCamera )
 
 	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetSkyColor", InputSetSkyColor ),
 
-	DEFINE_THINKFUNC( Update ),
+	DEFINE_THINKFUNC( UpdateThink ),
 #endif
 
 END_DATADESC()
@@ -150,16 +150,17 @@ void CSkyCamera::Spawn( void )
 	if (HasSpawnFlags(SF_SKY_MASTER))
 		g_hActiveSkybox = this;
 
-	if (HasSpawnFlags(SF_SKY_START_UPDATING) && GetCurrentSkyCamera() == this)
+	if (HasSpawnFlags(SF_SKY_START_UPDATING))
 	{
-		SetThink( &CSkyCamera::Update );
+		SetCameraEntityMode();
+
+		SetThink( &CSkyCamera::UpdateThink );
 		SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
 	}
-
-	// Must be absolute now that the sky_camera can be parented
-	m_skyboxData.origin = GetAbsOrigin();
-	if (m_bUseAnglesForSky)
-		m_skyboxData.angles = GetAbsAngles();
+	else
+	{
+		SetCameraPositionMode();
+	}
 #else
 	m_skyboxData.origin = GetLocalOrigin();
 #endif
@@ -218,63 +219,104 @@ bool CSkyCamera::AcceptInput( const char *szInputName, CBaseEntity *pActivator, 
 	if (g_hActiveSkybox == this)
 	{
 		// Most inputs require an update
-		Update();
+		DoUpdate( true );
 	}
 
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Update sky position mid-game
+// Purpose: 
 //-----------------------------------------------------------------------------
-void CSkyCamera::Update()
+void CSkyCamera::SetCameraEntityMode()
 {
+	m_skyboxData.skycamera = this;
+
+	// Ensure the viewrender knows whether this should be using angles
+	if (m_bUseAnglesForSky)
+		m_skyboxData.angles.SetX( 1 );
+	else
+		m_skyboxData.angles.SetX( 0 );
+}
+
+void CSkyCamera::SetCameraPositionMode()
+{
+	// Must be absolute now that the sky_camera can be parented
+	m_skyboxData.skycamera = NULL;
 	m_skyboxData.origin = GetAbsOrigin();
 	if (m_bUseAnglesForSky)
 		m_skyboxData.angles = GetAbsAngles();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Update sky position mid-game
+//-----------------------------------------------------------------------------
+bool CSkyCamera::DoUpdate( bool bUpdateData )
+{
+	// Now that sky camera updating uses an entity handle directly transmitted to the client,
+	// this thinking is only used to update area and other parameters
 
 	// Getting into another area is unlikely, but if it's not expensive, I guess it's okay.
-	m_skyboxData.area = engine->GetArea( m_skyboxData.origin );
+	int area = engine->GetArea( m_skyboxData.origin );
+	if (m_skyboxData.area != area)
+	{
+		m_skyboxData.area = area;
+		bUpdateData = true;
+	}
 
 	if ( m_bUseAngles )
 	{
-		AngleVectors( GetAbsAngles(), &m_skyboxData.fog.dirPrimary.GetForModify() );
-		m_skyboxData.fog.dirPrimary.GetForModify() *= -1.0f; 
+		Vector fogForward;
+		AngleVectors( GetAbsAngles(), &fogForward );
+		fogForward *= -1.0f;
+
+		if ( m_skyboxData.fog.dirPrimary.Get() != fogForward )
+		{
+			m_skyboxData.fog.dirPrimary = fogForward;
+			bUpdateData = true;
+		}
 	}
 
-#ifdef MAPBASE_MP
-	// Updates client data, this completely ignores m_pOldSkyCamera
-	CBasePlayer *pPlayer = NULL;
-	for (int i = 1; i <= gpGlobals->maxClients; i++)
+	if (bUpdateData)
 	{
-		pPlayer = UTIL_PlayerByIndex(i);
-		if (pPlayer)
-			pPlayer->m_Local.m_skybox3d.CopyFrom(m_skyboxData);
+		// Updates client data, this completely ignores m_pOldSkyCamera
+		CBasePlayer *pPlayer = NULL;
+		for (int i = 1; i <= gpGlobals->maxClients; i++)
+		{
+			pPlayer = UTIL_PlayerByIndex(i);
+			if (pPlayer)
+				pPlayer->m_Local.m_skybox3d.CopyFrom(m_skyboxData);
+		}
 	}
-#else
-	// Updates client data, this completely ignores m_pOldSkyCamera
-	CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
-	if (pPlayer)
-	{
-		pPlayer->m_Local.m_skybox3d.CopyFrom(m_skyboxData);
-	}
-#endif
 
-	SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+	// Needed for entity interpolation
+	SetSimulationTime( gpGlobals->curtime );
+
+	return bUpdateData;
+}
+
+void CSkyCamera::UpdateThink()
+{
+	if (DoUpdate())
+	{
+		SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+	}
+	else
+	{
+		SetNextThink( gpGlobals->curtime + 0.2f );
+	}
 }
 
 void CSkyCamera::InputForceUpdate( inputdata_t &inputdata )
 {
-	Update();
-
-	// Updates client data, this completely ignores m_pOldSkyCamera
-	CBasePlayer *pPlayer = NULL;
-	for (int i = 1; i <= gpGlobals->maxClients; i++)
+	if (m_skyboxData.skycamera == NULL)
 	{
-		pPlayer = UTIL_PlayerByIndex( i );
-		if (pPlayer)
-			pPlayer->m_Local.m_skybox3d.CopyFrom( m_skyboxData );
+		m_skyboxData.origin = GetAbsOrigin();
+		if (m_bUseAnglesForSky)
+			m_skyboxData.angles = GetAbsAngles();
 	}
+
+	DoUpdate( true );
 }
 
 //-----------------------------------------------------------------------------
@@ -284,12 +326,18 @@ void CSkyCamera::InputStartUpdating( inputdata_t &inputdata )
 {
 	if (GetCurrentSkyCamera() == this)
 	{
-		SetThink( &CSkyCamera::Update );
+		SetCameraEntityMode();
+		DoUpdate( true );
+
+		SetThink( &CSkyCamera::UpdateThink );
 		SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
 	}
 
 	// If we become the current sky camera later, remember that we want to update
 	AddSpawnFlags( SF_SKY_START_UPDATING );
+
+	// Must update transmit state so we show up on the client
+	DispatchUpdateTransmitState();
 }
 
 void CSkyCamera::InputStopUpdating( inputdata_t &inputdata )
@@ -297,6 +345,10 @@ void CSkyCamera::InputStopUpdating( inputdata_t &inputdata )
 	SetThink( NULL );
 	SetNextThink( TICK_NEVER_THINK );
 	RemoveSpawnFlags( SF_SKY_START_UPDATING );
+	DispatchUpdateTransmitState();
+
+	SetCameraPositionMode();
+	DoUpdate( true );
 }
 
 //-----------------------------------------------------------------------------

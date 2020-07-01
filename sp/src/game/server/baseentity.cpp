@@ -2154,6 +2154,14 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 
 	DEFINE_SCRIPTFUNC_NAMED( GetAbsOrigin, "GetOrigin", ""  )
 	DEFINE_SCRIPTFUNC( SetAbsOrigin, "SetAbsOrigin" )
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC( SetAbsAngles, "SetAbsAngles" )
+
+	DEFINE_SCRIPTFUNC( GetLocalOrigin, "GetLocalOrigin" )
+	DEFINE_SCRIPTFUNC( SetLocalOrigin, "SetLocalOrigin" )
+	DEFINE_SCRIPTFUNC( GetLocalAngles, "GetLocalAngles" )
+	DEFINE_SCRIPTFUNC( SetLocalAngles, "SetLocalAngles" )
+#endif
 
 	
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetOrigin, "SetOrigin", ""  )
@@ -2220,6 +2228,17 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddOutput, "AddOutput", "Add an output" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValue, "GetKeyValue", "Get a keyvalue" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorVector, "GetColorVector", "Get the render color as a vector" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorR, "GetColorR", "Get the render color's R value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorG, "GetColorG", "Get the render color's G value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorB, "GetColorB", "Get the render color's B value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAlpha, "GetAlpha", "Get the render color's alpha value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorVector, "SetColorVector", "Set the render color as a vector" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorR, "SetColorR", "Set the render color's R value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorG, "SetColorG", "Set the render color's G value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetColorB", "Set the render color's B value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetAlpha", "Set the render color's alpha value" )
 
 	DEFINE_SCRIPTFUNC( GetSpawnFlags, "Get spawnflags" )
 	DEFINE_SCRIPTFUNC( AddSpawnFlags, "Add spawnflag(s)" )
@@ -9615,6 +9634,22 @@ const char *CBaseEntity::ScriptGetKeyValue( const char *pszKeyName )
 	static char szValue[128];
 	GetKeyValue( pszKeyName, szValue, sizeof(szValue) );
 	return szValue;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+const Vector& CBaseEntity::ScriptGetColorVector()
+{
+	static Vector vecColor;
+	vecColor.Init( m_clrRender.GetR(), m_clrRender.GetG(), m_clrRender.GetB() );
+	return vecColor;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptSetColorVector( const Vector& vecColor )
+{
+	SetRenderColor( vecColor.x, vecColor.y, vecColor.z );
 }
 #endif
 

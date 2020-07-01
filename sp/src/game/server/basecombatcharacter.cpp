@@ -4419,19 +4419,18 @@ void CBaseCombatCharacter::ScriptEquipWeapon( HSCRIPT hWeapon )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-int CBaseCombatCharacter::ScriptGetAmmoCount( const char *szName ) const
+int CBaseCombatCharacter::ScriptGetAmmoCount( int iType ) const
 {
-	return GetAmmoCount( GetAmmoDef()->Index(szName) );
+	return GetAmmoCount( iType );
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CBaseCombatCharacter::ScriptSetAmmoCount( const char *szName, int iCount )
+void CBaseCombatCharacter::ScriptSetAmmoCount( int iType, int iCount )
 {
-	int iType = GetAmmoDef()->Index( szName );
 	if (iType == -1)
 	{
-		Warning("\"%s\" is not a valid ammo type\n", szName);
+		Warning("%i is not a valid ammo type\n", iType);
 		return;
 	}
 

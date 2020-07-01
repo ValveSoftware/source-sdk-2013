@@ -50,7 +50,14 @@ public:
 #ifdef MAPBASE
 	bool AcceptInput( const char *szInputName, CBaseEntity *pActivator, CBaseEntity *pCaller, variant_t Value, int outputID );
 
-	void Update();
+	int UpdateTransmitState() { return HasSpawnFlags( SF_SKY_START_UPDATING ) ? SetTransmitState( FL_EDICT_ALWAYS ) : BaseClass::UpdateTransmitState(); }
+
+	void SetCameraEntityMode();
+	void SetCameraPositionMode();
+
+	bool DoUpdate( bool bUpdateData = false );
+	void UpdateThink();
+
 	void InputForceUpdate( inputdata_t &inputdata );
 	void InputStartUpdating( inputdata_t &inputdata );
 	void InputStopUpdating( inputdata_t &inputdata );

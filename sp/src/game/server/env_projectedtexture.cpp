@@ -398,14 +398,19 @@ void CEnvProjectedTexture::Spawn( void )
 		m_flLightHorFOV = m_flLightFOV;
 	}
 
+	m_bState = ( ( GetSpawnFlags() & ENV_PROJECTEDTEXTURE_STARTON ) != 0 );
+	m_bAlwaysUpdate = ( ( GetSpawnFlags() & ENV_PROJECTEDTEXTURE_ALWAYSUPDATE ) != 0 );
+
 	BaseClass::Spawn();
 }
 #endif
 
 void CEnvProjectedTexture::Activate( void )
 {
+#ifndef MAPBASE // Putting this in Activate() breaks projected textures which start off or don't start always updating in savegames. Moved to Spawn() instead
 	m_bState = ( ( GetSpawnFlags() & ENV_PROJECTEDTEXTURE_STARTON ) != 0 );
 	m_bAlwaysUpdate = ( ( GetSpawnFlags() & ENV_PROJECTEDTEXTURE_ALWAYSUPDATE ) != 0 );
+#endif
 
 	SetThink( &CEnvProjectedTexture::InitialThink );
 	SetNextThink( gpGlobals->curtime + 0.1f );

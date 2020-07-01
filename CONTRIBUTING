@@ -12,7 +12,8 @@ that is always open to contributions.
 
 Whenever you contribute to the Mapbase repository, you must keep in mind that any contributions
 made could be deployed to all mods utilizing Mapbase, which can include everything from high-profile
-Steam mods to amateur HL2 maps.
+Steam mods to amateur HL2 maps. Many contributions can also end up being available in both SP and MP
+if the contributions are not obviously exclusive to one of the two.
 
 All contributions must follow the following rules:
 
@@ -24,9 +25,8 @@ All contributions must follow the following rules:
  * All content in a contribution must be either already legally open-source or done with the
    full permission of the contribution's original creator(s).
    
- * A code contribution should typically follow Mapbase's preprocessor conventions unless it's a massive
-   feature which makes fundamental changes to several different parts of the code (e.g. reductor's VScript PR).
-   When following these standards, all changes should be nested within "#ifdef MAPBASE", "#ifndef MAPBASE", etc.
+ * Code contributions are not obliged to follow Mapbase's preprocessor conventions (e.g. #ifdef MAPBASE),
+   although it's acceptable.
    
 If your contribution is accepted, you may be listed in Mapbase's credits:
 	https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Credits#Contributors

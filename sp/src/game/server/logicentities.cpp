@@ -412,6 +412,9 @@ public:
 	int m_iUseRandomTime;
 	float m_flLowerRandomBound;
 	float m_flUpperRandomBound;
+#ifdef MAPBASE
+	bool m_bUseBoundsForTimerInputs;
+#endif
 
 	// methods
 	void ResetTimer( void );
@@ -429,6 +432,10 @@ BEGIN_DATADESC( CTimerEntity )
 	DEFINE_KEYFIELD( m_flRefireTime, FIELD_FLOAT, "RefireTime" ),
 
 	DEFINE_FIELD( m_bUpDownState, FIELD_BOOLEAN ),
+
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bUseBoundsForTimerInputs, FIELD_BOOLEAN, "UseBoundsForTimerInputs" ),
+#endif
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "RefireTime", InputRefireTime ),
@@ -650,7 +657,24 @@ void CTimerEntity::InputAddToTimer( inputdata_t &inputdata )
 	
 	// Add time to timer
  	float flNextThink = GetNextThink();	
+#ifdef MAPBASE
+	if (m_bUseBoundsForTimerInputs)
+	{
+		// Make sure it's not above our min or max bounds
+		if (flNextThink - gpGlobals->curtime > m_flUpperRandomBound)
+			return;
+
+		flNextThink += inputdata.value.Float();
+		flNextThink = clamp( flNextThink - gpGlobals->curtime, m_flLowerRandomBound, m_flUpperRandomBound );
+		SetNextThink( gpGlobals->curtime + flNextThink );
+	}
+	else
+	{
+		SetNextThink( flNextThink + inputdata.value.Float() );
+	}
+#else
 	SetNextThink( flNextThink += inputdata.value.Float() );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -665,6 +689,23 @@ void CTimerEntity::InputSubtractFromTimer( inputdata_t &inputdata )
 
 	// Subtract time from the timer but don't let the timer go negative
 	float flNextThink = GetNextThink();
+#ifdef MAPBASE
+	if (m_bUseBoundsForTimerInputs)
+	{
+		// Make sure it's not above our min or max bounds
+		if (flNextThink - gpGlobals->curtime < m_flLowerRandomBound)
+			return;
+
+		flNextThink -= inputdata.value.Float();
+		flNextThink = clamp( flNextThink - gpGlobals->curtime, m_flLowerRandomBound, m_flUpperRandomBound );
+		SetNextThink( gpGlobals->curtime + flNextThink );
+	}
+	else
+	{
+		flNextThink -= inputdata.value.Float();
+		SetNextThink( (flNextThink <= gpGlobals->curtime) ? gpGlobals->curtime : flNextThink );
+	}
+#else
 	if ( ( flNextThink - gpGlobals->curtime ) <= inputdata.value.Float() )
 	{
 		SetNextThink( gpGlobals->curtime );
@@ -673,6 +714,7 @@ void CTimerEntity::InputSubtractFromTimer( inputdata_t &inputdata )
 	{
 		SetNextThink( flNextThink -= inputdata.value.Float() );
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

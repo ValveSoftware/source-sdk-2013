@@ -282,6 +282,9 @@ BEGIN_DATADESC( C_ClientRagdoll )
 END_DATADESC()
 
 BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-side" )
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPoseParameter, "GetPoseParameter", "Get the specified pose parameter's value" )
+#endif
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetPoseParameter, "SetPoseParameter", "Set the specified pose parameter to the specified value"  )
 	DEFINE_SCRIPTFUNC( IsSequenceFinished, "Ask whether the main sequence is done playing" )
 END_SCRIPTDESC();
@@ -1407,6 +1410,18 @@ float C_BaseAnimating::ClampCycle( float flCycle, bool isLooping )
 	}
 	return flCycle;
 }
+
+#ifdef MAPBASE_VSCRIPT
+float C_BaseAnimating::ScriptGetPoseParameter( const char* szName )
+{
+	CStudioHdr* pHdr = GetModelPtr();
+	if (pHdr == NULL)
+		return 0.0f;
+
+	int iPoseParam = LookupPoseParameter( pHdr, szName );
+	return GetPoseParameter( iPoseParam );
+}
+#endif
 
 void C_BaseAnimating::ScriptSetPoseParameter(const char* szName, float fValue)
 {

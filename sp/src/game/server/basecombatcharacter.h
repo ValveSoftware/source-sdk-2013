@@ -422,8 +422,8 @@ public:
 
 	void				ScriptEquipWeapon( HSCRIPT hWeapon );
 
-	int					ScriptGetAmmoCount( const char *szName ) const;
-	void				ScriptSetAmmoCount( const char *szName, int iCount );
+	int					ScriptGetAmmoCount( int iType ) const;
+	void				ScriptSetAmmoCount( int iType, int iCount );
 
 	int					ScriptRelationType( HSCRIPT pTarget );
 	int					ScriptRelationPriority( HSCRIPT pTarget );
