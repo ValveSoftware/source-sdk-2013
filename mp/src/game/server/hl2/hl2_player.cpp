@@ -1712,19 +1712,21 @@ void CHL2_Player::CheatImpulseCommands( int iImpulse )
 
 	case 51:
 	{
-		// Cheat to create a dynamic resupply item
-		Vector vecForward;
-		AngleVectors( EyeAngles(), &vecForward );
-		CBaseEntity *pItem = (CBaseEntity *)CreateEntityByName( "item_dynamic_resupply" );
-		if ( pItem )
+		if( sv_cheats->GetBool() )
 		{
-			Vector vecOrigin = GetAbsOrigin() + vecForward * 256 + Vector(0,0,64);
-			QAngle vecAngles( 0, GetAbsAngles().y - 90, 0 );
-			pItem->SetAbsOrigin( vecOrigin );
-			pItem->SetAbsAngles( vecAngles );
-			pItem->KeyValue( "targetname", "resupply" );
-			pItem->Spawn();
-			pItem->Activate();
+			Vector vecForward;
+			AngleVectors( EyeAngles(), &vecForward );
+			CBaseEntity *pItem = (CBaseEntity *)CreateEntityByName( "item_dynamic_resupply" );
+			if ( pItem )
+			{
+				Vector vecOrigin = GetAbsOrigin() + vecForward * 256 + Vector(0,0,64);
+				QAngle vecAngles( 0, GetAbsAngles().y - 90, 0 );
+				pItem->SetAbsOrigin( vecOrigin );
+				pItem->SetAbsAngles( vecAngles );
+				pItem->KeyValue( "targetname", "resupply" );
+				pItem->Spawn();
+				pItem->Activate();
+			}
 		}
 		break;
 	}
