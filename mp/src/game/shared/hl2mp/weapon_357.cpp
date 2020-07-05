@@ -133,17 +133,6 @@ void CWeapon357::PrimaryAttack( void )
 	// Fire the bullets, and force the first shot to be perfectly accuracy
 	pPlayer->FireBullets( info );
 
-	//Disorient the player
-	QAngle angles = pPlayer->GetLocalAngles();
-
-	angles.x += random->RandomInt( -1, 1 );
-	angles.y += random->RandomInt( -1, 1 );
-	angles.z = 0;
-
-#ifndef CLIENT_DLL
-	pPlayer->SnapEyeAngles( angles );
-#endif
-
 	pPlayer->ViewPunch( QAngle( -8, random->RandomFloat( -2, 2 ), 0 ) );
 
 	if ( !m_iClip1 && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 )
