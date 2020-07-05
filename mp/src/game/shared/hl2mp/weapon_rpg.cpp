@@ -1248,7 +1248,7 @@ void CAPCMissile::ComputeActualDotPosition( CLaserDot *pLaserDot, Vector *pActua
 
 #define	RPG_BEAM_SPRITE		"effects/laser1.vmt"
 #define	RPG_BEAM_SPRITE_NOZ	"effects/laser1_noz.vmt"
-#define	RPG_LASER_SPRITE	"sprites/redglow1"
+#define	RPG_LASER_SPRITE	"sprites/redglow.vmt1"
 
 //=============================================================================
 // RPG
@@ -1361,7 +1361,6 @@ void CWeaponRPG::Precache( void )
 	PrecacheScriptSound( "Missile.Accelerate" );
 
 	// Laser dot...
-	PrecacheModel( "sprites/redglow1.vmt" );
 	PrecacheModel( RPG_LASER_SPRITE );
 	PrecacheModel( RPG_BEAM_SPRITE );
 	PrecacheModel( RPG_BEAM_SPRITE_NOZ );
@@ -1567,11 +1566,6 @@ void CWeaponRPG::ItemPostFrame( void )
 
 	//Move the laser
 	UpdateLaserPosition();
-
-	if ( pPlayer->GetAmmoCount(m_iPrimaryAmmoType) <= 0 && m_hMissile == NULL )
-	{
-		StopGuiding();
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1796,7 +1790,7 @@ void CWeaponRPG::CreateLaserPointer( void )
 	if ( pOwner == NULL )
 		return;
 
-	if ( pOwner->GetAmmoCount(m_iPrimaryAmmoType) <= 0 )
+	if ( pOwner->GetAmmoCount(m_iPrimaryAmmoType) == 0 && m_hMissile == NULL )
 		return;
 
 	m_hLaserDot = CLaserDot::Create( GetAbsOrigin(), GetOwner() );
@@ -1896,7 +1890,7 @@ void CWeaponRPG::InitBeam( void )
 	if ( pOwner == NULL )
 		return;
 
-	if ( pOwner->GetAmmoCount(m_iPrimaryAmmoType) <= 0 )
+	if ( pOwner->GetAmmoCount(m_iPrimaryAmmoType) == 0 && m_hMissile == NULL )
 		return;
 
 
