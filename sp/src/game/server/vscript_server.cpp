@@ -569,6 +569,8 @@ bool VScriptServerInit()
 				g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
 
 #ifdef MAPBASE_VSCRIPT
+				g_pScriptVM->RegisterAllClasses();
+
 				IGameSystem::RegisterVScriptAllSystems();
 
 				RegisterSharedScriptFunctions();

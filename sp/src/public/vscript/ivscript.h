@@ -297,7 +297,12 @@ public:
 
 struct ScriptClassDesc_t
 {
-	ScriptClassDesc_t() : m_pszScriptName( 0 ), m_pszClassname( 0 ), m_pszDescription( 0 ), m_pBaseDesc( 0 ), m_pfnConstruct( 0 ), m_pfnDestruct( 0 ), pHelper(NULL) {}
+	ScriptClassDesc_t() : m_pszScriptName( 0 ), m_pszClassname( 0 ), m_pszDescription( 0 ), m_pBaseDesc( 0 ), m_pfnConstruct( 0 ), m_pfnDestruct( 0 ), pHelper(NULL) 
+	{
+#ifdef MAPBASE_VSCRIPT
+		AllClassesDesc().AddToTail(this);
+#endif
+	}
 
 	const char *						m_pszScriptName;
 	const char *						m_pszClassname;
@@ -308,6 +313,14 @@ struct ScriptClassDesc_t
 	void *(*m_pfnConstruct)();
 	void (*m_pfnDestruct)( void *);
 	IScriptInstanceHelper *				pHelper; // optional helper
+
+#ifdef MAPBASE_VSCRIPT
+	static CUtlVector<ScriptClassDesc_t*>& AllClassesDesc()
+	{
+		static CUtlVector<ScriptClassDesc_t*> classes;
+		return classes;
+	}
+#endif
 };
 
 //---------------------------------------------------------
@@ -875,6 +888,16 @@ public:
 		return ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, hScope, bWait );
 	}
 
+#ifdef MAPBASE_VSCRIPT
+	void RegisterAllClasses()
+	{
+		CUtlVector<ScriptClassDesc_t*>& classDescs = ScriptClassDesc_t::AllClassesDesc();
+		FOR_EACH_VEC(classDescs, i)
+		{
+			RegisterClass(classDescs[i]);
+		}
+	}
+#endif
 };
 
 
