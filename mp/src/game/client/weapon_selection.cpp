@@ -562,10 +562,6 @@ void CBaseHudWeaponSelection::CancelWeaponSelection( void )
 		// Play the "close weapon selection" sound
 		player->EmitSound( "Player.WeaponSelectionClose" );
 	}
-	else
-	{
-		engine->ClientCmd("escape");
-	}
 }
 
 //-----------------------------------------------------------------------------
