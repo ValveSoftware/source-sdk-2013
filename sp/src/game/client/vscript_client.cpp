@@ -487,6 +487,8 @@ bool VScriptClientInit()
 				}
 
 #ifdef MAPBASE_VSCRIPT
+				g_pScriptVM->RegisterAllClasses();
+
 				g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
 
 				IGameSystem::RegisterVScriptAllSystems();
