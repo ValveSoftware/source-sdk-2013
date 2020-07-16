@@ -421,7 +421,7 @@ IMPLEMENT_SERVERCLASS_ST(CWorld, DT_WORLD)
 	SendPropStringT (SENDINFO(m_iszChapterTitle) ),
 #endif
 #ifdef MAPBASE_VSCRIPT
-	SendPropInt		(SENDINFO(m_iScriptLanguage), 2, SPROP_UNSIGNED ),
+	SendPropInt		(SENDINFO(m_iScriptLanguage), 4 ), // No SPROP_UNSIGNED to allow -1 (disabled)
 #endif
 END_SEND_TABLE()
 

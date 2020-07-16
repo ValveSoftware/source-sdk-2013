@@ -62,6 +62,8 @@ bool		g_bAllowDetailCracks = false;
 bool		g_bNoVirtualMesh = false;
 #ifdef MAPBASE
 bool		g_bNoDefaultCubemaps = true;
+bool		g_bSkyboxCubemaps = false;
+int			g_iDefaultCubemapSize = 32;
 #endif
 
 float		g_defaultLuxelSize = DEFAULT_LUXEL_SIZE;
@@ -1156,12 +1158,27 @@ int RunVBSP( int argc, char **argv )
 			EnableFullMinidumps( true );
 		}
 #ifdef MAPBASE
-		// Thanks to Mapbase's shader changes, default cubemaps are no longer needed.
+		// Thanks to Mapbase's shader changes, default all-black cubemaps are no longer needed.
 		// The command has been switched from "-nodefaultcubemap" to "-defaultcubemap",
 		// meaning maps are compiled without them by default.
 		else if ( !Q_stricmp( argv[i], "-defaultcubemap" ) )
 		{
 			g_bNoDefaultCubemaps = false;
+		}
+		// Default cubemaps are supposed to show the sky texture, but Valve disabled this
+		// because they didn't get it working for HDR cubemaps. As a result, all default
+		// cubemaps appear as all-black textures. However, this parameter has been added to
+		// re-enable skybox cubemaps for LDR cubemaps. (HDR skybox cubemaps are not supported)
+		else if ( !Q_stricmp( argv[i], "-skyboxcubemap" ) )
+		{
+			g_bNoDefaultCubemaps = false;
+			g_bSkyboxCubemaps = true;
+		}
+		else if ( !Q_stricmp( argv[i], "-defaultcubemapres" ) )
+		{
+			g_iDefaultCubemapSize = atoi( argv[i + 1] );
+			Msg( "Default cubemap size = %i\n", g_iDefaultCubemapSize );
+			i++;
 		}
 #endif
 		else if (argv[i][0] == '-')

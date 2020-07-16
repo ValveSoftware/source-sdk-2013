@@ -49,6 +49,7 @@ private:
 	// This is used to lag the angles.
 	CInterpolatedVar<QAngle> m_LagAnglesHistory;
 	QAngle m_vLagAngles;
+	Vector	m_vPredictedOffset;
 
 	CPredictedViewModel( const CPredictedViewModel & ); // not defined, not accessible
 

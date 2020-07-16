@@ -552,12 +552,17 @@ float UTIL_ScaleForGravity( float desiredGravity );
 #define SF_BRUSH_ROTATE_BACKWARDS	2
 #define SF_BRUSH_ROTATE_Z_AXIS		4
 #define SF_BRUSH_ROTATE_X_AXIS		8
-#define SF_BRUSH_ROTATE_CLIENTSIDE	16
 
+// brought over from bmodels.cpp
+#define	SF_BRUSH_ACCDCC					16	// brush should accelerate and decelerate when toggled
+#define	SF_BRUSH_HURT					32	// rotating brush that inflicts pain based on rotation speed
+#define	SF_ROTATING_NOT_SOLID			64	// some special rotating objects are not solid.
 
 #define SF_BRUSH_ROTATE_SMALLRADIUS	128
 #define SF_BRUSH_ROTATE_MEDIUMRADIUS 256
 #define SF_BRUSH_ROTATE_LARGERADIUS 512
+// changed bit to not conflict with much older flag SF_BRUSH_ACCDCC
+#define SF_BRUSH_ROTATE_CLIENTSIDE		1024
 
 #define PUSH_BLOCK_ONLY_X	1
 #define PUSH_BLOCK_ONLY_Y	2

@@ -90,6 +90,7 @@ BEGIN_DATADESC( CBounceBomb )
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_iInitialState, FIELD_INTEGER, "InitialState" ),
 	DEFINE_KEYFIELD( m_bCheapWarnSound, FIELD_BOOLEAN, "CheapWarnSound" ),
+	DEFINE_KEYFIELD( m_iLOSMask, FIELD_INTEGER, "LOSMask" ),
 #endif
 	DEFINE_KEYFIELD( m_iModification, FIELD_INTEGER, "Modification" ),
 
@@ -962,7 +963,11 @@ float CBounceBomb::FindNearestNPC()
 			if( flDist < flNearest )
 			{
 				// Now do a visibility test.
+#ifdef MAPBASE
+				if( FVisible( pNPC, m_iLOSMask ) )
+#else
 				if( FVisible( pNPC, MASK_SOLID_BRUSHONLY ) )
+#endif
 				{
 					flNearest = flDist;
 					SetNearestNPC( pNPC );
@@ -979,7 +984,7 @@ float CBounceBomb::FindNearestNPC()
 		{
 			float flDist = (pPlayer->GetAbsOrigin() - GetAbsOrigin() ).LengthSqr();
 
-			if( flDist < flNearest && FVisible( pPlayer, MASK_SOLID_BRUSHONLY ) )
+			if( flDist < flNearest && FVisible( pPlayer, m_iLOSMask ) )
 			{
 				flNearest = flDist;
 				SetNearestNPC( pPlayer );
@@ -1010,7 +1015,7 @@ float CBounceBomb::FindNearestNPC()
 		float flDist = (pPlayer->GetAbsOrigin() - GetAbsOrigin() ).LengthSqr();
 
 #ifdef MAPBASE
-		if( flDist < flNearest && FVisible( pPlayer, MASK_SOLID_BRUSHONLY ) && bPassesFilter )
+		if( flDist < flNearest && FVisible( pPlayer, m_iLOSMask ) && bPassesFilter )
 #else
 		if( flDist < flNearest && FVisible( pPlayer, MASK_SOLID_BRUSHONLY ) )
 #endif

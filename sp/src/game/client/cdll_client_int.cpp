@@ -147,11 +147,6 @@
 #include "fbxsystem/fbxsystem.h"
 #endif
 
-#ifdef DISCORD_RPC
-#include "discord_rpc.h"
-#include <time.h>
-#endif
-
 extern vgui::IInputInternal *g_InputInternal;
 
 //=============================================================================
@@ -1124,6 +1119,10 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 #ifdef MAPBASE_RPC
 	MapbaseRPC_Init();
+#endif
+
+#ifdef MAPBASE
+	CommandLine()->AppendParm( "+r_hunkalloclightmaps", "0" );
 #endif
 
 	return true;

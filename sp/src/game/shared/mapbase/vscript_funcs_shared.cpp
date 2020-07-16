@@ -13,11 +13,15 @@
 #include "matchers.h"
 #include "takedamageinfo.h"
 #include "ammodef.h"
+#include <vgui_controls/Controls.h> 
+#include <vgui/ILocalize.h>
 
 #ifndef CLIENT_DLL
 #include "globalstate.h"
 #include "vscript_server.h"
 #endif
+
+#include "vscript_funcs_shared.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -354,6 +358,33 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptConvarLookup, "CConvars", SCRIPT_SINGLETON "
 END_SCRIPTDESC();
 
 #ifndef CLIENT_DLL
+void EmitSoundOn( const char *pszSound, HSCRIPT hEnt )
+{
+	CBaseEntity *pEnt = ToEnt( hEnt );
+	if (!hEnt || !pEnt)
+		return;
+
+	pEnt->EmitSound( pszSound );
+}
+
+void EmitSoundOnClient( const char *pszSound, HSCRIPT hEnt, HSCRIPT hPlayer )
+{
+	CBaseEntity *pEnt = ToEnt( hEnt );
+	CBasePlayer *pPlayer = ToBasePlayer( ToEnt( hPlayer ) );
+	if (!hPlayer || !pEnt || !pPlayer)
+		return;
+
+	CSingleUserRecipientFilter filter( pPlayer );
+
+	EmitSound_t params;
+	params.m_pSoundName = pszSound;
+	params.m_flSoundTime = 0.0f;
+	params.m_pflSoundDuration = NULL;
+	params.m_bWarnOnDirectWaveReference = true;
+
+	pEnt->EmitSound( filter, pEnt->entindex(), params );
+}
+
 void AddThinkToEnt( HSCRIPT entity, const char *pszFuncName )
 {
 	CBaseEntity *pEntity = ToEnt( entity );
@@ -504,6 +535,33 @@ void ScriptDispatchSpawn( HSCRIPT hEntity )
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
+class CScriptLocalize
+{
+public:
+
+	const char *GetTokenAsUTF8( const char *pszToken )
+	{
+		const char *pText = g_pVGuiLocalize->FindAsUTF8( pszToken );
+		if ( pText )
+		{
+			return pText;
+		}
+
+		return NULL;
+	}
+
+private:
+} g_ScriptLocalize;
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptLocalize, "Localize", SCRIPT_SINGLETON "Accesses functions related to localization strings." )
+
+	DEFINE_SCRIPTFUNC( GetTokenAsUTF8, "Gets the current language's token as a UTF-8 string (not Unicode)." )
+
+END_SCRIPTDESC();
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 static HSCRIPT CreateDamageInfo( HSCRIPT hInflictor, HSCRIPT hAttacker, const Vector &vecForce, const Vector &vecDamagePos, float flDamage, int iDamageType )
 {
 	// The script is responsible for deleting this via DestroyDamageInfo().
@@ -537,50 +595,6 @@ void ScriptGuessDamageForce( HSCRIPT info, const Vector &vecForceDir, const Vect
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-class CTraceInfoAccessor
-{
-public:
-
-	// CGrameTrace stuff
-	bool DidHitWorld() const { return m_tr.DidHitWorld(); }
-	bool DidHitNonWorldEntity() const { return m_tr.DidHitNonWorldEntity(); }
-	int GetEntityIndex() const { return m_tr.GetEntityIndex(); }
-	bool DidHit() const { return m_tr.DidHit(); }
-
-	float FractionLeftSolid() const { return m_tr.fractionleftsolid; }
-	int HitGroup() const { return m_tr.hitgroup; }
-	int PhysicsBone() const { return m_tr.physicsbone; }
-
-	HSCRIPT Entity() const { return ToHScript(m_tr.m_pEnt); }
-
-	int HitBox() const { return m_tr.hitbox; }
-
-	// CBaseTrace stuff
-	bool IsDispSurface() { return m_tr.IsDispSurface(); }
-	bool IsDispSurfaceWalkable() { return m_tr.IsDispSurfaceWalkable(); }
-	bool IsDispSurfaceBuildable() { return m_tr.IsDispSurfaceBuildable(); }
-	bool IsDispSurfaceProp1() { return m_tr.IsDispSurfaceProp1(); }
-	bool IsDispSurfaceProp2() { return m_tr.IsDispSurfaceProp2(); }
-
-	Vector StartPos() const { return m_tr.startpos; }
-	Vector EndPos() const { return m_tr.endpos; }
-
-	float Fraction() const { return m_tr.fraction; }
-
-	int Contents() const { return m_tr.contents; }
-	int DispFlags() const { return m_tr.dispFlags; }
-
-	bool AllSolid() const { return m_tr.allsolid; }
-	bool StartSolid() const { return m_tr.startsolid; }
-
-	trace_t &GetTrace() { return m_tr; }
-	void Destroy() { delete this; }
-
-private:
-	trace_t m_tr;
-
-};
-
 BEGIN_SCRIPTDESC_ROOT_NAMED( CTraceInfoAccessor, "CGameTrace", "Handle for accessing trace_t info." )
 	DEFINE_SCRIPTFUNC( DidHitWorld, "Returns whether the trace hit the world entity or not." )
 	DEFINE_SCRIPTFUNC( DidHitNonWorldEntity, "Returns whether the trace hit something other than the world entity." )
@@ -750,6 +764,42 @@ FireBulletsInfo_t *GetFireBulletsInfoFromInfo( HSCRIPT hBulletsInfo )
 	return NULL;
 }
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+BEGIN_SCRIPTDESC_ROOT_NAMED( CUserCmdAccessor, "CUserCmd", "Handle for accessing CUserCmd info." )
+	DEFINE_SCRIPTFUNC( GetCommandNumber, "For matching server and client commands for debugging." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetTickCount, "GetTickCount", "The tick the client created this command." )
+
+	DEFINE_SCRIPTFUNC( GetViewAngles, "Player instantaneous view angles." )
+	DEFINE_SCRIPTFUNC( SetViewAngles, "Sets player instantaneous view angles." )
+
+	DEFINE_SCRIPTFUNC( GetForwardMove, "Forward velocity." )
+	DEFINE_SCRIPTFUNC( SetForwardMove, "Sets forward velocity." )
+	DEFINE_SCRIPTFUNC( GetSideMove, "Side velocity." )
+	DEFINE_SCRIPTFUNC( SetSideMove, "Sets side velocity." )
+	DEFINE_SCRIPTFUNC( GetUpMove, "Up velocity." )
+	DEFINE_SCRIPTFUNC( SetUpMove, "Sets up velocity." )
+
+	DEFINE_SCRIPTFUNC( GetButtons, "Attack button states." )
+	DEFINE_SCRIPTFUNC( SetButtons, "Sets attack button states." )
+	DEFINE_SCRIPTFUNC( GetImpulse, "Impulse command issued." )
+	DEFINE_SCRIPTFUNC( SetImpulse, "Sets impulse command issued." )
+
+	DEFINE_SCRIPTFUNC( GetWeaponSelect, "Current weapon id." )
+	DEFINE_SCRIPTFUNC( SetWeaponSelect, "Sets current weapon id." )
+	DEFINE_SCRIPTFUNC( GetWeaponSubtype, "Current weapon subtype id." )
+	DEFINE_SCRIPTFUNC( SetWeaponSubtype, "Sets current weapon subtype id." )
+
+	DEFINE_SCRIPTFUNC( GetRandomSeed, "For shared random functions." )
+
+	DEFINE_SCRIPTFUNC( GetMouseX, "Mouse accum in x from create move." )
+	DEFINE_SCRIPTFUNC( SetMouseX, "Sets mouse accum in x from create move." )
+	DEFINE_SCRIPTFUNC( GetMouseY, "Mouse accum in y from create move." )
+	DEFINE_SCRIPTFUNC( SetMouseY, "Sets mouse accum in y from create move." )
+END_SCRIPTDESC();
+
 //=============================================================================
 //=============================================================================
 
@@ -829,18 +879,27 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::BoxDirection, "DebugDrawBoxDirection", "Draw a debug forward box" );
 	ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::Text, "DebugDrawText", "Draw a debug overlay text" );
 
+	ScriptRegisterFunction( g_pScriptVM, EmitSoundOn, "Play named sound on an entity." );
+	ScriptRegisterFunction( g_pScriptVM, EmitSoundOnClient, "Play named sound only on the client for the specified player." );
+
 	ScriptRegisterFunction( g_pScriptVM, AddThinkToEnt, "This will put a think function onto an entity, or pass null to remove it. This is NOT chained, so be careful." );
 	ScriptRegisterFunction( g_pScriptVM, EntIndexToHScript, "Returns the script handle for the given entity index." );
 	ScriptRegisterFunction( g_pScriptVM, PrecacheEntityFromTable, "Precache an entity from KeyValues in a table." );
 	ScriptRegisterFunction( g_pScriptVM, SpawnEntityFromTable, "Native function for entity spawning." );
 #endif
 
-	g_pScriptVM->RegisterInstance( GetAmmoDef(), "AmmoDef" );
-
 	g_pScriptVM->RegisterInstance( &g_ScriptConvarLookup, "Convars" );
 	g_pScriptVM->RegisterInstance( &g_ScriptNetPropManager, "NetProps" );
 
-	// Functions unique to Mapbase
+	//-----------------------------------------------------------------------------
+	// Functions, singletons, etc. unique to Mapbase
+	//-----------------------------------------------------------------------------
+
+	g_pScriptVM->RegisterInstance( GetAmmoDef(), "AmmoDef" );
+	g_pScriptVM->RegisterInstance( &g_ScriptLocalize, "Localize" );
+
+	//-----------------------------------------------------------------------------
+
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptColorPrint, "printc", "Version of print() which takes a color before the message." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptColorPrintL, "printcl", "Version of printl() which takes a color before the message." );
 

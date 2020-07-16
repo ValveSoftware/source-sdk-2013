@@ -44,6 +44,8 @@ public:
 	virtual void	SetGroundEntity( trace_t *pm );
 	virtual bool CanAccelerate( void );
 
+	virtual unsigned int PlayerSolidMask( bool brushOnly = false );
+
 #ifdef MAPBASE
 	// Called by mappers who need a player to be on a ladder.
 	bool		ForcePlayerOntoLadder(CFuncLadder *ladder);

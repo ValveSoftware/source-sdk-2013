@@ -91,6 +91,14 @@ BEGIN_SEND_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	SendPropInt( SENDINFO_STRUCTELEM( m_audio.soundscapeIndex ), 17, 0 ),
 	SendPropInt( SENDINFO_STRUCTELEM( m_audio.localBits ), NUM_AUDIO_LOCAL_SOUNDS, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO_STRUCTELEM( m_audio.ent ) ),
+
+	//Tony; tonemap stuff! -- TODO! Optimize this with bit sizes from env_tonemap_controller.
+	SendPropFloat ( SENDINFO_STRUCTELEM( m_TonemapParams.m_flTonemapScale ), 0, SPROP_NOSCALE ),
+	SendPropFloat ( SENDINFO_STRUCTELEM( m_TonemapParams.m_flTonemapRate ), 0, SPROP_NOSCALE ),
+	SendPropFloat ( SENDINFO_STRUCTELEM( m_TonemapParams.m_flBloomScale ), 0, SPROP_NOSCALE ),
+
+	SendPropFloat ( SENDINFO_STRUCTELEM( m_TonemapParams.m_flAutoExposureMin ), 0, SPROP_NOSCALE ),
+	SendPropFloat ( SENDINFO_STRUCTELEM( m_TonemapParams.m_flAutoExposureMax ), 0, SPROP_NOSCALE ),
 END_SEND_TABLE()
 
 BEGIN_SIMPLE_DATADESC( fogplayerparams_t )
@@ -146,6 +154,16 @@ BEGIN_SIMPLE_DATADESC( audioparams_t )
 
 END_DATADESC()
 
+//Tony; tonepam params!!
+BEGIN_SIMPLE_DATADESC ( tonemap_params_t )
+	DEFINE_FIELD( m_flTonemapScale, FIELD_FLOAT ),
+	DEFINE_FIELD( m_flTonemapRate, FIELD_FLOAT ),
+	DEFINE_FIELD( m_flBloomScale, FIELD_FLOAT ),
+	DEFINE_FIELD( m_flAutoExposureMin, FIELD_FLOAT ),
+	DEFINE_FIELD( m_flAutoExposureMax, FIELD_FLOAT ),
+END_DATADESC()
+
+
 BEGIN_SIMPLE_DATADESC( CPlayerLocalData )
 	DEFINE_AUTO_ARRAY( m_chAreaBits, FIELD_CHARACTER ),
 	DEFINE_AUTO_ARRAY( m_chAreaPortalBits, FIELD_CHARACTER ),
@@ -172,6 +190,9 @@ BEGIN_SIMPLE_DATADESC( CPlayerLocalData )
 	DEFINE_EMBEDDED( m_PlayerFog ),
 	DEFINE_EMBEDDED( m_fog ),
 	DEFINE_EMBEDDED( m_audio ),
+
+	//Tony; added
+	DEFINE_EMBEDDED( m_TonemapParams ),
 	
 	// "Why don't we save this field, grandpa?"
 	//

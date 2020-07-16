@@ -580,6 +580,7 @@ enum
 	EFL_SETTING_UP_BONES =		(1<<3),	// Set while a model is setting up its bones.
 	EFL_KEEP_ON_RECREATE_ENTITIES = (1<<4), // This is a special entity that should not be deleted when we restart entities only
 
+	//Tony; BUG?? I noticed this today while performing stealz on flag 16! look at the definition of the flag above...
 	EFL_HAS_PLAYER_CHILD=		(1<<4),	// One of the child entities is a player.
 
 	EFL_DIRTY_SHADOWUPDATE =	(1<<5),	// Client only- need shadow manager to update the shadow...
@@ -601,7 +602,7 @@ enum
 	EFL_DIRTY_ABSANGVELOCITY =	(1<<13),
 	EFL_DIRTY_SURROUNDING_COLLISION_BOUNDS	= (1<<14),
 	EFL_DIRTY_SPATIAL_PARTITION = (1<<15),
-//	UNUSED						= (1<<16),
+	EFL_PLUGIN_BASED_BOT		= (1<<16),		//this is set on plugin bots, so that if any games include their own bot code, they won't affect plugin bots.
 
 	EFL_IN_SKYBOX =				(1<<17),	// This is set if the entity detects that it's in the skybox.
 											// This forces it to pass the "in PVS" for transmission.
@@ -911,6 +912,39 @@ enum
 #define COMMENTARY_BUTTONS		(IN_ATTACK | IN_ATTACK2 | IN_USE)
 #else
 #define COMMENTARY_BUTTONS		(IN_USE)
+#endif
+
+enum tprbGameInfo_e
+{
+	// Teamplay Roundbased Game rules shared
+	TPRBGAMEINFO_GAMESTATE = 1,					//gets the state of the current game (waiting for players, setup, active, overtime, stalemate, roundreset)
+	TPRBGAMEINFO_RESERVED1,
+	TPRBGAMEINFO_RESERVED2,
+	TPRBGAMEINFO_RESERVED3,
+	TPRBGAMEINFO_RESERVED4,
+	TPRBGAMEINFO_RESERVED5,
+	TPRBGAMEINFO_RESERVED6,
+	TPRBGAMEINFO_RESERVED7,
+	TPRBGAMEINFO_RESERVED8,
+
+	TPRBGAMEINFO_LASTGAMEINFO,
+};
+// Mark it off so valvegame_plugin_def.h ignores it, if both headers are included in a plugin.
+#define TPRBGAMEINFO_x 1
+
+//Tony; (t)eam(p)lay(r)ound(b)ased gamerules -- Game Info values
+#define TPRB_STATE_WAITING				(1<<0)
+#define TPRB_STATE_SETUP				(1<<1)
+#define TPRB_STATE_ACTIVE				(1<<2)
+#define TPRB_STATE_ROUNDWON				(1<<3)
+#define TPRB_STATE_OVERTIME				(1<<4)
+#define TPRB_STATE_STALEMATE			(1<<5)
+#define TPRB_STATE_ROUNDRESET			(1<<6)
+#define TPRB_STATE_WAITINGREADYSTART	(1<<7)
+
+//Tony; including sdk_shareddefs.h because I use it in a _lot_ of places that needs to be seen before many other things.
+#ifdef SDK_DLL
+#include "sdk_shareddefs.h"
 #endif
 
 #define TEAM_TRAIN_MAX_TEAMS			4

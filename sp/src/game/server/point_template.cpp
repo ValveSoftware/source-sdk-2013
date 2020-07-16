@@ -544,6 +544,11 @@ void CPointTemplate::InputForceSpawnRandomTemplate( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void ScriptInstallPreSpawnHook()
 {
+#ifdef MAPBASE_VSCRIPT
+	if ( !g_pScriptVM )
+		return;
+#endif
+
 #ifdef IS_WINDOWS_PC
 	if ( !g_pScriptVM->ValueExists( "__ExecutePreSpawn " ) )
 	{

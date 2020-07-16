@@ -1988,7 +1988,7 @@ public:
 	const Vector& ScriptGetUp(void) { static Vector vecUp; GetVectors(NULL, NULL, &vecUp); return vecUp; }
 
 #ifdef MAPBASE_VSCRIPT
-	HSCRIPT ScriptEntityToWorldTransform(void) { return ScriptCreateMatrixInstance( EntityToWorldTransform() ); }
+	HSCRIPT ScriptEntityToWorldTransform( void );
 #endif
 
 	const char* ScriptGetModelName(void) const;

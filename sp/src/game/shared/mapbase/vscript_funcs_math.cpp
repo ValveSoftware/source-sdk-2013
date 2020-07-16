@@ -7,6 +7,8 @@
 
 #include "cbase.h"
 
+#include "vscript_funcs_math.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -15,65 +17,12 @@
 // matrix3x4_t
 // 
 //=============================================================================
-
-// 
-// Exposes matrix3x4_t to VScript
-// 
-class CScriptMatrix3x4
-{
-public:
-	CScriptMatrix3x4()
-	{
-		matrix = new matrix3x4_t();
-		m_bFree = true;
-	}
-
-	~CScriptMatrix3x4()
-	{
-		if (m_bFree == true)
-			delete matrix;
-	}
-
-	CScriptMatrix3x4( matrix3x4_t &inmatrix ) { matrix = &inmatrix; }
-
-	matrix3x4_t *GetMatrix()					{ return matrix; }
-	void SetMatrix( matrix3x4_t &inmatrix )		{ matrix = &inmatrix; }
-
-	void Init( const Vector& xAxis, const Vector& yAxis, const Vector& zAxis, const Vector &vecOrigin )
-	{
-		matrix->Init( xAxis, yAxis, zAxis, vecOrigin );
-	}
-
-private:
-	matrix3x4_t *matrix;
-	bool m_bFree = false;
-};
-
 BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptMatrix3x4, "matrix3x4_t", "A 3x4 matrix transform." )
 
 	DEFINE_SCRIPT_CONSTRUCTOR()
 	DEFINE_SCRIPTFUNC( Init, "Creates a matrix where the X axis = forward, the Y axis = left, and the Z axis = up." )
 
 END_SCRIPTDESC();
-
-matrix3x4_t *ToMatrix3x4( HSCRIPT hMat ) { return HScriptToClass<CScriptMatrix3x4>( hMat )->GetMatrix(); }
-
-HSCRIPT ScriptCreateMatrixInstance( matrix3x4_t &matrix )
-{
-	CScriptMatrix3x4 *smatrix = new CScriptMatrix3x4( matrix );
-
-	return g_pScriptVM->RegisterInstance( smatrix );
-}
-
-void ScriptFreeMatrixInstance( HSCRIPT hMat )
-{
-	CScriptMatrix3x4 *smatrix = HScriptToClass<CScriptMatrix3x4>( hMat );
-	if (smatrix)
-	{
-		g_pScriptVM->RemoveInstance( hMat );
-		delete smatrix;
-	}
-}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -273,8 +222,6 @@ void RegisterMathScriptFunctions()
 	// 
 	// matrix3x4_t
 	// 
-	g_pScriptVM->RegisterClass( GetScriptDescForClass( CScriptMatrix3x4 ) );
-
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptFreeMatrixInstance, "FreeMatrixInstance", "Frees an allocated matrix instance." );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptConcatTransforms, "ConcatTransforms", "Concatenates two transformation matrices into another matrix." );

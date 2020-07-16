@@ -283,7 +283,15 @@ void VTFNameToHDRVTFName( const char *pSrcName, char *pDest, int maxLen, bool bH
 	Q_strncpy( pDot, ".hdr.vtf", maxLen - ( pDot - pDest ) );
 }
 
+#ifdef MAPBASE
+
+extern bool g_bSkyboxCubemaps;
+extern int g_iDefaultCubemapSize;
+#define DEFAULT_CUBEMAP_SIZE g_iDefaultCubemapSize
+
+#else
 #define DEFAULT_CUBEMAP_SIZE 32
+#endif
 
 void CreateDefaultCubemaps( bool bHDR )
 {
@@ -346,9 +354,17 @@ void CreateDefaultCubemaps( bool bHDR )
 				int iSize = pDstCubemap->ComputeMipSize( iMip );
 				int iSrcMipSize = pSrcVTFTextures[iFace]->ComputeMipSize( iMip + iMipLevelOffset );
 
+#ifdef MAPBASE
+				if (!g_bSkyboxCubemaps)
+				{
+					memset( pDstBits, 0, iSize );
+					continue;
+				}
+#else
 				// !!! FIXME: Set this to black until HDR cubemaps are built properly!
 				memset( pDstBits, 0, iSize );
 				continue;
+#endif
 
 				if ( ( pSrcVTFTextures[iFace]->Width() == 4 ) && ( pSrcVTFTextures[iFace]->Height() == 4 ) ) // If texture is 4x4 square
 				{
@@ -435,6 +451,14 @@ void CreateDefaultCubemaps( bool bHDR )
 		// Convert the cubemap to the final format
 		pDstCubemap->ConvertImageFormat( originalFormat, false );
 	}
+
+#ifdef MAPBASE
+	// Apply a seam fix
+	pDstCubemap->ConvertImageFormat( IMAGE_FORMAT_RGBA8888, false );
+
+	pDstCubemap->MatchCubeMapBorders( 1, IMAGE_FORMAT_RGBA8888, false );
+	pDstCubemap->MatchCubeMapBorders( 2, originalFormat, false );
+#endif
 
 	// Write the puppy out!
 	char dstVTFFileName[1024];

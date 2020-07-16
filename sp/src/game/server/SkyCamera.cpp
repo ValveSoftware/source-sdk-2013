@@ -50,6 +50,8 @@ BEGIN_DATADESC( CSkyCamera )
 	DEFINE_FIELD( m_skyboxData.origin, FIELD_VECTOR ),
 	DEFINE_FIELD( m_skyboxData.area, FIELD_INTEGER ),
 #ifdef MAPBASE
+	DEFINE_FIELD( m_skyboxData.angles, FIELD_VECTOR ),
+	DEFINE_FIELD( m_skyboxData.skycamera, FIELD_EHANDLE ),
 	DEFINE_KEYFIELD( m_skyboxData.skycolor, FIELD_COLOR32, "skycolor" ),
 	DEFINE_KEYFIELD( m_bUseAnglesForSky, FIELD_BOOLEAN, "use_angles_for_sky" ),
 #endif

@@ -1715,7 +1715,7 @@ public:
 	virtual bool		DoHolster(void);
 	virtual bool		DoUnholster(void);
 
-	virtual bool		ShouldUnholsterWeapon() { return GetState() == NPC_STATE_COMBAT && CanUnholsterWeapon(); }
+	virtual bool		ShouldUnholsterWeapon() { return GetState() == NPC_STATE_COMBAT; }
 	virtual bool		CanUnholsterWeapon() { return IsWeaponHolstered(); }
 
 	void				InputGiveWeaponHolstered( inputdata_t &inputdata );

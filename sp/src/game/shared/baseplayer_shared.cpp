@@ -163,12 +163,30 @@ void CBasePlayer::ItemPreFrame()
 	// Handle use events
 	PlayerUse();
 
-	CBaseCombatWeapon *pActive = GetActiveWeapon();
+	//Tony; re-ordered this for efficiency and to make sure that certain things happen in the correct order!
+    if ( gpGlobals->curtime < m_flNextAttack )
+	{
+		return;
+	}
 
+	if (!GetActiveWeapon())
+		return;
+
+#if defined( CLIENT_DLL )
+	// Not predicting this weapon
+	if ( !GetActiveWeapon()->IsPredicted() )
+		return;
+#endif
+
+	GetActiveWeapon()->ItemPreFrame();
+
+	CBaseCombatWeapon *pWeapon;
+
+	CBaseCombatWeapon *pActive = GetActiveWeapon();
 	// Allow all the holstered weapons to update
 	for ( int i = 0; i < WeaponCount(); ++i )
 	{
-		CBaseCombatWeapon *pWeapon = GetWeapon( i );
+		pWeapon = GetWeapon( i );
 
 		if ( pWeapon == NULL )
 			continue;
@@ -178,20 +196,6 @@ void CBasePlayer::ItemPreFrame()
 
 		pWeapon->ItemHolsterFrame();
 	}
-
-    if ( gpGlobals->curtime < m_flNextAttack )
-		return;
-
-	if (!pActive)
-		return;
-
-#if defined( CLIENT_DLL )
-	// Not predicting this weapon
-	if ( !pActive->IsPredicted() )
-		return;
-#endif
-
-	pActive->ItemPreFrame();
 }
 
 //-----------------------------------------------------------------------------

@@ -569,6 +569,8 @@ void CPhysConstraint::GetConstraintObjects( hl_constraint_info_t &info )
 	// Missing one object, assume the world instead
 	if ( info.pObjects[0] == NULL && info.pObjects[1] )
 	{
+		// This brokens hanging lamps in hl2mp
+#if !defined ( HL2MP )
 		if ( Q_strlen(STRING(m_nameAttach1)) )
 		{
 			Warning("Bogus constraint %s (attaches ENTITY NOT FOUND:%s to %s)\n", GetDebugName(), STRING(m_nameAttach1), STRING(m_nameAttach2));
@@ -577,11 +579,15 @@ void CPhysConstraint::GetConstraintObjects( hl_constraint_info_t &info )
 			return;
 #endif	// HL2_EPISODIC
 		}
+#endif
 		info.pObjects[0] = g_PhysWorldObject;
 		info.massScale[0] = info.massScale[1] = 1.0f; // no mass scale on world constraint
+
 	}
 	else if ( info.pObjects[0] && !info.pObjects[1] )
 	{
+		// This brokens hanging lamps in hl2mp
+#if !defined ( HL2MP )
 		if ( Q_strlen(STRING(m_nameAttach2)) )
 		{
 			Warning("Bogus constraint %s (attaches %s to ENTITY NOT FOUND:%s)\n", GetDebugName(), STRING(m_nameAttach1), STRING(m_nameAttach2));
@@ -590,6 +596,7 @@ void CPhysConstraint::GetConstraintObjects( hl_constraint_info_t &info )
 			return;
 #endif	// HL2_EPISODIC
 		}
+#endif
 		info.pObjects[1] = info.pObjects[0];
 		info.pObjects[0] = g_PhysWorldObject;		// Try to make the world object consistently object0 for ease of implementation
 		info.massScale[0] = info.massScale[1] = 1.0f; // no mass scale on world constraint
@@ -1038,6 +1045,16 @@ public:
 		for ( int i = 0; i < 2; i++ )
 		{
 			info.pObjects[i]->WorldToLocal( &ballsocket.constraintPosition[i], GetAbsOrigin() );
+			// HACKHACK - the mapper forgot to put in some sane physics damping
+			float damping, adamping;
+			info.pObjects[i]->GetDamping(&damping, &adamping);
+			if (damping < .2f) {
+				damping = .2f;
+			}
+			if (adamping < .2f) {
+				adamping = .2f;
+				}
+			info.pObjects[i]->SetDamping(&damping, &adamping);
 		}
 		GetBreakParams( ballsocket.constraint, info );
 		ballsocket.constraint.torqueLimit = 0;

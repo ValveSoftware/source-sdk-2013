@@ -15,6 +15,10 @@
 #include "colorcorrectionmgr.h"
 #include "view_scene.h"
 #include "c_world.h"
+
+//Tony; new
+#include "c_baseplayer.h"
+
 #include "bitmap/tgawriter.h"
 #include "filesystem.h"
 #include "tier0/vprof.h"
@@ -765,7 +769,19 @@ static float GetCurrentBloomScale( void )
 {
 	// Use the appropriate bloom scale settings.  Mapmakers's overrides the convar settings.
 	float flCurrentBloomScale = 1.0f;
-	if ( g_bUseCustomBloomScale )
+
+	//Tony; get the local player first..
+	C_BasePlayer *pLocalPlayer = NULL;
+
+	if ( ( gpGlobals->maxClients > 1 ) )
+		pLocalPlayer = (C_BasePlayer*)C_BasePlayer::GetLocalPlayer();
+
+	//Tony; in multiplayer, get the local player etc.
+	if ( (pLocalPlayer != NULL && pLocalPlayer->m_Local.m_TonemapParams.m_flAutoExposureMin > 0.0f) )
+	{
+		flCurrentBloomScale = pLocalPlayer->m_Local.m_TonemapParams.m_flAutoExposureMin;
+	}
+	else if ( g_bUseCustomBloomScale )
 	{
 		flCurrentBloomScale = g_flCustomBloomScale;
 	}
@@ -778,8 +794,19 @@ static float GetCurrentBloomScale( void )
 
 static void GetExposureRange( float *flAutoExposureMin, float *flAutoExposureMax )
 {
+	//Tony; get the local player first..
+	C_BasePlayer *pLocalPlayer = NULL;
+
+	if ( ( gpGlobals->maxClients > 1 ) )
+		pLocalPlayer = (C_BasePlayer*)C_BasePlayer::GetLocalPlayer();
+
+	//Tony; in multiplayer, get the local player etc.
+	if ( (pLocalPlayer != NULL && pLocalPlayer->m_Local.m_TonemapParams.m_flAutoExposureMin > 0.0f) )
+	{
+		*flAutoExposureMin = pLocalPlayer->m_Local.m_TonemapParams.m_flAutoExposureMin;
+	}
 	// Get min
-	if ( ( g_bUseCustomAutoExposureMin ) && ( g_flCustomAutoExposureMin > 0.0f ) )
+	else if ( ( g_bUseCustomAutoExposureMin ) && ( g_flCustomAutoExposureMin > 0.0f ) )
 	{
 		*flAutoExposureMin = g_flCustomAutoExposureMin;
 	}
@@ -788,8 +815,13 @@ static void GetExposureRange( float *flAutoExposureMin, float *flAutoExposureMax
 		*flAutoExposureMin = mat_autoexposure_min.GetFloat();
 	}
 
+	//Tony; in multiplayer, get the value from the local player, if it's set.
+	if ( (pLocalPlayer != NULL && pLocalPlayer->m_Local.m_TonemapParams.m_flAutoExposureMax > 0.0f) )
+	{
+		*flAutoExposureMax = pLocalPlayer->m_Local.m_TonemapParams.m_flAutoExposureMax;
+	}
 	// Get max
-	if ( ( g_bUseCustomAutoExposureMax ) && ( g_flCustomAutoExposureMax > 0.0f ) )
+	else if ( ( g_bUseCustomAutoExposureMax ) && ( g_flCustomAutoExposureMax > 0.0f ) )
 	{
 		*flAutoExposureMax = g_flCustomAutoExposureMax;
 	}

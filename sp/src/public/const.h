@@ -442,5 +442,17 @@ class CThreadNullMutex;
 typedef CThreadNullMutex CSourceMutex;
 #endif
 
+//Tony; added for IPlayerInfo V3.
+//Putting all standard possible stances, but GetStance in CBasePlayer will only return standing or ducking by default -
+//up to the mod to specify the others, or override what GetStance returns.
+enum player_Stance
+{
+	PINFO_STANCE_STANDING = 0,
+	PINFO_STANCE_DUCKING,
+
+	PINFO_STANCE_SPRINTING,
+	PINFO_STANCE_PRONE,
+};
+
 #endif
 

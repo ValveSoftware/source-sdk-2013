@@ -1191,7 +1191,8 @@ void CAI_BaseNPC::NotifyFriendsOfDamage( CBaseEntity *pAttackerEntity )
 				{
 					if ( (originNpc.AsVector2D() - origin.AsVector2D()).LengthSqr() < NEAR_XY_SQ )
 					{
-						if ( pNpc->GetSquad() == GetSquad() || IRelationType( pNpc ) == D_LI )
+						//Tony; add a check to make sure this doesn't get called if the npc isn't in a squad
+						if ( ( pNpc->GetSquad() == GetSquad() && !( pNpc->GetSquad() == NULL || GetSquad() == NULL ) ) || IRelationType( pNpc ) == D_LI )
 							pNpc->OnFriendDamaged( this, pAttacker );
 					}
 				}
@@ -5189,16 +5190,17 @@ void CAI_BaseNPC::PrescheduleThink( void )
 	// Please excuse the readability here.
 	if (CapabilitiesGet() & bits_CAP_USE_WEAPONS)
 	{
-		// If we should have our gun out, fetch it
-		if ( ShouldUnholsterWeapon() )
+		if ( CanUnholsterWeapon() )
 		{
-			if ( m_iDesiredWeaponState == DESIREDWEAPONSTATE_IGNORE )
+			// If we should have our gun out, fetch it
+			if ( ShouldUnholsterWeapon() && m_iDesiredWeaponState == DESIREDWEAPONSTATE_IGNORE )
 			{
 				SetDesiredWeaponState( DESIREDWEAPONSTATE_UNHOLSTERED );
 			}
 		}
 		else if (m_iDesiredWeaponState == DESIREDWEAPONSTATE_UNHOLSTERED)
 		{
+			// If we cannot have our gun out, refuse to fetch it
 			SetDesiredWeaponState( DESIREDWEAPONSTATE_IGNORE );
 		}
 

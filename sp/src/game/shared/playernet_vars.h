@@ -129,5 +129,50 @@ struct audioparams_t
 	CNetworkHandle( CBaseEntity, ent );		// the entity setting the soundscape
 };
 
+//Tony; new tonemap information.
+// In single player the values are coped directly from the single env_tonemap_controller entity.
+// This will allow the controller to work as it always did.
+// That way nothing in ep2 will break. With these new params, the controller can properly be used in mp.
+
+
+// Map specific objectives, such as blowing out a wall ( and bringing in more light )
+// can still change values on a particular controller as necessary via inputs, but the
+// effects will not directly affect any players who are referencing this controller
+// unless the option to update on inputs is set. ( otherwise the values are simply cached
+// and changes only take effect when the players controller target is changed )
+
+struct tonemap_params_t
+{
+	DECLARE_CLASS_NOBASE( tonemap_params_t );
+	DECLARE_EMBEDDED_NETWORKVAR();
+
+#ifndef CLIENT_DLL
+	DECLARE_SIMPLE_DATADESC();
+#endif
+	tonemap_params_t()
+	{
+		m_flAutoExposureMin = -1.0f;
+		m_flAutoExposureMax = -1.0f;
+		m_flTonemapScale = -1.0f;
+		m_flBloomScale = -1.0f;
+		m_flTonemapRate = -1.0f;
+	}
+	//Tony; all of these are initialized to -1!
+	CNetworkVar( float, m_flTonemapScale );
+	CNetworkVar( float, m_flTonemapRate );
+	CNetworkVar( float, m_flBloomScale );
+
+	CNetworkVar( float, m_flAutoExposureMin );
+	CNetworkVar( float, m_flAutoExposureMax );
+
+// BLEND TODO
+//
+//	//Tony; Time it takes for a blend to finish, default to 0; this is for the the effect of InputBlendTonemapScale.
+//	//When
+//	CNetworkVar( float, m_flBlendTime );
+
+	//Tony; these next 4 variables do not have to be networked; but I want to update them on the client whenever m_flBlendTime changes.
+	//TODO
+};
 
 #endif // PLAYERNET_VARS_H

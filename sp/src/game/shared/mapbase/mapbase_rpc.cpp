@@ -330,8 +330,11 @@ void MapbaseRPC_Init()
 	pKV->deleteThis();
 
 	// Steam RPC
-	if (steamapicontext->SteamFriends())
-		steamapicontext->SteamFriends()->ClearRichPresence();
+	if (steamapicontext)
+	{
+		if (steamapicontext->SteamFriends())
+			steamapicontext->SteamFriends()->ClearRichPresence();
+	}
 
 	// Discord RPC
 	DiscordEventHandlers handlers;
@@ -368,8 +371,11 @@ void MapbaseRPC_Shutdown()
 	Discord_Shutdown();
 
 	// Steam RPC
-	if (steamapicontext->SteamFriends())
-		steamapicontext->SteamFriends()->ClearRichPresence();
+	if (steamapicontext)
+	{
+		if (steamapicontext->SteamFriends())
+			steamapicontext->SteamFriends()->ClearRichPresence();
+	}
 }
 
 void MapbaseRPC_Update( int iType, const char *pMapName )
@@ -380,6 +386,10 @@ void MapbaseRPC_Update( int iType, const char *pMapName )
 
 void MapbaseRPC_Update( int iRPCMask, int iType, const char *pMapName )
 {
+	// Only update if RPC is enabled
+	if (mapbase_rpc_enabled.GetInt() <= 0)
+		return;
+
 	if (iRPCMask & RPCFlag(RPC_STEAM))
 		MapbaseRPC_UpdateSteam(iType, pMapName);
 	if (iRPCMask & RPCFlag(RPC_DISCORD))
@@ -389,6 +399,10 @@ void MapbaseRPC_Update( int iRPCMask, int iType, const char *pMapName )
 #ifdef STEAM_RPC
 void MapbaseRPC_UpdateSteam( int iType, const char *pMapName )
 {
+	// No Steam
+	if (!steamapicontext)
+		return;
+
 	const char *pszStatus = NULL;
 
 	if (g_Metadata[RPC_STEAM] != NULL)

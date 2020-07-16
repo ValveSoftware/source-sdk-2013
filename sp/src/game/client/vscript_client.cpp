@@ -445,6 +445,10 @@ bool VScriptClientInit()
 		{
 			// Allow world entity to override script language
 			scriptLanguage = GetClientWorldEntity()->GetScriptLanguage();
+
+			// Less than SL_NONE means the script language should literally be none
+			if (scriptLanguage < SL_NONE)
+				scriptLanguage = SL_NONE;
 		}
 		else
 #endif
@@ -476,7 +480,11 @@ bool VScriptClientInit()
 
 			if( g_pScriptVM )
 			{
+#ifdef MAPBASE_VSCRIPT
+				Log( "VSCRIPT CLIENT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
+#else
 				Log( "VSCRIPT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
+#endif
 				ScriptRegisterFunction( g_pScriptVM, GetMapName, "Get the name of the map.");
 				ScriptRegisterFunction( g_pScriptVM, Time, "Get the current server time" );
 				ScriptRegisterFunction( g_pScriptVM, DoIncludeScript, "Execute a script (internal)" );
@@ -553,17 +561,22 @@ public:
 	virtual void LevelInitPreEntity( void )
 	{
 		m_bAllowEntityCreationInScripts = true;
+#ifndef MAPBASE_VSCRIPT // Now initted in C_World
 		VScriptClientInit();
+#endif
 	}
 
 	virtual void LevelInitPostEntity( void )
 	{
 		m_bAllowEntityCreationInScripts = false;
 #ifdef MAPBASE_VSCRIPT
-		C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-		if (pPlayer)
+		if (g_pScriptVM)
 		{
-			g_pScriptVM->SetValue( "player", pPlayer->GetScriptInstance() );
+			C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+			if (pPlayer)
+			{
+				g_pScriptVM->SetValue( "player", pPlayer->GetScriptInstance() );
+			}
 		}
 #endif
 	}

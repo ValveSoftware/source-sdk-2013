@@ -66,6 +66,9 @@
 #include "mapbase/matchers.h"
 #include "mapbase/datadesc_mod.h"
 #endif
+#ifdef MAPBASE_VSCRIPT
+#include "mapbase/vscript_funcs_math.h"
+#endif
 
 #if defined( TF_DLL )
 #include "tf_gamerules.h"
@@ -1635,7 +1638,27 @@ int CBaseEntity::VPhysicsTakeDamage( const CTakeDamageInfo &info )
 		if ( gameFlags & FVPHYSICS_PLAYER_HELD )
 		{
 			// if the player is holding the object, use it's real mass (player holding reduced the mass)
-			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+			CBasePlayer *pPlayer = NULL;
+
+			if ( AI_IsSinglePlayer() )
+			{
+				pPlayer = UTIL_GetLocalPlayer();
+			}
+			else
+			{
+				// See which MP player is holding the physics object and then use that player to get the real mass of the object.
+				// This is ugly but better than having linkage between an object and its "holding" player.
+				for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+				{
+					CBasePlayer *tempPlayer = UTIL_PlayerByIndex( i );
+					if ( tempPlayer && (tempPlayer->GetHeldObject() == this ) )
+					{
+						pPlayer = tempPlayer;
+						break;
+					}
+				}
+			}
+
 			if ( pPlayer )
 			{
 				float mass = pPlayer->GetHeldObjectMass( VPhysicsGetObject() );
@@ -2220,6 +2243,8 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 
 	DEFINE_SCRIPTFUNC( TakeHealth, "Give this entity health" )
 	DEFINE_SCRIPTFUNC( IsAlive, "Return true if this entity is alive" )
+
+	DEFINE_SCRIPTFUNC( GetWaterLevel, "Get current level of water submergence" )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetContext, "GetContext", "Get a response context value" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddContext, "AddContext", "Add a response context value" )
@@ -9650,6 +9675,14 @@ const Vector& CBaseEntity::ScriptGetColorVector()
 void CBaseEntity::ScriptSetColorVector( const Vector& vecColor )
 {
 	SetRenderColor( vecColor.x, vecColor.y, vecColor.z );
+}
+
+//-----------------------------------------------------------------------------
+// Vscript: Gets the entity matrix transform
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseEntity::ScriptEntityToWorldTransform( void )
+{
+	return ScriptCreateMatrixInstance( EntityToWorldTransform() );
 }
 #endif
 

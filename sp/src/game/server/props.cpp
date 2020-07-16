@@ -43,6 +43,7 @@
 #include "vehicle_base.h"
 #ifdef MAPBASE
 #include "mapbase/GlobalStrings.h"
+#include "collisionutils.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -2655,6 +2656,9 @@ private:
 	string_t	m_iszInSequence;
 	string_t	m_iszOutSequence;
 	string_t	m_iszLockedSequence;
+
+	Vector		m_vecUseMins;
+	Vector		m_vecUseMaxs;
 };
 
 LINK_ENTITY_TO_CLASS( prop_interactable, CInteractableProp );
@@ -2671,6 +2675,9 @@ BEGIN_DATADESC( CInteractableProp )
 	DEFINE_KEYFIELD( m_iszInSequence, FIELD_STRING, "InSequence" ),
 	DEFINE_KEYFIELD( m_iszOutSequence, FIELD_STRING, "OutSequence" ),
 	DEFINE_KEYFIELD( m_iszLockedSequence, FIELD_STRING, "LockedSequence" ),
+
+	DEFINE_KEYFIELD( m_vecUseMins, FIELD_VECTOR, "use_mins" ),
+	DEFINE_KEYFIELD( m_vecUseMaxs, FIELD_VECTOR, "use_maxs" ),
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID,	"Lock",		InputLock ),
@@ -2731,6 +2738,29 @@ void CInteractableProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 {
 	if (m_flCooldownTime > gpGlobals->curtime)
 		return;
+
+	// If we're using +USE mins/maxs, make sure this is being +USE'd from the right place
+	if (m_vecUseMins.LengthSqr() != 0.0f && m_vecUseMaxs.LengthSqr() != 0.0f)
+	{
+		CBasePlayer *pPlayer = ToBasePlayer( pActivator );
+		if (pPlayer)
+		{
+			Vector forward;
+			pPlayer->EyeVectors( &forward, NULL, NULL );
+
+			// This might be a little convoluted and/or seem needlessly expensive, but I couldn't figure out any better way to do this.
+			// TOOD: Can we calculate a box in local space instead of world space?
+			Vector vecWorldMins, vecWorldMaxs;
+			RotateAABB( EntityToWorldTransform(), m_vecUseMins, m_vecUseMaxs, vecWorldMins, vecWorldMaxs );
+			TransformAABB( EntityToWorldTransform(), vecWorldMins, vecWorldMaxs, vecWorldMins, vecWorldMaxs );
+			if (!IsBoxIntersectingRay( vecWorldMins, vecWorldMaxs, pPlayer->EyePosition(), forward * 1024 ))
+			{
+				// Reject this +USE if it's not in our box
+				DevMsg("Outside of +USE box\n");
+				return;
+			}
+		}
+	}
 
 	int nSequence = -1;
 

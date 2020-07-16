@@ -1154,7 +1154,7 @@ void CNPC_BaseZombie::DieChopped( const CTakeDamageInfo &info )
 
 		if ( flFadeTime > 0.0 )
 		{
-			pLegGib->SUB_StartFadeOut( flFadeTime );
+			pLegGib->SUB_StartFadeOut( flFadeTime, false );
 		}
 	}
 	else
@@ -1196,7 +1196,7 @@ void CNPC_BaseZombie::DieChopped( const CTakeDamageInfo &info )
 
 		if ( flFadeTime > 0.0 )
 		{
-			pTorsoGib->SUB_StartFadeOut( flFadeTime );
+			pTorsoGib->SUB_StartFadeOut( flFadeTime, false );
 		}
 	}
 	else
@@ -2354,7 +2354,7 @@ void CNPC_BaseZombie::BecomeTorso( const Vector &vecTorsoForce, const Vector &ve
 
 			if (flFadeTime > 0.0)
 			{
-				pGib->SUB_StartFadeOut( flFadeTime );
+				pGib->SUB_StartFadeOut( flFadeTime, false );
 			}
 		}
 		else
@@ -2506,7 +2506,7 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 			if (ShouldIgniteZombieGib())
 				static_cast<CBaseAnimating*>(pGib)->Ignite( random->RandomFloat( 8.0, 12.0 ), false );
 
-			pGib->SUB_StartFadeOut( 15 );
+			pGib->SUB_StartFadeOut( 15, false );
 		}
 		else
 			pGib = CreateRagGib( GetHeadcrabModel(), vecOrigin, GetLocalAngles(), vecVelocity, 15, ShouldIgniteZombieGib() );

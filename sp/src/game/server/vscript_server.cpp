@@ -498,6 +498,10 @@ bool VScriptServerInit()
 		{
 			// Allow world entity to override script language
 			scriptLanguage = GetWorldEntity()->GetScriptLanguage();
+
+			// Less than SL_NONE means the script language should literally be none
+			if (scriptLanguage < SL_NONE)
+				scriptLanguage = SL_NONE;
 		}
 		else
 #endif
@@ -535,7 +539,11 @@ bool VScriptServerInit()
 
 			if( g_pScriptVM )
 			{
+#ifdef MAPBASE_VSCRIPT
+				Log( "VSCRIPT SERVER: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
+#else
 				Log( "VSCRIPT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
+#endif
 				ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_ShowMessageAll, "ShowMessage", "Print a hud message on all clients" );
 
 				ScriptRegisterFunction( g_pScriptVM, SendToConsole, "Send a string to the console as a command" );

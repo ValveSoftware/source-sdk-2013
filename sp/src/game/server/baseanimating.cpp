@@ -32,6 +32,9 @@
 #include "gib.h"
 #include "CRagdollMagnet.h"
 #endif
+#ifdef MAPBASE_VSCRIPT
+#include "mapbase/vscript_funcs_math.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -293,11 +296,36 @@ BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetPoseParameter, "SetPoseParameter", "Set the specified pose parameter to the specified value" )
 	DEFINE_SCRIPTFUNC( LookupBone, "Get the named bone id" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoneTransform, "GetBoneTransform", "Get the transform for the specified bone" )
-	DEFINE_SCRIPTFUNC( Dissolve, "" )
-	DEFINE_SCRIPTFUNC( Scorch, "Makes the entity darker from scorching" )
+	DEFINE_SCRIPTFUNC( GetPhysicsBone, "Get physics bone from bone index" )
+	DEFINE_SCRIPTFUNC( GetNumBones, "Get the number of bones" )
+	DEFINE_SCRIPTFUNC( GetSequence, "Gets the current sequence" )
+	DEFINE_SCRIPTFUNC( SetSequence, "Sets the current sequence" )
+	DEFINE_SCRIPTFUNC( SequenceLoops, "Loops the current sequence" )
+	DEFINE_SCRIPTFUNC( LookupSequence, "Gets the index of the specified sequence name" )
+	DEFINE_SCRIPTFUNC( LookupActivity, "Gets the ID of the specified activity name" )
+	DEFINE_SCRIPTFUNC_NAMED( HasMovement, "SequenceHasMovement", "Checks if the specified sequence has movement" )
+	DEFINE_SCRIPTFUNC( GetSequenceMoveYaw, "Gets the move yaw of the specified sequence" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSequenceMoveDist, "GetSequenceMoveDist", "Gets the move distance of the specified sequence" )
+	DEFINE_SCRIPTFUNC( GetSequenceName, "Gets the name of the specified sequence index" )
+	DEFINE_SCRIPTFUNC( GetSequenceActivityName, "Gets the activity name of the specified sequence index" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSequenceActivity, "GetSequenceActivity", "Gets the activity ID of the specified sequence index" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSelectWeightedSequence, "SelectWeightedSequence", "Selects a sequence for the specified activity ID" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSelectHeaviestSequence, "SelectHeaviestSequence", "Selects the sequence with the heaviest weight for the specified activity ID" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSequenceKeyValues, "GetSequenceKeyValues", "Get a KeyValue class instance on the specified sequence. WARNING: This uses the same KeyValue pointer as GetModelKeyValues!" )
 #endif
 	DEFINE_SCRIPTFUNC( IsSequenceFinished, "Ask whether the main sequence is done playing" )
 	DEFINE_SCRIPTFUNC( SetBodygroup, "Sets a bodygroup")
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC( GetBodygroup, "Gets a bodygroup" )
+	DEFINE_SCRIPTFUNC( GetBodygroupName, "Gets a bodygroup name" )
+	DEFINE_SCRIPTFUNC( FindBodygroupByName, "Finds a bodygroup by name" )
+	DEFINE_SCRIPTFUNC( GetBodygroupCount, "Gets the number of models in a bodygroup" )
+	DEFINE_SCRIPTFUNC( GetNumBodyGroups, "Gets the number of bodygroups" )
+
+	DEFINE_SCRIPTFUNC( Dissolve, "" )
+	DEFINE_SCRIPTFUNC( Ignite, "" )
+	DEFINE_SCRIPTFUNC( Scorch, "Makes the entity darker from scorching" )
+#endif
 END_SCRIPTDESC();
 
 CBaseAnimating::CBaseAnimating()
@@ -2193,14 +2221,36 @@ void CBaseAnimating::ScriptSetPoseParameter( const char* szName, float fValue )
 	SetPoseParameter( pHdr, iPoseParam, fValue );
 }
 
-extern matrix3x4_t *ToMatrix3x4( HSCRIPT hMat );
-
 void CBaseAnimating::ScriptGetBoneTransform( int iBone, HSCRIPT hTransform )
 {
 	if (hTransform == NULL)
 		return;
 
 	GetBoneTransform( iBone, *ToMatrix3x4( hTransform ) );
+}
+
+//-----------------------------------------------------------------------------
+// VScript access to sequence's key values
+// for iteration and value access, use:
+//	ScriptFindKey, ScriptGetFirstSubKey, ScriptGetString, 
+//	ScriptGetInt, ScriptGetFloat, ScriptGetNextKey
+// NOTE: This is recycled from ScriptGetModelKeyValues() and uses its pointer!!!
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseAnimating::ScriptGetSequenceKeyValues( int iSequence )
+{
+	KeyValues *pSeqKeyValues = GetSequenceKeyValues( iSequence );
+	HSCRIPT hScript = NULL;
+	if ( pSeqKeyValues )
+	{
+		// UNDONE: how does destructor get called on this
+		m_pScriptModelKeyValues = new CScriptKeyValues( pSeqKeyValues );
+
+		// UNDONE: who calls ReleaseInstance on this??? Does name need to be unique???
+
+		hScript = g_pScriptVM->RegisterInstance( m_pScriptModelKeyValues );
+	}
+
+	return hScript;
 }
 #endif
 

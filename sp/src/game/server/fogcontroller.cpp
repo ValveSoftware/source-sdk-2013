@@ -387,5 +387,17 @@ void CFogSystem::LevelInitPostEntity( void )
 			pPlayer->InitFogController();
 		}
 	}
+	else
+	{
+		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+
+			if ( pPlayer && ( pPlayer->m_Local.m_PlayerFog.m_hCtrl.Get() == NULL ) )
+			{
+				pPlayer->InitFogController();
+			}
+		}
+	}
 }
 

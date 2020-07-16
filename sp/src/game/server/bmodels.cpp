@@ -16,9 +16,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#define		SF_BRUSH_ACCDCC	16// brush should accelerate and decelerate when toggled
-#define		SF_BRUSH_HURT		32// rotating brush that inflicts pain based on rotation speed
-#define		SF_ROTATING_NOT_SOLID	64	// some special rotating objects are not solid.
+//Tony; moved the spawnflags to util.h to prevent more mistakes in the future.
 
 // =================== FUNC_WALL ==============================================
 class CFuncWall : public CBaseEntity
