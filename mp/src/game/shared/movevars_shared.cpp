@@ -47,6 +47,7 @@ ConVar	sv_noclipspeed	( "sv_noclipspeed", "5", FCVAR_ARCHIVE | FCVAR_NOTIFY | FC
 ConVar	sv_specaccelerate( "sv_specaccelerate", "5", FCVAR_NOTIFY | FCVAR_ARCHIVE | FCVAR_REPLICATED);
 ConVar	sv_specspeed	( "sv_specspeed", "3", FCVAR_ARCHIVE | FCVAR_NOTIFY | FCVAR_REPLICATED);
 ConVar	sv_specnoclip	( "sv_specnoclip", "1", FCVAR_ARCHIVE | FCVAR_NOTIFY | FCVAR_REPLICATED);
+ConVar	sv_rollangle	("sv_rollangle", "1.0", FCVAR_ARCHIVE | FCVAR_NOTIFY | FCVAR_REPLICATED, "Max view roll angle");
 
 #if defined( CSTRIKE_DLL ) || defined( HL1MP_DLL )
 ConVar	sv_maxspeed		( "sv_maxspeed", "320", FCVAR_NOTIFY | FCVAR_REPLICATED);
