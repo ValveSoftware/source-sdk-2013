@@ -1819,7 +1819,10 @@ bool CWeaponRPG::Reload( void )
 
 	WeaponSound( RELOAD );
 	
-	SendWeaponAnim( ACT_VM_RELOAD );
+	if (pOwner->GetActiveWeapon() == this)
+	{
+		SendWeaponAnim( ACT_VM_RELOAD );
+	}
 
 	return true;
 }
