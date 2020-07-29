@@ -785,6 +785,8 @@ void CWeaponCrossbow::SetSkin( int skinNum )
 //-----------------------------------------------------------------------------
 void CWeaponCrossbow::DoLoadEffect( void )
 {
+	IPredictionSystem::SuppressHostEvents(NULL);
+	
 	SetSkin( BOLT_SKIN_GLOW );
 
 	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
@@ -842,7 +844,9 @@ void CWeaponCrossbow::SetChargerState( ChargerState_t state )
 	switch( m_nChargeState )
 	{
 	case CHARGER_STATE_START_LOAD:
-	
+
+		IPredictionSystem::SuppressHostEvents(NULL);
+
 		WeaponSound( SPECIAL1 );
 		
 		// Shoot some sparks and draw a beam between the two outer points
