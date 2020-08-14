@@ -398,7 +398,9 @@ void Templates_StartUniqueInstance( void )
 //-----------------------------------------------------------------------------
 char *Templates_GetEntityIOFixedMapData( int iIndex )
 {
+#ifndef MAPBASE // This code also runs when the point_template's script scope is active
 	Assert( Templates_IndexRequiresEntityIOFixup( iIndex ) );
+#endif
 
 	// First time through?
 	if ( !g_Templates[iIndex]->pszFixedMapData )

@@ -459,6 +459,8 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 
 	DEFINE_SCRIPTFUNC( GetEffects, "Get effects" )
 	DEFINE_SCRIPTFUNC( IsEffectActive, "Check if an effect is active" )
+
+	DEFINE_SCRIPTFUNC( entindex, "" )
 #endif
 END_SCRIPTDESC();
 

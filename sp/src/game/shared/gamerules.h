@@ -298,6 +298,10 @@ public:
 	virtual CBaseEntity *GetPlayerSpawnSpot( CBasePlayer *pPlayer );// Place this player on their spawnspot and face them the proper direction.
 	virtual bool IsSpawnPointValid( CBaseEntity *pSpot, CBasePlayer *pPlayer );
 
+#ifdef MAPBASE
+	virtual bool AllowSPRespawn() { return false; }
+#endif
+
 	virtual bool AllowAutoTargetCrosshair( void ) { return TRUE; };
 	virtual bool ClientCommand( CBaseEntity *pEdict, const CCommand &args );  // handles the user commands;  returns TRUE if command handled properly
 	virtual void ClientSettingsChanged( CBasePlayer *pPlayer );		 // the player has changed cvars

@@ -1,8 +1,10 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ====
 //
-// Attempts to replicate logic_register_activator from Portal 2.
+// Purpose: Source SDK-based replication of logic_register_activator from later versions
+//			of Source.
 // 
-// This is, in fact, a RECREATION! This is not an actual port.
+//			This is based entirely on Source 2013 code and Portal 2's FGD entry.
+//			It does not actually use code from Portal 2 or later.
 //
 //=============================================================================
 

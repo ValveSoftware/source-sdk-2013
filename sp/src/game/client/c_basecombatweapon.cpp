@@ -85,9 +85,7 @@ static inline bool ShouldDrawLocalPlayerViewModel( void )
 {
 #if defined( PORTAL )
 	return false;
-#else
-
-#ifdef MAPBASE
+#elif MAPBASE
 	// We shouldn't draw the viewmodel externally.
 	C_BasePlayer *localplayer = C_BasePlayer::GetLocalPlayer();
 	if (localplayer)
@@ -101,14 +99,12 @@ static inline bool ShouldDrawLocalPlayerViewModel( void )
 		}
 
 		// Since we already have the local player, check its own ShouldDrawThisPlayer() to avoid extra checks
-		return localplayer->ShouldDrawThisPlayer();
+		return !localplayer->ShouldDrawThisPlayer();
 	}
 	else
 		return false;
 #else
 	return !C_BasePlayer::ShouldDrawLocalPlayer();
-#endif
-
 #endif
 }
 

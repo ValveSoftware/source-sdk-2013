@@ -54,6 +54,8 @@ CPointCamera::CPointCamera()
 #ifdef MAPBASE
 	// Equivalent to SKYBOX_2DSKYBOX_VISIBLE, the original sky setting
 	m_iSkyMode = 2;
+
+	m_iszRenderTarget = AllocPooledString( "_rt_Camera" );
 #endif
 
 	g_PointCameraList.Insert( this );
@@ -192,6 +194,13 @@ void CPointCamera::InputSetOnAndTurnOthersOff( inputdata_t &inputdata )
 	while ((pEntity = gEntList.FindEntityByClassname( pEntity, "point_camera" )) != NULL)
 	{
 		CPointCamera *pCamera = (CPointCamera*)pEntity;
+
+#ifdef MAPBASE
+		// Do not turn off cameras which use different render targets
+		if (pCamera->m_iszRenderTarget.Get() != m_iszRenderTarget.Get())
+			continue;
+#endif
+
 		pCamera->InputSetOff( inputdata );
 	}
 
@@ -229,6 +238,7 @@ BEGIN_DATADESC( CPointCamera )
 	DEFINE_KEYFIELD( m_bUseScreenAspectRatio, FIELD_BOOLEAN, "UseScreenAspectRatio" ),
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_iSkyMode, FIELD_INTEGER, "SkyMode" ),
+	DEFINE_KEYFIELD( m_iszRenderTarget, FIELD_STRING, "RenderTarget" ),
 #endif
 	DEFINE_FIELD( m_bActive,		FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bIsOn,			FIELD_BOOLEAN ),
@@ -247,6 +257,7 @@ BEGIN_DATADESC( CPointCamera )
 	DEFINE_INPUTFUNC( FIELD_VOID, "SetOff", InputSetOff ),
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetSkyMode", InputSetSkyMode ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetRenderTarget", InputSetRenderTarget ),
 #endif
 
 END_DATADESC()
@@ -263,6 +274,7 @@ IMPLEMENT_SERVERCLASS_ST( CPointCamera, DT_PointCamera )
 	SendPropInt( SENDINFO( m_bUseScreenAspectRatio ), 1, SPROP_UNSIGNED ),
 #ifdef MAPBASE
 	SendPropInt( SENDINFO( m_iSkyMode ) ),
+	SendPropStringT( SENDINFO( m_iszRenderTarget ) ),
 #endif
 END_SEND_TABLE()
 

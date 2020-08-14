@@ -22,6 +22,9 @@
 class CRagdollProp : public CBaseAnimating, public CDefaultPlayerPickupVPhysics
 {
 	DECLARE_CLASS( CRagdollProp, CBaseAnimating );
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 public:
 	CRagdollProp( void );
@@ -59,6 +62,9 @@ public:
 	virtual IResponseSystem *GetResponseSystem();
 	virtual void ModifyOrAppendCriteria( AI_CriteriaSet& set );
 	void SetSourceClassName( const char *pClassname );
+#ifdef MAPBASE
+	const char *GetSourceClassName() { return STRING( m_strSourceClassName ); }
+#endif
 
 	// Physics attacker
 	virtual CBasePlayer *HasPhysicsAttacker( float dt );
@@ -111,6 +117,11 @@ public:
 	void			InputTurnOn( inputdata_t &inputdata );
 	void			InputTurnOff( inputdata_t &inputdata );
 	void			InputFadeAndRemove( inputdata_t &inputdata );
+
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT			ScriptGetRagdollObject( int iIndex );
+	int				ScriptGetRagdollObjectCount();
+#endif
 
 	DECLARE_DATADESC();
 

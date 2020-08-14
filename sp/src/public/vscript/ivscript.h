@@ -291,6 +291,16 @@ public:
 	virtual void *GetProxied( void *p )												{ return p; }
 	virtual bool ToString( void *p, char *pBuf, int bufSize )						{ return false; }
 	virtual void *BindOnRead( HSCRIPT hInstance, void *pOld, const char *pszId )	{ return NULL; }
+
+#ifdef MAPBASE_VSCRIPT
+	virtual bool Get( void *p, const char *pszKey, ScriptVariant_t &variant )		{ return false; }
+	virtual bool Set( void *p, const char *pszKey, ScriptVariant_t &variant )		{ return false; }
+
+	virtual ScriptVariant_t *Add( void *p, ScriptVariant_t &variant )				{ return NULL; }
+	virtual ScriptVariant_t *Subtract( void *p, ScriptVariant_t &variant )			{ return NULL; }
+	virtual ScriptVariant_t *Multiply( void *p, ScriptVariant_t &variant )			{ return NULL; }
+	virtual ScriptVariant_t *Divide( void *p, ScriptVariant_t &variant )			{ return NULL; }
+#endif
 };
 
 //---------------------------------------------------------
@@ -522,6 +532,39 @@ private:
 
 #define SCRIPT_VARIANT_NULL ScriptVariant_t()
 
+#ifdef MAPBASE_VSCRIPT
+//---------------------------------------------------------
+struct ScriptConstantBinding_t
+{
+	const char			*m_pszScriptName;
+	const char			*m_pszDescription;
+	ScriptVariant_t		m_data;
+	unsigned			m_flags;
+};
+
+//---------------------------------------------------------
+struct ScriptEnumDesc_t
+{
+	ScriptEnumDesc_t() : m_pszScriptName( 0 ), m_pszDescription( 0 ), m_flags( 0 )
+	{
+		AllEnumsDesc().AddToTail(this);
+	}
+
+	virtual void		RegisterDesc() = 0;
+
+	const char			*m_pszScriptName;
+	const char			*m_pszDescription;
+	CUtlVector<ScriptConstantBinding_t> m_ConstantBindings;
+	unsigned			m_flags;
+
+	static CUtlVector<ScriptEnumDesc_t*>& AllEnumsDesc()
+	{
+		static CUtlVector<ScriptEnumDesc_t*> enums;
+		return enums;
+	}
+};
+#endif
+
 #pragma warning(pop)
 
 
@@ -555,6 +598,46 @@ private:
 
 #define ScriptRegisterFunction( pVM, func, description )									ScriptRegisterFunctionNamed( pVM, func, #func, description )
 #define ScriptRegisterFunctionNamed( pVM, func, scriptName, description )					do { static ScriptFunctionBinding_t binding; binding.m_desc.m_pszDescription = description; binding.m_desc.m_Parameters.RemoveAll(); ScriptInitFunctionBindingNamed( &binding, func, scriptName ); pVM->RegisterFunction( &binding ); } while (0)
+
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+
+#define ScriptRegisterConstant( pVM, constant, description )									ScriptRegisterConstantNamed( pVM, constant, #constant, description )
+#define ScriptRegisterConstantNamed( pVM, constant, scriptName, description )					do { static ScriptConstantBinding_t binding; binding.m_pszScriptName = scriptName; binding.m_pszDescription = description; binding.m_data = constant; pVM->RegisterConstant( &binding ); } while (0)
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+
+#define BEGIN_SCRIPTENUM( enumName, description ) \
+		struct ScriptEnum##enumName##Desc_t : public ScriptEnumDesc_t \
+		{ \
+			void RegisterDesc(); \
+		}; \
+		ScriptEnum##enumName##Desc_t g_##enumName##_EnumDesc; \
+		\
+		void ScriptEnum##enumName##Desc_t::RegisterDesc() \
+		{ \
+			static bool bInitialized; \
+			if ( bInitialized ) \
+				return; \
+			\
+			bInitialized = true; \
+			\
+			m_pszScriptName = #enumName; \
+			m_pszDescription = description; \
+
+#define DEFINE_ENUMCONST( constant, description )							DEFINE_ENUMCONST_NAMED( constant, #constant, description )
+#define DEFINE_ENUMCONST_NAMED( constant, scriptName, description )			do { ScriptConstantBinding_t *pBinding = &(m_ConstantBindings[m_ConstantBindings.AddToTail()]); pBinding->m_pszScriptName = scriptName; pBinding->m_pszDescription = description; pBinding->m_data = constant; pBinding->m_flags = SF_MEMBER_FUNC; } while (0);
+
+#define END_SCRIPTENUM() \
+		} \
+
+
+#define GetScriptDescForEnum( enumName ) GetScriptDesc( ( className *)NULL )
+#endif
 
 //-----------------------------------------------------------------------------
 // 
@@ -727,14 +810,37 @@ public:
 	//--------------------------------------------------------
 	virtual bool RegisterClass( ScriptClassDesc_t *pClassDesc ) = 0;
 
+#ifdef MAPBASE_VSCRIPT
+	//--------------------------------------------------------
+	// External constants
+	//--------------------------------------------------------
+	virtual void RegisterConstant( ScriptConstantBinding_t *pScriptConstant ) = 0;
+
+	//--------------------------------------------------------
+	// External enums
+	//--------------------------------------------------------
+	virtual void RegisterEnum( ScriptEnumDesc_t *pEnumDesc ) = 0;
+#endif
+
 	//--------------------------------------------------------
 	// External instances. Note class will be auto-registered.
 	//--------------------------------------------------------
 
+#ifdef MAPBASE_VSCRIPT
+	// When a RegisterInstance instance is deleted, VScript normally treats it as a strong reference and only deregisters the instance itself, preserving the registered data
+	// it points to so the game can continue to use it.
+	// bAllowDestruct is supposed to allow VScript to treat it as a weak reference created by the script, destructing the registered data automatically like any other type.
+	// This is useful for classes pretending to be primitive types.
+	virtual HSCRIPT RegisterInstance( ScriptClassDesc_t *pDesc, void *pInstance, bool bAllowDestruct = false ) = 0;
+	virtual void SetInstanceUniqeId( HSCRIPT hInstance, const char *pszId ) = 0;
+	template <typename T> HSCRIPT RegisterInstance( T *pInstance, bool bAllowDestruct = false )																	{ return RegisterInstance( GetScriptDesc( pInstance ), pInstance, bAllowDestruct );	}
+	template <typename T> HSCRIPT RegisterInstance( T *pInstance, const char *pszInstance, HSCRIPT hScope = NULL, bool bAllowDestruct = false)					{ HSCRIPT hInstance = RegisterInstance( GetScriptDesc( pInstance ), pInstance, bAllowDestruct ); SetValue( hScope, pszInstance, hInstance ); return hInstance; }
+#else
 	virtual HSCRIPT RegisterInstance( ScriptClassDesc_t *pDesc, void *pInstance ) = 0;
 	virtual void SetInstanceUniqeId( HSCRIPT hInstance, const char *pszId ) = 0;
 	template <typename T> HSCRIPT RegisterInstance( T *pInstance )																	{ return RegisterInstance( GetScriptDesc( pInstance ), pInstance );	}
 	template <typename T> HSCRIPT RegisterInstance( T *pInstance, const char *pszInstance, HSCRIPT hScope = NULL)					{ HSCRIPT hInstance = RegisterInstance( GetScriptDesc( pInstance ), pInstance ); SetValue( hScope, pszInstance, hInstance ); return hInstance; }
+#endif
 	virtual void RemoveInstance( HSCRIPT ) = 0;
 	void RemoveInstance( HSCRIPT hInstance, const char *pszInstance, HSCRIPT hScope = NULL )										{ ClearValue( hScope, pszInstance ); RemoveInstance( hInstance ); }
 	void RemoveInstance( const char *pszInstance, HSCRIPT hScope = NULL )															{ ScriptVariant_t val; if ( GetValue( hScope, pszInstance, &val ) ) { if ( val.m_type == FIELD_HSCRIPT ) { RemoveInstance( val, pszInstance, hScope ); } ReleaseValue( val ); } }
@@ -895,6 +1001,16 @@ public:
 		FOR_EACH_VEC(classDescs, i)
 		{
 			RegisterClass(classDescs[i]);
+		}
+	}
+
+	void RegisterAllEnums()
+	{
+		CUtlVector<ScriptEnumDesc_t*>& enumDescs = ScriptEnumDesc_t::AllEnumsDesc();
+		FOR_EACH_VEC(enumDescs, i)
+		{
+			enumDescs[i]->RegisterDesc();
+			RegisterEnum(enumDescs[i]);
 		}
 	}
 #endif

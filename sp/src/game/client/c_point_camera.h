@@ -29,6 +29,9 @@ public:
 	// C_BaseEntity.
 	virtual bool	ShouldDraw();
 
+	// Mapbase uses this for m_iszRenderTarget
+	virtual void	OnDataChanged( DataUpdateType_t type );
+
 	float			GetFOV();
 	float			GetResolution();
 	bool			IsFogEnabled();
@@ -42,6 +45,8 @@ public:
 	virtual void	GetOrthoDimensions(float &up, float &dn, float &lf, float &rt) const {}
 
 	SkyboxVisibility_t	SkyMode() { return m_iSkyMode; }
+
+	ITexture		*RenderTarget();
 #endif
 
 	virtual void	GetToolRecordingState( KeyValues *msg );
@@ -58,6 +63,8 @@ private:
 	bool m_bUseScreenAspectRatio;
 #ifdef MAPBASE
 	SkyboxVisibility_t m_iSkyMode;
+	ITexture *m_pRenderTarget;
+	char m_iszRenderTarget[64];
 #endif
 
 public:

@@ -38,6 +38,12 @@ public:
 	bool				IsFlashlightActive( void ) { return m_HL2Local.m_bitsActiveDevices & bits_SUIT_DEVICE_FLASHLIGHT; }
 	bool				IsBreatherActive( void ) { return m_HL2Local.m_bitsActiveDevices & bits_SUIT_DEVICE_BREATHER; }
 
+#ifdef MAPBASE
+	bool				IsCustomDevice0Active( void ) { return m_HL2Local.m_bitsActiveDevices & bits_SUIT_DEVICE_CUSTOM0; }
+	bool				IsCustomDevice1Active( void ) { return m_HL2Local.m_bitsActiveDevices & bits_SUIT_DEVICE_CUSTOM1; }
+	bool				IsCustomDevice2Active( void ) { return m_HL2Local.m_bitsActiveDevices & bits_SUIT_DEVICE_CUSTOM2; }
+#endif
+
 	virtual int			DrawModel( int flags );
 	virtual	void		BuildTransformations( CStudioHdr *hdr, Vector *pos, Quaternion q[], const matrix3x4_t& cameraTransform, int boneMask, CBoneBitList &boneComputed );
 

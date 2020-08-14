@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
 // Purpose: Shared VScript math functions.
 //
@@ -17,7 +17,7 @@
 // matrix3x4_t
 // 
 //=============================================================================
-BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptMatrix3x4, "matrix3x4_t", "A 3x4 matrix transform." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( matrix3x4_t, "matrix3x4_t", "A 3x4 matrix transform." )
 
 	DEFINE_SCRIPT_CONSTRUCTOR()
 	DEFINE_SCRIPTFUNC( Init, "Creates a matrix where the X axis = forward, the Y axis = left, and the Z axis = up." )
@@ -148,6 +148,145 @@ void ScriptSetScaleMatrix( float x, float y, float z, HSCRIPT hMat1 )
 
 //=============================================================================
 //
+// Quaternion
+// 
+//=============================================================================
+CScriptQuaternionInstanceHelper g_QuaternionScriptInstanceHelper;
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( Quaternion, "Quaternion", "A quaternion." )
+
+	DEFINE_SCRIPT_CONSTRUCTOR()
+	DEFINE_SCRIPT_INSTANCE_HELPER( &g_QuaternionScriptInstanceHelper )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptInit, "Init", "Creates a quaternion with the given values." )
+
+END_SCRIPTDESC();
+
+//-----------------------------------------------------------------------------
+
+bool CScriptQuaternionInstanceHelper::ToString( void *p, char *pBuf, int bufSize )
+{
+	Quaternion *pQuat = ((Quaternion *)p);
+	V_snprintf( pBuf, bufSize, "(quaternion: (%f, %f, %f, %f))", pQuat->x, pQuat->y, pQuat->z, pQuat->w );
+	return true; 
+}
+
+bool CScriptQuaternionInstanceHelper::Get( void *p, const char *pszKey, ScriptVariant_t &variant )
+{
+	Quaternion *pQuat = ((Quaternion *)p);
+	if ( strlen(pszKey) == 1 )
+	{
+		switch (pszKey[0])
+		{
+			case 'x':
+				variant = pQuat->x;
+				return true;
+			case 'y':
+				variant = pQuat->y;
+				return true;
+			case 'z':
+				variant = pQuat->z;
+				return true;
+			case 'w':
+				variant = pQuat->w;
+				return true;
+		}
+	}
+	return false;
+}
+
+bool CScriptQuaternionInstanceHelper::Set( void *p, const char *pszKey, ScriptVariant_t &variant )
+{
+	Quaternion *pQuat = ((Quaternion *)p);
+	if ( strlen(pszKey) == 1 )
+	{
+		switch (pszKey[0])
+		{
+			case 'x':
+				variant.AssignTo( &pQuat->x );
+				return true;
+			case 'y':
+				variant.AssignTo( &pQuat->y );
+				return true;
+			case 'z':
+				variant.AssignTo( &pQuat->z );
+				return true;
+			case 'w':
+				variant.AssignTo( &pQuat->w );
+				return true;
+		}
+	}
+	return false;
+}
+
+ScriptVariant_t *CScriptQuaternionInstanceHelper::Add( void *p, ScriptVariant_t &variant )
+{
+	Quaternion *pQuat = ((Quaternion *)p);
+	DevMsg("Adding %i is an interesting choice\n", variant.m_int);
+
+	float flAdd;
+	variant.AssignTo( &flAdd );
+
+	(*pQuat)[0] += flAdd;
+	(*pQuat)[1] += flAdd;
+	(*pQuat)[2] += flAdd;
+	(*pQuat)[3] += flAdd;
+
+	static ScriptVariant_t result;
+	result = (HSCRIPT)p;
+	return &result;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+void ScriptQuaternionAdd( HSCRIPT hQuat1, HSCRIPT hQuat2, HSCRIPT hOut )
+{
+	if (!hQuat1 || !hQuat2 || !hOut)
+		return;
+
+	Quaternion *pQuat1 = ToQuaternion( hQuat1 );
+	Quaternion *pQuat2 = ToQuaternion( hQuat2 );
+	Quaternion *pOut = ToQuaternion( hOut );
+
+	QuaternionAdd( *pQuat1, *pQuat2, *pOut );
+}
+
+void ScriptMatrixQuaternion( HSCRIPT hMat1, HSCRIPT hQuat1 )
+{
+	if (!hMat1 || !hQuat1)
+		return;
+
+	matrix3x4_t *pMat1 = ToMatrix3x4( hMat1 );
+	Quaternion *pQuat1 = ToQuaternion( hQuat1 );
+
+	MatrixQuaternion( *pMat1, *pQuat1 );
+}
+
+void ScriptQuaternionMatrix( HSCRIPT hQuat1, HSCRIPT hMat1 )
+{
+	if (!hQuat1 || !hMat1)
+		return;
+
+	Quaternion *pQuat1 = ToQuaternion( hQuat1 );
+	matrix3x4_t *pMat1 = ToMatrix3x4( hMat1 );
+
+	QuaternionMatrix( *pQuat1, *pMat1 );
+}
+
+QAngle ScriptQuaternionAngles( HSCRIPT hQuat1 )
+{
+	if (!hQuat1)
+		return QAngle();
+
+	Quaternion *pQuat1 = ToQuaternion( hQuat1 );
+
+	QAngle angles;
+	QuaternionAngles( *pQuat1, angles );
+	return angles;
+}
+
+//=============================================================================
+//
 // Misc. Vector/QAngle functions
 // 
 //=============================================================================
@@ -164,6 +303,46 @@ const QAngle& ScriptVectorAngles( const Vector &forward )
 	static QAngle angles;
 	VectorAngles( forward, angles );
 	return angles;
+}
+
+const Vector& ScriptVectorRotate( const Vector &in, HSCRIPT hMat )
+{
+	if (ToMatrix3x4(hMat) == NULL)
+		return vec3_origin;
+
+	static Vector out;
+	VectorRotate( in, *ToMatrix3x4(hMat), out );
+	return out;
+}
+
+const Vector& ScriptVectorIRotate( const Vector &in, HSCRIPT hMat )
+{
+	if (ToMatrix3x4(hMat) == NULL)
+		return vec3_origin;
+
+	static Vector out;
+	VectorIRotate( in, *ToMatrix3x4(hMat), out );
+	return out;
+}
+
+const Vector& ScriptVectorTransform( const Vector &in, HSCRIPT hMat )
+{
+	if (ToMatrix3x4(hMat) == NULL)
+		return vec3_origin;
+
+	static Vector out;
+	VectorTransform( in, *ToMatrix3x4( hMat ), out );
+	return out;
+}
+
+const Vector& ScriptVectorITransform( const Vector &in, HSCRIPT hMat )
+{
+	if (ToMatrix3x4(hMat) == NULL)
+		return vec3_origin;
+
+	static Vector out;
+	VectorITransform( in, *ToMatrix3x4( hMat ), out );
+	return out;
 }
 
 const Vector& ScriptCalcClosestPointOnAABB( const Vector &mins, const Vector &maxs, const Vector &point )
@@ -222,6 +401,8 @@ void RegisterMathScriptFunctions()
 	// 
 	// matrix3x4_t
 	// 
+	g_pScriptVM->RegisterClass( GetScriptDescForClass( matrix3x4_t ) );
+
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptFreeMatrixInstance, "FreeMatrixInstance", "Frees an allocated matrix instance." );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptConcatTransforms, "ConcatTransforms", "Concatenates two transformation matrices into another matrix." );
@@ -237,10 +418,27 @@ void RegisterMathScriptFunctions()
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptSetScaleMatrix, "SetScaleMatrix", "Scales a matrix." );
 
 	// 
+	// Quaternion
+	// 
+	g_pScriptVM->RegisterClass( GetScriptDescForClass( Quaternion ) );
+
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptFreeQuaternionInstance, "FreeQuaternionInstance", "Frees an allocated quaternion instance." );
+
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptQuaternionAdd, "QuaternionAdd", "Adds two quaternions together into another quaternion." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatrixQuaternion, "MatrixQuaternion", "Converts a matrix to a quaternion." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptQuaternionMatrix, "QuaternionMatrix", "Converts a quaternion to a matrix." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptQuaternionAngles, "QuaternionAngles", "Converts a quaternion to angles." );
+
+	// 
 	// Misc. Vector/QAngle functions
 	// 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptAngleVectors, "AngleVectors", "Turns an angle into a direction vector." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorAngles, "VectorAngles", "Turns a direction vector into an angle." );
+
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorRotate, "VectorRotate", "Rotates a vector with a matrix." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorIRotate, "VectorIRotate", "Rotates a vector with the inverse of a matrix." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorTransform, "VectorTransform", "Transforms a vector with a matrix." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorITransform, "VectorITransform", "Transforms a vector with the inverse of a matrix." );
 
 	ScriptRegisterFunction( g_pScriptVM, CalcSqrDistanceToAABB, "Returns the squared distance to a bounding box." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalcClosestPointOnAABB, "CalcClosestPointOnAABB", "Returns the closest point on a bounding box." );

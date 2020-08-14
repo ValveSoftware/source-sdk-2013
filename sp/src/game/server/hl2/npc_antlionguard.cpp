@@ -2627,8 +2627,15 @@ public:
 			if ( !pEntity->IsNPC() && pEntity->GetMoveType() == MOVETYPE_VPHYSICS )
 			{
 				IPhysicsObject *pPhysics = pEntity->VPhysicsGetObject();
+#ifdef MAPBASE
+				// A MOVETYPE_VPHYSICS object without a VPhysics object is an odd edge case, but it's evidently possible
+				// since my game crashed after an antlion guard tried to see me through an EP2 jalopy.
+				// Perhaps that's a sign of an underlying issue?
+				if ( pPhysics && pPhysics->IsMoveable() && pPhysics->GetMass() < m_minMass )
+#else
 				Assert(pPhysics);
 				if ( pPhysics->IsMoveable() && pPhysics->GetMass() < m_minMass )
+#endif
 					return false;
 			}
 

@@ -109,7 +109,7 @@ void CSceneTokenProcessor::Error( const char *fmt, ... )
 	va_end( argptr );
 
 	Warning( "%s", string );
-	Assert(0);
+	AssertMsg(0, "%s", string);
 }
 
 //-----------------------------------------------------------------------------

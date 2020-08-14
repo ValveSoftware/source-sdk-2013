@@ -37,6 +37,10 @@ class CReplayScreenshotTaker;
 	class CStunEffect;
 #endif // HL2_EPISODIC
 
+#ifdef MAPBASE
+	class C_FuncFakeWorldPortal;
+#endif
+
 //-----------------------------------------------------------------------------
 // Data specific to intro mode to control rendering.
 //-----------------------------------------------------------------------------
@@ -446,6 +450,12 @@ private:
 
 	bool			DrawOneMonitor( ITexture *pRenderTarget, int cameraNum, C_PointCamera *pCameraEnt, const CViewSetup &cameraView, C_BasePlayer *localPlayer, 
 						int x, int y, int width, int height );
+
+#ifdef MAPBASE
+	bool			DrawFakeWorldPortal( ITexture *pRenderTarget, C_FuncFakeWorldPortal *pCameraEnt, const CViewSetup &cameraView, C_BasePlayer *localPlayer, 
+						int x, int y, int width, int height,
+						const CViewSetup &mainView, cplane_t &ourPlane );
+#endif
 
 	// Drawing primitives
 	bool			ShouldDrawViewModel( bool drawViewmodel );

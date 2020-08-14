@@ -3797,13 +3797,12 @@ void CBasePlayer::PlayerRunCommand(CUserCmd *ucmd, IMoveHelper *moveHelper)
 
 #ifdef MAPBASE_VSCRIPT
 	// Movement hook for VScript
-	if ( m_ScriptScope.IsInitialized() )
+	if ( HSCRIPT hFunc = LookupScriptFunction("PlayerRunCommand") )
 	{
-		CUserCmdAccessor accessor = CUserCmdAccessor( ucmd );
-		HSCRIPT hCmd = g_pScriptVM->RegisterInstance( &accessor );
+		HSCRIPT hCmd = g_pScriptVM->RegisterInstance( ucmd );
 
 		g_pScriptVM->SetValue( "command", hCmd );
-		CallScriptFunction( "PlayerRunCommand", NULL );
+		CallScriptFunctionHandle( hFunc, NULL );
 		g_pScriptVM->ClearValue( "command" );
 
 		g_pScriptVM->RemoveInstance( hCmd );
@@ -5144,7 +5143,12 @@ void CBasePlayer::Spawn( void )
 	if ( !m_fGameHUDInitialized )
 		g_pGameRules->SetDefaultPlayerTeam( this );
 
+#ifdef MAPBASE
+	CBaseEntity *pSpawnPoint = g_pGameRules->GetPlayerSpawnSpot( this );
+	SpawnedAtPoint( pSpawnPoint );
+#else
 	g_pGameRules->GetPlayerSpawnSpot( this );
+#endif
 
 	m_Local.m_bDucked = false;// This will persist over round restart if you hold duck otherwise. 
 	m_Local.m_bDucking = false;

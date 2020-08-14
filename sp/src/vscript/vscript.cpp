@@ -1,3 +1,13 @@
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
+//
+// Purpose: Custom implementation of VScript in Source 2013, created from scratch
+//			using the Alien Swarm SDK as a reference for Valve's library.
+// 
+// Author(s): ReDucTor (header written by Blixibon)
+//
+// $NoKeywords: $
+//=============================================================================//
+
 #include "vscript/ivscript.h"
 
 #include "tier1/tier1.h"

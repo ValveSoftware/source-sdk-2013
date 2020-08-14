@@ -21,6 +21,7 @@
 #include "tier1/utlvector.h"
 #include "tier1/utlstring.h"
 #include "icvar.h"
+#include "color.h"
 
 #ifdef _WIN32
 #define FORCEINLINE_CVAR FORCEINLINE
@@ -350,6 +351,7 @@ public:
 	// Retrieve value
 	FORCEINLINE_CVAR float			GetFloat( void ) const;
 	FORCEINLINE_CVAR int			GetInt( void ) const;
+	FORCEINLINE_CVAR Color			GetColor( void ) const;
 	FORCEINLINE_CVAR bool			GetBool() const {  return !!GetInt(); }
 	FORCEINLINE_CVAR char const	   *GetString( void ) const;
 
@@ -435,6 +437,16 @@ FORCEINLINE_CVAR int ConVar::GetInt( void ) const
 	return m_pParent->m_nValue;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as a color
+// Output : Color
+//-----------------------------------------------------------------------------
+FORCEINLINE_CVAR Color ConVar::GetColor( void ) const 
+{
+	unsigned char *pColorElement = ((unsigned char *)&m_pParent->m_nValue);
+	return Color( pColorElement[0], pColorElement[1], pColorElement[2], pColorElement[3] );
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Return ConVar value as a string, return "" for bogus string pointer, etc.
@@ -467,6 +479,7 @@ public:
 	// Get/Set value
 	float GetFloat( void ) const;
 	int GetInt( void ) const;
+	Color GetColor( void ) const;
 	bool GetBool() const { return !!GetInt(); }
 	const char *GetString( void ) const;
 
@@ -519,6 +532,16 @@ FORCEINLINE_CVAR float ConVarRef::GetFloat( void ) const
 FORCEINLINE_CVAR int ConVarRef::GetInt( void ) const 
 {
 	return m_pConVarState->m_nValue;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as a color
+// Output : Color
+//-----------------------------------------------------------------------------
+FORCEINLINE_CVAR Color ConVarRef::GetColor( void ) const 
+{
+	unsigned char *pColorElement = ((unsigned char *)&m_pConVarState->m_nValue);
+	return Color( pColorElement[0], pColorElement[1], pColorElement[2], pColorElement[3] );
 }
 
 //-----------------------------------------------------------------------------

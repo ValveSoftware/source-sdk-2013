@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
 // Purpose: modifiedconvarts_t from CommentarySystem.cpp moved to a header file so Mapbase can use it.
 //

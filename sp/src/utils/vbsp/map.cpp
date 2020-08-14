@@ -2709,12 +2709,22 @@ bool LoadMapFile( const char *pszFileName )
 
 #ifdef PARALLAX_CORRECTED_CUBEMAPS
 	// Fill out parallax obb matrix array
-	for (int i = 0; i < g_nCubemapSamples; i++) 
+	// "i" is static so this code could account for
+	// multiple LoadMapFile() calls from instances, etc.
+	for (static int i = 0; i < g_nCubemapSamples; i++) 
 	{
 		if (g_pParallaxObbStrs[i][0] != '\0')
 		{
 			entity_t* obbEnt = EntityByName(g_pParallaxObbStrs[i]);
-			g_pParallaxObbStrs[i] = ValueForKey(obbEnt, "transformationmatrix");
+			if (obbEnt)
+			{
+				g_pParallaxObbStrs[i] = ValueForKey(obbEnt, "transformationmatrix");
+			}
+			else
+			{
+				Warning( "Cannot find parallax obb \"%s\"\n", g_pParallaxObbStrs[i] );
+				g_pParallaxObbStrs[i][0] = '\0';
+			}
 		}
 	}
 

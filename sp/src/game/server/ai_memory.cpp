@@ -164,7 +164,7 @@ BEGIN_SCRIPTDESC_ROOT( AI_EnemyInfo_t, "Accessor for information about an enemy.
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeAtFirstHand, "the time at which the enemy was seen firsthand." )
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( DangerMemory, "the memory of danger position w/o enemy pointer." )
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( EludedMe, "whether the enemy is not at the last known location." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( Unforgettable, "whether the enemy is unfortgettable." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( Unforgettable, "whether the enemy is unforgettable." )
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( MobbedMe, "whether the enemy was part of a mob at some point." )
 END_SCRIPTDESC();
 #endif

@@ -49,6 +49,7 @@ BEGIN_DATADESC( CHalfLife2Proxy )
 	DEFINE_FIELD( m_save_LegacyFlashlight, FIELD_CHARACTER ),
 	DEFINE_FIELD( m_save_PlayerSquadAutosummonDisabled, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_save_StunstickPickupBehavior, FIELD_INTEGER ),
+	DEFINE_FIELD( m_save_AllowSPRespawn, FIELD_BOOLEAN ),
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "EpisodicOn", InputEpisodicOn ),
@@ -60,6 +61,7 @@ BEGIN_DATADESC( CHalfLife2Proxy )
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetLegacyFlashlight", InputSetLegacyFlashlight ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetPlayerSquadAutosummon", InputSetPlayerSquadAutosummon ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetStunstickPickupBehavior", InputSetStunstickPickupBehavior ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetAllowSPRespawn", InputSetAllowSPRespawn ),
 
 END_DATADESC()
 #endif
@@ -75,6 +77,7 @@ void CHalfLife2Proxy::InputSetDefaultCitizenType( inputdata_t &inputdata ) { Key
 void CHalfLife2Proxy::InputSetLegacyFlashlight( inputdata_t &inputdata ) { KeyValue("SetLegacyFlashlight", inputdata.value.String()); }
 void CHalfLife2Proxy::InputSetPlayerSquadAutosummon( inputdata_t &inputdata ) { KeyValue("SetPlayerSquadAutosummon", inputdata.value.String()); }
 void CHalfLife2Proxy::InputSetStunstickPickupBehavior( inputdata_t &inputdata ) { KeyValue("SetStunstickPickupBehavior", inputdata.value.String()); }
+void CHalfLife2Proxy::InputSetAllowSPRespawn( inputdata_t &inputdata ) { KeyValue( "SetAllowSPRespawn", inputdata.value.String() ); }
 
 //-----------------------------------------------------------------------------
 // Purpose: Cache user entity field values until spawn is called.
@@ -129,6 +132,10 @@ bool CHalfLife2Proxy::KeyValue( const char *szKeyName, const char *szValue )
 	{
 		HL2GameRules()->SetStunstickPickupBehavior(atoi(szValue));
 	}
+	else if (FStrEq(szKeyName, "SetAllowSPRespawn"))
+	{
+		HL2GameRules()->SetAllowSPRespawn(!FStrEq(szValue, "0"));
+	}
 	else
 	{
 		return BaseClass::KeyValue( szKeyName, szValue );
@@ -155,9 +162,17 @@ bool CHalfLife2Proxy::GetKeyValue( const char *szKeyName, char *szValue, int iMa
 	{
 		Q_snprintf( szValue, iMaxLen, "%d", g_bUseLegacyFlashlight );
 	}
+	else if (FStrEq(szKeyName, "SetPlayerSquadAutosummon"))
+	{
+		Q_snprintf( szValue, iMaxLen, "%d", HL2GameRules()->AutosummonDisabled() );
+	}
 	else if (FStrEq(szKeyName, "SetStunstickPickupBehavior"))
 	{
 		Q_snprintf( szValue, iMaxLen, "%i", HL2GameRules()->GetStunstickPickupBehavior() );
+	}
+	else if (FStrEq(szKeyName, "SetAllowSPRespawn"))
+	{
+		Q_snprintf( szValue, iMaxLen, "%d", HL2GameRules()->AllowSPRespawn() );
 	}
 	else
 	{
@@ -183,6 +198,8 @@ int CHalfLife2Proxy::Save( ISave &save )
 	//m_save_LegacyFlashlight = (g_bUseLegacyFlashlight);
 
 	m_save_StunstickPickupBehavior = HL2GameRules()->GetStunstickPickupBehavior();
+
+	m_save_AllowSPRespawn = HL2GameRules()->AllowSPRespawn();
 
 	return BaseClass::Save(save);
 }
@@ -210,6 +227,8 @@ int CHalfLife2Proxy::Restore( IRestore &restore )
 	}
 
 	HL2GameRules()->SetStunstickPickupBehavior(m_save_StunstickPickupBehavior);
+
+	HL2GameRules()->SetAllowSPRespawn(m_save_AllowSPRespawn);
 
 	return base;
 }
@@ -453,6 +472,7 @@ ConVar  alyx_darkness_force( "alyx_darkness_force", "0", FCVAR_CHEAT | FCVAR_REP
 #ifdef MAPBASE
 		m_DefaultCitizenType = 0;
 		m_bPlayerSquadAutosummonDisabled = false;
+		m_bAllowSPRespawn = false;
 #endif
 	}
 
@@ -2045,6 +2065,22 @@ int CHalfLife2::GetStunstickPickupBehavior()
 void CHalfLife2::SetStunstickPickupBehavior(int val)
 {
 	m_StunstickPickupBehavior = val;
+}
+
+//-----------------------------------------------------------------------------
+// Gets our SP respawn setting.
+//-----------------------------------------------------------------------------
+bool CHalfLife2::AllowSPRespawn()
+{
+	return m_bAllowSPRespawn;
+}
+
+//-----------------------------------------------------------------------------
+// Sets our SP respawn setting.
+//-----------------------------------------------------------------------------
+void CHalfLife2::SetAllowSPRespawn( bool toggle )
+{
+	m_bAllowSPRespawn = toggle;
 }
 
 //BEGIN_SIMPLE_DATADESC( CHalfLife2 )

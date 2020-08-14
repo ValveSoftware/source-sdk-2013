@@ -472,6 +472,8 @@ void CHud::Init( void )
 	}
 
 	FreeHudTextureList( textureList );
+	
+	HudIcons().Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -1198,5 +1200,234 @@ CON_COMMAND_F( testhudanim, "Test a hud element animation.\n\tArguments: <anim n
 	}
 
 	g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( args[1] );
+}
+
+CHudIcons::CHudIcons() :
+	m_bHudTexturesLoaded( false )
+{
+}
+
+CHudIcons::~CHudIcons()
+{
+	int c = m_Icons.Count();
+	for ( int i = c - 1; i >= 0; i-- )
+	{
+		CHudTexture *tex = m_Icons[ i ];
+		g_HudTextureMemoryPool.Free( tex );
+	}
+	m_Icons.Purge();
+}
+
+void CHudIcons::Init()
+{
+	if ( m_bHudTexturesLoaded )
+		return;
+
+	m_bHudTexturesLoaded = true;
+	CUtlDict< CHudTexture *, int >	textureList;
+
+	// check to see if we have sprites for this res; if not, step down
+	LoadHudTextures( textureList, "scripts/hud_textures", NULL );
+	LoadHudTextures( textureList, "scripts/mod_textures", NULL );
+
+	LoadHudTextures( textureList, "scripts/instructor_textures", NULL );
+#ifdef HL2_CLIENT_DLL
+	LoadHudTextures( textureList, "scripts/instructor_textures_hl2", NULL );
+#endif
+	LoadHudTextures( textureList, "scripts/instructor_modtextures", NULL );
+
+	int c = textureList.Count();
+	for ( int index = 0; index < c; index++ )
+	{
+		CHudTexture* tex = textureList[ index ];
+		AddSearchableHudIconToList( *tex );
+	}
+
+	FreeHudTextureList( textureList );
+}
+
+void CHudIcons::Shutdown()
+{
+	m_bHudTexturesLoaded = false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CHudTexture *CHudIcons::AddUnsearchableHudIconToList( CHudTexture& texture )
+{
+	// These names are composed based on the texture file name
+	char composedName[ 512 ];
+
+	if ( texture.bRenderUsingFont )
+	{
+		Q_snprintf( composedName, sizeof( composedName ), "%s_c%i",
+			texture.szTextureFile, texture.cCharacterInFont );
+	}
+	else
+	{
+		Q_snprintf( composedName, sizeof( composedName ), "%s_%i_%i_%i_%i",
+			texture.szTextureFile, texture.rc.left, texture.rc.top, texture.rc.right, texture.rc.bottom );
+	}
+
+	CHudTexture *icon = GetIcon( composedName );
+	if ( icon )
+	{
+		return icon;
+	}
+
+	CHudTexture *newTexture = ( CHudTexture * )g_HudTextureMemoryPool.Alloc();
+	*newTexture = texture;
+
+	SetupNewHudTexture( newTexture );
+
+	int idx = m_Icons.Insert( composedName, newTexture );
+	return m_Icons[ idx ];
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CHudTexture *CHudIcons::AddSearchableHudIconToList( CHudTexture& texture )
+{
+	CHudTexture *icon = GetIcon( texture.szShortName );
+	if ( icon )
+	{
+		return icon;
+	}
+
+	CHudTexture *newTexture = ( CHudTexture * )g_HudTextureMemoryPool.Alloc();
+	*newTexture = texture;
+
+	SetupNewHudTexture( newTexture );
+
+	int idx = m_Icons.Insert( texture.szShortName, newTexture );
+	return m_Icons[ idx ];
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns a pointer to an icon in the list
+//-----------------------------------------------------------------------------
+CHudTexture *CHudIcons::GetIcon( const char *szIcon )
+{
+	int i = m_Icons.Find( szIcon );
+	if ( i == m_Icons.InvalidIndex() )
+		return NULL;
+
+	return m_Icons[ i ];
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Gets texture handles for the hud icon
+//-----------------------------------------------------------------------------
+void CHudIcons::SetupNewHudTexture( CHudTexture *t )
+{
+	if ( t->bRenderUsingFont )
+	{
+		vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+		t->hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( t->szTextureFile, true );
+		t->rc.top = 0;
+		t->rc.left = 0;
+		t->rc.right = vgui::surface()->GetCharacterWidth( t->hFont, t->cCharacterInFont );
+		t->rc.bottom = vgui::surface()->GetFontTall( t->hFont );
+	}
+	else
+	{
+		// Set up texture id and texture coordinates
+		t->textureId = vgui::surface()->CreateNewTextureID();
+		vgui::surface()->DrawSetTextureFile( t->textureId, t->szTextureFile, false, false );
+
+		int wide, tall;
+		vgui::surface()->DrawGetTextureSize( t->textureId, wide, tall );
+
+		t->texCoords[ 0 ] = (float)(t->rc.left + 0.5f) / (float)wide;
+		t->texCoords[ 1 ] = (float)(t->rc.top + 0.5f) / (float)tall;
+		t->texCoords[ 2 ] = (float)(t->rc.right - 0.5f) / (float)wide;
+		t->texCoords[ 3 ] = (float)(t->rc.bottom - 0.5f) / (float)tall;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudIcons::RefreshHudTextures()
+{
+	if ( !m_bHudTexturesLoaded )
+	{
+		Assert( 0 );
+		return;
+	}
+
+	CUtlDict< CHudTexture *, int >	textureList;
+
+	// check to see if we have sprites for this res; if not, step down
+	LoadHudTextures( textureList, "scripts/hud_textures", NULL );
+	LoadHudTextures( textureList, "scripts/mod_textures", NULL );
+
+	LoadHudTextures( textureList, "scripts/instructor_textures", NULL );
+
+
+	// fix up all the texture icons first
+	int c = textureList.Count();
+	for ( int index = 0; index < c; index++ )
+	{
+		CHudTexture *tex = textureList[ index ];
+		Assert( tex );
+
+		CHudTexture *icon = GetIcon( tex->szShortName );
+		if ( !icon )
+			continue;
+
+		// Update file
+		Q_strncpy( icon->szTextureFile, tex->szTextureFile, sizeof( icon->szTextureFile ) );
+
+		if ( !icon->bRenderUsingFont )
+		{
+			// Update subrect
+			icon->rc = tex->rc;
+
+			// Keep existing texture id, but now update texture file and texture coordinates
+			vgui::surface()->DrawSetTextureFile( icon->textureId, icon->szTextureFile, false, false );
+
+			// Get new texture dimensions in case it changed
+			int wide, tall;
+			vgui::surface()->DrawGetTextureSize( icon->textureId, wide, tall );
+
+			// Assign coords
+			icon->texCoords[ 0 ] = (float)(icon->rc.left + 0.5f) / (float)wide;
+			icon->texCoords[ 1 ] = (float)(icon->rc.top + 0.5f) / (float)tall;
+			icon->texCoords[ 2 ] = (float)(icon->rc.right - 0.5f) / (float)wide;
+			icon->texCoords[ 3 ] = (float)(icon->rc.bottom - 0.5f) / (float)tall;
+		}
+	}
+
+	FreeHudTextureList( textureList );
+
+	// fixup all the font icons
+	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+	for (int i = m_Icons.First(); m_Icons.IsValidIndex(i); i = m_Icons.Next(i))
+	{
+		CHudTexture *icon = m_Icons[i];
+		if ( !icon )
+			continue;
+
+		// Update file
+		if ( icon->bRenderUsingFont )
+		{
+			icon->hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( icon->szTextureFile, true );
+			icon->rc.top = 0;
+			icon->rc.left = 0;
+			icon->rc.right = vgui::surface()->GetCharacterWidth( icon->hFont, icon->cCharacterInFont );
+			icon->rc.bottom = vgui::surface()->GetFontTall( icon->hFont );
+		}
+	}
+}
+
+
+static CHudIcons g_HudIcons;
+
+CHudIcons &HudIcons()
+{
+	return g_HudIcons;
 }
 

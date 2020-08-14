@@ -8,9 +8,10 @@ $Configuration
 {
 	$Compiler
 	{
-		$PreprocessorDefinitions		"$BASE;ASW_PROJECTED_TEXTURES;DYNAMIC_RTT_SHADOWS"
+		$PreprocessorDefinitions		"$BASE;ASW_PROJECTED_TEXTURES;DYNAMIC_RTT_SHADOWS;GLOWS_ENABLE"
 		
 		$PreprocessorDefinitions		"$BASE;MAPBASE_RPC;DISCORD_RPC;STEAM_RPC"	[$MAPBASE_RPC]
+		$PreprocessorDefinitions		"$BASE;MAPBASE_VSCRIPT"		[$MAPBASE_VSCRIPT]
 	}
 }
 
@@ -21,6 +22,12 @@ $Project
 		$File	"c_env_global_light.cpp"
 		$File	"worldlight.cpp"
 		$File	"worldlight.h"
+		$File	"c_baselesson.cpp"
+		$File	"c_baselesson.h"
+		$File	"c_gameinstructor.cpp"
+		$File	"c_gameinstructor.h"
+		$File	"hud_locator_target.cpp"
+		$File	"hud_locator_target.h"
 	
 		$Folder	"Mapbase"
 		{
@@ -32,10 +39,16 @@ $Project
 			$File	"$SRCDIR\game\shared\mapbase\matchers.cpp"
 			$File	"$SRCDIR\game\shared\mapbase\matchers.h"
 			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_shared.cpp" [$MAPBASE_VSCRIPT]
+			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_shared.h" [$MAPBASE_VSCRIPT]
 			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_math.cpp" [$MAPBASE_VSCRIPT]
+			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_math.h" [$MAPBASE_VSCRIPT]
 			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_hl2.cpp" [$MAPBASE_VSCRIPT]
+			$File	"$SRCDIR\game\shared\mapbase\vscript_consts_shared.cpp" [$MAPBASE_VSCRIPT]
 			
 			$File	"mapbase\c_func_clientclip.cpp"
+			$File	"mapbase\c_func_fake_worldportal.cpp"
+			$File	"mapbase\c_func_fake_worldportal.h"
+			$File	"mapbase\c_point_glow.cpp"
 		}
 		
 		$Folder "HL2 DLL"

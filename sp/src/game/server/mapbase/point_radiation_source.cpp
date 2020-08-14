@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ====
 //
 // An entity that triggers the player's geiger counter.
 // 
@@ -124,7 +124,11 @@ void CPointRadiationSource::RadiationThink( void )
 		float flRange = pPlayer->GetAbsOrigin().DistTo((GetAbsOrigin()));
 		if (m_flRadius <= 0 || flRange < m_flRadius)
 		{
-			Assert( m_flIntensity > 0 );
+			if (m_flIntensity == 0)
+			{
+				Warning("%s: INTENSITY IS ZERO!!! Can't notify of radiation\n", GetDebugName());
+				return;
+			}
 
 			//flRange *= 3.0f;
 			flRange /= m_flIntensity;

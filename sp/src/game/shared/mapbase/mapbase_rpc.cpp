@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
 // Purpose: Mapbase's RPC implementation.
 //
@@ -400,7 +400,7 @@ void MapbaseRPC_Update( int iRPCMask, int iType, const char *pMapName )
 void MapbaseRPC_UpdateSteam( int iType, const char *pMapName )
 {
 	// No Steam
-	if (!steamapicontext)
+	if (!steamapicontext || !steamapicontext->SteamFriends())
 		return;
 
 	const char *pszStatus = NULL;

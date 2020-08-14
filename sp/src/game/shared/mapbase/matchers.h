@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. =================
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 =================
 //
 // Purpose: General matching functions for things like wildcards and !=.
 //

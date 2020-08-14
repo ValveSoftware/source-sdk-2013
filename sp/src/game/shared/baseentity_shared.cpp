@@ -444,6 +444,15 @@ bool CBaseEntity::KeyValue( const char *szKeyName, const char *szValue )
 		return true;
 	}
 
+#ifdef MAPBASE
+	if ( FStrEq( szKeyName, "eflags" ) )
+	{
+		// Can't use DEFINE_KEYFIELD since eflags might be set before KV are parsed
+		AddEFlags( atoi( szValue ) );
+		return true;
+	}
+#endif
+
 #ifdef GAME_DLL	
 	
 	if ( FStrEq( szKeyName, "targetname" ) )
@@ -1604,23 +1613,21 @@ typedef CTraceFilterSimpleList CBulletsTraceFilter;
 void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 {
 #if defined(MAPBASE_VSCRIPT) && defined(GAME_DLL)
-	if (m_ScriptScope.IsInitialized())
+	if (HSCRIPT hFunc = LookupScriptFunction("FireBullets"))
 	{
-		CFireBulletsInfoAccessor pInfo( const_cast<FireBulletsInfo_t*>(&info) );
-		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( &pInfo );
+		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( const_cast<FireBulletsInfo_t*>(&info) );
 
 		g_pScriptVM->SetValue( "info", hInfo );
 
 		ScriptVariant_t functionReturn;
-		if ( CallScriptFunction( "FireBullets", &functionReturn ) )
-		{
-			if (!functionReturn.m_bool)
-				return;
-		}
+		CallScriptFunctionHandle( hFunc, &functionReturn );
 
 		g_pScriptVM->RemoveInstance( hInfo );
 
 		g_pScriptVM->ClearValue( "info" );
+
+		if (!functionReturn.m_bool)
+			return;
 	}
 #endif
 

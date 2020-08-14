@@ -21,6 +21,7 @@ BEGIN_DATADESC( CEnvProjectedTexture )
 	DEFINE_FIELD( m_hTargetEntity, FIELD_EHANDLE ),
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_bDontFollowTarget, FIELD_BOOLEAN, "dontfollowtarget" ),
+	DEFINE_FIELD( m_bAlwaysUpdate, FIELD_BOOLEAN ),
 #endif
 	DEFINE_FIELD( m_bState, FIELD_BOOLEAN ),
 	DEFINE_KEYFIELD( m_flLightFOV, FIELD_FLOAT, "lightfov" ),

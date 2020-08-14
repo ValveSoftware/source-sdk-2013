@@ -1161,6 +1161,59 @@ int UTIL_StringFieldToInt( const char *szValue, const char **pValueStrings, int 
 }
 
 
+static char s_NumBitsInNibble[ 16 ] = 
+{
+	0, // 0000 = 0
+	1, // 0001 = 1
+	1, // 0010 = 2
+	2, // 0011 = 3
+	1, // 0100 = 4
+	2, // 0101 = 5
+	2, // 0110 = 6
+	3, // 0111 = 7
+	1, // 1000 = 8
+	2, // 1001 = 9
+	2, // 1010 = 10
+	3, // 1011 = 11
+	2, // 1100 = 12
+	3, // 1101 = 13
+	3, // 1110 = 14
+	4, // 1111 = 15
+};
+
+int UTIL_CountNumBitsSet( unsigned int nVar )
+{
+	int nNumBits = 0;
+
+	while ( nVar > 0 )
+	{
+		// Look up and add in bits in the bottom nibble
+		nNumBits += s_NumBitsInNibble[ nVar & 0x0f ];
+
+		// Shift one nibble to the right
+		nVar >>= 4;
+	}
+
+	return nNumBits;
+}
+
+int UTIL_CountNumBitsSet( uint64 nVar )
+{
+	int nNumBits = 0;
+
+	while ( nVar > 0 )
+	{
+		// Look up and add in bits in the bottom nibble
+		nNumBits += s_NumBitsInNibble[ nVar & 0x0f ];
+
+		// Shift one nibble to the right
+		nVar >>= 4;
+	}
+
+	return nNumBits;
+}
+
+
 int find_day_of_week( struct tm& found_day, int day_of_week, int step )
 {
 	return 0;

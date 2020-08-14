@@ -294,6 +294,11 @@ public:
 	virtual void			SharedSpawn(); // Shared between client and server.
 	virtual void			ForceRespawn( void );
 
+#ifdef MAPBASE
+	// For the logic_playerproxy output
+	virtual void			SpawnedAtPoint( CBaseEntity *pSpawnPoint ) {}
+#endif
+
 	virtual void			InitialSpawn( void );
 	virtual void			InitHUD( void ) {}
 	virtual void			ShowViewPortPanel( const char * name, bool bShow = true, KeyValues *data = NULL );

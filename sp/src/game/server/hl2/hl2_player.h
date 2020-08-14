@@ -75,6 +75,9 @@ public:
 		else
 			return m_flDrainRate; 
 	}
+#ifdef MAPBASE
+	void	SetDeviceDrainRate( float flDrainRate ) { m_flDrainRate = flDrainRate; }
+#endif
 };
 
 //=============================================================================
@@ -124,6 +127,9 @@ public:
 	virtual void 		ModifyOrAppendPlayerCriteria( AI_CriteriaSet& set );
 
 #ifdef MAPBASE
+	// For the logic_playerproxy output
+	void				SpawnedAtPoint( CBaseEntity *pSpawnPoint );
+
 	void				ResetAnimation( void );
 	void				SetAnimation( PLAYER_ANIM playerAnim );
 
@@ -333,6 +339,13 @@ public:
 
 	// HUD HINTS
 	void DisplayLadderHudHint();
+
+#ifdef MAPBASE
+	void InitCustomSuitDevice( int iDeviceID, float flDrainRate );
+	void AddCustomSuitDevice( int iDeviceID );
+	void RemoveCustomSuitDevice( int iDeviceID );
+	bool IsCustomSuitDeviceActive( int iDeviceID );
+#endif
 
 	CSoundPatch *m_sndLeeches;
 	CSoundPatch *m_sndWaterSplashes;

@@ -961,6 +961,16 @@ struct surfacedata_t
 	surfacegameprops_t		game;		// Game data / properties
 
 	surfacesoundhandles_t		soundhandles;
+
+#ifdef MAPBASE_VSCRIPT
+	// These functions are for the VScript class description.
+
+	float			GetFriction() { return physics.friction; }
+	float			GetThickness() { return physics.thickness; }
+
+	float			GetJumpFactor() { return game.jumpFactor; }
+	char			GetMaterialChar() { return game.material; }
+#endif
 };
 
 #define VPHYSICS_SURFACEPROPS_INTERFACE_VERSION	"VPhysicsSurfaceProps001"

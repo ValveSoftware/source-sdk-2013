@@ -202,6 +202,10 @@ public:
 	int		ScriptSelectWeightedSequence( int activity, int curSequence ) { return SelectWeightedSequence( (Activity)activity, curSequence ); }
 
 	HSCRIPT ScriptGetSequenceKeyValues( int iSequence );
+
+	// For VScript
+	int		GetSkin() { return m_nSkin; }
+	void	SetSkin( int iSkin ) { m_nSkin = iSkin; }
 #endif
 
 	// These return the attachment in the space of the entity

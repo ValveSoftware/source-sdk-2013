@@ -1557,6 +1557,11 @@ public:
 
 	inline void Init(vec_t ix=0.0f, vec_t iy=0.0f, vec_t iz=0.0f, vec_t iw=0.0f)	{ x = ix; y = iy; z = iz; w = iw; }
 
+#ifdef MAPBASE_VSCRIPT
+	// Needed to get around vec_t recognition and inlining
+	void ScriptInit( float ix, float iy, float iz, float iw ) { Init( ix, iy, iz, iw ); }
+#endif
+
 	bool IsValid() const;
 	void Invalidate();
 

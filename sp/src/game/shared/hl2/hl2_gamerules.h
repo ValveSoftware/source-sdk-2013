@@ -46,6 +46,7 @@ public:
 	void InputSetLegacyFlashlight( inputdata_t &inputdata );
 	void InputSetPlayerSquadAutosummon( inputdata_t &inputdata );
 	void InputSetStunstickPickupBehavior( inputdata_t &inputdata );
+	void InputSetAllowSPRespawn( inputdata_t &inputdata );
 
 	// Gamerules classes don't seem to support datadescs, so the hl2_gamerules entity takes the current values
 	// from the actual gamerules and saves them in the entity itself, where they're saved via the entity's own datadesc.
@@ -54,6 +55,7 @@ public:
 	char m_save_LegacyFlashlight;
 	bool m_save_PlayerSquadAutosummonDisabled;
 	int m_save_StunstickPickupBehavior;
+	bool m_save_AllowSPRespawn;
 
 	DECLARE_DATADESC();
 #endif
@@ -136,6 +138,9 @@ public:
 
 	int				GetStunstickPickupBehavior();
 	void			SetStunstickPickupBehavior(int val);
+
+	virtual bool	AllowSPRespawn();
+	void			SetAllowSPRespawn( bool toggle );
 #endif
 
 private:
@@ -147,6 +152,7 @@ private:
 	int		m_DefaultCitizenType;
 	bool	m_bPlayerSquadAutosummonDisabled;
 	int		m_StunstickPickupBehavior;
+	bool	m_bAllowSPRespawn;
 #endif
 
 	void AdjustPlayerDamageTaken( CTakeDamageInfo *pInfo );

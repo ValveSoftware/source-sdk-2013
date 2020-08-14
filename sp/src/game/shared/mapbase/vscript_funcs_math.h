@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. =================
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 =================
 //
 // Purpose: Shared VScript math functions.
 //
@@ -14,52 +14,53 @@
 //-----------------------------------------------------------------------------
 // Exposes matrix3x4_t to VScript
 //-----------------------------------------------------------------------------
-class CScriptMatrix3x4
-{
-public:
-	CScriptMatrix3x4()
-	{
-		matrix = new matrix3x4_t();
-		m_bFree = true;
-	}
-
-	~CScriptMatrix3x4()
-	{
-		if (m_bFree == true)
-			delete matrix;
-	}
-
-	CScriptMatrix3x4( matrix3x4_t &inmatrix ) { matrix = &inmatrix; }
-
-	matrix3x4_t *GetMatrix()					{ return matrix; }
-	void SetMatrix( matrix3x4_t &inmatrix )		{ matrix = &inmatrix; }
-
-	void Init( const Vector& xAxis, const Vector& yAxis, const Vector& zAxis, const Vector &vecOrigin )
-	{
-		matrix->Init( xAxis, yAxis, zAxis, vecOrigin );
-	}
-
-private:
-	matrix3x4_t *matrix;
-	bool m_bFree = false;
-};
-
-inline matrix3x4_t *ToMatrix3x4( HSCRIPT hMat ) { return HScriptToClass<CScriptMatrix3x4>( hMat )->GetMatrix(); }
+inline matrix3x4_t *ToMatrix3x4( HSCRIPT hMat ) { return HScriptToClass<matrix3x4_t>( hMat ); }
 
 static HSCRIPT ScriptCreateMatrixInstance( matrix3x4_t &matrix )
 {
-	CScriptMatrix3x4 *smatrix = new CScriptMatrix3x4( matrix );
-
-	return g_pScriptVM->RegisterInstance( smatrix );
+	return g_pScriptVM->RegisterInstance( &matrix );
 }
 
 static void ScriptFreeMatrixInstance( HSCRIPT hMat )
 {
-	CScriptMatrix3x4 *smatrix = HScriptToClass<CScriptMatrix3x4>( hMat );
+	matrix3x4_t *smatrix = HScriptToClass<matrix3x4_t>( hMat );
 	if (smatrix)
 	{
 		g_pScriptVM->RemoveInstance( hMat );
 		delete smatrix;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Exposes Quaternion to VScript
+//-----------------------------------------------------------------------------
+class CScriptQuaternionInstanceHelper : public IScriptInstanceHelper
+{
+	bool ToString( void *p, char *pBuf, int bufSize );
+
+	bool Get( void *p, const char *pszKey, ScriptVariant_t &variant );
+	bool Set( void *p, const char *pszKey, ScriptVariant_t &variant );
+
+	ScriptVariant_t *Add( void *p, ScriptVariant_t &variant );
+	//ScriptVariant_t *Subtract( void *p, ScriptVariant_t &variant );
+	//ScriptVariant_t *Multiply( void *p, ScriptVariant_t &variant );
+	//ScriptVariant_t *Divide( void *p, ScriptVariant_t &variant );
+};
+
+inline Quaternion *ToQuaternion( HSCRIPT hQuat ) { return HScriptToClass<Quaternion>( hQuat ); }
+
+static HSCRIPT ScriptCreateQuaternionInstance( Quaternion &quat )
+{
+	return g_pScriptVM->RegisterInstance( &quat );
+}
+
+static void ScriptFreeQuaternionInstance( HSCRIPT hQuat )
+{
+	Quaternion *squat = HScriptToClass<Quaternion>( hQuat );
+	if (squat)
+	{
+		g_pScriptVM->RemoveInstance( hQuat );
+		delete squat;
 	}
 }
 

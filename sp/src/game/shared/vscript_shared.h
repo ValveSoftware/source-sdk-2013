@@ -32,6 +32,7 @@ inline bool VScriptRunScript( const char *pszScriptName, bool bWarnMissing = fal
 bool IsEntityCreationAllowedInScripts( void );
 
 #ifdef MAPBASE_VSCRIPT
+void RegisterSharedScriptConstants();
 void RegisterSharedScriptFunctions();
 #endif
 

@@ -104,12 +104,27 @@ void CHudSuitPower::OnThink( void )
 	bool breatherActive = pPlayer->IsBreatherActive();
 	int activeDevices = (int)flashlightActive + (int)sprintActive + (int)breatherActive;
 
+#ifdef MAPBASE
+	activeDevices += (int)pPlayer->IsCustomDevice0Active() + (int)pPlayer->IsCustomDevice1Active() + (int)pPlayer->IsCustomDevice2Active();
+#endif
+
 	if (activeDevices != m_iActiveSuitDevices)
 	{
 		m_iActiveSuitDevices = activeDevices;
 
 		switch ( m_iActiveSuitDevices )
 		{
+#ifdef MAPBASE
+		case 6:
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("SuitAuxPowerSixItemsActive");
+			break;
+		case 5:
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("SuitAuxPowerFiveItemsActive");
+			break;
+		case 4:
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("SuitAuxPowerFourItemsActive");
+			break;
+#endif
 		default:
 		case 3:
 			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("SuitAuxPowerThreeItemsActive");
@@ -251,6 +266,59 @@ void CHudSuitPower::Paint()
 			}
 			ypos += text2_gap;
 		}
+
+#ifdef MAPBASE
+		if (pPlayer->IsCustomDevice0Active())
+		{
+			tempString = g_pVGuiLocalize->Find("#Mapbase_Hud_DEVICE0");
+
+			surface()->DrawSetTextPos(text2_xpos, ypos);
+
+			if (tempString)
+			{
+				surface()->DrawPrintText(tempString, wcslen(tempString));
+			}
+			else
+			{
+				surface()->DrawPrintText(L"CUSTOM 0", wcslen(L"CUSTOM 0"));
+			}
+			ypos += text2_gap;
+		}
+
+		if (pPlayer->IsCustomDevice1Active())
+		{
+			tempString = g_pVGuiLocalize->Find("#Mapbase_Hud_DEVICE1");
+
+			surface()->DrawSetTextPos(text2_xpos, ypos);
+
+			if (tempString)
+			{
+				surface()->DrawPrintText(tempString, wcslen(tempString));
+			}
+			else
+			{
+				surface()->DrawPrintText(L"CUSTOM 1", wcslen(L"CUSTOM 1"));
+			}
+			ypos += text2_gap;
+		}
+
+		if (pPlayer->IsCustomDevice2Active())
+		{
+			tempString = g_pVGuiLocalize->Find("#Mapbase_Hud_DEVICE2");
+
+			surface()->DrawSetTextPos(text2_xpos, ypos);
+
+			if (tempString)
+			{
+				surface()->DrawPrintText(tempString, wcslen(tempString));
+			}
+			else
+			{
+				surface()->DrawPrintText(L"CUSTOM 2", wcslen(L"CUSTOM 2"));
+			}
+			ypos += text2_gap;
+		}
+#endif
 	}
 }
 

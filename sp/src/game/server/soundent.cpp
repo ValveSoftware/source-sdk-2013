@@ -45,6 +45,31 @@ BEGIN_SIMPLE_DATADESC( CSound )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_SCRIPTDESC_ROOT( CSound, "A sound NPCs can hear." )
+
+	DEFINE_SCRIPTFUNC( DoesSoundExpire, "Returns true if the sound expires." )
+	DEFINE_SCRIPTFUNC( SoundExpirationTime, "Gets the sound's expiration time." )
+	DEFINE_SCRIPTFUNC( SetSoundOrigin, "Sets the sound's origin." )
+	DEFINE_SCRIPTFUNC( GetSoundOrigin, "Gets the sound's origin." )
+	DEFINE_SCRIPTFUNC( GetSoundReactOrigin, "Gets the sound's react origin." )
+	DEFINE_SCRIPTFUNC_NAMED( FIsSound, "IsSound", "Returns true if this is a type of sound (as opposed to a scent)." )
+	DEFINE_SCRIPTFUNC_NAMED( FIsScent, "IsScent", "Returns true if this is a type of scent (as opposed to a sound)." )
+	DEFINE_SCRIPTFUNC( IsSoundType, "Returns true if the sound type is the specified type." )
+	DEFINE_SCRIPTFUNC( SoundType, "Gets the raw sound type." )
+	DEFINE_SCRIPTFUNC( SoundContext, "Gets the sound type with contexts only." )
+	DEFINE_SCRIPTFUNC( SoundTypeNoContext, "Gets the sound type with contexts excluded." )
+	DEFINE_SCRIPTFUNC( Volume, "Gets the sound's volume." )
+	DEFINE_SCRIPTFUNC( OccludedVolume, "Gets the sound's occluded volume." )
+	DEFINE_SCRIPTFUNC( Reset, "Clears the volume, type, and origin for the sound without actually removing it." )
+	DEFINE_SCRIPTFUNC( SoundChannel, "Gets the sound's channel." )
+	DEFINE_SCRIPTFUNC( ValidateOwner, "Returns true if the sound's owner is still valid or if the sound never had an owner in the first place." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetOwner, "GetOwner", "Gets the sound's owner." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetTarget, "GetTarget", "Gets the sound's target." )
+
+END_SCRIPTDESC();
+#endif
+
 
 //=========================================================
 // CSound - Clear - zeros all fields for a sound

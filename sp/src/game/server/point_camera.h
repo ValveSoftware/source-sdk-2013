@@ -39,6 +39,7 @@ public:
 	void InputSetOff( inputdata_t &inputdata );
 #ifdef MAPBASE
 	void InputSetSkyMode( inputdata_t &inputdata ) { m_iSkyMode = inputdata.value.Int(); }
+	void InputSetRenderTarget( inputdata_t &inputdata ) { m_iszRenderTarget = inputdata.value.StringID(); }
 
 	float GetFOV() const { return m_FOV; }
 #endif
@@ -58,6 +59,7 @@ private:
 	CNetworkVar( bool, m_bUseScreenAspectRatio );
 #ifdef MAPBASE
 	CNetworkVar( int, m_iSkyMode );
+	CNetworkVar( string_t, m_iszRenderTarget );
 #endif
 
 	// Allows the mapmaker to control whether a camera is active or not

@@ -1,3 +1,13 @@
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
+//
+// Purpose: Custom implementation of VScript in Source 2013, created from scratch
+//			using the Alien Swarm SDK as a reference for Valve's library.
+// 
+// Author(s): ReDucTor (header written by Blixibon)
+//
+// $NoKeywords: $
+//=============================================================================//
+
 #include "vscript/ivscript.h"
 #include "tier1/utlbuffer.h"
 #include "tier1/utlmap.h"
@@ -149,10 +159,20 @@ public:
 	virtual bool RegisterClass(ScriptClassDesc_t* pClassDesc) override;
 
 	//--------------------------------------------------------
+	// External constants
+	//--------------------------------------------------------
+	virtual void RegisterConstant(ScriptConstantBinding_t *pScriptConstant) override;
+
+	//--------------------------------------------------------
+	// External enums
+	//--------------------------------------------------------
+	virtual void RegisterEnum(ScriptEnumDesc_t *pEnumDesc) override;
+
+	//--------------------------------------------------------
 	// External instances. Note class will be auto-registered.
 	//--------------------------------------------------------
 
-	virtual HSCRIPT RegisterInstance(ScriptClassDesc_t* pDesc, void* pInstance) override;
+	virtual HSCRIPT RegisterInstance(ScriptClassDesc_t* pDesc, void* pInstance, bool bAllowDestruct = false) override;
 	virtual void SetInstanceUniqeId(HSCRIPT hInstance, const char* pszId) override;
 	virtual void RemoveInstance(HSCRIPT hInstance) override;
 
@@ -243,7 +263,7 @@ namespace SQVector
 
 		if (key[0] < 'x' || key['0'] > 'z' || key[1] != '\0')
 		{
-			return sqstd_throwerrorf(vm, "Unexpected key %s\n", key);
+			return sqstd_throwerrorf(vm, "Unexpected key %s", key);
 		}
 
 		Vector* v = nullptr;
@@ -264,12 +284,12 @@ namespace SQVector
 
 		if (key == nullptr)
 		{
-			return sq_throwerror(vm, "Expected Vector._get(string)");
+			return sq_throwerror(vm, "Expected Vector._set(string)");
 		}
 
 		if (key[0] < 'x' || key['0'] > 'z' || key[1] != '\0')
 		{
-			return sqstd_throwerrorf(vm, "Unexpected key %s\n", key);
+			return sqstd_throwerrorf(vm, "Unexpected key %s", key);
 		}
 
 		Vector* v = nullptr;
@@ -515,6 +535,35 @@ namespace SQVector
 		return 1;
 	}
 
+	SQInteger Scale(HSQUIRRELVM vm)
+	{
+		Vector* v1 = nullptr;
+
+		if (sq_gettop(vm) != 2 ||
+			SQ_FAILED(sq_getinstanceup(vm, 1, (SQUserPointer*)&v1, TYPETAG_VECTOR)))
+		{
+			return sq_throwerror(vm, "Expected (Vector, float)");
+		}
+
+		float s = 0.0;
+
+		if (SQ_SUCCEEDED(sq_getfloat(vm, 2, &s)))
+		{
+			sq_getclass(vm, 1);
+			sq_createinstance(vm, -1);
+			SQUserPointer p;
+			sq_getinstanceup(vm, -1, &p, 0);
+			new(p) Vector((*v1) * s);
+			sq_remove(vm, -2);
+
+			return 1;
+		}
+		else
+		{
+			return sq_throwerror(vm, "Expected (Vector, float)");
+		}
+	}
+
 	SQInteger Dot(HSQUIRRELVM vm)
 	{
 		Vector* v1 = nullptr;
@@ -613,7 +662,7 @@ namespace SQVector
 		}
 		else
 		{
-			return sq_throwerror(vm, "Invalid iteartor");
+			return sq_throwerror(vm, "Invalid iterator");
 		}
 
 		Assert(curkey && curkey[0] >= 'w' && curkey[0] <= 'z');
@@ -645,7 +694,7 @@ namespace SQVector
 		{_SC("Length2DSqr"), Length2DSqr, 1, _SC(".")},
 		{_SC("Normalized"), Normalized, 1, _SC(".")},
 		{_SC("Norm"), Norm, 1, _SC(".")},
-		{_SC("_div"), Divide, 2, _SC("..")},
+		{_SC("Scale"), Scale, 2, _SC("..")},
 		{_SC("Dot"), Dot, 2, _SC("..")},
 		{_SC("Cross"), Cross, 2, _SC("..")},
 		{_SC("ToKVString"), ToKVString, 1, _SC(".")},
@@ -683,15 +732,19 @@ namespace SQVector
 
 struct ClassInstanceData
 {
-	ClassInstanceData(void* instance, ScriptClassDesc_t* desc, const char* instanceId = nullptr) :
+	ClassInstanceData(void* instance, ScriptClassDesc_t* desc, const char* instanceId = nullptr, bool allowDestruct = false) :
 		instance(instance),
 		desc(desc),
-		instanceId(instanceId)
+		instanceId(instanceId),
+		allowDestruct(allowDestruct)
 	{}
 
 	void* instance;
 	ScriptClassDesc_t* desc;
 	CUtlString instanceId;
+
+	// Indicates this game-created instance is a weak reference and can be destructed (Blixibon)
+	bool allowDestruct;
 };
 
 bool CreateParamCheck(const ScriptFunctionBinding_t& func, char* output)
@@ -778,6 +831,35 @@ void PushVariant(HSQUIRRELVM vm, const ScriptVariant_t& value)
 			sq_pushnull(vm);
 		}
 		break;
+	}
+}
+
+void GetVariantScriptString(const ScriptVariant_t& value, char *szValue, int iSize)
+{
+	switch (value.m_type)
+	{
+		case FIELD_VOID:
+			V_strncpy( szValue, "null", iSize );
+			break;
+		case FIELD_FLOAT:
+			V_snprintf( szValue, iSize, "%f", value.m_float );
+			break;
+		case FIELD_CSTRING:
+			V_snprintf( szValue, iSize, "\"%s\"", value.m_pszString );
+			break;
+		case FIELD_VECTOR:
+			V_snprintf( szValue, iSize, "Vector( %f, %f, %f )", value.m_pVector->x, value.m_pVector->y, value.m_pVector->z );
+			break;
+		case FIELD_INTEGER:
+			V_snprintf( szValue, iSize, "%i", value.m_int );
+			break;
+		case FIELD_BOOLEAN:
+			V_snprintf( szValue, iSize, "%d", value.m_bool );
+			break;
+		case FIELD_CHARACTER:
+			//char buf[2] = { value.m_char, 0 };
+			V_snprintf( szValue, iSize, "\"%c\"", value.m_char );
+			break;
 	}
 }
 
@@ -1004,7 +1086,10 @@ SQInteger function_stub(HSQUIRRELVM vm)
 SQInteger destructor_stub(SQUserPointer p, SQInteger size)
 {
 	auto classInstanceData = (ClassInstanceData*)p;
-	classInstanceData->desc->m_pfnDestruct(classInstanceData->instance);
+
+	if (classInstanceData->desc->m_pfnDestruct)
+		classInstanceData->desc->m_pfnDestruct(classInstanceData->instance);
+
 	classInstanceData->~ClassInstanceData();
 	return 0;
 }
@@ -1045,7 +1130,7 @@ SQInteger constructor_stub(HSQUIRRELVM vm)
 	{
 		SQUserPointer p;
 		sq_getinstanceup(vm, 1, &p, 0);
-		new(p) ClassInstanceData(instance, pClassDesc);
+		new(p) ClassInstanceData(instance, pClassDesc, nullptr, true);
 	}
 
 	sq_setreleasehook(vm, 1, &destructor_stub);
@@ -1081,6 +1166,167 @@ SQInteger tostring_stub(HSQUIRRELVM vm)
 	}
 
 	return 1;
+}
+
+SQInteger get_stub(HSQUIRRELVM vm)
+{
+	ClassInstanceData* classInstanceData = nullptr;
+	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
+
+	const char* key = nullptr;
+	sq_getstring(vm, 2, &key);
+
+	if (key == nullptr)
+	{
+		return sq_throwerror(vm, "Expected _get(string)");
+	}
+
+	ScriptVariant_t var;
+	if (classInstanceData &&
+		classInstanceData->instance &&
+		classInstanceData->desc->pHelper &&
+		classInstanceData->desc->pHelper->Get(classInstanceData->instance, key, var))
+	{
+		PushVariant(vm, var);
+	}
+	else
+	{
+		return sqstd_throwerrorf(vm, "Unexpected key %s", key);
+	}
+
+	return 1;
+}
+
+SQInteger set_stub(HSQUIRRELVM vm)
+{
+	ClassInstanceData* classInstanceData = nullptr;
+	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
+
+	const char* key = nullptr;
+	sq_getstring(vm, 2, &key);
+
+	if (key == nullptr)
+	{
+		return sq_throwerror(vm, "Expected _set(string)");
+	}
+
+	ScriptVariant_t var;
+	getVariant( vm, -1, var );
+
+	if (classInstanceData &&
+		classInstanceData->instance &&
+		classInstanceData->desc->pHelper &&
+		classInstanceData->desc->pHelper->Set(classInstanceData->instance, key, var))
+	{
+		sq_pop(vm, 1);
+	}
+	else
+	{
+		sq_pop(vm, 1);
+		return sqstd_throwerrorf(vm, "Unexpected key %s", key);
+	}
+
+	return 0;
+}
+
+SQInteger add_stub(HSQUIRRELVM vm)
+{
+	ClassInstanceData* classInstanceData = nullptr;
+	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
+
+	ScriptVariant_t var;
+	getVariant( vm, 1, var );
+
+	if (classInstanceData &&
+		classInstanceData->instance &&
+		classInstanceData->desc->pHelper)
+	{
+		ScriptVariant_t *result = classInstanceData->desc->pHelper->Add( classInstanceData->instance, var );
+		if (result != nullptr)
+		{
+			PushVariant( vm, *result );
+			sq_pop(vm, 1);
+			return 1;
+		}
+	}
+
+	sq_pop(vm, 1);
+	return sqstd_throwerrorf(vm, "Unexpected _add");
+}
+
+SQInteger sub_stub(HSQUIRRELVM vm)
+{
+	ClassInstanceData* classInstanceData = nullptr;
+	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
+
+	ScriptVariant_t var;
+	getVariant( vm, 1, var );
+
+	if (classInstanceData &&
+		classInstanceData->instance &&
+		classInstanceData->desc->pHelper)
+	{
+		ScriptVariant_t *result = classInstanceData->desc->pHelper->Subtract( classInstanceData->instance, var );
+		if (result != nullptr)
+		{
+			PushVariant( vm, *result );
+			sq_pop(vm, 1);
+			return 1;
+		}
+	}
+
+	sq_pop(vm, 1);
+	return sqstd_throwerrorf(vm, "Unexpected _sub");
+}
+
+SQInteger mul_stub(HSQUIRRELVM vm)
+{
+	ClassInstanceData* classInstanceData = nullptr;
+	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
+
+	ScriptVariant_t var;
+	getVariant( vm, 1, var );
+
+	if (classInstanceData &&
+		classInstanceData->instance &&
+		classInstanceData->desc->pHelper )
+	{
+		ScriptVariant_t *result = classInstanceData->desc->pHelper->Add( classInstanceData->instance, var );
+		if (result != nullptr)
+		{
+			PushVariant( vm, *result );
+			sq_pop(vm, 1);
+			return 1;
+		}
+	}
+
+	sq_pop(vm, 1);
+	return sqstd_throwerrorf(vm, "Unexpected _mul");
+}
+
+SQInteger div_stub(HSQUIRRELVM vm)
+{
+	ClassInstanceData* classInstanceData = nullptr;
+	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
+
+	ScriptVariant_t var;
+	getVariant( vm, 1, var );
+
+	if (classInstanceData &&
+		classInstanceData->instance &&
+		classInstanceData->desc->pHelper )
+	{
+		ScriptVariant_t *result = classInstanceData->desc->pHelper->Add( classInstanceData->instance, var );
+		if (result != nullptr)
+		{
+			PushVariant( vm, *result );
+			sq_pop(vm, 1);
+			return 1;
+		}
+	}
+
+	sq_pop(vm, 1);
+	return sqstd_throwerrorf(vm, "Unexpected _div");
 }
 
 SQInteger IsValid_stub(HSQUIRRELVM vm)
@@ -1197,6 +1443,87 @@ void RegisterDocumentation(HSQUIRRELVM vm, const ScriptFuncDescriptor_t& pFuncDe
 	sq_pop(vm, 1);
 }
 
+void RegisterClassDocumentation(HSQUIRRELVM vm, const ScriptClassDesc_t* pClassDesc)
+{
+	SquirrelSafeCheck safeCheck(vm);
+
+	if (pClassDesc->m_pszDescription && pClassDesc->m_pszDescription[0] == SCRIPT_HIDE[0])
+		return;
+
+	const char *name = pClassDesc->m_pszScriptName;
+	const char *base = "";
+	if (pClassDesc->m_pBaseDesc)
+	{
+		base = pClassDesc->m_pBaseDesc->m_pszScriptName;
+	}
+
+	// RegisterClassHelp(name, base, description)
+	sq_pushroottable(vm);
+	sq_pushstring(vm, "RegisterClassHelp", -1);
+	sq_get(vm, -2);
+	sq_remove(vm, -2);
+	sq_pushroottable(vm);
+	sq_pushstring(vm, name, -1);
+	sq_pushstring(vm, base, -1);
+	sq_pushstring(vm, pClassDesc->m_pszDescription ? pClassDesc->m_pszDescription : "", -1);
+	sq_call(vm, 4, SQFalse, SQFalse);
+	sq_pop(vm, 1);
+}
+
+void RegisterEnumDocumentation(HSQUIRRELVM vm, const ScriptEnumDesc_t* pClassDesc)
+{
+	SquirrelSafeCheck safeCheck(vm);
+
+	if (pClassDesc->m_pszDescription && pClassDesc->m_pszDescription[0] == SCRIPT_HIDE[0])
+		return;
+
+	const char *name = pClassDesc->m_pszScriptName;
+
+	// RegisterEnumHelp(name, description)
+	sq_pushroottable(vm);
+	sq_pushstring(vm, "RegisterEnumHelp", -1);
+	sq_get(vm, -2);
+	sq_remove(vm, -2);
+	sq_pushroottable(vm);
+	sq_pushstring(vm, name, -1);
+	sq_pushstring(vm, pClassDesc->m_pszDescription ? pClassDesc->m_pszDescription : "", -1);
+	sq_call(vm, 3, SQFalse, SQFalse);
+	sq_pop(vm, 1);
+}
+
+void RegisterConstantDocumentation( HSQUIRRELVM vm, const ScriptConstantBinding_t* pConstDesc, const char *pszAsString, ScriptEnumDesc_t* pEnumDesc = nullptr )
+{
+	SquirrelSafeCheck safeCheck(vm);
+
+	if (pConstDesc->m_pszDescription && pConstDesc->m_pszDescription[0] == SCRIPT_HIDE[0])
+		return;
+
+	char name[256] = "";
+
+	if (pEnumDesc)
+	{
+		V_strcat_safe(name, pEnumDesc->m_pszScriptName);
+		V_strcat_safe(name, ".");
+	}
+
+	V_strcat_safe(name, pConstDesc->m_pszScriptName);
+
+	char signature[256] = "";
+	V_snprintf(signature, sizeof(signature), "%s (%s)", pszAsString, ScriptDataTypeToName(pConstDesc->m_data.m_type));
+
+	// RegisterConstHelp(name, signature, description)
+	sq_pushroottable(vm);
+	sq_pushstring(vm, "RegisterConstHelp", -1);
+	sq_get(vm, -2);
+	sq_remove(vm, -2);
+	sq_pushroottable(vm);
+	sq_pushstring(vm, name, -1);
+	sq_pushstring(vm, signature, -1);
+	sq_pushstring(vm, pConstDesc->m_pszDescription ? pConstDesc->m_pszDescription : "", -1);
+	sq_call(vm, 4, SQFalse, SQFalse);
+	sq_pop(vm, 1);
+}
+
 
 bool SquirrelVM::Init()
 {
@@ -1307,53 +1634,157 @@ bool SquirrelVM::Init()
 		}
 
 		DocumentedFuncs <- {}
+		DocumentedClasses <- {}
+		DocumentedEnums <- {}
+		DocumentedConsts <- {}
+
+		function ModForAlias(name, signature, description)
+		{
+			// This is an alias function, could use split() if we could guarantee
+			// that ':' would not occur elsewhere in the description and Squirrel had
+			// a convience join() function -- It has split()
+			local colon = description.find(":");
+			if (colon == null)
+				colon = description.len();
+			local alias = description.slice(1, colon);
+			description = description.slice(colon + 1);
+			name = alias;
+			signature = null;
+		}
 
 		function RegisterHelp(name, signature, description)
 		{
 			if (description.len() && description[0] == '#')
 			{
-				// This is an alias function, could use split() if we could guarantee
-				// that ':' would not occur elsewhere in the description and Squirrel had
-				// a convience join() function -- It has split()
-				local colon = description.find(":");
-				if (colon == null)
-					colon = description.len();
-				local alias = description.slice(1, colon);
-				description = description.slice(colon + 1);
-				name = alias;
-				signature = null;
+				ModForAlias(name, signature, description)
 			}
 			DocumentedFuncs[name] <- [signature, description];
+		}
+
+		function RegisterClassHelp(name, baseclass, description)
+		{
+			DocumentedClasses[name] <- [baseclass, description];
+		}
+
+		function RegisterEnumHelp(name, description)
+		{
+			DocumentedEnums[name] <- description;
+		}
+
+		function RegisterConstHelp(name, signature, description)
+		{
+			if (description.len() && description[0] == '#')
+			{
+				ModForAlias(name, signature, description)
+			}
+			DocumentedConsts[name] <- [signature, description];
+		}
+
+		function PrintClass(name, doc)
+		{
+			printl("=====================================");
+			printl("Class:    " + name);
+			printl("Base:   " + doc[0]);
+			if (doc[1].len())
+				printl("Description: " + doc[1]);
+			printl("=====================================");
+			print("\n");
+		}
+
+		function PrintFunc(name, doc)
+		{
+			printl("Function:    " + name);
+			if (doc[0] == null)
+			{
+				// Is an aliased function
+				print("Signature:   function " + name + "(");
+				foreach(k,v in this[name].getinfos()["parameters"])
+				{
+					if (k == 0 && v == "this") continue;
+					if (k > 1) print(", ");
+					print(v);
+				}
+				printl(")");
+			}
+			else
+			{
+				printl("Signature:   " + doc[0]);
+			}
+			if (doc[1].len())
+				printl("Description: " + doc[1]);
+			print("\n");
+		}
+
+		function PrintEnum(name, doc)
+		{
+			printl("=====================================");
+			printl("Enum:    " + name);
+			if (doc.len())
+				printl("Description: " + doc);
+			printl("=====================================");
+			print("\n");
+		}
+
+		function PrintConst(name, doc)
+		{
+			printl("Constant:    " + name);
+			if (doc[0] == null)
+			{
+				// Is an aliased function
+				print("Signature:   function " + name + "(");
+				foreach(k,v in this[name].getinfos()["parameters"])
+				{
+					if (k == 0 && v == "this") continue;
+					if (k > 1) print(", ");
+					print(v);
+				}
+				printl(")");
+			}
+			else
+			{
+				printl("Value:   " + doc[0]);
+			}
+			if (doc[1].len())
+				printl("Description: " + doc[1]);
+			print("\n");
 		}
 
 		function PrintHelp(pattern = "*")
 		{
 			local foundMatches = false;
+			foreach(name, doc in DocumentedClasses)
+			{
+				if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
+				{
+					foundMatches = true;
+					PrintClass(name, doc)
+				}
+			}
+
 			foreach(name, doc in DocumentedFuncs)
 			{
 				if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
 				{
 					foundMatches = true;
-					printl("Function:    " + name);
-					if (doc[0] == null)
-					{
-						// Is an aliased function
-						print("Signature:   function " + name + "(");
-						foreach(k,v in this[name].getinfos()["parameters"])
-						{
-							if (k == 0 && v == "this") continue;
-							if (k > 1) print(", ");
-							print(v);
-						}
-						printl(")");
-					}
-					else
-					{
-						printl("Signature:   " + doc[0]);
-					}
-					if (doc[1].len())
-						printl("Description: " + doc[1]);
-					print("\n");
+					PrintFunc(name, doc)
+				}
+			}
+
+			foreach(name, doc in DocumentedEnums)
+			{
+				if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
+				{
+					foundMatches = true;
+					PrintEnum(name, doc)
+				}
+			}
+
+			foreach(name, doc in DocumentedConsts)
+			{
+				if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
+				{
+					foundMatches = true;
+					PrintConst(name, doc)
 				}
 			}
 
@@ -1743,6 +2174,30 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 	sq_newclosure(vm_, tostring_stub, 0);
 	sq_newslot(vm_, -3, SQFalse);
 
+	sq_pushstring(vm_, "_get", -1);
+	sq_newclosure(vm_, get_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "_set", -1);
+	sq_newclosure(vm_, set_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "_add", -1);
+	sq_newclosure(vm_, add_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "_sub", -1);
+	sq_newclosure(vm_, sub_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "_mul", -1);
+	sq_newclosure(vm_, mul_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "_div", -1);
+	sq_newclosure(vm_, div_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
 	sq_pushstring(vm_, "IsValid", -1);
 	sq_newclosure(vm_, IsValid_stub, 0);
 	sq_newslot(vm_, -3, SQFalse);
@@ -1785,10 +2240,84 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 
 	sq_pop(vm_, 2);
 
+	RegisterClassDocumentation(vm_, pClassDesc);
+
 	return true;
 }
 
-HSCRIPT SquirrelVM::RegisterInstance(ScriptClassDesc_t* pDesc, void* pInstance)
+void SquirrelVM::RegisterConstant(ScriptConstantBinding_t* pScriptConstant)
+{
+	SquirrelSafeCheck safeCheck(vm_);
+	Assert(pScriptConstant);
+
+	if (!pScriptConstant)
+		return;
+
+	sq_pushconsttable(vm_);
+	sq_pushstring(vm_, pScriptConstant->m_pszScriptName, -1);
+
+	PushVariant(vm_, pScriptConstant->m_data);
+
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pop(vm_, 1);
+
+	char szValue[64];
+	GetVariantScriptString( pScriptConstant->m_data, szValue, sizeof(szValue) );
+	RegisterConstantDocumentation(vm_, pScriptConstant, szValue);
+}
+
+void SquirrelVM::RegisterEnum(ScriptEnumDesc_t* pEnumDesc)
+{
+	SquirrelSafeCheck safeCheck(vm_);
+	Assert(pEnumDesc);
+
+	if (!pEnumDesc)
+		return;
+
+	sq_pushconsttable(vm_);
+	sq_pushstring(vm_, pEnumDesc->m_pszScriptName, -1);
+	
+	// Check if class name is already taken
+	if (sq_get(vm_, -2) == SQ_OK)
+	{
+		HSQOBJECT obj;
+		sq_resetobject(&obj);
+		sq_getstackobj(vm_, -1, &obj);
+		if (!sq_isnull(obj))
+		{
+			sq_pop(vm_, 2);
+			return;
+		}
+	}
+
+	sq_pop(vm_, 1);
+
+	// HACKHACK: I have no idea how to declare enums with the current API.
+	// For now, we'll just cram everything into a script buffer and compile it. (Blixibon)
+	char szScript[2048];
+	V_snprintf( szScript, sizeof(szScript), "enum %s {\n", pEnumDesc->m_pszScriptName );
+
+	for (int i = 0; i < pEnumDesc->m_ConstantBindings.Count(); ++i)
+	{
+		auto& scriptConstant = pEnumDesc->m_ConstantBindings[i];
+
+		char szValue[64];
+		GetVariantScriptString( scriptConstant.m_data, szValue, sizeof(szValue) );
+
+		V_snprintf( szScript, sizeof(szScript), "%s%s = %s\n", szScript, scriptConstant.m_pszScriptName, szValue );
+
+		RegisterConstantDocumentation(vm_, &scriptConstant, szValue, pEnumDesc);
+	}
+
+	V_strcat_safe( szScript, "}" );
+
+	Run( szScript );
+
+	RegisterEnumDocumentation(vm_, pEnumDesc);
+}
+
+HSCRIPT SquirrelVM::RegisterInstance(ScriptClassDesc_t* pDesc, void* pInstance, bool bAllowDestruct)
 {
 	SquirrelSafeCheck safeCheck(vm_);
 
@@ -1812,10 +2341,10 @@ HSCRIPT SquirrelVM::RegisterInstance(ScriptClassDesc_t* pDesc, void* pInstance)
 	{
 		SQUserPointer p;
 		sq_getinstanceup(vm_, -1, &p, 0);
-		new(p) ClassInstanceData(pInstance, pDesc);
+		new(p) ClassInstanceData(pInstance, pDesc, nullptr, bAllowDestruct);
 	}
 
-	sq_setreleasehook(vm_, -1, &destructor_stub_instance);
+	sq_setreleasehook(vm_, -1, bAllowDestruct ? &destructor_stub : &destructor_stub_instance);
 
 	HSQOBJECT* obj = new HSQOBJECT;
 	sq_resetobject(obj);
@@ -2470,6 +2999,8 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 				else if (!pClassInstanceData->instanceId.IsEmpty())
 				{
 					pBuffer->PutString(pClassInstanceData->instanceId);
+
+					pBuffer->PutChar(pClassInstanceData->allowDestruct ? 1 : 0);
 				}
 				else
 				{
@@ -2720,7 +3251,10 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 		sq_getstackobj(vm_, -1, &env);
 		if (!sq_isnull(env))
 		{
-			_closure(*obj)->_env = _refcounted(env)->GetWeakRef(sq_type(env));
+			if (_closure( *obj ) == nullptr)
+				Warning("Closure is null\n");
+			else
+				_closure(*obj)->_env = _refcounted(env)->GetWeakRef(sq_type(env));
 		}
 		sq_poptop(vm_);
 
@@ -2918,6 +3452,8 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 
 			if (*instanceName)
 			{
+				bool allowDestruct = (pBuffer->GetChar() == 1);
+
 				auto instance = pClassDesc->pHelper->BindOnRead((HSCRIPT)hinstance, nullptr, instanceName);
 				if (instance == nullptr)
 				{
@@ -2931,9 +3467,9 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 				{
 					SQUserPointer p;
 					sq_getinstanceup(vm_, -1, &p, 0);
-					new(p) ClassInstanceData(instance, pClassDesc, instanceName);
+					new(p) ClassInstanceData(instance, pClassDesc, instanceName, allowDestruct);
 				}
-				sq_setreleasehook(vm_, -1, &destructor_stub);
+				sq_setreleasehook(vm_, -1, allowDestruct ? &destructor_stub : &destructor_stub_instance);
 			}
 			else
 			{

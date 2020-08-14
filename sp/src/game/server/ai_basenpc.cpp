@@ -2293,6 +2293,28 @@ bool CAI_BaseNPC::QueryHearSound( CSound *pSound )
 	if( ShouldIgnoreSound( pSound ) )
 		return false;
 
+#ifdef MAPBASE_VSCRIPT
+	if (HSCRIPT hFunc = LookupScriptFunction("QueryHearSound"))
+	{
+		HSCRIPT hSound = g_pScriptVM->RegisterInstance( pSound );
+		g_pScriptVM->SetValue( "sound", hSound );
+
+		ScriptVariant_t functionReturn;
+		bool bValid = true;
+		if ( CallScriptFunctionHandle( hFunc, &functionReturn ) )
+		{
+			if (functionReturn.m_bool == false)
+				bValid = false;
+		}
+
+		g_pScriptVM->ClearValue( "sound" );
+		g_pScriptVM->RemoveInstance( hSound );
+
+		if (bValid == false)
+			return false;
+	}
+#endif
+
 	return true;
 }
 
@@ -2300,12 +2322,34 @@ bool CAI_BaseNPC::QueryHearSound( CSound *pSound )
 
 bool CAI_BaseNPC::QuerySeeEntity( CBaseEntity *pEntity, bool bOnlyHateOrFearIfNPC )
 {
+	bool bValid = true;
+
 	if ( bOnlyHateOrFearIfNPC && pEntity->IsNPC() )
 	{
 		Disposition_t disposition = IRelationType( pEntity );
-		return ( disposition == D_HT || disposition == D_FR );
+		bValid = ( disposition == D_HT || disposition == D_FR );
 	}
-	return true;
+
+#ifdef MAPBASE_VSCRIPT
+	if (bValid)
+	{
+		if (HSCRIPT hFunc = LookupScriptFunction("QuerySeeEntity"))
+		{
+			g_pScriptVM->SetValue( "entity", ToHScript(pEntity) );
+
+			ScriptVariant_t functionReturn;
+			if ( CallScriptFunctionHandle( hFunc, &functionReturn ) )
+			{
+				if (functionReturn.m_bool == false)
+					bValid = false;
+			}
+
+			g_pScriptVM->ClearValue( "entity" );
+		}
+	}
+#endif
+
+	return bValid;
 }
 
 //-----------------------------------------------------------------------------
@@ -6555,13 +6599,13 @@ Activity CAI_BaseNPC::NPC_TranslateActivity( Activity eNewActivity )
 	}
 
 #ifdef MAPBASE_VSCRIPT
-	if ( m_ScriptScope.IsInitialized() )
+	if (HSCRIPT hFunc = LookupScriptFunction("NPC_TranslateActivity"))
 	{
 		g_pScriptVM->SetValue( "activity", GetActivityName(eNewActivity) );
 		g_pScriptVM->SetValue( "activity_id", (int)eNewActivity );
 
 		ScriptVariant_t functionReturn;
-		if( CallScriptFunction( "NPC_TranslateActivity", &functionReturn ) )
+		if ( CallScriptFunctionHandle( hFunc, &functionReturn ) )
 		{
 			if (functionReturn.m_type == FIELD_INTEGER)
 			{

@@ -6413,6 +6413,7 @@ bool CMathLightPattern::KeyValue( const char *szKeyName, const char *szValue )
 void CMathLightPattern::InputSetStyle( inputdata_t &inputdata )
 {
 	m_iszPattern = AllocPooledString(GetDefaultLightstyleString(inputdata.value.Int()));
+	m_NextLetter = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -6421,6 +6422,7 @@ void CMathLightPattern::InputSetStyle( inputdata_t &inputdata )
 void CMathLightPattern::InputSetPattern( inputdata_t &inputdata )
 {
 	m_iszPattern = inputdata.value.StringID();
+	m_NextLetter = 0;
 }
 
 //-----------------------------------------------------------------------------

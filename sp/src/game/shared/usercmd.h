@@ -127,6 +127,39 @@ public:
 		impulse = 0;
 	}
 
+#ifdef MAPBASE_VSCRIPT // These functions are needed for exposing CUserCmd to VScript.
+	int GetCommandNumber() { return command_number; }
+
+	int ScriptGetTickCount() { return tick_count; }
+
+	const QAngle& GetViewAngles() { return viewangles; }
+	void SetViewAngles( const QAngle& val ) { viewangles = val; }
+
+	float GetForwardMove() { return forwardmove; }
+	void SetForwardMove( float val ) { forwardmove = val; }
+	float GetSideMove() { return sidemove; }
+	void SetSideMove( float val ) { sidemove = val; }
+	float GetUpMove() { return upmove; }
+	void SetUpMove( float val ) { upmove = val; }
+
+	int GetButtons() { return buttons; }
+	void SetButtons( int val ) { buttons = val; }
+	int GetImpulse() { return impulse; }
+	void SetImpulse( int val ) { impulse = val; }
+
+	int GetWeaponSelect() { return weaponselect; }
+	void SetWeaponSelect( int val ) { weaponselect = val; }
+	int GetWeaponSubtype() { return weaponsubtype; }
+	void SetWeaponSubtype( int val ) { weaponsubtype = val; }
+
+	int GetRandomSeed() { return random_seed; }
+
+	int GetMouseX() { return mousedx; }
+	void SetMouseX( int val ) { mousedx = val; }
+	int GetMouseY() { return mousedy; }
+	void SetMouseY( int val ) { mousedy = val; }
+#endif
+
 	// For matching server and client commands for debugging
 	int		command_number;
 	

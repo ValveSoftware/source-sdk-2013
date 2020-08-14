@@ -72,10 +72,14 @@ public:
 	void InputSetFogColor( inputdata_t &data );
 	void InputSetFogColorSecondary( inputdata_t &data );
 	void InputSetFogMaxDensity( inputdata_t &inputdata );
+	void InputCopyFogController( inputdata_t &inputdata );
+	void InputCopyFogControllerWithScale( inputdata_t &inputdata );
 
 	void InputSetFarZ( inputdata_t &data );
 
 	void InputSetSkyColor( inputdata_t &inputdata ) { m_skyboxData.skycolor = inputdata.value.Color32(); }
+
+	void InputSetScale( inputdata_t &inputdata ) { m_skyboxData.scale = inputdata.value.Int(); }
 #endif
 
 public:

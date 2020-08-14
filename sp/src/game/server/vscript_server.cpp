@@ -578,9 +578,11 @@ bool VScriptServerInit()
 
 #ifdef MAPBASE_VSCRIPT
 				g_pScriptVM->RegisterAllClasses();
+				g_pScriptVM->RegisterAllEnums();
 
 				IGameSystem::RegisterVScriptAllSystems();
 
+				RegisterSharedScriptConstants();
 				RegisterSharedScriptFunctions();
 #endif
 

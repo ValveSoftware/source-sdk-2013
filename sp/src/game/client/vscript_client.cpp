@@ -496,11 +496,13 @@ bool VScriptClientInit()
 
 #ifdef MAPBASE_VSCRIPT
 				g_pScriptVM->RegisterAllClasses();
+				g_pScriptVM->RegisterAllEnums();
 
 				g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
 
 				IGameSystem::RegisterVScriptAllSystems();
 
+				RegisterSharedScriptConstants();
 				RegisterSharedScriptFunctions();
 #else
 				//g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );

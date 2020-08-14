@@ -91,10 +91,14 @@ BEGIN_DATADESC( CSkyCamera )
 	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOffFog", InputTurnOffFog ),
 	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetFogColor", InputSetFogColor ),
 	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetFogColorSecondary", InputSetFogColorSecondary ),
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "CopyFogController", InputCopyFogController ),
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "CopyFogControllerWithScale", InputCopyFogControllerWithScale ),
 
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetFarZ", InputSetFarZ ),
 
 	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetSkyColor", InputSetSkyColor ),
+
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetScale", InputSetScale ),
 
 	DEFINE_THINKFUNC( UpdateThink ),
 #endif
@@ -259,7 +263,7 @@ bool CSkyCamera::DoUpdate( bool bUpdateData )
 	// this thinking is only used to update area and other parameters
 
 	// Getting into another area is unlikely, but if it's not expensive, I guess it's okay.
-	int area = engine->GetArea( m_skyboxData.origin );
+	int area = engine->GetArea( GetAbsOrigin() );
 	if (m_skyboxData.area != area)
 	{
 		m_skyboxData.area = area;
@@ -407,4 +411,52 @@ void CSkyCamera::InputSetFogColor( inputdata_t &inputdata ) { m_skyboxData.fog.c
 void CSkyCamera::InputSetFogColorSecondary( inputdata_t &inputdata ) { m_skyboxData.fog.colorSecondary = inputdata.value.Color32(); }
 
 void CSkyCamera::InputSetFarZ( inputdata_t &inputdata ) { m_skyboxData.fog.farz = inputdata.value.Int(); }
+
+void CSkyCamera::InputCopyFogController( inputdata_t &inputdata )
+{
+	CFogController *pFogController = dynamic_cast<CFogController*>(inputdata.value.Entity().Get());
+	if (!pFogController)
+		return;
+
+	m_skyboxData.fog.dirPrimary = pFogController->m_fog.dirPrimary;
+	m_skyboxData.fog.colorPrimary = pFogController->m_fog.colorPrimary;
+	m_skyboxData.fog.colorSecondary = pFogController->m_fog.colorSecondary;
+	//m_skyboxData.fog.colorPrimaryLerpTo = pFogController->m_fog.colorPrimaryLerpTo;
+	//m_skyboxData.fog.colorSecondaryLerpTo = pFogController->m_fog.colorSecondaryLerpTo;
+	m_skyboxData.fog.start = pFogController->m_fog.start;
+	m_skyboxData.fog.end = pFogController->m_fog.end;
+	m_skyboxData.fog.farz = pFogController->m_fog.farz;
+	m_skyboxData.fog.maxdensity = pFogController->m_fog.maxdensity;
+
+	//m_skyboxData.fog.startLerpTo = pFogController->m_fog.startLerpTo;
+	//m_skyboxData.fog.endLerpTo = pFogController->m_fog.endLerpTo;
+	//m_skyboxData.fog.lerptime = pFogController->m_fog.lerptime;
+	//m_skyboxData.fog.duration = pFogController->m_fog.duration;
+	//m_skyboxData.fog.enable = pFogController->m_fog.enable;
+	m_skyboxData.fog.blend = pFogController->m_fog.blend;
+}
+
+void CSkyCamera::InputCopyFogControllerWithScale( inputdata_t &inputdata )
+{
+	CFogController *pFogController = dynamic_cast<CFogController*>(inputdata.value.Entity().Get());
+	if (!pFogController)
+		return;
+
+	m_skyboxData.fog.dirPrimary = pFogController->m_fog.dirPrimary;
+	m_skyboxData.fog.colorPrimary = pFogController->m_fog.colorPrimary;
+	m_skyboxData.fog.colorSecondary = pFogController->m_fog.colorSecondary;
+	//m_skyboxData.fog.colorPrimaryLerpTo = pFogController->m_fog.colorPrimaryLerpTo;
+	//m_skyboxData.fog.colorSecondaryLerpTo = pFogController->m_fog.colorSecondaryLerpTo;
+	m_skyboxData.fog.start = pFogController->m_fog.start * m_skyboxData.scale;
+	m_skyboxData.fog.end = pFogController->m_fog.end * m_skyboxData.scale;
+	m_skyboxData.fog.farz = pFogController->m_fog.farz != -1 ? (pFogController->m_fog.farz * m_skyboxData.scale) : pFogController->m_fog.farz;
+	m_skyboxData.fog.maxdensity = pFogController->m_fog.maxdensity;
+
+	//m_skyboxData.fog.startLerpTo = pFogController->m_fog.startLerpTo;
+	//m_skyboxData.fog.endLerpTo = pFogController->m_fog.endLerpTo;
+	//m_skyboxData.fog.lerptime = pFogController->m_fog.lerptime;
+	//m_skyboxData.fog.duration = pFogController->m_fog.duration;
+	//m_skyboxData.fog.enable = pFogController->m_fog.enable;
+	m_skyboxData.fog.blend = pFogController->m_fog.blend;
+}
 #endif

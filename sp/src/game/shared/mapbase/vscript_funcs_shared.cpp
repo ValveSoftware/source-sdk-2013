@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
 // Purpose: Due to this being a custom integration of VScript based on the Alien Swarm SDK, we don't have access to
 //			some of the code normally available in games like L4D2 or Valve's original VScript DLL.
@@ -550,12 +550,23 @@ public:
 		return NULL;
 	}
 
+	void AddStringAsUTF8( const char *pszToken, const char *pszString )
+	{
+		wchar_t wpszString[256];
+		g_pVGuiLocalize->ConvertANSIToUnicode( pszString, wpszString, sizeof(wpszString) );
+
+		// TODO: This is a fake file name! Should "fileName" mean anything?
+		g_pVGuiLocalize->AddString( pszToken, wpszString, "resource/vscript_localization.txt" );
+	}
+
 private:
 } g_ScriptLocalize;
 
-BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptLocalize, "Localize", SCRIPT_SINGLETON "Accesses functions related to localization strings." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptLocalize, "CLocalize", SCRIPT_SINGLETON "Accesses functions related to localization strings." )
 
 	DEFINE_SCRIPTFUNC( GetTokenAsUTF8, "Gets the current language's token as a UTF-8 string (not Unicode)." )
+
+	DEFINE_SCRIPTFUNC( AddStringAsUTF8, "Adds a new localized token as a UTF-8 string (not Unicode)." )
 
 END_SCRIPTDESC();
 
@@ -566,7 +577,7 @@ static HSCRIPT CreateDamageInfo( HSCRIPT hInflictor, HSCRIPT hAttacker, const Ve
 {
 	// The script is responsible for deleting this via DestroyDamageInfo().
 	CTakeDamageInfo *damageInfo = new CTakeDamageInfo(ToEnt(hInflictor), ToEnt(hAttacker), flDamage, iDamageType);
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( damageInfo );
+	HSCRIPT hScript = g_pScriptVM->RegisterInstance( damageInfo, true );
 
 	damageInfo->SetDamagePosition( vecDamagePos );
 	damageInfo->SetDamageForce( vecForce );
@@ -596,6 +607,8 @@ void ScriptGuessDamageForce( HSCRIPT info, const Vector &vecForceDir, const Vect
 //
 //-----------------------------------------------------------------------------
 BEGIN_SCRIPTDESC_ROOT_NAMED( CTraceInfoAccessor, "CGameTrace", "Handle for accessing trace_t info." )
+	DEFINE_SCRIPT_CONSTRUCTOR()
+
 	DEFINE_SCRIPTFUNC( DidHitWorld, "Returns whether the trace hit the world entity or not." )
 	DEFINE_SCRIPTFUNC( DidHitNonWorldEntity, "Returns whether the trace hit something other than the world entity." )
 	DEFINE_SCRIPTFUNC( GetEntityIndex, "Returns the index of whatever entity this trace hit." )
@@ -623,17 +636,50 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CTraceInfoAccessor, "CGameTrace", "Handle for acces
 	DEFINE_SCRIPTFUNC( AllSolid, "Returns whether the trace is completely within a solid." )
 	DEFINE_SCRIPTFUNC( StartSolid, "Returns whether the trace started within a solid." )
 
+	DEFINE_SCRIPTFUNC( Surface, "Returns the trace's surface." )
+	DEFINE_SCRIPTFUNC( Plane, "Returns the trace's plane." )
+
 	DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
+END_SCRIPTDESC();
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( surfacedata_t, "surfacedata_t", "Handle for accessing surface data." )
+	DEFINE_SCRIPTFUNC( GetFriction, "The surface's friction." )
+	DEFINE_SCRIPTFUNC( GetThickness, "The surface's thickness." )
+
+	DEFINE_SCRIPTFUNC( GetJumpFactor, "The surface's jump factor." )
+	DEFINE_SCRIPTFUNC( GetMaterialChar, "The surface's material character." )
+END_SCRIPTDESC();
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( CSurfaceScriptAccessor, "csurface_t", "Handle for accessing csurface_t info." )
+	DEFINE_SCRIPTFUNC( Name, "The surface's name." )
+	DEFINE_SCRIPTFUNC( SurfaceProps, "The surface's properties." )
+
+	DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
+END_SCRIPTDESC();
+
+CPlaneTInstanceHelper g_PlaneTInstanceHelper;
+
+BEGIN_SCRIPTDESC_ROOT( cplane_t, "Handle for accessing cplane_t info." )
+	DEFINE_SCRIPT_INSTANCE_HELPER( &g_PlaneTInstanceHelper )
 END_SCRIPTDESC();
 
 static HSCRIPT ScriptTraceLineComplex( const Vector &vecStart, const Vector &vecEnd, HSCRIPT entIgnore, int iMask, int iCollisionGroup )
 {
 	// The script is responsible for deleting this via Destroy().
 	CTraceInfoAccessor *traceInfo = new CTraceInfoAccessor();
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( traceInfo );
+	HSCRIPT hScript = g_pScriptVM->RegisterInstance( traceInfo, true );
 
 	CBaseEntity *pLooker = ToEnt(entIgnore);
 	UTIL_TraceLine( vecStart, vecEnd, iMask, pLooker, iCollisionGroup, &traceInfo->GetTrace());
+
+	// The trace's destruction should destroy this automatically
+	CSurfaceScriptAccessor *surfaceInfo = new CSurfaceScriptAccessor( traceInfo->GetTrace().surface );
+	HSCRIPT hSurface = g_pScriptVM->RegisterInstance( surfaceInfo );
+	traceInfo->SetSurface( hSurface );
+
+	HSCRIPT hPlane = g_pScriptVM->RegisterInstance( &(traceInfo->GetTrace().plane) );
+	traceInfo->SetPlane( hPlane );
+
 	return hScript;
 }
 
@@ -642,17 +688,28 @@ static HSCRIPT ScriptTraceHullComplex( const Vector &vecStart, const Vector &vec
 {
 	// The script is responsible for deleting this via Destroy().
 	CTraceInfoAccessor *traceInfo = new CTraceInfoAccessor();
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( traceInfo );
+	HSCRIPT hScript = g_pScriptVM->RegisterInstance( traceInfo, true );
 
 	CBaseEntity *pLooker = ToEnt(entIgnore);
 	UTIL_TraceHull( vecStart, vecEnd, hullMin, hullMax, iMask, pLooker, iCollisionGroup, &traceInfo->GetTrace());
+
+	// The trace's destruction should destroy this automatically
+	CSurfaceScriptAccessor *surfaceInfo = new CSurfaceScriptAccessor( traceInfo->GetTrace().surface );
+	HSCRIPT hSurface = g_pScriptVM->RegisterInstance( surfaceInfo );
+	traceInfo->SetSurface( hSurface );
+
+	HSCRIPT hPlane = g_pScriptVM->RegisterInstance( &(traceInfo->GetTrace().plane) );
+	traceInfo->SetPlane( hPlane );
+
 	return hScript;
 }
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT_NAMED( CFireBulletsInfoAccessor, "FireBulletsInfo_t", "Handle for accessing FireBulletsInfo_t info." )
+BEGIN_SCRIPTDESC_ROOT( FireBulletsInfo_t, "Handle for accessing FireBulletsInfo_t info." )
+	DEFINE_SCRIPT_CONSTRUCTOR()
+
 	DEFINE_SCRIPTFUNC( GetShots, "Gets the number of shots which should be fired." )
 	DEFINE_SCRIPTFUNC( SetShots, "Sets the number of shots which should be fired." )
 
@@ -683,10 +740,10 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CFireBulletsInfoAccessor, "FireBulletsInfo_t", "Han
 	DEFINE_SCRIPTFUNC( GetDamageForceScale, "Gets the scale of the damage force applied by the bullets." )
 	DEFINE_SCRIPTFUNC( SetDamageForceScale, "Sets the scale of the damage force applied by the bullets." )
 
-	DEFINE_SCRIPTFUNC( GetAttacker, "Gets the entity considered to be the one who fired the bullets." )
-	DEFINE_SCRIPTFUNC( SetAttacker, "Sets the entity considered to be the one who fired the bullets." )
-	DEFINE_SCRIPTFUNC( GetAdditionalIgnoreEnt, "Gets the optional entity which the bullets should ignore." )
-	DEFINE_SCRIPTFUNC( SetAdditionalIgnoreEnt, "Sets the optional entity which the bullets should ignore." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttacker, "GetAttacker", "Gets the entity considered to be the one who fired the bullets." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAttacker, "SetAttacker", "Sets the entity considered to be the one who fired the bullets." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAdditionalIgnoreEnt, "GetAdditionalIgnoreEnt", "Gets the optional entity which the bullets should ignore." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAdditionalIgnoreEnt, "SetAdditionalIgnoreEnt", "Sets the optional entity which the bullets should ignore." )
 
 	DEFINE_SCRIPTFUNC( GetPrimaryAttack, "Gets whether the bullets came from a primary attack." )
 	DEFINE_SCRIPTFUNC( SetPrimaryAttack, "Sets whether the bullets came from a primary attack." )
@@ -697,24 +754,24 @@ END_SCRIPTDESC();
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-HSCRIPT CFireBulletsInfoAccessor::GetAttacker()
+HSCRIPT FireBulletsInfo_t::ScriptGetAttacker()
 {
-	return ToHScript( m_info->m_pAttacker );
+	return ToHScript( m_pAttacker );
 }
 
-void CFireBulletsInfoAccessor::SetAttacker( HSCRIPT value )
+void FireBulletsInfo_t::ScriptSetAttacker( HSCRIPT value )
 {
-	m_info->m_pAttacker = ToEnt( value );
+	m_pAttacker = ToEnt( value );
 }
 
-HSCRIPT CFireBulletsInfoAccessor::GetAdditionalIgnoreEnt()
+HSCRIPT FireBulletsInfo_t::ScriptGetAdditionalIgnoreEnt()
 {
-	return ToHScript( m_info->m_pAdditionalIgnoreEnt );
+	return ToHScript( m_pAdditionalIgnoreEnt );
 }
 
-void CFireBulletsInfoAccessor::SetAdditionalIgnoreEnt( HSCRIPT value )
+void FireBulletsInfo_t::ScriptSetAdditionalIgnoreEnt( HSCRIPT value )
 {
-	m_info->m_pAdditionalIgnoreEnt = ToEnt( value );
+	m_pAdditionalIgnoreEnt = ToEnt( value );
 }
 
 static HSCRIPT CreateFireBulletsInfo( int cShots, const Vector &vecSrc, const Vector &vecDirShooting,
@@ -722,52 +779,33 @@ static HSCRIPT CreateFireBulletsInfo( int cShots, const Vector &vecSrc, const Ve
 {
 	// The script is responsible for deleting this via DestroyFireBulletsInfo().
 	FireBulletsInfo_t *info = new FireBulletsInfo_t();
-	CFireBulletsInfoAccessor *bulletsInfo = new CFireBulletsInfoAccessor( info );
+	HSCRIPT hScript = g_pScriptVM->RegisterInstance( info, true );
 
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( bulletsInfo );
-
-	bulletsInfo->SetShots( cShots );
-	bulletsInfo->SetSource( vecSrc );
-	bulletsInfo->SetDirShooting( vecDirShooting );
-	bulletsInfo->SetSpread( vecSpread );
-	bulletsInfo->SetDamage( iDamage );
-	bulletsInfo->SetAttacker( pAttacker );
+	info->SetShots( cShots );
+	info->SetSource( vecSrc );
+	info->SetDirShooting( vecDirShooting );
+	info->SetSpread( vecSpread );
+	info->SetDamage( iDamage );
+	info->ScriptSetAttacker( pAttacker );
 
 	return hScript;
 }
 
 static void DestroyFireBulletsInfo( HSCRIPT hBulletsInfo )
 {
-	if (hBulletsInfo)
-	{
-		CFireBulletsInfoAccessor *pInfo = (CFireBulletsInfoAccessor*)g_pScriptVM->GetInstanceValue( hBulletsInfo, GetScriptDescForClass( CFireBulletsInfoAccessor ) );
-		if (pInfo)
-		{
-			g_pScriptVM->RemoveInstance( hBulletsInfo );
-			pInfo->Destroy();
-		}
-	}
+	g_pScriptVM->RemoveInstance( hBulletsInfo );
 }
 
 // For the function in baseentity.cpp
 FireBulletsInfo_t *GetFireBulletsInfoFromInfo( HSCRIPT hBulletsInfo )
 {
-	if (hBulletsInfo)
-	{
-		CFireBulletsInfoAccessor *pInfo = (CFireBulletsInfoAccessor*)g_pScriptVM->GetInstanceValue( hBulletsInfo, GetScriptDescForClass( CFireBulletsInfoAccessor ) );
-		if (pInfo)
-		{
-			return pInfo->GetInfo();
-		}
-	}
-
-	return NULL;
+	return HScriptToClass<FireBulletsInfo_t>( hBulletsInfo );
 }
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT_NAMED( CUserCmdAccessor, "CUserCmd", "Handle for accessing CUserCmd info." )
+BEGIN_SCRIPTDESC_ROOT( CUserCmd, "Handle for accessing CUserCmd info." )
 	DEFINE_SCRIPTFUNC( GetCommandNumber, "For matching server and client commands for debugging." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetTickCount, "GetTickCount", "The tick the client created this command." )
@@ -799,6 +837,88 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CUserCmdAccessor, "CUserCmd", "Handle for accessing
 	DEFINE_SCRIPTFUNC( GetMouseY, "Mouse accum in y from create move." )
 	DEFINE_SCRIPTFUNC( SetMouseY, "Sets mouse accum in y from create move." )
 END_SCRIPTDESC();
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+BEGIN_SCRIPTDESC_ROOT( IPhysicsObject, "VPhysics object class." )
+
+	DEFINE_SCRIPTFUNC( IsStatic, "" )
+	DEFINE_SCRIPTFUNC( IsAsleep, "" )
+	DEFINE_SCRIPTFUNC( IsTrigger, "" )
+	DEFINE_SCRIPTFUNC( IsFluid, "" )
+	DEFINE_SCRIPTFUNC( IsHinged, "" )
+	DEFINE_SCRIPTFUNC( IsCollisionEnabled, "" )
+	DEFINE_SCRIPTFUNC( IsGravityEnabled, "" )
+	DEFINE_SCRIPTFUNC( IsDragEnabled, "" )
+	DEFINE_SCRIPTFUNC( IsMotionEnabled, "" )
+	DEFINE_SCRIPTFUNC( IsMoveable, "" )
+	DEFINE_SCRIPTFUNC( IsAttachedToConstraint, "" )
+
+	DEFINE_SCRIPTFUNC( EnableCollisions, "" )
+	DEFINE_SCRIPTFUNC( EnableGravity, "" )
+	DEFINE_SCRIPTFUNC( EnableDrag, "" )
+	DEFINE_SCRIPTFUNC( EnableMotion, "" )
+
+	DEFINE_SCRIPTFUNC( Wake, "" )
+	DEFINE_SCRIPTFUNC( Sleep, "" )
+
+	DEFINE_SCRIPTFUNC( SetMass, "" )
+	DEFINE_SCRIPTFUNC( GetMass, "" )
+	DEFINE_SCRIPTFUNC( GetInvMass, "" )
+	DEFINE_SCRIPTFUNC( GetInertia, "" )
+	DEFINE_SCRIPTFUNC( GetInvInertia, "" )
+	DEFINE_SCRIPTFUNC( SetInertia, "" )
+
+	DEFINE_SCRIPTFUNC( ApplyForceCenter, "" )
+	DEFINE_SCRIPTFUNC( ApplyForceOffset, "" )
+	DEFINE_SCRIPTFUNC( ApplyTorqueCenter, "" )
+
+	DEFINE_SCRIPTFUNC( GetName, "" )
+
+END_SCRIPTDESC();
+
+static const Vector &GetPhysVelocity( HSCRIPT hPhys )
+{
+	IPhysicsObject *pPhys = HScriptToClass<IPhysicsObject>( hPhys );
+	if (!pPhys)
+		return vec3_origin;
+
+	static Vector vecVelocity;
+	pPhys->GetVelocity( &vecVelocity, NULL );
+	return vecVelocity;
+}
+
+static const Vector &GetPhysAngVelocity( HSCRIPT hPhys )
+{
+	IPhysicsObject *pPhys = HScriptToClass<IPhysicsObject>( hPhys );
+	if (!pPhys)
+		return vec3_origin;
+
+	static Vector vecAngVelocity;
+	pPhys->GetVelocity( NULL, &vecAngVelocity );
+	return vecAngVelocity;
+}
+
+static void SetPhysVelocity( HSCRIPT hPhys, const Vector& vecVelocity, const Vector& vecAngVelocity )
+{
+	IPhysicsObject *pPhys = HScriptToClass<IPhysicsObject>( hPhys );
+	if (!pPhys)
+		return;
+
+	if (pPhys)
+		pPhys->SetVelocity( &vecVelocity, &vecAngVelocity );
+}
+
+static void AddPhysVelocity( HSCRIPT hPhys, const Vector& vecVelocity, const Vector& vecAngVelocity )
+{
+	IPhysicsObject *pPhys = HScriptToClass<IPhysicsObject>( hPhys );
+	if (!pPhys)
+		return;
+
+	if (pPhys)
+		pPhys->AddVelocity( &vecVelocity, &vecAngVelocity );
+}
 
 //=============================================================================
 //=============================================================================
@@ -865,6 +985,27 @@ bool ScriptMatcherMatch( const char *pszQuery, const char *szValue ) { return Ma
 //=============================================================================
 //=============================================================================
 
+bool IsServerScript()
+{
+#ifdef GAME_DLL
+	return true;
+#else
+	return false;
+#endif
+}
+
+bool IsClientScript()
+{
+#ifdef CLIENT_DLL
+	return true;
+#else
+	return false;
+#endif
+}
+
+//=============================================================================
+//=============================================================================
+
 extern void RegisterMathScriptFunctions();
 
 void RegisterSharedScriptFunctions()
@@ -923,6 +1064,14 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptTraceHullComplex, "TraceHullComplex", "Takes 2 points, min/max hull bounds, an ent to ignore, a trace mask, and a collision group to trace to a point using a hull. Returns a handle which can access all trace info." );
 
 	// 
+	// VPhysics
+	// 
+	ScriptRegisterFunction( g_pScriptVM, GetPhysVelocity, "Gets physics velocity for the given VPhysics object" );
+	ScriptRegisterFunction( g_pScriptVM, GetPhysAngVelocity, "Gets physics angular velocity for the given VPhysics object" );
+	ScriptRegisterFunction( g_pScriptVM, SetPhysVelocity, "Sets physics velocity for the given VPhysics object" );
+	ScriptRegisterFunction( g_pScriptVM, AddPhysVelocity, "Adds physics velocity for the given VPhysics object" );
+
+	// 
 	// Precaching
 	// 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptPrecacheModel, "PrecacheModel", "Precaches a model for later usage." );
@@ -942,6 +1091,10 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatcherMatch, "Matcher_Match", "Compares a string to a query using Mapbase's matcher system, supporting wildcards, RS matchers, etc." );
 	ScriptRegisterFunction( g_pScriptVM, Matcher_NamesMatch, "Compares a string to a query using Mapbase's matcher system using wildcards only." );
 	ScriptRegisterFunction( g_pScriptVM, AppearsToBeANumber, "Checks if the given string appears to be a number." );
+
+	// For shared server/clientside scripts
+	ScriptRegisterFunction( g_pScriptVM, IsServerScript, "Returns true if the script is being run on the server." );
+	ScriptRegisterFunction( g_pScriptVM, IsClientScript, "Returns true if the script is being run on the client." );
 
 	RegisterMathScriptFunctions();
 

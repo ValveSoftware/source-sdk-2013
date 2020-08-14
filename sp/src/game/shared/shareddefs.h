@@ -210,7 +210,14 @@ enum CastVote
 #define bits_SUIT_DEVICE_FLASHLIGHT	0x00000002
 #define bits_SUIT_DEVICE_BREATHER	0x00000004
 
-#define MAX_SUIT_DEVICES			3
+#ifdef MAPBASE
+// Custom suit power devices
+#define bits_SUIT_DEVICE_CUSTOM0	0x00000008
+#define bits_SUIT_DEVICE_CUSTOM1	0x00000010
+#define bits_SUIT_DEVICE_CUSTOM2	0x00000020
+#endif
+
+#define MAX_SUIT_DEVICES			6		// Mapbase boosts this to 6 for the custom devices
 
 
 //===================================================================================================================
@@ -658,6 +665,10 @@ class CBaseEntity;
 // Bullet firing information
 //-----------------------------------------------------------------------------
 class CBaseEntity;
+#ifdef MAPBASE_VSCRIPT
+// For the VScript functions in FireBUlletsInfo_t
+FORWARD_DECLARE_HANDLE( HSCRIPT );
+#endif
 
 enum FireBulletsFlags_t
 {
@@ -715,6 +726,10 @@ struct FireBulletsInfo_t
 #endif
 	}
 
+#ifdef MAPBASE
+	~FireBulletsInfo_t() {}
+#endif
+
 	int m_iShots;
 	Vector m_vecSrc;
 	Vector m_vecDirShooting;
@@ -736,6 +751,46 @@ struct FireBulletsInfo_t
 	// It could've just been a single entity called "m_pAdditionalIgnoreEnt2", but since these are just pointers,
 	// I planned ahead and made it a CUtlVector instead.
 	CUtlVector<CBaseEntity*> *m_pIgnoreEntList;
+#endif
+
+#ifdef MAPBASE_VSCRIPT // These functions are used by VScript to expose FireBulletsInfo_t to users.
+	int GetShots() { return m_iShots; }
+	void SetShots( int value ) { m_iShots = value; }
+
+	Vector GetSource() { return m_vecSrc; }
+	void SetSource( Vector value ) { m_vecSrc = value; }
+	Vector GetDirShooting() { return m_vecDirShooting; }
+	void SetDirShooting( Vector value ) { m_vecDirShooting = value; }
+	Vector GetSpread() { return m_vecSpread; }
+	void SetSpread( Vector value ) { m_vecSpread = value; }
+
+	float GetDistance() { return m_flDistance; }
+	void SetDistance( float value ) { m_flDistance = value; }
+
+	int GetAmmoType() { return m_iAmmoType; }
+	void SetAmmoType( int value ) { m_iAmmoType = value; }
+
+	int GetTracerFreq() { return m_iTracerFreq; }
+	void SetTracerFreq( int value ) { m_iTracerFreq = value; }
+
+	float GetDamage() { return m_flDamage; }
+	void SetDamage( float value ) { m_flDamage = value; }
+	int GetPlayerDamage() { return m_iPlayerDamage; }
+	void SetPlayerDamage( float value ) { m_iPlayerDamage = value; }
+
+	int GetFlags() { return m_nFlags; }
+	void SetFlags( float value ) { m_nFlags = value; }
+
+	float GetDamageForceScale() { return m_flDamageForceScale; }
+	void SetDamageForceScale( float value ) { m_flDamageForceScale = value; }
+
+	HSCRIPT ScriptGetAttacker();
+	void ScriptSetAttacker( HSCRIPT value );
+	HSCRIPT ScriptGetAdditionalIgnoreEnt();
+	void ScriptSetAdditionalIgnoreEnt( HSCRIPT value );
+
+	bool GetPrimaryAttack() { return m_bPrimaryAttack; }
+	void SetPrimaryAttack( bool value ) { m_bPrimaryAttack = value; }
 #endif
 };
 

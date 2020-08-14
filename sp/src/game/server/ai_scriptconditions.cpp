@@ -859,6 +859,11 @@ void CAI_ScriptConditions::OnEntitySpawned( CBaseEntity *pEntity )
 	if ( pEntity->MyNPCPointer() == NULL )
 		 return;
 
+#ifdef MAPBASE
+	if ( m_Actor == NULL_STRING )
+		return;
+#endif
+
 	if ( pEntity->NameMatches( m_Actor ) )
 	{
 		if ( ActorInList( pEntity ) == false )

@@ -136,6 +136,12 @@ public:
 	int		SoundChannel( void ) const;
 	bool	ValidateOwner() const;
 
+#ifdef MAPBASE_VSCRIPT
+	// For VScript functions
+	HSCRIPT	ScriptGetOwner() const { return ToHScript( m_hOwner ); }
+	HSCRIPT	ScriptGetTarget() const { return ToHScript( m_hTarget ); }
+#endif
+
 	EHANDLE	m_hOwner;				// sound's owner
 	EHANDLE	m_hTarget;				// Sounds's target - an odd concept. For a gunfire sound, the target is the entity being fired at
 	int		m_iVolume;				// how loud the sound is

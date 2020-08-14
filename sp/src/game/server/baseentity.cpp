@@ -2193,7 +2193,12 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetUp, "GetUpVector", "Get the up vector of the entity"  )
 
 #ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetOriginAngles, "SetOriginAngles", "Set both the origin and the angles" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetOriginAnglesVelocity, "SetOriginAnglesVelocity", "Set the origin, the angles, and the velocity" )
+
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEntityToWorldTransform, "EntityToWorldTransform", "Get the entity's transform" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPhysicsObject, "GetPhysicsObject", "Get the entity's physics object if it has one" )
 #endif
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetForward, "SetForwardVector", "Set the orientation of the entity to have this forward vector"  )
@@ -2265,6 +2270,9 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetColorB", "Set the render color's B value" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetAlpha", "Set the render color's alpha value" )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRenderMode, "GetRenderMode", "Get render mode" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetRenderMode, "SetRenderMode", "Set render mode" )
+
 	DEFINE_SCRIPTFUNC( GetSpawnFlags, "Get spawnflags" )
 	DEFINE_SCRIPTFUNC( AddSpawnFlags, "Add spawnflag(s)" )
 	DEFINE_SCRIPTFUNC( RemoveSpawnFlags, "Remove spawnflag(s)" )
@@ -2278,10 +2286,25 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC( SetEffects, "Set effect(s)" )
 	DEFINE_SCRIPTFUNC( IsEffectActive, "Check if an effect is active" )
 
+	DEFINE_SCRIPTFUNC( GetEFlags, "Get Eflags" )
+	DEFINE_SCRIPTFUNC( AddEFlags, "Add Eflags" )
+	DEFINE_SCRIPTFUNC( RemoveEFlags, "Remove Eflags" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetMoveType, "GetMoveType", "Get the move type" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetMoveType, "SetMoveType", "Set the move type" )
+
+	DEFINE_SCRIPTFUNC( GetCollisionGroup, "Get the collision group" )
+	DEFINE_SCRIPTFUNC( SetCollisionGroup, "Set the collision group" )
+
+	DEFINE_SCRIPTFUNC( GetSolidFlags, "Get solid flags" )
+	DEFINE_SCRIPTFUNC( AddSolidFlags, "Add solid flags" )
+	DEFINE_SCRIPTFUNC( RemoveSolidFlags, "Remove solid flags" )
+
 	DEFINE_SCRIPTFUNC( IsPlayer, "Returns true if this entity is a player." )
 	DEFINE_SCRIPTFUNC( IsNPC, "Returns true if this entity is a NPC." )
 	DEFINE_SCRIPTFUNC( IsCombatCharacter, "Returns true if this entity is a combat character (player or NPC)." )
 	DEFINE_SCRIPTFUNC_NAMED( IsBaseCombatWeapon, "IsWeapon", "Returns true if this entity is a weapon." )
+	DEFINE_SCRIPTFUNC( IsWorld, "Returns true if this entity is the world." )
 #endif
 	
 	DEFINE_SCRIPTFUNC( ValidateScriptScope, "Ensure that an entity's script scope has been created" )
@@ -2985,6 +3008,30 @@ void CBaseEntity::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 	// and filter repeats on that?
 	int otherIndex = !index;
 	CBaseEntity *pHitEntity = pEvent->pEntities[otherIndex];
+
+#ifdef MAPBASE_VSCRIPT
+	if (HSCRIPT hFunc = LookupScriptFunction("VPhysicsCollision"))
+	{
+		// TODO: Unique class for collision events
+		g_pScriptVM->SetValue( "entity", ScriptVariant_t( pHitEntity->GetScriptInstance() ) );
+		g_pScriptVM->SetValue( "speed", pEvent->collisionSpeed );
+
+		Vector vecContactPoint;
+		pEvent->pInternalData->GetContactPoint( vecContactPoint );
+		g_pScriptVM->SetValue( "point", vecContactPoint );
+
+		Vector vecSurfaceNormal;
+		pEvent->pInternalData->GetSurfaceNormal( vecSurfaceNormal );
+		g_pScriptVM->SetValue( "normal", vecSurfaceNormal );
+
+		CallScriptFunctionHandle( hFunc, NULL );
+
+		g_pScriptVM->ClearValue( "entity" );
+		g_pScriptVM->ClearValue( "speed" );
+		g_pScriptVM->ClearValue( "point" );
+		g_pScriptVM->ClearValue( "normal" );
+	}
+#endif
 
 	// Don't make sounds / effects if neither entity is MOVETYPE_VPHYSICS.  The game
 	// physics should have done so.
@@ -7999,7 +8046,10 @@ void CBaseEntity::InputSetCollisionGroup( inputdata_t& inputdata )
 //-----------------------------------------------------------------------------
 void CBaseEntity::InputTouch( inputdata_t& inputdata )
 {
-	Touch(inputdata.value.Entity());
+	if (inputdata.value.Entity())
+		Touch( inputdata.value.Entity() );
+	else
+		Warning( "%s InputTouch: Can't touch null entity", GetDebugName() );
 }
 
 //-----------------------------------------------------------------------------
@@ -8184,6 +8234,36 @@ bool CBaseEntity::CallScriptFunction(const char* pFunctionName, ScriptVariant_t*
 
 	return false;
 }
+
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+// Gets a function handle
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseEntity::LookupScriptFunction(const char* pFunctionName)
+{
+	START_VMPROFILE
+
+	if (!m_ScriptScope.IsInitialized())
+	{
+		return NULL;
+	}
+
+	return m_ScriptScope.LookupFunction(pFunctionName);
+}
+
+//-----------------------------------------------------------------------------
+// Calls and releases a function handle (ASSUMES SCRIPT SCOPE AND FUNCTION ARE VALID!)
+//-----------------------------------------------------------------------------
+bool CBaseEntity::CallScriptFunctionHandle(HSCRIPT hFunc, ScriptVariant_t* pFunctionReturn)
+{
+	m_ScriptScope.Call(hFunc, pFunctionReturn);
+	m_ScriptScope.ReleaseFunction(hFunc);
+
+	UPDATE_VMPROFILE
+
+	return true;
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -9539,7 +9619,12 @@ HSCRIPT CBaseEntity::ScriptGetModelKeyValues( void )
 
 		// UNDONE: who calls ReleaseInstance on this??? Does name need to be unique???
 
+#ifdef MAPBASE_VSCRIPT
+		// Allow VScript to delete this when the instance is removed.
+		hScript = g_pScriptVM->RegisterInstance( m_pScriptModelKeyValues, true );
+#else
 		hScript = g_pScriptVM->RegisterInstance( m_pScriptModelKeyValues );
+#endif
 		
 		/* 
 		KeyValues *pParticleEffects = pModelKeyValues->FindKey("Particles");
@@ -9683,6 +9768,17 @@ void CBaseEntity::ScriptSetColorVector( const Vector& vecColor )
 HSCRIPT CBaseEntity::ScriptEntityToWorldTransform( void )
 {
 	return ScriptCreateMatrixInstance( EntityToWorldTransform() );
+}
+
+//-----------------------------------------------------------------------------
+// Vscript: Gets the entity's physics object if it has one
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseEntity::ScriptGetPhysicsObject( void )
+{
+	if (VPhysicsGetObject())
+		return g_pScriptVM->RegisterInstance( VPhysicsGetObject() );
+	else
+		return NULL;
 }
 #endif
 
