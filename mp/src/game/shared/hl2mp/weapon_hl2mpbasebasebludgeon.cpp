@@ -228,8 +228,6 @@ bool CBaseHL2MPBludgeonWeapon::ImpactWater( const Vector &start, const Vector &e
 	//		 right now anyway...
 	// We must start outside the water
 	
-	IPredictionSystem::SuppressHostEvents( NULL );
-	
 	if ( UTIL_PointContents( start ) & (CONTENTS_WATER|CONTENTS_SLIME))
 		return false;
 
@@ -348,6 +346,8 @@ void CBaseHL2MPBludgeonWeapon::Swing( int bIsSecondary )
 		
 		// See if we happened to hit water
 		ImpactWater( swingStart, testEnd );
+
+		IPredictionSystem::SuppressHostEvents( NULL );
 	}
 	else
 	{
