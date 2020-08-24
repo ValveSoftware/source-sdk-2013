@@ -314,12 +314,18 @@ void CEnvHeadcrabCanister::Spawn( void )
 void CEnvHeadcrabCanister::UpdateOnRemove()
 {
 	BaseClass::UpdateOnRemove();
-	StopSound( "HeadcrabCanister.AfterLanding" );
+
+	if (m_bLanded || m_bOpened)
+	{
+		StopSound("HeadcrabCanister.AfterLanding");
+	}
+
 	if ( m_hTrail )
 	{
 		UTIL_Remove( m_hTrail );
 		m_hTrail = NULL;
 	}
+
 	if ( m_hSmokeTrail )
 	{
 		UTIL_Remove( m_hSmokeTrail );
