@@ -389,7 +389,6 @@ void RegisterMathScriptFunctions()
 {
 	ScriptRegisterFunction( g_pScriptVM, RandomFloat, "Generate a random floating point number within a range, inclusive." );
 	ScriptRegisterFunction( g_pScriptVM, RandomInt, "Generate a random integer within a range, inclusive." );
-
 	ScriptRegisterFunction( g_pScriptVM, Approach, "Returns a value which approaches the target value from the input value with the specified speed." );
 	ScriptRegisterFunction( g_pScriptVM, ApproachAngle, "Returns an angle which approaches the target angle from the input angle with the specified speed." );
 	ScriptRegisterFunction( g_pScriptVM, AngleDiff, "Returns the degrees difference between two yaw angles." );

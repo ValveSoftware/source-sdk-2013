@@ -118,6 +118,15 @@ void RegisterSharedScriptConstants()
 	// usually doing nothing sounds like a bad idea.
 	ScriptRegisterFunction( g_pScriptVM, RegisterActivityConstants, "Registers all activity IDs as usable constants." );
 
+
+	//
+	// Math/world
+	//
+	ScriptRegisterConstantNamed( g_pScriptVM, ((float)(180.f / M_PI_F)), "RAD2DEG", "" );
+	ScriptRegisterConstantNamed( g_pScriptVM, ((float)(M_PI_F / 180.f)), "DEG2RAD", "" );
+	ScriptRegisterConstant( g_pScriptVM, MAX_COORD_FLOAT, "" );
+	ScriptRegisterConstant( g_pScriptVM, MAX_TRACE_LENGTH, "" );
+
 	// 
 	// Damage Types
 	// 

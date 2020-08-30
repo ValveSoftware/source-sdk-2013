@@ -591,6 +591,9 @@ public:
 	CBaseEntity *NextMovePeer( void );
 
 	void		SetName( string_t newTarget );
+#ifdef MAPBASE_VSCRIPT
+	void		SetNameAsCStr( const char *newTarget );
+#endif
 	void		SetParent( string_t newParent, CBaseEntity *pActivator, int iAttachment = -1 );
 	
 	// Set the movement parent. Your local origin and angles will become relative to this parent.
@@ -1363,6 +1366,10 @@ public:
 	void			SetGravity( float gravity );
 	float			GetFriction( void ) const;
 	void			SetFriction( float flFriction );
+#ifdef MAPBASE_VSCRIPT
+	void			SetMass(float mass);
+	float			GetMass();
+#endif
 
 	virtual	bool FVisible ( CBaseEntity *pEntity, int traceMask = MASK_BLOCKLOS, CBaseEntity **ppBlocker = NULL );
 	virtual bool FVisible( const Vector &vecTarget, int traceMask = MASK_BLOCKLOS, CBaseEntity **ppBlocker = NULL );
@@ -1958,8 +1965,21 @@ public:
 	void ConnectOutputToScript(const char* pszOutput, const char* pszScriptFunc);
 	void DisconnectOutputFromScript(const char* pszOutput, const char* pszScriptFunc);
 	void ScriptThink();
+#ifdef MAPBASE_VSCRIPT
+	void ScriptSetThinkFunction(const char *szFunc, float time);
+	void ScriptStopThinkFunction();
+	void ScriptSetThink(HSCRIPT hFunc, float time);
+	void ScriptStopThink();
+	void ScriptThinkH();
+private:
+	HSCRIPT m_hfnThink;
+public:
+#endif
 	const char* GetScriptId();
 	HSCRIPT GetScriptScope();
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT GetOrCreatePrivateScriptScope();
+#endif
 	void RunPrecacheScripts(void);
 	void RunOnPostSpawnScripts(void);
 
@@ -1989,7 +2009,11 @@ public:
 	void ScriptSetOrigin(const Vector& v) { Teleport(&v, NULL, NULL); }
 	void ScriptSetForward(const Vector& v) { QAngle angles; VectorAngles(v, angles); Teleport(NULL, &angles, NULL); }
 	const Vector& ScriptGetForward(void) { static Vector vecForward; GetVectors(&vecForward, NULL, NULL); return vecForward; }
-	const Vector& ScriptGetLeft(void) { static Vector vecLeft; GetVectors(NULL, &vecLeft, NULL); return vecLeft; }
+#ifdef MAPBASE_VSCRIPT
+	const Vector& ScriptGetRight(void) { static Vector vecRight; GetVectors(NULL, &vecRight, NULL); return vecRight; }
+#else
+	const Vector& ScriptGetLeft(void)  { static Vector vecRight; GetVectors(NULL, &vecRight, NULL); return vecRight; }
+#endif
 	const Vector& ScriptGetUp(void) { static Vector vecUp; GetVectors(NULL, NULL, &vecUp); return vecUp; }
 
 #ifdef MAPBASE_VSCRIPT
@@ -1999,6 +2023,8 @@ public:
 	HSCRIPT ScriptEntityToWorldTransform( void );
 
 	HSCRIPT ScriptGetPhysicsObject( void );
+
+	void ScriptSetParent(HSCRIPT hParent, const char *szAttachment);
 #endif
 
 	const char* ScriptGetModelName(void) const;
@@ -2037,6 +2063,7 @@ public:
 	int ScriptGetColorB()	{ return m_clrRender.GetB(); }
 	int ScriptGetAlpha()	{ return m_clrRender.GetA(); }
 	void ScriptSetColorVector( const Vector& vecColor );
+	void ScriptSetColor( int r, int g, int b );
 	void ScriptSetColorR( int iVal )	{ SetRenderColorR( iVal ); }
 	void ScriptSetColorG( int iVal )	{ SetRenderColorG( iVal ); }
 	void ScriptSetColorB( int iVal )	{ SetRenderColorB( iVal ); }
@@ -2203,6 +2230,12 @@ inline void CBaseEntity::SetName( string_t newName )
 	m_iName = newName;
 }
 
+#ifdef MAPBASE_VSCRIPT
+inline void CBaseEntity::SetNameAsCStr( const char *newName )
+{
+	m_iName = AllocPooledString(newName);
+}
+#endif
 
 inline bool CBaseEntity::NameMatches( const char *pszNameOrWildcard )
 {
@@ -2380,6 +2413,37 @@ inline const QAngle& CBaseEntity::GetAbsAngles( void ) const
 	return m_angAbsRotation;
 }
 
+#ifdef MAPBASE_VSCRIPT
+inline float CBaseEntity::GetMass()
+{
+	IPhysicsObject *vPhys = VPhysicsGetObject();
+	if (vPhys)
+	{
+		return vPhys->GetMass();
+	}
+	else
+	{
+		Warning("Tried to call GetMass() on %s but it has no physics.\n", GetDebugName());
+		return -1;
+	}
+}
+
+inline void CBaseEntity::SetMass(float mass)
+{
+	mass = MAX(0, mass);
+	Assert(mass > 0);
+
+	IPhysicsObject *vPhys = VPhysicsGetObject();
+	if (vPhys)
+	{
+		vPhys->SetMass(mass);
+	}
+	else
+	{
+		Warning("Tried to call SetMass() on %s but it has no physics.\n", GetDebugName());
+	}
+}
+#endif
 
 
 //-----------------------------------------------------------------------------

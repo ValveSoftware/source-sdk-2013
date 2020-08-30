@@ -2136,6 +2136,9 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_FUNCTION( SUB_CallUseToggle ),
 	DEFINE_THINKFUNC( ShadowCastDistThink ),
 	DEFINE_THINKFUNC( ScriptThink ),
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_THINKFUNC( ScriptThinkH ),
+#endif
 
 #ifdef MAPBASE
 	DEFINE_FUNCTION( SUB_RemoveWhenNotVisible ),
@@ -2173,6 +2176,10 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 
 	DEFINE_SCRIPTFUNC( GetClassname, "" )
 	DEFINE_SCRIPTFUNC_NAMED( GetEntityNameAsCStr, "GetName", "" )
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC( GetDebugName, "If name exists returns name, otherwise returns classname" )
+	DEFINE_SCRIPTFUNC_NAMED( SetNameAsCStr, "SetName", "" )
+#endif
 	DEFINE_SCRIPTFUNC( GetPreTemplateName, "Get the entity name stripped of template unique decoration" )
 
 	DEFINE_SCRIPTFUNC_NAMED( GetAbsOrigin, "GetOrigin", ""  )
@@ -2185,11 +2192,15 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC( GetLocalAngles, "GetLocalAngles" )
 	DEFINE_SCRIPTFUNC( SetLocalAngles, "SetLocalAngles" )
 #endif
-
 	
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetOrigin, "SetOrigin", ""  )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetForward, "SetForwardVector", "Set the orientation of the entity to have this forward vector" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetForward, "GetForwardVector", "Get the forward vector of the entity"  )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLeft, "GetLeftVector", "Get the left vector of the entity"  )
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRight, "GetRightVector", "Get the right vector of the entity" )
+#else
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLeft, "GetLeftVector", "Get the left vector of the entity" )
+#endif
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetUp, "GetUpVector", "Get the up vector of the entity"  )
 
 #ifdef MAPBASE_VSCRIPT
@@ -2199,15 +2210,16 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEntityToWorldTransform, "EntityToWorldTransform", "Get the entity's transform" )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPhysicsObject, "GetPhysicsObject", "Get the entity's physics object if it has one" )
+
+	DEFINE_SCRIPTFUNC( ApplyAbsVelocityImpulse, "" )
+	DEFINE_SCRIPTFUNC( ApplyLocalAngularVelocityImpulse, "" )
 #endif
 
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetForward, "SetForwardVector", "Set the orientation of the entity to have this forward vector"  )
 	DEFINE_SCRIPTFUNC_NAMED( GetAbsVelocity, "GetVelocity", ""  )
 	DEFINE_SCRIPTFUNC_NAMED( SetAbsVelocity, "SetVelocity", ""  )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetLocalAngularVelocity, "SetAngularVelocity", "Set the local angular velocity - takes float pitch,yaw,roll velocities"  )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLocalAngularVelocity, "GetAngularVelocity", "Get the local angular velocity - returns a vector of pitch,yaw,roll"  )
-
 
 	DEFINE_SCRIPTFUNC_NAMED( WorldSpaceCenter, "GetCenter", "Get vector to center of object - absolute coords")
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEyePosition, "EyePosition", "Get vector to eye position - absolute coords")
@@ -2225,7 +2237,10 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetOwner, "SetOwner", ""  )
 	DEFINE_SCRIPTFUNC_NAMED( GetTeamNumber, "GetTeam", ""  )
 	DEFINE_SCRIPTFUNC_NAMED( ChangeTeam, "SetTeam", ""  )
-	
+
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetParent, "SetParent", "" )
+#endif
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetMoveParent, "GetMoveParent", "If in hierarchy, retrieves the entity's parent" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRootMoveParent, "GetRootMoveParent", "If in hierarchy, walks up the hierarchy to find the root parent" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptFirstMoveChild,  "FirstMoveChild", "" )
@@ -2259,16 +2274,17 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddOutput, "AddOutput", "Add an output" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValue, "GetKeyValue", "Get a keyvalue" )
 
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorVector, "GetColorVector", "Get the render color as a vector" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorR, "GetColorR", "Get the render color's R value" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorG, "GetColorG", "Get the render color's G value" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorB, "GetColorB", "Get the render color's B value" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAlpha, "GetAlpha", "Get the render color's alpha value" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorVector, "SetColorVector", "Set the render color as a vector" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorR, "SetColorR", "Set the render color's R value" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorG, "SetColorG", "Set the render color's G value" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetColorB", "Set the render color's B value" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetAlpha", "Set the render color's alpha value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorVector, "GetRenderColorVector", "Get the render color as a vector" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorR, "GetRenderColorR", "Get the render color's R value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorG, "GetRenderColorG", "Get the render color's G value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorB, "GetRenderColorB", "Get the render color's B value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAlpha, "GetRenderAlpha", "Get the render color's alpha value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorVector, "SetRenderColorVector", "Set the render color as a vector" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColor, "SetRenderColor", "Set the render color" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorR, "SetRenderColorR", "Set the render color's R value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorG, "SetRenderColorG", "Set the render color's G value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetRenderColorB", "Set the render color's B value" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetRenderAlpha", "Set the render color's alpha value" )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRenderMode, "GetRenderMode", "Get render mode" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetRenderMode, "SetRenderMode", "Set render mode" )
@@ -2296,6 +2312,13 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC( GetCollisionGroup, "Get the collision group" )
 	DEFINE_SCRIPTFUNC( SetCollisionGroup, "Set the collision group" )
 
+	DEFINE_SCRIPTFUNC( GetGravity, "" )
+	DEFINE_SCRIPTFUNC( SetGravity, "" )
+	DEFINE_SCRIPTFUNC( GetFriction, "" )
+	DEFINE_SCRIPTFUNC( SetFriction, "" )
+	DEFINE_SCRIPTFUNC( GetMass, "" )
+	DEFINE_SCRIPTFUNC( SetMass, "" )
+	
 	DEFINE_SCRIPTFUNC( GetSolidFlags, "Get solid flags" )
 	DEFINE_SCRIPTFUNC( AddSolidFlags, "Add solid flags" )
 	DEFINE_SCRIPTFUNC( RemoveSolidFlags, "Remove solid flags" )
@@ -2305,14 +2328,26 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC( IsCombatCharacter, "Returns true if this entity is a combat character (player or NPC)." )
 	DEFINE_SCRIPTFUNC_NAMED( IsBaseCombatWeapon, "IsWeapon", "Returns true if this entity is a weapon." )
 	DEFINE_SCRIPTFUNC( IsWorld, "Returns true if this entity is the world." )
+
+	// DEFINE_SCRIPTFUNC( IsMarkedForDeletion, "Returns true if the entity is valid and marked for deletion." )
 #endif
 	
 	DEFINE_SCRIPTFUNC( ValidateScriptScope, "Ensure that an entity's script scope has been created" )
 	DEFINE_SCRIPTFUNC( GetScriptScope, "Retrieve the script-side data associated with an entity" )
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC( GetOrCreatePrivateScriptScope, "Create and retrieve the script-side data associated with an entity" )
+#endif
 	DEFINE_SCRIPTFUNC( GetScriptId, "Retrieve the unique identifier used to refer to the entity within the scripting system" )
 	DEFINE_SCRIPTFUNC_NAMED( GetScriptOwnerEntity, "GetOwner", "Gets this entity's owner" )
 	DEFINE_SCRIPTFUNC_NAMED( SetScriptOwnerEntity, "SetOwner", "Sets this entity's owner" )
 	DEFINE_SCRIPTFUNC( entindex, "" )
+
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetThinkFunction, "SetThinkFunction", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptStopThinkFunction, "StopThinkFunction", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetThink, "SetThink", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptStopThink, "StopThink", "" )
+#endif
 END_SCRIPTDESC();
 
 
@@ -2418,6 +2453,13 @@ void CBaseEntity::UpdateOnRemove( void )
 
 	if ( m_hScriptInstance )
 	{
+#ifdef MAPBASE_VSCRIPT
+		HSCRIPT hFunc = LookupScriptFunction("UpdateOnRemove");
+		if ( hFunc )
+		{
+			CallScriptFunctionHandle( hFunc, NULL );
+		}
+#endif
 		g_pScriptVM->RemoveInstance( m_hScriptInstance );
 		m_hScriptInstance = NULL;
 	}
@@ -8341,8 +8383,8 @@ void CBaseEntity::ScriptThink(void)
 			// use default think interval if script think function doesn't provide one
 			flThinkFrequency = sv_script_think_interval.GetFloat();
 		}
-		SetContextThink(&CBaseEntity::ScriptThink,
-			gpGlobals->curtime + flThinkFrequency, "ScriptThink");
+
+		SetNextThink( gpGlobals->curtime + flThinkFrequency, "ScriptThink" );
 	}
 	else
 	{
@@ -8350,13 +8392,109 @@ void CBaseEntity::ScriptThink(void)
 	}
 }
 
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptSetThinkFunction(const char *szFunc, float time)
+{
+	// Empty string stops thinking
+	if (!szFunc || szFunc[0] == '\0')
+	{
+		ScriptStopThinkFunction();
+	}
+	else
+	{
+		m_iszScriptThinkFunction = AllocPooledString(szFunc);
+		SetContextThink( &CBaseEntity::ScriptThink, gpGlobals->curtime + time, "ScriptThink" );
+	}
+}
+
+void CBaseEntity::ScriptStopThinkFunction()
+{
+	m_iszScriptThinkFunction = NULL_STRING;
+	SetContextThink( NULL, TICK_NEVER_THINK, "ScriptThink" );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptThinkH()
+{
+	if (m_hfnThink)
+	{
+		ScriptVariant_t varThinkRetVal;
+		if (g_pScriptVM->ExecuteFunction(m_hfnThink, NULL, 0, &varThinkRetVal, NULL, true) == SCRIPT_ERROR)
+		{
+			DevWarning("%s FAILED to call script think function (invalid closure)!\n", GetDebugName());
+			ScriptStopThink();
+			return;
+		}
+
+		float flThinkFrequency = 0.f;
+		if (!varThinkRetVal.AssignTo(&flThinkFrequency))
+		{
+			// no return value stops thinking
+			ScriptStopThink();
+			return;
+		}
+
+		SetNextThink(gpGlobals->curtime + flThinkFrequency, "ScriptThinkH");
+	}
+	else
+	{
+		DevWarning("%s FAILED to call script think function (invalid closure)!\n", GetDebugName());
+	}
+}
+
+void CBaseEntity::ScriptSetThink(HSCRIPT hFunc, float time)
+{
+	if (hFunc)
+	{
+		if (m_hfnThink)
+		{
+			// release old func
+			ScriptStopThink();
+		}
+
+		// no type check here, print error on call instead
+		m_hfnThink = hFunc;
+
+		SetContextThink( &CBaseEntity::ScriptThinkH, gpGlobals->curtime + time, "ScriptThinkH" );
+	}
+	else
+	{
+		ScriptStopThink();
+	}
+}
+
+void CBaseEntity::ScriptStopThink()
+{
+	if (m_hfnThink)
+	{
+		g_pScriptVM->ReleaseScript(m_hfnThink);
+		m_hfnThink = NULL;
+	}
+	SetContextThink( NULL, TICK_NEVER_THINK, "ScriptThinkH" );
+}
+#endif // MAPBASE_VSCRIPT
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 const char* CBaseEntity::GetScriptId()
 {
+#ifdef MAPBASE_VSCRIPT
+	return STRING(m_iszScriptId);
+#else
 	return STRING(m_iszScriptThinkFunction);
+#endif
 }
+
+//-----------------------------------------------------------------------------
+// Recreate the old behaviour of GetScriptId under a new function
+//-----------------------------------------------------------------------------
+// const char* CBaseEntity::GetScriptThinkFunction()
+// {
+// 	return STRING(m_iszScriptThinkFunction);
+// }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -8365,6 +8503,51 @@ HSCRIPT CBaseEntity::GetScriptScope()
 	return m_ScriptScope;
 }
 
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+#ifdef MAPBASE_VSCRIPT
+HSCRIPT CBaseEntity::GetOrCreatePrivateScriptScope()
+{
+	ValidateScriptScope();
+	return m_ScriptScope;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptSetParent(HSCRIPT hParent, const char *szAttachment)
+{
+	CBaseEntity *pParent = ToEnt(hParent);
+	if ( !pParent )
+	{
+		SetParent(NULL);
+		return;
+	}
+
+	// if an attachment is specified, the parent needs to be CBaseAnimating
+	if ( szAttachment && szAttachment[0] != '\0' )
+	{
+		CBaseAnimating *pAnimating = pParent->GetBaseAnimating();
+		if ( !pAnimating )
+		{
+			Warning("ERROR: Tried to set parent for entity %s (%s), but its parent has no model.\n", GetClassname(), GetDebugName());
+			return;
+		}
+		
+		int iAttachment = pAnimating->LookupAttachment(szAttachment);
+		if ( iAttachment <= 0 )
+		{
+			Warning("ERROR: Tried to set parent for entity %s (%s), but it has no attachment named %s.\n", GetClassname(), GetDebugName(), szAttachment);
+			return;
+		}
+
+		SetParent(pParent, iAttachment);
+		SetMoveType(MOVETYPE_NONE);
+		return;
+	}
+	
+	SetParent(pParent);
+}
+#endif
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 HSCRIPT CBaseEntity::ScriptGetMoveParent(void)
@@ -9760,6 +9943,11 @@ const Vector& CBaseEntity::ScriptGetColorVector()
 void CBaseEntity::ScriptSetColorVector( const Vector& vecColor )
 {
 	SetRenderColor( vecColor.x, vecColor.y, vecColor.z );
+}
+
+void CBaseEntity::ScriptSetColor( int r, int g, int b )
+{
+	SetRenderColor( r, g, b );
 }
 
 //-----------------------------------------------------------------------------

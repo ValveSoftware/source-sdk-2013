@@ -17,6 +17,7 @@
 #include "sqstdaux.h"
 //#include "sqstdblob.h"
 //#include "sqstdsystem.h"
+#include "sqstdtime.h"
 //#include "sqstdio.h"
 #include "sqstdmath.h"
 #include "sqstdstring.h"
@@ -263,7 +264,7 @@ namespace SQVector
 
 		if (key[0] < 'x' || key['0'] > 'z' || key[1] != '\0')
 		{
-			return sqstd_throwerrorf(vm, "Unexpected key %s", key);
+			return sqstd_throwerrorf(vm, "the index '%.50s' does not exist", key);
 		}
 
 		Vector* v = nullptr;
@@ -289,7 +290,7 @@ namespace SQVector
 
 		if (key[0] < 'x' || key['0'] > 'z' || key[1] != '\0')
 		{
-			return sqstd_throwerrorf(vm, "Unexpected key %s", key);
+			return sqstd_throwerrorf(vm, "the index '%.50s' does not exist", key);
 		}
 
 		Vector* v = nullptr;
@@ -1024,7 +1025,7 @@ SQInteger function_stub(HSQUIRRELVM vm)
 		{
 			HSQOBJECT val;
 			if (SQ_FAILED(sq_getstackobj(vm, i + 2, &val)))
-				return sq_throwerror(vm, "Expected string");
+				return sq_throwerror(vm, "Expected handle");
 
 			if (sq_isnull(val))
 			{
@@ -1054,7 +1055,7 @@ SQInteger function_stub(HSQUIRRELVM vm)
 
 		if (!self)
 		{
-			return sq_throwerror(vm, "Can't be used on a null instance");
+			return sq_throwerror(vm, "Accessed null instance");
 		}
 
 		instance = ((ClassInstanceData*)self)->instance;
@@ -1111,7 +1112,6 @@ SQInteger constructor_stub(HSQUIRRELVM vm)
 	{
 		return sqstd_throwerrorf(vm, "Unable to construct instances of %s", pClassDesc->m_pszScriptName);
 	}
-
 
 	SquirrelVM* pSquirrelVM = (SquirrelVM*)sq_getforeignptr(vm);
 	assert(pSquirrelVM);
@@ -1191,7 +1191,7 @@ SQInteger get_stub(HSQUIRRELVM vm)
 	}
 	else
 	{
-		return sqstd_throwerrorf(vm, "Unexpected key %s", key);
+		return sqstd_throwerrorf(vm, "the index '%.50s' does not exist", key);
 	}
 
 	return 1;
@@ -1223,7 +1223,7 @@ SQInteger set_stub(HSQUIRRELVM vm)
 	else
 	{
 		sq_pop(vm, 1);
-		return sqstd_throwerrorf(vm, "Unexpected key %s", key);
+		return sqstd_throwerrorf(vm, "the index '%.50s' does not exist", key);
 	}
 
 	return 0;
@@ -1251,7 +1251,7 @@ SQInteger add_stub(HSQUIRRELVM vm)
 	}
 
 	sq_pop(vm, 1);
-	return sqstd_throwerrorf(vm, "Unexpected _add");
+	return sqstd_throwerrorf(vm, "invalid arith op +");
 }
 
 SQInteger sub_stub(HSQUIRRELVM vm)
@@ -1276,7 +1276,7 @@ SQInteger sub_stub(HSQUIRRELVM vm)
 	}
 
 	sq_pop(vm, 1);
-	return sqstd_throwerrorf(vm, "Unexpected _sub");
+	return sqstd_throwerrorf(vm, "invalid arith op -");
 }
 
 SQInteger mul_stub(HSQUIRRELVM vm)
@@ -1301,7 +1301,7 @@ SQInteger mul_stub(HSQUIRRELVM vm)
 	}
 
 	sq_pop(vm, 1);
-	return sqstd_throwerrorf(vm, "Unexpected _mul");
+	return sqstd_throwerrorf(vm, "invalid arith op *");
 }
 
 SQInteger div_stub(HSQUIRRELVM vm)
@@ -1326,7 +1326,7 @@ SQInteger div_stub(HSQUIRRELVM vm)
 	}
 
 	sq_pop(vm, 1);
-	return sqstd_throwerrorf(vm, "Unexpected _div");
+	return sqstd_throwerrorf(vm, "invalid arith op /");
 }
 
 SQInteger IsValid_stub(HSQUIRRELVM vm)
@@ -1374,12 +1374,11 @@ void printfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 
 void errorfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 {
-	// NOTE: This is only separate from printfunc to make it easier to add breakpoints
 	va_list args;
 	va_start(args, format);
 	char buffer[256];
 	vsprintf(buffer, format, args);
-	Msg("%s", buffer);
+	Warning("%s", buffer);
 	va_end(args);
 }
 
@@ -1558,6 +1557,9 @@ bool SquirrelVM::Init()
 		//sqstd_register_iolib(vm_);
 		//sqstd_register_systemlib(vm_);
 
+		// There is no vulnerability in getting time.
+		sqstd_register_timelib(vm_);
+
 
 		sqstd_seterrorhandlers(vm_);
 
@@ -1570,9 +1572,9 @@ bool SquirrelVM::Init()
 					constructor(pattern) 
 					{
 						base.constructor(pattern);
-						pattern_ = pattern;
+						this.pattern_ = pattern;
 					}
-					pattern_="";
+					pattern_ = "";
 				}
 			)script") == SCRIPT_ERROR)
 			{
@@ -1593,14 +1595,66 @@ bool SquirrelVM::Init()
 
 	if (Run(
 		R"script(
+		Msg <- print;
+		Warning <- error;
+
+		// LocalTime from Source 2
+		// function LocalTime()
+		// {
+		// 	local date = ::date();
+		// 	return {
+		// 		Hours = date.hour,
+		// 		Minutes = date.min,
+		// 		Seconds = date.sec
+		// 	}
+		// }
+
+		function clamp(val,min,max)
+		{
+			if ( max < min )
+				return max;
+			else if( val < min )
+				return min;
+			else if( val > max )
+				return max;
+			else
+				return val;
+		}
+
+		function max(a,b)
+		{
+			return a > b ? a : b;
+		}
+
+		function min(a,b)
+		{
+			return a < b ? a : b;
+		}
+
+		function RemapVal(val, A, B, C, D)
+		{
+			if ( A == B )
+				return val >= B ? D : C;
+			return C + (D - C) * (val - A) / (B - A);
+		}
+
+		function RemapValClamped(val, A, B, C, D)
+		{
+			if ( A == B )
+				return val >= B ? D : C;
+			local cVal = (val - A) / (B - A);
+			cVal = ::clamp( cVal, 0.0, 1.0 );
+			return C + (D - C) * cVal;
+		}
+
 		function printl( text )
 		{
-			return print(text + "\n");
+			return ::print(text + "\n");
 		}
 
 		class CSimpleCallChainer
 		{
-			function constructor(prefixString, scopeForThis, exactMatch)
+			constructor(prefixString, scopeForThis, exactMatch)
 			{
 				prefix = prefixString;
 				scope = scopeForThis;
@@ -1610,7 +1664,7 @@ bool SquirrelVM::Init()
 
 			function PostScriptExecute()
 			{
-				local func = null;
+				local func;
 				try {
 					func = scope[prefix];
 				} catch(e) {
@@ -1628,9 +1682,10 @@ bool SquirrelVM::Init()
 					func.pcall(scope);
 				}
 			}
+
 			prefix = null;
-			scope= null;
-			chain = [];
+			scope = null;
+			chain = null;
 		}
 
 		DocumentedFuncs <- {}
@@ -1698,7 +1753,7 @@ bool SquirrelVM::Init()
 			{
 				// Is an aliased function
 				print("Signature:   function " + name + "(");
-				foreach(k,v in this[name].getinfos()["parameters"])
+				foreach(k,v in this[name].getinfos().parameters)
 				{
 					if (k == 0 && v == "this") continue;
 					if (k > 1) print(", ");
@@ -1732,7 +1787,7 @@ bool SquirrelVM::Init()
 			{
 				// Is an aliased function
 				print("Signature:   function " + name + "(");
-				foreach(k,v in this[name].getinfos()["parameters"])
+				foreach(k,v in this[name].getinfos().parameters)
 				{
 					if (k == 0 && v == "this") continue;
 					if (k > 1) print(", ");

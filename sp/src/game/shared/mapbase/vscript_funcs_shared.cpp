@@ -391,12 +391,7 @@ void AddThinkToEnt( HSCRIPT entity, const char *pszFuncName )
 	if (!pEntity)
 		return;
 
-	if (pszFuncName == NULL || pszFuncName[0] == '\0')
-		pEntity->m_iszScriptThinkFunction = NULL_STRING;
-	else
-		pEntity->m_iszScriptThinkFunction = AllocPooledString(pszFuncName);
-
-	pEntity->SetContextThink( &CBaseEntity::ScriptThink, gpGlobals->curtime, "ScriptThink" );
+	pEntity->ScriptSetThinkFunction(pszFuncName, 0.f);
 }
 
 HSCRIPT EntIndexToHScript( int index )
@@ -985,7 +980,14 @@ bool ScriptMatcherMatch( const char *pszQuery, const char *szValue ) { return Ma
 //=============================================================================
 //=============================================================================
 
-bool IsServerScript()
+#ifndef CLIENT_DLL
+bool IsDedicatedServer()
+{
+	return engine->IsDedicatedServer();
+}
+#endif
+
+bool ScriptIsServer()
 {
 #ifdef GAME_DLL
 	return true;
@@ -994,13 +996,19 @@ bool IsServerScript()
 #endif
 }
 
-bool IsClientScript()
+bool ScriptIsClient()
 {
 #ifdef CLIENT_DLL
 	return true;
 #else
 	return false;
 #endif
+}
+
+// Notification printing on the right edge of the screen
+void NPrint(int pos, const char* fmt)
+{
+	engine->Con_NPrintf(pos, fmt);
 }
 
 //=============================================================================
@@ -1017,9 +1025,6 @@ void RegisterSharedScriptFunctions()
 	// 
 
 #ifndef CLIENT_DLL
-	ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::BoxDirection, "DebugDrawBoxDirection", "Draw a debug forward box" );
-	ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::Text, "DebugDrawText", "Draw a debug overlay text" );
-
 	ScriptRegisterFunction( g_pScriptVM, EmitSoundOn, "Play named sound on an entity." );
 	ScriptRegisterFunction( g_pScriptVM, EmitSoundOnClient, "Play named sound only on the client for the specified player." );
 
@@ -1041,6 +1046,7 @@ void RegisterSharedScriptFunctions()
 
 	//-----------------------------------------------------------------------------
 
+	ScriptRegisterFunction( g_pScriptVM, NPrint, "" );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptColorPrint, "printc", "Version of print() which takes a color before the message." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptColorPrintL, "printcl", "Version of printl() which takes a color before the message." );
 
@@ -1092,9 +1098,11 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunction( g_pScriptVM, Matcher_NamesMatch, "Compares a string to a query using Mapbase's matcher system using wildcards only." );
 	ScriptRegisterFunction( g_pScriptVM, AppearsToBeANumber, "Checks if the given string appears to be a number." );
 
-	// For shared server/clientside scripts
-	ScriptRegisterFunction( g_pScriptVM, IsServerScript, "Returns true if the script is being run on the server." );
-	ScriptRegisterFunction( g_pScriptVM, IsClientScript, "Returns true if the script is being run on the client." );
+#ifndef CLIENT_DLL
+	ScriptRegisterFunction( g_pScriptVM, IsDedicatedServer, "Is this a dedicated server?" );
+#endif
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptIsServer, "IsServer", "Returns true if the script is being run on the server." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptIsClient, "IsClient", "Returns true if the script is being run on the client." );
 
 	RegisterMathScriptFunctions();
 
