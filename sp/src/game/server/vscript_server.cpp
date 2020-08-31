@@ -337,9 +337,11 @@ CScriptKeyValues::~CScriptKeyValues( )
 #define RETURN_IF_CANNOT_DRAW_OVERLAY\
 	if (engine->IsPaused())\
 	{\
-		DevWarning("debugoverlay: cannot draw while the game paused!\n");\
+		DevWarning("debugoverlay: cannot draw while the game is paused!\n");\
 		return;\
-	}
+	}\
+	if (!debugoverlay)\
+		return;
 class CDebugOverlayScriptHelper
 {
 public:
@@ -348,10 +350,7 @@ public:
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddBoxOverlay(origin, mins, maxs, vec3_angle, r, g, b, a, flDuration);
-		}
+		debugoverlay->AddBoxOverlay(origin, mins, maxs, vec3_angle, r, g, b, a, flDuration);
 	}
 	void BoxDirection(const Vector &origin, const Vector &mins, const Vector &maxs, const Vector &forward, int r, int g, int b, int a, float flDuration)
 	{
@@ -360,103 +359,70 @@ public:
 		QAngle f_angles = vec3_angle;
 		f_angles.y = UTIL_VecToYaw(forward);
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddBoxOverlay(origin, mins, maxs, f_angles, r, g, b, a, flDuration);
-		}
+		debugoverlay->AddBoxOverlay(origin, mins, maxs, f_angles, r, g, b, a, flDuration);
 	}
 	void BoxAngles(const Vector &origin, const Vector &mins, const Vector &maxs, const QAngle &angles, int r, int g, int b, int a, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddBoxOverlay(origin, mins, maxs, angles, r, g, b, a, flDuration);
-		}
+		debugoverlay->AddBoxOverlay(origin, mins, maxs, angles, r, g, b, a, flDuration);
 	}
 	void SweptBox(const Vector& start, const Vector& end, const Vector& mins, const Vector& maxs, const QAngle & angles, int r, int g, int b, int a, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddSweptBoxOverlay(start, end, mins, maxs, angles, r, g, b, a, flDuration);
-		}
+		debugoverlay->AddSweptBoxOverlay(start, end, mins, maxs, angles, r, g, b, a, flDuration);
 	}
 	void EntityBounds(HSCRIPT pEntity, int r, int g, int b, int a, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
 		const CCollisionProperty *pCollide = ToEnt(pEntity)->CollisionProp();
-		if (debugoverlay)
-		{
-			debugoverlay->AddBoxOverlay(pCollide->GetCollisionOrigin(), pCollide->OBBMins(), pCollide->OBBMaxs(), pCollide->GetCollisionAngles(), r, g, b, a, flDuration);
-		}
+		debugoverlay->AddBoxOverlay(pCollide->GetCollisionOrigin(), pCollide->OBBMins(), pCollide->OBBMaxs(), pCollide->GetCollisionAngles(), r, g, b, a, flDuration);
 	}
 	void Line(const Vector &origin, const Vector &target, int r, int g, int b, bool noDepthTest, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddLineOverlay(origin, target, r, g, b, noDepthTest, flDuration);
-		}
+		debugoverlay->AddLineOverlay(origin, target, r, g, b, noDepthTest, flDuration);
 	}
 	void Triangle(const Vector &p1, const Vector &p2, const Vector &p3, int r, int g, int b, int a, bool noDepthTest, float duration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddTriangleOverlay(p1, p2, p3, r, g, b, a, noDepthTest, duration);
-		}
+		debugoverlay->AddTriangleOverlay(p1, p2, p3, r, g, b, a, noDepthTest, duration);
 	}
 	void EntityText(int entityID, int text_offset, const char *text, float flDuration, int r, int g, int b, int a)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddEntityTextOverlay(entityID, text_offset, flDuration,
+		debugoverlay->AddEntityTextOverlay(entityID, text_offset, flDuration,
 				(int)clamp(r * 255.f, 0.f, 255.f), (int)clamp(g * 255.f, 0.f, 255.f), (int)clamp(b * 255.f, 0.f, 255.f),
 				(int)clamp(a * 255.f, 0.f, 255.f), text);
-		}
 	}
 	void EntityTextAtPosition(const Vector &origin, int text_offset, const char *text, float flDuration, int r, int g, int b, int a)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddTextOverlayRGB(origin, text_offset, flDuration, r, g, b, a, "%s", text);
-		}
+		debugoverlay->AddTextOverlayRGB(origin, text_offset, flDuration, r, g, b, a, "%s", text);
 	}
 	void Grid(const Vector &vPosition)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddGridOverlay(vPosition);
-		}
+		debugoverlay->AddGridOverlay(vPosition);
 	}
 	void Text(const Vector &origin, const char *text, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddTextOverlay(origin, flDuration, "%s", text);
-		}
+		debugoverlay->AddTextOverlay(origin, flDuration, "%s", text);
 	}
 	void ScreenText(float fXpos, float fYpos, const char *text, int r, int g, int b, int a, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		if (debugoverlay)
-		{
-			debugoverlay->AddScreenTextOverlay(fXpos, fYpos, flDuration, r, g, b, a, text);
-		}
+		debugoverlay->AddScreenTextOverlay(fXpos, fYpos, flDuration, r, g, b, a, text);
 	}
 	void Cross3D(const Vector &position, float size, int r, int g, int b, bool noDepthTest, float flDuration)
 	{
