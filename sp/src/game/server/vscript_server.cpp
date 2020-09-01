@@ -339,9 +339,7 @@ CScriptKeyValues::~CScriptKeyValues( )
 	{\
 		DevWarning("debugoverlay: cannot draw while the game is paused!\n");\
 		return;\
-	}\
-	if (!debugoverlay)\
-		return;
+	}
 class CDebugOverlayScriptHelper
 {
 public:
@@ -350,7 +348,10 @@ public:
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddBoxOverlay(origin, mins, maxs, vec3_angle, r, g, b, a, flDuration);
+		if (debugoverlay)
+		{
+			debugoverlay->AddBoxOverlay(origin, mins, maxs, vec3_angle, r, g, b, a, flDuration);
+		}
 	}
 	void BoxDirection(const Vector &origin, const Vector &mins, const Vector &maxs, const Vector &forward, int r, int g, int b, int a, float flDuration)
 	{
@@ -359,70 +360,107 @@ public:
 		QAngle f_angles = vec3_angle;
 		f_angles.y = UTIL_VecToYaw(forward);
 
-		debugoverlay->AddBoxOverlay(origin, mins, maxs, f_angles, r, g, b, a, flDuration);
+		if (debugoverlay)
+		{
+			debugoverlay->AddBoxOverlay(origin, mins, maxs, f_angles, r, g, b, a, flDuration);
+		}
 	}
 	void BoxAngles(const Vector &origin, const Vector &mins, const Vector &maxs, const QAngle &angles, int r, int g, int b, int a, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddBoxOverlay(origin, mins, maxs, angles, r, g, b, a, flDuration);
+		if (debugoverlay)
+		{
+			debugoverlay->AddBoxOverlay(origin, mins, maxs, angles, r, g, b, a, flDuration);
+		}
 	}
 	void SweptBox(const Vector& start, const Vector& end, const Vector& mins, const Vector& maxs, const QAngle & angles, int r, int g, int b, int a, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddSweptBoxOverlay(start, end, mins, maxs, angles, r, g, b, a, flDuration);
+		if (debugoverlay)
+		{
+			debugoverlay->AddSweptBoxOverlay(start, end, mins, maxs, angles, r, g, b, a, flDuration);
+		}
 	}
 	void EntityBounds(HSCRIPT pEntity, int r, int g, int b, int a, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		const CCollisionProperty *pCollide = ToEnt(pEntity)->CollisionProp();
-		debugoverlay->AddBoxOverlay(pCollide->GetCollisionOrigin(), pCollide->OBBMins(), pCollide->OBBMaxs(), pCollide->GetCollisionAngles(), r, g, b, a, flDuration);
+		CBaseEntity *pEnt = ToEnt(pEntity);
+		if (!pEnt)
+			return;
+
+		const CCollisionProperty *pCollide = pEnt->CollisionProp();
+		if (debugoverlay)
+		{
+			debugoverlay->AddBoxOverlay(pCollide->GetCollisionOrigin(), pCollide->OBBMins(), pCollide->OBBMaxs(), pCollide->GetCollisionAngles(), r, g, b, a, flDuration);
+		}
 	}
 	void Line(const Vector &origin, const Vector &target, int r, int g, int b, bool noDepthTest, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddLineOverlay(origin, target, r, g, b, noDepthTest, flDuration);
+		if (debugoverlay)
+		{
+			debugoverlay->AddLineOverlay(origin, target, r, g, b, noDepthTest, flDuration);
+		}
 	}
 	void Triangle(const Vector &p1, const Vector &p2, const Vector &p3, int r, int g, int b, int a, bool noDepthTest, float duration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddTriangleOverlay(p1, p2, p3, r, g, b, a, noDepthTest, duration);
+		if (debugoverlay)
+		{
+			debugoverlay->AddTriangleOverlay(p1, p2, p3, r, g, b, a, noDepthTest, duration);
+		}
 	}
 	void EntityText(int entityID, int text_offset, const char *text, float flDuration, int r, int g, int b, int a)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddEntityTextOverlay(entityID, text_offset, flDuration,
+		if (debugoverlay)
+		{
+			debugoverlay->AddEntityTextOverlay(entityID, text_offset, flDuration,
 				(int)clamp(r * 255.f, 0.f, 255.f), (int)clamp(g * 255.f, 0.f, 255.f), (int)clamp(b * 255.f, 0.f, 255.f),
 				(int)clamp(a * 255.f, 0.f, 255.f), text);
+		}
 	}
 	void EntityTextAtPosition(const Vector &origin, int text_offset, const char *text, float flDuration, int r, int g, int b, int a)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddTextOverlayRGB(origin, text_offset, flDuration, r, g, b, a, "%s", text);
+		if (debugoverlay)
+		{
+			debugoverlay->AddTextOverlayRGB(origin, text_offset, flDuration, r, g, b, a, "%s", text);
+		}
 	}
 	void Grid(const Vector &vPosition)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddGridOverlay(vPosition);
+		if (debugoverlay)
+		{
+			debugoverlay->AddGridOverlay(vPosition);
+		}
 	}
 	void Text(const Vector &origin, const char *text, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddTextOverlay(origin, flDuration, "%s", text);
+		if (debugoverlay)
+		{
+			debugoverlay->AddTextOverlay(origin, flDuration, "%s", text);
+		}
 	}
 	void ScreenText(float fXpos, float fYpos, const char *text, int r, int g, int b, int a, float flDuration)
 	{
 		RETURN_IF_CANNOT_DRAW_OVERLAY
 
-		debugoverlay->AddScreenTextOverlay(fXpos, fYpos, flDuration, r, g, b, a, text);
+		if (debugoverlay)
+		{
+			debugoverlay->AddScreenTextOverlay(fXpos, fYpos, flDuration, r, g, b, a, text);
+		}
 	}
 	void Cross3D(const Vector &position, float size, int r, int g, int b, bool noDepthTest, float flDuration)
 	{
@@ -577,7 +615,7 @@ public:
 
 		Vector xvec, yvec, zvec;
 		AngleVectors( angles, &xvec, &yvec, &zvec );
-	
+
 		xvec = position + (size * xvec);
 		yvec = position - (size * yvec);
 		zvec = position + (size * zvec);
@@ -672,6 +710,28 @@ public:
 			}
 		}
 	}
+	void SetDebugBits(HSCRIPT hEntity, int bit) // DebugOverlayBits_t
+	{
+		CBaseEntity *pEnt = ToEnt(hEntity);
+		if (!pEnt)
+			return;
+
+		if (pEnt->m_debugOverlays & bit)
+		{
+			pEnt->m_debugOverlays &= ~bit;
+		}
+		else
+		{
+			pEnt->m_debugOverlays |= bit;
+
+#ifdef AI_MONITOR_FOR_OSCILLATION
+			if (pEnt->IsNPC())
+			{
+				pEnt->MyNPCPointer()->m_ScheduleHistory.RemoveAll();
+			}
+#endif//AI_MONITOR_FOR_OSCILLATION
+		}
+	}
 	void ClearAllOverlays()
 	{
 		// Clear all entities of their debug overlays
@@ -690,29 +750,30 @@ private:
 } g_ScriptDebugOverlay;
 
 BEGIN_SCRIPTDESC_ROOT(CDebugOverlayScriptHelper, SCRIPT_SINGLETON "CDebugOverlayScriptHelper")
-	DEFINE_SCRIPTFUNC( Box, "" )
-	DEFINE_SCRIPTFUNC( BoxDirection, "" )
-	DEFINE_SCRIPTFUNC( BoxAngles, "" )
-	DEFINE_SCRIPTFUNC( SweptBox, "" )
-	DEFINE_SCRIPTFUNC( EntityBounds, "" )
-	DEFINE_SCRIPTFUNC( Line, "" )
-	DEFINE_SCRIPTFUNC( Triangle, "" )
-	DEFINE_SCRIPTFUNC( EntityText, "" )
-	DEFINE_SCRIPTFUNC( EntityTextAtPosition, "" )
-	DEFINE_SCRIPTFUNC( Grid, "" )
-	DEFINE_SCRIPTFUNC( Text, "" )
-	DEFINE_SCRIPTFUNC( ScreenText, "" )
-	DEFINE_SCRIPTFUNC( Cross3D, "" )
-	DEFINE_SCRIPTFUNC( Cross3DOriented, "" )
-	DEFINE_SCRIPTFUNC( DrawTickMarkedLine, "" )
-	DEFINE_SCRIPTFUNC( HorzArrow, "" )
-	DEFINE_SCRIPTFUNC( YawArrow, "" )
-	DEFINE_SCRIPTFUNC( VertArrow, "" )
-	DEFINE_SCRIPTFUNC( Axis, "" )
-	DEFINE_SCRIPTFUNC( Sphere, "" )
-	DEFINE_SCRIPTFUNC( CircleOriented, "" )
-	DEFINE_SCRIPTFUNC( Circle, "" )
-	DEFINE_SCRIPTFUNC( ClearAllOverlays, "" )
+	DEFINE_SCRIPTFUNC( Box, "Draws a world-space axis-aligned box. Specify bounds in world space." )
+	DEFINE_SCRIPTFUNC( BoxDirection, "Draw box oriented to a Vector direction" )
+	DEFINE_SCRIPTFUNC( BoxAngles, "Draws an oriented box at the origin. Specify bounds in local space." )
+	DEFINE_SCRIPTFUNC( SweptBox, "Draws a swept box. Specify endpoints in world space and the bounds in local space." )
+	DEFINE_SCRIPTFUNC( EntityBounds, "Draws bounds of an entity" )
+	DEFINE_SCRIPTFUNC( Line, "Draws a line between two points" )
+	DEFINE_SCRIPTFUNC( Triangle, "Draws a filled triangle. Specify vertices in world space." )
+	DEFINE_SCRIPTFUNC( EntityText, "Draws text on an entity" )
+	DEFINE_SCRIPTFUNC( EntityTextAtPosition, "Draw entity text overlay at a specific position" )
+	DEFINE_SCRIPTFUNC( Grid, "Add grid overlay" )
+	DEFINE_SCRIPTFUNC( Text, "Draws 2D text. Specify origin in world space." )
+	DEFINE_SCRIPTFUNC( ScreenText, "Draws 2D text. Specify coordinates in screen space." )
+	DEFINE_SCRIPTFUNC( Cross3D, "Draws a world-aligned cross. Specify origin in world space." )
+	DEFINE_SCRIPTFUNC( Cross3DOriented, "Draws an oriented cross. Specify origin in world space." )
+	DEFINE_SCRIPTFUNC( DrawTickMarkedLine, "Draws a dashed line. Specify endpoints in world space." )
+	DEFINE_SCRIPTFUNC( HorzArrow, "Draws a horizontal arrow. Specify endpoints in world space." )
+	DEFINE_SCRIPTFUNC( YawArrow, "Draws a arrow associated with a specific yaw. Specify endpoints in world space." )
+	DEFINE_SCRIPTFUNC( VertArrow, "Draws a vertical arrow. Specify endpoints in world space." )
+	DEFINE_SCRIPTFUNC( Axis, "Draws an axis. Specify origin + orientation in world space." )
+	DEFINE_SCRIPTFUNC( Sphere, "Draws a wireframe sphere. Specify center in world space." )
+	DEFINE_SCRIPTFUNC( CircleOriented, "Draws a circle oriented. Specify center in world space." )
+	DEFINE_SCRIPTFUNC( Circle, "Draws a circle. Specify center in world space." )
+	DEFINE_SCRIPTFUNC( SetDebugBits, "Set debug bits on entity" )
+	DEFINE_SCRIPTFUNC( ClearAllOverlays, "Clear all debug overlays at once" )
 END_SCRIPTDESC();
 #endif // MAPBASE_VSCRIPT
 
