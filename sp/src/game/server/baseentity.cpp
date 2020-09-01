@@ -2198,9 +2198,9 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetForward, "GetForwardVector", "Get the forward vector of the entity"  )
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRight, "GetRightVector", "Get the right vector of the entity" )
-#else
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLeft, "GetLeftVector", "Get the left vector of the entity" )
 #endif
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLeft, "GetLeftVector", SCRIPT_HIDE )
+
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetUp, "GetUpVector", "Get the up vector of the entity"  )
 
 #ifdef MAPBASE_VSCRIPT
@@ -2285,6 +2285,17 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorG, "SetRenderColorG", "Set the render color's G value" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetRenderColorB", "Set the render color's B value" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetRenderAlpha", "Set the render color's alpha value" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorVector, "GetColorVector", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorR, "GetColorR", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorG, "GetColorG", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorB, "GetColorB", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAlpha, "GetAlpha", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorVector, "SetColorVector", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorR, "SetColorR", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorG, "SetColorG", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetColorB", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetAlpha", SCRIPT_HIDE )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRenderMode, "GetRenderMode", "Get render mode" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetRenderMode, "SetRenderMode", "Set render mode" )

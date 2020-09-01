@@ -431,10 +431,10 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRight, "GetRightVector", "Get the right vector of the entity" )
 	DEFINE_SCRIPTFUNC_NAMED( GetTeamNumber, "GetTeam", "Gets this entity's team" )
-#else
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLeft, "GetLeftVector", "Get the left vector of the entity" )
-	DEFINE_SCRIPTFUNC( GetTeamNumber, "Gets this entity's team" )
 #endif
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLeft, "GetLeftVector", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( GetTeamNumber, "GetTeamNumber", SCRIPT_HIDE )
+
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetUp, "GetUpVector", "Get the up vector of the entity" )
 
 #ifdef MAPBASE_VSCRIPT

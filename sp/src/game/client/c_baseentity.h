@@ -1134,9 +1134,9 @@ public:
 	const Vector& ScriptGetForward(void) { static Vector vecForward; GetVectors(&vecForward, NULL, NULL); return vecForward; }
 #ifdef MAPBASE_VSCRIPT
 	const Vector& ScriptGetRight(void) { static Vector vecRight; GetVectors(NULL, &vecRight, NULL); return vecRight; }
-#else
-	const Vector& ScriptGetLeft(void)  { static Vector vecRight; GetVectors(NULL, &vecRight, NULL); return vecRight; }
 #endif
+	const Vector& ScriptGetLeft(void)  { static Vector vecRight; GetVectors(NULL, &vecRight, NULL); return vecRight; }
+
 	const Vector& ScriptGetUp(void) { static Vector vecUp; GetVectors(NULL, NULL, &vecUp); return vecUp; }
 
 #ifdef MAPBASE_VSCRIPT

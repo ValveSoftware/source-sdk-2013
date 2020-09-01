@@ -491,6 +491,7 @@ BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseCombatCharacter, "The player entity." )
 
 	DEFINE_SCRIPTFUNC( GetPlayerName, "Gets the player's name." )
 	DEFINE_SCRIPTFUNC( GetUserID, "Gets the player's user ID." )
+	DEFINE_SCRIPTFUNC_NAMED( GetUserID, "GetPlayerUserId", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC( GetNetworkIDString, "Gets the player's network (i.e. Steam) ID." )
 
 	DEFINE_SCRIPTFUNC( FragCount, "Gets the number of frags (kills) this player has in a multiplayer game." )
