@@ -221,15 +221,14 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 
 	g_pClientShadowMgr->SetFlashlightLightWorld( m_LightHandle, m_bLightWorld );
 
-	if ( bForceUpdate == false )
-	{
+	//if ( bForceUpdate == false )
 		g_pClientShadowMgr->UpdateProjectedTexture( m_LightHandle, true );
-	}
 }
 
 void C_EnvProjectedTexture::Simulate( void )
 {
-	UpdateLight( false );
+	//UpdateLight( false );
+	UpdateLight( GetMoveParent() != NULL );
 
 	BaseClass::Simulate();
 }
