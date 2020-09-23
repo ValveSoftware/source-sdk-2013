@@ -490,7 +490,8 @@ BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseCombatCharacter, "The player entity." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetExpresser, "GetExpresser", "Gets a handle for this player's expresser." )
 
 	DEFINE_SCRIPTFUNC( GetPlayerName, "Gets the player's name." )
-	DEFINE_SCRIPTFUNC_NAMED( GetUserID, "GetPlayerUserId", "Gets the player's user ID." )
+	DEFINE_SCRIPTFUNC( GetUserID, "Gets the player's user ID." )
+	DEFINE_SCRIPTFUNC_NAMED( GetUserID, "GetPlayerUserId", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC( GetNetworkIDString, "Gets the player's network (i.e. Steam) ID." )
 
 	DEFINE_SCRIPTFUNC( FragCount, "Gets the number of frags (kills) this player has in a multiplayer game." )
@@ -517,6 +518,10 @@ BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseCombatCharacter, "The player entity." )
 	DEFINE_SCRIPTFUNC( GetButtonLast, "Gets the player's previously active buttons." )
 	DEFINE_SCRIPTFUNC( GetButtonDisabled, "Gets the player's currently unusable buttons." )
 	DEFINE_SCRIPTFUNC( GetButtonForced, "Gets the player's currently forced buttons." )
+
+	DEFINE_SCRIPTFUNC( GetFOV, "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetFOVOwner, "GetFOVOwner", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetFOV, "SetFOV", "" )
 
 END_SCRIPTDESC();
 #else
@@ -9168,6 +9173,18 @@ void CBasePlayer::SetDefaultFOV( int FOV )
 {
 	m_iDefaultFOV = ( FOV == 0 ) ? g_pGameRules->DefaultFOV() : FOV;
 }
+
+#ifdef MAPBASE_VSCRIPT
+void CBasePlayer::ScriptSetFOV(int iFOV, float flRate)
+{
+	m_iFOVStart = GetFOV();
+
+	m_flFOVTime = gpGlobals->curtime;
+	m_iFOV = iFOV;
+
+	m_Local.m_flFOVRate = flRate;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: // static func

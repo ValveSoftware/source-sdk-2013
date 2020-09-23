@@ -55,22 +55,12 @@ public:
 
 	void Dump( void )
 	{
-		CUtlVector<const char*> strings( 0, m_Strings.Count() );
 		for (UtlHashHandle_t i = m_Strings.FirstHandle(); i != m_Strings.InvalidHandle(); i = m_Strings.NextHandle(i))
 		{
-			strings.AddToTail( strings[i] );
+			DevMsg("  %d (0x%p) : %s\n", i, m_Strings[i], m_Strings[i]);
 		}
-		struct _Local {
-			static int __cdecl F(const char * const *a, const char * const *b) { return strcmp(*a, *b); }
-		};
-		strings.Sort( _Local::F );
-		
-		for ( int i = 0; i < strings.Count(); ++i )
-		{
-			DevMsg( "  %d (0x%p) : %s\n", i, strings[i], strings[i] );
-		}
-		DevMsg( "\n" );
-		DevMsg( "Size:  %d items\n", strings.Count() );
+		DevMsg("\n");
+		DevMsg("Size:  %d items\n", m_Strings.Count());
 	}
 
 	const char *Find(const char *string)

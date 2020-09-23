@@ -771,6 +771,10 @@ public:
 	int		GetDefaultFOV( void ) const;										// Default FOV if not specified otherwise
 	int		GetFOVForNetworking( void );										// Get the current FOV used for network computations
 	bool	SetFOV( CBaseEntity *pRequester, int FOV, float zoomRate = 0.0f, int iZoomStart = 0 );	// Alters the base FOV of the player (must have a valid requester)
+#ifdef MAPBASE_VSCRIPT
+	void	ScriptSetFOV(int iFOV, float flSpeed);								// Overrides player FOV, ignores zoom owner
+	HSCRIPT ScriptGetFOVOwner() { return ToHScript(m_hZoomOwner); }
+#endif
 	void	SetDefaultFOV( int FOV );											// Sets the base FOV if nothing else is affecting it by zooming
 	CBaseEntity *GetFOVOwner( void ) { return m_hZoomOwner; }
 	float	GetFOVDistanceAdjustFactor(); // shared between client and server
