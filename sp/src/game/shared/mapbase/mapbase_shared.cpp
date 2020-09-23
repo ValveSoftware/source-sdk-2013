@@ -168,6 +168,18 @@ public:
 		return true;
 	}
 
+	void RefreshCustomTalker()
+	{
+#ifdef GAME_DLL
+		if (g_bMapContainsCustomTalker && mapbase_flush_talker.GetBool())
+		{
+			DevMsg("Mapbase: Reloading response system to flush custom talker\n");
+			ReloadResponseSystem();
+			g_bMapContainsCustomTalker = false;
+		}
+#endif
+	}
+
 	virtual void LevelInitPreEntity()
 	{
 #ifdef GAME_DLL
@@ -193,24 +205,15 @@ public:
 		}
 		gameinfo->deleteThis();
 
-
-#ifdef GAME_DLL
-		if (g_bMapContainsCustomTalker && mapbase_flush_talker.GetBool())
-		{
-			DevMsg("Mapbase: Reloading response system to flush custom talker\n");
-			ReloadResponseSystem();
-			g_bMapContainsCustomTalker = false;
-		}
-
-		g_MapName = STRING(gpGlobals->mapname);
-#else
-		//char mapname[128];
-		//Q_StripExtension(MapName(), mapname, sizeof(mapname));
-		g_MapName = MapName();
-#endif
+		RefreshMapName();
 
 		// Shared Mapbase localization file
 		g_pVGuiLocalize->AddFile( "resource/mapbase_%language%.txt" );
+	}
+
+	virtual void OnRestore()
+	{
+		RefreshMapName();
 	}
 
 	virtual void LevelInitPostEntity()
@@ -242,6 +245,27 @@ public:
 	virtual void LevelShutdownPostEntity()
 	{
 		g_MapName = NULL;
+
+		RefreshCustomTalker();
+	}
+
+	bool RefreshMapName()
+	{
+#ifdef GAME_DLL
+		const char *pszMapName = STRING(gpGlobals->mapname);
+#else
+		//char mapname[128];
+		//Q_StripExtension(MapName(), mapname, sizeof(mapname));
+		const char *pszMapName = MapName();
+#endif
+
+		if (g_MapName == NULL || !FStrEq(pszMapName, g_MapName))
+		{
+			g_MapName = pszMapName;
+			return true;
+		}
+
+		return false;
 	}
 
 #ifdef CLIENT_DLL

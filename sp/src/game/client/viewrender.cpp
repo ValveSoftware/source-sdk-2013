@@ -3349,11 +3349,11 @@ bool CViewRender::DrawOneMonitor( ITexture *pRenderTarget, int cameraNum, C_Poin
 	// 
 	// Monitor sky handling
 	// 
-	if ( pCameraEnt->SkyMode() == SKYBOX_3DSKYBOX_VISIBLE )
+	SkyboxVisibility_t nSkyMode = pCameraEnt->SkyMode();
+	if ( nSkyMode == SKYBOX_3DSKYBOX_VISIBLE )
 	{
 		int nClearFlags = (VIEW_CLEAR_DEPTH | VIEW_CLEAR_COLOR);
 		bool bDrew3dSkybox = false;
-		SkyboxVisibility_t nSkyMode = pCameraEnt->SkyMode();
 
 		Frustum frustum;
 		render->Push3DView( monitorView, nClearFlags, pRenderTarget, (VPlane *)frustum );
@@ -3369,13 +3369,32 @@ bool CViewRender::DrawOneMonitor( ITexture *pRenderTarget, int cameraNum, C_Poin
 		ViewDrawScene( bDrew3dSkybox, nSkyMode, monitorView, nClearFlags, VIEW_MONITOR );
  		render->PopView( frustum );
 	}
+	else if (nSkyMode == SKYBOX_NOT_VISIBLE)
+	{
+		// @MULTICORE (toml 8/11/2006): this should be a renderer....
+		Frustum frustum;
+		render->Push3DView( monitorView, VIEW_CLEAR_DEPTH, pRenderTarget, (VPlane *)frustum );
+
+		CMatRenderContextPtr pRenderContext( materials );
+		pRenderContext->PushRenderTargetAndViewport( pRenderTarget );
+		pRenderContext->SetIntRenderingParameter( INT_RENDERPARM_WRITE_DEPTH_TO_DESTALPHA, 1 );
+		if ( pRenderTarget )
+		{
+			pRenderContext->OverrideAlphaWriteEnable( true, true );
+		}
+
+		ViewDrawScene( false, nSkyMode, monitorView, 0, VIEW_MONITOR );
+
+		pRenderContext->PopRenderTargetAndViewport();
+		render->PopView( frustum );
+	}
 	else
 	{
 		// @MULTICORE (toml 8/11/2006): this should be a renderer....
 		Frustum frustum;
- 		render->Push3DView( monitorView, VIEW_CLEAR_DEPTH | VIEW_CLEAR_COLOR, pRenderTarget, (VPlane *)frustum );
-		ViewDrawScene( false, SKYBOX_2DSKYBOX_VISIBLE, monitorView, 0, VIEW_MONITOR );
- 		render->PopView( frustum );
+		render->Push3DView( monitorView, VIEW_CLEAR_DEPTH | VIEW_CLEAR_COLOR, pRenderTarget, (VPlane *)frustum );
+		ViewDrawScene( false, nSkyMode, monitorView, 0, VIEW_MONITOR );
+		render->PopView( frustum );
 	}
 #else
 	// @MULTICORE (toml 8/11/2006): this should be a renderer....

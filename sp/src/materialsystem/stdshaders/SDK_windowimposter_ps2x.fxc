@@ -1,0 +1,64 @@
+//========== Copyright (c) Valve Corporation, All rights reserved. ==========//
+// STATIC: "PARALLAXCORRECT"			"0..1"
+
+// DYNAMIC: "PIXELFOGTYPE"				"0..1"
+
+// SKIP: $PARALLAXCORRECT [ps20]
+
+#include "common_ps_fxc.h"
+#include "shader_constant_register_map.h"
+
+sampler EnvmapSampler		: register( s0 );
+
+const float4 g_FogParams				: register( PSREG_FOG_PARAMS );
+const float4 g_EyePos_SpecExponent		: register( PSREG_EYEPOS_SPEC_EXPONENT );
+
+#if PARALLAXCORRECT
+// Parallax cubemaps
+const float3 cubemapPos						: register(c0);
+const float4x4 obbMatrix					: register(c1); //through c4
+#endif
+
+struct PS_INPUT
+{
+	float3 eyeToVertVector			: TEXCOORD0;
+	float4 vertexColor				: COLOR;
+	
+#if PARALLAXCORRECT
+	float3 worldSpaceNormal			: TEXCOORD1;
+#endif
+	
+	float4 worldPos_projPosZ		: TEXCOORD2;		// Necessary for pixel fog
+};
+
+float4 main( PS_INPUT i ) : COLOR
+{
+#if PARALLAXCORRECT
+	float3 reflectVect = CalcReflectionVectorUnnormalized( i.worldSpaceNormal, g_EyePos_SpecExponent.xyz - i.worldPos_projPosZ.xyz ); //i.eyeToVertVector; //CalcReflectionVectorUnnormalized( i.worldSpaceNormal, i.eyeToVertVector );
+
+	//Parallax correction (2_0b and beyond)
+	//Adapted from http://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
+	float3 worldPos = i.worldPos_projPosZ.xyz;
+	float3 positionLS = mul(float4(worldPos, 1), obbMatrix);
+	float3 rayLS = mul(reflectVect, (float3x3) obbMatrix);
+
+	float3 firstPlaneIntersect = (float3(1.0f, 1.0f, 1.0f) - positionLS) / rayLS;
+	float3 secondPlaneIntersect = (-positionLS) / rayLS;
+	float3 furthestPlane = max(firstPlaneIntersect, secondPlaneIntersect);
+	float distance = min(furthestPlane.x, min(furthestPlane.y, furthestPlane.z));
+
+	// Use distance in WS directly to recover intersection
+	float3 intersectPositionWS = worldPos + reflectVect * distance;
+	reflectVect = intersectPositionWS - cubemapPos;
+#else
+	float3 reflectVect = i.eyeToVertVector;
+#endif
+
+	HALF4 color;
+	color.xyz = ENV_MAP_SCALE * texCUBE( EnvmapSampler, reflectVect );
+	color.a = 1.0f;
+	color *= i.vertexColor;
+	
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.xyz, i.worldPos_projPosZ.xyz, i.worldPos_projPosZ.w );
+	return FinalOutput( color, fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR );
+}

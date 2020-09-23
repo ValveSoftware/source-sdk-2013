@@ -88,6 +88,11 @@ class GameData
 		bool	RemapNameField( const char *pszInValue, char *pszOutValue, TNameFixup NameFixup );
 		bool	LoadFGDMaterialExclusions( TokenReader &tr );
 		bool	LoadFGDAutoVisGroups( TokenReader &tr );
+
+#ifdef MAPBASE
+		// Sets up for additional instance remap fixes from Mapbase
+		void	SetupInstanceRemapParams( int iStartNodes, int iStartBrushSide, bool bRemapVecLines );
+#endif
 		
 
 		CUtlVector< FGDMatExlcusions_s >	m_FGDMaterialExclusions;
@@ -109,6 +114,11 @@ class GameData
 		matrix3x4_t	m_InstanceMat;				// matrix of the origin and rotation of rendering
 		char		m_InstancePrefix[ 128 ];	// the prefix used for the instance name remapping
 		GDclass		*m_InstanceClass;			// the entity class that is being remapped
+#ifdef MAPBASE
+		int			m_InstanceStartAINodes;		// the number of AI nodes in the level (for AI node remapping)
+		int			m_InstanceStartSide;		// the number of brush sides in the level (for brush side remapping)
+		bool		m_bRemapVecLines;			// allows ivVecLine to be remapped
+#endif
 };
 
 

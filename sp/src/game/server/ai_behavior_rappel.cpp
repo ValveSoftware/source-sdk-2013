@@ -303,7 +303,14 @@ void CAI_RappelBehavior::GatherConditions()
 	if( HasCondition( COND_CAN_RANGE_ATTACK1 ) )
 	{
 		// Shoot at the enemy so long as I'm six feet or more above them.
+#ifdef MAPBASE
+		// There seems to be an underlying issue here. COND_CAN_RANGE_ATTACK1 should not be valid without an enemy,
+		// but crashes have been reported from GetEnemy() returning null in this code.
+		Assert( GetEnemy() );
+		if( GetEnemy() && (GetAbsOrigin().z - GetEnemy()->GetAbsOrigin().z >= 36.0f) && GetOuter()->GetShotRegulator()->ShouldShoot() )
+#else
 		if( (GetAbsOrigin().z - GetEnemy()->GetAbsOrigin().z >= 36.0f) && GetOuter()->GetShotRegulator()->ShouldShoot() )
+#endif
 		{
 			Activity activity = GetOuter()->TranslateActivity( ACT_GESTURE_RANGE_ATTACK1 );
 			Assert( activity != ACT_INVALID );

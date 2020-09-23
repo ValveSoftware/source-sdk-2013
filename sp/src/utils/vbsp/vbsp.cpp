@@ -60,6 +60,7 @@ bool		g_NodrawTriggers = false;
 bool		g_DisableWaterLighting = false;
 bool		g_bAllowDetailCracks = false;
 bool		g_bNoVirtualMesh = false;
+bool		g_bNoHiddenManifestMaps = false;
 #ifdef MAPBASE
 bool		g_bNoDefaultCubemaps = true;
 bool		g_bSkyboxCubemaps = false;
@@ -1157,6 +1158,10 @@ int RunVBSP( int argc, char **argv )
 		{
 			EnableFullMinidumps( true );
 		}
+		else if ( !Q_stricmp( argv[i], "-nohiddenmaps" ) )
+		{
+			g_bNoHiddenManifestMaps = true;
+		}
 #ifdef MAPBASE
 		// Thanks to Mapbase's shader changes, default all-black cubemaps are no longer needed.
 		// The command has been switched from "-nodefaultcubemap" to "-defaultcubemap",
@@ -1264,6 +1269,7 @@ int RunVBSP( int argc, char **argv )
 				"  -nox360		   : Disable generation Xbox360 version of vsp (default)\n"
 				"  -replacematerials : Substitute materials according to materialsub.txt in content\\maps\n"
 				"  -FullMinidumps  : Write large minidumps on crash.\n"
+				"  -nohiddenmaps   : Exclude manifest maps if they are currently hidden.\n"
 				);
 			}
 

@@ -338,6 +338,16 @@ void ClientPrecache( void )
 	CBaseEntity::PrecacheScriptSound( "Bounce.Shell" );
 	CBaseEntity::PrecacheScriptSound( "Bounce.Concrete" );
 
+#ifdef MAPBASE
+	// Game Instructor sounds
+	CBaseEntity::PrecacheScriptSound( "Instructor.LessonStart" );
+	CBaseEntity::PrecacheScriptSound( "Instructor.ImportantLessonStart" );
+
+	// TODO: Does sv_pure cover this? This is from the ASW SDK to prevent people from making simple scripted wall hacks
+	//engine->ForceExactFile( "scripts/instructor_lessons.txt" );
+	//engine->ForceExactFile( "scripts/mod_lessons.txt" );
+#endif
+
 	ClientGamePrecache();
 }
 

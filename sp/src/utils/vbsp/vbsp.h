@@ -371,6 +371,7 @@ extern	bool		g_NodrawTriggers;
 extern	bool		g_DisableWaterLighting;
 extern	bool		g_bAllowDetailCracks;
 extern	bool		g_bNoVirtualMesh;
+extern	bool		g_bNoHiddenManifestMaps;
 extern	char		outbase[32];
 
 extern	char	source[1024];

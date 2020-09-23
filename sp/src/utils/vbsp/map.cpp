@@ -49,6 +49,12 @@ struct LoadSide_t
 
 extern qboolean onlyents;
 
+#ifdef MAPBASE
+extern entity_t *g_ManifestWorldSpawn;
+
+char g_MainMapPath[ MAX_PATH ];
+#endif
+
 
 CUtlVector< CMapFile * >	g_Maps;
 CMapFile					*g_MainMap = NULL;
@@ -2116,7 +2122,11 @@ void CMapFile::CheckForInstances( const char *pszFileName )
 				char	InstancePath[ MAX_PATH ];
 				bool	bLoaded = false;
 
+#ifdef MAPBASE
+				if ( DeterminePath( pszFileName, pInstanceFile, InstancePath ) || DeterminePath( g_MainMapPath, pInstanceFile, InstancePath ) )
+#else
 				if ( DeterminePath( pszFileName, pInstanceFile, InstancePath ) )
+#endif
 				{
 					if ( LoadMapFile( InstancePath ) )
 					{
@@ -2425,6 +2435,11 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 	entity_t				*WorldspawnEnt = NULL;
 	GameData::TNameFixup	FixupStyle;
 
+#ifdef MAPBASE
+	// For fixing AI node problems with manifests and instances
+	int						max_ai_node_id = 0;
+#endif
+
 	char *pTargetName = ValueForKey( pInstanceEntity, "targetname" );
 	char *pName = ValueForKey( pInstanceEntity, "name" );
 	if ( pTargetName[ 0 ] )
@@ -2451,6 +2466,20 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 				max_entity_id = value;
 			}
 		}
+
+#ifdef MAPBASE
+		// If this is a classname starting with "info_node", look for a node ID keyvalue and
+		// add it to the counter.
+		if ( strnicmp( ValueForKey( &entities[ i ], "classname" ), "info_node", 9 ) == 0 )
+		{
+			int value = atoi( ValueForKey( &entities[i], "nodeid" ) );
+			if ( value > max_ai_node_id )
+			{
+				max_ai_node_id = value;
+				//Warning( "Max AI nodes is now %i", max_ai_node_id );
+			}
+		}
+#endif
 	}
 
 	FixupStyle = ( GameData::TNameFixup )( IntForKey( pInstanceEntity, "fixup_style" ) );
@@ -2495,6 +2524,11 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 			GDclass *EntClass = GD.BeginInstanceRemap( pEntity, NameFixup, InstanceOrigin, InstanceAngle );
 			if ( EntClass )
 			{
+#ifdef MAPBASE
+				// Sets up for additional instance remap fixes from Mapbase
+				GD.SetupInstanceRemapParams( max_ai_node_id, nummapbrushsides - Instance->nummapbrushsides, IntForKey( pInstanceEntity, "remap_vecline" ) > 0 );
+#endif
+
 				for( int i = 0; i < EntClass->GetVariableCount(); i++ )
 				{
 					GDinputvariable *EntVar = EntClass->GetVariableAt( i );
@@ -2590,8 +2624,11 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 	WorldspawnEnt->numbrushes = 0;
 #ifdef MAPBASE
 	char *pIsTopLevel = ValueForKey( pInstanceEntity, "toplevel" );
-	if ( strcmp( pIsTopLevel, "1" ) )
-		WorldspawnEnt->epairs = NULL;
+	if ( strcmp( pIsTopLevel, "1" ) == 0 )
+	{
+		g_ManifestWorldSpawn->epairs = WorldspawnEnt->epairs;
+	}
+	WorldspawnEnt->epairs = NULL;
 #else
 	WorldspawnEnt->epairs = NULL;
 #endif
@@ -2613,10 +2650,27 @@ void CMapFile::MergeOverlays( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 	for( int i = Instance->m_StartMapOverlays; i < g_aMapOverlays.Count(); i++ )
 	{
 		Overlay_Translate( &g_aMapOverlays[ i ], InstanceOrigin, InstanceAngle, InstanceMatrix );
+
+#ifdef MAPBASE
+		int iSides = (nummapbrushsides - Instance->nummapbrushsides);
+		for (int i2 = 0; i2 < g_aMapOverlays[i].aSideList.Count(); i2++)
+		{
+			//Warning( "Remapping overlay side %i to %i\n", g_aMapOverlays[i].aSideList[i2], g_aMapOverlays[i].aSideList[i2] + iSides );
+			g_aMapOverlays[i].aSideList[i2] += iSides;
+		}
+#endif
 	}
 	for( int i = Instance->m_StartMapWaterOverlays; i < g_aMapWaterOverlays.Count(); i++ )
 	{
 		Overlay_Translate( &g_aMapWaterOverlays[ i ], InstanceOrigin, InstanceAngle, InstanceMatrix );
+
+#ifdef MAPBASE
+		int iSides = (nummapbrushsides - Instance->nummapbrushsides);
+		for (int i2 = 0; i2 < g_aMapWaterOverlays[i].aSideList.Count(); i2++)
+		{
+			g_aMapWaterOverlays[i].aSideList[i2] += iSides;
+		}
+#endif
 	}
 }
 
@@ -2671,6 +2725,9 @@ bool LoadMapFile( const char *pszFileName )
 			if ( g_MainMap == NULL )
 			{
 				g_MainMap = g_LoadingMap;
+#ifdef MAPBASE
+				V_ExtractFilePath( pszFileName, g_MainMapPath, sizeof( g_MainMapPath ) );
+#endif
 			}
 
 			if ( g_MainMap == g_LoadingMap || verbose )
@@ -2707,40 +2764,6 @@ bool LoadMapFile( const char *pszFileName )
 		}
 	}
 
-#ifdef PARALLAX_CORRECTED_CUBEMAPS
-	// Fill out parallax obb matrix array
-	// "i" is static so this code could account for
-	// multiple LoadMapFile() calls from instances, etc.
-	for (static int i = 0; i < g_nCubemapSamples; i++) 
-	{
-		if (g_pParallaxObbStrs[i][0] != '\0')
-		{
-			entity_t* obbEnt = EntityByName(g_pParallaxObbStrs[i]);
-			if (obbEnt)
-			{
-				g_pParallaxObbStrs[i] = ValueForKey(obbEnt, "transformationmatrix");
-			}
-			else
-			{
-				Warning( "Cannot find parallax obb \"%s\"\n", g_pParallaxObbStrs[i] );
-				g_pParallaxObbStrs[i][0] = '\0';
-			}
-		}
-	}
-
-	// Remove parallax_obb entities (in a nice slow linear search)
-	for (int i = 0; i < g_MainMap->num_entities; i++)
-	{
-		entity_t* mapent = &g_MainMap->entities[i];
-		const char *pClassName = ValueForKey( mapent, "classname" );
-		if ( !strcmp( "parallax_obb", pClassName ) )
-		{
-			mapent->numbrushes = 0;
-			mapent->epairs = NULL;
-		}
-	}
-#endif
-
 	if ((eResult == ChunkFile_Ok) || (eResult == ChunkFile_EOF))
 	{
 		// Update the overlay/side list(s).
@@ -2753,6 +2776,51 @@ bool LoadMapFile( const char *pszFileName )
 		{
 			pMainManifest->CordonWorld();
 		}
+
+#ifdef PARALLAX_CORRECTED_CUBEMAPS
+		// Fill out parallax obb matrix array
+		// "i" is static so this code could account for
+		// multiple LoadMapFile() calls from instances, etc.
+		for (static int i = 0; i < g_nCubemapSamples; i++) 
+		{
+			if (g_pParallaxObbStrs[i][0] != '\0')
+			{
+				Warning( "Testing OBB string %s\n", g_pParallaxObbStrs[i] );
+
+				for (int i2 = 0; i2 < g_LoadingMap->num_entities; i2++)
+				{
+					entity_t* obbEnt = &g_LoadingMap->entities[i2];
+					if (stricmp( ValueForKey( obbEnt, "targetname" ), g_pParallaxObbStrs[i] ) != 0)
+						continue;
+
+					if (obbEnt)
+					{
+						g_pParallaxObbStrs[i] = ValueForKey(obbEnt, "transformationmatrix");
+						Warning( "Using OBB transformation matrix \"%s\"\n", g_pParallaxObbStrs[i] );
+					}
+					else
+					{
+						Warning( "Cannot find parallax obb \"%s\"\n", g_pParallaxObbStrs[i] );
+						g_pParallaxObbStrs[i][0] = '\0';
+					}
+
+					break;
+				}
+			}
+		}
+
+		// Remove parallax_obb entities (in a nice slow linear search)
+		for (int i = 0; i < g_LoadingMap->num_entities; i++)
+		{
+			entity_t* mapent = &g_LoadingMap->entities[i];
+			const char *pClassName = ValueForKey( mapent, "classname" );
+			if ( !strcmp( "parallax_obb", pClassName ) )
+			{
+				mapent->numbrushes = 0;
+				mapent->epairs = NULL;
+			}
+		}
+#endif
 
 		ClearBounds (g_LoadingMap->map_mins, g_LoadingMap->map_maxs);
 		for (int i=0 ; i<g_MainMap->entities[0].numbrushes ; i++)

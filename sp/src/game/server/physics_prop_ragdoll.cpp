@@ -162,7 +162,7 @@ END_DATADESC()
 #ifdef MAPBASE_VSCRIPT
 BEGIN_ENT_SCRIPTDESC( CRagdollProp, CBaseAnimating, "Ragdoll physics prop." )
 
-	DEFINE_SCRIPTFUNC( GetSourceClassName, "Gets the ragdoll's source classname." )
+	DEFINE_SCRIPTFUNC_NAMED( GetSourceClassNameAsCStr, "GetSourceClassName", "Gets the ragdoll's source classname." )
 	DEFINE_SCRIPTFUNC( SetSourceClassName, "Sets the ragdoll's source classname." )
 	DEFINE_SCRIPTFUNC( HasPhysgunInteraction, "Checks if the ragdoll has the specified interaction." )
 

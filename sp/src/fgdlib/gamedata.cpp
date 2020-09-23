@@ -12,6 +12,9 @@
 #include "filesystem_tools.h"
 #include "tier1/strtools.h"
 #include "utlmap.h"
+#ifdef MAPBASE
+#include "fmtstr.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -579,6 +582,34 @@ GDclass *GameData::BeginInstanceRemap( const char *pszClassName, const char *psz
 	return m_InstanceClass;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Sets up for additional instance remap fixes from Mapbase
+//-----------------------------------------------------------------------------
+void GameData::SetupInstanceRemapParams( int iStartNodes, int iStartBrushSide, bool bRemapVecLines )
+{
+	// Set the numer of nodes in the level
+	m_InstanceStartAINodes = iStartNodes;
+
+	// If we have a "nodeid" key, set it to ivNodeDest so it's properly recognized
+	// during AI node remapping
+	GDinputvariable *var = m_InstanceClass->VarForName( "nodeid" );
+	if ( var )
+	{
+		var->ForceSetType( ivNodeDest );
+	}
+
+	//---------------------------------------------
+
+	// Set the number of brush sides in the level
+	m_InstanceStartSide = iStartBrushSide;
+
+	//---------------------------------------------
+
+	m_bRemapVecLines = bRemapVecLines;
+}
+#endif
+
 
 enum tRemapOperation
 {
@@ -586,6 +617,13 @@ enum tRemapOperation
 	REMAP_POSITION,
 	REMAP_ANGLE,
 	REMAP_ANGLE_NEGATIVE_PITCH,
+#ifdef MAPBASE
+	// Remaps the node ID for instance/manifest AI node support
+	REMAP_NODE_ID,
+
+	// Remaps brush sides and sidelists
+	REMAP_SIDES,
+#endif
 };
 
 
@@ -624,6 +662,12 @@ bool GameData::RemapKeyValue( const char *pszKey, const char *pszInValue, char *
 		RemapOperation.Insert( ivOrigin, REMAP_POSITION );
 		RemapOperation.Insert( ivAxis, REMAP_ANGLE );
 		RemapOperation.Insert( ivAngleNegativePitch, REMAP_ANGLE_NEGATIVE_PITCH );
+#ifdef MAPBASE
+		RemapOperation.Insert( ivNodeDest, REMAP_NODE_ID );
+		RemapOperation.Insert( ivSide, REMAP_SIDES );
+		RemapOperation.Insert( ivSideList, REMAP_SIDES );
+		RemapOperation.Insert( ivVecLine, REMAP_POSITION );
+#endif
 	}
 
 	if ( !m_InstanceClass )
@@ -657,6 +701,12 @@ bool GameData::RemapKeyValue( const char *pszKey, const char *pszInValue, char *
 
 		case REMAP_POSITION:
 			{
+#ifdef MAPBASE
+				// Only remap ivVecLine if the keyvalue is enabled
+				if (KVType == ivVecLine && !m_bRemapVecLines)
+					break;
+#endif
+
 				Vector	inPoint( 0.0f, 0.0f, 0.0f ), outPoint;
 
 				sscanf ( pszInValue, "%f %f %f", &inPoint.x, &inPoint.y, &inPoint.z );
@@ -697,6 +747,54 @@ bool GameData::RemapKeyValue( const char *pszKey, const char *pszInValue, char *
 				sprintf( pszOutValue, "%g", -outAngles.x );	// just the pitch
 			}
 			break;
+
+#ifdef MAPBASE
+		case REMAP_NODE_ID:
+			{
+				int value = atoi( pszInValue );
+				if (value == -1)
+					break;
+
+				//Warning( "	%s %s: Remapped %i to %i", m_InstanceClass->GetName(), KVVar->GetName(), value, value + m_InstanceStartAINodes );
+
+				value += m_InstanceStartAINodes;
+
+				sprintf( pszOutValue, "%i", value );
+			}
+			break;
+
+		case REMAP_SIDES:
+			{
+				CUtlStringList sideList;
+				V_SplitString( pszInValue, " ", sideList );
+
+				// Convert sides
+				CUtlStringList newSideList;
+				for (int i = 0; i < sideList.Count(); i++)
+				{
+					int iSide = atoi( sideList[i] );
+
+					//Warning( "	%s %s: Remapped %i to %i", m_InstanceClass->GetName(), KVVar->GetName(), iSide, iSide + m_InstanceStartSide );
+
+					iSide += m_InstanceStartSide;
+
+					newSideList.AddToTail( const_cast<char*>( CNumStr( iSide ).String() ) );
+				}
+
+				// Initial side
+				strcpy( pszOutValue, newSideList[0] );
+
+				// Start at 1 for subsequent sides
+				for (int i = 1; i < newSideList.Count(); i++)
+				{
+					// Any subsequent sides are spaced
+					sprintf( pszOutValue, "%s %s", pszOutValue, newSideList[i] );
+				}
+
+				//Warning("Old side list: \"%s\", new side list: \"%s\"\n", pszInValue, pszOutValue);
+			}
+			break;
+#endif
 	}
 
 	return ( strcmpi( pszInValue, pszOutValue ) != 0 );

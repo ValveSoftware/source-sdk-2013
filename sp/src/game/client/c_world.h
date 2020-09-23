@@ -42,7 +42,7 @@ public:
 	const char *GetDetailSpriteMaterial() const;
 
 #ifdef MAPBASE_VSCRIPT
-	ScriptLanguage_t GetScriptLanguage() { return (ScriptLanguage_t)m_iScriptLanguage; }
+	ScriptLanguage_t GetScriptLanguage() { return (ScriptLanguage_t)m_iScriptLanguageClient; }
 #endif
 
 public:
@@ -64,7 +64,7 @@ public:
 	char	m_iszChapterTitle[64];
 #endif
 #ifdef MAPBASE_VSCRIPT
-	int		m_iScriptLanguage;
+	int		m_iScriptLanguageClient;
 #endif
 
 private:

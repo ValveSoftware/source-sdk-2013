@@ -466,6 +466,12 @@ bool VScriptClientInit()
 			{
 				scriptLanguage = SL_PYTHON;
 			}
+#ifdef MAPBASE_VSCRIPT
+			else if( !Q_stricmp(pszScriptLanguage, "lua") )
+			{
+				scriptLanguage = SL_LUA;
+			}
+#endif
 			else
 			{
 				DevWarning("-scriptlang does not recognize a language named '%s'. virtual machine did NOT start.\n", pszScriptLanguage );

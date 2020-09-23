@@ -3253,6 +3253,9 @@ void CNPC_AntlionGuard::SummonAntlions( void )
 
 		// Make the antlion fire my input when he dies
 		pAntlion->KeyValue( "OnDeath", UTIL_VarArgs("%s,SummonedAntlionDied,,0,-1", STRING(GetEntityName())) );
+#ifdef MAPBASE
+		pAntlion->KeyValue( "OnKilled", UTIL_VarArgs("%s,SummonedAntlionDied,,0,-1", STRING(GetEntityName())) );
+#endif
 
 		// Start the antlion burrowed, and tell him to come up
 		pAntlion->m_bStartBurrowed = true;

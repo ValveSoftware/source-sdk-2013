@@ -62,7 +62,7 @@ public:
 #endif
 
 #ifdef MAPBASE_VSCRIPT
-	ScriptLanguage_t GetScriptLanguage() { return (ScriptLanguage_t)(m_iScriptLanguage.Get()); }
+	ScriptLanguage_t GetScriptLanguage() { return (ScriptLanguage_t)(m_iScriptLanguage); }
 #endif
 
 private:
@@ -89,7 +89,8 @@ private:
 	CNetworkVar( string_t, m_iszDetailSpriteMaterial );
 
 #ifdef MAPBASE_VSCRIPT
-	CNetworkVar( int, m_iScriptLanguage );
+	int m_iScriptLanguage;
+	CNetworkVar( int, m_iScriptLanguageClient );
 #endif
 
 	// start flags

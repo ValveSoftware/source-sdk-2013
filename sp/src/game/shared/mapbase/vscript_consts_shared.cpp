@@ -12,6 +12,7 @@
 #include "c_ai_basenpc.h"
 #else
 #include "ai_basenpc.h"
+#include "globalstate.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -245,6 +246,41 @@ void RegisterSharedScriptConstants()
 	ScriptRegisterConstant( g_pScriptVM, COLLISION_GROUP_NPC_SCRIPTED, "" );
 
 	// 
+	// Flags
+	// 
+	ScriptRegisterConstant( g_pScriptVM, FL_ONGROUND, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_DUCKING, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_WATERJUMP, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_ONTRAIN, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_INRAIN, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_FROZEN, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_ATCONTROLS, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_CLIENT, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_FAKECLIENT, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_INWATER, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_FLY, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_SWIM, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_CONVEYOR, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_NPC, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_GODMODE, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_NOTARGET, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_AIMTARGET, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_PARTIALGROUND, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_STATICPROP, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_GRAPHED, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_GRENADE, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_STEPMOVEMENT, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_DONTTOUCH, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_BASEVELOCITY, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_WORLDBRUSH, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_OBJECT, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_KILLME, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_ONFIRE, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_DISSOLVING, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_TRANSRAGDOLL, "" );
+	ScriptRegisterConstant( g_pScriptVM, FL_UNBLOCKABLE_BY_PLAYER, "" );
+
+	// 
 	// Entity Flags
 	// 
 	ScriptRegisterConstant( g_pScriptVM, EFL_KILLME, "" );
@@ -416,5 +452,35 @@ void RegisterSharedScriptConstants()
 	ScriptRegisterConstant( g_pScriptVM, bits_CAP_DOORS_GROUP, "" );
 	ScriptRegisterConstant( g_pScriptVM, bits_CAP_RANGE_ATTACK_GROUP, "" );
 	ScriptRegisterConstant( g_pScriptVM, bits_CAP_MELEE_ATTACK_GROUP, "" );
+
+	// 
+	// Misc. AI
+	// 
+	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_INVALID, "" );
+	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_NONE, "" );
+	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_IDLE, "" );
+	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_ALERT, "" );
+	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_COMBAT, "" );
+	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_SCRIPT, "" );
+	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_PLAYDEAD, "" );
+	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_PRONE, "When in clutches of barnacle" );
+	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_DEAD, "" );
+
+	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_PLAYING, "SCRIPT_PLAYING", "Playing the action animation." );
+	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_WAIT, "SCRIPT_WAIT", "Waiting on everyone in the script to be ready. Plays the pre idle animation if there is one." );
+	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_POST_IDLE, "SCRIPT_POST_IDLE", "Playing the post idle animation after playing the action animation." );
+	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_CLEANUP, "SCRIPT_CLEANUP", "Cancelling the script / cleaning up." );
+	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_WALK_TO_MARK, "SCRIPT_WALK_TO_MARK", "Walking to the scripted sequence position." );
+	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_RUN_TO_MARK, "SCRIPT_RUN_TO_MARK", "Running to the scripted sequence position." );
+	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_PLAYING, "SCRIPT_PLAYING", "Moving to the scripted sequence position while playing a custom movement animation." );
+#endif
+
+	// 
+	// Misc. General
+	// 
+#ifdef GAME_DLL
+	ScriptRegisterConstant( g_pScriptVM, GLOBAL_OFF, "" );
+	ScriptRegisterConstant( g_pScriptVM, GLOBAL_ON, "" );
+	ScriptRegisterConstant( g_pScriptVM, GLOBAL_DEAD, "" );
 #endif
 }

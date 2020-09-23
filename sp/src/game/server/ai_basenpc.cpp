@@ -812,6 +812,11 @@ HSCRIPT CAI_BaseNPC::VScriptGetExpresser()
 
 	return hScript;
 }
+
+HSCRIPT CAI_BaseNPC::VScriptGetCine()
+{
+	return ToHScript(m_hCine.Get());
+}
 #endif
 
 bool CAI_BaseNPC::PassesDamageFilter( const CTakeDamageInfo &info )
@@ -11989,6 +11994,11 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 
 	DEFINE_SCRIPTFUNC_NAMED( VScriptFindEnemyMemory, "FindEnemyMemory", "Get information about the NPC's current enemy." )
 
+	DEFINE_SCRIPTFUNC( GetLastAttackTime, "Get the last time the NPC has used an attack (e.g. fired a bullet from a gun)." )
+	DEFINE_SCRIPTFUNC( GetLastDamageTime, "Get the last time the NPC has been damaged." )
+	DEFINE_SCRIPTFUNC( GetLastPlayerDamageTime, "Get the last time the NPC has been damaged by a player." )
+	DEFINE_SCRIPTFUNC( GetLastEnemyTime, "Get the last time the NPC has seen an enemy." )
+
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetState, "GetNPCState", "Get the NPC's current state." )
 
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetHintGroup, "GetHintGroup", "Get the name of the NPC's hint group." )
@@ -12026,6 +12036,9 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 
 	DEFINE_SCRIPTFUNC( IsCommandable, "Check if the NPC is commandable." )
 	DEFINE_SCRIPTFUNC( IsInPlayerSquad, "Check if the NPC is in the player's squad." )
+
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetCine, "GetCine", "Get the NPC's currently running scripted sequence if it has one." )
+	DEFINE_SCRIPTFUNC( GetScriptState, "Get the NPC's current scripted sequence state." )
 
 END_SCRIPTDESC();
 #endif

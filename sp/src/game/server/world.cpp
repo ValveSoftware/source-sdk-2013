@@ -395,6 +395,7 @@ BEGIN_DATADESC( CWorld )
 	DEFINE_KEYFIELD( m_iszDetailSpriteMaterial, FIELD_STRING, "detailmaterial" ),
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_KEYFIELD( m_iScriptLanguage, FIELD_INTEGER, "vscriptlanguage" ),
+	DEFINE_KEYFIELD( m_iScriptLanguageClient, FIELD_INTEGER, "vscriptlanguage_client" ),
 #endif
 	DEFINE_KEYFIELD( m_bColdWorld,		FIELD_BOOLEAN, "coldworld" ),
 
@@ -421,7 +422,7 @@ IMPLEMENT_SERVERCLASS_ST(CWorld, DT_WORLD)
 	SendPropStringT (SENDINFO(m_iszChapterTitle) ),
 #endif
 #ifdef MAPBASE_VSCRIPT
-	SendPropInt		(SENDINFO(m_iScriptLanguage), 4 ), // No SPROP_UNSIGNED to allow -1 (disabled)
+	SendPropInt		(SENDINFO(m_iScriptLanguageClient), 4 ), // No SPROP_UNSIGNED to allow -1 (disabled)
 #endif
 END_SEND_TABLE()
 
@@ -465,7 +466,7 @@ bool CWorld::KeyValue( const char *szKeyName, const char *szValue )
 
 
 extern bool		g_fGameOver;
-static CWorld *g_WorldEntity = NULL;
+CWorld *g_WorldEntity = NULL;
 
 CWorld* GetWorldEntity()
 {
@@ -484,6 +485,7 @@ CWorld::CWorld( )
 
 #ifdef MAPBASE_VSCRIPT
 	m_iScriptLanguage = SL_NONE;
+	m_iScriptLanguageClient = -2;
 #endif
 
 	m_bColdWorld = false;
@@ -550,6 +552,14 @@ void CWorld::Spawn( void )
 	Precache( );
 	GlobalEntity_Add( "is_console", STRING(gpGlobals->mapname), ( IsConsole() ) ? GLOBAL_ON : GLOBAL_OFF );
 	GlobalEntity_Add( "is_pc", STRING(gpGlobals->mapname), ( !IsConsole() ) ? GLOBAL_ON : GLOBAL_OFF );
+
+#ifdef MAPBASE_VSCRIPT
+	if (m_iScriptLanguageClient.Get() == -2)
+	{
+		// Clientside language should be regular language by default
+		m_iScriptLanguageClient.Set( m_iScriptLanguage );
+	}
+#endif
 }
 
 static const char *g_DefaultLightstyles[] =

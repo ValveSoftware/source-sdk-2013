@@ -5641,6 +5641,8 @@ BEGIN_DATADESC( CMathMod )
 
 	DEFINE_KEYFIELD( m_Operator, FIELD_INTEGER, "SetOperator" ),
 
+	DEFINE_VARIANT( m_Mod ),
+
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_INPUT, "SetMod", InputSetMod ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetOperator", InputSetOperator ),

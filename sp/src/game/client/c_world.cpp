@@ -63,7 +63,7 @@ BEGIN_RECV_TABLE( C_World, DT_World )
 	RecvPropString(RECVINFO(m_iszChapterTitle)),
 #endif
 #ifdef MAPBASE_VSCRIPT
-	RecvPropInt(RECVINFO(m_iScriptLanguage)),
+	RecvPropInt(RECVINFO(m_iScriptLanguageClient)),
 #endif
 END_RECV_TABLE()
 

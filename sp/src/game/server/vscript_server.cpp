@@ -1064,6 +1064,12 @@ bool VScriptServerInit()
 
 				VScriptRunScript( "mapspawn", false );
 
+#ifdef MAPBASE_VSCRIPT
+				// Since the world entity spawns before VScript is initted, RunVScripts() is called before the VM has started, so no scripts are run.
+				// This gets around that by calling the same function right after the VM is initted.
+				GetWorldEntity()->RunVScripts();
+#endif
+
 				VMPROF_SHOW( pszScriptLanguage, "virtual machine startup" );
 
 				return true;

@@ -275,6 +275,8 @@ protected:
 		ICON_TARGET_ORIGIN,
 		ICON_TARGET_CENTER,
 	};
+
+	CGameInstructorSymbol	m_szHudHint;
 #endif
 };
 

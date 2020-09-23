@@ -16,6 +16,9 @@
 #include "vprof.h"
 #include "view.h"
 #include "vstdlib/ikeyvaluessystem.h"
+#ifdef MAPBASE
+#include "usermessages.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -442,6 +445,9 @@ void CIconLesson::Init()
 	m_iFlags				= LOCATOR_ICON_FX_NONE;
 #ifdef MAPBASE
 	m_szCaptionColor		= gameinstructor_default_captioncolor.GetString();
+
+	m_iIconTargetPos		= ICON_TARGET_EYE_POSITION;
+	m_szHudHint				= "";
 #else
 	m_szCaptionColor		= "255,255,255";// Default to white
 #endif
@@ -652,6 +658,17 @@ void CIconLesson::UpdateInactive()
 		{
 			m_fCurrentDistance = pLocalPlayer->EyePosition().DistTo( pIconTarget->WorldSpaceCenter() );
 		}
+
+#ifdef MAPBASE
+		if (m_szHudHint.String()[0] != '\0' && GetRoot()->IsLearned())
+		{
+			DevMsg("Showing hint\n");
+			CUtlBuffer msg_data;
+			msg_data.PutChar( 1 );
+			msg_data.PutString( m_szHudHint.String() );
+			usermessages->DispatchUserMessage( usermessages->LookupUserMessage( "KeyHintText" ), bf_read( msg_data.Base(), msg_data.TellPut() ) );
+		}
+#endif
 
 		m_fUpdateDistanceTime = gpGlobals->curtime + LESSON_DISTANCE_UPDATE_RATE;
 	}
@@ -1014,6 +1031,7 @@ Vector CIconLesson::GetIconTargetPosition( C_BaseEntity *pIconTarget )
 	LESSON_VARIABLE_MACRO_STRING( START_SOUND, m_szStartSound, CGameInstructorSymbol )					\
 																										\
 	LESSON_VARIABLE_MACRO( ICON_TARGET_POS, m_iIconTargetPos, int )								\
+	LESSON_VARIABLE_MACRO_STRING( HUD_HINT_AFTER_LEARNED, m_szHudHint, CGameInstructorSymbol )					\
 
 
 // Create keyvalues name symbol

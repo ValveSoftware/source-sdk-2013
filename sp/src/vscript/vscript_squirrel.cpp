@@ -2469,7 +2469,7 @@ void* SquirrelVM::GetInstanceValue(HSCRIPT hInstance, ScriptClassDesc_t* pExpect
 
 		sq_pushobject(vm_, *obj);
 
-		if (!sq_instanceof(vm_))
+		if (sq_instanceof(vm_) != SQTrue)
 		{
 			sq_pop(vm_, 3);
 			return nullptr;

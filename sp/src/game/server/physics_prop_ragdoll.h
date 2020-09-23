@@ -63,7 +63,7 @@ public:
 	virtual void ModifyOrAppendCriteria( AI_CriteriaSet& set );
 	void SetSourceClassName( const char *pClassname );
 #ifdef MAPBASE
-	const char *GetSourceClassName() { return STRING( m_strSourceClassName ); }
+	const char *GetSourceClassNameAsCStr() { return STRING( m_strSourceClassName ); }
 #endif
 
 	// Physics attacker
