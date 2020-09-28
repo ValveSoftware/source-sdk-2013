@@ -2747,6 +2747,8 @@ void CPhysicsProp::OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t r
 		}
 	}
 
+	m_bFirstCollisionAfterLaunch = false;
+
 	m_OnPhysGunPickup.FireOutput( pPhysGunUser, this );
 
 	if( reason == PICKED_UP_BY_CANNON )
