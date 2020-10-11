@@ -2376,11 +2376,6 @@ void CWeaponPhysCannon::DetachObject( bool playSound, bool wasLaunched )
 		return;
 
 	CHL2MP_Player *pOwner = (CHL2MP_Player *)ToBasePlayer( GetOwner() );
-	if( pOwner != NULL )
-	{
-		pOwner->EnableSprint( true );
-		pOwner->SetMaxSpeed( hl2_normspeed.GetFloat() );
-	}
 
 	CBaseEntity *pObject = m_grabController.GetAttached();
 
