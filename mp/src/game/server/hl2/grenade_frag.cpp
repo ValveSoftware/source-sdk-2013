@@ -72,6 +72,7 @@ protected:
 	bool	m_inSolid;
 	bool	m_combineSpawned;
 	bool	m_punted;
+	int	m_randomcolor;
 };
 
 LINK_ENTITY_TO_CLASS( npc_grenade_frag, CGrenadeFrag );
@@ -85,6 +86,7 @@ BEGIN_DATADESC( CGrenadeFrag )
 	DEFINE_FIELD( m_inSolid, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_combineSpawned, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_punted, FIELD_BOOLEAN ),
+	DEFINE_FIELD( m_randomcolor, FIELD_INTEGER ),
 	
 	// Function Pointers
 	DEFINE_THINKFUNC( DelayThink ),
@@ -156,16 +158,61 @@ void CGrenadeFrag::CreateEffects( void )
 {
 	int	nAttachment = LookupAttachment("fuse");
 
+	m_randomcolor = random->RandomInt(1, 11);
+
 	if (m_pMainGlow == NULL)
 	{
 		// Start up the eye glow
-		m_pMainGlow = CSprite::SpriteCreate("sprites/redglow1.vmt", GetLocalOrigin(), false);
+		m_pMainGlow = CSprite::SpriteCreate("sprites/blueglow1.vmt", GetLocalOrigin(), false);
 
 		if (m_pMainGlow != NULL)
 		{
 			m_pMainGlow->FollowEntity(this);
 			m_pMainGlow->SetAttachment(this, nAttachment);
-			m_pMainGlow->SetTransparency(kRenderGlow, 255, 255, 255, 200, kRenderFxNoDissipation);
+			if (m_randomcolor == 1)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 255, 0, 0, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 2)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 255, 178, 89, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 3)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 177, 125, 245, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 4)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 38, 74, 252, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 5)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 82, 255, 243, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 6)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 51, 255, 0, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 7)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 51, 255, 0, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 8)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 255, 133, 249, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 9)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 255, 36, 36, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 10)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 0, 255, 166, 200, kRenderFxNoDissipation);
+			}
+			if (m_randomcolor == 11)
+			{
+				m_pMainGlow->SetTransparency(kRenderGlow, 212, 255, 0, 200, kRenderFxNoDissipation);
+			}
 			m_pMainGlow->SetScale(0.2f);
 			m_pMainGlow->SetGlowProxySize(4.0f);
 		}
@@ -180,7 +227,50 @@ void CGrenadeFrag::CreateEffects( void )
 		{
 			m_pGlowTrail->FollowEntity(this);
 			m_pGlowTrail->SetAttachment(this, nAttachment);
-			m_pGlowTrail->SetTransparency(kRenderTransAdd, 255, 0, 0, 255, kRenderFxNone);
+			if (m_randomcolor == 1)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 255, 0, 0, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 2)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 255, 178, 89, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 3)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 177, 125, 245, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 4)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 38, 74, 252, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 5)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 82, 255, 243, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 6)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 51, 255, 0, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 7)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 51, 255, 0, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 8)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 255, 133, 249, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 9)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 255, 36, 36, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 10)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 0, 255, 166, 255, kRenderFxNone);
+			}
+			if (m_randomcolor == 11)
+			{
+				m_pGlowTrail->SetTransparency(kRenderTransAdd, 212, 255, 0, 255, kRenderFxNone);
+			}
 			m_pGlowTrail->SetStartWidth(8.0f);
 			m_pGlowTrail->SetEndWidth(1.0f);
 			m_pGlowTrail->SetLifeTime(0.5f);
