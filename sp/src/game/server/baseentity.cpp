@@ -1329,6 +1329,31 @@ void CBaseEntity::FireNamedOutput( const char *pszOutput, variant_t variant, CBa
 	}
 }
 
+#ifdef MAPBASE_VSCRIPT
+void CBaseEntity::ScriptFireOutput( const char *pszOutput, HSCRIPT hActivator, HSCRIPT hCaller, const char *szValue, float flDelay )
+{
+	variant_t value;
+	value.SetString( MAKE_STRING(szValue) );
+
+	FireNamedOutput( pszOutput, value, ToEnt(hActivator), ToEnt(hCaller), flDelay );
+}
+
+float CBaseEntity::GetMaxOutputDelay( const char *pszOutput )
+{
+	CBaseEntityOutput *pOutput = FindNamedOutput( pszOutput );
+	if ( pOutput )
+	{
+		return pOutput->GetMaxDelay();
+	}
+	return 0;
+}
+
+void CBaseEntity::CancelEventsByInput( const char *szInput )
+{
+	g_EventQueue.CancelEventsByInput( this, szInput );
+}
+#endif // MAPBASE_VSCRIPT
+
 CBaseEntityOutput *CBaseEntity::FindNamedOutput( const char *pszOutput )
 {
 	if ( pszOutput == NULL )
@@ -2271,6 +2296,11 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptClassify, "Classify", "Get Class_T class ID" )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAcceptInput, "AcceptInput", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptFireOutput, "FireOutput", "Fire an entity output" )
+	DEFINE_SCRIPTFUNC( GetMaxOutputDelay, "Get the longest delay for all events attached to an output" )
+	DEFINE_SCRIPTFUNC( CancelEventsByInput, "Cancel all I/O events for this entity, match input" )
+
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddOutput, "AddOutput", "Add an output" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValue, "GetKeyValue", "Get a keyvalue" )
 
@@ -2320,6 +2350,9 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC( GetEFlags, "Get Eflags" )
 	DEFINE_SCRIPTFUNC( AddEFlags, "Add Eflags" )
 	DEFINE_SCRIPTFUNC( RemoveEFlags, "Remove Eflags" )
+
+	DEFINE_SCRIPTFUNC( GetTransmitState, "" )
+	DEFINE_SCRIPTFUNC( SetTransmitState, "" )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetMoveType, "GetMoveType", "Get the move type" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetMoveType, "SetMoveType", "Set the move type" )
@@ -2474,9 +2507,18 @@ void CBaseEntity::UpdateOnRemove( void )
 		{
 			CallScriptFunctionHandle( hFunc, NULL );
 		}
-#endif
+#endif // MAPBASE_VSCRIPT
+
 		g_pScriptVM->RemoveInstance( m_hScriptInstance );
 		m_hScriptInstance = NULL;
+
+#ifdef MAPBASE_VSCRIPT
+		if ( m_hfnThink )
+		{
+			g_pScriptVM->ReleaseScript( m_hfnThink );
+			m_hfnThink = NULL;
+		}
+#endif // MAPBASE_VSCRIPT
 	}
 }
 
@@ -4411,7 +4453,11 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 					// found a match
 
 					// mapper debug message
+#ifdef MAPBASE
+					ConColorMsg( 2, Color(CON_COLOR_DEV_VERBOSE), "(%0.2f) input %s: %s.%s(%s)\n", gpGlobals->curtime, pCaller ? STRING(pCaller->m_iName.Get()) : "<NULL>", GetDebugName(), szInputName, Value.String() );
+#else
 					DevMsg( 2, "(%0.2f) input %s: %s.%s(%s)\n", gpGlobals->curtime, pCaller ? STRING(pCaller->m_iName.Get()) : "<NULL>", GetDebugName(), szInputName, Value.String() );
+#endif
 					ADD_DEBUG_HISTORY( HISTORY_ENTITY_IO, szBuffer );
 
 					if (m_debugOverlays & OVERLAY_MESSAGE_BIT)
@@ -4544,9 +4590,24 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 		}
 	}
 
+#ifdef MAPBASE
+	ConColorMsg( 2, Color(CON_COLOR_DEV_VERBOSE), "unhandled input: (%s) -> (%s,%s)\n", szInputName, STRING(m_iClassname), GetDebugName() );
+#else
 	DevMsg( 2, "unhandled input: (%s) -> (%s,%s)\n", szInputName, STRING(m_iClassname), GetDebugName()/*,", from (%s,%s)" STRING(pCaller->m_iClassname), STRING(pCaller->m_iName.Get())*/ );
+#endif
 	return false;
 }
+
+#ifdef MAPBASE_VSCRIPT
+bool CBaseEntity::ScriptAcceptInput( const char *szInputName, const char *szValue, HSCRIPT hActivator, HSCRIPT hCaller )
+{
+	variant_t value;
+	value.SetString( MAKE_STRING(szValue) );
+
+	return AcceptInput( szInputName, ToEnt(hActivator), ToEnt(hCaller), value, 0 );
+}
+#endif
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Input handler for the entity alpha.
@@ -4587,6 +4648,17 @@ void CBaseEntity::InputColor( inputdata_t &inputdata )
 void CBaseEntity::InputUse( inputdata_t &inputdata )
 {
 	Use( inputdata.pActivator, inputdata.pCaller, (USE_TYPE)inputdata.nOutputID, 0 );
+
+#ifdef MAPBASE
+	IGameEvent *event = gameeventmanager->CreateEvent( "player_use" );
+	if ( event )
+	{
+		event->SetInt( "userid", inputdata.pActivator && inputdata.pActivator->IsPlayer() ?
+								((CBasePlayer*)inputdata.pActivator)->GetUserID() : 0 );
+		event->SetInt( "entity", entindex() );
+		gameeventmanager->FireEvent( event );
+	}
+#endif // MAPBASE
 }
 
 
@@ -4702,7 +4774,19 @@ void CBaseEntity::InputKill( inputdata_t &inputdata )
 	m_OnKilled.FireOutput( inputdata.pActivator, this );
 #endif
 
+#ifdef MAPBASE
+	// Kick players
+	if ( IsPlayer() )
+	{
+		engine->ServerCommand( UTIL_VarArgs( "kickid %d CBaseEntity::InputKill()\n", engine->GetPlayerUserId(edict()) ) );
+	}
+	else
+	{
+		UTIL_Remove( this );
+	}
+#else
 	UTIL_Remove( this );
+#endif
 }
 
 void CBaseEntity::InputKillHierarchy( inputdata_t &inputdata )
@@ -4724,6 +4808,9 @@ void CBaseEntity::InputKillHierarchy( inputdata_t &inputdata )
 
 #ifdef MAPBASE
 	m_OnKilled.FireOutput( inputdata.pActivator, this );
+
+	// Kicking players in InputKillHierarchy does not exist in future Valve games
+	// if ( IsPlayer() )
 #endif
 
 	UTIL_Remove( this );
@@ -8410,7 +8497,7 @@ void CBaseEntity::ScriptThink(void)
 #ifdef MAPBASE_VSCRIPT
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CBaseEntity::ScriptSetThinkFunction(const char *szFunc, float time)
+void CBaseEntity::ScriptSetThinkFunction( const char *szFunc, float flTime )
 {
 	// Empty string stops thinking
 	if (!szFunc || szFunc[0] == '\0')
@@ -8420,7 +8507,8 @@ void CBaseEntity::ScriptSetThinkFunction(const char *szFunc, float time)
 	else
 	{
 		m_iszScriptThinkFunction = AllocPooledString(szFunc);
-		SetContextThink( &CBaseEntity::ScriptThink, gpGlobals->curtime + time, "ScriptThink" );
+		flTime = max( 0, flTime );
+		SetContextThink( &CBaseEntity::ScriptThink, gpGlobals->curtime + flTime, "ScriptThink" );
 	}
 }
 
@@ -8434,37 +8522,30 @@ void CBaseEntity::ScriptStopThinkFunction()
 //-----------------------------------------------------------------------------
 void CBaseEntity::ScriptThinkH()
 {
-	if (m_hfnThink)
-	{
-		ScriptVariant_t varThinkRetVal;
-		if (g_pScriptVM->ExecuteFunction(m_hfnThink, NULL, 0, &varThinkRetVal, NULL, true) == SCRIPT_ERROR)
-		{
-			DevWarning("%s FAILED to call script think function (invalid closure)!\n", GetDebugName());
-			ScriptStopThink();
-			return;
-		}
-
-		float flThinkFrequency = 0.f;
-		if (!varThinkRetVal.AssignTo(&flThinkFrequency))
-		{
-			// no return value stops thinking
-			ScriptStopThink();
-			return;
-		}
-
-		SetNextThink(gpGlobals->curtime + flThinkFrequency, "ScriptThinkH");
-	}
-	else
+	ScriptVariant_t varThinkRetVal;
+	if ( g_pScriptVM->ExecuteFunction(m_hfnThink, NULL, 0, &varThinkRetVal, NULL, true) == SCRIPT_ERROR )
 	{
 		DevWarning("%s FAILED to call script think function (invalid closure)!\n", GetDebugName());
+		ScriptStopThink();
+		return;
 	}
+
+	float flThinkFrequency = 0.f;
+	if ( !varThinkRetVal.AssignTo(&flThinkFrequency) )
+	{
+		// no return value stops thinking
+		ScriptStopThink();
+		return;
+	}
+
+	SetNextThink( gpGlobals->curtime + flThinkFrequency, "ScriptThinkH" );
 }
 
-void CBaseEntity::ScriptSetThink(HSCRIPT hFunc, float time)
+void CBaseEntity::ScriptSetThink( HSCRIPT hFunc, float flTime )
 {
-	if (hFunc)
+	if ( hFunc )
 	{
-		if (m_hfnThink)
+		if ( m_hfnThink )
 		{
 			// release old func
 			ScriptStopThink();
@@ -8473,7 +8554,8 @@ void CBaseEntity::ScriptSetThink(HSCRIPT hFunc, float time)
 		// no type check here, print error on call instead
 		m_hfnThink = hFunc;
 
-		SetContextThink( &CBaseEntity::ScriptThinkH, gpGlobals->curtime + time, "ScriptThinkH" );
+		flTime = max( 0, flTime );
+		SetContextThink( &CBaseEntity::ScriptThinkH, gpGlobals->curtime + flTime, "ScriptThinkH" );
 	}
 	else
 	{

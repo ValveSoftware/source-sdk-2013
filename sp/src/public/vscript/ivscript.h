@@ -871,6 +871,11 @@ public:
 	virtual bool ClearValue( HSCRIPT hScope, const char *pszKey ) = 0;
 	bool ClearValue( const char *pszKey)																							{ return ClearValue( NULL, pszKey ); }
 
+#ifdef MAPBASE_VSCRIPT
+	// virtual void CreateArray(ScriptVariant_t &arr, int size = 0) = 0;
+	virtual bool ArrayAppend(HSCRIPT hArray, const ScriptVariant_t &val) = 0;
+#endif
+
 	//----------------------------------------------------------------------------
 
 	virtual void WriteState( CUtlBuffer *pBuffer ) = 0;
