@@ -3716,8 +3716,6 @@ const impactdamagetable_t &CHL2_Player::GetPhysicsImpactDamageTable()
 //-----------------------------------------------------------------------------
 void CHL2_Player::Splash( void )
 {
-	IPredictionSystem::SuppressHostEvents(NULL);
-	
 	CEffectData data;
 	data.m_fFlags = 0;
 	data.m_vOrigin = GetAbsOrigin();
@@ -3732,11 +3730,13 @@ void CHL2_Player::Splash( void )
 	float flSpeed = GetAbsVelocity().Length();
 	if ( flSpeed < 300 )
 	{
+		IPredictionSystem::SuppressHostEvents(NULL);
 		data.m_flScale = random->RandomFloat( 10, 12 );
 		DispatchEffect( "waterripple", data );
 	}
 	else
 	{
+		IPredictionSystem::SuppressHostEvents(NULL);
 		data.m_flScale = random->RandomFloat( 6, 8 );
 		DispatchEffect( "watersplash", data );
 	}
