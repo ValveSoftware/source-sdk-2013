@@ -1573,7 +1573,7 @@ static float DamageForce( const Vector &size, float damage )
 { 
 	float force = damage * ((32 * 32 * 72.0) / (size.x * size.y * size.z)) * 5;
 	
-	if ( force > 1000.0) 
+	if ( force > 1000.0 )
 	{
 		force = 1000.0;
 	}
@@ -1699,7 +1699,7 @@ void CBasePlayer::Event_Killed( const CTakeDamageInfo &info )
 	{
 		SetViewOffset( VEC_DEAD_VIEWHEIGHT_SCALED( this ) );
 	}
-	m_lifeState		= LIFE_DYING;
+	m_lifeState = LIFE_DYING;
 
 	pl.deadflag = true;
 	AddSolidFlags( FSOLID_NOT_SOLID );
@@ -4579,12 +4579,17 @@ void CBasePlayer::PostThink()
 			// If he's in a vehicle, sit down
 			if ( IsInAVehicle() )
 				SetAnimation( PLAYER_IN_VEHICLE );
-			else if (!GetAbsVelocity().x && !GetAbsVelocity().y)
-				SetAnimation( PLAYER_IDLE );
-			else if ((GetAbsVelocity().x || GetAbsVelocity().y) && ( GetFlags() & FL_ONGROUND ))
-				SetAnimation( PLAYER_WALK );
-			else if (GetWaterLevel() > 1)
-				SetAnimation( PLAYER_WALK );
+			else
+			{
+				if ((GetAbsVelocity().x || GetAbsVelocity().y) && (GetFlags() & FL_ONGROUND) || GetWaterLevel() > 1)
+				{
+					SetAnimation(PLAYER_WALK);
+				}
+				else
+				{
+					SetAnimation(PLAYER_IDLE);
+				}
+			}
 		}
 
 		// Don't allow bogus sequence on player
