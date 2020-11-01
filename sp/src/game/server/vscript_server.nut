@@ -7,8 +7,11 @@ static char g_Script_vscript_server[] = R"vscript(
 
 function UniqueString( string = "" )
 {
-	return DoUniqueString( string.tostring() );
+	return ::DoUniqueString( string.tostring() );
 }
+
+local DoEntFire = ::DoEntFire
+local DoEntFireByInstanceHandle = ::DoEntFireByInstanceHandle
 
 function EntFire( target, action, value = null, delay = 0.0, activator = null, caller = null )
 {
@@ -16,7 +19,7 @@ function EntFire( target, action, value = null, delay = 0.0, activator = null, c
 	{
 		value = "";
 	}
-	
+
 	if ( "self" in this )
 	{
 		if ( !caller )
@@ -29,8 +32,8 @@ function EntFire( target, action, value = null, delay = 0.0, activator = null, c
 			activator = self;
 		}
 	}
-	
-	DoEntFire( target.tostring(), action.tostring(), value.tostring(), delay, activator, caller ); 
+
+	return DoEntFire( target.tostring(), action.tostring(), value.tostring(), delay, activator, caller );
 }
 
 function EntFireByHandle( target, action, value = null, delay = 0.0, activator = null, caller = null )
@@ -39,7 +42,7 @@ function EntFireByHandle( target, action, value = null, delay = 0.0, activator =
 	{
 		value = "";
 	}
-	
+
 	if ( "self" in this )
 	{
 		if ( !caller )
@@ -52,8 +55,8 @@ function EntFireByHandle( target, action, value = null, delay = 0.0, activator =
 			activator = self;
 		}
 	}
-	
-	DoEntFireByInstanceHandle( target, action.tostring(), value.tostring(), delay, activator, caller ); 
+
+	return DoEntFireByInstanceHandle( target, action.tostring(), value.tostring(), delay, activator, caller );
 }
 
 function __ReplaceClosures( script, scope )
@@ -62,11 +65,11 @@ function __ReplaceClosures( script, scope )
 	{
 		scope = getroottable();
 	}
-	
+
 	local tempParent = { getroottable = function() { return null; } };
 	local temp = { runscript = script };
 	temp.set_delegate(tempParent);
-	
+
 	temp.runscript()
 	foreach( key,val in temp )
 	{
@@ -78,11 +81,11 @@ function __ReplaceClosures( script, scope )
 	}
 }
 
-__OutputsPattern <- regexp("^On.*Output$");
+local __OutputsPattern = regexp("^On.*Output$");
 
 function ConnectOutputs( table )
 {
-	const nCharsToStrip = 6;
+	local nCharsToStrip = 6;
 	foreach( key, val in table )
 	{
 		if ( typeof( val ) == "function" && __OutputsPattern.match( key ) )
@@ -95,7 +98,7 @@ function ConnectOutputs( table )
 
 function IncludeScript( name, scope = null )
 {
-	if ( scope == null )
+	if ( !scope )
 	{
 		scope = this;
 	}

@@ -100,6 +100,9 @@ public:
 	inline float SequenceDuration( void ) { return SequenceDuration( m_nSequence ); }
 	float	SequenceDuration( CStudioHdr *pStudioHdr, int iSequence );
 	inline float SequenceDuration( int iSequence ) { return SequenceDuration(GetModelPtr(), iSequence); }
+#ifdef MAPBASE_VSCRIPT
+	inline float ScriptSequenceDuration( int iSequence ) { return SequenceDuration(GetModelPtr(), iSequence); }
+#endif
 	float	GetSequenceCycleRate( CStudioHdr *pStudioHdr, int iSequence );
 	inline float	GetSequenceCycleRate( int iSequence ) { return GetSequenceCycleRate(GetModelPtr(),iSequence); }
 	float	GetLastVisibleCycle( CStudioHdr *pStudioHdr, int iSequence );

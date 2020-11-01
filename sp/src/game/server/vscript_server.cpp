@@ -17,7 +17,6 @@
 #include "gamerules.h"
 #include "vscript_server.nut"
 #ifdef MAPBASE_VSCRIPT
-#include "particle_parse.h"
 #include "world.h"
 #endif
 
@@ -106,7 +105,12 @@ public:
 	{
 		return ToHScript( gEntList.FindEntityByClassnameWithin( ToEnt( hStartEntity ), szName, vecSrc, flRadius ) );
 	}
-
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT FindByClassnameWithinBox( HSCRIPT hStartEntity , const char *szName, const Vector &vecMins, const Vector &vecMaxs )
+	{
+		return ToHScript( gEntList.FindEntityByClassnameWithin( ToEnt( hStartEntity ), szName, vecMins, vecMaxs ) );
+	}
+#endif
 private:
 } g_ScriptEntityIterator;
 
@@ -126,6 +130,9 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptEntityIterator, "CEntities", SCRIPT_SINGLETO
 	DEFINE_SCRIPTFUNC( FindByNameWithin, "Find entities by name within a radius. Pass 'null' to start an iteration, or reference to a previously found entity to continue a search"  )
 	DEFINE_SCRIPTFUNC( FindByClassnameNearest, "Find entities by class name nearest to a point."  )
 	DEFINE_SCRIPTFUNC( FindByClassnameWithin, "Find entities by class name within a radius. Pass 'null' to start an iteration, or reference to a previously found entity to continue a search"  )
+#ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC( FindByClassnameWithinBox, "Find entities by class name within an AABB. Pass 'null' to start an iteration, or reference to a previously found entity to continue a search"  )
+#endif
 END_SCRIPTDESC();
 
 // ----------------------------------------------------------------------------
@@ -815,6 +822,12 @@ static void SendToConsole( const char *pszCommand )
 	engine->ClientCommand( pPlayer->edict(), pszCommand );
 }
 
+static void SendToConsoleServer( const char *pszCommand )
+{
+	// TODO: whitelist for multiplayer
+	engine->ServerCommand( UTIL_VarArgs("%s\n", pszCommand) );
+}
+
 static const char *GetMapName()
 {
 	return STRING( gpGlobals->mapname );
@@ -827,7 +840,11 @@ static const char *DoUniqueString( const char *pszBase )
 	return szBuf;
 }
 
+#ifdef MAPBASE_VSCRIPT
+static int  DoEntFire( const char *pszTarget, const char *pszAction, const char *pszValue, float delay, HSCRIPT hActivator, HSCRIPT hCaller )
+#else
 static void DoEntFire( const char *pszTarget, const char *pszAction, const char *pszValue, float delay, HSCRIPT hActivator, HSCRIPT hCaller )
+#endif
 {
 	const char *target = "", *action = "Use";
 	variant_t value;
@@ -841,7 +858,7 @@ static void DoEntFire( const char *pszTarget, const char *pszAction, const char 
 	//    ent_fire point_servercommand command "rcon_password mynewpassword"
 	if ( gpGlobals->maxClients > 1 && V_stricmp( target, "point_servercommand" ) == 0 )
 	{
-		return;
+		return 0;
 	}
 
 	if ( *pszAction )
@@ -857,6 +874,9 @@ static void DoEntFire( const char *pszTarget, const char *pszAction, const char 
 		delay = 0;
 	}
 
+#ifdef MAPBASE_VSCRIPT
+	return
+#endif
 	g_EventQueue.AddEvent( target, action, value, delay, ToEnt(hActivator), ToEnt(hCaller) );
 }
 
@@ -891,7 +911,11 @@ HSCRIPT CreateProp( const char *pszEntityName, const Vector &vOrigin, const char
 //--------------------------------------------------------------------------------------------------
 // Use an entity's script instance to add an entity IO event (used for firing events on unnamed entities from vscript)
 //--------------------------------------------------------------------------------------------------
+#ifdef MAPBASE_VSCRIPT
+static int  DoEntFireByInstanceHandle( HSCRIPT hTarget, const char *pszAction, const char *pszValue, float delay, HSCRIPT hActivator, HSCRIPT hCaller )
+#else
 static void DoEntFireByInstanceHandle( HSCRIPT hTarget, const char *pszAction, const char *pszValue, float delay, HSCRIPT hActivator, HSCRIPT hCaller )
+#endif
 {
 	const char *action = "Use";
 	variant_t value;
@@ -914,9 +938,16 @@ static void DoEntFireByInstanceHandle( HSCRIPT hTarget, const char *pszAction, c
 	if ( !pTarget )
 	{
 		Warning( "VScript error: DoEntFire was passed an invalid entity instance.\n" );
+#ifdef MAPBASE_VSCRIPT
+		return 0;
+#else
 		return;
+#endif
 	}
 
+#ifdef MAPBASE_VSCRIPT
+	return
+#endif
 	g_EventQueue.AddEvent( pTarget, action, value, delay, ToEnt(hActivator), ToEnt(hCaller) );
 }
 
@@ -937,14 +968,16 @@ static float ScriptTraceLine( const Vector &vecStart, const Vector &vecEnd, HSCR
 }
 
 #ifdef MAPBASE_VSCRIPT
-//-----------------------------------------------------------------------------
-// Simple particle effect dispatch
-//-----------------------------------------------------------------------------
-static void ScriptDispatchParticleEffect(const char *pszParticleName, const Vector &vecOrigin, const QAngle &vecAngles)
+static bool CancelEntityIOEvent( int event )
 {
-	DispatchParticleEffect(pszParticleName, vecOrigin, vecAngles);
+	return g_EventQueue.RemoveEvent(event);
 }
-#endif
+
+static float GetEntityIOEventTimeLeft( int event )
+{
+	return g_EventQueue.GetTimeLeft(event);
+}
+#endif // MAPBASE_VSCRIPT
 
 bool VScriptServerInit()
 {
@@ -1007,7 +1040,17 @@ bool VScriptServerInit()
 				Log( "VSCRIPT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
 #endif
 
+#ifdef MAPBASE_VSCRIPT
+				// MULTIPLAYER
+				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByIndex, "GetPlayerByIndex", "PlayerInstanceFromIndex" );
+				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByUserId, "GetPlayerByUserId", "GetPlayerFromUserID" );
+				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByName, "GetPlayerByName", "" );
+				// ScriptRegisterFunctionNamed( g_pScriptVM, ScriptGetPlayerByNetworkID, "GetPlayerByNetworkID", "" );
+
 				ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_ShowMessageAll, "ShowMessage", "Print a hud message on all clients" );
+#else
+				ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_ShowMessageAll, "ShowMessage", "Print a hud message on all clients" );
+#endif
 
 				ScriptRegisterFunction( g_pScriptVM, SendToConsole, "Send a string to the console as a command" );
 				ScriptRegisterFunction( g_pScriptVM, GetMapName, "Get the name of the map.");
@@ -1016,11 +1059,15 @@ bool VScriptServerInit()
 				ScriptRegisterFunction( g_pScriptVM, Time, "Get the current server time" );
 				ScriptRegisterFunction( g_pScriptVM, FrameTime, "Get the time spent on the server in the last frame" );
 #ifdef MAPBASE_VSCRIPT
+				ScriptRegisterFunction( g_pScriptVM, SendToConsoleServer, "Send a string to the server console as a command" );
 				ScriptRegisterFunction( g_pScriptVM, MaxPlayers, "Get the maximum number of players allowed on this server" );
 				ScriptRegisterFunction( g_pScriptVM, IntervalPerTick, "Get the interval used between each tick" );
 				ScriptRegisterFunction( g_pScriptVM, DoEntFire, SCRIPT_ALIAS( "EntFire", "Generate an entity i/o event" ) );
 				ScriptRegisterFunction( g_pScriptVM, DoEntFireByInstanceHandle, SCRIPT_ALIAS( "EntFireByHandle", "Generate an entity i/o event. First parameter is an entity instance." ) );
 				// ScriptRegisterFunction( g_pScriptVM, IsValidEntity, "Returns true if the entity is valid." );
+
+				ScriptRegisterFunction( g_pScriptVM, CancelEntityIOEvent, "Remove entity I/O event." );
+				ScriptRegisterFunction( g_pScriptVM, GetEntityIOEventTimeLeft, "Get time left on entity I/O event." );
 #else
 				ScriptRegisterFunction( g_pScriptVM, DoEntFire, SCRIPT_ALIAS( "EntFire", "Generate and entity i/o event" ) );
 				ScriptRegisterFunctionNamed( g_pScriptVM, DoEntFireByInstanceHandle, "EntFireByHandle", "Generate and entity i/o event. First parameter is an entity instance." );
@@ -1033,10 +1080,7 @@ bool VScriptServerInit()
 #endif
 				ScriptRegisterFunction( g_pScriptVM, DoIncludeScript, "Execute a script (internal)" );
 				ScriptRegisterFunction( g_pScriptVM, CreateProp, "Create a physics prop" );
-#ifdef MAPBASE_VSCRIPT
-				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptDispatchParticleEffect, "DispatchParticleEffect", "Dispatches a one-off particle system" );
-#endif
-				
+
 				if ( GameRules() )
 				{
 					GameRules()->RegisterScriptFunctions();
@@ -1045,7 +1089,7 @@ bool VScriptServerInit()
 				g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
 #ifdef MAPBASE_VSCRIPT
 				g_pScriptVM->RegisterInstance( &g_ScriptDebugOverlay, "debugoverlay" );
-#endif
+#endif // MAPBASE_VSCRIPT
 
 #ifdef MAPBASE_VSCRIPT
 				g_pScriptVM->RegisterAllClasses();

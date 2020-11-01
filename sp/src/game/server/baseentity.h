@@ -581,6 +581,12 @@ public:
 	void ValidateEntityConnections();
 	void FireNamedOutput( const char *pszOutput, variant_t variant, CBaseEntity *pActivator, CBaseEntity *pCaller, float flDelay = 0.0f );
 	CBaseEntityOutput *FindNamedOutput( const char *pszOutput );
+#ifdef MAPBASE_VSCRIPT
+	void ScriptFireOutput( const char *pszOutput, HSCRIPT hActivator, HSCRIPT hCaller, const char *szValue, float flDelay );
+	float GetMaxOutputDelay( const char *pszOutput );
+	void CancelEventsByInput( const char *szInput );
+#endif
+
 
 	// Activate - called for each entity after each load game and level load
 	virtual void Activate( void );
@@ -656,6 +662,9 @@ public:
 	// handles an input (usually caused by outputs)
 	// returns true if the the value in the pass in should be set, false if the input is to be ignored
 	virtual bool AcceptInput( const char *szInputName, CBaseEntity *pActivator, CBaseEntity *pCaller, variant_t Value, int outputID );
+#ifdef MAPBASE_VSCRIPT
+	bool ScriptAcceptInput(const char *szInputName, const char *szValue, HSCRIPT hActivator, HSCRIPT hCaller);
+#endif
 
 	//
 	// Input handlers.

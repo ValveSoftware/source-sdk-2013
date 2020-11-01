@@ -31,7 +31,7 @@
 #include "squirrel/squirrel/sqvm.h"
 #include "squirrel/squirrel/sqclosure.h"
 
-
+#include "color.h"
 #include "tier1/utlbuffer.h"
 
 #include <cstdarg>
@@ -198,6 +198,9 @@ public:
 	virtual void ReleaseValue(ScriptVariant_t& value) override;
 
 	virtual bool ClearValue(HSCRIPT hScope, const char* pszKey) override;
+
+	// virtual void CreateArray(ScriptVariant_t &arr, int size = 0) override;
+	virtual bool ArrayAppend(HSCRIPT hArray, const ScriptVariant_t &val) override;
 
 	//----------------------------------------------------------------------------
 
@@ -1362,24 +1365,26 @@ struct SquirrelSafeCheck
 };
 
 
+#define CON_COLOR_VSCRIPT 80,186,255,255
+
 void printfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 {
 	va_list args;
+	char buffer[2048];
 	va_start(args, format);
-	char buffer[256];
-	vsprintf(buffer, format, args);
-	Msg("%s", buffer);
+	V_vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
+	ConColorMsg(Color(CON_COLOR_VSCRIPT), "%s", buffer);
 }
 
 void errorfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 {
 	va_list args;
+	char buffer[2048];
 	va_start(args, format);
-	char buffer[256];
-	vsprintf(buffer, format, args);
-	Warning("%s", buffer);
+	V_vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
+	Warning("%s", buffer);
 }
 
 const char * ScriptDataTypeToName(ScriptDataType_t datatype)
@@ -1595,19 +1600,7 @@ bool SquirrelVM::Init()
 
 	if (Run(
 		R"script(
-		Msg <- print;
 		Warning <- error;
-
-		// LocalTime from Source 2
-		// function LocalTime()
-		// {
-		// 	local date = ::date();
-		// 	return {
-		// 		Hours = date.hour,
-		// 		Minutes = date.min,
-		// 		Seconds = date.sec
-		// 	}
-		// }
 
 		function clamp(val,min,max)
 		{
@@ -1621,15 +1614,9 @@ bool SquirrelVM::Init()
 				return val;
 		}
 
-		function max(a,b)
-		{
-			return a > b ? a : b;
-		}
+		function max(a,b) return a > b ? a : b
 
-		function min(a,b)
-		{
-			return a < b ? a : b;
-		}
+		function min(a,b) return a < b ? a : b
 
 		function RemapVal(val, A, B, C, D)
 		{
@@ -1643,8 +1630,34 @@ bool SquirrelVM::Init()
 			if ( A == B )
 				return val >= B ? D : C;
 			local cVal = (val - A) / (B - A);
-			cVal = ::clamp( cVal, 0.0, 1.0 );
+			cVal = (cVal < 0.0) ? 0.0 : (1.0 < cVal) ? 1.0 : cVal;
 			return C + (D - C) * cVal;
+		}
+
+		function Approach( target, value, speed )
+		{
+			local delta = target - value
+
+			if( delta > speed )
+				value += speed
+			else if( delta < (-speed) )
+				value -= speed
+			else
+				value = target
+
+			return value
+		}
+
+		function AngleDistance( next, cur )
+		{
+			local delta = next - cur
+
+			if ( delta < (-180.0) )
+				delta += 360.0
+			else if ( delta > 180.0 )
+				delta -= 360.0
+
+			return delta
 		}
 
 		function printl( text )
@@ -2735,6 +2748,35 @@ bool SquirrelVM::ClearValue(HSCRIPT hScope, const char* pszKey)
 
 	sq_pop(vm_, 1);
 	return true;
+}
+/*
+void SquirrelVM::CreateArray(ScriptVariant_t &arr, int size)
+{
+	SquirrelSafeCheck safeCheck(vm_);
+
+	HSQOBJECT *obj = new HSQOBJECT;
+	sq_resetobject(obj);
+
+	sq_newarray(vm_,size);
+	sq_getstackobj(vm_, -1, obj);
+	sq_addref(vm_, obj);
+	sq_pop(vm_, 1);
+
+	arr = (HSCRIPT)obj;
+}
+*/
+bool SquirrelVM::ArrayAppend(HSCRIPT hArray, const ScriptVariant_t &val)
+{
+	SquirrelSafeCheck safeCheck(vm_);
+
+	HSQOBJECT *arr = (HSQOBJECT*)hArray;
+
+	sq_pushobject(vm_, *arr);
+	PushVariant(vm_, val);
+	bool ret = sq_arrayappend(vm_, -2) == SQ_OK;
+	sq_pop(vm_, 1);
+
+	return ret;
 }
 
 enum ClassType

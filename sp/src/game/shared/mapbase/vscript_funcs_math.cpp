@@ -389,10 +389,10 @@ void RegisterMathScriptFunctions()
 {
 	ScriptRegisterFunction( g_pScriptVM, RandomFloat, "Generate a random floating point number within a range, inclusive." );
 	ScriptRegisterFunction( g_pScriptVM, RandomInt, "Generate a random integer within a range, inclusive." );
-	ScriptRegisterFunction( g_pScriptVM, Approach, "Returns a value which approaches the target value from the input value with the specified speed." );
+	//ScriptRegisterFunction( g_pScriptVM, Approach, "Returns a value which approaches the target value from the input value with the specified speed." );
 	ScriptRegisterFunction( g_pScriptVM, ApproachAngle, "Returns an angle which approaches the target angle from the input angle with the specified speed." );
 	ScriptRegisterFunction( g_pScriptVM, AngleDiff, "Returns the degrees difference between two yaw angles." );
-	ScriptRegisterFunction( g_pScriptVM, AngleDistance, "Returns the distance between two angles." );
+	//ScriptRegisterFunction( g_pScriptVM, AngleDistance, "Returns the distance between two angles." );
 	ScriptRegisterFunction( g_pScriptVM, AngleNormalize, "Clamps an angle to be in between -360 and 360." );
 	ScriptRegisterFunction( g_pScriptVM, AngleNormalizePositive, "Clamps an angle to be in between 0 and 360." );
 	ScriptRegisterFunction( g_pScriptVM, AnglesAreEqual, "Checks if two angles are equal based on a given tolerance value." );

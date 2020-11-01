@@ -110,8 +110,6 @@ bool CLogicEventListener::KeyValue(const char *szKeyName, const char *szValue)
 //-----------------------------------------------------------------------------
 void CLogicEventListener::FireGameEvent( IGameEvent *event )
 {
-	DevMsg("Heard Event\n");
-
 	if (m_bDisabled)
 		return;
 

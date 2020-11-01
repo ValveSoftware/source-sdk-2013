@@ -151,4 +151,8 @@ class CSound;
 #include "ndebugoverlay.h"
 #include "recipientfilter.h"
 
+#ifdef MAPBASE
+#define CON_COLOR_DEV_VERBOSE 192,128,192,255
+#endif
+
 #endif // CBASE_H
