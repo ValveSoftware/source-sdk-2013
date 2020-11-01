@@ -194,6 +194,8 @@ void CWeaponHL2MPBase::Materialize( void )
 		}
 	}
 
+	SetOwnerEntity( NULL );
+
 	SetPickupTouch();
 
 	SetThink (NULL);
