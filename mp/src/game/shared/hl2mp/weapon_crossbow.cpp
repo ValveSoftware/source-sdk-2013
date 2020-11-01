@@ -199,70 +199,88 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 	if ( !pOther->IsSolid() || pOther->IsSolidFlagSet(FSOLID_VOLUME_CONTENTS) )
 		return;
 
-	if ( pOther->m_takedamage != DAMAGE_NO )
+	if (pOther->m_takedamage != DAMAGE_NO)
 	{
-		trace_t	tr, tr2;
+		trace_t	tr;
 		tr = BaseClass::GetTouchTrace();
+
 		Vector	vecNormalizedVel = GetAbsVelocity();
-
 		ClearMultiDamage();
-		VectorNormalize( vecNormalizedVel );
 
-		if( GetOwnerEntity() && GetOwnerEntity()->IsPlayer() && pOther->IsNPC() )
+		VectorNormalize(vecNormalizedVel);
+
+		if (GetOwnerEntity() && GetOwnerEntity()->IsPlayer() && pOther->IsNPC())
 		{
-			CTakeDamageInfo	dmgInfo( this, GetOwnerEntity(), m_iDamage, DMG_NEVERGIB );
+			CTakeDamageInfo    dmgInfo(this, GetOwnerEntity(), m_iDamage, DMG_NEVERGIB);
 			dmgInfo.AdjustPlayerDamageInflictedForSkillLevel();
-			CalculateMeleeDamageForce( &dmgInfo, vecNormalizedVel, tr.endpos, 0.7f );
-			dmgInfo.SetDamagePosition( tr.endpos );
-			pOther->DispatchTraceAttack( dmgInfo, vecNormalizedVel, &tr );
+			CalculateMeleeDamageForce(&dmgInfo, vecNormalizedVel, tr.endpos, 0.7f);
+			dmgInfo.SetDamagePosition(tr.endpos);
+			pOther->DispatchTraceAttack(dmgInfo, vecNormalizedVel, &tr);
 		}
 		else
 		{
-			CTakeDamageInfo	dmgInfo( this, GetOwnerEntity(), m_iDamage, DMG_BULLET | DMG_NEVERGIB );
-			CalculateMeleeDamageForce( &dmgInfo, vecNormalizedVel, tr.endpos, 0.7f );
-			dmgInfo.SetDamagePosition( tr.endpos );
-			pOther->DispatchTraceAttack( dmgInfo, vecNormalizedVel, &tr );
+			CTakeDamageInfo    dmgInfo(this, GetOwnerEntity(), m_iDamage, DMG_BULLET | DMG_NEVERGIB);
+			CalculateMeleeDamageForce(&dmgInfo, vecNormalizedVel, tr.endpos, 0.7f);
+			dmgInfo.SetDamagePosition(tr.endpos);
+			pOther->DispatchTraceAttack(dmgInfo, vecNormalizedVel, &tr);
+			// if what we hit is static architecture, can stay around for a while.
+			Vector vecDir = GetAbsVelocity();
+			float speed = VectorNormalize(vecDir);
+
+			// See if we should reflect off this surface
+			float hitDot = DotProduct(tr.plane.normal, -vecDir);
+
+			if ((hitDot < 0.5f) && (speed > 100))
+			{
+				if (pOther->GetCollisionGroup() == COLLISION_GROUP_BREAKABLE_GLASS)
+					return;
+
+				Vector vReflection = 2.0f * tr.plane.normal * hitDot + vecDir;
+
+				QAngle reflectAngles;
+
+				VectorAngles(vReflection, reflectAngles);
+
+				SetLocalAngles(reflectAngles);
+
+				SetAbsVelocity(vReflection * speed * 0.75f);
+			}
+			else
+			{
+				if (pOther->GetCollisionGroup() == COLLISION_GROUP_BREAKABLE_GLASS)
+					return;
+
+				SetThink(&CCrossbowBolt::SUB_Remove);
+				SetNextThink(gpGlobals->curtime + 2.0f);
+
+				//FIXME: We actually want to stick (with hierarchy) to what we've hit
+				SetMoveType(MOVETYPE_NONE);
+
+				Vector vForward;
+
+				AngleVectors(GetAbsAngles(), &vForward);
+				VectorNormalize(vForward);
+
+				UTIL_ImpactTrace(&tr, DMG_BULLET);
+
+				AddEffects(EF_NODRAW);
+				SetTouch(NULL);
+				SetThink(&CCrossbowBolt::SUB_Remove);
+				SetNextThink(gpGlobals->curtime + 2.0f);
+
+				if (m_pGlowSprite != NULL)
+				{
+					m_pGlowSprite->TurnOff();
+				}
+
+				if (m_pGlowTrail != NULL)
+				{
+					m_pGlowTrail->TurnOff();
+				}
+			}
 		}
 
 		ApplyMultiDamage();
-
-		//Adrian: keep going through the glass.
-		if ( pOther->GetCollisionGroup() == COLLISION_GROUP_BREAKABLE_GLASS )
-			 return;
-
-		SetAbsVelocity( Vector( 0, 0, 0 ) );
-
-		// play body "thwack" sound
-		EmitSound( "Weapon_Crossbow.BoltHitBody" );
-
-		Vector vForward;
-
-		AngleVectors( GetAbsAngles(), &vForward );
-		VectorNormalize ( vForward );
-
-		UTIL_TraceLine( GetAbsOrigin(),	GetAbsOrigin() + vForward * 128, MASK_OPAQUE, pOther, COLLISION_GROUP_NONE, &tr2 );
-
-		if ( tr2.fraction != 1.0f )
-		{
-//			NDebugOverlay::Box( tr2.endpos, Vector( -16, -16, -16 ), Vector( 16, 16, 16 ), 0, 255, 0, 0, 10 );
-//			NDebugOverlay::Box( GetAbsOrigin(), Vector( -16, -16, -16 ), Vector( 16, 16, 16 ), 0, 0, 255, 0, 10 );
-
-			if ( tr2.m_pEnt == NULL || ( tr2.m_pEnt && tr2.m_pEnt->GetMoveType() == MOVETYPE_NONE ) )
-			{
-				CEffectData	data;
-
-				data.m_vOrigin = tr2.endpos;
-				data.m_vNormal = vForward;
-				data.m_nEntIndex = tr2.fraction != 1.0f;
-			
-				DispatchEffect( "BoltImpact", data );
-			}
-		}
-		
-		SetTouch( NULL );
-		SetThink( NULL );
-
-		UTIL_Remove( this );
 	}
 	else
 	{
@@ -270,82 +288,90 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 		tr = BaseClass::GetTouchTrace();
 
 		// See if we struck the world
-		if ( pOther->GetMoveType() == MOVETYPE_NONE && !( tr.surface.flags & SURF_SKY ) )
+		if (pOther->GetCollisionGroup() == COLLISION_GROUP_NONE && !(tr.surface.flags & SURF_SKY))
 		{
-			EmitSound( "Weapon_Crossbow.BoltHitWorld" );
+			EmitSound("Weapon_Crossbow.BoltHitWorld");
 
 			// if what we hit is static architecture, can stay around for a while.
 			Vector vecDir = GetAbsVelocity();
-			float speed = VectorNormalize( vecDir );
+			float speed = VectorNormalize(vecDir);
 
 			// See if we should reflect off this surface
-			float hitDot = DotProduct( tr.plane.normal, -vecDir );
-			
-			if ( ( hitDot < 0.5f ) && ( speed > 100 ) )
+			float hitDot = DotProduct(tr.plane.normal, -vecDir);
+
+			if ((hitDot < 0.5f) && (speed > 100))
 			{
 				Vector vReflection = 2.0f * tr.plane.normal * hitDot + vecDir;
-				
+
 				QAngle reflectAngles;
 
-				VectorAngles( vReflection, reflectAngles );
+				VectorAngles(vReflection, reflectAngles);
 
-				SetLocalAngles( reflectAngles );
+				SetLocalAngles(reflectAngles);
 
-				SetAbsVelocity( vReflection * speed * 0.75f );
+				SetAbsVelocity(vReflection * speed * 0.75f);
 
 				// Start to sink faster
-				SetGravity( 1.0f );
+				SetGravity(1.0f);
 			}
 			else
 			{
-				SetThink( &CCrossbowBolt::SUB_Remove );
-				SetNextThink( gpGlobals->curtime + 2.0f );
-				
+				SetThink(&CCrossbowBolt::SUB_Remove);
+				SetNextThink(gpGlobals->curtime + 2.0f);
+
 				//FIXME: We actually want to stick (with hierarchy) to what we've hit
-				SetMoveType( MOVETYPE_NONE );
-			
+				SetMoveType(MOVETYPE_NONE);
+
 				Vector vForward;
 
-				AngleVectors( GetAbsAngles(), &vForward );
-				VectorNormalize ( vForward );
+				AngleVectors(GetAbsAngles(), &vForward);
+				VectorNormalize(vForward);
 
 				CEffectData	data;
 
 				data.m_vOrigin = tr.endpos;
 				data.m_vNormal = vForward;
 				data.m_nEntIndex = 0;
-			
-				DispatchEffect( "BoltImpact", data );
-				
-				UTIL_ImpactTrace( &tr, DMG_BULLET );
 
-				AddEffects( EF_NODRAW );
-				SetTouch( NULL );
-				SetThink( &CCrossbowBolt::SUB_Remove );
-				SetNextThink( gpGlobals->curtime + 2.0f );
+				DispatchEffect("BoltImpact", data);
 
-				if ( m_pGlowSprite != NULL )
+				Detonate();
+
+				UTIL_ImpactTrace(&tr, DMG_BULLET);
+
+				AddEffects(EF_NODRAW);
+				SetTouch(NULL);
+				SetThink(&CCrossbowBolt::SUB_Remove);
+				SetNextThink(gpGlobals->curtime + 2.0f);
+
+				if (m_pGlowSprite != NULL)
 				{
 					m_pGlowSprite->TurnOn();
-					m_pGlowSprite->FadeAndDie( 3.0f );
+					m_pGlowSprite->FadeAndDie(3.0f);
+				}
+
+				if (m_pGlowTrail != NULL)
+				{
+					m_pGlowTrail->TurnOn();
+					m_pGlowSprite->FadeAndDie(3.0f);
 				}
 			}
-			
+
 			// Shoot some sparks
-			if ( UTIL_PointContents( GetAbsOrigin() ) != CONTENTS_WATER)
+			if (UTIL_PointContents(GetAbsOrigin()) != CONTENTS_WATER)
 			{
-				g_pEffects->Sparks( GetAbsOrigin() );
+				g_pEffects->Sparks(GetAbsOrigin());
 			}
 		}
 		else
 		{
 			// Put a mark unless we've hit the sky
-			if ( ( tr.surface.flags & SURF_SKY ) == false )
+			if ((tr.surface.flags & SURF_SKY) == false)
 			{
-				UTIL_ImpactTrace( &tr, DMG_BULLET );
+				UTIL_ImpactTrace(&tr, DMG_BULLET);
 			}
 
-			UTIL_Remove( this );
+			UTIL_Remove(this);
 		}
 	}
 }
