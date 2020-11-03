@@ -160,7 +160,7 @@ bool CCrossbowBolt::CreateSprites( void )
 //-----------------------------------------------------------------------------
 void CCrossbowBolt::Spawn( void )
 {
-	Precache( );
+	Precache();
 
 	SetModel( BOLT_MODEL );
 	SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_CUSTOM );
@@ -272,11 +272,6 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 				{
 					m_pGlowSprite->TurnOff();
 				}
-
-				if (m_pGlowTrail != NULL)
-				{
-					m_pGlowTrail->TurnOff();
-				}
 			}
 		}
 
@@ -335,8 +330,6 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 
 				DispatchEffect("BoltImpact", data);
 
-				Detonate();
-
 				UTIL_ImpactTrace(&tr, DMG_BULLET);
 
 				AddEffects(EF_NODRAW);
@@ -347,12 +340,6 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 				if (m_pGlowSprite != NULL)
 				{
 					m_pGlowSprite->TurnOn();
-					m_pGlowSprite->FadeAndDie(3.0f);
-				}
-
-				if (m_pGlowTrail != NULL)
-				{
-					m_pGlowTrail->TurnOn();
 					m_pGlowSprite->FadeAndDie(3.0f);
 				}
 			}
@@ -548,7 +535,6 @@ void CWeaponCrossbow::PrimaryAttack( void )
 {
 	if ( m_bInZoom && g_pGameRules->IsMultiplayer() )
 	{
-//		FireSniperBolt();
 		FireBolt();
 	}
 	else
