@@ -35,7 +35,6 @@ public:
 
 	void	Operator_HandleAnimEvent(animevent_t *pEvent, CBaseCombatCharacter *pOperator);
 	void	PrimaryAttack( void );
-	void	Operator_HandleAnimEvent(animevent_t *pEvent, CBaseCombatCharacter *pOperator);
 	DECLARE_NETWORKCLASS(); 
 	DECLARE_PREDICTABLE();
 
