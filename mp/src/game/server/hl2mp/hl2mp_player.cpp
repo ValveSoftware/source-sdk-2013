@@ -1018,6 +1018,17 @@ bool CHL2MP_Player::ClientCommand( const CCommand &args )
 		return true;
 	}
 
+	if (!Q_stricmp(args[0], "dropprimary"))
+	{
+		if (IsAlive() &&
+			!IsInAVehicle() &&
+			HasWeapons())
+		{
+			DropActiveWeapon();
+			return true;
+		}
+	}
+
 	return BaseClass::ClientCommand( args );
 }
 
@@ -1037,6 +1048,30 @@ void CHL2MP_Player::CheatImpulseCommands( int iImpulse )
 		default:
 			BaseClass::CheatImpulseCommands( iImpulse );
 	}
+}
+
+void CHL2MP_Player::DropActiveWeapon(void)
+{
+	CBaseCombatWeapon *pCrowbar = Weapon_OwnsThisType("weapon_crowbar");
+	CBaseCombatWeapon *pStunstick = Weapon_OwnsThisType("weapon_stunstick");
+	CBaseCombatWeapon *pPhyscannon = Weapon_OwnsThisType("weapon_physcannon");
+
+	if (GetActiveWeapon() == pCrowbar)
+		return;
+
+	if (GetActiveWeapon() == pStunstick)
+		return;
+
+	if (GetActiveWeapon() == pPhyscannon)
+		return;
+
+	Vector VecForward;
+
+	EyeVectors(&VecForward, NULL, NULL);
+
+	VecForward *= 300.0f;
+
+	BaseClass::Weapon_Drop(GetActiveWeapon(), NULL, &VecForward);
 }
 
 bool CHL2MP_Player::ShouldRunRateLimitedCommand( const CCommand &args )
