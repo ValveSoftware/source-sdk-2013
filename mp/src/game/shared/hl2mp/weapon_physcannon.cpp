@@ -1827,6 +1827,7 @@ void CWeaponPhysCannon::PrimaryAttack( void )
 			{
 				// We can't punt this yet
 				DryFire();
+				m_flNextPrimaryAttack = gpGlobals->curtime + 0.5f;
 				return;
 			}
 		}
