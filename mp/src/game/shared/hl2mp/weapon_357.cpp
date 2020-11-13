@@ -94,25 +94,26 @@ void CWeapon357::Operator_HandleAnimEvent(animevent_t *pEvent, CBaseCombatCharac
 {
 	CBasePlayer *pOwner = ToBasePlayer(GetOwner());
 
-	switch (pEvent->event)
+	switch ( pEvent->event )
 	{
 		case EVENT_WEAPON_RELOAD:
-		{
-			CEffectData data;
-
-			// Emit six spent shells
-			for (int i = 0; i < 6; i++)
 			{
-				IPredictionSystem::SuppressHostEvents(NULL);
+				CEffectData data;
 
-				data.m_vOrigin = pOwner->WorldSpaceCenter() + RandomVector(-4, 4);
-				data.m_vAngles = QAngle(90, random->RandomInt(0, 360), 0);
-				data.m_nEntIndex = entindex();
+				// Emit six spent shells
+				for ( int i = 0; i < 6; i++ )
+				{
+					IPredictionSystem::SuppressHostEvents(NULL);
 
-				DispatchEffect("ShellEject", data);
+					data.m_vOrigin = pOwner->WorldSpaceCenter() + RandomVector(-4, 4);
+					data.m_vAngles = QAngle(90, random->RandomInt(0, 360), 0);
+					data.m_nEntIndex = entindex();
+
+					DispatchEffect( "ShellEject", data );
+				}
+
+				break;
 			}
-			break;
-		}
 	}
 }
 
