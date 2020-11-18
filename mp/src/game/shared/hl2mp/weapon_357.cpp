@@ -169,31 +169,4 @@ void CWeapon357::PrimaryAttack( void )
 		// HEV suit - indicate out of ammo condition
 		pPlayer->SetSuitUpdate( "!HEV_AMO0", FALSE, 0 ); 
 	}
-
-void CWeapon357::Operator_HandleAnimEvent(animevent_t *pEvent, CBaseCombatCharacter *pOperator)
-{
-	CBasePlayer *pOwner = ToBasePlayer(GetOwner());
-
-	switch (pEvent->event)
-	{
-	case EVENT_WEAPON_RELOAD:
-	{
-		CEffectData data;
-
-		// Emit six spent shells
-		for (int i = 0; i < 6; i++)
-		{
-			IPredictionSystem::SuppressHostEvents(NULL);
-
-			data.m_vOrigin = pOwner->WorldSpaceCenter() + RandomVector(-4, 4);
-			data.m_vAngles = QAngle(90, random->RandomInt(0, 360), 0);
-			data.m_nEntIndex = entindex();
-
-			DispatchEffect("ShellEject", data);
-		}
-
-		break;
-	}
-	}
-}
 }
