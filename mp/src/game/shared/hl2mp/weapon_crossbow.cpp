@@ -216,6 +216,18 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 			CalculateMeleeDamageForce(&dmgInfo, vecNormalizedVel, tr.endpos, 0.7f);
 			dmgInfo.SetDamagePosition(tr.endpos);
 			pOther->DispatchTraceAttack(dmgInfo, vecNormalizedVel, &tr);
+
+			SetMoveType(MOVETYPE_NONE);
+
+			AddEffects(EF_NODRAW);
+			SetTouch(NULL);
+			SetThink(&CCrossbowBolt::SUB_Remove);
+			SetNextThink(gpGlobals->curtime + 2.0f);
+
+			if (m_pGlowTrail != NULL)
+			{
+				m_pGlowTrail->TurnOff();
+			}
 		}
 		else
 		{
