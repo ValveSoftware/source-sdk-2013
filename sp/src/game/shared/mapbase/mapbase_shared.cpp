@@ -68,6 +68,9 @@ ConVar mapbase_load_actbusy("mapbase_load_actbusy", "1", FCVAR_ARCHIVE, "Should 
 #endif
 
 #ifdef GAME_DLL
+// This cvar should change with each Mapbase update
+ConVar mapbase_version( "mapbase_version", "6.0", FCVAR_NONE, "The version of Mapbase currently being used in this mod." );
+
 extern void MapbaseGameLog_Init();
 
 extern void ParseCustomActbusyFile(const char *file);
@@ -173,7 +176,7 @@ public:
 #ifdef GAME_DLL
 		if (g_bMapContainsCustomTalker && mapbase_flush_talker.GetBool())
 		{
-			DevMsg("Mapbase: Reloading response system to flush custom talker\n");
+			CGMsg( 1, "Mapbase Misc.", "Mapbase: Reloading response system to flush custom talker\n" );
 			ReloadResponseSystem();
 			g_bMapContainsCustomTalker = false;
 		}
@@ -183,7 +186,7 @@ public:
 	virtual void LevelInitPreEntity()
 	{
 #ifdef GAME_DLL
-		Msg("Mapbase system loaded\n");
+		CGMsg( 0, "Mapbase Misc.", "Mapbase system loaded\n" );
 #endif
 
 		// Checks gameinfo.txt for Mapbase-specific options
@@ -347,11 +350,11 @@ public:
 			return;
 		}
 
-		DevMsg("===== Mapbase Manifest: Loading manifest file %s =====\n", file);
+		CGMsg( 1, "Mapbase Misc.", "===== Mapbase Manifest: Loading manifest file %s =====\n", file );
 
 		AddManifestFile(pKV, false);
 
-		DevMsg("==============================================================================\n");
+		CGMsg( 1, "Mapbase Misc.", "==============================================================================\n" );
 
 		pKV->deleteThis();
 	}
@@ -586,7 +589,7 @@ public:
 		const char *scriptfile = STRING(m_target);
 		if ( filesystem->FileExists( scriptfile, "MOD" ) )
 		{
-			Msg("Mapbase: Adding manifest file \"%s\"\n", scriptfile);
+			CGMsg(0, "Mapbase Misc.", "Mapbase: Adding manifest file \"%s\"\n", scriptfile);
 			g_MapbaseSystem.AddManifestFile(scriptfile);
 		}
 		else

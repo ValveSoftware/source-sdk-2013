@@ -141,7 +141,7 @@ public:
 	{
 		if (i > SCRIPT_MAT_PROXY_MAX_VARS || i < 0)
 		{
-			Warning("VScriptProxy: %i out of range", i);
+			CGWarning( 0, CON_GROUP_VSCRIPT, "VScriptProxy: %i out of range", i );
 			return false;
 		}
 
@@ -261,7 +261,7 @@ bool CScriptMaterialProxy::InitScript()
 
 		if (!bResult)
 		{
-			DevMsg("VScriptProxy couldn't create ScriptScope!\n");
+			CGMsg( 1, CON_GROUP_VSCRIPT, "VScriptProxy couldn't create ScriptScope!\n" );
 			return false;
 		}
 
@@ -474,7 +474,7 @@ bool VScriptClientInit()
 #endif
 			else
 			{
-				DevWarning("-scriptlang does not recognize a language named '%s'. virtual machine did NOT start.\n", pszScriptLanguage );
+				CGWarning( 1, CON_GROUP_VSCRIPT, "-scriptlang does not recognize a language named '%s'. virtual machine did NOT start.\n", pszScriptLanguage );
 				scriptLanguage = SL_NONE;
 			}
 
@@ -487,7 +487,7 @@ bool VScriptClientInit()
 			if( g_pScriptVM )
 			{
 #ifdef MAPBASE_VSCRIPT
-				Log( "VSCRIPT CLIENT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
+				CGMsg( 0, CON_GROUP_VSCRIPT, "VSCRIPT CLIENT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
 #else
 				Log( "VSCRIPT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
 #endif
@@ -527,13 +527,13 @@ bool VScriptClientInit()
 			}
 			else
 			{
-				DevWarning("VM Did not start!\n");
+				CGWarning( 1, CON_GROUP_VSCRIPT, "VM Did not start!\n" );
 			}
 		}
 	}
 	else
 	{
-		Log( "\nVSCRIPT: Scripting is disabled.\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "\nVSCRIPT: Scripting is disabled.\n" );
 	}
 	g_pScriptVM = NULL;
 	return false;

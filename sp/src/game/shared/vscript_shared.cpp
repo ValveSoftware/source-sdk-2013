@@ -59,7 +59,7 @@ HSCRIPT VScriptCompileScript( const char *pszScriptName, bool bWarnMissing )
 	const char *pszIncomingExtension = V_strrchr( pszScriptName , '.' );
 	if ( pszIncomingExtension && V_strcmp( pszIncomingExtension, pszVMExtension ) != 0 )
 	{
-		Warning( "Script file type does not match VM type\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Script file type does not match VM type\n" );
 		return NULL;
 	}
 
@@ -91,7 +91,7 @@ HSCRIPT VScriptCompileScript( const char *pszScriptName, bool bWarnMissing )
 		if( !bResult )
 #endif
 		{
-			Warning( "Script not found (%s) \n", scriptPath.operator const char *() );
+			CGWarning( 0, CON_GROUP_VSCRIPT, "Script not found (%s) \n", scriptPath.operator const char *() );
 			Assert( "Error running script" );
 		}
 
@@ -109,7 +109,7 @@ HSCRIPT VScriptCompileScript( const char *pszScriptName, bool bWarnMissing )
 	HSCRIPT hScript = g_pScriptVM->CompileScript( pBase, pszFilename );
 	if ( !hScript )
 	{
-		Warning( "FAILED to compile and execute script file named %s\n", scriptPath.operator const char *() );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "FAILED to compile and execute script file named %s\n", scriptPath.operator const char *() );
 		Assert( "Error running script" );
 	}
 	return hScript;
@@ -126,14 +126,14 @@ bool VScriptRunScript( const char *pszScriptName, HSCRIPT hScope, bool bWarnMiss
 
 	if ( !pszScriptName || !*pszScriptName )
 	{
-		Warning( "Cannot run script: NULL script name\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Cannot run script: NULL script name\n" );
 		return false;
 	}
 
 	// Prevent infinite recursion in VM
 	if ( g_ScriptServerRunScriptDepth > 16 )
 	{
-		Warning( "IncludeScript stack overflow\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "IncludeScript stack overflow\n" );
 		return false;
 	}
 
@@ -171,13 +171,13 @@ CON_COMMAND( script, "Run the text as a script" )
 {
 	if ( !*args[1] )
 	{
-		Warning( "No function name specified\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "No function name specified\n" );
 		return;
 	}
 
 	if ( !g_pScriptVM )
 	{
-		Warning( "Scripting disabled or no server running\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
 		return;
 	}
 
@@ -226,13 +226,13 @@ CON_COMMAND_SHARED( script_execute, "Run a vscript file" )
 {
 	if ( !*args[1] )
 	{
-		Warning( "No script specified\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "No script specified\n" );
 		return;
 	}
 
 	if ( !g_pScriptVM )
 	{
-		Warning( "Scripting disabled or no server running\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
 		return;
 	}
 
@@ -243,7 +243,7 @@ CON_COMMAND_SHARED( script_debug, "Connect the vscript VM to the script debugger
 {
 	if ( !g_pScriptVM )
 	{
-		Warning( "Scripting disabled or no server running\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
 		return;
 	}
 	g_pScriptVM->ConnectDebugger();
@@ -253,7 +253,7 @@ CON_COMMAND_SHARED( script_help, "Output help for script functions, optionally w
 {
 	if ( !g_pScriptVM )
 	{
-		Warning( "Scripting disabled or no server running\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
 		return;
 	}
 	const char *pszArg1 = "*";
@@ -269,7 +269,7 @@ CON_COMMAND_SHARED( script_dump_all, "Dump the state of the VM to the console" )
 {
 	if ( !g_pScriptVM )
 	{
-		Warning( "Scripting disabled or no server running\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
 		return;
 	}
 	g_pScriptVM->DumpState();

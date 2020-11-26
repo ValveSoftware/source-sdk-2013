@@ -33,6 +33,9 @@
 
 #include "color.h"
 #include "tier1/utlbuffer.h"
+#include "tier1/mapbase_con_groups.h"
+
+#include "vscript_squirrel.nut"
 
 #include <cstdarg>
 
@@ -1365,8 +1368,6 @@ struct SquirrelSafeCheck
 };
 
 
-#define CON_COLOR_VSCRIPT 80,186,255,255
-
 void printfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 {
 	va_list args;
@@ -1374,7 +1375,7 @@ void printfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
 	va_start(args, format);
 	V_vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
-	ConColorMsg(Color(CON_COLOR_VSCRIPT), "%s", buffer);
+	CGMsg(0, CON_GROUP_VSCRIPT_PRINT, "%s", buffer);
 }
 
 void errorfunc(HSQUIRRELVM SQ_UNUSED_ARG(v), const SQChar* format, ...)
@@ -1399,6 +1400,7 @@ const char * ScriptDataTypeToName(ScriptDataType_t datatype)
 	case FIELD_BOOLEAN:		return "bool";
 	case FIELD_CHARACTER:	return "char";
 	case FIELD_HSCRIPT:		return "handle";
+	case FIELD_VARIANT:		return "variant";
 	default:				return "<unknown>";
 	}
 }
@@ -1528,6 +1530,53 @@ void RegisterConstantDocumentation( HSQUIRRELVM vm, const ScriptConstantBinding_
 	sq_pop(vm, 1);
 }
 
+void RegisterHookDocumentation(HSQUIRRELVM vm, const ScriptHook_t* pHook, const ScriptFuncDescriptor_t& pFuncDesc, ScriptClassDesc_t* pClassDesc = nullptr)
+{
+	SquirrelSafeCheck safeCheck(vm);
+
+	if (pFuncDesc.m_pszDescription && pFuncDesc.m_pszDescription[0] == SCRIPT_HIDE[0])
+		return;
+
+	char name[256] = "";
+
+	if (pClassDesc)
+	{
+		V_strcat_safe(name, pClassDesc->m_pszScriptName);
+		V_strcat_safe(name, " -> ");
+	}
+
+	V_strcat_safe(name, pFuncDesc.m_pszScriptName);
+
+
+	char signature[256] = "";
+	V_snprintf(signature, sizeof(signature), "%s %s(", ScriptDataTypeToName(pFuncDesc.m_ReturnType), name);
+
+	for (int i = 0; i < pFuncDesc.m_Parameters.Count(); ++i)
+	{
+		if (i != 0)
+			V_strcat_safe(signature, ", ");
+
+		V_strcat_safe(signature, ScriptDataTypeToName(pFuncDesc.m_Parameters[i]));
+		V_strcat_safe(signature, " [");
+		V_strcat_safe(signature, pHook->m_pszParameterNames[i]);
+		V_strcat_safe(signature, "]");
+	}
+
+	V_strcat_safe(signature, ")");
+
+	// RegisterHookHelp(name, signature, description)
+	sq_pushroottable(vm);
+	sq_pushstring(vm, "RegisterHookHelp", -1);
+	sq_get(vm, -2);
+	sq_remove(vm, -2);
+	sq_pushroottable(vm);
+	sq_pushstring(vm, name, -1);
+	sq_pushstring(vm, signature, -1);
+	sq_pushstring(vm, pFuncDesc.m_pszDescription ? pFuncDesc.m_pszDescription : "", -1);
+	sq_call(vm, 4, SQFalse, SQFalse);
+	sq_pop(vm, 1);
+}
+
 
 bool SquirrelVM::Init()
 {
@@ -1598,269 +1647,7 @@ bool SquirrelVM::Init()
 		sq_pop(vm_, 1);
 	}
 
-	if (Run(
-		R"script(
-		Warning <- error;
-
-		function clamp(val,min,max)
-		{
-			if ( max < min )
-				return max;
-			else if( val < min )
-				return min;
-			else if( val > max )
-				return max;
-			else
-				return val;
-		}
-
-		function max(a,b) return a > b ? a : b
-
-		function min(a,b) return a < b ? a : b
-
-		function RemapVal(val, A, B, C, D)
-		{
-			if ( A == B )
-				return val >= B ? D : C;
-			return C + (D - C) * (val - A) / (B - A);
-		}
-
-		function RemapValClamped(val, A, B, C, D)
-		{
-			if ( A == B )
-				return val >= B ? D : C;
-			local cVal = (val - A) / (B - A);
-			cVal = (cVal < 0.0) ? 0.0 : (1.0 < cVal) ? 1.0 : cVal;
-			return C + (D - C) * cVal;
-		}
-
-		function Approach( target, value, speed )
-		{
-			local delta = target - value
-
-			if( delta > speed )
-				value += speed
-			else if( delta < (-speed) )
-				value -= speed
-			else
-				value = target
-
-			return value
-		}
-
-		function AngleDistance( next, cur )
-		{
-			local delta = next - cur
-
-			if ( delta < (-180.0) )
-				delta += 360.0
-			else if ( delta > 180.0 )
-				delta -= 360.0
-
-			return delta
-		}
-
-		function printl( text )
-		{
-			return ::print(text + "\n");
-		}
-
-		class CSimpleCallChainer
-		{
-			constructor(prefixString, scopeForThis, exactMatch)
-			{
-				prefix = prefixString;
-				scope = scopeForThis;
-				chain = [];
-				scope["Dispatch" + prefixString] <- Call.bindenv(this);
-			}
-
-			function PostScriptExecute()
-			{
-				local func;
-				try {
-					func = scope[prefix];
-				} catch(e) {
-					return;
-				}
-				if (typeof(func) != "function")
-					return;
-				chain.push(func);
-			}
-
-			function Call()
-			{
-				foreach (func in chain)
-				{
-					func.pcall(scope);
-				}
-			}
-
-			prefix = null;
-			scope = null;
-			chain = null;
-		}
-
-		DocumentedFuncs <- {}
-		DocumentedClasses <- {}
-		DocumentedEnums <- {}
-		DocumentedConsts <- {}
-
-		function ModForAlias(name, signature, description)
-		{
-			// This is an alias function, could use split() if we could guarantee
-			// that ':' would not occur elsewhere in the description and Squirrel had
-			// a convience join() function -- It has split()
-			local colon = description.find(":");
-			if (colon == null)
-				colon = description.len();
-			local alias = description.slice(1, colon);
-			description = description.slice(colon + 1);
-			name = alias;
-			signature = null;
-		}
-
-		function RegisterHelp(name, signature, description)
-		{
-			if (description.len() && description[0] == '#')
-			{
-				ModForAlias(name, signature, description)
-			}
-			DocumentedFuncs[name] <- [signature, description];
-		}
-
-		function RegisterClassHelp(name, baseclass, description)
-		{
-			DocumentedClasses[name] <- [baseclass, description];
-		}
-
-		function RegisterEnumHelp(name, description)
-		{
-			DocumentedEnums[name] <- description;
-		}
-
-		function RegisterConstHelp(name, signature, description)
-		{
-			if (description.len() && description[0] == '#')
-			{
-				ModForAlias(name, signature, description)
-			}
-			DocumentedConsts[name] <- [signature, description];
-		}
-
-		function PrintClass(name, doc)
-		{
-			printl("=====================================");
-			printl("Class:    " + name);
-			printl("Base:   " + doc[0]);
-			if (doc[1].len())
-				printl("Description: " + doc[1]);
-			printl("=====================================");
-			print("\n");
-		}
-
-		function PrintFunc(name, doc)
-		{
-			printl("Function:    " + name);
-			if (doc[0] == null)
-			{
-				// Is an aliased function
-				print("Signature:   function " + name + "(");
-				foreach(k,v in this[name].getinfos().parameters)
-				{
-					if (k == 0 && v == "this") continue;
-					if (k > 1) print(", ");
-					print(v);
-				}
-				printl(")");
-			}
-			else
-			{
-				printl("Signature:   " + doc[0]);
-			}
-			if (doc[1].len())
-				printl("Description: " + doc[1]);
-			print("\n");
-		}
-
-		function PrintEnum(name, doc)
-		{
-			printl("=====================================");
-			printl("Enum:    " + name);
-			if (doc.len())
-				printl("Description: " + doc);
-			printl("=====================================");
-			print("\n");
-		}
-
-		function PrintConst(name, doc)
-		{
-			printl("Constant:    " + name);
-			if (doc[0] == null)
-			{
-				// Is an aliased function
-				print("Signature:   function " + name + "(");
-				foreach(k,v in this[name].getinfos().parameters)
-				{
-					if (k == 0 && v == "this") continue;
-					if (k > 1) print(", ");
-					print(v);
-				}
-				printl(")");
-			}
-			else
-			{
-				printl("Value:   " + doc[0]);
-			}
-			if (doc[1].len())
-				printl("Description: " + doc[1]);
-			print("\n");
-		}
-
-		function PrintHelp(pattern = "*")
-		{
-			local foundMatches = false;
-			foreach(name, doc in DocumentedClasses)
-			{
-				if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
-				{
-					foundMatches = true;
-					PrintClass(name, doc)
-				}
-			}
-
-			foreach(name, doc in DocumentedFuncs)
-			{
-				if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
-				{
-					foundMatches = true;
-					PrintFunc(name, doc)
-				}
-			}
-
-			foreach(name, doc in DocumentedEnums)
-			{
-				if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
-				{
-					foundMatches = true;
-					PrintEnum(name, doc)
-				}
-			}
-
-			foreach(name, doc in DocumentedConsts)
-			{
-				if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
-				{
-					foundMatches = true;
-					PrintConst(name, doc)
-				}
-			}
-
-			if (!foundMatches)
-				printl("Pattern " + pattern + " not found");
-		}
-
-		)script") != SCRIPT_DONE)
+	if (Run(g_Script_vscript_squirrel) != SCRIPT_DONE)
 	{
 		this->Shutdown();
 		return false;
@@ -2295,6 +2082,13 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 		sq_newslot(vm_, -3, isStatic);
 
 		RegisterDocumentation(vm_, scriptFunction.m_desc, pClassDesc);
+	}
+
+	for (int i = 0; i < pClassDesc->m_Hooks.Count(); ++i)
+	{
+		auto& scriptHook = pClassDesc->m_Hooks[i];
+
+		RegisterHookDocumentation(vm_, scriptHook, scriptHook->m_desc, pClassDesc);
 	}
 
 	sq_pushstring(vm_, pClassDesc->m_pszScriptName, -1);

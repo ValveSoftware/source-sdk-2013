@@ -32,9 +32,6 @@
 #include "gib.h"
 #include "CRagdollMagnet.h"
 #endif
-#ifdef MAPBASE_VSCRIPT
-#include "mapbase/vscript_funcs_math.h"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -2205,7 +2202,7 @@ HSCRIPT CBaseAnimating::ScriptGetAttachmentMatrix( int iAttachment )
 	static matrix3x4_t matrix;
 
 	CBaseAnimating::GetAttachment( iAttachment, matrix );
-	return ScriptCreateMatrixInstance( matrix );
+	return g_pScriptVM->RegisterInstance( &matrix );
 }
 
 float CBaseAnimating::ScriptGetPoseParameter( const char* szName )
@@ -2233,7 +2230,7 @@ void CBaseAnimating::ScriptGetBoneTransform( int iBone, HSCRIPT hTransform )
 	if (hTransform == NULL)
 		return;
 
-	GetBoneTransform( iBone, *ToMatrix3x4( hTransform ) );
+	GetBoneTransform( iBone, *HScriptToClass<matrix3x4_t>( hTransform ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -2250,12 +2247,9 @@ HSCRIPT CBaseAnimating::ScriptGetSequenceKeyValues( int iSequence )
 	if ( pSeqKeyValues )
 	{
 		// UNDONE: how does destructor get called on this
-		m_pScriptModelKeyValues = new CScriptKeyValues( pSeqKeyValues );
+		m_pScriptModelKeyValues = hScript = scriptmanager->CreateScriptKeyValues( g_pScriptVM, pSeqKeyValues, true );
 
 		// UNDONE: who calls ReleaseInstance on this??? Does name need to be unique???
-
-		// Allow VScript to delete this when the instance is removed.
-		hScript = g_pScriptVM->RegisterInstance( m_pScriptModelKeyValues, true );
 	}
 
 	return hScript;

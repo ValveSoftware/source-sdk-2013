@@ -49,6 +49,9 @@ private:
 	// ------------------------------
 	void InputLightOn( inputdata_t &inputdata );
 	void InputLightOff( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputLightToggle( inputdata_t &inputdata ) { m_bSpotlightOn ? InputLightOff(inputdata) : InputLightOn(inputdata); }
+#endif
 
 	// Creates the efficient spotlight 
 	void CreateEfficientSpotlight();
@@ -99,6 +102,9 @@ BEGIN_DATADESC( CPointSpotlight )
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID,		"LightOn",		InputLightOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"LightOff",		InputLightOff ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_VOID,		"LightToggle",		InputLightToggle ),
+#endif
 	DEFINE_OUTPUT( m_OnOn, "OnLightOn" ),
 	DEFINE_OUTPUT( m_OnOff, "OnLightOff" ),
 

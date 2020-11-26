@@ -483,6 +483,9 @@ BEGIN_DATADESC( CBasePlayer )
 END_DATADESC()
 
 #ifdef MAPBASE_VSCRIPT
+// TODO: Better placement?
+ScriptHook_t	g_Hook_PlayerRunCommand;
+
 BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseCombatCharacter, "The player entity." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptIsPlayerNoclipping, "IsNoclipping", "Returns true if the player is in noclip mode." ) 
@@ -522,6 +525,21 @@ BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseCombatCharacter, "The player entity." )
 	DEFINE_SCRIPTFUNC( GetFOV, "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetFOVOwner, "GetFOVOwner", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetFOV, "SetFOV", "" )
+
+	DEFINE_SCRIPTFUNC( ViewPunch, "Punches the player's view with the specified vector." )
+	DEFINE_SCRIPTFUNC( SetMuzzleFlashTime, "Sets the player's muzzle flash time for AI." )
+	DEFINE_SCRIPTFUNC( SetSuitUpdate, "Sets an update for the player's HEV suit." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAutoaimVector, "GetAutoaimVector", "Gets the player's autoaim shooting direction with the specified scale." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAutoaimVectorCustomMaxDist, "GetAutoaimVectorCustomMaxDist", "Gets the player's autoaim shooting direction with the specified scale and a custom max distance." )
+	DEFINE_SCRIPTFUNC( ShouldAutoaim, "Returns true if the player should be autoaiming." )
+
+	// 
+	// Hooks
+	// 
+	BEGIN_SCRIPTHOOK( g_Hook_PlayerRunCommand, "PlayerRunCommand", FIELD_VOID, "Called when running a player command on the server." )
+		DEFINE_SCRIPTHOOK_PARAM( "command", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
 
 END_SCRIPTDESC();
 #else
@@ -3802,13 +3820,13 @@ void CBasePlayer::PlayerRunCommand(CUserCmd *ucmd, IMoveHelper *moveHelper)
 
 #ifdef MAPBASE_VSCRIPT
 	// Movement hook for VScript
-	if ( HSCRIPT hFunc = LookupScriptFunction("PlayerRunCommand") )
+	if (m_ScriptScope.IsInitialized() && g_Hook_PlayerRunCommand.CanRunInScope(m_ScriptScope))
 	{
 		HSCRIPT hCmd = g_pScriptVM->RegisterInstance( ucmd );
 
-		g_pScriptVM->SetValue( "command", hCmd );
-		CallScriptFunctionHandle( hFunc, NULL );
-		g_pScriptVM->ClearValue( "command" );
+		// command
+		ScriptVariant_t args[] = { hCmd };
+		g_Hook_PlayerRunCommand.Call( m_ScriptScope, NULL, args );
 
 		g_pScriptVM->RemoveInstance( hCmd );
 	}

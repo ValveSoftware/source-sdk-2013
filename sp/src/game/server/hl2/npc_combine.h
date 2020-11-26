@@ -23,6 +23,7 @@
 #include "ai_baseactor.h"
 #ifdef MAPBASE
 #include "mapbase/ai_grenade.h"
+#include "ai_behavior_police.h"
 #endif
 #ifdef EXPANDED_RESPONSE_SYSTEM_USAGE
 #include "mapbase/expandedrs_combine.h"
@@ -74,6 +75,10 @@ public:
 
 	virtual Vector  GetCrouchEyeOffset( void );
 
+#ifdef MAPBASE
+	virtual bool	IsCrouchedActivity( Activity activity );
+#endif
+
 	void Event_Killed( const CTakeDamageInfo &info );
 
 
@@ -95,6 +100,8 @@ public:
 	void InputDropGrenade( inputdata_t &inputdata );
 
 	void InputSetTacticalVariant( inputdata_t &inputdata );
+
+	void InputSetPoliceGoal( inputdata_t &inputdata );
 #endif
 
 	bool			UpdateEnemyMemory( CBaseEntity *pEnemy, const Vector &position, CBaseEntity *pInformer = NULL );
@@ -353,6 +360,9 @@ private:
 	CAI_FuncTankBehavior		m_FuncTankBehavior;
 	CAI_RappelBehavior			m_RappelBehavior;
 	CAI_ActBusyBehavior			m_ActBusyBehavior;
+#ifdef MAPBASE
+	CAI_PolicingBehavior		m_PolicingBehavior;
+#endif
 
 public:
 	int				m_iLastAnimEventHandled;

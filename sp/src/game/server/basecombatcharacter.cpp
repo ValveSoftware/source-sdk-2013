@@ -158,6 +158,7 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponIndex, "GetWeapon", "Get a specific weapon in the character's inventory." )
 	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponByType, "FindWeapon", "Find a specific weapon in the character's inventory by its classname." )
 	DEFINE_SCRIPTFUNC_NAMED( GetScriptAllWeapons, "GetAllWeapons", "Get the character's weapon inventory." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetCurrentWeaponProficiency, "GetCurrentWeaponProficiency", "Get the character's current proficiency (accuracy) with their current weapon." )
 
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_ShootPosition, "ShootPosition", "Get the character's shoot position." )
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_DropAll, "DropAllWeapons", "Make the character drop all of its weapons." )
@@ -165,6 +166,10 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAmmoCount, "GetAmmoCount", "Get the ammo count of the specified ammo type." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAmmoCount, "SetAmmoCount", "Set the ammo count of the specified ammo type." )
+
+	DEFINE_SCRIPTFUNC( DoMuzzleFlash, "Does a muzzle flash." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttackSpread, "GetAttackSpread", "Get the attack spread." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSpreadBias, "GetSpreadBias", "Get the spread bias." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptRelationType, "GetRelationship", "Get a character's relationship to a specific entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptRelationPriority, "GetRelationPriority", "Get a character's relationship priority for a specific entity." )
@@ -1704,6 +1709,25 @@ Killed
 */
 void CBaseCombatCharacter::Event_Killed( const CTakeDamageInfo &info )
 {
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_OnDeath.CanRunInScope( m_ScriptScope ))
+	{
+		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
+
+		// info
+		ScriptVariant_t functionReturn;
+		ScriptVariant_t args[] = { ScriptVariant_t( hInfo ) };
+		if ( g_Hook_OnDeath.Call( m_ScriptScope, &functionReturn, args ) && (functionReturn.m_type == FIELD_BOOLEAN && functionReturn.m_bool == false) )
+		{
+			// Make this entity cheat death
+			g_pScriptVM->RemoveInstance( hInfo );
+			return;
+		}
+
+		g_pScriptVM->RemoveInstance( hInfo );
+	}
+#endif
+
 	extern ConVar npc_vphysics;
 
 	// Advance life state to dying
@@ -4435,6 +4459,37 @@ void CBaseCombatCharacter::ScriptSetAmmoCount( int iType, int iCount )
 	}
 
 	return SetAmmoCount( iCount, iType );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+const Vector& CBaseCombatCharacter::ScriptGetAttackSpread( HSCRIPT hWeapon, HSCRIPT hTarget )
+{
+	CBaseEntity *pWeapon = ToEnt( hWeapon );
+	if (!pWeapon || !pWeapon->IsBaseCombatWeapon())
+	{
+		Warning( "GetAttackSpread: %s is not a valid weapon\n", pWeapon ? pWeapon->GetDebugName() : "Null entity" );
+		return vec3_origin;
+	}
+
+	// TODO: Make this a simple non-reference Vector?
+	static Vector vec;
+	vec = GetAttackSpread( pWeapon->MyCombatWeaponPointer(), ToEnt( hTarget ) );
+	return vec;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+float CBaseCombatCharacter::ScriptGetSpreadBias( HSCRIPT hWeapon, HSCRIPT hTarget )
+{
+	CBaseEntity *pWeapon = ToEnt( hWeapon );
+	if (!pWeapon || !pWeapon->IsBaseCombatWeapon())
+	{
+		Warning( "GetSpreadBias: %s is not a valid weapon\n", pWeapon ? pWeapon->GetDebugName() : "Null entity" );
+		return 1.0f;
+	}
+
+	return GetSpreadBias( pWeapon->MyCombatWeaponPointer(), ToEnt( hTarget ) );
 }
 
 //-----------------------------------------------------------------------------

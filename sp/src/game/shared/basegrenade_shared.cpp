@@ -74,6 +74,28 @@ void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const voi
 
 #endif
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CBaseGrenade, CBaseAnimating, "The base class for grenades." )
+
+	DEFINE_SCRIPTFUNC( GetBlastForce, "Gets the grenade's blast force override. Grenades which use base damage force calculations return 0,0,0" )
+
+	DEFINE_SCRIPTFUNC( GetDamage, "Gets the grenade's blast damage." )
+	DEFINE_SCRIPTFUNC( GetDamageRadius, "Gets the grenade's blast damage radius." )
+	DEFINE_SCRIPTFUNC( SetDamage, "Sets the grenade's blast damage." )
+	DEFINE_SCRIPTFUNC( SetDamageRadius, "Sets the grenade's blast damage radius." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetThrower, "GetThrower", "Gets the grenade's thrower." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetThrower, "SetThrower", "Sets the grenade's thrower." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetOriginalThrower, "GetOriginalThrower", "Gets the grenade's original thrower after the thrower was changed due to being picked up by a gravity gun or something." )
+
+	DEFINE_SCRIPTFUNC_NAMED( GetDetonateTime, "GetTimer", "Gets the grenade's detonate time if it has one." )
+	DEFINE_SCRIPTFUNC( HasWarnedAI, "Whether or not the grenade has issued its DANGER sound to the world sound list yet." )
+	DEFINE_SCRIPTFUNC( IsLive, "Whether or not the grenade has issued its DANGER sound to the world sound list yet." )
+	DEFINE_SCRIPTFUNC( GetWarnAITime, "Gets the time at which the grenade will warn/has warned AI." )
+
+END_SCRIPTDESC();
+#endif
+
 IMPLEMENT_NETWORKCLASS_ALIASED( BaseGrenade, DT_BaseGrenade )
 
 BEGIN_NETWORK_TABLE( CBaseGrenade, DT_BaseGrenade )

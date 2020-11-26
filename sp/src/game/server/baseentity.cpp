@@ -66,9 +66,6 @@
 #include "mapbase/matchers.h"
 #include "mapbase/datadesc_mod.h"
 #endif
-#ifdef MAPBASE_VSCRIPT
-#include "mapbase/vscript_funcs_math.h"
-#endif
 
 #if defined( TF_DLL )
 #include "tf_gamerules.h"
@@ -625,6 +622,18 @@ CBaseEntity *CBaseEntity::GetFollowedEntity()
 		return NULL;
 	return GetMoveParent();
 }
+
+#ifdef MAPBASE_VSCRIPT
+void CBaseEntity::ScriptFollowEntity( HSCRIPT hBaseEntity, bool bBoneMerge )
+{
+	FollowEntity( ToEnt( hBaseEntity ), bBoneMerge );
+}
+
+HSCRIPT CBaseEntity::ScriptGetFollowedEntity()
+{
+	return ToHScript( GetFollowedEntity() );
+}
+#endif
 
 void CBaseEntity::SetClassname( const char *className )
 {
@@ -1717,6 +1726,25 @@ int CBaseEntity::VPhysicsTakeDamage( const CTakeDamageInfo &info )
 	// Character killed (only fired once)
 void CBaseEntity::Event_Killed( const CTakeDamageInfo &info )
 {
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_OnDeath.CanRunInScope( m_ScriptScope ))
+	{
+		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
+
+		// info
+		ScriptVariant_t functionReturn;
+		ScriptVariant_t args[] = { ScriptVariant_t( hInfo ) };
+		if ( g_Hook_OnDeath.Call( m_ScriptScope, &functionReturn, args ) && (functionReturn.m_type == FIELD_BOOLEAN && functionReturn.m_bool == false) )
+		{
+			// Make this entity cheat death
+			g_pScriptVM->RemoveInstance( hInfo );
+			return;
+		}
+
+		g_pScriptVM->RemoveInstance( hInfo );
+	}
+#endif
+
 	if( info.GetAttacker() )
 	{
 		info.GetAttacker()->Event_KilledOther(this, info);
@@ -2181,6 +2209,13 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 END_DATADESC()
 
 
+#ifdef MAPBASE_VSCRIPT
+ScriptHook_t	CBaseEntity::g_Hook_UpdateOnRemove;
+ScriptHook_t	CBaseEntity::g_Hook_VPhysicsCollision;
+ScriptHook_t	CBaseEntity::g_Hook_FireBullets;
+ScriptHook_t	CBaseEntity::g_Hook_OnDeath;
+#endif
+
 BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities" )
 	DEFINE_SCRIPT_INSTANCE_HELPER( &g_BaseEntityScriptInstanceHelper )
 	DEFINE_SCRIPTFUNC_NAMED( ConnectOutputToScript, "ConnectOutput", "Adds an I/O connection that will call the named function when the specified output fires"  )
@@ -2294,6 +2329,11 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetContext, "GetContext", "Get a response context value" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddContext, "AddContext", "Add a response context value" )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptFollowEntity, "FollowEntity", "Begin following the specified entity. This makes this entity non-solid, parents it to the target entity, and teleports it to the specified entity's origin. The second parameter is whether or not to use bonemerging while following." )
+	DEFINE_SCRIPTFUNC( StopFollowingEntity, "Stops following an entity if we're following one." )
+	DEFINE_SCRIPTFUNC( IsFollowingEntity, "Returns true if this entity is following another entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetFollowedEntity, "GetFollowedEntity", "Get the entity we're following." )
+
 	DEFINE_SCRIPTFUNC_NAMED( ScriptClassify, "Classify", "Get Class_T class ID" )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAcceptInput, "AcceptInput", "" )
@@ -2395,6 +2435,29 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptStopThinkFunction, "StopThinkFunction", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetThink, "SetThink", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptStopThink, "StopThink", "" )
+
+	// 
+	// Hooks
+	// 
+	DEFINE_SIMPLE_SCRIPTHOOK( CBaseEntity::g_Hook_UpdateOnRemove, "UpdateOnRemove", FIELD_VOID, "Called when the entity is being removed." )
+
+	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_VPhysicsCollision, "VPhysicsCollision", FIELD_VOID, "Called for every single VPhysics-related collision experienced by this entity." )
+		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "speed", FIELD_FLOAT )
+		DEFINE_SCRIPTHOOK_PARAM( "point", FIELD_VECTOR )
+		DEFINE_SCRIPTHOOK_PARAM( "normal", FIELD_VECTOR )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_FireBullets, "FireBullets", FIELD_VOID, "Called for every single VPhysics-related collision experienced by this entity." )
+		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "speed", FIELD_FLOAT )
+		DEFINE_SCRIPTHOOK_PARAM( "point", FIELD_VECTOR )
+		DEFINE_SCRIPTHOOK_PARAM( "normal", FIELD_VECTOR )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_OnDeath, "OnDeath", FIELD_BOOLEAN, "Called when the entity dies (Event_Killed). Returning false makes the entity cancel death, although this could have unforeseen consequences. For hooking any damage instead of just death, see filter_script and PassesFinalDamageFilter." )
+		DEFINE_SCRIPTHOOK_PARAM( "info", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
 #endif
 END_SCRIPTDESC();
 
@@ -2502,10 +2565,9 @@ void CBaseEntity::UpdateOnRemove( void )
 	if ( m_hScriptInstance )
 	{
 #ifdef MAPBASE_VSCRIPT
-		HSCRIPT hFunc = LookupScriptFunction("UpdateOnRemove");
-		if ( hFunc )
+		if (m_ScriptScope.IsInitialized())
 		{
-			CallScriptFunctionHandle( hFunc, NULL );
+			g_Hook_UpdateOnRemove.Call( m_ScriptScope, NULL, NULL );
 		}
 #endif // MAPBASE_VSCRIPT
 
@@ -3109,26 +3171,17 @@ void CBaseEntity::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 	CBaseEntity *pHitEntity = pEvent->pEntities[otherIndex];
 
 #ifdef MAPBASE_VSCRIPT
-	if (HSCRIPT hFunc = LookupScriptFunction("VPhysicsCollision"))
+	if (m_ScriptScope.IsInitialized() && g_Hook_VPhysicsCollision.CanRunInScope(m_ScriptScope))
 	{
-		// TODO: Unique class for collision events
-		g_pScriptVM->SetValue( "entity", ScriptVariant_t( pHitEntity->GetScriptInstance() ) );
-		g_pScriptVM->SetValue( "speed", pEvent->collisionSpeed );
-
 		Vector vecContactPoint;
 		pEvent->pInternalData->GetContactPoint( vecContactPoint );
-		g_pScriptVM->SetValue( "point", vecContactPoint );
 
 		Vector vecSurfaceNormal;
 		pEvent->pInternalData->GetSurfaceNormal( vecSurfaceNormal );
-		g_pScriptVM->SetValue( "normal", vecSurfaceNormal );
 
-		CallScriptFunctionHandle( hFunc, NULL );
-
-		g_pScriptVM->ClearValue( "entity" );
-		g_pScriptVM->ClearValue( "speed" );
-		g_pScriptVM->ClearValue( "point" );
-		g_pScriptVM->ClearValue( "normal" );
+		// entity, speed, point, normal
+		ScriptVariant_t args[] = { ScriptVariant_t( pHitEntity->GetScriptInstance() ), pEvent->collisionSpeed, vecContactPoint, vecSurfaceNormal };
+		g_Hook_VPhysicsCollision.Call( m_ScriptScope, NULL, args );
 	}
 #endif
 
@@ -4454,7 +4507,7 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 
 					// mapper debug message
 #ifdef MAPBASE
-					ConColorMsg( 2, Color(CON_COLOR_DEV_VERBOSE), "(%0.2f) input %s: %s.%s(%s)\n", gpGlobals->curtime, pCaller ? STRING(pCaller->m_iName.Get()) : "<NULL>", GetDebugName(), szInputName, Value.String() );
+					CGMsg( 2, CON_GROUP_IO_SYSTEM, "(%0.2f) input %s: %s.%s(%s)\n", gpGlobals->curtime, pCaller ? STRING(pCaller->m_iName.Get()) : "<NULL>", GetDebugName(), szInputName, Value.String() );
 #else
 					DevMsg( 2, "(%0.2f) input %s: %s.%s(%s)\n", gpGlobals->curtime, pCaller ? STRING(pCaller->m_iName.Get()) : "<NULL>", GetDebugName(), szInputName, Value.String() );
 #endif
@@ -4591,7 +4644,7 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 	}
 
 #ifdef MAPBASE
-	ConColorMsg( 2, Color(CON_COLOR_DEV_VERBOSE), "unhandled input: (%s) -> (%s,%s)\n", szInputName, STRING(m_iClassname), GetDebugName() );
+	CGMsg( 2, CON_GROUP_IO_SYSTEM, "unhandled input: (%s) -> (%s,%s)\n", szInputName, STRING(m_iClassname), GetDebugName() );
 #else
 	DevMsg( 2, "unhandled input: (%s) -> (%s,%s)\n", szInputName, STRING(m_iClassname), GetDebugName()/*,", from (%s,%s)" STRING(pCaller->m_iClassname), STRING(pCaller->m_iName.Get())*/ );
 #endif
@@ -9805,7 +9858,11 @@ void CBaseEntity::RunVScripts()
 
 	for (int i = 0; i < szScripts.Count(); i++)
 	{
+#ifdef MAPBASE
+		CGMsg( 0, CON_GROUP_VSCRIPT, "%s executing script: %s\n", GetDebugName(), szScripts[i] );
+#else
 		Log( "%s executing script: %s\n", GetDebugName(), szScripts[i]);
+#endif
 
 		RunScriptFile(szScripts[i], IsWorld());
 
@@ -9916,14 +9973,15 @@ HSCRIPT CBaseEntity::ScriptGetModelKeyValues( void )
 	if ( pModelKeyValues->LoadFromBuffer( pszModelName, pBuffer ) )
 	{
 		// UNDONE: how does destructor get called on this
+#ifdef MAPBASE_VSCRIPT
+		m_pScriptModelKeyValues = hScript = scriptmanager->CreateScriptKeyValues( g_pScriptVM, pModelKeyValues, true ); // Allow VScript to delete this when the instance is removed.
+#else
 		m_pScriptModelKeyValues = new CScriptKeyValues( pModelKeyValues );
+#endif
 
 		// UNDONE: who calls ReleaseInstance on this??? Does name need to be unique???
 
-#ifdef MAPBASE_VSCRIPT
-		// Allow VScript to delete this when the instance is removed.
-		hScript = g_pScriptVM->RegisterInstance( m_pScriptModelKeyValues, true );
-#else
+#ifndef MAPBASE_VSCRIPT
 		hScript = g_pScriptVM->RegisterInstance( m_pScriptModelKeyValues );
 #endif
 		
@@ -10073,7 +10131,7 @@ void CBaseEntity::ScriptSetColor( int r, int g, int b )
 //-----------------------------------------------------------------------------
 HSCRIPT CBaseEntity::ScriptEntityToWorldTransform( void )
 {
-	return ScriptCreateMatrixInstance( EntityToWorldTransform() );
+	return g_pScriptVM->RegisterInstance( &EntityToWorldTransform() );
 }
 
 //-----------------------------------------------------------------------------

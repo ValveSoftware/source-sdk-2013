@@ -19,6 +19,9 @@
 #include "qfiles.h"
 #include "utilmatlib.h"
 #include "ChunkFile.h"
+#ifdef MAPBASE_VSCRIPT
+#include "vscript/ivscript.h"
+#endif
 
 #ifdef WIN32
 #pragma warning( disable: 4706 )
@@ -340,6 +343,32 @@ public:
 
 	int					m_StartMapOverlays;
 	int					m_StartMapWaterOverlays;
+
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT				GetScriptInstance();
+
+	// VScript functions
+	ALLOW_SCRIPT_ACCESS();
+private:
+
+	const Vector&	GetMins() { return map_mins; }
+	const Vector&	GetMaxs() { return map_maxs; }
+
+	int				GetNumMapBrushes() { return nummapbrushes; }
+
+	const Vector&	GetEntityOrigin(int idx) { return (idx < num_entities && idx >= 0) ? entities[idx].origin : vec3_origin; }
+	int				GetEntityFirstBrush(int idx) { return (idx < num_entities && idx >= 0) ? entities[idx].firstbrush : 0; }
+	int				GetEntityNumBrushes(int idx) { return (idx < num_entities && idx >= 0) ? entities[idx].numbrushes : 0; }
+
+	void			ScriptGetEntityKeyValues(int idx, HSCRIPT hKeyTable, HSCRIPT hValTable);
+
+	int				ScriptAddSimpleEntityKV(HSCRIPT hKV/*, const Vector& vecOrigin, int iFirstBrush, int iNumBrushes*/);
+	int				ScriptAddInstance(const char *pszVMF, const Vector& vecOrigin, const QAngle& angAngles);
+
+	int				GetNumEntities() { return num_entities; }
+
+	HSCRIPT			m_hScriptInstance;
+#endif
 };
 
 extern CMapFile	*g_MainMap;

@@ -32,6 +32,7 @@ extern CBaseEntityScriptInstanceHelper g_BaseEntityScriptInstanceHelper;
 // Only allow scripts to create entities during map initialization
 bool IsEntityCreationAllowedInScripts( void );
 
+#ifndef MAPBASE_VSCRIPT // Mapbase adds this to the base library so that CScriptKeyValues can be accessed anywhere, like VBSP.
 // ----------------------------------------------------------------------------
 // KeyValues access
 // ----------------------------------------------------------------------------
@@ -50,25 +51,9 @@ public:
 	bool ScriptIsKeyValueEmpty( const char *pszName );
 	bool ScriptGetKeyValueBool( const char *pszName );
 	void ScriptReleaseKeyValues( );
-#ifdef MAPBASE_VSCRIPT
-	const char *ScriptGetName();
-	int ScriptGetInt();
-	float ScriptGetFloat();
-	const char *ScriptGetString();
-	bool ScriptGetBool();
-
-	void ScriptSetKeyValueInt( const char *pszName, int iValue );
-	void ScriptSetKeyValueFloat( const char *pszName, float flValue );
-	void ScriptSetKeyValueString( const char *pszName, const char *pszValue );
-	void ScriptSetKeyValueBool( const char *pszName, bool bValue );
-	void ScriptSetName( const char *pszValue );
-	void ScriptSetInt( int iValue );
-	void ScriptSetFloat( float flValue );
-	void ScriptSetString( const char *pszValue );
-	void ScriptSetBool( bool bValue );
-#endif
 
 	KeyValues *m_pKeyValues;	// actual KeyValue entity
 };
+#endif
 
 #endif // VSCRIPT_SERVER_H

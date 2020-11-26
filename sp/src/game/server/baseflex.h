@@ -138,6 +138,10 @@ public:
 
 	virtual int			GetSpecialDSP( void ) { return 0; }
 
+#ifdef MAPBASE
+	virtual bool		GetGameTextSpeechParams( hudtextparms_t &params );
+#endif
+
 protected:
 	// For handling .vfe files
 	// Search list, or add if not in list

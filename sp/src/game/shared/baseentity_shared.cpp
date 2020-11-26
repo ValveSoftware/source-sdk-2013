@@ -1613,21 +1613,19 @@ typedef CTraceFilterSimpleList CBulletsTraceFilter;
 void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 {
 #if defined(MAPBASE_VSCRIPT) && defined(GAME_DLL)
-	if (HSCRIPT hFunc = LookupScriptFunction("FireBullets"))
+	if (m_ScriptScope.IsInitialized())
 	{
 		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( const_cast<FireBulletsInfo_t*>(&info) );
 
-		g_pScriptVM->SetValue( "info", hInfo );
-
 		ScriptVariant_t functionReturn;
-		CallScriptFunctionHandle( hFunc, &functionReturn );
+		ScriptVariant_t args[] = { hInfo };
+		if (g_Hook_FireBullets.Call( m_ScriptScope, &functionReturn, args ))
+		{
+			if (!functionReturn.m_bool)
+				return;
+		}
 
 		g_pScriptVM->RemoveInstance( hInfo );
-
-		g_pScriptVM->ClearValue( "info" );
-
-		if (!functionReturn.m_bool)
-			return;
 	}
 #endif
 

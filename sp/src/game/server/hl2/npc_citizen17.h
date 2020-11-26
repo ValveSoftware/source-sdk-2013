@@ -13,6 +13,7 @@
 #include "ai_behavior_functank.h"
 #ifdef MAPBASE
 #include "ai_behavior_rappel.h"
+#include "ai_behavior_police.h"
 #endif
 
 struct SquadCandidate_t;
@@ -263,6 +264,9 @@ public:
 	void			InputSetAmmoResupplierOn( inputdata_t &inputdata );
 	void			InputSetAmmoResupplierOff( inputdata_t &inputdata );
 	void			InputSpeakIdleResponse( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void			InputSetPoliceGoal( inputdata_t &inputdata );
+#endif
 
 	//---------------------------------
 	//	Sounds & speech
@@ -364,6 +368,7 @@ private:
 	CAI_FuncTankBehavior	m_FuncTankBehavior;
 #ifdef MAPBASE
 	CAI_RappelBehavior		m_RappelBehavior;
+	CAI_PolicingBehavior	m_PolicingBehavior;
 
 	// Rappel
 	virtual bool IsWaitingToRappel( void ) { return m_RappelBehavior.IsWaitingToRappel(); }

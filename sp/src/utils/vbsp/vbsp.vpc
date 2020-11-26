@@ -16,6 +16,8 @@ $Configuration
 	{
 		$AdditionalIncludeDirectories		"$BASE,..\common,..\vmpi"
 		$PreprocessorDefinitions			"$BASE;MACRO_MATHLIB;PROTECTED_THINGS_DISABLE"
+		
+		$PreprocessorDefinitions			"$BASE;MAPBASE_VSCRIPT"	[$MAPBASE_VSCRIPT]
 	}
 
 	$Linker
@@ -66,6 +68,14 @@ $Project "Vbsp"
 		$File	"worldvertextransitionfixup.cpp"
 		$File	"writebsp.cpp"
 		$File	"$SRCDIR\public\zip_utils.cpp"
+		
+		$File	"vscript_vbsp.cpp" [$MAPBASE_VSCRIPT]
+		$File	"vscript_vbsp.h" [$MAPBASE_VSCRIPT]
+		$File	"vscript_vbsp.nut" [$MAPBASE_VSCRIPT]
+		$File	"vscript_funcs_vmfs.cpp" [$MAPBASE_VSCRIPT]
+		$File	"vscript_funcs_vmfs.h" [$MAPBASE_VSCRIPT]
+		$File	"vscript_funcs_vis.cpp" [$MAPBASE_VSCRIPT]
+		$File	"vscript_funcs_vis.h" [$MAPBASE_VSCRIPT]
 
 		$Folder	"Common Files"
 		{
@@ -179,6 +189,7 @@ $Project "Vbsp"
 		$Lib mathlib
 		$Lib tier2
 		$Lib vtf
+		$Lib vscript [$MAPBASE_VSCRIPT]
 	}
 
 	$File	"notes.txt"

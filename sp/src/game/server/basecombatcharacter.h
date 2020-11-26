@@ -414,16 +414,20 @@ public:
 	virtual	float		GetSpreadBias(  CBaseCombatWeapon *pWeapon, CBaseEntity *pTarget );
 	virtual void		DoMuzzleFlash();
 
-#ifdef MAPBASE_VSCRIPT // DO NOT COMMIT; WAIT UNTIL FULL MERGE (5/15/2020)
+#ifdef MAPBASE_VSCRIPT
 	HSCRIPT				GetScriptActiveWeapon();
 	HSCRIPT				GetScriptWeaponIndex( int i );
 	HSCRIPT				GetScriptWeaponByType( const char *pszWeapon, int iSubType = 0 );
 	void				GetScriptAllWeapons( HSCRIPT hTable );
+	int					ScriptGetCurrentWeaponProficiency() { return GetCurrentWeaponProficiency(); }
 
 	void				ScriptEquipWeapon( HSCRIPT hWeapon );
 
 	int					ScriptGetAmmoCount( int iType ) const;
 	void				ScriptSetAmmoCount( int iType, int iCount );
+
+	const Vector&		ScriptGetAttackSpread( HSCRIPT hWeapon, HSCRIPT hTarget );
+	float				ScriptGetSpreadBias( HSCRIPT hWeapon, HSCRIPT hTarget );
 
 	int					ScriptRelationType( HSCRIPT pTarget );
 	int					ScriptRelationPriority( HSCRIPT pTarget );

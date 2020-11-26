@@ -72,6 +72,17 @@ static int  speechListIndex = 0;
 #define SCENE_MIN_PITCH	0.25f
 #define SCENE_MAX_PITCH 2.5f
 
+// New macros introduced for Mapbase's console message color changes.
+#ifdef MAPBASE
+#define ChoreoMsg( lvl, msg ) 					CGMsg( lvl, CON_GROUP_CHOREO, msg )
+#define ChoreoMsg1( lvl, msg, a ) 				CGMsg( lvl, CON_GROUP_CHOREO, msg, a )
+#define ChoreoMsg2( lvl, msg, a, b ) 			CGMsg( lvl, CON_GROUP_CHOREO, msg, a, b )
+#else
+#define ChoreoMsg( lvl, msg ) 					DevMsg( lvl, msg )
+#define ChoreoMsg1( lvl, msg, a ) 				DevMsg( lvl, msg, a )
+#define ChoreoMsg2( lvl, msg, a, b ) 			DevMsg( lvl, msg, a, b )
+#endif
+
 //===========================================================================================================
 // SCENE LIST MANAGER
 //===========================================================================================================
@@ -2725,7 +2736,7 @@ void CSceneEntity::StartPlayback( void )
 		m_pScene = LoadScene( STRING( m_iszSceneFile ), this );
 		if ( !m_pScene )
 		{
-			DevMsg( "%s missing from scenes.image\n", STRING( m_iszSceneFile ) );
+			ChoreoMsg1( 1, "%s missing from scenes.image\n", STRING( m_iszSceneFile ) );
 			m_bSceneMissing = true;
 			return;
 		}
@@ -3068,6 +3079,12 @@ void CSceneEntity::DispatchStartSubScene( CChoreoScene *scene, CBaseFlex *pActor
 
 		if ( subscene )
 		{
+#ifdef MAPBASE
+			// Somes may not be created with a CSceneEntity as the event callback
+			if (!scene->GetEventCallbackInterface())
+				scene->SetEventCallbackInterface( this );
+#endif
+
 			subscene->ResetSimulation();
 		}
 	}
@@ -3305,7 +3322,7 @@ void CSceneEntity::StartEvent( float currenttime, CChoreoScene *scene, CChoreoEv
 			
 				if( !pEntity->ValidateScriptScope() )
 				{
-					DevMsg("\n***\nCChoreoEvent::SCRIPT - FAILED to create private ScriptScope. ABORTING script call\n***\n");
+					ChoreoMsg(1, "\n***\nCChoreoEvent::SCRIPT - FAILED to create private ScriptScope. ABORTING script call\n***\n");
 					break;
 				}
 
@@ -3657,7 +3674,7 @@ bool CSceneEntity::ShouldNetwork() const
 
 CChoreoScene *CSceneEntity::LoadScene( const char *filename, IChoreoEventCallback *pCallback )
 {
-	DevMsg( 2, "Blocking load of scene from '%s'\n", filename );
+	ChoreoMsg1( 2, "Blocking load of scene from '%s'\n", filename );
 
 	char loadfile[MAX_PATH];
 	Q_strncpy( loadfile, filename, sizeof( loadfile ) );

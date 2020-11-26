@@ -194,6 +194,7 @@ public:
 		,
 		SCENE_AI_ADDCONTEXT,
 		SCENE_AI_INPUT,
+		SCENE_AI_GAMETEXT, // This is handled in CBaseFlex
 #endif
 	};
 

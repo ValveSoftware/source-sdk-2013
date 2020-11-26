@@ -33,6 +33,10 @@ ConVar rr_debugresponses( "rr_debugresponses", "0", FCVAR_NONE, "Show verbose ma
 ConVar rr_debugrule( "rr_debugrule", "", FCVAR_NONE, "If set to the name of the rule, that rule's score will be shown whenever a concept is passed into the response rules system.");
 ConVar rr_dumpresponses( "rr_dumpresponses", "0", FCVAR_NONE, "Dump all response_rules.txt and rules (requires restart)" );
 
+#ifdef MAPBASE
+ConVar rr_enhanced_saverestore( "rr_enhanced_saverestore", "0", FCVAR_NONE, "Enables enhanced save/restore capabilities for the Response System." );
+#endif
+
 static CUtlSymbolTable g_RS;
 
 inline static char *CopyString( const char *in )
@@ -3176,6 +3180,9 @@ public:
 			Precache();
 		}
 
+#ifdef MAPBASE
+		if (!rr_enhanced_saverestore.GetBool() || gpGlobals->eLoadType != MapLoad_Transition)
+#endif
 		ResetResponseGroups();
 	}
 
@@ -3588,6 +3595,34 @@ public:
 
 			pSave->EndBlock();
 		}
+
+#ifdef MAPBASE
+		// Enhanced Response System save/restore
+		int count2 = 0;
+		if (rr_enhanced_saverestore.GetBool())
+		{
+			// Rule state save/load
+			count2 = rs.m_Rules.Count();
+			pSave->WriteInt( &count2 );
+			for ( int i = 0; i < count2; ++i )
+			{
+				pSave->StartBlock( "Rule" );
+
+				pSave->WriteString( rs.m_Rules.GetElementName( i ) );
+				const Rule *rule = &rs.m_Rules[ i ];
+
+				bool bEnabled = rule->m_bEnabled;
+				pSave->WriteBool( &bEnabled );
+
+				pSave->EndBlock();
+			}
+		}
+		else
+		{
+			// Indicate this isn't using enhanced save/restore
+			pSave->WriteInt( &count2 );
+		}
+#endif
 	}
 
 	void Restore( IRestore *pRestore, bool createPlayers )
@@ -3651,6 +3686,34 @@ public:
 
 			pRestore->EndBlock();
 		}
+
+#ifdef MAPBASE
+		// Enhanced Response System save/restore
+		count = pRestore->ReadInt();
+		for ( int i = 0; i < count; ++i )
+		{
+			char szRuleBlockName[SIZE_BLOCK_NAME_BUF];
+			pRestore->StartBlock( szRuleBlockName );
+			if ( !Q_stricmp( szRuleBlockName, "Rule" ) )
+			{
+				char groupname[ 256 ];
+				pRestore->ReadString( groupname, sizeof( groupname ), 0 );
+
+				// Try and find it
+				int idx = rs.m_Rules.Find( groupname );
+				if ( idx != rs.m_Rules.InvalidIndex() )
+				{
+					Rule *rule = &rs.m_Rules[ idx ];
+
+					bool bEnabled;
+					pRestore->ReadBool( &bEnabled );
+					rule->m_bEnabled = bEnabled;
+				}
+			}
+
+			pRestore->EndBlock();
+		}
+#endif
 	}
 private:
 

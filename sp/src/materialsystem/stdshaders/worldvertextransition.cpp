@@ -12,10 +12,6 @@
 //#include "worldvertextransition_dx8_helper.h"
 #include "lightmappedgeneric_dx9_helper.h"
 
-static LightmappedGeneric_DX9_Vars_t s_info;
-
-//static LightmappedGeneric_DX9_Vars_t s_info_editor;
-
 
 DEFINE_FALLBACK_SHADER( SDK_WorldVertexTransition, SDK_WorldVertexTransition_DX9 )
 
@@ -156,43 +152,27 @@ BEGIN_VS_SHADER( SDK_WorldVertexTransition_DX9, "Help for SDK_WorldVertexTransit
 		return 0;
 	}
 
+	// Set up anything that is necessary to make decisions in SHADER_FALLBACK.
 	SHADER_INIT_PARAMS()
 	{
-		SetupVars( s_info );
-		InitParamsLightmappedGeneric_DX9( this, params, pMaterialName, s_info );
-		//SetupVars( s_info_editor );
-		//SwapLayers( s_info_editor );
+		LightmappedGeneric_DX9_Vars_t info;
+		SetupVars( info );
+		InitParamsLightmappedGeneric_DX9( this, params, pMaterialName, info );
 	}
 
 	SHADER_INIT
 	{
-		SetupVars( s_info );
-		InitLightmappedGeneric_DX9( this, params, s_info );
+		LightmappedGeneric_DX9_Vars_t info;
+		SetupVars( info );
+		InitLightmappedGeneric_DX9( this, params, info );
 	}
 
 	SHADER_DRAW
 	{
-		//if ( UsingEditor( params ) )
-		//	DrawLightmappedGeneric_DX9( this, params, pShaderAPI, pShaderShadow, s_info_editor, pContextDataPtr );
-		//else
-			DrawLightmappedGeneric_DX9( this, params, pShaderAPI, pShaderShadow, s_info, pContextDataPtr );
+		LightmappedGeneric_DX9_Vars_t info;
+		SetupVars( info );
+		DrawLightmappedGeneric_DX9( this, params, pShaderAPI, pShaderShadow, info, pContextDataPtr );
 	}
 
-private:
-	// This hack is from Half-Life 2: Downfall in order to support WorldVertexTransition in Hammer.
-	// We get around this through a different hack in the shader code itself now.
-	// Original comment:
-	//    "Hack to make hammer display WVT in non-inverted way.
-	//    It worked ok in standard WVT because of special editor-only shader.
-	//    Why Valve just didn't inverted vertex alpha directly in hammer code? oO"
-	//static FORCEINLINE void SwapLayers( LightmappedGeneric_DX9_Vars_t &info )
-	//{
-	//	V_swap( info.m_nBaseTexture, info.m_nBaseTexture2 );
-	//	V_swap( info.m_nBaseTextureFrame, info.m_nBaseTexture2Frame );
-	//	V_swap( info.m_nBaseTextureNoEnvmap, info.m_nBaseTexture2NoEnvmap );
-	//	V_swap( info.m_nBumpmap, info.m_nBumpmap2 );
-	//	V_swap( info.m_nBumpFrame, info.m_nBumpFrame2 );
-	//	V_swap( info.m_nBumpTransform, info.m_nBumpTransform2 );
-	//}
 END_SHADER
 

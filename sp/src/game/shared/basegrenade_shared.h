@@ -49,6 +49,9 @@ public:
 #if !defined( CLIENT_DLL )
 	DECLARE_DATADESC();
 #endif
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 	virtual void		Precache( void );
 
@@ -102,6 +105,17 @@ public:
 	CBaseCombatCharacter *GetThrower( void );
 	void				  SetThrower( CBaseCombatCharacter *pThrower );
 	CBaseEntity *GetOriginalThrower() { return m_hOriginalThrower; }
+
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT				ScriptGetThrower( void ) { return ToHScript( GetThrower() ); }
+	void				ScriptSetThrower( HSCRIPT hThrower ) { SetThrower( ToEnt(hThrower) ? ToEnt(hThrower)->MyCombatCharacterPointer() : NULL ); }
+	HSCRIPT				ScriptGetOriginalThrower() { return ToHScript( GetOriginalThrower() ); }
+
+	float				GetDetonateTime() { return m_flDetonateTime; }
+	bool				HasWarnedAI() { return m_bHasWarnedAI; }
+	bool				IsLive() { return m_bIsLive; }
+	float				GetWarnAITime() { return m_flWarnAITime; }
+#endif
 
 #if !defined( CLIENT_DLL )
 	// Allow +USE pickup

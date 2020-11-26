@@ -116,6 +116,10 @@ ConVar autoaim_unlock_target( "autoaim_unlock_target", "0.8666" );
 
 ConVar sv_stickysprint("sv_stickysprint", "0", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX);
 
+#ifdef MAPBASE
+ConVar player_autoswitch_enabled( "player_autoswitch_enabled", "1", FCVAR_NONE, "This convar was added by Mapbase to toggle whether players automatically switch to their ''best'' weapon upon picking up ammo for it after it was dry." );
+#endif
+
 #define	FLASH_DRAIN_TIME	 1.1111	// 100 units / 90 secs
 #define	FLASH_CHARGE_TIME	 50.0f	// 100 units / 2 secs
 
@@ -254,6 +258,7 @@ public:
 	void InputGetAmmoOnWeapon( inputdata_t &inputdata );
 
 	void InputSetHandModel( inputdata_t &inputdata );
+	void InputSetHandModelSkin( inputdata_t &inputdata );
 
 	void InputSetPlayerModel( inputdata_t &inputdata );
 	void InputSetPlayerDrawExternally( inputdata_t &inputdata );
@@ -1371,7 +1376,10 @@ void CHL2_Player::ResetAnimation( void )
 void CHL2_Player::SetAnimation( PLAYER_ANIM playerAnim )
 {
 	if (!hl2_use_hl2dm_anims.GetBool())
+	{
+		BaseClass::SetAnimation( playerAnim );
 		return;
+	}
 
 	int animDesired;
 
@@ -3252,6 +3260,15 @@ bool CHL2_Player::ShouldKeepLockedAutoaimTarget( EHANDLE hLockedTarget )
 	return true;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool CHL2_Player::CanAutoSwitchToNextBestWeapon( CBaseCombatWeapon *pWeapon )
+{
+	return player_autoswitch_enabled.GetBool();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : iCount - 
@@ -3293,6 +3310,9 @@ int CHL2_Player::GiveAmmo( int nCount, int nAmmoIndex, bool bSuppressSound)
 
 		if ( pWeapon && pWeapon->GetPrimaryAmmoType() == nAmmoIndex )
 		{
+#ifdef MAPBASE
+			if (CanAutoSwitchToNextBestWeapon(pWeapon))
+#endif
 			SwitchToNextBestWeapon(GetActiveWeapon());
 		}
 	}
@@ -4591,6 +4611,7 @@ BEGIN_DATADESC( CLogicPlayerProxy )
 	DEFINE_INPUTFUNC( FIELD_VOID,	"RequestPlayerFlashBattery",		InputRequestPlayerFlashBattery ),
 	DEFINE_INPUTFUNC( FIELD_STRING,	"GetAmmoOnWeapon", InputGetAmmoOnWeapon ),
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SetHandModel", InputSetHandModel ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetHandModelSkin", InputSetHandModelSkin ),
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SetPlayerModel", InputSetPlayerModel ),
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetPlayerDrawExternally", InputSetPlayerDrawExternally ),
 	DEFINE_INPUT( m_MaxArmor, FIELD_INTEGER, "SetMaxInputArmor" ),
@@ -5021,6 +5042,17 @@ void CLogicPlayerProxy::InputSetHandModel( inputdata_t &inputdata )
 	CBaseViewModel *vm = pPlayer->GetViewModel(1);
 	if (vm)
 		vm->SetModel(STRING(iszModel));
+}
+
+void CLogicPlayerProxy::InputSetHandModelSkin( inputdata_t &inputdata )
+{
+	if (!m_hPlayer)
+		return;
+
+	CBasePlayer *pPlayer = static_cast<CBasePlayer*>( m_hPlayer.Get() );
+	CBaseViewModel *vm = pPlayer->GetViewModel(1);
+	if (vm)
+		vm->m_nSkin = inputdata.value.Int();
 }
 
 void CLogicPlayerProxy::InputSetPlayerModel( inputdata_t &inputdata )

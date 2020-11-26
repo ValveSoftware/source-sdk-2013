@@ -84,6 +84,9 @@ public:
 
 	// Event callback handler
 	void			SetEventCallbackInterface( IChoreoEventCallback *callback );
+#ifdef MAPBASE
+	IChoreoEventCallback	*GetEventCallbackInterface() { return m_pIChoreoEventCallback; }
+#endif
 
 	// Loading
 	bool			ParseFromBuffer( char const *pFilename, ISceneTokenProcessor *tokenizer );

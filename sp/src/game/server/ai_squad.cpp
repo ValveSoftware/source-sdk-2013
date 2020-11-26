@@ -114,6 +114,48 @@ void CAI_SquadManager::DeleteAllSquads(void)
 	CAI_SquadManager::m_pSquads = NULL;
 }
 
+#ifdef MAPBASE_VSCRIPT
+//-------------------------------------
+// Purpose: 
+//-------------------------------------
+HSCRIPT CAI_SquadManager::ScriptGetFirstSquad()
+{
+	return m_pSquads ? g_pScriptVM->RegisterInstance( m_pSquads ) : NULL;
+}
+
+HSCRIPT CAI_SquadManager::ScriptGetNextSquad( HSCRIPT hStart )
+{
+	CAI_Squad *pSquad = HScriptToClass<CAI_Squad>( hStart );
+	return (pSquad && pSquad->m_pNextSquad) ? g_pScriptVM->RegisterInstance( pSquad->m_pNextSquad ) : NULL;
+}
+
+//-------------------------------------
+// Purpose: 
+//-------------------------------------
+HSCRIPT CAI_SquadManager::ScriptFindSquad( const char *squadName )
+{
+	CAI_Squad *pSquad = FindSquad( MAKE_STRING(squadName) );
+	return pSquad ? g_pScriptVM->RegisterInstance( pSquad ) : NULL;
+}
+
+HSCRIPT CAI_SquadManager::ScriptFindCreateSquad( const char *squadName )
+{
+	CAI_Squad *pSquad = FindCreateSquad( MAKE_STRING( squadName ) );
+	return pSquad ? g_pScriptVM->RegisterInstance( pSquad ) : NULL;
+}
+
+BEGIN_SCRIPTDESC_ROOT( CAI_SquadManager, SCRIPT_SINGLETON "Manager for NPC squads." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetFirstSquad, "GetFirstSquad", "Get the first squad in the squad list." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNextSquad, "GetNextSquad", "Get the next squad in the squad list starting from the specified squad." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptFindSquad, "FindSquad", "Find the specified squad in the squad list. Returns null if none found." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptFindCreateSquad, "FindCreateSquad", "Find the specified squad in the squad list or create it if it doesn't exist." )
+
+	DEFINE_SCRIPTFUNC( NumSquads, "Get the number of squads in the list." )
+
+END_SCRIPTDESC();
+#endif
+
 //-----------------------------------------------------------------------------
 // CAI_Squad
 //
@@ -150,6 +192,38 @@ BEGIN_SIMPLE_DATADESC( CAI_Squad )
 #endif
 
 END_DATADESC()
+
+#ifdef MAPBASE_VSCRIPT
+BEGIN_SCRIPTDESC_ROOT( CAI_Squad, "NPC squads used for schedule coordination, sharing information about enemies, etc." )
+
+	DEFINE_SCRIPTFUNC( GetName, "Get the squad's name." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetFirstMember, "GetFirstMember", "Get the squad's first member. The parameter is for whether to ignore silent members (see CAI_Squad::IsSilentMember() for more info)." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetMember, "GetMember", "Get one of the squad's members by their index." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAnyMember, "GetAnyMember", "Randomly get any one of the squad's members." )
+	DEFINE_SCRIPTFUNC( NumMembers, "Get the squad's number of members. The parameter is for whether to ignore silent members (see CAI_Squad::IsSilentMember() for more info)." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSquadIndex, "GetSquadIndex", "Get the index of the specified NPC in the squad." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptUpdateEnemyMemory, "UpdateEnemyMemory", "Updates the squad's memory of an enemy. The first parameter is the updater, the second parameter is the enemy, and the third parameter is the position." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSquadMemberInRange, "SquadMemberInRange", "Get the first squad member found around the specified position in the specified range." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptNearestSquadMember, "NearestSquadMember", "Get the squad member nearest to the specified member." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetVisibleSquadMembers, "GetVisibleSquadMembers", "Get the number of squad members visible to the specified member." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSquadMemberNearestTo, "GetSquadMemberNearestTo", "Get the squad member nearest to a point." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsMember, "IsMember", "Returns true if the specified NPC is a member of the squad." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsLeader, "IsLeader", "Returns true if the specified NPC is the squad's leader." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLeader, "GetLeader", "Get the squad's leader." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddToSquad, "AddToSquad", "Adds a NPC to the squad." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRemoveFromSquad, "RemoveFromSquad", "Removes a NPC from the squad." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsSilentMember, "IsSilentMember", "Returns true if the specified NPC is a \"silent squad member\", which means it's only in squads for enemy information purposes and does not actually participate in any tactics. For example, this is used for npc_enemyfinder and vital allies (e.g. Alyx) in the player's squad. Please note that this does not check if the NPC is in the squad first." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetSquadData, "SetSquadData", "Set the squad data in the specified slot." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSquadData, "GetSquadData", "Get the squad data in the specified slot." )
+
+END_SCRIPTDESC();
+#endif
 
 //-------------------------------------
 
@@ -782,6 +856,45 @@ bool CAI_Squad::IsSquadInflictor( CBaseEntity *pInflictor )
 {
 	return (m_hSquadInflictor.Get() == pInflictor);
 }
+
+#ifdef MAPBASE_VSCRIPT
+//------------------------------------------------------------------------------
+
+// Functions tailored specifically for VScript.
+
+HSCRIPT		CAI_Squad::ScriptGetFirstMember( bool bIgnoreSilentMembers ) { return ToHScript( GetFirstMember( NULL, bIgnoreSilentMembers ) ); }
+HSCRIPT		CAI_Squad::ScriptGetMember( int iIndex ) { return iIndex < m_SquadMembers.Count() ? ToHScript( m_SquadMembers[iIndex] ) : NULL; }
+HSCRIPT		CAI_Squad::ScriptGetAnyMember() { return ToHScript( GetAnyMember() ); }
+//int		CAI_Squad::ScriptNumMembers( bool bIgnoreSilentMembers ) { return NumMembers( bIgnoreSilentMembers ); }
+int			CAI_Squad::ScriptGetSquadIndex( HSCRIPT hNPC ) { return GetSquadIndex( HScriptToClass<CAI_BaseNPC>( hNPC ) ); }
+
+void		CAI_Squad::ScriptUpdateEnemyMemory( HSCRIPT hUpdater, HSCRIPT hEnemy, const Vector &position ) { UpdateEnemyMemory( HScriptToClass<CAI_BaseNPC>( hUpdater ), ToEnt( hEnemy ), position ); }
+
+HSCRIPT		CAI_Squad::ScriptSquadMemberInRange( const Vector &vecLocation, float flDist ) { return ToHScript( SquadMemberInRange( vecLocation, flDist ) ); }
+HSCRIPT		CAI_Squad::ScriptNearestSquadMember( HSCRIPT hMember ) { return ToHScript( NearestSquadMember( HScriptToClass<CAI_BaseNPC>( hMember ) ) ); }
+int			CAI_Squad::ScriptGetVisibleSquadMembers( HSCRIPT hMember ) { return GetVisibleSquadMembers( HScriptToClass<CAI_BaseNPC>( hMember ) ); }
+HSCRIPT		CAI_Squad::ScriptGetSquadMemberNearestTo( const Vector &vecLocation ) { return ToHScript( GetSquadMemberNearestTo( vecLocation ) ); }
+bool		CAI_Squad::ScriptIsMember( HSCRIPT hMember ) { return SquadIsMember( HScriptToClass<CAI_BaseNPC>( hMember ) ); }
+bool		CAI_Squad::ScriptIsLeader( HSCRIPT hLeader ) { return IsLeader( HScriptToClass<CAI_BaseNPC>( hLeader ) ); }
+HSCRIPT		CAI_Squad::ScriptGetLeader( void ) { return ToHScript( GetLeader() ); }
+
+void		CAI_Squad::ScriptAddToSquad( HSCRIPT hNPC ) { AddToSquad( HScriptToClass<CAI_BaseNPC>( hNPC ) ); }
+void		CAI_Squad::ScriptRemoveFromSquad( HSCRIPT hNPC ) { RemoveFromSquad( HScriptToClass<CAI_BaseNPC>( hNPC ), false ); }
+
+bool		CAI_Squad::ScriptIsSilentMember( HSCRIPT hNPC ) { return IsSilentMember( HScriptToClass<CAI_BaseNPC>( hNPC ) ); }
+
+void CAI_Squad::ScriptSetSquadData( int iSlot, const char *data )
+{
+	SetSquadData( iSlot, data );
+}
+
+const char *CAI_Squad::ScriptGetSquadData( int iSlot )
+{
+	const char *data;
+	GetSquadData( iSlot, &data );
+	return data;
+}
+#endif
 
 //=============================================================================
 

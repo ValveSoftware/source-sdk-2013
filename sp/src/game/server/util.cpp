@@ -1072,7 +1072,7 @@ void UTIL_ScreenFade( CBaseEntity *pEntity, const color32 &color, float fadeTime
 }
 
 
-void UTIL_HudMessage( CBasePlayer *pToPlayer, const hudtextparms_t &textparms, const char *pMessage )
+void UTIL_HudMessage( CBasePlayer *pToPlayer, const hudtextparms_t &textparms, const char *pMessage, const char *pszFont, bool bAutobreak )
 {
 	CRecipientFilter filter;
 	
@@ -1105,12 +1105,19 @@ void UTIL_HudMessage( CBasePlayer *pToPlayer, const hudtextparms_t &textparms, c
 		WRITE_FLOAT( textparms.holdTime );
 		WRITE_FLOAT( textparms.fxTime );
 		WRITE_STRING( pMessage );
+#ifdef MAPBASE
+		WRITE_STRING( pszFont );
+		if (bAutobreak)
+		{
+			WRITE_BYTE ( Q_strlen( pMessage ) );
+		}
+#endif
 	MessageEnd();
 }
 
-void UTIL_HudMessageAll( const hudtextparms_t &textparms, const char *pMessage )
+void UTIL_HudMessageAll( const hudtextparms_t &textparms, const char *pMessage, const char *pszFont, bool bAutobreak )
 {
-	UTIL_HudMessage( NULL, textparms, pMessage );
+	UTIL_HudMessage( NULL, textparms, pMessage, pszFont, bAutobreak );
 }
 
 void UTIL_HudHintText( CBaseEntity *pEntity, const char *pMessage )

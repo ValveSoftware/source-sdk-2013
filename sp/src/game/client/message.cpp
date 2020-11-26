@@ -862,6 +862,82 @@ void CHudMessage::MsgFunc_HudMsg(bf_read &msg)
 	// see tmessage.cpp why 512
 	msg.ReadString( (char*)pNetMessage->pMessage, 512 );
 
+#ifdef MAPBASE
+	// 
+	// Mapbase adds a new data entry for custom fonts on entities like game_text.
+	// Some existing instances of this user message may not have this, so we have to make sure we have any bits left first.
+	// 
+	if (msg.GetNumBitsLeft() > 0)
+	{
+		// Try to have VGui font names for each channel
+		static char szVGuiFontNames[MAX_NETMESSAGE][512];
+		msg.ReadString( szVGuiFontNames[channel], 512 );
+		if (szVGuiFontNames[channel][0] != '\0')
+		{
+			pNetMessage->pVGuiSchemeFontName = szVGuiFontNames[channel];
+		}
+	}
+
+	// 
+	// Mapbase adds a new data entry for breaking game_text into newline when it goes past the user's screen.
+	// Some existing instances of this user message may not have this, so we have to make sure we have any bits left first.
+	// 
+	if (msg.GetNumBitsLeft() > 0)
+	{
+		int len = msg.ReadByte();
+
+		// This is supposed to work around a bug where certain aspect ratios cut off lengthy texts.
+		//int lineMax = 64 * ((float)ScreenWidth() / 1440.0f);
+		int lineMax = 100 / engine->GetScreenAspectRatio();
+
+		int lineMinBreak = lineMax * 0.9;
+
+		DevMsg( "Line max is %i from an aspect ratio of %.3f (strlen %i)\n", lineMax, engine->GetScreenAspectRatio(), len );
+
+		char *curMessage = (char*)pNetMessage->pMessage;
+		char newMessage[512];
+
+		int cur = 0; // Current time on this line
+		int i = 0; // curMessage
+		int i2 = 0; // newMessage
+		for (i = 0; i < len; i++)
+		{
+			cur++;
+			newMessage[i2] = curMessage[i];
+
+			// Check if we're past the point in which we should break the line
+			if (cur >= lineMinBreak)
+			{
+				// Line break at the next space
+				if (curMessage[i] == ' ')
+				{
+					newMessage[i2] = '\n';
+					cur = 0;
+				}
+				else if (curMessage[i] == '\n')
+				{
+					// Already a newline here
+					cur = 0;
+				}
+				else if (cur >= lineMax)
+				{
+					// We're at the max and there's no space. Force a newline with a hyphen
+					newMessage[i2] = '-';
+					i2++;
+					newMessage[i2] = '\n';
+					i2++;
+					newMessage[i2] = curMessage[i];
+					cur = 0;
+				}
+			}
+
+			i2++;
+		}
+
+		Q_strncpy( (char*)pNetMessage->pMessage, newMessage, 512 );
+	}
+#endif
+
 	MessageAdd( pNetMessage->pName );
 }
 

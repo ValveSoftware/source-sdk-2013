@@ -16,6 +16,7 @@
 // STATIC: "FASTPATH_NOBUMP"            "0..1"
 // STATIC: "BLENDTINTBYBASEALPHA"       "0..1"
 // STATIC: "PHONG_HALFLAMBERT"          "0..1"
+// STATIC: "ENVMAPMASK"					"0..1"
 
 // DYNAMIC: "WRITEWATERFOGTODESTALPHA"  "0..1"
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"
@@ -46,6 +47,8 @@
 
 // BlendTintByBaseAlpha and self illum and are opposing meanings for alpha channel
 // SKIP: ( $BLENDTINTBYBASEALPHA ) && ( $SELFILLUM )
+
+// SKIP: $ENVMAPMASK && !$CUBEMAP
 
 // fastpath means:
 // no bumpmap
@@ -121,6 +124,10 @@ sampler DetailSampler			: register( s13 );	// detail texture
 
 sampler SelfIllumMaskSampler	: register( s14 );	// selfillummask
 
+#if ENVMAPMASK
+sampler EnvmapMaskSampler		: register( s15 );
+#endif
+
 
 struct PS_INPUT
 {
@@ -146,6 +153,7 @@ float4 main( PS_INPUT i ) : COLOR
 	bool bSelfIllum = SELFILLUM ? true : false;
 	bool bDoRimLighting = RIMLIGHT ? true : false;
 	bool bCubemap = CUBEMAP ? true : false;
+	bool bEnvmapMask = ENVMAPMASK ? true : false;
 	bool bBlendTintByBaseAlpha = BLENDTINTBYBASEALPHA ? true : false;
 	int nNumLights = NUM_LIGHTS;
 
@@ -184,7 +192,13 @@ float4 main( PS_INPUT i ) : COLOR
 	float3 vRimAmbientCubeColor = PixelShaderAmbientLight(vEyeDir, cAmbientCube);
 
 	float3 worldSpaceNormal, tangentSpaceNormal;
+	
+#if ENVMAPMASK
+	float3 fSpecMask = float3( 1.0f, 1.0f, 1.0f );
+#else
 	float fSpecMask = 1.0f;
+#endif
+
 #if !DETAILTEXTURE
 	// Blixibon - $bumpmap transform support
 	float4 normalTexel = tex2D( NormalMapSampler, i.baseTexCoordDetailTexCoord.zw );
@@ -198,13 +212,26 @@ float4 main( PS_INPUT i ) : COLOR
 	normalTexel = flTextureAmount * normalTexel + flWrinkleAmount * wrinkleNormal + flStretchAmount * stretchNormal;
 #endif
 
-#if (FASTPATH_NOBUMP == 0 )
+#if (FASTPATH_NOBUMP == 0)
 	tangentSpaceNormal = lerp( 2.0f * normalTexel.xyz - 1.0f, float3(0, 0, 1), g_fBaseMapAlphaPhongMask );
-	fSpecMask = lerp( normalTexel.a, baseColor.a, g_fBaseMapAlphaPhongMask );
 #else
 	tangentSpaceNormal = float3(0, 0, 1);
-	fSpecMask = baseColor.a;
 #endif
+
+	#if ENVMAPMASK
+	{
+		float4 envmapMaskTexel = tex2D( EnvmapMaskSampler, i.baseTexCoordDetailTexCoord.xy );
+		fSpecMask = lerp( envmapMaskTexel.xyz, baseColor.aaa, g_fBaseMapAlphaPhongMask );
+	}
+	#else
+	{
+#if (FASTPATH_NOBUMP == 0 )
+		fSpecMask = lerp( normalTexel.a, baseColor.a, g_fBaseMapAlphaPhongMask );
+#else
+		fSpecMask = baseColor.a;
+#endif
+	}
+	#endif
 
 	// We need a normal if we're doing any lighting
 	worldSpaceNormal = normalize( mul( i.tangentSpaceTranspose, tangentSpaceNormal ) );
@@ -230,18 +257,30 @@ float4 main( PS_INPUT i ) : COLOR
 
 		if( bCubemap )
 		{
-			// Mask is either normal map alpha or base map alpha
+			if ( bEnvmapMask )
+			{
+				float3 fEnvMapMask = lerp( baseColor.aaa, fSpecMask, g_EnvmapTint_ShadowTweaks.w );
+				envMapColor = (ENV_MAP_SCALE *
+								lerp(1, fFresnelRanges, g_EnvMapFresnel.x) *
+								lerp(fEnvMapMask, float3(1,1,1)-fEnvMapMask, g_fInvertPhongMask)) *
+								texCUBE( EnvmapSampler, vReflect ).xyz *
+								g_EnvmapTint_ShadowTweaks.xyz;
+			}
+			else
+			{
+				// Mask is either normal map alpha or base map alpha
 #if ( SELFILLUMFRESNEL == 1 ) // This is to match the 2.0 version of vertexlitgeneric
-			float fEnvMapMask = lerp( baseColor.a, g_fInvertPhongMask, g_EnvmapTint_ShadowTweaks.w );
+				float fEnvMapMask = lerp( baseColor.a, g_fInvertPhongMask, g_EnvmapTint_ShadowTweaks.w );
 #else
-			float fEnvMapMask = lerp( baseColor.a, fSpecMask, g_EnvmapTint_ShadowTweaks.w );
+				float fEnvMapMask = lerp( baseColor.a, fSpecMask, g_EnvmapTint_ShadowTweaks.w );
 #endif
 
-			envMapColor = (ENV_MAP_SCALE *
-							lerp(1, fFresnelRanges, g_EnvMapFresnel.x) *
-							lerp(fEnvMapMask, 1-fEnvMapMask, g_fInvertPhongMask)) *
-							texCUBE( EnvmapSampler, vReflect ).xyz *
-							g_EnvmapTint_ShadowTweaks.xyz;
+				envMapColor = (ENV_MAP_SCALE *
+								lerp(1, fFresnelRanges, g_EnvMapFresnel.x) *
+								lerp(fEnvMapMask, 1-fEnvMapMask, g_fInvertPhongMask)) *
+								texCUBE( EnvmapSampler, vReflect ).xyz *
+								g_EnvmapTint_ShadowTweaks.xyz;
+			}
 		}
 	}
 	

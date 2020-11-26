@@ -76,6 +76,7 @@ $Project "tier1"
 		$File	"snappy.cpp"
 		$File	"snappy-sinksource.cpp"
 		$File	"snappy-stubs-internal.cpp"
+		$File	"mapbase_con_groups.cpp" [$MAPBASE]
 	}
 
 	$Folder	"Header Files"
@@ -147,6 +148,7 @@ $Project "tier1"
 		$File	"$SRCDIR\public\tier1\utlsymbol.h"
 		$File	"$SRCDIR\public\tier1\utlsymbollarge.h"
 		$File	"$SRCDIR\public\tier1\utlvector.h"
+		$File	"$SRCDIR\public\tier1\mapbase_con_groups.h"	[$MAPBASE]
 		$File	"$SRCDIR\common\xbox\xboxstubs.h"				[$WINDOWS]
 	}
 }

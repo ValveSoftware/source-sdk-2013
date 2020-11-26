@@ -283,7 +283,11 @@ bool ReadWeaponDataFromFileForSlot( IFileSystem* filesystem, const char *szWeapo
 	FileWeaponInfo_t *pFileInfo = GetFileWeaponInfoFromHandle( *phandle );
 	Assert( pFileInfo );
 
+#ifdef MAPBASE
+	if ( pFileInfo->bParsedScript && !pFileInfo->bCustom )
+#else
 	if ( pFileInfo->bParsedScript )
+#endif
 		return true;
 
 	char sz[128];
@@ -300,12 +304,58 @@ bool ReadWeaponDataFromFileForSlot( IFileSystem* filesystem, const char *szWeapo
 	if ( !pKV )
 		return false;
 
+#ifdef MAPBASE
+	pFileInfo->bCustom = false;
+#endif
 	pFileInfo->Parse( pKV, szWeaponName );
 
 	pKV->deleteThis();
 
 	return true;
 }
+
+#ifdef MAPBASE
+extern const char *g_MapName;
+
+bool ReadCustomWeaponDataFromFileForSlot( IFileSystem* filesystem, const char *szWeaponName, WEAPON_FILE_INFO_HANDLE *phandle, const unsigned char *pICEKey )
+{
+	if ( !phandle )
+	{
+		Assert( 0 );
+		return false;
+	}
+	
+	*phandle = FindWeaponInfoSlot( szWeaponName );
+	FileWeaponInfo_t *pFileInfo = GetFileWeaponInfoFromHandle( *phandle );
+	Assert( pFileInfo );
+
+	// Just parse the custom script anyway even if it was already loaded. This is because after one is loaded,
+	// there's no way of distinguishing between maps with no custom scripts and maps with their own new custom scripts.
+	//if ( pFileInfo->bParsedScript && pFileInfo->bCustom )
+	//	return true;
+
+	char sz[128];
+	Q_snprintf( sz, sizeof( sz ), "maps/%s_%s", g_MapName, szWeaponName );
+
+	KeyValues *pKV = ReadEncryptedKVFile( filesystem, sz, pICEKey,
+#if defined( DOD_DLL )
+		true			// Only read .ctx files!
+#else
+		false
+#endif
+		);
+
+	if ( !pKV )
+		return false;
+
+	pFileInfo->bCustom = true;
+	pFileInfo->Parse( pKV, szWeaponName );
+
+	pKV->deleteThis();
+
+	return true;
+}
+#endif
 
 
 //-----------------------------------------------------------------------------

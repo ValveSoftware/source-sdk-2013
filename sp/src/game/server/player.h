@@ -588,6 +588,10 @@ public:
 	virtual Vector			GetAutoaimVector( float flScale );
 	virtual Vector			GetAutoaimVector( float flScale, float flMaxDist );
 	virtual void			GetAutoaimVector( autoaim_params_t &params );
+#ifdef MAPBASE_VSCRIPT
+	Vector					ScriptGetAutoaimVector( float flScale ) { return GetAutoaimVector( flScale ); }
+	Vector					ScriptGetAutoaimVectorCustomMaxDist( float flScale, float flMaxDist ) { return GetAutoaimVector( flScale, flMaxDist ); }
+#endif
 
 	float					GetAutoaimScore( const Vector &eyePosition, const Vector &viewDir, const Vector &vecTarget, CBaseEntity *pTarget, float fScale, CBaseCombatWeapon *pActiveWeapon );
 	QAngle					AutoaimDeflection( Vector &vecSrc, autoaim_params_t &params );

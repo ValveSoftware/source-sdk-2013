@@ -6,6 +6,7 @@
 //
 //=============================================================================//
 #include "cbase.h"
+#include "c_effects.h"
 #include "c_tracer.h"
 #include "view.h"
 #include "initializer.h"
@@ -22,6 +23,7 @@
 #include "collisionutils.h"
 #include "tier0/vprof.h"
 #include "viewrender.h"
+#include "raytrace.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -35,6 +37,12 @@ float g_flSplashLifetime = 0.5f;
 float g_flSplashAlpha = 0.3f;
 ConVar r_RainSplashPercentage( "r_RainSplashPercentage", "20", FCVAR_CHEAT ); // N% chance of a rain particle making a splash.
 
+ConVar r_RainParticleDensity( "r_RainParticleDensity", "1", FCVAR_NONE, "Density of Particle Rain 0-1" );
+
+#ifdef MAPBASE
+ConVar r_RainParticleClampOffset( "r_RainParticleClampOffset", "112", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systemss" );
+ConVar r_RainParticleClampDebug( "r_RainParticleClampDebug", "0", FCVAR_NONE, "Enables debug code for precipitation particle system clamping" );
+#endif
 
 float GUST_INTERVAL_MIN = 1;
 float GUST_INTERVAL_MAX = 2;
@@ -60,151 +68,14 @@ CLIENTEFFECT_MATERIAL( "particle/rain" )
 CLIENTEFFECT_MATERIAL( "particle/snow" )
 CLIENTEFFECT_REGISTER_END()
 
-//-----------------------------------------------------------------------------
-// Precipitation particle type
-//-----------------------------------------------------------------------------
-
-class CPrecipitationParticle
-{
-public:
-	Vector	m_Pos;
-	Vector	m_Velocity;
-	float	m_SpawnTime;				// Note: Tweak with this to change lifetime
-	float	m_Mass;
-	float	m_Ramp;
-	
-	float	m_flCurLifetime;
-	float	m_flMaxLifetime;
-};
-						  
-
-class CClient_Precipitation;
-static CUtlVector<CClient_Precipitation*> g_Precipitations;
-
-//===========
-// Snow fall
-//===========
-class CSnowFallManager;
-static CSnowFallManager *s_pSnowFallMgr = NULL;
-bool SnowFallManagerCreate( CClient_Precipitation *pSnowEntity );
-void SnowFallManagerDestroy( void );
-
-class AshDebrisEffect : public CSimpleEmitter
-{
-public:
-	AshDebrisEffect( const char *pDebugName ) : CSimpleEmitter( pDebugName ) {}
-
-	static AshDebrisEffect* Create( const char *pDebugName );
-
-	virtual float UpdateAlpha( const SimpleParticle *pParticle );
-	virtual	float UpdateRoll( SimpleParticle *pParticle, float timeDelta );
-
-private:
-	AshDebrisEffect( const AshDebrisEffect & );
-};
-
-//-----------------------------------------------------------------------------
-// Precipitation base entity
-//-----------------------------------------------------------------------------
-
-class CClient_Precipitation : public C_BaseEntity
-{
-class CPrecipitationEffect;
-friend class CClient_Precipitation::CPrecipitationEffect;
-
-public:
-	DECLARE_CLASS( CClient_Precipitation, C_BaseEntity );
-	DECLARE_CLIENTCLASS();
-	
-	CClient_Precipitation();
-	virtual ~CClient_Precipitation();
-
-	// Inherited from C_BaseEntity
-	virtual void Precache( );
-
-	void Render();
-
-private:
-
-	// Creates a single particle
-	CPrecipitationParticle* CreateParticle();
-
-	virtual void OnDataChanged( DataUpdateType_t updateType );
-	virtual void ClientThink();
-
-	void Simulate( float dt );
-
-	// Renders the particle
-	void RenderParticle( CPrecipitationParticle* pParticle, CMeshBuilder &mb );
-
-	void CreateWaterSplashes();
-
-	// Emits the actual particles
-	void EmitParticles( float fTimeDelta );
-	
-	// Computes where we're gonna emit
-	bool ComputeEmissionArea( Vector& origin, Vector2D& size );
-
-	// Gets the tracer width and speed
-	float GetWidth() const;
-	float GetLength() const;
-	float GetSpeed() const;
-
-	// Gets the remaining lifetime of the particle
-	float GetRemainingLifetime( CPrecipitationParticle* pParticle ) const;
-
-	// Computes the wind vector
-	static void ComputeWindVector( );
-
-	// simulation methods
-	bool SimulateRain( CPrecipitationParticle* pParticle, float dt );
-	bool SimulateSnow( CPrecipitationParticle* pParticle, float dt );
-
-	void CreateAshParticle( void );
-	void CreateRainOrSnowParticle( Vector vSpawnPosition, Vector vVelocity );
-
-	// Information helpful in creating and rendering particles
-	IMaterial		*m_MatHandle;	// material used 
-
-	float			m_Color[4];		// precip color
-	float			m_Lifetime;		// Precip lifetime
-	float			m_InitialRamp;	// Initial ramp value
-	float			m_Speed;		// Precip speed
-	float			m_Width;		// Tracer width
-	float			m_Remainder;	// particles we should render next time
-	PrecipitationType_t	m_nPrecipType;			// Precip type
-	float			m_flHalfScreenWidth;	// Precalculated each frame.
-
-	float			m_flDensity;
-
-	// Some state used in rendering and simulation
-	// Used to modify the rain density and wind from the console
-	static ConVar s_raindensity;
-	static ConVar s_rainwidth;
-	static ConVar s_rainlength;
-	static ConVar s_rainspeed;
-
-	static Vector s_WindVector;			// Stores the wind speed vector
-	
-	CUtlLinkedList<CPrecipitationParticle> m_Particles;
-	CUtlVector<Vector> m_Splashes;
-
-	CSmartPtr<AshDebrisEffect>		m_pAshEmitter;
-	TimedEvent						m_tAshParticleTimer;
-	TimedEvent						m_tAshParticleTraceTimer;
-	bool							m_bActiveAshEmitter;
-	Vector							m_vAshSpawnOrigin;
-
-	int								m_iAshCount;
-
-private:
-	CClient_Precipitation( const CClient_Precipitation & ); // not defined, not accessible
-};
-
+CUtlVector< RayTracingEnvironment* > g_RayTraceEnvironments;
 
 // Just receive the normal data table stuff
 IMPLEMENT_CLIENTCLASS_DT(CClient_Precipitation, DT_Precipitation, CPrecipitation)
-	RecvPropInt( RECVINFO( m_nPrecipType ) )
+	RecvPropInt( RECVINFO( m_nPrecipType ) ),
+#ifdef MAPBASE
+	RecvPropInt( RECVINFO( m_spawnflags ) ),
+#endif
 END_RECV_TABLE()
 
 static ConVar r_SnowEnable( "r_SnowEnable", "1", FCVAR_CHEAT, "Snow Enable" );
@@ -396,6 +267,12 @@ inline bool CClient_Precipitation::SimulateSnow( CPrecipitationParticle* pPartic
 
 void CClient_Precipitation::Simulate( float dt )
 {
+	if ( IsParticleRainType(m_nPrecipType) )
+	{
+		CreateParticlePrecip();
+		return;
+	}
+
 	// NOTE: When client-side prechaching works, we need to remove this
 	Precache();
 
@@ -471,6 +348,9 @@ inline void CClient_Precipitation::RenderParticle( CPrecipitationParticle* pPart
 {
 	float scale;
 	Vector start, delta;
+
+	if ( IsParticleRainType(m_nPrecipType) )
+		return;
 
 	if ( m_nPrecipType == PRECIPITATION_TYPE_ASH )
 		 return;
@@ -562,6 +442,9 @@ void CClient_Precipitation::Render()
 	if ( !r_DrawRain.GetInt() )
 		return;
 
+	if ( IsParticleRainType(m_nPrecipType) )
+		return;
+
 	// Don't render in monitors or in reflections or refractions.
 	if ( CurrentViewID() == VIEW_MONITOR )
 		return;
@@ -632,6 +515,11 @@ CClient_Precipitation::CClient_Precipitation() : m_Remainder(0.0f)
 	m_nPrecipType = PRECIPITATION_TYPE_RAIN;
 	m_MatHandle = INVALID_MATERIAL_HANDLE;
 	m_flHalfScreenWidth = 1;
+
+	m_pParticlePrecipInnerNear = NULL;
+	m_pParticlePrecipInnerFar = NULL;
+	m_pParticlePrecipOuter = NULL;
+	m_bActiveParticlePrecipEmitter = false;
 	
 	g_Precipitations.AddToTail( this );
 }
@@ -1010,6 +898,363 @@ void CClient_Precipitation::CreateAshParticle( void )
 			}
 		}
 	}
+
+void CClient_Precipitation::PrecacheParticlePrecip( void )
+{
+	if ( m_nPrecipType == PRECIPITATION_TYPE_PARTICLEASH )
+	{
+		PrecacheParticleSystem( "ash" );
+		PrecacheParticleSystem( "ash_outer" );
+	}
+	else if ( m_nPrecipType == PRECIPITATION_TYPE_PARTICLESNOW )
+	{
+		PrecacheParticleSystem( "snow" );
+		PrecacheParticleSystem( "snow_outer" );
+	}
+	else if ( m_nPrecipType == PRECIPITATION_TYPE_PARTICLERAINSTORM )
+	{
+		PrecacheParticleSystem( "rain_storm" );
+		PrecacheParticleSystem( "rain_storm_screen" );
+		PrecacheParticleSystem( "rain_storm_outer" );
+	}
+	else  //default to rain
+	{
+		PrecacheParticleSystem( "rain" );
+		PrecacheParticleSystem( "rain_outer" );
+	}
+}
+
+void CClient_Precipitation::CreateParticlePrecip( void )
+{
+	if ( !m_bParticlePrecipInitialized )
+	{
+		PrecacheParticlePrecip();
+		InitializeParticlePrecip();
+	}
+
+
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+
+	if ( pPlayer == NULL )
+		return;
+
+	// Make sure the emitter is setup
+	if ( !m_bActiveParticlePrecipEmitter )
+	{
+		//Update 8 times per second.
+		m_tParticlePrecipTraceTimer.Init( 8 );
+		DestroyInnerParticlePrecip();
+		DestroyOuterParticlePrecip();
+		m_bActiveParticlePrecipEmitter = true;
+	}
+
+	UpdateParticlePrecip( pPlayer );
+}
+
+void CClient_Precipitation::UpdateParticlePrecip( C_BasePlayer *pPlayer )
+{
+	if ( !pPlayer )
+		return;
+
+	Vector vForward;
+	Vector vRight;
+
+	pPlayer->GetVectors( &vForward, &vRight, NULL );
+	vForward.z = 0.0f;
+	vForward.NormalizeInPlace();
+	Vector vForward45Right = vForward + vRight;
+	Vector vForward45Left = vForward - vRight;
+	vForward45Right.NormalizeInPlace();
+	vForward45Left.NormalizeInPlace();
+	fltx4 TMax = ReplicateX4( 320.0f );
+	SubFloat( TMax, 3 ) = FLT_MAX;
+	float curTime = gpGlobals->frametime;
+
+	while ( m_tParticlePrecipTraceTimer.NextEvent( curTime ) )
+	{
+		Vector vPlayerPos = pPlayer->EyePosition();
+		Vector vOffsetPos = vPlayerPos + Vector ( 0, 0, 180 );
+		Vector vOffsetPosNear = vPlayerPos + Vector ( 0, 0, 180 ) + ( vForward * 32 );
+		Vector vOffsetPosFar = vPlayerPos + Vector ( 0, 0, 180 ) + ( vForward * 100 );	
+
+#ifdef MAPBASE
+		if (m_spawnflags & SF_PRECIP_PARTICLE_CLAMP)
+		{
+			Vector mins, maxs;
+			modelinfo->GetModelBounds( GetModel(), mins, maxs );
+
+			// Account for precipitation height
+			maxs.z += 180;
+
+			Vector vecOrigin; //= WorldSpaceCenter();
+			VectorLerp( mins, maxs, 0.5f, vecOrigin );
+
+			maxs -= vecOrigin;
+			mins -= vecOrigin;
+
+			float flMax = r_RainParticleClampOffset.GetFloat();
+			Vector addend( flMax, flMax, 0 );
+			mins += addend;
+			maxs -= addend;
+
+			if (flMax > 0)
+			{
+				// Unless this is extruding outwards, make sure the offset isn't inverting the bounds.
+				// This means precipitation triggers with bounds less than offset*2 will turn into a thin line
+				// and the involved precipitation will pretty much be spatial at all times, which is okay.
+				mins.x = clamp( mins.x, -FLT_MAX, -1 );
+				mins.y = clamp( mins.y, -FLT_MAX, -1 );
+				maxs.x = clamp( maxs.x, 1, FLT_MAX );
+				maxs.y = clamp( maxs.y, 1, FLT_MAX );
+			}
+
+			if (r_RainParticleClampDebug.GetBool())
+				debugoverlay->AddBoxOverlay( vecOrigin, mins, maxs, vec3_angle, 255, 0, 0, 128, 0.15f );
+
+			maxs += vecOrigin;
+			mins += vecOrigin;
+
+			CalcClosestPointOnAABB( mins, maxs, vPlayerPos, vPlayerPos );
+			CalcClosestPointOnAABB( mins, maxs, vOffsetPos, vOffsetPos );
+			CalcClosestPointOnAABB( mins, maxs, vOffsetPosNear, vOffsetPosNear );
+			CalcClosestPointOnAABB( mins, maxs, vOffsetPosFar, vOffsetPosFar );
+		}
+#endif
+
+		Vector vDensity = Vector( r_RainParticleDensity.GetFloat(), 0, 0 ) * m_flDensity;
+
+		// Get the rain volume Ray Tracing Environment.  Currently hard coded to 0, should have this lookup 
+		RayTracingEnvironment *RtEnv = g_RayTraceEnvironments.Element( 0 );
+
+		// Our 4 Rays are forward, off to the left and right, and directly up.
+		// Use the first three to determine if there's generally visible rain where we're looking.
+		// The forth, straight up, tells us if we're standing inside a rain volume 
+		// (based on the normal that we hit or if we miss entirely)
+		FourRays frRays;
+		FourVectors fvDirection;
+		fvDirection = FourVectors( vForward, vForward45Left, vForward45Right, Vector( 0, 0, 1 ) );
+		frRays.direction = fvDirection; 
+		frRays.origin.DuplicateVector( vPlayerPos );
+		RayTracingResult Result;
+
+		RtEnv->Trace4Rays( frRays, Four_Zeros, TMax, &Result );
+
+		i32x4 in4HitIds = LoadAlignedIntSIMD( Result.HitIds );
+		fltx4 fl4HitIds = SignedIntConvertToFltSIMD ( in4HitIds );
+
+		fltx4 fl4Tolerance = ReplicateX4( 300.0f );
+		// ignore upwards test for tolerance, as we may be below an area which is raining, but with it not visible in front of us
+		//SubFloat( fl4Tolerance, 3 ) = 0.0f;
+
+		bool bInside = ( Result.HitIds[3] != -1 && Result.surface_normal.Vec( 3 ).z < 0.0f );
+		bool bNearby = (  IsAnyNegative ( CmpGeSIMD ( fl4HitIds, Four_Zeros ) ) && IsAnyNegative( CmpGeSIMD( fl4Tolerance, Result.HitDistance ) ) );
+
+		if ( bInside || bNearby )
+		{
+			//We can see a rain volume, but it's farther than 180 units away, only use far effect.
+			if ( !bInside && SubFloat( FindLowestSIMD3( Result.HitDistance ), 0 ) >= m_flParticleInnerDist )
+			{
+				// Kill the inner rain if it's previously been in use
+				if ( m_pParticlePrecipInnerNear != NULL )
+				{
+					DestroyInnerParticlePrecip();
+				}
+				// Update if we've already got systems, otherwise, create them.
+				if ( m_pParticlePrecipOuter != NULL )
+				{
+					m_pParticlePrecipOuter->SetControlPoint( 1,  vOffsetPos );
+					m_pParticlePrecipOuter->SetControlPoint( 3, vDensity );
+				}
+				else
+				{
+					DispatchOuterParticlePrecip( pPlayer, vForward );
+				}
+			}
+			else   //We're close enough to use the near effect.
+			{
+				// Update if we've already got systems, otherwise, create them.
+#ifdef MAPBASE
+				// The outer can now be suppressed without interfering with other functionality
+				if ( m_pParticlePrecipOuter != NULL )
+				{
+					m_pParticlePrecipOuter->SetControlPoint( 1, vOffsetPos );
+					m_pParticlePrecipOuter->SetControlPoint( 3, vDensity );
+				}
+				if ( m_pParticlePrecipInnerNear != NULL && m_pParticlePrecipInnerFar != NULL )
+				{
+					m_pParticlePrecipInnerNear->SetControlPoint( 1, vOffsetPosNear );
+					m_pParticlePrecipInnerFar->SetControlPoint( 1, vOffsetPosFar );
+					m_pParticlePrecipInnerNear->SetControlPoint( 3, vDensity );
+					m_pParticlePrecipInnerFar->SetControlPoint( 3, vDensity );
+				}
+#else
+				if ( m_pParticlePrecipInnerNear != NULL  && m_pParticlePrecipInnerFar != NULL  &&  m_pParticlePrecipOuter != NULL )
+				{
+					m_pParticlePrecipOuter->SetControlPoint( 1, vOffsetPos );
+					m_pParticlePrecipInnerNear->SetControlPoint( 1, vOffsetPosNear );
+					m_pParticlePrecipInnerFar->SetControlPoint( 1, vOffsetPosFar );
+					m_pParticlePrecipInnerNear->SetControlPoint( 3, vDensity );
+					m_pParticlePrecipInnerFar->SetControlPoint( 3, vDensity );
+					m_pParticlePrecipOuter->SetControlPoint( 3, vDensity );
+				}
+#endif
+				else
+				{
+					DispatchInnerParticlePrecip( pPlayer, vForward );
+				}
+			}
+		}
+		else  // No rain in the area, kill any leftover systems.
+		{
+			DestroyInnerParticlePrecip();
+			DestroyOuterParticlePrecip();
+		}
+	}
+}
+
+void CClient_Precipitation::InitializeParticlePrecip( void )
+{
+	//Set up which type of precipitation particle we'll use
+	if ( m_nPrecipType == PRECIPITATION_TYPE_PARTICLEASH )
+	{
+		m_pParticleInnerNearDef = "ash";
+		m_pParticleInnerFarDef = "ash";
+		m_pParticleOuterDef = "ash_outer";
+		m_flParticleInnerDist = 280.0;
+	}
+	else if ( m_nPrecipType == PRECIPITATION_TYPE_PARTICLESNOW )
+	{
+		m_pParticleInnerNearDef = "snow";
+		m_pParticleInnerFarDef = "snow";
+		m_pParticleOuterDef = "snow_outer";
+		m_flParticleInnerDist = 280.0;
+	}
+	else if ( m_nPrecipType == PRECIPITATION_TYPE_PARTICLERAINSTORM )
+	{
+		m_pParticleInnerNearDef = "rain_storm";
+		m_pParticleInnerFarDef = "rain_storm_screen";
+		m_pParticleOuterDef = "rain_storm_outer";
+		m_flParticleInnerDist = 0.0;
+	}
+	else  //default to rain
+	{
+		m_pParticleInnerNearDef = "rain";
+		m_pParticleInnerFarDef = "rain";
+		m_pParticleOuterDef = "rain_outer";
+		m_flParticleInnerDist = 180.0;
+	}
+
+	Assert( m_pParticleInnerFarDef != NULL );
+
+	//We'll want to change this if/when we add more raytrace environments.
+	g_RayTraceEnvironments.PurgeAndDeleteElements();
+
+	// Sets up ray tracing environments for all func_precipitations and func_precipitation_blockers
+	RayTracingEnvironment *rtEnvRainEmission = new RayTracingEnvironment();
+	g_RayTraceEnvironments.AddToTail( rtEnvRainEmission );
+	RayTracingEnvironment *rtEnvRainBlocker = new RayTracingEnvironment();
+	g_RayTraceEnvironments.AddToTail( rtEnvRainBlocker );
+
+	rtEnvRainEmission->Flags |= RTE_FLAGS_DONT_STORE_TRIANGLE_COLORS;	// save some ram
+	rtEnvRainBlocker->Flags |= RTE_FLAGS_DONT_STORE_TRIANGLE_COLORS;		// save some ram
+
+	int nTriCount = 1;
+	for ( int i=0; i<g_Precipitations.Count(); ++i )
+	{
+		CClient_Precipitation *volume = g_Precipitations[i];
+
+		vcollide_t *pCollide = modelinfo->GetVCollide( volume->GetModelIndex() );
+
+		if ( !pCollide || pCollide->solidCount <= 0 )
+			continue;
+
+		Vector *outVerts;
+		int vertCount = physcollision->CreateDebugMesh( pCollide->solids[0], &outVerts );
+
+		if ( vertCount )
+		{
+			for ( int j = 0; j < vertCount; j += 3 )
+			{
+				rtEnvRainEmission->AddTriangle( nTriCount++, outVerts[j], outVerts[j + 1], outVerts[j + 2], Vector( 1, 1, 1 ) );
+			}
+		}
+		physcollision->DestroyDebugMesh( vertCount, outVerts );
+	}
+	rtEnvRainEmission->SetupAccelerationStructure();
+
+	m_bParticlePrecipInitialized = true;
+}
+
+void CClient_Precipitation::DestroyInnerParticlePrecip( void )
+{
+	if ( m_pParticlePrecipInnerFar != NULL )
+	{
+		m_pParticlePrecipInnerFar->StopEmission();
+		m_pParticlePrecipInnerFar = NULL;
+	}
+	if ( m_pParticlePrecipInnerNear != NULL )
+	{
+		m_pParticlePrecipInnerNear->StopEmission();
+		m_pParticlePrecipInnerNear = NULL;
+	}
+}
+
+void CClient_Precipitation::DestroyOuterParticlePrecip( void )
+{
+	if ( m_pParticlePrecipOuter != NULL )
+	{
+		m_pParticlePrecipOuter->StopEmission();
+		m_pParticlePrecipOuter = NULL;
+	}
+}
+
+void CClient_Precipitation::DispatchOuterParticlePrecip( C_BasePlayer *pPlayer, Vector vForward )
+{
+	DestroyOuterParticlePrecip();
+
+#ifdef MAPBASE
+	if (m_spawnflags & SF_PRECIP_PARTICLE_NO_OUTER)
+		return;
+#endif
+
+	Vector vDensity = Vector( r_RainParticleDensity.GetFloat(), 0, 0 ) * m_flDensity;
+	Vector vPlayerPos = pPlayer->EyePosition();
+
+	m_pParticlePrecipOuter = ParticleProp()->Create( m_pParticleOuterDef, PATTACH_ABSORIGIN_FOLLOW );
+	m_pParticlePrecipOuter->SetControlPointEntity( 2, pPlayer );
+	m_pParticlePrecipOuter->SetControlPoint( 1,  vPlayerPos + Vector (0, 0, 180 ) );
+	m_pParticlePrecipOuter->SetControlPoint( 3, vDensity );
+}
+
+void CClient_Precipitation::DispatchInnerParticlePrecip( C_BasePlayer *pPlayer, Vector vForward )
+{
+	DestroyInnerParticlePrecip();
+	DestroyOuterParticlePrecip();
+	Vector vPlayerPos = pPlayer->EyePosition();
+	Vector vOffsetPos = vPlayerPos + Vector ( 0, 0, 180 );
+	Vector vOffsetPosNear = vPlayerPos + Vector ( 0, 0, 180 ) + ( vForward * 32 );
+	Vector vOffsetPosFar = vPlayerPos + Vector ( 0, 0, 180 ) + ( vForward * m_flParticleInnerDist );  // 100.0
+	Vector vDensity = Vector( r_RainParticleDensity.GetFloat(), 0, 0 ) * m_flDensity;
+
+#ifdef MAPBASE
+	if (!(m_spawnflags & SF_PRECIP_PARTICLE_NO_OUTER))
+#endif
+	{
+		m_pParticlePrecipOuter = ParticleProp()->Create( m_pParticleOuterDef, PATTACH_ABSORIGIN_FOLLOW );
+		m_pParticlePrecipOuter->SetControlPointEntity( 2, pPlayer );
+		m_pParticlePrecipOuter->SetControlPoint( 1, vOffsetPos );
+		m_pParticlePrecipOuter->SetControlPoint( 3, vDensity );
+	}
+
+	m_pParticlePrecipInnerNear = ParticleProp()->Create( m_pParticleInnerNearDef, PATTACH_ABSORIGIN_FOLLOW );
+	m_pParticlePrecipInnerFar = ParticleProp()->Create( m_pParticleInnerFarDef, PATTACH_ABSORIGIN_FOLLOW );
+	m_pParticlePrecipInnerNear->SetControlPointEntity( 2, pPlayer );
+	m_pParticlePrecipInnerFar->SetControlPointEntity( 2, pPlayer );
+	m_pParticlePrecipInnerNear->SetControlPoint( 1,  vOffsetPosNear );
+	m_pParticlePrecipInnerFar->SetControlPoint( 1,  vOffsetPosFar );
+	m_pParticlePrecipInnerNear->SetControlPoint( 3, vDensity );
+	m_pParticlePrecipInnerFar->SetControlPoint( 3, vDensity );
+}
 
 void CClient_Precipitation::CreateRainOrSnowParticle( Vector vSpawnPosition, Vector vVelocity )
 {

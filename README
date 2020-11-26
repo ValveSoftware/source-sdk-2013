@@ -43,9 +43,12 @@ Mapbase is intended to be usable by everyone, including licensed Source projects
 The Alien Swarm SDK was used to backport features and code from newer branches of Source into a Source 2013/Half-Life 2 environment.
 Mapbase also implements some of Tony Sergi's code changes from the Source 2007 SDK codebase. Both SDKs are publicly distributed by Valve and are available on Steam.
 
+Some of the features backported from the Alien Swarm SDK (e.g. game instructor, particle rain) require assets from later versions of Source in order to work properly.
+The required assets have been backported from Alien Swarm and Left 4 Dead for the release build. They are not available in the code repository.
+
 Here's a list of Mapbase's other known external code sources:
 
-- https://github.com/95Navigator/insolence-2013 (Initial custom shader code and projected texture improvements)
+- https://github.com/95Navigator/insolence-2013 (Initial custom shader code and projected texture improvements; also used to implement ASW SDK particle precipitation code)
 - https://github.com/Biohazard90/g-string_2013 (Custom shadow filters, included indirectly via Insolence repo)
 - https://github.com/KyleGospo/City-17-Episode-One-Source (Brush phong and projected texture changes, included indirectly via Insolence repo)
 - https://github.com/DownFall-Team/DownFall (Multiple skybox code and fix for ent_fire delay not using floats; Also used as a guide to port certain Alien Swarm SDK changes to Source 2013,
@@ -87,11 +90,15 @@ Direct contributions:
 - https://github.com/mapbase-source/source-sdk-2013/pull/5 (Custom VScript implementation by ReDucTor; was placed into feature branch before being merged in a subsequent PR)
 - https://github.com/mapbase-source/source-sdk-2013/pull/3 ("playvideo" command playback fix from Avantate)
 - https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux fixes from z33ky)
+- https://github.com/mapbase-source/source-sdk-2013/pull/47 (VScript utility/consistency changes from samisalreadytaken)
+- https://github.com/mapbase-source/source-sdk-2013/pull/59 (New VScript functions and singletons from samisalreadytaken based on API documentation in later Source/Source 2 games)
+- https://github.com/mapbase-source/source-sdk-2013/pull/60 (Adjustment by RoyaleNoir to one of Saul's VDC changes)
 - Demo autorecord code provided by Klems
 - cc_emit crash fix provided by 1upD
 - Custom HL2 ammo crate models created by Rara (Textures created by Blixibon; This is asset-based and, aside from the SLAM crate, not reflected in the code)
 - Combine lock hardware on door01_left.mdl created by Kralich (This is asset-based and not reflected in the code)
 - npc_vehicledriver fixes provided by CrAzY
+- npc_combine cover behavior patches provided by iohnnyboy
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 

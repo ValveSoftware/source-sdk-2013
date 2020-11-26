@@ -1248,6 +1248,8 @@ public:
 
 	HSCRIPT				VScriptGetCine();
 	int					GetScriptState() { return m_scriptState; }
+
+	HSCRIPT				VScriptGetSquad();
 #endif
 
 	//-----------------------------------------------------

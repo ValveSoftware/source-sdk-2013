@@ -268,6 +268,10 @@ public:
 
 	void				SetLocatorTargetEntity( CBaseEntity *pEntity ) { m_hLocatorTargetEntity.Set( pEntity ); }
 
+#ifdef MAPBASE
+	virtual bool		CanAutoSwitchToNextBestWeapon( CBaseCombatWeapon *pWeapon );
+#endif
+
 	virtual int			GiveAmmo( int nCount, int nAmmoIndex, bool bSuppressSound);
 	virtual bool		BumpWeapon( CBaseCombatWeapon *pWeapon );
 	

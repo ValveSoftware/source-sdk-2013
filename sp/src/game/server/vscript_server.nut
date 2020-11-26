@@ -59,6 +59,19 @@ function EntFireByHandle( target, action, value = null, delay = 0.0, activator =
 	return DoEntFireByInstanceHandle( target, action.tostring(), value.tostring(), delay, activator, caller );
 }
 
+function DispatchParticleEffect( particleName, origin, angles, entity = null )
+{
+	DoDispatchParticleEffect( particleName, origin, angles, entity );
+}
+
+// CConvars is declared within the library
+function CConvars::GetClientConvarValue(cvar,idx)
+{
+	return ::ScriptGetClientConvarValue(cvar,idx);
+}
+
+RegisterHelp( "CConvars::GetClientConvarValue", "CConvars::GetClientConvarValue(string, int)", "Returns the convar value for the entindex as a string. Only works with client convars with the FCVAR_USERINFO flag." );
+
 function __ReplaceClosures( script, scope )
 {
 	if ( !scope )

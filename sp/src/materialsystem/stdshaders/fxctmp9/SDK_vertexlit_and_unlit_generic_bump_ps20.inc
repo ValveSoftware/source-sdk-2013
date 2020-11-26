@@ -232,6 +232,27 @@ public:
 		m_bBLENDTINTBYBASEALPHA = true;
 #endif
 	}
+private:
+	int m_nENVMAPMASK;
+#ifdef _DEBUG
+	bool m_bENVMAPMASK;
+#endif
+public:
+	void SetENVMAPMASK( int i )
+	{
+		Assert( i >= 0 && i <= 1 );
+		m_nENVMAPMASK = i;
+#ifdef _DEBUG
+		m_bENVMAPMASK = true;
+#endif
+	}
+	void SetENVMAPMASK( bool i )
+	{
+		m_nENVMAPMASK = i ? 1 : 0;
+#ifdef _DEBUG
+		m_bENVMAPMASK = true;
+#endif
+	}
 public:
 	sdk_vertexlit_and_unlit_generic_bump_ps20_Static_Index( )
 	{
@@ -279,19 +300,23 @@ public:
 		m_bBLENDTINTBYBASEALPHA = false;
 #endif // _DEBUG
 		m_nBLENDTINTBYBASEALPHA = 0;
+#ifdef _DEBUG
+		m_bENVMAPMASK = false;
+#endif // _DEBUG
+		m_nENVMAPMASK = 0;
 	}
 	int GetIndex()
 	{
 		// Asserts to make sure that we aren't using any skipped combinations.
 		// Asserts to make sure that we are setting all of the combination vars.
 #ifdef _DEBUG
-		bool bAllStaticVarsDefined = m_bCUBEMAP && m_bDIFFUSELIGHTING && m_bLIGHTWARPTEXTURE && m_bSELFILLUM && m_bSELFILLUMFRESNEL && m_bNORMALMAPALPHAENVMAPMASK && m_bHALFLAMBERT && m_bFLASHLIGHT && m_bDETAILTEXTURE && m_bDETAIL_BLEND_MODE && m_bBLENDTINTBYBASEALPHA;
+		bool bAllStaticVarsDefined = m_bCUBEMAP && m_bDIFFUSELIGHTING && m_bLIGHTWARPTEXTURE && m_bSELFILLUM && m_bSELFILLUMFRESNEL && m_bNORMALMAPALPHAENVMAPMASK && m_bHALFLAMBERT && m_bFLASHLIGHT && m_bDETAILTEXTURE && m_bDETAIL_BLEND_MODE && m_bBLENDTINTBYBASEALPHA && m_bENVMAPMASK;
 		Assert( bAllStaticVarsDefined );
 #endif // _DEBUG
-		return ( 24 * m_nCUBEMAP ) + ( 48 * m_nDIFFUSELIGHTING ) + ( 96 * m_nLIGHTWARPTEXTURE ) + ( 192 * m_nSELFILLUM ) + ( 384 * m_nSELFILLUMFRESNEL ) + ( 768 * m_nNORMALMAPALPHAENVMAPMASK ) + ( 1536 * m_nHALFLAMBERT ) + ( 3072 * m_nFLASHLIGHT ) + ( 6144 * m_nDETAILTEXTURE ) + ( 12288 * m_nDETAIL_BLEND_MODE ) + ( 86016 * m_nBLENDTINTBYBASEALPHA ) + 0;
+		return ( 24 * m_nCUBEMAP ) + ( 48 * m_nDIFFUSELIGHTING ) + ( 96 * m_nLIGHTWARPTEXTURE ) + ( 192 * m_nSELFILLUM ) + ( 384 * m_nSELFILLUMFRESNEL ) + ( 768 * m_nNORMALMAPALPHAENVMAPMASK ) + ( 1536 * m_nHALFLAMBERT ) + ( 3072 * m_nFLASHLIGHT ) + ( 6144 * m_nDETAILTEXTURE ) + ( 12288 * m_nDETAIL_BLEND_MODE ) + ( 86016 * m_nBLENDTINTBYBASEALPHA ) + ( 172032 * m_nENVMAPMASK ) + 0;
 	}
 };
-#define shaderStaticTest_sdk_vertexlit_and_unlit_generic_bump_ps20 psh_forgot_to_set_static_CUBEMAP + psh_forgot_to_set_static_DIFFUSELIGHTING + psh_forgot_to_set_static_LIGHTWARPTEXTURE + psh_forgot_to_set_static_SELFILLUM + psh_forgot_to_set_static_SELFILLUMFRESNEL + psh_forgot_to_set_static_NORMALMAPALPHAENVMAPMASK + psh_forgot_to_set_static_HALFLAMBERT + psh_forgot_to_set_static_FLASHLIGHT + psh_forgot_to_set_static_DETAILTEXTURE + psh_forgot_to_set_static_DETAIL_BLEND_MODE + psh_forgot_to_set_static_BLENDTINTBYBASEALPHA + 0
+#define shaderStaticTest_sdk_vertexlit_and_unlit_generic_bump_ps20 psh_forgot_to_set_static_CUBEMAP + psh_forgot_to_set_static_DIFFUSELIGHTING + psh_forgot_to_set_static_LIGHTWARPTEXTURE + psh_forgot_to_set_static_SELFILLUM + psh_forgot_to_set_static_SELFILLUMFRESNEL + psh_forgot_to_set_static_NORMALMAPALPHAENVMAPMASK + psh_forgot_to_set_static_HALFLAMBERT + psh_forgot_to_set_static_FLASHLIGHT + psh_forgot_to_set_static_DETAILTEXTURE + psh_forgot_to_set_static_DETAIL_BLEND_MODE + psh_forgot_to_set_static_BLENDTINTBYBASEALPHA + psh_forgot_to_set_static_ENVMAPMASK + 0
 class sdk_vertexlit_and_unlit_generic_bump_ps20_Dynamic_Index
 {
 private:

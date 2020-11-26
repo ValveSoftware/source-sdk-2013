@@ -193,6 +193,7 @@ void InitParamsVertexLitGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** para
 		CLEAR_FLAGS( MATERIAL_VAR_BASEALPHAENVMAPMASK );
 	}
 
+#ifndef MAPBASE
 	if ( IS_FLAG_SET( MATERIAL_VAR_BASEALPHAENVMAPMASK ) && info.m_nBumpmap != -1 && 
 		params[info.m_nBumpmap]->IsDefined() && !hasNormalMapAlphaEnvmapMask )
 	{
@@ -209,6 +210,7 @@ void InitParamsVertexLitGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** para
 			params[info.m_nEnvmap]->SetUndefined();
 		}
 	}
+#endif
 
 	// If mat_specular 0, then get rid of envmap
 	if ( !g_pConfig->UseSpecular() && info.m_nEnvmap != -1 && params[info.m_nEnvmap]->IsDefined() && params[info.m_nBaseTexture]->IsDefined() )
@@ -707,6 +709,7 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 						SET_STATIC_PIXEL_SHADER_COMBO( DETAIL_BLEND_MODE, nDetailBlendMode );
 						SET_STATIC_PIXEL_SHADER_COMBO( FLASHLIGHTDEPTHFILTERMODE, nShadowFilterMode );
 						SET_STATIC_PIXEL_SHADER_COMBO( BLENDTINTBYBASEALPHA, bBlendTintByBaseAlpha );
+						SET_STATIC_PIXEL_SHADER_COMBO( ENVMAPMASK, bHasEnvmapMask );
 						SET_STATIC_PIXEL_SHADER( sdk_vertexlit_and_unlit_generic_bump_ps20b );
 					//}
 					//else // ps_2_0
@@ -755,6 +758,7 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 					SET_STATIC_PIXEL_SHADER_COMBO( DETAIL_BLEND_MODE, nDetailBlendMode );
 					SET_STATIC_PIXEL_SHADER_COMBO( FLASHLIGHTDEPTHFILTERMODE, nShadowFilterMode );
 					SET_STATIC_PIXEL_SHADER_COMBO( BLENDTINTBYBASEALPHA, bBlendTintByBaseAlpha );
+					SET_STATIC_PIXEL_SHADER_COMBO( ENVMAPMASK, bHasEnvmapMask );
 					SET_STATIC_PIXEL_SHADER( sdk_vertexlit_and_unlit_generic_bump_ps30 );
 				}
 #endif

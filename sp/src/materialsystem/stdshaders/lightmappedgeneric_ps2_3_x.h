@@ -10,6 +10,7 @@
 //  SKIP: !$FASTPATH && $FASTPATHENVMAPTINT
 //  SKIP: !$BUMPMAP && $DIFFUSEBUMPMAP
 //	SKIP: !$BUMPMAP && $BUMPMAP2
+//	SKIP: !$BUMPMAP2 && $BUMPMASK
 //	SKIP: $ENVMAPMASK && $BUMPMAP2
 //	SKIP: $BASETEXTURENOENVMAP && ( !$BASETEXTURE2 || !$CUBEMAP )
 //	SKIP: $BASETEXTURE2NOENVMAP && ( !$BASETEXTURE2 || !$CUBEMAP )
@@ -34,6 +35,8 @@
 //  SKIP: $BASETEXTURETRANSFORM2 && $SEAMLESS
 
 //  SKIP: $SWAP_VERTEX_BLEND && !$BASETEXTURE2
+
+//  SKIP: !$FANCY_BLENDING && $MASKEDBLENDING
 
 // debug crap:
 // NOSKIP: $DETAILTEXTURE
@@ -114,8 +117,16 @@ const float4 g_ShadowTweaks					: register( c19 );
 
 #if PARALLAXCORRECT
 // Parallax cubemaps
-const float3 cubemapPos						: register(c21);
+const float4 cubemapPos						: register(c21);
 const float4x4 obbMatrix					: register(c22); //through c25
+#define g_BlendInverted cubemapPos.w
+#else
+// Blixibon - Hammer apparently has a bug that causes the vertex blend to get swapped.
+// Hammer uses a special internal shader to nullify this, but it doesn't work with custom shaders.
+// Downfall got around this by swapping around the base textures in the DLL code when drawn by the editor.
+// Doing it here in the shader itself allows us to retain other properties, like FANCY_BLENDING.
+// TODO: This may be inefficent usage of a constant
+const HALF g_BlendInverted					: register(c21);
 #endif
 
 
@@ -349,15 +360,13 @@ HALF4 main( PS_INPUT i ) : COLOR
 	float blendfactor=0.5;
 #else
 	
-#if SWAP_VERTEX_BLEND
-	// Blixibon - Hammer apparently has a bug that causes the vertex blend to get swapped.
-	// Hammer uses a special internal shader to nullify this, but it doesn't work with custom shaders.
-	// Downfall got around this by swapping around the base textures in the DLL code when drawn by the editor.
-	// Doing it here in the shader itself allows us to retain other properties, like FANCY_BLENDING.
-	float blendfactor=1.0f-i.vertexBlendX_fogFactorW.r;
-#else
 	float blendfactor=i.vertexBlendX_fogFactorW.r;
-#endif
+
+	// See g_BlendInverted's declaration for more info on this
+	if (g_BlendInverted > 0.0)
+	{
+		blendfactor=1.0f-blendfactor;
+	}
 
 #endif
 

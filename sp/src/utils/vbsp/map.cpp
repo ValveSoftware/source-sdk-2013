@@ -18,6 +18,9 @@
 #ifdef PARALLAX_CORRECTED_CUBEMAPS
 #include "matrixinvert.h"
 #endif
+#ifdef MAPBASE_VSCRIPT
+#include "vscript_vbsp.h"
+#endif
 
 #ifdef VSVMFIO
 #include "VmfImport.h"
@@ -53,6 +56,9 @@ extern qboolean onlyents;
 extern entity_t *g_ManifestWorldSpawn;
 
 char g_MainMapPath[ MAX_PATH ];
+
+// This is done for the instancing fix
+bool g_pParallaxObbsDone[MAX_MAP_CUBEMAPSAMPLES];
 #endif
 
 
@@ -2568,6 +2574,32 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 				Q_snprintf( temp, sizeof( temp ), "%f", vOutNormal.z );
 				SetKeyValue( entity, "normal.z", temp );*/
 			}
+
+#ifdef MAPBASE
+			else if ( !strcmp( pEntity, "func_instance" ) )
+			{
+				int iNumReplaces = 0;
+				for ( epair_t *epSubInstance = entity->epairs; epSubInstance != NULL; epSubInstance = epSubInstance->next )
+				{
+					if ( strnicmp( epSubInstance->key, INSTANCE_VARIABLE_KEY, strlen( INSTANCE_VARIABLE_KEY ) ) == 0 )
+					{
+						iNumReplaces++;
+					}
+				}
+
+				// Merge this instance's keys
+				for ( epair_t *epInstance = pInstanceEntity->epairs; epInstance != NULL; epInstance = epInstance->next )
+				{
+					if ( strnicmp( epInstance->key, INSTANCE_VARIABLE_KEY, strlen( INSTANCE_VARIABLE_KEY ) ) == 0 )
+					{
+						iNumReplaces++;
+						char szKey[32];
+						Q_snprintf(szKey, sizeof(szKey), "replace%i", iNumReplaces);
+						SetKeyValue( entity, szKey, epInstance->value );
+					}
+				}
+			}
+#endif
 		}
 
 #ifdef MERGE_INSTANCE_DEBUG_INFO
@@ -2766,6 +2798,23 @@ bool LoadMapFile( const char *pszFileName )
 
 	if ((eResult == ChunkFile_Ok) || (eResult == ChunkFile_EOF))
 	{
+#ifdef MAPBASE_VSCRIPT
+		if ( g_pScriptVM )
+		{
+			HSCRIPT hFunc = g_pScriptVM->LookupFunction( "OnMapLoaded" );
+			if ( hFunc )
+			{
+				// Use GetLoadingMap()
+				//g_pScriptVM->SetValue( "map", g_LoadingMap->GetScriptInstance() );
+
+				g_pScriptVM->Call( hFunc );
+				g_pScriptVM->ReleaseFunction( hFunc );
+
+				//g_pScriptVM->ClearValue( "map" );
+			}
+		}
+#endif
+
 		// Update the overlay/side list(s).
 		Overlay_UpdateSideLists( g_LoadingMap->m_StartMapOverlays );
 		OverlayTransition_UpdateSideLists( g_LoadingMap->m_StartMapWaterOverlays );
@@ -2781,30 +2830,30 @@ bool LoadMapFile( const char *pszFileName )
 		// Fill out parallax obb matrix array
 		// "i" is static so this code could account for
 		// multiple LoadMapFile() calls from instances, etc.
-		for (static int i = 0; i < g_nCubemapSamples; i++) 
+		for (int i = 0; i < g_nCubemapSamples; i++) 
 		{
-			if (g_pParallaxObbStrs[i][0] != '\0')
+			if (g_pParallaxObbStrs[i][0] != '\0' && g_pParallaxObbsDone[i] == false)
 			{
 				Warning( "Testing OBB string %s\n", g_pParallaxObbStrs[i] );
 
+				entity_t* obbEnt = NULL;
 				for (int i2 = 0; i2 < g_LoadingMap->num_entities; i2++)
 				{
-					entity_t* obbEnt = &g_LoadingMap->entities[i2];
-					if (stricmp( ValueForKey( obbEnt, "targetname" ), g_pParallaxObbStrs[i] ) != 0)
+					if (stricmp( ValueForKey( &g_LoadingMap->entities[i2], "targetname" ), g_pParallaxObbStrs[i] ) != 0)
 						continue;
 
-					if (obbEnt)
-					{
-						g_pParallaxObbStrs[i] = ValueForKey(obbEnt, "transformationmatrix");
-						Warning( "Using OBB transformation matrix \"%s\"\n", g_pParallaxObbStrs[i] );
-					}
-					else
-					{
-						Warning( "Cannot find parallax obb \"%s\"\n", g_pParallaxObbStrs[i] );
-						g_pParallaxObbStrs[i][0] = '\0';
-					}
+					obbEnt = &g_LoadingMap->entities[i2];
+					g_pParallaxObbStrs[i] = ValueForKey(obbEnt, "transformationmatrix");
+					Warning( "Using OBB transformation matrix \"%s\"\n", g_pParallaxObbStrs[i] );
+					g_pParallaxObbsDone[i] = true;
 
 					break;
+				}
+
+				if (!obbEnt)
+				{
+					Warning( "Cannot find parallax obb \"%s\" (num_entities is %i)\n", g_pParallaxObbStrs[i], g_LoadingMap->num_entities );
+					//g_pParallaxObbStrs[i][0] = '\0';
 				}
 			}
 		}
@@ -3318,6 +3367,133 @@ ChunkFileResult_t LoadSolidKeyCallback(const char *szKey, const char *szValue, m
 
 	return ChunkFile_Ok;
 }
+
+
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+HSCRIPT CMapFile::GetScriptInstance()
+{
+	if (!m_hScriptInstance)
+		m_hScriptInstance = g_pScriptVM->RegisterInstance( this );
+
+	return m_hScriptInstance;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CMapFile::ScriptGetEntityKeyValues( int idx, HSCRIPT hKeyTable, HSCRIPT hValTable )
+{
+	epair_t *curPair = entities[idx].epairs;
+	while (curPair)
+	{
+		g_pScriptVM->ArrayAppend( hKeyTable, curPair->key );
+		g_pScriptVM->ArrayAppend( hValTable, curPair->value );
+
+		curPair = curPair->next;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CMapFile::ScriptAddSimpleEntityKV( HSCRIPT hKV )
+{
+	if (num_entities == MAX_MAP_ENTITIES)
+	{
+		// Exits.
+		g_MapError.ReportError ("num_entities == MAX_MAP_ENTITIES");
+		return -1;
+	}
+
+	entity_t *mapent = NULL;
+	if (::num_entities > 0)
+	{
+		// We're not loading maps anymore. Add this to the central BSP
+		mapent = &::entities[num_entities];
+		::num_entities++;
+	}
+	else
+	{
+		mapent = &entities[num_entities];
+		num_entities++;
+	}
+
+	memset(mapent, 0, sizeof(*mapent));
+	mapent->firstbrush = nummapbrushes;
+	mapent->numbrushes = 0;
+	//mapent->portalareas[0] = -1;
+	//mapent->portalareas[1] = -1;
+	
+	LoadEntity_t LoadEntity;
+	LoadEntity.pEntity = mapent;
+
+	// No default flags/contents
+	LoadEntity.nBaseFlags = 0;
+	LoadEntity.nBaseContents = 0;
+
+	int nIterator = -1;
+	ScriptVariant_t varKey, varValue;
+	char szValue[256];
+	while ((nIterator = g_pScriptVM->GetKeyValue( hKV, nIterator, &varKey, &varValue )) != -1)
+	{
+		switch (varValue.m_type)
+		{
+			case FIELD_CSTRING:		Q_strncpy( szValue, varValue.m_pszString, sizeof(szValue) ); break;
+			case FIELD_INTEGER:		Q_snprintf( szValue, sizeof(szValue), "%i", varValue.m_int ); break;
+			case FIELD_FLOAT:		Q_snprintf( szValue, sizeof(szValue), "%f", varValue.m_float ); break;
+			case FIELD_CHARACTER:	Q_snprintf( szValue, sizeof( szValue ), "%c", varValue.m_char ); break;
+			case FIELD_BOOLEAN:		Q_snprintf( szValue, sizeof(szValue), "%d", varValue.m_bool ); break;
+			case FIELD_VECTOR:		Q_snprintf( szValue, sizeof(szValue), "%f %f %f", (*varValue.m_pVector).x, (*varValue.m_pVector).y, (*varValue.m_pVector).z ); break;
+			default:				szValue[0] = '\0'; break;
+		}
+
+		LoadEntityKeyCallback( varKey, szValue, &LoadEntity );
+
+		g_pScriptVM->ReleaseValue( varKey );
+		g_pScriptVM->ReleaseValue( varValue );
+	}
+
+	return num_entities - 1;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CMapFile::ScriptAddInstance( const char *pszVMF, const Vector& vecOrigin, const QAngle& angAngles )
+{
+	if (num_entities == MAX_MAP_ENTITIES)
+	{
+		// Exits.
+		g_MapError.ReportError ("num_entities == MAX_MAP_ENTITIES");
+		return -1;
+	}
+
+	entity_t *mapent = &entities[num_entities];
+	num_entities++;
+	memset(mapent, 0, sizeof(*mapent));
+	mapent->firstbrush = nummapbrushes;
+	mapent->numbrushes = 0;
+	//mapent->portalareas[0] = -1;
+	//mapent->portalareas[1] = -1;
+
+	SetKeyValue( mapent, "classname", "func_instance" );
+
+	SetKeyValue( mapent, "file", pszVMF );
+	SetKeyValue( mapent, "fixup_style", "2" ); // No fixup
+
+	char szValue[256];
+	Q_snprintf( szValue, sizeof(szValue), "%f %f %f", vecOrigin.x, vecOrigin.y, vecOrigin.z );
+	SetKeyValue( mapent, "origin", szValue );
+
+	Q_snprintf( szValue, sizeof(szValue), "%f %f %f", angAngles.x, angAngles.y, angAngles.z );
+	SetKeyValue( mapent, "angles", szValue );
+
+	return num_entities - 1;
+}
+#endif
 
 
 /*

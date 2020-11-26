@@ -211,6 +211,19 @@ void InitSkin_DX9( CBaseVSShader *pShader, IMaterialVar** params, VertexLitGener
 		pShader->LoadCubeMap( info.m_nEnvmap, g_pHardwareConfig->GetHDRType() == HDR_TYPE_NONE ? TEXTUREFLAGS_SRGB : 0  );
 	}
 
+#ifdef MAPBASE
+	// This is crashing for currently unknown reasons.
+	// As a result, $envmapmask support is not yet functional.
+	/*
+	if ( info.m_nEnvmapMask != -1 && params[info.m_nEnvmapMask]->IsDefined() )
+	{
+		pShader->LoadTexture( info.m_nEnvmapMask );
+
+		CLEAR_FLAGS( MATERIAL_VAR_BASEALPHAENVMAPMASK );
+	}
+	*/
+#endif
+
 	if ( bHasSelfIllumMask )
 	{
 		pShader->LoadTexture( info.m_nSelfIllumMask );
@@ -257,6 +270,10 @@ void DrawSkin_DX9_Internal( CBaseVSShader *pShader, IMaterialVar** params, IShad
 	bool bHasDiffuseWarp = (info.m_nDiffuseWarpTexture != -1) && params[info.m_nDiffuseWarpTexture]->IsTexture();
 	bool bHasPhongWarp = (info.m_nPhongWarpTexture != -1) && params[info.m_nPhongWarpTexture]->IsTexture();
 	bool bHasNormalMapAlphaEnvmapMask = IS_FLAG_SET( MATERIAL_VAR_NORMALMAPALPHAENVMAPMASK );
+
+#ifdef MAPBASE
+	bool bHasEnvmapMask = (!bHasFlashlight || IsX360()) && info.m_nEnvmapMask != -1 && params[info.m_nEnvmapMask]->IsTexture();
+#endif
 
 #if !defined( _X360 )
 	bool bIsDecal = IS_FLAG_SET( MATERIAL_VAR_DECAL );
@@ -431,6 +448,13 @@ void DrawSkin_DX9_Internal( CBaseVSShader *pShader, IMaterialVar** params, IShad
 			pShaderShadow->EnableTexture( SHADER_SAMPLER14, true );
 		}
 
+#ifdef MAPBASE
+		if ( bHasEnvmapMask )
+		{
+			pShaderShadow->EnableTexture( SHADER_SAMPLER15, true );
+		}
+#endif
+
 		if( bHasVertexColor || bHasVertexAlpha )
 		{
 			flags |= VERTEX_COLOR;
@@ -484,6 +508,7 @@ void DrawSkin_DX9_Internal( CBaseVSShader *pShader, IMaterialVar** params, IShad
 			SET_STATIC_PIXEL_SHADER_COMBO( BLENDTINTBYBASEALPHA, bBlendTintByBaseAlpha );
 #ifdef MAPBASE
 			SET_STATIC_PIXEL_SHADER_COMBO( PHONG_HALFLAMBERT, bPhongHalfLambert );
+			SET_STATIC_PIXEL_SHADER_COMBO( ENVMAPMASK, bHasEnvmapMask );
 #endif
 			SET_STATIC_PIXEL_SHADER( sdk_skin_ps20b );
 		}
@@ -517,6 +542,7 @@ void DrawSkin_DX9_Internal( CBaseVSShader *pShader, IMaterialVar** params, IShad
 			SET_STATIC_PIXEL_SHADER_COMBO( BLENDTINTBYBASEALPHA, bBlendTintByBaseAlpha );
 #ifdef MAPBASE
 			SET_STATIC_PIXEL_SHADER_COMBO( PHONG_HALFLAMBERT, bPhongHalfLambert );
+			SET_STATIC_PIXEL_SHADER_COMBO( ENVMAPMASK, bHasEnvmapMask );
 #endif
 			SET_STATIC_PIXEL_SHADER( sdk_skin_ps30 );
 		}
@@ -615,6 +641,13 @@ void DrawSkin_DX9_Internal( CBaseVSShader *pShader, IMaterialVar** params, IShad
 				pShaderAPI->BindStandardTexture( SHADER_SAMPLER12, TEXTURE_NORMALMAP_FLAT );
 			}
 		}
+
+#ifdef MAPBASE
+		if ( bHasEnvmapMask )
+		{
+			pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER15, info.m_nEnvmapMask, info.m_nEnvmapMaskFrame );
+		}
+#endif
 
 		if ( hasDetailTexture )
 		{

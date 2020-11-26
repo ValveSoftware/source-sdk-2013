@@ -4,8 +4,8 @@
 //
 //=============================================================================
 
-#ifndef VSCRIPT_SERVER_H
-#define VSCRIPT_SERVER_H
+#ifndef VSCRIPT_CLIENT_H
+#define VSCRIPT_CLIENT_H
 
 #include "vscript/ivscript.h"
 #include "vscript_shared.h"
@@ -19,4 +19,8 @@ extern IScriptVM * g_pScriptVM;
 // Only allow scripts to create entities during map initialization
 bool IsEntityCreationAllowedInScripts( void );
 
-#endif // VSCRIPT_SERVER_H
+#ifdef MAPBASE_VSCRIPT
+extern IScriptManager * scriptmanager;
+#endif
+
+#endif // VSCRIPT_CLIENT_H

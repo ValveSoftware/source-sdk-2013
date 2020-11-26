@@ -297,6 +297,8 @@ public:
 #ifdef MAPBASE
 	void InputSetText ( inputdata_t &inputdata );
 	void SetText( const char* pszStr );
+
+	void InputSetFont( inputdata_t &inputdata ) { m_strFont = inputdata.value.StringID(); }
 #endif
 
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
@@ -308,6 +310,11 @@ private:
 
 	string_t m_iszMessage;
 	hudtextparms_t	m_textParms;
+
+#ifdef MAPBASE
+	string_t m_strFont;
+	bool m_bAutobreak;
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( game_text, CGameText );
@@ -327,12 +334,18 @@ BEGIN_DATADESC( CGameText )
 	DEFINE_KEYFIELD( m_textParms.holdTime, FIELD_FLOAT, "holdtime" ),
 	DEFINE_KEYFIELD( m_textParms.fxTime, FIELD_FLOAT, "fxtime" ),
 
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_strFont, FIELD_STRING, "font" ),
+	DEFINE_KEYFIELD( m_bAutobreak, FIELD_BOOLEAN, "autobreak" ),
+#endif
+
 	DEFINE_ARRAY( m_textParms, FIELD_CHARACTER, sizeof(hudtextparms_t) ),
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "Display", InputDisplay ),
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetText", InputSetText ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetFont", InputSetFont ),
 #endif
 
 END_DATADESC()
@@ -385,7 +398,11 @@ void CGameText::Display( CBaseEntity *pActivator )
 
 	if ( MessageToAll() )
 	{
+#ifdef MAPBASE
+		UTIL_HudMessageAll( m_textParms, MessageGet(), STRING(m_strFont), m_bAutobreak );
+#else
 		UTIL_HudMessageAll( m_textParms, MessageGet() );
+#endif
 	}
 	else
 	{
@@ -393,12 +410,20 @@ void CGameText::Display( CBaseEntity *pActivator )
 		if ( gpGlobals->maxClients == 1 )
 		{
 			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+#ifdef MAPBASE
+			UTIL_HudMessage( pPlayer, m_textParms, MessageGet(), STRING(m_strFont), m_bAutobreak );
+#else
 			UTIL_HudMessage( pPlayer, m_textParms, MessageGet() );
+#endif
 		}
 		// Otherwise show the message to the player that triggered us.
 		else if ( pActivator && pActivator->IsNetClient() )
 		{
+#ifdef MAPBASE
+			UTIL_HudMessage( ToBasePlayer( pActivator ), m_textParms, MessageGet(), STRING(m_strFont), m_bAutobreak );
+#else
 			UTIL_HudMessage( ToBasePlayer( pActivator ), m_textParms, MessageGet() );
+#endif
 		}
 	}
 }
@@ -417,7 +442,7 @@ void CGameText::SetText( const char* pszStr )
 		CUtlStringList vecLines;
 		Q_SplitString( pszStr, "/n", vecLines );
 
-		char szMsg[256];
+		char szMsg[512];
 		Q_strncpy( szMsg, vecLines[0], sizeof( szMsg ) );
 
 		for (int i = 1; i < vecLines.Count(); i++)

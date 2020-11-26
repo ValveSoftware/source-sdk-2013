@@ -24,6 +24,12 @@ $Project "VScript"
 
 		$File	"vscript.cpp"
 		$File	"vscript_squirrel.cpp"
+		$File	"vscript_squirrel.nut"
+		
+		$File	"vscript_bindings_base.cpp"
+		$File	"vscript_bindings_base.h"
+		$File	"vscript_bindings_math.cpp"
+		$File	"vscript_bindings_math.h"
 
 		$Folder "squirrel"
 		{

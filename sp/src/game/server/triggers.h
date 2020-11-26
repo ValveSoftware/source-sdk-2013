@@ -95,6 +95,13 @@ public:
 
 	bool PointIsWithin( const Vector &vecPoint );
 
+#ifdef MAPBASE_VSCRIPT
+	bool	ScriptPassesTriggerFilters( HSCRIPT hOther ) { return ToEnt(hOther) ? PassesTriggerFilters( ToEnt(hOther) ) : NULL; }
+	HSCRIPT	ScriptGetTouchedEntityOfType( const char *sClassName ) { return ToHScript( GetTouchedEntityOfType(sClassName) ); }
+
+	void	ScriptGetTouchingEntities( HSCRIPT hTable );
+#endif
+
 	bool		m_bDisabled;
 	string_t	m_iFilterName;
 	CHandle<class CBaseFilter>	m_hFilter;

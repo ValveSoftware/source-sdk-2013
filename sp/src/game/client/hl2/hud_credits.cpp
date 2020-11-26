@@ -139,6 +139,8 @@ private:
 
 #ifdef MAPBASE
 	char m_szCreditsFile[MAX_PATH];
+
+	char m_szLogoFont[64];
 #endif
 };	
 
@@ -263,6 +265,10 @@ void CHudCredits::ReadParams( KeyValues *pKeyValue )
 
 	Q_strncpy( m_szLogo, pKeyValue->GetString( "logo", "HALF-LIFE'" ), sizeof( m_szLogo ) );
 	Q_strncpy( m_szLogo2, pKeyValue->GetString( "logo2", "" ), sizeof( m_szLogo2 ) );
+
+#ifdef MAPBASE
+	Q_strncpy( m_szLogoFont, pKeyValue->GetString( "logofont", "" ), sizeof( m_szLogoFont ) );
+#endif
 }
 
 int CHudCredits::GetStringPixelWidth( wchar_t *pString, vgui::HFont hFont )
@@ -437,6 +443,14 @@ void CHudCredits::DrawLogo( void )
 
 	char szLogoFont[64];
 
+#ifdef MAPBASE
+	if (m_szLogoFont[0] != '\0')
+	{
+		// Custom logo font
+		Q_strncpy( szLogoFont, m_szLogoFont, sizeof( szLogoFont ) );
+	}
+	else
+#endif
 	if ( IsXbox() )
 	{
 		Q_snprintf( szLogoFont, sizeof( szLogoFont ), "WeaponIcons_Small" );

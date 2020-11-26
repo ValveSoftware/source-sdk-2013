@@ -199,7 +199,7 @@ void CLogicExternalData::InputWriteKeyValue( inputdata_t &inputdata )
 
 	// Separate key from value
 	char *delimiter = Q_strstr(szValue, " ");
-	if (delimiter)
+	if (delimiter && (delimiter + 1) != '\0')
 	{
 		Q_strncpy(key, szValue, MIN((delimiter - szValue) + 1, sizeof(key)));
 		Q_strncpy(value, delimiter + 1, sizeof(value));
@@ -284,8 +284,7 @@ HSCRIPT CLogicExternalData::ScriptGetKeyValues( void )
 	if (m_pRoot)
 	{
 		// Does this need to be destructed or freed? m_pScriptModelKeyValues apparently doesn't.
-		CScriptKeyValues *pKV = new CScriptKeyValues( m_pRoot );
-		hScript = g_pScriptVM->RegisterInstance( pKV );
+		hScript = scriptmanager->CreateScriptKeyValues( g_pScriptVM, m_pRoot, false );
 	}
 
 	return hScript;
@@ -302,8 +301,7 @@ HSCRIPT CLogicExternalData::ScriptGetKeyValueBlock( void )
 	if (m_pBlock)
 	{
 		// Does this need to be destructed or freed? m_pScriptModelKeyValues apparently doesn't.
-		CScriptKeyValues *pKV = new CScriptKeyValues( m_pBlock );
-		hScript = g_pScriptVM->RegisterInstance( pKV );
+		hScript = scriptmanager->CreateScriptKeyValues( g_pScriptVM, m_pBlock, false );
 	}
 
 	return hScript;
@@ -320,10 +318,10 @@ void CLogicExternalData::ScriptSetKeyValues( HSCRIPT hKV )
 		m_pRoot = NULL;
 	}
 
-	CScriptKeyValues *pKV = HScriptToClass<CScriptKeyValues>( hKV );
+	KeyValues *pKV = scriptmanager->GetKeyValuesFromScriptKV( g_pScriptVM, hKV );
 	if (pKV)
 	{
-		m_pRoot = pKV->m_pKeyValues;
+		m_pRoot = pKV;
 	}
 }
 
@@ -335,10 +333,10 @@ void CLogicExternalData::ScriptSetKeyValueBlock( HSCRIPT hKV )
 		m_pBlock = NULL;
 	}
 
-	CScriptKeyValues *pKV = HScriptToClass<CScriptKeyValues>( hKV );
+	KeyValues *pKV = scriptmanager->GetKeyValuesFromScriptKV( g_pScriptVM, hKV );
 	if (pKV)
 	{
-		m_pBlock = pKV->m_pKeyValues;
+		m_pBlock = pKV;
 	}
 }
 

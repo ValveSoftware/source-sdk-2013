@@ -1,10 +1,6 @@
 //========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 =================
 //
-// Purpose: Due to this being a custom integration of VScript based on the Alien Swarm SDK, we don't have access to
-//			some of the code normally available in games like L4D2 or Valve's original VScript DLL.
-//			Instead, that code is recreated here, shared between server and client.
-//
-//			It also contains other functions unique to Mapbase.
+// Purpose: See vscript_funcs_shared.cpp
 //
 // $NoKeywords: $
 //=============================================================================

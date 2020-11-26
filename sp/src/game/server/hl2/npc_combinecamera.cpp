@@ -627,6 +627,14 @@ void CNPC_CombineCamera::ActiveThink()
 	if ( !pTarget )
 	{
 		// Nobody suspicious. Go back to being idle.
+#ifdef MAPBASE
+		if (m_hEnemyTarget)
+		{
+			m_OnLostEnemy.FireOutput( m_hEnemyTarget, this );
+			if (m_hEnemyTarget->IsPlayer())
+				m_OnLostPlayer.FireOutput( m_hEnemyTarget, this );
+		}
+#endif
 		m_hEnemyTarget = NULL;
 		EmitSound("NPC_CombineCamera.BecomeIdle");
 		SetAngry(false);

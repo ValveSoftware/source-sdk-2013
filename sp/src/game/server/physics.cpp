@@ -724,7 +724,7 @@ bool CCollisionEvent::ShouldFreezeContacts( IPhysicsObject **pObjectList, int ob
 {
 	if ( m_lastTickFrictionError > gpGlobals->tickcount || m_lastTickFrictionError < (gpGlobals->tickcount-1) )
 	{
-		DevWarning("Performance Warning: large friction system (%d objects)!!!\n", objectCount );
+		CGWarning( 1, CON_GROUP_PHYSICS, "Performance Warning: large friction system (%d objects)!!!\n", objectCount );
 #if _DEBUG
 		for ( int i = 0; i < objectCount; i++ )
 		{
@@ -997,7 +997,7 @@ int CCollisionEvent::ShouldSolvePenetration( IPhysicsObject *pObj0, IPhysicsObje
 	{
 		if ( pObj0->GetGameFlags() & FVPHYSICS_PART_OF_RAGDOLL )
 		{
-			DevMsg(2, "Solving ragdoll self penetration! %s (%s) (%d v %d)\n", pObj0->GetName(), pEntity0->GetDebugName(), pObj0->GetGameIndex(), pObj1->GetGameIndex() );
+			CGMsg( 2, CON_GROUP_PHYSICS, "Solving ragdoll self penetration! %s (%s) (%d v %d)\n", pObj0->GetName(), pEntity0->GetDebugName(), pObj0->GetGameIndex(), pObj1->GetGameIndex() );
 			ragdoll_t *pRagdoll = Ragdoll_GetRagdoll( pEntity0 );
 			pRagdoll->pGroup->SolvePenetration( pObj0, pObj1 );
 			return false;
@@ -1030,11 +1030,11 @@ int CCollisionEvent::ShouldSolvePenetration( IPhysicsObject *pObj0, IPhysicsObje
 		{
 			int index0 = physcollision->CollideIndex( pObj0->GetCollide() );
 			int index1 = physcollision->CollideIndex( pObj1->GetCollide() );
-			DevMsg(1, "***Inter-penetration on %s (%d & %d) (%.0f, %.0f)\n", pName1?pName1:"(null)", index0, index1, gpGlobals->curtime, eventTime );
+			CGMsg( 1, CON_GROUP_PHYSICS, "***Inter-penetration on %s (%d & %d) (%.0f, %.0f)\n", pName1?pName1:"(null)", index0, index1, gpGlobals->curtime, eventTime );
 		}
 		else
 		{
-			DevMsg(1, "***Inter-penetration between %s(%s) AND %s(%s) (%.0f, %.0f)\n", pName1?pName1:"(null)", pEntity0->GetDebugName(), pName2?pName2:"(null)", pEntity1->GetDebugName(), gpGlobals->curtime, eventTime );
+			CGMsg( 1, CON_GROUP_PHYSICS, "***Inter-penetration between %s(%s) AND %s(%s) (%.0f, %.0f)\n", pName1?pName1:"(null)", pEntity0->GetDebugName(), pName2?pName2:"(null)", pEntity1->GetDebugName(), gpGlobals->curtime, eventTime );
 		}
 	}
 #endif
@@ -1333,8 +1333,8 @@ CON_COMMAND_F(surfaceprop, "Reports the surface properties at the cursor", FCVAR
 		Vector vecVelocity = tr.startpos - tr.endpos;
 		int length = vecVelocity.Length();
 
-		Msg("Hit surface \"%s\" (entity %s, model \"%s\" %s), texture \"%s\"\n", physprops->GetPropName( tr.surface.surfaceProps ), tr.m_pEnt->GetClassname(), pModelName, modelStuff.Access(), tr.surface.name);
-		Msg("Distance to surface: %d\n", length );
+		CGMsg( 0, CON_GROUP_PHYSICS, "Hit surface \"%s\" (entity %s, model \"%s\" %s), texture \"%s\"\n", physprops->GetPropName( tr.surface.surfaceProps ), tr.m_pEnt->GetClassname(), pModelName, modelStuff.Access(), tr.surface.name );
+		CGMsg( 0, CON_GROUP_PHYSICS, "Distance to surface: %d\n", length );
 	}
 }
 
@@ -1342,12 +1342,12 @@ static void OutputVPhysicsDebugInfo( CBaseEntity *pEntity )
 {
 	if ( pEntity )
 	{
-		Msg("Entity %s (%s) %s Collision Group %d\n", pEntity->GetClassname(), pEntity->GetDebugName(), pEntity->IsNavIgnored() ? "NAV IGNORE" : "", pEntity->GetCollisionGroup() );
+		CGMsg( 0, CON_GROUP_PHYSICS, "Entity %s (%s) %s Collision Group %d\n", pEntity->GetClassname(), pEntity->GetDebugName(), pEntity->IsNavIgnored() ? "NAV IGNORE" : "", pEntity->GetCollisionGroup() );
 		CUtlVector<CBaseEntity *> list;
 		g_Collisions.GetListOfPenetratingEntities( pEntity, list );
 		for ( int i = 0; i < list.Count(); i++ )
 		{
-			Msg("  penetration with entity %s (%s)\n", list[i]->GetDebugName(), STRING(list[i]->GetModelName()) );
+			CGMsg( 0, CON_GROUP_PHYSICS, "  penetration with entity %s (%s)\n", list[i]->GetDebugName(), STRING( list[i]->GetModelName() ) );
 		}
 
 		IPhysicsObject *pList[VPHYSICS_MAX_OBJECT_LIST_COUNT];
@@ -1358,7 +1358,7 @@ static void OutputVPhysicsDebugInfo( CBaseEntity *pEntity )
 			{
 				for ( int i = 0; i < physCount; i++ )
 				{
-					Msg("Object %d (of %d) =========================\n", i+1, physCount );
+					CGMsg( 0, CON_GROUP_PHYSICS, "Object %d (of %d) =========================\n", i + 1, physCount );
 					pList[i]->OutputDebugInfo();
 				}
 			}
@@ -1496,7 +1496,7 @@ static void DebugConstraints( CBaseEntity *pEntity )
 			pModel1 = STRING(pAttach[1]->GetModelName());
 			index1 = pAttachVPhysics[1]->GetGameIndex();
 		}
-		Msg("**********************\n%s connects %s(%s:%d) to %s(%s:%d)\n", constraints[i]->GetClassname(), pName0, pModel0, index0, pName1, pModel1, index1 );
+		CGMsg( 0, CON_GROUP_PHYSICS, "**********************\n%s connects %s(%s:%d) to %s(%s:%d)\n", constraints[i]->GetClassname(), pName0, pModel0, index0, pName1, pModel1, index1 );
 		DebugConstraint(constraints[i]);
 		constraints[i]->m_debugOverlays |= OVERLAY_BBOX_BIT | OVERLAY_TEXT_BIT;
 	}
@@ -1642,7 +1642,7 @@ CON_COMMAND( physics_budget, "Times the cost of each active object" )
 		for ( i = 0; i < ents.Count(); i++ )
 		{
 			float fraction = times[i] / totalTime;
-			Msg( "%s (%s): %.3fms (%.3f%%) @ %s\n", ents[i]->GetClassname(), ents[i]->GetDebugName(), fraction * totalTime * 1000.0f, fraction * 100.0f, VecToString(ents[i]->GetAbsOrigin()) );
+			CGMsg( 0, CON_GROUP_PHYSICS, "%s (%s): %.3fms (%.3f%%) @ %s\n", ents[i]->GetClassname(), ents[i]->GetDebugName(), fraction * totalTime * 1000.0f, fraction * 100.0f, VecToString( ents[i]->GetAbsOrigin() ) );
 		}
 		g_Collisions.BufferTouchEvents( false );
 	}
@@ -1685,7 +1685,7 @@ void PhysFrame( float deltaTime )
 	if ( deltaTime > 1.0f || deltaTime < 0.0f )
 	{
 		deltaTime = 0;
-		Msg( "Reset physics clock\n" );
+		CGMsg( 0, CON_GROUP_PHYSICS, "Reset physics clock\n" );
 	}
 	else if ( deltaTime > 0.1f )	// limit incoming time to 100ms
 	{
@@ -1743,7 +1743,7 @@ void PhysFrame( float deltaTime )
 		CBaseEntity *pEntity = pItem->hEnt.Get();
 		if ( !pEntity )
 		{
-			Msg( "Dangling pointer to physics entity!!!\n" );
+			CGMsg( 0, CON_GROUP_PHYSICS, "Dangling pointer to physics entity!!!\n" );
 			continue;
 		}
 
@@ -1765,7 +1765,7 @@ void PhysFrame( float deltaTime )
 		g_PhysAverageSimTime += (simRealTime * 0.2);
 		if ( lastObjectCount != 0 || activeCount != 0 )
 		{
-			Msg( "Physics: %3d objects, %4.1fms / AVG: %4.1fms\n", activeCount, simRealTime * 1000, g_PhysAverageSimTime * 1000 );
+			CGMsg( 0, CON_GROUP_PHYSICS, "Physics: %3d objects, %4.1fms / AVG: %4.1fms\n", activeCount, simRealTime * 1000, g_PhysAverageSimTime * 1000 );
 		}
 
 		lastObjectCount = activeCount;
@@ -1929,7 +1929,7 @@ void PhysForceEntityToSleep( CBaseEntity *pEntity, IPhysicsObject *pObject )
 	if ( !pObject || !pObject->IsMoveable() )
 		return;
 
-	DevMsg(2, "Putting entity to sleep: %s\n", pEntity->GetClassname() );
+	CGMsg( 2, CON_GROUP_PHYSICS, "Putting entity to sleep: %s\n", pEntity->GetClassname() );
 	MEM_ALLOC_CREDIT();
 	IPhysicsObject *pList[VPHYSICS_MAX_OBJECT_LIST_COUNT];
 	int physCount = pEntity->VPhysicsGetObjectList( pList, ARRAYSIZE(pList) );
@@ -2024,7 +2024,7 @@ void CCollisionEvent::FlushQueuedOperations()
 		// testing, if this assert fires it proves we've fixed the crash
 		// after that the assert + warning can safely be removed
 		Assert(0);
-		Warning("Physics queue not empty, error!\n");
+		CGWarning( 0, CON_GROUP_PHYSICS, "Physics queue not empty, error!\n" );
 		loopCount++;
 		UpdateTouchEvents();
 		UpdateDamageEvents();
@@ -2773,7 +2773,7 @@ void PhysCallbackDamage( CBaseEntity *pEntity, const CTakeDamageInfo &info )
 		g_Collisions.AddDamageEvent( pEntity, info, pInflictorPhysics, false, vec3_origin, vec3_origin );
 		if ( pEntity && info.GetInflictor() )
 		{
-			DevMsg( 2, "Warning: Physics damage event with no recovery info!\nObjects: %s, %s\n", pEntity->GetClassname(), info.GetInflictor()->GetClassname() );
+			CGMsg( 2, CON_GROUP_PHYSICS, "Warning: Physics damage event with no recovery info!\nObjects: %s, %s\n", pEntity->GetClassname(), info.GetInflictor()->GetClassname() );
 		}
 	}
 	else
@@ -2832,10 +2832,10 @@ IPhysicsObject *FindPhysicsObjectByName( const char *pName, CBaseEntity *pErrorE
 			{
 				const char *pErrorName = pErrorEntity ? pErrorEntity->GetClassname() : "Unknown";
 				Vector origin = pErrorEntity ? pErrorEntity->GetAbsOrigin() : vec3_origin;
-				DevWarning("entity %s at %s has physics attachment to more than one entity with the name %s!!!\n", pErrorName, VecToString(origin), pName );
+				CGWarning( 1, CON_GROUP_PHYSICS, "entity %s at %s has physics attachment to more than one entity with the name %s!!!\n", pErrorName, VecToString( origin ), pName );
 				while ( ( pEntity = gEntList.FindEntityByName( pEntity, pName ) ) != NULL )
 				{
-					DevWarning("Found %s\n", pEntity->GetClassname() );
+					CGWarning( 1, CON_GROUP_PHYSICS, "Found %s\n", pEntity->GetClassname() );
 				}
 				break;
 
@@ -2853,7 +2853,7 @@ void CC_AirDensity( const CCommand &args )
 
 	if ( args.ArgC() < 2 )
 	{
-		Msg( "air_density <value>\nCurrent air density is %.2f\n", physenv->GetAirDensity() );
+		CGMsg( 0, CON_GROUP_PHYSICS, "air_density <value>\nCurrent air density is %.2f\n", physenv->GetAirDensity() );
 	}
 	else
 	{

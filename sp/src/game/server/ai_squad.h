@@ -52,6 +52,14 @@ public:
 	void			DeleteSquad( CAI_Squad *pSquad );
 	void			DeleteAllSquads(void);
 
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT			ScriptGetFirstSquad();
+	HSCRIPT			ScriptGetNextSquad( HSCRIPT hStart );
+
+	HSCRIPT			ScriptFindSquad( const char *squadName );
+	HSCRIPT			ScriptFindCreateSquad( const char *squadName );
+#endif
+
 private:
 
 	CAI_Squad *		m_pSquads;										// A linked list of all squads
@@ -151,6 +159,36 @@ private:
 	void OccupySlot( CBaseEntity *pEnemy, int i );
 	void VacateSlot( CBaseEntity *pEnemy, int i );
 	bool IsSlotOccupied( CBaseEntity *pEnemy, int i ) const;
+
+#ifdef MAPBASE_VSCRIPT
+	// Functions tailored specifically for VScript.
+	ALLOW_SCRIPT_ACCESS();
+private:
+
+	HSCRIPT					ScriptGetFirstMember( bool bIgnoreSilentMembers );
+	HSCRIPT					ScriptGetMember( int iIndex );
+	HSCRIPT					ScriptGetAnyMember();
+	//int					ScriptNumMembers( bool bIgnoreSilentMembers );
+	int						ScriptGetSquadIndex( HSCRIPT hNPC );
+
+	void					ScriptUpdateEnemyMemory( HSCRIPT hUpdater, HSCRIPT hEnemy, const Vector &position );
+	
+	HSCRIPT					ScriptSquadMemberInRange( const Vector &vecLocation, float flDist );
+	HSCRIPT					ScriptNearestSquadMember( HSCRIPT hMember );
+	int						ScriptGetVisibleSquadMembers( HSCRIPT hMember );
+	HSCRIPT					ScriptGetSquadMemberNearestTo( const Vector &vecLocation );
+	bool					ScriptIsMember( HSCRIPT hMember );
+	bool					ScriptIsLeader( HSCRIPT hLeader );
+	HSCRIPT					ScriptGetLeader( void );
+
+	void					ScriptAddToSquad( HSCRIPT hNPC );
+	void					ScriptRemoveFromSquad( HSCRIPT hNPC );
+
+	bool					ScriptIsSilentMember( HSCRIPT hNPC );
+
+	void					ScriptSetSquadData( int iSlot, const char *data );
+	const char				*ScriptGetSquadData( int iSlot );
+#endif
 
 private:
 	friend class CAI_SaveRestoreBlockHandler;

@@ -44,7 +44,11 @@ void Scene_Printf( const char *pFormat, ... )
 	Q_vsnprintf(msg, sizeof(msg), pFormat, marker);
 	va_end(marker);	
 	
+#ifdef MAPBASE
+	CGMsg( 0, CON_GROUP_CHOREO, "%8.3f[%d] %s:  %s", gpGlobals->curtime, gpGlobals->tickcount, CBaseEntity::IsServer() ? "sv" : "cl", msg );
+#else
 	Msg( "%8.3f[%d] %s:  %s", gpGlobals->curtime, gpGlobals->tickcount, CBaseEntity::IsServer() ? "sv" : "cl", msg );
+#endif
 }
 
 //-----------------------------------------------------------------------------

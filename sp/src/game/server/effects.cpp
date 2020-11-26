@@ -1512,6 +1512,7 @@ public:
 	DECLARE_SERVERCLASS();
 
 	CPrecipitation();
+	int UpdateTransmitState();
 	void	Spawn( void );
 
 	CNetworkVar( PrecipitationType_t, m_nPrecipType );
@@ -1525,7 +1526,10 @@ END_DATADESC()
 
 // Just send the normal entity crap
 IMPLEMENT_SERVERCLASS_ST( CPrecipitation, DT_Precipitation)
-	SendPropInt( SENDINFO( m_nPrecipType ), Q_log2( NUM_PRECIPITATION_TYPES ) + 1, SPROP_UNSIGNED )
+	SendPropInt( SENDINFO( m_nPrecipType ), Q_log2( NUM_PRECIPITATION_TYPES ) + 1, SPROP_UNSIGNED ),
+#ifdef MAPBASE
+	SendPropInt( SENDINFO( m_spawnflags ), 2, SPROP_UNSIGNED ),
+#endif
 END_SEND_TABLE()
 
 
@@ -1534,17 +1538,35 @@ CPrecipitation::CPrecipitation()
 	m_nPrecipType = PRECIPITATION_TYPE_RAIN; // default to rain.
 }
 
+int CPrecipitation::UpdateTransmitState()
+{
+	return SetTransmitState( FL_EDICT_ALWAYS );
+}
+
 void CPrecipitation::Spawn( void )
 {
+	//SetTransmitState( FL_EDICT_ALWAYS );
+	SetTransmitState( FL_EDICT_PVSCHECK );
+
 	PrecacheMaterial( "effects/fleck_ash1" );
 	PrecacheMaterial( "effects/fleck_ash2" );
 	PrecacheMaterial( "effects/fleck_ash3" );
 	PrecacheMaterial( "effects/ember_swirling001" );
 
 	Precache();
-	SetSolid( SOLID_NONE );							// Remove model & collisions
 	SetMoveType( MOVETYPE_NONE );
 	SetModel( STRING( GetModelName() ) );		// Set size
+	if ( IsParticleRainType( m_nPrecipType ) )
+	{
+		SetSolid( SOLID_VPHYSICS );
+		AddSolidFlags( FSOLID_NOT_SOLID );
+		AddSolidFlags( FSOLID_FORCE_WORLD_ALIGNED );
+		VPhysicsInitStatic();
+	}
+	else
+	{
+		SetSolid( SOLID_NONE );							// Remove model & collisions
+	}
 
 	// Default to rain.
 	if ( m_nPrecipType < 0 || m_nPrecipType > NUM_PRECIPITATION_TYPES )

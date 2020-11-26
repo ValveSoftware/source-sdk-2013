@@ -109,6 +109,12 @@ public:
 	float GetWaterLevel( void ) const;		///< return Z coordinate of water in world coords
 	float GetMaxRange( void ) const;		///< return how far a fish is allowed to wander
 
+#ifdef MAPBASE
+	void	InputSpawnFish( inputdata_t &inputdata );
+	void	InputPanicLoudFromPoint( inputdata_t &inputdata );
+	void	InputPanicQuietFromPoint( inputdata_t &inputdata );
+#endif
+
 private:
 	int m_fishCount;						///< number of fish in the pool
 	float m_maxRange;						///< how far a fish is allowed to wander
@@ -119,6 +125,15 @@ private:
 	bool m_isDormant;
 
 	CUtlVector< CHandle<CFish> > m_fishes;	///< vector of all fish in this pool
+
+#ifdef MAPBASE
+	int m_nSkin; // Sets the skin of spawned fish
+
+	float m_flLoudPanicRange;
+	float m_flQuietPanicRange;
+
+	COutputEHANDLE	m_OnSpawnFish;
+#endif
 
 	CountdownTimer m_visTimer;				///< for throttling line of sight checks between all fish
 };

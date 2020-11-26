@@ -20,6 +20,11 @@
 #include "byteswap.h"
 #include "worldvertextransitionfixup.h"
 
+#ifdef MAPBASE_VSCRIPT
+#include "vscript/ivscript.h"
+#include "vscript_vbsp.h"
+#endif
+
 extern float		g_maxLightmapDimension;
 
 char		source[1024];
@@ -65,6 +70,9 @@ bool		g_bNoHiddenManifestMaps = false;
 bool		g_bNoDefaultCubemaps = true;
 bool		g_bSkyboxCubemaps = false;
 int			g_iDefaultCubemapSize = 32;
+#endif
+#ifdef MAPBASE_VSCRIPT
+ScriptLanguage_t	g_iScripting = SL_NONE;
 #endif
 
 float		g_defaultLuxelSize = DEFAULT_LUXEL_SIZE;
@@ -1186,6 +1194,72 @@ int RunVBSP( int argc, char **argv )
 			i++;
 		}
 #endif
+#ifdef MAPBASE_VSCRIPT
+		else if ( !Q_stricmp( argv[i], "-scripting" ) )
+		{
+			const char *pszScriptLanguage = argv[i + 1];
+			if( pszScriptLanguage[0] == '-')
+			{
+				// It's another command. Just use default
+				g_iScripting = SL_DEFAULT;
+			}
+			else
+			{
+				// Use a specific language
+				if( !Q_stricmp(pszScriptLanguage, "gamemonkey") )
+				{
+					g_iScripting = SL_GAMEMONKEY;
+				}
+				else if( !Q_stricmp(pszScriptLanguage, "squirrel") )
+				{
+					g_iScripting = SL_SQUIRREL;
+				}
+				else if( !Q_stricmp(pszScriptLanguage, "python") )
+				{
+					g_iScripting = SL_PYTHON;
+				}
+				else if( !Q_stricmp(pszScriptLanguage, "lua") )
+				{
+					g_iScripting = SL_LUA;
+				}
+				else
+				{
+					DevWarning("-server_script does not recognize a language named '%s'. virtual machine did NOT start.\n", pszScriptLanguage );
+					g_iScripting = SL_NONE;
+				}
+				i++;
+			}
+		}
+		else if ( !Q_stricmp( argv[i], "-doc" ) )
+		{
+			// Only print the documentation
+
+			if (g_iScripting)
+			{
+				scriptmanager = (IScriptManager*)Sys_GetFactoryThis()(VSCRIPT_INTERFACE_VERSION, NULL);
+				VScriptVBSPInit();
+
+				const char *pszArg1 = argv[i + 1];
+				if (pszArg1[0] == '-')
+				{
+					// It's another command. Just use *
+					pszArg1 = "*";
+				}
+
+				char szCommand[512];
+				_snprintf( szCommand, sizeof( szCommand ), "PrintHelp( \"%s\" );", pszArg1 );
+				g_pScriptVM->Run( szCommand );
+			}
+			else
+			{
+				Warning("Cannot print documentation without scripting enabled!\n");
+			}
+
+			DeleteCmdLine( argc, argv );
+			CmdLib_Cleanup();
+			CmdLib_Exit( 1 );
+		}
+#endif
 		else if (argv[i][0] == '-')
 		{
 			Warning("VBSP: Unknown option \"%s\"\n\n", argv[i]);
@@ -1319,6 +1393,15 @@ int RunVBSP( int argc, char **argv )
 	sprintf( materialPath, "%smaterials", gamedir );
 	InitMaterialSystem( materialPath, CmdLib_GetFileSystemFactory() );
 	Msg( "materialPath: %s\n", materialPath );
+
+#ifdef MAPBASE_VSCRIPT
+	if (g_iScripting)
+	{
+		scriptmanager = (IScriptManager*)Sys_GetFactoryThis()(VSCRIPT_INTERFACE_VERSION, NULL);
+
+		VScriptVBSPInit();
+	}
+#endif
 	
 	// delete portal and line files
 	sprintf (path, "%s.prt", source);
@@ -1442,6 +1525,9 @@ int RunVBSP( int argc, char **argv )
 	ReleasePakFileLumps();
 	DeleteMaterialReplacementKeys();
 	ShutdownMaterialSystem();
+#ifdef MAPBASE_VSCRIPT
+	VScriptVBSPTerm();
+#endif
 	CmdLib_Cleanup();
 	return 0;
 }

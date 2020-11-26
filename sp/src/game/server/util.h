@@ -512,8 +512,8 @@ void UTIL_SetModel( CBaseEntity *pEntity, const char *pModelName );
 
 
 // prints as transparent 'title' to the HUD
-void			UTIL_HudMessageAll( const hudtextparms_t &textparms, const char *pMessage );
-void			UTIL_HudMessage( CBasePlayer *pToPlayer, const hudtextparms_t &textparms, const char *pMessage );
+void			UTIL_HudMessageAll( const hudtextparms_t &textparms, const char *pMessage, const char *pszFont = NULL, bool bAutobreak = false );
+void			UTIL_HudMessage( CBasePlayer *pToPlayer, const hudtextparms_t &textparms, const char *pMessage, const char *pszFont = NULL, bool bAutobreak = false );
 
 // brings up hud keyboard hints display
 void			UTIL_HudHintText( CBaseEntity *pEntity, const char *pMessage );

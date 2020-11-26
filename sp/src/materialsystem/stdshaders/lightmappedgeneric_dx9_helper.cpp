@@ -879,18 +879,18 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 				}
 			}
 		}
-		const bool hasBumpMask = false; //hasBump && hasBump2 && params[info.m_nBumpMask]->IsTexture() && !hasSelfIllum &&
-			//!hasDetailTexture && !hasBaseTexture2 && (params[info.m_nBaseTextureNoEnvmap]->GetIntValue() == 0);
+		const bool hasBumpMask = hasBump && hasBump2 && params[info.m_nBumpMask]->IsTexture() && !hasSelfIllum &&
+			!hasDetailTexture && !hasBaseTexture2 && (params[info.m_nBaseTextureNoEnvmap]->GetIntValue() == 0);
 
 		int nNormalMaskDecodeMode = 0;
-		/*if ( hasBumpMask && g_pHardwareConfig->SupportsNormalMapCompression() && g_pHardwareConfig->SupportsPixelShaders_2_b() )
+		if ( hasBumpMask && g_pHardwareConfig->SupportsNormalMapCompression() && g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
 			ITexture *pBumpMaskTex = params[info.m_nBumpMask]->GetTextureValue();
 			if ( pBumpMaskTex )
 			{
 				nNormalMaskDecodeMode = pBumpMaskTex->GetNormalDecodeMode();
 			}
-		}*/
+		}
 
 		const bool bHasOutline = false; //IsBoolSet( info.m_nOutline, params );
 		pContextData->m_bPixelShaderForceFastPathBecauseOutline = bHasOutline;
@@ -1141,7 +1141,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					SET_STATIC_PIXEL_SHADER_COMBO( DETAILTEXTURE, hasDetailTexture );
 					SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP,  bumpmap_variant );
 					SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP2, hasBump2 );
-					//SET_STATIC_PIXEL_SHADER_COMBO( BUMPMASK, hasBumpMask );
+					SET_STATIC_PIXEL_SHADER_COMBO( BUMPMASK, hasBumpMask );
 					SET_STATIC_PIXEL_SHADER_COMBO( DIFFUSEBUMPMAP,  hasDiffuseBumpmap );
 					SET_STATIC_PIXEL_SHADER_COMBO( CUBEMAP,  hasEnvmap );
 					SET_STATIC_PIXEL_SHADER_COMBO( ENVMAPMASK,  hasEnvmapMask );
@@ -1165,12 +1165,6 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 #endif
 #ifdef MAPBASE
 					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURETRANSFORM2, hasBaseTextureTransform2 );
-					// Hammer apparently has a bug that causes the vertex blend to get swapped.
-					// Hammer uses a special internal shader to nullify this, but it doesn't work with custom shaders.
-					// Downfall got around this by swapping around the base textures in the DLL code when drawn by the editor.
-					// Doing it here in the shader itself allows us to retain other properties, like FANCY_BLENDING.
-					// TODO: Could we do this here in the DLL and swap the alpha before it's passed to the shader?
-					SET_STATIC_PIXEL_SHADER_COMBO( SWAP_VERTEX_BLEND, hasBaseTexture2 && pShader->UsingEditor(params) );
 #endif
 #ifdef PARALLAX_CORRECTED_CUBEMAPS
 					// Parallax cubemaps enabled for 2_0b and onwards
@@ -1187,7 +1181,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					SET_STATIC_PIXEL_SHADER_COMBO( DETAILTEXTURE, hasDetailTexture );
 					SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP,  bumpmap_variant );
 					SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP2, hasBump2 );
-					//SET_STATIC_PIXEL_SHADER_COMBO( BUMPMASK, hasBumpMask );
+					SET_STATIC_PIXEL_SHADER_COMBO( BUMPMASK, hasBumpMask );
 					SET_STATIC_PIXEL_SHADER_COMBO( DIFFUSEBUMPMAP,  hasDiffuseBumpmap );
 					SET_STATIC_PIXEL_SHADER_COMBO( CUBEMAP,  hasEnvmap );
 					SET_STATIC_PIXEL_SHADER_COMBO( ENVMAPMASK,  hasEnvmapMask );
@@ -1211,8 +1205,6 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 #endif
 #ifdef MAPBASE
 					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURETRANSFORM2, hasBaseTextureTransform2 );
-					// See the comment in the 3.0 shader block for more info on this.
-					SET_STATIC_PIXEL_SHADER_COMBO( SWAP_VERTEX_BLEND, hasBaseTexture2 && pShader->UsingEditor(params) );
 #endif
 #ifdef PARALLAX_CORRECTED_CUBEMAPS
 					// Parallax cubemaps enabled for 2_0b and onwards
@@ -1361,6 +1353,10 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			float envmapSaturation = params[info.m_nEnvmapSaturation]->GetFloatValue();
 			float fresnelReflection = params[info.m_nFresnelReflection]->GetFloatValue();
 			bool hasEnvmap = params[info.m_nEnvmap]->IsTexture();
+
+#ifdef MAPBASE
+			bool bEditorBlend = (hasBaseTexture2 && pShader->UsingEditor( params )); // Mapbase - For fixing editor blending
+#endif
 
 			pContextData->m_bPixelShaderFastPath = true;
 			bool bUsingContrast = hasEnvmap && ( (envmapContrast != 0.0f) && (envmapContrast != 1.0f) ) && (envmapSaturation != 1.0f);
@@ -1538,7 +1534,12 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			// Parallax cubemaps
 			if (hasParallaxCorrection)
 			{
-				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 21, params[info.m_nEnvmapOrigin]->GetVecValue() );
+				float envMapOrigin[4] = {0,0,0,0};
+				params[info.m_nEnvmapOrigin]->GetVecValue( envMapOrigin, 3 );
+#ifdef MAPBASE
+				envMapOrigin[4] = bEditorBlend ? 1.0f : 0.0f;
+#endif
+				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 21, envMapOrigin );
 
 				float* vecs[3];
 				vecs[0] = const_cast<float*>(params[info.m_nEnvmapParallaxObb1]->GetVecValue());
@@ -1555,6 +1556,29 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 				matrix[3][0] = matrix[3][1] = matrix[3][2] = 0;
 				matrix[3][3] = 1;
 				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 22, &matrix[0][0], 4 );
+			}
+#endif
+
+#ifdef MAPBASE
+			// Hammer apparently has a bug that causes the vertex blend to get swapped.
+			// Hammer uses a special internal shader to nullify this, but it doesn't work with custom shaders.
+			// Downfall got around this by swapping around the base textures in the DLL code when drawn by the editor.
+			// Doing it here in the shader itself allows us to retain other properties, like FANCY_BLENDING.
+			else
+			{
+				// m_SemiStaticCmdsOut wasn't being sent correctly, so we have to assign this to the API directly
+				float editorBlend = bEditorBlend ? 1.0f : 0.0f;
+				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 21, &editorBlend, 1 );
+				/*
+				if (bEditorBlend)
+				{
+					pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 35, 1.0f );
+				}
+				else
+				{
+					pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 35, 0.0f );
+				}
+				*/
 			}
 #endif
 

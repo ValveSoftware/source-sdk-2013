@@ -2785,7 +2785,11 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 		{
 			if ( !m_hCine )
 			{
+#ifdef MAPBASE
+				CGMsg( 1, CON_GROUP_NPC_SCRIPTS, "Scripted sequence destroyed while in use\n" );
+#else
 				DevMsg( "Scripted sequence destroyed while in use\n" );
+#endif
 				TaskFail( FAIL_SCHEDULE_NOT_FOUND );
 				break;
 			}
@@ -2796,7 +2800,11 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 		{
 			if ( !m_hCine )
 			{
+#ifdef MAPBASE
+				CGMsg( 1, CON_GROUP_NPC_SCRIPTS, "Scripted sequence destroyed while in use\n" );
+#else
 				DevMsg( "Scripted sequence destroyed while in use\n" );
+#endif
 				TaskFail( FAIL_SCHEDULE_NOT_FOUND );
 				break;
 			}
@@ -3750,8 +3758,6 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 									// only slightly above our initial search conditions.
 									if (GetNavigator()->BuildAndGetPathDistToGoal() < 300.0f)
 									{
-										// NOTE: Remove this DevMsg() when this is tested!
-										DevMsg("Player Withdrawal Destination Dist: %f\n", GetNavigator()->GetPathDistToGoal());
 										pHint->NPCHandleStartNav(this, false);
 										pHint->DisableForSeconds( 0.1f ); // Force others to find their own.
 										TaskComplete();
@@ -3999,7 +4005,11 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 			}
 			else if (!m_hCine)
 			{
+#ifdef MAPBASE
+				CGMsg( 1, CON_GROUP_NPC_SCRIPTS, "Cine died!\n" );
+#else
 				DevMsg( "Cine died!\n");
+#endif
 				TaskComplete();
 			}
 			else if ( IsRunningDynamicInteraction() )
@@ -4055,7 +4065,11 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 		{
 			if ( !m_hCine )
 			{
+#ifdef MAPBASE
+				CGMsg( 1, CON_GROUP_NPC_SCRIPTS, "Scripted sequence destroyed while in use\n" );
+#else
 				DevMsg( "Scripted sequence destroyed while in use\n" );
+#endif
 				TaskFail( FAIL_SCHEDULE_NOT_FOUND );
 				break;
 			}
@@ -4074,7 +4088,11 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 		{
 			if ( !m_hCine )
 			{
+#ifdef MAPBASE
+				CGMsg( 1, CON_GROUP_NPC_SCRIPTS, "Scripted sequence destroyed while in use\n" );
+#else
 				DevMsg( "Scripted sequence destroyed while in use\n" );
+#endif
 				TaskFail( FAIL_SCHEDULE_NOT_FOUND );
 				break;
 			}
@@ -4403,7 +4421,11 @@ int CAI_BaseNPC::GetScriptCustomMoveSequence( void )
 		iSequence = LookupSequence( STRING( m_hCine->m_iszCustomMove ) );
 		if ( iSequence == ACTIVITY_NOT_AVAILABLE )
 		{
+#ifdef MAPBASE
+			CGMsg( 1, CON_GROUP_NPC_SCRIPTS, "SCRIPT_CUSTOM_MOVE: %s has no sequence:%s\n", GetClassname(), STRING(m_hCine->m_iszCustomMove) );
+#else
 			DevMsg( "SCRIPT_CUSTOM_MOVE: %s has no sequence:%s\n", GetClassname(), STRING(m_hCine->m_iszCustomMove) );
+#endif
 		}
 	}
 	else if ( m_iszSceneCustomMoveSeq != NULL_STRING )

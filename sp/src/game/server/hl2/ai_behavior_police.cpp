@@ -11,6 +11,9 @@
 #include "ai_memory.h"
 #include "collisionutils.h"
 #include "npc_metropolice.h"
+#ifdef MAPBASE
+#include "npc_combine.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -133,6 +136,16 @@ void CAI_PolicingBehavior::HostSpeakSentence( const char *pSentence, SentencePri
 		pSentences->Speak( pSentence, nSoundPriority, nCriteria );
 #endif
 	}
+#ifdef MAPBASE
+	else if ( CNPC_Combine *pCombine = dynamic_cast<CNPC_Combine*>(GetOuter()) )
+	{
+		pCombine->SpeakIfAllowed( pSentence, nSoundPriority, nCriteria );
+	}
+	else if ( GetOuter()->GetExpresser() )
+	{
+		GetOuter()->GetExpresser()->Speak( pSentence );
+	}
+#endif
 }
 
 #ifdef METROPOLICE_USES_RESPONSE_SYSTEM
@@ -148,6 +161,16 @@ void CAI_PolicingBehavior::HostSpeakSentence( const char *pSentence, const char 
 	{
 		pCop->SpeakIfAllowed( pSentence, modifiers, nSoundPriority, nCriteria );
 	}
+#ifdef MAPBASE
+	else if ( CNPC_Combine *pCombine = dynamic_cast<CNPC_Combine*>(GetOuter()) )
+	{
+		pCombine->SpeakIfAllowed( pSentence, modifiers, nSoundPriority, nCriteria );
+	}
+	else if ( GetOuter()->GetExpresser() )
+	{
+		GetOuter()->GetExpresser()->Speak( pSentence, modifiers );
+	}
+#endif
 }
 #endif
 
@@ -195,6 +218,10 @@ void CAI_PolicingBehavior::GatherConditions( void )
 	// See if we need to knock out our target immediately
 	if ( ShouldKnockOutTarget( pTarget ) )
 	{
+#ifdef MAPBASE
+		// If this isn't actually an enemy of ours and we're already warning, don't set this condition
+		if (GetOuter()->IRelationType( m_hPoliceGoal->GetTarget() ) <= D_FR || !IsCurSchedule(SCHED_POLICE_WARN_TARGET, false))
+#endif
 		SetCondition( COND_POLICE_TARGET_TOO_CLOSE_SUPPRESS );
 	}
 
@@ -209,6 +236,10 @@ void CAI_PolicingBehavior::GatherConditions( void )
 
 		if ( flDistSqr < (m_hPoliceGoal->GetRadius()*m_hPoliceGoal->GetRadius()) )
 		{
+#ifdef MAPBASE
+			// If this isn't actually an enemy of ours and we're already warning, don't set this condition
+			if (GetOuter()->IRelationType( m_hPoliceGoal->GetTarget() ) <= D_FR || !IsCurSchedule(SCHED_POLICE_WARN_TARGET, false))
+#endif
 			SetCondition( COND_POLICE_TARGET_TOO_CLOSE_SUPPRESS );
 		}
 	}
@@ -263,6 +294,12 @@ int CAI_PolicingBehavior::TranslateSchedule( int scheduleType )
 	{
 		if ( m_hPoliceGoal->ShouldRemainAtPost() && !MaintainGoalPosition() )
 			return BaseClass::TranslateSchedule( SCHED_COMBAT_FACE );
+
+#ifdef MAPBASE
+		// If this isn't actually an enemy of ours, keep warning
+		if ( GetOuter()->IRelationType(m_hPoliceGoal->GetTarget()) > D_FR )
+			return BaseClass::TranslateSchedule( SCHED_POLICE_WARN_TARGET );
+#endif
 	}
 
 	return BaseClass::TranslateSchedule( scheduleType );
@@ -359,7 +396,11 @@ void CAI_PolicingBehavior::StartTask( const Task_t *pTask )
 
 			if ( GetNavigator()->SetGoal( harassPos, pTask->flTaskData ) )
 			{
+#ifdef MAPBASE
+				GetNavigator()->SetMovementActivity( GetOuter()->TranslateActivity(ACT_WALK_ANGRY) );
+#else
 				GetNavigator()->SetMovementActivity( (Activity) ACT_WALK_ANGRY );
+#endif
 				GetNavigator()->SetArrivalDirection( m_hPoliceGoal->GetTarget() );
 				TaskComplete();
 			}

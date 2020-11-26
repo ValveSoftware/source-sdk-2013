@@ -135,6 +135,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptEntityIterator, "CEntities", SCRIPT_SINGLETO
 #endif
 END_SCRIPTDESC();
 
+#ifndef MAPBASE_VSCRIPT // Mapbase adds this to the base library so that CScriptKeyValues can be accessed anywhere, like VBSP.
 // ----------------------------------------------------------------------------
 // KeyValues access - CBaseEntity::ScriptGetKeyFromModel returns root KeyValues
 // ----------------------------------------------------------------------------
@@ -150,24 +151,6 @@ BEGIN_SCRIPTDESC_ROOT( CScriptKeyValues, "Wrapper class over KeyValues instance"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValueString, "GetKeyString", "Given a KeyValues object and a key name, return associated string value" );
 	DEFINE_SCRIPTFUNC_NAMED( ScriptIsKeyValueEmpty, "IsKeyEmpty", "Given a KeyValues object and a key name, return true if key name has no value" );
 	DEFINE_SCRIPTFUNC_NAMED( ScriptReleaseKeyValues, "ReleaseKeyValues", "Given a root KeyValues object, release its contents" );
-#ifdef MAPBASE_VSCRIPT
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetName, "GetName", "Given a KeyValues object, return its name" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetInt, "GetInt", "Given a KeyValues object, return its own associated integer value" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetFloat, "GetFloat", "Given a KeyValues object, return its own associated float value" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetString, "GetString", "Given a KeyValues object, return its own associated string value" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBool, "GetBool", "Given a KeyValues object, return its own associated bool value" );
-
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueInt, "SetKeyInt", "Given a KeyValues object and a key name, set associated integer value" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueFloat, "SetKeyFloat", "Given a KeyValues object and a key name, set associated float value" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueBool, "SetKeyBool", "Given a KeyValues object and a key name, set associated bool value" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueString, "SetKeyString", "Given a KeyValues object and a key name, set associated string value" );
-
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetName, "SetName", "Given a KeyValues object, set its name" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetInt, "SetInt", "Given a KeyValues object, set its own associated integer value" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetFloat, "SetFloat", "Given a KeyValues object, set its own associated float value" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetBool, "SetBool", "Given a KeyValues object, set its own associated bool value" );
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetString, "SetString", "Given a KeyValues object, set its own associated string value" );
-#endif
 END_SCRIPTDESC();
 
 HSCRIPT CScriptKeyValues::ScriptFindKey( const char *pszName )
@@ -245,84 +228,6 @@ void CScriptKeyValues::ScriptReleaseKeyValues( )
 	m_pKeyValues = NULL;
 }
 
-#ifdef MAPBASE_VSCRIPT
-const char *CScriptKeyValues::ScriptGetName()
-{
-	const char *psz = m_pKeyValues->GetName();
-	return psz;
-}
-
-int CScriptKeyValues::ScriptGetInt()
-{
-	int i = m_pKeyValues->GetInt();
-	return i;
-}
-
-float CScriptKeyValues::ScriptGetFloat()
-{
-	float f = m_pKeyValues->GetFloat();
-	return f;
-}
-
-const char *CScriptKeyValues::ScriptGetString()
-{
-	const char *psz = m_pKeyValues->GetString();
-	return psz;
-}
-
-bool CScriptKeyValues::ScriptGetBool()
-{
-	bool b = m_pKeyValues->GetBool();
-	return b;
-}
-
-
-void CScriptKeyValues::ScriptSetKeyValueInt( const char *pszName, int iValue )
-{
-	m_pKeyValues->SetInt( pszName, iValue );
-}
-
-void CScriptKeyValues::ScriptSetKeyValueFloat( const char *pszName, float flValue )
-{
-	m_pKeyValues->SetFloat( pszName, flValue );
-}
-
-void CScriptKeyValues::ScriptSetKeyValueString( const char *pszName, const char *pszValue )
-{
-	m_pKeyValues->SetString( pszName, pszValue );
-}
-
-void CScriptKeyValues::ScriptSetKeyValueBool( const char *pszName, bool bValue )
-{
-	m_pKeyValues->SetBool( pszName, bValue );
-}
-
-void CScriptKeyValues::ScriptSetName( const char *pszValue )
-{
-	m_pKeyValues->SetName( pszValue );
-}
-
-void CScriptKeyValues::ScriptSetInt( int iValue )
-{
-	m_pKeyValues->SetInt( NULL, iValue );
-}
-
-void CScriptKeyValues::ScriptSetFloat( float flValue )
-{
-	m_pKeyValues->SetFloat( NULL, flValue );
-}
-
-void CScriptKeyValues::ScriptSetString( const char *pszValue )
-{
-	m_pKeyValues->SetString( NULL, pszValue );
-}
-
-void CScriptKeyValues::ScriptSetBool( bool bValue )
-{
-	m_pKeyValues->SetBool( NULL, bValue );
-}
-#endif
-
 
 // constructors
 CScriptKeyValues::CScriptKeyValues( KeyValues *pKeyValues = NULL )
@@ -339,12 +244,13 @@ CScriptKeyValues::~CScriptKeyValues( )
 	}
 	m_pKeyValues = NULL;
 }
+#endif
 
 #ifdef MAPBASE_VSCRIPT
 #define RETURN_IF_CANNOT_DRAW_OVERLAY\
 	if (engine->IsPaused())\
 	{\
-		DevWarning("debugoverlay: cannot draw while the game is paused!\n");\
+		CGWarning( 1, CON_GROUP_VSCRIPT, "debugoverlay: cannot draw while the game is paused!\n");\
 		return;\
 	}
 class CDebugOverlayScriptHelper
@@ -815,7 +721,11 @@ static void SendToConsole( const char *pszCommand )
 	CBasePlayer *pPlayer = UTIL_GetLocalPlayerOrListenServerHost();
 	if ( !pPlayer )
 	{
+#ifdef MAPBASE
+		CGMsg( 1, CON_GROUP_VSCRIPT, "Cannot execute \"%s\", no player\n", pszCommand );
+#else
 		DevMsg ("Cannot execute \"%s\", no player\n", pszCommand );
+#endif
 		return;
 	}
 
@@ -937,7 +847,7 @@ static void DoEntFireByInstanceHandle( HSCRIPT hTarget, const char *pszAction, c
 
 	if ( !pTarget )
 	{
-		Warning( "VScript error: DoEntFire was passed an invalid entity instance.\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "VScript error: DoEntFire was passed an invalid entity instance.\n" );
 #ifdef MAPBASE_VSCRIPT
 		return 0;
 #else
@@ -976,6 +886,12 @@ static bool CancelEntityIOEvent( int event )
 static float GetEntityIOEventTimeLeft( int event )
 {
 	return g_EventQueue.GetTimeLeft(event);
+}
+
+// vscript_server.nut adds this to the base CConvars class
+static const char *ScriptGetClientConvarValue( const char *pszConVar, int entindex )
+{
+	return engine->GetClientConVarValue( entindex, pszConVar );
 }
 #endif // MAPBASE_VSCRIPT
 
@@ -1022,7 +938,7 @@ bool VScriptServerInit()
 #endif
 			else
 			{
-				DevWarning("-server_script does not recognize a language named '%s'. virtual machine did NOT start.\n", pszScriptLanguage );
+				CGWarning( 1, CON_GROUP_VSCRIPT, "-server_script does not recognize a language named '%s'. virtual machine did NOT start.\n", pszScriptLanguage );
 				scriptLanguage = SL_NONE;
 			}
 
@@ -1035,7 +951,7 @@ bool VScriptServerInit()
 			if( g_pScriptVM )
 			{
 #ifdef MAPBASE_VSCRIPT
-				Log( "VSCRIPT SERVER: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
+				CGMsg( 0, CON_GROUP_VSCRIPT, "VSCRIPT SERVER: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
 #else
 				Log( "VSCRIPT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
 #endif
@@ -1068,6 +984,7 @@ bool VScriptServerInit()
 
 				ScriptRegisterFunction( g_pScriptVM, CancelEntityIOEvent, "Remove entity I/O event." );
 				ScriptRegisterFunction( g_pScriptVM, GetEntityIOEventTimeLeft, "Get time left on entity I/O event." );
+				ScriptRegisterFunction( g_pScriptVM, ScriptGetClientConvarValue, SCRIPT_HIDE );
 #else
 				ScriptRegisterFunction( g_pScriptVM, DoEntFire, SCRIPT_ALIAS( "EntFire", "Generate and entity i/o event" ) );
 				ScriptRegisterFunctionNamed( g_pScriptVM, DoEntFireByInstanceHandle, "EntFireByHandle", "Generate and entity i/o event. First parameter is an entity instance." );
@@ -1120,13 +1037,13 @@ bool VScriptServerInit()
 			}
 			else
 			{
-				DevWarning("VM Did not start!\n");
+				CGWarning( 1, CON_GROUP_VSCRIPT, "VM Did not start!\n" );
 			}
 		}
 	}
 	else
 	{
-		Log( "\nVSCRIPT: Scripting is disabled.\n" );
+		CGMsg( 0, CON_GROUP_VSCRIPT, "\nVSCRIPT: Scripting is disabled.\n" );
 	}
 	g_pScriptVM = NULL;
 	return false;
@@ -1171,13 +1088,13 @@ CON_COMMAND( script_reload_code, "Execute a vscript file, replacing existing fun
 {
 	if ( !*args[1] )
 	{
-		Warning( "No script specified\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "No script specified\n" );
 		return;
 	}
 
 	if ( !g_pScriptVM )
 	{
-		Warning( "Scripting disabled or no server running\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
 		return;
 	}
 
@@ -1196,7 +1113,7 @@ CON_COMMAND( script_reload_entity_code, "Execute all of this entity's VScripts, 
 
 	if ( !g_pScriptVM )
 	{
-		Warning( "Scripting disabled or no server running\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
 		return;
 	}
 
@@ -1234,7 +1151,7 @@ CON_COMMAND( script_reload_think, "Execute an activation script, replacing exist
 
 	if ( !g_pScriptVM )
 	{
-		Warning( "Scripting disabled or no server running\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
 		return;
 	}
 

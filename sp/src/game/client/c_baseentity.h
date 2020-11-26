@@ -261,10 +261,27 @@ public:
 
 	string_t						m_iClassname;
 
+#ifdef MAPBASE_VSCRIPT
+	// VSCRIPT
+	bool ValidateScriptScope();
+	bool CallScriptFunction( const char* pFunctionName, ScriptVariant_t* pFunctionReturn );
+
+	HSCRIPT GetScriptScope() { return m_ScriptScope; }
+
+	HSCRIPT LookupScriptFunction(const char* pFunctionName);
+	bool CallScriptFunctionHandle(HSCRIPT hFunc, ScriptVariant_t* pFunctionReturn);
+
+	bool RunScriptFile( const char* pScriptFile, bool bUseRootScope = false );
+	bool RunScript( const char* pScriptText, const char* pDebugFilename = "C_BaseEntity::RunScript" );
+#endif
+
 	HSCRIPT GetScriptInstance();
 
 	HSCRIPT			m_hScriptInstance;
 	string_t		m_iszScriptId;
+#ifdef MAPBASE_VSCRIPT
+	CScriptScope	m_ScriptScope;
+#endif
 
 // IClientUnknown overrides.
 public:
@@ -366,6 +383,11 @@ public:
 	bool							IsMarkedForDeletion( void );
 
 	virtual int						entindex( void ) const;
+
+#ifdef MAPBASE_VSCRIPT
+	// "I don't know why but wrapping entindex() works, while calling it directly crashes."
+	inline int C_BaseEntity::GetEntityIndex() const { return entindex(); }
+#endif
 	
 	// This works for client-only entities and returns the GetEntryIndex() of the entity's handle,
 	// so the sound system can get an IClientEntity from it.

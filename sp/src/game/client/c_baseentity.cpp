@@ -43,6 +43,9 @@
 #ifdef MAPBASE
 #include "viewrender.h"
 #endif
+#ifdef MAPBASE_VSCRIPT
+#include "vscript_client.h"
+#endif
 
 #include "gamestringpool.h"
 
@@ -438,6 +441,9 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetUp, "GetUpVector", "Get the up vector of the entity" )
 
 #ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC( ValidateScriptScope, "Ensure that an entity's script scope has been created" )
+	DEFINE_SCRIPTFUNC( GetScriptScope, "Retrieve the script-side data associated with an entity" )
+
 	DEFINE_SCRIPTFUNC( GetHealth, "" )
 	DEFINE_SCRIPTFUNC( GetMaxHealth, "" )
 
@@ -465,7 +471,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 	DEFINE_SCRIPTFUNC( GetEffects, "Get effects" )
 	DEFINE_SCRIPTFUNC( IsEffectActive, "Check if an effect is active" )
 
-	DEFINE_SCRIPTFUNC( entindex, "" )
+	DEFINE_SCRIPTFUNC_NAMED( GetEntityIndex, "entindex", "" )
 #endif
 END_SCRIPTDESC();
 
@@ -6519,6 +6525,138 @@ HSCRIPT C_BaseEntity::GetScriptInstance()
 }
 
 #ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+// Using my edict, cook up a unique VScript scope that's private to me, and
+// persistent.
+//-----------------------------------------------------------------------------
+bool C_BaseEntity::ValidateScriptScope()
+{
+	if (!m_ScriptScope.IsInitialized())
+	{
+		if (scriptmanager == NULL)
+		{
+			ExecuteOnce(DevMsg("Cannot execute script because scripting is disabled (-scripting)\n"));
+			return false;
+		}
+
+		if (g_pScriptVM == NULL)
+		{
+			ExecuteOnce(DevMsg(" Cannot execute script because there is no available VM\n"));
+			return false;
+		}
+
+		// Force instance creation
+		GetScriptInstance();
+
+		EHANDLE hThis;
+		hThis.Set(this);
+
+		bool bResult = m_ScriptScope.Init(STRING(m_iszScriptId));
+
+		if (!bResult)
+		{
+			DevMsg("%s couldn't create ScriptScope!\n", GetDebugName());
+			return false;
+		}
+		g_pScriptVM->SetValue(m_ScriptScope, "self", GetScriptInstance());
+	}
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Returns true if the function was located and called. false otherwise.
+// NOTE:	Assumes the function takes no parameters at the moment.
+//-----------------------------------------------------------------------------
+bool C_BaseEntity::CallScriptFunction( const char* pFunctionName, ScriptVariant_t* pFunctionReturn )
+{
+	if (!ValidateScriptScope())
+	{
+		DevMsg("\n***\nFAILED to create private ScriptScope. ABORTING script\n***\n");
+		return false;
+	}
+
+
+	HSCRIPT hFunc = m_ScriptScope.LookupFunction(pFunctionName);
+
+	if (hFunc)
+	{
+		m_ScriptScope.Call(hFunc, pFunctionReturn);
+		m_ScriptScope.ReleaseFunction(hFunc);
+
+		return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Gets a function handle
+//-----------------------------------------------------------------------------
+HSCRIPT C_BaseEntity::LookupScriptFunction( const char* pFunctionName )
+{
+	if (!m_ScriptScope.IsInitialized())
+	{
+		return NULL;
+	}
+
+	return m_ScriptScope.LookupFunction(pFunctionName);
+}
+
+//-----------------------------------------------------------------------------
+// Calls and releases a function handle (ASSUMES SCRIPT SCOPE AND FUNCTION ARE VALID!)
+//-----------------------------------------------------------------------------
+bool C_BaseEntity::CallScriptFunctionHandle( HSCRIPT hFunc, ScriptVariant_t* pFunctionReturn )
+{
+	m_ScriptScope.Call(hFunc, pFunctionReturn);
+	m_ScriptScope.ReleaseFunction(hFunc);
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Load, compile, and run a script file from disk.
+// Input  : *pScriptFile - The filename of the script file.
+//			bUseRootScope - If true, runs this script in the root scope, not
+//							in this entity's private scope.
+//-----------------------------------------------------------------------------
+bool C_BaseEntity::RunScriptFile( const char* pScriptFile, bool bUseRootScope )
+{
+	if (!ValidateScriptScope())
+	{
+		DevMsg("\n***\nFAILED to create private ScriptScope. ABORTING script\n***\n");
+		return false;
+	}
+
+	if (bUseRootScope)
+	{
+		return VScriptRunScript(pScriptFile);
+	}
+	else
+	{
+		return VScriptRunScript(pScriptFile, m_ScriptScope, true);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Compile and execute a discrete string of script source code
+// Input  : *pScriptText - A string containing script code to compile and run
+//-----------------------------------------------------------------------------
+bool C_BaseEntity::RunScript( const char* pScriptText, const char* pDebugFilename )
+{
+	if (!ValidateScriptScope())
+	{
+		DevMsg("\n***\nFAILED to create private ScriptScope. ABORTING script\n***\n");
+		return false;
+	}
+
+	if (m_ScriptScope.Run(pScriptText, pDebugFilename) == SCRIPT_ERROR)
+	{
+		DevWarning(" Entity %s encountered an error in RunScript()\n", GetDebugName());
+	}
+
+	return true;
+}
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 HSCRIPT C_BaseEntity::ScriptGetMoveParent( void )

@@ -303,7 +303,7 @@ void CBaseEntityOutput::FireOutput(variant_t Value, CBaseEntity *pActivator, CBa
 						STRING(ev->m_iParameter) );
 
 #ifdef MAPBASE
-			ConColorMsg( 2, Color(CON_COLOR_DEV_VERBOSE), "%s", szBuffer );
+			CGMsg( 2, CON_GROUP_IO_SYSTEM, "%s", szBuffer );
 #else
 			DevMsg( 2, "%s", szBuffer );
 #endif
@@ -326,7 +326,7 @@ void CBaseEntityOutput::FireOutput(variant_t Value, CBaseEntity *pActivator, CBa
 						STRING(ev->m_iParameter) );
 
 #ifdef MAPBASE
-			ConColorMsg( 2, Color(CON_COLOR_DEV_VERBOSE), "%s", szBuffer );
+			CGMsg( 2, CON_GROUP_IO_SYSTEM, "%s", szBuffer );
 #else
 			DevMsg( 2, "%s", szBuffer );
 #endif
@@ -352,7 +352,7 @@ void CBaseEntityOutput::FireOutput(variant_t Value, CBaseEntity *pActivator, CBa
 				Q_snprintf( szBuffer, sizeof(szBuffer), "Removing from action list: (%s,%s) -> (%s,%s)\n", pCaller ? STRING(pCaller->m_iClassname) : "NULL", pCaller ? STRING(pCaller->GetEntityName()) : "NULL", STRING(ev->m_iTarget), STRING(ev->m_iTargetInput));
 
 #ifdef MAPBASE
-				ConColorMsg( 2, Color(CON_COLOR_DEV_VERBOSE), "%s", szBuffer );
+				CGMsg( 2, CON_GROUP_IO_SYSTEM, "%s", szBuffer );
 #else
 				DevMsg( 2, "%s", szBuffer );
 #endif
@@ -1104,7 +1104,7 @@ void CEventQueue::ServiceEvents( void )
 			char szBuffer[256];
 			Q_snprintf( szBuffer, sizeof(szBuffer), "unhandled input: (%s) -> (%s), from (%s,%s); target entity not found\n", STRING(pe->m_iTargetInput), STRING(pe->m_iTarget), pClass, pName );
 #ifdef MAPBASE
-			ConColorMsg( 2, Color(CON_COLOR_DEV_VERBOSE), "%s", szBuffer );
+			CGMsg( 2, CON_GROUP_IO_SYSTEM, "%s", szBuffer );
 #else
 			DevMsg( 2, "%s", szBuffer );
 #endif

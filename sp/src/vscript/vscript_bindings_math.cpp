@@ -1,13 +1,23 @@
 //========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
-// Purpose: Shared VScript math functions.
+// Purpose: VScript functions, constants, etc. registered within the library itself.
+// 
+//			This is for things which don't have to depend on server/client and can be accessed
+//			from anywhere.
 //
 // $NoKeywords: $
 //=============================================================================//
 
-#include "cbase.h"
+#include "vscript/ivscript.h"
 
-#include "vscript_funcs_math.h"
+#include "tier1/tier1.h"
+
+#include <tier0/platform.h>
+#include "worldsize.h"
+
+#include <vstdlib/random.h>
+
+#include "vscript_bindings_math.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -221,7 +231,6 @@ bool CScriptQuaternionInstanceHelper::Set( void *p, const char *pszKey, ScriptVa
 ScriptVariant_t *CScriptQuaternionInstanceHelper::Add( void *p, ScriptVariant_t &variant )
 {
 	Quaternion *pQuat = ((Quaternion *)p);
-	DevMsg("Adding %i is an interesting choice\n", variant.m_int);
 
 	float flAdd;
 	variant.AssignTo( &flAdd );
@@ -376,77 +385,67 @@ float ScriptCalcDistanceToLineSegment( const Vector &point, const Vector &vLineA
 	return CalcDistanceToLineSegment( point, vLineA, vLineB );
 }
 
-#ifndef CLIENT_DLL
-const Vector& ScriptPredictedPosition( HSCRIPT hTarget, float flTimeDelta )
+void RegisterMathBaseBindings( IScriptVM *pVM )
 {
-	static Vector predicted;
-	UTIL_PredictedPosition( ToEnt(hTarget), flTimeDelta, &predicted );
-	return predicted;
-}
-#endif
+	ScriptRegisterConstantNamed( pVM, ((float)(180.f / M_PI_F)), "RAD2DEG", "" );
+	ScriptRegisterConstantNamed( pVM, ((float)(M_PI_F / 180.f)), "DEG2RAD", "" );
 
-void RegisterMathScriptFunctions()
-{
-	ScriptRegisterFunction( g_pScriptVM, RandomFloat, "Generate a random floating point number within a range, inclusive." );
-	ScriptRegisterFunction( g_pScriptVM, RandomInt, "Generate a random integer within a range, inclusive." );
-	//ScriptRegisterFunction( g_pScriptVM, Approach, "Returns a value which approaches the target value from the input value with the specified speed." );
-	ScriptRegisterFunction( g_pScriptVM, ApproachAngle, "Returns an angle which approaches the target angle from the input angle with the specified speed." );
-	ScriptRegisterFunction( g_pScriptVM, AngleDiff, "Returns the degrees difference between two yaw angles." );
-	//ScriptRegisterFunction( g_pScriptVM, AngleDistance, "Returns the distance between two angles." );
-	ScriptRegisterFunction( g_pScriptVM, AngleNormalize, "Clamps an angle to be in between -360 and 360." );
-	ScriptRegisterFunction( g_pScriptVM, AngleNormalizePositive, "Clamps an angle to be in between 0 and 360." );
-	ScriptRegisterFunction( g_pScriptVM, AnglesAreEqual, "Checks if two angles are equal based on a given tolerance value." );
+	ScriptRegisterFunction( pVM, RandomFloat, "Generate a random floating point number within a range, inclusive." );
+	ScriptRegisterFunction( pVM, RandomInt, "Generate a random integer within a range, inclusive." );
+	//ScriptRegisterFunction( pVM, Approach, "Returns a value which approaches the target value from the input value with the specified speed." );
+	ScriptRegisterFunction( pVM, ApproachAngle, "Returns an angle which approaches the target angle from the input angle with the specified speed." );
+	ScriptRegisterFunction( pVM, AngleDiff, "Returns the degrees difference between two yaw angles." );
+	//ScriptRegisterFunction( pVM, AngleDistance, "Returns the distance between two angles." );
+	ScriptRegisterFunction( pVM, AngleNormalize, "Clamps an angle to be in between -360 and 360." );
+	ScriptRegisterFunction( pVM, AngleNormalizePositive, "Clamps an angle to be in between 0 and 360." );
+	ScriptRegisterFunction( pVM, AnglesAreEqual, "Checks if two angles are equal based on a given tolerance value." );
 
 	// 
 	// matrix3x4_t
 	// 
-	g_pScriptVM->RegisterClass( GetScriptDescForClass( matrix3x4_t ) );
+	pVM->RegisterClass( GetScriptDescForClass( matrix3x4_t ) );
 
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptFreeMatrixInstance, "FreeMatrixInstance", "Frees an allocated matrix instance." );
+	ScriptRegisterFunctionNamed( pVM, ScriptFreeMatrixInstance, "FreeMatrixInstance", "Frees an allocated matrix instance." );
 
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptConcatTransforms, "ConcatTransforms", "Concatenates two transformation matrices into another matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatrixCopy, "MatrixCopy", "Copies a matrix to another matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatrixInvert, "MatrixInvert", "Inverts a matrix and copies the result to another matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatricesAreEqual, "MatricesAreEqual", "Checks if two matrices are equal." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatrixGetColumn, "MatrixGetColumn", "Gets the column of a matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatrixSetColumn, "MatrixSetColumn", "Sets the column of a matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatrixAngles, "MatrixAngles", "Gets the angles and position of a matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptAngleMatrix, "AngleMatrix", "Sets the angles and position of a matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptAngleIMatrix, "AngleIMatrix", "Sets the inverted angles and position of a matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptSetIdentityMatrix, "SetIdentityMatrix", "Turns a matrix into an identity matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptSetScaleMatrix, "SetScaleMatrix", "Scales a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptConcatTransforms, "ConcatTransforms", "Concatenates two transformation matrices into another matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixCopy, "MatrixCopy", "Copies a matrix to another matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixInvert, "MatrixInvert", "Inverts a matrix and copies the result to another matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatricesAreEqual, "MatricesAreEqual", "Checks if two matrices are equal." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixGetColumn, "MatrixGetColumn", "Gets the column of a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixSetColumn, "MatrixSetColumn", "Sets the column of a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixAngles, "MatrixAngles", "Gets the angles and position of a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptAngleMatrix, "AngleMatrix", "Sets the angles and position of a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptAngleIMatrix, "AngleIMatrix", "Sets the inverted angles and position of a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptSetIdentityMatrix, "SetIdentityMatrix", "Turns a matrix into an identity matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptSetScaleMatrix, "SetScaleMatrix", "Scales a matrix." );
 
 	// 
 	// Quaternion
 	// 
-	g_pScriptVM->RegisterClass( GetScriptDescForClass( Quaternion ) );
+	pVM->RegisterClass( GetScriptDescForClass( Quaternion ) );
 
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptFreeQuaternionInstance, "FreeQuaternionInstance", "Frees an allocated quaternion instance." );
+	ScriptRegisterFunctionNamed( pVM, ScriptFreeQuaternionInstance, "FreeQuaternionInstance", "Frees an allocated quaternion instance." );
 
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptQuaternionAdd, "QuaternionAdd", "Adds two quaternions together into another quaternion." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatrixQuaternion, "MatrixQuaternion", "Converts a matrix to a quaternion." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptQuaternionMatrix, "QuaternionMatrix", "Converts a quaternion to a matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptQuaternionAngles, "QuaternionAngles", "Converts a quaternion to angles." );
+	ScriptRegisterFunctionNamed( pVM, ScriptQuaternionAdd, "QuaternionAdd", "Adds two quaternions together into another quaternion." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixQuaternion, "MatrixQuaternion", "Converts a matrix to a quaternion." );
+	ScriptRegisterFunctionNamed( pVM, ScriptQuaternionMatrix, "QuaternionMatrix", "Converts a quaternion to a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptQuaternionAngles, "QuaternionAngles", "Converts a quaternion to angles." );
 
 	// 
 	// Misc. Vector/QAngle functions
 	// 
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptAngleVectors, "AngleVectors", "Turns an angle into a direction vector." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorAngles, "VectorAngles", "Turns a direction vector into an angle." );
+	ScriptRegisterFunctionNamed( pVM, ScriptAngleVectors, "AngleVectors", "Turns an angle into a direction vector." );
+	ScriptRegisterFunctionNamed( pVM, ScriptVectorAngles, "VectorAngles", "Turns a direction vector into an angle." );
 
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorRotate, "VectorRotate", "Rotates a vector with a matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorIRotate, "VectorIRotate", "Rotates a vector with the inverse of a matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorTransform, "VectorTransform", "Transforms a vector with a matrix." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptVectorITransform, "VectorITransform", "Transforms a vector with the inverse of a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptVectorRotate, "VectorRotate", "Rotates a vector with a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptVectorIRotate, "VectorIRotate", "Rotates a vector with the inverse of a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptVectorTransform, "VectorTransform", "Transforms a vector with a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptVectorITransform, "VectorITransform", "Transforms a vector with the inverse of a matrix." );
 
-	ScriptRegisterFunction( g_pScriptVM, CalcSqrDistanceToAABB, "Returns the squared distance to a bounding box." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalcClosestPointOnAABB, "CalcClosestPointOnAABB", "Returns the closest point on a bounding box." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalcDistanceToLine, "CalcDistanceToLine", "Returns the distance to a line." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalcClosestPointOnLine, "CalcClosestPointOnLine", "Returns the closest point on a line." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalcDistanceToLineSegment, "CalcDistanceToLineSegment", "Returns the distance to a line segment." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalcClosestPointOnLineSegment, "CalcClosestPointOnLineSegment", "Returns the closest point on a line segment." );
-
-#ifndef CLIENT_DLL
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptPredictedPosition, "PredictedPosition", "Predicts what an entity's position will be in a given amount of time." );
-#endif
+	ScriptRegisterFunction( pVM, CalcSqrDistanceToAABB, "Returns the squared distance to a bounding box." );
+	ScriptRegisterFunctionNamed( pVM, ScriptCalcClosestPointOnAABB, "CalcClosestPointOnAABB", "Returns the closest point on a bounding box." );
+	ScriptRegisterFunctionNamed( pVM, ScriptCalcDistanceToLine, "CalcDistanceToLine", "Returns the distance to a line." );
+	ScriptRegisterFunctionNamed( pVM, ScriptCalcClosestPointOnLine, "CalcClosestPointOnLine", "Returns the closest point on a line." );
+	ScriptRegisterFunctionNamed( pVM, ScriptCalcDistanceToLineSegment, "CalcDistanceToLineSegment", "Returns the distance to a line segment." );
+	ScriptRegisterFunctionNamed( pVM, ScriptCalcClosestPointOnLineSegment, "CalcClosestPointOnLineSegment", "Returns the closest point on a line segment." );
 }

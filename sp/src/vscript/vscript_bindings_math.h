@@ -5,21 +5,21 @@
 // $NoKeywords: $
 //=============================================================================
 
-#ifndef VSCRIPT_FUNCS_MATH
-#define VSCRIPT_FUNCS_MATH
+#ifndef VSCRIPT_BINDINGS_MATH
+#define VSCRIPT_BINDINGS_MATH
 #ifdef _WIN32
 #pragma once
 #endif
+
+void RegisterMathBaseBindings( IScriptVM *pVM );
+
+// Some base bindings require VM functions
+extern IScriptVM *g_pScriptVM;
 
 //-----------------------------------------------------------------------------
 // Exposes matrix3x4_t to VScript
 //-----------------------------------------------------------------------------
 inline matrix3x4_t *ToMatrix3x4( HSCRIPT hMat ) { return HScriptToClass<matrix3x4_t>( hMat ); }
-
-static HSCRIPT ScriptCreateMatrixInstance( matrix3x4_t &matrix )
-{
-	return g_pScriptVM->RegisterInstance( &matrix );
-}
 
 static void ScriptFreeMatrixInstance( HSCRIPT hMat )
 {
@@ -48,11 +48,6 @@ class CScriptQuaternionInstanceHelper : public IScriptInstanceHelper
 };
 
 inline Quaternion *ToQuaternion( HSCRIPT hQuat ) { return HScriptToClass<Quaternion>( hQuat ); }
-
-static HSCRIPT ScriptCreateQuaternionInstance( Quaternion &quat )
-{
-	return g_pScriptVM->RegisterInstance( &quat );
-}
 
 static void ScriptFreeQuaternionInstance( HSCRIPT hQuat )
 {

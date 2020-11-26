@@ -14,6 +14,7 @@
 // STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"						[ps30] [PC]
 // STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..0"						[ps20b] [XBOX]
 // STATIC: "BLENDTINTBYBASEALPHA"  "0..1"
+// STATIC: "ENVMAPMASK"					"0..1"
 
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"						[ps20]
 // DYNAMIC: "WRITEWATERFOGTODESTALPHA"	"0..1"						[ps20]
@@ -61,6 +62,8 @@
 
 // Meaningless combinations
 // SKIP: $NORMALMAPALPHAENVMAPMASK && !$CUBEMAP
+// SKIP: $NORMALMAPALPHAENVMAPMASK && $ENVMAPMASK
+// SKIP: $ENVMAPMASK && !$CUBEMAP
 
 #include "common_flashlight_fxc.h"
 #include "common_vertexlitgeneric_dx9.h"
@@ -180,6 +183,7 @@ float4 main( PS_INPUT i ) : COLOR
 	bool bAmbientLight = AMBIENT_LIGHT ? true : false;
 	bool bDetailTexture = DETAILTEXTURE ? true : false;
 	bool bBlendTintByBaseAlpha = BLENDTINTBYBASEALPHA ? true : false;
+	bool bEnvmapMask = ENVMAPMASK ? true : false;
 	int nNumLights = NUM_LIGHTS;
 
 #if ((defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)))
@@ -199,7 +203,13 @@ float4 main( PS_INPUT i ) : COLOR
 	baseColor = TextureCombine( baseColor, detailColor, DETAIL_BLEND_MODE, g_DetailBlendFactor );
 #endif
 
+#if ENVMAPMASK
+	// Blixibon - $bumpmap + $envmapmask
+	float3 specularFactor = 1.0f;
+#else
 	float specularFactor = 1.0f;
+#endif
+	
 #if !DETAILTEXTURE
 	// Blixibon - $bumpmap transform support
 	float4 normalTexel = tex2D( BumpmapSampler, i.detailTexCoord_atten3.xy );
@@ -209,7 +219,14 @@ float4 main( PS_INPUT i ) : COLOR
 	float3 tangentSpaceNormal = normalTexel * 2.0f - 1.0f;
 
 	if ( bNormalMapAlphaEnvmapMask )
+	{
 		specularFactor = normalTexel.a;
+	}
+	else if( bEnvmapMask )
+	{
+		float4 envmapMaskTexel = tex2D( EnvmapMaskSampler, i.baseTexCoord2_tangentSpaceVertToEyeVectorXY.xy );
+		specularFactor *= envmapMaskTexel.xyz;	
+	}
 
 	float3 diffuseLighting = float3( 1.0f, 1.0f, 1.0f );
 

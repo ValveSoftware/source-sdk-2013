@@ -41,9 +41,11 @@
 int g_fCombineQuestion;				// true if an idle grunt asked a question. Cleared when someone answers. YUCK old global from grunt code
 
 #ifdef MAPBASE
-ConVar npc_combine_idle_walk_easy("npc_combine_idle_walk_easy", "1");
-ConVar npc_combine_unarmed_anims("npc_combine_unarmed_anims", "1");
-ConVar npc_combine_altfire_not_allies_only( "npc_combine_altfire_not_allies_only", "1" );
+ConVar npc_combine_idle_walk_easy( "npc_combine_idle_walk_easy", "1", FCVAR_NONE, "Mapbase: Allows Combine soldiers to use ACT_WALK_EASY as a walking animation when idle." );
+ConVar npc_combine_unarmed_anims( "npc_combine_unarmed_anims", "1", FCVAR_NONE, "Mapbase: Allows Combine soldiers to use unarmed idle/walk animations when they have no weapon." );
+ConVar npc_combine_altfire_not_allies_only( "npc_combine_altfire_not_allies_only", "1", FCVAR_NONE, "Mapbase: Elites are normally only allowed to fire their alt-fire attack at the player and the player's allies; This allows elites to alt-fire at other enemies too." );
+
+ConVar npc_combine_new_cover_behavior( "npc_combine_new_cover_behavior", "1", FCVAR_NONE, "Mapbase: Toggles small patches for parts of npc_combine AI related to soldiers failing to take cover. These patches are minimal and only change cases where npc_combine would otherwise look at an enemy without shooting or run up to the player to melee attack when they don't have to. Consult the Mapbase wiki for more information." );
 #endif
 
 #define COMBINE_SKIN_DEFAULT		0
@@ -223,6 +225,8 @@ DEFINE_INPUTFUNC( FIELD_VOID,	"DropGrenade",	InputDropGrenade ),
 
 DEFINE_INPUTFUNC( FIELD_INTEGER,	"SetTacticalVariant",	InputSetTacticalVariant ),
 
+DEFINE_INPUTFUNC( FIELD_STRING, "SetPoliceGoal", InputSetPoliceGoal ),
+
 DEFINE_AIGRENADE_DATADESC()
 #endif
 
@@ -366,6 +370,37 @@ void CNPC_Combine::InputSetTacticalVariant( inputdata_t &inputdata )
 {
 	m_iTacticalVariant = inputdata.value.Int();
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CNPC_Combine::InputSetPoliceGoal( inputdata_t &inputdata )
+{
+	if (/*!inputdata.value.String() ||*/ inputdata.value.String()[0] == 0)
+	{
+		m_PolicingBehavior.Disable();
+		return;
+	}
+
+	CBaseEntity *pGoal = gEntList.FindEntityByName( NULL, inputdata.value.String() );
+
+	if ( pGoal == NULL )
+	{
+		DevMsg( "SetPoliceGoal: %s (%s) unable to find ai_goal_police: %s\n", GetClassname(), GetDebugName(), inputdata.value.String() );
+		return;
+	}
+
+	CAI_PoliceGoal *pPoliceGoal = dynamic_cast<CAI_PoliceGoal *>(pGoal);
+
+	if ( pPoliceGoal == NULL )
+	{
+		DevMsg( "SetPoliceGoal: %s (%s)'s target %s is not an ai_goal_police entity!\n", GetClassname(), GetDebugName(), inputdata.value.String() );
+		return;
+	}
+
+	m_PolicingBehavior.Enable( pPoliceGoal );
+}
 #endif
 
 //-----------------------------------------------------------------------------
@@ -471,6 +506,9 @@ bool CNPC_Combine::CreateBehaviors()
 	AddBehavior( &m_StandoffBehavior );
 	AddBehavior( &m_FollowBehavior );
 	AddBehavior( &m_FuncTankBehavior );
+#ifdef MAPBASE
+	AddBehavior( &m_PolicingBehavior );
+#endif
 
 	return BaseClass::CreateBehaviors();
 }
@@ -1463,6 +1501,23 @@ void CNPC_Combine::BuildScheduleTestBits( void )
 	{
 		SetCustomInterruptCondition( COND_COMBINE_ON_FIRE );
 	}
+
+#ifdef MAPBASE
+	if (npc_combine_new_cover_behavior.GetBool())
+	{
+		if ( IsCurSchedule( SCHED_COMBINE_COMBAT_FAIL ) )
+		{
+			SetCustomInterruptCondition( COND_NEW_ENEMY );
+			SetCustomInterruptCondition( COND_LIGHT_DAMAGE );
+			SetCustomInterruptCondition( COND_HEAVY_DAMAGE );
+		}
+		else if ( IsCurSchedule( SCHED_COMBINE_MOVE_TO_MELEE ) )
+		{
+			SetCustomInterruptCondition( COND_HEAR_DANGER );
+			SetCustomInterruptCondition( COND_HEAR_MOVE_AWAY );
+		}
+	}
+#endif
 }
 
 
@@ -2147,7 +2202,12 @@ int CNPC_Combine::SelectFailSchedule( int failedSchedule, int failedTask, AI_Tas
 {
 	if( failedSchedule == SCHED_COMBINE_TAKE_COVER1 )
 	{
+#ifdef MAPBASE
+		if( IsInSquad() && IsStrategySlotRangeOccupied(SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2) && HasCondition(COND_SEE_ENEMY)
+			&& ( !npc_combine_new_cover_behavior.GetBool() || (taskFailCode == FAIL_NO_COVER) ) )
+#else
 		if( IsInSquad() && IsStrategySlotRangeOccupied(SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2) && HasCondition(COND_SEE_ENEMY) )
+#endif
 		{
 			// This eases the effects of an unfortunate bug that usually plagues shotgunners. Since their rate of fire is low,
 			// they spend relatively long periods of time without an attack squad slot. If you corner a shotgunner, usually 
@@ -2377,6 +2437,13 @@ int CNPC_Combine::TranslateSchedule( int scheduleType )
 			{
 				return TranslateSchedule( SCHED_RANGE_ATTACK1 );
 			}
+
+#ifdef MAPBASE
+			if ( npc_combine_new_cover_behavior.GetBool() && HasCondition( COND_CAN_RANGE_ATTACK2 ) && OccupyStrategySlot( SQUAD_SLOT_GRENADE1 ) )
+			{
+				return TranslateSchedule( SCHED_RANGE_ATTACK2 );
+			}
+#endif
 
 			// Run somewhere randomly
 			return TranslateSchedule( SCHED_FAIL ); 
@@ -3562,6 +3629,37 @@ Vector CNPC_Combine::GetCrouchEyeOffset( void )
 {
 	return COMBINE_EYE_CROUCHING_POSITION;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CNPC_Combine::IsCrouchedActivity( Activity activity )
+{
+	if (BaseClass::IsCrouchedActivity( activity ))
+		return true;
+
+	Activity realActivity = TranslateActivity(activity);
+
+	// Soldiers need to consider these crouched activities, but not all NPCs should.
+	switch ( realActivity )
+	{
+		case ACT_RANGE_AIM_LOW:
+		case ACT_RANGE_AIM_AR2_LOW:
+		case ACT_RANGE_AIM_SMG1_LOW:
+		case ACT_RANGE_AIM_PISTOL_LOW:
+		case ACT_RANGE_ATTACK1_LOW:
+		case ACT_RANGE_ATTACK_AR2_LOW:
+		case ACT_RANGE_ATTACK_SMG1_LOW:
+		case ACT_RANGE_ATTACK_SHOTGUN_LOW:
+		case ACT_RANGE_ATTACK_PISTOL_LOW:
+		case ACT_RANGE_ATTACK2_LOW:
+			return true;
+	}
+
+	return false;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

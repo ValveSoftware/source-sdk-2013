@@ -47,9 +47,9 @@ END_DATADESC()
 #ifdef MAPBASE_VSCRIPT
 BEGIN_ENT_SCRIPTDESC( CBaseFilter, CBaseEntity, "All entities which could be used as filters." )
 
-	DEFINE_SCRIPTFUNC_NAMED( ScriptPassesFilter, "PassesFilter", "Check if the given caller and entity pass the filter." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptPassesDamageFilter, "PassesDamageFilter", "Check if the given caller and damage info pass the damage filter." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptPassesFinalDamageFilter, "PassesFinalDamageFilter", "Used by filter_damage_redirect to distinguish between standalone filter calls and actually damaging an entity. Returns true if there's no unique behavior." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptPassesFilter, "PassesFilter", "Check if the given caller and entity pass the filter. The caller is the one who requests the filter result; For example, the entity being damaged when using this as a damage filter." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptPassesDamageFilter, "PassesDamageFilter", "Check if the given caller and damage info pass the damage filter, with the second parameter being a CTakeDamageInfo instance. The caller is the one who requests the filter result; For example, the entity being damaged when using this as a damage filter." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptPassesFinalDamageFilter, "PassesFinalDamageFilter", "Used by filter_damage_redirect to distinguish between standalone filter calls and actually damaging an entity. Returns true if there's no unique behavior. Parameters are identical to PassesDamageFilter." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptBloodAllowed, "BloodAllowed", "Check if the given caller and damage info allow for the production of blood." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptDamageMod, "DamageMod", "Mods the damage info with the given caller." )
 
@@ -2138,6 +2138,12 @@ END_DATADESC()
 #endif
 
 #ifdef MAPBASE_VSCRIPT
+ScriptHook_t	g_Hook_PassesFilter;
+ScriptHook_t	g_Hook_PassesDamageFilter;
+ScriptHook_t	g_Hook_PassesFinalDamageFilter;
+ScriptHook_t	g_Hook_BloodAllowed;
+ScriptHook_t	g_Hook_DamageMod;
+
 // ###################################################################
 //	> CFilterScript
 // ###################################################################
@@ -2145,23 +2151,20 @@ class CFilterScript : public CBaseFilter
 {
 	DECLARE_CLASS( CFilterScript, CBaseFilter );
 	DECLARE_DATADESC();
+	DECLARE_ENT_SCRIPTDESC();
 
 public:
 	bool PassesFilterImpl( CBaseEntity *pCaller, CBaseEntity *pEntity )
 	{
 		if (m_ScriptScope.IsInitialized())
 		{
-			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
-			g_pScriptVM->SetValue( "activator", (pEntity) ? ScriptVariant_t( pEntity->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
-
+			// caller, activator
 			ScriptVariant_t functionReturn;
-			if (!CallScriptFunction( "PassesFilter", &functionReturn ))
+			ScriptVariant_t args[] = { ToHScript( pCaller ), ToHScript( pEntity ) };
+			if ( !g_Hook_PassesFilter.Call( m_ScriptScope, &functionReturn, args ) )
 			{
-				Warning("%s: No PassesFilter function\n", GetDebugName());
+				Warning( "%s: No PassesFilter function\n", GetDebugName() );
 			}
-
-			g_pScriptVM->ClearValue( "caller" );
-			g_pScriptVM->ClearValue( "activator" );
 
 			return functionReturn.m_bool;
 		}
@@ -2176,20 +2179,17 @@ public:
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
 
-			g_pScriptVM->SetValue( "info", pInfo );
-			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
-
+			// caller, info
 			ScriptVariant_t functionReturn;
-			if (!CallScriptFunction( "PassesDamageFilter", &functionReturn ))
+			ScriptVariant_t args[] = { ToHScript( pCaller ), pInfo };
+			if ( !g_Hook_PassesDamageFilter.Call( m_ScriptScope, &functionReturn, args ) )
 			{
 				// Fall back to main filter function
+				g_pScriptVM->RemoveInstance( pInfo );
 				return PassesFilterImpl( pCaller, info.GetAttacker() );
 			}
 
 			g_pScriptVM->RemoveInstance( pInfo );
-
-			g_pScriptVM->ClearValue( "info" );
-			g_pScriptVM->ClearValue( "caller" );
 
 			return functionReturn.m_bool;
 		}
@@ -2204,19 +2204,16 @@ public:
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
 
-			g_pScriptVM->SetValue( "info", pInfo );
-			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
-
+			// caller, info
 			ScriptVariant_t functionReturn;
-			if (!CallScriptFunction( "PassesFinalDamageFilter", &functionReturn ))
+			ScriptVariant_t args[] = { ToHScript( pCaller ), pInfo };
+			if ( !g_Hook_PassesFinalDamageFilter.Call( m_ScriptScope, &functionReturn, args ) )
 			{
+				g_pScriptVM->RemoveInstance( pInfo );
 				return BaseClass::PassesFinalDamageFilter( pCaller, info );
 			}
 
 			g_pScriptVM->RemoveInstance( pInfo );
-
-			g_pScriptVM->ClearValue( "info" );
-			g_pScriptVM->ClearValue( "caller" );
 
 			return functionReturn.m_bool;
 		}
@@ -2231,19 +2228,16 @@ public:
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
 
-			g_pScriptVM->SetValue( "info", pInfo );
-			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
-
+			// caller, info
 			ScriptVariant_t functionReturn;
-			if (!CallScriptFunction( "BloodAllowed", &functionReturn ))
+			ScriptVariant_t args[] = { ToHScript( pCaller ), pInfo };
+			if ( !g_Hook_BloodAllowed.Call( m_ScriptScope, &functionReturn, args ) )
 			{
+				g_pScriptVM->RemoveInstance( pInfo );
 				return BaseClass::BloodAllowed( pCaller, info );
 			}
 
 			g_pScriptVM->RemoveInstance( pInfo );
-
-			g_pScriptVM->ClearValue( "info" );
-			g_pScriptVM->ClearValue( "caller" );
 
 			return functionReturn.m_bool;
 		}
@@ -2258,19 +2252,16 @@ public:
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( &info );
 
-			g_pScriptVM->SetValue( "info", pInfo );
-			g_pScriptVM->SetValue( "caller", (pCaller) ? ScriptVariant_t( pCaller->GetScriptInstance() ) : SCRIPT_VARIANT_NULL );
-
+			// caller, info
 			ScriptVariant_t functionReturn;
-			if (!CallScriptFunction( "DamageMod", &functionReturn ))
+			ScriptVariant_t args[] = { ToHScript( pCaller ), pInfo };
+			if ( !g_Hook_DamageMod.Call( m_ScriptScope, &functionReturn, args ) )
 			{
+				g_pScriptVM->RemoveInstance( pInfo );
 				return BaseClass::DamageMod( pCaller, info );
 			}
 
 			g_pScriptVM->RemoveInstance( pInfo );
-
-			g_pScriptVM->ClearValue( "info" );
-			g_pScriptVM->ClearValue( "caller" );
 
 			return functionReturn.m_bool;
 		}
@@ -2284,4 +2275,39 @@ LINK_ENTITY_TO_CLASS( filter_script, CFilterScript );
 
 BEGIN_DATADESC( CFilterScript )
 END_DATADESC()
+
+BEGIN_ENT_SCRIPTDESC( CFilterScript, CBaseFilter, "The filter_script entity which allows VScript functions to hook onto filter methods." )
+
+	// 
+	// Hooks
+	// 
+
+	// The CFilterScript class is visible in the help string, so "A hook used by filter_script" is redundant, but these names are also
+	// used for functions in CBaseFilter. In order to reduce confusion, the description emphasizes that these are hooks.
+	BEGIN_SCRIPTHOOK( g_Hook_PassesFilter, "PassesFilter", FIELD_BOOLEAN, "A hook used by filter_script to determine what entities should pass it. Return true if the entity should pass or false if it should not. This hook is required for regular filtering." )
+		DEFINE_SCRIPTHOOK_PARAM( "caller", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "activator", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( g_Hook_PassesDamageFilter, "PassesDamageFilter", FIELD_BOOLEAN, "A hook used by filter_script to determine what damage should pass it when it's being used as a damage filter. Return true if the info should pass or false if it should not. If this hook is not defined in a filter_script, damage filter requests will instead check PassesFilter with the attacker as the activator." )
+		DEFINE_SCRIPTHOOK_PARAM( "caller", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "info", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( g_Hook_PassesFinalDamageFilter, "PassesFinalDamageFilter", FIELD_BOOLEAN, "A completely optional hook used by filter_script which only runs when the entity will take damage. This is different from PassesDamageFilter, which is sometimes used in cases where damage is not actually about to be taken. This also runs after a regular PassesDamageFilter check. Return true if the info should pass or false if it should not. If this hook is not defined, it will always return true." )
+		DEFINE_SCRIPTHOOK_PARAM( "caller", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "info", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( g_Hook_BloodAllowed, "BloodAllowed", FIELD_BOOLEAN, "A completely optional hook used by filter_script to determine if a caller is allowed to emit blood after taking damage. Return true if blood should be allowed or false if it should not. If this hook is not defined, it will always return true." )
+		DEFINE_SCRIPTHOOK_PARAM( "caller", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "info", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( g_Hook_DamageMod, "DamageMod", FIELD_BOOLEAN, "A completely optional hook used by filter_script to modify damage being taken by an entity. You are free to use CTakeDamageInfo functions on the damage info handle and it will change how the caller is damaged. Returning true or false currently has no effect on vanilla code, but you should generally return true if the damage info has been modified by your code and false if it was not. If this hook is not defined, it will always return false." )
+		DEFINE_SCRIPTHOOK_PARAM( "caller", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "info", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+END_SCRIPTDESC()
 #endif
