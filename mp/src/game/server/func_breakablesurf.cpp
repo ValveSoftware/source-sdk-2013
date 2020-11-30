@@ -609,7 +609,67 @@ void CBreakableSurface::Die( CBaseEntity *pBreaker, const Vector &vAttackDir )
 		return;
 
 	// Play a break sound
-	PhysBreakSound( this, VPhysicsGetObject(), GetAbsOrigin() );
+	const char *soundname = NULL;
+
+	switch (m_Material)
+	{
+	default:
+		break;
+
+	case matGlass:
+		soundname = "Glass.Break";
+		cFlag = BREAK_GLASS;
+		break;
+
+	case matWood:
+		soundname = "Wood_Box.Break";
+		cFlag = BREAK_WOOD;
+		break;
+
+	case matComputer:
+		soundname = "Breakable.Computer";
+		cFlag = BREAK_METAL;
+		break;
+
+	case matMetal:
+		soundname = "Metal_Box.Break";
+		cFlag = BREAK_METAL;
+		break;
+
+	case matFlesh:
+	case matWeb:
+		soundname = "Flesh.Break";
+		cFlag = BREAK_FLESH;
+		break;
+
+	case matRocks:
+	case matCinderBlock:
+		soundname = "Breakable.Concrete";
+		cFlag = BREAK_CONCRETE;
+		break;
+
+	case matCeilingTile:
+		soundname = "ceiling_tile.Break";
+		break;
+	}
+
+	if (soundname)
+	{
+		CSoundParameters params;
+		if (GetParametersForSound(soundname, params, NULL))
+		{
+			CPASAttenuationFilter filter(this);
+
+			EmitSound_t ep;
+			ep.m_nChannel = params.channel;
+			ep.m_pSoundName = params.soundname;
+			ep.m_flVolume = params.volume;
+			ep.m_SoundLevel = params.soundlevel;
+			ep.m_nPitch = params.pitch;
+
+			EmitSound(filter, entindex(), ep);
+		}
+	}
 
 	m_bIsBroken = true;
 	m_iHealth = 0.0f;
