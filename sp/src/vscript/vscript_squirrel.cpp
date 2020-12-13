@@ -3182,6 +3182,8 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 		if (classType == VectorClassType)
 		{
 			sq_pushobject(vm_, vectorClass_);
+			sq_getstackobj(vm_, -1, obj);
+			sq_addref(vm_, obj);
 		}
 		else if (classType == NativeClassType)
 		{
