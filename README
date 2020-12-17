@@ -53,6 +53,7 @@ Here's a list of Mapbase's other known external code sources:
 - https://github.com/KyleGospo/City-17-Episode-One-Source (Brush phong and projected texture changes, included indirectly via Insolence repo)
 - https://github.com/DownFall-Team/DownFall (Multiple skybox code and fix for ent_fire delay not using floats; Also used as a guide to port certain Alien Swarm SDK changes to Source 2013,
 including radial fog, rope code, and treesway)
+- https://github.com/momentum-mod/game (Used as a guide to port postprocess_controller and env_dof_controller to Source 2013)
 - https://github.com/DeathByNukes/source-sdk-2013 (VBSP manifest fixes)
 - https://github.com/entropy-zero/source-sdk-2013 (skill_changed game event)
 

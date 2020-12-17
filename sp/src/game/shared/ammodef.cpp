@@ -322,6 +322,8 @@ BEGIN_SCRIPTDESC_ROOT( CAmmoDef, SCRIPT_SINGLETON "The ammo type definition mana
 	DEFINE_SCRIPTFUNC( MaxSplashSize, "Gets the maximum size of water splashes caused by impacts from this ammo type." )
 	DEFINE_SCRIPTFUNC( Flags, "Gets the flags this ammo type uses." )
 
+	DEFINE_SCRIPTFUNC( GetNumAmmoTypes, "Gets the number of ammo types which currently exist." )
+
 END_SCRIPTDESC();
 #endif
 

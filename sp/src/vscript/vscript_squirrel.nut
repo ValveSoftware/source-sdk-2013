@@ -111,6 +111,7 @@ DocumentedClasses <- {}
 DocumentedEnums <- {}
 DocumentedConsts <- {}
 DocumentedHooks <- {}
+DocumentedMembers <- {}
 
 function AddAliasedToTable(name, signature, description, table)
 {
@@ -145,9 +146,9 @@ function RegisterClassHelp(name, baseclass, description)
 	DocumentedClasses[name] <- [baseclass, description];
 }
 
-function RegisterEnumHelp(name, description)
+function RegisterEnumHelp(name, num_elements, description)
 {
-	DocumentedEnums[name] <- description;
+	DocumentedEnums[name] <- [num_elements, description];
 }
 
 function RegisterConstHelp(name, signature, description)
@@ -167,6 +168,11 @@ function RegisterHookHelp(name, signature, description)
 	DocumentedHooks[name] <- [signature, description];
 }
 
+function RegisterMemberHelp(name, signature, description)
+{
+	DocumentedMembers[name] <- [signature, description];
+}
+
 function printdoc( text )
 {
 	return ::printc(200,224,255,text);
@@ -179,147 +185,152 @@ function printdocl( text )
 
 function PrintClass(name, doc)
 {
-	printdocl("=====================================");
-	printdocl("Class:    " + name);
-	printdocl("Base:   " + doc[0]);
+	local text = "=====================================\n";
+	text += ("Class:    " + name + "\n");
+	text += ("Base:   " + doc[0] + "\n");
 	if (doc[1].len())
-		printdocl("Description: " + doc[1]);
-	printdocl("=====================================");
-	print("\n");
+		text += ("Description: " + doc[1] + "\n");
+	text += "=====================================\n\n";
+
+	printdoc(text);
 }
 
 function PrintFunc(name, doc)
 {
-	printdocl("Function:    " + name);
+	local text = "Function:    " + name + "\n"
+
 	if (doc[0] == null)
 	{
 		// Is an aliased function
-		printdoc("Signature:   function " + name + "(");
+		text += ("Signature:   function " + name + "(");
 		foreach(k,v in this[name].getinfos().parameters)
 		{
 			if (k == 0 && v == "this") continue;
-			if (k > 1) printdoc(", ");
-			printdoc(v);
+			if (k > 1) text += (", ");
+			text += (v);
 		}
-		printdocl(")");
+		text += (")\n");
 	}
 	else
 	{
-		printdocl("Signature:   " + doc[0]);
+		text += ("Signature:   " + doc[0] + "\n");
 	}
 	if (doc[1].len())
-		printdocl("Description: " + doc[1]);
-	print("\n");
+		text += ("Description: " + doc[1] + "\n");
+	printdocl(text);
+}
+
+function PrintMember(name, doc)
+{
+	local text = ("Member:      " + name + "\n");
+	text += ("Signature:   " + doc[0] + "\n");
+	if (doc[1].len())
+		text += ("Description: " + doc[1] + "\n");
+	printdocl(text);
 }
 
 function PrintEnum(name, doc)
 {
-	printdocl("=====================================");
-	printdocl("Enum:    " + name);
-	if (doc.len())
-		printdocl("Description: " + doc);
-	printdocl("=====================================");
-	print("\n");
+	local text = "=====================================\n";
+	text += ("Enum:    " + name + "\n");
+	text += ("Elements:   " + doc[0] + "\n");
+	if (doc[1].len())
+		text += ("Description: " + doc[1] + "\n");
+	text += "=====================================\n\n";
+
+	printdoc(text);
 }
 
 function PrintConst(name, doc)
 {
-	printdocl("Constant:    " + name);
+	local text = ("Constant:    " + name + "\n");
 	if (doc[0] == null)
 	{
-		// Is an aliased function
-		printdoc("Signature:   function " + name + "(");
-		foreach(k,v in this[name].getinfos().parameters)
-		{
-			if (k == 0 && v == "this") continue;
-			if (k > 1) printdoc(", ");
-			printdoc(v);
-		}
-		printdocl(")");
+		text += ("Value:   null\n");
 	}
 	else
 	{
-		printdocl("Value:   " + doc[0]);
+		text += ("Value:   " + doc[0] + "\n");
 	}
 	if (doc[1].len())
-		printdocl("Description: " + doc[1]);
-	print("\n");
+		text += ("Description: " + doc[1] + "\n");
+	printdocl(text);
 }
 
 function PrintHook(name, doc)
 {
-	printdocl("Hook:    " + name);
+	local text = ("Hook:    " + name + "\n");
 	if (doc[0] == null)
 	{
 		// Is an aliased function
-		printdoc("Signature:   function " + name + "(");
+		text += ("Signature:   function " + name + "(");
 		foreach(k,v in this[name].getinfos().parameters)
 		{
 			if (k == 0 && v == "this") continue;
-			if (k > 1) printdoc(", ");
-			printdoc(v);
+			if (k > 1) text += (", ");
+			text += (v);
 		}
-		printdocl(")");
+		text += (")\n");
 	}
 	else
 	{
-		printdocl("Signature:   " + doc[0]);
+		text += ("Signature:   " + doc[0] + "\n");
 	}
 	if (doc[1].len())
-		printdocl("Description: " + doc[1]);
-	print("\n");
+		text += ("Description: " + doc[1] + "\n");
+	printdocl(text);
+}
+
+function PrintMatchesInDocList(pattern, list, printfunc)
+{
+	local foundMatches = false;
+
+	foreach(name, doc in list)
+	{
+		if (pattern == "*" || name.tolower().find(pattern) != null || (doc[1].len() && doc[1].tolower().find(pattern) != null))
+		{
+			foundMatches = true;
+			printfunc(name, doc)
+		}
+	}
+
+	return foundMatches;
 }
 
 function PrintHelp(pattern = "*")
 {
 	local foundMatches = false;
-	foreach(name, doc in DocumentedClasses)
-	{
-		if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
-		{
-			foundMatches = true;
-			PrintClass(name, doc)
-		}
-	}
+	local patternLower = pattern.tolower();
 
-	foreach(name, doc in DocumentedFuncs)
-	{
-		if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
-		{
-			foundMatches = true;
-			PrintFunc(name, doc)
-		}
-	}
-
-	foreach(name, doc in DocumentedEnums)
-	{
-		if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
-		{
-			foundMatches = true;
-			PrintEnum(name, doc)
-		}
-	}
-
-	foreach(name, doc in DocumentedConsts)
-	{
-		if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
-		{
-			foundMatches = true;
-			PrintConst(name, doc)
-		}
-	}
-
-	foreach(name, doc in DocumentedHooks)
-	{
-		if (pattern == "*" || name.tolower().find(pattern.tolower()) != null)
-		{
-			foundMatches = true;
-			PrintHook(name, doc)
-		}
-	}
+	// Have a specific order
+	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedEnums, PrintEnum ) || foundMatches );
+	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedConsts, PrintConst ) || foundMatches );
+	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedClasses, PrintClass ) || foundMatches );
+	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedFuncs, PrintFunc ) || foundMatches );
+	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedMembers, PrintMember ) || foundMatches );
+	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedHooks, PrintHook ) || foundMatches );
 
 	if (!foundMatches)
 		printdocl("Pattern " + pattern + " not found");
 }
+
+// Vector documentation
+RegisterClassHelp( "Vector", "", "Basic 3-float Vector class." );
+RegisterHelp( "Vector::Length", "float Vector::Length()", "Return the vector's length." );
+RegisterHelp( "Vector::LengthSqr", "float Vector::LengthSqr()", "Return the vector's squared length." );
+RegisterHelp( "Vector::Length2D", "float Vector::Length2D()", "Return the vector's 2D length." );
+RegisterHelp( "Vector::Length2DSqr", "float Vector::Length2DSqr()", "Return the vector's squared 2D length." );
+
+RegisterHelp( "Vector::Normalized", "float Vector::Normalized()", "Return a normalized version of the vector." );
+RegisterHelp( "Vector::Norm", "void Vector::Norm()", "Normalize the vector in place." );
+RegisterHelp( "Vector::Scale", "vector Vector::Scale(float)", "Scale the vector's magnitude and return the result." );
+RegisterHelp( "Vector::Dot", "float Vector::Dot(vector)", "Return the dot/scalar product of two vectors." );
+RegisterHelp( "Vector::Cross", "float Vector::Cross(vector)", "Return the vector product of two vectors." );
+
+RegisterHelp( "Vector::ToKVString", "string Vector::ToKVString()", "Return a vector as a string in KeyValue form, without separation commas." );
+
+RegisterMemberHelp( "Vector.x", "float Vector.x", "The vector's X coordinate on the cartesian X axis." );
+RegisterMemberHelp( "Vector.y", "float Vector.y", "The vector's Y coordinate on the cartesian Y axis." );
+RegisterMemberHelp( "Vector.z", "float Vector.z", "The vector's Z coordinate on the cartesian Z axis." );
 
 )vscript";

@@ -61,6 +61,9 @@ $Project
 		$File	"MonitorScreen_dx9.cpp"
 		$File	"shatteredglass.cpp"
 		$File	"windowimposter_dx90.cpp"
+		
+		$File	"engine_post_dx9.cpp"
+		$File	"depthoffield_dx9.cpp"
 	}
 
 	//$Shaders	"mapbase_dx9_20b.txt"

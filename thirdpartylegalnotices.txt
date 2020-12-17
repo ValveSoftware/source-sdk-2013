@@ -873,8 +873,8 @@ Google Snappy
 ************************************************************************************
 
 Mapbase integrates a few additional third-party libraries, all of which are from free and/or
-open-source projects operating under MIT or GNU licenses. They can be used in any mod or
-commercial product as long as the given notices are present here or elsewhere.
+open-source projects operating under MIT licenses. They can be used in any mod or commercial
+product as long as the given notices are present here or elsewhere.
 
 ************************************************************************************
 Squirrel programming language (used in VScript)

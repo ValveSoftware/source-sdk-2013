@@ -802,7 +802,10 @@ void PushVariant(HSQUIRRELVM vm, const ScriptVariant_t& value)
 		sq_pushfloat(vm, value);
 		break;
 	case FIELD_CSTRING:
-		sq_pushstring(vm, value, -1);
+		if ( value.m_pszString )
+			sq_pushstring(vm, value, -1);
+		else
+			sq_pushnull(vm);
 		break;
 	case FIELD_VECTOR:
 	{
@@ -1453,14 +1456,24 @@ void RegisterClassDocumentation(HSQUIRRELVM vm, const ScriptClassDesc_t* pClassD
 {
 	SquirrelSafeCheck safeCheck(vm);
 
-	if (pClassDesc->m_pszDescription && pClassDesc->m_pszDescription[0] == SCRIPT_HIDE[0])
-		return;
-
 	const char *name = pClassDesc->m_pszScriptName;
 	const char *base = "";
 	if (pClassDesc->m_pBaseDesc)
 	{
 		base = pClassDesc->m_pBaseDesc->m_pszScriptName;
+	}
+
+	const char *description = pClassDesc->m_pszDescription;
+	if (description)
+	{
+		if (description[0] == SCRIPT_HIDE[0])
+			return;
+		if (description[0] == SCRIPT_SINGLETON[0])
+			description++;
+	}
+	else
+	{
+		description = "";
 	}
 
 	// RegisterClassHelp(name, base, description)
@@ -1471,7 +1484,7 @@ void RegisterClassDocumentation(HSQUIRRELVM vm, const ScriptClassDesc_t* pClassD
 	sq_pushroottable(vm);
 	sq_pushstring(vm, name, -1);
 	sq_pushstring(vm, base, -1);
-	sq_pushstring(vm, pClassDesc->m_pszDescription ? pClassDesc->m_pszDescription : "", -1);
+	sq_pushstring(vm, description, -1);
 	sq_call(vm, 4, SQFalse, SQFalse);
 	sq_pop(vm, 1);
 }
@@ -1492,8 +1505,9 @@ void RegisterEnumDocumentation(HSQUIRRELVM vm, const ScriptEnumDesc_t* pClassDes
 	sq_remove(vm, -2);
 	sq_pushroottable(vm);
 	sq_pushstring(vm, name, -1);
+	sq_pushinteger(vm, pClassDesc->m_ConstantBindings.Count());
 	sq_pushstring(vm, pClassDesc->m_pszDescription ? pClassDesc->m_pszDescription : "", -1);
-	sq_call(vm, 3, SQFalse, SQFalse);
+	sq_call(vm, 4, SQFalse, SQFalse);
 	sq_pop(vm, 1);
 }
 
@@ -1573,6 +1587,41 @@ void RegisterHookDocumentation(HSQUIRRELVM vm, const ScriptHook_t* pHook, const 
 	sq_pushstring(vm, name, -1);
 	sq_pushstring(vm, signature, -1);
 	sq_pushstring(vm, pFuncDesc.m_pszDescription ? pFuncDesc.m_pszDescription : "", -1);
+	sq_call(vm, 4, SQFalse, SQFalse);
+	sq_pop(vm, 1);
+}
+
+void RegisterMemberDocumentation(HSQUIRRELVM vm, const ScriptMemberDesc_t& pDesc, ScriptClassDesc_t* pClassDesc = nullptr)
+{
+	SquirrelSafeCheck safeCheck(vm);
+
+	if (pDesc.m_pszDescription && pDesc.m_pszDescription[0] == SCRIPT_HIDE[0])
+		return;
+
+	char name[256] = "";
+
+	if (pClassDesc)
+	{
+		V_strcat_safe(name, pClassDesc->m_pszScriptName);
+		V_strcat_safe(name, ".");
+	}
+
+	if (pDesc.m_pszScriptName)
+		V_strcat_safe(name, pDesc.m_pszScriptName);
+
+
+	char signature[256] = "";
+	V_snprintf(signature, sizeof(signature), "%s %s", ScriptDataTypeToName(pDesc.m_ReturnType), name);
+
+	// RegisterHookHelp(name, signature, description)
+	sq_pushroottable(vm);
+	sq_pushstring(vm, "RegisterMemberHelp", -1);
+	sq_get(vm, -2);
+	sq_remove(vm, -2);
+	sq_pushroottable(vm);
+	sq_pushstring(vm, name, -1);
+	sq_pushstring(vm, signature, -1);
+	sq_pushstring(vm, pDesc.m_pszDescription ? pDesc.m_pszDescription : "", -1);
 	sq_call(vm, 4, SQFalse, SQFalse);
 	sq_pop(vm, 1);
 }
@@ -2089,6 +2138,13 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 		auto& scriptHook = pClassDesc->m_Hooks[i];
 
 		RegisterHookDocumentation(vm_, scriptHook, scriptHook->m_desc, pClassDesc);
+	}
+
+	for (int i = 0; i < pClassDesc->m_Members.Count(); ++i)
+	{
+		auto& member = pClassDesc->m_Members[i];
+
+		RegisterMemberDocumentation(vm_, member, pClassDesc);
 	}
 
 	sq_pushstring(vm_, pClassDesc->m_pszScriptName, -1);

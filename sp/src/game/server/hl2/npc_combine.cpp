@@ -1187,6 +1187,15 @@ void CNPC_Combine::StartTask( const Task_t *pTask )
 		break;
 	case TASK_RANGE_ATTACK1:
 		{
+#ifdef MAPBASE
+			// The game can crash if a soldier's weapon is removed while they're shooting
+			if (!GetActiveWeapon())
+			{
+				TaskFail( "No weapon" );
+				break;
+			}
+#endif
+
 			m_nShots = GetActiveWeapon()->GetRandomBurst();
 			m_flShotDelay = GetActiveWeapon()->GetFireRate();
 

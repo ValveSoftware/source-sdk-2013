@@ -163,6 +163,7 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_ShootPosition, "ShootPosition", "Get the character's shoot position." )
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_DropAll, "DropAllWeapons", "Make the character drop all of its weapons." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEquipWeapon, "EquipWeapon", "Make the character equip the specified weapon entity. If they don't already own the weapon, they will acquire it instantly." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptDropWeapon, "DropWeapon", "Make the character drop the specified weapon entity if they own it." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAmmoCount, "GetAmmoCount", "Get the ammo count of the specified ammo type." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAmmoCount, "SetAmmoCount", "Set the ammo count of the specified ammo type." )
@@ -308,6 +309,21 @@ int	CBaseCombatCharacter::GetInteractionID(void)
 	m_lastInteraction++;
 	return (m_lastInteraction);
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: New method of adding interactions which allows their name to be available (currently used for VScript)
+//-----------------------------------------------------------------------------
+void CBaseCombatCharacter::AddInteractionWithString( int &interaction, const char *szName )
+{
+	interaction = GetInteractionID();
+
+	if (g_pScriptVM)
+	{
+		ScriptRegisterConstantNamed( g_pScriptVM, interaction, szName, "An interaction which could be used with HandleInteraction or DispatchInteraction. NOTE: These are usually only initialized by certain types of NPCs when an instance of one spawns in the level for the first time!!! (the fact you're seeing this one means there was an NPC in the level which initialized it)" );
+	}
+}
+#endif
 
 // ============================================================================
 bool CBaseCombatCharacter::HasHumanGibs( void )
@@ -4407,11 +4423,29 @@ void CBaseCombatCharacter::GetScriptAllWeapons( HSCRIPT hTable )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+void CBaseCombatCharacter::ScriptDropWeapon( HSCRIPT hWeapon )
+{
+	CBaseCombatWeapon *pWeapon = HScriptToClass<CBaseCombatWeapon>( hWeapon );
+	if (!pWeapon)
+		return;
+
+	if (pWeapon->GetOwner() == this)
+	{
+		// Drop the weapon
+		Weapon_Drop( pWeapon );
+	}
+	else
+	{
+		CGMsg( 1, CON_GROUP_VSCRIPT, "ScriptDropWeapon: %s is not owned by %s", pWeapon->GetDebugName(), GetDebugName() );
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void CBaseCombatCharacter::ScriptEquipWeapon( HSCRIPT hWeapon )
 {
-	CBaseEntity *pEntity = ToEnt( hWeapon );
-	CBaseCombatWeapon *pWeapon = pEntity->MyCombatWeaponPointer();
-	if (!pEntity || !pWeapon)
+	CBaseCombatWeapon *pWeapon = HScriptToClass<CBaseCombatWeapon>( hWeapon );
+	if (!pWeapon)
 		return;
 
 	if (pWeapon->GetOwner() == this)

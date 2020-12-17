@@ -94,6 +94,11 @@ public:
 
 private:
 	bool				AddAmmoType(char const* name, int damageType, int tracerType, int nFlags, int minSplashSize, int maxSplashSize );
+
+#ifdef MAPBASE_VSCRIPT
+	ALLOW_SCRIPT_ACCESS();
+	int					GetNumAmmoTypes() { return m_nAmmoIndex; }
+#endif
 };
 
 

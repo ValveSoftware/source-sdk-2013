@@ -2834,7 +2834,7 @@ bool LoadMapFile( const char *pszFileName )
 		{
 			if (g_pParallaxObbStrs[i][0] != '\0' && g_pParallaxObbsDone[i] == false)
 			{
-				Warning( "Testing OBB string %s\n", g_pParallaxObbStrs[i] );
+				//Warning( "Testing OBB string %s\n", g_pParallaxObbStrs[i] );
 
 				entity_t* obbEnt = NULL;
 				for (int i2 = 0; i2 < g_LoadingMap->num_entities; i2++)
@@ -2844,7 +2844,7 @@ bool LoadMapFile( const char *pszFileName )
 
 					obbEnt = &g_LoadingMap->entities[i2];
 					g_pParallaxObbStrs[i] = ValueForKey(obbEnt, "transformationmatrix");
-					Warning( "Using OBB transformation matrix \"%s\"\n", g_pParallaxObbStrs[i] );
+					//Warning( "Using OBB transformation matrix \"%s\"\n", g_pParallaxObbStrs[i] );
 					g_pParallaxObbsDone[i] = true;
 
 					break;

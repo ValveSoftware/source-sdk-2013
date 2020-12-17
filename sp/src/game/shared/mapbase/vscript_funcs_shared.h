@@ -106,7 +106,7 @@ public:
 	bool StartSolid() const { return m_tr.startsolid; }
 
 	HSCRIPT Surface() { return m_surfaceAccessor; }
-	void SetSurface( HSCRIPT hPlaneAccessor ) { m_surfaceAccessor = hPlaneAccessor; }
+	void SetSurface( HSCRIPT hSurfAccessor ) { m_surfaceAccessor = hSurfAccessor; }
 
 	HSCRIPT Plane() { return m_planeAccessor; }
 	void SetPlane( HSCRIPT hPlaneAccessor ) { m_planeAccessor = hPlaneAccessor; }

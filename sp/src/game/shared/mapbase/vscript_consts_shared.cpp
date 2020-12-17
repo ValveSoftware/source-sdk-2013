@@ -24,32 +24,32 @@
 
 BEGIN_SCRIPTENUM( IN, "Button mask bindings" )
 
-	DEFINE_ENUMCONST_NAMED( IN_ATTACK, "ATTACK", "" )
-	DEFINE_ENUMCONST_NAMED( IN_JUMP, "JUMP", "" )
-	DEFINE_ENUMCONST_NAMED( IN_DUCK, "DUCK", "" )
-	DEFINE_ENUMCONST_NAMED( IN_FORWARD, "FORWARD", "" )
-	DEFINE_ENUMCONST_NAMED( IN_BACK, "BACK", "" )
-	DEFINE_ENUMCONST_NAMED( IN_USE, "USE", "" )
-	DEFINE_ENUMCONST_NAMED( IN_CANCEL, "CANCEL", "" )
-	DEFINE_ENUMCONST_NAMED( IN_LEFT, "LEFT", "" )
-	DEFINE_ENUMCONST_NAMED( IN_RIGHT, "RIGHT", "" )
-	DEFINE_ENUMCONST_NAMED( IN_MOVELEFT, "MOVELEFT", "" )
-	DEFINE_ENUMCONST_NAMED( IN_MOVERIGHT, "MOVERIGHT", "" )
-	DEFINE_ENUMCONST_NAMED( IN_ATTACK2, "ATTACK2", "" )
-	DEFINE_ENUMCONST_NAMED( IN_RUN, "RUN", "" )
-	DEFINE_ENUMCONST_NAMED( IN_RELOAD, "RELOAD", "" )
-	DEFINE_ENUMCONST_NAMED( IN_ALT1, "ALT1", "" )
-	DEFINE_ENUMCONST_NAMED( IN_ALT2, "ALT2", "" )
-	DEFINE_ENUMCONST_NAMED( IN_SCORE, "SCORE", "" )
-	DEFINE_ENUMCONST_NAMED( IN_SPEED, "SPEED", "" )
-	DEFINE_ENUMCONST_NAMED( IN_WALK, "WALK", "" )
-	DEFINE_ENUMCONST_NAMED( IN_ZOOM, "ZOOM", "" )
-	DEFINE_ENUMCONST_NAMED( IN_WEAPON1, "WEAPON1", "" )
-	DEFINE_ENUMCONST_NAMED( IN_WEAPON2, "WEAPON2", "" )
-	DEFINE_ENUMCONST_NAMED( IN_BULLRUSH, "BULLRUSH", "" )
-	DEFINE_ENUMCONST_NAMED( IN_GRENADE1, "GRENADE1", "" )
-	DEFINE_ENUMCONST_NAMED( IN_GRENADE2, "GRENADE2", "" )
-	DEFINE_ENUMCONST_NAMED( IN_ATTACK3, "ATTACK3", "" )
+	DEFINE_ENUMCONST_NAMED( IN_ATTACK, "ATTACK", "Button for +attack" )
+	DEFINE_ENUMCONST_NAMED( IN_JUMP, "JUMP", "Button for +jump" )
+	DEFINE_ENUMCONST_NAMED( IN_DUCK, "DUCK", "Button for +duck" )
+	DEFINE_ENUMCONST_NAMED( IN_FORWARD, "FORWARD", "Button for +forward" )
+	DEFINE_ENUMCONST_NAMED( IN_BACK, "BACK", "Button for +back" )
+	DEFINE_ENUMCONST_NAMED( IN_USE, "USE", "Button for +use" )
+	DEFINE_ENUMCONST_NAMED( IN_CANCEL, "CANCEL", "Special button flag for attack cancel" )
+	DEFINE_ENUMCONST_NAMED( IN_LEFT, "LEFT", "Button for +left" )
+	DEFINE_ENUMCONST_NAMED( IN_RIGHT, "RIGHT", "Button for +right" )
+	DEFINE_ENUMCONST_NAMED( IN_MOVELEFT, "MOVELEFT", "Button for +moveleft" )
+	DEFINE_ENUMCONST_NAMED( IN_MOVERIGHT, "MOVERIGHT", "Button for +moveright" )
+	DEFINE_ENUMCONST_NAMED( IN_ATTACK2, "ATTACK2", "Button for +attack2" )
+	DEFINE_ENUMCONST_NAMED( IN_RUN, "RUN", "Unused button (see IN.SPEED for sprint)" )
+	DEFINE_ENUMCONST_NAMED( IN_RELOAD, "RELOAD", "Button for +reload" )
+	DEFINE_ENUMCONST_NAMED( IN_ALT1, "ALT1", "Button for +alt1" )
+	DEFINE_ENUMCONST_NAMED( IN_ALT2, "ALT2", "Button for +alt2" )
+	DEFINE_ENUMCONST_NAMED( IN_SCORE, "SCORE", "Button for +score" )
+	DEFINE_ENUMCONST_NAMED( IN_SPEED, "SPEED", "Button for +speed" )
+	DEFINE_ENUMCONST_NAMED( IN_WALK, "WALK", "Button for +walk" )
+	DEFINE_ENUMCONST_NAMED( IN_ZOOM, "ZOOM", "Button for +zoom" )
+	DEFINE_ENUMCONST_NAMED( IN_WEAPON1, "WEAPON1", "Special button used by weapons themselves" )
+	DEFINE_ENUMCONST_NAMED( IN_WEAPON2, "WEAPON2", "Special button used by weapons themselves" )
+	DEFINE_ENUMCONST_NAMED( IN_BULLRUSH, "BULLRUSH", "Unused button" )
+	DEFINE_ENUMCONST_NAMED( IN_GRENADE1, "GRENADE1", "Button for +grenade1" )
+	DEFINE_ENUMCONST_NAMED( IN_GRENADE2, "GRENADE2", "Button for +grenade2" )
+	DEFINE_ENUMCONST_NAMED( IN_ATTACK3, "ATTACK3", "Button for +attack3" )
 
 END_SCRIPTENUM();
 
@@ -86,6 +86,18 @@ BEGIN_SCRIPTENUM( Hitgroup, "Hit groups from traces" )
 	DEFINE_ENUMCONST_NAMED( HITGROUP_LEFTLEG, "LeftLeg", "" )
 	DEFINE_ENUMCONST_NAMED( HITGROUP_RIGHTLEG, "RightLeg", "" )
 	DEFINE_ENUMCONST_NAMED( HITGROUP_GEAR, "Gear", "" )
+
+END_SCRIPTENUM();
+
+//=============================================================================
+//=============================================================================
+
+BEGIN_SCRIPTENUM( MapLoad, "Map load enum for GetLoadType()" )
+
+	DEFINE_ENUMCONST_NAMED( MapLoad_NewGame, "NewGame", "Map was loaded from a new game" )
+	DEFINE_ENUMCONST_NAMED( MapLoad_LoadGame, "LoadGame", "Map was loaded from a save file" )
+	DEFINE_ENUMCONST_NAMED( MapLoad_Transition, "Transition", "Map was loaded from a level transition" )
+	DEFINE_ENUMCONST_NAMED( MapLoad_Background, "Background", "Map was loaded as a background map" )
 
 END_SCRIPTENUM();
 
@@ -463,6 +475,16 @@ void RegisterSharedScriptConstants()
 	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_PRONE, "When in clutches of barnacle (NPC state type used in GetNPCState(), etc.)" );
 	ScriptRegisterConstant( g_pScriptVM, NPC_STATE_DEAD, "NPC state type used in GetNPCState(), etc." );
 
+	ScriptRegisterConstant( g_pScriptVM, AISS_AWAKE, "NPC is awake. (NPC sleep state used in Get/SetSleepState())" );
+	ScriptRegisterConstant( g_pScriptVM, AISS_WAITING_FOR_THREAT, "NPC is asleep and will awaken upon seeing an enemy. (NPC sleep state used in Get/SetSleepState())" );
+	ScriptRegisterConstant( g_pScriptVM, AISS_WAITING_FOR_PVS, "NPC is asleep and will awaken upon entering a player's PVS. (NPC sleep state used in Get/SetSleepState())" );
+	ScriptRegisterConstant( g_pScriptVM, AISS_WAITING_FOR_INPUT, "NPC is asleep and will only awaken upon receiving the Wake input. (NPC sleep state used in Get/SetSleepState())" );
+	//ScriptRegisterConstant( g_pScriptVM, AISS_AUTO_PVS, "" );
+	//ScriptRegisterConstant( g_pScriptVM, AISS_AUTO_PVS_AFTER_PVS, "" );
+	ScriptRegisterConstant( g_pScriptVM, AI_SLEEP_FLAGS_NONE, "No sleep flags. (NPC sleep flag used in Add/Remove/HasSleepFlags())" );
+	ScriptRegisterConstant( g_pScriptVM, AI_SLEEP_FLAG_AUTO_PVS, "Indicates a NPC will sleep upon exiting PVS. (NPC sleep flag used in Add/Remove/HasSleepFlags())" );
+	ScriptRegisterConstant( g_pScriptVM, AI_SLEEP_FLAG_AUTO_PVS_AFTER_PVS, "Indicates a NPC will sleep upon exiting PVS after entering PVS for the first time(?????) (NPC sleep flag used in Add/Remove/HasSleepFlags())" );
+
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_PLAYING, "SCRIPT_PLAYING", "Playing the action animation." );
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_WAIT, "SCRIPT_WAIT", "Waiting on everyone in the script to be ready. Plays the pre idle animation if there is one." );
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_POST_IDLE, "SCRIPT_POST_IDLE", "Playing the post idle animation after playing the action animation." );
@@ -475,6 +497,11 @@ void RegisterSharedScriptConstants()
 	// 
 	// Misc. General
 	// 
+	ScriptRegisterConstant( g_pScriptVM, DAMAGE_NO, "Don't take damage (Use with GetTakeDamage/SetTakeDamage)" );
+	ScriptRegisterConstant( g_pScriptVM, DAMAGE_EVENTS_ONLY, "Call damage functions, but don't modify health (Use with GetTakeDamage/SetTakeDamage)" );
+	ScriptRegisterConstant( g_pScriptVM, DAMAGE_YES, "Allow damage to be taken (Use with GetTakeDamage/SetTakeDamage)" );
+	ScriptRegisterConstant( g_pScriptVM, DAMAGE_AIM, "(Use with GetTakeDamage/SetTakeDamage)" );
+
 #ifdef GAME_DLL
 	ScriptRegisterConstant( g_pScriptVM, GLOBAL_OFF, "Global state used by the Globals singleton." );
 	ScriptRegisterConstant( g_pScriptVM, GLOBAL_ON, "Global state used by the Globals singleton." );

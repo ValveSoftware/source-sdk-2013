@@ -23,6 +23,10 @@ $Project
 		$File	"env_global_light.cpp"
 		$File	"skyboxswapper.cpp"
 		$File	"env_instructor_hint.cpp"
+		$File	"postprocesscontroller.cpp"
+		$File	"postprocesscontroller.h"
+		$File	"env_dof_controller.cpp"
+		$File	"env_dof_controller.h"
 
 		$Folder	"Mapbase"
 		{

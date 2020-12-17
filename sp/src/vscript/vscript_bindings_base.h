@@ -36,6 +36,8 @@ public:
 	// Functions below are new with Mapbase
 	void TableToSubKeys( HSCRIPT hTable );
 
+	HSCRIPT ScriptFindOrCreateKey( const char *pszName );
+
 	const char *ScriptGetName();
 	int ScriptGetInt();
 	float ScriptGetFloat();
@@ -55,6 +57,17 @@ public:
 	KeyValues *GetKeyValues() { return m_pKeyValues; }
 
 	KeyValues *m_pKeyValues;	// actual KeyValue entity
+};
+
+//-----------------------------------------------------------------------------
+// Exposes Color to VScript
+//-----------------------------------------------------------------------------
+class CScriptColorInstanceHelper : public IScriptInstanceHelper
+{
+	bool ToString( void *p, char *pBuf, int bufSize );
+
+	bool Get( void *p, const char *pszKey, ScriptVariant_t &variant );
+	bool Set( void *p, const char *pszKey, ScriptVariant_t &variant );
 };
 
 void RegisterBaseBindings( IScriptVM *pVM );

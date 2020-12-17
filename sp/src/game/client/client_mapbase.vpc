@@ -28,6 +28,9 @@ $Project
 		$File	"c_gameinstructor.h"
 		$File	"hud_locator_target.cpp"
 		$File	"hud_locator_target.h"
+		$File	"c_postprocesscontroller.cpp"
+		$File	"c_postprocesscontroller.h"
+		$File	"c_env_dof_controller.cpp"
 	
 		$Folder	"Mapbase"
 		{

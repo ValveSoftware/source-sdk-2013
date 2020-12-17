@@ -892,7 +892,7 @@ void CHudMessage::MsgFunc_HudMsg(bf_read &msg)
 
 		int lineMinBreak = lineMax * 0.9;
 
-		DevMsg( "Line max is %i from an aspect ratio of %.3f (strlen %i)\n", lineMax, engine->GetScreenAspectRatio(), len );
+		CGMsg( 2, CON_GROUP_CHOREO, "Line max is %i from an aspect ratio of %.3f (strlen %i)\n", lineMax, engine->GetScreenAspectRatio(), len );
 
 		char *curMessage = (char*)pNetMessage->pMessage;
 		char newMessage[512];
@@ -933,6 +933,9 @@ void CHudMessage::MsgFunc_HudMsg(bf_read &msg)
 
 			i2++;
 		}
+
+		// Null terminate
+		newMessage[i2] = '\0';
 
 		Q_strncpy( (char*)pNetMessage->pMessage, newMessage, 512 );
 	}

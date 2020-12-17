@@ -227,7 +227,7 @@ void InitParamsLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** pa
 		}
 		else if ( !params[info.m_nEnvmapMaskTransform]->MatrixIsIdentity() )
 		{
-			Warning( "Warning! material %s: $envmapmasktransform and $phong are mutial exclusive. Disabling phong..\n", pMaterialName );
+			Warning( "Warning! material %s: $envmapmasktransform and $phong are mutually exclusive. Disabling phong..\n", pMaterialName );
 			params[info.m_nPhong]->SetIntValue( 0 );
 		}
 	}

@@ -714,6 +714,11 @@ static float IntervalPerTick()
 {
 	return gpGlobals->interval_per_tick;
 }
+
+static int GetLoadType()
+{
+	return gpGlobals->eLoadType;
+}
 #endif
 
 static void SendToConsole( const char *pszCommand )
@@ -978,6 +983,7 @@ bool VScriptServerInit()
 				ScriptRegisterFunction( g_pScriptVM, SendToConsoleServer, "Send a string to the server console as a command" );
 				ScriptRegisterFunction( g_pScriptVM, MaxPlayers, "Get the maximum number of players allowed on this server" );
 				ScriptRegisterFunction( g_pScriptVM, IntervalPerTick, "Get the interval used between each tick" );
+				ScriptRegisterFunction( g_pScriptVM, GetLoadType, "Get the way the current game was loaded (corresponds to the MapLoad enum)" );
 				ScriptRegisterFunction( g_pScriptVM, DoEntFire, SCRIPT_ALIAS( "EntFire", "Generate an entity i/o event" ) );
 				ScriptRegisterFunction( g_pScriptVM, DoEntFireByInstanceHandle, SCRIPT_ALIAS( "EntFireByHandle", "Generate an entity i/o event. First parameter is an entity instance." ) );
 				// ScriptRegisterFunction( g_pScriptVM, IsValidEntity, "Returns true if the entity is valid." );
@@ -1286,7 +1292,9 @@ public:
 		{
 			if ( pEnt->m_iszScriptId != NULL_STRING )
 			{
+#ifndef MAPBASE_VSCRIPT
 				g_pScriptVM->RegisterClass( pEnt->GetScriptDesc() );
+#endif
 				m_InstanceMap.Insert( STRING( pEnt->m_iszScriptId ), pEnt );
 			}
 			pEnt = gEntList.NextEnt( pEnt );

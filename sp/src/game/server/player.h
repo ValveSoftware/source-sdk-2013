@@ -404,6 +404,10 @@ public:
 	int						GetButtonLast() { return m_afButtonLast; }
 	int						GetButtonDisabled() { return m_afButtonDisabled; }
 	int						GetButtonForced() { return m_afButtonForced; }
+
+	const Vector&			ScriptGetEyeForward() { static Vector vecForward; EyeVectors( &vecForward, NULL, NULL ); return vecForward; }
+	const Vector&			ScriptGetEyeRight() { static Vector vecRight; EyeVectors( NULL, &vecRight, NULL ); return vecRight; }
+	const Vector&			ScriptGetEyeUp() { static Vector vecUp; EyeVectors( NULL, NULL, &vecUp ); return vecUp; }
 #endif
 
 	// View model prediction setup
@@ -879,6 +883,10 @@ public:
 
 	void InitFogController( void );
 	void InputSetFogController( inputdata_t &inputdata );
+
+	CNetworkHandle( CPostProcessController, m_hPostProcessCtrl );	// active postprocessing controller
+	void InitPostProcessController( void );
+	void InputSetPostProcessController( inputdata_t& inputdata );
 
 	// Used by env_soundscape_triggerable to manage when the player is touching multiple
 	// soundscape triggers simultaneously.

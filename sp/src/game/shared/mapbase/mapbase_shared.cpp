@@ -69,7 +69,7 @@ ConVar mapbase_load_actbusy("mapbase_load_actbusy", "1", FCVAR_ARCHIVE, "Should 
 
 #ifdef GAME_DLL
 // This cvar should change with each Mapbase update
-ConVar mapbase_version( "mapbase_version", "6.0", FCVAR_NONE, "The version of Mapbase currently being used in this mod." );
+ConVar mapbase_version( "mapbase_version", "6.1", FCVAR_NONE, "The version of Mapbase currently being used in this mod." );
 
 extern void MapbaseGameLog_Init();
 

@@ -50,12 +50,7 @@ bool ScriptMegaPhyscannonActive()
 #endif
 
 //-----------------------------------------------------------------------------
-// Purpose: Returns how much damage the given ammo type should do to the victim
-//			when fired by the attacker.
-// Input  : pAttacker - Dude what shot the gun.
-//			pVictim - Dude what done got shot.
-//			nAmmoType - What been shot out.
-// Output : How much hurt to put on dude what done got shot (pVictim).
+// Purpose: 
 //-----------------------------------------------------------------------------
 void CHalfLife2::RegisterScriptFunctions( void )
 {

@@ -1164,6 +1164,7 @@ HSCRIPT CScriptReadWriteFile::ScriptKeyValuesRead( const char *szFile )
 	KeyValues *pKV = new KeyValues( szFile );
 	if ( !pKV->LoadFromFile( g_pFullFileSystem, pszFullName, SCRIPT_RW_PATH_ID ) )
 	{
+		pKV->deleteThis();
 		return NULL;
 	}
 
@@ -1326,7 +1327,7 @@ void RegisterScriptSingletons()
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptReadWriteFile::ScriptFileWrite, "StringToFile", "Stores the string into the file" );
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptReadWriteFile::ScriptFileRead, "FileToString", "Returns the string from the file, null if no file or file is too big." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptReadWriteFile::ScriptKeyValuesWrite, "KeyValuesToFile", "Stores the CScriptKeyValues into the file" );
-	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptReadWriteFile::ScriptKeyValuesRead, "KeyValuesToString", "Returns the CScriptKeyValues from the file, null if no file or file is too big." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptReadWriteFile::ScriptKeyValuesRead, "FileToKeyValues", "Returns the CScriptKeyValues from the file, null if no file or file is too big." );
 
 	ScriptRegisterFunction( g_pScriptVM, ListenToGameEvent, "Register as a listener for a game event from script." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptGameEventListener::StopListeningToGameEvent, "StopListeningToGameEvent", "Stop the specified event listener." );
@@ -1343,6 +1344,7 @@ void RegisterScriptSingletons()
 #endif
 
 	// Singletons not unique to VScript (not declared or defined here)
+	g_pScriptVM->RegisterInstance( GameRules(), "GameRules" );
 	g_pScriptVM->RegisterInstance( GetAmmoDef(), "AmmoDef" );
 #ifndef CLIENT_DLL
 	g_pScriptVM->RegisterInstance( &g_AI_SquadManager, "Squads" );

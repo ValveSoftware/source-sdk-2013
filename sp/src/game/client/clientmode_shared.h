@@ -164,6 +164,13 @@ private:
 	vgui::HCursor			m_CursorNone;
 	CBaseHudWeaponSelection *m_pWeaponSelection;
 	int						m_nRootSize[2];
+
+	void UpdatePostProcessingEffects();
+
+	const C_PostProcessController* m_pCurrentPostProcessController;
+	PostProcessParameters_t m_CurrentPostProcessParameters;
+	PostProcessParameters_t m_LerpStartPostProcessParameters, m_LerpEndPostProcessParameters;
+	CountdownTimer m_PostProcessLerpTimer;
 };
 
 #endif // CLIENTMODE_NORMAL_H

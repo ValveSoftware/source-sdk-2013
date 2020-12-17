@@ -26,6 +26,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+extern IScriptManager *scriptmanager;
+
 //=============================================================================
 //
 // Prints
@@ -202,6 +204,8 @@ BEGIN_SCRIPTDESC_ROOT( CScriptKeyValues, "Wrapper class over KeyValues instance"
 
 	DEFINE_SCRIPTFUNC( TableToSubKeys, "Converts a script table to KeyValues." );
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptFindOrCreateKey, "FindOrCreateKey", "Given a KeyValues object and a key name, find or create a KeyValues object associated with the key name" );
+
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetName, "GetName", "Given a KeyValues object, return its name" );
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetInt, "GetInt", "Given a KeyValues object, return its own associated integer value" );
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetFloat, "GetFloat", "Given a KeyValues object, return its own associated float value" );
@@ -315,6 +319,19 @@ void CScriptKeyValues::TableToSubKeys( HSCRIPT hTable )
 	}
 }
 
+HSCRIPT CScriptKeyValues::ScriptFindOrCreateKey( const char *pszName )
+{
+	KeyValues *pKeyValues = m_pKeyValues->FindKey(pszName, true);
+	if ( pKeyValues == NULL )
+		return NULL;
+
+	CScriptKeyValues *pScriptKey = new CScriptKeyValues( pKeyValues );
+
+	// UNDONE: who calls ReleaseInstance on this??
+	HSCRIPT hScriptInstance = g_pScriptVM->RegisterInstance( pScriptKey );
+	return hScriptInstance;
+}
+
 const char *CScriptKeyValues::ScriptGetName()
 {
 	const char *psz = m_pKeyValues->GetName();
@@ -397,7 +414,7 @@ CScriptKeyValues::CScriptKeyValues( KeyValues *pKeyValues = NULL )
 {
 	if (pKeyValues == NULL)
 	{
-		m_pKeyValues = new KeyValues("");
+		m_pKeyValues = new KeyValues("CScriptKeyValues");
 	}
 	else
 	{
@@ -413,6 +430,90 @@ CScriptKeyValues::~CScriptKeyValues( )
 		m_pKeyValues->deleteThis();
 	}
 	m_pKeyValues = NULL;
+}
+
+//=============================================================================
+//
+// matrix3x4_t
+// 
+//=============================================================================
+CScriptColorInstanceHelper g_ColorScriptInstanceHelper;
+
+BEGIN_SCRIPTDESC_ROOT( Color, "" )
+
+	DEFINE_SCRIPT_CONSTRUCTOR()
+	DEFINE_SCRIPT_INSTANCE_HELPER( &g_ColorScriptInstanceHelper )
+
+	DEFINE_SCRIPTFUNC( SetColor, "Sets the color." )
+
+	DEFINE_SCRIPTFUNC( SetRawColor, "Sets the raw color integer." )
+	DEFINE_SCRIPTFUNC( GetRawColor, "Gets the raw color integer." )
+
+	DEFINE_MEMBERVAR( "r", FIELD_CHARACTER, "Member variable for red." )
+	DEFINE_MEMBERVAR( "g", FIELD_CHARACTER, "Member variable for green." )
+	DEFINE_MEMBERVAR( "b", FIELD_CHARACTER, "Member variable for blue." )
+	DEFINE_MEMBERVAR( "a", FIELD_CHARACTER, "Member variable for alpha. (transparency)" )
+
+END_SCRIPTDESC();
+
+//-----------------------------------------------------------------------------
+
+bool CScriptColorInstanceHelper::ToString( void *p, char *pBuf, int bufSize )
+{
+	Color *pClr = ((Color *)p);
+	V_snprintf( pBuf, bufSize, "(color: (%i, %i, %i, %i))", pClr->r(), pClr->g(), pClr->b(), pClr->a() );
+	return true; 
+}
+
+bool CScriptColorInstanceHelper::Get( void *p, const char *pszKey, ScriptVariant_t &variant )
+{
+	Color *pClr = ((Color *)p);
+	if ( strlen(pszKey) == 1 )
+	{
+		switch (pszKey[0])
+		{
+			case 'r':
+				variant = pClr->r();
+				return true;
+			case 'g':
+				variant = pClr->g();
+				return true;
+			case 'b':
+				variant = pClr->b();
+				return true;
+			case 'a':
+				variant = pClr->a();
+				return true;
+		}
+	}
+	return false;
+}
+
+bool CScriptColorInstanceHelper::Set( void *p, const char *pszKey, ScriptVariant_t &variant )
+{
+	Color *pClr = ((Color *)p);
+	if ( strlen(pszKey) == 1 )
+	{
+		int iVal;
+		variant.AssignTo( &iVal );
+		switch (pszKey[0])
+		{
+			// variant.AssignTo( &(*pClr)[0] );
+			case 'r':
+				(*pClr)[0] = iVal;
+				return true;
+			case 'g':
+				(*pClr)[1] = iVal;
+				return true;
+			case 'b':
+				(*pClr)[2] = iVal;
+				return true;
+			case 'a':
+				(*pClr)[3] = iVal;
+				return true;
+		}
+	}
+	return false;
 }
 
 //=============================================================================
@@ -434,6 +535,8 @@ void RegisterBaseBindings( IScriptVM *pVM )
 	//-----------------------------------------------------------------------------
 
 	pVM->RegisterClass( GetScriptDescForClass( CScriptKeyValues ) );
+
+	pVM->RegisterClass( GetScriptDescForClass( Color ) );
 
 	//-----------------------------------------------------------------------------
 

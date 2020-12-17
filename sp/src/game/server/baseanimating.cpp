@@ -326,9 +326,13 @@ BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
 	DEFINE_SCRIPTFUNC( GetBodygroupCount, "Gets the number of models in a bodygroup" )
 	DEFINE_SCRIPTFUNC( GetNumBodyGroups, "Gets the number of bodygroups" )
 
-	DEFINE_SCRIPTFUNC( Dissolve, "" )
-	DEFINE_SCRIPTFUNC( Ignite, "" )
+	DEFINE_SCRIPTFUNC( Dissolve, "Use 'sprites/blueglow1.vmt' for the default material, Time() for the default start time, false for npcOnly if you don't want it to check if the entity is a NPC first, 0 for the default dissolve type, Vector(0,0,0) for the default dissolver origin, and 0 for the default magnitude." )
+	DEFINE_SCRIPTFUNC( Ignite, "'NPCOnly' only lets this fall through if the entity is a NPC and 'CalledByLevelDesigner' determines whether to treat this like the Ignite input or just an internal ignition call." )
 	DEFINE_SCRIPTFUNC( Scorch, "Makes the entity darker from scorching" )
+
+	DEFINE_SCRIPTFUNC( BecomeRagdollOnClient, "" )
+	DEFINE_SCRIPTFUNC( IsRagdoll, "" )
+	DEFINE_SCRIPTFUNC( CanBecomeRagdoll, "" )
 #endif
 END_SCRIPTDESC();
 
@@ -727,7 +731,7 @@ void CBaseAnimating::InputSetModelScale( inputdata_t &inputdata )
 void CBaseAnimating::InputSetModel( inputdata_t &inputdata )
 {
 	const char *szModel = inputdata.value.String();
-	if (PrecacheModel(szModel) != -1)
+	if (PrecacheModel(szModel, false) != -1)
 	{
 		SetModelName(AllocPooledString(szModel));
 		SetModel(szModel);

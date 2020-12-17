@@ -46,6 +46,10 @@ public:
 	virtual void OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t reason );
 
 #ifdef MAPBASE
+	void InputSetContents( inputdata_t &data );
+	void InputSetItemCount( inputdata_t &data );
+	void InputMergeContentsWithPlayer( inputdata_t &data );
+
 	// Item crates always override prop data for custom models
 	bool OverridePropdata( void ) { return true; }
 #endif
@@ -110,6 +114,10 @@ BEGIN_DATADESC( CItem_ItemCrate )
 	DEFINE_OUTPUT( m_OnCacheInteraction, "OnCacheInteraction" ),
 #ifdef MAPBASE
 	DEFINE_OUTPUT( m_OnItem, "OnItem" ),
+
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetContents", InputSetContents ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetItemCount", InputSetItemCount ),
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "MergeContentsWithPlayer", InputMergeContentsWithPlayer ),
 #endif
 
 END_DATADESC()
@@ -192,6 +200,67 @@ void CItem_ItemCrate::InputKill( inputdata_t &data )
 
 	UTIL_Remove( this );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &data - 
+//-----------------------------------------------------------------------------
+void CItem_ItemCrate::InputSetContents( inputdata_t &data )
+{
+	switch( m_CrateType )
+	{
+		case CRATE_POINT_TEMPLATE:
+			ITEM_ITEMCRATE_TEMPLATE_TARGET = data.value.StringID();
+			break;
+
+		case CRATE_SPECIFIC_ITEM:
+		default:
+			m_strItemClass = data.value.StringID();
+			break;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &data - 
+//-----------------------------------------------------------------------------
+void CItem_ItemCrate::InputSetItemCount( inputdata_t &data )
+{
+	m_nItemCount = data.value.Int();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &data - 
+//-----------------------------------------------------------------------------
+void CItem_ItemCrate::InputMergeContentsWithPlayer( inputdata_t &data )
+{
+	CBasePlayer *pPlayer = ToBasePlayer(data.value.Entity());
+	if (!pPlayer)
+		pPlayer = UTIL_GetLocalPlayer();
+
+	if (pPlayer)
+	{
+		switch( m_CrateType )
+		{
+			case CRATE_POINT_TEMPLATE:
+			{
+				Warning( "%s: item_itemcrate MergeContentsWithPlayer is not supported on template crates yet!!!\n", GetDebugName() );
+			} break;
+
+			case CRATE_SPECIFIC_ITEM:
+			default:
+			{
+				for (int i = 0; i < m_nItemCount; i++)
+				{
+					pPlayer->GiveNamedItem( STRING( m_strItemClass ) );
+				}
+			} break;
+		}
+	}
+}
+#endif
 
 
 //-----------------------------------------------------------------------------

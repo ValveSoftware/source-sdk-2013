@@ -15,6 +15,7 @@
 #include "playernet_vars.h"
 #include "networkvar.h"
 #include "fogcontroller.h"
+#include "postprocesscontroller.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Player specific data ( sent only to local player, too )

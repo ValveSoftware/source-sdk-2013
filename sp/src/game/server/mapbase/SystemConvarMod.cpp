@@ -8,7 +8,7 @@
 #include "cbase.h"
 #include "saverestore_utlvector.h"
 #include "SystemConvarMod.h"
-
+#include "fmtstr.h"
 
 ConVar g_debug_convarmod( "g_debug_convarmod", "0" );
 
@@ -133,8 +133,8 @@ void CVEnt_Activate(CMapbaseCVarModEntity *modent)
 	{
 		SetChangingCVars( modent );
 
-		engine->ServerCommand( pszCommands );
-		engine->ServerCommand( "mapbase_cvarsnotchanging" );
+		engine->ServerCommand( CFmtStr("%s\n", pszCommands) );
+		engine->ServerCommand( "mapbase_cvarsnotchanging\n" );
 	}
 	else
 	{
@@ -245,16 +245,26 @@ void CMapbaseCVarModEntity::Spawn( void )
 		if (!m_bUseServer && !UTIL_GetLocalPlayer())
 		{
 			// The local player doesn't exist yet, so we should wait until they do
-			SetContextThink( &CMapbaseCVarModEntity::CvarModActivate, gpGlobals->curtime, NULL );
+			SetThink( &CMapbaseCVarModEntity::CvarModActivate );
+			SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
 		}
 		else
-			CVEnt_Activate(this);
+		{
+			CVEnt_Activate( this );
+		}
 	}
 }
 
 void CMapbaseCVarModEntity::CvarModActivate()
 {
-	CVEnt_Activate(this);
+	if (UTIL_GetLocalPlayer())
+	{
+		CVEnt_Activate( this );
+	}
+	else
+	{
+		SetNextThink( gpGlobals->curtime + TICK_INTERVAL );
+	}
 }
 
 void CMapbaseCVarModEntity::OnRestore( void )

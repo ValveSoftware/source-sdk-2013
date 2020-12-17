@@ -22,6 +22,7 @@
 
 // Server
 #define CON_GROUP_IO_SYSTEM "I/O System"
+#define CON_GROUP_NPC_AI "NPC AI"
 #define CON_GROUP_NPC_SCRIPTS "NPC Scripts"
 #define CON_GROUP_CHOREO "Choreo"
 

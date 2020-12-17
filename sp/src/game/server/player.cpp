@@ -460,6 +460,7 @@ BEGIN_DATADESC( CBasePlayer )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetHealth", InputSetHealth ),
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetHUDVisibility", InputSetHUDVisibility ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetFogController", InputSetFogController ),
+	DEFINE_INPUTFUNC( FIELD_INPUT, "SetPostProcessController", InputSetPostProcessController ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "HandleMapEvent", InputHandleMapEvent ),
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetSuppressAttacks", InputSetSuppressAttacks ),
@@ -472,6 +473,8 @@ BEGIN_DATADESC( CBasePlayer )
 	DEFINE_FIELD( m_vecPreviouslyPredictedOrigin, FIELD_POSITION_VECTOR ), 
 
 	DEFINE_FIELD( m_nNumCrateHudHints, FIELD_INTEGER ),
+
+	DEFINE_FIELD( m_hPostProcessCtrl, FIELD_EHANDLE ),
 
 
 
@@ -533,6 +536,10 @@ BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseCombatCharacter, "The player entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAutoaimVector, "GetAutoaimVector", "Gets the player's autoaim shooting direction with the specified scale." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAutoaimVectorCustomMaxDist, "GetAutoaimVectorCustomMaxDist", "Gets the player's autoaim shooting direction with the specified scale and a custom max distance." )
 	DEFINE_SCRIPTFUNC( ShouldAutoaim, "Returns true if the player should be autoaiming." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetEyeForward, "GetEyeForward", "Gets the player's forward eye vector." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetEyeRight, "GetEyeRight", "Gets the player's right eye vector." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetEyeUp, "GetEyeUp", "Gets the player's up eye vector." )
 
 	// 
 	// Hooks
@@ -746,6 +753,8 @@ CBasePlayer::CBasePlayer( )
 
 	m_flLastUserCommandTime = 0.f;
 	m_flMovementTimeForUserCmdProcessingRemaining = 0.0f;
+
+	m_hPostProcessCtrl.Set( NULL );
 }
 
 CBasePlayer::~CBasePlayer( )
@@ -5142,6 +5151,7 @@ void CBasePlayer::Spawn( void )
 
 	// Initialize the fog and postprocess controllers.
 	InitFogController();
+	InitPostProcessController();
 
 	m_DmgTake		= 0;
 	m_DmgSave		= 0;
@@ -8701,6 +8711,9 @@ void SendProxy_ShiftPlayerSpawnflags( const SendProp *pProp, const void *pStruct
 		SendPropArray	( SendPropEHandle( SENDINFO_ARRAY( m_hViewModel ) ), m_hViewModel ),
 		SendPropString	(SENDINFO(m_szLastPlaceName) ),
 
+		// Postprocess data
+		SendPropEHandle( SENDINFO( m_hPostProcessCtrl ) ),
+
 #if defined USES_ECON_ITEMS
 		SendPropUtlVector( SENDINFO_UTLVECTOR( m_hMyWearables ), MAX_WEARABLES_SENT_FROM_SERVER, SendPropEHandle( NULL, 0 ) ),
 #endif // USES_ECON_ITEMS
@@ -9429,6 +9442,37 @@ void CBasePlayer::InitFogController( void )
 {
 	// Setup with the default master controller.
 	m_Local.m_PlayerFog.m_hCtrl = FogSystem()->GetMasterFogController();
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+void CBasePlayer::InitPostProcessController( void )
+{
+	// Setup with the default master controller.
+	m_hPostProcessCtrl = PostProcessSystem()->GetMasterPostProcessController();
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+void CBasePlayer::InputSetPostProcessController( inputdata_t& inputdata )
+{
+	// Find the postprocess controller with the given name.
+	CPostProcessController* pController = NULL;
+	if (inputdata.value.FieldType() == FIELD_EHANDLE)
+	{
+		pController = dynamic_cast<CPostProcessController*>(inputdata.value.Entity().Get());
+	}
+	else
+	{
+		pController = dynamic_cast<CPostProcessController*>(gEntList.FindEntityByName( NULL, inputdata.value.String() ));
+	}
+
+	if (pController)
+	{
+		m_hPostProcessCtrl.Set( pController );
+	}
 }
 
 //-----------------------------------------------------------------------------

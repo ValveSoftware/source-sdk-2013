@@ -468,7 +468,14 @@ void CNPC_MetroPolice::NotifyDeadFriend( CBaseEntity* pFriend )
 {
 	BaseClass::NotifyDeadFriend(pFriend);
 
+#ifdef MAPBASE
+	// m_hManhack is set to NULL after it's finished deploying, which means this has no chance of playing unless the manhack
+	// was still being deployed. This is thought to be an unintended oversight.
+	// Mapbase stores the metrocop thrower as the manhack's owner entity, so this code is now able to check that instead.
+	if ( pFriend->GetOwnerEntity() == this )
+#else
 	if ( pFriend == m_hManhack )
+#endif
 	{
 #ifdef METROPOLICE_USES_RESPONSE_SYSTEM
 		SpeakIfAllowed(TLK_COP_MANHACKKILLED, "my_manhack:1", SENTENCE_PRIORITY_NORMAL, SENTENCE_CRITERIA_NORMAL);
@@ -3239,7 +3246,7 @@ void CNPC_MetroPolice::OnAnimEventStartDeployManhack( void )
 	
 	if ( m_iManhacks <= 0 )
 	{
-		DevMsg( "Error: Throwing manhack but out of manhacks!\n" );
+		CGMsg( 1, CON_GROUP_NPC_AI, "Error: Throwing manhack but out of manhacks!\n" );
 		return;
 	}
 
@@ -3613,6 +3620,12 @@ void CNPC_MetroPolice::ReleaseManhack( void )
 	// Make us active
 	m_hManhack->RemoveSpawnFlags( SF_NPC_WAIT_FOR_SCRIPT );
 	m_hManhack->ClearSchedule( "Manhack released by metropolice" );
+
+#ifdef MAPBASE
+	// FSOLID_COLLIDE_WITH_OWNER allows us to be remembered as the manhack's owner without making us invulnerable to it
+	m_hManhack->SetOwnerEntity( this );
+	m_hManhack->AddSolidFlags( FSOLID_COLLIDE_WITH_OWNER );
+#endif
 	
 	// Start him with knowledge of our current enemy
 	if ( GetEnemy() )
@@ -3711,7 +3724,7 @@ int CNPC_MetroPolice::SelectRangeAttackSchedule()
 	{
 		if ( OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
 		{
-			return SCHED_RANGE_ATTACK2;
+			return SCHED_METROPOLICE_RANGE_ATTACK2;
 		}
 	}
 #endif
@@ -3965,7 +3978,7 @@ int CNPC_MetroPolice::SelectCombatSchedule()
 				//Msg("Time: %f   Dist: %f\n", flTime, flDist );
 				if ( flTime <= COMBINE_GRENADE_FLUSH_TIME && flDist <= COMBINE_GRENADE_FLUSH_DIST && CanGrenadeEnemy( false ) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
 				{
-					return SCHED_RANGE_ATTACK2;
+					return SCHED_METROPOLICE_RANGE_ATTACK2;
 				}
 			}
 #endif
@@ -4466,7 +4479,7 @@ int CNPC_MetroPolice::SelectBehaviorOverrideSchedule()
 				//Msg("Time: %f   Dist: %f\n", flTime, flDist );
 				if ( flTime <= COMBINE_GRENADE_FLUSH_TIME && flDist <= COMBINE_GRENADE_FLUSH_DIST && CanGrenadeEnemy( false ) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
 				{
-					return SCHED_RANGE_ATTACK2;
+					return SCHED_METROPOLICE_RANGE_ATTACK2;
 				}
 			}
 		}
@@ -6097,6 +6110,10 @@ AI_BEGIN_CUSTOM_NPC( npc_metropolice, CNPC_MetroPolice )
 	DECLARE_SQUADSLOT( SQUAD_SLOT_POLICE_DEPLOY_MANHACK );
 	DECLARE_SQUADSLOT( SQUAD_SLOT_POLICE_ATTACK_OCCLUDER1 );
 	DECLARE_SQUADSLOT( SQUAD_SLOT_POLICE_ATTACK_OCCLUDER2 );
+#ifdef MAPBASE
+	DECLARE_SQUADSLOT( SQUAD_SLOT_POLICE_COVERING_FIRE1 );
+	DECLARE_SQUADSLOT( SQUAD_SLOT_POLICE_COVERING_FIRE2 );
+#endif
 	DECLARE_SQUADSLOT( SQUAD_SLOT_POLICE_ARREST_ENEMY );
 
 	DECLARE_ACTIVITY( ACT_METROPOLICE_DRAW_PISTOL );

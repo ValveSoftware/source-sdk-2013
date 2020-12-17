@@ -161,8 +161,10 @@ public:
 	virtual bool		ShouldShootMissTarget( CBaseCombatCharacter *pAttacker );
 	virtual CBaseEntity *FindMissTarget( void );
 
+#ifndef MAPBASE // This function now exists in CBaseEntity
 	// Do not call HandleInteraction directly, use DispatchInteraction
 	bool				DispatchInteraction( int interactionType, void *data, CBaseCombatCharacter* sourceEnt )	{ return ( interactionType > 0 ) ? HandleInteraction( interactionType, data, sourceEnt ) : false; }
+#endif
 	virtual bool		HandleInteraction( int interactionType, void *data, CBaseCombatCharacter* sourceEnt );
 
 	virtual QAngle		BodyAngles();
@@ -421,6 +423,7 @@ public:
 	void				GetScriptAllWeapons( HSCRIPT hTable );
 	int					ScriptGetCurrentWeaponProficiency() { return GetCurrentWeaponProficiency(); }
 
+	void				ScriptDropWeapon( HSCRIPT hWeapon );
 	void				ScriptEquipWeapon( HSCRIPT hWeapon );
 
 	int					ScriptGetAmmoCount( int iType ) const;
@@ -578,6 +581,11 @@ protected:
 
 public:
 	static int					GetInteractionID();	// Returns the next interaction #
+
+#ifdef MAPBASE
+	// Mapbase's new method for adding interactions which allows them to be handled with their names, currently for VScript
+	static void					AddInteractionWithString( int &interaction, const char *szName );
+#endif
 
 protected:
 	// Visibility-related stuff

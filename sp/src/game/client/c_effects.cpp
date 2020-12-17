@@ -40,7 +40,7 @@ ConVar r_RainSplashPercentage( "r_RainSplashPercentage", "20", FCVAR_CHEAT ); //
 ConVar r_RainParticleDensity( "r_RainParticleDensity", "1", FCVAR_NONE, "Density of Particle Rain 0-1" );
 
 #ifdef MAPBASE
-ConVar r_RainParticleClampOffset( "r_RainParticleClampOffset", "112", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systemss" );
+ConVar r_RainParticleClampOffset( "r_RainParticleClampOffset", "112", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems" );
 ConVar r_RainParticleClampDebug( "r_RainParticleClampDebug", "0", FCVAR_NONE, "Enables debug code for precipitation particle system clamping" );
 #endif
 

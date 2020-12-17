@@ -81,8 +81,29 @@ void ParseScriptTableKeyValues( CBaseEntity *pEntity, HSCRIPT hKV )
 		switch (varValue.m_type)
 		{
 			case FIELD_CSTRING:		pEntity->KeyValue( varKey.m_pszString, varValue.m_pszString ); break;
+			case FIELD_INTEGER:		pEntity->KeyValueFromInt( varKey.m_pszString, varValue.m_int ); break;
 			case FIELD_FLOAT:		pEntity->KeyValue( varKey.m_pszString, varValue.m_float ); break;
 			case FIELD_VECTOR:		pEntity->KeyValue( varKey.m_pszString, *varValue.m_pVector ); break;
+			case FIELD_HSCRIPT:
+			{
+				if ( varValue.m_hScript )
+				{
+					// Entity
+					if (ToEnt( varValue.m_hScript ))
+					{
+						pEntity->KeyValue( varKey.m_pszString, STRING( ToEnt( varValue.m_hScript )->GetEntityName() ) );
+					}
+
+					// Color
+					else if (Color *color = HScriptToClass<Color>( varValue.m_hScript ))
+					{
+						char szTemp[64];
+						Q_snprintf( szTemp, sizeof( szTemp ), "%i %i %i %i", color->r(), color->g(), color->b(), color->a() );
+						pEntity->KeyValue( varKey.m_pszString, szTemp );
+					}
+				}
+				break;
+			}
 		}
 
 		g_pScriptVM->ReleaseValue( varKey );
@@ -94,7 +115,7 @@ void PrecacheEntityFromTable( const char *pszClassname, HSCRIPT hKV )
 {
 	if ( IsEntityCreationAllowedInScripts() == false )
 	{
-		Warning( "VScript error: A script attempted to create an entity mid-game. Due to the server's settings, entity creation from scripts is only allowed during map init.\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "VScript error: A script attempted to create an entity mid-game. Due to the server's settings, entity creation from scripts is only allowed during map init.\n" );
 		return;
 	}
 
@@ -118,7 +139,7 @@ HSCRIPT SpawnEntityFromTable( const char *pszClassname, HSCRIPT hKV )
 {
 	if ( IsEntityCreationAllowedInScripts() == false )
 	{
-		Warning( "VScript error: A script attempted to create an entity mid-game. Due to the server's settings, entity creation from scripts is only allowed during map init.\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, "VScript error: A script attempted to create an entity mid-game. Due to the server's settings, entity creation from scripts is only allowed during map init.\n" );
 		return NULL;
 	}
 
@@ -162,6 +183,31 @@ HSCRIPT EntIndexToHScript( int index )
 //-----------------------------------------------------------------------------
 
 #ifndef CLIENT_DLL
+void SaveEntityKVToTable( HSCRIPT hEnt, HSCRIPT hTable )
+{
+	CBaseEntity *pEnt = ToEnt( hEnt );
+	if (pEnt == NULL)
+		return;
+
+	variant_t var; // For Set()
+	ScriptVariant_t varScript, varTable = hTable;
+
+	// loop through the data description list, reading each data desc block
+	for ( datamap_t *dmap = pEnt->GetDataDescMap(); dmap != NULL; dmap = dmap->baseMap )
+	{
+		// search through all the readable fields in the data description, looking for a match
+		for ( int i = 0; i < dmap->dataNumFields; i++ )
+		{
+			if ( dmap->dataDesc[i].flags & (FTYPEDESC_KEY) )
+			{
+				var.Set( dmap->dataDesc[i].fieldType, ((char*)pEnt) + dmap->dataDesc[i].fieldOffset[ TD_OFFSET_NORMAL ] );
+				var.SetScriptVariant( varScript );
+				g_pScriptVM->SetValue( varTable, dmap->dataDesc[i].externalName, varScript );
+			}
+		}
+	}
+}
+
 HSCRIPT SpawnEntityFromKeyValues( const char *pszClassname, HSCRIPT hKV )
 {
 	if ( IsEntityCreationAllowedInScripts() == false )
@@ -279,7 +325,29 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( surfacedata_t, "surfacedata_t", "Handle for accessi
 
 	DEFINE_SCRIPTFUNC( GetJumpFactor, "The surface's jump factor." )
 	DEFINE_SCRIPTFUNC( GetMaterialChar, "The surface's material character." )
+
+	DEFINE_SCRIPTFUNC( GetSoundStepLeft, "The surface's left step sound." )
+	DEFINE_SCRIPTFUNC( GetSoundStepRight, "The surface's right step sound." )
+	DEFINE_SCRIPTFUNC( GetSoundImpactSoft, "The surface's soft impact sound." )
+	DEFINE_SCRIPTFUNC( GetSoundImpactHard, "The surface's hard impact sound." )
+	DEFINE_SCRIPTFUNC( GetSoundScrapeSmooth, "The surface's smooth scrape sound." )
+	DEFINE_SCRIPTFUNC( GetSoundScrapeRough, "The surface's rough scrape sound." )
+	DEFINE_SCRIPTFUNC( GetSoundBulletImpact, "The surface's bullet impact sound." )
+	DEFINE_SCRIPTFUNC( GetSoundRolling, "The surface's rolling sound." )
+	DEFINE_SCRIPTFUNC( GetSoundBreak, "The surface's break sound." )
+	DEFINE_SCRIPTFUNC( GetSoundStrain, "The surface's strain sound." )
 END_SCRIPTDESC();
+
+const char*		surfacedata_t::GetSoundStepLeft() { return physprops->GetString( sounds.stepleft ); }
+const char*		surfacedata_t::GetSoundStepRight() { return physprops->GetString( sounds.stepright ); }
+const char*		surfacedata_t::GetSoundImpactSoft() { return physprops->GetString( sounds.impactSoft ); }
+const char*		surfacedata_t::GetSoundImpactHard() { return physprops->GetString( sounds.impactHard ); }
+const char*		surfacedata_t::GetSoundScrapeSmooth() { return physprops->GetString( sounds.scrapeSmooth ); }
+const char*		surfacedata_t::GetSoundScrapeRough() { return physprops->GetString( sounds.scrapeRough ); }
+const char*		surfacedata_t::GetSoundBulletImpact() { return physprops->GetString( sounds.bulletImpact ); }
+const char*		surfacedata_t::GetSoundRolling() { return physprops->GetString( sounds.rolling ); }
+const char*		surfacedata_t::GetSoundBreak() { return physprops->GetString( sounds.breakSound ); }
+const char*		surfacedata_t::GetSoundStrain() { return physprops->GetString( sounds.strainSound ); }
 
 BEGIN_SCRIPTDESC_ROOT_NAMED( CSurfaceScriptAccessor, "csurface_t", "Handle for accessing csurface_t info." )
 	DEFINE_SCRIPTFUNC( Name, "The surface's name." )
@@ -717,6 +785,7 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunction( g_pScriptVM, NXPrint, "Notification print, customised" );
 
 #ifndef CLIENT_DLL
+	ScriptRegisterFunction( g_pScriptVM, SaveEntityKVToTable, "Saves an entity's keyvalues to a table." );
 	ScriptRegisterFunction( g_pScriptVM, SpawnEntityFromKeyValues, "Spawns an entity with the keyvalues in a CScriptKeyValues handle." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptDispatchSpawn, "DispatchSpawn", "Spawns an unspawned entity." );
 #endif

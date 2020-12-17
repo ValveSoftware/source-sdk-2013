@@ -95,3 +95,10 @@ SDK_ShatteredGlass_ps2x.fxc
 SDK_ShatteredGlass_vs20.fxc
 SDK_windowimposter_ps2x.fxc
 SDK_windowimposter_vs20.fxc
+
+SDK_engine_post_ps20b.fxc
+
+depth_of_field_ps20b.fxc
+depth_of_field_vs20.fxc
+
+blurgaussian_3x3_ps2x.fxc

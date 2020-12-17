@@ -23,6 +23,7 @@
 #include "hintsystem.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 #include "c_env_fog_controller.h"
+#include "c_postprocesscontroller.h"
 #include "igameevents.h"
 #include "GameEventListener.h"
 
@@ -37,6 +38,7 @@ class C_BaseViewModel;
 class C_FuncLadder;
 class CFlashlightEffect;
 class C_EconWearable;
+class C_PostProcessController;
 
 extern int g_nKillCamMode;
 extern int g_nKillCamTarget1;
@@ -379,6 +381,8 @@ public:
 	void					UpdateFogController( void );
 	void					UpdateFogBlend( void );
 
+	C_PostProcessController* GetActivePostProcessController() const;
+
 	float					GetFOVTime( void ){ return m_flFOVTime; }
 
 	virtual void			OnAchievementAchieved( int iAchievement ) {}
@@ -640,6 +644,8 @@ private:
 	};
 	// One for left and one for right side of step
 	StepSoundCache_t		m_StepSoundCache[ 2 ];
+
+	CNetworkHandle(C_PostProcessController, m_hPostProcessCtrl);	// active postprocessing controller
 
 public:
 

@@ -169,6 +169,11 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( Quaternion, "Quaternion", "A quaternion." )
 	DEFINE_SCRIPT_INSTANCE_HELPER( &g_QuaternionScriptInstanceHelper )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptInit, "Init", "Creates a quaternion with the given values." )
 
+	DEFINE_MEMBERVAR( "x", FIELD_FLOAT, "The quaternion's i axis component." )
+	DEFINE_MEMBERVAR( "y", FIELD_FLOAT, "The quaternion's j axis component." )
+	DEFINE_MEMBERVAR( "z", FIELD_FLOAT, "The quaternion's k axis component." )
+	DEFINE_MEMBERVAR( "w", FIELD_FLOAT, "The quaternion's scalar component." )
+
 END_SCRIPTDESC();
 
 //-----------------------------------------------------------------------------

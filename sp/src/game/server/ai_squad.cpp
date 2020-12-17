@@ -294,7 +294,7 @@ void CAI_Squad::RemoveFromSquad( CAI_BaseNPC *pNPC, bool bDeath )
 	int myIndex = m_SquadMembers.Find(pNPC);
 	if (myIndex == -1)
 	{
-		DevMsg("ERROR: Attempting to remove non-existing squad membmer!\n");
+		CGMsg( 1, CON_GROUP_NPC_AI, "ERROR: Attempting to remove non-existing squad member!\n" );
 		return;
 	}
 	m_SquadMembers.Remove(myIndex);
@@ -337,7 +337,7 @@ void CAI_Squad::AddToSquad(CAI_BaseNPC *pNPC)
 
 	if (m_SquadMembers.Count() == MAX_SQUAD_MEMBERS)
 	{
-		DevMsg("Error!! Squad %s is too big!!! Replacing last member\n", STRING( this->m_Name ));
+		CGMsg( 1, CON_GROUP_NPC_AI, "Error!! Squad %s is too big!!! Replacing last member\n", STRING( this->m_Name ) );
 		m_SquadMembers.Remove(m_SquadMembers.Count()-1);
 	}
 	m_SquadMembers.AddToTail(pNPC);
@@ -559,7 +559,7 @@ void CAI_Squad::SquadNewEnemy( CBaseEntity *pEnemy )
 {
 	if ( !pEnemy )
 	{
-		DevMsg( "ERROR: SquadNewEnemy() - pEnemy is NULL!\n" );
+		CGMsg( 1, CON_GROUP_NPC_AI, "ERROR: SquadNewEnemy() - pEnemy is NULL!\n" );
 		return;
 	}
 
@@ -678,7 +678,7 @@ bool CAI_Squad::OccupyStrategySlotRange( CBaseEntity *pEnemy, int slotIDStart, i
 				// As a debug measure check to see if slot was filled
 				if (!IsSlotOccupied(pEnemy, *pSlot))
 				{
-					DevMsg( "ERROR! Vacating an empty slot!\n");
+					CGMsg( 1, CON_GROUP_NPC_AI, "ERROR! Vacating an empty slot!\n" );
 				}
 
 				// Free the slot
@@ -717,7 +717,7 @@ void CAI_Squad::VacateStrategySlot( CBaseEntity *pEnemy, int slot)
 	// As a debug measure check to see if slot was filled
 	if (!IsSlotOccupied(pEnemy, slot))
 	{
-		DevMsg( "ERROR! Vacating an empty slot!\n");
+		CGMsg( 1, CON_GROUP_NPC_AI, "ERROR! Vacating an empty slot!\n" );
 	}
 
 	// Free the slot

@@ -58,7 +58,6 @@ private:
 	CNetworkVector( m_shadowDirection );
 
 	CNetworkVar( bool, m_bEnabled );
-	bool m_bStartDisabled;
 
 	CNetworkString( m_TextureName, MAX_PATH );
 #ifdef MAPBASE
@@ -86,7 +85,6 @@ LINK_ENTITY_TO_CLASS(env_global_light, CGlobalLight);
 BEGIN_DATADESC( CGlobalLight )
 
 	DEFINE_KEYFIELD( m_bEnabled,		FIELD_BOOLEAN, "enabled" ),
-	DEFINE_KEYFIELD( m_bStartDisabled,	FIELD_BOOLEAN, "StartDisabled" ),
 	DEFINE_AUTO_ARRAY_KEYFIELD( m_TextureName, FIELD_CHARACTER, "texturename" ),
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_nSpotlightTextureFrame, FIELD_INTEGER, "textureframe" ),
@@ -106,6 +104,8 @@ BEGIN_DATADESC( CGlobalLight )
 	DEFINE_KEYFIELD( m_flBrightnessScale, FIELD_FLOAT, "brightnessscale" ),
 #endif
 	DEFINE_KEYFIELD( m_flColorTransitionTime, FIELD_FLOAT, "colortransitiontime" ),
+
+	DEFINE_FIELD( m_shadowDirection, FIELD_VECTOR ),
 
 	// Inputs
 #ifdef MAPBASE
@@ -184,6 +184,7 @@ CGlobalLight::CGlobalLight()
 	m_flBrightnessScale = 1.0f;
 	m_flOrthoSize = 1000.0f;
 #endif
+	m_bEnabled = true;
 }
 
 
@@ -242,6 +243,10 @@ bool CGlobalLight::KeyValue( const char *szKeyName, const char *szValue )
 		Q_strcpy( m_TextureName.GetForModify(), szValue );
 #endif
 	}
+	else if ( FStrEq( szKeyName, "StartDisabled" ) )
+	{
+		m_bEnabled.Set( atoi( szValue ) <= 0 );
+	}
 
 	return BaseClass::KeyValue( szKeyName, szValue );
 }
@@ -258,6 +263,11 @@ bool CGlobalLight::GetKeyValue( const char *szKeyName, char *szValue, int iMaxLe
 		Q_snprintf( szValue, iMaxLen, "%s", m_TextureName.Get() );
 		return true;
 	}
+	else if ( FStrEq( szKeyName, "StartDisabled" ) )
+	{
+		Q_snprintf( szValue, iMaxLen, "%d", !m_bEnabled.Get() );
+		return true;
+	}
 	return BaseClass::GetKeyValue( szKeyName, szValue, iMaxLen );
 }
 
@@ -268,15 +278,6 @@ void CGlobalLight::Spawn( void )
 {
 	Precache();
 	SetSolid( SOLID_NONE );
-
-	if( m_bStartDisabled )
-	{
-		m_bEnabled = false;
-	}
-	else
-	{
-		m_bEnabled = true;
-	}
 }
 
 //------------------------------------------------------------------------------

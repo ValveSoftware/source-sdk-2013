@@ -2948,6 +2948,8 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetDrawActivity, "GetDrawActivity", "Returns the weapon's draw activity." )
 	DEFINE_SCRIPTFUNC( GetDefaultAnimSpeed, "Returns the weapon's default animation speed." )
 	DEFINE_SCRIPTFUNC( SendWeaponAnim, "Sends a weapon animation." )
+	DEFINE_SCRIPTFUNC( GetViewModelSequenceDuration, "Gets the sequence duration of the current view model animation." )
+	DEFINE_SCRIPTFUNC( IsViewModelSequenceFinished, "Returns true if the current view model animation is finished." )
 
 	DEFINE_SCRIPTFUNC( FiresUnderwater, "Returns true if this weapon can fire underwater." )
 	DEFINE_SCRIPTFUNC( SetFiresUnderwater, "Sets whether this weapon can fire underwater." )
