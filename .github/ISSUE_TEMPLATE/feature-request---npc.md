@@ -1,8 +1,7 @@
 ---
-name: Visuals/Graphics - Feature request
-about: Suggest an idea related to visuals or graphics. (e.g. shaders, projected textures,
-  etc.)
-title: "[VISUAL] "
+name: Feature request - NPCs
+about: Suggest an idea related to NPCs.
+title: "[NPCs] "
 labels: Enhancement
 assignees: ''
 
@@ -20,4 +19,4 @@ A clear and concise description of any alternative solutions or features you've 
 ---
 
 ### Additional context
-Add any other context or screenshots about the feature request here.
+(Optional) Add any other context or screenshots about the feature request here.

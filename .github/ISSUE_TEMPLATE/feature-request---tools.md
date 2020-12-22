@@ -1,8 +1,8 @@
 ---
-name: Game - Feature request
-about: Suggest an idea related to game behavior.
-title: "[GAME] "
-labels: Enhancement
+name: Feature request - Tools
+about: Suggest an idea related to compile tools, editor stuff, etc.
+title: "[TOOLS] "
+labels: Enhancement, Tools
 assignees: ''
 
 ---
@@ -19,4 +19,4 @@ A clear and concise description of any alternative solutions or features you've 
 ---
 
 ### Additional context
-Add any other context or screenshots about the feature request here.
+(Optional) Add any other context or screenshots about the feature request here.

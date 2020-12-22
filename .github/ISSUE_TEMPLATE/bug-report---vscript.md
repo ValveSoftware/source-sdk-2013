@@ -1,5 +1,5 @@
 ---
-name: VScript - Bug report
+name: Bug report - VScript
 about: Create a bug report related to VScript.
 title: "[VSCRIPT] "
 labels: Bug, VScript
@@ -22,4 +22,4 @@ A clear and concise description of what you expected to happen.
 ---
 
 ### Additional context
-Add any other context about the problem here.
+(Optional) Add any other context about the problem here.

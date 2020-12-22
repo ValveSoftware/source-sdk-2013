@@ -36,11 +36,11 @@ vpc_osx binary
 *.inl text
 *.asm text
 
+.github/CONTRIBUTING.md text
 .gitignore text
 sourcesdk_def.mak text
 smdlexp.mak text
 README text
-CONTRIBUTING text
 LICENSE text
 
 *.exe binary

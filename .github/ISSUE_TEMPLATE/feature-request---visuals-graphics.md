@@ -1,8 +1,9 @@
 ---
-name: VScript - Feature request
-about: Suggest an idea related to VScript.
-title: "[VSCRIPT] "
-labels: Enhancement, VScript
+name: Feature request - Visuals/Graphics
+about: Suggest an idea related to visuals or graphics. (e.g. shaders, projected textures,
+  etc.)
+title: "[VISUAL] "
+labels: Enhancement
 assignees: ''
 
 ---
@@ -19,4 +20,4 @@ A clear and concise description of any alternative solutions or features you've 
 ---
 
 ### Additional context
-Add any other context or screenshots about the feature request here.
+(Optional) Add any other context or screenshots about the feature request here.

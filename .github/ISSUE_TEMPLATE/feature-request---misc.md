@@ -1,6 +1,6 @@
 ---
-name: Miscellaneous - Feature request
-about: Suggest an idea not related to any of the subjects mentioned above.
+name: Feature request - Miscellaneous
+about: Suggest an idea not related to any of the other subjects.
 title: "[MISC] "
 labels: Enhancement
 assignees: ''
@@ -19,4 +19,4 @@ A clear and concise description of any alternative solutions or features you've 
 ---
 
 ### Additional context
-Add any other context or screenshots about the feature request here.
+(Optional) Add any other context or screenshots about the feature request here.

@@ -23,12 +23,12 @@ All contributions must follow the following rules:
    is usually not fit for Mapbase.
    
  * All content in a contribution must be either already legally open-source or done with the
-   full permission of the contribution's original creator(s).
+   full permission of the content's original creator(s).
    
  * Contributions must not break existing maps/content or interfere with them in a negative or non-objective way.
    
  * Code contributions are not obliged to follow Mapbase's preprocessor conventions (e.g. #ifdef MAPBASE),
-   although following them is acceptable.
+   although following them is usually acceptable.
    
  * If you are contributing a file you created yourself specifically for Mapbase, you are required to
    use the custom "Mapbase - Source 2013" header used in other Mapbase files as of Mapbase v5.0.

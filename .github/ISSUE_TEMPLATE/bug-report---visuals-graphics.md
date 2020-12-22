@@ -1,7 +1,8 @@
 ---
-name: Game - Bug report
-about: Create a bug report related to game behavior.
-title: "[GAME] "
+name: Bug report - Visuals/Graphics
+about: Create a bug report related to visual issues. (e.g. shaders, projected textures,
+  etc.)
+title: "[VISUAL] "
 labels: Bug
 assignees: ''
 
@@ -19,7 +20,10 @@ Steps to reproduce the behavior:
 ### Expected behavior
 A clear and concise description of what you expected to happen.
 
+### Media
+Any related screenshots, videos, etc. which show the bug.
+
 ---
 
 ### Additional context
-Add any other context about the problem here.
+(Optional) Add any other context about the problem here.
