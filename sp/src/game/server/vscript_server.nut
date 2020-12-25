@@ -5,13 +5,16 @@ static char g_Script_vscript_server[] = R"vscript(
 //
 //=============================================================================
 
-function UniqueString( string = "" )
-{
-	return ::DoUniqueString( string.tostring() );
-}
-
 local DoEntFire = ::DoEntFire
 local DoEntFireByInstanceHandle = ::DoEntFireByInstanceHandle
+local DoDispatchParticleEffect = ::DoDispatchParticleEffect
+local DoUniqueString = ::DoUniqueString
+local ScriptGetClientConvarValue = ::ScriptGetClientConvarValue
+
+function UniqueString( string = "" )
+{
+	return DoUniqueString( string.tostring() );
+}
 
 function EntFire( target, action, value = null, delay = 0.0, activator = null, caller = null )
 {
@@ -67,10 +70,10 @@ function DispatchParticleEffect( particleName, origin, angles, entity = null )
 // CConvars is declared within the library
 function CConvars::GetClientConvarValue(cvar,idx)
 {
-	return ::ScriptGetClientConvarValue(cvar,idx);
+	return ScriptGetClientConvarValue(cvar,idx);
 }
 
-RegisterHelp( "CConvars::GetClientConvarValue", "CConvars::GetClientConvarValue(string, int)", "Returns the convar value for the entindex as a string. Only works with client convars with the FCVAR_USERINFO flag." );
+__Documentation.RegisterHelp( "CConvars::GetClientConvarValue", "CConvars::GetClientConvarValue(string, int)", "Returns the convar value for the entindex as a string. Only works with client convars with the FCVAR_USERINFO flag." );
 
 function __ReplaceClosures( script, scope )
 {

@@ -31,7 +31,6 @@
 #include "squirrel/squirrel/sqvm.h"
 #include "squirrel/squirrel/sqclosure.h"
 
-#include "color.h"
 #include "tier1/utlbuffer.h"
 #include "tier1/mapbase_con_groups.h"
 
@@ -192,15 +191,18 @@ public:
 
 	virtual bool SetValue(HSCRIPT hScope, const char* pszKey, const char* pszValue) override;
 	virtual bool SetValue(HSCRIPT hScope, const char* pszKey, const ScriptVariant_t& value) override;
+	virtual bool SetValue(HSCRIPT hScope, const ScriptVariant_t& key, const ScriptVariant_t& val) override;
 
 	virtual void CreateTable(ScriptVariant_t& Table) override;
 	virtual int	GetNumTableEntries(HSCRIPT hScope) override;
 	virtual int GetKeyValue(HSCRIPT hScope, int nIterator, ScriptVariant_t* pKey, ScriptVariant_t* pValue) override;
 
 	virtual bool GetValue(HSCRIPT hScope, const char* pszKey, ScriptVariant_t* pValue) override;
+	virtual bool GetValue(HSCRIPT hScope, ScriptVariant_t key, ScriptVariant_t* pValue) override;
 	virtual void ReleaseValue(ScriptVariant_t& value) override;
 
 	virtual bool ClearValue(HSCRIPT hScope, const char* pszKey) override;
+	virtual bool ClearValue( HSCRIPT hScope, ScriptVariant_t pKey ) override;
 
 	// virtual void CreateArray(ScriptVariant_t &arr, int size = 0) override;
 	virtual bool ArrayAppend(HSCRIPT hArray, const ScriptVariant_t &val) override;
@@ -1408,6 +1410,19 @@ const char * ScriptDataTypeToName(ScriptDataType_t datatype)
 	}
 }
 
+
+#define PushDocumentationRegisterFunction( szName )	\
+	sq_pushroottable(vm);							\
+	sq_pushstring(vm, "__Documentation", -1);		\
+	sq_get(vm, -2);									\
+	sq_pushstring(vm, szName, -1);					\
+	sq_get(vm, -2);									\
+	sq_push(vm, -2);
+
+#define CallDocumentationRegisterFunction( paramcount )	\
+	sq_call(vm, paramcount+1, SQFalse, SQFalse);		\
+	sq_pop(vm, 3);
+
 void RegisterDocumentation(HSQUIRRELVM vm, const ScriptFuncDescriptor_t& pFuncDesc, ScriptClassDesc_t* pClassDesc = nullptr)
 {
 	SquirrelSafeCheck safeCheck(vm);
@@ -1440,16 +1455,11 @@ void RegisterDocumentation(HSQUIRRELVM vm, const ScriptFuncDescriptor_t& pFuncDe
 	V_strcat_safe(signature, ")");
 
 	// RegisterHelp(name, signature, description)
-	sq_pushroottable(vm);
-	sq_pushstring(vm, "RegisterHelp", -1);
-	sq_get(vm, -2);
-	sq_remove(vm, -2);
-	sq_pushroottable(vm);
-	sq_pushstring(vm, name, -1);
-	sq_pushstring(vm, signature, -1);
-	sq_pushstring(vm, pFuncDesc.m_pszDescription ? pFuncDesc.m_pszDescription : "", -1);
-	sq_call(vm, 4, SQFalse, SQFalse);
-	sq_pop(vm, 1);
+	PushDocumentationRegisterFunction( "RegisterHelp" );
+		sq_pushstring(vm, name, -1);
+		sq_pushstring(vm, signature, -1);
+		sq_pushstring(vm, pFuncDesc.m_pszDescription ? pFuncDesc.m_pszDescription : "", -1);
+	CallDocumentationRegisterFunction( 3 );
 }
 
 void RegisterClassDocumentation(HSQUIRRELVM vm, const ScriptClassDesc_t* pClassDesc)
@@ -1477,16 +1487,11 @@ void RegisterClassDocumentation(HSQUIRRELVM vm, const ScriptClassDesc_t* pClassD
 	}
 
 	// RegisterClassHelp(name, base, description)
-	sq_pushroottable(vm);
-	sq_pushstring(vm, "RegisterClassHelp", -1);
-	sq_get(vm, -2);
-	sq_remove(vm, -2);
-	sq_pushroottable(vm);
-	sq_pushstring(vm, name, -1);
-	sq_pushstring(vm, base, -1);
-	sq_pushstring(vm, description, -1);
-	sq_call(vm, 4, SQFalse, SQFalse);
-	sq_pop(vm, 1);
+	PushDocumentationRegisterFunction( "RegisterClassHelp" );
+		sq_pushstring(vm, name, -1);
+		sq_pushstring(vm, base, -1);
+		sq_pushstring(vm, description, -1);
+	CallDocumentationRegisterFunction( 3 );
 }
 
 void RegisterEnumDocumentation(HSQUIRRELVM vm, const ScriptEnumDesc_t* pClassDesc)
@@ -1499,16 +1504,11 @@ void RegisterEnumDocumentation(HSQUIRRELVM vm, const ScriptEnumDesc_t* pClassDes
 	const char *name = pClassDesc->m_pszScriptName;
 
 	// RegisterEnumHelp(name, description)
-	sq_pushroottable(vm);
-	sq_pushstring(vm, "RegisterEnumHelp", -1);
-	sq_get(vm, -2);
-	sq_remove(vm, -2);
-	sq_pushroottable(vm);
-	sq_pushstring(vm, name, -1);
-	sq_pushinteger(vm, pClassDesc->m_ConstantBindings.Count());
-	sq_pushstring(vm, pClassDesc->m_pszDescription ? pClassDesc->m_pszDescription : "", -1);
-	sq_call(vm, 4, SQFalse, SQFalse);
-	sq_pop(vm, 1);
+	PushDocumentationRegisterFunction( "RegisterEnumHelp" );
+		sq_pushstring(vm, name, -1);
+		sq_pushinteger(vm, pClassDesc->m_ConstantBindings.Count());
+		sq_pushstring(vm, pClassDesc->m_pszDescription ? pClassDesc->m_pszDescription : "", -1);
+	CallDocumentationRegisterFunction( 3 );
 }
 
 void RegisterConstantDocumentation( HSQUIRRELVM vm, const ScriptConstantBinding_t* pConstDesc, const char *pszAsString, ScriptEnumDesc_t* pEnumDesc = nullptr )
@@ -1532,16 +1532,11 @@ void RegisterConstantDocumentation( HSQUIRRELVM vm, const ScriptConstantBinding_
 	V_snprintf(signature, sizeof(signature), "%s (%s)", pszAsString, ScriptDataTypeToName(pConstDesc->m_data.m_type));
 
 	// RegisterConstHelp(name, signature, description)
-	sq_pushroottable(vm);
-	sq_pushstring(vm, "RegisterConstHelp", -1);
-	sq_get(vm, -2);
-	sq_remove(vm, -2);
-	sq_pushroottable(vm);
-	sq_pushstring(vm, name, -1);
-	sq_pushstring(vm, signature, -1);
-	sq_pushstring(vm, pConstDesc->m_pszDescription ? pConstDesc->m_pszDescription : "", -1);
-	sq_call(vm, 4, SQFalse, SQFalse);
-	sq_pop(vm, 1);
+	PushDocumentationRegisterFunction( "RegisterConstHelp" );
+		sq_pushstring(vm, name, -1);
+		sq_pushstring(vm, signature, -1);
+		sq_pushstring(vm, pConstDesc->m_pszDescription ? pConstDesc->m_pszDescription : "", -1);
+	CallDocumentationRegisterFunction( 3 );
 }
 
 void RegisterHookDocumentation(HSQUIRRELVM vm, const ScriptHook_t* pHook, const ScriptFuncDescriptor_t& pFuncDesc, ScriptClassDesc_t* pClassDesc = nullptr)
@@ -1579,16 +1574,11 @@ void RegisterHookDocumentation(HSQUIRRELVM vm, const ScriptHook_t* pHook, const 
 	V_strcat_safe(signature, ")");
 
 	// RegisterHookHelp(name, signature, description)
-	sq_pushroottable(vm);
-	sq_pushstring(vm, "RegisterHookHelp", -1);
-	sq_get(vm, -2);
-	sq_remove(vm, -2);
-	sq_pushroottable(vm);
-	sq_pushstring(vm, name, -1);
-	sq_pushstring(vm, signature, -1);
-	sq_pushstring(vm, pFuncDesc.m_pszDescription ? pFuncDesc.m_pszDescription : "", -1);
-	sq_call(vm, 4, SQFalse, SQFalse);
-	sq_pop(vm, 1);
+	PushDocumentationRegisterFunction( "RegisterHookHelp" );
+		sq_pushstring(vm, name, -1);
+		sq_pushstring(vm, signature, -1);
+		sq_pushstring(vm, pFuncDesc.m_pszDescription ? pFuncDesc.m_pszDescription : "", -1);
+	CallDocumentationRegisterFunction( 3 );
 }
 
 void RegisterMemberDocumentation(HSQUIRRELVM vm, const ScriptMemberDesc_t& pDesc, ScriptClassDesc_t* pClassDesc = nullptr)
@@ -1609,21 +1599,15 @@ void RegisterMemberDocumentation(HSQUIRRELVM vm, const ScriptMemberDesc_t& pDesc
 	if (pDesc.m_pszScriptName)
 		V_strcat_safe(name, pDesc.m_pszScriptName);
 
-
 	char signature[256] = "";
 	V_snprintf(signature, sizeof(signature), "%s %s", ScriptDataTypeToName(pDesc.m_ReturnType), name);
 
-	// RegisterHookHelp(name, signature, description)
-	sq_pushroottable(vm);
-	sq_pushstring(vm, "RegisterMemberHelp", -1);
-	sq_get(vm, -2);
-	sq_remove(vm, -2);
-	sq_pushroottable(vm);
-	sq_pushstring(vm, name, -1);
-	sq_pushstring(vm, signature, -1);
-	sq_pushstring(vm, pDesc.m_pszDescription ? pDesc.m_pszDescription : "", -1);
-	sq_call(vm, 4, SQFalse, SQFalse);
-	sq_pop(vm, 1);
+	// RegisterMemberHelp(name, signature, description)
+	PushDocumentationRegisterFunction( "RegisterMemberHelp" );
+		sq_pushstring(vm, name, -1);
+		sq_pushstring(vm, signature, -1);
+		sq_pushstring(vm, pDesc.m_pszDescription ? pDesc.m_pszDescription : "", -1);
+	CallDocumentationRegisterFunction( 3 );
 }
 
 
@@ -2439,6 +2423,41 @@ bool SquirrelVM::SetValue(HSCRIPT hScope, const char* pszKey, const ScriptVarian
 	return true;
 }
 
+bool SquirrelVM::SetValue( HSCRIPT hScope, const ScriptVariant_t& key, const ScriptVariant_t& val )
+{
+	SquirrelSafeCheck safeCheck(vm_);
+	HSQOBJECT obj = *(HSQOBJECT*)hScope;
+	if (hScope)
+	{
+		Assert(hScope != INVALID_HSCRIPT);
+		sq_pushobject(vm_, obj);
+	}
+	else
+	{
+		sq_pushroottable(vm_);
+	}
+
+	if ( sq_isarray(obj) )
+	{
+		Assert( key.m_type == FIELD_INTEGER );
+
+		sq_pushinteger(vm_, key.m_int);
+		PushVariant(vm_, val);
+
+		sq_set(vm_, -3);
+	}
+	else
+	{
+		PushVariant(vm_, key);
+		PushVariant(vm_, val);
+
+		sq_newslot(vm_, -3, SQFalse);
+	}
+
+	sq_pop(vm_, 1);
+	return true;
+}
+
 void SquirrelVM::CreateTable(ScriptVariant_t& Table)
 {
 	SquirrelSafeCheck safeCheck(vm_);
@@ -2454,15 +2473,17 @@ void SquirrelVM::CreateTable(ScriptVariant_t& Table)
 	Table = (HSCRIPT)obj;
 }
 
+//
+// input table/array/class/instance/string
+//
 int	SquirrelVM::GetNumTableEntries(HSCRIPT hScope)
 {
 	SquirrelSafeCheck safeCheck(vm_);
 
 	if (!hScope)
 	{
-		// TODO: This is called hScope but seems like just a table so
-		// lets not fallback to root table
-		return 0;
+		// sq_getsize returns -1 on invalid input
+		return -1;
 	}
 
 	HSQOBJECT* scope = (HSQOBJECT*)hScope;
@@ -2555,6 +2576,47 @@ bool SquirrelVM::GetValue(HSCRIPT hScope, const char* pszKey, ScriptVariant_t* p
 	return true;
 }
 
+bool SquirrelVM::GetValue( HSCRIPT hScope, ScriptVariant_t key, ScriptVariant_t* pValue )
+{
+	SquirrelSafeCheck safeCheck(vm_);
+
+	Assert(pValue);
+	if (!pValue)
+	{
+		return false;
+	}
+
+	if (hScope)
+	{
+		HSQOBJECT* scope = (HSQOBJECT*)hScope;
+		Assert(hScope != INVALID_HSCRIPT);
+		sq_pushobject(vm_, *scope);
+	}
+	else
+	{
+		sq_pushroottable(vm_);
+	}
+
+	PushVariant(vm_, key);
+
+	if (sq_get(vm_, -2) != SQ_OK)
+	{
+		sq_pop(vm_, 1);
+		return false;
+	}
+
+	if (!getVariant(vm_, -1, *pValue))
+	{
+		sq_pop(vm_, 2);
+		return false;
+	}
+
+	sq_pop(vm_, 2);
+
+	return true;
+}
+
+
 void SquirrelVM::ReleaseValue(ScriptVariant_t& value)
 {
 	SquirrelSafeCheck safeCheck(vm_);
@@ -2599,6 +2661,33 @@ bool SquirrelVM::ClearValue(HSCRIPT hScope, const char* pszKey)
 	sq_pop(vm_, 1);
 	return true;
 }
+
+bool SquirrelVM::ClearValue(HSCRIPT hScope, ScriptVariant_t pKey)
+{
+	SquirrelSafeCheck safeCheck(vm_);
+
+	if (hScope)
+	{
+		HSQOBJECT* scope = (HSQOBJECT*)hScope;
+		Assert(hScope != INVALID_HSCRIPT);
+		sq_pushobject(vm_, *scope);
+	}
+	else
+	{
+		sq_pushroottable(vm_);
+	}
+
+	PushVariant(vm_, pKey);
+	if (SQ_FAILED(sq_deleteslot(vm_, -2, SQFalse)))
+	{
+		sq_pop(vm_, 1);
+		return false;
+	}
+
+	sq_pop(vm_, 1);
+	return true;
+}
+
 /*
 void SquirrelVM::CreateArray(ScriptVariant_t &arr, int size)
 {
@@ -2619,9 +2708,11 @@ bool SquirrelVM::ArrayAppend(HSCRIPT hArray, const ScriptVariant_t &val)
 {
 	SquirrelSafeCheck safeCheck(vm_);
 
-	HSQOBJECT *arr = (HSQOBJECT*)hArray;
+	HSQOBJECT arr = *(HSQOBJECT*)hArray;
+	if ( !sq_isarray(arr) )
+		return false;
 
-	sq_pushobject(vm_, *arr);
+	sq_pushobject(vm_, arr);
 	PushVariant(vm_, val);
 	bool ret = sq_arrayappend(vm_, -2) == SQ_OK;
 	sq_pop(vm_, 1);

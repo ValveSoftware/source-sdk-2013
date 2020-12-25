@@ -10,11 +10,19 @@
 #include "bitbuf.h"
 #include "checksum_md5.h"
 
+#ifdef MAPBASE_VSCRIPT
+#include "mapbase/vscript_singletons.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 // TF2 specific, need enough space for OBJ_LAST items from tf_shareddefs.h
 #define WEAPON_SUBTYPE_BITS	6
+
+#ifdef MAPBASE_VSCRIPT
+extern CNetMsgScriptHelper *g_ScriptNetMsg;
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Write a delta compressed user command.
@@ -187,6 +195,22 @@ void WriteUsercmd( bf_write *buf, const CUserCmd *to, const CUserCmd *from )
 		buf->WriteOneBit( 0 );
 	}
 #endif
+
+#if defined( MAPBASE_VSCRIPT ) && defined( CLIENT_DLL )
+	Assert( g_ScriptNetMsg );
+
+	if ( g_ScriptNetMsg->m_bWriteReady )
+	{
+		buf->WriteOneBit( 1 );
+		g_ScriptNetMsg->WriteToBuffer( buf );
+		g_ScriptNetMsg->m_bWriteReady = false;
+	}
+	else
+	{
+		buf->WriteOneBit( 0 );
+	}
+#endif
+
 }
 
 //-----------------------------------------------------------------------------
@@ -196,7 +220,11 @@ void WriteUsercmd( bf_write *buf, const CUserCmd *to, const CUserCmd *from )
 //			*from - 
 // Output : static void ReadUsercmd
 //-----------------------------------------------------------------------------
+#if defined( MAPBASE_VSCRIPT ) && defined( GAME_DLL )
+void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from, CBaseEntity *pPlayer )
+#else
 void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from )
+#endif
 {
 	// Assume no change
 	*move = *from;
@@ -303,4 +331,12 @@ void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from )
 		}
 	}
 #endif
+
+#if defined( MAPBASE_VSCRIPT ) && defined( GAME_DLL )
+	if ( buf->ReadOneBit() )
+	{
+		g_ScriptNetMsg->RecieveMessage( buf, pPlayer );
+	}
+#endif
+
 }

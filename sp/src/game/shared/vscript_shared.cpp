@@ -142,6 +142,9 @@ bool VScriptRunScript( const char *pszScriptName, HSCRIPT hScope, bool bWarnMiss
 	bool bSuccess = false;
 	if ( hScript )
 	{
+		// player is not yet spawned, this block is always skipped.
+		// It is registered in CBasePlayer instead.
+#ifndef MAPBASE
 #ifdef GAME_DLL
 		if ( gpGlobals->maxClients == 1 )
 		{
@@ -151,6 +154,7 @@ bool VScriptRunScript( const char *pszScriptName, HSCRIPT hScope, bool bWarnMiss
 				g_pScriptVM->SetValue( "player", pPlayer->GetScriptInstance() );
 			}
 		}
+#endif
 #endif
 		bSuccess = ( g_pScriptVM->Run( hScript, hScope ) != SCRIPT_ERROR );
 		if ( !bSuccess )
@@ -262,7 +266,7 @@ CON_COMMAND_SHARED( script_help, "Output help for script functions, optionally w
 		pszArg1 = args[1];
 	}
 
-	g_pScriptVM->Run( CFmtStr( "PrintHelp( \"%s\" );", pszArg1 ) );
+	g_pScriptVM->Run( CFmtStr( "__Documentation.PrintHelp( \"%s\" );", pszArg1 ) );
 }
 
 CON_COMMAND_SHARED( script_dump_all, "Dump the state of the VM to the console" )
