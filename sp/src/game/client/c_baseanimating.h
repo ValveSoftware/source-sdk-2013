@@ -454,6 +454,21 @@ public:
 	virtual bool					IsViewModel() const;
 
 #ifdef MAPBASE_VSCRIPT
+	const Vector& ScriptGetAttachmentOrigin(int iAttachment);
+	const Vector& ScriptGetAttachmentAngles(int iAttachment);
+	HSCRIPT ScriptGetAttachmentMatrix(int iAttachment);
+
+	void	ScriptGetBoneTransform( int iBone, HSCRIPT hTransform );
+
+	int		ScriptGetSequenceActivity( int iSequence ) { return GetSequenceActivity( iSequence ); }
+	float	ScriptGetSequenceMoveDist( int iSequence ) { return GetSequenceMoveDist( GetModelPtr(), iSequence ); }
+	int		ScriptSelectWeightedSequence( int activity ) { return SelectWeightedSequence( (Activity)activity ); }
+
+	// For VScript
+	void	SetSkin( int iSkin ) { m_nSkin = iSkin; }
+
+	static ScriptHook_t	g_Hook_OnClientRagdoll;
+
 	float							ScriptGetPoseParameter(const char* szName);
 #endif
 	void							ScriptSetPoseParameter(const char* szName, float fValue);
@@ -474,10 +489,6 @@ protected:
 	virtual int						GetStudioBody( void ) { return m_nBody; }
 
 	virtual bool					CalcAttachments();
-
-#ifdef MAPBASE_VSCRIPT
-	int								ScriptGetSequenceActivity( int iSequence ) { return GetSequenceActivity( iSequence ); }
-#endif
 
 private:
 	// This method should return true if the bones have changed + SetupBones needs to be called
