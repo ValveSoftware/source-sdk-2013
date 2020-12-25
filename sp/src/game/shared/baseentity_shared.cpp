@@ -2418,6 +2418,18 @@ void CBaseEntity::FollowEntity( CBaseEntity *pBaseEntity, bool bBoneMerge )
 	}
 }
 
+#ifdef MAPBASE_VSCRIPT
+void CBaseEntity::ScriptFollowEntity( HSCRIPT hBaseEntity, bool bBoneMerge )
+{
+	FollowEntity( ToEnt( hBaseEntity ), bBoneMerge );
+}
+
+HSCRIPT CBaseEntity::ScriptGetFollowedEntity()
+{
+	return ToHScript( GetFollowedEntity() );
+}
+#endif
+
 void CBaseEntity::SetEffectEntity( CBaseEntity *pEffectEnt )
 {
 	if ( m_hEffectEntity.Get() != pEffectEnt )
@@ -2605,5 +2617,47 @@ bool CBaseEntity::IsToolRecording() const
 #else
 	return false;
 #endif
+}
+#endif
+
+#ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+const Vector& CBaseEntity::ScriptGetColorVector()
+{
+	static Vector vecColor;
+	vecColor.Init( m_clrRender.GetR(), m_clrRender.GetG(), m_clrRender.GetB() );
+	return vecColor;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptSetColorVector( const Vector& vecColor )
+{
+	SetRenderColor( vecColor.x, vecColor.y, vecColor.z );
+}
+
+void CBaseEntity::ScriptSetColor( int r, int g, int b )
+{
+	SetRenderColor( r, g, b );
+}
+
+//-----------------------------------------------------------------------------
+// Vscript: Gets the entity matrix transform
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseEntity::ScriptEntityToWorldTransform( void )
+{
+	return g_pScriptVM->RegisterInstance( &EntityToWorldTransform() );
+}
+
+//-----------------------------------------------------------------------------
+// Vscript: Gets the entity's physics object if it has one
+//-----------------------------------------------------------------------------
+HSCRIPT CBaseEntity::ScriptGetPhysicsObject( void )
+{
+	if (VPhysicsGetObject())
+		return g_pScriptVM->RegisterInstance( VPhysicsGetObject() );
+	else
+		return NULL;
 }
 #endif

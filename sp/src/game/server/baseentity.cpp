@@ -623,18 +623,6 @@ CBaseEntity *CBaseEntity::GetFollowedEntity()
 	return GetMoveParent();
 }
 
-#ifdef MAPBASE_VSCRIPT
-void CBaseEntity::ScriptFollowEntity( HSCRIPT hBaseEntity, bool bBoneMerge )
-{
-	FollowEntity( ToEnt( hBaseEntity ), bBoneMerge );
-}
-
-HSCRIPT CBaseEntity::ScriptGetFollowedEntity()
-{
-	return ToHScript( GetFollowedEntity() );
-}
-#endif
-
 void CBaseEntity::SetClassname( const char *className )
 {
 	m_iClassname = AllocPooledString( className );
@@ -2360,6 +2348,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetRenderColorB", "Set the render color's B value" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetRenderAlpha", "Set the render color's alpha value" )
 
+	// LEGACY
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorVector, "GetColorVector", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorR, "GetColorR", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorG, "GetColorG", SCRIPT_HIDE )
@@ -2370,6 +2359,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorG, "SetColorG", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetColorB", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetAlpha", SCRIPT_HIDE )
+	// END LEGACY
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRenderMode, "GetRenderMode", "Get render mode" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetRenderMode, "SetRenderMode", "Set render mode" )
@@ -10202,46 +10192,6 @@ const char *CBaseEntity::ScriptGetKeyValue( const char *pszKeyName )
 	static char szValue[128];
 	GetKeyValue( pszKeyName, szValue, sizeof(szValue) );
 	return szValue;
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-const Vector& CBaseEntity::ScriptGetColorVector()
-{
-	static Vector vecColor;
-	vecColor.Init( m_clrRender.GetR(), m_clrRender.GetG(), m_clrRender.GetB() );
-	return vecColor;
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void CBaseEntity::ScriptSetColorVector( const Vector& vecColor )
-{
-	SetRenderColor( vecColor.x, vecColor.y, vecColor.z );
-}
-
-void CBaseEntity::ScriptSetColor( int r, int g, int b )
-{
-	SetRenderColor( r, g, b );
-}
-
-//-----------------------------------------------------------------------------
-// Vscript: Gets the entity matrix transform
-//-----------------------------------------------------------------------------
-HSCRIPT CBaseEntity::ScriptEntityToWorldTransform( void )
-{
-	return g_pScriptVM->RegisterInstance( &EntityToWorldTransform() );
-}
-
-//-----------------------------------------------------------------------------
-// Vscript: Gets the entity's physics object if it has one
-//-----------------------------------------------------------------------------
-HSCRIPT CBaseEntity::ScriptGetPhysicsObject( void )
-{
-	if (VPhysicsGetObject())
-		return g_pScriptVM->RegisterInstance( VPhysicsGetObject() );
-	else
-		return NULL;
 }
 
 //-----------------------------------------------------------------------------
