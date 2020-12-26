@@ -8727,51 +8727,6 @@ HSCRIPT CBaseEntity::GetScriptScope()
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-#ifdef MAPBASE_VSCRIPT
-HSCRIPT CBaseEntity::GetOrCreatePrivateScriptScope()
-{
-	ValidateScriptScope();
-	return m_ScriptScope;
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void CBaseEntity::ScriptSetParent(HSCRIPT hParent, const char *szAttachment)
-{
-	CBaseEntity *pParent = ToEnt(hParent);
-	if ( !pParent )
-	{
-		SetParent(NULL);
-		return;
-	}
-
-	// if an attachment is specified, the parent needs to be CBaseAnimating
-	if ( szAttachment && szAttachment[0] != '\0' )
-	{
-		CBaseAnimating *pAnimating = pParent->GetBaseAnimating();
-		if ( !pAnimating )
-		{
-			Warning("ERROR: Tried to set parent for entity %s (%s), but its parent has no model.\n", GetClassname(), GetDebugName());
-			return;
-		}
-		
-		int iAttachment = pAnimating->LookupAttachment(szAttachment);
-		if ( iAttachment <= 0 )
-		{
-			Warning("ERROR: Tried to set parent for entity %s (%s), but it has no attachment named %s.\n", GetClassname(), GetDebugName(), szAttachment);
-			return;
-		}
-
-		SetParent(pParent, iAttachment);
-		SetMoveType(MOVETYPE_NONE);
-		return;
-	}
-	
-	SetParent(pParent);
-}
-#endif
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 HSCRIPT CBaseEntity::ScriptGetMoveParent(void)
 {
 	return ToHScript(GetMoveParent());
@@ -10019,6 +9974,7 @@ void CBaseEntity::RunOnPostSpawnScripts(void)
 	}
 }
 
+#ifndef MAPBASE_VSCRIPT // This is shared now
 HSCRIPT	CBaseEntity::GetScriptOwnerEntity()
 {
 	return ToHScript(GetOwnerEntity());
@@ -10028,6 +9984,7 @@ void CBaseEntity::SetScriptOwnerEntity(HSCRIPT pOwner)
 {
 	SetOwnerEntity(ToEnt(pOwner));
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // VScript access to model's key values

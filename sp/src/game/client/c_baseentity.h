@@ -266,6 +266,7 @@ public:
 	bool ValidateScriptScope();
 	bool CallScriptFunction( const char* pFunctionName, ScriptVariant_t* pFunctionReturn );
 
+	HSCRIPT GetOrCreatePrivateScriptScope();
 	HSCRIPT GetScriptScope() { return m_ScriptScope; }
 
 	HSCRIPT LookupScriptFunction(const char* pFunctionName);
@@ -274,6 +275,9 @@ public:
 	bool RunScriptFile( const char* pScriptFile, bool bUseRootScope = false );
 	bool RunScript( const char* pScriptText, const char* pDebugFilename = "C_BaseEntity::RunScript" );
 #endif
+
+	HSCRIPT					GetScriptOwnerEntity();
+	virtual void			SetScriptOwnerEntity(HSCRIPT pOwner);
 
 	HSCRIPT GetScriptInstance();
 
@@ -1185,6 +1189,7 @@ public:
 
 	HSCRIPT ScriptGetPhysicsObject( void );
 
+	void ScriptSetParent( HSCRIPT hParent, const char *szAttachment );
 	HSCRIPT ScriptGetMoveParent( void );
 	HSCRIPT ScriptGetRootMoveParent();
 	HSCRIPT ScriptFirstMoveChild( void );

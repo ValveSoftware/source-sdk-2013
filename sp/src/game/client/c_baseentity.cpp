@@ -442,6 +442,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_SCRIPTFUNC( ValidateScriptScope, "Ensure that an entity's script scope has been created" )
+	DEFINE_SCRIPTFUNC( GetOrCreatePrivateScriptScope, "Create and retrieve the script-side data associated with an entity" )
 	DEFINE_SCRIPTFUNC( GetScriptScope, "Retrieve the script-side data associated with an entity" )
 
 	DEFINE_SCRIPTFUNC( GetHealth, "" )
@@ -479,6 +480,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 
 	DEFINE_SCRIPTFUNC( GetWaterLevel, "Get current level of water submergence" )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetParent, "SetParent", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetMoveParent, "GetMoveParent", "If in hierarchy, retrieves the entity's parent" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRootMoveParent, "GetRootMoveParent", "If in hierarchy, walks up the hierarchy to find the root parent" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptFirstMoveChild,  "FirstMoveChild", "" )
@@ -488,6 +490,9 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 	DEFINE_SCRIPTFUNC( StopFollowingEntity, "Stops following an entity if we're following one." )
 	DEFINE_SCRIPTFUNC( IsFollowingEntity, "Returns true if this entity is following another entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetFollowedEntity, "GetFollowedEntity", "Get the entity we're following." )
+
+	DEFINE_SCRIPTFUNC_NAMED( GetScriptOwnerEntity, "GetOwner", "Gets this entity's owner" )
+	DEFINE_SCRIPTFUNC_NAMED( SetScriptOwnerEntity, "SetOwner", "Sets this entity's owner" )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorVector, "GetRenderColorVector", "Get the render color as a vector" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorR, "GetRenderColorR", "Get the render color's R value" )
@@ -537,6 +542,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 
 	DEFINE_SCRIPTFUNC_NAMED( GetEntityIndex, "entindex", "" )
 #endif
+
 END_SCRIPTDESC();
 
 #ifndef NO_ENTITY_PREDICTION
