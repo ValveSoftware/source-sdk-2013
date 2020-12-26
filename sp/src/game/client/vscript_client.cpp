@@ -431,6 +431,35 @@ bool DoIncludeScript( const char *pszScript, HSCRIPT hScope )
 	return true;
 }
 
+#ifdef MAPBASE_VSCRIPT
+// Creates a client-side prop
+HSCRIPT CreateProp( const char *pszEntityName, const Vector &vOrigin, const char *pszModelName, int iAnim )
+{
+	C_BaseAnimating *pBaseEntity = (C_BaseAnimating *)CreateEntityByName( pszEntityName );
+	if (!pBaseEntity)
+		return NULL;
+
+	pBaseEntity->SetAbsOrigin( vOrigin );
+	pBaseEntity->SetModelName( pszModelName );
+	if (!pBaseEntity->InitializeAsClientEntity( pszModelName, RENDER_GROUP_OPAQUE_ENTITY ))
+	{
+		Warning("Can't initialize %s as client entity\n", pszEntityName);
+		return NULL;
+	}
+
+	pBaseEntity->SetPlaybackRate( 1.0f );
+
+	int iSequence = pBaseEntity->SelectWeightedSequence( (Activity)iAnim );
+
+	if ( iSequence != -1 )
+	{
+		pBaseEntity->SetSequence( iSequence );
+	}
+
+	return ToHScript( pBaseEntity );
+}
+#endif
+
 bool VScriptClientInit()
 {
 	VMPROF_START
@@ -494,6 +523,9 @@ bool VScriptClientInit()
 				ScriptRegisterFunction( g_pScriptVM, GetMapName, "Get the name of the map.");
 				ScriptRegisterFunction( g_pScriptVM, Time, "Get the current server time" );
 				ScriptRegisterFunction( g_pScriptVM, DoIncludeScript, "Execute a script (internal)" );
+#ifdef MAPBASE_VSCRIPT
+				ScriptRegisterFunction( g_pScriptVM, CreateProp, "Create an animating prop" );
+#endif
 				
 				if ( GameRules() )
 				{
