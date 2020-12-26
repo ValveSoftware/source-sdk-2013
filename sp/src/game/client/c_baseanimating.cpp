@@ -282,6 +282,16 @@ BEGIN_DATADESC( C_ClientRagdoll )
 END_DATADESC()
 
 #ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( C_ClientRagdoll, C_BaseAnimating, "Client-side ragdolls" )
+
+	DEFINE_SCRIPTFUNC_NAMED( SUB_Remove, "FadeOut", "Fades out the ragdoll and removes it from the client." )
+
+	// TODO: Proper shared ragdoll funcs?
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRagdollObject, "GetRagdollObject", "Gets the ragdoll object of the specified index." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRagdollObjectCount, "GetRagdollObjectCount", "Gets the number of ragdoll objects on this ragdoll." )
+
+END_SCRIPTDESC();
+
 ScriptHook_t	C_BaseAnimating::g_Hook_OnClientRagdoll;
 #endif
 
@@ -692,6 +702,24 @@ void C_ClientRagdoll::Release( void )
 
 	BaseClass::Release();
 }
+
+#ifdef MAPBASE_VSCRIPT
+HSCRIPT C_ClientRagdoll::ScriptGetRagdollObject( int iIndex )
+{
+	if (iIndex < 0 || iIndex > m_pRagdoll->RagdollBoneCount())
+	{
+		Warning("%s GetRagdollObject: Index %i not valid (%i objects)\n", GetDebugName(), iIndex, m_pRagdoll->RagdollBoneCount());
+		return NULL;
+	}
+
+	return g_pScriptVM->RegisterInstance( m_pRagdoll->GetElement(iIndex) );
+}
+
+int C_ClientRagdoll::ScriptGetRagdollObjectCount()
+{
+	return m_pRagdoll->RagdollBoneCount();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Incremented each frame in InvalidateModelBones. Models compare this value to what it

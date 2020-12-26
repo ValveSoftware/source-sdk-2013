@@ -166,6 +166,7 @@ BEGIN_ENT_SCRIPTDESC( CRagdollProp, CBaseAnimating, "Ragdoll physics prop." )
 	DEFINE_SCRIPTFUNC( SetSourceClassName, "Sets the ragdoll's source classname." )
 	DEFINE_SCRIPTFUNC( HasPhysgunInteraction, "Checks if the ragdoll has the specified interaction." )
 
+	// TODO: Proper shared ragdoll funcs?
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRagdollObject, "GetRagdollObject", "Gets the ragdoll object of the specified index." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRagdollObjectCount, "GetRagdollObjectCount", "Gets the number of ragdoll objects on this ragdoll." )
 

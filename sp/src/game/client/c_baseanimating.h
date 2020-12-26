@@ -678,6 +678,9 @@ public:
 	C_ClientRagdoll( bool bRestoring = true );
 	DECLARE_CLASS( C_ClientRagdoll, C_BaseAnimating );
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 	// inherited from IPVSNotify
 	virtual void OnPVSStatusChanged( bool bInPVS );
@@ -698,6 +701,11 @@ public:
 
 	void	FadeOut( void );
 	virtual float LastBoneChangedTime();
+
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT			ScriptGetRagdollObject( int iIndex );
+	int				ScriptGetRagdollObjectCount();
+#endif
 
 	bool m_bFadeOut;
 	bool m_bImportant;
