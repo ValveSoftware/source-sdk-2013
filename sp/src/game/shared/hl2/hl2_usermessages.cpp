@@ -55,4 +55,8 @@ void RegisterUserMessages( void )
 	// NVNT register haptic user messages
 	RegisterHapticMessages();
 #endif
+
+#ifdef MAPBASE_VSCRIPT
+	usermessages->Register( "ScriptMsg", -1 ); // CNetMsgScriptHelper
+#endif
 }

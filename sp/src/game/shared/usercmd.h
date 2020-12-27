@@ -198,7 +198,11 @@ public:
 
 };
 
+#if defined( MAPBASE_VSCRIPT ) && defined( GAME_DLL )
+void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from, CBaseEntity *pPlayer );
+#else
 void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from );
+#endif
 void WriteUsercmd( bf_write *buf, const CUserCmd *to, const CUserCmd *from );
 
 #endif // USERCMD_H

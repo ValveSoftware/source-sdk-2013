@@ -492,14 +492,14 @@ C_BasePlayer::~C_BasePlayer()
 	if ( this == s_pLocalPlayer )
 	{
 		s_pLocalPlayer = NULL;
-	}
 
 #ifdef MAPBASE_VSCRIPT
-	if ( IsLocalPlayer() && g_pScriptVM )
-	{
-		g_pScriptVM->SetValue( "player", SCRIPT_VARIANT_NULL );
-	}
+		if ( g_pScriptVM )
+		{
+			g_pScriptVM->SetValue( "player", SCRIPT_VARIANT_NULL );
+		}
 #endif
+	}
 
 	delete m_pFlashlight;
 }

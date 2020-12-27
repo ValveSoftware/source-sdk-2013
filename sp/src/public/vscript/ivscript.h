@@ -762,6 +762,9 @@ struct ScriptEnumDesc_t
 
 #define DEFINE_SCRIPTHOOK_PARAM( paramName, type ) pHook->AddParameter( paramName, type );
 
+// Define actual parameters instead of global variables
+#define DEFINE_SCRIPTHOOK_REALPARAM( paramName, type )
+
 #define END_SCRIPTHOOK() \
 		pDesc->m_Hooks.AddToTail(pHook); \
 	}
@@ -932,6 +935,9 @@ public:
 	virtual bool SetValue( HSCRIPT hScope, const char *pszKey, const char *pszValue ) = 0;
 	virtual bool SetValue( HSCRIPT hScope, const char *pszKey, const ScriptVariant_t &value ) = 0;
 	bool SetValue( const char *pszKey, const ScriptVariant_t &value )																{ return SetValue(NULL, pszKey, value ); }
+#ifdef MAPBASE_VSCRIPT
+	virtual bool SetValue( HSCRIPT hScope, const ScriptVariant_t& key, const ScriptVariant_t& val ) = 0;
+#endif
 
 	virtual void CreateTable( ScriptVariant_t &Table ) = 0;
 	virtual int	GetNumTableEntries( HSCRIPT hScope ) = 0;
@@ -939,10 +945,16 @@ public:
 
 	virtual bool GetValue( HSCRIPT hScope, const char *pszKey, ScriptVariant_t *pValue ) = 0;
 	bool GetValue( const char *pszKey, ScriptVariant_t *pValue )																	{ return GetValue(NULL, pszKey, pValue ); }
+#ifdef MAPBASE_VSCRIPT
+	virtual bool GetValue( HSCRIPT hScope, ScriptVariant_t key, ScriptVariant_t* pValue ) = 0;
+#endif
 	virtual void ReleaseValue( ScriptVariant_t &value ) = 0;
 
 	virtual bool ClearValue( HSCRIPT hScope, const char *pszKey ) = 0;
 	bool ClearValue( const char *pszKey)																							{ return ClearValue( NULL, pszKey ); }
+#ifdef MAPBASE_VSCRIPT
+	virtual bool ClearValue( HSCRIPT hScope, ScriptVariant_t pKey ) = 0;
+#endif
 
 #ifdef MAPBASE_VSCRIPT
 	// virtual void CreateArray(ScriptVariant_t &arr, int size = 0) = 0;

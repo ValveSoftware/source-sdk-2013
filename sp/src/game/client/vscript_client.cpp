@@ -20,6 +20,7 @@
 #include "proxyentity.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
+#include "mapbase/vscript_singletons.h"
 #endif
 
 extern IScriptManager *scriptmanager;
@@ -46,6 +47,11 @@ extern ScriptClassDesc_t * GetScriptDesc( CBaseEntity * );
 class CScriptClientEntityIterator
 {
 public:
+	HSCRIPT GetLocalPlayer()
+	{
+		return ToHScript( C_BasePlayer::GetLocalPlayer() );
+	}
+
 	HSCRIPT First() { return Next(NULL); }
 
 	HSCRIPT Next( HSCRIPT hStartEntity )
@@ -94,6 +100,7 @@ private:
 } g_ScriptEntityIterator;
 
 BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptClientEntityIterator, "CEntities", SCRIPT_SINGLETON "The global list of entities" )
+	DEFINE_SCRIPTFUNC( GetLocalPlayer, "Get local player" )
 	DEFINE_SCRIPTFUNC( First, "Begin an iteration over the list of entities" )
 	DEFINE_SCRIPTFUNC( Next, "Continue an iteration over the list of entities, providing reference to a previously found entity" )
 	DEFINE_SCRIPTFUNC( CreateByClassname, "Creates an entity by classname" )
@@ -399,7 +406,7 @@ void CScriptMaterialProxy::SetVarVector( int i, const Vector &value )
 }
 
 EXPOSE_INTERFACE( CScriptMaterialProxy, IMaterialProxy, "VScriptProxy" IMATERIAL_PROXY_INTERFACE_VERSION );
-#endif
+#endif // MAPBASE_VSCRIPT
 
 //-----------------------------------------------------------------------------
 //
@@ -432,6 +439,37 @@ bool DoIncludeScript( const char *pszScript, HSCRIPT hScope )
 }
 
 #ifdef MAPBASE_VSCRIPT
+static bool Con_IsVisible()
+{
+	return engine->Con_IsVisible();
+}
+
+static bool IsWindowedMode()
+{
+	return engine->IsWindowedMode();
+}
+
+int ScreenTransform( const Vector& point, Vector& screen );
+
+//-----------------------------------------------------------------------------
+// Input array [x,y], set normalised screen space pos. Return true if on screen
+//-----------------------------------------------------------------------------
+static bool ScriptScreenTransform( const Vector &pos, HSCRIPT hArray )
+{
+	if ( g_pScriptVM->GetNumTableEntries(hArray) >= 2 )
+	{
+		Vector v;
+		bool r = ScreenTransform( pos, v );
+		float x = 0.5f * ( 1.0f + v[0] );
+		float y = 0.5f * ( 1.0f - v[1] );
+
+		g_pScriptVM->SetValue( hArray, ScriptVariant_t(0), x );
+		g_pScriptVM->SetValue( hArray, 1, y );
+		return !r;
+	}
+	return false;
+}
+
 // Creates a client-side prop
 HSCRIPT CreateProp( const char *pszEntityName, const Vector &vOrigin, const char *pszModelName, int iAnim )
 {
@@ -516,17 +554,32 @@ bool VScriptClientInit()
 			if( g_pScriptVM )
 			{
 #ifdef MAPBASE_VSCRIPT
+				// Moved here from LevelInitPostEntity, which is executed before local player is spawned.
+				// This is executed after C_World::OnDataChanged, which is after C_BasePlayer::Spawn
+				if ( C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer() )
+				{
+					g_pScriptVM->SetValue( "player", pPlayer->GetScriptInstance() );
+				}
+
 				CGMsg( 0, CON_GROUP_VSCRIPT, "VSCRIPT CLIENT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
 #else
 				Log( "VSCRIPT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
 #endif
 				ScriptRegisterFunction( g_pScriptVM, GetMapName, "Get the name of the map.");
 				ScriptRegisterFunction( g_pScriptVM, Time, "Get the current server time" );
+				ScriptRegisterFunction( g_pScriptVM, DoUniqueString, SCRIPT_ALIAS( "UniqueString", "Generate a string guaranteed to be unique across the life of the script VM, with an optional root string." ) );
 				ScriptRegisterFunction( g_pScriptVM, DoIncludeScript, "Execute a script (internal)" );
 #ifdef MAPBASE_VSCRIPT
+				ScriptRegisterFunction( g_pScriptVM, Con_IsVisible, "Returns true if the console is visible" );
+				ScriptRegisterFunction( g_pScriptVM, ScreenWidth, "Width of the screen in pixels" );
+				ScriptRegisterFunction( g_pScriptVM, ScreenHeight, "Height of the screen in pixels" );
+				ScriptRegisterFunction( g_pScriptVM, IsWindowedMode, "" );
+				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptScreenTransform, "ScreenTransform", "Get the x & y positions of a world position in screen space. Returns true if it's onscreen" );
+
 				ScriptRegisterFunction( g_pScriptVM, CreateProp, "Create an animating prop" );
 #endif
-				
+
+
 				if ( GameRules() )
 				{
 					GameRules()->RegisterScriptFunctions();
@@ -551,6 +604,7 @@ bool VScriptClientInit()
 					g_pScriptVM->Run( g_Script_vscript_client );
 				}
 
+				VScriptRunScript( "vscript_client", true );
 				VScriptRunScript( "mapspawn", false );
 
 				VMPROF_SHOW( pszScriptLanguage, "virtual machine startup" );
@@ -611,20 +665,13 @@ public:
 	virtual void LevelInitPostEntity( void )
 	{
 		m_bAllowEntityCreationInScripts = false;
-#ifdef MAPBASE_VSCRIPT
-		if (g_pScriptVM)
-		{
-			C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-			if (pPlayer)
-			{
-				g_pScriptVM->SetValue( "player", pPlayer->GetScriptInstance() );
-			}
-		}
-#endif
 	}
 
 	virtual void LevelShutdownPostEntity( void )
 	{
+#ifdef MAPBASE_VSCRIPT
+		g_ScriptNetMsg->LevelShutdownPreVM();
+#endif
 		VScriptClientTerm();
 	}
 
