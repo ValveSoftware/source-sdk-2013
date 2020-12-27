@@ -2190,7 +2190,7 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_THINKFUNC( ShadowCastDistThink ),
 	DEFINE_THINKFUNC( ScriptThink ),
 #ifdef MAPBASE_VSCRIPT
-	DEFINE_THINKFUNC( ScriptThinkH ),
+	DEFINE_THINKFUNC( ScriptContextThink ),
 #endif
 
 #ifdef MAPBASE
@@ -2442,6 +2442,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetThinkFunction, "SetThinkFunction", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptStopThinkFunction, "StopThinkFunction", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetContextThink, "SetContextThink", "Set a think function on this entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetThink, "SetThink", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptStopThink, "StopThink", "" )
 
@@ -2590,11 +2591,12 @@ void CBaseEntity::UpdateOnRemove( void )
 		m_hScriptInstance = NULL;
 
 #ifdef MAPBASE_VSCRIPT
-		if ( m_hfnThink )
+		FOR_EACH_VEC( m_ScriptThinkFuncs, i )
 		{
-			g_pScriptVM->ReleaseScript( m_hfnThink );
-			m_hfnThink = NULL;
+			HSCRIPT h = m_ScriptThinkFuncs[i].m_hfnThink;
+			if ( h ) g_pScriptVM->ReleaseScript( h );
 		}
+		m_ScriptThinkFuncs.Purge();
 #endif // MAPBASE_VSCRIPT
 	}
 }
@@ -8653,60 +8655,172 @@ void CBaseEntity::ScriptStopThinkFunction()
 	SetContextThink( NULL, TICK_NEVER_THINK, "ScriptThink" );
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void CBaseEntity::ScriptThinkH()
+
+static inline void ScriptStopContextThink( scriptthinkfunc_t *context )
 {
-	ScriptVariant_t varThinkRetVal;
-	if ( g_pScriptVM->ExecuteFunction(m_hfnThink, NULL, 0, &varThinkRetVal, NULL, true) == SCRIPT_ERROR )
-	{
-		DevWarning("%s FAILED to call script think function (invalid closure)!\n", GetDebugName());
-		ScriptStopThink();
-		return;
-	}
-
-	float flThinkFrequency = 0.f;
-	if ( !varThinkRetVal.AssignTo(&flThinkFrequency) )
-	{
-		// no return value stops thinking
-		ScriptStopThink();
-		return;
-	}
-
-	SetNextThink( gpGlobals->curtime + flThinkFrequency, "ScriptThinkH" );
+	g_pScriptVM->ReleaseScript( context->m_hfnThink );
+	context->m_hfnThink = NULL;
+	context->m_nNextThinkTick = TICK_NEVER_THINK;
 }
 
-void CBaseEntity::ScriptSetThink( HSCRIPT hFunc, float flTime )
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptContextThink()
 {
-	if ( hFunc )
+	float flNextThink = FLT_MAX;
+	int nScheduledTick = 0;
+
+	for ( int i = m_ScriptThinkFuncs.Count(); i--; )
 	{
-		if ( m_hfnThink )
+		scriptthinkfunc_t *cur = &m_ScriptThinkFuncs[i];
+
+		if ( cur->m_nNextThinkTick == TICK_NEVER_THINK )
+			continue;
+
+		if ( cur->m_nNextThinkTick > gpGlobals->tickcount )
 		{
-			// release old func
-			ScriptStopThink();
+			// There is more to execute, don't stop thinking if the rest are done.
+
+			// also find the shortest schedule
+			if ( !nScheduledTick || nScheduledTick > cur->m_nNextThinkTick )
+			{
+				nScheduledTick = cur->m_nNextThinkTick;
+			}
+			continue;
 		}
 
-		// no type check here, print error on call instead
-		m_hfnThink = hFunc;
+		ScriptVariant_t varReturn;
 
-		flTime = max( 0, flTime );
-		SetContextThink( &CBaseEntity::ScriptThinkH, gpGlobals->curtime + flTime, "ScriptThinkH" );
+		if ( cur->m_bNoParam )
+		{
+			if ( g_pScriptVM->Call( cur->m_hfnThink, NULL, true, &varReturn ) == SCRIPT_ERROR )
+			{
+				ScriptStopContextThink(cur);
+				m_ScriptThinkFuncs.Remove(i);
+				continue;
+			}
+		}
+		else
+		{
+			if ( g_pScriptVM->Call( cur->m_hfnThink, NULL, true, &varReturn, m_hScriptInstance ) == SCRIPT_ERROR )
+			{
+				ScriptStopContextThink(cur);
+				m_ScriptThinkFuncs.Remove(i);
+				continue;
+			}
+		}
+
+		float flReturn;
+		if ( !varReturn.AssignTo( &flReturn ) )
+		{
+			ScriptStopContextThink(cur);
+			m_ScriptThinkFuncs.Remove(i);
+			continue;
+		}
+
+		if ( flReturn < 0.0f )
+		{
+			ScriptStopContextThink(cur);
+			m_ScriptThinkFuncs.Remove(i);
+			continue;
+		}
+
+		// find the shortest delay
+		if ( flReturn < flNextThink )
+		{
+			flNextThink = flReturn;
+		}
+
+		cur->m_nNextThinkTick = TIME_TO_TICKS( gpGlobals->curtime + flReturn );
+	}
+
+	if ( flNextThink < FLT_MAX )
+	{
+		SetNextThink( gpGlobals->curtime + flNextThink, "ScriptContextThink" );
+	}
+	else if ( nScheduledTick )
+	{
+		SetNextThink( TICKS_TO_TIME( nScheduledTick ), "ScriptContextThink" );
 	}
 	else
 	{
-		ScriptStopThink();
+		SetNextThink( TICK_NEVER_THINK, "ScriptContextThink" );
 	}
+}
+
+// see ScriptSetThink
+static bool s_bScriptContextThinkNoParam = false;
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptSetContextThink( const char* szContext, HSCRIPT hFunc, float flTime )
+{
+	scriptthinkfunc_t th;
+	V_memset( &th, 0x0, sizeof(scriptthinkfunc_t) );
+	unsigned short hash = ( szContext && *szContext ) ? HashString( szContext ) : 0;
+	bool bFound = false;
+
+	FOR_EACH_VEC( m_ScriptThinkFuncs, i )
+	{
+		scriptthinkfunc_t f = m_ScriptThinkFuncs[i];
+		if ( hash == f.m_iContextHash )
+		{
+			th = f;
+			m_ScriptThinkFuncs.Remove(i); // reorder
+			bFound = true;
+			break;
+		}
+	}
+
+	if ( hFunc )
+	{
+		float nextthink = gpGlobals->curtime + flTime;
+
+		th.m_bNoParam = s_bScriptContextThinkNoParam;
+		th.m_hfnThink = hFunc;
+		th.m_iContextHash = hash;
+		th.m_nNextThinkTick = TIME_TO_TICKS( nextthink );
+
+		m_ScriptThinkFuncs.AddToHead( th );
+
+		int nexttick = GetNextThinkTick( RegisterThinkContext( "ScriptContextThink" ) );
+
+		// sooner than next think
+		if ( nexttick <= 0 || nexttick > th.m_nNextThinkTick )
+		{
+			SetContextThink( &CBaseEntity::ScriptContextThink, nextthink, "ScriptContextThink" );
+		}
+	}
+	// null func input, think exists
+	else if ( bFound )
+	{
+		ScriptStopContextThink( &th );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// m_bNoParam and s_bScriptContextThinkNoParam exist only to keep backwards compatibility
+// and are an alternative to this script closure:
+//
+//	function CBaseEntity::SetThink( func, time )
+//	{
+//		SetContextThink( "", function(_){ return func() }, time )
+//	}
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptSetThink( HSCRIPT hFunc, float time )
+{
+	s_bScriptContextThinkNoParam = true;
+	ScriptSetContextThink( NULL, hFunc, time );
+	s_bScriptContextThinkNoParam = false;
 }
 
 void CBaseEntity::ScriptStopThink()
 {
-	if (m_hfnThink)
-	{
-		g_pScriptVM->ReleaseScript(m_hfnThink);
-		m_hfnThink = NULL;
-	}
-	SetContextThink( NULL, TICK_NEVER_THINK, "ScriptThinkH" );
+	ScriptSetContextThink( NULL, NULL, 0.0f );
 }
+
 #endif // MAPBASE_VSCRIPT
 
 //-----------------------------------------------------------------------------
