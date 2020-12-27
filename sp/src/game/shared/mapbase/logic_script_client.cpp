@@ -9,6 +9,10 @@
 #include "vscript_shared.h"
 #include "tier1/fmtstr.h"
 
+#ifdef CLIENT_DLL
+ConVar cl_script_think_interval( "cl_script_think_interval", "0.1" );
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: An entity that acts as a container for client-side game scripts.
 //-----------------------------------------------------------------------------
@@ -116,6 +120,11 @@ public:
 				}
 			}
 		}
+
+		if (m_bClientThink)
+		{
+			SetNextClientThink( CLIENT_THINK_ALWAYS );
+		}
 #else
 		// Avoids issues from having m_iszVScripts set without actually having a script scope
 		ValidateScriptScope();
@@ -127,7 +136,32 @@ public:
 #endif
 	}
 
-#ifndef CLIENT_DLL
+#ifdef CLIENT_DLL
+	void ClientThink()
+	{
+		ScriptVariant_t varThinkRetVal;
+		if (CallScriptFunction("ClientThink", &varThinkRetVal))
+		{
+			float flThinkFrequency = 0.0f;
+			if (!varThinkRetVal.AssignTo(&flThinkFrequency))
+			{
+				// use default think interval if script think function doesn't provide one
+				flThinkFrequency = cl_script_think_interval.GetFloat();
+			}
+
+			if (flThinkFrequency == CLIENT_THINK_ALWAYS)
+				SetNextClientThink( CLIENT_THINK_ALWAYS );
+			else
+				SetNextClientThink( gpGlobals->curtime + flThinkFrequency );
+		}
+		else
+		{
+			DevWarning("%s FAILED to call client script think function!\n", GetDebugName());
+		}
+
+		BaseClass::ClientThink();
+	}
+#else
 	void InputCallScriptFunctionClient( inputdata_t &inputdata )
 	{
 		// TODO: Support for specific players?
@@ -150,13 +184,19 @@ public:
 
 	//CNetworkArray( string_t, m_iszGroupMembers, MAX_SCRIPT_GROUP_CLIENT );
 	CNetworkString( m_iszClientScripts, 128 );
+	CNetworkVar( bool, m_bClientThink );
 
+#ifndef CLIENT_DLL
 	bool m_bRunOnServer;
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( logic_script_client, CLogicScriptClient );
 
 BEGIN_DATADESC( CLogicScriptClient )
+
+	// TODO: Does this need to be saved?
+	//DEFINE_AUTO_ARRAY( m_iszClientScripts, FIELD_CHARACTER ),
 
 	//DEFINE_KEYFIELD( m_iszGroupMembers[0], FIELD_STRING, "Group00"),
 	//DEFINE_KEYFIELD( m_iszGroupMembers[1], FIELD_STRING, "Group01"),
@@ -167,9 +207,11 @@ BEGIN_DATADESC( CLogicScriptClient )
 	//DEFINE_KEYFIELD( m_iszGroupMembers[6], FIELD_STRING, "Group06"),
 	//DEFINE_KEYFIELD( m_iszGroupMembers[7], FIELD_STRING, "Group07"),
 
-	DEFINE_KEYFIELD( m_bRunOnServer, FIELD_BOOLEAN, "RunOnServer" ),
+	DEFINE_KEYFIELD( m_bClientThink, FIELD_BOOLEAN, "ClientThink" ),
 
 #ifndef CLIENT_DLL
+	DEFINE_KEYFIELD( m_bRunOnServer, FIELD_BOOLEAN, "RunOnServer" ),
+
 	DEFINE_INPUTFUNC( FIELD_STRING, "CallScriptFunctionClient", InputCallScriptFunctionClient ),
 #endif
 
@@ -180,9 +222,11 @@ IMPLEMENT_NETWORKCLASS_DT( CLogicScriptClient, DT_LogicScriptClient )
 #ifdef CLIENT_DLL
 	//RecvPropArray( RecvPropString( RECVINFO( m_iszGroupMembers[0] ) ), m_iszGroupMembers ),
 	RecvPropString( RECVINFO( m_iszClientScripts ) ),
+	RecvPropBool( RECVINFO( m_bClientThink ) ),
 #else
 	//SendPropArray( SendPropStringT( SENDINFO_ARRAY( m_iszGroupMembers ) ), m_iszGroupMembers ),
 	SendPropString( SENDINFO( m_iszClientScripts ) ),
+	SendPropBool( SENDINFO( m_bClientThink ) ),
 #endif
 
 END_NETWORK_TABLE()
