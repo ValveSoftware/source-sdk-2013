@@ -678,6 +678,8 @@ void CBaseCombatWeapon::Drop( const Vector &vecVelocity )
 	SetRemoveable( true );
 	WeaponManager_AmmoMod( this );
 
+	RemoveEffects(EF_NOSHADOW);
+
 	//If it was dropped then there's no need to respawn it.
 	AddSpawnFlags( SF_NORESPAWN );
 
