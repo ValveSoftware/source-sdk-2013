@@ -194,6 +194,11 @@ void CPlayerAnimState::ComputePlaybackRate()
 		// Note this gets set back to 1.0 if sequence changes due to ResetSequenceInfo below
 		GetOuter()->SetPlaybackRate( ( speed * flFactor ) / maxspeed );
 
+		if (GetOuter()->m_flPlaybackRate > 11.0f)
+		{
+			GetOuter()->SetPlaybackRate(11.0f);
+		}
+
 		// BUG BUG:
 		// This stuff really should be m_flPlaybackRate = speed / m_flGroundSpeed
 	}
