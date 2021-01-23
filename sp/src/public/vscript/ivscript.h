@@ -695,27 +695,13 @@ struct ScriptEnumDesc_t
 #define BEGIN_SCRIPTDESC( className, baseClass, description )								BEGIN_SCRIPTDESC_NAMED( className, baseClass, #className, description )
 #define BEGIN_SCRIPTDESC_ROOT( className, description )										BEGIN_SCRIPTDESC_ROOT_NAMED( className, #className, description )
 
-#ifdef MSVC
-	#define DEFINE_SCRIPTDESC_FUNCTION( className, baseClass ) \
-		ScriptClassDesc_t * GetScriptDesc( className * )
-#else
-	#define DEFINE_SCRIPTDESC_FUNCTION( className, baseClass ) \
-		template <> ScriptClassDesc_t * GetScriptDesc<baseClass>( baseClass *); \
-		template <> ScriptClassDesc_t * GetScriptDesc<className>( className *)
-#endif
-
 #define BEGIN_SCRIPTDESC_NAMED( className, baseClass, scriptName, description ) \
-	ScriptClassDesc_t g_##className##_ScriptDesc; \
-	DEFINE_SCRIPTDESC_FUNCTION( className, baseClass ) \
+	template <> ScriptClassDesc_t* GetScriptDesc<baseClass>(baseClass*); \
+	template <> ScriptClassDesc_t* GetScriptDesc<className>(className*); \
+	ScriptClassDesc_t & g_##className##_ScriptDesc = *GetScriptDesc<className>(nullptr); \
+	template <> ScriptClassDesc_t* GetScriptDesc<className>(className*) \
 	{ \
-		static bool bInitialized; \
-		if ( bInitialized ) \
-		{ \
-			return &g_##className##_ScriptDesc; \
-		} \
-		\
-		bInitialized = true; \
-		\
+		static ScriptClassDesc_t g_##className##_ScriptDesc; \
 		typedef className _className; \
 		ScriptClassDesc_t *pDesc = &g_##className##_ScriptDesc; \
 		pDesc->m_pszDescription = description; \
