@@ -56,6 +56,9 @@ const float ATTACHED_DAMPING_SCALE = 50.0f;
 #define	SF_RAGDOLLPROP_MOTIONDISABLED		0x4000
 #define	SF_RAGDOLLPROP_ALLOW_STRETCH		0x8000
 #define	SF_RAGDOLLPROP_STARTASLEEP			0x10000
+#ifdef MAPBASE
+#define	SF_RAGDOLLPROP_FIXED_CONSTRAINTS	0x20000
+#endif
 
 //-----------------------------------------------------------------------------
 // Networking
@@ -758,7 +761,11 @@ void CRagdollProp::InitRagdoll( const Vector &forceVector, int forceBone, const 
 	params.pCurrentBones = pBoneToWorld;
 	params.jointFrictionScale = 1.0;
 	params.allowStretch = HasSpawnFlags(SF_RAGDOLLPROP_ALLOW_STRETCH);
+#ifdef MAPBASE
+	params.fixedConstraints = HasSpawnFlags(SF_RAGDOLLPROP_FIXED_CONSTRAINTS);
+#else
 	params.fixedConstraints = false;
+#endif
 	RagdollCreate( m_ragdoll, params, physenv );
 	RagdollApplyAnimationAsVelocity( m_ragdoll, pPrevBones, pBoneToWorld, dt );
 	if ( m_anglesOverrideString != NULL_STRING && Q_strlen(m_anglesOverrideString.ToCStr()) > 0 )
