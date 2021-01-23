@@ -281,6 +281,20 @@ BEGIN_DATADESC( C_ClientRagdoll )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( C_ClientRagdoll, C_BaseAnimating, "Client-side ragdolls" )
+
+	DEFINE_SCRIPTFUNC_NAMED( SUB_Remove, "FadeOut", "Fades out the ragdoll and removes it from the client." )
+
+	// TODO: Proper shared ragdoll funcs?
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRagdollObject, "GetRagdollObject", "Gets the ragdoll object of the specified index." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRagdollObjectCount, "GetRagdollObjectCount", "Gets the number of ragdoll objects on this ragdoll." )
+
+END_SCRIPTDESC();
+
+ScriptHook_t	C_BaseAnimating::g_Hook_OnClientRagdoll;
+#endif
+
 BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-side" )
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPoseParameter, "GetPoseParameter", "Get the specified pose parameter's value" )
@@ -288,6 +302,14 @@ BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-si
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetPoseParameter, "SetPoseParameter", "Set the specified pose parameter to the specified value"  )
 	DEFINE_SCRIPTFUNC( IsSequenceFinished, "Ask whether the main sequence is done playing" )
 #ifdef MAPBASE_VSCRIPT
+	DEFINE_SCRIPTFUNC( LookupAttachment, "Get the named attachement id" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentOrigin, "GetAttachmentOrigin", "Get the attachement id's origin vector" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentAngles, "GetAttachmentAngles", "Get the attachement id's angles as a p,y,r vector" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentMatrix, "GetAttachmentMatrix", "Get the attachement id's matrix transform" )
+
+	DEFINE_SCRIPTFUNC( LookupBone, "Get the named bone id" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoneTransform, "GetBoneTransform", "Get the transform for the specified bone" )
+
 	DEFINE_SCRIPTFUNC( SetBodygroup, "Sets a bodygroup")
 	DEFINE_SCRIPTFUNC( GetBodygroup, "Gets a bodygroup" )
 	DEFINE_SCRIPTFUNC( GetBodygroupName, "Gets a bodygroup name" )
@@ -302,7 +324,28 @@ BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-si
 	DEFINE_SCRIPTFUNC( LookupActivity, "Gets the ID of the specified activity name" )
 	DEFINE_SCRIPTFUNC( GetSequenceName, "Gets the name of the specified sequence index" )
 	DEFINE_SCRIPTFUNC( GetSequenceActivityName, "Gets the activity name of the specified sequence index" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSequenceMoveDist, "GetSequenceMoveDist", "Gets the move distance of the specified sequence" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSequenceActivity, "GetSequenceActivity", "Gets the activity ID of the specified sequence index" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSelectWeightedSequence, "SelectWeightedSequence", "Selects a sequence for the specified activity ID" )
+
+	DEFINE_SCRIPTFUNC( GetPlaybackRate, "" )
+	DEFINE_SCRIPTFUNC( SetPlaybackRate, "" )
+	DEFINE_SCRIPTFUNC( GetCycle, "" )
+	DEFINE_SCRIPTFUNC( SetCycle, "" )
+	DEFINE_SCRIPTFUNC( GetSkin, "Gets the model's skin" )
+	DEFINE_SCRIPTFUNC( SetSkin, "Sets the model's skin" )
+
+	DEFINE_SCRIPTFUNC( GetForceBone, "Gets the entity's force bone, which is used to determine which bone a ragdoll should apply its force to." )
+	DEFINE_SCRIPTFUNC( SetForceBone, "Sets the entity's force bone, which is used to determine which bone a ragdoll should apply its force to." )
+	DEFINE_SCRIPTFUNC( GetRagdollForce, "Gets the entity's ragdoll force, which is used to apply velocity to a ragdoll." )
+	DEFINE_SCRIPTFUNC( SetRagdollForce, "Sets the entity's ragdoll force, which is used to apply velocity to a ragdoll." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptBecomeRagdollOnClient, "BecomeRagdollOnClient", "" )
+	DEFINE_SCRIPTFUNC( IsRagdoll, "" )
+
+	BEGIN_SCRIPTHOOK( C_BaseAnimating::g_Hook_OnClientRagdoll, "OnClientRagdoll", FIELD_VOID, "Called when this entity turns into a client-side ragdoll." )
+		DEFINE_SCRIPTHOOK_PARAM( "ragdoll", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
 #endif
 END_SCRIPTDESC();
 
@@ -665,6 +708,24 @@ void C_ClientRagdoll::Release( void )
 
 	BaseClass::Release();
 }
+
+#ifdef MAPBASE_VSCRIPT
+HSCRIPT C_ClientRagdoll::ScriptGetRagdollObject( int iIndex )
+{
+	if (iIndex < 0 || iIndex > m_pRagdoll->RagdollBoneCount())
+	{
+		Warning("%s GetRagdollObject: Index %i not valid (%i objects)\n", GetDebugName(), iIndex, m_pRagdoll->RagdollBoneCount());
+		return NULL;
+	}
+
+	return g_pScriptVM->RegisterInstance( m_pRagdoll->GetElement(iIndex) );
+}
+
+int C_ClientRagdoll::ScriptGetRagdollObjectCount()
+{
+	return m_pRagdoll->RagdollBoneCount();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Incremented each frame in InvalidateModelBones. Models compare this value to what it
@@ -1429,6 +1490,61 @@ float C_BaseAnimating::ClampCycle( float flCycle, bool isLooping )
 }
 
 #ifdef MAPBASE_VSCRIPT
+//-----------------------------------------------------------------------------
+// Purpose: Returns the world location and world angles of an attachment to vscript caller
+// Input  : attachment name
+// Output :	location and angles
+//-----------------------------------------------------------------------------
+const Vector& C_BaseAnimating::ScriptGetAttachmentOrigin( int iAttachment )
+{	
+
+	static Vector absOrigin;
+	static QAngle qa;
+
+	C_BaseAnimating::GetAttachment( iAttachment, absOrigin, qa );
+
+	return absOrigin;
+}
+
+const Vector& C_BaseAnimating::ScriptGetAttachmentAngles( int iAttachment )
+{	
+
+	static Vector absOrigin;
+	static Vector absAngles;
+	static QAngle qa;
+
+	C_BaseAnimating::GetAttachment( iAttachment, absOrigin, qa );
+	absAngles.x = qa.x;
+	absAngles.y = qa.y;
+	absAngles.z = qa.z;
+	return absAngles;
+}
+
+HSCRIPT C_BaseAnimating::ScriptGetAttachmentMatrix( int iAttachment )
+{	
+	static matrix3x4_t matrix;
+
+	C_BaseAnimating::GetAttachment( iAttachment, matrix );
+	return g_pScriptVM->RegisterInstance( &matrix );
+}
+
+void C_BaseAnimating::ScriptGetBoneTransform( int iBone, HSCRIPT hTransform )
+{
+	if (hTransform == NULL)
+		return;
+
+	GetBoneTransform( iBone, *HScriptToClass<matrix3x4_t>( hTransform ) );
+}
+
+HSCRIPT C_BaseAnimating::ScriptBecomeRagdollOnClient()
+{
+	C_BaseAnimating *pRagdoll = BecomeRagdollOnClient();
+	if (!pRagdoll)
+		return NULL;
+
+	return pRagdoll->GetScriptInstance();
+}
+
 float C_BaseAnimating::ScriptGetPoseParameter( const char* szName )
 {
 	CStudioHdr* pHdr = GetModelPtr();
@@ -4736,6 +4852,17 @@ C_BaseAnimating *C_BaseAnimating::BecomeRagdollOnClient()
 	const float boneDt = 0.1f;
 	GetRagdollInitBoneArrays( boneDelta0, boneDelta1, currentBones, boneDt );
 	pRagdoll->InitAsClientRagdoll( boneDelta0, boneDelta1, currentBones, boneDt );
+
+#ifdef MAPBASE_VSCRIPT
+	// Hook for ragdolling
+	if (m_ScriptScope.IsInitialized() && g_Hook_OnClientRagdoll.CanRunInScope( m_ScriptScope ))
+	{
+		// ragdoll
+		ScriptVariant_t args[] = { ScriptVariant_t( pRagdoll->GetScriptInstance() ) };
+		g_Hook_OnClientRagdoll.Call( m_ScriptScope, NULL, args );
+	}
+#endif
+
 	return pRagdoll;
 }
 

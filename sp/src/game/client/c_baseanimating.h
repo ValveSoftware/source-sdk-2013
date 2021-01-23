@@ -454,6 +454,28 @@ public:
 	virtual bool					IsViewModel() const;
 
 #ifdef MAPBASE_VSCRIPT
+	const Vector& ScriptGetAttachmentOrigin(int iAttachment);
+	const Vector& ScriptGetAttachmentAngles(int iAttachment);
+	HSCRIPT ScriptGetAttachmentMatrix(int iAttachment);
+
+	void	ScriptGetBoneTransform( int iBone, HSCRIPT hTransform );
+
+	int		ScriptGetSequenceActivity( int iSequence ) { return GetSequenceActivity( iSequence ); }
+	float	ScriptGetSequenceMoveDist( int iSequence ) { return GetSequenceMoveDist( GetModelPtr(), iSequence ); }
+	int		ScriptSelectWeightedSequence( int activity ) { return SelectWeightedSequence( (Activity)activity ); }
+
+	// For VScript
+	void	SetSkin( int iSkin ) { m_nSkin = iSkin; }
+
+	int		GetForceBone()				{ return m_nForceBone; }
+	void	SetForceBone( int iBone )	{ m_nForceBone = iBone; }
+	const Vector&	GetRagdollForce()					{ return m_vecForce; }
+	void	SetRagdollForce( const Vector &vecForce )	{ m_vecForce = vecForce; }
+
+	HSCRIPT			ScriptBecomeRagdollOnClient();
+
+	static ScriptHook_t	g_Hook_OnClientRagdoll;
+
 	float							ScriptGetPoseParameter(const char* szName);
 #endif
 	void							ScriptSetPoseParameter(const char* szName, float fValue);
@@ -474,10 +496,6 @@ protected:
 	virtual int						GetStudioBody( void ) { return m_nBody; }
 
 	virtual bool					CalcAttachments();
-
-#ifdef MAPBASE_VSCRIPT
-	int								ScriptGetSequenceActivity( int iSequence ) { return GetSequenceActivity( iSequence ); }
-#endif
 
 private:
 	// This method should return true if the bones have changed + SetupBones needs to be called
@@ -667,6 +685,9 @@ public:
 	C_ClientRagdoll( bool bRestoring = true );
 	DECLARE_CLASS( C_ClientRagdoll, C_BaseAnimating );
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 	// inherited from IPVSNotify
 	virtual void OnPVSStatusChanged( bool bInPVS );
@@ -687,6 +708,11 @@ public:
 
 	void	FadeOut( void );
 	virtual float LastBoneChangedTime();
+
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT			ScriptGetRagdollObject( int iIndex );
+	int				ScriptGetRagdollObjectCount();
+#endif
 
 	bool m_bFadeOut;
 	bool m_bImportant;

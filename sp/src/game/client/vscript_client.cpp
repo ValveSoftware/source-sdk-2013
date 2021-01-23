@@ -469,6 +469,33 @@ static bool ScriptScreenTransform( const Vector &pos, HSCRIPT hArray )
 	}
 	return false;
 }
+
+// Creates a client-side prop
+HSCRIPT CreateProp( const char *pszEntityName, const Vector &vOrigin, const char *pszModelName, int iAnim )
+{
+	C_BaseAnimating *pBaseEntity = (C_BaseAnimating *)CreateEntityByName( pszEntityName );
+	if (!pBaseEntity)
+		return NULL;
+
+	pBaseEntity->SetAbsOrigin( vOrigin );
+	pBaseEntity->SetModelName( pszModelName );
+	if (!pBaseEntity->InitializeAsClientEntity( pszModelName, RENDER_GROUP_OPAQUE_ENTITY ))
+	{
+		Warning("Can't initialize %s as client entity\n", pszEntityName);
+		return NULL;
+	}
+
+	pBaseEntity->SetPlaybackRate( 1.0f );
+
+	int iSequence = pBaseEntity->SelectWeightedSequence( (Activity)iAnim );
+
+	if ( iSequence != -1 )
+	{
+		pBaseEntity->SetSequence( iSequence );
+	}
+
+	return ToHScript( pBaseEntity );
+}
 #endif
 
 bool VScriptClientInit()
@@ -548,6 +575,8 @@ bool VScriptClientInit()
 				ScriptRegisterFunction( g_pScriptVM, ScreenHeight, "Height of the screen in pixels" );
 				ScriptRegisterFunction( g_pScriptVM, IsWindowedMode, "" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptScreenTransform, "ScreenTransform", "Get the x & y positions of a world position in screen space. Returns true if it's onscreen" );
+
+				ScriptRegisterFunction( g_pScriptVM, CreateProp, "Create an animating prop" );
 #endif
 
 

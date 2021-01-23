@@ -16,10 +16,12 @@
 #include "saverestore_utlvector.h"
 #include "props_shared.h"
 #include "utlbuffer.h"
+#include "usermessages.h"
 #ifdef CLIENT_DLL
 #include "hud_closecaption.h"
 #include "panelmetaclassmgr.h"
 #include "c_soundscape.h"
+#include "hud_macros.h"
 #else
 #include "soundscape_system.h"
 #include "AI_ResponseSystem.h"
