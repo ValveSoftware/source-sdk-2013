@@ -335,6 +335,12 @@ BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-si
 	DEFINE_SCRIPTFUNC( GetSkin, "Gets the model's skin" )
 	DEFINE_SCRIPTFUNC( SetSkin, "Sets the model's skin" )
 
+	DEFINE_SCRIPTFUNC( GetForceBone, "Gets the entity's force bone, which is used to determine which bone a ragdoll should apply its force to." )
+	DEFINE_SCRIPTFUNC( SetForceBone, "Sets the entity's force bone, which is used to determine which bone a ragdoll should apply its force to." )
+	DEFINE_SCRIPTFUNC( GetRagdollForce, "Gets the entity's ragdoll force, which is used to apply velocity to a ragdoll." )
+	DEFINE_SCRIPTFUNC( SetRagdollForce, "Sets the entity's ragdoll force, which is used to apply velocity to a ragdoll." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptBecomeRagdollOnClient, "BecomeRagdollOnClient", "" )
 	DEFINE_SCRIPTFUNC( IsRagdoll, "" )
 
 	BEGIN_SCRIPTHOOK( C_BaseAnimating::g_Hook_OnClientRagdoll, "OnClientRagdoll", FIELD_VOID, "Called when this entity turns into a client-side ragdoll." )
@@ -1528,6 +1534,15 @@ void C_BaseAnimating::ScriptGetBoneTransform( int iBone, HSCRIPT hTransform )
 		return;
 
 	GetBoneTransform( iBone, *HScriptToClass<matrix3x4_t>( hTransform ) );
+}
+
+HSCRIPT C_BaseAnimating::ScriptBecomeRagdollOnClient()
+{
+	C_BaseAnimating *pRagdoll = BecomeRagdollOnClient();
+	if (!pRagdoll)
+		return NULL;
+
+	return pRagdoll->GetScriptInstance();
 }
 
 float C_BaseAnimating::ScriptGetPoseParameter( const char* szName )
