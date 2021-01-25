@@ -908,7 +908,7 @@ bool CZombie::IsSquashed( const CTakeDamageInfo &info )
 		return false;
 	}
 
-	if( info.GetDamageType() & DMG_CRUSH )
+	if( info.GetDamageType() & DMG_CRUSH && info.GetInflictor() ) // Mapbase - Fixes a crash with inflictor-less crush damage
 	{
 		IPhysicsObject *pCrusher = info.GetInflictor()->VPhysicsGetObject();
 		if( pCrusher && pCrusher->GetMass() >= ZOMBIE_SQUASH_MASS && info.GetInflictor()->WorldSpaceCenter().z > EyePosition().z )
