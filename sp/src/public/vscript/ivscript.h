@@ -704,6 +704,7 @@ struct ScriptEnumDesc_t
 		static ScriptClassDesc_t g_##className##_ScriptDesc; \
 		typedef className _className; \
 		ScriptClassDesc_t *pDesc = &g_##className##_ScriptDesc; \
+		if (pDesc->m_pszClassname) return pDesc; \
 		pDesc->m_pszDescription = description; \
 		ScriptInitClassDescNamed( pDesc, className, GetScriptDescForClass( baseClass ), scriptName ); \
 		ScriptClassDesc_t *pInstanceHelperBase = pDesc->m_pBaseDesc; \
