@@ -302,7 +302,7 @@ BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-si
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetPoseParameter, "SetPoseParameter", "Set the specified pose parameter to the specified value"  )
 	DEFINE_SCRIPTFUNC( IsSequenceFinished, "Ask whether the main sequence is done playing" )
 #ifdef MAPBASE_VSCRIPT
-	DEFINE_SCRIPTFUNC( LookupAttachment, "Get the named attachement id" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptLookupAttachment, "LookupAttachment", "Get the named attachement id" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentOrigin, "GetAttachmentOrigin", "Get the attachement id's origin vector" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentAngles, "GetAttachmentAngles", "Get the attachement id's angles as a p,y,r vector" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentMatrix, "GetAttachmentMatrix", "Get the attachement id's matrix transform" )
@@ -332,7 +332,7 @@ BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-si
 	DEFINE_SCRIPTFUNC( SetPlaybackRate, "" )
 	DEFINE_SCRIPTFUNC( GetCycle, "" )
 	DEFINE_SCRIPTFUNC( SetCycle, "" )
-	DEFINE_SCRIPTFUNC( GetSkin, "Gets the model's skin" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSkin, "GetSkin", "Gets the model's skin" )
 	DEFINE_SCRIPTFUNC( SetSkin, "Sets the model's skin" )
 
 	DEFINE_SCRIPTFUNC( GetForceBone, "Gets the entity's force bone, which is used to determine which bone a ragdoll should apply its force to." )

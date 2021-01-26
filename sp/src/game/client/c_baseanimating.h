@@ -454,6 +454,7 @@ public:
 	virtual bool					IsViewModel() const;
 
 #ifdef MAPBASE_VSCRIPT
+	int		ScriptLookupAttachment( const char *pAttachmentName ) { return LookupAttachment( pAttachmentName ); }
 	const Vector& ScriptGetAttachmentOrigin(int iAttachment);
 	const Vector& ScriptGetAttachmentAngles(int iAttachment);
 	HSCRIPT ScriptGetAttachmentMatrix(int iAttachment);
@@ -465,6 +466,7 @@ public:
 	int		ScriptSelectWeightedSequence( int activity ) { return SelectWeightedSequence( (Activity)activity ); }
 
 	// For VScript
+	int		ScriptGetSkin() { return GetSkin(); }
 	void	SetSkin( int iSkin ) { m_nSkin = iSkin; }
 
 	int		GetForceBone()				{ return m_nForceBone; }
