@@ -49,6 +49,7 @@ void HookMapbaseUserMessages( void )
 {
 	// VScript
 	HOOK_MESSAGE( CallClientScriptFunction );
+	//HOOK_MESSAGE( ScriptMsg ); // Hooked in CNetMsgScriptHelper
 }
 #endif
 
@@ -56,6 +57,7 @@ void RegisterMapbaseUserMessages( void )
 {
 	// VScript
 	usermessages->Register( "CallClientScriptFunction", -1 );
+	usermessages->Register( "ScriptMsg", -1 ); // CNetMsgScriptHelper
 
 #ifdef CLIENT_DLL
 	// TODO: Better placement?
