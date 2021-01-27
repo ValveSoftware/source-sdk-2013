@@ -813,7 +813,11 @@ bool GameData::RemapNameField( const char *pszInValue, char *pszOutValue, TNameF
 {
 	strcpy( pszOutValue, pszInValue );
 
+#ifdef MAPBASE
+	if ( pszInValue[ 0 ] && pszInValue[ 0 ] != '@' && pszInValue[ 0 ] != '!' )
+#else
 	if ( pszInValue[ 0 ] && pszInValue[ 0 ] != '@' )
+#endif
 	{	// ! at the start of a value means it is global and should not be remaped
 		switch( NameFixup )
 		{
