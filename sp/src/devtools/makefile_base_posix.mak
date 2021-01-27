@@ -6,7 +6,8 @@ MAKEFILE_LINK:=$(THISFILE).link
 
 -include $(MAKEFILE_LINK)
 
-$(MAKEFILE_LINK): $(shell which $(CXX)) $(THISFILE)
+# depend on CXX so the correct makefile can be selected when the system is updated
+$(MAKEFILE_LINK): $(shell which $(CXX)) $(THISFILE) $(SRCROOT)/devtools/gcc9+support.cpp
 	@ if [ "$(shell printf "$(shell $(CXX) -dumpversion)\n8" | sort -Vr | head -1)" = 8 ]; then \
 		ln -sf $(MAKEFILE_BASE).default $@ ;\
 	else \
