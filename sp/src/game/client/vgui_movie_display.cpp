@@ -7,16 +7,16 @@
 #include "cbase.h"
 #include "c_vguiscreen.h"
 #include "vgui_controls/Label.h"
-#include "vgui_BitmapPanel.h"
-#include <vgui/IVGUI.h>
+#include "vgui_bitmappanel.h"
+#include <vgui/IVGui.h>
 #include "c_slideshow_display.h"
 #include "ienginevgui.h"
 #include "fmtstr.h"
 #include "vgui_controls/ImagePanel.h"
 #include <vgui/ISurface.h>
 #include "video/ivideoservices.h"
-#include "engine/ienginesound.h"
-#include "VGUIMatSurface/IMatSystemSurface.h"
+#include "engine/IEngineSound.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
 #include "c_movie_display.h"
 
 // NOTE: This has to be the last file included!
@@ -368,7 +368,7 @@ bool CMovieDisplayScreen::BeginPlayback( const char *pFilename )
 		Q_strncpy( szMaterialName, pFilename, sizeof(szMaterialName) );
 	}
 
-	const char *pszMaterialName = CFmtStrN<128>( "VideoMaterial_", m_hScreenEntity->GetEntityName() );
+	const char *pszMaterialName = CFmtStrN<128>( "VideoMaterial_%s", m_hScreenEntity->GetEntityName() );
 	m_VideoMaterial = g_pVideo->CreateVideoMaterial( pszMaterialName, pFilename, "GAME",
 													VideoPlaybackFlags::DEFAULT_MATERIAL_OPTIONS,
 													VideoSystem::DETERMINE_FROM_FILE_EXTENSION/*, m_bAllowAlternateMedia*/ );
