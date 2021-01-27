@@ -136,4 +136,8 @@ public:
 
 extern CNetMsgScriptHelper *g_ScriptNetMsg;
 
+#ifdef CLIENT_DLL
+void VScriptSaveRestoreUtil_OnVMRestore();
+#endif
+
 #endif

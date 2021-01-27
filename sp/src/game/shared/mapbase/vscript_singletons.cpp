@@ -757,7 +757,12 @@ public: // IGameSystem
 		}
 	}
 
+#ifdef CLIENT_DLL
+	// On the client, OnRestore() is called before VScript is actually restored, so this has to be called manually from VScript save/restore instead
+	void OnVMRestore()
+#else
 	void OnRestore()
+#endif
 	{
 		if ( g_pScriptVM )
 		{
@@ -782,6 +787,13 @@ private:
 	static CUtlMap< unsigned int, KeyValues* > m_Lookup;
 
 } g_ScriptSaveRestoreUtil;
+
+#ifdef CLIENT_DLL
+void VScriptSaveRestoreUtil_OnVMRestore()
+{
+	g_ScriptSaveRestoreUtil.OnVMRestore();
+}
+#endif
 
 CUtlMap< unsigned int, KeyValues* > CScriptSaveRestoreUtil::m_Lookup( DefLessFunc(unsigned int) );
 StringHashFunctor CScriptSaveRestoreUtil::Hash;
@@ -1163,6 +1175,13 @@ void CNetMsgScriptHelper::RecieveMessage( bf_read &msg )
 #endif
 
 	word hash = m_MsgIn_()ReadWord();
+
+	// Don't do anything if there's no VM here. This can happen if a message from the server goes to a VM-less client, or vice versa.
+	if ( !g_pScriptVM )
+	{
+		CGWarning( 0, CON_GROUP_VSCRIPT, "CNetMsgScriptHelper: No VM on receiving side\n" );
+		return;
+	}
 
 	ScriptVariant_t hfn;
 	if ( g_pScriptVM->GetValue( m_Hooks, hash, &hfn ) )

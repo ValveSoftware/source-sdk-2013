@@ -161,6 +161,32 @@ public:
 
 		BaseClass::ClientThink();
 	}
+
+	void OnSave()
+	{
+		// HACKHACK: Save the next think in the VM since the VM is saved
+		if (m_bClientThink)
+		{
+			g_pScriptVM->SetValue( m_ScriptScope, "__c_think", GetNextThink() );
+		}
+
+		BaseClass::OnSave();
+	}
+
+	void OnRestore()
+	{
+		// HACKHACK: See OnSave()
+		if (m_bClientThink)
+		{
+			ScriptVariant_t flNextThink;
+			if (g_pScriptVM->GetValue( m_ScriptScope, "__c_think", &flNextThink ))
+			{
+				SetNextClientThink( flNextThink );
+			}
+		}
+
+		BaseClass::OnRestore();
+	}
 #else
 	void InputCallScriptFunctionClient( inputdata_t &inputdata )
 	{

@@ -13,7 +13,6 @@
 #include "eventqueue.h"
 #include "characterset.h"
 #include "sceneentity.h"		// for exposing scene precache function
-#include "isaverestore.h"
 #include "gamerules.h"
 #include "vscript_server.nut"
 #ifdef MAPBASE_VSCRIPT
@@ -601,6 +600,12 @@ bool VScriptServerInit()
 				CGWarning( 1, CON_GROUP_VSCRIPT, "VM Did not start!\n" );
 			}
 		}
+#ifdef MAPBASE_VSCRIPT
+		else
+		{
+			CGMsg( 0, CON_GROUP_VSCRIPT, "VSCRIPT SERVER: Not starting because language is set to 'none'\n" );
+		}
+#endif
 	}
 	else
 	{
@@ -777,172 +782,3 @@ bool IsEntityCreationAllowedInScripts( void )
 
 	return g_VScriptGameSystem.m_bAllowEntityCreationInScripts;
 }
-
-static short VSCRIPT_SERVER_SAVE_RESTORE_VERSION = 2;
-
-
-//-----------------------------------------------------------------------------
-
-class CVScriptSaveRestoreBlockHandler : public CDefSaveRestoreBlockHandler
-{
-public:
-	CVScriptSaveRestoreBlockHandler() :
-		m_InstanceMap( DefLessFunc(const char *) )
-	{
-	}
-	const char *GetBlockName()
-	{
-		return "VScriptServer";
-	}
-
-	//---------------------------------
-
-	void Save( ISave *pSave )
-	{
-		pSave->StartBlock();
-
-		int temp = g_pScriptVM != NULL;
-		pSave->WriteInt( &temp );
-		if ( g_pScriptVM )
-		{
-			temp = g_pScriptVM->GetLanguage();
-			pSave->WriteInt( &temp );
-			CUtlBuffer buffer;
-			g_pScriptVM->WriteState( &buffer );
-			temp = buffer.TellPut();
-			pSave->WriteInt( &temp );
-			if ( temp > 0 )
-			{
-				pSave->WriteData( (const char *)buffer.Base(), temp );
-			}
-		}
-
-		pSave->EndBlock();
-	}
-
-	//---------------------------------
-
-	void WriteSaveHeaders( ISave *pSave )
-	{
-		pSave->WriteShort( &VSCRIPT_SERVER_SAVE_RESTORE_VERSION );
-	}
-
-	//---------------------------------
-
-	void ReadRestoreHeaders( IRestore *pRestore )
-	{
-		// No reason why any future version shouldn't try to retain backward compatability. The default here is to not do so.
-		short version;
-		pRestore->ReadShort( &version );
-		m_fDoLoad = ( version == VSCRIPT_SERVER_SAVE_RESTORE_VERSION );
-	}
-
-	//---------------------------------
-
-	void Restore( IRestore *pRestore, bool createPlayers )
-	{
-		if ( !m_fDoLoad && g_pScriptVM )
-		{
-			return;
-		}
-		CBaseEntity *pEnt = gEntList.FirstEnt();
-		while ( pEnt )
-		{
-			if ( pEnt->m_iszScriptId != NULL_STRING )
-			{
-#ifndef MAPBASE_VSCRIPT
-				g_pScriptVM->RegisterClass( pEnt->GetScriptDesc() );
-#endif
-				m_InstanceMap.Insert( STRING( pEnt->m_iszScriptId ), pEnt );
-			}
-			pEnt = gEntList.NextEnt( pEnt );
-		}
-
-		pRestore->StartBlock();
-		if ( pRestore->ReadInt() && pRestore->ReadInt() == g_pScriptVM->GetLanguage() )
-		{
-			int nBytes = pRestore->ReadInt();
-			if ( nBytes > 0 )
-			{
-				CUtlBuffer buffer;
-				buffer.EnsureCapacity( nBytes );
-				pRestore->ReadData( (char *)buffer.AccessForDirectRead( nBytes ), nBytes, 0 );
-				g_pScriptVM->ReadState( &buffer );
-			}
-		}
-		pRestore->EndBlock();
-	}
-
-	void PostRestore( void )
-	{
-		for ( int i = m_InstanceMap.FirstInorder(); i != m_InstanceMap.InvalidIndex(); i = m_InstanceMap.NextInorder( i ) )
-		{
-			CBaseEntity *pEnt = m_InstanceMap[i];
-			if ( pEnt->m_hScriptInstance )
-			{
-				ScriptVariant_t variant;
-				if ( g_pScriptVM->GetValue( STRING(pEnt->m_iszScriptId), &variant ) && variant.m_type == FIELD_HSCRIPT )
-				{
-					pEnt->m_ScriptScope.Init( variant.m_hScript, false );
-					pEnt->RunPrecacheScripts();
-				}
-			}
-			else
-			{
-				// Script system probably has no internal references
-				pEnt->m_iszScriptId = NULL_STRING;
-			}
-		}
-		m_InstanceMap.Purge();
-	}
-
-
-	CUtlMap<const char *, CBaseEntity *> m_InstanceMap;
-
-private:
-	bool m_fDoLoad;
-};
-
-//-----------------------------------------------------------------------------
-
-CVScriptSaveRestoreBlockHandler g_VScriptSaveRestoreBlockHandler;
-
-//-------------------------------------
-
-ISaveRestoreBlockHandler *GetVScriptSaveRestoreBlockHandler()
-{
-	return &g_VScriptSaveRestoreBlockHandler;
-}
-
-//-----------------------------------------------------------------------------
-
-bool CBaseEntityScriptInstanceHelper::ToString( void *p, char *pBuf, int bufSize )	
-{
-	CBaseEntity *pEntity = (CBaseEntity *)p;
-	if ( pEntity->GetEntityName() != NULL_STRING )
-	{
-		V_snprintf( pBuf, bufSize, "([%d] %s: %s)", pEntity->entindex(), STRING(pEntity->m_iClassname), STRING( pEntity->GetEntityName() ) );
-	}
-	else
-	{
-		V_snprintf( pBuf, bufSize, "([%d] %s)", pEntity->entindex(), STRING(pEntity->m_iClassname) );
-	}
-	return true; 
-}
-
-void *CBaseEntityScriptInstanceHelper::BindOnRead( HSCRIPT hInstance, void *pOld, const char *pszId )
-{
-	int iEntity = g_VScriptSaveRestoreBlockHandler.m_InstanceMap.Find( pszId );
-	if ( iEntity != g_VScriptSaveRestoreBlockHandler.m_InstanceMap.InvalidIndex() )
-	{
-		CBaseEntity *pEnt = g_VScriptSaveRestoreBlockHandler.m_InstanceMap[iEntity];
-		pEnt->m_hScriptInstance = hInstance;
-		return pEnt;
-	}
-	return NULL;
-}
-
-
-CBaseEntityScriptInstanceHelper g_BaseEntityScriptInstanceHelper;
-
-

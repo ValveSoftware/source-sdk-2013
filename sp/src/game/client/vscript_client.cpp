@@ -176,7 +176,16 @@ private:
 	HSCRIPT			m_hFuncOnBind;
 };
 
+class CMaterialProxyScriptInstanceHelper : public IScriptInstanceHelper
+{
+	bool ToString( void *p, char *pBuf, int bufSize );
+	void *BindOnRead( HSCRIPT hInstance, void *pOld, const char *pszId );
+};
+
+CMaterialProxyScriptInstanceHelper g_MaterialProxyScriptInstanceHelper;
+
 BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptMaterialProxy, "CScriptMaterialProxy", "Material proxy for VScript" )
+	DEFINE_SCRIPT_INSTANCE_HELPER( &g_MaterialProxyScriptInstanceHelper )
 	DEFINE_SCRIPTFUNC( GetVarString, "Gets a material var's string value" )
 	DEFINE_SCRIPTFUNC( GetVarInt, "Gets a material var's int value" )
 	DEFINE_SCRIPTFUNC( GetVarFloat, "Gets a material var's float value" )
@@ -406,6 +415,19 @@ void CScriptMaterialProxy::SetVarVector( int i, const Vector &value )
 }
 
 EXPOSE_INTERFACE( CScriptMaterialProxy, IMaterialProxy, "VScriptProxy" IMATERIAL_PROXY_INTERFACE_VERSION );
+
+bool CMaterialProxyScriptInstanceHelper::ToString( void *p, char *pBuf, int bufSize )
+{
+	CScriptMaterialProxy *pProxy = (CScriptMaterialProxy *)p;
+	V_snprintf( pBuf, bufSize, "(proxy: %s)", pProxy->GetMaterial() != NULL ? pProxy->GetMaterial()->GetName() : "<no material>" );
+	return true; 
+}
+
+void *CMaterialProxyScriptInstanceHelper::BindOnRead( HSCRIPT hInstance, void *pOld, const char *pszId )
+{
+	// TODO: Material proxy save/restore?
+	return NULL;
+}
 #endif // MAPBASE_VSCRIPT
 
 //-----------------------------------------------------------------------------
@@ -616,6 +638,12 @@ bool VScriptClientInit()
 				CGWarning( 1, CON_GROUP_VSCRIPT, "VM Did not start!\n" );
 			}
 		}
+#ifdef MAPBASE_VSCRIPT
+		else
+		{
+			CGMsg( 0, CON_GROUP_VSCRIPT, "VSCRIPT CLIENT: Not starting because language is set to 'none'\n" );
+		}
+#endif
 	}
 	else
 	{
@@ -657,9 +685,7 @@ public:
 	virtual void LevelInitPreEntity( void )
 	{
 		m_bAllowEntityCreationInScripts = true;
-#ifndef MAPBASE_VSCRIPT // Now initted in C_World
 		VScriptClientInit();
-#endif
 	}
 
 	virtual void LevelInitPostEntity( void )
