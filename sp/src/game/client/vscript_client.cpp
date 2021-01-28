@@ -576,13 +576,6 @@ bool VScriptClientInit()
 			if( g_pScriptVM )
 			{
 #ifdef MAPBASE_VSCRIPT
-				// Moved here from LevelInitPostEntity, which is executed before local player is spawned.
-				// This is executed after C_World::OnDataChanged, which is after C_BasePlayer::Spawn
-				if ( C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer() )
-				{
-					g_pScriptVM->SetValue( "player", pPlayer->GetScriptInstance() );
-				}
-
 				CGMsg( 0, CON_GROUP_VSCRIPT, "VSCRIPT CLIENT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
 #else
 				Log( "VSCRIPT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
