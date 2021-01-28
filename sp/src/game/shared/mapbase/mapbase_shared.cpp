@@ -16,10 +16,12 @@
 #include "saverestore_utlvector.h"
 #include "props_shared.h"
 #include "utlbuffer.h"
+#include "usermessages.h"
 #ifdef CLIENT_DLL
 #include "hud_closecaption.h"
 #include "panelmetaclassmgr.h"
 #include "c_soundscape.h"
+#include "hud_macros.h"
 #else
 #include "soundscape_system.h"
 #include "AI_ResponseSystem.h"
@@ -69,7 +71,7 @@ ConVar mapbase_load_actbusy("mapbase_load_actbusy", "1", FCVAR_ARCHIVE, "Should 
 
 #ifdef GAME_DLL
 // This cvar should change with each Mapbase update
-ConVar mapbase_version( "mapbase_version", "6.1", FCVAR_NONE, "The version of Mapbase currently being used in this mod." );
+ConVar mapbase_version( "mapbase_version", "6.2", FCVAR_NONE, "The version of Mapbase currently being used in this mod." );
 
 extern void MapbaseGameLog_Init();
 

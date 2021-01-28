@@ -266,6 +266,7 @@ public:
 	bool ValidateScriptScope();
 	bool CallScriptFunction( const char* pFunctionName, ScriptVariant_t* pFunctionReturn );
 
+	HSCRIPT GetOrCreatePrivateScriptScope();
 	HSCRIPT GetScriptScope() { return m_ScriptScope; }
 
 	HSCRIPT LookupScriptFunction(const char* pFunctionName);
@@ -274,6 +275,9 @@ public:
 	bool RunScriptFile( const char* pScriptFile, bool bUseRootScope = false );
 	bool RunScript( const char* pScriptText, const char* pDebugFilename = "C_BaseEntity::RunScript" );
 #endif
+
+	HSCRIPT					GetScriptOwnerEntity();
+	virtual void			SetScriptOwnerEntity(HSCRIPT pOwner);
 
 	HSCRIPT GetScriptInstance();
 
@@ -1149,6 +1153,11 @@ public:
 	bool				IsFollowingEntity();
 	CBaseEntity			*GetFollowedEntity();
 
+#ifdef MAPBASE_VSCRIPT
+	void ScriptFollowEntity( HSCRIPT hBaseEntity, bool bBoneMerge );
+	HSCRIPT ScriptGetFollowedEntity();
+#endif
+
 	// For shadows rendering the correct body + sequence...
 	virtual int GetBody() { return 0; }
 	virtual int GetSkin() { return 0; }
@@ -1170,15 +1179,39 @@ public:
 	void VScriptPrecacheScriptSound(const char* soundname);
 
 	const Vector& ScriptEyePosition(void) { static Vector vec; vec = EyePosition(); return vec; }
-	const Vector& ScriptGetAngles(void) { static Vector vec; QAngle qa = GetAbsAngles(); vec.x = qa.x; vec.y = qa.y; vec.z = qa.z; return vec; }
+	const QAngle& ScriptEyeAngles(void) { static QAngle ang; ang = EyeAngles(); return ang; }
+	void ScriptSetForward( const Vector& v ) { QAngle angles; VectorAngles( v, angles ); SetAbsAngles( angles ); }
 
 	const Vector& ScriptGetBoundingMins( void ) { return m_Collision.OBBMins(); }
 	const Vector& ScriptGetBoundingMaxs( void ) { return m_Collision.OBBMaxs(); }
 
+	HSCRIPT ScriptEntityToWorldTransform( void );
+
+	HSCRIPT ScriptGetPhysicsObject( void );
+
+	void ScriptSetParent( HSCRIPT hParent, const char *szAttachment );
 	HSCRIPT ScriptGetMoveParent( void );
 	HSCRIPT ScriptGetRootMoveParent();
 	HSCRIPT ScriptFirstMoveChild( void );
 	HSCRIPT ScriptNextMovePeer( void );
+
+	const Vector& ScriptGetColorVector();
+	int ScriptGetColorR()	{ return m_clrRender.GetR(); }
+	int ScriptGetColorG()	{ return m_clrRender.GetG(); }
+	int ScriptGetColorB()	{ return m_clrRender.GetB(); }
+	int ScriptGetAlpha()	{ return m_clrRender.GetA(); }
+	void ScriptSetColorVector( const Vector& vecColor );
+	void ScriptSetColor( int r, int g, int b );
+	void ScriptSetColorR( int iVal )	{ SetRenderColorR( iVal ); }
+	void ScriptSetColorG( int iVal )	{ SetRenderColorG( iVal ); }
+	void ScriptSetColorB( int iVal )	{ SetRenderColorB( iVal ); }
+	void ScriptSetAlpha( int iVal )		{ SetRenderColorA( iVal ); }
+
+	int ScriptGetRenderMode() { return GetRenderMode(); }
+	void ScriptSetRenderMode( int nRenderMode ) { SetRenderMode( (RenderMode_t)nRenderMode ); }
+
+	int ScriptGetMoveType() { return GetMoveType(); }
+	void ScriptSetMoveType( int iMoveType ) { SetMoveType( (MoveType_t)iMoveType ); }
 #endif
 
 	// Stubs on client

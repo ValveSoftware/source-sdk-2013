@@ -852,10 +852,4 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptIsClient, "IsClient", "Returns true if the script is being run on the client." );
 
 	RegisterScriptSingletons();
-
-#ifdef CLIENT_DLL
-	VScriptRunScript( "vscript_client", true );
-#else
-	VScriptRunScript( "vscript_server", true );
-#endif
 }

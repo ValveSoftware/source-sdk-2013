@@ -147,6 +147,10 @@
 #include "fbxsystem/fbxsystem.h"
 #endif
 
+#ifdef MAPBASE_VSCRIPT
+#include "vscript_client.h"
+#endif
+
 extern vgui::IInputInternal *g_InputInternal;
 
 //=============================================================================
@@ -1104,6 +1108,9 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	g_pGameSaveRestoreBlockSet->AddBlockHandler( GetEntitySaveRestoreBlockHandler() );
 	g_pGameSaveRestoreBlockSet->AddBlockHandler( GetPhysSaveRestoreBlockHandler() );
 	g_pGameSaveRestoreBlockSet->AddBlockHandler( GetViewEffectsRestoreBlockHandler() );
+#ifdef MAPBASE_VSCRIPT
+	g_pGameSaveRestoreBlockSet->AddBlockHandler( GetVScriptSaveRestoreBlockHandler() );
+#endif
 
 	ClientWorldFactoryInit();
 
@@ -1216,6 +1223,9 @@ void CHLClient::Shutdown( void )
 	g_pGameSaveRestoreBlockSet->RemoveBlockHandler( GetViewEffectsRestoreBlockHandler() );
 	g_pGameSaveRestoreBlockSet->RemoveBlockHandler( GetPhysSaveRestoreBlockHandler() );
 	g_pGameSaveRestoreBlockSet->RemoveBlockHandler( GetEntitySaveRestoreBlockHandler() );
+#ifdef MAPBASE_VSCRIPT
+	g_pGameSaveRestoreBlockSet->RemoveBlockHandler( GetVScriptSaveRestoreBlockHandler() );
+#endif
 
 	ClientVoiceMgr_Shutdown();
 
@@ -1634,6 +1644,10 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	view->LevelInit();
 	tempents->LevelInit();
 	ResetToneMapping(1.0);
+
+#ifdef MAPBASE
+	GetClientWorldEntity()->ParseWorldMapData( engine->GetMapEntitiesString() );
+#endif
 
 	IGameSystem::LevelInitPreEntityAllSystems(pMapName);
 

@@ -209,6 +209,8 @@ public:
 	// For VScript
 	int		GetSkin() { return m_nSkin; }
 	void	SetSkin( int iSkin ) { m_nSkin = iSkin; }
+
+	static ScriptHook_t	g_Hook_OnServerRagdoll;
 #endif
 
 	// These return the attachment in the space of the entity

@@ -282,6 +282,10 @@ IMPLEMENT_SERVERCLASS_ST(CBaseAnimating, DT_BaseAnimating)
 
 END_SEND_TABLE()
 
+#ifdef MAPBASE_VSCRIPT
+ScriptHook_t	CBaseAnimating::g_Hook_OnServerRagdoll;
+#endif
+
 BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
 
 	DEFINE_SCRIPTFUNC( LookupAttachment, "Get the named attachement id"  )
@@ -333,6 +337,11 @@ BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
 	DEFINE_SCRIPTFUNC( BecomeRagdollOnClient, "" )
 	DEFINE_SCRIPTFUNC( IsRagdoll, "" )
 	DEFINE_SCRIPTFUNC( CanBecomeRagdoll, "" )
+
+	BEGIN_SCRIPTHOOK( CBaseAnimating::g_Hook_OnServerRagdoll, "OnServerRagdoll", FIELD_VOID, "Called when this entity creates/turns into a server-side ragdoll." )
+		DEFINE_SCRIPTHOOK_PARAM( "ragdoll", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "submodel", FIELD_BOOLEAN )
+	END_SCRIPTHOOK()
 #endif
 END_SCRIPTDESC();
 

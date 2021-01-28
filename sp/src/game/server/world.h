@@ -90,7 +90,7 @@ private:
 
 #ifdef MAPBASE_VSCRIPT
 	int m_iScriptLanguage;
-	CNetworkVar( int, m_iScriptLanguageClient );
+	//CNetworkVar( int, m_iScriptLanguageClient ); // Now entirely on client
 #endif
 
 	// start flags

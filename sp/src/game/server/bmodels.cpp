@@ -960,18 +960,6 @@ void CFuncRotating::UpdateSpeed( float flNewSpeed )
 		RampPitchVol();
 	}
 
-#ifdef MAPBASE
-	QAngle angNormalizedAngles = GetLocalAngles();
-	if (m_vecMoveAng.x)
-		angNormalizedAngles.x = AngleNormalize( angNormalizedAngles.x );
-	if (m_vecMoveAng.y)
-		angNormalizedAngles.y = AngleNormalize( angNormalizedAngles.y );
-	if (m_vecMoveAng.z)
-		angNormalizedAngles.z = AngleNormalize( angNormalizedAngles.z );
-
-	SetLocalAngles(angNormalizedAngles);
-#endif
-
 	SetLocalAngularVelocity( m_vecMoveAng * m_flSpeed );
 }
 
@@ -1101,6 +1089,18 @@ void CFuncRotating::ReverseMove( void )
 void CFuncRotating::RotateMove( void )
 {
 	SetMoveDoneTime( 10 );
+
+#ifdef MAPBASE
+	QAngle angNormalizedAngles = GetLocalAngles();
+	if (m_vecMoveAng.x)
+		angNormalizedAngles.x = AngleNormalize( angNormalizedAngles.x );
+	if (m_vecMoveAng.y)
+		angNormalizedAngles.y = AngleNormalize( angNormalizedAngles.y );
+	if (m_vecMoveAng.z)
+		angNormalizedAngles.z = AngleNormalize( angNormalizedAngles.z );
+
+	SetLocalAngles(angNormalizedAngles);
+#endif
 
 	if ( m_bStopAtStartPos )
 	{

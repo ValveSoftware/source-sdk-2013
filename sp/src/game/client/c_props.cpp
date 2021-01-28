@@ -24,6 +24,11 @@ BEGIN_NETWORK_TABLE( CDynamicProp, DT_DynamicProp )
 	RecvPropBool(RECVINFO(m_bUseHitboxesForRenderBox)),
 END_NETWORK_TABLE()
 
+#ifdef MAPBASE_VSCRIPT
+// Allows client-side VScript to create dynamic props via CreateProp()
+LINK_ENTITY_TO_CLASS( prop_dynamic, C_DynamicProp );
+#endif
+
 C_DynamicProp::C_DynamicProp( void )
 {
 	m_iCachedFrameCount = -1;

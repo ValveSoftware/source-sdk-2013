@@ -623,18 +623,6 @@ CBaseEntity *CBaseEntity::GetFollowedEntity()
 	return GetMoveParent();
 }
 
-#ifdef MAPBASE_VSCRIPT
-void CBaseEntity::ScriptFollowEntity( HSCRIPT hBaseEntity, bool bBoneMerge )
-{
-	FollowEntity( ToEnt( hBaseEntity ), bBoneMerge );
-}
-
-HSCRIPT CBaseEntity::ScriptGetFollowedEntity()
-{
-	return ToHScript( GetFollowedEntity() );
-}
-#endif
-
 void CBaseEntity::SetClassname( const char *className )
 {
 	m_iClassname = AllocPooledString( className );
@@ -2190,7 +2178,7 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_THINKFUNC( ShadowCastDistThink ),
 	DEFINE_THINKFUNC( ScriptThink ),
 #ifdef MAPBASE_VSCRIPT
-	DEFINE_THINKFUNC( ScriptThinkH ),
+	DEFINE_THINKFUNC( ScriptContextThink ),
 #endif
 
 #ifdef MAPBASE
@@ -2360,6 +2348,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetRenderColorB", "Set the render color's B value" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetRenderAlpha", "Set the render color's alpha value" )
 
+	// LEGACY
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorVector, "GetColorVector", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorR, "GetColorR", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetColorG, "GetColorG", SCRIPT_HIDE )
@@ -2370,6 +2359,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorG, "SetColorG", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetColorB, "SetColorB", SCRIPT_HIDE )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAlpha, "SetAlpha", SCRIPT_HIDE )
+	// END LEGACY
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRenderMode, "GetRenderMode", "Get render mode" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetRenderMode, "SetRenderMode", "Set render mode" )
@@ -2442,6 +2432,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetThinkFunction, "SetThinkFunction", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptStopThinkFunction, "StopThinkFunction", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetContextThink, "SetContextThink", "Set a think function on this entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetThink, "SetThink", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptStopThink, "StopThink", "" )
 
@@ -2590,11 +2581,12 @@ void CBaseEntity::UpdateOnRemove( void )
 		m_hScriptInstance = NULL;
 
 #ifdef MAPBASE_VSCRIPT
-		if ( m_hfnThink )
+		FOR_EACH_VEC( m_ScriptThinkFuncs, i )
 		{
-			g_pScriptVM->ReleaseScript( m_hfnThink );
-			m_hfnThink = NULL;
+			HSCRIPT h = m_ScriptThinkFuncs[i].m_hfnThink;
+			if ( h ) g_pScriptVM->ReleaseScript( h );
 		}
+		m_ScriptThinkFuncs.Purge();
 #endif // MAPBASE_VSCRIPT
 	}
 }
@@ -8653,60 +8645,172 @@ void CBaseEntity::ScriptStopThinkFunction()
 	SetContextThink( NULL, TICK_NEVER_THINK, "ScriptThink" );
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void CBaseEntity::ScriptThinkH()
+
+static inline void ScriptStopContextThink( scriptthinkfunc_t *context )
 {
-	ScriptVariant_t varThinkRetVal;
-	if ( g_pScriptVM->ExecuteFunction(m_hfnThink, NULL, 0, &varThinkRetVal, NULL, true) == SCRIPT_ERROR )
-	{
-		DevWarning("%s FAILED to call script think function (invalid closure)!\n", GetDebugName());
-		ScriptStopThink();
-		return;
-	}
-
-	float flThinkFrequency = 0.f;
-	if ( !varThinkRetVal.AssignTo(&flThinkFrequency) )
-	{
-		// no return value stops thinking
-		ScriptStopThink();
-		return;
-	}
-
-	SetNextThink( gpGlobals->curtime + flThinkFrequency, "ScriptThinkH" );
+	g_pScriptVM->ReleaseScript( context->m_hfnThink );
+	context->m_hfnThink = NULL;
+	context->m_nNextThinkTick = TICK_NEVER_THINK;
 }
 
-void CBaseEntity::ScriptSetThink( HSCRIPT hFunc, float flTime )
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptContextThink()
 {
-	if ( hFunc )
+	float flNextThink = FLT_MAX;
+	int nScheduledTick = 0;
+
+	for ( int i = m_ScriptThinkFuncs.Count(); i--; )
 	{
-		if ( m_hfnThink )
+		scriptthinkfunc_t *cur = &m_ScriptThinkFuncs[i];
+
+		if ( cur->m_nNextThinkTick == TICK_NEVER_THINK )
+			continue;
+
+		if ( cur->m_nNextThinkTick > gpGlobals->tickcount )
 		{
-			// release old func
-			ScriptStopThink();
+			// There is more to execute, don't stop thinking if the rest are done.
+
+			// also find the shortest schedule
+			if ( !nScheduledTick || nScheduledTick > cur->m_nNextThinkTick )
+			{
+				nScheduledTick = cur->m_nNextThinkTick;
+			}
+			continue;
 		}
 
-		// no type check here, print error on call instead
-		m_hfnThink = hFunc;
+		ScriptVariant_t varReturn;
 
-		flTime = max( 0, flTime );
-		SetContextThink( &CBaseEntity::ScriptThinkH, gpGlobals->curtime + flTime, "ScriptThinkH" );
+		if ( cur->m_bNoParam )
+		{
+			if ( g_pScriptVM->Call( cur->m_hfnThink, NULL, true, &varReturn ) == SCRIPT_ERROR )
+			{
+				ScriptStopContextThink(cur);
+				m_ScriptThinkFuncs.Remove(i);
+				continue;
+			}
+		}
+		else
+		{
+			if ( g_pScriptVM->Call( cur->m_hfnThink, NULL, true, &varReturn, m_hScriptInstance ) == SCRIPT_ERROR )
+			{
+				ScriptStopContextThink(cur);
+				m_ScriptThinkFuncs.Remove(i);
+				continue;
+			}
+		}
+
+		float flReturn;
+		if ( !varReturn.AssignTo( &flReturn ) )
+		{
+			ScriptStopContextThink(cur);
+			m_ScriptThinkFuncs.Remove(i);
+			continue;
+		}
+
+		if ( flReturn < 0.0f )
+		{
+			ScriptStopContextThink(cur);
+			m_ScriptThinkFuncs.Remove(i);
+			continue;
+		}
+
+		// find the shortest delay
+		if ( flReturn < flNextThink )
+		{
+			flNextThink = flReturn;
+		}
+
+		cur->m_nNextThinkTick = TIME_TO_TICKS( gpGlobals->curtime + flReturn );
+	}
+
+	if ( flNextThink < FLT_MAX )
+	{
+		SetNextThink( gpGlobals->curtime + flNextThink, "ScriptContextThink" );
+	}
+	else if ( nScheduledTick )
+	{
+		SetNextThink( TICKS_TO_TIME( nScheduledTick ), "ScriptContextThink" );
 	}
 	else
 	{
-		ScriptStopThink();
+		SetNextThink( TICK_NEVER_THINK, "ScriptContextThink" );
 	}
+}
+
+// see ScriptSetThink
+static bool s_bScriptContextThinkNoParam = false;
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptSetContextThink( const char* szContext, HSCRIPT hFunc, float flTime )
+{
+	scriptthinkfunc_t th;
+	V_memset( &th, 0x0, sizeof(scriptthinkfunc_t) );
+	unsigned short hash = ( szContext && *szContext ) ? HashString( szContext ) : 0;
+	bool bFound = false;
+
+	FOR_EACH_VEC( m_ScriptThinkFuncs, i )
+	{
+		scriptthinkfunc_t f = m_ScriptThinkFuncs[i];
+		if ( hash == f.m_iContextHash )
+		{
+			th = f;
+			m_ScriptThinkFuncs.Remove(i); // reorder
+			bFound = true;
+			break;
+		}
+	}
+
+	if ( hFunc )
+	{
+		float nextthink = gpGlobals->curtime + flTime;
+
+		th.m_bNoParam = s_bScriptContextThinkNoParam;
+		th.m_hfnThink = hFunc;
+		th.m_iContextHash = hash;
+		th.m_nNextThinkTick = TIME_TO_TICKS( nextthink );
+
+		m_ScriptThinkFuncs.AddToHead( th );
+
+		int nexttick = GetNextThinkTick( RegisterThinkContext( "ScriptContextThink" ) );
+
+		// sooner than next think
+		if ( nexttick <= 0 || nexttick > th.m_nNextThinkTick )
+		{
+			SetContextThink( &CBaseEntity::ScriptContextThink, nextthink, "ScriptContextThink" );
+		}
+	}
+	// null func input, think exists
+	else if ( bFound )
+	{
+		ScriptStopContextThink( &th );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// m_bNoParam and s_bScriptContextThinkNoParam exist only to keep backwards compatibility
+// and are an alternative to this script closure:
+//
+//	function CBaseEntity::SetThink( func, time )
+//	{
+//		SetContextThink( "", function(_){ return func() }, time )
+//	}
+//-----------------------------------------------------------------------------
+void CBaseEntity::ScriptSetThink( HSCRIPT hFunc, float time )
+{
+	s_bScriptContextThinkNoParam = true;
+	ScriptSetContextThink( NULL, hFunc, time );
+	s_bScriptContextThinkNoParam = false;
 }
 
 void CBaseEntity::ScriptStopThink()
 {
-	if (m_hfnThink)
-	{
-		g_pScriptVM->ReleaseScript(m_hfnThink);
-		m_hfnThink = NULL;
-	}
-	SetContextThink( NULL, TICK_NEVER_THINK, "ScriptThinkH" );
+	ScriptSetContextThink( NULL, NULL, 0.0f );
 }
+
 #endif // MAPBASE_VSCRIPT
 
 //-----------------------------------------------------------------------------
@@ -8735,51 +8839,6 @@ HSCRIPT CBaseEntity::GetScriptScope()
 	return m_ScriptScope;
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-#ifdef MAPBASE_VSCRIPT
-HSCRIPT CBaseEntity::GetOrCreatePrivateScriptScope()
-{
-	ValidateScriptScope();
-	return m_ScriptScope;
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void CBaseEntity::ScriptSetParent(HSCRIPT hParent, const char *szAttachment)
-{
-	CBaseEntity *pParent = ToEnt(hParent);
-	if ( !pParent )
-	{
-		SetParent(NULL);
-		return;
-	}
-
-	// if an attachment is specified, the parent needs to be CBaseAnimating
-	if ( szAttachment && szAttachment[0] != '\0' )
-	{
-		CBaseAnimating *pAnimating = pParent->GetBaseAnimating();
-		if ( !pAnimating )
-		{
-			Warning("ERROR: Tried to set parent for entity %s (%s), but its parent has no model.\n", GetClassname(), GetDebugName());
-			return;
-		}
-		
-		int iAttachment = pAnimating->LookupAttachment(szAttachment);
-		if ( iAttachment <= 0 )
-		{
-			Warning("ERROR: Tried to set parent for entity %s (%s), but it has no attachment named %s.\n", GetClassname(), GetDebugName(), szAttachment);
-			return;
-		}
-
-		SetParent(pParent, iAttachment);
-		SetMoveType(MOVETYPE_NONE);
-		return;
-	}
-	
-	SetParent(pParent);
-}
-#endif
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 HSCRIPT CBaseEntity::ScriptGetMoveParent(void)
@@ -10029,6 +10088,7 @@ void CBaseEntity::RunOnPostSpawnScripts(void)
 	}
 }
 
+#ifndef MAPBASE_VSCRIPT // This is shared now
 HSCRIPT	CBaseEntity::GetScriptOwnerEntity()
 {
 	return ToHScript(GetOwnerEntity());
@@ -10038,6 +10098,7 @@ void CBaseEntity::SetScriptOwnerEntity(HSCRIPT pOwner)
 {
 	SetOwnerEntity(ToEnt(pOwner));
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // VScript access to model's key values
@@ -10202,46 +10263,6 @@ const char *CBaseEntity::ScriptGetKeyValue( const char *pszKeyName )
 	static char szValue[128];
 	GetKeyValue( pszKeyName, szValue, sizeof(szValue) );
 	return szValue;
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-const Vector& CBaseEntity::ScriptGetColorVector()
-{
-	static Vector vecColor;
-	vecColor.Init( m_clrRender.GetR(), m_clrRender.GetG(), m_clrRender.GetB() );
-	return vecColor;
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void CBaseEntity::ScriptSetColorVector( const Vector& vecColor )
-{
-	SetRenderColor( vecColor.x, vecColor.y, vecColor.z );
-}
-
-void CBaseEntity::ScriptSetColor( int r, int g, int b )
-{
-	SetRenderColor( r, g, b );
-}
-
-//-----------------------------------------------------------------------------
-// Vscript: Gets the entity matrix transform
-//-----------------------------------------------------------------------------
-HSCRIPT CBaseEntity::ScriptEntityToWorldTransform( void )
-{
-	return g_pScriptVM->RegisterInstance( &EntityToWorldTransform() );
-}
-
-//-----------------------------------------------------------------------------
-// Vscript: Gets the entity's physics object if it has one
-//-----------------------------------------------------------------------------
-HSCRIPT CBaseEntity::ScriptGetPhysicsObject( void )
-{
-	if (VPhysicsGetObject())
-		return g_pScriptVM->RegisterInstance( VPhysicsGetObject() );
-	else
-		return NULL;
 }
 
 //-----------------------------------------------------------------------------

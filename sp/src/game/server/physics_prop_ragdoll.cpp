@@ -56,6 +56,9 @@ const float ATTACHED_DAMPING_SCALE = 50.0f;
 #define	SF_RAGDOLLPROP_MOTIONDISABLED		0x4000
 #define	SF_RAGDOLLPROP_ALLOW_STRETCH		0x8000
 #define	SF_RAGDOLLPROP_STARTASLEEP			0x10000
+#ifdef MAPBASE
+#define	SF_RAGDOLLPROP_FIXED_CONSTRAINTS	0x20000
+#endif
 
 //-----------------------------------------------------------------------------
 // Networking
@@ -166,6 +169,7 @@ BEGIN_ENT_SCRIPTDESC( CRagdollProp, CBaseAnimating, "Ragdoll physics prop." )
 	DEFINE_SCRIPTFUNC( SetSourceClassName, "Sets the ragdoll's source classname." )
 	DEFINE_SCRIPTFUNC( HasPhysgunInteraction, "Checks if the ragdoll has the specified interaction." )
 
+	// TODO: Proper shared ragdoll funcs?
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRagdollObject, "GetRagdollObject", "Gets the ragdoll object of the specified index." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRagdollObjectCount, "GetRagdollObjectCount", "Gets the number of ragdoll objects on this ragdoll." )
 
@@ -758,7 +762,11 @@ void CRagdollProp::InitRagdoll( const Vector &forceVector, int forceBone, const 
 	params.pCurrentBones = pBoneToWorld;
 	params.jointFrictionScale = 1.0;
 	params.allowStretch = HasSpawnFlags(SF_RAGDOLLPROP_ALLOW_STRETCH);
+#ifdef MAPBASE
+	params.fixedConstraints = HasSpawnFlags(SF_RAGDOLLPROP_FIXED_CONSTRAINTS);
+#else
 	params.fixedConstraints = false;
+#endif
 	RagdollCreate( m_ragdoll, params, physenv );
 	RagdollApplyAnimationAsVelocity( m_ragdoll, pPrevBones, pBoneToWorld, dt );
 	if ( m_anglesOverrideString != NULL_STRING && Q_strlen(m_anglesOverrideString.ToCStr()) > 0 )
@@ -1353,6 +1361,16 @@ CBaseAnimating *CreateServerRagdollSubmodel( CBaseAnimating *pOwner, const char 
 	matrix3x4_t pBoneToWorld[MAXSTUDIOBONES], pBoneToWorldNext[MAXSTUDIOBONES];
 	pRagdoll->ResetSequence( 0 );
 
+#ifdef MAPBASE_VSCRIPT
+	// Hook for pre-spawn ragdolling
+	if (pOwner->m_ScriptScope.IsInitialized() && CBaseAnimating::g_Hook_OnServerRagdoll.CanRunInScope( pOwner->m_ScriptScope ))
+	{
+		// ragdoll, submodel
+		ScriptVariant_t args[] = { ScriptVariant_t( pRagdoll->GetScriptInstance() ), true };
+		CBaseAnimating::g_Hook_OnServerRagdoll.Call( pOwner->m_ScriptScope, NULL, args );
+	}
+#endif
+
 	// let bone merging do the work of copying everything over for us
 	pRagdoll->SetParent( pOwner );
 	pRagdoll->SetupBones( pBoneToWorld, BONE_USED_BY_ANYTHING );
@@ -1376,6 +1394,16 @@ CBaseEntity *CreateServerRagdoll( CBaseAnimating *pAnimating, int forceBone, con
 	CRagdollProp *pRagdoll = (CRagdollProp *)CBaseEntity::CreateNoSpawn( "prop_ragdoll", pAnimating->GetAbsOrigin(), vec3_angle, NULL );
 	pRagdoll->CopyAnimationDataFrom( pAnimating );
 	pRagdoll->SetOwnerEntity( pAnimating );
+
+#ifdef MAPBASE_VSCRIPT
+	// Hook for pre-spawn ragdolling
+	if (pAnimating->m_ScriptScope.IsInitialized() && CBaseAnimating::g_Hook_OnServerRagdoll.CanRunInScope( pAnimating->m_ScriptScope ))
+	{
+		// ragdoll, submodel
+		ScriptVariant_t args[] = { ScriptVariant_t( pRagdoll->GetScriptInstance() ), false };
+		CBaseAnimating::g_Hook_OnServerRagdoll.Call( pAnimating->m_ScriptScope, NULL, args );
+	}
+#endif
 
 	pRagdoll->InitRagdollAnimation();
 	matrix3x4_t pBoneToWorld[MAXSTUDIOBONES], pBoneToWorldNext[MAXSTUDIOBONES];

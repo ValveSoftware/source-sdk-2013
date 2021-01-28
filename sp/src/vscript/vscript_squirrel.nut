@@ -106,14 +106,16 @@ class CSimpleCallChainer
 	chain = null;
 }
 
-DocumentedFuncs <- {}
-DocumentedClasses <- {}
-DocumentedEnums <- {}
-DocumentedConsts <- {}
-DocumentedHooks <- {}
-DocumentedMembers <- {}
+__Documentation <- {}
 
-function AddAliasedToTable(name, signature, description, table)
+local DocumentedFuncs   = {}
+local DocumentedClasses = {}
+local DocumentedEnums   = {}
+local DocumentedConsts  = {}
+local DocumentedHooks   = {}
+local DocumentedMembers = {}
+
+local function AddAliasedToTable(name, signature, description, table)
 {
 	// This is an alias function, could use split() if we could guarantee
 	// that ':' would not occur elsewhere in the description and Squirrel had
@@ -129,7 +131,7 @@ function AddAliasedToTable(name, signature, description, table)
 	table[name] <- [signature, description];
 }
 
-function RegisterHelp(name, signature, description)
+function __Documentation::RegisterHelp(name, signature, description)
 {
 	if (description.len() && description[0] == '#')
 	{
@@ -141,17 +143,17 @@ function RegisterHelp(name, signature, description)
 	}
 }
 
-function RegisterClassHelp(name, baseclass, description)
+function __Documentation::RegisterClassHelp(name, baseclass, description)
 {
 	DocumentedClasses[name] <- [baseclass, description];
 }
 
-function RegisterEnumHelp(name, num_elements, description)
+function __Documentation::RegisterEnumHelp(name, num_elements, description)
 {
 	DocumentedEnums[name] <- [num_elements, description];
 }
 
-function RegisterConstHelp(name, signature, description)
+function __Documentation::RegisterConstHelp(name, signature, description)
 {
 	if (description.len() && description[0] == '#')
 	{
@@ -163,31 +165,31 @@ function RegisterConstHelp(name, signature, description)
 	}
 }
 
-function RegisterHookHelp(name, signature, description)
+function __Documentation::RegisterHookHelp(name, signature, description)
 {
 	DocumentedHooks[name] <- [signature, description];
 }
 
-function RegisterMemberHelp(name, signature, description)
+function __Documentation::RegisterMemberHelp(name, signature, description)
 {
 	DocumentedMembers[name] <- [signature, description];
 }
 
-function printdoc( text )
+local function printdoc( text )
 {
 	return ::printc(200,224,255,text);
 }
 
-function printdocl( text )
+local function printdocl( text )
 {
 	return printdoc(text + "\n");
 }
 
-function PrintClass(name, doc)
+local function PrintClass(name, doc)
 {
 	local text = "=====================================\n";
-	text += ("Class:    " + name + "\n");
-	text += ("Base:   " + doc[0] + "\n");
+	text += ("Class:       " + name + "\n");
+	text += ("Base:        " + doc[0] + "\n");
 	if (doc[1].len())
 		text += ("Description: " + doc[1] + "\n");
 	text += "=====================================\n\n";
@@ -195,7 +197,7 @@ function PrintClass(name, doc)
 	printdoc(text);
 }
 
-function PrintFunc(name, doc)
+local function PrintFunc(name, doc)
 {
 	local text = "Function:    " + name + "\n"
 
@@ -220,7 +222,7 @@ function PrintFunc(name, doc)
 	printdocl(text);
 }
 
-function PrintMember(name, doc)
+local function PrintMember(name, doc)
 {
 	local text = ("Member:      " + name + "\n");
 	text += ("Signature:   " + doc[0] + "\n");
@@ -229,11 +231,11 @@ function PrintMember(name, doc)
 	printdocl(text);
 }
 
-function PrintEnum(name, doc)
+local function PrintEnum(name, doc)
 {
 	local text = "=====================================\n";
-	text += ("Enum:    " + name + "\n");
-	text += ("Elements:   " + doc[0] + "\n");
+	text += ("Enum:        " + name + "\n");
+	text += ("Elements:    " + doc[0] + "\n");
 	if (doc[1].len())
 		text += ("Description: " + doc[1] + "\n");
 	text += "=====================================\n\n";
@@ -241,25 +243,25 @@ function PrintEnum(name, doc)
 	printdoc(text);
 }
 
-function PrintConst(name, doc)
+local function PrintConst(name, doc)
 {
 	local text = ("Constant:    " + name + "\n");
 	if (doc[0] == null)
 	{
-		text += ("Value:   null\n");
+		text += ("Value:       null\n");
 	}
 	else
 	{
-		text += ("Value:   " + doc[0] + "\n");
+		text += ("Value:       " + doc[0] + "\n");
 	}
 	if (doc[1].len())
 		text += ("Description: " + doc[1] + "\n");
 	printdocl(text);
 }
 
-function PrintHook(name, doc)
+local function PrintHook(name, doc)
 {
-	local text = ("Hook:    " + name + "\n");
+	local text = ("Hook:        " + name + "\n");
 	if (doc[0] == null)
 	{
 		// Is an aliased function
@@ -281,15 +283,15 @@ function PrintHook(name, doc)
 	printdocl(text);
 }
 
-function PrintMatchesInDocList(pattern, list, printfunc)
+local function PrintMatchesInDocList(pattern, list, printfunc)
 {
-	local foundMatches = false;
+	local foundMatches = 0;
 
 	foreach(name, doc in list)
 	{
 		if (pattern == "*" || name.tolower().find(pattern) != null || (doc[1].len() && doc[1].tolower().find(pattern) != null))
 		{
-			foundMatches = true;
+			foundMatches = 1;
 			printfunc(name, doc)
 		}
 	}
@@ -297,40 +299,41 @@ function PrintMatchesInDocList(pattern, list, printfunc)
 	return foundMatches;
 }
 
-function PrintHelp(pattern = "*")
+function __Documentation::PrintHelp(pattern = "*")
 {
-	local foundMatches = false;
 	local patternLower = pattern.tolower();
 
 	// Have a specific order
-	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedEnums, PrintEnum ) || foundMatches );
-	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedConsts, PrintConst ) || foundMatches );
-	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedClasses, PrintClass ) || foundMatches );
-	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedFuncs, PrintFunc ) || foundMatches );
-	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedMembers, PrintMember ) || foundMatches );
-	foundMatches = ( PrintMatchesInDocList( patternLower, DocumentedHooks, PrintHook ) || foundMatches );
-
-	if (!foundMatches)
+	if (!(
+		PrintMatchesInDocList( patternLower, DocumentedEnums, PrintEnum )		|
+		PrintMatchesInDocList( patternLower, DocumentedConsts, PrintConst )		|
+		PrintMatchesInDocList( patternLower, DocumentedClasses, PrintClass )	|
+		PrintMatchesInDocList( patternLower, DocumentedFuncs, PrintFunc )		|
+		PrintMatchesInDocList( patternLower, DocumentedMembers, PrintMember )	|
+		PrintMatchesInDocList( patternLower, DocumentedHooks, PrintHook )
+	   ))
+	{
 		printdocl("Pattern " + pattern + " not found");
+	}
 }
 
 // Vector documentation
-RegisterClassHelp( "Vector", "", "Basic 3-float Vector class." );
-RegisterHelp( "Vector::Length", "float Vector::Length()", "Return the vector's length." );
-RegisterHelp( "Vector::LengthSqr", "float Vector::LengthSqr()", "Return the vector's squared length." );
-RegisterHelp( "Vector::Length2D", "float Vector::Length2D()", "Return the vector's 2D length." );
-RegisterHelp( "Vector::Length2DSqr", "float Vector::Length2DSqr()", "Return the vector's squared 2D length." );
+__Documentation.RegisterClassHelp( "Vector", "", "Basic 3-float Vector class." );
+__Documentation.RegisterHelp( "Vector::Length", "float Vector::Length()", "Return the vector's length." );
+__Documentation.RegisterHelp( "Vector::LengthSqr", "float Vector::LengthSqr()", "Return the vector's squared length." );
+__Documentation.RegisterHelp( "Vector::Length2D", "float Vector::Length2D()", "Return the vector's 2D length." );
+__Documentation.RegisterHelp( "Vector::Length2DSqr", "float Vector::Length2DSqr()", "Return the vector's squared 2D length." );
 
-RegisterHelp( "Vector::Normalized", "float Vector::Normalized()", "Return a normalized version of the vector." );
-RegisterHelp( "Vector::Norm", "void Vector::Norm()", "Normalize the vector in place." );
-RegisterHelp( "Vector::Scale", "vector Vector::Scale(float)", "Scale the vector's magnitude and return the result." );
-RegisterHelp( "Vector::Dot", "float Vector::Dot(vector)", "Return the dot/scalar product of two vectors." );
-RegisterHelp( "Vector::Cross", "float Vector::Cross(vector)", "Return the vector product of two vectors." );
+__Documentation.RegisterHelp( "Vector::Normalized", "float Vector::Normalized()", "Return a normalized version of the vector." );
+__Documentation.RegisterHelp( "Vector::Norm", "void Vector::Norm()", "Normalize the vector in place." );
+__Documentation.RegisterHelp( "Vector::Scale", "vector Vector::Scale(float)", "Scale the vector's magnitude and return the result." );
+__Documentation.RegisterHelp( "Vector::Dot", "float Vector::Dot(vector)", "Return the dot/scalar product of two vectors." );
+__Documentation.RegisterHelp( "Vector::Cross", "float Vector::Cross(vector)", "Return the vector product of two vectors." );
 
-RegisterHelp( "Vector::ToKVString", "string Vector::ToKVString()", "Return a vector as a string in KeyValue form, without separation commas." );
+__Documentation.RegisterHelp( "Vector::ToKVString", "string Vector::ToKVString()", "Return a vector as a string in KeyValue form, without separation commas." );
 
-RegisterMemberHelp( "Vector.x", "float Vector.x", "The vector's X coordinate on the cartesian X axis." );
-RegisterMemberHelp( "Vector.y", "float Vector.y", "The vector's Y coordinate on the cartesian Y axis." );
-RegisterMemberHelp( "Vector.z", "float Vector.z", "The vector's Z coordinate on the cartesian Z axis." );
+__Documentation.RegisterMemberHelp( "Vector.x", "float Vector.x", "The vector's X coordinate on the cartesian X axis." );
+__Documentation.RegisterMemberHelp( "Vector.y", "float Vector.y", "The vector's Y coordinate on the cartesian Y axis." );
+__Documentation.RegisterMemberHelp( "Vector.z", "float Vector.z", "The vector's Z coordinate on the cartesian Z axis." );
 
 )vscript";

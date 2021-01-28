@@ -83,6 +83,7 @@ interchangeable arms; this may change in the future)
 - https://developer.valvesoftware.com/wiki/Npc_clawscanner#Strider_Scout_Issue (npc_clawscanner strider scout fix)
 - https://developer.valvesoftware.com/wiki/Ambient_generic:_stop_and_toggle_fix (Fixes for stopping/toggling ambient_generic)
 - https://developer.valvesoftware.com/wiki/Func_clip_vphysics ("Start Disabled" keyvalue fix)
+- https://developer.valvesoftware.com/wiki/Importing_CSS_Weapons_Into_HL2 (CS:S viewmodel chirality)
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -91,15 +92,19 @@ Direct contributions:
 - https://github.com/mapbase-source/source-sdk-2013/pull/5 (Custom VScript implementation by ReDucTor; was placed into feature branch before being merged in a subsequent PR)
 - https://github.com/mapbase-source/source-sdk-2013/pull/3 ("playvideo" command playback fix from Avantate)
 - https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux fixes from z33ky)
-- https://github.com/mapbase-source/source-sdk-2013/pull/47 (VScript utility/consistency changes from samisalreadytaken)
-- https://github.com/mapbase-source/source-sdk-2013/pull/59 (New VScript functions and singletons from samisalreadytaken based on API documentation in later Source/Source 2 games)
 - https://github.com/mapbase-source/source-sdk-2013/pull/60 (Adjustment by RoyaleNoir to one of Saul's VDC changes)
+- https://github.com/mapbase-source/source-sdk-2013/pull/84 (CS:S viewmodel chirality from 1upD)
 - Demo autorecord code provided by Klems
 - cc_emit crash fix provided by 1upD
 - Custom HL2 ammo crate models created by Rara (Textures created by Blixibon; This is asset-based and, aside from the SLAM crate, not reflected in the code)
 - Combine lock hardware on door01_left.mdl created by Kralich (This is asset-based and not reflected in the code)
 - npc_vehicledriver fixes provided by CrAzY
 - npc_combine cover behavior patches provided by iohnnyboy
+
+== Contributions from samisalreadytaken:
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/47 (VScript utility/consistency changes)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/59 (New VScript functions and singletons based on API documentation in later Source/Source 2 games)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/80 (More VScript changes, including support for extremely flexible client/server messaging)
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
