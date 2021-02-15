@@ -156,7 +156,9 @@ void CGrenadeFrag::OnRestore( void )
 //-----------------------------------------------------------------------------
 void CGrenadeFrag::CreateEffects( void )
 {
-	int	nAttachment = LookupAttachment("fuse");
+	Vector attachmentpos(0, 0, 8.5);
+	QAngle attachmentangle(0, 0, 90);
+	VectorAngles(attachmentpos, attachmentangle);
 
 	m_randomcolor = random->RandomInt(1, 11);
 
@@ -167,8 +169,6 @@ void CGrenadeFrag::CreateEffects( void )
 
 		if (m_pMainGlow != NULL)
 		{
-			m_pMainGlow->FollowEntity(this);
-			m_pMainGlow->SetAttachment(this, nAttachment);
 			if (m_randomcolor == 1)
 			{
 				m_pMainGlow->SetTransparency(kRenderGlow, 255, 0, 0, 200, kRenderFxNoDissipation);
@@ -215,6 +215,12 @@ void CGrenadeFrag::CreateEffects( void )
 			}
 			m_pMainGlow->SetScale(0.2f);
 			m_pMainGlow->SetGlowProxySize(4.0f);
+			m_pMainGlow->SetParent(this);
+
+			m_pMainGlow->SetLocalOrigin(attachmentpos);
+			m_pMainGlow->SetLocalAngles(attachmentangle);
+
+			m_pMainGlow->SetMoveType(MOVETYPE_NONE);
 		}
 	}
 
@@ -274,6 +280,12 @@ void CGrenadeFrag::CreateEffects( void )
 			m_pGlowTrail->SetStartWidth(8.0f);
 			m_pGlowTrail->SetEndWidth(1.0f);
 			m_pGlowTrail->SetLifeTime(0.5f);
+			m_pGlowTrail->SetParent(this);
+
+			m_pGlowTrail->SetLocalOrigin(attachmentpos);
+			m_pGlowTrail->SetLocalAngles(attachmentangle);
+
+			m_pGlowTrail->SetMoveType(MOVETYPE_NONE);
 		}
 	}
 }
