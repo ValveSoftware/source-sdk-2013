@@ -156,7 +156,7 @@ void CGrenadeFrag::OnRestore( void )
 //-----------------------------------------------------------------------------
 void CGrenadeFrag::CreateEffects( void )
 {
-	Vector attachmentpos(0, 0, 8.5);
+	Vector attachmentpos(0, 0, 9.0);
 	QAngle attachmentangle(0, 0, 90);
 	VectorAngles(attachmentpos, attachmentangle);
 
