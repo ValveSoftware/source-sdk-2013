@@ -231,8 +231,6 @@ void CGrenadeFrag::CreateEffects( void )
 
 		if (m_pGlowTrail != NULL)
 		{
-			m_pGlowTrail->FollowEntity(this);
-			m_pGlowTrail->SetAttachment(this, nAttachment);
 			if (m_randomcolor == 1)
 			{
 				m_pGlowTrail->SetTransparency(kRenderTransAdd, 255, 0, 0, 255, kRenderFxNone);
