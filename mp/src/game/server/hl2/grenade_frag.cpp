@@ -136,6 +136,8 @@ void CGrenadeFrag::Spawn( void )
 	m_combineSpawned	= false;
 	m_punted			= false;
 
+	VPhysicsGetObject()->SetMaterialIndex(physprops->GetSurfaceIndex("grenade"));
+
 	BaseClass::Spawn();
 }
 
