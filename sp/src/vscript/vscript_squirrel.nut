@@ -106,6 +106,98 @@ class CSimpleCallChainer
 	chain = null;
 }
 
+//---------------------------------------------------------
+// Hook handler
+//---------------------------------------------------------
+Hooks <- { Registered = {} }
+
+function Hooks::Add( scope, event, func, name )
+{
+	Hooks.Registered[name] <- [event, scope, func];
+}
+
+function Hooks::Remove( name )
+{
+	Hooks.Registered.rawdelete(name);
+}
+
+function Hooks::ScopeHookedToEvent( scope, event )
+{
+	//printl("Running ScopeHookedToEvent()")
+	foreach (elem in Hooks.Registered)
+	{
+		if (elem[1] == scope && elem[0] == event)
+			return true
+	}
+	return false
+}
+
+function Hooks::CallHooks(event, scope, ...)
+{
+	//printl("vargv.len() = " + vargv.len())
+	switch (vargv.len())
+	{
+        case 0:
+			foreach (elem in Hooks.Registered)
+			{
+				if (elem[0] == event && elem[1] == scope)
+					return elem[2]()
+			}
+			break;
+
+        case 1:
+			foreach (elem in Hooks.Registered)
+			{
+				if (elem[0] == event && elem[1] == scope)
+					return elem[2](vargv[0])
+			}
+			break;
+
+        case 2:
+			foreach (elem in Hooks.Registered)
+			{
+				if (elem[0] == event && elem[1] == scope)
+					return elem[2](vargv[0], vargv[1])
+			}
+			break;
+
+		case 3:
+			foreach (elem in Hooks.Registered)
+			{
+				if (elem[0] == event && elem[1] == scope)
+					return elem[2](vargv[0], vargv[1], vargv[2])
+			}
+			break;
+
+        case 4:
+			foreach (elem in Hooks.Registered)
+			{
+				if (elem[0] == event && elem[1] == scope)
+					return elem[2](vargv[0], vargv[1], vargv[2], vargv[3])
+			}
+			break;
+
+        case 5:
+			foreach (elem in Hooks.Registered)
+			{
+				if (elem[0] == event && elem[1] == scope)
+					return elem[2](vargv[0], vargv[1], vargv[2], vargv[3], vargv[4])
+			}
+			break;
+
+		 case 6:
+			foreach (elem in Hooks.Registered)
+			{
+				if (elem[0] == event && elem[1] == scope)
+					return elem[2](vargv[0], vargv[1], vargv[2], vargv[3], vargv[4], vargv[5])
+			}
+			break;
+	}
+}
+
+//---------------------------------------------------------
+// Documentation
+//---------------------------------------------------------
 __Documentation <- {}
 
 local DocumentedFuncs   = {}
