@@ -1247,7 +1247,7 @@ int RunVBSP( int argc, char **argv )
 				}
 
 				char szCommand[512];
-				_snprintf( szCommand, sizeof( szCommand ), "PrintHelp( \"%s\" );", pszArg1 );
+				_snprintf( szCommand, sizeof( szCommand ), "__Documentation.PrintHelp( \"%s\" );", pszArg1 );
 				g_pScriptVM->Run( szCommand );
 			}
 			else
