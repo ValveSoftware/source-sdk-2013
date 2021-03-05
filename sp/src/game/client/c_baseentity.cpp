@@ -451,6 +451,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetModelName, "GetModelName", "Returns the name of the model" )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptStopSound, "StopSound", "Stops a sound from this entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEmitSound, "EmitSound", "Plays a sound from this entity." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptPrecacheScriptSound, "PrecacheSoundScript", "Precache a sound for later playing." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSoundDuration, "GetSoundDuration", "Returns float duration of the sound. Takes soundname and optional actormodelname." )
@@ -472,6 +473,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 	DEFINE_SCRIPTFUNC_NAMED( GetAbsAngles, "GetAngles", "Get entity pitch, yaw, roll as a vector" )
 	DEFINE_SCRIPTFUNC_NAMED( SetAbsAngles, "SetAngles", "Set entity pitch, yaw, roll" )
 
+	DEFINE_SCRIPTFUNC( SetSize, "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoundingMins, "GetBoundingMins", "Get a vector containing min bounds, centered on object" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoundingMaxs, "GetBoundingMaxs", "Get a vector containing max bounds, centered on object" )
 
@@ -541,7 +543,13 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 	DEFINE_SCRIPTFUNC_NAMED( IsBaseCombatWeapon, "IsWeapon", "Returns true if this entity is a weapon." )
 	DEFINE_SCRIPTFUNC( IsWorld, "Returns true if this entity is the world." )
 
+	DEFINE_SCRIPTFUNC( SetModel, "Set client-only entity model" )
+	//DEFINE_SCRIPTFUNC_NAMED( ScriptInitializeAsClientEntity, "InitializeAsClientEntity", "" )
+	DEFINE_SCRIPTFUNC_NAMED( Remove, "Destroy", "Remove clientside entity" )
 	DEFINE_SCRIPTFUNC_NAMED( GetEntityIndex, "entindex", "" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetContextThink, "SetContextThink", "Set a think function on this entity." )
+
 #endif
 
 END_SCRIPTDESC();
@@ -1333,6 +1341,15 @@ void C_BaseEntity::Term()
 	{
 		g_pScriptVM->RemoveInstance( m_hScriptInstance );
 		m_hScriptInstance = NULL;
+
+#ifdef MAPBASE_VSCRIPT
+		FOR_EACH_VEC( m_ScriptThinkFuncs, i )
+		{
+			HSCRIPT h = m_ScriptThinkFuncs[i]->m_hfnThink;
+			if ( h ) g_pScriptVM->ReleaseScript( h );
+		}
+		m_ScriptThinkFuncs.PurgeAndDeleteElements();
+#endif
 	}
 }
 

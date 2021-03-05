@@ -5,8 +5,8 @@
 // $NoKeywords: $
 //=============================================================================
 
-#ifndef VSCRIPT_SINGLETONS
-#define VSCRIPT_SINGLETONS
+#ifndef VSCRIPT_SINGLETONS_H
+#define VSCRIPT_SINGLETONS_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -29,21 +29,24 @@ class CNetMsgScriptHelper : public CAutoGameSystem
 class CNetMsgScriptHelper
 #endif
 {
+#ifdef CLIENT_DLL
+public:
+	bool m_bWriteReady; // dt ready to send
+#endif
+
 private:
 #ifdef GAME_DLL
-	CRecipientFilter m_filter;
 	bf_read *m_MsgIn;
+	CRecipientFilter m_filter;
 #else
 	bf_read m_MsgIn;
 #endif
+	HSCRIPT m_Hooks;
 	bf_write m_MsgOut;
 	byte m_MsgData[ PAD_NUMBER( SCRIPT_NETMSG_DATA_SIZE, 4 ) ];
-	HSCRIPT m_Hooks;
 
 public:
 #ifdef CLIENT_DLL
-	bool m_bWriteReady; // dt ready to send
-
 	CNetMsgScriptHelper() : m_Hooks(NULL), m_bWriteReady(false) {}
 #else
 	CNetMsgScriptHelper() : m_Hooks(NULL) {}
@@ -100,14 +103,14 @@ public:
 	void WriteShort( int iValue ); // 16 bit short
 	void WriteWord( int iValue );  // 16 bit unsigned short
 	void WriteLong( int iValue );  // 32 bit long
-	void WriteFloat( float flValue );
-	void WriteNormal( float flValue ); // 12 bit
+	void WriteFloat( float flValue ); // 32 bit float
+	void WriteNormal( float flValue ); // 12 bit (1 + NORMAL_FRACTIONAL_BITS)
 	void WriteAngle( float flValue ); // 8 bit unsigned char
 	void WriteCoord( float flValue );
 	void WriteVec3Coord( const Vector& rgflValue );
 	void WriteVec3Normal( const Vector& rgflValue ); // 27 bit ( 3 + 2 * (1 + NORMAL_FRACTIONAL_BITS) )
 	void WriteAngles( const QAngle& rgflValue );
-	void WriteString( const char *sz ); // max 512 bytes at once
+	void WriteString( const char *sz );
 	void WriteBool( bool bValue );      // 1 bit
 	void WriteEntity( HSCRIPT hEnt );   // 11 bit (entindex)
 	void WriteEHandle( HSCRIPT hEnt );  // 32 bit long

@@ -440,13 +440,17 @@ ISaveRestoreBlockHandler *GetVScriptSaveRestoreBlockHandler()
 bool CBaseEntityScriptInstanceHelper::ToString( void *p, char *pBuf, int bufSize )	
 {
 	CBaseEntity *pEntity = (CBaseEntity *)p;
+#ifdef CLIENT_DLL
+	if ( pEntity->GetEntityName() && pEntity->GetEntityName()[0] )
+#else
 	if ( pEntity->GetEntityName() != NULL_STRING )
+#endif
 	{
-		V_snprintf( pBuf, bufSize, "([%d] %s: %s)", pEntity->entindex(), STRING(pEntity->m_iClassname), STRING( pEntity->GetEntityName() ) );
+		V_snprintf( pBuf, bufSize, "([%d] %s: %s)", pEntity->entindex(), pEntity->GetClassname(), STRING( pEntity->GetEntityName() ) );
 	}
 	else
 	{
-		V_snprintf( pBuf, bufSize, "([%d] %s)", pEntity->entindex(), STRING(pEntity->m_iClassname) );
+		V_snprintf( pBuf, bufSize, "([%d] %s)", pEntity->entindex(), pEntity->GetClassname() );
 	}
 	return true; 
 }

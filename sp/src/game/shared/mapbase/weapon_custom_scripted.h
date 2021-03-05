@@ -5,8 +5,8 @@
 // $NoKeywords: $
 //=============================================================================
 
-#ifndef VSCRIPT_FUNCS_MATH
-#define VSCRIPT_FUNCS_MATH
+#ifndef WEAPON_CUSTOM_SCRIPTED_H
+#define WEAPON_CUSTOM_SCRIPTED_H
 #ifdef _WIN32
 #pragma once
 #endif
