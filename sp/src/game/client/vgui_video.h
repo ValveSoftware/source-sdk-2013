@@ -45,14 +45,19 @@ public:
 	}
 
 	bool BeginPlayback( const char *pFilename );
+	void StopPlayback( void );
 
 	void SetBlackBackground( bool bBlack ){ m_bBlackBackground = bBlack; }
+	void SetAllowInterrupt( bool bAllowInterrupt ) { m_bAllowInterruption = bAllowInterrupt; }
+#ifdef MAPBASE
+	void SetLooping( bool bLooping ) { m_bLooping = bLooping; }
+#endif
 
 protected:
 
-	virtual void OnTick( void ) { BaseClass::OnTick(); }
+	virtual void OnTick( void );
 	virtual void OnCommand( const char *pcCommand ) { BaseClass::OnCommand( pcCommand ); }
-	virtual void OnVideoOver(){}
+	virtual void OnVideoOver();
 
 protected:
 	IVideoMaterial *m_VideoMaterial;
@@ -65,8 +70,14 @@ protected:
 	float			m_flU;	// U,V ranges for video on its sheet
 	float			m_flV;
 
+	bool			m_bLooping;
+	bool			m_bStopAllSounds;
+	bool			m_bAllowInterruption;
 	bool			m_bBlackBackground;
 	bool			m_bAllowAlternateMedia;
+	int				m_nShutdownCount;
+
+	bool			m_bStarted;
 };
 
 
