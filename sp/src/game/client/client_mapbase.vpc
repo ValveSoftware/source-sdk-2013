@@ -31,6 +31,9 @@ $Project
 		$File	"c_postprocesscontroller.cpp"
 		$File	"c_postprocesscontroller.h"
 		$File	"c_env_dof_controller.cpp"
+		$File	"c_movie_display.cpp"
+		$File	"c_movie_display.h"
+		$File	"vgui_movie_display.cpp"
 	
 		$Folder	"Mapbase"
 		{
