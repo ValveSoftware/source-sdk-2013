@@ -171,6 +171,9 @@ public:
 	void			InputDisableAggressiveBehavior( inputdata_t &inputdata );
 	void			InputStopShootingMinigunForSeconds( inputdata_t &inputdata );
 	void			InputDisableCrouch( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void			InputEnableCrouch( inputdata_t &inputdata );
+#endif
 	void			InputDisableMoveToLOS( inputdata_t &inputdata );
 	void			InputExplode( inputdata_t &inputdata );
 	void			InputScaleGroundSpeed( inputdata_t &inputdata );
