@@ -71,19 +71,18 @@ void CLogicPlayMovie::Spawn( void )
 //-----------------------------------------------------------------------------
 void CLogicPlayMovie::InputPlayMovie( inputdata_t &data )
 {
-	const char *szVideoCommand = ( m_bAllowUserSkip ) ? "playvideo_exitcommand" : "playvideo_exitcommand_nointerrupt";
 	// Build the hacked string
 	
 	char szClientCmd[256];
 	Q_snprintf( szClientCmd, sizeof(szClientCmd), 
-				"%s %s \"ent_fire %s __MovieFinished\" %s\n", 
-				szVideoCommand,
+				"playvideo_complex %s \"ent_fire %s __MovieFinished\" %d %d\n", 
 				STRING(m_strMovieFilename), 
 				GetEntityNameAsCStr(),
+				m_bAllowUserSkip,
 #ifdef MAPBASE
-				m_bLooping ? "1" : "0"
+				m_bLooping
 #else
-				"0"
+				0
 #endif
 				 );
 

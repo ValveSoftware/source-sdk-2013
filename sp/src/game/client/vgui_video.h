@@ -51,6 +51,7 @@ public:
 	void SetAllowInterrupt( bool bAllowInterrupt ) { m_bAllowInterruption = bAllowInterrupt; }
 #ifdef MAPBASE
 	void SetLooping( bool bLooping ) { m_bLooping = bLooping; }
+	void SetFade( float flStartFade, float flEndFade ) { m_flFadeIn = flStartFade; m_flFadeOut = flEndFade; }
 #endif
 
 protected:
@@ -71,6 +72,10 @@ protected:
 	float			m_flV;
 
 	bool			m_bLooping;
+#ifdef MAPBASE
+	float			m_flFadeIn;
+	float			m_flFadeOut;
+#endif
 	bool			m_bStopAllSounds;
 	bool			m_bAllowInterruption;
 	bool			m_bBlackBackground;
