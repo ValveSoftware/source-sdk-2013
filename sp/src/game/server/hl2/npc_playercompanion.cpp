@@ -3423,7 +3423,7 @@ bool CNPC_PlayerCompanion::OverrideMove( float flInterval )
 			else if ( pEntity->m_iClassname == iszBounceBomb )
 			{
 				CBounceBomb *pBomb = static_cast<CBounceBomb *>(pEntity);
-				if ( pBomb && !pBomb->IsPlayerPlaced() && pBomb->IsAwake() )
+				if ( pBomb && pBomb->ShouldBeAvoidedByCompanions() )
 				{
 					UTIL_TraceLine( WorldSpaceCenter(), pEntity->WorldSpaceCenter(), MASK_BLOCKLOS, pEntity, COLLISION_GROUP_NONE, &tr );
 					if (tr.fraction == 1.0 && !tr.startsolid)
