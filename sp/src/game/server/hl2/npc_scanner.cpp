@@ -256,11 +256,11 @@ void CNPC_CScanner::Spawn(void)
 
 	if( m_bIsClawScanner )
 	{
-		SetModel( "models/shield_scanner.mdl");
+		SetModel( DefaultOrCustomModel( "models/shield_scanner.mdl" ) );
 	}
 	else
 	{
-		SetModel( "models/combine_scanner.mdl");
+		SetModel( DefaultOrCustomModel( "models/combine_scanner.mdl" ) );
 	}
 
 	m_iHealth				= sk_scanner_health.GetFloat();
@@ -565,7 +565,7 @@ void CNPC_CScanner::Precache(void)
 	// Model
 	if( m_bIsClawScanner )
 	{
-		PrecacheModel("models/shield_scanner.mdl");
+		PrecacheModel( DefaultOrCustomModel( "models/shield_scanner.mdl" ) );
 
 		PrecacheModel("models/gibs/Shield_Scanner_Gib1.mdl");
 		PrecacheModel("models/gibs/Shield_Scanner_Gib2.mdl");
@@ -591,7 +591,7 @@ void CNPC_CScanner::Precache(void)
 	}
 	else
 	{
-		PrecacheModel("models/combine_scanner.mdl");
+		PrecacheModel( DefaultOrCustomModel( "models/combine_scanner.mdl" ) );
 
 		PrecacheModel("models/gibs/scanner_gib01.mdl" );
 		PrecacheModel("models/gibs/scanner_gib02.mdl" );	

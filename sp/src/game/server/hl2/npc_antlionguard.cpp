@@ -678,7 +678,7 @@ void CNPC_AntlionGuard::UpdateOnRemove( void )
 //-----------------------------------------------------------------------------
 void CNPC_AntlionGuard::Precache( void )
 {
-	PrecacheModel( ANTLIONGUARD_MODEL );
+	PrecacheModel( DefaultOrCustomModel( ANTLIONGUARD_MODEL ) );
 
 	PrecacheScriptSound( "NPC_AntlionGuard.Shove" );
 	PrecacheScriptSound( "NPC_AntlionGuard.HitHard" );
@@ -779,7 +779,7 @@ void CNPC_AntlionGuard::Spawn( void )
 {
 	Precache();
 
-	SetModel( ANTLIONGUARD_MODEL );
+	SetModel( DefaultOrCustomModel( ANTLIONGUARD_MODEL ) );
 
 	// Switch our skin (for now), if we're the cavern guard
 	if ( m_bCavernBreed )

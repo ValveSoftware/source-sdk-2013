@@ -304,7 +304,7 @@ CNPC_CeilingTurret::~CNPC_CeilingTurret( void )
 //-----------------------------------------------------------------------------
 void CNPC_CeilingTurret::Precache( void )
 {
-	PrecacheModel( CEILING_TURRET_MODEL );	
+	PrecacheModel( DefaultOrCustomModel( CEILING_TURRET_MODEL ) );	
 	PrecacheModel( CEILING_TURRET_GLOW_SPRITE );
 
 	// Activities
@@ -347,7 +347,7 @@ void CNPC_CeilingTurret::Spawn( void )
 { 
 	Precache();
 
-	SetModel( CEILING_TURRET_MODEL );
+	SetModel( DefaultOrCustomModel( CEILING_TURRET_MODEL ) );
 	
 	BaseClass::Spawn();
 

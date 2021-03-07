@@ -2433,7 +2433,7 @@ void CBaseHeadcrab::CreateDust( bool placeDecal )
 //-----------------------------------------------------------------------------
 void CHeadcrab::Precache( void )
 {
-	PrecacheModel( "models/headcrabclassic.mdl" );
+	PrecacheModel( DefaultOrCustomModel( "models/headcrabclassic.mdl" ) );
 
 	PrecacheScriptSound( "NPC_HeadCrab.Gib" );
 	PrecacheScriptSound( "NPC_HeadCrab.Idle" );
@@ -2455,7 +2455,7 @@ void CHeadcrab::Precache( void )
 void CHeadcrab::Spawn( void )
 {
 	Precache();
-	SetModel( "models/headcrabclassic.mdl" );
+	SetModel( DefaultOrCustomModel( "models/headcrabclassic.mdl" ) );
 
 	BaseClass::Spawn();
 
@@ -2570,7 +2570,7 @@ END_DATADESC()
 //-----------------------------------------------------------------------------
 void CFastHeadcrab::Precache( void )
 {
-	PrecacheModel( "models/headcrab.mdl" );
+	PrecacheModel( DefaultOrCustomModel( "models/headcrab.mdl" ) );
 
 	PrecacheScriptSound( "NPC_FastHeadcrab.Idle" );
 	PrecacheScriptSound( "NPC_FastHeadcrab.Alert" );
@@ -2589,7 +2589,7 @@ void CFastHeadcrab::Precache( void )
 void CFastHeadcrab::Spawn( void )
 {
 	Precache();
-	SetModel( "models/headcrab.mdl" );
+	SetModel( DefaultOrCustomModel( "models/headcrab.mdl" ) );
 
 	BaseClass::Spawn();
 
@@ -3089,7 +3089,7 @@ void CBlackHeadcrab::TelegraphSound( void )
 void CBlackHeadcrab::Spawn( void )
 {
 	Precache();
-	SetModel( "models/headcrabblack.mdl" );
+	SetModel( DefaultOrCustomModel( "models/headcrabblack.mdl" ) );
 
 	BaseClass::Spawn();
 
@@ -3106,7 +3106,7 @@ void CBlackHeadcrab::Spawn( void )
 //-----------------------------------------------------------------------------
 void CBlackHeadcrab::Precache( void )
 {
-	PrecacheModel( "models/headcrabblack.mdl" );
+	PrecacheModel( DefaultOrCustomModel( "models/headcrabblack.mdl" ) );
 
 	PrecacheScriptSound( "NPC_BlackHeadcrab.Telegraph" );
 	PrecacheScriptSound( "NPC_BlackHeadcrab.Attack" );
