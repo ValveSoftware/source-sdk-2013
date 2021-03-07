@@ -1378,6 +1378,7 @@ public:
 
 #ifdef MAPBASE
 	int								m_iViewHideFlags;
+	bool							m_bDisableFlashlight;
 #endif
 
 private:

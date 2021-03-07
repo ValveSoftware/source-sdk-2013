@@ -578,6 +578,7 @@ BEGIN_RECV_TABLE_NOBASE(C_BaseEntity, DT_BaseEntity)
 	RecvPropInt(RECVINFO(m_clrRender)),
 #ifdef MAPBASE
 	RecvPropInt(RECVINFO(m_iViewHideFlags)),
+	RecvPropBool(RECVINFO(m_bDisableFlashlight)),
 #endif
 	RecvPropInt(RECVINFO(m_iTeamNum)),
 	RecvPropInt(RECVINFO(m_CollisionGroup)),
@@ -1682,6 +1683,11 @@ bool C_BaseEntity::ShouldReceiveProjectedTextures( int flags )
 
 	if ( IsEffectActive( EF_NODRAW ) )
 		 return false;
+
+#ifdef MAPBASE
+	if ( m_bDisableFlashlight )
+		return false;
+#endif
 
 	if( flags & SHADOW_FLAGS_FLASHLIGHT )
 	{
