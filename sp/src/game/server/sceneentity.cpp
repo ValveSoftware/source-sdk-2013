@@ -32,6 +32,7 @@
 #include "scenefilecache/ISceneFileCache.h"
 #include "SceneCache.h"
 #include "scripted.h"
+#include "basemultiplayerplayer.h"
 #include "env_debughistory.h"
 #include "team.h"
 #include "triggers.h"
@@ -2348,6 +2349,40 @@ void CSceneEntity::InputInterjectResponse( inputdata_t &inputdata )
 	}
 	else
 	{
+#ifdef NEW_RESPONSE_SYSTEM
+		CUtlString modifiers("scene:");
+		modifiers += STRING( GetEntityName() );
+
+		while (candidates.Count() > 0)
+		{
+			// Pick a random slot in the candidates array.
+			int slot = RandomInt( 0, candidates.Count() - 1 );
+
+			CAI_BaseActor *npc = candidates[ slot ];
+
+			// Try to find the response for this slot.
+			AI_Response response;
+			CAI_Concept concept(inputdata.value.String());
+			concept.SetSpeaker(npc);
+			AI_CriteriaSet set;
+			npc->GatherCriteria(&set, concept, modifiers.Get());
+			bool result = npc->FindResponse( response, concept, &set);
+			if ( result )
+			{
+				float duration = npc->GetResponseDuration( &response );
+
+				if ( ( duration > 0.0f ) && npc->PermitResponse( duration ) )
+				{
+					// If we could look it up, dispatch it and bail.
+					npc->SpeakDispatchResponse( concept, &response, &set);
+					return;
+				}
+			}
+
+			// Remove this entry and look for another one.
+			candidates.FastRemove(slot);
+		}
+#else
 		CUtlVector< NPCInterjection > validResponses;
 
 		char modifiers[ 512 ];
@@ -2399,6 +2434,7 @@ void CSceneEntity::InputInterjectResponse( inputdata_t &inputdata )
 				}
 			}
 		}
+#endif
 	}
 }
 
@@ -3019,6 +3055,16 @@ void CSceneEntity::QueueResumePlayback( void )
 				CAI_BaseActor *pBaseActor = dynamic_cast<CAI_BaseActor*>(pActor);
 				if ( pBaseActor )
 				{
+#ifdef NEW_RESPONSE_SYSTEM
+					AI_Response response;
+					CAI_Concept concept(STRING(m_iszResumeSceneFile));
+					bool result = pBaseActor->FindResponse( response, concept, NULL );
+					if ( result )
+					{
+						const char* szResponse = response.GetResponsePtr();
+						bStartedScene = InstancedScriptedScene( NULL, szResponse, &m_hWaitingForThisResumeScene, 0, false ) != 0;
+					}
+#else
 					AI_Response *result = pBaseActor->SpeakFindResponse( STRING(m_iszResumeSceneFile), NULL );
 					if ( result )
 					{
@@ -3026,6 +3072,7 @@ void CSceneEntity::QueueResumePlayback( void )
 						result->GetResponse( response, sizeof( response ) );
 						bStartedScene = InstancedScriptedScene( NULL, response, &m_hWaitingForThisResumeScene, 0, false ) != 0;
 					}
+#endif
 				}
 			}
 		}
@@ -4783,6 +4830,26 @@ void CSceneEntity::OnSceneFinished( bool canceled, bool fireoutput )
 		m_OnCompletion.FireOutput( this, this, 0 );
 	}
 
+#ifdef NEW_RESPONSE_SYSTEM
+	{
+		CBaseFlex *pFlex =  FindNamedActor( 0 ) ;
+		if ( pFlex )
+		{
+			CBaseMultiplayerPlayer *pAsPlayer = dynamic_cast<CBaseMultiplayerPlayer *>(pFlex);
+			if (pAsPlayer)
+			{
+				CAI_Expresser *pExpresser = pAsPlayer->GetExpresser();
+				pExpresser->OnSpeechFinished();
+			}
+			else if ( CAI_BaseActor *pActor = dynamic_cast<CAI_BaseActor*>( pFlex ) )
+			{
+				CAI_Expresser *pExpresser = pActor->GetExpresser();
+				pExpresser->OnSpeechFinished();
+			}
+		}
+	}
+#endif
+
 	// Put face back in neutral pose
 	ClearSceneEvents( m_pScene, canceled );
 
@@ -5158,6 +5225,34 @@ float GetSceneDuration( char const *pszScene )
 	}
 
 	return (float)msecs * 0.001f;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *pszScene - 
+// Output : float
+//-----------------------------------------------------------------------------
+float GetSceneSpeechDuration( char const* pszScene )
+{
+	float flSecs = 0.0f;
+
+	CChoreoScene* pScene = CSceneEntity::LoadScene( pszScene, nullptr );
+	if (pScene)
+	{
+		for (int i = pScene->GetNumEvents() - 1; i >= 0; i--)
+		{
+			CChoreoEvent* pEvent = pScene->GetEvent( i );
+
+			if (pEvent->GetType() == CChoreoEvent::SPEAK)
+			{
+				flSecs = pEvent->GetStartTime() + pEvent->GetDuration();
+				break;
+			}
+		}
+		delete pScene;
+	}
+
+	return flSecs;
 }
 
 //-----------------------------------------------------------------------------

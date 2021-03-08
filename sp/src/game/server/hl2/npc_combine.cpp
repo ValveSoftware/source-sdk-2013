@@ -3004,7 +3004,11 @@ bool CNPC_Combine::SpeakIfAllowed( const char *concept, const char *modifiers, S
 	AI_CriteriaSet set;
 	if (modifiers)
 	{
+#ifdef NEW_RESPONSE_SYSTEM
+		GatherCriteria( &set, concept, modifiers );
+#else
 		GetExpresser()->MergeModifiers(set, modifiers);
+#endif
 	}
 	return SpeakIfAllowed( concept, set, sentencepriority, sentencecriteria );
 }

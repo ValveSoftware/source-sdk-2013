@@ -15233,7 +15233,11 @@ void CAI_BaseNPC::CalculateValidEnemyInteractions( void )
 			const char *p = STRING(pInteraction->MiscCriteria);
 			while ( p )
 			{
+#ifdef NEW_RESPONSE_SYSTEM
+				p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL, STRING(pInteraction->MiscCriteria) );
+#else
 				p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL );
+#endif
 
 				index = set.FindCriterionIndex(key);
 				if (index != -1)

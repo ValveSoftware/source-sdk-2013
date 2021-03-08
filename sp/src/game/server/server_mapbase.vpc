@@ -10,6 +10,7 @@ $Configuration
 	{
 		$PreprocessorDefinitions		"$BASE;ASW_PROJECTED_TEXTURES;DYNAMIC_RTT_SHADOWS;GLOWS_ENABLE"
 		$PreprocessorDefinitions		"$BASE;MAPBASE_VSCRIPT"		[$MAPBASE_VSCRIPT]
+		$PreprocessorDefinitions		"$BASE;NEW_RESPONSE_SYSTEM"		[$NEW_RESPONSE_SYSTEM]
 	}
 }
 
@@ -27,6 +28,9 @@ $Project
 		$File	"postprocesscontroller.h"
 		$File	"env_dof_controller.cpp"
 		$File	"env_dof_controller.h"
+		$File	"ai_expresserfollowup.cpp" [$NEW_RESPONSE_SYSTEM]
+		$File	"ai_speechqueue.cpp" [$NEW_RESPONSE_SYSTEM]
+		$File	"ai_speechqueue.h" [$NEW_RESPONSE_SYSTEM]
 
 		$Folder	"Mapbase"
 		{
@@ -104,5 +108,6 @@ $Project
 	$Folder	"Link Libraries"
 	{
 		$Lib	"vscript" [$MAPBASE_VSCRIPT]
+		$Lib	"responserules" [$NEW_RESPONSE_SYSTEM]
 	}
 }

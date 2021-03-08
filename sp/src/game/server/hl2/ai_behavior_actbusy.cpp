@@ -1755,7 +1755,11 @@ void CAI_ActBusyBehavior::PlaySoundForActBusy( busyanimparts_t AnimPart )
 			CAI_Expresser *pExpresser = GetOuter()->GetExpresser();
 			if ( pExpresser )
 			{
+#ifdef NEW_RESPONSE_SYSTEM
+				CAI_Concept concept = STRING(pBusyAnim->iszSounds[AnimPart]);
+#else
 				const char *concept = STRING(pBusyAnim->iszSounds[AnimPart]);
+#endif
 
 				// Must be able to speak the concept
 				if ( !pExpresser->IsSpeaking() && pExpresser->CanSpeakConcept( concept ) )
