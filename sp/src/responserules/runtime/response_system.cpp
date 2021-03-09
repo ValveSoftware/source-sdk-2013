@@ -942,6 +942,10 @@ int CResponseSystem::SelectWeightedResponseFromResponseGroup( ResponseGroup *g, 
 	}
 
 	if ( slot != -1 )
+#ifdef MAPBASE
+	// Don't mark responses as used in prospective mode
+	if (m_bInProspective == false)
+#endif
 		g->MarkResponseUsed( slot );
 
 	// Revert fake depletion of unavailable choices
@@ -1284,6 +1288,26 @@ bool CResponseSystem::FindBestResponse( const CriteriaSet& set, CRR_Response& re
 		context = r->GetContext();
 #ifdef MAPBASE
 		contextflags = r->GetContextFlags();
+
+		// Sets the internal indices for the response to call back to later for prospective responses
+		// (NOTE: Performance not tested; Be wary of turning off the m_bInProspective check!)
+		if (m_bInProspective)
+		{
+			for ( int i = 0; i < (int)m_Responses.Count(); i++ )
+			{
+				if (&m_Responses[i] == result.group)
+				{
+					ResponseGroup &group = m_Responses[i];
+					for ( int j = 0; j < group.group.Count(); j++)
+					{
+						if (&group.group[j] == result.action)
+						{
+							response.SetInternalIndices( i, j );
+						}
+					}
+				}
+			}
+		}
 #else
 		bcontexttoworld = r->IsApplyContextToWorld();
 #endif
@@ -1368,6 +1392,22 @@ void CResponseSystem::GetAllResponses( CUtlVector<CRR_Response> *pResponses )
 		}
 	}
 }
+
+#ifdef MAPBASE
+void CResponseSystem::MarkResponseAsUsed( short iGroup, short iWithinGroup )
+{
+	if (m_Responses.Count() > (unsigned int)iGroup)
+	{
+		ResponseGroup &group = m_Responses[iGroup];
+		if (group.group.Count() > (int)iWithinGroup)
+		{
+			group.MarkResponseUsed( iWithinGroup );
+
+			Msg("Marked response %s (%i) used\n", group.group[iWithinGroup].value, iWithinGroup);
+		}
+	}
+}
+#endif
 
 void CResponseSystem::ParseInclude()
 {
@@ -1521,7 +1561,10 @@ inline ResponseType_t ComputeResponseType( const char *s )
 		return RESPONSE_ENTITYIO;
 #ifdef MAPBASE
 	case 'v':
-		return RESPONSE_VSCRIPT;
+		if (*(s + 7) == '_')
+			return RESPONSE_VSCRIPT_FILE;
+		else
+			return RESPONSE_VSCRIPT;
 #endif
 	}
 

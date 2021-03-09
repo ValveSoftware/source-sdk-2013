@@ -74,6 +74,10 @@ static void DispatchComeback( CAI_ExpresserWithFollowup *pExpress, CBaseEntity *
 	// add in the FROM context so dispatchee knows was from me
 	const char * RESTRICT pszSpeakerName = GetResponseName( pSpeaker );
 	criteria.AppendCriteria( "From", pszSpeakerName );
+#ifdef MAPBASE
+	// See DispatchFollowupThroughQueue()
+	criteria.AppendCriteria( "From_idx", CNumStr( pSpeaker->entindex() ) );
+#endif
 	// if a SUBJECT criteria is missing, put it back in.
 	if ( criteria.FindCriterionIndex( "Subject" ) == -1 )
 	{
@@ -140,8 +144,17 @@ static CBaseEntity *AscertainSpeechSubjectFromContext( AI_Response *response, AI
 	const char *subject = criteria.GetValue( criteria.FindCriterionIndex( pContextName ) );
 	if (subject)
 	{
+		CBaseEntity *pEnt = gEntList.FindEntityByName( NULL, subject );
 
-		return gEntList.FindEntityByName( NULL, subject );
+#ifdef MAPBASE
+		// Allow entity indices to be used (see DispatchFollowupThroughQueue() for one particular use case)
+		if (!pEnt && atoi(subject))
+		{
+			pEnt = CBaseEntity::Instance( atoi( subject ) );
+		}
+#endif
+
+		return pEnt;
 
 	}
 	else
@@ -166,7 +179,12 @@ static CResponseQueue::CFollowupTargetSpec_t ResolveFollowupTargetToEntity( AICo
 	}
 	else if ( Q_stricmp(szTarget, "from") == 0 )
 	{
+#ifdef MAPBASE
+		// See DispatchFollowupThroughQueue()
+		return CResponseQueue::CFollowupTargetSpec_t( AscertainSpeechSubjectFromContext( response, criteria, "From_idx" ) );
+#else
 		return CResponseQueue::CFollowupTargetSpec_t( AscertainSpeechSubjectFromContext( response, criteria, "From" ) );
+#endif
 	}
 	else if ( Q_stricmp(szTarget, "any") == 0 )
 	{
@@ -400,6 +418,14 @@ void CAI_ExpresserWithFollowup::DispatchFollowupThroughQueue( const AIConcept_t 
 	// Don't add my own criteria! GatherCriteria( &criteria, followup.followup_concept, followup.followup_contexts );
 
 	criteria.AppendCriteria( "From", STRING( pOuter->GetEntityName() ) );
+#ifdef MAPBASE
+	// The index of the "From" entity.
+	// In HL2 mods, many followup users would be generic NPCs (e.g. citizens) who might not have any particular significance.
+	// Those generic NPCs are quite likely to have no name or have a name in common with other entities. As a result, Mapbase
+	// changes internal operations of the "From" context to search for an entity index. This won't be 100% reliable if the source
+	// talker dies and another entity is created immediately afterwards, but it's a lot more reliable than a simple entity name search.
+	criteria.AppendCriteria( "From_idx", CNumStr( pOuter->entindex() ) );
+#endif
 
 	criteria.Merge( criteriaStr );
 	g_ResponseQueueManager.GetQueue()->Add( concept, &criteria, gpGlobals->curtime + delay, target, pOuter );
@@ -436,6 +462,12 @@ void CAI_ExpresserWithFollowup::OnSpeechFinished()
 {
 	if (m_pPostponedFollowup && m_pPostponedFollowup->IsValid())
 	{
+#ifdef MAPBASE
+		// HACKHACK: Non-scene speech (e.g. noscene speak/sentence) fire OnSpeechFinished() immediately,
+		// so add the actual speech time to the followup delay
+		if (GetTimeSpeechCompleteWithoutDelay() > gpGlobals->curtime)
+			m_pPostponedFollowup->followup_delay += GetTimeSpeechCompleteWithoutDelay() - gpGlobals->curtime;
+#endif
 		return SpeakDispatchFollowup(*m_pPostponedFollowup);
 	}
 }

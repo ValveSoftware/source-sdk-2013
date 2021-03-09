@@ -44,6 +44,12 @@ namespace ResponseRules
 		// IResponseSystem
 		virtual bool FindBestResponse( const CriteriaSet& set, CRR_Response& response, IResponseFilter *pFilter = NULL );
 		virtual void GetAllResponses( CUtlVector<CRR_Response> *pResponses );
+
+#ifdef MAPBASE
+		virtual void SetProspective( bool bToggle ) { m_bInProspective = bToggle; }
+
+		virtual void MarkResponseAsUsed( short iGroup, short iWithinGroup );
+#endif
 #pragma endregion Implement interface from IResponseSystem
 
 		virtual void Release() = 0;
@@ -282,6 +288,13 @@ public:
 		bool		m_bUnget;
 
 		bool		m_bCustomManagable;
+
+#ifdef MAPBASE
+		// This is a hack specifically designed to fix displayfirst, speakonce, etc. in "prospective" response searches,
+		// especially the prospective lookups in followup responses.
+		// It works by preventing responses from being marked as "used".
+		bool		m_bInProspective;
+#endif
 
 		struct ScriptEntry
 		{

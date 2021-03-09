@@ -374,6 +374,10 @@ bool CResponseQueue::DispatchOneResponse_ThenANY( CDeferredResponse &response, A
 		}
 		AI_Response prospectiveResponse;
 
+#ifdef MAPBASE
+		pEx->SetUsingProspectiveResponses( true );
+#endif
+
 		if ( pEx->FindResponse( prospectiveResponse, response.m_concept, &characterCriteria ) )
 		{
 			float score = prospectiveResponse.GetMatchScore();
@@ -390,8 +394,13 @@ bool CResponseQueue::DispatchOneResponse_ThenANY( CDeferredResponse &response, A
 				}
 				else if ( score >= bestScore - slop ) // if this score is at least as good as the best we've seen, but not better than all 
 				{
-					if ( numExFound >= EXARRAYMAX ) 
+					if ( numExFound >= EXARRAYMAX )
+					{
+#ifdef MAPBASE
+						pEx->SetUsingProspectiveResponses( false );
+#endif
 						continue;  // SAFETY: don't overflow the array
+					}
 
 					responseToSay[numExFound] = prospectiveResponse;
 					pBestEx[numExFound] = pEx;
@@ -400,6 +409,10 @@ bool CResponseQueue::DispatchOneResponse_ThenANY( CDeferredResponse &response, A
 				}
 			}
 		}
+
+#ifdef MAPBASE
+		pEx->SetUsingProspectiveResponses( false );
+#endif
 	}
 
 	// if I have a response, dispatch it.
@@ -410,6 +423,9 @@ bool CResponseQueue::DispatchOneResponse_ThenANY( CDeferredResponse &response, A
 
 		if ( pBestEx[iSelect] != NULL )
 		{
+#ifdef MAPBASE
+			pBestEx[iSelect]->MarkResponseAsUsed( responseToSay + iSelect );
+#endif
 			return pBestEx[iSelect]->SpeakDispatchResponse( response.m_concept, responseToSay + iSelect, pDeferredCriteria );
 		}
 		else

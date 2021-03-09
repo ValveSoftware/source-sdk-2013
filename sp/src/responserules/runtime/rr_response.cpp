@@ -244,6 +244,8 @@ const char *CRR_Response::DescribeResponse( ResponseType_t type )
 #ifdef MAPBASE
 	case ResponseRules::RESPONSE_VSCRIPT:
 		return "RESPONSE_VSCRIPT";
+	case ResponseRules::RESPONSE_VSCRIPT_FILE:
+		return "RESPONSE_VSCRIPT_FILE";
 #endif
 	}
 

@@ -750,6 +750,10 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t &concept, AI_Response *re
 				DevMsg( 2, "SpeakDispatchResponse:  Entity ( %i/%s ) playing sound '%s'\n", GetOuter()->entindex(), STRING( GetOuter()->GetEntityName() ), response );
 				NoteSpeaking( speakTime, delay );
 				spoke = true;
+#ifdef MAPBASE
+				// Not really any other way of doing this
+				OnSpeechFinished();
+#endif
 			}
 		}
 		break;
@@ -757,6 +761,10 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t &concept, AI_Response *re
 	case ResponseRules::RESPONSE_SENTENCE:
 		{
 			spoke = ( -1 != SpeakRawSentence( response, delay, VOL_NORM, soundlevel ) ) ? true : false;
+#ifdef MAPBASE
+			// Not really any other way of doing this
+			OnSpeechFinished();
+#endif
 		}
 		break;
 
@@ -781,17 +789,30 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t &concept, AI_Response *re
 				NDebugOverlay::Text( vPrintPos, response, true, 1.5 );
 			}
 				spoke = true;
+#ifdef MAPBASE
+				OnSpeechFinished();
+#endif
 			}
 		break;
 	case ResponseRules::RESPONSE_ENTITYIO:
 		{
-			return FireEntIOFromResponse( response, GetOuter() );
+			spoke = FireEntIOFromResponse( response, GetOuter() );
+#ifdef MAPBASE
+			OnSpeechFinished();
+#endif
 		}
 		break;
-#ifdef MAPBASE
+#ifdef MAPBASE_VSCRIPT
 	case ResponseRules::RESPONSE_VSCRIPT:
 		{
-			return GetOuter()->RunScript( response, "ResponseScript" );
+			spoke = RunScriptResponse( GetOuter(), response, criteria, false );
+			OnSpeechFinished();
+		}
+		break;
+	case ResponseRules::RESPONSE_VSCRIPT_FILE:
+		{
+			spoke = RunScriptResponse( GetOuter(), response, criteria, true );
+			OnSpeechFinished();
 		}
 		break;
 #endif
@@ -918,6 +939,47 @@ bool CAI_Expresser::FireEntIOFromResponse( char *response, CBaseEntity *pInitiat
 	return true;
 }
 
+#ifdef MAPBASE_VSCRIPT
+bool CAI_Expresser::RunScriptResponse( CBaseEntity *pTarget, const char *response, AI_CriteriaSet *criteria, bool file )
+{
+	if (!pTarget->ValidateScriptScope())
+		return false;
+
+	ScriptVariant_t varCriteriaTable;
+	g_pScriptVM->CreateTable( varCriteriaTable );
+
+	if (criteria)
+	{
+		// Sort all of the criteria into a table.
+		// Letting VScript have access to this is important because not all criteria is appended in ModifyOrAppendCriteria() and
+		// not all contexts are actually appended as contexts. This is specifically important for followup responses.
+		int count = criteria->GetCount();
+		for ( int i = 0 ; i < count ; ++i )
+		{
+			// TODO: Weight?
+			g_pScriptVM->SetValue( varCriteriaTable, criteria->GetName(i), criteria->GetValue(i) );
+		}
+
+		g_pScriptVM->SetValue( "criteria", varCriteriaTable );
+	}
+
+	bool bSuccess = false;
+	if (file)
+	{
+		bSuccess = pTarget->RunScriptFile( response );
+	}
+	else
+	{
+		bSuccess = pTarget->RunScript( response, "ResponseScript" );
+	}
+
+	g_pScriptVM->ClearValue( "criteria" );
+	g_pScriptVM->ReleaseScript( varCriteriaTable );
+
+	return bSuccess;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *response - 
@@ -966,6 +1028,37 @@ float CAI_Expresser::GetResponseDuration( AI_Response *result )
 
 	return 0.0f;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CAI_Expresser::SetUsingProspectiveResponses( bool bToggle )
+{
+	VPROF("CAI_Expresser::SetUsingProspectiveResponses");
+	IResponseSystem *rs = GetOuter()->GetResponseSystem();
+	if ( !rs )
+	{
+		Assert( !"No response system installed for CAI_Expresser::GetOuter()!!!" );
+		return;
+	}
+
+	rs->SetProspective( bToggle );
+}
+
+void CAI_Expresser::MarkResponseAsUsed( AI_Response *response )
+{
+	VPROF("CAI_Expresser::MarkResponseAsUsed");
+	IResponseSystem *rs = GetOuter()->GetResponseSystem();
+	if ( !rs )
+	{
+		Assert( !"No response system installed for CAI_Expresser::GetOuter()!!!" );
+		return;
+	}
+
+	rs->MarkResponseAsUsed( response->GetInternalIndices()[0], response->GetInternalIndices()[1] );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Placeholder for rules based response system

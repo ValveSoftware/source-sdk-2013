@@ -98,6 +98,7 @@ namespace ResponseRules
 		RESPONSE_ENTITYIO, // poke an input on an entity
 #ifdef MAPBASE
 		RESPONSE_VSCRIPT, // Run VScript code
+		RESPONSE_VSCRIPT_FILE, // Run a VScript file (bypasses ugliness and character limits when just using IncludeScript() with RESPONSE_VSCRIPT)
 #endif
 
 		NUM_RESPONSES,
@@ -351,6 +352,9 @@ namespace ResponseRules
 #ifdef MAPBASE
 		int				GetContextFlags() { return m_iContextFlags; }
 		bool			IsApplyContextToWorld( void ) { return (m_iContextFlags & APPLYCONTEXT_WORLD) != 0; }
+
+		inline short	*GetInternalIndices() { return m_InternalIndices; }
+		inline void		SetInternalIndices( short iGroup, short iWithinGroup ) { m_InternalIndices[0] = iGroup; m_InternalIndices[1] = iWithinGroup; }
 #else
 		bool			IsApplyContextToWorld( void ) { return m_bApplyContextToWorld; }
 #endif
@@ -393,6 +397,10 @@ namespace ResponseRules
 		char *			m_szContext; // context data we apply to character after running
 #ifdef MAPBASE
 		int				m_iContextFlags;
+
+		// The response's original indices in the system. [0] is the group's index, [1] is the index within the group.
+		// For now, this is only set in prospecctive mode. It's used to call back to the ParserResponse and mark a prospectively chosen response as used.
+		short			m_InternalIndices[2];
 #else
 		bool			m_bApplyContextToWorld;
 #endif
@@ -418,6 +426,15 @@ namespace ResponseRules
 		virtual bool FindBestResponse( const CriteriaSet& set, CRR_Response& response, IResponseFilter *pFilter = NULL ) = 0;
 		virtual void GetAllResponses( CUtlVector<CRR_Response> *pResponses ) = 0;
 		virtual void PrecacheResponses( bool bEnable ) = 0;
+
+#ifdef MAPBASE
+		// (Optional) Call this before and after using FindBestResponse() for a prospective lookup, e.g. a response that might not actually be used
+		// and should not trigger displayfirst, etc.
+		virtual void SetProspective( bool bToggle ) {};
+
+		// (Optional) Marks a prospective response as used
+		virtual void MarkResponseAsUsed( short iGroup, short iWithinGroup ) {};
+#endif
 	};
 
 

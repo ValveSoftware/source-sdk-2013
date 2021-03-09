@@ -178,6 +178,11 @@ public:
 	virtual bool SpeakDispatchResponse( AIConcept_t &concept, AI_Response *response, AI_CriteriaSet *criteria, IRecipientFilter *filter = NULL );
 	float GetResponseDuration( AI_Response *response );
 
+#ifdef MAPBASE
+	void SetUsingProspectiveResponses( bool bToggle );
+	void MarkResponseAsUsed( AI_Response *response );
+#endif
+
 	virtual int SpeakRawSentence( const char *pszSentence, float delay, float volume = VOL_NORM, soundlevel_t soundlevel = SNDLVL_TALKING, CBaseEntity *pListener = NULL );
 	
 	bool SemaphoreIsAvailable( CBaseEntity *pTalker );
@@ -194,6 +199,9 @@ public:
 	bool CanSpeak();
 	bool CanSpeakAfterMyself();
 	float GetTimeSpeechComplete() const 	{ return m_flStopTalkTime; }
+#ifdef MAPBASE
+	float GetTimeSpeechCompleteWithoutDelay() const	{ return m_flStopTalkTimeWithoutDelay; }
+#endif
 	void  BlockSpeechUntil( float time );
 
 	// --------------------------------
@@ -226,6 +234,11 @@ public:
 	// note: the response string will get stomped on (by strtok)
 	// returns false on failure (eg, couldn't match parse contents)
 	static bool FireEntIOFromResponse( char *response, CBaseEntity *pInitiator ); 
+
+#ifdef MAPBASE_VSCRIPT
+	// Used for RESPONSE_VSCRIPT(_FILE)
+	static bool RunScriptResponse( CBaseEntity *pTarget, const char *response, AI_CriteriaSet *criteria, bool file );
+#endif
 
 protected:
 	CAI_TimedSemaphore *GetMySpeechSemaphore( CBaseEntity *pNpc );
