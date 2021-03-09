@@ -974,7 +974,28 @@ bool LoadResponseSystemFile(const char *scriptfile)
 	delete rs;
 	*/
 
-	defaultresponsesytem.LoadFromBuffer(scriptfile, (const char *)buf.PeekGet());
+	// HACKHACK: This is not very efficient
+	/*
+	CInstancedResponseSystem *tempSys = new CInstancedResponseSystem( scriptfile );
+	if ( tempSys && tempSys->Init() )
+	{
+		tempSys->Precache();
+
+		for ( ResponseRulePartition::tIndex idx = tempSys->m_RulePartitions.First() ;
+				tempSys->m_RulePartitions.IsValid(idx) ;
+				idx = tempSys->m_RulePartitions.Next(idx) )
+		{
+			Rule &rule = tempSys->m_RulePartitions[idx];
+			tempSys->CopyRuleFrom( &rule, idx, &defaultresponsesytem );
+		}
+
+		tempSys->Release();
+	}
+	*/
+
+	// HACKHACK: This is even less efficient
+	defaultresponsesytem.LoadFromBuffer( scriptfile, (const char *)buf.PeekGet() );
+	defaultresponsesytem.Precache();
 
 	return true;
 }

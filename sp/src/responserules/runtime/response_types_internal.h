@@ -340,7 +340,8 @@ namespace ResponseRules
 		uint8				m_nForceWeight;
 
 #ifdef MAPBASE
-		int					m_iContextFlags;
+		// TODO: Could this cause any issues with the code optimization?
+		uint8				m_iContextFlags;
 #else
 		bool				m_bApplyContextToWorld : 1;
 #endif

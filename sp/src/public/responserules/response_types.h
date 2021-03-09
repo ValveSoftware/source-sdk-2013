@@ -111,7 +111,9 @@ namespace ResponseRules
 	// CResponseSystem::BuildDispatchTables() - AI_ResponseSystem.cpp (with their own funcs for m_RuleDispatch)
 	// CRR_Response::Describe() - rr_response.cpp
 	// CAI_Expresser::SpeakDispatchResponse() - ai_speech.cpp
-	enum
+	// 
+	// Also mind that this is 8-bit
+	enum : uint8
 	{
 		APPLYCONTEXT_SELF = (1 << 0), // Included for contexts that apply to both self and something else
 		APPLYCONTEXT_WORLD = (1 << 1), // Apply to world
