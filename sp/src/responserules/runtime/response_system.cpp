@@ -1815,7 +1815,7 @@ void CResponseSystem::ParseResponseGroup_Start( char const *responseGroupName, R
 					continue;
 				}
 
-				ParseOneResponse( responseGroupName, newGroup );
+				ParseOneResponse( responseGroupName, newGroup, &groupResponseParams );
 			}
 		}
 
@@ -1923,9 +1923,10 @@ void CResponseSystem::ParseResponse( void )
 		{
 			continue;
 		}
-			ParseOneResponse( responseGroupName, newGroup );
-		}
+
+		ParseOneResponse( responseGroupName, newGroup, &groupResponseParams );
 	}
+}
 
 
 //-----------------------------------------------------------------------------
