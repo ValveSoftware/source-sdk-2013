@@ -46,6 +46,12 @@ extern ConVar rr_debugrule; // ( "rr_debugrule", "", FCVAR_NONE, "If set to the 
 extern ConVar rr_dumpresponses; // ( "rr_dumpresponses", "0", FCVAR_NONE, "Dump all response_rules.txt and rules (requires restart)" );
 extern ConVar rr_debugresponseconcept; // ( "rr_debugresponseconcept", "", FCVAR_NONE, "If set, rr_debugresponses will print only responses testing for the specified concept" );
 
+static void CC_RR_DumpHashInfo( const CCommand &args );
+
+#ifdef MAPBASE
+ConVar rr_enhanced_saverestore( "rr_enhanced_saverestore", "0", FCVAR_NONE, "Enables enhanced save/restore capabilities for the Response System." );
+#endif
+
 extern ISceneFileCache *scenefilecache;
 extern INetworkStringTable *g_pStringTableClientSideChoreoScenes;
 
@@ -622,6 +628,9 @@ public:
 			Precache();
 		}
 
+#ifdef MAPBASE
+		if (!rr_enhanced_saverestore.GetBool() || gpGlobals->eLoadType != MapLoad_Transition)
+#endif
 		ResetResponseGroups();
 	}
 
@@ -735,6 +744,14 @@ CON_COMMAND( rr_reloadresponsesystems, "Reload all response system scripts." )
 
 	defaultresponsesytem.ReloadAllResponseSystems();
 }
+
+#if RR_DUMPHASHINFO_ENABLED
+static void CC_RR_DumpHashInfo( const CCommand &args )
+{
+	defaultresponsesytem.m_RulePartitions.PrintBucketInfo( &defaultresponsesytem );
+}
+static ConCommand rr_dumphashinfo( "rr_dumphashinfo", CC_RR_DumpHashInfo, "Statistics on primary hash bucketing of response rule partitions");
+#endif
 
 #ifdef MAPBASE
 // Designed for extern magic, this gives the <, >, etc. of response system criteria to the outside world.
@@ -1021,6 +1038,37 @@ public:
 
 			pSave->EndBlock();
 		}
+
+#ifdef MAPBASE
+		// Enhanced Response System save/restore
+		int count2 = 0;
+		if (rr_enhanced_saverestore.GetBool())
+		{
+			// Rule state save/load
+			count2 = rs.m_RulePartitions.Count();
+			pSave->WriteInt( &count2 );
+			for ( ResponseRulePartition::tIndex idx = rs.m_RulePartitions.First() ;
+				rs.m_RulePartitions.IsValid(idx) ;
+				idx = rs.m_RulePartitions.Next(idx) )
+			{
+				pSave->StartBlock( "Rule" );
+
+				pSave->WriteString( rs.m_RulePartitions.GetElementName( idx ) );
+				const Rule &rule = rs.m_RulePartitions[ idx ];
+
+				bool bEnabled = rule.m_bEnabled;
+				Msg( "%s: %i\n", rs.m_RulePartitions.GetElementName( idx ), idx );
+				pSave->WriteBool( &bEnabled );
+
+				pSave->EndBlock();
+			}
+		}
+		else
+		{
+			// Indicate this isn't using enhanced save/restore
+			pSave->WriteInt( &count2 );
+		}
+#endif
 	}
 
 	void Restore( IRestore *pRestore, bool createPlayers )
@@ -1084,6 +1132,36 @@ public:
 
 			pRestore->EndBlock();
 		}
+
+#ifdef MAPBASE
+		// Enhanced Response System save/restore
+		count = pRestore->ReadInt();
+		for ( int i = 0; i < count; ++i )
+		{
+			char szRuleBlockName[SIZE_BLOCK_NAME_BUF];
+			pRestore->StartBlock( szRuleBlockName );
+			if ( !Q_stricmp( szRuleBlockName, "Rule" ) )
+			{
+				char groupname[ 256 ];
+				pRestore->ReadString( groupname, sizeof( groupname ), 0 );
+
+				// Try and find it
+				Rule *rule = rs.m_RulePartitions.FindByName( groupname );
+				if ( rule )
+				{
+					bool bEnabled;
+					pRestore->ReadBool( &bEnabled );
+					rule->m_bEnabled = bEnabled;
+				}
+				else
+				{
+					Warning("Warning: Can't find rule %s\n", groupname);
+				}
+			}
+
+			pRestore->EndBlock();
+		}
+#endif
 	}
 private:
 

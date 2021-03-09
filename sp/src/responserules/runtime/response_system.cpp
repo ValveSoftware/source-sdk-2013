@@ -21,7 +21,6 @@
 using namespace ResponseRules;
 static void CC_RR_Debug_ResponseConcept_Exclude( const CCommand &args );
 static ConCommand rr_debug_responseconcept_exclude( "rr_debugresponseconcept_exclude", CC_RR_Debug_ResponseConcept_Exclude, "Set a list of concepts to exclude from rr_debugresponseconcept. Separate multiple concepts with spaces. Call with no arguments to see current list. Call 'rr_debug_responseconcept_exclude !' to reset.");
-static void CC_RR_DumpHashInfo( const CCommand &args );
 
 namespace ResponseRules
 {
@@ -2809,12 +2808,6 @@ static void CC_RR_Debug_ResponseConcept_Exclude( const CCommand &args )
 	}
 }
 #if RR_DUMPHASHINFO_ENABLED
-static void CC_RR_DumpHashInfo( const CCommand &args )
-{
-	defaultresponsesytem.m_InstancedSystems[0]->m_RulePartitions.PrintBucketInfo( defaultresponsesytem.m_InstancedSystems[0] );
-}
-static ConCommand rr_dumphashinfo( "rr_dumphashinfo", CC_RR_DumpHashInfo, "Statistics on primary hash bucketing of response rule partitions");
-
 void ResponseRulePartition::PrintBucketInfo( CResponseSystem *pSys )
 {
 	struct bucktuple_t

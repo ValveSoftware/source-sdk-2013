@@ -47,6 +47,24 @@ char const *ResponseRulePartition::GetElementName( const tIndex &i ) const
 }
 
 
+Rule *ResponseRulePartition::FindByName( char const *name ) const
+{
+	int count;
+
+	for ( int bukkit = 0 ; bukkit < N_RESPONSE_PARTITIONS ; ++bukkit )
+	{
+		count = m_RuleParts[bukkit].Count();
+		for ( int i = 0; i < count; ++i )
+		{
+			if (V_strncmp( m_RuleParts[bukkit].GetElementName(i), name, CRR_Response::MAX_RULE_NAME ) == 0)
+				return m_RuleParts[bukkit][i];
+		}
+	}
+
+	return NULL;
+}
+
+
 int ResponseRulePartition::Count( void )
 {
 	int count = 0 ;

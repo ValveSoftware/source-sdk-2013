@@ -436,6 +436,7 @@ namespace ResponseRules
 		inline Rule &operator[]( tIndex idx );
 		int Count( void ); // number of elements inside, but you can't iterate from 0 to this
 		char const *GetElementName( const tIndex &i ) const;
+		Rule *FindByName( char const *name ) const;
 
 		/// given a dictionary and an element number inside that dict,
 		/// return a tIndex
