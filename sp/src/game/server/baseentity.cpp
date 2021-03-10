@@ -9243,10 +9243,15 @@ void CBaseEntity::DispatchResponse( const char *conceptName )
 		CAI_Expresser::FireEntIOFromResponse(response, this);
 		break;
 	}
-#ifdef MAPBASE
+#ifdef MAPBASE_VSCRIPT
 	case ResponseRules::RESPONSE_VSCRIPT:
 	{
-		RunScript( response, "ResponseScript" );
+		CAI_Expresser::RunScriptResponse( this, response, &set, false );
+		break;
+	}
+	case ResponseRules::RESPONSE_VSCRIPT_FILE:
+	{
+		CAI_Expresser::RunScriptResponse( this, response, &set, true );
 		break;
 	}
 #endif

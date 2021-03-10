@@ -286,11 +286,18 @@ void CSpeaker::DispatchResponse( const char *conceptName )
 		CAI_Expresser::FireEntIOFromResponse( response, pTarget );
 		break;
 	}
+#ifdef MAPBASE_VSCRIPT
 	case ResponseRules::RESPONSE_VSCRIPT:
 	{
-		pTarget->RunScript( response, "ResponseScript" );
+		CAI_Expresser::RunScriptResponse( pTarget, response, &set, false );
 		break;
 	}
+	case ResponseRules::RESPONSE_VSCRIPT_FILE:
+	{
+		CAI_Expresser::RunScriptResponse( pTarget, response, &set, true );
+		break;
+	}
+#endif
 	default:
 		break;
 	}
