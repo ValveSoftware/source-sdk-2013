@@ -611,6 +611,22 @@ namespace RR
 		virtual bool Apply( const char *pOldValue, const char *pOperator, char *pNewValue, int pNewValBufSize );
 	};
 
+#ifdef MAPBASE
+	class CMultiplyOperator : public CApplyContextOperator
+	{
+	public:
+		inline CMultiplyOperator( int nSkipChars ) : CApplyContextOperator(nSkipChars) {};
+		virtual bool Apply( const char *pOldValue, const char *pOperator, char *pNewValue, int pNewValBufSize );
+	};
+
+	class CDivideOperator : public CApplyContextOperator
+	{
+	public:
+		inline CDivideOperator( int nSkipChars ) : CApplyContextOperator(nSkipChars) {};
+		virtual bool Apply( const char *pOldValue, const char *pOperator, char *pNewValue, int pNewValBufSize );
+	};
+#endif
+
 	class CToggleOperator : public CApplyContextOperator
 	{
 	public:
@@ -622,7 +638,19 @@ namespace RR
 	extern CApplyContextOperator sm_OpCopy;
 	extern CIncrementOperator sm_OpIncrement;
 	extern CDecrementOperator sm_OpDecrement;
+#ifdef MAPBASE
+	extern CMultiplyOperator sm_OpMultiply;
+	extern CDivideOperator sm_OpDivide;
+#endif
 	extern CToggleOperator	  sm_OpToggle;
+
+#ifdef MAPBASE
+	// LEGACY - See CApplyContextOperator::FindOperator()
+	extern CIncrementOperator sm_OpLegacyIncrement;
+	extern CDecrementOperator sm_OpLegacyDecrement;
+	extern CMultiplyOperator sm_OpLegacyMultiply;
+	extern CDivideOperator sm_OpLegacyDivide;
+#endif
 };
 
 

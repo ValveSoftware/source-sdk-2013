@@ -165,7 +165,19 @@ CConceptHistoriesDataOps g_ConceptHistoriesSaveDataOps;
 RR::CApplyContextOperator RR::sm_OpCopy(0); // "
 RR::CIncrementOperator RR::sm_OpIncrement(2); // "++"
 RR::CDecrementOperator RR::sm_OpDecrement(2); // "--"
+#ifdef MAPBASE
+RR::CMultiplyOperator RR::sm_OpMultiply(2); // "**"
+RR::CDivideOperator RR::sm_OpDivide(2); // "/="
+#endif
 RR::CToggleOperator RR::sm_OpToggle(1); // "!"
+
+#ifdef MAPBASE
+// LEGACY - See below
+RR::CIncrementOperator RR::sm_OpLegacyIncrement(1); // "+"
+RR::CDecrementOperator RR::sm_OpLegacyDecrement(1); // "-"
+RR::CMultiplyOperator RR::sm_OpLegacyMultiply(1); // "*"
+RR::CDivideOperator RR::sm_OpLegacyDivide(1); // "/"
+#endif
 
 RR::CApplyContextOperator *RR::CApplyContextOperator::FindOperator( const char *pContextString )
 {
@@ -174,6 +186,65 @@ RR::CApplyContextOperator *RR::CApplyContextOperator::FindOperator( const char *
 		return &sm_OpCopy;
 	}
 
+#ifdef MAPBASE
+	// This is one of those freak coincidences where Mapbase implemented its own context operators with no knowledge of context operators from later versions of the engine.
+	// Mapbase's context operators only required *one* operator character (e.g. '+' as opposed to '++') and supported multiplication and division.
+	// Although Valve's system now replaces Mapbase's system, multiplication and division have been added and maintaining the old syntax is needed for legacy support.
+	// That being said, it's believed that almost nobody knew that Mapbase supported context operators in the first place, so there might not be much legacy to support anyway.
+	switch (pContextString[0])
+	{
+		case '+':
+		{
+			if (pContextString[1] != '+')
+			{
+				Warning( "\"%s\" needs another '+' to qualify as a proper operator. This code is regarding it as an operator anyway for legacy support, which might be going away soon!!!\n", pContextString );
+				return &sm_OpLegacyIncrement;
+			}
+			else if (pContextString[2] == '\0')
+				break;
+			return &sm_OpIncrement;
+		}
+		case '-':
+		{
+			if (pContextString[1] != '-')
+			{
+				Warning( "\"%s\" needs another '-' to qualify as a proper operator. This code is regarding it as an operator anyway for legacy support, which might be going away soon!!!\n", pContextString );
+				return &sm_OpLegacyDecrement;
+			}
+			else if (pContextString[2] == '\0')
+				break;
+			return &sm_OpIncrement;
+		}
+		case '*':
+		{
+			if (pContextString[1] != '*')
+			{
+				Warning( "\"%s\" needs another '*' to qualify as a proper operator. This code is regarding it as an operator anyway for legacy support, which might be going away soon!!!\n", pContextString );
+				return &sm_OpLegacyMultiply;
+			}
+			else if (pContextString[2] == '\0')
+				break;
+			return &sm_OpMultiply;
+		}
+		case '/':
+		{
+			if (pContextString[1] != '=')
+			{
+				Warning( "\"%s\" needs a '=' after the '/' to qualify as a proper operator. This code is regarding it as an operator anyway for legacy support, which might be going away soon!!!\n", pContextString );
+				return &sm_OpLegacyDivide;
+			}
+			else if (pContextString[2] == '\0')
+				break;
+			return &sm_OpDivide;
+		} break;
+		case '!':
+		{
+			return &sm_OpToggle;
+		}
+	}
+
+	return &sm_OpCopy;
+#else
 	if ( pContextString[0] == '+' && pContextString [1] == '+' && pContextString[2] != '\0' )
 	{
 		return &sm_OpIncrement;
@@ -182,6 +253,16 @@ RR::CApplyContextOperator *RR::CApplyContextOperator::FindOperator( const char *
 	{
 		return &sm_OpDecrement;
 	}
+#ifdef MAPBASE
+	else if ( pContextString[0] == '*' && pContextString [1] == '*' && pContextString[2] != '\0' )
+	{
+		return &sm_OpMultiply;
+	}
+	else if ( pContextString[0] == '/' && pContextString [1] == '=' && pContextString[2] != '\0' )
+	{
+		return &sm_OpDivide;
+	}
+#endif
 	else if ( pContextString[0] == '!' )
 	{
 		return &sm_OpToggle;
@@ -190,6 +271,7 @@ RR::CApplyContextOperator *RR::CApplyContextOperator::FindOperator( const char *
 	{
 		return &sm_OpCopy;
 	}
+#endif
 }
 
 // default is just copy
@@ -227,6 +309,31 @@ bool RR::CDecrementOperator::Apply( const char *pOldValue, const char *pOperator
 	V_snprintf( pNewValue, pNewValBufSize, "%d", nOld-nInc );
 	return true;
 }
+
+#ifdef MAPBASE
+bool RR::CMultiplyOperator::Apply( const char *pOldValue, const char *pOperator, char *pNewValue, int pNewValBufSize )
+{
+	Assert( pOperator[0] == '*' && pOperator[1] == '*' );
+	// parse out the old value as a numeric
+	int nOld = pOldValue ? V_atoi(pOldValue) : 0;
+	int nInc = V_atoi( pOperator+m_nSkipChars );
+	V_snprintf( pNewValue, pNewValBufSize, "%d", nOld*nInc );
+	return true;
+}
+
+bool RR::CDivideOperator::Apply( const char *pOldValue, const char *pOperator, char *pNewValue, int pNewValBufSize )
+{
+	Assert( pOperator[0] == '/' && pOperator[1] == '=' );
+	// parse out the old value as a numeric
+	int nOld = pOldValue ? V_atoi(pOldValue) : 0;
+	int nInc = V_atoi( pOperator+m_nSkipChars );
+	if (nInc == 0)
+		V_strncpy( pNewValue, "0", pNewValBufSize );
+	else
+		V_snprintf( pNewValue, pNewValBufSize, "%d", nOld/nInc );
+	return true;
+}
+#endif
 
 bool RR::CToggleOperator::Apply( const char *pOldValue, const char *pOperator, char *pNewValue, int pNewValBufSize )
 {
