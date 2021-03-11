@@ -66,7 +66,7 @@ BEGIN_SCRIPTENUM( RenderMode, "Render modes used by Get/SetRenderMode" )
 	DEFINE_ENUMCONST_NAMED( kRenderTransAdd, "Additive", "" )
 	DEFINE_ENUMCONST_NAMED( kRenderEnvironmental, "Environmental", "" )
 	DEFINE_ENUMCONST_NAMED( kRenderTransAddFrameBlend, "AdditiveFractionalFrame", "" )
-	DEFINE_ENUMCONST_NAMED( kRenderTransAlphaAdd, "Alpha Add", "" )
+	DEFINE_ENUMCONST_NAMED( kRenderTransAlphaAdd, "AlphaAdd", "" )
 	DEFINE_ENUMCONST_NAMED( kRenderWorldGlow, "WorldSpaceGlow", "" )
 	DEFINE_ENUMCONST_NAMED( kRenderNone, "None", "" )
 

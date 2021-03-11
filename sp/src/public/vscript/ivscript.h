@@ -749,9 +749,6 @@ struct ScriptEnumDesc_t
 
 #define DEFINE_SCRIPTHOOK_PARAM( paramName, type ) pHook->AddParameter( paramName, type );
 
-// Define actual parameters instead of global variables
-#define DEFINE_SCRIPTHOOK_REALPARAM( paramName, type )
-
 #define END_SCRIPTHOOK() \
 		pDesc->m_Hooks.AddToTail(pHook); \
 	}
@@ -944,7 +941,7 @@ public:
 #endif
 
 #ifdef MAPBASE_VSCRIPT
-	// virtual void CreateArray(ScriptVariant_t &arr, int size = 0) = 0;
+	virtual void CreateArray(ScriptVariant_t &arr, int size = 0) = 0;
 	virtual bool ArrayAppend(HSCRIPT hArray, const ScriptVariant_t &val) = 0;
 #endif
 

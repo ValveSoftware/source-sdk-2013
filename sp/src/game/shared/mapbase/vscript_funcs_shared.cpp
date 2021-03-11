@@ -164,18 +164,18 @@ HSCRIPT SpawnEntityFromTable( const char *pszClassname, HSCRIPT hKV )
 HSCRIPT EntIndexToHScript( int index )
 {
 #ifdef GAME_DLL
-    edict_t *e = INDEXENT(index);
-    if ( e && !e->IsFree() )
-    {
-        return ToHScript( GetContainingEntity( e ) );
-    }
+	edict_t *e = INDEXENT(index);
+	if ( e && !e->IsFree() )
+	{
+		return ToHScript( GetContainingEntity( e ) );
+	}
 #else // CLIENT_DLL
-    if ( index < NUM_ENT_ENTRIES )
-    {
-        return ToHScript( CBaseEntity::Instance( index ) );
-    }
+	if ( index < NUM_ENT_ENTRIES )
+	{
+		return ToHScript( CBaseEntity::Instance( index ) );
+	}
 #endif
-    return NULL;
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -740,19 +740,28 @@ void NPrint( int pos, const char* fmt )
 
 void NXPrint( int pos, int r, int g, int b, bool fixed, float ftime, const char* fmt )
 {
-	static con_nprint_t *info = new con_nprint_t;
+	con_nprint_t info;
 
-	info->index = pos;
-	info->time_to_live = ftime;
-	info->color[0] = r / 255.f;
-	info->color[1] = g / 255.f;
-	info->color[2] = b / 255.f;
-	info->fixed_width_font = fixed;
+	info.index = pos;
+	info.time_to_live = ftime;
+	info.color[0] = r / 255.f;
+	info.color[1] = g / 255.f;
+	info.color[2] = b / 255.f;
+	info.fixed_width_font = fixed;
 
-	engine->Con_NXPrintf(info, fmt);
-
-	// delete info;
+	engine->Con_NXPrintf( &info, fmt );
 }
+
+static float IntervalPerTick()
+{
+	return gpGlobals->interval_per_tick;
+}
+
+static int GetFrameCount()
+{
+	return gpGlobals->framecount;
+}
+
 
 //=============================================================================
 //=============================================================================
@@ -850,6 +859,9 @@ void RegisterSharedScriptFunctions()
 #endif
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptIsServer, "IsServer", "Returns true if the script is being run on the server." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptIsClient, "IsClient", "Returns true if the script is being run on the client." );
+	ScriptRegisterFunction( g_pScriptVM, IntervalPerTick, "Simulation tick interval" );
+	ScriptRegisterFunction( g_pScriptVM, GetFrameCount, "Absolute frame counter" );
+	//ScriptRegisterFunction( g_pScriptVM, GetTickCount, "Simulation ticks" );
 
 	RegisterScriptSingletons();
 }

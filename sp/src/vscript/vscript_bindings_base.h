@@ -35,6 +35,7 @@ public:
 
 	// Functions below are new with Mapbase
 	void TableToSubKeys( HSCRIPT hTable );
+	void SubKeysToTable( HSCRIPT hTable );
 
 	HSCRIPT ScriptFindOrCreateKey( const char *pszName );
 

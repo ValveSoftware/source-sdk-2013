@@ -5,15 +5,14 @@ static char g_Script_vscript_server[] = R"vscript(
 //
 //=============================================================================
 
-local DoEntFire = ::DoEntFire
-local DoEntFireByInstanceHandle = ::DoEntFireByInstanceHandle
-local DoDispatchParticleEffect = ::DoDispatchParticleEffect
-local DoUniqueString = ::DoUniqueString
-local ScriptGetClientConvarValue = ::ScriptGetClientConvarValue
+local DoEntFire = DoEntFire
+local DoEntFireByInstanceHandle = DoEntFireByInstanceHandle
+local DoDispatchParticleEffect = DoDispatchParticleEffect
+local DoUniqueString = DoUniqueString
 
 function UniqueString( string = "" )
 {
-	return DoUniqueString( string.tostring() );
+	return DoUniqueString( "" + string );
 }
 
 function EntFire( target, action, value = null, delay = 0.0, activator = null, caller = null )
@@ -36,7 +35,7 @@ function EntFire( target, action, value = null, delay = 0.0, activator = null, c
 		}
 	}
 
-	return DoEntFire( target.tostring(), action.tostring(), value.tostring(), delay, activator, caller );
+	return DoEntFire( "" + target, "" + action, "" + value, delay, activator, caller );
 }
 
 function EntFireByHandle( target, action, value = null, delay = 0.0, activator = null, caller = null )
@@ -59,18 +58,12 @@ function EntFireByHandle( target, action, value = null, delay = 0.0, activator =
 		}
 	}
 
-	return DoEntFireByInstanceHandle( target, action.tostring(), value.tostring(), delay, activator, caller );
+	return DoEntFireByInstanceHandle( target, "" + action, "" + value, delay, activator, caller );
 }
 
 function DispatchParticleEffect( particleName, origin, angles, entity = null )
 {
 	DoDispatchParticleEffect( particleName, origin, angles, entity );
-}
-
-// CConvars is declared within the library
-function CConvars::GetClientConvarValue(cvar,idx)
-{
-	return ScriptGetClientConvarValue(cvar,idx);
 }
 
 __Documentation.RegisterHelp( "CConvars::GetClientConvarValue", "CConvars::GetClientConvarValue(string, int)", "Returns the convar value for the entindex as a string. Only works with client convars with the FCVAR_USERINFO flag." );

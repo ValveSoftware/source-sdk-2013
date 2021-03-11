@@ -301,6 +301,10 @@ private:
 		ICommandCallback *m_pCommandCallback; 
 	};
 
+#ifdef MAPBASE_VSCRIPT
+	// Allow late modification of the completion callback.
+public:
+#endif
 	union
 	{
 		FnCommandCompletionCallback	m_fnCompletionCallback;
@@ -308,6 +312,9 @@ private:
 	};
 
 	bool m_bHasCompletionCallback : 1;
+#ifdef MAPBASE_VSCRIPT
+private:
+#endif
 	bool m_bUsingNewCommandCallback : 1;
 	bool m_bUsingCommandCallbackInterface : 1;
 };

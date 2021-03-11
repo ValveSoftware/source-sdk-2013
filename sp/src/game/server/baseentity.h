@@ -341,9 +341,9 @@ struct thinkfunc_t
 #ifdef MAPBASE_VSCRIPT
 struct scriptthinkfunc_t
 {
+	int				m_nNextThinkTick;
 	HSCRIPT			m_hfnThink;
 	unsigned short	m_iContextHash;
-	int				m_nNextThinkTick;
 	bool			m_bNoParam;
 };
 #endif
@@ -2008,7 +2008,7 @@ public:
 	void ScriptStopThink();
 	void ScriptContextThink();
 private:
-	CUtlVector< scriptthinkfunc_t > m_ScriptThinkFuncs;
+	CUtlVector< scriptthinkfunc_t* > m_ScriptThinkFuncs;
 public:
 #endif
 	const char* GetScriptId();
@@ -2039,8 +2039,10 @@ public:
 	const Vector& ScriptGetAngles(void) { static Vector vec; QAngle qa = GetAbsAngles(); vec.x = qa.x; vec.y = qa.y; vec.z = qa.z; return vec; }
 #endif
 
+#ifndef MAPBASE_VSCRIPT
 	void ScriptSetSize(const Vector& mins, const Vector& maxs) { UTIL_SetSize(this, mins, maxs); }
 	void ScriptUtilRemove(void) { UTIL_Remove(this); }
+#endif
 	void ScriptSetOwner(HSCRIPT hEntity) { SetOwnerEntity(ToEnt(hEntity)); }
 	void ScriptSetOrigin(const Vector& v) { Teleport(&v, NULL, NULL); }
 	void ScriptSetForward(const Vector& v) { QAngle angles; VectorAngles(v, angles); Teleport(NULL, &angles, NULL); }
@@ -2066,6 +2068,7 @@ public:
 	const char* ScriptGetModelName(void) const;
 	HSCRIPT ScriptGetModelKeyValues(void);
 
+	void ScriptStopSound(const char* soundname);
 	void ScriptEmitSound(const char* soundname);
 	float ScriptSoundDuration(const char* soundname, const char* actormodel);
 
