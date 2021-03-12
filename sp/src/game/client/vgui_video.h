@@ -49,8 +49,10 @@ public:
 
 	void SetBlackBackground( bool bBlack ){ m_bBlackBackground = bBlack; }
 	void SetAllowInterrupt( bool bAllowInterrupt ) { m_bAllowInterruption = bAllowInterrupt; }
+	void SetStopAllSounds( bool bStopAllSounds ) { m_bStopAllSounds = bStopAllSounds; }
 #ifdef MAPBASE
 	void SetLooping( bool bLooping ) { m_bLooping = bLooping; }
+	void SetMuted( bool bMuted ) { m_bMuted = bMuted; }
 	void SetFade( float flStartFade, float flEndFade ) { m_flFadeIn = flStartFade; m_flFadeOut = flEndFade; }
 #endif
 
@@ -75,6 +77,7 @@ protected:
 #ifdef MAPBASE
 	float			m_flFadeIn;
 	float			m_flFadeOut;
+	bool			m_bMuted;
 #endif
 	bool			m_bStopAllSounds;
 	bool			m_bAllowInterruption;

@@ -36,18 +36,19 @@ void VGui_ClearVideoPanels()
 
 struct VideoPanelParms_t
 {
-	VideoPanelParms_t( bool _interrupt = true, bool _loop = false, float _fadein = 0.0f, float _fadeout = 0.0f )
+	VideoPanelParms_t( bool _interrupt = true, bool _loop = false, bool _mute = false )
 	{
 		bAllowInterrupt = _interrupt;
 		bLoop = _loop;
-		flFadeIn = _fadein;
-		flFadeOut = _fadeout;
+		bMute = _mute;
 	}
 
 	bool bAllowInterrupt;
 	bool bLoop;
-	float flFadeIn;
-	float flFadeOut;
+	bool bMute;
+
+	//float flFadeIn;
+	//float flFadeOut;
 };
 
 VideoPanel::VideoPanel( unsigned int nXPos, unsigned int nYPos, unsigned int nHeight, unsigned int nWidth, bool allowAlternateMedia ) : 
@@ -181,6 +182,13 @@ bool VideoPanel::BeginPlayback( const char *pFilename )
 	{
 		m_VideoMaterial->SetLooping( true );
 	}
+
+#ifdef MAPBASE
+	if ( m_bMuted )
+	{
+		m_VideoMaterial->SetMuted( true );
+	}
+#endif
 
 	m_bStarted = true;
 
@@ -482,8 +490,17 @@ bool VideoPanel_Create( unsigned int nXPos, unsigned int nYPos,
 	// Toggle if we want the panel to loop (inspired by Portal 2)
 	pVideoPanel->SetLooping( parms.bLoop );
 
-	// Fade parameters
-	pVideoPanel->SetFade( parms.flFadeIn, parms.flFadeOut );
+	// Toggle if we want the panel to be muted
+	pVideoPanel->SetMuted( parms.bMute );
+
+	// TODO: Unique "Stop All Sounds" parameter
+	if (parms.bMute)
+	{
+		pVideoPanel->SetStopAllSounds( false );
+	}
+
+	// Fade parameters (unfinished)
+	//pVideoPanel->SetFade( parms.flFadeIn, parms.flFadeOut );
 #endif
 
 	// Start it going
@@ -622,13 +639,16 @@ CON_COMMAND( playvideo_complex, "Plays a video with various parameters to simpli
 	VideoPanelParms_t parms;
 
 	if (args.ArgC() >= 3)
-		parms.bAllowInterrupt = atoi( args[3] ) != 1;
+		parms.bAllowInterrupt = atoi( args[3] ) != 0;
 	if (args.ArgC() >= 4)
 		parms.bLoop = atoi( args[4] ) != 0;
 	if (args.ArgC() >= 5)
-		parms.flFadeIn = atof( args[5] );
-	if (args.ArgC() >= 6)
-		parms.flFadeOut = atof( args[6] );
+		parms.bMute = atoi( args[5] ) != 0;
+
+	//if (args.ArgC() >= 5)
+	//	parms.flFadeIn = atof( args[5] );
+	//if (args.ArgC() >= 6)
+	//	parms.flFadeOut = atof( args[6] );
 
 	// Stop a softlock
 	if (parms.bAllowInterrupt == false && parms.bLoop)
