@@ -553,6 +553,11 @@ CUtlVector<MODCHAPTER> *Mapbase_GetChapterList()
 	return &g_MapbaseChapterList;
 }
 
+int Mapbase_GetChapterCount()
+{
+	return g_MapbaseChapterList.Count();
+}
+
 ThreeState_t Flashlight_GetLegacyVersionKey()
 {
 	KeyValues *gameinfo = new KeyValues( "GameInfo" );
