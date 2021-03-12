@@ -45,14 +45,22 @@ public:
 	}
 
 	bool BeginPlayback( const char *pFilename );
+	void StopPlayback( void );
 
 	void SetBlackBackground( bool bBlack ){ m_bBlackBackground = bBlack; }
+	void SetAllowInterrupt( bool bAllowInterrupt ) { m_bAllowInterruption = bAllowInterrupt; }
+	void SetStopAllSounds( bool bStopAllSounds ) { m_bStopAllSounds = bStopAllSounds; }
+#ifdef MAPBASE
+	void SetLooping( bool bLooping ) { m_bLooping = bLooping; }
+	void SetMuted( bool bMuted ) { m_bMuted = bMuted; }
+	void SetFade( float flStartFade, float flEndFade ) { m_flFadeIn = flStartFade; m_flFadeOut = flEndFade; }
+#endif
 
 protected:
 
-	virtual void OnTick( void ) { BaseClass::OnTick(); }
+	virtual void OnTick( void );
 	virtual void OnCommand( const char *pcCommand ) { BaseClass::OnCommand( pcCommand ); }
-	virtual void OnVideoOver(){}
+	virtual void OnVideoOver();
 
 protected:
 	IVideoMaterial *m_VideoMaterial;
@@ -65,8 +73,19 @@ protected:
 	float			m_flU;	// U,V ranges for video on its sheet
 	float			m_flV;
 
+	bool			m_bLooping;
+#ifdef MAPBASE
+	float			m_flFadeIn;
+	float			m_flFadeOut;
+	bool			m_bMuted;
+#endif
+	bool			m_bStopAllSounds;
+	bool			m_bAllowInterruption;
 	bool			m_bBlackBackground;
 	bool			m_bAllowAlternateMedia;
+	int				m_nShutdownCount;
+
+	bool			m_bStarted;
 };
 
 

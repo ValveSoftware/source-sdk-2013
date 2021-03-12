@@ -27,6 +27,8 @@ $Project
 		$File	"postprocesscontroller.h"
 		$File	"env_dof_controller.cpp"
 		$File	"env_dof_controller.h"
+		$File	"logic_playmovie.cpp"
+		$File	"movie_display.cpp"
 
 		$Folder	"Mapbase"
 		{
