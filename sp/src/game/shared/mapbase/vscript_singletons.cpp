@@ -2176,6 +2176,7 @@ public:
 	{
 		m_cmd = new ConCommand( name, this, helpString, flags, 0 );
 		m_hCallback = fn;
+		m_hCompletionCallback = NULL;
 		m_nCmdNameLen = V_strlen(name) + 1;
 
 		Assert( m_nCmdNameLen - 1 <= 128 );
