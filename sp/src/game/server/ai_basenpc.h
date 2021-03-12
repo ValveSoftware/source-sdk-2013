@@ -1242,6 +1242,8 @@ public:
 	int					ScriptGetActivityID() { return GetActivity(); }
 	void				ScriptSetActivity( const char *szActivity ) { SetActivity( (Activity)GetActivityID( szActivity ) ); }
 	void				ScriptSetActivityID( int iActivity ) { SetActivity((Activity)iActivity); }
+	int					ScriptTranslateActivity( const char *szActivity ) { return TranslateActivity( (Activity)GetActivityID( szActivity ) ); }
+	int					ScriptTranslateActivityID( int iActivity ) { return TranslateActivity( (Activity)iActivity ); }
 
 	const char*			VScriptGetSchedule();
 	int					VScriptGetScheduleID();
@@ -2308,6 +2310,15 @@ public:
 #ifdef AI_MONITOR_FOR_OSCILLATION
 	CUtlVector<AIScheduleChoice_t>	m_ScheduleHistory;
 #endif//AI_MONITOR_FOR_OSCILLATION
+
+#ifdef MAPBASE_VSCRIPT
+	static ScriptHook_t	g_Hook_QueryHearSound;
+	static ScriptHook_t	g_Hook_QuerySeeEntity;
+	static ScriptHook_t	g_Hook_TranslateActivity;
+	static ScriptHook_t	g_Hook_TranslateSchedule;
+	static ScriptHook_t	g_Hook_GetActualShootPosition;
+	static ScriptHook_t	g_Hook_OverrideMove;
+#endif
 
 private:
 
