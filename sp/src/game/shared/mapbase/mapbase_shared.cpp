@@ -212,8 +212,11 @@ public:
 
 		RefreshMapName();
 
-		// Shared Mapbase localization file
+		// Shared Mapbase scripts to avoid overwriting mod files
 		g_pVGuiLocalize->AddFile( "resource/mapbase_%language%.txt" );
+#ifdef CLIENT_DLL
+		PanelMetaClassMgr()->LoadMetaClassDefinitionFile( "scripts/vgui_screens_mapbase.txt" );
+#endif
 	}
 
 	virtual void OnRestore()
