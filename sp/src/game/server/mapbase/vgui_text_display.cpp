@@ -43,6 +43,7 @@ public:
 
 	void	InputDisable( inputdata_t &inputdata );
 	void	InputEnable( inputdata_t &inputdata );
+	void	InputToggle( inputdata_t &inputdata );
 
 	void	InputSetMessage( inputdata_t &inputdata );
 	void	InputSetTextAlignment( inputdata_t &inputdata );
@@ -95,6 +96,7 @@ BEGIN_DATADESC( CVGuiTextDisplay )
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "Toggle", InputToggle ),
 
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetMessage", InputSetMessage ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetTextAlignment", InputSetTextAlignment ),
@@ -116,7 +118,7 @@ CVGuiTextDisplay::CVGuiTextDisplay()
 {
 	m_flTextSize = 100.0f;
 	m_iResolution = 200;
-	m_iContentAlignment = 6; // a_southwest
+	m_iContentAlignment = 7; // a_south
 }
 
 CVGuiTextDisplay::~CVGuiTextDisplay()
@@ -293,6 +295,14 @@ void CVGuiTextDisplay::InputDisable( inputdata_t &inputdata )
 void CVGuiTextDisplay::InputEnable( inputdata_t &inputdata )
 {
 	Enable();
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+void CVGuiTextDisplay::InputToggle( inputdata_t &inputdata )
+{
+	m_bEnabled ? Disable() : Enable();
 }
 
 //-----------------------------------------------------------------------------

@@ -111,7 +111,7 @@ private:
 
 DECLARE_VGUI_SCREEN_FACTORY( C_TextDisplayPanel, "text_display_panel" );
 
-CUtlVector <C_TextDisplayPanel *>	g_WorldTextDisplays;
+CUtlVector <C_TextDisplayPanel *>	g_TextDisplays;
 
 //-----------------------------------------------------------------------------
 // Constructor: 
@@ -120,7 +120,7 @@ C_TextDisplayPanel::C_TextDisplayPanel( vgui::Panel *parent, const char *panelNa
 : BaseClass( parent, "C_TextDisplayPanel"/*, vgui::scheme()->LoadSchemeFromFileEx( enginevgui->GetPanel( PANEL_CLIENTDLL ), "resource/WorldTextPanel.res", "WorldTextPanel" )*/ ) 
 {
 	// Add ourselves to the global list of movie displays
-	g_WorldTextDisplays.AddToTail( this );
+	g_TextDisplays.AddToTail( this );
 }
 
 //-----------------------------------------------------------------------------
@@ -129,7 +129,7 @@ C_TextDisplayPanel::C_TextDisplayPanel( vgui::Panel *parent, const char *panelNa
 C_TextDisplayPanel::~C_TextDisplayPanel( void )
 {
 	// Remove ourselves from the global list of movie displays
-	g_WorldTextDisplays.FindAndRemove( this );
+	g_TextDisplays.FindAndRemove( this );
 }
 
 //-----------------------------------------------------------------------------
@@ -186,7 +186,7 @@ void C_TextDisplayPanel::UpdateText()
 	m_pDisplayTextLabel->SetWrap( bWrap );
 	m_pDisplayTextLabel->SetCenterWrap( bCenterWrap );
 
-	Msg( "Resolution is %i\n", m_hScreenEntity->GetResolution() );
+	//Msg( "Resolution is %i\n", m_hScreenEntity->GetResolution() );
 
 	const char *pszFontName = m_hScreenEntity->GetFontName();
 	if (pszFontName && pszFontName[0] != '\0')
