@@ -60,6 +60,7 @@ $Project
 			$File	"mapbase\c_func_fake_worldportal.cpp"
 			$File	"mapbase\c_func_fake_worldportal.h"
 			$File	"mapbase\c_point_glow.cpp"
+			$File	"mapbase\c_vgui_text_display.cpp"
 		}
 		
 		$Folder "HL2 DLL"

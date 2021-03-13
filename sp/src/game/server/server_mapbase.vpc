@@ -76,6 +76,7 @@ $Project
 			$File	"mapbase\SystemConvarMod.cpp"
 			$File	"mapbase\SystemConvarMod.h"
 			$File	"mapbase\variant_tools.h"
+			$File	"mapbase\vgui_text_display.cpp"
 			
 			$File	"mapbase\logic_eventlistener.cpp"
 			$File	"mapbase\logic_register_activator.cpp"
