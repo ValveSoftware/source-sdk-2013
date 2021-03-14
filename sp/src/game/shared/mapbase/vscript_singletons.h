@@ -61,9 +61,9 @@ public:
 	void InitPostVM();
 
 #ifdef GAME_DLL
-	void RecieveMessage( bf_read *msg, CBaseEntity *pPlayer );
+	void ReceiveMessage( bf_read *msg, CBaseEntity *pPlayer );
 #else
-	void RecieveMessage( bf_read &msg );
+	void ReceiveMessage( bf_read &msg );
 #endif
 	void WriteToBuffer( bf_write *bf );
 
@@ -75,7 +75,7 @@ public:
 #else
 	void Send();
 #endif
-	void Recieve( const char *msg, HSCRIPT func );
+	void Receive( const char *msg, HSCRIPT func );
 
 #ifdef GAME_DLL
 	inline void DoSendUserMsg( CRecipientFilter *filter, int type );

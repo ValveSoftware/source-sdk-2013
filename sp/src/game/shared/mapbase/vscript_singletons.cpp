@@ -1228,7 +1228,7 @@ void CNetMsgScriptHelper::Reset()
 }
 
 //-----------------------------------------------------------------------------
-// Create the storage for the reciever callback functions.
+// Create the storage for the receiver callback functions.
 // Functions are handled in the VM, the storage table is here.
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::InitPostVM()
@@ -1264,7 +1264,7 @@ bool CNetMsgScriptHelper::Init() // IGameSystem
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::__MsgFunc_ScriptMsg( bf_read &msg )
 {
-	g_ScriptNetMsg->RecieveMessage( msg );
+	g_ScriptNetMsg->ReceiveMessage( msg );
 }
 
 #endif // CLIENT_DLL
@@ -1273,11 +1273,11 @@ void CNetMsgScriptHelper::__MsgFunc_ScriptMsg( bf_read &msg )
 //
 //-----------------------------------------------------------------------------
 #ifdef GAME_DLL
-void CNetMsgScriptHelper::RecieveMessage( bf_read *msg, CBaseEntity *pPlayer )
+void CNetMsgScriptHelper::ReceiveMessage( bf_read *msg, CBaseEntity *pPlayer )
 {
 	m_MsgIn = msg;
 #else
-void CNetMsgScriptHelper::RecieveMessage( bf_read &msg )
+void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 {
 	m_MsgIn.StartReading( msg.m_pData, msg.m_nDataBytes );
 #endif
@@ -1357,7 +1357,7 @@ void CNetMsgScriptHelper::Send()
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void CNetMsgScriptHelper::Recieve( const char *msg, HSCRIPT func )
+void CNetMsgScriptHelper::Receive( const char *msg, HSCRIPT func )
 {
 	if ( func )
 		g_pScriptVM->SetValue( m_Hooks, int( HashStringCaseless(msg) ), func );
@@ -1701,7 +1701,8 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 
 	DEFINE_SCRIPTFUNC( Reset, "Reset the current network message buffer" )
 	DEFINE_SCRIPTFUNC( Start, "Start writing new custom network message" )
-	DEFINE_SCRIPTFUNC( Recieve, "Set custom network message callback" )
+	DEFINE_SCRIPTFUNC( Receive, "Set custom network message callback" )
+	DEFINE_SCRIPTFUNC_NAMED( Receive, "Recieve", SCRIPT_HIDE ) // This was a typo until v6.3
 #ifdef GAME_DLL
 	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the server to the client (max 252 bytes)" )
 #else
