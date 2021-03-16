@@ -83,6 +83,7 @@ static HSCRIPT VMFKV_LoadFromFile( const char *szFile )
 	KeyValues *pKV = new KeyValues( szFile );
 	if ( !pKV->LoadFromFile( g_pFullFileSystem, pszFullName, NULL ) )
 	{
+		pKV->deleteThis();
 		return NULL;
 	}
 

@@ -161,6 +161,16 @@ struct thinkfunc_t
 	int			m_nLastThinkTick;
 };
 
+#ifdef MAPBASE_VSCRIPT
+struct scriptthinkfunc_t
+{
+	int				m_nNextThinkTick;
+	HSCRIPT			m_hfnThink;
+	unsigned short	m_iContextHash;
+	bool			m_bNoParam;
+};
+#endif
+
 #define CREATE_PREDICTED_ENTITY( className )	\
 	C_BaseEntity::CreatePredictedEntityByName( className, __FILE__, __LINE__ );
 
@@ -1173,6 +1183,7 @@ public:
 #ifdef MAPBASE_VSCRIPT
 	const char* ScriptGetModelName( void ) const { return STRING(GetModelName()); }
 
+	void ScriptStopSound(const char* soundname);
 	void ScriptEmitSound(const char* soundname);
 	float ScriptSoundDuration(const char* soundname, const char* actormodel);
 
@@ -1378,6 +1389,7 @@ public:
 
 #ifdef MAPBASE
 	int								m_iViewHideFlags;
+	bool							m_bDisableFlashlight;
 #endif
 
 private:
@@ -1517,6 +1529,15 @@ protected:
 	int								GetIndexForThinkContext( const char *pszContext );
 	CUtlVector< thinkfunc_t >		m_aThinkFunctions;
 	int								m_iCurrentThinkContext;
+
+#ifdef MAPBASE_VSCRIPT
+public:
+	void							ScriptSetContextThink( const char* szContext, HSCRIPT hFunc, float time );
+	void							ScriptContextThink();
+private:
+	CUtlVector< scriptthinkfunc_t* > m_ScriptThinkFuncs;
+public:
+#endif
 
 	// Object eye position
 	Vector							m_vecViewOffset;

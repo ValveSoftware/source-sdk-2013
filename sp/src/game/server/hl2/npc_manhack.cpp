@@ -2193,9 +2193,9 @@ void CNPC_Manhack::Precache(void)
 	//
 	// Model.
 	//
-	PrecacheModel("models/manhack.mdl");
+	PrecacheModel( DefaultOrCustomModel( "models/manhack.mdl" ) );
 	PrecacheModel( MANHACK_GLOW_SPRITE );
-	PropBreakablePrecacheAll( MAKE_STRING("models/manhack.mdl") );
+	PropBreakablePrecacheAll( MAKE_STRING( DefaultOrCustomModel( "models/manhack.mdl" ) ) );
 	
 	PrecacheScriptSound( "NPC_Manhack.Die" );
 	PrecacheScriptSound( "NPC_Manhack.Bat" );
@@ -2389,7 +2389,7 @@ void CNPC_Manhack::Spawn(void)
 	AddSpawnFlags( SF_NPC_FADE_CORPSE );
 #endif // _XBOX
 
-	SetModel( "models/manhack.mdl" );
+	SetModel( DefaultOrCustomModel( "models/manhack.mdl" ) );
 	SetHullType(HULL_TINY_CENTERED); 
 	SetHullSizeNormal();
 

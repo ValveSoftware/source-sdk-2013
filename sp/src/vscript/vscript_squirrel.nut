@@ -65,6 +65,22 @@ function AngleDistance( next, cur )
 	return delta
 }
 
+function FLerp( f1, f2, i1, i2, x )
+{
+	return f1+(f2-f1)*(x-i1)/(i2-i1);
+}
+
+function Lerp( f, A, B )
+{
+	return A + ( B - A ) * f
+}
+
+function SimpleSpline( f )
+{
+	local ff = f * f;
+	return 3.0 * ff - 2.0 * ff * f;
+}
+
 function printl( text )
 {
 	return ::print(text + "\n");

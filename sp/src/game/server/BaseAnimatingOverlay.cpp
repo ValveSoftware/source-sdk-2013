@@ -427,6 +427,11 @@ void CAnimationLayer::DispatchAnimEvents( CBaseAnimating *eventHandler, CBaseAni
 			event.eventtime = pOwner->m_flAnimTime + (flCycle - m_flCycle) / flCycleRate + pOwner->GetAnimTimeInterval();
 		}
 
+#ifdef MAPBASE_VSCRIPT
+		if (eventHandler->m_ScriptScope.IsInitialized() && eventHandler->ScriptHookHandleAnimEvent( &event ) == false)
+			continue;
+#endif
+
 		// Msg( "dispatch %d (%d : %.2f)\n", index - 1, event.event, event.eventtime );
 		eventHandler->HandleAnimEvent( &event );
 	}

@@ -284,6 +284,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 #ifdef MAPBASE
 	// Keep consistent with VIEW_ID_COUNT in viewrender.h
 	SendPropInt		(SENDINFO(m_iViewHideFlags),	9, SPROP_UNSIGNED ),
+	SendPropBool	(SENDINFO(m_bDisableFlashlight) ),
 #endif
 	SendPropInt		(SENDINFO(m_iTeamNum),		TEAMNUM_NUM_BITS, 0),
 	SendPropInt		(SENDINFO(m_CollisionGroup), 5, SPROP_UNSIGNED),
@@ -1915,6 +1916,7 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_GLOBAL_KEYFIELD( m_nModelIndex, FIELD_SHORT, "modelindex" ),
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_iViewHideFlags, FIELD_INTEGER, "viewhideflags" ),
+	DEFINE_KEYFIELD( m_bDisableFlashlight, FIELD_BOOLEAN, "disableflashlight" ),
 #endif
 #if !defined( NO_ENTITY_PREDICTION )
 	// DEFINE_FIELD( m_PredictableID, CPredictableId ),
@@ -2148,6 +2150,8 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "RemoveEffects", InputRemoveEffects ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnableDraw", InputDrawEntity ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableDraw", InputUndrawEntity ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "EnableReceivingFlashlight", InputEnableReceivingFlashlight ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "DisableReceivingFlashlight", InputDisableReceivingFlashlight ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "AddEFlags", InputAddEFlags ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "RemoveEFlags", InputRemoveEFlags ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "AddSolidFlags", InputAddSolidFlags ),
@@ -2218,6 +2222,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC( SetModel, "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetModelName, "GetModelName", "Returns the name of the model" )
 	
+	DEFINE_SCRIPTFUNC_NAMED( ScriptStopSound, "StopSound", "Stops a sound from this entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEmitSound, "EmitSound", "Plays a sound from this entity." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptPrecacheScriptSound, "PrecacheSoundScript", "Precache a sound for later playing." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSoundDuration, "GetSoundDuration", "Returns float duration of the sound. Takes soundname and optional actormodelname.")
@@ -2262,6 +2267,9 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 
 	DEFINE_SCRIPTFUNC( ApplyAbsVelocityImpulse, "" )
 	DEFINE_SCRIPTFUNC( ApplyLocalAngularVelocityImpulse, "" )
+
+	DEFINE_SCRIPTFUNC( BodyTarget, "" )
+	DEFINE_SCRIPTFUNC( HeadTarget, "" )
 #endif
 
 	DEFINE_SCRIPTFUNC_NAMED( GetAbsVelocity, "GetVelocity", ""  )
@@ -2278,11 +2286,11 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAngles, "SetAngles", "Set entity pitch, yaw, roll")
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAngles, "GetAngles", "Get entity pitch, yaw, roll as a vector")
 
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetSize, "SetSize", ""  )
+	DEFINE_SCRIPTFUNC( SetSize, ""  )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoundingMins, "GetBoundingMins", "Get a vector containing min bounds, centered on object")
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoundingMaxs, "GetBoundingMaxs", "Get a vector containing max bounds, centered on object")
 
-	DEFINE_SCRIPTFUNC_NAMED( ScriptUtilRemove, "Destroy", ""  )
+	DEFINE_SCRIPTFUNC_NAMED( Remove, "Destroy", ""  )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetOwner, "SetOwner", ""  )
 	DEFINE_SCRIPTFUNC_NAMED( GetTeamNumber, "GetTeam", ""  )
 	DEFINE_SCRIPTFUNC_NAMED( ChangeTeam, "SetTeam", ""  )
@@ -2583,10 +2591,10 @@ void CBaseEntity::UpdateOnRemove( void )
 #ifdef MAPBASE_VSCRIPT
 		FOR_EACH_VEC( m_ScriptThinkFuncs, i )
 		{
-			HSCRIPT h = m_ScriptThinkFuncs[i].m_hfnThink;
+			HSCRIPT h = m_ScriptThinkFuncs[i]->m_hfnThink;
 			if ( h ) g_pScriptVM->ReleaseScript( h );
 		}
-		m_ScriptThinkFuncs.Purge();
+		m_ScriptThinkFuncs.PurgeAndDeleteElements();
 #endif // MAPBASE_VSCRIPT
 	}
 }
@@ -8265,6 +8273,22 @@ void CBaseEntity::InputUndrawEntity( inputdata_t& inputdata )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Inspired by the Portal 2 input of the same name.
+//-----------------------------------------------------------------------------
+void CBaseEntity::InputEnableReceivingFlashlight( inputdata_t& inputdata )
+{
+	m_bDisableFlashlight = false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Inspired by the Portal 2 input of the same name.
+//-----------------------------------------------------------------------------
+void CBaseEntity::InputDisableReceivingFlashlight( inputdata_t& inputdata )
+{
+	m_bDisableFlashlight = true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Adds eflags.
 //-----------------------------------------------------------------------------
 void CBaseEntity::InputAddEFlags( inputdata_t& inputdata )
@@ -8644,173 +8668,6 @@ void CBaseEntity::ScriptStopThinkFunction()
 	m_iszScriptThinkFunction = NULL_STRING;
 	SetContextThink( NULL, TICK_NEVER_THINK, "ScriptThink" );
 }
-
-
-static inline void ScriptStopContextThink( scriptthinkfunc_t *context )
-{
-	g_pScriptVM->ReleaseScript( context->m_hfnThink );
-	context->m_hfnThink = NULL;
-	context->m_nNextThinkTick = TICK_NEVER_THINK;
-}
-
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-void CBaseEntity::ScriptContextThink()
-{
-	float flNextThink = FLT_MAX;
-	int nScheduledTick = 0;
-
-	for ( int i = m_ScriptThinkFuncs.Count(); i--; )
-	{
-		scriptthinkfunc_t *cur = &m_ScriptThinkFuncs[i];
-
-		if ( cur->m_nNextThinkTick == TICK_NEVER_THINK )
-			continue;
-
-		if ( cur->m_nNextThinkTick > gpGlobals->tickcount )
-		{
-			// There is more to execute, don't stop thinking if the rest are done.
-
-			// also find the shortest schedule
-			if ( !nScheduledTick || nScheduledTick > cur->m_nNextThinkTick )
-			{
-				nScheduledTick = cur->m_nNextThinkTick;
-			}
-			continue;
-		}
-
-		ScriptVariant_t varReturn;
-
-		if ( cur->m_bNoParam )
-		{
-			if ( g_pScriptVM->Call( cur->m_hfnThink, NULL, true, &varReturn ) == SCRIPT_ERROR )
-			{
-				ScriptStopContextThink(cur);
-				m_ScriptThinkFuncs.Remove(i);
-				continue;
-			}
-		}
-		else
-		{
-			if ( g_pScriptVM->Call( cur->m_hfnThink, NULL, true, &varReturn, m_hScriptInstance ) == SCRIPT_ERROR )
-			{
-				ScriptStopContextThink(cur);
-				m_ScriptThinkFuncs.Remove(i);
-				continue;
-			}
-		}
-
-		float flReturn;
-		if ( !varReturn.AssignTo( &flReturn ) )
-		{
-			ScriptStopContextThink(cur);
-			m_ScriptThinkFuncs.Remove(i);
-			continue;
-		}
-
-		if ( flReturn < 0.0f )
-		{
-			ScriptStopContextThink(cur);
-			m_ScriptThinkFuncs.Remove(i);
-			continue;
-		}
-
-		// find the shortest delay
-		if ( flReturn < flNextThink )
-		{
-			flNextThink = flReturn;
-		}
-
-		cur->m_nNextThinkTick = TIME_TO_TICKS( gpGlobals->curtime + flReturn );
-	}
-
-	if ( flNextThink < FLT_MAX )
-	{
-		SetNextThink( gpGlobals->curtime + flNextThink, "ScriptContextThink" );
-	}
-	else if ( nScheduledTick )
-	{
-		SetNextThink( TICKS_TO_TIME( nScheduledTick ), "ScriptContextThink" );
-	}
-	else
-	{
-		SetNextThink( TICK_NEVER_THINK, "ScriptContextThink" );
-	}
-}
-
-// see ScriptSetThink
-static bool s_bScriptContextThinkNoParam = false;
-
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-void CBaseEntity::ScriptSetContextThink( const char* szContext, HSCRIPT hFunc, float flTime )
-{
-	scriptthinkfunc_t th;
-	V_memset( &th, 0x0, sizeof(scriptthinkfunc_t) );
-	unsigned short hash = ( szContext && *szContext ) ? HashString( szContext ) : 0;
-	bool bFound = false;
-
-	FOR_EACH_VEC( m_ScriptThinkFuncs, i )
-	{
-		scriptthinkfunc_t f = m_ScriptThinkFuncs[i];
-		if ( hash == f.m_iContextHash )
-		{
-			th = f;
-			m_ScriptThinkFuncs.Remove(i); // reorder
-			bFound = true;
-			break;
-		}
-	}
-
-	if ( hFunc )
-	{
-		float nextthink = gpGlobals->curtime + flTime;
-
-		th.m_bNoParam = s_bScriptContextThinkNoParam;
-		th.m_hfnThink = hFunc;
-		th.m_iContextHash = hash;
-		th.m_nNextThinkTick = TIME_TO_TICKS( nextthink );
-
-		m_ScriptThinkFuncs.AddToHead( th );
-
-		int nexttick = GetNextThinkTick( RegisterThinkContext( "ScriptContextThink" ) );
-
-		// sooner than next think
-		if ( nexttick <= 0 || nexttick > th.m_nNextThinkTick )
-		{
-			SetContextThink( &CBaseEntity::ScriptContextThink, nextthink, "ScriptContextThink" );
-		}
-	}
-	// null func input, think exists
-	else if ( bFound )
-	{
-		ScriptStopContextThink( &th );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// m_bNoParam and s_bScriptContextThinkNoParam exist only to keep backwards compatibility
-// and are an alternative to this script closure:
-//
-//	function CBaseEntity::SetThink( func, time )
-//	{
-//		SetContextThink( "", function(_){ return func() }, time )
-//	}
-//-----------------------------------------------------------------------------
-void CBaseEntity::ScriptSetThink( HSCRIPT hFunc, float time )
-{
-	s_bScriptContextThinkNoParam = true;
-	ScriptSetContextThink( NULL, hFunc, time );
-	s_bScriptContextThinkNoParam = false;
-}
-
-void CBaseEntity::ScriptStopThink()
-{
-	ScriptSetContextThink( NULL, NULL, 0.0f );
-}
-
 #endif // MAPBASE_VSCRIPT
 
 //-----------------------------------------------------------------------------

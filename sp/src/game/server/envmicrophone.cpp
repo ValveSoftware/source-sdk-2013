@@ -48,6 +48,7 @@ BEGIN_DATADESC( CEnvMicrophone )
 	DEFINE_KEYFIELD(m_iszLandmarkName, FIELD_STRING, "landmark"),
 	DEFINE_FIELD(m_hLandmark, FIELD_EHANDLE),
 	DEFINE_KEYFIELD(m_flPitchScale, FIELD_FLOAT, "PitchScale"),
+	DEFINE_KEYFIELD(m_flVolumeScale, FIELD_FLOAT, "VolumeScale"),
 	DEFINE_KEYFIELD(m_nChannel, FIELD_INTEGER, "channel"),
 #endif
 	// DEFINE_FIELD(m_bAvoidFeedback, FIELD_BOOLEAN),	// DONT SAVE
@@ -61,6 +62,7 @@ BEGIN_DATADESC( CEnvMicrophone )
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC(FIELD_INTEGER, "SetDSPPreset", InputSetDSPPreset),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetPitchScale", InputSetPitchScale ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetVolumeScale", InputSetVolumeScale ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetChannel", InputSetChannel ),
 #endif
 
@@ -270,6 +272,15 @@ void CEnvMicrophone::InputSetDSPPreset( inputdata_t &inputdata )
 void CEnvMicrophone::InputSetPitchScale( inputdata_t &inputdata )
 {
 	m_flPitchScale = inputdata.value.Float();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CEnvMicrophone::InputSetVolumeScale( inputdata_t &inputdata )
+{
+	m_flVolumeScale = inputdata.value.Float();
 }
 
 //-----------------------------------------------------------------------------
@@ -545,11 +556,13 @@ MicrophoneResult_t CEnvMicrophone::SoundPlayed( int entindex, const char *soundn
 	EmitSound_t ep;
 #ifdef MAPBASE
 	ep.m_nChannel = m_nChannel;
+	if (m_flVolumeScale != 1.0f)
+		ep.m_flVolume = (flVolume * m_flVolumeScale);
 #else
 	ep.m_nChannel = CHAN_STATIC;
+	ep.m_flVolume = flVolume;
 #endif
 	ep.m_pSoundName = soundname;
-	ep.m_flVolume = flVolume;
 	ep.m_SoundLevel = soundlevel;
 	ep.m_nFlags = iFlags;
 #ifdef MAPBASE

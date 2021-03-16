@@ -23,6 +23,15 @@
 #include "igameevents.h"
 #include "engine/ivdebugoverlay.h"
 
+#ifdef CLIENT_DLL
+#include "IEffects.h"
+#include "fx.h"
+#include "itempents.h"
+#include "c_te_legacytempents.h"
+#include "iefx.h"
+#include "dlight.h"
+#endif
+
 #include "vscript_singletons.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -355,20 +364,25 @@ END_SCRIPTDESC();
 // Game Event Listener
 // Based on Source 2 API
 //=============================================================================
+
+// Define to use the older code that loads all events manually independent from the game event manager.
+// Otherwise access event descriptors directly from engine.
+//#define USE_OLD_EVENT_DESCRIPTORS 1
+
 class CScriptGameEventListener : public IGameEventListener2, public CAutoGameSystem
 {
 public:
-	CScriptGameEventListener() : m_bActive(false) {}
+	CScriptGameEventListener() : m_bActive(false) /*, m_nEventTick(0)*/ {}
 	~CScriptGameEventListener()
 	{
 		StopListeningForEvent();
 	}
 
-	intptr_t ListenToGameEvent( const char* szEvent, HSCRIPT hFunc, const char* szContext );
+	int ListenToGameEvent( const char* szEvent, HSCRIPT hFunc, const char* szContext );
 	void StopListeningForEvent();
 
 public:
-	static bool StopListeningToGameEvent( intptr_t listener );
+	static bool StopListeningToGameEvent( int listener );
 	static void StopListeningToAllGameEvents( const char* szContext );
 
 public:
@@ -376,35 +390,58 @@ public:
 	void LevelShutdownPreEntity();
 
 private:
-	bool m_bActive;
-	unsigned int m_iContextHash;
+	//int m_index;
 	HSCRIPT m_hCallback;
+	unsigned int m_iContextHash;
+	bool m_bActive;
+	//int m_nEventTick;
 
 	static StringHashFunctor Hash;
 	static inline unsigned int HashContext( const char* c ) { return (c && *c) ? Hash(c) : 0; }
 
+	inline int GetIndex()
+	{
+		Assert( sizeof(CScriptGameEventListener*) == sizeof(int) );
+		return reinterpret_cast<intptr_t>(this);
+	}
+
 public:
-	static void DumpEventListeners();
-#ifndef CLIENT_DLL
+	enum // event data types, dependant on engine definitions
+	{
+		TYPE_LOCAL  = 0,
+		TYPE_STRING = 1,
+		TYPE_FLOAT  = 2,
+		TYPE_LONG   = 3,
+		TYPE_SHORT  = 4,
+		TYPE_BYTE   = 5,
+		TYPE_BOOL   = 6
+	};
+	static void WriteEventData( IGameEvent *event, HSCRIPT hTable );
+
+#ifdef USE_OLD_EVENT_DESCRIPTORS
 	static void LoadAllEvents();
 	static void LoadEventsFromFile( const char *filename, const char *pathID = NULL );
-	static void WriteEventData( IGameEvent *event, HSCRIPT hTable );
-#endif // !CLIENT_DLL
+	static CUtlMap< unsigned int, KeyValues* > s_GameEvents;
+	static CUtlVector< KeyValues* > s_LoadedFiles;
+#endif
 
 public:
-#ifndef CLIENT_DLL
-	static CUtlMap< unsigned int, KeyValues* > s_GameEvents;
+	//static int g_nIndexCounter;
+	static CUtlVectorAutoPurge< CScriptGameEventListener* > s_Listeners;
+#if _DEBUG
+	static void DumpEventListeners();
 #endif
-	static CUtlVectorAutoPurge< CScriptGameEventListener* > s_GameEventListeners;
-	static CUtlVector< KeyValues* > s_LoadedFiles;
+
 };
 
-#ifndef CLIENT_DLL
-CUtlMap< unsigned int, KeyValues* > CScriptGameEventListener::s_GameEvents( DefLessFunc(unsigned int) );
-#endif
-CUtlVectorAutoPurge< CScriptGameEventListener* > CScriptGameEventListener::s_GameEventListeners;
-CUtlVector< KeyValues* > CScriptGameEventListener::s_LoadedFiles;
+CUtlVectorAutoPurge< CScriptGameEventListener* > CScriptGameEventListener::s_Listeners;
 StringHashFunctor CScriptGameEventListener::Hash;
+
+#ifdef USE_OLD_EVENT_DESCRIPTORS
+CUtlMap< unsigned int, KeyValues* > CScriptGameEventListener::s_GameEvents( DefLessFunc(unsigned int) );
+CUtlVector< KeyValues* > CScriptGameEventListener::s_LoadedFiles;
+#endif
+
 
 #if _DEBUG
 #ifdef CLIENT_DLL
@@ -412,53 +449,19 @@ CON_COMMAND_F( cl_dump_script_game_event_listeners, "Dump all game event listene
 {
 	CScriptGameEventListener::DumpEventListeners();
 }
-#else // GAME_DLL
+#else
 CON_COMMAND_F( dump_script_game_event_listeners, "Dump all game event listeners created from script.", FCVAR_CHEAT )
 {
 	CScriptGameEventListener::DumpEventListeners();
 }
-#endif // CLIENT_DLL
+#endif
 #endif
 
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-void CScriptGameEventListener::DumpEventListeners()
-{
-	CGMsg( 0, CON_GROUP_VSCRIPT, "--- Script game event listener dump start\n" );
-	FOR_EACH_VEC( s_GameEventListeners, i )
-	{
-		CGMsg( 0, CON_GROUP_VSCRIPT, " %d   (0x%p) %d : %d\n", i,s_GameEventListeners[i],
-										s_GameEventListeners[i],
-										s_GameEventListeners[i]->m_iContextHash );
-	}
-	CGMsg( 0, CON_GROUP_VSCRIPT, "--- Script game event listener dump end\n" );
-}
 
-void CScriptGameEventListener::FireGameEvent( IGameEvent *event )
-{
-	ScriptVariant_t hTable;
-	g_pScriptVM->CreateTable( hTable );
-	// TODO: pass event data on client
-#ifdef GAME_DLL
-	WriteEventData( event, hTable );
-#endif
-	g_pScriptVM->SetValue( hTable, "game_event_listener", reinterpret_cast<intptr_t>(this) ); // POINTER_TO_INT
-	// g_pScriptVM->SetValue( hTable, "game_event_name", event->GetName() );
-	g_pScriptVM->ExecuteFunction( m_hCallback, &hTable, 1, NULL, NULL, true );
-	g_pScriptVM->ReleaseScript( hTable );
-}
-
-void CScriptGameEventListener::LevelShutdownPreEntity()
-{
-	s_GameEventListeners.FindAndFastRemove(this);
-	delete this;
-}
-
+#ifdef USE_OLD_EVENT_DESCRIPTORS
 //-----------------------------------------------------------------------------
 // Executed in LevelInitPreEntity
 //-----------------------------------------------------------------------------
-#ifndef CLIENT_DLL
 void CScriptGameEventListener::LoadAllEvents()
 {
 	// Listed in the same order they are loaded in GameEventManager
@@ -506,8 +509,8 @@ void CScriptGameEventListener::LoadEventsFromFile( const char *filename, const c
 		return;
 	}
 
-	// Set the key value types to what they are from their string description values to read the correct data type in WriteEventData.
-	// There might be a better way of doing this, but this is okay since it's only done on file load.
+	int count = 0;
+
 	for ( KeyValues *key = pKV->GetFirstSubKey(); key; key = key->GetNextKey() )
 	{
 		for ( KeyValues *sub = key->GetFirstSubKey(); sub; sub = sub->GetNextKey() )
@@ -515,13 +518,29 @@ void CScriptGameEventListener::LoadEventsFromFile( const char *filename, const c
 			if ( sub->GetDataType() == KeyValues::TYPE_STRING )
 			{
 				const char *szVal = sub->GetString();
-				if ( !V_stricmp( szVal, "byte" ) || !V_stricmp( szVal, "short" ) || !V_stricmp( szVal, "long" ) || !V_stricmp( szVal, "bool" ) )
+				if ( !V_stricmp( szVal, "string" ) )
 				{
-					sub->SetInt( NULL, 0 );
+					sub->SetInt( NULL, TYPE_STRING );
+				}
+				else if ( !V_stricmp( szVal, "bool" ) )
+				{
+					sub->SetInt( NULL, TYPE_BOOL );
+				}
+				else if ( !V_stricmp( szVal, "byte" ) )
+				{
+					sub->SetInt( NULL, TYPE_BYTE );
+				}
+				else if ( !V_stricmp( szVal, "short" ) )
+				{
+					sub->SetInt( NULL, TYPE_SHORT );
+				}
+				else if ( !V_stricmp( szVal, "long" ) )
+				{
+					sub->SetInt( NULL, TYPE_LONG );
 				}
 				else if ( !V_stricmp( szVal, "float" ) )
 				{
-					sub->SetFloat( NULL, 0.0f );
+					sub->SetInt( NULL, TYPE_FLOAT );
 				}
 			}
 			// none   : value is not networked
@@ -537,42 +556,125 @@ void CScriptGameEventListener::LoadEventsFromFile( const char *filename, const c
 		// Replace key so modevents can overwrite gameevents.
 		// It does not check for hash collisions, however.
 		s_GameEvents.InsertOrReplace( Hash( key->GetName() ), key );
+		++count;
 	}
 
 	// Store files (allocated KV)
 	s_LoadedFiles.AddToTail( pKV );
 
-	CGMsg( 2, CON_GROUP_VSCRIPT, "CScriptGameEventListener::LoadEventsFromFile: Loaded [%s]%s\n", pathID, filename );
+	CGMsg( 2, CON_GROUP_VSCRIPT, "CScriptGameEventListener::LoadEventsFromFile: Loaded [%s]%s (%i)\n", pathID, filename, count );
 }
+#endif
+
+#if _DEBUG
+void CScriptGameEventListener::DumpEventListeners()
+{
+	CGMsg( 0, CON_GROUP_VSCRIPT, "--- Script game event listener dump start\n" );
+	CGMsg( 0, CON_GROUP_VSCRIPT, "#    ADDRESS      ID         CONTEXT\n" );
+	FOR_EACH_VEC( s_Listeners, i )
+	{
+		CGMsg( 0, CON_GROUP_VSCRIPT, " %d   (0x%p) %d : %u\n", i,
+										(void*)s_Listeners[i],
+										s_Listeners[i]->GetIndex(),
+										s_Listeners[i]->m_iContextHash );
+	}
+	CGMsg( 0, CON_GROUP_VSCRIPT, "--- Script game event listener dump end\n" );
+}
+#endif
+
+void CScriptGameEventListener::LevelShutdownPreEntity()
+{
+	s_Listeners.FindAndFastRemove(this);
+	delete this;
+}
+
+void CScriptGameEventListener::FireGameEvent( IGameEvent *event )
+{
+	//m_nEventTick = gpGlobals->tickcount;
+	ScriptVariant_t hTable;
+	g_pScriptVM->CreateTable( hTable );
+	WriteEventData( event, hTable );
+	g_pScriptVM->SetValue( hTable, "game_event_listener", GetIndex() );
+	// g_pScriptVM->SetValue( hTable, "game_event_name", event->GetName() );
+	g_pScriptVM->ExecuteFunction( m_hCallback, &hTable, 1, NULL, NULL, true );
+	g_pScriptVM->ReleaseScript( hTable );
+}
+
+struct CGameEventDescriptor
+{
+	byte _0[36];
+	KeyValues *m_pEventKeys;
+	//byte _1[22];
+};
+
+class CGameEvent__// : public IGameEvent
+{
+public:
+	virtual ~CGameEvent__();				// [0]
+	CGameEventDescriptor *m_pDescriptor;	// 0x04
+	//KeyValues *m_pEventData;				// 0x08
+};
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
 void CScriptGameEventListener::WriteEventData( IGameEvent *event, HSCRIPT hTable )
 {
+#ifdef USE_OLD_EVENT_DESCRIPTORS
 	int i = s_GameEvents.Find( Hash( event->GetName() ) );
-	if ( i != s_GameEvents.InvalidIndex() )
+	if ( i == s_GameEvents.InvalidIndex() )
+		return;
+	KeyValues *pKV = s_GameEvents[i];
+#endif
+
+#if defined(_DEBUG) && !defined(USE_OLD_EVENT_DESCRIPTORS)
+	try
 	{
-		KeyValues *pKV = s_GameEvents[i];
-		for ( KeyValues *sub = pKV->GetFirstSubKey(); sub; sub = sub->GetNextKey() )
+#endif
+
+#if !defined(USE_OLD_EVENT_DESCRIPTORS)
+	KeyValues *pKV = reinterpret_cast< CGameEvent__* >(event)->m_pDescriptor->m_pEventKeys;
+#endif
+
+	for ( KeyValues *sub = pKV->GetFirstSubKey(); sub; sub = sub->GetNextKey() )
+	{
+		const char *szKey = sub->GetName();
+		switch ( sub->GetInt() )
 		{
-			const char *szKey = sub->GetName();
-			switch ( sub->GetDataType() )
-			{
-				case KeyValues::TYPE_STRING: g_pScriptVM->SetValue( hTable, szKey, event->GetString( szKey ) ); break;
-				case KeyValues::TYPE_INT:    g_pScriptVM->SetValue( hTable, szKey, event->GetInt   ( szKey ) ); break;
-				case KeyValues::TYPE_FLOAT:  g_pScriptVM->SetValue( hTable, szKey, event->GetFloat ( szKey ) ); break;
-				// default: DevWarning( 2, "CScriptGameEventListener::WriteEventData: unknown data type '%d' on key '%s' in event '%s'\n", sub->GetDataType(), szKey, szEvent );
-			}
+			case TYPE_LOCAL:
+			case TYPE_STRING: g_pScriptVM->SetValue( hTable, szKey, event->GetString( szKey ) ); break;
+			case TYPE_FLOAT:  g_pScriptVM->SetValue( hTable, szKey, event->GetFloat ( szKey ) ); break;
+			case TYPE_BOOL:   g_pScriptVM->SetValue( hTable, szKey, event->GetBool  ( szKey ) ); break;
+			default:          g_pScriptVM->SetValue( hTable, szKey, event->GetInt   ( szKey ) );
 		}
 	}
+
+#if defined(_DEBUG) && !defined(USE_OLD_EVENT_DESCRIPTORS)
+	// Access a bunch of KeyValues functions to validate it is the correct address.
+	// This may not always throw an exception when it is incorrect, but eventually it will.
+	}
+	catch (...)
+	{
+		// CGameEvent or CGameEventDescriptor offsets did not match!
+		// This should mean these were modified in engine.dll.
+		//
+		// Implement this utility yourself by adding a function to get event descriptor keys
+		// either on CGameEventManager or on CGameEvent interfaces.
+		// On CGameEventManager downcast IGameEvent input to CGameEvent, then return event->descriptor->keys
+		// On CGameEvent return (member) descriptor->keys
+		//
+		// Finally assign it to pKV above.
+
+		Warning("CScriptGameEventListener::WriteEventData internal error\n");
+		Assert(0);
+	}
+#endif
 }
-#endif // !CLIENT_DLL
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-intptr_t CScriptGameEventListener::ListenToGameEvent( const char* szEvent, HSCRIPT hFunc, const char* szContext )
+int CScriptGameEventListener::ListenToGameEvent( const char* szEvent, HSCRIPT hFunc, const char* szContext )
 {
 	bool bValid;
 
@@ -590,14 +692,14 @@ intptr_t CScriptGameEventListener::ListenToGameEvent( const char* szEvent, HSCRI
 		m_hCallback = hFunc;
 		m_bActive = true;
 
-		s_GameEventListeners.AddToTail( this );
+		s_Listeners.AddToTail( this );
 
-		return reinterpret_cast<intptr_t>( this ); // POINTER_TO_INT
+		return GetIndex();
 	}
 	else
 	{
 		delete this;
-		return 0x0;
+		return 0;
 	}
 }
 
@@ -610,29 +712,31 @@ void CScriptGameEventListener::StopListeningForEvent()
 		return;
 
 	if ( g_pScriptVM )
-	{
 		g_pScriptVM->ReleaseScript( m_hCallback );
-	}
-	else
-	{
-		// AssertMsg( !m_hCallback, "LEAK (0x%p)\n", (void*)m_hCallback );
-	}
 
 	m_hCallback = NULL;
 	m_bActive = false;
 
 	if ( gameeventmanager )
 		gameeventmanager->RemoveListener( this );
+
+	// Event listeners are iterated forwards in the game event manager,
+	// removing while iterating will cause it to skip one listener.
+	// This could be prevented by writing a custom game event manager.
+	//if ( m_nEventTick == gpGlobals->tickcount )
+	//{
+	//	Warning("CScriptGameEventListener stopped in the same frame it was fired. This will break other event listeners!\n");
+	//}
 }
 
 //-----------------------------------------------------------------------------
 // Stop the specified event listener.
 //-----------------------------------------------------------------------------
-bool CScriptGameEventListener::StopListeningToGameEvent( intptr_t listener )
+bool CScriptGameEventListener::StopListeningToGameEvent( int listener )
 {
 	CScriptGameEventListener *p = reinterpret_cast<CScriptGameEventListener*>(listener); // INT_TO_POINTER	
 
-	bool bRemoved = s_GameEventListeners.FindAndFastRemove(p);
+	bool bRemoved = s_Listeners.FindAndFastRemove(p);
 	if ( bRemoved )
 	{
 		delete p;
@@ -649,12 +753,12 @@ void CScriptGameEventListener::StopListeningToAllGameEvents( const char* szConte
 	unsigned int hash = HashContext( szContext );
 
 	// Iterate from the end so they can be safely removed as they are deleted
-	for ( int i = s_GameEventListeners.Count(); i--; )
+	for ( int i = s_Listeners.Count(); i--; )
 	{
-		CScriptGameEventListener *pCur = s_GameEventListeners[i];
+		CScriptGameEventListener *pCur = s_Listeners[i];
 		if ( pCur->m_iContextHash == hash )
 		{
-			s_GameEventListeners.Remove(i); // keep list order
+			s_Listeners.Remove(i); // keep list order
 			delete pCur;
 		}
 	}
@@ -805,11 +909,13 @@ StringHashFunctor CScriptSaveRestoreUtil::Hash;
 void CScriptSaveRestoreUtil::SaveTable( const char *szId, HSCRIPT hTable )
 {
 	KeyValues *pKV;
-	int idx = m_Lookup.Find( Hash(szId) );
+	unsigned int hash = Hash(szId);
+
+	int idx = m_Lookup.Find( hash );
 	if ( idx == m_Lookup.InvalidIndex() )
 	{
 		pKV = new KeyValues("ScriptSavedTable");
-		m_Lookup.Insert( Hash(szId), pKV );
+		m_Lookup.Insert( hash, pKV );
 	}
 	else
 	{
@@ -1095,8 +1201,10 @@ HSCRIPT CScriptReadWriteFile::KeyValuesRead( const char *szFile )
 
 #ifdef GAME_DLL
 #define m_MsgIn_() m_MsgIn->
+#define DLL_LOC_STR "[Server]"
 #else
 #define m_MsgIn_() m_MsgIn.
+#define DLL_LOC_STR "[Client]"
 #endif
 
 
@@ -1120,7 +1228,7 @@ void CNetMsgScriptHelper::Reset()
 }
 
 //-----------------------------------------------------------------------------
-// Create the storage for the reciever callback functions.
+// Create the storage for the receiver callback functions.
 // Functions are handled in the VM, the storage table is here.
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::InitPostVM()
@@ -1156,7 +1264,7 @@ bool CNetMsgScriptHelper::Init() // IGameSystem
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::__MsgFunc_ScriptMsg( bf_read &msg )
 {
-	g_ScriptNetMsg->RecieveMessage( msg );
+	g_ScriptNetMsg->ReceiveMessage( msg );
 }
 
 #endif // CLIENT_DLL
@@ -1165,11 +1273,11 @@ void CNetMsgScriptHelper::__MsgFunc_ScriptMsg( bf_read &msg )
 //
 //-----------------------------------------------------------------------------
 #ifdef GAME_DLL
-void CNetMsgScriptHelper::RecieveMessage( bf_read *msg, CBaseEntity *pPlayer )
+void CNetMsgScriptHelper::ReceiveMessage( bf_read *msg, CBaseEntity *pPlayer )
 {
 	m_MsgIn = msg;
 #else
-void CNetMsgScriptHelper::RecieveMessage( bf_read &msg )
+void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 {
 	m_MsgIn.StartReading( msg.m_pData, msg.m_nDataBytes );
 #endif
@@ -1179,7 +1287,7 @@ void CNetMsgScriptHelper::RecieveMessage( bf_read &msg )
 	// Don't do anything if there's no VM here. This can happen if a message from the server goes to a VM-less client, or vice versa.
 	if ( !g_pScriptVM )
 	{
-		CGWarning( 0, CON_GROUP_VSCRIPT, "CNetMsgScriptHelper: No VM on receiving side\n" );
+		CGWarning( 0, CON_GROUP_VSCRIPT, DLL_LOC_STR " CNetMsgScriptHelper: No VM on receiving side\n" );
 		return;
 	}
 
@@ -1192,13 +1300,13 @@ void CNetMsgScriptHelper::RecieveMessage( bf_read &msg )
 		if ( g_pScriptVM->ExecuteFunction( hfn, NULL, 0, NULL, NULL, true ) == SCRIPT_ERROR )
 #endif
 		{
-			DevWarning( 3, "NetMsg: invalid callback for '%d'\n", hash );
+			DevWarning( 2, DLL_LOC_STR " NetMsg: invalid callback [%d]\n", hash );
 		}
 		g_pScriptVM->ReleaseValue( hfn );
 	}
 	else
 	{
-		DevWarning( 3, "NetMsg hook not found for '%d'\n", hash );
+		DevWarning( 2, DLL_LOC_STR " NetMsg hook not found [%d]\n", hash );
 	}
 }
 
@@ -1230,6 +1338,8 @@ void CNetMsgScriptHelper::Send( HSCRIPT player, bool bReliable )
 		m_filter.MakeReliable();
 	}
 
+	Assert( usermessages->LookupUserMessage( "ScriptMsg" ) != -1 );
+
 	DoSendUserMsg( &m_filter, usermessages->LookupUserMessage( "ScriptMsg" ) );
 }
 #else // CLIENT_DLL
@@ -1247,7 +1357,7 @@ void CNetMsgScriptHelper::Send()
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void CNetMsgScriptHelper::Recieve( const char *msg, HSCRIPT func )
+void CNetMsgScriptHelper::Receive( const char *msg, HSCRIPT func )
 {
 	if ( func )
 		g_pScriptVM->SetValue( m_Hooks, int( HashStringCaseless(msg) ), func );
@@ -1428,9 +1538,7 @@ void CNetMsgScriptHelper::WriteBool( bool bValue )
 void CNetMsgScriptHelper::WriteEntity( HSCRIPT hEnt )
 {
 	CBaseEntity *p = ToEnt(hEnt);
-	int i;
-	if (p) i = p->entindex();
-	else i = -1;
+	int i = p ? p->entindex() : -1;
 	m_MsgOut.WriteSBitLong( i, MAX_EDICT_BITS );
 }
 
@@ -1583,6 +1691,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 	DEFINE_SCRIPTFUNC( SendUserMessage, "Send a usermessage from the server to the client" )
 	DEFINE_SCRIPTFUNC( SendEntityMessage, "Send a message from a server side entity to its client side counterpart" )
 	DEFINE_SCRIPTFUNC( AddRecipient, "" )
+	//DEFINE_SCRIPTFUNC( RemoveRecipient, "" )
 	DEFINE_SCRIPTFUNC( AddRecipientsByPVS, "" )
 	DEFINE_SCRIPTFUNC( AddRecipientsByPAS, "" )
 	DEFINE_SCRIPTFUNC( AddAllPlayers, "" )
@@ -1592,28 +1701,29 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 
 	DEFINE_SCRIPTFUNC( Reset, "Reset the current network message buffer" )
 	DEFINE_SCRIPTFUNC( Start, "Start writing new custom network message" )
-	DEFINE_SCRIPTFUNC( Recieve, "Set custom network message callback" )
+	DEFINE_SCRIPTFUNC( Receive, "Set custom network message callback" )
+	DEFINE_SCRIPTFUNC_NAMED( Receive, "Recieve", SCRIPT_HIDE ) // This was a typo until v6.3
 #ifdef GAME_DLL
 	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the server to the client (max 252 bytes)" )
 #else
 	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the client to the server (max 2045 bytes)" )
 #endif
 
-	DEFINE_SCRIPTFUNC( WriteInt, "" )
-	DEFINE_SCRIPTFUNC( WriteUInt, "" )
+	DEFINE_SCRIPTFUNC( WriteInt, "variable bit signed int" )
+	DEFINE_SCRIPTFUNC( WriteUInt, "variable bit unsigned int" )
 	DEFINE_SCRIPTFUNC( WriteByte, "8 bit unsigned char" )
 	DEFINE_SCRIPTFUNC( WriteChar, "8 bit char" )
 	DEFINE_SCRIPTFUNC( WriteShort, "16 bit short" )
 	DEFINE_SCRIPTFUNC( WriteWord, "16 bit unsigned short" )
 	DEFINE_SCRIPTFUNC( WriteLong, "32 bit long" )
-	DEFINE_SCRIPTFUNC( WriteFloat, "" )
+	DEFINE_SCRIPTFUNC( WriteFloat, "32 bit float" )
 	DEFINE_SCRIPTFUNC( WriteNormal, "12 bit" )
 	DEFINE_SCRIPTFUNC( WriteAngle, "8 bit unsigned char" )
 	DEFINE_SCRIPTFUNC( WriteCoord, "" )
 	DEFINE_SCRIPTFUNC( WriteVec3Coord, "" )
 	DEFINE_SCRIPTFUNC( WriteVec3Normal, "27 bit" )
 	DEFINE_SCRIPTFUNC( WriteAngles, "" )
-	DEFINE_SCRIPTFUNC( WriteString, "max 512 bytes at once" )
+	DEFINE_SCRIPTFUNC( WriteString, "" )
 	DEFINE_SCRIPTFUNC( WriteBool, "1 bit" )
 	DEFINE_SCRIPTFUNC( WriteEntity, "11 bit (entindex)" )
 	DEFINE_SCRIPTFUNC( WriteEHandle, "32 bit long" )
@@ -1632,7 +1742,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 	DEFINE_SCRIPTFUNC( ReadVec3Coord, "" )
 	DEFINE_SCRIPTFUNC( ReadVec3Normal, "" )
 	DEFINE_SCRIPTFUNC( ReadAngles, "" )
-	DEFINE_SCRIPTFUNC( ReadString, "" )
+	DEFINE_SCRIPTFUNC( ReadString, "max 512 bytes at once" )
 	DEFINE_SCRIPTFUNC( ReadBool, "" )
 	DEFINE_SCRIPTFUNC( ReadEntity, "" )
 	DEFINE_SCRIPTFUNC( ReadEHandle, "" )
@@ -1645,10 +1755,7 @@ END_SCRIPTDESC();
 
 #define RETURN_IF_CANNOT_DRAW_OVERLAY\
 	if (engine->IsPaused())\
-	{\
-		CGWarning( 1, CON_GROUP_VSCRIPT, "debugoverlay: cannot draw while the game is paused!\n");\
-		return;\
-	}
+		return;
 class CDebugOverlayScriptHelper
 {
 public:
@@ -2054,6 +2161,651 @@ END_SCRIPTDESC();
 
 
 
+//=============================================================================
+// ConVars
+//=============================================================================
+class CScriptConCommand : public ICommandCallback, public ICommandCompletionCallback
+{
+public:
+	~CScriptConCommand()
+	{
+		Unregister();
+		delete m_cmd;
+	}
+
+	CScriptConCommand( const char *name, HSCRIPT fn, const char *helpString, int flags )
+	{
+		m_cmd = new ConCommand( name, this, helpString, flags, 0 );
+		m_hCallback = fn;
+		m_hCompletionCallback = NULL;
+		m_nCmdNameLen = V_strlen(name) + 1;
+
+		Assert( m_nCmdNameLen - 1 <= 128 );
+	}
+
+	void CommandCallback( const CCommand &command )
+	{
+		int count = command.ArgC();
+		ScriptVariant_t *vArgv = (ScriptVariant_t*)stackalloc( sizeof(ScriptVariant_t) * count );
+		for ( int i = 0; i < count; ++i )
+		{
+			vArgv[i] = command[i];
+		}
+		if ( g_pScriptVM->ExecuteFunction( m_hCallback, vArgv, count, NULL, NULL, true ) == SCRIPT_ERROR )
+		{
+			DevWarning( 1, "CScriptConCommand: invalid callback for '%s'\n", command[0] );
+		}
+	}
+
+	int CommandCompletionCallback( const char *partial, CUtlVector< CUtlString > &commands )
+	{
+		Assert( g_pScriptVM );
+		Assert( m_hCompletionCallback );
+
+		ScriptVariant_t hArray;
+		g_pScriptVM->CreateArray( hArray );
+
+		// split command name from partial, pass both separately to the script function
+		char *cmdname = (char*)stackalloc( m_nCmdNameLen );
+		V_memcpy( cmdname, partial, m_nCmdNameLen - 1 );
+		cmdname[ m_nCmdNameLen - 1 ] = 0;
+
+		char argPartial[256];
+		V_StrRight( partial, V_strlen(partial) - m_nCmdNameLen, argPartial, sizeof(argPartial) );
+
+		ScriptVariant_t args[3] = { cmdname, argPartial, hArray };
+		if ( g_pScriptVM->ExecuteFunction( m_hCompletionCallback, args, 3, NULL, NULL, true ) == SCRIPT_ERROR )
+		{
+			DevWarning( 1, "CScriptConCommand: invalid command completion callback for '%s'\n", cmdname );
+			g_pScriptVM->ReleaseScript( hArray );
+			return 0;
+		}
+
+		int count = 0;
+		ScriptVariant_t val;
+		int it = -1;
+		while ( ( it = g_pScriptVM->GetKeyValue( hArray, it, NULL, &val ) ) != -1 )
+		{
+			if ( val.m_type == FIELD_CSTRING )
+			{
+				CUtlString s = val.m_pszString;
+				//s.SetLength( COMMAND_COMPLETION_ITEM_LENGTH - 1 );
+				commands.AddToTail( s );
+				++count;
+			}
+			g_pScriptVM->ReleaseValue(val);
+
+			if ( count == COMMAND_COMPLETION_MAXITEMS )
+				break;
+		}
+		g_pScriptVM->ReleaseScript( hArray );
+		return count;
+	}
+
+	void SetCompletionCallback( HSCRIPT fn )
+	{
+		if ( m_hCompletionCallback )
+			g_pScriptVM->ReleaseScript( m_hCompletionCallback );
+
+		if (fn)
+		{
+			if ( !m_cmd->IsRegistered() )
+				return;
+
+			m_cmd->m_pCommandCompletionCallback = this;
+			m_cmd->m_bHasCompletionCallback = true;
+			m_hCompletionCallback = fn;
+		}
+		else
+		{
+			m_cmd->m_pCommandCompletionCallback = NULL;
+			m_cmd->m_bHasCompletionCallback = false;
+			m_hCompletionCallback = NULL;
+		}
+	}
+
+	void SetCallback( HSCRIPT fn )
+	{
+		if (fn)
+		{
+			if ( !m_cmd->IsRegistered() )
+				Register();
+
+			if ( m_hCallback )
+				g_pScriptVM->ReleaseScript( m_hCallback );
+			m_hCallback = fn;
+		}
+		else
+		{
+			Unregister();
+		}
+	}
+
+	inline void Unregister()
+	{
+		if ( g_pCVar && m_cmd->IsRegistered() )
+			g_pCVar->UnregisterConCommand( m_cmd );
+
+		if ( g_pScriptVM )
+		{
+			if ( m_hCallback )
+			{
+				g_pScriptVM->ReleaseScript( m_hCallback );
+				m_hCallback = NULL;
+			}
+
+			SetCompletionCallback( NULL );
+		}
+	}
+
+	inline void Register()
+	{
+		if ( g_pCVar )
+			g_pCVar->RegisterConCommand( m_cmd );
+	}
+
+	HSCRIPT m_hCallback;
+	HSCRIPT m_hCompletionCallback;
+	int m_nCmdNameLen;
+	ConCommand *m_cmd;
+};
+
+class CScriptConVar
+{
+public:
+	~CScriptConVar()
+	{
+		Unregister();
+		delete m_cvar;
+	}
+
+	CScriptConVar( const char *pName, const char *pDefaultValue, const char *pHelpString, int flags/*, float fMin, float fMax*/ )
+	{
+		m_cvar = new ConVar( pName, pDefaultValue, flags, pHelpString );
+	}
+
+	inline void Unregister()
+	{
+		if ( g_pCVar && m_cvar->IsRegistered() )
+			g_pCVar->UnregisterConCommand( m_cvar );
+	}
+
+	ConVar *m_cvar;
+};
+
+class CScriptConvarAccessor : public CAutoGameSystem
+{
+public:
+	static CUtlMap< unsigned int, bool > g_ConVarsBlocked;
+	static CUtlMap< unsigned int, bool > g_ConCommandsOverridable;
+	static CUtlMap< unsigned int, CScriptConCommand* > g_ScriptConCommands;
+	static CUtlMap< unsigned int, CScriptConVar* > g_ScriptConVars;
+	static inline unsigned int Hash( const char*sz ){ return HashStringCaseless(sz); }
+
+public:
+	inline void AddOverridable( const char *name )
+	{
+		g_ConCommandsOverridable.InsertOrReplace( Hash(name), true );
+	}
+
+	inline bool IsOverridable( unsigned int hash )
+	{
+		int idx = g_ConCommandsOverridable.Find( hash );
+		if ( idx == g_ConCommandsOverridable.InvalidIndex() )
+			return false;
+		return g_ConCommandsOverridable[idx];
+	}
+
+	inline void AddBlockedConVar( const char *name )
+	{
+		g_ConVarsBlocked.InsertOrReplace( Hash(name), true );
+	}
+
+	inline bool IsBlockedConvar( const char *name )
+	{
+		int idx = g_ConVarsBlocked.Find( Hash(name) );
+		if ( idx == g_ConVarsBlocked.InvalidIndex() )
+			return false;
+		return g_ConVarsBlocked[idx];
+	}
+
+public:
+	void RegisterCommand( const char *name, HSCRIPT fn, const char *helpString, int flags );
+	void SetCompletionCallback( const char *name, HSCRIPT fn );
+	void UnregisterCommand( const char *name );
+	void RegisterConvar( const char *name, const char *pDefaultValue, const char *helpString, int flags );
+
+	HSCRIPT GetCommandClient()
+	{
+#ifdef GAME_DLL
+		return ToHScript( UTIL_GetCommandClient() );
+#else
+		return ToHScript( C_BasePlayer::GetLocalPlayer() );
+#endif
+	}
+#ifdef GAME_DLL
+	const char *GetClientConvarValue( int index, const char* cvar )
+	{
+		return engine->GetClientConVarValue( index, cvar );
+	}
+#endif
+public:
+	bool Init();
+
+	void LevelShutdownPostEntity()
+	{
+		g_ScriptConCommands.PurgeAndDeleteElements();
+		g_ScriptConVars.PurgeAndDeleteElements();
+	}
+
+public:
+	float GetFloat( const char *pszConVar )
+	{
+		ConVarRef cvar( pszConVar );
+		if ( cvar.IsFlagSet( FCVAR_SERVER_CANNOT_QUERY ) )
+			return NULL;
+		return cvar.GetFloat();
+	}
+
+	int GetInt( const char *pszConVar )
+	{
+		ConVarRef cvar( pszConVar );
+		if ( cvar.IsFlagSet( FCVAR_SERVER_CANNOT_QUERY ) )
+			return NULL;
+		return cvar.GetInt();
+	}
+
+	bool GetBool( const char *pszConVar )
+	{
+		ConVarRef cvar( pszConVar );
+		if ( cvar.IsFlagSet( FCVAR_SERVER_CANNOT_QUERY ) )
+			return NULL;
+		return cvar.GetBool();
+	}
+
+	const char *GetStr( const char *pszConVar )
+	{
+		ConVarRef cvar( pszConVar );
+		if ( cvar.IsFlagSet( FCVAR_SERVER_CANNOT_QUERY ) )
+			return NULL;
+		return cvar.GetString();
+	}
+
+	const char *GetDefaultValue( const char *pszConVar )
+	{
+		ConVarRef cvar( pszConVar );
+		return cvar.GetDefault();
+	}
+
+	bool IsFlagSet( const char *pszConVar, int nFlags )
+	{
+		ConVarRef cvar( pszConVar );
+		return cvar.IsFlagSet( nFlags );
+	}
+
+	void SetFloat( const char *pszConVar, float value )
+	{
+		SetValue( pszConVar, value );
+	}
+
+	void SetInt( const char *pszConVar, int value )
+	{
+		SetValue( pszConVar, value );
+	}
+
+	void SetBool( const char *pszConVar, bool value )
+	{
+		SetValue( pszConVar, value );
+	}
+
+	void SetStr( const char *pszConVar, const char *value )
+	{
+		SetValue( pszConVar, value );
+	}
+
+	template <typename T>
+	void SetValue( const char *pszConVar, T value )
+	{
+		ConVarRef cvar( pszConVar );
+		if ( !cvar.IsValid() )
+			return;
+
+		if ( cvar.IsFlagSet( FCVAR_NOT_CONNECTED | FCVAR_SERVER_CANNOT_QUERY ) )
+			return;
+
+		if ( IsBlockedConvar( pszConVar ) )
+			return;
+
+		cvar.SetValue( value );
+	}
+
+} g_ScriptConvarAccessor;
+
+
+CUtlMap< unsigned int, bool > CScriptConvarAccessor::g_ConVarsBlocked( DefLessFunc(unsigned int) );
+CUtlMap< unsigned int, bool > CScriptConvarAccessor::g_ConCommandsOverridable( DefLessFunc(unsigned int) );
+CUtlMap< unsigned int, CScriptConCommand* > CScriptConvarAccessor::g_ScriptConCommands( DefLessFunc(unsigned int) );
+CUtlMap< unsigned int, CScriptConVar* > CScriptConvarAccessor::g_ScriptConVars( DefLessFunc(unsigned int) );
+
+void CScriptConvarAccessor::RegisterCommand( const char *name, HSCRIPT fn, const char *helpString, int flags )
+{
+	unsigned int hash = Hash(name);
+	int idx = g_ScriptConCommands.Find(hash);
+	if ( idx == g_ScriptConCommands.InvalidIndex() )
+	{
+		if ( g_pCVar->FindVar(name) || ( g_pCVar->FindCommand(name) && !IsOverridable(hash) ) )
+		{
+			DevWarning( 1, "CScriptConvarAccessor::RegisterCommand unable to register blocked ConCommand: %s\n", name );
+			return;
+		}
+
+		if ( !fn )
+			return;
+
+		CScriptConCommand *p = new CScriptConCommand( name, fn, helpString, flags );
+		g_ScriptConCommands.Insert( hash, p );
+	}
+	else
+	{
+		CScriptConCommand *pCmd = g_ScriptConCommands[idx];
+		pCmd->SetCallback( fn );
+		pCmd->m_cmd->AddFlags( flags );
+		//CGMsg( 1, CON_GROUP_VSCRIPT, "CScriptConvarAccessor::RegisterCommand replacing command already registered: %s\n", name );
+	}
+}
+
+void CScriptConvarAccessor::SetCompletionCallback( const char *name, HSCRIPT fn )
+{
+	unsigned int hash = Hash(name);
+	int idx = g_ScriptConCommands.Find(hash);
+	if ( idx != g_ScriptConCommands.InvalidIndex() )
+	{
+		g_ScriptConCommands[idx]->SetCompletionCallback( fn );
+	}
+}
+
+void CScriptConvarAccessor::UnregisterCommand( const char *name )
+{
+	unsigned int hash = Hash(name);
+	int idx = g_ScriptConCommands.Find(hash);
+	if ( idx != g_ScriptConCommands.InvalidIndex() )
+	{
+		g_ScriptConCommands[idx]->Unregister();
+	}
+}
+
+void CScriptConvarAccessor::RegisterConvar( const char *name, const char *pDefaultValue, const char *helpString, int flags )
+{
+	Assert( g_pCVar );
+	unsigned int hash = Hash(name);
+	int idx = g_ScriptConVars.Find(hash);
+	if ( idx == g_ScriptConVars.InvalidIndex() )
+	{
+		if ( g_pCVar->FindVar(name) || g_pCVar->FindCommand(name) )
+		{
+			DevWarning( 1, "CScriptConvarAccessor::RegisterConvar unable to register blocked ConCommand: %s\n", name );
+			return;
+		}
+
+		CScriptConVar *p = new CScriptConVar( name, pDefaultValue, helpString, flags );
+		g_ScriptConVars.Insert( hash, p );
+	}
+	else
+	{
+		g_ScriptConVars[idx]->m_cvar->AddFlags( flags );
+		//CGMsg( 1, CON_GROUP_VSCRIPT, "CScriptConvarAccessor::RegisterConvar convar %s already registered\n", name );
+	}
+}
+
+bool CScriptConvarAccessor::Init()
+{
+	static bool bExecOnce = false;
+	if ( bExecOnce )
+		return true;
+	bExecOnce = true;
+
+	AddOverridable( "+attack" );
+	AddOverridable( "+attack2" );
+	AddOverridable( "+attack3" );
+	AddOverridable( "+forward" );
+	AddOverridable( "+back" );
+	AddOverridable( "+moveleft" );
+	AddOverridable( "+moveright" );
+	AddOverridable( "+use" );
+	AddOverridable( "+jump" );
+	AddOverridable( "+zoom" );
+	AddOverridable( "+reload" );
+	AddOverridable( "+speed" );
+	AddOverridable( "+walk" );
+	AddOverridable( "+duck" );
+	AddOverridable( "+strafe" );
+	AddOverridable( "+alt1" );
+	AddOverridable( "+alt2" );
+	AddOverridable( "+grenade1" );
+	AddOverridable( "+grenade2" );
+	AddOverridable( "+showscores" );
+
+	AddOverridable( "-attack" );
+	AddOverridable( "-attack2" );
+	AddOverridable( "-attack3" );
+	AddOverridable( "-forward" );
+	AddOverridable( "-back" );
+	AddOverridable( "-moveleft" );
+	AddOverridable( "-moveright" );
+	AddOverridable( "-use" );
+	AddOverridable( "-jump" );
+	AddOverridable( "-zoom" );
+	AddOverridable( "-reload" );
+	AddOverridable( "-speed" );
+	AddOverridable( "-walk" );
+	AddOverridable( "-duck" );
+	AddOverridable( "-strafe" );
+	AddOverridable( "-alt1" );
+	AddOverridable( "-alt2" );
+	AddOverridable( "-grenade1" );
+	AddOverridable( "-grenade2" );
+	AddOverridable( "-showscores" );
+
+	AddOverridable( "toggle_duck" );
+	AddOverridable( "lastinv" );
+	AddOverridable( "invnext" );
+	AddOverridable( "invprev" );
+	AddOverridable( "phys_swap" );
+	AddOverridable( "slot1" );
+	AddOverridable( "slot2" );
+	AddOverridable( "slot3" );
+	AddOverridable( "slot4" );
+	AddOverridable( "slot5" );
+	AddOverridable( "slot6" );
+	AddOverridable( "slot7" );
+
+	AddOverridable( "save" );
+	AddOverridable( "load" );
+
+
+	AddBlockedConVar( "con_enable" );
+	AddBlockedConVar( "cl_allowdownload" );
+	AddBlockedConVar( "cl_allowupload" );
+	AddBlockedConVar( "cl_downloadfilter" );
+
+	return true;
+}
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptConvarAccessor, "CConvars", SCRIPT_SINGLETON "Provides an interface to convars." )
+	DEFINE_SCRIPTFUNC( RegisterConvar, "register a new console variable." )
+	DEFINE_SCRIPTFUNC( RegisterCommand, "register a console command." )
+	DEFINE_SCRIPTFUNC( SetCompletionCallback, "callback is called with 3 parameters (cmdname, partial, commands), user strings must be appended to 'commands' array" )
+	DEFINE_SCRIPTFUNC( UnregisterCommand, "unregister a console command." )
+	DEFINE_SCRIPTFUNC( GetCommandClient, "returns the player who issued this console command." )
+#ifdef GAME_DLL
+	DEFINE_SCRIPTFUNC( GetClientConvarValue, "Get a convar keyvalue for a specified client" )
+#endif
+	DEFINE_SCRIPTFUNC( GetFloat, "Returns the convar as a float. May return null if no such convar." )
+	DEFINE_SCRIPTFUNC( GetInt, "Returns the convar as an int. May return null if no such convar." )
+	DEFINE_SCRIPTFUNC( GetBool, "Returns the convar as a bool. May return null if no such convar." )
+	DEFINE_SCRIPTFUNC( GetStr, "Returns the convar as a string. May return null if no such convar." )
+	DEFINE_SCRIPTFUNC( GetDefaultValue, "Returns the convar's default value as a string. May return null if no such convar." )
+	DEFINE_SCRIPTFUNC( IsFlagSet, "Returns the convar's flags. May return null if no such convar." )
+	DEFINE_SCRIPTFUNC( SetFloat, "Sets the value of the convar as a float." )
+	DEFINE_SCRIPTFUNC( SetInt, "Sets the value of the convar as an int." )
+	DEFINE_SCRIPTFUNC( SetBool, "Sets the value of the convar as a bool." )
+	DEFINE_SCRIPTFUNC( SetStr, "Sets the value of the convar as a string." )
+END_SCRIPTDESC();
+
+
+//=============================================================================
+// Effects
+// (Unique to mapbase)
+//
+// At the moment only clientside until a filtering method on server is finalised.
+//
+// TEs most of the time call IEffects (g_pEffects) or ITempEnts (tempents) on client,
+// but they also record for tools recording mode.
+//
+// On client no TE is suppressed.
+// TE flags are found at tempent.h
+//
+// TODO:
+//=============================================================================
+#ifdef CLIENT_DLL
+
+class CEffectsScriptHelper
+{
+private:
+	C_RecipientFilter filter;
+
+public:
+	void DynamicLight( int index, const Vector& origin, int r, int g, int b, int exponent,
+		float radius, float die, float decay, int style = 0, int flags = 0 )
+	{
+		//te->DynamicLight( filter, delay, &origin, r, g, b, exponent, radius, die, decay );
+		dlight_t *dl = effects->CL_AllocDlight( index );
+		dl->origin = origin;
+		dl->color.r = r;
+		dl->color.g = g;
+		dl->color.b = b;
+		dl->color.exponent = exponent;
+		dl->radius = radius;
+		dl->die = gpGlobals->curtime + die;
+		dl->decay = decay;
+		dl->style = style;
+		dl->flags = flags;
+	}
+
+	void Explosion( const Vector& pos, float scale, int radius, int magnitude, int flags )
+	{
+		filter.AddAllPlayers();
+		// framerate, modelindex, normal and materialtype are unused
+		// radius for ragdolls
+		extern short g_sModelIndexFireball;
+		te->Explosion( filter, 0.0f, &pos, g_sModelIndexFireball, scale, 15, flags, radius, magnitude, &vec3_origin );
+	}
+
+//	void FXExplosion( const Vector& pos, const Vector& normal, int materialType = 'C' )
+//	{
+//		// just the particles
+//		// materialtype only for debris. can be 'C','W' or anything else.
+//		FX_Explosion( const_cast<Vector&>(pos), const_cast<Vector&>(normal), materialType );
+//	}
+
+//	void ConcussiveExplosion( const Vector& pos, const Vector& normal )
+//	{
+//		FX_ConcussiveExplosion( const_cast<Vector&>(pos), const_cast<Vector&>(normal) );
+//	}
+
+//	void MicroExplosion( const Vector& pos, const Vector& normal )
+//	{
+//		FX_MicroExplosion( const_cast<Vector&>(pos), const_cast<Vector&>(normal) );
+//	}
+
+//	void MuzzleFlash( int type, HSCRIPT hEntity, int attachment, bool firstPerson )
+//	{
+//		C_BaseEntity *p = ToEnt(hEntity);
+//		ClientEntityHandle_t ent = p ? (ClientEntityList().EntIndexToHandle)( p->entindex() ) : NULL;;
+//		tempents->MuzzleFlash( type, ent, attachment, firstPerson );
+//	}
+
+	void Sparks( const Vector& pos, int nMagnitude, int nTrailLength, const Vector& pDir )
+	{
+		//te->Sparks( filter, delay, &pos, nMagnitude, nTrailLength, &pDir );
+		//g_pEffects->Sparks( pos, nMagnitude, nTrailLength, &pDir );
+		FX_ElectricSpark( pos, nMagnitude, nTrailLength, &pDir );
+	}
+
+	void MetalSparks( const Vector& pos, const Vector& dir )
+	{
+		//g_pEffects->MetalSparks( pos, dir );
+		FX_MetalSpark( pos, dir, dir );
+	}
+
+//	void Smoke( const Vector& pos, float scale, int framerate)
+//	{
+//		extern short g_sModelIndexSmoke;
+//		//te->Smoke( filter, 0.0, &pos, g_sModelIndexSmoke, scale * 10.0f, framerate );
+//		g_pEffects->Smoke( pos, g_sModelIndexSmoke, scale, framerate );
+//	}
+
+	void Dust( const Vector &pos, const Vector &dir, float size, float speed )
+	{
+		//te->Dust( filter, delay, pos, dir, size, speed );
+		//g_pEffects->Dust( pos, dir, size, speed );
+		FX_Dust( pos, dir, size, speed );
+	}
+
+	void Bubbles( const Vector &mins, const Vector &maxs, float height, int modelindex, int count, float speed )
+	{
+		//int bubbles = modelinfo->GetModelIndex( "sprites/bubble.vmt" );
+		//te->Bubbles( filter, delay, &mins, &maxs, height, modelindex, count, speed );
+		tempents->Bubbles( mins, maxs, height, modelindex, count, speed );
+	}
+
+//	void Fizz( const Vector& mins, const Vector& maxs, int modelIndex, int density, int current/*, int flags*/ )
+//	{
+//		//te->Fizz( filter, delay, ent, modelindex, density, current );
+//		//tempents->FizzEffect( ToEnt(ent), modelindex, density, current );
+//	}
+
+	void Sprite( const Vector &pos, const Vector &dir, float scale, int modelIndex, int rendermode,
+		int renderfx, int brightness, float life, int flags  )
+	{
+		//te->Sprite( filter, delay, &pos, modelindex, size, brightness );
+		float a = (1.0 / 255.0) * brightness;
+		tempents->TempSprite( pos, dir, scale, modelIndex, rendermode, renderfx, a, life, flags );
+	}
+
+//	void PhysicsProp( float delay, int modelindex, int skin, const Vector& pos, const QAngle &angles,
+//		const Vector& vel, int flags, int effects )
+//	{
+//		//te->PhysicsProp( filter, delay, modelindex, skin, pos, angles, vel, flags, effects );
+//		tempents->PhysicsProp( modelindex, skin, pos, angles, vel, flags, effects );
+//	}
+
+	void ClientProjectile( const Vector& vecOrigin, const Vector& vecVelocity, const Vector& vecAccel, int modelindex,
+		int lifetime, HSCRIPT pOwner, const char *pszImpactEffect = NULL, const char *pszParticleEffect = NULL )
+	{
+		//te->ClientProjectile( filter, delay, &vecOrigin, &vecVelocity, modelindex, lifetime, ToEnt(pOwner) );
+		if ( pszImpactEffect && !(*pszImpactEffect) )
+			pszImpactEffect = NULL;
+		if ( pszParticleEffect && !(*pszParticleEffect) )
+			pszParticleEffect = NULL;
+		tempents->ClientProjectile( vecOrigin, vecVelocity, vecAccel, modelindex, lifetime, ToEnt(pOwner), pszImpactEffect, pszParticleEffect );
+	}
+
+} g_ScriptEffectsHelper;
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( CEffectsScriptHelper, "CEffects", SCRIPT_SINGLETON "" )
+	DEFINE_SCRIPTFUNC( DynamicLight, "" )
+	DEFINE_SCRIPTFUNC( Explosion, "" )
+	DEFINE_SCRIPTFUNC( Sparks, "" )
+	DEFINE_SCRIPTFUNC( MetalSparks, "" )
+	DEFINE_SCRIPTFUNC( Dust, "" )
+	DEFINE_SCRIPTFUNC( Bubbles, "" )
+	DEFINE_SCRIPTFUNC( Sprite, "" )
+	DEFINE_SCRIPTFUNC( ClientProjectile, "" )
+END_SCRIPTDESC();
+#endif
+
+
 void RegisterScriptSingletons()
 {
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptSaveRestoreUtil::SaveTable, "SaveTable", "Store a table with primitive values that will persist across level transitions and save loads." );
@@ -2076,6 +2828,10 @@ void RegisterScriptSingletons()
 	g_pScriptVM->RegisterInstance( &g_ScriptLocalize, "Localize" );
 	g_pScriptVM->RegisterInstance( g_ScriptNetMsg, "NetMsg" );
 	g_pScriptVM->RegisterInstance( &g_ScriptDebugOverlay, "debugoverlay" );
+	g_pScriptVM->RegisterInstance( &g_ScriptConvarAccessor, "Convars" );
+#ifdef CLIENT_DLL
+	g_pScriptVM->RegisterInstance( &g_ScriptEffectsHelper, "effects" );
+#endif
 
 	// Singletons not unique to VScript (not declared or defined here)
 	g_pScriptVM->RegisterInstance( GameRules(), "GameRules" );
@@ -2084,9 +2840,9 @@ void RegisterScriptSingletons()
 	g_pScriptVM->RegisterInstance( &g_AI_SquadManager, "Squads" );
 #endif
 
-#ifndef CLIENT_DLL
+#ifdef USE_OLD_EVENT_DESCRIPTORS
 	CScriptGameEventListener::LoadAllEvents();
-#endif // !CLIENT_DLL
+#endif
 
 	g_ScriptNetMsg->InitPostVM();
 }

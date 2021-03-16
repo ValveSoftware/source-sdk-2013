@@ -144,6 +144,9 @@ public:
 	bool HasAnimEvent( int nSequence, int nEvent );
 	virtual	void DispatchAnimEvents ( CBaseAnimating *eventHandler ); // Handle events that have happend since last time called up until X seconds into the future
 	virtual void HandleAnimEvent( animevent_t *pEvent );
+#ifdef MAPBASE_VSCRIPT
+	bool ScriptHookHandleAnimEvent( animevent_t *pEvent );
+#endif
 
 	int		LookupPoseParameter( CStudioHdr *pStudioHdr, const char *szName );
 	inline int	LookupPoseParameter( const char *szName ) { return LookupPoseParameter(GetModelPtr(), szName); }
@@ -211,6 +214,7 @@ public:
 	void	SetSkin( int iSkin ) { m_nSkin = iSkin; }
 
 	static ScriptHook_t	g_Hook_OnServerRagdoll;
+	static ScriptHook_t	g_Hook_HandleAnimEvent;
 #endif
 
 	// These return the attachment in the space of the entity

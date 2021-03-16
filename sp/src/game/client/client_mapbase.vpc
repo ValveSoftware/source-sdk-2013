@@ -31,6 +31,9 @@ $Project
 		$File	"c_postprocesscontroller.cpp"
 		$File	"c_postprocesscontroller.h"
 		$File	"c_env_dof_controller.cpp"
+		$File	"c_movie_display.cpp"
+		$File	"c_movie_display.h"
+		$File	"vgui_movie_display.cpp"
 	
 		$Folder	"Mapbase"
 		{
@@ -57,6 +60,7 @@ $Project
 			$File	"mapbase\c_func_fake_worldportal.cpp"
 			$File	"mapbase\c_func_fake_worldportal.h"
 			$File	"mapbase\c_point_glow.cpp"
+			$File	"mapbase\c_vgui_text_display.cpp"
 		}
 		
 		$Folder "HL2 DLL"

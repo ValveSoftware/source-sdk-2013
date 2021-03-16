@@ -26,6 +26,7 @@
 
 #include "con_nprint.h"
 #include "particle_parse.h"
+#include "npcevent.h"
 
 #include "vscript_funcs_shared.h"
 #include "vscript_singletons.h"
@@ -164,18 +165,18 @@ HSCRIPT SpawnEntityFromTable( const char *pszClassname, HSCRIPT hKV )
 HSCRIPT EntIndexToHScript( int index )
 {
 #ifdef GAME_DLL
-    edict_t *e = INDEXENT(index);
-    if ( e && !e->IsFree() )
-    {
-        return ToHScript( GetContainingEntity( e ) );
-    }
+	edict_t *e = INDEXENT(index);
+	if ( e && !e->IsFree() )
+	{
+		return ToHScript( GetContainingEntity( e ) );
+	}
 #else // CLIENT_DLL
-    if ( index < NUM_ENT_ENTRIES )
-    {
-        return ToHScript( CBaseEntity::Instance( index ) );
-    }
+	if ( index < NUM_ENT_ENTRIES )
+	{
+		return ToHScript( CBaseEntity::Instance( index ) );
+	}
 #endif
-    return NULL;
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -504,6 +505,61 @@ FireBulletsInfo_t *GetFireBulletsInfoFromInfo( HSCRIPT hBulletsInfo )
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
+CAnimEventTInstanceHelper g_AnimEventTInstanceHelper;
+
+BEGIN_SCRIPTDESC_ROOT( animevent_t, "Handle for accessing animevent_t info." )
+	DEFINE_SCRIPT_INSTANCE_HELPER( &g_AnimEventTInstanceHelper )
+END_SCRIPTDESC();
+
+bool CAnimEventTInstanceHelper::Get( void *p, const char *pszKey, ScriptVariant_t &variant )
+{
+	animevent_t *ani = ((animevent_t *)p);
+	if (FStrEq( pszKey, "event" ))
+		variant = ani->event;
+	else if (FStrEq( pszKey, "options" ))
+		variant = ani->options;
+	else if (FStrEq( pszKey, "cycle" ))
+		variant = ani->cycle;
+	else if (FStrEq( pszKey, "eventtime" ))
+		variant = ani->eventtime;
+	else if (FStrEq( pszKey, "type" ))
+		variant = ani->type;
+	else if (FStrEq( pszKey, "source" ))
+		variant = ToHScript(ani->pSource);
+	else
+		return false;
+
+	return true;
+}
+
+bool CAnimEventTInstanceHelper::Set( void *p, const char *pszKey, ScriptVariant_t &variant )
+{
+	animevent_t *ani = ((animevent_t *)p);
+	if (FStrEq( pszKey, "event" ))
+		ani->event = variant;
+	else if (FStrEq( pszKey, "options" ))
+		ani->options = variant;
+	else if (FStrEq( pszKey, "cycle" ))
+		ani->cycle = variant;
+	else if (FStrEq( pszKey, "eventtime" ))
+		ani->eventtime = variant;
+	else if (FStrEq( pszKey, "type" ))
+		ani->type = variant;
+	else if (FStrEq( pszKey, "source" ))
+	{
+		CBaseEntity *pEnt = ToEnt( variant.m_hScript );
+		if (pEnt)
+			ani->pSource = pEnt->GetBaseAnimating();
+	}
+	else
+		return false;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 BEGIN_SCRIPTDESC_ROOT( CUserCmd, "Handle for accessing CUserCmd info." )
 	DEFINE_SCRIPTFUNC( GetCommandNumber, "For matching server and client commands for debugging." )
 
@@ -740,19 +796,28 @@ void NPrint( int pos, const char* fmt )
 
 void NXPrint( int pos, int r, int g, int b, bool fixed, float ftime, const char* fmt )
 {
-	static con_nprint_t *info = new con_nprint_t;
+	con_nprint_t info;
 
-	info->index = pos;
-	info->time_to_live = ftime;
-	info->color[0] = r / 255.f;
-	info->color[1] = g / 255.f;
-	info->color[2] = b / 255.f;
-	info->fixed_width_font = fixed;
+	info.index = pos;
+	info.time_to_live = ftime;
+	info.color[0] = r / 255.f;
+	info.color[1] = g / 255.f;
+	info.color[2] = b / 255.f;
+	info.fixed_width_font = fixed;
 
-	engine->Con_NXPrintf(info, fmt);
-
-	// delete info;
+	engine->Con_NXPrintf( &info, fmt );
 }
+
+static float IntervalPerTick()
+{
+	return gpGlobals->interval_per_tick;
+}
+
+static int GetFrameCount()
+{
+	return gpGlobals->framecount;
+}
+
 
 //=============================================================================
 //=============================================================================
@@ -850,6 +915,9 @@ void RegisterSharedScriptFunctions()
 #endif
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptIsServer, "IsServer", "Returns true if the script is being run on the server." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptIsClient, "IsClient", "Returns true if the script is being run on the client." );
+	ScriptRegisterFunction( g_pScriptVM, IntervalPerTick, "Simulation tick interval" );
+	ScriptRegisterFunction( g_pScriptVM, GetFrameCount, "Absolute frame counter" );
+	//ScriptRegisterFunction( g_pScriptVM, GetTickCount, "Simulation ticks" );
 
 	RegisterScriptSingletons();
 }

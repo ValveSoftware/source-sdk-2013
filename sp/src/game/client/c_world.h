@@ -49,6 +49,8 @@ public:
 #endif
 
 #ifdef MAPBASE_VSCRIPT
+	void ClientThink() { ScriptContextThink(); }
+
 	// -2 = Use server language
 	ScriptLanguage_t GetScriptLanguage() { return (ScriptLanguage_t)(m_iScriptLanguageClient != -2 ? m_iScriptLanguageClient : m_iScriptLanguageServer); }
 #endif

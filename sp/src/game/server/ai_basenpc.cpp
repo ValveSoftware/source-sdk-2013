@@ -303,10 +303,11 @@ CSimpleSimTimer CAI_BaseNPC::m_AnyUpdateEnemyPosTimer;
 
 #ifdef MAPBASE_VSCRIPT
 // TODO: Better placement?
-ScriptHook_t	g_Hook_QueryHearSound;
-ScriptHook_t	g_Hook_QuerySeeEntity;
-ScriptHook_t	g_Hook_TranslateActivity;
-ScriptHook_t	g_Hook_TranslateSchedule;
+ScriptHook_t	CAI_BaseNPC::g_Hook_QueryHearSound;
+ScriptHook_t	CAI_BaseNPC::g_Hook_QuerySeeEntity;
+ScriptHook_t	CAI_BaseNPC::g_Hook_TranslateActivity;
+ScriptHook_t	CAI_BaseNPC::g_Hook_TranslateSchedule;
+ScriptHook_t	CAI_BaseNPC::g_Hook_GetActualShootPosition;
 #endif
 
 //
@@ -10687,6 +10688,19 @@ void CAI_BaseNPC::CollectShotStats( const Vector &vecShootOrigin, const Vector &
 //-----------------------------------------------------------------------------
 Vector CAI_BaseNPC::GetActualShootPosition( const Vector &shootOrigin )
 {
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_GetActualShootPosition.CanRunInScope(m_ScriptScope))
+	{
+		ScriptVariant_t functionReturn;
+		ScriptVariant_t args[] = { shootOrigin, ToHScript( GetEnemy() ) };
+		if (g_Hook_GetActualShootPosition.Call( m_ScriptScope, &functionReturn, args ))
+		{
+			if (functionReturn.m_type == FIELD_VECTOR && functionReturn.m_pVector->LengthSqr() != 0.0f)
+				return *functionReturn.m_pVector;
+		}
+	}
+#endif
+
 	// Project the target's location into the future.
 	Vector vecEnemyLKP = GetEnemyLKP();
 	Vector vecEnemyOffset = GetEnemy()->BodyTarget( shootOrigin ) - GetEnemy()->GetAbsOrigin();
@@ -12075,19 +12089,23 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 	// 
 	// Hooks
 	// 
-	BEGIN_SCRIPTHOOK( g_Hook_QueryHearSound, "QueryHearSound", FIELD_BOOLEAN, "Called when the NPC is deciding whether to hear a CSound or not." )
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_QueryHearSound, "QueryHearSound", FIELD_BOOLEAN, "Called when the NPC is deciding whether to hear a CSound or not." )
 		DEFINE_SCRIPTHOOK_PARAM( "sound", FIELD_HSCRIPT )
 	END_SCRIPTHOOK()
-	BEGIN_SCRIPTHOOK( g_Hook_QuerySeeEntity, "QuerySeeEntity", FIELD_BOOLEAN, "Called when the NPC is deciding whether to see an entity or not." )
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_QuerySeeEntity, "QuerySeeEntity", FIELD_BOOLEAN, "Called when the NPC is deciding whether to see an entity or not." )
 		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
 	END_SCRIPTHOOK()
-	BEGIN_SCRIPTHOOK( g_Hook_TranslateActivity, "NPC_TranslateActivity", FIELD_VARIANT, "Called when the NPC is translating their current activity. The activity is provided in both string and ID form. Should return either an activity string or an activity ID. Return -1 to not translate." )
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_TranslateActivity, "NPC_TranslateActivity", FIELD_VARIANT, "Called when the NPC is translating their current activity. The activity is provided in both string and ID form. Should return either an activity string or an activity ID. Return -1 to not translate." )
 		DEFINE_SCRIPTHOOK_PARAM( "activity", FIELD_CSTRING )
 		DEFINE_SCRIPTHOOK_PARAM( "activity_id", FIELD_INTEGER )
 	END_SCRIPTHOOK()
-	BEGIN_SCRIPTHOOK( g_Hook_TranslateSchedule, "NPC_TranslateSchedule", FIELD_VARIANT, "Called when the NPC is translating their current schedule. The schedule is provided in both string and ID form. Should return either a schedule string or a schedule ID. Return -1 to not translate." )
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_TranslateSchedule, "NPC_TranslateSchedule", FIELD_VARIANT, "Called when the NPC is translating their current schedule. The schedule is provided in both string and ID form. Should return either a schedule string or a schedule ID. Return -1 to not translate." )
 		DEFINE_SCRIPTHOOK_PARAM( "schedule", FIELD_CSTRING )
 		DEFINE_SCRIPTHOOK_PARAM( "schedule_id", FIELD_INTEGER )
+	END_SCRIPTHOOK()
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_GetActualShootPosition, "GetActualShootPosition", FIELD_VOID, "Called when the NPC is getting their actual shoot position, using the default shoot position as the parameter. (NOTE: NPCs which override this themselves might not always use this hook!)" )
+		DEFINE_SCRIPTHOOK_PARAM( "shootOrigin", FIELD_VECTOR )
+		DEFINE_SCRIPTHOOK_PARAM( "target", FIELD_HSCRIPT )
 	END_SCRIPTHOOK()
 
 END_SCRIPTDESC();

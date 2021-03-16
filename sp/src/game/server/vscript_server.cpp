@@ -110,6 +110,11 @@ public:
 	{
 		return ToHScript( gEntList.FindEntityByClassnameWithin( ToEnt( hStartEntity ), szName, vecMins, vecMaxs ) );
 	}
+
+	HSCRIPT FindByClassNearestFacing( const Vector &origin, const Vector &facing, float threshold, const char *classname )
+	{
+		return ToHScript( gEntList.FindEntityClassNearestFacing( origin, facing, threshold, const_cast<char*>(classname) ) );
+	}
 #endif
 private:
 } g_ScriptEntityIterator;
@@ -132,6 +137,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptEntityIterator, "CEntities", SCRIPT_SINGLETO
 	DEFINE_SCRIPTFUNC( FindByClassnameWithin, "Find entities by class name within a radius. Pass 'null' to start an iteration, or reference to a previously found entity to continue a search"  )
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_SCRIPTFUNC( FindByClassnameWithinBox, "Find entities by class name within an AABB. Pass 'null' to start an iteration, or reference to a previously found entity to continue a search"  )
+	DEFINE_SCRIPTFUNC( FindByClassNearestFacing, "Find the nearest entity along the facing direction from the given origin within the angular threshold with the given classname."  )
 #endif
 END_SCRIPTDESC();
 
@@ -265,11 +271,6 @@ static int MaxPlayers()
 	return gpGlobals->maxClients;
 }
 
-static float IntervalPerTick()
-{
-	return gpGlobals->interval_per_tick;
-}
-
 static int GetLoadType()
 {
 	return gpGlobals->eLoadType;
@@ -328,7 +329,11 @@ static void DoEntFire( const char *pszTarget, const char *pszAction, const char 
 	//    ent_fire point_servercommand command "rcon_password mynewpassword"
 	if ( gpGlobals->maxClients > 1 && V_stricmp( target, "point_servercommand" ) == 0 )
 	{
+#ifdef MAPBASE_VSCRIPT
 		return 0;
+#else
+		return;
+#endif
 	}
 
 	if ( *pszAction )
@@ -447,12 +452,6 @@ static float GetEntityIOEventTimeLeft( int event )
 {
 	return g_EventQueue.GetTimeLeft(event);
 }
-
-// vscript_server.nut adds this to the base CConvars class
-static const char *ScriptGetClientConvarValue( const char *pszConVar, int entindex )
-{
-	return engine->GetClientConVarValue( entindex, pszConVar );
-}
 #endif // MAPBASE_VSCRIPT
 
 bool VScriptServerInit()
@@ -537,7 +536,6 @@ bool VScriptServerInit()
 #ifdef MAPBASE_VSCRIPT
 				ScriptRegisterFunction( g_pScriptVM, SendToConsoleServer, "Send a string to the server console as a command" );
 				ScriptRegisterFunction( g_pScriptVM, MaxPlayers, "Get the maximum number of players allowed on this server" );
-				ScriptRegisterFunction( g_pScriptVM, IntervalPerTick, "Get the interval used between each tick" );
 				ScriptRegisterFunction( g_pScriptVM, GetLoadType, "Get the way the current game was loaded (corresponds to the MapLoad enum)" );
 				ScriptRegisterFunction( g_pScriptVM, DoEntFire, SCRIPT_ALIAS( "EntFire", "Generate an entity i/o event" ) );
 				ScriptRegisterFunction( g_pScriptVM, DoEntFireByInstanceHandle, SCRIPT_ALIAS( "EntFireByHandle", "Generate an entity i/o event. First parameter is an entity instance." ) );
@@ -545,7 +543,6 @@ bool VScriptServerInit()
 
 				ScriptRegisterFunction( g_pScriptVM, CancelEntityIOEvent, "Remove entity I/O event." );
 				ScriptRegisterFunction( g_pScriptVM, GetEntityIOEventTimeLeft, "Get time left on entity I/O event." );
-				ScriptRegisterFunction( g_pScriptVM, ScriptGetClientConvarValue, SCRIPT_HIDE );
 #else
 				ScriptRegisterFunction( g_pScriptVM, DoEntFire, SCRIPT_ALIAS( "EntFire", "Generate and entity i/o event" ) );
 				ScriptRegisterFunctionNamed( g_pScriptVM, DoEntFireByInstanceHandle, "EntFireByHandle", "Generate and entity i/o event. First parameter is an entity instance." );

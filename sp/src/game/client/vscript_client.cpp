@@ -461,6 +461,11 @@ bool DoIncludeScript( const char *pszScript, HSCRIPT hScope )
 }
 
 #ifdef MAPBASE_VSCRIPT
+static float FrameTime()
+{
+	return gpGlobals->frametime;
+}
+
 static bool Con_IsVisible()
 {
 	return engine->Con_IsVisible();
@@ -585,6 +590,7 @@ bool VScriptClientInit()
 				ScriptRegisterFunction( g_pScriptVM, DoUniqueString, SCRIPT_ALIAS( "UniqueString", "Generate a string guaranteed to be unique across the life of the script VM, with an optional root string." ) );
 				ScriptRegisterFunction( g_pScriptVM, DoIncludeScript, "Execute a script (internal)" );
 #ifdef MAPBASE_VSCRIPT
+				ScriptRegisterFunction( g_pScriptVM, FrameTime, "Get the time spent on the client in the last frame" );
 				ScriptRegisterFunction( g_pScriptVM, Con_IsVisible, "Returns true if the console is visible" );
 				ScriptRegisterFunction( g_pScriptVM, ScreenWidth, "Width of the screen in pixels" );
 				ScriptRegisterFunction( g_pScriptVM, ScreenHeight, "Height of the screen in pixels" );

@@ -335,7 +335,7 @@ void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from )
 #if defined( MAPBASE_VSCRIPT ) && defined( GAME_DLL )
 	if ( buf->ReadOneBit() )
 	{
-		g_ScriptNetMsg->RecieveMessage( buf, pPlayer );
+		g_ScriptNetMsg->ReceiveMessage( buf, pPlayer );
 	}
 #endif
 
