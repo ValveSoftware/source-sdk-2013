@@ -2619,6 +2619,9 @@ bool CScriptConvarAccessor::Init()
 	AddOverridable( "slot6" );
 	AddOverridable( "slot7" );
 
+	AddOverridable( "save" );
+	AddOverridable( "load" );
+
 
 	AddBlockedConVar( "con_enable" );
 	AddBlockedConVar( "cl_allowdownload" );
