@@ -96,7 +96,10 @@ bool CBaseMultiplayerPlayer::SpeakConcept( AI_Response &response, int iConcept )
 	concept.SetSpeaker(this);
 	return FindResponse( response, concept );
 #else
-	return SpeakFindResponse( response, g_pszMPConcepts[iConcept] );
+	AI_Response *pResponse = SpeakFindResponse( g_pszMPConcepts[iConcept] );
+	if (pResponse)
+		response = *pResponse;
+	return pResponse != NULL;
 #endif
 }
 
