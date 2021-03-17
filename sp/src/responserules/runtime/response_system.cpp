@@ -289,6 +289,7 @@ void CResponseSystem::ResolveToken( Matcher& matcher, char *token, size_t bufsiz
 }
 
 
+#ifndef MAPBASE // Already in mapbase_matchers_base
 static bool AppearsToBeANumber( char const *token )
 {
 	if ( atof( token ) != 0.0f )
@@ -305,6 +306,7 @@ static bool AppearsToBeANumber( char const *token )
 
 	return true;
 }
+#endif
 
 void CResponseSystem::ComputeMatcher( Criteria *c, Matcher& matcher )
 {
@@ -510,7 +512,11 @@ bool CResponseSystem::CompareUsingMatcher( const char *setValue, Matcher& m, boo
 		}
 		else
 		{
+#ifdef MAPBASE
+			if ( Matcher_NamesMatch( m.GetToken(), setValue ) )
+#else
 			if ( !Q_stricmp( setValue, m.GetToken() ) )
+#endif
 				return false;
 		}
 
@@ -527,7 +533,11 @@ bool CResponseSystem::CompareUsingMatcher( const char *setValue, Matcher& m, boo
 		return v == (float)atof( m.GetToken() );
 	}
 
+#ifdef MAPBASE
+	return Matcher_NamesMatch( m.GetToken(), setValue );
+#else
 	return !Q_stricmp( setValue, m.GetToken() ) ? true : false;
+#endif
 }
 
 bool CResponseSystem::Compare( const char *setValue, Criteria *c, bool verbose /*= false*/ )
