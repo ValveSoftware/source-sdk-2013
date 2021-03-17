@@ -241,6 +241,10 @@ public:
 		float		LookupEnumeration( const char *name, bool& found );
 
 		ResponseRulePartition::tIndex FindBestMatchingRule( const CriteriaSet& set, bool verbose, float &scoreOfBestMatchingRule );
+
+#ifdef MAPBASE
+		void		DisableEmptyRules();
+#endif
 		
 		float		ScoreCriteriaAgainstRule( const CriteriaSet& set, ResponseRulePartition::tRuleDict &dict, int irule, bool verbose = false );
 		float		RecursiveScoreSubcriteriaAgainstRule( const CriteriaSet& set, Criteria *parent, bool& exclude, bool verbose /*=false*/ );

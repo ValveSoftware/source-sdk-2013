@@ -12,6 +12,9 @@
 #include "convar.h"
 #include "fmtstr.h"
 #include "generichash.h"
+#ifdef MAPBASE
+#include "tier1/mapbase_matchers_base.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -85,6 +88,10 @@ ConVar rr_debugrule( "rr_debugrule", "", FCVAR_NONE, "If set to the name of the 
 ConVar rr_dumpresponses( "rr_dumpresponses", "0", FCVAR_NONE, "Dump all response_rules.txt and rules (requires restart)" );
 ConVar rr_debugresponseconcept( "rr_debugresponseconcept", "", FCVAR_NONE, "If set, rr_debugresponses will print only responses testing for the specified concept" );
 #define RR_DEBUGRESPONSES_SPECIALCASE 4
+
+#ifdef MAPBASE
+ConVar rr_disableemptyrules( "rr_disableemptyrules", "0", FCVAR_NONE, "Disables rules with no remaining responses, e.g. rules which use norepeat responses." );
+#endif
 
 
 
@@ -788,6 +795,38 @@ void CResponseSystem::ResetResponseGroups()
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CResponseSystem::DisableEmptyRules()
+{
+	if (rr_disableemptyrules.GetBool() == false)
+		return;
+
+	for ( ResponseRulePartition::tIndex idx = m_RulePartitions.First() ;
+		m_RulePartitions.IsValid(idx) ;
+		idx = m_RulePartitions.Next(idx) )
+	{
+		Rule &rule = m_RulePartitions[ idx ];
+
+		// Set it as disabled in advance
+		rule.m_bEnabled = false;
+
+		int c2 = rule.m_Responses.Count();
+		for (int s = 0; s < c2; s++)
+		{
+			if (m_Responses[rule.m_Responses[s]].IsEnabled())
+			{
+				// Re-enable it if there's any valid responses
+				rule.m_bEnabled = true;
+				break;
+			}
+		}
+	}
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Make certain responses unavailable by marking them as depleted 
 //-----------------------------------------------------------------------------
@@ -863,6 +902,9 @@ int CResponseSystem::SelectWeightedResponseFromResponseGroup( ResponseGroup *g, 
 		if ( g->IsNoRepeat() )
 		{
 			g->SetEnabled( false );
+#ifdef MAPBASE
+			DisableEmptyRules();
+#endif
 			return -1;
 		}
 	}
