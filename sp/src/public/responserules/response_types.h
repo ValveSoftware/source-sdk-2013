@@ -326,6 +326,9 @@ namespace ResponseRules
 
 		void			GetName( char *buf, size_t buflen ) const;
 		void			GetResponse( char *buf, size_t buflen ) const;
+#ifdef MAPBASE
+		void			GetRule( char *buf, size_t buflen ) const;
+#endif
 		const char* GetNamePtr() const;
 		const char* GetResponsePtr() const;
 		const ResponseParams *GetParams() const { return &m_Params; }

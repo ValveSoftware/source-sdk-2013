@@ -198,6 +198,19 @@ void CRR_Response::GetResponse( char *buf, size_t buflen ) const
 	GetName( buf, buflen );
 }
 
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : char const
+//-----------------------------------------------------------------------------
+void CRR_Response::GetRule( char *buf, size_t buflen ) const
+{
+	Q_strncpy( buf, m_szMatchingRule, buflen );
+}
+#endif
+
+
 const char* ResponseRules::CRR_Response::GetNamePtr() const
 {
 	return m_szResponseName;

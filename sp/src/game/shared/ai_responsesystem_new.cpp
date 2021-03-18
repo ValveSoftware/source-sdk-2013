@@ -1078,7 +1078,6 @@ public:
 				const Rule &rule = rs.m_RulePartitions[ idx ];
 
 				bool bEnabled = rule.m_bEnabled;
-				Msg( "%s: %i\n", rs.m_RulePartitions.GetElementName( idx ), idx );
 				pSave->WriteBool( &bEnabled );
 
 				pSave->EndBlock();
