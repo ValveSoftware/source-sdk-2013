@@ -793,6 +793,15 @@ void CResponseSystem::ResetResponseGroups()
 	{
 		m_Responses[ i ].Reset();
 	}
+
+#ifdef MAPBASE
+	for ( ResponseRulePartition::tIndex idx = m_RulePartitions.First() ;
+		m_RulePartitions.IsValid(idx) ;
+		idx = m_RulePartitions.Next(idx) )
+	{
+		m_RulePartitions[ idx ].m_bEnabled = true;
+	}
+#endif
 }
 
 #ifdef MAPBASE
@@ -1045,6 +1054,9 @@ bool CResponseSystem::ResolveResponse( ResponseSearchResult& searchResult, int d
 				if ( g->IsNoRepeat() )
 				{
 					g->SetEnabled( false );
+#ifdef MAPBASE
+					DisableEmptyRules();
+#endif
 					return false;
 				}
 				idx = 0;
@@ -1160,6 +1172,9 @@ bool CResponseSystem::GetBestResponse( ResponseSearchResult& searchResult, Rule 
 				if ( g->IsNoRepeat() )
 				{
 					g->SetEnabled( false );
+#ifdef MAPBASE
+					DisableEmptyRules();
+#endif
 					return false;
 				}
 				responseIndex = 0;
