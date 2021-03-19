@@ -688,7 +688,10 @@ ConVar::~ConVar( void )
 //-----------------------------------------------------------------------------
 void ConVar::InstallChangeCallback( FnChangeCallback_t callback )
 {
+#ifndef MAPBASE_VSCRIPT
 	Assert( !m_pParent->m_fnChangeCallback || !callback );
+#endif
+
 	m_pParent->m_fnChangeCallback = callback;
 
 	if ( m_pParent->m_fnChangeCallback )

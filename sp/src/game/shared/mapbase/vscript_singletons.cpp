@@ -30,6 +30,10 @@
 #include "c_te_legacytempents.h"
 #include "iefx.h"
 #include "dlight.h"
+
+#if !defined(NO_STEAM)
+#include "steam/steam_api.h"
+#endif
 #endif
 
 #include "vscript_singletons.h"
@@ -2170,12 +2174,13 @@ public:
 	~CScriptConCommand()
 	{
 		Unregister();
-		delete m_cmd;
+		delete m_pBase;
 	}
 
-	CScriptConCommand( const char *name, HSCRIPT fn, const char *helpString, int flags )
+	CScriptConCommand( const char *name, HSCRIPT fn, const char *helpString, int flags, ConCommand *pLinked = NULL )
 	{
-		m_cmd = new ConCommand( name, this, helpString, flags, 0 );
+		m_pBase = new ConCommand( name, this, helpString, flags, 0 );
+		m_pLinked = pLinked;
 		m_hCallback = fn;
 		m_hCompletionCallback = NULL;
 		m_nCmdNameLen = V_strlen(name) + 1;
@@ -2191,9 +2196,14 @@ public:
 		{
 			vArgv[i] = command[i];
 		}
-		if ( g_pScriptVM->ExecuteFunction( m_hCallback, vArgv, count, NULL, NULL, true ) == SCRIPT_ERROR )
+		ScriptVariant_t ret;
+		if ( g_pScriptVM->ExecuteFunction( m_hCallback, vArgv, count, &ret, NULL, true ) == SCRIPT_ERROR )
 		{
 			DevWarning( 1, "CScriptConCommand: invalid callback for '%s'\n", command[0] );
+		}
+		if ( m_pLinked && (ret.m_type == FIELD_BOOLEAN) && ret.m_bool )
+		{
+			m_pLinked->Dispatch( command );
 		}
 	}
 
@@ -2249,17 +2259,17 @@ public:
 
 		if (fn)
 		{
-			if ( !m_cmd->IsRegistered() )
+			if ( !m_pBase->IsRegistered() )
 				return;
 
-			m_cmd->m_pCommandCompletionCallback = this;
-			m_cmd->m_bHasCompletionCallback = true;
+			m_pBase->m_pCommandCompletionCallback = this;
+			m_pBase->m_bHasCompletionCallback = true;
 			m_hCompletionCallback = fn;
 		}
 		else
 		{
-			m_cmd->m_pCommandCompletionCallback = NULL;
-			m_cmd->m_bHasCompletionCallback = false;
+			m_pBase->m_pCommandCompletionCallback = NULL;
+			m_pBase->m_bHasCompletionCallback = false;
 			m_hCompletionCallback = NULL;
 		}
 	}
@@ -2268,7 +2278,7 @@ public:
 	{
 		if (fn)
 		{
-			if ( !m_cmd->IsRegistered() )
+			if ( !m_pBase->IsRegistered() )
 				Register();
 
 			if ( m_hCallback )
@@ -2283,8 +2293,8 @@ public:
 
 	inline void Unregister()
 	{
-		if ( g_pCVar && m_cmd->IsRegistered() )
-			g_pCVar->UnregisterConCommand( m_cmd );
+		if ( g_pCVar && m_pBase->IsRegistered() )
+			g_pCVar->UnregisterConCommand( m_pBase );
 
 		if ( g_pScriptVM )
 		{
@@ -2301,13 +2311,14 @@ public:
 	inline void Register()
 	{
 		if ( g_pCVar )
-			g_pCVar->RegisterConCommand( m_cmd );
+			g_pCVar->RegisterConCommand( m_pBase );
 	}
 
 	HSCRIPT m_hCallback;
 	HSCRIPT m_hCompletionCallback;
 	int m_nCmdNameLen;
-	ConCommand *m_cmd;
+	ConCommand *m_pLinked;
+	ConCommand *m_pBase;
 };
 
 class CScriptConVar
@@ -2316,30 +2327,58 @@ public:
 	~CScriptConVar()
 	{
 		Unregister();
-		delete m_cvar;
+		delete m_pBase;
 	}
 
 	CScriptConVar( const char *pName, const char *pDefaultValue, const char *pHelpString, int flags/*, float fMin, float fMax*/ )
 	{
-		m_cvar = new ConVar( pName, pDefaultValue, flags, pHelpString );
+		m_pBase = new ConVar( pName, pDefaultValue, flags, pHelpString );
+		m_hCallback = NULL;
+	}
+
+	void SetChangeCallback( HSCRIPT fn )
+	{
+		void ScriptConVarCallback( IConVar*, const char*, float );
+
+		if ( m_hCallback )
+			g_pScriptVM->ReleaseScript( m_hCallback );
+
+		if (fn)
+		{
+			m_hCallback = fn;
+			m_pBase->InstallChangeCallback( (FnChangeCallback_t)ScriptConVarCallback );
+		}
+		else
+		{
+			m_hCallback = NULL;
+			m_pBase->InstallChangeCallback( NULL );
+		}
 	}
 
 	inline void Unregister()
 	{
-		if ( g_pCVar && m_cvar->IsRegistered() )
-			g_pCVar->UnregisterConCommand( m_cvar );
+		if ( g_pCVar && m_pBase->IsRegistered() )
+			g_pCVar->UnregisterConCommand( m_pBase );
+
+		if ( g_pScriptVM )
+		{
+			SetChangeCallback( NULL );
+		}
 	}
 
-	ConVar *m_cvar;
+	HSCRIPT m_hCallback;
+	ConVar *m_pBase;
 };
+
+static CUtlMap< unsigned int, bool > g_ConVarsBlocked( DefLessFunc(unsigned int) );
+static CUtlMap< unsigned int, bool > g_ConCommandsOverridable( DefLessFunc(unsigned int) );
+static CUtlMap< unsigned int, CScriptConCommand* > g_ScriptConCommands( DefLessFunc(unsigned int) );
+static CUtlMap< unsigned int, CScriptConVar* > g_ScriptConVars( DefLessFunc(unsigned int) );
+
 
 class CScriptConvarAccessor : public CAutoGameSystem
 {
 public:
-	static CUtlMap< unsigned int, bool > g_ConVarsBlocked;
-	static CUtlMap< unsigned int, bool > g_ConCommandsOverridable;
-	static CUtlMap< unsigned int, CScriptConCommand* > g_ScriptConCommands;
-	static CUtlMap< unsigned int, CScriptConVar* > g_ScriptConVars;
 	static inline unsigned int Hash( const char*sz ){ return HashStringCaseless(sz); }
 
 public:
@@ -2353,7 +2392,7 @@ public:
 		int idx = g_ConCommandsOverridable.Find( hash );
 		if ( idx == g_ConCommandsOverridable.InvalidIndex() )
 			return false;
-		return g_ConCommandsOverridable[idx];
+		return true;
 	}
 
 	inline void AddBlockedConVar( const char *name )
@@ -2366,7 +2405,7 @@ public:
 		int idx = g_ConVarsBlocked.Find( Hash(name) );
 		if ( idx == g_ConVarsBlocked.InvalidIndex() )
 			return false;
-		return g_ConVarsBlocked[idx];
+		return true;
 	}
 
 public:
@@ -2374,6 +2413,7 @@ public:
 	void SetCompletionCallback( const char *name, HSCRIPT fn );
 	void UnregisterCommand( const char *name );
 	void RegisterConvar( const char *name, const char *pDefaultValue, const char *helpString, int flags );
+	void SetChangeCallback( const char *name, HSCRIPT fn );
 
 	HSCRIPT GetCommandClient()
 	{
@@ -2482,18 +2522,14 @@ public:
 } g_ScriptConvarAccessor;
 
 
-CUtlMap< unsigned int, bool > CScriptConvarAccessor::g_ConVarsBlocked( DefLessFunc(unsigned int) );
-CUtlMap< unsigned int, bool > CScriptConvarAccessor::g_ConCommandsOverridable( DefLessFunc(unsigned int) );
-CUtlMap< unsigned int, CScriptConCommand* > CScriptConvarAccessor::g_ScriptConCommands( DefLessFunc(unsigned int) );
-CUtlMap< unsigned int, CScriptConVar* > CScriptConvarAccessor::g_ScriptConVars( DefLessFunc(unsigned int) );
-
 void CScriptConvarAccessor::RegisterCommand( const char *name, HSCRIPT fn, const char *helpString, int flags )
 {
 	unsigned int hash = Hash(name);
 	int idx = g_ScriptConCommands.Find(hash);
 	if ( idx == g_ScriptConCommands.InvalidIndex() )
 	{
-		if ( g_pCVar->FindVar(name) || ( g_pCVar->FindCommand(name) && !IsOverridable(hash) ) )
+		ConCommand *pLinked = NULL;
+		if ( g_pCVar->FindVar(name) || ( ((pLinked = g_pCVar->FindCommand(name)) != NULL) && !IsOverridable(hash) ) )
 		{
 			DevWarning( 1, "CScriptConvarAccessor::RegisterCommand unable to register blocked ConCommand: %s\n", name );
 			return;
@@ -2502,14 +2538,13 @@ void CScriptConvarAccessor::RegisterCommand( const char *name, HSCRIPT fn, const
 		if ( !fn )
 			return;
 
-		CScriptConCommand *p = new CScriptConCommand( name, fn, helpString, flags );
+		CScriptConCommand *p = new CScriptConCommand( name, fn, helpString, flags, pLinked );
 		g_ScriptConCommands.Insert( hash, p );
 	}
 	else
 	{
 		CScriptConCommand *pCmd = g_ScriptConCommands[idx];
 		pCmd->SetCallback( fn );
-		pCmd->m_cmd->AddFlags( flags );
 		//CGMsg( 1, CON_GROUP_VSCRIPT, "CScriptConvarAccessor::RegisterCommand replacing command already registered: %s\n", name );
 	}
 }
@@ -2552,10 +2587,38 @@ void CScriptConvarAccessor::RegisterConvar( const char *name, const char *pDefau
 	}
 	else
 	{
-		g_ScriptConVars[idx]->m_cvar->AddFlags( flags );
 		//CGMsg( 1, CON_GROUP_VSCRIPT, "CScriptConvarAccessor::RegisterConvar convar %s already registered\n", name );
 	}
 }
+
+void CScriptConvarAccessor::SetChangeCallback( const char *name, HSCRIPT fn )
+{
+	unsigned int hash = Hash(name);
+	int idx = g_ScriptConVars.Find(hash);
+	if ( idx != g_ScriptConVars.InvalidIndex() )
+	{
+		g_ScriptConVars[idx]->SetChangeCallback( fn );
+	}
+}
+
+void ScriptConVarCallback( IConVar *var, const char* pszOldValue, float flOldValue )
+{
+	ConVar *cvar = (ConVar*)var;
+	const char *name = cvar->GetName();
+	unsigned int hash = CScriptConvarAccessor::Hash( name );
+	int idx = g_ScriptConVars.Find(hash);
+	if ( idx != g_ScriptConVars.InvalidIndex() )
+	{
+		Assert( g_ScriptConVars[idx]->m_hCallback );
+
+		ScriptVariant_t args[5] = { name, pszOldValue, flOldValue, cvar->GetString(), cvar->GetFloat() };
+		if ( g_pScriptVM->ExecuteFunction( g_ScriptConVars[idx]->m_hCallback, args, 5, NULL, NULL, true ) == SCRIPT_ERROR )
+		{
+			DevWarning( 1, "CScriptConVar: invalid change callback for '%s'\n", name );
+		}
+	}
+}
+
 
 bool CScriptConvarAccessor::Init()
 {
@@ -2584,6 +2647,7 @@ bool CScriptConvarAccessor::Init()
 	AddOverridable( "+grenade1" );
 	AddOverridable( "+grenade2" );
 	AddOverridable( "+showscores" );
+	AddOverridable( "+voicerecord" );
 
 	AddOverridable( "-attack" );
 	AddOverridable( "-attack2" );
@@ -2605,8 +2669,11 @@ bool CScriptConvarAccessor::Init()
 	AddOverridable( "-grenade1" );
 	AddOverridable( "-grenade2" );
 	AddOverridable( "-showscores" );
+	AddOverridable( "-voicerecord" );
 
 	AddOverridable( "toggle_duck" );
+	AddOverridable( "impulse" );
+	AddOverridable( "use" );
 	AddOverridable( "lastinv" );
 	AddOverridable( "invnext" );
 	AddOverridable( "invprev" );
@@ -2618,9 +2685,15 @@ bool CScriptConvarAccessor::Init()
 	AddOverridable( "slot5" );
 	AddOverridable( "slot6" );
 	AddOverridable( "slot7" );
+	AddOverridable( "slot8" );
+	AddOverridable( "slot9" );
+	AddOverridable( "slot10" );
 
 	AddOverridable( "save" );
 	AddOverridable( "load" );
+
+	AddOverridable( "say" );
+	AddOverridable( "say_team" );
 
 
 	AddBlockedConVar( "con_enable" );
@@ -2634,7 +2707,8 @@ bool CScriptConvarAccessor::Init()
 BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptConvarAccessor, "CConvars", SCRIPT_SINGLETON "Provides an interface to convars." )
 	DEFINE_SCRIPTFUNC( RegisterConvar, "register a new console variable." )
 	DEFINE_SCRIPTFUNC( RegisterCommand, "register a console command." )
-	DEFINE_SCRIPTFUNC( SetCompletionCallback, "callback is called with 3 parameters (cmdname, partial, commands), user strings must be appended to 'commands' array" )
+	DEFINE_SCRIPTFUNC( SetCompletionCallback, "callback is called with 3 parameters (cmd, partial, commands), user strings must be appended to 'commands' array" )
+	DEFINE_SCRIPTFUNC( SetChangeCallback, "callback is called with 5 parameters (var, szOldValue, flOldValue, szNewValue, flNewValue)" )
 	DEFINE_SCRIPTFUNC( UnregisterCommand, "unregister a console command." )
 	DEFINE_SCRIPTFUNC( GetCommandClient, "returns the player who issued this console command." )
 #ifdef GAME_DLL
@@ -2671,9 +2745,6 @@ END_SCRIPTDESC();
 
 class CEffectsScriptHelper
 {
-private:
-	C_RecipientFilter filter;
-
 public:
 	void DynamicLight( int index, const Vector& origin, int r, int g, int b, int exponent,
 		float radius, float die, float decay, int style = 0, int flags = 0 )
@@ -2694,6 +2765,7 @@ public:
 
 	void Explosion( const Vector& pos, float scale, int radius, int magnitude, int flags )
 	{
+		C_RecipientFilter filter;
 		filter.AddAllPlayers();
 		// framerate, modelindex, normal and materialtype are unused
 		// radius for ragdolls
@@ -2803,7 +2875,150 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CEffectsScriptHelper, "CEffects", SCRIPT_SINGLETON 
 	DEFINE_SCRIPTFUNC( Sprite, "" )
 	DEFINE_SCRIPTFUNC( ClientProjectile, "" )
 END_SCRIPTDESC();
-#endif
+
+
+
+//=============================================================================
+//=============================================================================
+
+extern CGlowObjectManager g_GlowObjectManager;
+
+class CScriptGlowObjectManager : public CAutoGameSystem
+{
+public:
+	CUtlVector<int> m_RegisteredObjects;
+
+	void LevelShutdownPostEntity()
+	{
+		FOR_EACH_VEC( m_RegisteredObjects, i )
+			g_GlowObjectManager.UnregisterGlowObject( m_RegisteredObjects[i] );
+		m_RegisteredObjects.Purge();
+	}
+
+public:
+	int Register( HSCRIPT hEntity, int r, int g, int b, int a, bool bRenderWhenOccluded, bool bRenderWhenUnoccluded )
+	{
+		Vector vGlowColor;
+		vGlowColor.x = r * ( 1.0f / 255.0f );
+		vGlowColor.y = g * ( 1.0f / 255.0f );
+		vGlowColor.z = b * ( 1.0f / 255.0f );
+		float flGlowAlpha = a * ( 1.0f / 255.0f );
+		int idx = g_GlowObjectManager.RegisterGlowObject( ToEnt(hEntity), vGlowColor, flGlowAlpha, bRenderWhenOccluded, bRenderWhenUnoccluded, -1 );
+		m_RegisteredObjects.AddToTail( idx );
+		return idx;
+	}
+
+	void Unregister( int nGlowObjectHandle )
+	{
+		if ( (nGlowObjectHandle < 0) || (nGlowObjectHandle >= g_GlowObjectManager.m_GlowObjectDefinitions.Count()) )
+			return;
+		g_GlowObjectManager.UnregisterGlowObject( nGlowObjectHandle );
+		m_RegisteredObjects.FindAndFastRemove( nGlowObjectHandle );
+	}
+
+	void SetEntity( int nGlowObjectHandle, HSCRIPT hEntity )
+	{
+		g_GlowObjectManager.SetEntity( nGlowObjectHandle, ToEnt(hEntity) );
+	}
+
+	void SetColor( int nGlowObjectHandle, int r, int g, int b )
+	{
+		Vector vGlowColor;
+		vGlowColor.x = r * ( 1.0f / 255.0f );
+		vGlowColor.y = g * ( 1.0f / 255.0f );
+		vGlowColor.z = b * ( 1.0f / 255.0f );
+		g_GlowObjectManager.SetColor( nGlowObjectHandle, vGlowColor );
+	}
+
+	void SetAlpha( int nGlowObjectHandle, int a )
+	{
+		float flGlowAlpha = a * ( 1.0f / 255.0f );
+		g_GlowObjectManager.SetAlpha( nGlowObjectHandle, flGlowAlpha );
+	}
+
+	void SetRenderFlags( int nGlowObjectHandle, bool bRenderWhenOccluded, bool bRenderWhenUnoccluded )
+	{
+		g_GlowObjectManager.SetRenderFlags( nGlowObjectHandle, bRenderWhenOccluded, bRenderWhenUnoccluded );
+	}
+
+} g_ScriptGlowObjectManager;
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptGlowObjectManager, "CGlowObjectManager", SCRIPT_SINGLETON "" )
+	DEFINE_SCRIPTFUNC( Register, "( HSCRIPT hEntity, int r, int g, int b, int a, bool bRenderWhenOccluded, bool bRenderWhenUnoccluded )" )
+	DEFINE_SCRIPTFUNC( Unregister, "" )
+	DEFINE_SCRIPTFUNC( SetEntity, "" )
+	DEFINE_SCRIPTFUNC( SetColor, "" )
+	DEFINE_SCRIPTFUNC( SetAlpha, "" )
+	DEFINE_SCRIPTFUNC( SetRenderFlags, "" )
+END_SCRIPTDESC();
+
+
+//=============================================================================
+//=============================================================================
+
+
+#if !defined(NO_STEAM)
+class CScriptSteamAPI
+{
+public:
+	int GetSecondsSinceComputerActive()
+	{
+		if ( !steamapicontext || !steamapicontext->SteamUtils() )
+			return 0;
+
+		return steamapicontext->SteamUtils()->GetSecondsSinceComputerActive();
+	}
+
+	int GetCurrentBatteryPower()
+	{
+		if ( !steamapicontext || !steamapicontext->SteamUtils() )
+			return 0;
+
+		return steamapicontext->SteamUtils()->GetCurrentBatteryPower();
+	}
+
+	const char *GetIPCountry()
+	{
+		if ( !steamapicontext || !steamapicontext->SteamUtils() )
+			return NULL;
+
+		const char *get = steamapicontext->SteamUtils()->GetIPCountry();
+		if ( !get )
+			return NULL;
+
+		static char ret[3];
+		V_strncpy( ret, get, 3 );
+
+		return ret;
+	}
+
+	const char *GetCurrentGameLanguage()
+	{
+		if ( !steamapicontext || !steamapicontext->SteamApps() )
+			return NULL;
+
+		const char *lang = steamapicontext->SteamApps()->GetCurrentGameLanguage();
+		if ( !lang )
+			return NULL;
+
+		static char ret[16];
+		V_strncpy( ret, lang, sizeof(ret) );
+
+		return ret;
+	}
+
+} g_ScriptSteamAPI;
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptSteamAPI, "CSteamAPI", SCRIPT_SINGLETON "" )
+	//DEFINE_SCRIPTFUNC( IsVACBanned, "" )
+	DEFINE_SCRIPTFUNC( GetSecondsSinceComputerActive, "Returns the number of seconds since the user last moved the mouse." )
+	DEFINE_SCRIPTFUNC( GetCurrentBatteryPower, "Return the amount of battery power left in the current system in % [0..100], 255 for being on AC power" )
+	//DEFINE_SCRIPTFUNC( GetIPCountry, "Returns the 2 digit ISO 3166-1-alpha-2 format country code this client is running in (as looked up via an IP-to-location database)" )
+	DEFINE_SCRIPTFUNC( GetCurrentGameLanguage, "Gets the current language that the user has set as API language code. This falls back to the Steam UI language if the user hasn't explicitly picked a language for the title." )
+END_SCRIPTDESC();
+#endif // !NO_STEAM
+
+#endif // CLIENT_DLL
 
 
 void RegisterScriptSingletons()
@@ -2831,6 +3046,11 @@ void RegisterScriptSingletons()
 	g_pScriptVM->RegisterInstance( &g_ScriptConvarAccessor, "Convars" );
 #ifdef CLIENT_DLL
 	g_pScriptVM->RegisterInstance( &g_ScriptEffectsHelper, "effects" );
+	g_pScriptVM->RegisterInstance( &g_ScriptGlowObjectManager, "GlowObjectManager" );
+
+#if !defined(NO_STEAM)
+	g_pScriptVM->RegisterInstance( &g_ScriptSteamAPI, "steam" );
+#endif
 #endif
 
 	// Singletons not unique to VScript (not declared or defined here)
