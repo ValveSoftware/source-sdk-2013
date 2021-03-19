@@ -860,6 +860,15 @@ public:
 	//--------------------------------------------------------
 	virtual ScriptStatus_t ExecuteFunction( HSCRIPT hFunction, ScriptVariant_t *pArgs, int nArgs, ScriptVariant_t *pReturn, HSCRIPT hScope, bool bWait ) = 0;
 
+#ifdef MAPBASE_VSCRIPT
+	//--------------------------------------------------------
+	// Hooks
+	//--------------------------------------------------------
+	virtual bool ScopeIsHooked( HSCRIPT hScope, const char *pszEventName ) = 0;
+	virtual HSCRIPT LookupHookFunction( const char *pszEventName, HSCRIPT hScope, bool &bLegacy ) = 0;
+	virtual ScriptStatus_t ExecuteHookFunction( const char *pszEventName, HSCRIPT hFunction, ScriptVariant_t *pArgs, int nArgs, ScriptVariant_t *pReturn, HSCRIPT hScope, bool bWait ) = 0;
+#endif
+
 	//--------------------------------------------------------
 	// External functions
 	//--------------------------------------------------------
@@ -1573,12 +1582,13 @@ struct ScriptHook_t
 
 	// Cached for when CanRunInScope() is called before Call()
 	HSCRIPT m_hFunc;
+	bool m_bLegacy;
 
 	// Checks if there's a function of this name which would run in this scope
 	HSCRIPT CanRunInScope( HSCRIPT hScope )
 	{
 		extern IScriptVM *g_pScriptVM;
-		m_hFunc = g_pScriptVM->LookupFunction( m_desc.m_pszScriptName, hScope );
+		m_hFunc = g_pScriptVM->LookupHookFunction( m_desc.m_pszScriptName, hScope, m_bLegacy );
 		return m_hFunc;
 	}
 
@@ -1602,7 +1612,8 @@ struct ScriptHook_t
 		// Make sure we have a function in this scope
 		if (!m_hFunc && !CanRunInScope(hScope))
 			return false;
-		else
+		// Legacy
+		else if (m_bLegacy)
 		{
 			for (int i = 0; i < m_desc.m_Parameters.Count(); i++)
 			{
@@ -1621,6 +1632,15 @@ struct ScriptHook_t
 				g_pScriptVM->ClearValue( m_pszParameterNames[i] );
 			}
 
+			return true;
+		}
+		// New Hook System
+		else
+		{
+			g_pScriptVM->ExecuteHookFunction( m_desc.m_pszScriptName, m_hFunc, pArgs, m_desc.m_Parameters.Count(), pReturn, hScope, true );
+			if (bRelease)
+				g_pScriptVM->ReleaseFunction( m_hFunc );
+			m_hFunc = NULL;
 			return true;
 		}
 
