@@ -7,9 +7,9 @@
 #include "BaseVSShader.h"
 #include "cpp_shader_constant_register_map.h"
 
-#include "sdk_windowimposter_vs20.inc"
-#include "sdk_windowimposter_ps20.inc"
-#include "sdk_windowimposter_ps20b.inc"
+#include "SDK_windowimposter_vs20.inc"
+#include "SDK_windowimposter_ps20.inc"
+#include "SDK_windowimposter_ps20b.inc"
 
 
 
