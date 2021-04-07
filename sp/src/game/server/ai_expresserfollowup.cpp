@@ -77,6 +77,7 @@ static void DispatchComeback( CAI_ExpresserWithFollowup *pExpress, CBaseEntity *
 #ifdef MAPBASE
 	// See DispatchFollowupThroughQueue()
 	criteria.AppendCriteria( "From_idx", CNumStr( pSpeaker->entindex() ) );
+	criteria.AppendCriteria( "From_class", pSpeaker->GetClassname() );
 #endif
 	// if a SUBJECT criteria is missing, put it back in.
 	if ( criteria.FindCriterionIndex( "Subject" ) == -1 )
@@ -427,6 +428,9 @@ void CAI_ExpresserWithFollowup::DispatchFollowupThroughQueue( const AIConcept_t 
 	// changes internal operations of the "From" context to search for an entity index. This won't be 100% reliable if the source
 	// talker dies and another entity is created immediately afterwards, but it's a lot more reliable than a simple entity name search.
 	criteria.AppendCriteria( "From_idx", CNumStr( pOuter->entindex() ) );
+
+	// Generic NPCs should also be attributable by classname
+	criteria.AppendCriteria( "From_class", pOuter->GetClassname() );
 #endif
 
 	criteria.Merge( criteriaStr );
