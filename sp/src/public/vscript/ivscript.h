@@ -95,6 +95,9 @@
 #ifndef IVSCRIPT_H
 #define IVSCRIPT_H
 
+#include <type_traits>
+#include <utility>
+
 #include "platform.h"
 #include "datamap.h"
 #include "appframework/IAppSystem.h"
@@ -158,20 +161,6 @@ public:
 	virtual KeyValues *GetKeyValuesFromScriptKV( IScriptVM *pVM, HSCRIPT hSKV ) = 0;
 #endif
 };
-
-//-----------------------------------------------------------------------------
-// 
-//-----------------------------------------------------------------------------
-
-#ifdef MAPBASE_VSCRIPT
-template <typename T> T *HScriptToClass( HSCRIPT hObj )
-{
-	return (hObj) ? (T*)g_pScriptVM->GetInstanceValue( hObj, GetScriptDesc( (T*)NULL ) ) : NULL;
-}
-#else
-DECLARE_POINTER_HANDLE( HSCRIPT );
-#define INVALID_HSCRIPT ((HSCRIPT)-1)
-#endif
 
 //-----------------------------------------------------------------------------
 // 
@@ -645,8 +634,21 @@ struct ScriptEnumDesc_t
 // 
 //-----------------------------------------------------------------------------
 
+// forwards T (and T&) if T is neither enum or an unsigned integer
+// the overload for int below captures enums and unsigned integers and "bends" them to int
+template<typename T>
+static inline typename std::enable_if<!std::is_enum<typename std::remove_reference<T>::type>::value && !std::is_unsigned<typename std::remove_reference<T>::type>::value, T&&>::type ToConstantVariant(T &&value)
+{
+	return std::forward<T>(value);
+}
+
+static inline int ToConstantVariant(int value)
+{
+	return value;
+}
+
 #define ScriptRegisterConstant( pVM, constant, description )									ScriptRegisterConstantNamed( pVM, constant, #constant, description )
-#define ScriptRegisterConstantNamed( pVM, constant, scriptName, description )					do { static ScriptConstantBinding_t binding; binding.m_pszScriptName = scriptName; binding.m_pszDescription = description; binding.m_data = constant; pVM->RegisterConstant( &binding ); } while (0)
+#define ScriptRegisterConstantNamed( pVM, constant, scriptName, description )					do { static ScriptConstantBinding_t binding; binding.m_pszScriptName = scriptName; binding.m_pszDescription = description; binding.m_data = ToConstantVariant(constant); pVM->RegisterConstant( &binding ); } while (0)
 
 // Could probably use a better name.
 // This is used for registering variants (particularly vectors) not tied to existing variables.
@@ -1090,6 +1092,20 @@ public:
 #endif
 };
 
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+
+#ifdef MAPBASE_VSCRIPT
+template <typename T> T *HScriptToClass( HSCRIPT hObj )
+{
+	extern IScriptVM *g_pScriptVM;
+	return (hObj) ? (T*)g_pScriptVM->GetInstanceValue( hObj, GetScriptDesc( (T*)NULL ) ) : NULL;
+}
+#else
+DECLARE_POINTER_HANDLE( HSCRIPT );
+#define INVALID_HSCRIPT ((HSCRIPT)-1)
+#endif
 
 //-----------------------------------------------------------------------------
 // Script scope helper class

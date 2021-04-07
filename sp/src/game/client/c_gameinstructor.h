@@ -9,7 +9,7 @@
 
 
 #include "GameEventListener.h"
-#include "vgui_controls/phandle.h"
+#include "vgui_controls/PHandle.h"
 
 class CBaseLesson;
 

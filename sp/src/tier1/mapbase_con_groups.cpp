@@ -162,6 +162,6 @@ void CGMsg( int level, int nGroup, const tchar* pMsg, ... )
 	}
 	else
 	{
-		ConColorMsg(level, pGroup->GetColor(), string);
+		ConColorMsg(level, pGroup->GetColor(), "%s", string);
 	}
 }

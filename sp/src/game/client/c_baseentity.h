@@ -400,7 +400,7 @@ public:
 
 #ifdef MAPBASE_VSCRIPT
 	// "I don't know why but wrapping entindex() works, while calling it directly crashes."
-	inline int C_BaseEntity::GetEntityIndex() const { return entindex(); }
+	inline int GetEntityIndex() const { return entindex(); }
 #endif
 	
 	// This works for client-only entities and returns the GetEntryIndex() of the entity's handle,
