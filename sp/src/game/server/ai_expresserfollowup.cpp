@@ -375,6 +375,7 @@ bool CAI_ExpresserWithFollowup::SpeakDispatchResponse( AIConcept_t &concept, AI_
 					ResolveFollowupTargetToEntity( concept, *criteria, response, followup ), 
 					-followup->followup_delay, GetOuter() );
 			}
+#ifndef MAPBASE // RESPONSE_PRINT now notes speaking time
 			else if ( response->GetType() == ResponseRules::RESPONSE_PRINT )
 			{	// zero-duration responses dispatch immediately via the queue (must be the queue bec.
 				// the m_pPostponedFollowup will never trigger)
@@ -382,6 +383,7 @@ bool CAI_ExpresserWithFollowup::SpeakDispatchResponse( AIConcept_t &concept, AI_
 					ResolveFollowupTargetToEntity( concept, *criteria, response, followup ), 
 					followup->followup_delay, GetOuter() );
 			}
+#endif
 			else
 			{
 				// this is kind of a quick patch to immediately deal with the issue of null criteria 

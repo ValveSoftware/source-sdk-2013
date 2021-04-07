@@ -35,6 +35,10 @@ inline void SpeechMsg( ... ) {}
 
 extern ConVar rr_debugresponses;
 
+#ifdef MAPBASE
+ConVar ai_speech_print_mode( "ai_speech_print_mode", "1", FCVAR_NONE, "Set this value to 1 to print responses as game_text instead of debug point_message-like text." );
+#endif
+
 //-----------------------------------------------------------------------------
 
 CAI_TimedSemaphore g_AIFriendliesTalkSemaphore;
@@ -889,6 +893,52 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t &concept, AI_Response *re
 		break;
 	case ResponseRules::RESPONSE_PRINT:
 		{
+#ifdef MAPBASE
+			// Note speaking for print responses
+			int responseLen = Q_strlen( response );
+			float responseDuration = ((float)responseLen) * 0.1f;
+			NoteSpeaking( responseDuration, delay );
+
+			// game_text print responses
+			hudtextparms_t textParams;
+			textParams.holdTime = 4.0f + responseDuration; // Give extra padding for the text itself
+			textParams.fadeinTime = 0.5f;
+			textParams.fadeoutTime = 0.5f;
+
+			if (ai_speech_print_mode.GetBool() && GetOuter()->GetGameTextSpeechParams( textParams ))
+			{
+				CRecipientFilter filter;
+				filter.AddAllPlayers();
+				filter.MakeReliable();
+
+				UserMessageBegin( filter, "HudMsg" );
+					WRITE_BYTE ( textParams.channel & 0xFF );
+					WRITE_FLOAT( textParams.x );
+					WRITE_FLOAT( textParams.y );
+					WRITE_BYTE ( textParams.r1 );
+					WRITE_BYTE ( textParams.g1 );
+					WRITE_BYTE ( textParams.b1 );
+					WRITE_BYTE ( textParams.a1 );
+					WRITE_BYTE ( textParams.r2 );
+					WRITE_BYTE ( textParams.g2 );
+					WRITE_BYTE ( textParams.b2 );
+					WRITE_BYTE ( textParams.a2 );
+					WRITE_BYTE ( textParams.effect );
+					WRITE_FLOAT( textParams.fadeinTime );
+					WRITE_FLOAT( textParams.fadeoutTime );
+					WRITE_FLOAT( textParams.holdTime );
+					WRITE_FLOAT( textParams.fxTime );
+					WRITE_STRING( response );
+					WRITE_STRING( "" ); // No custom font
+					WRITE_BYTE ( responseLen );
+				MessageEnd();
+
+				spoke = true;
+
+				OnSpeechFinished();
+			}
+			else
+#endif
 			if ( g_pDeveloper->GetInt() > 0 )
 			{
 				Vector vPrintPos;
