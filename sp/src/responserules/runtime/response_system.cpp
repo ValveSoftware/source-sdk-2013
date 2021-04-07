@@ -246,7 +246,12 @@ void CResponseSystem::Clear()
 {
 	m_Responses.RemoveAll();
 	m_Criteria.RemoveAll();
+#ifdef MAPBASE
+	// Must purge to avoid issues with reloading the system
+	m_RulePartitions.PurgeAndDeleteElements();
+#else
 	m_RulePartitions.RemoveAll();
+#endif
 	m_Enumerations.RemoveAll();
 }
 

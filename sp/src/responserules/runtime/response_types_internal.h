@@ -433,6 +433,9 @@ namespace ResponseRules
 
 		// dump everything.
 		void RemoveAll();
+#ifdef MAPBASE
+		void PurgeAndDeleteElements();
+#endif
 
 		inline Rule &operator[]( tIndex idx );
 		int Count( void ); // number of elements inside, but you can't iterate from 0 to this

@@ -88,6 +88,20 @@ void ResponseRulePartition::RemoveAll( void )
 	}
 }
 
+#ifdef MAPBASE
+void ResponseRulePartition::PurgeAndDeleteElements()
+{
+	for ( int bukkit = 0 ; bukkit < N_RESPONSE_PARTITIONS ; ++bukkit )
+	{
+		for ( int i = m_RuleParts[bukkit].FirstInorder(); i != m_RuleParts[bukkit].InvalidIndex(); i = m_RuleParts[bukkit].NextInorder( i ) )
+		{
+			delete m_RuleParts[bukkit][ i ];
+		}
+		m_RuleParts[bukkit].Purge();
+	}
+}
+#endif
+
 // don't bucket "subject" criteria that prefix with operators, since stripping all that out again would
 // be a big pain, and the most important rules that need subjects are tlk_remarks anyway. 
 static inline bool CanBucketBySubject( const char * RESTRICT pszSubject )
