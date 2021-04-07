@@ -174,7 +174,11 @@ void CResponseQueue::RemoveExpresserHost(CBaseEntity *host)
 /// TODO: Kind of an ugly hack until I get the class hierarchy straightened out.
 static CAI_Expresser *InferExpresserFromBaseEntity(CBaseEntity * RESTRICT pEnt)
 {
+#ifdef MAPBASE
+	if ( CBasePlayer *pPlayer = ToBasePlayer(pEnt) )
+#else
 	if ( CBaseMultiplayerPlayer *pPlayer = dynamic_cast<CBaseMultiplayerPlayer *>(pEnt) )
+#endif
 	{
 		return pPlayer->GetExpresser();
 	}

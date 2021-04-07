@@ -4835,10 +4835,17 @@ void CSceneEntity::OnSceneFinished( bool canceled, bool fireoutput )
 		CBaseFlex *pFlex =  FindNamedActor( 0 ) ;
 		if ( pFlex )
 		{
+#ifdef MAPBASE
+			CBasePlayer *pAsPlayer = ToBasePlayer(pFlex);
+#else
 			CBaseMultiplayerPlayer *pAsPlayer = dynamic_cast<CBaseMultiplayerPlayer *>(pFlex);
+#endif
 			if (pAsPlayer)
 			{
 				CAI_Expresser *pExpresser = pAsPlayer->GetExpresser();
+#ifdef MAPBASE
+				if (pExpresser)
+#endif
 				pExpresser->OnSpeechFinished();
 			}
 			else if ( CAI_BaseActor *pActor = dynamic_cast<CAI_BaseActor*>( pFlex ) )
