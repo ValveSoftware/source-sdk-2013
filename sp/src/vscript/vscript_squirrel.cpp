@@ -65,8 +65,16 @@ struct WriteStateMap
 struct ReadStateMap
 {
 	CUtlMap<int, HSQOBJECT> cache;
+#ifdef _DEBUG
+	CUtlMap<int, bool> allocated;
+#endif
 	HSQUIRRELVM vm_;
-	ReadStateMap(HSQUIRRELVM vm) : cache(DefLessFunc(int)), vm_(vm)
+	ReadStateMap(HSQUIRRELVM vm) : 
+		cache(DefLessFunc(int)),
+#ifdef _DEBUG
+		allocated(DefLessFunc(int)), 
+#endif
+		vm_(vm)
 	{}
 
 	~ReadStateMap()
@@ -83,6 +91,16 @@ struct ReadStateMap
 		int marker = pBuffer->GetInt();
 
 		auto idx = cache.Find(marker);
+
+#ifdef _DEBUG
+		auto allocatedIdx = allocated.Find(marker);
+		bool hasSeen = allocatedIdx != allocated.InvalidIndex();
+		if (!hasSeen)
+		{
+			allocated.Insert(marker, true);
+		}
+#endif
+
 		if (idx != cache.InvalidIndex())
 		{
 			sq_pushobject(vm, cache[idx]);
@@ -90,6 +108,9 @@ struct ReadStateMap
 		}
 		else
 		{
+#ifdef _DEBUG
+			Assert(!hasSeen);
+#endif
 			*outmarker = marker;
 			return false;
 		}
@@ -3388,6 +3409,7 @@ void SquirrelVM::WriteState(CUtlBuffer* pBuffer)
 	int count = sq_getsize(vm_, 1);
 	sq_pushnull(vm_);
 	pBuffer->PutInt(count);
+
 	while (SQ_SUCCEEDED(sq_next(vm_, -2)))
 	{
 		WriteObject(pBuffer, writeState, -2);
@@ -3521,6 +3543,9 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 				break;
 			}
 
+			vm_->Push(ret);
+			readState.StoreTopInCache(marker);
+
 			int noutervalues = _closure(ret)->_function->_noutervalues;
 			for (int i = 0; i < noutervalues; ++i)
 			{
@@ -3542,9 +3567,6 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 				_closure(ret)->_defaultparams[i] = obj;
 				sq_poptop(vm_);
 			}
-
-			vm_->Push(ret);
-			readState.StoreTopInCache(marker);
 		}
 
 		ReadObject(pBuffer, readState);
@@ -3816,16 +3838,17 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 			break;
 		}
 
+		SQOuter* outer = SQOuter::Create(_ss(vm_), nullptr);
+		vm_->Push(outer);
+		readState.StoreTopInCache(marker);
+
 		ReadObject(pBuffer, readState);
 		HSQOBJECT inner;
 		sq_resetobject(&inner);
 		sq_getstackobj(vm_, -1, &inner);
-		SQOuter* outer = SQOuter::Create(_ss(vm_), nullptr);
 		outer->_value = inner;
 		outer->_valptr = &(outer->_value);
 		sq_poptop(vm_);
-		vm_->Push(outer);
-		readState.StoreTopInCache(marker);
 
 		break;
 	}
