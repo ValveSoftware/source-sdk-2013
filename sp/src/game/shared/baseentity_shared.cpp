@@ -2713,13 +2713,20 @@ HSCRIPT CBaseEntity::ScriptGetPhysicsObject( void )
 		return NULL;
 }
 
+
+#ifdef GAME_DLL
+#define SCRIPT_NEVER_THINK TICK_NEVER_THINK
+#else
+#define SCRIPT_NEVER_THINK CLIENT_THINK_NEVER
+#endif
+
 static inline void ScriptStopContextThink( scriptthinkfunc_t *context )
 {
 	Assert( context->m_hfnThink );
+	Assert( context->m_flNextThink == SCRIPT_NEVER_THINK );
 
 	g_pScriptVM->ReleaseScript( context->m_hfnThink );
 	context->m_hfnThink = NULL;
-	//context->m_nNextThinkTick = TICK_NEVER_THINK;
 }
 
 //-----------------------------------------------------------------------------
@@ -2728,55 +2735,56 @@ static inline void ScriptStopContextThink( scriptthinkfunc_t *context )
 void CBaseEntity::ScriptContextThink()
 {
 	float flNextThink = FLT_MAX;
-	int nScheduledTick = 0;
+	float flScheduled = 0.0f;
 
 	for ( int i = 0; i < m_ScriptThinkFuncs.Count(); ++i )
 	{
 		scriptthinkfunc_t *cur = m_ScriptThinkFuncs[i];
 
-		if ( cur->m_nNextThinkTick == TICK_NEVER_THINK )
+		if ( cur->m_flNextThink == SCRIPT_NEVER_THINK )
 		{
 			continue;
 		}
 
-		if ( cur->m_nNextThinkTick > gpGlobals->tickcount )
+		if ( cur->m_flNextThink > gpGlobals->curtime )
 		{
-			// There is more to execute, don't stop thinking if the rest are done.
-
-			// Find the shortest schedule
-			if ( !nScheduledTick || nScheduledTick > cur->m_nNextThinkTick )
+			if ( ( flScheduled == 0.0f ) || ( flScheduled > cur->m_flNextThink ) )
 			{
-				nScheduledTick = cur->m_nNextThinkTick;
+				flScheduled = cur->m_flNextThink;
 			}
 			continue;
 		}
 
 #ifdef _DEBUG
 		// going to run the script func
-		cur->m_nNextThinkTick = 0;
+		cur->m_flNextThink = 0;
 #endif
 
 		ScriptVariant_t varReturn;
 
+#ifndef CLIENT_DLL
 		if ( !cur->m_bNoParam )
 		{
+#endif
 			ScriptVariant_t arg = m_hScriptInstance;
 			if ( g_pScriptVM->ExecuteFunction( cur->m_hfnThink, &arg, 1, &varReturn, NULL, true ) == SCRIPT_ERROR )
 			{
-				cur->m_nNextThinkTick = TICK_NEVER_THINK;
+				cur->m_flNextThink = SCRIPT_NEVER_THINK;
 				continue;
 			}
+#ifndef CLIENT_DLL
 		}
 		else
 		{
 			if ( g_pScriptVM->ExecuteFunction( cur->m_hfnThink, NULL, 0, &varReturn, NULL, true ) == SCRIPT_ERROR )
 			{
-				cur->m_nNextThinkTick = TICK_NEVER_THINK;
+				cur->m_flNextThink = SCRIPT_NEVER_THINK;
 				continue;
 			}
 		}
+#endif
 
-		if ( cur->m_nNextThinkTick == TICK_NEVER_THINK )
+		if ( cur->m_flNextThink == SCRIPT_NEVER_THINK )
 		{
 			// stopped from script while thinking
 			continue;
@@ -2785,13 +2793,13 @@ void CBaseEntity::ScriptContextThink()
 		float flReturn;
 		if ( !varReturn.AssignTo( &flReturn ) )
 		{
-			cur->m_nNextThinkTick = TICK_NEVER_THINK;
+			cur->m_flNextThink = SCRIPT_NEVER_THINK;
 			continue;
 		}
 
 		if ( flReturn < 0.0f )
 		{
-			cur->m_nNextThinkTick = TICK_NEVER_THINK;
+			cur->m_flNextThink = SCRIPT_NEVER_THINK;
 			continue;
 		}
 
@@ -2800,95 +2808,60 @@ void CBaseEntity::ScriptContextThink()
 			flNextThink = flReturn;
 		}
 
-		cur->m_nNextThinkTick = TIME_TO_TICKS( gpGlobals->curtime + flReturn );
+		cur->m_flNextThink = gpGlobals->curtime + flReturn - 0.001;
 	}
 
 	// deferred safe removal
 	for ( int i = 0; i < m_ScriptThinkFuncs.Count(); )
 	{
-		if ( m_ScriptThinkFuncs[i]->m_nNextThinkTick == TICK_NEVER_THINK )
+		scriptthinkfunc_t *cur = m_ScriptThinkFuncs[i];
+		if ( cur->m_flNextThink == SCRIPT_NEVER_THINK )
 		{
-			ScriptStopContextThink( m_ScriptThinkFuncs[i] );
-			delete m_ScriptThinkFuncs[i];
+			ScriptStopContextThink( cur );
+			delete cur;
 			m_ScriptThinkFuncs.Remove(i);
 		}
 		else ++i;
 	}
 
-	bool bNewNext = flNextThink < FLT_MAX;
-
-#ifdef _DEBUG
-#ifdef GAME_DLL
-	int nNextThinkTick = GetNextThinkTick("ScriptContextThink"); // -1
-#else
-	int nNextThinkTick = GetNextThinkTick(); // 0
-#endif
-	if ( ( nNextThinkTick <= 0 ) || ( nNextThinkTick >= nScheduledTick ) || ( nNextThinkTick == gpGlobals->tickcount ) )
+	if ( flNextThink < FLT_MAX )
 	{
-#endif
-		if ( nScheduledTick )
+		if ( flScheduled > 0.0f )
 		{
-			float flScheduledTime = TICKS_TO_TIME( nScheduledTick );
-
-			if ( bNewNext )
-			{
-				flNextThink = min( gpGlobals->curtime + flNextThink, flScheduledTime );
-			}
-			else
-			{
-				flNextThink = flScheduledTime;
-			}
+			flNextThink = min( gpGlobals->curtime + flNextThink, flScheduled );
 		}
 		else
 		{
-			if ( bNewNext )
-			{
-				flNextThink = gpGlobals->curtime + flNextThink;
-			}
-			else
-			{
-#ifdef GAME_DLL
-				flNextThink = TICK_NEVER_THINK;
-#else
-				flNextThink = CLIENT_THINK_NEVER;
-#endif
-			}
+			flNextThink = gpGlobals->curtime + flNextThink;
 		}
-#ifdef _DEBUG
 	}
 	else
 	{
-		// Next think was set (from script) to a sooner tick while thinking?
-		Assert(0);
-
-		if ( nScheduledTick )
+		if ( flScheduled > 0.0f )
 		{
-			int nNextSchedule = min( nScheduledTick, nNextThinkTick );
-			float flNextSchedule = TICKS_TO_TIME( nNextSchedule );
-
-			if ( bNewNext )
-			{
-				flNextThink = min( gpGlobals->curtime + flNextThink, flNextSchedule );
-			}
-			else
-			{
-				flNextThink = flNextSchedule;
-			}
+			flNextThink = flScheduled;
 		}
 		else
 		{
-			float nextthink = TICKS_TO_TIME( nNextThinkTick );
-
-			if ( bNewNext )
-			{
-				flNextThink = min( gpGlobals->curtime + flNextThink, nextthink );
-			}
-			else
-			{
-				flNextThink = nextthink;
-			}
+			flNextThink = SCRIPT_NEVER_THINK;
 		}
 	}
+
+#ifdef _DEBUG
+#ifdef GAME_DLL
+	int nNextThinkTick = GetNextThinkTick("ScriptContextThink");
+	float flNextThinkTime = TICKS_TO_TIME(nNextThinkTick);
+
+	// If internal next think tick is earlier than what we have here with flNextThink,
+	// whoever set that think may fail. In worst case scenario the entity may stop thinking.
+	if ( nNextThinkTick > gpGlobals->tickcount )
+	{
+		if ( flNextThink == SCRIPT_NEVER_THINK )
+			Assert(0);
+		if ( flNextThinkTime < flNextThink )
+			Assert(0);
+	}
+#endif
 #endif
 
 #ifdef GAME_DLL
@@ -2898,8 +2871,10 @@ void CBaseEntity::ScriptContextThink()
 #endif
 }
 
+#ifndef CLIENT_DLL
 // see ScriptSetThink
 static bool s_bScriptContextThinkNoParam = false;
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -2917,7 +2892,7 @@ void CBaseEntity::ScriptSetContextThink( const char* szContext, HSCRIPT hFunc, f
 #endif
 
 	scriptthinkfunc_t *pf = NULL;
-	unsigned short hash = ( szContext && *szContext ) ? HashString( szContext ) : 0;
+	unsigned hash = szContext ? HashString( szContext ) : 0;
 
 	FOR_EACH_VEC( m_ScriptThinkFuncs, i )
 	{
@@ -2939,14 +2914,16 @@ void CBaseEntity::ScriptSetContextThink( const char* szContext, HSCRIPT hFunc, f
 			m_ScriptThinkFuncs.SetGrowSize(1);
 			m_ScriptThinkFuncs.AddToTail( pf );
 
-			pf->m_bNoParam = s_bScriptContextThinkNoParam;
 			pf->m_iContextHash = hash;
+#ifndef CLIENT_DLL
+			pf->m_bNoParam = s_bScriptContextThinkNoParam;
+#endif
 		}
 		// update existing
 		else
 		{
 #ifdef _DEBUG
-			if ( pf->m_nNextThinkTick == 0 )
+			if ( pf->m_flNextThink == 0 )
 			{
 				Warning("Script think ('%s') was changed while it was thinking!\n", szContext);
 			}
@@ -2957,31 +2934,29 @@ void CBaseEntity::ScriptSetContextThink( const char* szContext, HSCRIPT hFunc, f
 		float nextthink = gpGlobals->curtime + flTime;
 
 		pf->m_hfnThink = hFunc;
-		pf->m_nNextThinkTick = TIME_TO_TICKS( nextthink );
+		pf->m_flNextThink = nextthink;
 
 #ifdef GAME_DLL
 		int nexttick = GetNextThinkTick( RegisterThinkContext( "ScriptContextThink" ) );
-#else
-		int nexttick = GetNextThinkTick();
-#endif
-
-		// sooner than next think
-		if ( nexttick <= 0 || nexttick > pf->m_nNextThinkTick )
+		if ( nexttick <= 0 || TICKS_TO_TIME(nexttick) > nextthink )
 		{
-#ifdef GAME_DLL
 			SetContextThink( &CBaseEntity::ScriptContextThink, nextthink, "ScriptContextThink" );
-#else
-			SetNextClientThink( nextthink );
-#endif
 		}
+#else
+		{
+			// let it self adjust
+			SetNextClientThink( gpGlobals->curtime );
+		}
+#endif
 	}
 	// null func input, think exists
 	else if ( pf )
 	{
-		pf->m_nNextThinkTick = TICK_NEVER_THINK;
+		pf->m_flNextThink = SCRIPT_NEVER_THINK;
 	}
 }
 
+#ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // m_bNoParam and s_bScriptContextThinkNoParam exist only to keep backwards compatibility
 // and are an alternative to this script closure:
@@ -2991,7 +2966,6 @@ void CBaseEntity::ScriptSetContextThink( const char* szContext, HSCRIPT hFunc, f
 //		SetContextThink( "", function(_){ return func() }, time )
 //	}
 //-----------------------------------------------------------------------------
-#ifndef CLIENT_DLL
 void CBaseEntity::ScriptSetThink( HSCRIPT hFunc, float time )
 {
 	s_bScriptContextThinkNoParam = true;
