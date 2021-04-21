@@ -464,7 +464,12 @@ namespace SQVector
 			return sq_throwerror(vm, "Expected (Vector)");
 		}
 
-		v1->Negate();
+		sq_getclass(vm, 1);
+		sq_createinstance(vm, -1);
+		SQUserPointer p;
+		sq_getinstanceup(vm, -1, &p, 0);
+		new(p) Vector(-v1->x, -v1->y, -v1->z);
+		sq_remove(vm, -2);
 
 		return 1;
 	}
