@@ -4,6 +4,9 @@
 //
 //=============================================================================//
 
+#ifdef NEW_RESPONSE_SYSTEM
+#include "ai_responsesystem_new.h"
+#else
 #ifndef AI_RESPONSESYSTEM_H
 #define AI_RESPONSESYSTEM_H
 
@@ -39,3 +42,4 @@ class ISaveRestoreBlockHandler *GetDefaultResponseSystemSaveRestoreBlockHandler(
 class ISaveRestoreOps *GetResponseSystemSaveRestoreOps();
 
 #endif // AI_RESPONSESYSTEM_H
+#endif

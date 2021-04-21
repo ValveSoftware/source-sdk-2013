@@ -1156,7 +1156,11 @@ bool CNPC_MetroPolice::SpeakIfAllowed( const char *concept, const char *modifier
 	AI_CriteriaSet set;
 	if (modifiers)
 	{
+#ifdef NEW_RESPONSE_SYSTEM
+		GatherCriteria( &set, concept, modifiers );
+#else
 		GetExpresser()->MergeModifiers(set, modifiers);
+#endif
 	}
 	return SpeakIfAllowed( concept, set, sentencepriority, sentencecriteria );
 }

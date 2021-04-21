@@ -5,6 +5,9 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#ifdef NEW_RESPONSE_SYSTEM
+#include "ai_speech_new.h"
+#else
 #ifndef AI_SPEECH_H
 #define AI_SPEECH_H
 
@@ -452,3 +455,4 @@ inline void CAI_ExpresserHost<BASE_NPC>::DispatchResponse( const char *conceptNa
 //-----------------------------------------------------------------------------
 
 #endif // AI_SPEECH_H
+#endif

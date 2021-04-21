@@ -46,6 +46,11 @@ $Project "server"
 	"game\server\server_episodic.vpc"	[($WIN32||$X360||$POSIX) && $EPISODIC]
 }
 
+$Project "responserules"
+{
+	"responserules\runtime\response_rules.vpc" [($WINDOWS||$X360||$POSIX) && $NEW_RESPONSE_SYSTEM]
+}
+
 $Project "mathlib"
 {
 	"mathlib\mathlib.vpc" [$WINDOWS||$X360||$POSIX]

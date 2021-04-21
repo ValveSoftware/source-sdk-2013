@@ -66,6 +66,9 @@
 #include "mapbase/matchers.h"
 #include "mapbase/datadesc_mod.h"
 #endif
+#ifdef NEW_RESPONSE_SYSTEM
+#include "ai_speech.h"
+#endif
 
 #if defined( TF_DLL )
 #include "tf_gamerules.h"
@@ -7657,7 +7660,11 @@ bool CBaseEntity::HasContext( const char *nameandvalue ) const
 	const char *p = nameandvalue;
 	while ( p )
 	{
+#ifdef NEW_RESPONSE_SYSTEM
+		p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL, nameandvalue );
+#else
 		p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL );
+#endif
 		
 		return HasContext( key, value );
 	}
@@ -7704,7 +7711,11 @@ void CBaseEntity::RemoveContext( const char *contextName )
 	while ( p )
 	{
 		duration = 0.0f;
+#ifdef NEW_RESPONSE_SYSTEM
+		p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), &duration, contextName );
+#else
 		p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), &duration );
+#endif
 		if ( duration )
 		{
 			duration += gpGlobals->curtime;
@@ -8775,56 +8786,76 @@ void CBaseEntity::AddContext( const char *contextName )
 {
 	char key[ 128 ];
 	char value[ 128 ];
-	float duration;
+	float duration = 0.0f;
 
 	const char *p = contextName;
 	while ( p )
 	{
 		duration = 0.0f;
+#ifdef NEW_RESPONSE_SYSTEM
+		p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), &duration, contextName );
+#else
 		p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), &duration );
+#endif
 		if ( duration )
 		{
 			duration += gpGlobals->curtime;
 		}
 
-		int iIndex = FindContextByName( key );
-		if ( iIndex != -1 )
-		{
-			// Set the existing context to the new value
-			m_ResponseContexts[iIndex].m_iszValue = AllocPooledString( value );
-			m_ResponseContexts[iIndex].m_fExpirationTime = duration;
-			continue;
-		}
-
-		ResponseContext_t newContext;
-		newContext.m_iszName = AllocPooledString( key );
-		newContext.m_iszValue = AllocPooledString( value );
-		newContext.m_fExpirationTime = duration;
-
-		m_ResponseContexts.AddToTail( newContext );
+		AddContext( key, value, duration );
 	}
 }
 
-#ifdef MAPBASE
 void CBaseEntity::AddContext( const char *name, const char *value, float duration )
 {
 	int iIndex = FindContextByName( name );
 	if ( iIndex != -1 )
 	{
 		// Set the existing context to the new value
+
+#ifdef NEW_RESPONSE_SYSTEM
+		char buf[64];
+		if ( RR::CApplyContextOperator::FindOperator( value )->Apply( 
+			m_ResponseContexts[iIndex].m_iszValue.ToCStr(), value, buf, sizeof(buf) ) )
+		{
+			m_ResponseContexts[iIndex].m_iszValue = AllocPooledString( buf );
+		}
+		else
+		{
+			Warning( "RR: could not apply operator %s to prior value %s\n", 
+				value, m_ResponseContexts[iIndex].m_iszValue.ToCStr() );
+			m_ResponseContexts[iIndex].m_iszValue = AllocPooledString( value );
+		}
+#else
 		m_ResponseContexts[iIndex].m_iszValue = AllocPooledString( value );
-		m_ResponseContexts[iIndex].m_fExpirationTime = duration;
-		return;
-	}
-
-	ResponseContext_t newContext;
-	newContext.m_iszName = AllocPooledString( name );
-	newContext.m_iszValue = AllocPooledString( value );
-	newContext.m_fExpirationTime = duration;
-
-	m_ResponseContexts.AddToTail( newContext );
-}
 #endif
+		m_ResponseContexts[iIndex].m_fExpirationTime = duration;
+	}
+	else
+	{
+		ResponseContext_t newContext;
+		newContext.m_iszName = AllocPooledString( name );
+
+#ifdef NEW_RESPONSE_SYSTEM
+		char buf[64];
+		if ( RR::CApplyContextOperator::FindOperator( value )->Apply( 
+			NULL, value, buf, sizeof(buf) ) )
+		{
+			newContext.m_iszValue = AllocPooledString( buf );
+		}
+		else
+		{
+			newContext.m_iszValue = AllocPooledString( value );
+		}
+#else
+		newContext.m_iszValue = AllocPooledString( value );
+#endif
+
+		newContext.m_fExpirationTime = duration;
+
+		m_ResponseContexts.AddToTail( newContext );
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -8976,6 +9007,11 @@ void CBaseEntity::InputChangeVariable( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CBaseEntity::DispatchResponse( const char *conceptName )
 {
+#ifdef NEW_RESPONSE_SYSTEM
+	#undef IResponseSystem
+	using namespace ResponseRules;
+#endif
+
 	IResponseSystem *rs = GetResponseSystem();
 	if ( !rs )
 		return;
@@ -9006,6 +9042,61 @@ void CBaseEntity::DispatchResponse( const char *conceptName )
 	// Handle the response here...
 	char response[ 256 ];
 	result.GetResponse( response, sizeof( response ) );
+#ifdef NEW_RESPONSE_SYSTEM
+	switch (result.GetType())
+	{
+	case ResponseRules::RESPONSE_SPEAK:
+	{
+		EmitSound(response);
+	}
+	break;
+	case ResponseRules::RESPONSE_SENTENCE:
+	{
+		int sentenceIndex = SENTENCEG_Lookup(response);
+		if (sentenceIndex == -1)
+		{
+			// sentence not found
+			break;
+		}
+
+		// FIXME:  Get pitch from npc?
+		CPASAttenuationFilter filter(this);
+		CBaseEntity::EmitSentenceByIndex(filter, entindex(), CHAN_VOICE, sentenceIndex, 1, result.GetSoundLevel(), 0, PITCH_NORM);
+	}
+	break;
+	case ResponseRules::RESPONSE_SCENE:
+	{
+		// Try to fire scene w/o an actor
+		InstancedScriptedScene(NULL, response);
+	}
+	break;
+	case ResponseRules::RESPONSE_PRINT:
+	{
+
+	}
+	break;
+	case ResponseRules::RESPONSE_ENTITYIO:
+	{
+		CAI_Expresser::FireEntIOFromResponse(response, this);
+		break;
+	}
+#ifdef MAPBASE_VSCRIPT
+	case ResponseRules::RESPONSE_VSCRIPT:
+	{
+		CAI_Expresser::RunScriptResponse( this, response, &set, false );
+		break;
+	}
+	case ResponseRules::RESPONSE_VSCRIPT_FILE:
+	{
+		CAI_Expresser::RunScriptResponse( this, response, &set, true );
+		break;
+	}
+#endif
+	default:
+		// Don't know how to handle .vcds!!!
+		break;
+	}
+#else
 #ifdef MAPBASE
 	if (response[0] == '$')
 	{
@@ -9100,6 +9191,7 @@ void CBaseEntity::DispatchResponse( const char *conceptName )
 		// Don't know how to handle .vcds!!!
 		break;
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

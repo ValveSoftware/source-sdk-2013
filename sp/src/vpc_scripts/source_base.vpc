@@ -24,6 +24,9 @@ $Conditional MAPBASE_RPC	"1"
 
 // Toggles VScript implementation (note: interfaces still exist, just the provided implementation is not present)
 $Conditional MAPBASE_VSCRIPT	"1"
+
+// Toggles the new Response System library based on the Alien Swarm SDK.
+$Conditional NEW_RESPONSE_SYSTEM	"1"
 //-----------------------------------------------------------------------------
 
 $Configuration "Debug"
