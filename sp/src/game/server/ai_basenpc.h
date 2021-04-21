@@ -98,11 +98,6 @@ extern bool AIStrongOpt( void );
 #ifdef MAPBASE
 // Defines Mapbase's extended NPC response system usage.
 #define EXPANDED_RESPONSE_SYSTEM_USAGE
-
-// Use the model keyvalue if it is defined
-#define DefaultOrCustomModel(defaultModel) GetModelName() != NULL_STRING ? STRING(GetModelName()) : defaultModel
-#else
-#define DefaultOrCustomModel() defaultModel
 #endif
 
 #ifdef EXPANDED_RESPONSE_SYSTEM_USAGE
