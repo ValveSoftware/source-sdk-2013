@@ -165,6 +165,8 @@ public:
 	void SetVarFloat( int i, float value );
 	void SetVarVector( int i, const Vector &value );
 
+	const char *GetVarName( int i );
+
 private:
 	IMaterialVar *m_MaterialVars[SCRIPT_MAT_PROXY_MAX_VARS];
 
@@ -194,12 +196,19 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptMaterialProxy, "CScriptMaterialProxy", "Mate
 	DEFINE_SCRIPTFUNC( SetVarInt, "Sets a material var's int value" )
 	DEFINE_SCRIPTFUNC( SetVarFloat, "Sets a material var's float value" )
 	DEFINE_SCRIPTFUNC( SetVarVector, "Sets a material var's vector value" )
+
+	DEFINE_SCRIPTFUNC( GetVarName, "Gets a material var's name" )
 END_SCRIPTDESC();
 
 CScriptMaterialProxy::CScriptMaterialProxy()
 {
 	m_hScriptInstance = NULL;
 	m_hFuncOnBind = NULL;
+
+	for (int i = 0; i < SCRIPT_MAT_PROXY_MAX_VARS; i++)
+	{
+		m_MaterialVars[i] = NULL;
+	}
 }
 
 CScriptMaterialProxy::~CScriptMaterialProxy()
@@ -316,18 +325,20 @@ void CScriptMaterialProxy::TermScript()
 
 void CScriptMaterialProxy::OnBind( void *pRenderable )
 {
-	if( !pRenderable )
-		return;
-
 	if (m_hFuncOnBind != NULL)
 	{
-		IClientRenderable *pRend = ( IClientRenderable* )pRenderable;
-		C_BaseEntity *pEnt = pRend->GetIClientUnknown()->GetBaseEntity();
-		if ( pEnt )
+		C_BaseEntity *pEnt = NULL;
+		if (pRenderable)
 		{
-			g_pScriptVM->SetValue( m_ScriptScope, "entity", pEnt->GetScriptInstance() );
+			IClientRenderable *pRend = (IClientRenderable*)pRenderable;
+			pEnt = pRend->GetIClientUnknown()->GetBaseEntity();
+			if ( pEnt )
+			{
+				g_pScriptVM->SetValue( m_ScriptScope, "entity", pEnt->GetScriptInstance() );
+			}
 		}
-		else
+
+		if (!pEnt)
 		{
 			// Needs to register as a null value so the script doesn't break if it looks for an entity
 			g_pScriptVM->SetValue( m_ScriptScope, "entity", SCRIPT_VARIANT_NULL );
@@ -412,6 +423,14 @@ void CScriptMaterialProxy::SetVarVector( int i, const Vector &value )
 		return;
 
 	return m_MaterialVars[i]->SetVecValue( value.Base(), 3 );
+}
+
+const char *CScriptMaterialProxy::GetVarName( int i )
+{
+	if (!ValidateIndex( i ) || !m_MaterialVars[i])
+		return NULL;
+
+	return m_MaterialVars[i]->GetName();
 }
 
 EXPOSE_INTERFACE( CScriptMaterialProxy, IMaterialProxy, "VScriptProxy" IMATERIAL_PROXY_INTERFACE_VERSION );
