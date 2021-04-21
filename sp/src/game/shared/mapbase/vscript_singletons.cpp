@@ -985,7 +985,7 @@ void CScriptSaveRestoreUtil::ClearSavedTable( const char *szId )
 // Read/Write to File
 // Based on L4D2/Source 2 API
 //=============================================================================
-#define SCRIPT_MAX_FILE_READ_SIZE  (16 * 1024)			// 16KB
+#define SCRIPT_MAX_FILE_READ_SIZE  (64 * 1024 * 1024)	// 64MB
 #define SCRIPT_MAX_FILE_WRITE_SIZE (64 * 1024 * 1024)	// 64MB
 #define SCRIPT_RW_PATH_ID "MOD"
 #define SCRIPT_RW_FULL_PATH_FMT "vscript_io/%s"
@@ -1012,11 +1012,11 @@ public:
 	}
 
 private:
-	static const char *m_pszReturnReadFile;
+	static char *m_pszReturnReadFile;
 
 } g_ScriptReadWrite;
 
-const char *CScriptReadWriteFile::m_pszReturnReadFile = NULL;
+char *CScriptReadWriteFile::m_pszReturnReadFile = NULL;
 
 //-----------------------------------------------------------------------------
 //
@@ -1074,19 +1074,32 @@ const char *CScriptReadWriteFile::FileRead( const char *szFile )
 		return NULL;
 	}
 
-	CUtlBuffer buf( 0, 0, CUtlBuffer::TEXT_BUFFER );
-	if ( !g_pFullFileSystem->ReadFile( pszFullName, SCRIPT_RW_PATH_ID, buf, SCRIPT_MAX_FILE_READ_SIZE ) )
+	FileHandle_t file = g_pFullFileSystem->Open( pszFullName, "rb", SCRIPT_RW_PATH_ID );
+	if ( !file )
 	{
 		return NULL;
 	}
 
-	// first time calling, allocate
-	if ( !m_pszReturnReadFile )
-		m_pszReturnReadFile = new char[SCRIPT_MAX_FILE_READ_SIZE];
+	// Close the previous buffer
+	if (m_pszReturnReadFile)
+		g_pFullFileSystem->FreeOptimalReadBuffer( m_pszReturnReadFile );
 
-	V_strncpy( const_cast<char*>(m_pszReturnReadFile), (const char*)buf.Base(), buf.Size() );
-	buf.Purge();
-	return m_pszReturnReadFile;
+	unsigned bufSize = g_pFullFileSystem->GetOptimalReadSize( file, size + 2 );
+	m_pszReturnReadFile = (char*)g_pFullFileSystem->AllocOptimalReadBuffer( file, bufSize );
+
+	bool bRetOK = ( g_pFullFileSystem->ReadEx( m_pszReturnReadFile, bufSize, size, file ) != 0 );
+	g_pFullFileSystem->Close( file );	// close file after reading
+
+	if ( bRetOK )
+	{
+		m_pszReturnReadFile[size] = 0; // null terminate file as EOF
+		//buffer[size+1] = 0; // double NULL terminating in case this is a unicode file
+		return m_pszReturnReadFile;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 //-----------------------------------------------------------------------------
