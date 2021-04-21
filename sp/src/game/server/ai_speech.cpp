@@ -1210,7 +1210,7 @@ void CAI_Expresser::SpeechMsg( CBaseEntity *pFlex, const char *pszFormat, ... )
 	}
 	else 
 	{
-		CGMsg( 1, CON_GROUP_CHOREO "%s", string );
+		CGMsg( 1, CON_GROUP_CHOREO, "%s", string );
 	}
 	UTIL_LogPrintf( string );
 }

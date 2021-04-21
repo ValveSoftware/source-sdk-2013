@@ -137,29 +137,25 @@ inline void *ScriptConvertFuncPtrToVoid( FUNCPTR_TYPE pFunc )
 #elif defined( GNUC )
 	else if ( ( sizeof( FUNCPTR_TYPE ) == sizeof( void * ) + sizeof( int ) ) )
 	{
-		AssertMsg( 0, "Note: This path has not been verified yet. See comments below in #else case." );
-	
 		struct GnuMFP
 		{
 			union
 			{
 				void *funcadr;		// If vtable_index_2 is even, then this is the function pointer.
-				int vtable_index_2;		// If vtable_index_2 is odd, then this = vindex*2+1.
+				int vtable_index_2;		// If vtable_index_2 is odd, then (vtable_index_2 - 1) * 2 is the index into the vtable.
 			};
-			int delta;
+			int delta;	// Offset from this-ptr to vtable
 		};
-	
+
 		GnuMFP *p = (GnuMFP*)&pFunc;
-		if ( p->vtable_index_2 & 1 )
+		if ( p->delta == 0 )
 		{
-			char **delta = (char**)p->delta;
-			char *pCur = *delta + (p->vtable_index_2+1)/2;
-			return (void*)( pCur + 4 );
-		}
-		else
-		{
+			// No need to check whether this is a direct function pointer or not,
+			// this gets converted back to a "proper" member-function pointer in
+			// ScriptConvertFuncPtrFromVoid() to get invoked
 			return p->funcadr;
 		}
+		AssertMsg( 0, "Function pointer must be from primary vtable" );
 	}
 #else
 #error "Need to implement code to crack non-offset member function pointer case"
@@ -257,8 +253,30 @@ inline FUNCPTR_TYPE ScriptConvertFuncPtrFromVoid( void *p )
 		convert.mfp.m_delta = 0;
 		return convert.pFunc;
 	}
-#elif defined( POSIX )
-	AssertMsg( 0, "Note: This path has not been implemented yet." );
+#elif defined( GNUC )
+	if ( ( sizeof( FUNCPTR_TYPE ) == sizeof( void * ) + sizeof( int ) ) )
+	{
+		struct GnuMFP
+		{
+			union
+			{
+				void *funcadr;		// If vtable_index_2 is even, then this is the function pointer.
+				int vtable_index_2;		// If vtable_index_2 is odd, then (vtable_index_2 - 1) * 2 is the index into the vtable.
+			};
+			int delta;	// Offset from this-ptr to vtable
+		};
+
+		union FuncPtrConvertGnu
+		{
+			GnuMFP mfp;
+			FUNCPTR_TYPE pFunc;
+		};
+
+		FuncPtrConvertGnu convert;
+		convert.mfp.funcadr = p;
+		convert.mfp.delta = 0;
+		return convert.pFunc;
+	}
 #else
 #error "Need to implement code to crack non-offset member function pointer case"
 #endif

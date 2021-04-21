@@ -21,7 +21,7 @@
 #include "tier1/utlvector.h"
 #include "tier1/utlstring.h"
 #include "icvar.h"
-#include "color.h"
+#include "Color.h"
 
 #ifdef _WIN32
 #define FORCEINLINE_CVAR FORCEINLINE
@@ -301,6 +301,10 @@ private:
 		ICommandCallback *m_pCommandCallback; 
 	};
 
+#ifdef MAPBASE_VSCRIPT
+	// Allow late modification of the completion callback.
+public:
+#endif
 	union
 	{
 		FnCommandCompletionCallback	m_fnCompletionCallback;
@@ -308,6 +312,9 @@ private:
 	};
 
 	bool m_bHasCompletionCallback : 1;
+#ifdef MAPBASE_VSCRIPT
+private:
+#endif
 	bool m_bUsingNewCommandCallback : 1;
 	bool m_bUsingCommandCallbackInterface : 1;
 };

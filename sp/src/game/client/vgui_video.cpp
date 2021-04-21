@@ -16,20 +16,59 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+using namespace vgui;
+
+static CUtlVector< VideoPanel * > g_vecVideoPanels;
+
+// Thiis is a hack due to the fact that the user can type quit with the video panel up, but it's parented to the GameUI dll root panel, which is already gone so
+//  we would crash in the destructor
+void VGui_ClearVideoPanels()
+{
+	for ( int i = g_vecVideoPanels.Count() - 1; i >= 0; --i )
+	{
+		if ( g_vecVideoPanels[ i ] )
+		{
+			delete g_vecVideoPanels[ i ];
+		}
+	}
+	g_vecVideoPanels.RemoveAll();
+}
+
+struct VideoPanelParms_t
+{
+	VideoPanelParms_t( bool _interrupt = true, bool _loop = false, bool _mute = false )
+	{
+		bAllowInterrupt = _interrupt;
+		bLoop = _loop;
+		bMute = _mute;
+	}
+
+	bool bAllowInterrupt;
+	bool bLoop;
+	bool bMute;
+
+	//float flFadeIn;
+	//float flFadeOut;
+};
 
 VideoPanel::VideoPanel( unsigned int nXPos, unsigned int nYPos, unsigned int nHeight, unsigned int nWidth, bool allowAlternateMedia ) : 
 	BaseClass( NULL, "VideoPanel" ),
 	m_VideoMaterial( NULL ),
 	m_nPlaybackWidth( 0 ),
 	m_nPlaybackHeight( 0 ),
-	m_bAllowAlternateMedia( allowAlternateMedia )
+	m_nShutdownCount( 0 ),
+	m_bLooping( false ),
+	m_bStopAllSounds( true ),
+	m_bAllowInterruption( true ),
+	m_bAllowAlternateMedia( allowAlternateMedia ),
+	m_bStarted( false )
 {
-		
 #ifdef MAPBASE
 	vgui::VPANEL pParent = enginevgui->GetPanel( PANEL_ROOT );
 #else
 	vgui::VPANEL pParent = enginevgui->GetPanel( PANEL_GAMEUIDLL );
 #endif
+
 	SetParent( pParent );
 	SetVisible( false );
 	
@@ -53,6 +92,11 @@ VideoPanel::VideoPanel( unsigned int nXPos, unsigned int nYPos, unsigned int nHe
 
 	SetScheme(vgui::scheme()->LoadSchemeFromFile( "resource/VideoPanelScheme.res", "VideoPanelScheme"));
 	LoadControlSettings("resource/UI/VideoPanel.res");
+
+	// Let us update
+	vgui::ivgui()->AddTickSignal( GetVPanel() );
+
+	g_vecVideoPanels.AddToTail( this );
 }
 
 //-----------------------------------------------------------------------------
@@ -60,6 +104,8 @@ VideoPanel::VideoPanel( unsigned int nXPos, unsigned int nYPos, unsigned int nHe
 //-----------------------------------------------------------------------------
 VideoPanel::~VideoPanel( void )
 {
+	g_vecVideoPanels.FindAndRemove( this );
+
 	SetParent( (vgui::Panel *) NULL );
 
 	// Shut down this video, destroy the video material
@@ -71,12 +117,38 @@ VideoPanel::~VideoPanel( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Keeps a tab on when the movie is ending and allows a frame to pass to prevent threading issues
+//-----------------------------------------------------------------------------
+void VideoPanel::OnTick( void ) 
+{ 
+	if ( m_nShutdownCount > 0 )
+	{
+		m_nShutdownCount++;
+
+		if ( m_nShutdownCount > 10 )
+		{
+			OnClose();
+			m_nShutdownCount = 0;
+		}
+	}
+
+	BaseClass::OnTick(); 
+}
+
+void VideoPanel::OnVideoOver()
+{
+	StopPlayback();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Begins playback of a movie
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool VideoPanel::BeginPlayback( const char *pFilename )
 {
-	// Who the heck hacked this in?
+	if ( !pFilename || pFilename[ 0 ] == '\0' )
+		return false;
+
 #ifdef _X360
 	XVIDEO_MODE videoMode;
 	XGetVideoMode( &videoMode );
@@ -106,9 +178,25 @@ bool VideoPanel::BeginPlayback( const char *pFilename )
 	if ( m_VideoMaterial == NULL )
 		return false;
 
+	if ( m_bLooping )
+	{
+		m_VideoMaterial->SetLooping( true );
+	}
+
+#ifdef MAPBASE
+	if ( m_bMuted )
+	{
+		m_VideoMaterial->SetMuted( true );
+	}
+#endif
+
+	m_bStarted = true;
+
 	// We want to be the sole audio source
-	// FIXME: This may not always be true!
-	enginesound->NotifyBeginMoviePlayback();
+	if ( m_bStopAllSounds )
+	{
+		enginesound->NotifyBeginMoviePlayback();
+	}
 
 	int nWidth, nHeight;
 	m_VideoMaterial->GetVideoImageSize( &nWidth, &nHeight );
@@ -168,9 +256,10 @@ void VideoPanel::DoModal( void )
 //-----------------------------------------------------------------------------
 void VideoPanel::OnKeyCodeTyped( vgui::KeyCode code )
 {
-	if ( code == KEY_ESCAPE	)
+	bool bInterruptKeyPressed = ( code == KEY_ESCAPE );
+	if ( m_bAllowInterruption && bInterruptKeyPressed )
 	{
-		OnClose();
+		StopPlayback();
 	}
 	else
 	{
@@ -181,26 +270,42 @@ void VideoPanel::OnKeyCodeTyped( vgui::KeyCode code )
 //-----------------------------------------------------------------------------
 // Purpose: Handle keys that should cause us to close
 //-----------------------------------------------------------------------------
-void VideoPanel::OnKeyCodePressed( vgui::KeyCode code )
+void VideoPanel::OnKeyCodePressed( vgui::KeyCode keycode )
 {
+	vgui::KeyCode code = GetBaseButtonCode( keycode );
+
+	// All these keys will interrupt playback
+	bool bInterruptKeyPressed =	  ( code == KEY_ESCAPE || 
+									code == KEY_BACKQUOTE || 
+									code == KEY_SPACE || 
+									code == KEY_ENTER ||
+									code == KEY_XBUTTON_A || 
+									code == KEY_XBUTTON_B ||
+									code == KEY_XBUTTON_X || 
+									code == KEY_XBUTTON_Y || 
+									code == KEY_XBUTTON_START || 
+									code == KEY_XBUTTON_BACK );
+	
 	// These keys cause the panel to shutdown
-	if ( code == KEY_ESCAPE || 
-		 code == KEY_BACKQUOTE || 
-		 code == KEY_SPACE || 
-		 code == KEY_ENTER ||
-		 code == KEY_XBUTTON_A || 
-		 code == KEY_XBUTTON_B ||
-		 code == KEY_XBUTTON_X || 
-		 code == KEY_XBUTTON_Y || 
-		 code == KEY_XBUTTON_START || 
-		 code == KEY_XBUTTON_BACK )
+	if ( m_bAllowInterruption && bInterruptKeyPressed )
 	{
-		OnClose();
+		StopPlayback();
 	}
 	else
 	{
-		BaseClass::OnKeyCodePressed( code );
+		BaseClass::OnKeyCodePressed( keycode );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void VideoPanel::StopPlayback( void )
+{
+	SetVisible( false );
+
+	// Start the deferred shutdown process
+	m_nShutdownCount = 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -208,7 +313,11 @@ void VideoPanel::OnKeyCodePressed( vgui::KeyCode code )
 //-----------------------------------------------------------------------------
 void VideoPanel::OnClose( void )
 {
-	enginesound->NotifyEndMoviePlayback();
+	if ( m_bStopAllSounds )
+	{
+		enginesound->NotifyEndMoviePlayback();
+	}
+
 	BaseClass::OnClose();
 
 	if ( vgui::input()->GetAppModalSurface() == GetVPanel() )
@@ -224,7 +333,6 @@ void VideoPanel::OnClose( void )
 		engine->ClientCmd( m_szExitCommand );
 	}
 
-	SetVisible( false );
 	MarkForDeletion();
 }
 
@@ -247,26 +355,52 @@ void VideoPanel::Paint( void )
 	if ( m_VideoMaterial == NULL )
 		return;
 
+	float alpha = ((float)GetFgColor()[3]/255.0f);
+#ifdef MAPBASE
+	if (m_flFadeIn != 0.0f || m_flFadeOut != 0.0f)
+	{
+		// GetCurrentVideoTime() and GetVideoDuration() are borked
+		float flFrameCount = m_VideoMaterial->GetFrameCount();
+		float flEnd = flFrameCount / m_VideoMaterial->GetVideoFrameRate().GetFPS();
+		float flTime = ((float)(m_VideoMaterial->GetCurrentFrame()) / flFrameCount) * flEnd;
+		float flFadeOutDelta = (flEnd - m_flFadeOut);
+
+		if (flTime <= m_flFadeIn)
+		{
+			alpha = (flTime / m_flFadeIn);
+		}
+		else if (flTime >= flFadeOutDelta)
+		{
+			alpha = (1.0f - ((flTime - flFadeOutDelta) / m_flFadeOut));
+		}
+	}
+#endif
+
 	if ( m_VideoMaterial->Update() == false )
 	{
 		// Issue a close command
 		OnVideoOver();
-		OnClose();
+		//OnClose();
 	}
 
 	// Sit in the "center"
 	int xpos, ypos;
 	GetPanelPos( xpos, ypos );
+	LocalToScreen( xpos, ypos );
 
 	// Black out the background (we could omit drawing under the video surface, but this is straight-forward)
 	if ( m_bBlackBackground )
 	{
-		vgui::surface()->DrawSetColor(  0, 0, 0, 255 );
+		vgui::surface()->DrawSetColor(  0, 0, 0, alpha * 255.0f );
 		vgui::surface()->DrawFilledRect( 0, 0, GetWide(), GetTall() );
 	}
 
 	// Draw the polys to draw this out
 	CMatRenderContextPtr pRenderContext( materials );
+
+#ifdef MAPBASE
+	pRenderContext->ClearColor4ub( 255, 255, 255, alpha * 255.0f );
+#endif
 	
 	pRenderContext->MatrixMode( MATERIAL_VIEW );
 	pRenderContext->PushMatrix();
@@ -306,8 +440,6 @@ void VideoPanel::Paint( void )
 	flTopY = FLerp( 1, -1, 0, vh ,flTopY );
 	flBottomY = FLerp( 1, -1, 0, vh, flBottomY );
 
-	float alpha = ((float)GetFgColor()[3]/255.0f);
-
 	for ( int corner=0; corner<4; corner++ )
 	{
 		bool bLeft = (corner==0) || (corner==3);
@@ -340,15 +472,36 @@ void VideoPanel::Paint( void )
 bool VideoPanel_Create( unsigned int nXPos, unsigned int nYPos, 
 						unsigned int nWidth, unsigned int nHeight, 
 						const char *pVideoFilename, 
-						const char *pExitCommand /*= NULL*/)
+						const char *pExitCommand /*= NULL*/,
+						const VideoPanelParms_t &parms )
 {
 	// Create the base video panel
-	VideoPanel *pVideoPanel = new VideoPanel( nXPos, nYPos, nHeight, nWidth, false  );
+	VideoPanel *pVideoPanel = new VideoPanel( nXPos, nYPos, nHeight, nWidth );
 	if ( pVideoPanel == NULL )
 		return false;
 
+	// Toggle if we want the panel to allow interruption
+	pVideoPanel->SetAllowInterrupt( parms.bAllowInterrupt );
+
 	// Set the command we'll call (if any) when the video is interrupted or completes
 	pVideoPanel->SetExitCommand( pExitCommand );
+
+#ifdef MAPBASE
+	// Toggle if we want the panel to loop (inspired by Portal 2)
+	pVideoPanel->SetLooping( parms.bLoop );
+
+	// Toggle if we want the panel to be muted
+	pVideoPanel->SetMuted( parms.bMute );
+
+	// TODO: Unique "Stop All Sounds" parameter
+	if (parms.bMute)
+	{
+		pVideoPanel->SetStopAllSounds( false );
+	}
+
+	// Fade parameters (unfinished)
+	//pVideoPanel->SetFade( parms.flFadeIn, parms.flFadeOut );
+#endif
 
 	// Start it going
 	if ( pVideoPanel->BeginPlayback( pVideoFilename ) == false )
@@ -364,8 +517,29 @@ bool VideoPanel_Create( unsigned int nXPos, unsigned int nYPos,
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Used to launch a video playback (Debug) -
-//  user must include file extension
+// Purpose: Create a video panel with the supplied commands
+//-----------------------------------------------------------------------------
+void CreateVideoPanel( const char *lpszFilename, const char *lpszExitCommand, int nWidth, int nHeight, VideoPanelParms_t &parms )
+{
+	char strFullpath[MAX_PATH];
+	Q_strncpy( strFullpath, "media/", MAX_PATH );	// Assume we must play out of the media directory
+	char strFilename[MAX_PATH];
+	Q_StripExtension( lpszFilename, strFilename, MAX_PATH );
+	Q_strncat( strFullpath, lpszFilename, MAX_PATH );
+
+	// Use the full screen size if they haven't specified an override
+	unsigned int nScreenWidth = ( nWidth != 0 ) ? nWidth : ScreenWidth();
+	unsigned int nScreenHeight = ( nHeight != 0 ) ? nHeight : ScreenHeight();
+
+	// Create the panel and go!
+	if ( VideoPanel_Create( 0, 0, nScreenWidth, nScreenHeight, strFullpath, lpszExitCommand, parms ) == false )
+	{
+		Warning( "Unable to play video: %s\n", strFullpath );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Used to launch a video playback
 //-----------------------------------------------------------------------------
 
 CON_COMMAND( playvideo, "Plays a video: <filename> [width height]" )
@@ -375,29 +549,31 @@ CON_COMMAND( playvideo, "Plays a video: <filename> [width height]" )
 
 	unsigned int nScreenWidth = Q_atoi( args[2] );
 	unsigned int nScreenHeight = Q_atoi( args[3] );
-	
-	char strFullpath[MAX_PATH];
-	Q_strncpy( strFullpath, "media/", MAX_PATH );	// Assume we must play out of the media directory
-	char strFilename[MAX_PATH];
-	Q_StripExtension( args[1], strFilename, MAX_PATH );
-	Q_strncat( strFullpath, args[1], MAX_PATH );
-	
-	if ( nScreenWidth == 0 )
-	{
-		nScreenWidth = ScreenWidth();
-	}
-	
-	if ( nScreenHeight == 0 )
-	{
-		nScreenHeight = ScreenHeight();
-	}
 
-	// Create the panel and go!
-	if ( VideoPanel_Create( 0, 0, nScreenWidth, nScreenHeight, strFullpath ) == false )
-	{
-		Warning( "Unable to play video: %s\n", strFullpath );
-	}
+	// New struct; functionally identical
+	VideoPanelParms_t parms;
+	
+	CreateVideoPanel( args[1], NULL, nScreenWidth, nScreenHeight, parms );
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: Used to launch a video playback
+//-----------------------------------------------------------------------------
+
+CON_COMMAND( playvideo_nointerrupt, "Plays a video without ability to skip: <filename> [width height]" )
+{
+	if ( args.ArgC() < 2 )
+		return;
+
+	unsigned int nScreenWidth = Q_atoi( args[2] );
+	unsigned int nScreenHeight = Q_atoi( args[3] );
+
+	// New struct; functionally identical
+	VideoPanelParms_t parms( false );
+
+	CreateVideoPanel( args[1], NULL, nScreenWidth, nScreenHeight, parms );
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Used to launch a video playback and fire a command on completion
@@ -408,21 +584,78 @@ CON_COMMAND( playvideo_exitcommand, "Plays a video and fires and exit command wh
 	if ( args.ArgC() < 2 )
 		return;
 
-	unsigned int nScreenWidth = ScreenWidth();
-	unsigned int nScreenHeight = ScreenHeight();
-
-	char strFullpath[MAX_PATH];
-	Q_strncpy( strFullpath, "media/", MAX_PATH );	// Assume we must play out of the media directory
-	char strFilename[MAX_PATH];
-	Q_StripExtension( args[1], strFilename, MAX_PATH );
-	Q_strncat( strFullpath, args[1], MAX_PATH );
-
+	// Pull out the exit command we want to use
 	char *pExitCommand = Q_strstr( args.GetCommandString(), args[2] );
 
-	// Create the panel and go!
-	if ( VideoPanel_Create( 0, 0, nScreenWidth, nScreenHeight, strFullpath, pExitCommand ) == false )
+	// New struct; functionally identical
+	VideoPanelParms_t parms;
+
+	CreateVideoPanel( args[1], pExitCommand, 0, 0, parms );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Used to launch a video playback and fire a command on completion
+//-----------------------------------------------------------------------------
+
+CON_COMMAND( playvideo_exitcommand_nointerrupt, "Plays a video (without interruption) and fires and exit command when it is stopped or finishes: <filename> <exit command>" )
+{
+	if ( args.ArgC() < 2 )
+		return;
+
+	// Pull out the exit command we want to use
+	char *pExitCommand = Q_strstr( args.GetCommandString(), args[2] );
+
+	// New struct; functionally identical
+	VideoPanelParms_t parms( false );
+
+	CreateVideoPanel( args[1], pExitCommand, 0, 0, parms );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Cause all playback to stop
+//-----------------------------------------------------------------------------
+
+CON_COMMAND( stopvideos, "Stops all videos playing to the screen" )
+{
+	FOR_EACH_VEC( g_vecVideoPanels, itr )
 	{
-		Warning( "Unable to play video: %s\n", strFullpath );
-		engine->ClientCmd( pExitCommand );
+		g_vecVideoPanels[itr]->StopPlayback();
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Used to launch a video playback and fire a command on completion
+//-----------------------------------------------------------------------------
+
+CON_COMMAND( playvideo_complex, "Plays a video with various parameters to simplify logic_playmovie: <filename> <exit command> <no interrupt> <looping> <fade in> <fade out>" )
+{
+	if ( args.ArgC() < 2 )
+		return;
+
+	// Pull out the exit command we want to use
+	char *pExitCommand = Q_strstr( args.GetCommandString(), args[2] );
+
+	// Parameters
+	VideoPanelParms_t parms;
+
+	if (args.ArgC() >= 3)
+		parms.bAllowInterrupt = atoi( args[3] ) != 0;
+	if (args.ArgC() >= 4)
+		parms.bLoop = atoi( args[4] ) != 0;
+	if (args.ArgC() >= 5)
+		parms.bMute = atoi( args[5] ) != 0;
+
+	//if (args.ArgC() >= 5)
+	//	parms.flFadeIn = atof( args[5] );
+	//if (args.ArgC() >= 6)
+	//	parms.flFadeOut = atof( args[6] );
+
+	// Stop a softlock
+	if (parms.bAllowInterrupt == false && parms.bLoop)
+	{
+		Warning( "WARNING: Tried to play video set to be uninterruptible and looping. This would cause a softlock because the video loops forever and there's no way to stop it.\n" );
+		return;
+	}
+
+	CreateVideoPanel( args[1], pExitCommand, 0, 0, parms );
 }

@@ -334,6 +334,10 @@ private:
 
 	bool IsPlayerAllySniper();
 
+#ifdef MAPBASE
+	const Vector &GetPaintCursor() { return m_vecPaintCursor; }
+#endif
+
 private:
 
 	/// This is the variable from which m_flPaintTime gets set.
@@ -403,6 +407,9 @@ private:
 	DEFINE_CUSTOM_AI;
 
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 };
 
 
@@ -499,6 +506,26 @@ BEGIN_DATADESC( CProtoSniper )
 	DEFINE_OUTPUT( m_OnShotFired, "OnShotFired" ),
 	
 END_DATADESC()
+
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CProtoSniper, CAI_BaseNPC, "Combine sniper NPC." )
+
+	DEFINE_SCRIPTFUNC( GetBulletSpeed, "" )
+	DEFINE_SCRIPTFUNC( GetBulletOrigin, "" )
+	DEFINE_SCRIPTFUNC( ScopeGlint, "" )
+
+	DEFINE_SCRIPTFUNC( GetPositionParameter, "" )
+	DEFINE_SCRIPTFUNC( IsSweepingRandomly, "" )
+	DEFINE_SCRIPTFUNC( FindFrustratedShot, "" )
+
+	DEFINE_SCRIPTFUNC( IsLaserOn, "" )
+	DEFINE_SCRIPTFUNC( LaserOn, "" )
+	DEFINE_SCRIPTFUNC( LaserOff, "" )
+
+	DEFINE_SCRIPTFUNC( GetPaintCursor, "Get the point the sniper is currently aiming at." )
+
+END_SCRIPTDESC()
+#endif
 
 
 
@@ -2587,6 +2614,19 @@ Vector CProtoSniper::DesiredBodyTarget( CBaseEntity *pTarget )
 {
 	// By default, aim for the center
 	Vector vecTarget = pTarget->WorldSpaceCenter();
+
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_GetActualShootPosition.CanRunInScope(m_ScriptScope))
+	{
+		ScriptVariant_t functionReturn;
+		ScriptVariant_t args[] = { GetBulletOrigin(), ToHScript( pTarget ) };
+		if (g_Hook_GetActualShootPosition.Call( m_ScriptScope, &functionReturn, args ))
+		{
+			if (functionReturn.m_type == FIELD_VECTOR && functionReturn.m_pVector->LengthSqr() != 0.0f)
+				return *functionReturn.m_pVector;
+		}
+	}
+#endif
 
 	float flTimeSinceLastMiss = gpGlobals->curtime - m_flTimeLastShotMissed;
 

@@ -121,4 +121,13 @@ private:
 	HSCRIPT m_planeAccessor;
 };
 
+//-----------------------------------------------------------------------------
+// Exposes animevent_t to VScript
+//-----------------------------------------------------------------------------
+class CAnimEventTInstanceHelper : public IScriptInstanceHelper
+{
+	bool Get( void *p, const char *pszKey, ScriptVariant_t &variant );
+	bool Set( void *p, const char *pszKey, ScriptVariant_t &variant );
+};
+
 #endif

@@ -28,6 +28,8 @@ $Project
 		$File	"postprocesscontroller.h"
 		$File	"env_dof_controller.cpp"
 		$File	"env_dof_controller.h"
+		$File	"logic_playmovie.cpp"
+		$File	"movie_display.cpp"
 		$File	"ai_expresserfollowup.cpp" [$NEW_RESPONSE_SYSTEM]
 		$File	"ai_speechqueue.cpp" [$NEW_RESPONSE_SYSTEM]
 		$File	"ai_speechqueue.h" [$NEW_RESPONSE_SYSTEM]
@@ -78,6 +80,7 @@ $Project
 			$File	"mapbase\SystemConvarMod.cpp"
 			$File	"mapbase\SystemConvarMod.h"
 			$File	"mapbase\variant_tools.h"
+			$File	"mapbase\vgui_text_display.cpp"
 			
 			$File	"mapbase\logic_eventlistener.cpp"
 			$File	"mapbase\logic_register_activator.cpp"

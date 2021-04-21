@@ -41,8 +41,8 @@ class CEventQueue
 public:
 	// pushes an event into the queue, targeting a string name (m_iName), or directly by a pointer
 #ifdef MAPBASE_VSCRIPT
-	intptr_t AddEvent( const char  *target, const char *action, variant_t Value, float fireDelay, CBaseEntity *pActivator, CBaseEntity *pCaller, int outputID = 0 );
-	intptr_t AddEvent( CBaseEntity *target, const char *action, variant_t Value, float fireDelay, CBaseEntity *pActivator, CBaseEntity *pCaller, int outputID = 0 );
+	int      AddEvent( const char  *target, const char *action, variant_t Value, float fireDelay, CBaseEntity *pActivator, CBaseEntity *pCaller, int outputID = 0 );
+	int      AddEvent( CBaseEntity *target, const char *action, variant_t Value, float fireDelay, CBaseEntity *pActivator, CBaseEntity *pCaller, int outputID = 0 );
 #else
 	void     AddEvent( const char  *target, const char *action, variant_t Value, float fireDelay, CBaseEntity *pActivator, CBaseEntity *pCaller, int outputID = 0 );
 	void     AddEvent( CBaseEntity *target, const char *action, variant_t Value, float fireDelay, CBaseEntity *pActivator, CBaseEntity *pCaller, int outputID = 0 );
@@ -73,8 +73,8 @@ public:
 
 #ifdef MAPBASE_VSCRIPT
 	void CancelEventsByInput( CBaseEntity *pTarget, const char *szInput );
-	bool RemoveEvent( intptr_t event );
-	float GetTimeLeft( intptr_t event );
+	bool RemoveEvent( int event );
+	float GetTimeLeft( int event );
 #endif // MAPBASE_VSCRIPT
 
 private:

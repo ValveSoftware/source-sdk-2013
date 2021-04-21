@@ -274,6 +274,8 @@ void ProcessCacheUsedMaterials()
 	}
 }
 
+void VGui_ClearVideoPanels();
+
 // String tables
 INetworkStringTable *g_pStringTableParticleEffectNames = NULL;
 INetworkStringTable *g_StringTableEffectDispatch = NULL;
@@ -1216,6 +1218,8 @@ void CHLClient::Shutdown( void )
 	delete g_pSixenseInput;
 	g_pSixenseInput = NULL;
 #endif
+
+	VGui_ClearVideoPanels();
 
 	C_BaseAnimating::ShutdownBoneSetupThreadPool();
 	ClientWorldFactoryShutdown();

@@ -11,6 +11,7 @@
 #include "vbsp.h"
 #include "map.h"
 #include "fgdlib/fgdlib.h"
+#include "convar.h"
 
 #include "vscript_vbsp.h"
 #include "vscript_vbsp.nut"
@@ -183,6 +184,28 @@ BEGIN_SCRIPTDESC_ROOT( CMapFile, "Map file" )
 
 END_SCRIPTDESC();
 
+
+static float cvar_getf( const char* sz )
+{
+	ConVarRef cvar(sz);
+	if ( cvar.IsFlagSet( FCVAR_SERVER_CANNOT_QUERY ) )
+		return NULL;
+	return cvar.GetFloat();
+}
+
+static bool cvar_setf( const char* sz, float val )
+{
+	ConVarRef cvar(sz);
+	if ( !cvar.IsValid() )
+		return false;
+
+	if ( cvar.IsFlagSet( FCVAR_SERVER_CANNOT_QUERY ) )
+		return false;
+
+	cvar.SetValue(val);
+	return true;
+}
+
 static const char *GetSource()
 {
 	return source;
@@ -243,6 +266,9 @@ bool VScriptVBSPInit()
 		if( g_pScriptVM )
 		{
 			Log( "VSCRIPT VBSP: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
+
+			ScriptRegisterFunction( g_pScriptVM, cvar_getf, "Gets the value of the given cvar, as a float." );
+			ScriptRegisterFunction( g_pScriptVM, cvar_setf, "Sets the value of the given cvar, as a float." );
 
 			ScriptRegisterFunction( g_pScriptVM, GetSource, "Gets the base directory of the first map loaded." );
 			ScriptRegisterFunction( g_pScriptVM, GetMapBase, "Gets the base name of the first map loaded." );

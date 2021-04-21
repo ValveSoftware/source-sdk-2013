@@ -65,44 +65,33 @@ DEFINE_CON_GROUP_CVAR( vscript_print, "80 186 255", "Messages from VScript's 'pr
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-#define DEFINE_CON_GROUP(name, codename) { name, &con_group_##codename##_color }
+#define DEFINE_CON_GROUP(id, name, codename) { name, &con_group_##codename##_color }
 
-ConGroup_t g_ConGroups[] = {
+ConGroup_t g_ConGroups[CON_GROUP_MAX] = {
 
 	// General
-	DEFINE_CON_GROUP( CON_GROUP_MAPBASE_MISC, mapbase_misc ),
-	DEFINE_CON_GROUP( CON_GROUP_PHYSICS, physics ),
+	DEFINE_CON_GROUP( CON_GROUP_MAPBASE_MISC, "Mapbase misc.", mapbase_misc ),
+	DEFINE_CON_GROUP( CON_GROUP_PHYSICS, "Physics", physics ),
 
 	// Server
-	DEFINE_CON_GROUP( CON_GROUP_IO_SYSTEM, inputoutput ),
-	DEFINE_CON_GROUP( CON_GROUP_NPC_AI, npc_ai ),
-	DEFINE_CON_GROUP( CON_GROUP_NPC_SCRIPTS, npc_scripts ),
-	DEFINE_CON_GROUP( CON_GROUP_CHOREO, choreo ),
+	DEFINE_CON_GROUP( CON_GROUP_IO_SYSTEM, "Entity IO", inputoutput ),
+	DEFINE_CON_GROUP( CON_GROUP_NPC_AI, "NPC AI", npc_ai ),
+	DEFINE_CON_GROUP( CON_GROUP_NPC_SCRIPTS, "NPC scripts", npc_scripts ),
+	DEFINE_CON_GROUP( CON_GROUP_CHOREO, "Choreo", choreo ),
 
 	// VScript
-	DEFINE_CON_GROUP( CON_GROUP_VSCRIPT, vscript ),
-	DEFINE_CON_GROUP( CON_GROUP_VSCRIPT_PRINT, vscript_print ),
+	DEFINE_CON_GROUP( CON_GROUP_VSCRIPT, "VScript", vscript ),
+	DEFINE_CON_GROUP( CON_GROUP_VSCRIPT_PRINT, "VScript print", vscript_print ),
 
 };
 
 void CV_ColorChanged( IConVar *pConVar, const char *pOldString, float flOldValue )
 {
-	for (int i = 0; i < ARRAYSIZE( g_ConGroups ); i++)
+	for (int i = 0; i < CON_GROUP_MAX; i++)
 	{
 		// Reset the alpha to indicate it needs to be refreshed
 		g_ConGroups[i]._clr[3] = 0;
 	}
-}
-
-ConGroup_t *FindConGroup( const char *pszGroup )
-{
-	for (int i = 0; i < ARRAYSIZE( g_ConGroups ); i++)
-	{
-		if (V_strcmp(pszGroup, g_ConGroups[i].pszName) == 0)
-			return &g_ConGroups[i];
-	}
-
-	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -113,7 +102,7 @@ ConVar con_group_include_name( "con_group_include_name", "0", FCVAR_NONE, "Inclu
 CON_COMMAND( con_group_list, "Prints a list of all console groups." )
 {
 	Msg( "============================================================\n" );
-	for (int i = 0; i < ARRAYSIZE( g_ConGroups ); i++)
+	for (int i = 0; i < CON_GROUP_MAX; i++)
 	{
 		Msg( "	# " );
 		ConColorMsg( g_ConGroups[i].GetColor(), "%s", g_ConGroups[i].pszName );
@@ -146,7 +135,7 @@ CON_COMMAND( con_group_toggle, "Toggles a console group." )
 }
 */
 
-void CGMsg( int level, const char *pszGroup, const tchar* pMsg, ... )
+void CGMsg( int level, int nGroup, const tchar* pMsg, ... )
 {
 	// Return early if we're not at this level
 	if (!IsSpewActive("developer", level))
@@ -158,22 +147,21 @@ void CGMsg( int level, const char *pszGroup, const tchar* pMsg, ... )
 	Q_vsnprintf( string, sizeof(string), pMsg, argptr );
 	va_end( argptr );
 
-	ConGroup_t *pGroup = FindConGroup( pszGroup );
-	if (pGroup)
+	Assert( nGroup >= 0 );
+	Assert( nGroup < CON_GROUP_MAX );
+
+	ConGroup_t *pGroup = &g_ConGroups[nGroup];
+
+	/*if (pGroup->bDisabled)
 	{
-		/*if (pGroup->bDisabled)
-		{
-			// Do nothing
-		}
-		else*/ if (con_group_include_name.GetBool())
-		{
-			ConColorMsg( level, pGroup->GetColor(), "[%s] %s", pGroup->pszName, string );
-		}
-		else
-		{
-			ConColorMsg( level, pGroup->GetColor(), string );
-		}
+	// Do nothing
+	}
+	else*/ if (con_group_include_name.GetBool())
+	{
+		ConColorMsg(level, pGroup->GetColor(), "[%s] %s", pGroup->pszName, string);
 	}
 	else
-		DevMsg( level, string );
+	{
+		ConColorMsg(level, pGroup->GetColor(), "%s", string);
+	}
 }
