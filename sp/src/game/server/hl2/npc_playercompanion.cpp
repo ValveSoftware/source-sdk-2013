@@ -4223,17 +4223,10 @@ void CNPC_PlayerCompanion::Event_KilledOther( CBaseEntity *pVictim, const CTakeD
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Handles stuff ported from Alyx.
-// 
-// For some reason, I thought Alyx's mobbed AI was used to measure enemy count for criteria stuff, which I wanted citizens to use.
-// Now that I realize enemy counting for criteria is elsewhere and this is used for just mobbing in general, I deactivated it
-// since it would barely be used and I don't know what kind of an impact it has on performance.
-// 
-// If you want to use it, feel free to re-activate.
+// Purpose: Handles custom combat speech stuff ported from Alyx.
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::DoCustomCombatAI( void )
 {
-	/*
 	#define COMPANION_MIN_MOB_DIST_SQR Square(120)		// Any enemy closer than this adds to the 'mob'
 	#define COMPANION_MIN_CONSIDER_DIST	Square(1200)	// Only enemies within this range are counted and considered to generate AI speech
 
@@ -4296,7 +4289,6 @@ void CNPC_PlayerCompanion::DoCustomCombatAI( void )
 	{
 		SpeakIfAllowed( TLK_MANY_ENEMIES );
 	}
-	*/
 }
 #endif
 
