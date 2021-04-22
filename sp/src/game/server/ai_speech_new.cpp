@@ -461,7 +461,7 @@ CAI_Expresser::~CAI_Expresser()
 #ifdef DEBUG
 			g_nExpressers--;
 			if ( g_nExpressers == 0 && pSemaphore->GetOwner() )
-				DevMsg( 2, "Speech semaphore being held by non-talker entity\n" );
+				CGMsg( 2, CON_GROUP_SPEECH_AI, "Speech semaphore being held by non-talker entity\n" );
 #endif
 		}
 
@@ -826,7 +826,7 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t &concept, AI_Response *re
 		{
 			entityName = ToBasePlayer( GetOuter() )->GetPlayerName();
 		}
-		DevMsg( 2, "SpeakDispatchResponse:  Entity ( %i/%s ) already speaking, forcing '%s'\n", GetOuter()->entindex(), entityName ? entityName : "UNKNOWN", (const char*)concept );
+		CGMsg( 2, CON_GROUP_SPEECH_AI, "SpeakDispatchResponse:  Entity ( %i/%s ) already speaking, forcing '%s'\n", GetOuter()->entindex(), entityName ? entityName : "UNKNOWN", (const char*)concept );
 
 		// Tracker 15911:  Can break the game if we stop an imported map placed lcs here, so only
 		//  cancel actor out of instanced scripted scenes.  ywb
@@ -835,7 +835,7 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t &concept, AI_Response *re
 
 		if ( IsRunningScriptedScene( GetOuter() ) )
 		{
-			DevMsg( "SpeakDispatchResponse:  Entity ( %i/%s ) refusing to speak due to scene entity, tossing '%s'\n", GetOuter()->entindex(), entityName ? entityName : "UNKNOWN", (const char*)concept );
+			CGMsg( 1, CON_GROUP_SPEECH_AI, "SpeakDispatchResponse:  Entity ( %i/%s ) refusing to speak due to scene entity, tossing '%s'\n", GetOuter()->entindex(), entityName ? entityName : "UNKNOWN", (const char*)concept );
 			return false;
 		}
 	}
@@ -858,7 +858,7 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t &concept, AI_Response *re
 				float speakTime = GetResponseDuration( result );
 				GetOuter()->EmitSound( response );
 
-				DevMsg( 2, "SpeakDispatchResponse:  Entity ( %i/%s ) playing sound '%s'\n", GetOuter()->entindex(), STRING( GetOuter()->GetEntityName() ), response );
+				CGMsg( 2, CON_GROUP_SPEECH_AI, "SpeakDispatchResponse:  Entity ( %i/%s ) playing sound '%s'\n", GetOuter()->entindex(), STRING( GetOuter()->GetEntityName() ), response );
 				NoteSpeaking( speakTime, delay );
 				spoke = true;
 #ifdef MAPBASE
@@ -1079,7 +1079,7 @@ bool CAI_Expresser::FireEntIOFromResponse( char *response, CBaseEntity *pInitiat
 	CBaseEntity *pTarget = gEntList.FindEntityByName( NULL, pszEntname, pInitiator );
 	if ( !pTarget )
 	{
-		Msg( "Response rule targeted %s with entityio, but that doesn't exist.\n", pszEntname );
+		CGMsg( 0, CON_GROUP_SPEECH_AI, "Response rule targeted %s with entityio, but that doesn't exist.\n", pszEntname );
 		// but this is actually a legit use case, so return true (below).
 	}
 	else
@@ -1528,7 +1528,7 @@ void CAI_Expresser::DumpHistories()
 	{
 		ConceptHistory_t *h = &m_ConceptHistories[ i ];
 
-		DevMsg( "%i: %s at %f\n", c++, m_ConceptHistories.GetElementName( i ), h->timeSpoken );
+		CGMsg( 1, CON_GROUP_SPEECH_AI, "%i: %s at %f\n", c++, m_ConceptHistories.GetElementName( i ), h->timeSpoken );
 	}
 }
 
@@ -1571,7 +1571,7 @@ void CAI_Expresser::SpeechMsg( CBaseEntity *pFlex, const char *pszFormat, ... )
 	}
 	else 
 	{
-		DevMsg( CFmtStr( &pszFormat ) );
+		CGMsg( 1, CON_GROUP_SPEECH_AI, CFmtStr( &pszFormat ) );
 	}
 	UTIL_LogPrintf( (char *) ( (const char *) CFmtStr( &pszFormat ) ) );
 }
