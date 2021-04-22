@@ -9,6 +9,8 @@
 
 #include "utlmap.h"
 
+#include "tier1/mapbase_con_groups.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
@@ -34,7 +36,7 @@ const char *SplitContext( const char *raw, char *key, int keylen, char *value, i
 	char *colon1 = Q_strstr( raw, ":" );
 	if ( !colon1 )
 	{
-		DevMsg( "SplitContext:  warning, ignoring context '%s', missing colon separator!\n", raw );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "SplitContext:  warning, ignoring context '%s', missing colon separator!\n", raw );
 		*key = *value = 0;
 		return NULL;
 	}
@@ -61,7 +63,7 @@ const char *SplitContext( const char *raw, char *key, int keylen, char *value, i
 		char durationStartChar = *(colon2 + 1);
 		if ( durationStartChar < '0' || durationStartChar > '9' )
 		{
-			DevMsg( "SplitContext:  warning, ignoring context '%s', missing comma separator!  Entire context was '%s'.\n", raw, entireContext );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "SplitContext:  warning, ignoring context '%s', missing comma separator!  Entire context was '%s'.\n", raw, entireContext );
 			*key = *value = 0;
 			return NULL;
 		}
@@ -377,11 +379,11 @@ void CriteriaSet::Describe() const
 		const CritEntry_t *entry  = m_TempMap.Element( i );
 		if ( entry->weight != 1.0f )
 		{
-			DevMsg( "  %20s = '%s' (weight %f)\n", name, entry->value ? entry->value : "", entry->weight );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "  %20s = '%s' (weight %f)\n", name, entry->value ? entry->value : "", entry->weight );
 		}
 		else
 		{
-			DevMsg( "  %20s = '%s'\n", name, entry->value ? entry->value : "" );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "  %20s = '%s'\n", name, entry->value ? entry->value : "" );
 		}
 	}
 
@@ -393,11 +395,11 @@ void CriteriaSet::Describe() const
 		const char *pCriteriaName = sm_CriteriaSymbols.String( entry->criterianame );
 		if ( entry->weight != 1.0f )
 		{
-			DevMsg( "  %20s = '%s' (weight %f)\n", pCriteriaName, entry->value ? entry->value : "", entry->weight );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "  %20s = '%s' (weight %f)\n", pCriteriaName, entry->value ? entry->value : "", entry->weight );
 		}
 		else
 		{
-			DevMsg( "  %20s = '%s'\n", pCriteriaName, entry->value ? entry->value : "" );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "  %20s = '%s'\n", pCriteriaName, entry->value ? entry->value : "" );
 		}
 	}
 	*/

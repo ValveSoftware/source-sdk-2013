@@ -12,6 +12,7 @@
 #include "convar.h"
 #include "fmtstr.h"
 #include "generichash.h"
+#include "tier1/mapbase_con_groups.h"
 #ifdef MAPBASE
 #include "tier1/mapbase_matchers_base.h"
 #endif
@@ -561,7 +562,7 @@ bool CResponseSystem::Compare( const char *setValue, Criteria *c, bool verbose /
 
 	if ( verbose )
 	{
-		DevMsg( "'%20s' vs. '%20s' = ", setValue, c->value );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "'%20s' vs. '%20s' = ", setValue, c->value );
 
 		{
 			//DevMsg( "\n" );
@@ -635,7 +636,7 @@ float CResponseSystem::ScoreCriteriaAgainstRuleCriteria( const CriteriaSet& set,
 
 	if ( verbose )
 	{
-		DevMsg( "  criterion '%25s':'%15s' ", m_Criteria.GetElementName( icriterion ), CriteriaSet::SymbolToStr(c->nameSym) );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "  criterion '%25s':'%15s' ", m_Criteria.GetElementName( icriterion ), CriteriaSet::SymbolToStr(c->nameSym) );
 	}
 
 	exclude = false;
@@ -669,7 +670,7 @@ float CResponseSystem::ScoreCriteriaAgainstRuleCriteria( const CriteriaSet& set,
 
 		if ( verbose )
 		{
-			DevMsg( "matched, weight %4.2f (s %4.2f x c %4.2f)",
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "matched, weight %4.2f (s %4.2f x c %4.2f)",
 				score, w, c->weight.GetFloat() );
 		}
 	}
@@ -680,14 +681,14 @@ float CResponseSystem::ScoreCriteriaAgainstRuleCriteria( const CriteriaSet& set,
 			exclude = true;
 			if ( verbose )
 			{
-				DevMsg( "failed (+exclude rule)" );
+				CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "failed (+exclude rule)" );
 			}
 		}
 		else
 		{
 			if ( verbose )
 			{
-				DevMsg( "failed" );
+				CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "failed" );
 			}
 		}
 	}
@@ -713,7 +714,7 @@ float CResponseSystem::ScoreCriteriaAgainstRule( const CriteriaSet& set, Respons
 	{
 		if ( bBeingWatched )
 		{
-			DevMsg("Rule is disabled.\n" );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "Rule is disabled.\n" );
 		}
 		return 0.0f;
 	}
@@ -725,7 +726,7 @@ float CResponseSystem::ScoreCriteriaAgainstRule( const CriteriaSet& set, Respons
 
 	if ( verbose )
 	{
-		DevMsg( "Scoring rule '%s' (%i)\n{\n", dict.GetElementName( irule ), irule+1 );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "Scoring rule '%s' (%i)\n{\n", dict.GetElementName( irule ), irule+1 );
 	}
 
 	// Iterate set criteria
@@ -740,7 +741,7 @@ float CResponseSystem::ScoreCriteriaAgainstRule( const CriteriaSet& set, Respons
 
 		if ( verbose )
 		{
-			DevMsg( ", score %4.2f\n", score );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, ", score %4.2f\n", score );
 		}
 
 		if ( exclude ) 
@@ -752,7 +753,7 @@ float CResponseSystem::ScoreCriteriaAgainstRule( const CriteriaSet& set, Respons
 
 	if ( verbose )
 	{
-		DevMsg( "}\n" );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "}\n" );
 	}
 
 	if ( rule->m_nForceWeight > 0 )
@@ -784,7 +785,7 @@ void CResponseSystem::DebugPrint( int depth, const char *fmt, ... )
 	Q_vsnprintf (szText, sizeof( szText ), fmt, argptr);
 	va_end (argptr);
 
-	DevMsg( "%s%s", indent, szText );
+	CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "%s%s", indent, szText );
 }
 
 //-----------------------------------------------------------------------------
@@ -1292,7 +1293,7 @@ ResponseRulePartition::tIndex CResponseSystem::FindBestMatchingRule( const Crite
 		int idx = IEngineEmulator::Get()->GetRandomStream()->RandomInt( 0, bestCount - 1 );
 		if ( verbose )
 		{
-			DevMsg( "Found %i matching rules, selecting slot %i\n", bestCount, idx );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "Found %i matching rules, selecting slot %i\n", bestCount, idx );
 		}
 		return bestrules[ idx ] ;
 	}
@@ -1474,7 +1475,7 @@ void CResponseSystem::MarkResponseAsUsed( short iGroup, short iWithinGroup )
 		{
 			group.MarkResponseUsed( iWithinGroup );
 
-			Msg("Marked response %s (%i) used\n", group.group[iWithinGroup].value, iWithinGroup);
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "Marked response %s (%i) used\n", group.group[iWithinGroup].value, iWithinGroup );
 		}
 	}
 }
@@ -1526,7 +1527,7 @@ void CResponseSystem::ParseInclude()
 	CUtlBuffer buf;
 	if ( !IEngineEmulator::Get()->GetFilesystem()->ReadFile( includefile, "GAME", buf ) )
 	{
-		DevMsg( "Unable to load #included script %s\n", includefile );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "Unable to load #included script %s\n", includefile );
 		return;
 	}
 
@@ -1541,7 +1542,7 @@ void CResponseSystem::LoadFromBuffer( const char *scriptfile, const char *buffer
 
 	if( rr_dumpresponses.GetBool() )
 	{
-		DevMsg("Reading: %s\n", scriptfile );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM,"Reading: %s\n", scriptfile );
 	}
 
 	while ( 1 )
@@ -1568,7 +1569,7 @@ void CResponseSystem::LoadFromBuffer( const char *scriptfile, const char *buffer
 	{
 		char cur[ 256 ];
 		GetCurrentScript( cur, sizeof( cur ) );
-		DevMsg( 1, "CResponseSystem:  %s (%i rules, %i criteria, and %i responses)\n",
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "CResponseSystem:  %s (%i rules, %i criteria, and %i responses)\n",
 			cur, m_RulePartitions.Count(), m_Criteria.Count(), m_Responses.Count() );
 
 		if( rr_dumpresponses.GetBool() )
@@ -1591,7 +1592,7 @@ void CResponseSystem::LoadRuleSet( const char *basescript )
 	unsigned char *buffer = (unsigned char *)IEngineEmulator::Get()->LoadFileForMe( basescript, &length );
 	if ( length <= 0 || !buffer )
 	{
-		DevMsg( 1, "CResponseSystem:  failed to load %s\n", basescript );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "CResponseSystem:  failed to load %s\n", basescript );
 		return;
 	}
 
@@ -2340,7 +2341,7 @@ void CResponseSystem::ParseRule( void )
 	}
 	else
 	{
-		DevMsg( "Discarded rule %s\n", ruleName );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "Discarded rule %s\n", ruleName );
 		delete newRule;
 	}
 }
@@ -2368,7 +2369,7 @@ void CResponseSystem::ResponseWarning( const char *fmt, ... )
 
 	char cur[ 256 ];
 	GetCurrentScript( cur, sizeof( cur ) );
-	DevMsg( 1, "%s(token %i) : %s", cur, GetCurrentToken(), string );
+	CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "%s(token %i) : %s", cur, GetCurrentToken(), string );
 }
 
 //-----------------------------------------------------------------------------
@@ -2546,7 +2547,7 @@ void CResponseSystem::DumpRules()
 		m_RulePartitions.IsValid(idx) ;
 		idx = m_RulePartitions.Next(idx) )
 	{
-		Msg("%s\n", m_RulePartitions.GetElementName( idx ) );
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "%s\n", m_RulePartitions.GetElementName( idx ) );
 	}
 }
 
@@ -2554,7 +2555,7 @@ void CResponseSystem::DumpRules()
 //-----------------------------------------------------------------------------
 void CResponseSystem::DumpDictionary( const char *pszName )
 {
-	Msg( "\nDictionary: %s\n", pszName );
+	CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\nDictionary: %s\n", pszName );
 
 	// int nRuleCount = m_Rules.Count();
 	// for ( int iRule = 0; iRule < nRuleCount; ++iRule )
@@ -2562,7 +2563,7 @@ void CResponseSystem::DumpDictionary( const char *pszName )
 		m_RulePartitions.IsValid(idx) ;
 		idx = m_RulePartitions.Next(idx) )
 	{
-		Msg("	Rule %d/%d: %s\n", m_RulePartitions.BucketFromIdx(idx), m_RulePartitions.PartFromIdx( idx ), m_RulePartitions.GetElementName( idx ) );
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "	Rule %d/%d: %s\n", m_RulePartitions.BucketFromIdx( idx ), m_RulePartitions.PartFromIdx( idx ), m_RulePartitions.GetElementName( idx ) );
 
 		Rule *pRule = &m_RulePartitions[idx];
 
@@ -2571,7 +2572,7 @@ void CResponseSystem::DumpDictionary( const char *pszName )
 		{
 			int iRuleCriteria = pRule->m_Criteria[iCriteria];
 			Criteria *pCriteria = &m_Criteria[iRuleCriteria];
-			Msg( "		Criteria %d: %s %s\n", iCriteria, CriteriaSet::SymbolToStr(pCriteria->nameSym), pCriteria->value );
+			CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "		Criteria %d: %s %s\n", iCriteria, CriteriaSet::SymbolToStr( pCriteria->nameSym ), pCriteria->value );
 		}
 
 		int nResponseGroupCount = pRule->m_Responses.Count();
@@ -2580,13 +2581,13 @@ void CResponseSystem::DumpDictionary( const char *pszName )
 			int iRuleResponse = pRule->m_Responses[iResponseGroup];
 			ResponseGroup *pResponseGroup = &m_Responses[iRuleResponse];
 
-			Msg( "		ResponseGroup %d: %s\n", iResponseGroup, m_Responses.GetElementName( iRuleResponse ) );
+			CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "		ResponseGroup %d: %s\n", iResponseGroup, m_Responses.GetElementName( iRuleResponse ) );
 
 			int nResponseCount = pResponseGroup->group.Count();
 			for ( int iResponse = 0; iResponse < nResponseCount; ++iResponse )
 			{
 				ParserResponse *pResponse = &pResponseGroup->group[iResponse];
-				Msg( "			Response %d: %s\n", iResponse, pResponse->value );
+				CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "			Response %d: %s\n", iResponse, pResponse->value );
 			}
 		}
 	}
@@ -2834,16 +2835,16 @@ static void CC_RR_Debug_ResponseConcept_Exclude( const CCommand &args )
 	case 1:
 	{
 		// print usage info
-		Msg("Usage:  rr_debugresponseconcept_exclude  Concept1 Concept2 Concept3...\n");
-		Msg("\tseparate multiple concepts with spaces.\n");
-		Msg("\tcall with no arguments to see this message and a list of current excludes.\n");
-		Msg("\tto reset the exclude list, type \"rr_debugresponseconcept_exclude !\"\n");
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "Usage:  rr_debugresponseconcept_exclude  Concept1 Concept2 Concept3...\n");
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\tseparate multiple concepts with spaces.\n");
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\tcall with no arguments to see this message and a list of current excludes.\n");
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\tto reset the exclude list, type \"rr_debugresponseconcept_exclude !\"\n");
 		
 		// print current excludes
-		Msg("\nCurrent exclude list:\n");
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\nCurrent exclude list:\n" );
 		if ( !CResponseSystem::m_DebugExcludeList.IsValidIndex( CResponseSystem::m_DebugExcludeList.Head() ) )
 		{
-			Msg("\t<none>\n");
+			CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\t<none>\n" );
 		}
 		else
 		{
@@ -2852,7 +2853,7 @@ static void CC_RR_Debug_ResponseConcept_Exclude( const CCommand &args )
 				  CResponseSystem::m_DebugExcludeList.IsValidIndex(i)	;
 				  i = CResponseSystem::m_DebugExcludeList.Next(i)		)
 			{
-				Msg( "\t%s\n", CResponseSystem::m_DebugExcludeList[i].GetStringConcept() );
+				CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\t%s\n", CResponseSystem::m_DebugExcludeList[i].GetStringConcept() );
 			}
 		}
 		return;
@@ -2862,7 +2863,7 @@ static void CC_RR_Debug_ResponseConcept_Exclude( const CCommand &args )
 		if ( args[1][0] == '!' )
 		{
 			CResponseSystem::m_DebugExcludeList.Purge();
-			Msg( "Exclude list emptied.\n" );
+			CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "Exclude list emptied.\n" );
 			return;
 		}
 		// else, FALL THROUGH:
@@ -2872,7 +2873,7 @@ static void CC_RR_Debug_ResponseConcept_Exclude( const CCommand &args )
 		{
 			if ( !g_pRRConceptTable->Find(args[i]).IsValid() )
 			{
-				Msg( "\t'%s' is not a known concept (adding it anyway)\n", args[i] );
+				CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\t'%s' is not a known concept (adding it anyway)\n", args[i] );
 			}
 			CRR_Concept concept( args[i] );
 			CResponseSystem::m_DebugExcludeList.AddToTail( concept );
@@ -2906,16 +2907,16 @@ void ResponseRulePartition::PrintBucketInfo( CResponseSystem *pSys )
 	}
 	nAverage /= N_RESPONSE_PARTITIONS;
 	infos.Sort( bucktuple_t::SortCompare );
-	Msg( "%d buckets, %d total, %.2f average size\n", N_RESPONSE_PARTITIONS, Count(), nAverage );
-	Msg( "8 shortest buckets:\n" );
+	CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "%d buckets, %d total, %.2f average size\n", N_RESPONSE_PARTITIONS, Count(), nAverage );
+	CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "8 shortest buckets:\n" );
 	for ( int i = 0 ; i < 8 ; ++i )
 	{
-		Msg("\t%d: %d\n", infos[i].nBucket, infos[i].nCount );
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\t%d: %d\n", infos[i].nBucket, infos[i].nCount );
 	}
-	Msg( "8 longest buckets:\n" );
+	CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "8 longest buckets:\n" );
 	for ( int i = infos.Count() - 1 ; i >= infos.Count() - 9 ; --i )
 	{
-		Msg("\t%d: %d\n", infos[i].nBucket, infos[i].nCount );
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "\t%d: %d\n", infos[i].nBucket, infos[i].nCount );
 	}
 	int nempty = 0;
 	for ( nempty = 0 ; nempty < infos.Count() ; ++nempty )
@@ -2923,15 +2924,15 @@ void ResponseRulePartition::PrintBucketInfo( CResponseSystem *pSys )
 		if ( infos[nempty].nCount != 0 )
 			break;
 	}
-	Msg( "%d empty buckets\n", nempty );
+	CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "%d empty buckets\n", nempty );
 
 	/*
-	Msg( " Contents of longest bucket\nwho\tconcept\n" );
+	CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, " Contents of longest bucket\nwho\tconcept\n" );
 	tRuleDict &bucket = m_RuleParts[infos[infos.Count()-1].nBucket];
 	for ( tRuleDict::IndexType_t i = bucket.FirstInorder(); bucket.IsValidIndex(i); i = bucket.NextInorder(i) )
 	{
 		Rule &rule = bucket.Element(i) ;
-		Msg("%s\t%s\n", rule.GetValueForRuleCriterionByName( pSys, "who" ), rule.GetValueForRuleCriterionByName( pSys, CriteriaSet::ComputeCriteriaSymbol("concept") ) );
+		CGMsg( 0, CON_GROUP_RESPONSE_SYSTEM, "%s\t%s\n", rule.GetValueForRuleCriterionByName( pSys, "who" ), rule.GetValueForRuleCriterionByName( pSys, CriteriaSet::ComputeCriteriaSymbol("concept") ) );
 	}
 	*/
 }

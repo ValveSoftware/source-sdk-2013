@@ -7,6 +7,8 @@
 
 #include "rrbase.h"
 
+#include "tier1/mapbase_con_groups.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -48,7 +50,7 @@ void Matcher::Describe( void )
 {
 	if ( !valid )
 	{
-		DevMsg( "    invalid!\n" );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "    invalid!\n" );
 		return;
 	}
 	char sz[ 128 ];
@@ -75,25 +77,25 @@ void Matcher::Describe( void )
 
 	if ( minmaxcount >= 1 )
 	{
-		DevMsg( "    matcher:  %s\n", sz );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "    matcher:  %s\n", sz );
 		return;
 	}
 
 #ifdef MAPBASE
 	if ( isbit )
 	{
-		DevMsg( "    matcher:  &%s%s\n", notequal ? "~" : "", GetToken() );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "    matcher:  &%s%s\n", notequal ? "~" : "", GetToken() );
 		return;
 	}
 #endif
 
 	if ( notequal )
 	{
-		DevMsg( "    matcher:  !=%s\n", GetToken() );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "    matcher:  !=%s\n", GetToken() );
 		return;
 	}
 
-	DevMsg( "    matcher:  ==%s\n", GetToken() );
+	CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "    matcher:  ==%s\n", GetToken() );
 }
 
 void Matcher::SetToken( char const *s )

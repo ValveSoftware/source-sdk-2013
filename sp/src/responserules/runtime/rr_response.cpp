@@ -8,6 +8,7 @@
 #include "rrbase.h"
 
 #include <tier1/interval.h>
+#include "tier1/mapbase_con_groups.h"
 
 /*
 #include "AI_Criteria.h"
@@ -151,32 +152,32 @@ void CRR_Response::Describe(  const CriteriaSet *pDebugCriteria )
 {
 	if ( pDebugCriteria )
 	{
-		DevMsg( "Search criteria:\n" );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "Search criteria:\n" );
 		pDebugCriteria->Describe();
 	}
 	
 	if ( m_szMatchingRule[ 0 ] )
 	{
-		DevMsg( "Matched rule '%s', ", m_szMatchingRule );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "Matched rule '%s', ", m_szMatchingRule );
 	}
 	if ( m_szContext )
 	{
 #ifdef MAPBASE
-		DevMsg( "Contexts to set '%s' on ", m_szContext );
+		CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "Contexts to set '%s' on ", m_szContext );
 		if (m_iContextFlags & APPLYCONTEXT_WORLD)
-			DevMsg( "world, " );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "world, " );
 		else if (m_iContextFlags & APPLYCONTEXT_SQUAD)
-			DevMsg( "squad, " );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "squad, " );
 		else if (m_iContextFlags & APPLYCONTEXT_ENEMY)
-			DevMsg( "enemy, " );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "enemy, " );
 		else
-			DevMsg( "speaker, " );
+			CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "speaker, " );
 #else
 		DevMsg( "Contexts to set '%s' on %s, ", m_szContext, m_bApplyContextToWorld ? "world" : "speaker" );
 #endif
 	}
 
-	DevMsg( "response %s = '%s'\n", DescribeResponse( (ResponseType_t)m_Type ),  m_szResponseName );
+	CGMsg( 1, CON_GROUP_RESPONSE_SYSTEM, "response %s = '%s'\n", DescribeResponse( (ResponseType_t)m_Type ),  m_szResponseName );
 }
 
 //-----------------------------------------------------------------------------
