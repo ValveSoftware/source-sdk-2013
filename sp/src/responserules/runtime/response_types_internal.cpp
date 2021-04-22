@@ -6,11 +6,20 @@
 //=============================================================================//
 
 #include "rrbase.h"
+#ifdef MAPBASE
+#include "convar.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 using namespace ResponseRules;
+
+#ifdef MAPBASE
+ConVar rr_bucket_name_who( "rr_bucket_name_who", "Classname", FCVAR_NONE, "The name of the criteria to use for the 'Who' bucket." ); // Default changed to "Classname" for HL2
+ConVar rr_bucket_name_concept( "rr_bucket_name_concept", "Concept", FCVAR_NONE, "The name of the criteria to use for the 'Concept' bucket." );
+ConVar rr_bucket_name_subject( "rr_bucket_name_subject", "Subject", FCVAR_NONE, "The name of the criteria to use for the 'Subject' bucket." );
+#endif
 
 
 
@@ -113,9 +122,15 @@ static inline bool CanBucketBySubject( const char * RESTRICT pszSubject )
 
 ResponseRulePartition::tRuleDict &ResponseRulePartition::GetDictForRule( CResponseSystem *pSystem, Rule *pRule )
 {
+#ifdef MAPBASE
+	const static CUtlSymbol kWHO = CriteriaSet::ComputeCriteriaSymbol( rr_bucket_name_who.GetString() );
+	const static CUtlSymbol kCONCEPT = CriteriaSet::ComputeCriteriaSymbol( rr_bucket_name_concept.GetString() );
+	const static CUtlSymbol kSUBJECT = CriteriaSet::ComputeCriteriaSymbol( rr_bucket_name_subject.GetString() );
+#else
 	const static CUtlSymbol kWHO = CriteriaSet::ComputeCriteriaSymbol("Who");
 	const static CUtlSymbol kCONCEPT = CriteriaSet::ComputeCriteriaSymbol("Concept");
 	const static CUtlSymbol kSUBJECT = CriteriaSet::ComputeCriteriaSymbol("Subject");
+#endif
 
 	const char *pszSpeaker = pRule->GetValueForRuleCriterionByName( pSystem, kWHO );
 	const char *pszConcept = pRule->GetValueForRuleCriterionByName( pSystem, kCONCEPT );
