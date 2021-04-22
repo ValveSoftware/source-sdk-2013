@@ -7698,6 +7698,10 @@ void CBasePlayer::Weapon_DropSlot( int weaponSlot )
 	}
 }
 
+#ifdef MAPBASE
+ConVar player_autoswitch_on_first_pickup("player_autoswitch_on_pickup", "1", FCVAR_NONE, "Determines how the player should autoswitch when picking up a new weapon. 0 = no autoswitch, 1 = always (default), 2 = use unused weighting system");
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Override to add weapon to the hud
 //-----------------------------------------------------------------------------
@@ -7706,24 +7710,25 @@ void CBasePlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 	BaseClass::Weapon_Equip( pWeapon );
 
 #ifdef MAPBASE
-	// So, I discovered that BumpWeapon seems to have some deprecated code.
-	// It automatically switches the player to all new weapons. Sounds normal, right?
-	// Except that's *also* handled here. Since the BumpWeapon code implied the player could pick up weapons while carrying the mega physcannon,
-	// I assumed it was some old, deprecated code and, since I needed to remove a piece of (also deprecated) code in it, I decided to remove it entirely
-	// and hand weapon switching to this alone. Seems straightforward, right?
-	// 
-	// Well, it turns out, this code was more complicated than I thought and used various weights and stuff to determine if a weapon was worth automatically switching to.
-	// It doesn't automatically switch to most of the weapons. Even though I seem to be right about that old code being deprecated,
-	// I got irritated and...uh...replaced the correct Weapon_Equip code with the old deprecated code from BumpWeapon.
-	// 
-	// Trust me. It was hard and pointless to get used to. You'll thank me later.
-
-	if ( !PlayerHasMegaPhysCannon() )
+	// BumpWeapon's code appeared to be deprecated; The same operation is already handled here, but with much more code involved.
+	// There's also an unused weighting system which was overridden by that deprecated code. The unused weighting code can be enabled
+	// via player_autoswitch_on_first_pickup.
+	bool bShouldSwitch = false;
+	switch (player_autoswitch_on_first_pickup.GetInt())
 	{
-		Weapon_Switch( pWeapon );
+		// Unused Weighting
+		case 2:
+			bShouldSwitch = g_pGameRules->FShouldSwitchWeapon( this, pWeapon );
+			break;
+
+		// Always (old behavior)
+		case 1:
+			bShouldSwitch = true;
+			break;
 	}
 #else
 	bool bShouldSwitch = g_pGameRules->FShouldSwitchWeapon( this, pWeapon );
+#endif
 
 #ifdef HL2_DLL
 	if ( bShouldSwitch == false && PhysCannonGetHeldEntity( GetActiveWeapon() ) == pWeapon && 
@@ -7738,7 +7743,6 @@ void CBasePlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 	{
 		Weapon_Switch( pWeapon );
 	}
-#endif
 }
 
 #ifdef MAPBASE
