@@ -1368,6 +1368,8 @@ SQInteger function_stub(HSQUIRRELVM vm)
 
 	PushVariant(vm, retval);
 
+	retval.Free();
+
 	return pFunc->m_desc.m_ReturnType != FIELD_VOID;
 }
 
