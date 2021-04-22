@@ -1210,6 +1210,10 @@ void CNPC_BaseZombie::DieChopped( const CTakeDamageInfo &info )
 		if( pAnimating )
 		{
 			pAnimating->SetBodygroup( ZOMBIE_BODYGROUP_HEADCRAB, !m_fIsHeadless );
+#ifdef MAPBASE
+			// Inherit some animating properties
+			pAnimating->m_nSkin = m_nSkin;
+#endif
 		}
 
 #ifdef MAPBASE
