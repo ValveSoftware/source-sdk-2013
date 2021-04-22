@@ -212,7 +212,6 @@ typedef unsigned short ucs2;
 #endif
 
 #ifdef MAPBASE
-// I'm using ThreeState_t a lot more now and I'm tired of typing this out so much.
 #define TO_THREESTATE(num)	static_cast<ThreeState_t>(num)
 #endif
 
