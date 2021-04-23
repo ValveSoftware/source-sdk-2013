@@ -25,6 +25,9 @@ ConVar cl_globallight_freeze( "cl_globallight_freeze", "0" );
 // You can set these as KV anyway.
 ConVar cl_globallight_xoffset( "cl_globallight_xoffset", "0" );
 ConVar cl_globallight_yoffset( "cl_globallight_yoffset", "0" );
+
+static ConVar cl_globallight_slopescaledepthbias_shadowmap( "cl_globallight_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
+static ConVar cl_globallight_depthbias_shadowmap( "cl_globallight_depthbias_shadowmap", "0.00001", FCVAR_CHEAT );
 #else
 ConVar cl_globallight_xoffset( "cl_globallight_xoffset", "-800" );
 ConVar cl_globallight_yoffset( "cl_globallight_yoffset", "1600" );
@@ -286,16 +289,19 @@ void C_GlobalLight::ClientThink()
 			state.m_bOrtho = false;
 		}
 
-#ifndef MAPBASE // Don't draw that huge debug thing
+#ifdef MAPBASE
+		//state.m_bDrawShadowFrustum = true; // Don't draw that huge debug thing
+		state.m_flShadowSlopeScaleDepthBias = cl_globallight_slopescaledepthbias_shadowmap.GetFloat();
+		state.m_flShadowDepthBias = cl_globallight_depthbias_shadowmap.GetFloat();
+		state.m_bEnableShadows = m_bEnableShadows;
+		state.m_pSpotlightTexture = m_SpotlightTexture;
+		state.m_nSpotlightTextureFrame = m_nSpotlightTextureFrame;
+#else
 		state.m_bDrawShadowFrustum = true;
-#endif
 		/*state.m_flShadowSlopeScaleDepthBias = g_pMaterialSystemHardwareConfig->GetShadowSlopeScaleDepthBias();;
 		state.m_flShadowDepthBias = g_pMaterialSystemHardwareConfig->GetShadowDepthBias();*/
 		state.m_bEnableShadows = m_bEnableShadows;
 		state.m_pSpotlightTexture = m_SpotlightTexture;
-#ifdef MAPBASE
-		state.m_nSpotlightTextureFrame = m_nSpotlightTextureFrame;
-#else
 		state.m_nSpotlightTextureFrame = 0;
 #endif
 
