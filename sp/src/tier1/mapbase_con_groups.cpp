@@ -95,8 +95,13 @@ void LoadConsoleGroupsFromFile( IBaseFileSystem *filesystem, const char *pszFile
 		int index = FindConGroup( pGroup->GetName() );
 		if (index != -1)
 		{
-			g_ConGroups[index]._clr = pGroup->GetColor( "MessageColor" );
-			//g_ConGroups[index].bDisabled = pGroup->GetBool( "Disabled", false );
+			Color msgClr = pGroup->GetColor( "MessageColor" );
+
+			// Make sure the color isn't 0,0,0,0 before assigning
+			if (msgClr.GetRawColor() != 0)
+				g_ConGroups[index]._clr = msgClr;
+
+			g_ConGroups[index].bDisabled = pGroup->GetBool( "Disabled", false );
 		}
 		else
 		{
@@ -118,12 +123,12 @@ void PrintAllConsoleGroups()
 	Msg( "============================================================\n" );
 	for (int i = 0; i < CON_GROUP_MAX; i++)
 	{
-		Msg( "	# " );
-		ConColorMsg( g_ConGroups[i].GetColor(), "%s", g_ConGroups[i].pszName );
-		Msg( " - %s ", g_ConGroups[i].pszDescription );
+		ConColorMsg( g_ConGroups[i].GetColor(), "	# %s", g_ConGroups[i].pszName );
 
-		//if (g_ConGroups[i].bDisabled)
-		//	Msg("(DISABLED)");
+		if (g_ConGroups[i].bDisabled)
+			Msg(" [DISABLED]");
+
+		Msg( " - %s ", g_ConGroups[i].pszDescription );
 
 		Msg("\n");
 	}
