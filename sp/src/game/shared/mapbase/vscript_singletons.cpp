@@ -2597,6 +2597,7 @@ bool CScriptConvarAccessor::Init()
 	AddOverridable( "+grenade1" );
 	AddOverridable( "+grenade2" );
 	AddOverridable( "+showscores" );
+	AddOverridable( "+voicerecord" );
 
 	AddOverridable( "-attack" );
 	AddOverridable( "-attack2" );
@@ -2618,12 +2619,16 @@ bool CScriptConvarAccessor::Init()
 	AddOverridable( "-grenade1" );
 	AddOverridable( "-grenade2" );
 	AddOverridable( "-showscores" );
+	AddOverridable( "-voicerecord" );
 
 	AddOverridable( "toggle_duck" );
 	AddOverridable( "lastinv" );
 	AddOverridable( "invnext" );
 	AddOverridable( "invprev" );
 	AddOverridable( "phys_swap" );
+	AddOverridable( "say" );
+	AddOverridable( "say_team" );
+	AddOverridable( "slot0" );
 	AddOverridable( "slot1" );
 	AddOverridable( "slot2" );
 	AddOverridable( "slot3" );
@@ -2631,6 +2636,9 @@ bool CScriptConvarAccessor::Init()
 	AddOverridable( "slot5" );
 	AddOverridable( "slot6" );
 	AddOverridable( "slot7" );
+	AddOverridable( "slot8" );
+	AddOverridable( "slot9" );
+	AddOverridable( "slot10" );
 
 	AddOverridable( "save" );
 	AddOverridable( "load" );
