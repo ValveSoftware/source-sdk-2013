@@ -24,11 +24,11 @@ struct PS_INPUT
 	float3 eyeToVertVector			: TEXCOORD0;
 	float4 vertexColor				: COLOR;
 	
-#if PARALLAXCORRECT
-	float3 worldSpaceNormal			: TEXCOORD1;
-#endif
+	float4 worldPos_projPosZ		: TEXCOORD1;		// Necessary for pixel fog
 	
-	float4 worldPos_projPosZ		: TEXCOORD2;		// Necessary for pixel fog
+#if PARALLAXCORRECT
+	float3 worldSpaceNormal			: TEXCOORD2;
+#endif
 };
 
 float4 main( PS_INPUT i ) : COLOR

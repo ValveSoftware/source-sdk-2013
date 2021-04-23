@@ -28,11 +28,11 @@ struct VS_OUTPUT
 	float3 eyeToVertVector	: TEXCOORD0;
 	float4 vertexColor		: COLOR;
 	
-#if PARALLAXCORRECT
-	float3 worldNormal				: TEXCOORD1;
-#endif
+	float4 worldPos_projPosZ		: TEXCOORD1;		// Necessary for pixel fog
 	
-	float4 worldPos_projPosZ		: TEXCOORD2;		// Necessary for pixel fog
+#if PARALLAXCORRECT
+	float3 worldNormal				: TEXCOORD2;
+#endif
 };
 
 VS_OUTPUT main( const VS_INPUT v )
