@@ -81,6 +81,11 @@ public:
 	void GatherConditions();
 	void UseFunc( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 
+#ifdef MAPBASE
+	// Use Barney's default subtitle color (215,255,255)
+	bool	GetGameTextSpeechParams( hudtextparms_t &params ) { params.r1 = 215; params.g1 = 255; params.b1 = 255; return BaseClass::GetGameTextSpeechParams( params ); }
+#endif
+
 	CAI_FuncTankBehavior		m_FuncTankBehavior;
 	COutputEvent				m_OnPlayerUse;
 

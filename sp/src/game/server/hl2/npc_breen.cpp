@@ -34,6 +34,11 @@ public:
 	void	HandleAnimEvent( animevent_t *pEvent );
 	int		GetSoundInterests ( void );
 	bool	UseSemaphore( void );
+
+#ifdef MAPBASE
+	// Use Breen's default subtitle color (188,188,188)
+	bool	GetGameTextSpeechParams( hudtextparms_t &params ) { params.r1 = 188; params.g1 = 188; params.b1 = 188; return BaseClass::GetGameTextSpeechParams( params ); }
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( npc_breen, CNPC_Breen );

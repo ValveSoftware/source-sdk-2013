@@ -905,6 +905,15 @@ bool CAI_Expresser::SpeakDispatchResponse( AIConcept_t &concept, AI_Response *re
 			textParams.fadeinTime = 0.5f;
 			textParams.fadeoutTime = 0.5f;
 
+			textParams.channel = 3;
+			textParams.x = -1;
+			textParams.y = 0.6;
+			textParams.effect = 0;
+
+			textParams.r1 = 255;
+			textParams.g1 = 255;
+			textParams.b1 = 255;
+
 			if (ai_speech_print_mode.GetBool() && GetOuter()->GetGameTextSpeechParams( textParams ))
 			{
 				CRecipientFilter filter;
