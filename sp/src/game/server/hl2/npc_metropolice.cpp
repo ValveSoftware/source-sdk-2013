@@ -1626,6 +1626,11 @@ bool CNPC_MetroPolice::ShouldAttemptToStitch()
 //-----------------------------------------------------------------------------
 Vector CNPC_MetroPolice::StitchAimTarget( const Vector &posSrc, bool bNoisy ) 
 {
+#ifdef MAPBASE
+	if ( !GetEnemy() )
+		return vec3_origin;
+#endif
+
 	// This will make us aim a stitch at the feet of the player so we can see it
 	if ( !GetEnemy()->IsPlayer() )
 		return GetShootTarget()->BodyTarget( posSrc, bNoisy );

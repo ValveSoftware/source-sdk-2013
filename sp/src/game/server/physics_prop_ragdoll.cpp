@@ -1363,7 +1363,7 @@ CBaseAnimating *CreateServerRagdollSubmodel( CBaseAnimating *pOwner, const char 
 
 #ifdef MAPBASE_VSCRIPT
 	// Hook for pre-spawn ragdolling
-	if (pOwner->m_ScriptScope.IsInitialized() && CBaseAnimating::g_Hook_OnServerRagdoll.CanRunInScope( pOwner->m_ScriptScope ))
+	if (pOwner && pOwner->m_ScriptScope.IsInitialized() && CBaseAnimating::g_Hook_OnServerRagdoll.CanRunInScope( pOwner->m_ScriptScope ))
 	{
 		// ragdoll, submodel
 		ScriptVariant_t args[] = { ScriptVariant_t( pRagdoll->GetScriptInstance() ), true };
