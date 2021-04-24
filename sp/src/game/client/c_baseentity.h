@@ -164,10 +164,9 @@ struct thinkfunc_t
 #ifdef MAPBASE_VSCRIPT
 struct scriptthinkfunc_t
 {
-	int				m_nNextThinkTick;
-	HSCRIPT			m_hfnThink;
-	unsigned short	m_iContextHash;
-	bool			m_bNoParam;
+	float		m_flNextThink;
+	HSCRIPT		m_hfnThink;
+	unsigned	m_iContextHash;
 };
 #endif
 
@@ -295,6 +294,8 @@ public:
 	string_t		m_iszScriptId;
 #ifdef MAPBASE_VSCRIPT
 	CScriptScope	m_ScriptScope;
+
+	static ScriptHook_t g_Hook_UpdateOnRemove;
 #endif
 
 // IClientUnknown overrides.

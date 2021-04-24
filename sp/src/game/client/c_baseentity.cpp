@@ -428,6 +428,10 @@ BEGIN_RECV_TABLE_NOBASE( C_BaseEntity, DT_AnimTimeMustBeFirst )
 	RecvPropInt( RECVINFO(m_flAnimTime), 0, RecvProxy_AnimTime ),
 END_RECV_TABLE()
 
+#ifdef MAPBASE_VSCRIPT
+ScriptHook_t CBaseEntity::g_Hook_UpdateOnRemove;
+#endif
+
 BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities" )
 	DEFINE_SCRIPT_INSTANCE_HELPER( &g_BaseEntityScriptInstanceHelper )
 	DEFINE_SCRIPTFUNC_NAMED( GetAbsOrigin, "GetOrigin", "" )
@@ -550,7 +554,10 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetContextThink, "SetContextThink", "Set a think function on this entity." )
 
-#endif
+
+	DEFINE_SIMPLE_SCRIPTHOOK( CBaseEntity::g_Hook_UpdateOnRemove, "UpdateOnRemove", FIELD_VOID, "Called when the entity is being removed." )
+
+#endif // MAPBASE_VSCRIPT
 
 END_SCRIPTDESC();
 
@@ -1340,6 +1347,12 @@ void C_BaseEntity::Term()
 
 	if ( m_hScriptInstance )
 	{
+#ifdef MAPBASE_VSCRIPT
+		if ( m_ScriptScope.IsInitialized() )
+		{
+			g_Hook_UpdateOnRemove.Call( m_ScriptScope, NULL, NULL );
+		}
+#endif
 		g_pScriptVM->RemoveInstance( m_hScriptInstance );
 		m_hScriptInstance = NULL;
 

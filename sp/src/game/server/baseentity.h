@@ -352,10 +352,10 @@ struct thinkfunc_t
 #ifdef MAPBASE_VSCRIPT
 struct scriptthinkfunc_t
 {
-	int				m_nNextThinkTick;
-	HSCRIPT			m_hfnThink;
-	unsigned short	m_iContextHash;
-	bool			m_bNoParam;
+	float		m_flNextThink;
+	HSCRIPT		m_hfnThink;
+	unsigned	m_iContextHash;
+	bool		m_bNoParam;
 };
 #endif
 
@@ -2131,6 +2131,9 @@ public:
 
 	int ScriptGetMoveType() { return GetMoveType(); }
 	void ScriptSetMoveType( int iMoveType ) { SetMoveType( (MoveType_t)iMoveType ); }
+
+	int ScriptGetSolid() { return GetSolid(); }
+	void ScriptSetSolid( int i ) { SetSolid( (SolidType_t)i ); }
 
 	bool ScriptDispatchInteraction( int interactionType, HSCRIPT data, HSCRIPT sourceEnt );
 
