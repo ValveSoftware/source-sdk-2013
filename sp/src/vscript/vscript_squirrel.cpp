@@ -495,6 +495,19 @@ namespace SQVector
 		return 1;
 	}
 
+	SQInteger weakref(HSQUIRRELVM vm)
+	{
+		sq_weakref(vm, 1);
+		return 1;
+	}
+
+	SQInteger getclass(HSQUIRRELVM vm)
+	{
+		sq_getclass(vm, 1);
+		sq_push(vm, -1);
+		return 1;
+	}
+
 	// multi purpose - copy from input vector, or init with 3 float input
 	SQInteger Set(HSQUIRRELVM vm)
 	{
@@ -985,6 +998,8 @@ namespace SQVector
 		{_SC("_mul"), _multiply, 2, _SC("..")},
 		{_SC("_div"), _divide, 2, _SC("..")},
 		{_SC("_unm"), _unm, 1, _SC(".")},
+		{_SC("weakref"), weakref, 1, _SC(".")},
+		{_SC("getclass"), getclass, 1, _SC(".")},
 		{_SC("Set"), Set, -2, _SC("..nn")},
 		{_SC("Add"), Add, 2, _SC("..")},
 		{_SC("Subtract"), Subtract, 2, _SC("..")},
@@ -1645,6 +1660,19 @@ SQInteger IsValid_stub(HSQUIRRELVM vm)
 	ClassInstanceData* classInstanceData = nullptr;
 	sq_getinstanceup(vm, 1, (SQUserPointer*)&classInstanceData, 0);
 	sq_pushbool(vm, classInstanceData != nullptr);
+	return 1;
+}
+
+SQInteger weakref_stub(HSQUIRRELVM vm)
+{
+	sq_weakref(vm, 1);
+	return 1;
+}
+
+SQInteger getclass_stub(HSQUIRRELVM vm)
+{
+	sq_getclass(vm, 1);
+	sq_push(vm, -1);
 	return 1;
 }
 
@@ -2388,6 +2416,14 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 
 	sq_pushstring(vm_, "IsValid", -1);
 	sq_newclosure(vm_, IsValid_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "weakref", -1);
+	sq_newclosure(vm_, weakref_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "getclass", -1);
+	sq_newclosure(vm_, getclass_stub, 0);
 	sq_newslot(vm_, -3, SQFalse);
 
 
