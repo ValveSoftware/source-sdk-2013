@@ -2742,8 +2742,15 @@ void CAI_ActBusyGoal::InputForceThisNPCToStopBusy( inputdata_t &inputdata )
 	if ( !pBehavior )
 		return;
 
-	// Just stop busying
-	pBehavior->StopBusying();
+	if (!IsActive() && pBehavior->GetActBusyGoal() == this)
+	{
+		pBehavior->Disable();
+	}
+	else
+	{
+		// Just stop busying
+		pBehavior->StopBusying();
+	}
 }
 #endif
 
