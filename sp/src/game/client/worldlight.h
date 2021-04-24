@@ -27,7 +27,9 @@ public:
 	// Find the brightest light source at a point
 	//-------------------------------------------------------------------------
 	bool GetBrightestLightSource(const Vector &vecPosition, Vector &vecLightPos, Vector &vecLightBrightness);
+	void FindBrightestLightSourceOld( const Vector &vecPosition, Vector &vecLightPos, Vector &vecLightBrightness, int nCluster );
 #ifdef MAPBASE
+	void FindBrightestLightSourceNew(const Vector &vecPosition, Vector &vecLightPos, Vector &vecLightBrightness, int nCluster);
 	bool GetCumulativeLightSource(const Vector &vecPosition, Vector &vecLightPos, float flMinBrightnessSqr);
 #endif
 
@@ -42,6 +44,19 @@ private:
 
 	int m_nWorldLights;
 	dworldlight_t *m_pWorldLights;
+
+#ifdef MAPBASE
+	int m_iSunIndex = -1; // The sun's personal index
+
+	struct clusterLightList_t
+	{
+		unsigned short	lightCount;
+		unsigned short	firstLight;
+	};
+
+	CUtlVector<clusterLightList_t>		m_WorldLightsInCluster;
+	CUtlVector<unsigned short>			m_WorldLightsIndexList;
+#endif
 };
 
 //-----------------------------------------------------------------------------
