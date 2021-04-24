@@ -2691,8 +2691,6 @@ bool CScriptConvarAccessor::Init()
 	AddOverridable( "invnext" );
 	AddOverridable( "invprev" );
 	AddOverridable( "phys_swap" );
-	AddOverridable( "say" );
-	AddOverridable( "say_team" );
 	AddOverridable( "slot0" );
 	AddOverridable( "slot1" );
 	AddOverridable( "slot2" );
