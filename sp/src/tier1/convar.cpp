@@ -594,7 +594,7 @@ void ConCommand::Dispatch( const CCommand &command )
 	}
 
 	// Command without callback!!!
-	AssertMsg( 0, ( "Encountered ConCommand '%s' without a callback!\n", GetName() ) );
+	AssertMsg( 0, "Encountered ConCommand '%s' without a callback!\n", GetName() );
 }
 
 

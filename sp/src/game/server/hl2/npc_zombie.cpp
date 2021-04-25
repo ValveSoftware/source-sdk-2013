@@ -1263,7 +1263,8 @@ void CZombieCustom::AttackSound( void )
 //-----------------------------------------------------------------------------
 void CZombieCustom::SpeakIfAllowed(const char *concept, AI_CriteriaSet *modifiers)
 {
-	Speak( concept, modifiers ? *modifiers : AI_CriteriaSet() );
+	AI_CriteriaSet empty;
+	Speak( concept, modifiers ? *modifiers : empty );
 }
 
 //-----------------------------------------------------------------------------

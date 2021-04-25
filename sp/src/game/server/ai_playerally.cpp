@@ -792,11 +792,11 @@ void CAI_PlayerAlly::PostSpeakDispatchResponse( AIConcept_t concept, AI_Response
 		{
 			if ( bSaidHelloToNPC )
 			{
-				Warning("Q&A: '%s' said Hello to '%s' (concept %s)\n", GetDebugName(), GetSpeechTarget()->GetDebugName(), concept );
+				Warning("Q&A: '%s' said Hello to '%s' (concept %s)\n", GetDebugName(), GetSpeechTarget()->GetDebugName(), (const char*)concept );
 			}
 			else
 			{
-				Warning("Q&A: '%s' questioned '%s' (concept %s)\n", GetDebugName(), GetSpeechTarget()->GetDebugName(), concept );
+				Warning("Q&A: '%s' questioned '%s' (concept %s)\n", GetDebugName(), GetSpeechTarget()->GetDebugName(), (const char*)concept );
 			}
 			NDebugOverlay::HorzArrow( GetAbsOrigin(), GetSpeechTarget()->GetAbsOrigin(), 8, 0, 255, 0, 64, true, duration );
 		}
@@ -1022,11 +1022,11 @@ void CAI_PlayerAlly::AnswerQuestion( CAI_PlayerAlly *pQuestioner, int iQARandomN
 			}
 		}
 
-		Assert( selection.pResponse );
 		SetSpeechTarget( selection.hSpeechTarget );
 #ifdef NEW_RESPONSE_SYSTEM
 		SpeakDispatchResponse( selection.concept.c_str(), &selection.Response );
 #else
+		Assert( selection.pResponse );
 		SpeakDispatchResponse( selection.concept.c_str(), selection.pResponse );
 #endif
 
@@ -1078,11 +1078,11 @@ int CAI_PlayerAlly::SelectNonCombatSpeechSchedule()
 		AISpeechSelection_t selection;
 		if ( SelectNonCombatSpeech( &selection ) )
 		{
-			Assert( selection.pResponse );
 			SetSpeechTarget( selection.hSpeechTarget );
 #ifdef NEW_RESPONSE_SYSTEM
 			SetPendingSpeech( selection.concept.c_str(), &selection.Response );
 #else
+			Assert( selection.pResponse );
 			SetPendingSpeech( selection.concept.c_str(), selection.pResponse );
 #endif
 		}

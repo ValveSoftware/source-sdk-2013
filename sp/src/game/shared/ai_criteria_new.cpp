@@ -6,14 +6,14 @@
 //
 //===========================================================================//
 #include "cbase.h"
-#include "ai_criteria.h"
+#include "AI_Criteria.h"
 
 #ifdef GAME_DLL
 #include "ai_speech.h"
 #endif
 
-#include <keyvalues.h>
-#include "engine/ienginesound.h"
+#include <KeyValues.h>
+#include "engine/IEngineSound.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

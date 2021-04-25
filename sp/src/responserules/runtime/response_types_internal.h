@@ -366,6 +366,7 @@ namespace ResponseRules
 
 		I Insert( const char *pName, const T &element )
 		{
+			extern const char *ResponseCopyString( const char *in );
 			char const *pString = ResponseCopyString( pName );
 			unsigned int hash = RR_HASH( pString );
 			m_ReverseMap.Insert( hash, pString );
@@ -374,6 +375,7 @@ namespace ResponseRules
 
 		I Insert( const char *pName )
 		{
+			extern const char *ResponseCopyString( const char *in );
 			char const *pString = ResponseCopyString( pName );
 			unsigned int hash = RR_HASH( pString );
 			m_ReverseMap.Insert( hash, pString );
@@ -388,7 +390,7 @@ namespace ResponseRules
 
 		const char *GetElementName( I i )
 		{
-			int k = Key( i );
+			int k = this->Key( i );
 			int slot = m_ReverseMap.Find( k );
 			if ( slot == m_ReverseMap.InvalidIndex() )
 				return "";
@@ -397,7 +399,7 @@ namespace ResponseRules
 
 		const char *GetElementName( I i ) const
 		{
-			int k = Key( i );
+			int k = this->Key( i );
 			int slot = m_ReverseMap.Find( k );
 			if ( slot == m_ReverseMap.InvalidIndex() )
 				return "";

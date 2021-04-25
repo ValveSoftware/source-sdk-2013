@@ -12,7 +12,7 @@
 #pragma once
 #endif
 
-#include "../../public/responserules/response_types.h"
+#include "responserules/response_types.h"
 
 class CAI_Concept : public ResponseRules::CRR_Concept
 {
