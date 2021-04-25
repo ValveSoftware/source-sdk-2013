@@ -65,16 +65,16 @@ namespace ResponseRules
 		float						followup_delay;								// 20
 		const char 					*followup_target;							// 24 -- to whom is this despatched?
 		// AIConceptHandle_t			hConcept;
-	    const char					*followup_entityiotarget;	//< if this rule involves firing entity io
-	    const char					*followup_entityioinput;	//< if this rule involves firing entity io
+		const char					*followup_entityiotarget;	//< if this rule involves firing entity io
+		const char					*followup_entityioinput;	//< if this rule involves firing entity io
 		float						followup_entityiodelay;
 		bool						bFired;
 
-        inline bool IsValid( void ) const { return (followup_concept && followup_contexts); }
-        inline void Invalidate() { followup_concept = NULL; followup_contexts = NULL; }
-        inline void SetFired( bool fired ) { bFired = fired; }
-        inline bool HasBeenFired() { return bFired; }
-    
+		inline bool IsValid( void ) const { return (followup_concept && followup_contexts); }
+		inline void Invalidate() { followup_concept = NULL; followup_contexts = NULL; }
+		inline void SetFired( bool fired ) { bFired = fired; }
+		inline bool HasBeenFired() { return bFired; }
+
 		AI_ResponseFollowup( void ) : followup_concept(NULL), followup_contexts(NULL), followup_delay(0), followup_target(NULL), followup_entityiotarget(NULL), followup_entityioinput(NULL), followup_entityiodelay(0), bFired(false)
 		{};
 		AI_ResponseFollowup( char *_followup_concept, char *_followup_contexts, float _followup_delay, char *_followup_target,
@@ -235,67 +235,67 @@ namespace ResponseRules
 		/// entity, subsequent to the match but BEFORE the dispatch.
 		/// Returns the number of contexts modified. If it returns 0, then 
 		/// pSetOnWorld is empty.
-	    static int InterceptWorldSetContexts( CriteriaSet * RESTRICT pFrom, 
-		    CriteriaSet * RESTRICT pSetOnWorld );
+		static int InterceptWorldSetContexts( CriteriaSet * RESTRICT pFrom, 
+			CriteriaSet * RESTRICT pSetOnWorld );
 
 	private:
-	void		RemoveCriteria( int idx, bool bTestForPrefix );
+		void		RemoveCriteria( int idx, bool bTestForPrefix );
 
 		struct CritEntry_t
 		{
 			CritEntry_t() :
-		criterianame( UTL_INVAL_SYMBOL ),
-			weight( 0.0f )
-		{
-			value[ 0 ] = 0;
-		}
-
-		CritEntry_t( const CritEntry_t& src )
-		{
-			criterianame = src.criterianame;
-			value[ 0 ] = 0;
-			weight = src.weight;
-			SetValue( src.value );
-		}
-
-		CritEntry_t& operator=( const CritEntry_t& src )
-		{
-			if ( this == &src )
-				return *this;
-
-			criterianame = src.criterianame;
-			weight = src.weight;
-			SetValue( src.value );
-
-			return *this;
-		}
-
-		static bool LessFunc( const CritEntry_t& lhs, const CritEntry_t& rhs )
-		{
-			return lhs.criterianame < rhs.criterianame;
-		}
-
-		void SetValue( char const *str )
-		{
-			if ( !str )
+				criterianame( UTL_INVAL_SYMBOL ),
+				weight( 0.0f )
 			{
 				value[ 0 ] = 0;
 			}
-			else
-			{
-				Q_strncpy( value, str, sizeof( value ) );
-			}
-		}
 
-		CritSymbol_t criterianame;
-		char		value[ 64 ];
-		float		weight;
+			CritEntry_t( const CritEntry_t& src )
+			{
+				criterianame = src.criterianame;
+				value[ 0 ] = 0;
+				weight = src.weight;
+				SetValue( src.value );
+			}
+
+			CritEntry_t& operator=( const CritEntry_t& src )
+			{
+				if ( this == &src )
+					return *this;
+
+				criterianame = src.criterianame;
+				weight = src.weight;
+				SetValue( src.value );
+
+				return *this;
+			}
+
+			static bool LessFunc( const CritEntry_t& lhs, const CritEntry_t& rhs )
+			{
+				return lhs.criterianame < rhs.criterianame;
+			}
+
+			void SetValue( char const *str )
+			{
+				if ( !str )
+				{
+					value[ 0 ] = 0;
+				}
+				else
+				{
+					Q_strncpy( value, str, sizeof( value ) );
+				}
+			}
+
+			CritSymbol_t criterianame;
+			char		value[ 64 ];
+			float		weight;
 		};
 
 		static CUtlSymbolTable sm_CriteriaSymbols;
-	    typedef CUtlRBTree< CritEntry_t, short > Dict_t;
-	    Dict_t m_Lookup;
-	    int m_nNumPrefixedContexts; // number of contexts prefixed with kAPPLYTOWORLDPREFIX
+		typedef CUtlRBTree< CritEntry_t, short > Dict_t;
+		Dict_t m_Lookup;
+		int m_nNumPrefixedContexts; // number of contexts prefixed with kAPPLYTOWORLDPREFIX
 		bool m_bOverrideOnAppend;
 	};
 
@@ -457,20 +457,20 @@ namespace ResponseRules
 		return ( index >= 0 && index < ((int)(m_Lookup.Count())) );
 	}
 
-    inline int CriteriaSet::Head() const
-    {
-	    return m_Lookup.FirstInorder();
-    }
-    
-    inline int CriteriaSet::Next( int i ) const
-    {
-	    return m_Lookup.NextInorder(i);
-    }
-    
-    inline const char *CriteriaSet::SymbolToStr( const CritSymbol_t &symbol )
-    {
-	    return sm_CriteriaSymbols.String(symbol);
-    }
+	inline int CriteriaSet::Head() const
+	{
+		return m_Lookup.FirstInorder();
+	}
+
+	inline int CriteriaSet::Next( int i ) const
+	{
+		return m_Lookup.NextInorder(i);
+	}
+
+	inline const char *CriteriaSet::SymbolToStr( const CritSymbol_t &symbol )
+	{
+		return sm_CriteriaSymbols.String(symbol);
+	}
 
 }
 
