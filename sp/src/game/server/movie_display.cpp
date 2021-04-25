@@ -21,6 +21,8 @@ public:
 	DECLARE_DATADESC();
 	DECLARE_SERVERCLASS();
 
+	CMovieDisplay() { m_bMuted = true; }
+
 	virtual ~CMovieDisplay();
 
 	virtual bool KeyValue( const char *szKeyName, const char *szValue );
@@ -123,6 +125,7 @@ CMovieDisplay::~CMovieDisplay()
 //-----------------------------------------------------------------------------
 // Read in Hammer data
 //-----------------------------------------------------------------------------
+
 bool CMovieDisplay::KeyValue( const char *szKeyName, const char *szValue ) 
 {
 	// NOTE: Have to do these separate because they set two values instead of one
