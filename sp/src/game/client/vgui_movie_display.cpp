@@ -81,7 +81,6 @@ private:
 	bool			m_bBlackBackground;
 	bool			m_bSlaved;
 	bool			m_bInitialized;
-	bool            m_bStopAllSounds;
 	bool			m_bLastActiveState;		// HACK: I'd rather get a real callback...
 
 	// VGUI specifics
@@ -110,7 +109,6 @@ CMovieDisplayScreen::CMovieDisplayScreen( vgui::Panel *parent, const char *panel
 	m_bBlackBackground = true;
 	m_bSlaved = false;
 	m_bInitialized = false;
-	m_bStopAllSounds = true;
 	// Add ourselves to the global list of movie displays
 	g_MovieDisplays.AddToTail( this );
 	//m_VideoMaterial->SetMuted(true);
@@ -391,7 +389,7 @@ bool CMovieDisplayScreen::BeginPlayback( const char *pFilename )
 		m_VideoMaterial->SetLooping( true );
 	}
 
-	if ( m_VideoMaterial->HasAudio() && m_bStopAllSounds)
+	if ( m_VideoMaterial->HasAudio())
 	{
 		// We want to be the sole audio source
 		enginesound->NotifyBeginMoviePlayback();
