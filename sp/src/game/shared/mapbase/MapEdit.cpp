@@ -464,7 +464,7 @@ public:
 				{
 					pNodeName = pName->GetName();
 
-					const char *pInputName = NULL;
+					string_t pInputName = NULL_STRING;
 					variant_t varInputParam;
 					float flInputDelay = 0.0f;
 					CBaseEntity *pActivator = NULL;
@@ -480,7 +480,7 @@ public:
 						{
 							// Input name
 							case 0:
-								pInputName = inputparams; break;
+								pInputName = AllocPooledString(inputparams); break;
 							// Input parameter
 							case 1:
 								varInputParam.SetString(AllocPooledString(inputparams)); break;
@@ -500,9 +500,10 @@ public:
 						iter++;
 						inputparams = strtok(NULL, ",");
 					}
+					free(pszValue);
 
 					DebugMsg("MapEdit Debug: Firing input %s on %s\n", pInputName, pNodeName);
-					g_EventQueue.AddEvent(pNodeName, pInputName, varInputParam, flInputDelay, pActivator, pCaller, iOutputID);
+					g_EventQueue.AddEvent(pNodeName, STRING(pInputName), varInputParam, flInputDelay, pActivator, pCaller, iOutputID);
 
 					pName = pName->GetNextKey();
 				}
