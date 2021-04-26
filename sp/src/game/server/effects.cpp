@@ -2563,15 +2563,11 @@ LINK_ENTITY_TO_CLASS( env_break_shooter, CBreakableGibShooter );
 int CBreakableGibShooter::GetRandomTemplateModelIndex( CPointTemplate *pTemplate )
 {
 	int iIndex = RandomInt( 0, pTemplate->GetNumTemplates() );
-	char *iszTemplate = strdup(STRING(Templates_FindByIndex(pTemplate->GetTemplateIndexForTemplate(iIndex))));
-
-	CEntityMapData entData( iszTemplate );
+	const char *szTemplate = STRING(Templates_FindByIndex(pTemplate->GetTemplateIndexForTemplate(iIndex)));
 
 	// This might seem a little messy, but I think it's cheaper than creating the entity.
 	char szModel[MAPKEY_MAXLENGTH];
-	bool modelExtracted = entData.ExtractValue("model", szModel);
-
-	free(iszTemplate);
+	bool modelExtracted = MapEntity_ExtractValue(szTemplate, "model", szModel);
 
 	return modelinfo->GetModelIndex( modelExtracted ? szModel : NULL );
 }
