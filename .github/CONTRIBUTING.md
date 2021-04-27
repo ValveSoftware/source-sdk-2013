@@ -34,6 +34,13 @@ All contributions must follow the following rules:
    use the custom "Mapbase - Source 2013" header used in other Mapbase files as of Mapbase v5.0.
    You are encouraged to append an "Author(s)" part to that header in your file in order to clarify who wrote it.
    
+Contributions which do not follow these guidelines cannot be accepted into Mapbase.
+
+Attempting to contribute content which seriously violates the rules above can lead to being blocked from contributing,
+especially if done repeatedly.
+
+---
+   
 If your contribution is accepted, you may be listed in Mapbase's credits and the README's external content list:
 	https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Credits#Contributors
 	https://github.com/mapbase-source/source-sdk-2013/blob/master/README
