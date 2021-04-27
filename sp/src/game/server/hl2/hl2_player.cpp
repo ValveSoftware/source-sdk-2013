@@ -4734,7 +4734,8 @@ bool CLogicPlayerProxy::AcceptInput( const char *szInputName, CBaseEntity *pActi
 		{
 			DevMsg("logic_playerproxy: Player not found!\n");
 
-			g_EventQueue.AddEvent("!player", szInputName, Value, 0.01f, pActivator, pCaller);
+			// Need to allocate the string here in case szInputName is freed before the input fires
+			g_EventQueue.AddEvent("!player", STRING( AllocPooledString(szInputName) ), Value, 0.01f, pActivator, pCaller);
 		}
 	}
 
