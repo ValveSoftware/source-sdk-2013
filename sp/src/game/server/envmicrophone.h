@@ -20,6 +20,9 @@ const int SF_MICROPHONE_SOUND_BULLET_IMPACT		= 0x08;
 const int SF_MICROPHONE_SWALLOW_ROUTED_SOUNDS	= 0x10;
 const int SF_MICROPHONE_SOUND_EXPLOSION			= 0x20;
 const int SF_MICROPHONE_IGNORE_NONATTENUATED	= 0x40;
+#ifdef MAPBASE
+const int SF_MICROPHONE_SOUND_SENTENCE			= 0x80;
+#endif
 
 
 // Return codes from SoundPlayed
@@ -50,6 +53,10 @@ public:
 
 	void SetSensitivity( float flSensitivity );
 	void SetSpeakerName( string_t iszSpeakerName );
+#ifdef MAPBASE
+	bool ShouldHearSentences() const { return HasSpawnFlags( SF_MICROPHONE_SOUND_SENTENCE ); }
+	inline void ToggleHearingSentence( bool bToggle ) { m_bHearingSentence = bToggle; }
+#endif
 
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
@@ -66,6 +73,12 @@ public:
 	// Hook for the sound system to tell us when a sound's been played. Returns true if it's to swallow the passed in sound.
 	static bool OnSoundPlayed( int entindex, const char *soundname, soundlevel_t soundlevel, 
 		float flVolume, int iFlags, int iPitch, const Vector *pOrigin, float soundtime, CUtlVector< Vector >& soundorigins );
+
+#ifdef MAPBASE
+	// Same as above, except for sentences.
+	static bool OnSentencePlayed( int entindex, int sentenceIndex, soundlevel_t soundlevel, 
+		float flVolume, int iFlags, int iPitch, const Vector *pOrigin, float soundtime, CUtlVector< Vector >& soundorigins );
+#endif
 
 private:
 
@@ -91,6 +104,8 @@ private:
 	float		m_flPitchScale = 1.0f;
 	float		m_flVolumeScale = 1.0f;
 	int			m_nChannel = CHAN_STATIC;
+
+	bool		m_bHearingSentence; // HACKHACK: Allows SoundPlayed() to know when to play a sentence instead
 #endif
 
 	COutputFloat m_SoundLevel;			// Fired when the sampled volume level changes.

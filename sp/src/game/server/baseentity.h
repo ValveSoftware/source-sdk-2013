@@ -1563,7 +1563,11 @@ public:
 	static void EmitCloseCaption( IRecipientFilter& filter, int entindex, char const *token, CUtlVector< Vector >& soundorigins, float duration, bool warnifmissing = false );
 	static void	EmitSentenceByIndex( IRecipientFilter& filter, int iEntIndex, int iChannel, int iSentenceIndex, 
 		float flVolume, soundlevel_t iSoundlevel, int iFlags = 0, int iPitch = PITCH_NORM,
-		const Vector *pOrigin = NULL, const Vector *pDirection = NULL, bool bUpdatePositions = true, float soundtime = 0.0f );
+		const Vector *pOrigin = NULL, const Vector *pDirection = NULL, bool bUpdatePositions = true, float soundtime = 0.0f
+#ifdef MAPBASE
+		, int iSpecialDSP = 0, int iSpeakerIndex = 0 // Needed for env_microphone
+#endif
+		);
 
 	static bool IsPrecacheAllowed();
 	static void SetAllowPrecache( bool allow );
