@@ -96,6 +96,7 @@ Direct contributions:
 - https://github.com/mapbase-source/source-sdk-2013/pull/3 ("playvideo" command playback fix from Avantate)
 - https://github.com/mapbase-source/source-sdk-2013/pull/60 (Adjustment by RoyaleNoir to one of Saul's VDC changes)
 - https://github.com/mapbase-source/source-sdk-2013/pull/84 (CS:S viewmodel chirality from 1upD)
+- https://github.com/mapbase-source/source-sdk-2013/pull/116 (vgui_movie_display mute keyvalue from Alivebyte/rzkid)
 - Demo autorecord code provided by Klems
 - cc_emit crash fix provided by 1upD
 - Custom HL2 ammo crate models created by Rara (Textures created by Blixibon; This is asset-based and, aside from the SLAM crate, not reflected in the code)
@@ -109,10 +110,12 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/59 (New VScript functions and singletons based on API documentation in later Source/Source 2 games)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/80 (More VScript changes, including support for extremely flexible client/server messaging)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/105 (VScript fixes and optimizations, Vector class extensions, custom convars/commands)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/114 (VScript fixes and extensions)
 
 == Contributions from z33ky:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux compilation fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/95 (Additional GCC/Linux compilation fixes)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/117 (Additional GCC/Linux compilation fixes)
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
