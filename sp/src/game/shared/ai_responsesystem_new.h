@@ -13,7 +13,7 @@
 #pragma once
 #endif
 
-#include "ai_criteria.h"
+#include "AI_Criteria.h"
 #include "../../public/responserules/response_types.h"
 
 // using ResponseRules::IResponseFilter;

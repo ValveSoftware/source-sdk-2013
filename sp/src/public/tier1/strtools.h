@@ -470,6 +470,16 @@ inline void V_wcscat( INOUT_Z_CAP(cchDest) wchar_t *dest, const wchar_t *src, in
 	V_wcsncat( dest, src, cchDest, COPY_ALL_CHARACTERS );
 }
 
+// Reentrant strtok
+inline static char* V_strtok_s( char *str, const char *delimiters, char **context )
+{
+#ifdef _MSC_VER
+	return strtok_s( str, delimiters, context );
+#elif POSIX
+	return strtok_r( str, delimiters, context );
+#endif
+}
+
 //-----------------------------------------------------------------------------
 // generic unique name helper functions
 //-----------------------------------------------------------------------------

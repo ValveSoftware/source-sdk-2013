@@ -672,6 +672,33 @@ int CAI_Monitor::TranslateScheduleString(const char *schedName)
 	return 0;
 }
 
+template<typename Translator>
+static void SetForEachDelimited( CAI_Monitor &monitor, const char *szValue, const char *delimiters, void (CAI_Monitor::*setter)(int), Translator translator)
+{
+	char *value = strdup(szValue);
+	char *token = strtok(value, ":");
+	while (token)
+	{
+		(monitor.*setter)(translator(token));
+
+		token = strtok(NULL, ":");
+	}
+	free(value);
+}
+
+template<int (CAI_Monitor::*translator)(const char*)>
+struct CAI_MonitorTranslator
+{
+	CAI_Monitor &monitor;
+
+	CAI_MonitorTranslator(CAI_Monitor &monitor) : monitor(monitor) {}
+
+	int operator()(const char *value)
+	{
+		return (monitor.*translator)(value);
+	}
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: Cache user entity field values until spawn is called.
 // Input  : szKeyName - Key to handle.
@@ -688,13 +715,7 @@ bool CAI_Monitor::KeyValue( const char *szKeyName, const char *szValue )
 	}
 	else if (FStrEq(szKeyName, "Conditions"))
 	{
-		char *token = strtok(strdup(szValue), ":");
-		while (token)
-		{
-			SetCondition(TranslateConditionString(token));
-
-			token = strtok(NULL, ":");
-		}
+		SetForEachDelimited(*this, szValue, ":", &CAI_Monitor::SetCondition, CAI_MonitorTranslator<&CAI_Monitor::TranslateConditionString>(*this));
 	}
 	else if (FStrEq(szKeyName, "SchedulesSimple"))
 	{
@@ -703,13 +724,7 @@ bool CAI_Monitor::KeyValue( const char *szKeyName, const char *szValue )
 	}
 	else if (FStrEq(szKeyName, "Schedules"))
 	{
-		char *token = strtok(strdup(szValue), ":");
-		while (token)
-		{
-			SetSchedule(TranslateScheduleString(token));
-
-			token = strtok(NULL, ":");
-		}
+		SetForEachDelimited(*this, szValue, ":", &CAI_Monitor::SetSchedule, CAI_MonitorTranslator<&CAI_Monitor::TranslateScheduleString>(*this));
 	}
 	else if (FStrEq(szKeyName, "HintsSimple"))
 	{
@@ -718,13 +733,7 @@ bool CAI_Monitor::KeyValue( const char *szKeyName, const char *szValue )
 	}
 	else if (FStrEq(szKeyName, "Hints"))
 	{
-		char *token = strtok(strdup(szValue), ":");
-		while (token)
-		{
-			SetHint(atoi(szValue));
-
-			token = strtok(NULL, ":");
-		}
+		SetForEachDelimited(*this, szValue, ":", &CAI_Monitor::SetHint, atoi);
 	}
 	else
 		return CBaseEntity::KeyValue( szKeyName, szValue );
