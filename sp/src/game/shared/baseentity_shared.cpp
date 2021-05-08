@@ -2737,6 +2737,8 @@ void CBaseEntity::ScriptContextThink()
 	float flNextThink = FLT_MAX;
 	float flScheduled = 0.0f;
 
+	ScriptVariant_t arg = m_hScriptInstance;
+
 	for ( int i = 0; i < m_ScriptThinkFuncs.Count(); ++i )
 	{
 		scriptthinkfunc_t *cur = m_ScriptThinkFuncs[i];
@@ -2766,21 +2768,12 @@ void CBaseEntity::ScriptContextThink()
 		if ( !cur->m_bNoParam )
 		{
 #endif
-			ScriptVariant_t arg = m_hScriptInstance;
-			if ( g_pScriptVM->ExecuteFunction( cur->m_hfnThink, &arg, 1, &varReturn, NULL, true ) == SCRIPT_ERROR )
-			{
-				cur->m_flNextThink = SCRIPT_NEVER_THINK;
-				continue;
-			}
+			g_pScriptVM->ExecuteFunction( cur->m_hfnThink, &arg, 1, &varReturn, NULL, true );
 #ifndef CLIENT_DLL
 		}
 		else
 		{
-			if ( g_pScriptVM->ExecuteFunction( cur->m_hfnThink, NULL, 0, &varReturn, NULL, true ) == SCRIPT_ERROR )
-			{
-				cur->m_flNextThink = SCRIPT_NEVER_THINK;
-				continue;
-			}
+			g_pScriptVM->ExecuteFunction( cur->m_hfnThink, NULL, 0, &varReturn, NULL, true );
 		}
 #endif
 
@@ -2793,6 +2786,7 @@ void CBaseEntity::ScriptContextThink()
 		float flReturn;
 		if ( !varReturn.AssignTo( &flReturn ) )
 		{
+			varReturn.Free();
 			cur->m_flNextThink = SCRIPT_NEVER_THINK;
 			continue;
 		}
@@ -2808,7 +2802,7 @@ void CBaseEntity::ScriptContextThink()
 			flNextThink = flReturn;
 		}
 
-		cur->m_flNextThink = gpGlobals->curtime + flReturn - 0.001;
+		cur->m_flNextThink = gpGlobals->curtime + flReturn - 0.001f;
 	}
 
 	// deferred safe removal

@@ -42,7 +42,6 @@
 #include "tier0/memdbgon.h"
 
 extern IScriptManager *scriptmanager;
-CNetMsgScriptHelper *g_ScriptNetMsg = new CNetMsgScriptHelper();
 
 //=============================================================================
 // Net Prop Manager
@@ -401,7 +400,7 @@ private:
 	//int m_nEventTick;
 
 	static StringHashFunctor Hash;
-	static inline unsigned int HashContext( const char* c ) { return (c && *c) ? Hash(c) : 0; }
+	static inline unsigned int HashContext( const char* c ) { return c ? Hash(c) : 0; }
 
 	inline int GetIndex()
 	{
@@ -574,11 +573,10 @@ void CScriptGameEventListener::LoadEventsFromFile( const char *filename, const c
 void CScriptGameEventListener::DumpEventListeners()
 {
 	CGMsg( 0, CON_GROUP_VSCRIPT, "--- Script game event listener dump start\n" );
-	CGMsg( 0, CON_GROUP_VSCRIPT, "#    ADDRESS      ID         CONTEXT\n" );
+	CGMsg( 0, CON_GROUP_VSCRIPT, "#    ID         CONTEXT\n" );
 	FOR_EACH_VEC( s_Listeners, i )
 	{
-		CGMsg( 0, CON_GROUP_VSCRIPT, " %d   (0x%p) %d : %u\n", i,
-										(void*)s_Listeners[i],
+		CGMsg( 0, CON_GROUP_VSCRIPT, " %d : %d : %u\n", i,
 										s_Listeners[i]->GetIndex(),
 										s_Listeners[i]->m_iContextHash );
 	}
@@ -755,14 +753,12 @@ bool CScriptGameEventListener::StopListeningToGameEvent( int listener )
 void CScriptGameEventListener::StopListeningToAllGameEvents( const char* szContext )
 {
 	unsigned int hash = HashContext( szContext );
-
-	// Iterate from the end so they can be safely removed as they are deleted
 	for ( int i = s_Listeners.Count(); i--; )
 	{
 		CScriptGameEventListener *pCur = s_Listeners[i];
 		if ( pCur->m_iContextHash == hash )
 		{
-			s_Listeners.Remove(i); // keep list order
+			s_Listeners.FastRemove(i);
 			delete pCur;
 		}
 	}
@@ -1202,10 +1198,7 @@ HSCRIPT CScriptReadWriteFile::KeyValuesRead( const char *szFile )
 
 	return hScript;
 }
-#undef SCRIPT_MAX_FILE_READ_SIZE
-#undef SCRIPT_MAX_FILE_WRITE_SIZE
-#undef SCRIPT_RW_PATH_ID
-#undef SCRIPT_RW_FULL_PATH_FMT
+
 
 //=============================================================================
 // Network message helper
@@ -1215,6 +1208,8 @@ HSCRIPT CScriptReadWriteFile::KeyValuesRead( const char *szFile )
 // The custom message name is hashed and sent as word with the message.
 //=============================================================================
 
+static CNetMsgScriptHelper scriptnetmsg;
+CNetMsgScriptHelper *g_ScriptNetMsg = &scriptnetmsg;
 
 #ifdef GAME_DLL
 #define m_MsgIn_() m_MsgIn->
@@ -2181,23 +2176,23 @@ END_SCRIPTDESC();
 //=============================================================================
 // ConVars
 //=============================================================================
-class CScriptConCommand : public ICommandCallback, public ICommandCompletionCallback
+class CScriptConCommand : public ConCommand, public ICommandCallback, public ICommandCompletionCallback
 {
+	typedef ConCommand BaseClass;
+
 public:
 	~CScriptConCommand()
 	{
 		Unregister();
-		delete m_pBase;
 	}
 
 	CScriptConCommand( const char *name, HSCRIPT fn, const char *helpString, int flags, ConCommand *pLinked = NULL )
+		: BaseClass( name, this, helpString, flags, 0 ),
+		m_pLinked(pLinked),
+		m_hCallback(fn),
+		m_hCompletionCallback(NULL)
 	{
-		m_pBase = new ConCommand( name, this, helpString, flags, 0 );
-		m_pLinked = pLinked;
-		m_hCallback = fn;
-		m_hCompletionCallback = NULL;
 		m_nCmdNameLen = V_strlen(name) + 1;
-
 		Assert( m_nCmdNameLen - 1 <= 128 );
 	}
 
@@ -2272,17 +2267,17 @@ public:
 
 		if (fn)
 		{
-			if ( !m_pBase->IsRegistered() )
+			if ( !BaseClass::IsRegistered() )
 				return;
 
-			m_pBase->m_pCommandCompletionCallback = this;
-			m_pBase->m_bHasCompletionCallback = true;
+			BaseClass::m_pCommandCompletionCallback = this;
+			BaseClass::m_bHasCompletionCallback = true;
 			m_hCompletionCallback = fn;
 		}
 		else
 		{
-			m_pBase->m_pCommandCompletionCallback = NULL;
-			m_pBase->m_bHasCompletionCallback = false;
+			BaseClass::m_pCommandCompletionCallback = NULL;
+			BaseClass::m_bHasCompletionCallback = false;
 			m_hCompletionCallback = NULL;
 		}
 	}
@@ -2291,7 +2286,7 @@ public:
 	{
 		if (fn)
 		{
-			if ( !m_pBase->IsRegistered() )
+			if ( !BaseClass::IsRegistered() )
 				Register();
 
 			if ( m_hCallback )
@@ -2306,8 +2301,8 @@ public:
 
 	inline void Unregister()
 	{
-		if ( g_pCVar && m_pBase->IsRegistered() )
-			g_pCVar->UnregisterConCommand( m_pBase );
+		if ( g_pCVar && BaseClass::IsRegistered() )
+			g_pCVar->UnregisterConCommand( this );
 
 		if ( g_pScriptVM )
 		{
@@ -2324,30 +2319,29 @@ public:
 	inline void Register()
 	{
 		if ( g_pCVar )
-			g_pCVar->RegisterConCommand( m_pBase );
+			g_pCVar->RegisterConCommand( this );
 	}
 
 	HSCRIPT m_hCallback;
+	ConCommand *m_pLinked;
 	HSCRIPT m_hCompletionCallback;
 	int m_nCmdNameLen;
-	ConCommand *m_pLinked;
-	ConCommand *m_pBase;
 };
 
-class CScriptConVar
+class CScriptConVar : public ConVar
 {
+	typedef ConVar BaseClass;
+
 public:
 	~CScriptConVar()
 	{
 		Unregister();
-		delete m_pBase;
 	}
 
 	CScriptConVar( const char *pName, const char *pDefaultValue, const char *pHelpString, int flags/*, float fMin, float fMax*/ )
-	{
-		m_pBase = new ConVar( pName, pDefaultValue, flags, pHelpString );
-		m_hCallback = NULL;
-	}
+		: BaseClass( pName, pDefaultValue, flags, pHelpString ),
+		m_hCallback(NULL)
+	{}
 
 	void SetChangeCallback( HSCRIPT fn )
 	{
@@ -2359,19 +2353,19 @@ public:
 		if (fn)
 		{
 			m_hCallback = fn;
-			m_pBase->InstallChangeCallback( (FnChangeCallback_t)ScriptConVarCallback );
+			BaseClass::InstallChangeCallback( (FnChangeCallback_t)ScriptConVarCallback );
 		}
 		else
 		{
 			m_hCallback = NULL;
-			m_pBase->InstallChangeCallback( NULL );
+			BaseClass::InstallChangeCallback( NULL );
 		}
 	}
 
 	inline void Unregister()
 	{
-		if ( g_pCVar && m_pBase->IsRegistered() )
-			g_pCVar->UnregisterConCommand( m_pBase );
+		if ( g_pCVar && BaseClass::IsRegistered() )
+			g_pCVar->UnregisterConCommand( this );
 
 		if ( g_pScriptVM )
 		{
@@ -2380,7 +2374,6 @@ public:
 	}
 
 	HSCRIPT m_hCallback;
-	ConVar *m_pBase;
 };
 
 static CUtlMap< unsigned int, bool > g_ConVarsBlocked( DefLessFunc(unsigned int) );
@@ -2541,8 +2534,8 @@ void CScriptConvarAccessor::RegisterCommand( const char *name, HSCRIPT fn, const
 	int idx = g_ScriptConCommands.Find(hash);
 	if ( idx == g_ScriptConCommands.InvalidIndex() )
 	{
-		ConCommand *pLinked = NULL;
-		if ( g_pCVar->FindVar(name) || ( ((pLinked = g_pCVar->FindCommand(name)) != NULL) && !IsOverridable(hash) ) )
+		ConCommandBase *pBase = g_pCVar->FindCommandBase(name);
+		if ( pBase && ( !pBase->IsCommand() || !IsOverridable(hash) ) )
 		{
 			DevWarning( 1, "CScriptConvarAccessor::RegisterCommand unable to register blocked ConCommand: %s\n", name );
 			return;
@@ -2551,7 +2544,7 @@ void CScriptConvarAccessor::RegisterCommand( const char *name, HSCRIPT fn, const
 		if ( !fn )
 			return;
 
-		CScriptConCommand *p = new CScriptConCommand( name, fn, helpString, flags, pLinked );
+		CScriptConCommand *p = new CScriptConCommand( name, fn, helpString, flags, static_cast< ConCommand* >(pBase) );
 		g_ScriptConCommands.Insert( hash, p );
 	}
 	else
@@ -2589,7 +2582,7 @@ void CScriptConvarAccessor::RegisterConvar( const char *name, const char *pDefau
 	int idx = g_ScriptConVars.Find(hash);
 	if ( idx == g_ScriptConVars.InvalidIndex() )
 	{
-		if ( g_pCVar->FindVar(name) || g_pCVar->FindCommand(name) )
+		if ( g_pCVar->FindCommandBase(name) )
 		{
 			DevWarning( 1, "CScriptConvarAccessor::RegisterConvar unable to register blocked ConCommand: %s\n", name );
 			return;

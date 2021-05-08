@@ -63,10 +63,14 @@ function EntFireByHandle( target, action, value = null, delay = 0.0, activator =
 
 function DispatchParticleEffect( particleName, origin, angles, entity = null )
 {
-	DoDispatchParticleEffect( particleName, origin, angles, entity );
+	return DoDispatchParticleEffect( particleName, origin, angles, entity );
 }
 
-__Documentation.RegisterHelp( "CConvars::GetClientConvarValue", "CConvars::GetClientConvarValue(string, int)", "Returns the convar value for the entindex as a string. Only works with client convars with the FCVAR_USERINFO flag." );
+function ImpulseScale( flTargetMass, flDesiredSpeed )
+{
+	return flTargetMass * flDesiredSpeed;
+}
+__Documentation.RegisterHelp( "ImpulseScale", "float ImpulseScale(float, float)", "Returns an impulse scale required to push an object." );
 
 function __ReplaceClosures( script, scope )
 {

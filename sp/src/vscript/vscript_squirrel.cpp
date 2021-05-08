@@ -862,11 +862,10 @@ namespace SQVector
 
 		float x = 0.0f, y = 0.0f, z = 0.0f;
 
-		if ( sscanf( szInput, "%f %f %f", &x, &y, &z ) < 3 ) // UTIL_StringToVector
+		if ( sscanf( szInput, "%f %f %f", &x, &y, &z ) < 3 )
 		{
-			// Don't throw, return null while invalidating the input vector.
+			// Return null while invalidating the input vector.
 			// This allows the user to easily check for input errors without halting.
-			//return sq_throwerror(vm, "invalid KV string");
 
 			sq_pushnull(vm);
 			*v1 = vec3_invalid;

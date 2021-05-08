@@ -24,7 +24,13 @@ function IncludeScript( name, scope = null )
 
 function DispatchParticleEffect( particleName, origin, angles, entity = null )
 {
-	DoDispatchParticleEffect( particleName, origin, angles, entity );
+	return DoDispatchParticleEffect( particleName, origin, angles, entity );
 }
+
+function ImpulseScale( flTargetMass, flDesiredSpeed )
+{
+	return flTargetMass * flDesiredSpeed;
+}
+__Documentation.RegisterHelp( "ImpulseScale", "float ImpulseScale(float, float)", "Returns an impulse scale required to push an object." );
 
 )vscript";
