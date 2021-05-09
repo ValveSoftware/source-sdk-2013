@@ -122,14 +122,26 @@ class CSimpleCallChainer
 	chain = null;
 }
 
+local developer = (delete developer)()
+
 __Documentation <- {}
 
-local DocumentedFuncs   = {}
-local DocumentedClasses = {}
-local DocumentedEnums   = {}
-local DocumentedConsts  = {}
-local DocumentedHooks   = {}
-local DocumentedMembers = {}
+local DocumentedFuncs
+local DocumentedClasses
+local DocumentedEnums
+local DocumentedConsts
+local DocumentedHooks
+local DocumentedMembers
+
+if (developer)
+{
+	DocumentedFuncs   = {}
+	DocumentedClasses = {}
+	DocumentedEnums   = {}
+	DocumentedConsts  = {}
+	DocumentedHooks   = {}
+	DocumentedMembers = {}
+}
 
 local function AddAliasedToTable(name, signature, description, table)
 {
@@ -149,6 +161,9 @@ local function AddAliasedToTable(name, signature, description, table)
 
 function __Documentation::RegisterHelp(name, signature, description)
 {
+	if ( !developer )
+		return
+
 	if (description.len() && description[0] == '#')
 	{
 		AddAliasedToTable(name, signature, description, DocumentedFuncs)
@@ -161,16 +176,25 @@ function __Documentation::RegisterHelp(name, signature, description)
 
 function __Documentation::RegisterClassHelp(name, baseclass, description)
 {
+	if ( !developer )
+		return
+
 	DocumentedClasses[name] <- [baseclass, description];
 }
 
 function __Documentation::RegisterEnumHelp(name, num_elements, description)
 {
+	if ( !developer )
+		return
+
 	DocumentedEnums[name] <- [num_elements, description];
 }
 
 function __Documentation::RegisterConstHelp(name, signature, description)
 {
+	if ( !developer )
+		return
+
 	if (description.len() && description[0] == '#')
 	{
 		AddAliasedToTable(name, signature, description, DocumentedConsts)
@@ -183,11 +207,17 @@ function __Documentation::RegisterConstHelp(name, signature, description)
 
 function __Documentation::RegisterHookHelp(name, signature, description)
 {
+	if ( !developer )
+		return
+
 	DocumentedHooks[name] <- [signature, description];
 }
 
 function __Documentation::RegisterMemberHelp(name, signature, description)
 {
+	if ( !developer )
+		return
+
 	DocumentedMembers[name] <- [signature, description];
 }
 
@@ -317,6 +347,9 @@ local function PrintMatchesInDocList(pattern, list, printfunc)
 
 function __Documentation::PrintHelp(pattern = "*")
 {
+	if ( !developer )
+		return
+
 	local patternLower = pattern.tolower();
 
 	// Have a specific order
