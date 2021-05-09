@@ -125,89 +125,107 @@ class CSimpleCallChainer
 //---------------------------------------------------------
 // Hook handler
 //---------------------------------------------------------
-Hooks <- { Registered = {} }
+local s_List = {}
 
-function Hooks::Add( scope, event, func, name )
+Hooks <-
 {
-	Hooks.Registered[name] <- [event, scope, func];
-}
-
-function Hooks::Remove( name )
-{
-	Hooks.Registered.rawdelete(name);
-}
-
-function Hooks::ScopeHookedToEvent( scope, event )
-{
-	//printl("Running ScopeHookedToEvent()")
-	foreach (elem in Hooks.Registered)
+	// table, string, closure, string
+	function Add( scope, event, callback, context )
 	{
-		if (elem[1] == scope && elem[0] == event)
-			return true
+		if ( typeof callback != "function" )
+			throw "invalid callback param"
+
+		if ( !(scope in s_List) )
+			s_List[scope] <- {}
+
+		local t = s_List[scope]
+
+		if ( !(event in t) )
+			t[event] <- {}
+
+		t[event][context] <- callback
 	}
-	return false
-}
 
-function Hooks::CallHooks(event, scope, ...)
-{
-	//printl("vargv.len() = " + vargv.len())
-	switch (vargv.len())
+	function Remove( context, event = null )
 	{
-        case 0:
-			foreach (elem in Hooks.Registered)
+		if ( event )
+		{
+			foreach( k,scope in s_List )
 			{
-				if (elem[0] == event && elem[1] == scope)
-					return elem[2]()
-			}
-			break;
+				if ( event in scope )
+				{
+					local t = scope[event]
+					if ( context in t )
+					{
+						delete t[context]
+					}
 
-        case 1:
-			foreach (elem in Hooks.Registered)
-			{
-				if (elem[0] == event && elem[1] == scope)
-					return elem[2](vargv[0])
-			}
-			break;
+					// cleanup?
+					if ( !t.len() )
+						delete scope[event]
+				}
 
-        case 2:
-			foreach (elem in Hooks.Registered)
-			{
-				if (elem[0] == event && elem[1] == scope)
-					return elem[2](vargv[0], vargv[1])
+				// cleanup?
+				if ( !scope.len() )
+					delete s_List[k]
 			}
-			break;
+		}
+		else
+		{
+			foreach( k,scope in s_List )
+			{
+				foreach( kk,ev in scope )
+				{
+					if ( context in ev )
+					{
+						delete ev[context]
+					}
 
-		case 3:
-			foreach (elem in Hooks.Registered)
-			{
-				if (elem[0] == event && elem[1] == scope)
-					return elem[2](vargv[0], vargv[1], vargv[2])
-			}
-			break;
+					// cleanup?
+					if ( !ev.len() )
+						delete scope[kk]
+				}
 
-        case 4:
-			foreach (elem in Hooks.Registered)
-			{
-				if (elem[0] == event && elem[1] == scope)
-					return elem[2](vargv[0], vargv[1], vargv[2], vargv[3])
+				// cleanup?
+				if ( !scope.len() )
+					delete s_List[k]
 			}
-			break;
+		}
+	}
 
-        case 5:
-			foreach (elem in Hooks.Registered)
-			{
-				if (elem[0] == event && elem[1] == scope)
-					return elem[2](vargv[0], vargv[1], vargv[2], vargv[3], vargv[4])
-			}
-			break;
+	function Call( scope, event, ... )
+	{
+		local firstReturn = null
 
-		 case 6:
-			foreach (elem in Hooks.Registered)
+		if ( scope in s_List )
+		{
+			local t = s_List[scope]
+			if ( event in t )
 			{
-				if (elem[0] == event && elem[1] == scope)
-					return elem[2](vargv[0], vargv[1], vargv[2], vargv[3], vargv[4], vargv[5])
+				foreach( context, callback in t[event] )
+				{
+					printf( "(%.4f) Calling hook '%s' of context '%s'\n", Time(), event, context )
+					vargv.insert(0,scope)
+
+					local curReturn = callback.acall(vargv)
+					if (firstReturn == null)
+						firstReturn = curReturn
+				}
 			}
-			break;
+		}
+
+		return firstReturn
+	}
+
+	function ScopeHookedToEvent( scope, event )
+	{
+		if ( scope in s_List )
+		{
+			if (event in s_List[scope])
+				return true
+		}
+
+		return false
 	}
 }
 

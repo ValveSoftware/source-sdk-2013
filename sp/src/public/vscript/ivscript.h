@@ -889,6 +889,11 @@ public:
 	// External enums
 	//--------------------------------------------------------
 	virtual void RegisterEnum( ScriptEnumDesc_t *pEnumDesc ) = 0;
+
+	//--------------------------------------------------------
+	// External hooks
+	//--------------------------------------------------------
+	virtual void RegisterHook( ScriptHook_t *pHookDesc ) = 0;
 #endif
 
 	//--------------------------------------------------------

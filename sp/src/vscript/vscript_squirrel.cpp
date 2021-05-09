@@ -187,6 +187,11 @@ public:
 	// External enums
 	//--------------------------------------------------------
 	virtual void RegisterEnum(ScriptEnumDesc_t *pEnumDesc) override;
+	
+	//--------------------------------------------------------
+	// External hooks
+	//--------------------------------------------------------
+	virtual void RegisterHook(ScriptHook_t *pHookDesc) override;
 
 	//--------------------------------------------------------
 	// External instances. Note class will be auto-registered.
@@ -2299,7 +2304,7 @@ HSCRIPT SquirrelVM::LookupHookFunction(const char *pszEventName, HSCRIPT hScope,
 	sq_pushroottable(vm_);
 	sq_pushstring(vm_, "Hooks", -1);
 	sq_get(vm_, -2);
-	sq_pushstring(vm_, "CallHooks", -1);
+	sq_pushstring(vm_, "Call", -1);
 	sq_get(vm_, -2);
 
 	HSQOBJECT obj;
@@ -2328,8 +2333,8 @@ ScriptStatus_t SquirrelVM::ExecuteHookFunction(const char *pszEventName, HSCRIPT
 	// TODO: Run in hook scope
 	sq_pushroottable(vm_);
 
-	sq_pushstring(vm_, pszEventName, -1);
 	sq_pushobject(vm_, *((HSQOBJECT*)hScope));
+	sq_pushstring(vm_, pszEventName, -1);
 
 	for (int i = 0; i < nArgs; ++i)
 	{
@@ -2600,6 +2605,17 @@ void SquirrelVM::RegisterEnum(ScriptEnumDesc_t* pEnumDesc)
 	Run( szScript );
 
 	RegisterEnumDocumentation(vm_, pEnumDesc);
+}
+
+void SquirrelVM::RegisterHook(ScriptHook_t* pHookDesc)
+{
+	SquirrelSafeCheck safeCheck(vm_);
+	Assert(pHookDesc);
+
+	if (!pHookDesc)
+		return;
+
+	RegisterHookDocumentation(vm_, pHookDesc, pHookDesc->m_desc, nullptr);
 }
 
 HSCRIPT SquirrelVM::RegisterInstance(ScriptClassDesc_t* pDesc, void* pInstance, bool bAllowDestruct)
