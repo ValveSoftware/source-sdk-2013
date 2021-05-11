@@ -1557,6 +1557,13 @@ Activity CNPC_Combine::NPC_BackupActivity( Activity eNewActivity )
 	else if (eNewActivity == ACT_RUN)
 		return ACT_RUN_RIFLE;
 
+	// Some models might not contain ACT_COMBINE_BUGBAIT, which the soldier model uses instead of ACT_IDLE_ON_FIRE.
+	// Contrariwise, soldiers may be called to use ACT_IDLE_ON_FIRE in other parts of the AI and need to translate to ACT_COMBINE_BUGBAIT.
+	if (eNewActivity == ACT_COMBINE_BUGBAIT)
+		return ACT_IDLE_ON_FIRE;
+	else if (eNewActivity == ACT_IDLE_ON_FIRE)
+		return ACT_COMBINE_BUGBAIT;
+
 	return BaseClass::NPC_BackupActivity( eNewActivity );
 }
 #endif
