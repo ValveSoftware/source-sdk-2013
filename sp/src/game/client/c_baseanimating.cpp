@@ -4808,12 +4808,18 @@ void C_BaseAnimating::GetRagdollInitBoneArrays( matrix3x4_t *pDeltaBones0, matri
 	}
 }
 
+C_ClientRagdoll *C_BaseAnimating::CreateClientRagdoll( bool bRestoring )
+{
+	//DevMsg( "Creating ragdoll at tick %d\n", gpGlobals->tickcount );
+	return new C_ClientRagdoll( bRestoring );
+}
+
 C_BaseAnimating *C_BaseAnimating::CreateRagdollCopy()
 {
 	//Adrian: We now create a separate entity that becomes this entity's ragdoll.
 	//That way the server side version of this entity can go away. 
 	//Plus we can hook save/restore code to these ragdolls so they don't fall on restore anymore.
-	C_ClientRagdoll *pRagdoll = new C_ClientRagdoll( false );
+	C_ClientRagdoll *pRagdoll = CreateClientRagdoll( false );
 	if ( pRagdoll == NULL )
 		return NULL;
 
@@ -5366,6 +5372,11 @@ void C_BaseAnimating::StudioFrameAdvance()
 
 	if ( flNewCycle < 0.0f || flNewCycle >= 1.0f ) 
 	{
+		if (flNewCycle >= 1.0f)
+		{
+			ReachedEndOfSequence();
+		}
+
 		if ( IsSequenceLooping( hdr, GetSequence() ) )
 		{
 			 flNewCycle -= (int)(flNewCycle);
