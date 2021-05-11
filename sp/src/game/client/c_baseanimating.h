@@ -468,6 +468,11 @@ public:
 	HSCRIPT ScriptGetAttachmentMatrix(int iAttachment);
 
 	void	ScriptGetBoneTransform( int iBone, HSCRIPT hTransform );
+	void	ScriptSetBoneTransform( int iBone, HSCRIPT hTransform );
+
+	void		ScriptAttachEntityToBone( HSCRIPT attachTarget, int boneIndexAttached, const Vector &bonePosition, const QAngle &boneAngles );
+	void		ScriptRemoveBoneAttachment( HSCRIPT boneAttachment );
+	HSCRIPT		ScriptGetBoneAttachment( int i );
 
 	int		ScriptGetSequenceActivity( int iSequence ) { return GetSequenceActivity( iSequence ); }
 	float	ScriptGetSequenceMoveDist( int iSequence ) { return GetSequenceMoveDist( GetModelPtr(), iSequence ); }
@@ -486,6 +491,7 @@ public:
 
 	static ScriptHook_t	g_Hook_OnClientRagdoll;
 	static ScriptHook_t	g_Hook_FireEvent;
+	static ScriptHook_t	g_Hook_BuildTransformations;
 
 	float							ScriptGetPoseParameter(const char* szName);
 #endif
