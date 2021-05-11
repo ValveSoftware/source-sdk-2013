@@ -227,7 +227,11 @@ int CNodeEnt::Spawn( const char *pMapData )
 	// ---------------------------------------------------------------------------------
 	CAI_Hint *pHint = NULL;
 
-	if ( ClassMatches( "info_node_hint" ) || ClassMatches( "info_node_air_hint" ) )
+	if ( ClassMatches( "info_node_hint" ) || ClassMatches( "info_node_air_hint" )
+#ifdef MAPBASE
+		|| ClassMatches( "info_node_climb" ) // Climb nodes contain hint data in the FGD
+#endif
+		 )
 	{
 		if ( m_NodeData.nHintType || m_NodeData.strGroup != NULL_STRING || m_NodeData.strEntityName != NULL_STRING )
 		{
