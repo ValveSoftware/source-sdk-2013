@@ -1719,22 +1719,9 @@ int CBaseEntity::VPhysicsTakeDamage( const CTakeDamageInfo &info )
 void CBaseEntity::Event_Killed( const CTakeDamageInfo &info )
 {
 #ifdef MAPBASE_VSCRIPT
-	if (m_ScriptScope.IsInitialized() && g_Hook_OnDeath.CanRunInScope( m_ScriptScope ))
-	{
-		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
-
-		// info
-		ScriptVariant_t functionReturn;
-		ScriptVariant_t args[] = { ScriptVariant_t( hInfo ) };
-		if ( g_Hook_OnDeath.Call( m_ScriptScope, &functionReturn, args ) && (functionReturn.m_type == FIELD_BOOLEAN && functionReturn.m_bool == false) )
-		{
-			// Make this entity cheat death
-			g_pScriptVM->RemoveInstance( hInfo );
-			return;
-		}
-
-		g_pScriptVM->RemoveInstance( hInfo );
-	}
+	// False = Cheat death
+	if (ScriptDeathHook( const_cast<CTakeDamageInfo*>(&info) ) == false)
+		return;
 #endif
 
 	if( info.GetAttacker() )
@@ -4668,6 +4655,16 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 	return false;
 }
 
+#ifdef MAPBASE_VSCRIPT
+bool CBaseEntity::ScriptAcceptInput( const char *szInputName, const char *szValue, HSCRIPT hActivator, HSCRIPT hCaller )
+{
+	variant_t value;
+	value.SetString( MAKE_STRING( szValue ) );
+
+	return AcceptInput( szInputName, ToEnt( hActivator ), ToEnt( hCaller ), value, 0 );
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -4700,12 +4697,26 @@ bool CBaseEntity::ScriptInputHook( const char *szInputName, CBaseEntity *pActiva
 }
 
 #ifdef MAPBASE_VSCRIPT
-bool CBaseEntity::ScriptAcceptInput( const char *szInputName, const char *szValue, HSCRIPT hActivator, HSCRIPT hCaller )
+bool CBaseEntity::ScriptDeathHook( CTakeDamageInfo *info )
 {
-	variant_t value;
-	value.SetString( MAKE_STRING(szValue) );
+	if (m_ScriptScope.IsInitialized() && g_Hook_OnDeath.CanRunInScope( m_ScriptScope ))
+	{
+		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( info );
 
-	return AcceptInput( szInputName, ToEnt(hActivator), ToEnt(hCaller), value, 0 );
+		// info
+		ScriptVariant_t functionReturn;
+		ScriptVariant_t args[] = { ScriptVariant_t( hInfo ) };
+		if ( g_Hook_OnDeath.Call( m_ScriptScope, &functionReturn, args ) && (functionReturn.m_type == FIELD_BOOLEAN && functionReturn.m_bool == false) )
+		{
+			// Make this entity cheat death
+			g_pScriptVM->RemoveInstance( hInfo );
+			return false;
+		}
+
+		g_pScriptVM->RemoveInstance( hInfo );
+	}
+
+	return true;
 }
 #endif
 

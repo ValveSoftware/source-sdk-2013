@@ -693,6 +693,9 @@ public:
 #endif
 
 	bool ScriptInputHook( const char *szInputName, CBaseEntity *pActivator, CBaseEntity *pCaller, variant_t Value, ScriptVariant_t &functionReturn );
+#ifdef MAPBASE_VSCRIPT
+	bool ScriptDeathHook( CTakeDamageInfo *info );
+#endif
 
 	//
 	// Input handlers.

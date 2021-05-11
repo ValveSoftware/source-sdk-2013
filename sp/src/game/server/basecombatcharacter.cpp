@@ -1725,25 +1725,6 @@ Killed
 */
 void CBaseCombatCharacter::Event_Killed( const CTakeDamageInfo &info )
 {
-#ifdef MAPBASE_VSCRIPT
-	if (m_ScriptScope.IsInitialized() && g_Hook_OnDeath.CanRunInScope( m_ScriptScope ))
-	{
-		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
-
-		// info
-		ScriptVariant_t functionReturn;
-		ScriptVariant_t args[] = { ScriptVariant_t( hInfo ) };
-		if ( g_Hook_OnDeath.Call( m_ScriptScope, &functionReturn, args ) && (functionReturn.m_type == FIELD_BOOLEAN && functionReturn.m_bool == false) )
-		{
-			// Make this entity cheat death
-			g_pScriptVM->RemoveInstance( hInfo );
-			return;
-		}
-
-		g_pScriptVM->RemoveInstance( hInfo );
-	}
-#endif
-
 	extern ConVar npc_vphysics;
 
 	// Advance life state to dying
@@ -2893,6 +2874,12 @@ int CBaseCombatCharacter::OnTakeDamage( const CTakeDamageInfo &info )
 #endif
 		if ( m_iHealth <= 0 )
 		{
+#ifdef MAPBASE_VSCRIPT
+			// False = Cheat death
+			if (ScriptDeathHook( const_cast<CTakeDamageInfo*>(&info) ) == false)
+				return retVal;
+#endif
+
 			IPhysicsObject *pPhysics = VPhysicsGetObject();
 			if ( pPhysics )
 			{
