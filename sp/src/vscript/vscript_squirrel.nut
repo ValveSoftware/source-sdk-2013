@@ -124,6 +124,116 @@ class CSimpleCallChainer
 
 local developer = (delete developer)()
 
+//---------------------------------------------------------
+// Hook handler
+//---------------------------------------------------------
+local s_List = {}
+
+Hooks <-
+{
+	// table, string, closure, string
+	function Add( scope, event, callback, context )
+	{
+		if ( typeof callback != "function" )
+			throw "invalid callback param"
+
+		if ( !(scope in s_List) )
+			s_List[scope] <- {}
+
+		local t = s_List[scope]
+
+		if ( !(event in t) )
+			t[event] <- {}
+
+		t[event][context] <- callback
+	}
+
+	function Remove( context, event = null )
+	{
+		if ( event )
+		{
+			foreach( k,scope in s_List )
+			{
+				if ( event in scope )
+				{
+					local t = scope[event]
+					if ( context in t )
+					{
+						delete t[context]
+					}
+
+					// cleanup?
+					if ( !t.len() )
+						delete scope[event]
+				}
+
+				// cleanup?
+				if ( !scope.len() )
+					delete s_List[k]
+			}
+		}
+		else
+		{
+			foreach( k,scope in s_List )
+			{
+				foreach( kk,ev in scope )
+				{
+					if ( context in ev )
+					{
+						delete ev[context]
+					}
+
+					// cleanup?
+					if ( !ev.len() )
+						delete scope[kk]
+				}
+
+				// cleanup?
+				if ( !scope.len() )
+					delete s_List[k]
+			}
+		}
+	}
+
+	function Call( scope, event, ... )
+	{
+		local firstReturn = null
+
+		if ( scope in s_List )
+		{
+			local t = s_List[scope]
+			if ( event in t )
+			{
+				vargv.insert(0,scope)
+				foreach( context, callback in t[event] )
+				{
+					//printf( "(%.4f) Calling hook '%s' of context '%s'\n", Time(), event, context )
+
+					local curReturn = callback.acall(vargv)
+					if (firstReturn == null)
+						firstReturn = curReturn
+				}
+			}
+		}
+
+		return firstReturn
+	}
+
+	function ScopeHookedToEvent( scope, event )
+	{
+		if ( scope in s_List )
+		{
+			if (event in s_List[scope])
+				return true
+		}
+
+		return false
+	}
+}
+
+//---------------------------------------------------------
+// Documentation
+//---------------------------------------------------------
 __Documentation <- {}
 
 local DocumentedFuncs

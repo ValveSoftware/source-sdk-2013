@@ -186,6 +186,13 @@ public:
 	virtual ScriptStatus_t ExecuteFunction(HSCRIPT hFunction, ScriptVariant_t* pArgs, int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope, bool bWait) override;
 
 	//--------------------------------------------------------
+	// Hooks
+	//--------------------------------------------------------
+	virtual bool ScopeIsHooked( HSCRIPT hScope, const char *pszEventName ) override;
+	virtual HSCRIPT LookupHookFunction( const char *pszEventName, HSCRIPT hScope, bool &bLegacy ) override;
+	virtual ScriptStatus_t ExecuteHookFunction( const char *pszEventName, HSCRIPT hFunction, ScriptVariant_t *pArgs, int nArgs, ScriptVariant_t *pReturn, HSCRIPT hScope, bool bWait ) override;
+
+	//--------------------------------------------------------
 	// External functions
 	//--------------------------------------------------------
 	virtual void RegisterFunction(ScriptFunctionBinding_t* pScriptFunction) override;
@@ -204,6 +211,11 @@ public:
 	// External enums
 	//--------------------------------------------------------
 	virtual void RegisterEnum(ScriptEnumDesc_t *pEnumDesc) override;
+	
+	//--------------------------------------------------------
+	// External hooks
+	//--------------------------------------------------------
+	virtual void RegisterHook(ScriptHook_t *pHookDesc) override;
 
 	//--------------------------------------------------------
 	// External instances. Note class will be auto-registered.
@@ -2336,6 +2348,110 @@ ScriptStatus_t SquirrelVM::ExecuteFunction(HSCRIPT hFunction, ScriptVariant_t* p
 	return SCRIPT_DONE;
 }
 
+bool SquirrelVM::ScopeIsHooked( HSCRIPT hScope, const char *pszEventName )
+{
+	Assert( hScope && hScope != INVALID_HSCRIPT );
+
+	sq_pushroottable(vm_);
+	sq_pushstring(vm_, "Hooks", -1);
+	sq_get(vm_, -2);
+	sq_pushstring(vm_, "ScopeHookedToEvent", -1);
+	sq_get(vm_, -2);
+	sq_push(vm_, -2);
+	sq_pushobject(vm_, *((HSQOBJECT*)hScope));
+	sq_pushstring(vm_, pszEventName, -1);
+	sq_call(vm_, 3, SQTrue, SQTrue);
+
+	SQBool val;
+	if (SQ_FAILED(sq_getbool(vm_, -1, &val)))
+	{
+		sq_pop(vm_, 3);
+		return false;
+	}
+
+	sq_pop(vm_, 3);
+	return val ? true : false;
+}
+
+HSCRIPT SquirrelVM::LookupHookFunction(const char *pszEventName, HSCRIPT hScope, bool &bLegacy)
+{
+	HSCRIPT hFunc = LookupFunction( pszEventName, hScope );
+	if (hFunc)
+	{
+		bLegacy = true;
+		return hFunc;
+	}
+	else
+	{
+		bLegacy = false;
+	}
+
+	if (!ScopeIsHooked(hScope, pszEventName))
+		return nullptr;
+
+	sq_pushroottable(vm_);
+	sq_pushstring(vm_, "Hooks", -1);
+	sq_get(vm_, -2);
+	sq_pushstring(vm_, "Call", -1);
+	sq_get(vm_, -2);
+
+	HSQOBJECT obj;
+	sq_resetobject(&obj);
+	sq_getstackobj(vm_, -1, &obj);
+	sq_addref(vm_, &obj);
+	sq_pop(vm_, 2);
+
+	HSQOBJECT* pObj = new HSQOBJECT;
+	*pObj = obj;
+	return (HSCRIPT)pObj;
+}
+
+ScriptStatus_t SquirrelVM::ExecuteHookFunction(const char *pszEventName, HSCRIPT hFunction, ScriptVariant_t* pArgs, int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope, bool bWait)
+{
+	SquirrelSafeCheck safeCheck(vm_);
+	if (!hFunction)
+		return SCRIPT_ERROR;
+
+	if (hFunction == INVALID_HSCRIPT)
+		return SCRIPT_ERROR;
+
+	HSQOBJECT* pFunc = (HSQOBJECT*)hFunction;
+	sq_pushobject(vm_, *pFunc);
+
+	// TODO: Run in hook scope
+	sq_pushroottable(vm_);
+
+	sq_pushobject(vm_, *((HSQOBJECT*)hScope));
+	sq_pushstring(vm_, pszEventName, -1);
+
+	for (int i = 0; i < nArgs; ++i)
+	{
+		PushVariant(vm_, pArgs[i]);
+	}
+
+	bool hasReturn = pReturn != nullptr;
+
+	if (SQ_FAILED(sq_call(vm_, nArgs + 3, hasReturn, SQTrue)))
+	{
+		sq_pop(vm_, 1);
+		return SCRIPT_ERROR;
+	}
+
+	if (hasReturn)
+	{
+		if (!getVariant(vm_, -1, *pReturn))
+		{
+			sq_pop(vm_, 1);
+			return SCRIPT_ERROR;
+		}
+
+		sq_pop(vm_, 1);
+	}
+
+	sq_pop(vm_, 1);
+	return SCRIPT_DONE;
+}
+
 void SquirrelVM::RegisterFunction(ScriptFunctionBinding_t* pScriptFunction)
 {
 	SquirrelSafeCheck safeCheck(vm_);
@@ -2585,6 +2701,17 @@ void SquirrelVM::RegisterEnum(ScriptEnumDesc_t* pEnumDesc)
 	Run( szScript );
 
 	RegisterEnumDocumentation(vm_, pEnumDesc);
+}
+
+void SquirrelVM::RegisterHook(ScriptHook_t* pHookDesc)
+{
+	SquirrelSafeCheck safeCheck(vm_);
+	Assert(pHookDesc);
+
+	if (!pHookDesc)
+		return;
+
+	RegisterHookDocumentation(vm_, pHookDesc, pHookDesc->m_desc, nullptr);
 }
 
 HSCRIPT SquirrelVM::RegisterInstance(ScriptClassDesc_t* pDesc, void* pInstance, bool bAllowDestruct)
