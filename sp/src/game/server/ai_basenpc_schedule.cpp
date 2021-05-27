@@ -3979,10 +3979,16 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 				// If we have an entry, we have to play it first
 				if ( m_hCine->m_iszEntry != NULL_STRING )
 				{
+#ifdef MAPBASE
+					m_hCine->OnEntrySequence( this );
+#endif
 					m_hCine->StartSequence( (CAI_BaseNPC *)this, m_hCine->m_iszEntry, true );
 				}
 				else
 				{
+#ifdef MAPBASE
+					m_hCine->OnActionSequence( this );
+#endif
 					m_hCine->StartSequence( (CAI_BaseNPC *)this, m_hCine->m_iszPlay, true );
 				}
 
