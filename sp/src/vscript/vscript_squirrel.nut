@@ -348,7 +348,10 @@ local function PrintMatchesInDocList(pattern, list, printfunc)
 function __Documentation::PrintHelp(pattern = "*")
 {
 	if ( !developer )
+	{
+		printdocl("Documentation is not enabled. To enable documentation, restart the server with the 'developer' cvar set to 1 or higher.");
 		return
+	}
 
 	local patternLower = pattern.tolower();
 
