@@ -679,16 +679,6 @@ static void AddPhysVelocity( HSCRIPT hPhys, const Vector& vecVelocity, const Vec
 //=============================================================================
 //=============================================================================
 
-static int ScriptPrecacheModel( const char *modelname )
-{
-	return CBaseEntity::PrecacheModel( modelname );
-}
-
-static void ScriptPrecacheOther( const char *classname )
-{
-	UTIL_PrecacheOther( classname );
-}
-
 #ifndef CLIENT_DLL
 // TODO: Move this?
 static void ScriptInsertSound( int iType, const Vector &vecOrigin, int iVolume, float flDuration, HSCRIPT hOwner, int soundChannelIndex, HSCRIPT hSoundTarget )
@@ -873,7 +863,6 @@ void RegisterSharedScriptFunctions()
 
 	ScriptRegisterFunction( g_pScriptVM, CreateDamageInfo, "Creates damage info." );
 	ScriptRegisterFunction( g_pScriptVM, DestroyDamageInfo, "Destroys damage info." );
-	ScriptRegisterFunction( g_pScriptVM, ImpulseScale, "Returns an impulse scale required to push an object." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateExplosiveDamageForce, "CalculateExplosiveDamageForce", "Fill out a damage info handle with a damage force for an explosive." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateBulletDamageForce, "CalculateBulletDamageForce", "Fill out a damage info handle with a damage force for a bullet impact." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateMeleeDamageForce, "CalculateMeleeDamageForce", "Fill out a damage info handle with a damage force for a melee impact." );
@@ -896,10 +885,10 @@ void RegisterSharedScriptFunctions()
 	// 
 	// Precaching
 	// 
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptPrecacheModel, "PrecacheModel", "Precaches a model for later usage." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, CBaseEntity::PrecacheModel, "PrecacheModel", "Precaches a model for later usage." );
 	ScriptRegisterFunction( g_pScriptVM, PrecacheMaterial, "Precaches a material for later usage." );
 	ScriptRegisterFunction( g_pScriptVM, PrecacheParticleSystem, "Precaches a particle system for later usage." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptPrecacheOther, "PrecacheOther", "Precaches an entity class for later usage." );
+	ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PrecacheOther, "PrecacheOther", "Precaches an entity class for later usage." );
 
 	// 
 	// NPCs

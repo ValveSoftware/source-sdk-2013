@@ -33,10 +33,13 @@
 
 #include "tier1/utlbuffer.h"
 #include "tier1/mapbase_con_groups.h"
+#include "tier1/convar.h"
 
 #include "vscript_squirrel.nut"
 
 #include <cstdarg>
+
+extern ConVar developer;
 
 struct WriteStateMap
 {
@@ -862,11 +865,10 @@ namespace SQVector
 
 		float x = 0.0f, y = 0.0f, z = 0.0f;
 
-		if ( sscanf( szInput, "%f %f %f", &x, &y, &z ) < 3 ) // UTIL_StringToVector
+		if ( sscanf( szInput, "%f %f %f", &x, &y, &z ) < 3 )
 		{
-			// Don't throw, return null while invalidating the input vector.
+			// Return null while invalidating the input vector.
 			// This allows the user to easily check for input errors without halting.
-			//return sq_throwerror(vm, "invalid KV string");
 
 			sq_pushnull(vm);
 			*v1 = vec3_invalid;
@@ -1753,6 +1755,9 @@ const char * ScriptDataTypeToName(ScriptDataType_t datatype)
 
 void RegisterDocumentation(HSQUIRRELVM vm, const ScriptFuncDescriptor_t& pFuncDesc, ScriptClassDesc_t* pClassDesc = nullptr)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pFuncDesc.m_pszDescription && pFuncDesc.m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1792,6 +1797,9 @@ void RegisterDocumentation(HSQUIRRELVM vm, const ScriptFuncDescriptor_t& pFuncDe
 
 void RegisterClassDocumentation(HSQUIRRELVM vm, const ScriptClassDesc_t* pClassDesc)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	const char *name = pClassDesc->m_pszScriptName;
@@ -1824,6 +1832,9 @@ void RegisterClassDocumentation(HSQUIRRELVM vm, const ScriptClassDesc_t* pClassD
 
 void RegisterEnumDocumentation(HSQUIRRELVM vm, const ScriptEnumDesc_t* pClassDesc)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pClassDesc->m_pszDescription && pClassDesc->m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1841,6 +1852,9 @@ void RegisterEnumDocumentation(HSQUIRRELVM vm, const ScriptEnumDesc_t* pClassDes
 
 void RegisterConstantDocumentation( HSQUIRRELVM vm, const ScriptConstantBinding_t* pConstDesc, const char *pszAsString, ScriptEnumDesc_t* pEnumDesc = nullptr )
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pConstDesc->m_pszDescription && pConstDesc->m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1869,6 +1883,9 @@ void RegisterConstantDocumentation( HSQUIRRELVM vm, const ScriptConstantBinding_
 
 void RegisterHookDocumentation(HSQUIRRELVM vm, const ScriptHook_t* pHook, const ScriptFuncDescriptor_t& pFuncDesc, ScriptClassDesc_t* pClassDesc = nullptr)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pFuncDesc.m_pszDescription && pFuncDesc.m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1911,6 +1928,9 @@ void RegisterHookDocumentation(HSQUIRRELVM vm, const ScriptHook_t* pHook, const 
 
 void RegisterMemberDocumentation(HSQUIRRELVM vm, const ScriptMemberDesc_t& pDesc, ScriptClassDesc_t* pClassDesc = nullptr)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pDesc.m_pszDescription && pDesc.m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1936,6 +1956,12 @@ void RegisterMemberDocumentation(HSQUIRRELVM vm, const ScriptMemberDesc_t& pDesc
 		sq_pushstring(vm, signature, -1);
 		sq_pushstring(vm, pDesc.m_pszDescription ? pDesc.m_pszDescription : "", -1);
 	CallDocumentationRegisterFunction( 3 );
+}
+
+SQInteger GetDeveloperLevel(HSQUIRRELVM vm)
+{
+	sq_pushinteger( vm, developer.GetInt() );
+	return 1;
 }
 
 
@@ -2004,6 +2030,11 @@ bool SquirrelVM::Init()
 			sq_addref(vm_, &regexpClass_);
 			sq_pop(vm_, 1);
 		}
+
+		sq_pushstring( vm_, "developer", -1 );
+		sq_newclosure( vm_, &GetDeveloperLevel, 0 );
+		//sq_setnativeclosurename( vm_, -1, "developer" );
+		sq_newslot( vm_, -3, SQFalse );
 
 		sq_pop(vm_, 1);
 	}
