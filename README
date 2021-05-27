@@ -111,11 +111,13 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/80 (More VScript changes, including support for extremely flexible client/server messaging)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/105 (VScript fixes and optimizations, Vector class extensions, custom convars/commands)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/114 (VScript fixes and extensions)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/122 (Minor VScript-related adjustments)
 
 == Contributions from z33ky:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux compilation fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/95 (Additional GCC/Linux compilation fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/117 (Additional GCC/Linux compilation fixes)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/124 (Memory error fixes)
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
