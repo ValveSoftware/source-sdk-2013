@@ -204,10 +204,10 @@ Hooks <-
 			local t = s_List[scope]
 			if ( event in t )
 			{
+				vargv.insert(0,scope)
 				foreach( context, callback in t[event] )
 				{
-					printf( "(%.4f) Calling hook '%s' of context '%s'\n", Time(), event, context )
-					vargv.insert(0,scope)
+					//printf( "(%.4f) Calling hook '%s' of context '%s'\n", Time(), event, context )
 
 					local curReturn = callback.acall(vargv)
 					if (firstReturn == null)
