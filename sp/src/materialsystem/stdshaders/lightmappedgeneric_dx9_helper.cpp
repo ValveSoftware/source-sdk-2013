@@ -1566,9 +1566,10 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			// Doing it here in the shader itself allows us to retain other properties, like FANCY_BLENDING.
 			else
 			{
-				// m_SemiStaticCmdsOut wasn't being sent correctly, so we have to assign this to the API directly
-				float editorBlend = bEditorBlend ? 1.0f : 0.0f;
-				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 21, &editorBlend, 1 );
+				// TODO: This is inefficient use of a constant; Something should be done about this in the future
+				static const float editorBlend[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+				static const float regularBlend[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 21, (bEditorBlend ? editorBlend : regularBlend), 1 );
 				/*
 				if (bEditorBlend)
 				{

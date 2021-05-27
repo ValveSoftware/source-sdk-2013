@@ -1156,7 +1156,11 @@ bool CNPC_MetroPolice::SpeakIfAllowed( const char *concept, const char *modifier
 	AI_CriteriaSet set;
 	if (modifiers)
 	{
+#ifdef NEW_RESPONSE_SYSTEM
+		GatherCriteria( &set, concept, modifiers );
+#else
 		GetExpresser()->MergeModifiers(set, modifiers);
+#endif
 	}
 	return SpeakIfAllowed( concept, set, sentencepriority, sentencecriteria );
 }
@@ -1622,6 +1626,11 @@ bool CNPC_MetroPolice::ShouldAttemptToStitch()
 //-----------------------------------------------------------------------------
 Vector CNPC_MetroPolice::StitchAimTarget( const Vector &posSrc, bool bNoisy ) 
 {
+#ifdef MAPBASE
+	if ( !GetEnemy() )
+		return vec3_origin;
+#endif
+
 	// This will make us aim a stitch at the feet of the player so we can see it
 	if ( !GetEnemy()->IsPlayer() )
 		return GetShootTarget()->BodyTarget( posSrc, bNoisy );

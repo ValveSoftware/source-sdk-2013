@@ -20,6 +20,10 @@
 #include "ServerNetworkProperty.h"
 #include "shareddefs.h"
 #include "engine/ivmodelinfo.h"
+#ifdef NEW_RESPONSE_SYSTEM
+#include "AI_Criteria.h"
+#include "AI_ResponseSystem.h"
+#endif
 
 #include "vscript/ivscript.h"
 #include "vscript_server.h"
@@ -29,8 +33,10 @@ class CDmgAccumulator;
 
 struct CSoundParameters;
 
+#ifndef NEW_RESPONSE_SYSTEM
 class AI_CriteriaSet;
 class IResponseSystem;
+#endif
 class IEntitySaveUtils;
 class CRecipientFilter;
 class CStudioHdr;
@@ -38,6 +44,11 @@ class CStudioHdr;
 // Matching the high level concept is significantly better than other criteria
 // FIXME:  Could do this in the script file by making it required and bumping up weighting there instead...
 #define CONCEPT_WEIGHT 5.0f
+
+#ifdef NEW_RESPONSE_SYSTEM
+// Relax the namespace standard a bit so that less code has to be changed
+#define IResponseSystem ResponseRules::IResponseSystem
+#endif
 
 typedef CHandle<CBaseEntity> EHANDLE;
 
@@ -341,10 +352,10 @@ struct thinkfunc_t
 #ifdef MAPBASE_VSCRIPT
 struct scriptthinkfunc_t
 {
-	int				m_nNextThinkTick;
-	HSCRIPT			m_hfnThink;
-	unsigned short	m_iContextHash;
-	bool			m_bNoParam;
+	float		m_flNextThink;
+	HSCRIPT		m_hfnThink;
+	unsigned	m_iContextHash;
+	bool		m_bNoParam;
 };
 #endif
 
@@ -682,6 +693,9 @@ public:
 #endif
 
 	bool ScriptInputHook( const char *szInputName, CBaseEntity *pActivator, CBaseEntity *pCaller, variant_t Value, ScriptVariant_t &functionReturn );
+#ifdef MAPBASE_VSCRIPT
+	bool ScriptDeathHook( CTakeDamageInfo *info );
+#endif
 
 	//
 	// Input handlers.
@@ -1001,10 +1015,10 @@ public:
 	const char *GetContextValue( const char *contextName ) const;
 	float	GetContextExpireTime( const char *name );
 	void	RemoveContext( const char *nameandvalue );
-	void	AddContext( const char *name, const char *value, float duration = 0.0f );
 #endif
 
 	void	AddContext( const char *nameandvalue );
+	void	AddContext( const char *name, const char *value, float duration = 0.0f );
 
 protected:
 	CUtlVector< ResponseContext_t > m_ResponseContexts;
@@ -1294,6 +1308,12 @@ public:
 
 #endif
 	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& set );
+#ifdef NEW_RESPONSE_SYSTEM
+	// this computes criteria that depend on the other criteria having been set. 
+	// needs to be done in a second pass because we may have multiple overrids for
+	// a context before it all settles out.
+	virtual void	ModifyOrAppendDerivedCriteria( AI_CriteriaSet& set ) {};
+#endif
 	void			AppendContextToCriteria( AI_CriteriaSet& set, const char *prefix = "" );
 #ifdef MAPBASE
 	void			ReAppendContextCriteria( AI_CriteriaSet& set );
@@ -1546,7 +1566,11 @@ public:
 	static void EmitCloseCaption( IRecipientFilter& filter, int entindex, char const *token, CUtlVector< Vector >& soundorigins, float duration, bool warnifmissing = false );
 	static void	EmitSentenceByIndex( IRecipientFilter& filter, int iEntIndex, int iChannel, int iSentenceIndex, 
 		float flVolume, soundlevel_t iSoundlevel, int iFlags = 0, int iPitch = PITCH_NORM,
-		const Vector *pOrigin = NULL, const Vector *pDirection = NULL, bool bUpdatePositions = true, float soundtime = 0.0f );
+		const Vector *pOrigin = NULL, const Vector *pDirection = NULL, bool bUpdatePositions = true, float soundtime = 0.0f
+#ifdef MAPBASE
+		, int iSpecialDSP = 0, int iSpeakerIndex = 0 // Needed for env_microphone
+#endif
+		);
 
 	static bool IsPrecacheAllowed();
 	static void SetAllowPrecache( bool allow );
@@ -2114,6 +2138,9 @@ public:
 
 	int ScriptGetMoveType() { return GetMoveType(); }
 	void ScriptSetMoveType( int iMoveType ) { SetMoveType( (MoveType_t)iMoveType ); }
+
+	int ScriptGetSolid() { return GetSolid(); }
+	void ScriptSetSolid( int i ) { SetSolid( (SolidType_t)i ); }
 
 	bool ScriptDispatchInteraction( int interactionType, HSCRIPT data, HSCRIPT sourceEnt );
 

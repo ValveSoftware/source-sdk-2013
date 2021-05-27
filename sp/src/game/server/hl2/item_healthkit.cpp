@@ -30,10 +30,28 @@ public:
 	void Spawn( void );
 	void Precache( void );
 	bool MyTouch( CBasePlayer *pPlayer );
+
+#ifdef MAPBASE
+	float GetItemAmount() { return sk_healthkit.GetFloat() * m_flHealthMultiplier; }
+
+	void	InputSetHealthMultiplier( inputdata_t &inputdata ) { m_flHealthMultiplier = inputdata.value.Float(); }
+	float	m_flHealthMultiplier = 1.0f;
+
+	DECLARE_DATADESC();
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( item_healthkit, CHealthKit );
 PRECACHE_REGISTER(item_healthkit);
+
+#ifdef MAPBASE
+BEGIN_DATADESC( CHealthKit )
+
+	DEFINE_KEYFIELD( m_flHealthMultiplier, FIELD_FLOAT, "HealthMultiplier" ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetHealthMultiplier", InputSetHealthMultiplier ),
+
+END_DATADESC()
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -66,7 +84,11 @@ void CHealthKit::Precache( void )
 //-----------------------------------------------------------------------------
 bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 {
+#ifdef MAPBASE
+	if ( pPlayer->TakeHealth( GetItemAmount(), DMG_GENERIC ) )
+#else
 	if ( pPlayer->TakeHealth( sk_healthkit.GetFloat(), DMG_GENERIC ) )
+#endif
 	{
 		CSingleUserRecipientFilter user( pPlayer );
 		user.MakeReliable();
@@ -119,7 +141,11 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifdef MAPBASE
+		if ( pPlayer->TakeHealth( GetItemAmount(), DMG_GENERIC ) )
+#else
 		if ( pPlayer->TakeHealth( sk_healthvial.GetFloat(), DMG_GENERIC ) )
+#endif
 		{
 			CSingleUserRecipientFilter user( pPlayer );
 			user.MakeReliable();
@@ -145,10 +171,131 @@ public:
 
 		return false;
 	}
+	
+#ifdef MAPBASE
+	float GetItemAmount() { return sk_healthvial.GetFloat() * m_flHealthMultiplier; }
+
+	void	InputSetHealthMultiplier( inputdata_t &inputdata ) { m_flHealthMultiplier = inputdata.value.Float(); }
+	float	m_flHealthMultiplier = 1.0f;
+
+	DECLARE_DATADESC();
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( item_healthvial, CHealthVial );
 PRECACHE_REGISTER( item_healthvial );
+
+#ifdef MAPBASE
+BEGIN_DATADESC( CHealthVial )
+
+	DEFINE_KEYFIELD( m_flHealthMultiplier, FIELD_FLOAT, "HealthMultiplier" ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetHealthMultiplier", InputSetHealthMultiplier ),
+
+END_DATADESC()
+
+
+//-----------------------------------------------------------------------------
+// Small health kit. Heals the player when picked up.
+//-----------------------------------------------------------------------------
+class CHealthKitCustom : public CItem
+{
+public:
+	DECLARE_CLASS( CHealthKitCustom, CItem );
+	CHealthKitCustom();
+
+	void Spawn( void );
+	void Precache( void );
+	bool MyTouch( CBasePlayer *pPlayer );
+
+	float GetItemAmount() { return m_flHealthAmount; }
+
+	void	InputSetHealthAmount( inputdata_t &inputdata ) { m_flHealthAmount = inputdata.value.Float(); }
+
+	float	m_flHealthAmount;
+	string_t	m_iszTouchSound;
+
+	DECLARE_DATADESC();
+};
+
+LINK_ENTITY_TO_CLASS( item_healthkit_custom, CHealthKitCustom );
+//PRECACHE_REGISTER(item_healthkit_custom);
+
+#ifdef MAPBASE
+BEGIN_DATADESC( CHealthKitCustom )
+
+	DEFINE_KEYFIELD( m_flHealthAmount, FIELD_FLOAT, "HealthAmount" ),
+	DEFINE_KEYFIELD( m_iszTouchSound, FIELD_STRING, "TouchSound" ),
+
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetHealthAmount", InputSetHealthAmount ),
+
+END_DATADESC()
+#endif
+
+
+CHealthKitCustom::CHealthKitCustom()
+{
+	SetModelName( AllocPooledString( "models/items/healthkit.mdl" ) );
+	m_flHealthAmount = sk_healthkit.GetFloat();
+	m_iszTouchSound = AllocPooledString( "HealthKit.Touch" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHealthKitCustom::Spawn( void )
+{
+	Precache();
+	SetModel( STRING( GetModelName() ) );
+
+	BaseClass::Spawn();
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHealthKitCustom::Precache( void )
+{
+	PrecacheModel( STRING( GetModelName() ) );
+
+	PrecacheScriptSound( STRING( m_iszTouchSound ) );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *pPlayer - 
+// Output : 
+//-----------------------------------------------------------------------------
+bool CHealthKitCustom::MyTouch( CBasePlayer *pPlayer )
+{
+	if ( pPlayer->TakeHealth( GetItemAmount(), DMG_GENERIC ) )
+	{
+		CSingleUserRecipientFilter user( pPlayer );
+		user.MakeReliable();
+
+		UserMessageBegin( user, "ItemPickup" );
+			WRITE_STRING( GetClassname() );
+		MessageEnd();
+
+		CPASAttenuationFilter filter( pPlayer, STRING( m_iszTouchSound ) );
+		EmitSound( filter, pPlayer->entindex(), STRING( m_iszTouchSound ) );
+
+		if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_YES )
+		{
+			Respawn();
+		}
+		else
+		{
+			UTIL_Remove(this);	
+		}
+
+		return true;
+	}
+
+	return false;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Wall mounted health kit. Heals the player when used.

@@ -90,6 +90,10 @@ BEGIN_DATADESC( CRopeKeyframe )
 	DEFINE_INPUTFUNC( FIELD_VOID,	"Break",			InputBreak ),
 
 #ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetSlack", InputSetSlack ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetWidth", InputSetWidth ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetSubdivision", InputSetSubdivision ),
+
 	// Outputs
 	DEFINE_OUTPUT( m_OnBreak, "OnBreak" ),
 #endif
@@ -612,6 +616,51 @@ void CRopeKeyframe::InputBreak( inputdata_t &inputdata )
 	Break();
 #endif
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Sets the slack
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CRopeKeyframe::InputSetSlack( inputdata_t &inputdata )
+{
+	m_Slack = inputdata.value.Int();
+
+	// Must resize in order for changes to occur
+	m_RopeFlags |= ROPE_RESIZE;
+
+	if (!(m_RopeFlags & ROPE_USE_WIND))
+	{
+		Warning( "WARNING: SetSlack on %s may need wind enabled in order to function\n", GetDebugName() );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the width
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CRopeKeyframe::InputSetWidth( inputdata_t &inputdata )
+{
+	m_Width = inputdata.value.Float();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the subdivision
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CRopeKeyframe::InputSetSubdivision( inputdata_t &inputdata )
+{
+	m_Subdiv = inputdata.value.Int();
+
+	// Must resize in order for changes to occur
+	m_RopeFlags |= ROPE_RESIZE;
+
+	if (!(m_RopeFlags & ROPE_USE_WIND))
+	{
+		Warning( "WARNING: SetSubdivision on %s may need wind enabled in order to function\n", GetDebugName() );
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Breaks the rope

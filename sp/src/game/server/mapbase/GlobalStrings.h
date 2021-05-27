@@ -18,13 +18,8 @@
 // Valve uses global pooled strings in various parts of the code, particularly Episodic code,
 // so they could get away with integer/pointer comparisons instead of string comparisons.
 // 
-// While developing Mapbase, I thought of what it would be like if that system was more uniform and more widely used.
-// My OCD ended up taking me over and that thought became real, even though on today's machines these are (for the most part) micro-optimizations
-// that just clutter the code.
-// 
-// It was fun and satisfying to do this and I hope you are not judging me for my strange ways.
-// I wanted to toggle them via a preprocessor so you could turn them off at will, but that just made things messier.
-// I hope this doesn't cause problems for anyone.
+// This system was developed early in Mapbase's development as an attempt to make this technique more widely used.
+// For the most part, this mainly just serves to apply micro-optimize parts of the code.
 // 
 // -------------------------------------------------------------
 
@@ -79,7 +74,6 @@ inline bool EntIsClass( CBaseEntity *ent, string_t str2 )
 
 	// Since classnames are pooled, the global string and the entity's classname should point to the same string in memory.
 	// As long as this rule is preserved, we only need a pointer comparison. A string comparison isn't necessary.
-	// Feel free to correct me if I'm disastrously wrong.
 	return ent->m_iClassname == str2;
 }
 

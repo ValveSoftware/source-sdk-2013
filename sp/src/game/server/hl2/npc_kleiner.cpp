@@ -35,6 +35,11 @@ public:
 	Class_T Classify ( void );
 	void	HandleAnimEvent( animevent_t *pEvent );
 	int		GetSoundInterests ( void );
+
+#ifdef MAPBASE
+	// Use Kleiner's default subtitle color (255,255,200)
+	bool	GetGameTextSpeechParams( hudtextparms_t &params ) { params.r1 = 255; params.g1 = 255; params.b1 = 200; return BaseClass::GetGameTextSpeechParams( params ); }
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( npc_kleiner, CNPC_Kleiner );

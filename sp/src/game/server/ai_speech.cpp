@@ -1240,7 +1240,7 @@ char *CAI_Expresser::ParseApplyContext( const char *szContext )
 	{
 		// If it's really 0, then this is a waste of time
 		Warning("\"%s\" was detected by applyContext operators as an operable number, but it's not.\n", szValue);
-		return strdup(szContext);
+		return szContext;
 	}
 
 	// This is the existing value; will be operated upon and become the final assignment

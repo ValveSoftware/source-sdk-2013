@@ -38,6 +38,7 @@ class C_BaseClientShader
 */
 
 class IRagdoll;
+class C_ClientRagdoll;
 class CIKContext;
 class CIKState;
 class ConVar;
@@ -301,6 +302,7 @@ public:
 	bool							IsRagdoll() const;
 	bool							IsAboutToRagdoll() const;
 	virtual C_BaseAnimating			*BecomeRagdollOnClient();
+	virtual C_ClientRagdoll			*CreateClientRagdoll( bool bRestoring = false );
 	C_BaseAnimating					*CreateRagdollCopy();
 	bool							InitAsClientRagdoll( const matrix3x4_t *pDeltaBones0, const matrix3x4_t *pDeltaBones1, const matrix3x4_t *pCurrentBonePosition, float boneDt, bool bFixedConstraints=false );
 	void							IgniteRagdoll( C_BaseAnimating *pSource );
@@ -353,6 +355,8 @@ public:
 	virtual void					UpdateClientSideAnimation();
 	void							ClientSideAnimationChanged();
 	virtual unsigned int			ComputeClientSideAnimationFlags();
+
+	virtual void					ReachedEndOfSequence() { return; }
 
 	virtual void ResetClientsideFrame( void ) { SetCycle( 0 ); }
 
@@ -464,6 +468,11 @@ public:
 	HSCRIPT ScriptGetAttachmentMatrix(int iAttachment);
 
 	void	ScriptGetBoneTransform( int iBone, HSCRIPT hTransform );
+	void	ScriptSetBoneTransform( int iBone, HSCRIPT hTransform );
+
+	void		ScriptAttachEntityToBone( HSCRIPT attachTarget, int boneIndexAttached, const Vector &bonePosition, const QAngle &boneAngles );
+	void		ScriptRemoveBoneAttachment( HSCRIPT boneAttachment );
+	HSCRIPT		ScriptGetBoneAttachment( int i );
 
 	int		ScriptGetSequenceActivity( int iSequence ) { return GetSequenceActivity( iSequence ); }
 	float	ScriptGetSequenceMoveDist( int iSequence ) { return GetSequenceMoveDist( GetModelPtr(), iSequence ); }
@@ -482,6 +491,7 @@ public:
 
 	static ScriptHook_t	g_Hook_OnClientRagdoll;
 	static ScriptHook_t	g_Hook_FireEvent;
+	static ScriptHook_t	g_Hook_BuildTransformations;
 
 	float							ScriptGetPoseParameter(const char* szName);
 #endif

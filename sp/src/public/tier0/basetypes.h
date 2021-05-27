@@ -131,6 +131,70 @@ T Max( T const &val1, T const &val2 )
 #define TRUE (!FALSE)
 #endif
 
+//-----------------------------------------------------------------------------
+// fsel
+//-----------------------------------------------------------------------------
+#ifndef _X360
+
+#define fsel(c,x,y) ( (c) >= 0 ? (x) : (y) )
+
+// integer conditional move
+// if a >= 0, return x, else y
+#define isel(a,x,y) ( ((a) >= 0) ? (x) : (y) )
+
+// if x = y, return a, else b
+#define ieqsel(x,y,a,b) (( (x) == (y) ) ? (a) : (b))
+
+// if the nth bit of a is set (counting with 0 = LSB),
+// return x, else y
+// this is fast if nbit is a compile-time immediate 
+#define ibitsel(a, nbit, x, y) ( ( ((a) & (1 << (nbit))) != 0 ) ? (x) : (y) )
+
+#else
+
+// __fsel(double fComparand, double fValGE, double fLT) == fComparand >= 0 ? fValGE : fLT
+// this is much faster than if ( aFloat > 0 ) { x = .. }
+// the XDK defines two intrinsics, one for floats and one for doubles -- it's the same
+// opcode, but the __fself version tells the compiler not to do a wasteful unnecessary
+// rounding op after each sel.
+// #define fsel __fsel
+FORCEINLINE double fsel(double fComparand, double fValGE, double fLT) { return __fsel( fComparand, fValGE, fLT ); }
+FORCEINLINE float fsel(float fComparand, float fValGE, float fLT) { return __fself( fComparand, fValGE, fLT ); }
+
+// if a >= 0, return x, else y
+FORCEINLINE int isel( int a, int x, int y )
+{
+	int mask = a >> 31; // arithmetic shift right, splat out the sign bit
+	return x + ((y - x) & mask);
+};
+
+// if a >= 0, return x, else y
+FORCEINLINE unsigned isel( int a, unsigned x, unsigned y )
+{
+	int mask = a >> 31; // arithmetic shift right, splat out the sign bit
+	return x + ((y - x) & mask);
+};
+
+// ( x == y ) ? a : b
+FORCEINLINE unsigned ieqsel( unsigned x, unsigned y, unsigned a, unsigned b )
+{
+	unsigned mask = (x == y) ? 0 : -1;
+	return a + ((b - a) & mask);
+};
+
+// ( x == y ) ? a : b
+FORCEINLINE int ieqsel( int x, int y, int a, int b )
+{
+	int mask = (x == y) ? 0 : -1;
+	return a + ((b - a) & mask);
+};
+
+// if the nth bit of a is set (counting with 0 = LSB),
+// return x, else y
+// this is fast if nbit is a compile-time immediate 
+#define ibitsel(a, nbit, x, y) ( (x) + (((y) - (x)) & (((a) & (1 << (nbit))) ? 0 : -1)) )
+
+#endif
 
 #ifndef DONT_DEFINE_BOOL // Needed for Cocoa stuff to compile.
 typedef int BOOL;
@@ -148,7 +212,6 @@ typedef unsigned short ucs2;
 #endif
 
 #ifdef MAPBASE
-// I'm using ThreeState_t a lot more now and I'm tired of typing this out so much.
 #define TO_THREESTATE(num)	static_cast<ThreeState_t>(num)
 #endif
 

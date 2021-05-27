@@ -561,9 +561,15 @@ int CPropAPC::OnTakeDamage( const CTakeDamageInfo &info )
 		m_iHealth -= dmgInfo.GetDamage();
 		if ( m_iHealth <= 0 )
 		{
-			m_iHealth = 0;
-			Event_Killed( dmgInfo );
-			return 0;
+#ifdef MAPBASE_VSCRIPT
+			// False = Cheat death
+			if (ScriptDeathHook( const_cast<CTakeDamageInfo*>(&info) ) != false)
+#endif
+			{
+				m_iHealth = 0;
+				Event_Killed( dmgInfo );
+				return 0;
+			}
 		}
 
 		// Chain

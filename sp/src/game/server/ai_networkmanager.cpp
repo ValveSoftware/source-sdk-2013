@@ -3059,6 +3059,16 @@ int CAI_NetworkBuilder::ComputeConnection( CAI_Node *pSrcNode, CAI_Node *pDestNo
 		}
 		else
 		{
+#ifdef MAPBASE
+			// This is kind of a hack since target node IDs are designed to be used *after* the nodegraph is generated.
+			// However, for the purposes of forcing a climb connection outside of regular lineup bounds, it seems to be a reasonable solution.
+			if (pSrcNode->GetHint() && pDestNode->GetHint() &&
+				(pSrcNode->GetHint()->GetTargetWCNodeID() == pDestNode->GetHint()->GetWCId() || pDestNode->GetHint()->GetTargetWCNodeID() == pSrcNode->GetHint()->GetWCId()))
+			{
+				DebugConnectMsg( srcId, destId, "      Ignoring climbing lineup due to manual target ID linkage\n" );
+			}
+			else
+#endif
 			if ( !IsInLineForClimb(srcPos, UTIL_YawToVector( pSrcNode->m_flYaw ), destPos, UTIL_YawToVector( pDestNode->m_flYaw ) ) )
 			{
 				Assert( !IsInLineForClimb(destPos, UTIL_YawToVector( pDestNode->m_flYaw ), srcPos, UTIL_YawToVector( pSrcNode->m_flYaw ) ) );

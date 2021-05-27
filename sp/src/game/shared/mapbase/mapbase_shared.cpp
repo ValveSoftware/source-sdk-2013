@@ -9,6 +9,7 @@
 #include "cbase.h"
 
 #include "tier0/icommandline.h"
+#include "tier1/mapbase_con_groups.h"
 #include "igamesystem.h"
 #include "filesystem.h"
 #include <vgui_controls/Controls.h> 
@@ -71,7 +72,7 @@ ConVar mapbase_load_actbusy("mapbase_load_actbusy", "1", FCVAR_ARCHIVE, "Should 
 
 #ifdef GAME_DLL
 // This cvar should change with each Mapbase update
-ConVar mapbase_version( "mapbase_version", "6.3", FCVAR_NONE, "The version of Mapbase currently being used in this mod." );
+ConVar mapbase_version( "mapbase_version", "7.0", FCVAR_NONE, "The version of Mapbase currently being used in this mod." );
 
 extern void MapbaseGameLog_Init();
 
@@ -151,6 +152,8 @@ public:
 
 	virtual bool Init()
 	{
+		InitConsoleGroups( g_pFullFileSystem );
+
 		// Checks gameinfo.txt for additional command line options
 		KeyValues *gameinfo = new KeyValues("GameInfo");
 		if (GetGameInfoKeyValues(gameinfo))
@@ -626,3 +629,38 @@ BEGIN_DATADESC( CMapbaseManifestEntity )
 
 END_DATADESC()
 #endif
+
+//-----------------------------------------------------------------------------
+
+void CV_IncludeNameChanged( IConVar *pConVar, const char *pOldString, float flOldValue );
+
+#ifdef CLIENT_DLL
+ConVar con_group_include_name_client( "con_group_include_name_client", "0", FCVAR_NONE, "Includes groups when printing on the client.", CV_IncludeNameChanged );
+
+void CV_IncludeNameChanged( IConVar *pConVar, const char *pOldString, float flOldValue )
+{
+	SetConsoleGroupIncludeNames( con_group_include_name_client.GetBool() );
+}
+#else
+ConVar con_group_include_name( "con_group_include_name", "0", FCVAR_NONE, "Includes groups when printing.", CV_IncludeNameChanged );
+
+void CV_IncludeNameChanged( IConVar *pConVar, const char *pOldString, float flOldValue )
+{
+	SetConsoleGroupIncludeNames( con_group_include_name.GetBool() );
+}
+#endif
+
+CON_COMMAND_SHARED( con_group_reload, "Reloads all console groups." )
+{
+	InitConsoleGroups( g_pFullFileSystem );
+}
+
+CON_COMMAND_SHARED( con_group_list, "Prints a list of all console groups." )
+{
+	PrintAllConsoleGroups();
+}
+
+CON_COMMAND_SHARED( con_group_toggle, "Toggles a console group." )
+{
+	ToggleConsoleGroups( args.Arg( 1 ) );
+}

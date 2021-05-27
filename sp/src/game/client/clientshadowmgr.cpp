@@ -125,6 +125,11 @@ ConVar r_threaded_client_shadow_manager( "r_threaded_client_shadow_manager", "1"
 ConVar r_threaded_client_shadow_manager( "r_threaded_client_shadow_manager", "0" );
 #endif
 
+#ifdef MAPBASE
+ConVarRef mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap" );
+ConVarRef mat_depthbias_shadowmap( "mat_depthbias_shadowmap" );
+#endif
+
 #ifdef _WIN32
 #pragma warning( disable: 4701 )
 #endif
@@ -1423,6 +1428,15 @@ bool CClientShadowMgr::Init()
 	}
 
 	materials->AddRestoreFunc( ShadowRestoreFunc );
+
+#ifdef MAPBASE
+	// These need to be referenced here since the cvars don't exist in the initial declaration
+	mat_slopescaledepthbias_shadowmap = ConVarRef( "mat_slopescaledepthbias_shadowmap" );
+	mat_depthbias_shadowmap = ConVarRef( "mat_depthbias_shadowmap" );
+
+	mat_slopescaledepthbias_shadowmap.SetValue( "16" ); // Would do something like 2 here, but it causes citizens to look weird under flashlights
+	mat_depthbias_shadowmap.SetValue( "0.00005" );
+#endif
 
 	return true;
 }

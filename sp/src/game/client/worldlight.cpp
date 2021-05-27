@@ -27,6 +27,10 @@
 
 static IVEngineServer *g_pEngineServer = NULL;
 
+#ifdef MAPBASE
+ConVar cl_worldlight_use_new_method("cl_worldlight_use_new_method", "1", FCVAR_NONE, "Uses the new world light iteration method which splits lights into multiple lists for each cluster.");
+#endif
+
 //-----------------------------------------------------------------------------
 // Singleton exposure
 //-----------------------------------------------------------------------------
@@ -192,6 +196,83 @@ void CWorldLights::LevelInitPreEntity()
 	g_pFullFileSystem->Close(hFile);
 
 	DevMsg("CWorldLights: load successful (%d lights at 0x%p)\n", m_nWorldLights, m_pWorldLights);
+
+#ifdef MAPBASE
+	// Now that the lights have been gathered, begin separating them into lists for each PVS cluster.
+	// This code is adapted from the soundscape cluster list code (see soundscape_system.cpp) and is intended to
+	// reduce frame drops in large maps which use dynamic RTT shadow angles.
+	CUtlVector<bbox_t> clusterbounds;
+	int clusterCount = g_pEngineServer->GetClusterCount();
+	clusterbounds.SetCount( clusterCount );
+	g_pEngineServer->GetAllClusterBounds( clusterbounds.Base(), clusterCount );
+	m_WorldLightsInCluster.SetCount(clusterCount);
+	for ( int i = 0; i < clusterCount; i++ )
+	{
+		m_WorldLightsInCluster[i].lightCount = 0;
+		m_WorldLightsInCluster[i].firstLight = 0;
+	}
+	unsigned char myPVS[16 * 1024];
+	CUtlVector<short> clusterIndexList;
+	CUtlVector<short> lightIndexList;
+
+	// Find the clusters visible from each light, then add it to those clusters' light lists
+	// (Also try to clip for radius if possible)
+	for (int i = 0; i < m_nWorldLights; ++i)
+	{
+		dworldlight_t *light = &m_pWorldLights[i];
+
+		// Assign the sun to its own pointer
+		if (light->type == emit_skylight)
+		{
+			m_iSunIndex = i;
+			continue;
+		}
+
+		float radiusSq = light->radius * light->radius;
+		if (radiusSq == 0.0f)
+		{
+			// TODO: Use intensity instead?
+			radiusSq = FLT_MAX;
+		}
+
+		g_pEngineServer->GetPVSForCluster( light->cluster, sizeof( myPVS ), myPVS );
+		for ( int j = 0; j < clusterCount; j++ )
+		{
+			if ( myPVS[ j >> 3 ] & (1<<(j&7)) )
+			{
+				float distSq = CalcSqrDistanceToAABB( clusterbounds[j].mins, clusterbounds[j].maxs, light->origin );
+				if ( distSq < radiusSq )
+				{
+					m_WorldLightsInCluster[j].lightCount++;
+					clusterIndexList.AddToTail(j);
+					lightIndexList.AddToTail(i);
+				}
+			}
+		}
+	}
+
+	m_WorldLightsIndexList.SetCount(lightIndexList.Count());
+
+	// Compute the starting index of each cluster
+	int firstLight = 0;
+	for ( int i = 0; i < clusterCount; i++ )
+	{
+		m_WorldLightsInCluster[i].firstLight = firstLight;
+		firstLight += m_WorldLightsInCluster[i].lightCount;
+		m_WorldLightsInCluster[i].lightCount = 0;
+	}
+
+	// Now add each light index to the appropriate cluster's list
+	for ( int i = 0; i < lightIndexList.Count(); i++ )
+	{
+		int cluster = clusterIndexList[i];
+		int outIndex = m_WorldLightsInCluster[cluster].lightCount + m_WorldLightsInCluster[cluster].firstLight;
+		m_WorldLightsInCluster[cluster].lightCount++;
+		m_WorldLightsIndexList[outIndex] = lightIndexList[i];
+	}
+
+	//DevMsg( "CWorldLights: Light clusters list has %i elements; Light index list has %i\n", m_WorldLightsInCluster.Count(), m_WorldLightsIndexList.Count() );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -208,6 +289,25 @@ bool CWorldLights::GetBrightestLightSource(const Vector &vecPosition, Vector &ve
 
 	// Find the size of the PVS for our current position
 	int nCluster = g_pEngineServer->GetClusterForOrigin(vecPosition);
+
+#ifdef MAPBASE
+	if (cl_worldlight_use_new_method.GetBool())
+	{
+		FindBrightestLightSourceNew( vecPosition, vecLightPos, vecLightBrightness, nCluster );
+	}
+	else
+#endif
+	{
+		FindBrightestLightSourceOld( vecPosition, vecLightPos, vecLightBrightness, nCluster );
+	}
+
+	//engine->Con_NPrintf(m_nWorldLights, "result: %d", !vecLightBrightness.IsZero());
+	return !vecLightBrightness.IsZero();
+}
+
+void CWorldLights::FindBrightestLightSourceOld( const Vector &vecPosition, Vector &vecLightPos, Vector &vecLightBrightness, int nCluster )
+{
+	// Find the size of the PVS for our current position
 	int nPVSSize = g_pEngineServer->GetPVSForCluster(nCluster, 0, NULL);
 
 	// Get the PVS at our position
@@ -257,7 +357,7 @@ bool CWorldLights::GetBrightestLightSource(const Vector &vecPosition, Vector &ve
 
 			delete[] pvs;
 
-			return false;
+			return;
 		}
 
 		// Calculate square distance to this worldlight
@@ -308,7 +408,87 @@ bool CWorldLights::GetBrightestLightSource(const Vector &vecPosition, Vector &ve
 	}
 
 	delete[] pvs;
+}
 
-	//engine->Con_NPrintf(m_nWorldLights, "result: %d", !vecLightBrightness.IsZero());
-	return !vecLightBrightness.IsZero();
-} 
+#ifdef MAPBASE
+void CWorldLights::FindBrightestLightSourceNew( const Vector &vecPosition, Vector &vecLightPos, Vector &vecLightBrightness, int nCluster )
+{
+	// Handle sun
+	if (m_iSunIndex != -1)
+	{
+		dworldlight_t *light = &m_pWorldLights[m_iSunIndex];
+
+		// Calculate sun position
+		Vector vecAbsStart = vecPosition + Vector(0,0,30);
+		Vector vecAbsEnd = vecAbsStart - (light->normal * MAX_TRACE_LENGTH);
+
+		trace_t tr;
+		UTIL_TraceLine(vecPosition, vecAbsEnd, MASK_OPAQUE, NULL, COLLISION_GROUP_NONE, &tr);
+
+		// If we didn't hit anything then we have a problem
+		if(tr.DidHit())
+		{
+			// If we did hit something, and it wasn't the skybox, then skip
+			// this worldlight
+			if((tr.surface.flags & SURF_SKY) && (tr.surface.flags & SURF_SKY2D))
+			{
+				// Act like we didn't find any valid worldlights, so the shadow
+				// manager uses the default shadow direction instead (should be the
+				// sun direction)
+
+				return;
+			}
+		}
+	}
+
+	// Iterate through all the worldlights
+	if ( nCluster >= 0 && nCluster < m_WorldLightsInCluster.Count() )
+	{
+		// find all soundscapes that could possibly attach to this player and update them
+		for ( int j = 0; j < m_WorldLightsInCluster[nCluster].lightCount; j++ )
+		{
+			int ssIndex = m_WorldLightsIndexList[m_WorldLightsInCluster[nCluster].firstLight + j];
+			dworldlight_t *light = &m_pWorldLights[ssIndex];
+
+			// Calculate square distance to this worldlight
+			Vector vecDelta = light->origin - vecPosition;
+			float flDistSqr = vecDelta.LengthSqr();
+			float flRadiusSqr = light->radius * light->radius;
+
+			// Skip lights that are out of our radius
+			if(flRadiusSqr > 0 && flDistSqr >= flRadiusSqr)
+			{
+				//engine->Con_NPrintf(i, "%d: out-of-radius (dist: %d, radius: %d)", i, sqrt(flDistSqr), light->radius);
+				continue;
+			}
+
+			// Calculate intensity at our position
+			float flRatio = Engine_WorldLightDistanceFalloff(light, vecDelta);
+			Vector vecIntensity = light->intensity * flRatio;
+
+			// Is this light more intense than the one we already found?
+			if(vecIntensity.LengthSqr() <= vecLightBrightness.LengthSqr())
+			{
+				//engine->Con_NPrintf(i, "%d: too dim", i);
+				continue;
+			}
+
+			// Can we see the light?
+			trace_t tr;
+			Vector vecAbsStart = vecPosition + Vector(0,0,30);
+			UTIL_TraceLine(vecAbsStart, light->origin, MASK_OPAQUE, NULL, COLLISION_GROUP_NONE, &tr);
+
+			if(tr.DidHit())
+			{
+				//engine->Con_NPrintf(i, "%d: trace failed", i);
+				continue;
+			}
+
+			vecLightPos = light->origin;
+			vecLightBrightness = vecIntensity;
+
+			//engine->Con_NPrintf(i, "%d: set (%.2f)", i, vecIntensity.Length());
+		}
+	}
+}
+#endif

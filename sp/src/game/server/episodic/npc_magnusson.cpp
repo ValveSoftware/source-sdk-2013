@@ -37,6 +37,11 @@ public:
 	Class_T Classify ( void );
 	void	HandleAnimEvent( animevent_t *pEvent );
 	int		GetSoundInterests ( void );
+
+#ifdef MAPBASE
+	// Use Magnusson's default subtitle color (209,178,178)
+	bool	GetGameTextSpeechParams( hudtextparms_t &params ) { params.r1 = 209; params.g1 = 178; params.b1 = 178; return BaseClass::GetGameTextSpeechParams( params ); }
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( npc_magnusson, CNPC_Magnusson );

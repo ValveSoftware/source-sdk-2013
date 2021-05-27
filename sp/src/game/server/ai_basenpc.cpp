@@ -97,6 +97,7 @@
 
 #ifdef MAPBASE
 #include "mapbase/matchers.h"
+#include "items.h"
 #endif
 
 #include "env_debughistory.h"
@@ -11509,17 +11510,9 @@ void CAI_BaseNPC::PickupItem( CBaseEntity *pItem )
 		m_OnItemPickup.Set( pItem, pItem, this );
 
 	Assert( pItem != NULL );
-	if( FClassnameIs( pItem, "item_healthkit" ) )
+	if( FClassnameIs( pItem, "item_health*" ) ) // item_healthkit, item_healthvial, item_healthkit_custom, etc.
 	{
-		if ( TakeHealth( sk_healthkit.GetFloat(), DMG_GENERIC ) )
-		{
-			RemoveAllDecals();
-			UTIL_Remove( pItem );
-		}
-	}
-	else if( FClassnameIs( pItem, "item_healthvial" ) )
-	{
-		if ( TakeHealth( sk_healthvial.GetFloat(), DMG_GENERIC ) )
+		if ( TakeHealth( static_cast<CItem*>(pItem)->GetItemAmount(), DMG_GENERIC ) )
 		{
 			RemoveAllDecals();
 			UTIL_Remove( pItem );
@@ -15251,7 +15244,11 @@ void CAI_BaseNPC::CalculateValidEnemyInteractions( void )
 			const char *p = STRING(pInteraction->MiscCriteria);
 			while ( p )
 			{
+#ifdef NEW_RESPONSE_SYSTEM
+				p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL, STRING(pInteraction->MiscCriteria) );
+#else
 				p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL );
+#endif
 
 				index = set.FindCriterionIndex(key);
 				if (index != -1)

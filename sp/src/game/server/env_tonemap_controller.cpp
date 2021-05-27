@@ -189,7 +189,7 @@ void CEnvTonemapController::InputBlendTonemapScale( inputdata_t &inputdata )
 void CEnvTonemapController::InputSetBloomScaleRange( inputdata_t &inputdata )
 {
 	float bloom_max=1, bloom_min=1;
-	int nargs=sscanf("%f %f",inputdata.value.String(), bloom_max, bloom_min );
+	int nargs=sscanf( inputdata.value.String(), "%f %f", &bloom_max, &bloom_min );
 	if (nargs != 2)
 	{
 		Warning("%s (%s) received SetBloomScaleRange input without 2 arguments. Syntax: <max bloom> <min bloom>\n", GetClassname(), GetDebugName() );
@@ -197,6 +197,9 @@ void CEnvTonemapController::InputSetBloomScaleRange( inputdata_t &inputdata )
 	}
 	m_flCustomBloomScale=bloom_max;
 	m_flCustomBloomScaleMinimum=bloom_min;
+#ifdef MAPBASE
+	m_bUseCustomBloomScale = true;
+#endif
 }
 
 //-----------------------------------------------------------------------------

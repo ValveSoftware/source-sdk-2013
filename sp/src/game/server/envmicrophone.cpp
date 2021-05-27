@@ -19,6 +19,9 @@
 #include "soundflags.h"
 #include "engine/IEngineSound.h"
 #include "filters.h"
+#ifdef MAPBASE
+#include "fmtstr.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -26,6 +29,10 @@
 //#define DEBUG_MICROPHONE
 
 const float MICROPHONE_SETTLE_EPSILON = 0.005;
+
+#ifdef MAPBASE
+static ConVar sv_microphones_always_pickup_sentences( "sv_microphones_always_pickup_sentences", "0", FCVAR_NONE, "Allows env_microphones to always detect and play back sentences, regardless of their keyvalues." );
+#endif
 
 // List of env_microphones who want to be told whenever a sound is started
 static CUtlVector< CHandle<CEnvMicrophone> > s_Microphones;
@@ -236,7 +243,11 @@ void CEnvMicrophone::InputDisable( inputdata_t &inputdata )
 	m_bDisabled = true;
 	if ( m_hSpeaker )
 	{
+#ifdef MAPBASE
+		CBaseEntity::StopSound( m_hSpeaker->entindex(), m_nChannel, m_szLastSound );
+#else
 		CBaseEntity::StopSound( m_hSpeaker->entindex(), CHAN_STATIC, m_szLastSound );
+#endif
 		m_szLastSound[0] = 0;
 
 		// Remove ourselves from the list of active mics
@@ -554,31 +565,41 @@ MicrophoneResult_t CEnvMicrophone::SoundPlayed( int entindex, const char *soundn
 	CPASAttenuationFilter filter( m_hSpeaker );
 
 	EmitSound_t ep;
-#ifdef MAPBASE
-	ep.m_nChannel = m_nChannel;
-	if (m_flVolumeScale != 1.0f)
-		ep.m_flVolume = (flVolume * m_flVolumeScale);
-#else
-	ep.m_nChannel = CHAN_STATIC;
-	ep.m_flVolume = flVolume;
-#endif
-	ep.m_pSoundName = soundname;
-	ep.m_SoundLevel = soundlevel;
-	ep.m_nFlags = iFlags;
-#ifdef MAPBASE
-	if (m_flPitchScale != 1.0f)
-		ep.m_nPitch = (int)((float)iPitch * m_flPitchScale);
-	else
-		ep.m_nPitch = iPitch;
-	ep.m_pOrigin = &vecOrigin;
-#else
-	ep.m_nPitch = iPitch;
-	ep.m_pOrigin = &m_hSpeaker->GetAbsOrigin();
-#endif
-	ep.m_flSoundTime = soundtime;
-	ep.m_nSpeakerEntity = entindex;
 
-	CBaseEntity::EmitSound( filter, m_hSpeaker->entindex(), ep );
+#ifdef MAPBASE
+	if (m_bHearingSentence)
+	{
+		CBaseEntity::EmitSentenceByIndex( filter, m_hSpeaker->entindex(), m_nChannel, atoi(soundname), flVolume, soundlevel, 0, iPitch, &vecOrigin, NULL, true, soundtime,
+			m_iSpeakerDSPPreset, entindex );
+	}
+	else
+#endif
+	{
+#ifdef MAPBASE
+		ep.m_nChannel = m_nChannel;
+		if (m_flVolumeScale != 1.0f)
+			ep.m_flVolume = (flVolume * m_flVolumeScale);
+		else
+			ep.m_flVolume = flVolume;
+		if (m_flPitchScale != 1.0f)
+			ep.m_nPitch = (int)((float)iPitch * m_flPitchScale);
+		else
+			ep.m_nPitch = iPitch;
+		ep.m_pOrigin = &vecOrigin;
+#else
+		ep.m_nChannel = CHAN_STATIC;
+		ep.m_flVolume = flVolume;
+		ep.m_nPitch = iPitch;
+		ep.m_pOrigin = &m_hSpeaker->GetAbsOrigin();
+#endif
+		ep.m_pSoundName = soundname;
+		ep.m_SoundLevel = soundlevel;
+		ep.m_nFlags = iFlags;
+		ep.m_flSoundTime = soundtime;
+		ep.m_nSpeakerEntity = entindex;
+
+		CBaseEntity::EmitSound( filter, m_hSpeaker->entindex(), ep );
+	}
 
 	Q_strncpy( m_szLastSound, soundname, sizeof(m_szLastSound) );
 	m_OnRoutedSound.FireOutput( this, this, 0 );
@@ -646,3 +667,56 @@ bool CEnvMicrophone::OnSoundPlayed( int entindex, const char *soundname, soundle
 
 	return bSwallowed;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Called by the sound system whenever a sentence is played so that
+//			active microphones can have a chance to pick up the sound.
+// Output : Returns whether or not the sentence was swallowed by the microphone.
+//			Swallowed sentences should not be played by the sound system.
+//-----------------------------------------------------------------------------
+bool CEnvMicrophone::OnSentencePlayed( int entindex, int sentenceIndex, soundlevel_t soundlevel, float flVolume, int iFlags, int iPitch, const Vector *pOrigin, float soundtime, CUtlVector< Vector >& soundorigins )
+{
+	bool bSwallowed = false;
+
+	// Loop through all registered microphones and tell them the sound was just played
+	int iCount = s_Microphones.Count();
+	if ( iCount > 0 )
+	{
+		CNumStr szSentenceStr( sentenceIndex );
+
+		// Iterate backwards because we might be deleting microphones.
+		for ( int i = iCount - 1; i >= 0; i-- )
+		{
+			if ( s_Microphones[i] && (s_Microphones[i]->ShouldHearSentences() || sv_microphones_always_pickup_sentences.GetBool()) )
+			{
+				// HACKHACK: Don't want to duplicate all of the code, so just use the same function with a new member variable
+				s_Microphones[i]->ToggleHearingSentence( true );
+				MicrophoneResult_t eResult = s_Microphones[i]->SoundPlayed(
+					entindex, 
+					szSentenceStr,
+					soundlevel, 
+					flVolume, 
+					iFlags, 
+					iPitch, 
+					pOrigin, 
+					soundtime,
+					soundorigins );
+				s_Microphones[i]->ToggleHearingSentence( false );
+
+				if ( eResult == MicrophoneResult_Swallow )
+				{
+					// Microphone told us to swallow it
+					bSwallowed = true;
+				}
+				else if ( eResult == MicrophoneResult_Remove )
+				{
+					s_Microphones.FastRemove( i );
+				}
+			}
+		}
+	}
+
+	return bSwallowed;
+}
+#endif

@@ -199,7 +199,7 @@ void CLogicExternalData::InputWriteKeyValue( inputdata_t &inputdata )
 
 	// Separate key from value
 	char *delimiter = Q_strstr(szValue, " ");
-	if (delimiter && (delimiter + 1) != '\0')
+	if (delimiter && delimiter[1] != '\0')
 	{
 		Q_strncpy(key, szValue, MIN((delimiter - szValue) + 1, sizeof(key)));
 		Q_strncpy(value, delimiter + 1, sizeof(value));

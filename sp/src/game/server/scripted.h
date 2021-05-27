@@ -97,6 +97,8 @@ public:
 	void FireScriptEvent( int nEvent );
 #ifdef MAPBASE
 	void OnBeginSequence( CBaseEntity *pActor );
+	void OnEntrySequence( CBaseEntity *pActor );
+	void OnActionSequence( CBaseEntity *pActor );
 	void OnPreIdleSequence( CBaseEntity *pActor );
 #else
 	void OnBeginSequence( void );
@@ -220,6 +222,8 @@ private:
 	COutputEvent m_OnCancelFailedSequence;	// Fired when a scene is cancelled before it's ever run
 	COutputEvent m_OnScriptEvent[MAX_SCRIPT_EVENTS];
 #ifdef MAPBASE
+	COutputEvent m_OnEntrySequence;
+	COutputEvent m_OnActionSequence;
 	COutputEvent m_OnPreIdleSequence;
 	COutputEvent m_OnFoundNPC;
 #endif

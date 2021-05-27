@@ -1,0 +1,41 @@
+//-----------------------------------------------------------------------------
+//	response_rules.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$macro SRCDIR		"..\.."
+$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;..\public\responserules"
+		$PreprocessorDefinitions		"$BASE;RR_RUNTIME"
+	}
+}
+
+$Project "responserules_runtime"
+{
+	$Folder	"Source Files"
+	{
+		$File	"criteriaset.cpp"
+		$File	"response_system.cpp"
+		$File	"response_system.h"
+		$File	"response_types.cpp"
+		$File	"response_types_internal.cpp"
+		$File	"response_types_internal.h"
+		$File	"rr_convars.cpp"
+		$File	"rr_response.cpp"
+		$File	"rr_speechconcept.cpp"
+		$File	"rrrlib.cpp"
+	}
+
+	$Folder	"Public Header Files"
+	{
+		$File	"$SRCDIR\public\responserules\response_host_interface.h"
+		$File	"$SRCDIR\public\responserules\response_types.h"
+		$File	"$SRCDIR\public\responserules\rr_speechconcept.h"
+	}
+}

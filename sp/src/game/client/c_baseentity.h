@@ -164,10 +164,9 @@ struct thinkfunc_t
 #ifdef MAPBASE_VSCRIPT
 struct scriptthinkfunc_t
 {
-	int				m_nNextThinkTick;
-	HSCRIPT			m_hfnThink;
-	unsigned short	m_iContextHash;
-	bool			m_bNoParam;
+	float		m_flNextThink;
+	HSCRIPT		m_hfnThink;
+	unsigned	m_iContextHash;
 };
 #endif
 
@@ -295,6 +294,8 @@ public:
 	string_t		m_iszScriptId;
 #ifdef MAPBASE_VSCRIPT
 	CScriptScope	m_ScriptScope;
+
+	static ScriptHook_t g_Hook_UpdateOnRemove;
 #endif
 
 // IClientUnknown overrides.
@@ -400,7 +401,7 @@ public:
 
 #ifdef MAPBASE_VSCRIPT
 	// "I don't know why but wrapping entindex() works, while calling it directly crashes."
-	inline int C_BaseEntity::GetEntityIndex() const { return entindex(); }
+	inline int GetEntityIndex() const { return entindex(); }
 #endif
 	
 	// This works for client-only entities and returns the GetEntryIndex() of the entity's handle,

@@ -242,7 +242,12 @@ void CEntityFlame::FlameThink( void )
 		}
 	
 		CAI_BaseNPC *pNPC = m_hEntAttached->MyNPCPointer();
+#ifdef MAPBASE
+		// Don't extingish if the NPC is still dying
+		if ( pNPC && !pNPC->IsAlive() && pNPC->m_lifeState != LIFE_DYING )
+#else
 		if ( pNPC && !pNPC->IsAlive() )
+#endif
 		{
 			UTIL_Remove( this );
 			// Notify the NPC that it's no longer burning!

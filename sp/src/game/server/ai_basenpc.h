@@ -64,7 +64,9 @@ class CBaseGrenade;
 class CBaseDoor;
 class CBasePropDoor;
 struct AI_Waypoint_t;
+#ifndef NEW_RESPONSE_SYSTEM
 class AI_Response;
+#endif
 class CBaseFilter;
 
 typedef CBitVec<MAX_CONDITIONS> CAI_ScheduleBits;
@@ -98,11 +100,6 @@ extern bool AIStrongOpt( void );
 #ifdef MAPBASE
 // Defines Mapbase's extended NPC response system usage.
 #define EXPANDED_RESPONSE_SYSTEM_USAGE
-
-// Use the model keyvalue if it is defined
-#define DefaultOrCustomModel(defaultModel) GetModelName() != NULL_STRING ? STRING(GetModelName()) : defaultModel
-#else
-#define DefaultOrCustomModel() defaultModel
 #endif
 
 #ifdef EXPANDED_RESPONSE_SYSTEM_USAGE
@@ -670,6 +667,7 @@ public:
 
 	virtual bool		ShouldAlwaysThink();
 	void				ForceGatherConditions()	{ m_bForceConditionsGather = true; SetEfficiency( AIE_NORMAL ); }	// Force an NPC out of PVS to call GatherConditions on next think
+	bool				IsForceGatherConditionsSet() { return m_bForceConditionsGather; }
 
 	virtual float		LineOfSightDist( const Vector &vecDir = vec3_invalid, float zEye = FLT_MAX );
 
@@ -963,7 +961,7 @@ public:
 	void				RemoveSleepFlags( int flags ) { m_SleepFlags &= ~flags; }
 	bool				HasSleepFlags( int flags ) { return (m_SleepFlags & flags) == flags; }
 
-	void				UpdateSleepState( bool bInPVS );
+	virtual void		UpdateSleepState( bool bInPVS );
 	virtual	void		Wake( bool bFireOutput = true );
 #ifdef MAPBASE
 	// A version of Wake() that takes an activator

@@ -33,10 +33,13 @@
 
 #include "tier1/utlbuffer.h"
 #include "tier1/mapbase_con_groups.h"
+#include "tier1/convar.h"
 
 #include "vscript_squirrel.nut"
 
 #include <cstdarg>
+
+extern ConVar developer;
 
 struct WriteStateMap
 {
@@ -65,8 +68,16 @@ struct WriteStateMap
 struct ReadStateMap
 {
 	CUtlMap<int, HSQOBJECT> cache;
+#ifdef _DEBUG
+	CUtlMap<int, bool> allocated;
+#endif
 	HSQUIRRELVM vm_;
-	ReadStateMap(HSQUIRRELVM vm) : cache(DefLessFunc(int)), vm_(vm)
+	ReadStateMap(HSQUIRRELVM vm) : 
+		cache(DefLessFunc(int)),
+#ifdef _DEBUG
+		allocated(DefLessFunc(int)), 
+#endif
+		vm_(vm)
 	{}
 
 	~ReadStateMap()
@@ -83,6 +94,16 @@ struct ReadStateMap
 		int marker = pBuffer->GetInt();
 
 		auto idx = cache.Find(marker);
+
+#ifdef _DEBUG
+		auto allocatedIdx = allocated.Find(marker);
+		bool hasSeen = allocatedIdx != allocated.InvalidIndex();
+		if (!hasSeen)
+		{
+			allocated.Insert(marker, true);
+		}
+#endif
+
 		if (idx != cache.InvalidIndex())
 		{
 			sq_pushobject(vm, cache[idx]);
@@ -90,6 +111,9 @@ struct ReadStateMap
 		}
 		else
 		{
+#ifdef _DEBUG
+			Assert(!hasSeen);
+#endif
 			*outmarker = marker;
 			return false;
 		}
@@ -253,7 +277,7 @@ public:
 	HSQOBJECT regexpClass_;
 };
 
-SQUserPointer TYPETAG_VECTOR = "VectorTypeTag";
+static char TYPETAG_VECTOR[] = "VectorTypeTag";
 
 namespace SQVector
 {
@@ -476,8 +500,26 @@ namespace SQVector
 			return sq_throwerror(vm, "Expected (Vector)");
 		}
 
-		v1->Negate();
+		sq_getclass(vm, 1);
+		sq_createinstance(vm, -1);
+		SQUserPointer p;
+		sq_getinstanceup(vm, -1, &p, 0);
+		new(p) Vector(-v1->x, -v1->y, -v1->z);
+		sq_remove(vm, -2);
 
+		return 1;
+	}
+
+	SQInteger weakref(HSQUIRRELVM vm)
+	{
+		sq_weakref(vm, 1);
+		return 1;
+	}
+
+	SQInteger getclass(HSQUIRRELVM vm)
+	{
+		sq_getclass(vm, 1);
+		sq_push(vm, -1);
 		return 1;
 	}
 
@@ -835,11 +877,10 @@ namespace SQVector
 
 		float x = 0.0f, y = 0.0f, z = 0.0f;
 
-		if ( sscanf( szInput, "%f %f %f", &x, &y, &z ) < 3 ) // UTIL_StringToVector
+		if ( sscanf( szInput, "%f %f %f", &x, &y, &z ) < 3 )
 		{
-			// Don't throw, return null while invalidating the input vector.
+			// Return null while invalidating the input vector.
 			// This allows the user to easily check for input errors without halting.
-			//return sq_throwerror(vm, "invalid KV string");
 
 			sq_pushnull(vm);
 			*v1 = vec3_invalid;
@@ -971,6 +1012,8 @@ namespace SQVector
 		{_SC("_mul"), _multiply, 2, _SC("..")},
 		{_SC("_div"), _divide, 2, _SC("..")},
 		{_SC("_unm"), _unm, 1, _SC(".")},
+		{_SC("weakref"), weakref, 1, _SC(".")},
+		{_SC("getclass"), getclass, 1, _SC(".")},
 		{_SC("Set"), Set, -2, _SC("..nn")},
 		{_SC("Add"), Add, 2, _SC("..")},
 		{_SC("Subtract"), Subtract, 2, _SC("..")},
@@ -1101,7 +1144,7 @@ void PushVariant(HSQUIRRELVM vm, const ScriptVariant_t& value)
 		sq_createinstance(vm, -1);
 		SQUserPointer p;
 		sq_getinstanceup(vm, -1, &p, 0);
-		new(p) Vector(value);
+		new(p) Vector(static_cast<const Vector&>(value));
 		sq_remove(vm, -2);
 		break;
 	}
@@ -1375,6 +1418,9 @@ SQInteger function_stub(HSQUIRRELVM vm)
 
 	PushVariant(vm, retval);
 
+	if (retval.m_type == FIELD_VECTOR)
+		delete retval.m_pVector;
+
 	return pFunc->m_desc.m_ReturnType != FIELD_VOID;
 }
 
@@ -1632,6 +1678,19 @@ SQInteger IsValid_stub(HSQUIRRELVM vm)
 	return 1;
 }
 
+SQInteger weakref_stub(HSQUIRRELVM vm)
+{
+	sq_weakref(vm, 1);
+	return 1;
+}
+
+SQInteger getclass_stub(HSQUIRRELVM vm)
+{
+	sq_getclass(vm, 1);
+	sq_push(vm, -1);
+	return 1;
+}
+
 struct SquirrelSafeCheck
 {
 	SquirrelSafeCheck(HSQUIRRELVM vm, int outputCount = 0) :
@@ -1709,6 +1768,9 @@ const char * ScriptDataTypeToName(ScriptDataType_t datatype)
 
 void RegisterDocumentation(HSQUIRRELVM vm, const ScriptFuncDescriptor_t& pFuncDesc, ScriptClassDesc_t* pClassDesc = nullptr)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pFuncDesc.m_pszDescription && pFuncDesc.m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1748,6 +1810,9 @@ void RegisterDocumentation(HSQUIRRELVM vm, const ScriptFuncDescriptor_t& pFuncDe
 
 void RegisterClassDocumentation(HSQUIRRELVM vm, const ScriptClassDesc_t* pClassDesc)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	const char *name = pClassDesc->m_pszScriptName;
@@ -1780,6 +1845,9 @@ void RegisterClassDocumentation(HSQUIRRELVM vm, const ScriptClassDesc_t* pClassD
 
 void RegisterEnumDocumentation(HSQUIRRELVM vm, const ScriptEnumDesc_t* pClassDesc)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pClassDesc->m_pszDescription && pClassDesc->m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1797,6 +1865,9 @@ void RegisterEnumDocumentation(HSQUIRRELVM vm, const ScriptEnumDesc_t* pClassDes
 
 void RegisterConstantDocumentation( HSQUIRRELVM vm, const ScriptConstantBinding_t* pConstDesc, const char *pszAsString, ScriptEnumDesc_t* pEnumDesc = nullptr )
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pConstDesc->m_pszDescription && pConstDesc->m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1825,6 +1896,9 @@ void RegisterConstantDocumentation( HSQUIRRELVM vm, const ScriptConstantBinding_
 
 void RegisterHookDocumentation(HSQUIRRELVM vm, const ScriptHook_t* pHook, const ScriptFuncDescriptor_t& pFuncDesc, ScriptClassDesc_t* pClassDesc = nullptr)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pFuncDesc.m_pszDescription && pFuncDesc.m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1867,6 +1941,9 @@ void RegisterHookDocumentation(HSQUIRRELVM vm, const ScriptHook_t* pHook, const 
 
 void RegisterMemberDocumentation(HSQUIRRELVM vm, const ScriptMemberDesc_t& pDesc, ScriptClassDesc_t* pClassDesc = nullptr)
 {
+	if ( !developer.GetInt() )
+		return;
+
 	SquirrelSafeCheck safeCheck(vm);
 
 	if (pDesc.m_pszDescription && pDesc.m_pszDescription[0] == SCRIPT_HIDE[0])
@@ -1892,6 +1969,12 @@ void RegisterMemberDocumentation(HSQUIRRELVM vm, const ScriptMemberDesc_t& pDesc
 		sq_pushstring(vm, signature, -1);
 		sq_pushstring(vm, pDesc.m_pszDescription ? pDesc.m_pszDescription : "", -1);
 	CallDocumentationRegisterFunction( 3 );
+}
+
+SQInteger GetDeveloperLevel(HSQUIRRELVM vm)
+{
+	sq_pushinteger( vm, developer.GetInt() );
+	return 1;
 }
 
 
@@ -1960,6 +2043,11 @@ bool SquirrelVM::Init()
 			sq_addref(vm_, &regexpClass_);
 			sq_pop(vm_, 1);
 		}
+
+		sq_pushstring( vm_, "developer", -1 );
+		sq_newclosure( vm_, &GetDeveloperLevel, 0 );
+		//sq_setnativeclosurename( vm_, -1, "developer" );
+		sq_newslot( vm_, -3, SQFalse );
 
 		sq_pop(vm_, 1);
 	}
@@ -2476,6 +2564,14 @@ bool SquirrelVM::RegisterClass(ScriptClassDesc_t* pClassDesc)
 
 	sq_pushstring(vm_, "IsValid", -1);
 	sq_newclosure(vm_, IsValid_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "weakref", -1);
+	sq_newclosure(vm_, weakref_stub, 0);
+	sq_newslot(vm_, -3, SQFalse);
+
+	sq_pushstring(vm_, "getclass", -1);
+	sq_newclosure(vm_, getclass_stub, 0);
 	sq_newslot(vm_, -3, SQFalse);
 
 
@@ -3515,6 +3611,7 @@ void SquirrelVM::WriteState(CUtlBuffer* pBuffer)
 	int count = sq_getsize(vm_, 1);
 	sq_pushnull(vm_);
 	pBuffer->PutInt(count);
+
 	while (SQ_SUCCEEDED(sq_next(vm_, -2)))
 	{
 		WriteObject(pBuffer, writeState, -2);
@@ -3648,6 +3745,9 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 				break;
 			}
 
+			vm_->Push(ret);
+			readState.StoreTopInCache(marker);
+
 			int noutervalues = _closure(ret)->_function->_noutervalues;
 			for (int i = 0; i < noutervalues; ++i)
 			{
@@ -3669,9 +3769,6 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 				_closure(ret)->_defaultparams[i] = obj;
 				sq_poptop(vm_);
 			}
-
-			vm_->Push(ret);
-			readState.StoreTopInCache(marker);
 		}
 
 		ReadObject(pBuffer, readState);
@@ -3943,16 +4040,17 @@ void SquirrelVM::ReadObject(CUtlBuffer* pBuffer, ReadStateMap& readState)
 			break;
 		}
 
+		SQOuter* outer = SQOuter::Create(_ss(vm_), nullptr);
+		vm_->Push(outer);
+		readState.StoreTopInCache(marker);
+
 		ReadObject(pBuffer, readState);
 		HSQOBJECT inner;
 		sq_resetobject(&inner);
 		sq_getstackobj(vm_, -1, &inner);
-		SQOuter* outer = SQOuter::Create(_ss(vm_), nullptr);
 		outer->_value = inner;
 		outer->_valptr = &(outer->_value);
 		sq_poptop(vm_);
-		vm_->Push(outer);
-		readState.StoreTopInCache(marker);
 
 		break;
 	}

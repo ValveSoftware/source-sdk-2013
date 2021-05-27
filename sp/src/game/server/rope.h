@@ -102,6 +102,11 @@ public:
 	void InputSetScrollSpeed( inputdata_t &inputdata );
 	void InputSetForce( inputdata_t &inputdata );
 	void InputBreak( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetSlack( inputdata_t &inputdata );
+	void InputSetWidth( inputdata_t &inputdata );
+	void InputSetSubdivision( inputdata_t &inputdata );
+#endif
 
 public:
 

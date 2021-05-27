@@ -55,7 +55,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 projPos							: POSITION;
-#if !defined( _X360 )    	
+#if !defined( _X360 ) && !defined( SHADER_MODEL_VS_3_0 ) && !INTRO    	
 	float  fog								: FOG;
 #endif
 	float2 baseTexCoord						: TEXCOORD0;
@@ -105,10 +105,9 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.projPos = vProjPos;
 	vProjPos.z = dot( float4( worldPos, 1 ), cViewProjZ );
 
-	o.worldPos_projPosZ = float4( worldPos, vProjPos.z );
-#if !defined( _X360 )
-	// Set fixed-function fog factor
-	o.fog = CalcFog( worldPos, vProjPos, g_FogType );
+	o.worldPos_projPosZ = float4( worldPos.xyz, vProjPos.z );
+#if !defined( _X360 )&& !defined( SHADER_MODEL_VS_3_0 ) && !INTRO
+	o.fog = CalcFixedFunctionFog( worldPos, g_FogType );
 #endif
 	// Needed for specular
 	o.worldVertToEyeVector_Darkening.xyz = cEyePos - worldPos;

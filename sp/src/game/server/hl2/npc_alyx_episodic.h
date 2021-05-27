@@ -57,6 +57,9 @@ public:
 #ifdef MAPBASE
 	// This skips CAI_PlayerAlly's CanFlinch() function since Episodic Alyx can flinch to begin with.
 	virtual bool		CanFlinch( void ) { return CAI_BaseActor::CanFlinch(); }
+
+	// Use Alyx's default subtitle color (255,212,255)
+	bool	GetGameTextSpeechParams( hudtextparms_t &params ) { params.r1 = 255; params.g1 = 212; params.b1 = 255; return BaseClass::GetGameTextSpeechParams( params ); }
 #endif
 
 	virtual float	GetJumpGravity() const		{ return 1.8f; }

@@ -90,8 +90,11 @@ public:
 
 #ifdef MAPBASE
 	// This is in CBaseEntity, but I can't find a use for it anywhere.
-	// Must not have been fully implemented. Please remove this if it turns out to be something important.
+	// It may have been originally intended for TF2 or some other game-specific item class. Please remove this if it turns out to be something important.
 	virtual bool IsCombatItem() { return true; }
+
+	// Used to access item_healthkit values, etc. from outside of the class
+	virtual float GetItemAmount() { return 1.0f; }
 
 	void	InputEnablePlayerPickup( inputdata_t &inputdata );
 	void	InputDisablePlayerPickup( inputdata_t &inputdata );

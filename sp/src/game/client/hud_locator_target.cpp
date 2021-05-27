@@ -10,7 +10,7 @@
 #include "iclientmode.h"
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/Controls.h>
 #include <vgui_controls/Label.h>
