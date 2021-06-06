@@ -4298,7 +4298,7 @@ const char *GetFirstSoundInScene(const char *pszScene)
 	else
 	{
 		void *pBuffer = NULL;
-		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, false, true ))
+		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, true ))
 		{
 			g_TokenProcessor.SetBuffer((char*)pBuffer);
 			CChoreoScene *pScene = ChoreoLoadScene( pszScene, NULL, &g_TokenProcessor, LocalScene_Printf );
@@ -5284,7 +5284,7 @@ int GetSceneSpeechCount( char const *pszScene )
 	else
 	{
 		void *pBuffer = NULL;
-		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, false, true ))
+		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, true ))
 		{
 			int iNumSounds = 0;
 
@@ -5359,7 +5359,7 @@ void PrecacheInstancedScene( char const *pszScene )
 
 		// Attempt to precache manually
 		void *pBuffer = NULL;
-		if (filesystem->ReadFileEx( loadfile, "MOD", &pBuffer, false, true ))
+		if (filesystem->ReadFileEx( loadfile, "MOD", &pBuffer, true ))
 		{
 			g_TokenProcessor.SetBuffer((char*)pBuffer);
 			CChoreoScene *pScene = ChoreoLoadScene( loadfile, NULL, &g_TokenProcessor, LocalScene_Printf );
