@@ -283,6 +283,8 @@ void C_EnvProjectedTexture::UpdateLight( void )
 
 				//			VectorNormalize( vRight );
 				//			VectorNormalize( vUp );
+
+				VectorVectors( vForward, vRight, vUp );
 			}
 		}
 		else
