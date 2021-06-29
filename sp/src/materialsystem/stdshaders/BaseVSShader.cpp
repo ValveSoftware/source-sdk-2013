@@ -55,6 +55,9 @@ static ConVar mat_fullbright( "mat_fullbright","0", FCVAR_CHEAT );
 ConVar r_flashlightbrightness( "r_flashlightbrightness", "0.25", FCVAR_CHEAT );
 
 #ifdef MAPBASE
+// This constant should change with each Mapbase update
+ConVar mapbase_version_shaders( "mapbase_version_shaders", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's game_shader_dx9.dll" );
+
 ConVar mat_specular_disable_on_missing( "mat_specular_disable_on_missing", "1", FCVAR_ARCHIVE, "Disables specular reflections on a material when the envmap cannot be found." );
 #endif
 

@@ -1234,6 +1234,14 @@ inline bool Plat_IsInDebugSession( bool bForceRecheck = false ) { return false; 
 PLATFORM_INTERFACE bool Is64BitOS();
 
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// General Mapbase version constant compiled into projects for versioning purposes
+//-----------------------------------------------------------------------------
+#define MAPBASE_VERSION "7.0"
+#endif
+
+
 //-----------------------------------------------------------------------------
 // XBOX Components valid in PC compilation space
 //-----------------------------------------------------------------------------

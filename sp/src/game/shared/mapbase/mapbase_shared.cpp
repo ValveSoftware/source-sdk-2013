@@ -55,11 +55,9 @@ ConVar mapbase_load_soundscripts("mapbase_load_soundscripts", "1", FCVAR_ARCHIVE
 
 ConVar mapbase_load_localization("mapbase_load_localization", "1", FCVAR_ARCHIVE, "Should we load map-specific localized text files? e.g. \"maps/mapname_english.txt\"");
 
-#ifdef CLIENT_DLL
-
-//ConVar mapbase_load_cc("mapbase_load_cc", "1", FCVAR_ARCHIVE, "Should we load map-specific closed captioning? e.g. \"maps/mapname_closecaption_english.txt\" and \"maps/mapname_closecaption_english.dat\"");
-
-#else
+#ifdef GAME_DLL
+// This constant should change with each Mapbase update
+ConVar mapbase_version( "mapbase_version", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's server.dll" );
 
 ConVar mapbase_load_sentences("mapbase_load_sentences", "1", FCVAR_ARCHIVE, "Should we load map-specific sentences? e.g. \"maps/mapname_sentences.txt\"");
 
@@ -67,12 +65,6 @@ ConVar mapbase_load_talker("mapbase_load_talker", "1", FCVAR_ARCHIVE, "Should we
 ConVar mapbase_flush_talker("mapbase_flush_talker", "1", FCVAR_NONE, "Normally, when a map with custom talker files is unloaded, the response system resets to rid itself of the custom file(s). Turn this convar off to prevent that from happening.");
 
 ConVar mapbase_load_actbusy("mapbase_load_actbusy", "1", FCVAR_ARCHIVE, "Should we load map-specific actbusy files? e.g. \"maps/mapname_actbusy.txt\"");
-
-#endif
-
-#ifdef GAME_DLL
-// This cvar should change with each Mapbase update
-ConVar mapbase_version( "mapbase_version", "7.0", FCVAR_NONE, "The version of Mapbase currently being used in this mod." );
 
 extern void MapbaseGameLog_Init();
 
@@ -83,6 +75,12 @@ extern void ReloadResponseSystem();
 
 // Reloads the response system when the map changes to avoid custom talker leaking
 static bool g_bMapContainsCustomTalker;
+#else
+// This constant should change with each Mapbase update
+ConVar mapbase_version_client( "mapbase_version_client", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's client.dll" );
+
+//ConVar mapbase_load_cc("mapbase_load_cc", "1", FCVAR_ARCHIVE, "Should we load map-specific closed captioning? e.g. \"maps/mapname_closecaption_english.txt\" and \"maps/mapname_closecaption_english.dat\"");
+
 #endif
 
 // Indicates this is a core Mapbase mod and not a mod using its code.
