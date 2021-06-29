@@ -4055,14 +4055,13 @@ void CBaseCombatCharacter::InputKilledNPC( inputdata_t &inputdata )
 
 #ifdef MAPBASE
 //-----------------------------------------------------------------------------
-// Purpose: Handle enemy kills. This actually measures players too.
+// Purpose: Handle enemy kills. (this technically measures players too)
 //-----------------------------------------------------------------------------
 void CBaseCombatCharacter::OnKilledNPC( CBaseCombatCharacter *pKilled )
 {
-	// I know this can sometimes pass as NULL, but that can work here...right?
 	m_OnKilledEnemy.Set(pKilled, pKilled, this);
 
-	// Fire an additional output if this was the player
+	// Fire an additional output if this was a player
 	if (pKilled && pKilled->IsPlayer())
 		m_OnKilledPlayer.Set(pKilled, pKilled, this);
 }

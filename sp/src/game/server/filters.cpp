@@ -1522,6 +1522,7 @@ public:
 
 	void Activate()
 	{
+		BaseClass::Activate();
 		ParseSurfaceIndex();
 	}
 

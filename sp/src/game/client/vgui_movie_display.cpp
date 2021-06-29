@@ -368,11 +368,10 @@ bool CMovieDisplayScreen::BeginPlayback( const char *pFilename )
 	}
 	else
 	{
-		Q_strncpy( szMaterialName, pFilename, sizeof(szMaterialName) );
+		Q_snprintf( szMaterialName, sizeof(szMaterialName), "%s_%s", pFilename, m_hScreenEntity->GetEntityName() );
 	}
 
-	const char *pszMaterialName = CFmtStrN<128>( "VideoMaterial_%s", m_hScreenEntity->GetEntityName() );
-	m_VideoMaterial = g_pVideo->CreateVideoMaterial( pszMaterialName, pFilename, "GAME",
+	m_VideoMaterial = g_pVideo->CreateVideoMaterial( szMaterialName, pFilename, "GAME",
 													VideoPlaybackFlags::DEFAULT_MATERIAL_OPTIONS,
 													VideoSystem::DETERMINE_FROM_FILE_EXTENSION/*, m_bAllowAlternateMedia*/ );
 
