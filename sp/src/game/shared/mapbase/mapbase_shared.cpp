@@ -53,7 +53,9 @@ ConVar mapbase_load_soundscripts("mapbase_load_soundscripts", "1", FCVAR_ARCHIVE
 
 //ConVar mapbase_load_soundscapes("mapbase_load_soundscapes", "1", FCVAR_ARCHIVE, "Should we load map-specific soundscapes? e.g. \"maps/mapname_soundscapes.txt\"");
 
-ConVar mapbase_load_localization("mapbase_load_localization", "1", FCVAR_ARCHIVE, "Should we load map-specific localized text files? e.g. \"maps/mapname_english.txt\"");
+ConVar mapbase_load_localization( "mapbase_load_localization", "1", FCVAR_ARCHIVE, "Should we load map-specific localized text files? e.g. \"maps/mapname_english.txt\"" );
+
+ConVar mapbase_load_surfaceprops( "mapbase_load_surfaceprops", "1", FCVAR_ARCHIVE, "Should we load map-specific surfaceproperties files? e.g. \"maps/mapname_surfaceproperties.txt\"" );
 
 #ifdef GAME_DLL
 // This constant should change with each Mapbase update
@@ -83,6 +85,8 @@ ConVar mapbase_version_client( "mapbase_version_client", MAPBASE_VERSION, FCVAR_
 
 #endif
 
+extern void AddSurfacepropFile( const char *pFileName, IPhysicsSurfaceProps *pProps, IFileSystem *pFileSystem );
+
 // Indicates this is a core Mapbase mod and not a mod using its code.
 static bool g_bMapbaseCore;
 
@@ -95,6 +99,7 @@ enum
 	//MANIFEST_PROPDATA,
 	//MANIFEST_SOUNDSCAPES,
 	MANIFEST_LOCALIZATION,
+	MANIFEST_SURFACEPROPS,
 #ifdef CLIENT_DLL
 	//MANIFEST_CLOSECAPTION,
 	MANIFEST_VGUI,
@@ -121,6 +126,7 @@ static const ManifestType_t gm_szManifestFileStrings[MANIFEST_NUM_TYPES] = {
 	//{ "propdata",			&mapbase_load_propdata },
 	//{ "soundscapes",		&mapbase_load_soundscapes },
 	{ "localization",		&mapbase_load_localization },
+	{ "surfaceprops",		&mapbase_load_surfaceprops },
 #ifdef CLIENT_DLL
 	//{ "closecaption",		&mapbase_load_cc },
 	{ "vgui",				NULL },
@@ -381,6 +387,7 @@ public:
 			case MANIFEST_SOUNDSCRIPTS: { soundemitterbase->AddSoundOverrides(value); } break;
 			//case MANIFEST_PROPDATA: { g_PropDataSystem.ParsePropDataFile(value); } break;
 			case MANIFEST_LOCALIZATION: { g_pVGuiLocalize->AddFile( value, "MOD", true ); } break;
+			case MANIFEST_SURFACEPROPS: { AddSurfacepropFile( value, physprops, filesystem ); } break;
 #ifdef CLIENT_DLL
 			//case MANIFEST_CLOSECAPTION: { todo } break;
 			case MANIFEST_VGUI: { PanelMetaClassMgr()->LoadMetaClassDefinitionFile( value ); } break;
