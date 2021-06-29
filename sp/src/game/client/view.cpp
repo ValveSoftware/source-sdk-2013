@@ -745,7 +745,7 @@ void CViewRender::SetUpViews()
 
 	//Adjust the viewmodel's FOV to move with any FOV offsets on the viewer's end
 #ifdef MAPBASE
-	view.fovViewmodel = fabs(g_pClientMode->GetViewModelFOV()) - flFOVOffset;
+	view.fovViewmodel = max(0.001f, g_pClientMode->GetViewModelFOV() - flFOVOffset);
 #else
 	view.fovViewmodel = g_pClientMode->GetViewModelFOV() - flFOVOffset;
 #endif
