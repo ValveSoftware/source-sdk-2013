@@ -445,6 +445,9 @@ public:
 	bool				ScriptEntInAimCone( HSCRIPT pEntity ) { return FInAimCone( ToEnt( pEntity ) ); }
 
 	const Vector&		ScriptBodyAngles( void ) { static Vector vec; QAngle qa = BodyAngles(); vec.x = qa.x; vec.y = qa.y; vec.z = qa.z; return vec; }
+
+	static ScriptHook_t		g_Hook_RelationshipType;
+	static ScriptHook_t		g_Hook_RelationshipPriority;
 #endif
 
 	// Interactions

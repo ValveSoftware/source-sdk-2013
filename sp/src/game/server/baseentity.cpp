@@ -1758,6 +1758,22 @@ void CBaseEntity::SendOnKilledGameEvent( const CTakeDamageInfo &info )
 	}
 }
 
+void CBaseEntity::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info )
+{
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_OnKilledOther.CanRunInScope( m_ScriptScope ))
+	{
+		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
+
+		// victim, info
+		ScriptVariant_t args[] = { ScriptVariant_t( pVictim->GetScriptInstance() ), ScriptVariant_t( hInfo ) };
+		g_Hook_OnKilledOther.Call( m_ScriptScope, NULL, args );
+
+		g_pScriptVM->RemoveInstance( hInfo );
+	}
+#endif
+}
+
 
 bool CBaseEntity::HasTarget( string_t targetname )
 {
@@ -2196,6 +2212,7 @@ ScriptHook_t	CBaseEntity::g_Hook_UpdateOnRemove;
 ScriptHook_t	CBaseEntity::g_Hook_VPhysicsCollision;
 ScriptHook_t	CBaseEntity::g_Hook_FireBullets;
 ScriptHook_t	CBaseEntity::g_Hook_OnDeath;
+ScriptHook_t	CBaseEntity::g_Hook_OnKilledOther;
 ScriptHook_t	CBaseEntity::g_Hook_HandleInteraction;
 #endif
 
@@ -2459,6 +2476,11 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	END_SCRIPTHOOK()
 
 	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_OnDeath, "OnDeath", FIELD_BOOLEAN, "Called when the entity dies (Event_Killed). Returning false makes the entity cancel death, although this could have unforeseen consequences. For hooking any damage instead of just death, see filter_script and PassesFinalDamageFilter." )
+		DEFINE_SCRIPTHOOK_PARAM( "info", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_OnKilledOther, "OnKilledOther", FIELD_VOID, "Called when the entity kills another entity." )
+		DEFINE_SCRIPTHOOK_PARAM( "victim", FIELD_HSCRIPT )
 		DEFINE_SCRIPTHOOK_PARAM( "info", FIELD_HSCRIPT )
 	END_SCRIPTHOOK()
 

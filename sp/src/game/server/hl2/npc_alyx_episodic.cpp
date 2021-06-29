@@ -1069,6 +1069,13 @@ void CNPC_Alyx::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 			pMemory->timeFirstSeen = gpGlobals->curtime - 10.0f;
 		}
 	}
+
+#ifdef MAPBASE
+	// This call has a side effect of causing Alyx to speak a regular companion TLK_ENEMY_DEAD, which may conflict with the TLK_ALYX_ENEMY_DEAD
+	// further up, but this is fine because concepts are protected against interrupting each other and Alyx may even be overridden
+	// to use TLK_ENEMY_DEAD instead, which is used by other NPCs and appends more modifiers.
+	BaseClass::Event_KilledOther( pVictim, info );
+#endif
 }
 
 //-----------------------------------------------------------------------------

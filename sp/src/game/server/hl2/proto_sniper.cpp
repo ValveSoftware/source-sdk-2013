@@ -1519,6 +1519,8 @@ void CProtoSniper::Event_Killed( const CTakeDamageInfo &info )
 void CProtoSniper::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info )
 {
 #ifdef MAPBASE
+	BaseClass::Event_KilledOther( pVictim, info );
+
 	if (pVictim == GetEnemy())
 		SetCondition(COND_SNIPER_KILLED_ENEMY);
 #endif

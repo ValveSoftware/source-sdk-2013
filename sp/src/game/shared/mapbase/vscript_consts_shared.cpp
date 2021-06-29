@@ -509,6 +509,12 @@ void RegisterSharedScriptConstants()
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_WALK_TO_MARK, "SCRIPT_WALK_TO_MARK", "Walking to the scripted sequence position." );
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_RUN_TO_MARK, "SCRIPT_RUN_TO_MARK", "Running to the scripted sequence position." );
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_PLAYING, "SCRIPT_PLAYING", "Moving to the scripted sequence position while playing a custom movement animation." );
+
+	ScriptRegisterConstant( g_pScriptVM, D_ER, "'Error' relationship definition. Used by NPCs and players for relationship disposition." );
+	ScriptRegisterConstant( g_pScriptVM, D_HT, "Denotes a 'Hate' relationship. Used by NPCs and players for relationship disposition." );
+	ScriptRegisterConstant( g_pScriptVM, D_FR, "Denotes a 'Fear' relationship. Used by NPCs and players for relationship disposition." );
+	ScriptRegisterConstant( g_pScriptVM, D_LI, "Denotes a 'Like' relationship. Used by NPCs and players for relationship disposition." );
+	ScriptRegisterConstant( g_pScriptVM, D_NU, "Denotes a 'Neutral' relationship. Used by NPCs and players for relationship disposition." );
 #endif
 
 	// 

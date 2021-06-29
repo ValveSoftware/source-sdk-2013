@@ -151,6 +151,9 @@ BEGIN_DATADESC( CBaseCombatCharacter )
 END_DATADESC()
 
 #ifdef MAPBASE_VSCRIPT
+ScriptHook_t	CBaseCombatCharacter::g_Hook_RelationshipType;
+ScriptHook_t	CBaseCombatCharacter::g_Hook_RelationshipPriority;
+
 BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by players and NPCs." )
 
 	DEFINE_SCRIPTFUNC_NAMED( GetScriptActiveWeapon, "GetActiveWeapon", "Get the character's active weapon entity." )
@@ -191,6 +194,19 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC( HeadDirection3D, "Get the head's 3D direction." )
 	DEFINE_SCRIPTFUNC( EyeDirection2D, "Get the eyes' 2D direction." )
 	DEFINE_SCRIPTFUNC( EyeDirection3D, "Get the eyes' 3D direction." )
+
+	// 
+	// Hooks
+	// 
+	BEGIN_SCRIPTHOOK( CBaseCombatCharacter::g_Hook_RelationshipType, "RelationshipType", FIELD_INTEGER, "Called when a character's relationship to another entity is requested. Returning a disposition will make the game use that disposition instead of the default relationship. (note: 'default' in this case includes overrides from ai_relationship/SetRelationship)" )
+		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "def", FIELD_INTEGER )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( CBaseCombatCharacter::g_Hook_RelationshipPriority, "RelationshipPriority", FIELD_INTEGER, "Called when a character's relationship priority for another entity is requested. Returning a number will make the game use that priority instead of the default priority. (note: 'default' in this case includes overrides from ai_relationship/SetRelationship)" )
+		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "def", FIELD_INTEGER )
+	END_SCRIPTHOOK()
 
 END_SCRIPTDESC();
 #endif
@@ -3283,7 +3299,24 @@ Relationship_t *CBaseCombatCharacter::FindEntityRelationship( CBaseEntity *pTarg
 Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 {
 	if ( pTarget )
+	{
+#ifdef MAPBASE_VSCRIPT
+		if (m_ScriptScope.IsInitialized() && g_Hook_RelationshipType.CanRunInScope( m_ScriptScope ))
+		{
+			// entity, default
+			ScriptVariant_t functionReturn;
+			ScriptVariant_t args[] = { ScriptVariant_t( pTarget->GetScriptInstance() ), FindEntityRelationship( pTarget )->disposition };
+			if (g_Hook_RelationshipType.Call( m_ScriptScope, &functionReturn, args ) && (functionReturn.m_type == FIELD_INTEGER && functionReturn.m_int != D_ER))
+			{
+				// Use the disposition returned by the script
+				return (Disposition_t)functionReturn.m_int;
+			}
+		}
+#endif
+
 		return FindEntityRelationship( pTarget )->disposition;
+	}
+
 	return D_NU;
 }
 
@@ -3295,7 +3328,24 @@ Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 int CBaseCombatCharacter::IRelationPriority( CBaseEntity *pTarget )
 {
 	if ( pTarget )
+	{
+#ifdef MAPBASE_VSCRIPT
+		if (m_ScriptScope.IsInitialized() && g_Hook_RelationshipPriority.CanRunInScope( m_ScriptScope ))
+		{
+			// entity, default
+			ScriptVariant_t functionReturn;
+			ScriptVariant_t args[] = { ScriptVariant_t( pTarget->GetScriptInstance() ), FindEntityRelationship( pTarget )->priority };
+			if (g_Hook_RelationshipPriority.Call( m_ScriptScope, &functionReturn, args ) && functionReturn.m_type == FIELD_INTEGER)
+			{
+				// Use the priority returned by the script
+				return functionReturn.m_int;
+			}
+		}
+#endif
+
 		return FindEntityRelationship( pTarget )->priority;
+	}
+
 	return 0;
 }
 

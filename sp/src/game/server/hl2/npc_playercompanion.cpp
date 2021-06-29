@@ -4183,6 +4183,8 @@ void CNPC_PlayerCompanion::OnPlayerKilledOther( CBaseEntity *pVictim, const CTak
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info )
 {
+	BaseClass::Event_KilledOther( pVictim, info );
+
 	if ( pVictim )
 	{
 		if (pVictim->IsPlayer() || (pVictim->IsNPC() &&
