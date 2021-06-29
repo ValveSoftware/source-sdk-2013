@@ -2350,7 +2350,11 @@ ScriptStatus_t SquirrelVM::ExecuteFunction(HSCRIPT hFunction, ScriptVariant_t* p
 
 bool SquirrelVM::ScopeIsHooked( HSCRIPT hScope, const char *pszEventName )
 {
-	Assert( hScope && hScope != INVALID_HSCRIPT );
+	// For now, assume null scope (which is used for global hooks) is always hooked
+	if (!hScope)
+		return true;
+
+	Assert(hScope != INVALID_HSCRIPT);
 
 	sq_pushroottable(vm_);
 	sq_pushstring(vm_, "Hooks", -1);
@@ -2375,7 +2379,7 @@ bool SquirrelVM::ScopeIsHooked( HSCRIPT hScope, const char *pszEventName )
 
 HSCRIPT SquirrelVM::LookupHookFunction(const char *pszEventName, HSCRIPT hScope, bool &bLegacy)
 {
-	HSCRIPT hFunc = LookupFunction( pszEventName, hScope );
+	HSCRIPT hFunc = hScope ? LookupFunction( pszEventName, hScope ) : nullptr;
 	if (hFunc)
 	{
 		bLegacy = true;
@@ -2421,7 +2425,11 @@ ScriptStatus_t SquirrelVM::ExecuteHookFunction(const char *pszEventName, HSCRIPT
 	// TODO: Run in hook scope
 	sq_pushroottable(vm_);
 
-	sq_pushobject(vm_, *((HSQOBJECT*)hScope));
+	if (hScope)
+		sq_pushobject(vm_, *((HSQOBJECT*)hScope));
+	else
+		sq_pushnull(vm_); // global hook
+
 	sq_pushstring(vm_, pszEventName, -1);
 
 	for (int i = 0; i < nArgs; ++i)

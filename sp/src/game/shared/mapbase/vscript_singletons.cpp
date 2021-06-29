@@ -835,6 +835,9 @@ static void FireGameEventLocal( const char* szEvent, HSCRIPT hTable )
 }
 #endif // !CLIENT_DLL
 
+static ScriptHook_t g_Hook_OnSave;
+static ScriptHook_t g_Hook_OnRestore;
+
 //=============================================================================
 // Save/Restore Utility
 // Based on L4D2 API
@@ -852,6 +855,9 @@ public: // IGameSystem
 	{
 		if ( g_pScriptVM )
 		{
+			g_Hook_OnSave.Call( NULL, NULL, NULL );
+
+			// Legacy hook
 			HSCRIPT hFunc = g_pScriptVM->LookupFunction( "OnSave" );
 			if ( hFunc )
 			{
@@ -870,6 +876,9 @@ public: // IGameSystem
 	{
 		if ( g_pScriptVM )
 		{
+			g_Hook_OnRestore.Call( NULL, NULL, NULL );
+
+			// Legacy hook
 			HSCRIPT hFunc = g_pScriptVM->LookupFunction( "OnRestore" );
 			if ( hFunc )
 			{
@@ -3033,6 +3042,8 @@ void RegisterScriptSingletons()
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptSaveRestoreUtil::SaveTable, "SaveTable", "Store a table with primitive values that will persist across level transitions and save loads." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptSaveRestoreUtil::RestoreTable, "RestoreTable", "Retrieves a table from storage. Write into input table." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptSaveRestoreUtil::ClearSavedTable, "ClearSavedTable", "Removes the table with the given context." );
+	ScriptRegisterSimpleHook( g_pScriptVM, g_Hook_OnSave, "OnSave", FIELD_VOID, "Called when the game is saved." );
+	ScriptRegisterSimpleHook( g_pScriptVM, g_Hook_OnRestore, "OnRestore", FIELD_VOID, "Called when the game is restored." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptReadWriteFile::FileWrite, "StringToFile", "Stores the string into the file" );
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptReadWriteFile::FileRead, "FileToString", "Returns the string from the file, null if no file or file is too big." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, CScriptReadWriteFile::KeyValuesWrite, "KeyValuesToFile", "Stores the CScriptKeyValues into the file" );

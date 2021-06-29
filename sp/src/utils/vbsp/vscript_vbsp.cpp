@@ -43,6 +43,9 @@ extern ScriptClassDesc_t * GetScriptDesc( CBaseEntity * );
 extern int vscript_token;
 int vscript_token_hack = vscript_token;
 
+// HACKHACK: VScript library relies on developer convar existing
+ConVar developer( "developer", "1", 0, "Set developer message level." ); // developer mode
+
 HSCRIPT VScriptCompileScript( const char *pszScriptName, bool bWarnMissing )
 {
 	if ( !g_pScriptVM )

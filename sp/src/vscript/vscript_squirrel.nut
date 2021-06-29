@@ -122,8 +122,6 @@ class CSimpleCallChainer
 	chain = null;
 }
 
-local developer = (delete developer)()
-
 //---------------------------------------------------------
 // Hook handler
 //---------------------------------------------------------
@@ -199,7 +197,26 @@ Hooks <-
 	{
 		local firstReturn = null
 
-		if ( scope in s_List )
+		if ( scope == null )
+		{
+			// null scope = global hook; call all scopes
+			vargv.insert(0,this)
+			foreach ( t in s_List )
+			{
+				if ( event in t )
+				{
+					foreach( context, callback in t[event] )
+					{
+						//printf( "(%.4f) Calling hook '%s' of context '%s' in static iteration\n", Time(), event, context )
+
+						local curReturn = callback.acall(vargv)
+						if (firstReturn == null)
+							firstReturn = curReturn
+					}
+				}
+			}
+		}
+		else if ( scope in s_List )
 		{
 			local t = s_List[scope]
 			if ( event in t )
@@ -236,246 +253,231 @@ Hooks <-
 //---------------------------------------------------------
 __Documentation <- {}
 
-local DocumentedFuncs
-local DocumentedClasses
-local DocumentedEnums
-local DocumentedConsts
-local DocumentedHooks
-local DocumentedMembers
+local developer = (delete developer)()
 
 if (developer)
 {
-	DocumentedFuncs   = {}
-	DocumentedClasses = {}
-	DocumentedEnums   = {}
-	DocumentedConsts  = {}
-	DocumentedHooks   = {}
-	DocumentedMembers = {}
-}
+	local DocumentedFuncs   = {}
+	local DocumentedClasses = {}
+	local DocumentedEnums   = {}
+	local DocumentedConsts  = {}
+	local DocumentedHooks   = {}
+	local DocumentedMembers = {}
 
-local function AddAliasedToTable(name, signature, description, table)
-{
-	// This is an alias function, could use split() if we could guarantee
-	// that ':' would not occur elsewhere in the description and Squirrel had
-	// a convience join() function -- It has split()
-	local colon = description.find(":");
-	if (colon == null)
-		colon = description.len();
-	local alias = description.slice(1, colon);
-	description = description.slice(colon + 1);
-	name = alias;
-	signature = null;
-
-	table[name] <- [signature, description];
-}
-
-function __Documentation::RegisterHelp(name, signature, description)
-{
-	if ( !developer )
-		return
-
-	if (description.len() && description[0] == '#')
+	local function AddAliasedToTable(name, signature, description, table)
 	{
-		AddAliasedToTable(name, signature, description, DocumentedFuncs)
+		// This is an alias function, could use split() if we could guarantee
+		// that ':' would not occur elsewhere in the description and Squirrel had
+		// a convience join() function -- It has split()
+		local colon = description.find(":");
+		if (colon == null)
+			colon = description.len();
+		local alias = description.slice(1, colon);
+		description = description.slice(colon + 1);
+		name = alias;
+		signature = null;
+
+		table[name] <- [signature, description];
 	}
-	else
+
+	function __Documentation::RegisterHelp(name, signature, description)
 	{
-		DocumentedFuncs[name] <- [signature, description];
-	}
-}
-
-function __Documentation::RegisterClassHelp(name, baseclass, description)
-{
-	if ( !developer )
-		return
-
-	DocumentedClasses[name] <- [baseclass, description];
-}
-
-function __Documentation::RegisterEnumHelp(name, num_elements, description)
-{
-	if ( !developer )
-		return
-
-	DocumentedEnums[name] <- [num_elements, description];
-}
-
-function __Documentation::RegisterConstHelp(name, signature, description)
-{
-	if ( !developer )
-		return
-
-	if (description.len() && description[0] == '#')
-	{
-		AddAliasedToTable(name, signature, description, DocumentedConsts)
-	}
-	else
-	{
-		DocumentedConsts[name] <- [signature, description];
-	}
-}
-
-function __Documentation::RegisterHookHelp(name, signature, description)
-{
-	if ( !developer )
-		return
-
-	DocumentedHooks[name] <- [signature, description];
-}
-
-function __Documentation::RegisterMemberHelp(name, signature, description)
-{
-	if ( !developer )
-		return
-
-	DocumentedMembers[name] <- [signature, description];
-}
-
-local function printdoc( text )
-{
-	return ::printc(200,224,255,text);
-}
-
-local function printdocl( text )
-{
-	return printdoc(text + "\n");
-}
-
-local function PrintClass(name, doc)
-{
-	local text = "=====================================\n";
-	text += ("Class:       " + name + "\n");
-	text += ("Base:        " + doc[0] + "\n");
-	if (doc[1].len())
-		text += ("Description: " + doc[1] + "\n");
-	text += "=====================================\n\n";
-
-	printdoc(text);
-}
-
-local function PrintFunc(name, doc)
-{
-	local text = "Function:    " + name + "\n"
-
-	if (doc[0] == null)
-	{
-		// Is an aliased function
-		text += ("Signature:   function " + name + "(");
-		foreach(k,v in this[name].getinfos().parameters)
+		if (description.len() && description[0] == '#')
 		{
-			if (k == 0 && v == "this") continue;
-			if (k > 1) text += (", ");
-			text += (v);
+			AddAliasedToTable(name, signature, description, DocumentedFuncs)
 		}
-		text += (")\n");
+		else
+		{
+			DocumentedFuncs[name] <- [signature, description];
+		}
 	}
-	else
+
+	function __Documentation::RegisterClassHelp(name, baseclass, description)
 	{
+		DocumentedClasses[name] <- [baseclass, description];
+	}
+
+	function __Documentation::RegisterEnumHelp(name, num_elements, description)
+	{
+		DocumentedEnums[name] <- [num_elements, description];
+	}
+
+	function __Documentation::RegisterConstHelp(name, signature, description)
+	{
+		if (description.len() && description[0] == '#')
+		{
+			AddAliasedToTable(name, signature, description, DocumentedConsts)
+		}
+		else
+		{
+			DocumentedConsts[name] <- [signature, description];
+		}
+	}
+
+	function __Documentation::RegisterHookHelp(name, signature, description)
+	{
+		DocumentedHooks[name] <- [signature, description];
+	}
+
+	function __Documentation::RegisterMemberHelp(name, signature, description)
+	{
+		DocumentedMembers[name] <- [signature, description];
+	}
+
+	local function printdoc( text )
+	{
+		return ::printc(200,224,255,text);
+	}
+
+	local function printdocl( text )
+	{
+		return printdoc(text + "\n");
+	}
+
+	local function PrintClass(name, doc)
+	{
+		local text = "=====================================\n";
+		text += ("Class:       " + name + "\n");
+		text += ("Base:        " + doc[0] + "\n");
+		if (doc[1].len())
+			text += ("Description: " + doc[1] + "\n");
+		text += "=====================================\n\n";
+
+		printdoc(text);
+	}
+
+	local function PrintFunc(name, doc)
+	{
+		local text = "Function:    " + name + "\n"
+
+		if (doc[0] == null)
+		{
+			// Is an aliased function
+			text += ("Signature:   function " + name + "(");
+			foreach(k,v in this[name].getinfos().parameters)
+			{
+				if (k == 0 && v == "this") continue;
+				if (k > 1) text += (", ");
+				text += (v);
+			}
+			text += (")\n");
+		}
+		else
+		{
+			text += ("Signature:   " + doc[0] + "\n");
+		}
+		if (doc[1].len())
+			text += ("Description: " + doc[1] + "\n");
+		printdocl(text);
+	}
+
+	local function PrintMember(name, doc)
+	{
+		local text = ("Member:      " + name + "\n");
 		text += ("Signature:   " + doc[0] + "\n");
+		if (doc[1].len())
+			text += ("Description: " + doc[1] + "\n");
+		printdocl(text);
 	}
-	if (doc[1].len())
-		text += ("Description: " + doc[1] + "\n");
-	printdocl(text);
-}
 
-local function PrintMember(name, doc)
-{
-	local text = ("Member:      " + name + "\n");
-	text += ("Signature:   " + doc[0] + "\n");
-	if (doc[1].len())
-		text += ("Description: " + doc[1] + "\n");
-	printdocl(text);
-}
-
-local function PrintEnum(name, doc)
-{
-	local text = "=====================================\n";
-	text += ("Enum:        " + name + "\n");
-	text += ("Elements:    " + doc[0] + "\n");
-	if (doc[1].len())
-		text += ("Description: " + doc[1] + "\n");
-	text += "=====================================\n\n";
-
-	printdoc(text);
-}
-
-local function PrintConst(name, doc)
-{
-	local text = ("Constant:    " + name + "\n");
-	if (doc[0] == null)
+	local function PrintEnum(name, doc)
 	{
-		text += ("Value:       null\n");
+		local text = "=====================================\n";
+		text += ("Enum:        " + name + "\n");
+		text += ("Elements:    " + doc[0] + "\n");
+		if (doc[1].len())
+			text += ("Description: " + doc[1] + "\n");
+		text += "=====================================\n\n";
+
+		printdoc(text);
 	}
-	else
-	{
-		text += ("Value:       " + doc[0] + "\n");
-	}
-	if (doc[1].len())
-		text += ("Description: " + doc[1] + "\n");
-	printdocl(text);
-}
 
-local function PrintHook(name, doc)
-{
-	local text = ("Hook:        " + name + "\n");
-	if (doc[0] == null)
+	local function PrintConst(name, doc)
 	{
-		// Is an aliased function
-		text += ("Signature:   function " + name + "(");
-		foreach(k,v in this[name].getinfos().parameters)
+		local text = ("Constant:    " + name + "\n");
+		if (doc[0] == null)
 		{
-			if (k == 0 && v == "this") continue;
-			if (k > 1) text += (", ");
-			text += (v);
+			text += ("Value:       null\n");
 		}
-		text += (")\n");
-	}
-	else
-	{
-		text += ("Signature:   " + doc[0] + "\n");
-	}
-	if (doc[1].len())
-		text += ("Description: " + doc[1] + "\n");
-	printdocl(text);
-}
-
-local function PrintMatchesInDocList(pattern, list, printfunc)
-{
-	local foundMatches = 0;
-
-	foreach(name, doc in list)
-	{
-		if (pattern == "*" || name.tolower().find(pattern) != null || (doc[1].len() && doc[1].tolower().find(pattern) != null))
+		else
 		{
-			foundMatches = 1;
-			printfunc(name, doc)
+			text += ("Value:       " + doc[0] + "\n");
+		}
+		if (doc[1].len())
+			text += ("Description: " + doc[1] + "\n");
+		printdocl(text);
+	}
+
+	local function PrintHook(name, doc)
+	{
+		local text = ("Hook:        " + name + "\n");
+		if (doc[0] == null)
+		{
+			// Is an aliased function
+			text += ("Signature:   function " + name + "(");
+			foreach(k,v in this[name].getinfos().parameters)
+			{
+				if (k == 0 && v == "this") continue;
+				if (k > 1) text += (", ");
+				text += (v);
+			}
+			text += (")\n");
+		}
+		else
+		{
+			text += ("Signature:   " + doc[0] + "\n");
+		}
+		if (doc[1].len())
+			text += ("Description: " + doc[1] + "\n");
+		printdocl(text);
+	}
+
+	local function PrintMatchesInDocList(pattern, list, printfunc)
+	{
+		local foundMatches = 0;
+
+		foreach(name, doc in list)
+		{
+			if (pattern == "*" || name.tolower().find(pattern) != null || (doc[1].len() && doc[1].tolower().find(pattern) != null))
+			{
+				foundMatches = 1;
+				printfunc(name, doc)
+			}
+		}
+
+		return foundMatches;
+	}
+
+	function __Documentation::PrintHelp(pattern = "*")
+	{
+		local patternLower = pattern.tolower();
+
+		// Have a specific order
+		if (!(
+			PrintMatchesInDocList( patternLower, DocumentedEnums, PrintEnum )		|
+			PrintMatchesInDocList( patternLower, DocumentedConsts, PrintConst )		|
+			PrintMatchesInDocList( patternLower, DocumentedClasses, PrintClass )	|
+			PrintMatchesInDocList( patternLower, DocumentedFuncs, PrintFunc )		|
+			PrintMatchesInDocList( patternLower, DocumentedMembers, PrintMember )	|
+			PrintMatchesInDocList( patternLower, DocumentedHooks, PrintHook )
+		   ))
+		{
+			printdocl("Pattern " + pattern + " not found");
 		}
 	}
-
-	return foundMatches;
 }
-
-function __Documentation::PrintHelp(pattern = "*")
+else
 {
-	if ( !developer )
-	{
-		printdocl("Documentation is not enabled. To enable documentation, restart the server with the 'developer' cvar set to 1 or higher.");
-		return
-	}
+	__Documentation.RegisterHelp <-
+	__Documentation.RegisterClassHelp <-
+	__Documentation.RegisterEnumHelp <-
+	__Documentation.RegisterConstHelp <-
+	__Documentation.RegisterHookHelp <-
+	__Documentation.RegisterMemberHelp <- dummy
 
-	local patternLower = pattern.tolower();
-
-	// Have a specific order
-	if (!(
-		PrintMatchesInDocList( patternLower, DocumentedEnums, PrintEnum )		|
-		PrintMatchesInDocList( patternLower, DocumentedConsts, PrintConst )		|
-		PrintMatchesInDocList( patternLower, DocumentedClasses, PrintClass )	|
-		PrintMatchesInDocList( patternLower, DocumentedFuncs, PrintFunc )		|
-		PrintMatchesInDocList( patternLower, DocumentedMembers, PrintMember )	|
-		PrintMatchesInDocList( patternLower, DocumentedHooks, PrintHook )
-	   ))
+	function __Documentation::PrintHelp( pattern = null )
 	{
-		printdocl("Pattern " + pattern + " not found");
+		printcl(200, 224, 255, "Documentation is not enabled. To enable documentation, restart the server with the 'developer' cvar set to 1 or higher.");
 	}
 }
 

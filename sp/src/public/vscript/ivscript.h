@@ -755,6 +755,23 @@ static inline int ToConstantVariant(int value)
 		pDesc->m_Hooks.AddToTail(pHook); \
 	}
 
+// Static hooks (or "global" hooks) are not tied to specific classes
+#define END_SCRIPTHOOK_STATIC( pVM ) \
+		pVM->RegisterHook( pHook ); \
+	}
+
+#define ScriptRegisterSimpleHook( pVM, hook, hookName, returnType, description ) \
+	if (!hook.m_bDefined) \
+	{ \
+		ScriptHook_t *pHook = &hook; \
+		pHook->m_desc.m_pszScriptName = hookName; pHook->m_desc.m_pszFunction = #hook; pHook->m_desc.m_ReturnType = returnType; pHook->m_desc.m_pszDescription = description; \
+		pVM->RegisterHook( pHook ); \
+	}
+
+#define ScriptRegisterConstant( pVM, constant, description )									ScriptRegisterConstantNamed( pVM, constant, #constant, description )
+#define ScriptRegisterConstantNamed( pVM, constant, scriptName, description )					do { static ScriptConstantBinding_t binding; binding.m_pszScriptName = scriptName; binding.m_pszDescription = description; binding.m_data = ToConstantVariant(constant); pVM->RegisterConstant( &binding ); } while (0)
+
+
 #define DEFINE_MEMBERVAR( varName, returnType, description ) \
 	do { ScriptMemberDesc_t *pBinding = &((pDesc)->m_Members[(pDesc)->m_Members.AddToTail()]); pBinding->m_pszScriptName = varName; pBinding->m_pszDescription = description; pBinding->m_ReturnType = returnType; } while (0);
 #endif
