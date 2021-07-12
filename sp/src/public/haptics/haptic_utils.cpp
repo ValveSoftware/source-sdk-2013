@@ -138,6 +138,10 @@ void ConnectHaptics(CreateInterfaceFn appFactory)
 	HookHapticMessages();
 }
 
+// deleting haptics results in a warning about deleting something with a non-virtual destructor
+// big yikes but we can't do anything about it as it's accessed via interface
+#pragma warning (disable: 5205) 
+
 void DisconnectHaptics()
 {
 	haptics->ShutdownHaptics();

@@ -828,6 +828,8 @@ enum ScriptStatus_t
 class IScriptVM
 {
 public:
+	virtual ~IScriptVM() {}
+	
 	virtual bool Init() = 0;
 	virtual void Shutdown() = 0;
 
