@@ -3735,7 +3735,7 @@ CChoreoScene *CSceneEntity::LoadScene( const char *filename, IChoreoEventCallbac
 	Q_FixSlashes( loadfile );
 
 	// binary compiled vcd
-	void *pBuffer;
+	void *pBuffer = NULL;
 #ifdef MAPBASE
 	// 
 	// Raw scene file support
@@ -3760,12 +3760,13 @@ CChoreoScene *CSceneEntity::LoadScene( const char *filename, IChoreoEventCallbac
 	{
 		g_TokenProcessor.SetBuffer((char*)pBuffer);
 		pScene = ChoreoLoadScene( loadfile, NULL, &g_TokenProcessor, LocalScene_Printf );
+		g_TokenProcessor.SetBuffer(NULL);
 	}
 	// Okay, it's definitely missing.
 	else
 	{
 		MissingSceneWarning( loadfile );
-		return NULL;
+		pScene = NULL;
 	}
 
 	if (pScene)
@@ -4283,6 +4284,7 @@ CBaseEntity *CSceneEntity::FindNamedEntity( const char *name, CBaseEntity *pActo
 #ifdef MAPBASE
 const char *GetFirstSoundInScene(const char *pszScene)
 {
+	const char *soundName;
 	SceneCachedData_t sceneData;
 	if ( scenefilecache->GetSceneCachedData( pszScene, &sceneData ) )
 	{
@@ -4292,16 +4294,17 @@ const char *GetFirstSoundInScene(const char *pszScene)
 			short stringId = scenefilecache->GetSceneCachedSound( sceneData.sceneId, 0 );
 
 			// Trust that it's been precached
-			return scenefilecache->GetSceneString( stringId );
+			soundName = scenefilecache->GetSceneString( stringId );
 		}
 	}
 	else
 	{
 		void *pBuffer = NULL;
-		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, false, true ))
+		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, true ))
 		{
 			g_TokenProcessor.SetBuffer((char*)pBuffer);
 			CChoreoScene *pScene = ChoreoLoadScene( pszScene, NULL, &g_TokenProcessor, LocalScene_Printf );
+			g_TokenProcessor.SetBuffer(NULL);
 			if (pScene)
 			{
 				for (int i = 0; i < pScene->GetNumEvents(); i++)
@@ -4309,13 +4312,17 @@ const char *GetFirstSoundInScene(const char *pszScene)
 					CChoreoEvent *pEvent = pScene->GetEvent(i);
 
 					if (pEvent->GetType() == CChoreoEvent::SPEAK)
-						return pEvent->GetParameters();
+					{
+						soundName = pEvent->GetParameters();
+						break;
+					}
 				}
 			}
 		}
+		FreeSceneFileMemory( pBuffer );
 	}
 
-	return NULL;
+	return soundName;
 }
 
 const char *GetFirstSoundInScene(CChoreoScene *scene)
@@ -4482,6 +4489,8 @@ bool CSceneEntity::ScriptLoadSceneFromString(const char* pszFilename, const char
 		// precache all sounds for the newly constructed scene
 		PrecacheScene(pScene);
 	}
+
+	g_TokenProcessor.SetBuffer(NULL);
 
 	if (pScene != NULL)
 	{
@@ -5284,12 +5293,12 @@ int GetSceneSpeechCount( char const *pszScene )
 	else
 	{
 		void *pBuffer = NULL;
-		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, false, true ))
+		int iNumSounds = 0;
+		if (filesystem->ReadFileEx( pszScene, "MOD", &pBuffer, true ))
 		{
-			int iNumSounds = 0;
-
 			g_TokenProcessor.SetBuffer((char*)pBuffer);
 			CChoreoScene *pScene = ChoreoLoadScene( pszScene, NULL, &g_TokenProcessor, LocalScene_Printf );
+			g_TokenProcessor.SetBuffer(NULL);
 			if (pScene)
 			{
 				for (int i = 0; i < pScene->GetNumEvents(); i++)
@@ -5300,9 +5309,11 @@ int GetSceneSpeechCount( char const *pszScene )
 						iNumSounds++;
 				}
 			}
-
-			return iNumSounds;
 		}
+
+		FreeSceneFileMemory( pBuffer );
+
+		return iNumSounds;
 	}
 #endif
 	return 0;
@@ -5359,7 +5370,7 @@ void PrecacheInstancedScene( char const *pszScene )
 
 		// Attempt to precache manually
 		void *pBuffer = NULL;
-		if (filesystem->ReadFileEx( loadfile, "MOD", &pBuffer, false, true ))
+		if (filesystem->ReadFileEx( loadfile, "MOD", &pBuffer, true ))
 		{
 			g_TokenProcessor.SetBuffer((char*)pBuffer);
 			CChoreoScene *pScene = ChoreoLoadScene( loadfile, NULL, &g_TokenProcessor, LocalScene_Printf );
@@ -5367,7 +5378,9 @@ void PrecacheInstancedScene( char const *pszScene )
 			{
 				PrecacheChoreoScene(pScene);
 			}
+			g_TokenProcessor.SetBuffer(NULL);
 		}
+		FreeSceneFileMemory( pBuffer );
 #else
 		// Scenes are sloppy and don't always exist.
 		// A scene that is not in the pre-built cache image, but on disk, is a true error.
