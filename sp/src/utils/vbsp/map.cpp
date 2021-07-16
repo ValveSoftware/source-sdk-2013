@@ -2105,7 +2105,12 @@ void CMapFile::CheckForInstances( const char *pszFileName )
 	}
 
 	char	FDGPath[ MAX_PATH ];
+#ifdef MAPBASE
+	// Mapbase's FGD would be in a MOD path
+	if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, "MOD", FDGPath, sizeof( FDGPath ) ) )
+#else
 	if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, "EXECUTABLE_PATH", FDGPath, sizeof( FDGPath ) ) )
+#endif
 	{
 		if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, NULL, FDGPath, sizeof( FDGPath ) ) )
 		{
@@ -2606,7 +2611,7 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 		Msg( "Instance Entity %d remapped to %d\n", i, num_entities + i );
 		Msg( "   FirstBrush: from %d to %d\n", Instance->entities[ i ].firstbrush, entity->firstbrush );
 		Msg( "   KV Pairs:\n" );
-		for ( epair_t *ep = entity->epairs; ep->next != NULL; ep = ep->next )
+		for ( epair_t *ep = entity->epairs; ep != NULL; ep = ep->next )
 		{
 			Msg( "      %s %s\n", ep->key, ep->value );
 		}
