@@ -110,7 +110,7 @@ private:
 	CPanelAnimationVarAliasType( int, m_iTypeTextW, "type_text_wide", "400", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTypeTextT, "type_text_tall", "200", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTypeTextCountXFR, "type_text_count_xpos_from_right", "10", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iTypeTextCountY, "type_text_count_ypos", "184", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iTypeTextCountYFB, "type_text_count_ypos_from_bottom", "16", "proportional_int" );
 	CPanelAnimationVar( Color, m_TextBackgroundColor, "type_text_bg", "0 0 0 192" );
 	CPanelAnimationVar( Color, m_TextColor, "type_text_fg", "255 230 180 255" );
 #endif
@@ -380,7 +380,7 @@ void C_PointCommentaryNode::StartTextCommentary( const char *pszCommentaryFile, 
 	// Get the duration so we know when it finishes
 	//float flDuration = enginesound->GetSoundDuration( STRING( CSoundEnvelopeController::GetController().SoundGetName( m_sndCommentary ) ) ) ;
 
-	// TODO: Determine from text length
+	// TODO: Determine from text length?
 	float flDuration = commentary_text_endtime.GetFloat();
 
 	// Tell the HUD element
@@ -529,11 +529,19 @@ void CHudCommentary::Paint()
 #ifdef MAPBASE
 	if (m_bTextCommentary)
 	{
-		vgui::surface()->DrawSetColor( clr );
-		vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset + m_iBarWide, m_iTypeTextT - (yOffset + m_iBarTall) );
+		// TODO: Make this a control?
+		static int iTextBorderSpace = 8;
+
+		// Figure out the size before setting bounds
+		int lW, lT;
+		m_pLabel->GetContentSize( lW, lT );
 
 		m_pLabel->SetFgColor( m_TextColor );
-		m_pLabel->SetBounds( xOffset + 4, yOffset + 4, m_iBarWide - 4, m_iTypeTextT - (m_iBarTall + 4) );
+		m_pLabel->SetBounds(
+			xOffset + iTextBorderSpace,
+			yOffset + iTextBorderSpace,
+			m_iBarWide - iTextBorderSpace,
+			lT /*m_iTypeTextT - ((yOffset * 2) + iTextBorderSpace)*/ );
 		m_pLabel->SetFont( hFont );
 
 		// Draw the speaker names
@@ -541,6 +549,14 @@ void CHudCommentary::Paint()
 		vgui::surface()->DrawSetTextColor( Color( 255, 200, 100, GetAlpha() ) );
 		vgui::surface()->DrawSetTextPos( xOffset+4, yOffset+4 );
 		vgui::surface()->DrawPrintText( m_pszText, wcslen( m_pszText ) );*/
+
+		lT += (iTextBorderSpace * 2);
+
+		vgui::surface()->DrawSetColor( clr );
+		vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset + m_iBarWide, yOffset + lT ); //m_iTypeTextT - (yOffset /*+ m_iBarTall*/) );
+
+		lT += (yOffset * 2);
+		SetBounds( x, ( (float)m_iTypeTextT * MAX( (200.0f / (float)lT), 1.75f ) ), wide, lT );
 	}
 	else
 #endif
@@ -589,7 +605,7 @@ void CHudCommentary::Paint()
 
 #ifdef MAPBASE
 	if (m_bTextCommentary)
-		vgui::surface()->DrawSetTextPos( wide - m_iTypeTextCountXFR - iCountWide, m_iTypeTextCountY );
+		vgui::surface()->DrawSetTextPos( wide - m_iTypeTextCountXFR - iCountWide, tall - m_iTypeTextCountYFB - iCountTall );
 	else
 #endif
 	vgui::surface()->DrawSetTextPos( wide - m_iCountXFR - iCountWide, m_iCountY );
@@ -616,6 +632,10 @@ bool CHudCommentary::ShouldDraw()
 void CHudCommentary::Init( void )
 { 
 	m_matIcon.Init( "vgui/hud/icon_commentary", TEXTURE_GROUP_VGUI );
+
+#ifdef MAPBASE
+	SetProportional( true );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -705,18 +725,6 @@ void CHudCommentary::StartTextCommentary( C_PointCommentaryNode *pNode, const ch
 	m_pLabel->SetPaintBorderEnabled( false );
 	//m_pLabel->SizeToContents();
 	m_pLabel->SetContentAlignment( vgui::Label::a_northwest );
-
-	/*
-	// Find a localization token first.
-	// If one isn't found, use this static buffer.
-	static wchar_t szRawTextBuf[512];
-	m_pszText = g_pVGuiLocalize->Find( pszText );
-	if (!m_pszText)
-	{
-		g_pVGuiLocalize->ConvertANSIToUnicode( pszText, szRawTextBuf, sizeof( szRawTextBuf ) );
-		m_pszText = szRawTextBuf;
-	}
-	*/
 
 	m_bShouldPaint = true;
 	SetPaintBackgroundEnabled( m_bShouldPaint );

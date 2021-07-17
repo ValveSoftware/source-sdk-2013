@@ -905,6 +905,11 @@ void CPointCommentaryNode::Spawn( void )
 	char *szModel = (char *)STRING( GetModelName() );
 	if (!szModel || !*szModel)
 	{
+#ifdef MAPBASE
+		if (m_bTextCommentary)
+			szModel = "models/extras/info_text.mdl";
+		else
+#endif
 		szModel = "models/extras/info_speech.mdl";
 		SetModelName( AllocPooledString(szModel) );
 	}
