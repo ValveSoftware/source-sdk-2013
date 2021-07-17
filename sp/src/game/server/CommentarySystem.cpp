@@ -138,6 +138,10 @@ private:
 	CNetworkVar( string_t, m_iszSpeakers );
 	CNetworkVar( int, m_iNodeNumber );
 	CNetworkVar( int, m_iNodeNumberMax );
+
+#ifdef MAPBASE
+	CNetworkVar( bool, m_bTextCommentary );
+#endif
 };
 
 BEGIN_DATADESC( CPointCommentaryNode )
@@ -166,6 +170,9 @@ BEGIN_DATADESC( CPointCommentaryNode )
 	DEFINE_FIELD( m_bPreventChangesWhileMoving, FIELD_BOOLEAN ),
 	DEFINE_KEYFIELD( m_bDisabled, FIELD_BOOLEAN, "start_disabled" ),
 	DEFINE_KEYFIELD( m_vecTeleportOrigin, FIELD_VECTOR, "teleport_origin" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bTextCommentary, FIELD_BOOLEAN, "type" ), // Open to additional types in the future
+#endif
 
 	// Outputs
 	DEFINE_OUTPUT( m_pOnCommentaryStarted, "OnCommentaryStarted" ),
@@ -192,6 +199,9 @@ IMPLEMENT_SERVERCLASS_ST( CPointCommentaryNode, DT_PointCommentaryNode )
 	SendPropInt( SENDINFO(m_iNodeNumber), 8, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO(m_iNodeNumberMax), 8, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO(m_hViewPosition) ),
+#ifdef MAPBASE
+	SendPropBool( SENDINFO( m_bTextCommentary ) ),
+#endif
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( point_commentary_node, CPointCommentaryNode );
