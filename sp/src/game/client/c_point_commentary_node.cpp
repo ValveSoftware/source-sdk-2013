@@ -20,6 +20,7 @@
 #include "in_buttons.h"
 #ifdef MAPBASE
 #include "vgui_controls/Label.h"
+#include "vgui_controls/ImagePanel.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -41,8 +42,9 @@ bool IsInCommentaryMode( void )
 static bool g_bTracingVsCommentaryNodes = false;
 
 #ifdef MAPBASE
-ConVar commentary_text_force( "commentary_text_force", "0", FCVAR_NONE, "Forces all commentary nodes to use the text type." );
-ConVar commentary_text_endtime( "commentary_text_endtime", "120" );
+ConVar commentary_type_force( "commentary_type_force", "-1", FCVAR_NONE, "Forces all commentary nodes to use the specified type." );
+ConVar commentary_type_text_endtime( "commentary_type_text_endtime", "120" );
+ConVar commentary_type_image_endtime( "commentary_type_image_endtime", "120" );
 #endif
 
 //-----------------------------------------------------------------------------
@@ -62,6 +64,7 @@ public:
 	void StartCommentary( C_PointCommentaryNode *pNode, char *pszSpeakers, int iNode, int iNodeMax, float flStartTime, float flEndTime );
 #ifdef MAPBASE
 	void StartTextCommentary( C_PointCommentaryNode *pNode, const char *pszText, char *pszSpeakers, int iNode, int iNodeMax, float flStartTime, float flEndTime );
+	void StartImageCommentary( C_PointCommentaryNode *pNode, const char *pszImage, char *pszSpeakers, int iNode, int iNodeMax, float flStartTime, float flEndTime );
 #endif
 	void StopCommentary( void );
 	bool IsTheActiveNode( C_PointCommentaryNode *pNode ) { return (pNode == m_hActiveNode); }
@@ -69,6 +72,10 @@ public:
 	// vgui overrides
 	virtual void Paint( void );
 	virtual bool ShouldDraw( void );
+#ifdef MAPBASE
+	virtual void PerformLayout();
+	void ResolveBounds( int width, int height );
+#endif
 
 private:
 	CHandle<C_PointCommentaryNode> m_hActiveNode;
@@ -80,9 +87,14 @@ private:
 	CMaterialReference m_matIcon;
 	bool	m_bHiding;
 #ifdef MAPBASE
-	bool	m_bTextCommentary; // NOTE: If any more types are needed, use an enum
-	wchar_t	*m_pszText;
+	int		m_iCommentaryType;
+	float	m_flPanelScale;
+	float	m_flOverrideX;
+	float	m_flOverrideY;
+
 	vgui::Label *m_pLabel;
+	vgui::ImagePanel *m_pImage;
+	vgui::HFont m_hFont;
 #endif
 
 	// Painting
@@ -110,14 +122,16 @@ private:
 	CPanelAnimationVarAliasType( int, m_iTypeTextW, "type_text_wide", "400", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTypeTextT, "type_text_tall", "200", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTypeTextCountXFR, "type_text_count_xpos_from_right", "10", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iTypeTextCountYFB, "type_text_count_ypos_from_bottom", "16", "proportional_int" );
-	CPanelAnimationVar( Color, m_TextBackgroundColor, "type_text_bg", "0 0 0 192" );
-	CPanelAnimationVar( Color, m_TextColor, "type_text_fg", "255 230 180 255" );
+	CPanelAnimationVarAliasType( int, m_iTypeTextCountYFB, "type_text_count_ypos_from_bottom", "10", "proportional_int" );
+	CPanelAnimationVar( Color, m_TextBackgroundColor, "BackgroundColorTextContent", "0 0 0 192" );
+	CPanelAnimationVar( Color, m_TypeTextContentColor, "TextContentColor", "255 230 180 255" );
+	CPanelAnimationVar( int, m_iTextBorderSpace, "type_text_border_space", "8" );
 #endif
 
 	CPanelAnimationVar( bool, m_bUseScriptBGColor, "use_script_bgcolor", "0" );
 #ifdef MAPBASE
 	CPanelAnimationVar( Color, m_BackgroundColor, "BackgroundColor", "Panel.BgColor" );
+	CPanelAnimationVar( Color, m_ForegroundColor, "ForegroundColor", "255 170 0 255" );
 #else
 	CPanelAnimationVar( Color, m_BackgroundColor, "BackgroundColor", "0 0 0 0" );
 #endif
@@ -140,6 +154,7 @@ public:
 	void StartAudioCommentary( const char *pszCommentaryFile, C_BasePlayer *pPlayer );
 #ifdef MAPBASE
 	void StartTextCommentary( const char *pszCommentaryFile, C_BasePlayer *pPlayer );
+	void StartImageCommentary( const char *pszCommentaryFile, C_BasePlayer *pPlayer );
 #endif
 
 	void OnRestore( void )
@@ -222,7 +237,10 @@ public:
 	EHANDLE		m_hViewPosition;
 	bool		m_bRestartAfterRestore;
 #ifdef MAPBASE
-	bool		m_bTextCommentary;
+	int		m_iCommentaryType;
+	float	m_flPanelScale;
+	float	m_flPanelX;
+	float	m_flPanelY;
 #endif
 };
 
@@ -236,7 +254,10 @@ IMPLEMENT_CLIENTCLASS_DT(C_PointCommentaryNode, DT_PointCommentaryNode, CPointCo
 	RecvPropInt( RECVINFO( m_iNodeNumberMax ) ),
 	RecvPropEHandle( RECVINFO(m_hViewPosition) ),
 #ifdef MAPBASE
-	RecvPropBool( RECVINFO( m_bTextCommentary ) ),
+	RecvPropInt( RECVINFO( m_iCommentaryType ) ),
+	RecvPropFloat( RECVINFO( m_flPanelScale ) ),
+	RecvPropFloat( RECVINFO( m_flPanelX ) ),
+	RecvPropFloat( RECVINFO( m_flPanelY ) ),
 #endif
 END_RECV_TABLE()
 
@@ -292,11 +313,28 @@ void C_PointCommentaryNode::OnDataChanged( DataUpdateType_t updateType )
 		}
 
 #ifdef MAPBASE
-		if (m_bTextCommentary || commentary_text_force.GetBool())
-			StartTextCommentary( pszCommentaryFile, pPlayer );
-		else
+		int iCommentaryType = m_iCommentaryType;
+		if (commentary_type_force.GetInt() != -1)
+			iCommentaryType = commentary_type_force.GetInt();
+
+		switch (iCommentaryType)
+		{
+			case COMMENTARY_TYPE_TEXT:
+				StartTextCommentary( pszCommentaryFile, pPlayer );
+				break;
+
+			case COMMENTARY_TYPE_IMAGE:
+				StartImageCommentary( pszCommentaryFile, pPlayer );
+				break;
+
+			default:
+			case COMMENTARY_TYPE_AUDIO:
+				StartAudioCommentary( pszCommentaryFile, pPlayer );
+				break;
+		}
+#else
+		StartAudioCommentary( pszCommentaryFile, pPlayer );
 #endif
-			StartAudioCommentary( pszCommentaryFile, pPlayer );
 	}
 	else if ( m_bWasActive )
 	{
@@ -381,11 +419,26 @@ void C_PointCommentaryNode::StartTextCommentary( const char *pszCommentaryFile, 
 	//float flDuration = enginesound->GetSoundDuration( STRING( CSoundEnvelopeController::GetController().SoundGetName( m_sndCommentary ) ) ) ;
 
 	// TODO: Determine from text length?
-	float flDuration = commentary_text_endtime.GetFloat();
+	float flDuration = commentary_type_text_endtime.GetFloat();
 
 	// Tell the HUD element
 	CHudCommentary *pHudCommentary = (CHudCommentary *)GET_HUDELEMENT( CHudCommentary );
 	pHudCommentary->StartTextCommentary( this, pszCommentaryFile, m_iszSpeakers, m_iNodeNumber, m_iNodeNumberMax, m_flStartTime, m_flStartTime + flDuration );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_PointCommentaryNode::StartImageCommentary( const char *pszCommentaryFile, C_BasePlayer *pPlayer )
+{
+	// Get the duration so we know when it finishes
+	//float flDuration = enginesound->GetSoundDuration( STRING( CSoundEnvelopeController::GetController().SoundGetName( m_sndCommentary ) ) ) ;
+
+	float flDuration = commentary_type_image_endtime.GetFloat();
+
+	// Tell the HUD element
+	CHudCommentary *pHudCommentary = (CHudCommentary *)GET_HUDELEMENT( CHudCommentary );
+	pHudCommentary->StartImageCommentary( this, pszCommentaryFile, m_iszSpeakers, m_iNodeNumber, m_iNodeNumberMax, m_flStartTime, m_flStartTime + flDuration );
 }
 #endif
 
@@ -454,6 +507,8 @@ CHudCommentary::CHudCommentary( const char *name ) : vgui::Panel( NULL, "HudComm
 
 #ifdef MAPBASE
 	m_pLabel = new vgui::Label( this, "HudCommentaryTextLabel", "" );
+	m_pImage = new vgui::ImagePanel( this, "HudCommentaryImagePanel" );
+	m_pImage->SetShouldScaleImage( true );
 #endif
 }
 
@@ -516,60 +571,57 @@ void CHudCommentary::Paint()
 	int yOffset = m_iBarY;
 
 	// Find our fade based on our time shown
-	Color clr = Color( 255, 170, 0, GetAlpha() );
-
-	// Get our scheme and font information
-	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
-	vgui::HFont hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
-	if ( !hFont )
-	{
-		hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
-	}
+	Color clr = m_ForegroundColor;
 
 #ifdef MAPBASE
-	if (m_bTextCommentary)
+	switch (m_iCommentaryType)
 	{
-		// TODO: Make this a control?
-		static int iTextBorderSpace = 8;
+		case COMMENTARY_TYPE_TEXT:
+			{
+				// Figure out the size before setting bounds
+				int lW, lT;
+				m_pLabel->GetContentSize( lW, lT );
 
-		// Figure out the size before setting bounds
-		int lW, lT;
-		m_pLabel->GetContentSize( lW, lT );
+				lT += (m_iTextBorderSpace * 2);
 
-		m_pLabel->SetFgColor( m_TextColor );
-		m_pLabel->SetBounds(
-			xOffset + iTextBorderSpace,
-			yOffset + iTextBorderSpace,
-			m_iBarWide - iTextBorderSpace,
-			lT /*m_iTypeTextT - ((yOffset * 2) + iTextBorderSpace)*/ );
-		m_pLabel->SetFont( hFont );
+				vgui::surface()->DrawSetColor( clr );
+				vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset + (m_iBarWide * m_flPanelScale), yOffset + (lT /** m_flPanelScale*/) ); //m_iTypeTextT - (yOffset /*+ m_iBarTall*/) );
+			} break;
 
-		// Draw the speaker names
-		/*vgui::surface()->DrawSetTextFont( hFont );
-		vgui::surface()->DrawSetTextColor( Color( 255, 200, 100, GetAlpha() ) );
-		vgui::surface()->DrawSetTextPos( xOffset+4, yOffset+4 );
-		vgui::surface()->DrawPrintText( m_pszText, wcslen( m_pszText ) );*/
+		case COMMENTARY_TYPE_IMAGE:
+			{
+				// Figure out the size before setting bounds
+				int iW, iT;
+				m_pImage->GetSize( iW, iT );
+				//vgui::surface()->DrawGetTextureSize( m_pImage->GetImage()->GetID(), iW, iT );
 
-		lT += (iTextBorderSpace * 2);
+				iW += (m_iTextBorderSpace * 2);
+				iT += (m_iTextBorderSpace * 2);
 
-		vgui::surface()->DrawSetColor( clr );
-		vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset + m_iBarWide, yOffset + lT ); //m_iTypeTextT - (yOffset /*+ m_iBarTall*/) );
+				vgui::surface()->DrawSetColor( clr );
+				vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset + iW, yOffset + iT ); //m_iTypeTextT - (yOffset /*+ m_iBarTall*/) );
+			} break;
 
-		lT += (yOffset * 2);
-		SetBounds( x, ( (float)m_iTypeTextT * MAX( (200.0f / (float)lT), 1.75f ) ), wide, lT );
+		default:
+		case COMMENTARY_TYPE_AUDIO:
+			{
+				// Draw the progress bar
+				vgui::surface()->DrawSetColor( clr );
+				vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset+m_iBarWide, yOffset+m_iBarTall );
+				vgui::surface()->DrawSetColor( clr );
+				vgui::surface()->DrawFilledRect( xOffset+2, yOffset+2, xOffset+(int)(flPercentage*m_iBarWide)-2, yOffset+m_iBarTall-2 );
+			} break;
 	}
-	else
+#else
+	// Draw the progress bar
+	vgui::surface()->DrawSetColor( clr );
+	vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset+m_iBarWide, yOffset+m_iBarTall );
+	vgui::surface()->DrawSetColor( clr );
+	vgui::surface()->DrawFilledRect( xOffset+2, yOffset+2, xOffset+(int)(flPercentage*m_iBarWide)-2, yOffset+m_iBarTall-2 );
 #endif
-	{
-		// Draw the progress bar
-		vgui::surface()->DrawSetColor( clr );
-		vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset+m_iBarWide, yOffset+m_iBarTall );
-		vgui::surface()->DrawSetColor( clr );
-		vgui::surface()->DrawFilledRect( xOffset+2, yOffset+2, xOffset+(int)(flPercentage*m_iBarWide)-2, yOffset+m_iBarTall-2 );
-	}
 
 	// Draw the speaker names
-	vgui::surface()->DrawSetTextFont( hFont );
+	vgui::surface()->DrawSetTextFont( m_hFont );
 	vgui::surface()->DrawSetTextColor( clr ); 
 	vgui::surface()->DrawSetTextPos( m_iSpeakersX, m_iSpeakersY );
 	vgui::surface()->DrawPrintText( m_szSpeakers, wcslen(m_szSpeakers) );
@@ -592,7 +644,7 @@ void CHudCommentary::Paint()
 		{
 			int w, h;
 			UTIL_ReplaceKeyBindings( pszText, 0, wzFinal, sizeof( wzFinal ) );
-			vgui::surface()->GetTextSize( hFont, wzFinal, w, h );
+			vgui::surface()->GetTextSize( m_hFont, wzFinal, w, h );
 			vgui::surface()->DrawSetTextPos( m_iBarX + m_iBarWide - w, iY );
 			vgui::surface()->DrawPrintText( wzFinal, wcslen(wzFinal) );
 		}
@@ -601,10 +653,10 @@ void CHudCommentary::Paint()
 	// Draw the commentary count
 	// Determine our text size, and move that far in from the right hand size (plus the offset)
 	int iCountWide, iCountTall;
-	vgui::surface()->GetTextSize( hFont, m_szCount, iCountWide, iCountTall );
+	vgui::surface()->GetTextSize( m_hFont, m_szCount, iCountWide, iCountTall );
 
 #ifdef MAPBASE
-	if (m_bTextCommentary)
+	if (m_iCommentaryType != COMMENTARY_TYPE_AUDIO)
 		vgui::surface()->DrawSetTextPos( wide - m_iTypeTextCountXFR - iCountWide, tall - m_iTypeTextCountYFB - iCountTall );
 	else
 #endif
@@ -625,6 +677,128 @@ bool CHudCommentary::ShouldDraw()
 {
 	return ( m_hActiveNode || GetAlpha() > 0 );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudCommentary::PerformLayout()
+{
+	BaseClass::PerformLayout();
+
+	switch (m_iCommentaryType)
+	{
+		case COMMENTARY_TYPE_TEXT:
+			{
+				int xOffset = m_iBarX;
+				int yOffset = m_iBarY;
+
+				int x, y, wide, tall;
+				GetBounds( x, y, wide, tall );
+
+				// Figure out the size before setting bounds
+				int lW, lT;
+				m_pLabel->GetContentSize( lW, lT );
+
+				lW = (float)(m_iBarWide * m_flPanelScale) - m_iTextBorderSpace;
+				//lT = (float)lT * m_flPanelScale; // Don't affect height when scaling
+
+				m_pLabel->SetBounds(
+					xOffset + m_iTextBorderSpace,
+					yOffset + m_iTextBorderSpace,
+					lW, lT );
+
+				lW += (float)((m_iTextBorderSpace * 2) + (xOffset * 2));
+				lT += (float)((m_iTextBorderSpace * 2) + (yOffset * 2));
+
+				ResolveBounds( lW, lT );
+			} break;
+
+		case COMMENTARY_TYPE_IMAGE:
+			{
+				int xOffset = m_iBarX;
+				int yOffset = m_iBarY;
+
+				// Figure out the size before setting bounds
+				int iW, iT;
+				//m_pImage->GetImage()->GetSize( iW, iT );
+				vgui::surface()->DrawGetTextureSize( m_pImage->GetImage()->GetID(), iW, iT );
+				if (iW <= 0)
+					iW = 1;
+
+				int iTargetSize = (m_iBarWide - m_iTextBorderSpace);
+				iT *= (iTargetSize / iW);
+				iW = iTargetSize;
+
+				iW = (float)iW * m_flPanelScale;
+				iT = (float)iT * m_flPanelScale;
+
+				m_pImage->SetBounds(
+					xOffset + m_iTextBorderSpace,
+					yOffset + m_iTextBorderSpace,
+					iW, iT );
+
+				iW += (float)((m_iTextBorderSpace * 2) + (xOffset * 2));
+				iT += (float)((m_iTextBorderSpace * 2) + (yOffset * 2));
+
+				ResolveBounds( iW, iT );
+			} break;
+
+		default:
+		case COMMENTARY_TYPE_AUDIO:
+			break;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Resolves position on screen; Heavily borrows from CHudMessage::XPosition/YPosition
+//-----------------------------------------------------------------------------
+void CHudCommentary::ResolveBounds( int width, int height )
+{
+	int xPos;
+	int yPos;
+
+	// ====== X ======
+	if ( m_flOverrideX == -1 )
+	{
+		xPos = (ScreenWidth() - width) * 0.5f;
+	}
+	else
+	{
+		if ( m_flOverrideX < 0 )
+			xPos = (1.0 + m_flOverrideX) * ScreenWidth() - width;	// Align to right
+		else
+			xPos = m_flOverrideX * (ScreenWidth() - width);
+	}
+
+	// Clamp to edge of screen
+	if ( xPos + width > ScreenWidth() )
+		xPos = ScreenWidth() - width;
+	else if ( xPos < 0 )
+		xPos = 0;
+
+	// ====== Y ======
+	if ( m_flOverrideY == -1 )
+	{
+		yPos = (ScreenHeight() - height) * 0.5f;
+	}
+	else
+	{
+		if ( m_flOverrideY < 0 )
+			yPos = (1.0 + m_flOverrideY) * ScreenHeight() - height;	// Align to bottom
+		else
+			yPos = m_flOverrideY * (ScreenHeight() - height);
+	}
+
+	// Clamp to edge of screen
+	if ( yPos + height > ScreenHeight() )
+		yPos = ScreenHeight() - height;
+	else if ( yPos < 0 )
+		yPos = 0;
+
+	SetBounds( xPos, yPos, width, height );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -660,7 +834,10 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	m_flEndTime = flEndTime;
 	m_bHiding = false;
 #ifdef MAPBASE
-	m_bTextCommentary = false;
+	m_iCommentaryType = COMMENTARY_TYPE_AUDIO;
+	m_flPanelScale = pNode->m_flPanelScale;
+	m_flOverrideX = pNode->m_flPanelX;
+	m_flOverrideY = pNode->m_flPanelY;
 #endif
 	g_pVGuiLocalize->ConvertANSIToUnicode( pszSpeakers, m_szSpeakers, sizeof( m_szSpeakers ) );
 
@@ -669,6 +846,16 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	SetBgColor( m_bUseScriptBGColor ? m_BGOverrideColor : m_BackgroundColor );
 
 	m_pLabel->SetPaintEnabled( false );
+	m_pImage->SetPaintEnabled( false );
+	m_pImage->EvictImage();
+
+	// Get our scheme and font information
+	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
+	if ( !m_hFont )
+	{
+		m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
+	}
 #endif
 
 	// Don't draw the element itself if closecaptions are on (and captions are always on in non-english mode)
@@ -712,19 +899,89 @@ void CHudCommentary::StartTextCommentary( C_PointCommentaryNode *pNode, const ch
 	m_flStartTime = flStartTime;
 	m_flEndTime = flEndTime;
 	m_bHiding = false;
-	m_bTextCommentary = true;
+	m_iCommentaryType = COMMENTARY_TYPE_TEXT;
+	m_flPanelScale = pNode->m_flPanelScale;
+	m_flOverrideX = pNode->m_flPanelX;
+	m_flOverrideY = pNode->m_flPanelY;
 	g_pVGuiLocalize->ConvertANSIToUnicode( pszSpeakers, m_szSpeakers, sizeof( m_szSpeakers ) );
 
 	SetBounds( m_iTypeTextX, m_iTypeTextY, m_iTypeTextW, m_iTypeTextT );
 	SetBgColor( m_bUseScriptBGColor ? m_BGOverrideColor : m_TextBackgroundColor );
 
+	// Get our scheme and font information
+	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
+	if ( !m_hFont )
+	{
+		m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
+	}
+
 	m_pLabel->SetText( pszText );
+	m_pLabel->SetFont( m_hFont );
 	m_pLabel->SetWrap( true );
 	m_pLabel->SetPaintEnabled( true );
 	m_pLabel->SetPaintBackgroundEnabled( false );
 	m_pLabel->SetPaintBorderEnabled( false );
 	//m_pLabel->SizeToContents();
 	m_pLabel->SetContentAlignment( vgui::Label::a_northwest );
+	m_pLabel->SetFgColor( m_TypeTextContentColor );
+
+	m_pImage->SetPaintEnabled( false );
+	m_pImage->EvictImage();
+
+	m_bShouldPaint = true;
+	SetPaintBackgroundEnabled( m_bShouldPaint );
+
+	char sz[MAX_COUNT_STRING];
+	Q_snprintf( sz, sizeof(sz), "%d \\ %d", iNode, iNodeMax );
+	g_pVGuiLocalize->ConvertANSIToUnicode( sz, m_szCount, sizeof(m_szCount) );
+
+	// If the commentary just started, play the commentary fade in.
+	if ( fabs(flStartTime - gpGlobals->curtime) < 1.0 )
+	{
+		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "ShowCommentary" );
+	}
+	else
+	{
+		// We're reloading a savegame that has an active commentary going in it. Don't fade in.
+		SetAlpha( 255 );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudCommentary::StartImageCommentary( C_PointCommentaryNode *pNode, const char *pszImage, char *pszSpeakers, int iNode, int iNodeMax, float flStartTime, float flEndTime )
+{
+	if ( (flEndTime - flStartTime) <= 0 )
+		return;
+
+	m_hActiveNode = pNode;
+	m_flStartTime = flStartTime;
+	m_flEndTime = flEndTime;
+	m_bHiding = false;
+	m_iCommentaryType = COMMENTARY_TYPE_IMAGE;
+	m_flPanelScale = pNode->m_flPanelScale;
+	m_flOverrideX = pNode->m_flPanelX;
+	m_flOverrideY = pNode->m_flPanelY;
+	g_pVGuiLocalize->ConvertANSIToUnicode( pszSpeakers, m_szSpeakers, sizeof( m_szSpeakers ) );
+	
+	SetBounds( m_iTypeTextX, m_iTypeTextY, m_iTypeTextW, m_iTypeTextT );
+	SetBgColor( m_bUseScriptBGColor ? m_BGOverrideColor : m_TextBackgroundColor );
+
+	m_pLabel->SetPaintEnabled( false );
+
+	m_pImage->SetPaintEnabled( true );
+	m_pImage->SetImage( pszImage );
+	m_pImage->SetWide( m_iBarWide - m_iTextBorderSpace );
+
+	// Get our scheme and font information
+	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
+	if ( !m_hFont )
+	{
+		m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
+	}
 
 	m_bShouldPaint = true;
 	SetPaintBackgroundEnabled( m_bShouldPaint );

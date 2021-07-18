@@ -74,6 +74,15 @@ public:
 	DECLARE_DATADESC();
 	DECLARE_SERVERCLASS();
 
+	CPointCommentaryNode()
+	{
+#ifdef MAPBASE
+		m_flPanelScale = 1.0f;
+		m_flPanelX = -1.0f;
+		m_flPanelY = -1.0f;
+#endif
+	}
+
 	void Spawn( void );
 	void Precache( void );
 	void Activate( void );
@@ -140,7 +149,10 @@ private:
 	CNetworkVar( int, m_iNodeNumberMax );
 
 #ifdef MAPBASE
-	CNetworkVar( bool, m_bTextCommentary );
+	CNetworkVar( int, m_iCommentaryType );
+	CNetworkVar( float, m_flPanelScale );
+	CNetworkVar( float, m_flPanelX );
+	CNetworkVar( float, m_flPanelY );
 #endif
 };
 
@@ -171,7 +183,10 @@ BEGIN_DATADESC( CPointCommentaryNode )
 	DEFINE_KEYFIELD( m_bDisabled, FIELD_BOOLEAN, "start_disabled" ),
 	DEFINE_KEYFIELD( m_vecTeleportOrigin, FIELD_VECTOR, "teleport_origin" ),
 #ifdef MAPBASE
-	DEFINE_KEYFIELD( m_bTextCommentary, FIELD_BOOLEAN, "type" ), // Open to additional types in the future
+	DEFINE_KEYFIELD( m_iCommentaryType, FIELD_INTEGER, "type" ),
+	DEFINE_KEYFIELD( m_flPanelScale, FIELD_FLOAT, "panelscale" ),
+	DEFINE_KEYFIELD( m_flPanelX, FIELD_FLOAT, "x" ),
+	DEFINE_KEYFIELD( m_flPanelY, FIELD_FLOAT, "y" ),
 #endif
 
 	// Outputs
@@ -200,7 +215,10 @@ IMPLEMENT_SERVERCLASS_ST( CPointCommentaryNode, DT_PointCommentaryNode )
 	SendPropInt( SENDINFO(m_iNodeNumberMax), 8, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO(m_hViewPosition) ),
 #ifdef MAPBASE
-	SendPropBool( SENDINFO( m_bTextCommentary ) ),
+	SendPropInt( SENDINFO( m_iCommentaryType ), 2, SPROP_UNSIGNED ),
+	SendPropFloat( SENDINFO( m_flPanelScale ) ),
+	SendPropFloat( SENDINFO( m_flPanelX ) ),
+	SendPropFloat( SENDINFO( m_flPanelY ) ),
 #endif
 END_SEND_TABLE()
 
@@ -906,11 +924,24 @@ void CPointCommentaryNode::Spawn( void )
 	if (!szModel || !*szModel)
 	{
 #ifdef MAPBASE
-		if (m_bTextCommentary)
-			szModel = "models/extras/info_text.mdl";
-		else
-#endif
+		switch (m_iCommentaryType)
+		{
+			case COMMENTARY_TYPE_TEXT:
+				szModel = "models/extras/info_text.mdl";
+				break;
+
+			case COMMENTARY_TYPE_IMAGE:
+				szModel = "models/extras/info_image.mdl"; // TODO
+				break;
+
+			default:
+			case COMMENTARY_TYPE_AUDIO:
+				szModel = "models/extras/info_speech.mdl";
+				break;
+		}
+#else
 		szModel = "models/extras/info_speech.mdl";
+#endif
 		SetModelName( AllocPooledString(szModel) );
 	}
 
