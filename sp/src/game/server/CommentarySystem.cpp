@@ -77,6 +77,8 @@ public:
 	CPointCommentaryNode()
 	{
 #ifdef MAPBASE
+		m_flViewTargetSpeedScale = 1.0f;
+		m_flViewPositionSpeedScale = 1.0f;
 		m_flPanelScale = 1.0f;
 		m_flPanelX = -1.0f;
 		m_flPanelY = -1.0f;
@@ -128,6 +130,10 @@ private:
 	string_t	m_iszViewPosition;
 	CNetworkVar( EHANDLE, m_hViewPosition );
 	EHANDLE		m_hViewPositionMover;		// Entity used to blend the view to the viewposition entity
+#ifdef MAPBASE
+	float		m_flViewTargetSpeedScale;
+	float		m_flViewPositionSpeedScale;
+#endif
 	bool		m_bPreventMovement;
 	bool		m_bUnderCrosshair;
 	bool		m_bUnstoppable;
@@ -183,6 +189,8 @@ BEGIN_DATADESC( CPointCommentaryNode )
 	DEFINE_KEYFIELD( m_bDisabled, FIELD_BOOLEAN, "start_disabled" ),
 	DEFINE_KEYFIELD( m_vecTeleportOrigin, FIELD_VECTOR, "teleport_origin" ),
 #ifdef MAPBASE
+	DEFINE_KEYFIELD( m_flViewTargetSpeedScale, FIELD_FLOAT, "viewtarget_speed" ),
+	DEFINE_KEYFIELD( m_flViewPositionSpeedScale, FIELD_FLOAT, "viewposition_speed" ),
 	DEFINE_KEYFIELD( m_iCommentaryType, FIELD_INTEGER, "type" ),
 	DEFINE_KEYFIELD( m_flPanelScale, FIELD_FLOAT, "panelscale" ),
 	DEFINE_KEYFIELD( m_flPanelX, FIELD_FLOAT, "x" ),
@@ -1260,6 +1268,10 @@ void CPointCommentaryNode::UpdateViewThink( void )
   		float dx = AngleDiff( angGoal.x, angCurrent.x );
   		float dy = AngleDiff( angGoal.y, angCurrent.y );
 		float mod = 1.0 - ExponentialDecay( 0.5, 0.3, gpGlobals->frametime );
+#ifdef MAPBASE
+		if (m_flViewTargetSpeedScale != 1.0f)
+			mod *= m_flViewTargetSpeedScale;
+#endif
    		float dxmod = dx * mod;
 		float dymod = dy * mod;
 
@@ -1300,7 +1312,11 @@ void CPointCommentaryNode::UpdateViewThink( void )
 		}
 
 		// Blend to the target position over time. 
- 		float flCurTime = (gpGlobals->curtime - m_flStartTime);
+		float flCurTime = (gpGlobals->curtime - m_flStartTime);
+#ifdef MAPBASE
+		if (m_flViewPositionSpeedScale != 1.0f)
+			flCurTime *= m_flViewPositionSpeedScale;
+#endif
  		float flBlendPerc = clamp( flCurTime * 0.5f, 0.f, 1.f );
 
 		// Figure out the current view position
@@ -1325,6 +1341,10 @@ void CPointCommentaryNode::UpdateViewPostThink( void )
 	{
  		// Blend back to the player's position over time.
    		float flCurTime = (gpGlobals->curtime - m_flFinishedTime);
+#ifdef MAPBASE
+		if (m_flViewPositionSpeedScale != 1.0f)
+			flCurTime *= m_flViewPositionSpeedScale;
+#endif
 		float flTimeToBlend = MIN( 2.0, m_flFinishedTime - m_flStartTime ); 
  		float flBlendPerc = 1.0f - clamp( flCurTime / flTimeToBlend, 0.f, 1.f );
 
