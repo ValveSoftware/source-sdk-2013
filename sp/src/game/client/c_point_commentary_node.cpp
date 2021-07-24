@@ -123,7 +123,7 @@ private:
 	CPanelAnimationVarAliasType( int, m_iTypeTextT, "type_text_tall", "200", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTypeTextCountXFR, "type_text_count_xpos_from_right", "10", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTypeTextCountYFB, "type_text_count_ypos_from_bottom", "10", "proportional_int" );
-	CPanelAnimationVar( Color, m_TextBackgroundColor, "BackgroundColorTextContent", "0 0 0 192" );
+	CPanelAnimationVar( Color, m_TextBackgroundColor, "BackgroundColorTextContent", "0 0 0 224" );
 	CPanelAnimationVar( Color, m_TypeTextContentColor, "TextContentColor", "255 230 180 255" );
 	CPanelAnimationVar( int, m_iTextBorderSpace, "type_text_border_space", "8" );
 #endif
@@ -506,7 +506,7 @@ CHudCommentary::CHudCommentary( const char *name ) : vgui::Panel( NULL, "HudComm
 	m_bShouldPaint = true;
 
 #ifdef MAPBASE
-	m_pLabel = new vgui::Label( this, "HudCommentaryTextLabel", "" );
+	m_pLabel = new vgui::Label( this, "HudCommentaryTextLabel", L"Textual commentary" );
 	m_pImage = new vgui::ImagePanel( this, "HudCommentaryImagePanel" );
 	m_pImage->SetShouldScaleImage( true );
 #endif
@@ -693,20 +693,17 @@ void CHudCommentary::PerformLayout()
 				int xOffset = m_iBarX;
 				int yOffset = m_iBarY;
 
-				int x, y, wide, tall;
-				GetBounds( x, y, wide, tall );
+				m_pLabel->SetBounds(
+					xOffset + m_iTextBorderSpace, yOffset + m_iTextBorderSpace,
+					(float)(m_iBarWide * m_flPanelScale) - m_iTextBorderSpace, GetTall() );
 
 				// Figure out the size before setting bounds
 				int lW, lT;
 				m_pLabel->GetContentSize( lW, lT );
 
-				lW = (float)(m_iBarWide * m_flPanelScale) - m_iTextBorderSpace;
 				//lT = (float)lT * m_flPanelScale; // Don't affect height when scaling
 
-				m_pLabel->SetBounds(
-					xOffset + m_iTextBorderSpace,
-					yOffset + m_iTextBorderSpace,
-					lW, lT );
+				m_pLabel->SetTall( lT );
 
 				lW += (float)((m_iTextBorderSpace * 2) + (xOffset * 2));
 				lT += (float)((m_iTextBorderSpace * 2) + (yOffset * 2));
