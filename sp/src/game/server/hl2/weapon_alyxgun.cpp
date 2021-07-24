@@ -37,6 +37,11 @@ acttable_t	CWeaponAlyxGun::m_acttable[] =
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_PISTOL_LOW,			true },
 	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_PISTOL_LOW,	true },
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_PISTOL,		true },
+#ifdef MAPBASE
+	// For non-Alyx NPCs
+	{ ACT_WALK,						ACT_WALK_PISTOL,				false },
+	{ ACT_RUN,						ACT_RUN_PISTOL,					false },
+#endif
 
 	// Readiness activities (not aiming)
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_PISTOL,				false },//never aims
