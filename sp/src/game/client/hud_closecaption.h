@@ -111,6 +111,11 @@ public:
 	void			PlayRandomCaption();
 
 	void				InitCaptionDictionary( char const *dbfile );
+#ifdef MAPBASE
+	void				AddAdditionalCaptionDictionary( char const *dbfile, CUtlVector<CUtlSymbol> &outPathSymbols );
+	void				AddCustomCaptionFile( char const *file, CUtlVector<CUtlSymbol> &outPathSymbols );
+	void				RemoveCaptionDictionary( const CUtlSymbol &dbFileSymbol );
+#endif
 	void				OnFinishAsyncLoad( int nFileIndex, int nBlockNum, AsyncCaptionData_t *pData );
 
 	void			Flush();

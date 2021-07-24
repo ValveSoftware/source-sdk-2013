@@ -47,26 +47,11 @@ extern ISoundEmitterSystemBase *soundemitterbase;
 
 ConVar mapbase_load_default_manifest("mapbase_load_default_manifest", "1", FCVAR_ARCHIVE, "Should we automatically load our default manifest file? (\"maps/%mapname%_manifest.txt\")");
 
-ConVar mapbase_load_soundscripts("mapbase_load_soundscripts", "1", FCVAR_ARCHIVE, "Should we load map-specific soundscripts? e.g. \"maps/mapname_level_sounds.txt\"");
-
-//ConVar mapbase_load_propdata("mapbase_load_propdata", "1", FCVAR_ARCHIVE, "Should we load map-specific propdata files? e.g. \"maps/mapname_propdata.txt\"");
-
-//ConVar mapbase_load_soundscapes("mapbase_load_soundscapes", "1", FCVAR_ARCHIVE, "Should we load map-specific soundscapes? e.g. \"maps/mapname_soundscapes.txt\"");
-
-ConVar mapbase_load_localization( "mapbase_load_localization", "1", FCVAR_ARCHIVE, "Should we load map-specific localized text files? e.g. \"maps/mapname_english.txt\"" );
-
-ConVar mapbase_load_surfaceprops( "mapbase_load_surfaceprops", "1", FCVAR_ARCHIVE, "Should we load map-specific surfaceproperties files? e.g. \"maps/mapname_surfaceproperties.txt\"" );
-
 #ifdef GAME_DLL
 // This constant should change with each Mapbase update
 ConVar mapbase_version( "mapbase_version", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's server.dll" );
 
-ConVar mapbase_load_sentences("mapbase_load_sentences", "1", FCVAR_ARCHIVE, "Should we load map-specific sentences? e.g. \"maps/mapname_sentences.txt\"");
-
-ConVar mapbase_load_talker("mapbase_load_talker", "1", FCVAR_ARCHIVE, "Should we load map-specific talker files? e.g. \"maps/mapname_talker.txt\"");
 ConVar mapbase_flush_talker("mapbase_flush_talker", "1", FCVAR_NONE, "Normally, when a map with custom talker files is unloaded, the response system resets to rid itself of the custom file(s). Turn this convar off to prevent that from happening.");
-
-ConVar mapbase_load_actbusy("mapbase_load_actbusy", "1", FCVAR_ARCHIVE, "Should we load map-specific actbusy files? e.g. \"maps/mapname_actbusy.txt\"");
 
 extern void MapbaseGameLog_Init();
 
@@ -80,8 +65,6 @@ static bool g_bMapContainsCustomTalker;
 #else
 // This constant should change with each Mapbase update
 ConVar mapbase_version_client( "mapbase_version_client", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's client.dll" );
-
-//ConVar mapbase_load_cc("mapbase_load_cc", "1", FCVAR_ARCHIVE, "Should we load map-specific closed captioning? e.g. \"maps/mapname_closecaption_english.txt\" and \"maps/mapname_closecaption_english.dat\"");
 
 #endif
 
@@ -101,11 +84,11 @@ enum
 	MANIFEST_LOCALIZATION,
 	MANIFEST_SURFACEPROPS,
 #ifdef CLIENT_DLL
-	//MANIFEST_CLOSECAPTION,
+	MANIFEST_CLOSECAPTION,
 	MANIFEST_VGUI,
 #else
 	MANIFEST_TALKER,
-	MANIFEST_SENTENCES,
+	//MANIFEST_SENTENCES,
 	MANIFEST_ACTBUSY,
 #endif
 
@@ -115,25 +98,32 @@ enum
 
 struct ManifestType_t
 {
+	ManifestType_t( const char *_string, const char *cvarname, const char *cvardesc ) : cvar( cvarname, "1", FCVAR_ARCHIVE, cvardesc )
+	{
+		string = _string;
+	}
+
 	//int type;
 	const char *string;
-	ConVar *cvar;
+	ConVar cvar;
 };
+
+#define DECLARE_MANIFEST_TYPE(name, cvar, desc) { #name,		ConVar(#cvar, "1", FCVAR_ARCHIVE, #desc) }
 
 // KEEP THS IN SYNC WITH THE ENUM!
 static const ManifestType_t gm_szManifestFileStrings[MANIFEST_NUM_TYPES] = {
-	{ "soundscripts",		&mapbase_load_soundscripts },
-	//{ "propdata",			&mapbase_load_propdata },
-	//{ "soundscapes",		&mapbase_load_soundscapes },
-	{ "localization",		&mapbase_load_localization },
-	{ "surfaceprops",		&mapbase_load_surfaceprops },
+	{ "soundscripts", "mapbase_load_soundscripts", "Should we load map-specific soundscripts? e.g. \"maps/<mapname>_level_sounds.txt\"" },
+	//{ "propdata",	"mapbase_load_propdata",		"Should we load map-specific soundscripts? e.g. \"maps/<mapname>_level_sounds.txt\"" },
+	//{ "soundscapes",	"mapbase_load_soundscapes",		"Should we load map-specific soundscapes? e.g. \"maps/<mapname>_soundscapes.txt\"" },
+	{ "localization",	"mapbase_load_localization",	"Should we load map-specific localized text files? e.g. \"maps/<mapname>_english.txt\"" },
+	{ "surfaceprops",	"mapbase_load_surfaceprops",	"Should we load map-specific surfaceproperties files? e.g. \"maps/<mapname>_surfaceproperties.txt\"" },
 #ifdef CLIENT_DLL
-	//{ "closecaption",		&mapbase_load_cc },
-	{ "vgui",				NULL },
+	{ "closecaption",	"mapbase_load_closecaption",	"Should we load map-specific closed captioning? e.g. \"maps/<mapname>_closecaption_english.txt\" and \"maps/<mapname>_closecaption_english.dat\"" },
+	{ "vgui",			"mapbase_load_vgui",			"Should we load map-specific VGUI screens? e.g. \"maps/<mapname>_screens.txt\"" },
 #else
-	{ "talker",				&mapbase_load_talker },
-	{ "sentences",			&mapbase_load_sentences },
-	{ "actbusy",			&mapbase_load_actbusy },
+	{ "talker",		"mapbase_load_talker",			"Should we load map-specific talker files? e.g. \"maps/<mapname>_talker.txt\"" },
+	//{ "sentences",	"mapbase_load_sentences",		"Should we load map-specific sentences? e.g. \"maps/<mapname>_sentences.txt\"" },
+	{ "actbusy",		"mapbase_load_actbusy",			"Should we load map-specific actbusy files? e.g. \"maps/<mapname>_actbusy.txt\"" },
 #endif
 };
 
@@ -262,6 +252,14 @@ public:
 		g_MapName = NULL;
 
 		RefreshCustomTalker();
+
+#ifdef CLIENT_DLL
+		CHudCloseCaption *hudCloseCaption = GET_HUDELEMENT( CHudCloseCaption );
+		FOR_EACH_VEC( m_CloseCaptionFileNames, i )
+		{
+			hudCloseCaption->RemoveCaptionDictionary( m_CloseCaptionFileNames[i] );
+		}
+#endif
 	}
 
 	bool RefreshMapName()
@@ -284,9 +282,6 @@ public:
 	}
 
 #ifdef CLIENT_DLL
-	bool m_bInitializedRTs = false;
-	CUtlVector<CTextureReference> m_CameraTextures;
-
 	//-----------------------------------------------------------------------------
 	// Initialize custom RT textures if necessary
 	//-----------------------------------------------------------------------------
@@ -389,7 +384,10 @@ public:
 			case MANIFEST_LOCALIZATION: { g_pVGuiLocalize->AddFile( value, "MOD", true ); } break;
 			case MANIFEST_SURFACEPROPS: { AddSurfacepropFile( value, physprops, filesystem ); } break;
 #ifdef CLIENT_DLL
-			//case MANIFEST_CLOSECAPTION: { todo } break;
+			case MANIFEST_CLOSECAPTION: {
+					if ( GET_HUDELEMENT( CHudCloseCaption ) )
+						(GET_HUDELEMENT( CHudCloseCaption ))->AddCustomCaptionFile( value, m_CloseCaptionFileNames );
+				} break;
 			case MANIFEST_VGUI: { PanelMetaClassMgr()->LoadMetaClassDefinitionFile( value ); } break;
 			//case MANIFEST_SOUNDSCAPES: { Soundscape_AddFile(value); } break;
 #else
@@ -398,7 +396,7 @@ public:
 					LoadResponseSystemFile(value); //PrecacheCustomResponseSystem( value );
 				} break;
 			//case MANIFEST_SOUNDSCAPES: { g_SoundscapeSystem.AddSoundscapeFile(value); } break;
-			case MANIFEST_SENTENCES: { engine->PrecacheSentenceFile(value); } break;
+			//case MANIFEST_SENTENCES: { engine->PrecacheSentenceFile(value); } break;
 			case MANIFEST_ACTBUSY: { ParseCustomActbusyFile(value); } break;
 #endif
 		}
@@ -457,7 +455,7 @@ public:
 			{
 				if (FStrEq(name, gm_szManifestFileStrings[i].string))
 				{
-					if (!gm_szManifestFileStrings[i].cvar || gm_szManifestFileStrings[i].cvar->GetBool())
+					if (gm_szManifestFileStrings[i].cvar.GetBool())
 					{
 						LoadFromValue(value, i, bDontWarn);
 					}
@@ -483,6 +481,15 @@ public:
 	{
 		g_pScriptVM->RegisterInstance( this, "Mapbase" );
 	}
+#endif
+
+private:
+
+#ifdef CLIENT_DLL
+	bool m_bInitializedRTs = false;
+	CUtlVector<CTextureReference> m_CameraTextures;
+
+	CUtlVector<CUtlSymbol> m_CloseCaptionFileNames;
 #endif
 };
 
