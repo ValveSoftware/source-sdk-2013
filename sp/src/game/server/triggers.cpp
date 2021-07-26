@@ -1279,7 +1279,7 @@ void CTriggerLook::Touch(CBaseEntity *pOther)
 			VectorNormalize(vTargetDir);
 
 			float fDotPr = DotProduct(vLookDir,vTargetDir);
-			if (fDotPr > m_flFieldOfView && (!m_bUseLOS || pOther->FVisible(pOther)))
+			if (fDotPr > m_flFieldOfView && (!m_bUseLOS || pOther->FVisible(m_hLookTargets[i])))
 			{
 				hLookingAtEntity = m_hLookTargets[i];
 				break;
