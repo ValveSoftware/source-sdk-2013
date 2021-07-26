@@ -531,6 +531,9 @@ public:
 
 	  virtual void LevelInitPostEntity()
 	  {
+#ifdef MAPBASE
+		if (!rr_enhanced_saverestore.GetBool() || gpGlobals->eLoadType != MapLoad_Transition)
+#endif
 		  ResetResponseGroups();
 	  }
 
@@ -567,6 +570,16 @@ public:
 
 	virtual void LevelInitPostEntity()
 	{
+#ifdef MAPBASE
+		// CInstancedResponseSystem is not a CAutoGameSystem, so this needs to be called manually.
+		// The same could've been accomplished by making CInstancedResponseSystem derive from CAutoGameSystem,
+		// but their instanced nature would've complicated things a lot.
+		int c = m_InstancedSystems.Count();
+		for ( int i = c - 1 ; i >= 0; i-- )
+		{
+			m_InstancedSystems[i]->LevelInitPostEntity();
+		}
+#endif
 	}
 
 	virtual void Release()
