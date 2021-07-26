@@ -79,6 +79,7 @@ public:
 #ifdef MAPBASE
 		m_flViewTargetSpeedScale = 1.0f;
 		m_flViewPositionSpeedScale = 1.0f;
+		m_flReturnSpeedScale = 0.0f;
 		m_flPanelScale = 1.0f;
 		m_flPanelX = -1.0f;
 		m_flPanelY = -1.0f;
@@ -133,6 +134,7 @@ private:
 #ifdef MAPBASE
 	float		m_flViewTargetSpeedScale;
 	float		m_flViewPositionSpeedScale;
+	float		m_flReturnSpeedScale;
 #endif
 	bool		m_bPreventMovement;
 	bool		m_bUnderCrosshair;
@@ -191,6 +193,7 @@ BEGIN_DATADESC( CPointCommentaryNode )
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_flViewTargetSpeedScale, FIELD_FLOAT, "viewtarget_speed" ),
 	DEFINE_KEYFIELD( m_flViewPositionSpeedScale, FIELD_FLOAT, "viewposition_speed" ),
+	DEFINE_KEYFIELD( m_flReturnSpeedScale, FIELD_FLOAT, "return_speed" ),
 	DEFINE_KEYFIELD( m_iCommentaryType, FIELD_INTEGER, "type" ),
 	DEFINE_KEYFIELD( m_flPanelScale, FIELD_FLOAT, "panelscale" ),
 	DEFINE_KEYFIELD( m_flPanelX, FIELD_FLOAT, "x" ),
@@ -939,7 +942,7 @@ void CPointCommentaryNode::Spawn( void )
 				break;
 
 			case COMMENTARY_TYPE_IMAGE:
-				szModel = "models/extras/info_image.mdl"; // TODO
+				szModel = "models/extras/info_image.mdl";
 				break;
 
 			default:
@@ -959,6 +962,12 @@ void CPointCommentaryNode::Spawn( void )
 	SetSolid( SOLID_BBOX );
 	AddSolidFlags( FSOLID_CUSTOMRAYTEST | FSOLID_CUSTOMBOXTEST );
 	AddEffects( EF_NOSHADOW );
+
+#ifdef MAPBASE
+	// Default to view position speed scale (which in turn defaults to 1.0)
+	if (m_flReturnSpeedScale == 0.0f)
+		m_flReturnSpeedScale = m_flViewPositionSpeedScale;
+#endif
 
 	// Setup for animation
 	ResetSequence( LookupSequence("idle") );
@@ -1342,8 +1351,8 @@ void CPointCommentaryNode::UpdateViewPostThink( void )
  		// Blend back to the player's position over time.
    		float flCurTime = (gpGlobals->curtime - m_flFinishedTime);
 #ifdef MAPBASE
-		if (m_flViewPositionSpeedScale != 1.0f)
-			flCurTime *= m_flViewPositionSpeedScale;
+		if (m_flReturnSpeedScale != 1.0f)
+			flCurTime *= m_flReturnSpeedScale;
 #endif
 		float flTimeToBlend = MIN( 2.0, m_flFinishedTime - m_flStartTime ); 
  		float flBlendPerc = 1.0f - clamp( flCurTime / flTimeToBlend, 0.f, 1.f );
