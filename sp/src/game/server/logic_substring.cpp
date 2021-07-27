@@ -80,7 +80,8 @@ void CLogicSubstring::InputInValue( inputdata_t &inputData )
 	}
 	char* strOutValue = (char*)malloc( lengthCheck );
 	Q_strncpy( strOutValue, inputData.value.String() + startPosCheck, lengthCheck );
-	m_OutValue.Set( MAKE_STRING(strOutValue), inputData.pActivator, this );
+	m_OutValue.Set( AllocPooledString(strOutValue), inputData.pActivator, this );
+	free(strOutValue);
 }
 
 //-----------------------------------------------------------------------------
