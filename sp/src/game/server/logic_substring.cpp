@@ -66,8 +66,19 @@ void CLogicSubstring::InputInValue( inputdata_t &inputData )
 {
 	if( !m_bEnabled ) return;
 
-	char* strOutValue = (char*)malloc( m_nLength );
-	Q_strncpy( strOutValue, inputData.value.String() + m_nStartPos, m_nLength + 1 ); // note length+1 to account for null terminator
+	int startPosCheck = m_nStartPos < 0 ? Q_strlen(inputData.value.String()) + m_nStartPos : m_nStartPos;
+	if( startPosCheck < 0 )
+	{
+		startPosCheck = 0;
+	}
+	int lengthCheck = (m_nLength < 0 || m_nLength > Q_strlen(inputData.value.String()) - startPosCheck ? Q_strlen(inputData.value.String()) - startPosCheck : m_nLength) + 1;
+	if( lengthCheck < 1 || startPosCheck > Q_strlen(inputData.value.String()) )
+	{
+		m_OutValue.Set( MAKE_STRING(""), inputData.pActivator, this );
+		return;
+	}
+	char* strOutValue = (char*)malloc( lengthCheck );
+	Q_strncpy( strOutValue, inputData.value.String() + startPosCheck, lengthCheck );
 	m_OutValue.Set( MAKE_STRING(strOutValue), inputData.pActivator, this );
 }
 
