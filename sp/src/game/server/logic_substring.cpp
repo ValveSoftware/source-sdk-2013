@@ -66,13 +66,14 @@ void CLogicSubstring::InputInValue( inputdata_t &inputData )
 {
 	if( !m_bEnabled ) return;
 
-	int startPosCheck = m_nStartPos < 0 ? Q_strlen(inputData.value.String()) + m_nStartPos : m_nStartPos;
+	int inputLength = Q_strlen(inputData.value.String());
+	int startPosCheck = m_nStartPos < 0 ? inputLength + m_nStartPos : m_nStartPos;
 	if( startPosCheck < 0 )
 	{
 		startPosCheck = 0;
 	}
-	int lengthCheck = (m_nLength < 0 || m_nLength > Q_strlen(inputData.value.String()) - startPosCheck ? Q_strlen(inputData.value.String()) - startPosCheck : m_nLength) + 1;
-	if( lengthCheck < 1 || startPosCheck > Q_strlen(inputData.value.String()) )
+	int lengthCheck = (m_nLength < 0 || m_nLength > inputLength - startPosCheck ? inputLength - startPosCheck : m_nLength) + 1;
+	if( lengthCheck < 1 || startPosCheck > inputLength )
 	{
 		m_OutValue.Set( MAKE_STRING(""), inputData.pActivator, this );
 		return;
