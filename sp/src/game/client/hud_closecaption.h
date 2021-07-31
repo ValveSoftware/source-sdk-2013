@@ -138,6 +138,11 @@ public:
 
 	void			FindSound( char const *pchANSI );
 
+#ifdef MAPBASE
+	inline bool		IsUsingCommentaryDimensions() const { return m_bUsingCommentaryDimensions; }
+	inline void		SetUsingCommentaryDimensions( bool bToggle ) { m_bUsingCommentaryDimensions = bToggle; }
+#endif
+
 public:
 
 	struct CaptionRepeat
@@ -217,6 +222,10 @@ private:
 	bool		m_bVisibleDueToDirect;
 	bool		m_bPaintDebugInfo;
 	CUtlSymbol	m_CurrentLanguage;
+
+#ifdef MAPBASE
+	bool		m_bUsingCommentaryDimensions;
+#endif
 };
 
 #endif // HUD_CLOSECAPTION_H

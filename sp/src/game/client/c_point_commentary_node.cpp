@@ -49,6 +49,8 @@ static bool g_bTracingVsCommentaryNodes = false;
 ConVar commentary_type_force( "commentary_type_force", "-1", FCVAR_NONE, "Forces all commentary nodes to use the specified type." );
 ConVar commentary_type_text_endtime( "commentary_type_text_endtime", "120" );
 ConVar commentary_type_image_endtime( "commentary_type_image_endtime", "120" );
+ConVar commentary_audio_element_below_cc( "commentary_audio_element_below_cc", "1", FCVAR_NONE, "Allows commentary audio elements to display even when CC is enabled (although this is done by inverting their Y axis)" );
+ConVar commentary_audio_element_below_cc_margin( "commentary_audio_element_below_cc_margin", "4" );
 #endif
 
 //-----------------------------------------------------------------------------
@@ -828,6 +830,18 @@ void CHudCommentary::Paint()
 			if ( pHudCloseCaption )
 			{
 				pHudCloseCaption->Reset();
+
+#ifdef MAPBASE
+				// Reset close caption element if needed
+				if (pHudCloseCaption->IsUsingCommentaryDimensions())
+				{
+					int ccX, ccY;
+					pHudCloseCaption->GetPos( ccX, ccY );
+					pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
+
+					pHudCloseCaption->SetUsingCommentaryDimensions( false );
+				}
+#endif
 			}
 		}
 	}
@@ -840,6 +854,17 @@ void CHudCommentary::Paint()
 			// Ensure that the scene is terminated
 			if (m_iCommentaryType == COMMENTARY_TYPE_SCENE)
 				m_hActiveNode->StopLoopingSounds();
+
+			// Reset close caption element if needed
+			CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
+			if (pHudCloseCaption && pHudCloseCaption->IsUsingCommentaryDimensions())
+			{
+				int ccX, ccY;
+				pHudCloseCaption->GetPos( ccX, ccY );
+				pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
+
+				pHudCloseCaption->SetUsingCommentaryDimensions( false );
+			}
 #endif
 
 			m_hActiveNode = NULL;
@@ -1155,6 +1180,33 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	{
 		m_bShouldPaint = true;
 	}
+
+#ifdef MAPBASE
+	if (!m_bShouldPaint && commentary_audio_element_below_cc.GetBool())
+	{
+		m_bShouldPaint = true;
+
+		// Invert the Y axis
+		//SetPos( m_iTypeAudioX, ScreenHeight() - m_iTypeAudioY );
+
+		// Place underneath the close caption element
+		CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
+		if (pHudCloseCaption)
+		{
+			int ccX, ccY;
+			pHudCloseCaption->GetPos( ccX, ccY );
+			ccY -= m_iTypeAudioT;
+
+			pHudCloseCaption->SetPos( ccX, ccY - commentary_audio_element_below_cc_margin.GetInt() );
+
+			SetPos( ccX, ccY + pHudCloseCaption->GetTall() );
+			SetWide( pHudCloseCaption->GetWide() );
+
+			pHudCloseCaption->SetUsingCommentaryDimensions( true );
+		}
+	}
+#endif
+
 	SetPaintBackgroundEnabled( m_bShouldPaint );
 
 	char sz[MAX_COUNT_STRING];
@@ -1332,6 +1384,31 @@ void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *p
 	{
 		m_bShouldPaint = true;
 	}
+
+	if (!m_bShouldPaint && commentary_audio_element_below_cc.GetBool())
+	{
+		m_bShouldPaint = true;
+
+		// Invert the Y axis
+		//SetPos( m_iTypeAudioX, ScreenHeight() - m_iTypeAudioY );
+
+		// Place underneath the close caption element
+		CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
+		if (pHudCloseCaption)
+		{
+			int ccX, ccY;
+			pHudCloseCaption->GetPos( ccX, ccY );
+			ccY -= m_iTypeAudioT;
+
+			pHudCloseCaption->SetPos( ccX, ccY - commentary_audio_element_below_cc_margin.GetInt() );
+
+			SetPos( ccX, ccY + pHudCloseCaption->GetTall() );
+			SetWide( pHudCloseCaption->GetWide() );
+
+			pHudCloseCaption->SetUsingCommentaryDimensions( true );
+		}
+	}
+
 	SetPaintBackgroundEnabled( m_bShouldPaint );
 
 	char sz[MAX_COUNT_STRING];
@@ -1357,6 +1434,19 @@ void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *p
 void CHudCommentary::StopCommentary( void )
 {
 	m_hActiveNode = NULL;
+
+#ifdef MAPBASE
+	// Reset close caption element if needed
+	CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
+	if (pHudCloseCaption && pHudCloseCaption->IsUsingCommentaryDimensions())
+	{
+		int ccX, ccY;
+		pHudCloseCaption->GetPos( ccX, ccY );
+		pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
+
+		pHudCloseCaption->SetUsingCommentaryDimensions( false );
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
