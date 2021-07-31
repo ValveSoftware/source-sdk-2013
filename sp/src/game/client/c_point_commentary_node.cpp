@@ -21,6 +21,10 @@
 #ifdef MAPBASE
 #include "vgui_controls/Label.h"
 #include "vgui_controls/ImagePanel.h"
+#include "filesystem.h"
+#include "scenefilecache/ISceneFileCache.h"
+#include "choreoscene.h"
+#include "c_sceneentity.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -65,6 +69,7 @@ public:
 #ifdef MAPBASE
 	void StartTextCommentary( C_PointCommentaryNode *pNode, const char *pszText, char *pszSpeakers, int iNode, int iNodeMax, float flStartTime, float flEndTime );
 	void StartImageCommentary( C_PointCommentaryNode *pNode, const char *pszImage, char *pszSpeakers, int iNode, int iNodeMax, float flStartTime, float flEndTime );
+	void StartSceneCommentary( C_PointCommentaryNode *pNode, char *pszSpeakers, int iNode, int iNodeMax, float flStartTime, float flEndTime );
 #endif
 	void StopCommentary( void );
 	bool IsTheActiveNode( C_PointCommentaryNode *pNode ) { return (pNode == m_hActiveNode); }
@@ -141,7 +146,7 @@ private:
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class C_PointCommentaryNode : public C_BaseAnimating
+class C_PointCommentaryNode : public C_BaseAnimating, public IChoreoEventCallback
 {
 	DECLARE_CLASS( C_PointCommentaryNode, C_BaseAnimating );
 public:
@@ -155,7 +160,18 @@ public:
 #ifdef MAPBASE
 	void StartTextCommentary( const char *pszCommentaryFile, C_BasePlayer *pPlayer );
 	void StartImageCommentary( const char *pszCommentaryFile, C_BasePlayer *pPlayer );
+	void StartSceneCommentary( const char *pszCommentaryFile, C_BasePlayer *pPlayer );
+
+	// From IChoreoEventCallback
+	virtual void			StartEvent( float currenttime, CChoreoScene *scene, CChoreoEvent *event );
+#else
+	virtual void			StartEvent( float currenttime, CChoreoScene *scene, CChoreoEvent *event ) {}
 #endif
+	virtual void			EndEvent( float currenttime, CChoreoScene *scene, CChoreoEvent *event ) {}
+	virtual void			ProcessEvent( float currenttime, CChoreoScene *scene, CChoreoEvent *event ) {}
+	virtual bool			CheckEvent( float currenttime, CChoreoScene *scene, CChoreoEvent *event ) { return true; }
+
+	void ClientThink();
 
 	void OnRestore( void )
 	{
@@ -241,6 +257,10 @@ public:
 	float	m_flPanelScale;
 	float	m_flPanelX;
 	float	m_flPanelY;
+
+	CChoreoScene	*m_pScene;
+	//CHandle<C_SceneEntity>	m_hScene;
+	EHANDLE			m_hSceneOrigin;
 #endif
 };
 
@@ -325,6 +345,10 @@ void C_PointCommentaryNode::OnDataChanged( DataUpdateType_t updateType )
 
 			case COMMENTARY_TYPE_IMAGE:
 				StartImageCommentary( pszCommentaryFile, pPlayer );
+				break;
+
+			case COMMENTARY_TYPE_SCENE:
+				StartSceneCommentary( pszCommentaryFile, pPlayer );
 				break;
 
 			default:
@@ -440,7 +464,253 @@ void C_PointCommentaryNode::StartImageCommentary( const char *pszCommentaryFile,
 	CHudCommentary *pHudCommentary = (CHudCommentary *)GET_HUDELEMENT( CHudCommentary );
 	pHudCommentary->StartImageCommentary( this, pszCommentaryFile, m_iszSpeakers, m_iNodeNumber, m_iNodeNumberMax, m_flStartTime, m_flStartTime + flDuration );
 }
+
+extern CChoreoStringPool g_ChoreoStringPool;
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_PointCommentaryNode::StartSceneCommentary( const char *pszCommentaryFile, C_BasePlayer *pPlayer )
+{
+	EmitSound_t es;
+	es.m_nChannel = CHAN_STATIC;
+	es.m_pSoundName = pszCommentaryFile;
+ 	es.m_SoundLevel = SNDLVL_GUNFIRE;
+	es.m_nFlags = SND_SHOULDPAUSE;
+
+	char loadfile[MAX_PATH];
+	Q_strncpy( loadfile, pszCommentaryFile, sizeof( loadfile ) );
+	Q_SetExtension( loadfile, ".vcd", sizeof( loadfile ) );
+	Q_FixSlashes( loadfile );
+
+	// 
+	// Raw scene file support
+	// 
+	void *pBuffer = 0;
+	size_t bufsize = scenefilecache->GetSceneBufferSize( loadfile );
+	if ( bufsize > 0 )
+	{
+		// Definitely in scenes.image
+		pBuffer = malloc( bufsize );
+		if ( !scenefilecache->GetSceneData( pszCommentaryFile, (byte *)pBuffer, bufsize ) )
+		{
+			free( pBuffer );
+		}
+
+	
+		if ( IsBufferBinaryVCD( (char*)pBuffer, bufsize ) )
+		{
+			m_pScene = new CChoreoScene( NULL );
+			CUtlBuffer buf( pBuffer, bufsize, CUtlBuffer::READ_ONLY );
+			if ( !m_pScene->RestoreFromBinaryBuffer( buf, loadfile, &g_ChoreoStringPool ) )
+			{
+				Warning( "Unable to restore scene '%s'\n", loadfile );
+				delete m_pScene;
+				m_pScene = NULL;
+			}
+		}
+	}
+	else if (filesystem->ReadFileEx( loadfile, "MOD", &pBuffer, true ))
+	{
+		// Not in scenes.image, but it's a raw file
+		g_TokenProcessor.SetBuffer((char*)pBuffer);
+		m_pScene = ChoreoLoadScene( loadfile, this, &g_TokenProcessor, Scene_Printf );
+	}
+
+	free( pBuffer );
+
+	if( m_pScene )
+	{
+		m_pScene->SetPrintFunc( Scene_Printf );
+		m_pScene->SetEventCallbackInterface( this );
+	}
+	else
+	{
+		// Cancel commentary (TODO: clean up?)
+		return;
+	}
+
+	int types[ 2 ];
+	types[ 0 ] =  CChoreoEvent::SPEAK;
+	//types[ 1 ] =  CChoreoEvent::GENERIC; // TODO: Support for the game_text event?
+	m_pScene->RemoveEventsExceptTypes( types, 1 );
+
+	// Iterate events and precache necessary resources
+	for ( int i = 0; i < m_pScene->GetNumEvents(); i++ )
+	{
+		CChoreoEvent *event = m_pScene->GetEvent( i );
+		if ( !event )
+			continue;
+
+		// load any necessary data
+		switch (event->GetType() )
+		{
+		default:
+			break;
+		case CChoreoEvent::SPEAK:
+			{
+				// Defined in SoundEmitterSystem.cpp
+				// NOTE:  The script entries associated with .vcds are forced to preload to avoid
+				//  loading hitches during triggering
+				CBaseEntity::PrecacheScriptSound( event->GetParameters() );
+
+				if ( event->GetCloseCaptionType() == CChoreoEvent::CC_MASTER && 
+					 event->GetNumSlaves() > 0 )
+				{
+					char tok[ CChoreoEvent::MAX_CCTOKEN_STRING ];
+					if ( event->GetPlaybackCloseCaptionToken( tok, sizeof( tok ) ) )
+					{
+						CBaseEntity::PrecacheScriptSound( tok );
+					}
+				}
+			}
+			break;
+		}
+	}
+
+	PrecacheScriptSound( "AI_BaseNPC.SentenceStop" );
+
+	if ( m_hViewPosition )
+	{
+		m_hSceneOrigin = m_hViewPosition;
+	}
+	else if ( render->GetViewEntity() )
+	{
+		m_hSceneOrigin = cl_entitylist->GetEnt( render->GetViewEntity() );
+	}
+	else
+	{
+		m_hSceneOrigin = pPlayer;
+	}
+
+	// Get the duration so we know when it finishes
+	float flDuration = m_pScene->GetDuration();
+
+	CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
+	if ( pHudCloseCaption )
+	{
+		// This is where we play the commentary close caption (and lock the other captions out).
+		// Also, if close captions are off we force a caption in non-English
+		if ( closecaption.GetBool() || ( !closecaption.GetBool() && !english.GetBool() ) )
+		{
+			// Clear the close caption element in preparation
+			pHudCloseCaption->Reset();
+
+			// Find the close caption hud element & lock it
+			pHudCloseCaption->Lock();
+		}
+	}
+
+	// Tell the HUD element
+	CHudCommentary *pHudCommentary = (CHudCommentary *)GET_HUDELEMENT( CHudCommentary );
+	pHudCommentary->StartSceneCommentary( this, m_iszSpeakers, m_iNodeNumber, m_iNodeNumberMax, m_flStartTime, m_flStartTime + flDuration );
+
+	// Start thinking for the scene
+	SetNextClientThink( CLIENT_THINK_ALWAYS );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: All events are leading edge triggered
+// Input  : currenttime - 
+//			*event - 
+//-----------------------------------------------------------------------------
+void C_PointCommentaryNode::StartEvent( float currenttime, CChoreoScene *scene, CChoreoEvent *event )
+{
+	Assert( event );
+
+	if ( !Q_stricmp( event->GetName(), "NULL" ) )
+ 	{
+ 		return;
+ 	}
+
+	//Msg("Starting event \"%s\" (%s)\n", event->GetName(), event->GetParameters());
+
+	// load any necessary data
+	switch (event->GetType() )
+	{
+	default:
+		break;
+	case CChoreoEvent::SPEAK:
+		{
+			CSingleUserRecipientFilter filter( C_BasePlayer::GetLocalPlayer() );
+
+			EmitSound_t es;
+			es.m_nChannel = CHAN_VOICE2;
+			es.m_flVolume = 1;
+			es.m_SoundLevel = SNDLVL_GUNFIRE;
+			//es.m_nFlags = SND_SHOULDPAUSE;
+
+			es.m_bEmitCloseCaption = false;
+			es.m_pSoundName = event->GetParameters();
+
+			// Just in case
+			if (!m_hSceneOrigin)
+				m_hSceneOrigin = C_BasePlayer::GetLocalPlayer();
+
+			EmitSound( filter, m_hSceneOrigin->entindex(), es );
+
+			// Close captioning only on master token no matter what...
+			// Also, if close captions are off we force a caption in non-English
+			if ( event->GetCloseCaptionType() == CChoreoEvent::CC_MASTER && closecaption.GetBool() || ( !closecaption.GetBool() && !english.GetBool() ) )
+			{
+				char tok[ CChoreoEvent::MAX_CCTOKEN_STRING ];
+				bool validtoken = event->GetPlaybackCloseCaptionToken( tok, sizeof( tok ) );
+				if ( validtoken )
+				{
+					CRC32_t tokenCRC;
+					CRC32_Init( &tokenCRC );
+
+					char lowercase[ 256 ];
+					Q_strncpy( lowercase, tok, sizeof( lowercase ) );
+					Q_strlower( lowercase );
+
+					CRC32_ProcessBuffer( &tokenCRC, lowercase, Q_strlen( lowercase ) );
+					CRC32_Final( &tokenCRC );
+
+					float endtime = event->GetLastSlaveEndTime();
+					float durationShort = event->GetDuration();
+					float durationLong = endtime - event->GetStartTime();
+					float duration = MAX( durationShort, durationLong );
+
+					CHudCloseCaption *hudCloseCaption = GET_HUDELEMENT( CHudCloseCaption );
+					if ( hudCloseCaption )
+					{
+						hudCloseCaption->ProcessCaptionDirect( lowercase, duration );
+					}
+				}
+
+			}
+		}
+		break;
+		// TODO: Support for the game_text event?
+		/*
+	case CChoreoEvent::GENERIC:
+		{
+			
+		}
+		break;
+		*/
+	}
+
+	event->m_flPrevTime = currenttime;
+}
 #endif
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_PointCommentaryNode::ClientThink()
+{
+	BaseClass::ClientThink();
+
+#ifdef MAPBASE
+	if (m_iCommentaryType == COMMENTARY_TYPE_SCENE && m_pScene)
+	{
+		m_pScene->Think( gpGlobals->curtime - m_flStartTime );
+		SetNextClientThink( CLIENT_THINK_ALWAYS );
+	}
+#endif
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Shut down the commentary
@@ -452,6 +722,18 @@ void C_PointCommentaryNode::StopLoopingSounds( void )
 		(CSoundEnvelopeController::GetController()).SoundDestroy( m_sndCommentary );
 		m_sndCommentary = NULL;
 	}
+
+#ifdef MAPBASE
+	if ( m_pScene )
+	{
+		delete m_pScene;
+		m_pScene = NULL;
+
+		// Must do this to terminate audio
+		if (m_hSceneOrigin)
+			m_hSceneOrigin->EmitSound( "AI_BaseNPC.SentenceStop" );
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -554,6 +836,12 @@ void CHudCommentary::Paint()
 		// Detect the end of the commentary
 		if ( flPercentage >= 1 && m_hActiveNode )
 		{
+#ifdef MAPBASE
+			// Ensure that the scene is terminated
+			if (m_iCommentaryType == COMMENTARY_TYPE_SCENE)
+				m_hActiveNode->StopLoopingSounds();
+#endif
+
 			m_hActiveNode = NULL;
 			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "HideCommentary" );
 
@@ -603,6 +891,7 @@ void CHudCommentary::Paint()
 			} break;
 
 		default:
+		case COMMENTARY_TYPE_SCENE:
 		case COMMENTARY_TYPE_AUDIO:
 			{
 				// Draw the progress bar
@@ -656,7 +945,7 @@ void CHudCommentary::Paint()
 	vgui::surface()->GetTextSize( m_hFont, m_szCount, iCountWide, iCountTall );
 
 #ifdef MAPBASE
-	if (m_iCommentaryType != COMMENTARY_TYPE_AUDIO)
+	if (m_iCommentaryType != COMMENTARY_TYPE_AUDIO && m_iCommentaryType != COMMENTARY_TYPE_SCENE)
 		vgui::surface()->DrawSetTextPos( wide - m_iTypeTextCountXFR - iCountWide, tall - m_iTypeTextCountYFB - iCountTall );
 	else
 #endif
@@ -742,6 +1031,7 @@ void CHudCommentary::PerformLayout()
 			} break;
 
 		default:
+		case COMMENTARY_TYPE_SCENE:
 		case COMMENTARY_TYPE_AUDIO:
 			break;
 	}
@@ -981,6 +1271,67 @@ void CHudCommentary::StartImageCommentary( C_PointCommentaryNode *pNode, const c
 	}
 
 	m_bShouldPaint = true;
+	SetPaintBackgroundEnabled( m_bShouldPaint );
+
+	char sz[MAX_COUNT_STRING];
+	Q_snprintf( sz, sizeof(sz), "%d \\ %d", iNode, iNodeMax );
+	g_pVGuiLocalize->ConvertANSIToUnicode( sz, m_szCount, sizeof(m_szCount) );
+
+	// If the commentary just started, play the commentary fade in.
+	if ( fabs(flStartTime - gpGlobals->curtime) < 1.0 )
+	{
+		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "ShowCommentary" );
+	}
+	else
+	{
+		// We're reloading a savegame that has an active commentary going in it. Don't fade in.
+		SetAlpha( 255 );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *pszSpeakers, int iNode, int iNodeMax, float flStartTime, float flEndTime )
+{
+	if ( (flEndTime - flStartTime) <= 0 )
+		return;
+
+	m_hActiveNode = pNode;
+	m_flStartTime = flStartTime;
+	m_flEndTime = flEndTime;
+	m_bHiding = false;
+	m_iCommentaryType = COMMENTARY_TYPE_SCENE;
+	m_flPanelScale = pNode->m_flPanelScale;
+	m_flOverrideX = pNode->m_flPanelX;
+	m_flOverrideY = pNode->m_flPanelY;
+	g_pVGuiLocalize->ConvertANSIToUnicode( pszSpeakers, m_szSpeakers, sizeof( m_szSpeakers ) );
+
+	SetBounds( m_iTypeAudioX, m_iTypeAudioY, m_iTypeAudioW, m_iTypeAudioT );
+	SetBgColor( m_bUseScriptBGColor ? m_BGOverrideColor : m_BackgroundColor );
+
+	m_pLabel->SetPaintEnabled( false );
+	m_pImage->SetPaintEnabled( false );
+	m_pImage->EvictImage();
+
+	// Get our scheme and font information
+	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
+	if ( !m_hFont )
+	{
+		m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
+	}
+
+	// Don't draw the element itself if closecaptions are on (and captions are always on in non-english mode)
+	ConVarRef pCVar( "closecaption" );
+	if ( pCVar.IsValid() )
+	{
+		m_bShouldPaint = ( !pCVar.GetBool() && english.GetBool() );
+	}
+	else
+	{
+		m_bShouldPaint = true;
+	}
 	SetPaintBackgroundEnabled( m_bShouldPaint );
 
 	char sz[MAX_COUNT_STRING];

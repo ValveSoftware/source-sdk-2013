@@ -1056,6 +1056,7 @@ enum
 
 	COMMENTARY_TYPE_TEXT,		// Display text data
 	COMMENTARY_TYPE_IMAGE,		// Display an image
+	COMMENTARY_TYPE_SCENE,		// Play a VCD file
 };
 #endif
 

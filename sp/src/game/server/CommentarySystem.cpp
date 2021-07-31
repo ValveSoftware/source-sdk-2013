@@ -945,6 +945,10 @@ void CPointCommentaryNode::Spawn( void )
 				szModel = "models/extras/info_image.mdl";
 				break;
 
+			case COMMENTARY_TYPE_SCENE:
+				szModel = "models/extras/info_scene.mdl";
+				break;
+
 			default:
 			case COMMENTARY_TYPE_AUDIO:
 				szModel = "models/extras/info_speech.mdl";
