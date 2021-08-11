@@ -69,6 +69,8 @@ bool		g_bNoHiddenManifestMaps = false;
 #ifdef MAPBASE
 bool		g_bNoDefaultCubemaps = true;
 bool		g_bSkyboxCubemaps = false;
+bool		g_bPropperInsertAllAsStatic = false;
+bool		g_bPropperStripEntities = false;
 int			g_iDefaultCubemapSize = 32;
 #endif
 #ifdef MAPBASE_VSCRIPT
@@ -1192,6 +1194,14 @@ int RunVBSP( int argc, char **argv )
 			g_iDefaultCubemapSize = atoi( argv[i + 1] );
 			Msg( "Default cubemap size = %i\n", g_iDefaultCubemapSize );
 			i++;
+		}
+		else if ( !Q_stricmp( argv[i], "-defaultproppermodelsstatic" ) )
+		{
+			g_bPropperInsertAllAsStatic = true;
+		}
+		else if ( !Q_stricmp( argv[i], "-strippropperentities" ) )
+		{
+			g_bPropperStripEntities = true;
 		}
 #endif
 #ifdef MAPBASE_VSCRIPT

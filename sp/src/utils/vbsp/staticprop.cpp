@@ -565,6 +565,10 @@ static void SetLumpData( )
 
 void EmitStaticProps()
 {
+#ifdef MAPBASE
+	Msg("Placing static props...\n");
+#endif
+
 	CreateInterfaceFn physicsFactory = GetPhysicsFactory();
 	if ( physicsFactory )
 	{
@@ -588,13 +592,43 @@ void EmitStaticProps()
 	for ( i = 0; i < num_entities; ++i)
 	{
 		char* pEntity = ValueForKey(&entities[i], "classname");
+#ifdef MAPBASE
+		const int iInsertAsStatic = IntForKey( &entities[i], "insertasstaticprop" ); // If the key is absent, IntForKey will return 0.
+		bool bInsertAsStatic = g_bPropperInsertAllAsStatic;
+
+		// 1 = No, 2 = Yes;  Any other number will just use what g_bPropperInsertAllAsStatic is set as.
+		if ( iInsertAsStatic == 1 ) { bInsertAsStatic = false; }
+		else if ( iInsertAsStatic == 2 ) { bInsertAsStatic = true; }
+
+		if ( !strcmp( pEntity, "static_prop" ) || !strcmp( pEntity, "prop_static" ) || ( !strcmp( pEntity, "propper_model" ) && bInsertAsStatic ) )
+#else
 		if (!strcmp(pEntity, "static_prop") || !strcmp(pEntity, "prop_static"))
+#endif
 		{
 			StaticPropBuild_t build;
 
 			GetVectorForKey( &entities[i], "origin", build.m_Origin );
 			GetAnglesForKey( &entities[i], "angles", build.m_Angles );
+#ifdef MAPBASE
+			if ( !strcmp( pEntity, "propper_model" ) )
+			{
+				char* pModelName = ValueForKey( &entities[i], "modelname" );
+			
+				// The modelname keyvalue lacks 'models/' at the start and '.mdl' at the end, so we have to add them.	
+				char modelpath[MAX_VALUE];
+				sprintf( modelpath, "models/%s.mdl", pModelName );
+
+				Msg( "Inserting propper_model (%.0f %.0f %.0f) as prop_static: %s\n", build.m_Origin[0], build.m_Origin[1], build.m_Origin[2], modelpath );
+
+				build.m_pModelName = modelpath;
+			}
+			else // Otherwise we just assume it's a normal prop_static
+			{
+				build.m_pModelName = ValueForKey( &entities[i], "model" );
+			}
+#else
 			build.m_pModelName = ValueForKey( &entities[i], "model" );
+#endif
 			build.m_Solid = IntForKey( &entities[i], "solid" );
 			build.m_Skin = IntForKey( &entities[i], "skin" );
 			build.m_FadeMaxDist = FloatForKey( &entities[i], "fademaxdist" );
@@ -651,6 +685,13 @@ void EmitStaticProps()
 			// strip this ent from the .bsp file
 			entities[i].epairs = 0;
 		}
+#ifdef MAPBASE
+		else if ( g_bPropperStripEntities && !strncmp( pEntity, "propper_", 8 ) ) // Strip out any entities with 'propper_' in their classname, as they don't actually exist in-game.
+		{
+			Warning( "Not including %s in BSP compile due to it being a propper entity that isn't used in-game.\n", pEntity );
+			entities[i].epairs = 0;
+		}
+#endif
 	}
 
 	// Strip out lighting origins; has to be done here because they are used when
