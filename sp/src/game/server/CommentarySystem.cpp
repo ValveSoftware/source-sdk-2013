@@ -135,6 +135,7 @@ private:
 	float		m_flViewTargetSpeedScale;
 	float		m_flViewPositionSpeedScale;
 	float		m_flReturnSpeedScale;
+	CNetworkVar( string_t, m_iszPrintName );
 #endif
 	bool		m_bPreventMovement;
 	bool		m_bUnderCrosshair;
@@ -194,6 +195,7 @@ BEGIN_DATADESC( CPointCommentaryNode )
 	DEFINE_KEYFIELD( m_flViewTargetSpeedScale, FIELD_FLOAT, "viewtarget_speed" ),
 	DEFINE_KEYFIELD( m_flViewPositionSpeedScale, FIELD_FLOAT, "viewposition_speed" ),
 	DEFINE_KEYFIELD( m_flReturnSpeedScale, FIELD_FLOAT, "return_speed" ),
+	DEFINE_KEYFIELD( m_iszPrintName, FIELD_STRING, "printname" ),
 	DEFINE_KEYFIELD( m_iCommentaryType, FIELD_INTEGER, "type" ),
 	DEFINE_KEYFIELD( m_flPanelScale, FIELD_FLOAT, "panelscale" ),
 	DEFINE_KEYFIELD( m_flPanelX, FIELD_FLOAT, "x" ),
@@ -226,6 +228,7 @@ IMPLEMENT_SERVERCLASS_ST( CPointCommentaryNode, DT_PointCommentaryNode )
 	SendPropInt( SENDINFO(m_iNodeNumberMax), 8, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO(m_hViewPosition) ),
 #ifdef MAPBASE
+	SendPropStringT( SENDINFO( m_iszPrintName ) ),
 	SendPropInt( SENDINFO( m_iCommentaryType ), 2, SPROP_UNSIGNED ),
 	SendPropFloat( SENDINFO( m_flPanelScale ) ),
 	SendPropFloat( SENDINFO( m_flPanelX ) ),

@@ -51,6 +51,7 @@ ConVar commentary_type_text_endtime( "commentary_type_text_endtime", "120" );
 ConVar commentary_type_image_endtime( "commentary_type_image_endtime", "120" );
 ConVar commentary_audio_element_below_cc( "commentary_audio_element_below_cc", "1", FCVAR_NONE, "Allows commentary audio elements to display even when CC is enabled (although this is done by inverting their Y axis)" );
 ConVar commentary_audio_element_below_cc_margin( "commentary_audio_element_below_cc_margin", "4" );
+ConVar commentary_combine_speaker_and_printname( "commentary_combine_speaker_and_printname", "1" );
 #endif
 
 //-----------------------------------------------------------------------------
@@ -75,6 +76,11 @@ public:
 #endif
 	void StopCommentary( void );
 	bool IsTheActiveNode( C_PointCommentaryNode *pNode ) { return (pNode == m_hActiveNode); }
+
+#ifdef MAPBASE
+	void CombineSpeakerAndPrintName( const char *pszPrintName );
+	void RepositionCloseCaption();
+#endif
 
 	// vgui overrides
 	virtual void Paint( void );
@@ -222,6 +228,11 @@ public:
 		{
 			int iRenderGroup = gHUD.LookupRenderGroupIndexByName( "commentary" );
 			gHUD.LockRenderGroup( iRenderGroup );
+
+#ifdef MAPBASE
+			// Special commentary localization file (useful for things like text nodes or print names)
+			g_pVGuiLocalize->AddFile( "resource/commentary_%language%.txt" );
+#endif
 		}
 
 		if ( g_CommentaryNodes.Find(this) == g_CommentaryNodes.InvalidIndex() )
@@ -255,6 +266,7 @@ public:
 	EHANDLE		m_hViewPosition;
 	bool		m_bRestartAfterRestore;
 #ifdef MAPBASE
+	char		m_iszPrintName[MAX_SPEAKER_NAME];
 	int		m_iCommentaryType;
 	float	m_flPanelScale;
 	float	m_flPanelX;
@@ -276,6 +288,7 @@ IMPLEMENT_CLIENTCLASS_DT(C_PointCommentaryNode, DT_PointCommentaryNode, CPointCo
 	RecvPropInt( RECVINFO( m_iNodeNumberMax ) ),
 	RecvPropEHandle( RECVINFO(m_hViewPosition) ),
 #ifdef MAPBASE
+	RecvPropString( RECVINFO( m_iszPrintName ) ),
 	RecvPropInt( RECVINFO( m_iCommentaryType ) ),
 	RecvPropFloat( RECVINFO( m_flPanelScale ) ),
 	RecvPropFloat( RECVINFO( m_flPanelX ) ),
@@ -411,6 +424,7 @@ void C_PointCommentaryNode::StartAudioCommentary( const char *pszCommentaryFile,
 
 	// Get the duration so we know when it finishes
 	float flDuration = enginesound->GetSoundDuration( STRING( CSoundEnvelopeController::GetController().SoundGetName( m_sndCommentary ) ) ) ;
+	bool bSubtitlesEnabled = false;
 
 	CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
 	if ( pHudCloseCaption )
@@ -427,12 +441,16 @@ void C_PointCommentaryNode::StartAudioCommentary( const char *pszCommentaryFile,
 
 			// Find the close caption hud element & lock it
 			pHudCloseCaption->Lock();
+
+			bSubtitlesEnabled = true;
 		}
 	}
 
+	char *pszSpeakers = m_iszSpeakers;
+
 	// Tell the HUD element
 	CHudCommentary *pHudCommentary = (CHudCommentary *)GET_HUDELEMENT( CHudCommentary );
-	pHudCommentary->StartCommentary( this, m_iszSpeakers, m_iNodeNumber, m_iNodeNumberMax, m_flStartTime, m_flStartTime + flDuration );
+	pHudCommentary->StartCommentary( this, pszSpeakers, m_iNodeNumber, m_iNodeNumberMax, m_flStartTime, m_flStartTime + flDuration );
 }
 
 #ifdef MAPBASE
@@ -921,9 +939,9 @@ void CHudCommentary::Paint()
 			{
 				// Draw the progress bar
 				vgui::surface()->DrawSetColor( clr );
-				vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset+m_iBarWide, yOffset+m_iBarTall );
+				vgui::surface()->DrawOutlinedRect( xOffset, yOffset, xOffset+(m_iBarWide*m_flPanelScale), yOffset+m_iBarTall );
 				vgui::surface()->DrawSetColor( clr );
-				vgui::surface()->DrawFilledRect( xOffset+2, yOffset+2, xOffset+(int)(flPercentage*m_iBarWide)-2, yOffset+m_iBarTall-2 );
+				vgui::surface()->DrawFilledRect( xOffset+2, yOffset+2, xOffset+(int)(flPercentage*(m_iBarWide*m_flPanelScale))-2, yOffset+m_iBarTall-2 );
 			} break;
 	}
 #else
@@ -1182,28 +1200,15 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	}
 
 #ifdef MAPBASE
+	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
+	{
+		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
+	}
+
 	if (!m_bShouldPaint && commentary_audio_element_below_cc.GetBool())
 	{
 		m_bShouldPaint = true;
-
-		// Invert the Y axis
-		//SetPos( m_iTypeAudioX, ScreenHeight() - m_iTypeAudioY );
-
-		// Place underneath the close caption element
-		CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
-		if (pHudCloseCaption)
-		{
-			int ccX, ccY;
-			pHudCloseCaption->GetPos( ccX, ccY );
-			ccY -= m_iTypeAudioT;
-
-			pHudCloseCaption->SetPos( ccX, ccY - commentary_audio_element_below_cc_margin.GetInt() );
-
-			SetPos( ccX, ccY + pHudCloseCaption->GetTall() );
-			SetWide( pHudCloseCaption->GetWide() );
-
-			pHudCloseCaption->SetUsingCommentaryDimensions( true );
-		}
+		RepositionCloseCaption();
 	}
 #endif
 
@@ -1269,6 +1274,12 @@ void CHudCommentary::StartTextCommentary( C_PointCommentaryNode *pNode, const ch
 	m_pImage->EvictImage();
 
 	m_bShouldPaint = true;
+
+	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
+	{
+		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
+	}
+
 	SetPaintBackgroundEnabled( m_bShouldPaint );
 
 	char sz[MAX_COUNT_STRING];
@@ -1323,6 +1334,12 @@ void CHudCommentary::StartImageCommentary( C_PointCommentaryNode *pNode, const c
 	}
 
 	m_bShouldPaint = true;
+
+	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
+	{
+		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
+	}
+
 	SetPaintBackgroundEnabled( m_bShouldPaint );
 
 	char sz[MAX_COUNT_STRING];
@@ -1385,28 +1402,15 @@ void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *p
 		m_bShouldPaint = true;
 	}
 
+	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
+	{
+		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
+	}
+
 	if (!m_bShouldPaint && commentary_audio_element_below_cc.GetBool())
 	{
 		m_bShouldPaint = true;
-
-		// Invert the Y axis
-		//SetPos( m_iTypeAudioX, ScreenHeight() - m_iTypeAudioY );
-
-		// Place underneath the close caption element
-		CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
-		if (pHudCloseCaption)
-		{
-			int ccX, ccY;
-			pHudCloseCaption->GetPos( ccX, ccY );
-			ccY -= m_iTypeAudioT;
-
-			pHudCloseCaption->SetPos( ccX, ccY - commentary_audio_element_below_cc_margin.GetInt() );
-
-			SetPos( ccX, ccY + pHudCloseCaption->GetTall() );
-			SetWide( pHudCloseCaption->GetWide() );
-
-			pHudCloseCaption->SetUsingCommentaryDimensions( true );
-		}
+		RepositionCloseCaption();
 	}
 
 	SetPaintBackgroundEnabled( m_bShouldPaint );
@@ -1448,6 +1452,64 @@ void CHudCommentary::StopCommentary( void )
 	}
 #endif
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudCommentary::CombineSpeakerAndPrintName( const char *pszPrintName )
+{
+	wchar_t *pszLocal = g_pVGuiLocalize->Find( pszPrintName );
+	if (m_szSpeakers[0] == '\0' || !m_bShouldPaint) // Use m_bShouldPaint as an indicator of whether or not we use subtitles
+	{
+		if (pszPrintName[0] == '#' && pszLocal)
+			wcsncpy( m_szSpeakers, pszLocal, sizeof( m_szSpeakers ) / sizeof( wchar_t ) );
+		else
+			g_pVGuiLocalize->ConvertANSIToUnicode( pszPrintName, m_szSpeakers, sizeof( m_szSpeakers ) );
+	}
+	else
+	{
+		static wchar_t iszPrintNameLocalized[MAX_SPEAKER_NAME];
+
+		if (pszPrintName[0] == '#' && pszLocal)
+			wcsncpy( iszPrintNameLocalized, pszLocal, sizeof( iszPrintNameLocalized ) / sizeof( wchar_t ) );
+		else
+			g_pVGuiLocalize->ConvertANSIToUnicode( pszPrintName, iszPrintNameLocalized, sizeof( iszPrintNameLocalized ) );
+
+		V_snwprintf( m_szSpeakers, sizeof( m_szSpeakers ), L"%ls ~ %ls", m_szSpeakers, iszPrintNameLocalized );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudCommentary::RepositionCloseCaption()
+{
+	// Invert the Y axis
+	//SetPos( m_iTypeAudioX, ScreenHeight() - m_iTypeAudioY );
+
+	// Place underneath the close caption element
+	CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
+	if (pHudCloseCaption)
+	{
+		int ccX, ccY;
+		pHudCloseCaption->GetPos( ccX, ccY );
+
+		if (!pHudCloseCaption->IsUsingCommentaryDimensions())
+		{
+			ccY -= m_iTypeAudioT;
+			pHudCloseCaption->SetPos( ccX, ccY );
+		}
+
+		SetPos( ccX, ccY + pHudCloseCaption->GetTall() + commentary_audio_element_below_cc_margin.GetInt() );
+
+		m_flPanelScale = (float)pHudCloseCaption->GetWide() / (float)GetWide();
+		SetWide( pHudCloseCaption->GetWide() );
+
+		pHudCloseCaption->SetUsingCommentaryDimensions( true );
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
