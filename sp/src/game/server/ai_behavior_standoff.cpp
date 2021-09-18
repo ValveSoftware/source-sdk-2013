@@ -240,6 +240,23 @@ void CAI_StandoffBehavior::SetActive( bool fActive )
 {
 	if ( fActive !=	m_fActive )
 	{
+#ifdef MAPBASE
+		// These sentences are only spoken if the standoff behavior is active, so they have to be arranged separately
+		if ( fActive )
+		{
+			m_fActive = fActive;
+			NotifyChangeBehaviorStatus();
+
+			GetOuter()->SpeakSentence( STANDOFF_SENTENCE_BEGIN_STANDOFF );
+		}
+		else
+		{
+			GetOuter()->SpeakSentence( STANDOFF_SENTENCE_END_STANDOFF );
+
+			m_fActive = fActive;
+			NotifyChangeBehaviorStatus();
+		}
+#else
 		if ( fActive )
 		{
 			GetOuter()->SpeakSentence( STANDOFF_SENTENCE_BEGIN_STANDOFF );
@@ -251,6 +268,7 @@ void CAI_StandoffBehavior::SetActive( bool fActive )
 
 		m_fActive = fActive;
 		NotifyChangeBehaviorStatus();
+#endif
 	}
 }
 

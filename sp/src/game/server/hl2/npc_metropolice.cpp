@@ -882,7 +882,7 @@ void CNPC_MetroPolice::SpeakStandoffSentence( int nSentenceType )
 		break;
 
 	case STANDOFF_SENTENCE_FORCED_TAKE_COVER:
-		SpeakIfAllowed( TLK_COP_SO_END );
+		SpeakIfAllowed( TLK_COP_SO_FORCE_COVER );
 		break;
 
 	case STANDOFF_SENTENCE_STAND_CHECK_TARGET:
@@ -1008,7 +1008,12 @@ void CNPC_MetroPolice::SpeakSentence( int nSentenceType )
 			return;
 		}
 
+#ifdef MAPBASE
+		// Fixed issues with standoff sentences not playing when they should
+		if ( m_StandoffBehavior.IsActive() )
+#else
 		if ( GetRunningBehavior() == &m_StandoffBehavior )
+#endif
 		{
 			SpeakStandoffSentence( nSentenceType );
 			return;
