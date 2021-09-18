@@ -23,6 +23,7 @@
 #include "panelmetaclassmgr.h"
 #include "c_soundscape.h"
 #include "hud_macros.h"
+#include "clientmode_shared.h"
 #else
 #include "soundscape_system.h"
 #include "AI_ResponseSystem.h"
@@ -66,6 +67,8 @@ static bool g_bMapContainsCustomTalker;
 // This constant should change with each Mapbase update
 ConVar mapbase_version_client( "mapbase_version_client", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's client.dll" );
 
+// This is from the vgui_controls library
+extern vgui::HScheme g_iCustomClientSchemeOverride;
 #endif
 
 extern void AddSurfacepropFile( const char *pFileName, IPhysicsSurfaceProps *pProps, IFileSystem *pFileSystem );
@@ -86,6 +89,7 @@ enum
 #ifdef CLIENT_DLL
 	MANIFEST_CLOSECAPTION,
 	MANIFEST_VGUI,
+	MANIFEST_CLIENTSCHEME,
 #else
 	MANIFEST_TALKER,
 	//MANIFEST_SENTENCES,
@@ -112,16 +116,17 @@ struct ManifestType_t
 
 // KEEP THS IN SYNC WITH THE ENUM!
 static const ManifestType_t gm_szManifestFileStrings[MANIFEST_NUM_TYPES] = {
-	{ "soundscripts", "mapbase_load_soundscripts", "Should we load map-specific soundscripts? e.g. \"maps/<mapname>_level_sounds.txt\"" },
-	//{ "propdata",	"mapbase_load_propdata",		"Should we load map-specific soundscripts? e.g. \"maps/<mapname>_level_sounds.txt\"" },
+	{ "soundscripts",	"mapbase_load_soundscripts",	"Should we load map-specific soundscripts? e.g. \"maps/<mapname>_level_sounds.txt\"" },
+	//{ "propdata",		"mapbase_load_propdata",		"Should we load map-specific soundscripts? e.g. \"maps/<mapname>_level_sounds.txt\"" },
 	//{ "soundscapes",	"mapbase_load_soundscapes",		"Should we load map-specific soundscapes? e.g. \"maps/<mapname>_soundscapes.txt\"" },
 	{ "localization",	"mapbase_load_localization",	"Should we load map-specific localized text files? e.g. \"maps/<mapname>_english.txt\"" },
 	{ "surfaceprops",	"mapbase_load_surfaceprops",	"Should we load map-specific surfaceproperties files? e.g. \"maps/<mapname>_surfaceproperties.txt\"" },
 #ifdef CLIENT_DLL
 	{ "closecaption",	"mapbase_load_closecaption",	"Should we load map-specific closed captioning? e.g. \"maps/<mapname>_closecaption_english.txt\" and \"maps/<mapname>_closecaption_english.dat\"" },
 	{ "vgui",			"mapbase_load_vgui",			"Should we load map-specific VGUI screens? e.g. \"maps/<mapname>_screens.txt\"" },
+	{ "clientscheme",	"mapbase_load_clientscheme",	"Should we load map-specific ClientScheme.res overrides? e.g. \"maps/<mapname>_clientscheme.res\"" },
 #else
-	{ "talker",		"mapbase_load_talker",			"Should we load map-specific talker files? e.g. \"maps/<mapname>_talker.txt\"" },
+	{ "talker",			"mapbase_load_talker",			"Should we load map-specific talker files? e.g. \"maps/<mapname>_talker.txt\"" },
 	//{ "sentences",	"mapbase_load_sentences",		"Should we load map-specific sentences? e.g. \"maps/<mapname>_sentences.txt\"" },
 	{ "actbusy",		"mapbase_load_actbusy",			"Should we load map-specific actbusy files? e.g. \"maps/<mapname>_actbusy.txt\"" },
 #endif
@@ -259,6 +264,20 @@ public:
 		{
 			hudCloseCaption->RemoveCaptionDictionary( m_CloseCaptionFileNames[i] );
 		}
+
+		if (g_iCustomClientSchemeOverride != 0)
+		{
+			// TODO: We currently have no way of actually cleaning up custom schemes upon level unload.
+			// That may or may not be sustainable if there's a ton of custom schemes loaded at once
+			g_iCustomClientSchemeOverride = 0;
+
+			// Reload scheme
+			ClientModeShared *mode = ( ClientModeShared * )GetClientModeNormal();
+			if ( mode )
+			{
+				mode->ReloadScheme();
+			}
+		}
 #endif
 	}
 
@@ -331,6 +350,19 @@ public:
 			m_bInitializedRTs = false;
 		}
 	}
+
+	// Custom scheme loading
+	void LoadCustomScheme( const char *pszFile )
+	{
+		g_iCustomClientSchemeOverride = vgui::scheme()->LoadSchemeFromFile( pszFile, "CustomClientScheme" );
+
+		// Reload scheme
+		ClientModeShared *mode = ( ClientModeShared * )GetClientModeNormal();
+		if ( mode )
+		{
+			mode->ReloadScheme();
+		}
+	}
 #endif
 
 	// Get a generic, hardcoded manifest with hardcoded names.
@@ -389,6 +421,7 @@ public:
 						(GET_HUDELEMENT( CHudCloseCaption ))->AddCustomCaptionFile( value, m_CloseCaptionFileNames );
 				} break;
 			case MANIFEST_VGUI: { PanelMetaClassMgr()->LoadMetaClassDefinitionFile( value ); } break;
+			case MANIFEST_CLIENTSCHEME:	{ LoadCustomScheme( value ); } break;
 			//case MANIFEST_SOUNDSCAPES: { Soundscape_AddFile(value); } break;
 #else
 			case MANIFEST_TALKER: {

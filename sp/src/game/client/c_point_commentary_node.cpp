@@ -1180,7 +1180,7 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	m_pImage->EvictImage();
 
 	// Get our scheme and font information
-	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+	vgui::HScheme scheme = GetScheme();
 	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
 	if ( !m_hFont )
 	{
@@ -1253,7 +1253,7 @@ void CHudCommentary::StartTextCommentary( C_PointCommentaryNode *pNode, const ch
 	SetBgColor( m_bUseScriptBGColor ? m_BGOverrideColor : m_TextBackgroundColor );
 
 	// Get our scheme and font information
-	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+	vgui::HScheme scheme = GetScheme();
 	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
 	if ( !m_hFont )
 	{
@@ -1326,7 +1326,7 @@ void CHudCommentary::StartImageCommentary( C_PointCommentaryNode *pNode, const c
 	m_pImage->SetWide( m_iBarWide - m_iTextBorderSpace );
 
 	// Get our scheme and font information
-	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+	vgui::HScheme scheme = GetScheme();
 	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
 	if ( !m_hFont )
 	{
@@ -1384,7 +1384,7 @@ void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *p
 	m_pImage->EvictImage();
 
 	// Get our scheme and font information
-	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+	vgui::HScheme scheme = GetScheme();
 	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
 	if ( !m_hFont )
 	{

@@ -341,7 +341,11 @@ void CHudCredits::DrawOutroCreditsName( void )
 		if ( pCredit == NULL )
 			 continue;
 
+#ifdef MAPBASE
+		vgui::HScheme scheme = GetScheme();
+#else
 		vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+#endif
 		vgui::HFont m_hTFont = INVALID_FONT;
 
 		int iFontTall = 1;
@@ -635,7 +639,11 @@ void CHudCredits::DrawLogo( void )
 		Q_snprintf( szLogoFont, sizeof( szLogoFont ), "WeaponIcons" );
 	}
 
+#ifdef MAPBASE
+	vgui::HScheme scheme = GetScheme();
+#else
 	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+#endif
 	vgui::HFont m_hTFont = vgui::scheme()->GetIScheme(scheme)->GetFont( szLogoFont );
 
 	int iFontTall = surface()->GetFontTall ( m_hTFont );
@@ -715,8 +723,12 @@ void CHudCredits::DrawIntroCreditsName( void )
 
 		if ( pCredit->bActive == false )
 			 continue;
-				
+
+#ifdef MAPBASE
+		vgui::HScheme scheme = GetScheme();
+#else
 		vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+#endif
 		vgui::HFont m_hTFont = vgui::scheme()->GetIScheme(scheme)->GetFont( pCredit->szFontName );
 
 		float localTime = gpGlobals->curtime - pCredit->flTimeStart;
@@ -871,7 +883,11 @@ void CHudCredits::PrepareOutroCredits( void )
 		if ( pCredit == NULL )
 			 continue;
 
+#ifdef MAPBASE
+		vgui::HScheme scheme = GetScheme();
+#else
 		vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+#endif
 
 #ifdef MAPBASE
 		if (pCredit->szFontName[0] == '$')
@@ -1021,7 +1037,11 @@ void CHudCredits::PrepareIntroCredits( void )
 		}
 #endif
 
+#ifdef MAPBASE
+		vgui::HScheme scheme = GetScheme();
+#else
 		vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+#endif
 		vgui::HFont m_hTFont = vgui::scheme()->GetIScheme(scheme)->GetFont( pCredit->szFontName );
 
 		pCredit->flYPos = m_flY + ( iSlot * surface()->GetFontTall ( m_hTFont ) );
