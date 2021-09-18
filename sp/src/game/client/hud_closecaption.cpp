@@ -1612,6 +1612,9 @@ struct WorkUnitParams
 		clr = Color( 255, 255, 255, 255 );
 		newline = false;
 		font = 0;
+#ifdef MAPBASE
+		customFont = false;
+#endif
 	}
 
 	~WorkUnitParams()
@@ -1657,6 +1660,9 @@ struct WorkUnitParams
 	Color clr;
 	bool	newline;
 	vgui::HFont font;
+#ifdef MAPBASE
+	bool	customFont;
+#endif
 };
 
 void CHudCloseCaption::AddWorkUnit( CCloseCaptionItem *item,
@@ -1771,27 +1777,58 @@ void CHudCloseCaption::ComputeStreamWork( int available_width, CCloseCaptionItem
 			{
 				AddWorkUnit( item, params );
 				params.italic = !params.italic;
+#ifdef MAPBASE
+				params.customFont = false;
+#endif
 			}
 			else if ( !wcscmp( cmd, L"B" ) )
 			{
 				AddWorkUnit( item, params );
 				params.bold = !params.bold;
+#ifdef MAPBASE
+				params.customFont = false;
+#endif
 			}
+#ifdef MAPBASE
+			else if ( !wcscmp( cmd, L"font" ) )
+			{
+				AddWorkUnit( item, params );
+				vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( GetScheme() );
+
+				if ( args[0] != 0 )
+				{
+					char font[64];
+					g_pVGuiLocalize->ConvertUnicodeToANSI( args, font, sizeof( font ) );
+					params.font = pScheme->GetFont( font );
+					params.customFont = true;
+				}
+				else
+				{
+					params.customFont = false;
+				}
+			}
+#endif
 
 			continue;
 		}
 
-		int font;
-		if ( IsPC() )
+		vgui::HFont useF = params.font;
+#ifdef MAPBASE
+		if (params.customFont == false)
+#endif
 		{
-			font = params.GetFontNumber();
+			int font;
+			if ( IsPC() )
+			{
+				font = params.GetFontNumber();
+			}
+			else
+			{
+				font = streamlen >= cc_smallfontlength.GetInt() ? CCFONT_SMALL : CCFONT_NORMAL;
+			}
+			useF = m_hFonts[font];
+			params.font = useF;
 		}
-		else
-		{
-			font = streamlen >= cc_smallfontlength.GetInt() ? CCFONT_SMALL : CCFONT_NORMAL;
-		}
-		vgui::HFont useF = m_hFonts[font];
-		params.font = useF;
 
 		int w, h;
 
