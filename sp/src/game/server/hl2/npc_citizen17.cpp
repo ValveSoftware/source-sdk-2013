@@ -1932,12 +1932,7 @@ void CNPC_Citizen::RunTask( const Task_t *pTask )
 					return;
 				}
 				// Add imprecision to avoid obvious robotic perfection stationary targets
-#ifdef MAPBASE
-				// More imprecision with low-accuracy citizens
-				float imprecision = 18*sin(gpGlobals->curtime) + cosh(GetCurrentWeaponProficiency() - 4);
-#else
 				float imprecision = 18*sin(gpGlobals->curtime);
-#endif
 				vecLaserPos.x += imprecision;
 				vecLaserPos.y += imprecision;
 				vecLaserPos.z += imprecision;
@@ -2278,25 +2273,21 @@ bool CNPC_Citizen::IsManhackMeleeCombatant()
 //-----------------------------------------------------------------------------
 Vector CNPC_Citizen::GetActualShootPosition( const Vector &shootOrigin )
 {
-#ifdef MAPBASE
-	// The code below is probably broken. If not, it definitely isn't very effective.
-	return BaseClass::GetActualShootPosition( shootOrigin );
-#else
 	Vector vecTarget = BaseClass::GetActualShootPosition( shootOrigin );
 
 #ifdef MAPBASE
-	// If we're firing an RPG at a gunship, aim off to it's side, because we'll auger towards it.
+	// The gunship RPG code does not appear to be funcitonal, so only set the laser position.
 	if ( GetActiveWeapon() && EntIsClass(GetActiveWeapon(), gm_isz_class_RPG) && GetEnemy() )
 	{
 		CWeaponRPG *pRPG = static_cast<CWeaponRPG*>(GetActiveWeapon());
-		if ( EntIsClass( GetEnemy(), gm_isz_class_Gunship ) )
+		pRPG->SetNPCLaserPosition( vecTarget );
+	}
 #else
 	CWeaponRPG *pRPG = dynamic_cast<CWeaponRPG*>(GetActiveWeapon());
 	// If we're firing an RPG at a gunship, aim off to it's side, because we'll auger towards it.
 	if ( pRPG && GetEnemy() )
 	{
 		if ( FClassnameIs( GetEnemy(), "npc_combinegunship" ) )
-#endif
 		{
 			Vector vecRight;
 			GetVectors( NULL, &vecRight, NULL );
@@ -2331,11 +2322,10 @@ Vector CNPC_Citizen::GetActualShootPosition( const Vector &shootOrigin )
 		{
 			pRPG->SetNPCLaserPosition( vecTarget );
 		}
-
 	}
+#endif
 
 	return vecTarget;
-#endif
 }
 
 //-----------------------------------------------------------------------------
