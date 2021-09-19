@@ -106,6 +106,10 @@ ConVar sv_netvisdist( "sv_netvisdist", "10000", FCVAR_CHEAT | FCVAR_DEVELOPMENTO
 
 ConVar sv_script_think_interval("sv_script_think_interval", "0.1");
 
+#ifdef MAPBASE_VSCRIPT
+ConVar ent_text_allow_script( "ent_text_allow_script", "1" );
+#endif
+
 
 // This table encodes edict data.
 void SendProxy_AnimTime( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID )
@@ -1058,6 +1062,28 @@ int CBaseEntity::DrawDebugTextOverlays(void)
 			Q_snprintf(tempstr, sizeof(tempstr), "Response Contexts:%s", contexts);
 			EntityText(offset, tempstr, 0);
 			offset++;
+		}
+#endif
+
+#ifdef MAPBASE_VSCRIPT
+		// 'OnEntText' hook inspired by later source games
+		if (m_ScriptScope.IsInitialized() && g_Hook_OnEntText.CanRunInScope( m_ScriptScope ))
+		{
+			if (ent_text_allow_script.GetBool())
+			{
+				ScriptVariant_t functionReturn;
+				if ( g_Hook_OnEntText.Call( m_ScriptScope, &functionReturn, NULL ) && functionReturn.m_type == FIELD_CSTRING )
+				{
+					CUtlStringList outStrings;
+					V_SplitString( functionReturn.m_pszString, "\n", outStrings );
+
+					FOR_EACH_VEC( outStrings, i )
+					{
+						EntityText( offset, outStrings[i], 0, 224, 240, 255 );
+						offset++;
+					}
+				}
+			}
 		}
 #endif
 	}
@@ -2209,6 +2235,8 @@ END_DATADESC()
 
 #ifdef MAPBASE_VSCRIPT
 ScriptHook_t	CBaseEntity::g_Hook_UpdateOnRemove;
+ScriptHook_t	CBaseEntity::g_Hook_OnEntText;
+
 ScriptHook_t	CBaseEntity::g_Hook_VPhysicsCollision;
 ScriptHook_t	CBaseEntity::g_Hook_FireBullets;
 ScriptHook_t	CBaseEntity::g_Hook_OnDeath;
@@ -2460,6 +2488,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	// Hooks
 	// 
 	DEFINE_SIMPLE_SCRIPTHOOK( CBaseEntity::g_Hook_UpdateOnRemove, "UpdateOnRemove", FIELD_VOID, "Called when the entity is being removed." )
+	DEFINE_SIMPLE_SCRIPTHOOK( CBaseEntity::g_Hook_OnEntText, "OnEntText", FIELD_CSTRING, "Called every frame when ent_text is enabled on the entity. Return a string to be added to the ent_text printout." )
 
 	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_VPhysicsCollision, "VPhysicsCollision", FIELD_VOID, "Called for every single VPhysics-related collision experienced by this entity." )
 		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
