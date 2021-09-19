@@ -1537,6 +1537,12 @@ public:
 	void					GenderExpandString( char const *in, char *out, int maxlen );
 
 	virtual void ModifyEmitSoundParams( EmitSound_t &params );
+#ifdef MAPBASE
+	// Same as above, but for sentences
+	// (which don't actually have EmitSound_t params)
+	virtual void ModifySentenceParams( int &iSentenceIndex, int &iChannel, float &flVolume, soundlevel_t &iSoundlevel, int &iFlags, int &iPitch,
+		const Vector **pOrigin, const Vector **pDirection, bool &bUpdatePositions, float &soundtime, int &iSpecialDSP, int &iSpeakerIndex );
+#endif
 
 	static float GetSoundDuration( const char *soundname, char const *actormodel );
 
@@ -2155,6 +2161,8 @@ public:
 	static ScriptHook_t	g_Hook_OnDeath;
 	static ScriptHook_t	g_Hook_OnKilledOther;
 	static ScriptHook_t	g_Hook_HandleInteraction;
+	static ScriptHook_t	g_Hook_ModifyEmitSoundParams;
+	static ScriptHook_t	g_Hook_ModifySentenceParams;
 #endif
 
 	string_t		m_iszVScripts;

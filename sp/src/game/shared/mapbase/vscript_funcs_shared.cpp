@@ -561,6 +561,52 @@ bool CAnimEventTInstanceHelper::Set( void *p, const char *pszKey, ScriptVariant_
 }
 
 //-----------------------------------------------------------------------------
+// EmitSound_t
+//-----------------------------------------------------------------------------
+BEGIN_SCRIPTDESC_ROOT_NAMED( ScriptEmitSound_t, "EmitSound_t", "Handle for accessing EmitSound_t info." )
+	DEFINE_SCRIPT_CONSTRUCTOR()
+
+	DEFINE_SCRIPTFUNC( GetChannel, "Gets the sound's channel." )
+	DEFINE_SCRIPTFUNC( SetChannel, "Gets the sound's channel." )
+
+	DEFINE_SCRIPTFUNC( GetSoundName, "Gets the sound's file path or soundscript name." )
+	DEFINE_SCRIPTFUNC( SetSoundName, "Sets the sound's file path or soundscript name." )
+
+	DEFINE_SCRIPTFUNC( GetVolume, "Gets the sound's volume. (Note that this may not apply to soundscripts)" )
+	DEFINE_SCRIPTFUNC( SetVolume, "Sets the sound's volume. (Note that this may not apply to soundscripts)" )
+
+	DEFINE_SCRIPTFUNC( GetSoundLevel, "Gets the sound's level in decibels. (Note that this may not apply to soundscripts)" )
+	DEFINE_SCRIPTFUNC( SetSoundLevel, "Sets the sound's level in decibels. (Note that this may not apply to soundscripts)" )
+
+	DEFINE_SCRIPTFUNC( GetFlags, "Gets the sound's flags. See the 'SND_' set of constants for more information." )
+	DEFINE_SCRIPTFUNC( SetFlags, "Sets the sound's flags. See the 'SND_' set of constants for more information." )
+
+	DEFINE_SCRIPTFUNC( GetSpecialDSP, "Gets the sound's special DSP setting." )
+	DEFINE_SCRIPTFUNC( SetSpecialDSP, "Sets the sound's special DSP setting." )
+
+	DEFINE_SCRIPTFUNC( GetOrigin, "Gets the sound's origin override." )
+	DEFINE_SCRIPTFUNC( SetOrigin, "Sets the sound's origin override." )
+
+	DEFINE_SCRIPTFUNC( GetSoundTime, "Gets the time the sound will begin, relative to Time()." )
+	DEFINE_SCRIPTFUNC( SetSoundTime, "Sets the time the sound will begin, relative to Time()." )
+
+	DEFINE_SCRIPTFUNC( GetEmitCloseCaption, "Gets whether or not the sound will emit closed captioning/subtitles." )
+	DEFINE_SCRIPTFUNC( SetEmitCloseCaption, "Sets whether or not the sound will emit closed captioning/subtitles." )
+
+	DEFINE_SCRIPTFUNC( GetWarnOnMissingCloseCaption, "Gets whether or not the sound will send a message to the console if there is no corresponding closed captioning token." )
+	DEFINE_SCRIPTFUNC( SetWarnOnMissingCloseCaption, "Sets whether or not the sound will send a message to the console if there is no corresponding closed captioning token." )
+
+	DEFINE_SCRIPTFUNC( GetWarnOnDirectWaveReference, "Gets whether or not the sound will send a message to the console if it references a direct sound file instead of a soundscript." )
+	DEFINE_SCRIPTFUNC( SetWarnOnDirectWaveReference, "Sets whether or not the sound will send a message to the console if it references a direct sound file instead of a soundscript." )
+
+	DEFINE_SCRIPTFUNC( GetSpeakerEntity, "Gets the sound's original source if it is being transmitted by a microphone." )
+	DEFINE_SCRIPTFUNC( SetSpeakerEntity, "Sets the sound's original source if it is being transmitted by a microphone." )
+
+	DEFINE_SCRIPTFUNC( GetSoundScriptHandle, "Gets the sound's script handle." )
+	DEFINE_SCRIPTFUNC( SetSoundScriptHandle, "Sets the sound's script handle." )
+END_SCRIPTDESC();
+
+//-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
 BEGIN_SCRIPTDESC_ROOT( CUserCmd, "Handle for accessing CUserCmd info." )
@@ -744,6 +790,21 @@ static HSCRIPT ScriptCreateRope( HSCRIPT hStart, HSCRIPT hEnd, int iStartAttachm
 	return ToHScript( pRope );
 }
 
+static void EmitSoundParamsOn( HSCRIPT hParams, HSCRIPT hEnt )
+{
+	CBaseEntity *pEnt = ToEnt( hEnt );
+	if (!pEnt)
+		return;
+
+	ScriptEmitSound_t *pParams = (ScriptEmitSound_t*)g_pScriptVM->GetInstanceValue( hParams, GetScriptDescForClass( ScriptEmitSound_t ) );
+	if (!pParams)
+		return;
+
+	CPASAttenuationFilter filter( pEnt, pParams->m_pSoundName );
+
+	CBaseEntity::EmitSound( filter, pEnt->entindex(), *pParams );
+}
+
 //-----------------------------------------------------------------------------
 // Simple particle effect dispatch
 //-----------------------------------------------------------------------------
@@ -908,6 +969,8 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptDispatchParticleEffect, "DoDispatchParticleEffect", SCRIPT_ALIAS( "DispatchParticleEffect", "Dispatches a one-off particle system" ) );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCreateRope, "CreateRope", "Creates a single rope between two entities. Can optionally follow specific attachments." );
+
+	ScriptRegisterFunction( g_pScriptVM, EmitSoundParamsOn, "Play EmitSound_t params on an entity." );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatcherMatch, "Matcher_Match", "Compares a string to a query using Mapbase's matcher system, supporting wildcards, RS matchers, etc." );
 	ScriptRegisterFunction( g_pScriptVM, Matcher_NamesMatch, "Compares a string to a query using Mapbase's matcher system using wildcards only." );

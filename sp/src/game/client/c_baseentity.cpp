@@ -429,7 +429,8 @@ BEGIN_RECV_TABLE_NOBASE( C_BaseEntity, DT_AnimTimeMustBeFirst )
 END_RECV_TABLE()
 
 #ifdef MAPBASE_VSCRIPT
-ScriptHook_t CBaseEntity::g_Hook_UpdateOnRemove;
+ScriptHook_t C_BaseEntity::g_Hook_UpdateOnRemove;
+ScriptHook_t C_BaseEntity::g_Hook_ModifyEmitSoundParams;
 #endif
 
 BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities" )
@@ -555,7 +556,11 @@ BEGIN_ENT_SCRIPTDESC_ROOT( C_BaseEntity, "Root class of all client-side entities
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetContextThink, "SetContextThink", "Set a think function on this entity." )
 
 
-	DEFINE_SIMPLE_SCRIPTHOOK( CBaseEntity::g_Hook_UpdateOnRemove, "UpdateOnRemove", FIELD_VOID, "Called when the entity is being removed." )
+	DEFINE_SIMPLE_SCRIPTHOOK( C_BaseEntity::g_Hook_UpdateOnRemove, "UpdateOnRemove", FIELD_VOID, "Called when the entity is being removed." )
+
+	BEGIN_SCRIPTHOOK( C_BaseEntity::g_Hook_ModifyEmitSoundParams, "ModifyEmitSoundParams", FIELD_VOID, "Called every time a sound is emitted on this entity, allowing for its parameters to be modified." )
+		DEFINE_SCRIPTHOOK_PARAM( "params", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
 
 #endif // MAPBASE_VSCRIPT
 

@@ -2242,6 +2242,8 @@ ScriptHook_t	CBaseEntity::g_Hook_FireBullets;
 ScriptHook_t	CBaseEntity::g_Hook_OnDeath;
 ScriptHook_t	CBaseEntity::g_Hook_OnKilledOther;
 ScriptHook_t	CBaseEntity::g_Hook_HandleInteraction;
+ScriptHook_t	CBaseEntity::g_Hook_ModifyEmitSoundParams;
+ScriptHook_t	CBaseEntity::g_Hook_ModifySentenceParams;
 #endif
 
 BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities" )
@@ -2517,6 +2519,14 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 		DEFINE_SCRIPTHOOK_PARAM( "interaction", FIELD_INTEGER )
 		//DEFINE_SCRIPTHOOK_PARAM( "data", FIELD_VARIANT )
 		DEFINE_SCRIPTHOOK_PARAM( "sourceEnt", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_ModifyEmitSoundParams, "ModifyEmitSoundParams", FIELD_VOID, "Called every time a sound is emitted on this entity, allowing for its parameters to be modified." )
+		DEFINE_SCRIPTHOOK_PARAM( "params", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_ModifySentenceParams, "ModifySentenceParams", FIELD_VOID, "Called every time a sentence is emitted on this entity, allowing for its parameters to be modified." )
+		DEFINE_SCRIPTHOOK_PARAM( "params", FIELD_HSCRIPT )
 	END_SCRIPTHOOK()
 #endif
 END_SCRIPTDESC();

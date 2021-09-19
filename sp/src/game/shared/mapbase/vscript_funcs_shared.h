@@ -130,4 +130,49 @@ class CAnimEventTInstanceHelper : public IScriptInstanceHelper
 	bool Set( void *p, const char *pszKey, ScriptVariant_t &variant );
 };
 
+//-----------------------------------------------------------------------------
+// Exposes EmitSound_t to VScript
+//-----------------------------------------------------------------------------
+struct ScriptEmitSound_t : public EmitSound_t
+{
+	int GetChannel() { return m_nChannel; }
+	void SetChannel( int nChannel ) { m_nChannel = nChannel; }
+
+	const char *GetSoundName() { return m_pSoundName; }
+	void SetSoundName( const char *pSoundName ) { m_pSoundName = pSoundName; }
+
+	float GetVolume() { return m_flVolume; }
+	void SetVolume( float flVolume ) { m_flVolume = flVolume; }
+
+	int GetSoundLevel() { return m_SoundLevel; }
+	void SetSoundLevel( int iSoundLevel ) { m_SoundLevel = (soundlevel_t)iSoundLevel; }
+
+	int GetFlags() { return m_nFlags; }
+	void SetFlags( int nFlags ) { m_nFlags = nFlags; }
+
+	int GetSpecialDSP() { return m_nSpecialDSP; }
+	void SetSpecialDSP( int nSpecialDSP ) { m_nSpecialDSP = nSpecialDSP; }
+
+	ScriptVariant_t GetOrigin() { return m_pOrigin ? *m_pOrigin : ScriptVariant_t(); }
+	void SetOrigin( ScriptVariant_t origin ) { m_pOrigin = origin.m_pVector; }
+
+	float GetSoundTime() { return m_flSoundTime; }
+	void SetSoundTime( float flSoundTime ) { m_flSoundTime = flSoundTime; }
+
+	float GetEmitCloseCaption() { return m_bEmitCloseCaption; }
+	void SetEmitCloseCaption( bool bEmitCloseCaption ) { m_bEmitCloseCaption = bEmitCloseCaption; }
+
+	float GetWarnOnMissingCloseCaption() { return m_bWarnOnMissingCloseCaption; }
+	void SetWarnOnMissingCloseCaption( bool bWarnOnMissingCloseCaption ) { m_bWarnOnMissingCloseCaption = bWarnOnMissingCloseCaption; }
+
+	float GetWarnOnDirectWaveReference() { return m_bWarnOnDirectWaveReference; }
+	void SetWarnOnDirectWaveReference( bool bWarnOnDirectWaveReference ) { m_bWarnOnDirectWaveReference = bWarnOnDirectWaveReference; }
+
+	int GetSpeakerEntity() { return m_nSpeakerEntity; }
+	void SetSpeakerEntity( int nSpeakerEntity ) { m_nSpeakerEntity = nSpeakerEntity; }
+
+	int GetSoundScriptHandle() { return m_hSoundScriptHandle; }
+	void SetSoundScriptHandle( int hSoundScriptHandle ) { m_hSoundScriptHandle = hSoundScriptHandle; }
+};
+
 #endif

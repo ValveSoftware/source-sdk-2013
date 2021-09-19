@@ -327,9 +327,71 @@ void RegisterSharedScriptConstants()
 
 	ScriptRegisterConstantNamed( g_pScriptVM, Vector( ROPE_GRAVITY ), "ROPE_GRAVITY", "Default rope gravity vector." );
 
+	// 
+	// Sounds
+	// 
+	ScriptRegisterConstant( g_pScriptVM, CHAN_REPLACE, "The sound channel used when playing sounds through console commands." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_AUTO, "The default generic sound channel." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_WEAPON, "The sound channel for player and NPC weapons." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_VOICE, "The sound channel used for dialogue, voice lines, etc." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_ITEM, "The sound channel used for generic physics impact sounds, health/suit chargers, +use sounds." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_BODY, "The sound channel used for clothing, ragdoll impacts, footsteps, knocking/pounding/punching etc." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_STREAM, "The sound channel for sounds that can be delayed by an async load, i.e. aren't responses to particular events." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_STATIC, "The sound channel for constant/background sound that doesn't require any reaction." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_VOICE2, "An additional sound channel for voices. Used in TF2 for the announcer." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_VOICE_BASE, "The sound channel used for network voice data (online voice communications)." );
+
+	ScriptRegisterConstant( g_pScriptVM, VOL_NORM, "The standard volume value." );
+	ScriptRegisterConstant( g_pScriptVM, PITCH_NORM, "The standard pitch value." );
+	ScriptRegisterConstant( g_pScriptVM, PITCH_LOW, "The standard low pitch value." );
+	ScriptRegisterConstant( g_pScriptVM, PITCH_HIGH, "The standard high pitch value." );
+
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_NONE, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_20dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_25dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_30dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_35dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_40dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_45dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_50dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_55dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_IDLE, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_60dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_65dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_STATIC, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_70dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_NORM, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_75dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_80dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_TALKING, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_85dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_90dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_95dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_100dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_105dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_110dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_120dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_130dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_GUNFIRE, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_140dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_150dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_180dB, "A standard value used for a sound's sound level." );
+
+	ScriptRegisterConstant( g_pScriptVM, SND_CHANGE_VOL, "Indicates a sound is a volume change to an already-playing sound." );
+	ScriptRegisterConstant( g_pScriptVM, SND_CHANGE_PITCH, "Indicates a sound is a pitch change to an already-playing sound." );
+	ScriptRegisterConstant( g_pScriptVM, SND_STOP, "Indicates a sound is stopping an already-playing sound." );
+	ScriptRegisterConstant( g_pScriptVM, SND_SPAWNING, "Indicates a sound is spawning, used in some cases for ambients. Not networked." );
+	ScriptRegisterConstant( g_pScriptVM, SND_DELAY, "Indicates a sound has an initial delay." );
+	ScriptRegisterConstant( g_pScriptVM, SND_STOP_LOOPING, "Stops all looping sounds on an entity." );
+	ScriptRegisterConstant( g_pScriptVM, SND_SPEAKER, "Indicates a sound is being played again by a microphone through a speaker." );
+	ScriptRegisterConstant( g_pScriptVM, SND_SHOULDPAUSE, "Forces a sound to pause if the game is paused." );
+	ScriptRegisterConstant( g_pScriptVM, SND_IGNORE_PHONEMES, "Prevents the entity emitting this sound from using its phonemes (no lip-syncing)." );
+	ScriptRegisterConstant( g_pScriptVM, SND_IGNORE_NAME, "Used to change all sounds emitted by an entity, regardless of name." );
+	ScriptRegisterConstant( g_pScriptVM, SND_DO_NOT_OVERWRITE_EXISTING_ON_CHANNEL, "Prevents a sound from interrupting other sounds on a channel (if the channel supports interruption)." );
+
 #ifdef GAME_DLL
 	// 
-	// Sound Types, Contexts, and Channels
+	// AI Sounds
 	// (QueryHearSound hook can use these)
 	// 
 	ScriptRegisterConstant( g_pScriptVM, SOUND_NONE, "Sound type used in QueryHearSound hooks, etc." );

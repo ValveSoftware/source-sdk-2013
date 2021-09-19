@@ -1450,6 +1450,13 @@ void CBaseEntity::EmitSentenceByIndex( IRecipientFilter& filter, int iEntIndex, 
 		soundOrigins );
 	if ( bSwallowed )
 		return;
+	
+	CBaseEntity *pEntity = UTIL_EntityByIndex( iEntIndex );
+	if ( pEntity )
+	{
+		pEntity->ModifySentenceParams( iSentenceIndex, iChannel, flVolume, iSoundlevel, iFlags, iPitch,
+			&pOrigin, &pDirection, bUpdatePositions, soundtime, iSpecialDSP, iSpeakerIndex );
+	}
 
 	enginesound->EmitSentenceByIndex( filter, iEntIndex, iChannel, iSentenceIndex, 
 		flVolume, iSoundlevel, iFlags, iPitch * GetSoundPitchScale(), iSpecialDSP, pOrigin, pDirection, &soundOrigins, bUpdatePositions, soundtime, iSpeakerIndex );
