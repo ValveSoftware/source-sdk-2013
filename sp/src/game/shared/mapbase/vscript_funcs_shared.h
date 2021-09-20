@@ -153,8 +153,10 @@ struct ScriptEmitSound_t : public EmitSound_t
 	int GetSpecialDSP() { return m_nSpecialDSP; }
 	void SetSpecialDSP( int nSpecialDSP ) { m_nSpecialDSP = nSpecialDSP; }
 
-	ScriptVariant_t GetOrigin() { return m_pOrigin ? *m_pOrigin : ScriptVariant_t(); }
-	void SetOrigin( ScriptVariant_t origin ) { m_pOrigin = origin.m_pVector; }
+	bool HasOrigin() { return m_pOrigin ? true : false; }
+	const Vector &GetOrigin() { return m_pOrigin ? *m_pOrigin : vec3_origin; }
+	void SetOrigin( Vector origin ) { m_pOrigin = &origin; }
+	void ClearOrigin() { m_pOrigin = NULL; }
 
 	float GetSoundTime() { return m_flSoundTime; }
 	void SetSoundTime( float flSoundTime ) { m_flSoundTime = flSoundTime; }

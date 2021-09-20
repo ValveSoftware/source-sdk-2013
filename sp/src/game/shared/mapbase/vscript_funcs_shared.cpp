@@ -584,8 +584,10 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( ScriptEmitSound_t, "EmitSound_t", "Handle for acces
 	DEFINE_SCRIPTFUNC( GetSpecialDSP, "Gets the sound's special DSP setting." )
 	DEFINE_SCRIPTFUNC( SetSpecialDSP, "Sets the sound's special DSP setting." )
 
+	DEFINE_SCRIPTFUNC( HasOrigin, "Returns true if the sound has an origin override." )
 	DEFINE_SCRIPTFUNC( GetOrigin, "Gets the sound's origin override." )
 	DEFINE_SCRIPTFUNC( SetOrigin, "Sets the sound's origin override." )
+	DEFINE_SCRIPTFUNC( ClearOrigin, "Clears the sound's origin override if it has one." )
 
 	DEFINE_SCRIPTFUNC( GetSoundTime, "Gets the time the sound will begin, relative to Time()." )
 	DEFINE_SCRIPTFUNC( SetSoundTime, "Sets the time the sound will begin, relative to Time()." )
