@@ -610,7 +610,7 @@ public:
 #ifdef MAPBASE_VSCRIPT
 	void ScriptFireOutput( const char *pszOutput, HSCRIPT hActivator, HSCRIPT hCaller, const char *szValue, float flDelay );
 	float GetMaxOutputDelay( const char *pszOutput );
-	void CancelEventsByInput( const char *szInput );
+	//void CancelEventsByInput( const char *szInput );
 #endif
 
 

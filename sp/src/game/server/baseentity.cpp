@@ -1375,10 +1375,10 @@ float CBaseEntity::GetMaxOutputDelay( const char *pszOutput )
 	return 0;
 }
 
-void CBaseEntity::CancelEventsByInput( const char *szInput )
-{
-	g_EventQueue.CancelEventsByInput( this, szInput );
-}
+//void CBaseEntity::CancelEventsByInput( const char *szInput )
+//{
+//	g_EventQueue.CancelEventsByInput( this, szInput );
+//}
 #endif // MAPBASE_VSCRIPT
 
 CBaseEntityOutput *CBaseEntity::FindNamedOutput( const char *pszOutput )
@@ -2378,7 +2378,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAcceptInput, "AcceptInput", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptFireOutput, "FireOutput", "Fire an entity output" )
 	DEFINE_SCRIPTFUNC( GetMaxOutputDelay, "Get the longest delay for all events attached to an output" )
-	DEFINE_SCRIPTFUNC( CancelEventsByInput, "Cancel all I/O events for this entity, match input" )
+	//DEFINE_SCRIPTFUNC( CancelEventsByInput, "Cancel all I/O events for this entity, match input" ) // Commented out due to unpredictability and unknown risks
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddOutput, "AddOutput", "Add an output" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValue, "GetKeyValue", "Get a keyvalue" )
