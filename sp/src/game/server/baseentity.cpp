@@ -458,6 +458,17 @@ extern bool g_bDisableEhandleAccess;
 //-----------------------------------------------------------------------------
 CBaseEntity::~CBaseEntity( )
 {
+#ifdef MAPBASE_VSCRIPT
+	// HACKHACK: This is needed to fix a crash when an entity removes itself with Destroy() during its own think function.
+	// (see https://github.com/mapbase-source/source-sdk-2013/issues/138)
+	FOR_EACH_VEC( m_ScriptThinkFuncs, i )
+	{
+		HSCRIPT h = m_ScriptThinkFuncs[i]->m_hfnThink;
+		if ( h ) g_pScriptVM->ReleaseScript( h );
+	}
+	m_ScriptThinkFuncs.PurgeAndDeleteElements();
+#endif // MAPBASE_VSCRIPT
+
 	// FIXME: This can't be called from UpdateOnRemove! There's at least one
 	// case where friction sounds are added between the call to UpdateOnRemove + ~CBaseEntity
 	PhysCleanupFrictionSounds( this );
@@ -2643,15 +2654,6 @@ void CBaseEntity::UpdateOnRemove( void )
 
 		g_pScriptVM->RemoveInstance( m_hScriptInstance );
 		m_hScriptInstance = NULL;
-
-#ifdef MAPBASE_VSCRIPT
-		FOR_EACH_VEC( m_ScriptThinkFuncs, i )
-		{
-			HSCRIPT h = m_ScriptThinkFuncs[i]->m_hfnThink;
-			if ( h ) g_pScriptVM->ReleaseScript( h );
-		}
-		m_ScriptThinkFuncs.PurgeAndDeleteElements();
-#endif // MAPBASE_VSCRIPT
 	}
 }
 
