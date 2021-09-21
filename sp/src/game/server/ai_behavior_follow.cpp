@@ -408,10 +408,11 @@ bool CAI_FollowBehavior::SetFollowGoal( CAI_FollowGoal *pGoal, bool fFinishCurSc
 		SetFollowTarget( pGoal->GetGoalEntity() );
 #ifdef MAPBASE
 		Assert( pGoal->m_iFormation < AIF_NUM_FORMATIONS );
+		SetParameters( AI_FollowParams_t( (AI_Formations_t)pGoal->m_iFormation, pGoal->m_bNormalMemoryDiscard ) );
 #else
 		Assert( pGoal->m_iFormation == AIF_SIMPLE || pGoal->m_iFormation == AIF_WIDE || pGoal->m_iFormation == AIF_MEDIUM || pGoal->m_iFormation == AIF_SIDEKICK || pGoal->m_iFormation == AIF_VORTIGAUNT );
-#endif
 		SetParameters( AI_FollowParams_t( (AI_Formations_t)pGoal->m_iFormation ) );
+#endif
 		m_hFollowGoalEnt = pGoal;
 		m_flTimeUpdatedFollowPosition = 0;
 		return true;
@@ -2138,6 +2139,9 @@ bool CAI_FollowBehavior::ShouldAlwaysThink()
 
 BEGIN_DATADESC( CAI_FollowGoal )
 	DEFINE_KEYFIELD(	m_iFormation, FIELD_INTEGER, "Formation" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_bNormalMemoryDiscard, FIELD_BOOLEAN, "NormalMemoryDiscard" ),
+#endif
 
 #ifdef HL2_EPISODIC
 	DEFINE_INPUTFUNC( FIELD_VOID, "OutsideTransition",	InputOutsideTransition ),
