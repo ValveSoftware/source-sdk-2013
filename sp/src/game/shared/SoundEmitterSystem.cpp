@@ -132,12 +132,18 @@ void Hack_FixEscapeChars( char *str )
 
 #ifdef MAPBASE
 static const ConVar *pHostTimescale;
+static ConVar host_pitchscale( "host_pitchscale", "-1", FCVAR_REPLICATED, "If greater than 0, controls the pitch scale of sounds instead of host_timescale." );
 
 static float GetSoundPitchScale()
 {
 	static ConVarRef sv_cheats( "sv_cheats" );
 	if (sv_cheats.GetBool())
-		return pHostTimescale->GetFloat();
+	{
+		if (host_pitchscale.GetFloat() > 0.0f)
+			return host_pitchscale.GetFloat();
+		else
+			return pHostTimescale->GetFloat();
+	}
 
 	return 1.0f;
 }
