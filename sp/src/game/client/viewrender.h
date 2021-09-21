@@ -468,6 +468,13 @@ private:
 	IMaterial		*GetScreenOverlayMaterial( );
 	void			PerformScreenOverlay( int x, int y, int w, int h );
 
+#ifdef MAPBASE
+	void			SetIndexedScreenOverlayMaterial( int i, IMaterial *pMaterial );
+	IMaterial		*GetIndexedScreenOverlayMaterial( int i );
+	void			ResetIndexedScreenOverlays();
+	int				GetMaxIndexedScreenOverlays() const;
+#endif
+
 	void DrawUnderwaterOverlay( void );
 
 	// Water-related methods
@@ -511,6 +518,10 @@ private:
 	CMaterialReference	m_TranslucentSingleColor;
 	CMaterialReference	m_ModulateSingleColor;
 	CMaterialReference	m_ScreenOverlayMaterial;
+#ifdef MAPBASE
+	CMaterialReference	m_IndexedScreenOverlayMaterials[MAX_SCREEN_OVERLAYS];
+	bool m_bUsingIndexedScreenOverlays;
+#endif
 	CMaterialReference m_UnderWaterOverlayMaterial;
 
 	Vector			m_vecLastFacing;

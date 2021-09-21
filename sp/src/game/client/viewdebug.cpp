@@ -655,6 +655,57 @@ CON_COMMAND_F( r_screenoverlay, "Draw specified material as an overlay", FCVAR_C
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// The same as above, but using the new indexed overlays
+//-----------------------------------------------------------------------------
+CON_COMMAND_F( r_screenoverlay_indexed, "Draw specified material as an overlay in the specified index", FCVAR_CHEAT|FCVAR_SERVER_CAN_EXECUTE )
+{
+	if( args.ArgC() == 3 )
+	{
+		int index = atoi( args[1] );
+		if (index < 0 || index >= MAX_SCREEN_OVERLAYS)
+		{
+			Warning( "r_screenoverlay_indexed: '%i' is out of range (should be 0-9)\n", index );
+			return;
+		}
+
+		if ( !Q_stricmp( "off", args[2] ) )
+		{
+			view->SetIndexedScreenOverlayMaterial( index, NULL );
+		}
+		else
+		{
+			IMaterial *pMaterial = materials->FindMaterial( args[2], TEXTURE_GROUP_OTHER, false );
+			if ( !IsErrorMaterial( pMaterial ) )
+			{
+				view->SetIndexedScreenOverlayMaterial( index, pMaterial );
+			}
+			else
+			{
+				view->SetIndexedScreenOverlayMaterial( index, NULL );
+			}
+		}
+	}
+	else if ( args.ArgC() == 2 )
+	{
+		int index = atoi( args[1] );
+		if (index < 0 || index >= MAX_SCREEN_OVERLAYS)
+		{
+			Warning( "r_screenoverlay_indexed: '%i' is out of range (should be 0-9)\n", index );
+			return;
+		}
+
+		IMaterial *pMaterial = view->GetIndexedScreenOverlayMaterial( index );
+		Warning( "r_screenoverlay_indexed %i: %s\n", index, pMaterial ? pMaterial->GetName() : "off" );
+	}
+	else
+	{
+		Warning( "Format: r_screenoverlay_indexed <index> <material> %s\n" );
+	}
+}
+#endif
+
 // Used to verify frame syncing.
 void CDebugViewRender::GenerateOverdrawForTesting()
 {
