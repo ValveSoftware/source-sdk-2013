@@ -3497,12 +3497,14 @@ void CTriggerCamera::Enable( void )
 #ifdef MAPBASE
 	if (!m_bDontSetPlayerView)
 #endif
-	pPlayer->SetViewEntity( this );
-
-	// Hide the player's viewmodel
-	if ( pPlayer->GetActiveWeapon() )
 	{
-		pPlayer->GetActiveWeapon()->AddEffects( EF_NODRAW );
+		pPlayer->SetViewEntity( this );
+
+		// Hide the player's viewmodel
+		if ( pPlayer->GetActiveWeapon() )
+		{
+			pPlayer->GetActiveWeapon()->AddEffects( EF_NODRAW );
+		}
 	}
 
 	// Only track if we have a target
@@ -3548,11 +3550,16 @@ void CTriggerCamera::Disable( void )
 				pBasePlayer->RemoveSolidFlags( FSOLID_NOT_SOLID );
 			}
 
-			if (!m_bDontSetPlayerView)
-				pBasePlayer->SetViewEntity( NULL );
+			if ( HasSpawnFlags( SF_CAMERA_PLAYER_TAKECONTROL ) )
+			{
+				pBasePlayer->EnableControl( TRUE );
+			}
 
-			pBasePlayer->EnableControl(TRUE);
-			pBasePlayer->m_Local.m_bDrawViewmodel = true;
+			if (!m_bDontSetPlayerView)
+			{
+				pBasePlayer->SetViewEntity( NULL );
+				pBasePlayer->m_Local.m_bDrawViewmodel = true;
+			}
 		}
 
 		if ( HasSpawnFlags( SF_CAMERA_PLAYER_SETFOV ) )
