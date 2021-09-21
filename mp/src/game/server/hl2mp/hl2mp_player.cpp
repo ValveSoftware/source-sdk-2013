@@ -1065,6 +1065,11 @@ void CHL2MP_Player::DropActiveWeapon(void)
 	if (GetActiveWeapon() == pPhyscannon)
 		return;
 
+	if (GetActiveWeapon())
+	{
+		GetActiveWeapon()->Holster();
+	}
+
 	Vector VecForward;
 
 	EyeVectors(&VecForward, NULL, NULL);
