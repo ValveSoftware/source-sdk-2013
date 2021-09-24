@@ -2119,6 +2119,7 @@ public:
 	COutputEHANDLE		m_OnUnholsterWeapon;
 
 	COutputEHANDLE		m_OnItemPickup;
+	COutputEHANDLE		m_OnItemDrop;
 
 	COutputInt			m_OnStateChange;
 #endif

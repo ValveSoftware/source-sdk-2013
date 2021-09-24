@@ -1788,7 +1788,14 @@ void CBaseCombatCharacter::Event_Killed( const CTakeDamageInfo &info )
 	// if flagged to drop a health kit
 	if (HasSpawnFlags(SF_NPC_DROP_HEALTHKIT))
 	{
-		CBaseEntity::Create( "item_healthvial", GetAbsOrigin(), GetAbsAngles() );
+		CBaseEntity *pItem = CBaseEntity::Create( "item_healthvial", GetAbsOrigin(), GetAbsAngles() );
+		if (pItem)
+		{
+#ifdef MAPBASE
+			if (MyNPCPointer())
+				MyNPCPointer()->m_OnItemDrop.Set( pItem, pItem, this );
+#endif
+		}
 	}
 	// clear the deceased's sound channels.(may have been firing or reloading when killed)
 	EmitSound( "BaseCombatCharacter.StopWeaponSounds" );

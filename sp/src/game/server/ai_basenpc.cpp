@@ -11576,6 +11576,10 @@ CBaseEntity *CAI_BaseNPC::DropItem ( const char *pszItemName, Vector vecPos, QAn
 			pItem->ApplyLocalAngularVelocityImpulse( AngularImpulse( 0, random->RandomFloat( 0, 100 ), 0 ) );
 		}
 
+#ifdef MAPBASE
+		m_OnItemDrop.Set( pItem, pItem, this );
+#endif
+
 		return pItem;
 	}
 	else
@@ -11943,6 +11947,7 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_OUTPUT( m_OnForcedInteractionFinished,	"OnForcedInteractionFinished" ),
 #ifdef MAPBASE
 	DEFINE_OUTPUT( m_OnItemPickup, "OnItemPickup" ),
+	DEFINE_OUTPUT( m_OnItemDrop, "OnItemDrop" ),
 #endif
 
 	// Inputs
