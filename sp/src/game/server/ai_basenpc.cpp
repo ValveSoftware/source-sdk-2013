@@ -100,6 +100,10 @@
 #include "items.h"
 #endif
 
+#ifdef MAPBASE_VSCRIPT
+#include "mapbase/vscript_funcs_shared.h"
+#endif
+
 #include "env_debughistory.h"
 #include "collisionutils.h"
 
@@ -729,7 +733,7 @@ HSCRIPT CAI_BaseNPC::VScriptFindEnemyMemory( HSCRIPT pEnemy )
 	AI_EnemyInfo_t *info = GetEnemies()->Find( ToEnt(pEnemy) );
 	if (info)
 	{
-		hScript = g_pScriptVM->RegisterInstance( info );
+		hScript = g_pScriptVM->RegisterInstance( reinterpret_cast<Script_AI_EnemyInfo_t*>(info) );
 	}
 
 	return hScript;

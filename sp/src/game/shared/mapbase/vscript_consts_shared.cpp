@@ -9,6 +9,7 @@
 #include "activitylist.h"
 #include "in_buttons.h"
 #include "rope_shared.h"
+#include "eventlist.h"
 #ifdef CLIENT_DLL
 #include "c_ai_basenpc.h"
 #else
@@ -310,6 +311,17 @@ void RegisterSharedScriptConstants()
 	ScriptRegisterConstant( g_pScriptVM, MOVETYPE_LADDER, "Move type used in GetMoveType(), etc." );
 	ScriptRegisterConstant( g_pScriptVM, MOVETYPE_OBSERVER, "Move type used in GetMoveType(), etc." );
 	ScriptRegisterConstant( g_pScriptVM, MOVETYPE_CUSTOM, "Move type used in GetMoveType(), etc." );
+
+	// 
+	// Animation Stuff
+	// 
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_SERVER, "Animation event flag which indicates an event is supposed to be serverside only." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_SCRIPTED, "Animation event flag with an unknown purpose." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_SHARED, "Animation event flag which indicates an event is supposed to be shared between the server and client." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_WEAPON, "Animation event flag which indicates an event is part of a weapon." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_CLIENT, "Animation event flag which indicates an event is supposed to be clientside only." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_FACEPOSER, "Animation event flag with an unknown purpose. Presumably related to Faceposer." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_NEWEVENTSYSTEM, "Animation event flag which indicates an event is using the new system. This is often used by class-specific events from NPCs." );
 
 	// 
 	// Ropes

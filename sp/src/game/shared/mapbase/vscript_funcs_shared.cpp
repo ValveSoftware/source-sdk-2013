@@ -323,7 +323,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CTraceInfoAccessor, "CGameTrace", "Handle for acces
 	DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
 END_SCRIPTDESC();
 
-BEGIN_SCRIPTDESC_ROOT_NAMED( surfacedata_t, "surfacedata_t", "Handle for accessing surface data." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( scriptsurfacedata_t, "surfacedata_t", "Handle for accessing surface data." )
 	DEFINE_SCRIPTFUNC( GetFriction, "The surface's friction." )
 	DEFINE_SCRIPTFUNC( GetThickness, "The surface's thickness." )
 
@@ -342,16 +342,16 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( surfacedata_t, "surfacedata_t", "Handle for accessi
 	DEFINE_SCRIPTFUNC( GetSoundStrain, "The surface's strain sound." )
 END_SCRIPTDESC();
 
-const char*		surfacedata_t::GetSoundStepLeft() { return physprops->GetString( sounds.stepleft ); }
-const char*		surfacedata_t::GetSoundStepRight() { return physprops->GetString( sounds.stepright ); }
-const char*		surfacedata_t::GetSoundImpactSoft() { return physprops->GetString( sounds.impactSoft ); }
-const char*		surfacedata_t::GetSoundImpactHard() { return physprops->GetString( sounds.impactHard ); }
-const char*		surfacedata_t::GetSoundScrapeSmooth() { return physprops->GetString( sounds.scrapeSmooth ); }
-const char*		surfacedata_t::GetSoundScrapeRough() { return physprops->GetString( sounds.scrapeRough ); }
-const char*		surfacedata_t::GetSoundBulletImpact() { return physprops->GetString( sounds.bulletImpact ); }
-const char*		surfacedata_t::GetSoundRolling() { return physprops->GetString( sounds.rolling ); }
-const char*		surfacedata_t::GetSoundBreak() { return physprops->GetString( sounds.breakSound ); }
-const char*		surfacedata_t::GetSoundStrain() { return physprops->GetString( sounds.strainSound ); }
+const char*		scriptsurfacedata_t::GetSoundStepLeft() { return physprops->GetString( sounds.stepleft ); }
+const char*		scriptsurfacedata_t::GetSoundStepRight() { return physprops->GetString( sounds.stepright ); }
+const char*		scriptsurfacedata_t::GetSoundImpactSoft() { return physprops->GetString( sounds.impactSoft ); }
+const char*		scriptsurfacedata_t::GetSoundImpactHard() { return physprops->GetString( sounds.impactHard ); }
+const char*		scriptsurfacedata_t::GetSoundScrapeSmooth() { return physprops->GetString( sounds.scrapeSmooth ); }
+const char*		scriptsurfacedata_t::GetSoundScrapeRough() { return physprops->GetString( sounds.scrapeRough ); }
+const char*		scriptsurfacedata_t::GetSoundBulletImpact() { return physprops->GetString( sounds.bulletImpact ); }
+const char*		scriptsurfacedata_t::GetSoundRolling() { return physprops->GetString( sounds.rolling ); }
+const char*		scriptsurfacedata_t::GetSoundBreak() { return physprops->GetString( sounds.breakSound ); }
+const char*		scriptsurfacedata_t::GetSoundStrain() { return physprops->GetString( sounds.strainSound ); }
 
 BEGIN_SCRIPTDESC_ROOT_NAMED( CSurfaceScriptAccessor, "csurface_t", "Handle for accessing csurface_t info." )
 	DEFINE_SCRIPTFUNC( Name, "The surface's name." )
@@ -506,16 +506,36 @@ FireBulletsInfo_t *GetFireBulletsInfoFromInfo( HSCRIPT hBulletsInfo )
 }
 
 //-----------------------------------------------------------------------------
-//
+// animevent_t
 //-----------------------------------------------------------------------------
 CAnimEventTInstanceHelper g_AnimEventTInstanceHelper;
 
-BEGIN_SCRIPTDESC_ROOT( animevent_t, "Handle for accessing animevent_t info." )
+BEGIN_SCRIPTDESC_ROOT( scriptanimevent_t, "Handle for accessing animevent_t info." )
 	DEFINE_SCRIPT_INSTANCE_HELPER( &g_AnimEventTInstanceHelper )
+
+	DEFINE_SCRIPTFUNC( GetEvent, "Gets the event number." )
+	DEFINE_SCRIPTFUNC( SetEvent, "Sets the event number." )
+
+	DEFINE_SCRIPTFUNC( GetOptions, "Gets the event's options/parameters." )
+	DEFINE_SCRIPTFUNC( SetOptions, "Sets the event's options/parameters." )
+
+	DEFINE_SCRIPTFUNC( GetCycle, "Gets the cycle at which the event happens." )
+	DEFINE_SCRIPTFUNC( SetCycle, "Sets the cycle at which the event happens." )
+
+	DEFINE_SCRIPTFUNC( GetEventTime, "Gets the time the event plays." )
+	DEFINE_SCRIPTFUNC( SetEventTime, "Sets the time the event plays." )
+
+	DEFINE_SCRIPTFUNC( GetType, "Gets the event's type flags. See the 'AE_TYPE_' set of constants for valid flags." )
+	DEFINE_SCRIPTFUNC( SetType, "Sets the event's type flags. See the 'AE_TYPE_' set of constants for valid flags." )
+
+	DEFINE_SCRIPTFUNC( GetSource, "Gets the event's source entity." )
+	DEFINE_SCRIPTFUNC( SetSource, "Sets the event's source entity." )
 END_SCRIPTDESC();
 
 bool CAnimEventTInstanceHelper::Get( void *p, const char *pszKey, ScriptVariant_t &variant )
 {
+	DevWarning( "VScript animevent_t.%s: animevent_t metamethod members are deprecated! Use 'script_help animevent_t' to see the correct functions.\n", pszKey );
+
 	animevent_t *ani = ((animevent_t *)p);
 	if (FStrEq( pszKey, "event" ))
 		variant = ani->event;
@@ -537,6 +557,8 @@ bool CAnimEventTInstanceHelper::Get( void *p, const char *pszKey, ScriptVariant_
 
 bool CAnimEventTInstanceHelper::Set( void *p, const char *pszKey, ScriptVariant_t &variant )
 {
+	DevWarning( "VScript animevent_t.%s: animevent_t metamethod members are deprecated! Use 'script_help animevent_t' to see the correct functions.\n", pszKey );
+
 	animevent_t *ani = ((animevent_t *)p);
 	if (FStrEq( pszKey, "event" ))
 		ani->event = variant;
@@ -611,7 +633,7 @@ END_SCRIPTDESC();
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT( CUserCmd, "Handle for accessing CUserCmd info." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptUserCmd, "CUserCmd", "Handle for accessing CUserCmd info." )
 	DEFINE_SCRIPTFUNC( GetCommandNumber, "For matching server and client commands for debugging." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetTickCount, "GetTickCount", "The tick the client created this command." )
@@ -643,6 +665,32 @@ BEGIN_SCRIPTDESC_ROOT( CUserCmd, "Handle for accessing CUserCmd info." )
 	DEFINE_SCRIPTFUNC( GetMouseY, "Mouse accum in y from create move." )
 	DEFINE_SCRIPTFUNC( SetMouseY, "Sets mouse accum in y from create move." )
 END_SCRIPTDESC();
+
+#ifdef GAME_DLL
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+#define DEFINE_ENEMY_INFO_SCRIPTFUNCS(name, desc) \
+	DEFINE_SCRIPTFUNC_NAMED( Get##name, #name, "Get " desc ) \
+	DEFINE_SCRIPTFUNC( Set##name, "Set " desc )
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( Script_AI_EnemyInfo_t, "AI_EnemyInfo_t", "Accessor for information about an enemy." )
+	DEFINE_SCRIPTFUNC( Enemy, "Get the enemy." )
+	DEFINE_SCRIPTFUNC( SetEnemy, "Set the enemy." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastKnownLocation, "the enemy's last known location." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastSeenLocation, "the enemy's last seen location." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastSeen, "the last time the enemy was seen." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeFirstSeen, "the first time the enemy was seen." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastReacquired, "the last time the enemy was reaquired." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeValidEnemy, "the time at which the enemy can be selected (reaction delay)." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastReceivedDamageFrom, "the last time damage was received from this enemy." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeAtFirstHand, "the time at which the enemy was seen firsthand." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( DangerMemory, "the memory of danger position w/o enemy pointer." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( EludedMe, "whether the enemy is not at the last known location." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( Unforgettable, "whether the enemy is unforgettable." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( MobbedMe, "whether the enemy was part of a mob at some point." )
+END_SCRIPTDESC();
+#endif
 
 //-----------------------------------------------------------------------------
 //
