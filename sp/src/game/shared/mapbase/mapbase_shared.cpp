@@ -69,6 +69,9 @@ ConVar mapbase_version_client( "mapbase_version_client", MAPBASE_VERSION, FCVAR_
 
 // This is from the vgui_controls library
 extern vgui::HScheme g_iCustomClientSchemeOverride;
+
+bool g_bUsingCustomHudAnimations = false;
+bool g_bUsingCustomHudLayout = false;
 #endif
 
 extern void AddSurfacepropFile( const char *pFileName, IPhysicsSurfaceProps *pProps, IFileSystem *pFileSystem );
@@ -90,6 +93,8 @@ enum
 	MANIFEST_CLOSECAPTION,
 	MANIFEST_VGUI,
 	MANIFEST_CLIENTSCHEME,
+	MANIFEST_HUDANIMATIONS,
+	MANIFEST_HUDLAYOUT,
 #else
 	MANIFEST_TALKER,
 	//MANIFEST_SENTENCES,
@@ -125,6 +130,8 @@ static const ManifestType_t gm_szManifestFileStrings[MANIFEST_NUM_TYPES] = {
 	{ "closecaption",	"mapbase_load_closecaption",	"Should we load map-specific closed captioning? e.g. \"maps/<mapname>_closecaption_english.txt\" and \"maps/<mapname>_closecaption_english.dat\"" },
 	{ "vgui",			"mapbase_load_vgui",			"Should we load map-specific VGUI screens? e.g. \"maps/<mapname>_screens.txt\"" },
 	{ "clientscheme",	"mapbase_load_clientscheme",	"Should we load map-specific ClientScheme.res overrides? e.g. \"maps/<mapname>_clientscheme.res\"" },
+	{ "hudanimations",	"mapbase_load_hudanimations",	"Should we load map-specific HUD animation overrides? e.g. \"maps/<mapname>_hudanimations.txt\"" },
+	{ "hudlayout",		"mapbase_load_hudlayout",		"Should we load map-specific HUD layout overrides? e.g. \"maps/<mapname>_hudlayout.res\"" },
 #else
 	{ "talker",			"mapbase_load_talker",			"Should we load map-specific talker files? e.g. \"maps/<mapname>_talker.txt\"" },
 	//{ "sentences",	"mapbase_load_sentences",		"Should we load map-specific sentences? e.g. \"maps/<mapname>_sentences.txt\"" },
@@ -264,18 +271,36 @@ public:
 		{
 			hudCloseCaption->RemoveCaptionDictionary( m_CloseCaptionFileNames[i] );
 		}
+		m_CloseCaptionFileNames.RemoveAll();
 
-		if (g_iCustomClientSchemeOverride != 0)
+		if (g_iCustomClientSchemeOverride != 0 || g_bUsingCustomHudAnimations || g_bUsingCustomHudLayout)
 		{
+			CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Mapbase: Reloading client mode and viewport scheme\n" );
+
 			// TODO: We currently have no way of actually cleaning up custom schemes upon level unload.
 			// That may or may not be sustainable if there's a ton of custom schemes loaded at once
 			g_iCustomClientSchemeOverride = 0;
+
+			g_bUsingCustomHudAnimations = false;
+			g_bUsingCustomHudLayout = false;
 
 			// Reload scheme
 			ClientModeShared *mode = ( ClientModeShared * )GetClientModeNormal();
 			if ( mode )
 			{
 				mode->ReloadScheme();
+
+				// We need to reload default values, so load a special "hudlayout_mapbase.res" file that only contains
+				// default Mapbase definitions identical to the defaults in the code
+				CBaseViewport *pViewport = dynamic_cast<CBaseViewport *>(g_pClientMode->GetViewport());
+				if (pViewport)
+				{
+					KeyValuesAD pConditions( "conditions" );
+					g_pClientMode->ComputeVguiResConditions( pConditions );
+
+					// reload the .res file from disk
+					pViewport->LoadControlSettings( "scripts/hudlayout_mapbase.res", NULL, NULL, pConditions );
+				}
 			}
 		}
 #endif
@@ -363,6 +388,42 @@ public:
 			mode->ReloadScheme();
 		}
 	}
+
+	void LoadCustomHudAnimations( const char *pszFile )
+	{
+		CBaseViewport *pViewport = dynamic_cast<CBaseViewport *>(g_pClientMode->GetViewport());
+		if (pViewport)
+		{
+			g_bUsingCustomHudAnimations = true;
+			if (!pViewport->LoadCustomHudAnimations( pszFile ))
+			{
+				g_bUsingCustomHudAnimations = false;
+				CGWarning( 0, CON_GROUP_MAPBASE_MISC, "Custom HUD animations file \"%s\" failed to load\n", pszFile );
+				pViewport->ReloadHudAnimations();
+			}
+			else
+			{
+				CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Loaded custom HUD animations file \"%s\"\n", pszFile );;
+			}
+		}
+	}
+
+	void LoadCustomHudLayout( const char *pszFile )
+	{
+		CBaseViewport *pViewport = dynamic_cast<CBaseViewport *>(g_pClientMode->GetViewport());
+		if (pViewport)
+		{
+			g_bUsingCustomHudLayout = true;
+
+			KeyValuesAD pConditions( "conditions" );
+			g_pClientMode->ComputeVguiResConditions( pConditions );
+
+			// reload the .res file from disk
+			pViewport->LoadControlSettings( pszFile, NULL, NULL, pConditions );
+
+			CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Loaded custom HUD layout file \"%s\"\n", pszFile );;
+		}
+	}
 #endif
 
 	// Get a generic, hardcoded manifest with hardcoded names.
@@ -422,6 +483,8 @@ public:
 				} break;
 			case MANIFEST_VGUI: { PanelMetaClassMgr()->LoadMetaClassDefinitionFile( value ); } break;
 			case MANIFEST_CLIENTSCHEME:	{ LoadCustomScheme( value ); } break;
+			case MANIFEST_HUDANIMATIONS:	{ LoadCustomHudAnimations( value ); } break;
+			case MANIFEST_HUDLAYOUT:	{ LoadCustomHudLayout( value ); } break;
 			//case MANIFEST_SOUNDSCAPES: { Soundscape_AddFile(value); } break;
 #else
 			case MANIFEST_TALKER: {
