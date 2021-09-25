@@ -69,6 +69,7 @@ $Project
 			$File	"mapbase\GlobalStrings.h"
 			$File	"mapbase\logic_externaldata.cpp"
 			$File	"mapbase\logic_skill.cpp"
+			$File	"mapbase\logic_substring.cpp"
 			$File	"mapbase\point_advanced_finder.cpp"
 			$File	"mapbase\point_copy_size.cpp"
 			$File	"mapbase\point_damageinfo.cpp"
