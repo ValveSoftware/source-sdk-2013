@@ -11495,6 +11495,14 @@ bool CAI_BaseNPC::ChooseEnemy( void )
 //=========================================================
 void CAI_BaseNPC::PickupWeapon( CBaseCombatWeapon *pWeapon )
 {
+#ifdef MAPBASE
+	if ( pWeapon->VPhysicsGetObject() && pWeapon->VPhysicsGetObject()->GetGameFlags() & FVPHYSICS_PLAYER_HELD )
+	{
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+		pPlayer->ForceDropOfCarriedPhysObjects( pWeapon );
+	}
+#endif
+
 	pWeapon->OnPickedUp( this );
 	Weapon_Equip( pWeapon );
 	m_iszPendingWeapon = NULL_STRING;
