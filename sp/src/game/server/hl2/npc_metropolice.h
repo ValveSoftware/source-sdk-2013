@@ -67,8 +67,12 @@ public:
 
 	const char*		GetGrenadeAttachment() { return "LHand"; }
 
-	virtual bool IsAltFireCapable() { return (m_iGrenadeCapabilities & GRENCAP_ALTFIRE) != 0; }
+	virtual bool IsAltFireCapable() { return (m_iGrenadeCapabilities & GRENCAP_ALTFIRE) != 0 && BaseClass::IsAltFireCapable(); }
 	virtual bool IsGrenadeCapable() { return (m_iGrenadeCapabilities & GRENCAP_GRENADE) != 0; }
+
+	virtual bool	ShouldDropGrenades() { return (m_iGrenadeDropCapabilities & GRENDROPCAP_GRENADE) != 0 && BaseClass::ShouldDropGrenades(); }
+	virtual bool	ShouldDropInterruptedGrenades() { return (m_iGrenadeDropCapabilities & GRENDROPCAP_INTERRUPTED) != 0 && BaseClass::ShouldDropInterruptedGrenades(); }
+	virtual bool	ShouldDropAltFire() { return (m_iGrenadeDropCapabilities & GRENDROPCAP_ALTFIRE) != 0 && BaseClass::ShouldDropAltFire(); }
 #endif
 
 	Vector		EyeDirection3D( void )	{ return CAI_BaseHumanoid::EyeDirection3D(); } // cops don't have eyes
@@ -520,6 +524,7 @@ private:
 
 	// Determines whether this NPC is allowed to use grenades or alt-fire stuff.
 	eGrenadeCapabilities m_iGrenadeCapabilities;
+	eGrenadeDropCapabilities m_iGrenadeDropCapabilities;
 #endif
 
 	AIHANDLE		m_hManhack;

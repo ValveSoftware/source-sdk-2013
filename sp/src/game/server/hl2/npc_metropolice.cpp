@@ -261,6 +261,7 @@ BEGIN_DATADESC( CNPC_MetroPolice )
 #ifdef MAPBASE
 	DEFINE_AIGRENADE_DATADESC()
 	DEFINE_INPUT( m_iGrenadeCapabilities, FIELD_INTEGER, "SetGrenadeCapabilities" ),
+	DEFINE_INPUT( m_iGrenadeDropCapabilities, FIELD_INTEGER, "SetGrenadeDropCapabilities" ),
 #endif
 
 END_DATADESC()
@@ -517,6 +518,11 @@ CNPC_MetroPolice::CNPC_MetroPolice()
 {
 #ifdef MAPBASE
 	m_iGrenadeCapabilities = GRENCAP_GRENADE;
+
+	if (ai_grenade_always_drop.GetBool())
+	{
+		m_iGrenadeDropCapabilities = (eGrenadeDropCapabilities)(GRENDROPCAP_GRENADE | GRENDROPCAP_ALTFIRE | GRENDROPCAP_INTERRUPTED);
+	}
 #endif
 }
 
@@ -3681,6 +3687,11 @@ void CNPC_MetroPolice::Event_Killed( const CTakeDamageInfo &info )
 			DropItem( "item_healthvial", WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
 			pHL2GameRules->NPC_DroppedHealth();
 		}
+
+#ifdef MAPBASE
+		// Drop grenades if we should
+		DropGrenadeItemsOnDeath( info, pPlayer );
+#endif
 	}
 
 	BaseClass::Event_Killed( info );

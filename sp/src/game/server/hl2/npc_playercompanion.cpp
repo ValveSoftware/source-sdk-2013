@@ -34,6 +34,7 @@
 #ifdef MAPBASE
 #include "mapbase/GlobalStrings.h"
 #include "world.h"
+#include "vehicle_base.h"
 #endif
 
 ConVar ai_debug_readiness("ai_debug_readiness", "0" );
@@ -148,6 +149,7 @@ BEGIN_DATADESC( CNPC_PlayerCompanion )
 #ifdef MAPBASE
 	DEFINE_AIGRENADE_DATADESC()
 	DEFINE_INPUT( m_iGrenadeCapabilities, FIELD_INTEGER, "SetGrenadeCapabilities" ),
+	DEFINE_INPUT( m_iGrenadeDropCapabilities, FIELD_INTEGER, "SetGrenadeDropCapabilities" ),
 #endif
 
 END_DATADESC()
@@ -171,6 +173,19 @@ string_t CNPC_PlayerCompanion::gm_iszSMG1Classname;
 string_t CNPC_PlayerCompanion::gm_iszAR2Classname;
 #endif
 #endif
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+CNPC_PlayerCompanion::CNPC_PlayerCompanion()
+{
+#ifdef MAPBASE
+	if (ai_grenade_always_drop.GetBool())
+	{
+		m_iGrenadeDropCapabilities = (eGrenadeDropCapabilities)(GRENDROPCAP_GRENADE | GRENDROPCAP_ALTFIRE | GRENDROPCAP_INTERRUPTED);
+	}
+#endif
+}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -4179,6 +4194,38 @@ void CNPC_PlayerCompanion::OnPlayerKilledOther( CBaseEntity *pVictim, const CTak
 }
 
 #ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+void CNPC_PlayerCompanion::Event_Killed( const CTakeDamageInfo &info )
+{
+	// For now, allied player companions are set to always drop grenades and other items
+	// even if the player did not kill them
+	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	if (!IsPlayerAlly( pPlayer ))
+	{
+		pPlayer = ToBasePlayer( info.GetAttacker() );
+
+		// See if there's a player in a vehicle instead (from CNPC_CombineS)
+		if ( !pPlayer )
+		{
+			CPropVehicleDriveable *pVehicle = dynamic_cast<CPropVehicleDriveable *>( info.GetAttacker() ) ;
+			if ( pVehicle && pVehicle->GetDriver() && pVehicle->GetDriver()->IsPlayer() )
+			{
+				pPlayer = assert_cast<CBasePlayer *>( pVehicle->GetDriver() );
+			}
+		}
+	}
+
+	if ( pPlayer != NULL )
+	{
+		// Drop grenades if we should
+		DropGrenadeItemsOnDeath( info, pPlayer );
+	}
+
+	BaseClass::Event_Killed( info );
+}
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info )

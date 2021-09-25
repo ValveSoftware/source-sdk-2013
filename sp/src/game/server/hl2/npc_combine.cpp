@@ -230,7 +230,9 @@ DEFINE_INPUTFUNC( FIELD_STRING, "SetPoliceGoal", InputSetPoliceGoal ),
 DEFINE_AIGRENADE_DATADESC()
 #endif
 
+#ifndef MAPBASE
 DEFINE_FIELD( m_iLastAnimEventHandled, FIELD_INTEGER ),
+#endif
 DEFINE_FIELD( m_fIsElite, FIELD_BOOLEAN ),
 #ifndef MAPBASE
 DEFINE_FIELD( m_vecAltFireTarget, FIELD_VECTOR ),
@@ -3687,7 +3689,9 @@ void CNPC_Combine::SetActivity( Activity NewActivity )
 {
 	BaseClass::SetActivity( NewActivity );
 
+#ifndef MAPBASE // CAI_GrenadeUser
 	m_iLastAnimEventHandled = -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
