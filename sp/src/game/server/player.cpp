@@ -3831,7 +3831,7 @@ void CBasePlayer::PlayerRunCommand(CUserCmd *ucmd, IMoveHelper *moveHelper)
 	// Movement hook for VScript
 	if (m_ScriptScope.IsInitialized() && g_Hook_PlayerRunCommand.CanRunInScope(m_ScriptScope))
 	{
-		HSCRIPT hCmd = g_pScriptVM->RegisterInstance( ucmd );
+		HSCRIPT hCmd = g_pScriptVM->RegisterInstance( reinterpret_cast<CScriptUserCmd*>(ucmd) );
 
 		// command
 		ScriptVariant_t args[] = { hCmd };
