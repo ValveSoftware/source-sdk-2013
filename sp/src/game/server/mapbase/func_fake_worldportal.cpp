@@ -1,6 +1,6 @@
 //========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
-// Purpose: Recreates Portal 2 linked_portal_door functionality using SDK code only.
+// Purpose: Recreates Portal 2 linked_portal_door visual functionality using SDK code only.
 //			(basically a combination of point_camera and func_reflective_glass)
 //
 //===========================================================================//
