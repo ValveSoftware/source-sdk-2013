@@ -58,12 +58,21 @@ public:
 	// Actual work code
 	virtual IterationRetval_t EnumElement( IHandleEntity *pHandleEntity );
 
+#ifdef MAPBASE
+	bool Hit( void ) const { return m_pHitEnt != NULL; }
+	C_BaseAnimating *GetHit( void ) { return m_pHitEnt; }
+#else
 	bool Hit( void ) const { return m_bHit; }
+#endif
 
 private:
 	Ray_t			m_rayShot;
 	int				m_iDamageType;
+#ifdef MAPBASE
+	C_BaseAnimating		*m_pHitEnt;
+#else
 	bool			m_bHit;
+#endif
 };
 
 #endif // FX_IMPACT_H
