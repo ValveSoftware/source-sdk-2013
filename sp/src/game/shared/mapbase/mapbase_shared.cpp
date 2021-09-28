@@ -375,55 +375,6 @@ public:
 			m_bInitializedRTs = false;
 		}
 	}
-
-	// Custom scheme loading
-	void LoadCustomScheme( const char *pszFile )
-	{
-		g_iCustomClientSchemeOverride = vgui::scheme()->LoadSchemeFromFile( pszFile, "CustomClientScheme" );
-
-		// Reload scheme
-		ClientModeShared *mode = ( ClientModeShared * )GetClientModeNormal();
-		if ( mode )
-		{
-			mode->ReloadScheme();
-		}
-	}
-
-	void LoadCustomHudAnimations( const char *pszFile )
-	{
-		CBaseViewport *pViewport = dynamic_cast<CBaseViewport *>(g_pClientMode->GetViewport());
-		if (pViewport)
-		{
-			g_bUsingCustomHudAnimations = true;
-			if (!pViewport->LoadCustomHudAnimations( pszFile ))
-			{
-				g_bUsingCustomHudAnimations = false;
-				CGWarning( 0, CON_GROUP_MAPBASE_MISC, "Custom HUD animations file \"%s\" failed to load\n", pszFile );
-				pViewport->ReloadHudAnimations();
-			}
-			else
-			{
-				CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Loaded custom HUD animations file \"%s\"\n", pszFile );;
-			}
-		}
-	}
-
-	void LoadCustomHudLayout( const char *pszFile )
-	{
-		CBaseViewport *pViewport = dynamic_cast<CBaseViewport *>(g_pClientMode->GetViewport());
-		if (pViewport)
-		{
-			g_bUsingCustomHudLayout = true;
-
-			KeyValuesAD pConditions( "conditions" );
-			g_pClientMode->ComputeVguiResConditions( pConditions );
-
-			// reload the .res file from disk
-			pViewport->LoadControlSettings( pszFile, NULL, NULL, pConditions );
-
-			CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Loaded custom HUD layout file \"%s\"\n", pszFile );;
-		}
-	}
 #endif
 
 	// Get a generic, hardcoded manifest with hardcoded names.
@@ -477,14 +428,11 @@ public:
 			case MANIFEST_LOCALIZATION: { g_pVGuiLocalize->AddFile( value, "MOD", true ); } break;
 			case MANIFEST_SURFACEPROPS: { AddSurfacepropFile( value, physprops, filesystem ); } break;
 #ifdef CLIENT_DLL
-			case MANIFEST_CLOSECAPTION: {
-					if ( GET_HUDELEMENT( CHudCloseCaption ) )
-						(GET_HUDELEMENT( CHudCloseCaption ))->AddCustomCaptionFile( value, m_CloseCaptionFileNames );
-				} break;
-			case MANIFEST_VGUI: { PanelMetaClassMgr()->LoadMetaClassDefinitionFile( value ); } break;
-			case MANIFEST_CLIENTSCHEME:	{ LoadCustomScheme( value ); } break;
-			case MANIFEST_HUDANIMATIONS:	{ LoadCustomHudAnimations( value ); } break;
-			case MANIFEST_HUDLAYOUT:	{ LoadCustomHudLayout( value ); } break;
+			case MANIFEST_CLOSECAPTION: { ManifestLoadCustomCloseCaption( value ); } break;
+			case MANIFEST_VGUI:			{ PanelMetaClassMgr()->LoadMetaClassDefinitionFile( value ); } break;
+			case MANIFEST_CLIENTSCHEME:	{ ManifestLoadCustomScheme( value ); } break;
+			case MANIFEST_HUDANIMATIONS:	{ ManifestLoadCustomHudAnimations( value ); } break;
+			case MANIFEST_HUDLAYOUT:	{ ManifestLoadCustomHudLayout( value ); } break;
 			//case MANIFEST_SOUNDSCAPES: { Soundscape_AddFile(value); } break;
 #else
 			case MANIFEST_TALKER: {
@@ -561,17 +509,86 @@ public:
 		}
 	}
 
-#ifdef MAPBASE_VSCRIPT
-	void ScriptAddManifestFile( const char *szScript ) { AddManifestFile( szScript ); }
+private:
 
-	void LoadSoundscriptFile( const char *szScript ) { LoadFromValue(szScript, MANIFEST_SOUNDSCRIPTS, false); }
-#ifndef CLIENT_DLL
-	void LoadTalkerFile( const char *szScript ) { LoadFromValue( szScript, MANIFEST_TALKER, false ); }
-	void LoadActbusyFile( const char *szScript ) { LoadFromValue( szScript, MANIFEST_ACTBUSY, false ); }
+#ifdef CLIENT_DLL
+	void ManifestLoadCustomCloseCaption( const char *pszFile )
+	{
+		if (GET_HUDELEMENT( CHudCloseCaption ))
+			(GET_HUDELEMENT( CHudCloseCaption ))->AddCustomCaptionFile( pszFile, m_CloseCaptionFileNames );
+	}
+
+	// Custom scheme loading
+	void ManifestLoadCustomScheme( const char *pszFile )
+	{
+		g_iCustomClientSchemeOverride = vgui::scheme()->LoadSchemeFromFile( pszFile, "CustomClientScheme" );
+
+		// Reload scheme
+		ClientModeShared *mode = ( ClientModeShared * )GetClientModeNormal();
+		if ( mode )
+		{
+			mode->ReloadScheme();
+		}
+	}
+
+	void ManifestLoadCustomHudAnimations( const char *pszFile )
+	{
+		CBaseViewport *pViewport = dynamic_cast<CBaseViewport *>(g_pClientMode->GetViewport());
+		if (pViewport)
+		{
+			g_bUsingCustomHudAnimations = true;
+			if (!pViewport->LoadCustomHudAnimations( pszFile ))
+			{
+				g_bUsingCustomHudAnimations = false;
+				CGWarning( 0, CON_GROUP_MAPBASE_MISC, "Custom HUD animations file \"%s\" failed to load\n", pszFile );
+				pViewport->ReloadHudAnimations();
+			}
+			else
+			{
+				CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Loaded custom HUD animations file \"%s\"\n", pszFile );;
+			}
+		}
+	}
+
+	void ManifestLoadCustomHudLayout( const char *pszFile )
+	{
+		CBaseViewport *pViewport = dynamic_cast<CBaseViewport *>(g_pClientMode->GetViewport());
+		if (pViewport)
+		{
+			g_bUsingCustomHudLayout = true;
+
+			KeyValuesAD pConditions( "conditions" );
+			g_pClientMode->ComputeVguiResConditions( pConditions );
+
+			// reload the .res file from disk
+			pViewport->LoadControlSettings( pszFile, NULL, NULL, pConditions );
+
+			CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Loaded custom HUD layout file \"%s\"\n", pszFile );;
+		}
+	}
+#endif
+
+public:
+
+	void LoadCustomSoundscriptFile( const char *szScript )		{ LoadFromValue( szScript, MANIFEST_SOUNDSCRIPTS, false ); }
+	void LoadCustomLocalizationFile( const char *szScript )		{ LoadFromValue( szScript, MANIFEST_LOCALIZATION, false ); }
+	void LoadCustomSurfacePropsFile( const char *szScript )		{ LoadFromValue( szScript, MANIFEST_SURFACEPROPS, false ); }
+#ifdef CLIENT_DLL
+	void LoadCustomCloseCaptionFile( const char *szScript )		{ LoadFromValue( szScript, MANIFEST_CLOSECAPTION, false ); }
+	void LoadCustomVGUIFile( const char *szScript )				{ LoadFromValue( szScript, MANIFEST_VGUI, false ); }
+	void LoadCustomClientSchemeFile( const char *szScript )		{ LoadFromValue( szScript, MANIFEST_CLIENTSCHEME, false ); }
+	void LoadCustomHUDAnimationsFile( const char *szScript )	{ LoadFromValue( szScript, MANIFEST_HUDANIMATIONS, false ); }
+	void LoadCustomHUDLayoutFile( const char *szScript )		{ LoadFromValue( szScript, MANIFEST_HUDLAYOUT, false ); }
+#else
+	void LoadCustomTalkerFile( const char *szScript )			{ LoadFromValue( szScript, MANIFEST_TALKER, false ); }
+	void LoadCustomActbusyFile( const char *szScript )			{ LoadFromValue( szScript, MANIFEST_ACTBUSY, false ); }
 #endif
 
 	const char *GetModName() { return g_iszGameName; }
 	bool IsCoreMapbase() { return g_bMapbaseCore; }
+
+#ifdef MAPBASE_VSCRIPT
+	void ScriptAddManifestFile( const char *szScript ) { AddManifestFile( szScript ); }
 
 	virtual void RegisterVScript()
 	{
@@ -599,14 +616,32 @@ END_DATADESC()
 
 #ifdef MAPBASE_VSCRIPT
 BEGIN_SCRIPTDESC_ROOT( CMapbaseSystem, SCRIPT_SINGLETON "All-purpose Mapbase system primarily used for map-specific files." )
+
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddManifestFile, "AddManifestFile", "Loads a manifest file." )
-	DEFINE_SCRIPTFUNC( LoadSoundscriptFile, "Loads a custom soundscript file." )
-#ifndef CLIENT_DLL
-	DEFINE_SCRIPTFUNC( LoadTalkerFile, "Loads a custom talker file." )
-	DEFINE_SCRIPTFUNC( LoadActbusyFile, "Loads a custom actbusy file." )
+	DEFINE_SCRIPTFUNC( LoadCustomSoundscriptFile, "Loads a custom soundscript file." )
+	DEFINE_SCRIPTFUNC( LoadCustomLocalizationFile, "Loads a custom localization file." )
+	DEFINE_SCRIPTFUNC( LoadCustomSurfacePropsFile, "Loads a custom surface properties file." )
+#ifdef CLIENT_DLL
+	DEFINE_SCRIPTFUNC( LoadCustomCloseCaptionFile, "Loads a custom closed captions file." )
+	DEFINE_SCRIPTFUNC( LoadCustomVGUIFile, "Loads a custom VGUI definitions file." )
+	DEFINE_SCRIPTFUNC( LoadCustomClientSchemeFile, "Loads a custom ClientScheme.res override file." )
+	DEFINE_SCRIPTFUNC( LoadCustomHUDAnimationsFile, "Loads a custom HUD animations override file." )
+	DEFINE_SCRIPTFUNC( LoadCustomHUDLayoutFile, "Loads a custom HUD layout override file." )
+#else
+	DEFINE_SCRIPTFUNC( LoadCustomTalkerFile, "Loads a custom talker file." )
+	DEFINE_SCRIPTFUNC( LoadCustomActbusyFile, "Loads a custom actbusy file." )
 #endif
+
 	DEFINE_SCRIPTFUNC( GetModName, "Gets the name of the mod. This is the name which shows up on Steam, RPC, etc." )
 	DEFINE_SCRIPTFUNC( IsCoreMapbase, "Indicates whether this is one of the original Mapbase mods or just a separate mod using its code." )
+
+	// Legacy
+	DEFINE_SCRIPTFUNC_NAMED( LoadCustomSoundscriptFile, "LoadSoundscriptFile", SCRIPT_HIDE )
+#ifndef CLIENT_DLL
+	DEFINE_SCRIPTFUNC_NAMED( LoadCustomTalkerFile, "LoadTalkerFile", SCRIPT_HIDE )
+	DEFINE_SCRIPTFUNC_NAMED( LoadCustomActbusyFile, "LoadActbusyFile", SCRIPT_HIDE )
+#endif
+
 END_SCRIPTDESC();
 #endif
 
