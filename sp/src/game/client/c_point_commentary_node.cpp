@@ -21,6 +21,7 @@
 #ifdef MAPBASE
 #include "vgui_controls/Label.h"
 #include "vgui_controls/ImagePanel.h"
+#include "vgui_controls/AnimationController.h"
 #include "filesystem.h"
 #include "scenefilecache/ISceneFileCache.h"
 #include "choreoscene.h"
@@ -108,6 +109,9 @@ private:
 	vgui::Label *m_pLabel;
 	vgui::ImagePanel *m_pImage;
 	vgui::HFont m_hFont;
+
+	// HACKHACK: Needed as a failsafe to prevent desync
+	int		m_iCCDefaultY;
 #endif
 
 	// Painting
@@ -492,12 +496,6 @@ extern CChoreoStringPool g_ChoreoStringPool;
 //-----------------------------------------------------------------------------
 void C_PointCommentaryNode::StartSceneCommentary( const char *pszCommentaryFile, C_BasePlayer *pPlayer )
 {
-	EmitSound_t es;
-	es.m_nChannel = CHAN_STATIC;
-	es.m_pSoundName = pszCommentaryFile;
- 	es.m_SoundLevel = SNDLVL_GUNFIRE;
-	es.m_nFlags = SND_SHOULDPAUSE;
-
 	char loadfile[MAX_PATH];
 	Q_strncpy( loadfile, pszCommentaryFile, sizeof( loadfile ) );
 	Q_SetExtension( loadfile, ".vcd", sizeof( loadfile ) );
@@ -605,6 +603,9 @@ void C_PointCommentaryNode::StartSceneCommentary( const char *pszCommentaryFile,
 
 	// Get the duration so we know when it finishes
 	float flDuration = m_pScene->GetDuration();
+
+	// Add a tiny amount of time at the end to ensure audio doesn't get cut off
+	flDuration += 0.5f;
 
 	CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
 	if ( pHudCloseCaption )
@@ -750,6 +751,7 @@ void C_PointCommentaryNode::StopLoopingSounds( void )
 		m_pScene = NULL;
 
 		// Must do this to terminate audio
+		// (TODO: This causes problems when players switch from a scene node immediately to a regular audio node)
 		if (m_hSceneOrigin)
 			m_hSceneOrigin->EmitSound( "AI_BaseNPC.SentenceStop" );
 	}
@@ -811,6 +813,8 @@ CHudCommentary::CHudCommentary( const char *name ) : vgui::Panel( NULL, "HudComm
 	m_pLabel = new vgui::Label( this, "HudCommentaryTextLabel", L"Textual commentary" );
 	m_pImage = new vgui::ImagePanel( this, "HudCommentaryImagePanel" );
 	m_pImage->SetShouldScaleImage( true );
+
+	m_iCCDefaultY = 0;
 #endif
 }
 
@@ -855,7 +859,10 @@ void CHudCommentary::Paint()
 				{
 					int ccX, ccY;
 					pHudCloseCaption->GetPos( ccX, ccY );
-					pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
+					//pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
+
+					// Run this animation command instead of setting the position directly
+					g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY + m_iTypeAudioT, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
 
 					pHudCloseCaption->SetUsingCommentaryDimensions( false );
 				}
@@ -879,7 +886,10 @@ void CHudCommentary::Paint()
 			{
 				int ccX, ccY;
 				pHudCloseCaption->GetPos( ccX, ccY );
-				pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
+				//pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
+
+				// Run this animation command instead of setting the position directly
+				g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY + m_iTypeAudioT, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
 
 				pHudCloseCaption->SetUsingCommentaryDimensions( false );
 			}
@@ -1149,6 +1159,9 @@ void CHudCommentary::VidInit( void )
 { 
 	SetAlpha(0);
 	StopCommentary();
+#ifdef MAPBASE
+	m_iCCDefaultY = 0;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1200,15 +1213,15 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	}
 
 #ifdef MAPBASE
-	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
-	{
-		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
-	}
-
 	if (!m_bShouldPaint && commentary_audio_element_below_cc.GetBool())
 	{
 		m_bShouldPaint = true;
 		RepositionCloseCaption();
+	}
+
+	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
+	{
+		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
 	}
 #endif
 
@@ -1402,15 +1415,15 @@ void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *p
 		m_bShouldPaint = true;
 	}
 
-	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
-	{
-		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
-	}
-
 	if (!m_bShouldPaint && commentary_audio_element_below_cc.GetBool())
 	{
 		m_bShouldPaint = true;
 		RepositionCloseCaption();
+	}
+
+	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
+	{
+		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
 	}
 
 	SetPaintBackgroundEnabled( m_bShouldPaint );
@@ -1446,7 +1459,10 @@ void CHudCommentary::StopCommentary( void )
 	{
 		int ccX, ccY;
 		pHudCloseCaption->GetPos( ccX, ccY );
-		pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
+		//pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
+
+		// Run this animation command instead of setting the position directly
+		g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY + m_iTypeAudioT, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
 
 		pHudCloseCaption->SetUsingCommentaryDimensions( false );
 	}
@@ -1490,23 +1506,39 @@ void CHudCommentary::RepositionCloseCaption()
 
 	// Place underneath the close caption element
 	CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
-	if (pHudCloseCaption)
+	if (pHudCloseCaption /*&& !pHudCloseCaption->IsUsingCommentaryDimensions()*/)
 	{
 		int ccX, ccY;
 		pHudCloseCaption->GetPos( ccX, ccY );
 
+		// Save the default position in case we need to do a hard reset
+		// (this usually happens when players begin commentary before the CC element's return animation command is finished)
+		if (m_iCCDefaultY == 0)
+		{
+			m_iCCDefaultY = ccY;
+		}
+
 		if (!pHudCloseCaption->IsUsingCommentaryDimensions())
 		{
+			if (m_iCCDefaultY != ccY && !pHudCloseCaption->IsUsingCommentaryDimensions())
+			{
+				DevMsg( "CHudCommentary had to reset misaligned CC element Y (%i) to default Y (%i)\n", ccY, m_iCCDefaultY );
+				ccY = m_iCCDefaultY;
+			}
+
 			ccY -= m_iTypeAudioT;
-			pHudCloseCaption->SetPos( ccX, ccY );
+
+			// Run this animation command instead of setting the position directly
+			g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY, 0.0f, 0.2f, vgui::AnimationController::INTERPOLATOR_DEACCEL );
+			//pHudCloseCaption->SetPos( ccX, ccY );
+
+			pHudCloseCaption->SetUsingCommentaryDimensions( true );
 		}
 
 		SetPos( ccX, ccY + pHudCloseCaption->GetTall() + commentary_audio_element_below_cc_margin.GetInt() );
 
 		m_flPanelScale = (float)pHudCloseCaption->GetWide() / (float)GetWide();
 		SetWide( pHudCloseCaption->GetWide() );
-
-		pHudCloseCaption->SetUsingCommentaryDimensions( true );
 	}
 }
 #endif
