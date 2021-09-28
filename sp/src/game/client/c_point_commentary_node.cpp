@@ -164,6 +164,9 @@ class C_PointCommentaryNode : public C_BaseAnimating, public IChoreoEventCallbac
 public:
 	DECLARE_CLIENTCLASS();
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 
 	virtual void OnPreDataChanged( DataUpdateType_t type );
 	virtual void OnDataChanged( DataUpdateType_t type );
@@ -256,6 +259,20 @@ public:
 		}
 	}
 
+#ifdef MAPBASE_VSCRIPT // VScript funcs
+	bool IsActive() { return m_bActive; }
+
+	int GetCommentaryType() { return m_iCommentaryType; }
+	void SetCommentaryType( int iType ) { m_iCommentaryType = iType; }
+
+	const char *GetCommentaryFile() { return m_iszCommentaryFile; }
+	void SetCommentaryFile( const char *pszNewFile ) { Q_strncpy( m_iszCommentaryFile, pszNewFile, sizeof( m_iszCommentaryFile ) ); }
+	const char *GetSpeakers() { return m_iszSpeakers; }
+	void SetSpeakers( const char *pszSpeakers ) { Q_strncpy( m_iszSpeakers, pszSpeakers, sizeof( m_iszSpeakers ) ); }
+	const char *GetPrintName() { return m_iszPrintName; }
+	void SetPrintName( const char *pszPrintName ) { Q_strncpy( m_iszPrintName, pszPrintName, sizeof( m_iszPrintName ) ); }
+#endif
+
 public:
 	// Data received from the server
 	bool		m_bActive;
@@ -279,6 +296,10 @@ public:
 	CChoreoScene	*m_pScene;
 	//CHandle<C_SceneEntity>	m_hScene;
 	EHANDLE			m_hSceneOrigin;
+#endif
+
+#ifdef MAPBASE_VSCRIPT
+	static ScriptHook_t	g_Hook_PreStartCommentaryClient;
 #endif
 };
 
@@ -305,6 +326,26 @@ BEGIN_DATADESC( C_PointCommentaryNode )
 	DEFINE_FIELD( m_bWasActive, FIELD_BOOLEAN ),
 	DEFINE_SOUNDPATCH( m_sndCommentary ),
 END_DATADESC()
+
+#ifdef MAPBASE_VSCRIPT
+ScriptHook_t	C_PointCommentaryNode::g_Hook_PreStartCommentaryClient;
+
+BEGIN_ENT_SCRIPTDESC( C_PointCommentaryNode, C_BaseAnimating, "Commentary nodes which play commentary in commentary mode." )
+
+	DEFINE_SCRIPTFUNC( IsActive, "" )
+	DEFINE_SCRIPTFUNC( GetCommentaryFile, "" )
+	DEFINE_SCRIPTFUNC( SetCommentaryFile, "" )
+	DEFINE_SCRIPTFUNC( GetSpeakers, "" )
+	DEFINE_SCRIPTFUNC( SetSpeakers, "" )
+	DEFINE_SCRIPTFUNC( GetPrintName, "" )
+	DEFINE_SCRIPTFUNC( SetPrintName, "" )
+	DEFINE_SCRIPTFUNC( GetCommentaryType, "" )
+	DEFINE_SCRIPTFUNC( SetCommentaryType, "" )
+
+	DEFINE_SIMPLE_SCRIPTHOOK( C_PointCommentaryNode::g_Hook_PreStartCommentaryClient, "PreStartCommentaryClient", FIELD_BOOLEAN, "Called just before commentary begins on the client. Use this to modify variables or commentary behavior before it begins. Returning false will prevent the commentary from starting." )
+
+END_SCRIPTDESC();
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -335,6 +376,22 @@ void C_PointCommentaryNode::OnDataChanged( DataUpdateType_t updateType )
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
 	if ( m_bActive && pPlayer )
 	{
+#ifdef MAPBASE_VSCRIPT
+		if (m_ScriptScope.IsInitialized() && g_Hook_PreStartCommentaryClient.CanRunInScope( m_ScriptScope ))
+		{
+			ScriptVariant_t functionReturn;
+			if (g_Hook_PreStartCommentaryClient.Call( m_ScriptScope, &functionReturn, NULL ) && functionReturn.m_type == FIELD_BOOLEAN)
+			{
+				// Don't play the commentary if it returned false
+				if (functionReturn.m_bool == false)
+				{
+					engine->ServerCmd( "commentary_finishnode\n" );
+					return;
+				}
+			}
+		}
+#endif
+
 		// Use the HDR / Non-HDR version based on whether we're running HDR or not
 		char *pszCommentaryFile;
 		if ( g_pMaterialSystemHardwareConfig->GetHDRType() == HDR_TYPE_NONE && m_iszCommentaryFileNoHDR && m_iszCommentaryFileNoHDR[0] )

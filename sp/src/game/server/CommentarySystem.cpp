@@ -72,6 +72,9 @@ class CPointCommentaryNode : public CBaseAnimating
 	DECLARE_CLASS( CPointCommentaryNode, CBaseAnimating );
 public:
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 	DECLARE_SERVERCLASS();
 
 	CPointCommentaryNode()
@@ -114,11 +117,37 @@ public:
 	void TeleportTo( CBasePlayer *pPlayer );
 	bool CanTeleportTo( void );
 
+#ifdef MAPBASE
+	bool IsActive() { return m_bActive; }
+	bool IsDisabled() { return m_bDisabled; }
+
+	int GetCommentaryType() { return m_iCommentaryType; }
+	void SetCommentaryType( int iType ) { m_iCommentaryType = iType; }
+
+	const char *GetCommentaryFile() { return STRING( m_iszCommentaryFile.Get() ); }
+	void SetCommentaryFile( const char *pszNewFile ) { m_iszCommentaryFile.Set( AllocPooledString( pszNewFile ) ); }
+	const char *GetSpeakers() { return STRING( m_iszSpeakers.Get() ); }
+	void SetSpeakers( const char *pszSpeakers ) { m_iszSpeakers.Set( AllocPooledString( pszSpeakers ) ); }
+	const char *GetPrintName() { return STRING( m_iszPrintName.Get() ); }
+	void SetPrintName( const char *pszPrintName ) { m_iszPrintName.Set( AllocPooledString( pszPrintName ) ); }
+#endif
+
 	// Inputs
 	void InputStartCommentary( inputdata_t &inputdata );
 	void InputStartUnstoppableCommentary( inputdata_t &inputdata );
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetViewTarget( inputdata_t &inputdata );
+	void InputSetViewPosition( inputdata_t &inputdata );
+	void InputSetViewTargetSpeed( inputdata_t &inputdata );
+	void InputSetViewPositionSpeed( inputdata_t &inputdata );
+	void InputSetReturnSpeed( inputdata_t &inputdata );
+#endif
+
+#ifdef MAPBASE_VSCRIPT
+	static ScriptHook_t	g_Hook_PreStartCommentary;
+#endif
 
 private:
 	string_t	m_iszPreCommands;
@@ -226,6 +255,35 @@ BEGIN_DATADESC( CPointCommentaryNode )
 	DEFINE_THINKFUNC( UpdateViewThink ),
 	DEFINE_THINKFUNC( UpdateViewPostThink ),
 END_DATADESC()
+
+#ifdef MAPBASE_VSCRIPT
+
+ScriptHook_t	CPointCommentaryNode::g_Hook_PreStartCommentary;
+
+BEGIN_ENT_SCRIPTDESC( CPointCommentaryNode, CBaseAnimating, "Commentary nodes which play commentary in commentary mode." )
+	DEFINE_SCRIPTFUNC( IsDisabled, "" )
+	DEFINE_SCRIPTFUNC( SetDisabled, "" )
+
+	DEFINE_SCRIPTFUNC( IsActive, "" )
+	DEFINE_SCRIPTFUNC( GetCommentaryFile, "" )
+	DEFINE_SCRIPTFUNC( SetCommentaryFile, "" )
+	DEFINE_SCRIPTFUNC( GetSpeakers, "" )
+	DEFINE_SCRIPTFUNC( SetSpeakers, "" )
+	DEFINE_SCRIPTFUNC( GetPrintName, "" )
+	DEFINE_SCRIPTFUNC( SetPrintName, "" )
+	DEFINE_SCRIPTFUNC( GetCommentaryType, "" )
+	DEFINE_SCRIPTFUNC( SetCommentaryType, "" )
+
+	DEFINE_SCRIPTFUNC( HasViewTarget, "" )
+	DEFINE_SCRIPTFUNC( PreventsMovement, "" )
+	DEFINE_SCRIPTFUNC( CannotBeStopped, "" )
+
+	DEFINE_SCRIPTFUNC( AbortPlaying, "Stops playing the node and snaps out of its camera control immediately. The game uses this function to shut down commentary while in the middle of playing a node, as it can't smoothly blend out (since the commentary entities need to be removed)." )
+
+	DEFINE_SIMPLE_SCRIPTHOOK( CPointCommentaryNode::g_Hook_PreStartCommentary, "PreStartCommentary", FIELD_BOOLEAN, "Called just before commentary begins. Use this to modify variables or commentary behavior before it begins. Returning false will prevent the commentary from starting." )
+END_SCRIPTDESC();
+
+#endif // MAPBASE_VSCRIPT
 
 IMPLEMENT_SERVERCLASS_ST( CPointCommentaryNode, DT_PointCommentaryNode )
 	SendPropBool( SENDINFO(m_bActive) ),
@@ -1197,6 +1255,19 @@ void CPointCommentaryNode::StartCommentary( void )
 
 	if ( !pPlayer )
 		return;
+
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_PreStartCommentary.CanRunInScope( m_ScriptScope ))
+	{
+		ScriptVariant_t functionReturn;
+		if ( g_Hook_PreStartCommentary.Call( m_ScriptScope, &functionReturn, NULL ) && functionReturn.m_type == FIELD_BOOLEAN )
+		{
+			// Don't play the commentary if it returned false
+			if (functionReturn.m_bool == false)
+				return;
+		}
+	}
+#endif
 
 	m_bActive = true;
 
