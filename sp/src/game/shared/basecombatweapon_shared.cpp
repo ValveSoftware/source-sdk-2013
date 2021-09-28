@@ -2339,6 +2339,27 @@ bool CBaseCombatWeapon::Reload( void )
 	return DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD );
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseCombatWeapon::Reload_NPC( void )
+{
+	WeaponSound( RELOAD_NPC );
+
+	if (UsesClipsForAmmo1())
+	{
+		m_iClip1 = GetMaxClip1();
+	}
+	else
+	{
+		// For weapons which don't use clips, give the owner ammo.
+		if (GetOwner())
+			GetOwner()->SetAmmoCount( GetDefaultClip1(), m_iPrimaryAmmoType );
+	}
+}
+#endif
+
 //=========================================================
 void CBaseCombatWeapon::WeaponIdle( void )
 {
