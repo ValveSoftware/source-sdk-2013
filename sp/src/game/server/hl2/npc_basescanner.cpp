@@ -1278,6 +1278,14 @@ void CNPC_BaseScanner::MoveToTarget( float flInterval, const Vector &vecMoveTarg
 		myZAccel = flDist / flInterval;
 	}
 
+#ifdef MAPBASE
+	if (m_flSpeedModifier != 1.0f)
+	{
+		myAccel *= m_flSpeedModifier;
+		//myZAccel *= m_flSpeedModifier;
+	}
+#endif
+
 	MoveInDirection( flInterval, targetDir, myAccel, myZAccel, myDecay );
 
 	// calc relative banking targets
