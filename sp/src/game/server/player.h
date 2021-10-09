@@ -943,7 +943,7 @@ public:
 #endif
 
 #ifdef MAPBASE
-	bool					m_bInTriggerFall;
+	CNetworkVar( bool, m_bInTriggerFall );
 #endif
 
 private:

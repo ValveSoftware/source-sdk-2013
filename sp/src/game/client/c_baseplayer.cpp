@@ -281,6 +281,7 @@ END_RECV_TABLE()
 		RecvPropInt			( RECVINFO( m_spawnflags ), 0, RecvProxy_ShiftPlayerSpawnflags ),
 
 		RecvPropBool		( RECVINFO( m_bDrawPlayerModelExternally ) ),
+		RecvPropBool		( RECVINFO( m_bInTriggerFall ) ),
 #endif
 
 	END_RECV_TABLE()

@@ -458,6 +458,8 @@ public:
 
 	// Allows the player's model to draw on non-main views, like monitors or mirrors.
 	bool			m_bDrawPlayerModelExternally;
+
+	bool			m_bInTriggerFall;
 #endif
 
 protected:
