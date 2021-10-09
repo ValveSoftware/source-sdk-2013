@@ -5089,6 +5089,6 @@ void CLogicPlayerProxy::InputSetPlayerDrawExternally( inputdata_t &inputdata )
 		return;
 
 	CBasePlayer *pPlayer = static_cast<CBasePlayer*>(m_hPlayer.Get());
-	pPlayer->m_bDrawPlayerModelExternally = inputdata.value.Bool();
+	pPlayer->SetDrawPlayerModelExternally( inputdata.value.Bool() );
 }
 #endif
