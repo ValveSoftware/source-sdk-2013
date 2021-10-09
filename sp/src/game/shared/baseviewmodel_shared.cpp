@@ -289,6 +289,16 @@ void CBaseViewModel::AddEffects( int nEffects )
 		SetControlPanelsActive( false );
 	}
 
+#ifdef MAPBASE
+	// Apply effect changes to any viewmodel children as well
+	// (fixes hand models)
+	for (CBaseEntity *pChild = FirstMoveChild(); pChild != NULL; pChild = pChild->NextMovePeer())
+	{
+		if (pChild->GetClassname()[0] == 'h')
+			pChild->AddEffects( nEffects );
+	}
+#endif
+
 	BaseClass::AddEffects( nEffects );
 }
 
@@ -301,6 +311,16 @@ void CBaseViewModel::RemoveEffects( int nEffects )
 	{
 		SetControlPanelsActive( true );
 	}
+
+#ifdef MAPBASE
+	// Apply effect changes to any viewmodel children as well
+	// (fixes hand models)
+	for (CBaseEntity *pChild = FirstMoveChild(); pChild != NULL; pChild = pChild->NextMovePeer())
+	{
+		if (pChild->GetClassname()[0] == 'h')
+			pChild->RemoveEffects( nEffects );
+	}
+#endif
 
 	BaseClass::RemoveEffects( nEffects );
 }
