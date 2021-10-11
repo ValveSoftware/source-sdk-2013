@@ -234,6 +234,11 @@ void CNPC_PlayerCompanion::Precache()
 #endif
 #endif
 
+#ifdef MAPBASE
+	// Moved from Spawn()
+	SelectModel();
+#endif
+
 	PrecacheModel( STRING( GetModelName() ) );
 	
 #ifdef HL2_EPISODIC
@@ -252,7 +257,9 @@ void CNPC_PlayerCompanion::Precache()
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::Spawn()
 {
+#ifndef MAPBASE // Moved to Precache()
 	SelectModel();
+#endif
 
 	Precache();
 

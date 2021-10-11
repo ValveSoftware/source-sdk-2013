@@ -277,6 +277,11 @@ public:
 
 	virtual void	OnChangeRunningBehavior( CAI_BehaviorBase *pOldBehavior,  CAI_BehaviorBase *pNewBehavior );
 
+#ifdef MAPBASE
+	int				GetCitizenType() { return (int)m_Type; }
+	void			SetCitizenType( int iType ) { m_Type = (CitizenType_t)iType; }
+#endif
+
 private:
 	//-----------------------------------------------------
 	// Conditions, Schedules, Tasks
@@ -382,6 +387,10 @@ private:
 	
 	//-----------------------------------------------------
 	
+#ifdef MAPBASE_VSCRIPT
+	static ScriptHook_t		g_Hook_SelectModel;
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 	DECLARE_DATADESC();
 #ifdef _XBOX
 protected:

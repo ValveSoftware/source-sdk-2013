@@ -401,6 +401,10 @@ void RegisterSharedScriptConstants()
 	ScriptRegisterConstant( g_pScriptVM, SND_IGNORE_NAME, "Used to change all sounds emitted by an entity, regardless of name." );
 	ScriptRegisterConstant( g_pScriptVM, SND_DO_NOT_OVERWRITE_EXISTING_ON_CHANNEL, "Prevents a sound from interrupting other sounds on a channel (if the channel supports interruption)." );
 
+	ScriptRegisterConstant( g_pScriptVM, GENDER_NONE, "A standard value used to represent no specific gender. Usually used for sounds." );
+	ScriptRegisterConstant( g_pScriptVM, GENDER_MALE, "A standard value used to represent male gender. Usually used for sounds." );
+	ScriptRegisterConstant( g_pScriptVM, GENDER_FEMALE, "A standard value used to represent female gender. Usually used for sounds." );
+
 #ifdef GAME_DLL
 	// 
 	// AI Sounds

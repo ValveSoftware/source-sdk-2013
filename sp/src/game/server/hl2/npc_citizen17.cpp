@@ -407,6 +407,27 @@ BEGIN_DATADESC( CNPC_Citizen )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+ScriptHook_t	CNPC_Citizen::g_Hook_SelectModel;
+
+BEGIN_ENT_SCRIPTDESC( CNPC_Citizen, CAI_BaseActor, "npc_citizen from Half-Life 2" )
+
+	DEFINE_SCRIPTFUNC( IsMedic, "Returns true if this citizen is a medic." )
+	DEFINE_SCRIPTFUNC( IsAmmoResupplier, "Returns true if this citizen is an ammo resupplier." )
+	DEFINE_SCRIPTFUNC( CanHeal, "Returns true if this citizen is a medic or ammo resupplier currently able to heal/give ammo." )
+
+	DEFINE_SCRIPTFUNC( GetCitizenType, "Gets the citizen's type. 1 = Downtrodden, 2 = Refugee, 3 = Rebel, 4 = Unique" )
+	DEFINE_SCRIPTFUNC( SetCitizenType, "Sets the citizen's type. 1 = Downtrodden, 2 = Refugee, 3 = Rebel, 4 = Unique" )
+
+	BEGIN_SCRIPTHOOK( CNPC_Citizen::g_Hook_SelectModel, "SelectModel", FIELD_CSTRING, "Called when a citizen is selecting a random model. 'model_path' is the directory of the selected model and 'model_head' is the name. The 'gender' parameter uses the 'GENDER_' constants and is based only on the citizen's random head spawnflags. If a full model path string is returned, it will be used as the model instead." )
+		DEFINE_SCRIPTHOOK_PARAM( "model_path", FIELD_CSTRING )
+		DEFINE_SCRIPTHOOK_PARAM( "model_head", FIELD_CSTRING )
+		DEFINE_SCRIPTHOOK_PARAM( "gender", FIELD_INTEGER )
+	END_SCRIPTHOOK()
+
+END_SCRIPTDESC();
+#endif
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
@@ -431,7 +452,12 @@ bool CNPC_Citizen::CreateBehaviors()
 //-----------------------------------------------------------------------------
 void CNPC_Citizen::Precache()
 {
+#ifdef MAPBASE
+	// CNPC_PlayerCompanion::Precache() is responsible for calling this now
+	BaseClass::Precache();
+#else
 	SelectModel();
+#endif
 	SelectExpressionType();
 
 	if ( !npc_citizen_dont_precache_all.GetBool() )
@@ -468,7 +494,9 @@ void CNPC_Citizen::Precache()
 		}
 	}
 
+#ifndef MAPBASE // See above
 	BaseClass::Precache();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -769,6 +797,54 @@ void CNPC_Citizen::SelectModel()
 			pszModelName = g_ppszRandomHeads[m_iHead];
 			SetModelName(NULL_STRING);
 		}
+
+#ifdef MAPBASE_VSCRIPT
+		if (m_ScriptScope.IsInitialized() && g_Hook_SelectModel.CanRunInScope( m_ScriptScope ))
+		{
+			gender_t scriptGender;
+			switch (gender)
+			{
+				case 'm':
+					scriptGender = GENDER_MALE;
+					break;
+				case 'f':
+					scriptGender = GENDER_FEMALE;
+					break;
+				default:
+					scriptGender = GENDER_NONE;
+					break;
+			}
+
+			const char *pszModelPath = CFmtStr( "models/Humans/%s/", (const char *)(CFmtStr( g_ppszModelLocs[m_Type], (IsMedic()) ? "m" : "" )) );
+
+			// model_path, model_head, gender
+			ScriptVariant_t args[] = { pszModelPath, pszModelName, (int)scriptGender };
+			ScriptVariant_t returnValue = NULL;
+			g_Hook_SelectModel.Call( m_ScriptScope, &returnValue, args );
+
+			if (returnValue.m_type == FIELD_CSTRING && returnValue.m_pszString[0] != '\0')
+			{
+				// Refresh the head if it's different
+				const char *pszNewHead = strrchr( returnValue.m_pszString, '/' );
+				if ( pszNewHead && Q_stricmp(pszNewHead+1, pszModelName) != 0 )
+				{
+					pszNewHead++;
+					for ( int i = 0; i < ARRAYSIZE(g_ppszRandomHeads); i++ )
+					{
+						if ( Q_stricmp( g_ppszRandomHeads[i], pszModelName ) == 0 )
+						{
+							m_iHead = i;
+							break;
+						}
+					}
+				}
+
+				// Just set the model right here
+				SetModelName( AllocPooledString( returnValue.m_pszString ) );
+				return;
+			}
+		}
+#endif
 	}
 
 	Assert( pszModelName || GetModelName() != NULL_STRING );
