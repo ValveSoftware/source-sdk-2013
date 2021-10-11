@@ -38,10 +38,6 @@ ConVar sk_weapon_ar2_alt_fire_radius( "sk_weapon_ar2_alt_fire_radius", "10" );
 ConVar sk_weapon_ar2_alt_fire_duration( "sk_weapon_ar2_alt_fire_duration", "2" );
 ConVar sk_weapon_ar2_alt_fire_mass( "sk_weapon_ar2_alt_fire_mass", "150" );
 
-#ifdef MAPBASE
-extern acttable_t *GetSMG1Acttable();
-#endif
-
 //=========================================================
 //=========================================================
 

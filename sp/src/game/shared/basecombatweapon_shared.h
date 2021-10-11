@@ -230,6 +230,8 @@ public:
 	static WeaponClass_t	WeaponClassFromString(const char *str);
 
 	virtual bool			SupportsBackupActivity(Activity activity);
+	virtual acttable_t		*GetBackupActivityList();
+	virtual int				GetBackupActivityListCount();
 #endif
 
 	virtual void			Equip( CBaseCombatCharacter *pOwner );

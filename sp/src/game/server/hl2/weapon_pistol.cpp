@@ -108,6 +108,12 @@ public:
 		return 0.5f; 
 	}
 
+#ifdef MAPBASE
+	// Pistols are their own backup activities
+	virtual acttable_t		*GetBackupActivityList() { return NULL; }
+	virtual int				GetBackupActivityListCount() { return 0; }
+#endif
+
 	DECLARE_ACTTABLE();
 
 private:

@@ -27,6 +27,11 @@
 // CWeapon357
 //-----------------------------------------------------------------------------
 
+#ifdef MAPBASE
+extern acttable_t *GetPistolActtable();
+extern int GetPistolActtableCount();
+#endif
+
 class CWeapon357 : public CBaseHLCombatWeapon
 {
 	DECLARE_CLASS( CWeapon357, CBaseHLCombatWeapon );
@@ -69,6 +74,9 @@ public:
 
 	void	FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, Vector &vecShootOrigin, Vector &vecShootDir );
 	void	Operator_ForceNPCFire( CBaseCombatCharacter  *pOperator, bool bSecondary );
+
+	virtual acttable_t		*GetBackupActivityList() { return GetPistolActtable(); }
+	virtual int				GetBackupActivityListCount() { return GetPistolActtableCount(); }
 #endif
 
 	DECLARE_SERVERCLASS();

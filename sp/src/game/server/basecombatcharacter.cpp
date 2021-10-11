@@ -61,11 +61,6 @@
 extern int	g_interactionBarnacleVictimReleased;
 #endif //HL2_DLL
 
-#ifdef MAPBASE
-extern acttable_t *GetSMG1Acttable();
-extern int GetSMG1ActtableCount();
-#endif
-
 extern ConVar weapon_showproficiency;
 
 ConVar ai_show_hull_attacks( "ai_show_hull_attacks", "0" );
@@ -2751,19 +2746,22 @@ Activity CBaseCombatCharacter::Weapon_BackupActivity( Activity activity, bool we
 		return activity;
 	}
 
-	acttable_t *pTable = GetSMG1Acttable();
-	int actCount = GetSMG1ActtableCount();
-	for ( int i = 0; i < actCount; i++, pTable++ )
+	acttable_t *pTable = pWeapon->GetBackupActivityList();
+	if (pTable)
 	{
-		if ( activity == pTable->baseAct )
+		int actCount = pWeapon->GetBackupActivityListCount();
+		for ( int i = 0; i < actCount; i++, pTable++ )
 		{
-			// Don't pick SMG animations we don't actually have an animation for.
-			if (GetModelPtr() ? !GetModelPtr()->HaveSequenceForActivity(pTable->weaponAct) : false)
+			if ( activity == pTable->baseAct )
 			{
-				return activity;
-			}
+				// Don't pick SMG animations we don't actually have an animation for.
+				if (GetModelPtr() ? !GetModelPtr()->HaveSequenceForActivity(pTable->weaponAct) : false)
+				{
+					return activity;
+				}
 
-			return (Activity)pTable->weaponAct;
+				return (Activity)pTable->weaponAct;
+			}
 		}
 	}
 

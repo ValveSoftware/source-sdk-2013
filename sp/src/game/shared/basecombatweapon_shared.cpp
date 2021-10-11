@@ -1077,6 +1077,11 @@ WeaponClass_t CBaseCombatWeapon::WeaponClassFromString(const char *str)
 	return WEPCLASS_INVALID;
 }
 
+#ifdef HL2_DLL
+extern acttable_t *GetSMG1Acttable();
+extern int GetSMG1ActtableCount();
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1084,11 +1089,31 @@ bool CBaseCombatWeapon::SupportsBackupActivity(Activity activity)
 {
 	// Derived classes should override this.
 
-	// Pistol and melee users should not use SMG animations for missing pistol activities.
-	if (WeaponClassify() == WEPCLASS_HANDGUN || IsMeleeWeapon())
+#ifdef HL2_DLL
+	// Melee users should not use SMG animations for missing activities.
+	if (IsMeleeWeapon() && GetBackupActivityList() == GetSMG1Acttable())
 		return false;
+#endif
 
 	return true;
+}
+
+acttable_t *CBaseCombatWeapon::GetBackupActivityList()
+{
+#ifdef HL2_DLL
+	return GetSMG1Acttable();
+#else
+	return NULL;
+#endif
+}
+
+int CBaseCombatWeapon::GetBackupActivityListCount()
+{
+#ifdef HL2_DLL
+	return GetSMG1ActtableCount();
+#else
+	return 0;
+#endif
 }
 #endif
 
