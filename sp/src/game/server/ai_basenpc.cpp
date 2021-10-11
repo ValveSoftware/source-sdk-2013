@@ -6618,15 +6618,7 @@ Activity CAI_BaseNPC::NPC_TranslateActivity( Activity eNewActivity )
 		{
 		case ACT_RANGE_ATTACK1:		eNewActivity = ACT_RANGE_ATTACK1_LOW; break;
 		case ACT_RELOAD:			eNewActivity = ACT_RELOAD_LOW; break;
-		case ACT_IDLE:				eNewActivity = ACT_CROUCHIDLE; break;
-
-		// ====
-		// HACK : LEIPZIG 06 -	The underlying problem is that the AR2 and SMG1 cannot map IDLE_ANGRY to a crouched equivalent automatically
-		//						which causes the character to pop up and down in their idle state of firing while crouched. -- jdw
-		case ACT_IDLE_ANGRY_SMG1:
-		case ACT_IDLE_ANGRY_AR2:
-			eNewActivity = ACT_RANGE_AIM_LOW;
-			break;
+		case ACT_IDLE:				eNewActivity = ACT_RANGE_AIM_LOW; break; // ACT_CROUCHIDLE is more-or-less deprecated and not friendly to weapon translation
 		}
 	}
 

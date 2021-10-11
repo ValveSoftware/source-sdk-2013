@@ -3015,7 +3015,16 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 
 	case TASK_ITEM_PICKUP:
 		{
-			SetIdealActivity( ACT_PICKUP_GROUND );
+#ifdef MAPBASE
+			if (GetTarget() && fabs( GetTarget()->WorldSpaceCenter().z - GetAbsOrigin().z ) >= 12.0f)
+			{
+				SetIdealActivity( ACT_PICKUP_RACK );
+			}
+			else
+#endif
+			{
+				SetIdealActivity( ACT_PICKUP_GROUND );
+			}
 		}
 		break;
 

@@ -4945,7 +4945,12 @@ int CNPC_MetroPolice::SelectSchedule( void )
 	// This will cause the cops to run backwards + shoot at the same time
 	if ( !bHighHealth && !HasBaton() )
 	{
+#ifdef MAPBASE
+		// Don't do this with the 357 or any weapons which don't use clips
+		if ( GetActiveWeapon() && GetActiveWeapon()->UsesClipsForAmmo1() && GetActiveWeapon()->m_iClassname != gm_isz_class_357 && (GetActiveWeapon()->m_iClip1 <= 5) )
+#else
 		if ( GetActiveWeapon() && (GetActiveWeapon()->m_iClip1 <= 5) )
+#endif
 		{
 #ifdef METROPOLICE_USES_RESPONSE_SYSTEM
 			SpeakIfAllowed( TLK_COP_LOWAMMO );

@@ -388,6 +388,8 @@ private:
 
 	void InputSetCycle( inputdata_t &inputdata );
 	void InputSetPlaybackRate( inputdata_t &inputdata );
+
+public: // From Alien Swarm SDK
 #endif
 
 	bool CanSkipAnimation( void );

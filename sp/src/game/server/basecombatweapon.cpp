@@ -373,7 +373,12 @@ bool CBaseCombatWeapon::WeaponLOSCondition( const Vector &ownerPos, const Vector
 //-----------------------------------------------------------------------------
 int CBaseCombatWeapon::WeaponRangeAttack1Condition( float flDot, float flDist )
 {
+#ifdef MAPBASE
+	// HACKHACK: HasPrimaryAmmo() checks the NPC's reserve ammo counts, which should not be evaluated here if we use clips
+	if ( UsesPrimaryAmmo() && (UsesClipsForAmmo1() ? !m_iClip1 : !HasPrimaryAmmo()) )
+#else
  	if ( UsesPrimaryAmmo() && !HasPrimaryAmmo() )
+#endif
  	{
  		return COND_NO_PRIMARY_AMMO;
  	}

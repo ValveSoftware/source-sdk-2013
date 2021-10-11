@@ -582,8 +582,11 @@ bool CNPC_Vortigaunt::InnateWeaponLOSCondition( const Vector &ownerPos, const Ve
 	UTIL_PredictedPosition( GetEnemy(), flTimeDelta, &vecNewTargetPos );
 
 #ifdef MAPBASE
-	// This fix was created by DKY.
-	// His original comment is below.
+	// There's apparently a null pointer crash here
+	if (!GetEnemy())
+		return false;
+
+	// The fix below and its accompanying comment were created by DKY.
 
 	/*
 
