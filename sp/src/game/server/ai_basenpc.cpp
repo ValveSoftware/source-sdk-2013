@@ -668,7 +668,7 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 
 #ifdef HL2_EPISODIC
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
-	if ( pPlayer->IRelationType( this ) != D_LI )
+	if ( pPlayer && pPlayer->IRelationType( this ) != D_LI )
 	{
 		CNPC_Alyx *alyx = CNPC_Alyx::GetAlyx();
 
@@ -993,29 +993,27 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		// only fire once per frame
 		m_OnDamaged.FireOutput( info.GetAttacker(), this);
 
-		if( info.GetAttacker()->IsPlayer() )
+		if ( info.GetAttacker() )
 		{
-			m_OnDamagedByPlayer.FireOutput( info.GetAttacker(), this );
-			
-			// This also counts as being harmed by player's squad.
-			m_OnDamagedByPlayerSquad.FireOutput( info.GetAttacker(), this );
-		}
-		else
-		{
-			// See if the person that injured me is an NPC.
-#ifdef MAPBASE
-			// Sometimes I find these things and I can't just sit idly by.
-			CAI_BaseNPC *pAttacker = info.GetAttacker()->MyNPCPointer();
-#else
-			CAI_BaseNPC *pAttacker = dynamic_cast<CAI_BaseNPC *>( info.GetAttacker() );
-#endif
-			CBasePlayer *pPlayer = AI_GetSinglePlayer();
-
-			if( pAttacker && pAttacker->IsAlive() && pPlayer )
+			if( info.GetAttacker()->IsPlayer() )
 			{
-				if( pAttacker->GetSquad() != NULL && pAttacker->IsInPlayerSquad() )
+				m_OnDamagedByPlayer.FireOutput( info.GetAttacker(), this );
+			
+				// This also counts as being harmed by player's squad.
+				m_OnDamagedByPlayerSquad.FireOutput( info.GetAttacker(), this );
+			}
+			else
+			{
+				// See if the person that injured me is an NPC.
+				CAI_BaseNPC *pAttacker = info.GetAttacker()->MyNPCPointer();
+				CBasePlayer *pPlayer = AI_GetSinglePlayer();
+
+				if( pAttacker && pAttacker->IsAlive() && pPlayer )
 				{
-					m_OnDamagedByPlayerSquad.FireOutput( info.GetAttacker(), this );
+					if( pAttacker->GetSquad() != NULL && pAttacker->IsInPlayerSquad() )
+					{
+						m_OnDamagedByPlayerSquad.FireOutput( info.GetAttacker(), this );
+					}
 				}
 			}
 		}
@@ -7466,7 +7464,11 @@ void CAI_BaseNPC::SetHullSizeNormal( bool force )
 	if ( m_fIsUsingSmallHull || force )
 	{
 		// Find out what the height difference will be between the versions and adjust our bbox accordingly to keep us level
+#ifdef MAPBASE // From Alien Swarm SDK
+		const float flScale = MIN( 1.0f, GetModelScale() );			// NOTE: Cannot scale NPC bounding box up, as pathfinding will fail (hull needs to match the traces used for the node network)
+#else
 		const float flScale = GetModelScale();
+#endif
 		Vector vecMins = ( GetHullMins() * flScale );
 		Vector vecMaxs = ( GetHullMaxs() * flScale );
 		
@@ -13423,6 +13425,10 @@ void CAI_BaseNPC::Teleport( const Vector *newPosition, const QAngle *newAngles, 
 	CleanupScriptsOnTeleport( false );
 
 	BaseClass::Teleport( newPosition, newAngles, newVelocity );
+
+#ifdef MAPBASE // From Alien Swarm SDK
+	CheckPVSCondition();
+#endif
 }
 
 //-----------------------------------------------------------------------------
