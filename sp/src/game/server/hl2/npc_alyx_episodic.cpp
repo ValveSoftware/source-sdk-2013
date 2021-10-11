@@ -1687,8 +1687,87 @@ Activity CNPC_Alyx::NPC_TranslateActivity( Activity activity )
 		case ACT_DROP_WEAPON:				if ( HasShotgun() ) return (Activity)ACT_DROP_WEAPON_SHOTGUN;
 	}
 
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	// Alyx has her own pistol readiness animations which use the default activities
+	switch (activity)
+	{
+	case ACT_IDLE_PISTOL_RELAXED:
+		return ACT_IDLE_RELAXED;
+	case ACT_IDLE_PISTOL_STIMULATED:
+		return ACT_IDLE_STIMULATED;
+	case ACT_WALK_PISTOL_RELAXED:
+		return ACT_WALK;
+	case ACT_WALK_PISTOL_STIMULATED:
+		return ACT_WALK_PISTOL;
+	case ACT_RUN_PISTOL_RELAXED:
+		return ACT_RUN;
+	case ACT_RUN_PISTOL_STIMULATED:
+		return ACT_RUN_PISTOL;
+	}
+#endif
+
 	return activity;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+Activity CNPC_Alyx::Weapon_TranslateActivity( Activity activity, bool *pRequired )
+{
+	activity = BaseClass::Weapon_TranslateActivity( activity, pRequired );
+
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	// Alyx has her own pistol readiness animations which use the default activities
+	switch (activity)
+	{
+	case ACT_IDLE_PISTOL_RELAXED:
+		return ACT_IDLE_RELAXED;
+	case ACT_IDLE_PISTOL_STIMULATED:
+		return ACT_IDLE_STIMULATED;
+	case ACT_WALK_PISTOL_RELAXED:
+		return ACT_WALK;
+	case ACT_WALK_PISTOL_STIMULATED:
+		return ACT_WALK_PISTOL;
+	case ACT_RUN_PISTOL_RELAXED:
+		return ACT_RUN;
+	case ACT_RUN_PISTOL_STIMULATED:
+		return ACT_RUN_PISTOL;
+	}
+#endif
+
+	return activity;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+Activity CNPC_Alyx::Weapon_BackupActivity( Activity activity, bool weaponTranslationWasRequired, CBaseCombatWeapon *pSpecificWeapon )
+{
+	activity = BaseClass::Weapon_BackupActivity( activity, weaponTranslationWasRequired, pSpecificWeapon );
+
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	// Alyx has her own pistol readiness animations which use the default activities
+	switch (activity)
+	{
+	case ACT_IDLE_PISTOL_RELAXED:
+		return ACT_IDLE_RELAXED;
+	case ACT_IDLE_PISTOL_STIMULATED:
+		return ACT_IDLE_STIMULATED;
+	case ACT_WALK_PISTOL_RELAXED:
+		return ACT_WALK;
+	case ACT_WALK_PISTOL_STIMULATED:
+		return ACT_WALK_PISTOL;
+	case ACT_RUN_PISTOL_RELAXED:
+		return ACT_RUN;
+	case ACT_RUN_PISTOL_STIMULATED:
+		return ACT_RUN_PISTOL;
+	}
+#endif
+
+	return activity;
+}
+#endif
 
 bool CNPC_Alyx::ShouldDeferToFollowBehavior()
 {

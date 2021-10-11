@@ -3791,6 +3791,13 @@ WeaponProficiency_t CNPC_Combine::CalcWeaponProficiency( CBaseCombatWeapon *pWea
 	{
 		return WEAPON_PROFICIENCY_GOOD;
 	}
+#ifdef MAPBASE
+	else if ( pWeapon->ClassMatches( gm_isz_class_Pistol ) )
+	{
+		// Mods which need a lower soldier pistol accuracy can either change this value or use proficiency override in Hammer.
+		return WEAPON_PROFICIENCY_VERY_GOOD;
+	}
+#endif
 
 	return BaseClass::CalcWeaponProficiency( pWeapon );
 }
