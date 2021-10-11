@@ -43,9 +43,13 @@ int g_fCombineQuestion;				// true if an idle grunt asked a question. Cleared wh
 #ifdef MAPBASE
 ConVar npc_combine_idle_walk_easy( "npc_combine_idle_walk_easy", "1", FCVAR_NONE, "Mapbase: Allows Combine soldiers to use ACT_WALK_EASY as a walking animation when idle." );
 ConVar npc_combine_unarmed_anims( "npc_combine_unarmed_anims", "1", FCVAR_NONE, "Mapbase: Allows Combine soldiers to use unarmed idle/walk animations when they have no weapon." );
+ConVar npc_combine_protected_run( "npc_combine_protected_run", "0", FCVAR_NONE, "Mapbase: Allows Combine soldiers to use \"protected run\" animations." );
 ConVar npc_combine_altfire_not_allies_only( "npc_combine_altfire_not_allies_only", "1", FCVAR_NONE, "Mapbase: Elites are normally only allowed to fire their alt-fire attack at the player and the player's allies; This allows elites to alt-fire at other enemies too." );
 
 ConVar npc_combine_new_cover_behavior( "npc_combine_new_cover_behavior", "1", FCVAR_NONE, "Mapbase: Toggles small patches for parts of npc_combine AI related to soldiers failing to take cover. These patches are minimal and only change cases where npc_combine would otherwise look at an enemy without shooting or run up to the player to melee attack when they don't have to. Consult the Mapbase wiki for more information." );
+
+extern acttable_t *GetSMG1Acttable();
+extern acttable_t *GetPistolActtable();
 #endif
 
 #define COMBINE_SKIN_DEFAULT		0
@@ -129,6 +133,11 @@ Activity ACT_WALK_MARCH;
 #ifdef MAPBASE
 Activity ACT_IDLE_UNARMED;
 Activity ACT_WALK_UNARMED;
+Activity ACT_RUN_UNARMED;
+Activity ACT_WALK_EASY_PISTOL;
+Activity ACT_TURRET_CARRY_IDLE;
+Activity ACT_TURRET_CARRY_WALK;
+Activity ACT_TURRET_CARRY_RUN;
 #endif
 
 // -----------------------------------------------
@@ -1540,11 +1549,6 @@ void CNPC_Combine::BuildScheduleTestBits( void )
 //-----------------------------------------------------------------------------
 Activity CNPC_Combine::Weapon_TranslateActivity( Activity eNewActivity, bool *pRequired )
 {
-	// We have differing low animations and ACT_CROUCHIDLE is not friendly to weapon translation.
-	// ACT_CROUCHIDLE is pretty much deprecated at this point anyway.
-	if (eNewActivity == ACT_CROUCHIDLE)
-		eNewActivity = ACT_RANGE_AIM_LOW;
-
 	return BaseClass::Weapon_TranslateActivity(eNewActivity, pRequired);
 }
 
@@ -1636,10 +1640,24 @@ Activity CNPC_Combine::NPC_TranslateActivity( Activity eNewActivity )
 			eNewActivity = ACT_IDLE_UNARMED;
 		else if (eNewActivity == ACT_WALK)
 			eNewActivity = ACT_WALK_UNARMED;
+		else if (eNewActivity == ACT_RUN)
+			eNewActivity = ACT_RUN_UNARMED;
 	}
-	else if (eNewActivity == ACT_WALK && m_NPCState == NPC_STATE_IDLE && npc_combine_idle_walk_easy.GetBool() && HaveSequenceForActivity(ACT_WALK_EASY))
+	else if (m_NPCState == NPC_STATE_IDLE && npc_combine_idle_walk_easy.GetBool() && HaveSequenceForActivity(ACT_WALK_EASY))
 	{
-		eNewActivity = ACT_WALK_EASY;
+		if (eNewActivity == ACT_WALK && GetActiveWeapon())
+		{
+			if (GetActiveWeapon()->GetBackupActivityList() == GetSMG1Acttable())
+				eNewActivity = ACT_WALK_EASY;
+			else if (GetActiveWeapon()->GetBackupActivityList() == GetPistolActtable())
+				eNewActivity = ACT_WALK_EASY_PISTOL;
+		}
+	}
+
+	if ( eNewActivity == ACT_RUN && ( IsCurSchedule( SCHED_TAKE_COVER_FROM_BEST_SOUND ) || IsCurSchedule( SCHED_FLEE_FROM_BEST_SOUND ) ) )
+	{
+		if ( random->RandomInt( 0, 1 ) && npc_combine_protected_run.GetBool() && HaveSequenceForActivity( ACT_RUN_PROTECTED ) )
+			eNewActivity = ACT_RUN_PROTECTED;
 	}
 #endif
 
@@ -3949,6 +3967,11 @@ DECLARE_ACTIVITY( ACT_WALK_MARCH )
 #ifdef MAPBASE
 DECLARE_ACTIVITY( ACT_IDLE_UNARMED )
 DECLARE_ACTIVITY( ACT_WALK_UNARMED )
+DECLARE_ACTIVITY( ACT_RUN_UNARMED )
+DECLARE_ACTIVITY( ACT_WALK_EASY_PISTOL )
+DECLARE_ACTIVITY( ACT_TURRET_CARRY_IDLE )
+DECLARE_ACTIVITY( ACT_TURRET_CARRY_WALK )
+DECLARE_ACTIVITY( ACT_TURRET_CARRY_RUN )
 #endif
 
 DECLARE_ANIMEVENT( COMBINE_AE_BEGIN_ALTFIRE )

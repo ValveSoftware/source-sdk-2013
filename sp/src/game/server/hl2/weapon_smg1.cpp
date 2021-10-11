@@ -93,6 +93,11 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 
 	{ ACT_WALK,						ACT_WALK_RIFLE,					true },
 	{ ACT_WALK_AIM,					ACT_WALK_AIM_RIFLE,				true  },
+
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
+	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
+#endif
 	
 // Readiness activities (not aiming)
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_SMG1_RELAXED,			false },//never aims

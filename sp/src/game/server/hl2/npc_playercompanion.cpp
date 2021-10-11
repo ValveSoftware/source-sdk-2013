@@ -1665,21 +1665,6 @@ Activity CNPC_PlayerCompanion::NPC_TranslateActivity( Activity activity )
 			activity = ACT_RUN_PROTECTED;
 	}
 
-#ifdef COMPANION_HOLSTER_WORKAROUND
-	if (activity == ACT_DISARM || activity == ACT_ARM)
-	{
-		CBaseCombatWeapon *pWeapon = GetActiveWeapon() ? GetActiveWeapon() : m_hWeapons[m_iLastHolsteredWeapon];
-		if (pWeapon && pWeapon->WeaponClassify() != WEPCLASS_HANDGUN)
-		{
-			switch (activity)
-			{
-			case ACT_DISARM:	return ACT_DISARM_RIFLE;
-			case ACT_ARM:		return ACT_ARM_RIFLE;
-			}
-		}
-	}
-#endif
-
 	activity = BaseClass::NPC_TranslateActivity( activity );
 
 	if ( activity == ACT_IDLE  )
