@@ -41,6 +41,10 @@
 // This enables a bunch of new activities for Half-Life 2 weapons, including new 357 animations and readiness activities for pistols.
 #define EXPANDED_HL2_WEAPON_ACTIVITIES 1
 
+// EXPANDED NAVIGATION ACTIVITIES
+// This enables some new navigation-related activities.
+#define EXPANDED_NAVIGATION_ACTIVITIES 1
+
 #endif
 
 #define ACTIVITY_NOT_AVAILABLE		-1
@@ -2241,6 +2245,15 @@ typedef enum
 	// Holster/Unholster
 	ACT_ARM_RIFLE,
 	ACT_DISARM_RIFLE,
+#endif
+
+#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+	ACT_CLIMB_ALL,	// An actual blend animation which uses pose parameters for direction
+	ACT_CLIMB_IDLE,
+
+	ACT_CLIMB_MOUNT_TOP,
+	ACT_CLIMB_MOUNT_BOTTOM,
+	ACT_CLIMB_DISMOUNT_BOTTOM,
 #endif
 
 	// this is the end of the global activities, private per-monster activities start here.

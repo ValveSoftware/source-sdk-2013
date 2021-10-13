@@ -6593,6 +6593,12 @@ Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
 	if (eNewActivity == ACT_WALK_ANGRY)
 		return TranslateActivity(ACT_WALK);
 
+	// If one climbing animation isn't available, use the other
+	if (eNewActivity == ACT_CLIMB_DOWN)
+		return ACT_CLIMB_UP;
+	else if (eNewActivity == ACT_CLIMB_UP)
+		return ACT_CLIMB_DOWN;
+
 	// GetCoverActivity() should have this covered.
 	// ---------------------------------------------
 	//if (eNewActivity == ACT_COVER)
@@ -6609,6 +6615,14 @@ Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
 //-----------------------------------------------------------------------------
 Activity CAI_BaseNPC::NPC_TranslateActivity( Activity eNewActivity )
 {
+#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+	if ( GetNavType() == NAV_CLIMB && eNewActivity == ACT_IDLE )
+	{
+		// Schedules which break into idle activities should try to maintain the climbing animation.
+		return ACT_CLIMB_IDLE;
+	}
+#endif
+
 #ifdef MAPBASE
 	Assert( eNewActivity != ACT_INVALID );
 

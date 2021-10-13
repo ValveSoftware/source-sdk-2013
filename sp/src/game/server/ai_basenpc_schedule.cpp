@@ -1363,6 +1363,14 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 		break;
 
 	case TASK_STOP_MOVING:
+#ifdef MAPBASE
+		if ( GetNavType() == NAV_CLIMB )
+		{
+			// Don't clear the goal so that the climb can finish
+			DbgNavMsg( this, "Start TASK_STOP_MOVING with climb workaround\n" );
+		}
+		else
+#endif
 		if ( ( GetNavigator()->IsGoalSet() && GetNavigator()->IsGoalActive() ) || GetNavType() == NAV_JUMP )
 		{
 			DbgNavMsg( this, "Start TASK_STOP_MOVING\n" );
@@ -3348,8 +3356,37 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 				// 						  a navigation while in the middle of a climb
 				if (GetNavType() == NAV_CLIMB)
 				{
+#ifdef MAPBASE
+					if (GetActivity() != ACT_CLIMB_DISMOUNT)
+					{
+						// Try to just pause the climb, but dismount if we're in SCHED_FAIL
+						if (IsCurSchedule( SCHED_FAIL, false ))
+						{
+							GetMotor()->MoveClimbStop();
+						}
+						else
+						{
+							GetMotor()->MoveClimbPause();
+						}
+
+						TaskComplete();
+					}
+					else if (IsActivityFinished())
+					{
+						// Dismount complete. Fix up our position if we have to
+						Vector vecTeleportOrigin;
+						if (GetMotor()->MoveClimbShouldTeleportToSequenceEnd( vecTeleportOrigin ))
+						{
+							GetMotor()->MoveClimbStop();
+							SetLocalOrigin( vecTeleportOrigin );
+							TaskComplete();
+						}
+					}
+					break;
+#else
 					// wait until you reach the end
 					break;
+#endif
 				}
 
 				DbgNavMsg( this, "TASK_STOP_MOVING Complete\n" );

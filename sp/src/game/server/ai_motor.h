@@ -62,6 +62,10 @@ public:
 	virtual void 		MoveClimbStart( const Vector &climbDest, const Vector &climbDir, float climbDist, float yaw );
 	virtual AIMoveResult_t MoveClimbExecute( const Vector &climbDest, const Vector &climbDir, float climbDist, float yaw, int climbNodesLeft );
 	virtual void 		MoveClimbStop();
+#ifdef MAPBASE
+	virtual void		MoveClimbPause();
+	virtual bool		MoveClimbShouldTeleportToSequenceEnd( Vector &teleportOrigin );
+#endif
 
 	//---------------------------------
 
