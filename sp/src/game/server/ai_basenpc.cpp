@@ -7782,7 +7782,7 @@ int	CAI_BaseNPC::HolsterWeapon( void )
 	if ( IsWeaponHolstered() )
 		return -1;
 
-#ifdef COMPANION_HOLSTER_WORKAROUND
+#ifdef MAPBASE
 	Activity activity = TranslateActivity( ACT_DISARM );
 	int iHolsterGesture = FindGestureLayer( activity );
 	if ( iHolsterGesture != -1 )
@@ -7838,7 +7838,7 @@ int CAI_BaseNPC::UnholsterWeapon( void )
 	if ( !IsWeaponHolstered() )
  		return -1;
 
-#ifdef COMPANION_HOLSTER_WORKAROUND
+#ifdef MAPBASE
 	Activity activity = TranslateActivity( ACT_ARM );
 	int iHolsterGesture = FindGestureLayer( activity );
 #else
@@ -7867,13 +7867,12 @@ int CAI_BaseNPC::UnholsterWeapon( void )
 		{
 			SetActiveWeapon( GetWeapon(i) );
 
-#ifdef COMPANION_HOLSTER_WORKAROUND
-			int iLayer = AddGesture( activity, true );
-			//iLayer = AddGesture( ACT_GESTURE_ARM, true );
+#ifdef MAPBASE
+			int iLayer = AddGesture( TranslateActivity( ACT_ARM ), true );
 #else
 			int iLayer = AddGesture( ACT_ARM, true );
-			//iLayer = AddGesture( ACT_GESTURE_ARM, true );
 #endif
+			//iLayer = AddGesture( ACT_GESTURE_ARM, true );
 
 			if (iLayer != -1)
 			{
@@ -8050,6 +8049,26 @@ bool CAI_BaseNPC::DoUnholster( void )
 	}
 
 	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if the NPC should be unholstering their weapon
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::ShouldUnholsterWeapon( void )
+{
+	return GetState() == NPC_STATE_COMBAT;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if the NPC can unholster their weapon
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::CanUnholsterWeapon( void )
+{
+	// Don't unholster during special navigation
+	if ( GetNavType() == NAV_JUMP || GetNavType() == NAV_CLIMB )
+		return false;
+
+	return IsWeaponHolstered();
 }
 
 //------------------------------------------------------------------------------

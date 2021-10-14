@@ -93,11 +93,6 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 
 	{ ACT_WALK,						ACT_WALK_RIFLE,					true },
 	{ ACT_WALK_AIM,					ACT_WALK_AIM_RIFLE,				true  },
-
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
-	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
-	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
-#endif
 	
 // Readiness activities (not aiming)
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_SMG1_RELAXED,			false },//never aims
@@ -139,6 +134,11 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_SMG1_LOW,			false },
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_SMG1_LOW,			false },
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SMG1,		true },
+
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
+	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
+#endif
 };
 
 IMPLEMENT_ACTTABLE(CWeaponSMG1);

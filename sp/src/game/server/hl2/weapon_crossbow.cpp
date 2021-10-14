@@ -697,6 +697,9 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_CROSSBOW_LOW,			false },
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_CROSSBOW_LOW,			false },
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_CROSSBOW,		true },
+
+	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
+	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
 #else
 	{ ACT_WALK_AIM,					ACT_WALK_AIM_RIFLE,				true },
 	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,			true },

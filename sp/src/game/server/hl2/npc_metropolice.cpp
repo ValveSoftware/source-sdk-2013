@@ -3899,6 +3899,15 @@ int CNPC_MetroPolice::SelectScheduleNoDirectEnemy()
 		return SCHED_METROPOLICE_SMASH_PROP;
 	}
 
+#ifdef MAPBASE
+	// If you see your enemy and your weapon is holstered, you're probably about to arm yourself.
+	// Wait and don't just charge in
+	if ( IsWeaponHolstered() && HasCondition(COND_SEE_ENEMY) )
+	{
+		return SCHED_COMBAT_FACE;
+	}
+#endif
+
 	return SCHED_METROPOLICE_CHASE_ENEMY;
 }
 
