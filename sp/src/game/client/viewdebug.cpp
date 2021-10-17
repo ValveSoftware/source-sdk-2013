@@ -758,7 +758,7 @@ CON_COMMAND_F( r_screenoverlay_indexed, "Draw specified material as an overlay i
 	}
 	else
 	{
-		Warning( "Format: r_screenoverlay_indexed <index> <material> %s\n" );
+		Warning( "Format: r_screenoverlay_indexed <index> [<material>]\n" );
 	}
 }
 #endif
