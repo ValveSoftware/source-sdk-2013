@@ -156,6 +156,8 @@ ConVar npc_alyx_crouch( "npc_alyx_crouch", "1" );
 #ifdef MAPBASE
 ConVar npc_alyx_interact_manhacks( "npc_alyx_interact_manhacks", "1" );
 ConVar npc_alyx_interact_turrets( "npc_alyx_interact_turrets", "0" );
+
+ConVar npc_alyx_allow_fly( "npc_alyx_allow_fly", "0", FCVAR_NONE, "Allows Alyx to use FL_FLY outside of scripted sequences, actbusy, or navigation." );
 #endif
 
 // global pointer to Alyx for fast lookups
@@ -885,7 +887,11 @@ void CNPC_Alyx::GatherConditions()
 
 	// ROBIN: This was here to solve a problem in a playtest. We've since found what we think was the cause.
 	// It's a useful piece of debug to have lying there, so I've left it in.
-	if ( (GetFlags() & FL_FLY) && m_NPCState != NPC_STATE_SCRIPT && !m_ActBusyBehavior.IsActive() && !m_PassengerBehavior.IsEnabled() )
+	if ( (GetFlags() & FL_FLY) && m_NPCState != NPC_STATE_SCRIPT && !m_ActBusyBehavior.IsActive() && !m_PassengerBehavior.IsEnabled()
+#ifdef MAPBASE
+		&& GetNavType() != NAV_CLIMB && !npc_alyx_allow_fly.GetBool()
+#endif
+		 )
 	{
 		Warning( "Removed FL_FLY from Alyx, who wasn't running a script or actbusy. Time %.2f, map %s.\n", gpGlobals->curtime, STRING(gpGlobals->mapname) );
 		RemoveFlag( FL_FLY );
