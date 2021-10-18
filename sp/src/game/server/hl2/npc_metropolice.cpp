@@ -1537,7 +1537,12 @@ void CNPC_MetroPolice::OnUpdateShotRegulator( )
 	BaseClass::OnUpdateShotRegulator();
 
 	// FIXME: This code (except the burst interval) could be used for all weapon types 
+#ifdef MAPBASE
+	// Only if we actually have the pistol out
+	if ( EntIsClass( GetActiveWeapon(), gm_isz_class_Pistol ) )
+#else
 	if( Weapon_OwnsThisType( "weapon_pistol" ) )
+#endif
 	{
 		if ( m_nBurstMode == BURST_NOT_ACTIVE )
 		{
@@ -3900,9 +3905,9 @@ int CNPC_MetroPolice::SelectScheduleNoDirectEnemy()
 	}
 
 #ifdef MAPBASE
-	// If you see your enemy and your weapon is holstered, you're probably about to arm yourself.
-	// Wait and don't just charge in
-	if ( IsWeaponHolstered() && HasCondition(COND_SEE_ENEMY) )
+	// If you see your enemy and you're still arming yourself, wait and don't just charge in
+	// (if your weapon is holstered, you're probably about to arm yourself)
+	if ( HasCondition( COND_SEE_ENEMY ) && (IsWeaponHolstered() || FindGestureLayer( TranslateActivity( ACT_ARM ) )) )
 	{
 		return SCHED_COMBAT_FACE;
 	}
