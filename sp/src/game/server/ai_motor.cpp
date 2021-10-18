@@ -450,6 +450,20 @@ AIMoveResult_t CAI_Motor::MoveClimbExecute( const Vector &climbDest, const Vecto
 	// --------------------------------------------
 	SetIdealYawAndUpdate( yaw );
 
+#ifdef MAPBASE
+	// Lock the yaw if we're in position
+	if ( UTIL_AngleMod( yaw ) == UTIL_AngleMod( GetLocalAngles().y ) )
+	{
+		SetYawLocked( true );
+	}
+	else if ( IsYawLocked() )
+	{
+		// We're in a different position now. Unlock the yaw and update it
+		SetYawLocked( false );
+		UpdateYaw( -1 );
+	}
+#endif
+
 	return AIMR_OK;
 }
 
@@ -465,8 +479,7 @@ void CAI_Motor::MoveClimbStop()
 	GetOuter()->SetDesiredWeaponState( DESIREDWEAPONSTATE_IGNORE );
 
 	// Unlock yaw
-	// TODO: Add yaw locking for when climbing is paused
-	//SetYawLocked( false );
+	SetYawLocked( false );
 #endif
 
 	GetOuter()->RemoveFlag( FL_FLY );
