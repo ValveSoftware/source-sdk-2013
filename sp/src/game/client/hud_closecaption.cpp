@@ -1302,7 +1302,7 @@ void CHudCloseCaption::Reset( void )
 	Unlock();
 }
 
-bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args ) const
+bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args, int size ) const
 {
 	const wchar_t *in = *ppIn;
 	const wchar_t *oldin = in;
@@ -1317,8 +1317,11 @@ bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t
 	cmd[ 0 ]= 0;
 	wchar_t *out = cmd;
 	in++;
-	while ( *in != L'\0' && *in != L':' && *in != L'>' && !isspace( *in ) )
+	while ( *in != L'\0' && *in != L':' && *in != L'>' && !V_isspace( *in ) )
 	{
+		if ( (int)( out - cmd ) + (int)sizeof( wchar_t ) >= size )
+			break;
+
 		*out++ = *in++;
 	}
 	*out = L'\0';
@@ -1333,6 +1336,9 @@ bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t
 	out = args;
 	while ( *in != L'\0' && *in != L'>' )
 	{
+		if ( (int)( out - args ) + (int)sizeof( wchar_t ) >= size )
+			break;
+
 		*out++ = *in++;
 	}
 	*out = L'\0';
@@ -1360,7 +1366,7 @@ bool CHudCloseCaption::GetFloatCommandValue( const wchar_t *stream, const wchar_
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, findcmd ) )
 			{
@@ -1384,7 +1390,7 @@ bool CHudCloseCaption::StreamHasCommand( const wchar_t *stream, const wchar_t *f
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, findcmd ) )
 			{
@@ -1423,7 +1429,7 @@ bool CHudCloseCaption::StreamHasCommand( const wchar_t *stream, const wchar_t *s
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, search ) )
 			{
@@ -1515,7 +1521,7 @@ void CHudCloseCaption::Process( const wchar_t *stream, float duration, const cha
 
 		const wchar_t *prevpos = curpos;
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, L"delay" ) )
 			{
@@ -1722,7 +1728,7 @@ void CHudCloseCaption::ComputeStreamWork( int available_width, CCloseCaptionItem
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, L"cr" ) )
 			{
@@ -1976,7 +1982,7 @@ bool CHudCloseCaption::GetNoRepeatValue( const wchar_t *caption, float &retval )
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, L"norepeat" ) )
 			{
