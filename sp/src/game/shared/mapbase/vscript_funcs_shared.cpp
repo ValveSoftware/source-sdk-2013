@@ -908,7 +908,7 @@ bool ScriptIsClient()
 // Notification printing on the right edge of the screen
 void NPrint( int pos, const char* fmt )
 {
-	engine->Con_NPrintf(pos, fmt);
+	engine->Con_NPrintf( pos, "%s", fmt );
 }
 
 void NXPrint( int pos, int r, int g, int b, bool fixed, float ftime, const char* fmt )
@@ -922,7 +922,7 @@ void NXPrint( int pos, int r, int g, int b, bool fixed, float ftime, const char*
 	info.color[2] = b / 255.f;
 	info.fixed_width_font = fixed;
 
-	engine->Con_NXPrintf( &info, fmt );
+	engine->Con_NXPrintf( &info, "%s", fmt );
 }
 
 static float IntervalPerTick()
