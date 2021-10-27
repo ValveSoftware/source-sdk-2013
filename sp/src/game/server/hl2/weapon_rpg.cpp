@@ -1402,6 +1402,7 @@ acttable_t	CWeaponRPG::m_acttable[] =
 #ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
 	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_RPG_LOW,			false },
 	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_RPG_LOW,		false },
+	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_RPG,	false },
 #endif
 
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_RPG_RELAXED,			true },
@@ -1417,8 +1418,13 @@ acttable_t	CWeaponRPG::m_acttable[] =
 	{ ACT_COVER_LOW,				ACT_COVER_LOW_RPG,				true },
 
 #ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
-	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
-	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
+	{ ACT_ARM,						ACT_ARM_RPG,					false },
+	{ ACT_DISARM,					ACT_DISARM_RPG,					false },
+#endif
+
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_RPG_MED,			false },
+	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_RPG_MED,		true },
 #endif
 };
 

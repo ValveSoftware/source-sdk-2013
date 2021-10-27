@@ -96,11 +96,11 @@ acttable_t	CWeaponAR2::m_acttable[] =
 	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,			true },
 	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,		true },
 	{ ACT_RUN,						ACT_RUN_AR2,					true },
-	{ ACT_RUN_AIM,					ACT_RUN_AIM_RIFLE,				true },
+	{ ACT_RUN_AIM,					ACT_RUN_AIM_AR2,				true },
 	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RIFLE,			true },
 	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_RIFLE,		true },
 	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_AR2,	false },
-	{ ACT_COVER_LOW,				ACT_COVER_SMG1_LOW,				false },
+	{ ACT_COVER_LOW,				ACT_COVER_AR2_LOW,				true },
 	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_AR2_LOW,			false },
 	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_AR2_LOW,		false },
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_AR2_LOW,			false },
@@ -160,6 +160,16 @@ acttable_t	CWeaponAR2::m_acttable[] =
 #ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
 	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
 	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
+#endif
+
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_AR2_MED,			false },
+	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_AR2_MED,		true },
+
+	{ ACT_COVER_WALL_R,				ACT_COVER_WALL_R_RIFLE,			true },
+	{ ACT_COVER_WALL_L,				ACT_COVER_WALL_L_RIFLE,			true },
+	{ ACT_COVER_WALL_LOW_R,			ACT_COVER_WALL_LOW_R_RIFLE,		true },
+	{ ACT_COVER_WALL_LOW_L,			ACT_COVER_WALL_LOW_L_RIFLE,		true },
 #endif
 };
 

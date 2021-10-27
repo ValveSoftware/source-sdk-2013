@@ -139,6 +139,16 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
 	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
 #endif
+
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_SMG1_MED,			false },
+	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_SMG1_MED,		true },
+
+	{ ACT_COVER_WALL_R,				ACT_COVER_WALL_R_RIFLE,			true },
+	{ ACT_COVER_WALL_L,				ACT_COVER_WALL_L_RIFLE,			true },
+	{ ACT_COVER_WALL_LOW_R,			ACT_COVER_WALL_LOW_R_RIFLE,		true },
+	{ ACT_COVER_WALL_LOW_L,			ACT_COVER_WALL_LOW_L_RIFLE,		true },
+#endif
 };
 
 IMPLEMENT_ACTTABLE(CWeaponSMG1);

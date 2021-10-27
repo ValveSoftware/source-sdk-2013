@@ -715,6 +715,11 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_SMG1_LOW,			false },
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SMG1,		true },
 #endif
+
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_CROSSBOW_MED,			false },
+	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_CROSSBOW_MED,		true },
+#endif
 };
 
 IMPLEMENT_ACTTABLE(CWeaponCrossbow);

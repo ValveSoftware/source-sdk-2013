@@ -46,6 +46,9 @@ acttable_t CWeaponCrowbar::m_acttable[] =
 	// Just so we don't have to implement more activities, re-use the MP acts
 	{ ACT_RUN,				ACT_MP_RUN_MELEE,		false },
 	{ ACT_WALK,				ACT_MP_WALK_MELEE,		false },
+
+	{ ACT_ARM,				ACT_ARM_MELEE,			false },
+	{ ACT_DISARM,			ACT_DISARM_MELEE,		false },
 #endif
 };
 
