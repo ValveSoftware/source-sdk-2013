@@ -4317,6 +4317,15 @@ void CAI_BaseNPC::SetTurnActivity ( void )
 	float flYD;
 	flYD = GetMotor()->DeltaIdealYaw();
 
+#ifdef MAPBASE
+	// Allow AddTurnGesture() to decide this
+	if (GetMotor()->AddTurnGesture( flYD ))
+	{
+		SetIdealActivity( ACT_IDLE );
+		Remember( bits_MEMORY_TURNING );
+		return;
+	}
+#else
 	// FIXME: unknown case, update yaw should catch these
 	/*
 	if (GetMotor()->AddTurnGesture( flYD ))
@@ -4326,6 +4335,7 @@ void CAI_BaseNPC::SetTurnActivity ( void )
 		return;
 	}
 	*/
+#endif
 
 	if( flYD <= -80 && flYD >= -100 && SelectWeightedSequence( ACT_90_RIGHT ) != ACTIVITY_NOT_AVAILABLE )
 	{
