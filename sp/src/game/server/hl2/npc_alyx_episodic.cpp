@@ -321,7 +321,9 @@ CNPC_Alyx *CNPC_Alyx::GetAlyx( void )
 //=========================================================
 bool CNPC_Alyx::CreateBehaviors()
 {
+#ifndef MAPBASE // Moved to CNPC_PlayerCompanion
 	AddBehavior( &m_FuncTankBehavior );
+#endif
 	bool result = BaseClass::CreateBehaviors();
 
 	return result;

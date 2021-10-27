@@ -439,10 +439,11 @@ CSimpleSimTimer CNPC_Citizen::gm_PlayerSquadEvaluateTimer;
 bool CNPC_Citizen::CreateBehaviors()
 {
 	BaseClass::CreateBehaviors();
-	AddBehavior( &m_FuncTankBehavior );
 #ifdef MAPBASE
 	AddBehavior( &m_RappelBehavior );
 	AddBehavior( &m_PolicingBehavior );
+#else // Moved to CNPC_PlayerCompanion
+	AddBehavior( &m_FuncTankBehavior );
 #endif
 	
 	return true;

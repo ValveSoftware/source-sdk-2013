@@ -235,7 +235,9 @@ private:
 
 	bool m_bShouldHaveEMP;
 
+#ifndef MAPBASE // Moved to CNPC_PlayerCompanion
 	CAI_FuncTankBehavior	m_FuncTankBehavior;
+#endif
 
 	COutputEvent			m_OnFinishInteractWithObject;
 	COutputEvent			m_OnPlayerUse;

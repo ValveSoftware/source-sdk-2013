@@ -2718,6 +2718,15 @@ void CNPC_Vortigaunt::OnSquishedGrub( const CBaseEntity *pGrub )
 //-----------------------------------------------------------------------------
 void CNPC_Vortigaunt::AimGun( void )
 {
+#ifdef MAPBASE
+	// Use base for func_tank
+	if (m_FuncTankBehavior.IsRunning())
+	{
+		BaseClass::AimGun();
+		return;
+	}
+#endif
+
 	// If our aim lock is on, don't bother
 	if ( m_flAimDelay >= gpGlobals->curtime )
 		return;

@@ -370,7 +370,6 @@ private:
 #endif
 
 	//-----------------------------------------------------
-	CAI_FuncTankBehavior	m_FuncTankBehavior;
 #ifdef MAPBASE
 	CAI_RappelBehavior		m_RappelBehavior;
 	CAI_PolicingBehavior	m_PolicingBehavior;
@@ -378,6 +377,8 @@ private:
 	// Rappel
 	virtual bool IsWaitingToRappel( void ) { return m_RappelBehavior.IsWaitingToRappel(); }
 	void BeginRappel() { m_RappelBehavior.BeginRappel(); }
+#else // Moved to CNPC_PlayerCompanion
+	CAI_FuncTankBehavior	m_FuncTankBehavior;
 #endif
 
 	CHandle<CAI_FollowGoal>	m_hSavedFollowGoalEnt;
