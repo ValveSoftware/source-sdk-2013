@@ -169,6 +169,8 @@ extern ConVar ai_vehicle_avoidance;
 extern ISoundEmitterSystemBase *soundemitterbase;
 
 ConVar	ai_dynint_always_enabled( "ai_dynint_always_enabled", "0", FCVAR_NONE, "Makes the \"Don't Care\" setting equivalent to \"Yes\"." );
+
+ConVar	ai_debug_fake_sequence_gestures_always_play( "ai_debug_fake_sequence_gestures_always_play", "0", FCVAR_NONE, "Always plays fake sequence gestures." );
 #endif
 
 #ifndef _RETAIL
@@ -313,6 +315,8 @@ ScriptHook_t	CAI_BaseNPC::g_Hook_QuerySeeEntity;
 ScriptHook_t	CAI_BaseNPC::g_Hook_TranslateActivity;
 ScriptHook_t	CAI_BaseNPC::g_Hook_TranslateSchedule;
 ScriptHook_t	CAI_BaseNPC::g_Hook_GetActualShootPosition;
+ScriptHook_t	CAI_BaseNPC::g_Hook_OverrideMove;
+ScriptHook_t	CAI_BaseNPC::g_Hook_ShouldPlayFakeSequenceGesture;
 #endif
 
 //
@@ -7048,6 +7052,23 @@ void CAI_BaseNPC::SetIdealActivity( Activity NewActivity )
 	// Perform translation in case we need to change sequences within a single activity,
 	// such as between a standing idle and a crouching idle.
 	ResolveActivityToSequence(m_IdealActivity, m_nIdealSequence, m_IdealTranslatedActivity, m_IdealWeaponActivity);
+
+#ifdef MAPBASE
+	// Check if we need a gesture to imitate this sequence
+	if ( ShouldPlayFakeSequenceGesture( m_IdealActivity, m_IdealTranslatedActivity ) )
+	{
+		Activity nGesture = SelectFakeSequenceGesture( m_IdealActivity, m_IdealTranslatedActivity );
+		if (nGesture != -1)
+		{
+			PlayFakeSequenceGesture( nGesture, m_IdealActivity, m_IdealTranslatedActivity );
+		}
+	}
+	else if (GetFakeSequenceGesture() != -1)
+	{
+		// Reset the current gesture sequence if there is one
+		ResetFakeSequenceGesture();
+	}
+#endif
 }
 
 
@@ -7096,6 +7117,14 @@ void CAI_BaseNPC::AdvanceToIdealActivity(void)
 		//DevMsg("%s: Unable to get from sequence %s to %s!\n", GetClassname(), GetSequenceName(GetSequence()), GetSequenceName(m_nIdealSequence));
 		SetActivity(m_IdealActivity);
 	}
+
+#ifdef MAPBASE
+	// If there was a gesture imitating a sequence, get rid of it
+	if ( GetFakeSequenceGesture() != -1 )
+	{
+		ResetFakeSequenceGesture();
+	}
+#endif
 }
 
 
@@ -7153,6 +7182,12 @@ void CAI_BaseNPC::MaintainActivity(void)
 			}
 			// Else a transition sequence is in progress, do nothing.
 		}
+#ifdef MAPBASE
+		else if (GetFakeSequenceGesture() != -1)
+		{
+			// Don't advance even if the sequence gesture is finished, as advancing would just play the original activity afterwards
+		}
+#endif
 		// Else get a specific sequence for the activity and try to transition to that.
 		else
 		{
@@ -7171,11 +7206,104 @@ void CAI_BaseNPC::MaintainActivity(void)
 }
 
 
+#ifdef MAPBASE
+bool CAI_BaseNPC::ShouldPlayFakeSequenceGesture( Activity nActivity, Activity nTranslatedActivity )
+{
+	// Don't do anything if we're resetting our activity
+	if (GetActivity() == ACT_RESET)
+		return false;
+
+	// No need to do this while we're moving
+	if (IsCurTaskContinuousMove())
+		return false;
+
+	if (ai_debug_fake_sequence_gestures_always_play.GetBool())
+		return true;
+
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_ShouldPlayFakeSequenceGesture.CanRunInScope(m_ScriptScope))
+	{
+		// activity, translatedActivity
+		ScriptVariant_t functionReturn;
+		ScriptVariant_t args[] = { GetActivityName( nActivity ), GetActivityName( nTranslatedActivity ) };
+		if (g_Hook_ShouldPlayFakeSequenceGesture.Call( m_ScriptScope, &functionReturn, args ))
+		{
+			if (functionReturn.m_type == FIELD_BOOLEAN)
+				return functionReturn.m_bool;
+		}
+	}
+#endif
+
+	if (GetHintNode() && GetHintNode()->HintActivityName() != NULL_STRING)
+	{
+		switch (GetHintNode()->HintType())
+		{
+			// Cover nodes with custom activities should allow NPCs to do things like reload while in cover.
+			case HINT_TACTICAL_COVER_LOW:
+			case HINT_TACTICAL_COVER_MED:
+			case HINT_TACTICAL_COVER_CUSTOM:
+				if (HasMemory( bits_MEMORY_INCOVER ))
+				{
+					// Don't attack while using a custom animation in cover
+					if (nActivity != ACT_RANGE_ATTACK1 && nActivity != ACT_RANGE_ATTACK1_LOW)
+						return true;
+				}
+				break;
+		}
+	}
+
+	return false;
+}
+
+Activity CAI_BaseNPC::SelectFakeSequenceGesture( Activity nActivity, Activity nTranslatedActivity )
+{
+	return GetGestureVersionOfActivity( nTranslatedActivity );
+}
+
+inline void CAI_BaseNPC::PlayFakeSequenceGesture( Activity nActivity, Activity nSequence, Activity nTranslatedSequence )
+{
+	RestartGesture( nActivity, true, true );
+	m_FakeSequenceGestureLayer = FindGestureLayer( nActivity );
+
+	switch ( nSequence )
+	{
+		case ACT_RANGE_ATTACK1:
+		//case ACT_RANGE_ATTACK2:
+		{
+			OnRangeAttack1();
+
+			// FIXME: this seems a bit wacked
+			Weapon_SetActivity( Weapon_TranslateActivity( nSequence ), 0 );
+		} break;
+	}
+}
+
+inline int CAI_BaseNPC::GetFakeSequenceGesture()
+{
+	return m_FakeSequenceGestureLayer;
+}
+
+void CAI_BaseNPC::ResetFakeSequenceGesture()
+{
+	SetLayerCycle( m_FakeSequenceGestureLayer, 1.0f );
+	m_FakeSequenceGestureLayer = -1;
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Purpose: Returns true if our ideal activity has finished playing.
 //-----------------------------------------------------------------------------
 bool CAI_BaseNPC::IsActivityFinished( void )
 {
+#ifdef MAPBASE
+	if (GetFakeSequenceGesture() != -1)
+	{
+		Msg( "Checking if fake sequence gesture is finished\n" );
+		return IsLayerFinished( GetFakeSequenceGesture() );
+	}
+#endif
+
 	return (IsSequenceFinished() && (GetSequence() == m_nIdealSequence));
 }
 
@@ -11972,6 +12100,7 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_KEYFIELD( m_FriendlyFireOverride,	FIELD_INTEGER, "FriendlyFireOverride" ),
 
 	DEFINE_KEYFIELD( m_flSpeedModifier, FIELD_FLOAT, "BaseSpeedModifier" ),
+	DEFINE_FIELD( m_FakeSequenceGestureLayer,	FIELD_INTEGER ),
 #endif
 
 	// Satisfy classcheck
@@ -12129,6 +12258,11 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetActivityID, "SetActivityID", "Set the NPC's current activity ID." )
 	DEFINE_SCRIPTFUNC( ResetActivity, "Reset the NPC's current activity." )
 
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetGestureVersionOfActivity, "GetGestureVersionOfActivity", "Get the gesture activity counterpart of the specified sequence activity, if one exists." )
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetGestureVersionOfActivityID, "GetGestureVersionOfActivityID", "Get the gesture activity ID counterpart of the specified sequence activity ID, if one exists." )
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetSequenceVersionOfGesture, "GetSequenceVersionOfGesture", "Get the sequence activity counterpart of the specified gesture activity, if one exists." )
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetSequenceVersionOfGestureID, "GetSequenceVersionOfGestureID", "Get the sequence activity ID counterpart of the specified gesture activity ID, if one exists." )
+
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetSchedule, "GetSchedule", "Get the NPC's current schedule." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetScheduleID, "GetScheduleID", "Get the NPC's current schedule ID." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptSetSchedule, "SetSchedule", "Set the NPC's current schedule." )
@@ -12175,9 +12309,16 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 		DEFINE_SCRIPTHOOK_PARAM( "schedule", FIELD_CSTRING )
 		DEFINE_SCRIPTHOOK_PARAM( "schedule_id", FIELD_INTEGER )
 	END_SCRIPTHOOK()
-	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_GetActualShootPosition, "GetActualShootPosition", FIELD_VOID, "Called when the NPC is getting their actual shoot position, using the default shoot position as the parameter. (NOTE: NPCs which override this themselves might not always use this hook!)" )
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_GetActualShootPosition, "GetActualShootPosition", FIELD_VECTOR, "Called when the NPC is getting their actual shoot position, using the default shoot position as the parameter. (NOTE: NPCs which override this themselves might not always use this hook!)" )
 		DEFINE_SCRIPTHOOK_PARAM( "shootOrigin", FIELD_VECTOR )
 		DEFINE_SCRIPTHOOK_PARAM( "target", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_OverrideMove, "OverrideMove", FIELD_VOID, "Called when the NPC runs movement code, allowing the NPC's movement to be overridden by some other method. (NOTE: NPCs which override this themselves might not always use this hook!)" )
+		DEFINE_SCRIPTHOOK_PARAM( "interval", FIELD_FLOAT )
+	END_SCRIPTHOOK()
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_ShouldPlayFakeSequenceGesture, "ShouldPlayFakeSequenceGesture", FIELD_BOOLEAN, "Called when an activity is set on a NPC. Returning true will make the NPC convert the activity into a gesture (if a gesture is available) and continue their current activity instead." )
+		DEFINE_SCRIPTHOOK_PARAM( "activity", FIELD_CSTRING )
+		DEFINE_SCRIPTHOOK_PARAM( "translatedActivity", FIELD_CSTRING )
 	END_SCRIPTHOOK()
 
 END_SCRIPTDESC();
@@ -12829,6 +12970,8 @@ CAI_BaseNPC::CAI_BaseNPC(void)
 #ifdef MAPBASE
 	m_iDynamicInteractionsAllowed = TRS_NONE;
 	m_flSpeedModifier = 1.0f;
+
+	m_FakeSequenceGestureLayer = -1;
 #endif
 }
 

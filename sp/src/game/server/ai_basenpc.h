@@ -1021,6 +1021,25 @@ public:
 
 	void				SetActivityAndSequence(Activity NewActivity, int iSequence, Activity translatedActivity, Activity weaponActivity);
 
+#ifdef MAPBASE
+	//-----------------------------------------------------
+
+	// Returns the gesture variant of an activity (i.e. "ACT_GESTURE_RANGE_ATTACK1")
+	static Activity			GetGestureVersionOfActivity( Activity inActivity );
+
+	// Returns the sequence variant of a gesture activity
+	static Activity			GetSequenceVersionOfGesture( Activity inActivity );
+
+	//-----------------------------------------------------
+
+	virtual bool				ShouldPlayFakeSequenceGesture( Activity nActivity, Activity nTranslatedActivity );
+	virtual Activity			SelectFakeSequenceGesture( Activity nActivity, Activity nTranslatedActivity );
+	void				PlayFakeSequenceGesture( Activity nActivity, Activity nSequence, Activity nTranslatedSequence );
+
+	int					GetFakeSequenceGesture();
+	void				ResetFakeSequenceGesture();
+#endif
+
 private:
 
 	void				AdvanceToIdealActivity(void);
@@ -1033,6 +1052,10 @@ private:
 	int					m_nIdealSequence;				// Desired animation sequence
 	Activity			m_IdealTranslatedActivity;		// Desired actual translated animation state
 	Activity			m_IdealWeaponActivity;			// Desired weapon animation state
+
+#ifdef MAPBASE
+	int					m_FakeSequenceGestureLayer;		// The gesture layer impersonating a sequence (-1 if invalid)
+#endif
 
 	CNetworkVar(int, m_iDeathPose );
 	CNetworkVar(int, m_iDeathFrame );
@@ -1218,6 +1241,8 @@ public:
 #endif
 
 #ifdef MAPBASE_VSCRIPT
+private:
+
 	// VScript stuff uses "VScript" instead of just "Script" to avoid
 	// confusion with NPC_STATE_SCRIPT or StartScripting
 	HSCRIPT				VScriptGetEnemy();
@@ -1243,6 +1268,11 @@ public:
 	void				ScriptSetActivityID( int iActivity ) { SetActivity((Activity)iActivity); }
 	int					ScriptTranslateActivity( const char *szActivity ) { return TranslateActivity( (Activity)GetActivityID( szActivity ) ); }
 	int					ScriptTranslateActivityID( int iActivity ) { return TranslateActivity( (Activity)iActivity ); }
+
+	const char*			VScriptGetGestureVersionOfActivity( const char *pszActivity ) { return GetActivityName( GetGestureVersionOfActivity( (Activity)GetActivityID( pszActivity ) ) ); }
+	int					VScriptGetGestureVersionOfActivityID( int iActivity ) { return GetGestureVersionOfActivity( (Activity)iActivity ); }
+	const char*			VScriptGetSequenceVersionOfGesture( const char *pszActivity ) { return GetActivityName( GetSequenceVersionOfGesture( (Activity)GetActivityID( pszActivity ) ) ); }
+	int					VScriptGetSequenceVersionOfGestureID( int iActivity ) { return GetSequenceVersionOfGesture( (Activity)iActivity ); }
 
 	const char*			VScriptGetSchedule();
 	int					VScriptGetScheduleID();
@@ -2271,6 +2301,16 @@ private:
 	static CAI_GlobalScheduleNamespace	gm_SchedulingSymbols;
 	static CAI_ClassScheduleIdSpace		gm_ClassScheduleIdSpace;
 
+#ifdef MAPBASE
+	typedef struct
+	{
+		Activity	sequence;
+		Activity	gesture;
+	} actlink_t;
+
+	static actlink_t		gm_ActivityGestureLinks[];
+#endif
+
 public:
 	//----------------------------------------------------
 	// Debugging tools
@@ -2322,6 +2362,7 @@ public:
 	static ScriptHook_t	g_Hook_TranslateSchedule;
 	static ScriptHook_t	g_Hook_GetActualShootPosition;
 	static ScriptHook_t	g_Hook_OverrideMove;
+	static ScriptHook_t	g_Hook_ShouldPlayFakeSequenceGesture;
 #endif
 
 private:
