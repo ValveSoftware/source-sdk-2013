@@ -1095,9 +1095,9 @@ void CBaseAnimatingOverlay::SetLayerNoRestore( int iLayer, bool bNoRestore )
 }
 
 
-#ifdef MAPBASE // From Alien Swarm SDK
+#ifdef MAPBASE
 //-----------------------------------------------------------------------------
-// Purpose: 
+// From Alien Swarm SDK
 //-----------------------------------------------------------------------------
 void CBaseAnimatingOverlay::SetLayerNoEvents( int iLayer, bool bNoEvents )
 {
@@ -1112,6 +1112,17 @@ void CBaseAnimatingOverlay::SetLayerNoEvents( int iLayer, bool bNoEvents )
 	{
 		m_AnimOverlay[iLayer].m_fFlags &= ~ANIM_LAYER_NOEVENTS;
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CBaseAnimatingOverlay::IsLayerFinished( int iLayer )
+{
+	if (!IsValidLayer( iLayer ))
+		return true;
+
+	return m_AnimOverlay[iLayer].m_bSequenceFinished;
 }
 #endif
 

@@ -14,6 +14,9 @@
 #include "ai_basenpc.h"
 #include "ai_localnavigator.h"
 #include "ai_moveprobe.h"
+#ifdef MAPBASE
+#include "ai_hint.h"
+#endif
 #include "saverestore_utlvector.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -836,9 +839,20 @@ void CAI_Motor::MoveFacing( const AILocalMoveGoal_t &move )
 	{
 		// FIXME: move this up to navigator so that path goals can ignore these overrides.
 		Vector dir;
-		float flInfluence = GetFacingDirection( dir );
-		dir = move.facing * (1 - flInfluence) + dir * flInfluence;
-		VectorNormalize( dir );
+
+#ifdef MAPBASE
+		if (IsDeceleratingToGoal() && (GetOuter()->GetHintNode() /*|| GetOuter()->m_hOpeningDoor*/))
+		{
+			// Don't let the facing queue interfere with arrival direction in important cases
+			dir = move.facing;
+		}
+		else
+#endif
+		{
+			float flInfluence = GetFacingDirection( dir );
+			dir = move.facing * (1 - flInfluence) + dir * flInfluence;
+			VectorNormalize( dir );
+		}
 
 		// ideal facing direction
 		float idealYaw = UTIL_AngleMod( UTIL_VecToYaw( dir ) );

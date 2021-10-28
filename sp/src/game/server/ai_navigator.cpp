@@ -999,12 +999,23 @@ int CAI_Navigator::GetArrivalSequence( int curSequence )
 			activity = ACT_IDLE;
 		}
 
-		sequence = GetOuter()->SelectWeightedSequence( GetOuter()->TranslateActivity( activity ), curSequence );
+		Activity translatedActivity = GetOuter()->TranslateActivity( activity );
+		sequence = GetOuter()->SelectWeightedSequence( translatedActivity, curSequence );
 
 		if ( sequence == ACT_INVALID )
 		{
-			DevMsg( GetOuter(), "No appropriate sequence for arrival activity %s (%d)\n", GetOuter()->GetActivityName( GetPath()->GetArrivalActivity() ), GetPath()->GetArrivalActivity() );
-			sequence = GetOuter()->SelectWeightedSequence( GetOuter()->TranslateActivity( ACT_IDLE ), curSequence );
+#ifdef MAPBASE
+			if ( translatedActivity == ACT_SCRIPT_CUSTOM_MOVE )
+			{
+				// ACT_SCRIPT_CUSTOM_MOVE allows activity translation to resolve into specific sequences
+				sequence = GetOuter()->GetScriptCustomMoveSequence();
+			}
+			else
+#endif
+			{
+				DevMsg( GetOuter(), "No appropriate sequence for arrival activity %s (%d)\n", GetOuter()->GetActivityName( GetPath()->GetArrivalActivity() ), GetPath()->GetArrivalActivity() );
+				sequence = GetOuter()->SelectWeightedSequence( GetOuter()->TranslateActivity( ACT_IDLE ), curSequence );
+			}
 		}
 		Assert( sequence != ACT_INVALID );
 		GetPath()->SetArrivalSequence( sequence );

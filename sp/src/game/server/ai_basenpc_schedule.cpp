@@ -980,11 +980,12 @@ bool CAI_BaseNPC::FindCoverFromEnemy( bool bNodesOnly, float flMinDistance, floa
 	// FIXME: add to goal
 	if (GetHintNode())
 	{
-		GetNavigator()->SetArrivalActivity( GetCoverActivity( GetHintNode() ) );
 #ifdef MAPBASE
-		if (GetHintNode()->GetIgnoreFacing() != HIF_NO)
-#endif
+		GetHintNode()->NPCHandleStartNav( this, true );
+#else
+		GetNavigator()->SetArrivalActivity( GetCoverActivity( GetHintNode() ) );
 		GetNavigator()->SetArrivalDirection( GetHintNode()->GetDirection() );
+#endif
 	}
 	
 	return true;
@@ -3430,6 +3431,17 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 		{
 			// If the yaw is locked, this function will not act correctly
 			Assert( GetMotor()->IsYawLocked() == false );
+
+#ifdef MAPBASE
+			if ( GetHintNode() && GetHintNode()->OverridesNPCYaw( this ) )
+			{
+				// If the yaw is supposed to use that of a hint node, chain to TASK_FACE_HINTNODE
+				GetMotor()->SetIdealYaw( GetHintNode()->Yaw() );
+				GetMotor()->SetIdealYaw( CalcReasonableFacing( true ) ); // CalcReasonableFacing() is based on previously set ideal yaw
+				ChainRunTask( TASK_FACE_HINTNODE, pTask->flTaskData );
+				break;
+			}
+#endif
 
 			Vector vecEnemyLKP = GetEnemyLKP();
 			if (!FInAimCone( vecEnemyLKP ))

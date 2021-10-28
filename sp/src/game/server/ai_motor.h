@@ -87,6 +87,9 @@ public:
 	const Vector &		GetCurVel() const			{ return m_vecVelocity;			 }
 
 	virtual float		OverrideMaxYawSpeed( Activity activity )	{ return -1; }
+#ifdef MAPBASE
+	virtual
+#endif
 	bool				IsDeceleratingToGoal() const				{ return false; }
 
 	//---------------------------------

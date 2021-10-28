@@ -2598,7 +2598,11 @@ bool CAI_BaseNPC::FValidateHintType ( CAI_Hint *pHint )
 Activity CAI_BaseNPC::GetHintActivity( short sHintType, Activity HintsActivity )
 {
 	if ( HintsActivity != ACT_INVALID )
+#ifdef MAPBASE
+		return TranslateActivity( HintsActivity ); // Always translate the activity
+#else
 		return HintsActivity;
+#endif
 
 	return ACT_IDLE;
 }
@@ -6866,7 +6870,12 @@ void CAI_BaseNPC::ResolveActivityToSequence(Activity NewActivity, int &iSequence
 
 	translatedActivity = TranslateActivity( NewActivity, &weaponActivity );
 
+#ifdef MAPBASE
+	// Cover cases where TranslateActivity() returns a sequence by using ACT_SCRIPT_CUSTOM_MOVE
+	if ( NewActivity == ACT_SCRIPT_CUSTOM_MOVE || translatedActivity == ACT_SCRIPT_CUSTOM_MOVE )
+#else
 	if ( NewActivity == ACT_SCRIPT_CUSTOM_MOVE )
+#endif
 	{
 		iSequence = GetScriptCustomMoveSequence();
 	}
@@ -7339,6 +7348,15 @@ void CAI_BaseNPC::OnChangeActivity( Activity eNewActivity )
 		 eNewActivity == ACT_WALK )
 	{
 		Stand();
+
+#ifdef MAPBASE
+		// Unlock custom cover nodes
+		if (GetHintNode() && GetHintNode()->HintType() == HINT_TACTICAL_COVER_CUSTOM && HasMemory(bits_MEMORY_INCOVER))
+		{
+			GetHintNode()->Unlock( GetHintDelay( GetHintNode()->HintType() ) );
+			SetHintNode( NULL );
+		}
+#endif
 	}
 }
 
@@ -9358,6 +9376,13 @@ float CAI_BaseNPC::CalcIdealYaw( const Vector &vecTarget )
 
 		return UTIL_VecToYaw( vecProjection - GetLocalOrigin() );
 	}
+#ifdef MAPBASE
+	// Allow hint nodes to override the yaw without needing to control AI
+	else if (GetHintNode() && GetHintNode()->OverridesNPCYaw( this ))
+	{
+		return GetHintNode()->Yaw();
+	}
+#endif
 	else
 	{
 		return UTIL_VecToYaw ( vecTarget - GetLocalOrigin() );
