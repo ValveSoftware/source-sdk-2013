@@ -6509,7 +6509,7 @@ CAI_BaseNPC *CAI_BaseNPC::CreateCustomTarget( const Vector &vecOrigin, float dur
 //-----------------------------------------------------------------------------
 Activity CAI_BaseNPC::TranslateCrouchActivity( Activity eNewActivity )
 {
-	if (CapabilitiesGet() & bits_CAP_DUCK)
+	if (CapabilitiesGet() & bits_CAP_DUCK && CanTranslateCrouchActivity())
 	{
 		// ========================================================================
 		// The main issue with cover hint nodes is that crouch activities are not translated at the right time
@@ -6541,9 +6541,17 @@ Activity CAI_BaseNPC::TranslateCrouchActivity( Activity eNewActivity )
 				CAI_Hint *pHint = GetHintNode();
 				if (pHint)
 				{
-					if (pHint->HintType() == HINT_TACTICAL_COVER_LOW || pHint->HintType() == HINT_TACTICAL_COVER_MED)
+					if (pHint->HintType() == HINT_TACTICAL_COVER_LOW)
 					{
 						nCoverActivity = ACT_RANGE_ATTACK1_LOW;
+					}
+					else if (pHint->HintType() == HINT_TACTICAL_COVER_MED)
+					{
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+						nCoverActivity = ACT_RANGE_ATTACK1_MED;
+#else
+						nCoverActivity = ACT_RANGE_ATTACK1_LOW;
+#endif
 					}
 				}
 			}
@@ -6586,12 +6594,18 @@ Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
 	//if (eNewActivity == ACT_DROP_WEAPON)
 	//	return TranslateActivity(ACT_IDLE);
 
+	// ---------------------------------------------
+
 	// Accounts for certain act busy activities that aren't on all NPCs.
 	if (eNewActivity == ACT_BUSY_QUEUE || eNewActivity == ACT_BUSY_STAND)
 		return TranslateActivity(ACT_IDLE);
 
+	// ---------------------------------------------
+
 	if (eNewActivity == ACT_WALK_ANGRY)
 		return TranslateActivity(ACT_WALK);
+
+	// ---------------------------------------------
 
 	// If one climbing animation isn't available, use the other
 	if (eNewActivity == ACT_CLIMB_DOWN)
@@ -6599,8 +6613,11 @@ Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
 	else if (eNewActivity == ACT_CLIMB_UP)
 		return ACT_CLIMB_DOWN;
 
-	// GetCoverActivity() should have this covered.
 	// ---------------------------------------------
+
+	if (eNewActivity == ACT_COVER_MED)
+		eNewActivity = ACT_COVER_LOW;
+
 	//if (eNewActivity == ACT_COVER)
 	//	return TranslateActivity(ACT_IDLE);
 	
@@ -9137,27 +9154,45 @@ Activity CAI_BaseNPC::GetCoverActivity( CAI_Hint *pHint )
 		switch (pHint->HintType())
 		{
 			case HINT_TACTICAL_COVER_MED:
-#ifndef MAPBASE // I know what you're thinking, but ACT_COVER_MED is pretty much deprecated at this point anyway.
 			{
-				nCoverActivity = ACT_COVER_MED;
 #ifdef MAPBASE
-				// Some NPCs lack ACT_COVER_MED, but could easily use ACT_COVER_LOW.
-				if (SelectWeightedSequence(nCoverActivity) == ACTIVITY_NOT_AVAILABLE)
-					nCoverActivity = ACT_COVER_LOW;
-#endif
+				// NPCs which lack ACT_COVER_MED should fall through to HINT_TACTICAL_COVER_LOW
+				if (SelectWeightedSequence( ACT_COVER_MED ) != ACTIVITY_NOT_AVAILABLE)
+				{
+					nCoverActivity = ACT_COVER_MED;
+				}
+#else
+				nCoverActivity = ACT_COVER_MED;
 				break;
-			}
 #endif
+			}
 			case HINT_TACTICAL_COVER_LOW:
 			{
 #ifdef MAPBASE
-				if (pHint->HintActivityName() != NULL_STRING)
-					nCoverActivity = (Activity)CAI_BaseNPC::GetActivityID( STRING(pHint->HintActivityName()) );
-				else
-#endif
+				// Make sure nCoverActivity wasn't already assigned above, then fall through to HINT_TACTICAL_COVER_CUSTOM
+				if (nCoverActivity == ACT_INVALID)
+					nCoverActivity = ACT_COVER_LOW;
+#else
 				nCoverActivity = ACT_COVER_LOW;
 				break;
+#endif
 			}
+
+#ifdef MAPBASE
+			case HINT_TACTICAL_COVER_CUSTOM:
+			{
+				if (pHint->HintActivityName() != NULL_STRING)
+				{
+					nCoverActivity = (Activity)CAI_BaseNPC::GetActivityID( STRING(pHint->HintActivityName()) );
+					if (nCoverActivity == ACT_INVALID)
+					{
+						m_iszSceneCustomMoveSeq = pHint->HintActivityName();
+						nCoverActivity = ACT_SCRIPT_CUSTOM_MOVE;
+					}
+				}
+				break;
+			}
+#endif
 		}
 	}
 
@@ -15984,6 +16019,26 @@ bool CAI_BaseNPC::CouldShootIfCrouching( CBaseEntity *pTarget )
 
 	return bResult;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Check if this position will block our line of sight if aiming low.
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::CouldShootIfCrouchingAt( const Vector &vecPosition, const Vector &vecForward, const Vector &vecRight, float flDist )
+{
+	Vector vGunPos = vecPosition;
+	vGunPos += (GetCrouchGunOffset() + vecRight * 8);
+
+	trace_t tr;
+	AI_TraceLOS( vGunPos, vGunPos + (vecForward * flDist), this, &tr );
+	if (tr.fraction != 1.0)
+	{
+		return false;
+	}
+
+	return true;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

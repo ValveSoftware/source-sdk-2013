@@ -998,6 +998,7 @@ public:
 	Activity			NPC_TranslateActivity( Activity eNewActivity );
 #ifdef MAPBASE
 	Activity			TranslateCrouchActivity( Activity baseAct );
+	virtual bool		CanTranslateCrouchActivity( void ) { return true; }
 	virtual Activity	NPC_BackupActivity( Activity eNewActivity );
 #endif
 	Activity			GetActivity( void ) { return m_Activity; }
@@ -2206,6 +2207,10 @@ public:
 	virtual bool IsCrouching( void );
 	inline void	ForceCrouch( void );
 	inline void	ClearForceCrouch( void );
+
+#ifdef MAPBASE
+	bool		 CouldShootIfCrouchingAt( const Vector &vecPosition, const Vector &vecForward, const Vector &vecRight, float flDist = 48.0f );
+#endif
 
 protected:
 	virtual bool Crouch( void );

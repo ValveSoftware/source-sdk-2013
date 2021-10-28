@@ -4536,34 +4536,7 @@ int CNPC_MetroPolice::SelectBehaviorOverrideSchedule()
 //-----------------------------------------------------------------------------
 bool CNPC_MetroPolice::IsCrouchedActivity( Activity activity )
 {
-	Activity realActivity = TranslateActivity(activity);
-
-	switch ( realActivity )
-	{
-		case ACT_RELOAD_LOW:
-		case ACT_COVER_LOW:
-		case ACT_COVER_PISTOL_LOW:
-		case ACT_COVER_SMG1_LOW:
-		case ACT_RELOAD_SMG1_LOW:
-		//case ACT_RELOAD_AR2_LOW:
-		case ACT_RELOAD_PISTOL_LOW:
-		case ACT_RELOAD_SHOTGUN_LOW:
-
-			// These animations aren't actually "low" on metrocops
-		//case ACT_RANGE_AIM_LOW:
-		//case ACT_RANGE_AIM_AR2_LOW:
-		//case ACT_RANGE_AIM_SMG1_LOW:
-		//case ACT_RANGE_AIM_PISTOL_LOW:
-
-		//case ACT_RANGE_ATTACK1_LOW:
-		//case ACT_RANGE_ATTACK_AR2_LOW:
-		//case ACT_RANGE_ATTACK_SMG1_LOW:
-		//case ACT_RANGE_ATTACK_PISTOL_LOW:
-		//case ACT_RANGE_ATTACK2_LOW:
-			return true;
-	}
-
-	return false;
+	return BaseClass::IsCrouchedActivity( activity );
 }
 
 //-----------------------------------------------------------------------------
