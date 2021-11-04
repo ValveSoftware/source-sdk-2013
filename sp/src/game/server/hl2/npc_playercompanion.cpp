@@ -61,6 +61,10 @@ int AE_COMPANION_RELEASE_FLARE;
 #define COMPANION_MELEE_DIST 64.0
 #endif
 
+#ifdef MAPBASE
+ConVar ai_allow_new_weapons( "ai_allow_new_weapons", "1", FCVAR_NONE, "Allows companion NPCs to automatically pick up and use weapons they were unable pick up before, i.e. 357s or crossbows." );
+#endif
+
 #define MAX_TIME_BETWEEN_BARRELS_EXPLODING			5.0f
 #define MAX_TIME_BETWEEN_CONSECUTIVE_PLAYER_KILLS	3.0f
 
@@ -2737,6 +2741,13 @@ bool CNPC_PlayerCompanion::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 		{
 			return (NumWeaponsInSquad("weapon_shotgun") < 1 );
 		}
+#ifdef MAPBASE
+		else if (EntIsClass( pWeapon, gm_isz_class_Pistol ) || EntIsClass( pWeapon, gm_isz_class_357 ) || EntIsClass( pWeapon, gm_isz_class_Crossbow ))
+		{
+			// The AI automatically detects these weapons as usable now that there's animations for them, so ensure this behavior can be toggled in situations where that's not desirable
+			return ai_allow_new_weapons.GetBool();
+		}
+#endif
 		else
 		{
 			return true;
