@@ -1424,7 +1424,7 @@ acttable_t	CWeaponRPG::m_acttable[] =
 
 #ifdef EXPANDED_HL2_COVER_ACTIVITIES
 	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_RPG_MED,			false },
-	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_RPG_MED,		true },
+	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_RPG_MED,		false },
 #endif
 };
 

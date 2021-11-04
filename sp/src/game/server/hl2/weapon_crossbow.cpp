@@ -718,7 +718,7 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 
 #ifdef EXPANDED_HL2_COVER_ACTIVITIES
 	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_CROSSBOW_MED,			false },
-	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_CROSSBOW_MED,		true },
+	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_CROSSBOW_MED,		false },
 #endif
 };
 

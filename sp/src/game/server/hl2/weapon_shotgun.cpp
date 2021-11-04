@@ -213,7 +213,7 @@ acttable_t	CWeaponShotgun::m_acttable[] =
 
 #ifdef EXPANDED_HL2_COVER_ACTIVITIES
 	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_SHOTGUN_MED,			false },
-	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_SHOTGUN_MED,		true },
+	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_SHOTGUN_MED,		false },
 #endif
 };
 
