@@ -47,9 +47,6 @@ ConVar npc_combine_protected_run( "npc_combine_protected_run", "0", FCVAR_NONE, 
 ConVar npc_combine_altfire_not_allies_only( "npc_combine_altfire_not_allies_only", "1", FCVAR_NONE, "Mapbase: Elites are normally only allowed to fire their alt-fire attack at the player and the player's allies; This allows elites to alt-fire at other enemies too." );
 
 ConVar npc_combine_new_cover_behavior( "npc_combine_new_cover_behavior", "1", FCVAR_NONE, "Mapbase: Toggles small patches for parts of npc_combine AI related to soldiers failing to take cover. These patches are minimal and only change cases where npc_combine would otherwise look at an enemy without shooting or run up to the player to melee attack when they don't have to. Consult the Mapbase wiki for more information." );
-
-extern acttable_t *GetSMG1Acttable();
-extern acttable_t *GetPistolActtable();
 #endif
 
 #define COMBINE_SKIN_DEFAULT		0
@@ -131,10 +128,6 @@ Activity ACT_COMBINE_AR2_ALTFIRE;
 Activity ACT_WALK_EASY;
 Activity ACT_WALK_MARCH;
 #ifdef MAPBASE
-Activity ACT_IDLE_UNARMED;
-Activity ACT_WALK_UNARMED;
-Activity ACT_RUN_UNARMED;
-Activity ACT_WALK_EASY_PISTOL;
 Activity ACT_TURRET_CARRY_IDLE;
 Activity ACT_TURRET_CARRY_WALK;
 Activity ACT_TURRET_CARRY_RUN;
@@ -553,7 +546,12 @@ void CNPC_Combine::GatherConditions()
 
 	if( GetState() == NPC_STATE_COMBAT )
 	{
+#ifdef MAPBASE
+		// Don't override the standoff
+		if( IsCurSchedule( SCHED_COMBINE_WAIT_IN_COVER, false ) && !m_StandoffBehavior.IsActive() )
+#else
 		if( IsCurSchedule( SCHED_COMBINE_WAIT_IN_COVER, false ) )
+#endif
 		{
 			// Soldiers that are standing around doing nothing poll for attack slots so
 			// that they can respond quickly when one comes available. If they can 
@@ -1557,12 +1555,6 @@ Activity CNPC_Combine::Weapon_TranslateActivity( Activity eNewActivity, bool *pR
 //-----------------------------------------------------------------------------
 Activity CNPC_Combine::NPC_BackupActivity( Activity eNewActivity )
 {
-	// Otherwise we move around, T-posing.
-	if (eNewActivity == ACT_WALK)
-		return ACT_WALK_UNARMED;
-	else if (eNewActivity == ACT_RUN)
-		return ACT_RUN_RIFLE;
-
 	// Some models might not contain ACT_COMBINE_BUGBAIT, which the soldier model uses instead of ACT_IDLE_ON_FIRE.
 	// Contrariwise, soldiers may be called to use ACT_IDLE_ON_FIRE in other parts of the AI and need to translate to ACT_COMBINE_BUGBAIT.
 	if (eNewActivity == ACT_COMBINE_BUGBAIT)
@@ -1634,23 +1626,25 @@ Activity CNPC_Combine::NPC_TranslateActivity( Activity eNewActivity )
 		}
 	}
 #ifdef MAPBASE
-	else if (!GetActiveWeapon() && npc_combine_unarmed_anims.GetBool() && HaveSequenceForActivity(ACT_IDLE_UNARMED))
+	else if (!GetActiveWeapon() && !npc_combine_unarmed_anims.GetBool())
 	{
 		if (eNewActivity == ACT_IDLE || eNewActivity == ACT_IDLE_ANGRY)
-			eNewActivity = ACT_IDLE_UNARMED;
+			eNewActivity = ACT_IDLE_SMG1;
 		else if (eNewActivity == ACT_WALK)
-			eNewActivity = ACT_WALK_UNARMED;
+			eNewActivity = ACT_WALK_RIFLE;
 		else if (eNewActivity == ACT_RUN)
-			eNewActivity = ACT_RUN_UNARMED;
+			eNewActivity = ACT_RUN_RIFLE;
 	}
-	else if (m_NPCState == NPC_STATE_IDLE && npc_combine_idle_walk_easy.GetBool() && HaveSequenceForActivity(ACT_WALK_EASY))
+	else if (m_NPCState == NPC_STATE_IDLE && eNewActivity == ACT_WALK)
 	{
-		if (eNewActivity == ACT_WALK && GetActiveWeapon())
+		if (npc_combine_idle_walk_easy.GetBool())
 		{
-			if (GetActiveWeapon()->GetBackupActivityList() == GetSMG1Acttable())
-				eNewActivity = ACT_WALK_EASY;
-			else if (GetActiveWeapon()->GetBackupActivityList() == GetPistolActtable())
-				eNewActivity = ACT_WALK_EASY_PISTOL;
+			// ACT_WALK_EASY has been replaced with ACT_WALK_RELAXED for weapon translation purposes
+			eNewActivity = ACT_WALK_RELAXED;
+		}
+		else if (GetActiveWeapon())
+		{
+			eNewActivity = ACT_WALK_RIFLE;
 		}
 	}
 
@@ -2624,7 +2618,6 @@ int CNPC_Combine::TranslateSchedule( int scheduleType )
 #ifdef MAPBASE
 			// SCHED_COMBINE_WAIT_IN_COVER uses INCOVER, but only gets out of it when the soldier moves.
 			// That seems to mess up shooting, so this Forget() attempts to fix that.
-			// I don't know if there's a better workaround.
 			Forget( bits_MEMORY_INCOVER );
 #endif
 
@@ -3931,7 +3924,12 @@ bool CNPC_Combine::IsRunningApproachEnemySchedule()
 
 bool CNPC_Combine::ShouldPickADeathPose( void ) 
 { 
+#ifdef MAPBASE
+	// Check base class as well
+	return !IsCrouching() && BaseClass::ShouldPickADeathPose();
+#else
 	return !IsCrouching(); 
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -3965,10 +3963,6 @@ DECLARE_ACTIVITY( ACT_COMBINE_AR2_ALTFIRE )
 DECLARE_ACTIVITY( ACT_WALK_EASY )
 DECLARE_ACTIVITY( ACT_WALK_MARCH )
 #ifdef MAPBASE
-DECLARE_ACTIVITY( ACT_IDLE_UNARMED )
-DECLARE_ACTIVITY( ACT_WALK_UNARMED )
-DECLARE_ACTIVITY( ACT_RUN_UNARMED )
-DECLARE_ACTIVITY( ACT_WALK_EASY_PISTOL )
 DECLARE_ACTIVITY( ACT_TURRET_CARRY_IDLE )
 DECLARE_ACTIVITY( ACT_TURRET_CARRY_WALK )
 DECLARE_ACTIVITY( ACT_TURRET_CARRY_RUN )
