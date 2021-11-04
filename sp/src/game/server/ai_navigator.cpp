@@ -2184,10 +2184,25 @@ bool CAI_Navigator::OnMoveBlocked( AIMoveResult_t *pResult )
 		if (pDoor != NULL)
 		{
 			GetOuter()->OpenPropDoorBegin( pDoor );
+#ifdef MAPBASE
+			// Tell the navigation to stop running until we're done.
+			OnNewGoal();
+#endif
 			*pResult = AIMR_OK;
 			return true;
 		}
 	}
+
+#ifdef MAPBASE
+	if ( GetOuter()->m_hOpeningDoor )
+	{
+		// In the process of opening a door
+		// Because navigation is now supposed to terminate when a NPC begins opening a door, this code should not be reached.
+		DbgNavMsg( GetOuter(), "CAI_Navigator::OnMoveBlocked had to check for m_hOpeningDoor\n" );
+		*pResult = AIMR_OK;
+		return true;
+	}
+#endif
 
 
 	// Allow the NPC to override this behavior
@@ -2719,6 +2734,11 @@ void CAI_Navigator::AdvancePath()
 		if (pDoor != NULL)
 		{
 			GetOuter()->OpenPropDoorBegin(pDoor);
+
+#ifdef MAPBASE
+			// Tell the navigation to stop running until we're done.
+			OnNewGoal();
+#endif
 		}
 		else
 		{

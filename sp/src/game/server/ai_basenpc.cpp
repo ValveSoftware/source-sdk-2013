@@ -9763,7 +9763,11 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 
 	case NPC_EVENT_OPEN_DOOR:
 		{
+#ifdef MAPBASE
+			CBasePropDoor *pDoor = m_hOpeningDoor;
+#else
 			CBasePropDoor *pDoor = (CBasePropDoor *)(CBaseEntity *)GetNavigator()->GetPath()->GetCurWaypoint()->GetEHandleData();
+#endif
 			if (pDoor != NULL)
 			{
 				OpenPropDoorNow( pDoor );
@@ -13951,6 +13955,10 @@ bool CAI_BaseNPC::OnUpcomingPropDoor( AILocalMoveGoal_t *pMoveGoal,
 
 			GetNavigator()->GetPath()->PrependWaypoints( pOpenDoorRoute );
 
+#ifdef MAPBASE
+			GetNavigator()->SetArrivalDirection( opendata.vecFaceDir );
+#endif
+
 			m_hOpeningDoor = pDoor;
 			pMoveGoal->maxDist = distClear;
 			*pResult = AIMR_CHANGE_TYPE;
@@ -13971,6 +13979,21 @@ bool CAI_BaseNPC::OnUpcomingPropDoor( AILocalMoveGoal_t *pMoveGoal,
 //-----------------------------------------------------------------------------
 void CAI_BaseNPC::OpenPropDoorBegin( CBasePropDoor *pDoor )
 {
+#ifdef MAPBASE
+	opendata_t opendata;
+	pDoor->GetNPCOpenData(this, opendata);
+	
+	if (HaveSequenceForActivity( opendata.eActivity ))
+	{
+		int iLayer = AddGesture( opendata.eActivity );
+		float flDuration = GetLayerDuration( iLayer );
+
+		// Face the door and wait for the activity to finish before trying to move through the doorway.
+		m_flMoveWaitFinished = gpGlobals->curtime + flDuration + pDoor->GetOpenInterval();
+		AddFacingTarget( opendata.vecFaceDir, 1.0, flDuration );
+	}
+	else
+#else
 	// dvs: not quite working, disabled for now.
 	//opendata_t opendata;
 	//pDoor->GetNPCOpenData(this, opendata);
@@ -13980,6 +14003,7 @@ void CAI_BaseNPC::OpenPropDoorBegin( CBasePropDoor *pDoor )
 	//	SetIdealActivity(opendata.eActivity);
 	//}
 	//else
+#endif
 	{
 		// We don't have an appropriate sequence, just open the door magically.
 		OpenPropDoorNow( pDoor );
@@ -13999,6 +14023,15 @@ void CAI_BaseNPC::OpenPropDoorNow( CBasePropDoor *pDoor )
 
 	// Wait for the door to finish opening before trying to move through the doorway.
 	m_flMoveWaitFinished = gpGlobals->curtime + pDoor->GetOpenInterval();
+
+#ifdef MAPBASE
+	// Remove the door from our waypoint
+	if (GetNavigator()->GetPath() && GetNavigator()->GetCurWaypointFlags() & bits_WP_TO_DOOR)
+	{
+		GetNavigator()->GetPath()->GetCurWaypoint()->ModifyFlags( bits_WP_TO_DOOR, false );
+		GetNavigator()->GetPath()->GetCurWaypoint()->m_hData = NULL;
+	}
+#endif
 }
 
 
