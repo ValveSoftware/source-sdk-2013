@@ -1650,6 +1650,19 @@ Activity CNPC_PlayerCompanion::TranslateActivityReadiness( Activity activity )
 					continue;
 			}
 
+#ifdef MAPBASE
+			// If we don't have the readiness activity we selected and there's no backup activity available, break the loop and return the base act.
+			bool bRequired;
+			if ( !HaveSequenceForActivity( actremap.mappedActivity ) && !HaveSequenceForActivity( Weapon_TranslateActivity( actremap.mappedActivity, &bRequired ) ) )
+			{
+				Activity backupAct = Weapon_BackupActivity( actremap.mappedActivity, bRequired );
+				if ( backupAct != actremap.mappedActivity )
+					return backupAct;
+				else
+					break;
+			}
+#endif
+
 			// We've successfully passed all criteria for remapping this 
 			return actremap.mappedActivity;
 		}
