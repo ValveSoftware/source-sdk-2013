@@ -2797,14 +2797,29 @@ void C_BaseAnimating::CalculateIKLocks( float currentTime )
 
 					// debugoverlay->AddBoxOverlay( origin, Vector( -1, -1, -1 ), Vector( 1, 1, 1 ), QAngle( 0, 0, 0 ), 255, 0, 0, 0, 0 );
 
-					float d = (pTarget->est.pos - origin).Length();
+					Vector vecDelta = (origin - pTarget->est.pos);
+					float d = vecDelta.Length();
 
 					if ( d >= flDist)
 						continue;
 
 					flDist = d;
-					pTarget->SetPos( origin );
-					pTarget->SetAngles( angles );
+#ifdef MAPBASE
+					// For blending purposes, IK attachments should obey weight
+					if ( pTarget->est.flWeight < 1.0f )
+					{
+						Quaternion qTarget;
+						AngleQuaternion( angles, qTarget );
+
+						QuaternionSlerp( pTarget->est.q, qTarget, pTarget->est.flWeight, pTarget->est.q );
+						pTarget->SetPos( pTarget->est.pos + (vecDelta * pTarget->est.flWeight) );
+					}
+					else
+#endif
+					{
+						pTarget->SetPos( origin );
+						pTarget->SetAngles( angles );
+					}
 					// debugoverlay->AddBoxOverlay( pTarget->est.pos, Vector( -pTarget->est.radius, -pTarget->est.radius, -pTarget->est.radius ), Vector( pTarget->est.radius, pTarget->est.radius, pTarget->est.radius), QAngle( 0, 0, 0 ), 0, 255, 0, 0, 0 );
 				}
 
