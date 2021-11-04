@@ -2374,9 +2374,10 @@ bool CBaseCombatWeapon::Reload( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CBaseCombatWeapon::Reload_NPC( void )
+void CBaseCombatWeapon::Reload_NPC( bool bPlaySound )
 {
-	WeaponSound( RELOAD_NPC );
+	if (bPlaySound)
+		WeaponSound( RELOAD_NPC );
 
 	if (UsesClipsForAmmo1())
 	{

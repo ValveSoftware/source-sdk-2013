@@ -321,7 +321,7 @@ public:
 	bool					ReloadsSingly( void ) const;
 #ifdef MAPBASE
 	// Originally created for the crossbow, can be used to add special NPC reloading behavior
-	virtual void			Reload_NPC( void );
+	virtual void			Reload_NPC( bool bPlaySound = true );
 #endif
 
 	virtual bool			AutoFiresFullClip( void ) { return false; }

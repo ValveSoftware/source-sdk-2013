@@ -542,7 +542,7 @@ public:
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool	Reload( void );
 #ifdef MAPBASE
-	virtual void	Reload_NPC( void );
+	virtual void	Reload_NPC( bool bPlaySound = true );
 #endif
 	virtual void	ItemPostFrame( void );
 	virtual void	ItemBusyFrame( void );
@@ -819,11 +819,15 @@ bool CWeaponCrossbow::Reload( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponCrossbow::Reload_NPC( void )
+void CWeaponCrossbow::Reload_NPC( bool bPlaySound )
 {
-	BaseClass::Reload_NPC();
+	BaseClass::Reload_NPC( bPlaySound );
 
-	m_nSkin = 0;
+	int iBody = FindBodygroupByName( "bolt" );
+	if (iBody != -1)
+		SetBodygroup( iBody, 0 );
+	else
+		m_nSkin = 0;
 }
 #endif
 
@@ -973,7 +977,11 @@ void CWeaponCrossbow::FireNPCBolt( CAI_BaseNPC *pOwner, Vector &vecShootOrigin, 
 
 	m_iClip1--;
 
-	m_nSkin = 1;
+	int iBody = FindBodygroupByName( "bolt" );
+	if (iBody != -1)
+		SetBodygroup( iBody, 1 );
+	else
+		m_nSkin = 1;
 
 	WeaponSound( SINGLE_NPC );
 	WeaponSound( SPECIAL2 );

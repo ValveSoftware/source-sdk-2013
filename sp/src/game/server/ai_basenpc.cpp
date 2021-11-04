@@ -9723,7 +9723,7 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
   			if ( GetActiveWeapon() )
   			{
 #ifdef MAPBASE
-				GetActiveWeapon()->Reload_NPC();
+				GetActiveWeapon()->Reload_NPC( true );
 #else
   				GetActiveWeapon()->WeaponSound( RELOAD_NPC );
   				GetActiveWeapon()->m_iClip1 = GetActiveWeapon()->GetMaxClip1(); 
@@ -9747,8 +9747,12 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 	case EVENT_WEAPON_RELOAD_FILL_CLIP:
 		{
   			if ( GetActiveWeapon() )
-  			{
+			{
+#ifdef MAPBASE
+				GetActiveWeapon()->Reload_NPC( false );
+#else
   				GetActiveWeapon()->m_iClip1 = GetActiveWeapon()->GetMaxClip1(); 
+#endif
   				ClearCondition(COND_LOW_PRIMARY_AMMO);
   				ClearCondition(COND_NO_PRIMARY_AMMO);
   				ClearCondition(COND_NO_SECONDARY_AMMO);
