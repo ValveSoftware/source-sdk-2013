@@ -7308,7 +7308,6 @@ bool CAI_BaseNPC::IsActivityFinished( void )
 #ifdef MAPBASE
 	if (GetFakeSequenceGesture() != -1)
 	{
-		Msg( "Checking if fake sequence gesture is finished\n" );
 		return IsLayerFinished( GetFakeSequenceGesture() );
 	}
 #endif
@@ -16260,9 +16259,16 @@ bool CAI_BaseNPC::IsCrouchedActivity( Activity activity )
 		case ACT_COVER_SMG1_LOW:
 		case ACT_RELOAD_SMG1_LOW:
 #ifdef MAPBASE
-		//case ACT_RELOAD_AR2_LOW:
+#if AR2_ACTIVITY_FIX == 1
+		case ACT_COVER_AR2_LOW:
+		case ACT_RELOAD_AR2_LOW:
+#endif
 		case ACT_RELOAD_PISTOL_LOW:
 		case ACT_RELOAD_SHOTGUN_LOW:
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+		case ACT_RELOAD_REVOLVER_LOW:
+		case ACT_RELOAD_CROSSBOW_LOW:
+#endif
 #endif
 			return true;
 	}

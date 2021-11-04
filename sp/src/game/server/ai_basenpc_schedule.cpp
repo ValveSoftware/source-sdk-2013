@@ -3374,14 +3374,17 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 					}
 					else if (IsActivityFinished())
 					{
-						// Dismount complete. Fix up our position if we have to
+						// Dismount complete.
+						GetMotor()->MoveClimbStop();
+
+						// Fix up our position if we have to
 						Vector vecTeleportOrigin;
 						if (GetMotor()->MoveClimbShouldTeleportToSequenceEnd( vecTeleportOrigin ))
 						{
-							GetMotor()->MoveClimbStop();
 							SetLocalOrigin( vecTeleportOrigin );
-							TaskComplete();
 						}
+
+						TaskComplete();
 					}
 					break;
 #else

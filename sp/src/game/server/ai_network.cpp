@@ -157,7 +157,7 @@ public:
 	virtual float	NodeDistanceSqr( CAI_Node &node )
 	{
 		// Heavier hints are considered closer
-		if (node.GetHint() && node.GetHint()->GetHintWeight() != 1.0f)
+		if ( node.GetHint() && node.GetHint()->GetHintWeight() != 1.0f && (node.GetHint()->GetGroup() == NULL_STRING || node.GetHint()->GetGroup() == m_pNPC->GetHintGroup()) )
 		{
 			return CNodeFilter::NodeDistanceSqr( node ) * node.GetHint()->GetHintWeightInverse();
 		}
