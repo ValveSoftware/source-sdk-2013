@@ -82,10 +82,9 @@ acttable_t	CWeaponStunStick::m_acttable[] =
 	{ ACT_MELEE_ATTACK1,				ACT_MELEE_ATTACK_SWING,	true },
 	{ ACT_IDLE_ANGRY,					ACT_IDLE_ANGRY_MELEE,	true },
 #ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
-	// Just so we don't have to implement more activities, re-use the MP acts
-	{ ACT_IDLE,							ACT_MP_STAND_MELEE,		false },
-	{ ACT_RUN,							ACT_MP_RUN_MELEE,		false },
-	{ ACT_WALK,							ACT_MP_WALK_MELEE,		false },
+	{ ACT_IDLE,							ACT_IDLE_MELEE,		false },
+	{ ACT_RUN,							ACT_RUN_MELEE,		false },
+	{ ACT_WALK,							ACT_WALK_MELEE,		false },
 #endif
 };
 
