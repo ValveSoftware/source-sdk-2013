@@ -3907,7 +3907,7 @@ int CNPC_MetroPolice::SelectScheduleNoDirectEnemy()
 #ifdef MAPBASE
 	// If you see your enemy and you're still arming yourself, wait and don't just charge in
 	// (if your weapon is holstered, you're probably about to arm yourself)
-	if ( HasCondition( COND_SEE_ENEMY ) && (IsWeaponHolstered() || FindGestureLayer( TranslateActivity( ACT_ARM ) )) )
+	if ( HasCondition( COND_SEE_ENEMY ) && GetWeapon(0) && (IsWeaponHolstered() || FindGestureLayer( TranslateActivity( ACT_ARM ) ) != -1) )
 	{
 		return SCHED_COMBAT_FACE;
 	}
