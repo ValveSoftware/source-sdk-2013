@@ -192,7 +192,7 @@ bool C_BaseViewModel::Interpolate( float currentTime )
 }
 
 
-inline bool C_BaseViewModel::ShouldFlipViewModel()
+bool C_BaseViewModel::ShouldFlipViewModel()
 {
 #if defined(CSTRIKE_DLL) || defined (MAPBASE)
 	// If cl_righthand is set, then we want them all right-handed.
