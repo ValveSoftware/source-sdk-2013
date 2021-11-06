@@ -1537,7 +1537,12 @@ void CNPC_MetroPolice::OnUpdateShotRegulator( )
 	BaseClass::OnUpdateShotRegulator();
 
 	// FIXME: This code (except the burst interval) could be used for all weapon types 
+#ifdef MAPBASE
+	// Only if we actually have the pistol out
+	if ( EntIsClass( GetActiveWeapon(), gm_isz_class_Pistol ) )
+#else
 	if( Weapon_OwnsThisType( "weapon_pistol" ) )
+#endif
 	{
 		if ( m_nBurstMode == BURST_NOT_ACTIVE )
 		{
@@ -3899,6 +3904,15 @@ int CNPC_MetroPolice::SelectScheduleNoDirectEnemy()
 		return SCHED_METROPOLICE_SMASH_PROP;
 	}
 
+#ifdef MAPBASE
+	// If you see your enemy and you're still arming yourself, wait and don't just charge in
+	// (if your weapon is holstered, you're probably about to arm yourself)
+	if ( HasCondition( COND_SEE_ENEMY ) && GetWeapon(0) && (IsWeaponHolstered() || FindGestureLayer( TranslateActivity( ACT_ARM ) ) != -1) )
+	{
+		return SCHED_COMBAT_FACE;
+	}
+#endif
+
 	return SCHED_METROPOLICE_CHASE_ENEMY;
 }
 
@@ -4522,34 +4536,7 @@ int CNPC_MetroPolice::SelectBehaviorOverrideSchedule()
 //-----------------------------------------------------------------------------
 bool CNPC_MetroPolice::IsCrouchedActivity( Activity activity )
 {
-	Activity realActivity = TranslateActivity(activity);
-
-	switch ( realActivity )
-	{
-		case ACT_RELOAD_LOW:
-		case ACT_COVER_LOW:
-		case ACT_COVER_PISTOL_LOW:
-		case ACT_COVER_SMG1_LOW:
-		case ACT_RELOAD_SMG1_LOW:
-		//case ACT_RELOAD_AR2_LOW:
-		case ACT_RELOAD_PISTOL_LOW:
-		case ACT_RELOAD_SHOTGUN_LOW:
-
-			// These animations aren't actually "low" on metrocops
-		//case ACT_RANGE_AIM_LOW:
-		//case ACT_RANGE_AIM_AR2_LOW:
-		//case ACT_RANGE_AIM_SMG1_LOW:
-		//case ACT_RANGE_AIM_PISTOL_LOW:
-
-		//case ACT_RANGE_ATTACK1_LOW:
-		//case ACT_RANGE_ATTACK_AR2_LOW:
-		//case ACT_RANGE_ATTACK_SMG1_LOW:
-		//case ACT_RANGE_ATTACK_PISTOL_LOW:
-		//case ACT_RANGE_ATTACK2_LOW:
-			return true;
-	}
-
-	return false;
+	return BaseClass::IsCrouchedActivity( activity );
 }
 
 //-----------------------------------------------------------------------------

@@ -132,6 +132,8 @@ public:
 	void BridgeHandleAnimEvent( animevent_t *pEvent );
 #ifdef MAPBASE
 	bool BridgeCanUnholsterWeapon( void );
+	bool BridgeShouldPickADeathPose( void );
+	bool BridgeCanTranslateCrouchActivity( void );
 #endif
 
 	virtual void GatherConditions();
@@ -220,6 +222,8 @@ protected:
 	virtual void HandleAnimEvent( animevent_t *pEvent );
 #ifdef MAPBASE
 	virtual bool CanUnholsterWeapon( void );
+	virtual bool ShouldPickADeathPose( void );
+	virtual bool CanTranslateCrouchActivity( void );
 #endif
 
 	virtual bool ShouldAlwaysThink();
@@ -370,6 +374,9 @@ public:
 #ifdef MAPBASE
 	// For func_tank behavior
 	virtual bool		 BackBridge_CanUnholsterWeapon( void ) = 0;
+
+	virtual bool		 BackBridge_ShouldPickADeathPose( void ) = 0;
+	virtual bool		 BackBridge_CanTranslateCrouchActivity( void ) = 0;
 #endif
 
 //-------------------------------------
@@ -470,6 +477,8 @@ public:
 	void			HandleAnimEvent( animevent_t *pEvent );
 #ifdef MAPBASE
 	bool			CanUnholsterWeapon( void );
+	bool			ShouldPickADeathPose( void );
+	bool			CanTranslateCrouchActivity( void );
 #endif
 	
 	bool			ShouldAlwaysThink();
@@ -534,6 +543,9 @@ private:
 #ifdef MAPBASE
 	// For func_tank behavior
 	bool			 BackBridge_CanUnholsterWeapon( void );
+
+	bool			 BackBridge_ShouldPickADeathPose( void );
+	bool			 BackBridge_CanTranslateCrouchActivity( void );
 #endif
 
 	CAI_BehaviorBase **AccessBehaviors();
@@ -912,6 +924,20 @@ inline void CAI_BehaviorBase::BridgeHandleAnimEvent( animevent_t *pEvent )
 inline bool CAI_BehaviorBase::BridgeCanUnholsterWeapon( void )
 {
 	return CanUnholsterWeapon();
+}
+
+//-----------------------------------------------------------------------------
+
+inline bool CAI_BehaviorBase::BridgeShouldPickADeathPose( void )
+{
+	return ShouldPickADeathPose();
+}
+
+//-----------------------------------------------------------------------------
+
+inline bool CAI_BehaviorBase::BridgeCanTranslateCrouchActivity( void )
+{
+	return CanTranslateCrouchActivity();
 }
 #endif
 
@@ -1498,6 +1524,22 @@ inline bool CAI_BehaviorHost<BASE_NPC>::BackBridge_CanUnholsterWeapon( void )
 {
 	return BaseClass::CanUnholsterWeapon();
 }
+
+//-------------------------------------
+
+template <class BASE_NPC>
+inline bool CAI_BehaviorHost<BASE_NPC>::BackBridge_ShouldPickADeathPose( void )
+{
+	return BaseClass::ShouldPickADeathPose();
+}
+
+//-------------------------------------
+
+template <class BASE_NPC>
+inline bool CAI_BehaviorHost<BASE_NPC>::BackBridge_CanTranslateCrouchActivity( void )
+{
+	return BaseClass::CanTranslateCrouchActivity();
+}
 #endif
 
 //-------------------------------------
@@ -1913,6 +1955,28 @@ inline bool CAI_BehaviorHost<BASE_NPC>::CanUnholsterWeapon( void )
 		return m_pCurBehavior->BridgeCanUnholsterWeapon();
 
 	return BaseClass::CanUnholsterWeapon();
+}
+
+//-------------------------------------
+
+template <class BASE_NPC>
+inline bool CAI_BehaviorHost<BASE_NPC>::ShouldPickADeathPose( void )
+{
+	if (m_pCurBehavior)
+		return m_pCurBehavior->BridgeShouldPickADeathPose();
+
+	return BaseClass::ShouldPickADeathPose();
+}
+
+//-------------------------------------
+
+template <class BASE_NPC>
+inline bool CAI_BehaviorHost<BASE_NPC>::CanTranslateCrouchActivity( void )
+{
+	if (m_pCurBehavior)
+		return m_pCurBehavior->BridgeCanTranslateCrouchActivity();
+
+	return BaseClass::CanTranslateCrouchActivity();
 }
 #endif
 

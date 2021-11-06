@@ -41,6 +41,7 @@
 	DEFINE_FIELD( m_vecTossVelocity, FIELD_VECTOR ),	\
 	DEFINE_FIELD( m_iLastAnimEventHandled, FIELD_INTEGER ),	\
 	DEFINE_INPUTFUNC( FIELD_STRING,	"ThrowGrenadeAtTarget",	InputThrowGrenadeAtTarget ),	\
+	DEFINE_INPUTFUNC( FIELD_STRING,	"ThrowGrenadeGestureAtTarget",	InputThrowGrenadeGestureAtTarget ),	\
 	DEFINE_INPUTFUNC( FIELD_INTEGER,	"SetGrenades",	InputSetGrenades ),	\
 	DEFINE_INPUTFUNC( FIELD_INTEGER,	"AddGrenades",	InputAddGrenades ),	\
 	DEFINE_OUTPUT(m_OnThrowGrenade, "OnThrowGrenade"),	\
@@ -124,6 +125,7 @@ public:
 	void InputSetGrenades( inputdata_t &inputdata ) { AddGrenades( inputdata.value.Int() - m_iNumGrenades ); }
 	void InputAddGrenades( inputdata_t &inputdata ) { AddGrenades( inputdata.value.Int() ); }
 	void InputThrowGrenadeAtTarget( inputdata_t &inputdata );
+	void InputThrowGrenadeGestureAtTarget( inputdata_t &inputdata );
 
 	virtual void DelayGrenadeCheck( float delay ) { m_flNextGrenadeCheck = gpGlobals->curtime + delay; }
 
@@ -292,6 +294,63 @@ void CAI_GrenadeUser<BASE_NPC>::InputThrowGrenadeAtTarget( inputdata_t &inputdat
 	m_flNextGrenadeCheck = 0;
 
 	this->ClearSchedule( "Told to throw grenade via input" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Force the combine soldier to throw a grenade at the target using the gesture animation.
+//			If I'm a combine elite, fire my combine ball at the target instead.
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::InputThrowGrenadeGestureAtTarget( inputdata_t &inputdata )
+{
+	// Ignore if we're inside a scripted sequence
+	//if ( this->GetState() == NPC_STATE_SCRIPT && this->m_hCine )
+	//	return;
+
+	CBaseEntity *pEntity = gEntList.FindEntityByName( NULL, inputdata.value.String(), this, inputdata.pActivator, inputdata.pCaller );
+	if ( !pEntity )
+	{
+		DevMsg("%s (%s) received ThrowGrenadeGestureAtTarget input, but couldn't find target entity '%s'\n", this->GetClassname(), this->GetDebugName(), inputdata.value.String() );
+		return;
+	}
+
+	m_hForcedGrenadeTarget = pEntity;
+	m_flNextGrenadeCheck = 0;
+
+	Vector vecTarget = m_hForcedGrenadeTarget->WorldSpaceCenter();
+
+#ifdef SHARED_COMBINE_ACTIVITIES
+	if (IsAltFireCapable())
+	{
+		if (FVisible( m_hForcedGrenadeTarget ))
+		{
+			m_vecAltFireTarget = vecTarget;
+			m_hForcedGrenadeTarget = NULL;
+
+			int iLayer = AddGesture( ACT_GESTURE_COMBINE_AR2_ALTFIRE );
+			if (iLayer != -1)
+			{
+				this->GetShotRegulator()->FireNoEarlierThan( gpGlobals->curtime + this->GetLayerDuration( iLayer ) );
+			}
+		}
+	}
+	else
+	{
+		// If we can, throw a grenade at the target. 
+		// Ignore grenade count / distance / etc
+		if (CheckCanThrowGrenade( vecTarget ))
+		{
+			int iLayer = AddGesture( ACT_GESTURE_COMBINE_THROW_GRENADE );
+			if (iLayer != -1)
+			{
+				this->GetShotRegulator()->FireNoEarlierThan( gpGlobals->curtime + this->GetLayerDuration( iLayer ) );
+			}
+		}
+	}
+#else
+	Warning("Gesture grenades/alt-fire not supported\n");
+#endif
 }
 
 //-----------------------------------------------------------------------------

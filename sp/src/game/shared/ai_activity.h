@@ -13,41 +13,41 @@
 
 #ifdef MAPBASE
 
-// Mapbase adds a few shared activities.
 // 
-// These used to be placed in between existing activities, as outside of the code activities are based off of strings.
-// This seemed like a bad idea, but no problems arose at the time.
-// I later discovered that apparently some things in MP use the direct integers instead of the enum names.
-// I retroactively put all custom activities at the bottom of the enum instead.
-// Their placements in activitylist.cpp and ai_activity.cpp have not been changed.
+// Mapbase adds many new shared activities, primarily for NPCs.
+// 
+// These are at the bottom of the enum to prevent disruptions in the order of existing activities.
+// 
 
 // AR2 ACTIVITY FIX
-// You know all of those AR2 activities that citizens and combine soldiers have?
-// Yeah, those are unused. It appears Valve forgot to implement them.
+// Citizens and Combine soldiers have several activities for the SMG1 and AR2 which differ from each other.
+// Across both NPCs, there are around 20-40 different AR2 animations. Most of these animations are similar to the
+// SMG1 animations, except their hand positions are adjusted to use the AR2 instead.
 // 
-// What could be 20-40 different animations on two different characters are not even defined in code.
-// I didn't even realize they were unused until I saw ACT_RELOAD_AR2, so I don't blame them for never realizing this.
-// They work surprisingly well for probably never being tested in-game.
+// Unfortunately, the vast majority of the AR2 animations in those models are not declared as real activities in
+// code. The AR2 instead falls back to its SMG1 animation counterparts.
+// This is thought to be an oversight which dates back to late in Half-Life 2's development.
 // 
-// 1 = Add activities directly
-// 2 = Add activities as custom activities (todo)
-// 
-// 2 should only be preferable if adding them like this breaks something.
+// This preprocessor declares those activities and implements them on the AR2. In-game, they work surprisingly well
+// despite presumably never being tested in-game during HL2's development.
 #define AR2_ACTIVITY_FIX 1
 
-// COMPANION HOLSTER WORKAROUND
-// I introduced a separate holster/unholster animation to male_shared
-// and female_shared and I realized it might conflict with Alyx's animation.
-// 
-// I came up with a solution--ACT_ARM_RIFLE and its disarm counterpart--to solve it.
-// I didn't think about the fact I could've named them the same as Alyx's so her animations would overwrite it...
-// ...so this has been deactivated.
-//#define COMPANION_HOLSTER_WORKAROUND 1
-
 // SHARED COMBINE ACTIVITIES
-// This turns ACT_COMBINE_AR2_ALTFIRE and ACT_COMBINE_THROW_GRENADE into shared activities.
-// This is necessary so other NPCs to use them without having to rely on a bunch of custom activities.
+// This turns ACT_COMBINE_AR2_ALTFIRE, ACT_COMBINE_THROW_GRENADE, and their new gesture counterparts into shared activities.
+// This is necessary for other NPCs to use them without having to rely on private custom activities declared through the AI definition system.
 #define SHARED_COMBINE_ACTIVITIES 1
+
+// EXPANDED HL2 WEAPON ACTIVITIES
+// This enables a bunch of new activities for Half-Life 2 weapons, including new 357 animations and readiness activities for pistols.
+#define EXPANDED_HL2_WEAPON_ACTIVITIES 1
+
+// EXPANDED NAVIGATION ACTIVITIES
+// This enables some new navigation-related activities.
+#define EXPANDED_NAVIGATION_ACTIVITIES 1
+
+// EXPANDED HL2 COVER ACTIVITIES
+// This enables some new cover-related activities.
+#define EXPANDED_HL2_COVER_ACTIVITIES 1
 
 #endif
 
@@ -2169,16 +2169,23 @@ typedef enum
 	ACT_RUN_AIM_AR2,
 
 	ACT_RELOAD_AR2,
-	//ACT_RELOAD_AR2_LOW,
+	ACT_RELOAD_AR2_LOW,
 
 	ACT_GESTURE_RELOAD_AR2,
+
+	ACT_COVER_AR2_LOW,
 #endif
 
 #ifdef SHARED_COMBINE_ACTIVITIES
 	ACT_COMBINE_THROW_GRENADE,
 	ACT_COMBINE_AR2_ALTFIRE,
 
-	// New gesture-based signals as activities for people who want to use them
+	// Gesture versions for existing Combine signal and grenade activities
+	ACT_GESTURE_COMBINE_THROW_GRENADE,
+	ACT_GESTURE_COMBINE_AR2_ALTFIRE,
+	ACT_GESTURE_SPECIAL_ATTACK1,
+	ACT_GESTURE_SPECIAL_ATTACK2,
+
 	ACT_GESTURE_SIGNAL_ADVANCE,
 	ACT_GESTURE_SIGNAL_FORWARD,
 	ACT_GESTURE_SIGNAL_GROUP,
@@ -2188,9 +2195,143 @@ typedef enum
 	ACT_GESTURE_SIGNAL_TAKECOVER,
 #endif
 
-#ifdef COMPANION_HOLSTER_WORKAROUND
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	// Revolver (357)
+	ACT_IDLE_REVOLVER,
+	ACT_IDLE_ANGRY_REVOLVER,
+	ACT_WALK_REVOLVER,
+	ACT_RUN_REVOLVER,
+	ACT_WALK_AIM_REVOLVER,
+	ACT_RUN_AIM_REVOLVER,
+	ACT_RANGE_ATTACK_REVOLVER,
+	ACT_RELOAD_REVOLVER,
+	ACT_RANGE_ATTACK_REVOLVER_LOW,
+	ACT_RELOAD_REVOLVER_LOW,
+	ACT_COVER_REVOLVER_LOW,
+	ACT_RANGE_AIM_REVOLVER_LOW,
+	ACT_GESTURE_RANGE_ATTACK_REVOLVER,
+	ACT_GESTURE_RELOAD_REVOLVER,
+
+	// Crossbow
+	ACT_IDLE_CROSSBOW,
+	ACT_IDLE_ANGRY_CROSSBOW,
+	ACT_WALK_CROSSBOW,
+	ACT_RUN_CROSSBOW,
+	ACT_WALK_AIM_CROSSBOW,
+	ACT_RUN_AIM_CROSSBOW,
+	ACT_RANGE_ATTACK_CROSSBOW,
+	ACT_RELOAD_CROSSBOW,
+	ACT_RANGE_ATTACK_CROSSBOW_LOW,
+	ACT_RELOAD_CROSSBOW_LOW,
+	ACT_COVER_CROSSBOW_LOW,
+	ACT_RANGE_AIM_CROSSBOW_LOW,
+	ACT_GESTURE_RANGE_ATTACK_CROSSBOW,
+	ACT_GESTURE_RELOAD_CROSSBOW,
+
+	// Pistol
+	ACT_IDLE_PISTOL_RELAXED,
+	ACT_IDLE_PISTOL_STIMULATED,
+	ACT_WALK_PISTOL_RELAXED,
+	ACT_WALK_PISTOL_STIMULATED,
+	ACT_RUN_PISTOL_RELAXED,
+	ACT_RUN_PISTOL_STIMULATED,
+
+	ACT_IDLE_AIM_PISTOL_STIMULATED,
+	ACT_WALK_AIM_PISTOL_STIMULATED,
+	ACT_RUN_AIM_PISTOL_STIMULATED,
+
+	ACT_WALK_CROUCH_PISTOL,
+	ACT_WALK_CROUCH_AIM_PISTOL,
+	ACT_RUN_CROUCH_PISTOL,
+	ACT_RUN_CROUCH_AIM_PISTOL,
+
+	// Shotgun
+	ACT_IDLE_SHOTGUN,
+	ACT_WALK_SHOTGUN,
+	ACT_RUN_SHOTGUN,
+
+	ACT_COVER_SHOTGUN_LOW,
+	ACT_RANGE_AIM_SHOTGUN_LOW,
+
+	ACT_WALK_SHOTGUN_RELAXED,
+	ACT_WALK_SHOTGUN_STIMULATED,
+	ACT_RUN_SHOTGUN_RELAXED,
+	ACT_RUN_SHOTGUN_STIMULATED,
+
+	ACT_IDLE_AIM_SHOTGUN_STIMULATED,
+	ACT_WALK_AIM_SHOTGUN_STIMULATED,
+	ACT_RUN_AIM_SHOTGUN_STIMULATED,
+
+	// RPG
+	ACT_RANGE_AIM_RPG_LOW,
+	ACT_RANGE_ATTACK_RPG_LOW,
+	ACT_GESTURE_RANGE_ATTACK_RPG,
+
+	// Melee
+	ACT_WALK_MELEE,
+	ACT_RUN_MELEE,
+
+	// Citizen accessories
+	ACT_RUN_PACKAGE,
+	ACT_RUN_SUITCASE,
+
+	// Holster/Unholster
 	ACT_ARM_RIFLE,
+	ACT_ARM_SHOTGUN,
+	ACT_ARM_RPG,
+	ACT_ARM_MELEE,
 	ACT_DISARM_RIFLE,
+	ACT_DISARM_SHOTGUN,
+	ACT_DISARM_RPG,
+	ACT_DISARM_MELEE,
+#endif
+
+#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+	ACT_CLIMB_ALL,	// An actual blend animation which uses pose parameters for direction
+	ACT_CLIMB_IDLE,
+
+	ACT_CLIMB_MOUNT_TOP,
+	ACT_CLIMB_MOUNT_BOTTOM,
+	ACT_CLIMB_DISMOUNT_BOTTOM,
+#endif
+	
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+	// Crouch Cover Medium
+	ACT_RANGE_ATTACK1_MED,
+	ACT_RANGE_ATTACK2_MED,
+	ACT_RANGE_AIM_MED,
+
+	ACT_RANGE_ATTACK_AR2_MED,
+	ACT_RANGE_ATTACK_SMG1_MED,
+	ACT_RANGE_ATTACK_SHOTGUN_MED,
+	ACT_RANGE_ATTACK_PISTOL_MED,
+	ACT_RANGE_ATTACK_RPG_MED,
+	ACT_RANGE_ATTACK_REVOLVER_MED,
+	ACT_RANGE_ATTACK_CROSSBOW_MED,
+
+	ACT_RANGE_AIM_AR2_MED,
+	ACT_RANGE_AIM_SMG1_MED,
+	ACT_RANGE_AIM_SHOTGUN_MED,
+	ACT_RANGE_AIM_PISTOL_MED,
+	ACT_RANGE_AIM_RPG_MED,
+	ACT_RANGE_AIM_REVOLVER_MED,
+	ACT_RANGE_AIM_CROSSBOW_MED,
+
+	// Wall Cover (for use in custom cover hints)
+	ACT_COVER_WALL_R,
+	ACT_COVER_WALL_L,
+	ACT_COVER_WALL_LOW_R,
+	ACT_COVER_WALL_LOW_L,
+
+	ACT_COVER_WALL_R_RIFLE,
+	ACT_COVER_WALL_L_RIFLE,
+	ACT_COVER_WALL_LOW_R_RIFLE,
+	ACT_COVER_WALL_LOW_L_RIFLE,
+
+	ACT_COVER_WALL_R_PISTOL,
+	ACT_COVER_WALL_L_PISTOL,
+	ACT_COVER_WALL_LOW_R_PISTOL,
+	ACT_COVER_WALL_LOW_L_PISTOL,
 #endif
 
 	// this is the end of the global activities, private per-monster activities start here.

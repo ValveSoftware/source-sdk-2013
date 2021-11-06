@@ -4165,6 +4165,11 @@ BEGIN_DATADESC(CBasePropDoor)
 	DEFINE_KEYFIELD(m_SoundClose, FIELD_SOUNDNAME, "soundcloseoverride"),
 	DEFINE_KEYFIELD(m_ls.sLockedSound, FIELD_SOUNDNAME, "soundlockedoverride"),
 	DEFINE_KEYFIELD(m_ls.sUnlockedSound, FIELD_SOUNDNAME, "soundunlockedoverride"),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD(m_flNPCOpenDistance, FIELD_FLOAT, "opendistoverride"),
+	DEFINE_KEYFIELD(m_eNPCOpenFrontActivity, FIELD_INTEGER, "openfrontactivityoverride"),
+	DEFINE_KEYFIELD(m_eNPCOpenBackActivity, FIELD_INTEGER, "openbackactivityoverride"),
+#endif
 	DEFINE_KEYFIELD(m_SlaveName, FIELD_STRING, "slavename" ),
 	DEFINE_FIELD(m_bLocked, FIELD_BOOLEAN),
 	//DEFINE_KEYFIELD(m_flBlockDamage, FIELD_FLOAT, "dmg"),
@@ -4209,6 +4214,11 @@ END_SEND_TABLE()
 CBasePropDoor::CBasePropDoor( void )
 {
 	m_hMaster = NULL;
+#ifdef MAPBASE
+	m_flNPCOpenDistance = -1;
+	m_eNPCOpenFrontActivity = ACT_INVALID;
+	m_eNPCOpenBackActivity = ACT_INVALID;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -4406,6 +4416,32 @@ void CBasePropDoor::CalcDoorSounds()
 			{
 				strSoundLocked = AllocPooledString( pkvHardwareData->GetString( "locked" ) );
 				strSoundUnlocked = AllocPooledString( pkvHardwareData->GetString( "unlocked" ) );
+
+#ifdef MAPBASE
+				if (m_eNPCOpenFrontActivity == ACT_INVALID)
+				{
+					const char *pszActivity = pkvHardwareData->GetString( "activity_front" );
+					if (pszActivity[0] != '\0')
+					{
+						m_eNPCOpenFrontActivity = (Activity)CAI_BaseNPC::GetActivityID( pszActivity );
+						if (m_eNPCOpenFrontActivity == ACT_INVALID)
+							m_eNPCOpenFrontActivity = ActivityList_RegisterPrivateActivity( pszActivity );
+					}
+				}
+				if (m_eNPCOpenBackActivity == ACT_INVALID)
+				{
+					const char *pszActivity = pkvHardwareData->GetString( "activity_back" );
+					if (pszActivity[0] != '\0')
+					{
+						m_eNPCOpenBackActivity = (Activity)CAI_BaseNPC::GetActivityID( pszActivity );
+						if (m_eNPCOpenBackActivity == ACT_INVALID)
+							m_eNPCOpenBackActivity = ActivityList_RegisterPrivateActivity( pszActivity );
+					}
+				}
+
+				if (m_flNPCOpenDistance == -1)
+					m_flNPCOpenDistance = pkvHardwareData->GetFloat( "npc_distance", 32.0 );
+#endif
 			}
 
 			// If any sounds were missing, try the "defaults" block.
@@ -6006,6 +6042,11 @@ void CPropDoorRotating::DoorResume( void )
 	AngularMove( m_angGoal, m_flSpeed );
 }
 
+#ifdef MAPBASE
+ConVar ai_door_enable_acts( "ai_door_enable_acts", "1", FCVAR_NONE, "Enables the new door-opening activities." );
+ConVar ai_door_open_dist_override( "ai_door_open_dist_override", "-1", FCVAR_NONE, "Overrides the distance from a door a NPC has to navigate to in order to open a door." );
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : vecMoveDir - 
@@ -6027,20 +6068,37 @@ void CPropDoorRotating::GetNPCOpenData(CAI_BaseNPC *pNPC, opendata_t &opendata)
 
 	Vector vecNPCOrigin = pNPC->GetAbsOrigin();
 
+#ifdef MAPBASE
+	float flPosOffset = ai_door_open_dist_override.GetFloat() >= 0.0f ? ai_door_open_dist_override.GetFloat() : GetNPCOpenDistance();
+#else
+	float flPosOffset = 64;
+#endif
+
 	if (pNPC->GetAbsOrigin().Dot(vecForward) > GetAbsOrigin().Dot(vecForward))
 	{
 		// In front of the door relative to the door's forward vector.
-		opendata.vecStandPos += vecForward * 64;
+		opendata.vecStandPos += vecForward * flPosOffset;
 		opendata.vecFaceDir = -vecForward;
+#ifdef MAPBASE
+		opendata.eActivity = !ai_door_enable_acts.GetBool() ? ACT_INVALID : GetNPCOpenFrontActivity();
+#endif
 	}
 	else
 	{
 		// Behind the door relative to the door's forward vector.
-		opendata.vecStandPos -= vecForward * 64;
+		opendata.vecStandPos -= vecForward * flPosOffset;
 		opendata.vecFaceDir = vecForward;
+#ifdef MAPBASE
+		opendata.eActivity = !ai_door_enable_acts.GetBool() ? ACT_INVALID : GetNPCOpenBackActivity();
+#endif
 	}
 
+#ifdef MAPBASE
+	if (opendata.eActivity == ACT_INVALID)
+		opendata.eActivity = ACT_OPEN_DOOR;
+#else
 	opendata.eActivity = ACT_OPEN_DOOR;
+#endif
 }
 
 

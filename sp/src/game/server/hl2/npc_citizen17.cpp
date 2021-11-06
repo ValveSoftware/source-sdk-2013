@@ -439,10 +439,11 @@ CSimpleSimTimer CNPC_Citizen::gm_PlayerSquadEvaluateTimer;
 bool CNPC_Citizen::CreateBehaviors()
 {
 	BaseClass::CreateBehaviors();
-	AddBehavior( &m_FuncTankBehavior );
 #ifdef MAPBASE
 	AddBehavior( &m_RappelBehavior );
 	AddBehavior( &m_PolicingBehavior );
+#else // Moved to CNPC_PlayerCompanion
+	AddBehavior( &m_FuncTankBehavior );
 #endif
 	
 	return true;
@@ -2089,6 +2090,13 @@ Activity CNPC_Citizen::NPC_TranslateActivity( Activity activity )
 			return ACT_RUN_AIM_AR2_STIMULATED;
 		if (activity == ACT_WALK_AIM_AR2)
 			return ACT_WALK_AIM_AR2_STIMULATED;
+
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+		if (activity == ACT_RUN_AIM_PISTOL)
+			return ACT_RUN_AIM_PISTOL_STIMULATED;
+		if (activity == ACT_WALK_AIM_PISTOL)
+			return ACT_WALK_AIM_PISTOL_STIMULATED;
+#endif
 	}
 #endif
 

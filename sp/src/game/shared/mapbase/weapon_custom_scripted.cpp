@@ -398,9 +398,10 @@ bool CWeaponCustomScripted::Reload( void )
 	return BaseClass::Reload();
 }
 
-void CWeaponCustomScripted::Reload_NPC( void )
+void CWeaponCustomScripted::Reload_NPC( bool bPlaySound )
 {
-	SIMPLE_VOID_OVERRIDE( Reload_NPC, NULL );
+	ScriptVariant_t pArgs[] = { bPlaySound };
+	SIMPLE_VOID_OVERRIDE( Reload_NPC, pArgs );
 
 	BaseClass::Reload_NPC();
 }

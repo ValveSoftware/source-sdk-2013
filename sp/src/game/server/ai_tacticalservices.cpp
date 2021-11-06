@@ -411,7 +411,12 @@ int CAI_TacticalServices::FindCoverNode(const Vector &vNearPos, const Vector &vT
 					// --------------------------------------------------------
 					pNode->Lock( 1.0 );
 
+#ifdef MAPBASE
+					if ( pNode->GetHint() && ( pNode->GetHint()->HintType() == HINT_TACTICAL_COVER_MED || pNode->GetHint()->HintType() == HINT_TACTICAL_COVER_LOW
+						|| pNode->GetHint()->HintType() == HINT_TACTICAL_COVER_CUSTOM ) )
+#else
 					if ( pNode->GetHint() && ( pNode->GetHint()->HintType() == HINT_TACTICAL_COVER_MED || pNode->GetHint()->HintType() == HINT_TACTICAL_COVER_LOW ) )
+#endif
 					{
 						if ( GetOuter()->GetHintNode() )
 						{

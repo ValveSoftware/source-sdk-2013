@@ -110,6 +110,28 @@ bool CAI_FuncTankBehavior::IsInterruptable( void )
 
 	return BaseClass::IsInterruptable();
 }
+
+ConVar ai_tank_allow_expanded_npcs( "ai_tank_allow_expanded_npcs", "1", FCVAR_NONE, "Allows Father Grigori, Barney, and vortigaunts to automatically man func_tanks." );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CAI_FuncTankBehavior::CanManTank( CFuncTank *pTank, bool bForced )
+{
+	if (!bForced)
+	{
+		// In order to prevent potential problems in existing maps, Father Grigori, Barney, and vortigaunts can be set to not automatically man func_tanks by default.
+		if (ai_tank_allow_expanded_npcs.GetBool() == false)
+		{
+			const char *pszClass = GetOuter()->GetClassname();
+			if ( FStrEq( pszClass, "npc_monk" ) || FStrEq( pszClass, "npc_barney" ) || FStrEq( pszClass, "npc_vortigaunt" ) )
+				return false;
+		}
+	}
+
+	return true;
+}
 #endif
 
 //-----------------------------------------------------------------------------
