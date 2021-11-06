@@ -1542,7 +1542,11 @@ int CNPC_Citizen::SelectScheduleRetrieveItem()
 			// Been kicked out of the player squad since the time I located the health.
 			ClearCondition( COND_HEALTH_ITEM_AVAILABLE );
 		}
+#ifdef MAPBASE
+		else if ( m_FollowBehavior.GetFollowTarget() )
+#else
 		else
+#endif
 		{
 			CBaseEntity *pBase = FindHealthItem(m_FollowBehavior.GetFollowTarget()->GetAbsOrigin(), Vector( 120, 120, 120 ) );
 			CItem *pItem = dynamic_cast<CItem *>(pBase);

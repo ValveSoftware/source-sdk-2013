@@ -748,7 +748,8 @@ Class_T	CNPC_Combine::Classify ( void )
 //-----------------------------------------------------------------------------
 bool CNPC_Combine::IsAltFireCapable( void )
 {
-	return IsElite() || m_bAlternateCapable;
+	// The base class tells us if we're carrying an alt-fire-able weapon.
+	return (IsElite() || m_bAlternateCapable) && BaseClass::IsAltFireCapable();
 }
 
 //-----------------------------------------------------------------------------
@@ -2024,7 +2025,7 @@ int CNPC_Combine::SelectSchedule( void )
 			Vector vecTarget = m_hForcedGrenadeTarget->WorldSpaceCenter();
 
 #ifdef MAPBASE
-			// I switched this to IsAltFireCapable() before, but m_bAlternateCapable makes it necessary to use IsElite() again.
+			// This was switched to IsAltFireCapable() before, but m_bAlternateCapable makes it necessary to use IsElite() again.
 #endif
 			if ( IsElite() )
 			{

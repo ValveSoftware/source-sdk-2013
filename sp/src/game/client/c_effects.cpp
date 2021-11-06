@@ -40,7 +40,7 @@ ConVar r_RainSplashPercentage( "r_RainSplashPercentage", "20", FCVAR_CHEAT ); //
 ConVar r_RainParticleDensity( "r_RainParticleDensity", "1", FCVAR_NONE, "Density of Particle Rain 0-1" );
 
 #ifdef MAPBASE
-ConVar r_RainParticleClampOffset_Rain( "r_RainParticleClampOffset_Rain", "112", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems using the 'Particle Rain' type." );
+ConVar r_RainParticleClampOffset_Rain( "r_RainParticleClampOffset_Rain", "120", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems using the 'Particle Rain' type." );
 ConVar r_RainParticleClampOffset_Ash( "r_RainParticleClampOffset_Ash", "300", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems using the 'Particle Ash' type." );
 ConVar r_RainParticleClampOffset_RainStorm( "r_RainParticleClampOffset_RainStorm", "112", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems using the 'Particle Rain Storm' type." );
 ConVar r_RainParticleClampOffset_Snow( "r_RainParticleClampOffset_Snow", "300", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems using the 'Particle Snow' type." );
