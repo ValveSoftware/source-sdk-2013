@@ -402,7 +402,11 @@ void CFuncTank::InputFindNPCToManTank( inputdata_t &inputdata )
 		{
 			// Verify the npc has the func_tank controller behavior.
 			CAI_FuncTankBehavior *pBehavior;
+#ifdef MAPBASE
+			if ( pNPC->GetBehavior( &pBehavior ) && pBehavior->CanManTank( this, true ) )
+#else
 			if ( pNPC->GetBehavior( &pBehavior ) )
+#endif
 			{
 				m_hController = pNPC;
 				pBehavior->SetFuncTank( this );
@@ -439,7 +443,7 @@ void CFuncTank::InputTeleportNPCToManTank( inputdata_t &inputdata )
 		{
 			// Verify the npc has the func_tank controller behavior.
 			CAI_FuncTankBehavior *pBehavior;
-			if ( pNPC->GetBehavior( &pBehavior ) )
+			if ( pNPC->GetBehavior( &pBehavior ) && pBehavior->CanManTank( this, true ) )
 			{
 				Vector vecVec;
 				QAngle angAng;
@@ -512,7 +516,7 @@ void CFuncTank::InputForceNPCToManTank( inputdata_t &inputdata )
 		{
 			// Verify the npc has the func_tank controller behavior.
 			CAI_FuncTankBehavior *pBehavior;
-			if ( pNPC->GetBehavior( &pBehavior ) )
+			if ( pNPC->GetBehavior( &pBehavior ) && pBehavior->CanManTank( this, true ) )
 			{
 				// Set the forced condition
 				pBehavior->SetCondition( CAI_FuncTankBehavior::COND_FUNCTANK_FORCED );
@@ -627,7 +631,11 @@ void CFuncTank::NPC_FindController( void )
 			continue;
 
 		CAI_FuncTankBehavior *pBehavior;
+#ifdef MAPBASE
+		if ( pNPC->GetBehavior( &pBehavior ) && pBehavior->CanManTank( this, false ) )
+#else
 		if ( pNPC->GetBehavior( &pBehavior ) )
+#endif
 		{
 			// Don't mount the func_tank if your "enemy" is within X feet or it or the npc.
 			CBaseEntity *pEnemy = pNPC->GetEnemy();

@@ -108,6 +108,12 @@ public:
 		return 0.5f; 
 	}
 
+#ifdef MAPBASE
+	// Pistols are their own backup activities
+	virtual acttable_t		*GetBackupActivityList() { return NULL; }
+	virtual int				GetBackupActivityListCount() { return 0; }
+#endif
+
 	DECLARE_ACTTABLE();
 
 private:
@@ -155,6 +161,40 @@ acttable_t	CWeaponPistol::m_acttable[] =
 	// Activities ported from weapon_alyxgun below
 	// 
 
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	// Readiness activities (not aiming)
+	{ ACT_IDLE_RELAXED,				ACT_IDLE_PISTOL_RELAXED,		false },//never aims
+	{ ACT_IDLE_STIMULATED,			ACT_IDLE_PISTOL_STIMULATED,		false },
+	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_PISTOL,			false },//always aims
+	{ ACT_IDLE_STEALTH,				ACT_IDLE_STEALTH_PISTOL,		false },
+
+	{ ACT_WALK_RELAXED,				ACT_WALK_PISTOL_RELAXED,		false },//never aims
+	{ ACT_WALK_STIMULATED,			ACT_WALK_PISTOL_STIMULATED,		false },
+	{ ACT_WALK_AGITATED,			ACT_WALK_AIM_PISTOL,			false },//always aims
+	{ ACT_WALK_STEALTH,				ACT_WALK_STEALTH_PISTOL,		false },
+
+	{ ACT_RUN_RELAXED,				ACT_RUN_PISTOL_RELAXED,			false },//never aims
+	{ ACT_RUN_STIMULATED,			ACT_RUN_PISTOL_STIMULATED,		false },
+	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_PISTOL,				false },//always aims
+	{ ACT_RUN_STEALTH,				ACT_RUN_STEALTH_PISTOL,			false },
+
+	// Readiness activities (aiming)
+	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_PISTOL_RELAXED,		false },//never aims	
+	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_AIM_PISTOL_STIMULATED,	false },
+	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_PISTOL,			false },//always aims
+	{ ACT_IDLE_AIM_STEALTH,			ACT_IDLE_STEALTH_PISTOL,		false },
+
+	{ ACT_WALK_AIM_RELAXED,			ACT_WALK_PISTOL_RELAXED,		false },//never aims
+	{ ACT_WALK_AIM_STIMULATED,		ACT_WALK_AIM_PISTOL,			false },
+	{ ACT_WALK_AIM_AGITATED,		ACT_WALK_AIM_PISTOL,			false },//always aims
+	{ ACT_WALK_AIM_STEALTH,			ACT_WALK_AIM_STEALTH_PISTOL,	false },//always aims
+
+	{ ACT_RUN_AIM_RELAXED,			ACT_RUN_PISTOL_RELAXED,			false },//never aims
+	{ ACT_RUN_AIM_STIMULATED,		ACT_RUN_AIM_PISTOL,				false },
+	{ ACT_RUN_AIM_AGITATED,			ACT_RUN_AIM_PISTOL,				false },//always aims
+	{ ACT_RUN_AIM_STEALTH,			ACT_RUN_AIM_STEALTH_PISTOL,		false },//always aims
+	//End readiness activities
+#else
 	// Readiness activities (not aiming)
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_PISTOL,				false },//never aims
 	{ ACT_IDLE_STIMULATED,			ACT_IDLE_STIMULATED,			false },
@@ -187,6 +227,7 @@ acttable_t	CWeaponPistol::m_acttable[] =
 	{ ACT_RUN_AIM_AGITATED,			ACT_RUN_AIM_PISTOL,				false },//always aims
 	{ ACT_RUN_AIM_STEALTH,			ACT_RUN_AIM_STEALTH_PISTOL,		false },//always aims
 	//End readiness activities
+#endif
 
 	// Crouch activities
 	{ ACT_CROUCHIDLE_STIMULATED,	ACT_CROUCHIDLE_STIMULATED,		false },
@@ -199,10 +240,40 @@ acttable_t	CWeaponPistol::m_acttable[] =
 	{ ACT_READINESS_AGITATED_TO_STIMULATED, ACT_READINESS_PISTOL_AGITATED_TO_STIMULATED, false },
 	{ ACT_READINESS_STIMULATED_TO_RELAXED, ACT_READINESS_PISTOL_STIMULATED_TO_RELAXED, false },
 #endif
+
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_PISTOL,			true },
+	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_PISTOL,		true },
+	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_PISTOL,			true },
+	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_PISTOL,		true },
+#endif
+
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_PISTOL_MED,			false },
+	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_PISTOL_MED,		false },
+
+	{ ACT_COVER_WALL_R,			ACT_COVER_WALL_R_PISTOL,		false },
+	{ ACT_COVER_WALL_L,			ACT_COVER_WALL_L_PISTOL,		false },
+	{ ACT_COVER_WALL_LOW_R,		ACT_COVER_WALL_LOW_R_PISTOL,	false },
+	{ ACT_COVER_WALL_LOW_L,		ACT_COVER_WALL_LOW_L_PISTOL,	false },
+#endif
 };
 
 
 IMPLEMENT_ACTTABLE( CWeaponPistol );
+
+#ifdef MAPBASE
+// Allows Weapon_BackupActivity() to access the pistol's activity table.
+acttable_t *GetPistolActtable()
+{
+	return CWeaponPistol::m_acttable;
+}
+
+int GetPistolActtableCount()
+{
+	return ARRAYSIZE(CWeaponPistol::m_acttable);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor

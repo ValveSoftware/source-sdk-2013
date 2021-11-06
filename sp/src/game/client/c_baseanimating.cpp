@@ -1990,6 +1990,10 @@ CollideType_t C_BaseAnimating::GetCollideType( void )
 	return BaseClass::GetCollideType();
 }
 
+#ifdef MAPBASE
+ConVar ai_death_pose_enabled( "ai_death_pose_enabled", "1", FCVAR_NONE, "Toggles the death pose fix code, which cancels sequence transitions while a NPC is ragdolling." );
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: if the active sequence changes, keep track of the previous ones and decay them based on their decay rate
 //-----------------------------------------------------------------------------
@@ -2005,6 +2009,14 @@ void C_BaseAnimating::MaintainSequenceTransitions( IBoneSetup &boneSetup, float 
 		m_nPrevNewSequenceParity = m_nNewSequenceParity;
 		return;
 	}
+
+#ifdef MAPBASE
+	if ( IsAboutToRagdoll() && ai_death_pose_enabled.GetBool() )
+	{
+		m_nPrevNewSequenceParity = m_nNewSequenceParity;
+		return;
+	}
+#endif
 
 	m_SequenceTransitioner.CheckForSequenceChange( 
 		boneSetup.GetStudioHdr(),
@@ -2785,14 +2797,29 @@ void C_BaseAnimating::CalculateIKLocks( float currentTime )
 
 					// debugoverlay->AddBoxOverlay( origin, Vector( -1, -1, -1 ), Vector( 1, 1, 1 ), QAngle( 0, 0, 0 ), 255, 0, 0, 0, 0 );
 
-					float d = (pTarget->est.pos - origin).Length();
+					Vector vecDelta = (origin - pTarget->est.pos);
+					float d = vecDelta.Length();
 
 					if ( d >= flDist)
 						continue;
 
 					flDist = d;
-					pTarget->SetPos( origin );
-					pTarget->SetAngles( angles );
+#ifdef MAPBASE
+					// For blending purposes, IK attachments should obey weight
+					if ( pTarget->est.flWeight < 1.0f )
+					{
+						Quaternion qTarget;
+						AngleQuaternion( angles, qTarget );
+
+						QuaternionSlerp( pTarget->est.q, qTarget, pTarget->est.flWeight, pTarget->est.q );
+						pTarget->SetPos( pTarget->est.pos + (vecDelta * pTarget->est.flWeight) );
+					}
+					else
+#endif
+					{
+						pTarget->SetPos( origin );
+						pTarget->SetAngles( angles );
+					}
 					// debugoverlay->AddBoxOverlay( pTarget->est.pos, Vector( -pTarget->est.radius, -pTarget->est.radius, -pTarget->est.radius ), Vector( pTarget->est.radius, pTarget->est.radius, pTarget->est.radius), QAngle( 0, 0, 0 ), 0, 255, 0, 0, 0 );
 				}
 

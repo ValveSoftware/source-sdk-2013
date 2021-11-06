@@ -61,6 +61,10 @@ int AE_COMPANION_RELEASE_FLARE;
 #define COMPANION_MELEE_DIST 64.0
 #endif
 
+#ifdef MAPBASE
+ConVar ai_allow_new_weapons( "ai_allow_new_weapons", "1", FCVAR_NONE, "Allows companion NPCs to automatically pick up and use weapons they were unable pick up before, i.e. 357s or crossbows." );
+#endif
+
 #define MAX_TIME_BETWEEN_BARRELS_EXPLODING			5.0f
 #define MAX_TIME_BETWEEN_CONSECUTIVE_PLAYER_KILLS	3.0f
 
@@ -211,6 +215,10 @@ bool CNPC_PlayerCompanion::CreateBehaviors()
 	AddBehavior( &m_FollowBehavior );
 	AddBehavior( &m_LeadBehavior );
 #endif//HL2_EPISODIC
+
+#ifdef MAPBASE
+	AddBehavior( &m_FuncTankBehavior );
+#endif
 	
 	return BaseClass::CreateBehaviors();
 }
@@ -1642,6 +1650,19 @@ Activity CNPC_PlayerCompanion::TranslateActivityReadiness( Activity activity )
 					continue;
 			}
 
+#ifdef MAPBASE
+			// If we don't have the readiness activity we selected and there's no backup activity available, break the loop and return the base act.
+			bool bRequired;
+			if ( !HaveSequenceForActivity( actremap.mappedActivity ) && !HaveSequenceForActivity( Weapon_TranslateActivity( actremap.mappedActivity, &bRequired ) ) )
+			{
+				Activity backupAct = Weapon_BackupActivity( actremap.mappedActivity, bRequired );
+				if ( backupAct != actremap.mappedActivity )
+					return backupAct;
+				else
+					break;
+			}
+#endif
+
 			// We've successfully passed all criteria for remapping this 
 			return actremap.mappedActivity;
 		}
@@ -1664,21 +1685,6 @@ Activity CNPC_PlayerCompanion::NPC_TranslateActivity( Activity activity )
 		if ( random->RandomInt( 0, 1 ) && HaveSequenceForActivity( ACT_RUN_PROTECTED ) )
 			activity = ACT_RUN_PROTECTED;
 	}
-
-#ifdef COMPANION_HOLSTER_WORKAROUND
-	if (activity == ACT_DISARM || activity == ACT_ARM)
-	{
-		CBaseCombatWeapon *pWeapon = GetActiveWeapon() ? GetActiveWeapon() : m_hWeapons[m_iLastHolsteredWeapon];
-		if (pWeapon && pWeapon->WeaponClassify() != WEPCLASS_HANDGUN)
-		{
-			switch (activity)
-			{
-			case ACT_DISARM:	return ACT_DISARM_RIFLE;
-			case ACT_ARM:		return ACT_ARM_RIFLE;
-			}
-		}
-	}
-#endif
 
 	activity = BaseClass::NPC_TranslateActivity( activity );
 
@@ -2748,6 +2754,13 @@ bool CNPC_PlayerCompanion::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 		{
 			return (NumWeaponsInSquad("weapon_shotgun") < 1 );
 		}
+#ifdef MAPBASE
+		else if (EntIsClass( pWeapon, gm_isz_class_Pistol ) || EntIsClass( pWeapon, gm_isz_class_357 ) || EntIsClass( pWeapon, gm_isz_class_Crossbow ))
+		{
+			// The AI automatically detects these weapons as usable now that there's animations for them, so ensure this behavior can be toggled in situations where that's not desirable
+			return ai_allow_new_weapons.GetBool();
+		}
+#endif
 		else
 		{
 			return true;

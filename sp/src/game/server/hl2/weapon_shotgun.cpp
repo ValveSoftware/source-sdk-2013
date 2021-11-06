@@ -108,6 +108,57 @@ END_DATADESC()
 
 acttable_t	CWeaponShotgun::m_acttable[] = 
 {
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	// Note that ACT_IDLE_SHOTGUN_AGITATED seems to be a stand-in for ACT_IDLE_SHOTGUN on citizens,
+	// but that isn't acceptable for NPCs which don't use readiness activities.
+	{ ACT_IDLE,						ACT_IDLE_SHOTGUN,		true },
+
+	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_SHOTGUN,			true },
+	{ ACT_RELOAD,					ACT_RELOAD_SHOTGUN,					false },
+	{ ACT_WALK,						ACT_WALK_SHOTGUN,					true },
+	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_SHOTGUN,				true },
+
+// Readiness activities (not aiming)
+	{ ACT_IDLE_RELAXED,				ACT_IDLE_SHOTGUN_RELAXED,		false },//never aims
+	{ ACT_IDLE_STIMULATED,			ACT_IDLE_SHOTGUN_STIMULATED,	false },
+	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_SHOTGUN,			false },//always aims
+
+	{ ACT_WALK_RELAXED,				ACT_WALK_SHOTGUN_RELAXED,		false },//never aims
+	{ ACT_WALK_STIMULATED,			ACT_WALK_SHOTGUN_STIMULATED,	false },
+	{ ACT_WALK_AGITATED,			ACT_WALK_AIM_SHOTGUN,			false },//always aims
+
+	{ ACT_RUN_RELAXED,				ACT_RUN_SHOTGUN_RELAXED,		false },//never aims
+	{ ACT_RUN_STIMULATED,			ACT_RUN_SHOTGUN_STIMULATED,		false },
+	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_SHOTGUN,			false },//always aims
+
+// Readiness activities (aiming)
+	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_SHOTGUN_RELAXED,			false },//never aims	
+	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_AIM_SHOTGUN_STIMULATED,	false },
+	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_SHOTGUN,				false },//always aims
+
+	{ ACT_WALK_AIM_RELAXED,			ACT_WALK_SHOTGUN_RELAXED,			false },//never aims
+	{ ACT_WALK_AIM_STIMULATED,		ACT_WALK_AIM_SHOTGUN_STIMULATED,	false },
+	{ ACT_WALK_AIM_AGITATED,		ACT_WALK_AIM_SHOTGUN,				false },//always aims
+
+	{ ACT_RUN_AIM_RELAXED,			ACT_RUN_SHOTGUN_RELAXED,			false },//never aims
+	{ ACT_RUN_AIM_STIMULATED,		ACT_RUN_AIM_SHOTGUN_STIMULATED,		false },
+	{ ACT_RUN_AIM_AGITATED,			ACT_RUN_AIM_SHOTGUN,				false },//always aims
+//End readiness activities
+
+	{ ACT_WALK_AIM,					ACT_WALK_AIM_SHOTGUN,				true },
+	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,				true },
+	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,			true },
+	{ ACT_RUN,						ACT_RUN_SHOTGUN,					true },
+	{ ACT_RUN_AIM,					ACT_RUN_AIM_SHOTGUN,				true },
+	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RIFLE,				true },
+	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_RIFLE,			true },
+	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_SHOTGUN,	true },
+	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_SHOTGUN_LOW,		true },
+	{ ACT_RELOAD_LOW,				ACT_RELOAD_SHOTGUN_LOW,				false },
+	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SHOTGUN,			false },
+	{ ACT_COVER_LOW,				ACT_COVER_SHOTGUN_LOW,				false },
+	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_SHOTGUN_LOW,			false },
+#else
 	{ ACT_IDLE,						ACT_IDLE_SMG1,					true },	// FIXME: hook to shotgun unique
 
 	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_SHOTGUN,			true },
@@ -153,6 +204,17 @@ acttable_t	CWeaponShotgun::m_acttable[] =
 	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_SHOTGUN_LOW,		true },
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_SHOTGUN_LOW,				false },
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SHOTGUN,			false },
+#endif
+
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	{ ACT_ARM,						ACT_ARM_SHOTGUN,				true },
+	{ ACT_DISARM,					ACT_DISARM_SHOTGUN,				true },
+#endif
+
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_SHOTGUN_MED,			false },
+	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_SHOTGUN_MED,		false },
+#endif
 };
 
 IMPLEMENT_ACTTABLE(CWeaponShotgun);

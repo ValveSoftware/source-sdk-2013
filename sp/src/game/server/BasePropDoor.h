@@ -103,6 +103,12 @@ protected:
 
 	inline CBaseEntity *GetActivator();
 
+#ifdef MAPBASE
+	inline float GetNPCOpenDistance() { return m_flNPCOpenDistance; }
+	inline Activity GetNPCOpenFrontActivity() { return m_eNPCOpenFrontActivity; }
+	inline Activity GetNPCOpenBackActivity() { return m_eNPCOpenBackActivity; }
+#endif
+
 private:
 
 	// Implement these in your leaf class.
@@ -195,6 +201,12 @@ private:
 	string_t m_SoundMoving;
 	string_t m_SoundOpen;
 	string_t m_SoundClose;
+
+#ifdef MAPBASE
+	float	m_flNPCOpenDistance;
+	Activity	m_eNPCOpenFrontActivity;
+	Activity	m_eNPCOpenBackActivity;
+#endif
 
 	// dvs: FIXME: can we remove m_flSpeed from CBaseEntity?
 	//float m_flSpeed;			// Rotation speed when opening or closing in degrees per second.

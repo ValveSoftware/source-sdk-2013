@@ -181,8 +181,10 @@ public:
 	void	SetLayerAutokill( int iLayer, bool bAutokill );
 	void	SetLayerLooping( int iLayer, bool bLooping );
 	void	SetLayerNoRestore( int iLayer, bool bNoRestore );
-#ifdef MAPBASE // From Alien Swarm SDK
-	void	SetLayerNoEvents( int iLayer, bool bNoEvents );
+#ifdef MAPBASE
+	void	SetLayerNoEvents( int iLayer, bool bNoEvents ); // From Alien Swarm SDK
+
+	bool	IsLayerFinished( int iLayer );
 #endif
 
 	Activity	GetLayerActivity( int iLayer );

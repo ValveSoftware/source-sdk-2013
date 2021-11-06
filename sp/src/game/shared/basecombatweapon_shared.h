@@ -230,6 +230,8 @@ public:
 	static WeaponClass_t	WeaponClassFromString(const char *str);
 
 	virtual bool			SupportsBackupActivity(Activity activity);
+	virtual acttable_t		*GetBackupActivityList();
+	virtual int				GetBackupActivityListCount();
 #endif
 
 	virtual void			Equip( CBaseCombatCharacter *pOwner );
@@ -319,7 +321,7 @@ public:
 	bool					ReloadsSingly( void ) const;
 #ifdef MAPBASE
 	// Originally created for the crossbow, can be used to add special NPC reloading behavior
-	virtual void			Reload_NPC( void );
+	virtual void			Reload_NPC( bool bPlaySound = true );
 #endif
 
 	virtual bool			AutoFiresFullClip( void ) { return false; }

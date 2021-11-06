@@ -62,6 +62,10 @@ public:
 	virtual void 		MoveClimbStart( const Vector &climbDest, const Vector &climbDir, float climbDist, float yaw );
 	virtual AIMoveResult_t MoveClimbExecute( const Vector &climbDest, const Vector &climbDir, float climbDist, float yaw, int climbNodesLeft );
 	virtual void 		MoveClimbStop();
+#ifdef MAPBASE
+	virtual void		MoveClimbPause();
+	virtual bool		MoveClimbShouldTeleportToSequenceEnd( Vector &teleportOrigin );
+#endif
 
 	//---------------------------------
 
@@ -83,6 +87,9 @@ public:
 	const Vector &		GetCurVel() const			{ return m_vecVelocity;			 }
 
 	virtual float		OverrideMaxYawSpeed( Activity activity )	{ return -1; }
+#ifdef MAPBASE
+	virtual
+#endif
 	bool				IsDeceleratingToGoal() const				{ return false; }
 
 	//---------------------------------
