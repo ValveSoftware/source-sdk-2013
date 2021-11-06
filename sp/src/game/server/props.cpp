@@ -44,6 +44,7 @@
 #ifdef MAPBASE
 #include "mapbase/GlobalStrings.h"
 #include "collisionutils.h"
+#include "vstdlib/ikeyvaluessystem.h" // From Alien Swarm SDK
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -387,8 +388,15 @@ int CBaseProp::ParsePropData( void )
 		return PARSE_FAILED_NO_DATA;
 	}
 
+#ifdef MAPBASE // From Alien Swarm SDK
+	static int keyPropData = KeyValuesSystem()->GetSymbolForString( "prop_data" );
+
+	// Do we have a props section?
+	KeyValues *pkvPropData = modelKeyValues->FindKey( keyPropData );
+#else
 	// Do we have a props section?
 	KeyValues *pkvPropData = modelKeyValues->FindKey("prop_data");
+#endif
 	if ( !pkvPropData )
 	{
 		modelKeyValues->deleteThis();
@@ -1200,6 +1208,17 @@ int CBreakableProp::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	{
 		m_hLastAttacker.Set( info.GetAttacker() );
 	}
+#ifdef MAPBASE // From Alien Swarm SDK
+	else if ( info.GetAttacker() )
+	{
+		CBaseEntity *attacker = info.GetAttacker();
+		CBaseEntity *attackerOwner = attacker->GetOwnerEntity();
+		if ( attackerOwner && attackerOwner->MyCombatCharacterPointer() )
+		{
+			m_hLastAttacker.Set( attackerOwner );
+		}
+	}
+#endif
 
 	float flPropDamage = GetBreakableDamage( info, assert_cast<IBreakableWithPropData*>(this) );
 	info.SetDamage( flPropDamage );
@@ -1999,9 +2018,16 @@ BEGIN_DATADESC( CDynamicProp )
 	DEFINE_KEYFIELD( m_bDisableBoneFollowers, FIELD_BOOLEAN, "DisableBoneFollowers" ),
 	DEFINE_FIELD(	 m_bUseHitboxesForRenderBox, FIELD_BOOLEAN ),
 	DEFINE_FIELD(	m_nPendingSequence, FIELD_SHORT ),
+#ifdef MAPBASE // From Alien Swarm SDK
+	DEFINE_KEYFIELD( m_bUpdateAttachedChildren, FIELD_BOOLEAN, "updatechildren" ),
+	DEFINE_KEYFIELD( m_bHoldAnimation, FIELD_BOOLEAN, "HoldAnimation" ),
+#endif
 		
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SetAnimation",	InputSetAnimation ),
+#ifdef MAPBASE // From Alien Swarm SDK
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetAnimationNoReset", InputSetAnimationNoReset ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SetDefaultAnimation",	InputSetDefaultAnimation ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"TurnOn",		InputTurnOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"TurnOff",		InputTurnOff ),
@@ -2226,9 +2252,8 @@ void CDynamicProp::CreateBoneFollowers()
 				pBone = pBone->GetNextKey();
 			}
 		}
-
-		modelKeyValues->deleteThis();
 	}
+	modelKeyValues->deleteThis();
 
 	// if we got here, we don't have a bone follower section, but if we have a ragdoll
 	// go ahead and create default bone followers for it
@@ -2258,7 +2283,11 @@ bool CDynamicProp::TestCollision( const Ray_t &ray, unsigned int mask, trace_t& 
 			}
 		}
 	}
+#ifdef MAPBASE // From Alien Swarm SDK
+	return BaseClass::TestCollision( ray, mask, trace );
+#else
 	return false;
+#endif
 }
 
 
@@ -2366,10 +2395,23 @@ void CDynamicProp::AnimThink( void )
 			}
 			else 
 			{
+#ifdef MAPBASE // From Alien Swarm SDK
+				if ( m_iszDefaultAnim != NULL_STRING && m_bHoldAnimation == false )
+				{
+					PropSetAnim( STRING( m_iszDefaultAnim ) );
+				}
+
+				// We need to wait for an animation change to come in
+				if ( m_bHoldAnimation )
+				{
+					SetNextThink( gpGlobals->curtime + 0.1f );
+				}
+#else
 				if (m_iszDefaultAnim != NULL_STRING)
 				{
 					PropSetAnim( STRING( m_iszDefaultAnim ) );
 				}	
+#endif
 			}
 		}
 	}
@@ -2381,6 +2423,17 @@ void CDynamicProp::AnimThink( void )
 	StudioFrameAdvance();
 	DispatchAnimEvents(this);
 	m_BoneFollowerManager.UpdateBoneFollowers(this);
+
+#ifdef MAPBASE // From Alien Swarm SDK
+	// Update any SetParentAttached children
+	if ( m_bUpdateAttachedChildren )
+	{
+		for ( CBaseEntity *pChild = FirstMoveChild(); pChild; pChild = pChild->NextMovePeer() )
+		{
+			pChild->PhysicsTouchTriggers();
+		}		
+	}
+#endif
 }
 
 
@@ -2418,6 +2471,19 @@ void CDynamicProp::InputSetAnimation( inputdata_t &inputdata )
 {
 	PropSetAnim( inputdata.value.String() );
 }
+
+#ifdef MAPBASE // From Alien Swarm SDK
+//------------------------------------------------------------------------------
+// Purpose: Set the animation unless the prop is already set to this particular animation
+//------------------------------------------------------------------------------
+void CDynamicProp::InputSetAnimationNoReset( inputdata_t &inputdata )
+{
+	if ( GetSequence() != LookupSequence( inputdata.value.String() ) )
+	{
+		PropSetAnim( inputdata.value.String() );
+	}
+}
+#endif
 
 //------------------------------------------------------------------------------
 // Purpose:
@@ -6005,6 +6071,14 @@ int CPropDoorRotating::DrawDebugTextOverlays(void)
 		Q_snprintf(tempstr, sizeof(tempstr),"Avelocity: %.2f %.2f %.2f", GetLocalAngularVelocity().x,  GetLocalAngularVelocity().y,  GetLocalAngularVelocity().z);
 		EntityText( text_offset, tempstr, 0);
 		text_offset++;
+
+#ifdef MAPBASE // From Alien Swarm SDK
+		if ( IsDoorLocked() )
+		{
+			EntityText( text_offset, "LOCKED", 0);
+			text_offset++;
+		}
+#endif
 
 		if ( IsDoorOpen() )
 		{

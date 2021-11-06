@@ -329,6 +329,9 @@ public:
 
 	// Input handlers
 	void InputSetAnimation( inputdata_t &inputdata );
+#ifdef MAPBASE // From Alien Swarm SDK
+	void InputSetAnimationNoReset( inputdata_t &inputdata );
+#endif
 	void InputSetDefaultAnimation( inputdata_t &inputdata );
 	void InputTurnOn( inputdata_t &inputdata );
 	void InputTurnOff( inputdata_t &inputdata );
@@ -345,6 +348,9 @@ public:
 	int					m_iTransitionDirection;
 
 	// Random animations
+#ifdef MAPBASE // From Alien Swarm SDK
+	bool				m_bHoldAnimation;
+#endif
 	bool				m_bRandomAnimator;
 	float				m_flNextRandAnim;
 	float				m_flMinRandAnimTime;
@@ -353,6 +359,9 @@ public:
 
 	bool				m_bStartDisabled;
 	bool				m_bDisableBoneFollowers;
+#ifdef MAPBASE // From Alien Swarm SDK
+	bool				m_bUpdateAttachedChildren;	// For props with children on attachment points, update their child touches as we animate
+#endif
 
 	CNetworkVar( bool, m_bUseHitboxesForRenderBox );
 
