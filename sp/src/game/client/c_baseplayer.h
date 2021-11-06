@@ -23,7 +23,10 @@
 #include "hintsystem.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 #include "c_env_fog_controller.h"
+#ifdef MAPBASE // From Alien Swarm SDK
 #include "c_postprocesscontroller.h"
+#include "c_colorcorrection.h"
+#endif
 #include "igameevents.h"
 #include "GameEventListener.h"
 
@@ -381,7 +384,10 @@ public:
 	void					UpdateFogController( void );
 	void					UpdateFogBlend( void );
 
+#ifdef MAPBASE // From Alien Swarm SDK
 	C_PostProcessController* GetActivePostProcessController() const;
+	C_ColorCorrection*		GetActiveColorCorrection() const;
+#endif
 
 	float					GetFOVTime( void ){ return m_flFOVTime; }
 
@@ -647,7 +653,10 @@ private:
 	// One for left and one for right side of step
 	StepSoundCache_t		m_StepSoundCache[ 2 ];
 
-	CNetworkHandle(C_PostProcessController, m_hPostProcessCtrl);	// active postprocessing controller
+#ifdef MAPBASE // From Alien Swarm SDK
+	CNetworkHandle( C_PostProcessController, m_hPostProcessCtrl );	// active postprocessing controller
+	CNetworkHandle( C_ColorCorrection, m_hColorCorrectionCtrl );	// active FXVolume color correction
+#endif
 
 public:
 

@@ -30,6 +30,8 @@ $Project
 		$File	"env_dof_controller.h"
 		$File	"logic_playmovie.cpp"
 		$File	"movie_display.cpp"
+		$File	"fogvolume.cpp"
+		$File	"fogvolume.h"
 		$File	"ai_expresserfollowup.cpp" [$NEW_RESPONSE_SYSTEM]
 		$File	"ai_speechqueue.cpp" [$NEW_RESPONSE_SYSTEM]
 		$File	"ai_speechqueue.h" [$NEW_RESPONSE_SYSTEM]

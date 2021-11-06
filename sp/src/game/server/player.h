@@ -88,6 +88,10 @@ class CNavArea;
 class CHintSystem;
 class CAI_Expresser;
 
+#ifdef MAPBASE // From Alien Swarm SDK
+class CTonemapTrigger;
+#endif
+
 #if defined USES_ECON_ITEMS
 class CEconWearable;
 #endif // USES_ECON_ITEMS
@@ -658,6 +662,8 @@ public:
 
 #ifdef MAPBASE
 	bool					ShouldUseVisibilityCache( CBaseEntity *pEntity );
+
+	void					UpdateFXVolume( void );		// From Alien Swarm SDK
 #endif
 
 public:
@@ -884,9 +890,18 @@ public:
 	void InitFogController( void );
 	void InputSetFogController( inputdata_t &inputdata );
 
+#ifdef MAPBASE // From Alien Swarm SDK
+	void OnTonemapTriggerStartTouch( CTonemapTrigger *pTonemapTrigger );
+	void OnTonemapTriggerEndTouch( CTonemapTrigger *pTonemapTrigger );
+	CUtlVector< CHandle< CTonemapTrigger > > m_hTriggerTonemapList;
+
 	CNetworkHandle( CPostProcessController, m_hPostProcessCtrl );	// active postprocessing controller
+	CNetworkHandle( CColorCorrection, m_hColorCorrectionCtrl );		// active FXVolume color correction
 	void InitPostProcessController( void );
-	void InputSetPostProcessController( inputdata_t& inputdata );
+	void InputSetPostProcessController( inputdata_t &inputdata );
+	void InitColorCorrectionController( void );
+	void InputSetColorCorrectionController( inputdata_t &inputdata );
+#endif
 
 	// Used by env_soundscape_triggerable to manage when the player is touching multiple
 	// soundscape triggers simultaneously.
@@ -1030,6 +1045,13 @@ protected:
 	float					m_fDelay;			// replay delay in seconds
 	float					m_fReplayEnd;		// time to stop replay mode
 	int						m_iReplayEntity;	// follow this entity in replay
+
+#ifdef MAPBASE // From Alien Swarm SDK
+	// For now, Mapbase uses Tony Sergi's Source 2007 tonemap fixes.
+	// Alien Swarm SDK tonemap controller code copies the parameters instead.
+	virtual void UpdateTonemapController( void );
+	//CNetworkHandle( CBaseEntity, m_hTonemapController );
+#endif
 
 private:
 	void HandleFuncTrain();

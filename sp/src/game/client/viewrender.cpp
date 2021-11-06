@@ -76,6 +76,7 @@
 
 #ifdef MAPBASE
 #include "mapbase/c_func_fake_worldportal.h"
+#include "colorcorrectionmgr.h"
 #endif
 
 // Projective textures
@@ -2132,6 +2133,10 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 
 		// Must be first 
 		render->SceneBegin();
+
+#ifdef MAPBASE // From Alien Swarm SDK
+		g_pColorCorrectionMgr->UpdateColorCorrection();
+#endif
 
 		pRenderContext.GetFrom( materials );
 		pRenderContext->TurnOnToneMapping();
