@@ -35,6 +35,10 @@ CHintCriteria::CHintCriteria( void )
 	m_strGroup		= NULL_STRING;
 	m_iFlags		= 0;
 	m_HintTypes.Purge();
+#ifdef MAPBASE // From Alien Swarm SDK
+	m_pfnFilter = NULL;
+	m_pFilterContext = NULL;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1117,10 +1121,10 @@ void CAI_Hint::NPCHandleStartNav( CAI_BaseNPC *pNPC, bool bDefaultFacing )
 
 	HintIgnoreFacing_t facing = GetIgnoreFacing();
 	if (facing == HIF_DEFAULT)
-		facing = bDefaultFacing ? HIF_YES : HIF_NO;
+		facing = bDefaultFacing ? HIF_NO : HIF_YES;
 
-	if (facing == HIF_YES)
-		pNPC->GetNavigator()->SetArrivalDirection(GetDirection());
+	if (facing == HIF_NO)
+		pNPC->GetNavigator()->SetArrivalDirection( GetDirection() );
 
 	if (HintActivityName() != NULL_STRING)
 	{
@@ -1138,6 +1142,51 @@ void CAI_Hint::NPCHandleStartNav( CAI_BaseNPC *pNPC, bool bDefaultFacing )
 			}
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if this hint should override a NPC's yaw even during regular AI.
+//-----------------------------------------------------------------------------
+bool CAI_Hint::OverridesNPCYaw( CAI_BaseNPC *pNPC )
+{
+	switch (HintType())
+	{
+		case HINT_TACTICAL_COVER_CUSTOM:
+		case HINT_TACTICAL_COVER_MED:
+		case HINT_TACTICAL_COVER_LOW:
+			{
+				if (pNPC->HasMemory( bits_MEMORY_INCOVER ))
+				{
+					// By default, don't override yaw on cover nodes unless they use custom activities.
+					HintIgnoreFacing_t facing = GetIgnoreFacing();
+					if (facing == HIF_DEFAULT)
+						return ( HintActivityName() != NULL_STRING );
+
+					return facing == HIF_NO;
+				}
+
+				break;
+			}
+
+		case HINT_PLAYER_ALLY_MOVE_AWAY_DEST:
+			{
+				Vector vHintPos;
+				GetPosition( pNPC, &vHintPos );
+				if (VectorsAreEqual( vHintPos, pNPC->GetAbsOrigin(), 0.1f ))
+				{
+					// By default, don't override yaw on move away destinations unless they use custom activities.
+					HintIgnoreFacing_t facing = GetIgnoreFacing();
+					if (facing == HIF_DEFAULT)
+						return ( HintActivityName() != NULL_STRING );
+
+					return facing == HIF_NO;
+				}
+
+				break;
+			}
+	}
+
+	return false;
 }
 #endif
 
@@ -1258,6 +1307,30 @@ bool CAI_Hint::HintMatchesCriteria( CAI_BaseNPC *pNPC, const CHintCriteria &hint
 		return false;
 	}
 
+#ifdef MAPBASE
+	// Test against generic filter
+	// (From Alien Swarm SDK)
+	if ( !hintCriteria.PassesFilter( this ) )
+	{
+		REPORTFAILURE( "Failed filter test" );
+		return false;
+	}
+
+	// (From Alien Swarm SDK)
+	int nRadius = GetRadius();
+	if ( nRadius != 0 )
+	{
+		// Calculate our distance
+		float distance = (GetAbsOrigin() - position).LengthSqr();
+
+		if ( distance > nRadius * nRadius )
+		{
+			REPORTFAILURE( "NPC is not within the node's radius." );
+			return false;
+		}
+	}
+#endif
+
 	if ( hintCriteria.HasFlag(bits_HINT_NPC_IN_NODE_FOV) )
 	{
 		if ( pNPC == NULL )
@@ -1377,10 +1450,18 @@ bool CAI_Hint::HintMatchesCriteria( CAI_BaseNPC *pNPC, const CHintCriteria &hint
 		{
 			trace_t tr;
 			// Can my bounding box fit there?
+#ifdef MAPBASE // From Alien Swarm SDK
+			Vector vStep( 0, 0, pNPC->StepHeight() );
+			AI_TraceHull ( GetAbsOrigin() + vStep, GetAbsOrigin(), pNPC->WorldAlignMins(), pNPC->WorldAlignMaxs() - vStep, 
+				MASK_SOLID, pNPC, COLLISION_GROUP_NONE, &tr );
+
+			if ( tr.fraction < 0.95 )
+#else
 			AI_TraceHull ( GetAbsOrigin(), GetAbsOrigin(), pNPC->WorldAlignMins(), pNPC->WorldAlignMaxs(), 
 				MASK_SOLID, pNPC, COLLISION_GROUP_NONE, &tr );
 
 			if ( tr.fraction != 1.0 )
+#endif
 			{
 				REPORTFAILURE( "Node isn't clear." );
 				return false;
@@ -1395,6 +1476,15 @@ bool CAI_Hint::HintMatchesCriteria( CAI_BaseNPC *pNPC, const CHintCriteria &hint
 
 		// Calculate our distance
 		float distance = (GetAbsOrigin() - position).Length();
+
+#ifdef MAPBASE
+		// Divide by hint weight
+		float flWeight = GetHintWeight();
+		if ( flWeight != 1.0f )
+		{
+			distance *= GetHintWeightInverse();
+		}
+#endif
 
 		// Must be closer than the current best
 		if ( distance > *flNearestDistance )
@@ -1576,6 +1666,14 @@ void CAI_Hint::OnRestore()
 	m_NodeData.nNodeID = g_pAINetworkManager->GetEditOps()->GetNodeIdFromWCId( m_NodeData.nWCNodeID );
 	FixupTargetNode();
 
+#ifdef MAPBASE
+	if (m_NodeData.flWeight != 0.0f && m_NodeData.flWeight != 1.0f)
+	{
+		// Re-invert the weight
+		m_NodeData.flWeightInverse = 1.0f / m_NodeData.flWeight;
+	}
+#endif
+
 	CAI_Node *pNode = GetNode();
 	
 	if ( !pNode )
@@ -1751,6 +1849,11 @@ void CC_ai_drop_hint( const CCommand &args )
 	nodeData.fIgnoreFacing = HIF_DEFAULT;
 	nodeData.minState = NPC_STATE_IDLE;
 	nodeData.maxState = NPC_STATE_COMBAT;
+#ifdef MAPBASE
+	nodeData.nRadius = 0;	// From Alien Swarm SDK
+	nodeData.flWeight = 1.0f;
+	nodeData.flWeightInverse = 1.0f;
+#endif
 	CAI_Hint *pHint = CAI_HintManager::CreateHint( &nodeData, NULL );
 	if ( pHint )
 	{

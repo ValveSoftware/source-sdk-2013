@@ -157,11 +157,34 @@ void C_TextDisplayPanel::UpdateText()
 	m_pDisplayTextLabel->SetText( m_hScreenEntity->GetDisplayText() );
 
 	//SetSize( m_hScreenEntity->GetTextSize(), m_hScreenEntity->GetTextSize() );
-	SetSize( m_hScreenEntity->GetResolution(), m_hScreenEntity->GetResolution() );
-	m_pDisplayTextLabel->SetSize( m_hScreenEntity->GetResolution(), m_hScreenEntity->GetResolution() );
 	//m_pDisplayTextLabel->SetSize( m_hScreenEntity->GetTextSize(), m_hScreenEntity->GetTextSize() );
 
 	Label::Alignment iAlignment = m_hScreenEntity->GetContentAlignment();
+
+	switch (iAlignment)
+	{
+		// Use a special scaling method when using a south alignment
+		case Label::Alignment::a_southwest:
+		case Label::Alignment::a_south:
+		case Label::Alignment::a_southeast:
+			int lW, lT;
+			m_pDisplayTextLabel->GetContentSize( lW, lT );
+			SetSize( m_hScreenEntity->GetResolution(), lT );
+			m_pDisplayTextLabel->SetSize( m_hScreenEntity->GetResolution(), lT );
+
+			float sW, sT;
+			m_hVGUIScreen->GetSize( sW, sT );
+			//Msg( "Screen width: %f, new height: %f\n", sW, sW * (lT / m_hScreenEntity->GetResolution()) );
+			m_hVGUIScreen->SetHeight( sW * ((float)lT / (float)m_hScreenEntity->GetResolution()) );
+			m_hVGUIScreen->SetPixelHeight( lT );
+			break;
+
+		default:
+			SetSize( m_hScreenEntity->GetResolution(), m_hScreenEntity->GetResolution() );
+			m_pDisplayTextLabel->SetSize( m_hScreenEntity->GetResolution(), m_hScreenEntity->GetResolution() );
+			break;
+	}
+
 	m_pDisplayTextLabel->SetContentAlignment( iAlignment );
 
 	bool bWrap = true;

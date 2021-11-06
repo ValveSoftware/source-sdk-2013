@@ -259,6 +259,7 @@ public:
 
 	void InputSetHandModel( inputdata_t &inputdata );
 	void InputSetHandModelSkin( inputdata_t &inputdata );
+	void InputSetHandModelBodyGroup( inputdata_t &inputdata );
 
 	void InputSetPlayerModel( inputdata_t &inputdata );
 	void InputSetPlayerDrawExternally( inputdata_t &inputdata );
@@ -4617,6 +4618,7 @@ BEGIN_DATADESC( CLogicPlayerProxy )
 	DEFINE_INPUTFUNC( FIELD_STRING,	"GetAmmoOnWeapon", InputGetAmmoOnWeapon ),
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SetHandModel", InputSetHandModel ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetHandModelSkin", InputSetHandModelSkin ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetHandModelBodyGroup", InputSetHandModelBodyGroup ),
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SetPlayerModel", InputSetPlayerModel ),
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetPlayerDrawExternally", InputSetPlayerDrawExternally ),
 	DEFINE_INPUT( m_MaxArmor, FIELD_INTEGER, "SetMaxInputArmor" ),
@@ -4659,6 +4661,8 @@ bool CLogicPlayerProxy::KeyValue( const char *szKeyName, const char *szValue )
 					vm->SetModel(szValue);
 				else if (FStrEq(szKeyName, "Skin")) // HandsVMSkin
 					vm->m_nSkin = atoi(szValue);
+				else if (FStrEq(szKeyName, "Body")) // HandsVMBody
+					vm->m_nBody = atoi(szValue);
 			}
 			return true;
 		}
@@ -5062,6 +5066,17 @@ void CLogicPlayerProxy::InputSetHandModelSkin( inputdata_t &inputdata )
 		vm->m_nSkin = inputdata.value.Int();
 }
 
+void CLogicPlayerProxy::InputSetHandModelBodyGroup( inputdata_t &inputdata )
+{
+	if (!m_hPlayer)
+		return;
+
+	CBasePlayer *pPlayer = static_cast<CBasePlayer*>( m_hPlayer.Get() );
+	CBaseViewModel *vm = pPlayer->GetViewModel(1);
+	if (vm)
+		vm->m_nBody = inputdata.value.Int();
+}
+
 void CLogicPlayerProxy::InputSetPlayerModel( inputdata_t &inputdata )
 {
 	if (!m_hPlayer)
@@ -5089,6 +5104,6 @@ void CLogicPlayerProxy::InputSetPlayerDrawExternally( inputdata_t &inputdata )
 		return;
 
 	CBasePlayer *pPlayer = static_cast<CBasePlayer*>(m_hPlayer.Get());
-	pPlayer->m_bDrawPlayerModelExternally = inputdata.value.Bool();
+	pPlayer->SetDrawPlayerModelExternally( inputdata.value.Bool() );
 }
 #endif

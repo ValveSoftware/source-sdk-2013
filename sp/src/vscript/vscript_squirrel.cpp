@@ -2669,44 +2669,28 @@ void SquirrelVM::RegisterEnum(ScriptEnumDesc_t* pEnumDesc)
 	if (!pEnumDesc)
 		return;
 
+	sq_newtableex(vm_, pEnumDesc->m_ConstantBindings.Count());
+
 	sq_pushconsttable(vm_);
+
 	sq_pushstring(vm_, pEnumDesc->m_pszScriptName, -1);
-	
-	// Check if class name is already taken
-	if (sq_get(vm_, -2) == SQ_OK)
-	{
-		HSQOBJECT obj;
-		sq_resetobject(&obj);
-		sq_getstackobj(vm_, -1, &obj);
-		if (!sq_isnull(obj))
-		{
-			sq_pop(vm_, 2);
-			return;
-		}
-	}
-
-	sq_pop(vm_, 1);
-
-	// HACKHACK: I have no idea how to declare enums with the current API.
-	// For now, we'll just cram everything into a script buffer and compile it. (Blixibon)
-	char szScript[2048];
-	V_snprintf( szScript, sizeof(szScript), "enum %s {\n", pEnumDesc->m_pszScriptName );
+	sq_push(vm_, -3);
+	sq_rawset(vm_, -3);
 
 	for (int i = 0; i < pEnumDesc->m_ConstantBindings.Count(); ++i)
 	{
 		auto& scriptConstant = pEnumDesc->m_ConstantBindings[i];
 
+		sq_pushstring(vm_, scriptConstant.m_pszScriptName, -1);
+		PushVariant(vm_, scriptConstant.m_data);
+		sq_rawset(vm_, -4);
+		
 		char szValue[64];
 		GetVariantScriptString( scriptConstant.m_data, szValue, sizeof(szValue) );
-
-		V_snprintf( szScript, sizeof(szScript), "%s%s = %s\n", szScript, scriptConstant.m_pszScriptName, szValue );
-
 		RegisterConstantDocumentation(vm_, &scriptConstant, szValue, pEnumDesc);
 	}
 
-	V_strcat_safe( szScript, "}" );
-
-	Run( szScript );
+	sq_pop(vm_, 2);
 
 	RegisterEnumDocumentation(vm_, pEnumDesc);
 }

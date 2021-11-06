@@ -101,8 +101,8 @@ END_DATADESC()
 #ifdef MAPBASE_VSCRIPT
 BEGIN_ENT_SCRIPTDESC( CAI_BaseActor, CAI_BaseNPC, "The base class for NPCs which act in complex choreo scenes." )
 
-	DEFINE_SCRIPTFUNC_NAMED( ScriptAddLookTarget, "AddLookTarget", "Add a potential look target for this actor." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptAddLookTargetPos, "AddLookTargetPos", "Add a potential look target position for this actor." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddLookTarget, "AddLookTarget", "Add a potential look target for this actor with the specified importance, duration, and ramp." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddLookTargetPos, "AddLookTargetPos", "Add a potential look target position for this actor with the specified importance, duration, and ramp." )
 
 END_SCRIPTDESC();
 #endif
@@ -835,7 +835,11 @@ void CAI_BaseActor::UpdateLatchedValues( )
 		// set head latch
 		m_fLatchedPositions |= HUMANOID_LATCHED_HEAD;
 
+#ifdef MAPBASE // From Alien Swarm SDK
+		if ( CanSkipAnimation() || !GetAttachment( "eyes", m_latchedEyeOrigin, &m_latchedHeadDirection ))
+#else
 		if (!HasCondition( COND_IN_PVS ) || !GetAttachment( "eyes", m_latchedEyeOrigin, &m_latchedHeadDirection ))
+#endif
 		{
 			m_latchedEyeOrigin = BaseClass::EyePosition( );
 			AngleVectors( GetLocalAngles(), &m_latchedHeadDirection );
@@ -1626,7 +1630,11 @@ void CAI_BaseActor::MaintainLookTargets( float flInterval )
 	}
 
 	// don't bother with any of the rest if the player can't see you
+#ifdef MAPBASE // From Alien Swarm SDK
+	if ( CanSkipAnimation() )
+#else
 	if (!HasCondition( COND_IN_PVS ))
+#endif
 	{
 		return;
 	}

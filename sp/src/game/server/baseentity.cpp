@@ -106,6 +106,10 @@ ConVar sv_netvisdist( "sv_netvisdist", "10000", FCVAR_CHEAT | FCVAR_DEVELOPMENTO
 
 ConVar sv_script_think_interval("sv_script_think_interval", "0.1");
 
+#ifdef MAPBASE_VSCRIPT
+ConVar ent_text_allow_script( "ent_text_allow_script", "1" );
+#endif
+
 
 // This table encodes edict data.
 void SendProxy_AnimTime( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID )
@@ -454,6 +458,17 @@ extern bool g_bDisableEhandleAccess;
 //-----------------------------------------------------------------------------
 CBaseEntity::~CBaseEntity( )
 {
+#ifdef MAPBASE_VSCRIPT
+	// HACKHACK: This is needed to fix a crash when an entity removes itself with Destroy() during its own think function.
+	// (see https://github.com/mapbase-source/source-sdk-2013/issues/138)
+	FOR_EACH_VEC( m_ScriptThinkFuncs, i )
+	{
+		HSCRIPT h = m_ScriptThinkFuncs[i]->m_hfnThink;
+		if ( h ) g_pScriptVM->ReleaseScript( h );
+	}
+	m_ScriptThinkFuncs.PurgeAndDeleteElements();
+#endif // MAPBASE_VSCRIPT
+
 	// FIXME: This can't be called from UpdateOnRemove! There's at least one
 	// case where friction sounds are added between the call to UpdateOnRemove + ~CBaseEntity
 	PhysCleanupFrictionSounds( this );
@@ -1060,6 +1075,28 @@ int CBaseEntity::DrawDebugTextOverlays(void)
 			offset++;
 		}
 #endif
+
+#ifdef MAPBASE_VSCRIPT
+		// 'OnEntText' hook inspired by later source games
+		if (m_ScriptScope.IsInitialized() && g_Hook_OnEntText.CanRunInScope( m_ScriptScope ))
+		{
+			if (ent_text_allow_script.GetBool())
+			{
+				ScriptVariant_t functionReturn;
+				if ( g_Hook_OnEntText.Call( m_ScriptScope, &functionReturn, NULL ) && functionReturn.m_type == FIELD_CSTRING )
+				{
+					CUtlStringList outStrings;
+					V_SplitString( functionReturn.m_pszString, "\n", outStrings );
+
+					FOR_EACH_VEC( outStrings, i )
+					{
+						EntityText( offset, outStrings[i], 0, 224, 240, 255 );
+						offset++;
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	if (m_debugOverlays & OVERLAY_VIEWOFFSET)
@@ -1349,10 +1386,10 @@ float CBaseEntity::GetMaxOutputDelay( const char *pszOutput )
 	return 0;
 }
 
-void CBaseEntity::CancelEventsByInput( const char *szInput )
-{
-	g_EventQueue.CancelEventsByInput( this, szInput );
-}
+//void CBaseEntity::CancelEventsByInput( const char *szInput )
+//{
+//	g_EventQueue.CancelEventsByInput( this, szInput );
+//}
 #endif // MAPBASE_VSCRIPT
 
 CBaseEntityOutput *CBaseEntity::FindNamedOutput( const char *pszOutput )
@@ -2209,11 +2246,15 @@ END_DATADESC()
 
 #ifdef MAPBASE_VSCRIPT
 ScriptHook_t	CBaseEntity::g_Hook_UpdateOnRemove;
+ScriptHook_t	CBaseEntity::g_Hook_OnEntText;
+
 ScriptHook_t	CBaseEntity::g_Hook_VPhysicsCollision;
 ScriptHook_t	CBaseEntity::g_Hook_FireBullets;
 ScriptHook_t	CBaseEntity::g_Hook_OnDeath;
 ScriptHook_t	CBaseEntity::g_Hook_OnKilledOther;
 ScriptHook_t	CBaseEntity::g_Hook_HandleInteraction;
+ScriptHook_t	CBaseEntity::g_Hook_ModifyEmitSoundParams;
+ScriptHook_t	CBaseEntity::g_Hook_ModifySentenceParams;
 #endif
 
 BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities" )
@@ -2348,7 +2389,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAcceptInput, "AcceptInput", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptFireOutput, "FireOutput", "Fire an entity output" )
 	DEFINE_SCRIPTFUNC( GetMaxOutputDelay, "Get the longest delay for all events attached to an output" )
-	DEFINE_SCRIPTFUNC( CancelEventsByInput, "Cancel all I/O events for this entity, match input" )
+	//DEFINE_SCRIPTFUNC( CancelEventsByInput, "Cancel all I/O events for this entity, match input" ) // Commented out due to unpredictability and unknown risks
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddOutput, "AddOutput", "Add an output" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValue, "GetKeyValue", "Get a keyvalue" )
@@ -2460,6 +2501,7 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	// Hooks
 	// 
 	DEFINE_SIMPLE_SCRIPTHOOK( CBaseEntity::g_Hook_UpdateOnRemove, "UpdateOnRemove", FIELD_VOID, "Called when the entity is being removed." )
+	DEFINE_SIMPLE_SCRIPTHOOK( CBaseEntity::g_Hook_OnEntText, "OnEntText", FIELD_CSTRING, "Called every frame when ent_text is enabled on the entity. Return a string to be added to the ent_text printout." )
 
 	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_VPhysicsCollision, "VPhysicsCollision", FIELD_VOID, "Called for every single VPhysics-related collision experienced by this entity." )
 		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
@@ -2488,6 +2530,14 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 		DEFINE_SCRIPTHOOK_PARAM( "interaction", FIELD_INTEGER )
 		//DEFINE_SCRIPTHOOK_PARAM( "data", FIELD_VARIANT )
 		DEFINE_SCRIPTHOOK_PARAM( "sourceEnt", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_ModifyEmitSoundParams, "ModifyEmitSoundParams", FIELD_VOID, "Called every time a sound is emitted on this entity, allowing for its parameters to be modified." )
+		DEFINE_SCRIPTHOOK_PARAM( "params", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( CBaseEntity::g_Hook_ModifySentenceParams, "ModifySentenceParams", FIELD_VOID, "Called every time a sentence is emitted on this entity, allowing for its parameters to be modified." )
+		DEFINE_SCRIPTHOOK_PARAM( "params", FIELD_HSCRIPT )
 	END_SCRIPTHOOK()
 #endif
 END_SCRIPTDESC();
@@ -2604,15 +2654,6 @@ void CBaseEntity::UpdateOnRemove( void )
 
 		g_pScriptVM->RemoveInstance( m_hScriptInstance );
 		m_hScriptInstance = NULL;
-
-#ifdef MAPBASE_VSCRIPT
-		FOR_EACH_VEC( m_ScriptThinkFuncs, i )
-		{
-			HSCRIPT h = m_ScriptThinkFuncs[i]->m_hfnThink;
-			if ( h ) g_pScriptVM->ReleaseScript( h );
-		}
-		m_ScriptThinkFuncs.PurgeAndDeleteElements();
-#endif // MAPBASE_VSCRIPT
 	}
 }
 

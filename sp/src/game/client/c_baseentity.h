@@ -296,6 +296,7 @@ public:
 	CScriptScope	m_ScriptScope;
 
 	static ScriptHook_t g_Hook_UpdateOnRemove;
+	static ScriptHook_t g_Hook_ModifyEmitSoundParams;
 #endif
 
 // IClientUnknown overrides.

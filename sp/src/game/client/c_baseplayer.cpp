@@ -281,6 +281,7 @@ END_RECV_TABLE()
 		RecvPropInt			( RECVINFO( m_spawnflags ), 0, RecvProxy_ShiftPlayerSpawnflags ),
 
 		RecvPropBool		( RECVINFO( m_bDrawPlayerModelExternally ) ),
+		RecvPropBool		( RECVINFO( m_bInTriggerFall ) ),
 #endif
 
 	END_RECV_TABLE()
@@ -331,7 +332,10 @@ END_RECV_TABLE()
 
 		RecvPropString( RECVINFO(m_szLastPlaceName) ),
 
-		RecvPropEHandle(RECVINFO(m_hPostProcessCtrl)),		// Send to everybody - for spectating
+#ifdef MAPBASE // From Alien Swarm SDK
+		RecvPropEHandle( RECVINFO( m_hPostProcessCtrl ) ),		// Send to everybody - for spectating
+		RecvPropEHandle( RECVINFO( m_hColorCorrectionCtrl ) ),	// Send to everybody - for spectating
+#endif
 
 #if defined USES_ECON_ITEMS
 		RecvPropUtlVector( RECVINFO_UTLVECTOR( m_hMyWearables ), MAX_WEARABLES_SENT_FROM_SERVER,	RecvPropEHandle(NULL, 0, 0) ),
@@ -2917,6 +2921,7 @@ void C_BasePlayer::UpdateFogBlend( void )
 	}
 }
 
+#ifdef MAPBASE // From Alien Swarm SDK
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -2924,6 +2929,15 @@ C_PostProcessController* C_BasePlayer::GetActivePostProcessController() const
 {
 	return m_hPostProcessCtrl.Get();
 }
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+C_ColorCorrection* C_BasePlayer::GetActiveColorCorrection() const
+{
+	return m_hColorCorrectionCtrl.Get();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

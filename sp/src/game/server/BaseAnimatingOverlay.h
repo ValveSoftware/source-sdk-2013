@@ -43,6 +43,9 @@ public:
 #define ANIM_LAYER_DONTRESTORE	0x0008
 #define ANIM_LAYER_CHECKACCESS	0x0010
 #define ANIM_LAYER_DYING		0x0020
+#ifdef MAPBASE // From Alien Swarm SDK
+#define ANIM_LAYER_NOEVENTS		0x0040
+#endif
 
 	int		m_fFlags;
 
@@ -80,6 +83,9 @@ public:
 	void	Dying( void ) { m_fFlags |= ANIM_LAYER_DYING; }
 	bool	IsDying( void ) { return ((m_fFlags & ANIM_LAYER_DYING) != 0); }
 	void	Dead( void ) { m_fFlags &= ~ANIM_LAYER_DYING; }
+#ifdef MAPBASE // From Alien Swarm SDK
+	bool	NoEvents( void ) { return ((m_fFlags & ANIM_LAYER_NOEVENTS) != 0); }
+#endif
 
 	bool	IsAbandoned( void );
 	void	MarkActive( void );
@@ -175,6 +181,11 @@ public:
 	void	SetLayerAutokill( int iLayer, bool bAutokill );
 	void	SetLayerLooping( int iLayer, bool bLooping );
 	void	SetLayerNoRestore( int iLayer, bool bNoRestore );
+#ifdef MAPBASE
+	void	SetLayerNoEvents( int iLayer, bool bNoEvents ); // From Alien Swarm SDK
+
+	bool	IsLayerFinished( int iLayer );
+#endif
 
 	Activity	GetLayerActivity( int iLayer );
 	int			GetLayerSequence( int iLayer );
@@ -195,9 +206,26 @@ public:
 private:
 	int		AllocateLayer( int iPriority = 0 ); // lower priorities are processed first
 
+#ifdef MAPBASE_VSCRIPT
+	int	ScriptAddGesture( const char *pszActivity, bool autokill );
+	int	ScriptAddGestureID( int iActivity, bool autokill );
+	int	ScriptAddGestureSequence( const char *pszSequence, bool autokill ) { return AddGestureSequence( LookupSequence( pszSequence ), autokill ); }
+	int	ScriptAddGestureSequenceID( int iSequence, bool autokill ) { return AddGestureSequence( iSequence, autokill ); }
+
+	int ScriptFindGestureLayer( const char *pszActivity );
+	int	ScriptFindGestureLayerByID( int iActivity );
+	const char *ScriptGetLayerActivity( int iLayer );
+	int	ScriptGetLayerActivityID( int iLayer );
+
+	void ScriptSetLayerCycle( int iLayer, float flCycle ) { SetLayerCycle( iLayer, flCycle ); }
+#endif
+
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
 	DECLARE_PREDICTABLE();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 };
 
 EXTERN_SEND_TABLE(DT_BaseAnimatingOverlay);

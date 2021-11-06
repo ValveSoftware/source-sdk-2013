@@ -73,6 +73,10 @@ public:
 public: // IGameEventListener:
 	virtual void FireGameEvent( IGameEvent * event);
 
+#ifdef MAPBASE
+	bool LoadCustomHudAnimations( const char *pszFile );
+	void ReloadHudAnimations( void );
+#endif
 
 protected:
 

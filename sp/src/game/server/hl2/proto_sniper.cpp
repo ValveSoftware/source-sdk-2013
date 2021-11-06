@@ -250,6 +250,10 @@ public:
 	virtual int SelectSchedule( void );
 	virtual int TranslateSchedule( int scheduleType );
 
+#ifdef MAPBASE
+	Activity	NPC_TranslateActivity( Activity eNewActivity );
+#endif
+
 	bool KeyValue( const char *szKeyName, const char *szValue );
 
 	void PrescheduleThink( void );
@@ -2035,6 +2039,23 @@ int CProtoSniper::TranslateSchedule( int scheduleType )
 	}
 	return BaseClass::TranslateSchedule( scheduleType );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Activity CProtoSniper::NPC_TranslateActivity( Activity eNewActivity )
+{
+	// ACT_IDLE is now just the soldier's unarmed idle animation.
+	// Use a gun-holding animation like what unhidden snipers were using before.
+	if (!HasSpawnFlags( SF_SNIPER_HIDDEN ) && eNewActivity == ACT_IDLE)
+	{
+		eNewActivity = ACT_IDLE_SMG1;
+	}
+
+	return BaseClass::NPC_TranslateActivity( eNewActivity );
+}
+#endif
 
 //---------------------------------------------------------
 //---------------------------------------------------------

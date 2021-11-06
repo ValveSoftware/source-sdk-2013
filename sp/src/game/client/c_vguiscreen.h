@@ -112,6 +112,15 @@ public:
 	C_BasePlayer *GetPlayerOwner( void );
 	bool IsInputOnlyToOwner( void );
 
+#ifdef MAPBASE
+	void GetSize( float &width, float &height ) const { width = m_flWidth; height = m_flHeight; }
+	void GetPixelSize( int &width, int &height ) const { width = m_nPixelWidth; height = m_nPixelHeight; }
+	void SetWidth( float flWidth ) { m_flWidth = flWidth; }
+	void SetHeight( float flHeight ) { m_flHeight = flHeight; }
+	void SetPixelWidth( int nWidth ) { m_nPixelWidth = nWidth; }
+	void SetPixelHeight( int nHeight ) { m_nPixelHeight = nHeight; }
+#endif
+
 private:
 	// Vgui screen management
 	void CreateVguiScreen( const char *pTypeName );

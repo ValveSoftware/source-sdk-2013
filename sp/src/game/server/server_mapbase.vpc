@@ -30,6 +30,8 @@ $Project
 		$File	"env_dof_controller.h"
 		$File	"logic_playmovie.cpp"
 		$File	"movie_display.cpp"
+		$File	"fogvolume.cpp"
+		$File	"fogvolume.h"
 		$File	"ai_expresserfollowup.cpp" [$NEW_RESPONSE_SYSTEM]
 		$File	"ai_speechqueue.cpp" [$NEW_RESPONSE_SYSTEM]
 		$File	"ai_speechqueue.h" [$NEW_RESPONSE_SYSTEM]
@@ -69,6 +71,7 @@ $Project
 			$File	"mapbase\GlobalStrings.h"
 			$File	"mapbase\logic_externaldata.cpp"
 			$File	"mapbase\logic_skill.cpp"
+			$File	"mapbase\logic_substring.cpp"
 			$File	"mapbase\point_advanced_finder.cpp"
 			$File	"mapbase\point_copy_size.cpp"
 			$File	"mapbase\point_damageinfo.cpp"

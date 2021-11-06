@@ -4284,7 +4284,7 @@ CBaseEntity *CSceneEntity::FindNamedEntity( const char *name, CBaseEntity *pActo
 #ifdef MAPBASE
 const char *GetFirstSoundInScene(const char *pszScene)
 {
-	const char *soundName;
+	const char *soundName = NULL;
 	SceneCachedData_t sceneData;
 	if ( scenefilecache->GetSceneCachedData( pszScene, &sceneData ) )
 	{

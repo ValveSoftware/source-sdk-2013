@@ -42,6 +42,10 @@
 #include "physics_bone_follower.h"
 #endif // HL2_EPISODIC
 
+#ifdef MAPBASE
+#include "filters.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -5680,6 +5684,9 @@ LINK_ENTITY_TO_CLASS( npc_heli_avoidsphere, CAvoidSphere );
 BEGIN_DATADESC( CAvoidSphere )
 
 	DEFINE_KEYFIELD( m_flRadius, FIELD_FLOAT, "radius" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_iszAvoidFilter, FIELD_STRING, "AvoidFilter" ),
+#endif
 
 END_DATADESC()
 
@@ -5720,6 +5727,18 @@ void CAvoidSphere::Activate( )
 {
 	BaseClass::Activate();
 	s_AvoidSpheres.AddToTail( this );
+
+#ifdef MAPBASE
+	m_hAvoidFilter = gEntList.FindEntityByName( NULL, m_iszAvoidFilter, this );
+	if (m_hAvoidFilter)
+	{
+		if (dynamic_cast<CBaseFilter*>(m_hAvoidFilter.Get()) == NULL)
+		{
+			Warning( "%s: \"%s\" is not a valid filter", GetDebugName(), m_hAvoidFilter->GetDebugName() );
+			m_hAvoidFilter = NULL;
+		}
+	}
+#endif
 }
 
 void CAvoidSphere::UpdateOnRemove( )
@@ -5745,6 +5764,12 @@ void CAvoidSphere::ComputeAvoidanceForces( CBaseEntity *pEntity, float flEntityR
 	{
 		CAvoidSphere *pSphere = s_AvoidSpheres[i].Get();
 		const Vector &vecAvoidCenter = pSphere->WorldSpaceCenter();
+
+#ifdef MAPBASE
+		// Continue if not passing the avoid sphere filter
+		if ( pSphere->m_hAvoidFilter && !(static_cast<CBaseFilter*>( pSphere->m_hAvoidFilter.Get())->PassesFilter(pSphere, pEntity )) )
+			continue;
+#endif
 
 		// NOTE: This test can be thought of sweeping a sphere through space
 		// and seeing if it intersects the avoidance sphere

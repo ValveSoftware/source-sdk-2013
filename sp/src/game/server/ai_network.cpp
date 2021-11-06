@@ -144,6 +144,31 @@ public:
 	int			m_capabilities;	// cache this
 };
 
+#ifdef MAPBASE
+//-------------------------------------
+// Purpose: A version of CNodeFilter which allows hints to influence the result.
+//-------------------------------------
+class CNodeHintFilter : public CNodeFilter
+{
+public:
+	CNodeHintFilter( CAI_BaseNPC *pNPC, const Vector &pos ) : CNodeFilter( pNPC, pos ) {}
+	CNodeHintFilter( const Vector &pos ) : CNodeFilter( pos ) {}
+
+	virtual float	NodeDistanceSqr( CAI_Node &node )
+	{
+		// Heavier hints are considered closer
+		if ( node.GetHint() && node.GetHint()->GetHintWeight() != 1.0f && (node.GetHint()->GetGroup() == NULL_STRING || node.GetHint()->GetGroup() == m_pNPC->GetHintGroup()) )
+		{
+			return CNodeFilter::NodeDistanceSqr( node ) * node.GetHint()->GetHintWeightInverse();
+		}
+		else
+		{
+			return CNodeFilter::NodeDistanceSqr( node );
+		}
+	}
+};
+#endif
+
 //-----------------------------------------------------------------------------
 // CAI_Network
 //-----------------------------------------------------------------------------
@@ -351,7 +376,12 @@ int	CAI_Network::NearestNodeToPoint( CAI_BaseNPC *pNPC, const Vector &vecOrigin,
 	// First get nodes distances and eliminate those that are beyond 
 	// the maximum allowed distance for local movements
 	// ---------------------------------------------------------------
+#ifdef MAPBASE
+	// Allow hint weight to influence supposed distance
+	CNodeHintFilter filter( pNPC, vecOrigin );
+#else
 	CNodeFilter filter( pNPC, vecOrigin );
+#endif
 
 #ifdef AI_PERF_MON
 		m_nPerfStatNN++;
@@ -605,8 +635,13 @@ CAI_Node *CAI_Network::AddNode( const Vector &origin, float yaw )
 
 CAI_Link *CAI_Network::CreateLink( int srcID, int destID, CAI_DynamicLink *pDynamicLink )
 {
+#ifdef MAPBASE // From Alien Swarm SDK
+	CAI_Node *pSrcNode = GetNode( srcID );
+	CAI_Node *pDestNode = GetNode( destID );
+#else
 	CAI_Node *pSrcNode = g_pBigAINet->GetNode( srcID );
 	CAI_Node *pDestNode = g_pBigAINet->GetNode( destID );
+#endif
 
 	Assert( pSrcNode && pDestNode && pSrcNode != pDestNode );
 

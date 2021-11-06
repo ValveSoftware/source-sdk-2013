@@ -107,7 +107,7 @@ extern ConVar cl_forwardspeed;
 static ConVar v_centermove( "v_centermove", "0.15");
 static ConVar v_centerspeed( "v_centerspeed","500" );
 
-#ifdef TF_CLIENT_DLL
+#if defined(TF_CLIENT_DLL) || defined(MAPBASE)
 // 54 degrees approximates a 35mm camera - we determined that this makes the viewmodels
 // and motions look the most natural.
 ConVar v_viewmodel_fov( "viewmodel_fov", "54", FCVAR_ARCHIVE );

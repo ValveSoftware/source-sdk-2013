@@ -48,6 +48,9 @@ protected:
 	int		m_iCachedDesiredOverlay;
 	int		m_iCurrentOverlay;
 	float	m_flCurrentOverlayTime;
+#ifdef MAPBASE
+	int	m_iOverlayIndex;
+#endif
 };
 
 IMPLEMENT_CLIENTCLASS_DT( C_EnvScreenOverlay, DT_EnvScreenOverlay, CEnvScreenOverlay )
@@ -56,6 +59,9 @@ IMPLEMENT_CLIENTCLASS_DT( C_EnvScreenOverlay, DT_EnvScreenOverlay, CEnvScreenOve
 	RecvPropFloat( RECVINFO( m_flStartTime ) ),
 	RecvPropInt( RECVINFO( m_iDesiredOverlay ) ),
 	RecvPropBool( RECVINFO( m_bIsActive ) ),
+#ifdef MAPBASE
+	RecvPropInt( RECVINFO( m_iOverlayIndex ) ),
+#endif
 END_RECV_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -77,7 +83,11 @@ void C_EnvScreenOverlay::PostDataUpdate( DataUpdateType_t updateType )
 	BaseClass::PostDataUpdate( updateType );
 
 	// If we have a start time now, start the overlays going
+#ifdef MAPBASE
+	if ( m_bIsActive && m_flStartTime > 0 && (view->GetScreenOverlayMaterial() == NULL || (m_iOverlayIndex != -1 && view->GetIndexedScreenOverlayMaterial(m_iOverlayIndex) == NULL)) )
+#else
 	if ( m_bIsActive && m_flStartTime > 0 && view->GetScreenOverlayMaterial() == NULL )
+#endif
 	{
 		StartOverlays();
 	}
@@ -111,7 +121,16 @@ void C_EnvScreenOverlay::StopOverlays( void )
 
 	if ( m_bWasActive && !m_bIsActive )
 	{
-		view->SetScreenOverlayMaterial( NULL );
+#ifdef MAPBASE
+		if (m_iOverlayIndex != -1)
+		{
+			view->SetIndexedScreenOverlayMaterial( m_iOverlayIndex, NULL );
+		}
+		else
+#endif
+		{
+			view->SetScreenOverlayMaterial( NULL );
+		}
 	}
 }
 
@@ -163,7 +182,16 @@ void C_EnvScreenOverlay::StartCurrentOverlay( void )
 	IMaterial *pMaterial = materials->FindMaterial( m_iszOverlayNames[m_iCurrentOverlay], TEXTURE_GROUP_CLIENT_EFFECTS, false );
 	if ( !IsErrorMaterial( pMaterial ) )
 	{
-		view->SetScreenOverlayMaterial( pMaterial );
+#ifdef MAPBASE
+		if (m_iOverlayIndex != -1)
+		{
+			view->SetIndexedScreenOverlayMaterial( m_iOverlayIndex, pMaterial );
+		}
+		else
+#endif
+		{
+			view->SetScreenOverlayMaterial( pMaterial );
+		}
 	}
 	else
 	{

@@ -156,6 +156,8 @@ ConVar npc_alyx_crouch( "npc_alyx_crouch", "1" );
 #ifdef MAPBASE
 ConVar npc_alyx_interact_manhacks( "npc_alyx_interact_manhacks", "1" );
 ConVar npc_alyx_interact_turrets( "npc_alyx_interact_turrets", "0" );
+
+ConVar npc_alyx_allow_fly( "npc_alyx_allow_fly", "0", FCVAR_NONE, "Allows Alyx to use FL_FLY outside of scripted sequences, actbusy, or navigation." );
 #endif
 
 // global pointer to Alyx for fast lookups
@@ -319,7 +321,9 @@ CNPC_Alyx *CNPC_Alyx::GetAlyx( void )
 //=========================================================
 bool CNPC_Alyx::CreateBehaviors()
 {
+#ifndef MAPBASE // Moved to CNPC_PlayerCompanion
 	AddBehavior( &m_FuncTankBehavior );
+#endif
 	bool result = BaseClass::CreateBehaviors();
 
 	return result;
@@ -885,7 +889,11 @@ void CNPC_Alyx::GatherConditions()
 
 	// ROBIN: This was here to solve a problem in a playtest. We've since found what we think was the cause.
 	// It's a useful piece of debug to have lying there, so I've left it in.
-	if ( (GetFlags() & FL_FLY) && m_NPCState != NPC_STATE_SCRIPT && !m_ActBusyBehavior.IsActive() && !m_PassengerBehavior.IsEnabled() )
+	if ( (GetFlags() & FL_FLY) && m_NPCState != NPC_STATE_SCRIPT && !m_ActBusyBehavior.IsActive() && !m_PassengerBehavior.IsEnabled()
+#ifdef MAPBASE
+		&& GetNavType() != NAV_CLIMB && !npc_alyx_allow_fly.GetBool()
+#endif
+		 )
 	{
 		Warning( "Removed FL_FLY from Alyx, who wasn't running a script or actbusy. Time %.2f, map %s.\n", gpGlobals->curtime, STRING(gpGlobals->mapname) );
 		RemoveFlag( FL_FLY );
@@ -1687,8 +1695,87 @@ Activity CNPC_Alyx::NPC_TranslateActivity( Activity activity )
 		case ACT_DROP_WEAPON:				if ( HasShotgun() ) return (Activity)ACT_DROP_WEAPON_SHOTGUN;
 	}
 
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	// Alyx has her own pistol readiness animations which use the default activities
+	switch (activity)
+	{
+	case ACT_IDLE_PISTOL_RELAXED:
+		return ACT_IDLE_RELAXED;
+	case ACT_IDLE_PISTOL_STIMULATED:
+		return ACT_IDLE_STIMULATED;
+	case ACT_WALK_PISTOL_RELAXED:
+		return ACT_WALK;
+	case ACT_WALK_PISTOL_STIMULATED:
+		return ACT_WALK_PISTOL;
+	case ACT_RUN_PISTOL_RELAXED:
+		return ACT_RUN;
+	case ACT_RUN_PISTOL_STIMULATED:
+		return ACT_RUN_PISTOL;
+	}
+#endif
+
 	return activity;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+Activity CNPC_Alyx::Weapon_TranslateActivity( Activity activity, bool *pRequired )
+{
+	activity = BaseClass::Weapon_TranslateActivity( activity, pRequired );
+
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	// Alyx has her own pistol readiness animations which use the default activities
+	switch (activity)
+	{
+	case ACT_IDLE_PISTOL_RELAXED:
+		return ACT_IDLE_RELAXED;
+	case ACT_IDLE_PISTOL_STIMULATED:
+		return ACT_IDLE_STIMULATED;
+	case ACT_WALK_PISTOL_RELAXED:
+		return ACT_WALK;
+	case ACT_WALK_PISTOL_STIMULATED:
+		return ACT_WALK_PISTOL;
+	case ACT_RUN_PISTOL_RELAXED:
+		return ACT_RUN;
+	case ACT_RUN_PISTOL_STIMULATED:
+		return ACT_RUN_PISTOL;
+	}
+#endif
+
+	return activity;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+Activity CNPC_Alyx::Weapon_BackupActivity( Activity activity, bool weaponTranslationWasRequired, CBaseCombatWeapon *pSpecificWeapon )
+{
+	activity = BaseClass::Weapon_BackupActivity( activity, weaponTranslationWasRequired, pSpecificWeapon );
+
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	// Alyx has her own pistol readiness animations which use the default activities
+	switch (activity)
+	{
+	case ACT_IDLE_PISTOL_RELAXED:
+		return ACT_IDLE_RELAXED;
+	case ACT_IDLE_PISTOL_STIMULATED:
+		return ACT_IDLE_STIMULATED;
+	case ACT_WALK_PISTOL_RELAXED:
+		return ACT_WALK;
+	case ACT_WALK_PISTOL_STIMULATED:
+		return ACT_WALK_PISTOL;
+	case ACT_RUN_PISTOL_RELAXED:
+		return ACT_RUN;
+	case ACT_RUN_PISTOL_STIMULATED:
+		return ACT_RUN_PISTOL;
+	}
+#endif
+
+	return activity;
+}
+#endif
 
 bool CNPC_Alyx::ShouldDeferToFollowBehavior()
 {

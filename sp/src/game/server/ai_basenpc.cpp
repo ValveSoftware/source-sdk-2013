@@ -100,6 +100,10 @@
 #include "items.h"
 #endif
 
+#ifdef MAPBASE_VSCRIPT
+#include "mapbase/vscript_funcs_shared.h"
+#endif
+
 #include "env_debughistory.h"
 #include "collisionutils.h"
 
@@ -165,6 +169,8 @@ extern ConVar ai_vehicle_avoidance;
 extern ISoundEmitterSystemBase *soundemitterbase;
 
 ConVar	ai_dynint_always_enabled( "ai_dynint_always_enabled", "0", FCVAR_NONE, "Makes the \"Don't Care\" setting equivalent to \"Yes\"." );
+
+ConVar	ai_debug_fake_sequence_gestures_always_play( "ai_debug_fake_sequence_gestures_always_play", "0", FCVAR_NONE, "Always plays fake sequence gestures." );
 #endif
 
 #ifndef _RETAIL
@@ -309,6 +315,8 @@ ScriptHook_t	CAI_BaseNPC::g_Hook_QuerySeeEntity;
 ScriptHook_t	CAI_BaseNPC::g_Hook_TranslateActivity;
 ScriptHook_t	CAI_BaseNPC::g_Hook_TranslateSchedule;
 ScriptHook_t	CAI_BaseNPC::g_Hook_GetActualShootPosition;
+ScriptHook_t	CAI_BaseNPC::g_Hook_OverrideMove;
+ScriptHook_t	CAI_BaseNPC::g_Hook_ShouldPlayFakeSequenceGesture;
 #endif
 
 //
@@ -664,7 +672,7 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 
 #ifdef HL2_EPISODIC
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
-	if ( pPlayer->IRelationType( this ) != D_LI )
+	if ( pPlayer && pPlayer->IRelationType( this ) != D_LI )
 	{
 		CNPC_Alyx *alyx = CNPC_Alyx::GetAlyx();
 
@@ -729,7 +737,7 @@ HSCRIPT CAI_BaseNPC::VScriptFindEnemyMemory( HSCRIPT pEnemy )
 	AI_EnemyInfo_t *info = GetEnemies()->Find( ToEnt(pEnemy) );
 	if (info)
 	{
-		hScript = g_pScriptVM->RegisterInstance( info );
+		hScript = g_pScriptVM->RegisterInstance( reinterpret_cast<Script_AI_EnemyInfo_t*>(info) );
 	}
 
 	return hScript;
@@ -989,29 +997,27 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		// only fire once per frame
 		m_OnDamaged.FireOutput( info.GetAttacker(), this);
 
-		if( info.GetAttacker()->IsPlayer() )
+		if ( info.GetAttacker() )
 		{
-			m_OnDamagedByPlayer.FireOutput( info.GetAttacker(), this );
-			
-			// This also counts as being harmed by player's squad.
-			m_OnDamagedByPlayerSquad.FireOutput( info.GetAttacker(), this );
-		}
-		else
-		{
-			// See if the person that injured me is an NPC.
-#ifdef MAPBASE
-			// Sometimes I find these things and I can't just sit idly by.
-			CAI_BaseNPC *pAttacker = info.GetAttacker()->MyNPCPointer();
-#else
-			CAI_BaseNPC *pAttacker = dynamic_cast<CAI_BaseNPC *>( info.GetAttacker() );
-#endif
-			CBasePlayer *pPlayer = AI_GetSinglePlayer();
-
-			if( pAttacker && pAttacker->IsAlive() && pPlayer )
+			if( info.GetAttacker()->IsPlayer() )
 			{
-				if( pAttacker->GetSquad() != NULL && pAttacker->IsInPlayerSquad() )
+				m_OnDamagedByPlayer.FireOutput( info.GetAttacker(), this );
+			
+				// This also counts as being harmed by player's squad.
+				m_OnDamagedByPlayerSquad.FireOutput( info.GetAttacker(), this );
+			}
+			else
+			{
+				// See if the person that injured me is an NPC.
+				CAI_BaseNPC *pAttacker = info.GetAttacker()->MyNPCPointer();
+				CBasePlayer *pPlayer = AI_GetSinglePlayer();
+
+				if( pAttacker && pAttacker->IsAlive() && pPlayer )
 				{
-					m_OnDamagedByPlayerSquad.FireOutput( info.GetAttacker(), this );
+					if( pAttacker->GetSquad() != NULL && pAttacker->IsInPlayerSquad() )
+					{
+						m_OnDamagedByPlayerSquad.FireOutput( info.GetAttacker(), this );
+					}
 				}
 			}
 		}
@@ -2592,7 +2598,11 @@ bool CAI_BaseNPC::FValidateHintType ( CAI_Hint *pHint )
 Activity CAI_BaseNPC::GetHintActivity( short sHintType, Activity HintsActivity )
 {
 	if ( HintsActivity != ACT_INVALID )
+#ifdef MAPBASE
+		return TranslateActivity( HintsActivity ); // Always translate the activity
+#else
 		return HintsActivity;
+#endif
 
 	return ACT_IDLE;
 }
@@ -6507,7 +6517,7 @@ CAI_BaseNPC *CAI_BaseNPC::CreateCustomTarget( const Vector &vecOrigin, float dur
 //-----------------------------------------------------------------------------
 Activity CAI_BaseNPC::TranslateCrouchActivity( Activity eNewActivity )
 {
-	if (CapabilitiesGet() & bits_CAP_DUCK)
+	if (CapabilitiesGet() & bits_CAP_DUCK && CanTranslateCrouchActivity())
 	{
 		// ========================================================================
 		// The main issue with cover hint nodes is that crouch activities are not translated at the right time
@@ -6539,9 +6549,17 @@ Activity CAI_BaseNPC::TranslateCrouchActivity( Activity eNewActivity )
 				CAI_Hint *pHint = GetHintNode();
 				if (pHint)
 				{
-					if (pHint->HintType() == HINT_TACTICAL_COVER_LOW || pHint->HintType() == HINT_TACTICAL_COVER_MED)
+					if (pHint->HintType() == HINT_TACTICAL_COVER_LOW)
 					{
 						nCoverActivity = ACT_RANGE_ATTACK1_LOW;
+					}
+					else if (pHint->HintType() == HINT_TACTICAL_COVER_MED)
+					{
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+						nCoverActivity = ACT_RANGE_ATTACK1_MED;
+#else
+						nCoverActivity = ACT_RANGE_ATTACK1_LOW;
+#endif
 					}
 				}
 			}
@@ -6584,15 +6602,30 @@ Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
 	//if (eNewActivity == ACT_DROP_WEAPON)
 	//	return TranslateActivity(ACT_IDLE);
 
+	// ---------------------------------------------
+
 	// Accounts for certain act busy activities that aren't on all NPCs.
 	if (eNewActivity == ACT_BUSY_QUEUE || eNewActivity == ACT_BUSY_STAND)
 		return TranslateActivity(ACT_IDLE);
 
+	// ---------------------------------------------
+
 	if (eNewActivity == ACT_WALK_ANGRY)
 		return TranslateActivity(ACT_WALK);
 
-	// GetCoverActivity() should have this covered.
 	// ---------------------------------------------
+
+	// If one climbing animation isn't available, use the other
+	if (eNewActivity == ACT_CLIMB_DOWN)
+		return ACT_CLIMB_UP;
+	else if (eNewActivity == ACT_CLIMB_UP)
+		return ACT_CLIMB_DOWN;
+
+	// ---------------------------------------------
+
+	if (eNewActivity == ACT_COVER_MED)
+		eNewActivity = ACT_COVER_LOW;
+
 	//if (eNewActivity == ACT_COVER)
 	//	return TranslateActivity(ACT_IDLE);
 	
@@ -6607,6 +6640,14 @@ Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
 //-----------------------------------------------------------------------------
 Activity CAI_BaseNPC::NPC_TranslateActivity( Activity eNewActivity )
 {
+#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+	if ( GetNavType() == NAV_CLIMB && eNewActivity == ACT_IDLE )
+	{
+		// Schedules which break into idle activities should try to maintain the climbing animation.
+		return ACT_CLIMB_IDLE;
+	}
+#endif
+
 #ifdef MAPBASE
 	Assert( eNewActivity != ACT_INVALID );
 
@@ -6616,15 +6657,7 @@ Activity CAI_BaseNPC::NPC_TranslateActivity( Activity eNewActivity )
 		{
 		case ACT_RANGE_ATTACK1:		eNewActivity = ACT_RANGE_ATTACK1_LOW; break;
 		case ACT_RELOAD:			eNewActivity = ACT_RELOAD_LOW; break;
-		case ACT_IDLE:				eNewActivity = ACT_CROUCHIDLE; break;
-
-		// ====
-		// HACK : LEIPZIG 06 -	The underlying problem is that the AR2 and SMG1 cannot map IDLE_ANGRY to a crouched equivalent automatically
-		//						which causes the character to pop up and down in their idle state of firing while crouched. -- jdw
-		case ACT_IDLE_ANGRY_SMG1:
-		case ACT_IDLE_ANGRY_AR2:
-			eNewActivity = ACT_RANGE_AIM_LOW;
-			break;
+		case ACT_IDLE:				eNewActivity = ACT_RANGE_AIM_LOW; break; // ACT_CROUCHIDLE is more-or-less deprecated and not friendly to weapon translation
 		}
 	}
 
@@ -6837,7 +6870,12 @@ void CAI_BaseNPC::ResolveActivityToSequence(Activity NewActivity, int &iSequence
 
 	translatedActivity = TranslateActivity( NewActivity, &weaponActivity );
 
+#ifdef MAPBASE
+	// Cover cases where TranslateActivity() returns a sequence by using ACT_SCRIPT_CUSTOM_MOVE
+	if ( NewActivity == ACT_SCRIPT_CUSTOM_MOVE || translatedActivity == ACT_SCRIPT_CUSTOM_MOVE )
+#else
 	if ( NewActivity == ACT_SCRIPT_CUSTOM_MOVE )
+#endif
 	{
 		iSequence = GetScriptCustomMoveSequence();
 	}
@@ -7023,6 +7061,23 @@ void CAI_BaseNPC::SetIdealActivity( Activity NewActivity )
 	// Perform translation in case we need to change sequences within a single activity,
 	// such as between a standing idle and a crouching idle.
 	ResolveActivityToSequence(m_IdealActivity, m_nIdealSequence, m_IdealTranslatedActivity, m_IdealWeaponActivity);
+
+#ifdef MAPBASE
+	// Check if we need a gesture to imitate this sequence
+	if ( ShouldPlayFakeSequenceGesture( m_IdealActivity, m_IdealTranslatedActivity ) )
+	{
+		Activity nGesture = SelectFakeSequenceGesture( m_IdealActivity, m_IdealTranslatedActivity );
+		if (nGesture != -1)
+		{
+			PlayFakeSequenceGesture( nGesture, m_IdealActivity, m_IdealTranslatedActivity );
+		}
+	}
+	else if (GetFakeSequenceGesture() != -1)
+	{
+		// Reset the current gesture sequence if there is one
+		ResetFakeSequenceGesture();
+	}
+#endif
 }
 
 
@@ -7071,6 +7126,14 @@ void CAI_BaseNPC::AdvanceToIdealActivity(void)
 		//DevMsg("%s: Unable to get from sequence %s to %s!\n", GetClassname(), GetSequenceName(GetSequence()), GetSequenceName(m_nIdealSequence));
 		SetActivity(m_IdealActivity);
 	}
+
+#ifdef MAPBASE
+	// If there was a gesture imitating a sequence, get rid of it
+	if ( GetFakeSequenceGesture() != -1 )
+	{
+		ResetFakeSequenceGesture();
+	}
+#endif
 }
 
 
@@ -7128,6 +7191,12 @@ void CAI_BaseNPC::MaintainActivity(void)
 			}
 			// Else a transition sequence is in progress, do nothing.
 		}
+#ifdef MAPBASE
+		else if (GetFakeSequenceGesture() != -1)
+		{
+			// Don't advance even if the sequence gesture is finished, as advancing would just play the original activity afterwards
+		}
+#endif
 		// Else get a specific sequence for the activity and try to transition to that.
 		else
 		{
@@ -7146,11 +7215,103 @@ void CAI_BaseNPC::MaintainActivity(void)
 }
 
 
+#ifdef MAPBASE
+bool CAI_BaseNPC::ShouldPlayFakeSequenceGesture( Activity nActivity, Activity nTranslatedActivity )
+{
+	// Don't do anything if we're resetting our activity
+	if (GetActivity() == ACT_RESET)
+		return false;
+
+	// No need to do this while we're moving
+	if (IsCurTaskContinuousMove())
+		return false;
+
+	if (ai_debug_fake_sequence_gestures_always_play.GetBool())
+		return true;
+
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_ShouldPlayFakeSequenceGesture.CanRunInScope(m_ScriptScope))
+	{
+		// activity, translatedActivity
+		ScriptVariant_t functionReturn;
+		ScriptVariant_t args[] = { GetActivityName( nActivity ), GetActivityName( nTranslatedActivity ) };
+		if (g_Hook_ShouldPlayFakeSequenceGesture.Call( m_ScriptScope, &functionReturn, args ))
+		{
+			if (functionReturn.m_type == FIELD_BOOLEAN)
+				return functionReturn.m_bool;
+		}
+	}
+#endif
+
+	if (GetHintNode() && GetHintNode()->HintActivityName() != NULL_STRING)
+	{
+		switch (GetHintNode()->HintType())
+		{
+			// Cover nodes with custom activities should allow NPCs to do things like reload while in cover.
+			case HINT_TACTICAL_COVER_LOW:
+			case HINT_TACTICAL_COVER_MED:
+			case HINT_TACTICAL_COVER_CUSTOM:
+				if (HasMemory( bits_MEMORY_INCOVER ))
+				{
+					// Don't attack while using a custom animation in cover
+					if (nActivity != ACT_RANGE_ATTACK1 && nActivity != ACT_RANGE_ATTACK1_LOW)
+						return true;
+				}
+				break;
+		}
+	}
+
+	return false;
+}
+
+Activity CAI_BaseNPC::SelectFakeSequenceGesture( Activity nActivity, Activity nTranslatedActivity )
+{
+	return GetGestureVersionOfActivity( nTranslatedActivity );
+}
+
+inline void CAI_BaseNPC::PlayFakeSequenceGesture( Activity nActivity, Activity nSequence, Activity nTranslatedSequence )
+{
+	RestartGesture( nActivity, true, true );
+	m_FakeSequenceGestureLayer = FindGestureLayer( nActivity );
+
+	switch ( nSequence )
+	{
+		case ACT_RANGE_ATTACK1:
+		//case ACT_RANGE_ATTACK2:
+		{
+			OnRangeAttack1();
+
+			// FIXME: this seems a bit wacked
+			Weapon_SetActivity( Weapon_TranslateActivity( nSequence ), 0 );
+		} break;
+	}
+}
+
+inline int CAI_BaseNPC::GetFakeSequenceGesture()
+{
+	return m_FakeSequenceGestureLayer;
+}
+
+void CAI_BaseNPC::ResetFakeSequenceGesture()
+{
+	SetLayerCycle( m_FakeSequenceGestureLayer, 1.0f );
+	m_FakeSequenceGestureLayer = -1;
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Purpose: Returns true if our ideal activity has finished playing.
 //-----------------------------------------------------------------------------
 bool CAI_BaseNPC::IsActivityFinished( void )
 {
+#ifdef MAPBASE
+	if (GetFakeSequenceGesture() != -1)
+	{
+		return IsLayerFinished( GetFakeSequenceGesture() );
+	}
+#endif
+
 	return (IsSequenceFinished() && (GetSequence() == m_nIdealSequence));
 }
 
@@ -7186,6 +7347,15 @@ void CAI_BaseNPC::OnChangeActivity( Activity eNewActivity )
 		 eNewActivity == ACT_WALK )
 	{
 		Stand();
+
+#ifdef MAPBASE
+		// Unlock custom cover nodes
+		if (GetHintNode() && GetHintNode()->HintType() == HINT_TACTICAL_COVER_CUSTOM && HasMemory(bits_MEMORY_INCOVER))
+		{
+			GetHintNode()->Unlock( GetHintDelay( GetHintNode()->HintType() ) );
+			SetHintNode( NULL );
+		}
+#endif
 	}
 }
 
@@ -7462,7 +7632,11 @@ void CAI_BaseNPC::SetHullSizeNormal( bool force )
 	if ( m_fIsUsingSmallHull || force )
 	{
 		// Find out what the height difference will be between the versions and adjust our bbox accordingly to keep us level
+#ifdef MAPBASE // From Alien Swarm SDK
+		const float flScale = MIN( 1.0f, GetModelScale() );			// NOTE: Cannot scale NPC bounding box up, as pathfinding will fail (hull needs to match the traces used for the node network)
+#else
 		const float flScale = GetModelScale();
+#endif
 		Vector vecMins = ( GetHullMins() * flScale );
 		Vector vecMaxs = ( GetHullMaxs() * flScale );
 		
@@ -7770,7 +7944,7 @@ int	CAI_BaseNPC::HolsterWeapon( void )
 	if ( IsWeaponHolstered() )
 		return -1;
 
-#ifdef COMPANION_HOLSTER_WORKAROUND
+#ifdef MAPBASE
 	Activity activity = TranslateActivity( ACT_DISARM );
 	int iHolsterGesture = FindGestureLayer( activity );
 	if ( iHolsterGesture != -1 )
@@ -7826,7 +8000,7 @@ int CAI_BaseNPC::UnholsterWeapon( void )
 	if ( !IsWeaponHolstered() )
  		return -1;
 
-#ifdef COMPANION_HOLSTER_WORKAROUND
+#ifdef MAPBASE
 	Activity activity = TranslateActivity( ACT_ARM );
 	int iHolsterGesture = FindGestureLayer( activity );
 #else
@@ -7855,13 +8029,12 @@ int CAI_BaseNPC::UnholsterWeapon( void )
 		{
 			SetActiveWeapon( GetWeapon(i) );
 
-#ifdef COMPANION_HOLSTER_WORKAROUND
-			int iLayer = AddGesture( activity, true );
-			//iLayer = AddGesture( ACT_GESTURE_ARM, true );
+#ifdef MAPBASE
+			int iLayer = AddGesture( TranslateActivity( ACT_ARM ), true );
 #else
 			int iLayer = AddGesture( ACT_ARM, true );
-			//iLayer = AddGesture( ACT_GESTURE_ARM, true );
 #endif
+			//iLayer = AddGesture( ACT_GESTURE_ARM, true );
 
 			if (iLayer != -1)
 			{
@@ -8038,6 +8211,26 @@ bool CAI_BaseNPC::DoUnholster( void )
 	}
 
 	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if the NPC should be unholstering their weapon
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::ShouldUnholsterWeapon( void )
+{
+	return GetState() == NPC_STATE_COMBAT;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if the NPC can unholster their weapon
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::CanUnholsterWeapon( void )
+{
+	// Don't unholster during special navigation
+	if ( GetNavType() == NAV_JUMP || GetNavType() == NAV_CLIMB )
+		return false;
+
+	return IsWeaponHolstered();
 }
 
 //------------------------------------------------------------------------------
@@ -9106,27 +9299,45 @@ Activity CAI_BaseNPC::GetCoverActivity( CAI_Hint *pHint )
 		switch (pHint->HintType())
 		{
 			case HINT_TACTICAL_COVER_MED:
-#ifndef MAPBASE // I know what you're thinking, but ACT_COVER_MED is pretty much deprecated at this point anyway.
 			{
-				nCoverActivity = ACT_COVER_MED;
 #ifdef MAPBASE
-				// Some NPCs lack ACT_COVER_MED, but could easily use ACT_COVER_LOW.
-				if (SelectWeightedSequence(nCoverActivity) == ACTIVITY_NOT_AVAILABLE)
-					nCoverActivity = ACT_COVER_LOW;
-#endif
+				// NPCs which lack ACT_COVER_MED should fall through to HINT_TACTICAL_COVER_LOW
+				if (SelectWeightedSequence( ACT_COVER_MED ) != ACTIVITY_NOT_AVAILABLE)
+				{
+					nCoverActivity = ACT_COVER_MED;
+				}
+#else
+				nCoverActivity = ACT_COVER_MED;
 				break;
-			}
 #endif
+			}
 			case HINT_TACTICAL_COVER_LOW:
 			{
 #ifdef MAPBASE
-				if (pHint->HintActivityName() != NULL_STRING)
-					nCoverActivity = (Activity)CAI_BaseNPC::GetActivityID( STRING(pHint->HintActivityName()) );
-				else
-#endif
+				// Make sure nCoverActivity wasn't already assigned above, then fall through to HINT_TACTICAL_COVER_CUSTOM
+				if (nCoverActivity == ACT_INVALID)
+					nCoverActivity = ACT_COVER_LOW;
+#else
 				nCoverActivity = ACT_COVER_LOW;
 				break;
+#endif
 			}
+
+#ifdef MAPBASE
+			case HINT_TACTICAL_COVER_CUSTOM:
+			{
+				if (pHint->HintActivityName() != NULL_STRING)
+				{
+					nCoverActivity = (Activity)CAI_BaseNPC::GetActivityID( STRING(pHint->HintActivityName()) );
+					if (nCoverActivity == ACT_INVALID)
+					{
+						m_iszSceneCustomMoveSeq = pHint->HintActivityName();
+						nCoverActivity = ACT_SCRIPT_CUSTOM_MOVE;
+					}
+				}
+				break;
+			}
+#endif
 		}
 	}
 
@@ -9164,6 +9375,13 @@ float CAI_BaseNPC::CalcIdealYaw( const Vector &vecTarget )
 
 		return UTIL_VecToYaw( vecProjection - GetLocalOrigin() );
 	}
+#ifdef MAPBASE
+	// Allow hint nodes to override the yaw without needing to control AI
+	else if (GetHintNode() && GetHintNode()->OverridesNPCYaw( this ))
+	{
+		return GetHintNode()->Yaw();
+	}
+#endif
 	else
 	{
 		return UTIL_VecToYaw ( vecTarget - GetLocalOrigin() );
@@ -9504,7 +9722,7 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
   			if ( GetActiveWeapon() )
   			{
 #ifdef MAPBASE
-				GetActiveWeapon()->Reload_NPC();
+				GetActiveWeapon()->Reload_NPC( true );
 #else
   				GetActiveWeapon()->WeaponSound( RELOAD_NPC );
   				GetActiveWeapon()->m_iClip1 = GetActiveWeapon()->GetMaxClip1(); 
@@ -9528,8 +9746,12 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 	case EVENT_WEAPON_RELOAD_FILL_CLIP:
 		{
   			if ( GetActiveWeapon() )
-  			{
+			{
+#ifdef MAPBASE
+				GetActiveWeapon()->Reload_NPC( false );
+#else
   				GetActiveWeapon()->m_iClip1 = GetActiveWeapon()->GetMaxClip1(); 
+#endif
   				ClearCondition(COND_LOW_PRIMARY_AMMO);
   				ClearCondition(COND_NO_PRIMARY_AMMO);
   				ClearCondition(COND_NO_SECONDARY_AMMO);
@@ -9544,7 +9766,11 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 
 	case NPC_EVENT_OPEN_DOOR:
 		{
+#ifdef MAPBASE
+			CBasePropDoor *pDoor = m_hOpeningDoor;
+#else
 			CBasePropDoor *pDoor = (CBasePropDoor *)(CBaseEntity *)GetNavigator()->GetPath()->GetCurWaypoint()->GetEHandleData();
+#endif
 			if (pDoor != NULL)
 			{
 				OpenPropDoorNow( pDoor );
@@ -10692,6 +10918,7 @@ Vector CAI_BaseNPC::GetActualShootPosition( const Vector &shootOrigin )
 #ifdef MAPBASE_VSCRIPT
 	if (m_ScriptScope.IsInitialized() && g_Hook_GetActualShootPosition.CanRunInScope(m_ScriptScope))
 	{
+		// shootOrigin, target
 		ScriptVariant_t functionReturn;
 		ScriptVariant_t args[] = { shootOrigin, ToHScript( GetEnemy() ) };
 		if (g_Hook_GetActualShootPosition.Call( m_ScriptScope, &functionReturn, args ))
@@ -11491,6 +11718,14 @@ bool CAI_BaseNPC::ChooseEnemy( void )
 //=========================================================
 void CAI_BaseNPC::PickupWeapon( CBaseCombatWeapon *pWeapon )
 {
+#ifdef MAPBASE
+	if ( pWeapon->VPhysicsGetObject() && pWeapon->VPhysicsGetObject()->GetGameFlags() & FVPHYSICS_PLAYER_HELD )
+	{
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+		pPlayer->ForceDropOfCarriedPhysObjects( pWeapon );
+	}
+#endif
+
 	pWeapon->OnPickedUp( this );
 	Weapon_Equip( pWeapon );
 	m_iszPendingWeapon = NULL_STRING;
@@ -11571,6 +11806,10 @@ CBaseEntity *CAI_BaseNPC::DropItem ( const char *pszItemName, Vector vecPos, QAn
 			pItem->ApplyAbsVelocityImpulse( GetAbsVelocity() );
 			pItem->ApplyLocalAngularVelocityImpulse( AngularImpulse( 0, random->RandomFloat( 0, 100 ), 0 ) );
 		}
+
+#ifdef MAPBASE
+		m_OnItemDrop.Set( pItem, pItem, this );
+#endif
 
 		return pItem;
 	}
@@ -11894,6 +12133,7 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_KEYFIELD( m_FriendlyFireOverride,	FIELD_INTEGER, "FriendlyFireOverride" ),
 
 	DEFINE_KEYFIELD( m_flSpeedModifier, FIELD_FLOAT, "BaseSpeedModifier" ),
+	DEFINE_FIELD( m_FakeSequenceGestureLayer,	FIELD_INTEGER ),
 #endif
 
 	// Satisfy classcheck
@@ -11939,6 +12179,7 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_OUTPUT( m_OnForcedInteractionFinished,	"OnForcedInteractionFinished" ),
 #ifdef MAPBASE
 	DEFINE_OUTPUT( m_OnItemPickup, "OnItemPickup" ),
+	DEFINE_OUTPUT( m_OnItemDrop, "OnItemDrop" ),
 #endif
 
 	// Inputs
@@ -12050,6 +12291,11 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetActivityID, "SetActivityID", "Set the NPC's current activity ID." )
 	DEFINE_SCRIPTFUNC( ResetActivity, "Reset the NPC's current activity." )
 
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetGestureVersionOfActivity, "GetGestureVersionOfActivity", "Get the gesture activity counterpart of the specified sequence activity, if one exists." )
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetGestureVersionOfActivityID, "GetGestureVersionOfActivityID", "Get the gesture activity ID counterpart of the specified sequence activity ID, if one exists." )
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetSequenceVersionOfGesture, "GetSequenceVersionOfGesture", "Get the sequence activity counterpart of the specified gesture activity, if one exists." )
+	DEFINE_SCRIPTFUNC_NAMED( VScriptGetSequenceVersionOfGestureID, "GetSequenceVersionOfGestureID", "Get the sequence activity ID counterpart of the specified gesture activity ID, if one exists." )
+
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetSchedule, "GetSchedule", "Get the NPC's current schedule." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetScheduleID, "GetScheduleID", "Get the NPC's current schedule ID." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptSetSchedule, "SetSchedule", "Set the NPC's current schedule." )
@@ -12096,9 +12342,16 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 		DEFINE_SCRIPTHOOK_PARAM( "schedule", FIELD_CSTRING )
 		DEFINE_SCRIPTHOOK_PARAM( "schedule_id", FIELD_INTEGER )
 	END_SCRIPTHOOK()
-	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_GetActualShootPosition, "GetActualShootPosition", FIELD_VOID, "Called when the NPC is getting their actual shoot position, using the default shoot position as the parameter. (NOTE: NPCs which override this themselves might not always use this hook!)" )
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_GetActualShootPosition, "GetActualShootPosition", FIELD_VECTOR, "Called when the NPC is getting their actual shoot position, using the default shoot position as the parameter. (NOTE: NPCs which override this themselves might not always use this hook!)" )
 		DEFINE_SCRIPTHOOK_PARAM( "shootOrigin", FIELD_VECTOR )
 		DEFINE_SCRIPTHOOK_PARAM( "target", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_OverrideMove, "OverrideMove", FIELD_VOID, "Called when the NPC runs movement code, allowing the NPC's movement to be overridden by some other method. (NOTE: NPCs which override this themselves might not always use this hook!)" )
+		DEFINE_SCRIPTHOOK_PARAM( "interval", FIELD_FLOAT )
+	END_SCRIPTHOOK()
+	BEGIN_SCRIPTHOOK( CAI_BaseNPC::g_Hook_ShouldPlayFakeSequenceGesture, "ShouldPlayFakeSequenceGesture", FIELD_BOOLEAN, "Called when an activity is set on a NPC. Returning true will make the NPC convert the activity into a gesture (if a gesture is available) and continue their current activity instead." )
+		DEFINE_SCRIPTHOOK_PARAM( "activity", FIELD_CSTRING )
+		DEFINE_SCRIPTHOOK_PARAM( "translatedActivity", FIELD_CSTRING )
 	END_SCRIPTHOOK()
 
 END_SCRIPTDESC();
@@ -12750,6 +13003,8 @@ CAI_BaseNPC::CAI_BaseNPC(void)
 #ifdef MAPBASE
 	m_iDynamicInteractionsAllowed = TRS_NONE;
 	m_flSpeedModifier = 1.0f;
+
+	m_FakeSequenceGestureLayer = -1;
 #endif
 }
 
@@ -13406,6 +13661,10 @@ void CAI_BaseNPC::Teleport( const Vector *newPosition, const QAngle *newAngles, 
 	CleanupScriptsOnTeleport( false );
 
 	BaseClass::Teleport( newPosition, newAngles, newVelocity );
+
+#ifdef MAPBASE // From Alien Swarm SDK
+	CheckPVSCondition();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -13529,6 +13788,20 @@ bool CAI_BaseNPC::OverrideMoveFacing( const AILocalMoveGoal_t &move, float flInt
 
 bool CAI_BaseNPC::OverrideMove( float flInterval )
 {
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_OverrideMove.CanRunInScope(m_ScriptScope))
+	{
+		// interval
+		ScriptVariant_t functionReturn;
+		ScriptVariant_t args[] = { flInterval };
+		if (g_Hook_OverrideMove.Call( m_ScriptScope, &functionReturn, args ))
+		{
+			if (functionReturn.m_type == FIELD_BOOLEAN)
+				return functionReturn.m_bool;
+		}
+	}
+#endif
+
 	return false;
 }
 
@@ -13700,6 +13973,10 @@ bool CAI_BaseNPC::OnUpcomingPropDoor( AILocalMoveGoal_t *pMoveGoal,
 
 			GetNavigator()->GetPath()->PrependWaypoints( pOpenDoorRoute );
 
+#ifdef MAPBASE
+			GetNavigator()->SetArrivalDirection( opendata.vecFaceDir );
+#endif
+
 			m_hOpeningDoor = pDoor;
 			pMoveGoal->maxDist = distClear;
 			*pResult = AIMR_CHANGE_TYPE;
@@ -13720,6 +13997,21 @@ bool CAI_BaseNPC::OnUpcomingPropDoor( AILocalMoveGoal_t *pMoveGoal,
 //-----------------------------------------------------------------------------
 void CAI_BaseNPC::OpenPropDoorBegin( CBasePropDoor *pDoor )
 {
+#ifdef MAPBASE
+	opendata_t opendata;
+	pDoor->GetNPCOpenData(this, opendata);
+	
+	if (HaveSequenceForActivity( opendata.eActivity ))
+	{
+		int iLayer = AddGesture( opendata.eActivity );
+		float flDuration = GetLayerDuration( iLayer );
+
+		// Face the door and wait for the activity to finish before trying to move through the doorway.
+		m_flMoveWaitFinished = gpGlobals->curtime + flDuration + pDoor->GetOpenInterval();
+		AddFacingTarget( opendata.vecFaceDir, 1.0, flDuration );
+	}
+	else
+#else
 	// dvs: not quite working, disabled for now.
 	//opendata_t opendata;
 	//pDoor->GetNPCOpenData(this, opendata);
@@ -13729,6 +14021,7 @@ void CAI_BaseNPC::OpenPropDoorBegin( CBasePropDoor *pDoor )
 	//	SetIdealActivity(opendata.eActivity);
 	//}
 	//else
+#endif
 	{
 		// We don't have an appropriate sequence, just open the door magically.
 		OpenPropDoorNow( pDoor );
@@ -13748,6 +14041,15 @@ void CAI_BaseNPC::OpenPropDoorNow( CBasePropDoor *pDoor )
 
 	// Wait for the door to finish opening before trying to move through the doorway.
 	m_flMoveWaitFinished = gpGlobals->curtime + pDoor->GetOpenInterval();
+
+#ifdef MAPBASE
+	// Remove the door from our waypoint
+	if (GetNavigator()->GetPath() && GetNavigator()->GetCurWaypointFlags() & bits_WP_TO_DOOR)
+	{
+		GetNavigator()->GetPath()->GetCurWaypoint()->ModifyFlags( bits_WP_TO_DOOR, false );
+		GetNavigator()->GetPath()->GetCurWaypoint()->m_hData = NULL;
+	}
+#endif
 }
 
 
@@ -15937,6 +16239,26 @@ bool CAI_BaseNPC::CouldShootIfCrouching( CBaseEntity *pTarget )
 	return bResult;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Check if this position will block our line of sight if aiming low.
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::CouldShootIfCrouchingAt( const Vector &vecPosition, const Vector &vecForward, const Vector &vecRight, float flDist )
+{
+	Vector vGunPos = vecPosition;
+	vGunPos += (GetCrouchGunOffset() + vecRight * 8);
+
+	trace_t tr;
+	AI_TraceLOS( vGunPos, vGunPos + (vecForward * flDist), this, &tr );
+	if (tr.fraction != 1.0)
+	{
+		return false;
+	}
+
+	return true;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -15952,9 +16274,16 @@ bool CAI_BaseNPC::IsCrouchedActivity( Activity activity )
 		case ACT_COVER_SMG1_LOW:
 		case ACT_RELOAD_SMG1_LOW:
 #ifdef MAPBASE
-		//case ACT_RELOAD_AR2_LOW:
+#if AR2_ACTIVITY_FIX == 1
+		case ACT_COVER_AR2_LOW:
+		case ACT_RELOAD_AR2_LOW:
+#endif
 		case ACT_RELOAD_PISTOL_LOW:
 		case ACT_RELOAD_SHOTGUN_LOW:
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+		case ACT_RELOAD_REVOLVER_LOW:
+		case ACT_RELOAD_CROSSBOW_LOW:
+#endif
 #endif
 			return true;
 	}

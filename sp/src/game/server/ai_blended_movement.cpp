@@ -1640,10 +1640,17 @@ void CAI_BlendedMotor::MaintainTurnActivity( void )
 
 ConVar scene_flatturn( "scene_flatturn", "1" );
 
+#ifdef MAPBASE
+ConVar ai_turning_enabled( "ai_turning_enabled", "1", FCVAR_NONE, "Enables NPC turning, which was previously disabled by Valve at some point after 2004 due to a now-unknown major issue." );
+#endif
+
 bool CAI_BlendedMotor::AddTurnGesture( float flYD )
 {
 
 	// some funky bug with human turn gestures, disable for now
+#ifdef MAPBASE
+	if (!ai_turning_enabled.GetBool())
+#endif
 	return false;
 
 	// try using a turn gesture

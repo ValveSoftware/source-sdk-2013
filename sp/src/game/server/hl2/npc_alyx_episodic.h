@@ -91,6 +91,10 @@ public:
 	bool	CanSeeEntityInDarkness( CBaseEntity *pEntity );
 	bool	IsCoverPosition( const Vector &vecThreat, const Vector &vecPosition );
 	Activity NPC_TranslateActivity ( Activity activity );
+#ifdef MAPBASE
+	Activity	Weapon_TranslateActivity( Activity baseAct, bool *pRequired = NULL );
+	Activity	Weapon_BackupActivity( Activity activity, bool weaponTranslationWasRequired = false, CBaseCombatWeapon *pSpecificWeapon = NULL );
+#endif
 	bool	ShouldDeferToFollowBehavior();
 	void	BuildScheduleTestBits();
 	bool	ShouldBehaviorSelectSchedule( CAI_BehaviorBase *pBehavior );
@@ -231,7 +235,9 @@ private:
 
 	bool m_bShouldHaveEMP;
 
+#ifndef MAPBASE // Moved to CNPC_PlayerCompanion
 	CAI_FuncTankBehavior	m_FuncTankBehavior;
+#endif
 
 	COutputEvent			m_OnFinishInteractWithObject;
 	COutputEvent			m_OnPlayerUse;

@@ -83,6 +83,12 @@ public:
 	
 	float		GetDamageForActivity( Activity hitActivity );
 
+#ifdef MAPBASE
+	// Don't use backup activities
+	acttable_t		*GetBackupActivityList() { return NULL; }
+	int				GetBackupActivityListCount() { return 0; }
+#endif
+
 	CWeaponStunStick( const CWeaponStunStick & );
 
 private:

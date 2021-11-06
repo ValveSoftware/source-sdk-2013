@@ -289,6 +289,16 @@ void CBaseViewModel::AddEffects( int nEffects )
 		SetControlPanelsActive( false );
 	}
 
+#ifdef MAPBASE
+	// Apply effect changes to any viewmodel children as well
+	// (fixes hand models)
+	for (CBaseEntity *pChild = FirstMoveChild(); pChild != NULL; pChild = pChild->NextMovePeer())
+	{
+		if (pChild->GetClassname()[0] == 'h')
+			pChild->AddEffects( nEffects );
+	}
+#endif
+
 	BaseClass::AddEffects( nEffects );
 }
 
@@ -301,6 +311,16 @@ void CBaseViewModel::RemoveEffects( int nEffects )
 	{
 		SetControlPanelsActive( true );
 	}
+
+#ifdef MAPBASE
+	// Apply effect changes to any viewmodel children as well
+	// (fixes hand models)
+	for (CBaseEntity *pChild = FirstMoveChild(); pChild != NULL; pChild = pChild->NextMovePeer())
+	{
+		if (pChild->GetClassname()[0] == 'h')
+			pChild->RemoveEffects( nEffects );
+	}
+#endif
 
 	BaseClass::RemoveEffects( nEffects );
 }
@@ -423,6 +443,21 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	{
 		g_ClientVirtualReality.OverrideViewModelTransform( vmorigin, vmangles, pWeapon && pWeapon->ShouldUseLargeViewModelVROverride() );
 	}
+
+#ifdef MAPBASE
+	// Flip the view if we should be flipping
+	if (ShouldFlipViewModel())
+	{
+		Vector vecOriginDiff = (eyePosition - vmorigin);
+		QAngle angAnglesDiff = (eyeAngles - vmangles);
+
+		vmorigin.x = (eyePosition.x + vecOriginDiff.x);
+		vmorigin.y = (eyePosition.y + vecOriginDiff.y);
+		
+		vmangles.y = (eyeAngles.y + angAnglesDiff.y);
+		vmangles.z = (eyeAngles.z + angAnglesDiff.z);
+	}
+#endif
 
 	SetLocalOrigin( vmorigin );
 	SetLocalAngles( vmangles );

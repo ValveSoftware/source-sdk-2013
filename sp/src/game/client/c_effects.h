@@ -130,6 +130,10 @@ private:
 	void CreateAshParticle( void );
 	void CreateRainOrSnowParticle( Vector vSpawnPosition, Vector vVelocity );
 
+#ifdef MAPBASE
+	void ClampParticlePosition( Vector &vPlayerPos, Vector &vOffsetPos, Vector &vOffsetPosNear, Vector &vOffsetPosFar );
+#endif
+
 	// Information helpful in creating and rendering particles
 	IMaterial		*m_MatHandle;	// material used 
 

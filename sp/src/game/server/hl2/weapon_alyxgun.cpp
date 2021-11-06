@@ -37,20 +37,40 @@ acttable_t	CWeaponAlyxGun::m_acttable[] =
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_PISTOL_LOW,			true },
 	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_PISTOL_LOW,	true },
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_PISTOL,		true },
+#ifdef MAPBASE
+	// For non-Alyx NPCs
+	{ ACT_WALK,						ACT_WALK_PISTOL,				false },
+	{ ACT_RUN,						ACT_RUN_PISTOL,					false },
+#endif
 
 	// Readiness activities (not aiming)
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	{ ACT_IDLE_RELAXED,				ACT_IDLE_PISTOL_RELAXED,		false },//never aims
+	{ ACT_IDLE_STIMULATED,			ACT_IDLE_PISTOL_STIMULATED,		false },
+#else
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_PISTOL,				false },//never aims
 	{ ACT_IDLE_STIMULATED,			ACT_IDLE_STIMULATED,			false },
+#endif
 	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_PISTOL,			false },//always aims
 	{ ACT_IDLE_STEALTH,				ACT_IDLE_STEALTH_PISTOL,		false },
 
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	{ ACT_WALK_RELAXED,				ACT_WALK_PISTOL_RELAXED,		false },//never aims
+	{ ACT_WALK_STIMULATED,			ACT_WALK_PISTOL_STIMULATED,		false },
+#else
 	{ ACT_WALK_RELAXED,				ACT_WALK,						false },//never aims
 	{ ACT_WALK_STIMULATED,			ACT_WALK_STIMULATED,			false },
+#endif
 	{ ACT_WALK_AGITATED,			ACT_WALK_AIM_PISTOL,			false },//always aims
 	{ ACT_WALK_STEALTH,				ACT_WALK_STEALTH_PISTOL,		false },
-
+	
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	{ ACT_RUN_RELAXED,				ACT_RUN_PISTOL_RELAXED,			false },//never aims
+	{ ACT_RUN_STIMULATED,			ACT_RUN_PISTOL_STIMULATED,		false },
+#else
 	{ ACT_RUN_RELAXED,				ACT_RUN,						false },//never aims
 	{ ACT_RUN_STIMULATED,			ACT_RUN_STIMULATED,				false },
+#endif
 	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_PISTOL,				false },//always aims
 	{ ACT_RUN_STEALTH,				ACT_RUN_STEALTH_PISTOL,			false },
 

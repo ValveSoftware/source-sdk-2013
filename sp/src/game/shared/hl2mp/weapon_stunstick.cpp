@@ -81,6 +81,11 @@ acttable_t	CWeaponStunStick::m_acttable[] =
 #endif
 	{ ACT_MELEE_ATTACK1,				ACT_MELEE_ATTACK_SWING,	true },
 	{ ACT_IDLE_ANGRY,					ACT_IDLE_ANGRY_MELEE,	true },
+#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+	{ ACT_IDLE,							ACT_IDLE_MELEE,		false },
+	{ ACT_RUN,							ACT_RUN_MELEE,		false },
+	{ ACT_WALK,							ACT_WALK_MELEE,		false },
+#endif
 };
 
 IMPLEMENT_ACTTABLE(CWeaponStunStick);

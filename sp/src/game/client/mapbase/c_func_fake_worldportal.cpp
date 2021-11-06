@@ -1,6 +1,6 @@
 //========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
-// Purpose: Recreates Portal 2 linked_portal_door functionality using SDK code only.
+// Purpose: Recreates Portal 2 linked_portal_door visual functionality using SDK code only.
 //			(basically a combination of point_camera and func_reflective_glass)
 //
 // $NoKeywords: $
@@ -120,8 +120,8 @@ C_FuncFakeWorldPortal *IsFakeWorldPortalInView( const CViewSetup& view, cplane_t
 //-----------------------------------------------------------------------------
 // Iterates through fake world portals instead of just picking one
 //-----------------------------------------------------------------------------
-C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const CViewSetup& view, cplane_t &plane,
-	const Frustum_t &frustum )
+C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const CViewSetup& view,
+	cplane_t &plane, Vector &vecPlaneOrigin, const Frustum_t &frustum )
 {
 	// Early out if no cameras
 	C_FuncFakeWorldPortal *pReflectiveGlass = NULL;
@@ -167,6 +167,7 @@ C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const
 			if ( !pReflectiveGlass->m_hTargetPlane )
 				continue;
 
+			vecPlaneOrigin = vecOrigin;
 			return pReflectiveGlass;
 		}
 	}

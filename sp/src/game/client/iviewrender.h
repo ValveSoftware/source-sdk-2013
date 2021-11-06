@@ -115,6 +115,13 @@ public:
 	virtual void		SetScreenOverlayMaterial( IMaterial *pMaterial ) = 0;
 	virtual IMaterial	*GetScreenOverlayMaterial( ) = 0;
 
+#ifdef MAPBASE
+	virtual void		SetIndexedScreenOverlayMaterial( int i, IMaterial *pMaterial ) = 0;
+	virtual IMaterial	*GetIndexedScreenOverlayMaterial( int i ) = 0;
+	virtual void		ResetIndexedScreenOverlays() = 0;
+	virtual int			GetMaxIndexedScreenOverlays() const = 0;
+#endif
+
 	virtual void		WriteSaveGameScreenshot( const char *pFilename ) = 0;
 	virtual void		WriteSaveGameScreenshotOfSize( const char *pFilename, int width, int height, bool bCreatePowerOf2Padded = false, bool bWriteVTF = false ) = 0;
 

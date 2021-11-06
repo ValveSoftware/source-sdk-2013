@@ -39,6 +39,9 @@ protected:
 	CNetworkVar( float, m_flStartTime );
 	CNetworkVar( int, m_iDesiredOverlay );
 	CNetworkVar( bool, m_bIsActive );
+#ifdef MAPBASE
+	CNetworkVar( int, m_iOverlayIndex );
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( env_screenoverlay, CEnvScreenOverlay );
@@ -74,6 +77,9 @@ BEGIN_DATADESC( CEnvScreenOverlay )
 	DEFINE_FIELD( m_iDesiredOverlay, FIELD_INTEGER ),
 	DEFINE_FIELD( m_flStartTime, FIELD_TIME ),
 	DEFINE_FIELD( m_bIsActive, FIELD_BOOLEAN ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_iOverlayIndex, FIELD_INTEGER, "OverlayIndex" ),
+#endif
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "StartOverlays", InputStartOverlay ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "StopOverlays", InputStopOverlay ),
@@ -93,6 +99,9 @@ IMPLEMENT_SERVERCLASS_ST( CEnvScreenOverlay, DT_EnvScreenOverlay )
 	SendPropFloat( SENDINFO( m_flStartTime ), 32, SPROP_NOSCALE ),
 	SendPropInt( SENDINFO( m_iDesiredOverlay ), 5 ),
 	SendPropBool( SENDINFO( m_bIsActive ) ),
+#ifdef MAPBASE
+	SendPropInt( SENDINFO( m_iOverlayIndex ), 5 ),
+#endif
 END_SEND_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -103,6 +112,9 @@ CEnvScreenOverlay::CEnvScreenOverlay( void )
 	m_flStartTime = 0;
 	m_iDesiredOverlay = 0;
 	m_bIsActive = false;
+#ifdef MAPBASE
+	m_iOverlayIndex = -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------

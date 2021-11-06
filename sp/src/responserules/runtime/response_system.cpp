@@ -192,6 +192,9 @@ CResponseSystem::CResponseSystem() :
 	token[0] = 0;
 	m_bUnget = false;
 	m_bCustomManagable = false;
+#ifdef MAPBASE
+	m_bInProspective = false;
+#endif
 
 	BuildDispatchTables();
 }
@@ -1008,11 +1011,13 @@ int CResponseSystem::SelectWeightedResponseFromResponseGroup( ResponseGroup *g, 
 	}
 
 	if ( slot != -1 )
+	{
 #ifdef MAPBASE
-	// Don't mark responses as used in prospective mode
-	if (m_bInProspective == false)
+		// Don't mark responses as used in prospective mode
+		if (m_bInProspective == false)
 #endif
-		g->MarkResponseUsed( slot );
+			g->MarkResponseUsed( slot );
+	}
 
 	// Revert fake depletion of unavailable choices
 	RevertFakedDepletes( g );
