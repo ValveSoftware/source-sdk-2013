@@ -71,6 +71,8 @@ CON_COMMAND( ai_debug_node_connect, "Debug the attempted connection between two 
 ConVar g_ai_norebuildgraph( "ai_norebuildgraph", "0" );
 #ifdef MAPBASE
 ConVar g_ai_norebuildgraphmessage( "ai_norebuildgraphmessage", "0", FCVAR_ARCHIVE, "Stops the \"Node graph out of date\" message from appearing when rebuilding node graph" );
+
+ConVar g_ai_ignore_graph_timestamps( "g_ai_ignore_graph_timestamps", "1", FCVAR_NONE, "Ignores file timestamps when rebuilding nodegraphs, only relying on internal map version differences" );
 #endif
 
 
@@ -986,6 +988,11 @@ bool CAI_NetworkManager::IsAIFileCurrent ( const char *szMapName )
 		// dvd build process validates and guarantees correctness, timestamps are allowed to be wrong
 		return true;
 	}
+
+#ifdef MAPBASE
+	if (g_ai_ignore_graph_timestamps.GetBool())
+		return true;
+#endif
 	
 	{
 		const char *pGameDir = CommandLine()->ParmValue( "-game", "hl2" );		
