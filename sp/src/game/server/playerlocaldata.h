@@ -15,7 +15,10 @@
 #include "playernet_vars.h"
 #include "networkvar.h"
 #include "fogcontroller.h"
+#ifdef MAPBASE // From Alien Swarm SDK
 #include "postprocesscontroller.h"
+#include "colorcorrection.h"
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Player specific data ( sent only to local player, too )
