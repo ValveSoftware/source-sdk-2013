@@ -10690,6 +10690,7 @@ Vector CAI_BaseNPC::GetActualShootPosition( const Vector &shootOrigin )
 #ifdef MAPBASE_VSCRIPT
 	if (m_ScriptScope.IsInitialized() && g_Hook_GetActualShootPosition.CanRunInScope(m_ScriptScope))
 	{
+		// shootOrigin, target
 		ScriptVariant_t functionReturn;
 		ScriptVariant_t args[] = { shootOrigin, ToHScript( GetEnemy() ) };
 		if (g_Hook_GetActualShootPosition.Call( m_ScriptScope, &functionReturn, args ))
@@ -13544,6 +13545,20 @@ bool CAI_BaseNPC::OverrideMoveFacing( const AILocalMoveGoal_t &move, float flInt
 
 bool CAI_BaseNPC::OverrideMove( float flInterval )
 {
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_OverrideMove.CanRunInScope(m_ScriptScope))
+	{
+		// interval
+		ScriptVariant_t functionReturn;
+		ScriptVariant_t args[] = { flInterval };
+		if (g_Hook_OverrideMove.Call( m_ScriptScope, &functionReturn, args ))
+		{
+			if (functionReturn.m_type == FIELD_BOOLEAN)
+				return functionReturn.m_bool;
+		}
+	}
+#endif
+
 	return false;
 }
 
