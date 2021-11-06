@@ -22,6 +22,7 @@
 #include "gameweaponmanager.h"
 #include "hl2_gamerules.h"
 #include "weapon_physcannon.h"
+#include "globalstate.h"
 
 #define COMBINE_AE_GREN_TOSS		( 7 )
 
@@ -118,7 +119,7 @@ public:
 	}
 
 	// Use secondary ammo as a way of checking if this is a weapon which can be alt-fired (e.g. AR2 or SMG)
-	virtual bool	IsAltFireCapable() { return (GetActiveWeapon() && GetActiveWeapon()->UsesSecondaryAmmo()); }
+	virtual bool	IsAltFireCapable() { return (this->GetActiveWeapon() && this->GetActiveWeapon()->UsesSecondaryAmmo()); }
 	virtual bool	IsGrenadeCapable() { return true; }
 	inline bool		HasGrenades() { return m_iNumGrenades > 0; }
 
@@ -646,9 +647,9 @@ void CAI_GrenadeUser<BASE_NPC>::DropGrenadeItemsOnDeath( const CTakeDamageInfo &
 	{
 		CBaseEntity *pItem;
 		if (this->GetActiveWeapon() && FClassnameIs( this->GetActiveWeapon(), "weapon_smg1" ))
-			pItem = this->DropItem( "item_ammo_smg1_grenade", WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
+			pItem = this->DropItem( "item_ammo_smg1_grenade", this->WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
 		else
-			pItem = this->DropItem( "item_ammo_ar2_altfire", WorldSpaceCenter() + RandomVector( -4, 4 ), RandomAngle( 0, 360 ) );
+			pItem = this->DropItem( "item_ammo_ar2_altfire", this->WorldSpaceCenter() + RandomVector( -4, 4 ), RandomAngle( 0, 360 ) );
 
 		if ( pItem )
 		{
@@ -688,14 +689,14 @@ void CAI_GrenadeUser<BASE_NPC>::DropGrenadeItemsOnDeath( const CTakeDamageInfo &
 			// Attempt to drop a grenade
 			if ( pHL2GameRules->NPC_ShouldDropGrenade( pPlayer ) )
 			{
-				this->DropItem( "weapon_frag", WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
+				this->DropItem( "weapon_frag", this->WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
 				pHL2GameRules->NPC_DroppedGrenade();
 			}
 		}
 
 		// if I was killed before I could finish throwing my grenade, drop
 		// a grenade item that the player can retrieve.
-		if (GetActivity() == ACT_RANGE_ATTACK2 && ShouldDropInterruptedGrenades())
+		if (this->GetActivity() == ACT_RANGE_ATTACK2 && ShouldDropInterruptedGrenades())
 		{
 			if( m_iLastAnimEventHandled != COMBINE_AE_GREN_TOSS )
 			{
@@ -703,7 +704,7 @@ void CAI_GrenadeUser<BASE_NPC>::DropGrenadeItemsOnDeath( const CTakeDamageInfo &
 				Vector vecStart;
 				this->GetAttachment( GetGrenadeAttachment(), vecStart );
 
-				CBaseEntity *pItem = DropItem( "weapon_frag", vecStart, RandomAngle(0,360) );
+				CBaseEntity *pItem = this->DropItem( "weapon_frag", vecStart, RandomAngle(0,360) );
 
 				if ( pItem )
 				{

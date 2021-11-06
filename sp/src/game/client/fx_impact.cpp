@@ -104,7 +104,7 @@ C_BaseAnimating *FX_AffectRagdolls_GetHit( Vector vecOrigin, Vector vecStart, in
 {
 	// don't do this when lots of ragdolls are simulating
 	if ( s_RagdollLRU.CountRagdolls(true) > 1 )
-		return false;
+		return NULL;
 	Ray_t shotRay;
 	shotRay.Init( vecStart, vecOrigin );
 
