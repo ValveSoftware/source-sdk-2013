@@ -17,18 +17,6 @@
 
 //-----------------------------------------------------------------------------
 
-// Mapbase - Additional toolsets (NOTE: Newer toolsets make the solution incompatible with Visual Studio 2013)
-$Conditional VS2019	"0" // Toggles Visual Studio 2019 (v142) toolset
-
-// 
-// Note that the following projects currently do not compile with v142 and are not included in the VS2019 solution:
-// 
-// - phonemeextractor (may be fixable with modification)
-// - qc_eyes (might be fixed by having C++ MFC for v141 build tools and/or C++ ATL for v141 build tools installed)
-// 
-
-//-----------------------------------------------------------------------------
-
 // Mapbase functionality conditionals
 $Conditional MAPBASE	"1" // Equivalent to (and required for) our MAPBASE preprocessor defined below
 $Conditional MAPBASE_RPC	"1" // Toggles Mapbase's Rich Presence Client implementations
