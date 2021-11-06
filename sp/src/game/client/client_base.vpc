@@ -71,6 +71,7 @@ $Configuration
 		$SystemFrameworks				"Carbon" [$OSXALL]
 		$SystemLibraries				"rt" [$LINUXALL]
 		$IgnoreImportLibrary			"TRUE"
+		$AdditionalOptions				"$BASE /force:multiple" [$VS2019] // Required to fix _hypot in particles.lib (this may be a temporary solution)
 		$AdditionalDependencies			"$BASE winmm.lib"	[$WIN32]
 		$AdditionalDependencies			"$BASE wsock32.lib Ws2_32.lib" [$BUILD_REPLAY]
 	}

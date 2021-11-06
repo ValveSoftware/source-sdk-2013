@@ -117,7 +117,7 @@ $Project
 				{
 					// General
 					$CommandLine				"$QUOTE$(VCInstallDir)bin\ml.exe$QUOTE /safeseh /c /Cp /Zi /Fo$QUOTE$(IntDir)\$(InputName).obj$QUOTE $QUOTE$(InputPath)$QUOTE" [!$VS2019]
-					$CommandLine				"$QUOTE$(VC_ExecutablePath_x64_x86)bin\ml.exe$QUOTE /safeseh /c /Cp /Zi /Fo$QUOTE$(IntDir)\$(InputName).obj$QUOTE $QUOTE$(InputPath)$QUOTE" [$VS2019]
+					$CommandLine				"$QUOTE$(VC_ExecutablePath_x64_x86)\ml.exe$QUOTE /safeseh /c /Cp /Zi /Fo$QUOTE$(IntDir)\$(InputName).obj$QUOTE $QUOTE$(InputPath)$QUOTE" [$VS2019]
 					$Description				"Compiling pointeroverride.asm"
 					$Outputs					"$(IntDir)\$(InputName).obj"
 				}		
