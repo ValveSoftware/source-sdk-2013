@@ -7,62 +7,82 @@ static char g_Script_vscript_squirrel[] = R"vscript(
 
 Warning <- error;
 
-function clamp(val,min,max)
+function clamp( val, min, max )
 {
 	if ( max < min )
 		return max;
-	else if( val < min )
+	if ( val < min )
 		return min;
-	else if( val > max )
+	if ( val > max )
 		return max;
-	else
-		return val;
+	return val;
 }
 
-function max(a,b) return a > b ? a : b
+function max( a, b )
+{
+	if ( a > b )
+		return a;
+	return b;
+}
 
-function min(a,b) return a < b ? a : b
+function min( a, b )
+{
+	if ( a < b )
+		return a;
+	return b;
+}
 
-function RemapVal(val, A, B, C, D)
+function RemapVal( val, A, B, C, D )
 {
 	if ( A == B )
-		return val >= B ? D : C;
+	{
+		if ( val >= B )
+			return D;
+		return C;
+	};
 	return C + (D - C) * (val - A) / (B - A);
 }
 
-function RemapValClamped(val, A, B, C, D)
+function RemapValClamped( val, A, B, C, D )
 {
 	if ( A == B )
-		return val >= B ? D : C;
+	{
+		if ( val >= B )
+			return D;
+		return C;
+	};
+
 	local cVal = (val - A) / (B - A);
-	cVal = (cVal < 0.0) ? 0.0 : (1.0 < cVal) ? 1.0 : cVal;
+
+	if ( cVal <= 0.0 )
+		return C;
+
+	if ( cVal >= 1.0 )
+		return D;
+
 	return C + (D - C) * cVal;
 }
 
 function Approach( target, value, speed )
 {
-	local delta = target - value
+	local delta = target - value;
 
-	if( delta > speed )
-		value += speed
-	else if( delta < (-speed) )
-		value -= speed
-	else
-		value = target
-
-	return value
+	if ( delta > speed )
+		return value + speed;
+	if ( -speed > delta )
+		return value - speed;
+	return target;
 }
 
 function AngleDistance( next, cur )
 {
 	local delta = next - cur
 
-	if ( delta < (-180.0) )
-		delta += 360.0
-	else if ( delta > 180.0 )
-		delta -= 360.0
-
-	return delta
+	if ( delta > 180.0 )
+		return delta - 360.0;
+	if ( -180.0 > delta )
+		return delta + 360.0;
+	return delta;
 }
 
 function FLerp( f1, f2, i1, i2, x )
@@ -83,7 +103,7 @@ function SimpleSpline( f )
 
 function printl( text )
 {
-	return ::print(text + "\n");
+	return print(text + "\n");
 }
 
 class CSimpleCallChainer
@@ -481,23 +501,36 @@ else
 	}
 }
 
-// Vector documentation
-__Documentation.RegisterClassHelp( "Vector", "", "Basic 3-float Vector class." );
-__Documentation.RegisterHelp( "Vector::Length", "float Vector::Length()", "Return the vector's length." );
-__Documentation.RegisterHelp( "Vector::LengthSqr", "float Vector::LengthSqr()", "Return the vector's squared length." );
-__Documentation.RegisterHelp( "Vector::Length2D", "float Vector::Length2D()", "Return the vector's 2D length." );
-__Documentation.RegisterHelp( "Vector::Length2DSqr", "float Vector::Length2DSqr()", "Return the vector's squared 2D length." );
+if (developer)
+{
+	// Vector documentation
+	__Documentation.RegisterClassHelp( "Vector", "", "Basic 3-float Vector class." );
+	__Documentation.RegisterHelp( "Vector::Length", "float Vector::Length()", "Return the vector's length." );
+	__Documentation.RegisterHelp( "Vector::LengthSqr", "float Vector::LengthSqr()", "Return the vector's squared length." );
+	__Documentation.RegisterHelp( "Vector::Length2D", "float Vector::Length2D()", "Return the vector's 2D length." );
+	__Documentation.RegisterHelp( "Vector::Length2DSqr", "float Vector::Length2DSqr()", "Return the vector's squared 2D length." );
 
-__Documentation.RegisterHelp( "Vector::Normalized", "float Vector::Normalized()", "Return a normalized version of the vector." );
-__Documentation.RegisterHelp( "Vector::Norm", "void Vector::Norm()", "Normalize the vector in place." );
-__Documentation.RegisterHelp( "Vector::Scale", "vector Vector::Scale(float)", "Scale the vector's magnitude and return the result." );
-__Documentation.RegisterHelp( "Vector::Dot", "float Vector::Dot(vector)", "Return the dot/scalar product of two vectors." );
-__Documentation.RegisterHelp( "Vector::Cross", "float Vector::Cross(vector)", "Return the vector product of two vectors." );
+	__Documentation.RegisterHelp( "Vector::Normalized", "float Vector::Normalized()", "Return a normalized version of the vector." );
+	__Documentation.RegisterHelp( "Vector::Norm", "void Vector::Norm()", "Normalize the vector in place." );
+	__Documentation.RegisterHelp( "Vector::Scale", "vector Vector::Scale(float)", "Scale the vector's magnitude and return the result." );
+	__Documentation.RegisterHelp( "Vector::Dot", "float Vector::Dot(vector)", "Return the dot/scalar product of two vectors." );
+	__Documentation.RegisterHelp( "Vector::Cross", "float Vector::Cross(vector)", "Return the vector product of two vectors." );
 
-__Documentation.RegisterHelp( "Vector::ToKVString", "string Vector::ToKVString()", "Return a vector as a string in KeyValue form, without separation commas." );
+	__Documentation.RegisterHelp( "Vector::ToKVString", "string Vector::ToKVString()", "Return a vector as a string in KeyValue form, without separation commas." );
 
-__Documentation.RegisterMemberHelp( "Vector.x", "float Vector.x", "The vector's X coordinate on the cartesian X axis." );
-__Documentation.RegisterMemberHelp( "Vector.y", "float Vector.y", "The vector's Y coordinate on the cartesian Y axis." );
-__Documentation.RegisterMemberHelp( "Vector.z", "float Vector.z", "The vector's Z coordinate on the cartesian Z axis." );
+	__Documentation.RegisterMemberHelp( "Vector.x", "float Vector.x", "The vector's X coordinate on the cartesian X axis." );
+	__Documentation.RegisterMemberHelp( "Vector.y", "float Vector.y", "The vector's Y coordinate on the cartesian Y axis." );
+	__Documentation.RegisterMemberHelp( "Vector.z", "float Vector.z", "The vector's Z coordinate on the cartesian Z axis." );
 
+	__Documentation.RegisterHelp( "clamp", "float clamp(float, float, float)", "" );
+	__Documentation.RegisterHelp( "max", "float max(float, float)", "" );
+	__Documentation.RegisterHelp( "min", "float min(float, float)", "" );
+	__Documentation.RegisterHelp( "RemapVal", "float RemapVal(float, float, float, float, float)", "" );
+	__Documentation.RegisterHelp( "RemapValClamped", "float RemapValClamped(float, float, float, float, float)", "" );
+	__Documentation.RegisterHelp( "Approach", "float Approach(float, float, float)", "" );
+	__Documentation.RegisterHelp( "AngleDistance", "float AngleDistance(float, float)", "" );
+	__Documentation.RegisterHelp( "FLerp", "float FLerp(float, float, float, float, float)", "" );
+	__Documentation.RegisterHelp( "Lerp", "float Lerp(float, float, float)", "" );
+	__Documentation.RegisterHelp( "SimpleSpline", "float SimpleSpline(float)", "" );
+}
 )vscript";

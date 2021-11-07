@@ -366,6 +366,11 @@ END_SCRIPTDESC();
 //=============================================================================
 // Game Event Listener
 // Based on Source 2 API
+//
+// NOTE: In Source 2 vscript (Lua) event listener contexts are tables that are
+// passed to the callback function as the call environment.
+// In mapbase implementation these are string identifiers because unlike Lua,
+// Squirrel has closure methods such as 'bindenv' which can bind functions to specified environments.
 //=============================================================================
 
 // Define to use the older code that loads all events manually independent from the game event manager.
@@ -375,7 +380,13 @@ END_SCRIPTDESC();
 class CScriptGameEventListener : public IGameEventListener2, public CAutoGameSystem
 {
 public:
-	CScriptGameEventListener() : m_bActive(false) /*, m_nEventTick(0)*/ {}
+	CScriptGameEventListener() : m_bActive(false)
+	{
+#ifdef _DEBUG
+		m_nEventTick = 0;
+#endif
+	}
+
 	~CScriptGameEventListener()
 	{
 		StopListeningForEvent();
@@ -397,7 +408,9 @@ private:
 	HSCRIPT m_hCallback;
 	unsigned int m_iContextHash;
 	bool m_bActive;
-	//int m_nEventTick;
+#ifdef _DEBUG
+	int m_nEventTick;
+#endif
 
 	static StringHashFunctor Hash;
 	static inline unsigned int HashContext( const char* c ) { return c ? Hash(c) : 0; }
@@ -592,7 +605,9 @@ void CScriptGameEventListener::LevelShutdownPreEntity()
 
 void CScriptGameEventListener::FireGameEvent( IGameEvent *event )
 {
-	//m_nEventTick = gpGlobals->tickcount;
+#ifdef _DEBUG
+	m_nEventTick = gpGlobals->tickcount;
+#endif
 	ScriptVariant_t hTable;
 	g_pScriptVM->CreateTable( hTable );
 	WriteEventData( event, hTable );
@@ -722,13 +737,15 @@ void CScriptGameEventListener::StopListeningForEvent()
 	if ( gameeventmanager )
 		gameeventmanager->RemoveListener( this );
 
+#ifdef _DEBUG
 	// Event listeners are iterated forwards in the game event manager,
 	// removing while iterating will cause it to skip one listener.
 	// This could be prevented by writing a custom game event manager.
-	//if ( m_nEventTick == gpGlobals->tickcount )
-	//{
-	//	Warning("CScriptGameEventListener stopped in the same frame it was fired. This will break other event listeners!\n");
-	//}
+	if ( m_nEventTick == gpGlobals->tickcount )
+	{
+		Warning("CScriptGameEventListener stopped in the same frame it was fired. This will break other event listeners!\n");
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2423,9 +2440,7 @@ public:
 	inline bool IsOverridable( unsigned int hash )
 	{
 		int idx = g_ConCommandsOverridable.Find( hash );
-		if ( idx == g_ConCommandsOverridable.InvalidIndex() )
-			return false;
-		return true;
+		return ( idx != g_ConCommandsOverridable.InvalidIndex() );
 	}
 
 	inline void AddBlockedConVar( const char *name )
@@ -2436,9 +2451,7 @@ public:
 	inline bool IsBlockedConvar( const char *name )
 	{
 		int idx = g_ConVarsBlocked.Find( Hash(name) );
-		if ( idx == g_ConVarsBlocked.InvalidIndex() )
-			return false;
-		return true;
+		return ( idx != g_ConVarsBlocked.InvalidIndex() );
 	}
 
 public:
