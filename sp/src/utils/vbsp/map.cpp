@@ -2603,6 +2603,27 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 						SetKeyValue( entity, szKey, epInstance->value );
 					}
 				}
+
+				// If the parent instance is within a relative path and no file relative to the main map exists, change it to be relative to the parent
+				char *pParentInstanceFile = ValueForKey( pInstanceEntity, "file" );
+				if ( pParentInstanceFile[ 0 ] && (strchr( pParentInstanceFile, '\\' ) || strchr( pParentInstanceFile, '/' )) )
+				{
+					char *pInstanceFile = ValueForKey( entity, "file" );
+					if ( pInstanceFile[ 0 ] )
+					{
+						char	InstancePath[ MAX_PATH ];
+
+						if ( !DeterminePath( g_MainMapPath, pInstanceFile, InstancePath ) )
+						{
+							strcpy( InstancePath, pParentInstanceFile );
+							V_StripFilename( InstancePath );
+							V_strncat( InstancePath, "\\", sizeof( InstancePath ) );
+							V_strncat( InstancePath, pInstanceFile, sizeof( InstancePath ) );
+
+							SetKeyValue( entity, "file", InstancePath );
+						}
+					}
+				}
 			}
 #endif
 		}
