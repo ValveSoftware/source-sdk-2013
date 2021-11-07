@@ -324,12 +324,12 @@ void CAI_GrenadeUser<BASE_NPC>::InputThrowGrenadeGestureAtTarget( inputdata_t &i
 #ifdef SHARED_COMBINE_ACTIVITIES
 	if (IsAltFireCapable())
 	{
-		if (FVisible( m_hForcedGrenadeTarget ))
+		if (this->FVisible( m_hForcedGrenadeTarget ))
 		{
 			m_vecAltFireTarget = vecTarget;
 			m_hForcedGrenadeTarget = NULL;
 
-			int iLayer = AddGesture( ACT_GESTURE_COMBINE_AR2_ALTFIRE );
+			int iLayer = this->AddGesture( ACT_GESTURE_COMBINE_AR2_ALTFIRE );
 			if (iLayer != -1)
 			{
 				this->GetShotRegulator()->FireNoEarlierThan( gpGlobals->curtime + this->GetLayerDuration( iLayer ) );
@@ -342,7 +342,7 @@ void CAI_GrenadeUser<BASE_NPC>::InputThrowGrenadeGestureAtTarget( inputdata_t &i
 		// Ignore grenade count / distance / etc
 		if (CheckCanThrowGrenade( vecTarget ))
 		{
-			int iLayer = AddGesture( ACT_GESTURE_COMBINE_THROW_GRENADE );
+			int iLayer = this->AddGesture( ACT_GESTURE_COMBINE_THROW_GRENADE );
 			if (iLayer != -1)
 			{
 				this->GetShotRegulator()->FireNoEarlierThan( gpGlobals->curtime + this->GetLayerDuration( iLayer ) );

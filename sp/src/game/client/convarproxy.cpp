@@ -10,8 +10,8 @@
 //#pragma warning(disable: 4786)
 
 #include "convar.h"
-#include "MaterialSystem/imaterialproxy.h"
-#include "materialsystem/IMaterialVar.h"
+#include "materialsystem/imaterialproxy.h"
+#include "materialsystem/imaterialvar.h"
 //#include "imaterialproxydict.h"
 
 // NOTE: This has to be the last file included!
