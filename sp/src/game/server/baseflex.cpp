@@ -2332,8 +2332,13 @@ void CBaseFlex::DoBodyLean( void )
 		{
 			m_vecPrevVelocity = vecDelta;
 			float decay =  ExponentialDecay( 0.5, 0.1, dt );
+#ifdef MAPBASE // From Alien Swarm SDK
+			m_vecShift = m_vecShift * decay;
+			m_vecLean = m_vecLean * decay;
+#else
 			m_vecShift = m_vecLean * decay;
 			m_vecLean = m_vecShift * decay;
+#endif
  		}
 
 		m_vecPrevOrigin = vecOrigin;
