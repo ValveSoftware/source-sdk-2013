@@ -2806,14 +2806,12 @@ bool LoadMapFile( const char *pszFileName )
 #ifdef MAPBASE_VSCRIPT
 		if ( g_pScriptVM )
 		{
-			HSCRIPT hFunc = g_pScriptVM->LookupFunction( "OnMapLoaded" );
-			if ( hFunc )
+			if (CMapFile::g_Hook_OnMapLoaded.CanRunInScope( NULL ))
 			{
 				// Use GetLoadingMap()
 				//g_pScriptVM->SetValue( "map", g_LoadingMap->GetScriptInstance() );
 
-				g_pScriptVM->Call( hFunc );
-				g_pScriptVM->ReleaseFunction( hFunc );
+				CMapFile::g_Hook_OnMapLoaded.Call( NULL, NULL, NULL );
 
 				//g_pScriptVM->ClearValue( "map" );
 			}

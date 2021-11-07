@@ -169,6 +169,8 @@ bool VScriptRunScript( const char *pszScriptName, HSCRIPT hScope, bool bWarnMiss
 	return bSuccess;
 }
 
+ScriptHook_t	CMapFile::g_Hook_OnMapLoaded;
+
 BEGIN_SCRIPTDESC_ROOT( CMapFile, "Map file" )
 
 	DEFINE_SCRIPTFUNC( GetMins, "Get the map's mins." )
@@ -184,6 +186,11 @@ BEGIN_SCRIPTDESC_ROOT( CMapFile, "Map file" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddInstance, "AddInstance", "Add an instance to the map." )
 
 	DEFINE_SCRIPTFUNC( GetNumEntities, "Get the number of entities in the map." )
+
+	// 
+	// Hooks
+	// 
+	DEFINE_SIMPLE_SCRIPTHOOK( CMapFile::g_Hook_OnMapLoaded, "OnMapLoaded", FIELD_VOID, "Called when the NPC is deciding whether to hear a CSound or not." )
 
 END_SCRIPTDESC();
 

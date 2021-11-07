@@ -347,6 +347,8 @@ public:
 #ifdef MAPBASE_VSCRIPT
 	HSCRIPT				GetScriptInstance();
 
+	static ScriptHook_t	g_Hook_OnMapLoaded;
+
 	// VScript functions
 	ALLOW_SCRIPT_ACCESS();
 private:
