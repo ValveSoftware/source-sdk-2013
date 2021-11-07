@@ -15,11 +15,12 @@
 #include "gamerules.h"
 #include "vscript_client.nut"
 #ifdef MAPBASE_VSCRIPT
-#include "mapbase/matchers.h"
+#include "view.h"
 #include "c_world.h"
 #include "proxyentity.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
+#include "mapbase/matchers.h"
 #include "mapbase/vscript_singletons.h"
 #endif
 
@@ -661,6 +662,20 @@ bool VScriptClientInit()
 				ScriptRegisterFunction( g_pScriptVM, ScreenHeight, "Height of the screen in pixels" );
 				ScriptRegisterFunction( g_pScriptVM, IsWindowedMode, "" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptScreenTransform, "ScreenTransform", "Get the x & y positions of a world position in screen space. Returns true if it's onscreen" );
+
+				ScriptRegisterFunction( g_pScriptVM, MainViewOrigin, "" );
+				ScriptRegisterFunction( g_pScriptVM, MainViewAngles, "" );
+				ScriptRegisterFunction( g_pScriptVM, PrevMainViewOrigin, "" );
+				ScriptRegisterFunction( g_pScriptVM, PrevMainViewAngles, "" );
+				ScriptRegisterFunction( g_pScriptVM, MainViewForward, "" );
+				ScriptRegisterFunction( g_pScriptVM, MainViewRight, "" );
+				ScriptRegisterFunction( g_pScriptVM, MainViewUp, "" );
+
+				ScriptRegisterFunction( g_pScriptVM, CurrentViewOrigin, "" );
+				ScriptRegisterFunction( g_pScriptVM, CurrentViewAngles, "" );
+				ScriptRegisterFunction( g_pScriptVM, CurrentViewForward, "" );
+				ScriptRegisterFunction( g_pScriptVM, CurrentViewRight, "" );
+				ScriptRegisterFunction( g_pScriptVM, CurrentViewUp, "" );
 
 				ScriptRegisterFunction( g_pScriptVM, CreateProp, "Create an animating prop" );
 #endif
