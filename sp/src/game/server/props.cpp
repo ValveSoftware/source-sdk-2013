@@ -44,7 +44,7 @@
 #ifdef MAPBASE
 #include "mapbase/GlobalStrings.h"
 #include "collisionutils.h"
-#include "vstdlib/ikeyvaluessystem.h" // From Alien Swarm SDK
+#include "vstdlib/IKeyValuesSystem.h" // From Alien Swarm SDK
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
