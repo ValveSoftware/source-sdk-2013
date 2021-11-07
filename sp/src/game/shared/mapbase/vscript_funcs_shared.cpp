@@ -775,6 +775,7 @@ static void AddPhysVelocity( HSCRIPT hPhys, const Vector& vecVelocity, const Vec
 //=============================================================================
 //=============================================================================
 
+#ifdef CLIENT_DLL
 static int ScriptPrecacheModel( const char *modelname )
 {
 	return CBaseEntity::PrecacheModel( modelname );
@@ -784,8 +785,17 @@ static void ScriptPrecacheOther( const char *classname )
 {
 	UTIL_PrecacheOther( classname );
 }
+#else
+static int ScriptPrecacheModel( const char *modelname, bool bPreload )
+{
+	return CBaseEntity::PrecacheModel( modelname, bPreload );
+}
 
-#ifndef CLIENT_DLL
+static void ScriptPrecacheOther( const char *classname, const char *modelName )
+{
+	UTIL_PrecacheOther( classname, modelName );
+}
+
 // TODO: Move this?
 static void ScriptInsertSound( int iType, const Vector &vecOrigin, int iVolume, float flDuration, HSCRIPT hOwner, int soundChannelIndex, HSCRIPT hSoundTarget )
 {
