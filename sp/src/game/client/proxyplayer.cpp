@@ -12,6 +12,9 @@
 #include "materialsystem/imaterialsystem.h"
 #include "functionproxy.h"
 #include "toolframework_client.h"
+#ifdef MAPBASE
+#include "view.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -522,3 +525,99 @@ void CPlayerLogoOnModelProxy::OnBind( void *pC_BaseEntity )
 
 EXPOSE_INTERFACE( CPlayerLogoOnModelProxy, IMaterialProxy, "PlayerLogoOnModel" IMATERIAL_PROXY_INTERFACE_VERSION );
 */
+
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Returns the proximity of the current view to the entity
+//-----------------------------------------------------------------------------
+class CViewProximityProxy : public CResultProxy
+{
+public:
+	bool Init( IMaterial *pMaterial, KeyValues *pKeyValues );
+	void OnBind( void *pC_BaseEntity );
+
+private:
+	float	m_Factor;
+};
+
+bool CViewProximityProxy::Init( IMaterial *pMaterial, KeyValues *pKeyValues )
+{
+	if (!CResultProxy::Init( pMaterial, pKeyValues ))
+		return false;
+
+	m_Factor = pKeyValues->GetFloat( "scale", 0.002 );
+	return true;
+}
+
+void CViewProximityProxy::OnBind( void *pC_BaseEntity )
+{
+	if (!pC_BaseEntity)
+		return;
+
+	// Find the distance between the player and this entity....
+	C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
+
+	Vector delta;
+	VectorSubtract( pEntity->WorldSpaceCenter(), CurrentViewOrigin(), delta );
+
+	Assert( m_pResult );
+	SetFloatResult( delta.Length() * m_Factor );
+
+	if ( ToolsEnabled() )
+	{
+		ToolFramework_RecordMaterialParams( GetMaterial() );
+	}
+}
+
+EXPOSE_INTERFACE( CViewProximityProxy, IMaterialProxy, "ViewProximity" IMATERIAL_PROXY_INTERFACE_VERSION );
+
+//-----------------------------------------------------------------------------
+// Returns the current view direction
+//-----------------------------------------------------------------------------
+class CViewDirectionProxy : public CResultProxy
+{
+public:
+	bool Init( IMaterial *pMaterial, KeyValues *pKeyValues );
+	void OnBind( void *pC_BaseEntity );
+
+private:
+	float	m_Factor;
+};
+
+bool CViewDirectionProxy::Init( IMaterial *pMaterial, KeyValues *pKeyValues )
+{
+	if (!CResultProxy::Init( pMaterial, pKeyValues ))
+		return false;
+
+	m_Factor = pKeyValues->GetFloat( "scale", 2 );
+	return true;
+}
+
+void CViewDirectionProxy::OnBind( void *pC_BaseEntity )
+{
+	if (!pC_BaseEntity)
+		return;
+
+	// Find the view angle between the player and this entity....
+	C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
+
+	Vector delta;
+	Vector forward;
+
+	VectorSubtract( pEntity->WorldSpaceCenter(), CurrentViewOrigin(), delta );
+	VectorNormalize( delta );
+
+	forward = CurrentViewForward();
+
+	Assert( m_pResult );
+	SetFloatResult( DotProduct( forward, delta ) * m_Factor );
+
+	if ( ToolsEnabled() )
+	{
+		ToolFramework_RecordMaterialParams( GetMaterial() );
+	}
+}
+
+EXPOSE_INTERFACE( CViewDirectionProxy, IMaterialProxy, "ViewDirection" IMATERIAL_PROXY_INTERFACE_VERSION );
+#endif
