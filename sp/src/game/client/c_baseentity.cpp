@@ -4932,9 +4932,15 @@ C_BaseEntity *C_BaseEntity::Instance( int iEnt )
 }
 
 #ifdef WIN32
+
+#if _MSC_VER < 1900
 #pragma warning( push )
 #include <typeinfo.h>
 #pragma warning( pop )
+#else
+#include <typeinfo>
+#endif
+
 #endif
 
 //-----------------------------------------------------------------------------

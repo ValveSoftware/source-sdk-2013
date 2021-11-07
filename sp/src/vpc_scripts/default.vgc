@@ -17,6 +17,21 @@ $Games
 // Makes the VPC scripts work in the SDK's context
 $Conditional "SOURCESDK" "1"
 
+//-----------------------------------------------------------------------------
+
+// Mapbase - Additional toolsets (NOTE: Newer toolsets make the solution incompatible with Visual Studio 2013)
+
+$Conditional VS2019	"0" // Toggles Visual Studio 2019 (v142) toolset
+
+// 
+// Note that the following projects currently do not compile with v142 and are not included in the VS2019 solution:
+// 
+// - phonemeextractor (may be fixable with modification)
+// - qc_eyes (might be fixed by having C++ MFC for v141 build tools and/or C++ ATL for v141 build tools installed)
+// 
+
+//-----------------------------------------------------------------------------
+
 $Include "vpc_scripts\projects.vgc"
 $Include "vpc_scripts\groups.vgc"
 

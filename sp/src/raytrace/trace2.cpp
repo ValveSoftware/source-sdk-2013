@@ -155,14 +155,14 @@ void RayTracingEnvironment::RenderScene(
 							fltx4 MaxT=ldir.length();
 							ldir.VectorNormalizeFast();
 							// now, compute shadow flag
-							FourRays myrays;
-							myrays.origin=surface_pos;
+							FourRays myraysLocl;
+							myraysLocl.origin=surface_pos;
 							FourVectors epsilon=ldir;
 							epsilon*=0.01;
-							myrays.origin+=epsilon;
-							myrays.direction=ldir;
+							myraysLocl.origin+=epsilon;
+							myraysLocl.direction=ldir;
 							RayTracingResult shadowtest;
-							Trace4Rays(myrays,Four_Zeros,MaxT, &shadowtest);
+							Trace4Rays(myraysLocl,Four_Zeros,MaxT, &shadowtest);
 							fltx4 unshadowed=CmpGtSIMD(shadowtest.HitDistance,MaxT);
 							if (! (IsAllZeros(unshadowed)))
 							{

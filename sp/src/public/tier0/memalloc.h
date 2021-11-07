@@ -382,7 +382,12 @@ public:
 
 	#pragma warning(disable:4290)
 	#pragma warning(push)
+
+#if _MSC_VER < 1900
 	#include <typeinfo.h>
+#else
+	#include <typeinfo>
+#endif
 
 	// MEM_DEBUG_CLASSNAME is opt-in.
 	// Note: typeid().name() is not threadsafe, so if the project needs to access it in multiple threads

@@ -1015,12 +1015,12 @@ CPolyhedron *ClipLinkedGeometry( GeneratePolyhedronFromPlanes_UnorderedPolygonLL
 
 			//Scan for onplane points connected to only other onplane/dead points, these points get downgraded to dead status.
 			{
-				GeneratePolyhedronFromPlanes_UnorderedPointLL *pActivePointWalk = pAllPoints;
+				GeneratePolyhedronFromPlanes_UnorderedPointLL *pActivePointWalkLocl = pAllPoints;
 				do
 				{
-					if( pActivePointWalk->pPoint->planarity == POINT_ONPLANE )
+					if( pActivePointWalkLocl->pPoint->planarity == POINT_ONPLANE )
 					{
-						GeneratePolyhedronFromPlanes_LineLL *pOnPlaneLineWalk = pActivePointWalk->pPoint->pConnectedLines;
+						GeneratePolyhedronFromPlanes_LineLL *pOnPlaneLineWalk = pActivePointWalkLocl->pPoint->pConnectedLines;
 						GeneratePolyhedronFromPlanes_LineLL *pStartLineWalk = pOnPlaneLineWalk;
 						bool bDead = true; //assume it's dead and disprove
 						do
@@ -1047,7 +1047,7 @@ CPolyhedron *ClipLinkedGeometry( GeneratePolyhedronFromPlanes_UnorderedPolygonLL
 
 						if( bDead )
 						{
-							pActivePointWalk->pPoint->planarity = POINT_DEAD;
+							pActivePointWalkLocl->pPoint->planarity = POINT_DEAD;
 
 							pOnPlaneLineWalk = pStartLineWalk;
 
@@ -1059,8 +1059,8 @@ CPolyhedron *ClipLinkedGeometry( GeneratePolyhedronFromPlanes_UnorderedPolygonLL
 							} while( pOnPlaneLineWalk != pStartLineWalk );
 						}
 					}
-					pActivePointWalk = pActivePointWalk->pNext;
-				} while( pActivePointWalk );
+					pActivePointWalkLocl = pActivePointWalkLocl->pNext;
+				} while( pActivePointWalkLocl );
 			}
 #ifdef _DEBUG
 			PlaneCutHistory.AddToTail( &pOutwardFacingPlanes[iCurrentPlane * 4] );
@@ -1337,17 +1337,17 @@ CPolyhedron *ClipLinkedGeometry( GeneratePolyhedronFromPlanes_UnorderedPolygonLL
 
 						//verify that the new point isn't sitting on top of another
 						{
-							GeneratePolyhedronFromPlanes_UnorderedPointLL *pActivePointWalk = pAllPoints;
+							GeneratePolyhedronFromPlanes_UnorderedPointLL *pActivePointWalkLocl = pAllPoints;
 							do
 							{
-								if( pActivePointWalk->pPoint != pNewPoint )
+								if( pActivePointWalkLocl->pPoint != pNewPoint )
 								{
-									Vector vDiff = pActivePointWalk->pPoint->ptPosition - pNewPoint->ptPosition;
+									Vector vDiff = pActivePointWalkLocl->pPoint->ptPosition - pNewPoint->ptPosition;
 
 									AssertMsg_DumpPolyhedron( vDiff.Length() > fOnPlaneEpsilon, "Generated a point on top of another" );
 								}
-								pActivePointWalk = pActivePointWalk->pNext;
-							} while( pActivePointWalk );
+								pActivePointWalkLocl = pActivePointWalk->pNext;
+							} while( pActivePointWalkLocl );
 						}
 #endif
 

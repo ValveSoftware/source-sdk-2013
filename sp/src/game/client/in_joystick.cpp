@@ -25,7 +25,9 @@
 #include "tier0/icommandline.h"
 #include "inputsystem/iinputsystem.h"
 #include "inputsystem/ButtonCode.h"
+#if _MSC_VER < 1900
 #include "math.h"
+#endif
 #include "tier1/convar_serverbounded.h"
 #include "cam_thirdperson.h"
 

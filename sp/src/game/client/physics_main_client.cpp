@@ -6,7 +6,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "c_baseentity.h"
-#ifdef WIN32
+#if defined(WIN32) && _MSC_VER < 1900
 #include <typeinfo.h>
 #endif
 #include "tier0/vprof.h"

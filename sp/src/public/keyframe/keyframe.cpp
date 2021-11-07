@@ -154,7 +154,7 @@ class CPositionInterpolator_Linear : public IPositionInterpolator
 {
 public:
 	virtual void		Release();
-	virtual void		GetDetails( char **outName, int *outMinKeyReq, int *outMaxKeyReq );
+	virtual void		GetDetails( const char **outName, int *outMinKeyReq, int *outMaxKeyReq );
 	virtual void		SetKeyPosition( int keyNum, Vector const &vPos );
 	virtual void		InterpolatePosition( float time, Vector &vOut );
 	virtual bool		ProcessKey( char const *pName, char const *pValue ) { return false; }
@@ -171,7 +171,7 @@ void CPositionInterpolator_Linear::Release()
 {
 }
 
-void CPositionInterpolator_Linear::GetDetails( char **outName, int *outMinKeyReq, int *outMaxKeyReq )
+void CPositionInterpolator_Linear::GetDetails( const char **outName, int *outMinKeyReq, int *outMaxKeyReq )
 {
 	*outName = "Linear";
 	*outMinKeyReq = 0;
@@ -201,7 +201,7 @@ class CPositionInterpolator_CatmullRom : public IPositionInterpolator
 {
 public:
 	virtual void		Release();
-	virtual void		GetDetails( char **outName, int *outMinKeyReq, int *outMaxKeyReq );
+	virtual void		GetDetails( const char **outName, int *outMinKeyReq, int *outMaxKeyReq );
 	virtual void		SetKeyPosition( int keyNum, Vector const &vPos );
 	virtual void		InterpolatePosition( float time, Vector &vOut );
 	virtual bool		ProcessKey( char const *pName, char const *pValue ) { return false; }
@@ -218,7 +218,7 @@ void CPositionInterpolator_CatmullRom::Release()
 {
 }
 
-void CPositionInterpolator_CatmullRom::GetDetails( char **outName, int *outMinKeyReq, int *outMaxKeyReq )
+void CPositionInterpolator_CatmullRom::GetDetails( const char **outName, int *outMinKeyReq, int *outMaxKeyReq )
 {
 	*outName = "Catmull-Rom Spline";
 	*outMinKeyReq = -1;
@@ -282,7 +282,7 @@ public:
 						CPositionInterpolator_Rope();
 
 	virtual void		Release();
-	virtual void		GetDetails( char **outName, int *outMinKeyReq, int *outMaxKeyReq );
+	virtual void		GetDetails( const char **outName, int *outMinKeyReq, int *outMaxKeyReq );
 	virtual void		SetKeyPosition( int keyNum, Vector const &vPos );
 	virtual void		InterpolatePosition( float time, Vector &vOut );
 	virtual bool		ProcessKey( char const *pName, char const *pValue );
@@ -319,7 +319,7 @@ void CPositionInterpolator_Rope::Release()
 	delete this;
 }
 
-void CPositionInterpolator_Rope::GetDetails( char **outName, int *outMinKeyReq, int *outMaxKeyReq )
+void CPositionInterpolator_Rope::GetDetails( const char **outName, int *outMinKeyReq, int *outMaxKeyReq )
 {
 	*outName = "Rope";
 	*outMinKeyReq = 0;
@@ -433,7 +433,7 @@ typedef void (*RotationInterpolatorFunc_t)(float time, Quaternion &outRot);
 
 typedef struct 
 {
-	char *szName;
+	const char *szName;
 	RotationInterpolatorFunc_t pFunc;
 
 	// defines the range of keys this interpolator needs to function
@@ -458,7 +458,7 @@ int Motion_GetNumberOfRotationInterpolators( void )
 	return ARRAYSIZE(g_RotationInterpolators);
 }
 
-bool Motion_GetRotationInterpolatorDetails( int rotInterpNum, char **outName, int *outMinKeyReq, int *outMaxKeyReq )
+bool Motion_GetRotationInterpolatorDetails( int rotInterpNum, const char **outName, int *outMinKeyReq, int *outMaxKeyReq )
 {
 	if ( rotInterpNum < 0 || rotInterpNum >= Motion_GetNumberOfRotationInterpolators() )
 	{

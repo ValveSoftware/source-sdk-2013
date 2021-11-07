@@ -2137,7 +2137,7 @@ struct studiohdr_t
 	int					GetSequenceActivity( int iSequence );
 	void				SetSequenceActivity( int iSequence, int iActivity );
 	int					GetActivityListVersion( void );
-	void				SetActivityListVersion( int version ) const;
+	void				SetActivityListVersion( int iVersion ) const;
 	int					GetEventListVersion( void );
 	void				SetEventListVersion( int version );
 	
@@ -2185,7 +2185,7 @@ struct studiohdr_t
 //public:
 	int					EntryNode( int iSequence );
 	int					ExitNode( int iSequence );
-	char				*pszNodeName( int iNode );
+	const char			*pszNodeName( int iNode );
 	int					GetTransition( int iFrom, int iTo ) const;
 
 	int					numflexdesc;
@@ -2395,7 +2395,7 @@ public:
 
 	int					EntryNode( int iSequence );
 	int					ExitNode( int iSequence );
-	char				*pszNodeName( int iNode );
+	const char			*pszNodeName( int iNode );
 	// FIXME: where should this one be?
 	int					GetTransition( int iFrom, int iTo ) const;
 
