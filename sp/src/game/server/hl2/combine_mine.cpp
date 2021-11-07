@@ -96,6 +96,7 @@ BEGIN_DATADESC( CBounceBomb )
 	DEFINE_KEYFIELD( m_bCheapWarnSound, FIELD_BOOLEAN, "CheapWarnSound" ),
 	DEFINE_KEYFIELD( m_iLOSMask, FIELD_INTEGER, "LOSMask" ),
 	DEFINE_INPUT( m_bUnavoidable, FIELD_BOOLEAN, "SetUnavoidable" ),
+	DEFINE_KEYFIELD( m_vecPlantOrientation, FIELD_VECTOR, "PlantOrientation" ),
 #endif
 	DEFINE_KEYFIELD( m_iModification, FIELD_INTEGER, "Modification" ),
 
