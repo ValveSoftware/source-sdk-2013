@@ -1,6 +1,6 @@
 //===================================================================================================================================================
 
-               Mapbase - Source 2013
+               Mapbase v7.0 - Source 2013
 	https://github.com/mapbase-source/source-sdk-2013
 		https://www.moddb.com/mods/mapbase
 	
@@ -47,7 +47,7 @@ Mapbase is intended to be usable by everyone, including licensed Source projects
 -- Mapbase also implements some of Tony Sergi's code changes from the Source 2007 SDK codebase. Both SDKs are publicly distributed by Valve and are available on Steam.
 
 Some of the features backported from the Alien Swarm SDK (e.g. game instructor, particle rain) require assets from later versions of Source in order to work properly.
-The required assets have been backported from Alien Swarm and Left 4 Dead for the release build. They are not available in the code repository.
+The required assets have been backported from Alien Swarm and Left 4 Dead for Mapbase's release build. They are not available in the code repository.
 
 Here's a list of Mapbase's other known external code sources:
 
@@ -59,6 +59,7 @@ including radial fog, rope code, and treesway)
 - https://github.com/momentum-mod/game (Used as a guide to port postprocess_controller and env_dof_controller to Source 2013)
 - https://github.com/DeathByNukes/source-sdk-2013 (VBSP manifest fixes)
 - https://github.com/entropy-zero/source-sdk-2013 (skill_changed game event)
+- https://github.com/Nbc66/source-sdk-2013-ce/tree/v142 (Base for VS2019 toolset support)
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -97,6 +98,8 @@ Direct contributions:
 - https://github.com/mapbase-source/source-sdk-2013/pull/60 (Adjustment by RoyaleNoir to one of Saul's VDC changes)
 - https://github.com/mapbase-source/source-sdk-2013/pull/84 (CS:S viewmodel chirality from 1upD)
 - https://github.com/mapbase-source/source-sdk-2013/pull/116 (vgui_movie_display mute keyvalue from Alivebyte/rzkid)
+- https://github.com/mapbase-source/source-sdk-2013/pull/140 (logic_substring entity and icon created by moofemp)
+- https://github.com/mapbase-source/source-sdk-2013/pull/143 (Propper features for VBSP from Matty-64)
 - Demo autorecord code provided by Klems
 - cc_emit crash fix provided by 1upD
 - Custom HL2 ammo crate models created by Rara (Textures created by Blixibon; This is asset-based and, aside from the SLAM crate, not reflected in the code)
@@ -112,12 +115,16 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/105 (VScript fixes and optimizations, Vector class extensions, custom convars/commands)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/114 (VScript fixes and extensions)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/122 (Minor VScript-related adjustments)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/148 (Minor fixup)
 
 == Contributions from z33ky:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux compilation fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/95 (Additional GCC/Linux compilation fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/117 (Additional GCC/Linux compilation fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/124 (Memory error fixes)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/124 (Memory error fixes)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/132 (Console error fix)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/152 (Additional GCC/Linux compilation fixes)
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
