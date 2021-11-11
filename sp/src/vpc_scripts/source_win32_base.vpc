@@ -8,11 +8,13 @@ $Configuration
 	$General
 	{
 		// Request a specific compiler toolset.
-		$PlatformToolset "v110_xp" [$VS2012 && !$ANALYZE && !$VS2019] // VS 2012 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
-		$PlatformToolset "v110" [$VS2012 && $ANALYZE && !$VS2019] // VS 2012 for /analyze
-		$PlatformToolset "v120_xp" [$VS2013 && !$ANALYZE && !$VS2019] // VS 2013 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
-		$PlatformToolset "v120" [$VS2013 && $ANALYZE && !$VS2019] // VS 2013 for /analyze
+		$PlatformToolset "v110_xp" [$VS2012 && !$ANALYZE && !($VS2017||$VS2019||$VS2022)] // VS 2012 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
+		$PlatformToolset "v110" [$VS2012 && $ANALYZE && !($VS2017||$VS2019||$VS2022)] // VS 2012 for /analyze
+		$PlatformToolset "v120_xp" [$VS2013 && !$ANALYZE && !($VS2017||$VS2019||$VS2022)] // VS 2013 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
+		$PlatformToolset "v120" [$VS2013 && $ANALYZE && !($VS2017||$VS2019||$VS2022)] // VS 2013 for /analyze
+		$PlatformToolset "v141" [$VS2017] // VS 2017
 		$PlatformToolset "v142" [$VS2019] // VS 2019
+		$PlatformToolset "v143" [$VS2022] // VS 2022
 	}
 
 	$General
@@ -35,7 +37,7 @@ $Configuration
 		
 		// warning C4838: conversion requires a narrowing conversion
 		// warning C4456-4459: variable shadowing. TODO: fix those!
-		$DisableSpecificWarnings	"$BASE;4316;4838;4456;4457;4458;4459" [$VS2019]
+		$DisableSpecificWarnings	"$BASE;4316;4838;4456;4457;4458;4459" [($VS2017||$VS2019||$VS2022)]
 
 		// Having lots of warnings makes it harder to notice new, and possibly
 		// important warnings, both on buildbot and in the output window. Lots

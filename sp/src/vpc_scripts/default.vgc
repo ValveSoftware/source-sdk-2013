@@ -19,12 +19,15 @@ $Conditional "SOURCESDK" "1"
 
 //-----------------------------------------------------------------------------
 
-// Mapbase - Additional toolsets (NOTE: Newer toolsets make the solution incompatible with Visual Studio 2013)
+// Mapbase - Additional toolsets (NOTE: Enabling any of these makes the solution incompatible with Visual Studio 2013)
 
+$Conditional VS2017	"0" // Toggles Visual Studio 2017 (v141) toolset
 $Conditional VS2019	"0" // Toggles Visual Studio 2019 (v142) toolset
+$Conditional VS2022	"0" // Toggles Visual Studio 2022 (v143) toolset
 
 // 
-// Note that the following projects currently do not compile with v142 and are not included in the VS2019 solution:
+// Note that the following projects currently do not compile with any of the above toolsets and are not included in
+// their solutions:
 // 
 // - phonemeextractor (may be fixable with modification)
 // - qc_eyes (might be fixed by having C++ MFC for v141 build tools and/or C++ ATL for v141 build tools installed)
