@@ -37,7 +37,7 @@ $Configuration
 		
 		// warning C4838: conversion requires a narrowing conversion
 		// warning C4456-4459: variable shadowing. TODO: fix those!
-		$DisableSpecificWarnings	"$BASE;4316;4838;4456;4457;4458;4459" [($VS2017||$VS2019||$VS2022)]
+		$DisableSpecificWarnings	"$BASE;4316;4838;4456;4457;4458;4459" [($VS2015||$VS2017||$VS2019||$VS2022)]
 
 		// Having lots of warnings makes it harder to notice new, and possibly
 		// important warnings, both on buildbot and in the output window. Lots
