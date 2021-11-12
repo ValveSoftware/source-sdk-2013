@@ -6623,8 +6623,14 @@ Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
 
 	// ---------------------------------------------
 
-	if (eNewActivity == ACT_COVER_MED)
-		eNewActivity = ACT_COVER_LOW;
+	switch (eNewActivity)
+	{
+		case ACT_COVER_MED:				eNewActivity = ACT_COVER_LOW; break;
+#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+		case ACT_RANGE_AIM_MED:			eNewActivity = ACT_RANGE_AIM_LOW; break;
+		case ACT_RANGE_ATTACK1_MED:		eNewActivity = ACT_RANGE_ATTACK1_LOW; break;
+#endif
+	}
 
 	//if (eNewActivity == ACT_COVER)
 	//	return TranslateActivity(ACT_IDLE);
