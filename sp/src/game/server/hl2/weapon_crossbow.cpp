@@ -644,8 +644,50 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 	{ ACT_IDLE,						ACT_IDLE_CROSSBOW,				true },
 	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_CROSSBOW,		true },
 
+// Readiness activities (not aiming)
+	{ ACT_IDLE_RELAXED,				ACT_IDLE_CROSSBOW_RELAXED,			false },//never aims
+	{ ACT_IDLE_STIMULATED,			ACT_IDLE_CROSSBOW_STIMULATED,		false },
+	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_CROSSBOW,			false },//always aims
+
+	{ ACT_WALK_RELAXED,				ACT_WALK_CROSSBOW_RELAXED,			false },//never aims
+	{ ACT_WALK_STIMULATED,			ACT_WALK_CROSSBOW_STIMULATED,		false },
+	{ ACT_WALK_AGITATED,			ACT_WALK_AIM_CROSSBOW,				false },//always aims
+
+	{ ACT_RUN_RELAXED,				ACT_RUN_CROSSBOW_RELAXED,			false },//never aims
+	{ ACT_RUN_STIMULATED,			ACT_RUN_CROSSBOW_STIMULATED,		false },
+	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_CROSSBOW,				false },//always aims
+
+// Readiness activities (aiming)
+	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_CROSSBOW_RELAXED,			false },//never aims	
+	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_AIM_CROSSBOW_STIMULATED,	false },
+	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_CROSSBOW,			false },//always aims
+
+	{ ACT_WALK_AIM_RELAXED,			ACT_WALK_CROSSBOW_RELAXED,			false },//never aims
+	{ ACT_WALK_AIM_STIMULATED,		ACT_WALK_AIM_CROSSBOW_STIMULATED,	false },
+	{ ACT_WALK_AIM_AGITATED,		ACT_WALK_AIM_CROSSBOW,				false },//always aims
+
+	{ ACT_RUN_AIM_RELAXED,			ACT_RUN_CROSSBOW_RELAXED,			false },//never aims
+	{ ACT_RUN_AIM_STIMULATED,		ACT_RUN_AIM_CROSSBOW_STIMULATED,	false },
+	{ ACT_RUN_AIM_AGITATED,			ACT_RUN_AIM_CROSSBOW,				false },//always aims
+//End readiness activities
+
 	{ ACT_WALK,						ACT_WALK_CROSSBOW,				true },
-	{ ACT_WALK_AIM,					ACT_WALK_AIM_CROSSBOW,			true  },
+	{ ACT_WALK_AIM,					ACT_WALK_AIM_CROSSBOW,				true },
+	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,				true },
+	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,			true },
+	{ ACT_RUN,						ACT_RUN_CROSSBOW,					true },
+	{ ACT_RUN_AIM,					ACT_RUN_AIM_CROSSBOW,				true },
+	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RIFLE,				true },
+	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_RIFLE,			true },
+	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_CROSSBOW,	true },
+	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_CROSSBOW_LOW,		true },
+	{ ACT_COVER_LOW,				ACT_COVER_CROSSBOW_LOW,				false },
+	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_CROSSBOW_LOW,			false },
+	{ ACT_RELOAD_LOW,				ACT_RELOAD_CROSSBOW_LOW,			false },
+	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_CROSSBOW,		true },
+
+	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
+	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
 #else
 	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_SMG1,			true },
 	{ ACT_RELOAD,					ACT_RELOAD_SMG1,				true },
@@ -654,7 +696,6 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 
 	{ ACT_WALK,						ACT_WALK_RIFLE,					true },
 	{ ACT_WALK_AIM,					ACT_WALK_AIM_RIFLE,				true  },
-#endif
 	
 // Readiness activities (not aiming)
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_SMG1_RELAXED,			false },//never aims
@@ -683,24 +724,6 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 	{ ACT_RUN_AIM_AGITATED,			ACT_RUN_AIM_RIFLE,				false },//always aims
 //End readiness activities
 
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
-	{ ACT_WALK_AIM,					ACT_WALK_AIM_CROSSBOW,				true },
-	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,				true },
-	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,			true },
-	{ ACT_RUN,						ACT_RUN_CROSSBOW,					true },
-	{ ACT_RUN_AIM,					ACT_RUN_AIM_CROSSBOW,				true },
-	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RIFLE,				true },
-	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_RIFLE,			true },
-	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_CROSSBOW,	true },
-	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_CROSSBOW_LOW,		true },
-	{ ACT_COVER_LOW,				ACT_COVER_CROSSBOW_LOW,				false },
-	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_CROSSBOW_LOW,			false },
-	{ ACT_RELOAD_LOW,				ACT_RELOAD_CROSSBOW_LOW,			false },
-	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_CROSSBOW,		true },
-
-	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
-	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
-#else
 	{ ACT_WALK_AIM,					ACT_WALK_AIM_RIFLE,				true },
 	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,			true },
 	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,		true },
