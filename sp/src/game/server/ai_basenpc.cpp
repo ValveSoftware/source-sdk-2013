@@ -12297,6 +12297,9 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetActivityID, "SetActivityID", "Set the NPC's current activity ID." )
 	DEFINE_SCRIPTFUNC( ResetActivity, "Reset the NPC's current activity." )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptTranslateActivity, "TranslateActivity", "Translates the specified activity string and returns the translated activity ID." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptTranslateActivityID, "TranslateActivityID", "Translates the specified activity ID and returns the translated activity ID." )
+
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetGestureVersionOfActivity, "GetGestureVersionOfActivity", "Get the gesture activity counterpart of the specified sequence activity, if one exists." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetGestureVersionOfActivityID, "GetGestureVersionOfActivityID", "Get the gesture activity ID counterpart of the specified sequence activity ID, if one exists." )
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetSequenceVersionOfGesture, "GetSequenceVersionOfGesture", "Get the sequence activity counterpart of the specified gesture activity, if one exists." )

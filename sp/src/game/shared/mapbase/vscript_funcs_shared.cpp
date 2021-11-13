@@ -23,6 +23,7 @@
 #include "vscript_server.h"
 #include "soundent.h"
 #include "rope.h"
+#include "ai_basenpc.h"
 #else
 #include "c_rope.h"
 #endif // CLIENT_DLL
@@ -1026,6 +1027,8 @@ void RegisterSharedScriptFunctions()
 	// 
 #ifndef CLIENT_DLL
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptInsertSound, "InsertAISound", "Inserts an AI sound." );
+
+	ScriptRegisterFunctionNamed( g_pScriptVM, CAI_BaseNPC::GetActivityName, "GetActivityName", "Gets the name of the specified activity index." );
 #endif
 
 	// 
