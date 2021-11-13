@@ -173,7 +173,7 @@ bool Impact( Vector &vecOrigin, Vector &vecStart, int iMaterial, int iDamageType
 		{
 			bHitRagdoll = true;
 
-			if (g_ragdoll_client_impact_decals.GetBool())
+			if (g_ragdoll_client_impact_decals.GetBool() && pRagdoll->IsRagdoll())
 			{
 				pEntity = pRagdoll;
 
