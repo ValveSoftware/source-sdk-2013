@@ -106,7 +106,7 @@ bool CEnvTonemapController::KeyValue( const char *szKeyName, const char *szValue
 	else if (FStrEq( szKeyName, "AutoExposureMin" ))
 	{
 		float flAutoExposureMin = atof( szValue );
-		if (flAutoExposureMin != 1.0f)
+		if (flAutoExposureMin != -1.0f)
 		{
 			m_flCustomAutoExposureMin = flAutoExposureMin;
 			m_bUseCustomAutoExposureMin = true;
@@ -115,7 +115,7 @@ bool CEnvTonemapController::KeyValue( const char *szKeyName, const char *szValue
 	else if (FStrEq( szKeyName, "AutoExposureMax" ))
 	{
 		float flAutoExposureMax = atof( szValue );
-		if (flAutoExposureMax != 1.0f)
+		if (flAutoExposureMax != -1.0f)
 		{
 			m_flCustomAutoExposureMax = flAutoExposureMax;
 			m_bUseCustomAutoExposureMax = true;
@@ -124,7 +124,7 @@ bool CEnvTonemapController::KeyValue( const char *szKeyName, const char *szValue
 	else if (FStrEq( szKeyName, "BloomScale" ))
 	{
 		float flBloomScale = atof( szValue );
-		if (flBloomScale != 1.0f)
+		if (flBloomScale != -1.0f)
 		{
 			m_flCustomBloomScale = flBloomScale;
 			m_flCustomBloomScaleMinimum = flBloomScale;
