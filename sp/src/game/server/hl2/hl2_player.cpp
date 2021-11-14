@@ -621,6 +621,12 @@ END_SCRIPTDESC();
 
 CHL2_Player::CHL2_Player()
 {
+#ifdef SP_ANIM_STATE
+	// Here we create and init the player animation state.
+	m_pPlayerAnimState = CreatePlayerAnimationState(this);
+	m_angEyeAngles.Init();
+#endif
+
 	m_nNumMissPositions	= 0;
 	m_pPlayerAISquad = 0;
 	m_bSprintEnabled = true;
@@ -1144,6 +1150,16 @@ void CHL2_Player::PostThink( void )
 	{
 		 HandleAdmireGlovesAnimation();
 	}
+
+#ifdef SP_ANIM_STATE
+	m_angEyeAngles = EyeAngles();
+
+	QAngle angles = GetLocalAngles();
+	angles[PITCH] = 0;
+	SetLocalAngles(angles);
+
+	m_pPlayerAnimState->Update(); // m_pPlayerAnimState->Update( m_angEyeAngles.y, m_angEyeAngles.x );
+#endif
 }
 
 void CHL2_Player::StartAdmireGlovesAnimation( void )
@@ -1490,6 +1506,11 @@ void CHL2_Player::SetAnimation( PLAYER_ANIM playerAnim )
 			}
 		}
 	}
+
+	if ( IsInAVehicle() )
+    {
+        idealActivity = ACT_COVER_LOW;
+    }
 	
 	if ( idealActivity == ACT_HL2MP_GESTURE_RANGE_ATTACK )
 	{
@@ -1835,6 +1856,14 @@ void CHL2_Player::InitVCollision( const Vector &vecAbsOrigin, const Vector &vecA
 
 CHL2_Player::~CHL2_Player( void )
 {
+#ifdef SP_ANIM_STATE
+	// Clears the animation state.
+	if ( m_pPlayerAnimState != NULL )
+	{
+		m_pPlayerAnimState->Release();
+		m_pPlayerAnimState = NULL;
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

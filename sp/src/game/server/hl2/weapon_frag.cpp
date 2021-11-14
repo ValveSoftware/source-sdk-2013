@@ -82,6 +82,17 @@ END_DATADESC()
 acttable_t	CWeaponFrag::m_acttable[] = 
 {
 	{ ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK_SLAM, true },
+
+#ifdef MAPBASE
+	// HL2:DM activities (for third-person animations in SP)
+	{ ACT_HL2MP_IDLE,                    ACT_HL2MP_IDLE_GRENADE,                    false },
+	{ ACT_HL2MP_RUN,                    ACT_HL2MP_RUN_GRENADE,                    false },
+	{ ACT_HL2MP_IDLE_CROUCH,            ACT_HL2MP_IDLE_CROUCH_GRENADE,            false },
+	{ ACT_HL2MP_WALK_CROUCH,            ACT_HL2MP_WALK_CROUCH_GRENADE,            false },
+	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,    ACT_HL2MP_GESTURE_RANGE_ATTACK_GRENADE,    false },
+	{ ACT_HL2MP_GESTURE_RELOAD,            ACT_HL2MP_GESTURE_RELOAD_GRENADE,        false },
+	{ ACT_HL2MP_JUMP,						ACT_HL2MP_JUMP_GRENADE,			false },
+#endif
 };
 
 IMPLEMENT_ACTTABLE(CWeaponFrag);
@@ -404,6 +415,10 @@ void CWeaponFrag::ThrowGrenade( CBasePlayer *pPlayer )
 
 	WeaponSound( SINGLE );
 
+#ifdef MAPBASE
+	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+#endif
+
 	m_iPrimaryAttacks++;
 	gamestats->Event_WeaponFired( pPlayer, true, GetClassname() );
 }
@@ -427,6 +442,10 @@ void CWeaponFrag::LobGrenade( CBasePlayer *pPlayer )
 	Fraggrenade_Create( vecSrc, vec3_angle, vecThrow, AngularImpulse(200,random->RandomInt(-600,600),0), pPlayer, GRENADE_TIMER, false );
 
 	WeaponSound( WPN_DOUBLE );
+
+#ifdef MAPBASE
+	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+#endif
 
 	m_bRedraw = true;
 
@@ -471,6 +490,10 @@ void CWeaponFrag::RollGrenade( CBasePlayer *pPlayer )
 	Fraggrenade_Create( vecSrc, orientation, vecThrow, rotSpeed, pPlayer, GRENADE_TIMER, false );
 
 	WeaponSound( SPECIAL1 );
+
+#ifdef MAPBASE
+	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+#endif
 
 	m_bRedraw = true;
 

@@ -18,6 +18,8 @@
 // In HL2MP we need to inherit from  BaseMultiplayerPlayer!
 #if defined ( HL2MP )
 #include "basemultiplayerplayer.h"
+#elif defined ( MAPBASE )
+#include "mapbase/singleplayer_animstate.h"
 #endif
 
 class CAI_Squad;
@@ -432,6 +434,11 @@ private:
 	float				m_flTimeNextLadderHint;	// Next time we're eligible to display a HUD hint about a ladder.
 	
 	friend class CHL2GameMovement;
+
+#ifdef SP_ANIM_STATE
+	CSinglePlayerAnimState* m_pPlayerAnimState;
+	QAngle m_angEyeAngles;
+#endif
 };
 
 

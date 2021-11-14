@@ -1238,6 +1238,9 @@ public:
 
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
+#ifdef MAPBASE
+	DECLARE_ACTTABLE();
+#endif
 
 	CWeaponPhysCannon( void );
 
@@ -1454,6 +1457,23 @@ BEGIN_DATADESC( CWeaponPhysCannon )
 	DEFINE_FIELD( m_flTimeNextObjectPurge, FIELD_TIME ),
 
 END_DATADESC()
+
+#ifdef MAPBASE
+acttable_t CWeaponPhysCannon::m_acttable[] =
+{
+	// HL2:DM activities (for third-person animations in SP)
+	{ ACT_HL2MP_IDLE,                    ACT_HL2MP_IDLE_PHYSGUN,                    false },
+	{ ACT_HL2MP_RUN,                    ACT_HL2MP_RUN_PHYSGUN,                    false },
+	{ ACT_HL2MP_IDLE_CROUCH,            ACT_HL2MP_IDLE_CROUCH_PHYSGUN,            false },
+	{ ACT_HL2MP_WALK_CROUCH,            ACT_HL2MP_WALK_CROUCH_PHYSGUN,            false },
+	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,    ACT_HL2MP_GESTURE_RANGE_ATTACK_PHYSGUN,    false },
+	{ ACT_HL2MP_GESTURE_RELOAD,            ACT_HL2MP_GESTURE_RELOAD_PHYSGUN,        false },
+	{ ACT_HL2MP_JUMP,                    ACT_HL2MP_JUMP_PHYSGUN,                    false },
+	{ ACT_RANGE_ATTACK1,                ACT_RANGE_ATTACK_SLAM,                false },
+};
+
+IMPLEMENT_ACTTABLE( CWeaponPhysCannon );
+#endif
 
 
 enum
