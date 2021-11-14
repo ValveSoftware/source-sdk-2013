@@ -1489,8 +1489,9 @@ int C_BasePlayer::DrawModel( int flags )
 	if (m_bDrawPlayerModelExternally)
 	{
 		// Draw the player in any view except the main or "intro" view, both of which are default first-person views.
+		// HACKHACK: Also don't draw in shadow depth textures if the player's flashlight is on, as that causes the playermodel to block it.
 		view_id_t viewID = CurrentViewID();
-		if (viewID == VIEW_MAIN || viewID == VIEW_INTRO_CAMERA)
+		if (viewID == VIEW_MAIN || viewID == VIEW_INTRO_CAMERA || (viewID == VIEW_SHADOW_DEPTH_TEXTURE && IsEffectActive(EF_DIMLIGHT)))
 		{
 			// Make sure the player model wouldn't draw anyway...
 			if (!ShouldDrawThisPlayer())
