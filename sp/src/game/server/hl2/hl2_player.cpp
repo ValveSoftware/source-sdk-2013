@@ -120,7 +120,7 @@ ConVar sv_stickysprint("sv_stickysprint", "0", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBO
 ConVar player_autoswitch_enabled( "player_autoswitch_enabled", "1", FCVAR_NONE, "This convar was added by Mapbase to toggle whether players automatically switch to their ''best'' weapon upon picking up ammo for it after it was dry." );
 
 #ifdef SP_ANIM_STATE
-ConVar hl2_use_sp_animstate( "hl2_use_sp_animstate", "1", FCVAR_NONE, "Allows SP HL2 players to use HL2:DM animations (for custom player models)" );
+ConVar hl2_use_sp_animstate( "hl2_use_sp_animstate", "1", FCVAR_NONE, "Allows SP HL2 players to use HL2:DM animations for custom player models. (changes may not apply until model is reloaded)" );
 #endif
 
 #endif
@@ -631,8 +631,6 @@ END_SCRIPTDESC();
 CHL2_Player::CHL2_Player()
 {
 #ifdef SP_ANIM_STATE
-	// Here we create and init the player animation state.
-	m_pPlayerAnimState = CreatePlayerAnimationState(this);
 	m_angEyeAngles.Init();
 #endif
 
@@ -1161,7 +1159,7 @@ void CHL2_Player::PostThink( void )
 	}
 
 #ifdef SP_ANIM_STATE
-	if (hl2_use_sp_animstate.GetBool())
+	if (m_pPlayerAnimState)
 	{
 		m_angEyeAngles = EyeAngles();
 
@@ -1385,7 +1383,7 @@ void CHL2_Player::SpawnedAtPoint( CBaseEntity *pSpawnPoint )
 // Set the activity based on an event or current state
 void CHL2_Player::SetAnimation( PLAYER_ANIM playerAnim )
 {
-	if (!hl2_use_sp_animstate.GetBool())
+	if (!m_pPlayerAnimState)
 	{
 		BaseClass::SetAnimation( playerAnim );
 		return;
@@ -1396,12 +1394,37 @@ void CHL2_Player::SetAnimation( PLAYER_ANIM playerAnim )
 
 void CHL2_Player::AddAnimStateLayer( int iSequence, float flBlendIn, float flBlendOut, float flPlaybackRate, bool bHoldAtEnd, bool bOnlyWhenStill )
 {
-	if (!hl2_use_sp_animstate.GetBool())
+	if (!m_pPlayerAnimState)
 		return;
 
 	m_pPlayerAnimState->AddMiscSequence( iSequence, flBlendIn, flBlendOut, flPlaybackRate, bHoldAtEnd, bOnlyWhenStill );
 }
 #endif
+
+//-----------------------------------------------------------------------------
+// Purpose: model-change notification. Fires on dynamic load completion as well
+//-----------------------------------------------------------------------------
+CStudioHdr *CHL2_Player::OnNewModel()
+{
+	CStudioHdr *hdr = BaseClass::OnNewModel();
+
+#ifdef SP_ANIM_STATE
+	if ( hdr && hdr->HaveSequenceForActivity(ACT_HL2MP_IDLE) && hl2_use_sp_animstate.GetBool() )
+	{
+		// Clears the animation state if we already have one.
+		if ( m_pPlayerAnimState != NULL )
+		{
+			m_pPlayerAnimState->Release();
+			m_pPlayerAnimState = NULL;
+		}
+		
+		// Here we create and init the player animation state.
+		m_pPlayerAnimState = CreatePlayerAnimationState(this);
+	}
+#endif
+
+	return hdr;
+}
 #endif
 
 //-----------------------------------------------------------------------------

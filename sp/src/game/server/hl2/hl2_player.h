@@ -138,6 +138,8 @@ public:
 	void				AddAnimStateLayer( int iSequence, float flBlendIn = 0.0f, float flBlendOut = 0.0f, float flPlaybackRate = 1.0f, bool bHoldAtEnd = false, bool bOnlyWhenStill = false );
 #endif
 
+	virtual CStudioHdr*	OnNewModel();
+
 	virtual const char *GetOverrideStepSound( const char *pszBaseStepSoundName );
 #endif
 
