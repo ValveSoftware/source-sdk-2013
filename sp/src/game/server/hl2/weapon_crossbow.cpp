@@ -591,6 +591,7 @@ private:
 	void	CheckZoomToggle( void );
 	void	FireBolt( void );
 #ifdef MAPBASE
+	void	SetBolt( int iSetting );
 	void	FireNPCBolt( CAI_BaseNPC *pOwner, Vector &vecShootOrigin, Vector &vecShootDir );
 #endif
 	void	ToggleZoom( void );
@@ -861,11 +862,7 @@ void CWeaponCrossbow::Reload_NPC( bool bPlaySound )
 {
 	BaseClass::Reload_NPC( bPlaySound );
 
-	int iBody = FindBodygroupByName( "bolt" );
-	if (iBody != -1)
-		SetBodygroup( iBody, 0 );
-	else
-		m_nSkin = 0;
+	SetBolt( 0 );
 }
 #endif
 
@@ -970,6 +967,10 @@ void CWeaponCrossbow::FireBolt( void )
 
 	m_iClip1--;
 
+#ifdef MAPBASE
+	SetBolt( 1 );
+#endif
+
 	pOwner->ViewPunch( QAngle( -2, 0, 0 ) );
 
 	WeaponSound( SINGLE );
@@ -993,6 +994,18 @@ void CWeaponCrossbow::FireBolt( void )
 
 #ifdef MAPBASE
 //-----------------------------------------------------------------------------
+// Purpose: Sets whether or not the bolt is visible
+//-----------------------------------------------------------------------------
+inline void CWeaponCrossbow::SetBolt( int iSetting )
+{
+	int iBody = FindBodygroupByName( "bolt" );
+	if (iBody != -1 || (GetOwner() && GetOwner()->IsPlayer())) // HACKHACK: Player models check the viewmodel instead of the worldmodel, so we have to do this manually
+		SetBodygroup( iBody, iSetting );
+	else
+		m_nSkin = iSetting;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CWeaponCrossbow::FireNPCBolt( CAI_BaseNPC *pOwner, Vector &vecShootOrigin, Vector &vecShootDir )
@@ -1015,11 +1028,7 @@ void CWeaponCrossbow::FireNPCBolt( CAI_BaseNPC *pOwner, Vector &vecShootOrigin, 
 
 	m_iClip1--;
 
-	int iBody = FindBodygroupByName( "bolt" );
-	if (iBody != -1)
-		SetBodygroup( iBody, 1 );
-	else
-		m_nSkin = 1;
+	SetBolt( 1 );
 
 	WeaponSound( SINGLE_NPC );
 	WeaponSound( SPECIAL2 );
@@ -1041,10 +1050,17 @@ bool CWeaponCrossbow::Deploy( void )
 {
 	if ( m_iClip1 <= 0 )
 	{
+#ifdef MAPBASE
+		SetBolt( 1 );
+#endif
 		return DefaultDeploy( (char*)GetViewModel(), (char*)GetWorldModel(), ACT_CROSSBOW_DRAW_UNLOADED, (char*)GetAnimPrefix() );
 	}
 
 	SetSkin( BOLT_SKIN_GLOW );
+
+#ifdef MAPBASE
+	SetBolt( 0 );
+#endif
 
 	return BaseClass::Deploy();
 }
@@ -1192,6 +1208,10 @@ void CWeaponCrossbow::SetChargerState( ChargerState_t state )
 		
 		// Shoot some sparks and draw a beam between the two outer points
 		DoLoadEffect();
+		
+#ifdef MAPBASE
+		SetBolt( 0 );
+#endif
 		
 		break;
 
