@@ -1474,6 +1474,9 @@ acttable_t CWeaponPhysCannon::m_acttable[] =
 	{ ACT_HL2MP_WALK,					ACT_HL2MP_WALK_PHYSGUN,					false },
 	{ ACT_HL2MP_GESTURE_RANGE_ATTACK2,	ACT_HL2MP_GESTURE_RANGE_ATTACK2_PHYSGUN,    false },
 #endif
+
+	{ ACT_ARM,						ACT_ARM_RIFLE,					false },
+	{ ACT_DISARM,					ACT_DISARM_RIFLE,				false },
 };
 
 IMPLEMENT_ACTTABLE( CWeaponPhysCannon );
