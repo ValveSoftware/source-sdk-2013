@@ -22,6 +22,7 @@
 #include "apparent_velocity_helper.h"
 #include "utldict.h"
 #include "filesystem.h"
+#include "in_buttons.h"
 #include "..\public\datacache\imdlcache.h"
 
 extern ConVar mp_facefronttime, mp_feetyawrate, mp_ik;
@@ -109,13 +110,13 @@ Activity CSinglePlayerAnimState::CalcMainActivity()
 			{
 				if ( speed > 0 )
 				{
-					/*
-					if ( bRunning == false )
+#ifdef EXPANDED_HL2DM_ACTIVITIES
+					if ( m_pPlayer->GetButtons() & IN_WALK )
 					{
-						idealActivity = ACT_WALK;
+						idealActivity = ACT_HL2MP_WALK;
 					}
 					else
-					*/
+#endif
 					{
 						idealActivity = ACT_HL2MP_RUN;
 					}
