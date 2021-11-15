@@ -118,6 +118,11 @@ ConVar sv_stickysprint("sv_stickysprint", "0", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBO
 
 #ifdef MAPBASE
 ConVar player_autoswitch_enabled( "player_autoswitch_enabled", "1", FCVAR_NONE, "This convar was added by Mapbase to toggle whether players automatically switch to their ''best'' weapon upon picking up ammo for it after it was dry." );
+
+#ifdef SP_ANIM_STATE
+ConVar hl2_use_sp_animstate( "hl2_use_sp_animstate", "1", FCVAR_NONE, "Allows SP HL2 players to use HL2:DM animations (for custom player models)" );
+#endif
+
 #endif
 
 #define	FLASH_DRAIN_TIME	 1.1111	// 100 units / 90 secs
@@ -1152,13 +1157,16 @@ void CHL2_Player::PostThink( void )
 	}
 
 #ifdef SP_ANIM_STATE
-	m_angEyeAngles = EyeAngles();
+	if (hl2_use_sp_animstate.GetBool())
+	{
+		m_angEyeAngles = EyeAngles();
 
-	QAngle angles = GetLocalAngles();
-	angles[PITCH] = 0;
-	SetLocalAngles(angles);
+		QAngle angles = GetLocalAngles();
+		angles[PITCH] = 0;
+		SetLocalAngles(angles);
 
-	m_pPlayerAnimState->Update(); // m_pPlayerAnimState->Update( m_angEyeAngles.y, m_angEyeAngles.x );
+		m_pPlayerAnimState->Update( m_angEyeAngles.y, m_angEyeAngles.x );
+	}
 #endif
 }
 
@@ -1369,198 +1377,19 @@ void CHL2_Player::SpawnedAtPoint( CBaseEntity *pSpawnPoint )
 
 //-----------------------------------------------------------------------------
 
-ConVar hl2_use_hl2dm_anims( "hl2_use_hl2dm_anims", "0", FCVAR_NONE, "Allows SP HL2 players to use HL2:DM animations (for custom player models)" );
-
-void CHL2_Player::ResetAnimation( void )
-{
-	if (!hl2_use_hl2dm_anims.GetBool())
-		return;
-
-	if (IsAlive())
-	{
-		SetSequence( -1 );
-		SetActivity( ACT_INVALID );
-
-		if (!GetAbsVelocity().x && !GetAbsVelocity().y)
-			SetAnimation( PLAYER_IDLE );
-		else if ((GetAbsVelocity().x || GetAbsVelocity().y) && (GetFlags() & FL_ONGROUND))
-			SetAnimation( PLAYER_WALK );
-		else if (GetWaterLevel() > 1)
-			SetAnimation( PLAYER_WALK );
-	}
-}
-
+#ifdef SP_ANIM_STATE
 // Set the activity based on an event or current state
 void CHL2_Player::SetAnimation( PLAYER_ANIM playerAnim )
 {
-	if (!hl2_use_hl2dm_anims.GetBool())
+	if (!hl2_use_sp_animstate.GetBool())
 	{
 		BaseClass::SetAnimation( playerAnim );
 		return;
 	}
 
-	int animDesired;
-
-	float speed;
-
-	speed = GetAbsVelocity().Length2D();
-
-	
-	// bool bRunning = true;
-
-	//Revisit!
-/*	if ( ( m_nButtons & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) ) )
-	{
-		if ( speed > 1.0f && speed < hl2_normspeed.GetFloat() - 20.0f )
-		{
-			bRunning = false;
-		}
-	}*/
-
-	if ( GetFlags() & ( FL_FROZEN | FL_ATCONTROLS ) )
-	{
-		speed = 0;
-		playerAnim = PLAYER_IDLE;
-	}
-
-	Activity idealActivity = ACT_HL2MP_RUN;
-
-	// This could stand to be redone. Why is playerAnim abstracted from activity? (sjb)
-	if ( playerAnim == PLAYER_JUMP )
-	{
-		idealActivity = ACT_HL2MP_JUMP;
-	}
-	else if ( playerAnim == PLAYER_DIE )
-	{
-		if ( m_lifeState == LIFE_ALIVE )
-		{
-			return;
-		}
-	}
-	else if ( playerAnim == PLAYER_ATTACK1 )
-	{
-		if ( GetActivity( ) == ACT_HOVER	|| 
-			 GetActivity( ) == ACT_SWIM		||
-			 GetActivity( ) == ACT_HOP		||
-			 GetActivity( ) == ACT_LEAP		||
-			 GetActivity( ) == ACT_DIESIMPLE )
-		{
-			idealActivity = GetActivity( );
-		}
-		else
-		{
-			idealActivity = ACT_HL2MP_GESTURE_RANGE_ATTACK;
-		}
-	}
-	else if ( playerAnim == PLAYER_RELOAD )
-	{
-		idealActivity = ACT_HL2MP_GESTURE_RELOAD;
-	}
-	else if ( playerAnim == PLAYER_IDLE || playerAnim == PLAYER_WALK )
-	{
-		if ( !( GetFlags() & FL_ONGROUND ) && GetActivity( ) == ACT_HL2MP_JUMP )	// Still jumping
-		{
-			idealActivity = GetActivity( );
-		}
-		/*
-		else if ( GetWaterLevel() > 1 )
-		{
-			if ( speed == 0 )
-				idealActivity = ACT_HOVER;
-			else
-				idealActivity = ACT_SWIM;
-		}
-		*/
-		else
-		{
-			if ( GetFlags() & FL_DUCKING )
-			{
-				if ( speed > 0 )
-				{
-					idealActivity = ACT_HL2MP_WALK_CROUCH;
-				}
-				else
-				{
-					idealActivity = ACT_HL2MP_IDLE_CROUCH;
-				}
-			}
-			else
-			{
-				if ( speed > 0 )
-				{
-					/*
-					if ( bRunning == false )
-					{
-						idealActivity = ACT_WALK;
-					}
-					else
-					*/
-					{
-						idealActivity = ACT_HL2MP_RUN;
-					}
-				}
-				else
-				{
-					idealActivity = ACT_HL2MP_IDLE;
-				}
-			}
-		}
-	}
-
-	if ( IsInAVehicle() )
-    {
-        idealActivity = ACT_COVER_LOW;
-    }
-	
-	if ( idealActivity == ACT_HL2MP_GESTURE_RANGE_ATTACK )
-	{
-		RestartGesture( Weapon_TranslateActivity( idealActivity ) );
-
-		// FIXME: this seems a bit wacked
-		Weapon_SetActivity( Weapon_TranslateActivity( ACT_RANGE_ATTACK1 ), 0 );
-
-		return;
-	}
-	else if ( idealActivity == ACT_HL2MP_GESTURE_RELOAD )
-	{
-		RestartGesture( Weapon_TranslateActivity( idealActivity ) );
-		return;
-	}
-	else
-	{
-		SetActivity( idealActivity );
-
-		animDesired = SelectWeightedSequence( Weapon_TranslateActivity ( idealActivity ) );
-
-		if (animDesired == -1)
-		{
-			animDesired = SelectWeightedSequence( idealActivity );
-
-			if ( animDesired == -1 )
-			{
-				animDesired = 0;
-			}
-		}
-	
-		// Already using the desired animation?
-		if ( GetSequence() == animDesired )
-			return;
-
-		m_flPlaybackRate = 1.0;
-		ResetSequence( animDesired );
-		SetCycle( 0 );
-		return;
-	}
-
-	// Already using the desired animation?
-	if ( GetSequence() == animDesired )
-		return;
-
-	//Msg( "Set animation to %d\n", animDesired );
-	// Reset to first frame of desired animation
-	ResetSequence( animDesired );
-	SetCycle( 0 );
+	m_pPlayerAnimState->SetPlayerAnimation( playerAnim );
 }
+#endif
 #endif
 
 //-----------------------------------------------------------------------------

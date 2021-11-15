@@ -1,10 +1,18 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
 // Purpose: Single Player animation state 'handler'. This utility is used
 //            to evaluate the pose parameter value based on the direction
 //            and speed of the player.
+// 
+// ------------------------------------------------------------------------------
 //
-//====================================================================================//
+// This was originally based on the following VDC article:
+// https://developer.valvesoftware.com/wiki/Fixing_the_player_animation_state_(Single_Player)
+//
+// It has been modified by Blixibon to derive from CBasePlayerAnimState instead and support 9-way blends.
+// Much of the work done to make this derive from CBasePlayerAnimState utilized code from the Alien Swarm SDK.
+// 
+//=============================================================================//
 
 #ifndef SINGLEPLAYER_ANIMSTATE_H
 #define SINGLEPLAYER_ANIMSTATE_H
@@ -13,6 +21,7 @@
 #endif
 
 #include "cbase.h"
+#include "base_playeranimstate.h"
 
 #ifdef CLIENT_DLL
 #include "c_baseplayer.h"
@@ -25,62 +34,73 @@
 #define SP_ANIM_STATE 1
 #endif
 
-class CSinglePlayerAnimState
+class CSinglePlayerAnimState : public CBasePlayerAnimState
 {
 public:
-    enum
-    {
-        TURN_NONE = 0,
-        TURN_LEFT,
-        TURN_RIGHT
-    };
-
     CSinglePlayerAnimState( CBasePlayer *pPlayer );
+    
+	Activity CalcMainActivity();
+	int CalcAimLayerSequence( float *flCycle, float *flAimSequenceWeight, bool bForceIdle );
+    float GetCurrentMaxGroundSpeed();
 
-    void Init( CBasePlayer *pPlayer );
+    void SetPlayerAnimation( PLAYER_ANIM playerAnim );
+    Activity TranslateActivity( Activity actDesired );
 
-    Activity            BodyYawTranslateActivity( Activity activity );
+	void ComputeSequences( CStudioHdr *pStudioHdr );
 
-    void                Update();
-
-    const QAngle&        GetRenderAngles();
-               
-    void                GetPoseParameters( CStudioHdr *pStudioHdr, float poseParameter[MAXSTUDIOPOSEPARAM] );
-
-    CBasePlayer        *GetBasePlayer();
-
-    void Release();
+    void ClearAnimationState();
+    void ClearAnimationLayers();
 
 private:
-    void                GetOuterAbsVelocity( Vector& vel );
 
-    int                    ConvergeAngles( float goal,float maxrate, float dt, float& current );
+    bool HandleJumping();
 
-    void                EstimateYaw( void );
+	void ComputeFireSequence();
+	void ComputeReloadSequence();
+	void ComputeWeaponSwitchSequence();
+	void ComputeMiscSequence();
+
+	void UpdateLayerSequenceGeneric( int iLayer, bool &bEnabled, float &flCurCycle,
+									int &iSequence, bool bWaitAtEnd,
+									float fBlendIn=0.15f, float fBlendOut=0.15f, bool bMoveBlend = false, 
+									float fPlaybackRate=1.0f, bool bUpdateCycle = true );
+
     void                ComputePoseParam_BodyYaw( void );
     void                ComputePoseParam_BodyPitch( CStudioHdr *pStudioHdr );
     void                ComputePoseParam_BodyLookYaw( void );
     void                ComputePoseParam_HeadPitch( CStudioHdr *pStudioHdr );
-    void                ComputePlaybackRate();
 
-    CBasePlayer        *m_pPlayer;
+    CBasePlayer* m_pPlayer;
 
-    float                m_flGaitYaw;
-    float                m_flStoredCycle;
+    // Current state variables.
+    bool m_bJumping;			// Set on a jump event.
+    float m_flJumpStartTime;
+    bool m_bFirstJumpFrame;
 
-    float                m_flGoalFeetYaw;
-    float                m_flCurrentFeetYaw;
+	// Aim sequence plays reload while this is on.
+	bool m_bReloading;
+	float m_flReloadCycle;
+	int m_iReloadSequence;
+	float m_flReloadBlendOut, m_flReloadBlendIn;
+	float m_fReloadPlaybackRate;
 
-    float                m_flCurrentTorsoYaw;
+	bool m_bWeaponSwitching;
+	float m_flWeaponSwitchCycle;
+	int m_iWeaponSwitchSequence;
 
-    float                m_flLastYaw;
-    float                m_flLastTurnTime;
-
-    int                    m_nTurningInPlace;
-
-    QAngle                m_angRender;
-
-    float                m_flTurnCorrectionTime;
+	bool m_bPlayingMisc;
+	float m_flMiscCycle, m_flMiscBlendOut, m_flMiscBlendIn;
+	int m_iMiscSequence;
+	bool m_bMiscOnlyWhenStill;
+	bool m_bMiscNoOverride;
+	float m_fMiscPlaybackRate;
+	bool m_bMiscCycleRewound;
+	float m_flMiscRewindCycle;
+	// This is set to true if ANY animation is being played in the fire layer.
+	bool m_bFiring;						// If this is on, then it'll continue the fire animation in the fire layer
+										// until it completes.
+	int m_iFireSequence;				// (For any sequences in the fire layer, including grenade throw).
+	float m_flFireCycle;
 };
 
 CSinglePlayerAnimState *CreatePlayerAnimationState( CBasePlayer *pPlayer );

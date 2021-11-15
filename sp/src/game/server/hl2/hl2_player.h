@@ -132,8 +132,9 @@ public:
 	// For the logic_playerproxy output
 	void				SpawnedAtPoint( CBaseEntity *pSpawnPoint );
 
-	void				ResetAnimation( void );
+#ifdef SP_ANIM_STATE
 	void				SetAnimation( PLAYER_ANIM playerAnim );
+#endif
 
 	virtual const char *GetOverrideStepSound( const char *pszBaseStepSoundName );
 #endif

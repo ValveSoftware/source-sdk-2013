@@ -1,10 +1,18 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
 // Purpose: Single Player animation state 'handler'. This utility is used
 //            to evaluate the pose parameter value based on the direction
 //            and speed of the player.
+// 
+// ------------------------------------------------------------------------------
 //
-//====================================================================================//
+// This was originally based on the following VDC article:
+// https://developer.valvesoftware.com/wiki/Fixing_the_player_animation_state_(Single_Player)
+//
+// It has been modified by Blixibon to derive from CBasePlayerAnimState instead and support 9-way blends.
+// Much of the work done to make this derive from CBasePlayerAnimState utilized code from the Alien Swarm SDK.
+// 
+//=============================================================================//
 
 #include "cbase.h"
 #include "singleplayer_animstate.h"
@@ -18,14 +26,29 @@
 
 extern ConVar mp_facefronttime, mp_feetyawrate, mp_ik;
 
+ConVar sv_playeranimstate_animtype( "sv_playeranimstate_animtype", "0", FCVAR_NONE, "The leg animation type used by the singleplayer animation state. 9way = 0, 8way = 1, GoldSrc = 2" );
+ConVar sv_playeranimstate_bodyyaw( "sv_playeranimstate_bodyyaw", "45.0", FCVAR_NONE, "The maximum body yaw used by the singleplayer animation state." );
+ConVar sv_playeranimstate_use_aim_sequences( "sv_playeranimstate_use_aim_sequences", "1", FCVAR_NONE, "Allows the singleplayer animation state to use aim sequences." );
+
 #define MIN_TURN_ANGLE_REQUIRING_TURN_ANIMATION        15.0f
+
+#define FIRESEQUENCE_LAYER		(AIMSEQUENCE_LAYER+NUM_AIMSEQUENCE_LAYERS)
+#define RELOADSEQUENCE_LAYER	(FIRESEQUENCE_LAYER + 1)
+#define NUM_LAYERS_WANTED		(RELOADSEQUENCE_LAYER + 1)
 
 CSinglePlayerAnimState *CreatePlayerAnimationState( CBasePlayer *pPlayer )
 {
     MDLCACHE_CRITICAL_SECTION();
 
     CSinglePlayerAnimState *pState = new CSinglePlayerAnimState( pPlayer );
-    pState->Init(pPlayer);
+
+    // Setup the movement data.
+    CModAnimConfig movementData;
+    movementData.m_LegAnimType = (LegAnimType_t)sv_playeranimstate_animtype.GetInt();
+    movementData.m_flMaxBodyYawDegrees = sv_playeranimstate_bodyyaw.GetFloat();
+    movementData.m_bUseAimSequences = sv_playeranimstate_use_aim_sequences.GetBool();
+
+    pState->Init( pPlayer, movementData );
 
     return pState;
 }
@@ -45,128 +68,368 @@ extern ConVar mp_ik;
 
 CSinglePlayerAnimState::CSinglePlayerAnimState( CBasePlayer *pPlayer ): m_pPlayer( pPlayer )
 {
-    m_flGaitYaw = 0.0f;
-    m_flGoalFeetYaw = 0.0f;
-    m_flCurrentFeetYaw = 0.0f;
-    m_flCurrentTorsoYaw = 0.0f;
-    m_flLastYaw = 0.0f;
-    m_flLastTurnTime = 0.0f;
-    m_flTurnCorrectionTime = 0.0f;
-
-    m_pPlayer = NULL;
 };
 
-void CSinglePlayerAnimState::Init( CBasePlayer *pPlayer )
-{
-    m_pPlayer = pPlayer;
-}
-
 //-----------------------------------------------------------------------------
-// Purpose:
+// Purpose: 
 //-----------------------------------------------------------------------------
-void CSinglePlayerAnimState::Update()
+Activity CSinglePlayerAnimState::CalcMainActivity()
 {
-    m_angRender = GetBasePlayer()->GetLocalAngles();
+#ifdef CLIENT_DLL
+    return ACT_IDLE;
+#else
+    float speed = GetOuter()->GetAbsVelocity().Length2D();
 
-    ComputePoseParam_BodyYaw();
-    ComputePoseParam_BodyPitch(GetBasePlayer()->GetModelPtr());
-    ComputePoseParam_BodyLookYaw();
-    ComputePoseParam_HeadPitch(GetBasePlayer()->GetModelPtr());
-
-    ComputePlaybackRate();
-}
-
-void CSinglePlayerAnimState::Release()
-{
-    delete this;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void CSinglePlayerAnimState::ComputePlaybackRate()
-{
-    // Determine ideal playback rate
-    Vector vel;
-    GetOuterAbsVelocity( vel );
-
-    float speed = vel.Length2D();
-
-    bool isMoving = ( speed > 0.5f ) ? true : false;
-
-    float maxspeed = GetBasePlayer()->GetSequenceGroundSpeed( GetBasePlayer()->GetSequence() );
-   
-    if ( isMoving && ( maxspeed > 0.0f ) )
-    {
-        float flFactor = 1.0f;
-
-        // Note this gets set back to 1.0 if sequence changes due to ResetSequenceInfo below
-        GetBasePlayer()->SetPlaybackRate( ( speed * flFactor ) / maxspeed );
-
-        // BUG BUG:
-        // This stuff really should be m_flPlaybackRate = speed / m_flGroundSpeed
-    }
+    if ( HandleJumping() )
+	{
+		return ACT_HL2MP_JUMP;
+	}
     else
     {
-        GetBasePlayer()->SetPlaybackRate( 1.0f );
-    }
-}
+        Activity idealActivity = ACT_HL2MP_IDLE;
 
-//-----------------------------------------------------------------------------
-// Purpose:
-// Output : CBasePlayer
-//-----------------------------------------------------------------------------
-CBasePlayer *CSinglePlayerAnimState::GetBasePlayer()
-{
-    return m_pPlayer;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : dt -
-//-----------------------------------------------------------------------------
-void CSinglePlayerAnimState::EstimateYaw( void )
-{
-    float dt = gpGlobals->frametime;
-
-    if ( !dt )
-    {
-        return;
-    }
-
-    Vector est_velocity;
-    QAngle    angles;
-
-    GetOuterAbsVelocity( est_velocity );
-
-    angles = GetBasePlayer()->GetLocalAngles();
-
-    if ( est_velocity[1] == 0 && est_velocity[0] == 0 )
-    {
-        float flYawDiff = angles[YAW] - m_flGaitYaw;
-        flYawDiff = flYawDiff - (int)(flYawDiff / 360) * 360;
-        if (flYawDiff > 180)
-            flYawDiff -= 360;
-        if (flYawDiff < -180)
-            flYawDiff += 360;
-
-        if (dt < 0.25)
-            flYawDiff *= dt * 4;
+        if ( GetOuter()->GetFlags() & ( FL_FROZEN | FL_ATCONTROLS ) )
+	    {
+		    speed = 0;
+	    }
         else
-            flYawDiff *= dt;
+        {
+            if ( GetOuter()->GetFlags() & FL_DUCKING )
+			{
+				if ( speed > 0 )
+				{
+					idealActivity = ACT_HL2MP_WALK_CROUCH;
+				}
+				else
+				{
+					idealActivity = ACT_HL2MP_IDLE_CROUCH;
+				}
+			}
+			else
+			{
+				if ( speed > 0 )
+				{
+					/*
+					if ( bRunning == false )
+					{
+						idealActivity = ACT_WALK;
+					}
+					else
+					*/
+					{
+						idealActivity = ACT_HL2MP_RUN;
+					}
+				}
+				else
+				{
+					idealActivity = ACT_HL2MP_IDLE;
+				}
+			}
+        }
 
-        m_flGaitYaw += flYawDiff;
-        m_flGaitYaw = m_flGaitYaw - (int)(m_flGaitYaw / 360) * 360;
+        return idealActivity;
     }
-    else
+
+    //return m_pPlayer->GetActivity();
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CSinglePlayerAnimState::SetPlayerAnimation( PLAYER_ANIM playerAnim )
+{
+    if ( playerAnim == PLAYER_ATTACK1 )
     {
-        m_flGaitYaw = (atan2(est_velocity[1], est_velocity[0]) * 180 / M_PI);
-
-        if (m_flGaitYaw > 180)
-            m_flGaitYaw = 180;
-        else if (m_flGaitYaw < -180)
-            m_flGaitYaw = -180;
+        m_iFireSequence = SelectWeightedSequence( TranslateActivity( ACT_HL2MP_GESTURE_RANGE_ATTACK ) );
+        m_bFiring = m_iFireSequence != -1;
+        m_flFireCycle = 0;
     }
+    else if ( playerAnim == PLAYER_JUMP )
+    {
+        // Play the jump animation.
+        if (!m_bJumping)
+        {
+            m_bJumping = true;
+            m_bFirstJumpFrame = true;
+            m_flJumpStartTime = gpGlobals->curtime;
+        }
+    }
+    else if ( playerAnim == PLAYER_RELOAD )
+    {
+        m_iReloadSequence = SelectWeightedSequence( TranslateActivity( ACT_HL2MP_GESTURE_RELOAD ) );
+        if (m_iReloadSequence != -1)
+        {
+            // clear other events that might be playing in our layer
+			m_bWeaponSwitching = false;
+            m_fReloadPlaybackRate = 1.0f;
+			m_bReloading = true;			
+			m_flReloadCycle = 0;
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+Activity CSinglePlayerAnimState::TranslateActivity( Activity actDesired )
+{
+#ifdef CLIENT_DLL
+    return actDesired;
+#else
+    return m_pPlayer->Weapon_TranslateActivity( actDesired );
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CSinglePlayerAnimState::HandleJumping()
+{
+	if ( m_bJumping )
+	{
+		if ( m_bFirstJumpFrame )
+		{
+			m_bFirstJumpFrame = false;
+			RestartMainSequence();	// Reset the animation.
+		}
+
+		// Don't check if he's on the ground for a sec.. sometimes the client still has the
+		// on-ground flag set right when the message comes in.
+		if (m_flJumpStartTime > gpGlobals->curtime)
+			m_flJumpStartTime = gpGlobals->curtime;
+		if ( gpGlobals->curtime - m_flJumpStartTime > 0.2f)
+		{
+			if ( m_pOuter->GetFlags() & FL_ONGROUND || GetOuter()->GetGroundEntity() != NULL)
+			{
+				m_bJumping = false;
+				RestartMainSequence();	// Reset the animation.				
+			}
+		}
+	}
+
+	// Are we still jumping? If so, keep playing the jump animation.
+	return m_bJumping;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CSinglePlayerAnimState::ComputeSequences( CStudioHdr *pStudioHdr )
+{
+    CBasePlayerAnimState::ComputeSequences(pStudioHdr);
+
+	ComputeFireSequence();
+	ComputeMiscSequence();
+	ComputeReloadSequence();
+	ComputeWeaponSwitchSequence();	
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CSinglePlayerAnimState::ClearAnimationState()
+{
+	m_bJumping = false;
+	m_bFiring = false;
+	m_bReloading = false;
+	m_bWeaponSwitching = false;
+	m_bPlayingMisc = false;
+	CBasePlayerAnimState::ClearAnimationState();
+}
+
+void CSinglePlayerAnimState::ClearAnimationLayers()
+{
+	VPROF( "CBasePlayerAnimState::ClearAnimationLayers" );
+	if ( !m_pOuter )
+		return;
+
+	m_pOuter->SetNumAnimOverlays( NUM_LAYERS_WANTED );
+	for ( int i=0; i < m_pOuter->GetNumAnimOverlays(); i++ )
+	{
+		m_pOuter->GetAnimOverlay( i )->SetOrder( CBaseAnimatingOverlay::MAX_OVERLAYS );
+#ifndef CLIENT_DLL
+		m_pOuter->GetAnimOverlay( i )->m_fFlags = 0;
+#endif
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CSinglePlayerAnimState::CalcAimLayerSequence( float *flCycle, float *flAimSequenceWeight, bool bForceIdle )
+{
+    // TODO?
+    return m_pOuter->LookupSequence( "soldier_Aim_9_directions" );
+}
+
+void CSinglePlayerAnimState::UpdateLayerSequenceGeneric( int iLayer, bool &bEnabled,
+					float &flCurCycle, int &iSequence, bool bWaitAtEnd,
+					float fBlendIn, float fBlendOut, bool bMoveBlend, float fPlaybackRate, bool bUpdateCycle /* = true */ )
+{
+	if ( !bEnabled )
+		return;
+
+	CStudioHdr *hdr = GetOuter()->GetModelPtr();
+	if ( !hdr )
+		return;
+
+	if ( iSequence < 0 || iSequence >= hdr->GetNumSeq() )
+		return;
+
+	// Increment the fire sequence's cycle.
+	if ( bUpdateCycle )
+	{
+		flCurCycle += m_pOuter->GetSequenceCycleRate( hdr, iSequence ) * gpGlobals->frametime * fPlaybackRate;
+	}
+
+	// temp: if the sequence is looping, don't override it - we need better handling of looping anims, 
+	//  especially in misc layer from melee (right now the same melee attack is looped manually in asw_melee_system.cpp)
+	bool bLooping = m_pOuter->IsSequenceLooping( hdr, iSequence );
+
+	if ( flCurCycle > 1 && !bLooping )
+	{
+		if ( iLayer == RELOADSEQUENCE_LAYER )
+		{
+			m_bReloading = false;
+		}
+		if ( bWaitAtEnd )
+		{
+			flCurCycle = 1;
+		}
+		else
+		{
+			// Not firing anymore.
+			bEnabled = false;
+			iSequence = 0;
+			return;
+		}
+	}
+
+	// if this animation should blend out as we move, then check for dropping it completely since we're moving too fast
+	float speed = 0;
+	if (bMoveBlend)
+	{
+		Vector vel;
+		GetOuterAbsVelocity( vel );
+
+		float speed = vel.Length2D();
+
+		if (speed > 50)
+		{
+			bEnabled = false;
+			iSequence = 0;
+			return;
+		}
+	}
+
+	// Now dump the state into its animation layer.
+	CAnimationLayer *pLayer = m_pOuter->GetAnimOverlay( iLayer );
+
+	pLayer->m_flCycle = flCurCycle;
+	pLayer->m_nSequence = iSequence;
+
+	pLayer->m_flPlaybackRate = fPlaybackRate;
+	pLayer->m_flWeight = 1.0f;
+
+	if (iLayer == RELOADSEQUENCE_LAYER)
+	{
+		// blend this layer in and out for smooth reloading
+		if (flCurCycle < fBlendIn && fBlendIn>0)
+		{
+			pLayer->m_flWeight = ( clamp<float>(flCurCycle / fBlendIn,
+				0.001f, 1.0f) );
+		}
+		else if (flCurCycle >= (1.0f - fBlendOut) && fBlendOut>0)
+		{
+			pLayer->m_flWeight = ( clamp<float>((1.0f - flCurCycle) / fBlendOut,
+				0.001f, 1.0f) );
+		}
+		else
+		{
+			pLayer->m_flWeight = 1.0f;
+		}
+	}
+	else
+	{
+		pLayer->m_flWeight = 1.0f;
+	}
+	if (bMoveBlend)		
+	{
+		// blend the animation out as we move faster
+		if (speed <= 50)			
+			pLayer->m_flWeight = ( pLayer->m_flWeight * (50.0f - speed) / 50.0f );
+	}
+
+#ifndef CLIENT_DLL
+	pLayer->m_fFlags |= ANIM_LAYER_ACTIVE;
+#endif
+	pLayer->SetOrder( iLayer );
+}
+
+void CSinglePlayerAnimState::ComputeFireSequence()
+{
+	UpdateLayerSequenceGeneric( FIRESEQUENCE_LAYER, m_bFiring, m_flFireCycle, m_iFireSequence, false );
+}
+
+void CSinglePlayerAnimState::ComputeReloadSequence()
+{
+	UpdateLayerSequenceGeneric( RELOADSEQUENCE_LAYER, m_bReloading, m_flReloadCycle, m_iReloadSequence, false, m_flReloadBlendIn, m_flReloadBlendOut, false, m_fReloadPlaybackRate );
+}
+
+void CSinglePlayerAnimState::ComputeWeaponSwitchSequence()
+{
+	UpdateLayerSequenceGeneric( RELOADSEQUENCE_LAYER, m_bWeaponSwitching, m_flWeaponSwitchCycle, m_iWeaponSwitchSequence, false, 0, 0.5f );
+}
+
+// does misc gestures if we're not firing
+void CSinglePlayerAnimState::ComputeMiscSequence()
+{
+	bool bHoldAtEnd = false;
+
+	UpdateLayerSequenceGeneric( RELOADSEQUENCE_LAYER, m_bPlayingMisc, m_flMiscCycle, m_iMiscSequence, bHoldAtEnd, m_flMiscBlendIn, m_flMiscBlendOut, m_bMiscOnlyWhenStill, m_fMiscPlaybackRate );	
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :  - 
+// Output : float
+//-----------------------------------------------------------------------------
+float CSinglePlayerAnimState::GetCurrentMaxGroundSpeed()
+{
+	CStudioHdr *pStudioHdr = GetOuter()->GetModelPtr();
+
+	if ( pStudioHdr == NULL )
+		return 1.0f;
+
+    int iMoveX = GetOuter()->LookupPoseParameter( "move_x" );
+    int iMoveY = GetOuter()->LookupPoseParameter( "move_y" );
+
+	float prevX = GetOuter()->GetPoseParameter( iMoveX );
+	float prevY = GetOuter()->GetPoseParameter( iMoveY );
+
+	float d = MAX( fabs( prevX ), fabs( prevY ) );
+	float newX, newY;
+	if ( d == 0.0 )
+	{ 
+		newX = 1.0;
+		newY = 0.0;
+	}
+	else
+	{
+		newX = prevX / d;
+		newY = prevY / d;
+	}
+
+    GetOuter()->SetPoseParameter( pStudioHdr, iMoveX, newX );
+    GetOuter()->SetPoseParameter( pStudioHdr, iMoveY, newY );
+
+	float speed = GetOuter()->GetSequenceGroundSpeed(GetOuter()->GetSequence() );
+
+    GetOuter()->SetPoseParameter( pStudioHdr, iMoveX, prevX );
+    GetOuter()->SetPoseParameter( pStudioHdr, iMoveY, prevY );
+
+	return speed;
 }
 
 //-----------------------------------------------------------------------------
@@ -175,129 +438,22 @@ void CSinglePlayerAnimState::EstimateYaw( void )
 //-----------------------------------------------------------------------------
 void CSinglePlayerAnimState::ComputePoseParam_BodyYaw( void )
 {
-    int iYaw = GetBasePlayer()->LookupPoseParameter( "move_yaw" );
-    if ( iYaw < 0 )
-        return;
+    CBasePlayerAnimState::ComputePoseParam_BodyYaw();
 
-    // view direction relative to movement
-    float flYaw;     
-
-    EstimateYaw();
-
-    QAngle    angles = GetBasePlayer()->GetLocalAngles();
-    float ang = angles[ YAW ];
-    if ( ang > 180.0f )
-    {
-        ang -= 360.0f;
-    }
-    else if ( ang < -180.0f )
-    {
-        ang += 360.0f;
-    }
-
-    // calc side to side turning
-    flYaw = ang - m_flGaitYaw;
-    // Invert for mapping into 8way blend
-    flYaw = -flYaw;
-    flYaw = flYaw - (int)(flYaw / 360) * 360;
-
-    if (flYaw < -180)
-    {
-        flYaw = flYaw + 360;
-    }
-    else if (flYaw > 180)
-    {
-        flYaw = flYaw - 360;
-    }
-   
-    GetBasePlayer()->SetPoseParameter( iYaw, flYaw );
-
-#ifndef CLIENT_DLL
-        //Adrian: Make the model's angle match the legs so the hitboxes match on both sides.
-        GetBasePlayer()->SetLocalAngles( QAngle( GetBasePlayer()->EyeAngles().x, m_flCurrentFeetYaw, 0 ) );
-#endif
+    //ComputePoseParam_BodyLookYaw();
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Purpose: 
 //-----------------------------------------------------------------------------
-void CSinglePlayerAnimState::ComputePoseParam_BodyPitch( CStudioHdr *pStudioHdr )
-{
-    // Get pitch from v_angle
-    float flPitch = GetBasePlayer()->GetLocalAngles()[ PITCH ];
-
-    if ( flPitch > 180.0f )
-    {
-        flPitch -= 360.0f;
-    }
-    flPitch = clamp( flPitch, -90, 90 );
-
-    QAngle absangles = GetBasePlayer()->GetAbsAngles();
-    absangles.x = 0.0f;
-    m_angRender = absangles;
-
-    // See if we have a blender for pitch
-    GetBasePlayer()->SetPoseParameter( pStudioHdr, "aim_pitch", flPitch );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : goal -
-//            maxrate -
-//            dt -
-//            current -
-// Output : int
-//-----------------------------------------------------------------------------
-int CSinglePlayerAnimState::ConvergeAngles( float goal,float maxrate, float dt, float& current )
-{
-    int direction = TURN_NONE;
-
-    float anglediff = goal - current;
-    float anglediffabs = fabs( anglediff );
-
-    anglediff = AngleNormalize( anglediff );
-
-    float scale = 1.0f;
-    if ( anglediffabs <= FADE_TURN_DEGREES )
-    {
-        scale = anglediffabs / FADE_TURN_DEGREES;
-        // Always do at least a bit of the turn ( 1% )
-        scale = clamp( scale, 0.01f, 1.0f );
-    }
-
-    float maxmove = maxrate * dt * scale;
-
-    if ( fabs( anglediff ) < maxmove )
-    {
-        current = goal;
-    }
-    else
-    {
-        if ( anglediff > 0 )
-        {
-            current += maxmove;
-            direction = TURN_LEFT;
-        }
-        else
-        {
-            current -= maxmove;
-            direction = TURN_RIGHT;
-        }
-    }
-
-    current = AngleNormalize( current );
-
-    return direction;
-}
-
 void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
 {
-    QAngle absangles = GetBasePlayer()->GetAbsAngles();
+    QAngle absangles = GetOuter()->GetAbsAngles();
     absangles.y = AngleNormalize( absangles.y );
     m_angRender = absangles;
 
     // See if we even have a blender for pitch
-    int upper_body_yaw = GetBasePlayer()->LookupPoseParameter( "aim_yaw" );
+    int upper_body_yaw = GetOuter()->LookupPoseParameter( "aim_yaw" );
     if ( upper_body_yaw < 0 )
     {
         return;
@@ -320,19 +476,19 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
         if ( m_flLastTurnTime <= 0.0f )
         {
             m_flLastTurnTime    = gpGlobals->curtime;
-            m_flLastYaw            = GetBasePlayer()->EyeAngles().y;
+            m_flLastYaw            = GetOuter()->EyeAngles().y;
             // Snap feet to be perfectly aligned with torso/eyes
-            m_flGoalFeetYaw        = GetBasePlayer()->EyeAngles().y;
+            m_flGoalFeetYaw        = GetOuter()->EyeAngles().y;
             m_flCurrentFeetYaw    = m_flGoalFeetYaw;
             m_nTurningInPlace    = TURN_NONE;
         }
 
         // If rotating in place, update stasis timer
 
-        if ( m_flLastYaw != GetBasePlayer()->EyeAngles().y )
+        if ( m_flLastYaw != GetOuter()->EyeAngles().y )
         {
             m_flLastTurnTime    = gpGlobals->curtime;
-            m_flLastYaw            = GetBasePlayer()->EyeAngles().y;
+            m_flLastYaw            = GetOuter()->EyeAngles().y;
         }
 
         if ( m_flGoalFeetYaw != m_flCurrentFeetYaw )
@@ -340,13 +496,13 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
             m_flLastTurnTime    = gpGlobals->curtime;
         }
 
-        turning = ConvergeAngles( m_flGoalFeetYaw, turnrate, gpGlobals->frametime, m_flCurrentFeetYaw );
+        turning = ConvergeAngles( m_flGoalFeetYaw, turnrate, m_AnimConfig.m_flMaxBodyYawDegrees, gpGlobals->frametime, m_flCurrentFeetYaw );
 
-        QAngle eyeAngles = GetBasePlayer()->EyeAngles();
-        QAngle vAngle = GetBasePlayer()->GetLocalAngles();
+        QAngle eyeAngles = GetOuter()->EyeAngles();
+        QAngle vAngle = GetOuter()->GetLocalAngles();
 
         // See how far off current feetyaw is from true yaw
-        float yawdelta = GetBasePlayer()->EyeAngles().y - m_flCurrentFeetYaw;
+        float yawdelta = GetOuter()->EyeAngles().y - m_flCurrentFeetYaw;
         yawdelta = AngleNormalize( yawdelta );
 
         bool rotated_too_far = false;
@@ -365,7 +521,7 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
         if ( rotated_too_far ||
             ( gpGlobals->curtime > m_flLastTurnTime + mp_facefronttime.GetFloat() ) )
         {
-            m_flGoalFeetYaw        = GetBasePlayer()->EyeAngles().y;
+            m_flGoalFeetYaw        = GetOuter()->EyeAngles().y;
             m_flLastTurnTime    = gpGlobals->curtime;
 
         /*    float yd = m_flCurrentFeetYaw - m_flGoalFeetYaw;
@@ -383,7 +539,7 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
             }
 
             turning = ConvergeAngles( m_flGoalFeetYaw, turnrate, gpGlobals->frametime, m_flCurrentFeetYaw );
-            yawdelta = GetBasePlayer()->EyeAngles().y - m_flCurrentFeetYaw;*/
+            yawdelta = GetOuter()->EyeAngles().y - m_flCurrentFeetYaw;*/
 
         }
 
@@ -395,9 +551,9 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
     {
         m_flLastTurnTime = 0.0f;
         m_nTurningInPlace = TURN_NONE;
-        m_flCurrentFeetYaw = m_flGoalFeetYaw = GetBasePlayer()->EyeAngles().y;
+        m_flCurrentFeetYaw = m_flGoalFeetYaw = GetOuter()->EyeAngles().y;
         flGoalTorsoYaw = 0.0f;
-        m_flCurrentTorsoYaw = GetBasePlayer()->EyeAngles().y - m_flCurrentFeetYaw;
+        m_flCurrentTorsoYaw = GetOuter()->EyeAngles().y - m_flCurrentFeetYaw;
     }
 
     if ( turning == TURN_NONE )
@@ -415,22 +571,46 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
     }
 
     // Rotate entire body into position
-    absangles = GetBasePlayer()->GetAbsAngles();
+    absangles = GetOuter()->GetAbsAngles();
     absangles.y = m_flCurrentFeetYaw;
     m_angRender = absangles;
 
-    GetBasePlayer()->SetPoseParameter( upper_body_yaw, clamp( m_flCurrentTorsoYaw, -60.0f, 60.0f ) );
+    GetOuter()->SetPoseParameter( upper_body_yaw, clamp( m_flCurrentTorsoYaw, -60.0f, 60.0f ) );
 
     /*
     // FIXME: Adrian, what is this?
-    int body_yaw = GetBasePlayer()->LookupPoseParameter( "body_yaw" );
+    int body_yaw = GetOuter()->LookupPoseParameter( "body_yaw" );
 
     if ( body_yaw >= 0 )
     {
-        GetBasePlayer()->SetPoseParameter( body_yaw, 30 );
+        GetOuter()->SetPoseParameter( body_yaw, 30 );
     }
     */
 
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CSinglePlayerAnimState::ComputePoseParam_BodyPitch( CStudioHdr *pStudioHdr )
+{
+    // Get pitch from v_angle
+    float flPitch = m_flEyePitch;
+
+    if ( flPitch > 180.0f )
+    {
+        flPitch -= 360.0f;
+    }
+    flPitch = clamp( flPitch, -90, 90 );
+
+    QAngle absangles = GetOuter()->GetAbsAngles();
+    absangles.x = 0.0f;
+    m_angRender = absangles;
+
+    // See if we have a blender for pitch
+    GetOuter()->SetPoseParameter( pStudioHdr, "aim_pitch", flPitch );
+
+    ComputePoseParam_HeadPitch( pStudioHdr );
 }
 
 //-----------------------------------------------------------------------------
@@ -439,9 +619,9 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
 void CSinglePlayerAnimState::ComputePoseParam_HeadPitch( CStudioHdr *pStudioHdr )
 {
     // Get pitch from v_angle
-    int iHeadPitch = GetBasePlayer()->LookupPoseParameter("head_pitch");
+    int iHeadPitch = GetOuter()->LookupPoseParameter("head_pitch");
 
-    float flPitch = GetBasePlayer()->EyeAngles()[PITCH];
+    float flPitch = m_flEyePitch;
 
     if ( flPitch > 180.0f )
     {
@@ -449,56 +629,9 @@ void CSinglePlayerAnimState::ComputePoseParam_HeadPitch( CStudioHdr *pStudioHdr 
     }
     flPitch = clamp( flPitch, -90, 90 );
 
-    QAngle absangles = GetBasePlayer()->GetAbsAngles();
+    QAngle absangles = GetOuter()->GetAbsAngles();
     absangles.x = 0.0f;
     m_angRender = absangles;
 
-    GetBasePlayer()->SetPoseParameter( pStudioHdr, iHeadPitch, flPitch );
-}
-
- 
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : activity -
-// Output : Activity
-//-----------------------------------------------------------------------------
-Activity CSinglePlayerAnimState::BodyYawTranslateActivity( Activity activity )
-{
-    // Not even standing still, sigh
-    if ( activity != ACT_IDLE )
-        return activity;
-
-    // Not turning
-    switch ( m_nTurningInPlace )
-    {
-    default:
-    case TURN_NONE:
-        return activity;
-    /*
-    case TURN_RIGHT:
-        return ACT_TURNRIGHT45;
-    case TURN_LEFT:
-        return ACT_TURNLEFT45;
-    */
-    case TURN_RIGHT:
-    case TURN_LEFT:
-        return mp_ik.GetBool() ? ACT_TURN : activity;
-    }
-
-    Assert( 0 );
-    return activity;
-}
-
-const QAngle& CSinglePlayerAnimState::GetRenderAngles()
-{
-    return m_angRender;
-}
-
-void CSinglePlayerAnimState::GetOuterAbsVelocity( Vector& vel )
-{
-#if defined( CLIENT_DLL )
-    GetBasePlayer()->EstimateAbsVelocity( vel );
-#else
-    vel = GetBasePlayer()->GetAbsVelocity();
-#endif
+    GetOuter()->SetPoseParameter( pStudioHdr, iHeadPitch, flPitch );
 }
