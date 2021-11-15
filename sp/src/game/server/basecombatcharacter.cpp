@@ -2727,8 +2727,7 @@ bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 #ifdef MAPBASE
 //-----------------------------------------------------------------------------
 // Purpose:	Uses an activity from a different weapon when the activity we were originally looking for does not exist on this character.
-//			Created to give NPCs the ability to use weapons they are not otherwise allowed to use.
-//			Right now, everyone falls back to the SMG act table.
+//			This gives NPCs and players the ability to use weapons they are otherwise unable to use.
 //-----------------------------------------------------------------------------
 Activity CBaseCombatCharacter::Weapon_BackupActivity( Activity activity, bool weaponTranslationWasRequired, CBaseCombatWeapon *pSpecificWeapon )
 {
@@ -2740,8 +2739,9 @@ Activity CBaseCombatCharacter::Weapon_BackupActivity( Activity activity, bool we
 	if (!pWeapon->SupportsBackupActivity(activity))
 		return activity;
 
-	// Sometimes, the NPC is supposed to use the default activity. Return that if the weapon translation was "not required" and we have an original activity.
-	if (!weaponTranslationWasRequired && GetModelPtr()->HaveSequenceForActivity(activity))
+	// Sometimes, a NPC is supposed to use the default activity. Return that if the weapon translation was "not required" and we have an original activity.
+	// Don't do this with players.
+	if (!weaponTranslationWasRequired && GetModelPtr()->HaveSequenceForActivity(activity) && !IsPlayer())
 	{
 		return activity;
 	}
@@ -2754,7 +2754,7 @@ Activity CBaseCombatCharacter::Weapon_BackupActivity( Activity activity, bool we
 		{
 			if ( activity == pTable->baseAct )
 			{
-				// Don't pick SMG animations we don't actually have an animation for.
+				// Don't pick backup activities we don't actually have an animation for.
 				if (GetModelPtr() ? !GetModelPtr()->HaveSequenceForActivity(pTable->weaponAct) : false)
 				{
 					return activity;

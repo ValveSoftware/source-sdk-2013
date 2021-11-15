@@ -7817,39 +7817,19 @@ void CBasePlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 //-----------------------------------------------------------------------------
 Activity CBasePlayer::Weapon_TranslateActivity( Activity baseAct, bool *pRequired )
 {
-#ifdef HL2_DLL
-	// HAAAAAAAAAAAAAACKS!
-	if (GetActiveWeapon())
+	Activity weaponTranslation = BaseClass::Weapon_TranslateActivity( baseAct, pRequired );
+	
+	if ( GetModelPtr() && !GetModelPtr()->HaveSequenceForActivity(weaponTranslation) )
 	{
-		int translated = baseAct;
-		int iActOffset = (baseAct - ACT_HL2MP_IDLE);
+		// This is used so players can fall back to backup activities in the same way NPCs in Mapbase can
+		Activity backupActivity = Weapon_BackupActivity(baseAct, pRequired);
+		if ( baseAct != backupActivity && GetModelPtr()->HaveSequenceForActivity(backupActivity) )
+			return backupActivity;
 
-		string_t iszClassname = GetActiveWeapon()->m_iClassname;
-		if (iszClassname == gm_isz_class_Pistol || iszClassname == gm_isz_class_357)
-			translated = (ACT_HL2MP_IDLE_PISTOL + iActOffset);
-		else if (iszClassname == gm_isz_class_SMG1)
-			translated = (ACT_HL2MP_IDLE_SMG1 + iActOffset);
-		else if (iszClassname == gm_isz_class_AR2)
-			translated = (ACT_HL2MP_IDLE_AR2 + iActOffset);
-		else if (iszClassname == gm_isz_class_Shotgun)
-			translated = (ACT_HL2MP_IDLE_SHOTGUN + iActOffset);
-		else if (iszClassname == gm_isz_class_RPG)
-			translated = (ACT_HL2MP_IDLE_RPG + iActOffset);
-		else if (iszClassname == gm_isz_class_Grenade)
-			translated = (ACT_HL2MP_IDLE_GRENADE + iActOffset);
-		else if (iszClassname == gm_isz_class_Physcannon)
-			translated = (ACT_HL2MP_IDLE_PHYSGUN + iActOffset);
-		else if (iszClassname == gm_isz_class_Crossbow)
-			translated = (ACT_HL2MP_IDLE_CROSSBOW + iActOffset);
-		else if (iszClassname == gm_isz_class_Crowbar || iszClassname == gm_isz_class_Stunstick)
-			translated = (ACT_HL2MP_IDLE_MELEE + iActOffset);
-
-		if (translated != baseAct)
-			return (Activity)translated;
+		return baseAct;
 	}
-#endif
 
-	return BaseClass::Weapon_TranslateActivity( baseAct, pRequired );
+	return weaponTranslation;
 }
 #endif
 
