@@ -1664,6 +1664,10 @@ void CWeaponRPG::PrimaryAttack( void )
 
 	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
 	WeaponSound( SINGLE );
+	
+#ifdef MAPBASE
+	pOwner->SetAnimation( PLAYER_ATTACK1 );
+#endif
 
 	pOwner->RumbleEffect( RUMBLE_SHOTGUN_SINGLE, 0, RUMBLE_FLAG_RESTART );
 

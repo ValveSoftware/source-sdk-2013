@@ -448,7 +448,7 @@ void CWeaponFrag::LobGrenade( CBasePlayer *pPlayer )
 	WeaponSound( WPN_DOUBLE );
 
 #ifdef MAPBASE
-	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+	pPlayer->SetAnimation( PLAYER_ATTACK2 );
 #endif
 
 	m_bRedraw = true;
@@ -496,7 +496,7 @@ void CWeaponFrag::RollGrenade( CBasePlayer *pPlayer )
 	WeaponSound( SPECIAL1 );
 
 #ifdef MAPBASE
-	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+	pPlayer->SetAnimation( PLAYER_ATTACK2 );
 #endif
 
 	m_bRedraw = true;

@@ -612,7 +612,11 @@ void CWeaponShotgun::SecondaryAttack( void )
 	SendWeaponAnim( ACT_VM_SECONDARYATTACK );
 
 	// player "shoot" animation
+#ifdef MAPBASE
+	pPlayer->SetAnimation( PLAYER_ATTACK2 );
+#else
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+#endif
 
 	// Don't fire again until fire animation has completed
 #ifdef MAPBASE

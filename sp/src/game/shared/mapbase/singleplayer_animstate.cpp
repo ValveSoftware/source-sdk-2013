@@ -146,6 +146,16 @@ void CSinglePlayerAnimState::SetPlayerAnimation( PLAYER_ANIM playerAnim )
         m_bFiring = m_iFireSequence != -1;
         m_flFireCycle = 0;
     }
+    else if ( playerAnim == PLAYER_ATTACK2 )
+    {
+#ifdef EXPANDED_HL2DM_ACTIVITIES
+        m_iFireSequence = SelectWeightedSequence( TranslateActivity( ACT_HL2MP_GESTURE_RANGE_ATTACK2 ) );
+#else
+        m_iFireSequence = SelectWeightedSequence( TranslateActivity( ACT_HL2MP_GESTURE_RANGE_ATTACK ) );
+#endif
+        m_bFiring = m_iFireSequence != -1;
+        m_flFireCycle = 0;
+    }
     else if ( playerAnim == PLAYER_JUMP )
     {
         // Play the jump animation.
@@ -166,6 +176,22 @@ void CSinglePlayerAnimState::SetPlayerAnimation( PLAYER_ANIM playerAnim )
             m_fReloadPlaybackRate = 1.0f;
 			m_bReloading = true;			
 			m_flReloadCycle = 0;
+        }
+    }
+    else if ( playerAnim == PLAYER_UNHOLSTER || playerAnim == PLAYER_HOLSTER )
+    {
+        m_iWeaponSwitchSequence = SelectWeightedSequence( TranslateActivity( playerAnim == PLAYER_UNHOLSTER ? ACT_ARM : ACT_DISARM ) );
+        if (m_iWeaponSwitchSequence != -1)
+        {
+            // clear other events that might be playing in our layer
+            m_bPlayingMisc = false;
+            m_bReloading = false;
+
+            m_bWeaponSwitching = true;
+            m_flWeaponSwitchCycle = 0;
+            m_flMiscBlendOut = 0.1f;
+            m_flMiscBlendIn = 0.1f;
+            m_bMiscNoOverride = false;
         }
     }
 }
@@ -224,6 +250,26 @@ void CSinglePlayerAnimState::ComputeSequences( CStudioHdr *pStudioHdr )
 	ComputeMiscSequence();
 	ComputeReloadSequence();
 	ComputeWeaponSwitchSequence();	
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CSinglePlayerAnimState::AddMiscSequence( int iSequence, float flBlendIn, float flBlendOut, float flPlaybackRate, bool bHoldAtEnd, bool bOnlyWhenStill )
+{
+    Assert( iSequence != -1 );
+
+	m_iMiscSequence = iSequence;
+    m_flMiscBlendIn = flBlendIn;
+    m_flMiscBlendOut = flBlendOut;
+
+    m_bPlayingMisc = true;
+    m_bMiscHoldAtEnd = bHoldAtEnd;
+    m_bReloading = false;
+    m_flMiscCycle = 0;
+    m_bMiscOnlyWhenStill = bOnlyWhenStill;
+    m_bMiscNoOverride = true;
+    m_fMiscPlaybackRate = flPlaybackRate;
 }
 
 //-----------------------------------------------------------------------------
@@ -386,9 +432,7 @@ void CSinglePlayerAnimState::ComputeWeaponSwitchSequence()
 // does misc gestures if we're not firing
 void CSinglePlayerAnimState::ComputeMiscSequence()
 {
-	bool bHoldAtEnd = false;
-
-	UpdateLayerSequenceGeneric( RELOADSEQUENCE_LAYER, m_bPlayingMisc, m_flMiscCycle, m_iMiscSequence, bHoldAtEnd, m_flMiscBlendIn, m_flMiscBlendOut, m_bMiscOnlyWhenStill, m_fMiscPlaybackRate );	
+	UpdateLayerSequenceGeneric( RELOADSEQUENCE_LAYER, m_bPlayingMisc, m_flMiscCycle, m_iMiscSequence, m_bMiscHoldAtEnd, m_flMiscBlendIn, m_flMiscBlendOut, m_bMiscOnlyWhenStill, m_fMiscPlaybackRate );	
 }
 
 //-----------------------------------------------------------------------------

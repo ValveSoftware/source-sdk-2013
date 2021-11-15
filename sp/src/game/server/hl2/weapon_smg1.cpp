@@ -469,7 +469,11 @@ void CWeaponSMG1::SecondaryAttack( void )
 	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), 1000, 0.2, GetOwner(), SOUNDENT_CHANNEL_WEAPON );
 
 	// player "shoot" animation
+#ifdef MAPBASE
+	pPlayer->SetAnimation( PLAYER_ATTACK2 );
+#else
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+#endif
 
 	// Decrease ammo
 	pPlayer->RemoveAmmo( 1, m_iSecondaryAmmoType );

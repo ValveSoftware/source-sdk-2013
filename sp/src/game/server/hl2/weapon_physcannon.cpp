@@ -1818,6 +1818,11 @@ void CWeaponPhysCannon::PuntNonVPhysics( CBaseEntity *pEntity, const Vector &for
 
 	PrimaryFireEffect();
 	SendWeaponAnim( ACT_VM_SECONDARYATTACK );
+#ifdef MAPBASE
+	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
+	if (pPlayer)
+		pPlayer->SetAnimation( PLAYER_ATTACK1 );
+#endif
 
 	m_nChangeState = ELEMENT_STATE_CLOSED;
 	m_flElementDebounce = gpGlobals->curtime + 0.5f;
@@ -1968,6 +1973,10 @@ void CWeaponPhysCannon::PuntVPhysics( CBaseEntity *pEntity, const Vector &vecFor
 	PrimaryFireEffect();
 	SendWeaponAnim( ACT_VM_SECONDARYATTACK );
 
+#ifdef MAPBASE
+	pOwner->SetAnimation( PLAYER_ATTACK1 );
+#endif
+
 	m_nChangeState = ELEMENT_STATE_CLOSED;
 	m_flElementDebounce = gpGlobals->curtime + 0.5f;
 	m_flCheckSuppressTime = gpGlobals->curtime + 0.25f;
@@ -2086,6 +2095,10 @@ void CWeaponPhysCannon::PuntRagdoll( CBaseEntity *pEntity, const Vector &vecForw
 	PrimaryFireEffect();
 	SendWeaponAnim( ACT_VM_SECONDARYATTACK );
 
+#ifdef MAPBASE
+	pOwner->SetAnimation( PLAYER_ATTACK1 );
+#endif
+
 	m_nChangeState = ELEMENT_STATE_CLOSED;
 	m_flElementDebounce = gpGlobals->curtime + 0.5f;
 	m_flCheckSuppressTime = gpGlobals->curtime + 0.25f;
@@ -2191,6 +2204,9 @@ void CWeaponPhysCannon::PrimaryAttack( void )
 
 		PrimaryFireEffect();
 		SendWeaponAnim( ACT_VM_SECONDARYATTACK );
+#ifdef MAPBASE
+		pOwner->SetAnimation( PLAYER_ATTACK1 );
+#endif
 		return;
 	}
 

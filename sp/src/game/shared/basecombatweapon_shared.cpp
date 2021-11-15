@@ -1581,6 +1581,10 @@ bool CBaseCombatWeapon::DefaultDeploy( char *szViewModel, char *szWeaponModel, i
 
 		SetViewModel();
 		SendWeaponAnim( iActivity );
+		
+#ifdef MAPBASE
+		pOwner->SetAnimation( PLAYER_UNHOLSTER );
+#endif
 
 		pOwner->SetNextAttack( gpGlobals->curtime + SequenceDuration() );
 	}
@@ -1652,6 +1656,11 @@ bool CBaseCombatWeapon::Holster( CBaseCombatWeapon *pSwitchingTo )
 	if (pOwner)
 	{
 		pOwner->SetNextAttack( gpGlobals->curtime + flSequenceDuration );
+
+#ifdef MAPBASE
+		if (pOwner->IsPlayer())
+			static_cast<CBasePlayer*>(pOwner)->SetAnimation( PLAYER_HOLSTER );
+#endif
 	}
 
 	// If we don't have a holster anim, hide immediately to avoid timing issues

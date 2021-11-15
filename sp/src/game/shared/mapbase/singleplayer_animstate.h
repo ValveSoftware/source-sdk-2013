@@ -48,6 +48,8 @@ public:
 
 	void ComputeSequences( CStudioHdr *pStudioHdr );
 
+	void AddMiscSequence( int iSequence, float flBlendIn = 0.0f, float flBlendOut = 0.0f, float flPlaybackRate = 1.0f, bool bHoldAtEnd = false, bool bOnlyWhenStill = false );
+
     void ClearAnimationState();
     void ClearAnimationLayers();
 
@@ -91,7 +93,7 @@ private:
 	bool m_bPlayingMisc;
 	float m_flMiscCycle, m_flMiscBlendOut, m_flMiscBlendIn;
 	int m_iMiscSequence;
-	bool m_bMiscOnlyWhenStill;
+	bool m_bMiscOnlyWhenStill, m_bMiscHoldAtEnd;
 	bool m_bMiscNoOverride;
 	float m_fMiscPlaybackRate;
 	bool m_bMiscCycleRewound;

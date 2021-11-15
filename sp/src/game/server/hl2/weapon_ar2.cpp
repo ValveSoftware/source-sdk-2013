@@ -369,6 +369,9 @@ void CWeaponAR2::SecondaryAttack( void )
 	if( pPlayer )
 	{
 		pPlayer->RumbleEffect(RUMBLE_AR2_ALT_FIRE, 0, RUMBLE_FLAG_RESTART );
+#ifdef MAPBASE
+		pPlayer->SetAnimation( PLAYER_ATTACK2 );
+#endif
 	}
 
 	SendWeaponAnim( ACT_VM_FIDGET );

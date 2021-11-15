@@ -621,6 +621,10 @@ BEGIN_ENT_SCRIPTDESC( CHL2_Player, CBasePlayer, "The HL2 player entity." )
 	DEFINE_SCRIPTFUNC( RemoveCustomSuitDevice, "Removes a custom suit device ID. (1-3)" )
 	DEFINE_SCRIPTFUNC( IsCustomSuitDeviceActive, "Checks if a custom suit device is active." )
 
+#ifdef SP_ANIM_STATE
+	DEFINE_SCRIPTFUNC( AddAnimStateLayer, "Adds a custom sequence index as a misc. layer for the singleplayer anim state, wtih parameters for blending in/out, setting the playback rate, holding the animation at the end, and only playing when the player is still." )
+#endif
+
 END_SCRIPTDESC();
 #endif
 
@@ -1388,6 +1392,14 @@ void CHL2_Player::SetAnimation( PLAYER_ANIM playerAnim )
 	}
 
 	m_pPlayerAnimState->SetPlayerAnimation( playerAnim );
+}
+
+void CHL2_Player::AddAnimStateLayer( int iSequence, float flBlendIn, float flBlendOut, float flPlaybackRate, bool bHoldAtEnd, bool bOnlyWhenStill )
+{
+	if (!hl2_use_sp_animstate.GetBool())
+		return;
+
+	m_pPlayerAnimState->AddMiscSequence( iSequence, flBlendIn, flBlendOut, flPlaybackRate, bHoldAtEnd, bOnlyWhenStill );
 }
 #endif
 #endif
