@@ -201,6 +201,15 @@ acttable_t	CWeapon357::m_acttable[] =
 
 #ifdef MAPBASE
 	// HL2:DM activities (for third-person animations in SP)
+#ifdef EXPANDED_HL2DM_ACTIVITIES
+	{ ACT_HL2MP_IDLE,                    ACT_HL2MP_IDLE_357,                    false },
+    { ACT_HL2MP_RUN,                    ACT_HL2MP_RUN_357,                    false },
+    { ACT_HL2MP_IDLE_CROUCH,            ACT_HL2MP_IDLE_CROUCH_357,            false },
+    { ACT_HL2MP_WALK_CROUCH,            ACT_HL2MP_WALK_CROUCH_357,            false },
+    { ACT_HL2MP_GESTURE_RANGE_ATTACK,    ACT_HL2MP_GESTURE_RANGE_ATTACK_357,    false },
+    { ACT_HL2MP_GESTURE_RELOAD,            ACT_HL2MP_GESTURE_RELOAD_357,        false },
+    { ACT_HL2MP_JUMP,                    ACT_HL2MP_JUMP_357,                    false },
+#else
 	{ ACT_HL2MP_IDLE,                    ACT_HL2MP_IDLE_PISTOL,                    false },
     { ACT_HL2MP_RUN,                    ACT_HL2MP_RUN_PISTOL,                    false },
     { ACT_HL2MP_IDLE_CROUCH,            ACT_HL2MP_IDLE_CROUCH_PISTOL,            false },
@@ -208,6 +217,7 @@ acttable_t	CWeapon357::m_acttable[] =
     { ACT_HL2MP_GESTURE_RANGE_ATTACK,    ACT_HL2MP_GESTURE_RANGE_ATTACK_PISTOL,    false },
     { ACT_HL2MP_GESTURE_RELOAD,            ACT_HL2MP_GESTURE_RELOAD_PISTOL,        false },
     { ACT_HL2MP_JUMP,                    ACT_HL2MP_JUMP_PISTOL,                    false },
+#endif
 #endif
 };
 

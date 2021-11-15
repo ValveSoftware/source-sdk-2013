@@ -49,6 +49,10 @@
 // This enables some new cover-related activities.
 #define EXPANDED_HL2_COVER_ACTIVITIES 1
 
+// EXPANDED HL2DM ACTIVITIES
+// This enables some new activities for the HL2:DM set.
+#define EXPANDED_HL2DM_ACTIVITIES 1
+
 #endif
 
 #define ACTIVITY_NOT_AVAILABLE		-1
@@ -2343,6 +2347,16 @@ typedef enum
 	ACT_COVER_WALL_L_PISTOL,
 	ACT_COVER_WALL_LOW_R_PISTOL,
 	ACT_COVER_WALL_LOW_L_PISTOL,
+#endif
+
+#ifdef EXPANDED_HL2DM_ACTIVITIES
+	ACT_HL2MP_IDLE_357,
+	ACT_HL2MP_RUN_357,
+	ACT_HL2MP_IDLE_CROUCH_357,
+	ACT_HL2MP_WALK_CROUCH_357,
+	ACT_HL2MP_GESTURE_RANGE_ATTACK_357,
+	ACT_HL2MP_GESTURE_RELOAD_357,
+	ACT_HL2MP_JUMP_357,
 #endif
 
 	// this is the end of the global activities, private per-monster activities start here.

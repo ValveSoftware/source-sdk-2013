@@ -389,6 +389,13 @@ bool CWeaponShotgun::StartReload( void )
 	pOwner->m_flNextAttack = gpGlobals->curtime;
 	m_flNextPrimaryAttack = gpGlobals->curtime + SequenceDuration();
 
+#ifdef MAPBASE
+	if ( pOwner->IsPlayer() )
+	{
+		static_cast<CBasePlayer*>(pOwner)->SetAnimation( PLAYER_RELOAD );
+	}
+#endif
+
 	m_bInReload = true;
 	return true;
 }
