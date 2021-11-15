@@ -7819,6 +7819,11 @@ Activity CBasePlayer::Weapon_TranslateActivity( Activity baseAct, bool *pRequire
 {
 	Activity weaponTranslation = BaseClass::Weapon_TranslateActivity( baseAct, pRequired );
 	
+	if ( GetActiveWeapon() && GetActiveWeapon()->IsEffectActive(EF_NODRAW) && baseAct != ACT_ARM )
+	{
+		// Our weapon is holstered. Use the base activity.
+		return baseAct;
+	}
 	if ( GetModelPtr() && !GetModelPtr()->HaveSequenceForActivity(weaponTranslation) )
 	{
 		// This is used so players can fall back to backup activities in the same way NPCs in Mapbase can
