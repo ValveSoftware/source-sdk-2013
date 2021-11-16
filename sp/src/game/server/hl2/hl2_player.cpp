@@ -630,10 +630,6 @@ END_SCRIPTDESC();
 
 CHL2_Player::CHL2_Player()
 {
-#ifdef SP_ANIM_STATE
-	m_angEyeAngles.Init();
-#endif
-
 	m_nNumMissPositions	= 0;
 	m_pPlayerAISquad = 0;
 	m_bSprintEnabled = true;
@@ -674,6 +670,9 @@ CSuitPowerDevice SuitDeviceCustom[] =
 IMPLEMENT_SERVERCLASS_ST(CHL2_Player, DT_HL2_Player)
 	SendPropDataTable(SENDINFO_DT(m_HL2Local), &REFERENCE_SEND_TABLE(DT_HL2Local), SendProxy_SendLocalDataTable),
 	SendPropBool( SENDINFO(m_fIsSprinting) ),
+#ifdef SP_ANIM_STATE
+	SendPropFloat( SENDINFO(m_flAnimRenderYaw), 0, SPROP_NOSCALE ),
+#endif
 END_SEND_TABLE()
 
 
@@ -1161,13 +1160,10 @@ void CHL2_Player::PostThink( void )
 #ifdef SP_ANIM_STATE
 	if (m_pPlayerAnimState)
 	{
-		m_angEyeAngles = EyeAngles();
+		QAngle angEyeAngles = EyeAngles();
+		m_pPlayerAnimState->Update( angEyeAngles.y, angEyeAngles.x );
 
-		QAngle angles = GetLocalAngles();
-		angles[PITCH] = 0;
-		SetLocalAngles(angles);
-
-		m_pPlayerAnimState->Update( m_angEyeAngles.y, m_angEyeAngles.x );
+		m_flAnimRenderYaw.Set( m_pPlayerAnimState->GetRenderAngles().y );
 	}
 #endif
 }
@@ -1409,17 +1405,21 @@ CStudioHdr *CHL2_Player::OnNewModel()
 	CStudioHdr *hdr = BaseClass::OnNewModel();
 
 #ifdef SP_ANIM_STATE
+	// Clears the animation state if we already have one.
+	if ( m_pPlayerAnimState != NULL )
+	{
+		m_pPlayerAnimState->Release();
+		m_pPlayerAnimState = NULL;
+	}
+
 	if ( hdr && hdr->HaveSequenceForActivity(ACT_HL2MP_IDLE) && hl2_use_sp_animstate.GetBool() )
 	{
-		// Clears the animation state if we already have one.
-		if ( m_pPlayerAnimState != NULL )
-		{
-			m_pPlayerAnimState->Release();
-			m_pPlayerAnimState = NULL;
-		}
-		
 		// Here we create and init the player animation state.
 		m_pPlayerAnimState = CreatePlayerAnimationState(this);
+	}
+	else
+	{
+		m_flAnimRenderYaw = FLT_MAX;
 	}
 #endif
 
