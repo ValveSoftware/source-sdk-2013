@@ -282,6 +282,10 @@ void CSinglePlayerAnimState::ClearAnimationState()
 	m_bReloading = false;
 	m_bWeaponSwitching = false;
 	m_bPlayingMisc = false;
+    m_flReloadBlendIn = 0.0f;
+    m_flReloadBlendOut = 0.0f;
+    m_flMiscBlendIn = 0.0f;
+    m_flMiscBlendOut = 0.0f;
 	CBasePlayerAnimState::ClearAnimationState();
 }
 
