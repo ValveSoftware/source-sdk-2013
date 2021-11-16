@@ -497,10 +497,6 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyYaw( void )
 //-----------------------------------------------------------------------------
 void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
 {
-    QAngle absangles = GetOuter()->GetAbsAngles();
-    absangles.y = AngleNormalize( absangles.y );
-    m_angRender = absangles;
-
     // See if we even have a blender for pitch
     int upper_body_yaw = GetOuter()->LookupPoseParameter( "aim_yaw" );
     if ( upper_body_yaw < 0 )
@@ -619,11 +615,6 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyLookYaw( void )
         }
     }
 
-    // Rotate entire body into position
-    absangles = GetOuter()->GetAbsAngles();
-    absangles.y = m_flCurrentFeetYaw;
-    m_angRender = absangles;
-
     GetOuter()->SetPoseParameter( upper_body_yaw, clamp( m_flCurrentTorsoYaw, -60.0f, 60.0f ) );
 
     /*
@@ -652,10 +643,6 @@ void CSinglePlayerAnimState::ComputePoseParam_BodyPitch( CStudioHdr *pStudioHdr 
     }
     flPitch = clamp( flPitch, -90, 90 );
 
-    QAngle absangles = GetOuter()->GetAbsAngles();
-    absangles.x = 0.0f;
-    m_angRender = absangles;
-
     // See if we have a blender for pitch
     GetOuter()->SetPoseParameter( pStudioHdr, "aim_pitch", flPitch );
 
@@ -677,10 +664,6 @@ void CSinglePlayerAnimState::ComputePoseParam_HeadPitch( CStudioHdr *pStudioHdr 
         flPitch -= 360.0f;
     }
     flPitch = clamp( flPitch, -90, 90 );
-
-    QAngle absangles = GetOuter()->GetAbsAngles();
-    absangles.x = 0.0f;
-    m_angRender = absangles;
 
     GetOuter()->SetPoseParameter( pStudioHdr, iHeadPitch, flPitch );
 }
