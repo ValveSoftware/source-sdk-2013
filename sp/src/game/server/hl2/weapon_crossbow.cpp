@@ -828,6 +828,10 @@ void CWeaponCrossbow::PrimaryAttack( void )
 	{
 		m_iPrimaryAttacks++;
 		gamestats->Event_WeaponFired( pPlayer, true, GetClassname() );
+
+#ifdef MAPBASE
+		pPlayer->SetAnimation( PLAYER_ATTACK1 );
+#endif
 	}
 }
 

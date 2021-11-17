@@ -1765,6 +1765,9 @@ void CWeaponPhysCannon::DryFire( void )
 	if ( pOwner )
 	{
 		pOwner->RumbleEffect( RUMBLE_PISTOL, 0, RUMBLE_FLAG_RESTART );
+#ifdef MAPBASE // TODO: Is this animation too dramatic?
+		pOwner->SetAnimation( PLAYER_ATTACK1 );
+#endif
 	}
 }
 
