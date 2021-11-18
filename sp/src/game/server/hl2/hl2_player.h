@@ -18,6 +18,8 @@
 // In HL2MP we need to inherit from  BaseMultiplayerPlayer!
 #if defined ( HL2MP )
 #include "basemultiplayerplayer.h"
+#elif defined ( MAPBASE )
+#include "mapbase/singleplayer_animstate.h"
 #endif
 
 class CAI_Squad;
@@ -130,8 +132,13 @@ public:
 	// For the logic_playerproxy output
 	void				SpawnedAtPoint( CBaseEntity *pSpawnPoint );
 
-	void				ResetAnimation( void );
+#ifdef SP_ANIM_STATE
 	void				SetAnimation( PLAYER_ANIM playerAnim );
+
+	void				AddAnimStateLayer( int iSequence, float flBlendIn = 0.0f, float flBlendOut = 0.0f, float flPlaybackRate = 1.0f, bool bHoldAtEnd = false, bool bOnlyWhenStill = false );
+#endif
+
+	virtual CStudioHdr*	OnNewModel();
 
 	virtual const char *GetOverrideStepSound( const char *pszBaseStepSoundName );
 #endif
@@ -432,6 +439,14 @@ private:
 	float				m_flTimeNextLadderHint;	// Next time we're eligible to display a HUD hint about a ladder.
 	
 	friend class CHL2GameMovement;
+
+#ifdef SP_ANIM_STATE
+	CSinglePlayerAnimState* m_pPlayerAnimState;
+
+	// At the moment, we network the render angles since almost none of the player anim stuff is done on the client in SP.
+	// If any of this is ever adapted for MP, this method should be replaced with replicating/moving the anim state to the client.
+	CNetworkVar( float, m_flAnimRenderYaw );
+#endif
 };
 
 

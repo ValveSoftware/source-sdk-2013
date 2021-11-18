@@ -1367,6 +1367,10 @@ void C_BasePlayer::AddEntity( void )
 
 	// Add in lighting effects
 	CreateLightEffects();
+
+#ifdef MAPBASE
+	SetLocalAnglesDim( X_INDEX, 0 );
+#endif
 }
 
 extern float UTIL_WaterLevel( const Vector &position, float minz, float maxz );
@@ -1513,6 +1517,38 @@ int C_BasePlayer::DrawModel( int flags )
 
 	return BaseClass::DrawModel( flags );
 }
+
+#ifdef MAPBASE
+ConVar cl_player_allow_thirdperson_projtex( "cl_player_allow_thirdperson_projtex", "1", FCVAR_NONE, "Allows players to receive projected textures if they're non-local or in third person." );
+ConVar cl_player_allow_thirdperson_rttshadows( "cl_player_allow_thirdperson_rttshadows", "0", FCVAR_NONE, "Allows players to cast RTT shadows if they're non-local or in third person." );
+ConVar cl_player_allow_firstperson_projtex( "cl_player_allow_firstperson_projtex", "1", FCVAR_NONE, "Allows players to receive projected textures even if they're in first person." );
+ConVar cl_player_allow_firstperson_rttshadows( "cl_player_allow_firstperson_rttshadows", "0", FCVAR_NONE, "Allows players to cast RTT shadows even if they're in first person." );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+ShadowType_t C_BasePlayer::ShadowCastType()
+{
+	if ( (!IsLocalPlayer() || ShouldDraw()) ? !cl_player_allow_thirdperson_rttshadows.GetBool() : !cl_player_allow_firstperson_rttshadows.GetBool() )
+		return SHADOWS_NONE;
+
+	if ( !IsVisible() )
+		 return SHADOWS_NONE;
+
+	return SHADOWS_RENDER_TO_TEXTURE_DYNAMIC;
+}
+
+//-----------------------------------------------------------------------------
+// Should this object receive shadows?
+//-----------------------------------------------------------------------------
+bool C_BasePlayer::ShouldReceiveProjectedTextures( int flags )
+{
+	if ( (!IsLocalPlayer() || ShouldDraw()) ? !cl_player_allow_thirdperson_projtex.GetBool() : !cl_player_allow_firstperson_projtex.GetBool() )
+		return false;
+
+	return BaseClass::ShouldReceiveProjectedTextures( flags );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

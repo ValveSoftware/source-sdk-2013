@@ -509,7 +509,7 @@ int C_BaseCombatWeapon::DrawModel( int flags )
 		{
 			// If this isn't the main view, draw the weapon.
 			view_id_t viewID = CurrentViewID();
-			if (viewID != VIEW_MAIN && viewID != VIEW_INTRO_CAMERA && (viewID != VIEW_SHADOW_DEPTH_TEXTURE || !localplayer->IsEffectActive(EF_DIMLIGHT)))
+			if ( (!localplayer->InFirstPersonView() || (viewID != VIEW_MAIN && viewID != VIEW_INTRO_CAMERA)) && (viewID != VIEW_SHADOW_DEPTH_TEXTURE || !localplayer->IsEffectActive(EF_DIMLIGHT)) )
 			{
 				// TODO: Is this inefficient?
 				int nModelIndex = GetModelIndex();

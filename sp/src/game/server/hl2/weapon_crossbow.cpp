@@ -591,6 +591,7 @@ private:
 	void	CheckZoomToggle( void );
 	void	FireBolt( void );
 #ifdef MAPBASE
+	void	SetBolt( int iSetting );
 	void	FireNPCBolt( CAI_BaseNPC *pOwner, Vector &vecShootOrigin, Vector &vecShootDir );
 #endif
 	void	ToggleZoom( void );
@@ -743,6 +744,21 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_CROSSBOW_MED,			false },
 	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_CROSSBOW_MED,		false },
 #endif
+
+#ifdef MAPBASE
+	// HL2:DM activities (for third-person animations in SP)
+	{ ACT_HL2MP_IDLE,                    ACT_HL2MP_IDLE_CROSSBOW,                    false },
+	{ ACT_HL2MP_RUN,                    ACT_HL2MP_RUN_CROSSBOW,                    false },
+	{ ACT_HL2MP_IDLE_CROUCH,            ACT_HL2MP_IDLE_CROUCH_CROSSBOW,            false },
+	{ ACT_HL2MP_WALK_CROUCH,            ACT_HL2MP_WALK_CROUCH_CROSSBOW,            false },
+	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,    ACT_HL2MP_GESTURE_RANGE_ATTACK_CROSSBOW,    false },
+	{ ACT_HL2MP_GESTURE_RELOAD,            ACT_HL2MP_GESTURE_RELOAD_CROSSBOW,        false },
+	{ ACT_HL2MP_JUMP,                    ACT_HL2MP_JUMP_CROSSBOW,                    false },
+#ifdef EXPANDED_HL2DM_ACTIVITIES
+	{ ACT_HL2MP_WALK,					ACT_HL2MP_WALK_CROSSBOW,					false },
+	{ ACT_HL2MP_GESTURE_RANGE_ATTACK2,	ACT_HL2MP_GESTURE_RANGE_ATTACK2_CROSSBOW,    false },
+#endif
+#endif
 };
 
 IMPLEMENT_ACTTABLE(CWeaponCrossbow);
@@ -812,6 +828,10 @@ void CWeaponCrossbow::PrimaryAttack( void )
 	{
 		m_iPrimaryAttacks++;
 		gamestats->Event_WeaponFired( pPlayer, true, GetClassname() );
+
+#ifdef MAPBASE
+		pPlayer->SetAnimation( PLAYER_ATTACK1 );
+#endif
 	}
 }
 
@@ -846,11 +866,7 @@ void CWeaponCrossbow::Reload_NPC( bool bPlaySound )
 {
 	BaseClass::Reload_NPC( bPlaySound );
 
-	int iBody = FindBodygroupByName( "bolt" );
-	if (iBody != -1)
-		SetBodygroup( iBody, 0 );
-	else
-		m_nSkin = 0;
+	SetBolt( 0 );
 }
 #endif
 
@@ -955,6 +971,10 @@ void CWeaponCrossbow::FireBolt( void )
 
 	m_iClip1--;
 
+#ifdef MAPBASE
+	SetBolt( 1 );
+#endif
+
 	pOwner->ViewPunch( QAngle( -2, 0, 0 ) );
 
 	WeaponSound( SINGLE );
@@ -978,6 +998,18 @@ void CWeaponCrossbow::FireBolt( void )
 
 #ifdef MAPBASE
 //-----------------------------------------------------------------------------
+// Purpose: Sets whether or not the bolt is visible
+//-----------------------------------------------------------------------------
+inline void CWeaponCrossbow::SetBolt( int iSetting )
+{
+	int iBody = FindBodygroupByName( "bolt" );
+	if (iBody != -1 || (GetOwner() && GetOwner()->IsPlayer())) // HACKHACK: Player models check the viewmodel instead of the worldmodel, so we have to do this manually
+		SetBodygroup( iBody, iSetting );
+	else
+		m_nSkin = iSetting;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CWeaponCrossbow::FireNPCBolt( CAI_BaseNPC *pOwner, Vector &vecShootOrigin, Vector &vecShootDir )
@@ -1000,11 +1032,7 @@ void CWeaponCrossbow::FireNPCBolt( CAI_BaseNPC *pOwner, Vector &vecShootOrigin, 
 
 	m_iClip1--;
 
-	int iBody = FindBodygroupByName( "bolt" );
-	if (iBody != -1)
-		SetBodygroup( iBody, 1 );
-	else
-		m_nSkin = 1;
+	SetBolt( 1 );
 
 	WeaponSound( SINGLE_NPC );
 	WeaponSound( SPECIAL2 );
@@ -1026,10 +1054,17 @@ bool CWeaponCrossbow::Deploy( void )
 {
 	if ( m_iClip1 <= 0 )
 	{
+#ifdef MAPBASE
+		SetBolt( 1 );
+#endif
 		return DefaultDeploy( (char*)GetViewModel(), (char*)GetWorldModel(), ACT_CROSSBOW_DRAW_UNLOADED, (char*)GetAnimPrefix() );
 	}
 
 	SetSkin( BOLT_SKIN_GLOW );
+
+#ifdef MAPBASE
+	SetBolt( 0 );
+#endif
 
 	return BaseClass::Deploy();
 }
@@ -1177,6 +1212,10 @@ void CWeaponCrossbow::SetChargerState( ChargerState_t state )
 		
 		// Shoot some sparks and draw a beam between the two outer points
 		DoLoadEffect();
+		
+#ifdef MAPBASE
+		SetBolt( 0 );
+#endif
 		
 		break;
 

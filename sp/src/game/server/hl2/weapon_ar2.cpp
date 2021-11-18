@@ -171,6 +171,21 @@ acttable_t	CWeaponAR2::m_acttable[] =
 	{ ACT_COVER_WALL_LOW_R,			ACT_COVER_WALL_LOW_R_RIFLE,		false },
 	{ ACT_COVER_WALL_LOW_L,			ACT_COVER_WALL_LOW_L_RIFLE,		false },
 #endif
+
+#ifdef MAPBASE
+	// HL2:DM activities (for third-person animations in SP)
+	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_AR2,                    false },
+	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_AR2,                    false },
+	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_AR2,            false },
+	{ ACT_HL2MP_WALK_CROUCH,			ACT_HL2MP_WALK_CROUCH_AR2,            false },
+	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_AR2,    false },
+	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_AR2,        false },
+	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_AR2,                    false },
+#ifdef EXPANDED_HL2DM_ACTIVITIES
+	{ ACT_HL2MP_WALK,					ACT_HL2MP_WALK_AR2,						false },
+	{ ACT_HL2MP_GESTURE_RANGE_ATTACK2,	ACT_HL2MP_GESTURE_RANGE_ATTACK2_AR2,	false },
+#endif
+#endif
 };
 
 IMPLEMENT_ACTTABLE(CWeaponAR2);
@@ -354,6 +369,9 @@ void CWeaponAR2::SecondaryAttack( void )
 	if( pPlayer )
 	{
 		pPlayer->RumbleEffect(RUMBLE_AR2_ALT_FIRE, 0, RUMBLE_FLAG_RESTART );
+#ifdef MAPBASE
+		pPlayer->SetAnimation( PLAYER_ATTACK2 );
+#endif
 	}
 
 	SendWeaponAnim( ACT_VM_FIDGET );

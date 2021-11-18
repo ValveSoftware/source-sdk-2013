@@ -207,6 +207,11 @@ public:
 	void						SetMaxSpeed( float flMaxSpeed ) { m_flMaxspeed = flMaxSpeed; }
 	float						MaxSpeed() const		{ return m_flMaxspeed; }
 
+#ifdef MAPBASE
+	// See c_baseplayer.cpp
+	virtual ShadowType_t		ShadowCastType();
+	virtual bool				ShouldReceiveProjectedTextures( int flags );
+#else
 	// Should this object cast shadows?
 	virtual ShadowType_t		ShadowCastType() { return SHADOWS_NONE; }
 
@@ -214,6 +219,7 @@ public:
 	{
 		return false;
 	}
+#endif
 
 
 	bool						IsLocalPlayer( void ) const;
