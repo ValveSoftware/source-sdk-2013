@@ -13,8 +13,9 @@ $Conditional VS2019	"0" // Toggles Visual Studio 2019 (v142) toolset
 $Conditional VS2022	"0" // Toggles Visual Studio 2022 (v143) toolset
 
 // 
-// Note that the following projects currently do not compile with any of the above toolsets and are not included in
-// their solutions:
+// VPC may still say "Generating for Visual Studio 2013" even when using one of the above toolsets. This message is irrelevant and can be ignored.
+// 
+// The following projects currently do not compile with any of the above toolsets and are not included in their solutions:
 // 
 // - phonemeextractor (may be fixable with modification)
 // - qc_eyes (might be fixed by having C++ MFC for v141 build tools and/or C++ ATL for v141 build tools installed)
