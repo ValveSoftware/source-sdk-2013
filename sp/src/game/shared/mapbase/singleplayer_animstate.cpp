@@ -23,7 +23,7 @@
 #include "utldict.h"
 #include "filesystem.h"
 #include "in_buttons.h"
-#include "..\public\datacache\imdlcache.h"
+#include "datacache/imdlcache.h"
 
 extern ConVar mp_facefronttime, mp_feetyawrate, mp_ik;
 
