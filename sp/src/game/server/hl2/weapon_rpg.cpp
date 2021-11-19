@@ -1589,6 +1589,54 @@ void CWeaponRPG::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChara
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeaponRPG::Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary )
+{
+	if ( m_hMissile != NULL )
+		return;
+
+	Vector muzzlePoint, vecShootDir;
+	QAngle	angShootDir;
+	GetAttachment( LookupAttachment( "muzzle" ), muzzlePoint, angShootDir );
+	AngleVectors( angShootDir, &vecShootDir );
+
+	// look for a better launch location
+	Vector altLaunchPoint;
+	if (GetAttachment( "missile", altLaunchPoint ))
+	{
+		// check to see if it's relativly free
+		trace_t tr;
+		AI_TraceHull( altLaunchPoint, altLaunchPoint + vecShootDir * (10.0f*12.0f), Vector( -24, -24, -24 ), Vector( 24, 24, 24 ), MASK_NPCSOLID, NULL, &tr );
+
+		if( tr.fraction == 1.0)
+		{
+			muzzlePoint = altLaunchPoint;
+		}
+	}
+
+	m_hMissile = CMissile::Create( muzzlePoint, angShootDir, pOperator->edict() );
+	m_hMissile->m_hOwner = this;
+
+	// NPCs always get a grace period
+	m_hMissile->SetGracePeriod( 0.5 );
+
+	pOperator->DoMuzzleFlash();
+
+	WeaponSound( SINGLE_NPC );
+
+	// Make sure our laserdot is off
+	m_bGuiding = false;
+
+	if ( m_hLaserDot )
+	{
+		m_hLaserDot->TurnOff();
+	}
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
