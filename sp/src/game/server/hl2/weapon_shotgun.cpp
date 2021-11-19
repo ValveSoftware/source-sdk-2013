@@ -234,6 +234,19 @@ acttable_t	CWeaponShotgun::m_acttable[] =
 
 IMPLEMENT_ACTTABLE(CWeaponShotgun);
 
+#ifdef MAPBASE
+// Allows Weapon_BackupActivity() to access the shotgun's activity table.
+acttable_t *GetShotgunActtable()
+{
+	return CWeaponShotgun::m_acttable;
+}
+
+int GetShotgunActtableCount()
+{
+	return ARRAYSIZE(CWeaponShotgun::m_acttable);
+}
+#endif
+
 void CWeaponShotgun::Precache( void )
 {
 	CBaseCombatWeapon::Precache();

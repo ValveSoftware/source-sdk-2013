@@ -4933,8 +4933,8 @@ int CNPC_MetroPolice::SelectSchedule( void )
 	if ( !bHighHealth && !HasBaton() )
 	{
 #ifdef MAPBASE
-		// Don't do this with the 357 or any weapons which don't use clips
-		if ( GetActiveWeapon() && GetActiveWeapon()->UsesClipsForAmmo1() && GetActiveWeapon()->m_iClassname != gm_isz_class_357 && (GetActiveWeapon()->m_iClip1 <= 5) )
+		// Don't do this with low-capacity weapons or weapons which don't use clips
+		if ( GetActiveWeapon() && GetActiveWeapon()->UsesClipsForAmmo1() && GetActiveWeapon()->GetMaxClip1() > 10 && (GetActiveWeapon()->m_iClip1 <= 5) )
 #else
 		if ( GetActiveWeapon() && (GetActiveWeapon()->m_iClip1 <= 5) )
 #endif

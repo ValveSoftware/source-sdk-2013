@@ -196,6 +196,9 @@ Class_T	CNPC_Monk::Classify( void )
 	return CLASS_PLAYER_ALLY_VITAL;
 }
 
+#ifdef MAPBASE
+ConVar npc_monk_use_old_acts( "npc_monk_use_old_acts", "1" );
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -229,6 +232,45 @@ Activity CNPC_Monk::NPC_TranslateActivity( Activity eNewActivity )
 		}
 	}
 
+#if defined(EXPANDED_HL2_WEAPON_ACTIVITIES) && AR2_ACTIVITY_FIX == 1
+	if (npc_monk_use_old_acts.GetBool())
+	{
+		// HACKHACK: Don't break the balcony scene
+		if ( FStrEq( STRING(gpGlobals->mapname), "d1_town_02" ) && eNewActivity == ACT_IDLE )
+		{
+			eNewActivity = ACT_IDLE_SMG1;
+		}
+		else
+		{
+			switch (eNewActivity)
+			{
+				case ACT_IDLE_AR2:
+					eNewActivity = ACT_IDLE_SMG1;
+					break;
+
+				case ACT_IDLE_ANGRY_SHOTGUN:
+				case ACT_IDLE_ANGRY_AR2:
+					eNewActivity = ACT_IDLE_ANGRY_SMG1;
+					break;
+
+				case ACT_WALK_AIM_SHOTGUN:
+				case ACT_WALK_AIM_AR2:
+					eNewActivity = ACT_WALK_AIM_RIFLE;
+					break;
+
+				case ACT_RUN_AIM_SHOTGUN:
+				case ACT_RUN_AIM_AR2:
+					eNewActivity = ACT_RUN_AIM_RIFLE;
+					break;
+
+				case ACT_RANGE_ATTACK_SHOTGUN_LOW:
+				case ACT_RANGE_ATTACK_AR2_LOW:
+					eNewActivity = ACT_RANGE_ATTACK_SMG1_LOW;
+					break;
+			}
+		}
+	}
+#else
 	// We need these so that we can pick up the shotgun to throw it in the balcony scene
 	if ( eNewActivity == ACT_IDLE_ANGRY_SHOTGUN )
 	{
@@ -246,6 +288,7 @@ Activity CNPC_Monk::NPC_TranslateActivity( Activity eNewActivity )
 	{
 		return ACT_RANGE_ATTACK_SMG1_LOW;
 	}
+#endif
 
 	return eNewActivity;
 }
