@@ -1956,10 +1956,9 @@ bool CNPC_PlayerCompanion::IsReadinessCapable()
 	{
 		// Rather than looking up the activity string, we just make sure our weapon accepts a few basic readiness activity overrides.
 		// This lets us make sure our weapon is readiness-capable to begin with.
-		CBaseCombatWeapon *pWeapon = GetActiveWeapon();
-		if ( pWeapon->ActivityOverride(ACT_IDLE_RELAXED, NULL) == ACT_IDLE_RELAXED &&
-			pWeapon->ActivityOverride( ACT_IDLE_STIMULATED, NULL ) == ACT_IDLE_STIMULATED &&
-			pWeapon->ActivityOverride( ACT_IDLE_AGITATED, NULL ) == ACT_IDLE_AGITATED )
+		if ( TranslateActivity( ACT_IDLE_RELAXED ) == ACT_IDLE_RELAXED &&
+			TranslateActivity( ACT_IDLE_STIMULATED ) == ACT_IDLE_STIMULATED &&
+			TranslateActivity( ACT_IDLE_AGITATED ) == ACT_IDLE_AGITATED )
 			return false;
 
 		if (LookupActivity( "ACT_IDLE_AIM_RIFLE_STIMULATED" ) == ACT_INVALID)
@@ -2796,6 +2795,21 @@ void CNPC_PlayerCompanion::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 	BaseClass::Weapon_Equip( pWeapon );
 	m_bReadinessCapable = IsReadinessCapable();
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool CNPC_PlayerCompanion::DoUnholster()
+{
+	if ( BaseClass::DoUnholster() )
+	{
+		m_bReadinessCapable = IsReadinessCapable();
+		return true;
+	}
+
+	return false;
+}
+#endif
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
