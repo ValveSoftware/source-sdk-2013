@@ -1375,6 +1375,55 @@ void CHL2_Player::SpawnedAtPoint( CBaseEntity *pSpawnPoint )
 
 //-----------------------------------------------------------------------------
 
+ConVar player_use_anim_enabled( "player_carry_anim_enabled", "1" );
+ConVar player_use_anim_heavy_mass( "player_carry_anim_heavy_mass", "20.0" );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Activity CHL2_Player::Weapon_TranslateActivity( Activity baseAct, bool *pRequired )
+{
+	Activity weaponTranslation = BaseClass::Weapon_TranslateActivity( baseAct, pRequired );
+	
+#ifdef EXPANDED_HL2DM_ACTIVITIES
+	// +USE activities
+	if ( m_hUseEntity && player_use_anim_enabled.GetBool() )
+	{
+		CBaseEntity* pHeldEnt = GetPlayerHeldEntity( this );
+		float flMass = pHeldEnt ?
+			PlayerPickupGetHeldObjectMass( m_hUseEntity, pHeldEnt->VPhysicsGetObject() ) :
+			(m_hUseEntity->VPhysicsGetObject() ? m_hUseEntity->GetMass() : player_use_anim_heavy_mass.GetFloat());
+		if ( flMass >= player_use_anim_heavy_mass.GetFloat() )
+		{
+			// Heavy versions
+			switch (baseAct)
+			{
+				case ACT_HL2MP_IDLE:			weaponTranslation = ACT_HL2MP_IDLE_USE_HEAVY; break;
+				case ACT_HL2MP_RUN:				weaponTranslation = ACT_HL2MP_RUN_USE_HEAVY; break;
+				case ACT_HL2MP_WALK:			weaponTranslation = ACT_HL2MP_WALK_USE_HEAVY; break;
+				case ACT_HL2MP_IDLE_CROUCH:		weaponTranslation = ACT_HL2MP_IDLE_CROUCH_USE_HEAVY; break;
+				case ACT_HL2MP_WALK_CROUCH:		weaponTranslation = ACT_HL2MP_WALK_CROUCH_USE_HEAVY; break;
+				case ACT_HL2MP_JUMP:			weaponTranslation = ACT_HL2MP_JUMP_USE_HEAVY; break;
+			}
+		}
+		else
+		{
+			switch (baseAct)
+			{
+				case ACT_HL2MP_IDLE:			weaponTranslation = ACT_HL2MP_IDLE_USE; break;
+				case ACT_HL2MP_RUN:				weaponTranslation = ACT_HL2MP_RUN_USE; break;
+				case ACT_HL2MP_WALK:			weaponTranslation = ACT_HL2MP_WALK_USE; break;
+				case ACT_HL2MP_IDLE_CROUCH:		weaponTranslation = ACT_HL2MP_IDLE_CROUCH_USE; break;
+				case ACT_HL2MP_WALK_CROUCH:		weaponTranslation = ACT_HL2MP_WALK_CROUCH_USE; break;
+				case ACT_HL2MP_JUMP:			weaponTranslation = ACT_HL2MP_JUMP_USE; break;
+			}
+		}
+	}
+#endif
+
+	return weaponTranslation;
+}
+
 #ifdef SP_ANIM_STATE
 // Set the activity based on an event or current state
 void CHL2_Player::SetAnimation( PLAYER_ANIM playerAnim )
