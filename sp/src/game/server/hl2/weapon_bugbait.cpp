@@ -248,10 +248,6 @@ void CWeaponBugBait::PrimaryAttack( void )
 		return;
 
 	SendWeaponAnim( ACT_VM_HAULBACK );
-
-#ifdef MAPBASE
-	pPlayer->SetAnimation( PLAYER_ATTACK1 );
-#endif
 	
 	m_flTimeWeaponIdle		= FLT_MAX;
 	m_flNextPrimaryAttack	= FLT_MAX;
@@ -319,6 +315,10 @@ void CWeaponBugBait::ThrowGrenade( CBasePlayer *pPlayer )
 	}
 
 	m_bRedraw = true;
+
+#ifdef MAPBASE
+	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+#endif
 }
 
 //-----------------------------------------------------------------------------
