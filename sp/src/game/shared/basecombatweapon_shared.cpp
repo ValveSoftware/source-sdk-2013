@@ -1658,7 +1658,7 @@ bool CBaseCombatWeapon::Holster( CBaseCombatWeapon *pSwitchingTo )
 		pOwner->SetNextAttack( gpGlobals->curtime + flSequenceDuration );
 
 #ifdef MAPBASE
-		if (pOwner->IsPlayer())
+		if (IsWeaponVisible() && pOwner->IsPlayer())
 			static_cast<CBasePlayer*>(pOwner)->SetAnimation( PLAYER_HOLSTER );
 #endif
 	}
