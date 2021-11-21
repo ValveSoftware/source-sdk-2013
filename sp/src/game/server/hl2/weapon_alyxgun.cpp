@@ -44,7 +44,7 @@ acttable_t	CWeaponAlyxGun::m_acttable[] =
 #endif
 
 	// Readiness activities (not aiming)
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_PISTOL_RELAXED,		false },//never aims
 	{ ACT_IDLE_STIMULATED,			ACT_IDLE_PISTOL_STIMULATED,		false },
 #else
@@ -54,7 +54,7 @@ acttable_t	CWeaponAlyxGun::m_acttable[] =
 	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_PISTOL,			false },//always aims
 	{ ACT_IDLE_STEALTH,				ACT_IDLE_STEALTH_PISTOL,		false },
 
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	{ ACT_WALK_RELAXED,				ACT_WALK_PISTOL_RELAXED,		false },//never aims
 	{ ACT_WALK_STIMULATED,			ACT_WALK_PISTOL_STIMULATED,		false },
 #else
@@ -64,7 +64,7 @@ acttable_t	CWeaponAlyxGun::m_acttable[] =
 	{ ACT_WALK_AGITATED,			ACT_WALK_AIM_PISTOL,			false },//always aims
 	{ ACT_WALK_STEALTH,				ACT_WALK_STEALTH_PISTOL,		false },
 	
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	{ ACT_RUN_RELAXED,				ACT_RUN_PISTOL_RELAXED,			false },//never aims
 	{ ACT_RUN_STIMULATED,			ACT_RUN_PISTOL_STIMULATED,		false },
 #else
@@ -115,7 +115,7 @@ acttable_t	CWeaponAlyxGun::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,    ACT_HL2MP_GESTURE_RANGE_ATTACK_PISTOL,    false },
 	{ ACT_HL2MP_GESTURE_RELOAD,            ACT_HL2MP_GESTURE_RELOAD_PISTOL,        false },
 	{ ACT_HL2MP_JUMP,                    ACT_HL2MP_JUMP_PISTOL,                    false },
-#ifdef EXPANDED_HL2DM_ACTIVITIES
+#if EXPANDED_HL2DM_ACTIVITIES
 	{ ACT_HL2MP_WALK,					ACT_HL2MP_WALK_PISTOL,						false },
 	{ ACT_HL2MP_GESTURE_RANGE_ATTACK2,	ACT_HL2MP_GESTURE_RANGE_ATTACK2_PISTOL,    false },
 #endif

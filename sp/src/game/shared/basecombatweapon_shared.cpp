@@ -1046,11 +1046,11 @@ WeaponClass_t CBaseCombatWeapon::WeaponClassify()
 	Activity idleact = ActivityOverride(ACT_IDLE_ANGRY, NULL);
 	switch (idleact)
 	{
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	case ACT_IDLE_ANGRY_REVOLVER:
 #endif
 	case ACT_IDLE_ANGRY_PISTOL:		return WEPCLASS_HANDGUN;
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	case ACT_IDLE_ANGRY_CROSSBOW:	// For now, crossbows are rifles
 #endif
 	case ACT_IDLE_ANGRY_SMG1:

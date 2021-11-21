@@ -110,7 +110,7 @@ Activity CSinglePlayerAnimState::CalcMainActivity()
 			{
 				if ( speed > 0 )
 				{
-#ifdef EXPANDED_HL2DM_ACTIVITIES
+#if EXPANDED_HL2DM_ACTIVITIES
 					if ( m_pPlayer->GetButtons() & IN_WALK )
 					{
 						idealActivity = ACT_HL2MP_WALK;
@@ -148,7 +148,7 @@ void CSinglePlayerAnimState::SetPlayerAnimation( PLAYER_ANIM playerAnim )
     }
     else if ( playerAnim == PLAYER_ATTACK2 )
     {
-#ifdef EXPANDED_HL2DM_ACTIVITIES
+#if EXPANDED_HL2DM_ACTIVITIES
         m_iFireSequence = SelectWeightedSequence( TranslateActivity( ACT_HL2MP_GESTURE_RANGE_ATTACK2 ) );
 #else
         m_iFireSequence = SelectWeightedSequence( TranslateActivity( ACT_HL2MP_GESTURE_RANGE_ATTACK ) );

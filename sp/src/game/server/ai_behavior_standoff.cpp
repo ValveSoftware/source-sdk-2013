@@ -558,7 +558,7 @@ int CAI_StandoffBehavior::SelectScheduleEstablishAim( void )
 {
 	if ( HasCondition( COND_ENEMY_OCCLUDED ) )
 	{
-#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+#if EXPANDED_HL2_COVER_ACTIVITIES
 		if ( GetPosture() == AIP_CROUCHING || GetPosture() == AIP_CROUCHING_MED )
 #else
 		if ( GetPosture() == AIP_CROUCHING )
@@ -673,7 +673,7 @@ Activity CAI_MappedActivityBehavior_Temporary::GetMappedActivity( AI_Posture_t p
 {
 	if ( posture != AIP_STANDING )
 	{
-#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+#if EXPANDED_HL2_COVER_ACTIVITIES
 		// See UpdateTranslateActivityMap() for more information on what this is for
 		if ( posture == AIP_CROUCHING_MED )
 		{
@@ -1121,7 +1121,7 @@ void CAI_StandoffBehavior::UnlockHintNode()
 
 Activity CAI_StandoffBehavior::GetCoverActivity()
 {
-#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+#if EXPANDED_HL2_COVER_ACTIVITIES
 	// GetCoverActivity() already checks everything we checked here.
 	Activity coverActivity = GetOuter()->GetCoverActivity( GetHintNode() );
 
@@ -1186,7 +1186,7 @@ void CAI_MappedActivityBehavior_Temporary::UpdateTranslateActivityMap()
 		{	AIP_CROUCHING,	ACT_RANGE_ATTACK_AR2,	NULL,				ACT_RANGE_ATTACK_AR2_LOW,	},
 #endif
 		
-#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+#if EXPANDED_HL2_COVER_ACTIVITIES
 		// 
 		// ============ Really long explanation that should be in a wiki/documentation article somewhere ~ Blixibon, 10/27/2021 ============
 		// 

@@ -6555,7 +6555,7 @@ Activity CAI_BaseNPC::TranslateCrouchActivity( Activity eNewActivity )
 					}
 					else if (pHint->HintType() == HINT_TACTICAL_COVER_MED)
 					{
-#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+#if EXPANDED_HL2_COVER_ACTIVITIES
 						nCoverActivity = ACT_RANGE_ATTACK1_MED;
 #else
 						nCoverActivity = ACT_RANGE_ATTACK1_LOW;
@@ -6626,7 +6626,7 @@ Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
 	switch (eNewActivity)
 	{
 		case ACT_COVER_MED:				eNewActivity = ACT_COVER_LOW; break;
-#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+#if EXPANDED_HL2_COVER_ACTIVITIES
 		case ACT_RANGE_AIM_MED:			eNewActivity = ACT_RANGE_AIM_LOW; break;
 		case ACT_RANGE_ATTACK1_MED:		eNewActivity = ACT_RANGE_ATTACK1_LOW; break;
 #endif
@@ -6646,7 +6646,7 @@ Activity CAI_BaseNPC::NPC_BackupActivity( Activity eNewActivity )
 //-----------------------------------------------------------------------------
 Activity CAI_BaseNPC::NPC_TranslateActivity( Activity eNewActivity )
 {
-#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+#if EXPANDED_NAVIGATION_ACTIVITIES
 	if ( GetNavType() == NAV_CLIMB && eNewActivity == ACT_IDLE )
 	{
 		// Schedules which break into idle activities should try to maintain the climbing animation.
@@ -16293,7 +16293,7 @@ bool CAI_BaseNPC::IsCrouchedActivity( Activity activity )
 #endif
 		case ACT_RELOAD_PISTOL_LOW:
 		case ACT_RELOAD_SHOTGUN_LOW:
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 		case ACT_RELOAD_REVOLVER_LOW:
 		case ACT_RELOAD_CROSSBOW_LOW:
 #endif

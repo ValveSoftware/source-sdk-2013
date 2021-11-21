@@ -108,7 +108,7 @@ END_DATADESC()
 
 acttable_t	CWeaponShotgun::m_acttable[] = 
 {
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	// Note that ACT_IDLE_SHOTGUN_AGITATED seems to be a stand-in for ACT_IDLE_SHOTGUN on citizens,
 	// but that isn't acceptable for NPCs which don't use readiness activities.
 	{ ACT_IDLE,						ACT_IDLE_SHOTGUN,		true },
@@ -206,12 +206,12 @@ acttable_t	CWeaponShotgun::m_acttable[] =
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SHOTGUN,			false },
 #endif
 
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	{ ACT_ARM,						ACT_ARM_SHOTGUN,				true },
 	{ ACT_DISARM,					ACT_DISARM_SHOTGUN,				true },
 #endif
 
-#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+#if EXPANDED_HL2_COVER_ACTIVITIES
 	{ ACT_RANGE_AIM_MED,			ACT_RANGE_AIM_SHOTGUN_MED,			false },
 	{ ACT_RANGE_ATTACK1_MED,		ACT_RANGE_ATTACK_SHOTGUN_MED,		false },
 #endif
@@ -225,7 +225,7 @@ acttable_t	CWeaponShotgun::m_acttable[] =
 	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,    ACT_HL2MP_GESTURE_RANGE_ATTACK_SHOTGUN,    false },
 	{ ACT_HL2MP_GESTURE_RELOAD,            ACT_HL2MP_GESTURE_RELOAD_SHOTGUN,        false },
 	{ ACT_HL2MP_JUMP,                    ACT_HL2MP_JUMP_SHOTGUN,                    false },
-#ifdef EXPANDED_HL2DM_ACTIVITIES
+#if EXPANDED_HL2DM_ACTIVITIES
 	{ ACT_HL2MP_WALK,					ACT_HL2MP_WALK_SHOTGUN,						false },
 	{ ACT_HL2MP_GESTURE_RANGE_ATTACK2,	ACT_HL2MP_GESTURE_RANGE_ATTACK2_SHOTGUN,	false },
 #endif

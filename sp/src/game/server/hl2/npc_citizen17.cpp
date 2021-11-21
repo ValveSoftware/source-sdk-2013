@@ -2091,7 +2091,7 @@ Activity CNPC_Citizen::NPC_TranslateActivity( Activity activity )
 		if (activity == ACT_WALK_AIM_AR2)
 			return ACT_WALK_AIM_AR2_STIMULATED;
 
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 		if (activity == ACT_RUN_AIM_PISTOL)
 			return ACT_RUN_AIM_PISTOL_STIMULATED;
 		if (activity == ACT_WALK_AIM_PISTOL)

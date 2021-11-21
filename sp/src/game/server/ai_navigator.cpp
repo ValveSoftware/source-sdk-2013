@@ -3924,7 +3924,7 @@ bool CAI_Navigator::GetStoppingPath( CAI_WaypointList *	pClippedWaypoints )
 	AI_Waypoint_t *pCurWaypoint = GetPath()->GetCurWaypoint();
 	if ( pCurWaypoint )
 	{
-#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+#if EXPANDED_NAVIGATION_ACTIVITIES
 		// Since regular climb nav can interrupt itself now, only do this when dismounting
 		bool bMustCompleteCurrent = ( (pCurWaypoint->NavType() == NAV_CLIMB && (GetActivity() == ACT_CLIMB_DISMOUNT || GetActivity() == ACT_CLIMB_MOUNT_TOP)) || pCurWaypoint->NavType() == NAV_JUMP );
 #else

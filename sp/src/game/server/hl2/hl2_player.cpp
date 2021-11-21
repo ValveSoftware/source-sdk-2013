@@ -1387,7 +1387,7 @@ Activity CHL2_Player::Weapon_TranslateActivity( Activity baseAct, bool *pRequire
 {
 	Activity weaponTranslation = BaseClass::Weapon_TranslateActivity( baseAct, pRequired );
 	
-#ifdef EXPANDED_HL2DM_ACTIVITIES
+#if EXPANDED_HL2DM_ACTIVITIES
 	// +USE activities
 	if ( m_hUseEntity && player_use_anim_enabled.GetBool() )
 	{

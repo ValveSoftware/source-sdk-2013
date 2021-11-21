@@ -51,7 +51,7 @@ enum AI_Posture_t
 	AIP_INDIFFERENT,
 	AIP_STANDING,
 	AIP_CROUCHING,
-#ifdef EXPANDED_HL2_COVER_ACTIVITIES
+#if EXPANDED_HL2_COVER_ACTIVITIES
 	AIP_CROUCHING_MED,	// See UpdateTranslateActivityMap() for more information on what this is for
 #endif
 	AIP_PEEKING,

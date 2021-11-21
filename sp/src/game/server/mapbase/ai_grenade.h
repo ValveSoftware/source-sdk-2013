@@ -321,7 +321,7 @@ void CAI_GrenadeUser<BASE_NPC>::InputThrowGrenadeGestureAtTarget( inputdata_t &i
 
 	Vector vecTarget = m_hForcedGrenadeTarget->WorldSpaceCenter();
 
-#ifdef SHARED_COMBINE_ACTIVITIES
+#if SHARED_COMBINE_ACTIVITIES
 	if (IsAltFireCapable())
 	{
 		if (this->FVisible( m_hForcedGrenadeTarget ))

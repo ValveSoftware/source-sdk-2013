@@ -239,7 +239,7 @@ void CAI_Motor::MoveClimbStart(  const Vector &climbDest, const Vector &climbDir
 	//	> other state?
 
 	bool bGoingUp = (climbDir.z > 0.01);
-#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+#if EXPANDED_NAVIGATION_ACTIVITIES
 	if ( bGoingUp && GetOuter()->HaveSequenceForActivity( ACT_CLIMB_MOUNT_BOTTOM ) )
 	{
 		SetActivity( ACT_CLIMB_MOUNT_BOTTOM );
@@ -270,7 +270,7 @@ void CAI_Motor::MoveClimbStart(  const Vector &climbDest, const Vector &climbDir
 	m_nDismountSequence = SelectWeightedSequence( ACT_CLIMB_DISMOUNT );
 	if (m_nDismountSequence != ACT_INVALID)
 	{
-#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+#if EXPANDED_NAVIGATION_ACTIVITIES
 		if ( !bGoingUp )
 		{
 			int nBottomDismount = SelectWeightedSequence( ACT_CLIMB_DISMOUNT_BOTTOM );
@@ -294,7 +294,7 @@ void CAI_Motor::MoveClimbStart(  const Vector &climbDest, const Vector &climbDir
 
 AIMoveResult_t CAI_Motor::MoveClimbExecute( const Vector &climbDest, const Vector &climbDir, float climbDist, float yaw, int climbNodesLeft )
 {
-#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+#if EXPANDED_NAVIGATION_ACTIVITIES
 	if ( (GetActivity() == ACT_CLIMB_MOUNT_TOP || GetActivity() == ACT_CLIMB_MOUNT_BOTTOM) )
 	{
 		if (!GetOuter()->IsActivityFinished())
@@ -401,7 +401,7 @@ AIMoveResult_t CAI_Motor::MoveClimbExecute( const Vector &climbDest, const Vecto
 	if (m_nDismountSequence != ACT_INVALID)
 	{
 		// catch situations where the climb mount/dismount finished before reaching goal
-#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+#if EXPANDED_NAVIGATION_ACTIVITIES
 		if ((GetActivity() == ACT_CLIMB_DISMOUNT || GetActivity() == ACT_CLIMB_DISMOUNT_BOTTOM))
 		{
 			SetGroundEntity( NULL );
@@ -494,7 +494,7 @@ void CAI_Motor::MoveClimbStop()
 void CAI_Motor::MoveClimbPause()
 {
 	if (GetActivity() != ACT_CLIMB_DISMOUNT 
-#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+#if EXPANDED_NAVIGATION_ACTIVITIES
 		&& GetActivity() != ACT_CLIMB_MOUNT_TOP && GetActivity() != ACT_CLIMB_MOUNT_BOTTOM
 #endif
 		)

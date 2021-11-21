@@ -1695,7 +1695,7 @@ Activity CNPC_Alyx::NPC_TranslateActivity( Activity activity )
 		case ACT_DROP_WEAPON:				if ( HasShotgun() ) return (Activity)ACT_DROP_WEAPON_SHOTGUN;
 	}
 
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	// Alyx has her own pistol readiness animations which use the default activities
 	switch (activity)
 	{
@@ -1725,7 +1725,7 @@ Activity CNPC_Alyx::Weapon_TranslateActivity( Activity activity, bool *pRequired
 {
 	activity = BaseClass::Weapon_TranslateActivity( activity, pRequired );
 
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	// Alyx has her own pistol readiness animations which use the default activities
 	switch (activity)
 	{
@@ -1754,7 +1754,7 @@ Activity CNPC_Alyx::Weapon_BackupActivity( Activity activity, bool weaponTransla
 {
 	activity = BaseClass::Weapon_BackupActivity( activity, weaponTranslationWasRequired, pSpecificWeapon );
 
-#ifdef EXPANDED_HL2_WEAPON_ACTIVITIES
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
 	// Alyx has her own pistol readiness animations which use the default activities
 	switch (activity)
 	{

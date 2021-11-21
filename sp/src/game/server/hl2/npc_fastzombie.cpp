@@ -1297,7 +1297,7 @@ void CFastZombie::StartTask( const Task_t *pTask )
 			Vector vecJumpDir;
 
 			if ( GetActivity() == ACT_CLIMB_UP || GetActivity() == ACT_CLIMB_DOWN
-#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+#if EXPANDED_NAVIGATION_ACTIVITIES
 				|| GetActivity() == ACT_CLIMB_ALL
 #endif
 				)
@@ -1454,7 +1454,7 @@ int CFastZombie::TranslateSchedule( int scheduleType )
 
 	case SCHED_FASTZOMBIE_UNSTICK_JUMP:
 		if ( GetActivity() == ACT_CLIMB_UP || GetActivity() == ACT_CLIMB_DOWN || GetActivity() == ACT_CLIMB_DISMOUNT
-#ifdef EXPANDED_NAVIGATION_ACTIVITIES
+#if EXPANDED_NAVIGATION_ACTIVITIES
 			|| (GetActivity() >= ACT_CLIMB_ALL && GetActivity() <= ACT_CLIMB_DISMOUNT_BOTTOM)
 #endif
 			)
