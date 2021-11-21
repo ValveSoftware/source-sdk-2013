@@ -1377,8 +1377,8 @@ void CHL2_Player::SpawnedAtPoint( CBaseEntity *pSpawnPoint )
 
 //-----------------------------------------------------------------------------
 
-ConVar player_use_anim_enabled( "player_carry_anim_enabled", "1" );
-ConVar player_use_anim_heavy_mass( "player_carry_anim_heavy_mass", "20.0" );
+ConVar player_use_anim_enabled( "player_use_anim_enabled", "1" );
+ConVar player_use_anim_heavy_mass( "player_use_anim_heavy_mass", "20.0" );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
