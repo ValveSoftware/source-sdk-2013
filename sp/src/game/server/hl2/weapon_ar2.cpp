@@ -190,6 +190,19 @@ acttable_t	CWeaponAR2::m_acttable[] =
 
 IMPLEMENT_ACTTABLE(CWeaponAR2);
 
+#ifdef MAPBASE
+// Allows Weapon_BackupActivity() to access the AR2's activity table.
+acttable_t *GetAR2Acttable()
+{
+	return CWeaponAR2::m_acttable;
+}
+
+int GetSAR2ActtableCount()
+{
+	return ARRAYSIZE(CWeaponAR2::m_acttable);
+}
+#endif
+
 CWeaponAR2::CWeaponAR2( )
 {
 	m_fMinRange1	= 65;
