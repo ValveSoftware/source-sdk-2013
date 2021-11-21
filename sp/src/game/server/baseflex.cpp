@@ -102,6 +102,10 @@ BEGIN_ENT_SCRIPTDESC( CBaseFlex, CBaseAnimating, "Animated characters who have v
 #endif
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetOldestScene, "GetCurrentScene", "Returns the instance of the oldest active scene entity (if any)." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSceneByIndex, "GetSceneByIndex", "Returns the instance of the scene entity at the specified index." )
+
+#ifdef MAPBASE
+	DEFINE_SCRIPTFUNC( SetViewtarget, "Sets the entity's eye target." )
+#endif
 END_SCRIPTDESC();
 
 
