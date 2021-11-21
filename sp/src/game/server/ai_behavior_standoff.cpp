@@ -296,7 +296,12 @@ bool CAI_StandoffBehavior::CanSelectSchedule()
 	if ( !m_fActive )
 		return false;
 		
+#ifdef MAPBASE
+	// Allow NPCs with innate range attacks to use standoffs
+	return ( GetNpcState() == NPC_STATE_COMBAT && (GetOuter()->GetActiveWeapon() != NULL || GetOuter()->CapabilitiesGet() & bits_CAP_INNATE_RANGE_ATTACK1) );
+#else
 	return ( GetNpcState() == NPC_STATE_COMBAT && GetOuter()->GetActiveWeapon() != NULL );
+#endif
 }
 
 //-------------------------------------
@@ -600,7 +605,11 @@ int CAI_StandoffBehavior::SelectScheduleAttack( void )
 			 !HasCondition( COND_CAN_MELEE_ATTACK1 ) &&
 			  HasCondition( COND_TOO_FAR_TO_ATTACK ) )
 		{
+#ifdef MAPBASE
+			if ( (GetOuter()->GetActiveWeapon() && ( GetOuter()->GetActiveWeapon()->CapabilitiesGet() & bits_CAP_WEAPON_RANGE_ATTACK1 )) || GetOuter()->CapabilitiesGet() & bits_CAP_INNATE_RANGE_ATTACK1 )
+#else
 			if ( GetOuter()->GetActiveWeapon() && ( GetOuter()->GetActiveWeapon()->CapabilitiesGet() & bits_CAP_WEAPON_RANGE_ATTACK1 ) )
+#endif
 			{
 				if ( !HasCondition( COND_ENEMY_OCCLUDED ) || random->RandomInt(0,99) < 50 )
 					// Don't advance, just fire anyway
