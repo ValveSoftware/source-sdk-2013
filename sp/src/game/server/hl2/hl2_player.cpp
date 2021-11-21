@@ -331,39 +331,41 @@ public:
 	}
 
 	// Will the command point change?
-	// True = Judged guilty and changed.
-	// False = Judged not guilty and unchanged.
-	bool GetVerdict(Vector *defendant, CHL2_Player *pPlayer)
+	// True = Command point changes
+	// False = Comand point doesn't change
+	bool TestRedirect(Vector *vecNewCommandPoint, CHL2_Player *pPlayer)
 	{
-		// Deliver goal to relevant destinations before sentencing.
-		m_OnCommandGoal.Set(*defendant, pPlayer, this);
+		// Output the goal before doing anything else.
+		m_OnCommandGoal.Set(*vecNewCommandPoint, pPlayer, this);
 
 		if (m_target == NULL_STRING)
 		{
-			// Abort sentencing.
+			// Not targeting anything. Don't redirect and just leave it at the output
 			return false;
 		}
 		else if (FStrEq(STRING(m_target), "-1"))
 		{
-			// Deliver verdict immediately.
-			*defendant = Vector(0, 0, 0);
-			return false;
+			// Completely cancel the squad command.
+			*vecNewCommandPoint = vec3_origin;
+			return true;
 		}
 		else
 		{
-			// Locate entity of interest.
 			// Player is caller.
 			// Player squad representative is activator.
 			CBaseEntity *pEntOfInterest = gEntList.FindEntityGeneric(NULL, STRING(m_target), this, pPlayer->GetSquadCommandRepresentative(), pPlayer);
 			if (pEntOfInterest)
 			{
-				// Deliver their local origin.
-				*defendant = pEntOfInterest->GetLocalOrigin();
+				// Use the entity's absolute origin as the new command point.
+				*vecNewCommandPoint = pEntOfInterest->GetAbsOrigin();
 				return true;
+			}
+			else
+			{
+				Warning("%s couldn't find target entity \"%s\"\n", GetDebugName(), STRING(m_target));
 			}
 		}
 
-		// No sentence.
 		return false;
 	}
 
@@ -1816,25 +1818,22 @@ bool CHL2_Player::CommanderFindGoal( commandgoal_t *pGoal )
 			if (!pCommandRedirect || pCommandRedirect->IsDisabled() || !pCommandRedirect->PointIsWithin(tr.endpos))
 				continue;
 
-			// First, GIVE IT OUR ALLIES so it could fire outputs
+			// First, give it our allies so it could fire outputs
 			pCommandRedirect->HandleAllies(m_pPlayerAISquad, this);
 
 			Vector vec = tr.endpos;
-			if (pCommandRedirect->GetVerdict(&vec, this))
+			if (pCommandRedirect->TestRedirect(&vec, this))
 			{
-				// It doesn't want us moving, so just don't find a goal at all
+				// If it returned a 0 vector, cancel the command
 				if (vec.IsZero())
 				{
 					return false;
 				}
 
-				// Just set our goal to this, the mapper didn't sign up for these checks
+				// Just set our goal to this and skip the code below which checks the target position's validity
 				pGoal->m_vecGoalLocation = vec;
 				return true;
 			}
-
-			// Only one should be necessary
-			break;
 		}
 	}
 	//else
