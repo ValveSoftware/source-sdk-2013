@@ -8,6 +8,9 @@
 #include "cbase.h"
 #include "baseentity.h"
 #include "world.h"
+#ifdef MAPBASE
+#include "eventqueue.h"
+#endif
 
 #ifdef INFESTED_DLL
 	#include "asw_marine.h"
@@ -135,6 +138,8 @@ CEnvInstructorHint::CEnvInstructorHint( void )
 //-----------------------------------------------------------------------------
 void CEnvInstructorHint::OnRestore( void )
 {
+	BaseClass::OnRestore();
+
 	int iTimeLeft = 0;
 	if ( m_flActiveUntil < 0.0f )
 	{
@@ -151,8 +156,7 @@ void CEnvInstructorHint::OnRestore( void )
 
 	int iOriginalTimeout = m_iTimeout;
 	m_iTimeout = iTimeLeft;
-	inputdata_t inputdata;
-	InputShowHint( inputdata );
+	g_EventQueue.AddEvent( this, "ShowHint", 0.01f, NULL, this );
 	m_iTimeout = iOriginalTimeout;
 }
 #endif
