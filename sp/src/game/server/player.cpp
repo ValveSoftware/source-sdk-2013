@@ -7824,7 +7824,7 @@ Activity CBasePlayer::Weapon_TranslateActivity( Activity baseAct, bool *pRequire
 		// Our weapon is holstered. Use the base activity.
 		return baseAct;
 	}
-	if ( GetModelPtr() && !GetModelPtr()->HaveSequenceForActivity(weaponTranslation) )
+	if ( GetModelPtr() && (!GetModelPtr()->HaveSequenceForActivity(weaponTranslation) || baseAct == weaponTranslation) )
 	{
 		// This is used so players can fall back to backup activities in the same way NPCs in Mapbase can
 		Activity backupActivity = Weapon_BackupActivity(baseAct, pRequired);
