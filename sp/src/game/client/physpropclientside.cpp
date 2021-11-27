@@ -704,9 +704,157 @@ void C_PhysPropClientside::ParseAllEntities(const char *pMapData)
 	}
 }
 
+#ifdef MAPBASE
+CBaseAnimating *BreakModelCreate_Ragdoll( CBaseEntity *pOwnerEnt, breakmodel_t *pModel, const Vector &position, const QAngle &angles, const Vector &velocity, const AngularImpulse &angVelocity )
+{
+	C_BaseAnimating *pOwner = dynamic_cast<C_BaseAnimating *>( pOwnerEnt );
+	if ( !pOwner )
+		return NULL;
+
+	C_ClientRagdoll *pRagdoll = new C_ClientRagdoll( false );
+	if ( pRagdoll == NULL )
+		return NULL;
+
+	const char *pModelName = pModel->modelName;
+	if ( pRagdoll->InitializeAsClientEntity( pModelName, RENDER_GROUP_OPAQUE_ENTITY ) == false )
+	{
+		pRagdoll->Release();
+		return NULL;
+	}	
+
+	pRagdoll->SetAbsOrigin( position );
+	pRagdoll->SetAbsAngles( angles );
+
+	matrix3x4_t boneDelta0[MAXSTUDIOBONES];
+	matrix3x4_t boneDelta1[MAXSTUDIOBONES];
+	matrix3x4_t currentBones[MAXSTUDIOBONES];
+	const float boneDt = 0.1f;
+
+	pRagdoll->SetParent( pOwner );
+	pRagdoll->ForceSetupBonesAtTime( boneDelta0, gpGlobals->curtime - boneDt );
+	pRagdoll->ForceSetupBonesAtTime( boneDelta1, gpGlobals->curtime );
+	pRagdoll->ForceSetupBonesAtTime( currentBones, gpGlobals->curtime );
+	pRagdoll->SetParent( NULL );
+
+	// We need to take these from the entity
+	//pRagdoll->SetAbsOrigin( position );
+	//pRagdoll->SetAbsAngles( angles );
+
+	pRagdoll->IgniteRagdoll( pOwner );
+	pRagdoll->TransferDissolveFrom( pOwner );
+	pRagdoll->InitModelEffects();
+
+	if ( pOwner->IsEffectActive( EF_NOSHADOW ) )
+	{
+		pRagdoll->AddEffects( EF_NOSHADOW );
+	}
+
+	pRagdoll->m_nRenderFX = kRenderFxRagdoll;
+	pRagdoll->SetRenderMode( pOwner->GetRenderMode() );
+	pRagdoll->SetRenderColor( pOwner->GetRenderColor().r, pOwner->GetRenderColor().g, pOwner->GetRenderColor().b, pOwner->GetRenderColor().a );
+	//pRagdoll->SetGlobalFadeScale( pOwner->GetGlobalFadeScale() );
+
+	pRagdoll->SetSkin( pOwner->GetSkin() );
+	//pRagdoll->m_vecForce = pOwner->m_vecForce;
+	//pRagdoll->m_nForceBone = 0; //pOwner->m_nForceBone;
+	pRagdoll->SetNextClientThink( CLIENT_THINK_ALWAYS );
+
+	pRagdoll->SetModelName( AllocPooledString( pModelName ) );
+	pRagdoll->ResetSequence( 0 );
+	pRagdoll->SetModelScale( pOwner->GetModelScale() );
+	pRagdoll->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
+	//pRagdoll->m_builtRagdoll = true;
+
+	CStudioHdr *hdr = pRagdoll->GetModelPtr();
+	if ( !hdr )
+	{
+		pRagdoll->Release();
+		Warning( "Couldn't create ragdoll gib for %s (no model pointer)\n", pModel->modelName );
+		return NULL;
+	}
+
+	pRagdoll->m_pRagdoll = CreateRagdoll( 
+		pRagdoll, 
+		hdr, 
+		vec3_origin, 
+		0, 
+		boneDelta0, 
+		boneDelta1, 
+		currentBones,
+ 		boneDt );
+
+	if ( !pRagdoll->m_pRagdoll )
+	{
+		pRagdoll->Release();
+		Warning( "Couldn't create ragdoll gib for %s\n", pModel->modelName );
+		return NULL;
+	}
+
+	IPhysicsObject *pPhysicsObject = pRagdoll->VPhysicsGetObject();
+	if ( pPhysicsObject )
+	{
+		// randomize velocity by 5%
+		float rndf = RandomFloat( -0.025, 0.025 );
+		Vector rndVel = velocity + rndf*velocity;
+
+		pPhysicsObject->AddVelocity( &rndVel, &angVelocity );
+	}
+	pRagdoll->ApplyLocalAngularVelocityImpulse( angVelocity );
+
+	if ( pRagdoll->m_pRagdoll )
+	{
+		pRagdoll->m_bImportant = false;
+		pRagdoll->m_flForcedRetireTime = pModel->fadeTime > 0.0f ? gpGlobals->curtime + pModel->fadeTime : 0.0f;
+		s_RagdollLRU.MoveToTopOfLRU( pRagdoll, pRagdoll->m_bImportant, pRagdoll->m_flForcedRetireTime );
+		pRagdoll->m_bFadeOut = true;
+	}
+
+	// Cause the entity to recompute its shadow	type and make a
+	// version which only updates when physics state changes
+	// NOTE: We have to do this after m_pRagdoll is assigned above
+	// because that's what ShadowCastType uses to figure out which type of shadow to use.
+	pRagdoll->DestroyShadow();
+	pRagdoll->CreateShadow();
+
+	pRagdoll->SetAbsOrigin( position );
+	pRagdoll->SetAbsAngles( angles );
+
+	pRagdoll->SetPlaybackRate( 0 );
+	pRagdoll->SetCycle( 0 );
+	
+	// put into ACT_DIERAGDOLL if it exists, otherwise use sequence 0
+	int nSequence = pRagdoll->SelectWeightedSequence( ACT_DIERAGDOLL );
+	if ( nSequence < 0 )
+	{
+		pRagdoll->ResetSequence( 0 );
+	}
+	else
+	{
+		pRagdoll->ResetSequence( nSequence );
+	}
+
+	pRagdoll->UpdatePartitionListEntry();
+	pRagdoll->MarkRenderHandleDirty();
+
+	NoteRagdollCreationTick( pRagdoll );
+
+	//pRagdoll->InitAsClientRagdoll( boneDelta0, boneDelta1, currentBones, boneDt );
+
+	return pRagdoll;
+}
+#endif
+
 CBaseEntity *BreakModelCreateSingle( CBaseEntity *pOwner, breakmodel_t *pModel, const Vector &position, 
 	const QAngle &angles, const Vector &velocity, const AngularImpulse &angVelocity, int nSkin, const breakablepropparams_t &params )
 {
+#ifdef MAPBASE
+	if ( pModel->isRagdoll )
+	{
+		CBaseEntity *pEntity = BreakModelCreate_Ragdoll( pOwner, pModel, position, angles, velocity, angVelocity );
+		return pEntity;
+	}
+#endif
+
 	C_PhysPropClientside *pEntity = C_PhysPropClientside::CreateNew();
 
 	if ( !pEntity )
@@ -778,10 +926,12 @@ CBaseEntity *BreakModelCreateSingle( CBaseEntity *pOwner, breakmodel_t *pModel, 
 		pEntity->SetFadeMinMax( pModel->fadeMinDist, pModel->fadeMaxDist );
 	}
 
+#ifndef MAPBASE
 	if ( pModel->isRagdoll )
 	{
 		DevMsg( "BreakModelCreateSingle: clientside doesn't support ragdoll breakmodels.\n" );
 	}
+#endif
 
 
 	IPhysicsObject *pPhysicsObject = pEntity->VPhysicsGetObject();

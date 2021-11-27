@@ -737,6 +737,10 @@ public:
 
 	bool m_bFadeOut;
 	bool m_bImportant;
+#ifdef MAPBASE
+	// Required to save/restore Alien Swarm SDK ragdoll LRU forced fade
+	float m_flForcedRetireTime;
+#endif
 	float m_flEffectTime;
 
 private:
