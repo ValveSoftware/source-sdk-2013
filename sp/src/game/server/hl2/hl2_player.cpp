@@ -1476,6 +1476,9 @@ CStudioHdr *CHL2_Player::OnNewModel()
 
 	return hdr;
 }
+
+extern char g_szDefaultPlayerModel[MAX_PATH];
+extern bool g_bDefaultPlayerDrawExternally;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -1486,7 +1489,12 @@ void CHL2_Player::Spawn(void)
 
 #ifndef HL2MP
 #ifndef PORTAL
+#ifdef MAPBASE
+	if ( GetModelName() == NULL_STRING )
+		SetModel( g_szDefaultPlayerModel );
+#else
 	SetModel( "models/player.mdl" );
+#endif
 #endif
 #endif
 
@@ -1501,6 +1509,8 @@ void CHL2_Player::Spawn(void)
 
 		RemoveEffects( EF_NODRAW );
 	}
+
+	SetDrawPlayerModelExternally( g_bDefaultPlayerDrawExternally );
 #endif
 
 	//
