@@ -12,7 +12,7 @@
 
 #define hashptr(p)  ((SQHash)(((SQInteger)p) >> 3))
 
-inline SQHash HashObj(const SQObjectPtr &key)
+inline SQHash HashObj(const SQObject &key)
 {
     switch(sq_type(key)) {
         case OT_STRING:     return _string(key)->_hash;

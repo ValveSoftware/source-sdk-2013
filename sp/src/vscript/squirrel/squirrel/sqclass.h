@@ -17,6 +17,7 @@ typedef sqvector<SQClassMember> SQClassMemberVec;
 
 #define MEMBER_TYPE_METHOD 0x01000000
 #define MEMBER_TYPE_FIELD 0x02000000
+#define MEMBER_MAX_COUNT 0x00FFFFFF
 
 #define _ismethod(o) (_integer(o)&MEMBER_TYPE_METHOD)
 #define _isfield(o) (_integer(o)&MEMBER_TYPE_FIELD)
