@@ -2290,9 +2290,18 @@ public:
 		{
 			if ( val.m_type == FIELD_CSTRING )
 			{
-				CUtlString s = val.m_pszString;
-				//s.SetLength( COMMAND_COMPLETION_ITEM_LENGTH - 1 );
-				commands.AddToTail( s );
+				CUtlString &s = commands.Element( commands.AddToTail() );
+				int len = V_strlen( val.m_pszString );
+
+				if ( len <= COMMAND_COMPLETION_ITEM_LENGTH - 1 )
+				{
+					s.Set( val.m_pszString );
+				}
+				else
+				{
+					s.SetDirect( val.m_pszString, COMMAND_COMPLETION_ITEM_LENGTH - 1 );
+				}
+
 				++count;
 			}
 			g_pScriptVM->ReleaseValue(val);
