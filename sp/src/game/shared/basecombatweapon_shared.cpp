@@ -461,6 +461,28 @@ bool CBaseCombatWeapon::IsMeleeWeapon() const
 	return GetWpnData().m_bMeleeWeapon;
 }
 
+#ifdef MAPBASE
+float CBaseCombatWeapon::GetViewmodelFOVOverride() const
+{
+	return GetWpnData().m_flViewmodelFOV;
+}
+
+float CBaseCombatWeapon::GetBobScale() const
+{
+	return GetWpnData().m_flBobScale;
+}
+
+float CBaseCombatWeapon::GetSwayScale() const
+{
+	return GetWpnData().m_flSwayScale;
+}
+
+float CBaseCombatWeapon::GetSwaySpeedScale() const
+{
+	return GetWpnData().m_flSwaySpeedScale;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

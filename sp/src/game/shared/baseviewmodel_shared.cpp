@@ -513,6 +513,23 @@ void CBaseViewModel::CalcViewModelLag( Vector& origin, QAngle& angles, QAngle& o
 
 		float flSpeed = 5.0f;
 
+#ifdef MAPBASE
+		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
+		if (pWeapon)
+		{
+			const FileWeaponInfo_t *pInfo = &pWeapon->GetWpnData();
+			if (pInfo->m_flSwayScale != 1.0f)
+			{
+				vDifference *= pInfo->m_flSwayScale;
+				pInfo->m_flSwayScale != 0.0f ? flSpeed /= pInfo->m_flSwayScale : flSpeed = 0.0f;
+			}
+			if (pInfo->m_flSwaySpeedScale != 1.0f)
+			{
+				flSpeed *= pInfo->m_flSwaySpeedScale;
+			}
+		}
+#endif
+
 		// If we start to lag too far behind, we'll increase the "catch up" speed.  Solves the problem with fast cl_yawspeed, m_yaw or joysticks
 		//  rotating quickly.  The old code would slam lastfacing with origin causing the viewmodel to pop to a new position
 		float flDiff = vDifference.Length();

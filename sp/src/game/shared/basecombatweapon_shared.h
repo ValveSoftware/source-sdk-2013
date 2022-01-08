@@ -417,6 +417,12 @@ public:
 	virtual bool			UsesClipsForAmmo1( void ) const;
 	virtual bool			UsesClipsForAmmo2( void ) const;
 	bool					IsMeleeWeapon() const;
+#ifdef MAPBASE
+	float					GetViewmodelFOVOverride() const;
+	float					GetBobScale() const;
+	float					GetSwayScale() const;
+	float					GetSwaySpeedScale() const;
+#endif
 
 	// derive this function if you mod uses encrypted weapon info files
 	virtual const unsigned char *GetEncryptionKey( void );
