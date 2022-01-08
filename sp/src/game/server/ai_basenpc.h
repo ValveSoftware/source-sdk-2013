@@ -1005,6 +1005,10 @@ public:
 	virtual void		SetActivity( Activity NewActivity );
 	Activity			GetIdealActivity( void ) { return m_IdealActivity; }
 	void				SetIdealActivity( Activity NewActivity );
+#ifdef MAPBASE
+	Activity			GetTranslatedActivity( void ) { return m_translatedActivity; }
+	Activity			GetIdealTranslatedActivity( void ) { return m_IdealTranslatedActivity; }
+#endif
 	void				ResetIdealActivity( Activity newIdealActivity );
 	void				SetSequenceByName( const char *szSequence );
 	void				SetSequenceById( int iSequence );
