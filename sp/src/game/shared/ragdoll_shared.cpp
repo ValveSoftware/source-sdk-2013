@@ -1059,12 +1059,12 @@ void CRagdollLRURetirement::Update( float frametime ) // Non-episodic version
 			if ( m_LRU.Count() > iMaxRagdollCount )
 			{
 				//Found one, we're done.
-				if ( ShouldRemoveThisRagdoll( m_LRU[i] ) == true )
+				if ( ShouldRemoveThisRagdoll( pRagdoll ) == true )
 				{
 #ifdef CLIENT_DLL
-					m_LRU[ i ]->SUB_Remove();
+					pRagdoll->SUB_Remove();
 #else
-					m_LRU[ i ]->SUB_StartFadeOut( 0 );
+					pRagdoll->SUB_StartFadeOut( 0 );
 #endif
 
 					m_LRU.Remove(i);
@@ -1108,9 +1108,9 @@ void CRagdollLRURetirement::Update( float frametime ) // Non-episodic version
 #endif
 
 #ifdef CLIENT_DLL
-		m_LRU[ i ]->SUB_Remove();
+		pRagdoll->SUB_Remove();
 #else
-		m_LRU[ i ]->SUB_StartFadeOut( 0 );
+		pRagdoll->SUB_StartFadeOut( 0 );
 #endif
 		m_LRU.Remove(i);
 	}
