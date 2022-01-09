@@ -179,7 +179,7 @@ private:
 
 	void	DrawStream( wrect_t& rect, wrect_t &rcWindow, CCloseCaptionItem *item, int iFadeLine, float flFadeLineAlpha ); 
 	void	ComputeStreamWork( int available_width, CCloseCaptionItem *item );
-	bool	SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args ) const;
+	bool	SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args, int size ) const;
 
 	bool	StreamHasCommand( const wchar_t *stream, const wchar_t *findcmd ) const;
 	bool	GetFloatCommandValue( const wchar_t *stream, const wchar_t *findcmd, float& value ) const;
