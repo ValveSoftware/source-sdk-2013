@@ -205,8 +205,8 @@ static SQInteger _g_blob_swap2(HSQUIRRELVM v)
 {
     SQInteger i;
     sq_getinteger(v,2,&i);
-    short s=(short)i;
-    sq_pushinteger(v,(s<<8)|((s>>8)&0x00FF));
+    unsigned short s = (unsigned short)i;
+    sq_pushinteger(v, ((s << 8) | ((s >> 8) & 0x00FFu)) & 0xFFFFu);
     return 1;
 }
 

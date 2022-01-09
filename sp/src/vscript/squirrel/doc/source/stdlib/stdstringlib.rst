@@ -50,16 +50,20 @@ Global Symbols
     Strips white-space-only characters that might appear at the end of the given string
     and returns the new stripped string.
 
-.. js:function:: split(str, separators)
+.. js:function:: split(str, separators [, skipempty])
 
     returns an array of strings split at each point where a separator character occurs in `str`.
     The separator is not returned as part of any array element.
     The parameter `separators` is a string that specifies the characters as to be used for the splitting.
+    The parameter `skipempty` is a boolean (default false). If `skipempty` is true, empty strings are not added to array.
 
     ::
 
         eg.
-        local a = split("1.2-3;4/5",".-/;");
+        local a = split("1.2-3;;4/5",".-/;");
+        // the result will be  [1,2,3,,4,5]
+        or
+        local b = split("1.2-3;;4/5",".-/;",true);
         // the result will be  [1,2,3,4,5]
 
 
