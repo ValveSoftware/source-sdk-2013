@@ -1,8 +1,8 @@
 static char g_Script_vscript_squirrel[] = R"vscript(
 //========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
-// Purpose: 
-// 
+// Purpose:
+//
 //=============================================================================//
 
 Warning <- error;
@@ -452,20 +452,28 @@ if (developer)
 		printdocl(text);
 	}
 
-	local function PrintMatchesInDocList(pattern, list, printfunc)
+	local function PrintMatches( pattern, docs, printfunc )
 	{
-		local foundMatches = 0;
+		local matches = [];
+		local always = pattern == "*";
 
-		foreach(name, doc in list)
+		foreach( name, doc in docs )
 		{
-			if (pattern == "*" || name.tolower().find(pattern) != null || (doc[1].len() && doc[1].tolower().find(pattern) != null))
+			if (always || name.tolower().find(pattern) != null || (doc[1].len() && doc[1].tolower().find(pattern) != null))
 			{
-				foundMatches = 1;
-				printfunc(name, doc)
+				matches.append( name );
 			}
 		}
 
-		return foundMatches;
+		if ( !matches.len() )
+			return 0;
+
+		matches.sort();
+
+		foreach( name in matches )
+			printfunc( name, docs[name] );
+
+		return 1;
 	}
 
 	function __Documentation::PrintHelp(pattern = "*")
@@ -474,12 +482,12 @@ if (developer)
 
 		// Have a specific order
 		if (!(
-			PrintMatchesInDocList( patternLower, DocumentedEnums, PrintEnum )		|
-			PrintMatchesInDocList( patternLower, DocumentedConsts, PrintConst )		|
-			PrintMatchesInDocList( patternLower, DocumentedClasses, PrintClass )	|
-			PrintMatchesInDocList( patternLower, DocumentedFuncs, PrintFunc )		|
-			PrintMatchesInDocList( patternLower, DocumentedMembers, PrintMember )	|
-			PrintMatchesInDocList( patternLower, DocumentedHooks, PrintHook )
+			PrintMatches( patternLower, DocumentedEnums, PrintEnum )		|
+			PrintMatches( patternLower, DocumentedConsts, PrintConst )		|
+			PrintMatches( patternLower, DocumentedClasses, PrintClass )		|
+			PrintMatches( patternLower, DocumentedFuncs, PrintFunc )		|
+			PrintMatches( patternLower, DocumentedMembers, PrintMember )	|
+			PrintMatches( patternLower, DocumentedHooks, PrintHook )
 		   ))
 		{
 			printdocl("Pattern " + pattern + " not found");
@@ -503,7 +511,6 @@ else
 
 if (developer)
 {
-	// Vector documentation
 	__Documentation.RegisterClassHelp( "Vector", "", "Basic 3-float Vector class." );
 	__Documentation.RegisterHelp( "Vector::Length", "float Vector::Length()", "Return the vector's length." );
 	__Documentation.RegisterHelp( "Vector::LengthSqr", "float Vector::LengthSqr()", "Return the vector's squared length." );
