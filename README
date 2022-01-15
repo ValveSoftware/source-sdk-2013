@@ -25,8 +25,9 @@ https://github.com/mapbase-source/source-sdk-2013/wiki/Introduction-to-Mapbase
 
 //===================================================================================================================================================
 
-Mapbase is an open-source project and its contents can be distributed and used at the discretion of its users. However, this project represents many parts of
-the Source modding community packaged into a whole, so credit is taken very seriously.
+Mapbase is an open-source project and its contents can be distributed and used at the discretion of its users. However, this project contains content from
+a vast number of different sources which have their own licensing or attribution requirements. We try to handle most of that ourselves, but users who plan on
+distributing Mapbase content are expected to comply with certain rules.
 
 	Up-to-date information about Mapbase content usage and credit are addressed in this article on Mapbase's wiki:
 		https://github.com/mapbase-source/source-sdk-2013/wiki/Using-Mapbase-Content
@@ -43,20 +44,27 @@ or complicated code changes accessible and easy to use for level designers and o
 If you believe any content in Mapbase originates from any leak or unauthorized source (Valve or otherwise), please contact Blixibon immediately.
 Mapbase is intended to be usable by everyone, including licensed Source projects and Steam mods. ***
 
--- The Alien Swarm SDK was used to backport features and code from newer branches of Source into a Source 2013/Half-Life 2 environment.
--- Mapbase also implements some of Tony Sergi's code changes from the Source 2007 SDK codebase. Both SDKs are publicly distributed by Valve and are available on Steam.
+Mapbase uses content from the following non-Source SDK 2013 Valve games or SDKs:
 
-Some of the features backported from the Alien Swarm SDK (e.g. game instructor, particle rain) require assets from later versions of Source in order to work properly.
-The required assets have been backported from Alien Swarm and Left 4 Dead for Mapbase's release build. They are not available in the code repository.
+-- Alien Swarm SDK (Used to backport features and code from newer branches of Source into a Source 2013/Half-Life 2 environment)
+-- Source SDK 2007 Code (Used to implement some of Tony Sergi's code changes)
 
-Here's a list of Mapbase's other known external code sources:
+-- Alien Swarm (Used to port assets from the aforementioned SDK code features, e.g. game instructor icons)
+-- Left 4 Dead (Used to port certain animations as well as assets from the aforementioned SDK code features, e.g. particle rain)
+-- Half-Life: Source (Used to port friction tool textures)
+
+Valve allows assets from these titles to be distributed for modding purposes. Note that ported assets are only used in the release build, not the code repository.
+
+Mapbase may also contain new third-party software distributed under specific licensing. Please see the bottom of thirdpartylegalnotices.txt for more information.
+
+Here's a list of Mapbase's other external code sources:
 
 - https://github.com/95Navigator/insolence-2013 (Initial custom shader code and projected texture improvements; also used to implement ASW SDK particle precipitation code)
-- https://github.com/Biohazard90/g-string_2013 (Custom shadow filters, included indirectly via Insolence repo)
-- https://github.com/KyleGospo/City-17-Episode-One-Source (Brush phong and projected texture changes, included indirectly via Insolence repo)
+-- https://github.com/Biohazard90/g-string_2013 (Custom shadow filters, included indirectly via Insolence repo)
+-- https://github.com/KyleGospo/City-17-Episode-One-Source (Brush phong and projected texture changes, included indirectly via Insolence repo)
 - https://github.com/DownFall-Team/DownFall (Multiple skybox code and fix for ent_fire delay not using floats; Also used as a guide to port certain Alien Swarm SDK changes to Source 2013,
 including radial fog, rope code, and treesway)
-- https://github.com/momentum-mod/game (Used as a guide to port postprocess_controller and env_dof_controller to Source 2013)
+- https://github.com/momentum-mod/game (Used as a guide to port postprocess_controller and env_dof_controller to Source 2013 from the Alien Swarm SDK)
 - https://github.com/DeathByNukes/source-sdk-2013 (VBSP manifest fixes)
 - https://github.com/entropy-zero/source-sdk-2013 (skill_changed game event)
 - https://github.com/Nbc66/source-sdk-2013-ce/tree/v142 (Base for VS2019 toolset support)
@@ -116,6 +124,9 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/114 (VScript fixes and extensions)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/122 (Minor VScript-related adjustments)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/148 (Minor fixup)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/167 (Security fixes)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/168 (Squirrel update)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/171 (VScript documentation sorting)
 
 == Contributions from z33ky:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux compilation fixes)
@@ -128,6 +139,7 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/152 (Additional GCC/Linux compilation fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/159 (Additional GCC/Linux compilation fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/162 (VS2019 exception specification fix)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/170 (HL2 non-Episodic build fix)
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
