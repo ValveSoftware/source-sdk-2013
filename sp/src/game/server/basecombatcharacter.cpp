@@ -4376,9 +4376,8 @@ CBaseEntity *CBaseCombatCharacter::FindNamedEntity( const char *szName, IEntityF
 		return GetActiveWeapon();
 	}
 
-	// FindEntityProcedural can go through this now, so running this code would likely cause an infinite loop or something.
-	// As a result, FindEntityProcedural identifies itself with this weird new entity filter.
-	// Hey, if you've got a better idea, go ahead.
+	// HACKHACK: FindEntityProcedural can go through this now, so running this code could cause an infinite loop.
+	// As a result, FindEntityProcedural currently identifies itself with this entity filter.
 	else if (!pFilter || !dynamic_cast<CNullEntityFilter*>(pFilter))
 	{
 		// search for up to 32 entities with the same name and choose one randomly
