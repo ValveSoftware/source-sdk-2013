@@ -160,6 +160,7 @@ public:
 
 #ifdef MAPBASE
 			bool			IsRunningScriptedSceneWithFlexAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes, const char *pszNotThisScene = NULL );
+			bool			IsTalkingInAScriptedScene( CBaseFlex *pActor, bool bIgnoreInstancedScenes = false );
 
 			CUtlVector< CHandle< CSceneEntity > > *GetActiveSceneList();
 #endif
@@ -486,6 +487,9 @@ public:
 
 	bool					HasUnplayedSpeech( void );
 	bool					HasFlexAnimation( void );
+#ifdef MAPBASE
+	bool					IsPlayingSpeech( void );
+#endif
 
 	void					SetCurrentTime( float t, bool forceClientSync );
 
@@ -1157,6 +1161,31 @@ bool CSceneEntity::HasFlexAnimation( void )
 
 	return false;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CSceneEntity::IsPlayingSpeech( void )
+{
+	if ( m_pScene )
+	{
+		float flTime = m_pScene->GetTime();
+		for ( int i = 0; i < m_pScene->GetNumEvents(); i++ )
+		{
+			CChoreoEvent *e = m_pScene->GetEvent( i );
+			if ( e->GetType() == CChoreoEvent::SPEAK )
+			{
+				if ( /*flTime >= e->GetStartTime() &&*/ flTime <= e->GetEndTime() )
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -2612,6 +2641,30 @@ bool CSceneEntity::CheckActors()
 					return false;
 				}
 			}
+#ifdef MAPBASE
+			else if ( pTestActor->IsPlayer() )
+			{
+				// Blixibon - Player speech handling
+				CBasePlayer *pPlayer = static_cast<CBasePlayer*>(pTestActor);
+				bool bShouldWait = false;
+				if ( pPlayer->GetExpresser() && pPlayer->GetExpresser()->IsSpeaking() )
+				{
+					bShouldWait = true;
+				}
+				else if ( IsTalkingInAScriptedScene( pPlayer ) )
+				{
+					bShouldWait = true;
+				}
+
+				if ( bShouldWait )
+				{
+					// One of the actors for this scene is talking already.
+					// Try again next think.
+					m_bWaitingForActor = true;
+					return false;
+				}
+			}
+#endif
 		}
 		else if ( m_BusyActor == SCENE_BUSYACTOR_INTERRUPT || m_BusyActor == SCENE_BUSYACTOR_INTERRUPT_CANCEL )
 		{
@@ -6052,6 +6105,31 @@ bool CSceneManager::IsRunningScriptedSceneWithFlexAndNotPaused( CBaseFlex *pActo
 }
 
 
+bool CSceneManager::IsTalkingInAScriptedScene( CBaseFlex *pActor, bool bIgnoreInstancedScenes )
+{
+	int c = m_ActiveScenes.Count();
+	for ( int i = 0; i < c; i++ )
+	{
+		CSceneEntity *pScene = m_ActiveScenes[ i ].Get();
+		if ( !pScene ||
+			 !pScene->IsPlayingBack() ||
+			 pScene->IsPaused() ||
+			 ( bIgnoreInstancedScenes && dynamic_cast<CInstancedSceneEntity *>(pScene) != NULL )
+			)
+		{
+			continue;
+		}
+		
+		if ( pScene->InvolvesActor( pActor ) )
+		{
+			if ( pScene->IsPlayingSpeech() )
+				return true;
+		}
+	}
+	return false;
+}
+
+
 CUtlVector< CHandle< CSceneEntity > > *CSceneManager::GetActiveSceneList()
 {
 	return &m_ActiveScenes;
@@ -6148,6 +6226,11 @@ bool IsRunningScriptedSceneWithSpeechAndNotPaused( CBaseFlex *pActor, bool bIgno
 bool IsRunningScriptedSceneWithFlexAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes, const char *pszNotThisScene )
 {
 	return GetSceneManager()->IsRunningScriptedSceneWithFlexAndNotPaused( pActor, bIgnoreInstancedScenes, pszNotThisScene );
+}
+
+bool IsTalkingInAScriptedScene( CBaseFlex *pActor, bool bIgnoreInstancedScenes )
+{
+	return GetSceneManager()->IsTalkingInAScriptedScene( pActor, bIgnoreInstancedScenes );
 }
 
 CUtlVector< CHandle< CSceneEntity > > *GetActiveSceneList()

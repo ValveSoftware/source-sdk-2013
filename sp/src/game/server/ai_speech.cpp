@@ -1153,6 +1153,32 @@ void CAI_Expresser::ClearSpokeConcept( AIConcept_t concept )
 	m_ConceptHistories.Remove( concept );
 }
 
+#ifdef MAPBASE
+//-------------------------------------
+
+AIConcept_t CAI_Expresser::GetLastSpokeConcept( AIConcept_t excludeConcept /* = NULL */ )
+{
+	int iLastSpokenIndex = m_ConceptHistories.InvalidIndex();
+	float flLast = 0.0f;
+	for ( int i = m_ConceptHistories.First(); i != m_ConceptHistories.InvalidIndex(); i = m_ConceptHistories.Next(i ) )
+	{
+		ConceptHistory_t *h = &m_ConceptHistories[ i ];
+
+		// If an 'exclude concept' was provided, skip over this entry in the history if it matches the exclude concept
+		if ( excludeConcept != NULL && FStrEq( m_ConceptHistories.GetElementName( i ), excludeConcept ) )
+			continue;
+
+		if ( h->timeSpoken >= flLast )
+		{
+			iLastSpokenIndex = i;
+			flLast = h->timeSpoken;
+		}
+	}
+
+	return iLastSpokenIndex != m_ConceptHistories.InvalidIndex() ? m_ConceptHistories.GetElementName( iLastSpokenIndex ) : NULL;
+}
+#endif
+
 //-------------------------------------
 
 void CAI_Expresser::DumpHistories()
