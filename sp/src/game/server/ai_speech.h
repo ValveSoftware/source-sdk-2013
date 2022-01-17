@@ -184,6 +184,10 @@ public:
 	bool CanSpeakAfterMyself();
 	float GetTimeSpeechComplete() const 	{ return m_flStopTalkTime; }
 	void  BlockSpeechUntil( float time );
+	
+#ifdef EZ2
+	float GetRealTimeSpeechComplete() const	{ return m_flStopTalkTimeWithoutDelay; }
+#endif
 
 	// --------------------------------
 	
