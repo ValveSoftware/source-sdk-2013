@@ -7228,8 +7228,8 @@ bool CAI_BaseNPC::ShouldPlayFakeSequenceGesture( Activity nActivity, Activity nT
 	if (GetActivity() == ACT_RESET)
 		return false;
 
-	// No need to do this while we're moving
-	if (IsCurTaskContinuousMove())
+	// No need to do this while we're moving or for sequences which will make us move
+	if (IsMoving())
 		return false;
 
 	if (ai_debug_fake_sequence_gestures_always_play.GetBool())
