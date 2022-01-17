@@ -211,6 +211,10 @@ public:
 	float GetTimeSpokeConcept( const AIConcept_t &concept ); // returns -1 if never
 	void SetSpokeConcept( const AIConcept_t &concept, AI_Response *response, bool bCallback = true );
 	void ClearSpokeConcept( const AIConcept_t &concept );
+
+#ifdef MAPBASE
+	AIConcept_t GetLastSpokeConcept( AIConcept_t excludeConcept = NULL );
+#endif
 	
 	// --------------------------------
 	
