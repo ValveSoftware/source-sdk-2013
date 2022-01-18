@@ -185,7 +185,7 @@ public:
 	float GetTimeSpeechComplete() const 	{ return m_flStopTalkTime; }
 	void  BlockSpeechUntil( float time );
 	
-#ifdef EZ2
+#ifdef MAPBASE
 	float GetRealTimeSpeechComplete() const	{ return m_flStopTalkTimeWithoutDelay; }
 #endif
 
