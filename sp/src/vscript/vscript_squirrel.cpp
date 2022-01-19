@@ -1091,16 +1091,14 @@ bool CreateParamCheck(const ScriptFunctionBinding_t& func, char* output)
 		switch (func.m_desc.m_Parameters[i])
 		{
 		case FIELD_FLOAT:
-			*output++ = 'n'; // NOTE: Can be int or float
+		case FIELD_INTEGER:
+			*output++ = 'n';
 			break;
 		case FIELD_CSTRING:
 			*output++ = 's';
 			break;
 		case FIELD_VECTOR:
 			*output++ = 'x'; // Generic instance, we validate on arrival
-			break;
-		case FIELD_INTEGER:
-			*output++ = 'i'; // could use 'n' also which is int or float
 			break;
 		case FIELD_BOOLEAN:
 			*output++ = 'b';
