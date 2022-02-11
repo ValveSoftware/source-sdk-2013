@@ -3531,7 +3531,7 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 				}
 				else
 				{
-					Warning("SquirrelVM::WriteObject: Unable to find instanceID for object of type %s, unable to serialize\n",
+					DevWarning("SquirrelVM::WriteObject: Unable to find instanceID for object of type %s, unable to serialize\n",
 						pClassInstanceData->desc->m_pszClassname);
 					pBuffer->PutString("");
 				}
