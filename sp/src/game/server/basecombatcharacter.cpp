@@ -151,11 +151,11 @@ ScriptHook_t	CBaseCombatCharacter::g_Hook_RelationshipPriority;
 
 BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by players and NPCs." )
 
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptActiveWeapon, "GetActiveWeapon", "Get the character's active weapon entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetActiveWeapon, "GetActiveWeapon", "Get the character's active weapon entity." )
 	DEFINE_SCRIPTFUNC( WeaponCount, "Get the number of weapons a character possesses." )
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponIndex, "GetWeapon", "Get a specific weapon in the character's inventory." )
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponByType, "FindWeapon", "Find a specific weapon in the character's inventory by its classname." )
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptAllWeapons, "GetAllWeapons", "Get the character's weapon inventory." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetWeapon, "GetWeapon", "Get a specific weapon in the character's inventory." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetWeaponByType, "FindWeapon", "Find a specific weapon in the character's inventory by its classname." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAllWeapons, "GetAllWeapons", "Get the character's weapon inventory." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetCurrentWeaponProficiency, "GetCurrentWeaponProficiency", "Get the character's current proficiency (accuracy) with their current weapon." )
 
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_ShootPosition, "ShootPosition", "Get the character's shoot position." )
@@ -174,7 +174,7 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC_NAMED( ScriptRelationPriority, "GetRelationPriority", "Get a character's relationship priority for a specific entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetRelationship, "SetRelationship", "Set a character's relationship with a specific entity." )
 
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptVehicleEntity, "GetVehicleEntity", "Get the entity for a character's current vehicle if they're in one." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetVehicleEntity, "GetVehicleEntity", "Get the entity for a character's current vehicle if they're in one." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptInViewCone, "InViewCone", "Check if the specified position is in the character's viewcone." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEntInViewCone, "EntInViewCone", "Check if the specified entity is in the character's viewcone." )
@@ -4430,28 +4430,33 @@ void CBaseCombatCharacter::DoMuzzleFlash()
 #ifdef MAPBASE_VSCRIPT
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-HSCRIPT CBaseCombatCharacter::GetScriptActiveWeapon()
+HSCRIPT CBaseCombatCharacter::ScriptGetActiveWeapon()
 {
 	return ToHScript( GetActiveWeapon() );
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-HSCRIPT CBaseCombatCharacter::GetScriptWeaponIndex( int i )
+HSCRIPT CBaseCombatCharacter::ScriptGetWeapon( int i )
 {
+	Assert( i >= 0 && i < MAX_WEAPONS );
+
+	if ( i < 0 || i >= MAX_WEAPONS )
+		return NULL;
+
 	return ToHScript( GetWeapon( i ) );
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-HSCRIPT CBaseCombatCharacter::GetScriptWeaponByType( const char *pszWeapon, int iSubType )
+HSCRIPT CBaseCombatCharacter::ScriptGetWeaponByType( const char *pszWeapon, int iSubType )
 {
 	return ToHScript( Weapon_OwnsThisType( pszWeapon, iSubType ) );
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CBaseCombatCharacter::GetScriptAllWeapons( HSCRIPT hTable )
+void CBaseCombatCharacter::ScriptGetAllWeapons( HSCRIPT hTable )
 {
 	for (int i=0;i<MAX_WEAPONS;i++)
 	{
@@ -4520,6 +4525,11 @@ void CBaseCombatCharacter::ScriptEquipWeapon( HSCRIPT hWeapon )
 //-----------------------------------------------------------------------------
 int CBaseCombatCharacter::ScriptGetAmmoCount( int iType ) const
 {
+	Assert( iType == -1 || iType < MAX_AMMO_SLOTS );
+
+	if ( iType < 0 || iType >= MAX_AMMO_SLOTS )
+		return 0;
+
 	return GetAmmoCount( iType );
 }
 
@@ -4527,11 +4537,10 @@ int CBaseCombatCharacter::ScriptGetAmmoCount( int iType ) const
 //-----------------------------------------------------------------------------
 void CBaseCombatCharacter::ScriptSetAmmoCount( int iType, int iCount )
 {
-	if (iType == -1)
-	{
-		Warning("%i is not a valid ammo type\n", iType);
+	Assert( iType == -1 || iType < MAX_AMMO_SLOTS );
+
+	if ( iType < 0 || iType >= MAX_AMMO_SLOTS )
 		return;
-	}
 
 	return SetAmmoCount( iCount, iType );
 }
@@ -4590,7 +4599,7 @@ void CBaseCombatCharacter::ScriptSetRelationship( HSCRIPT pTarget, int dispositi
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-HSCRIPT CBaseCombatCharacter::GetScriptVehicleEntity()
+HSCRIPT CBaseCombatCharacter::ScriptGetVehicleEntity()
 {
 	return ToHScript( GetVehicleEntity() );
 }
