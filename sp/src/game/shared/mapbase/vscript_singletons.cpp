@@ -1264,6 +1264,51 @@ CNetMsgScriptHelper *g_ScriptNetMsg = &scriptnetmsg;
 #endif
 
 
+// Keep track of message names to print on failure
+#ifdef _DEBUG
+struct NetMsgHook_t
+{
+	void Set( const char *s )
+	{
+		hash = (int)HashStringCaseless( s );
+		name = strdup(s);
+	}
+
+	~NetMsgHook_t()
+	{
+		free( name );
+	}
+
+	int hash;
+	char *name;
+};
+
+CUtlVector< NetMsgHook_t > g_NetMsgHooks;
+
+static const char *GetNetMsgName( int hash )
+{
+	FOR_EACH_VEC( g_NetMsgHooks, i )
+	{
+		if ( g_NetMsgHooks[i].hash == hash )
+			return g_NetMsgHooks[i].name;
+	}
+	return 0;
+}
+
+static const char *HasNetMsgCollision( int hash, const char *ignore )
+{
+	FOR_EACH_VEC( g_NetMsgHooks, i )
+	{
+		if ( g_NetMsgHooks[i].hash == hash && V_strcmp( g_NetMsgHooks[i].name, ignore ) != 0 )
+		{
+			return g_NetMsgHooks[i].name;
+		}
+	}
+	return 0;
+}
+#endif // _DEBUG
+
+
 
 void CNetMsgScriptHelper::WriteToBuffer( bf_write *bf )
 {
@@ -1303,6 +1348,10 @@ void CNetMsgScriptHelper::LevelShutdownPreVM()
 		g_pScriptVM->ReleaseScript( m_Hooks );
 	}
 	m_Hooks = NULL;
+
+#ifdef _DEBUG
+	g_NetMsgHooks.Purge();
+#endif
 }
 
 #ifdef CLIENT_DLL
@@ -1354,13 +1403,17 @@ void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 		if ( g_pScriptVM->ExecuteFunction( hfn, NULL, 0, NULL, NULL, true ) == SCRIPT_ERROR )
 #endif
 		{
-			DevWarning( 2, DLL_LOC_STR " NetMsg: invalid callback [%d]\n", hash );
+#ifdef _DEBUG
+			DevWarning( 1, DLL_LOC_STR " NetMsg: invalid callback '%s'\n", GetNetMsgName( hash ) );
+#else
+			DevWarning( 1, DLL_LOC_STR " NetMsg: invalid callback [%d]\n", hash );
+#endif
 		}
 		g_pScriptVM->ReleaseValue( hfn );
 	}
 	else
 	{
-		DevWarning( 2, DLL_LOC_STR " NetMsg hook not found [%d]\n", hash );
+		DevWarning( 1, DLL_LOC_STR " NetMsg hook not found [%d]\n", hash );
 	}
 }
 
@@ -1415,6 +1468,10 @@ void CNetMsgScriptHelper::Receive( const char *msg, HSCRIPT func )
 {
 	if ( func )
 	{
+#ifdef _DEBUG
+		NetMsgHook_t &hook = g_NetMsgHooks[ g_NetMsgHooks.AddToTail() ];
+		hook.Set( msg );
+#endif
 		g_pScriptVM->SetValue( m_Hooks, int( HashStringCaseless(msg) ), func );
 	}
 	else
@@ -1675,7 +1732,6 @@ float CNetMsgScriptHelper::ReadCoord()
 const Vector& CNetMsgScriptHelper::ReadVec3Coord()
 {
 	static Vector vec3;
-	//vec3.Init();
 	m_MsgIn_()ReadBitVec3Coord(vec3);
 	return vec3;
 }
@@ -1683,7 +1739,6 @@ const Vector& CNetMsgScriptHelper::ReadVec3Coord()
 const Vector& CNetMsgScriptHelper::ReadVec3Normal()
 {
 	static Vector vec3;
-	//vec3.Init();
 	m_MsgIn_()ReadBitVec3Normal(vec3);
 	return vec3;
 }
@@ -1691,7 +1746,6 @@ const Vector& CNetMsgScriptHelper::ReadVec3Normal()
 const QAngle& CNetMsgScriptHelper::ReadAngles()
 {
 	static QAngle vec3;
-	//vec3.Init();
 	m_MsgIn_()ReadBitAngles(vec3);
 	return vec3;
 }
