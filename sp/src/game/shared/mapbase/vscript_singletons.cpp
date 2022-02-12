@@ -1264,6 +1264,7 @@ CNetMsgScriptHelper *g_ScriptNetMsg = &scriptnetmsg;
 #endif
 
 
+
 void CNetMsgScriptHelper::WriteToBuffer( bf_write *bf )
 {
 	bf->WriteBits( m_MsgOut.GetData(), m_MsgOut.GetNumBitsWritten() );
@@ -1291,9 +1292,6 @@ void CNetMsgScriptHelper::InitPostVM()
 {
 	ScriptVariant_t hHooks;
 	g_pScriptVM->CreateTable( hHooks );
-#if _DEBUG
-	g_pScriptVM->SetValue( NULL, "__NetMsg_hooks", hHooks );
-#endif
 	m_Hooks = (HSCRIPT)hHooks;
 }
 
@@ -1416,9 +1414,13 @@ void CNetMsgScriptHelper::Send()
 void CNetMsgScriptHelper::Receive( const char *msg, HSCRIPT func )
 {
 	if ( func )
+	{
 		g_pScriptVM->SetValue( m_Hooks, int( HashStringCaseless(msg) ), func );
+	}
 	else
+	{
 		g_pScriptVM->ClearValue( m_Hooks, int( HashStringCaseless(msg) ) );
+	}
 }
 
 #ifdef GAME_DLL
@@ -3017,6 +3019,23 @@ END_SCRIPTDESC();
 class CScriptSteamAPI
 {
 public:
+	const char *GetSteam2ID()
+	{
+		if ( !steamapicontext || !steamapicontext->SteamUser() )
+			return NULL;
+
+		CSteamID id = steamapicontext->SteamUser()->GetSteamID();
+
+		uint32 accountID = id.GetAccountID();
+		uint32 steamInstanceID = 0;
+		uint32 high32bits = accountID % 2;
+		uint32 low32bits = accountID / 2;
+
+		static char ret[48];
+		V_snprintf( ret, sizeof(ret), "STEAM_%u:%u:%u", steamInstanceID, high32bits, low32bits );
+		return ret;
+	}
+
 	int GetSecondsSinceComputerActive()
 	{
 		if ( !steamapicontext || !steamapicontext->SteamUtils() )
@@ -3032,7 +3051,7 @@ public:
 
 		return steamapicontext->SteamUtils()->GetCurrentBatteryPower();
 	}
-
+#if 0
 	const char *GetIPCountry()
 	{
 		if ( !steamapicontext || !steamapicontext->SteamUtils() )
@@ -3047,7 +3066,7 @@ public:
 
 		return ret;
 	}
-
+#endif
 	const char *GetCurrentGameLanguage()
 	{
 		if ( !steamapicontext || !steamapicontext->SteamApps() )
@@ -3066,6 +3085,7 @@ public:
 } g_ScriptSteamAPI;
 
 BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptSteamAPI, "CSteamAPI", SCRIPT_SINGLETON "" )
+	DEFINE_SCRIPTFUNC( GetSteam2ID, "" )
 	//DEFINE_SCRIPTFUNC( IsVACBanned, "" )
 	DEFINE_SCRIPTFUNC( GetSecondsSinceComputerActive, "Returns the number of seconds since the user last moved the mouse." )
 	DEFINE_SCRIPTFUNC( GetCurrentBatteryPower, "Return the amount of battery power left in the current system in % [0..100], 255 for being on AC power" )
