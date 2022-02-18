@@ -102,14 +102,6 @@ public:
 	void DispatchUserMessage( const char *msg );
 #endif
 
-#ifdef GAME_DLL
-public:
-	void AddRecipient( HSCRIPT player );
-	void AddRecipientsByPVS( const Vector &pos );
-	void AddRecipientsByPAS( const Vector &pos );
-	void AddAllPlayers();
-#endif // GAME_DLL
-
 public:
 	void WriteInt( int iValue, int bits );
 	void WriteUInt( int iValue, int bits );

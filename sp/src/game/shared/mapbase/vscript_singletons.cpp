@@ -1643,32 +1643,6 @@ void CNetMsgScriptHelper::DispatchUserMessage( const char *msg )
 }
 #endif // GAME_DLL
 
-#ifdef GAME_DLL
-void CNetMsgScriptHelper::AddRecipient( HSCRIPT player )
-{
-	CBaseEntity *pPlayer = ToEnt(player);
-	if ( pPlayer )
-	{
-		m_filter.AddRecipient( (CBasePlayer*)pPlayer );
-	}
-}
-
-void CNetMsgScriptHelper::AddRecipientsByPVS( const Vector &pos )
-{
-	m_filter.AddRecipientsByPVS(pos);
-}
-
-void CNetMsgScriptHelper::AddRecipientsByPAS( const Vector &pos )
-{
-	m_filter.AddRecipientsByPAS(pos);
-}
-
-void CNetMsgScriptHelper::AddAllPlayers()
-{
-	m_filter.AddAllPlayers();
-}
-#endif // GAME_DLL
-
 void CNetMsgScriptHelper::WriteInt( int iValue, int bits )
 {
 	SCRIPT_NETMSG_WRITE_FUNC
@@ -1926,11 +1900,8 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 #ifdef GAME_DLL
 	DEFINE_SCRIPTFUNC( SendUserMessage, "Send a usermessage from the server to the client" )
 	DEFINE_SCRIPTFUNC( SendEntityMessage, "Send a message from a server side entity to its client side counterpart" )
-	DEFINE_SCRIPTFUNC( AddRecipient, "" )
-	//DEFINE_SCRIPTFUNC( RemoveRecipient, "" )
-	DEFINE_SCRIPTFUNC( AddRecipientsByPVS, "" )
-	DEFINE_SCRIPTFUNC( AddRecipientsByPAS, "" )
-	DEFINE_SCRIPTFUNC( AddAllPlayers, "" )
+
+	// TODO: multiplayer
 #else
 	DEFINE_SCRIPTFUNC( DispatchUserMessage, "Dispatch a usermessage on client" )
 #endif
