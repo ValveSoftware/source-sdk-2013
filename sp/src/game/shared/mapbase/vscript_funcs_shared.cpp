@@ -344,33 +344,33 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptGameTrace, "CGameTrace", "trace_t" )
 	DEFINE_SCRIPTFUNC( AllSolid, "Returns whether the trace is completely within a solid." )
 	DEFINE_SCRIPTFUNC( StartSolid, "Returns whether the trace started within a solid." )
 
-	DEFINE_SCRIPTFUNC( Surface, "Returns the trace's surface." )
-	DEFINE_SCRIPTFUNC( Plane, "Returns the trace's plane." )
+	DEFINE_SCRIPTFUNC( Surface, "" )
+	DEFINE_SCRIPTFUNC( Plane, "" )
 
 	DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
 END_SCRIPTDESC();
 
 BEGIN_SCRIPTDESC_ROOT_NAMED( scriptsurfacedata_t, "surfacedata_t", "" )
-	DEFINE_SCRIPTFUNC( GetFriction, "The surface's friction." )
-	DEFINE_SCRIPTFUNC( GetThickness, "The surface's thickness." )
+	DEFINE_SCRIPTFUNC( GetFriction, "" )
+	DEFINE_SCRIPTFUNC( GetThickness, "" )
 
-	DEFINE_SCRIPTFUNC( GetJumpFactor, "The surface's jump factor." )
-	DEFINE_SCRIPTFUNC( GetMaterialChar, "The surface's material character." )
+	DEFINE_SCRIPTFUNC( GetJumpFactor, "" )
+	DEFINE_SCRIPTFUNC( GetMaterialChar, "" )
 
-	DEFINE_SCRIPTFUNC( GetSoundStepLeft, "The surface's left step sound." )
-	DEFINE_SCRIPTFUNC( GetSoundStepRight, "The surface's right step sound." )
-	DEFINE_SCRIPTFUNC( GetSoundImpactSoft, "The surface's soft impact sound." )
-	DEFINE_SCRIPTFUNC( GetSoundImpactHard, "The surface's hard impact sound." )
-	DEFINE_SCRIPTFUNC( GetSoundScrapeSmooth, "The surface's smooth scrape sound." )
-	DEFINE_SCRIPTFUNC( GetSoundScrapeRough, "The surface's rough scrape sound." )
-	DEFINE_SCRIPTFUNC( GetSoundBulletImpact, "The surface's bullet impact sound." )
-	DEFINE_SCRIPTFUNC( GetSoundRolling, "The surface's rolling sound." )
-	DEFINE_SCRIPTFUNC( GetSoundBreak, "The surface's break sound." )
-	DEFINE_SCRIPTFUNC( GetSoundStrain, "The surface's strain sound." )
+	DEFINE_SCRIPTFUNC( GetSoundStepLeft, "" )
+	DEFINE_SCRIPTFUNC( GetSoundStepRight, "" )
+	DEFINE_SCRIPTFUNC( GetSoundImpactSoft, "" )
+	DEFINE_SCRIPTFUNC( GetSoundImpactHard, "" )
+	DEFINE_SCRIPTFUNC( GetSoundScrapeSmooth, "" )
+	DEFINE_SCRIPTFUNC( GetSoundScrapeRough, "" )
+	DEFINE_SCRIPTFUNC( GetSoundBulletImpact, "" )
+	DEFINE_SCRIPTFUNC( GetSoundRolling, "" )
+	DEFINE_SCRIPTFUNC( GetSoundBreak, "" )
+	DEFINE_SCRIPTFUNC( GetSoundStrain, "" )
 END_SCRIPTDESC();
 
 BEGIN_SCRIPTDESC_ROOT_NAMED( CSurfaceScriptHelper, "csurface_t", "" )
-	DEFINE_SCRIPTFUNC( Name, "The surface's name." )
+	DEFINE_SCRIPTFUNC( Name, "" )
 	DEFINE_SCRIPTFUNC( SurfaceProps, "The surface's properties." )
 END_SCRIPTDESC();
 
@@ -412,27 +412,27 @@ static HSCRIPT ScriptTraceHullComplex( const Vector &vecStart, const Vector &vec
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT( FireBulletsInfo_t, "Handle for accessing FireBulletsInfo_t info." )
+BEGIN_SCRIPTDESC_ROOT( FireBulletsInfo_t, "" )
 	DEFINE_SCRIPT_CONSTRUCTOR()
 
 	DEFINE_SCRIPTFUNC( GetShots, "Gets the number of shots which should be fired." )
 	DEFINE_SCRIPTFUNC( SetShots, "Sets the number of shots which should be fired." )
 
-	DEFINE_SCRIPTFUNC( GetSource, "Gets the source of the bullets." )
-	DEFINE_SCRIPTFUNC( SetSource, "Sets the source of the bullets." )
-	DEFINE_SCRIPTFUNC( GetDirShooting, "Gets the direction of the bullets." )
-	DEFINE_SCRIPTFUNC( SetDirShooting, "Sets the direction of the bullets." )
-	DEFINE_SCRIPTFUNC( GetSpread, "Gets the spread of the bullets." )
-	DEFINE_SCRIPTFUNC( SetSpread, "Sets the spread of the bullets." )
+	DEFINE_SCRIPTFUNC( GetSource, "" )
+	DEFINE_SCRIPTFUNC( SetSource, "" )
+	DEFINE_SCRIPTFUNC( GetDirShooting, "" )
+	DEFINE_SCRIPTFUNC( SetDirShooting, "" )
+	DEFINE_SCRIPTFUNC( GetSpread, "" )
+	DEFINE_SCRIPTFUNC( SetSpread, "" )
 
 	DEFINE_SCRIPTFUNC( GetDistance, "Gets the distance the bullets should travel." )
 	DEFINE_SCRIPTFUNC( SetDistance, "Sets the distance the bullets should travel." )
 
-	DEFINE_SCRIPTFUNC( GetAmmoType, "Gets the ammo type the bullets should use." )
-	DEFINE_SCRIPTFUNC( SetAmmoType, "Sets the ammo type the bullets should use." )
+	DEFINE_SCRIPTFUNC( GetAmmoType, "" )
+	DEFINE_SCRIPTFUNC( SetAmmoType, "" )
 
-	DEFINE_SCRIPTFUNC( GetTracerFreq, "Gets the tracer frequency." )
-	DEFINE_SCRIPTFUNC( SetTracerFreq, "Sets the tracer frequency." )
+	DEFINE_SCRIPTFUNC( GetTracerFreq, "" )
+	DEFINE_SCRIPTFUNC( SetTracerFreq, "" )
 
 	DEFINE_SCRIPTFUNC( GetDamage, "Gets the damage the bullets should deal. 0 = use ammo type" )
 	DEFINE_SCRIPTFUNC( SetDamage, "Sets the damage the bullets should deal. 0 = use ammo type" )
@@ -442,13 +442,13 @@ BEGIN_SCRIPTDESC_ROOT( FireBulletsInfo_t, "Handle for accessing FireBulletsInfo_
 	DEFINE_SCRIPTFUNC( GetFlags, "Gets the flags the bullets should use." )
 	DEFINE_SCRIPTFUNC( SetFlags, "Sets the flags the bullets should use." )
 
-	DEFINE_SCRIPTFUNC( GetDamageForceScale, "Gets the scale of the damage force applied by the bullets." )
-	DEFINE_SCRIPTFUNC( SetDamageForceScale, "Sets the scale of the damage force applied by the bullets." )
+	DEFINE_SCRIPTFUNC( GetDamageForceScale, "" )
+	DEFINE_SCRIPTFUNC( SetDamageForceScale, "" )
 
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttacker, "GetAttacker", "Gets the entity considered to be the one who fired the bullets." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAttacker, "SetAttacker", "Sets the entity considered to be the one who fired the bullets." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAdditionalIgnoreEnt, "GetAdditionalIgnoreEnt", "Gets the optional entity which the bullets should ignore." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAdditionalIgnoreEnt, "SetAdditionalIgnoreEnt", "Sets the optional entity which the bullets should ignore." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttacker, "GetAttacker", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAttacker, "SetAttacker", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAdditionalIgnoreEnt, "GetAdditionalIgnoreEnt", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAdditionalIgnoreEnt, "SetAdditionalIgnoreEnt", "" )
 
 	DEFINE_SCRIPTFUNC( GetPrimaryAttack, "Gets whether the bullets came from a primary attack." )
 	DEFINE_SCRIPTFUNC( SetPrimaryAttack, "Sets whether the bullets came from a primary attack." )
@@ -509,20 +509,20 @@ static void DestroyFireBulletsInfo( HSCRIPT hBulletsInfo )
 //-----------------------------------------------------------------------------
 CAnimEventTInstanceHelper g_AnimEventTInstanceHelper;
 
-BEGIN_SCRIPTDESC_ROOT( scriptanimevent_t, "Handle for accessing animevent_t info." )
+BEGIN_SCRIPTDESC_ROOT( scriptanimevent_t, "" )
 	DEFINE_SCRIPT_INSTANCE_HELPER( &g_AnimEventTInstanceHelper )
 
-	DEFINE_SCRIPTFUNC( GetEvent, "Gets the event number." )
-	DEFINE_SCRIPTFUNC( SetEvent, "Sets the event number." )
+	DEFINE_SCRIPTFUNC( GetEvent, "" )
+	DEFINE_SCRIPTFUNC( SetEvent, "" )
 
-	DEFINE_SCRIPTFUNC( GetOptions, "Gets the event's options/parameters." )
-	DEFINE_SCRIPTFUNC( SetOptions, "Sets the event's options/parameters." )
+	DEFINE_SCRIPTFUNC( GetOptions, "" )
+	DEFINE_SCRIPTFUNC( SetOptions, "" )
 
-	DEFINE_SCRIPTFUNC( GetCycle, "Gets the cycle at which the event happens." )
-	DEFINE_SCRIPTFUNC( SetCycle, "Sets the cycle at which the event happens." )
+	DEFINE_SCRIPTFUNC( GetCycle, "" )
+	DEFINE_SCRIPTFUNC( SetCycle, "" )
 
-	DEFINE_SCRIPTFUNC( GetEventTime, "Gets the time the event plays." )
-	DEFINE_SCRIPTFUNC( SetEventTime, "Sets the time the event plays." )
+	DEFINE_SCRIPTFUNC( GetEventTime, "" )
+	DEFINE_SCRIPTFUNC( SetEventTime, "" )
 
 	DEFINE_SCRIPTFUNC( GetType, "Gets the event's type flags. See the 'AE_TYPE_' set of constants for valid flags." )
 	DEFINE_SCRIPTFUNC( SetType, "Sets the event's type flags. See the 'AE_TYPE_' set of constants for valid flags." )
@@ -584,26 +584,26 @@ bool CAnimEventTInstanceHelper::Set( void *p, const char *pszKey, ScriptVariant_
 //-----------------------------------------------------------------------------
 // EmitSound_t
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT_NAMED( ScriptEmitSound_t, "EmitSound_t", "Handle for accessing EmitSound_t info." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( ScriptEmitSound_t, "EmitSound_t", "" )
 	DEFINE_SCRIPT_CONSTRUCTOR()
 
-	DEFINE_SCRIPTFUNC( GetChannel, "Gets the sound's channel." )
-	DEFINE_SCRIPTFUNC( SetChannel, "Gets the sound's channel." )
+	DEFINE_SCRIPTFUNC( GetChannel, "" )
+	DEFINE_SCRIPTFUNC( SetChannel, "" )
 
 	DEFINE_SCRIPTFUNC( GetSoundName, "Gets the sound's file path or soundscript name." )
 	DEFINE_SCRIPTFUNC( SetSoundName, "Sets the sound's file path or soundscript name." )
 
-	DEFINE_SCRIPTFUNC( GetVolume, "Gets the sound's volume. (Note that this may not apply to soundscripts)" )
-	DEFINE_SCRIPTFUNC( SetVolume, "Sets the sound's volume. (Note that this may not apply to soundscripts)" )
+	DEFINE_SCRIPTFUNC( GetVolume, "(Note that this may not apply to soundscripts)" )
+	DEFINE_SCRIPTFUNC( SetVolume, "(Note that this may not apply to soundscripts)" )
 
 	DEFINE_SCRIPTFUNC( GetSoundLevel, "Gets the sound's level in decibels. (Note that this may not apply to soundscripts)" )
 	DEFINE_SCRIPTFUNC( SetSoundLevel, "Sets the sound's level in decibels. (Note that this may not apply to soundscripts)" )
 
-	DEFINE_SCRIPTFUNC( GetFlags, "Gets the sound's flags. See the 'SND_' set of constants for more information." )
-	DEFINE_SCRIPTFUNC( SetFlags, "Sets the sound's flags. See the 'SND_' set of constants for more information." )
+	DEFINE_SCRIPTFUNC( GetFlags, "Gets the sound's flags. See the 'SND_' set of constants." )
+	DEFINE_SCRIPTFUNC( SetFlags, "Sets the sound's flags. See the 'SND_' set of constants." )
 
-	DEFINE_SCRIPTFUNC( GetSpecialDSP, "Gets the sound's special DSP setting." )
-	DEFINE_SCRIPTFUNC( SetSpecialDSP, "Sets the sound's special DSP setting." )
+	DEFINE_SCRIPTFUNC( GetSpecialDSP, "" )
+	DEFINE_SCRIPTFUNC( SetSpecialDSP, "" )
 
 	DEFINE_SCRIPTFUNC( HasOrigin, "Returns true if the sound has an origin override." )
 	DEFINE_SCRIPTFUNC( GetOrigin, "Gets the sound's origin override." )
@@ -625,14 +625,14 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( ScriptEmitSound_t, "EmitSound_t", "Handle for acces
 	DEFINE_SCRIPTFUNC( GetSpeakerEntity, "Gets the sound's original source if it is being transmitted by a microphone." )
 	DEFINE_SCRIPTFUNC( SetSpeakerEntity, "Sets the sound's original source if it is being transmitted by a microphone." )
 
-	DEFINE_SCRIPTFUNC( GetSoundScriptHandle, "Gets the sound's script handle." )
-	DEFINE_SCRIPTFUNC( SetSoundScriptHandle, "Sets the sound's script handle." )
+	DEFINE_SCRIPTFUNC( GetSoundScriptHandle, "" )
+	DEFINE_SCRIPTFUNC( SetSoundScriptHandle, "" )
 END_SCRIPTDESC();
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptUserCmd, "CUserCmd", "Handle for accessing CUserCmd info." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptUserCmd, "CUserCmd", "" )
 	DEFINE_SCRIPTFUNC( GetCommandNumber, "For matching server and client commands for debugging." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetTickCount, "GetTickCount", "The tick the client created this command." )
@@ -640,15 +640,15 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptUserCmd, "CUserCmd", "Handle for accessing C
 	DEFINE_SCRIPTFUNC( GetViewAngles, "Player instantaneous view angles." )
 	DEFINE_SCRIPTFUNC( SetViewAngles, "Sets player instantaneous view angles." )
 
-	DEFINE_SCRIPTFUNC( GetForwardMove, "Forward velocity." )
-	DEFINE_SCRIPTFUNC( SetForwardMove, "Sets forward velocity." )
-	DEFINE_SCRIPTFUNC( GetSideMove, "Side velocity." )
-	DEFINE_SCRIPTFUNC( SetSideMove, "Sets side velocity." )
-	DEFINE_SCRIPTFUNC( GetUpMove, "Up velocity." )
-	DEFINE_SCRIPTFUNC( SetUpMove, "Sets up velocity." )
+	DEFINE_SCRIPTFUNC( GetForwardMove, "" )
+	DEFINE_SCRIPTFUNC( SetForwardMove, "" )
+	DEFINE_SCRIPTFUNC( GetSideMove, "" )
+	DEFINE_SCRIPTFUNC( SetSideMove, "" )
+	DEFINE_SCRIPTFUNC( GetUpMove, "" )
+	DEFINE_SCRIPTFUNC( SetUpMove, "" )
 
-	DEFINE_SCRIPTFUNC( GetButtons, "Attack button states." )
-	DEFINE_SCRIPTFUNC( SetButtons, "Sets attack button states." )
+	DEFINE_SCRIPTFUNC( GetButtons, "Input button state." )
+	DEFINE_SCRIPTFUNC( SetButtons, "Sets input button state." )
 	DEFINE_SCRIPTFUNC( GetImpulse, "Impulse command issued." )
 	DEFINE_SCRIPTFUNC( SetImpulse, "Sets impulse command issued." )
 
@@ -674,19 +674,19 @@ END_SCRIPTDESC();
 	DEFINE_SCRIPTFUNC( Set##name, "Set " desc )
 
 BEGIN_SCRIPTDESC_ROOT_NAMED( Script_AI_EnemyInfo_t, "AI_EnemyInfo_t", "Accessor for information about an enemy." )
-	DEFINE_SCRIPTFUNC( Enemy, "Get the enemy." )
-	DEFINE_SCRIPTFUNC( SetEnemy, "Set the enemy." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastKnownLocation, "the enemy's last known location." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastSeenLocation, "the enemy's last seen location." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastSeen, "the last time the enemy was seen." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeFirstSeen, "the first time the enemy was seen." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastReacquired, "the last time the enemy was reaquired." )
+	DEFINE_SCRIPTFUNC( Enemy, "" )
+	DEFINE_SCRIPTFUNC( SetEnemy, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastKnownLocation, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastSeenLocation, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastSeen, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeFirstSeen, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastReacquired, "" )
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeValidEnemy, "the time at which the enemy can be selected (reaction delay)." )
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastReceivedDamageFrom, "the last time damage was received from this enemy." )
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeAtFirstHand, "the time at which the enemy was seen firsthand." )
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( DangerMemory, "the memory of danger position w/o enemy pointer." )
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( EludedMe, "whether the enemy is not at the last known location." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( Unforgettable, "whether the enemy is unforgettable." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( Unforgettable, "" )
 	DEFINE_ENEMY_INFO_SCRIPTFUNCS( MobbedMe, "whether the enemy was part of a mob at some point." )
 END_SCRIPTDESC();
 #endif
@@ -994,15 +994,15 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptDispatchSpawn, "DispatchSpawn", "Spawns an unspawned entity." );
 #endif
 
-	ScriptRegisterFunction( g_pScriptVM, CreateDamageInfo, "Creates damage info." );
-	ScriptRegisterFunction( g_pScriptVM, DestroyDamageInfo, "Destroys damage info." );
+	ScriptRegisterFunction( g_pScriptVM, CreateDamageInfo, "" );
+	ScriptRegisterFunction( g_pScriptVM, DestroyDamageInfo, "" );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateExplosiveDamageForce, "CalculateExplosiveDamageForce", "Fill out a damage info handle with a damage force for an explosive." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateBulletDamageForce, "CalculateBulletDamageForce", "Fill out a damage info handle with a damage force for a bullet impact." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateMeleeDamageForce, "CalculateMeleeDamageForce", "Fill out a damage info handle with a damage force for a melee impact." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptGuessDamageForce, "GuessDamageForce", "Try and guess the physics force to use." );
 
-	ScriptRegisterFunction( g_pScriptVM, CreateFireBulletsInfo, "Creates FireBullets info." );
-	ScriptRegisterFunction( g_pScriptVM, DestroyFireBulletsInfo, "Destroys FireBullets info." );
+	ScriptRegisterFunction( g_pScriptVM, CreateFireBulletsInfo, "" );
+	ScriptRegisterFunction( g_pScriptVM, DestroyFireBulletsInfo, "" );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptTraceLineComplex, "TraceLineComplex", "Complex version of TraceLine which takes 2 points, an ent to ignore, a trace mask, and a collision group. Returns a handle which can access all trace info." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptTraceHullComplex, "TraceHullComplex", "Takes 2 points, min/max hull bounds, an ent to ignore, a trace mask, and a collision group to trace to a point using a hull. Returns a handle which can access all trace info." );
