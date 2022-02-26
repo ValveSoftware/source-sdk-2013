@@ -258,8 +258,8 @@ void ScriptDispatchSpawn( HSCRIPT hEntity )
 static HSCRIPT CreateDamageInfo( HSCRIPT hInflictor, HSCRIPT hAttacker, const Vector &vecForce, const Vector &vecDamagePos, float flDamage, int iDamageType )
 {
 	// The script is responsible for deleting this via DestroyDamageInfo().
-	CTakeDamageInfo *damageInfo = new CTakeDamageInfo(ToEnt(hInflictor), ToEnt(hAttacker), flDamage, iDamageType);
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( damageInfo, true );
+	CTakeDamageInfo *damageInfo = new CTakeDamageInfo( ToEnt(hInflictor), ToEnt(hAttacker), flDamage, iDamageType );
+	HSCRIPT hScript = g_pScriptVM->RegisterInstance( damageInfo );
 
 	damageInfo->SetDamagePosition( vecDamagePos );
 	damageInfo->SetDamageForce( vecForce );
@@ -269,28 +269,54 @@ static HSCRIPT CreateDamageInfo( HSCRIPT hInflictor, HSCRIPT hAttacker, const Ve
 
 static void DestroyDamageInfo( HSCRIPT hDamageInfo )
 {
-	if (hDamageInfo)
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( hDamageInfo );
+	if ( pInfo )
 	{
-		CTakeDamageInfo *pInfo = (CTakeDamageInfo*)g_pScriptVM->GetInstanceValue( hDamageInfo, GetScriptDescForClass( CTakeDamageInfo ) );
-		if (pInfo)
-		{
-			g_pScriptVM->RemoveInstance( hDamageInfo );
-			delete pInfo;
-		}
+		g_pScriptVM->RemoveInstance( hDamageInfo );
+		delete pInfo;
 	}
 }
 
-void ScriptCalculateExplosiveDamageForce( HSCRIPT info, const Vector &vecDir, const Vector &vecForceOrigin, float flScale ) { CalculateExplosiveDamageForce( HScriptToClass<CTakeDamageInfo>(info), vecDir, vecForceOrigin, flScale ); }
-void ScriptCalculateBulletDamageForce( HSCRIPT info, int iBulletType, const Vector &vecBulletDir, const Vector &vecForceOrigin, float flScale ) { CalculateBulletDamageForce( HScriptToClass<CTakeDamageInfo>(info), iBulletType, vecBulletDir, vecForceOrigin, flScale ); }
-void ScriptCalculateMeleeDamageForce( HSCRIPT info, const Vector &vecMeleeDir, const Vector &vecForceOrigin, float flScale ) { CalculateMeleeDamageForce( HScriptToClass<CTakeDamageInfo>( info ), vecMeleeDir, vecForceOrigin, flScale ); }
-void ScriptGuessDamageForce( HSCRIPT info, const Vector &vecForceDir, const Vector &vecForceOrigin, float flScale ) { GuessDamageForce( HScriptToClass<CTakeDamageInfo>( info ), vecForceDir, vecForceOrigin, flScale ); }
+void ScriptCalculateExplosiveDamageForce( HSCRIPT info, const Vector &vecDir, const Vector &vecForceOrigin, float flScale )
+{
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( info );
+	if ( pInfo )
+	{
+		CalculateExplosiveDamageForce( pInfo, vecDir, vecForceOrigin, flScale );
+	}
+}
+
+void ScriptCalculateBulletDamageForce( HSCRIPT info, int iBulletType, const Vector &vecBulletDir, const Vector &vecForceOrigin, float flScale )
+{
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( info );
+	if ( pInfo )
+	{
+		CalculateBulletDamageForce( pInfo, iBulletType, vecBulletDir, vecForceOrigin, flScale );
+	}
+}
+
+void ScriptCalculateMeleeDamageForce( HSCRIPT info, const Vector &vecMeleeDir, const Vector &vecForceOrigin, float flScale )
+{
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( info );
+	if ( pInfo )
+	{
+		CalculateMeleeDamageForce( pInfo, vecMeleeDir, vecForceOrigin, flScale );
+	}
+}
+
+void ScriptGuessDamageForce( HSCRIPT info, const Vector &vecForceDir, const Vector &vecForceOrigin, float flScale )
+{
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( info );
+	if ( pInfo )
+	{
+		GuessDamageForce( pInfo, vecForceDir, vecForceOrigin, flScale );
+	}
+}
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT_NAMED( CTraceInfoAccessor, "CGameTrace", "Handle for accessing trace_t info." )
-	DEFINE_SCRIPT_CONSTRUCTOR()
-
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptGameTrace, "CGameTrace", "trace_t" )
 	DEFINE_SCRIPTFUNC( DidHitWorld, "Returns whether the trace hit the world entity or not." )
 	DEFINE_SCRIPTFUNC( DidHitNonWorldEntity, "Returns whether the trace hit something other than the world entity." )
 	DEFINE_SCRIPTFUNC( GetEntityIndex, "Returns the index of whatever entity this trace hit." )
@@ -324,7 +350,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CTraceInfoAccessor, "CGameTrace", "Handle for acces
 	DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
 END_SCRIPTDESC();
 
-BEGIN_SCRIPTDESC_ROOT_NAMED( scriptsurfacedata_t, "surfacedata_t", "Handle for accessing surface data." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( scriptsurfacedata_t, "surfacedata_t", "" )
 	DEFINE_SCRIPTFUNC( GetFriction, "The surface's friction." )
 	DEFINE_SCRIPTFUNC( GetThickness, "The surface's thickness." )
 
@@ -343,69 +369,44 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( scriptsurfacedata_t, "surfacedata_t", "Handle for a
 	DEFINE_SCRIPTFUNC( GetSoundStrain, "The surface's strain sound." )
 END_SCRIPTDESC();
 
-const char*		scriptsurfacedata_t::GetSoundStepLeft() { return physprops->GetString( sounds.stepleft ); }
-const char*		scriptsurfacedata_t::GetSoundStepRight() { return physprops->GetString( sounds.stepright ); }
-const char*		scriptsurfacedata_t::GetSoundImpactSoft() { return physprops->GetString( sounds.impactSoft ); }
-const char*		scriptsurfacedata_t::GetSoundImpactHard() { return physprops->GetString( sounds.impactHard ); }
-const char*		scriptsurfacedata_t::GetSoundScrapeSmooth() { return physprops->GetString( sounds.scrapeSmooth ); }
-const char*		scriptsurfacedata_t::GetSoundScrapeRough() { return physprops->GetString( sounds.scrapeRough ); }
-const char*		scriptsurfacedata_t::GetSoundBulletImpact() { return physprops->GetString( sounds.bulletImpact ); }
-const char*		scriptsurfacedata_t::GetSoundRolling() { return physprops->GetString( sounds.rolling ); }
-const char*		scriptsurfacedata_t::GetSoundBreak() { return physprops->GetString( sounds.breakSound ); }
-const char*		scriptsurfacedata_t::GetSoundStrain() { return physprops->GetString( sounds.strainSound ); }
-
-BEGIN_SCRIPTDESC_ROOT_NAMED( CSurfaceScriptAccessor, "csurface_t", "Handle for accessing csurface_t info." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( CSurfaceScriptHelper, "csurface_t", "" )
 	DEFINE_SCRIPTFUNC( Name, "The surface's name." )
 	DEFINE_SCRIPTFUNC( SurfaceProps, "The surface's properties." )
-
-	DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
 END_SCRIPTDESC();
 
 CPlaneTInstanceHelper g_PlaneTInstanceHelper;
 
-BEGIN_SCRIPTDESC_ROOT( cplane_t, "Handle for accessing cplane_t info." )
+BEGIN_SCRIPTDESC_ROOT( cplane_t, "" )
 	DEFINE_SCRIPT_INSTANCE_HELPER( &g_PlaneTInstanceHelper )
 END_SCRIPTDESC();
 
 static HSCRIPT ScriptTraceLineComplex( const Vector &vecStart, const Vector &vecEnd, HSCRIPT entIgnore, int iMask, int iCollisionGroup )
 {
 	// The script is responsible for deleting this via Destroy().
-	CTraceInfoAccessor *traceInfo = new CTraceInfoAccessor();
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( traceInfo, true );
+	CScriptGameTrace *tr = new CScriptGameTrace();
 
-	CBaseEntity *pLooker = ToEnt(entIgnore);
-	UTIL_TraceLine( vecStart, vecEnd, iMask, pLooker, iCollisionGroup, &traceInfo->GetTrace());
+	CBaseEntity *pIgnore = ToEnt( entIgnore );
+	UTIL_TraceLine( vecStart, vecEnd, iMask, pIgnore, iCollisionGroup, tr );
 
-	// The trace's destruction should destroy this automatically
-	CSurfaceScriptAccessor *surfaceInfo = new CSurfaceScriptAccessor( traceInfo->GetTrace().surface );
-	HSCRIPT hSurface = g_pScriptVM->RegisterInstance( surfaceInfo );
-	traceInfo->SetSurface( hSurface );
+	tr->RegisterSurface();
+	tr->RegisterPlane();
 
-	HSCRIPT hPlane = g_pScriptVM->RegisterInstance( &(traceInfo->GetTrace().plane) );
-	traceInfo->SetPlane( hPlane );
-
-	return hScript;
+	return tr->GetScriptInstance();
 }
 
 static HSCRIPT ScriptTraceHullComplex( const Vector &vecStart, const Vector &vecEnd, const Vector &hullMin, const Vector &hullMax,
 	HSCRIPT entIgnore, int iMask, int iCollisionGroup )
 {
 	// The script is responsible for deleting this via Destroy().
-	CTraceInfoAccessor *traceInfo = new CTraceInfoAccessor();
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( traceInfo, true );
+	CScriptGameTrace *tr = new CScriptGameTrace();
 
-	CBaseEntity *pLooker = ToEnt(entIgnore);
-	UTIL_TraceHull( vecStart, vecEnd, hullMin, hullMax, iMask, pLooker, iCollisionGroup, &traceInfo->GetTrace());
+	CBaseEntity *pIgnore = ToEnt( entIgnore );
+	UTIL_TraceHull( vecStart, vecEnd, hullMin, hullMax, iMask, pIgnore, iCollisionGroup, tr );
 
-	// The trace's destruction should destroy this automatically
-	CSurfaceScriptAccessor *surfaceInfo = new CSurfaceScriptAccessor( traceInfo->GetTrace().surface );
-	HSCRIPT hSurface = g_pScriptVM->RegisterInstance( surfaceInfo );
-	traceInfo->SetSurface( hSurface );
+	tr->RegisterSurface();
+	tr->RegisterPlane();
 
-	HSCRIPT hPlane = g_pScriptVM->RegisterInstance( &(traceInfo->GetTrace().plane) );
-	traceInfo->SetPlane( hPlane );
-
-	return hScript;
+	return tr->GetScriptInstance();
 }
 
 //-----------------------------------------------------------------------------
@@ -451,8 +452,6 @@ BEGIN_SCRIPTDESC_ROOT( FireBulletsInfo_t, "Handle for accessing FireBulletsInfo_
 
 	DEFINE_SCRIPTFUNC( GetPrimaryAttack, "Gets whether the bullets came from a primary attack." )
 	DEFINE_SCRIPTFUNC( SetPrimaryAttack, "Sets whether the bullets came from a primary attack." )
-
-	//DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
 END_SCRIPTDESC();
 
 //-----------------------------------------------------------------------------
@@ -483,7 +482,7 @@ static HSCRIPT CreateFireBulletsInfo( int cShots, const Vector &vecSrc, const Ve
 {
 	// The script is responsible for deleting this via DestroyFireBulletsInfo().
 	FireBulletsInfo_t *info = new FireBulletsInfo_t();
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( info, true );
+	HSCRIPT hScript = g_pScriptVM->RegisterInstance( info );
 
 	info->SetShots( cShots );
 	info->SetSource( vecSrc );
@@ -497,13 +496,12 @@ static HSCRIPT CreateFireBulletsInfo( int cShots, const Vector &vecSrc, const Ve
 
 static void DestroyFireBulletsInfo( HSCRIPT hBulletsInfo )
 {
-	g_pScriptVM->RemoveInstance( hBulletsInfo );
-}
-
-// For the function in baseentity.cpp
-FireBulletsInfo_t *GetFireBulletsInfoFromInfo( HSCRIPT hBulletsInfo )
-{
-	return HScriptToClass<FireBulletsInfo_t>( hBulletsInfo );
+	FireBulletsInfo_t *pInfo = HScriptToClass< FireBulletsInfo_t >( hBulletsInfo );
+	if ( pInfo )
+	{
+		g_pScriptVM->RemoveInstance( hBulletsInfo );
+		delete pInfo;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -844,8 +842,11 @@ static void ScriptEntitiesInSphere( HSCRIPT hTable, int listMax, const Vector &c
 
 static void ScriptDecalTrace( HSCRIPT hTrace, const char *decalName )
 {
-	CTraceInfoAccessor *traceInfo = HScriptToClass<CTraceInfoAccessor>(hTrace);
-	UTIL_DecalTrace( &traceInfo->GetTrace(), decalName );
+	CScriptGameTrace *tr = HScriptToClass< CScriptGameTrace >( hTrace );
+	if ( tr )
+	{
+		UTIL_DecalTrace( tr, decalName );
+	}
 }
 
 static HSCRIPT ScriptCreateRope( HSCRIPT hStart, HSCRIPT hEnd, int iStartAttachment, int iEndAttachment, float ropeWidth, const char *pMaterialName, int numSegments, int ropeFlags )
