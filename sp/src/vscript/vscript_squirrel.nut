@@ -215,16 +215,17 @@ Hooks <-
 
 	function Call( scope, event, ... )
 	{
-		local firstReturn = null
+		local firstReturn
 
-		if ( scope == null )
+		// global hook; call all scopes
+		if ( !scope )
 		{
-			// null scope = global hook; call all scopes
-			vargv.insert(0,this)
-			foreach ( t in s_List )
+			vargv.insert( 0, null )
+			foreach( sc,t in s_List )
 			{
 				if ( event in t )
 				{
+					vargv[0] = sc
 					foreach( context, callback in t[event] )
 					{
 						//printf( "(%.4f) Calling hook '%s' of context '%s' in static iteration\n", Time(), event, context )
@@ -241,7 +242,7 @@ Hooks <-
 			local t = s_List[scope]
 			if ( event in t )
 			{
-				vargv.insert(0,scope)
+				vargv.insert( 0, scope )
 				foreach( context, callback in t[event] )
 				{
 					//printf( "(%.4f) Calling hook '%s' of context '%s'\n", Time(), event, context )
@@ -258,13 +259,7 @@ Hooks <-
 
 	function ScopeHookedToEvent( scope, event )
 	{
-		if ( scope in s_List )
-		{
-			if (event in s_List[scope])
-				return true
-		}
-
-		return false
+		return ( scope in s_List ) && ( event in s_List[scope] )
 	}
 }
 
