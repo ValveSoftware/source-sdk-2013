@@ -86,7 +86,7 @@ extern ConVar sensitivity;
 ConVar zoom_sensitivity_ratio( "zoom_sensitivity_ratio", "1.0", 0, "Additional mouse sensitivity scale factor applied when FOV is zoomed in." );
 
 CViewRender g_DefaultViewRender;
-IViewRender *view = NULL;	// set in cldll_client_init.cpp if no mod creates their own
+IViewRender *g_pView = NULL;	// set in cldll_client_init.cpp if no mod creates their own
 
 #if _DEBUG
 bool g_bRenderingCameraView = false;
@@ -277,7 +277,7 @@ bool R_CullSphere(
 //-----------------------------------------------------------------------------
 static void StartPitchDrift( void )
 {
-	view->StartPitchDrift();
+	g_pView->StartPitchDrift();
 }
 
 static ConCommand centerview( "centerview", StartPitchDrift );

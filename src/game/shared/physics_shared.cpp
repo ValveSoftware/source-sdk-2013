@@ -593,14 +593,14 @@ IPhysicsObject *PhysCreateWorld_Shared( CBaseEntity *pWorld, vcollide_t *pWorldC
 	if ( !physenv )
 		return NULL;
 
-	int surfaceData = physprops->GetSurfaceIndex( "default" );
+	int defSurfaceData = physprops->GetSurfaceIndex( "default" );
 
 	objectparams_t params = defaultParams;
 	params.pGameData = static_cast<void *>(pWorld);
 	params.pName = "world";
 
 	IPhysicsObject *pWorldPhysics = physenv->CreatePolyObjectStatic( 
-		pWorldCollide->solids[0], surfaceData, vec3_origin, vec3_angle, &params );
+		pWorldCollide->solids[0], defSurfaceData, vec3_origin, vec3_angle, &params );
 
 	// hint - saves vphysics some work
 	pWorldPhysics->SetCallbackFlags( pWorldPhysics->GetCallbackFlags() | CALLBACK_NEVER_DELETED );

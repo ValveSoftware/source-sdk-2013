@@ -280,15 +280,19 @@ private:
 
 #define MDCACHE_FINE_GRAINED 1
 
+// VS2022 Port - Valve pastes these macros all over. These two let us assign the names to be the line they're on to avoid name overlap warnings
+#define MDLCACHE_VAR_NAME__(a, b) a##b
+#define MDLCACHE_VAR_NAME_(a, b) MDLCACHE_VAR_NAME__(a,b)
+
 #if defined(MDCACHE_FINE_GRAINED)
-#define MDLCACHE_CRITICAL_SECTION_( pCache ) CMDLCacheCriticalSection cacheCriticalSection(pCache)
+#define MDLCACHE_CRITICAL_SECTION_( pCache ) CMDLCacheCriticalSection MDLCACHE_VAR_NAME_(cacheCriticalSection,__LINE__)(pCache)
 #define MDLCACHE_COARSE_LOCK_( pCache ) ((void)(0))
 #elif defined(MDLCACHE_LEVEL_LOCKED)
 #define MDLCACHE_CRITICAL_SECTION_( pCache )  ((void)(0))
 #define MDLCACHE_COARSE_LOCK_( pCache ) ((void)(0))
 #else
 #define MDLCACHE_CRITICAL_SECTION_( pCache ) ((void)(0))
-#define MDLCACHE_COARSE_LOCK_( pCache ) CMDLCacheCriticalSection cacheCriticalSection(pCache)
+#define MDLCACHE_COARSE_LOCK_( pCache ) CMDLCacheCriticalSection MDLCACHE_VAR_NAME_(cacheCriticalSection,__LINE__)(pCache)
 #endif
 #define MDLCACHE_CRITICAL_SECTION() MDLCACHE_CRITICAL_SECTION_(mdlcache)
 #define MDLCACHE_COARSE_LOCK() MDLCACHE_COARSE_LOCK_(mdlcache)

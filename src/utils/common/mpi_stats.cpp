@@ -815,7 +815,6 @@ void StatsDB_InitStatsDatabase(
 	{
 		// Wait to get DB info so we can connect to the MySQL database.
 		CDBInfo dbInfo;
-		unsigned long jobPrimaryID;
 		RecvDBInfo( &dbInfo, &jobPrimaryID );
 		
 		if ( dbInfo.m_HostName[0] != 0 )

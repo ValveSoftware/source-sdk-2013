@@ -3730,7 +3730,8 @@ void CNPC_AttackHelicopter::Event_Killed( const CTakeDamageInfo &info )
 			SetDesiredPosition( pCrashPoint->GetAbsOrigin() );
 
 			// Start the failing engine sound
-			CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+			// FIXME: VS2022 Port - Smells like a singleton!
+			//CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
 			controller.SoundDestroy( m_pRotorSound );
 
 			CPASAttenuationFilter filter( this );

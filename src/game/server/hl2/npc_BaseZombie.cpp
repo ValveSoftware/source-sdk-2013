@@ -552,9 +552,9 @@ int CNPC_BaseZombie::MeleeAttack1Conditions ( float flDot, float flDist )
 
 				if( pObject )
 				{
-					float flDist = pObject->WorldSpaceCenter().DistTo( WorldSpaceCenter() );
+					float flDist_ = pObject->WorldSpaceCenter().DistTo( WorldSpaceCenter() );
 
-					if( flDist <= GetClawAttackRange() )
+					if( flDist_ <= GetClawAttackRange() )
 						return COND_CAN_MELEE_ATTACK1;
 				}
 			}
@@ -1138,21 +1138,20 @@ void CNPC_BaseZombie::DieChopped( const CTakeDamageInfo &info )
 
 	if ( UTIL_ShouldShowBlood( BLOOD_COLOR_YELLOW ) )
 	{
-		int i;
-		Vector vecSpot;
-		Vector vecDir;
+		Vector vecYellowSpot;
 
-		for ( i = 0 ; i < 4; i++ )
+		for ( int i = 0 ; i < 4; i++ )
 		{
-			vecSpot = WorldSpaceCenter();
+			vecYellowSpot = WorldSpaceCenter();
 
-			vecSpot.x += random->RandomFloat( -12, 12 ); 
-			vecSpot.y += random->RandomFloat( -12, 12 ); 
-			vecSpot.z += random->RandomFloat( -4, 16 ); 
+			vecYellowSpot.x += random->RandomFloat( -12, 12 );
+			vecYellowSpot.y += random->RandomFloat( -12, 12 );
+			vecYellowSpot.z += random->RandomFloat( -4, 16 );
 
-			UTIL_BloodDrips( vecSpot, vec3_origin, BLOOD_COLOR_YELLOW, 50 );
+			UTIL_BloodDrips(vecYellowSpot, vec3_origin, BLOOD_COLOR_YELLOW, 50 );
 		}
 
+		Vector vecDir;
 		for ( int i = 0 ; i < 4 ; i++ )
 		{
 			Vector vecSpot = WorldSpaceCenter();
@@ -2420,13 +2419,13 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 
 				for ( int i = 0 ; i < 3 ; i++ )
 				{
-					Vector vecSpot = pGib->WorldSpaceCenter();
+					Vector vecBloodSpot = pGib->WorldSpaceCenter();
 					
-					vecSpot.x += random->RandomFloat( -8, 8 ); 
-					vecSpot.y += random->RandomFloat( -8, 8 ); 
-					vecSpot.z += random->RandomFloat( -8, 8 ); 
+					vecBloodSpot.x += random->RandomFloat( -8, 8 );
+					vecBloodSpot.y += random->RandomFloat( -8, 8 );
+					vecBloodSpot.z += random->RandomFloat( -8, 8 );
 
-					UTIL_BloodDrips( vecSpot, vec3_origin, BLOOD_COLOR_YELLOW, 50 );
+					UTIL_BloodDrips( vecBloodSpot, vec3_origin, BLOOD_COLOR_YELLOW, 50 );
 				}
 			}
 		}

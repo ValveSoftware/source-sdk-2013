@@ -1712,10 +1712,10 @@ void CNPC_Vortigaunt::MaintainHealSchedule( void )
 		{
 			if ( m_flNextHealTokenTime < gpGlobals->curtime )
 			{
-				CBasePlayer *pPlayer = ToBasePlayer( m_hHealTarget );
+				CBasePlayer *pTarget = ToBasePlayer( m_hHealTarget );
 
 				// We're done, so stop playing the animation
-				if ( m_nNumTokensToSpawn <= 0 || ( m_bForceArmorRecharge == false && ( pPlayer && pPlayer->ArmorValue() >= sk_vortigaunt_armor_charge.GetInt() ) ) )
+				if ( m_nNumTokensToSpawn <= 0 || ( m_bForceArmorRecharge == false && (pTarget && pTarget->ArmorValue() >= sk_vortigaunt_armor_charge.GetInt() ) ) )
 				{
 					m_flHealHinderedTime = 0.0f;
 					m_nNumTokensToSpawn = 0;

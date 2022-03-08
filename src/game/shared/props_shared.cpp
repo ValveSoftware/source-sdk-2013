@@ -953,18 +953,18 @@ void PropBreakableCreateAll( int modelindex, IPhysicsObject *pPhysics, const bre
 	}
 	matrix3x4_t localToWorld;
 
-	CStudioHdr studioHdr;
-	const model_t *model = modelinfo->GetModel( modelindex );
-	if ( model )
+	CStudioHdr studioHdr_;
+	const model_t *model_ = modelinfo->GetModel( modelindex );
+	if ( model_ )
 	{
-		studioHdr.Init( modelinfo->GetStudiomodel( model ) );
+		studioHdr_.Init( modelinfo->GetStudiomodel( model_ ) );
 	}
 
 	Vector parentOrigin = vec3_origin;
-	int parentAttachment = 	Studio_FindAttachment( &studioHdr, "placementOrigin" ) + 1;
+	int parentAttachment = 	Studio_FindAttachment( &studioHdr_, "placementOrigin" ) + 1;
 	if ( parentAttachment > 0 )
 	{
-		GetAttachmentLocalSpace( &studioHdr, parentAttachment-1, localToWorld );
+		GetAttachmentLocalSpace( &studioHdr_, parentAttachment-1, localToWorld );
 		MatrixGetColumn( localToWorld, 3, parentOrigin );
 	}
 	else
@@ -1340,18 +1340,18 @@ CBaseEntity *CreateGibsFromList( CUtlVector<breakmodel_t> &list, int modelindex,
 	}
 	matrix3x4_t localToWorld;
 
-	CStudioHdr studioHdr;
-	const model_t *model = modelinfo->GetModel( modelindex );
-	if ( model )
+	CStudioHdr studioHdr_;
+	const model_t *model_ = modelinfo->GetModel( modelindex );
+	if ( model_ )
 	{
-		studioHdr.Init( modelinfo->GetStudiomodel( model ) );
+		studioHdr_.Init( modelinfo->GetStudiomodel( model_ ) );
 	}
 
 	Vector parentOrigin = vec3_origin;
-	int parentAttachment = 	Studio_FindAttachment( &studioHdr, "placementOrigin" ) + 1;
+	int parentAttachment = 	Studio_FindAttachment( &studioHdr_, "placementOrigin" ) + 1;
 	if ( parentAttachment > 0 )
 	{
-		GetAttachmentLocalSpace( &studioHdr, parentAttachment-1, localToWorld );
+		GetAttachmentLocalSpace( &studioHdr_, parentAttachment-1, localToWorld );
 		MatrixGetColumn( localToWorld, 3, parentOrigin );
 	}
 	else

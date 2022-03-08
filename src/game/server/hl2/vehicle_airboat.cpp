@@ -1679,9 +1679,9 @@ void CPropAirboat::FireGun( )
 	CAPCMissile *pEnt = FindAPCMissileInCone( vecEyePosition, vecEyeDirection, 2.5f );
 	if ( pEnt && (pEnt->GetHealth() > 0) )
 	{
-		CTakeDamageInfo info( this, this, 1, DMG_AIRBOAT );
-		CalculateBulletDamageForce( &info, ammoType, vecRay, pEnt->WorldSpaceCenter() );
-		pEnt->TakeDamage( info );
+		CTakeDamageInfo info_( this, this, 1, DMG_AIRBOAT );
+		CalculateBulletDamageForce( &info_, ammoType, vecRay, pEnt->WorldSpaceCenter() );
+		pEnt->TakeDamage( info_ );
 
 		Vector vecVelocity = pEnt->GetAbsVelocity();
 

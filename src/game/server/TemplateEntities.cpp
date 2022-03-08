@@ -280,14 +280,14 @@ void Templates_ReconnectIOForGroup( CPointTemplate *pGroup )
 		// Now change targetnames for all entities that need them changed
 		for ( i = 0; i < iCount; i++ )
 		{
-			char value[MAPKEY_MAXLENGTH];
+			char name[MAPKEY_MAXLENGTH];
 
 			if ( GroupTemplates[i].bChangeTargetname )
 			{
 				CEntityMapData *mapData = GroupTemplates[i].pMapDataParser;
-				mapData->ExtractValue( "targetname", value );
-				Q_strncat( value, ENTITYIO_FIXUP_STRING, sizeof(value), COPY_ALL_CHARACTERS );
-				mapData->SetValue( "targetname", value );
+				mapData->ExtractValue( "targetname", name );
+				Q_strncat( name, ENTITYIO_FIXUP_STRING, sizeof(name), COPY_ALL_CHARACTERS );
+				mapData->SetValue( "targetname", name );
 			}
 		}
 	}

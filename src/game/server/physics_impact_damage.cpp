@@ -444,10 +444,10 @@ float CalculatePhysicsImpactDamage( int index, gamevcollisionevent_t *pEvent, co
 			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 			if ( pPlayer )
 			{
-				float mass = pPlayer->GetHeldObjectMass( pEvent->pObjects[index] );
-				if ( mass > 0 )
+				float heldmass = pPlayer->GetHeldObjectMass( pEvent->pObjects[index] );
+				if ( heldmass > 0 )
 				{
-					invMass = 1.0f / mass;
+					invMass = 1.0f / heldmass;
 				}
 			}
 		}

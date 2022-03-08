@@ -370,12 +370,12 @@ void C_SmokeTrail::SimulateParticles( CParticleSimulateIterator *pIterator )
 // This is called after sending this entity's recording state
 //-----------------------------------------------------------------------------
 
-void C_SmokeTrail::CleanupToolRecordingState( KeyValues *msg )
+void C_SmokeTrail::CleanupToolRecordingState( KeyValues *msg_ )
 {
 	if ( !ToolsEnabled() )
 		return;
 
-	BaseClass::CleanupToolRecordingState( msg );
+	BaseClass::CleanupToolRecordingState( msg_ );
 
 	// Generally, this is used to allow the entity to clean up
 	// allocated state it put into the message, but here we're going
@@ -664,8 +664,7 @@ void C_RocketTrail::Update( float fTimeDelta )
 	CSmartPtr<CSimpleEmitter> pSimple = CSimpleEmitter::Create( "MuzzleFlash" );
 	pSimple->SetSortOrigin( GetAbsOrigin() );
 	
-	SimpleParticle *pParticle;
-	Vector			forward, offset;
+	Vector			forward;
 
 	AngleVectors( GetAbsAngles(), &forward );
 	
@@ -677,13 +676,12 @@ void C_RocketTrail::Update( float fTimeDelta )
 	// Flash
 	//
 
-	int i;
 
-	for ( i = 1; i < 9; i++ )
+	for (int i = 1; i < 9; i++ )
 	{
-		offset = GetAbsOrigin() + (forward * (i*2.0f*m_flFlareScale));
+		Vector offset = GetAbsOrigin() + (forward * (i*2.0f*m_flFlareScale));
 
-		pParticle = (SimpleParticle *) pSimple->AddParticle( sizeof( SimpleParticle ), pSimple->GetPMaterial( VarArgs( "effects/muzzleflash%d", random->RandomInt(1,4) ) ), offset );
+		SimpleParticle* pParticle = (SimpleParticle *) pSimple->AddParticle( sizeof( SimpleParticle ), pSimple->GetPMaterial( VarArgs( "effects/muzzleflash%d", random->RandomInt(1,4) ) ), offset );
 			
 		if ( pParticle == NULL )
 			return;
@@ -724,13 +722,13 @@ void C_RocketTrail::Update( float fTimeDelta )
 		float			step = moveLength / numPuffs;
 
 		//Fill in the gaps
-		for ( i = 1; i < numPuffs+1; i++ )
+		for (int i = 1; i < numPuffs+1; i++ )
 		{
-			offset = m_vecLastPosition + ( moveDiff * step * i );
+			Vector offset = m_vecLastPosition + ( moveDiff * step * i );
 
 			//debugoverlay->AddBoxOverlay( offset, -Vector(2,2,2), Vector(2,2,2), vec3_angle, i*4, i*4, i*4, true, 4.0f );
 			
-			pParticle = (SimpleParticle *) m_pRocketEmitter->AddParticle( sizeof( SimpleParticle ), m_MaterialHandle[random->RandomInt(0,1)], offset );
+			SimpleParticle* pParticle = (SimpleParticle *) m_pRocketEmitter->AddParticle( sizeof( SimpleParticle ), m_MaterialHandle[random->RandomInt(0,1)], offset );
 
 			if ( pParticle != NULL )
 			{
@@ -771,8 +769,6 @@ void C_RocketTrail::Update( float fTimeDelta )
 	
 	if ( m_bDamaged )
 	{
-		SimpleParticle	*pParticle;
-		Vector			offset;
 		Vector			offsetColor;
 
 		CSmartPtr<CEmberEffect>	pEmitter = CEmberEffect::Create("C_RocketTrail::damaged");
@@ -782,11 +778,11 @@ void C_RocketTrail::Update( float fTimeDelta )
 		PMaterialHandle flameMaterial = m_pRocketEmitter->GetPMaterial( VarArgs( "sprites/flamelet%d", random->RandomInt( 1, 4 ) ) );
 		
 		// Flames from the rocket
-		for ( i = 0; i < 8; i++ )
+		for (int i = 0; i < 8; i++ )
 		{
-			offset = RandomVector( -8, 8 ) + GetAbsOrigin();
+			Vector offset = RandomVector( -8, 8 ) + GetAbsOrigin();
 
-			pParticle = (SimpleParticle *) pEmitter->AddParticle( sizeof( SimpleParticle ), flameMaterial, offset );
+			SimpleParticle* pParticle = (SimpleParticle *) pEmitter->AddParticle( sizeof( SimpleParticle ), flameMaterial, offset );
 
 			if ( pParticle != NULL )
 			{
@@ -1489,7 +1485,6 @@ void C_FireTrail::Update( float fTimeDelta )
 	CSmartPtr<CSimpleEmitter> pSimple = CSimpleEmitter::Create( "FireTrail" );
 	pSimple->SetSortOrigin( GetAbsOrigin() );
 	
-	Vector			offset;
 
 #define	STARTSIZE			8
 #define	ENDSIZE				16
@@ -1509,14 +1504,13 @@ void C_FireTrail::Update( float fTimeDelta )
 		numPuffs = clamp( numPuffs, 1, 32 );
 
 		SimpleParticle	*pParticle;
-		Vector			offset;
 		Vector			offsetColor;
 		float			step = moveLength / numPuffs;
 
 		//Fill in the gaps
 		for ( int i = 1; i < numPuffs+1; i++ )
 		{
-			offset = m_vecLastPosition + ( moveDiff * step * i ) + RandomVector( -4.0f, 4.0f );
+			Vector offset = m_vecLastPosition + ( moveDiff * step * i ) + RandomVector( -4.0f, 4.0f );
 
 			//debugoverlay->AddBoxOverlay( offset, -Vector(2,2,2), Vector(2,2,2), vec3_angle, i*4, i*4, i*4, true, 1.0f );
 			
@@ -1550,7 +1544,7 @@ void C_FireTrail::Update( float fTimeDelta )
 		// Smoke
 		//
 
-		offset = RandomVector( -STARTSIZE*0.5f, STARTSIZE*0.5f ) + GetAbsOrigin();
+		Vector offset = RandomVector( -STARTSIZE*0.5f, STARTSIZE*0.5f ) + GetAbsOrigin();
 
 		pParticle = (SimpleParticle *) m_pSmokeEmitter->AddParticle( sizeof( SimpleParticle ), m_hMaterial[random->RandomInt( FTRAIL_SMOKE1, FTRAIL_SMOKE2 )], offset );
 
@@ -1892,12 +1886,12 @@ void C_DustTrail::SimulateParticles( CParticleSimulateIterator *pIterator )
 // This is called after sending this entity's recording state
 //-----------------------------------------------------------------------------
 
-void C_DustTrail::CleanupToolRecordingState( KeyValues *msg )
+void C_DustTrail::CleanupToolRecordingState( KeyValues *msg_ )
 {
 	if ( !ToolsEnabled() )
 		return;
 
-	BaseClass::CleanupToolRecordingState( msg );
+	BaseClass::CleanupToolRecordingState( msg_ );
 
 	// Generally, this is used to allow the entity to clean up
 	// allocated state it put into the message, but here we're going

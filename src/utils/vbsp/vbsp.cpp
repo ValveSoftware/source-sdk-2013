@@ -22,8 +22,8 @@
 
 extern float		g_maxLightmapDimension;
 
-char		source[1024];
-char		mapbase[ 64 ];
+char		g_source[1024];
+char		g_mapbase[ 64 ];
 char		name[1024];
 char		materialPath[1024];
 
@@ -64,7 +64,7 @@ bool		g_BumpAll = false;
 
 int			g_nDXLevel = 0; // default dxlevel if you don't specify it on the command-line.
 CUtlVector<int> g_SkyAreas;
-char		outbase[32];
+char		g_outbase[32];
 
 // HLTOOLS: Introduce these calcs to make the block algorithm proportional to the proper 
 // world coordinate extents.  Assumes square spatial constraints.
@@ -327,7 +327,7 @@ void ProcessWorldModel (void)
 
 	if (glview)
 	{
-		WriteGLView (tree, source);
+		WriteGLView (tree, g_source);
 	}
 
 	AssignOccluderAreas( tree );
@@ -432,9 +432,9 @@ void ProcessSubModel( )
 //-----------------------------------------------------------------------------
 // Returns true if the entity is a func_occluder
 //-----------------------------------------------------------------------------
-bool IsFuncOccluder( int entity_num )
+bool IsFuncOccluder( int iEnt )
 {
-	entity_t *mapent = &entities[entity_num];
+	entity_t *mapent = &entities[iEnt];
 	const char *pClassName = ValueForKey( mapent, "classname" );
 	return (strcmp("func_occluder", pClassName) == 0);
 }
@@ -892,11 +892,11 @@ int RunVBSP( int argc, char **argv )
 	
 	CmdLib_InitFileSystem( argv[ argc-1 ] );
 
-	Q_StripExtension( ExpandArg( argv[ argc-1 ] ), source, sizeof( source ) );
-	Q_FileBase( source, mapbase, sizeof( mapbase ) );
-	strlwr( mapbase );
+	Q_StripExtension( ExpandArg( argv[ argc-1 ] ), g_source, sizeof( g_source ) );
+	Q_FileBase( g_source, g_mapbase, sizeof( g_mapbase ) );
+	strlwr( g_mapbase );
 
-	LoadCmdLineFromFile( argc, argv, mapbase, "vbsp" );
+	LoadCmdLineFromFile( argc, argv, g_mapbase, "vbsp" );
 
 	Msg( "Valve Software - vbsp.exe (%s)\n", __DATE__ );
 
@@ -1049,7 +1049,7 @@ int RunVBSP( int argc, char **argv )
 		}
 		else if (!Q_stricmp (argv[i],"-tmpout"))
 		{
-			strcpy (outbase, "/tmp");
+			strcpy (g_outbase, "/tmp");
 		}
 #if 0
 		else if( !Q_stricmp( argv[i], "-defaultluxelsize" ) )
@@ -1246,7 +1246,7 @@ int RunVBSP( int argc, char **argv )
 
 	// Setup the logfile.
 	char logFile[512];
-	_snprintf( logFile, sizeof(logFile), "%s.log", source );
+	_snprintf( logFile, sizeof(logFile), "%s.log", g_source );
 	SetSpewFunctionLogFile( logFile );
 
 	LoadPhysicsDLL();
@@ -1263,9 +1263,9 @@ int RunVBSP( int argc, char **argv )
 	Msg( "materialPath: %s\n", materialPath );
 	
 	// delete portal and line files
-	sprintf (path, "%s.prt", source);
+	sprintf (path, "%s.prt", g_source);
 	remove (path);
-	sprintf (path, "%s.lin", source);
+	sprintf (path, "%s.lin", g_source);
 	remove (path);
 
 	strcpy (name, ExpandArg (argv[i]));	
@@ -1281,12 +1281,12 @@ int RunVBSP( int argc, char **argv )
 	}
 
 	char platformBSPFileName[1024];
-	GetPlatformMapPath( source, platformBSPFileName, g_nDXLevel, 1024 );
+	GetPlatformMapPath( g_source, platformBSPFileName, g_nDXLevel, 1024 );
 	
 	// if we're combining materials, load the script file
 	if ( g_ReplaceMaterials )
 	{
-		LoadMaterialReplacementKeys( gamedir, mapbase );
+		LoadMaterialReplacementKeys( gamedir, g_mapbase );
 	}
 
 	//

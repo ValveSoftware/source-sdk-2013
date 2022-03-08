@@ -24,12 +24,12 @@ enum EffectType
 };
 
 
-bool			g_bUnget = false;
-unsigned char	*buffer;
-char			name[ 256 ];
-const char		*currenttoken;
-int				tokencount;
-char			token[ 1204 ];
+static bool			    s_bUnget = false;
+static unsigned char	*s_buffer;
+static char			    s_name[ 256 ];
+static const char		*s_currenttoken;
+static int				s_tokencount;
+static char			    s_token[ 1204 ];
 
 class CEffectScriptElement
 {
@@ -130,7 +130,7 @@ private:
 //-----------------------------------------------------------------------------
 	bool IsRootCommand( void )
 	{
-		if ( !Q_stricmp( token, "effect" ) )
+		if ( !Q_stricmp( s_token, "effect" ) )
 			return true;
 
 		return false;
@@ -139,26 +139,26 @@ private:
 
 inline bool ParseToken( void )
 {
-	if ( g_bUnget )
+	if ( s_bUnget )
 	{
-		g_bUnget = false;
+		s_bUnget = false;
 		return true;
 	}
 
-	currenttoken = engine->ParseFile( currenttoken, token, sizeof( token ) );
-	tokencount++;
-	return currenttoken != NULL ? true : false;
+	s_currenttoken = engine->ParseFile( s_currenttoken, s_token, sizeof( s_token ) );
+	s_tokencount++;
+	return s_currenttoken != NULL ? true : false;
 }
 
 inline void Unget()
 {
-	g_bUnget = true;
+	s_bUnget = true;
 }
 
 inline bool TokenWaiting( void )
 {
 	
-	const char *p = currenttoken;
+	const char *p = s_currenttoken;
 	while ( *p && *p!='\n')
 	{
 		// Special handler for // comment blocks
@@ -377,44 +377,46 @@ void CEnvEffectsScript::ParseScriptFile( void )
 	const char *pScriptName = GetScriptFile();
 
 	//Reset everything.
-	g_bUnget = false;
-	currenttoken = NULL;
-	tokencount = 0;
-	memset( token, 0, 1204 );
-	memset( name, 0, 256 );
+	s_bUnget = false;
+	s_currenttoken = NULL;
+	s_tokencount = 0;
+	memset( s_token, 0, 1204 );
+	memset( s_name, 0, 256 );
 
 
-	unsigned char *buffer = (unsigned char *)UTIL_LoadFileForMe( pScriptName, &length );
-	if ( length <= 0 || !buffer )
+	unsigned char *buf = (unsigned char *)UTIL_LoadFileForMe( pScriptName, &length );
+	if ( length <= 0 || !buf )
 	{
 		DevMsg( 1, "CEnvEffectsScript:  failed to load %s\n", pScriptName );
 		return;
 	}
 
-	currenttoken = (const char *)buffer;
-	LoadFromBuffer( pScriptName, (const char *)buffer );
+	s_currenttoken = (const char *)buf;
+	LoadFromBuffer( pScriptName, (const char *)buf );
 
-	UTIL_FreeFile( buffer );
+	UTIL_FreeFile( buf );
 }
 
+// FIXME: VS2022 Port 
+//        This parameter, buffer, is unused??
 void CEnvEffectsScript::LoadFromBuffer( const char *scriptfile, const char *buffer )
 {
 	while ( 1 )
 	{
 		ParseToken();
 		
-		if ( !token[0] )
+		if ( !s_token[0] )
 		{
 			break;
 		}
 
-		if ( !Q_stricmp( token, "effect" ) )
+		if ( !Q_stricmp( s_token, "effect" ) )
 		{
 			ParseNewEffect();
 		}
 		else
 		{
-			Warning( "CEnvEffectsScript: Unknown entry type '%s'\n", token );
+			Warning( "CEnvEffectsScript: Unknown entry type '%s'\n", s_token );
 			break;
 		}
 	}
@@ -427,7 +429,7 @@ void CEnvEffectsScript::ParseNewEffect( void )
 	
 	// Effect Group Name
 	ParseToken();
-	Q_strncpy( NewElement.m_szEffectName, token, sizeof( NewElement.m_szEffectName ) );
+	Q_strncpy( NewElement.m_szEffectName, s_token, sizeof( NewElement.m_szEffectName ) );
 
 	while ( 1 )
 	{
@@ -440,81 +442,81 @@ void CEnvEffectsScript::ParseNewEffect( void )
 			break;
 		}
 
-		if ( !Q_stricmp( token, "{" ) )
+		if ( !Q_stricmp( s_token, "{" ) )
 		{
 			while ( 1 )
 			{
 				ParseToken();
-				if ( !Q_stricmp( token, "}" ) )
+				if ( !Q_stricmp( s_token, "}" ) )
 					break;
 
-				if ( !Q_stricmp( token, "type" ) )
+				if ( !Q_stricmp( s_token, "type" ) )
 				{
 					ParseToken();
 
-					if ( !Q_stricmp( token, "trail" ) )
+					if ( !Q_stricmp( s_token, "trail" ) )
 						NewElement.m_iType = EFFECT_TYPE_TRAIL;
-					else if ( !Q_stricmp( token, "sprite" ) )
+					else if ( !Q_stricmp( s_token, "sprite" ) )
 						NewElement.m_iType = EFFECT_TYPE_SPRITE;
 
 					continue;
 				}
 
-				if ( !Q_stricmp( token, "material" ) )
+				if ( !Q_stricmp( s_token, "material" ) )
 				{
 					ParseToken();
-					Q_strncpy( NewElement.m_szMaterial, token, sizeof( NewElement.m_szMaterial ) );
+					Q_strncpy( NewElement.m_szMaterial, s_token, sizeof( NewElement.m_szMaterial ) );
 					PrecacheModel( NewElement.m_szMaterial );
 
 					continue;
 				}
 
-				if ( !Q_stricmp( token, "attachment" ) )
+				if ( !Q_stricmp( s_token, "attachment" ) )
 				{
 					ParseToken();
-					Q_strncpy( NewElement.m_szAttachment, token, sizeof( NewElement.m_szAttachment ) );
+					Q_strncpy( NewElement.m_szAttachment, s_token, sizeof( NewElement.m_szAttachment ) );
 
 					continue;
 				}
 
-				if ( !Q_stricmp( token, "color" ) )
+				if ( !Q_stricmp( s_token, "color" ) )
 				{
 					ParseToken();
-					sscanf( token, "%i %i %i %i", &NewElement.m_iR, &NewElement.m_iG, &NewElement.m_iB, &NewElement.m_iA );
+					sscanf( s_token, "%i %i %i %i", &NewElement.m_iR, &NewElement.m_iG, &NewElement.m_iB, &NewElement.m_iA );
 
 					continue;
 				}
 
-				if ( !Q_stricmp( token, "scale" ) )
+				if ( !Q_stricmp( s_token, "scale" ) )
 				{
 					ParseToken();
 
-					NewElement.m_flScale = atof( token );
+					NewElement.m_flScale = atof( s_token );
 					continue;
 				}
 
-				if ( !Q_stricmp( token, "texturescale" ) )
+				if ( !Q_stricmp( s_token, "texturescale" ) )
 				{
 					ParseToken();
 
-					float flTextureScale = atof( token );
+					float flTextureScale = atof( s_token );
 					NewElement.m_flTextureRes = (flTextureScale > 0.0f) ? 1.0f / flTextureScale : 0.0f;
 					continue;
 				}
 
-				if ( !Q_stricmp( token, "fadetime" ) )
+				if ( !Q_stricmp( s_token, "fadetime" ) )
 				{
 					ParseToken();
 
-					NewElement.m_flFadeTime = atof( token );
+					NewElement.m_flFadeTime = atof( s_token );
 					continue;
 				}
 
-				if ( !Q_stricmp( token, "stopfollowonkill" ) )
+				if ( !Q_stricmp( s_token, "stopfollowonkill" ) )
 				{
 					ParseToken();
 
-					NewElement.m_bStopFollowOnKill = !!atoi( token );
+					NewElement.m_bStopFollowOnKill = !!atoi( s_token );
 					continue;
 				}
 

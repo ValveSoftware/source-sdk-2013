@@ -1400,10 +1400,10 @@ void CTeamplayRoundBasedRules::State_Enter_PREROUND( void )
 			m_hStalemateTimer->AcceptInput( "Resume", NULL, NULL, sVariant, 0 );
 			m_hStalemateTimer->AcceptInput( "Enable", NULL, NULL, sVariant, 0 );
 #endif
-			IGameEvent *event = gameeventmanager->CreateEvent( "teamplay_update_timer" );
-			if ( event )
+			IGameEvent *timerevent = gameeventmanager->CreateEvent( "teamplay_update_timer" );
+			if ( timerevent  )
 			{
-				gameeventmanager->FireEvent( event );
+				gameeventmanager->FireEvent( timerevent  );
 			}
 		}
 
@@ -2884,8 +2884,7 @@ void CTeamplayRoundBasedRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
 
 	int iScore;
 
-	int i;
-	for ( i = 0; i < pHeavyTeam->GetNumPlayers(); i++ )
+	for (int i = 0; i < pHeavyTeam->GetNumPlayers(); i++ )
 	{
 		pPlayer = ToBaseMultiplayerPlayer( pHeavyTeam->GetPlayer(i) );
 

@@ -255,10 +255,10 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 			if (!(_exp)) 													\
 			{ 																\
 				_SpewInfo( SPEW_ASSERT, __TFILE__, __LINE__ );				\
-				SpewRetval_t ret = _SpewMessage("%s", static_cast<const char*>( _msg ));	\
+				SpewRetval_t ret_ = _SpewMessage("%s", static_cast<const char*>( _msg ));	\
 				CallAssertFailedNotifyFunc( __TFILE__, __LINE__, _msg );					\
 				_executeExp; 												\
-				if ( ret == SPEW_DEBUGGER)									\
+				if ( ret_ == SPEW_DEBUGGER)									\
 				{															\
 					if ( !ShouldUseNewAssertDialog() || DoNewAssertDialog( __TFILE__, __LINE__, _msg ) ) \
 					{														\
@@ -399,6 +399,10 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 #define  AssertAlways( _exp )           							_AssertMsg( _exp, _T("Assertion Failed: ") _T(#_exp), ((void)0), false )
 #define  AssertMsgAlways( _exp, _msg )  							_AssertMsg( _exp, _msg, ((void)0), false )
 
+// Stringify a number
+#define V_STRINGIFY_INTERNAL(x) #x
+// Extra level of indirection needed when passing in a macro to avoid getting the macro name instead of value
+#define V_STRINGIFY(x) V_STRINGIFY_INTERNAL(x)
 
 #if !defined( _X360 ) || !defined( _RETAIL )
 

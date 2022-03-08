@@ -240,9 +240,9 @@ void CTriggerWeaponDissolve::DissolveThink( void )
 			//FIXME: Make them do this on a stagger!
 
 			// All conduits send power to the weapon
-			for ( int i = 0; i < m_pConduitPoints.Count(); i++ )
+			for ( int j = 0; j < m_pConduitPoints.Count(); j++ )
 			{
-				CreateBeam( m_pConduitPoints[i]->GetAbsOrigin(), pWeapon, 4.0f );
+				CreateBeam( m_pConduitPoints[j]->GetAbsOrigin(), pWeapon, 4.0f );
 			}
 
 			PhysCannonBeginUpgrade( pWeapon );

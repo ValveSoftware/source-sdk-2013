@@ -1307,7 +1307,7 @@ void CMomentaryRotButton::SetPositionMoveDone(void)
 //			useType - 
 //			value - 
 //-----------------------------------------------------------------------------
-void CMomentaryRotButton::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+void CMomentaryRotButton::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float /*value*/ ) // FIXME: VS2022 Port - parameter 'value' unused?
 {
 	if ( m_bDisabled == true )
 		return;

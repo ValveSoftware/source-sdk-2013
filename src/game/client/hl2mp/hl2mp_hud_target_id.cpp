@@ -106,15 +106,15 @@ void CTargetID::Paint()
 	wchar_t sIDString[ MAX_ID_STRING ];
 	sIDString[0] = 0;
 
-	C_HL2MP_Player *pPlayer = C_HL2MP_Player::GetLocalHL2MPPlayer();
+	C_HL2MP_Player *pHL2MPPlayer = C_HL2MP_Player::GetLocalHL2MPPlayer();
 
-	if ( !pPlayer )
+	if ( !pHL2MPPlayer)
 		return;
 
 	Color c;
 
 	// Get our target's ent index
-	int iEntIndex = pPlayer->GetIDTarget();
+	int iEntIndex = pHL2MPPlayer->GetIDTarget();
 	// Didn't find one?
 	if ( !iEntIndex )
 	{

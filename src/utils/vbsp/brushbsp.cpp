@@ -1048,7 +1048,6 @@ unchanged
 void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t **back )
 {
 	bspbrush_t	*b[2];
-	int			i, j;
 	winding_t	*w, *cw[2], *midwinding;
 	plane_t		*plane, *plane2;
 	side_t		*s, *cs;
@@ -1059,12 +1058,12 @@ void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t
 
 	// check all points
 	d_front = d_back = 0;
-	for (i=0 ; i<brush->numsides ; i++)
+	for (int i=0 ; i<brush->numsides ; i++)
 	{
 		w = brush->sides[i].winding;
 		if (!w)
 			continue;
-		for (j=0 ; j<w->numpoints ; j++)
+		for (int j=0 ; j<w->numpoints ; j++)
 		{
 			d = DotProduct (w->p[j], plane->normal) - plane->dist;
 			if (d > 0 && d > d_front)
@@ -1092,7 +1091,7 @@ void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t
 	// create a new winding from the split plane
 
 	w = BaseWindingForPlane (plane->normal, plane->dist + DotProduct(plane->normal,offset));
-	for (i=0 ; i<brush->numsides && w ; i++)
+	for (int i=0 ; i<brush->numsides && w ; i++)
 	{
 		plane2 = &g_MainMap->mapplanes[brush->sides[i].planenum ^ 1];
 		ChopWindingInPlace (&w, plane2->normal, plane2->dist+DotProduct(plane2->normal,offset), 0); // PLANESIDE_EPSILON);
@@ -1127,7 +1126,7 @@ void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t
     //
     // allocate two new brushes referencing the original
     //
-	for( i = 0; i < 2; i++ )
+	for(int i = 0; i < 2; i++ )
 	{
 		b[i] = AllocBrush( brush->numsides + 1 );
 		b[i]->original = brush->original;
@@ -1136,7 +1135,7 @@ void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t
     //
 	// split all the current windings
     //
-	for( i = 0; i < brush->numsides; i++ )
+	for(int i = 0; i < brush->numsides; i++ )
 	{
         // get the current side
 		s = &brush->sides[i];
@@ -1149,7 +1148,7 @@ void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t
         // clip the winding
 		ClipWindingEpsilon_Offset( w, plane->normal, plane->dist, 0 /*PLANESIDE_EPSILON*/, &cw[0], &cw[1], offset );
 
-		for( j = 0; j < 2; j++ )
+		for(int j = 0; j < 2; j++ )
 		{
             // does winding exist?
 			if( !cw[j] )
@@ -1178,10 +1177,11 @@ void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t
 
 	// see if we have valid polygons on both sides
 
-	for (i=0 ; i<2 ; i++)
+	for (int i=0 ; i<2 ; i++)
 	{
 		BoundBrush (b[i]);
-		for (j=0 ; j<3 ; j++)
+		int j = 0;
+		for (; j<3 ; j++)
 		{
 			if (b[i]->mins[j] < MIN_COORD_INTEGER || b[i]->maxs[j] > MAX_COORD_INTEGER)
 			{
@@ -1217,7 +1217,7 @@ void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t
 	}
 
 	// add the midwinding to both sides
-	for (i=0 ; i<2 ; i++)
+	for (int i = 0; i<2 ; i++)
 	{
 		cs = &b[i]->sides[b[i]->numsides];
 		b[i]->numsides++;
@@ -1238,9 +1238,8 @@ void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t
 
 {
 	vec_t	v1;
-	int		i;
 
-	for (i=0 ; i<2 ; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		v1 = BrushVolume (b[i]);
 		if (v1 < 1.0)

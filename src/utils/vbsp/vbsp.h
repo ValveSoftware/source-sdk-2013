@@ -365,10 +365,10 @@ extern	bool		g_NodrawTriggers;
 extern	bool		g_DisableWaterLighting;
 extern	bool		g_bAllowDetailCracks;
 extern	bool		g_bNoVirtualMesh;
-extern	char		outbase[32];
+extern	char		g_outbase[32];
 
-extern	char	source[1024];
-extern char		mapbase[ 64 ];
+extern	char	g_source[1024];
+extern char		g_mapbase[ 64 ];
 extern CUtlVector<int> g_SkyAreas;
 
 bool 	LoadMapFile( const char *pszFileName );

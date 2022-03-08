@@ -250,7 +250,7 @@ void C_Flare::Update( float timeDelta )
 
 	if ( m_bLight )
 	{
-		dlight_t *dl= effects->CL_AllocDlight( index );
+		dlight_t *dl= effects->CL_AllocDlight( m_nIndex );
 
 		
 
@@ -285,7 +285,7 @@ void C_Flare::Update( float timeDelta )
 				dl->radius	= baseScale * random->RandomFloat( 245.0f, 256.0f );
 				dl->color.g = dl->color.b = random->RandomInt( 95, 128 );
 		
-				dlight_t *el= effects->CL_AllocElight( index );
+				dlight_t *el= effects->CL_AllocElight( m_nIndex );
 
 				el->origin	= effect_origin;
 				el->color.r = 255;

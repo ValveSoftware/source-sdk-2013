@@ -1445,9 +1445,9 @@ void CAI_BlendedMotor::BuildVelocityScript( const AILocalMoveGoal_t &move )
 					Assert( fabs( d1 + d2 - dist ) < 0.001 );
 					*/
 
-					float a = d1 / m_scriptMove[i].flDist;
+					float g = d1 / m_scriptMove[i].flDist;
 					script.Init();
-					script.vecLocation = m_scriptMove[i+1].vecLocation * a + m_scriptMove[i].vecLocation * (1 - a);
+					script.vecLocation = m_scriptMove[i+1].vecLocation * g + m_scriptMove[i].vecLocation * (1 - g);
 					script.flMaxVelocity = m_scriptMove[i].flMaxVelocity + idealAccel * t1;
 
 					if (script.flMaxVelocity < idealVelocity)

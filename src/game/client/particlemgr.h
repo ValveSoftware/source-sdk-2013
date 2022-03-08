@@ -119,7 +119,7 @@ entities. Each one is useful under different conditions.
 #include "tier0/fasttimer.h"
 #include "utllinkedlist.h"
 #include "utldict.h"
-#ifdef WIN32
+#if defined(WIN32) && (_MSC_VER < 1900) // VS2022
 #include <typeinfo.h>
 #else
 #include <typeinfo>

@@ -1443,10 +1443,10 @@ void CNPC_Barnacle::AttachTongueToTarget( CBaseEntity *pTouchEnt, Vector vecGrab
 		IPhysicsObject *pPlayerPhys = pTouchEnt->VPhysicsGetObject();
 		IPhysicsObject *pTonguePhys = m_hTongueTip->VPhysicsGetObject();
 
-		Vector vecGrabPos;
+		Vector vecPlayerGrabPos;
 		if ( pTouchEnt->IsPlayer() )
 		{
-			vecGrabPos = pTouchEnt->EyePosition();
+			vecPlayerGrabPos = pTouchEnt->EyePosition();
 #if BARNACLE_USE_TONGUE_OFFSET
 			VectorRotate( m_svPlayerHeldTipOffset, pTouchEnt->EntityToWorldTransform(), m_vecTipDrawOffset.GetForModify() );
 			m_vecTipDrawOffset.GetForModify().z = m_svPlayerHeldTipOffset.z;
@@ -1455,17 +1455,17 @@ void CNPC_Barnacle::AttachTongueToTarget( CBaseEntity *pTouchEnt, Vector vecGrab
 		}
 		else
 		{
-			VectorSubtract( m_vecTip, pTouchEnt->GetAbsOrigin(), vecGrabPos	);
-			VectorNormalize( vecGrabPos );
-			vecGrabPos = physcollision->CollideGetExtent( pPlayerPhys->GetCollide(), pTouchEnt->GetAbsOrigin(), pTouchEnt->GetAbsAngles(), vecGrabPos );
+			VectorSubtract( m_vecTip, pTouchEnt->GetAbsOrigin(), vecPlayerGrabPos);
+			VectorNormalize(vecPlayerGrabPos);
+			vecPlayerGrabPos = physcollision->CollideGetExtent( pPlayerPhys->GetCollide(), pTouchEnt->GetAbsOrigin(), pTouchEnt->GetAbsAngles(), vecPlayerGrabPos);
 #if BARNACLE_USE_TONGUE_OFFSET
 			m_vecTipDrawOffset.GetForModify().Zero();
 #endif
 		}
 
-		m_hTongueTip->Teleport( &vecGrabPos, NULL, NULL );
+		m_hTongueTip->Teleport( &vecPlayerGrabPos, NULL, NULL );
 
-		float flDist = (vecGrabPos - GetAbsOrigin() ).Length();
+		float flDist = (vecPlayerGrabPos - GetAbsOrigin() ).Length();
 		float flTime = flDist / m_flBarnaclePullSpeed;
 
 		// If this object would be pulled in too quickly, change the pull speed.

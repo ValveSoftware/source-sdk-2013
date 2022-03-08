@@ -2028,14 +2028,14 @@ void CNPC_RollerMine::ShockTouch( CBaseEntity *pOther )
 			Vector vecDamageForce = pOther->WorldSpaceCenter() - WorldSpaceCenter();
 			VectorNormalize( vecDamageForce );
 
-			IPhysicsObject *pPhysics = pOther->VPhysicsGetObject();
+			IPhysicsObject *pPhysicsOther = pOther->VPhysicsGetObject();
 
-			if( pPhysics )
+			if( pPhysicsOther )
 			{
-				vecDamageForce *= (pPhysics->GetMass() * 200.0f);
+				vecDamageForce *= (pPhysicsOther->GetMass() * 200.0f);
 
 				// Slam Z component with some good, reliable upwards velocity.
-				vecDamageForce.z = pPhysics->GetMass() * 200.0f;
+				vecDamageForce.z = pPhysicsOther->GetMass() * 200.0f;
 			}
 
 			pOther->MyCombatCharacterPointer()->BecomeRagdollBoogie( this, vecDamageForce, 5.0f, SF_RAGDOLL_BOOGIE_ELECTRICAL );

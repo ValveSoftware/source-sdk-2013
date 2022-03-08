@@ -895,10 +895,10 @@ AI_Waypoint_t *CAI_Pathfinder::BuildComplexRoute( Navigation_t navType, const Ve
 		{
 			if ( !UseStrongOptimizations() || ( GetOuter()->GetState() == NPC_STATE_SCRIPT || GetOuter()->IsCurSchedule( SCHED_SCENE_GENERIC, false ) ) )
 			{
-				float flTotalDist = ComputePathDistance( navType, vStart, vEnd );
+				float d = ComputePathDistance( navType, vStart, vEnd );
 
 				AI_Waypoint_t *triangRoute = BuildTriangulationRoute(vStart, vEnd, pTarget, 
-					endFlags, nodeID, flYaw, flTotalDist - moveTrace.flDistObstructed, navType);
+					endFlags, nodeID, flYaw, d - moveTrace.flDistObstructed, navType);
 
 				if (triangRoute)
 				{

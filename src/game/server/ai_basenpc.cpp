@@ -9510,9 +9510,9 @@ void CAI_BaseNPC::CollectShotStats( const Vector &vecShootOrigin, const Vector &
 	{
 		int iterations = ai_shot_stats_term.GetInt();
 		int iHits = 0;
-		Vector testDir = vecShootDir;
+		Vector testDir_ = vecShootDir;
 
-		CShotManipulator manipulator( testDir );
+		CShotManipulator manipulator( testDir_ );
 
 		for( int i = 0 ; i < iterations ; i++ )
 		{
@@ -11913,9 +11913,9 @@ bool CAI_BaseNPC::CineCleanup()
 				}
 				else if ( drop == 0 ) // Hanging in air?
 				{
-					Vector origin = GetLocalOrigin();
-					origin.z = new_origin.z;
-					SetLocalOrigin( origin );
+					Vector origin_ = GetLocalOrigin();
+					origin_.z = new_origin.z;
+					SetLocalOrigin( origin_ );
 					SetGroundEntity( NULL );
 				}
 			}

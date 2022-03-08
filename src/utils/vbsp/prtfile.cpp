@@ -328,7 +328,7 @@ void WritePortalFile (tree_t *tree)
 
 	qprintf ("--- WritePortalFile ---\n");
 
-	sprintf (filename, "%s.prt", source);
+	sprintf (filename, "%s.prt", g_source);
 	Msg ("writing %s...", filename);
 
 	headnode = tree->headnode;

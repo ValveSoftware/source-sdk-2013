@@ -18,7 +18,7 @@ $Project "client"
 	"game\client\client_tf.vpc"			[$TF]
 	"game\client\client_hl2mp.vpc"		[$HL2MP]
 	"game\client\client_hl2.vpc"		[$HL2]
-	"game\client\client_episodic.vpc"	[$EPISODIC]
+	"game\client\client_episodic.vpc"		[$EPISODIC]
 }
 
 $Project "fgdlib"
@@ -54,8 +54,8 @@ $Project "server"
 {
 	"game\server\server_tf.vpc"			[$TF]
 	"game\server\server_hl2mp.vpc"		[$HL2MP]
-	"game\client\client_hl2.vpc"		[$HL2]
-	"game\client\client_episodic.vpc"	[$EPISODIC]
+	"game\server\server_hl2.vpc"		[$HL2]
+	"game\server\server_episodic.vpc"	[$EPISODIC]
 }
 
 $Project "launcher_main"

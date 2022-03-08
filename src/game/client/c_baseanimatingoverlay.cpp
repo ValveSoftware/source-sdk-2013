@@ -214,7 +214,7 @@ void C_BaseAnimatingOverlay::CheckForLayerChanges( CStudioHdr *hdr, float curren
 	int i;
 	for (i = 0; i < m_iv_AnimOverlay.Count(); i++)
 	{
-		CDisableRangeChecks disableRangeChecks; 
+		//CDisableRangeChecks disableRangeChecks; 
 
 		int iHead, iPrev1, iPrev2;
 		m_iv_AnimOverlay[i].GetInterpolationInfo( currentTime, &iHead, &iPrev1, &iPrev2 );

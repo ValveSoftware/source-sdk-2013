@@ -1554,8 +1554,8 @@ void CBaseServerVehicle::ProcessMovement( CBasePlayer *pPlayer, CMoveData *pMove
 	UTIL_TraceLine( pPlayer->GetAbsOrigin(), pPlayer->GetAbsOrigin() - Vector( 0, 0, 256 ), MASK_PLAYERSOLID, GetVehicleEnt(), COLLISION_GROUP_NONE, &tr );
 
 	// If our gamematerial has changed, tell any player surface triggers that are watching
-	IPhysicsSurfaceProps *physprops = MoveHelper()->GetSurfaceProps();
-	const surfacedata_t *pSurfaceProp = physprops->GetSurfaceData( tr.surface.surfaceProps );
+	IPhysicsSurfaceProps *props = MoveHelper()->GetSurfaceProps();
+	const surfacedata_t *pSurfaceProp = props->GetSurfaceData( tr.surface.surfaceProps );
 	char cCurrGameMaterial = pSurfaceProp->game.material;
 
 	// Changed?

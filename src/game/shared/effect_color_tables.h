@@ -33,10 +33,10 @@ enum
 // Commander mode table
 static colorentry_t commandercolors[] =
 {
-	{ COMMAND_POINT_RED,	1.0,	0.0,	0.0	},
-	{ COMMAND_POINT_BLUE,	0.0,	0.0,	1.0	},
-	{ COMMAND_POINT_GREEN,	0.0,	1.0,	0.0	},
-	{ COMMAND_POINT_YELLOW,	1.0,	1.0,	0.0	},
+	{ COMMAND_POINT_RED,	1,	0,	0	},
+	{ COMMAND_POINT_BLUE,	0,	0,	1	},
+	{ COMMAND_POINT_GREEN,	0,	1,	0	},
+	{ COMMAND_POINT_YELLOW,	1,	1,	0	},
 };
 
 static colorentry_t bloodcolors[] =

@@ -108,16 +108,16 @@ static void ParseDetailGroup( int detailId, KeyValues* pGroupKeyValues )
 	// Sort the group by alpha
 	float alpha = pGroupKeyValues->GetFloat( "alpha", 1.0f );
 	
-	int i = s_DetailObjectDict[detailId].m_Groups.Count();
-	while ( --i >= 0 )
+	int j = s_DetailObjectDict[detailId].m_Groups.Count();
+	while ( --j >= 0 )
 	{
-		if (alpha > s_DetailObjectDict[detailId].m_Groups[i].m_Alpha)
+		if (alpha > s_DetailObjectDict[detailId].m_Groups[j].m_Alpha)
 			break;
 	}
 
 	// Insert after the first guy who's more transparent that we are!
-	i = s_DetailObjectDict[detailId].m_Groups.InsertAfter(i);
-	DetailObjectGroup_t& group = s_DetailObjectDict[detailId].m_Groups[i];
+	j = s_DetailObjectDict[detailId].m_Groups.InsertAfter(j);
+	DetailObjectGroup_t& group = s_DetailObjectDict[detailId].m_Groups[j];
 
 	group.m_Alpha = alpha;
 
@@ -240,7 +240,7 @@ static void ParseDetailGroup( int detailId, KeyValues* pGroupKeyValues )
 	// renormalize the amount if the total > 1
 	if (totalAmount > 1.0f)
 	{
-		for (i = 0; i < group.m_Models.Count(); ++i)
+		for (int i = 0; i < group.m_Models.Count(); ++i)
 		{
 			group.m_Models[i].m_Amount /= totalAmount;
 		}
@@ -643,10 +643,10 @@ static void EmitDetailObjectsOnFace( dface_t* pFace, DetailObject_t& detail )
 	int vertexIdx = (pSurfEdges[0] < 0);
 	int firstVertexIndex = dedges[abs(pSurfEdges[0])].v[vertexIdx];
 	dvertex_t* pFirstVertex = &dvertexes[firstVertexIndex];
-	for (int i = 1; i < pFace->numedges - 1; ++i )
+	for (int j = 1; j < pFace->numedges - 1; ++j )
 	{
-		int vertexIdx = (pSurfEdges[i] < 0);
-		dedge_t* pEdge = &dedges[abs(pSurfEdges[i])];
+		vertexIdx = (pSurfEdges[j] < 0);
+		dedge_t* pEdge = &dedges[abs(pSurfEdges[j])];
 
 		// Compute two triangle edges
 		Vector e1, e2;
@@ -712,7 +712,7 @@ static float ComputeDisplacementFaceArea( dface_t* pFace )
 	dvertex_t* pFirstVertex = &dvertexes[firstVertexIndex];
 	for (int i = 1; i <= 2; ++i )
 	{
-		int vertexIdx = (pSurfEdges[i] < 0);
+		vertexIdx = (pSurfEdges[i] < 0);
 		dedge_t* pEdge = &dedges[abs(pSurfEdges[i])];
 
 		// Compute two triangle edges

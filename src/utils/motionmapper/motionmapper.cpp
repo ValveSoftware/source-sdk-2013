@@ -610,15 +610,15 @@ void ParseFaceData( s_source_t *psource, int material, s_face_t *pFace )
 		{
 			int k;
 			int ctr = 0;
-			char *token;
+			char *tok;
 			for (k = 0; k < 18; k++)
 			{
 				while (g_szLine[ctr] == ' ')
 				{
 					ctr++;
 				}
-				token = strtok( &g_szLine[ctr], " " );
-				ctr += strlen( token ) + 1;
+				tok = strtok( &g_szLine[ctr], " " );
+				ctr += strlen(tok) + 1;
 			}
 			for (k = 4; k < iCount && k < MAXSTUDIOSRCBONES; k++)
 			{
@@ -626,15 +626,15 @@ void ParseFaceData( s_source_t *psource, int material, s_face_t *pFace )
 				{
 					ctr++;
 				}
-				token = strtok( &g_szLine[ctr], " " );
-				ctr += strlen( token ) + 1;
+				tok = strtok( &g_szLine[ctr], " " );
+				ctr += strlen(tok) + 1;
 
-				bones[k] = atoi(token);
+				bones[k] = atoi(tok);
 
-				token = strtok( &g_szLine[ctr], " " );
-				ctr += strlen( token ) + 1;
+				tok = strtok( &g_szLine[ctr], " " );
+				ctr += strlen(tok) + 1;
 			
-				weights[k] = atof(token);
+				weights[k] = atof(tok);
 			}
 			// vprint( 0, "%d ", iCount );
 
@@ -1094,18 +1094,16 @@ void CalcModelTangentSpaces( s_source_t *pSrc )
 
 void BuildIndividualMeshes( s_source_t *psource )
 {
-	int i, j, k;
-	
 	// sort new vertices by materials, last used
 	static int v_listsort[MAXSTUDIOVERTS];	// map desired order to vlist entry
 	static int v_ilistsort[MAXSTUDIOVERTS]; // map vlist entry to desired order
 
-	for (i = 0; i < numvlist; i++)
+	for (int i = 0; i < numvlist; i++)
 	{
 		v_listsort[i] = i;
 	}
 	qsort( v_listsort, numvlist, sizeof( int ), vlistCompare );
-	for (i = 0; i < numvlist; i++)
+	for (int i = 0; i < numvlist; i++)
 	{
 		v_ilistsort[v_listsort[i]] = i;
 	}
@@ -1122,17 +1120,16 @@ void BuildIndividualMeshes( s_source_t *psource )
 	psource->texcoord = (Vector2D *)kalloc( psource->numvertices, sizeof( Vector2D ) );
 
 	// create arrays of unique vertexes, normals, texcoords.
-	for (i = 0; i < psource->numvertices; i++)
+	for (int i = 0; i < psource->numvertices; i++)
 	{
-		j = v_listsort[i];
+		int j = v_listsort[i];
 
 		VectorCopy( g_vertex[v_listdata[j].v], psource->vertex[i] );
 		VectorCopy( g_normal[v_listdata[j].n], psource->normal[i] );		
 		Vector2Copy( g_texcoord[v_listdata[j].t], psource->texcoord[i] );
 
 		psource->localBoneweight[i].numbones		= g_bone[v_listdata[j].v].numbones;
-		int k;
-		for( k = 0; k < MAXSTUDIOBONEWEIGHTS; k++ )
+		for(int k = 0; k < MAXSTUDIOBONEWEIGHTS; k++ )
 		{
 			psource->localBoneweight[i].bone[k]		= g_bone[v_listdata[j].v].bone[k];
 			psource->localBoneweight[i].weight[k]	= g_bone[v_listdata[j].v].weight[k];
@@ -1150,19 +1147,19 @@ void BuildIndividualMeshes( s_source_t *psource )
 	static int facesort[MAXSTUDIOTRIANGLES];	// map desired order to src_face entry
 	static int ifacesort[MAXSTUDIOTRIANGLES];	// map src_face entry to desired order
 	
-	for (i = 0; i < g_numfaces; i++)
+	for (int i = 0; i < g_numfaces; i++)
 	{
 		facesort[i] = i;
 	}
 	qsort( facesort, g_numfaces, sizeof( int ), faceCompare );
-	for (i = 0; i < g_numfaces; i++)
+	for (int i = 0; i < g_numfaces; i++)
 	{
 		ifacesort[facesort[i]] = i;
 	}
 
 	psource->numfaces = g_numfaces;
 	// find first occurance for each material
-	for (k = 0; k < MAXSTUDIOSKINS; k++)
+	for (int k = 0; k < MAXSTUDIOSKINS; k++)
 	{
 		psource->mesh[k].numvertices = 0;
 		psource->mesh[k].vertexoffset = psource->numvertices;
@@ -1172,18 +1169,18 @@ void BuildIndividualMeshes( s_source_t *psource )
 	}
 
 	// find first and count of indices per material
-	for (i = 0; i < psource->numvertices; i++)
+	for (int i = 0; i < psource->numvertices; i++)
 	{
-		k = psource->vertexInfo[i].material;
+		int k = psource->vertexInfo[i].material;
 		psource->mesh[k].numvertices++;
 		if (psource->mesh[k].vertexoffset > i)
 			psource->mesh[k].vertexoffset = i;
 	}
 
 	// find first and count of faces per material
-	for (i = 0; i < psource->numfaces; i++)
+	for (int i = 0; i < psource->numfaces; i++)
 	{
-		k = g_face[facesort[i]].material;
+		int k = g_face[facesort[i]].material;
 
 		psource->mesh[k].numfaces++;
 		if (psource->mesh[k].faceoffset > i)
@@ -1199,15 +1196,15 @@ void BuildIndividualMeshes( s_source_t *psource )
 
 	// create remapped faces
 	psource->face = (s_face_t *)kalloc( psource->numfaces, sizeof( s_face_t ));
-	for (k = 0; k < MAXSTUDIOSKINS; k++)
+	for (int k = 0; k < MAXSTUDIOSKINS; k++)
 	{
 		if (psource->mesh[k].numfaces)
 		{
 			psource->meshindex[psource->nummeshes] = k;
 
-			for (i = psource->mesh[k].faceoffset; i < psource->mesh[k].numfaces + psource->mesh[k].faceoffset; i++)
+			for (int i = psource->mesh[k].faceoffset; i < psource->mesh[k].numfaces + psource->mesh[k].faceoffset; i++)
 			{
-				j = facesort[i];
+				int j = facesort[i];
 
 				psource->face[i].a = v_ilistsort[g_src_uface[j].a] - psource->mesh[k].vertexoffset;
 				psource->face[i].b = v_ilistsort[g_src_uface[j].b] - psource->mesh[k].vertexoffset;

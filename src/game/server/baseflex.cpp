@@ -564,8 +564,7 @@ bool CBaseFlex::HandleStartGestureSceneEvent( CSceneEventInfo *info, CChoreoScen
 		char szEndLoop[CEventAbsoluteTag::MAX_EVENTTAG_LENGTH] = { "end" };
 
 		// check in the tag indexes
-		KeyValues *pkvFaceposer;
-		for ( pkvFaceposer = pkvAllFaceposer->GetFirstSubKey(); pkvFaceposer; pkvFaceposer = pkvFaceposer->GetNextKey() )
+		for (KeyValues* pkvFaceposer = pkvAllFaceposer->GetFirstSubKey(); pkvFaceposer; pkvFaceposer = pkvFaceposer->GetNextKey() )
 		{
 			if (!stricmp( pkvFaceposer->GetName(), "startloop" ))
 			{
@@ -621,14 +620,14 @@ bool CBaseFlex::HandleStartGestureSceneEvent( CSceneEventInfo *info, CChoreoScen
 						{
 							float percentage = (float)pkvTags->GetInt() / maxFrame;
 
-							CEventAbsoluteTag *ptag = event->FindAbsoluteTag( CChoreoEvent::ORIGINAL, pkvTags->GetName() );
-							if (ptag)
+							CEventAbsoluteTag *pabstag = event->FindAbsoluteTag( CChoreoEvent::ORIGINAL, pkvTags->GetName() );
+							if (pabstag)
 							{
-								if (fabs(ptag->GetPercentage() - percentage) > 0.05)
+								if (fabs(pabstag->GetPercentage() - percentage) > 0.05)
 								{
-									DevWarning("%s repositioned tag: %s : %.3f -> %.3f (%s:%s:%s)\n", scene->GetFilename(), pkvTags->GetName(), ptag->GetPercentage(), percentage, scene->GetFilename(), actor->GetName(), event->GetParameters() );
+									DevWarning("%s repositioned tag: %s : %.3f -> %.3f (%s:%s:%s)\n", scene->GetFilename(), pkvTags->GetName(), pabstag->GetPercentage(), percentage, scene->GetFilename(), actor->GetName(), event->GetParameters() );
 									// reposition tag
-									ptag->SetPercentage( percentage );
+									pabstag->SetPercentage( percentage );
 								}
 							}
 						}
@@ -993,8 +992,7 @@ public:
 	const void *FindSceneFile( CBaseFlex *instance, const char *filename, bool allowBlockingIO )
 	{
 		// See if it's already loaded
-		int i;
-		for ( i = 0; i < m_FileList.Size(); i++ )
+		for ( int i = 0; i < m_FileList.Size(); i++ )
 		{
 			CFlexSceneFile *file = m_FileList[ i ];
 			if ( file && !stricmp( file->filename, filename ) )
@@ -2474,12 +2472,12 @@ void CFlexCycler::Think( void )
 	// only do this if they have more than eyelid movement
 	if (GetNumFlexControllers() > 2)
 	{
-		const char *pszExpression = flex_expression.GetString();
+		const char *pszFlexExpression = flex_expression.GetString();
 
-		if (pszExpression && pszExpression[0] == '+' && pszExpression[1] != '\0')
+		if (pszFlexExpression && pszFlexExpression[0] == '+' && pszFlexExpression[1] != '\0')
 		{
 			int i;
-			int j = atoi( &pszExpression[1] );
+			int j = atoi( &pszFlexExpression[1] );
 			for ( i = 0; i < GetNumFlexControllers(); i++)
 			{
 				m_flextarget[m_flexnum] = 0;
@@ -2492,7 +2490,7 @@ void CFlexCycler::Think( void )
 				// Msg( "%s %.3f\n", predef_flexcontroller_names[i], predef_flexcontroller_values[j][i] );
 			}
 		}
-		else if ( pszExpression && (pszExpression[0] == '1') && (pszExpression[1] == '\0') ) // 1 for maxed controller values
+		else if ( pszFlexExpression && (pszFlexExpression[0] == '1') && (pszFlexExpression[1] == '\0') ) // 1 for maxed controller values
 		{
 			for ( LocalFlexController_t i = LocalFlexController_t(0); i < GetNumFlexControllers(); i++ )
 			{
@@ -2501,7 +2499,7 @@ void CFlexCycler::Think( void )
 				SetFlexWeight( i, m_flextarget[i] );
 			}
 		}
-		else if ( pszExpression && (pszExpression[0] == '^') && (pszExpression[1] == '\0') ) // ^ for sine wave
+		else if ( pszFlexExpression && (pszFlexExpression[0] == '^') && (pszFlexExpression[1] == '\0') ) // ^ for sine wave
 		{
 			for ( LocalFlexController_t i = LocalFlexController_t(0); i < GetNumFlexControllers(); i++ )
 			{
@@ -2511,12 +2509,12 @@ void CFlexCycler::Think( void )
 				SetFlexWeight( i, m_flextarget[i] );
 			}
 		}
-		else if (pszExpression && pszExpression[0] != '\0' && strcmp(pszExpression, "+") != 0)
+		else if (pszFlexExpression && pszFlexExpression[0] != '\0' && strcmp(pszFlexExpression, "+") != 0)
 		{
 			char szExpression[128];
 			char szTemp[32];
 
-			Q_strncpy( szExpression, pszExpression ,sizeof(szExpression));
+			Q_strncpy( szExpression, pszFlexExpression,sizeof(szExpression));
 			char *pszExpression = szExpression;
 
 			while (*pszExpression != '\0')

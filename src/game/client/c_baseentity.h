@@ -1264,7 +1264,7 @@ public:
 public:	
 
 	// Determine what entity this corresponds to
-	int								index;	
+	int								m_nIndex;	
 
 	// Render information
 	unsigned char					m_nRenderFX;
@@ -1278,7 +1278,7 @@ public:
 private:
 	
 	// Model for rendering
-	const model_t					*model;
+	const model_t					*m_pModel;
 
 public:
 	// Time animation sequence or frame was last changed
@@ -1743,7 +1743,7 @@ inline const CParticleProperty *C_BaseEntity::ParticleProp() const
 //-----------------------------------------------------------------------------
 inline bool C_BaseEntity::IsServerEntity( void )
 {
-	return index != -1;
+	return m_nIndex != -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -1775,7 +1775,7 @@ inline const QAngle& C_BaseEntity::GetNetworkAngles() const
 
 inline const model_t *C_BaseEntity::GetModel( void ) const
 {
-	return model;
+	return m_pModel;
 }
 
 inline int C_BaseEntity::GetModelIndex( void ) const

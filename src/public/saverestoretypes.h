@@ -218,13 +218,12 @@ public:
 	{
 #ifdef GAME_DLL
 		int i;
-		entitytable_t *pTable;
 		int nEntities = NumEntities();
 
 		for ( i = 0; i < nEntities; i++ )
 		{
-			pTable = GetEntityInfo( i );
-			m_EntityToIndex.Insert(  CHashElement( pTable->hEnt.Get(), i ) );
+			entitytable_t* pEntInfo = GetEntityInfo( i );
+			m_EntityToIndex.Insert(  CHashElement( pEntInfo->hEnt.Get(), i ) );
 		}
 #endif
 	}
@@ -250,14 +249,13 @@ public:
 			else
 			{
 				int i;
-				entitytable_t *pTable;
 
 				int nEntities = NumEntities();
 				for ( i = 0; i < nEntities; i++ )
 				{
-					pTable = GetEntityInfo( i );
-					if ( pTable->hEnt == pEntity )
-						return pTable->id;
+					entitytable_t* pEntInfo = GetEntityInfo( i );
+					if ( pEntInfo->hEnt == pEntity )
+						return pEntInfo->id;
 				}
 			}
 		}

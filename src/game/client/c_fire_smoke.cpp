@@ -386,7 +386,7 @@ void C_EntityFlame::Simulate( void )
 
 	if ( IsEffectActive(EF_BRIGHTLIGHT) || IsEffectActive(EF_DIMLIGHT) )
 	{
-		dlight_t *dl = effects->CL_AllocDlight ( index );
+		dlight_t *dl = effects->CL_AllocDlight ( m_nIndex );
 		dl->origin = GetAbsOrigin();
  		dl->origin[2] += 16;
 		dl->color.r = 254;

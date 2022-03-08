@@ -45,7 +45,7 @@ void LeakFile (tree_t *tree)
 	//
 	// write the points to the file
 	//
-	sprintf (filename, "%s.lin", source);
+	sprintf (filename, "%s.lin", g_source);
 	linefile = fopen (filename, "w");
 	if (!linefile)
 		Error ("Couldn't open %s\n", filename);
@@ -110,7 +110,7 @@ void AreaportalLeakFile( tree_t *tree, portal_t *pStartPortal, portal_t *pEndPor
 	//
 	// write the points to the file
 	//
-	sprintf (filename, "%s.lin", source);
+	sprintf (filename, "%s.lin", g_source);
 	linefile = fopen (filename, "w");
 	if (!linefile)
 		Error ("Couldn't open %s\n", filename);

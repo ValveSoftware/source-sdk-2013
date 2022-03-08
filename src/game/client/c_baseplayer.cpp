@@ -464,8 +464,8 @@ void C_BasePlayer::Spawn( void )
 	ClearFlags();
 	AddFlag( FL_CLIENT );
 
-	int effects = GetEffects() & EF_NOSHADOW;
-	SetEffects( effects );
+	int fx = GetEffects() & EF_NOSHADOW;
+	SetEffects( fx );
 
 	m_iFOV	= 0;	// init field of view.
 
@@ -796,7 +796,7 @@ void C_BasePlayer::PostDataUpdate( DataUpdateType_t updateType )
 		if ( g_nKillCamMode )
 			iLocalPlayerIndex = g_nKillCamTarget1;
 
-		if ( iLocalPlayerIndex == index )
+		if ( iLocalPlayerIndex == m_nIndex )
 		{
 			Assert( s_pLocalPlayer == NULL );
 			s_pLocalPlayer = this;
@@ -889,7 +889,7 @@ void C_BasePlayer::PostDataUpdate( DataUpdateType_t updateType )
 				gameeventmanager->FireEventClientSide( pEvent );
 			}
 
-			view->FreezeFrame(0);
+			g_pView->FreezeFrame(0);
 
 			ConVar *pVar = (ConVar *)cvar->FindVar( "snd_soundmixer" );
 			pVar->Revert();
@@ -1209,7 +1209,7 @@ void C_BasePlayer::UpdateFlashlight()
 		if (!m_pFlashlight)
 		{
 			// Turned on the headlight; create it.
-			m_pFlashlight = new CFlashlightEffect(index);
+			m_pFlashlight = new CFlashlightEffect(m_nIndex);
 
 			if (!m_pFlashlight)
 				return;
@@ -1571,11 +1571,11 @@ void C_BasePlayer::CalcRoamingView(Vector& eyeOrigin, QAngle& eyeAngles, float& 
 	
 	if ( spec_track.GetInt() > 0 )
 	{
-		C_BaseEntity *target =  ClientEntityList().GetBaseEntity( spec_track.GetInt() );
+		C_BaseEntity *target_ =  ClientEntityList().GetBaseEntity( spec_track.GetInt() );
 
-		if ( target )
+		if ( target_ )
 		{
-			Vector v = target->GetAbsOrigin(); v.z += 54;
+			Vector v = target_->GetAbsOrigin(); v.z += 54;
 			QAngle a; VectorAngles( v - eyeOrigin, a );
 
 			NormalizeAngles( a );
@@ -1671,7 +1671,7 @@ void C_BasePlayer::CalcFreezeCamView( Vector& eyeOrigin, QAngle& eyeAngles, floa
 		}
 
 		m_bSentFreezeFrame = true;
-		view->FreezeFrame( spec_freeze_time.GetFloat() );
+		g_pView->FreezeFrame( spec_freeze_time.GetFloat() );
 	}
 }
 
@@ -2068,8 +2068,8 @@ void C_BasePlayer::GetToolRecordingState( KeyValues *msg )
 	static CameraRecordingState_t state;
 	state.m_flFOV = GetFOV();
 
-	float flZNear = view->GetZNear();
-	float flZFar = view->GetZFar();
+	float flZNear = g_pView->GetZNear();
+	float flZFar = g_pView->GetZFar();
 	CalcView( state.m_vecEyePosition, state.m_vecEyeAngles, flZNear, flZFar, state.m_flFOV );
 	state.m_bThirdPerson = !engine->IsPaused() && ::input->CAM_IsThirdPerson();
 

@@ -512,15 +512,15 @@ const char *CTeamplayRules::TeamWithFewestPlayers( void )
 void CTeamplayRules::RecountTeams( void )
 {
 	char	*pName;
-	char	teamlist[TEAMPLAY_TEAMLISTLENGTH];
+	char	teamlist_[TEAMPLAY_TEAMLISTLENGTH];
 
 	// loop through all teams, recounting everything
 	num_teams = 0;
 
 	// Copy all of the teams from the teamlist
 	// make a copy because strtok is destructive
-	Q_strncpy( teamlist, m_szTeamList, sizeof(teamlist) );
-	pName = teamlist;
+	Q_strncpy( teamlist_, m_szTeamList, sizeof(teamlist_) );
+	pName = teamlist_;
 	pName = strtok( pName, ";" );
 	while ( pName != NULL && *pName )
 	{

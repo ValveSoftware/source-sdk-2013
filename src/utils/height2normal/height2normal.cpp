@@ -207,14 +207,14 @@ void ProcessFiles( const char *pNormalFileNameWithoutExtension,
 		enum ImageFormat imageFormat;
 		int width, height;
 		float sourceGamma;
-		CUtlBuffer buf;
-		if ( !g_pFullFileSystem->ReadFile( heightTGAFileName, NULL, buf ) )
+		CUtlBuffer tgabuf;
+		if ( !g_pFullFileSystem->ReadFile( heightTGAFileName, NULL, tgabuf ) )
 		{
 			fprintf( stderr, "%s not found\n", heightTGAFileName );
 			return;
 		}
 
-		if ( !TGALoader::GetInfo( buf, &width, &height, &imageFormat, &sourceGamma ) )
+		if ( !TGALoader::GetInfo( tgabuf, &width, &height, &imageFormat, &sourceGamma ) )
 		{
 			fprintf( stderr, "error in %s\n", heightTGAFileName );
 			return;
@@ -223,8 +223,8 @@ void ProcessFiles( const char *pNormalFileNameWithoutExtension,
 		int memRequired = ImageLoader::GetMemRequired( width, height, 1, IMAGE_FORMAT_IA88, false );
 		unsigned char *pImageIA88 = new unsigned char[memRequired];
 		
-		buf.SeekGet( CUtlBuffer::SEEK_HEAD, 0 );
-		TGALoader::Load( pImageIA88, buf, width, height, IMAGE_FORMAT_IA88, sourceGamma, false );
+		tgabuf.SeekGet( CUtlBuffer::SEEK_HEAD, 0 );
+		TGALoader::Load( pImageIA88, tgabuf, width, height, IMAGE_FORMAT_IA88, sourceGamma, false );
 
 		memRequired = ImageLoader::GetMemRequired( width, height, 1, IMAGE_FORMAT_RGBA8888, false );
 		unsigned char *pImageRGBA8888 = new unsigned char[memRequired];

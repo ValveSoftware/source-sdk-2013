@@ -158,8 +158,8 @@ protected:
     int			m_Flags;																// surface flags - inherited from the "parent" face
 	int			m_Contents;																// contents flags - inherited from the "parent" face
 
-	Vector		sAxis;																	// used to generate start disp orientation (old method)
-	Vector		tAxis;																	// used to generate start disp orientation (old method)
+	Vector		m_sAxis;																	// used to generate start disp orientation (old method)
+	Vector		m_tAxis;																	// used to generate start disp orientation (old method)
 	int			m_PointStartIndex;														// index to the starting point -- for saving starting point
 	Vector		m_PointStart;															// starting point used to determine the orientation of the displacement map on the surface
 };
@@ -372,7 +372,7 @@ inline int CCoreDispSurface::GetContents( void )
 //-----------------------------------------------------------------------------
 inline void CCoreDispSurface::SetSAxis( Vector const &axis )
 {
-	VectorCopy( axis, sAxis );
+	VectorCopy( axis, m_sAxis );
 }
 
 
@@ -380,7 +380,7 @@ inline void CCoreDispSurface::SetSAxis( Vector const &axis )
 //-----------------------------------------------------------------------------
 inline void CCoreDispSurface::GetSAxis( Vector& axis )
 {
-	VectorCopy( sAxis, axis );
+	VectorCopy( m_sAxis, axis );
 }
 
 
@@ -388,7 +388,7 @@ inline void CCoreDispSurface::GetSAxis( Vector& axis )
 //-----------------------------------------------------------------------------
 inline void CCoreDispSurface::SetTAxis( Vector const &axis )
 {
-	VectorCopy( axis, tAxis );
+	VectorCopy( axis, m_tAxis );
 }
 
 
@@ -396,7 +396,7 @@ inline void CCoreDispSurface::SetTAxis( Vector const &axis )
 //-----------------------------------------------------------------------------
 inline void CCoreDispSurface::GetTAxis( Vector& axis )
 {
-	VectorCopy( tAxis, axis );
+	VectorCopy( m_tAxis, axis );
 }
 
 

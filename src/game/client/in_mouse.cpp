@@ -657,7 +657,7 @@ void CInput::MouseMove( CUserCmd *cmd )
 	CheckMouseAcclerationVars();
 
 	// Don't drift pitch at all while mouselooking.
-	view->StopPitchDrift ();
+	g_pView->StopPitchDrift ();
 
 	//jjb - this disables normal mouse control if the user is trying to 
 	//      move the camera, or if the mouse cursor is visible 

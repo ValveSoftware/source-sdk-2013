@@ -379,12 +379,12 @@ DWORD WINAPI PortalMCThreadFn( LPVOID p )
 						int iWorkUnit = *((int*)&data[6]);
 						if ( iWorkUnit >= 0 && iWorkUnit < g_numportals*2 )
 						{
-							portal_t *p = sorted_portals[iWorkUnit];
-							if ( p )
+							portal_t *sp = sorted_portals[iWorkUnit];
+							if ( sp )
 							{
 								++g_nMulticastPortalsReceived;
-								memcpy( p->portalvis, &data[10], portalbytes );
-								p->status = stat_done;
+								memcpy( sp->portalvis, &data[10], portalbytes );
+								sp->status = stat_done;
 								waitTime = 0;
 							}
 						}

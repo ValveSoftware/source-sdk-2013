@@ -290,7 +290,7 @@ void VMPI_ExceptionFilter( unsigned long uCode, void *pvExceptionInfo )
 	#define ERR_RECORD( name ) { name, #name }
 	struct
 	{
-		int code;
+		unsigned int code;
 		char *pReason;
 	} errors[] =
 	{

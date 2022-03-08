@@ -109,7 +109,7 @@ void ConnectHaptics(CreateInterfaceFn appFactory)
 			haptics = reinterpret_cast< IHaptics* >( factory( HAPTICS_INTERFACE_VERSION, NULL ) );
 			if(haptics && 
 				haptics->Initialize(engine,
-					view,
+					g_pView,
 					g_InputInternal,
 					gpGlobals,
 					appFactory,
@@ -147,7 +147,7 @@ void DisconnectHaptics()
 		pFalconModule = 0;
 	}else{
 		// delete the stub.
-		delete haptics;
+		delete (CHapticsStubbed*)haptics;
 	}
 	haptics = NULL;
 }

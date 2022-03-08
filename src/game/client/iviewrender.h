@@ -140,6 +140,6 @@ public:
 	virtual IReplayScreenshotSystem *GetReplayScreenshotSystem() = 0;
 };
 
-extern IViewRender *view;
+extern IViewRender *g_pView;
 
 #endif // IVIEWRENDER_H

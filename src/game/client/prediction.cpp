@@ -415,9 +415,9 @@ void CPrediction::PostNetworkDataReceived( int commands_acknowledged )
 
 	bool error_check = ( commands_acknowledged > 0 ) ? true : false;
 #if defined( _DEBUG )
-	char sz[ 32 ];
-	Q_snprintf( sz, sizeof( sz ), "postnetworkdata%d", commands_acknowledged );
-	PREDICTION_TRACKVALUECHANGESCOPE( sz );
+	char sz_[ 32 ];
+	Q_snprintf( sz_, sizeof(sz_), "postnetworkdata%d", commands_acknowledged );
+	PREDICTION_TRACKVALUECHANGESCOPE( sz_ );
 #endif
 #ifndef _XBOX
 	CPDumpPanel *dump = GetPDumpPanel();

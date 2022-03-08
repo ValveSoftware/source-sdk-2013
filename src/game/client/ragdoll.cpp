@@ -759,11 +759,11 @@ public:
 			if ( !( hdr->boneFlags( i ) & boneMask ) )
 				continue;
 
-			Vector pos;
+			Vector v;
 			matrix3x4_t &matrix = GetBoneForWrite( i );
-			MatrixGetColumn( matrix, 3, pos );
-			pos += offset;
-			MatrixSetColumn( pos, 3, matrix );
+			MatrixGetColumn( matrix, 3, v );
+			v += offset;
+			MatrixSetColumn( v, 3, matrix );
 		}
 	}
 	void OnDataChanged( DataUpdateType_t updateType );

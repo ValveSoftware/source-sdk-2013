@@ -1195,8 +1195,7 @@ int CTeamControlPointMaster::CalcNumRoundsRemaining( int iTeam )
 
 			// see if one team owns all control points in this round
 			int iRoundOwningTeam = TEAM_INVALID;
-			int iControlPoint;
-			for ( iControlPoint = 0; iControlPoint < pRound->m_ControlPoints.Count(); iControlPoint++ )
+			for (int iControlPoint = 0; iControlPoint < pRound->m_ControlPoints.Count(); iControlPoint++ )
 			{
 				CTeamControlPoint *pControlPoint = pRound->m_ControlPoints[iControlPoint];
 				int iControlPointOwningTeam = TEAM_INVALID;

@@ -1177,11 +1177,11 @@ void CGameLump::ParseGameLump( dheader_t* pHeader )
 				g_Swap.SwapFieldsToTargetEndian( &pGameLump[i] );
 			}
 
-			int length = pGameLump[i].filelen;
-			GameLumpHandle_t lump = g_GameLumps.CreateGameLump( pGameLump[i].id, length, pGameLump[i].flags, pGameLump[i].version );
+			int glLength = pGameLump[i].filelen;
+			GameLumpHandle_t lump = g_GameLumps.CreateGameLump( pGameLump[i].id, glLength, pGameLump[i].flags, pGameLump[i].version );
 			if ( g_bSwapOnLoad )
 			{
-				SwapGameLump( pGameLump[i].id, pGameLump[i].version, (byte*)g_GameLumps.GetGameLump(lump), (byte *)pHeader + pGameLump[i].fileofs, length );
+				SwapGameLump( pGameLump[i].id, pGameLump[i].version, (byte*)g_GameLumps.GetGameLump(lump), (byte *)pHeader + pGameLump[i].fileofs, glLength );
 			}
 			else
 			{
@@ -3254,7 +3254,7 @@ Fills in s->texmins[] and s->texsize[]
 void CalcFaceExtents(dface_t *s, int lightmapTextureMinsInLuxels[2], int lightmapTextureSizeInLuxels[2])
 {
 	vec_t	    mins[2], maxs[2], val=0;
-	int		    i,j, e=0;
+	int		    e=0;
 	dvertex_t	*v=NULL;
 	texinfo_t	*tex=NULL;
 	
@@ -3263,7 +3263,7 @@ void CalcFaceExtents(dface_t *s, int lightmapTextureMinsInLuxels[2], int lightma
 
 	tex = &texinfo[s->texinfo];
 	
-	for (i=0 ; i<s->numedges ; i++)
+	for ( int i = 0; i < s->numedges; i++ )
 	{
 		e = dsurfedges[s->firstedge+i];
 		if (e >= 0)
@@ -3271,7 +3271,7 @@ void CalcFaceExtents(dface_t *s, int lightmapTextureMinsInLuxels[2], int lightma
 		else
 			v = dvertexes + dedges[-e].v[1];
 		
-		for (j=0 ; j<2 ; j++)
+		for ( int j = 0; j < 2; j++ )
 		{
 			val = v->point[0] * tex->lightmapVecsLuxelsPerWorldUnits[j][0] + 
 				  v->point[1] * tex->lightmapVecsLuxelsPerWorldUnits[j][1] + 
@@ -3285,7 +3285,7 @@ void CalcFaceExtents(dface_t *s, int lightmapTextureMinsInLuxels[2], int lightma
 	}
 
 	int nMaxLightmapDim = (s->dispinfo == -1) ? MAX_LIGHTMAP_DIM_WITHOUT_BORDER : MAX_DISP_LIGHTMAP_DIM_WITHOUT_BORDER;
-	for (i=0 ; i<2 ; i++)
+	for ( int i = 0; i < 2; i++ )
 	{	
 		mins[i] = ( float )floor( mins[i] );
 		maxs[i] = ( float )ceil( maxs[i] );
@@ -3295,7 +3295,7 @@ void CalcFaceExtents(dface_t *s, int lightmapTextureMinsInLuxels[2], int lightma
 		if( lightmapTextureSizeInLuxels[i] > nMaxLightmapDim + 1 )
 		{
 			Vector point = vec3_origin;
-			for (int j=0 ; j<s->numedges ; j++)
+			for ( int j = 0; j < s->numedges; j++ )
 			{
 				e = dsurfedges[s->firstedge+j];
 				v = (e<0)?dvertexes + dedges[-e].v[1] : dvertexes + dedges[e].v[0];
@@ -4521,8 +4521,8 @@ bool CompressBSP( CUtlBuffer &inputBuffer, CUtlBuffer &outputBuffer, CompressFun
 			// only set by compressed lumps, hides the uncompressed size
 			*((unsigned int *)pOutBSPHeader->lumps[lumpNum].fourCC) = 0;
 
-			CUtlBuffer inputBuffer;
-			inputBuffer.SetExternalBuffer( ((byte *)pInBSPHeader) + pSortedLump->pLump->fileofs, pSortedLump->pLump->filelen, pSortedLump->pLump->filelen );
+			CUtlBuffer buf;
+			buf.SetExternalBuffer( ((byte *)pInBSPHeader) + pSortedLump->pLump->fileofs, pSortedLump->pLump->filelen, pSortedLump->pLump->filelen );
 
 			if ( lumpNum == LUMP_GAME_LUMP )
 			{
@@ -4533,16 +4533,16 @@ bool CompressBSP( CUtlBuffer &inputBuffer, CUtlBuffer &outputBuffer, CompressFun
 			{
 				// add as is
 				pOutBSPHeader->lumps[lumpNum].fileofs = newOffset;
-				outputBuffer.Put( inputBuffer.Base(), inputBuffer.TellPut() );
+				outputBuffer.Put( buf.Base(), buf.TellPut() );
 			}
 			else
 			{
 				CUtlBuffer compressedBuffer;
-				bool bCompressed = pCompressFunc( inputBuffer, compressedBuffer );
+				bool bCompressed = pCompressFunc( buf, compressedBuffer );
 				if ( bCompressed )
 				{
 					// placing the uncompressed size in the unused fourCC, will decode at runtime
-					*((unsigned int *)pOutBSPHeader->lumps[lumpNum].fourCC) = BigLong( inputBuffer.TellPut() );
+					*((unsigned int *)pOutBSPHeader->lumps[lumpNum].fourCC) = BigLong( buf.TellPut() );
 					pOutBSPHeader->lumps[lumpNum].filelen = compressedBuffer.TellPut();
 					pOutBSPHeader->lumps[lumpNum].fileofs = newOffset;
 					outputBuffer.Put( compressedBuffer.Base(), compressedBuffer.TellPut() );
@@ -4552,7 +4552,7 @@ bool CompressBSP( CUtlBuffer &inputBuffer, CUtlBuffer &outputBuffer, CompressFun
 				{
 					// add as is
 					pOutBSPHeader->lumps[lumpNum].fileofs = newOffset;
-					outputBuffer.Put( inputBuffer.Base(), inputBuffer.TellPut() );
+					outputBuffer.Put( buf.Base(), buf.TellPut() );
 				}
 			}
 		}

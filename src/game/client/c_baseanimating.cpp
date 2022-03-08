@@ -2716,7 +2716,7 @@ bool C_BaseAnimating::SetupBones( matrix3x4_t *pBoneToWorldOut, int nMaxBones, i
 		// Prevent spammage!!!
 		if ( gpGlobals->realtime >= lastWarning + 1.0f )
 		{
-			DevMsgRT( "*** ERROR: Bone access not allowed (entity %i:%s)\n", index, GetClassname() );
+			DevMsgRT( "*** ERROR: Bone access not allowed (entity %i:%s)\n", m_nIndex, GetClassname() );
 			lastWarning = gpGlobals->realtime;
 		}
 	}
@@ -3205,9 +3205,9 @@ void C_BaseAnimating::DoInternalDrawModel( ClientModelRenderInfo_t *pInfo, DrawM
 				if ( VPhysicsGetObject() )
 				{
 					static color32 debugColorPhys = {255,0,0,0};
-					matrix3x4_t matrix;
-					VPhysicsGetObject()->GetPositionMatrix( &matrix );
-					engine->DebugDrawPhysCollide( pCollide->solids[0], NULL, matrix, debugColorPhys );
+					matrix3x4_t m;
+					VPhysicsGetObject()->GetPositionMatrix( &m );
+					engine->DebugDrawPhysCollide( pCollide->solids[0], NULL, m, debugColorPhys );
 				}
 			}
 		}
@@ -3252,7 +3252,7 @@ int C_BaseAnimating::InternalDrawModel( int flags )
 	pInfo->flags = flags;
 	pInfo->pRenderable = this;
 	pInfo->instance = GetModelInstance();
-	pInfo->entity_index = index;
+	pInfo->entity_index = m_nIndex;
 	pInfo->pModel = GetModel();
 	pInfo->origin = GetRenderOrigin();
 	pInfo->angles = GetRenderAngles();
@@ -3314,7 +3314,7 @@ void C_BaseAnimating::ProcessMuzzleFlashEvent()
 			GetAttachment( 1, vAttachment, dummyAngles );
 
 			// Make an elight
-			dlight_t *el = effects->CL_AllocElight( LIGHT_INDEX_MUZZLEFLASH + index );
+			dlight_t *el = effects->CL_AllocElight( LIGHT_INDEX_MUZZLEFLASH + m_nIndex );
 			el->origin = vAttachment;
 			el->radius = random->RandomInt( 32, 64 ); 
 			el->decay = el->radius / 0.05f;
@@ -3829,12 +3829,12 @@ void C_BaseAnimating::FireEvent( const Vector& origin, const QAngle& angles, int
 		{
 			if ( MainViewOrigin().DistToSqr( GetAbsOrigin() ) < (256 * 256) )
 			{
-				Vector attachOrigin;
-				QAngle attachAngles; 
+				Vector brassAttachOrigin;
+				QAngle brassAttachAngles; 
 				
-				if( GetAttachment( 2, attachOrigin, attachAngles ) )
+				if( GetAttachment( 2, brassAttachOrigin, brassAttachAngles ) )
 				{
-					tempents->EjectBrass( attachOrigin, attachAngles, GetAbsAngles(), atoi( options ) );
+					tempents->EjectBrass( brassAttachOrigin, brassAttachAngles, GetAbsAngles(), atoi( options ) );
 				}
 			}
 		}

@@ -128,12 +128,8 @@ bool CEventLog::PrintPlayerEvent( IGameEvent *event )
 		
 		CBasePlayer *pAttacker = UTIL_PlayerByUserId( attackerid );
 		CTeam *team = pPlayer->GetTeam();
-		CTeam *attackerTeam = NULL;
-		
-		if ( pAttacker )
-		{
-			attackerTeam = pAttacker->GetTeam();
-		}
+	
+
 		if ( pPlayer == pAttacker && pPlayer )  
 		{  
 

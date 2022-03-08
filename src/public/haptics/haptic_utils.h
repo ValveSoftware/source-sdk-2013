@@ -31,7 +31,7 @@ public: // Initialization.
 		CGlobalVarsBase* newgpGlobals,
 		CreateInterfaceFn newengineFactory, 
 		void *IMEWindow,
-		IFileSystem* filesystem, 
+		IFileSystem* fs, 
 		IEngineVGui* newvgui,
 		ActivityList_IndexForName_t actIndexForName,
 		ActivityList_NameForIndex_t actNameForIndex)

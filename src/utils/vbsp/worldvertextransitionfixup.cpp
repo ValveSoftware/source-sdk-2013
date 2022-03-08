@@ -46,7 +46,7 @@ static void BackSlashToForwardSlash( char *pname )
 //-----------------------------------------------------------------------------
 static void GeneratePatchedMaterialName( const char *pMaterialName, char *pBuffer, int nMaxLen )
 {
-	int nLen = Q_snprintf( pBuffer, nMaxLen, "maps/%s/%s_wvt_patch", mapbase, pMaterialName ); 
+	int nLen = Q_snprintf( pBuffer, nMaxLen, "maps/%s/%s_wvt_patch", g_mapbase, pMaterialName );
 
 	Assert( nLen < TEXTURE_NAME_LENGTH - 1 );
 	if ( nLen >= TEXTURE_NAME_LENGTH - 1 )

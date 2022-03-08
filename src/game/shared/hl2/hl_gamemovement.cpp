@@ -103,7 +103,7 @@ CReservePlayerSpot *CReservePlayerSpot::ReserveSpot(
 		Vector org2 = org + Vector( 0, 0, 1 );
 
 		// See if spot is valid
-		trace_t tr;
+		trace_t spottr;
 		UTIL_TraceHull(
 			org2, 
 			org2, 
@@ -112,8 +112,8 @@ CReservePlayerSpot *CReservePlayerSpot::ReserveSpot(
 			MASK_PLAYERSOLID,
 			owner,
 			COLLISION_GROUP_PLAYER_MOVEMENT,
-			&tr );
-		validspot = !tr.startsolid;
+			&spottr);
+		validspot = !spottr.startsolid;
 	}
 
 	return spot;
