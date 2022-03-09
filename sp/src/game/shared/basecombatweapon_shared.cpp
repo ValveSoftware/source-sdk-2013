@@ -1101,6 +1101,11 @@ WeaponClass_t CBaseCombatWeapon::WeaponClassify()
 #if EXPANDED_HL2_WEAPON_ACTIVITIES
 	case ACT_IDLE_ANGRY_CROSSBOW:	// For now, crossbows are rifles
 #endif
+#if EXPANDED_HL2_UNUSED_WEAPON_ACTIVITIES
+	case ACT_IDLE_ANGRY_AR1:
+	case ACT_IDLE_ANGRY_SMG2:
+	case ACT_IDLE_ANGRY_SNIPER_RIFLE:
+#endif
 	case ACT_IDLE_ANGRY_SMG1:
 	case ACT_IDLE_ANGRY_AR2:		return WEPCLASS_RIFLE;
 	case ACT_IDLE_ANGRY_SHOTGUN:	return WEPCLASS_SHOTGUN;
@@ -1134,6 +1139,18 @@ WeaponClass_t CBaseCombatWeapon::WeaponClassFromString(const char *str)
 #ifdef HL2_DLL
 extern acttable_t *GetSMG1Acttable();
 extern int GetSMG1ActtableCount();
+
+extern acttable_t *GetAR2Acttable();
+extern int GetAR2ActtableCount();
+
+extern acttable_t *GetShotgunActtable();
+extern int GetShotgunActtableCount();
+
+extern acttable_t *GetPistolActtable();
+extern int GetPistolActtableCount();
+
+extern acttable_t *Get357Acttable();
+extern int Get357ActtableCount();
 #endif
 
 //-----------------------------------------------------------------------------
@@ -1154,20 +1171,69 @@ bool CBaseCombatWeapon::SupportsBackupActivity(Activity activity)
 
 acttable_t *CBaseCombatWeapon::GetBackupActivityList()
 {
-#ifdef HL2_DLL
-	return GetSMG1Acttable();
-#else
 	return NULL;
-#endif
 }
 
 int CBaseCombatWeapon::GetBackupActivityListCount()
 {
-#ifdef HL2_DLL
-	return GetSMG1ActtableCount();
-#else
 	return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+acttable_t *CBaseCombatWeapon::GetDefaultBackupActivityList( acttable_t *pTable, int &actCount )
+{
+#ifdef HL2_DLL
+	// Ensure this isn't already a default backup activity list
+	if (pTable == GetSMG1Acttable() || pTable == GetPistolActtable())
+		return NULL;
+
+	// Use a backup table based on what ACT_IDLE_ANGRY is translated to
+	Activity actTranslated = ACT_INVALID;
+	for ( int i = 0; i < actCount; i++, pTable++ )
+	{
+		if ( pTable->baseAct == ACT_IDLE_ANGRY )
+		{
+			actTranslated = (Activity)pTable->weaponAct;
+			break;
+		}
+	}
+
+	if (actTranslated == ACT_INVALID)
+		return NULL;
+
+	switch (actTranslated)
+	{
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
+		case ACT_IDLE_ANGRY_REVOLVER:
 #endif
+		case ACT_IDLE_ANGRY_PISTOL:
+			{
+				actCount = GetPistolActtableCount();
+				return GetPistolActtable();
+			}
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
+		case ACT_IDLE_ANGRY_CROSSBOW:	// For now, crossbows are rifles
+#endif
+#if EXPANDED_HL2_UNUSED_WEAPON_ACTIVITIES
+		case ACT_IDLE_ANGRY_AR1:
+		case ACT_IDLE_ANGRY_SMG2:
+		case ACT_IDLE_ANGRY_SNIPER_RIFLE:
+#endif
+		case ACT_IDLE_ANGRY_SMG1:
+		case ACT_IDLE_ANGRY_AR2:
+		case ACT_IDLE_ANGRY_SHOTGUN:
+		case ACT_IDLE_ANGRY_RPG:
+			{
+				actCount = GetSMG1ActtableCount();
+				return GetSMG1Acttable();
+			}
+	}
+#endif
+
+	actCount = 0;
+	return NULL;
 }
 #endif
 

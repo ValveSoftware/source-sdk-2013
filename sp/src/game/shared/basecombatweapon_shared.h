@@ -232,6 +232,7 @@ public:
 	virtual bool			SupportsBackupActivity(Activity activity);
 	virtual acttable_t		*GetBackupActivityList();
 	virtual int				GetBackupActivityListCount();
+	static acttable_t		*GetDefaultBackupActivityList( acttable_t *pTable, int &actCount );
 #endif
 
 	virtual void			Equip( CBaseCombatCharacter *pOwner );

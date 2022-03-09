@@ -167,9 +167,6 @@ private:
 	void			NotifyBusyEnding( void );
 	bool			HasAnimForActBusy( int iActBusy, busyanimparts_t AnimPart );
 	bool			PlayAnimForActBusy( busyanimparts_t AnimPart );
-#ifdef MAPBASE
-	Activity		GetMoveActivityForActBusy();
-#endif
 	void			PlaySoundForActBusy( busyanimparts_t AnimPart ); 
 
 private:

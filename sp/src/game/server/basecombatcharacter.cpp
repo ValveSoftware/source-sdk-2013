@@ -2725,6 +2725,35 @@ bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 }
 
 #ifdef MAPBASE
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+static Activity Weapon_BackupActivityFromList( CBaseCombatCharacter *pBCC, acttable_t *pTable, int actCount, Activity activity, bool weaponTranslationWasRequired, CBaseCombatWeapon *pWeapon )
+{
+	int i = 0;
+	for ( ; i < actCount; i++, pTable++ )
+	{
+		if ( activity == pTable->baseAct )
+		{
+			// Don't pick backup activities we don't actually have an animation for.
+			if (!pBCC->GetModelPtr()->HaveSequenceForActivity(pTable->weaponAct))
+				break;
+
+			return (Activity)pTable->weaponAct;
+		}
+	}
+
+	// We didn't succeed in finding an activity. See if we can recurse
+	acttable_t *pBackupTable = CBaseCombatWeapon::GetDefaultBackupActivityList( pTable - i, actCount );
+	if (pBackupTable)
+	{
+		return Weapon_BackupActivityFromList( pBCC, pBackupTable, actCount, activity, weaponTranslationWasRequired, pWeapon );
+	}
+
+	return activity;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:	Uses an activity from a different weapon when the activity we were originally looking for does not exist on this character.
 //			This gives NPCs and players the ability to use weapons they are otherwise unable to use.
@@ -2739,30 +2768,27 @@ Activity CBaseCombatCharacter::Weapon_BackupActivity( Activity activity, bool we
 	if (!pWeapon->SupportsBackupActivity(activity))
 		return activity;
 
-	// Sometimes, a NPC is supposed to use the default activity. Return that if the weapon translation was "not required" and we have an original activity.
-	// Don't do this with players.
+	// UNDONE: Sometimes, a NPC is supposed to use the default activity. Return that if the weapon translation was "not required" and we have an original activity.
+	/*
 	if (!weaponTranslationWasRequired && GetModelPtr()->HaveSequenceForActivity(activity) && !IsPlayer())
 	{
 		return activity;
 	}
+	*/
 
 	acttable_t *pTable = pWeapon->GetBackupActivityList();
-	if (pTable)
+	int actCount = pWeapon->GetBackupActivityListCount();
+	if (!pTable)
+	{
+		// Look for a default list
+		actCount = pWeapon->ActivityListCount();
+		pTable = CBaseCombatWeapon::GetDefaultBackupActivityList( pWeapon->ActivityList(), actCount );
+	}
+
+	if (pTable && GetModelPtr())
 	{
 		int actCount = pWeapon->GetBackupActivityListCount();
-		for ( int i = 0; i < actCount; i++, pTable++ )
-		{
-			if ( activity == pTable->baseAct )
-			{
-				// Don't pick backup activities we don't actually have an animation for.
-				if (GetModelPtr() ? !GetModelPtr()->HaveSequenceForActivity(pTable->weaponAct) : false)
-				{
-					return activity;
-				}
-
-				return (Activity)pTable->weaponAct;
-			}
-		}
+		return Weapon_BackupActivityFromList( this, pTable, actCount, activity, weaponTranslationWasRequired, pWeapon );
 	}
 
 	return activity;

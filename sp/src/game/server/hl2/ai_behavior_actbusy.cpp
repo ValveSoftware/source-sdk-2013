@@ -1802,20 +1802,6 @@ bool CAI_ActBusyBehavior::PlayAnimForActBusy( busyanimparts_t AnimPart )
 	return false;
 }
 
-#ifdef MAPBASE
-//-----------------------------------------------------------------------------
-// Purpose: Get the busy's move activity
-//-----------------------------------------------------------------------------
-Activity CAI_ActBusyBehavior::GetMoveActivityForActBusy()
-{
-	busyanim_t *pBusyAnim = g_ActBusyAnimDataSystem.GetBusyAnim( m_iCurrentBusyAnim );
-	if ( !pBusyAnim )
-		return m_ForcedActivity;
-
-	return pBusyAnim->bTranslateActivity ? GetOuter()->TranslateActivity( m_ForcedActivity ) : m_ForcedActivity;
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -2044,11 +2030,7 @@ void CAI_ActBusyBehavior::StartTask( const Task_t *pTask )
 			// If we have a forced activity, use that. Otherwise, walk.
 			if ( m_ForcedActivity != ACT_INVALID && m_ForcedActivity != ACT_RESET )
 			{
-#ifdef MAPBASE
-				GetNavigator()->SetMovementActivity( GetMoveActivityForActBusy() );
-#else
 				GetNavigator()->SetMovementActivity( m_ForcedActivity );
-#endif
 
 				// Cover is void once I move
 				Forget( bits_MEMORY_INCOVER );

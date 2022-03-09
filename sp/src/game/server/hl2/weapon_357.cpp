@@ -225,6 +225,17 @@ acttable_t	CWeapon357::m_acttable[] =
 
 
 IMPLEMENT_ACTTABLE( CWeapon357 );
+
+// Allows Weapon_BackupActivity() to access the 357's activity table.
+acttable_t *Get357Acttable()
+{
+	return CWeapon357::m_acttable;
+}
+
+int Get357ActtableCount()
+{
+	return ARRAYSIZE(CWeapon357::m_acttable);
+}
 #endif
 
 //-----------------------------------------------------------------------------
