@@ -1279,9 +1279,10 @@ PLATFORM_INTERFACE bool Is64BitOS();
 
 #ifdef MAPBASE
 //-----------------------------------------------------------------------------
-// General Mapbase version constant compiled into projects for versioning purposes
+// General Mapbase version constants compiled into projects for versioning purposes
 //-----------------------------------------------------------------------------
 #define MAPBASE_VERSION "7.0"
+#define MAPBASE_VER_INT 7000	// For use in #if in a similar fashion to macros like _MSC_VER
 #endif
 
 
