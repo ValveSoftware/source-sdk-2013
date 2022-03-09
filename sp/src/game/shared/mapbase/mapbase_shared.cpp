@@ -86,6 +86,10 @@ char g_iszGameName[128];
 // Default player configuration
 char g_szDefaultPlayerModel[MAX_PATH];
 bool g_bDefaultPlayerDrawExternally;
+
+char g_szDefaultHandsModel[MAX_PATH];
+int g_iDefaultHandsSkin;
+int g_iDefaultHandsBody;
 #endif
 
 enum
@@ -226,6 +230,10 @@ public:
 #ifdef GAME_DLL
 			Q_strncpy( g_szDefaultPlayerModel, gameinfo->GetString( "player_default_model", "models/player.mdl" ), sizeof( g_szDefaultPlayerModel ) );
 			g_bDefaultPlayerDrawExternally = gameinfo->GetBool( "player_default_draw_externally", false );
+
+			Q_strncpy( g_szDefaultHandsModel, gameinfo->GetString( "player_default_hands", "models/weapons/v_hands.mdl" ), sizeof( g_szDefaultHandsModel ) );
+			g_iDefaultHandsSkin = gameinfo->GetInt( "player_default_hands_skin", 0 );
+			g_iDefaultHandsBody = gameinfo->GetInt( "player_default_hands_body", 0 );
 #endif
 		}
 		gameinfo->deleteThis();
