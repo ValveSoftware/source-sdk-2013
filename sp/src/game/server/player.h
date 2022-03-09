@@ -412,6 +412,8 @@ public:
 	const Vector&			ScriptGetEyeForward() { static Vector vecForward; EyeVectors( &vecForward, NULL, NULL ); return vecForward; }
 	const Vector&			ScriptGetEyeRight() { static Vector vecRight; EyeVectors( NULL, &vecRight, NULL ); return vecRight; }
 	const Vector&			ScriptGetEyeUp() { static Vector vecUp; EyeVectors( NULL, NULL, &vecUp ); return vecUp; }
+
+	HSCRIPT					ScriptGetViewModel( int viewmodelindex );
 #endif
 
 	// View model prediction setup

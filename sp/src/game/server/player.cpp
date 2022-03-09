@@ -551,6 +551,8 @@ BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseCombatCharacter, "The player entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetEyeRight, "GetEyeRight", "Gets the player's right eye vector." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetEyeUp, "GetEyeUp", "Gets the player's up eye vector." )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetViewModel, "GetViewModel", "Returns the viewmodel of the specified index." )
+
 	// 
 	// Hooks
 	// 
@@ -7147,6 +7149,19 @@ HSCRIPT CBasePlayer::VScriptGetExpresser()
 	}
 
 	return hScript;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+HSCRIPT CBasePlayer::ScriptGetViewModel( int viewmodelindex )
+{
+	if (viewmodelindex < 0 || viewmodelindex >= MAX_VIEWMODELS)
+	{
+		Warning( "GetViewModel: Invalid index '%i'\n", viewmodelindex );
+		return NULL;
+	}
+
+	return ToHScript( GetViewModel( viewmodelindex ) );
 }
 #endif
 
