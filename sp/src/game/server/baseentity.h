@@ -693,6 +693,7 @@ public:
 #endif
 
 	bool ScriptInputHook( const char *szInputName, CBaseEntity *pActivator, CBaseEntity *pCaller, variant_t Value, ScriptVariant_t &functionReturn );
+	void ScriptInputHookClearParams();
 #ifdef MAPBASE_VSCRIPT
 	bool ScriptDeathHook( CTakeDamageInfo *info );
 #endif
