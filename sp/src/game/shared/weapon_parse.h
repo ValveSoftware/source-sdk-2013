@@ -121,6 +121,10 @@ public:
 	float					m_flBobScale;
 	float					m_flSwayScale;
 	float					m_flSwaySpeedScale;
+
+	char					szDroppedModel[MAX_WEAPON_STRING];		// Model of this weapon when dropped on the ground
+
+	bool					m_bUsesHands;
 #endif
 
 // CLIENT DLL
