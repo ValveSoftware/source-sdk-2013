@@ -428,7 +428,9 @@ public:
 
 	void				ScriptDropWeapon( HSCRIPT hWeapon );
 	void				ScriptEquipWeapon( HSCRIPT hWeapon );
-
+	
+	int					ScriptGiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound = false );
+	void				ScriptRemoveAmmo( int iCount, int iAmmoIndex );
 	int					ScriptGetAmmoCount( int iType ) const;
 	void				ScriptSetAmmoCount( int iType, int iCount );
 

@@ -163,6 +163,8 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEquipWeapon, "EquipWeapon", "Make the character equip the specified weapon entity. If they don't already own the weapon, they will acquire it instantly." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptDropWeapon, "DropWeapon", "Make the character drop the specified weapon entity if they own it." )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGiveAmmo, "GiveAmmo", "Gives the specified amount of the specified ammo type. The third parameter is whether or not to suppress the ammo pickup sound. Returns the amount of ammo actually given, which is 0 if the player's ammo for this type is already full." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRemoveAmmo, "RemoveAmmo", "Removes the specified amount of the specified ammo type." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAmmoCount, "GetAmmoCount", "Get the ammo count of the specified ammo type." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAmmoCount, "SetAmmoCount", "Set the ammo count of the specified ammo type." )
 
@@ -4539,6 +4541,26 @@ void CBaseCombatCharacter::ScriptEquipWeapon( HSCRIPT hWeapon )
 
 		pWeapon->OnPickedUp( this );
 	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int CBaseCombatCharacter::ScriptGiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
+{
+	return GiveAmmo( iCount, iAmmoIndex, bSuppressSound );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseCombatCharacter::ScriptRemoveAmmo( int iCount, int iAmmoIndex )
+{
+	if (iAmmoIndex == -1)
+	{
+		Warning( "%i is not a valid ammo type\n", iAmmoIndex );
+		return;
+	}
+
+	RemoveAmmo( iCount, iAmmoIndex );
 }
 
 //-----------------------------------------------------------------------------
