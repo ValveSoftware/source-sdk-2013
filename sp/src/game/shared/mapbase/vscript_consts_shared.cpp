@@ -126,6 +126,15 @@ extern void RegisterWeaponScriptConstants();
 
 void RegisterSharedScriptConstants()
 {
+	// "SERVER_DLL" is used in Source 2.
+#ifdef GAME_DLL
+	ScriptRegisterConstantNamed( g_pScriptVM, 1, "SERVER_DLL", "" );
+	ScriptRegisterConstantNamed( g_pScriptVM, 0, "CLIENT_DLL", "" );
+#else
+	ScriptRegisterConstantNamed( g_pScriptVM, 0, "SERVER_DLL", "" );
+	ScriptRegisterConstantNamed( g_pScriptVM, 1, "CLIENT_DLL", "" );
+#endif
+
 	// 
 	// Activities
 	// 
