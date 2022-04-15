@@ -14719,326 +14719,356 @@ bool CAI_BaseNPC::IsAllowedToDodge( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CAI_BaseNPC::ParseScriptedNPCInteractions( void )
+void CAI_BaseNPC::ParseScriptedNPCInteractions(void)
 {
 	// Already parsed them?
-	if ( m_ScriptedInteractions.Count() ) 
+	if (m_ScriptedInteractions.Count())
 		return;
 
 	// Parse the model's key values and find any dynamic interactions
-	KeyValues *modelKeyValues = new KeyValues("");
-	CUtlBuffer buf( 1024, 0, CUtlBuffer::TEXT_BUFFER );
+	KeyValues* modelKeyValues = new KeyValues("");
+	CUtlBuffer buf(1024, 0, CUtlBuffer::TEXT_BUFFER);
 
-	if (! modelinfo->GetModelKeyValue( GetModel(), buf ))
+	if (!modelinfo->GetModelKeyValue(GetModel(), buf))
 		return;
-	
-	if ( modelKeyValues->LoadFromBuffer( modelinfo->GetModelName( GetModel() ), buf ) )
+
+	if (modelKeyValues->LoadFromBuffer(modelinfo->GetModelName(GetModel()), buf))
 	{
-		// Do we have a dynamic interactions section?
-		KeyValues *pkvInteractions = modelKeyValues->FindKey("dynamic_interactions");
-		if ( pkvInteractions )
-		{
-			KeyValues *pkvNode = pkvInteractions->GetFirstSubKey();
-			while ( pkvNode )
-			{
-				ScriptedNPCInteraction_t sInteraction;
-				sInteraction.iszInteractionName = AllocPooledString( pkvNode->GetName() );
-
 #ifdef MAPBASE
-				// The method for parsing dynamic interactions has been reworked.
-				// Unknown values are now stored as response contexts to test against response criteria.
-
-				bool bValidInteraction = true;
-
-				// Default values
-				UTIL_StringToVector( sInteraction.vecRelativeOrigin.Base(), "0 0 0" );
-				sInteraction.flDelay = 10.0;
-				sInteraction.flDistSqr = (DSS_MAX_DIST * DSS_MAX_DIST);
-
-				// Misc. response criteria
-				char *szCriteria = "";
-
-				KeyValues *pCurNode = pkvNode->GetFirstSubKey();
-				const char *szName = NULL;
-				const char *szValue = NULL;
-				while (pCurNode)
+		CUtlVector<string_t> iszUsedNames;
+		for (KeyValues* pkvModelBlock = modelKeyValues; pkvModelBlock != nullptr; pkvModelBlock = pkvModelBlock->GetNextKey())
+		{
+			// Do we have a dynamic interactions section?
+			KeyValues* pkvInteractions = pkvModelBlock->FindKey("dynamic_interactions");
+			if (pkvInteractions)
+			{
+				KeyValues* pkvNode = pkvInteractions->GetFirstSubKey();
+				while (pkvNode)
 				{
-					szName = pCurNode->GetName();
-					szValue = pCurNode->GetString();
+					ScriptedNPCInteraction_t sInteraction;
+					sInteraction.iszInteractionName = AllocPooledString(pkvNode->GetName());
 
-					if (!szName || !szValue)
+					if (iszUsedNames.Find(sInteraction.iszInteractionName) != iszUsedNames.InvalidIndex())
 					{
-						DevWarning("ERROR: Invalid dynamic interaction string\n");
+						DevMsg(2, "Scripted interaction %s already defined on %s\n", pkvNode->GetName(), GetClassname());
+						pkvNode = pkvNode->GetNextKey();
+						continue;
+					}
+
+					// The method for parsing dynamic interactions has been reworked.
+					// Unknown values are now stored as response contexts to test against response criteria.
+
+					bool bValidInteraction = true;
+
+					// Default values
+					UTIL_StringToVector(sInteraction.vecRelativeOrigin.Base(), "0 0 0");
+					sInteraction.flDelay = 10.0;
+					sInteraction.flDistSqr = (DSS_MAX_DIST * DSS_MAX_DIST);
+
+					// Misc. response criteria
+					char* szCriteria = "";
+
+					KeyValues* pCurNode = pkvNode->GetFirstSubKey();
+					const char* szName = NULL;
+					const char* szValue = NULL;
+					while (pCurNode)
+					{
+						szName = pCurNode->GetName();
+						szValue = pCurNode->GetString();
+
+						if (!szName || !szValue)
+						{
+							DevWarning("ERROR: Invalid dynamic interaction string\n");
+							pCurNode = pCurNode->GetNextKey();
+						}
+
+						if (!Q_strncmp(szName, "classname", 9))
+						{
+							bool pass = false;
+							if (Q_strstr(szValue, "!="))
+							{
+								szValue += 2;
+								pass = true;
+							}
+
+							if (!FStrEq(GetClassname(), szValue))
+								pass = !pass;
+						}
+						else if (!Q_strncmp(szName, "mapbase", 7))
+						{
+							sInteraction.iFlags |= SCNPC_FLAG_MAPBASE_ADDITION;
+						}
+						else if (!Q_strncmp(szName, "trigger", 7))
+						{
+							if (!Q_strncmp(szValue, "auto_in_combat", 14))
+								sInteraction.iTriggerMethod = SNPCINT_AUTOMATIC_IN_COMBAT;
+						}
+						else if (!Q_strncmp(szValue, "loop_break_trigger", 18))
+						{
+							char szTrigger[256];
+							Q_strncpy(szTrigger, szValue, sizeof(szTrigger));
+							char* pszParam = strtok(szTrigger, " ");
+							while (pszParam)
+							{
+								if (!Q_strncmp(pszParam, "on_damage", 9))
+								{
+									sInteraction.iLoopBreakTriggerMethod |= SNPCINT_LOOPBREAK_ON_DAMAGE;
+								}
+								else if (!Q_strncmp(pszParam, "on_flashlight_illum", 19))
+								{
+									sInteraction.iLoopBreakTriggerMethod |= SNPCINT_LOOPBREAK_ON_FLASHLIGHT_ILLUM;
+								}
+
+								pszParam = strtok(NULL, " ");
+							}
+						}
+						else if (!Q_strncmp(szName, "origin_relative", 15))
+							UTIL_StringToVector(sInteraction.vecRelativeOrigin.Base(), szValue);
+						else if (!Q_strncmp(szName, "angles_relative", 15))
+						{
+							sInteraction.iFlags |= SCNPC_FLAG_TEST_OTHER_ANGLES;
+							UTIL_StringToVector(sInteraction.angRelativeAngles.Base(), szValue);
+						}
+						else if (!Q_strncmp(szName, "velocity_relative", 17))
+						{
+							sInteraction.iFlags |= SCNPC_FLAG_TEST_OTHER_VELOCITY;
+							UTIL_StringToVector(sInteraction.vecRelativeVelocity.Base(), szValue);
+						}
+						else if (!Q_strncmp(szName, "end_position", 12))
+						{
+							sInteraction.iFlags |= SCNPC_FLAG_TEST_END_POSITION;
+							UTIL_StringToVector(sInteraction.vecRelativeEndPos.Base(), szValue);
+						}
+
+						else if (!Q_strncmp(szName, "entry_sequence", 14))
+							sInteraction.sPhases[SNPCINT_ENTRY].iszSequence = AllocPooledString(szValue);
+						else if (!Q_strncmp(szName, "entry_activity", 14))
+							sInteraction.sPhases[SNPCINT_ENTRY].iActivity = GetActivityID(szValue);
+
+						else if (!Q_strncmp(szName, "sequence", 8))
+							sInteraction.sPhases[SNPCINT_SEQUENCE].iszSequence = AllocPooledString(szValue);
+						else if (!Q_strncmp(szName, "activity", 8))
+							sInteraction.sPhases[SNPCINT_SEQUENCE].iActivity = GetActivityID(szValue);
+
+						else if (!Q_strncmp(szName, "exit_sequence", 13))
+							sInteraction.sPhases[SNPCINT_EXIT].iszSequence = AllocPooledString(szValue);
+						else if (!Q_strncmp(szName, "exit_activity", 13))
+							sInteraction.sPhases[SNPCINT_EXIT].iActivity = GetActivityID(szValue);
+
+						else if (!Q_strncmp(szName, "delay", 5))
+							sInteraction.flDelay = atof(szValue);
+						else if (!Q_strncmp(szName, "origin_max_delta", 16))
+							sInteraction.flDistSqr = atof(szValue);
+
+						else if (!Q_strncmp(szName, "loop_in_action", 14) && !FStrEq(szValue, "0"))
+							sInteraction.iFlags |= SCNPC_FLAG_LOOP_IN_ACTION;
+
+						else if (!Q_strncmp(szName, "dont_teleport_at_end", 20))
+						{
+							if (!Q_stricmp(szValue, "me") || !Q_stricmp(szValue, "both"))
+								sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_ME;
+							else if (!Q_stricmp(szValue, "them") || !Q_stricmp(szValue, "both"))
+								sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_THEM;
+						}
+
+						else if (!Q_strncmp(szName, "needs_weapon", 12))
+						{
+							if (!Q_strncmp(szValue, "ME", 2))
+								sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
+							else if (!Q_strncmp(szValue, "THEM", 4))
+								sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
+							else if (!Q_strncmp(szValue, "BOTH", 4))
+							{
+								sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
+								sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
+							}
+						}
+
+						else if (!Q_strncmp(szName, "weapon_mine", 11))
+						{
+							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
+							sInteraction.iszMyWeapon = AllocPooledString(szValue);
+						}
+						else if (!Q_strncmp(szName, "weapon_theirs", 13))
+						{
+							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
+							sInteraction.iszTheirWeapon = AllocPooledString(szValue);
+						}
+
+						// Add anything else to our miscellaneous criteria
+						else
+						{
+							szCriteria = UTIL_VarArgs("%s,%s:%s", szCriteria, szName, szValue);
+						}
+
 						pCurNode = pCurNode->GetNextKey();
 					}
 
-					if (!Q_strncmp(szName, "classname", 9))
+					if (!bValidInteraction)
 					{
-						bool pass = false;
-						if (Q_strstr(szValue, "!="))
-						{
-							szValue += 2;
-							pass = true;
-						}
-
-						if (!FStrEq(GetClassname(), szValue))
-							pass = !pass;
-					}
-					else if (!Q_strncmp(szName, "mapbase", 7))
-					{
-						sInteraction.iFlags |= SCNPC_FLAG_MAPBASE_ADDITION;
-					}
-					else if (!Q_strncmp(szName, "trigger", 7))
-					{
-						if (!Q_strncmp(szValue, "auto_in_combat", 14))
-							sInteraction.iTriggerMethod = SNPCINT_AUTOMATIC_IN_COMBAT;
-					}
-					else if (!Q_strncmp(szValue, "loop_break_trigger", 18))
-					{
-						char szTrigger[256];
-						Q_strncpy( szTrigger, szValue, sizeof(szTrigger) );
-						char *pszParam = strtok( szTrigger, " " );
-						while (pszParam)
-						{
-							if ( !Q_strncmp( pszParam, "on_damage", 9) )
-							{
-								sInteraction.iLoopBreakTriggerMethod |= SNPCINT_LOOPBREAK_ON_DAMAGE;
-							}
-							else if ( !Q_strncmp( pszParam, "on_flashlight_illum", 19) )
-							{
-								sInteraction.iLoopBreakTriggerMethod |= SNPCINT_LOOPBREAK_ON_FLASHLIGHT_ILLUM;
-							}
-
-							pszParam = strtok(NULL," ");
-						}
-					}
-					else if (!Q_strncmp(szName, "origin_relative", 15))
-						UTIL_StringToVector( sInteraction.vecRelativeOrigin.Base(), szValue );
-					else if (!Q_strncmp(szName, "angles_relative", 15))
-					{
-						sInteraction.iFlags |= SCNPC_FLAG_TEST_OTHER_ANGLES;
-						UTIL_StringToVector( sInteraction.angRelativeAngles.Base(), szValue );
-					}
-					else if (!Q_strncmp(szName, "velocity_relative", 17))
-					{
-						sInteraction.iFlags |= SCNPC_FLAG_TEST_OTHER_VELOCITY;
-						UTIL_StringToVector( sInteraction.vecRelativeVelocity.Base(), szValue );
-					}
-#ifdef MAPBASE
-					else if (!Q_strncmp(szName, "end_position", 12))
-					{
-						sInteraction.iFlags |= SCNPC_FLAG_TEST_END_POSITION;
-						UTIL_StringToVector( sInteraction.vecRelativeEndPos.Base(), szValue );
-					}
-#endif
-
-					else if (!Q_strncmp(szName, "entry_sequence", 14))
-						sInteraction.sPhases[SNPCINT_ENTRY].iszSequence = AllocPooledString( szValue );
-					else if (!Q_strncmp(szName, "entry_activity", 14))
-						sInteraction.sPhases[SNPCINT_ENTRY].iActivity = GetActivityID( szValue );
-
-					else if (!Q_strncmp(szName, "sequence", 8))
-						sInteraction.sPhases[SNPCINT_SEQUENCE].iszSequence = AllocPooledString( szValue );
-					else if (!Q_strncmp(szName, "activity", 8))
-						sInteraction.sPhases[SNPCINT_SEQUENCE].iActivity = GetActivityID( szValue );
-
-					else if (!Q_strncmp(szName, "exit_sequence", 13))
-						sInteraction.sPhases[SNPCINT_EXIT].iszSequence = AllocPooledString( szValue );
-					else if (!Q_strncmp(szName, "exit_activity", 13))
-						sInteraction.sPhases[SNPCINT_EXIT].iActivity = GetActivityID(szValue);
-
-					else if (!Q_strncmp(szName, "delay", 5))
-						sInteraction.flDelay = atof(szValue);
-					else if (!Q_strncmp(szName, "origin_max_delta", 16))
-						sInteraction.flDistSqr = atof(szValue);
-
-					else if (!Q_strncmp(szName, "loop_in_action", 14) && !FStrEq(szValue, "0"))
-						sInteraction.iFlags |= SCNPC_FLAG_LOOP_IN_ACTION;
-
-					else if (!Q_strncmp(szName, "dont_teleport_at_end", 20))
-					{
-						if ( !Q_stricmp( szValue, "me" ) || !Q_stricmp( szValue, "both" ) )
-							sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_ME;
-						else if ( !Q_stricmp( szValue, "them" ) || !Q_stricmp( szValue, "both" ) ) 
-							sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_THEM;
+						DevMsg("Scripted interaction %s rejected by %s\n", pkvNode->GetName(), GetClassname());
+						pkvNode = pkvNode->GetNextKey();
+						continue;
 					}
 
-					else if (!Q_strncmp(szName, "needs_weapon", 12))
+					if (szCriteria[0] == ',')
 					{
-						if ( !Q_strncmp( szValue, "ME", 2 ) )
-							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
-						else if ( !Q_strncmp( szValue, "THEM", 4 ) ) 
-							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
-						else if ( !Q_strncmp( szValue, "BOTH", 4 ) ) 
-						{
-							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
-							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
-						}
+						szCriteria += 1;
+						sInteraction.MiscCriteria = AllocPooledString(szCriteria);
 					}
 
-					else if (!Q_strncmp(szName, "weapon_mine", 11))
-					{
-						sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
-						sInteraction.iszMyWeapon = AllocPooledString( szValue );
-					}
-					else if (!Q_strncmp(szName, "weapon_theirs", 13))
-					{
-						sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
-						sInteraction.iszTheirWeapon = AllocPooledString( szValue );
-					}
 
-					// Add anything else to our miscellaneous criteria
-					else
-					{
-						szCriteria = UTIL_VarArgs("%s,%s:%s", szCriteria, szName, szValue);
-					}
+					// Add it to the list
+					AddScriptedNPCInteraction(&sInteraction);
+					iszUsedNames.AddToTail(sInteraction.iszInteractionName);
 
-					pCurNode = pCurNode->GetNextKey();
-				}
-
-				if (!bValidInteraction)
-				{
-					DevMsg("Scripted interaction %s rejected by %s\n", pkvNode->GetName(), GetClassname());
+					// Move to next interaction
 					pkvNode = pkvNode->GetNextKey();
-					continue;
 				}
-
-				if (szCriteria[0] == ',')
-				{
-					szCriteria += 1;
-					sInteraction.MiscCriteria = AllocPooledString(szCriteria);
-				}
+			}
+		}
 #else
+// Do we have a dynamic interactions section?
+		KeyValues* pkvInteractions = modelKeyValues->FindKey("dynamic_interactions");
+		if (pkvInteractions)
+		{
+			KeyValues* pkvNode = pkvInteractions->GetFirstSubKey();
+			while (pkvNode)
+			{
+				ScriptedNPCInteraction_t sInteraction;
+				sInteraction.iszInteractionName = AllocPooledString(pkvNode->GetName());
+
+
 				// Trigger method
-				const char *pszTrigger = pkvNode->GetString( "trigger", NULL );
-				if ( pszTrigger )
+				const char* pszTrigger = pkvNode->GetString("trigger", NULL);
+				if (pszTrigger)
 				{
-					if ( !Q_strncmp( pszTrigger, "auto_in_combat", 14) )
+					if (!Q_strncmp(pszTrigger, "auto_in_combat", 14))
 					{
 						sInteraction.iTriggerMethod = SNPCINT_AUTOMATIC_IN_COMBAT;
 					}
 				}
 
 				// Loop Break trigger method
-				pszTrigger = pkvNode->GetString( "loop_break_trigger", NULL );
-				if ( pszTrigger )
+				pszTrigger = pkvNode->GetString("loop_break_trigger", NULL);
+				if (pszTrigger)
 				{
 					char szTrigger[256];
-					Q_strncpy( szTrigger, pszTrigger, sizeof(szTrigger) );
-					char *pszParam = strtok( szTrigger, " " );
+					Q_strncpy(szTrigger, pszTrigger, sizeof(szTrigger));
+					char* pszParam = strtok(szTrigger, " ");
 					while (pszParam)
 					{
-						if ( !Q_strncmp( pszParam, "on_damage", 9) )
+						if (!Q_strncmp(pszParam, "on_damage", 9))
 						{
 							sInteraction.iLoopBreakTriggerMethod |= SNPCINT_LOOPBREAK_ON_DAMAGE;
 						}
-						if ( !Q_strncmp( pszParam, "on_flashlight_illum", 19) )
+						if (!Q_strncmp(pszParam, "on_flashlight_illum", 19))
 						{
 							sInteraction.iLoopBreakTriggerMethod |= SNPCINT_LOOPBREAK_ON_FLASHLIGHT_ILLUM;
 						}
 
-						pszParam = strtok(NULL," ");
+						pszParam = strtok(NULL, " ");
 					}
 				}
 
 				// Origin
-				const char *pszOrigin = pkvNode->GetString( "origin_relative", "0 0 0" );
-				UTIL_StringToVector( sInteraction.vecRelativeOrigin.Base(), pszOrigin );
+				const char* pszOrigin = pkvNode->GetString("origin_relative", "0 0 0");
+				UTIL_StringToVector(sInteraction.vecRelativeOrigin.Base(), pszOrigin);
 
 				// Angles
-				const char *pszAngles = pkvNode->GetString( "angles_relative", NULL );
-				if ( pszAngles )
+				const char* pszAngles = pkvNode->GetString("angles_relative", NULL);
+				if (pszAngles)
 				{
 					sInteraction.iFlags |= SCNPC_FLAG_TEST_OTHER_ANGLES;
-					UTIL_StringToVector( sInteraction.angRelativeAngles.Base(), pszAngles );
+					UTIL_StringToVector(sInteraction.angRelativeAngles.Base(), pszAngles);
 				}
 
 				// Velocity 
-				const char *pszVelocity = pkvNode->GetString( "velocity_relative", NULL );
-				if ( pszVelocity )
+				const char* pszVelocity = pkvNode->GetString("velocity_relative", NULL);
+				if (pszVelocity)
 				{
 					sInteraction.iFlags |= SCNPC_FLAG_TEST_OTHER_VELOCITY;
-					UTIL_StringToVector( sInteraction.vecRelativeVelocity.Base(), pszVelocity );
+					UTIL_StringToVector(sInteraction.vecRelativeVelocity.Base(), pszVelocity);
 				}
 
 				// Entry Sequence
-				const char *pszSequence = pkvNode->GetString( "entry_sequence", NULL );
-				if ( pszSequence )
+				const char* pszSequence = pkvNode->GetString("entry_sequence", NULL);
+				if (pszSequence)
 				{
-					sInteraction.sPhases[SNPCINT_ENTRY].iszSequence = AllocPooledString( pszSequence );
+					sInteraction.sPhases[SNPCINT_ENTRY].iszSequence = AllocPooledString(pszSequence);
 				}
 				// Entry Activity
-				const char *pszActivity = pkvNode->GetString( "entry_activity", NULL );
-				if ( pszActivity )
+				const char* pszActivity = pkvNode->GetString("entry_activity", NULL);
+				if (pszActivity)
 				{
-					sInteraction.sPhases[SNPCINT_ENTRY].iActivity = GetActivityID( pszActivity );
+					sInteraction.sPhases[SNPCINT_ENTRY].iActivity = GetActivityID(pszActivity);
 				}
 
 				// Sequence
-				pszSequence = pkvNode->GetString( "sequence", NULL );
-				if ( pszSequence )
+				pszSequence = pkvNode->GetString("sequence", NULL);
+				if (pszSequence)
 				{
-					sInteraction.sPhases[SNPCINT_SEQUENCE].iszSequence = AllocPooledString( pszSequence );
+					sInteraction.sPhases[SNPCINT_SEQUENCE].iszSequence = AllocPooledString(pszSequence);
 				}
 				// Activity
-				pszActivity = pkvNode->GetString( "activity", NULL );
-				if ( pszActivity )
+				pszActivity = pkvNode->GetString("activity", NULL);
+				if (pszActivity)
 				{
-					sInteraction.sPhases[SNPCINT_SEQUENCE].iActivity = GetActivityID( pszActivity );
+					sInteraction.sPhases[SNPCINT_SEQUENCE].iActivity = GetActivityID(pszActivity);
 				}
 
 				// Exit Sequence
-				pszSequence = pkvNode->GetString( "exit_sequence", NULL );
-				if ( pszSequence )
+				pszSequence = pkvNode->GetString("exit_sequence", NULL);
+				if (pszSequence)
 				{
-					sInteraction.sPhases[SNPCINT_EXIT].iszSequence = AllocPooledString( pszSequence );
+					sInteraction.sPhases[SNPCINT_EXIT].iszSequence = AllocPooledString(pszSequence);
 				}
 				// Exit Activity
-				pszActivity = pkvNode->GetString( "exit_activity", NULL );
-				if ( pszActivity )
+				pszActivity = pkvNode->GetString("exit_activity", NULL);
+				if (pszActivity)
 				{
-					sInteraction.sPhases[SNPCINT_EXIT].iActivity = GetActivityID( pszActivity );
+					sInteraction.sPhases[SNPCINT_EXIT].iActivity = GetActivityID(pszActivity);
 				}
 
 				// Delay
-				sInteraction.flDelay = pkvNode->GetFloat( "delay", 10.0 );
+				sInteraction.flDelay = pkvNode->GetFloat("delay", 10.0);
 
 				// Delta
-				sInteraction.flDistSqr = pkvNode->GetFloat( "origin_max_delta", (DSS_MAX_DIST * DSS_MAX_DIST) );
+				sInteraction.flDistSqr = pkvNode->GetFloat("origin_max_delta", (DSS_MAX_DIST * DSS_MAX_DIST));
 
 				// Loop?
-				if ( pkvNode->GetFloat( "loop_in_action", 0 ) )
+				if (pkvNode->GetFloat("loop_in_action", 0))
 				{
 					sInteraction.iFlags |= SCNPC_FLAG_LOOP_IN_ACTION;
 				}
 
 				// Fixup position?
-				const char *pszDontFixup = pkvNode->GetString( "dont_teleport_at_end", NULL );
-				if ( pszDontFixup )
+				const char* pszDontFixup = pkvNode->GetString("dont_teleport_at_end", NULL);
+				if (pszDontFixup)
 				{
-					if ( !Q_stricmp( pszDontFixup, "me" ) || !Q_stricmp( pszDontFixup, "both" ) )
+					if (!Q_stricmp(pszDontFixup, "me") || !Q_stricmp(pszDontFixup, "both"))
 					{
 						sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_ME;
 					}
-					else if ( !Q_stricmp( pszDontFixup, "them" ) || !Q_stricmp( pszDontFixup, "both" ) ) 
+					else if (!Q_stricmp(pszDontFixup, "them") || !Q_stricmp(pszDontFixup, "both"))
 					{
 						sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_THEM;
 					}
 				}
 
 				// Needs a weapon?
-				const char *pszNeedsWeapon = pkvNode->GetString( "needs_weapon", NULL );
-				if ( pszNeedsWeapon )
+				const char* pszNeedsWeapon = pkvNode->GetString("needs_weapon", NULL);
+				if (pszNeedsWeapon)
 				{
-					if ( !Q_strncmp( pszNeedsWeapon, "ME", 2 ) )
+					if (!Q_strncmp(pszNeedsWeapon, "ME", 2))
 					{
 						sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
 					}
-					else if ( !Q_strncmp( pszNeedsWeapon, "THEM", 4 ) ) 
+					else if (!Q_strncmp(pszNeedsWeapon, "THEM", 4))
 					{
 						sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
 					}
-					else if ( !Q_strncmp( pszNeedsWeapon, "BOTH", 4 ) ) 
+					else if (!Q_strncmp(pszNeedsWeapon, "BOTH", 4))
 					{
 						sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
 						sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
@@ -15046,27 +15076,28 @@ void CAI_BaseNPC::ParseScriptedNPCInteractions( void )
 				}
 
 				// Specific weapon types
-				const char *pszWeaponName = pkvNode->GetString( "weapon_mine", NULL );
-				if ( pszWeaponName )
+				const char* pszWeaponName = pkvNode->GetString("weapon_mine", NULL);
+				if (pszWeaponName)
 				{
 					sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_ME;
-					sInteraction.iszMyWeapon = AllocPooledString( pszWeaponName );
+					sInteraction.iszMyWeapon = AllocPooledString(pszWeaponName);
 				}
-				pszWeaponName = pkvNode->GetString( "weapon_theirs", NULL );
-				if ( pszWeaponName )
+				pszWeaponName = pkvNode->GetString("weapon_theirs", NULL);
+				if (pszWeaponName)
 				{
 					sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
-					sInteraction.iszTheirWeapon = AllocPooledString( pszWeaponName );
+					sInteraction.iszTheirWeapon = AllocPooledString(pszWeaponName);
 				}
-#endif
 
 				// Add it to the list
-				AddScriptedNPCInteraction( &sInteraction );
+				AddScriptedNPCInteraction(&sInteraction);
 
 				// Move to next interaction
 				pkvNode = pkvNode->GetNextKey();
 			}
 		}
+#endif // MAPBASE
+
 	}
 
 	modelKeyValues->deleteThis();
