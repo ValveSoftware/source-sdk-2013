@@ -66,6 +66,8 @@ void CCustomWeaponSystem::AddManifestFile(KeyValues* pKV, bool bDontWarn)
 	if (pKey)
 	{
 		char value[MAX_PATH];
+		value[0] = '\0';
+
 		// Parse %mapname%, etc.
 		bool inparam = false;
 		CUtlStringList outStrings;
@@ -76,7 +78,7 @@ void CCustomWeaponSystem::AddManifestFile(KeyValues* pKV, bool bDontWarn)
 			{
 				if (FStrEq(outStrings[i], "mapname"))
 				{
-					Q_strncat(value, MapName(), sizeof(value));
+					Q_strncat(value, STRING(gpGlobals->mapname), sizeof(value));
 				}
 				else if (FStrEq(outStrings[i], "language"))
 				{
@@ -128,7 +130,7 @@ void CCustomWeaponSystem::LoadCustomWeaponsManifest(const char* file, bool bDont
 						m_ClassFactories[ClassIndex].pOldFactory = EntityFactoryDictionary()->FindFactory(pszClassname);
 					}
 
-					m_ClassFactories[ClassIndex].sDataFile = file;
+					m_ClassFactories[ClassIndex].sDataFile = pkvWeapon->GetString();
 					m_ClassFactories[ClassIndex].pNewFactory = Factory.Element(FactoryIndex);
 					EntityFactoryDictionary()->UninstallFactory(pszClassname);
 					EntityFactoryDictionary()->InstallFactory(m_ClassFactories[ClassIndex].pNewFactory, pszClassname);
@@ -141,7 +143,7 @@ void CCustomWeaponSystem::LoadCustomWeaponsManifest(const char* file, bool bDont
 
 void CCustomWeaponSystem::LevelShutdownPostEntity()
 {
-	for (int i = 0; i < m_ClassFactories.Count(); i++)
+	for (unsigned short i = 0; i < m_ClassFactories.Count(); i++)
 	{
 		EntityFactoryDictionary()->UninstallFactory(m_ClassFactories.GetElementName(i));
 		const CustomClassName_t& entry = m_ClassFactories.Element(i);

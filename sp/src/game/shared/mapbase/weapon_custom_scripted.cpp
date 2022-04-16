@@ -427,7 +427,7 @@ void CWeaponCustomScripted::SecondaryAttack( void )
 // Purpose: 
 //-----------------------------------------------------------------------------
 #define ACTIVITY_FUNC_OVERRIDE( name ) ScriptVariant_t retVal; \
-	if (RunWeaponHook( g_Hook_##name, m_Func_##name, &retVal ) && retVal.m_bool == false) \
+	if (RunWeaponHook( g_Hook_##name, m_Func_##name, &retVal ) && !retVal.IsNull()) \
 	{ \
 		if (retVal.m_type == FIELD_INTEGER) \
 		{ \
