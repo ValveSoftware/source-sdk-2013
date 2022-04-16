@@ -581,6 +581,12 @@ int CWeaponCustomScripted::WeaponMeleeAttack2Condition( float flDot, float flDis
 
 	return BaseClass::WeaponMeleeAttack2Condition( flDot, flDist );
 }
+
+DEFINE_CUSTOM_WEAPON_FACTORY(vscript, CWeaponCustomScripted);
+void CWeaponCustomScripted::ParseCustomFromWeaponFile(const char* pFileName)
+{
+	Q_FileBase(pFileName, m_iszWeaponScriptName.GetForModify(), 256);
+}
 #endif
 
 //-----------------------------------------------------------------------------

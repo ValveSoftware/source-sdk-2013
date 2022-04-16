@@ -63,6 +63,8 @@ $Project
 			$File	"mapbase\ai_grenade.h"
 			$File	"mapbase\ai_monitor.cpp"
 			$File	"mapbase\ai_weaponmodifier.cpp"
+			$File	"mapbase\custom_weapon_factory.cpp"
+			$File	"mapbase\custom_weapon_factory.h"
 			$File	"mapbase\closecaption_entity.cpp"
 			$File	"mapbase\datadesc_mod.cpp"
 			$File	"mapbase\datadesc_mod.h"

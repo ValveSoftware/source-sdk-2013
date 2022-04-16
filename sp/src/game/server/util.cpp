@@ -76,6 +76,10 @@ public:
 	virtual const char *GetCannonicalName( const char *pClassName );
 	void ReportEntitySizes();
 
+#ifdef MAPBASE
+	virtual void UninstallFactory(const char* pClassName);
+#endif // MAPBASE
+
 private:
 	IEntityFactory *FindFactory( const char *pClassName );
 public:
@@ -203,6 +207,11 @@ void CEntityFactoryDictionary::ReportEntitySizes()
 }
 
 #ifdef MAPBASE
+void CEntityFactoryDictionary::UninstallFactory(const char* pClassName)
+{
+	m_Factories.Remove(pClassName);
+}
+
 int EntityFactory_AutoComplete( const char *cmdname, CUtlVector< CUtlString > &commands, CUtlRBTree< CUtlString > &symbols, char *substring, int checklen = 0 )
 {
 	CEntityFactoryDictionary *pFactoryDict = (CEntityFactoryDictionary*)EntityFactoryDictionary();

@@ -100,6 +100,9 @@ public:
 	virtual void Destroy( const char *pClassName, IServerNetworkable *pNetworkable ) = 0;
 	virtual IEntityFactory *FindFactory( const char *pClassName ) = 0;
 	virtual const char *GetCannonicalName( const char *pClassName ) = 0;
+#ifdef MAPBASE
+	virtual void UninstallFactory(const char* pClassName) = 0;
+#endif // MAPBASE
 };
 
 IEntityFactoryDictionary *EntityFactoryDictionary();
