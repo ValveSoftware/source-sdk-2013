@@ -50,6 +50,8 @@ public:
 	bool	KeyValue( const char *szKeyName, const char *szValue );
 	bool	GetKeyValue( const char *szKeyName, char *szValue, int iMaxLen );
 
+	void	RunVScripts();
+
 	// Base script has a function for this
 	//void	Precache( void );
 
@@ -114,6 +116,8 @@ public:
 
 	// Inherited via ICustomWeapon
 	virtual void ParseCustomFromWeaponFile(const char* pFileName) override;
+#else
+	void OnDataChanged(DataUpdateType_t type);
 #endif
 
 	ALLOW_SCRIPT_ACCESS();

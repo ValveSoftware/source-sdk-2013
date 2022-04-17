@@ -2,7 +2,8 @@
 #include "custom_weapon_factory.h"
 
 #define GENERIC_MANIFEST_FILE "scripts/mapbase_default_manifest.txt"
-#define AUTOLOADED_MANIFEST_FILE UTIL_VarArgs("maps/%s_manifest.txt", MapName())
+#define AUTOLOADED_MANIFEST_FILE UTIL_VarArgs("maps/%s_manifest.txt", STRING(gpGlobals->mapname))
+#define GLOBAL_WEAPONS_MANIFEST "scripts/custom_weapon_manifest.txt"
 
 extern ConVar mapbase_load_default_manifest;
 
@@ -14,6 +15,8 @@ CCustomWeaponSystem::CCustomWeaponSystem() : CAutoGameSystem("CustomWeaponFactor
 
 void CCustomWeaponSystem::LevelInitPreEntity()
 {
+	AddManifestFile(GLOBAL_WEAPONS_MANIFEST);
+
 	// Check for a generic "mapname_manifest.txt" file and load it.
 	if (filesystem->FileExists(AUTOLOADED_MANIFEST_FILE, "GAME"))
 	{
