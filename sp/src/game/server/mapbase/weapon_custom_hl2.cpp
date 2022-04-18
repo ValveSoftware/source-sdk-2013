@@ -87,6 +87,17 @@ acttable_t CHLCustomWeaponMelee::m_acttable[] =
 
 	{ ACT_ARM,				ACT_ARM_MELEE,			false },
 	{ ACT_DISARM,			ACT_DISARM_MELEE,		false },
+
+	// Readiness activities (not aiming)
+	{ ACT_IDLE_RELAXED,				ACT_IDLE_MELEE,			false },//never aims
+	{ ACT_IDLE_STIMULATED,			ACT_IDLE_MELEE,		false },
+	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_MELEE,			false },//always aims
+
+	// Readiness activities (aiming)
+	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_MELEE,			false },//never aims	
+	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_ANGRY_MELEE,	false },
+	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_MELEE,			false },//always aims
+	//End readiness activities
 #else
 	{ ACT_IDLE,				ACT_IDLE_ANGRY_MELEE,	false },
 #endif
