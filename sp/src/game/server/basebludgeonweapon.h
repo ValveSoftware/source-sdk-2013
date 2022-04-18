@@ -44,6 +44,10 @@ public:
 	virtual int		CapabilitiesGet( void );
 	virtual	int		WeaponMeleeAttack1Condition( float flDot, float flDist );
 
+#ifdef MAPBASE
+	virtual int		GetDamageType() { return DMG_CLUB; }
+#endif // MAPBASE
+
 protected:
 	virtual	void	ImpactEffect( trace_t &trace );
 

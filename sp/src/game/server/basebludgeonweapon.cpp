@@ -162,7 +162,12 @@ void CBaseHLBludgeonWeapon::Hit( trace_t &traceHit, Activity nHitActivity, bool 
 		pPlayer->EyeVectors( &hitDirection, NULL, NULL );
 		VectorNormalize( hitDirection );
 
-		CTakeDamageInfo info( GetOwner(), GetOwner(), GetDamageForActivity( nHitActivity ), DMG_CLUB );
+#ifdef MAPBASE
+		CTakeDamageInfo info(GetOwner(), GetOwner(), GetDamageForActivity(nHitActivity), GetDamageType());
+#else
+		CTakeDamageInfo info(GetOwner(), GetOwner(), GetDamageForActivity(nHitActivity), DMG_CLUB);
+#endif // MAPBASE
+
 
 		if( pPlayer && pHitEntity->IsNPC() )
 		{
