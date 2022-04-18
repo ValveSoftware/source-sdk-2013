@@ -89,14 +89,30 @@ acttable_t CHLCustomWeaponMelee::m_acttable[] =
 	{ ACT_DISARM,			ACT_DISARM_MELEE,		false },
 
 	// Readiness activities (not aiming)
-	{ ACT_IDLE_RELAXED,				ACT_IDLE_MELEE,			false },//never aims
-	{ ACT_IDLE_STIMULATED,			ACT_IDLE_MELEE,		false },
-	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_MELEE,			false },//always aims
+		{ ACT_IDLE_RELAXED,				ACT_IDLE_MELEE,			false },//never aims
+		{ ACT_IDLE_STIMULATED,			ACT_IDLE_MELEE,		false },
+		{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_MELEE,			false },//always aims
+
+		{ ACT_WALK_RELAXED,				ACT_WALK_MELEE,			false },//never aims
+		{ ACT_WALK_STIMULATED,			ACT_WALK_MELEE,		false },
+		{ ACT_WALK_AGITATED,			ACT_WALK_MELEE,				false },//always aims
+
+		{ ACT_RUN_RELAXED,				ACT_RUN_MELEE,			false },//never aims
+		{ ACT_RUN_STIMULATED,			ACT_RUN_MELEE,		false },
+		{ ACT_RUN_AGITATED,				ACT_RUN_MELEE,				false },//always aims
 
 	// Readiness activities (aiming)
-	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_MELEE,			false },//never aims	
-	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_ANGRY_MELEE,	false },
-	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_MELEE,			false },//always aims
+		{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_MELEE,			false },//never aims	
+		{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_ANGRY_MELEE,	false },
+		{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_MELEE,			false },//always aims
+
+		{ ACT_WALK_AIM_RELAXED,			ACT_WALK_MELEE,			false },//never aims
+		{ ACT_WALK_AIM_STIMULATED,		ACT_WALK_MELEE,	false },
+		{ ACT_WALK_AIM_AGITATED,		ACT_WALK_MELEE,				false },//always aims
+
+		{ ACT_RUN_AIM_RELAXED,			ACT_RUN_MELEE,			false },//never aims
+		{ ACT_RUN_AIM_STIMULATED,		ACT_RUN_MELEE,	false },
+		{ ACT_RUN_AIM_AGITATED,			ACT_RUN_MELEE,				false },//always aims
 	//End readiness activities
 #else
 	{ ACT_IDLE,				ACT_IDLE_ANGRY_MELEE,	false },

@@ -15,7 +15,7 @@ CCustomWeaponSystem::CCustomWeaponSystem() : CAutoGameSystem("CustomWeaponFactor
 
 void CCustomWeaponSystem::LevelInitPreEntity()
 {
-	AddManifestFile(GLOBAL_WEAPONS_MANIFEST);
+	LoadCustomWeaponsManifest(GLOBAL_WEAPONS_MANIFEST);
 
 	// Check for a generic "mapname_manifest.txt" file and load it.
 	if (filesystem->FileExists(AUTOLOADED_MANIFEST_FILE, "GAME"))
