@@ -855,7 +855,7 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 		C_BaseCombatWeapon *weapon = dynamic_cast< C_BaseCombatWeapon * >( CBaseEntity::Instance( ucmd->weaponselect ) );
 		if ( weapon )
 		{
-			player->SelectItem( weapon->GetName(), ucmd->weaponsubtype );
+			player->SelectItem( weapon->GetClassname(), ucmd->weaponsubtype );
 		}
 	}
 
