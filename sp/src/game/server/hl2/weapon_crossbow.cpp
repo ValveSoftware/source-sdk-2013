@@ -762,6 +762,16 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 };
 
 IMPLEMENT_ACTTABLE(CWeaponCrossbow);
+
+acttable_t* GetCrossbowActtable()
+{
+	return CWeaponCrossbow::m_acttable;
+}
+
+int GetCrossbowActtableCount()
+{
+	return ARRAYSIZE(CWeaponCrossbow::m_acttable);
+}
 #endif
 
 //-----------------------------------------------------------------------------

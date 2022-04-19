@@ -2888,6 +2888,15 @@ bool CBaseCombatWeapon::IsLocked( CBaseEntity *pAsker )
 	return ( m_flUnlockTime > gpGlobals->curtime && m_hLocker != pAsker );
 }
 
+bool CBaseCombatWeapon::CanBePickedUpByNPCs(void)
+{
+#ifdef MAPBASE
+	return GetWpnData().m_nWeaponRestriction != WPNRESTRICT_PLAYER_ONLY;
+#else
+	return true;
+#endif // MAPBASE
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 // Input  :

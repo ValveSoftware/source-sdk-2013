@@ -4,6 +4,8 @@
 #include "utldict.h"
 #include "utlsymbol.h"
 
+DECLARE_PRIVATE_SYMBOLTYPE(CustomWeaponSymbol);
+
 CUtlDict< IEntityFactory*, unsigned short >& CustomWeaponsFactoryDictionary();
 
 class ICustomWeapon
@@ -31,7 +33,7 @@ private:
 
 	typedef struct CustomClassName_s
 	{
-		CUtlSymbol sDataFile;
+		CustomWeaponSymbol sDataFile;
 		IEntityFactory* pNewFactory;
 		IEntityFactory* pOldFactory;
 	} CustomClassName_t;

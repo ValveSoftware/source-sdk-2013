@@ -6,7 +6,6 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#pragma region Melee
 class C_HLCustomWeaponMelee : public C_BaseHLBludgeonWeapon
 {
 public:
@@ -31,4 +30,30 @@ C_HLCustomWeaponMelee::C_HLCustomWeaponMelee()
 {
 	m_iszWeaponScriptName[0] = '\0';
 }
-#pragma endregion
+
+
+
+class C_HLCustomWeaponGun : public C_BaseHLBludgeonWeapon
+{
+public:
+	DECLARE_CLASS(C_HLCustomWeaponGun, C_BaseHLBludgeonWeapon);
+	DECLARE_CLIENTCLASS();
+	DECLARE_PREDICTABLE();
+
+	C_HLCustomWeaponGun();
+
+	virtual const char* GetWeaponScriptName() { return m_iszWeaponScriptName; }
+private:
+	char m_iszWeaponScriptName[128];
+};
+
+STUB_WEAPON_CLASS_IMPLEMENT(weapon_hlcustomgun, C_HLCustomWeaponGun);
+
+IMPLEMENT_CLIENTCLASS_DT(C_HLCustomWeaponGun, DT_HLCustomWeaponGun, CHLCustomWeaponGun)
+RecvPropString(RECVINFO(m_iszWeaponScriptName)),
+END_RECV_TABLE();
+
+C_HLCustomWeaponGun::C_HLCustomWeaponGun()
+{
+	m_iszWeaponScriptName[0] = '\0';
+}

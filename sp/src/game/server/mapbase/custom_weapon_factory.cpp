@@ -7,7 +7,7 @@
 
 extern ConVar mapbase_load_default_manifest;
 
-
+IMPLEMENT_PRIVATE_SYMBOLTYPE(CustomWeaponSymbol);
 
 CCustomWeaponSystem::CCustomWeaponSystem() : CAutoGameSystem("CustomWeaponFactorySystem")
 {
@@ -155,6 +155,7 @@ void CCustomWeaponSystem::LevelShutdownPostEntity()
 	}
 
 	m_ClassFactories.Purge();
+	g_CustomWeaponSymbolSymbolTable.RemoveAll();
 }
 
 void CCustomWeaponSystem::ParseWeapon(CBaseCombatWeapon* pWeapon, const char* pClassName)
