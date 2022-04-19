@@ -1,3 +1,11 @@
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
+//
+// Purpose: See custom_weapon_factory.cpp
+// 
+// Author: Peter Covington (petercov@outlook.com)
+//
+//==================================================================================//
+
 #ifndef CUSTOM_WEAPON_FACTORY_H
 #define CUSTOM_WEAPON_FACTORY_H
 #pragma once

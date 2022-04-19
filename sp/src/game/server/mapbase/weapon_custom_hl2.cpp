@@ -1,3 +1,11 @@
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
+//
+// Purpose: Custom weapon classes for Half-Life 2 based weapons.
+// 
+// Author: Peter Covington (petercov@outlook.com)
+//
+//==================================================================================//
+
 #include "cbase.h"
 #include "custom_weapon_factory.h"
 #include "basebludgeonweapon.h"

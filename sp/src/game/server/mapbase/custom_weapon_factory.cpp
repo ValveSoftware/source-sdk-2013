@@ -1,3 +1,11 @@
+//========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
+//
+// Purpose: The central manager of the custom weapons system.
+// 
+// Author: Peter Covington (petercov@outlook.com)
+//
+//==================================================================================//
+
 #include "cbase.h"
 #include "custom_weapon_factory.h"
 
