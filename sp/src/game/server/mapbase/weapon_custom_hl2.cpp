@@ -354,6 +354,7 @@ public:
 
 	CHLCustomWeaponGun();
 	virtual void ParseCustomFromWeaponFile(const char* pFileName);
+	const char* GetWeaponScriptName() { return m_iszWeaponScriptName.Get(); }
 
 	// Weapon behaviour
 	virtual void			ItemPostFrame(void);				// called each frame by the player PostThink
@@ -672,9 +673,9 @@ void CHLCustomWeaponGun::ParseCustomFromWeaponFile(const char* pFileName)
 			float flSpread = pkvData->GetFloat("spread", 5.f);
 			float flNPCSpread = pkvData->GetFloat("spread_npc", flSpread);
 			float flAllySperad = pkvData->GetFloat("spread_ally", flNPCSpread);
-			m_vPlayerSpread = Vector(sin(flSpread * 0.5f));
-			m_vNPCSpread = Vector(sin(flNPCSpread * 0.5f));
-			m_vAllySpread = Vector(sin(flAllySperad * 0.5f));
+			m_vPlayerSpread = Vector(sin(DEG2RAD(flSpread * 0.5f)));
+			m_vNPCSpread = Vector(sin(DEG2RAD(flNPCSpread * 0.5f)));
+			m_vAllySpread = Vector(sin(DEG2RAD(flAllySperad * 0.5f)));
 
 			const char* pszAnimType = pkvData->GetString("anim_type", nullptr);
 			if (pszAnimType)

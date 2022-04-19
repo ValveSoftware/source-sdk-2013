@@ -33,10 +33,10 @@ C_HLCustomWeaponMelee::C_HLCustomWeaponMelee()
 
 
 
-class C_HLCustomWeaponGun : public C_BaseHLBludgeonWeapon
+class C_HLCustomWeaponGun : public C_BaseHLCombatWeapon
 {
 public:
-	DECLARE_CLASS(C_HLCustomWeaponGun, C_BaseHLBludgeonWeapon);
+	DECLARE_CLASS(C_HLCustomWeaponGun, C_BaseHLCombatWeapon);
 	DECLARE_CLIENTCLASS();
 	DECLARE_PREDICTABLE();
 
