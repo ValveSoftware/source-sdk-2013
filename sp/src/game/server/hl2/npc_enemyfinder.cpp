@@ -59,6 +59,10 @@ public:
 	void InputTurnOff( inputdata_t &inputdata );
 
 	virtual	void Wake( bool bFireOutput = true );
+#ifdef MAPBASE
+	// A version of Wake() that takes an activator
+	virtual	void		Wake(CBaseEntity* pActivator);
+#endif
 
 private:
 	int		m_nStartOn;
@@ -233,6 +237,16 @@ void CNPC_EnemyFinder::Wake( bool bFireOutput )
 	//Enemy finder is not allowed to become visible.
 	AddEffects( EF_NODRAW );
 }
+
+#ifdef MAPBASE
+void CNPC_EnemyFinder::Wake(CBaseEntity* pActivator)
+{
+	BaseClass::Wake(pActivator);
+
+	//Enemy finder is not allowed to become visible.
+	AddEffects(EF_NODRAW);
+}
+#endif // MAPBASE
 
 //------------------------------------------------------------------------------
 //
