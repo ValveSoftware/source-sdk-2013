@@ -4484,13 +4484,18 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 		}
 
 		CViewSetup shadowView;
+#ifndef MAPBASE
 		shadowView.m_flAspectRatio = 1.0f;
+#endif
 		shadowView.x = shadowView.y = 0;
 		shadowView.width = shadowDepthTexture->GetActualWidth();
 		shadowView.height = shadowDepthTexture->GetActualHeight();
 #ifndef ASW_PROJECTED_TEXTURES
 		shadowView.m_bOrtho = false;
 		shadowView.m_bDoBloomAndToneMapping = false;
+#ifdef MAPBASE
+		shadowView.m_flAspectRatio = (flashlightState.m_fHorizontalFOVDegrees / flashlightState.m_fVerticalFOVDegrees);
+#endif // MAPBASE
 #endif
 
 		// Copy flashlight parameters
@@ -4498,6 +4503,10 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 		if ( !flashlightState.m_bOrtho )
 		{
 			shadowView.m_bOrtho = false;
+
+#ifdef MAPBASE
+			shadowView.m_flAspectRatio = (flashlightState.m_fHorizontalFOVDegrees / flashlightState.m_fVerticalFOVDegrees);
+#endif // MAPBASE
 		}
 		else
 		{
@@ -4506,6 +4515,10 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 			shadowView.m_OrthoTop = flashlightState.m_fOrthoTop;
 			shadowView.m_OrthoRight = flashlightState.m_fOrthoRight;
 			shadowView.m_OrthoBottom = flashlightState.m_fOrthoBottom;
+
+#ifdef MAPBASE
+			shadowView.m_flAspectRatio = 1.0f;
+#endif
 		}
 
 		shadowView.m_bDoBloomAndToneMapping = false;
