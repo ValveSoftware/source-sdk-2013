@@ -55,6 +55,8 @@ typedef struct HL2CustomMeleeData_s
 	float m_flRefireRate;
 	float m_flDamage;
 	float m_flNPCDamage;
+	float m_flHitDelay;
+	Activity m_nHitActivity = ACT_INVALID;
 	byte m_nDamageClass;
 
 	bool Parse(KeyValues*);
@@ -72,6 +74,7 @@ public:
 
 	float		GetRange(void) { return	m_CustomData.m_flMeleeRange; }
 	float		GetFireRate(void) { return	m_CustomData.m_flRefireRate; }
+	float		GetHitDelay() { return m_CustomData.m_flHitDelay; }
 
 	void		AddViewKick(void);
 	float		GetDamageForActivity(Activity hitActivity);
@@ -85,6 +88,9 @@ public:
 	// Don't use backup activities
 	acttable_t*		GetBackupActivityList() { return NULL; }
 	int				GetBackupActivityListCount() { return 0; }
+
+	//Functions to select animation sequences 
+	virtual Activity	GetPrimaryAttackActivity(void) { return m_CustomData.m_nHitActivity; }
 
 	const char* GetWeaponScriptName() { return m_iszWeaponScriptName.Get(); }
 	virtual int		GetDamageType() { return g_nDamageClassTypeBits[m_CustomData.m_nDamageClass]; }
@@ -116,6 +122,16 @@ bool HL2CustomMeleeData_s::Parse(KeyValues* pKVWeapon)
 		m_flNPCDamage = pkvData->GetFloat("damage_npc", m_flDamage);
 		m_flMeleeRange = pkvData->GetFloat("range", 70.f);
 		m_flRefireRate = pkvData->GetFloat("rate", 0.7f);
+		m_flHitDelay = pkvData->GetFloat("hitdelay");
+		if (pkvData->FindKey("activity_hit"))
+		{
+			m_nHitActivity = (Activity)ActivityList_IndexForName(pkvData->GetString("activity_hit"));
+		}
+
+		if (m_nHitActivity == ACT_INVALID)
+		{
+			m_nHitActivity = ACT_VM_HITCENTER;
+		}
 
 		const char* pszDamageClass = pkvData->GetString("damage_type", nullptr);
 		if (pszDamageClass)
