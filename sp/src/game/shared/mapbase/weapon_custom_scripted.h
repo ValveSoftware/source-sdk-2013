@@ -115,7 +115,7 @@ public:
 	int				WeaponMeleeAttack2Condition( float flDot, float flDist );
 
 	// Inherited via ICustomWeapon
-	virtual void ParseCustomFromWeaponFile(const char* pFileName) override;
+	virtual void InitCustomWeaponFromData(const void* pData, const char* pszWeaponScript);
 #else
 	void OnDataChanged(DataUpdateType_t type);
 #endif

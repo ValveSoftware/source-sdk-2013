@@ -576,15 +576,22 @@ int CWeaponCustomScripted::WeaponMeleeAttack2Condition( float flDot, float flDis
 	return BaseClass::WeaponMeleeAttack2Condition( flDot, flDist );
 }
 
-DEFINE_CUSTOM_WEAPON_FACTORY(vscript, CWeaponCustomScripted);
-void CWeaponCustomScripted::ParseCustomFromWeaponFile(const char* pFileName)
+struct VScriptWeaponCustomData_s
 {
-	Q_FileBase(pFileName, m_iszWeaponScriptName.GetForModify(), 256);
-	KeyValuesAD pKVWeapon("WeaponData");
-	if (pKVWeapon->LoadFromFile(filesystem, pFileName, "GAME"))
+	char cScripts[256];
+
+	bool Parse(KeyValues* pKVWeapon)
 	{
-		Q_strncpy(m_iszClientScripts.GetForModify(), pKVWeapon->GetString("vscript_file"), 256);
+		Q_strncpy(cScripts, pKVWeapon->GetString("vscript_file"), 256);
+		return true;
 	}
+};
+
+DEFINE_CUSTOM_WEAPON_FACTORY(vscript, CWeaponCustomScripted, VScriptWeaponCustomData_s);
+void CWeaponCustomScripted::InitCustomWeaponFromData(const void* pData, const char* pszWeaponScript)
+{
+	Q_FileBase(pszWeaponScript, m_iszWeaponScriptName.GetForModify(), 256);
+	Q_strncpy(m_iszClientScripts.GetForModify(), static_cast<const VScriptWeaponCustomData_s *> (pData)->cScripts, 256);
 }
 
 extern ConVar sv_script_think_interval;

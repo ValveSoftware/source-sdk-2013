@@ -14,12 +14,17 @@
 
 DECLARE_PRIVATE_SYMBOLTYPE(CustomWeaponSymbol);
 
-CUtlDict< IEntityFactory*, unsigned short >& CustomWeaponsFactoryDictionary();
+class ICustomWeaponDataLoader : public IEntityFactory
+{
+public:
+	virtual const void* ParseDataFromWeaponFile(KeyValues* pKV) const = 0;
+	virtual void ReleaseData(const void* pData) const = 0;
+};
 
 class ICustomWeapon
 {
 public:
-	virtual void ParseCustomFromWeaponFile(const char* pFileName) = 0;
+	virtual void InitCustomWeaponFromData(const void* pData, const char *pszWeaponScript) = 0;
 };
 
 class CCustomWeaponSystem : public CAutoGameSystem
@@ -42,19 +47,22 @@ private:
 	typedef struct CustomClassName_s
 	{
 		CustomWeaponSymbol sDataFile;
-		IEntityFactory* pNewFactory;
+		ICustomWeaponDataLoader* pNewFactory;
 		IEntityFactory* pOldFactory;
+		const void* pData;
 	} CustomClassName_t;
 	CUtlDict<CustomClassName_t, unsigned short> m_ClassFactories;
 };
 
 CCustomWeaponSystem* CustomWeaponSystem();
 
+CUtlDict< ICustomWeaponDataLoader*, unsigned short >& CustomWeaponsFactoryDictionary();
+
 template <class T>
-class CCustomWeaponEntityFactory : public IEntityFactory
+class CCustomWeaponEntityFactoryBase : public ICustomWeaponDataLoader
 {
 public:
-	CCustomWeaponEntityFactory(const char* pFactoryClass)
+	CCustomWeaponEntityFactoryBase(const char* pFactoryClass)
 	{
 		CustomWeaponsFactoryDictionary().Insert(pFactoryClass, this);
 	}
@@ -80,7 +88,30 @@ public:
 	}
 };
 
-#define DEFINE_CUSTOM_WEAPON_FACTORY(factoryName, DLLClassName) \
-	static CCustomWeaponEntityFactory<DLLClassName> custom_weapon_##factoryName##_factory( #factoryName );
+template <class Entity, class Data>
+class CDefaultCustomWeaponEntityFactory : public CCustomWeaponEntityFactoryBase<Entity>
+{
+public:
+	CDefaultCustomWeaponEntityFactory(const char *pFactoryClass) : CCustomWeaponEntityFactoryBase(pFactoryClass)
+	{}
+
+	virtual const void* ParseDataFromWeaponFile(KeyValues* pKV) const
+	{
+		Data* pData = new Data;
+		if (pData && pData->Parse(pKV))
+			return pData;
+
+		delete pData;
+		return nullptr;
+	}
+
+	virtual void ReleaseData(const void* pData) const
+	{
+		delete pData;
+	}
+};
+
+#define DEFINE_CUSTOM_WEAPON_FACTORY(factoryName, DLLClassName, DataStruct) \
+	static CDefaultCustomWeaponEntityFactory<DLLClassName, DataStruct> custom_weapon_##factoryName##_factory( #factoryName );
 
 #endif // !CUSTOM_WEAPON_FACTORY_H

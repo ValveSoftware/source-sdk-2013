@@ -134,15 +134,28 @@ void CCustomWeaponSystem::LoadCustomWeaponsManifest(const char* file, bool bDont
 				unsigned short FactoryIndex = Factory.Find(pszFactory);
 				if (Factory.IsValidIndex(FactoryIndex))
 				{
+					auto* pFactory = Factory.Element(FactoryIndex);
+					const void* pData = pFactory->ParseDataFromWeaponFile(pkvWeaponScript);
+					if (!pData)
+						continue;
+
 					unsigned short ClassIndex = m_ClassFactories.Find(pszClassname);
 					if (!m_ClassFactories.IsValidIndex(ClassIndex))
 					{
 						ClassIndex = m_ClassFactories.Insert(pszClassname);
 						m_ClassFactories[ClassIndex].pOldFactory = EntityFactoryDictionary()->FindFactory(pszClassname);
 					}
+					else
+					{
+						Assert(m_ClassFactories[ClassIndex].pNewFactory);
+						Assert(m_ClassFactories[ClassIndex].pData);
+
+						m_ClassFactories[ClassIndex].pNewFactory->ReleaseData(m_ClassFactories[ClassIndex].pData);
+					}
 
 					m_ClassFactories[ClassIndex].sDataFile = pkvWeapon->GetString();
-					m_ClassFactories[ClassIndex].pNewFactory = Factory.Element(FactoryIndex);
+					m_ClassFactories[ClassIndex].pNewFactory = pFactory;
+					m_ClassFactories[ClassIndex].pData = pData;
 					EntityFactoryDictionary()->UninstallFactory(pszClassname);
 					EntityFactoryDictionary()->InstallFactory(m_ClassFactories[ClassIndex].pNewFactory, pszClassname);
 				}
@@ -160,6 +173,9 @@ void CCustomWeaponSystem::LevelShutdownPostEntity()
 		const CustomClassName_t& entry = m_ClassFactories.Element(i);
 		if (entry.pOldFactory)
 			EntityFactoryDictionary()->InstallFactory(entry.pOldFactory, m_ClassFactories.GetElementName(i));
+
+		Assert(entry.pData);
+		entry.pNewFactory->ReleaseData(entry.pData);
 	}
 
 	m_ClassFactories.Purge();
@@ -176,12 +192,12 @@ void CCustomWeaponSystem::ParseWeapon(CBaseCombatWeapon* pWeapon, const char* pC
 	if (!m_ClassFactories.IsValidIndex(i))
 		return;
 
-	pCustom->ParseCustomFromWeaponFile(m_ClassFactories[i].sDataFile.String());
+	pCustom->InitCustomWeaponFromData(m_ClassFactories[i].pData, m_ClassFactories[i].sDataFile.String());
 }
 
-CUtlDict<IEntityFactory*, unsigned short>& CustomWeaponsFactoryDictionary()
+CUtlDict<ICustomWeaponDataLoader*, unsigned short>& CustomWeaponsFactoryDictionary()
 {
-	static CUtlDict<IEntityFactory*, unsigned short> dict;
+	static CUtlDict<ICustomWeaponDataLoader*, unsigned short> dict;
 	return dict;
 }
 

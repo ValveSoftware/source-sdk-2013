@@ -49,6 +49,17 @@ int g_nDamageClassTypeBits[ARRAYSIZE(g_ppszDamageClasses)] = {
 	DMG_CLUB|DMG_BURN,
 };
 
+typedef struct HL2CustomMeleeData_s
+{
+	float m_flMeleeRange;
+	float m_flRefireRate;
+	float m_flDamage;
+	float m_flNPCDamage;
+	byte m_nDamageClass;
+
+	bool Parse(KeyValues*);
+} HL2CustomMeleeData_t;
+
 class CHLCustomWeaponMelee : public CBaseHLBludgeonWeapon, public ICustomWeapon
 {
 public:
@@ -59,8 +70,8 @@ public:
 
 	CHLCustomWeaponMelee();
 
-	float		GetRange(void) { return	m_flMeleeRange; }
-	float		GetFireRate(void) { return	m_flRefireRate; }
+	float		GetRange(void) { return	m_CustomData.m_flMeleeRange; }
+	float		GetFireRate(void) { return	m_CustomData.m_flRefireRate; }
 
 	void		AddViewKick(void);
 	float		GetDamageForActivity(Activity hitActivity);
@@ -76,20 +87,16 @@ public:
 	int				GetBackupActivityListCount() { return 0; }
 
 	const char* GetWeaponScriptName() { return m_iszWeaponScriptName.Get(); }
-	virtual int		GetDamageType() { return g_nDamageClassTypeBits[m_nDamageClass]; }
+	virtual int		GetDamageType() { return g_nDamageClassTypeBits[m_CustomData.m_nDamageClass]; }
 
-	virtual void ParseCustomFromWeaponFile(const char* pFileName);
+	virtual void InitCustomWeaponFromData(const void* pData, const char* pszWeaponScript);
 
 private:
 	// Animation event handlers
 	void HandleAnimEventMeleeHit(animevent_t* pEvent, CBaseCombatCharacter* pOperator);
 
 private:
-	float m_flMeleeRange;
-	float m_flRefireRate;
-	float m_flDamage;
-	float m_flNPCDamage;
-	byte m_nDamageClass;
+	HL2CustomMeleeData_t m_CustomData;
 
 	CNetworkString(m_iszWeaponScriptName, 128);
 };
@@ -98,7 +105,41 @@ IMPLEMENT_SERVERCLASS_ST(CHLCustomWeaponMelee, DT_HLCustomWeaponMelee)
 SendPropString(SENDINFO(m_iszWeaponScriptName)),
 END_SEND_TABLE();
 
-DEFINE_CUSTOM_WEAPON_FACTORY(hl2_melee, CHLCustomWeaponMelee);
+DEFINE_CUSTOM_WEAPON_FACTORY(hl2_melee, CHLCustomWeaponMelee, HL2CustomMeleeData_t);
+
+bool HL2CustomMeleeData_s::Parse(KeyValues* pKVWeapon)
+{
+	KeyValues* pkvData = pKVWeapon->FindKey("CustomData");
+	if (pkvData)
+	{
+		m_flDamage = pkvData->GetFloat("damage");
+		m_flNPCDamage = pkvData->GetFloat("damage_npc", m_flDamage);
+		m_flMeleeRange = pkvData->GetFloat("range", 70.f);
+		m_flRefireRate = pkvData->GetFloat("rate", 0.7f);
+
+		const char* pszDamageClass = pkvData->GetString("damage_type", nullptr);
+		if (pszDamageClass)
+		{
+			for (byte i = 0; i < ARRAYSIZE(g_ppszDamageClasses); i++)
+			{
+				if (V_stricmp(pszDamageClass, g_ppszDamageClasses[i]) == 0)
+				{
+					m_nDamageClass = i;
+					break;
+				}
+			}
+		}
+		return true;
+	}
+
+	return false;
+}
+
+void CHLCustomWeaponMelee::InitCustomWeaponFromData(const void* pData, const char* pszWeaponScript)
+{
+	Q_FileBase(pszWeaponScript, m_iszWeaponScriptName.GetForModify(), 128);
+	V_memcpy(&m_CustomData, pData, sizeof(HL2CustomMeleeData_t));
+}
 
 acttable_t CHLCustomWeaponMelee::m_acttable[] =
 {
@@ -165,7 +206,6 @@ IMPLEMENT_ACTTABLE(CHLCustomWeaponMelee);
 
 CHLCustomWeaponMelee::CHLCustomWeaponMelee()
 {
-	m_nDamageClass = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -176,9 +216,9 @@ CHLCustomWeaponMelee::CHLCustomWeaponMelee()
 float CHLCustomWeaponMelee::GetDamageForActivity(Activity hitActivity)
 {
 	if ((GetOwner() != NULL) && (GetOwner()->IsPlayer()))
-		return m_flDamage;
+		return m_CustomData.m_flDamage;
 
-	return m_flNPCDamage;
+	return m_CustomData.m_flNPCDamage;
 }
 
 //-----------------------------------------------------------------------------
@@ -280,7 +320,7 @@ void CHLCustomWeaponMelee::HandleAnimEventMeleeHit(animevent_t* pEvent, CBaseCom
 	Vector vecEnd;
 	VectorMA(pOperator->Weapon_ShootPosition(), 50, vecDirection, vecEnd);
 	CBaseEntity* pHurt = pOperator->CheckTraceHullAttack(pOperator->Weapon_ShootPosition(), vecEnd,
-		Vector(-16, -16, -16), Vector(36, 36, 36), m_flNPCDamage, GetDamageType(), 0.75);
+		Vector(-16, -16, -16), Vector(36, 36, 36), m_CustomData.m_flNPCDamage, GetDamageType(), 0.75);
 
 	// did I hit someone?
 	if (pHurt)
@@ -317,36 +357,6 @@ void CHLCustomWeaponMelee::Operator_HandleAnimEvent(animevent_t* pEvent, CBaseCo
 	}
 }
 
-void CHLCustomWeaponMelee::ParseCustomFromWeaponFile(const char* pFileName)
-{
-	Q_FileBase(pFileName, m_iszWeaponScriptName.GetForModify(), 128);
-	KeyValuesAD pKVWeapon("WeaponData");
-	if (pKVWeapon->LoadFromFile(filesystem, pFileName, "GAME"))
-	{
-		KeyValues* pkvData = pKVWeapon->FindKey("CustomData");
-		if (pkvData)
-		{
-			m_flDamage = pkvData->GetFloat("damage");
-			m_flNPCDamage = pkvData->GetFloat("damage_npc", m_flDamage);
-			m_flMeleeRange = pkvData->GetFloat("range", 70.f);
-			m_flRefireRate = pkvData->GetFloat("rate", 0.7f);
-
-			const char* pszDamageClass = pkvData->GetString("damage_type", nullptr);
-			if (pszDamageClass)
-			{
-				for (byte i = 0; i < ARRAYSIZE(g_ppszDamageClasses); i++)
-				{
-					if (V_stricmp(pszDamageClass, g_ppszDamageClasses[i]) == 0)
-					{
-						m_nDamageClass = i;
-						break;
-					}
-				}
-			}
-		}
-	}
-}
-
 //--------------------------------------------------------------------------
 //
 //	Custom ranged weapon
@@ -361,7 +371,7 @@ public:
 	DECLARE_DATADESC();
 
 	CHLCustomWeaponGun();
-	virtual void ParseCustomFromWeaponFile(const char* pFileName);
+	virtual void InitCustomWeaponFromData(const void* pData, const char* pszWeaponScript);
 	const char* GetWeaponScriptName() { return m_iszWeaponScriptName.Get(); }
 
 	// Weapon behaviour
@@ -371,15 +381,15 @@ public:
 
 	// Bullet launch information
 	virtual const Vector&	GetBulletSpread(void);
-	virtual float			GetFireRate(void) { return m_flFireRate; }
-	virtual int				GetMinBurst() { return m_nMinBurst; }
-	virtual int				GetMaxBurst() { return m_nMaxBurst; }
-	virtual float			GetMinRestTime() { return m_RestInterval.start; }
-	virtual float			GetMaxRestTime() { return m_RestInterval.start + m_RestInterval.range; }
+	virtual float			GetFireRate(void) { return m_CustomData.m_flFireRate; }
+	virtual int				GetMinBurst() { return m_CustomData.m_nMinBurst; }
+	virtual int				GetMaxBurst() { return m_CustomData.m_nMaxBurst; }
+	virtual float			GetMinRestTime() { return m_CustomData.m_RestInterval.start; }
+	virtual float			GetMaxRestTime() { return m_CustomData.m_RestInterval.start + m_CustomData.m_RestInterval.range; }
 
 	// Autoaim
 	virtual float			GetMaxAutoAimDeflection() { return 0.99f; }
-	virtual float			WeaponAutoAimScale() { return m_flAutoAimScale; } // allows a weapon to influence the perceived size of the target's autoaim radius.
+	virtual float			WeaponAutoAimScale() { return m_CustomData.m_flAutoAimScale; } // allows a weapon to influence the perceived size of the target's autoaim radius.
 
 	virtual void			AddViewKick(void);
 	int						WeaponSoundRealtime(WeaponSound_t shoot_type);
@@ -409,35 +419,54 @@ private:
 	void	CheckZoomToggle(void);
 	void	ToggleZoom(void);
 
+public:
+	typedef struct Data_s
+	{
+		float m_flFireRate;
+		int m_nMinBurst;
+		int m_nMaxBurst;
+		interval_t m_RestInterval;
+
+		float m_flAutoAimScale;
+
+		Vector m_vPlayerSpread;
+		Vector m_vAllySpread;
+		Vector m_vNPCSpread;
+		int m_nBulletsPerShot; // For shotguns
+
+		// Viewkick
+		float m_flMaxVerticalKick;
+		float m_flSlideLimit;
+		interval_t m_VerticalPunchRange;
+
+		int	m_nActTableIndex;
+
+		bool m_bUseRecoilAnims;
+		bool m_bFullAuto; // True for machine gun, false for semi-auto
+		bool m_bNextAttackFromSequence;
+		bool m_bUsePumpAnimation;
+		bool m_bHasSecondaryFire;
+		bool m_bHasZoom;
+		bool m_bZoomDuringReload;
+	} Data_t;
+
+	struct Cache_s : public Data_s
+	{
+		bool					m_bFiresUnderwater;		// true if this weapon can fire underwater
+		bool					m_bAltFiresUnderwater;		// true if this weapon can fire underwater
+		float					m_fMinRange1;			// What's the closest this weapon can be used?
+		float					m_fMinRange2;			// What's the closest this weapon can be used?
+		float					m_fMaxRange1;			// What's the furthest this weapon can be used?
+		float					m_fMaxRange2;			// What's the furthest this weapon can be used?
+		bool					m_bReloadsSingly;		// True if this weapon reloads 1 round at a time
+
+		bool Parse(KeyValues*);
+	};
+
 private:
 	CNetworkString(m_iszWeaponScriptName, 128);
 
-	float m_flFireRate;
-	int m_nMinBurst;
-	int m_nMaxBurst;
-	interval_t m_RestInterval;
-
-	float m_flAutoAimScale;
-
-	Vector m_vPlayerSpread;
-	Vector m_vAllySpread;
-	Vector m_vNPCSpread;
-	int m_nBulletsPerShot; // For shotguns
-
-	// Viewkick
-	float m_flMaxVerticalKick;
-	float m_flSlideLimit;
-	interval_t m_VerticalPunchRange;
-
-	int	m_nActTableIndex;
-
-	bool m_bUseRecoilAnims;
-	bool m_bFullAuto; // True for machine gun, false for semi-auto
-	bool m_bNextAttackFromSequence;
-	bool m_bUsePumpAnimation;
-	bool m_bHasSecondaryFire;
-	bool m_bHasZoom;
-	bool m_bZoomDuringReload;
+	Data_t m_CustomData;
 
 	bool	m_bNeedPump;		// When emptied completely
 	bool	m_bDelayedFire1;	// Fire primary when finished reloading
@@ -476,28 +505,10 @@ DEFINE_FIELD(m_bInZoom, FIELD_BOOLEAN),
 DEFINE_FIELD(m_bMustReload, FIELD_BOOLEAN),
 END_DATADESC();
 
-DEFINE_CUSTOM_WEAPON_FACTORY(hl2_gun, CHLCustomWeaponGun);
+DEFINE_CUSTOM_WEAPON_FACTORY(hl2_gun, CHLCustomWeaponGun, CHLCustomWeaponGun::Cache_s);
 
 CHLCustomWeaponGun::CHLCustomWeaponGun()
 {
-	m_flFireRate = 0.5f;
-	m_nMinBurst = 1;
-	m_nMaxBurst = 1;
-	m_RestInterval.start = .3f;
-	m_RestInterval.range = .3f;
-
-	m_flAutoAimScale = 1.f;
-	m_nBulletsPerShot = 1;
-	
-	m_bUseRecoilAnims = false;
-	m_bFullAuto = false;
-	m_bNextAttackFromSequence = false;
-	m_bUsePumpAnimation = false;
-	m_bHasSecondaryFire = false;
-	m_bHasZoom = false;
-	m_bZoomDuringReload = false;
-	m_bFiresUnderwater = false;
-
 	m_bNeedPump = false;
 	m_bDelayedFire1 = false;
 	m_bDelayedFire2 = false;
@@ -508,7 +519,7 @@ CHLCustomWeaponGun::CHLCustomWeaponGun()
 
 acttable_t* CHLCustomWeaponGun::ActivityList(void)
 {
-	switch (m_nActTableIndex)
+	switch (m_CustomData.m_nActTableIndex)
 	{
 	default:
 	case ACTTABLE_SMG1:
@@ -537,7 +548,7 @@ acttable_t* CHLCustomWeaponGun::ActivityList(void)
 
 int CHLCustomWeaponGun::ActivityListCount(void)
 {
-	switch (m_nActTableIndex)
+	switch (m_CustomData.m_nActTableIndex)
 	{
 	default:
 	case ACTTABLE_SMG1:
@@ -566,7 +577,7 @@ int CHLCustomWeaponGun::ActivityListCount(void)
 
 acttable_t* CHLCustomWeaponGun::GetBackupActivityList(void)
 {
-	switch (m_nActTableIndex)
+	switch (m_CustomData.m_nActTableIndex)
 	{
 	default:
 	case ACTTABLE_SMG1:
@@ -587,7 +598,7 @@ acttable_t* CHLCustomWeaponGun::GetBackupActivityList(void)
 
 int CHLCustomWeaponGun::GetBackupActivityListCount(void)
 {
-	switch (m_nActTableIndex)
+	switch (m_CustomData.m_nActTableIndex)
 	{
 	default:
 	case ACTTABLE_SMG1:
@@ -627,7 +638,7 @@ void ReadIntervalInt(const char* pString, int &iMin, int &iMax)
 	}
 }
 
-void CHLCustomWeaponGun::ParseCustomFromWeaponFile(const char* pFileName)
+bool CHLCustomWeaponGun::Cache_s::Parse(KeyValues* pKVWeapon)
 {
 	static const char* ppszCustomGunAnimTypes[NUM_GUN_ACT_TABLES] = {
 		"smg",
@@ -639,80 +650,93 @@ void CHLCustomWeaponGun::ParseCustomFromWeaponFile(const char* pFileName)
 		"annabelle",
 	};
 
-	Q_FileBase(pFileName, m_iszWeaponScriptName.GetForModify(), 128);
-	KeyValuesAD pKVWeapon("WeaponData");
-	if (pKVWeapon->LoadFromFile(filesystem, pFileName, "GAME"))
+	KeyValues* pkvData = pKVWeapon->FindKey("CustomData");
+	if (pkvData)
 	{
-		KeyValues* pkvData = pKVWeapon->FindKey("CustomData");
-		if (pkvData)
+		m_flFireRate = pkvData->GetFloat("fire_rate", 0.5f);
+		ReadIntervalInt(pkvData->GetString("npc_burst", "1"), m_nMinBurst, m_nMaxBurst);
+		m_RestInterval = ReadInterval(pkvData->GetString("npc_rest_time", "0.3,0.6"));
+		m_flAutoAimScale = pkvData->GetFloat("autoaim_scale", 1.f);
+		m_bFullAuto = pkvData->GetBool("auto_fire");
+		m_nBulletsPerShot = pkvData->GetInt("bullets", 1);
+		m_bUseRecoilAnims = pkvData->GetBool("recoil_anims", true);
+		m_bReloadsSingly = pkvData->GetBool("reload_singly");
+		m_bFiresUnderwater = pkvData->GetBool("fires_underwater");
+		m_bHasZoom = pkvData->GetBool("zoom_enable");
+		m_bZoomDuringReload = m_bHasZoom && pkvData->GetBool("zoom_in_reload");
+
+		m_fMinRange1 = pkvData->GetFloat("range1_min", 65.f);
+		m_fMinRange2 = pkvData->GetFloat("range2_min", 65.f);
+		m_fMaxRange1 = pkvData->GetFloat("range1_max", 1024.f);
+		m_fMaxRange2 = pkvData->GetFloat("range2_max", 1024.f);
+
+		if (m_bFullAuto)
 		{
-			m_flFireRate = pkvData->GetFloat("fire_rate", 0.5f);
-			ReadIntervalInt(pkvData->GetString("npc_burst", "1"), m_nMinBurst, m_nMaxBurst);
-			m_RestInterval = ReadInterval(pkvData->GetString("npc_rest_time", "0.3,0.6"));
-			m_flAutoAimScale = pkvData->GetFloat("autoaim_scale", 1.f);
-			m_bFullAuto = pkvData->GetBool("auto_fire");
-			m_nBulletsPerShot = pkvData->GetInt("bullets", 1);
-			m_bUseRecoilAnims = pkvData->GetBool("recoil_anims", true);
-			m_bReloadsSingly = pkvData->GetBool("reload_singly");
-			m_bFiresUnderwater = pkvData->GetBool("fires_underwater");
-			m_bHasZoom = pkvData->GetBool("zoom_enable");
-			m_bZoomDuringReload = m_bHasZoom && pkvData->GetBool("zoom_in_reload");
+			m_flMaxVerticalKick = pkvData->GetFloat("viewkick_vertical_max", 1.f);
+			m_flSlideLimit = pkvData->GetFloat("viewkick_slide_limit", 2.f);
+		}
+		else
+		{
+			m_flSlideLimit = pkvData->GetFloat("viewpunch_side_max", .6f);
+			m_VerticalPunchRange = ReadInterval(pkvData->GetString("viewpunch_vertical", "0.25,0.5"));
 
-			m_fMinRange1 = pkvData->GetFloat("range1_min", 65.f);
-			m_fMinRange2 = pkvData->GetFloat("range2_min", 65.f);
-			m_fMaxRange1 = pkvData->GetFloat("range1_max", 1024.f);
-			m_fMaxRange2 = pkvData->GetFloat("range2_max", 1024.f);
+			m_bNextAttackFromSequence = pkvData->GetBool("next_attack_time_from_sequence");
+			m_bUsePumpAnimation = pkvData->GetBool("use_pump_anim");
+		}
 
-			if (m_bFullAuto)
+		// NOTE: The way these are calculated is that each component == sin (degrees/2)
+		float flSpread = pkvData->GetFloat("spread", 5.f);
+		float flNPCSpread = pkvData->GetFloat("spread_npc", flSpread);
+		float flAllySperad = pkvData->GetFloat("spread_ally", flNPCSpread);
+		m_vPlayerSpread = Vector(sin(DEG2RAD(flSpread * 0.5f)));
+		m_vNPCSpread = Vector(sin(DEG2RAD(flNPCSpread * 0.5f)));
+		m_vAllySpread = Vector(sin(DEG2RAD(flAllySperad * 0.5f)));
+
+		const char* pszAnimType = pkvData->GetString("anim_type", nullptr);
+		if (pszAnimType)
+		{
+			for (int i = 0; i < NUM_GUN_ACT_TABLES; i++)
 			{
-				m_flMaxVerticalKick = pkvData->GetFloat("viewkick_vertical_max", 1.f);
-				m_flSlideLimit = pkvData->GetFloat("viewkick_slide_limit", 2.f);
-			}
-			else
-			{
-				m_flSlideLimit = pkvData->GetFloat("viewpunch_side_max", .6f);
-				m_VerticalPunchRange = ReadInterval(pkvData->GetString("viewpunch_vertical", "0.25,0.5"));
-
-				m_bNextAttackFromSequence = pkvData->GetBool("next_attack_time_from_sequence");
-				m_bUsePumpAnimation = pkvData->GetBool("use_pump_anim");
-			}
-
-			// NOTE: The way these are calculated is that each component == sin (degrees/2)
-			float flSpread = pkvData->GetFloat("spread", 5.f);
-			float flNPCSpread = pkvData->GetFloat("spread_npc", flSpread);
-			float flAllySperad = pkvData->GetFloat("spread_ally", flNPCSpread);
-			m_vPlayerSpread = Vector(sin(DEG2RAD(flSpread * 0.5f)));
-			m_vNPCSpread = Vector(sin(DEG2RAD(flNPCSpread * 0.5f)));
-			m_vAllySpread = Vector(sin(DEG2RAD(flAllySperad * 0.5f)));
-
-			const char* pszAnimType = pkvData->GetString("anim_type", nullptr);
-			if (pszAnimType)
-			{
-				for (int i = 0; i < NUM_GUN_ACT_TABLES; i++)
+				if (V_stricmp(pszAnimType, ppszCustomGunAnimTypes[i]) == 0)
 				{
-					if (V_stricmp(pszAnimType, ppszCustomGunAnimTypes[i]) == 0)
-					{
-						m_nActTableIndex = i;
-						break;
-					}
+					m_nActTableIndex = i;
+					break;
 				}
 			}
 		}
+
+		return true;
 	}
+
+	return false;
+}
+
+void CHLCustomWeaponGun::InitCustomWeaponFromData(const void* pData, const char* pszWeaponScript)
+{
+	Q_FileBase(pszWeaponScript, m_iszWeaponScriptName.GetForModify(), 128);
+	const auto* pCache = static_cast<const Cache_s*> (pData);
+	m_CustomData = *pCache;
+	m_bFiresUnderwater = pCache->m_bFiresUnderwater;
+	m_bAltFiresUnderwater = pCache->m_bAltFiresUnderwater;
+	m_fMinRange1 = pCache->m_fMinRange1;
+	m_fMinRange2 = pCache->m_fMinRange2;
+	m_fMaxRange1 = pCache->m_fMaxRange1;
+	m_fMaxRange2 = pCache->m_fMaxRange2;
+	m_bReloadsSingly = pCache->m_bReloadsSingly;
 }
 
 const Vector& CHLCustomWeaponGun::GetBulletSpread()
 {
 	if (!GetOwner() || !GetOwner()->IsNPC())
-		return m_vPlayerSpread;
+		return m_CustomData.m_vPlayerSpread;
 
 	if (GetOwner()->MyNPCPointer()->IsPlayerAlly())
 	{
 		// 357 allies should be cooler
-		return m_vAllySpread;
+		return m_CustomData.m_vAllySpread;
 	}
 
-	return m_vNPCSpread;
+	return m_CustomData.m_vNPCSpread;
 }
 
 void CHLCustomWeaponGun::AddViewKick(void)
@@ -723,7 +747,7 @@ void CHLCustomWeaponGun::AddViewKick(void)
 	if (!pPlayer)
 		return;
 
-	if (m_bFullAuto)
+	if (m_CustomData.m_bFullAuto)
 	{
 		float flDuration = m_fFireDuration;
 
@@ -736,13 +760,13 @@ void CHLCustomWeaponGun::AddViewKick(void)
 			flDuration = MIN(flDuration, 0.75f);
 		}
 
-		CHLMachineGun::DoMachineGunKick(pPlayer, 0.5f, m_flMaxVerticalKick, flDuration, m_flSlideLimit);
+		CHLMachineGun::DoMachineGunKick(pPlayer, 0.5f, m_CustomData.m_flMaxVerticalKick, flDuration, m_CustomData.m_flSlideLimit);
 	}
 	else
 	{
 		QAngle	viewPunch;
-		viewPunch.x = RandomInterval(m_VerticalPunchRange);
-		viewPunch.y = RandomFloat(-m_flSlideLimit, m_flSlideLimit);
+		viewPunch.x = RandomInterval(m_CustomData.m_VerticalPunchRange);
+		viewPunch.y = RandomFloat(-m_CustomData.m_flSlideLimit, m_CustomData.m_flSlideLimit);
 		viewPunch.z = 0.0f;
 
 		//Add it to the view punch
@@ -755,13 +779,13 @@ void CHLCustomWeaponGun::AddViewKick(void)
 //-----------------------------------------------------------------------------
 void CHLCustomWeaponGun::CheckZoomToggle(void)
 {
-	if (!m_bHasZoom)
+	if (!m_CustomData.m_bHasZoom)
 		return;
 
 	CBasePlayer* pPlayer = ToBasePlayer(GetOwner());
 
 	int iButtonsTest = IN_ATTACK3;
-	if (!m_bHasSecondaryFire)
+	if (!m_CustomData.m_bHasSecondaryFire)
 		iButtonsTest |= IN_ATTACK2;
 
 	if (pPlayer->m_afButtonPressed & iButtonsTest)
@@ -819,7 +843,7 @@ bool CHLCustomWeaponGun::StartReload(void)
 	//NOTENOTE: This is kinda lame because the player doesn't get strong feedback on when the reload has finished,
 	//			without the pump.  Technically, it's incorrect, but it's good for feedback...
 
-	if (m_bUsePumpAnimation && m_iClip1 <= 0)
+	if (m_CustomData.m_bUsePumpAnimation && m_iClip1 <= 0)
 	{
 		m_bNeedPump = true;
 	}
@@ -844,7 +868,7 @@ bool CHLCustomWeaponGun::StartReload(void)
 	}
 #endif
 
-	if (m_bInZoom && !m_bZoomDuringReload)
+	if (m_bInZoom && !m_CustomData.m_bZoomDuringReload)
 	{
 		ToggleZoom();
 	}
@@ -897,7 +921,7 @@ bool CHLCustomWeaponGun::Reload(void)
 	}
 	else if (BaseClass::Reload())
 	{
-		if (m_bInZoom && !m_bZoomDuringReload)
+		if (m_bInZoom && !m_CustomData.m_bZoomDuringReload)
 		{
 			ToggleZoom();
 		}
@@ -1032,7 +1056,7 @@ void CHLCustomWeaponGun::ItemBusyFrame(void)
 {
 	BaseClass::ItemBusyFrame();
 
-	if (m_bZoomDuringReload)
+	if (m_CustomData.m_bZoomDuringReload)
 		CheckZoomToggle();
 }
 
@@ -1050,7 +1074,7 @@ void CHLCustomWeaponGun::ItemPostFrame(void)
 
 	UpdateAutoFire();
 
-	if (m_bZoomDuringReload || !m_bInReload)
+	if (m_CustomData.m_bZoomDuringReload || !m_bInReload)
 		CheckZoomToggle();
 
 	if (m_bReloadsSingly)
@@ -1067,7 +1091,7 @@ void CHLCustomWeaponGun::ItemPostFrame(void)
 				m_bDelayedFire1 = true;
 			}
 			// If I'm secondary firing and have one round stop reloading and fire
-			else if (m_bHasSecondaryFire && (pOwner->m_nButtons & IN_ATTACK2) && (m_iClip1 >= 2))
+			else if (m_CustomData.m_bHasSecondaryFire && (pOwner->m_nButtons & IN_ATTACK2) && (m_iClip1 >= 2))
 			{
 				m_bInReload = false;
 				m_bNeedPump = false;
@@ -1106,7 +1130,7 @@ void CHLCustomWeaponGun::ItemPostFrame(void)
 		CheckReload();
 	}
 
-	if (m_bUsePumpAnimation && (m_bNeedPump) && (m_flNextPrimaryAttack <= gpGlobals->curtime))
+	if (m_CustomData.m_bUsePumpAnimation && (m_bNeedPump) && (m_flNextPrimaryAttack <= gpGlobals->curtime))
 	{
 		m_fFireDuration = 0.f;
 		Pump();
@@ -1121,7 +1145,7 @@ void CHLCustomWeaponGun::ItemPostFrame(void)
 	bool bFired = false;
 
 	// Secondary attack has priority
-	if (m_bHasSecondaryFire && !m_bMustReload && (m_bDelayedFire2 || pOwner->m_nButtons & IN_ATTACK2) && (m_flNextSecondaryAttack <= gpGlobals->curtime))
+	if (m_CustomData.m_bHasSecondaryFire && !m_bMustReload && (m_bDelayedFire2 || pOwner->m_nButtons & IN_ATTACK2) && (m_flNextSecondaryAttack <= gpGlobals->curtime))
 	{
 		m_bDelayedFire2 = false;
 
@@ -1259,7 +1283,7 @@ void CHLCustomWeaponGun::PrimaryAttack()
 	if ((UsesClipsForAmmo1() && m_iClip1 == 0) || (!UsesClipsForAmmo1() && !pPlayer->GetAmmoCount(m_iPrimaryAmmoType)))
 		return;
 
-	if (m_bFullAuto)
+	if (m_CustomData.m_bFullAuto)
 	{
 		m_nShotsFired++;
 
@@ -1288,7 +1312,7 @@ void CHLCustomWeaponGun::PrimaryAttack()
 
 		// Fire the bullets
 		FireBulletsInfo_t info;
-		info.m_iShots = iBulletsToFire * m_nBulletsPerShot;
+		info.m_iShots = iBulletsToFire * m_CustomData.m_nBulletsPerShot;
 		info.m_vecSrc = pPlayer->Weapon_ShootPosition();
 		info.m_vecDirShooting = pPlayer->GetAutoaimVector(AUTOAIM_SCALE_DEFAULT);
 		info.m_vecSpread = pPlayer->GetAttackSpread(this);
@@ -1296,20 +1320,22 @@ void CHLCustomWeaponGun::PrimaryAttack()
 		info.m_iAmmoType = m_iPrimaryAmmoType;
 		info.m_iTracerFreq = 2;
 		FireBullets(info);
+
+		SendWeaponAnim(GetPrimaryAttackActivity());
 	}
 	else
 	{
-		if (!m_bNextAttackFromSequence && !m_bUsePumpAnimation && !(pPlayer->m_afButtonPressed & IN_ATTACK))
+		if (!m_CustomData.m_bNextAttackFromSequence && !m_CustomData.m_bUsePumpAnimation && !(pPlayer->m_afButtonPressed & IN_ATTACK))
 			return;
 
 		m_nShotsFired++;
 
 		// MUST call sound before removing a round from the clip of a CMachineGun
 		WeaponSound(SINGLE);
-
 		pPlayer->DoMuzzleFlash();
+		SendWeaponAnim(GetPrimaryAttackActivity());
 
-		m_flNextPrimaryAttack = gpGlobals->curtime + ((m_bNextAttackFromSequence || m_bUsePumpAnimation) ? GetViewModelSequenceDuration() : GetFireRate());
+		m_flNextPrimaryAttack = gpGlobals->curtime + ((m_CustomData.m_bNextAttackFromSequence || m_CustomData.m_bUsePumpAnimation) ? GetViewModelSequenceDuration() : GetFireRate());
 		m_iClip1 -= 1;
 
 		Vector	vecSrc = pPlayer->Weapon_ShootPosition();
@@ -1318,9 +1344,9 @@ void CHLCustomWeaponGun::PrimaryAttack()
 		pPlayer->SetMuzzleFlashTime(gpGlobals->curtime + 1.0);
 
 		// Fire the bullets, and force the first shot to be perfectly accuracy
-		pPlayer->FireBullets(m_nBulletsPerShot, vecSrc, vecAiming, GetBulletSpread(), MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 0, -1, -1, 0, NULL, (m_nBulletsPerShot > 1), true);
+		pPlayer->FireBullets(m_CustomData.m_nBulletsPerShot, vecSrc, vecAiming, GetBulletSpread(), MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 0, -1, -1, 0, NULL, (m_CustomData.m_nBulletsPerShot > 1), true);
 
-		if (m_bUsePumpAnimation && m_iClip1)
+		if (m_CustomData.m_bUsePumpAnimation && m_iClip1)
 		{
 			// pump so long as some rounds are left.
 			m_bNeedPump = true;
@@ -1340,7 +1366,6 @@ void CHLCustomWeaponGun::PrimaryAttack()
 		pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 	}
 
-	SendWeaponAnim(GetPrimaryAttackActivity());
 	pPlayer->SetAnimation(PLAYER_ATTACK1);
 
 	// Register a muzzleflash for the AI
@@ -1353,7 +1378,7 @@ void CHLCustomWeaponGun::PrimaryAttack()
 //-----------------------------------------------------------------------------
 Activity CHLCustomWeaponGun::GetPrimaryAttackActivity(void)
 {
-	if (!m_bUseRecoilAnims || m_nShotsFired < 2)
+	if (!m_CustomData.m_bUseRecoilAnims || m_nShotsFired < 2)
 		return ACT_VM_PRIMARYATTACK;
 
 	if (m_nShotsFired < 3)
@@ -1423,18 +1448,18 @@ void CHLCustomWeaponGun::FireNPCPrimaryAttack(CBaseCombatCharacter* pOperator, b
 
 	CSoundEnt::InsertSound(SOUND_COMBAT | SOUND_CONTEXT_GUNFIRE, pOperator->GetAbsOrigin(), SOUNDENT_VOLUME_MACHINEGUN, 0.2f, pOperator, SOUNDENT_CHANNEL_WEAPON, pOperator->GetEnemy());
 
-	const Vector& vecSpread = (bUseWeaponAngles || m_nBulletsPerShot > 1) ? GetBulletSpread() : VECTOR_CONE_PRECALCULATED;
-	if (m_bFullAuto)
+	const Vector& vecSpread = (bUseWeaponAngles || m_CustomData.m_nBulletsPerShot > 1) ? GetBulletSpread() : VECTOR_CONE_PRECALCULATED;
+	if (m_CustomData.m_bFullAuto)
 	{
 		int nShots = WeaponSoundRealtime(SINGLE_NPC);
-		pOperator->FireBullets(nShots * m_nBulletsPerShot, vecShootOrigin, vecShootDir, vecSpread, MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 2, entindex(), iMuzzle);
+		pOperator->FireBullets(nShots * m_CustomData.m_nBulletsPerShot, vecShootOrigin, vecShootDir, vecSpread, MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 2, entindex(), iMuzzle);
 		pOperator->DoMuzzleFlash();
 		m_iClip1 = m_iClip1 - nShots;
 	}
 	else
 	{
 		WeaponSound(SINGLE_NPC);
-		pOperator->FireBullets(m_nBulletsPerShot, vecShootOrigin, vecShootDir, vecSpread, MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 2, entindex(), iMuzzle);
+		pOperator->FireBullets(m_CustomData.m_nBulletsPerShot, vecShootOrigin, vecShootDir, vecSpread, MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 2, entindex(), iMuzzle);
 		pOperator->DoMuzzleFlash();
 		m_iClip1 = m_iClip1 - 1;
 	}
