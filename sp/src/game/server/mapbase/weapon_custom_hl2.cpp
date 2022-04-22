@@ -386,6 +386,7 @@ public:
 	virtual void			ItemPostFrame(void);				// called each frame by the player PostThink
 	virtual void			ItemBusyFrame(void);				// called each frame by the player PostThink, if the player's not ready to attack yet
 	virtual bool			ReloadOrSwitchWeapons(void);
+	virtual bool			Holster(CBaseCombatWeapon* pSwitchingTo = NULL);
 
 	// Bullet launch information
 	virtual const Vector&	GetBulletSpread(void);
@@ -780,6 +781,17 @@ void CHLCustomWeaponGun::AddViewKick(void)
 		//Add it to the view punch
 		pPlayer->ViewPunch(viewPunch);
 	}
+}
+
+bool CHLCustomWeaponGun::Holster(CBaseCombatWeapon* pSwitchingTo)
+{
+	// Stop zooming
+	if (m_bInZoom)
+	{
+		ToggleZoom();
+	}
+
+	return BaseClass::Holster(pSwitchingTo);
 }
 
 //-----------------------------------------------------------------------------
