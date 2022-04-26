@@ -27,8 +27,8 @@
 // STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..0"	[ps20b] [XBOX]
 // STATIC: "DEPTHBLEND"					"0..1"	[ps20b] [ps30]
 // STATIC: "BLENDTINTBYBASEALPHA"       "0..1"
+// STATIC: "ENVMAPFRESNEL"				"0..1"	[ps30]
 // STATIC: "SRGB_INPUT_ADAPTER"			"0..1"	[ps20b]
-// STATIC: "CUBEMAP_SPHERE_LEGACY"		"0..1"
 
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"  [ps20]
 // DYNAMIC: "LIGHTING_PREVIEW"          "0..2"	[PC]
@@ -51,6 +51,10 @@
 // SKIP: ($DISTANCEALPHA == 0) && ($DISTANCEALPHAFROMDETAIL || $SOFT_MASK || $OUTLINE || $OUTER_GLOW)
 // SKIP: ($DETAILTEXTURE == 0) && ($DISTANCEALPHAFROMDETAIL)
 
+// envmap stuff is meaningless if we're not using a cubemap
+// SKIP: ( $CUBEMAP == 0 ) && ( ( $ENVMAPFRESNEL == 1 ) || ( $BASEALPHAENVMAPMASK == 1 ) )
+// SKIP: ( $CUBEMAP == 0 ) && ( $ENVMAPMASK == 1 ) && ( $SELFILLUM_ENVMAPMASK_ALPHA == 0 )
+
 // We don't care about flashlight depth unless the flashlight is on
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS == 1 )	[ps20b]
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS == 1 )	[ps30]
@@ -60,7 +64,7 @@
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTDEPTHFILTERMODE != 0 ) [ps30]
 
 // DISTANCEALPHA-related skips
-// SKIP: ($DISTANCEALPHA) && ($ENVMAPMASK || $BASEALPHAENVMAPMASK || $SELFILLUM || $SELFILLUM_ENVMAPMASK_ALPHA )
+// SKIP: ($DISTANCEALPHA) && ($ENVMAPMASK || $BASEALPHAENVMAPMASK || $SELFILLUM || $SELFILLUM_ENVMAPMASK_ALPHA || $ENVMAPFRESNEL)
 // SKIP: ($DISTANCEALPHA) && ($SEAMLESS_BASE || $SEAMLESS_DETAIL || $CUBEMAP || $LIGHTING_PREVIEW )
 // SKIP: ($DISTANCEALPHA) && ($WRITEWATERFOGTODESTALPHA || $PIXELFOGTYPE || $FLASHLIGHT || $FLASHLIGHTSHADOWS || $SRGB_INPUT_ADAPTER )
 
@@ -86,6 +90,12 @@ const float4 g_SelfIllumTint_and_BlendFactor	: register( c4 );
 
 const float4 g_ShaderControls					: register( c12 );
 const float4 g_DepthFeatheringConstants			: register( c13 );
+
+const float4 g_FresnelConstants					: register( c14 );
+#define g_flFresnelBias				g_FresnelConstants.x
+#define g_flFresnelScale			g_FresnelConstants.y
+#define g_flFresnelExp				g_FresnelConstants.z
+#define g_flBaseAlphaEnvMapMaskExp	g_FresnelConstants.w
 
 const float4 g_EyePos_MinLight							: register( c20 );
 #define g_EyePos g_EyePos_MinLight.xyz
@@ -159,6 +169,8 @@ const float4 g_GlowColor : register( c6 );
 const float4 g_DistanceAlphaParams : register( c7 );
 #define SOFT_MASK_MAX g_DistanceAlphaParams.x
 #define SOFT_MASK_MIN g_DistanceAlphaParams.y
+#define g_flBaseAlphaEnvMapMaskBias g_DistanceAlphaParams.z
+#define g_flBaseAlphaEnvMapMaskScale g_DistanceAlphaParams.w
 
 const float4 g_OutlineColor : register( c8 );
 #define OUTLINE_COLOR g_OutlineColor
@@ -337,10 +349,18 @@ float4 main( PS_INPUT i ) : COLOR
 		specularFactor *= envmapMaskTexel.xyz;	
 	}
 
-	if( bBaseAlphaEnvmapMask )
+	if ( bBaseAlphaEnvmapMask )
 	{
-		specularFactor *= 1.0 - baseColor.a; // this blows!
+		specularFactor *= saturate( g_flBaseAlphaEnvMapMaskScale * pow( baseColor.a, g_flBaseAlphaEnvMapMaskExp ) + g_flBaseAlphaEnvMapMaskBias );
 	}
+
+	#if ( ENVMAPFRESNEL )
+	{
+		float flFresnel = 1-saturate( dot( normalize( i.worldSpaceNormal.xyz ), normalize( i.worldVertToEyeVector.xyz ) ) );
+		flFresnel = g_flFresnelScale * pow( flFresnel, g_flFresnelExp ) + g_flFresnelBias;
+		specularFactor *= flFresnel;
+	}
+	#endif
 
 	float3 diffuseLighting = float3( 1.0f, 1.0f, 1.0f );
 	if( bDiffuseLighting || bVertexColor && !( bVertexColor && bDiffuseLighting ) )

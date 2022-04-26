@@ -141,6 +141,11 @@ BEGIN_VS_SHADER( SDK_VertexLitGeneric, "Help for SDK_VertexLitGeneric" )
 		SHADER_PARAM( BLENDTINTCOLOROVERBASE, SHADER_PARAM_TYPE_FLOAT, "0", "blend between tint acting as a multiplication versus a replace" )
 
 #ifdef MAPBASE
+		SHADER_PARAM( ALLOWDIFFUSEMODULATION, SHADER_PARAM_TYPE_BOOL, "1", "Allow per-instance color modulation" )
+
+		SHADER_PARAM( ENVMAPFRESNELMINMAXEXP, SHADER_PARAM_TYPE_VEC3, "[0.0 1.0 2.0]", "Min/max fresnel range and exponent for vertexlitgeneric" )
+		SHADER_PARAM( BASEALPHAENVMAPMASKMINMAXEXP, SHADER_PARAM_TYPE_VEC3, "[1.0 0.0 1.0]", "" )
+
 		SHADER_PARAM( PHONGDISABLEHALFLAMBERT, SHADER_PARAM_TYPE_BOOL, "0", "Disable half lambert for phong" )
 #endif
 
@@ -239,6 +244,11 @@ BEGIN_VS_SHADER( SDK_VertexLitGeneric, "Help for SDK_VertexLitGeneric" )
 		info.m_nTintReplacesBaseColor = BLENDTINTCOLOROVERBASE;
 
 #ifdef MAPBASE
+		info.m_nAllowDiffuseModulation = ALLOWDIFFUSEMODULATION;
+
+		info.m_nEnvMapFresnelMinMaxExp = ENVMAPFRESNELMINMAXEXP;
+		info.m_nBaseAlphaEnvMapMaskMinMaxExp = BASEALPHAENVMAPMASKMINMAXEXP;
+
 		info.m_nPhongDisableHalfLambert = PHONGDISABLEHALFLAMBERT;
 #endif
 
