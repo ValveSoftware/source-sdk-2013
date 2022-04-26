@@ -1931,7 +1931,11 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 			{
 				flActualDamage = g_pGameRules->GetAmmoDamage( pAttacker, tr.m_pEnt, info.m_iAmmoType );
 			}
+#ifdef MAPBASE
+			else if ((info.m_nFlags & FIRE_BULLETS_NO_AUTO_GIB_TYPE) == 0)
+#else
 			else
+#endif
 			{
 				nActualDamageType = nDamageType | ((flActualDamage > 16) ? DMG_ALWAYSGIB : DMG_NEVERGIB );
 			}
