@@ -983,3 +983,117 @@ void TextImage::SetColorChangeStream( CUtlSortVector<label_colorchange_t,CColorC
 
 	m_ColorChangeStream = *pUtlVecStream;
 }
+
+#ifdef MAPBASE
+void TextImage::GetNewlinePositions( CUtlVector<int> *pOutCoords, bool bIgnoreEmptyLines )
+{
+	HFont font = GetFont();
+	if (!_utext || font == INVALID_FONT )
+		return;
+
+	// Early out if there's no newlines in our text
+	if (wcschr( _utext, L'\n' ) == NULL)
+		return;
+
+	if (m_bRecalculateTruncation)
+	{
+		if ( m_bWrap || m_bWrapCenter )
+		{
+			RecalculateNewLinePositions();
+		}
+
+		RecalculateEllipsesPosition();
+	}
+
+	int lineHeight = surface()->GetFontTall( GetFont() );
+	float x = 0.0f;
+	int y = 0;
+	int iIndent = 0;
+
+	int px, py;
+	GetPos(px, py);
+
+	int currentLineBreak = 0;
+
+	if ( m_bWrapCenter && m_LineXIndent.Count() )
+	{
+		x = m_LineXIndent[0];
+	}
+
+	for (wchar_t *wsz = _utext; *wsz != 0; wsz++)
+	{
+		wchar_t ch = wsz[0];
+
+		if ( m_bAllCaps )
+		{
+			ch = towupper( ch );
+		}
+
+		// check for special characters
+		if ( ch == '\r' || ch <= 8 )
+		{
+			// ignore, just use \n for newlines
+			continue;
+		}
+		else if (ch == '\n')
+		{
+			// newline
+			iIndent++;
+			if ( m_bWrapCenter && iIndent < m_LineXIndent.Count() )
+			{
+				x = m_LineXIndent[iIndent];
+			}
+			else
+			{
+				x = 0;
+			}
+			y += lineHeight;
+
+			if (!bIgnoreEmptyLines || (*(wsz + 1) != 0 && wsz[1] != '\n'))
+			{
+				pOutCoords->AddToTail( y );
+			}
+
+			continue;
+		}
+		else if (ch == '&')
+		{
+			// "&&" means draw a single ampersand, single one is a shortcut character
+			if (wsz[1] == '&')
+			{
+				// just move on and draw the second ampersand
+				wsz++;
+			}
+		}
+
+		// see if we've hit the truncated portion of the string
+		if (wsz == m_pwszEllipsesPosition)
+		{
+			// do nothing
+		}
+
+		if (currentLineBreak != m_LineBreaks.Count())
+		{
+			if (wsz == m_LineBreaks[currentLineBreak])
+			{
+				// newline
+				iIndent++;
+				if ( m_bWrapCenter && iIndent < m_LineXIndent.Count() )
+				{
+					x = m_LineXIndent[iIndent];
+				}
+				else
+				{
+					x = 0;
+				}
+
+				y += lineHeight;
+				currentLineBreak++;
+			}
+		}
+
+		// Underlined text wants to draw the spaces anyway
+		x += surface()->GetCharacterWidth(font, ch);
+	}
+}
+#endif
