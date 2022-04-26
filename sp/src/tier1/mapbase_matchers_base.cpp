@@ -16,6 +16,7 @@
 #include "minmax.h"
 
 ConVar mapbase_wildcards_enabled("mapbase_wildcards_enabled", "1", FCVAR_NONE, "Toggles Mapbase's '?' wildcard and true '*' features. Useful for maps that have '?' in their targetnames.");
+ConVar mapbase_wildcards_lazy_hack("mapbase_wildcards_lazy_hack", "1", FCVAR_NONE, "Toggles a hack which prevents Mapbase's lazy '?' wildcards from picking up \"???\", the default instance parameter.");
 ConVar mapbase_regex_enabled("mapbase_regex_enabled", "1", FCVAR_NONE, "Toggles Mapbase's regex matching handover.");
 
 //=============================================================================
@@ -121,6 +122,14 @@ bool Matcher_NamesMatch(const char *pszQuery, const char *szValue)
 			return Matcher_Regex( pszQuery+2, szValue );
 		}
 	}
+	else if (pszQuery[0] == '?' && pszQuery[1] == '?' && pszQuery[2] == '?' && mapbase_wildcards_lazy_hack.GetBool())
+	{
+		// HACKHACK: There's a nasty issue where instances with blank parameters use "???", but Mapbase's lazy wildcard code
+		// recognizes this as essentially meaning "any name with 3 characters". This is a serious problem when the instance
+		// specifically expects the game to interpret "???" as a blank space, such as with damage filters, which crash when targeting
+		// a non-filter entity.
+		return false;
+	}
 
 	return Matcher_RunCharCompare( pszQuery, szValue );
 }
@@ -196,6 +205,23 @@ bool Matcher_NamesMatch_MutualWildcard(const char *pszQuery, const char *szValue
 	// @TODO (toml 03-18-03): Perhaps support real wildcards. Right now, only thing supported is trailing *
 	if ( *pszQuery == '*' || *szValue == '*' )
 		return true;
+
+	return false;
+}
+
+// Returns true if a string contains a wildcard.
+bool Matcher_ContainsWildcard(const char *pszQuery)
+{
+	if ( pszQuery == NULL )
+		return false;
+
+	while ( *pszQuery )
+	{
+		unsigned char cQuery = *pszQuery;
+		if (cQuery == '*' || cQuery == '?')
+			return true;
+		++pszQuery;
+	}
 
 	return false;
 }

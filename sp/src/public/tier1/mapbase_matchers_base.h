@@ -36,6 +36,9 @@ bool Matcher_NamesMatch_Classic( const char *pszQuery, const char *szValue );
 // szValue = The value tested against the query. This value can use wildcards as well.
 bool Matcher_NamesMatch_MutualWildcard( const char *pszQuery, const char *szValue );
 
+// Returns true if the specified string contains a wildcard character.
+bool Matcher_ContainsWildcard( const char *pszQuery );
+
 // Taken from the Response System.
 // Checks if the specified string appears to be a number of some sort.
 static bool AppearsToBeANumber( char const *token )
