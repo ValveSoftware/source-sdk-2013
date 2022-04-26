@@ -662,6 +662,7 @@ void CBasePlayer::CreateHandModel(int index, int iOtherVm)
 		DispatchSpawn(vm);
 		vm->FollowEntity(GetViewModel(iOtherVm), true);
 		m_hViewModel.Set(index, vm);
+		vm->AddEffects( EF_NODRAW );
 	}
 }
 #endif

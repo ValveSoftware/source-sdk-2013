@@ -7707,7 +7707,7 @@ bool CBaseEntity::HasContext( const char *name, const char *value ) const
 			if (value == NULL)
 				return true;
 			else
-				return Matcher_Match(STRING(m_ResponseContexts[i].m_iszValue), value);
+				return Matcher_Match( value, STRING(m_ResponseContexts[i].m_iszValue) );
 		}
 	}
 

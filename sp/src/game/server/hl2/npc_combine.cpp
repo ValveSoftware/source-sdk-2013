@@ -2719,7 +2719,7 @@ void CNPC_Combine::HandleAnimEvent( animevent_t *pEvent )
 		else if ( pEvent->event == COMBINE_AE_ALTFIRE )
 		{
 #ifdef MAPBASE
-			if ( IsAltFireCapable() )
+			if ( IsAltFireCapable() && GetActiveWeapon() )
 #else
 			if ( IsElite() )
 #endif

@@ -2789,7 +2789,6 @@ Activity CBaseCombatCharacter::Weapon_BackupActivity( Activity activity, bool we
 
 	if (pTable && GetModelPtr())
 	{
-		int actCount = pWeapon->GetBackupActivityListCount();
 		return Weapon_BackupActivityFromList( this, pTable, actCount, activity, weaponTranslationWasRequired, pWeapon );
 	}
 

@@ -344,12 +344,12 @@ inline void CTakeDamageInfo::SetDamageCustom( int iDamageCustom )
 
 inline int CTakeDamageInfo::GetDamageStats() const
 {
-	return m_iDamageCustom;
+	return m_iDamageStats;
 }
 
 inline void CTakeDamageInfo::SetDamageStats( int iDamageCustom )
 {
-	m_iDamageCustom = iDamageCustom;
+	m_iDamageStats = iDamageCustom;
 }
 
 inline int CTakeDamageInfo::GetAmmoType() const

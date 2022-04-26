@@ -368,7 +368,7 @@ void CBaseViewModel::SetWeaponModel( const char *modelname, CBaseCombatWeapon *w
 
 #ifdef MAPBASE
 	// If our owning weapon doesn't support hands, disable the hands viewmodel(s)
-	bool bSupportsHands = weapon->UsesHands();
+	bool bSupportsHands = weapon != NULL ? weapon->UsesHands() : false;
 	for (CBaseEntity *pChild = FirstMoveChild(); pChild != NULL; pChild = pChild->NextMovePeer())
 	{
 		if (pChild->GetClassname()[0] == 'h')

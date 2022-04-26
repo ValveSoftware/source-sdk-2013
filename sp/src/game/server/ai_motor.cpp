@@ -845,6 +845,7 @@ void CAI_Motor::MoveFacing( const AILocalMoveGoal_t &move )
 		{
 			// Don't let the facing queue interfere with arrival direction in important cases
 			dir = move.facing;
+			VectorNormalize( dir );
 		}
 		else
 #endif

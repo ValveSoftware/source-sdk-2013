@@ -1539,7 +1539,7 @@ void CNPC_MetroPolice::OnUpdateShotRegulator( )
 	// FIXME: This code (except the burst interval) could be used for all weapon types 
 #ifdef MAPBASE
 	// Only if we actually have the pistol out
-	if ( EntIsClass( GetActiveWeapon(), gm_isz_class_Pistol ) )
+	if ( GetActiveWeapon() && EntIsClass( GetActiveWeapon(), gm_isz_class_Pistol ) )
 #else
 	if( Weapon_OwnsThisType( "weapon_pistol" ) )
 #endif
