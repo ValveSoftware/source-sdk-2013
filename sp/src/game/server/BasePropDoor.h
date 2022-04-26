@@ -77,6 +77,8 @@ public:
 
 #ifdef MAPBASE
 	virtual bool PassesDoorFilter(CBaseEntity *pEntity) { return true; }
+
+	virtual bool KeyValue( const char *szKeyName, const char *szValue );
 #endif
 
 protected:
