@@ -25,6 +25,9 @@
 #include "ndebugoverlay.h"
 #include "ai_hint.h"
 #include "tier0/icommandline.h"
+#ifdef MAPBASE
+#include "gameinterface.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -72,7 +75,10 @@ ConVar g_ai_norebuildgraph( "ai_norebuildgraph", "0" );
 #ifdef MAPBASE
 ConVar g_ai_norebuildgraphmessage( "ai_norebuildgraphmessage", "0", FCVAR_ARCHIVE, "Stops the \"Node graph out of date\" message from appearing when rebuilding node graph" );
 
-ConVar g_ai_ignore_graph_timestamps( "g_ai_ignore_graph_timestamps", "1", FCVAR_NONE, "Ignores file timestamps when rebuilding nodegraphs, only relying on internal map version differences" );
+ConVar g_ai_norebuildgraph_if_in_chapters( "ai_norebuildgraph_if_in_chapters", "0", FCVAR_NONE, "Ignores rebuilding nodegraph if it's in chapters.txt. This allows for bypassing problems with Steam rebuilding nodegraphs in a mod's main maps without affecting custom maps." );
+
+extern CUtlVector<MODTITLECOMMENT> *Mapbase_GetChapterMaps();
+extern CUtlVector<MODCHAPTER> *Mapbase_GetChapterList();
 #endif
 
 
@@ -990,8 +996,21 @@ bool CAI_NetworkManager::IsAIFileCurrent ( const char *szMapName )
 	}
 
 #ifdef MAPBASE
-	if (g_ai_ignore_graph_timestamps.GetBool())
-		return true;
+	if (g_ai_norebuildgraph_if_in_chapters.GetBool())
+	{
+		// Look in the mod's chapter list. If this map is part of one of the chapters, consider it to have a good node graph
+		CUtlVector<MODTITLECOMMENT> *ModChapterComments = Mapbase_GetChapterMaps();
+		if (ModChapterComments->Count() > 0)
+		{
+			for ( int i = 0; i < ModChapterComments->Count(); i++ )
+			{
+				if ( !Q_strnicmp( STRING(gpGlobals->mapname), ModChapterComments->Element(i).pBSPName, strlen(ModChapterComments->Element(i).pBSPName) ) )
+				{
+					return true;
+				}
+			}
+		}
+	}
 #endif
 	
 	{
