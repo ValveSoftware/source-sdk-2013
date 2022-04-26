@@ -20,6 +20,7 @@
 #include "in_buttons.h"
 #ifdef MAPBASE
 #include "vgui_controls/Label.h"
+#include "vgui_controls/TextImage.h"
 #include "vgui_controls/ImagePanel.h"
 #include "vgui_controls/AnimationController.h"
 #include "filesystem.h"
@@ -53,6 +54,8 @@ ConVar commentary_type_image_endtime( "commentary_type_image_endtime", "120" );
 ConVar commentary_audio_element_below_cc( "commentary_audio_element_below_cc", "1", FCVAR_NONE, "Allows commentary audio elements to display even when CC is enabled (although this is done by inverting their Y axis)" );
 ConVar commentary_audio_element_below_cc_margin( "commentary_audio_element_below_cc_margin", "4" );
 ConVar commentary_combine_speaker_and_printname( "commentary_combine_speaker_and_printname", "1" );
+ConVar commentary_footnote_offset_x( "commentary_footnote_offset_x", "16" );
+ConVar commentary_footnote_offset_y( "commentary_footnote_offset_y", "8" );
 #endif
 
 //-----------------------------------------------------------------------------
@@ -79,8 +82,8 @@ public:
 	bool IsTheActiveNode( C_PointCommentaryNode *pNode ) { return (pNode == m_hActiveNode); }
 
 #ifdef MAPBASE
-	void CombineSpeakerAndPrintName( const char *pszPrintName );
-	void RepositionCloseCaption();
+	void FixupCommentaryLabels( const char *pszPrintName, const char *pszSpeakers, const char *pszFootnote );
+	void RepositionAndFollowCloseCaption( int yOffset = 0 );
 #endif
 
 	// vgui overrides
@@ -89,6 +92,8 @@ public:
 #ifdef MAPBASE
 	virtual void PerformLayout();
 	void ResolveBounds( int width, int height );
+
+	virtual void LevelShutdown();
 #endif
 
 private:
@@ -110,8 +115,13 @@ private:
 	vgui::ImagePanel *m_pImage;
 	vgui::HFont m_hFont;
 
+	vgui::Label *m_pFootnoteLabel;
+	vgui::HFont m_hSmallFont;
+
 	// HACKHACK: Needed as a failsafe to prevent desync
 	int		m_iCCDefaultY;
+
+	bool	m_bShouldRepositionSubtitles;
 #endif
 
 	// Painting
@@ -271,6 +281,8 @@ public:
 	void SetSpeakers( const char *pszSpeakers ) { Q_strncpy( m_iszSpeakers, pszSpeakers, sizeof( m_iszSpeakers ) ); }
 	const char *GetPrintName() { return m_iszPrintName; }
 	void SetPrintName( const char *pszPrintName ) { Q_strncpy( m_iszPrintName, pszPrintName, sizeof( m_iszPrintName ) ); }
+	const char *GetFootnote() { return m_iszFootnote; }
+	void SetFootnote( const char *pszFootnote ) { Q_strncpy( m_iszFootnote, pszFootnote, sizeof( m_iszFootnote ) ); }
 #endif
 
 public:
@@ -288,6 +300,7 @@ public:
 	bool		m_bRestartAfterRestore;
 #ifdef MAPBASE
 	char		m_iszPrintName[MAX_SPEAKER_NAME];
+	char		m_iszFootnote[MAX_SPEAKER_NAME];
 	int		m_iCommentaryType;
 	float	m_flPanelScale;
 	float	m_flPanelX;
@@ -314,6 +327,7 @@ IMPLEMENT_CLIENTCLASS_DT(C_PointCommentaryNode, DT_PointCommentaryNode, CPointCo
 	RecvPropEHandle( RECVINFO(m_hViewPosition) ),
 #ifdef MAPBASE
 	RecvPropString( RECVINFO( m_iszPrintName ) ),
+	RecvPropString( RECVINFO( m_iszFootnote ) ),
 	RecvPropInt( RECVINFO( m_iCommentaryType ) ),
 	RecvPropFloat( RECVINFO( m_flPanelScale ) ),
 	RecvPropFloat( RECVINFO( m_flPanelX ) ),
@@ -339,6 +353,8 @@ BEGIN_ENT_SCRIPTDESC( C_PointCommentaryNode, C_BaseAnimating, "Commentary nodes 
 	DEFINE_SCRIPTFUNC( SetSpeakers, "" )
 	DEFINE_SCRIPTFUNC( GetPrintName, "" )
 	DEFINE_SCRIPTFUNC( SetPrintName, "" )
+	DEFINE_SCRIPTFUNC( GetFootnote, "" )
+	DEFINE_SCRIPTFUNC( SetFootnote, "" )
 	DEFINE_SCRIPTFUNC( GetCommentaryType, "" )
 	DEFINE_SCRIPTFUNC( SetCommentaryType, "" )
 
@@ -712,14 +728,24 @@ void C_PointCommentaryNode::StartEvent( float currenttime, CChoreoScene *scene, 
 		{
 			CSingleUserRecipientFilter filter( C_BasePlayer::GetLocalPlayer() );
 
-			EmitSound_t es;
-			es.m_nChannel = CHAN_VOICE2;
-			es.m_flVolume = 1;
+			CSoundParameters soundParams;
+			bool bSoundscript = (g_pSoundEmitterSystem->GetParametersForSound( event->GetParameters(), soundParams, GENDER_NONE, false ));
+			EmitSound_t es( soundParams );
+			if (bSoundscript)
+			{
+			}
+			else
+			{
+				es.m_pSoundName = event->GetParameters();
+				es.m_flVolume = 1;
+			}
+
+			// TODO: This is supposed to make sure actors don't interrupt each other, but it doesn't seem to work
+			es.m_nChannel = CHAN_USER_BASE + scene->FindActorIndex( event->GetActor() );
 			es.m_SoundLevel = SNDLVL_GUNFIRE;
-			//es.m_nFlags = SND_SHOULDPAUSE;
+			es.m_nFlags = SND_SHOULDPAUSE;
 
 			es.m_bEmitCloseCaption = false;
-			es.m_pSoundName = event->GetParameters();
 
 			// Just in case
 			if (!m_hSceneOrigin)
@@ -804,13 +830,23 @@ void C_PointCommentaryNode::StopLoopingSounds( void )
 #ifdef MAPBASE
 	if ( m_pScene )
 	{
+		// Must do this to terminate audio
+		if (m_hSceneOrigin)
+		{
+			CSingleUserRecipientFilter filter( C_BasePlayer::GetLocalPlayer() );
+
+			for (int i = 0; i < m_pScene->GetNumActors(); i++)
+			{
+				EmitSound_t es;
+				es.m_nChannel = CHAN_USER_BASE + i;
+				es.m_pSoundName = "common/null.wav";
+
+				EmitSound( filter, m_hSceneOrigin->entindex(), es );
+			}
+		}
+
 		delete m_pScene;
 		m_pScene = NULL;
-
-		// Must do this to terminate audio
-		// (TODO: This causes problems when players switch from a scene node immediately to a regular audio node)
-		if (m_hSceneOrigin)
-			m_hSceneOrigin->EmitSound( "AI_BaseNPC.SentenceStop" );
 	}
 #endif
 }
@@ -871,6 +907,8 @@ CHudCommentary::CHudCommentary( const char *name ) : vgui::Panel( NULL, "HudComm
 	m_pImage = new vgui::ImagePanel( this, "HudCommentaryImagePanel" );
 	m_pImage->SetShouldScaleImage( true );
 
+	m_pFootnoteLabel = new vgui::Label( this, "HudCommentaryFootnoteLabel", L"Commentary footnote" );
+
 	m_iCCDefaultY = 0;
 #endif
 }
@@ -887,6 +925,9 @@ void CHudCommentary::ApplySchemeSettings( vgui::IScheme *pScheme )
 #ifdef MAPBASE
 	m_pLabel->SetPaintBackgroundType( 2 );
 	m_pLabel->SetSize( 0, GetTall() );
+
+	m_pFootnoteLabel->SetPaintBackgroundType( 2 );
+	m_pFootnoteLabel->SetSize( 0, GetTall() );
 #endif
 }
 
@@ -914,12 +955,8 @@ void CHudCommentary::Paint()
 				// Reset close caption element if needed
 				if (pHudCloseCaption->IsUsingCommentaryDimensions())
 				{
-					int ccX, ccY;
-					pHudCloseCaption->GetPos( ccX, ccY );
-					//pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
-
 					// Run this animation command instead of setting the position directly
-					g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY + m_iTypeAudioT, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
+					g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", m_iCCDefaultY, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
 
 					pHudCloseCaption->SetUsingCommentaryDimensions( false );
 				}
@@ -941,12 +978,8 @@ void CHudCommentary::Paint()
 			CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
 			if (pHudCloseCaption && pHudCloseCaption->IsUsingCommentaryDimensions())
 			{
-				int ccX, ccY;
-				pHudCloseCaption->GetPos( ccX, ccY );
-				//pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
-
 				// Run this animation command instead of setting the position directly
-				g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY + m_iTypeAudioT, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
+				g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", m_iCCDefaultY, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
 
 				pHudCloseCaption->SetUsingCommentaryDimensions( false );
 			}
@@ -1055,6 +1088,35 @@ void CHudCommentary::Paint()
 	vgui::surface()->GetTextSize( m_hFont, m_szCount, iCountWide, iCountTall );
 
 #ifdef MAPBASE
+	if (m_pFootnoteLabel->IsEnabled())
+	{
+		// Raise the count's position so that it doesn't get in the way
+		//iCountTall *= 2;
+
+		int x, y;
+		m_pFootnoteLabel->GetPos(x, y);
+
+		// 
+		// Draw a bullet next to each footnote
+		// 
+		CUtlVector<int> pLineCoords;
+		pLineCoords.AddToTail( 0 ); // First line
+
+		m_pFootnoteLabel->GetTextImage()->GetNewlinePositions( &pLineCoords, true );
+
+		int iBulletX = x - commentary_footnote_offset_x.GetInt();
+		int iBulletY = y;
+
+		vgui::surface()->DrawSetTextFont( m_hFont );
+		vgui::surface()->DrawSetTextColor( clr );
+
+		for (int i = 0; i < pLineCoords.Count(); i++)
+		{
+			vgui::surface()->DrawSetTextPos( iBulletX, iBulletY + pLineCoords[i] );
+			vgui::surface()->DrawUnicodeChar( L'\u2022' );
+		}
+	}
+
 	if (m_iCommentaryType != COMMENTARY_TYPE_AUDIO && m_iCommentaryType != COMMENTARY_TYPE_SCENE)
 		vgui::surface()->DrawSetTextPos( wide - m_iTypeTextCountXFR - iCountWide, tall - m_iTypeTextCountYFB - iCountTall );
 	else
@@ -1085,13 +1147,35 @@ void CHudCommentary::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
+	// Don't do anything if we shouldn't draw
+	if (!m_hActiveNode) // !ShouldDraw()
+		return;
+
+	int extraWidth = 0, extraHeight = 0;
+
+	// The dimensions of a progress bar, text card, etc.
+	int contentWidth = 0, contentHeight = 0;
+
+	int xOffset = m_iBarX;
+	int yOffset = m_iBarY;
+
+	// Footnotes can add more space to the bottom if they have newlines.
+	if (m_pFootnoteLabel->IsEnabled())
+	{
+		m_pFootnoteLabel->SetBounds( xOffset, yOffset, (float)(m_iBarWide * m_flPanelScale), GetTall() );
+
+		int iNoteWide, iNoteTall;
+		m_pFootnoteLabel->GetContentSize( iNoteWide, iNoteTall );
+
+		m_pFootnoteLabel->SetTall( iNoteTall );
+
+		extraHeight += iNoteTall;
+	}
+
 	switch (m_iCommentaryType)
 	{
 		case COMMENTARY_TYPE_TEXT:
 			{
-				int xOffset = m_iBarX;
-				int yOffset = m_iBarY;
-
 				m_pLabel->SetBounds(
 					xOffset + m_iTextBorderSpace, yOffset + m_iTextBorderSpace,
 					(float)(m_iBarWide * m_flPanelScale) - m_iTextBorderSpace, GetTall() );
@@ -1104,17 +1188,19 @@ void CHudCommentary::PerformLayout()
 
 				m_pLabel->SetTall( lT );
 
-				lW += (float)((m_iTextBorderSpace * 2) + (xOffset * 2));
-				lT += (float)((m_iTextBorderSpace * 2) + (yOffset * 2));
+				lW += (m_iTextBorderSpace * 2);
+				lT += (m_iTextBorderSpace * 2);
 
-				ResolveBounds( lW, lT );
+				contentWidth = lW, contentHeight = lT;
+
+				lW += (xOffset * 2);
+				lT += (yOffset * 2);
+
+				ResolveBounds( lW + extraWidth, lT + extraHeight );
 			} break;
 
 		case COMMENTARY_TYPE_IMAGE:
 			{
-				int xOffset = m_iBarX;
-				int yOffset = m_iBarY;
-
 				// Figure out the size before setting bounds
 				int iW, iT;
 				//m_pImage->GetImage()->GetSize( iW, iT );
@@ -1134,16 +1220,39 @@ void CHudCommentary::PerformLayout()
 					yOffset + m_iTextBorderSpace,
 					iW, iT );
 
-				iW += (float)((m_iTextBorderSpace * 2) + (xOffset * 2));
-				iT += (float)((m_iTextBorderSpace * 2) + (yOffset * 2));
+				iW += (m_iTextBorderSpace * 2);
+				iT += (m_iTextBorderSpace * 2);
 
-				ResolveBounds( iW, iT );
+				contentWidth = iW, contentHeight = iT;
+
+				iW += (xOffset * 2);
+				iT += (yOffset * 2);
+
+				ResolveBounds( iW + extraWidth, iT + extraHeight );
 			} break;
 
 		default:
 		case COMMENTARY_TYPE_SCENE:
 		case COMMENTARY_TYPE_AUDIO:
+
+			// Keep the box centered
+			SetBounds( m_iTypeAudioX, m_iTypeAudioY - extraHeight, m_iTypeAudioW + extraWidth, m_iTypeAudioT + extraHeight );
+			
+			// Reposition the subtitles to be above the commentary dialog
+			if (m_bShouldRepositionSubtitles)
+			{
+				RepositionAndFollowCloseCaption( extraHeight );
+			}
+
+			contentWidth = (m_iBarWide * m_flPanelScale), contentHeight = m_iBarTall;
+
 			break;
+	}
+
+	// Move the footnote to be at the bottom
+	if (m_pFootnoteLabel->IsEnabled())
+	{
+		m_pFootnoteLabel->SetPos( m_iSpeakersX + commentary_footnote_offset_x.GetInt(), yOffset+contentHeight+ commentary_footnote_offset_y.GetInt() );
 	}
 }
 
@@ -1194,6 +1303,30 @@ void CHudCommentary::ResolveBounds( int width, int height )
 		yPos = 0;
 
 	SetBounds( xPos, yPos, width, height );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudCommentary::LevelShutdown( void )
+{
+	if (m_iCCDefaultY != 0)
+	{
+		CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
+		if (pHudCloseCaption && pHudCloseCaption->IsUsingCommentaryDimensions())
+		{
+			int ccX, ccY;
+			pHudCloseCaption->GetPos( ccX, ccY );
+
+			if (m_iCCDefaultY != ccY)
+			{
+				DevMsg( "CHudCommentary had to reset misaligned CC element Y (%i) to default Y (%i)\n", ccY, m_iCCDefaultY );
+				pHudCloseCaption->SetPos( ccX, m_iCCDefaultY );
+			}
+
+			pHudCloseCaption->SetUsingCommentaryDimensions( false );
+		}
+	}
 }
 #endif
 
@@ -1249,12 +1382,20 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	m_pImage->SetPaintEnabled( false );
 	m_pImage->EvictImage();
 
+	m_pFootnoteLabel->SetEnabled( false );
+
 	// Get our scheme and font information
 	vgui::HScheme scheme = GetScheme();
 	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
 	if ( !m_hFont )
 	{
 		m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
+	}
+
+	m_hSmallFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentarySmall" );
+	if ( !m_hSmallFont)
+	{
+		m_hSmallFont = m_hFont;
 	}
 #endif
 
@@ -1273,13 +1414,12 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	if (!m_bShouldPaint && commentary_audio_element_below_cc.GetBool())
 	{
 		m_bShouldPaint = true;
-		RepositionCloseCaption();
+		m_bShouldRepositionSubtitles = true;
 	}
+	else
+		m_bShouldRepositionSubtitles = false;
 
-	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
-	{
-		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
-	}
+	FixupCommentaryLabels( pNode->m_iszPrintName, pNode->m_iszSpeakers, pNode->m_iszFootnote );
 #endif
 
 	SetPaintBackgroundEnabled( m_bShouldPaint );
@@ -1330,6 +1470,12 @@ void CHudCommentary::StartTextCommentary( C_PointCommentaryNode *pNode, const ch
 		m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
 	}
 
+	m_hSmallFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentarySmall" );
+	if ( !m_hSmallFont)
+	{
+		m_hSmallFont = m_hFont;
+	}
+
 	m_pLabel->SetText( pszText );
 	m_pLabel->SetFont( m_hFont );
 	m_pLabel->SetWrap( true );
@@ -1343,12 +1489,11 @@ void CHudCommentary::StartTextCommentary( C_PointCommentaryNode *pNode, const ch
 	m_pImage->SetPaintEnabled( false );
 	m_pImage->EvictImage();
 
+	m_pFootnoteLabel->SetEnabled( false );
+
 	m_bShouldPaint = true;
 
-	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
-	{
-		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
-	}
+	FixupCommentaryLabels( pNode->m_iszPrintName, pNode->m_iszSpeakers, pNode->m_iszFootnote );
 
 	SetPaintBackgroundEnabled( m_bShouldPaint );
 
@@ -1395,6 +1540,8 @@ void CHudCommentary::StartImageCommentary( C_PointCommentaryNode *pNode, const c
 	m_pImage->SetImage( pszImage );
 	m_pImage->SetWide( m_iBarWide - m_iTextBorderSpace );
 
+	m_pFootnoteLabel->SetEnabled( false );
+
 	// Get our scheme and font information
 	vgui::HScheme scheme = GetScheme();
 	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
@@ -1403,12 +1550,15 @@ void CHudCommentary::StartImageCommentary( C_PointCommentaryNode *pNode, const c
 		m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
 	}
 
+	m_hSmallFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentarySmall" );
+	if ( !m_hSmallFont)
+	{
+		m_hSmallFont = m_hFont;
+	}
+
 	m_bShouldPaint = true;
 
-	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
-	{
-		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
-	}
+	FixupCommentaryLabels( pNode->m_iszPrintName, pNode->m_iszSpeakers, pNode->m_iszFootnote );
 
 	SetPaintBackgroundEnabled( m_bShouldPaint );
 
@@ -1453,12 +1603,20 @@ void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *p
 	m_pImage->SetPaintEnabled( false );
 	m_pImage->EvictImage();
 
+	m_pFootnoteLabel->SetEnabled( false );
+
 	// Get our scheme and font information
 	vgui::HScheme scheme = GetScheme();
 	m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
 	if ( !m_hFont )
 	{
 		m_hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
+	}
+
+	m_hSmallFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentarySmall" );
+	if ( !m_hSmallFont)
+	{
+		m_hSmallFont = m_hFont;
 	}
 
 	// Don't draw the element itself if closecaptions are on (and captions are always on in non-english mode)
@@ -1475,13 +1633,12 @@ void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *p
 	if (!m_bShouldPaint && commentary_audio_element_below_cc.GetBool())
 	{
 		m_bShouldPaint = true;
-		RepositionCloseCaption();
+		m_bShouldRepositionSubtitles = true;
 	}
+	else
+		m_bShouldRepositionSubtitles = false;
 
-	if (commentary_combine_speaker_and_printname.GetBool() && pNode && pNode->m_iszPrintName[0] != '\0')
-	{
-		CombineSpeakerAndPrintName( pNode->m_iszPrintName );
-	}
+	FixupCommentaryLabels( pNode->m_iszPrintName, pNode->m_iszSpeakers, pNode->m_iszFootnote );
 
 	SetPaintBackgroundEnabled( m_bShouldPaint );
 
@@ -1514,12 +1671,8 @@ void CHudCommentary::StopCommentary( void )
 	CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
 	if (pHudCloseCaption && pHudCloseCaption->IsUsingCommentaryDimensions())
 	{
-		int ccX, ccY;
-		pHudCloseCaption->GetPos( ccX, ccY );
-		//pHudCloseCaption->SetPos( ccX, ccY + m_iTypeAudioT );
-
 		// Run this animation command instead of setting the position directly
-		g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY + m_iTypeAudioT, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
+		g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", m_iCCDefaultY, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
 
 		pHudCloseCaption->SetUsingCommentaryDimensions( false );
 	}
@@ -1530,33 +1683,73 @@ void CHudCommentary::StopCommentary( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CHudCommentary::CombineSpeakerAndPrintName( const char *pszPrintName )
+void CHudCommentary::FixupCommentaryLabels( const char *pszPrintName, const char *pszSpeakers, const char *pszFootnote )
 {
-	wchar_t *pszLocal = g_pVGuiLocalize->Find( pszPrintName );
-	if (m_szSpeakers[0] == '\0' || !m_bShouldPaint) // Use m_bShouldPaint as an indicator of whether or not we use subtitles
+	if (commentary_combine_speaker_and_printname.GetBool() && pszPrintName[0] != '\0')
 	{
-		if (pszPrintName[0] == '#' && pszLocal)
-			wcsncpy( m_szSpeakers, pszLocal, sizeof( m_szSpeakers ) / sizeof( wchar_t ) );
+		wchar_t *pszLocal = g_pVGuiLocalize->Find( pszPrintName );
+		if (m_szSpeakers[0] == '\0' || !m_bShouldPaint) // Use m_bShouldPaint as an indicator of whether or not we use subtitles
+		{
+			if (pszPrintName[0] == '#' && pszLocal)
+				wcsncpy( m_szSpeakers, pszLocal, sizeof( m_szSpeakers ) / sizeof( wchar_t ) );
+			else
+				g_pVGuiLocalize->ConvertANSIToUnicode( pszPrintName, m_szSpeakers, sizeof( m_szSpeakers ) );
+		}
 		else
-			g_pVGuiLocalize->ConvertANSIToUnicode( pszPrintName, m_szSpeakers, sizeof( m_szSpeakers ) );
+		{
+			static wchar_t iszPrintNameLocalized[MAX_SPEAKER_NAME];
+
+			if (m_szSpeakers[0] == '#')
+			{
+				wchar_t *pwszSpeakers = g_pVGuiLocalize->Find( pszSpeakers );
+				if (pwszSpeakers)
+					wcsncpy( m_szSpeakers, pwszSpeakers, sizeof( m_szSpeakers ) / sizeof( wchar_t ) );
+			}
+
+			if (pszPrintName[0] == '#' && pszLocal)
+				wcsncpy( iszPrintNameLocalized, pszLocal, sizeof( iszPrintNameLocalized ) / sizeof( wchar_t ) );
+			else
+				g_pVGuiLocalize->ConvertANSIToUnicode( pszPrintName, iszPrintNameLocalized, sizeof( iszPrintNameLocalized ) );
+
+			V_snwprintf( m_szSpeakers, sizeof( m_szSpeakers ), L"%ls ~ %ls", m_szSpeakers, iszPrintNameLocalized );
+		}
+	}
+
+	if (pszFootnote[0] != '\0' && m_bShouldPaint)
+	{
+		m_pFootnoteLabel->SetText( pszFootnote );
+		m_pFootnoteLabel->SetFont( m_hSmallFont );
+		m_pFootnoteLabel->SetWrap( true );
+		m_pFootnoteLabel->SetEnabled( true );
+		m_pFootnoteLabel->SetPaintEnabled( true );
+		m_pFootnoteLabel->SetPaintBackgroundEnabled( false );
+		m_pFootnoteLabel->SetPaintBorderEnabled( false );
+		//m_pFootnoteLabel->SizeToContents();
+		m_pFootnoteLabel->SetContentAlignment( vgui::Label::a_northwest );
+		m_pFootnoteLabel->SetFgColor( m_ForegroundColor );
 	}
 	else
 	{
-		static wchar_t iszPrintNameLocalized[MAX_SPEAKER_NAME];
+		m_pFootnoteLabel->SetPaintEnabled( false );
+		m_pFootnoteLabel->SetEnabled( false );
+	}
 
-		if (pszPrintName[0] == '#' && pszLocal)
-			wcsncpy( iszPrintNameLocalized, pszLocal, sizeof( iszPrintNameLocalized ) / sizeof( wchar_t ) );
-		else
-			g_pVGuiLocalize->ConvertANSIToUnicode( pszPrintName, iszPrintNameLocalized, sizeof( iszPrintNameLocalized ) );
+	// Reset close caption element if it's still using commentary dimensions
+	// (fixes problems with switching from node to node)
+	CHudCloseCaption *pHudCloseCaption = (CHudCloseCaption *)GET_HUDELEMENT( CHudCloseCaption );
+	if (pHudCloseCaption && pHudCloseCaption->IsUsingCommentaryDimensions())
+	{
+		// Run this animation command instead of setting the position directly
+		g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", m_iCCDefaultY, 0.0f, 0.4f, vgui::AnimationController::INTERPOLATOR_ACCEL );
 
-		V_snwprintf( m_szSpeakers, sizeof( m_szSpeakers ), L"%ls ~ %ls", m_szSpeakers, iszPrintNameLocalized );
+		pHudCloseCaption->SetUsingCommentaryDimensions( false );
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CHudCommentary::RepositionCloseCaption()
+void CHudCommentary::RepositionAndFollowCloseCaption( int yOffset )
 {
 	// Invert the Y axis
 	//SetPos( m_iTypeAudioX, ScreenHeight() - m_iTypeAudioY );
@@ -1577,7 +1770,7 @@ void CHudCommentary::RepositionCloseCaption()
 
 		if (!pHudCloseCaption->IsUsingCommentaryDimensions())
 		{
-			if (m_iCCDefaultY != ccY && !pHudCloseCaption->IsUsingCommentaryDimensions())
+			if (m_iCCDefaultY != ccY /*&& !pHudCloseCaption->IsUsingCommentaryDimensions()*/)
 			{
 				DevMsg( "CHudCommentary had to reset misaligned CC element Y (%i) to default Y (%i)\n", ccY, m_iCCDefaultY );
 				ccY = m_iCCDefaultY;
@@ -1586,7 +1779,7 @@ void CHudCommentary::RepositionCloseCaption()
 			ccY -= m_iTypeAudioT;
 
 			// Run this animation command instead of setting the position directly
-			g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY, 0.0f, 0.2f, vgui::AnimationController::INTERPOLATOR_DEACCEL );
+			g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY - yOffset, 0.0f, 0.2f, vgui::AnimationController::INTERPOLATOR_DEACCEL );
 			//pHudCloseCaption->SetPos( ccX, ccY );
 
 			pHudCloseCaption->SetUsingCommentaryDimensions( true );
