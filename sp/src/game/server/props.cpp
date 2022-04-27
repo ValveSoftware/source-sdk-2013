@@ -4139,6 +4139,11 @@ enum
 
 void PlayLockSounds(CBaseEntity *pEdict, locksound_t *pls, int flocked, int fbutton);
 
+#ifdef MAPBASE
+ConVar ai_door_enable_acts( "ai_door_enable_acts", "0", FCVAR_NONE, "Enables the new door-opening activities by default. Override keyvalues will override this cvar." );
+ConVar ai_door_open_dist_override( "ai_door_open_dist_override", "-1", FCVAR_NONE, "Overrides the distance from a door a NPC has to navigate to in order to open a door." );
+#endif
+
 BEGIN_DATADESC_NO_BASE(locksound_t)
 
 	DEFINE_FIELD( sLockedSound,	FIELD_STRING),
@@ -6070,11 +6075,6 @@ void CPropDoorRotating::DoorResume( void )
 	// Restart our angular movement
 	AngularMove( m_angGoal, m_flSpeed );
 }
-
-#ifdef MAPBASE
-ConVar ai_door_enable_acts( "ai_door_enable_acts", "0", FCVAR_NONE, "Enables the new door-opening activities by default. Override keyvalues will override this cvar." );
-ConVar ai_door_open_dist_override( "ai_door_open_dist_override", "-1", FCVAR_NONE, "Overrides the distance from a door a NPC has to navigate to in order to open a door." );
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
