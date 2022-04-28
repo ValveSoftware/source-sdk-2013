@@ -187,23 +187,41 @@ public:
 
 		BaseClass::OnRestore();
 	}
-#else
-	void InputCallScriptFunctionClient( inputdata_t &inputdata )
-	{
-		// TODO: Support for specific players?
-		CBroadcastRecipientFilter filter;
-		filter.MakeReliable();
 
-		const char *pszFunction = inputdata.value.String();
-		if (strlen( pszFunction ) > 64)
+	void ReceiveMessage( int classID, bf_read &msg )
+	{
+		if ( classID != GetClientClass()->m_ClassID )
 		{
-			Msg("%s CallScriptFunctionClient: \"%s\" is too long at %i characters, must be 64 or less\n", GetDebugName(), pszFunction, strlen(pszFunction));
+			BaseClass::ReceiveMessage( classID, msg );
 			return;
 		}
 
-		UserMessageBegin( filter, "CallClientScriptFunction" );
-			WRITE_STRING( pszFunction ); // function
-			WRITE_SHORT( entindex() ); // entity
+		char szFunction[64];
+		msg.ReadString( szFunction, sizeof( szFunction ) );
+
+		if ( m_ScriptScope.IsInitialized() )
+		{
+			CallScriptFunction( szFunction, NULL );
+		}
+		else
+		{
+			CGMsg( 0, CON_GROUP_VSCRIPT, "%s script scope not initialized!\n", GetDebugName() );
+		}
+	}
+#endif
+
+#ifdef GAME_DLL
+	void InputCallScriptFunctionClient( inputdata_t &inputdata )
+	{
+		const char *pszFunction = inputdata.value.String();
+		if ( V_strlen( pszFunction ) >= 64 )
+		{
+			Msg( "%s CallScriptFunctionClient: \"%s\" is too long at %i characters, must be 64 or less\n", GetDebugName(), pszFunction, V_strlen(pszFunction)+1 );
+			return;
+		}
+
+		EntityMessageBegin( this, true );
+			WRITE_STRING( pszFunction );
 		MessageEnd();
 	}
 #endif

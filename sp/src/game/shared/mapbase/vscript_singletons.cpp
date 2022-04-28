@@ -1263,9 +1263,88 @@ CNetMsgScriptHelper *g_ScriptNetMsg = &scriptnetmsg;
 #define DLL_LOC_STR "[Client]"
 #endif
 
+#ifdef GAME_DLL
+#define SCRIPT_NETMSG_WRITE_FUNC
+#else
+#define SCRIPT_NETMSG_WRITE_FUNC if ( m_bWriteIgnore ) { return; }
+#endif
+
+#ifdef _DEBUG
+#ifdef GAME_DLL
+#define DebugNetMsg( l, ... ) do { extern ConVar developer; if (developer.GetInt() >= l) ConColorMsg( Color(100, 225, 255, 255), __VA_ARGS__ ); } while (0);
+#else
+#define DebugNetMsg( l, ... ) do { extern ConVar developer; if (developer.GetInt() >= l) ConColorMsg( Color(100, 225, 175, 255), __VA_ARGS__ ); } while (0);
+#endif
+#define DebugWarning(...) Warning( __VA_ARGS__ )
+#else
+#define DebugNetMsg(...) (void)(0)
+#define DebugWarning(...) (void)(0)
+#endif
+
+
+// Keep track of message names to print on failure
+#ifdef _DEBUG
+struct NetMsgHook_t
+{
+	void Set( const char *s )
+	{
+		hash = CNetMsgScriptHelper::Hash( s );
+		name = strdup(s);
+	}
+
+	~NetMsgHook_t()
+	{
+		free( name );
+	}
+
+	int hash;
+	char *name;
+};
+
+CUtlVector< NetMsgHook_t > g_NetMsgHooks;
+
+static const char *GetNetMsgName( int hash )
+{
+	FOR_EACH_VEC( g_NetMsgHooks, i )
+	{
+		if ( g_NetMsgHooks[i].hash == hash )
+			return g_NetMsgHooks[i].name;
+	}
+	return 0;
+}
+
+static const char *HasNetMsgCollision( int hash, const char *ignore )
+{
+	FOR_EACH_VEC( g_NetMsgHooks, i )
+	{
+		if ( g_NetMsgHooks[i].hash == hash && V_strcmp( g_NetMsgHooks[i].name, ignore ) != 0 )
+		{
+			return g_NetMsgHooks[i].name;
+		}
+	}
+	return 0;
+}
+#endif // _DEBUG
+
+
+
+inline int CNetMsgScriptHelper::Hash( const char *key )
+{
+	int hash = HashStringCaseless( key );
+	Assert( hash < (1 << SCRIPT_NETMSG_HEADER_BITS) );
+	return hash;
+}
 
 void CNetMsgScriptHelper::WriteToBuffer( bf_write *bf )
 {
+#ifdef CLIENT_DLL
+	Assert( m_nQueueCount < ( 1 << SCRIPT_NETMSG_QUEUE_BITS ) );
+	bf->WriteUBitLong( m_nQueueCount, SCRIPT_NETMSG_QUEUE_BITS );
+
+	DebugNetMsg( 2, DLL_LOC_STR " CNetMsgScriptHelper::WriteToBuffer() count(%d) size(%d)\n",
+		m_nQueueCount, m_MsgOut.GetNumBitsWritten() + SCRIPT_NETMSG_QUEUE_BITS );
+#endif
+
 	bf->WriteBits( m_MsgOut.GetData(), m_MsgOut.GetNumBitsWritten() );
 }
 
@@ -1278,8 +1357,7 @@ void CNetMsgScriptHelper::Reset()
 #ifdef GAME_DLL
 	m_filter.Reset();
 #else
-	m_MsgIn_()Reset();
-	m_bWriteReady = false;
+	m_iLastBit = 0;
 #endif
 }
 
@@ -1291,9 +1369,6 @@ void CNetMsgScriptHelper::InitPostVM()
 {
 	ScriptVariant_t hHooks;
 	g_pScriptVM->CreateTable( hHooks );
-#if _DEBUG
-	g_pScriptVM->SetValue( NULL, "__NetMsg_hooks", hHooks );
-#endif
 	m_Hooks = (HSCRIPT)hHooks;
 }
 
@@ -1301,10 +1376,19 @@ void CNetMsgScriptHelper::LevelShutdownPreVM()
 {
 	Reset();
 	if ( m_Hooks )
-	{
 		g_pScriptVM->ReleaseScript( m_Hooks );
-	}
 	m_Hooks = NULL;
+
+#ifdef CLIENT_DLL
+	m_bWriteReady = m_bWriteIgnore = false;
+	m_MsgIn.Reset();
+#else
+	m_MsgIn = NULL;
+#endif
+
+#ifdef _DEBUG
+	g_NetMsgHooks.Purge();
+#endif
 }
 
 #ifdef CLIENT_DLL
@@ -1338,7 +1422,7 @@ void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 	m_MsgIn.StartReading( msg.m_pData, msg.m_nDataBytes );
 #endif
 
-	word hash = m_MsgIn_()ReadWord();
+	DebugNetMsg( 2, DLL_LOC_STR " " __FUNCTION__ "()\n" );
 
 	// Don't do anything if there's no VM here. This can happen if a message from the server goes to a VM-less client, or vice versa.
 	if ( !g_pScriptVM )
@@ -1347,22 +1431,42 @@ void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 		return;
 	}
 
-	ScriptVariant_t hfn;
-	if ( g_pScriptVM->GetValue( m_Hooks, hash, &hfn ) )
-	{
 #ifdef GAME_DLL
-		if ( g_pScriptVM->Call( hfn, NULL, true, NULL, pPlayer->m_hScriptInstance ) == SCRIPT_ERROR )
-#else
-		if ( g_pScriptVM->ExecuteFunction( hfn, NULL, 0, NULL, NULL, true ) == SCRIPT_ERROR )
+	int count = m_MsgIn_()ReadUBitLong( SCRIPT_NETMSG_QUEUE_BITS );
+	DebugNetMsg( 2, "  msg count %d\n", count );
+	while ( count-- )
 #endif
-		{
-			DevWarning( 2, DLL_LOC_STR " NetMsg: invalid callback [%d]\n", hash );
-		}
-		g_pScriptVM->ReleaseValue( hfn );
-	}
-	else
 	{
-		DevWarning( 2, DLL_LOC_STR " NetMsg hook not found [%d]\n", hash );
+		int hash = m_MsgIn_()ReadWord();
+
+#ifdef _DEBUG
+		const char *msgName = GetNetMsgName( hash );
+		DebugNetMsg( 2, "  -- begin msg [%d]%s\n", hash, msgName );
+#endif
+
+		ScriptVariant_t hfn;
+		if ( g_pScriptVM->GetValue( m_Hooks, hash, &hfn ) )
+		{
+#ifdef GAME_DLL
+			if ( g_pScriptVM->Call( hfn, NULL, true, NULL, pPlayer->m_hScriptInstance ) == SCRIPT_ERROR )
+#else
+			if ( g_pScriptVM->ExecuteFunction( hfn, NULL, 0, NULL, NULL, true ) == SCRIPT_ERROR )
+#endif
+			{
+#ifdef _DEBUG
+				DevWarning( 1, DLL_LOC_STR " NetMsg: invalid callback '%s'\n", GetNetMsgName( hash ) );
+#else
+				DevWarning( 1, DLL_LOC_STR " NetMsg: invalid callback [%d]\n", hash );
+#endif
+			}
+			g_pScriptVM->ReleaseValue( hfn );
+		}
+		else
+		{
+			DevWarning( 1, DLL_LOC_STR " NetMsg hook not found [%d]\n", hash );
+		}
+
+		DebugNetMsg( 2, "  -- end msg\n" );
 	}
 }
 
@@ -1371,18 +1475,50 @@ void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::Start( const char *msg )
 {
+	if ( !msg || !msg[0] )
+	{
+		g_pScriptVM->RaiseException( DLL_LOC_STR "NetMsg: invalid message name" );
+		return;
+	}
+
+	DebugNetMsg( 1, DLL_LOC_STR " " __FUNCTION__ "() [%d]%s\n", Hash( msg ), msg );
+
+#ifdef CLIENT_DLL
+	// Client can write multiple messages in a frame before the usercmd is sent,
+	// this queue system ensures client messages are written to the cmd all at once.
+	// NOTE: All messages share the same buffer.
+	if ( !m_bWriteReady )
+	{
+		Reset();
+		m_nQueueCount = 0;
+		m_bWriteIgnore = false;
+	}
+	else if ( m_nQueueCount == ((1<<SCRIPT_NETMSG_QUEUE_BITS)-1) )
+	{
+		Warning( DLL_LOC_STR " NetMsg queue is full, cannot write '%s'!\n", msg );
+
+		m_bWriteIgnore = true;
+		return;
+	}
+
+	++m_nQueueCount;
+#else
 	Reset();
-	m_MsgOut.WriteWord( HashStringCaseless(msg) );
+#endif
+
+	m_MsgOut.WriteWord( Hash( msg ) );
 }
 
+#ifdef GAME_DLL
 //-----------------------------------------------------------------------------
 // server -> client
 //
 // Sends an exclusive usermessage.
 //-----------------------------------------------------------------------------
-#ifdef GAME_DLL
 void CNetMsgScriptHelper::Send( HSCRIPT player, bool bReliable )
 {
+	DebugNetMsg( 1, DLL_LOC_STR " " __FUNCTION__ "() size(%d)\n", GetNumBitsWritten() );
+
 	CBaseEntity *pPlayer = ToEnt(player);
 	if ( pPlayer )
 	{
@@ -1406,6 +1542,8 @@ void CNetMsgScriptHelper::Send( HSCRIPT player, bool bReliable )
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::Send()
 {
+	DebugNetMsg( 1, DLL_LOC_STR " " __FUNCTION__ "() size(%d)\n", m_bWriteIgnore ? 0 : GetNumBitsWritten() );
+
 	m_bWriteReady = true;
 }
 #endif
@@ -1415,10 +1553,30 @@ void CNetMsgScriptHelper::Send()
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::Receive( const char *msg, HSCRIPT func )
 {
+	if ( !msg || !msg[0] )
+	{
+		g_pScriptVM->RaiseException( DLL_LOC_STR "NetMsg: invalid message name" );
+		return;
+	}
+
+#ifdef _DEBUG
+	int hash = Hash( msg );
+
+	const char *psz = HasNetMsgCollision( hash, msg );
+	AssertMsg3( !psz, DLL_LOC_STR " NetMsg hash collision! [%d] '%s', '%s'\n", hash, msg, psz );
+
+	NetMsgHook_t &hook = g_NetMsgHooks[ g_NetMsgHooks.AddToTail() ];
+	hook.Set( msg );
+#endif
+
 	if ( func )
-		g_pScriptVM->SetValue( m_Hooks, int( HashStringCaseless(msg) ), func );
+	{
+		g_pScriptVM->SetValue( m_Hooks, Hash( msg ), func );
+	}
 	else
-		g_pScriptVM->ClearValue( m_Hooks, int( HashStringCaseless(msg) ) );
+	{
+		g_pScriptVM->ClearValue( m_Hooks, Hash( msg ) );
+	}
 }
 
 #ifdef GAME_DLL
@@ -1485,114 +1643,109 @@ void CNetMsgScriptHelper::DispatchUserMessage( const char *msg )
 }
 #endif // GAME_DLL
 
-#ifdef GAME_DLL
-void CNetMsgScriptHelper::AddRecipient( HSCRIPT player )
-{
-	CBaseEntity *pPlayer = ToEnt(player);
-	if ( pPlayer )
-	{
-		m_filter.AddRecipient( (CBasePlayer*)pPlayer );
-	}
-}
-
-void CNetMsgScriptHelper::AddRecipientsByPVS( const Vector &pos )
-{
-	m_filter.AddRecipientsByPVS(pos);
-}
-
-void CNetMsgScriptHelper::AddRecipientsByPAS( const Vector &pos )
-{
-	m_filter.AddRecipientsByPAS(pos);
-}
-
-void CNetMsgScriptHelper::AddAllPlayers()
-{
-	m_filter.AddAllPlayers();
-}
-#endif // GAME_DLL
-
 void CNetMsgScriptHelper::WriteInt( int iValue, int bits )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteSBitLong( iValue, bits );
 }
 
 void CNetMsgScriptHelper::WriteUInt( int iValue, int bits )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteUBitLong( iValue, bits );
 }
 
 void CNetMsgScriptHelper::WriteByte( int iValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteByte( iValue );
 }
 
 void CNetMsgScriptHelper::WriteChar( int iValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteChar( iValue );
 }
 
 void CNetMsgScriptHelper::WriteShort( int iValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteShort( iValue );
 }
 
 void CNetMsgScriptHelper::WriteWord( int iValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteWord( iValue );
 }
 
 void CNetMsgScriptHelper::WriteLong( int iValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteLong( iValue );
 }
 
 void CNetMsgScriptHelper::WriteFloat( float flValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteFloat( flValue );
 }
 
 void CNetMsgScriptHelper::WriteNormal( float flValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteBitNormal( flValue );
 }
 
 void CNetMsgScriptHelper::WriteAngle( float flValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteBitAngle( flValue, 8 );
 }
 
 void CNetMsgScriptHelper::WriteCoord( float flValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteBitCoord( flValue );
 }
 
 void CNetMsgScriptHelper::WriteVec3Coord( const Vector& rgflValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteBitVec3Coord( rgflValue );
 }
 
 void CNetMsgScriptHelper::WriteVec3Normal( const Vector& rgflValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteBitVec3Normal( rgflValue );
 }
 
 void CNetMsgScriptHelper::WriteAngles( const QAngle& rgflValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteBitAngles( rgflValue );
 }
 
 void CNetMsgScriptHelper::WriteString( const char *sz )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
+
+	// Larger strings can be written but cannot be read
+	Assert( V_strlen(sz) < SCRIPT_NETMSG_STRING_SIZE );
+
 	m_MsgOut.WriteString( sz );
 }
 
 void CNetMsgScriptHelper::WriteBool( bool bValue )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	m_MsgOut.WriteOneBit( bValue ? 1 : 0 );
 }
 
 void CNetMsgScriptHelper::WriteEntity( HSCRIPT hEnt )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	CBaseEntity *p = ToEnt(hEnt);
 	int i = p ? p->entindex() : -1;
 	m_MsgOut.WriteSBitLong( i, MAX_EDICT_BITS );
@@ -1600,6 +1753,7 @@ void CNetMsgScriptHelper::WriteEntity( HSCRIPT hEnt )
 
 void CNetMsgScriptHelper::WriteEHandle( HSCRIPT hEnt )
 {
+	SCRIPT_NETMSG_WRITE_FUNC
 	CBaseEntity *pEnt = ToEnt( hEnt );
 	long iEncodedEHandle;
 	if ( pEnt )
@@ -1673,7 +1827,6 @@ float CNetMsgScriptHelper::ReadCoord()
 const Vector& CNetMsgScriptHelper::ReadVec3Coord()
 {
 	static Vector vec3;
-	//vec3.Init();
 	m_MsgIn_()ReadBitVec3Coord(vec3);
 	return vec3;
 }
@@ -1681,7 +1834,6 @@ const Vector& CNetMsgScriptHelper::ReadVec3Coord()
 const Vector& CNetMsgScriptHelper::ReadVec3Normal()
 {
 	static Vector vec3;
-	//vec3.Init();
 	m_MsgIn_()ReadBitVec3Normal(vec3);
 	return vec3;
 }
@@ -1689,14 +1841,13 @@ const Vector& CNetMsgScriptHelper::ReadVec3Normal()
 const QAngle& CNetMsgScriptHelper::ReadAngles()
 {
 	static QAngle vec3;
-	//vec3.Init();
 	m_MsgIn_()ReadBitAngles(vec3);
 	return vec3;
 }
 
 const char* CNetMsgScriptHelper::ReadString()
 {
-	static char buf[512];
+	static char buf[ SCRIPT_NETMSG_STRING_SIZE ];
 	m_MsgIn_()ReadString( buf, sizeof(buf) );
 	return buf;
 }
@@ -1734,23 +1885,23 @@ HSCRIPT CNetMsgScriptHelper::ReadEHandle()
 	return ToHScript( EHANDLE( iEntry, iSerialNum ) );
 }
 
-int CNetMsgScriptHelper::GetNumBitsWritten()
+inline int CNetMsgScriptHelper::GetNumBitsWritten()
 {
-	return m_MsgOut.GetNumBitsWritten();
+#ifdef GAME_DLL
+	return m_MsgOut.GetNumBitsWritten() - SCRIPT_NETMSG_HEADER_BITS;
+#else
+	return m_MsgOut.m_iCurBit - m_iLastBit - SCRIPT_NETMSG_HEADER_BITS;
+#endif
 }
 
-#undef m_MsgIn_
 
 BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "Network messages" )
 
 #ifdef GAME_DLL
 	DEFINE_SCRIPTFUNC( SendUserMessage, "Send a usermessage from the server to the client" )
 	DEFINE_SCRIPTFUNC( SendEntityMessage, "Send a message from a server side entity to its client side counterpart" )
-	DEFINE_SCRIPTFUNC( AddRecipient, "" )
-	//DEFINE_SCRIPTFUNC( RemoveRecipient, "" )
-	DEFINE_SCRIPTFUNC( AddRecipientsByPVS, "" )
-	DEFINE_SCRIPTFUNC( AddRecipientsByPAS, "" )
-	DEFINE_SCRIPTFUNC( AddAllPlayers, "" )
+
+	// TODO: multiplayer
 #else
 	DEFINE_SCRIPTFUNC( DispatchUserMessage, "Dispatch a usermessage on client" )
 #endif
@@ -1762,7 +1913,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 #ifdef GAME_DLL
 	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the server to the client (max 252 bytes)" )
 #else
-	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the client to the server (max 2045 bytes)" )
+	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the client to the server (max 2044 bytes)" )
 #endif
 
 	DEFINE_SCRIPTFUNC( WriteInt, "variable bit signed int" )
@@ -1779,7 +1930,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 	DEFINE_SCRIPTFUNC( WriteVec3Coord, "" )
 	DEFINE_SCRIPTFUNC( WriteVec3Normal, "27 bit" )
 	DEFINE_SCRIPTFUNC( WriteAngles, "" )
-	DEFINE_SCRIPTFUNC( WriteString, "" )
+	DEFINE_SCRIPTFUNC( WriteString, "max 512 bytes at once" )
 	DEFINE_SCRIPTFUNC( WriteBool, "1 bit" )
 	DEFINE_SCRIPTFUNC( WriteEntity, "11 bit (entindex)" )
 	DEFINE_SCRIPTFUNC( WriteEHandle, "32 bit long" )
@@ -1798,7 +1949,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 	DEFINE_SCRIPTFUNC( ReadVec3Coord, "" )
 	DEFINE_SCRIPTFUNC( ReadVec3Normal, "" )
 	DEFINE_SCRIPTFUNC( ReadAngles, "" )
-	DEFINE_SCRIPTFUNC( ReadString, "max 512 bytes at once" )
+	DEFINE_SCRIPTFUNC( ReadString, "" )
 	DEFINE_SCRIPTFUNC( ReadBool, "" )
 	DEFINE_SCRIPTFUNC( ReadEntity, "" )
 	DEFINE_SCRIPTFUNC( ReadEHandle, "" )
@@ -2290,9 +2441,18 @@ public:
 		{
 			if ( val.m_type == FIELD_CSTRING )
 			{
-				CUtlString s = val.m_pszString;
-				//s.SetLength( COMMAND_COMPLETION_ITEM_LENGTH - 1 );
-				commands.AddToTail( s );
+				CUtlString &s = commands.Element( commands.AddToTail() );
+				int len = V_strlen( val.m_pszString );
+
+				if ( len <= COMMAND_COMPLETION_ITEM_LENGTH - 1 )
+				{
+					s.Set( val.m_pszString );
+				}
+				else
+				{
+					s.SetDirect( val.m_pszString, COMMAND_COMPLETION_ITEM_LENGTH - 1 );
+				}
+
 				++count;
 			}
 			g_pScriptVM->ReleaseValue(val);
@@ -3008,6 +3168,23 @@ END_SCRIPTDESC();
 class CScriptSteamAPI
 {
 public:
+	const char *GetSteam2ID()
+	{
+		if ( !steamapicontext || !steamapicontext->SteamUser() )
+			return NULL;
+
+		CSteamID id = steamapicontext->SteamUser()->GetSteamID();
+
+		uint32 accountID = id.GetAccountID();
+		uint32 steamInstanceID = 0;
+		uint32 high32bits = accountID % 2;
+		uint32 low32bits = accountID / 2;
+
+		static char ret[48];
+		V_snprintf( ret, sizeof(ret), "STEAM_%u:%u:%u", steamInstanceID, high32bits, low32bits );
+		return ret;
+	}
+
 	int GetSecondsSinceComputerActive()
 	{
 		if ( !steamapicontext || !steamapicontext->SteamUtils() )
@@ -3023,7 +3200,7 @@ public:
 
 		return steamapicontext->SteamUtils()->GetCurrentBatteryPower();
 	}
-
+#if 0
 	const char *GetIPCountry()
 	{
 		if ( !steamapicontext || !steamapicontext->SteamUtils() )
@@ -3038,7 +3215,7 @@ public:
 
 		return ret;
 	}
-
+#endif
 	const char *GetCurrentGameLanguage()
 	{
 		if ( !steamapicontext || !steamapicontext->SteamApps() )
@@ -3057,6 +3234,7 @@ public:
 } g_ScriptSteamAPI;
 
 BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptSteamAPI, "CSteamAPI", SCRIPT_SINGLETON "" )
+	DEFINE_SCRIPTFUNC( GetSteam2ID, "" )
 	//DEFINE_SCRIPTFUNC( IsVACBanned, "" )
 	DEFINE_SCRIPTFUNC( GetSecondsSinceComputerActive, "Returns the number of seconds since the user last moved the mouse." )
 	DEFINE_SCRIPTFUNC( GetCurrentBatteryPower, "Return the amount of battery power left in the current system in % [0..100], 255 for being on AC power" )

@@ -178,3 +178,39 @@ BEGIN_PREDICTION_DATA( C_BaseCombatCharacter )
 	DEFINE_PRED_ARRAY( m_hMyWeapons, FIELD_EHANDLE, MAX_WEAPONS, FTYPEDESC_INSENDTABLE ),
 
 END_PREDICTION_DATA()
+
+#ifdef MAPBASE_VSCRIPT
+
+BEGIN_ENT_SCRIPTDESC( C_BaseCombatCharacter, CBaseEntity, "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAmmoCount, "GetAmmoCount", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetActiveWeapon, "GetActiveWeapon", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetWeapon, "GetWeapon", "" )
+END_SCRIPTDESC();
+
+
+int C_BaseCombatCharacter::ScriptGetAmmoCount( int i )
+{
+	Assert( i == -1 || i < MAX_AMMO_SLOTS );
+
+	if ( i < 0 || i >= MAX_AMMO_SLOTS )
+		return NULL;
+
+	return GetAmmoCount( i );
+}
+
+HSCRIPT C_BaseCombatCharacter::ScriptGetActiveWeapon()
+{
+	return ToHScript( GetActiveWeapon() );
+}
+
+HSCRIPT C_BaseCombatCharacter::ScriptGetWeapon( int i )
+{
+	Assert( i >= 0 && i < MAX_WEAPONS );
+
+	if ( i < 0 || i >= MAX_WEAPONS )
+		return NULL;
+
+	return ToHScript( GetWeapon(i) );
+}
+
+#endif

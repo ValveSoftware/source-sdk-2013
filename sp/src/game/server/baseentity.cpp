@@ -10226,13 +10226,10 @@ const Vector& CBaseEntity::ScriptGetBoundingMaxs(void)
 //-----------------------------------------------------------------------------
 int CBaseEntity::ScriptTakeDamage( HSCRIPT pInfo )
 {
-	if (pInfo)
+	CTakeDamageInfo *info = HScriptToClass< CTakeDamageInfo >( pInfo );
+	if ( info )
 	{
-		CTakeDamageInfo *info = HScriptToClass<CTakeDamageInfo>( pInfo ); //ToDamageInfo( pInfo );
-		if (info)
-		{
-			return OnTakeDamage( *info );
-		}
+		return OnTakeDamage( *info );
 	}
 
 	return 0;
@@ -10242,14 +10239,10 @@ int CBaseEntity::ScriptTakeDamage( HSCRIPT pInfo )
 //-----------------------------------------------------------------------------
 void CBaseEntity::ScriptFireBullets( HSCRIPT pInfo )
 {
-	if (pInfo)
+	FireBulletsInfo_t *info = HScriptToClass< FireBulletsInfo_t >( pInfo );
+	if ( info )
 	{
-		extern FireBulletsInfo_t *GetFireBulletsInfoFromInfo( HSCRIPT hBulletsInfo );
-		FireBulletsInfo_t *info = GetFireBulletsInfoFromInfo( pInfo );
-		if (info)
-		{
-			FireBullets( *info );
-		}
+		FireBullets( *info );
 	}
 }
 

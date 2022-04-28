@@ -252,10 +252,7 @@ CScriptMaterialProxy::CScriptMaterialProxy()
 	m_hScriptInstance = NULL;
 	m_hFuncOnBind = NULL;
 
-	for (int i = 0; i < SCRIPT_MAT_PROXY_MAX_VARS; i++)
-	{
-		m_MaterialVars[i] = NULL;
-	}
+	V_memset( m_MaterialVars, 0, sizeof(m_MaterialVars) );
 }
 
 CScriptMaterialProxy::~CScriptMaterialProxy()
@@ -387,13 +384,10 @@ void CScriptMaterialProxy::OnBind( void *pRenderable )
 
 		if (!pEnt)
 		{
-			// Needs to register as a null value so the script doesn't break if it looks for an entity
 			g_pScriptVM->SetValue( m_ScriptScope, "entity", SCRIPT_VARIANT_NULL );
 		}
 
 		m_ScriptScope.Call( m_hFuncOnBind, NULL );
-
-		g_pScriptVM->ClearValue( m_ScriptScope, "entity" );
 	}
 	else
 	{

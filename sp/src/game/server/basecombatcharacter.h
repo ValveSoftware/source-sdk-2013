@@ -420,10 +420,10 @@ public:
 	virtual void		DoMuzzleFlash();
 
 #ifdef MAPBASE_VSCRIPT
-	HSCRIPT				GetScriptActiveWeapon();
-	HSCRIPT				GetScriptWeaponIndex( int i );
-	HSCRIPT				GetScriptWeaponByType( const char *pszWeapon, int iSubType = 0 );
-	void				GetScriptAllWeapons( HSCRIPT hTable );
+	HSCRIPT				ScriptGetActiveWeapon();
+	HSCRIPT				ScriptGetWeapon( int i );
+	HSCRIPT				ScriptGetWeaponByType( const char *pszWeapon, int iSubType = 0 );
+	void				ScriptGetAllWeapons( HSCRIPT hTable );
 	int					ScriptGetCurrentWeaponProficiency() { return GetCurrentWeaponProficiency(); }
 
 	void				ScriptDropWeapon( HSCRIPT hWeapon );
@@ -441,7 +441,7 @@ public:
 	int					ScriptRelationPriority( HSCRIPT pTarget );
 	void				ScriptSetRelationship( HSCRIPT pTarget, int disposition, int priority );
 
-	HSCRIPT				GetScriptVehicleEntity();
+	HSCRIPT				ScriptGetVehicleEntity();
 
 	bool				ScriptInViewCone( const Vector &vecSpot ) { return FInViewCone( vecSpot ); }
 	bool				ScriptEntInViewCone( HSCRIPT pEntity ) { return FInViewCone( ToEnt( pEntity ) ); }

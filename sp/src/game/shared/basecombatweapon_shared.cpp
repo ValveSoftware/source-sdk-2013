@@ -3063,15 +3063,33 @@ END_PREDICTION_DATA()
 IMPLEMENT_NETWORKCLASS_ALIASED( BaseCombatWeapon, DT_BaseCombatWeapon )
 
 #ifdef MAPBASE_VSCRIPT
+
+// Don't allow client to use Set functions.
+// They will only cause visual discrepancies,
+// and will be reverted on the next update from the server.
+#ifdef GAME_DLL
+#define DEFINE_SCRIPTFUNC_SV( p1, p2 ) DEFINE_SCRIPTFUNC( p1, p2 )
+#define DEFINE_SCRIPTFUNC_NAMED_SV( p1, p2, p3 ) DEFINE_SCRIPTFUNC_NAMED( p1, p2, p3 )
+
+#define DEFINE_SCRIPTFUNC_CL( p1, p2 )
+#define DEFINE_SCRIPTFUNC_NAMED_CL( p1, p2, p3 )
+#else
+#define DEFINE_SCRIPTFUNC_SV( p1, p2 )
+#define DEFINE_SCRIPTFUNC_NAMED_SV( p1, p2, p3 )
+
+#define DEFINE_SCRIPTFUNC_CL( p1, p2 ) DEFINE_SCRIPTFUNC( p1, p2 )
+#define DEFINE_SCRIPTFUNC_NAMED_CL( p1, p2, p3 ) DEFINE_SCRIPTFUNC_NAMED( p1, p2, p3 )
+#endif
+
 BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all equippable weapons." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetOwner, "GetOwner", "Get the weapon's owner." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetOwner, "SetOwner", "Set the weapon's owner." )
+	DEFINE_SCRIPTFUNC_NAMED_SV( ScriptSetOwner, "SetOwner", "Set the weapon's owner." )
 
 	DEFINE_SCRIPTFUNC( Clip1, "Get the weapon's current primary ammo." )
 	DEFINE_SCRIPTFUNC( Clip2, "Get the weapon's current secondary ammo." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetClip1, "SetClip1", "Set the weapon's current primary ammo." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetClip2, "SetClip2", "Set the weapon's current secondary ammo." )
+	DEFINE_SCRIPTFUNC_NAMED_SV( ScriptSetClip1, "SetClip1", "Set the weapon's current primary ammo." )
+	DEFINE_SCRIPTFUNC_NAMED_SV( ScriptSetClip2, "SetClip2", "Set the weapon's current secondary ammo." )
 	DEFINE_SCRIPTFUNC( GetMaxClip1, "Get the weapon's maximum primary ammo." )
 	DEFINE_SCRIPTFUNC( GetMaxClip2, "Get the weapon's maximum secondary ammo." )
 	DEFINE_SCRIPTFUNC( GetDefaultClip1, "Get the weapon's default primary ammo." )
@@ -3082,18 +3100,16 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all
 	DEFINE_SCRIPTFUNC( HasSecondaryAmmo, "Check if the weapon currently has ammo or doesn't need secondary ammo." )
 	DEFINE_SCRIPTFUNC( UsesPrimaryAmmo, "Check if the weapon uses primary ammo." )
 	DEFINE_SCRIPTFUNC( UsesSecondaryAmmo, "Check if the weapon uses secondary ammo." )
-	DEFINE_SCRIPTFUNC( GiveDefaultAmmo, "Fill the weapon back up to default ammo." )
+	DEFINE_SCRIPTFUNC_SV( GiveDefaultAmmo, "Fill the weapon back up to default ammo." )
 
 	DEFINE_SCRIPTFUNC( UsesClipsForAmmo1, "Check if the weapon uses clips for primary ammo." )
 	DEFINE_SCRIPTFUNC( UsesClipsForAmmo2, "Check if the weapon uses clips for secondary ammo." )
 
-#ifndef CLIENT_DLL
 	DEFINE_SCRIPTFUNC( GetPrimaryAmmoType, "Get the weapon's primary ammo type." )
 	DEFINE_SCRIPTFUNC( GetSecondaryAmmoType, "Get the weapon's secondary ammo type." )
-#endif
 
 	DEFINE_SCRIPTFUNC( GetSubType, "Get the weapon's subtype." )
-	DEFINE_SCRIPTFUNC( SetSubType, "Set the weapon's subtype." )
+	DEFINE_SCRIPTFUNC_SV( SetSubType, "Set the weapon's subtype." )
 
 	DEFINE_SCRIPTFUNC( GetFireRate, "Get the weapon's firing rate." )
 	DEFINE_SCRIPTFUNC( AddViewKick, "Applies the weapon's view kick." )
@@ -3103,16 +3119,18 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all
 	DEFINE_SCRIPTFUNC( GetDroppedModel, "Get the weapon's unique dropped model if it has one." )
 
 	DEFINE_SCRIPTFUNC( GetWeight, "Get the weapon's weight." )
+	DEFINE_SCRIPTFUNC( GetPrintName, "" )
+
+	DEFINE_SCRIPTFUNC_CL( GetSlot, "" )
+	DEFINE_SCRIPTFUNC_CL( GetPosition, "" )
 
 	DEFINE_SCRIPTFUNC( CanBePickedUpByNPCs, "Check if the weapon can be picked up by NPCs." )
 
-#ifndef CLIENT_DLL
-	DEFINE_SCRIPTFUNC( CapabilitiesGet, "Get the capabilities the weapon currently possesses." )
-#endif
+	DEFINE_SCRIPTFUNC_SV( CapabilitiesGet, "Get the capabilities the weapon currently possesses." )
 
 	DEFINE_SCRIPTFUNC( HasWeaponIdleTimeElapsed, "Returns true if the idle time has elapsed." )
 	DEFINE_SCRIPTFUNC( GetWeaponIdleTime, "Returns the next time WeaponIdle() will run." )
-	DEFINE_SCRIPTFUNC( SetWeaponIdleTime, "Sets the next time WeaponIdle() will run." )
+	DEFINE_SCRIPTFUNC_SV( SetWeaponIdleTime, "Sets the next time WeaponIdle() will run." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptWeaponClassify, "WeaponClassify", "Returns the weapon's classify class from the WEPCLASS_ constant group" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptWeaponSound, "WeaponSound", "Plays one of the weapon's sounds." )
@@ -3129,22 +3147,22 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all
 	DEFINE_SCRIPTFUNC( IsViewModelSequenceFinished, "Returns true if the current view model animation is finished." )
 
 	DEFINE_SCRIPTFUNC( FiresUnderwater, "Returns true if this weapon can fire underwater." )
-	DEFINE_SCRIPTFUNC( SetFiresUnderwater, "Sets whether this weapon can fire underwater." )
+	DEFINE_SCRIPTFUNC_SV( SetFiresUnderwater, "Sets whether this weapon can fire underwater." )
 	DEFINE_SCRIPTFUNC( AltFiresUnderwater, "Returns true if this weapon can alt-fire underwater." )
-	DEFINE_SCRIPTFUNC( SetAltFiresUnderwater, "Sets whether this weapon can alt-fire underwater." )
+	DEFINE_SCRIPTFUNC_SV( SetAltFiresUnderwater, "Sets whether this weapon can alt-fire underwater." )
 	DEFINE_SCRIPTFUNC( MinRange1, "Returns the closest this weapon can be used." )
-	DEFINE_SCRIPTFUNC( SetMinRange1, "Sets the closest this weapon can be used." )
+	DEFINE_SCRIPTFUNC_SV( SetMinRange1, "Sets the closest this weapon can be used." )
 	DEFINE_SCRIPTFUNC( MinRange2, "Returns the closest this weapon can be used." )
-	DEFINE_SCRIPTFUNC( SetMinRange2, "Sets the closest this weapon can be used." )
+	DEFINE_SCRIPTFUNC_SV( SetMinRange2, "Sets the closest this weapon can be used." )
 	DEFINE_SCRIPTFUNC( ReloadsSingly, "Returns true if this weapon reloads 1 round at a time." )
-	DEFINE_SCRIPTFUNC( SetReloadsSingly, "Sets whether this weapon reloads 1 round at a time." )
+	DEFINE_SCRIPTFUNC_SV( SetReloadsSingly, "Sets whether this weapon reloads 1 round at a time." )
 	DEFINE_SCRIPTFUNC( FireDuration, "Returns the amount of time that the weapon has sustained firing." )
-	DEFINE_SCRIPTFUNC( SetFireDuration, "Sets the amount of time that the weapon has sustained firing." )
+	DEFINE_SCRIPTFUNC_SV( SetFireDuration, "Sets the amount of time that the weapon has sustained firing." )
 
 	DEFINE_SCRIPTFUNC( NextPrimaryAttack, "Returns the next time PrimaryAttack() will run when the player is pressing +ATTACK." )
-	DEFINE_SCRIPTFUNC( SetNextPrimaryAttack, "Sets the next time PrimaryAttack() will run when the player is pressing +ATTACK." )
+	DEFINE_SCRIPTFUNC_SV( SetNextPrimaryAttack, "Sets the next time PrimaryAttack() will run when the player is pressing +ATTACK." )
 	DEFINE_SCRIPTFUNC( NextSecondaryAttack, "Returns the next time SecondaryAttack() will run when the player is pressing +ATTACK2." )
-	DEFINE_SCRIPTFUNC( SetNextSecondaryAttack, "Sets the next time SecondaryAttack() will run when the player is pressing +ATTACK2." )
+	DEFINE_SCRIPTFUNC_SV( SetNextSecondaryAttack, "Sets the next time SecondaryAttack() will run when the player is pressing +ATTACK2." )
 
 END_SCRIPTDESC();
 #endif

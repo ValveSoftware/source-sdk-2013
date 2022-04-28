@@ -21,42 +21,52 @@
 //-----------------------------------------------------------------------------
 struct scriptsurfacedata_t : public surfacedata_t
 {
-	float			GetFriction() { return physics.friction; }
-	float			GetThickness() { return physics.thickness; }
+public:
+	float			GetFriction() const				{ return physics.friction; }
+	float			GetThickness() const			{ return physics.thickness; }
 
-	float			GetJumpFactor() { return game.jumpFactor; }
-	char			GetMaterialChar() { return game.material; }
+	float			GetJumpFactor() const			{ return game.jumpFactor; }
+	char			GetMaterialChar() const			{ return game.material; }
 
-	const char*		GetSoundStepLeft();
-	const char*		GetSoundStepRight();
-	const char*		GetSoundImpactSoft();
-	const char*		GetSoundImpactHard();
-	const char*		GetSoundScrapeSmooth();
-	const char*		GetSoundScrapeRough();
-	const char*		GetSoundBulletImpact();
-	const char*		GetSoundRolling();
-	const char*		GetSoundBreak();
-	const char*		GetSoundStrain();
+	const char*		GetSoundStepLeft() const		{ return physprops->GetString( sounds.stepleft ); }
+	const char*		GetSoundStepRight() const		{ return physprops->GetString( sounds.stepright ); }
+	const char*		GetSoundImpactSoft() const		{ return physprops->GetString( sounds.impactSoft ); }
+	const char*		GetSoundImpactHard() const		{ return physprops->GetString( sounds.impactHard ); }
+	const char*		GetSoundScrapeSmooth() const	{ return physprops->GetString( sounds.scrapeSmooth ); }
+	const char*		GetSoundScrapeRough() const		{ return physprops->GetString( sounds.scrapeRough ); }
+	const char*		GetSoundBulletImpact() const	{ return physprops->GetString( sounds.bulletImpact ); }
+	const char*		GetSoundRolling() const			{ return physprops->GetString( sounds.rolling ); }
+	const char*		GetSoundBreak() const			{ return physprops->GetString( sounds.breakSound ); }
+	const char*		GetSoundStrain() const			{ return physprops->GetString( sounds.strainSound ); }
 };
 
 //-----------------------------------------------------------------------------
 // Exposes csurface_t to VScript
 //-----------------------------------------------------------------------------
-class CSurfaceScriptAccessor
+class CSurfaceScriptHelper
 {
 public:
-	CSurfaceScriptAccessor( csurface_t &surf ) { m_surf = &surf; m_surfaceData = g_pScriptVM->RegisterInstance( reinterpret_cast<scriptsurfacedata_t*>(physprops->GetSurfaceData( m_surf->surfaceProps )) ); }
-	~CSurfaceScriptAccessor() { delete m_surfaceData; }
+	// This class is owned by CScriptGameTrace, and cannot be accessed without being initialised in CScriptGameTrace::RegisterSurface()
+	//CSurfaceScriptHelper() : m_pSurface(NULL), m_hSurfaceData(NULL) {}
 
-	// cplane_t stuff
-	const char* Name() const { return m_surf->name; }
-	HSCRIPT SurfaceProps() const { return m_surfaceData; }
+	~CSurfaceScriptHelper()
+	{
+		g_pScriptVM->RemoveInstance( m_hSurfaceData );
+	}
 
-	void Destroy() { delete this; }
+	void Init( csurface_t *surf )
+	{
+		m_pSurface = surf;
+		m_hSurfaceData = g_pScriptVM->RegisterInstance(
+			reinterpret_cast< scriptsurfacedata_t* >( physprops->GetSurfaceData( m_pSurface->surfaceProps ) ) );
+	}
+
+	const char* Name() const { return m_pSurface->name; }
+	HSCRIPT SurfaceProps() const { return m_hSurfaceData; }
 
 private:
-	csurface_t *m_surf;
-	HSCRIPT m_surfaceData;
+	csurface_t *m_pSurface;
+	HSCRIPT m_hSurfaceData;
 };
 
 //-----------------------------------------------------------------------------
@@ -83,70 +93,80 @@ class CPlaneTInstanceHelper : public IScriptInstanceHelper
 //-----------------------------------------------------------------------------
 // Exposes trace_t to VScript
 //-----------------------------------------------------------------------------
-class CTraceInfoAccessor
+class CScriptGameTrace : public CGameTrace
 {
 public:
-	~CTraceInfoAccessor()
+	CScriptGameTrace() : m_surfaceAccessor(NULL), m_planeAccessor(NULL)
 	{
-		if (m_surfaceAccessor)
-		{
-			CSurfaceScriptAccessor *pScriptSurface = HScriptToClass<CSurfaceScriptAccessor>( m_surfaceAccessor );
-			//g_pScriptVM->RemoveInstance( m_surfaceAccessor );
-			delete pScriptSurface;
-		}
-
-		//if (m_planeAccessor)
-		//{
-		//	g_pScriptVM->RemoveInstance( m_planeAccessor );
-		//}
+		m_hScriptInstance = g_pScriptVM->RegisterInstance( this );
 	}
 
-	// CGrameTrace stuff
-	bool DidHitWorld() const { return m_tr.DidHitWorld(); }
-	bool DidHitNonWorldEntity() const { return m_tr.DidHitNonWorldEntity(); }
-	int GetEntityIndex() const { return m_tr.GetEntityIndex(); }
-	bool DidHit() const { return m_tr.DidHit(); }
+	~CScriptGameTrace()
+	{
+		if ( m_hScriptInstance )
+		{
+			g_pScriptVM->RemoveInstance( m_hScriptInstance );
+		}
 
-	float FractionLeftSolid() const { return m_tr.fractionleftsolid; }
-	int HitGroup() const { return m_tr.hitgroup; }
-	int PhysicsBone() const { return m_tr.physicsbone; }
+		if ( m_surfaceAccessor )
+		{
+			g_pScriptVM->RemoveInstance( m_surfaceAccessor );
+		}
 
-	HSCRIPT Entity() const { return ToHScript(m_tr.m_pEnt); }
+		if ( m_planeAccessor )
+		{
+			g_pScriptVM->RemoveInstance( m_planeAccessor );
+		}
+	}
 
-	int HitBox() const { return m_tr.hitbox; }
+	void RegisterSurface()
+	{
+		m_surfaceHelper.Init( &surface );
+		m_surfaceAccessor = g_pScriptVM->RegisterInstance( &m_surfaceHelper );
+	}
 
-	// CBaseTrace stuff
-	bool IsDispSurface() { return m_tr.IsDispSurface(); }
-	bool IsDispSurfaceWalkable() { return m_tr.IsDispSurfaceWalkable(); }
-	bool IsDispSurfaceBuildable() { return m_tr.IsDispSurfaceBuildable(); }
-	bool IsDispSurfaceProp1() { return m_tr.IsDispSurfaceProp1(); }
-	bool IsDispSurfaceProp2() { return m_tr.IsDispSurfaceProp2(); }
+	void RegisterPlane()
+	{
+		m_planeAccessor = g_pScriptVM->RegisterInstance( &plane );
+	}
 
-	const Vector& StartPos() const { return m_tr.startpos; }
-	const Vector& EndPos() const { return m_tr.endpos; }
+	HSCRIPT GetScriptInstance() const
+	{
+		return m_hScriptInstance;
+	}
 
-	float Fraction() const { return m_tr.fraction; }
+public:
+	float FractionLeftSolid() const		{ return fractionleftsolid; }
+	int HitGroup() const				{ return hitgroup; }
+	int PhysicsBone() const				{ return physicsbone; }
 
-	int Contents() const { return m_tr.contents; }
-	int DispFlags() const { return m_tr.dispFlags; }
+	HSCRIPT Entity() const				{ return ToHScript( m_pEnt ); }
+	int HitBox() const					{ return hitbox; }
 
-	bool AllSolid() const { return m_tr.allsolid; }
-	bool StartSolid() const { return m_tr.startsolid; }
+	const Vector& StartPos() const		{ return startpos; }
+	const Vector& EndPos() const		{ return endpos; }
 
-	HSCRIPT Surface() { return m_surfaceAccessor; }
-	void SetSurface( HSCRIPT hSurfAccessor ) { m_surfaceAccessor = hSurfAccessor; }
+	float Fraction() const				{ return fraction; }
 
-	HSCRIPT Plane() { return m_planeAccessor; }
-	void SetPlane( HSCRIPT hPlaneAccessor ) { m_planeAccessor = hPlaneAccessor; }
+	int Contents() const				{ return contents; }
+	int DispFlags() const				{ return dispFlags; }
 
-	trace_t &GetTrace() { return m_tr; }
-	void Destroy() { delete this; }
+	bool AllSolid() const				{ return allsolid; }
+	bool StartSolid() const				{ return startsolid; }
+
+	HSCRIPT Surface() const				{ return m_surfaceAccessor; }
+	HSCRIPT Plane() const				{ return m_planeAccessor; }
+
+	void Destroy()						{ delete this; }
 
 private:
-	trace_t m_tr;
-
 	HSCRIPT m_surfaceAccessor;
 	HSCRIPT m_planeAccessor;
+	HSCRIPT m_hScriptInstance;
+
+	CSurfaceScriptHelper m_surfaceHelper;
+
+	CScriptGameTrace( const CScriptGameTrace& v );
 };
 
 //-----------------------------------------------------------------------------

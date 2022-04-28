@@ -17,11 +17,16 @@ void RegisterScriptSingletons();
 
 #ifdef CLIENT_DLL
 // usercmd
-#define SCRIPT_NETMSG_DATA_SIZE ( ( 1 << 11 ) - 1 )
+#define SCRIPT_NETMSG_DATA_SIZE		( ( 1 << 11 ) - 1 )
 #else
 // usermsg
-#define SCRIPT_NETMSG_DATA_SIZE MAX_USER_MSG_DATA
+#define SCRIPT_NETMSG_DATA_SIZE		MAX_USER_MSG_DATA
 #endif
+
+#define SCRIPT_NETMSG_QUEUE_BITS	3	// determines the number of custom messages client can write to a usercmd
+#define SCRIPT_NETMSG_HEADER_BITS	(sizeof(word) << 3)
+#define SCRIPT_NETMSG_STRING_SIZE	512
+
 
 #ifdef CLIENT_DLL
 class CNetMsgScriptHelper : public CAutoGameSystem
@@ -40,17 +45,27 @@ private:
 	CRecipientFilter m_filter;
 #else
 	bf_read m_MsgIn;
+	unsigned int m_nQueueCount;
+	bool m_bWriteIgnore;
 #endif
 	HSCRIPT m_Hooks;
 	bf_write m_MsgOut;
 	byte m_MsgData[ PAD_NUMBER( SCRIPT_NETMSG_DATA_SIZE, 4 ) ];
 
-public:
 #ifdef CLIENT_DLL
-	CNetMsgScriptHelper() : m_Hooks(NULL), m_bWriteReady(false) {}
-#else
-	CNetMsgScriptHelper() : m_Hooks(NULL) {}
+	int m_iLastBit;
 #endif
+
+public:
+	CNetMsgScriptHelper() : m_Hooks(NULL)
+
+#ifdef CLIENT_DLL
+		, m_bWriteReady(0), m_bWriteIgnore(0), m_nQueueCount(0), m_iLastBit(0)
+#else
+		, m_MsgIn(0)
+#endif
+
+	{}
 
 public:
 #ifdef CLIENT_DLL
@@ -86,14 +101,6 @@ public:
 #else // CLIENT_DLL
 	void DispatchUserMessage( const char *msg );
 #endif
-
-#ifdef GAME_DLL
-public:
-	void AddRecipient( HSCRIPT player );
-	void AddRecipientsByPVS( const Vector &pos );
-	void AddRecipientsByPAS( const Vector &pos );
-	void AddAllPlayers();
-#endif // GAME_DLL
 
 public:
 	void WriteInt( int iValue, int bits );
@@ -135,6 +142,8 @@ public:
 	//int           GetNumBitsLeft(); // unreliable on server because of usercmds. so just do away with it
 	int           GetNumBitsWritten();
 
+public:
+	static inline int Hash( const char *key );
 };
 
 extern CNetMsgScriptHelper *g_ScriptNetMsg;

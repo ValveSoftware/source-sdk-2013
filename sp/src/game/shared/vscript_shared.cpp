@@ -170,12 +170,22 @@ bool VScriptRunScript( const char *pszScriptName, HSCRIPT hScope, bool bWarnMiss
 	return bSuccess;
 }
 
-#ifdef CLIENT_DLL
-CON_COMMAND( script_client, "Run the text as a script" )
+
+#ifdef GAME_DLL
+#define IsCommandIssuedByServerAdmin() UTIL_IsCommandIssuedByServerAdmin()
 #else
-CON_COMMAND( script, "Run the text as a script" )
+#define IsCommandIssuedByServerAdmin() true
+#endif
+
+#ifdef CLIENT_DLL
+CON_COMMAND_F( script_client, "Run the text as a script", FCVAR_CHEAT )
+#else
+CON_COMMAND_F( script, "Run the text as a script", FCVAR_CHEAT )
 #endif
 {
+	if ( !IsCommandIssuedByServerAdmin() )
+		return;
+
 	if ( !*args[1] )
 	{
 		CGWarning( 0, CON_GROUP_VSCRIPT, "No function name specified\n" );
@@ -228,9 +238,15 @@ CON_COMMAND( script, "Run the text as a script" )
 	}
 }
 
-
-CON_COMMAND_SHARED( script_execute, "Run a vscript file" )
+#ifdef CLIENT_DLL
+CON_COMMAND_F( script_execute_client, "Run a vscript file", FCVAR_CHEAT )
+#else
+CON_COMMAND_F( script_execute, "Run a vscript file", FCVAR_CHEAT )
+#endif
 {
+	if ( !IsCommandIssuedByServerAdmin() )
+		return;
+
 	if ( !*args[1] )
 	{
 		CGWarning( 0, CON_GROUP_VSCRIPT, "No script specified\n" );
@@ -246,8 +262,15 @@ CON_COMMAND_SHARED( script_execute, "Run a vscript file" )
 	VScriptRunScript( args[1], true );
 }
 
-CON_COMMAND_SHARED( script_debug, "Connect the vscript VM to the script debugger" )
+#ifdef CLIENT_DLL
+CON_COMMAND_F( script_debug_client, "Connect the vscript VM to the script debugger", FCVAR_CHEAT )
+#else
+CON_COMMAND_F( script_debug, "Connect the vscript VM to the script debugger", FCVAR_CHEAT )
+#endif
 {
+	if ( !IsCommandIssuedByServerAdmin() )
+		return;
+
 	if ( !g_pScriptVM )
 	{
 		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
@@ -256,8 +279,15 @@ CON_COMMAND_SHARED( script_debug, "Connect the vscript VM to the script debugger
 	g_pScriptVM->ConnectDebugger();
 }
 
-CON_COMMAND_SHARED( script_help, "Output help for script functions, optionally with a search string" )
+#ifdef CLIENT_DLL
+CON_COMMAND_F( script_help_client, "Output help for script functions, optionally with a search string", FCVAR_CHEAT )
+#else
+CON_COMMAND_F( script_help, "Output help for script functions, optionally with a search string", FCVAR_CHEAT )
+#endif
 {
+	if ( !IsCommandIssuedByServerAdmin() )
+		return;
+
 	if ( !g_pScriptVM )
 	{
 		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );
@@ -272,8 +302,15 @@ CON_COMMAND_SHARED( script_help, "Output help for script functions, optionally w
 	g_pScriptVM->Run( CFmtStr( "__Documentation.PrintHelp( \"%s\" );", pszArg1 ) );
 }
 
-CON_COMMAND_SHARED( script_dump_all, "Dump the state of the VM to the console" )
+#ifdef CLIENT_DLL
+CON_COMMAND_F( script_dump_all_client, "Dump the state of the VM to the console", FCVAR_CHEAT )
+#else
+CON_COMMAND_F( script_dump_all, "Dump the state of the VM to the console", FCVAR_CHEAT )
+#endif
 {
+	if ( !IsCommandIssuedByServerAdmin() )
+		return;
+
 	if ( !g_pScriptVM )
 	{
 		CGWarning( 0, CON_GROUP_VSCRIPT, "Scripting disabled or no server running\n" );

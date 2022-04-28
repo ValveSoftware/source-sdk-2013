@@ -1091,16 +1091,14 @@ bool CreateParamCheck(const ScriptFunctionBinding_t& func, char* output)
 		switch (func.m_desc.m_Parameters[i])
 		{
 		case FIELD_FLOAT:
-			*output++ = 'n'; // NOTE: Can be int or float
+		case FIELD_INTEGER:
+			*output++ = 'n';
 			break;
 		case FIELD_CSTRING:
 			*output++ = 's';
 			break;
 		case FIELD_VECTOR:
 			*output++ = 'x'; // Generic instance, we validate on arrival
-			break;
-		case FIELD_INTEGER:
-			*output++ = 'i'; // could use 'n' also which is int or float
 			break;
 		case FIELD_BOOLEAN:
 			*output++ = 'b';
@@ -1701,7 +1699,9 @@ struct SquirrelSafeCheck
 
 	~SquirrelSafeCheck()
 	{
-		if (top_ != (sq_gettop(vm_) - outputCount_))
+		SQInteger curtop = sq_gettop(vm_);
+		SQInteger diff = curtop - outputCount_;
+		if ( top_ != diff )
 		{
 			Assert(!"Squirrel VM stack is not consistent");
 			Error("Squirrel VM stack is not consistent\n");
@@ -2354,6 +2354,8 @@ bool SquirrelVM::ScopeIsHooked( HSCRIPT hScope, const char *pszEventName )
 	if (!hScope)
 		return true;
 
+	SquirrelSafeCheck safeCheck(vm_);
+
 	Assert(hScope != INVALID_HSCRIPT);
 
 	sq_pushroottable(vm_);
@@ -2373,7 +2375,7 @@ bool SquirrelVM::ScopeIsHooked( HSCRIPT hScope, const char *pszEventName )
 		return false;
 	}
 
-	sq_pop(vm_, 3);
+	sq_pop(vm_, 4);
 	return val ? true : false;
 }
 
@@ -2393,6 +2395,8 @@ HSCRIPT SquirrelVM::LookupHookFunction(const char *pszEventName, HSCRIPT hScope,
 	if (!ScopeIsHooked(hScope, pszEventName))
 		return nullptr;
 
+	SquirrelSafeCheck safeCheck(vm_);
+
 	sq_pushroottable(vm_);
 	sq_pushstring(vm_, "Hooks", -1);
 	sq_get(vm_, -2);
@@ -2403,7 +2407,7 @@ HSCRIPT SquirrelVM::LookupHookFunction(const char *pszEventName, HSCRIPT hScope,
 	sq_resetobject(&obj);
 	sq_getstackobj(vm_, -1, &obj);
 	sq_addref(vm_, &obj);
-	sq_pop(vm_, 2);
+	sq_pop(vm_, 3);
 
 	HSQOBJECT* pObj = new HSQOBJECT;
 	*pObj = obj;
@@ -3527,7 +3531,7 @@ void SquirrelVM::WriteObject(CUtlBuffer* pBuffer, WriteStateMap& writeState, SQI
 				}
 				else
 				{
-					Warning("SquirrelVM::WriteObject: Unable to find instanceID for object of type %s, unable to serialize\n",
+					DevWarning("SquirrelVM::WriteObject: Unable to find instanceID for object of type %s, unable to serialize\n",
 						pClassInstanceData->desc->m_pszClassname);
 					pBuffer->PutString("");
 				}
