@@ -332,7 +332,7 @@ BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-si
 
 	DEFINE_SCRIPTFUNC( GetSequence, "Gets the current sequence" )
 	DEFINE_SCRIPTFUNC( SetSequence, "Sets the current sequence" )
-	DEFINE_SCRIPTFUNC( SequenceLoops, "Loops the current sequence" )
+	DEFINE_SCRIPTFUNC( SequenceLoops, "Does the current sequence loop?" )
 	DEFINE_SCRIPTFUNC( LookupSequence, "Gets the index of the specified sequence name" )
 	DEFINE_SCRIPTFUNC( LookupActivity, "Gets the ID of the specified activity name" )
 	DEFINE_SCRIPTFUNC( GetSequenceName, "Gets the name of the specified sequence index" )
