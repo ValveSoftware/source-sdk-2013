@@ -98,7 +98,7 @@ public:
 		}
 	}
 
-#ifdef MAPBSAE
+#ifdef MAPBASE
 	virtual acttable_t		*GetBackupActivityList() { return GetAR2Acttable(); }
 	virtual int				GetBackupActivityListCount() { return GetAR2ActtableCount(); }
 #endif
