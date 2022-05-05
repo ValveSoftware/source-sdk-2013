@@ -127,6 +127,7 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/167 (Security fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/168 (Squirrel update)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/171 (VScript documentation sorting)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/173 (VScript fixes and optimizations)
 
 == Contributions from z33ky:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux compilation fixes)
@@ -140,6 +141,12 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/159 (Additional GCC/Linux compilation fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/162 (VS2019 exception specification fix)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/170 (HL2 non-Episodic build fix)
+
+== Contributions from Petercov:
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/182 (NPCs load dynamic interactions from all animation MDLs)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/184 (Projected texture horizontal FOV shadow fix)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/185 (Fix enemyfinders becoming visible when they wake)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/186 (Fix for brightly glowing teeth)
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
