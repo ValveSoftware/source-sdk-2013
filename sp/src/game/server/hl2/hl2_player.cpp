@@ -1397,7 +1397,7 @@ Activity CHL2_Player::Weapon_TranslateActivity( Activity baseAct, bool *pRequire
 	{
 		CBaseEntity* pHeldEnt = GetPlayerHeldEntity( this );
 		float flMass = pHeldEnt ?
-			PlayerPickupGetHeldObjectMass( m_hUseEntity, pHeldEnt->VPhysicsGetObject() ) :
+			(pHeldEnt->VPhysicsGetObject() ? PlayerPickupGetHeldObjectMass( m_hUseEntity, pHeldEnt->VPhysicsGetObject() ) : player_use_anim_heavy_mass.GetFloat()) :
 			(m_hUseEntity->VPhysicsGetObject() ? m_hUseEntity->GetMass() : player_use_anim_heavy_mass.GetFloat());
 		if ( flMass >= player_use_anim_heavy_mass.GetFloat() )
 		{
