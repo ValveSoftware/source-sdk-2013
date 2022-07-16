@@ -1003,7 +1003,7 @@ void CWeaponCrossbow::FireBolt( void )
 inline void CWeaponCrossbow::SetBolt( int iSetting )
 {
 	int iBody = FindBodygroupByName( "bolt" );
-	if (iBody != -1 || (GetOwner() && GetOwner()->IsPlayer())) // HACKHACK: Player models check the viewmodel instead of the worldmodel, so we have to do this manually
+	if (iBody != -1 /*|| (GetOwner() && GetOwner()->IsPlayer())*/) // TODO: Player models check the viewmodel instead of the worldmodel, but setting the bodygroup regardless can cause a crash, so we need a better solution
 		SetBodygroup( iBody, iSetting );
 	else
 		m_nSkin = iSetting;

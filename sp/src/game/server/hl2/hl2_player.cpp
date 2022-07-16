@@ -1263,6 +1263,10 @@ Class_T  CHL2_Player::Classify ( void )
 		if(IsInAVehicle())
 		{
 			IServerVehicle *pVehicle = GetVehicle();
+#ifdef MAPBASE
+			if (!pVehicle)
+				return CLASS_PLAYER;
+#endif
 			return pVehicle->ClassifyPassenger( this, CLASS_PLAYER );
 		}
 		else
