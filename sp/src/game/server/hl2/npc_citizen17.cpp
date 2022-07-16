@@ -1800,10 +1800,16 @@ void CNPC_Citizen::StartTask( const Task_t *pTask )
 				break;
 			}
 
+#ifdef MAPBASE
+			SetSpeechTarget( GetTarget() );
+#endif
 			Speak( TLK_HEAL );
 		}
 		else if ( IsAmmoResupplier() )
 		{
+#ifdef MAPBASE
+			SetSpeechTarget( GetTarget() );
+#endif
 			Speak( TLK_GIVEAMMO );
 		}
 		SetIdealActivity( (Activity)ACT_CIT_HEAL );
