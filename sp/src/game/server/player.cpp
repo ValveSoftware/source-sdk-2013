@@ -7856,7 +7856,7 @@ Activity CBasePlayer::Weapon_TranslateActivity( Activity baseAct, bool *pRequire
 	if ( GetModelPtr() && (!GetModelPtr()->HaveSequenceForActivity(weaponTranslation) || baseAct == weaponTranslation) )
 	{
 		// This is used so players can fall back to backup activities in the same way NPCs in Mapbase can
-		Activity backupActivity = Weapon_BackupActivity(baseAct, pRequired);
+		Activity backupActivity = Weapon_BackupActivity(baseAct, pRequired ? *pRequired : false);
 		if ( baseAct != backupActivity && GetModelPtr()->HaveSequenceForActivity(backupActivity) )
 			return backupActivity;
 
