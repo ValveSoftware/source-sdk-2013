@@ -57,6 +57,9 @@ enum
 #define CREDITS_LOGO 1
 #define CREDITS_INTRO 2
 #define CREDITS_OUTRO 3
+#ifdef MAPBASE
+#define CREDITS_PRECACHE 4
+#endif
 
 bool g_bRollingCredits = false;
 
@@ -112,6 +115,10 @@ private:
 	void PrepareOutroCredits( void );
 	void PrepareIntroCredits( void );
 
+#ifdef MAPBASE
+	void PrecacheCredits();
+#endif
+
 	float FadeBlend( float fadein, float fadeout, float hold, float localTime );
 
 	void PrepareLine( vgui::HFont hFont, char const *pchLine );
@@ -162,6 +169,9 @@ private:
 	char m_szCreditsFile[MAX_PATH];
 
 	char m_szLogoFont[64];
+	char m_szLogo2Font[64];
+	Color m_cLogoColor;
+	Color m_cLogo2Color;
 #endif
 };	
 
@@ -309,6 +319,10 @@ void CHudCredits::ReadParams( KeyValues *pKeyValue )
 
 #ifdef MAPBASE
 	Q_strncpy( m_szLogoFont, pKeyValue->GetString( "logofont", "" ), sizeof( m_szLogoFont ) );
+	Q_strncpy( m_szLogo2Font, pKeyValue->GetString( "logo2font", "" ), sizeof( m_szLogo2Font ) );
+
+	m_cLogoColor = pKeyValue->GetColor( "logocolor" );
+	m_cLogo2Color = pKeyValue->GetColor( "logo2color" );
 #endif
 }
 
@@ -650,6 +664,11 @@ void CHudCredits::DrawLogo( void )
 
 	Color cColor = m_TextColor;
 	cColor[3] = m_Alpha;
+
+#ifdef MAPBASE
+	if (m_cLogoColor.a() > 0)
+		cColor = m_cLogoColor;
+#endif
 				
 	surface()->DrawSetTextFont( m_hTFont );
 	surface()->DrawSetTextColor( cColor[0], cColor[1], cColor[2], cColor[3]  );
@@ -664,6 +683,19 @@ void CHudCredits::DrawLogo( void )
 
 	if ( Q_strlen( m_szLogo2 ) > 0 )
 	{
+#ifdef MAPBASE
+		if (m_szLogo2Font[0] != '\0')
+		{
+			m_hTFont = vgui::scheme()->GetIScheme( scheme )->GetFont( m_szLogo2Font );
+			iFontTall = surface()->GetFontTall( m_hTFont );
+			surface()->DrawSetTextFont( m_hTFont );
+		}
+		if (m_cLogo2Color.a() > 0)
+		{
+			surface()->DrawSetTextColor( m_cLogo2Color[0], m_cLogo2Color[1], m_cLogo2Color[2], m_cLogo2Color[3] );
+		}
+#endif
+
 		g_pVGuiLocalize->ConvertANSIToUnicode( m_szLogo2, unicode, sizeof( unicode ) );
 
 		iStringWidth = GetStringPixelWidth( unicode, m_hTFont ); 
@@ -946,7 +978,7 @@ void CHudCredits::PrepareOutroCredits( void )
 
 				iHeight += ((float)iFontTall * pCredit->flImageScale * ((float)GetTall() / 900.0f)) + m_flSeparation;
 
-				Msg( "'%s' is image type (image scale is %f)\n", pCredit->szCreditName, pCredit->flImageScale );
+				//Msg( "'%s' is image type (image scale is %f)\n", pCredit->szCreditName, pCredit->flImageScale );
 			}
 			else
 			{
@@ -1070,6 +1102,49 @@ void CHudCredits::PrepareIntroCredits( void )
 }
 
 #ifdef MAPBASE
+void CHudCredits::PrecacheCredits()
+{
+	PrepareCredits( "OutroCreditsNames" );
+	
+	if ( m_CreditsList.Count() == 0 )
+		 return;
+
+	for ( int i = 0; i < m_CreditsList.Count(); i++ )
+	{
+		creditname_t *pCredit = &m_CreditsList[i];
+
+		if ( pCredit == NULL )
+			 continue;
+
+		if (pCredit->szFontName[0] == '$')
+		{
+			if (V_strncmp( pCredit->szFontName + 1, "Image", 5 ) == 0)
+			{
+				if (m_bAllowColumns && V_strstr( pCredit->szCreditName, "\t" ))
+				{
+					CUtlStringList outStrings;
+					V_SplitString( pCredit->szCreditName, "\t", outStrings );
+					FOR_EACH_VEC( outStrings, i )
+					{
+						GetOrAllocateImageID( outStrings[i] );
+					}
+					outStrings.PurgeAndDeleteElements();
+				}
+				else
+				{
+					GetOrAllocateImageID( pCredit->szCreditName );
+				}
+			}
+			else
+			{
+				//Msg( "'%s' is not an image type\n", pCredit->szFontName + 1 );
+			}
+		}
+	}
+
+	m_CreditsList.RemoveAll();
+}
+
 int CHudCredits::GetOrAllocateImageID( const char *szFileName )
 {
 	int iIndex = m_ImageDict.Find( szFileName );
@@ -1112,6 +1187,13 @@ void CHudCredits::MsgFunc_CreditsMsg( bf_read &msg )
 			PrepareOutroCredits();
 			break;
 		}
+#ifdef MAPBASE
+		case CREDITS_PRECACHE:
+		{
+			PrecacheCredits();
+			break;
+		}
+#endif
 	}
 }
 
