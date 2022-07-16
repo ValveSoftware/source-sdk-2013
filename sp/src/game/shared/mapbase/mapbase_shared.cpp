@@ -35,6 +35,7 @@
 #include "tier0/memdbgon.h"
 
 #define GENERIC_MANIFEST_FILE "scripts/mapbase_default_manifest.txt"
+#define GENERIC_MANIFEST_FILE_ADDON "scripts/mapbase_default_manifest_addon.txt"
 
 #ifdef CLIENT_DLL
 #define AUTOLOADED_MANIFEST_FILE VarArgs("maps/%s_manifest.txt", g_MapName)
@@ -52,6 +53,8 @@ ConVar mapbase_load_default_manifest("mapbase_load_default_manifest", "1", FCVAR
 // This constant should change with each Mapbase update
 ConVar mapbase_version( "mapbase_version", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's server.dll" );
 
+ConVar mapbase_load_addon_manifest( "mapbase_load_addon_manifest", "0", FCVAR_NONE, "Allows manifests from \"addon\" path IDs to be loaded." );
+
 ConVar mapbase_flush_talker("mapbase_flush_talker", "1", FCVAR_NONE, "Normally, when a map with custom talker files is unloaded, the response system resets to rid itself of the custom file(s). Turn this convar off to prevent that from happening.");
 
 extern void MapbaseGameLog_Init();
@@ -66,6 +69,8 @@ static bool g_bMapContainsCustomTalker;
 #else
 // This constant should change with each Mapbase update
 ConVar mapbase_version_client( "mapbase_version_client", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's client.dll" );
+
+ConVar mapbase_load_addon_manifest( "mapbase_load_addon_manifest_client", "0", FCVAR_NONE, "Allows manifests from \"addon\" path IDs to be loaded on the client." );
 
 // This is from the vgui_controls library
 extern vgui::HScheme g_iCustomClientSchemeOverride;
@@ -110,6 +115,9 @@ enum
 	//MANIFEST_SENTENCES,
 	MANIFEST_ACTBUSY,
 #endif
+#ifdef MAPBASE_VSCRIPT
+	MANIFEST_VSCRIPT,
+#endif
 
 	// Must always be kept below
 	MANIFEST_NUM_TYPES,
@@ -146,6 +154,9 @@ static const ManifestType_t gm_szManifestFileStrings[MANIFEST_NUM_TYPES] = {
 	{ "talker",			"mapbase_load_talker",			"Should we load map-specific talker files? e.g. \"maps/<mapname>_talker.txt\"" },
 	//{ "sentences",	"mapbase_load_sentences",		"Should we load map-specific sentences? e.g. \"maps/<mapname>_sentences.txt\"" },
 	{ "actbusy",		"mapbase_load_actbusy",			"Should we load map-specific actbusy files? e.g. \"maps/<mapname>_actbusy.txt\"" },
+#endif
+#ifdef MAPBASE_VSCRIPT
+	{ "vscript",		"mapbase_load_vscript",			"Should we load map-specific VScript map spawn files? e.g. \"maps/<mapname>_mapspawn.nut\"" },
 #endif
 };
 
@@ -263,6 +274,37 @@ public:
 		{
 			// Load the generic script instead.
 			ParseGenericManifest();
+		}
+
+		// Load addon manifests if we should
+		if (mapbase_load_addon_manifest.GetBool())
+		{
+			char searchPaths[4096];
+			filesystem->GetSearchPath( "ADDON", true, searchPaths, sizeof( searchPaths ) );
+
+			for ( char *path = strtok( searchPaths, ";" ); path; path = strtok( NULL, ";" ) )
+			{
+				char pathName[MAX_PATH];
+				V_StripTrailingSlash( path );
+				V_FileBase( path, pathName, sizeof( pathName ) );
+
+				KeyValues *pKV = new KeyValues( "DefaultAddonManifest" );
+
+				char manifestName[MAX_PATH];
+				V_snprintf( manifestName, sizeof( manifestName ), "%s_mapbase_manifest.txt", pathName );
+				if (filesystem->FileExists( manifestName, "ADDON" ))
+				{
+					if (pKV->LoadFromFile( filesystem, manifestName ))
+						AddManifestFile( pKV, pathName, false );
+				}
+				else
+				{
+					if (pKV->LoadFromFile( filesystem, GENERIC_MANIFEST_FILE_ADDON ))
+						AddManifestFile( pKV, pathName, true );
+				}
+
+				pKV->deleteThis();
+			}
 		}
 
 #ifdef GAME_DLL
@@ -405,7 +447,7 @@ public:
 		KeyValues *pKV = new KeyValues("DefaultManifest");
 		pKV->LoadFromFile(filesystem, GENERIC_MANIFEST_FILE);
 
-		AddManifestFile(pKV/*, true*/);
+		AddManifestFile(pKV, g_MapName/*, true*/);
 
 		pKV->deleteThis();
 	}
@@ -422,7 +464,7 @@ public:
 
 		CGMsg( 1, CON_GROUP_MAPBASE_MISC, "===== Mapbase Manifest: Loading manifest file %s =====\n", file );
 
-		AddManifestFile(pKV, false);
+		AddManifestFile(pKV, g_MapName, false);
 
 		CGMsg( 1, CON_GROUP_MAPBASE_MISC, "==============================================================================\n" );
 
@@ -462,11 +504,14 @@ public:
 			//case MANIFEST_SENTENCES: { engine->PrecacheSentenceFile(value); } break;
 			case MANIFEST_ACTBUSY: { ParseCustomActbusyFile(value); } break;
 #endif
+#ifdef MAPBASE_VSCRIPT
+			case MANIFEST_VSCRIPT:		{ VScriptRunScript(value, false); } break;
+#endif
 		}
 	}
 
 	// This doesn't call deleteThis()!
-	void AddManifestFile(KeyValues *pKV, bool bDontWarn = false)
+	void AddManifestFile(KeyValues *pKV, const char *pszMapName, bool bDontWarn = false)
 	{
 		char value[MAX_PATH];
 		const char *name;
@@ -485,7 +530,7 @@ public:
 				{
 					if (FStrEq( outStrings[i], "mapname" ))
 					{
-						Q_strncat( value, g_MapName, sizeof( value ) );
+						Q_strncat( value, pszMapName, sizeof( value ) );
 					}
 					else if (FStrEq( outStrings[i], "language" ))
 					{
