@@ -1142,6 +1142,18 @@ void CAI_BaseActor::UpdateHeadControl( const Vector &vHeadTarget, float flHeadIn
 	ConcatTransforms( worldToForward, targetXform, headXform );
 	MatrixAngles( headXform, vTargetAngles );
 
+#ifdef MAPBASE
+	// This is here to cover an edge case where pose parameters set to NaN invalidate the model.
+	if (!vTargetAngles.IsValid())
+	{
+		Warning(	"================================================================================\n"
+					"!!!!! %s tried to set a NaN head angle (can happen when look targets have >1 importance) !!!!!\n"
+					"================================================================================\n", GetDebugName() );
+		vTargetAngles.x = 0;
+		vTargetAngles.y = 0;
+	}
+#endif
+
 	// partially debounce head goal
 	float s0 = 1.0 - flHeadInfluence + GetHeadDebounce() * flHeadInfluence;
 	float s1 = (1.0 - s0);
