@@ -188,6 +188,12 @@ skipwhite:
 				token[len] = 0;
 				return data;
 			}
+			else if (c != '\"' && escaped)
+			{
+				// Not an escape character, just a back slash
+				token[len] = '\\';
+				len++;
+			}
 
 			escaped = (c == '\\');
 			if (!escaped)
