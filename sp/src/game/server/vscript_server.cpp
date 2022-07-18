@@ -154,7 +154,7 @@ public:
 
 	void OnEntityCreated( CBaseEntity *pEntity )
 	{
-		if ( g_pScriptVM )
+		if ( g_pScriptVM && GetScriptHookManager().IsEventHooked( "OnEntityCreated" ) )
 		{
 			// entity
 			ScriptVariant_t args[] = { ScriptVariant_t( pEntity->GetScriptInstance() ) };
@@ -164,7 +164,7 @@ public:
 
 	void OnEntitySpawned( CBaseEntity *pEntity )
 	{
-		if ( g_pScriptVM )
+		if ( g_pScriptVM && GetScriptHookManager().IsEventHooked( "OnEntitySpawned" ) )
 		{
 			// entity
 			ScriptVariant_t args[] = { ScriptVariant_t( pEntity->GetScriptInstance() ) };
@@ -174,7 +174,7 @@ public:
 
 	void OnEntityDeleted( CBaseEntity *pEntity )
 	{
-		if ( g_pScriptVM )
+		if ( g_pScriptVM && GetScriptHookManager().IsEventHooked( "OnEntityDeleted" ) )
 		{
 			// entity
 			ScriptVariant_t args[] = { ScriptVariant_t( pEntity->GetScriptInstance() ) };
@@ -601,6 +601,10 @@ bool VScriptServerInit()
 #endif
 
 #ifdef MAPBASE_VSCRIPT
+				GetScriptHookManager().OnInit();
+#endif
+
+#ifdef MAPBASE_VSCRIPT
 				// MULTIPLAYER
 				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByIndex, "GetPlayerByIndex", "PlayerInstanceFromIndex" );
 				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByUserId, "GetPlayerByUserId", "GetPlayerFromUserID" );
@@ -836,6 +840,8 @@ public:
 	{
 #ifdef MAPBASE_VSCRIPT
 		g_ScriptNetMsg->LevelShutdownPreVM();
+
+		GetScriptHookManager().OnShutdown();
 #endif
 		VScriptServerTerm();
 	}

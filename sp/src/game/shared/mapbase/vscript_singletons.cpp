@@ -872,7 +872,8 @@ public: // IGameSystem
 	{
 		if ( g_pScriptVM )
 		{
-			g_Hook_OnSave.Call( NULL, NULL, NULL );
+			if ( GetScriptHookManager().IsEventHooked( "OnSave" ) )
+				g_Hook_OnSave.Call( NULL, NULL, NULL );
 
 			// Legacy hook
 			HSCRIPT hFunc = g_pScriptVM->LookupFunction( "OnSave" );
@@ -893,7 +894,8 @@ public: // IGameSystem
 	{
 		if ( g_pScriptVM )
 		{
-			g_Hook_OnRestore.Call( NULL, NULL, NULL );
+			if ( GetScriptHookManager().IsEventHooked( "OnRestore" ) )
+				g_Hook_OnRestore.Call( NULL, NULL, NULL );
 
 			// Legacy hook
 			HSCRIPT hFunc = g_pScriptVM->LookupFunction( "OnRestore" );

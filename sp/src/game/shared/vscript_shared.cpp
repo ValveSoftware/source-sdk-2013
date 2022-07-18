@@ -451,6 +451,10 @@ public:
 		}
 		m_InstanceMap.Purge();
 
+#ifdef MAPBASE_VSCRIPT
+		GetScriptHookManager().OnRestore();
+#endif
+
 #if defined(MAPBASE_VSCRIPT) && defined(CLIENT_DLL)
 		VScriptSaveRestoreUtil_OnVMRestore();
 #endif

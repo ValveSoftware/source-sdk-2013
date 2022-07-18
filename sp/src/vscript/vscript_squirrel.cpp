@@ -188,8 +188,8 @@ public:
 	//--------------------------------------------------------
 	// Hooks
 	//--------------------------------------------------------
-	virtual HSCRIPT LookupHookFunction( const char *pszEventName, HSCRIPT hScope ) override;
-	virtual ScriptStatus_t ExecuteHookFunction( HSCRIPT hFunction, const char *pszEventName, ScriptVariant_t *pArgs, int nArgs, ScriptVariant_t *pReturn, HSCRIPT hScope, bool bWait ) override;
+	virtual HScriptRaw HScriptToRaw( HSCRIPT val ) override;
+	virtual ScriptStatus_t ExecuteHookFunction( const char *pszEventName, ScriptVariant_t *pArgs, int nArgs, ScriptVariant_t *pReturn, HSCRIPT hScope, bool bWait ) override;
 
 	//--------------------------------------------------------
 	// External functions
@@ -2347,64 +2347,24 @@ ScriptStatus_t SquirrelVM::ExecuteFunction(HSCRIPT hFunction, ScriptVariant_t* p
 	return SCRIPT_DONE;
 }
 
-HSCRIPT SquirrelVM::LookupHookFunction(const char *pszEventName, HSCRIPT hScope)
+HScriptRaw SquirrelVM::HScriptToRaw( HSCRIPT val )
 {
-	SquirrelSafeCheck safeCheck(vm_);
+	Assert( val );
+	Assert( val != INVALID_HSCRIPT );
 
-	// For now, assume null scope (which is used for global hooks) is always hooked
-	if ( hScope )
-	{
-		Assert( hScope != INVALID_HSCRIPT );
-
-		sq_pushroottable(vm_);
-		sq_pushstring(vm_, "Hooks", -1);
-		sq_get(vm_, -2);
-		sq_pushstring(vm_, "IsEventHookedInScope", -1);
-		sq_get(vm_, -2);
-		sq_push(vm_, -2);
-		sq_pushstring(vm_, pszEventName, -1);
-		sq_pushobject(vm_, *((HSQOBJECT*)hScope));
-		sq_call(vm_, 3, SQTrue, SQTrue);
-
-		SQBool val;
-		if (SQ_FAILED(sq_getbool(vm_, -1, &val)))
-		{
-			sq_pop(vm_, 3);
-			return nullptr;
-		}
-
-		sq_pop(vm_, 4);
-
-		if (!val)
-			return nullptr;
-	}
-
-	sq_pushroottable(vm_);
-	sq_pushstring(vm_, "Hooks", -1);
-	sq_get(vm_, -2);
-	sq_pushstring(vm_, "Call", -1);
-	sq_get(vm_, -2);
-
-	HSQOBJECT obj;
-	sq_resetobject(&obj);
-	sq_getstackobj(vm_, -1, &obj);
-	sq_addref(vm_, &obj);
-	sq_pop(vm_, 3);
-
-	HSQOBJECT* pObj = new HSQOBJECT;
-	*pObj = obj;
-
-	return (HSCRIPT)pObj;
+	HSQOBJECT *obj = (HSQOBJECT*)val;
+#if 0
+	if ( sq_isweakref(*obj) )
+		return obj->_unVal.pWeakRef->_obj._unVal.raw;
+#endif
+	return obj->_unVal.raw;
 }
 
-ScriptStatus_t SquirrelVM::ExecuteHookFunction(HSCRIPT hFunction, const char *pszEventName, ScriptVariant_t* pArgs, int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope, bool bWait)
+ScriptStatus_t SquirrelVM::ExecuteHookFunction(const char *pszEventName, ScriptVariant_t* pArgs, int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope, bool bWait)
 {
-	if ( !hFunction )
-		return SCRIPT_ERROR;
-
 	SquirrelSafeCheck safeCheck(vm_);
 
-	HSQOBJECT* pFunc = (HSQOBJECT*)hFunction;
+	HSQOBJECT* pFunc = (HSQOBJECT*)GetScriptHookManager().GetHookFunction();
 	sq_pushobject(vm_, *pFunc);
 
 	// The call environment of the Hooks::Call function does not matter

@@ -180,6 +180,8 @@ Hooks <-
 			t[scope] <- {};
 
 		t[scope][context] <- callback;
+
+		return __UpdateHooks();
 	}
 
 	function Remove( event, context )
@@ -244,6 +246,8 @@ Hooks <-
 					delete s_List[ev];
 			}
 		}
+
+		return __UpdateHooks();
 	}
 
 	function Call( event, scope, ... )
@@ -287,9 +291,9 @@ Hooks <-
 		return firstReturn;
 	}
 
-	function IsEventHookedInScope( event, scope )
+	function __UpdateHooks()
 	{
-		return ( event in s_List ) && ( scope in s_List[event] )
+		return __UpdateScriptHooks( s_List );
 	}
 }
 
