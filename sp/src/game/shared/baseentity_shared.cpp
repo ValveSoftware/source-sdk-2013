@@ -1613,7 +1613,7 @@ typedef CTraceFilterSimpleList CBulletsTraceFilter;
 void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 {
 #if defined(MAPBASE_VSCRIPT) && defined(GAME_DLL)
-	if (m_ScriptScope.IsInitialized())
+	if ( m_ScriptScope.IsInitialized() && g_Hook_FireBullets.CanRunInScope( m_ScriptScope ) )
 	{
 		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( const_cast<FireBulletsInfo_t*>(&info) );
 

@@ -2157,7 +2157,7 @@ class CFilterScript : public CBaseFilter
 public:
 	bool PassesFilterImpl( CBaseEntity *pCaller, CBaseEntity *pEntity )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( m_ScriptScope.IsInitialized() && g_Hook_PassesFilter.CanRunInScope( m_ScriptScope ) )
 		{
 			// caller, activator
 			ScriptVariant_t functionReturn;
@@ -2176,7 +2176,7 @@ public:
 
 	bool PassesDamageFilterImpl( CBaseEntity *pCaller, const CTakeDamageInfo &info )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( m_ScriptScope.IsInitialized() && g_Hook_PassesDamageFilter.CanRunInScope( m_ScriptScope ) )
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
 
@@ -2201,7 +2201,7 @@ public:
 
 	bool PassesFinalDamageFilter( CBaseEntity *pCaller, const CTakeDamageInfo &info )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( m_ScriptScope.IsInitialized() && g_Hook_PassesFinalDamageFilter.CanRunInScope( m_ScriptScope ) )
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
 
@@ -2225,7 +2225,7 @@ public:
 
 	bool BloodAllowed( CBaseEntity *pCaller, const CTakeDamageInfo &info )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( m_ScriptScope.IsInitialized() && g_Hook_BloodAllowed.CanRunInScope( m_ScriptScope ) )
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
 
@@ -2249,7 +2249,7 @@ public:
 
 	bool DamageMod( CBaseEntity *pCaller, CTakeDamageInfo &info )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( m_ScriptScope.IsInitialized() && g_Hook_DamageMod.CanRunInScope( m_ScriptScope ) )
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( &info );
 

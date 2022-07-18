@@ -885,9 +885,8 @@ public:
 	//--------------------------------------------------------
 	// Hooks
 	//--------------------------------------------------------
-	virtual bool ScopeIsHooked( HSCRIPT hScope, const char *pszEventName ) = 0;
-	virtual HSCRIPT LookupHookFunction( const char *pszEventName, HSCRIPT hScope, bool &bLegacy ) = 0;
-	virtual ScriptStatus_t ExecuteHookFunction( const char *pszEventName, HSCRIPT hFunction, ScriptVariant_t *pArgs, int nArgs, ScriptVariant_t *pReturn, HSCRIPT hScope, bool bWait ) = 0;
+	virtual HSCRIPT LookupHookFunction( const char *pszEventName, HSCRIPT hScope ) = 0;
+	virtual ScriptStatus_t ExecuteHookFunction( HSCRIPT hFunction, const char *pszEventName, ScriptVariant_t *pArgs, int nArgs, ScriptVariant_t *pReturn, HSCRIPT hScope, bool bWait ) = 0;
 #endif
 
 	//--------------------------------------------------------
@@ -1593,17 +1592,6 @@ typedef CScriptScopeT<> CScriptScope;
 // 
 // This was previously done with raw function lookups, but Mapbase adds more and
 // it's hard to keep track of them without proper standards or documentation.
-// 
-// At the moment, this simply plugs hook documentation into VScript and maintains
-// the same function lookup method on the inside, but it's intended to be open for
-// more complex hook mechanisms with proper parameters in the future.
-// 
-// For example:
-// 
-//	if (m_hFunc)
-//	{
-//		g_pScriptVM->ExecuteFunction( m_Func, pArgs, m_desc.m_Parameters.Count(), pReturn, m_ScriptScope, true );
-//	}
 //-----------------------------------------------------------------------------
 struct ScriptHook_t
 {
@@ -1620,51 +1608,72 @@ struct ScriptHook_t
 
 	// -----------------------------------------------------------------
 
-	// Cached for when CanRunInScope() is called before Call()
+	// Only valid between CanRunInScope() and Call()
 	HSCRIPT m_hFunc;
 	bool m_bLegacy;
 
-	// Checks if there's a function of this name which would run in this scope
-	HSCRIPT CanRunInScope( HSCRIPT hScope )
+	ScriptHook_t() :
+		m_bLegacy(false),
+		m_hFunc(NULL)
 	{
-		extern IScriptVM *g_pScriptVM;
-		m_hFunc = g_pScriptVM->LookupHookFunction( m_desc.m_pszScriptName, hScope, m_bLegacy );
-		return m_hFunc;
 	}
 
-	// Checks if an existing func can be used
-	bool CheckFuncValid( HSCRIPT hFunc )
+#ifdef _DEBUG
+	//
+	// An uninitialised script scope will pass as null scope which is considered a valid hook scope (global hook)
+	// This should catch CanRunInScope() calls without CScriptScope::IsInitalised() checks first.
+	//
+	bool CanRunInScope( CScriptScope &hScope )
 	{
-		// TODO: Better crtieria for this?
-		if (hFunc)
+		Assert( hScope.IsInitialized() );
+		return hScope.IsInitialized() && CanRunInScope( (HSCRIPT)hScope );
+	}
+#endif
+
+	// Checks if there's a function of this name which would run in this scope
+	bool CanRunInScope( HSCRIPT hScope )
+	{
+		extern IScriptVM *g_pScriptVM;
+
+		// Check the hook system first to make sure an unintended function in the script scope does not cancel out all script hooks.
+		m_hFunc = g_pScriptVM->LookupHookFunction( m_desc.m_pszScriptName, hScope );
+		if ( !m_hFunc )
 		{
-			m_hFunc = hFunc;
-			return true;
+			// Legacy support if the new system is not being used
+			m_hFunc = g_pScriptVM->LookupFunction( m_desc.m_pszScriptName, hScope );
+			m_bLegacy = true;
 		}
-		return false;
+		else
+		{
+			m_bLegacy = false;
+		}
+
+		return !!m_hFunc;
 	}
 
 	// Call the function
+	// NOTE: `bRelease` only exists for weapon_custom_scripted legacy script func caching
 	bool Call( HSCRIPT hScope, ScriptVariant_t *pReturn, ScriptVariant_t *pArgs, bool bRelease = true )
 	{
 		extern IScriptVM *g_pScriptVM;
 
-		// Make sure we have a function in this scope
-		if (!m_hFunc && !CanRunInScope(hScope))
-			return false;
+		// Call() should not be called without CanRunInScope() check first, it caches m_hFunc for legacy support
+		Assert( CanRunInScope( hScope ) );
+
 		// Legacy
-		else if (m_bLegacy)
+		if ( m_bLegacy )
 		{
+			Assert( m_hFunc );
+
 			for (int i = 0; i < m_desc.m_Parameters.Count(); i++)
 			{
 				g_pScriptVM->SetValue( m_pszParameterNames[i], pArgs[i] );
 			}
 
-			g_pScriptVM->ExecuteFunction( m_hFunc, NULL, 0, pReturn, hScope, true );
+			ScriptStatus_t status = g_pScriptVM->ExecuteFunction( m_hFunc, NULL, 0, pReturn, hScope, true );
 
-			if (bRelease)
+			if ( bRelease )
 				g_pScriptVM->ReleaseFunction( m_hFunc );
-
 			m_hFunc = NULL;
 
 			for (int i = 0; i < m_desc.m_Parameters.Count(); i++)
@@ -1672,19 +1681,19 @@ struct ScriptHook_t
 				g_pScriptVM->ClearValue( m_pszParameterNames[i] );
 			}
 
-			return true;
+			return status == SCRIPT_DONE;
 		}
 		// New Hook System
 		else
 		{
-			g_pScriptVM->ExecuteHookFunction( m_desc.m_pszScriptName, m_hFunc, pArgs, m_desc.m_Parameters.Count(), pReturn, hScope, true );
-			if (bRelease)
+			ScriptStatus_t status = g_pScriptVM->ExecuteHookFunction( m_hFunc, m_desc.m_pszScriptName, pArgs, m_desc.m_Parameters.Count(), pReturn, hScope, true );
+
+			if ( bRelease )
 				g_pScriptVM->ReleaseFunction( m_hFunc );
 			m_hFunc = NULL;
-			return true;
-		}
 
-		return false;
+			return status == SCRIPT_DONE;
+		}
 	}
 };
 #endif
