@@ -128,6 +128,7 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/168 (Squirrel update)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/171 (VScript documentation sorting)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/173 (VScript fixes and optimizations)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/192 (VScript hook manager and fixes)
 
 == Contributions from z33ky:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux compilation fixes)
