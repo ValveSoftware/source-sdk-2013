@@ -152,114 +152,148 @@ Hooks <-
 	// table, string, closure, string
 	function Add( scope, event, callback, context )
 	{
+		switch ( typeof scope )
+		{
+			case "table":
+			case "instance":
+			case "class":
+				break;
+			default:
+				throw "invalid scope param";
+		}
+
+		if ( typeof event != "string" )
+			throw "invalid event param";
+
 		if ( typeof callback != "function" )
-			throw "invalid callback param"
+			throw "invalid callback param";
 
-		if ( !(scope in s_List) )
-			s_List[scope] <- {}
+		if ( typeof context != "string" )
+			throw "invalid context param";
 
-		local t = s_List[scope]
+		if ( !(event in s_List) )
+			s_List[event] <- {};
 
-		if ( !(event in t) )
-			t[event] <- {}
+		local t = s_List[event];
 
-		t[event][context] <- callback
+		if ( !(scope in t) )
+			t[scope] <- {};
+
+		t[scope][context] <- callback;
+
+		return __UpdateHooks();
 	}
 
-	function Remove( context, event = null )
+	function Remove( event, context )
 	{
+		local rem;
+
 		if ( event )
 		{
-			foreach( k,scope in s_List )
+			if ( event in s_List )
 			{
-				if ( event in scope )
+				foreach ( scope, ctx in s_List[event] )
 				{
-					local t = scope[event]
-					if ( context in t )
+					if ( context in ctx )
 					{
-						delete t[context]
+						delete ctx[context];
 					}
 
-					// cleanup?
-					if ( !t.len() )
-						delete scope[event]
+					if ( !ctx.len() )
+					{
+						if ( !rem )
+							rem = [];
+						rem.append( event );
+						rem.append( scope );
+					}
 				}
-
-				// cleanup?
-				if ( !scope.len() )
-					delete s_List[k]
 			}
 		}
 		else
 		{
-			foreach( k,scope in s_List )
+			foreach ( ev, t in s_List )
 			{
-				foreach( kk,ev in scope )
+				foreach ( scope, ctx in t )
 				{
-					if ( context in ev )
+					if ( context in ctx )
 					{
-						delete ev[context]
+						delete ctx[context];
 					}
 
-					// cleanup?
-					if ( !ev.len() )
-						delete scope[kk]
-				}
-
-				// cleanup?
-				if ( !scope.len() )
-					delete s_List[k]
-			}
-		}
-	}
-
-	function Call( scope, event, ... )
-	{
-		local firstReturn
-
-		// global hook; call all scopes
-		if ( !scope )
-		{
-			vargv.insert( 0, null )
-			foreach( sc,t in s_List )
-			{
-				if ( event in t )
-				{
-					vargv[0] = sc
-					foreach( context, callback in t[event] )
+					if ( !ctx.len() )
 					{
-						//printf( "(%.4f) Calling hook '%s' of context '%s' in static iteration\n", Time(), event, context )
-
-						local curReturn = callback.acall(vargv)
-						if (firstReturn == null)
-							firstReturn = curReturn
+						if ( !rem )
+							rem = [];
+						rem.append( ev );
+						rem.append( scope );
 					}
 				}
 			}
 		}
-		else if ( scope in s_List )
-		{
-			local t = s_List[scope]
-			if ( event in t )
-			{
-				vargv.insert( 0, scope )
-				foreach( context, callback in t[event] )
-				{
-					//printf( "(%.4f) Calling hook '%s' of context '%s'\n", Time(), event, context )
 
-					local curReturn = callback.acall(vargv)
-					if (firstReturn == null)
-						firstReturn = curReturn
+		if ( rem )
+		{
+			local c = rem.len() - 1;
+			for ( local i = 0; i < c; i += 2 )
+			{
+				local ev = rem[i];
+				local scope = rem[i+1];
+
+				if ( !s_List[ev][scope].len() )
+					delete s_List[ev][scope];
+
+				if ( !s_List[ev].len() )
+					delete s_List[ev];
+			}
+		}
+
+		return __UpdateHooks();
+	}
+
+	function Call( event, scope, ... )
+	{
+		local firstReturn;
+
+		if ( event in s_List )
+		{
+			vargv.insert( 0, scope );
+
+			local t = s_List[event];
+			if ( scope in t )
+			{
+				foreach ( fn in t[scope] )
+				{
+					//printf( "(%.4f) Calling hook %s:%s\n", Time(), event, context );
+
+					local r = fn.acall( vargv );
+					if ( firstReturn == null )
+						firstReturn = r;
+				}
+			}
+			else if ( !scope ) // global hook
+			{
+				foreach ( sc, ctx in t )
+				{
+					vargv[0] = sc;
+
+					foreach ( context, fn in ctx )
+					{
+						//printf( "(%.4f) Calling hook (g) %s:%s\n", Time(), event, context );
+
+						local r = fn.acall( vargv );
+						if ( firstReturn == null )
+							firstReturn = r;
+					}
 				}
 			}
 		}
 
-		return firstReturn
+		return firstReturn;
 	}
 
-	function ScopeHookedToEvent( scope, event )
+	function __UpdateHooks()
 	{
-		return ( scope in s_List ) && ( event in s_List[scope] )
+		return __UpdateScriptHooks( s_List );
 	}
 }
 

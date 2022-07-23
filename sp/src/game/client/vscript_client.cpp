@@ -114,7 +114,7 @@ public:
 
 	void OnEntityCreated( CBaseEntity *pEntity )
 	{
-		if ( g_pScriptVM )
+		if ( g_pScriptVM && GetScriptHookManager().IsEventHooked( "OnEntityCreated" ) )
 		{
 			// entity
 			ScriptVariant_t args[] = { ScriptVariant_t( pEntity->GetScriptInstance() ) };
@@ -124,7 +124,7 @@ public:
 
 	void OnEntityDeleted( CBaseEntity *pEntity )
 	{
-		if ( g_pScriptVM )
+		if ( g_pScriptVM && GetScriptHookManager().IsEventHooked( "OnEntityDeleted" ) )
 		{
 			// entity
 			ScriptVariant_t args[] = { ScriptVariant_t( pEntity->GetScriptInstance() ) };
@@ -645,6 +645,11 @@ bool VScriptClientInit()
 #else
 				Log( "VSCRIPT: Started VScript virtual machine using script language '%s'\n", g_pScriptVM->GetLanguageName() );
 #endif
+
+#ifdef MAPBASE_VSCRIPT
+				GetScriptHookManager().OnInit();
+#endif
+
 				ScriptRegisterFunction( g_pScriptVM, GetMapName, "Get the name of the map.");
 				ScriptRegisterFunction( g_pScriptVM, Time, "Get the current server time" );
 				ScriptRegisterFunction( g_pScriptVM, DoUniqueString, SCRIPT_ALIAS( "UniqueString", "Generate a string guaranteed to be unique across the life of the script VM, with an optional root string." ) );
@@ -770,6 +775,8 @@ public:
 	{
 #ifdef MAPBASE_VSCRIPT
 		g_ScriptNetMsg->LevelShutdownPreVM();
+
+		GetScriptHookManager().OnShutdown();
 #endif
 		VScriptClientTerm();
 	}

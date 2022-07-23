@@ -2646,7 +2646,7 @@ void CBaseEntity::UpdateOnRemove( void )
 	if ( m_hScriptInstance )
 	{
 #ifdef MAPBASE_VSCRIPT
-		if (m_ScriptScope.IsInitialized())
+		if ( m_ScriptScope.IsInitialized() && g_Hook_UpdateOnRemove.CanRunInScope( m_ScriptScope ) )
 		{
 			g_Hook_UpdateOnRemove.Call( m_ScriptScope, NULL, NULL );
 		}

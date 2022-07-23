@@ -177,8 +177,13 @@ CWeaponCustomScripted::CWeaponCustomScripted()
 
 bool CWeaponCustomScripted::RunWeaponHook( ScriptHook_t &hook, HSCRIPT &cached, ScriptVariant_t *retVal, ScriptVariant_t *pArgs )
 {
-	if (!hook.CheckFuncValid(cached))
-		cached = hook.CanRunInScope(m_ScriptScope);
+	if ( !cached )
+	{
+		if ( hook.CanRunInScope( m_ScriptScope ) )
+		{
+			cached = hook.m_hFunc;
+		}
+	}
 
 	if (cached)
 	{

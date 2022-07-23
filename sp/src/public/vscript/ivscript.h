@@ -98,6 +98,9 @@
 #include <type_traits>
 #include <utility>
 
+#include "utlmap.h"
+#include "utlvector.h"
+
 #include "platform.h"
 #include "datamap.h"
 #include "appframework/IAppSystem.h"
@@ -137,6 +140,8 @@ class KeyValues;
 // This has been moved up a bit for IScriptManager
 DECLARE_POINTER_HANDLE( HSCRIPT );
 #define INVALID_HSCRIPT ((HSCRIPT)-1)
+
+typedef unsigned int HScriptRaw;
 #endif
 
 enum ScriptLanguage_t
@@ -885,9 +890,9 @@ public:
 	//--------------------------------------------------------
 	// Hooks
 	//--------------------------------------------------------
-	virtual bool ScopeIsHooked( HSCRIPT hScope, const char *pszEventName ) = 0;
-	virtual HSCRIPT LookupHookFunction( const char *pszEventName, HSCRIPT hScope, bool &bLegacy ) = 0;
-	virtual ScriptStatus_t ExecuteHookFunction( const char *pszEventName, HSCRIPT hFunction, ScriptVariant_t *pArgs, int nArgs, ScriptVariant_t *pReturn, HSCRIPT hScope, bool bWait ) = 0;
+	// Persistent unique identifier for an HSCRIPT variable
+	virtual HScriptRaw HScriptToRaw( HSCRIPT val ) = 0;
+	virtual ScriptStatus_t ExecuteHookFunction( const char *pszEventName, ScriptVariant_t *pArgs, int nArgs, ScriptVariant_t *pReturn, HSCRIPT hScope, bool bWait ) = 0;
 #endif
 
 	//--------------------------------------------------------
@@ -1587,23 +1592,297 @@ typedef CScriptScopeT<> CScriptScope;
 #define VScriptAddEnumToRoot( enumVal )					g_pScriptVM->SetValue( #enumVal, (int)enumVal )
 
 #ifdef MAPBASE_VSCRIPT
+
+//
+// Map pointer iteration
+//
+#define FOR_EACH_MAP_PTR( mapName, iteratorName ) \
+	for ( int iteratorName = (mapName)->FirstInorder(); (mapName)->IsUtlMap && iteratorName != (mapName)->InvalidIndex(); iteratorName = (mapName)->NextInorder( iteratorName ) )
+
+#define FOR_EACH_MAP_PTR_FAST( mapName, iteratorName ) \
+	for ( int iteratorName = 0; (mapName)->IsUtlMap && iteratorName < (mapName)->MaxElement(); ++iteratorName ) if ( !(mapName)->IsValidIndex( iteratorName ) ) continue; else
+
+#define FOR_EACH_VEC_PTR( vecName, iteratorName ) \
+	for ( int iteratorName = 0; iteratorName < (vecName)->Count(); iteratorName++ )
+
+//-----------------------------------------------------------------------------
+//
+// Keeps track of which events and scopes are hooked without polling this from the script VM on each request.
+// Local cache is updated each time there is a change to script hooks: on Add, on Remove, on game restore
+//
+//-----------------------------------------------------------------------------
+class CScriptHookManager
+{
+private:
+	typedef CUtlVector< char* > contextmap_t;
+	typedef CUtlMap< HScriptRaw, contextmap_t* > scopemap_t;
+	typedef CUtlMap< char*, scopemap_t* > hookmap_t;
+
+	HSCRIPT m_hfnHookFunc;
+
+	// { [string event], { [HSCRIPT scope], { [string context], [HSCRIPT callback] } } }
+	hookmap_t m_HookList;
+
+public:
+
+	CScriptHookManager() : m_HookList( DefLessFunc(char*) ), m_hfnHookFunc(NULL)
+	{
+	}
+
+	HSCRIPT GetHookFunction()
+	{
+		return m_hfnHookFunc;
+	}
+
+	// For global hooks
+	bool IsEventHooked( const char *szEvent )
+	{
+		return m_HookList.Find( const_cast< char* >( szEvent ) ) != m_HookList.InvalidIndex();
+	}
+
+	bool IsEventHookedInScope( const char *szEvent, HSCRIPT hScope )
+	{
+		extern IScriptVM *g_pScriptVM;
+
+		Assert( hScope );
+
+		int eventIdx = m_HookList.Find( const_cast< char* >( szEvent ) );
+		if ( eventIdx == m_HookList.InvalidIndex() )
+			return false;
+
+		scopemap_t *scopeMap = m_HookList.Element( eventIdx );
+		return scopeMap->Find( g_pScriptVM->HScriptToRaw( hScope ) ) != scopeMap->InvalidIndex();
+	}
+
+	static void __UpdateScriptHooks( HSCRIPT hooksList )
+	{
+		extern CScriptHookManager &GetScriptHookManager();
+		GetScriptHookManager().Update( hooksList );
+	}
+
+	//
+	// On VM init, registers script func and caches the hook func.
+	//
+	void OnInit()
+	{
+		extern IScriptVM *g_pScriptVM;
+
+		ScriptRegisterFunctionNamed( g_pScriptVM, __UpdateScriptHooks, "__UpdateScriptHooks", SCRIPT_HIDE );
+
+		ScriptVariant_t hHooks;
+		g_pScriptVM->GetValue( "Hooks", &hHooks );
+
+		Assert( hHooks.m_type == FIELD_HSCRIPT );
+
+		if ( hHooks.m_type == FIELD_HSCRIPT )
+		{
+			m_hfnHookFunc = g_pScriptVM->LookupFunction( "Call", hHooks );
+		}
+
+		Clear();
+	}
+
+	//
+	// On VM shutdown, clear the cache.
+	// Not exactly necessary, as the cache will be cleared on VM init next time.
+	//
+	void OnShutdown()
+	{
+		extern IScriptVM *g_pScriptVM;
+
+		if ( m_hfnHookFunc )
+			g_pScriptVM->ReleaseFunction( m_hfnHookFunc );
+
+		m_hfnHookFunc = NULL;
+
+		Clear();
+	}
+
+	//
+	// On VM restore, update local cache.
+	//
+	void OnRestore()
+	{
+		extern IScriptVM *g_pScriptVM;
+
+		ScriptVariant_t hHooks;
+		g_pScriptVM->GetValue( "Hooks", &hHooks );
+
+		if ( hHooks.m_type == FIELD_HSCRIPT )
+		{
+			// Existing m_hfnHookFunc is invalid
+			m_hfnHookFunc = g_pScriptVM->LookupFunction( "Call", hHooks );
+
+			HSCRIPT func = g_pScriptVM->LookupFunction( "__UpdateHooks", hHooks );
+			g_pScriptVM->Call( func );
+			g_pScriptVM->ReleaseFunction( func );
+			g_pScriptVM->ReleaseValue( hHooks );
+		}
+	}
+
+	//
+	// Clear local cache.
+	//
+	void Clear()
+	{
+		if ( m_HookList.Count() )
+		{
+			FOR_EACH_MAP_FAST( m_HookList, i )
+			{
+				scopemap_t *scopeMap = m_HookList.Element(i);
+
+				FOR_EACH_MAP_PTR_FAST( scopeMap, j )
+				{
+					contextmap_t *contextMap = scopeMap->Element(j);
+					contextMap->PurgeAndDeleteElements();
+				}
+
+				char *szEvent = m_HookList.Key(i);
+				free( szEvent );
+
+				scopeMap->PurgeAndDeleteElements();
+			}
+
+			m_HookList.PurgeAndDeleteElements();
+		}
+	}
+
+	//
+	// Called from script, update local cache.
+	//
+	void Update( HSCRIPT hooksList )
+	{
+		extern IScriptVM *g_pScriptVM;
+
+		// Rebuild from scratch
+		Clear();
+		{
+			ScriptVariant_t varEvent, varScopeMap;
+			int it = -1;
+			while ( ( it = g_pScriptVM->GetKeyValue( hooksList, it, &varEvent, &varScopeMap ) ) != -1 )
+			{
+				// types are checked in script
+				Assert( varEvent.m_type == FIELD_CSTRING );
+				Assert( varScopeMap.m_type == FIELD_HSCRIPT );
+
+				scopemap_t *scopeMap;
+
+				int eventIdx = m_HookList.Find( const_cast< char* >( varEvent.m_pszString ) );
+				if ( eventIdx != m_HookList.InvalidIndex() )
+				{
+					scopeMap = m_HookList.Element( eventIdx );
+				}
+				else
+				{
+					scopeMap = new scopemap_t( DefLessFunc(HScriptRaw) );
+					m_HookList.Insert( strdup( varEvent.m_pszString ), scopeMap );
+				}
+
+				ScriptVariant_t varScope, varContextMap;
+				int it2 = -1;
+				while ( ( it2 = g_pScriptVM->GetKeyValue( varScopeMap, it2, &varScope, &varContextMap ) ) != -1 )
+				{
+					Assert( varScope.m_type == FIELD_HSCRIPT );
+					Assert( varContextMap.m_type == FIELD_HSCRIPT);
+
+					contextmap_t *contextMap;
+
+					int scopeIdx = scopeMap->Find( g_pScriptVM->HScriptToRaw( varScope.m_hScript ) );
+					if ( scopeIdx != scopeMap->InvalidIndex() )
+					{
+						contextMap = scopeMap->Element( scopeIdx );
+					}
+					else
+					{
+						contextMap = new contextmap_t();
+						scopeMap->Insert( g_pScriptVM->HScriptToRaw( varScope.m_hScript ), contextMap );
+					}
+
+					ScriptVariant_t varContext, varCallback;
+					int it3 = -1;
+					while ( ( it3 = g_pScriptVM->GetKeyValue( varContextMap, it3, &varContext, &varCallback ) ) != -1 )
+					{
+						Assert( varContext.m_type == FIELD_CSTRING );
+						Assert( varCallback.m_type == FIELD_HSCRIPT );
+
+						bool skip = false;
+
+						FOR_EACH_VEC_PTR( contextMap, k )
+						{
+							char *szContext = contextMap->Element(k);
+							if ( V_strcmp( szContext, varContext.m_pszString ) == 0 )
+							{
+								skip = true;
+								break;
+							}
+						}
+
+						if ( !skip )
+							contextMap->AddToTail( strdup( varContext.m_pszString ) );
+
+						g_pScriptVM->ReleaseValue( varContext );
+						g_pScriptVM->ReleaseValue( varCallback );
+					}
+
+					g_pScriptVM->ReleaseValue( varScope );
+					g_pScriptVM->ReleaseValue( varContextMap );
+				}
+
+				g_pScriptVM->ReleaseValue( varEvent );
+				g_pScriptVM->ReleaseValue( varScopeMap );
+			}
+		}
+	}
+#ifdef _DEBUG
+	void Dump()
+	{
+		extern IScriptVM *g_pScriptVM;
+
+		FOR_EACH_MAP( m_HookList, i )
+		{
+			scopemap_t *scopeMap = m_HookList.Element(i);
+			char *szEvent = m_HookList.Key(i);
+
+			Msg( "%s [%x]\n", szEvent, (void*)scopeMap );
+			Msg( "{\n" );
+
+			FOR_EACH_MAP_PTR( scopeMap, j )
+			{
+				HScriptRaw hScope = scopeMap->Key(j);
+				contextmap_t *contextMap = scopeMap->Element(j);
+
+				Msg( "\t(0x%X) [%x]\n", hScope, (void*)contextMap );
+				Msg( "\t{\n" );
+
+				FOR_EACH_VEC_PTR( contextMap, k )
+				{
+					char *szContext = contextMap->Element(k);
+
+					Msg( "\t\t%-.50s\n", szContext );
+				}
+
+				Msg( "\t}\n" );
+			}
+
+			Msg( "}\n" );
+		}
+	}
+#endif
+};
+
+inline CScriptHookManager &GetScriptHookManager()
+{
+	static CScriptHookManager g_ScriptHookManager;
+	return g_ScriptHookManager;
+}
+
+
 //-----------------------------------------------------------------------------
 // Function bindings allow script functions to run C++ functions.
 // Hooks allow C++ functions to run script functions.
 // 
 // This was previously done with raw function lookups, but Mapbase adds more and
 // it's hard to keep track of them without proper standards or documentation.
-// 
-// At the moment, this simply plugs hook documentation into VScript and maintains
-// the same function lookup method on the inside, but it's intended to be open for
-// more complex hook mechanisms with proper parameters in the future.
-// 
-// For example:
-// 
-//	if (m_hFunc)
-//	{
-//		g_pScriptVM->ExecuteFunction( m_Func, pArgs, m_desc.m_Parameters.Count(), pReturn, m_ScriptScope, true );
-//	}
 //-----------------------------------------------------------------------------
 struct ScriptHook_t
 {
@@ -1620,51 +1899,65 @@ struct ScriptHook_t
 
 	// -----------------------------------------------------------------
 
-	// Cached for when CanRunInScope() is called before Call()
+	// Only valid between CanRunInScope() and Call()
 	HSCRIPT m_hFunc;
-	bool m_bLegacy;
 
-	// Checks if there's a function of this name which would run in this scope
-	HSCRIPT CanRunInScope( HSCRIPT hScope )
+	ScriptHook_t() :
+		m_hFunc(NULL)
 	{
-		extern IScriptVM *g_pScriptVM;
-		m_hFunc = g_pScriptVM->LookupHookFunction( m_desc.m_pszScriptName, hScope, m_bLegacy );
-		return m_hFunc;
 	}
 
-	// Checks if an existing func can be used
-	bool CheckFuncValid( HSCRIPT hFunc )
+#ifdef _DEBUG
+	//
+	// An uninitialised script scope will pass as null scope which is considered a valid hook scope (global hook)
+	// This should catch CanRunInScope() calls without CScriptScope::IsInitalised() checks first.
+	//
+	bool CanRunInScope( CScriptScope &hScope )
 	{
-		// TODO: Better crtieria for this?
-		if (hFunc)
+		Assert( hScope.IsInitialized() );
+		return hScope.IsInitialized() && CanRunInScope( (HSCRIPT)hScope );
+	}
+#endif
+
+	// Checks if there's a function of this name which would run in this scope
+	bool CanRunInScope( HSCRIPT hScope )
+	{
+		// For now, assume null scope (which is used for global hooks) is always hooked
+		if ( !hScope || GetScriptHookManager().IsEventHookedInScope( m_desc.m_pszScriptName, hScope ) )
 		{
-			m_hFunc = hFunc;
+			m_hFunc = NULL;
 			return true;
 		}
-		return false;
+
+		extern IScriptVM *g_pScriptVM;
+
+		// Legacy support if the new system is not being used
+		m_hFunc = g_pScriptVM->LookupFunction( m_desc.m_pszScriptName, hScope );
+
+		return !!m_hFunc;
 	}
 
 	// Call the function
+	// NOTE: `bRelease` only exists for weapon_custom_scripted legacy script func caching
 	bool Call( HSCRIPT hScope, ScriptVariant_t *pReturn, ScriptVariant_t *pArgs, bool bRelease = true )
 	{
 		extern IScriptVM *g_pScriptVM;
 
-		// Make sure we have a function in this scope
-		if (!m_hFunc && !CanRunInScope(hScope))
-			return false;
+		// Call() should not be called without CanRunInScope() check first, it caches m_hFunc for legacy support
+		Assert( CanRunInScope( hScope ) );
+
 		// Legacy
-		else if (m_bLegacy)
+		if ( m_hFunc )
 		{
 			for (int i = 0; i < m_desc.m_Parameters.Count(); i++)
 			{
 				g_pScriptVM->SetValue( m_pszParameterNames[i], pArgs[i] );
 			}
 
-			g_pScriptVM->ExecuteFunction( m_hFunc, NULL, 0, pReturn, hScope, true );
+			ScriptStatus_t status = g_pScriptVM->ExecuteFunction( m_hFunc, NULL, 0, pReturn, hScope, true );
 
-			if (bRelease)
+			if ( bRelease )
 				g_pScriptVM->ReleaseFunction( m_hFunc );
-
 			m_hFunc = NULL;
 
 			for (int i = 0; i < m_desc.m_Parameters.Count(); i++)
@@ -1672,19 +1965,14 @@ struct ScriptHook_t
 				g_pScriptVM->ClearValue( m_pszParameterNames[i] );
 			}
 
-			return true;
+			return status == SCRIPT_DONE;
 		}
 		// New Hook System
 		else
 		{
-			g_pScriptVM->ExecuteHookFunction( m_desc.m_pszScriptName, m_hFunc, pArgs, m_desc.m_Parameters.Count(), pReturn, hScope, true );
-			if (bRelease)
-				g_pScriptVM->ReleaseFunction( m_hFunc );
-			m_hFunc = NULL;
-			return true;
+			ScriptStatus_t status = g_pScriptVM->ExecuteHookFunction( m_desc.m_pszScriptName, pArgs, m_desc.m_Parameters.Count(), pReturn, hScope, true );
+			return status == SCRIPT_DONE;
 		}
-
-		return false;
 	}
 };
 #endif
