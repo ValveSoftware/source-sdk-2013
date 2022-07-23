@@ -491,7 +491,7 @@ public:
 
 	static ScriptHook_t	g_Hook_OnClientRagdoll;
 	static ScriptHook_t	g_Hook_FireEvent;
-	static ScriptHook_t	g_Hook_BuildTransformations;
+	//static ScriptHook_t	g_Hook_BuildTransformations; // UNDONE: Thread access issues
 
 	float							ScriptGetPoseParameter(const char* szName);
 #endif

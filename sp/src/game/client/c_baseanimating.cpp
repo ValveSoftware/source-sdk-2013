@@ -297,7 +297,7 @@ END_SCRIPTDESC();
 
 ScriptHook_t	C_BaseAnimating::g_Hook_OnClientRagdoll;
 ScriptHook_t	C_BaseAnimating::g_Hook_FireEvent;
-ScriptHook_t	C_BaseAnimating::g_Hook_BuildTransformations;
+//ScriptHook_t	C_BaseAnimating::g_Hook_BuildTransformations;
 #endif
 
 BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-side" )
@@ -367,8 +367,8 @@ BEGIN_ENT_SCRIPTDESC( C_BaseAnimating, C_BaseEntity, "Animating models client-si
 		DEFINE_SCRIPTHOOK_PARAM( "options", FIELD_CSTRING )
 	END_SCRIPTHOOK()
 
-	BEGIN_SCRIPTHOOK( C_BaseAnimating::g_Hook_BuildTransformations, "BuildTransformations", FIELD_VOID, "Called when building bone transformations. Allows VScript to read/write any bone with Get/SetBoneTransform." )
-	END_SCRIPTHOOK()
+	//BEGIN_SCRIPTHOOK( C_BaseAnimating::g_Hook_BuildTransformations, "BuildTransformations", FIELD_VOID, "Called when building bone transformations. Allows VScript to read/write any bone with Get/SetBoneTransform." )
+	//END_SCRIPTHOOK()
 #endif
 END_SCRIPTDESC();
 
@@ -1779,21 +1779,21 @@ void C_BaseAnimating::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quater
 	}
 	
 #ifdef MAPBASE_VSCRIPT
-	if (m_ScriptScope.IsInitialized() && g_Hook_BuildTransformations.CanRunInScope(m_ScriptScope))
-	{
-		int oldWritableBones = m_BoneAccessor.GetWritableBones();
-		int oldReadableBones = m_BoneAccessor.GetReadableBones();
-		m_BoneAccessor.SetWritableBones( BONE_USED_BY_ANYTHING );
-		m_BoneAccessor.SetReadableBones( BONE_USED_BY_ANYTHING );
-
-		// No parameters
-		//ScriptVariant_t args[] = {};
-		//ScriptVariant_t returnValue;
-		g_Hook_BuildTransformations.Call( m_ScriptScope, NULL, NULL /*&returnValue, args*/ );
-
-		m_BoneAccessor.SetWritableBones( oldWritableBones );
-		m_BoneAccessor.SetReadableBones( oldReadableBones );
-	}
+	//if (m_ScriptScope.IsInitialized() && g_Hook_BuildTransformations.CanRunInScope(m_ScriptScope))
+	//{
+	//	int oldWritableBones = m_BoneAccessor.GetWritableBones();
+	//	int oldReadableBones = m_BoneAccessor.GetReadableBones();
+	//	m_BoneAccessor.SetWritableBones( BONE_USED_BY_ANYTHING );
+	//	m_BoneAccessor.SetReadableBones( BONE_USED_BY_ANYTHING );
+	//
+	//	// No parameters
+	//	//ScriptVariant_t args[] = {};
+	//	//ScriptVariant_t returnValue;
+	//	g_Hook_BuildTransformations.Call( m_ScriptScope, NULL, NULL /*&returnValue, args*/ );
+	//
+	//	m_BoneAccessor.SetWritableBones( oldWritableBones );
+	//	m_BoneAccessor.SetReadableBones( oldReadableBones );
+	//}
 #endif
 }
 
