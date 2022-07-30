@@ -2854,7 +2854,7 @@ void CInteractableProp::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	}
 
 	if (m_flCooldown == -1 && !m_bLocked){
-		m_flCooldownTime = 1e+30; // yeah we're not going to hit this any time soon
+		m_flCooldownTime = FLT_MAX; // yeah we're not going to hit this any time soon
 	}
 	else if (m_flCooldown == -1){
 		m_flCooldownTime = gpGlobals->curtime + 1.0f; // 1s cooldown if locked

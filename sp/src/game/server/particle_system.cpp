@@ -265,15 +265,10 @@ void CParticleSystem::ReadControlPointEnts(void)
 	{
 		if (UsesCoordinates()) {
 			float vecCoords[3];
-			if (UsesCoordinates()) {
-				float vecCoords[3];
-				// cast str to vector, add vector to array
-				const char* pszVector = STRING(m_iszControlPointNames[i]);
-				UTIL_StringToVector(vecCoords, pszVector);
-				m_vControlPointVecs.Set(i, Vector(vecCoords[0], vecCoords[1], vecCoords[2]));
-
-			}
-
+			// cast str to vector, add vector to array
+			const char* pszVector = STRING(m_iszControlPointNames[i]);
+			UTIL_StringToVector(vecCoords, pszVector);
+			m_vControlPointVecs.Set(i, Vector(vecCoords[0], vecCoords[1], vecCoords[2]));
 		}
 		else{
 			if (m_iszControlPointNames[i] == NULL_STRING)
