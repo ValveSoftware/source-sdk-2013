@@ -1405,9 +1405,16 @@ acttable_t	CWeaponRPG::m_acttable[] =
 	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_RPG,	false },
 #endif
 
+#ifdef MAPBASE
+	// Readiness activities should not be required
+	{ ACT_IDLE_RELAXED,				ACT_IDLE_RPG_RELAXED,			false },
+	{ ACT_IDLE_STIMULATED,			ACT_IDLE_ANGRY_RPG,				false },
+	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_RPG,				false },
+#else
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_RPG_RELAXED,			true },
 	{ ACT_IDLE_STIMULATED,			ACT_IDLE_ANGRY_RPG,				true },
 	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_RPG,				true },
+#endif
 
 	{ ACT_IDLE,						ACT_IDLE_RPG,					true },
 	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_RPG,				true },
