@@ -248,7 +248,7 @@ public:
 
 #ifdef MAPBASE
 			// Special commentary localization file (useful for things like text nodes or print names)
-			g_pVGuiLocalize->AddFile( "resource/commentary_%language%.txt" );
+			g_pVGuiLocalize->AddFile( "resource/commentary_%language%.txt", "MOD", true );
 #endif
 		}
 
