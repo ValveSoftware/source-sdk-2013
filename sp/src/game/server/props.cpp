@@ -4478,6 +4478,13 @@ void CBasePropDoor::CalcDoorSounds()
 #endif
 			}
 
+#ifdef MAPBASE
+			// This would still be -1 if the hardware wasn't valid
+			if (m_flNPCOpenDistance == -1)
+				m_flNPCOpenDistance = ai_door_enable_acts.GetBool() ? 32.0 : 64.0;
+#endif
+
+
 			// If any sounds were missing, try the "defaults" block.
 			if ( ( strSoundOpen == NULL_STRING ) || ( strSoundClose == NULL_STRING ) || ( strSoundMoving == NULL_STRING ) ||
 				 ( strSoundLocked == NULL_STRING ) || ( strSoundUnlocked == NULL_STRING ) )
