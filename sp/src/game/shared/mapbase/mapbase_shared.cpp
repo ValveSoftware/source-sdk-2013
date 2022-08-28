@@ -473,7 +473,7 @@ public:
 
 	void LoadFromValue( const char *value, int type, bool bDontWarn )
 	{
-		if (!filesystem->FileExists(value, "MOD"))
+		if (type != MANIFEST_VSCRIPT && !filesystem->FileExists(value, "MOD"))
 		{
 			if (!bDontWarn)
 			{
