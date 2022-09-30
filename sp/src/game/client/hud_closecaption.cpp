@@ -2614,8 +2614,14 @@ void CHudCloseCaption::InitCaptionDictionary( const char *dbfile )
 
 	g_AsyncCaptionResourceManager.Clear();
 
+#ifdef MAPBASE
+	int iBufferSize = filesystem->GetSearchPath("GAME", true, nullptr, 0);
+	char* searchPaths = (char*)stackalloc(iBufferSize);
+	filesystem->GetSearchPath("GAME", true, searchPaths, iBufferSize);
+#else
 	char searchPaths[4096];
 	filesystem->GetSearchPath( "GAME", true, searchPaths, sizeof( searchPaths ) );
+#endif
 
 	for ( char *path = strtok( searchPaths, ";" ); path; path = strtok( NULL, ";" ) )
 	{
