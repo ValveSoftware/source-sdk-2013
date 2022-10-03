@@ -134,6 +134,12 @@ void CBaseFilter::InputTestActivator( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CBaseFilter::InputTestEntity( inputdata_t &inputdata )
 {
+	if ( !inputdata.value.Entity() )
+	{
+		// HACKHACK: Not firing OnFail in this case is intentional for the time being (activator shouldn't be null)
+		return;
+	}
+
 	if ( PassesFilter( inputdata.pCaller, inputdata.value.Entity() ) )
 	{
 		m_OnPass.FireOutput( inputdata.value.Entity(), m_bPassCallerWhenTested ? inputdata.pCaller : this );
