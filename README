@@ -101,8 +101,8 @@ interchangeable arms; this may change in the future)
 
 Direct contributions:
 
+- https://github.com/mapbase-source/source-sdk-2013/pull/3 ("playvideo" command playback fix from Avanate)
 - https://github.com/mapbase-source/source-sdk-2013/pull/5 (Custom VScript implementation by ReDucTor; was placed into feature branch before being merged in a subsequent PR)
-- https://github.com/mapbase-source/source-sdk-2013/pull/3 ("playvideo" command playback fix from Avantate)
 - https://github.com/mapbase-source/source-sdk-2013/pull/60 (Adjustment by RoyaleNoir to one of Saul's VDC changes)
 - https://github.com/mapbase-source/source-sdk-2013/pull/84 (CS:S viewmodel chirality from 1upD)
 - https://github.com/mapbase-source/source-sdk-2013/pull/116 (vgui_movie_display mute keyvalue from Alivebyte/rzkid)
@@ -179,6 +179,10 @@ https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Credits
 Other relevant articles:
 * https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Disclaimers
 * https://github.com/mapbase-source/source-sdk-2013/wiki/Frequently-Asked-Questions-(FAQ)
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+
+In memory of Holly Liberatore (moofemp)
 
 //===================================================================================================================================================
 
