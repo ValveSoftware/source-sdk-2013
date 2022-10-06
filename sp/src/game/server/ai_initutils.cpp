@@ -173,6 +173,10 @@ BEGIN_SIMPLE_DATADESC( HintNodeData )
 	DEFINE_KEYFIELD( fIgnoreFacing,		FIELD_INTEGER,	"IgnoreFacing" ),
 	DEFINE_KEYFIELD( minState,			FIELD_INTEGER,	"MinimumState" ),
 	DEFINE_KEYFIELD( maxState,			FIELD_INTEGER,	"MaximumState" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( nRadius,			FIELD_INTEGER,  "radius" ),		// From Alien Swarm SDK
+	DEFINE_KEYFIELD( flWeight,			FIELD_FLOAT,	"hintweight" ),
+#endif
 
 END_DATADESC()
 
@@ -205,6 +209,17 @@ int CNodeEnt::Spawn( const char *pMapData )
 		m_NodeData.minState = NPC_STATE_IDLE;
 	if ( m_NodeData.maxState == NPC_STATE_NONE )
 		m_NodeData.maxState = NPC_STATE_COMBAT;
+#ifdef MAPBASE
+	if (m_NodeData.flWeight == 0.0f)
+	{
+		m_NodeData.flWeight = 1.0f;
+	}
+	else if (m_NodeData.flWeight != 1.0f)
+	{
+		// Invert the weight so that it could be used as a direct multiplier for distances, etc.
+		m_NodeData.flWeightInverse = 1.0f / m_NodeData.flWeight;
+	}
+#endif
 	// ---------------------------------------------------------------------------------
 	//  If just a hint node (not used for navigation) just create a hint and bail
 	// ---------------------------------------------------------------------------------
@@ -227,7 +242,11 @@ int CNodeEnt::Spawn( const char *pMapData )
 	// ---------------------------------------------------------------------------------
 	CAI_Hint *pHint = NULL;
 
-	if ( ClassMatches( "info_node_hint" ) || ClassMatches( "info_node_air_hint" ) )
+	if ( ClassMatches( "info_node_hint" ) || ClassMatches( "info_node_air_hint" )
+#ifdef MAPBASE
+		|| ClassMatches( "info_node_climb" ) // Climb nodes contain hint data in the FGD
+#endif
+		 )
 	{
 		if ( m_NodeData.nHintType || m_NodeData.strGroup != NULL_STRING || m_NodeData.strEntityName != NULL_STRING )
 		{

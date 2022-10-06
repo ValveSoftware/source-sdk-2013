@@ -44,10 +44,11 @@ void RegisterUserMessages( void )
 #ifdef MAPBASE
 	// This sends the credits file now
 	usermessages->Register( "CreditsMsg", -1 );
+	usermessages->Register( "LogoTimeMsg", -1 );
 #else
 	usermessages->Register( "CreditsMsg", 1 );
-#endif
 	usermessages->Register( "LogoTimeMsg", 4 );
+#endif
 	usermessages->Register( "AchievementEvent", -1 );
 	usermessages->Register( "UpdateJalopyRadar", -1 );
 

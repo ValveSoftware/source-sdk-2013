@@ -39,6 +39,7 @@ $Project "tier1"
 		$File	"generichash.cpp"
 		$File	"ilocalize.cpp"
 		$File	"interface.cpp"
+		$File	"interval.cpp"
 		$File	"KeyValues.cpp"
 		$File	"kvpacker.cpp"
 		$File	"lzmaDecoder.cpp"
@@ -77,6 +78,7 @@ $Project "tier1"
 		$File	"snappy-sinksource.cpp"
 		$File	"snappy-stubs-internal.cpp"
 		$File	"mapbase_con_groups.cpp" [$MAPBASE]
+		$File	"mapbase_matchers_base.cpp" [$MAPBASE]
 	}
 
 	$Folder	"Header Files"
@@ -149,6 +151,7 @@ $Project "tier1"
 		$File	"$SRCDIR\public\tier1\utlsymbollarge.h"
 		$File	"$SRCDIR\public\tier1\utlvector.h"
 		$File	"$SRCDIR\public\tier1\mapbase_con_groups.h"	[$MAPBASE]
+		$File	"$SRCDIR\public\tier1\mapbase_matchers_base.h"	[$MAPBASE]
 		$File	"$SRCDIR\common\xbox\xboxstubs.h"				[$WINDOWS]
 	}
 }

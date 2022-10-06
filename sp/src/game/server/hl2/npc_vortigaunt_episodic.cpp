@@ -582,8 +582,11 @@ bool CNPC_Vortigaunt::InnateWeaponLOSCondition( const Vector &ownerPos, const Ve
 	UTIL_PredictedPosition( GetEnemy(), flTimeDelta, &vecNewTargetPos );
 
 #ifdef MAPBASE
-	// This fix was created by DKY.
-	// His original comment is below.
+	// There's apparently a null pointer crash here
+	if (!GetEnemy())
+		return false;
+
+	// The fix below and its accompanying comment were created by DKY.
 
 	/*
 
@@ -1067,9 +1070,17 @@ Activity CNPC_Vortigaunt::NPC_TranslateActivity( Activity eNewActivity )
 		if ( GetReadinessLevel() >= AIRL_STIMULATED )
 			return ACT_IDLE_STIMULATED;
 	}
-
+	
 	if ( eNewActivity == ACT_RANGE_ATTACK2 )
+	{
+#ifdef MAPBASE
+		// If we're capable of using grenades, use ACT_COMBINE_THROW_GRENADE
+		if (IsGrenadeCapable())
+			return ACT_COMBINE_THROW_GRENADE;
+		else
+#endif
 		return (Activity) ACT_VORTIGAUNT_DISPEL;
+	}
 
 	return BaseClass::NPC_TranslateActivity( eNewActivity );
 }
@@ -2715,6 +2726,15 @@ void CNPC_Vortigaunt::OnSquishedGrub( const CBaseEntity *pGrub )
 //-----------------------------------------------------------------------------
 void CNPC_Vortigaunt::AimGun( void )
 {
+#ifdef MAPBASE
+	// Use base for func_tank
+	if (m_FuncTankBehavior.IsRunning())
+	{
+		BaseClass::AimGun();
+		return;
+	}
+#endif
+
 	// If our aim lock is on, don't bother
 	if ( m_flAimDelay >= gpGlobals->curtime )
 		return;

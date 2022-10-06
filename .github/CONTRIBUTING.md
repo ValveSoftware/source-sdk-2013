@@ -23,7 +23,12 @@ All contributions must follow the following rules:
    is usually not fit for Mapbase.
    
  * All content in a contribution must be either already legally open-source or done with the
-   full permission of the content's original creator(s).
+   full permission of the content's original creator(s). If licensing is involved, the contribution
+   must ensure Mapbase follows said licensing.
+    * **NOTE:** Due to concerns with mods which do not wish to be open-source, content using GPL licenses (or any
+	  license with similar open-source requirements) are currently not allowed to be distributed with Mapbase.
+	  Contributions which can draw from them without actually distributing the licensed content may theoretically
+	  be excepted from this rule.
    
  * Contributions must not break existing maps/content or interfere with them in a negative or non-objective way.
    
@@ -33,6 +38,15 @@ All contributions must follow the following rules:
  * If you are contributing a file you created yourself specifically for Mapbase, you are required to
    use the custom "Mapbase - Source 2013" header used in other Mapbase files as of Mapbase v5.0.
    You are encouraged to append an "Author(s)" part to that header in your file in order to clarify who wrote it.
+   
+ * Do not modify the README to add attribution for your contribution. That is handled by Mapbase's maintainers.
+   
+Contributions which do not follow these guidelines cannot be accepted into Mapbase.
+
+Attempting to contribute content which seriously violates the rules above can lead to being blocked from contributing,
+especially if done repeatedly.
+
+---
    
 If your contribution is accepted, you may be listed in Mapbase's credits and the README's external content list:
 	https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Credits#Contributors

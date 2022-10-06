@@ -58,6 +58,10 @@ char *pszMineStateNames[] =
 // Approximate radius of the bomb's model
 #define BOUNCEBOMB_RADIUS		24
 
+#ifdef MAPBASE
+ConVar combine_mine_trace_dist( "combine_mine_trace_dist", "1024" );
+#endif
+
 BEGIN_DATADESC( CBounceBomb )
 	DEFINE_THINKFUNC( ExplodeThink ),
 	DEFINE_ENTITYFUNC( ExplodeTouch ),
@@ -92,6 +96,7 @@ BEGIN_DATADESC( CBounceBomb )
 	DEFINE_KEYFIELD( m_bCheapWarnSound, FIELD_BOOLEAN, "CheapWarnSound" ),
 	DEFINE_KEYFIELD( m_iLOSMask, FIELD_INTEGER, "LOSMask" ),
 	DEFINE_INPUT( m_bUnavoidable, FIELD_BOOLEAN, "SetUnavoidable" ),
+	DEFINE_KEYFIELD( m_vecPlantOrientation, FIELD_VECTOR, "PlantOrientation" ),
 #endif
 	DEFINE_KEYFIELD( m_iModification, FIELD_INTEGER, "Modification" ),
 
@@ -129,6 +134,8 @@ BEGIN_DATADESC( CBounceBomb )
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_VOID, "Bounce", InputBounce ),
 	DEFINE_INPUTFUNC( FIELD_EHANDLE, "BounceAtTarget", InputBounceAtTarget ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetPlantOrientation", InputSetPlantOrientation ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetPlantOrientationRaw", InputSetPlantOrientationRaw ),
 
 	DEFINE_OUTPUT( m_OnTriggered, "OnTriggered" ),
 	DEFINE_OUTPUT( m_OnExplode, "OnExplode" ),
@@ -266,6 +273,14 @@ void CBounceBomb::Spawn()
 		// pretend like the player set me down.
 		m_bPlacedByPlayer = true;
 	}
+
+#ifdef MAPBASE
+	if (m_vecPlantOrientation != vec3_invalid)
+	{
+		// Turn angles into direction
+		AngleVectors( QAngle( m_vecPlantOrientation.x, m_vecPlantOrientation.y, m_vecPlantOrientation.z ), &m_vecPlantOrientation );
+	}
+#endif
 }
 
 //---------------------------------------------------------
@@ -694,7 +709,20 @@ void CBounceBomb::SettleThink()
 		{
 			// If i'm not resting on the world, jump randomly.
 			trace_t tr;
-			UTIL_TraceLine( GetAbsOrigin(), GetAbsOrigin() - Vector( 0, 0, 1024 ), MASK_SHOT|CONTENTS_GRATE, this, COLLISION_GROUP_NONE, &tr );
+#ifdef MAPBASE
+			Vector vecTraceDir;
+			if (m_vecPlantOrientation != vec3_invalid)
+			{
+				vecTraceDir = m_vecPlantOrientation * combine_mine_trace_dist.GetFloat();
+			}
+			else
+			{
+				vecTraceDir = Vector( 0, 0, combine_mine_trace_dist.GetFloat() );
+			}
+#else
+			Vector vecTraceDir = Vector( 0, 0, 1024 );
+#endif
+			UTIL_TraceLine( GetAbsOrigin(), GetAbsOrigin() - vecTraceDir, MASK_SHOT|CONTENTS_GRATE, this, COLLISION_GROUP_NONE, &tr );
 
 			bool bHop = false;
 			if( tr.m_pEnt )
@@ -728,6 +756,20 @@ void CBounceBomb::SettleThink()
 				// Check for upside-down
 				Vector vecUp;
 				GetVectors( NULL, NULL, &vecUp );
+#ifdef MAPBASE
+				if (m_vecPlantOrientation != vec3_invalid)
+				{
+					float flDiff = abs(m_vecPlantOrientation.z - vecUp.z);
+					if ( flDiff >= 0.2f )
+					{
+						// Landed upside down. Right self
+						Vector vecForce( 0, 0, 2500 );
+						Flip( vecForce, AngularImpulse( 60, 0, 0 ) );
+						return;
+					}
+				}
+				else
+#endif
 				if( vecUp.z <= 0.8 )
 				{
 					// Landed upside down. Right self
@@ -1441,6 +1483,22 @@ void CBounceBomb::InputBounceAtTarget( inputdata_t &inputdata )
 {
 	m_hNearestNPC = inputdata.value.Entity();
 	SetMineState(MINE_STATE_TRIGGERED);
+}
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+void CBounceBomb::InputSetPlantOrientation( inputdata_t &inputdata )
+{
+	Vector vecInput;
+	inputdata.value.Vector3D( vecInput );
+	AngleVectors( QAngle(vecInput.x, vecInput.y, vecInput.z), &m_vecPlantOrientation );
+}
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+void CBounceBomb::InputSetPlantOrientationRaw( inputdata_t &inputdata )
+{
+	inputdata.value.Vector3D( m_vecPlantOrientation );
 }
 #endif
 

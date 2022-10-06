@@ -43,6 +43,9 @@ extern ScriptClassDesc_t * GetScriptDesc( CBaseEntity * );
 extern int vscript_token;
 int vscript_token_hack = vscript_token;
 
+// HACKHACK: VScript library relies on developer convar existing
+ConVar developer( "developer", "1", 0, "Set developer message level." ); // developer mode
+
 HSCRIPT VScriptCompileScript( const char *pszScriptName, bool bWarnMissing )
 {
 	if ( !g_pScriptVM )
@@ -166,6 +169,8 @@ bool VScriptRunScript( const char *pszScriptName, HSCRIPT hScope, bool bWarnMiss
 	return bSuccess;
 }
 
+ScriptHook_t	CMapFile::g_Hook_OnMapLoaded;
+
 BEGIN_SCRIPTDESC_ROOT( CMapFile, "Map file" )
 
 	DEFINE_SCRIPTFUNC( GetMins, "Get the map's mins." )
@@ -181,6 +186,11 @@ BEGIN_SCRIPTDESC_ROOT( CMapFile, "Map file" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptAddInstance, "AddInstance", "Add an instance to the map." )
 
 	DEFINE_SCRIPTFUNC( GetNumEntities, "Get the number of entities in the map." )
+
+	// 
+	// Hooks
+	// 
+	DEFINE_SIMPLE_SCRIPTHOOK( CMapFile::g_Hook_OnMapLoaded, "OnMapLoaded", FIELD_VOID, "Called when the NPC is deciding whether to hear a CSound or not." )
 
 END_SCRIPTDESC();
 

@@ -13,7 +13,9 @@
 // List of the last 5 lines of speech from NPCs for bug reports
 #define SPEECH_LIST_MAX_SOUNDS	5
 
+#ifndef NEW_RESPONSE_SYSTEM
 class AI_Response;
+#endif
 
 struct recentNPCSpeech_t
 {
@@ -41,9 +43,11 @@ bool IsRunningScriptedSceneWithSpeech( CBaseFlex *pActor, bool bIgnoreInstancedS
 bool IsRunningScriptedSceneWithSpeechAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes = false );
 #ifdef MAPBASE
 bool IsRunningScriptedSceneWithFlexAndNotPaused( CBaseFlex *pActor, bool bIgnoreInstancedScenes = false, const char *pszNotThisScene = NULL );
+bool IsTalkingInAScriptedScene( CBaseFlex *pActor, bool bIgnoreInstancedScenes = false );
 CUtlVector< CHandle< CSceneEntity > > *GetActiveSceneList();
 #endif
 float GetSceneDuration( char const *pszScene );
+float GetSceneSpeechDuration( char const* pszScene );
 int GetSceneSpeechCount( char const *pszScene );
 bool IsInInterruptableScenes( CBaseFlex *pActor );
 

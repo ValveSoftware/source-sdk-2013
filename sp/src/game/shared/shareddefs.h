@@ -366,6 +366,14 @@ enum PLAYER_ANIM
 	PLAYER_RELOAD,
 	PLAYER_START_AIMING,
 	PLAYER_LEAVE_AIMING,
+
+#ifdef MAPBASE
+	// New player animations from Mapbase
+	PLAYER_ATTACK2,
+	PLAYER_ATTACK3,
+	PLAYER_UNHOLSTER,
+	PLAYER_HOLSTER,
+#endif
 };
 
 #ifdef HL2_DLL
@@ -676,6 +684,9 @@ enum FireBulletsFlags_t
 	FIRE_BULLETS_DONT_HIT_UNDERWATER = 0x2,		// If the shot hits its target underwater, don't damage it
 	FIRE_BULLETS_ALLOW_WATER_SURFACE_IMPACTS = 0x4,	// If the shot hits water surface, still call DoImpactEffect
 	FIRE_BULLETS_TEMPORARY_DANGER_SOUND = 0x8,		// Danger sounds added from this impact can be stomped immediately if another is queued
+#ifdef MAPBASE
+	FIRE_BULLETS_NO_AUTO_GIB_TYPE = 0x10,		// Don't automatically add DMG_ALWAYSGIB or DMG_NEVERGIB if m_flDamage is set
+#endif
 };
 
 
@@ -1047,5 +1058,17 @@ enum
 	MAX_VISION_MODES
 };
 #endif // TF_DLL || TF_CLIENT_DLL
+
+#ifdef MAPBASE
+// Developer commentary types
+enum
+{
+	COMMENTARY_TYPE_AUDIO,		// Play commentary audio (default)
+
+	COMMENTARY_TYPE_TEXT,		// Display text data
+	COMMENTARY_TYPE_IMAGE,		// Display an image
+	COMMENTARY_TYPE_SCENE,		// Play a VCD file
+};
+#endif
 
 #endif // SHAREDDEFS_H

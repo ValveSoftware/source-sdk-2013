@@ -420,6 +420,24 @@ bool CAI_BehaviorBase::CanUnholsterWeapon( void )
 
 	return m_pBackBridge->BackBridge_CanUnholsterWeapon();
 }
+
+//-------------------------------------
+
+bool CAI_BehaviorBase::ShouldPickADeathPose( void )
+{
+	Assert( m_pBackBridge != NULL );
+
+	return m_pBackBridge->BackBridge_ShouldPickADeathPose();
+}
+
+//-------------------------------------
+
+bool CAI_BehaviorBase::CanTranslateCrouchActivity( void )
+{
+	Assert( m_pBackBridge != NULL );
+
+	return m_pBackBridge->BackBridge_CanTranslateCrouchActivity();
+}
 #endif
 
 //-------------------------------------

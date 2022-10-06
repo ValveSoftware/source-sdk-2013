@@ -40,7 +40,10 @@ ConVar r_RainSplashPercentage( "r_RainSplashPercentage", "20", FCVAR_CHEAT ); //
 ConVar r_RainParticleDensity( "r_RainParticleDensity", "1", FCVAR_NONE, "Density of Particle Rain 0-1" );
 
 #ifdef MAPBASE
-ConVar r_RainParticleClampOffset( "r_RainParticleClampOffset", "112", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems" );
+ConVar r_RainParticleClampOffset_Rain( "r_RainParticleClampOffset_Rain", "120", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems using the 'Particle Rain' type." );
+ConVar r_RainParticleClampOffset_Ash( "r_RainParticleClampOffset_Ash", "300", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems using the 'Particle Ash' type." );
+ConVar r_RainParticleClampOffset_RainStorm( "r_RainParticleClampOffset_RainStorm", "112", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems using the 'Particle Rain Storm' type." );
+ConVar r_RainParticleClampOffset_Snow( "r_RainParticleClampOffset_Snow", "300", FCVAR_NONE, "How far inward or outward to extrude clamped precipitation particle systems using the 'Particle Snow' type." );
 ConVar r_RainParticleClampDebug( "r_RainParticleClampDebug", "0", FCVAR_NONE, "Enables debug code for precipitation particle system clamping" );
 #endif
 
@@ -951,6 +954,70 @@ void CClient_Precipitation::CreateParticlePrecip( void )
 	UpdateParticlePrecip( pPlayer );
 }
 
+#ifdef MAPBASE
+void CClient_Precipitation::ClampParticlePosition( Vector &vPlayerPos, Vector &vOffsetPos, Vector &vOffsetPosNear, Vector &vOffsetPosFar )
+{
+	Vector mins, maxs;
+	modelinfo->GetModelBounds( GetModel(), mins, maxs );
+
+	// Account for precipitation height
+	maxs.z += 180;
+
+	Vector vecOrigin; //= WorldSpaceCenter();
+	VectorLerp( mins, maxs, 0.5f, vecOrigin );
+
+	maxs -= vecOrigin;
+	mins -= vecOrigin;
+
+	//float flMax = r_RainParticleClampOffset.GetFloat();
+	float flMax = 0;
+	switch (m_nPrecipType)
+	{
+		case PRECIPITATION_TYPE_PARTICLERAIN:
+			flMax = r_RainParticleClampOffset_Rain.GetFloat();
+			break;
+
+		case PRECIPITATION_TYPE_PARTICLEASH:
+			flMax = r_RainParticleClampOffset_Ash.GetFloat();
+			break;
+
+		case PRECIPITATION_TYPE_PARTICLERAINSTORM:
+			flMax = r_RainParticleClampOffset_RainStorm.GetFloat();
+			break;
+
+		case PRECIPITATION_TYPE_PARTICLESNOW:
+			flMax = r_RainParticleClampOffset_Snow.GetFloat();
+			break;
+	}
+
+	Vector addend( flMax, flMax, 0 );
+	mins += addend;
+	maxs -= addend;
+
+	if (flMax > 0)
+	{
+		// Unless this is extruding outwards, make sure the offset isn't inverting the bounds.
+		// This means precipitation triggers with bounds less than offset*2 will turn into a thin line
+		// and the involved precipitation will pretty much be spatial at all times, which is okay.
+		mins.x = clamp( mins.x, -FLT_MAX, -1 );
+		mins.y = clamp( mins.y, -FLT_MAX, -1 );
+		maxs.x = clamp( maxs.x, 1, FLT_MAX );
+		maxs.y = clamp( maxs.y, 1, FLT_MAX );
+	}
+
+	if (r_RainParticleClampDebug.GetBool())
+		debugoverlay->AddBoxOverlay( vecOrigin, mins, maxs, vec3_angle, 255, 0, 0, 128, 0.15f );
+
+	maxs += vecOrigin;
+	mins += vecOrigin;
+
+	CalcClosestPointOnAABB( mins, maxs, vPlayerPos, vPlayerPos );
+	CalcClosestPointOnAABB( mins, maxs, vOffsetPos, vOffsetPos );
+	CalcClosestPointOnAABB( mins, maxs, vOffsetPosNear, vOffsetPosNear );
+	CalcClosestPointOnAABB( mins, maxs, vOffsetPosFar, vOffsetPosFar );
+}
+#endif
+
 void CClient_Precipitation::UpdateParticlePrecip( C_BasePlayer *pPlayer )
 {
 	if ( !pPlayer )
@@ -980,44 +1047,7 @@ void CClient_Precipitation::UpdateParticlePrecip( C_BasePlayer *pPlayer )
 #ifdef MAPBASE
 		if (m_spawnflags & SF_PRECIP_PARTICLE_CLAMP)
 		{
-			Vector mins, maxs;
-			modelinfo->GetModelBounds( GetModel(), mins, maxs );
-
-			// Account for precipitation height
-			maxs.z += 180;
-
-			Vector vecOrigin; //= WorldSpaceCenter();
-			VectorLerp( mins, maxs, 0.5f, vecOrigin );
-
-			maxs -= vecOrigin;
-			mins -= vecOrigin;
-
-			float flMax = r_RainParticleClampOffset.GetFloat();
-			Vector addend( flMax, flMax, 0 );
-			mins += addend;
-			maxs -= addend;
-
-			if (flMax > 0)
-			{
-				// Unless this is extruding outwards, make sure the offset isn't inverting the bounds.
-				// This means precipitation triggers with bounds less than offset*2 will turn into a thin line
-				// and the involved precipitation will pretty much be spatial at all times, which is okay.
-				mins.x = clamp( mins.x, -FLT_MAX, -1 );
-				mins.y = clamp( mins.y, -FLT_MAX, -1 );
-				maxs.x = clamp( maxs.x, 1, FLT_MAX );
-				maxs.y = clamp( maxs.y, 1, FLT_MAX );
-			}
-
-			if (r_RainParticleClampDebug.GetBool())
-				debugoverlay->AddBoxOverlay( vecOrigin, mins, maxs, vec3_angle, 255, 0, 0, 128, 0.15f );
-
-			maxs += vecOrigin;
-			mins += vecOrigin;
-
-			CalcClosestPointOnAABB( mins, maxs, vPlayerPos, vPlayerPos );
-			CalcClosestPointOnAABB( mins, maxs, vOffsetPos, vOffsetPos );
-			CalcClosestPointOnAABB( mins, maxs, vOffsetPosNear, vOffsetPosNear );
-			CalcClosestPointOnAABB( mins, maxs, vOffsetPosFar, vOffsetPosFar );
+			ClampParticlePosition( vPlayerPos, vOffsetPos, vOffsetPosNear, vOffsetPosFar );
 		}
 #endif
 
@@ -1235,6 +1265,13 @@ void CClient_Precipitation::DispatchInnerParticlePrecip( C_BasePlayer *pPlayer, 
 	Vector vOffsetPosNear = vPlayerPos + Vector ( 0, 0, 180 ) + ( vForward * 32 );
 	Vector vOffsetPosFar = vPlayerPos + Vector ( 0, 0, 180 ) + ( vForward * m_flParticleInnerDist );  // 100.0
 	Vector vDensity = Vector( r_RainParticleDensity.GetFloat(), 0, 0 ) * m_flDensity;
+
+#ifdef MAPBASE
+	if (m_spawnflags & SF_PRECIP_PARTICLE_CLAMP)
+	{
+		ClampParticlePosition( vPlayerPos, vOffsetPos, vOffsetPosNear, vOffsetPosFar );
+	}
+#endif
 
 #ifdef MAPBASE
 	if (!(m_spawnflags & SF_PRECIP_PARTICLE_NO_OUTER))

@@ -8,6 +8,9 @@
 #include "cbase.h"
 #include "baseentity.h"
 #include "world.h"
+#ifdef MAPBASE
+#include "eventqueue.h"
+#endif
 
 #ifdef INFESTED_DLL
 	#include "asw_marine.h"
@@ -25,6 +28,15 @@ class CEnvInstructorHint : public CPointEntity
 public:
 	DECLARE_CLASS( CEnvInstructorHint, CPointEntity );
 	DECLARE_DATADESC();
+
+#ifdef MAPBASE
+	CEnvInstructorHint( void );
+#endif
+	virtual ~CEnvInstructorHint( void ) {}
+
+#ifdef MAPBASE
+	virtual void OnRestore( void );
+#endif
 
 private:
 	void InputShowHint( inputdata_t &inputdata );
@@ -56,6 +68,10 @@ private:
 #ifdef MAPBASE
 	string_t	m_iszStartSound;
 	int			m_iHintTargetPos;
+	float		m_flActiveUntil;
+	CHandle<CBasePlayer>	m_hActivator;
+	EHANDLE		m_hTarget;
+	bool		m_bFilterByActivator;
 #endif
 };
 
@@ -85,8 +101,13 @@ BEGIN_DATADESC( CEnvInstructorHint )
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_iszStartSound, FIELD_STRING, "hint_start_sound" ),
 	DEFINE_KEYFIELD( m_iHintTargetPos, FIELD_INTEGER, "hint_target_pos" ),
+
+	DEFINE_FIELD( m_flActiveUntil, FIELD_TIME ),
+	DEFINE_FIELD( m_hActivator, FIELD_EHANDLE ),
+	DEFINE_FIELD( m_hTarget, FIELD_EHANDLE ),
+	DEFINE_FIELD( m_bFilterByActivator, FIELD_BOOLEAN ),
 #endif
-	
+
 	DEFINE_INPUTFUNC( FIELD_STRING,	"ShowHint",	InputShowHint ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"EndHint",	InputEndHint ),
 
@@ -102,6 +123,44 @@ END_DATADESC()
 #define LOCATOR_ICON_FX_SHAKE_NARROW	0x00000040
 #define LOCATOR_ICON_FX_STATIC			0x00000100	// This icon draws at a fixed location on the HUD.
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+CEnvInstructorHint::CEnvInstructorHint( void )
+{
+	m_hActivator = NULL;
+	m_hTarget = NULL;
+	m_bFilterByActivator = false;
+	m_flActiveUntil = -1.0f;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CEnvInstructorHint::OnRestore( void )
+{
+	BaseClass::OnRestore();
+
+	int iTimeLeft = 0;
+	if ( m_flActiveUntil < 0.0f )
+	{
+		return;
+	}
+	if ( m_iTimeout != 0 )
+	{
+		iTimeLeft = static_cast<int>( m_flActiveUntil - gpGlobals->curtime );
+		if ( iTimeLeft <= 0 )
+		{
+			return;
+		}
+	}
+
+	int iOriginalTimeout = m_iTimeout;
+	m_iTimeout = iTimeLeft;
+	g_EventQueue.AddEvent( this, "ShowHint", 0.01f, NULL, this );
+	m_iTimeout = iOriginalTimeout;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Input handler for showing the message and/or playing the sound.
 //-----------------------------------------------------------------------------
@@ -110,7 +169,15 @@ void CEnvInstructorHint::InputShowHint( inputdata_t &inputdata )
 	IGameEvent * event = gameeventmanager->CreateEvent( "instructor_server_hint_create", false );
 	if ( event )
 	{
-		CBaseEntity *pTargetEntity = gEntList.FindEntityByName( NULL, m_iszHintTargetEntity );
+		CBaseEntity *pTargetEntity = NULL;
+
+#ifdef MAPBASE
+		pTargetEntity = m_hTarget;
+
+		if ( pTargetEntity == NULL )
+#endif
+			pTargetEntity = gEntList.FindEntityByName( NULL, m_iszHintTargetEntity );
+
 		if( pTargetEntity == NULL && !m_bStatic )
 			pTargetEntity = inputdata.pActivator;
 
@@ -137,6 +204,15 @@ void CEnvInstructorHint::InputShowHint( inputdata_t &inputdata )
 			pActivator = pMarine->GetCommander();
 		}
 #else
+#ifdef MAPBASE
+		if ( m_hActivator )
+		{
+			pActivator = m_hActivator;
+			bFilterByActivator = m_bFilterByActivator;
+		}
+		else
+#endif
+
 		if ( inputdata.value.StringID() != NULL_STRING )
 		{
 			CBaseEntity *pTarget = gEntList.FindEntityByName( NULL, inputdata.value.String() );
@@ -150,7 +226,7 @@ void CEnvInstructorHint::InputShowHint( inputdata_t &inputdata )
 		{
 			if ( GameRules()->IsMultiplayer() == false )
 			{
-				pActivator = UTIL_GetLocalPlayer(); 
+				pActivator = UTIL_GetLocalPlayer();
 			}
 			else
 			{
@@ -190,6 +266,13 @@ void CEnvInstructorHint::InputShowHint( inputdata_t &inputdata )
 #endif
 
 		gameeventmanager->FireEvent( event );
+
+#ifdef MAPBASE
+		m_flActiveUntil = gpGlobals->curtime + m_iTimeout;
+		m_hTarget = pTargetEntity;
+		m_hActivator = pActivator;
+		m_bFilterByActivator = bFilterByActivator;
+#endif
 	}
 }
 
@@ -203,6 +286,13 @@ void CEnvInstructorHint::InputEndHint( inputdata_t &inputdata )
 		event->SetString( "hint_name", GetEntityName().ToCStr() );
 
 		gameeventmanager->FireEvent( event );
+
+#ifdef MAPBASE
+		m_flActiveUntil = -1.0f;
+		m_hActivator = NULL;
+		m_hTarget = NULL;
+		m_bFilterByActivator = false;
+#endif
 	}
 }
 

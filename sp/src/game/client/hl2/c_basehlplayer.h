@@ -15,6 +15,10 @@
 #include "c_baseplayer.h"
 #include "c_hl2_playerlocaldata.h"
 
+#if !defined( HL2MP ) && defined ( MAPBASE )
+#include "mapbase/singleplayer_animstate.h"
+#endif
+
 class C_BaseHLPlayer : public C_BasePlayer
 {
 public:
@@ -58,6 +62,10 @@ public:
 
 	bool				IsWeaponLowered( void ) { return m_HL2Local.m_bWeaponLowered; }
 
+#ifdef SP_ANIM_STATE
+	virtual const QAngle&	GetRenderAngles( void );
+#endif
+
 public:
 
 	C_HL2PlayerLocalData		m_HL2Local;
@@ -78,7 +86,13 @@ private:
 	bool				m_bPlayUseDenySound;		// Signaled by PlayerUse, but can be unset by HL2 ladder code...
 	float				m_flSpeedMod;
 	float				m_flExitSpeedMod;
-
+	
+#ifdef SP_ANIM_STATE
+	// At the moment, we network the render angles since almost none of the player anim stuff is done on the client in SP.
+	// If any of this is ever adapted for MP, this method should be replaced with replicating/moving the anim state to the client.
+	float				m_flAnimRenderYaw;
+	QAngle				m_angAnimRender;
+#endif
 
 friend class CHL2GameMovement;
 };

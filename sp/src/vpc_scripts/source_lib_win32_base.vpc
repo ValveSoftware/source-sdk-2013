@@ -38,7 +38,8 @@ $Configuration
 
 	$Compiler [$WIN32]
 	{
-		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions (/arch:SSE)"
+		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions (/arch:SSE)" [!($VS2015||$VS2017||$VS2019||$VS2022)]
+		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions 2 (/arch:SSE2)" [($VS2015||$VS2017||$VS2019||$VS2022)]
 	}
 	
 	$PreBuildEvent

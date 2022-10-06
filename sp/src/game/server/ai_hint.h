@@ -112,6 +112,13 @@ enum Hint_e
 
 	// CS port hints
 	HINT_CSTRIKE_HOSTAGE_ESCAPE = 1100,
+
+#ifdef MAPBASE
+	// Mapbase hints
+	// (these start at a high number to avoid potential conflicts with mod hints)
+
+	HINT_TACTICAL_COVER_CUSTOM = 10000,	// Cover node with a custom hint activity (NPCs can take cover and reload here while playing said activity)
+#endif
 };
 const char *GetHintTypeDescription( Hint_e iHintType );
 const char *GetHintTypeDescription( CAI_Hint *pHint );
@@ -119,6 +126,10 @@ const char *GetHintTypeDescription( CAI_Hint *pHint );
 //-----------------------------------------------------------------------------
 // CHintCriteria
 //-----------------------------------------------------------------------------
+
+#ifdef MAPBASE // From Alien Swarm SDK
+typedef bool (*HintSearchFilterFunc_t)( void *pContext, CAI_Hint *pCandidate );
+#endif
 
 class CHintCriteria
 {
@@ -133,6 +144,11 @@ public:
 
 	void		SetGroup( string_t group );
 	string_t	GetGroup( void )	const	{ return m_strGroup;	}
+
+#ifdef MAPBASE // From Alien Swarm SDK
+	void		SetFilterFunc( HintSearchFilterFunc_t pfnFilter, void *pContext = NULL )	{ m_pfnFilter = pfnFilter; m_pFilterContext = pContext; }
+	bool		PassesFilter( CAI_Hint *pCandidate ) const { return (m_pfnFilter) ? (*m_pfnFilter)(m_pFilterContext, pCandidate) : true; }
+#endif
 
 	int			GetFirstHintType( void ) const	{ return m_iFirstHintType; }
 	int			GetLastHintType( void ) const	{ return m_iLastHintType; }
@@ -176,6 +192,11 @@ private:
 	
 	zoneList_t	m_zoneInclude;
 	zoneList_t	m_zoneExclude;
+
+#ifdef MAPBASE
+	HintSearchFilterFunc_t m_pfnFilter;
+	void *		m_pFilterContext;
+#endif
 };
 
 class CAI_Node;
@@ -289,6 +310,11 @@ public:
 	void				SetHintType( int hintType, bool force = false );
 	string_t			HintActivityName( void ) const	{ return m_NodeData.iszActivityName; }
 	int					GetTargetNode( void ) const		{ return m_nTargetNodeID; }
+#ifdef MAPBASE
+	// HACKHACK: This is for when target nodes need to be accessed before being sorted into engine IDs
+	int					GetTargetWCNodeID( void ) const	{ return m_NodeData.nTargetWCNodeID; }
+	int					GetWCNodeID( void ) const		{ return m_NodeData.nWCNodeID; }
+#endif
 	bool				IsDisabled( void ) const		{ return (m_NodeData.iDisabled != 0); }
 	void				SetDisabled( bool bDisabled	)	{ m_NodeData.iDisabled = bDisabled; }
 	void				DisableForSeconds( float flSeconds );
@@ -305,11 +331,21 @@ public:
 	int					GetNodeId()	{ return m_NodeData.nNodeID; }
 	int					GetWCId()	{ return m_NodeData.nWCNodeID; }
 
+#ifdef MAPBASE
+	int					GetRadius() const { return m_NodeData.nRadius; }	// From Alien Swarm SDK
+
+	float				GetHintWeight() const { return m_NodeData.flWeight; }
+	float				GetHintWeightInverse() const { return m_NodeData.flWeightInverse; }		// Used to multiply distances
+#endif
+
 	bool				HintMatchesCriteria( CAI_BaseNPC *pNPC, const CHintCriteria &hintCriteria, const Vector &position, float *flNearestDistance, bool bIgnoreLock = false, bool bIgnoreHintType = false );
 	bool				IsInNodeFOV( CBaseEntity *pOther );
 
 #ifdef MAPBASE
 	void				NPCHandleStartNav( CAI_BaseNPC *pNPC, bool bDefaultFacing );
+
+	// Returns true if this hint should override a NPC's yaw even during regular AI.
+	bool				OverridesNPCYaw( CAI_BaseNPC *pNPC );
 #endif
 
 #ifdef MAPBASE_VSCRIPT
@@ -319,7 +355,9 @@ public:
 	const char*			ScriptGetHintActivity() { return STRING( HintActivityName() ); }
 #endif
 
+#ifndef MAPBASE
 private:
+#endif
 	void				Spawn( void );
 	virtual void		Activate();
 	virtual void		UpdateOnRemove( void );

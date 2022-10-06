@@ -999,12 +999,23 @@ int CAI_Navigator::GetArrivalSequence( int curSequence )
 			activity = ACT_IDLE;
 		}
 
-		sequence = GetOuter()->SelectWeightedSequence( GetOuter()->TranslateActivity( activity ), curSequence );
+		Activity translatedActivity = GetOuter()->TranslateActivity( activity );
+		sequence = GetOuter()->SelectWeightedSequence( translatedActivity, curSequence );
 
 		if ( sequence == ACT_INVALID )
 		{
-			DevMsg( GetOuter(), "No appropriate sequence for arrival activity %s (%d)\n", GetOuter()->GetActivityName( GetPath()->GetArrivalActivity() ), GetPath()->GetArrivalActivity() );
-			sequence = GetOuter()->SelectWeightedSequence( GetOuter()->TranslateActivity( ACT_IDLE ), curSequence );
+#ifdef MAPBASE
+			if ( translatedActivity == ACT_SCRIPT_CUSTOM_MOVE )
+			{
+				// ACT_SCRIPT_CUSTOM_MOVE allows activity translation to resolve into specific sequences
+				sequence = GetOuter()->GetScriptCustomMoveSequence();
+			}
+			else
+#endif
+			{
+				DevMsg( GetOuter(), "No appropriate sequence for arrival activity %s (%d)\n", GetOuter()->GetActivityName( GetPath()->GetArrivalActivity() ), GetPath()->GetArrivalActivity() );
+				sequence = GetOuter()->SelectWeightedSequence( GetOuter()->TranslateActivity( ACT_IDLE ), curSequence );
+			}
 		}
 		Assert( sequence != ACT_INVALID );
 		GetPath()->SetArrivalSequence( sequence );
@@ -1642,6 +1653,15 @@ void CAI_Navigator::MoveCalcBaseGoal( AILocalMoveGoal_t *pMoveGoal )
 		AI_Waypoint_t *pCurWaypoint = GetPath()->GetCurWaypoint();
 		if ( pCurWaypoint->GetNext() && pCurWaypoint->GetNext()->NavType() != pCurWaypoint->NavType() )
 			pMoveGoal->flags |= AILMG_TARGET_IS_TRANSITION;
+
+#ifdef MAPBASE
+		// TODO: Better place for this code?
+		if (pMoveGoal->flags & AILMG_TARGET_IS_TRANSITION && pCurWaypoint->GetNext()->NavType() == NAV_CLIMB)
+		{
+			// NPCs need to holster their weapons before climbing.
+			GetOuter()->SetDesiredWeaponState( DESIREDWEAPONSTATE_HOLSTERED );
+		}
+#endif
 	}
 
 	const Task_t *pCurTask = GetOuter()->GetTask();
@@ -2164,10 +2184,25 @@ bool CAI_Navigator::OnMoveBlocked( AIMoveResult_t *pResult )
 		if (pDoor != NULL)
 		{
 			GetOuter()->OpenPropDoorBegin( pDoor );
+#ifdef MAPBASE
+			// Tell the navigation to stop running until we're done.
+			OnNewGoal();
+#endif
 			*pResult = AIMR_OK;
 			return true;
 		}
 	}
+
+#ifdef MAPBASE
+	if ( GetOuter()->m_hOpeningDoor )
+	{
+		// In the process of opening a door
+		// Because navigation is now supposed to terminate when a NPC begins opening a door, this code should not be reached.
+		DbgNavMsg( GetOuter(), "CAI_Navigator::OnMoveBlocked had to check for m_hOpeningDoor\n" );
+		*pResult = AIMR_OK;
+		return true;
+	}
+#endif
 
 
 	// Allow the NPC to override this behavior
@@ -2591,8 +2626,12 @@ bool CAI_Navigator::Move( float flInterval )
 
 			if ( GetNavType() == NAV_CLIMB )
 			{
+#ifdef MAPBASE
+				GetMotor()->MoveClimbPause();
+#else
 				GetMotor()->MoveClimbStop();
 				SetNavType( NAV_GROUND );
+#endif
 			}
 			GetMotor()->MoveStop();
 			AssertMsg( TaskIsRunning() || TaskIsComplete(), ("Schedule stalled!!\n") );
@@ -2695,6 +2734,11 @@ void CAI_Navigator::AdvancePath()
 		if (pDoor != NULL)
 		{
 			GetOuter()->OpenPropDoorBegin(pDoor);
+
+#ifdef MAPBASE
+			// Tell the navigation to stop running until we're done.
+			OnNewGoal();
+#endif
 		}
 		else
 		{
@@ -3880,7 +3924,12 @@ bool CAI_Navigator::GetStoppingPath( CAI_WaypointList *	pClippedWaypoints )
 	AI_Waypoint_t *pCurWaypoint = GetPath()->GetCurWaypoint();
 	if ( pCurWaypoint )
 	{
+#if EXPANDED_NAVIGATION_ACTIVITIES
+		// Since regular climb nav can interrupt itself now, only do this when dismounting
+		bool bMustCompleteCurrent = ( (pCurWaypoint->NavType() == NAV_CLIMB && (GetActivity() == ACT_CLIMB_DISMOUNT || GetActivity() == ACT_CLIMB_MOUNT_TOP)) || pCurWaypoint->NavType() == NAV_JUMP );
+#else
 		bool bMustCompleteCurrent = ( pCurWaypoint->NavType() == NAV_CLIMB || pCurWaypoint->NavType() == NAV_JUMP );
+#endif
 		float distRemaining = GetMotor()->MinStoppingDist( 0 );
 
 		if ( bMustCompleteCurrent )

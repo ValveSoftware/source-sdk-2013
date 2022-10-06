@@ -5,6 +5,10 @@
 //=============================================================================
 
 #include "cbase.h"
+#ifdef MAPBASE
+#include "proxyentity.h"
+#include "materialsystem/imaterialvar.h"
+#endif
 
 class C_PropScalable : public C_BaseAnimating
 {
@@ -194,3 +198,56 @@ void C_PropScalable::GetRenderBounds( Vector &theMins, Vector &theMaxs )
 	Assert( theMins.IsValid() && theMaxs.IsValid() );
 
 }
+
+#ifdef MAPBASE
+ConVar r_coreball_update_sphere_center( "r_coreball_update_sphere_center", "1", FCVAR_NONE, "Allows prop_coreball to update its center to the entity's origin" );
+
+class CCoreBallUpdateMaterialProxy : public CEntityMaterialProxy
+{
+public:
+	CCoreBallUpdateMaterialProxy()
+	{
+		m_pMaterial = NULL;
+		m_pSphereCenter = NULL;
+	}
+	virtual ~CCoreBallUpdateMaterialProxy()
+	{
+	}
+	virtual bool Init( IMaterial *pMaterial, KeyValues *pKeyValues )
+	{
+		m_pMaterial = pMaterial;
+		bool found;
+		m_pSphereCenter = m_pMaterial->FindVar( "$spherecenter", &found );
+		if( !found )
+		{
+			m_pSphereCenter = NULL;
+			return false;
+		}
+		return true;
+	}
+	virtual void OnBind( C_BaseEntity *pC_BaseEntity )
+	{
+		if (r_coreball_update_sphere_center.GetBool())
+		{
+			const Vector &origin = pC_BaseEntity->GetAbsOrigin();
+			m_pSphereCenter->SetVecValue( origin.x, origin.y, origin.z );
+		}
+		else
+		{
+			// Just continuously bind the old hacked value (TODO: Optimize so it's not just assigning the same value constantly?)
+			m_pSphereCenter->SetVecValue( 2688.0, 12139.0, 5170.0 );
+		}
+	}
+
+	virtual IMaterial *GetMaterial()
+	{
+		return m_pMaterial;
+	}
+
+protected:
+	IMaterial *m_pMaterial;
+	IMaterialVar *m_pSphereCenter;
+};
+
+EXPOSE_INTERFACE( CCoreBallUpdateMaterialProxy, IMaterialProxy, "CoreBallUpdate" IMATERIAL_PROXY_INTERFACE_VERSION );
+#endif

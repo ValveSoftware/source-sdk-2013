@@ -71,6 +71,10 @@ public:
 
 	int m_iFormation;
 
+#ifdef MAPBASE
+	bool m_bNormalMemoryDiscard = false;
+#endif
+
 	DECLARE_DATADESC();
 };
 

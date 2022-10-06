@@ -20,6 +20,7 @@ public:
 
 	bool IsEnabled( void ) const { return m_bEnabled; }
 	bool IsLooping( void ) const { return m_bLooping; }
+	bool IsMuted(void) const { return m_bMuted; }
 
 	const char *GetMovieFilename( void ) const { return m_szMovieFilename; }
 	const char *GetGroupName( void ) const { return m_szGroupName; }
@@ -27,6 +28,7 @@ public:
 private:
 	bool	m_bEnabled;
 	bool	m_bLooping;
+	bool	m_bMuted;
 	char	m_szMovieFilename[128];
 	char	m_szGroupName[128];
 };

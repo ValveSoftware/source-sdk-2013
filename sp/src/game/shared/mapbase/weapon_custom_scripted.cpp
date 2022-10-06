@@ -177,8 +177,13 @@ CWeaponCustomScripted::CWeaponCustomScripted()
 
 bool CWeaponCustomScripted::RunWeaponHook( ScriptHook_t &hook, HSCRIPT &cached, ScriptVariant_t *retVal, ScriptVariant_t *pArgs )
 {
-	if (!hook.CheckFuncValid(cached))
-		cached = hook.CanRunInScope(m_ScriptScope);
+	if ( !cached )
+	{
+		if ( hook.CanRunInScope( m_ScriptScope ) )
+		{
+			cached = hook.m_hFunc;
+		}
+	}
 
 	if (cached)
 	{
@@ -398,9 +403,10 @@ bool CWeaponCustomScripted::Reload( void )
 	return BaseClass::Reload();
 }
 
-void CWeaponCustomScripted::Reload_NPC( void )
+void CWeaponCustomScripted::Reload_NPC( bool bPlaySound )
 {
-	SIMPLE_VOID_OVERRIDE( Reload_NPC, NULL );
+	ScriptVariant_t pArgs[] = { bPlaySound };
+	SIMPLE_VOID_OVERRIDE( Reload_NPC, pArgs );
 
 	BaseClass::Reload_NPC();
 }

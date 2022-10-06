@@ -73,6 +73,27 @@ IMPLEMENT_CLIENTCLASS_DT_NOBASE( C_RopeKeyframe, DT_RopeKeyframe, CRopeKeyframe 
 	RecvPropInt( RECVINFO( m_iParentAttachment ) ),
 END_RECV_TABLE()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( C_RopeKeyframe, C_BaseEntity, "The clientside class of move_rope and keyframe_rope" )
+	DEFINE_SCRIPTFUNC( GetNodePosition, "Gets the position of the specified node index" )
+	DEFINE_SCRIPTFUNC( GetNumNodes, "Gets the number of nodes available" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetStartEntity, "GetStartEntity", "Gets the rope's start entity" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetEndEntity, "GetEndEntity", "Gets the rope's end entity" )
+
+	DEFINE_SCRIPTFUNC( SetupHangDistance, "Sets the rope's hang distance" )
+	DEFINE_SCRIPTFUNC( SetSlack, "Sets the rope's slack value (extra length)" )
+	DEFINE_SCRIPTFUNC( GetRopeFlags, "Gets the rope's flags" )
+	DEFINE_SCRIPTFUNC( SetRopeFlags, "Sets the rope's flags" )
+
+	DEFINE_SCRIPTFUNC( SetColorMod, "Sets the rope's color mod value" )
+
+	DEFINE_SCRIPTFUNC( ShakeRope, "Shakes the rope with the specified center, radius, and magnitude" )
+
+	DEFINE_SCRIPTFUNC( AnyPointsMoved, "Returns true if any points have moved recently" )
+END_SCRIPTDESC();
+#endif
+
 #define ROPE_IMPULSE_SCALE	20
 #define ROPE_IMPULSE_DECAY	0.95
 
@@ -2021,6 +2042,25 @@ bool C_RopeKeyframe::GetAttachment( int number, Vector &origin, QAngle &angles )
 	
 	return false;
 }
+
+#ifdef MAPBASE
+const Vector &C_RopeKeyframe::GetNodePosition( int index )
+{
+	int nNodes = m_RopePhysics.NumNodes();
+	if ( index >= nNodes || nNodes < 2 )
+	{
+		Warning( "C_RopeKeyframe::GetNodePosition(): Invalid node index %i (number of nodes is %i)\n", index, nNodes );
+		return vec3_origin;
+	}
+
+	return m_RopePhysics.GetNode( index )->m_vPredicted;
+}
+
+int C_RopeKeyframe::GetNumNodes()
+{
+	return m_RopePhysics.NumNodes();
+}
+#endif
 
 bool C_RopeKeyframe::AnyPointsMoved()
 {

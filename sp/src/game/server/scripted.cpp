@@ -136,6 +136,8 @@ BEGIN_DATADESC( CAI_ScriptedSequence )
 	DEFINE_OUTPUT(m_OnScriptEvent[6], "OnScriptEvent07"),
 	DEFINE_OUTPUT(m_OnScriptEvent[7], "OnScriptEvent08"),
 #ifdef MAPBASE
+	DEFINE_OUTPUT(m_OnEntrySequence, "OnEntrySequence"),
+	DEFINE_OUTPUT(m_OnActionSequence, "OnActionSequence"),
 	DEFINE_OUTPUT(m_OnPreIdleSequence, "OnPreIdleSequence"),
 	DEFINE_OUTPUT(m_OnFoundNPC, "OnFoundNPC"),
 #endif
@@ -862,6 +864,16 @@ void CAI_ScriptedSequence::ScriptThink( void )
 void CAI_ScriptedSequence::OnBeginSequence( CBaseEntity *pActor )
 {
 	m_OnBeginSequence.FireOutput( pActor, this );
+}
+
+void CAI_ScriptedSequence::OnEntrySequence( CBaseEntity *pActor )
+{
+	m_OnEntrySequence.FireOutput( pActor, this );
+}
+
+void CAI_ScriptedSequence::OnActionSequence( CBaseEntity *pActor )
+{
+	m_OnActionSequence.FireOutput( pActor, this );
 }
 
 void CAI_ScriptedSequence::OnPreIdleSequence( CBaseEntity *pActor )

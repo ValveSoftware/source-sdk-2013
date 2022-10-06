@@ -44,6 +44,7 @@
 #ifdef MAPBASE
 #include "mapbase/GlobalStrings.h"
 #include "collisionutils.h"
+#include "vstdlib/IKeyValuesSystem.h" // From Alien Swarm SDK
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -387,8 +388,15 @@ int CBaseProp::ParsePropData( void )
 		return PARSE_FAILED_NO_DATA;
 	}
 
+#ifdef MAPBASE // From Alien Swarm SDK
+	static int keyPropData = KeyValuesSystem()->GetSymbolForString( "prop_data" );
+
+	// Do we have a props section?
+	KeyValues *pkvPropData = modelKeyValues->FindKey( keyPropData );
+#else
 	// Do we have a props section?
 	KeyValues *pkvPropData = modelKeyValues->FindKey("prop_data");
+#endif
 	if ( !pkvPropData )
 	{
 		modelKeyValues->deleteThis();
@@ -1200,6 +1208,17 @@ int CBreakableProp::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	{
 		m_hLastAttacker.Set( info.GetAttacker() );
 	}
+#ifdef MAPBASE // From Alien Swarm SDK
+	else if ( info.GetAttacker() )
+	{
+		CBaseEntity *attacker = info.GetAttacker();
+		CBaseEntity *attackerOwner = attacker->GetOwnerEntity();
+		if ( attackerOwner && attackerOwner->MyCombatCharacterPointer() )
+		{
+			m_hLastAttacker.Set( attackerOwner );
+		}
+	}
+#endif
 
 	float flPropDamage = GetBreakableDamage( info, assert_cast<IBreakableWithPropData*>(this) );
 	info.SetDamage( flPropDamage );
@@ -1999,9 +2018,16 @@ BEGIN_DATADESC( CDynamicProp )
 	DEFINE_KEYFIELD( m_bDisableBoneFollowers, FIELD_BOOLEAN, "DisableBoneFollowers" ),
 	DEFINE_FIELD(	 m_bUseHitboxesForRenderBox, FIELD_BOOLEAN ),
 	DEFINE_FIELD(	m_nPendingSequence, FIELD_SHORT ),
+#ifdef MAPBASE // From Alien Swarm SDK
+	DEFINE_KEYFIELD( m_bUpdateAttachedChildren, FIELD_BOOLEAN, "updatechildren" ),
+	DEFINE_KEYFIELD( m_bHoldAnimation, FIELD_BOOLEAN, "HoldAnimation" ),
+#endif
 		
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SetAnimation",	InputSetAnimation ),
+#ifdef MAPBASE // From Alien Swarm SDK
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetAnimationNoReset", InputSetAnimationNoReset ),
+#endif
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SetDefaultAnimation",	InputSetDefaultAnimation ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"TurnOn",		InputTurnOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"TurnOff",		InputTurnOff ),
@@ -2226,9 +2252,8 @@ void CDynamicProp::CreateBoneFollowers()
 				pBone = pBone->GetNextKey();
 			}
 		}
-
-		modelKeyValues->deleteThis();
 	}
+	modelKeyValues->deleteThis();
 
 	// if we got here, we don't have a bone follower section, but if we have a ragdoll
 	// go ahead and create default bone followers for it
@@ -2258,7 +2283,11 @@ bool CDynamicProp::TestCollision( const Ray_t &ray, unsigned int mask, trace_t& 
 			}
 		}
 	}
+#ifdef MAPBASE // From Alien Swarm SDK
+	return BaseClass::TestCollision( ray, mask, trace );
+#else
 	return false;
+#endif
 }
 
 
@@ -2366,10 +2395,23 @@ void CDynamicProp::AnimThink( void )
 			}
 			else 
 			{
+#ifdef MAPBASE // From Alien Swarm SDK
+				if ( m_iszDefaultAnim != NULL_STRING && m_bHoldAnimation == false )
+				{
+					PropSetAnim( STRING( m_iszDefaultAnim ) );
+				}
+
+				// We need to wait for an animation change to come in
+				if ( m_bHoldAnimation )
+				{
+					SetNextThink( gpGlobals->curtime + 0.1f );
+				}
+#else
 				if (m_iszDefaultAnim != NULL_STRING)
 				{
 					PropSetAnim( STRING( m_iszDefaultAnim ) );
 				}	
+#endif
 			}
 		}
 	}
@@ -2381,6 +2423,17 @@ void CDynamicProp::AnimThink( void )
 	StudioFrameAdvance();
 	DispatchAnimEvents(this);
 	m_BoneFollowerManager.UpdateBoneFollowers(this);
+
+#ifdef MAPBASE // From Alien Swarm SDK
+	// Update any SetParentAttached children
+	if ( m_bUpdateAttachedChildren )
+	{
+		for ( CBaseEntity *pChild = FirstMoveChild(); pChild; pChild = pChild->NextMovePeer() )
+		{
+			pChild->PhysicsTouchTriggers();
+		}		
+	}
+#endif
 }
 
 
@@ -2418,6 +2471,19 @@ void CDynamicProp::InputSetAnimation( inputdata_t &inputdata )
 {
 	PropSetAnim( inputdata.value.String() );
 }
+
+#ifdef MAPBASE // From Alien Swarm SDK
+//------------------------------------------------------------------------------
+// Purpose: Set the animation unless the prop is already set to this particular animation
+//------------------------------------------------------------------------------
+void CDynamicProp::InputSetAnimationNoReset( inputdata_t &inputdata )
+{
+	if ( GetSequence() != LookupSequence( inputdata.value.String() ) )
+	{
+		PropSetAnim( inputdata.value.String() );
+	}
+}
+#endif
 
 //------------------------------------------------------------------------------
 // Purpose:
@@ -4073,6 +4139,11 @@ enum
 
 void PlayLockSounds(CBaseEntity *pEdict, locksound_t *pls, int flocked, int fbutton);
 
+#ifdef MAPBASE
+ConVar ai_door_enable_acts( "ai_door_enable_acts", "0", FCVAR_NONE, "Enables the new door-opening activities by default. Override keyvalues will override this cvar." );
+ConVar ai_door_open_dist_override( "ai_door_open_dist_override", "-1", FCVAR_NONE, "Overrides the distance from a door a NPC has to navigate to in order to open a door." );
+#endif
+
 BEGIN_DATADESC_NO_BASE(locksound_t)
 
 	DEFINE_FIELD( sLockedSound,	FIELD_STRING),
@@ -4099,6 +4170,11 @@ BEGIN_DATADESC(CBasePropDoor)
 	DEFINE_KEYFIELD(m_SoundClose, FIELD_SOUNDNAME, "soundcloseoverride"),
 	DEFINE_KEYFIELD(m_ls.sLockedSound, FIELD_SOUNDNAME, "soundlockedoverride"),
 	DEFINE_KEYFIELD(m_ls.sUnlockedSound, FIELD_SOUNDNAME, "soundunlockedoverride"),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD(m_flNPCOpenDistance, FIELD_FLOAT, "opendistoverride"),
+	DEFINE_KEYFIELD(m_eNPCOpenFrontActivity, FIELD_INTEGER, "openfrontactivityoverride"),
+	DEFINE_KEYFIELD(m_eNPCOpenBackActivity, FIELD_INTEGER, "openbackactivityoverride"),
+#endif
 	DEFINE_KEYFIELD(m_SlaveName, FIELD_STRING, "slavename" ),
 	DEFINE_FIELD(m_bLocked, FIELD_BOOLEAN),
 	//DEFINE_KEYFIELD(m_flBlockDamage, FIELD_FLOAT, "dmg"),
@@ -4143,6 +4219,11 @@ END_SEND_TABLE()
 CBasePropDoor::CBasePropDoor( void )
 {
 	m_hMaster = NULL;
+#ifdef MAPBASE
+	m_flNPCOpenDistance = -1;
+	m_eNPCOpenFrontActivity = ACT_INVALID;
+	m_eNPCOpenBackActivity = ACT_INVALID;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -4212,6 +4293,32 @@ void CBasePropDoor::Precache(void)
 
 	RegisterPrivateActivities();
 }
+
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Handles keyvalues from the BSP. Called before spawning.
+//-----------------------------------------------------------------------------
+bool CBasePropDoor::KeyValue( const char *szKeyName, const char *szValue )
+{
+	if ( FStrEq(szKeyName, "openfrontactivityoverride") )
+	{
+		m_eNPCOpenFrontActivity = (Activity)CAI_BaseNPC::GetActivityID( szValue );
+		if (m_eNPCOpenFrontActivity == ACT_INVALID)
+			m_eNPCOpenFrontActivity = ActivityList_RegisterPrivateActivity( szValue );
+	}
+	else if ( FStrEq(szKeyName, "openbackactivityoverride") )
+	{
+		m_eNPCOpenBackActivity = (Activity)CAI_BaseNPC::GetActivityID( szValue );
+		if (m_eNPCOpenBackActivity == ACT_INVALID)
+			m_eNPCOpenBackActivity = ActivityList_RegisterPrivateActivity( szValue );
+	}
+	else
+		return BaseClass::KeyValue( szKeyName, szValue );
+
+	return true;
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -4340,7 +4447,43 @@ void CBasePropDoor::CalcDoorSounds()
 			{
 				strSoundLocked = AllocPooledString( pkvHardwareData->GetString( "locked" ) );
 				strSoundUnlocked = AllocPooledString( pkvHardwareData->GetString( "unlocked" ) );
+
+#ifdef MAPBASE
+				if (ai_door_enable_acts.GetBool())
+				{
+					if (m_eNPCOpenFrontActivity == ACT_INVALID)
+					{
+						const char *pszActivity = pkvHardwareData->GetString( "activity_front" );
+						if (pszActivity[0] != '\0')
+						{
+							m_eNPCOpenFrontActivity = (Activity)CAI_BaseNPC::GetActivityID( pszActivity );
+							if (m_eNPCOpenFrontActivity == ACT_INVALID)
+								m_eNPCOpenFrontActivity = ActivityList_RegisterPrivateActivity( pszActivity );
+						}
+					}
+					if (m_eNPCOpenBackActivity == ACT_INVALID)
+					{
+						const char *pszActivity = pkvHardwareData->GetString( "activity_back" );
+						if (pszActivity[0] != '\0')
+						{
+							m_eNPCOpenBackActivity = (Activity)CAI_BaseNPC::GetActivityID( pszActivity );
+							if (m_eNPCOpenBackActivity == ACT_INVALID)
+								m_eNPCOpenBackActivity = ActivityList_RegisterPrivateActivity( pszActivity );
+						}
+					}
+				}
+
+				if (m_flNPCOpenDistance == -1)
+					m_flNPCOpenDistance = pkvHardwareData->GetFloat( "npc_distance", ai_door_enable_acts.GetBool() ? 32.0 : 64.0 );
+#endif
 			}
+
+#ifdef MAPBASE
+			// This would still be -1 if the hardware wasn't valid
+			if (m_flNPCOpenDistance == -1)
+				m_flNPCOpenDistance = ai_door_enable_acts.GetBool() ? 32.0 : 64.0;
+#endif
+
 
 			// If any sounds were missing, try the "defaults" block.
 			if ( ( strSoundOpen == NULL_STRING ) || ( strSoundClose == NULL_STRING ) || ( strSoundMoving == NULL_STRING ) ||
@@ -5961,20 +6104,37 @@ void CPropDoorRotating::GetNPCOpenData(CAI_BaseNPC *pNPC, opendata_t &opendata)
 
 	Vector vecNPCOrigin = pNPC->GetAbsOrigin();
 
+#ifdef MAPBASE
+	float flPosOffset = ai_door_open_dist_override.GetFloat() >= 0.0f ? ai_door_open_dist_override.GetFloat() : GetNPCOpenDistance();
+#else
+	float flPosOffset = 64;
+#endif
+
 	if (pNPC->GetAbsOrigin().Dot(vecForward) > GetAbsOrigin().Dot(vecForward))
 	{
 		// In front of the door relative to the door's forward vector.
-		opendata.vecStandPos += vecForward * 64;
+		opendata.vecStandPos += vecForward * flPosOffset;
 		opendata.vecFaceDir = -vecForward;
+#ifdef MAPBASE
+		opendata.eActivity = GetNPCOpenFrontActivity();
+#endif
 	}
 	else
 	{
 		// Behind the door relative to the door's forward vector.
-		opendata.vecStandPos -= vecForward * 64;
+		opendata.vecStandPos -= vecForward * flPosOffset;
 		opendata.vecFaceDir = vecForward;
+#ifdef MAPBASE
+		opendata.eActivity = GetNPCOpenBackActivity();
+#endif
 	}
 
+#ifdef MAPBASE
+	if (opendata.eActivity == ACT_INVALID)
+		opendata.eActivity = ACT_OPEN_DOOR;
+#else
 	opendata.eActivity = ACT_OPEN_DOOR;
+#endif
 }
 
 
@@ -6005,6 +6165,14 @@ int CPropDoorRotating::DrawDebugTextOverlays(void)
 		Q_snprintf(tempstr, sizeof(tempstr),"Avelocity: %.2f %.2f %.2f", GetLocalAngularVelocity().x,  GetLocalAngularVelocity().y,  GetLocalAngularVelocity().z);
 		EntityText( text_offset, tempstr, 0);
 		text_offset++;
+
+#ifdef MAPBASE // From Alien Swarm SDK
+		if ( IsDoorLocked() )
+		{
+			EntityText( text_offset, "LOCKED", 0);
+			text_offset++;
+		}
+#endif
 
 		if ( IsDoorOpen() )
 		{

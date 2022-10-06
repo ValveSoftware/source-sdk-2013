@@ -146,29 +146,6 @@ BEGIN_SIMPLE_DATADESC( AI_EnemyInfo_t )
 	// NOT SAVED nextEMemory
 END_DATADESC()
 
-#ifdef MAPBASE_VSCRIPT
-#define DEFINE_ENEMY_INFO_SCRIPTFUNCS(name, desc) \
-	DEFINE_SCRIPTFUNC_NAMED( Get##name, #name, "Get " desc ) \
-	DEFINE_SCRIPTFUNC( Set##name, "Set " desc )
-
-BEGIN_SCRIPTDESC_ROOT( AI_EnemyInfo_t, "Accessor for information about an enemy." )
-	DEFINE_SCRIPTFUNC( Enemy, "Get the enemy." )
-	DEFINE_SCRIPTFUNC( SetEnemy, "Set the enemy." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastKnownLocation, "the enemy's last known location." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastSeenLocation, "the enemy's last seen location." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastSeen, "the last time the enemy was seen." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeFirstSeen, "the first time the enemy was seen." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastReacquired, "the last time the enemy was reaquired." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeValidEnemy, "the time at which the enemy can be selected (reaction delay)." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastReceivedDamageFrom, "the last time damage was received from this enemy." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeAtFirstHand, "the time at which the enemy was seen firsthand." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( DangerMemory, "the memory of danger position w/o enemy pointer." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( EludedMe, "whether the enemy is not at the last known location." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( Unforgettable, "whether the enemy is unforgettable." )
-	DEFINE_ENEMY_INFO_SCRIPTFUNCS( MobbedMe, "whether the enemy was part of a mob at some point." )
-END_SCRIPTDESC();
-#endif
-
 //-----------------------------------------------------------------------------
 
 CAI_Enemies::CAI_Enemies(void)

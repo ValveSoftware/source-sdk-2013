@@ -24,6 +24,8 @@
 #include "Sprite.h"
 #ifdef MAPBASE
 #include "mapbase/SystemConvarMod.h"
+#include <vgui_controls/Controls.h>
+#include <vgui/ILocalize.h>
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -72,7 +74,22 @@ class CPointCommentaryNode : public CBaseAnimating
 	DECLARE_CLASS( CPointCommentaryNode, CBaseAnimating );
 public:
 	DECLARE_DATADESC();
+#ifdef MAPBASE_VSCRIPT
+	DECLARE_ENT_SCRIPTDESC();
+#endif
 	DECLARE_SERVERCLASS();
+
+	CPointCommentaryNode()
+	{
+#ifdef MAPBASE
+		m_flViewTargetSpeedScale = 1.0f;
+		m_flViewPositionSpeedScale = 1.0f;
+		m_flReturnSpeedScale = 0.0f;
+		m_flPanelScale = 1.0f;
+		m_flPanelX = -1.0f;
+		m_flPanelY = -1.0f;
+#endif
+	}
 
 	void Spawn( void );
 	void Precache( void );
@@ -102,11 +119,39 @@ public:
 	void TeleportTo( CBasePlayer *pPlayer );
 	bool CanTeleportTo( void );
 
+#ifdef MAPBASE
+	bool IsActive() { return m_bActive; }
+	bool IsDisabled() { return m_bDisabled; }
+
+	int GetCommentaryType() { return m_iCommentaryType; }
+	void SetCommentaryType( int iType ) { m_iCommentaryType = iType; }
+
+	const char *GetCommentaryFile() { return STRING( m_iszCommentaryFile.Get() ); }
+	void SetCommentaryFile( const char *pszNewFile ) { m_iszCommentaryFile.Set( AllocPooledString( pszNewFile ) ); }
+	const char *GetSpeakers() { return STRING( m_iszSpeakers.Get() ); }
+	void SetSpeakers( const char *pszSpeakers ) { m_iszSpeakers.Set( AllocPooledString( pszSpeakers ) ); }
+	const char *GetPrintName() { return STRING( m_iszPrintName.Get() ); }
+	void SetPrintName( const char *pszPrintName ) { m_iszPrintName.Set( AllocPooledString( pszPrintName ) ); }
+	const char *GetFootnote() { return STRING( m_iszFootnote.Get() ); }
+	void SetFootnote( const char *pszFootnote ) { m_iszFootnote.Set( AllocPooledString( pszFootnote ) ); }
+#endif
+
 	// Inputs
 	void InputStartCommentary( inputdata_t &inputdata );
 	void InputStartUnstoppableCommentary( inputdata_t &inputdata );
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
+#ifdef MAPBASE
+	void InputSetViewTarget( inputdata_t &inputdata );
+	void InputSetViewPosition( inputdata_t &inputdata );
+	void InputSetViewTargetSpeed( inputdata_t &inputdata );
+	void InputSetViewPositionSpeed( inputdata_t &inputdata );
+	void InputSetReturnSpeed( inputdata_t &inputdata );
+#endif
+
+#ifdef MAPBASE_VSCRIPT
+	static ScriptHook_t	g_Hook_PreStartCommentary;
+#endif
 
 private:
 	string_t	m_iszPreCommands;
@@ -119,6 +164,14 @@ private:
 	string_t	m_iszViewPosition;
 	CNetworkVar( EHANDLE, m_hViewPosition );
 	EHANDLE		m_hViewPositionMover;		// Entity used to blend the view to the viewposition entity
+#ifdef MAPBASE
+	float		m_flViewTargetSpeedScale;
+	float		m_flViewPositionSpeedScale;
+	float		m_flReturnSpeedScale;
+	CNetworkVar( string_t, m_iszPrintName );
+	CNetworkVar( string_t, m_iszFootnote );
+	float		m_flViewPositionChangedTime;	// View position now blends relative to this value. Mainly needed for when SetViewPosition is used
+#endif
 	bool		m_bPreventMovement;
 	bool		m_bUnderCrosshair;
 	bool		m_bUnstoppable;
@@ -138,6 +191,13 @@ private:
 	CNetworkVar( string_t, m_iszSpeakers );
 	CNetworkVar( int, m_iNodeNumber );
 	CNetworkVar( int, m_iNodeNumberMax );
+
+#ifdef MAPBASE
+	CNetworkVar( int, m_iCommentaryType );
+	CNetworkVar( float, m_flPanelScale );
+	CNetworkVar( float, m_flPanelX );
+	CNetworkVar( float, m_flPanelY );
+#endif
 };
 
 BEGIN_DATADESC( CPointCommentaryNode )
@@ -166,6 +226,18 @@ BEGIN_DATADESC( CPointCommentaryNode )
 	DEFINE_FIELD( m_bPreventChangesWhileMoving, FIELD_BOOLEAN ),
 	DEFINE_KEYFIELD( m_bDisabled, FIELD_BOOLEAN, "start_disabled" ),
 	DEFINE_KEYFIELD( m_vecTeleportOrigin, FIELD_VECTOR, "teleport_origin" ),
+#ifdef MAPBASE
+	DEFINE_KEYFIELD( m_flViewTargetSpeedScale, FIELD_FLOAT, "viewtarget_speed" ),
+	DEFINE_KEYFIELD( m_flViewPositionSpeedScale, FIELD_FLOAT, "viewposition_speed" ),
+	DEFINE_KEYFIELD( m_flReturnSpeedScale, FIELD_FLOAT, "return_speed" ),
+	DEFINE_KEYFIELD( m_iszPrintName, FIELD_STRING, "printname" ),
+	DEFINE_KEYFIELD( m_iszFootnote, FIELD_STRING, "footnote" ),
+	DEFINE_FIELD( m_flViewPositionChangedTime, FIELD_TIME ),
+	DEFINE_KEYFIELD( m_iCommentaryType, FIELD_INTEGER, "type" ),
+	DEFINE_KEYFIELD( m_flPanelScale, FIELD_FLOAT, "panelscale" ),
+	DEFINE_KEYFIELD( m_flPanelX, FIELD_FLOAT, "x" ),
+	DEFINE_KEYFIELD( m_flPanelY, FIELD_FLOAT, "y" ),
+#endif
 
 	// Outputs
 	DEFINE_OUTPUT( m_pOnCommentaryStarted, "OnCommentaryStarted" ),
@@ -176,12 +248,50 @@ BEGIN_DATADESC( CPointCommentaryNode )
 	DEFINE_INPUTFUNC( FIELD_VOID, "StartUnstoppableCommentary", InputStartUnstoppableCommentary ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
+#ifdef MAPBASE
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "SetViewTarget", InputSetViewTarget ),
+	DEFINE_INPUTFUNC( FIELD_EHANDLE, "SetViewPosition", InputSetViewPosition ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetViewTargetSpeed", InputSetViewTargetSpeed ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetViewPositionSpeed", InputSetViewPositionSpeed ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetReturnSpeed", InputSetReturnSpeed ),
+#endif
 
 	// Functions
 	DEFINE_THINKFUNC( SpinThink ),
 	DEFINE_THINKFUNC( UpdateViewThink ),
 	DEFINE_THINKFUNC( UpdateViewPostThink ),
 END_DATADESC()
+
+#ifdef MAPBASE_VSCRIPT
+
+ScriptHook_t	CPointCommentaryNode::g_Hook_PreStartCommentary;
+
+BEGIN_ENT_SCRIPTDESC( CPointCommentaryNode, CBaseAnimating, "Commentary nodes which play commentary in commentary mode." )
+	DEFINE_SCRIPTFUNC( IsDisabled, "" )
+	DEFINE_SCRIPTFUNC( SetDisabled, "" )
+
+	DEFINE_SCRIPTFUNC( IsActive, "" )
+	DEFINE_SCRIPTFUNC( GetCommentaryFile, "" )
+	DEFINE_SCRIPTFUNC( SetCommentaryFile, "" )
+	DEFINE_SCRIPTFUNC( GetSpeakers, "" )
+	DEFINE_SCRIPTFUNC( SetSpeakers, "" )
+	DEFINE_SCRIPTFUNC( GetPrintName, "" )
+	DEFINE_SCRIPTFUNC( SetPrintName, "" )
+	DEFINE_SCRIPTFUNC( GetFootnote, "" )
+	DEFINE_SCRIPTFUNC( SetFootnote, "" )
+	DEFINE_SCRIPTFUNC( GetCommentaryType, "" )
+	DEFINE_SCRIPTFUNC( SetCommentaryType, "" )
+
+	DEFINE_SCRIPTFUNC( HasViewTarget, "" )
+	DEFINE_SCRIPTFUNC( PreventsMovement, "" )
+	DEFINE_SCRIPTFUNC( CannotBeStopped, "" )
+
+	DEFINE_SCRIPTFUNC( AbortPlaying, "Stops playing the node and snaps out of its camera control immediately. The game uses this function to shut down commentary while in the middle of playing a node, as it can't smoothly blend out (since the commentary entities need to be removed)." )
+
+	DEFINE_SIMPLE_SCRIPTHOOK( CPointCommentaryNode::g_Hook_PreStartCommentary, "PreStartCommentary", FIELD_BOOLEAN, "Called just before commentary begins. Use this to modify variables or commentary behavior before it begins. Returning false will prevent the commentary from starting." )
+END_SCRIPTDESC();
+
+#endif // MAPBASE_VSCRIPT
 
 IMPLEMENT_SERVERCLASS_ST( CPointCommentaryNode, DT_PointCommentaryNode )
 	SendPropBool( SENDINFO(m_bActive) ),
@@ -192,6 +302,14 @@ IMPLEMENT_SERVERCLASS_ST( CPointCommentaryNode, DT_PointCommentaryNode )
 	SendPropInt( SENDINFO(m_iNodeNumber), 8, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO(m_iNodeNumberMax), 8, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO(m_hViewPosition) ),
+#ifdef MAPBASE
+	SendPropStringT( SENDINFO( m_iszPrintName ) ),
+	SendPropStringT( SENDINFO( m_iszFootnote ) ),
+	SendPropInt( SENDINFO( m_iCommentaryType ), 2, SPROP_UNSIGNED ),
+	SendPropFloat( SENDINFO( m_flPanelScale ) ),
+	SendPropFloat( SENDINFO( m_flPanelX ) ),
+	SendPropFloat( SENDINFO( m_flPanelY ) ),
+#endif
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( point_commentary_node, CPointCommentaryNode );
@@ -673,6 +791,11 @@ public:
 #endif
 
 		engine->LockNetworkStringTables( oldLock );
+
+#ifdef MAPBASE
+		// Special commentary localization file (useful for things like text nodes or print names)
+		g_pVGuiLocalize->AddFile( "resource/commentary_%language%.txt", "MOD" );
+#endif
 	}
 
 	void ShutDownCommentary( void )
@@ -892,10 +1015,32 @@ bool IsListeningToCommentary( void )
 void CPointCommentaryNode::Spawn( void )
 {
 	// No model specified?
-	char *szModel = (char *)STRING( GetModelName() );
+	const char *szModel = STRING( GetModelName() );
 	if (!szModel || !*szModel)
 	{
+#ifdef MAPBASE
+		switch (m_iCommentaryType)
+		{
+			case COMMENTARY_TYPE_TEXT:
+				szModel = "models/extras/info_text.mdl";
+				break;
+
+			case COMMENTARY_TYPE_IMAGE:
+				szModel = "models/extras/info_image.mdl";
+				break;
+
+			case COMMENTARY_TYPE_SCENE:
+				szModel = "models/extras/info_scene.mdl";
+				break;
+
+			default:
+			case COMMENTARY_TYPE_AUDIO:
+				szModel = "models/extras/info_speech.mdl";
+				break;
+		}
+#else
 		szModel = "models/extras/info_speech.mdl";
+#endif
 		SetModelName( AllocPooledString(szModel) );
 	}
 
@@ -905,6 +1050,12 @@ void CPointCommentaryNode::Spawn( void )
 	SetSolid( SOLID_BBOX );
 	AddSolidFlags( FSOLID_CUSTOMRAYTEST | FSOLID_CUSTOMBOXTEST );
 	AddEffects( EF_NOSHADOW );
+
+#ifdef MAPBASE
+	// Default to view position speed scale (which in turn defaults to 1.0)
+	if (m_flReturnSpeedScale == 0.0f)
+		m_flReturnSpeedScale = m_flViewPositionSpeedScale;
+#endif
 
 	// Setup for animation
 	ResetSequence( LookupSequence("idle") );
@@ -1119,6 +1270,19 @@ void CPointCommentaryNode::StartCommentary( void )
 	if ( !pPlayer )
 		return;
 
+#ifdef MAPBASE_VSCRIPT
+	if (m_ScriptScope.IsInitialized() && g_Hook_PreStartCommentary.CanRunInScope( m_ScriptScope ))
+	{
+		ScriptVariant_t functionReturn;
+		if ( g_Hook_PreStartCommentary.Call( m_ScriptScope, &functionReturn, NULL ) && functionReturn.m_type == FIELD_BOOLEAN )
+		{
+			// Don't play the commentary if it returned false
+			if (functionReturn.m_bool == false)
+				return;
+		}
+	}
+#endif
+
 	m_bActive = true;
 
 	m_flAnimTime = gpGlobals->curtime;
@@ -1139,6 +1303,21 @@ void CPointCommentaryNode::StartCommentary( void )
 
 	// Start the commentary
 	m_flStartTime = gpGlobals->curtime;
+
+#ifdef MAPBASE
+	if (m_hViewPosition.Get())
+	{
+		m_flViewPositionChangedTime = gpGlobals->curtime;
+	}
+	else
+	{
+		m_flViewPositionChangedTime = -1.0f;
+	}
+
+	// This is now used in certain places to denote the "last blend to" origin
+	m_vecFinishOrigin = pPlayer->EyePosition();
+	m_vecFinishAngles = pPlayer->EyeAngles();
+#endif
 
 	// If we have a view target, start blending towards it
 	if ( m_hViewTarget || m_hViewPosition.Get() )
@@ -1214,6 +1393,10 @@ void CPointCommentaryNode::UpdateViewThink( void )
   		float dx = AngleDiff( angGoal.x, angCurrent.x );
   		float dy = AngleDiff( angGoal.y, angCurrent.y );
 		float mod = 1.0 - ExponentialDecay( 0.5, 0.3, gpGlobals->frametime );
+#ifdef MAPBASE
+		if (m_flViewTargetSpeedScale != 1.0f)
+			mod *= m_flViewTargetSpeedScale;
+#endif
    		float dxmod = dx * mod;
 		float dymod = dy * mod;
 
@@ -1254,16 +1437,85 @@ void CPointCommentaryNode::UpdateViewThink( void )
 		}
 
 		// Blend to the target position over time. 
- 		float flCurTime = (gpGlobals->curtime - m_flStartTime);
+#ifdef MAPBASE
+		float flCurTime = (gpGlobals->curtime - m_flViewPositionChangedTime);
+		if (m_flViewPositionSpeedScale != 1.0f)
+			flCurTime *= m_flViewPositionSpeedScale;
+#else
+		float flCurTime = (gpGlobals->curtime - m_flStartTime);
+#endif
  		float flBlendPerc = clamp( flCurTime * 0.5f, 0.f, 1.f );
 
 		// Figure out the current view position
 		Vector vecCurEye;
+#ifdef MAPBASE
+		VectorLerp( m_vecFinishOrigin, m_hViewPosition.Get()->GetAbsOrigin(), flBlendPerc, vecCurEye );
+#else
 		VectorLerp( pPlayer->EyePosition(), m_hViewPosition.Get()->GetAbsOrigin(), flBlendPerc, vecCurEye );
+#endif
 		m_hViewPositionMover->SetAbsOrigin( vecCurEye ); 
 
 		SetNextThink( gpGlobals->curtime, s_pCommentaryUpdateViewThink );
 	}
+#ifdef MAPBASE
+	else if ( m_flViewPositionChangedTime != -1.0f && m_hViewPositionMover )
+	{
+ 		// Blend back to the player's position over time.
+   		float flCurTime = (gpGlobals->curtime - m_flViewPositionChangedTime);
+		if (m_flViewPositionSpeedScale != 1.0f)
+			flCurTime *= m_flViewPositionSpeedScale;
+
+		//float flTimeToBlend = MIN( 2.0, m_flViewPositionChangedTime - m_flStartTime );
+ 		//float flBlendPerc = 1.0f - clamp( flCurTime / flTimeToBlend, 0.f, 1.f );
+		float flBlendPerc = 1.0f - clamp( flCurTime * 0.5f, 0.f, 1.f );
+
+		//Msg("OUT: CurTime %.2f, BlendTime: %.2f, Blend: %.3f\n", flCurTime, flTimeToBlend, flBlendPerc );
+
+		// Only do this while we're still moving
+		if ( flBlendPerc > 0 )
+		{
+			// Figure out the current view position
+			Vector vecPlayerPos = pPlayer->EyePosition();
+			Vector vecToPosition = (m_vecFinishOrigin - vecPlayerPos); 
+			Vector vecCurEye = pPlayer->EyePosition() + (vecToPosition * flBlendPerc);
+			m_hViewPositionMover->SetAbsOrigin( vecCurEye ); 
+
+			if ( m_hViewTarget )
+			{
+				Quaternion quatFinish;
+				Quaternion quatOriginal;
+				Quaternion quatCurrent;
+				AngleQuaternion( m_vecOriginalAngles, quatOriginal );
+				AngleQuaternion( m_vecFinishAngles, quatFinish );
+				QuaternionSlerp( quatFinish, quatOriginal, 1.0 - flBlendPerc, quatCurrent );
+				QAngle angCurrent;
+				QuaternionAngles( quatCurrent, angCurrent );
+				m_hViewPositionMover->SetAbsAngles( angCurrent );
+			}
+
+			SetNextThink( gpGlobals->curtime, s_pCommentaryUpdateViewThink );
+			return;
+		}
+		else
+		{
+			pPlayer->SnapEyeAngles( m_hViewPositionMover->GetAbsAngles() );
+
+			// Try to clean up the view position stuff without ending the commentary
+			if ( !m_hViewTargetAngles && pPlayer->GetActiveWeapon() )
+			{
+				pPlayer->GetActiveWeapon()->Deploy();
+			}
+
+			if (pPlayer->GetViewEntity() == m_hViewPositionMover)
+			{
+				pPlayer->SetViewEntity( NULL );
+			}
+			UTIL_Remove( m_hViewPositionMover );
+
+			m_flViewPositionChangedTime = -1.0f;
+		}
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1279,6 +1531,10 @@ void CPointCommentaryNode::UpdateViewPostThink( void )
 	{
  		// Blend back to the player's position over time.
    		float flCurTime = (gpGlobals->curtime - m_flFinishedTime);
+#ifdef MAPBASE
+		if (m_flReturnSpeedScale != 1.0f)
+			flCurTime *= m_flReturnSpeedScale;
+#endif
 		float flTimeToBlend = MIN( 2.0, m_flFinishedTime - m_flStartTime ); 
  		float flBlendPerc = 1.0f - clamp( flCurTime / flTimeToBlend, 0.f, 1.f );
 
@@ -1440,6 +1696,79 @@ void CPointCommentaryNode::InputDisable( inputdata_t &inputdata )
 	SetDisabled( true );
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPointCommentaryNode::InputSetViewTarget( inputdata_t &inputdata )
+{
+	m_hViewTarget = inputdata.value.Entity();
+
+	// Do not let Activate() reassign this
+	m_iszViewTarget = NULL_STRING;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPointCommentaryNode::InputSetViewPosition( inputdata_t &inputdata )
+{
+	if (m_hViewPosition.Get() && m_hViewPositionMover)
+	{
+		// In case the view position is being cleared, assign the "finish" vectors
+		m_vecFinishOrigin = m_hViewPositionMover->GetAbsOrigin();
+		m_vecFinishAngles = m_hViewPositionMover->GetAbsAngles();
+	}
+	else
+	{
+		CBasePlayer *pPlayer = GetCommentaryPlayer();
+		if (pPlayer)
+		{
+			// And in case it's a new view position coming from the player, assign the "finish" vectors to the player
+			m_vecFinishOrigin = pPlayer->EyePosition();
+			m_vecFinishAngles = m_vecOriginalAngles = pPlayer->EyeAngles();
+		}
+	}
+
+	m_hViewPosition = inputdata.value.Entity();
+
+	// Do not let Activate() reassign this
+	m_iszViewPosition = NULL_STRING;
+
+	m_flViewPositionChangedTime = gpGlobals->curtime;
+
+	// If we have a view target, start blending towards it
+	if ( m_hViewPosition.Get() )
+	{
+ 		SetContextThink( &CPointCommentaryNode::UpdateViewThink, gpGlobals->curtime, s_pCommentaryUpdateViewThink );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPointCommentaryNode::InputSetViewTargetSpeed( inputdata_t &inputdata )
+{
+	m_flViewTargetSpeedScale = inputdata.value.Float();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPointCommentaryNode::InputSetViewPositionSpeed( inputdata_t &inputdata )
+{
+	m_flViewPositionSpeedScale = inputdata.value.Float();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPointCommentaryNode::InputSetReturnSpeed( inputdata_t &inputdata )
+{
+	m_flReturnSpeedScale = inputdata.value.Float();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1501,7 +1830,11 @@ void CPointCommentaryNode::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways 
 bool CPointCommentaryNode::PreventsMovement( void )
 { 
 	// If we're moving the player's view at all, prevent movement
+#ifdef MAPBASE
+	if ( m_hViewPosition.Get() || m_flViewPositionChangedTime != -1.0f )
+#else
 	if ( m_hViewPosition.Get() )
+#endif
 		return true;
 
 	return m_bPreventMovement; 

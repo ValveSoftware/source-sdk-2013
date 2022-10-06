@@ -20,6 +20,10 @@
 #include "ServerNetworkProperty.h"
 #include "shareddefs.h"
 #include "engine/ivmodelinfo.h"
+#ifdef NEW_RESPONSE_SYSTEM
+#include "AI_Criteria.h"
+#include "AI_ResponseSystem.h"
+#endif
 
 #include "vscript/ivscript.h"
 #include "vscript_server.h"
@@ -29,8 +33,10 @@ class CDmgAccumulator;
 
 struct CSoundParameters;
 
+#ifndef NEW_RESPONSE_SYSTEM
 class AI_CriteriaSet;
 class IResponseSystem;
+#endif
 class IEntitySaveUtils;
 class CRecipientFilter;
 class CStudioHdr;
@@ -38,6 +44,11 @@ class CStudioHdr;
 // Matching the high level concept is significantly better than other criteria
 // FIXME:  Could do this in the script file by making it required and bumping up weighting there instead...
 #define CONCEPT_WEIGHT 5.0f
+
+#ifdef NEW_RESPONSE_SYSTEM
+// Relax the namespace standard a bit so that less code has to be changed
+#define IResponseSystem ResponseRules::IResponseSystem
+#endif
 
 typedef CHandle<CBaseEntity> EHANDLE;
 
@@ -341,10 +352,10 @@ struct thinkfunc_t
 #ifdef MAPBASE_VSCRIPT
 struct scriptthinkfunc_t
 {
-	int				m_nNextThinkTick;
-	HSCRIPT			m_hfnThink;
-	unsigned short	m_iContextHash;
-	bool			m_bNoParam;
+	float		m_flNextThink;
+	HSCRIPT		m_hfnThink;
+	unsigned	m_iContextHash;
+	bool		m_bNoParam;
 };
 #endif
 
@@ -599,7 +610,7 @@ public:
 #ifdef MAPBASE_VSCRIPT
 	void ScriptFireOutput( const char *pszOutput, HSCRIPT hActivator, HSCRIPT hCaller, const char *szValue, float flDelay );
 	float GetMaxOutputDelay( const char *pszOutput );
-	void CancelEventsByInput( const char *szInput );
+	//void CancelEventsByInput( const char *szInput );
 #endif
 
 
@@ -682,6 +693,10 @@ public:
 #endif
 
 	bool ScriptInputHook( const char *szInputName, CBaseEntity *pActivator, CBaseEntity *pCaller, variant_t Value, ScriptVariant_t &functionReturn );
+	void ScriptInputHookClearParams();
+#ifdef MAPBASE_VSCRIPT
+	bool ScriptDeathHook( CTakeDamageInfo *info );
+#endif
 
 	//
 	// Input handlers.
@@ -1001,10 +1016,10 @@ public:
 	const char *GetContextValue( const char *contextName ) const;
 	float	GetContextExpireTime( const char *name );
 	void	RemoveContext( const char *nameandvalue );
-	void	AddContext( const char *name, const char *value, float duration = 0.0f );
 #endif
 
 	void	AddContext( const char *nameandvalue );
+	void	AddContext( const char *name, const char *value, float duration = 0.0f );
 
 protected:
 	CUtlVector< ResponseContext_t > m_ResponseContexts;
@@ -1079,7 +1094,7 @@ public:
 	void SendOnKilledGameEvent( const CTakeDamageInfo &info );
 
 	// Notifier that I've killed some other entity. (called from Victim's Event_Killed).
-	virtual void	Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info ) { return; }
+	virtual void	Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info );
 
 	// UNDONE: Make this data?
 	virtual int				BloodColor( void );
@@ -1258,7 +1273,7 @@ public:
 #ifdef _DEBUG
 	void FunctionCheck( void *pFunction, const char *name );
 
-	ENTITYFUNCPTR TouchSet( ENTITYFUNCPTR func, char *name ) 
+	ENTITYFUNCPTR TouchSet( ENTITYFUNCPTR func, const char *name ) 
 	{ 
 #ifdef GNUC
 		COMPILE_TIME_ASSERT( sizeof(func) == 8 );
@@ -1269,7 +1284,7 @@ public:
 		FunctionCheck( *(reinterpret_cast<void **>(&m_pfnTouch)), name ); 
 		return func;
 	}
-	USEPTR	UseSet( USEPTR func, char *name ) 
+	USEPTR	UseSet( USEPTR func, const char *name ) 
 	{ 
 #ifdef GNUC
 		COMPILE_TIME_ASSERT( sizeof(func) == 8 );
@@ -1280,7 +1295,7 @@ public:
 		FunctionCheck( *(reinterpret_cast<void **>(&m_pfnUse)), name ); 
 		return func;
 	}
-	ENTITYFUNCPTR	BlockedSet( ENTITYFUNCPTR func, char *name ) 
+	ENTITYFUNCPTR	BlockedSet( ENTITYFUNCPTR func, const char *name ) 
 	{ 
 #ifdef GNUC
 		COMPILE_TIME_ASSERT( sizeof(func) == 8 );
@@ -1294,6 +1309,12 @@ public:
 
 #endif
 	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& set );
+#ifdef NEW_RESPONSE_SYSTEM
+	// this computes criteria that depend on the other criteria having been set. 
+	// needs to be done in a second pass because we may have multiple overrids for
+	// a context before it all settles out.
+	virtual void	ModifyOrAppendDerivedCriteria( AI_CriteriaSet& set ) {};
+#endif
 	void			AppendContextToCriteria( AI_CriteriaSet& set, const char *prefix = "" );
 #ifdef MAPBASE
 	void			ReAppendContextCriteria( AI_CriteriaSet& set );
@@ -1517,6 +1538,12 @@ public:
 	void					GenderExpandString( char const *in, char *out, int maxlen );
 
 	virtual void ModifyEmitSoundParams( EmitSound_t &params );
+#ifdef MAPBASE
+	// Same as above, but for sentences
+	// (which don't actually have EmitSound_t params)
+	virtual void ModifySentenceParams( int &iSentenceIndex, int &iChannel, float &flVolume, soundlevel_t &iSoundlevel, int &iFlags, int &iPitch,
+		const Vector **pOrigin, const Vector **pDirection, bool &bUpdatePositions, float &soundtime, int &iSpecialDSP, int &iSpeakerIndex );
+#endif
 
 	static float GetSoundDuration( const char *soundname, char const *actormodel );
 
@@ -1546,7 +1573,11 @@ public:
 	static void EmitCloseCaption( IRecipientFilter& filter, int entindex, char const *token, CUtlVector< Vector >& soundorigins, float duration, bool warnifmissing = false );
 	static void	EmitSentenceByIndex( IRecipientFilter& filter, int iEntIndex, int iChannel, int iSentenceIndex, 
 		float flVolume, soundlevel_t iSoundlevel, int iFlags = 0, int iPitch = PITCH_NORM,
-		const Vector *pOrigin = NULL, const Vector *pDirection = NULL, bool bUpdatePositions = true, float soundtime = 0.0f );
+		const Vector *pOrigin = NULL, const Vector *pDirection = NULL, bool bUpdatePositions = true, float soundtime = 0.0f
+#ifdef MAPBASE
+		, int iSpecialDSP = 0, int iSpeakerIndex = 0 // Needed for env_microphone
+#endif
+		);
 
 	static bool IsPrecacheAllowed();
 	static void SetAllowPrecache( bool allow );
@@ -2115,16 +2146,24 @@ public:
 	int ScriptGetMoveType() { return GetMoveType(); }
 	void ScriptSetMoveType( int iMoveType ) { SetMoveType( (MoveType_t)iMoveType ); }
 
+	int ScriptGetSolid() { return GetSolid(); }
+	void ScriptSetSolid( int i ) { SetSolid( (SolidType_t)i ); }
+
 	bool ScriptDispatchInteraction( int interactionType, HSCRIPT data, HSCRIPT sourceEnt );
 
 	int ScriptGetTakeDamage() { return m_takedamage; }
 	void ScriptSetTakeDamage( int val ) { m_takedamage = val; }
 
 	static ScriptHook_t	g_Hook_UpdateOnRemove;
+	static ScriptHook_t	g_Hook_OnEntText;
+
 	static ScriptHook_t	g_Hook_VPhysicsCollision;
 	static ScriptHook_t	g_Hook_FireBullets;
 	static ScriptHook_t	g_Hook_OnDeath;
+	static ScriptHook_t	g_Hook_OnKilledOther;
 	static ScriptHook_t	g_Hook_HandleInteraction;
+	static ScriptHook_t	g_Hook_ModifyEmitSoundParams;
+	static ScriptHook_t	g_Hook_ModifySentenceParams;
 #endif
 
 	string_t		m_iszVScripts;

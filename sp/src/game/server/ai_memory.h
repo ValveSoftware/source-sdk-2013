@@ -45,29 +45,6 @@ struct AI_EnemyInfo_t
 	bool			bUnforgettable;
 	bool			bMobbedMe;			// True if enemy was part of a mob at some point
 
-#ifdef MAPBASE_VSCRIPT
-	// Script functions.
-	#define ENEMY_INFO_SCRIPT_FUNCS(type, name, var) \
-	type			Get##name() { return var; } \
-	void			Set##name( type v ) { var = v; }
-
-	HSCRIPT			Enemy() { return ToHScript(hEnemy); }
-	void			SetEnemy( HSCRIPT ent ) { hEnemy = ToEnt(ent); }
-
-	ENEMY_INFO_SCRIPT_FUNCS( Vector, LastKnownLocation, vLastKnownLocation );
-	ENEMY_INFO_SCRIPT_FUNCS( Vector, LastSeenLocation, vLastSeenLocation );
-	ENEMY_INFO_SCRIPT_FUNCS( float, TimeLastSeen, timeLastSeen );
-	ENEMY_INFO_SCRIPT_FUNCS( float, TimeFirstSeen, timeFirstSeen );
-	ENEMY_INFO_SCRIPT_FUNCS( float, TimeLastReacquired, timeLastReacquired );
-	ENEMY_INFO_SCRIPT_FUNCS( float, TimeValidEnemy, timeValidEnemy );
-	ENEMY_INFO_SCRIPT_FUNCS( float, TimeLastReceivedDamageFrom, timeLastReceivedDamageFrom );
-	ENEMY_INFO_SCRIPT_FUNCS( float, TimeAtFirstHand, timeAtFirstHand );
-	ENEMY_INFO_SCRIPT_FUNCS( bool, DangerMemory, bDangerMemory );
-	ENEMY_INFO_SCRIPT_FUNCS( bool, EludedMe, bEludedMe );
-	ENEMY_INFO_SCRIPT_FUNCS( bool, Unforgettable, bUnforgettable );
-	ENEMY_INFO_SCRIPT_FUNCS( bool, MobbedMe, bMobbedMe );
-#endif
-
 	DECLARE_SIMPLE_DATADESC();
 };
 

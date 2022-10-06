@@ -19,6 +19,10 @@
 #include "basegrenade_shared.h"
 #include "ai_squad.h"
 #include "GlobalStrings.h"
+#include "gameweaponmanager.h"
+#include "hl2_gamerules.h"
+#include "weapon_physcannon.h"
+#include "globalstate.h"
 
 #define COMBINE_AE_GREN_TOSS		( 7 )
 
@@ -36,7 +40,9 @@
 	DEFINE_FIELD( m_flNextAltFireTime, FIELD_TIME ),	\
 	DEFINE_FIELD( m_vecAltFireTarget, FIELD_VECTOR ),	\
 	DEFINE_FIELD( m_vecTossVelocity, FIELD_VECTOR ),	\
+	DEFINE_FIELD( m_iLastAnimEventHandled, FIELD_INTEGER ),	\
 	DEFINE_INPUTFUNC( FIELD_STRING,	"ThrowGrenadeAtTarget",	InputThrowGrenadeAtTarget ),	\
+	DEFINE_INPUTFUNC( FIELD_STRING,	"ThrowGrenadeGestureAtTarget",	InputThrowGrenadeGestureAtTarget ),	\
 	DEFINE_INPUTFUNC( FIELD_INTEGER,	"SetGrenades",	InputSetGrenades ),	\
 	DEFINE_INPUTFUNC( FIELD_INTEGER,	"AddGrenades",	InputAddGrenades ),	\
 	DEFINE_OUTPUT(m_OnThrowGrenade, "OnThrowGrenade"),	\
@@ -61,10 +67,20 @@
 extern int COMBINE_AE_BEGIN_ALTFIRE;
 extern int COMBINE_AE_ALTFIRE;
 
+extern ConVar ai_grenade_always_drop;
+
 enum eGrenadeCapabilities
 {
 	GRENCAP_GRENADE = (1 << 0),
 	GRENCAP_ALTFIRE = (1 << 1),
+};
+
+// What grenade/item types NPCs are capable of dropping
+enum eGrenadeDropCapabilities
+{
+	GRENDROPCAP_GRENADE = (1 << 0),
+	GRENDROPCAP_ALTFIRE = (1 << 1),
+	GRENDROPCAP_INTERRUPTED = (1 << 2), // Drops grenades when interrupted mid-animation
 };
 
 //-----------------------------------------------------------------------------
@@ -102,17 +118,20 @@ public:
 			m_OnOutOfGrenades.Set( pLastGrenade, pLastGrenade, this );
 	}
 
-	virtual bool	IsAltFireCapable() { return false; }
+	// Use secondary ammo as a way of checking if this is a weapon which can be alt-fired (e.g. AR2 or SMG)
+	virtual bool	IsAltFireCapable() { return (this->GetActiveWeapon() && this->GetActiveWeapon()->UsesSecondaryAmmo()); }
 	virtual bool	IsGrenadeCapable() { return true; }
 	inline bool		HasGrenades() { return m_iNumGrenades > 0; }
 
 	void InputSetGrenades( inputdata_t &inputdata ) { AddGrenades( inputdata.value.Int() - m_iNumGrenades ); }
 	void InputAddGrenades( inputdata_t &inputdata ) { AddGrenades( inputdata.value.Int() ); }
 	void InputThrowGrenadeAtTarget( inputdata_t &inputdata );
+	void InputThrowGrenadeGestureAtTarget( inputdata_t &inputdata );
 
 	virtual void DelayGrenadeCheck( float delay ) { m_flNextGrenadeCheck = gpGlobals->curtime + delay; }
 
 	void 			HandleAnimEvent( animevent_t *pEvent );
+	void			SetActivity( Activity NewActivity );
 
 	// Soldiers use "lefthand", cops use "LHand", and citizens use "anim_attachment_LH"
 	virtual const char*		GetGrenadeAttachment() { return "anim_attachment_LH"; }
@@ -130,6 +149,12 @@ public:
 
 	// For OnThrowGrenade + point_entity_replace, see grenade_frag.cpp
 	bool			UsingOnThrowGrenade() { return m_OnThrowGrenade.NumberOfElements() > 0; }
+
+	// For dropping grenades and beyond
+	void			DropGrenadeItemsOnDeath( const CTakeDamageInfo &info, CBasePlayer *pPlayer );
+	virtual bool	ShouldDropGrenades() { return HasGrenades(); }
+	virtual bool	ShouldDropInterruptedGrenades() { return true; }
+	virtual bool	ShouldDropAltFire() { return HasGrenades(); }
 
 protected:
 
@@ -151,6 +176,9 @@ protected: // We can't have any private saved variables because only derived cla
 	Vector			m_vecAltFireTarget;
 	Vector			m_vecTossVelocity;
 
+	// CNPC_Combine port for determining if we tossed a grenade
+	int				m_iLastAnimEventHandled;
+
 	COutputEHANDLE	m_OnThrowGrenade;
 	COutputEHANDLE	m_OnOutOfGrenades;
 };
@@ -165,6 +193,8 @@ void CAI_GrenadeUser<BASE_NPC>::HandleAnimEvent( animevent_t *pEvent )
 	{
 		if (this->GetActiveWeapon())
 			this->GetActiveWeapon()->WeaponSound( SPECIAL1 );
+
+		m_iLastAnimEventHandled = pEvent->event;
 
 		//SpeakIfAllowed( TLK_CMB_THROWGRENADE, "altfire:1" );
 		return;
@@ -184,6 +214,8 @@ void CAI_GrenadeUser<BASE_NPC>::HandleAnimEvent( animevent_t *pEvent )
 		DelaySquadAltFireAttack( 10.0f );
 
 		AddGrenades(-1);
+
+		m_iLastAnimEventHandled = pEvent->event;
 
 		return;
 	}
@@ -221,10 +253,23 @@ void CAI_GrenadeUser<BASE_NPC>::HandleAnimEvent( animevent_t *pEvent )
 
 		// wait six seconds before even looking again to see if a grenade can be thrown.
 		m_flNextGrenadeCheck = gpGlobals->curtime + 6;
+
+		m_iLastAnimEventHandled = pEvent->event;
+
 		return;
 	}
 
 	BaseClass::HandleAnimEvent( pEvent );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::SetActivity( Activity NewActivity )
+{
+	BaseClass::SetActivity( NewActivity );
+
+	m_iLastAnimEventHandled = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -250,6 +295,63 @@ void CAI_GrenadeUser<BASE_NPC>::InputThrowGrenadeAtTarget( inputdata_t &inputdat
 	m_flNextGrenadeCheck = 0;
 
 	this->ClearSchedule( "Told to throw grenade via input" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Force the combine soldier to throw a grenade at the target using the gesture animation.
+//			If I'm a combine elite, fire my combine ball at the target instead.
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::InputThrowGrenadeGestureAtTarget( inputdata_t &inputdata )
+{
+	// Ignore if we're inside a scripted sequence
+	//if ( this->GetState() == NPC_STATE_SCRIPT && this->m_hCine )
+	//	return;
+
+	CBaseEntity *pEntity = gEntList.FindEntityByName( NULL, inputdata.value.String(), this, inputdata.pActivator, inputdata.pCaller );
+	if ( !pEntity )
+	{
+		DevMsg("%s (%s) received ThrowGrenadeGestureAtTarget input, but couldn't find target entity '%s'\n", this->GetClassname(), this->GetDebugName(), inputdata.value.String() );
+		return;
+	}
+
+	m_hForcedGrenadeTarget = pEntity;
+	m_flNextGrenadeCheck = 0;
+
+	Vector vecTarget = m_hForcedGrenadeTarget->WorldSpaceCenter();
+
+#if SHARED_COMBINE_ACTIVITIES
+	if (IsAltFireCapable())
+	{
+		if (this->FVisible( m_hForcedGrenadeTarget ))
+		{
+			m_vecAltFireTarget = vecTarget;
+			m_hForcedGrenadeTarget = NULL;
+
+			int iLayer = this->AddGesture( ACT_GESTURE_COMBINE_AR2_ALTFIRE );
+			if (iLayer != -1)
+			{
+				this->GetShotRegulator()->FireNoEarlierThan( gpGlobals->curtime + this->GetLayerDuration( iLayer ) );
+			}
+		}
+	}
+	else
+	{
+		// If we can, throw a grenade at the target. 
+		// Ignore grenade count / distance / etc
+		if (CheckCanThrowGrenade( vecTarget ))
+		{
+			int iLayer = this->AddGesture( ACT_GESTURE_COMBINE_THROW_GRENADE );
+			if (iLayer != -1)
+			{
+				this->GetShotRegulator()->FireNoEarlierThan( gpGlobals->curtime + this->GetLayerDuration( iLayer ) );
+			}
+		}
+	}
+#else
+	Warning("Gesture grenades/alt-fire not supported\n");
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -531,6 +633,105 @@ void CAI_GrenadeUser<BASE_NPC>::ClearAttackConditions()
 		// We don't allow the base class to clear this condition because we
 		// don't sense for it every frame.
 		this->SetCondition( COND_CAN_RANGE_ATTACK2 );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Drops grenades and alt-fire items on death. Based on code from npc_combines.cpp and npc_combine.cpp
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+void CAI_GrenadeUser<BASE_NPC>::DropGrenadeItemsOnDeath( const CTakeDamageInfo &info, CBasePlayer *pPlayer )
+{
+	// Elites drop alt-fire ammo, so long as they weren't killed by dissolving.
+	if( IsAltFireCapable() && ShouldDropAltFire() )
+	{
+		CBaseEntity *pItem;
+		if (this->GetActiveWeapon() && FClassnameIs( this->GetActiveWeapon(), "weapon_smg1" ))
+			pItem = this->DropItem( "item_ammo_smg1_grenade", this->WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
+		else
+			pItem = this->DropItem( "item_ammo_ar2_altfire", this->WorldSpaceCenter() + RandomVector( -4, 4 ), RandomAngle( 0, 360 ) );
+
+		if ( pItem )
+		{
+			IPhysicsObject *pObj = pItem->VPhysicsGetObject();
+
+			if ( pObj )
+			{
+				Vector			vel		= RandomVector( -64.0f, 64.0f );
+				AngularImpulse	angImp	= RandomAngularImpulse( -300.0f, 300.0f );
+
+				vel[2] = 0.0f;
+				pObj->AddVelocity( &vel, &angImp );
+			}
+
+			if( info.GetDamageType() & DMG_DISSOLVE )
+			{
+				CBaseAnimating *pAnimating = dynamic_cast<CBaseAnimating*>(pItem);
+
+				if( pAnimating )
+				{
+					pAnimating->Dissolve( NULL, gpGlobals->curtime, false, ENTITY_DISSOLVE_NORMAL );
+				}
+			}
+			else
+			{
+				WeaponManager_AddManaged( pItem );
+			}
+		}
+	}
+	
+	if ( IsGrenadeCapable() )
+	{
+		if ( ShouldDropGrenades() )
+		{
+			CHalfLife2 *pHL2GameRules = static_cast<CHalfLife2 *>(g_pGameRules);
+
+			// Attempt to drop a grenade
+			if ( pHL2GameRules->NPC_ShouldDropGrenade( pPlayer ) )
+			{
+				this->DropItem( "weapon_frag", this->WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
+				pHL2GameRules->NPC_DroppedGrenade();
+			}
+		}
+
+		// if I was killed before I could finish throwing my grenade, drop
+		// a grenade item that the player can retrieve.
+		if (this->GetActivity() == ACT_RANGE_ATTACK2 && ShouldDropInterruptedGrenades())
+		{
+			if( m_iLastAnimEventHandled != COMBINE_AE_GREN_TOSS )
+			{
+				// Drop the grenade as an item.
+				Vector vecStart;
+				this->GetAttachment( GetGrenadeAttachment(), vecStart );
+
+				CBaseEntity *pItem = this->DropItem( "weapon_frag", vecStart, RandomAngle(0,360) );
+
+				if ( pItem )
+				{
+					IPhysicsObject *pObj = pItem->VPhysicsGetObject();
+
+					if ( pObj )
+					{
+						Vector			vel;
+						vel.x = random->RandomFloat( -100.0f, 100.0f );
+						vel.y = random->RandomFloat( -100.0f, 100.0f );
+						vel.z = random->RandomFloat( 800.0f, 1200.0f );
+						AngularImpulse	angImp	= RandomAngularImpulse( -300.0f, 300.0f );
+
+						vel[2] = 0.0f;
+						pObj->AddVelocity( &vel, &angImp );
+					}
+
+					// In the Citadel we need to dissolve this
+					if ( PlayerHasMegaPhysCannon() && GlobalEntity_GetCounter("super_phys_gun") != 1 )
+					{
+						CBaseCombatWeapon *pWeapon = static_cast<CBaseCombatWeapon *>(pItem);
+
+						pWeapon->Dissolve( NULL, gpGlobals->curtime, false, ENTITY_DISSOLVE_NORMAL );
+					}
+				}
+			}
+		}
 	}
 }
 

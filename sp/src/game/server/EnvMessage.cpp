@@ -154,6 +154,9 @@ public:
 	DECLARE_DATADESC();
 
 	void	Spawn( void );
+#ifdef MAPBASE
+	void	PrecacheCreditsThink();
+#endif
 	void	InputRollCredits( inputdata_t &inputdata );
 	void	InputRollOutroCredits( inputdata_t &inputdata );
 	void	InputShowLogo( inputdata_t &inputdata );
@@ -186,6 +189,8 @@ BEGIN_DATADESC( CCredits )
 
 #ifdef MAPBASE
 	DEFINE_KEYFIELD( m_iszCreditsFile, FIELD_STRING, "CreditsFile" ),
+
+	DEFINE_THINKFUNC( PrecacheCreditsThink ),
 #endif
 
 	DEFINE_FIELD( m_bRolledOutroCredits, FIELD_BOOLEAN ),
@@ -196,7 +201,34 @@ void CCredits::Spawn( void )
 {
 	SetSolid( SOLID_NONE );
 	SetMoveType( MOVETYPE_NONE );
+
+#ifdef MAPBASE
+	// Ensures the player has time to spawn
+	SetContextThink( &CCredits::PrecacheCreditsThink, gpGlobals->curtime + 0.5f, "PrecacheCreditsContext" );
+#endif
 }
+
+#ifdef MAPBASE
+void CCredits::PrecacheCreditsThink()
+{
+	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	if (!pPlayer)
+	{
+		Warning( "%s: No player\n", GetDebugName() );
+		return;
+	}
+
+	CSingleUserRecipientFilter user( pPlayer );
+	user.MakeReliable();
+	
+	UserMessageBegin( user, "CreditsMsg" );
+		WRITE_BYTE( 4 );
+		WRITE_STRING( STRING(m_iszCreditsFile) );
+	MessageEnd();
+
+	SetContextThink( NULL, TICK_NEVER_THINK, "PrecacheCreditsContext" );
+}
+#endif
 
 static void CreditsDone_f( void )
 {

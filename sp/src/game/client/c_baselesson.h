@@ -426,7 +426,7 @@ private:
 	LessonEvent_t * AddUpdateEvent( void );
 
 private:
-	static CUtlDict< int, int > CScriptedIconLesson::LessonActionMap;
+	static CUtlDict< int, int > LessonActionMap;
 
 	EHANDLE					m_hLocalPlayer;
 	float					m_fOutput;

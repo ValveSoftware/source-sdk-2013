@@ -12,6 +12,7 @@ $Configuration
 		
 		$PreprocessorDefinitions		"$BASE;MAPBASE_RPC;DISCORD_RPC;STEAM_RPC"	[$MAPBASE_RPC]
 		$PreprocessorDefinitions		"$BASE;MAPBASE_VSCRIPT"		[$MAPBASE_VSCRIPT]
+		$PreprocessorDefinitions		"$BASE;NEW_RESPONSE_SYSTEM"		[$NEW_RESPONSE_SYSTEM]
 	}
 }
 
@@ -34,6 +35,7 @@ $Project
 		$File	"c_movie_display.cpp"
 		$File	"c_movie_display.h"
 		$File	"vgui_movie_display.cpp"
+		$File	"convarproxy.cpp"
 	
 		$Folder	"Mapbase"
 		{
@@ -45,6 +47,8 @@ $Project
 			$File	"$SRCDIR\game\shared\mapbase\MapEdit.h"
 			$File	"$SRCDIR\game\shared\mapbase\matchers.cpp"
 			$File	"$SRCDIR\game\shared\mapbase\matchers.h"
+			$File	"$SRCDIR\game\shared\mapbase\singleplayer_animstate.cpp"
+			$File	"$SRCDIR\game\shared\mapbase\singleplayer_animstate.h"
 			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_shared.cpp" [$MAPBASE_VSCRIPT]
 			$File	"$SRCDIR\game\shared\mapbase\vscript_funcs_shared.h" [$MAPBASE_VSCRIPT]
 			$File	"$SRCDIR\game\shared\mapbase\vscript_singletons.cpp" [$MAPBASE_VSCRIPT]
@@ -61,6 +65,7 @@ $Project
 			$File	"mapbase\c_func_fake_worldportal.h"
 			$File	"mapbase\c_point_glow.cpp"
 			$File	"mapbase\c_vgui_text_display.cpp"
+			$File	"mapbase\mapbase_autocubemap.cpp"
 		}
 		
 		$Folder "HL2 DLL"

@@ -401,6 +401,14 @@ FileWeaponInfo_t::FileWeaponInfo_t()
 	bShowUsageHint = false;
 	m_bAllowFlipping = true;
 	m_bBuiltRightHanded = true;
+#ifdef MAPBASE
+	m_flViewmodelFOV = 0.0f;
+	m_flBobScale = 1.0f;
+	m_flSwayScale = 1.0f;
+	m_flSwaySpeedScale = 1.0f;
+	szDroppedModel[0] = 0;
+	m_bUsesHands = false;
+#endif
 }
 
 #ifdef CLIENT_DLL
@@ -465,6 +473,17 @@ void FileWeaponInfo_t::Parse( KeyValues *pKeyValuesData, const char *szWeaponNam
 	m_bBuiltRightHanded = ( pKeyValuesData->GetInt( "BuiltRightHanded", 1 ) != 0 ) ? true : false;
 	m_bAllowFlipping = ( pKeyValuesData->GetInt( "AllowFlipping", 1 ) != 0 ) ? true : false;
 	m_bMeleeWeapon = ( pKeyValuesData->GetInt( "MeleeWeapon", 0 ) != 0 ) ? true : false;
+
+#ifdef MAPBASE
+	m_flViewmodelFOV = pKeyValuesData->GetFloat( "viewmodel_fov", 0.0f );
+	m_flBobScale = pKeyValuesData->GetFloat( "bob_scale", 1.0f );
+	m_flSwayScale = pKeyValuesData->GetFloat( "sway_scale", 1.0f );
+	m_flSwaySpeedScale = pKeyValuesData->GetFloat( "sway_speed_scale", 1.0f );
+
+	Q_strncpy( szDroppedModel, pKeyValuesData->GetString( "droppedmodel" ), MAX_WEAPON_STRING );
+
+	m_bUsesHands = ( pKeyValuesData->GetInt( "uses_hands", 0 ) != 0 ) ? true : false;
+#endif
 
 #ifndef MAPBASE // Mapbase makes weapons in the same slot & position swap each other out, which is a feature mods can intentionally use.
 #if defined(_DEBUG) && defined(HL2_CLIENT_DLL)

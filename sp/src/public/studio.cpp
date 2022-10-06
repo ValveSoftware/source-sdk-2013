@@ -516,7 +516,7 @@ void studiohdr_t::SetAttachmentBone( int iAttachment, int iBone )
 // Purpose:
 //-----------------------------------------------------------------------------
 
-char *studiohdr_t::pszNodeName( int iNode )
+const char *studiohdr_t::pszNodeName( int iNode )
 {
 	if (numincludemodels == 0)
 	{
@@ -565,7 +565,7 @@ int	studiohdr_t::GetActivityListVersion( void )
 	virtualmodel_t *pVModel = (virtualmodel_t *)GetVirtualModel();
 	Assert( pVModel );
 
-	int version = activitylistversion;
+	int versionLocl = activitylistversion;
 
 	int i;
 	for (i = 1; i < pVModel->m_group.Count(); i++)
@@ -575,15 +575,15 @@ int	studiohdr_t::GetActivityListVersion( void )
 
 		Assert( pStudioHdr );
 
-		version = min( version, pStudioHdr->activitylistversion );
+		versionLocl = min( versionLocl, pStudioHdr->activitylistversion );
 	}
 
-	return version;
+	return versionLocl;
 }
 
-void studiohdr_t::SetActivityListVersion( int version ) const
+void studiohdr_t::SetActivityListVersion( int iVersion ) const
 {
-	activitylistversion = version;
+	activitylistversion = iVersion;
 
 	if (numincludemodels == 0)
 	{
@@ -601,7 +601,7 @@ void studiohdr_t::SetActivityListVersion( int version ) const
 
 		Assert( pStudioHdr );
 
-		pStudioHdr->SetActivityListVersion( version );
+		pStudioHdr->SetActivityListVersion( iVersion );
 	}
 }
 
@@ -1152,7 +1152,7 @@ void CStudioHdr::SetAttachmentBone( int iAttachment, int iBone )
 // Purpose:
 //-----------------------------------------------------------------------------
 
-char *CStudioHdr::pszNodeName( int iNode )
+const char *CStudioHdr::pszNodeName( int iNode )
 {
 	if (m_pVModel == NULL)
 	{
@@ -1433,9 +1433,9 @@ void CStudioHdr::RunFlexRules( const float *src, float *dest )
 				{
 					int m = pops->d.index;
 					int km = k - m;
-					for ( int i = km + 1; i < k; ++i )
+					for ( int l = km + 1; l < k; ++l )
 					{
-						stack[ km ] *= stack[ i ];
+						stack[ km ] *= stack[ l ];
 					}
 					k = k - m + 1;
 				}
@@ -1445,9 +1445,9 @@ void CStudioHdr::RunFlexRules( const float *src, float *dest )
 					int m = pops->d.index;
 					int km = k - m;
 					float dv = stack[ km ];
-					for ( int i = km + 1; i < k; ++i )
+					for ( int l = km + 1; l < k; ++l )
 					{
-						dv *= stack[ i ];
+						dv *= stack[ l ];
 					}
 					stack[ km - 1 ] *= 1.0f - dv;
 					k -= m;
@@ -1701,7 +1701,7 @@ void CStudioHdr::CActivityToSequenceMapping::Initialize( CStudioHdr * __restrict
 	// This stack may potentially grow very large; so if you have problems with it, 
 	// go to a utlmap or similar structure.
 	unsigned int allocsize = (topActivity + 1) * sizeof(int);
-#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) ) //  need macro for constant expression
+//#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) ) //  need macro for constant expression
 	allocsize = ALIGN_VALUE(allocsize,16);
 	int * __restrict seqsPerAct = static_cast<int *>(stackalloc(allocsize));
 	memset(seqsPerAct, 0, allocsize);

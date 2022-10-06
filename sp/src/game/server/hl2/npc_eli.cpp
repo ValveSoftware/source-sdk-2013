@@ -37,6 +37,11 @@ public:
 	int		GetSoundInterests( void );
 	void	SetupWithoutParent( void );
 	void	PrescheduleThink( void );
+
+#ifdef MAPBASE
+	// Use Eli's default subtitle color (255,208,172)
+	bool	GetGameTextSpeechParams( hudtextparms_t &params ) { params.r1 = 255; params.g1 = 208; params.b1 = 172; return BaseClass::GetGameTextSpeechParams( params ); }
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( npc_eli, CNPC_Eli );

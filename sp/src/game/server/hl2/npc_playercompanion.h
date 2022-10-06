@@ -23,6 +23,7 @@
 #endif
 
 #ifdef MAPBASE
+#include "ai_behavior_functank.h"
 #include "mapbase/ai_grenade.h"
 #endif
 
@@ -108,8 +109,10 @@ class CNPC_PlayerCompanion : public CAI_PlayerAlly
 {
 	DECLARE_CLASS( CNPC_PlayerCompanion, CAI_PlayerAlly );
 #endif
-
 public:
+
+	CNPC_PlayerCompanion();
+
 	//---------------------------------
 	bool			CreateBehaviors();
 	void			Precache();
@@ -237,6 +240,7 @@ public:
 	// This is just here to overwrite ai_playerally's TLK_ENEMY_DEAD
 	virtual void	OnKilledNPC(CBaseCombatCharacter *pKilled) {}
 
+	virtual void	Event_Killed( const CTakeDamageInfo &info );
 	virtual void	Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info );
 	virtual void	DoCustomCombatAI( void );
 #endif
@@ -278,6 +282,9 @@ public:
 	bool			ShouldLookForBetterWeapon();
 	bool			Weapon_CanUse( CBaseCombatWeapon *pWeapon );
 	void			Weapon_Equip( CBaseCombatWeapon *pWeapon );
+#ifdef MAPBASE
+	bool			DoUnholster( void );
+#endif
 	void			PickupWeapon( CBaseCombatWeapon *pWeapon );
 
 #if COMPANION_MELEE_ATTACK
@@ -337,13 +344,18 @@ public:
 	bool			AllowReadinessValueChange( void );
 
 #ifdef MAPBASE
-	virtual bool IsAltFireCapable() { return (m_iGrenadeCapabilities & GRENCAP_ALTFIRE) != 0; }
+	virtual bool IsAltFireCapable() { return (m_iGrenadeCapabilities & GRENCAP_ALTFIRE) != 0 && BaseClass::IsAltFireCapable(); }
 	virtual bool IsGrenadeCapable() { return (m_iGrenadeCapabilities & GRENCAP_GRENADE) != 0; }
+
+	virtual bool	ShouldDropGrenades() { return (m_iGrenadeDropCapabilities & GRENDROPCAP_GRENADE) != 0 && BaseClass::ShouldDropGrenades(); }
+	virtual bool	ShouldDropInterruptedGrenades() { return (m_iGrenadeDropCapabilities & GRENDROPCAP_INTERRUPTED) != 0 && BaseClass::ShouldDropInterruptedGrenades(); }
+	virtual bool	ShouldDropAltFire() { return (m_iGrenadeDropCapabilities & GRENDROPCAP_ALTFIRE) != 0 && BaseClass::ShouldDropAltFire(); }
 
 private:
 
 	// Determines whether this NPC is allowed to use grenades or alt-fire stuff.
 	eGrenadeCapabilities m_iGrenadeCapabilities;
+	eGrenadeDropCapabilities m_iGrenadeDropCapabilities;
 #endif
 
 protected:
@@ -424,6 +436,9 @@ protected:
 	CAI_OperatorBehavior			m_OperatorBehavior;
 	CAI_PassengerBehaviorCompanion	m_PassengerBehavior;
 	CAI_FearBehavior				m_FearBehavior;
+#endif
+#ifdef MAPBASE
+	CAI_FuncTankBehavior			m_FuncTankBehavior;
 #endif
 	//-----------------------------------------------------
 

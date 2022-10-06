@@ -1210,6 +1210,10 @@ void CNPC_BaseZombie::DieChopped( const CTakeDamageInfo &info )
 		if( pAnimating )
 		{
 			pAnimating->SetBodygroup( ZOMBIE_BODYGROUP_HEADCRAB, !m_fIsHeadless );
+#ifdef MAPBASE
+			// Inherit some animating properties
+			pAnimating->m_nSkin = m_nSkin;
+#endif
 		}
 
 #ifdef MAPBASE
@@ -2350,11 +2354,14 @@ void CNPC_BaseZombie::BecomeTorso( const Vector &vecTorsoForce, const Vector &ve
 		if ( m_bForceServerRagdoll )
 		{
 			pGib = CreateServerRagdollSubmodel( this, GetLegsModel(), GetAbsOrigin() - Vector(0, 0, 40), GetAbsAngles(), COLLISION_GROUP_INTERACTIVE_DEBRIS );
-			pGib->VPhysicsGetObject()->AddVelocity( &vecLegsForce, NULL );
-
-			if (flFadeTime > 0.0)
+			if (pGib && pGib->VPhysicsGetObject())
 			{
-				pGib->SUB_StartFadeOut( flFadeTime, false );
+				pGib->VPhysicsGetObject()->AddVelocity( &vecLegsForce, NULL );
+
+				if (flFadeTime > 0.0)
+				{
+					pGib->SUB_StartFadeOut( flFadeTime, false );
+				}
 			}
 		}
 		else
@@ -2502,11 +2509,14 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 		if ( m_bForceServerRagdoll )
 		{
 			pGib = CreateServerRagdollSubmodel( this, GetHeadcrabModel(), vecOrigin, GetLocalAngles(), COLLISION_GROUP_INTERACTIVE_DEBRIS );
-			pGib->VPhysicsGetObject()->AddVelocity(&vecVelocity, NULL);
-			if (ShouldIgniteZombieGib())
-				static_cast<CBaseAnimating*>(pGib)->Ignite( random->RandomFloat( 8.0, 12.0 ), false );
+			if (pGib && pGib->VPhysicsGetObject())
+			{
+				pGib->VPhysicsGetObject()->AddVelocity(&vecVelocity, NULL);
+				if (ShouldIgniteZombieGib())
+					static_cast<CBaseAnimating*>(pGib)->Ignite( random->RandomFloat( 8.0, 12.0 ), false );
 
-			pGib->SUB_StartFadeOut( 15, false );
+				pGib->SUB_StartFadeOut( 15, false );
+			}
 		}
 		else
 			pGib = CreateRagGib( GetHeadcrabModel(), vecOrigin, GetLocalAngles(), vecVelocity, 15, ShouldIgniteZombieGib() );

@@ -300,6 +300,10 @@ public:
 #ifdef MAPBASE
 	void InputSetFOV( inputdata_t &inputdata );
 	void InputSetFOVRate( inputdata_t &inputdata );
+
+	void InputSetTarget( inputdata_t &inputdata );
+	void InputSetTargetAttachment( inputdata_t &inputdata );
+	void InputSetTrackSpeed( inputdata_t &inputdata );
 #endif
 
 private:
@@ -323,6 +327,7 @@ private:
 #ifdef MAPBASE
 	float m_fov;
 	float m_fovSpeed;
+	float m_flTrackSpeed;
 
 	bool m_bDontSetPlayerView;
 #endif

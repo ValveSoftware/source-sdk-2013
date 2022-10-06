@@ -14,7 +14,8 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$BASE,..\common,$SRCDIR\game\shared,.\"
-		$PreprocessorDefinitions			"$BASE;captioncompiler"
+		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;captioncompiler" [($VS2015||$VS2017||$VS2019||$VS2022)]
+		$PreprocessorDefinitions			"$BASE;captioncompiler" [!($VS2015||$VS2017||$VS2019||$VS2022)]
 	}
 }
 

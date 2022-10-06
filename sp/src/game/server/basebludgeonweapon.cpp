@@ -406,4 +406,8 @@ void CBaseHLBludgeonWeapon::Swing( int bIsSecondary )
 	//Play swing sound
 	WeaponSound( SINGLE );
 #endif
+
+#ifdef MAPBASE
+	pOwner->SetAnimation( PLAYER_ATTACK1 );
+#endif
 }

@@ -111,6 +111,11 @@ public:
 	void			PlayRandomCaption();
 
 	void				InitCaptionDictionary( char const *dbfile );
+#ifdef MAPBASE
+	void				AddAdditionalCaptionDictionary( char const *dbfile, CUtlVector<CUtlSymbol> &outPathSymbols );
+	void				AddCustomCaptionFile( char const *file, CUtlVector<CUtlSymbol> &outPathSymbols );
+	void				RemoveCaptionDictionary( const CUtlSymbol &dbFileSymbol );
+#endif
 	void				OnFinishAsyncLoad( int nFileIndex, int nBlockNum, AsyncCaptionData_t *pData );
 
 	void			Flush();
@@ -132,6 +137,11 @@ public:
 	void			Unlock( void );
 
 	void			FindSound( char const *pchANSI );
+
+#ifdef MAPBASE
+	inline bool		IsUsingCommentaryDimensions() const { return m_bUsingCommentaryDimensions; }
+	inline void		SetUsingCommentaryDimensions( bool bToggle ) { m_bUsingCommentaryDimensions = bToggle; }
+#endif
 
 public:
 
@@ -169,7 +179,7 @@ private:
 
 	void	DrawStream( wrect_t& rect, wrect_t &rcWindow, CCloseCaptionItem *item, int iFadeLine, float flFadeLineAlpha ); 
 	void	ComputeStreamWork( int available_width, CCloseCaptionItem *item );
-	bool	SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args ) const;
+	bool	SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args, int size ) const;
 
 	bool	StreamHasCommand( const wchar_t *stream, const wchar_t *findcmd ) const;
 	bool	GetFloatCommandValue( const wchar_t *stream, const wchar_t *findcmd, float& value ) const;
@@ -212,6 +222,10 @@ private:
 	bool		m_bVisibleDueToDirect;
 	bool		m_bPaintDebugInfo;
 	CUtlSymbol	m_CurrentLanguage;
+
+#ifdef MAPBASE
+	bool		m_bUsingCommentaryDimensions;
+#endif
 };
 
 #endif // HUD_CLOSECAPTION_H

@@ -150,6 +150,10 @@ private:
 		static const int ENTRY_IN_USE = -2;
 	};
 
+#ifdef MAPBASE_VSCRIPT
+	// For unregistration boundary check
+public:
+#endif
 	CUtlVector< GlowObjectDefinition_t > m_GlowObjectDefinitions;
 	int m_nFirstFreeSlot;
 };

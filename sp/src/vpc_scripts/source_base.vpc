@@ -16,14 +16,13 @@
 //$Conditional TF_BETA	"1"
 
 //-----------------------------------------------------------------------------
-// Mapbase conditional, equivalent to (and required for) our MAPBASE preprocessor defined below
-$Conditional MAPBASE	"1"
 
-// Toggles Mapbase's RPC implementation
-$Conditional MAPBASE_RPC	"1"
+// Mapbase functionality conditionals
+$Conditional MAPBASE	"1" // Equivalent to (and required for) our MAPBASE preprocessor defined below
+$Conditional MAPBASE_RPC	"1" // Toggles Mapbase's Rich Presence Client implementations
+$Conditional MAPBASE_VSCRIPT	"1" // Toggles VScript implementation (note: interfaces still exist, just the provided implementation is not present)
+$Conditional NEW_RESPONSE_SYSTEM	"1" // Toggles the new Response System library based on the Alien Swarm SDK
 
-// Toggles VScript implementation (note: interfaces still exist, just the provided implementation is not present)
-$Conditional MAPBASE_VSCRIPT	"1"
 //-----------------------------------------------------------------------------
 
 $Configuration "Debug"

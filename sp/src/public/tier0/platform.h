@@ -367,7 +367,7 @@ typedef void * HINSTANCE;
 #define MAX_UNICODE_PATH MAX_PATH
 #endif
 
-#define MAX_UNICODE_PATH_IN_UTF8 MAX_UNICODE_PATH*4
+#define MAX_UNICODE_PATH_IN_UTF8 (MAX_UNICODE_PATH*4)
 
 #ifdef GNUC
 #undef offsetof
@@ -379,7 +379,7 @@ typedef void * HINSTANCE;
 #endif
 
 
-#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) ) //  need macro for constant expression
+#define ALIGN_VALUE( val, alignment ) ( ( (val) + (alignment) - 1 ) & ~( (alignment) - 1 ) ) //  need macro for constant expression
 
 // Used to step into the debugger
 #if defined( _WIN32 ) && !defined( _X360 )
@@ -572,7 +572,16 @@ typedef void * HINSTANCE;
 		#endif
 	// GCC 3.4.1 has a bug in supporting forced inline of templated functions
 	// this macro lets us not force inlining in that case
-	#define FORCEINLINE_TEMPLATE	inline
+#if __GNUC__ < 4
+#define FORCEINLINE_TEMPLATE inline
+#else
+#define FORCEINLINE_TEMPLATE inline __attribute__((always_inline))
+#endif
+#if __cpp_constexpr >= 201304
+#define CONSTEXPR_FUNC constexpr
+#else
+#define CONSTEXPR_FUNC
+#endif
 //	#define  __stdcall			__attribute__ ((__stdcall__))
 #endif
 
@@ -672,6 +681,40 @@ typedef void * HINSTANCE;
 #pragma warning( disable : 4312 )	// conversion from 'unsigned int' to 'memhandle_t' of greater size
 #endif
 
+// Detect C++11 support for "rvalue references" / "move semantics" / other C++11 (and up) stuff
+#if defined(_MSC_VER)
+#if _MSC_VER >= 1600
+#define VALVE_RVALUE_REFS 1
+#endif
+#if _MSC_VER >= 1800
+#define VALVE_INITIALIZER_LIST_SUPPORT 1
+#define VALVE_EXPLICIT_CONVERSION_OP 1
+#endif
+#elif defined(__clang__)
+#if __has_extension(cxx_rvalue_references)
+#define VALVE_RVALUE_REFS 1
+#endif
+#if __has_feature(cxx_generalized_initializers)
+#define VALVE_INITIALIZER_LIST_SUPPORT 1
+#endif
+#if __has_feature(cxx_explicit_conversions)
+#define VALVE_EXPLICIT_CONVERSION_OP 1
+#endif
+#elif defined(__GNUC__)
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6 )
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define VALVE_RVALUE_REFS 1
+#define VALVE_INITIALIZER_LIST_SUPPORT 1
+#define VALVE_EXPLICIT_CONVERSION_OP 1
+#endif
+#endif
+#endif
+
+#ifdef VALVE_RVALUE_REFS
+#include "tier0/valve_minmax_off.h"
+#include <utility>
+#include "tier0/valve_minmax_on.h"
+#endif
 
 #ifdef POSIX
 #define _stricmp stricmp
@@ -703,29 +746,6 @@ typedef void * HINSTANCE;
 typedef uint32 HMODULE;
 typedef void *HANDLE;
 #endif
-
-//-----------------------------------------------------------------------------
-// fsel
-//-----------------------------------------------------------------------------
-#ifndef _X360
-
-static FORCEINLINE float fsel(float fComparand, float fValGE, float fLT)
-{
-	return fComparand >= 0 ? fValGE : fLT;
-}
-static FORCEINLINE double fsel(double fComparand, double fValGE, double fLT)
-{
-	return fComparand >= 0 ? fValGE : fLT;
-}
-
-#else
-
-// __fsel(double fComparand, double fValGE, double fLT) == fComparand >= 0 ? fValGE : fLT
-// this is much faster than if ( aFloat > 0 ) { x = .. }
-#define fsel __fsel
-
-#endif
-
 
 //-----------------------------------------------------------------------------
 // FP exception handling
@@ -1257,6 +1277,15 @@ inline bool Plat_IsInDebugSession( bool bForceRecheck = false ) { return false; 
 PLATFORM_INTERFACE bool Is64BitOS();
 
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// General Mapbase version constants compiled into projects for versioning purposes
+//-----------------------------------------------------------------------------
+#define MAPBASE_VERSION "7.0"
+#define MAPBASE_VER_INT 7000	// For use in #if in a similar fashion to macros like _MSC_VER
+#endif
+
+
 //-----------------------------------------------------------------------------
 // XBOX Components valid in PC compilation space
 //-----------------------------------------------------------------------------
@@ -1328,62 +1357,81 @@ inline const char *GetPlatformExt( void )
 template <class T>
 inline T* Construct( T* pMemory )
 {
+	HINT(pMemory != 0);
 	return ::new( pMemory ) T;
 }
 
 template <class T, typename ARG1>
 inline T* Construct( T* pMemory, ARG1 a1 )
 {
+	HINT(pMemory != 0);
 	return ::new( pMemory ) T( a1 );
 }
 
 template <class T, typename ARG1, typename ARG2>
 inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2 )
 {
+	HINT(pMemory != 0);
 	return ::new( pMemory ) T( a1, a2 );
 }
 
 template <class T, typename ARG1, typename ARG2, typename ARG3>
 inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3 )
 {
+	HINT(pMemory != 0);
 	return ::new( pMemory ) T( a1, a2, a3 );
 }
 
 template <class T, typename ARG1, typename ARG2, typename ARG3, typename ARG4>
 inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4 )
 {
+	HINT(pMemory != 0);
 	return ::new( pMemory ) T( a1, a2, a3, a4 );
 }
 
 template <class T, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5>
 inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4, ARG5 a5 )
 {
+	HINT(pMemory != 0);
 	return ::new( pMemory ) T( a1, a2, a3, a4, a5 );
 }
 
 template <class T, class P>
 inline void ConstructOneArg( T* pMemory, P const& arg)
 {
+	HINT(pMemory != 0);
 	::new( pMemory ) T(arg);
 }
 
 template <class T, class P1, class P2 >
 inline void ConstructTwoArg( T* pMemory, P1 const& arg1, P2 const& arg2)
 {
+	HINT(pMemory != 0);
 	::new( pMemory ) T(arg1, arg2);
 }
 
 template <class T, class P1, class P2, class P3 >
 inline void ConstructThreeArg( T* pMemory, P1 const& arg1, P2 const& arg2, P3 const& arg3)
 {
+	HINT(pMemory != 0);
 	::new( pMemory ) T(arg1, arg2, arg3);
 }
 
 template <class T>
 inline T* CopyConstruct( T* pMemory, T const& src )
 {
+	HINT(pMemory != 0);
 	return ::new( pMemory ) T(src);
 }
+					
+#ifdef VALVE_RVALUE_REFS
+template <class T>
+inline void CopyConstruct(T* pMemory, T&& src)
+{
+	HINT(pMemory != 0);
+	::new(pMemory)T(std::forward<T>(src));
+}
+#endif
 
 template <class T>
 inline void Destruct( T* pMemory )

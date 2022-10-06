@@ -317,6 +317,14 @@ float CBaseHLCombatWeapon::CalcViewmodelBob( void )
 	g_lateralBob = speed*0.005f;
 	g_lateralBob = g_lateralBob*0.3 + g_lateralBob*0.7*sin(cycle);
 	g_lateralBob = clamp( g_lateralBob, -7.0f, 4.0f );
+
+#ifdef MAPBASE
+	if (GetBobScale() != 1.0f)
+	{
+		//g_verticalBob *= GetBobScale();
+		g_lateralBob *= GetBobScale();
+	}
+#endif
 	
 	//NOTENOTE: We don't use this return value in our case (need to restructure the calculation function setup!)
 	return 0.0f;

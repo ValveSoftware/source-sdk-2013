@@ -1302,7 +1302,7 @@ void CHudCloseCaption::Reset( void )
 	Unlock();
 }
 
-bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args ) const
+bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args, int size ) const
 {
 	const wchar_t *in = *ppIn;
 	const wchar_t *oldin = in;
@@ -1317,8 +1317,11 @@ bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t
 	cmd[ 0 ]= 0;
 	wchar_t *out = cmd;
 	in++;
-	while ( *in != L'\0' && *in != L':' && *in != L'>' && !isspace( *in ) )
+	while ( *in != L'\0' && *in != L':' && *in != L'>' && !V_isspace( *in ) )
 	{
+		if ( (int)( out - cmd ) + (int)sizeof( wchar_t ) >= size )
+			break;
+
 		*out++ = *in++;
 	}
 	*out = L'\0';
@@ -1333,6 +1336,9 @@ bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t
 	out = args;
 	while ( *in != L'\0' && *in != L'>' )
 	{
+		if ( (int)( out - args ) + (int)sizeof( wchar_t ) >= size )
+			break;
+
 		*out++ = *in++;
 	}
 	*out = L'\0';
@@ -1360,7 +1366,7 @@ bool CHudCloseCaption::GetFloatCommandValue( const wchar_t *stream, const wchar_
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, findcmd ) )
 			{
@@ -1384,7 +1390,7 @@ bool CHudCloseCaption::StreamHasCommand( const wchar_t *stream, const wchar_t *f
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, findcmd ) )
 			{
@@ -1423,7 +1429,7 @@ bool CHudCloseCaption::StreamHasCommand( const wchar_t *stream, const wchar_t *s
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, search ) )
 			{
@@ -1515,7 +1521,7 @@ void CHudCloseCaption::Process( const wchar_t *stream, float duration, const cha
 
 		const wchar_t *prevpos = curpos;
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, L"delay" ) )
 			{
@@ -1612,6 +1618,9 @@ struct WorkUnitParams
 		clr = Color( 255, 255, 255, 255 );
 		newline = false;
 		font = 0;
+#ifdef MAPBASE
+		customFont = false;
+#endif
 	}
 
 	~WorkUnitParams()
@@ -1657,6 +1666,9 @@ struct WorkUnitParams
 	Color clr;
 	bool	newline;
 	vgui::HFont font;
+#ifdef MAPBASE
+	bool	customFont;
+#endif
 };
 
 void CHudCloseCaption::AddWorkUnit( CCloseCaptionItem *item,
@@ -1716,7 +1728,7 @@ void CHudCloseCaption::ComputeStreamWork( int available_width, CCloseCaptionItem
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, L"cr" ) )
 			{
@@ -1771,27 +1783,58 @@ void CHudCloseCaption::ComputeStreamWork( int available_width, CCloseCaptionItem
 			{
 				AddWorkUnit( item, params );
 				params.italic = !params.italic;
+#ifdef MAPBASE
+				params.customFont = false;
+#endif
 			}
 			else if ( !wcscmp( cmd, L"B" ) )
 			{
 				AddWorkUnit( item, params );
 				params.bold = !params.bold;
+#ifdef MAPBASE
+				params.customFont = false;
+#endif
 			}
+#ifdef MAPBASE
+			else if ( !wcscmp( cmd, L"font" ) )
+			{
+				AddWorkUnit( item, params );
+				vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( GetScheme() );
+
+				if ( args[0] != 0 )
+				{
+					char font[64];
+					g_pVGuiLocalize->ConvertUnicodeToANSI( args, font, sizeof( font ) );
+					params.font = pScheme->GetFont( font );
+					params.customFont = true;
+				}
+				else
+				{
+					params.customFont = false;
+				}
+			}
+#endif
 
 			continue;
 		}
 
-		int font;
-		if ( IsPC() )
+		vgui::HFont useF = params.font;
+#ifdef MAPBASE
+		if (params.customFont == false)
+#endif
 		{
-			font = params.GetFontNumber();
+			int font;
+			if ( IsPC() )
+			{
+				font = params.GetFontNumber();
+			}
+			else
+			{
+				font = streamlen >= cc_smallfontlength.GetInt() ? CCFONT_SMALL : CCFONT_NORMAL;
+			}
+			useF = m_hFonts[font];
+			params.font = useF;
 		}
-		else
-		{
-			font = streamlen >= cc_smallfontlength.GetInt() ? CCFONT_SMALL : CCFONT_NORMAL;
-		}
-		vgui::HFont useF = m_hFonts[font];
-		params.font = useF;
 
 		int w, h;
 
@@ -1939,7 +1982,7 @@ bool CHudCloseCaption::GetNoRepeatValue( const wchar_t *caption, float &retval )
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, args, sizeof( cmd ) ) )
 		{
 			if ( !wcscmp( cmd, L"norepeat" ) )
 			{
@@ -2629,6 +2672,124 @@ void CHudCloseCaption::InitCaptionDictionary( const char *dbfile )
 
 	g_AsyncCaptionResourceManager.SetDbInfo( m_AsyncCaptions );
 }
+
+#ifdef MAPBASE
+void CHudCloseCaption::AddAdditionalCaptionDictionary( const char *dbfile, CUtlVector<CUtlSymbol> &outPathSymbols )
+{
+	CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Adding additional caption dictionary \"%s\"\n", dbfile );
+
+	g_AsyncCaptionResourceManager.Clear();
+
+	char searchPaths[4096];
+	filesystem->GetSearchPath( "MOD", true, searchPaths, sizeof( searchPaths ) );
+
+	for ( char *path = strtok( searchPaths, ";" ); path; path = strtok( NULL, ";" ) )
+	{
+		if ( IsX360() && ( filesystem->GetDVDMode() == DVDMODE_STRICT ) && !V_stristr( path, ".zip" ) )
+		{
+			// only want zip paths
+			continue;
+		} 
+
+		char fullpath[MAX_PATH];
+		Q_snprintf( fullpath, sizeof( fullpath ), "%s%s", path, dbfile );
+		Q_FixSlashes( fullpath );
+
+		if ( IsX360() )
+		{
+			char fullpath360[MAX_PATH];
+			UpdateOrCreateCaptionFile( fullpath, fullpath360, sizeof( fullpath360 ) );
+			Q_strncpy( fullpath, fullpath360, sizeof( fullpath ) );
+		}
+
+		// Seach for this dictionary. If it already exists, remove it.
+		for (int i = 0; i < m_AsyncCaptions.Count(); ++i)
+		{
+			if (FStrEq( m_AsyncCaptions[i].m_DataBaseFile.String(), fullpath ))
+			{
+				m_AsyncCaptions.Remove( i );
+				break;
+			}
+		}
+
+        FileHandle_t fh = filesystem->Open( fullpath, "rb" );
+		if ( FILESYSTEM_INVALID_HANDLE != fh )
+		{
+			MEM_ALLOC_CREDIT();
+
+			CUtlBuffer dirbuffer;
+
+			AsyncCaption_t& entry = m_AsyncCaptions[ m_AsyncCaptions.AddToTail() ];
+
+			// Read the header
+			filesystem->Read( &entry.m_Header, sizeof( entry.m_Header ), fh );
+			if ( entry.m_Header.magic != COMPILED_CAPTION_FILEID )
+				Error( "Invalid file id for %s\n", fullpath );
+			if ( entry.m_Header.version != COMPILED_CAPTION_VERSION )
+				Error( "Invalid file version for %s\n", fullpath );
+			if ( entry.m_Header.directorysize < 0 || entry.m_Header.directorysize > 64 * 1024 )
+				Error( "Invalid directory size %d for %s\n", entry.m_Header.directorysize, fullpath );
+			//if ( entry.m_Header.blocksize != MAX_BLOCK_SIZE )
+			//	Error( "Invalid block size %d, expecting %d for %s\n", entry.m_Header.blocksize, MAX_BLOCK_SIZE, fullpath );
+
+			int directoryBytes = entry.m_Header.directorysize * sizeof( CaptionLookup_t );
+			entry.m_CaptionDirectory.EnsureCapacity( entry.m_Header.directorysize );
+			dirbuffer.EnsureCapacity( directoryBytes );
+			
+			filesystem->Read( dirbuffer.Base(), directoryBytes, fh );
+			filesystem->Close( fh );
+
+			entry.m_CaptionDirectory.CopyArray( (const CaptionLookup_t *)dirbuffer.PeekGet(), entry.m_Header.directorysize );
+			entry.m_CaptionDirectory.RedoSort( true );
+
+			entry.m_DataBaseFile = fullpath;
+			outPathSymbols.AddToTail( entry.m_DataBaseFile );
+		}
+	}
+
+	g_AsyncCaptionResourceManager.SetDbInfo( m_AsyncCaptions );
+}
+
+void CHudCloseCaption::AddCustomCaptionFile( char const *file, CUtlVector<CUtlSymbol> &outPathSymbols )
+{
+	// 
+	// 'file' should be something like "maps/mapbase_demo01_closecaption_%language%"
+	// 
+
+	CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Adding custom caption file \"%s\"\n", file );
+
+	if (!IsX360())
+	{
+		g_pVGuiLocalize->AddFile( file, "MOD", true );
+	}
+
+	char uilanguage[64];
+	engine->GetUILanguage( uilanguage, sizeof( uilanguage ) );
+
+	char dbfile[512];
+	V_StrSubst( file, "%language%", uilanguage, dbfile, sizeof( dbfile ) );
+	V_SetExtension( dbfile, ".dat", sizeof( dbfile ) );
+	AddAdditionalCaptionDictionary( dbfile, outPathSymbols );
+}
+
+void CHudCloseCaption::RemoveCaptionDictionary( const CUtlSymbol &dbFileSymbol )
+{
+	// 
+	// 'file' should be something like "maps/mapbase_demo01_closecaption_%language%"
+	// 
+
+	CGMsg( 1, CON_GROUP_MAPBASE_MISC, "Removing custom caption file \"%s\"\n", dbFileSymbol.String() );
+
+	for (int i = 0; i < m_AsyncCaptions.Count(); ++i)
+	{
+		if ( m_AsyncCaptions[i].m_DataBaseFile == dbFileSymbol )
+		{
+			m_AsyncCaptions.Remove( i );
+			break;
+		}
+	}
+}
+#endif
 
 void CHudCloseCaption::OnFinishAsyncLoad( int nFileIndex, int nBlockNum, AsyncCaptionData_t *pData )
 {

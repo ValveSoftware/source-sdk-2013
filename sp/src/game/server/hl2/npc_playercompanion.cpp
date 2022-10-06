@@ -34,6 +34,7 @@
 #ifdef MAPBASE
 #include "mapbase/GlobalStrings.h"
 #include "world.h"
+#include "vehicle_base.h"
 #endif
 
 ConVar ai_debug_readiness("ai_debug_readiness", "0" );
@@ -58,6 +59,10 @@ int AE_COMPANION_RELEASE_FLARE;
 #define AE_PC_MELEE 3
 
 #define COMPANION_MELEE_DIST 64.0
+#endif
+
+#ifdef MAPBASE
+ConVar ai_allow_new_weapons( "ai_allow_new_weapons", "1", FCVAR_NONE, "Allows companion NPCs to automatically pick up and use weapons they were unable pick up before, i.e. 357s or crossbows." );
 #endif
 
 #define MAX_TIME_BETWEEN_BARRELS_EXPLODING			5.0f
@@ -148,6 +153,11 @@ BEGIN_DATADESC( CNPC_PlayerCompanion )
 #ifdef MAPBASE
 	DEFINE_AIGRENADE_DATADESC()
 	DEFINE_INPUT( m_iGrenadeCapabilities, FIELD_INTEGER, "SetGrenadeCapabilities" ),
+	DEFINE_INPUT( m_iGrenadeDropCapabilities, FIELD_INTEGER, "SetGrenadeDropCapabilities" ),
+#endif
+
+#ifdef COMPANION_MELEE_ATTACK
+	DEFINE_FIELD( m_nMeleeDamage, FIELD_INTEGER ),
 #endif
 
 END_DATADESC()
@@ -175,6 +185,19 @@ string_t CNPC_PlayerCompanion::gm_iszAR2Classname;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
+CNPC_PlayerCompanion::CNPC_PlayerCompanion()
+{
+#ifdef MAPBASE
+	if (ai_grenade_always_drop.GetBool())
+	{
+		m_iGrenadeDropCapabilities = (eGrenadeDropCapabilities)(GRENDROPCAP_GRENADE | GRENDROPCAP_ALTFIRE | GRENDROPCAP_INTERRUPTED);
+	}
+#endif
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
 bool CNPC_PlayerCompanion::CreateBehaviors()
 {
 #ifdef HL2_EPISODIC
@@ -196,6 +219,10 @@ bool CNPC_PlayerCompanion::CreateBehaviors()
 	AddBehavior( &m_FollowBehavior );
 	AddBehavior( &m_LeadBehavior );
 #endif//HL2_EPISODIC
+
+#ifdef MAPBASE
+	AddBehavior( &m_FuncTankBehavior );
+#endif
 	
 	return BaseClass::CreateBehaviors();
 }
@@ -219,6 +246,11 @@ void CNPC_PlayerCompanion::Precache()
 #endif
 #endif
 
+#ifdef MAPBASE
+	// Moved from Spawn()
+	SelectModel();
+#endif
+
 	PrecacheModel( STRING( GetModelName() ) );
 	
 #ifdef HL2_EPISODIC
@@ -237,7 +269,9 @@ void CNPC_PlayerCompanion::Precache()
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::Spawn()
 {
+#ifndef MAPBASE // Moved to Precache()
 	SelectModel();
+#endif
 
 	Precache();
 
@@ -1620,6 +1654,19 @@ Activity CNPC_PlayerCompanion::TranslateActivityReadiness( Activity activity )
 					continue;
 			}
 
+#ifdef MAPBASE
+			// If we don't have the readiness activity we selected and there's no backup activity available, break the loop and return the base act.
+			bool bRequired;
+			if ( !HaveSequenceForActivity( actremap.mappedActivity ) && !HaveSequenceForActivity( Weapon_TranslateActivity( actremap.mappedActivity, &bRequired ) ) )
+			{
+				Activity backupAct = Weapon_BackupActivity( actremap.mappedActivity, bRequired );
+				if ( backupAct != actremap.mappedActivity )
+					return backupAct;
+				else
+					break;
+			}
+#endif
+
 			// We've successfully passed all criteria for remapping this 
 			return actremap.mappedActivity;
 		}
@@ -1642,21 +1689,6 @@ Activity CNPC_PlayerCompanion::NPC_TranslateActivity( Activity activity )
 		if ( random->RandomInt( 0, 1 ) && HaveSequenceForActivity( ACT_RUN_PROTECTED ) )
 			activity = ACT_RUN_PROTECTED;
 	}
-
-#ifdef COMPANION_HOLSTER_WORKAROUND
-	if (activity == ACT_DISARM || activity == ACT_ARM)
-	{
-		CBaseCombatWeapon *pWeapon = GetActiveWeapon() ? GetActiveWeapon() : m_hWeapons[m_iLastHolsteredWeapon];
-		if (pWeapon && pWeapon->WeaponClassify() != WEPCLASS_HANDGUN)
-		{
-			switch (activity)
-			{
-			case ACT_DISARM:	return ACT_DISARM_RIFLE;
-			case ACT_ARM:		return ACT_ARM_RIFLE;
-			}
-		}
-	}
-#endif
 
 	activity = BaseClass::NPC_TranslateActivity( activity );
 
@@ -1928,10 +1960,9 @@ bool CNPC_PlayerCompanion::IsReadinessCapable()
 	{
 		// Rather than looking up the activity string, we just make sure our weapon accepts a few basic readiness activity overrides.
 		// This lets us make sure our weapon is readiness-capable to begin with.
-		CBaseCombatWeapon *pWeapon = GetActiveWeapon();
-		if ( pWeapon->ActivityOverride(ACT_IDLE_RELAXED, NULL) == ACT_IDLE_RELAXED &&
-			pWeapon->ActivityOverride( ACT_IDLE_STIMULATED, NULL ) == ACT_IDLE_STIMULATED &&
-			pWeapon->ActivityOverride( ACT_IDLE_AGITATED, NULL ) == ACT_IDLE_AGITATED )
+		if ( TranslateActivity( ACT_IDLE_RELAXED ) == ACT_IDLE_RELAXED &&
+			TranslateActivity( ACT_IDLE_STIMULATED ) == ACT_IDLE_STIMULATED &&
+			TranslateActivity( ACT_IDLE_AGITATED ) == ACT_IDLE_AGITATED )
 			return false;
 
 		if (LookupActivity( "ACT_IDLE_AIM_RIFLE_STIMULATED" ) == ACT_INVALID)
@@ -2726,6 +2757,13 @@ bool CNPC_PlayerCompanion::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 		{
 			return (NumWeaponsInSquad("weapon_shotgun") < 1 );
 		}
+#ifdef MAPBASE
+		else if (EntIsClass( pWeapon, gm_isz_class_Pistol ) || EntIsClass( pWeapon, gm_isz_class_357 ) || EntIsClass( pWeapon, gm_isz_class_Crossbow ))
+		{
+			// The AI automatically detects these weapons as usable now that there's animations for them, so ensure this behavior can be toggled in situations where that's not desirable
+			return ai_allow_new_weapons.GetBool();
+		}
+#endif
 		else
 		{
 			return true;
@@ -2761,6 +2799,21 @@ void CNPC_PlayerCompanion::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 	BaseClass::Weapon_Equip( pWeapon );
 	m_bReadinessCapable = IsReadinessCapable();
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool CNPC_PlayerCompanion::DoUnholster()
+{
+	if ( BaseClass::DoUnholster() )
+	{
+		m_bReadinessCapable = IsReadinessCapable();
+		return true;
+	}
+
+	return false;
+}
+#endif
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -4180,9 +4233,43 @@ void CNPC_PlayerCompanion::OnPlayerKilledOther( CBaseEntity *pVictim, const CTak
 
 #ifdef MAPBASE
 //-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+void CNPC_PlayerCompanion::Event_Killed( const CTakeDamageInfo &info )
+{
+	// For now, allied player companions are set to always drop grenades and other items
+	// even if the player did not kill them
+	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	if (!IsPlayerAlly( pPlayer ))
+	{
+		pPlayer = ToBasePlayer( info.GetAttacker() );
+
+		// See if there's a player in a vehicle instead (from CNPC_CombineS)
+		if ( !pPlayer )
+		{
+			CPropVehicleDriveable *pVehicle = dynamic_cast<CPropVehicleDriveable *>( info.GetAttacker() ) ;
+			if ( pVehicle && pVehicle->GetDriver() && pVehicle->GetDriver()->IsPlayer() )
+			{
+				pPlayer = assert_cast<CBasePlayer *>( pVehicle->GetDriver() );
+			}
+		}
+	}
+
+	if ( pPlayer != NULL )
+	{
+		// Drop grenades if we should
+		DropGrenadeItemsOnDeath( info, pPlayer );
+	}
+
+	BaseClass::Event_Killed( info );
+}
+
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info )
 {
+	BaseClass::Event_KilledOther( pVictim, info );
+
 	if ( pVictim )
 	{
 		if (pVictim->IsPlayer() || (pVictim->IsNPC() &&
@@ -4223,17 +4310,10 @@ void CNPC_PlayerCompanion::Event_KilledOther( CBaseEntity *pVictim, const CTakeD
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Handles stuff ported from Alyx.
-// 
-// For some reason, I thought Alyx's mobbed AI was used to measure enemy count for criteria stuff, which I wanted citizens to use.
-// Now that I realize enemy counting for criteria is elsewhere and this is used for just mobbing in general, I deactivated it
-// since it would barely be used and I don't know what kind of an impact it has on performance.
-// 
-// If you want to use it, feel free to re-activate.
+// Purpose: Handles custom combat speech stuff ported from Alyx.
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::DoCustomCombatAI( void )
 {
-	/*
 	#define COMPANION_MIN_MOB_DIST_SQR Square(120)		// Any enemy closer than this adds to the 'mob'
 	#define COMPANION_MIN_CONSIDER_DIST	Square(1200)	// Only enemies within this range are counted and considered to generate AI speech
 
@@ -4296,7 +4376,6 @@ void CNPC_PlayerCompanion::DoCustomCombatAI( void )
 	{
 		SpeakIfAllowed( TLK_MANY_ENEMIES );
 	}
-	*/
 }
 #endif
 

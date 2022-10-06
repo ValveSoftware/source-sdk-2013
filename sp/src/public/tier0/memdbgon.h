@@ -37,7 +37,7 @@
 #include "commonmacros.h"
 #include "memalloc.h"
 
-#if defined(USE_MEM_DEBUG)
+#if USE_MEM_DEBUG
 	#if defined( POSIX )
 	
 		#define _NORMAL_BLOCK 1
@@ -91,7 +91,7 @@ inline void *MemAlloc_InlineCallocMemset( void *pMem, size_t nCount, size_t nEle
 }
 #endif
 
-#define calloc(c, s)		MemAlloc_InlineCallocMemset(malloc(c*s), c, s)
+#define calloc(c, s)		MemAlloc_InlineCallocMemset(malloc((c)*(s)), (c), (s))
 #define free(p)				g_pMemAlloc->Free( p )
 #define _msize(p)			g_pMemAlloc->GetSize( p )
 #define _expand(p, s)		_expand_NoLongerSupported(p, s)
@@ -99,7 +99,7 @@ inline void *MemAlloc_InlineCallocMemset( void *pMem, size_t nCount, size_t nEle
 
 // --------------------------------------------------------
 // Debug path
-#if defined(USE_MEM_DEBUG)
+#if USE_MEM_DEBUG
 
 #define malloc(s)				g_pMemAlloc->Alloc( s, __FILE__, __LINE__)
 #define realloc(p, s)			g_pMemAlloc->Realloc( p, s, __FILE__, __LINE__ )
@@ -231,7 +231,7 @@ inline wchar_t *MemAlloc_WcStrDup(const wchar_t *pString)
 
 #else
 
-#if defined(USE_MEM_DEBUG)
+#if USE_MEM_DEBUG
 #ifndef _STATIC_LINKED
 #pragma message ("Note: file includes crtdbg.h directly, therefore will cannot use memdbgon.h in non-debug build")
 #else

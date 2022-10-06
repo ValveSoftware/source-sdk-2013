@@ -142,7 +142,7 @@ void respawn( CBaseEntity *pEdict, bool fCopyCorpse )
 	{
 		// In SP respawns, only create corpse if drawing externally
 		CBasePlayer *pPlayer = (CBasePlayer*)pEdict;
-		if ( fCopyCorpse && pPlayer->m_bDrawPlayerModelExternally )
+		if ( fCopyCorpse && pPlayer->GetDrawPlayerModelExternally() )
 		{
 			// make a copy of the dead body for appearances sake
 			pPlayer->CreateCorpse();

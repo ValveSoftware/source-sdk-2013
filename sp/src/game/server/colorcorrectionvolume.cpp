@@ -48,7 +48,11 @@ public:
 
 private:
 
+#ifdef MAPBASE // From Alien Swarm SDK
+	CNetworkVar( bool, m_bEnabled );
+#else
 	bool		m_bEnabled;
+#endif
 	bool		m_bStartDisabled;
 
 	CNetworkVar( float, m_Weight );
@@ -61,7 +65,11 @@ private:
 	float		m_LastExitWeight;
 	float		m_LastExitTime;
 
+#ifdef MAPBASE // From Alien Swarm SDK
+	CNetworkVar( float, m_FadeDuration );
+#else
 	float		m_FadeDuration;
+#endif
 };
 
 LINK_ENTITY_TO_CLASS(color_correction_volume, CColorCorrectionVolume);
@@ -90,6 +98,11 @@ END_DATADESC()
 
 
 IMPLEMENT_SERVERCLASS_ST_NOBASE(CColorCorrectionVolume, DT_ColorCorrectionVolume)
+#ifdef MAPBASE // From Alien Swarm SDK
+	SendPropBool( SENDINFO(m_bEnabled) ),
+	SendPropFloat( SENDINFO(m_MaxWeight) ),
+	SendPropFloat( SENDINFO(m_FadeDuration) ),
+#endif
 	SendPropFloat( SENDINFO(m_Weight) ),
 	SendPropString( SENDINFO(m_lookupFilename) ),
 END_SEND_TABLE()

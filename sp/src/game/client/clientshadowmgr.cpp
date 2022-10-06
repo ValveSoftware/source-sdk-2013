@@ -125,6 +125,11 @@ ConVar r_threaded_client_shadow_manager( "r_threaded_client_shadow_manager", "1"
 ConVar r_threaded_client_shadow_manager( "r_threaded_client_shadow_manager", "0" );
 #endif
 
+#ifdef MAPBASE
+ConVarRef mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap" );
+ConVarRef mat_depthbias_shadowmap( "mat_depthbias_shadowmap" );
+#endif
+
 #ifdef _WIN32
 #pragma warning( disable: 4701 )
 #endif
@@ -1423,6 +1428,15 @@ bool CClientShadowMgr::Init()
 	}
 
 	materials->AddRestoreFunc( ShadowRestoreFunc );
+
+#ifdef MAPBASE
+	// These need to be referenced here since the cvars don't exist in the initial declaration
+	mat_slopescaledepthbias_shadowmap = ConVarRef( "mat_slopescaledepthbias_shadowmap" );
+	mat_depthbias_shadowmap = ConVarRef( "mat_depthbias_shadowmap" );
+
+	mat_slopescaledepthbias_shadowmap.SetValue( "16" ); // Would do something like 2 here, but it causes citizens to look weird under flashlights
+	mat_depthbias_shadowmap.SetValue( "0.00005" );
+#endif
 
 	return true;
 }
@@ -4470,13 +4484,18 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 		}
 
 		CViewSetup shadowView;
+#ifndef MAPBASE
 		shadowView.m_flAspectRatio = 1.0f;
+#endif
 		shadowView.x = shadowView.y = 0;
 		shadowView.width = shadowDepthTexture->GetActualWidth();
 		shadowView.height = shadowDepthTexture->GetActualHeight();
 #ifndef ASW_PROJECTED_TEXTURES
 		shadowView.m_bOrtho = false;
 		shadowView.m_bDoBloomAndToneMapping = false;
+#ifdef MAPBASE
+		shadowView.m_flAspectRatio = (flashlightState.m_fHorizontalFOVDegrees / flashlightState.m_fVerticalFOVDegrees);
+#endif // MAPBASE
 #endif
 
 		// Copy flashlight parameters
@@ -4484,6 +4503,10 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 		if ( !flashlightState.m_bOrtho )
 		{
 			shadowView.m_bOrtho = false;
+
+#ifdef MAPBASE
+			shadowView.m_flAspectRatio = (flashlightState.m_fHorizontalFOVDegrees / flashlightState.m_fVerticalFOVDegrees);
+#endif // MAPBASE
 		}
 		else
 		{
@@ -4492,6 +4515,10 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 			shadowView.m_OrthoTop = flashlightState.m_fOrthoTop;
 			shadowView.m_OrthoRight = flashlightState.m_fOrthoRight;
 			shadowView.m_OrthoBottom = flashlightState.m_fOrthoBottom;
+
+#ifdef MAPBASE
+			shadowView.m_flAspectRatio = 1.0f;
+#endif
 		}
 
 		shadowView.m_bDoBloomAndToneMapping = false;

@@ -102,7 +102,6 @@ void ScriptMatrixSetColumn( const Vector& vecset, int column, HSCRIPT hMat1 )
 
 	matrix3x4_t *pMat1 = ToMatrix3x4( hMat1 );
 
-	static Vector outvec;
 	MatrixSetColumn( vecset, column, *pMat1 );
 }
 
@@ -154,6 +153,49 @@ void ScriptSetScaleMatrix( float x, float y, float z, HSCRIPT hMat1 )
 	matrix3x4_t *pMat1 = ToMatrix3x4( hMat1 );
 
 	SetScaleMatrix( x, y, z, *pMat1 );
+}
+
+void ScriptMatrixScaleBy( float flScale, HSCRIPT hMat1 )
+{
+	if (!hMat1)
+		return;
+
+	matrix3x4_t *pMat1 = ToMatrix3x4( hMat1 );
+
+	MatrixScaleBy( flScale, *pMat1 );
+}
+
+void ScriptMatrixScaleByZero( HSCRIPT hMat1 )
+{
+	if (!hMat1)
+		return;
+
+	matrix3x4_t *pMat1 = ToMatrix3x4( hMat1 );
+
+	MatrixScaleByZero( *pMat1 );
+}
+
+const Vector& ScriptMatrixGetTranslation( HSCRIPT hMat1 )
+{
+	static Vector outvec;
+	outvec.Zero();
+	if (!hMat1)
+		return outvec;
+
+	matrix3x4_t *pMat1 = ToMatrix3x4( hMat1 );
+
+	MatrixGetTranslation( *pMat1, outvec );
+	return outvec;
+}
+
+void ScriptMatrixSetTranslation( const Vector& vecset, HSCRIPT hMat1 )
+{
+	if (!hMat1)
+		return;
+
+	matrix3x4_t *pMat1 = ToMatrix3x4( hMat1 );
+
+	MatrixSetTranslation( vecset, *pMat1 );
 }
 
 //=============================================================================
@@ -427,7 +469,11 @@ void RegisterMathBaseBindings( IScriptVM *pVM )
 	ScriptRegisterFunctionNamed( pVM, ScriptAngleMatrix, "AngleMatrix", "Sets the angles and position of a matrix." );
 	ScriptRegisterFunctionNamed( pVM, ScriptAngleIMatrix, "AngleIMatrix", "Sets the inverted angles and position of a matrix." );
 	ScriptRegisterFunctionNamed( pVM, ScriptSetIdentityMatrix, "SetIdentityMatrix", "Turns a matrix into an identity matrix." );
-	ScriptRegisterFunctionNamed( pVM, ScriptSetScaleMatrix, "SetScaleMatrix", "Scales a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptSetScaleMatrix, "SetScaleMatrix", "Builds a scale matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixScaleBy, "MatrixScaleBy", "Scales a matrix." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixScaleByZero, "MatrixScaleByZero", "Scales a matrix by zero." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixGetTranslation, "MatrixGetTranslation", "Gets a matrix's translation." );
+	ScriptRegisterFunctionNamed( pVM, ScriptMatrixSetTranslation, "MatrixSetTranslation", "Sets a matrix's translation." );
 
 	// 
 	// Quaternion

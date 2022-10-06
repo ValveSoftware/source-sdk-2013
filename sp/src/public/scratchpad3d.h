@@ -51,7 +51,7 @@ public:
 							m_pCachedRenderData = NULL;
 						}
 
-						~CBaseCommand()
+						virtual ~CBaseCommand()
 						{
 							ReleaseCachedRenderData();
 						}

@@ -3,15 +3,22 @@
 // builds the analyze.vpc file will not be listed as a dependency.
 $Include "$SRCDIR\vpc_scripts\source_win32_analyze.vpc" [$ANALYZE]
 
+// Mapbase - Implement any newer toolsets
+$Include "$SRCDIR\vpc_scripts\newer_vs_toolsets.vpc"
+
 $Configuration
 {
 	$General
 	{
 		// Request a specific compiler toolset.
-		$PlatformToolset "v110_xp" [$VS2012 && !$ANALYZE] // VS 2012 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
-		$PlatformToolset "v110" [$VS2012 && $ANALYZE] // VS 2012 for /analyze
-		$PlatformToolset "v120_xp" [$VS2013 && !$ANALYZE] // VS 2013 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
-		$PlatformToolset "v120" [$VS2013 && $ANALYZE] // VS 2013 for /analyze
+		$PlatformToolset "v110_xp" [$VS2012 && !$ANALYZE && !($VS2015||$VS2017||$VS2019||$VS2022)] // VS 2012 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
+		$PlatformToolset "v110" [$VS2012 && $ANALYZE && !($VS2015||$VS2017||$VS2019||$VS2022)] // VS 2012 for /analyze
+		$PlatformToolset "v120_xp" [$VS2013 && !$ANALYZE && !($VS2015||$VS2017||$VS2019||$VS2022)] // VS 2013 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
+		$PlatformToolset "v120" [$VS2013 && $ANALYZE && !($VS2015||$VS2017||$VS2019||$VS2022)] // VS 2013 for /analyze
+		$PlatformToolset "v140" [$VS2015] // VS 2015
+		$PlatformToolset "v141" [$VS2017] // VS 2017
+		$PlatformToolset "v142" [$VS2019] // VS 2019
+		$PlatformToolset "v143" [$VS2022] // VS 2022
 	}
 
 	$General
@@ -31,6 +38,10 @@ $Configuration
 
 		// warning C4316: object allocated on the heap may not be aligned 16
 		$DisableSpecificWarnings	"$BASE;4316" [$VS2013]
+		
+		// warning C4838: conversion requires a narrowing conversion
+		// warning C4456-4459: variable shadowing. TODO: fix those!
+		$DisableSpecificWarnings	"$BASE;4316;4838;4456;4457;4458;4459" [($VS2015||$VS2017||$VS2019||$VS2022)]
 
 		// Having lots of warnings makes it harder to notice new, and possibly
 		// important warnings, both on buildbot and in the output window. Lots

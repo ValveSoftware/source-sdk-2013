@@ -222,7 +222,10 @@ BEGIN_VS_SHADER( SDK_Teeth_DX9, "Help for SDK_Teeth_DX9" )
 
 			float vEyePos_SpecExponent[4];
 			pShaderAPI->GetWorldSpaceCameraPosition( vEyePos_SpecExponent );
-			vEyePos_SpecExponent[3] = 0.0f;
+			if (g_pHardwareConfig->HasFastVertexTextures() || g_pHardwareConfig->SupportsPixelShaders_2_b())
+				vEyePos_SpecExponent[3] = params[PHONGEXPONENT]->GetFloatValue();
+			else
+				vEyePos_SpecExponent[3] = 0.0f;
 			pShaderAPI->SetPixelShaderConstant( PSREG_EYEPOS_SPEC_EXPONENT, vEyePos_SpecExponent, 1 );
 
 			if ( hasBump )
@@ -244,11 +247,6 @@ BEGIN_VS_SHADER( SDK_Teeth_DX9, "Help for SDK_Teeth_DX9" )
 					// ps_2_b version which does Phong
 					if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 					{
-						Vector4D vSpecExponent;
-						vSpecExponent[3] = params[PHONGEXPONENT]->GetFloatValue();
-
-						pShaderAPI->SetPixelShaderConstant( PSREG_EYEPOS_SPEC_EXPONENT, vSpecExponent.Base(), 1 );
-
 						DECLARE_DYNAMIC_PIXEL_SHADER( sdk_teeth_bump_ps20b );
 						SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
 						SET_DYNAMIC_PIXEL_SHADER_COMBO( NUM_LIGHTS,  lightState.m_nNumLights );
@@ -277,10 +275,6 @@ BEGIN_VS_SHADER( SDK_Teeth_DX9, "Help for SDK_Teeth_DX9" )
 					SET_DYNAMIC_VERTEX_SHADER_COMBO( MORPHING,  pShaderAPI->IsHWMorphingEnabled() );
 					SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
 					SET_DYNAMIC_VERTEX_SHADER( sdk_teeth_bump_vs30 );
-
-					Vector4D vSpecExponent;
-					vSpecExponent[3] = params[PHONGEXPONENT]->GetFloatValue();
-					pShaderAPI->SetPixelShaderConstant( PSREG_EYEPOS_SPEC_EXPONENT, vSpecExponent.Base(), 1 );
 
 					DECLARE_DYNAMIC_PIXEL_SHADER( sdk_teeth_bump_ps30 );
 					SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );

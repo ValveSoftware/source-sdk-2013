@@ -146,6 +146,32 @@ bool CBaseViewport::LoadHudAnimations( void )
 	return true;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Reloads HUD animations after loading a map-specific HUD animations file.
+//-----------------------------------------------------------------------------
+void CBaseViewport::ReloadHudAnimations( void )
+{
+	// Force a reload
+	if ( LoadHudAnimations() == false )
+	{
+		// Fall back to just the main
+		if ( m_pAnimController->SetScriptFile( GetVPanel(), "scripts/HudAnimations.txt", true ) == false )
+		{
+			Assert(0);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Loads a map-specific HUD animations file.
+//-----------------------------------------------------------------------------
+bool CBaseViewport::LoadCustomHudAnimations( const char *pszFile )
+{
+	return m_pAnimController->SetScriptFile( GetVPanel(), pszFile, true );
+}
+#endif
+
 //================================================================
 CBaseViewport::CBaseViewport() : vgui::EditablePanel( NULL, "CBaseViewport")
 {

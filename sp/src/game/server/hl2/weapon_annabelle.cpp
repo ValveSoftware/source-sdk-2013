@@ -20,6 +20,11 @@
 
 extern ConVar sk_auto_reload_time;
 
+#ifdef MAPBASE
+extern acttable_t *GetShotgunActtable();
+extern int GetShotgunActtableCount();
+#endif
+
 class CWeaponAnnabelle : public CBaseHLCombatWeapon
 {
 	DECLARE_DATADESC();
@@ -41,6 +46,16 @@ public:
 	virtual const Vector& GetBulletSpread( void )
 	{
 		static Vector cone = vec3_origin;
+
+#ifdef MAPBASE
+		if (GetOwner() && GetOwner()->OverridingWeaponProficiency())
+		{
+			// If the owner's weapon proficiency is being overridden, return a more realistic spread
+			static Vector cone2 = VECTOR_CONE_6DEGREES;
+			return cone2;
+		}
+#endif
+
 		return cone;
 	}
 
@@ -60,6 +75,11 @@ public:
 	virtual float			GetMaxRestTime() { return 1.5; }
 
 	void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
+
+#ifdef MAPBASE
+	virtual acttable_t		*GetBackupActivityList() { return GetShotgunActtable(); }
+	virtual int				GetBackupActivityListCount() { return GetShotgunActtableCount(); }
+#endif
 
 	DECLARE_ACTTABLE();
 
@@ -82,6 +102,28 @@ END_DATADESC()
 
 acttable_t	CWeaponAnnabelle::m_acttable[] = 
 {
+#if defined(EXPANDED_HL2_WEAPON_ACTIVITIES) && AR2_ACTIVITY_FIX == 1
+	{ ACT_IDLE,						ACT_IDLE_AR2,						false },
+	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_AR2,					true },
+	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_AR2_LOW,				false },
+	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_ANNABELLE,			true },
+	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_ANNABELLE_LOW,		true },
+	{ ACT_RELOAD,					ACT_RELOAD_ANNABELLE,				true },
+	{ ACT_WALK,						ACT_WALK_AR2,						true },
+	{ ACT_WALK_AIM,					ACT_WALK_AIM_AR2,					true },
+	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,				false },
+	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,			false },
+	{ ACT_RUN,						ACT_RUN_AR2,						true },
+	{ ACT_RUN_AIM,					ACT_RUN_AIM_AR2,					true },
+	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RIFLE,				false },
+	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_RIFLE,			false },
+	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_ANNABELLE,	true },
+	{ ACT_RELOAD_LOW,				ACT_RELOAD_ANNABELLE_LOW,			false },
+	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_ANNABELLE,		false },
+
+	{ ACT_ARM,						ACT_ARM_RIFLE,				true },
+	{ ACT_DISARM,					ACT_DISARM_RIFLE,				true },
+#else
 #ifdef MAPBASE
 	{ ACT_IDLE,						ACT_IDLE_SMG1,						false },
 #endif
@@ -99,6 +141,22 @@ acttable_t	CWeaponAnnabelle::m_acttable[] =
 	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_SHOTGUN,	true },
 	{ ACT_RELOAD_LOW,				ACT_RELOAD_SMG1_LOW,				false },
 	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SMG1,			false },
+#endif
+
+#ifdef MAPBASE
+	// HL2:DM activities (for third-person animations in SP)
+	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_AR2,                    false },
+	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_AR2,                    false },
+	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_AR2,            false },
+	{ ACT_HL2MP_WALK_CROUCH,			ACT_HL2MP_WALK_CROUCH_AR2,            false },
+	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SHOTGUN,    false },
+	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_AR2,        false },
+	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_AR2,                    false },
+#if EXPANDED_HL2DM_ACTIVITIES
+	{ ACT_HL2MP_WALK,					ACT_HL2MP_WALK_AR2,						false },
+	{ ACT_HL2MP_GESTURE_RANGE_ATTACK2,	ACT_HL2MP_GESTURE_RANGE_ATTACK2_SHOTGUN,    false },
+#endif
+#endif
 };
 
 IMPLEMENT_ACTTABLE(CWeaponAnnabelle);
@@ -174,6 +232,13 @@ bool CWeaponAnnabelle::StartReload( void )
 
 	pOwner->m_flNextAttack = gpGlobals->curtime;
 	m_flNextPrimaryAttack = gpGlobals->curtime + SequenceDuration();
+
+#ifdef MAPBASE
+	if ( pOwner->IsPlayer() )
+	{
+		static_cast<CBasePlayer*>(pOwner)->SetAnimation( PLAYER_RELOAD );
+	}
+#endif
 
 	m_bInReload = true;
 	return true;

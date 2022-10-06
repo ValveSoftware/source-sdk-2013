@@ -51,8 +51,10 @@ public:
 
 	virtual void Precache()
 	{
+#ifndef MAPBASE // This is now done in CNPC_PlayerCompanion::Precache()
 		// Prevents a warning
 		SelectModel( );
+#endif
 		BaseClass::Precache();
 
 		PrecacheScriptSound( "NPC_Barney.FootstepLeft" );
@@ -80,6 +82,11 @@ public:
 	void DeathSound( const CTakeDamageInfo &info );
 	void GatherConditions();
 	void UseFunc( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+
+#ifdef MAPBASE
+	// Use Barney's default subtitle color (215,255,255)
+	bool	GetGameTextSpeechParams( hudtextparms_t &params ) { params.r1 = 215; params.g1 = 255; params.b1 = 255; return BaseClass::GetGameTextSpeechParams( params ); }
+#endif
 
 	CAI_FuncTankBehavior		m_FuncTankBehavior;
 	COutputEvent				m_OnPlayerUse;

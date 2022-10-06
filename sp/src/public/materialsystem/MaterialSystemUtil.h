@@ -72,6 +72,10 @@ public:
 	void Init( char const* pTexture, const char *pTextureGroupName, bool bComplain = true );
 	void InitProceduralTexture( const char *pTextureName, const char *pTextureGroupName, int w, int h, ImageFormat fmt, int nFlags );
 	void InitRenderTarget( int w, int h, RenderTargetSizeMode_t sizeMode, ImageFormat fmt, MaterialRenderTargetDepth_t depth, bool bHDR, char *pStrOptionalName = NULL );
+	void InitRenderTarget(int w, int h, RenderTargetSizeMode_t sizeMode, ImageFormat fmt, MaterialRenderTargetDepth_t depth, bool bHDR, const char* pStrOptionalName = NULL)
+	{
+		InitRenderTarget(w, h, sizeMode, fmt, depth, bHDR, const_cast<char*>(pStrOptionalName));
+	}
 #if defined( _X360 )
 	// used when RT coupling is disparate (texture is DDR based, surface is EDRAM based)
 	void InitRenderTargetTexture( int width, int height, RenderTargetSizeMode_t sizeMode, ImageFormat fmt, MaterialRenderTargetDepth_t depth, bool bHDR, char *pStrOptionalName = NULL );

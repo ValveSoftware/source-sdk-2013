@@ -134,6 +134,12 @@ void CBaseFilter::InputTestActivator( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CBaseFilter::InputTestEntity( inputdata_t &inputdata )
 {
+	if ( !inputdata.value.Entity() )
+	{
+		// HACKHACK: Not firing OnFail in this case is intentional for the time being (activator shouldn't be null)
+		return;
+	}
+
 	if ( PassesFilter( inputdata.pCaller, inputdata.value.Entity() ) )
 	{
 		m_OnPass.FireOutput( inputdata.value.Entity(), m_bPassCallerWhenTested ? inputdata.pCaller : this );
@@ -1522,6 +1528,7 @@ public:
 
 	void Activate()
 	{
+		BaseClass::Activate();
 		ParseSurfaceIndex();
 	}
 
@@ -2156,118 +2163,125 @@ class CFilterScript : public CBaseFilter
 public:
 	bool PassesFilterImpl( CBaseEntity *pCaller, CBaseEntity *pEntity )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( !m_ScriptScope.IsInitialized() )
+		{
+			Warning( "%s: No script scope, cannot filter\n", GetDebugName() );
+			return false;
+		}
+
+		if ( g_Hook_PassesFilter.CanRunInScope( m_ScriptScope ) )
 		{
 			// caller, activator
 			ScriptVariant_t functionReturn;
 			ScriptVariant_t args[] = { ToHScript( pCaller ), ToHScript( pEntity ) };
-			if ( !g_Hook_PassesFilter.Call( m_ScriptScope, &functionReturn, args ) )
-			{
-				Warning( "%s: No PassesFilter function\n", GetDebugName() );
-			}
+			g_Hook_PassesFilter.Call( m_ScriptScope, &functionReturn, args );
 
 			return functionReturn.m_bool;
 		}
 
-		Warning("%s: No script scope, cannot filter\n", GetDebugName());
+		Warning( "%s: No PassesFilter function\n", GetDebugName() );
 		return false;
 	}
 
 	bool PassesDamageFilterImpl( CBaseEntity *pCaller, const CTakeDamageInfo &info )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( !m_ScriptScope.IsInitialized() )
+		{
+			Warning( "%s: No script scope, cannot filter\n", GetDebugName() );
+			return false;
+		}
+
+		if ( g_Hook_PassesDamageFilter.CanRunInScope( m_ScriptScope ) )
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
 
 			// caller, info
 			ScriptVariant_t functionReturn;
 			ScriptVariant_t args[] = { ToHScript( pCaller ), pInfo };
-			if ( !g_Hook_PassesDamageFilter.Call( m_ScriptScope, &functionReturn, args ) )
-			{
-				// Fall back to main filter function
-				g_pScriptVM->RemoveInstance( pInfo );
-				return PassesFilterImpl( pCaller, info.GetAttacker() );
-			}
+			g_Hook_PassesDamageFilter.Call( m_ScriptScope, &functionReturn, args );
 
 			g_pScriptVM->RemoveInstance( pInfo );
 
 			return functionReturn.m_bool;
 		}
 
-		Warning("%s: No script scope, cannot filter\n", GetDebugName());
-		return false;
+		// Fall back to main filter function
+		return PassesFilterImpl( pCaller, info.GetAttacker() );
 	}
 
 	bool PassesFinalDamageFilter( CBaseEntity *pCaller, const CTakeDamageInfo &info )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( !m_ScriptScope.IsInitialized() )
+		{
+			Warning( "%s: No script scope, cannot filter\n", GetDebugName() );
+			return false;
+		}
+
+		if ( g_Hook_PassesFinalDamageFilter.CanRunInScope( m_ScriptScope ) )
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
 
 			// caller, info
 			ScriptVariant_t functionReturn;
 			ScriptVariant_t args[] = { ToHScript( pCaller ), pInfo };
-			if ( !g_Hook_PassesFinalDamageFilter.Call( m_ScriptScope, &functionReturn, args ) )
-			{
-				g_pScriptVM->RemoveInstance( pInfo );
-				return BaseClass::PassesFinalDamageFilter( pCaller, info );
-			}
+			g_Hook_PassesFinalDamageFilter.Call( m_ScriptScope, &functionReturn, args );
 
 			g_pScriptVM->RemoveInstance( pInfo );
 
 			return functionReturn.m_bool;
 		}
 
-		Warning("%s: No script scope, cannot filter\n", GetDebugName());
-		return false;
+		return BaseClass::PassesFinalDamageFilter( pCaller, info );
 	}
 
 	bool BloodAllowed( CBaseEntity *pCaller, const CTakeDamageInfo &info )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( !m_ScriptScope.IsInitialized() )
+		{
+			Warning( "%s: No script scope, cannot filter\n", GetDebugName() );
+			return false;
+		}
+
+		if ( g_Hook_BloodAllowed.CanRunInScope( m_ScriptScope ) )
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
 
 			// caller, info
 			ScriptVariant_t functionReturn;
 			ScriptVariant_t args[] = { ToHScript( pCaller ), pInfo };
-			if ( !g_Hook_BloodAllowed.Call( m_ScriptScope, &functionReturn, args ) )
-			{
-				g_pScriptVM->RemoveInstance( pInfo );
-				return BaseClass::BloodAllowed( pCaller, info );
-			}
+			g_Hook_BloodAllowed.Call( m_ScriptScope, &functionReturn, args );
 
 			g_pScriptVM->RemoveInstance( pInfo );
 
 			return functionReturn.m_bool;
 		}
 
-		Warning("%s: No script scope, cannot filter\n", GetDebugName());
-		return false;
+		return BaseClass::BloodAllowed( pCaller, info );
 	}
 
 	bool DamageMod( CBaseEntity *pCaller, CTakeDamageInfo &info )
 	{
-		if (m_ScriptScope.IsInitialized())
+		if ( !m_ScriptScope.IsInitialized() )
+		{
+			Warning( "%s: No script scope, cannot filter\n", GetDebugName() );
+			return false;
+		}
+
+		if ( g_Hook_DamageMod.CanRunInScope( m_ScriptScope ) )
 		{
 			HSCRIPT pInfo = g_pScriptVM->RegisterInstance( &info );
 
 			// caller, info
 			ScriptVariant_t functionReturn;
 			ScriptVariant_t args[] = { ToHScript( pCaller ), pInfo };
-			if ( !g_Hook_DamageMod.Call( m_ScriptScope, &functionReturn, args ) )
-			{
-				g_pScriptVM->RemoveInstance( pInfo );
-				return BaseClass::DamageMod( pCaller, info );
-			}
+			g_Hook_DamageMod.Call( m_ScriptScope, &functionReturn, args );
 
 			g_pScriptVM->RemoveInstance( pInfo );
 
 			return functionReturn.m_bool;
 		}
 
-		Warning("%s: No script scope, cannot filter\n", GetDebugName());
-		return false;
+		return BaseClass::DamageMod( pCaller, info );
 	}
 };
 

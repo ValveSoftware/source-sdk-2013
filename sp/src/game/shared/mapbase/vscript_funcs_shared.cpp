@@ -22,7 +22,11 @@
 #include "globalstate.h"
 #include "vscript_server.h"
 #include "soundent.h"
-#endif // !CLIENT_DLL
+#include "rope.h"
+#include "ai_basenpc.h"
+#else
+#include "c_rope.h"
+#endif // CLIENT_DLL
 
 #include "con_nprint.h"
 #include "particle_parse.h"
@@ -254,8 +258,8 @@ void ScriptDispatchSpawn( HSCRIPT hEntity )
 static HSCRIPT CreateDamageInfo( HSCRIPT hInflictor, HSCRIPT hAttacker, const Vector &vecForce, const Vector &vecDamagePos, float flDamage, int iDamageType )
 {
 	// The script is responsible for deleting this via DestroyDamageInfo().
-	CTakeDamageInfo *damageInfo = new CTakeDamageInfo(ToEnt(hInflictor), ToEnt(hAttacker), flDamage, iDamageType);
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( damageInfo, true );
+	CTakeDamageInfo *damageInfo = new CTakeDamageInfo( ToEnt(hInflictor), ToEnt(hAttacker), flDamage, iDamageType );
+	HSCRIPT hScript = g_pScriptVM->RegisterInstance( damageInfo );
 
 	damageInfo->SetDamagePosition( vecDamagePos );
 	damageInfo->SetDamageForce( vecForce );
@@ -265,28 +269,54 @@ static HSCRIPT CreateDamageInfo( HSCRIPT hInflictor, HSCRIPT hAttacker, const Ve
 
 static void DestroyDamageInfo( HSCRIPT hDamageInfo )
 {
-	if (hDamageInfo)
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( hDamageInfo );
+	if ( pInfo )
 	{
-		CTakeDamageInfo *pInfo = (CTakeDamageInfo*)g_pScriptVM->GetInstanceValue( hDamageInfo, GetScriptDescForClass( CTakeDamageInfo ) );
-		if (pInfo)
-		{
-			g_pScriptVM->RemoveInstance( hDamageInfo );
-			delete pInfo;
-		}
+		g_pScriptVM->RemoveInstance( hDamageInfo );
+		delete pInfo;
 	}
 }
 
-void ScriptCalculateExplosiveDamageForce( HSCRIPT info, const Vector &vecDir, const Vector &vecForceOrigin, float flScale ) { CalculateExplosiveDamageForce( HScriptToClass<CTakeDamageInfo>(info), vecDir, vecForceOrigin, flScale ); }
-void ScriptCalculateBulletDamageForce( HSCRIPT info, int iBulletType, const Vector &vecBulletDir, const Vector &vecForceOrigin, float flScale ) { CalculateBulletDamageForce( HScriptToClass<CTakeDamageInfo>(info), iBulletType, vecBulletDir, vecForceOrigin, flScale ); }
-void ScriptCalculateMeleeDamageForce( HSCRIPT info, const Vector &vecMeleeDir, const Vector &vecForceOrigin, float flScale ) { CalculateMeleeDamageForce( HScriptToClass<CTakeDamageInfo>( info ), vecMeleeDir, vecForceOrigin, flScale ); }
-void ScriptGuessDamageForce( HSCRIPT info, const Vector &vecForceDir, const Vector &vecForceOrigin, float flScale ) { GuessDamageForce( HScriptToClass<CTakeDamageInfo>( info ), vecForceDir, vecForceOrigin, flScale ); }
+void ScriptCalculateExplosiveDamageForce( HSCRIPT info, const Vector &vecDir, const Vector &vecForceOrigin, float flScale )
+{
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( info );
+	if ( pInfo )
+	{
+		CalculateExplosiveDamageForce( pInfo, vecDir, vecForceOrigin, flScale );
+	}
+}
+
+void ScriptCalculateBulletDamageForce( HSCRIPT info, int iBulletType, const Vector &vecBulletDir, const Vector &vecForceOrigin, float flScale )
+{
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( info );
+	if ( pInfo )
+	{
+		CalculateBulletDamageForce( pInfo, iBulletType, vecBulletDir, vecForceOrigin, flScale );
+	}
+}
+
+void ScriptCalculateMeleeDamageForce( HSCRIPT info, const Vector &vecMeleeDir, const Vector &vecForceOrigin, float flScale )
+{
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( info );
+	if ( pInfo )
+	{
+		CalculateMeleeDamageForce( pInfo, vecMeleeDir, vecForceOrigin, flScale );
+	}
+}
+
+void ScriptGuessDamageForce( HSCRIPT info, const Vector &vecForceDir, const Vector &vecForceOrigin, float flScale )
+{
+	CTakeDamageInfo *pInfo = HScriptToClass< CTakeDamageInfo >( info );
+	if ( pInfo )
+	{
+		GuessDamageForce( pInfo, vecForceDir, vecForceOrigin, flScale );
+	}
+}
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT_NAMED( CTraceInfoAccessor, "CGameTrace", "Handle for accessing trace_t info." )
-	DEFINE_SCRIPT_CONSTRUCTOR()
-
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptGameTrace, "CGameTrace", "trace_t" )
 	DEFINE_SCRIPTFUNC( DidHitWorld, "Returns whether the trace hit the world entity or not." )
 	DEFINE_SCRIPTFUNC( DidHitNonWorldEntity, "Returns whether the trace hit something other than the world entity." )
 	DEFINE_SCRIPTFUNC( GetEntityIndex, "Returns the index of whatever entity this trace hit." )
@@ -314,120 +344,95 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CTraceInfoAccessor, "CGameTrace", "Handle for acces
 	DEFINE_SCRIPTFUNC( AllSolid, "Returns whether the trace is completely within a solid." )
 	DEFINE_SCRIPTFUNC( StartSolid, "Returns whether the trace started within a solid." )
 
-	DEFINE_SCRIPTFUNC( Surface, "Returns the trace's surface." )
-	DEFINE_SCRIPTFUNC( Plane, "Returns the trace's plane." )
+	DEFINE_SCRIPTFUNC( Surface, "" )
+	DEFINE_SCRIPTFUNC( Plane, "" )
 
 	DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
 END_SCRIPTDESC();
 
-BEGIN_SCRIPTDESC_ROOT_NAMED( surfacedata_t, "surfacedata_t", "Handle for accessing surface data." )
-	DEFINE_SCRIPTFUNC( GetFriction, "The surface's friction." )
-	DEFINE_SCRIPTFUNC( GetThickness, "The surface's thickness." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( scriptsurfacedata_t, "surfacedata_t", "" )
+	DEFINE_SCRIPTFUNC( GetFriction, "" )
+	DEFINE_SCRIPTFUNC( GetThickness, "" )
 
-	DEFINE_SCRIPTFUNC( GetJumpFactor, "The surface's jump factor." )
-	DEFINE_SCRIPTFUNC( GetMaterialChar, "The surface's material character." )
+	DEFINE_SCRIPTFUNC( GetJumpFactor, "" )
+	DEFINE_SCRIPTFUNC( GetMaterialChar, "" )
 
-	DEFINE_SCRIPTFUNC( GetSoundStepLeft, "The surface's left step sound." )
-	DEFINE_SCRIPTFUNC( GetSoundStepRight, "The surface's right step sound." )
-	DEFINE_SCRIPTFUNC( GetSoundImpactSoft, "The surface's soft impact sound." )
-	DEFINE_SCRIPTFUNC( GetSoundImpactHard, "The surface's hard impact sound." )
-	DEFINE_SCRIPTFUNC( GetSoundScrapeSmooth, "The surface's smooth scrape sound." )
-	DEFINE_SCRIPTFUNC( GetSoundScrapeRough, "The surface's rough scrape sound." )
-	DEFINE_SCRIPTFUNC( GetSoundBulletImpact, "The surface's bullet impact sound." )
-	DEFINE_SCRIPTFUNC( GetSoundRolling, "The surface's rolling sound." )
-	DEFINE_SCRIPTFUNC( GetSoundBreak, "The surface's break sound." )
-	DEFINE_SCRIPTFUNC( GetSoundStrain, "The surface's strain sound." )
+	DEFINE_SCRIPTFUNC( GetSoundStepLeft, "" )
+	DEFINE_SCRIPTFUNC( GetSoundStepRight, "" )
+	DEFINE_SCRIPTFUNC( GetSoundImpactSoft, "" )
+	DEFINE_SCRIPTFUNC( GetSoundImpactHard, "" )
+	DEFINE_SCRIPTFUNC( GetSoundScrapeSmooth, "" )
+	DEFINE_SCRIPTFUNC( GetSoundScrapeRough, "" )
+	DEFINE_SCRIPTFUNC( GetSoundBulletImpact, "" )
+	DEFINE_SCRIPTFUNC( GetSoundRolling, "" )
+	DEFINE_SCRIPTFUNC( GetSoundBreak, "" )
+	DEFINE_SCRIPTFUNC( GetSoundStrain, "" )
 END_SCRIPTDESC();
 
-const char*		surfacedata_t::GetSoundStepLeft() { return physprops->GetString( sounds.stepleft ); }
-const char*		surfacedata_t::GetSoundStepRight() { return physprops->GetString( sounds.stepright ); }
-const char*		surfacedata_t::GetSoundImpactSoft() { return physprops->GetString( sounds.impactSoft ); }
-const char*		surfacedata_t::GetSoundImpactHard() { return physprops->GetString( sounds.impactHard ); }
-const char*		surfacedata_t::GetSoundScrapeSmooth() { return physprops->GetString( sounds.scrapeSmooth ); }
-const char*		surfacedata_t::GetSoundScrapeRough() { return physprops->GetString( sounds.scrapeRough ); }
-const char*		surfacedata_t::GetSoundBulletImpact() { return physprops->GetString( sounds.bulletImpact ); }
-const char*		surfacedata_t::GetSoundRolling() { return physprops->GetString( sounds.rolling ); }
-const char*		surfacedata_t::GetSoundBreak() { return physprops->GetString( sounds.breakSound ); }
-const char*		surfacedata_t::GetSoundStrain() { return physprops->GetString( sounds.strainSound ); }
-
-BEGIN_SCRIPTDESC_ROOT_NAMED( CSurfaceScriptAccessor, "csurface_t", "Handle for accessing csurface_t info." )
-	DEFINE_SCRIPTFUNC( Name, "The surface's name." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( CSurfaceScriptHelper, "csurface_t", "" )
+	DEFINE_SCRIPTFUNC( Name, "" )
 	DEFINE_SCRIPTFUNC( SurfaceProps, "The surface's properties." )
-
-	DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
 END_SCRIPTDESC();
 
 CPlaneTInstanceHelper g_PlaneTInstanceHelper;
 
-BEGIN_SCRIPTDESC_ROOT( cplane_t, "Handle for accessing cplane_t info." )
+BEGIN_SCRIPTDESC_ROOT( cplane_t, "" )
 	DEFINE_SCRIPT_INSTANCE_HELPER( &g_PlaneTInstanceHelper )
 END_SCRIPTDESC();
 
 static HSCRIPT ScriptTraceLineComplex( const Vector &vecStart, const Vector &vecEnd, HSCRIPT entIgnore, int iMask, int iCollisionGroup )
 {
 	// The script is responsible for deleting this via Destroy().
-	CTraceInfoAccessor *traceInfo = new CTraceInfoAccessor();
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( traceInfo, true );
+	CScriptGameTrace *tr = new CScriptGameTrace();
 
-	CBaseEntity *pLooker = ToEnt(entIgnore);
-	UTIL_TraceLine( vecStart, vecEnd, iMask, pLooker, iCollisionGroup, &traceInfo->GetTrace());
+	CBaseEntity *pIgnore = ToEnt( entIgnore );
+	UTIL_TraceLine( vecStart, vecEnd, iMask, pIgnore, iCollisionGroup, tr );
 
-	// The trace's destruction should destroy this automatically
-	CSurfaceScriptAccessor *surfaceInfo = new CSurfaceScriptAccessor( traceInfo->GetTrace().surface );
-	HSCRIPT hSurface = g_pScriptVM->RegisterInstance( surfaceInfo );
-	traceInfo->SetSurface( hSurface );
+	tr->RegisterSurface();
+	tr->RegisterPlane();
 
-	HSCRIPT hPlane = g_pScriptVM->RegisterInstance( &(traceInfo->GetTrace().plane) );
-	traceInfo->SetPlane( hPlane );
-
-	return hScript;
+	return tr->GetScriptInstance();
 }
 
 static HSCRIPT ScriptTraceHullComplex( const Vector &vecStart, const Vector &vecEnd, const Vector &hullMin, const Vector &hullMax,
 	HSCRIPT entIgnore, int iMask, int iCollisionGroup )
 {
 	// The script is responsible for deleting this via Destroy().
-	CTraceInfoAccessor *traceInfo = new CTraceInfoAccessor();
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( traceInfo, true );
+	CScriptGameTrace *tr = new CScriptGameTrace();
 
-	CBaseEntity *pLooker = ToEnt(entIgnore);
-	UTIL_TraceHull( vecStart, vecEnd, hullMin, hullMax, iMask, pLooker, iCollisionGroup, &traceInfo->GetTrace());
+	CBaseEntity *pIgnore = ToEnt( entIgnore );
+	UTIL_TraceHull( vecStart, vecEnd, hullMin, hullMax, iMask, pIgnore, iCollisionGroup, tr );
 
-	// The trace's destruction should destroy this automatically
-	CSurfaceScriptAccessor *surfaceInfo = new CSurfaceScriptAccessor( traceInfo->GetTrace().surface );
-	HSCRIPT hSurface = g_pScriptVM->RegisterInstance( surfaceInfo );
-	traceInfo->SetSurface( hSurface );
+	tr->RegisterSurface();
+	tr->RegisterPlane();
 
-	HSCRIPT hPlane = g_pScriptVM->RegisterInstance( &(traceInfo->GetTrace().plane) );
-	traceInfo->SetPlane( hPlane );
-
-	return hScript;
+	return tr->GetScriptInstance();
 }
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT( FireBulletsInfo_t, "Handle for accessing FireBulletsInfo_t info." )
+BEGIN_SCRIPTDESC_ROOT( FireBulletsInfo_t, "" )
 	DEFINE_SCRIPT_CONSTRUCTOR()
 
 	DEFINE_SCRIPTFUNC( GetShots, "Gets the number of shots which should be fired." )
 	DEFINE_SCRIPTFUNC( SetShots, "Sets the number of shots which should be fired." )
 
-	DEFINE_SCRIPTFUNC( GetSource, "Gets the source of the bullets." )
-	DEFINE_SCRIPTFUNC( SetSource, "Sets the source of the bullets." )
-	DEFINE_SCRIPTFUNC( GetDirShooting, "Gets the direction of the bullets." )
-	DEFINE_SCRIPTFUNC( SetDirShooting, "Sets the direction of the bullets." )
-	DEFINE_SCRIPTFUNC( GetSpread, "Gets the spread of the bullets." )
-	DEFINE_SCRIPTFUNC( SetSpread, "Sets the spread of the bullets." )
+	DEFINE_SCRIPTFUNC( GetSource, "" )
+	DEFINE_SCRIPTFUNC( SetSource, "" )
+	DEFINE_SCRIPTFUNC( GetDirShooting, "" )
+	DEFINE_SCRIPTFUNC( SetDirShooting, "" )
+	DEFINE_SCRIPTFUNC( GetSpread, "" )
+	DEFINE_SCRIPTFUNC( SetSpread, "" )
 
 	DEFINE_SCRIPTFUNC( GetDistance, "Gets the distance the bullets should travel." )
 	DEFINE_SCRIPTFUNC( SetDistance, "Sets the distance the bullets should travel." )
 
-	DEFINE_SCRIPTFUNC( GetAmmoType, "Gets the ammo type the bullets should use." )
-	DEFINE_SCRIPTFUNC( SetAmmoType, "Sets the ammo type the bullets should use." )
+	DEFINE_SCRIPTFUNC( GetAmmoType, "" )
+	DEFINE_SCRIPTFUNC( SetAmmoType, "" )
 
-	DEFINE_SCRIPTFUNC( GetTracerFreq, "Gets the tracer frequency." )
-	DEFINE_SCRIPTFUNC( SetTracerFreq, "Sets the tracer frequency." )
+	DEFINE_SCRIPTFUNC( GetTracerFreq, "" )
+	DEFINE_SCRIPTFUNC( SetTracerFreq, "" )
 
 	DEFINE_SCRIPTFUNC( GetDamage, "Gets the damage the bullets should deal. 0 = use ammo type" )
 	DEFINE_SCRIPTFUNC( SetDamage, "Sets the damage the bullets should deal. 0 = use ammo type" )
@@ -437,18 +442,16 @@ BEGIN_SCRIPTDESC_ROOT( FireBulletsInfo_t, "Handle for accessing FireBulletsInfo_
 	DEFINE_SCRIPTFUNC( GetFlags, "Gets the flags the bullets should use." )
 	DEFINE_SCRIPTFUNC( SetFlags, "Sets the flags the bullets should use." )
 
-	DEFINE_SCRIPTFUNC( GetDamageForceScale, "Gets the scale of the damage force applied by the bullets." )
-	DEFINE_SCRIPTFUNC( SetDamageForceScale, "Sets the scale of the damage force applied by the bullets." )
+	DEFINE_SCRIPTFUNC( GetDamageForceScale, "" )
+	DEFINE_SCRIPTFUNC( SetDamageForceScale, "" )
 
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttacker, "GetAttacker", "Gets the entity considered to be the one who fired the bullets." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAttacker, "SetAttacker", "Sets the entity considered to be the one who fired the bullets." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAdditionalIgnoreEnt, "GetAdditionalIgnoreEnt", "Gets the optional entity which the bullets should ignore." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAdditionalIgnoreEnt, "SetAdditionalIgnoreEnt", "Sets the optional entity which the bullets should ignore." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttacker, "GetAttacker", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAttacker, "SetAttacker", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAdditionalIgnoreEnt, "GetAdditionalIgnoreEnt", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAdditionalIgnoreEnt, "SetAdditionalIgnoreEnt", "" )
 
 	DEFINE_SCRIPTFUNC( GetPrimaryAttack, "Gets whether the bullets came from a primary attack." )
 	DEFINE_SCRIPTFUNC( SetPrimaryAttack, "Sets whether the bullets came from a primary attack." )
-
-	//DEFINE_SCRIPTFUNC( Destroy, "Deletes this instance. Important for preventing memory leaks." )
 END_SCRIPTDESC();
 
 //-----------------------------------------------------------------------------
@@ -479,7 +482,7 @@ static HSCRIPT CreateFireBulletsInfo( int cShots, const Vector &vecSrc, const Ve
 {
 	// The script is responsible for deleting this via DestroyFireBulletsInfo().
 	FireBulletsInfo_t *info = new FireBulletsInfo_t();
-	HSCRIPT hScript = g_pScriptVM->RegisterInstance( info, true );
+	HSCRIPT hScript = g_pScriptVM->RegisterInstance( info );
 
 	info->SetShots( cShots );
 	info->SetSource( vecSrc );
@@ -493,26 +496,45 @@ static HSCRIPT CreateFireBulletsInfo( int cShots, const Vector &vecSrc, const Ve
 
 static void DestroyFireBulletsInfo( HSCRIPT hBulletsInfo )
 {
-	g_pScriptVM->RemoveInstance( hBulletsInfo );
-}
-
-// For the function in baseentity.cpp
-FireBulletsInfo_t *GetFireBulletsInfoFromInfo( HSCRIPT hBulletsInfo )
-{
-	return HScriptToClass<FireBulletsInfo_t>( hBulletsInfo );
+	FireBulletsInfo_t *pInfo = HScriptToClass< FireBulletsInfo_t >( hBulletsInfo );
+	if ( pInfo )
+	{
+		g_pScriptVM->RemoveInstance( hBulletsInfo );
+		delete pInfo;
+	}
 }
 
 //-----------------------------------------------------------------------------
-//
+// animevent_t
 //-----------------------------------------------------------------------------
 CAnimEventTInstanceHelper g_AnimEventTInstanceHelper;
 
-BEGIN_SCRIPTDESC_ROOT( animevent_t, "Handle for accessing animevent_t info." )
+BEGIN_SCRIPTDESC_ROOT( scriptanimevent_t, "" )
 	DEFINE_SCRIPT_INSTANCE_HELPER( &g_AnimEventTInstanceHelper )
+
+	DEFINE_SCRIPTFUNC( GetEvent, "" )
+	DEFINE_SCRIPTFUNC( SetEvent, "" )
+
+	DEFINE_SCRIPTFUNC( GetOptions, "" )
+	DEFINE_SCRIPTFUNC( SetOptions, "" )
+
+	DEFINE_SCRIPTFUNC( GetCycle, "" )
+	DEFINE_SCRIPTFUNC( SetCycle, "" )
+
+	DEFINE_SCRIPTFUNC( GetEventTime, "" )
+	DEFINE_SCRIPTFUNC( SetEventTime, "" )
+
+	DEFINE_SCRIPTFUNC( GetType, "Gets the event's type flags. See the 'AE_TYPE_' set of constants for valid flags." )
+	DEFINE_SCRIPTFUNC( SetType, "Sets the event's type flags. See the 'AE_TYPE_' set of constants for valid flags." )
+
+	DEFINE_SCRIPTFUNC( GetSource, "Gets the event's source entity." )
+	DEFINE_SCRIPTFUNC( SetSource, "Sets the event's source entity." )
 END_SCRIPTDESC();
 
 bool CAnimEventTInstanceHelper::Get( void *p, const char *pszKey, ScriptVariant_t &variant )
 {
+	DevWarning( "VScript animevent_t.%s: animevent_t metamethod members are deprecated! Use 'script_help animevent_t' to see the correct functions.\n", pszKey );
+
 	animevent_t *ani = ((animevent_t *)p);
 	if (FStrEq( pszKey, "event" ))
 		variant = ani->event;
@@ -534,6 +556,8 @@ bool CAnimEventTInstanceHelper::Get( void *p, const char *pszKey, ScriptVariant_
 
 bool CAnimEventTInstanceHelper::Set( void *p, const char *pszKey, ScriptVariant_t &variant )
 {
+	DevWarning( "VScript animevent_t.%s: animevent_t metamethod members are deprecated! Use 'script_help animevent_t' to see the correct functions.\n", pszKey );
+
 	animevent_t *ani = ((animevent_t *)p);
 	if (FStrEq( pszKey, "event" ))
 		ani->event = variant;
@@ -558,9 +582,57 @@ bool CAnimEventTInstanceHelper::Set( void *p, const char *pszKey, ScriptVariant_
 }
 
 //-----------------------------------------------------------------------------
+// EmitSound_t
+//-----------------------------------------------------------------------------
+BEGIN_SCRIPTDESC_ROOT_NAMED( ScriptEmitSound_t, "EmitSound_t", "" )
+	DEFINE_SCRIPT_CONSTRUCTOR()
+
+	DEFINE_SCRIPTFUNC( GetChannel, "" )
+	DEFINE_SCRIPTFUNC( SetChannel, "" )
+
+	DEFINE_SCRIPTFUNC( GetSoundName, "Gets the sound's file path or soundscript name." )
+	DEFINE_SCRIPTFUNC( SetSoundName, "Sets the sound's file path or soundscript name." )
+
+	DEFINE_SCRIPTFUNC( GetVolume, "(Note that this may not apply to soundscripts)" )
+	DEFINE_SCRIPTFUNC( SetVolume, "(Note that this may not apply to soundscripts)" )
+
+	DEFINE_SCRIPTFUNC( GetSoundLevel, "Gets the sound's level in decibels. (Note that this may not apply to soundscripts)" )
+	DEFINE_SCRIPTFUNC( SetSoundLevel, "Sets the sound's level in decibels. (Note that this may not apply to soundscripts)" )
+
+	DEFINE_SCRIPTFUNC( GetFlags, "Gets the sound's flags. See the 'SND_' set of constants." )
+	DEFINE_SCRIPTFUNC( SetFlags, "Sets the sound's flags. See the 'SND_' set of constants." )
+
+	DEFINE_SCRIPTFUNC( GetSpecialDSP, "" )
+	DEFINE_SCRIPTFUNC( SetSpecialDSP, "" )
+
+	DEFINE_SCRIPTFUNC( HasOrigin, "Returns true if the sound has an origin override." )
+	DEFINE_SCRIPTFUNC( GetOrigin, "Gets the sound's origin override." )
+	DEFINE_SCRIPTFUNC( SetOrigin, "Sets the sound's origin override." )
+	DEFINE_SCRIPTFUNC( ClearOrigin, "Clears the sound's origin override if it has one." )
+
+	DEFINE_SCRIPTFUNC( GetSoundTime, "Gets the time the sound will begin, relative to Time()." )
+	DEFINE_SCRIPTFUNC( SetSoundTime, "Sets the time the sound will begin, relative to Time()." )
+
+	DEFINE_SCRIPTFUNC( GetEmitCloseCaption, "Gets whether or not the sound will emit closed captioning/subtitles." )
+	DEFINE_SCRIPTFUNC( SetEmitCloseCaption, "Sets whether or not the sound will emit closed captioning/subtitles." )
+
+	DEFINE_SCRIPTFUNC( GetWarnOnMissingCloseCaption, "Gets whether or not the sound will send a message to the console if there is no corresponding closed captioning token." )
+	DEFINE_SCRIPTFUNC( SetWarnOnMissingCloseCaption, "Sets whether or not the sound will send a message to the console if there is no corresponding closed captioning token." )
+
+	DEFINE_SCRIPTFUNC( GetWarnOnDirectWaveReference, "Gets whether or not the sound will send a message to the console if it references a direct sound file instead of a soundscript." )
+	DEFINE_SCRIPTFUNC( SetWarnOnDirectWaveReference, "Sets whether or not the sound will send a message to the console if it references a direct sound file instead of a soundscript." )
+
+	DEFINE_SCRIPTFUNC( GetSpeakerEntity, "Gets the sound's original source if it is being transmitted by a microphone." )
+	DEFINE_SCRIPTFUNC( SetSpeakerEntity, "Sets the sound's original source if it is being transmitted by a microphone." )
+
+	DEFINE_SCRIPTFUNC( GetSoundScriptHandle, "" )
+	DEFINE_SCRIPTFUNC( SetSoundScriptHandle, "" )
+END_SCRIPTDESC();
+
+//-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-BEGIN_SCRIPTDESC_ROOT( CUserCmd, "Handle for accessing CUserCmd info." )
+BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptUserCmd, "CUserCmd", "" )
 	DEFINE_SCRIPTFUNC( GetCommandNumber, "For matching server and client commands for debugging." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetTickCount, "GetTickCount", "The tick the client created this command." )
@@ -568,15 +640,15 @@ BEGIN_SCRIPTDESC_ROOT( CUserCmd, "Handle for accessing CUserCmd info." )
 	DEFINE_SCRIPTFUNC( GetViewAngles, "Player instantaneous view angles." )
 	DEFINE_SCRIPTFUNC( SetViewAngles, "Sets player instantaneous view angles." )
 
-	DEFINE_SCRIPTFUNC( GetForwardMove, "Forward velocity." )
-	DEFINE_SCRIPTFUNC( SetForwardMove, "Sets forward velocity." )
-	DEFINE_SCRIPTFUNC( GetSideMove, "Side velocity." )
-	DEFINE_SCRIPTFUNC( SetSideMove, "Sets side velocity." )
-	DEFINE_SCRIPTFUNC( GetUpMove, "Up velocity." )
-	DEFINE_SCRIPTFUNC( SetUpMove, "Sets up velocity." )
+	DEFINE_SCRIPTFUNC( GetForwardMove, "" )
+	DEFINE_SCRIPTFUNC( SetForwardMove, "" )
+	DEFINE_SCRIPTFUNC( GetSideMove, "" )
+	DEFINE_SCRIPTFUNC( SetSideMove, "" )
+	DEFINE_SCRIPTFUNC( GetUpMove, "" )
+	DEFINE_SCRIPTFUNC( SetUpMove, "" )
 
-	DEFINE_SCRIPTFUNC( GetButtons, "Attack button states." )
-	DEFINE_SCRIPTFUNC( SetButtons, "Sets attack button states." )
+	DEFINE_SCRIPTFUNC( GetButtons, "Input button state." )
+	DEFINE_SCRIPTFUNC( SetButtons, "Sets input button state." )
 	DEFINE_SCRIPTFUNC( GetImpulse, "Impulse command issued." )
 	DEFINE_SCRIPTFUNC( SetImpulse, "Sets impulse command issued." )
 
@@ -592,6 +664,32 @@ BEGIN_SCRIPTDESC_ROOT( CUserCmd, "Handle for accessing CUserCmd info." )
 	DEFINE_SCRIPTFUNC( GetMouseY, "Mouse accum in y from create move." )
 	DEFINE_SCRIPTFUNC( SetMouseY, "Sets mouse accum in y from create move." )
 END_SCRIPTDESC();
+
+#ifdef GAME_DLL
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+#define DEFINE_ENEMY_INFO_SCRIPTFUNCS(name, desc) \
+	DEFINE_SCRIPTFUNC_NAMED( Get##name, #name, "Get " desc ) \
+	DEFINE_SCRIPTFUNC( Set##name, "Set " desc )
+
+BEGIN_SCRIPTDESC_ROOT_NAMED( Script_AI_EnemyInfo_t, "AI_EnemyInfo_t", "Accessor for information about an enemy." )
+	DEFINE_SCRIPTFUNC( Enemy, "" )
+	DEFINE_SCRIPTFUNC( SetEnemy, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastKnownLocation, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( LastSeenLocation, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastSeen, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeFirstSeen, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastReacquired, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeValidEnemy, "the time at which the enemy can be selected (reaction delay)." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeLastReceivedDamageFrom, "the last time damage was received from this enemy." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( TimeAtFirstHand, "the time at which the enemy was seen firsthand." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( DangerMemory, "the memory of danger position w/o enemy pointer." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( EludedMe, "whether the enemy is not at the last known location." )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( Unforgettable, "" )
+	DEFINE_ENEMY_INFO_SCRIPTFUNCS( MobbedMe, "whether the enemy was part of a mob at some point." )
+END_SCRIPTDESC();
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -676,6 +774,7 @@ static void AddPhysVelocity( HSCRIPT hPhys, const Vector& vecVelocity, const Vec
 //=============================================================================
 //=============================================================================
 
+#ifdef CLIENT_DLL
 static int ScriptPrecacheModel( const char *modelname )
 {
 	return CBaseEntity::PrecacheModel( modelname );
@@ -685,8 +784,17 @@ static void ScriptPrecacheOther( const char *classname )
 {
 	UTIL_PrecacheOther( classname );
 }
+#else
+static int ScriptPrecacheModel( const char *modelname, bool bPreload )
+{
+	return CBaseEntity::PrecacheModel( modelname, bPreload );
+}
 
-#ifndef CLIENT_DLL
+static void ScriptPrecacheOther( const char *classname, const char *modelName )
+{
+	UTIL_PrecacheOther( classname, modelName );
+}
+
 // TODO: Move this?
 static void ScriptInsertSound( int iType, const Vector &vecOrigin, int iVolume, float flDuration, HSCRIPT hOwner, int soundChannelIndex, HSCRIPT hSoundTarget )
 {
@@ -734,8 +842,50 @@ static void ScriptEntitiesInSphere( HSCRIPT hTable, int listMax, const Vector &c
 
 static void ScriptDecalTrace( HSCRIPT hTrace, const char *decalName )
 {
-	CTraceInfoAccessor *traceInfo = HScriptToClass<CTraceInfoAccessor>(hTrace);
-	UTIL_DecalTrace( &traceInfo->GetTrace(), decalName );
+	CScriptGameTrace *tr = HScriptToClass< CScriptGameTrace >( hTrace );
+	if ( tr )
+	{
+		UTIL_DecalTrace( tr, decalName );
+	}
+}
+
+static HSCRIPT ScriptCreateRope( HSCRIPT hStart, HSCRIPT hEnd, int iStartAttachment, int iEndAttachment, float ropeWidth, const char *pMaterialName, int numSegments, int ropeFlags )
+{
+#ifdef CLIENT_DLL
+	C_RopeKeyframe *pRope = C_RopeKeyframe::Create( ToEnt( hStart ), ToEnt( hEnd ), iStartAttachment, iEndAttachment, ropeWidth, pMaterialName, numSegments, ropeFlags );
+#else
+	CRopeKeyframe *pRope = CRopeKeyframe::Create( ToEnt( hStart ), ToEnt( hEnd ), iStartAttachment, iEndAttachment, ropeWidth, pMaterialName, numSegments );
+	if (pRope)
+		pRope->m_RopeFlags |= ropeFlags; // HACKHACK
+#endif
+
+	return ToHScript( pRope );
+}
+
+#ifndef CLIENT_DLL
+static HSCRIPT ScriptCreateRopeWithSecondPointDetached( HSCRIPT hStart, int iStartAttachment, int ropeLength, float ropeWidth, const char *pMaterialName, int numSegments, bool initialHang, int ropeFlags )
+{
+	CRopeKeyframe *pRope = CRopeKeyframe::CreateWithSecondPointDetached( ToEnt( hStart ), iStartAttachment, ropeLength, ropeWidth, pMaterialName, numSegments, initialHang );
+	if (pRope)
+		pRope->m_RopeFlags |= ropeFlags; // HACKHACK
+
+	return ToHScript( pRope );
+}
+#endif
+
+static void EmitSoundParamsOn( HSCRIPT hParams, HSCRIPT hEnt )
+{
+	CBaseEntity *pEnt = ToEnt( hEnt );
+	if (!pEnt)
+		return;
+
+	ScriptEmitSound_t *pParams = (ScriptEmitSound_t*)g_pScriptVM->GetInstanceValue( hParams, GetScriptDescForClass( ScriptEmitSound_t ) );
+	if (!pParams)
+		return;
+
+	CPASAttenuationFilter filter( pEnt, pParams->m_pSoundName );
+
+	CBaseEntity::EmitSound( filter, pEnt->entindex(), *pParams );
 }
 
 //-----------------------------------------------------------------------------
@@ -791,7 +941,7 @@ bool ScriptIsClient()
 // Notification printing on the right edge of the screen
 void NPrint( int pos, const char* fmt )
 {
-	engine->Con_NPrintf(pos, fmt);
+	engine->Con_NPrintf( pos, "%s", fmt );
 }
 
 void NXPrint( int pos, int r, int g, int b, bool fixed, float ftime, const char* fmt )
@@ -805,7 +955,7 @@ void NXPrint( int pos, int r, int g, int b, bool fixed, float ftime, const char*
 	info.color[2] = b / 255.f;
 	info.fixed_width_font = fixed;
 
-	engine->Con_NXPrintf( &info, fmt );
+	engine->Con_NXPrintf( &info, "%s", fmt );
 }
 
 static float IntervalPerTick()
@@ -855,16 +1005,15 @@ void RegisterSharedScriptFunctions()
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptDispatchSpawn, "DispatchSpawn", "Spawns an unspawned entity." );
 #endif
 
-	ScriptRegisterFunction( g_pScriptVM, CreateDamageInfo, "Creates damage info." );
-	ScriptRegisterFunction( g_pScriptVM, DestroyDamageInfo, "Destroys damage info." );
-	ScriptRegisterFunction( g_pScriptVM, ImpulseScale, "Returns an impulse scale required to push an object." );
+	ScriptRegisterFunction( g_pScriptVM, CreateDamageInfo, "" );
+	ScriptRegisterFunction( g_pScriptVM, DestroyDamageInfo, "" );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateExplosiveDamageForce, "CalculateExplosiveDamageForce", "Fill out a damage info handle with a damage force for an explosive." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateBulletDamageForce, "CalculateBulletDamageForce", "Fill out a damage info handle with a damage force for a bullet impact." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCalculateMeleeDamageForce, "CalculateMeleeDamageForce", "Fill out a damage info handle with a damage force for a melee impact." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptGuessDamageForce, "GuessDamageForce", "Try and guess the physics force to use." );
 
-	ScriptRegisterFunction( g_pScriptVM, CreateFireBulletsInfo, "Creates FireBullets info." );
-	ScriptRegisterFunction( g_pScriptVM, DestroyFireBulletsInfo, "Destroys FireBullets info." );
+	ScriptRegisterFunction( g_pScriptVM, CreateFireBulletsInfo, "" );
+	ScriptRegisterFunction( g_pScriptVM, DestroyFireBulletsInfo, "" );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptTraceLineComplex, "TraceLineComplex", "Complex version of TraceLine which takes 2 points, an ent to ignore, a trace mask, and a collision group. Returns a handle which can access all trace info." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptTraceHullComplex, "TraceHullComplex", "Takes 2 points, min/max hull bounds, an ent to ignore, a trace mask, and a collision group to trace to a point using a hull. Returns a handle which can access all trace info." );
@@ -890,6 +1039,8 @@ void RegisterSharedScriptFunctions()
 	// 
 #ifndef CLIENT_DLL
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptInsertSound, "InsertAISound", "Inserts an AI sound." );
+
+	ScriptRegisterFunctionNamed( g_pScriptVM, CAI_BaseNPC::GetActivityName, "GetActivityName", "Gets the name of the specified activity index." );
 #endif
 
 	// 
@@ -901,6 +1052,13 @@ void RegisterSharedScriptFunctions()
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptDecalTrace, "DecalTrace", "Creates a dynamic decal based on the given trace info. The trace information can be generated by TraceLineComplex() and the decal name must be from decals_subrect.txt." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptDispatchParticleEffect, "DoDispatchParticleEffect", SCRIPT_ALIAS( "DispatchParticleEffect", "Dispatches a one-off particle system" ) );
+
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCreateRope, "CreateRope", "Creates a single rope between two entities. Can optionally follow specific attachments." );
+#ifndef CLIENT_DLL
+	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptCreateRopeWithSecondPointDetached, "CreateRopeWithSecondPointDetached", "Creates a single detached rope hanging from a point. Can optionally follow a specific start attachment." );
+#endif
+
+	ScriptRegisterFunction( g_pScriptVM, EmitSoundParamsOn, "Play EmitSound_t params on an entity." );
 
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptMatcherMatch, "Matcher_Match", "Compares a string to a query using Mapbase's matcher system, supporting wildcards, RS matchers, etc." );
 	ScriptRegisterFunction( g_pScriptVM, Matcher_NamesMatch, "Compares a string to a query using Mapbase's matcher system using wildcards only." );

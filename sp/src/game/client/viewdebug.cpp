@@ -29,6 +29,9 @@ static ConVar mat_wateroverlaysize( "mat_wateroverlaysize", "256" );
 static ConVar mat_showframebuffertexture( "mat_showframebuffertexture", "0", FCVAR_CHEAT );
 static ConVar mat_framebuffercopyoverlaysize( "mat_framebuffercopyoverlaysize", "256" );
 static ConVar mat_showcamerarendertarget( "mat_showcamerarendertarget", "0", FCVAR_CHEAT );
+#ifdef MAPBASE
+static ConVar mat_showcamerarendertarget_all( "mat_showcamerarendertarget_all", "0", FCVAR_CHEAT );
+#endif
 static ConVar mat_camerarendertargetoverlaysize( "mat_camerarendertargetoverlaysize", "256", FCVAR_CHEAT );
 static ConVar mat_hsv( "mat_hsv", "0", FCVAR_CHEAT );
 static ConVar mat_yuv( "mat_yuv", "0", FCVAR_CHEAT );
@@ -178,6 +181,11 @@ void OverlayCameraRenderTarget( const char *pszMaterialName, float flX, float fl
 	pMaterial = materials->FindMaterial( pszMaterialName, TEXTURE_GROUP_OTHER, true );
 	if( !IsErrorMaterial( pMaterial ) )
 	{
+#ifdef MAPBASE
+		// HACKHACK
+		pMaterial->IncrementReferenceCount();
+#endif
+
 		CMatRenderContextPtr pRenderContext( materials );
 		pRenderContext->Bind( pMaterial );
 		IMesh* pMesh = pRenderContext->GetDynamicMesh( true );
@@ -203,6 +211,11 @@ void OverlayCameraRenderTarget( const char *pszMaterialName, float flX, float fl
 
 		meshBuilder.End();
 		pMesh->Draw();
+
+#ifdef MAPBASE
+		// HACKHACK
+		pMaterial->DecrementReferenceCount();
+#endif
 	}
 }
 
@@ -214,7 +227,11 @@ static void OverlayFrameBufferTexture( int nFrameBufferIndex )
 	IMaterial *pMaterial;
 	char buf[MAX_PATH];
 	Q_snprintf( buf, MAX_PATH, "debug/debugfbtexture%d", nFrameBufferIndex );
+#ifdef MAPBASE
+	pMaterial = materials->FindMaterial( buf, NULL, true );
+#else
 	pMaterial = materials->FindMaterial( buf, TEXTURE_GROUP_OTHER, true );
+#endif
 	if( !IsErrorMaterial( pMaterial ) )
 	{
 		CMatRenderContextPtr pRenderContext( materials );
@@ -586,12 +603,52 @@ void CDebugViewRender::Draw2DDebuggingInfo( const CViewSetup &view )
 
 	if ( mat_showcamerarendertarget.GetBool() )
 	{
+#ifdef MAPBASE
+		float w = mat_camerarendertargetoverlaysize.GetFloat();
+		float h = mat_camerarendertargetoverlaysize.GetFloat();
+#else
 		float w = mat_wateroverlaysize.GetFloat();
 		float h = mat_wateroverlaysize.GetFloat();
+#endif
 #ifdef PORTAL
 		g_pPortalRender->OverlayPortalRenderTargets( w, h );
 #else
+
+#ifdef MAPBASE
+		int iCameraNum = mat_showcamerarendertarget.GetInt();
+
+		if (iCameraNum == 1) // Display the default camera
+		{
+			OverlayCameraRenderTarget( "debug/debugcamerarendertarget", 0, 0, w, h );
+		}
+		else if (mat_showcamerarendertarget_all.GetBool()) // Display all cameras
+		{
+			OverlayCameraRenderTarget( "debug/debugcamerarendertarget", 0, 0, w, h );
+
+			// Already showed one camera
+			iCameraNum--;
+
+			// Show Mapbase's cameras
+			char szTextureName[48];
+			for (int i = 0; i < iCameraNum; i++)
+			{
+				V_snprintf( szTextureName, sizeof( szTextureName ), "debug/debugcamerarendertarget_camera%i", i );
+
+				// Show them vertically if the cvar is set to 2
+				if (mat_showcamerarendertarget_all.GetInt() == 2)
+					OverlayCameraRenderTarget( szTextureName, 0, h * (i + 1), w, h );
+				else
+					OverlayCameraRenderTarget( szTextureName, w * (i + 1), 0, w, h );
+			}
+		}
+		else // Display one of the new cameras
+		{
+			OverlayCameraRenderTarget( VarArgs( "debug/debugcamerarendertarget_camera%i", iCameraNum-2 ), 0, 0, w, h );
+		}
+#else
 		OverlayCameraRenderTarget( "debug/debugcamerarendertarget", 0, 0, w, h );
+#endif
+
 #endif
 	}
 
@@ -654,6 +711,57 @@ CON_COMMAND_F( r_screenoverlay, "Draw specified material as an overlay", FCVAR_C
 		Warning( "r_screenoverlay: %s\n", pMaterial ? pMaterial->GetName() : "off" );
 	}
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// The same as above, but using the new indexed overlays
+//-----------------------------------------------------------------------------
+CON_COMMAND_F( r_screenoverlay_indexed, "Draw specified material as an overlay in the specified index", FCVAR_CHEAT|FCVAR_SERVER_CAN_EXECUTE )
+{
+	if( args.ArgC() == 3 )
+	{
+		int index = atoi( args[1] );
+		if (index < 0 || index >= MAX_SCREEN_OVERLAYS)
+		{
+			Warning( "r_screenoverlay_indexed: '%i' is out of range (should be 0-9)\n", index );
+			return;
+		}
+
+		if ( !Q_stricmp( "off", args[2] ) )
+		{
+			view->SetIndexedScreenOverlayMaterial( index, NULL );
+		}
+		else
+		{
+			IMaterial *pMaterial = materials->FindMaterial( args[2], TEXTURE_GROUP_OTHER, false );
+			if ( !IsErrorMaterial( pMaterial ) )
+			{
+				view->SetIndexedScreenOverlayMaterial( index, pMaterial );
+			}
+			else
+			{
+				view->SetIndexedScreenOverlayMaterial( index, NULL );
+			}
+		}
+	}
+	else if ( args.ArgC() == 2 )
+	{
+		int index = atoi( args[1] );
+		if (index < 0 || index >= MAX_SCREEN_OVERLAYS)
+		{
+			Warning( "r_screenoverlay_indexed: '%i' is out of range (should be 0-9)\n", index );
+			return;
+		}
+
+		IMaterial *pMaterial = view->GetIndexedScreenOverlayMaterial( index );
+		Warning( "r_screenoverlay_indexed %i: %s\n", index, pMaterial ? pMaterial->GetName() : "off" );
+	}
+	else
+	{
+		Warning( "Format: r_screenoverlay_indexed <index> [<material>]\n" );
+	}
+}
+#endif
 
 // Used to verify frame syncing.
 void CDebugViewRender::GenerateOverdrawForTesting()

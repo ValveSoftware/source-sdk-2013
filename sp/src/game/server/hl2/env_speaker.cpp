@@ -243,6 +243,65 @@ void CSpeaker::DispatchResponse( const char *conceptName )
 		PrecacheScriptSound( response );
 	}
 
+#ifdef NEW_RESPONSE_SYSTEM
+	switch (result.GetType())
+	{
+	case ResponseRules::RESPONSE_SPEAK:
+	{
+		pTarget->EmitSound( response );
+	}
+	break;
+	case ResponseRules::RESPONSE_SENTENCE:
+	{
+		int sentenceIndex = SENTENCEG_Lookup( response );
+		if (sentenceIndex == -1)
+		{
+			// sentence not found
+			break;
+		}
+
+		// FIXME:  Get pitch from npc?
+		CPASAttenuationFilter filter( pTarget );
+		CBaseEntity::EmitSentenceByIndex( filter, pTarget->entindex(), CHAN_VOICE, sentenceIndex, 1, result.GetSoundLevel(), 0, PITCH_NORM );
+	}
+	break;
+	case ResponseRules::RESPONSE_SCENE:
+	{
+		CBaseFlex *pFlex = NULL;
+		if (pTarget != this)
+		{
+			// Attempt to get flex on the target
+			pFlex = dynamic_cast<CBaseFlex*>(pTarget);
+		}
+		InstancedScriptedScene(pFlex, response);
+	}
+	break;
+	case ResponseRules::RESPONSE_PRINT:
+	{
+
+	}
+	break;
+	case ResponseRules::RESPONSE_ENTITYIO:
+	{
+		CAI_Expresser::FireEntIOFromResponse( response, pTarget );
+		break;
+	}
+#ifdef MAPBASE_VSCRIPT
+	case ResponseRules::RESPONSE_VSCRIPT:
+	{
+		CAI_Expresser::RunScriptResponse( pTarget, response, &set, false );
+		break;
+	}
+	case ResponseRules::RESPONSE_VSCRIPT_FILE:
+	{
+		CAI_Expresser::RunScriptResponse( pTarget, response, &set, true );
+		break;
+	}
+#endif
+	default:
+		break;
+	}
+#else
 	switch ( result.GetType() )
 	{
 	case RESPONSE_SPEAK:
@@ -283,6 +342,7 @@ void CSpeaker::DispatchResponse( const char *conceptName )
 	default:
 		break;
 	}
+#endif
 
 	// AllocPooledString?
 	m_OnSpeak.Set(MAKE_STRING(response), pTarget, this);

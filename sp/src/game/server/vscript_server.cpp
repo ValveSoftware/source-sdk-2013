@@ -37,10 +37,16 @@ extern ScriptClassDesc_t * GetScriptDesc( CBaseEntity * );
 #endif // VMPROFILE
 
 
+#ifdef MAPBASE_VSCRIPT
+static ScriptHook_t g_Hook_OnEntityCreated;
+static ScriptHook_t g_Hook_OnEntitySpawned;
+static ScriptHook_t g_Hook_OnEntityDeleted;
+#endif
+
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-class CScriptEntityIterator
+class CScriptEntityIterator : public IEntityListener
 {
 public:
 #ifdef MAPBASE_VSCRIPT
@@ -115,6 +121,66 @@ public:
 	{
 		return ToHScript( gEntList.FindEntityClassNearestFacing( origin, facing, threshold, const_cast<char*>(classname) ) );
 	}
+
+	HSCRIPT FindByClassnameNearest2D( const char *szName, const Vector &vecSrc, float flRadius )
+	{
+		return ToHScript( gEntList.FindEntityByClassnameNearest2D( szName, vecSrc, flRadius ) );
+	}
+
+	// 
+	// Custom Procedurals
+	// 
+	void AddCustomProcedural( const char *pszName, HSCRIPT hFunc, bool bCanReturnMultiple )
+	{
+		gEntList.AddCustomProcedural( pszName, hFunc, bCanReturnMultiple );
+	}
+
+	void RemoveCustomProcedural( const char *pszName )
+	{
+		gEntList.RemoveCustomProcedural( pszName );
+	}
+
+	void EnableEntityListening()
+	{
+		// Start getting entity updates!
+		gEntList.AddListenerEntity( this );
+	}
+
+	void DisableEntityListening()
+	{
+		// Stop getting entity updates!
+		gEntList.RemoveListenerEntity( this );
+	}
+
+	void OnEntityCreated( CBaseEntity *pEntity )
+	{
+		if ( g_pScriptVM && GetScriptHookManager().IsEventHooked( "OnEntityCreated" ) )
+		{
+			// entity
+			ScriptVariant_t args[] = { ScriptVariant_t( pEntity->GetScriptInstance() ) };
+			g_Hook_OnEntityCreated.Call( NULL, NULL, args );
+		}
+	};
+
+	void OnEntitySpawned( CBaseEntity *pEntity )
+	{
+		if ( g_pScriptVM && GetScriptHookManager().IsEventHooked( "OnEntitySpawned" ) )
+		{
+			// entity
+			ScriptVariant_t args[] = { ScriptVariant_t( pEntity->GetScriptInstance() ) };
+			g_Hook_OnEntitySpawned.Call( NULL, NULL, args );
+		}
+	};
+
+	void OnEntityDeleted( CBaseEntity *pEntity )
+	{
+		if ( g_pScriptVM && GetScriptHookManager().IsEventHooked( "OnEntityDeleted" ) )
+		{
+			// entity
+			ScriptVariant_t args[] = { ScriptVariant_t( pEntity->GetScriptInstance() ) };
+			g_Hook_OnEntityDeleted.Call( NULL, NULL, args );
+		}
+	};
 #endif
 private:
 } g_ScriptEntityIterator;
@@ -138,6 +204,25 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptEntityIterator, "CEntities", SCRIPT_SINGLETO
 #ifdef MAPBASE_VSCRIPT
 	DEFINE_SCRIPTFUNC( FindByClassnameWithinBox, "Find entities by class name within an AABB. Pass 'null' to start an iteration, or reference to a previously found entity to continue a search"  )
 	DEFINE_SCRIPTFUNC( FindByClassNearestFacing, "Find the nearest entity along the facing direction from the given origin within the angular threshold with the given classname."  )
+	DEFINE_SCRIPTFUNC( FindByClassnameNearest2D, "Find entities by class name nearest to a point in 2D space." )
+
+	DEFINE_SCRIPTFUNC( AddCustomProcedural, "Adds a custom '!' target name. The first parameter is the name of the procedural (which should NOT include the '!'), the second parameter is a function which should support 5 arguments (name, startEntity, searchingEntity, activator, caller), and the third parameter is whether or not this procedural can return multiple entities. Note that these are NOT saved and must be redeclared on restore!"  )
+	DEFINE_SCRIPTFUNC( RemoveCustomProcedural, "Removes a custom '!' target name previously defined with AddCustomProcedural."  )
+
+	DEFINE_SCRIPTFUNC( EnableEntityListening, "Enables the 'OnEntity' hooks. This function must be called before using them." )
+	DEFINE_SCRIPTFUNC( DisableEntityListening, "Disables the 'OnEntity' hooks." )
+
+	BEGIN_SCRIPTHOOK( g_Hook_OnEntityCreated, "OnEntityCreated", FIELD_VOID, "Called when an entity is created. Requires EnableEntityListening() to be fired beforehand." )
+		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( g_Hook_OnEntitySpawned, "OnEntitySpawned", FIELD_VOID, "Called when an entity spawns. Requires EnableEntityListening() to be fired beforehand." )
+		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( g_Hook_OnEntityDeleted, "OnEntityDeleted", FIELD_VOID, "Called when an entity is deleted. Requires EnableEntityListening() to be fired beforehand." )
+		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
+	END_SCRIPTHOOK()
 #endif
 END_SCRIPTDESC();
 
@@ -516,6 +601,10 @@ bool VScriptServerInit()
 #endif
 
 #ifdef MAPBASE_VSCRIPT
+				GetScriptHookManager().OnInit();
+#endif
+
+#ifdef MAPBASE_VSCRIPT
 				// MULTIPLAYER
 				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByIndex, "GetPlayerByIndex", "PlayerInstanceFromIndex" );
 				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByUserId, "GetPlayerByUserId", "GetPlayerFromUserID" );
@@ -583,6 +672,8 @@ bool VScriptServerInit()
 				VScriptRunScript( "mapspawn", false );
 
 #ifdef MAPBASE_VSCRIPT
+				RunAddonScripts();
+
 				// Since the world entity spawns before VScript is initted, RunVScripts() is called before the VM has started, so no scripts are run.
 				// This gets around that by calling the same function right after the VM is initted.
 				GetWorldEntity()->RunVScripts();
@@ -751,6 +842,8 @@ public:
 	{
 #ifdef MAPBASE_VSCRIPT
 		g_ScriptNetMsg->LevelShutdownPreVM();
+
+		GetScriptHookManager().OnShutdown();
 #endif
 		VScriptServerTerm();
 	}

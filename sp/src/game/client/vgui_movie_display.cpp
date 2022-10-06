@@ -7,16 +7,16 @@
 #include "cbase.h"
 #include "c_vguiscreen.h"
 #include "vgui_controls/Label.h"
-#include "vgui_BitmapPanel.h"
-#include <vgui/IVGUI.h>
+#include "vgui_bitmappanel.h"
+#include <vgui/IVGui.h>
 #include "c_slideshow_display.h"
 #include "ienginevgui.h"
 #include "fmtstr.h"
 #include "vgui_controls/ImagePanel.h"
 #include <vgui/ISurface.h>
 #include "video/ivideoservices.h"
-#include "engine/ienginesound.h"
-#include "VGUIMatSurface/IMatSystemSurface.h"
+#include "engine/IEngineSound.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
 #include "c_movie_display.h"
 
 // NOTE: This has to be the last file included!
@@ -81,7 +81,6 @@ private:
 	bool			m_bBlackBackground;
 	bool			m_bSlaved;
 	bool			m_bInitialized;
-
 	bool			m_bLastActiveState;		// HACK: I'd rather get a real callback...
 
 	// VGUI specifics
@@ -110,10 +109,9 @@ CMovieDisplayScreen::CMovieDisplayScreen( vgui::Panel *parent, const char *panel
 	m_bBlackBackground = true;
 	m_bSlaved = false;
 	m_bInitialized = false;
-
 	// Add ourselves to the global list of movie displays
 	g_MovieDisplays.AddToTail( this );
-
+	//m_VideoMaterial->SetMuted(true);
 	m_bLastActiveState = IsActive();
 }
 
@@ -295,6 +293,11 @@ void CMovieDisplayScreen::UpdateMovie( void )
 			// OnVideoOver();
 			// StopPlayback();
 		}
+
+		if (!m_hScreenEntity->IsMuted())
+		{
+			m_VideoMaterial->SetMuted(false);
+		}
 	}
 }
 
@@ -365,25 +368,27 @@ bool CMovieDisplayScreen::BeginPlayback( const char *pFilename )
 	}
 	else
 	{
-		Q_strncpy( szMaterialName, pFilename, sizeof(szMaterialName) );
+		Q_snprintf( szMaterialName, sizeof(szMaterialName), "%s_%s", pFilename, m_hScreenEntity->GetEntityName() );
 	}
 
-	const char *pszMaterialName = CFmtStrN<128>( "VideoMaterial_", m_hScreenEntity->GetEntityName() );
-	m_VideoMaterial = g_pVideo->CreateVideoMaterial( pszMaterialName, pFilename, "GAME",
+	m_VideoMaterial = g_pVideo->CreateVideoMaterial( szMaterialName, pFilename, "GAME",
 													VideoPlaybackFlags::DEFAULT_MATERIAL_OPTIONS,
 													VideoSystem::DETERMINE_FROM_FILE_EXTENSION/*, m_bAllowAlternateMedia*/ );
 
 	if ( m_VideoMaterial == NULL )
 		return false;
 
-	m_VideoMaterial->SetMuted( true ); // FIXME: Allow?
+	
+	
+		m_VideoMaterial->SetMuted(true); // FIXME: Allow?
+	
 
 	if ( m_hScreenEntity->IsLooping() )
 	{
 		m_VideoMaterial->SetLooping( true );
 	}
 
-	if ( m_VideoMaterial->HasAudio() )
+	if ( m_VideoMaterial->HasAudio())
 	{
 		// We want to be the sole audio source
 		enginesound->NotifyBeginMoviePlayback();

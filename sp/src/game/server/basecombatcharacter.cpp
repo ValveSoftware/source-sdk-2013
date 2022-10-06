@@ -61,11 +61,6 @@
 extern int	g_interactionBarnacleVictimReleased;
 #endif //HL2_DLL
 
-#ifdef MAPBASE
-extern acttable_t *GetSMG1Acttable();
-extern int GetSMG1ActtableCount();
-#endif
-
 extern ConVar weapon_showproficiency;
 
 ConVar ai_show_hull_attacks( "ai_show_hull_attacks", "0" );
@@ -151,13 +146,16 @@ BEGIN_DATADESC( CBaseCombatCharacter )
 END_DATADESC()
 
 #ifdef MAPBASE_VSCRIPT
+ScriptHook_t	CBaseCombatCharacter::g_Hook_RelationshipType;
+ScriptHook_t	CBaseCombatCharacter::g_Hook_RelationshipPriority;
+
 BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by players and NPCs." )
 
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptActiveWeapon, "GetActiveWeapon", "Get the character's active weapon entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetActiveWeapon, "GetActiveWeapon", "Get the character's active weapon entity." )
 	DEFINE_SCRIPTFUNC( WeaponCount, "Get the number of weapons a character possesses." )
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponIndex, "GetWeapon", "Get a specific weapon in the character's inventory." )
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptWeaponByType, "FindWeapon", "Find a specific weapon in the character's inventory by its classname." )
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptAllWeapons, "GetAllWeapons", "Get the character's weapon inventory." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetWeapon, "GetWeapon", "Get a specific weapon in the character's inventory." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetWeaponByType, "FindWeapon", "Find a specific weapon in the character's inventory by its classname." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAllWeapons, "GetAllWeapons", "Get the character's weapon inventory." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetCurrentWeaponProficiency, "GetCurrentWeaponProficiency", "Get the character's current proficiency (accuracy) with their current weapon." )
 
 	DEFINE_SCRIPTFUNC_NAMED( Weapon_ShootPosition, "ShootPosition", "Get the character's shoot position." )
@@ -165,6 +163,8 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEquipWeapon, "EquipWeapon", "Make the character equip the specified weapon entity. If they don't already own the weapon, they will acquire it instantly." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptDropWeapon, "DropWeapon", "Make the character drop the specified weapon entity if they own it." )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGiveAmmo, "GiveAmmo", "Gives the specified amount of the specified ammo type. The third parameter is whether or not to suppress the ammo pickup sound. Returns the amount of ammo actually given, which is 0 if the player's ammo for this type is already full." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRemoveAmmo, "RemoveAmmo", "Removes the specified amount of the specified ammo type." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAmmoCount, "GetAmmoCount", "Get the ammo count of the specified ammo type." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetAmmoCount, "SetAmmoCount", "Set the ammo count of the specified ammo type." )
 
@@ -176,7 +176,7 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC_NAMED( ScriptRelationPriority, "GetRelationPriority", "Get a character's relationship priority for a specific entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetRelationship, "SetRelationship", "Set a character's relationship with a specific entity." )
 
-	DEFINE_SCRIPTFUNC_NAMED( GetScriptVehicleEntity, "GetVehicleEntity", "Get the entity for a character's current vehicle if they're in one." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetVehicleEntity, "GetVehicleEntity", "Get the entity for a character's current vehicle if they're in one." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptInViewCone, "InViewCone", "Check if the specified position is in the character's viewcone." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptEntInViewCone, "EntInViewCone", "Check if the specified entity is in the character's viewcone." )
@@ -191,6 +191,19 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC( HeadDirection3D, "Get the head's 3D direction." )
 	DEFINE_SCRIPTFUNC( EyeDirection2D, "Get the eyes' 2D direction." )
 	DEFINE_SCRIPTFUNC( EyeDirection3D, "Get the eyes' 3D direction." )
+
+	// 
+	// Hooks
+	// 
+	BEGIN_SCRIPTHOOK( CBaseCombatCharacter::g_Hook_RelationshipType, "RelationshipType", FIELD_INTEGER, "Called when a character's relationship to another entity is requested. Returning a disposition will make the game use that disposition instead of the default relationship. (note: 'default' in this case includes overrides from ai_relationship/SetRelationship)" )
+		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "def", FIELD_INTEGER )
+	END_SCRIPTHOOK()
+
+	BEGIN_SCRIPTHOOK( CBaseCombatCharacter::g_Hook_RelationshipPriority, "RelationshipPriority", FIELD_INTEGER, "Called when a character's relationship priority for another entity is requested. Returning a number will make the game use that priority instead of the default priority. (note: 'default' in this case includes overrides from ai_relationship/SetRelationship)" )
+		DEFINE_SCRIPTHOOK_PARAM( "entity", FIELD_HSCRIPT )
+		DEFINE_SCRIPTHOOK_PARAM( "def", FIELD_INTEGER )
+	END_SCRIPTHOOK()
 
 END_SCRIPTDESC();
 #endif
@@ -1725,25 +1738,6 @@ Killed
 */
 void CBaseCombatCharacter::Event_Killed( const CTakeDamageInfo &info )
 {
-#ifdef MAPBASE_VSCRIPT
-	if (m_ScriptScope.IsInitialized() && g_Hook_OnDeath.CanRunInScope( m_ScriptScope ))
-	{
-		HSCRIPT hInfo = g_pScriptVM->RegisterInstance( const_cast<CTakeDamageInfo*>(&info) );
-
-		// info
-		ScriptVariant_t functionReturn;
-		ScriptVariant_t args[] = { ScriptVariant_t( hInfo ) };
-		if ( g_Hook_OnDeath.Call( m_ScriptScope, &functionReturn, args ) && (functionReturn.m_type == FIELD_BOOLEAN && functionReturn.m_bool == false) )
-		{
-			// Make this entity cheat death
-			g_pScriptVM->RemoveInstance( hInfo );
-			return;
-		}
-
-		g_pScriptVM->RemoveInstance( hInfo );
-	}
-#endif
-
 	extern ConVar npc_vphysics;
 
 	// Advance life state to dying
@@ -1791,7 +1785,14 @@ void CBaseCombatCharacter::Event_Killed( const CTakeDamageInfo &info )
 	// if flagged to drop a health kit
 	if (HasSpawnFlags(SF_NPC_DROP_HEALTHKIT))
 	{
-		CBaseEntity::Create( "item_healthvial", GetAbsOrigin(), GetAbsAngles() );
+		CBaseEntity *pItem = CBaseEntity::Create( "item_healthvial", GetAbsOrigin(), GetAbsAngles() );
+		if (pItem)
+		{
+#ifdef MAPBASE
+			if (MyNPCPointer())
+				MyNPCPointer()->m_OnItemDrop.Set( pItem, pItem, this );
+#endif
+		}
 	}
 	// clear the deceased's sound channels.(may have been firing or reloading when killed)
 	EmitSound( "BaseCombatCharacter.StopWeaponSounds" );
@@ -2726,10 +2727,38 @@ bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 }
 
 #ifdef MAPBASE
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+static Activity Weapon_BackupActivityFromList( CBaseCombatCharacter *pBCC, acttable_t *pTable, int actCount, Activity activity, bool weaponTranslationWasRequired, CBaseCombatWeapon *pWeapon )
+{
+	int i = 0;
+	for ( ; i < actCount; i++, pTable++ )
+	{
+		if ( activity == pTable->baseAct )
+		{
+			// Don't pick backup activities we don't actually have an animation for.
+			if (!pBCC->GetModelPtr()->HaveSequenceForActivity(pTable->weaponAct))
+				break;
+
+			return (Activity)pTable->weaponAct;
+		}
+	}
+
+	// We didn't succeed in finding an activity. See if we can recurse
+	acttable_t *pBackupTable = CBaseCombatWeapon::GetDefaultBackupActivityList( pTable - i, actCount );
+	if (pBackupTable)
+	{
+		return Weapon_BackupActivityFromList( pBCC, pBackupTable, actCount, activity, weaponTranslationWasRequired, pWeapon );
+	}
+
+	return activity;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:	Uses an activity from a different weapon when the activity we were originally looking for does not exist on this character.
-//			Created to give NPCs the ability to use weapons they are not otherwise allowed to use.
-//			Right now, everyone falls back to the SMG act table.
+//			This gives NPCs and players the ability to use weapons they are otherwise unable to use.
 //-----------------------------------------------------------------------------
 Activity CBaseCombatCharacter::Weapon_BackupActivity( Activity activity, bool weaponTranslationWasRequired, CBaseCombatWeapon *pSpecificWeapon )
 {
@@ -2741,26 +2770,26 @@ Activity CBaseCombatCharacter::Weapon_BackupActivity( Activity activity, bool we
 	if (!pWeapon->SupportsBackupActivity(activity))
 		return activity;
 
-	// Sometimes, the NPC is supposed to use the default activity. Return that if the weapon translation was "not required" and we have an original activity.
-	if (!weaponTranslationWasRequired && GetModelPtr()->HaveSequenceForActivity(activity))
+	// UNDONE: Sometimes, a NPC is supposed to use the default activity. Return that if the weapon translation was "not required" and we have an original activity.
+	/*
+	if (!weaponTranslationWasRequired && GetModelPtr()->HaveSequenceForActivity(activity) && !IsPlayer())
 	{
 		return activity;
 	}
+	*/
 
-	acttable_t *pTable = GetSMG1Acttable();
-	int actCount = GetSMG1ActtableCount();
-	for ( int i = 0; i < actCount; i++, pTable++ )
+	acttable_t *pTable = pWeapon->GetBackupActivityList();
+	int actCount = pWeapon->GetBackupActivityListCount();
+	if (!pTable)
 	{
-		if ( activity == pTable->baseAct )
-		{
-			// Don't pick SMG animations we don't actually have an animation for.
-			if (GetModelPtr() ? !GetModelPtr()->HaveSequenceForActivity(pTable->weaponAct) : false)
-			{
-				return activity;
-			}
+		// Look for a default list
+		actCount = pWeapon->ActivityListCount();
+		pTable = CBaseCombatWeapon::GetDefaultBackupActivityList( pWeapon->ActivityList(), actCount );
+	}
 
-			return (Activity)pTable->weaponAct;
-		}
+	if (pTable && GetModelPtr())
+	{
+		return Weapon_BackupActivityFromList( this, pTable, actCount, activity, weaponTranslationWasRequired, pWeapon );
 	}
 
 	return activity;
@@ -2893,6 +2922,12 @@ int CBaseCombatCharacter::OnTakeDamage( const CTakeDamageInfo &info )
 #endif
 		if ( m_iHealth <= 0 )
 		{
+#ifdef MAPBASE_VSCRIPT
+			// False = Cheat death
+			if (ScriptDeathHook( const_cast<CTakeDamageInfo*>(&info) ) == false)
+				return retVal;
+#endif
+
 			IPhysicsObject *pPhysics = VPhysicsGetObject();
 			if ( pPhysics )
 			{
@@ -3296,7 +3331,24 @@ Relationship_t *CBaseCombatCharacter::FindEntityRelationship( CBaseEntity *pTarg
 Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 {
 	if ( pTarget )
+	{
+#ifdef MAPBASE_VSCRIPT
+		if (m_ScriptScope.IsInitialized() && g_Hook_RelationshipType.CanRunInScope( m_ScriptScope ))
+		{
+			// entity, default
+			ScriptVariant_t functionReturn;
+			ScriptVariant_t args[] = { ScriptVariant_t( pTarget->GetScriptInstance() ), FindEntityRelationship( pTarget )->disposition };
+			if (g_Hook_RelationshipType.Call( m_ScriptScope, &functionReturn, args ) && (functionReturn.m_type == FIELD_INTEGER && functionReturn.m_int != D_ER))
+			{
+				// Use the disposition returned by the script
+				return (Disposition_t)functionReturn.m_int;
+			}
+		}
+#endif
+
 		return FindEntityRelationship( pTarget )->disposition;
+	}
+
 	return D_NU;
 }
 
@@ -3308,7 +3360,24 @@ Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 int CBaseCombatCharacter::IRelationPriority( CBaseEntity *pTarget )
 {
 	if ( pTarget )
+	{
+#ifdef MAPBASE_VSCRIPT
+		if (m_ScriptScope.IsInitialized() && g_Hook_RelationshipPriority.CanRunInScope( m_ScriptScope ))
+		{
+			// entity, default
+			ScriptVariant_t functionReturn;
+			ScriptVariant_t args[] = { ScriptVariant_t( pTarget->GetScriptInstance() ), FindEntityRelationship( pTarget )->priority };
+			if (g_Hook_RelationshipPriority.Call( m_ScriptScope, &functionReturn, args ) && functionReturn.m_type == FIELD_INTEGER)
+			{
+				// Use the priority returned by the script
+				return functionReturn.m_int;
+			}
+		}
+#endif
+
 		return FindEntityRelationship( pTarget )->priority;
+	}
+
 	return 0;
 }
 
@@ -4068,14 +4137,13 @@ void CBaseCombatCharacter::InputKilledNPC( inputdata_t &inputdata )
 
 #ifdef MAPBASE
 //-----------------------------------------------------------------------------
-// Purpose: Handle enemy kills. This actually measures players too.
+// Purpose: Handle enemy kills. (this technically measures players too)
 //-----------------------------------------------------------------------------
 void CBaseCombatCharacter::OnKilledNPC( CBaseCombatCharacter *pKilled )
 {
-	// I know this can sometimes pass as NULL, but that can work here...right?
 	m_OnKilledEnemy.Set(pKilled, pKilled, this);
 
-	// Fire an additional output if this was the player
+	// Fire an additional output if this was a player
 	if (pKilled && pKilled->IsPlayer())
 		m_OnKilledPlayer.Set(pKilled, pKilled, this);
 }
@@ -4335,9 +4403,8 @@ CBaseEntity *CBaseCombatCharacter::FindNamedEntity( const char *szName, IEntityF
 		return GetActiveWeapon();
 	}
 
-	// FindEntityProcedural can go through this now, so running this code would likely cause an infinite loop or something.
-	// As a result, FindEntityProcedural identifies itself with this weird new entity filter.
-	// Hey, if you've got a better idea, go ahead.
+	// HACKHACK: FindEntityProcedural can go through this now, so running this code could cause an infinite loop.
+	// As a result, FindEntityProcedural currently identifies itself with this entity filter.
 	else if (!pFilter || !dynamic_cast<CNullEntityFilter*>(pFilter))
 	{
 		// search for up to 32 entities with the same name and choose one randomly
@@ -4389,28 +4456,33 @@ void CBaseCombatCharacter::DoMuzzleFlash()
 #ifdef MAPBASE_VSCRIPT
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-HSCRIPT CBaseCombatCharacter::GetScriptActiveWeapon()
+HSCRIPT CBaseCombatCharacter::ScriptGetActiveWeapon()
 {
 	return ToHScript( GetActiveWeapon() );
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-HSCRIPT CBaseCombatCharacter::GetScriptWeaponIndex( int i )
+HSCRIPT CBaseCombatCharacter::ScriptGetWeapon( int i )
 {
+	Assert( i >= 0 && i < MAX_WEAPONS );
+
+	if ( i < 0 || i >= MAX_WEAPONS )
+		return NULL;
+
 	return ToHScript( GetWeapon( i ) );
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-HSCRIPT CBaseCombatCharacter::GetScriptWeaponByType( const char *pszWeapon, int iSubType )
+HSCRIPT CBaseCombatCharacter::ScriptGetWeaponByType( const char *pszWeapon, int iSubType )
 {
 	return ToHScript( Weapon_OwnsThisType( pszWeapon, iSubType ) );
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CBaseCombatCharacter::GetScriptAllWeapons( HSCRIPT hTable )
+void CBaseCombatCharacter::ScriptGetAllWeapons( HSCRIPT hTable )
 {
 	for (int i=0;i<MAX_WEAPONS;i++)
 	{
@@ -4477,8 +4549,33 @@ void CBaseCombatCharacter::ScriptEquipWeapon( HSCRIPT hWeapon )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+int CBaseCombatCharacter::ScriptGiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
+{
+	return GiveAmmo( iCount, iAmmoIndex, bSuppressSound );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseCombatCharacter::ScriptRemoveAmmo( int iCount, int iAmmoIndex )
+{
+	if (iAmmoIndex == -1)
+	{
+		Warning( "%i is not a valid ammo type\n", iAmmoIndex );
+		return;
+	}
+
+	RemoveAmmo( iCount, iAmmoIndex );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 int CBaseCombatCharacter::ScriptGetAmmoCount( int iType ) const
 {
+	Assert( iType == -1 || iType < MAX_AMMO_SLOTS );
+
+	if ( iType < 0 || iType >= MAX_AMMO_SLOTS )
+		return 0;
+
 	return GetAmmoCount( iType );
 }
 
@@ -4486,11 +4583,10 @@ int CBaseCombatCharacter::ScriptGetAmmoCount( int iType ) const
 //-----------------------------------------------------------------------------
 void CBaseCombatCharacter::ScriptSetAmmoCount( int iType, int iCount )
 {
-	if (iType == -1)
-	{
-		Warning("%i is not a valid ammo type\n", iType);
+	Assert( iType == -1 || iType < MAX_AMMO_SLOTS );
+
+	if ( iType < 0 || iType >= MAX_AMMO_SLOTS )
 		return;
-	}
 
 	return SetAmmoCount( iCount, iType );
 }
@@ -4549,7 +4645,7 @@ void CBaseCombatCharacter::ScriptSetRelationship( HSCRIPT pTarget, int dispositi
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-HSCRIPT CBaseCombatCharacter::GetScriptVehicleEntity()
+HSCRIPT CBaseCombatCharacter::ScriptGetVehicleEntity()
 {
 	return ToHScript( GetVehicleEntity() );
 }

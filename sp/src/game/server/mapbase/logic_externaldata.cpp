@@ -96,7 +96,7 @@ BEGIN_ENT_SCRIPTDESC( CLogicExternalData, CBaseEntity, "An entity which loads ke
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetKeyValueBlock, "GetKeyValueBlock", "Gets the current external data block expressed in CScriptKeyValues." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValues, "SetKeyValues", "Sets the external data from a CScriptKeyValues object." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueBlock, "SetKeyValues", "Sets the current external data block from a CScriptKeyValues object." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetKeyValueBlock, "SetKeyValueBlock", "Sets the current external data block from a CScriptKeyValues object." )
 
 	DEFINE_SCRIPTFUNC( LoadFile, "Loads external data from the external file." )
 	DEFINE_SCRIPTFUNC( SaveFile, "Saves the external data to the external file." )
@@ -199,7 +199,7 @@ void CLogicExternalData::InputWriteKeyValue( inputdata_t &inputdata )
 
 	// Separate key from value
 	char *delimiter = Q_strstr(szValue, " ");
-	if (delimiter && (delimiter + 1) != '\0')
+	if (delimiter && delimiter[1] != '\0')
 	{
 		Q_strncpy(key, szValue, MIN((delimiter - szValue) + 1, sizeof(key)));
 		Q_strncpy(value, delimiter + 1, sizeof(value));

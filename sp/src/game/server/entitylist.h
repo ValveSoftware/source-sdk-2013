@@ -74,6 +74,26 @@ public:
 	virtual bool ShouldFindEntity( CBaseEntity *pEntity ) { return false; }
 	virtual CBaseEntity *GetFilterResult( void ) { return NULL; }
 };
+
+//-----------------------------------------------------------------------------
+// Custom procedural names via VScript. This allows users to reference new '!' targets
+// or override existing ones. It is capable of returning multiple entities when needed.
+// 
+// This is useful if you want I/O and beyond to reference an entity/a number of entities
+// which may possess differing or ambiguous targetnames, or if you want to reference an
+// entity specific to the context of the operation (e.g. getting the searching entity's
+// current weapon).
+// 
+// For example, you could add a new procedural called "!first_child" which uses VScript to
+// return the searching entity's first child entity. You could also add a procedural called
+// "!children" which returns all of the searching entity's child entities.
+//-----------------------------------------------------------------------------
+struct CustomProcedural_t
+{
+	HSCRIPT hFunc;
+	const char *szName;
+	bool bCanReturnMultiple;
+};
 #endif
 
 //-----------------------------------------------------------------------------
@@ -160,6 +180,7 @@ public:
 	CBaseEntity *FindEntityByNameNearest( const char *szName, const Vector &vecSrc, float flRadius, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL );
 	CBaseEntity *FindEntityByNameWithin( CBaseEntity *pStartEntity, const char *szName, const Vector &vecSrc, float flRadius, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL );
 	CBaseEntity *FindEntityByClassnameNearest( const char *szName, const Vector &vecSrc, float flRadius );
+	CBaseEntity *FindEntityByClassnameNearest2D( const char *szName, const Vector &vecSrc, float flRadius ); // From Alien Swarm SDK
 	CBaseEntity *FindEntityByClassnameWithin( CBaseEntity *pStartEntity , const char *szName, const Vector &vecSrc, float flRadius );
 	CBaseEntity *FindEntityByClassnameWithin( CBaseEntity *pStartEntity , const char *szName, const Vector &vecMins, const Vector &vecMaxs );
 
@@ -176,7 +197,19 @@ public:
 	CBaseEntity *FindEntityByNetname( CBaseEntity *pStartEntity, const char *szModelName );
 
 	CBaseEntity *FindEntityProcedural( const char *szName, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL );
-	
+#ifdef MAPBASE_VSCRIPT
+	CBaseEntity *FindEntityCustomProcedural( CBaseEntity *pStartEntity, const char *szName, CBaseEntity *pSearchingEntity = NULL, CBaseEntity *pActivator = NULL, CBaseEntity *pCaller = NULL );
+
+	void AddCustomProcedural( const char *pszName, HSCRIPT hFunc, bool bCanReturnMultiple );
+	void RemoveCustomProcedural( const char *pszName );
+#endif
+
+	// Fast versions that require a (real) string_t, and won't do wildcarding
+	// From Alien Swarm SDK
+	CBaseEntity *FindEntityByClassnameFast( CBaseEntity *pStartEntity, string_t iszClassname );
+	CBaseEntity *FindEntityByClassnameNearestFast( string_t iszClassname, const Vector &vecSrc, float flRadius );
+	CBaseEntity *FindEntityByNameFast( CBaseEntity *pStartEntity, string_t iszName );
+
 	CGlobalEntityList();
 
 // CBaseEntityList overrides.
@@ -373,6 +406,7 @@ extern INotify *g_pNotify;
 void EntityTouch_Add( CBaseEntity *pEntity );
 int AimTarget_ListCount();
 int AimTarget_ListCopy( CBaseEntity *pList[], int listMax );
+CBaseEntity *AimTarget_ListElement( int iIndex );
 void AimTarget_ForceRepopulateList();
 
 void SimThink_EntityChanged( CBaseEntity *pEntity );

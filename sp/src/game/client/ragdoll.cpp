@@ -69,6 +69,16 @@ BEGIN_SIMPLE_DATADESC( CRagdoll )
 	DEFINE_RAGDOLL_ELEMENT( 21 ),
 	DEFINE_RAGDOLL_ELEMENT( 22 ),
 	DEFINE_RAGDOLL_ELEMENT( 23 ),
+#ifdef MAPBASE
+	DEFINE_RAGDOLL_ELEMENT( 24 ),
+	DEFINE_RAGDOLL_ELEMENT( 25 ),
+	DEFINE_RAGDOLL_ELEMENT( 26 ),
+	DEFINE_RAGDOLL_ELEMENT( 27 ),
+	DEFINE_RAGDOLL_ELEMENT( 28 ),
+	DEFINE_RAGDOLL_ELEMENT( 29 ),
+	DEFINE_RAGDOLL_ELEMENT( 30 ),
+	DEFINE_RAGDOLL_ELEMENT( 31 ),
+#endif
 
 END_DATADESC()
 
@@ -477,6 +487,9 @@ int C_ServerRagdoll::InternalDrawModel( int flags )
 	return ret;
 }
 
+#ifdef MAPBASE
+static ConVar g_ragdoll_server_snatch_instance( "g_ragdoll_server_snatch_instance", "1", FCVAR_NONE, "Allows serverside ragdolls to snatch their source entities' model instances in the same way clientside ragdolls do, thereby retaining decals." );
+#endif
 
 CStudioHdr *C_ServerRagdoll::OnNewModel( void )
 {
@@ -498,6 +511,26 @@ CStudioHdr *C_ServerRagdoll::OnNewModel( void )
 		m_iv_ragPos.SetMaxCount( m_elementCount );
 		m_iv_ragAngles.SetMaxCount( m_elementCount );
 	}
+
+#ifdef MAPBASE
+	if ( GetOwnerEntity() )
+	{
+		if (GetOwnerEntity()->GetModelName() == GetModelName())
+		{
+			// TODO: Is there a better place for this?
+			if (GetOwnerEntity()->GetBaseAnimating())
+				GetOwnerEntity()->GetBaseAnimating()->m_pServerRagdoll = this;
+
+			if (g_ragdoll_server_snatch_instance.GetBool())
+			{
+				GetOwnerEntity()->SnatchModelInstance( this );
+			}
+		}
+	}
+
+	// Add server ragdolls to the creation tick list
+	NoteRagdollCreationTick( this );
+#endif
 
 	return hdr;
 }

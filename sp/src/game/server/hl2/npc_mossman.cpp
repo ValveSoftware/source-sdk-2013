@@ -41,6 +41,11 @@ public:
 	bool	CreateBehaviors( void );
 	int		SelectSchedule( void );
 
+#ifdef MAPBASE
+	// Use Mossman's default subtitle color (220,255,198)
+	bool	GetGameTextSpeechParams( hudtextparms_t &params ) { params.r1 = 220; params.g1 = 255; params.b1 = 198; return BaseClass::GetGameTextSpeechParams( params ); }
+#endif
+
 private:
 	CAI_FollowBehavior		m_FollowBehavior;
 };

@@ -5,6 +5,7 @@
 //=============================================================================
 
 #include "cbase.h"
+#include "env_tonemap_controller.h"
 #include "baseentity.h"
 #include "entityoutput.h"
 #include "convar.h"
@@ -15,50 +16,6 @@
 #include "tier0/memdbgon.h"
 
 ConVar mat_hdr_tonemapscale( "mat_hdr_tonemapscale", "1.0", FCVAR_CHEAT, "The HDR tonemap scale. 1 = Use autoexposure, 0 = eyes fully closed, 16 = eyes wide open." );
-
-// 0 - eyes fully closed / fully black
-// 1 - nominal 
-// 16 - eyes wide open / fully white
-
-//-----------------------------------------------------------------------------
-// Purpose: Entity that controls player's tonemap
-//-----------------------------------------------------------------------------
-class CEnvTonemapController : public CPointEntity
-{
-	DECLARE_CLASS( CEnvTonemapController, CPointEntity );
-public:
-	DECLARE_DATADESC();
-	DECLARE_SERVERCLASS();
-
-	void	Spawn( void );
-	int		UpdateTransmitState( void );
-	void	UpdateTonemapScaleBlend( void );
-
-	// Inputs
-	void	InputSetTonemapScale( inputdata_t &inputdata );
-	void	InputBlendTonemapScale( inputdata_t &inputdata );
-	void	InputSetTonemapRate( inputdata_t &inputdata );
-	void	InputSetAutoExposureMin( inputdata_t &inputdata );
-	void	InputSetAutoExposureMax( inputdata_t &inputdata );
-	void	InputUseDefaultAutoExposure( inputdata_t &inputdata );
-	void	InputSetBloomScale( inputdata_t &inputdata );
-	void	InputUseDefaultBloomScale( inputdata_t &inputdata );
-	void	InputSetBloomScaleRange( inputdata_t &inputdata );
-
-private:
-	float	m_flBlendTonemapStart;		// HDR Tonemap at the start of the blend
-	float	m_flBlendTonemapEnd;		// Target HDR Tonemap at the end of the blend
-	float	m_flBlendEndTime;			// Time at which the blend ends
-	float	m_flBlendStartTime;			// Time at which the blend started
-
-	CNetworkVar( bool, m_bUseCustomAutoExposureMin );
-	CNetworkVar( bool, m_bUseCustomAutoExposureMax );
-	CNetworkVar( bool, m_bUseCustomBloomScale );
-	CNetworkVar( float, m_flCustomAutoExposureMin );
-	CNetworkVar( float, m_flCustomAutoExposureMax );
-	CNetworkVar( float, m_flCustomBloomScale);
-	CNetworkVar( float, m_flCustomBloomScaleMinimum);
-};
 
 LINK_ENTITY_TO_CLASS( env_tonemap_controller, CEnvTonemapController );
 
@@ -120,27 +77,72 @@ int CEnvTonemapController::UpdateTransmitState()
 	return SetTransmitState( FL_EDICT_ALWAYS );
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CEnvTonemapController::KeyValue( const char *szKeyName, const char *szValue )
+{
+	if ( FStrEq( szKeyName, "TonemapScale" ) )
+	{
+		float flTonemapScale = atof( szValue );
+		if (flTonemapScale != -1.0f)
+		{
+			mat_hdr_tonemapscale.SetValue( flTonemapScale );
+		}
+	}
+	else if (FStrEq( szKeyName, "TonemapRate" ))
+	{
+		float flTonemapRate = atof( szValue );
+		if (flTonemapRate != -1.0f)
+		{
+			ConVarRef mat_hdr_manual_tonemap_rate( "mat_hdr_manual_tonemap_rate" );
+			if ( mat_hdr_manual_tonemap_rate.IsValid() )
+			{
+				mat_hdr_manual_tonemap_rate.SetValue( flTonemapRate );
+			}
+		}
+	}
+	else if (FStrEq( szKeyName, "AutoExposureMin" ))
+	{
+		float flAutoExposureMin = atof( szValue );
+		if (flAutoExposureMin != -1.0f)
+		{
+			m_flCustomAutoExposureMin = flAutoExposureMin;
+			m_bUseCustomAutoExposureMin = true;
+		}
+	}
+	else if (FStrEq( szKeyName, "AutoExposureMax" ))
+	{
+		float flAutoExposureMax = atof( szValue );
+		if (flAutoExposureMax != -1.0f)
+		{
+			m_flCustomAutoExposureMax = flAutoExposureMax;
+			m_bUseCustomAutoExposureMax = true;
+		}
+	}
+	else if (FStrEq( szKeyName, "BloomScale" ))
+	{
+		float flBloomScale = atof( szValue );
+		if (flBloomScale != -1.0f)
+		{
+			m_flCustomBloomScale = flBloomScale;
+			m_flCustomBloomScaleMinimum = flBloomScale;
+			m_bUseCustomBloomScale = true;
+		}
+	}
+	else
+		return BaseClass::KeyValue( szKeyName, szValue );
+
+	return true;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Set the tonemap scale to the specified value
 //-----------------------------------------------------------------------------
 void CEnvTonemapController::InputSetTonemapScale( inputdata_t &inputdata )
 {
-	//Tony; in multiplayer, we check to see if the activator is a player, if they are, we trigger an input on them, and then get out.
-	//if there is no activator, or the activator is not a player; ie: LogicAuto, we set the 'global' values.
-	if ( ( gpGlobals->maxClients > 1 ) )
-	{
-		if ( inputdata.pActivator != NULL && inputdata.pActivator->IsPlayer() )
-		{
-//			DevMsg("activator is a player: InputSetTonemapScale\n");
-			CBasePlayer *pPlayer = ToBasePlayer(inputdata.pActivator);
-			if (pPlayer)
-			{
-				pPlayer->InputSetTonemapScale( inputdata );
-				return;
-			}
-		}
-	}
-
 	float flRemapped = inputdata.value.Float();
 	mat_hdr_tonemapscale.SetValue( flRemapped );
 }
@@ -150,10 +152,6 @@ void CEnvTonemapController::InputSetTonemapScale( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CEnvTonemapController::InputBlendTonemapScale( inputdata_t &inputdata )
 {
-	//Tony; TODO!!! -- tonemap scale blending does _not_ work properly in multiplayer..
-	if ( ( gpGlobals->maxClients > 1 ) )
-		return;
-
 	char parseString[255];
 	Q_strncpy(parseString, inputdata.value.String(), sizeof(parseString));
 
@@ -189,7 +187,7 @@ void CEnvTonemapController::InputBlendTonemapScale( inputdata_t &inputdata )
 void CEnvTonemapController::InputSetBloomScaleRange( inputdata_t &inputdata )
 {
 	float bloom_max=1, bloom_min=1;
-	int nargs=sscanf("%f %f",inputdata.value.String(), bloom_max, bloom_min );
+	int nargs=sscanf( inputdata.value.String(), "%f %f", &bloom_max, &bloom_min );
 	if (nargs != 2)
 	{
 		Warning("%s (%s) received SetBloomScaleRange input without 2 arguments. Syntax: <max bloom> <min bloom>\n", GetClassname(), GetDebugName() );
@@ -197,6 +195,9 @@ void CEnvTonemapController::InputSetBloomScaleRange( inputdata_t &inputdata )
 	}
 	m_flCustomBloomScale=bloom_max;
 	m_flCustomBloomScaleMinimum=bloom_min;
+#ifdef MAPBASE
+	m_bUseCustomBloomScale = true;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -204,22 +205,6 @@ void CEnvTonemapController::InputSetBloomScaleRange( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CEnvTonemapController::InputSetTonemapRate( inputdata_t &inputdata )
 {
-	//Tony; in multiplayer, we check to see if the activator is a player, if they are, we trigger an input on them, and then get out.
-	//if there is no activator, or the activator is not a player; ie: LogicAuto, we set the 'global' values.
-	if ( ( gpGlobals->maxClients > 1 ) )
-	{
-		if ( inputdata.pActivator != NULL && inputdata.pActivator->IsPlayer() )
-		{
-//			DevMsg("activator is a player: InputSetTonemapRate\n");
-			CBasePlayer *pPlayer = ToBasePlayer(inputdata.pActivator);
-			if (pPlayer)
-			{
-				pPlayer->InputSetTonemapRate( inputdata );
-				return;
-			}
-		}
-	}
-
 	// TODO: There should be a better way to do this.
 	ConVarRef mat_hdr_manual_tonemap_rate( "mat_hdr_manual_tonemap_rate" );
 	if ( mat_hdr_manual_tonemap_rate.IsValid() )
@@ -251,22 +236,6 @@ void CEnvTonemapController::UpdateTonemapScaleBlend( void )
 //-----------------------------------------------------------------------------
 void CEnvTonemapController::InputSetAutoExposureMin( inputdata_t &inputdata )
 {
-	//Tony; in multiplayer, we check to see if the activator is a player, if they are, we trigger an input on them, and then get out.
-	//if there is no activator, or the activator is not a player; ie: LogicAuto, we set the 'global' values.
-	if ( ( gpGlobals->maxClients > 1 ) )
-	{
-		if ( inputdata.pActivator != NULL && inputdata.pActivator->IsPlayer() )
-		{
-//			DevMsg("activator is a player: InputSetAutoExposureMin\n");
-			CBasePlayer *pPlayer = ToBasePlayer(inputdata.pActivator);
-			if (pPlayer)
-			{
-				pPlayer->InputSetAutoExposureMin( inputdata );
-				return;
-			}
-		}
-	}
-
 	m_flCustomAutoExposureMin = inputdata.value.Float();
 	m_bUseCustomAutoExposureMin = true;
 }
@@ -276,22 +245,6 @@ void CEnvTonemapController::InputSetAutoExposureMin( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CEnvTonemapController::InputSetAutoExposureMax( inputdata_t &inputdata )
 {
-	//Tony; in multiplayer, we check to see if the activator is a player, if they are, we trigger an input on them, and then get out.
-	//if there is no activator, or the activator is not a player; ie: LogicAuto, we set the 'global' values.
-	if ( ( gpGlobals->maxClients > 1 ) )
-	{
-		if ( inputdata.pActivator != NULL && inputdata.pActivator->IsPlayer() )
-		{
-//			DevMsg("activator is a player: InputSetAutoExposureMax\n");
-			CBasePlayer *pPlayer = ToBasePlayer(inputdata.pActivator);
-			if (pPlayer)
-			{
-				pPlayer->InputSetAutoExposureMax( inputdata );
-				return;
-			}
-		}
-	}
-
 	m_flCustomAutoExposureMax = inputdata.value.Float();
 	m_bUseCustomAutoExposureMax = true;
 }
@@ -301,22 +254,6 @@ void CEnvTonemapController::InputSetAutoExposureMax( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CEnvTonemapController::InputUseDefaultAutoExposure( inputdata_t &inputdata )
 {
-	//Tony; in multiplayer, we check to see if the activator is a player, if they are, we trigger an input on them, and then get out.
-	//if there is no activator, or the activator is not a player; ie: LogicAuto, we set the 'global' values.
-	if ( ( gpGlobals->maxClients > 1 ) )
-	{
-		if ( inputdata.pActivator != NULL && inputdata.pActivator->IsPlayer() )
-		{
-//			DevMsg("activator is a player: InputUseDefaultAutoExposure\n");
-			CBasePlayer *pPlayer = ToBasePlayer(inputdata.pActivator);
-			if (pPlayer)
-			{
-				pPlayer->InputUseDefaultAutoExposure( inputdata );
-				return;
-			}
-		}
-	}
-
 	m_bUseCustomAutoExposureMin = false;
 	m_bUseCustomAutoExposureMax = false;
 }
@@ -326,22 +263,6 @@ void CEnvTonemapController::InputUseDefaultAutoExposure( inputdata_t &inputdata 
 //-----------------------------------------------------------------------------
 void CEnvTonemapController::InputSetBloomScale( inputdata_t &inputdata )
 {
-	//Tony; in multiplayer, we check to see if the activator is a player, if they are, we trigger an input on them, and then get out.
-	//if there is no activator, or the activator is not a player; ie: LogicAuto, we set the 'global' values.
-	if ( ( gpGlobals->maxClients > 1 ) )
-	{
-		if ( inputdata.pActivator != NULL && inputdata.pActivator->IsPlayer() )
-		{
-//			DevMsg("activator is a player: InputSetBloomScale\n");
-			CBasePlayer *pPlayer = ToBasePlayer(inputdata.pActivator);
-			if (pPlayer)
-			{
-				pPlayer->InputSetBloomScale( inputdata );
-				return;
-			}
-		}
-	}
-
 	m_flCustomBloomScale = inputdata.value.Float();
 	m_flCustomBloomScaleMinimum = m_flCustomBloomScale;
 	m_bUseCustomBloomScale = true;
@@ -352,21 +273,111 @@ void CEnvTonemapController::InputSetBloomScale( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CEnvTonemapController::InputUseDefaultBloomScale( inputdata_t &inputdata )
 {
-	//Tony; in multiplayer, we check to see if the activator is a player, if they are, we trigger an input on them, and then get out.
-	//if there is no activator, or the activator is not a player; ie: LogicAuto, we set the 'global' values.
-	if ( ( gpGlobals->maxClients > 1 ) )
-	{
-		if ( inputdata.pActivator != NULL && inputdata.pActivator->IsPlayer() )
-		{
-//			DevMsg("activator is a player: InputUseDefaultBloomScale\n");
-			CBasePlayer *pPlayer = ToBasePlayer(inputdata.pActivator);
-			if (pPlayer)
-			{
-				pPlayer->InputUseDefaultBloomScale( inputdata );
-				return;
-			}
-		}
-	}
-
 	m_bUseCustomBloomScale = false;
 }
+
+#ifdef MAPBASE // From Alien Swarm SDK
+//--------------------------------------------------------------------------------------------------------
+LINK_ENTITY_TO_CLASS( trigger_tonemap, CTonemapTrigger );
+
+BEGIN_DATADESC( CTonemapTrigger )
+	DEFINE_KEYFIELD( m_tonemapControllerName,	FIELD_STRING,	"TonemapName" ),
+END_DATADESC()
+
+
+//--------------------------------------------------------------------------------------------------------
+void CTonemapTrigger::Spawn( void )
+{
+	AddSpawnFlags( SF_TRIGGER_ALLOW_CLIENTS );
+
+	BaseClass::Spawn();
+	InitTrigger();
+
+	m_hTonemapController = gEntList.FindEntityByName( NULL, m_tonemapControllerName );
+}
+
+
+//--------------------------------------------------------------------------------------------------------
+void CTonemapTrigger::StartTouch( CBaseEntity *other )
+{
+	if ( !PassesTriggerFilters( other ) )
+		return;
+
+	BaseClass::StartTouch( other );
+
+	CBasePlayer *player = ToBasePlayer( other );
+	if ( !player )
+		return;
+
+	player->OnTonemapTriggerStartTouch( this );
+}
+
+
+//--------------------------------------------------------------------------------------------------------
+void CTonemapTrigger::EndTouch( CBaseEntity *other )
+{
+	if ( !PassesTriggerFilters( other ) )
+		return;
+
+	BaseClass::EndTouch( other );
+
+	CBasePlayer *player = ToBasePlayer( other );
+	if ( !player )
+		return;
+
+	player->OnTonemapTriggerEndTouch( this );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Clear out the tonemap controller.
+//-----------------------------------------------------------------------------
+void CTonemapSystem::LevelInitPreEntity( void )
+{
+	m_hMasterController = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: On level load find the master fog controller.  If no controller is 
+//			set as Master, use the first fog controller found.
+//-----------------------------------------------------------------------------
+void CTonemapSystem::LevelInitPostEntity( void )
+{
+	// Overall master controller
+	CEnvTonemapController *pTonemapController = NULL;
+	do
+	{
+		pTonemapController = static_cast<CEnvTonemapController*>( gEntList.FindEntityByClassname( pTonemapController, "env_tonemap_controller" ) );
+		if ( pTonemapController )
+		{
+			if ( m_hMasterController == NULL )
+			{
+				m_hMasterController = pTonemapController;
+			}
+			else
+			{
+				if ( pTonemapController->IsMaster() )
+				{
+					m_hMasterController = pTonemapController;
+				}
+			}
+		}
+	} while ( pTonemapController );
+
+	
+}
+
+
+//--------------------------------------------------------------------------------------------------------
+CTonemapSystem s_TonemapSystem( "TonemapSystem" );
+
+
+//--------------------------------------------------------------------------------------------------------
+CTonemapSystem *TheTonemapSystem( void )
+{
+	return &s_TonemapSystem;
+}
+
+
+//--------------------------------------------------------------------------------------------------------
+#endif

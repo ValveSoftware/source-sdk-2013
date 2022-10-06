@@ -8,6 +8,8 @@
 #include "cbase.h"
 #include "activitylist.h"
 #include "in_buttons.h"
+#include "rope_shared.h"
+#include "eventlist.h"
 #ifdef CLIENT_DLL
 #include "c_ai_basenpc.h"
 #else
@@ -124,6 +126,15 @@ extern void RegisterWeaponScriptConstants();
 
 void RegisterSharedScriptConstants()
 {
+	// "SERVER_DLL" is used in Source 2.
+#ifdef GAME_DLL
+	ScriptRegisterConstantNamed( g_pScriptVM, 1, "SERVER_DLL", "" );
+	ScriptRegisterConstantNamed( g_pScriptVM, 0, "CLIENT_DLL", "" );
+#else
+	ScriptRegisterConstantNamed( g_pScriptVM, 0, "SERVER_DLL", "" );
+	ScriptRegisterConstantNamed( g_pScriptVM, 1, "CLIENT_DLL", "" );
+#endif
+
 	// 
 	// Activities
 	// 
@@ -310,9 +321,102 @@ void RegisterSharedScriptConstants()
 	ScriptRegisterConstant( g_pScriptVM, MOVETYPE_OBSERVER, "Move type used in GetMoveType(), etc." );
 	ScriptRegisterConstant( g_pScriptVM, MOVETYPE_CUSTOM, "Move type used in GetMoveType(), etc." );
 
+	// 
+	// Animation Stuff
+	// 
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_SERVER, "Animation event flag which indicates an event is supposed to be serverside only." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_SCRIPTED, "Animation event flag with an unknown purpose." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_SHARED, "Animation event flag which indicates an event is supposed to be shared between the server and client." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_WEAPON, "Animation event flag which indicates an event is part of a weapon." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_CLIENT, "Animation event flag which indicates an event is supposed to be clientside only." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_FACEPOSER, "Animation event flag with an unknown purpose. Presumably related to Faceposer." );
+	ScriptRegisterConstant( g_pScriptVM, AE_TYPE_NEWEVENTSYSTEM, "Animation event flag which indicates an event is using the new system. This is often used by class-specific events from NPCs." );
+
+	// 
+	// Ropes
+	// 
+	ScriptRegisterConstant( g_pScriptVM, ROPE_RESIZE, "Try to keep the rope dangling the same amount even as the rope length changes. (for use in rope flags)" );
+	ScriptRegisterConstant( g_pScriptVM, ROPE_BARBED, "Hack option to draw like a barbed wire. (for use in rope flags)" );
+	ScriptRegisterConstant( g_pScriptVM, ROPE_COLLIDE, "Collide with the world. (for use in rope flags)" );
+	ScriptRegisterConstant( g_pScriptVM, ROPE_SIMULATE, "Is the rope valid? (for use in rope flags)" );
+	ScriptRegisterConstant( g_pScriptVM, ROPE_BREAKABLE, "Can the endpoints detach? (for use in rope flags)" );
+	ScriptRegisterConstant( g_pScriptVM, ROPE_USE_WIND, "Wind simulation on this rope. (for use in rope flags)" );
+	ScriptRegisterConstant( g_pScriptVM, ROPE_INITIAL_HANG, "By default, ropes will simulate for a bit internally when they are created so they sag, but dynamically created ropes for things like harpoons don't want this. (for use in rope flags)" );
+	ScriptRegisterConstant( g_pScriptVM, ROPE_PLAYER_WPN_ATTACH, "If this flag is set, then the second attachment must be a player. The rope will attach to \"buff_attach\" on the player's active weapon. This is a flag because it requires special code on the client to find the weapon. (for use in rope flags)" );
+	ScriptRegisterConstant( g_pScriptVM, ROPE_NO_GRAVITY, "Disable gravity on this rope. (for use in rope flags)" );
+	ScriptRegisterConstant( g_pScriptVM, ROPE_NUMFLAGS, "The number of rope flags recognized by the game." );
+
+	ScriptRegisterConstantNamed( g_pScriptVM, Vector( ROPE_GRAVITY ), "ROPE_GRAVITY", "Default rope gravity vector." );
+
+	// 
+	// Sounds
+	// 
+	ScriptRegisterConstant( g_pScriptVM, CHAN_REPLACE, "The sound channel used when playing sounds through console commands." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_AUTO, "The default generic sound channel." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_WEAPON, "The sound channel for player and NPC weapons." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_VOICE, "The sound channel used for dialogue, voice lines, etc." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_ITEM, "The sound channel used for generic physics impact sounds, health/suit chargers, +use sounds." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_BODY, "The sound channel used for clothing, ragdoll impacts, footsteps, knocking/pounding/punching etc." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_STREAM, "The sound channel for sounds that can be delayed by an async load, i.e. aren't responses to particular events." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_STATIC, "The sound channel for constant/background sound that doesn't require any reaction." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_VOICE2, "An additional sound channel for voices. Used in TF2 for the announcer." );
+	ScriptRegisterConstant( g_pScriptVM, CHAN_VOICE_BASE, "The sound channel used for network voice data (online voice communications)." );
+
+	ScriptRegisterConstant( g_pScriptVM, VOL_NORM, "The standard volume value." );
+	ScriptRegisterConstant( g_pScriptVM, PITCH_NORM, "The standard pitch value." );
+	ScriptRegisterConstant( g_pScriptVM, PITCH_LOW, "The standard low pitch value." );
+	ScriptRegisterConstant( g_pScriptVM, PITCH_HIGH, "The standard high pitch value." );
+
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_NONE, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_20dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_25dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_30dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_35dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_40dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_45dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_50dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_55dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_IDLE, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_60dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_65dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_STATIC, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_70dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_NORM, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_75dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_80dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_TALKING, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_85dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_90dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_95dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_100dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_105dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_110dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_120dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_130dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_GUNFIRE, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_140dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_150dB, "A standard value used for a sound's sound level." );
+	ScriptRegisterConstant( g_pScriptVM, SNDLVL_180dB, "A standard value used for a sound's sound level." );
+
+	ScriptRegisterConstant( g_pScriptVM, SND_CHANGE_VOL, "Indicates a sound is a volume change to an already-playing sound." );
+	ScriptRegisterConstant( g_pScriptVM, SND_CHANGE_PITCH, "Indicates a sound is a pitch change to an already-playing sound." );
+	ScriptRegisterConstant( g_pScriptVM, SND_STOP, "Indicates a sound is stopping an already-playing sound." );
+	ScriptRegisterConstant( g_pScriptVM, SND_SPAWNING, "Indicates a sound is spawning, used in some cases for ambients. Not networked." );
+	ScriptRegisterConstant( g_pScriptVM, SND_DELAY, "Indicates a sound has an initial delay." );
+	ScriptRegisterConstant( g_pScriptVM, SND_STOP_LOOPING, "Stops all looping sounds on an entity." );
+	ScriptRegisterConstant( g_pScriptVM, SND_SPEAKER, "Indicates a sound is being played again by a microphone through a speaker." );
+	ScriptRegisterConstant( g_pScriptVM, SND_SHOULDPAUSE, "Forces a sound to pause if the game is paused." );
+	ScriptRegisterConstant( g_pScriptVM, SND_IGNORE_PHONEMES, "Prevents the entity emitting this sound from using its phonemes (no lip-syncing)." );
+	ScriptRegisterConstant( g_pScriptVM, SND_IGNORE_NAME, "Used to change all sounds emitted by an entity, regardless of name." );
+	ScriptRegisterConstant( g_pScriptVM, SND_DO_NOT_OVERWRITE_EXISTING_ON_CHANNEL, "Prevents a sound from interrupting other sounds on a channel (if the channel supports interruption)." );
+
+	ScriptRegisterConstant( g_pScriptVM, GENDER_NONE, "A standard value used to represent no specific gender. Usually used for sounds." );
+	ScriptRegisterConstant( g_pScriptVM, GENDER_MALE, "A standard value used to represent male gender. Usually used for sounds." );
+	ScriptRegisterConstant( g_pScriptVM, GENDER_FEMALE, "A standard value used to represent female gender. Usually used for sounds." );
+
 #ifdef GAME_DLL
 	// 
-	// Sound Types, Contexts, and Channels
+	// AI Sounds
 	// (QueryHearSound hook can use these)
 	// 
 	ScriptRegisterConstant( g_pScriptVM, SOUND_NONE, "Sound type used in QueryHearSound hooks, etc." );
@@ -483,7 +587,7 @@ void RegisterSharedScriptConstants()
 	//ScriptRegisterConstant( g_pScriptVM, AISS_AUTO_PVS_AFTER_PVS, "" );
 	ScriptRegisterConstant( g_pScriptVM, AI_SLEEP_FLAGS_NONE, "No sleep flags. (NPC sleep flag used in Add/Remove/HasSleepFlags())" );
 	ScriptRegisterConstant( g_pScriptVM, AI_SLEEP_FLAG_AUTO_PVS, "Indicates a NPC will sleep upon exiting PVS. (NPC sleep flag used in Add/Remove/HasSleepFlags())" );
-	ScriptRegisterConstant( g_pScriptVM, AI_SLEEP_FLAG_AUTO_PVS_AFTER_PVS, "Indicates a NPC will sleep upon exiting PVS after entering PVS for the first time(?????) (NPC sleep flag used in Add/Remove/HasSleepFlags())" );
+	ScriptRegisterConstant( g_pScriptVM, AI_SLEEP_FLAG_AUTO_PVS_AFTER_PVS, "Indicates a NPC will sleep upon exiting PVS after entering PVS for the first time(?) (NPC sleep flag used in Add/Remove/HasSleepFlags())" );
 
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_PLAYING, "SCRIPT_PLAYING", "Playing the action animation." );
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_WAIT, "SCRIPT_WAIT", "Waiting on everyone in the script to be ready. Plays the pre idle animation if there is one." );
@@ -492,6 +596,12 @@ void RegisterSharedScriptConstants()
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_WALK_TO_MARK, "SCRIPT_WALK_TO_MARK", "Walking to the scripted sequence position." );
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_RUN_TO_MARK, "SCRIPT_RUN_TO_MARK", "Running to the scripted sequence position." );
 	ScriptRegisterConstantNamed( g_pScriptVM, CAI_BaseNPC::SCRIPT_PLAYING, "SCRIPT_PLAYING", "Moving to the scripted sequence position while playing a custom movement animation." );
+
+	ScriptRegisterConstant( g_pScriptVM, D_ER, "'Error' relationship definition. Used by NPCs and players for relationship disposition." );
+	ScriptRegisterConstant( g_pScriptVM, D_HT, "Denotes a 'Hate' relationship. Used by NPCs and players for relationship disposition." );
+	ScriptRegisterConstant( g_pScriptVM, D_FR, "Denotes a 'Fear' relationship. Used by NPCs and players for relationship disposition." );
+	ScriptRegisterConstant( g_pScriptVM, D_LI, "Denotes a 'Like' relationship. Used by NPCs and players for relationship disposition." );
+	ScriptRegisterConstant( g_pScriptVM, D_NU, "Denotes a 'Neutral' relationship. Used by NPCs and players for relationship disposition." );
 #endif
 
 	// 

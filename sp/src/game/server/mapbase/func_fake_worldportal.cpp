@@ -1,6 +1,6 @@
 //========= Mapbase - https://github.com/mapbase-source/source-sdk-2013 ============//
 //
-// Purpose: Recreates Portal 2 linked_portal_door functionality using SDK code only.
+// Purpose: Recreates Portal 2 linked_portal_door visual functionality using SDK code only.
 //			(basically a combination of point_camera and func_reflective_glass)
 //
 //===========================================================================//
@@ -54,6 +54,7 @@ public:
 	void InputSetSkyMode( inputdata_t &inputdata ) { m_iSkyMode = inputdata.value.Int(); }
 	void InputSetRenderTarget( inputdata_t &inputdata ) { m_iszRenderTarget = inputdata.value.StringID(); }
 	void InputSetFogController( inputdata_t &inputdata ) { m_hFogController = inputdata.value.Entity(); if (m_hFogController) { m_iszFogController = m_hFogController->GetEntityName(); } }
+	void InputSetScale( inputdata_t &inputdata ) { m_flScale = inputdata.value.Float(); }
 
 private:
 
@@ -83,6 +84,7 @@ BEGIN_DATADESC( CFuncFakeWorldPortal )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetSkyMode", InputSetSkyMode ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetRenderTarget", InputSetRenderTarget ),
 	DEFINE_INPUTFUNC( FIELD_EHANDLE, "SetFogController", InputSetFogController ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetScale", InputSetScale ),
 
 END_DATADESC()
 

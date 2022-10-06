@@ -2105,7 +2105,12 @@ void CMapFile::CheckForInstances( const char *pszFileName )
 	}
 
 	char	FDGPath[ MAX_PATH ];
+#ifdef MAPBASE
+	// Mapbase's FGD would be in a MOD path
+	if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, "MOD", FDGPath, sizeof( FDGPath ) ) )
+#else
 	if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, "EXECUTABLE_PATH", FDGPath, sizeof( FDGPath ) ) )
+#endif
 	{
 		if ( !g_pFullFileSystem->RelativePathToFullPath( GameDataFile, NULL, FDGPath, sizeof( FDGPath ) ) )
 		{
@@ -2598,6 +2603,27 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 						SetKeyValue( entity, szKey, epInstance->value );
 					}
 				}
+
+				// If the parent instance is within a relative path and no file relative to the main map exists, change it to be relative to the parent
+				char *pParentInstanceFile = ValueForKey( pInstanceEntity, "file" );
+				if ( pParentInstanceFile[ 0 ] && (strchr( pParentInstanceFile, '\\' ) || strchr( pParentInstanceFile, '/' )) )
+				{
+					char *pInstanceFile = ValueForKey( entity, "file" );
+					if ( pInstanceFile[ 0 ] )
+					{
+						char	InstancePath[ MAX_PATH ];
+
+						if ( !DeterminePath( g_MainMapPath, pInstanceFile, InstancePath ) )
+						{
+							strcpy( InstancePath, pParentInstanceFile );
+							V_StripFilename( InstancePath );
+							V_strncat( InstancePath, "\\", sizeof( InstancePath ) );
+							V_strncat( InstancePath, pInstanceFile, sizeof( InstancePath ) );
+
+							SetKeyValue( entity, "file", InstancePath );
+						}
+					}
+				}
 			}
 #endif
 		}
@@ -2606,7 +2632,7 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 		Msg( "Instance Entity %d remapped to %d\n", i, num_entities + i );
 		Msg( "   FirstBrush: from %d to %d\n", Instance->entities[ i ].firstbrush, entity->firstbrush );
 		Msg( "   KV Pairs:\n" );
-		for ( epair_t *ep = entity->epairs; ep->next != NULL; ep = ep->next )
+		for ( epair_t *ep = entity->epairs; ep != NULL; ep = ep->next )
 		{
 			Msg( "      %s %s\n", ep->key, ep->value );
 		}
@@ -2801,14 +2827,12 @@ bool LoadMapFile( const char *pszFileName )
 #ifdef MAPBASE_VSCRIPT
 		if ( g_pScriptVM )
 		{
-			HSCRIPT hFunc = g_pScriptVM->LookupFunction( "OnMapLoaded" );
-			if ( hFunc )
+			if (CMapFile::g_Hook_OnMapLoaded.CanRunInScope( NULL ))
 			{
 				// Use GetLoadingMap()
 				//g_pScriptVM->SetValue( "map", g_LoadingMap->GetScriptInstance() );
 
-				g_pScriptVM->Call( hFunc );
-				g_pScriptVM->ReleaseFunction( hFunc );
+				CMapFile::g_Hook_OnMapLoaded.Call( NULL, NULL, NULL );
 
 				//g_pScriptVM->ClearValue( "map" );
 			}

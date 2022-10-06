@@ -143,7 +143,12 @@ void CAI_PolicingBehavior::HostSpeakSentence( const char *pSentence, SentencePri
 	}
 	else if ( GetOuter()->GetExpresser() )
 	{
+#ifdef NEW_RESPONSE_SYSTEM
+		CAI_Concept concept = pSentence;
+		GetOuter()->GetExpresser()->Speak( concept );
+#else
 		GetOuter()->GetExpresser()->Speak( pSentence );
+#endif
 	}
 #endif
 }
@@ -168,7 +173,12 @@ void CAI_PolicingBehavior::HostSpeakSentence( const char *pSentence, const char 
 	}
 	else if ( GetOuter()->GetExpresser() )
 	{
+#ifdef NEW_RESPONSE_SYSTEM
+		CAI_Concept concept( pSentence );
+		GetOuter()->GetExpresser()->Speak( concept, modifiers );
+#else
 		GetOuter()->GetExpresser()->Speak( pSentence, modifiers );
+#endif
 	}
 #endif
 }

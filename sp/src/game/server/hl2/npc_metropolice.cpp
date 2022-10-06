@@ -261,6 +261,7 @@ BEGIN_DATADESC( CNPC_MetroPolice )
 #ifdef MAPBASE
 	DEFINE_AIGRENADE_DATADESC()
 	DEFINE_INPUT( m_iGrenadeCapabilities, FIELD_INTEGER, "SetGrenadeCapabilities" ),
+	DEFINE_INPUT( m_iGrenadeDropCapabilities, FIELD_INTEGER, "SetGrenadeDropCapabilities" ),
 #endif
 
 END_DATADESC()
@@ -517,6 +518,11 @@ CNPC_MetroPolice::CNPC_MetroPolice()
 {
 #ifdef MAPBASE
 	m_iGrenadeCapabilities = GRENCAP_GRENADE;
+
+	if (ai_grenade_always_drop.GetBool())
+	{
+		m_iGrenadeDropCapabilities = (eGrenadeDropCapabilities)(GRENDROPCAP_GRENADE | GRENDROPCAP_ALTFIRE | GRENDROPCAP_INTERRUPTED);
+	}
 #endif
 }
 
@@ -882,7 +888,7 @@ void CNPC_MetroPolice::SpeakStandoffSentence( int nSentenceType )
 		break;
 
 	case STANDOFF_SENTENCE_FORCED_TAKE_COVER:
-		SpeakIfAllowed( TLK_COP_SO_END );
+		SpeakIfAllowed( TLK_COP_SO_FORCE_COVER );
 		break;
 
 	case STANDOFF_SENTENCE_STAND_CHECK_TARGET:
@@ -1008,7 +1014,12 @@ void CNPC_MetroPolice::SpeakSentence( int nSentenceType )
 			return;
 		}
 
+#ifdef MAPBASE
+		// Fixed issues with standoff sentences not playing when they should
+		if ( m_StandoffBehavior.IsActive() )
+#else
 		if ( GetRunningBehavior() == &m_StandoffBehavior )
+#endif
 		{
 			SpeakStandoffSentence( nSentenceType );
 			return;
@@ -1156,7 +1167,11 @@ bool CNPC_MetroPolice::SpeakIfAllowed( const char *concept, const char *modifier
 	AI_CriteriaSet set;
 	if (modifiers)
 	{
+#ifdef NEW_RESPONSE_SYSTEM
+		GatherCriteria( &set, concept, modifiers );
+#else
 		GetExpresser()->MergeModifiers(set, modifiers);
+#endif
 	}
 	return SpeakIfAllowed( concept, set, sentencepriority, sentencecriteria );
 }
@@ -1522,7 +1537,12 @@ void CNPC_MetroPolice::OnUpdateShotRegulator( )
 	BaseClass::OnUpdateShotRegulator();
 
 	// FIXME: This code (except the burst interval) could be used for all weapon types 
+#ifdef MAPBASE
+	// Only if we actually have the pistol out
+	if ( GetActiveWeapon() && EntIsClass( GetActiveWeapon(), gm_isz_class_Pistol ) )
+#else
 	if( Weapon_OwnsThisType( "weapon_pistol" ) )
+#endif
 	{
 		if ( m_nBurstMode == BURST_NOT_ACTIVE )
 		{
@@ -1622,6 +1642,11 @@ bool CNPC_MetroPolice::ShouldAttemptToStitch()
 //-----------------------------------------------------------------------------
 Vector CNPC_MetroPolice::StitchAimTarget( const Vector &posSrc, bool bNoisy ) 
 {
+#ifdef MAPBASE
+	if ( !GetEnemy() )
+		return vec3_origin;
+#endif
+
 	// This will make us aim a stitch at the feet of the player so we can see it
 	if ( !GetEnemy()->IsPlayer() )
 		return GetShootTarget()->BodyTarget( posSrc, bNoisy );
@@ -3667,6 +3692,11 @@ void CNPC_MetroPolice::Event_Killed( const CTakeDamageInfo &info )
 			DropItem( "item_healthvial", WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
 			pHL2GameRules->NPC_DroppedHealth();
 		}
+
+#ifdef MAPBASE
+		// Drop grenades if we should
+		DropGrenadeItemsOnDeath( info, pPlayer );
+#endif
 	}
 
 	BaseClass::Event_Killed( info );
@@ -3873,6 +3903,15 @@ int CNPC_MetroPolice::SelectScheduleNoDirectEnemy()
 		m_hBlockingProp = NULL;
 		return SCHED_METROPOLICE_SMASH_PROP;
 	}
+
+#ifdef MAPBASE
+	// If you see your enemy and you're still arming yourself, wait and don't just charge in
+	// (if your weapon is holstered, you're probably about to arm yourself)
+	if ( HasCondition( COND_SEE_ENEMY ) && GetWeapon(0) && (IsWeaponHolstered() || FindGestureLayer( TranslateActivity( ACT_ARM ) ) != -1) )
+	{
+		return SCHED_COMBAT_FACE;
+	}
+#endif
 
 	return SCHED_METROPOLICE_CHASE_ENEMY;
 }
@@ -4497,34 +4536,7 @@ int CNPC_MetroPolice::SelectBehaviorOverrideSchedule()
 //-----------------------------------------------------------------------------
 bool CNPC_MetroPolice::IsCrouchedActivity( Activity activity )
 {
-	Activity realActivity = TranslateActivity(activity);
-
-	switch ( realActivity )
-	{
-		case ACT_RELOAD_LOW:
-		case ACT_COVER_LOW:
-		case ACT_COVER_PISTOL_LOW:
-		case ACT_COVER_SMG1_LOW:
-		case ACT_RELOAD_SMG1_LOW:
-		//case ACT_RELOAD_AR2_LOW:
-		case ACT_RELOAD_PISTOL_LOW:
-		case ACT_RELOAD_SHOTGUN_LOW:
-
-			// These animations aren't actually "low" on metrocops
-		//case ACT_RANGE_AIM_LOW:
-		//case ACT_RANGE_AIM_AR2_LOW:
-		//case ACT_RANGE_AIM_SMG1_LOW:
-		//case ACT_RANGE_AIM_PISTOL_LOW:
-
-		//case ACT_RANGE_ATTACK1_LOW:
-		//case ACT_RANGE_ATTACK_AR2_LOW:
-		//case ACT_RANGE_ATTACK_SMG1_LOW:
-		//case ACT_RANGE_ATTACK_PISTOL_LOW:
-		//case ACT_RANGE_ATTACK2_LOW:
-			return true;
-	}
-
-	return false;
+	return BaseClass::IsCrouchedActivity( activity );
 }
 
 //-----------------------------------------------------------------------------
@@ -4920,7 +4932,12 @@ int CNPC_MetroPolice::SelectSchedule( void )
 	// This will cause the cops to run backwards + shoot at the same time
 	if ( !bHighHealth && !HasBaton() )
 	{
+#ifdef MAPBASE
+		// Don't do this with low-capacity weapons or weapons which don't use clips
+		if ( GetActiveWeapon() && GetActiveWeapon()->UsesClipsForAmmo1() && GetActiveWeapon()->GetMaxClip1() > 10 && (GetActiveWeapon()->m_iClip1 <= 5) )
+#else
 		if ( GetActiveWeapon() && (GetActiveWeapon()->m_iClip1 <= 5) )
+#endif
 		{
 #ifdef METROPOLICE_USES_RESPONSE_SYSTEM
 			SpeakIfAllowed( TLK_COP_LOWAMMO );

@@ -57,6 +57,45 @@ BEGIN_DATADESC( CBaseAnimatingOverlay )
 
 END_DATADESC()
 
+#ifdef MAPBASE_VSCRIPT
+BEGIN_ENT_SCRIPTDESC( CBaseAnimatingOverlay, CBaseAnimating, "Animating models which support dynamic animation layers/overlays." )
+
+	DEFINE_SCRIPTFUNC( GetNumAnimOverlays, "Gets the current number of animation layers." )
+	DEFINE_SCRIPTFUNC( RemoveAllGestures, "Removes all animation layers." )
+
+	DEFINE_SCRIPTFUNC( IsValidLayer, "Returns true if the specified layer index is valid." )
+	DEFINE_SCRIPTFUNC( HasActiveLayer, "Returns true if there is currently an active layer." )
+	DEFINE_SCRIPTFUNC( RemoveLayer, "Removes the specified layer index with the specified kill rate and delay." )
+	DEFINE_SCRIPTFUNC( FastRemoveLayer, "Removes the specified layer index immediately." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddGesture, "AddGesture", "Adds a new animation layer using the specified activity name." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddGestureID, "AddGestureID", "Adds a new animation layer using the specified activity index." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddGestureSequence, "AddGestureSequence", "Adds a new animation layer using the specified activity name." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddGestureSequenceID, "AddGestureSequenceID", "Adds a new animation layer using the specified sequence index." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptFindGestureLayer, "FindGestureLayer", "Finds and returns the first active animation layer which uses the specified activity name." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptFindGestureLayerByID, "FindGestureLayerByID", "Finds and returns the first active animation layer which uses the specified activity index." )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLayerActivity, "GetLayerActivity", "Gets the activity name of the specified layer index." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLayerActivityID, "GetLayerActivityID", "Gets the activity index of the specified layer index." )
+	DEFINE_SCRIPTFUNC( GetLayerSequence, "Gets the sequence index of the specified layer index." )
+	DEFINE_SCRIPTFUNC( SetLayerDuration, "Sets the duration of the specified layer index." )
+	DEFINE_SCRIPTFUNC( GetLayerDuration, "Gets the duration of the specified layer index." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetLayerCycle, "SetLayerCycle", "Sets the cycle of the specified layer index." )
+	DEFINE_SCRIPTFUNC( GetLayerCycle, "Gets the cycle of the specified layer index." )
+	DEFINE_SCRIPTFUNC( SetLayerPlaybackRate, "Sets the playback rate of the specified layer index." )
+	DEFINE_SCRIPTFUNC( SetLayerWeight, "Sets the weight of the specified layer index." )
+	DEFINE_SCRIPTFUNC( GetLayerWeight, "Gets the weight of the specified layer index." )
+	DEFINE_SCRIPTFUNC( SetLayerBlendIn, "Sets the fade-in of the specified layer index, with the fade being a 0-1 fraction of the cycle." )
+	DEFINE_SCRIPTFUNC( SetLayerBlendOut, "Sets the fade-out of the specified layer index, with the fade being a 0-1 fraction of the cycle." )
+	DEFINE_SCRIPTFUNC( SetLayerAutokill, "Sets whether or not the specified layer index should remove itself when it's finished playing." )
+	DEFINE_SCRIPTFUNC( SetLayerLooping, "Sets whether or not the specified layer index should loop." )
+	DEFINE_SCRIPTFUNC( SetLayerNoRestore, "Sets whether or not the specified layer index should restore after a save is loaded." )
+	DEFINE_SCRIPTFUNC( SetLayerNoEvents, "Sets whether or not the specified layer index should fire animation events." )
+
+END_SCRIPTDESC();
+#endif
+
 
 #define ORDER_BITS			4
 #define WEIGHT_BITS			8
@@ -354,7 +393,11 @@ void CBaseAnimatingOverlay::DispatchAnimEvents ( CBaseAnimating *eventHandler )
 
 	for ( int i = 0; i < m_AnimOverlay.Count(); i++ )
 	{
+#ifdef MAPBASE // From Alien Swarm SDK
+		if (m_AnimOverlay[ i ].IsActive() && !m_AnimOverlay[ i ].NoEvents())
+#else
 		if (m_AnimOverlay[ i ].IsActive())
+#endif
 		{
 			m_AnimOverlay[ i ].DispatchAnimEvents( eventHandler, this );
 		}
@@ -1052,6 +1095,38 @@ void CBaseAnimatingOverlay::SetLayerNoRestore( int iLayer, bool bNoRestore )
 }
 
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// From Alien Swarm SDK
+//-----------------------------------------------------------------------------
+void CBaseAnimatingOverlay::SetLayerNoEvents( int iLayer, bool bNoEvents )
+{
+	if (!IsValidLayer( iLayer ))
+		return;
+
+	if (bNoEvents)
+	{
+		m_AnimOverlay[iLayer].m_fFlags |= ANIM_LAYER_NOEVENTS;
+	}
+	else
+	{
+		m_AnimOverlay[iLayer].m_fFlags &= ~ANIM_LAYER_NOEVENTS;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CBaseAnimatingOverlay::IsLayerFinished( int iLayer )
+{
+	if (!IsValidLayer( iLayer ))
+		return true;
+
+	return m_AnimOverlay[iLayer].m_bSequenceFinished;
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1148,5 +1223,37 @@ bool CBaseAnimatingOverlay::HasActiveLayer( void )
 
 	return false;
 }
+
+#ifdef MAPBASE_VSCRIPT
+int CBaseAnimatingOverlay::ScriptAddGesture( const char *pszActivity, bool autokill )
+{
+	return AddGesture( (Activity)CAI_BaseNPC::GetActivityID( pszActivity ), autokill );
+}
+
+int CBaseAnimatingOverlay::ScriptAddGestureID( int iActivity, bool autokill )
+{
+	return AddGesture( (Activity)iActivity, autokill );
+}
+
+int CBaseAnimatingOverlay::ScriptFindGestureLayer( const char *pszActivity )
+{
+	return FindGestureLayer( (Activity)CAI_BaseNPC::GetActivityID( pszActivity ) );
+}
+
+int CBaseAnimatingOverlay::ScriptFindGestureLayerByID( int iActivity )
+{
+	return FindGestureLayer( (Activity)iActivity );
+}
+
+const char *CBaseAnimatingOverlay::ScriptGetLayerActivity( int iLayer )
+{
+	return CAI_BaseNPC::GetActivityName( GetLayerActivity( iLayer ) );
+}
+
+int CBaseAnimatingOverlay::ScriptGetLayerActivityID( int iLayer )
+{
+	return GetLayerActivity( iLayer );
+}
+#endif
 
 //-----------------------------------------------------------------------------

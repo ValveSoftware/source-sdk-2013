@@ -539,7 +539,26 @@ bool CBasePlayerAnimState::CanThePlayerMove()
 void CBasePlayerAnimState::ComputePlaybackRate()
 {
 	VPROF( "CBasePlayerAnimState::ComputePlaybackRate" );
+#ifdef MAPBASE
+	if ( m_AnimConfig.m_LegAnimType == LEGANIM_9WAY )
+	{
+		// If the movement would be greater than the pose range, set playback rate anyway
+		if ( abs(m_vLastMovePose.x) > 1.0f || abs(m_vLastMovePose.y) > 1.0f )
+		{
+			bool bIsMoving;
+			float flRate = CalcMovementPlaybackRate( &bIsMoving );
+			if ( bIsMoving )
+				GetOuter()->SetPlaybackRate( flRate );
+			else
+				GetOuter()->SetPlaybackRate( 1 );
+		}
+		else
+			GetOuter()->SetPlaybackRate( 1 );
+	}
+	else // Allow LEGANIM_8WAY to change playback rate
+#else
 	if ( m_AnimConfig.m_LegAnimType != LEGANIM_9WAY && m_AnimConfig.m_LegAnimType != LEGANIM_8WAY )
+#endif
 	{
 		// When using a 9-way blend, playback rate is always 1 and we just scale the pose params
 		// to speed up or slow down the animation.

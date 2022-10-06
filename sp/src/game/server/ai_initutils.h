@@ -42,6 +42,11 @@ struct HintNodeData
 	HintIgnoreFacing_t fIgnoreFacing;
 	NPC_STATE	minState;
 	NPC_STATE	maxState;
+#ifdef MAPBASE
+	int			nRadius;	// From Alien Swarm SDK
+	float		flWeight;
+	float		flWeightInverse;	// Not saved
+#endif
 
 	int			nWCNodeID;			// Node ID assigned by worldcraft (not same as engine!)
 

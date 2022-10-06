@@ -31,6 +31,9 @@ ConVar cl_npc_speedmod_outtime( "cl_npc_speedmod_outtime", "1.5", FCVAR_CLIENTDL
 IMPLEMENT_CLIENTCLASS_DT(C_BaseHLPlayer, DT_HL2_Player, CHL2_Player)
 	RecvPropDataTable( RECVINFO_DT(m_HL2Local),0, &REFERENCE_RECV_TABLE(DT_HL2Local) ),
 	RecvPropBool( RECVINFO( m_fIsSprinting ) ),
+#ifdef SP_ANIM_STATE
+	RecvPropFloat( RECVINFO( m_flAnimRenderYaw ) ),
+#endif
 END_RECV_TABLE()
 
 BEGIN_PREDICTION_DATA( C_BaseHLPlayer )
@@ -89,6 +92,13 @@ void C_BaseHLPlayer::OnDataChanged( DataUpdateType_t updateType )
 	{
 		SetNextClientThink( CLIENT_THINK_ALWAYS );
 	}
+
+#ifdef SP_ANIM_STATE
+	if (m_flAnimRenderYaw != FLT_MAX)
+	{
+		m_angAnimRender = QAngle( 0, m_flAnimRenderYaw, 0 );
+	}
+#endif
 
 	BaseClass::OnDataChanged( updateType );
 }
@@ -656,4 +666,22 @@ void C_BaseHLPlayer::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quatern
 	BaseClass::BuildTransformations( hdr, pos, q, cameraTransform, boneMask, boneComputed );
 	BuildFirstPersonMeathookTransformations( hdr, pos, q, cameraTransform, boneMask, boneComputed, "ValveBiped.Bip01_Head1" );
 }
+
+
+#ifdef SP_ANIM_STATE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const QAngle& C_BaseHLPlayer::GetRenderAngles( void )
+{
+	if ( m_flAnimRenderYaw != FLT_MAX )
+	{
+		return m_angAnimRender;
+	}
+	else
+	{
+		return BaseClass::GetRenderAngles();	
+	}
+}
+#endif
 

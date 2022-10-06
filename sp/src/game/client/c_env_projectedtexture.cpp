@@ -25,8 +25,8 @@
 #include "tier0/memdbgon.h"
 
 #ifdef ASW_PROJECTED_TEXTURES
-static ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
-static ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.00001", FCVAR_CHEAT  );
+extern ConVarRef mat_slopescaledepthbias_shadowmap;
+extern ConVarRef mat_depthbias_shadowmap;
 
 float C_EnvProjectedTexture::m_flVisibleBBoxMinHeight = -FLT_MAX;
 
@@ -283,6 +283,8 @@ void C_EnvProjectedTexture::UpdateLight( void )
 
 				//			VectorNormalize( vRight );
 				//			VectorNormalize( vUp );
+
+				VectorVectors( vForward, vRight, vUp );
 			}
 		}
 		else

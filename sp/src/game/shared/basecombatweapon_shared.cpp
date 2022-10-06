@@ -186,7 +186,11 @@ void CBaseCombatWeapon::Spawn( void )
 
 	if ( GetWorldModel() )
 	{
+#ifdef MAPBASE
+		SetModel( (GetDroppedModel() && GetDroppedModel()[0]) ? GetDroppedModel() : GetWorldModel() );
+#else
 		SetModel( GetWorldModel() );
+#endif
 	}
 
 #if !defined( CLIENT_DLL )
@@ -291,6 +295,18 @@ void CBaseCombatWeapon::Precache( void )
 		{
 			m_iWorldModelIndex = CBaseEntity::PrecacheModel( GetWorldModel() );
 		}
+#ifdef MAPBASE
+		m_iDroppedModelIndex = 0;
+		if ( GetDroppedModel() && GetDroppedModel()[0] )
+		{
+			m_iDroppedModelIndex = CBaseEntity::PrecacheModel( GetDroppedModel() );
+		}
+		else
+		{
+			// Use the world model index
+			m_iDroppedModelIndex = m_iWorldModelIndex;
+		}
+#endif
 
 		// Precache sounds, too
 		for ( int i = 0; i < NUM_SHOOT_SOUND_TYPES; ++i )
@@ -460,6 +476,38 @@ bool CBaseCombatWeapon::IsMeleeWeapon() const
 {
 	return GetWpnData().m_bMeleeWeapon;
 }
+
+#ifdef MAPBASE
+float CBaseCombatWeapon::GetViewmodelFOVOverride() const
+{
+	return GetWpnData().m_flViewmodelFOV;
+}
+
+float CBaseCombatWeapon::GetBobScale() const
+{
+	return GetWpnData().m_flBobScale;
+}
+
+float CBaseCombatWeapon::GetSwayScale() const
+{
+	return GetWpnData().m_flSwayScale;
+}
+
+float CBaseCombatWeapon::GetSwaySpeedScale() const
+{
+	return GetWpnData().m_flSwaySpeedScale;
+}
+
+const char *CBaseCombatWeapon::GetDroppedModel() const
+{
+	return GetWpnData().szDroppedModel;
+}
+
+bool CBaseCombatWeapon::UsesHands() const
+{
+	return GetWpnData().m_bUsesHands;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1046,7 +1094,18 @@ WeaponClass_t CBaseCombatWeapon::WeaponClassify()
 	Activity idleact = ActivityOverride(ACT_IDLE_ANGRY, NULL);
 	switch (idleact)
 	{
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
+	case ACT_IDLE_ANGRY_REVOLVER:
+#endif
 	case ACT_IDLE_ANGRY_PISTOL:		return WEPCLASS_HANDGUN;
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
+	case ACT_IDLE_ANGRY_CROSSBOW:	// For now, crossbows are rifles
+#endif
+#if EXPANDED_HL2_UNUSED_WEAPON_ACTIVITIES
+	case ACT_IDLE_ANGRY_AR1:
+	case ACT_IDLE_ANGRY_SMG2:
+	case ACT_IDLE_ANGRY_SNIPER_RIFLE:
+#endif
 	case ACT_IDLE_ANGRY_SMG1:
 	case ACT_IDLE_ANGRY_AR2:		return WEPCLASS_RIFLE;
 	case ACT_IDLE_ANGRY_SHOTGUN:	return WEPCLASS_SHOTGUN;
@@ -1077,6 +1136,23 @@ WeaponClass_t CBaseCombatWeapon::WeaponClassFromString(const char *str)
 	return WEPCLASS_INVALID;
 }
 
+#ifdef HL2_DLL
+extern acttable_t *GetSMG1Acttable();
+extern int GetSMG1ActtableCount();
+
+extern acttable_t *GetAR2Acttable();
+extern int GetAR2ActtableCount();
+
+extern acttable_t *GetShotgunActtable();
+extern int GetShotgunActtableCount();
+
+extern acttable_t *GetPistolActtable();
+extern int GetPistolActtableCount();
+
+extern acttable_t *Get357Acttable();
+extern int Get357ActtableCount();
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1084,11 +1160,80 @@ bool CBaseCombatWeapon::SupportsBackupActivity(Activity activity)
 {
 	// Derived classes should override this.
 
-	// Pistol and melee users should not use SMG animations for missing pistol activities.
-	if (WeaponClassify() == WEPCLASS_HANDGUN || IsMeleeWeapon())
+#ifdef HL2_DLL
+	// Melee users should not use SMG animations for missing activities.
+	if (IsMeleeWeapon() && GetBackupActivityList() == GetSMG1Acttable())
 		return false;
+#endif
 
 	return true;
+}
+
+acttable_t *CBaseCombatWeapon::GetBackupActivityList()
+{
+	return NULL;
+}
+
+int CBaseCombatWeapon::GetBackupActivityListCount()
+{
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+acttable_t *CBaseCombatWeapon::GetDefaultBackupActivityList( acttable_t *pTable, int &actCount )
+{
+#ifdef HL2_DLL
+	// Ensure this isn't already a default backup activity list
+	if (pTable == GetSMG1Acttable() || pTable == GetPistolActtable())
+		return NULL;
+
+	// Use a backup table based on what ACT_IDLE_ANGRY is translated to
+	Activity actTranslated = ACT_INVALID;
+	for ( int i = 0; i < actCount; i++, pTable++ )
+	{
+		if ( pTable->baseAct == ACT_IDLE_ANGRY )
+		{
+			actTranslated = (Activity)pTable->weaponAct;
+			break;
+		}
+	}
+
+	if (actTranslated == ACT_INVALID)
+		return NULL;
+
+	switch (actTranslated)
+	{
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
+		case ACT_IDLE_ANGRY_REVOLVER:
+#endif
+		case ACT_IDLE_ANGRY_PISTOL:
+			{
+				actCount = GetPistolActtableCount();
+				return GetPistolActtable();
+			}
+#if EXPANDED_HL2_WEAPON_ACTIVITIES
+		case ACT_IDLE_ANGRY_CROSSBOW:	// For now, crossbows are rifles
+#endif
+#if EXPANDED_HL2_UNUSED_WEAPON_ACTIVITIES
+		case ACT_IDLE_ANGRY_AR1:
+		case ACT_IDLE_ANGRY_SMG2:
+		case ACT_IDLE_ANGRY_SNIPER_RIFLE:
+#endif
+		case ACT_IDLE_ANGRY_SMG1:
+		case ACT_IDLE_ANGRY_AR2:
+		case ACT_IDLE_ANGRY_SHOTGUN:
+		case ACT_IDLE_ANGRY_RPG:
+			{
+				actCount = GetSMG1ActtableCount();
+				return GetSMG1Acttable();
+			}
+	}
+#endif
+
+	actCount = 0;
+	return NULL;
 }
 #endif
 
@@ -1550,6 +1695,10 @@ bool CBaseCombatWeapon::DefaultDeploy( char *szViewModel, char *szWeaponModel, i
 
 		SetViewModel();
 		SendWeaponAnim( iActivity );
+		
+#ifdef MAPBASE
+		pOwner->SetAnimation( PLAYER_UNHOLSTER );
+#endif
 
 		pOwner->SetNextAttack( gpGlobals->curtime + SequenceDuration() );
 	}
@@ -1621,6 +1770,11 @@ bool CBaseCombatWeapon::Holster( CBaseCombatWeapon *pSwitchingTo )
 	if (pOwner)
 	{
 		pOwner->SetNextAttack( gpGlobals->curtime + flSequenceDuration );
+
+#ifdef MAPBASE
+		if (IsWeaponVisible() && pOwner->IsPlayer())
+			static_cast<CBasePlayer*>(pOwner)->SetAnimation( PLAYER_HOLSTER );
+#endif
 	}
 
 	// If we don't have a holster anim, hide immediately to avoid timing issues
@@ -2339,6 +2493,28 @@ bool CBaseCombatWeapon::Reload( void )
 	return DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD );
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseCombatWeapon::Reload_NPC( bool bPlaySound )
+{
+	if (bPlaySound)
+		WeaponSound( RELOAD_NPC );
+
+	if (UsesClipsForAmmo1())
+	{
+		m_iClip1 = GetMaxClip1();
+	}
+	else
+	{
+		// For weapons which don't use clips, give the owner ammo.
+		if (GetOwner())
+			GetOwner()->SetAmmoCount( GetDefaultClip1(), m_iPrimaryAmmoType );
+	}
+}
+#endif
+
 //=========================================================
 void CBaseCombatWeapon::WeaponIdle( void )
 {
@@ -2887,15 +3063,33 @@ END_PREDICTION_DATA()
 IMPLEMENT_NETWORKCLASS_ALIASED( BaseCombatWeapon, DT_BaseCombatWeapon )
 
 #ifdef MAPBASE_VSCRIPT
+
+// Don't allow client to use Set functions.
+// They will only cause visual discrepancies,
+// and will be reverted on the next update from the server.
+#ifdef GAME_DLL
+#define DEFINE_SCRIPTFUNC_SV( p1, p2 ) DEFINE_SCRIPTFUNC( p1, p2 )
+#define DEFINE_SCRIPTFUNC_NAMED_SV( p1, p2, p3 ) DEFINE_SCRIPTFUNC_NAMED( p1, p2, p3 )
+
+#define DEFINE_SCRIPTFUNC_CL( p1, p2 )
+#define DEFINE_SCRIPTFUNC_NAMED_CL( p1, p2, p3 )
+#else
+#define DEFINE_SCRIPTFUNC_SV( p1, p2 )
+#define DEFINE_SCRIPTFUNC_NAMED_SV( p1, p2, p3 )
+
+#define DEFINE_SCRIPTFUNC_CL( p1, p2 ) DEFINE_SCRIPTFUNC( p1, p2 )
+#define DEFINE_SCRIPTFUNC_NAMED_CL( p1, p2, p3 ) DEFINE_SCRIPTFUNC_NAMED( p1, p2, p3 )
+#endif
+
 BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all equippable weapons." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetOwner, "GetOwner", "Get the weapon's owner." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetOwner, "SetOwner", "Set the weapon's owner." )
+	DEFINE_SCRIPTFUNC_NAMED_SV( ScriptSetOwner, "SetOwner", "Set the weapon's owner." )
 
 	DEFINE_SCRIPTFUNC( Clip1, "Get the weapon's current primary ammo." )
 	DEFINE_SCRIPTFUNC( Clip2, "Get the weapon's current secondary ammo." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetClip1, "SetClip1", "Set the weapon's current primary ammo." )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptSetClip2, "SetClip2", "Set the weapon's current secondary ammo." )
+	DEFINE_SCRIPTFUNC_NAMED_SV( ScriptSetClip1, "SetClip1", "Set the weapon's current primary ammo." )
+	DEFINE_SCRIPTFUNC_NAMED_SV( ScriptSetClip2, "SetClip2", "Set the weapon's current secondary ammo." )
 	DEFINE_SCRIPTFUNC( GetMaxClip1, "Get the weapon's maximum primary ammo." )
 	DEFINE_SCRIPTFUNC( GetMaxClip2, "Get the weapon's maximum secondary ammo." )
 	DEFINE_SCRIPTFUNC( GetDefaultClip1, "Get the weapon's default primary ammo." )
@@ -2906,36 +3100,37 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all
 	DEFINE_SCRIPTFUNC( HasSecondaryAmmo, "Check if the weapon currently has ammo or doesn't need secondary ammo." )
 	DEFINE_SCRIPTFUNC( UsesPrimaryAmmo, "Check if the weapon uses primary ammo." )
 	DEFINE_SCRIPTFUNC( UsesSecondaryAmmo, "Check if the weapon uses secondary ammo." )
-	DEFINE_SCRIPTFUNC( GiveDefaultAmmo, "Fill the weapon back up to default ammo." )
+	DEFINE_SCRIPTFUNC_SV( GiveDefaultAmmo, "Fill the weapon back up to default ammo." )
 
 	DEFINE_SCRIPTFUNC( UsesClipsForAmmo1, "Check if the weapon uses clips for primary ammo." )
 	DEFINE_SCRIPTFUNC( UsesClipsForAmmo2, "Check if the weapon uses clips for secondary ammo." )
 
-#ifndef CLIENT_DLL
 	DEFINE_SCRIPTFUNC( GetPrimaryAmmoType, "Get the weapon's primary ammo type." )
 	DEFINE_SCRIPTFUNC( GetSecondaryAmmoType, "Get the weapon's secondary ammo type." )
-#endif
 
 	DEFINE_SCRIPTFUNC( GetSubType, "Get the weapon's subtype." )
-	DEFINE_SCRIPTFUNC( SetSubType, "Set the weapon's subtype." )
+	DEFINE_SCRIPTFUNC_SV( SetSubType, "Set the weapon's subtype." )
 
 	DEFINE_SCRIPTFUNC( GetFireRate, "Get the weapon's firing rate." )
 	DEFINE_SCRIPTFUNC( AddViewKick, "Applies the weapon's view kick." )
 
 	DEFINE_SCRIPTFUNC( GetWorldModel, "Get the weapon's world model." )
 	DEFINE_SCRIPTFUNC( GetViewModel, "Get the weapon's view model." )
+	DEFINE_SCRIPTFUNC( GetDroppedModel, "Get the weapon's unique dropped model if it has one." )
 
 	DEFINE_SCRIPTFUNC( GetWeight, "Get the weapon's weight." )
+	DEFINE_SCRIPTFUNC( GetPrintName, "" )
+
+	DEFINE_SCRIPTFUNC_CL( GetSlot, "" )
+	DEFINE_SCRIPTFUNC_CL( GetPosition, "" )
 
 	DEFINE_SCRIPTFUNC( CanBePickedUpByNPCs, "Check if the weapon can be picked up by NPCs." )
 
-#ifndef CLIENT_DLL
-	DEFINE_SCRIPTFUNC( CapabilitiesGet, "Get the capabilities the weapon currently possesses." )
-#endif
+	DEFINE_SCRIPTFUNC_SV( CapabilitiesGet, "Get the capabilities the weapon currently possesses." )
 
 	DEFINE_SCRIPTFUNC( HasWeaponIdleTimeElapsed, "Returns true if the idle time has elapsed." )
 	DEFINE_SCRIPTFUNC( GetWeaponIdleTime, "Returns the next time WeaponIdle() will run." )
-	DEFINE_SCRIPTFUNC( SetWeaponIdleTime, "Sets the next time WeaponIdle() will run." )
+	DEFINE_SCRIPTFUNC_SV( SetWeaponIdleTime, "Sets the next time WeaponIdle() will run." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptWeaponClassify, "WeaponClassify", "Returns the weapon's classify class from the WEPCLASS_ constant group" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptWeaponSound, "WeaponSound", "Plays one of the weapon's sounds." )
@@ -2952,22 +3147,22 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatWeapon, CBaseAnimating, "The base class for all
 	DEFINE_SCRIPTFUNC( IsViewModelSequenceFinished, "Returns true if the current view model animation is finished." )
 
 	DEFINE_SCRIPTFUNC( FiresUnderwater, "Returns true if this weapon can fire underwater." )
-	DEFINE_SCRIPTFUNC( SetFiresUnderwater, "Sets whether this weapon can fire underwater." )
+	DEFINE_SCRIPTFUNC_SV( SetFiresUnderwater, "Sets whether this weapon can fire underwater." )
 	DEFINE_SCRIPTFUNC( AltFiresUnderwater, "Returns true if this weapon can alt-fire underwater." )
-	DEFINE_SCRIPTFUNC( SetAltFiresUnderwater, "Sets whether this weapon can alt-fire underwater." )
+	DEFINE_SCRIPTFUNC_SV( SetAltFiresUnderwater, "Sets whether this weapon can alt-fire underwater." )
 	DEFINE_SCRIPTFUNC( MinRange1, "Returns the closest this weapon can be used." )
-	DEFINE_SCRIPTFUNC( SetMinRange1, "Sets the closest this weapon can be used." )
+	DEFINE_SCRIPTFUNC_SV( SetMinRange1, "Sets the closest this weapon can be used." )
 	DEFINE_SCRIPTFUNC( MinRange2, "Returns the closest this weapon can be used." )
-	DEFINE_SCRIPTFUNC( SetMinRange2, "Sets the closest this weapon can be used." )
+	DEFINE_SCRIPTFUNC_SV( SetMinRange2, "Sets the closest this weapon can be used." )
 	DEFINE_SCRIPTFUNC( ReloadsSingly, "Returns true if this weapon reloads 1 round at a time." )
-	DEFINE_SCRIPTFUNC( SetReloadsSingly, "Sets whether this weapon reloads 1 round at a time." )
+	DEFINE_SCRIPTFUNC_SV( SetReloadsSingly, "Sets whether this weapon reloads 1 round at a time." )
 	DEFINE_SCRIPTFUNC( FireDuration, "Returns the amount of time that the weapon has sustained firing." )
-	DEFINE_SCRIPTFUNC( SetFireDuration, "Sets the amount of time that the weapon has sustained firing." )
+	DEFINE_SCRIPTFUNC_SV( SetFireDuration, "Sets the amount of time that the weapon has sustained firing." )
 
 	DEFINE_SCRIPTFUNC( NextPrimaryAttack, "Returns the next time PrimaryAttack() will run when the player is pressing +ATTACK." )
-	DEFINE_SCRIPTFUNC( SetNextPrimaryAttack, "Sets the next time PrimaryAttack() will run when the player is pressing +ATTACK." )
+	DEFINE_SCRIPTFUNC_SV( SetNextPrimaryAttack, "Sets the next time PrimaryAttack() will run when the player is pressing +ATTACK." )
 	DEFINE_SCRIPTFUNC( NextSecondaryAttack, "Returns the next time SecondaryAttack() will run when the player is pressing +ATTACK2." )
-	DEFINE_SCRIPTFUNC( SetNextSecondaryAttack, "Sets the next time SecondaryAttack() will run when the player is pressing +ATTACK2." )
+	DEFINE_SCRIPTFUNC_SV( SetNextSecondaryAttack, "Sets the next time SecondaryAttack() will run when the player is pressing +ATTACK2." )
 
 END_SCRIPTDESC();
 #endif
@@ -3218,6 +3413,9 @@ BEGIN_NETWORK_TABLE(CBaseCombatWeapon, DT_BaseCombatWeapon)
 	SendPropDataTable("LocalActiveWeaponData", 0, &REFERENCE_SEND_TABLE(DT_LocalActiveWeaponData), SendProxy_SendActiveLocalWeaponDataTable ),
 	SendPropModelIndex( SENDINFO(m_iViewModelIndex) ),
 	SendPropModelIndex( SENDINFO(m_iWorldModelIndex) ),
+#ifdef MAPBASE
+	SendPropModelIndex( SENDINFO(m_iDroppedModelIndex) ),
+#endif
 	SendPropInt( SENDINFO(m_iState ), 8, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO(m_hOwner) ),
 
@@ -3230,6 +3428,9 @@ BEGIN_NETWORK_TABLE(CBaseCombatWeapon, DT_BaseCombatWeapon)
 	RecvPropDataTable("LocalActiveWeaponData", 0, 0, &REFERENCE_RECV_TABLE(DT_LocalActiveWeaponData)),
 	RecvPropInt( RECVINFO(m_iViewModelIndex)),
 	RecvPropInt( RECVINFO(m_iWorldModelIndex)),
+#ifdef MAPBASE
+	RecvPropInt( RECVINFO(m_iDroppedModelIndex) ),
+#endif
 	RecvPropInt( RECVINFO(m_iState )),
 	RecvPropEHandle( RECVINFO(m_hOwner ) ),
 

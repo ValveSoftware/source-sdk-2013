@@ -138,6 +138,13 @@ public:
 	// used so a grub can notify me that I stepped on it. Says a line.
 	void	OnSquishedGrub( const CBaseEntity *pGrub );
 
+#ifdef MAPBASE
+	// Use the vortigaunts' default subtitle color (188,241,174)
+	bool	GetGameTextSpeechParams( hudtextparms_t &params ) { params.r1 = 188; params.g1 = 241; params.b1 = 174; return BaseClass::GetGameTextSpeechParams( params ); }
+	
+	const char*		GetGrenadeAttachment() { return "rightclaw"; }
+#endif
+
 private:
 
 	int		NumAntlionsInRadius( float flRadius );
