@@ -120,6 +120,7 @@ private:
 
 	// HACKHACK: Needed as a failsafe to prevent desync
 	int		m_iCCDefaultY;
+	float	m_flCCAnimTime;
 
 	bool	m_bShouldRepositionSubtitles;
 #endif
@@ -910,6 +911,7 @@ CHudCommentary::CHudCommentary( const char *name ) : vgui::Panel( NULL, "HudComm
 	m_pFootnoteLabel = new vgui::Label( this, "HudCommentaryFootnoteLabel", L"Commentary footnote" );
 
 	m_iCCDefaultY = 0;
+	m_flCCAnimTime = 0.0f;
 #endif
 }
 
@@ -1415,6 +1417,9 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	{
 		m_bShouldPaint = true;
 		m_bShouldRepositionSubtitles = true;
+
+		// Ensure we perform layout later
+		InvalidateLayout();
 	}
 	else
 		m_bShouldRepositionSubtitles = false;
@@ -1634,6 +1639,9 @@ void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *p
 	{
 		m_bShouldPaint = true;
 		m_bShouldRepositionSubtitles = true;
+
+		// Ensure we perform layout later
+		InvalidateLayout();
 	}
 	else
 		m_bShouldRepositionSubtitles = false;
@@ -1781,8 +1789,16 @@ void CHudCommentary::RepositionAndFollowCloseCaption( int yOffset )
 			// Run this animation command instead of setting the position directly
 			g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY - yOffset, 0.0f, 0.2f, vgui::AnimationController::INTERPOLATOR_DEACCEL );
 			//pHudCloseCaption->SetPos( ccX, ccY );
+			m_flCCAnimTime = gpGlobals->curtime + 0.2f;
 
 			pHudCloseCaption->SetUsingCommentaryDimensions( true );
+		}
+		else if (gpGlobals->curtime > m_flCCAnimTime && ccY != m_iCCDefaultY - m_iTypeAudioT - yOffset)
+		{
+			DevMsg( "CHudCommentary had to correct misaligned CC element offset (%i != %i)\n", m_iCCDefaultY - ccY, yOffset );
+
+			g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", m_iCCDefaultY - m_iTypeAudioT - yOffset, 0.0f, 0.2f, vgui::AnimationController::INTERPOLATOR_DEACCEL );
+			m_flCCAnimTime = gpGlobals->curtime + 0.2f;
 		}
 
 		SetPos( ccX, ccY + pHudCloseCaption->GetTall() + commentary_audio_element_below_cc_margin.GetInt() );
