@@ -740,7 +740,11 @@ void CScriptGameEventListener::StopListeningForEvent()
 #ifdef _DEBUG
 	// Event listeners are iterated forwards in the game event manager,
 	// removing while iterating will cause it to skip one listener.
-	// This could be prevented by writing a custom game event manager.
+	//
+	// Fix this in engine without altering any behaviour by
+	// changing event exeuction order to tail->head,
+	// changing listener removal to tail->head,
+	// changing listener addition to head
 	if ( m_nEventTick == gpGlobals->tickcount )
 	{
 		Warning("CScriptGameEventListener stopped in the same frame it was fired. This will break other event listeners!\n");
