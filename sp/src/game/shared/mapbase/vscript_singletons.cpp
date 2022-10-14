@@ -1749,8 +1749,8 @@ void CNetMsgScriptHelper::WriteEntity( HSCRIPT hEnt )
 {
 	SCRIPT_NETMSG_WRITE_FUNC
 	CBaseEntity *p = ToEnt(hEnt);
-	int i = p ? p->entindex() : -1;
-	m_MsgOut.WriteSBitLong( i, MAX_EDICT_BITS );
+	int i = p ? p->entindex() : 0;
+	m_MsgOut.WriteUBitLong( i, MAX_EDICT_BITS );
 }
 
 void CNetMsgScriptHelper::WriteEHandle( HSCRIPT hEnt )
@@ -1861,7 +1861,11 @@ bool CNetMsgScriptHelper::ReadBool()
 
 HSCRIPT CNetMsgScriptHelper::ReadEntity()
 {
-	int index = m_MsgIn_()ReadSBitLong( MAX_EDICT_BITS );
+	int index = m_MsgIn_()ReadUBitLong( MAX_EDICT_BITS );
+
+	if ( !index )
+		return NULL;
+
 #ifdef GAME_DLL
 	edict_t *e = INDEXENT(index);
 	if ( e && !e->IsFree() )
