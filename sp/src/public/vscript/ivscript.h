@@ -1606,6 +1606,10 @@ typedef CScriptScopeT<> CScriptScope;
 	for ( int iteratorName = 0; iteratorName < (vecName)->Count(); iteratorName++ )
 
 //-----------------------------------------------------------------------------
+
+static void __UpdateScriptHooks( HSCRIPT hooksList );
+
+//-----------------------------------------------------------------------------
 //
 // Keeps track of which events and scopes are hooked without polling this from the script VM on each request.
 // Local cache is updated each time there is a change to script hooks: on Add, on Remove, on game restore
@@ -1652,12 +1656,6 @@ public:
 
 		scopemap_t *scopeMap = m_HookList.Element( eventIdx );
 		return scopeMap->Find( g_pScriptVM->HScriptToRaw( hScope ) ) != scopeMap->InvalidIndex();
-	}
-
-	static void __UpdateScriptHooks( HSCRIPT hooksList )
-	{
-		extern CScriptHookManager &GetScriptHookManager();
-		GetScriptHookManager().Update( hooksList );
 	}
 
 	//
@@ -1874,6 +1872,11 @@ inline CScriptHookManager &GetScriptHookManager()
 {
 	static CScriptHookManager g_ScriptHookManager;
 	return g_ScriptHookManager;
+}
+
+static void __UpdateScriptHooks( HSCRIPT hooksList )
+{
+	GetScriptHookManager().Update( hooksList );
 }
 
 
