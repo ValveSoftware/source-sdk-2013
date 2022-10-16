@@ -2930,9 +2930,9 @@ void CBaseAnimating::InvalidateBoneCache( void )
 bool CBaseAnimating::TestCollision( const Ray_t &ray, unsigned int fContentsMask, trace_t& tr )
 {
 	// Return a special case for scaled physics objects
-	if ( GetModelScale() != 1.0f )
+	IPhysicsObject *pPhysObject = VPhysicsGetObject();
+	if ( GetModelScale() != 1.0f && pPhysObject )
 	{
-		IPhysicsObject *pPhysObject = VPhysicsGetObject();
 		Vector vecPosition;
 		QAngle vecAngles;
 		pPhysObject->GetPosition( &vecPosition, &vecAngles );
