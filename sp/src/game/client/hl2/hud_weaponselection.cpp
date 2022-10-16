@@ -644,6 +644,15 @@ void CHudWeaponSelection::Paint()
 						// This is a bit of a misnomer... we really are asking "Is this the selected slot"?
 						selectedWeapon = true;
 					}
+#ifdef MAPBASE
+					else if (!hud_showemptyweaponslots.GetBool() && !pWeapon)
+					{
+						// Revert the offset
+						xPos -= ( m_flMediumBoxWide + 5 ) * xModifiers[ i ];
+						yPos -= ( m_flMediumBoxTall + 5 ) * yModifiers[ i ];
+						continue;
+					}
+#endif
 
 					// Draw the box with the appropriate icon
 					DrawLargeWeaponBox( pWeapon, 
@@ -1375,6 +1384,23 @@ void CHudWeaponSelection::PlusTypeFastWeaponSwitch( int iWeaponSlot )
 		// Changing vertical/horizontal direction. Reset the selected box position to zero.
 		m_iSelectedBoxPosition = 0;
 		m_iSelectedSlot = iWeaponSlot;
+			
+#ifdef MAPBASE
+		if (!hud_showemptyweaponslots.GetBool())
+		{
+			// Skip empty slots
+			int i = 0;
+			while ( i < MAX_WEAPON_POSITIONS )
+			{
+				C_BaseCombatWeapon *pWeapon = GetWeaponInSlot( iWeaponSlot, i );
+				if ( pWeapon )
+					break;
+				i++;
+			}
+
+			m_iSelectedBoxPosition = i;
+		}
+#endif
 	}
 	else
 	{
@@ -1385,6 +1411,27 @@ void CHudWeaponSelection::PlusTypeFastWeaponSwitch( int iWeaponSlot )
 			// Decrementing within the slot. If we're at the zero position in this slot, 
 			// jump to the zero position of the opposite slot. This also counts as our increment.
 			increment = -1;
+#ifdef MAPBASE
+			if (!hud_showemptyweaponslots.GetBool())
+			{
+				// Skip empty slots
+				int iZeroPos = 0;
+				while ( iZeroPos < MAX_WEAPON_POSITIONS )
+				{
+					C_BaseCombatWeapon *pWeapon = GetWeaponInSlot( m_iSelectedSlot, iZeroPos );
+					if ( pWeapon )
+						break;
+					iZeroPos++;
+				}
+
+				if ( iZeroPos == m_iSelectedBoxPosition )
+				{
+					newSlot = ( m_iSelectedSlot + 2 ) % 4;
+					m_iSelectedBoxPosition = increment = 0;
+				}
+			}
+			else
+#endif
 			if ( 0 == m_iSelectedBoxPosition )
 			{
 				newSlot = ( m_iSelectedSlot + 2 ) % 4;
@@ -1402,6 +1449,35 @@ void CHudWeaponSelection::PlusTypeFastWeaponSwitch( int iWeaponSlot )
 				lastSlotPos = slotPos;
 			}
 		}
+			
+#ifdef MAPBASE
+		if (!hud_showemptyweaponslots.GetBool())
+		{
+			// Skip empty slots
+			int i = m_iSelectedBoxPosition + increment;
+			while ( i >= 0 && i < lastSlotPos )
+			{
+				C_BaseCombatWeapon *pWeapon = GetWeaponInSlot( newSlot, i );
+				if ( !pWeapon )
+				{
+					if (increment < 0)
+					{
+						increment--;
+						i--;
+					}
+					else
+					{
+						increment++;
+						i++;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+#endif
 
 		// Increment/Decrement the selected box position
 		if ( m_iSelectedBoxPosition + increment <= lastSlotPos )
