@@ -1260,6 +1260,9 @@ $Project
 		$Lib		vtf
 		$ImpLib		steam_api
 		
+		// Discord integration
+		$Lib	"$LIBPUBLIC\discord-rpc" [$MAPBASE_RPC]
+		
 		$Lib $LIBCOMMON/libcrypto [$POSIX]
 
 		$ImpLib	"$LIBCOMMON\curl"	  [$OSXALL]
