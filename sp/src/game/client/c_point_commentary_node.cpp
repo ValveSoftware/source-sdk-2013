@@ -1705,13 +1705,16 @@ void CHudCommentary::FixupCommentaryLabels( const char *pszPrintName, const char
 		}
 		else
 		{
-			static wchar_t iszPrintNameLocalized[MAX_SPEAKER_NAME];
+			static wchar_t iszSpeakersLocalized[MAX_SPEAKER_NAME] = { 0 };
+			static wchar_t iszPrintNameLocalized[MAX_SPEAKER_NAME] = { 0 };
+			
+			wcsncpy( iszSpeakersLocalized, m_szSpeakers, sizeof( iszSpeakersLocalized ) / sizeof( wchar_t ) );
 
 			if (m_szSpeakers[0] == '#')
 			{
 				wchar_t *pwszSpeakers = g_pVGuiLocalize->Find( pszSpeakers );
 				if (pwszSpeakers)
-					wcsncpy( m_szSpeakers, pwszSpeakers, sizeof( m_szSpeakers ) / sizeof( wchar_t ) );
+					wcsncpy( iszSpeakersLocalized, pwszSpeakers, sizeof( iszSpeakersLocalized ) / sizeof( wchar_t ) );
 			}
 
 			if (pszPrintName[0] == '#' && pszLocal)
@@ -1719,7 +1722,7 @@ void CHudCommentary::FixupCommentaryLabels( const char *pszPrintName, const char
 			else
 				g_pVGuiLocalize->ConvertANSIToUnicode( pszPrintName, iszPrintNameLocalized, sizeof( iszPrintNameLocalized ) );
 
-			V_snwprintf( m_szSpeakers, sizeof( m_szSpeakers ), L"%ls ~ %ls", m_szSpeakers, iszPrintNameLocalized );
+			V_snwprintf( m_szSpeakers, sizeof( m_szSpeakers ), L"%ls ~ %ls", iszSpeakersLocalized, iszPrintNameLocalized );
 		}
 	}
 
