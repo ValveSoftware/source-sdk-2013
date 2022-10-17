@@ -28,6 +28,9 @@
 #include "utlhash.h"
 #include "UtlSortVector.h"
 #include "convar.h"
+#ifdef MAPBASE
+#include "icommandline.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
