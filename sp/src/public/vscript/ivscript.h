@@ -1841,7 +1841,7 @@ public:
 			scopemap_t *scopeMap = m_HookList.Element(i);
 			char *szEvent = m_HookList.Key(i);
 
-			Msg( "%s [%x]\n", szEvent, (void*)scopeMap );
+			Msg( "%s [%p]\n", szEvent, (void*)scopeMap );
 			Msg( "{\n" );
 
 			FOR_EACH_MAP_PTR( scopeMap, j )
@@ -1849,7 +1849,7 @@ public:
 				HScriptRaw hScope = scopeMap->Key(j);
 				contextmap_t *contextMap = scopeMap->Element(j);
 
-				Msg( "\t(0x%X) [%x]\n", hScope, (void*)contextMap );
+				Msg( "\t(0x%X) [%p]\n", hScope, (void*)contextMap );
 				Msg( "\t{\n" );
 
 				FOR_EACH_VEC_PTR( contextMap, k )

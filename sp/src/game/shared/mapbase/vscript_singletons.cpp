@@ -1424,7 +1424,7 @@ void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 	m_MsgIn.StartReading( msg.m_pData, msg.m_nDataBytes );
 #endif
 
-	DebugNetMsg( 2, DLL_LOC_STR " " __FUNCTION__ "()\n" );
+	DebugNetMsg( 2, DLL_LOC_STR " %s()", __FUNCTION__ );
 
 	// Don't do anything if there's no VM here. This can happen if a message from the server goes to a VM-less client, or vice versa.
 	if ( !g_pScriptVM )
@@ -1483,7 +1483,7 @@ void CNetMsgScriptHelper::Start( const char *msg )
 		return;
 	}
 
-	DebugNetMsg( 1, DLL_LOC_STR " " __FUNCTION__ "() [%d]%s\n", Hash( msg ), msg );
+	DebugNetMsg( 1, DLL_LOC_STR " %s() [%d]%s\n", __FUNCTION__, Hash( msg ), msg );
 
 #ifdef CLIENT_DLL
 	// Client can write multiple messages in a frame before the usercmd is sent,
@@ -1519,7 +1519,7 @@ void CNetMsgScriptHelper::Start( const char *msg )
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::Send( HSCRIPT player, bool bReliable )
 {
-	DebugNetMsg( 1, DLL_LOC_STR " " __FUNCTION__ "() size(%d)\n", GetNumBitsWritten() );
+	DebugNetMsg( 1, DLL_LOC_STR " %s() size(%d)\n", __FUNCTION__, GetNumBitsWritten() );
 
 	CBaseEntity *pPlayer = ToEnt(player);
 	if ( pPlayer )
@@ -1544,7 +1544,7 @@ void CNetMsgScriptHelper::Send( HSCRIPT player, bool bReliable )
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::Send()
 {
-	DebugNetMsg( 1, DLL_LOC_STR " " __FUNCTION__ "() size(%d)\n", m_bWriteIgnore ? 0 : GetNumBitsWritten() );
+	DebugNetMsg( 1, DLL_LOC_STR " %s() size(%d)\n", __FUNCTION__, m_bWriteIgnore ? 0 : GetNumBitsWritten() );
 
 	m_bWriteReady = true;
 }
