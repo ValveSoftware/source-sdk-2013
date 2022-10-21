@@ -23,12 +23,12 @@ All contributions must follow the following rules:
    is usually not fit for Mapbase.
    
  * All content in a contribution must be either already legally open-source or done with the
-   full permission of the content's original creator(s). If licensing is involved, the contribution
-   must ensure Mapbase follows said licensing.
+   full permission of the content's original creator(s). If a license is involved, the contributor
+   should ensure Mapbase conforms to its terms.
     * **NOTE:** Due to concerns with mods which do not wish to be open-source, content using GPL licenses (or any
 	  license with similar open-source requirements) are currently not allowed to be distributed with Mapbase.
-	  Contributions which can draw from them without actually distributing the licensed content may theoretically
-	  be excepted from this rule.
+	  Contributions which can draw from them without actually distributing the licensed content may be excepted
+	  from this rule.
    
  * Contributions must not break existing maps/content or interfere with them in a negative or non-objective way.
    
@@ -41,13 +41,19 @@ All contributions must follow the following rules:
    
  * Do not modify the README to add attribution for your contribution. That is handled by Mapbase's maintainers.
    
-Contributions which do not follow these guidelines cannot be accepted into Mapbase.
-
-Attempting to contribute content which seriously violates the rules above can lead to being blocked from contributing,
-especially if done repeatedly.
+Contributions which do not follow these guidelines cannot be accepted into Mapbase. Attempting to contribute content
+which seriously violates the rules above can lead to being blocked from contributing, especially if done repeatedly.
 
 ---
-   
+
+Mapbase uses GitHub Actions to help manage issues and pull requests. Some of these workflows build the code of incoming
+contributions to make sure they compile properly. The code is compiled separately for Visual Studio 2022 and GCC/G++ 9 (Linux)
+and on both Debug and Release configurations.
+
+If these workflows fail, don't freak out! Accidents can happen frequently due to compiler syntax differences and conflicts
+from other contributions. You can look at a failed workflow's log by clicking "Details", which will include the build's output.
+Any errors must be resolved by you and/or by code reviewers before a pull request can be merged.
+
 If your contribution is accepted, you may be listed in Mapbase's credits and the README's external content list:
 	https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Credits#Contributors
 	https://github.com/mapbase-source/source-sdk-2013/blob/master/README
