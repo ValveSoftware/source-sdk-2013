@@ -108,9 +108,11 @@ Direct contributions:
 - https://github.com/mapbase-source/source-sdk-2013/pull/116 (vgui_movie_display mute keyvalue from Alivebyte/rzkid)
 - https://github.com/mapbase-source/source-sdk-2013/pull/140 (logic_substring entity and icon created by moofemp)
 - https://github.com/mapbase-source/source-sdk-2013/pull/143 (Propper features for VBSP from Matty-64)
+- https://github.com/mapbase-source/source-sdk-2013/pull/174 (Fix for multiply defined symbols in later toolsets from und)
+- https://github.com/mapbase-source/source-sdk-2013/issues/201 (env_projectedtexture shadow filter keyvalue from celisej567)
 - Demo autorecord code provided by Klems
 - cc_emit crash fix provided by 1upD
-- Custom HL2 ammo crate models created by Rara (Textures created by Blixibon; This is asset-based and, aside from the SLAM crate, not reflected in the code)
+- Custom HL2 ammo crate models created by Rykah (Textures created by Blixibon; This is asset-based and, aside from the SLAM crate, not reflected in the code)
 - Combine lock hardware on door01_left.mdl created by Kralich (This is asset-based and not reflected in the code)
 - npc_vehicledriver fixes provided by CrAzY
 - npc_combine cover behavior patches provided by iohnnyboy
