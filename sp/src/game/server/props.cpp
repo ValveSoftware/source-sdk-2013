@@ -2796,7 +2796,7 @@ void CInteractableProp::Precache( void )
 //			useType - 
 //			value - 
 //-----------------------------------------------------------------------------
-void CInteractableProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+void CInteractableProp::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
 	if (m_flCooldownTime > gpGlobals->curtime)
 		return;
@@ -2804,18 +2804,18 @@ void CInteractableProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 	// If we're using +USE mins/maxs, make sure this is being +USE'd from the right place
 	if (m_vecUseMins.LengthSqr() != 0.0f && m_vecUseMaxs.LengthSqr() != 0.0f)
 	{
-		CBasePlayer *pPlayer = ToBasePlayer( pActivator );
+		CBasePlayer *pPlayer = ToBasePlayer(pActivator);
 		if (pPlayer)
 		{
 			Vector forward;
-			pPlayer->EyeVectors( &forward, NULL, NULL );
+			pPlayer->EyeVectors(&forward, NULL, NULL);
 
 			// This might be a little convoluted and/or seem needlessly expensive, but I couldn't figure out any better way to do this.
 			// TOOD: Can we calculate a box in local space instead of world space?
 			Vector vecWorldMins, vecWorldMaxs;
-			RotateAABB( EntityToWorldTransform(), m_vecUseMins, m_vecUseMaxs, vecWorldMins, vecWorldMaxs );
-			TransformAABB( EntityToWorldTransform(), vecWorldMins, vecWorldMaxs, vecWorldMins, vecWorldMaxs );
-			if (!IsBoxIntersectingRay( vecWorldMins, vecWorldMaxs, pPlayer->EyePosition(), forward * 1024 ))
+			RotateAABB(EntityToWorldTransform(), m_vecUseMins, m_vecUseMaxs, vecWorldMins, vecWorldMaxs);
+			TransformAABB(EntityToWorldTransform(), vecWorldMins, vecWorldMaxs, vecWorldMins, vecWorldMaxs);
+			if (!IsBoxIntersectingRay(vecWorldMins, vecWorldMaxs, pPlayer->EyePosition(), forward * 1024))
 			{
 				// Reject this +USE if it's not in our box
 				DevMsg("Outside of +USE box\n");
@@ -2828,28 +2828,36 @@ void CInteractableProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 
 	if (m_bLocked)
 	{
-		m_OnLockedUse.FireOutput( pActivator, this );
+		m_OnLockedUse.FireOutput(pActivator, this);
 		EmitSound(STRING(m_iszLockedSound));
-		nSequence = LookupSequence( STRING( m_iszLockedSequence ) );
+		nSequence = LookupSequence(STRING(m_iszLockedSequence));
 		m_iCurSequence = INTERACTSEQ_LOCKED;
 	}
 	else
 	{
-		m_OnPressed.FireOutput( pActivator, this );
+		m_OnPressed.FireOutput(pActivator, this);
 		EmitSound(STRING(m_iszPressedSound));
-		nSequence = LookupSequence( STRING( m_iszInSequence ) );
+		nSequence = LookupSequence(STRING(m_iszInSequence));
 		m_iCurSequence = INTERACTSEQ_IN;
 	}
 
-	if ( nSequence > ACTIVITY_NOT_AVAILABLE )
+	if (nSequence > ACTIVITY_NOT_AVAILABLE)
 	{
 		SetPushSequence(nSequence);
 
 		// We still fire our inherited animation outputs
-		m_pOutputAnimBegun.FireOutput( pActivator, this );
+		m_pOutputAnimBegun.FireOutput(pActivator, this);
 	}
 
-	m_flCooldownTime = gpGlobals->curtime + m_flCooldown;
+	if (m_flCooldown == -1 && !m_bLocked){
+		m_flCooldownTime = FLT_MAX; // yeah we're not going to hit this any time soon
+	}
+	else if (m_flCooldown == -1){
+		m_flCooldownTime = gpGlobals->curtime + 1.0f; // 1s cooldown if locked
+	}
+	else{
+		m_flCooldownTime = gpGlobals->curtime + m_flCooldown;
+	}
 }
 
 //-----------------------------------------------------------------------------
