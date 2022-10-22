@@ -25,3 +25,11 @@ VScript:
 
 Tools:
   - '**utils**'
+
+NPCs:
+  - '**npc_**'
+  - '**ai_**'
+
+VGUI:
+  - '**hud_**'
+  - '**vgui_**'
