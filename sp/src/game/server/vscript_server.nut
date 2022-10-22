@@ -93,7 +93,7 @@ function __ReplaceClosures( script, scope )
 
 	local tempParent = { getroottable = function() { return null; } };
 	local temp = { runscript = script };
-	temp.set_delegate(tempParent);
+	temp.setdelegate(tempParent);
 
 	temp.runscript()
 	foreach( key,val in temp )

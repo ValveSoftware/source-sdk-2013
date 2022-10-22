@@ -1149,8 +1149,14 @@ void CAI_BaseActor::UpdateHeadControl( const Vector &vHeadTarget, float flHeadIn
 		Warning(	"================================================================================\n"
 					"!!!!! %s tried to set a NaN head angle (can happen when look targets have >1 importance) !!!!!\n"
 					"================================================================================\n", GetDebugName() );
-		vTargetAngles.x = 0;
-		vTargetAngles.y = 0;
+		m_goalHeadCorrection.Init();
+		Set( m_FlexweightHeadRightLeft, 0.0f );
+		Set( m_FlexweightHeadUpDown, 0.0f );
+		Set( m_FlexweightHeadTilt, 0.0f );
+		Set( m_ParameterHeadYaw, 0.0f );
+		Set( m_ParameterHeadPitch, 0.0f );
+		Set( m_ParameterHeadRoll, 0.0f );
+		return;
 	}
 #endif
 

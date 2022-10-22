@@ -2283,11 +2283,7 @@ bool CDynamicProp::TestCollision( const Ray_t &ray, unsigned int mask, trace_t& 
 			}
 		}
 	}
-#ifdef MAPBASE // From Alien Swarm SDK
-	return BaseClass::TestCollision( ray, mask, trace );
-#else
 	return false;
-#endif
 }
 
 
@@ -4485,6 +4481,13 @@ void CBasePropDoor::CalcDoorSounds()
 					m_flNPCOpenDistance = pkvHardwareData->GetFloat( "npc_distance", ai_door_enable_acts.GetBool() ? 32.0 : 64.0 );
 #endif
 			}
+
+#ifdef MAPBASE
+			// This would still be -1 if the hardware wasn't valid
+			if (m_flNPCOpenDistance == -1)
+				m_flNPCOpenDistance = ai_door_enable_acts.GetBool() ? 32.0 : 64.0;
+#endif
+
 
 			// If any sounds were missing, try the "defaults" block.
 			if ( ( strSoundOpen == NULL_STRING ) || ( strSoundClose == NULL_STRING ) || ( strSoundMoving == NULL_STRING ) ||

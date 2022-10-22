@@ -120,6 +120,7 @@ private:
 
 	// HACKHACK: Needed as a failsafe to prevent desync
 	int		m_iCCDefaultY;
+	float	m_flCCAnimTime;
 
 	bool	m_bShouldRepositionSubtitles;
 #endif
@@ -248,7 +249,7 @@ public:
 
 #ifdef MAPBASE
 			// Special commentary localization file (useful for things like text nodes or print names)
-			g_pVGuiLocalize->AddFile( "resource/commentary_%language%.txt" );
+			g_pVGuiLocalize->AddFile( "resource/commentary_%language%.txt", "MOD", true );
 #endif
 		}
 
@@ -910,6 +911,7 @@ CHudCommentary::CHudCommentary( const char *name ) : vgui::Panel( NULL, "HudComm
 	m_pFootnoteLabel = new vgui::Label( this, "HudCommentaryFootnoteLabel", L"Commentary footnote" );
 
 	m_iCCDefaultY = 0;
+	m_flCCAnimTime = 0.0f;
 #endif
 }
 
@@ -1415,6 +1417,9 @@ void CHudCommentary::StartCommentary( C_PointCommentaryNode *pNode, char *pszSpe
 	{
 		m_bShouldPaint = true;
 		m_bShouldRepositionSubtitles = true;
+
+		// Ensure we perform layout later
+		InvalidateLayout();
 	}
 	else
 		m_bShouldRepositionSubtitles = false;
@@ -1634,6 +1639,9 @@ void CHudCommentary::StartSceneCommentary( C_PointCommentaryNode *pNode, char *p
 	{
 		m_bShouldPaint = true;
 		m_bShouldRepositionSubtitles = true;
+
+		// Ensure we perform layout later
+		InvalidateLayout();
 	}
 	else
 		m_bShouldRepositionSubtitles = false;
@@ -1697,13 +1705,16 @@ void CHudCommentary::FixupCommentaryLabels( const char *pszPrintName, const char
 		}
 		else
 		{
-			static wchar_t iszPrintNameLocalized[MAX_SPEAKER_NAME];
+			static wchar_t iszSpeakersLocalized[MAX_SPEAKER_NAME] = { 0 };
+			static wchar_t iszPrintNameLocalized[MAX_SPEAKER_NAME] = { 0 };
+			
+			wcsncpy( iszSpeakersLocalized, m_szSpeakers, sizeof( iszSpeakersLocalized ) / sizeof( wchar_t ) );
 
 			if (m_szSpeakers[0] == '#')
 			{
 				wchar_t *pwszSpeakers = g_pVGuiLocalize->Find( pszSpeakers );
 				if (pwszSpeakers)
-					wcsncpy( m_szSpeakers, pwszSpeakers, sizeof( m_szSpeakers ) / sizeof( wchar_t ) );
+					wcsncpy( iszSpeakersLocalized, pwszSpeakers, sizeof( iszSpeakersLocalized ) / sizeof( wchar_t ) );
 			}
 
 			if (pszPrintName[0] == '#' && pszLocal)
@@ -1711,7 +1722,7 @@ void CHudCommentary::FixupCommentaryLabels( const char *pszPrintName, const char
 			else
 				g_pVGuiLocalize->ConvertANSIToUnicode( pszPrintName, iszPrintNameLocalized, sizeof( iszPrintNameLocalized ) );
 
-			V_snwprintf( m_szSpeakers, sizeof( m_szSpeakers ), L"%ls ~ %ls", m_szSpeakers, iszPrintNameLocalized );
+			V_snwprintf( m_szSpeakers, sizeof( m_szSpeakers ), L"%ls ~ %ls", iszSpeakersLocalized, iszPrintNameLocalized );
 		}
 	}
 
@@ -1781,8 +1792,16 @@ void CHudCommentary::RepositionAndFollowCloseCaption( int yOffset )
 			// Run this animation command instead of setting the position directly
 			g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", ccY - yOffset, 0.0f, 0.2f, vgui::AnimationController::INTERPOLATOR_DEACCEL );
 			//pHudCloseCaption->SetPos( ccX, ccY );
+			m_flCCAnimTime = gpGlobals->curtime + 0.2f;
 
 			pHudCloseCaption->SetUsingCommentaryDimensions( true );
+		}
+		else if (gpGlobals->curtime > m_flCCAnimTime && ccY != m_iCCDefaultY - m_iTypeAudioT - yOffset)
+		{
+			DevMsg( "CHudCommentary had to correct misaligned CC element offset (%i != %i)\n", m_iCCDefaultY - ccY, yOffset );
+
+			g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( pHudCloseCaption, "YPos", m_iCCDefaultY - m_iTypeAudioT - yOffset, 0.0f, 0.2f, vgui::AnimationController::INTERPOLATOR_DEACCEL );
+			m_flCCAnimTime = gpGlobals->curtime + 0.2f;
 		}
 
 		SetPos( ccX, ccY + pHudCloseCaption->GetTall() + commentary_audio_element_below_cc_margin.GetInt() );
