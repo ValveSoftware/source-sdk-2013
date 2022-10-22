@@ -110,6 +110,8 @@ Direct contributions:
 - https://github.com/mapbase-source/source-sdk-2013/pull/143 (Propper features for VBSP from Matty-64)
 - https://github.com/mapbase-source/source-sdk-2013/pull/174 (Fix for multiply defined symbols in later toolsets from und)
 - https://github.com/mapbase-source/source-sdk-2013/issues/201 (env_projectedtexture shadow filter keyvalue from celisej567)
+- https://github.com/mapbase-source/source-sdk-2013/pull/193 (RTB:R info_particle_system_coordinate by arbabf and Iridium77)
+- https://github.com/mapbase-source/source-sdk-2013/pull/193 (Infinite prop_interactable cooldown by arbabf)
 - Demo autorecord code provided by Klems
 - cc_emit crash fix provided by 1upD
 - Custom HL2 ammo crate models created by Rykah (Textures created by Blixibon; This is asset-based and, aside from the SLAM crate, not reflected in the code)
@@ -131,6 +133,7 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/171 (VScript documentation sorting)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/173 (VScript fixes and optimizations)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/192 (VScript hook manager and fixes)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/206 (Fix CScriptNetMsgHelper::WriteEntity())
 
 == Contributions from z33ky:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux compilation fixes)
