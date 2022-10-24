@@ -60,7 +60,7 @@ on:
 
 jobs:
   build_manual:
-    uses: mapbase-source/source-sdk-2013/.github/workflows/mapbase_build-base.yml@feature/github-workflows
+    uses: ./.github/workflows/mapbase_build-base.yml
     with:
       configuration: '${{ github.event.inputs.configuration }}'
       branch: '${{ github.event.inputs.branch }}'
