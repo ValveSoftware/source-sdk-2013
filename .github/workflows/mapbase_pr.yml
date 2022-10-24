@@ -2,7 +2,6 @@
 # MAPBASE REPO AUTOMATION
 #
 # Automatically labels pull requests according to changed file paths.
-# See mapbase_triage-pr.yml for more information.
 #
 # https://github.com/actions/labeler
 
