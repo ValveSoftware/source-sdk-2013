@@ -1,10 +1,24 @@
-//===================================================================================================================================================
+//=========================================================================================================================
 
-               Mapbase v7.1 - Source 2013
-	https://github.com/mapbase-source/source-sdk-2013
-		https://www.moddb.com/mods/mapbase
+<p align="center">
+    <img src="https://camo.githubusercontent.com/a77d5873fbaa48fa4595746418c79be793f38d3d2d2dd3441d56b3200712ed8b/68747470733a2f2f692e696d6775722e636f6d2f75304b784f69502e706e67" width="512"/>
+</p>
+<p align="center">
+    <a href="https://github.com/mapbase-source/source-sdk-2013/releases" alt="Releases">
+        <img src="https://img.shields.io/github/v/release/mapbase-source/source-sdk-2013?color=6f37de&logo=github" /></a>
+    <a href="https://github.com/mapbase-source/source-sdk-2013/actions" alt="Checks">
+        <img src="https://img.shields.io/github/checks-status/mapbase-source/source-sdk-2013/master?logo=github" /></a>
+</p>
+<p align="center">
+    <a href="https://discord.gg/nd8tXNg" alt="Discord">
+        <img src="https://img.shields.io/discord/548979532284297237?color=5865F2&label=Discord&logo=discord" /></a>
+    <a href="https://www.moddb.com/mods/mapbase" alt="ModDB">
+        <img src="https://img.shields.io/badge/Mapbase%20on-ModDB-red" /></a>
+    <a href="https://developer.valvesoftware.com/wiki/Mapbase" alt="VDC">
+        <img src="https://img.shields.io/badge/Mapbase%20on-VDC-F2A52B" /></a>
+</p>
 	
-//===================================================================================================================================================
+//=========================================================================================================================
 
 This repository contains code from Mapbase, a modification of the Source 2013 SDK which serves as a combined package
 of general-purpose improvements, fixes, and utility features for mods.
@@ -23,7 +37,7 @@ Mapbase's main content in this repository may include:
 For more information, view this page:
 https://github.com/mapbase-source/source-sdk-2013/wiki/Introduction-to-Mapbase
 
-//===================================================================================================================================================
+//=========================================================================================================================
 
 Mapbase is an open-source project and its contents can be distributed and used at the discretion of its users. However, this project contains content from
 a vast number of different sources which have their own licensing or attribution requirements. We try to handle most of that ourselves, but users who plan on
@@ -32,7 +46,7 @@ distributing Mapbase content are expected to comply with certain rules.
 	Up-to-date information about Mapbase content usage and credit are addressed in this article on Mapbase's wiki:
 		https://github.com/mapbase-source/source-sdk-2013/wiki/Using-Mapbase-Content
 
-//===================================================================================================================================================
+//=========================================================================================================================
 
 >>>>>>>> EXTERNAL CONTENT USED IN MAPBASE <<<<<<<<
 
@@ -69,7 +83,7 @@ including radial fog, rope code, and treesway)
 - https://github.com/entropy-zero/source-sdk-2013 (skill_changed game event)
 - https://github.com/Nbc66/source-sdk-2013-ce/tree/v142 (Base for VS2019 toolset support)
 
-//---------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
 Valve Developer Community (VDC) sources:
 
@@ -97,7 +111,7 @@ interchangeable arms; this may change in the future)
 - https://developer.valvesoftware.com/wiki/Func_clip_vphysics ("Start Disabled" keyvalue fix)
 - https://developer.valvesoftware.com/wiki/Importing_CSS_Weapons_Into_HL2 (CS:S viewmodel chirality)
 
-//---------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
 Direct contributions:
 
@@ -130,6 +144,7 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/148 (Minor fixup)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/167 (Security fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/168 (Squirrel update)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/169 (VScript VGUI)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/171 (VScript documentation sorting)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/173 (VScript fixes and optimizations)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/192 (VScript hook manager and fixes)
@@ -154,7 +169,7 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/185 (Fix enemyfinders becoming visible when they wake)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/186 (Fix for brightly glowing teeth)
 
-//---------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
 Other sources:
 
@@ -172,11 +187,11 @@ Other sources:
 - Vortigaunt LOS fix originally created by dky.tehkingd.u for HL2:CE
 - https://combineoverwiki.net/wiki/File:Combine_main_symbol.svg ("icon_combine" instructor icon in "materials/vgui/hud/gameinstructor_hl2_1"; This is asset-based and not reflected in the code)
 
-//---------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
 If there is anything missing from this list, please contact Blixibon.
 
-//===================================================================================================================================================
+//=========================================================================================================================
 
 Aside from the content list above, Mapbase has more descriptive and up-to-date credits on this wiki article:
 https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Credits
@@ -185,11 +200,11 @@ Other relevant articles:
 * https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Disclaimers
 * https://github.com/mapbase-source/source-sdk-2013/wiki/Frequently-Asked-Questions-(FAQ)
 
-//---------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
 In memory of Holly Liberatore (moofemp)
 
-//===================================================================================================================================================
+//=========================================================================================================================
 
 Please see the Source SDK 2013 license below:
 
