@@ -59,7 +59,11 @@ $Project
 			$File	"$SRCDIR\game\shared\mapbase\weapon_custom_scripted.cpp" [$MAPBASE_VSCRIPT]
 			$File	"$SRCDIR\game\shared\mapbase\weapon_custom_scripted.h" [$MAPBASE_VSCRIPT]
 			$File	"$SRCDIR\game\shared\mapbase\logic_script_client.cpp" [$MAPBASE_VSCRIPT]
-			
+
+			$File   "mapbase\vscript_vgui.cpp" [$MAPBASE_VSCRIPT]
+			$File   "mapbase\vscript_vgui.h" [$MAPBASE_VSCRIPT]
+			$File   "mapbase\vscript_vgui.nut" [$MAPBASE_VSCRIPT]
+
 			$File	"mapbase\c_func_clientclip.cpp"
 			$File	"mapbase\c_func_fake_worldportal.cpp"
 			$File	"mapbase\c_func_fake_worldportal.h"
