@@ -4385,7 +4385,7 @@ void CMathClamp::ClampValue(variant_t var, inputdata_t *inputdata)
 {
 	// Don't convert up here in case of invalid type
 
-	int nBounds;
+	int nBounds = 0;
 
 	switch (var.FieldType())
 	{
