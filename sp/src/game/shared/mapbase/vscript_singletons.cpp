@@ -3240,6 +3240,31 @@ public:
 
 		return ret;
 	}
+	const char *GetCurrentBetaName()
+	{
+		if ( !steamapicontext || !steamapicontext->SteamApps() )
+			return NULL;
+
+		static char ret[16];
+		steamapicontext->SteamApps()->GetCurrentBetaName( ret, sizeof( ret ) );
+		return ret;
+	}
+#if 0
+	bool IsSubscribedApp( int nAppID )
+	{
+		if ( !steamapicontext || !steamapicontext->SteamApps() )
+			return false;
+
+		return steamapicontext->SteamApps()->BIsSubscribedApp( nAppID );
+	}
+#endif
+	bool IsAppInstalled( int nAppID )
+	{
+		if ( !steamapicontext || !steamapicontext->SteamApps() )
+			return false;
+
+		return steamapicontext->SteamApps()->BIsAppInstalled( nAppID );
+	}
 
 } g_ScriptSteamAPI;
 
@@ -3250,6 +3275,9 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptSteamAPI, "CSteamAPI", SCRIPT_SINGLETON "" )
 	DEFINE_SCRIPTFUNC( GetCurrentBatteryPower, "Return the amount of battery power left in the current system in % [0..100], 255 for being on AC power" )
 	//DEFINE_SCRIPTFUNC( GetIPCountry, "Returns the 2 digit ISO 3166-1-alpha-2 format country code this client is running in (as looked up via an IP-to-location database)" )
 	DEFINE_SCRIPTFUNC( GetCurrentGameLanguage, "Gets the current language that the user has set as API language code. This falls back to the Steam UI language if the user hasn't explicitly picked a language for the title." )
+	DEFINE_SCRIPTFUNC( GetCurrentBetaName, "Gets the name of the user's current beta branch. In Source SDK Base 2013 Singleplayer, this will usually return 'upcoming'." )
+	//DEFINE_SCRIPTFUNC( IsSubscribedApp, "Returns true if the user is subscribed to the specified app ID." )
+	DEFINE_SCRIPTFUNC( IsAppInstalled, "Returns true if the user has the specified app ID installed on their computer." )
 END_SCRIPTDESC();
 #endif // !NO_STEAM
 
