@@ -35,6 +35,9 @@ All contributions must follow the following rules:
  * Code contributions are not obliged to follow Mapbase's preprocessor conventions (e.g. #ifdef MAPBASE),
    although following them is usually acceptable.
    
+ * Code contributions which modify or add onto existing code should generally match its syntax and shouldn't
+   change the spacing unless necessary.
+   
  * If you are contributing a file you created yourself specifically for Mapbase, you are required to
    use the custom "Mapbase - Source 2013" header used in other Mapbase files as of Mapbase v5.0.
    You are encouraged to append an "Author(s)" part to that header in your file in order to clarify who wrote it.
@@ -51,8 +54,8 @@ contributions to make sure they compile properly. The code is compiled separatel
 and on both Debug and Release configurations.
 
 If these workflows fail, don't freak out! Accidents can happen frequently due to compiler syntax differences and conflicts
-from other contributions. You can look at a failed workflow's log by clicking "Details", which will include the build's output.
-Any errors must be resolved by you and/or by code reviewers before a pull request can be merged.
+from other contributions. You can look at a failed workflow's log by clicking "Details", which will include the build's output
+in the "Build" step(s). Any errors must be resolved by you and/or by code reviewers before a pull request can be merged.
 
 If your contribution is accepted, you may be listed in Mapbase's credits and the README's external content list:
 	https://github.com/mapbase-source/source-sdk-2013/wiki/Mapbase-Credits#Contributors
