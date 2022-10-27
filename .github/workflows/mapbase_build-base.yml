@@ -142,7 +142,7 @@ jobs:
       # --------------------------------------------------------------------
 
     - name: Publish Windows game DLLs
-      if: inputs.project-group == 'all' || inputs.project-group == 'game'
+      if: inputs.project-group == 'game'
       uses: actions/upload-artifact@v3
       with:
         name: 'Windows Game DLLs (server & client.dll) [${{ inputs.configuration }}]'
@@ -254,12 +254,16 @@ jobs:
     #      ${{inputs.branch}}/game/bin/vrad_dll.so
     #    if-no-files-found: error
 
+    # For now, don't publish the .dbg files even though we publish .pdb files on Windows
+    # (they're too big)
     - name: Publish everything (Linux)
       if: inputs.project-group == 'all'
       uses: actions/upload-artifact@v3
       with:
         name: 'Everything (Linux) [${{ inputs.configuration }}]'
         path: |
-          ${{inputs.branch}}/game/bin
-          ${{inputs.branch}}/game/mod_*/bin
+          ${{inputs.branch}}/game/bin/*.so
+          !${{inputs.branch}}/game/bin/*_srv.so
+          ${{inputs.branch}}/game/mod_*/bin/*.so
+          !${{inputs.branch}}/game/mod_*/bin/*_srv.so
         if-no-files-found: error
