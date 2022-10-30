@@ -18,7 +18,7 @@ on:
       - master
 
 jobs:
-  games:
+  everything:
     strategy:
       matrix:
         configuration: [Release, Debug]
@@ -26,7 +26,6 @@ jobs:
     with:
       configuration: ${{ matrix.configuration }}
       branch: 'sp'
-      game: 'episodic' # Change this if your mod is not using HL2/Episodic game projects
       project-group: 'all'
       solution-name: 'everything'
       build-on-linux: true # Disable this if you don't want to compile for Linux

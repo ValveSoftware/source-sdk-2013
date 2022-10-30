@@ -212,7 +212,7 @@ jobs:
 
     - name: Create project files
       working-directory: '${{inputs.branch}}/src'
-      run: sudo ./create${{inputs.project-group}}projects
+      run: ./create${{inputs.project-group}}projects
 
       # --------------------------------------------------------------------
 
