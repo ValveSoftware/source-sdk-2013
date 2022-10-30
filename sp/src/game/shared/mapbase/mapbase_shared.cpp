@@ -35,7 +35,6 @@
 #include "tier0/memdbgon.h"
 
 #define GENERIC_MANIFEST_FILE "scripts/mapbase_default_manifest.txt"
-#define GENERIC_MANIFEST_FILE_ADDON "scripts/mapbase_default_manifest_addon.txt"
 
 #ifdef CLIENT_DLL
 #define AUTOLOADED_MANIFEST_FILE VarArgs("maps/%s_manifest.txt", g_MapName)
@@ -53,8 +52,6 @@ ConVar mapbase_load_default_manifest("mapbase_load_default_manifest", "1", FCVAR
 // This constant should change with each Mapbase update
 ConVar mapbase_version( "mapbase_version", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's server.dll" );
 
-ConVar mapbase_load_addon_manifest( "mapbase_load_addon_manifest", "0", FCVAR_NONE, "Allows manifests from \"addon\" path IDs to be loaded." );
-
 ConVar mapbase_flush_talker("mapbase_flush_talker", "1", FCVAR_NONE, "Normally, when a map with custom talker files is unloaded, the response system resets to rid itself of the custom file(s). Turn this convar off to prevent that from happening.");
 
 extern void MapbaseGameLog_Init();
@@ -69,8 +66,6 @@ static bool g_bMapContainsCustomTalker;
 #else
 // This constant should change with each Mapbase update
 ConVar mapbase_version_client( "mapbase_version_client", MAPBASE_VERSION, FCVAR_NONE, "The version of Mapbase currently being used in this mod's client.dll" );
-
-ConVar mapbase_load_addon_manifest( "mapbase_load_addon_manifest_client", "0", FCVAR_NONE, "Allows manifests from \"addon\" path IDs to be loaded on the client." );
 
 // This is from the vgui_controls library
 extern vgui::HScheme g_iCustomClientSchemeOverride;
@@ -274,37 +269,6 @@ public:
 		{
 			// Load the generic script instead.
 			ParseGenericManifest();
-		}
-
-		// Load addon manifests if we should
-		if (mapbase_load_addon_manifest.GetBool())
-		{
-			char searchPaths[4096];
-			filesystem->GetSearchPath( "ADDON", true, searchPaths, sizeof( searchPaths ) );
-
-			for ( char *path = strtok( searchPaths, ";" ); path; path = strtok( NULL, ";" ) )
-			{
-				char pathName[MAX_PATH];
-				V_StripTrailingSlash( path );
-				V_FileBase( path, pathName, sizeof( pathName ) );
-
-				KeyValues *pKV = new KeyValues( "DefaultAddonManifest" );
-
-				char manifestName[MAX_PATH];
-				V_snprintf( manifestName, sizeof( manifestName ), "%s_mapbase_manifest.txt", pathName );
-				if (filesystem->FileExists( manifestName, "ADDON" ))
-				{
-					if (pKV->LoadFromFile( filesystem, manifestName ))
-						AddManifestFile( pKV, pathName, false );
-				}
-				else
-				{
-					if (pKV->LoadFromFile( filesystem, GENERIC_MANIFEST_FILE_ADDON ))
-						AddManifestFile( pKV, pathName, true );
-				}
-
-				pKV->deleteThis();
-			}
 		}
 
 #ifdef GAME_DLL
