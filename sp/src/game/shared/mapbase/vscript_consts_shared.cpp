@@ -604,6 +604,25 @@ void RegisterSharedScriptConstants()
 	ScriptRegisterConstant( g_pScriptVM, D_NU, "Denotes a 'Neutral' relationship. Used by NPCs and players for relationship disposition." );
 #endif
 
+#ifdef CLIENT_DLL
+	// 
+	// HUD
+	// 
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_WEAPONSELECTION, "Hide ammo count & weapon selection" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_FLASHLIGHT, "" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_ALL, "" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_HEALTH, "Hide health & armor / suit battery" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_PLAYERDEAD, "Hide when local player's dead" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_NEEDSUIT, "Hide when the local player doesn't have the HEV suit" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_MISCSTATUS, "Hide miscellaneous status elements (trains, pickup history, death notices, etc)" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_CHAT, "Hide all communication elements (saytext, voice icon, etc)" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_CROSSHAIR, "Hide crosshairs" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_VEHICLE_CROSSHAIR, "Hide vehicle crosshair" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_INVEHICLE, "" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_BONUS_PROGRESS, "Hide bonus progress display (for bonus map challenges)" );
+	ScriptRegisterConstant( g_pScriptVM, HIDEHUD_BITCOUNT, "" );
+#endif
+
 	// 
 	// Misc. General
 	// 

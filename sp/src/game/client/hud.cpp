@@ -947,6 +947,11 @@ float CHud::GetFOVSensitivityAdjust()
 {
 	return m_flFOVSensitivityAdjust;
 }
+
+#ifdef MAPBASE_VSCRIPT
+extern int g_iVScriptHideHUD;
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Return true if the passed in sections of the HUD shouldn't be drawn
 //-----------------------------------------------------------------------------
@@ -967,6 +972,14 @@ bool CHud::IsHidden( int iHudFlags )
 	{
 		iHideHud = hidehud.GetInt();
 	}
+
+#ifdef MAPBASE_VSCRIPT
+	// Hide elements hidden by scripts
+	if ( g_iVScriptHideHUD )
+	{
+		iHideHud |= g_iVScriptHideHUD;
+	}
+#endif
 
 	// Everything hidden?
 	if ( iHideHud & HIDEHUD_ALL )
