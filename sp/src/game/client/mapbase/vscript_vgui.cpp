@@ -49,6 +49,8 @@
 
 #include "view.h"
 
+#include "hudelement.h"
+
 #include "vscript_vgui.h"
 #include "vscript_vgui.nut"
 
@@ -3329,6 +3331,18 @@ END_SCRIPTDESC()
 //==============================================================
 
 
+struct hudelementcache_t
+{
+	CUtlConstString name;
+	int bits;
+};
+CUtlVector< hudelementcache_t > m_HudElementCache;
+
+// Check if hud elements were changed in this level to shortcut on level shutdown
+bool m_bHudVisiblityChangedThisLevel = false;
+
+
+
 class CScriptVGUI : public CAutoGameSystem
 {
 public:
@@ -3403,6 +3417,26 @@ void CScriptVGUI::LevelShutdownPostEntity()
 		surface()->DestroyTextureID( g_ScriptTextureIDs[i] );
 	}
 	g_ScriptTextureIDs.Purge();
+
+	//
+	// Reset hud element visibility
+	//
+	if ( m_bHudVisiblityChangedThisLevel )
+	{
+		m_bHudVisiblityChangedThisLevel = false;
+
+		FOR_EACH_VEC( m_HudElementCache, i )
+		{
+			const hudelementcache_t &cache = m_HudElementCache[i];
+			Assert( !cache.name.IsEmpty() );
+			CHudElement *elem = gHUD.FindElement( cache.name );
+			Assert( elem );
+			if ( elem )
+			{
+				elem->SetHiddenBits( cache.bits );
+			}
+		}
+	}
 }
 
 void CScriptVGUI::Shutdown()
@@ -3426,7 +3460,70 @@ void CScriptVGUI::Shutdown()
 	}
 
 	g_ScriptFonts.Purge();
+
+	m_HudElementCache.Purge();
 }
+
+
+void SetHudElementVisible( const char *name, bool state )
+{
+	CHudElement *elem = gHUD.FindElement( name );
+	if ( !elem )
+		return;
+
+	int iOldBits = -2;
+
+	FOR_EACH_VEC( m_HudElementCache, i )
+	{
+		const hudelementcache_t &cache = m_HudElementCache[i];
+		if ( !V_stricmp( cache.name, name ) )
+		{
+			iOldBits = cache.bits;
+			break;
+		}
+	}
+
+	if ( iOldBits == -2 )
+	{
+		if ( state ) // no change
+			return;
+
+		// First time setting the visibility of this element, save the original bits
+		hudelementcache_t &cache = m_HudElementCache.Element( m_HudElementCache.AddToTail() );
+		cache.name.Set( name );
+		cache.bits = elem->GetHiddenBits();
+	}
+
+	elem->SetHiddenBits( state ? iOldBits : -1 );
+
+	m_bHudVisiblityChangedThisLevel = true;
+}
+
+#ifdef _DEBUG
+CON_COMMAND( dump_hud_elements, "" )
+{
+	int size = gHUD.m_HudList.Size();
+
+	CUtlVector< const char* > list( 0, size );
+
+	for ( int i = 0; i < size; i++ )
+	{
+		list.AddToTail( gHUD.m_HudList[i]->GetName() );
+	}
+
+	struct _cmp
+	{
+		static int __cdecl fn( const char * const *a, const char * const *b ) { return strcmp( *a, *b ); }
+	};
+
+	list.Sort( _cmp::fn );
+
+	for ( int i = 0; i < size; i++ )
+	{
+		Msg( "%s\n", list[i] );
+	}
+}
+#endif
 
 
 class CScriptIInput
@@ -3693,6 +3790,8 @@ vgui::HFont GetScriptFont( const char *name, bool proportional )
 
 void RegisterScriptVGUI()
 {
+	ScriptRegisterFunction( g_pScriptVM, SetHudElementVisible, "" );
+
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptXRES, "XRES", "" );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptYRES, "YRES", "" );
 
