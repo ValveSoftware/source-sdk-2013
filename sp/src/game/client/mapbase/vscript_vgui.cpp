@@ -143,10 +143,6 @@ CUtlVector< int > g_ScriptTextureIDs;
 CUtlLinkedList< IScriptVGUIObject*, unsigned short > g_ScriptPanels;
 
 
-// Used in hud.cpp to help scripts hide HUD elements
-int g_iVScriptHideHUD = 0;
-
-
 // Boundary is not checked in Surface, keep count manually to sanitise user input.
 static int g_nFontCount = 0;
 
@@ -3407,9 +3403,6 @@ void CScriptVGUI::LevelShutdownPostEntity()
 		surface()->DestroyTextureID( g_ScriptTextureIDs[i] );
 	}
 	g_ScriptTextureIDs.Purge();
-
-	// Reset HUD hidden bits
-	g_iVScriptHideHUD = 0;
 }
 
 void CScriptVGUI::Shutdown()
@@ -3697,29 +3690,6 @@ vgui::HFont GetScriptFont( const char *name, bool proportional )
 	return script_surface.GetFont( name, proportional, NULL );
 }
 
-//-----------------------------------------------------------------------------
-// Control which HUD elements on the screen are hidden.
-//-----------------------------------------------------------------------------
-static int ScriptGetHUDHiddenBits()
-{
-	return g_iVScriptHideHUD;
-}
-
-static void ScriptSetHUDHiddenBits( int iBits )
-{
-	g_iVScriptHideHUD = iBits;
-}
-
-static void ScriptAddHUDHiddenBits( int iBits )
-{
-	g_iVScriptHideHUD |= iBits;
-}
-
-static void ScriptClearHUDHiddenBits( int iBits )
-{
-	g_iVScriptHideHUD &= ~(iBits);
-}
-
 
 void RegisterScriptVGUI()
 {
@@ -3731,11 +3701,6 @@ void RegisterScriptVGUI()
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptScreenToWorld, "ScreenToWorld", "Get screen pixel position [0,1] in world space." );
 	ScriptRegisterFunction( g_pScriptVM, ScreenToRay, "Get a ray from screen pixel position to world space." );
 	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptScreenTransform, "ScreenTransform", "Get world position normalised in screen space. Return true if on screen." );
-
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptGetHUDHiddenBits, "GetHUDHiddenBits", "Use with 'HIDEHUD_' constants." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptSetHUDHiddenBits, "SetHUDHiddenBits", "Use with 'HIDEHUD_' constants." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptAddHUDHiddenBits, "AddHUDHiddenBits", "Use with 'HIDEHUD_' constants." );
-	ScriptRegisterFunctionNamed( g_pScriptVM, ScriptClearHUDHiddenBits, "ClearHUDHiddenBits", "Use with 'HIDEHUD_' constants." );
 
 	g_pScriptVM->Run( g_Script_vgui_init );
 
