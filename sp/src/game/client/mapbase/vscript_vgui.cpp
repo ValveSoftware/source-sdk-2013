@@ -40,7 +40,9 @@
 #include <vgui_controls/TextImage.h>
 //#include <vgui_controls/Tooltip.h>
 
-//#include "bitmap/tgaloader.h"
+#if VGUI_TGA_IMAGE_PANEL
+#include "bitmap/tgaloader.h"
+#endif
 
 #if !defined(NO_STEAM)
 #include "steam/steam_api.h"
@@ -48,8 +50,8 @@
 #endif
 
 #include "view.h"
-
 #include "hudelement.h"
+//#include "iclientmode.h" // g_pClientMode->GetViewport()
 
 #include "vscript_vgui.h"
 #include "vscript_vgui.nut"
@@ -85,10 +87,15 @@
 //=============================================================================
 
 
-// When enabled, script panels will be parented to custom script root panels.
+// When enabled, script panels will be parented to custom root panels.
 // When disabled, script panels will be parented to engine root panels, and allow Z values for script panels to be interplaced amongst non-script panels.
 // Changing this is not backwards compatible, as existing top level script panel depth would then change relative to non-script panels.
 #define SCRIPT_ENGINE_ROOT_PANELS 1
+
+// NOTE: causes rendering issues
+#define ALLOW_SCRIPT_HUD_VIEWPORT_ROOT_PANEL 0
+
+#define ALLOW_SCRIPT_GAMEUI_ROOT_PANEL 0
 
 // On level transitions Restore is called up to 4 times in a row (due to .hl? client state files), each time
 // trying to restore script panels from pre and post transitions, failing every time because script panels are
@@ -101,6 +108,9 @@
 //
 // This code is left here for testing.
 #define SCRIPT_VGUI_SAVERESTORE 0
+
+#define SCRIPT_VGUI_SIGNAL_INTERFACE 0
+
 
 
 #ifdef _DEBUG
@@ -119,15 +129,6 @@
 
 
 
-using namespace vgui;
-class IScriptVGUIObject;
-struct FontData_t;
-template< typename T > class CCopyableUtlVectorConservative;
-
-// Aliases contain only one font definition unless 'yres' was defined
-typedef CCopyableUtlVectorConservative< FontData_t > fontalias_t;
-typedef CUtlDict< fontalias_t > CFontDict;
-
 template< typename T >
 class CCopyableUtlVectorConservative : public CUtlVectorConservative< T >
 {
@@ -138,6 +139,14 @@ public:
 	CCopyableUtlVectorConservative( CCopyableUtlVectorConservative const& vec ) { this->CopyArray( vec.Base(), vec.Count() ); }
 };
 
+
+using namespace vgui;
+class IScriptVGUIObject;
+struct FontData_t;
+
+// Aliases contain only one font definition unless 'yres' was defined
+typedef CCopyableUtlVectorConservative< FontData_t > fontalias_t;
+typedef CUtlDict< fontalias_t > CFontDict;
 
 
 CFontDict g_ScriptFonts( k_eDictCompareTypeCaseSensitive );
@@ -315,7 +324,7 @@ public:
 	// Ideally script fonts would be loaded along with others in engine.
 	// In that case CScriptRootPanel would be removed, and
 	// g_pScriptRootPanel would be CScriptRootDLLPanel inside #if SCRIPT_ENGINE_ROOT_PANELS
-	void OnScreenSizeChanged( int, int )
+	void OnScreenSizeChanged( int w, int t )
 	{
 		// Reload fonts in the next vgui frame
 		ivgui()->AddTickSignal( GetVPanel() );
@@ -324,6 +333,8 @@ public:
 		// Invalidate cached values
 		if ( g_pScriptVM )
 			g_pScriptVM->Run( "ISurface.__OnScreenSizeChanged()" );
+
+		Panel::OnScreenSizeChanged( w, t );
 	}
 
 private:
@@ -435,7 +446,6 @@ public:
 	void DrawOutlinedRect( int x0, int y0, int width, int height, int thickness );
 	void DrawLine( int x0, int y0, int x1, int y1 );
 	void DrawOutlinedCircle( int x, int y, int radius, int segments );
-	//void DrawColoredCircle( int x, int y, int radius, int r, int g, int b, int a );
 
 	void SetTextColor( int r, int g, int b, int a );
 	void SetTextPos( int x, int y );
@@ -450,10 +460,10 @@ public:
 
 	void CreateFont( const char *customName, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int yresMin, int yresMax, bool proportional );
 	bool AddCustomFontFile( const char *fontFileName );
+
 	int GetTextureID( char const *filename );
 	int ValidateTexture( const char *filename, bool hardwareFilter, bool forceReload, bool procedural );
 	void SetTextureFile( int id, const char *filename, bool hardwareFilter );
-	//int ValidateMaterial( const char *materialName, const char *textureGroupName );
 	int GetTextureWide( int id );
 	int GetTextureTall( int id );
 	void SetTexture( int id );
@@ -843,7 +853,34 @@ void CScriptSurface::SetTextureFile( int id, const char *filename, bool hardware
 	}
 #endif
 }
+#if 0
+void CScriptSurface::SetTextureMaterial( int id, HSCRIPT hMaterial )
+{
+	IMaterial *pMaterial = (IMaterial*)HScriptToClass< IScriptMaterial >( hMaterial );
+	if ( !IsValid( pMaterial ) )
+		return;
 
+	if ( g_ScriptTextureIDs.HasElement(id) )
+	{
+		Assert( surface()->IsTextureIDValid(id) );
+		MatSystemSurface()->DrawSetTextureMaterial( id, pMaterial );
+
+		DebugMsg( "Set texture [%i]%s\n", id, pMaterial->GetName() );
+	}
+
+#ifdef _DEBUG
+	if ( !g_ScriptTextureIDs.HasElement(id) && surface()->IsTextureIDValid(id) )
+	{
+		DebugWarning( "Tried to set non-script created texture! [%i]\n", id );
+	}
+
+	if ( !surface()->IsTextureIDValid(id) )
+	{
+		DebugWarning( "Tried to set invalid texture id! [%i]\n", id );
+	}
+#endif
+}
+#endif
 int CScriptSurface::GetTextureWide( int id )
 {
 	int w, t;
@@ -1306,7 +1343,7 @@ public:
 
 		g_ScriptPanels.AddToTail( this );
 
-		// Script specified engine root panel.
+		// Script specified root panel - a cheap alternative to registering uneditable panel instances.
 		// Match the values to vscript_vgui.nut.
 		//
 		// This parameter is hidden in script, and is defined by the return value of dummy functions.
@@ -1324,6 +1361,14 @@ public:
 			case 2:
 				vparent = VGUI_GetScriptRootPanel( PANEL_CLIENTDLL );
 				break;
+#if ALLOW_SCRIPT_HUD_VIEWPORT_ROOT_PANEL
+			// Hud viewport
+			case 10:
+				Assert( g_pClientMode && g_pClientMode->GetViewport() );
+				vparent = g_pClientMode->GetViewport()->GetVPanel();
+				break;
+#endif
+			default: UNREACHABLE(); // Invalid parent panel
 		}
 
 		_base->SetParent( vparent );
@@ -1355,7 +1400,7 @@ public:
 	{
 		ivgui()->AddTickSignal( this->GetVPanel(), i );
 	}
-#if VGUI_SIGNAL_INTERFACE
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
 	void AddActionSignalTarget( HSCRIPT messageTarget )
 	{
 		IScriptVGUIObject *obj = ToScriptVGUIObj( messageTarget );
@@ -1386,15 +1431,16 @@ public:
 
 #ifdef _DEBUG
 		// Is my parent one of the root panels?
-		bool b = false;
+		bool bRootParent = false;
 #if SCRIPT_ENGINE_ROOT_PANELS
-		if ( parent == g_pScriptRootPanel->GetVPanel() ||
-#if ALLOW_SCRIPT_GAMEUI_ROOT_PANEL
-			(g_pScriptGameUIDLLPanel && parent == g_pScriptGameUIDLLPanel->GetVPanel()) ||
-#endif
-			(g_pScriptClientDLLPanel && parent == g_pScriptClientDLLPanel->GetVPanel()) )
+		if ( ( parent == g_pScriptRootPanel->GetVPanel() )
+	#if ALLOW_SCRIPT_GAMEUI_ROOT_PANEL
+			|| ( g_pScriptGameUIDLLPanel && parent == g_pScriptGameUIDLLPanel->GetVPanel() )
+	#endif
+			|| ( g_pScriptClientDLLPanel && parent == g_pScriptClientDLLPanel->GetVPanel() )
+		)
 		{
-			b = true;
+			bRootParent = true;
 		}
 		else
 #endif
@@ -1402,13 +1448,16 @@ public:
 		{
 			if ( parent == enginevgui->GetPanel( (VGuiPanel_t)i ) )
 			{
-				b = true;
+				bRootParent = true;
 				break;
 			}
 		}
-
+#if ALLOW_SCRIPT_HUD_VIEWPORT_ROOT_PANEL
+		if ( g_pClientMode && g_pClientMode->GetViewport() && ( parent == g_pClientMode->GetViewport()->GetVPanel() ) )
+			bRootParent = true;
+#endif
 		// My parent wasn't registered.
-		AssertMsg1( b, "'%s'", ipanel()->GetName(parent) );
+		AssertMsg1( bRootParent, "'%s'", ipanel()->GetName(parent) );
 #endif
 
 		return NULL;
@@ -1447,8 +1496,7 @@ public:
 			{
 				g_pScriptVM->ArrayAppend( arr, obj->GetScriptInstance() );
 			}
-			// UNDONE: Register C++ created children of script created panels.
-			// It is safe to do so because their lifetime depends on their script parents.
+			// Beware of dangling pointers if C++ created children are to be registered
 		}
 	}
 
@@ -1917,15 +1965,11 @@ public:
 CLASS_HELPER_INTERFACE( Button, Label )
 {
 public:
-	// NOTE: This is used if DoClick() callback is not implemented in CScript_Button.
-	// This changes where and how button command is processed -
-	// whether in the button { DoClick() } or in an external panel { OnCommand(cmd) }.
-	// It is fine to always use DoClick() instead of vgui messages
-	// because of the dynamic nature of script closures.
-#if VGUI_SIGNAL_INTERFACE
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+	// Sets the command message to send to the action signal target when the button is pressed
 	void SetCommand( const char *command )
 	{
-		if ( !V_strncmp( command, "url ", 4 ) )
+		if ( !V_strnicmp( command, "url ", 4 ) )
 		{
 			__base()->SetCommand( (KeyValues*)NULL );
 
@@ -1970,12 +2014,7 @@ public:
 	{
 		__base()->ForceDepressed(state);
 	}
-#if 0
-	void SetBlink( bool state )
-	{
-		__base()->SetBlink(state);
-	}
-#endif
+
 	void SetMouseClickEnabled( int code, bool state )
 	{
 		__base()->SetMouseClickEnabled( (MouseCode)code, state );
@@ -2005,12 +2044,7 @@ public:
 	{
 		__base()->SetDepressedColor( Color(fr, fg, fb, fa), Color(br, bg, bb, ba) );
 	}
-#if 0
-	void SetBlinkColor( int r, int g, int b, int a )
-	{
-		__base()->SetBlinkColor( Color(r, g, b, a) );
-	}
-#endif
+
 	void SetArmedSound( const char *sound )
 	{
 		__base()->SetArmedSound( sound );
@@ -2400,7 +2434,7 @@ public:
 #endif
 //--------------------------------------------------------------
 //--------------------------------------------------------------
-#if 0
+#if VGUI_TGA_IMAGE_PANEL
 CLASS_HELPER_INTERFACE( TGAImagePanel, Panel )
 {
 public:
@@ -2437,10 +2471,12 @@ public:
 //==============================================================
 
 
-#define SetHScript( var, val ) \
-	if ( var && g_pScriptVM ) \
-		g_pScriptVM->ReleaseScript( var ); \
+static inline void SetHScript( HSCRIPT &var, HSCRIPT val )
+{
+	if ( var && g_pScriptVM )
+		g_pScriptVM->ReleaseScript( var );
 	var = val;
+}
 
 #define CheckCallback(s)\
 	if ( FStrEq( cb, #s ) )\
@@ -2479,6 +2515,9 @@ private:
 	HSCRIPT m_hfnOnKeyCodePressed;
 	HSCRIPT m_hfnOnKeyCodeReleased;
 	HSCRIPT m_hfnOnKeyCodeTyped;
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+	HSCRIPT m_hfnOnCommand;
+#endif
 
 public:
 	CScript_Panel( Panel *parent, const char *name ) :
@@ -2504,6 +2543,10 @@ public:
 		m_hfnOnKeyCodePressed(NULL),
 		m_hfnOnKeyCodeReleased(NULL),
 		m_hfnOnKeyCodeTyped(NULL)
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+		,
+		m_hfnOnCommand(NULL)
+#endif
 	{}
 
 	void Shutdown()
@@ -2530,6 +2573,9 @@ public:
 		SetHScript( m_hfnOnKeyCodePressed, NULL );
 		SetHScript( m_hfnOnKeyCodeReleased, NULL );
 		SetHScript( m_hfnOnKeyCodeTyped, NULL );
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+		SetHScript( m_hfnOnCommand, NULL );
+#endif
 	}
 
 public:
@@ -2580,7 +2626,7 @@ public:
 			g_pScriptVM->ExecuteFunction( m_hfnOnScreenSizeChanged, args, 2, NULL, NULL, true );
 		}
 	}
-#if VGUI_SIGNAL_INTERFACE
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
 	void OnCommand( const char *command )
 	{
 		if ( m_hfnOnCommand )
@@ -2705,6 +2751,7 @@ public:
 
 		BaseClass::OnKeyCodeTyped( code );
 	}
+
 public:
 	void SetCallback( const char* cb, HSCRIPT fn )
 	{
@@ -2728,6 +2775,9 @@ public:
 		CheckCallback( OnKeyCodePressed );
 		CheckCallback( OnKeyCodeReleased );
 		CheckCallback( OnKeyCodeTyped );
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+		CheckCallback( OnCommand );
+#endif
 
 		g_pScriptVM->RaiseException("invalid callback");
 	}
@@ -2760,6 +2810,9 @@ private:
 	HSCRIPT m_hfnOnKeyCodePressed;
 	HSCRIPT m_hfnOnKeyCodeReleased;
 	HSCRIPT m_hfnOnKeyCodeTyped;
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+	HSCRIPT m_hfnOnCommand;
+#endif
 
 public:
 	CScript_Frame( Panel *parent, const char *name ) :
@@ -2786,6 +2839,10 @@ public:
 		m_hfnOnKeyCodePressed(NULL),
 		m_hfnOnKeyCodeReleased(NULL),
 		m_hfnOnKeyCodeTyped(NULL)
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+		,
+		m_hfnOnCommand(NULL)
+#endif
 	{
 		SetFadeEffectDisableOverride( true );
 	}
@@ -2809,6 +2866,9 @@ public:
 		SetHScript( m_hfnOnKeyCodePressed, NULL );
 		SetHScript( m_hfnOnKeyCodeReleased, NULL );
 		SetHScript( m_hfnOnKeyCodeTyped, NULL );
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+		SetHScript( m_hfnOnCommand, NULL );
+#endif
 	}
 
 public:
@@ -2854,7 +2914,22 @@ public:
 			g_pScriptVM->ExecuteFunction( m_hfnOnScreenSizeChanged, args, 2, NULL, NULL, true );
 		}
 	}
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+	void OnCommand( const char *command )
+	{
+		if ( m_hfnOnCommand )
+		{
+			ScriptVariant_t ret, arg = command;
+			g_pScriptVM->ExecuteFunction( m_hfnOnCommand, &arg, 1, &ret, NULL, true );
 
+			// Return true to swallow
+			if ( ret.m_type == FIELD_BOOLEAN && ret.m_bool )
+				return;
+		}
+
+		BaseClass::OnCommand( command );
+	}
+#endif
 	void OnCursorEntered()
 	{
 		if ( m_hfnOnCursorEntered )
@@ -2974,6 +3049,7 @@ public:
 			BaseClass::OnKeyCodeTyped( code );
 		}
 	}
+
 public:
 	void SetCallback( const char* cb, HSCRIPT fn )
 	{
@@ -2996,6 +3072,9 @@ public:
 		CheckCallback( OnKeyCodePressed );
 		CheckCallback( OnKeyCodeReleased );
 		CheckCallback( OnKeyCodeTyped );
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+		CheckCallback( OnCommand );
+#endif
 
 		g_pScriptVM->RaiseException("invalid callback");
 	}
@@ -3144,7 +3223,7 @@ public:
 #endif
 //--------------------------------------------------------------
 //--------------------------------------------------------------
-#if 0
+#if VGUI_TGA_IMAGE_PANEL
 class CTGAImagePanel : public Panel
 {
 	DECLARE_SCRIPTVGUI_CLASS_EX( CTGAImagePanel, Panel );
@@ -3313,7 +3392,7 @@ END_SCRIPTDESC()
 #endif
 //--------------------------------------------------------------
 //--------------------------------------------------------------
-#if 0
+#if VGUI_TGA_IMAGE_PANEL
 BEGIN_VGUI_HELPER_EX( TGAImagePanel, CTGAImagePanel )
 END_VGUI_HELPER()
 
@@ -3386,6 +3465,9 @@ HSCRIPT CScriptVGUI::CreatePanel( const char* panelClass, HSCRIPT parent, const 
 	Check( TextEntry );
 #if !defined(NO_STEAM)
 	Check( AvatarImage );
+#endif
+#if VGUI_TGA_IMAGE_PANEL
+	Check( TGAImagePanel );
 #endif
 
 	g_pScriptVM->RaiseException("invalid vgui class");
