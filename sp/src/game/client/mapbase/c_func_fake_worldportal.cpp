@@ -62,7 +62,7 @@ bool C_FuncFakeWorldPortal::ShouldDraw()
 // Iterates through fake world portals instead of just picking one
 //-----------------------------------------------------------------------------
 C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const CViewSetup& view,
-	Vector &vecAbsPlaneNormal, Vector &vecPlaneLocalOrigin, const Frustum_t &frustum )
+	Vector &vecAbsPlaneNormal, float &flLocalPlaneDist, const Frustum_t &frustum )
 {
 	// Early out if no cameras
 	C_FuncFakeWorldPortal *pReflectiveGlass = NULL;
@@ -109,7 +109,7 @@ C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const
 			if ( vecDelta.Dot( worldPlane.normal ) >= 0 )					// Backface cull
 				continue;
 
-			vecPlaneLocalOrigin = vecLocalOrigin;
+			flLocalPlaneDist = localPlane.dist;
 			vecAbsPlaneNormal = worldPlane.normal;
 
 			return pReflectiveGlass;

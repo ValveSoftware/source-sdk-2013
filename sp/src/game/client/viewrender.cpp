@@ -2107,17 +2107,17 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 			GeneratePerspectiveFrustum( view.origin, view.angles, view.zNear, view.zFar, view.fov, view.m_flAspectRatio, frustum );
 
 			Vector vecAbsPlaneNormal;
-			Vector vecPlaneLocalOrigin;
-			C_FuncFakeWorldPortal *pPortalEnt = NextFakeWorldPortal( NULL, view, vecAbsPlaneNormal, vecPlaneLocalOrigin, frustum );
+			float flLocalPlaneDist;
+			C_FuncFakeWorldPortal *pPortalEnt = NextFakeWorldPortal( NULL, view, vecAbsPlaneNormal, flLocalPlaneDist, frustum );
 			while ( pPortalEnt != NULL )
 			{
 				ITexture *pCameraTarget = pPortalEnt->RenderTarget();
 				int width = pCameraTarget->GetActualWidth();
 				int height = pCameraTarget->GetActualHeight();
 
-				DrawFakeWorldPortal( pCameraTarget, pPortalEnt, viewMiddle, C_BasePlayer::GetLocalPlayer(), 0, 0, width, height, view, vecAbsPlaneNormal, vecPlaneLocalOrigin );
+				DrawFakeWorldPortal( pCameraTarget, pPortalEnt, viewMiddle, C_BasePlayer::GetLocalPlayer(), 0, 0, width, height, view, vecAbsPlaneNormal, flLocalPlaneDist );
 
-				pPortalEnt = NextFakeWorldPortal( pPortalEnt, view, vecAbsPlaneNormal, vecPlaneLocalOrigin, frustum );
+				pPortalEnt = NextFakeWorldPortal( pPortalEnt, view, vecAbsPlaneNormal, flLocalPlaneDist, frustum );
 			}
 #endif
 		}
@@ -3551,7 +3551,7 @@ bool CViewRender::DrawOneMonitor( ITexture *pRenderTarget, int cameraNum, C_Poin
 //-----------------------------------------------------------------------------
 bool CViewRender::DrawFakeWorldPortal( ITexture *pRenderTarget, C_FuncFakeWorldPortal *pCameraEnt, const CViewSetup &cameraView, C_BasePlayer *localPlayer, 
 						int x, int y, int width, int height,
-						const CViewSetup &mainView, const Vector &vecAbsPlaneNormal, const Vector &vecPlaneLocalOrigin )
+						const CViewSetup &mainView, const Vector &vecAbsPlaneNormal, float flLocalPlaneDist )
 {
 #ifdef USE_MONITORS
 	VPROF_INCREMENT_COUNTER( "cameras rendered", 1 );
@@ -3652,15 +3652,15 @@ bool CViewRender::DrawFakeWorldPortal( ITexture *pRenderTarget, C_FuncFakeWorldP
 
 	Vector4D plane;
 
+	// target direction
 	MatrixGetColumn( targetToWorld, 0, plane.AsVector3D() );
 	VectorNormalize( plane.AsVector3D() );
 	VectorNegate( plane.AsVector3D() );
 
-	// The portal plane's distance from the actual brush's origin
-	float flPlaneDist = vecPlaneLocalOrigin.Length();
-
-	// The target's distance from world origin
-	plane.w = -((pCameraEnt->m_hTargetPlane->GetAbsOrigin() * plane.AsVector3D()).Length() + flPlaneDist) + 0.1f;
+	plane.w =
+		MatrixColumnDotProduct( targetToWorld, 3, plane.AsVector3D() ) // target clip plane distance
+		- flLocalPlaneDist // portal plane distance on the brush. This distance needs to be accounted for while placing the exit target
+		- 0.1;
 
 	CMatRenderContextPtr pRenderContext( materials );
 	pRenderContext->PushCustomClipPlane( plane.Base() );
