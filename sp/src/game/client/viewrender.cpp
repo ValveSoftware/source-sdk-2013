@@ -409,10 +409,6 @@ protected:
 	void			Enable3dSkyboxFog( void );
 	void			DrawInternal( view_id_t iSkyBoxViewID, bool bInvokePreAndPostRender, ITexture *pRenderTarget, ITexture *pDepthTarget );
 
-#ifdef MAPBASE
-	void			CalculateSkyAngles( const QAngle &angAngles );
-#endif
-
 	sky3dparams_t *	PreRender3dSkyboxWorld( SkyboxVisibility_t nSkyboxVisible );
 
 	sky3dparams_t *m_pSky3dParams;
@@ -5400,10 +5396,16 @@ void CSkyboxView::DrawInternal( view_id_t iSkyBoxViewID, bool bInvokePreAndPostR
 		// Re-use the x coordinate to determine if we shuld do this with angles
 		if (m_pSky3dParams->angles.GetX() != 0)
 		{
-			CalculateSkyAngles( m_pSky3dParams->skycamera->GetAbsAngles() );
+			const matrix3x4_t &matSky = m_pSky3dParams->skycamera->EntityToWorldTransform();
+			matrix3x4_t matView;
+			AngleMatrix( angles, origin, matView );
+			ConcatTransforms( matSky, matView, matView );
+			MatrixAngles( matView, angles, origin );
 		}
-
-		VectorAdd( origin, m_pSky3dParams->skycamera->GetAbsOrigin(), origin );
+		else
+		{
+			VectorAdd( origin, m_pSky3dParams->skycamera->GetAbsOrigin(), origin );
+		}
 	}
 	else
 	{
@@ -5411,10 +5413,16 @@ void CSkyboxView::DrawInternal( view_id_t iSkyBoxViewID, bool bInvokePreAndPostR
 			m_pSky3dParams->angles.GetY() != 0 ||
 			m_pSky3dParams->angles.GetZ() != 0)
 		{
-			CalculateSkyAngles( m_pSky3dParams->angles.Get() );
+			matrix3x4_t matSky, matView;
+			AngleMatrix( m_pSky3dParams->angles, m_pSky3dParams->origin, matSky );
+			AngleMatrix( angles, origin, matView );
+			ConcatTransforms( matSky, matView, matView );
+			MatrixAngles( matView, angles, origin );
 		}
-
-		VectorAdd( origin, m_pSky3dParams->origin, origin );
+		else
+		{
+			VectorAdd( origin, m_pSky3dParams->origin, origin );
+		}
 	}
 #else
 	VectorAdd( origin, m_pSky3dParams->origin, origin );
@@ -5530,55 +5538,6 @@ void CSkyboxView::DrawInternal( view_id_t iSkyBoxViewID, bool bInvokePreAndPostR
 	pRenderContext->PopVertexShaderGPRAllocation();
 #endif
 }
-
-#ifdef MAPBASE
-//-----------------------------------------------------------------------------
-// 
-//-----------------------------------------------------------------------------
-void CSkyboxView::CalculateSkyAngles( const QAngle &angAngles )
-{
-	// Unfortunately, it's not as simple as "angles += m_pSky3dParams->angles".
-	// This stuff took a long time to figure out. I'm glad I got it working.
-
-	// First, create a matrix for the sky's angles.
-	matrix3x4_t matSkyAngles;
-	AngleMatrix( angAngles, matSkyAngles );
-
-	// The code in between the lines below was mostly lifted from projected texture screenspace code and was a huge lifesaver.
-	// The comments are my attempt at explaining the little I understand of what's going on here.
-	// ----------------------------------------------------------------------
-
-	// These are the vectors that would eventually become our final angle directions.
-	Vector vecSkyForward, vecSkyRight, vecSkyUp;
-
-	// Get vectors from our original angles.
-	Vector vPlayerForward, vPlayerRight, vPlayerUp;
-	AngleVectors( angles, &vPlayerForward, &vPlayerRight, &vPlayerUp );
-
-	// Transform them from our sky angles matrix and put the results in those vectors we declared earlier.
-	VectorTransform( vPlayerForward, matSkyAngles, vecSkyForward );
-	VectorTransform( vPlayerRight, matSkyAngles, vecSkyRight );
-	VectorTransform( vPlayerUp, matSkyAngles, vecSkyUp );
-
-	// Normalize them.
-	VectorNormalize( vecSkyForward );
-	VectorNormalize( vecSkyRight );
-	VectorNormalize( vecSkyUp );
-
-	// Now do a bit of quaternion magic and apply that to our original angles.
-	// This works perfectly, so I'm not gonna touch it.
-	Quaternion quat;
-	BasisToQuaternion( vecSkyForward, vecSkyRight, vecSkyUp, quat );
-	QuaternionAngles( quat, angles );
-
-	// End of code mostly lifted from projected texture screenspace stuff
-	// ----------------------------------------------------------------------
-
-	// Now just rotate our origin with that matrix.
-	// We create a copy of the origin since VectorRotate doesn't want in1 to be the same variable as the destination.
-	VectorRotate(Vector(origin), matSkyAngles, origin);
-}
-#endif
 
 //-----------------------------------------------------------------------------
 // 
