@@ -2970,6 +2970,14 @@ int SquirrelVM::GetKeyValue(HSCRIPT hScope, int nIterator, ScriptVariant_t* pKey
 
 bool SquirrelVM::GetValue(HSCRIPT hScope, const char* pszKey, ScriptVariant_t* pValue)
 {
+#ifdef _DEBUG
+	AssertMsg( pszKey, "FATAL: cannot get NULL" );
+
+	// Don't crash on debug
+	if ( !pszKey )
+		return GetValue( hScope, ScriptVariant_t(0), pValue );
+#endif
+
 	SquirrelSafeCheck safeCheck(vm_);
 
 	Assert(pValue);

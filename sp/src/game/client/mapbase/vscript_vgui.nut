@@ -91,7 +91,7 @@ local _FontTall = {}
 local DoGetFont = ISurface.DoGetFont <- ISurface.GetFont;
 local DoGetFontTall = ISurface.GetFontTall;
 
-ISurface.GetFont <- function( name, proportional = false, sch = "" )
+ISurface.GetFont <- function( name, proportional, sch = "" )
 {
 	if ( sch in _Schemes )
 	{
@@ -101,6 +101,8 @@ ISurface.GetFont <- function( name, proportional = false, sch = "" )
 	}
 	else
 	{
+		if ( typeof sch != "string" )
+			throw "invalid parameter 'scheme'";
 		_Schemes[sch] <- [{}, {}];
 	}
 
@@ -152,6 +154,7 @@ ISurface.GetTextureID <- function( name )
 IVGui.GetRootPanel <- function() { return 1000 }
 //IVGui.GetGameUIRootPanel <- function() { return 1001 }
 IVGui.GetClientDLLRootPanel <- function() { return 1002 }
+//IVGui.GetHudViewportPanel <- function() { return 1010 }
 
 local CreatePanel = IVGui.CreatePanel;
 IVGui.CreatePanel <- function( type, parent, name )
@@ -167,10 +170,6 @@ IVGui.CreatePanel <- function( type, parent, name )
 		{
 			case 1000:
 				root = 0;
-				break;
-
-			case 1001:
-				root = 1;
 				break;
 
 			case 1002:

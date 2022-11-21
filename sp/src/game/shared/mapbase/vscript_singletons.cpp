@@ -1277,9 +1277,11 @@ CNetMsgScriptHelper *g_ScriptNetMsg = &scriptnetmsg;
 
 #ifdef _DEBUG
 #ifdef GAME_DLL
-#define DebugNetMsg( l, ... ) do { extern ConVar developer; if (developer.GetInt() >= l) ConColorMsg( Color(100, 225, 255, 255), __VA_ARGS__ ); } while (0);
+ConVar script_net_debug("script_net_debug", "0");
+#define DebugNetMsg( l, ... ) do { if (script_net_debug.GetInt() >= l) ConColorMsg( Color(100, 225, 255, 255), __VA_ARGS__ ); } while (0);
 #else
-#define DebugNetMsg( l, ... ) do { extern ConVar developer; if (developer.GetInt() >= l) ConColorMsg( Color(100, 225, 175, 255), __VA_ARGS__ ); } while (0);
+ConVar script_net_debug("script_net_debug_client", "0");
+#define DebugNetMsg( l, ... ) do { if (script_net_debug.GetInt() >= l) ConColorMsg( Color(100, 225, 175, 255), __VA_ARGS__ ); } while (0);
 #endif
 #define DebugWarning(...) Warning( __VA_ARGS__ )
 #else
@@ -1428,7 +1430,7 @@ void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 	m_MsgIn.StartReading( msg.m_pData, msg.m_nDataBytes );
 #endif
 
-	DebugNetMsg( 2, DLL_LOC_STR " %s()", __FUNCTION__ );
+	DebugNetMsg( 2, DLL_LOC_STR " %s()\n", __FUNCTION__ );
 
 	// Don't do anything if there's no VM here. This can happen if a message from the server goes to a VM-less client, or vice versa.
 	if ( !g_pScriptVM )
