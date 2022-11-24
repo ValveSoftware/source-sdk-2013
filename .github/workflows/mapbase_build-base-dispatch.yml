@@ -67,4 +67,4 @@ jobs:
       game: '${{ github.event.inputs.game }}'
       project-group: '${{ github.event.inputs.project-group }}'
       solution-name: '${{ github.event.inputs.solution-name }}'
-      build-on-linux: '${{ github.event.inputs.build-on-linux }}'
+      build-on-linux: "${{ github.event.inputs.build-on-linux == 'true' }}"
