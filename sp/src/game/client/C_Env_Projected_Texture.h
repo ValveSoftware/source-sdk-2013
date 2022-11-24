@@ -92,6 +92,7 @@ private:
 	float		m_flLinearAtten;
 	float		m_flQuadraticAtten;
 	float		m_flShadowAtten;
+	float		m_flShadowFilter;
 
 	bool		m_bAlwaysDraw;
 	//bool		m_bProjectedTextureVersion;

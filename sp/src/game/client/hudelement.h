@@ -58,6 +58,9 @@ public:
 	// Hidden bits. 
 	// HIDEHUD_ flags that note when this element should be hidden in the HUD
 	virtual void				SetHiddenBits( int iBits );
+#ifdef MAPBASE_VSCRIPT
+	int							GetHiddenBits() const { return m_iHiddenBits; }
+#endif
 
 	bool						IsParentedToClientDLLRootPanel() const;
 	void						SetParentedToClientDLLRootPanel( bool parented );

@@ -64,6 +64,7 @@ public:
 	void InputAlwaysDrawOff( inputdata_t &inputdata ) { m_bAlwaysDraw = false; }
 	void InputStopFollowingTarget( inputdata_t &inputdata ) { m_bDontFollowTarget = true; }
 	void InputStartFollowingTarget( inputdata_t &inputdata ) { m_bDontFollowTarget = false; }
+	void InputSetFilter( inputdata_t &inputdata );
 
 	// Corrects keyvalue/input attenuation for internal FlashlightEffect_t attenuation.
 	float CorrectConstantAtten( float fl ) { return fl * 0.5f; }
@@ -104,6 +105,8 @@ private:
 	CNetworkVar( float, m_flLinearAtten );
 	CNetworkVar( float, m_flQuadraticAtten );
 	CNetworkVar( float, m_flShadowAtten );
+
+	CNetworkVar( float, m_flShadowFilter );
 
 	CNetworkVar( bool, m_bAlwaysDraw );
 

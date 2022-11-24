@@ -53,10 +53,8 @@ public:
 //-----------------------------------------------------------------------------
 // Do we have reflective glass in view? If so, what's the reflection plane?
 //-----------------------------------------------------------------------------
-C_FuncFakeWorldPortal *IsFakeWorldPortalInView( const CViewSetup& view, cplane_t &plane );
-
 C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const CViewSetup& view,
-	cplane_t &plane, Vector &vecPlaneOrigin, const Frustum_t &frustum );
+	Vector &vecAbsPlaneNormal, float &flLocalPlaneDist, const Frustum_t &frustum );
 
 
 #endif // C_FUNC_FAKE_WORLDPORTAL

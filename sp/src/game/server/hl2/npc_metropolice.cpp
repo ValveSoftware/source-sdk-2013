@@ -3548,7 +3548,11 @@ Activity CNPC_MetroPolice::NPC_TranslateActivity( Activity newActivity )
 	// If we're shoving, see if we should be more forceful in doing so
 	if ( newActivity == ACT_PUSH_PLAYER )
 	{
+#ifdef MAPBASE
+		if ( m_nNumWarnings >= METROPOLICE_MAX_WARNINGS && Weapon_TranslateActivity( ACT_MELEE_ATTACK1, NULL ) == ACT_MELEE_ATTACK_SWING )
+#else
 		if ( m_nNumWarnings >= METROPOLICE_MAX_WARNINGS )
+#endif
 			return ACT_MELEE_ATTACK1;
 	}
 

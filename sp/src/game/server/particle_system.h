@@ -41,6 +41,8 @@ public:
 
 	enum { kMAXCONTROLPOINTS = 63 }; ///< actually one less than the total number of cpoints since 0 is assumed to be me
 
+	virtual bool UsesCoordinates( void ) { return false; }
+
 protected:
 
 	/// Load up and resolve the entities that are supposed to be the control points 
@@ -58,8 +60,19 @@ protected:
 
 	string_t			m_iszControlPointNames[kMAXCONTROLPOINTS];
 	CNetworkArray( EHANDLE, m_hControlPointEnts, kMAXCONTROLPOINTS );
+	CNetworkArray( Vector, m_vControlPointVecs, kMAXCONTROLPOINTS );
 	CNetworkArray( unsigned char, m_iControlPointParents, kMAXCONTROLPOINTS );
 	CNetworkVar( bool,	m_bWeatherEffect );
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: An entity that spawns and controls a particle system using coordinates. 
+//-----------------------------------------------------------------------------
+class CParticleSystemCoordinate : public CParticleSystem
+{
+	DECLARE_CLASS( CParticleSystemCoordinate, CParticleSystem );
+public:
+	virtual bool UsesCoordinates( void ) { return true; }
 };
 
 #endif // PARTICLE_SYSTEM_H

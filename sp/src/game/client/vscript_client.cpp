@@ -22,6 +22,7 @@
 #include "materialsystem/imaterialvar.h"
 #include "mapbase/matchers.h"
 #include "mapbase/vscript_singletons.h"
+#include "mapbase/vscript_vgui.h"
 #endif
 
 extern IScriptManager *scriptmanager;
@@ -521,6 +522,9 @@ bool DoIncludeScript( const char *pszScript, HSCRIPT hScope )
 }
 
 #ifdef MAPBASE_VSCRIPT
+int ScriptScreenWidth();
+int ScriptScreenHeight();
+
 static float FrameTime()
 {
 	return gpGlobals->frametime;
@@ -534,27 +538,6 @@ static bool Con_IsVisible()
 static bool IsWindowedMode()
 {
 	return engine->IsWindowedMode();
-}
-
-int ScreenTransform( const Vector& point, Vector& screen );
-
-//-----------------------------------------------------------------------------
-// Input array [x,y], set normalised screen space pos. Return true if on screen
-//-----------------------------------------------------------------------------
-static bool ScriptScreenTransform( const Vector &pos, HSCRIPT hArray )
-{
-	if ( g_pScriptVM->GetNumTableEntries(hArray) >= 2 )
-	{
-		Vector v;
-		bool r = ScreenTransform( pos, v );
-		float x = 0.5f * ( 1.0f + v[0] );
-		float y = 0.5f * ( 1.0f - v[1] );
-
-		g_pScriptVM->SetValue( hArray, ScriptVariant_t(0), x );
-		g_pScriptVM->SetValue( hArray, 1, y );
-		return !r;
-	}
-	return false;
 }
 
 // Creates a client-side prop
@@ -657,10 +640,9 @@ bool VScriptClientInit()
 #ifdef MAPBASE_VSCRIPT
 				ScriptRegisterFunction( g_pScriptVM, FrameTime, "Get the time spent on the client in the last frame" );
 				ScriptRegisterFunction( g_pScriptVM, Con_IsVisible, "Returns true if the console is visible" );
-				ScriptRegisterFunction( g_pScriptVM, ScreenWidth, "Width of the screen in pixels" );
-				ScriptRegisterFunction( g_pScriptVM, ScreenHeight, "Height of the screen in pixels" );
+				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptScreenWidth, "ScreenWidth", "Width of the screen in pixels" );
+				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptScreenHeight, "ScreenHeight", "Height of the screen in pixels" );
 				ScriptRegisterFunction( g_pScriptVM, IsWindowedMode, "" );
-				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptScreenTransform, "ScreenTransform", "Get the x & y positions of a world position in screen space. Returns true if it's onscreen" );
 
 				ScriptRegisterFunction( g_pScriptVM, MainViewOrigin, "" );
 				ScriptRegisterFunction( g_pScriptVM, MainViewAngles, "" );
@@ -695,6 +677,7 @@ bool VScriptClientInit()
 
 				RegisterSharedScriptConstants();
 				RegisterSharedScriptFunctions();
+				RegisterScriptVGUI();
 #else
 				//g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
 #endif

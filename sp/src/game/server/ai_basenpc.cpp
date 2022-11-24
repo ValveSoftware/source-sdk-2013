@@ -98,6 +98,7 @@
 #ifdef MAPBASE
 #include "mapbase/matchers.h"
 #include "items.h"
+#include "point_camera.h"
 #endif
 
 #ifdef MAPBASE_VSCRIPT
@@ -4300,6 +4301,12 @@ void CAI_BaseNPC::PlayerPenetratingVPhysics( void )
 bool CAI_BaseNPC::CheckPVSCondition()
 {
 	bool bInPVS = ( UTIL_FindClientInPVS( edict() ) != NULL ) || (UTIL_ClientPVSIsExpanded() && UTIL_FindClientInVisibilityPVS( edict() ));
+
+#ifdef MAPBASE
+	// We can be in a player's PVS if there is an active point_camera nearby (fixes issues with choreo)
+	if (!bInPVS && UTIL_FindRTCameraInEntityPVS( edict() ))
+		bInPVS = true;
+#endif
 
 	if ( bInPVS )
 		SetCondition( COND_IN_PVS );

@@ -1393,7 +1393,8 @@ Activity CHL2_Player::Weapon_TranslateActivity( Activity baseAct, bool *pRequire
 	
 #if EXPANDED_HL2DM_ACTIVITIES
 	// +USE activities
-	if ( m_hUseEntity && player_use_anim_enabled.GetBool() )
+	// HACKHACK: Make sure m_hUseEntity is a pickup controller first
+	if ( m_hUseEntity && m_hUseEntity->ClassMatches("player_pickup") && player_use_anim_enabled.GetBool())
 	{
 		CBaseEntity* pHeldEnt = GetPlayerHeldEntity( this );
 		float flMass = pHeldEnt ?

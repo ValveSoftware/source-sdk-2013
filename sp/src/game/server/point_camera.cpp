@@ -28,6 +28,58 @@ CPointCamera* GetPointCameraList()
 	return g_PointCameraList.m_pClassList;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if a camera is in the PVS of the specified entity
+//-----------------------------------------------------------------------------
+edict_t *UTIL_FindRTCameraInEntityPVS( edict_t *pEdict )
+{
+	CBaseEntity *pe = GetContainingEntity( pEdict );
+	if ( !pe )
+		return NULL;
+	
+	bool			bGotPVS = false;
+	Vector			org;
+	static byte		pvs[ MAX_MAP_CLUSTERS/8 ];
+	static int		pvssize = sizeof( pvs );
+
+	for ( CPointCamera *pCameraEnt = GetPointCameraList(); pCameraEnt != NULL; pCameraEnt = pCameraEnt->m_pNext )
+	{
+		if (!pCameraEnt->IsActive())
+			continue;
+
+		if (!bGotPVS)
+		{
+			// Getting the PVS during the loop like this makes sure we only get the PVS if there's actually an active camera in the level
+			org = pe->EyePosition();
+			int clusterIndex = engine->GetClusterForOrigin( org );
+			Assert( clusterIndex >= 0 );
+			engine->GetPVSForCluster( clusterIndex, pvssize, pvs );
+			bGotPVS = true;
+		}
+
+		Vector vecCameraEye = pCameraEnt->EyePosition();
+
+		Vector vecCameraDirection;
+		pCameraEnt->GetVectors( &vecCameraDirection, NULL, NULL );
+
+		Vector los = (org - vecCameraEye);
+		float flDot = DotProduct( los, vecCameraDirection );
+
+		// Make sure we're in the camera's FOV before checking PVS
+		if ( flDot <= cos( DEG2RAD( pCameraEnt->GetFOV() / 2 ) ) )
+			continue;
+
+		if ( engine->CheckOriginInPVS( vecCameraEye, pvs, pvssize ) )
+		{
+			return pCameraEnt->edict();
+		}
+	}
+
+	return NULL;
+}
+#endif
+
 // These are already built into CBaseEntity
 //	DEFINE_KEYFIELD( m_iName, FIELD_STRING, "targetname" ),
 //	DEFINE_KEYFIELD( m_iParent, FIELD_STRING, "parentname" ),

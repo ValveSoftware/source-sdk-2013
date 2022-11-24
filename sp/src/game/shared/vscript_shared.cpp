@@ -62,7 +62,11 @@ HSCRIPT VScriptCompileScript( const char *pszScriptName, bool bWarnMissing )
 	const char *pszIncomingExtension = V_strrchr( pszScriptName , '.' );
 	if ( pszIncomingExtension && V_strcmp( pszIncomingExtension, pszVMExtension ) != 0 )
 	{
+#ifdef MAPBASE_VSCRIPT
+		CGWarning( 0, CON_GROUP_VSCRIPT, "Script file type (\"%s\", from \"%s\") does not match VM type (\"%s\")\n", pszIncomingExtension, pszScriptName, pszVMExtension );
+#else
 		CGWarning( 0, CON_GROUP_VSCRIPT, "Script file type does not match VM type\n" );
+#endif
 		return NULL;
 	}
 
@@ -187,8 +191,16 @@ HSCRIPT VScriptCompileScriptAbsolute( const char *pszScriptName, bool bWarnMissi
 	const char *pszIncomingExtension = V_strrchr( pszScriptName , '.' );
 	if ( pszIncomingExtension && V_strcmp( pszIncomingExtension, pszVMExtension ) != 0 )
 	{
-		CGWarning( 0, CON_GROUP_VSCRIPT, "Script file type does not match VM type\n" );
-		return NULL;
+		// Account for cases where there is no extension and the folder names just have dots (e.g. ".local")
+		if ( strchr( pszIncomingExtension, CORRECT_PATH_SEPARATOR ) )
+		{
+			pszIncomingExtension = NULL;
+		}
+		else
+		{
+			CGWarning( 0, CON_GROUP_VSCRIPT, "Script file type (\"%s\", from \"%s\") does not match VM type (\"%s\")\n", pszIncomingExtension, pszScriptName, pszVMExtension );
+			return NULL;
+		}
 	}
 
 	CFmtStr scriptPath;

@@ -1,0 +1,269 @@
+#
+# MAPBASE SOURCE 2013 CI
+#
+# This workflow script automatically builds the Source SDK 2013 codebase on Windows and Linux using GitHub Actions.
+#
+# This is useful in a number of ways:
+#
+#     1. It ensures pull requests compile correctly on multiple platforms and provides binaries that can be used to test them.
+#     2. It can be used to compile code for releases without having to pull and prepare a local development environment.
+#     3. It opens potential for scripts that can employ more principles of CI/CD. (e.g. automatically publishing a release)
+#
+# This is based on a workflow originally created by z33ky.
+
+name: Build Projects
+
+on:
+  workflow_call:
+    inputs:
+      configuration:
+        description: 'Which configuration to build with'
+        default: 'Release'
+        required: true
+        type: string
+      branch:
+        description: 'Which Source 2013 engine branch to compile for'
+        default: 'sp'
+        required: true
+        type: string
+      game:
+        description: 'The name of the game to build (if relevant)'
+        default: 'episodic'
+        required: false
+        type: string
+      project-group:
+        description: 'Which group of projects to compile'
+        required: true
+        type: string
+      solution-name:
+        description: 'The name of the solution/makefile'
+        required: true
+        type: string
+      build-on-linux:
+        description: 'Build on Ubuntu/Linux?'
+        default: true
+        required: false
+        type: boolean
+
+jobs:
+  build_windows:
+    name: Windows (VS2022)
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Enable VS2022
+      working-directory: '${{inputs.branch}}/src/vpc_scripts'
+      shell: bash
+      run: sed -i 's/^\($Conditional[ 	]\+VS2022[ 	]\+\).*/\1"1"/' newer_vs_toolsets.vpc
+
+    - name: Pick game
+      if: inputs.project-group == 'game' || inputs.project-group == 'shaders'
+      working-directory: '${{inputs.branch}}/src'
+      shell: bash
+      run: sed -i 's/\/hl2 \/episodic/\/${{inputs.game}}/' create${{inputs.project-group}}projects.bat
+
+    - name: Create project files
+      working-directory: '${{inputs.branch}}/src'
+      shell: cmd
+      # https://github.com/ValveSoftware/source-sdk-2013/issues/72
+      run: |
+        reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\10.0\Projects\{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}" /v DefaultProjectExtension /t REG_SZ /d vcproj /f
+        create${{inputs.project-group}}projects.bat
+
+      # --------------------------------------------------------------------
+
+      # "I'm invoking msbuild for each project individually, which looks a bit odd considering there is a solution file which should be able to invoke the builds in their proper order automatically, but passing the solution to msbuild doesn't seem to work."
+      # https://github.com/mapbase-source/source-sdk-2013/pull/162
+
+    - name: Build mathlib
+      #if: steps.filter.outputs.game == 'true'
+      working-directory: '${{inputs.branch}}/src'
+      shell: cmd
+      run: |
+        msbuild -m -p:Configuration=${{inputs.configuration}} mathlib\mathlib.vcxproj
+
+    - name: Build Base Libraries
+      if: inputs.project-group == 'all' || inputs.project-group == 'game' || inputs.project-group == 'maptools'
+      working-directory: '${{inputs.branch}}/src'
+      shell: cmd
+      run: |
+        msbuild -m -p:Configuration=${{inputs.configuration}} raytrace\raytrace.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} tier1\tier1.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} vgui2\vgui_controls\vgui_controls.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} vscript\vscript.vcxproj
+
+    - name: Build Map Tools
+      if: inputs.project-group == 'all' || inputs.project-group == 'maptools'
+      working-directory: '${{inputs.branch}}/src'
+      shell: cmd
+      run: |
+        msbuild -m -p:Configuration=${{inputs.configuration}} fgdlib\fgdlib.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} utils\vbsp\vbsp.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} utils\vvis\vvis_dll.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} utils\vvis_launcher\vvis_launcher.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} utils\vrad\vrad_dll.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} utils\vrad_launcher\vrad_launcher.vcxproj
+
+    - name: Build Shaders
+      if: inputs.project-group == 'shaders'
+      working-directory: '${{inputs.branch}}/src'
+      shell: cmd
+      run: |
+        msbuild -m -p:Configuration=${{inputs.configuration}} materialsystem\stdshaders\game_shader_dx9_${{inputs.game}}.vcxproj
+
+    - name: Build Game
+      if: inputs.project-group == 'game'
+      working-directory: '${{inputs.branch}}/src'
+      shell: cmd
+      run: |
+        msbuild -m -p:Configuration=${{inputs.configuration}} responserules\runtime\responserules.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} game\client\client_${{inputs.game}}.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} game\server\server_${{inputs.game}}.vcxproj
+
+    # TODO: Hook to game naming?
+    - name: Build everything
+      if: inputs.project-group == 'all'
+      working-directory: '${{inputs.branch}}/src'
+      shell: cmd
+      run: |
+        msbuild -m -p:Configuration=${{inputs.configuration}} responserules\runtime\responserules.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} materialsystem\stdshaders\game_shader_dx9_episodic.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} materialsystem\stdshaders\game_shader_dx9_hl2.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} game\client\client_episodic.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} game\client\client_hl2.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} game\server\server_episodic.vcxproj
+        msbuild -m -p:Configuration=${{inputs.configuration}} game\server\server_hl2.vcxproj
+
+      # --------------------------------------------------------------------
+
+    - name: Publish Windows game DLLs
+      if: inputs.project-group == 'game'
+      uses: actions/upload-artifact@v3
+      with:
+        name: 'Windows Game DLLs (server & client.dll) [${{ inputs.configuration }}]'
+        path: |
+          ${{inputs.branch}}/game/mod_${{inputs.game}}/bin/client.dll
+          ${{inputs.branch}}/game/mod_${{inputs.game}}/bin/server.dll
+        if-no-files-found: error
+
+    - name: Publish Windows shader DLL
+      if: inputs.project-group == 'shaders'
+      uses: actions/upload-artifact@v3
+      with:
+        name: 'Windows Shader DLL (game_shader_dx9.dll) [${{ inputs.configuration }}]'
+        path: |
+          ${{inputs.branch}}/game/mod_${{inputs.game}}/bin/game_shader_dx9.dll
+        if-no-files-found: error
+
+    - name: Publish Windows map tools
+      if: inputs.project-group == 'maptools'
+      uses: actions/upload-artifact@v3
+      with:
+        name: 'Windows Map Tools [${{ inputs.configuration }}]'
+        path: |
+          ${{inputs.branch}}/game/bin/vbsp.exe
+          ${{inputs.branch}}/game/bin/vvis.exe
+          ${{inputs.branch}}/game/bin/vvis_dll.dll
+          ${{inputs.branch}}/game/bin/vrad.exe
+          ${{inputs.branch}}/game/bin/vrad_dll.dll
+        if-no-files-found: error
+
+    - name: Publish everything (Windows)
+      if: inputs.project-group == 'all'
+      uses: actions/upload-artifact@v3
+      with:
+        name: 'Everything (Windows) [${{ inputs.configuration }}]'
+        path: |
+          ${{inputs.branch}}/game/bin
+          ${{inputs.branch}}/game/mod_*/bin
+        if-no-files-found: error
+
+  build_ubuntu:
+    if: inputs.build-on-linux == true && inputs.project-group != 'maptools' # No Linux map tools for now
+    name: Ubuntu (GCC/G++)
+    runs-on: ubuntu-latest
+    env:
+      config: ${{ inputs.configuration }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install GCC/G++ multilib
+      run: sudo apt-get install gcc-multilib g++-multilib
+
+    - name: Pick game
+      if: inputs.project-group == 'game' || inputs.project-group == 'shaders'
+      working-directory: '${{inputs.branch}}/src'
+      shell: bash
+      run: sed -i 's/\/hl2 \/episodic/\/${{inputs.game}}/' create${{inputs.project-group}}projects
+
+    - name: Set configuration
+      working-directory: '${{inputs.branch}}/src'
+      shell: bash
+      run: |
+        config=${{inputs.configuration}}
+        export CFG=${config,,}
+        echo "config=${CFG}" >> $GITHUB_ENV
+
+    - name: Create project files
+      working-directory: '${{inputs.branch}}/src'
+      run: ./create${{inputs.project-group}}projects
+
+      # --------------------------------------------------------------------
+
+    - name: Build
+      working-directory: '${{inputs.branch}}/src'
+      run: make CFG=${{env.config}} -f ${{inputs.solution-name}}.mak
+
+      # --------------------------------------------------------------------
+
+    - name: Publish Linux game SOs
+      if: inputs.project-group == 'game'
+      uses: actions/upload-artifact@v3
+      with:
+        name: 'Linux Game SOs (server & client.so) [${{ inputs.configuration }}]'
+        path: |
+          ${{inputs.branch}}/game/mod_${{inputs.game}}/bin/client.so
+          ${{inputs.branch}}/game/mod_${{inputs.game}}/bin/server.so
+        if-no-files-found: error
+
+    - name: Publish Linux shader SO
+      if: inputs.project-group == 'shaders'
+      uses: actions/upload-artifact@v3
+      with:
+        name: 'Linux Shader SO (game_shader_dx9.so) [${{ inputs.configuration }}]'
+        path: |
+          ${{inputs.branch}}/game/mod_${{inputs.game}}/bin/game_shader_dx9.so
+        if-no-files-found: error
+
+    #- name: Publish Linux map tools
+    #  if: inputs.project-group == 'maptools'
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: 'Linux Map Tools [${{ inputs.configuration }}]'
+    #    path: |
+    #      ${{inputs.branch}}/game/bin/vbsp
+    #      ${{inputs.branch}}/game/bin/vvis
+    #      ${{inputs.branch}}/game/bin/vvis_dll.so
+    #      ${{inputs.branch}}/game/bin/vrad
+    #      ${{inputs.branch}}/game/bin/vrad_dll.so
+    #    if-no-files-found: error
+
+    # For now, don't publish the .dbg files even though we publish .pdb files on Windows
+    # (they're too big)
+    - name: Publish everything (Linux)
+      if: inputs.project-group == 'all'
+      uses: actions/upload-artifact@v3
+      with:
+        name: 'Everything (Linux) [${{ inputs.configuration }}]'
+        path: |
+          ${{inputs.branch}}/game/bin/*.so
+          !${{inputs.branch}}/game/bin/*_srv.so
+          ${{inputs.branch}}/game/mod_*/bin/*.so
+          !${{inputs.branch}}/game/mod_*/bin/*_srv.so
+        if-no-files-found: error
