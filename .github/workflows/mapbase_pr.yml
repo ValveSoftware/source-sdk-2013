@@ -11,6 +11,7 @@ on: [pull_request]
 jobs:
   label:
 
+    if: github.repository_owner == 'mapbase-source'
     runs-on: ubuntu-latest
     permissions:
       contents: read
