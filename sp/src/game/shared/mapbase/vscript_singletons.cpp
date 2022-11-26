@@ -2742,6 +2742,11 @@ public:
 
 void CScriptConvarAccessor::RegisterCommand( const char *name, HSCRIPT fn, const char *helpString, int flags )
 {
+#if CLIENT_DLL
+	// FIXME: This crashes in engine when used as a hook (dispatched from CScriptConCommand::CommandCallback())
+	Assert( V_stricmp( name, "load" ) != 0 );
+#endif
+
 	unsigned int hash = Hash(name);
 	int idx = g_ScriptConCommands.Find(hash);
 	if ( idx == g_ScriptConCommands.InvalidIndex() )
