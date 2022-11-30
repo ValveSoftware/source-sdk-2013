@@ -119,6 +119,7 @@ Direct contributions:
 - npc_vehicledriver fixes provided by CrAzY
 - npc_combine cover behavior patches provided by iohnnyboy
 - logic_playmovie icon created by URAKOLOUY5 (This is asset-based and not reflected in the code)
+- Dropship APC save/load fix provided by Cvoxulary
 
 == Contributions from samisalreadytaken:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/47 (VScript utility/consistency changes)
