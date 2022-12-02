@@ -505,6 +505,17 @@ void CHudMessage::MessageDrawScan( client_textmessage_t *pMessage, float time )
 		m_parms.vguiFontName[ 0 ] )
 	{
 		SetFont( vgui::scheme()->GetDefaultScheme(), m_parms.vguiFontName );
+
+	#ifdef MAPBASE_VSCRIPT
+		if ( m_parms.font == vgui::INVALID_FONT )
+		{
+			extern vgui::HFont GetScriptFont( const char *, bool );
+
+			vgui::HFont font = GetScriptFont( m_parms.vguiFontName, IsProportional() );
+			textmessage->SetFont( font );
+			m_parms.font = font;
+		}
+	#endif
 	}
 	else
 	{
