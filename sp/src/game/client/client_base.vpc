@@ -1261,7 +1261,7 @@ $Project
 		$ImpLib		steam_api
 		
 		// Discord integration
-		$Lib	"$LIBPUBLIC\discord-rpc" [$MAPBASE_RPC]
+		$Lib	"$LIBPUBLIC\discord-rpc" [$MAPBASE_RPC&&!$LINUXALL]
 		
 		$Lib $LIBCOMMON/libcrypto [$POSIX]
 

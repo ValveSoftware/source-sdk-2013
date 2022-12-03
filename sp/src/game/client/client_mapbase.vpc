@@ -10,7 +10,7 @@ $Configuration
 	{
 		$PreprocessorDefinitions		"$BASE;ASW_PROJECTED_TEXTURES;DYNAMIC_RTT_SHADOWS;GLOWS_ENABLE"
 		
-		$PreprocessorDefinitions		"$BASE;MAPBASE_RPC;DISCORD_RPC;STEAM_RPC"	[$MAPBASE_RPC]
+		$PreprocessorDefinitions		"$BASE;MAPBASE_RPC;DISCORD_RPC;STEAM_RPC"	[$MAPBASE_RPC&&!$LINUXALL]
 		$PreprocessorDefinitions		"$BASE;MAPBASE_VSCRIPT"		[$MAPBASE_VSCRIPT]
 		$PreprocessorDefinitions		"$BASE;NEW_RESPONSE_SYSTEM"		[$NEW_RESPONSE_SYSTEM]
 	}
