@@ -1338,8 +1338,7 @@ static const char *HasNetMsgCollision( int hash, const char *ignore )
 
 inline int CNetMsgScriptHelper::Hash( const char *key )
 {
-	int hash = HashStringCaseless( key );
-	Assert( hash < (1 << SCRIPT_NETMSG_HEADER_BITS) );
+	int hash = CaselessStringHashFunctor()( key );
 	return hash;
 }
 
@@ -1923,7 +1922,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 	DEFINE_SCRIPTFUNC( Receive, "Set custom network message callback" )
 	DEFINE_SCRIPTFUNC_NAMED( Receive, "Recieve", SCRIPT_HIDE ) // This was a typo until v6.3
 #ifdef GAME_DLL
-	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the server to the client (max 252 bytes)" )
+	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the server to the client (max 251 bytes)" )
 #else
 	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the client to the server (max 2044 bytes)" )
 #endif
