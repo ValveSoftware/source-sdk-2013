@@ -1445,7 +1445,7 @@ void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 	while ( count-- )
 #endif
 	{
-		int hash = m_MsgIn_()ReadWord();
+		int hash = m_MsgIn_()ReadUBitLong( SCRIPT_NETMSG_HEADER_BITS );
 
 #ifdef _DEBUG
 		const char *msgName = GetNetMsgName( hash );
@@ -1514,7 +1514,7 @@ void CNetMsgScriptHelper::Start( const char *msg )
 	Reset();
 #endif
 
-	m_MsgOut.WriteWord( Hash( msg ) );
+	m_MsgOut.WriteUBitLong( Hash( msg ), SCRIPT_NETMSG_HEADER_BITS );
 }
 
 #ifdef GAME_DLL
