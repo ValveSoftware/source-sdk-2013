@@ -26,9 +26,15 @@ $Group "game"
 	"responserules"
 }
 
+$Group "shaderdlls"
+{
+	"game_shader_dx9"
+}
+
 $Group "shaders"
 {
 	"game_shader_dx9"
+	"mathlib"
 }
 
 $Group "everything"

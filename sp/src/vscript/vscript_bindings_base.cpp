@@ -539,11 +539,12 @@ void RegisterBaseBindings( IScriptVM *pVM )
 	ScriptRegisterConstant( pVM, FCVAR_SPONLY, "If this convar flag is set, it can't be changed by clients connected to a multiplayer server." );
 	ScriptRegisterConstant( pVM, FCVAR_ARCHIVE, "If this convar flag is set, its value will be saved when the game is exited." );
 	ScriptRegisterConstant( pVM, FCVAR_NOTIFY, "If this convar flag is set, it will notify players when it is changed." );
+	ScriptRegisterConstant( pVM, FCVAR_CHEAT, "Only useable in singleplayer / debug / multiplayer & sv_cheats" );
 	ScriptRegisterConstant( pVM, FCVAR_USERINFO, "If this convar flag is set, it will be marked as info which plays a part in how the server identifies a client." );
 	ScriptRegisterConstant( pVM, FCVAR_PRINTABLEONLY, "If this convar flag is set, it cannot contain unprintable characters. Used for player name cvars, etc." );
 	ScriptRegisterConstant( pVM, FCVAR_UNLOGGED, "If this convar flag is set, it will not log its changes if a log is being created." );
 	ScriptRegisterConstant( pVM, FCVAR_NEVER_AS_STRING, "If this convar flag is set, it will never be printed as a string." );
-	ScriptRegisterConstant( pVM, FCVAR_REPLICATED, "If this convar flag is set, it will enforce a serverside value on any clientside counterparts. (also known as FCAR_SERVER)" );
+	ScriptRegisterConstant( pVM, FCVAR_REPLICATED, "If this convar flag is set, it will enforce a serverside value on any clientside counterparts. (also known as FCVAR_SERVER)" );
 	ScriptRegisterConstant( pVM, FCVAR_DEMO, "If this convar flag is set, it will be recorded when starting a demo file." );
 	ScriptRegisterConstant( pVM, FCVAR_DONTRECORD, "If this convar flag is set, it will NOT be recorded when starting a demo file." );
 	ScriptRegisterConstant( pVM, FCVAR_RELOAD_MATERIALS, "If this convar flag is set, it will force a material reload when it changes." );

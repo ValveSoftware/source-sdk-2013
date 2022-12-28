@@ -1,0 +1,35 @@
+#
+# MAPBASE REPO AUTOMATION
+#
+# Automatically labels pull requests according to changed file paths.
+# See mapbase_pr.yml for more information.
+#
+Repo:
+  - '*'
+  - '.github/**'
+
+Project Generation:
+  - '**/src/vpc_scripts/**'
+  - '**/src/devtools/**'
+  - '**/src/create*'
+
+Entities:
+  - '**/src/game/**/**logic**'
+  - '**/src/game/**/**point**'
+
+Shaders:
+  - '**/src/materialsystem/**'
+
+VScript:
+  - '**vscript**'
+
+Tools:
+  - '**utils**'
+
+NPCs:
+  - '**npc_**'
+  - '**ai_**'
+
+VGUI:
+  - '**hud_**'
+  - '**vgui_**'

@@ -225,7 +225,7 @@ BEGIN_VS_SHADER( SDK_DecalModulate_dx9,
 
 				SetFlashLightColorFromState( state, pShaderAPI, 28 );
 
-				Assert( state.m_pSpotlightTexture >= 0 && state.m_nSpotlightTextureFrame >= 0 );
+				Assert( state.m_pSpotlightTexture && state.m_nSpotlightTextureFrame >= 0 );
 				BindTexture( SHADER_SAMPLER7, state.m_pSpotlightTexture, state.m_nSpotlightTextureFrame );
 
 				float atten_pos[8];

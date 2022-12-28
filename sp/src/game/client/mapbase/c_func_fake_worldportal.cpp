@@ -59,69 +59,10 @@ bool C_FuncFakeWorldPortal::ShouldDraw()
 
 
 //-----------------------------------------------------------------------------
-// Do we have a fake world portal in view?
-//-----------------------------------------------------------------------------
-C_FuncFakeWorldPortal *IsFakeWorldPortalInView( const CViewSetup& view, cplane_t &plane )
-{
-	// Early out if no cameras
-	C_FuncFakeWorldPortal *pReflectiveGlass = GetFakeWorldPortalList();
-	if ( !pReflectiveGlass )
-		return NULL;
-
-	Frustum_t frustum;
-	GeneratePerspectiveFrustum( view.origin, view.angles, view.zNear, view.zFar, view.fov, view.m_flAspectRatio, frustum );
-
-	cplane_t localPlane;
-	Vector vecOrigin, vecWorld, vecDelta, vecForward;
-	AngleVectors( view.angles, &vecForward, NULL, NULL );
-
-	for ( ; pReflectiveGlass != NULL; pReflectiveGlass = pReflectiveGlass->m_pNext )
-	{
-		if ( pReflectiveGlass->IsDormant() )
-			continue;
-
-		if ( pReflectiveGlass->m_iViewHideFlags & (1 << CurrentViewID()) )
-			continue;
-
-		Vector vecMins, vecMaxs;
-		pReflectiveGlass->GetRenderBoundsWorldspace( vecMins, vecMaxs );
-		if ( R_CullBox( vecMins, vecMaxs, frustum ) )
-			continue;
-
-		const model_t *pModel = pReflectiveGlass->GetModel();
-		const matrix3x4_t& mat = pReflectiveGlass->EntityToWorldTransform();
-
-		int nCount = modelinfo->GetBrushModelPlaneCount( pModel );
-		for ( int i = 0; i < nCount; ++i )
-		{
-			modelinfo->GetBrushModelPlane( pModel, i, localPlane, &vecOrigin );
-
-			MatrixTransformPlane( mat, localPlane, plane );			// Transform to world space
-			VectorTransform( vecOrigin, mat, vecWorld );
-					 
-			if ( view.origin.Dot( plane.normal ) <= plane.dist )	// Check for view behind plane
-				continue;
-			
-			VectorSubtract( vecWorld, view.origin, vecDelta );		// Backface cull
-			if ( vecDelta.Dot( plane.normal ) >= 0 )
-				continue;
-
-			// Must have valid plane
-			if ( !pReflectiveGlass->m_hTargetPlane )
-				continue;
-
-			return pReflectiveGlass;
-		}
-	}
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
 // Iterates through fake world portals instead of just picking one
 //-----------------------------------------------------------------------------
 C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const CViewSetup& view,
-	cplane_t &plane, Vector &vecPlaneOrigin, const Frustum_t &frustum )
+	Vector &vecAbsPlaneNormal, float &flLocalPlaneDist, const Frustum_t &frustum )
 {
 	// Early out if no cameras
 	C_FuncFakeWorldPortal *pReflectiveGlass = NULL;
@@ -130,8 +71,9 @@ C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const
 	else
 		pReflectiveGlass = pStart->m_pNext;
 
-	cplane_t localPlane;
-	Vector vecOrigin, vecWorld, vecDelta;
+	cplane_t localPlane, worldPlane;
+	Vector vecMins, vecMaxs, vecLocalOrigin, vecAbsOrigin, vecDelta;
+
 	for ( ; pReflectiveGlass != NULL; pReflectiveGlass = pReflectiveGlass->m_pNext )
 	{
 		if ( pReflectiveGlass->IsDormant() )
@@ -140,7 +82,10 @@ C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const
 		if ( pReflectiveGlass->m_iViewHideFlags & (1 << CurrentViewID()) )
 			continue;
 
-		Vector vecMins, vecMaxs;
+		// Must have valid plane
+		if ( !pReflectiveGlass->m_hTargetPlane )
+			continue;
+
 		pReflectiveGlass->GetRenderBoundsWorldspace( vecMins, vecMaxs );
 		if ( R_CullBox( vecMins, vecMaxs, frustum ) )
 			continue;
@@ -151,23 +96,22 @@ C_FuncFakeWorldPortal *NextFakeWorldPortal( C_FuncFakeWorldPortal *pStart, const
 		int nCount = modelinfo->GetBrushModelPlaneCount( pModel );
 		for ( int i = 0; i < nCount; ++i )
 		{
-			modelinfo->GetBrushModelPlane( pModel, i, localPlane, &vecOrigin );
+			modelinfo->GetBrushModelPlane( pModel, i, localPlane, &vecLocalOrigin );
 
-			MatrixTransformPlane( mat, localPlane, plane );			// Transform to world space
-			VectorTransform( vecOrigin, mat, vecWorld );
+			MatrixTransformPlane( mat, localPlane, worldPlane );			// Transform to world space
 					 
-			if ( view.origin.Dot( plane.normal ) <= plane.dist )	// Check for view behind plane
+			if ( view.origin.Dot( worldPlane.normal ) <= worldPlane.dist )	// Check for view behind plane
 				continue;
 			
-			VectorSubtract( vecWorld, view.origin, vecDelta );		// Backface cull
-			if ( vecDelta.Dot( plane.normal ) >= 0 )
+			VectorTransform( vecLocalOrigin, mat, vecAbsOrigin );
+			VectorSubtract( vecAbsOrigin, view.origin, vecDelta );
+
+			if ( vecDelta.Dot( worldPlane.normal ) >= 0 )					// Backface cull
 				continue;
 
-			// Must have valid plane
-			if ( !pReflectiveGlass->m_hTargetPlane )
-				continue;
+			flLocalPlaneDist = localPlane.dist;
+			vecAbsPlaneNormal = worldPlane.normal;
 
-			vecPlaneOrigin = vecOrigin;
 			return pReflectiveGlass;
 		}
 	}

@@ -999,7 +999,11 @@ void CNPC_CombineDropship::Spawn( void )
 			IPhysicsObject *pPhysicsObject = m_hContainer->VPhysicsGetObject();
 			if ( pPhysicsObject )
 			{
+#ifdef MAPBASE
+				pPhysicsObject->SetShadow( 1e4, 1e4, true, true ); // (allowing physics movement and rotation)
+#else
 				pPhysicsObject->SetShadow( 1e4, 1e4, false, false );
+#endif
 			}
 
 			m_hContainer->SetParent(this, 0);

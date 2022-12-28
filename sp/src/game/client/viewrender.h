@@ -454,7 +454,7 @@ private:
 #ifdef MAPBASE
 	bool			DrawFakeWorldPortal( ITexture *pRenderTarget, C_FuncFakeWorldPortal *pCameraEnt, const CViewSetup &cameraView, C_BasePlayer *localPlayer, 
 						int x, int y, int width, int height,
-						const CViewSetup &mainView, cplane_t &ourPlane, const Vector &vecPlaneOrigin );
+						const CViewSetup &mainView, const Vector &vecAbsPlaneNormal, float flLocalPlaneDist );
 #endif
 
 	// Drawing primitives

@@ -42,6 +42,7 @@ public:
 	void InputSetRenderTarget( inputdata_t &inputdata ) { m_iszRenderTarget = inputdata.value.StringID(); }
 
 	float GetFOV() const { return m_FOV; }
+	bool IsActive() const { return m_bIsOn; }
 #endif
 
 private:
@@ -117,4 +118,8 @@ private:
 #endif
 
 CPointCamera *GetPointCameraList();
+
+#ifdef MAPBASE
+edict_t *UTIL_FindRTCameraInEntityPVS( edict_t *pEdict );
+#endif
 #endif // CAMERA_H

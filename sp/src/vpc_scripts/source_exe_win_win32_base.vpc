@@ -67,8 +67,9 @@ $Configuration
 
 	$PostBuildEvent [!$ANALYZE]
 	{
+		$CommandLine		"if not exist $QUOTE$OUTBINDIR$QUOTE mkdir $QUOTE$OUTBINDIR$QUOTE" "\n" [($VS2015||$VS2017||$VS2019||$VS2022)]
+		$CommandLine		"$BASE"	"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTBINDIR\$(TargetFileName) $SRCDIR" "\n" [!$SOURCESDK && ($VS2015||$VS2017||$VS2019||$VS2022)]
 		$CommandLine		"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTBINDIR\$(TargetFileName) $SRCDIR" "\n" [!$SOURCESDK && !($VS2015||$VS2017||$VS2019||$VS2022)]
-		$CommandLine		"if not exist $QUOTE$OUTBINDIR$QUOTE mkdir $QUOTE$OUTBINDIR$QUOTE" "\n" [!$SOURCESDK && ($VS2015||$VS2017||$VS2019||$VS2022)]
 		$CommandLine		"$BASE"	"copy $QUOTE$(TargetDir)$QUOTE$(TargetFileName) $OUTBINDIR\$(TargetFileName) >nul" "\n" \
 							"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
 							"if exist $QUOTE$(TargetDir)$QUOTE$(TargetName).map copy $QUOTE$(TargetDir)$QUOTE$(TargetName).map $OUTBINDIR\$(TargetName).map >nul" "\n"

@@ -1,0 +1,31 @@
+#
+# MAPBASE SOURCE 2013 CI
+#
+# Builds all projects when a pull request to the master branch is opened.
+# If you're using a fork of Mapbase, feel free to configure this to meet your repository's needs.
+#
+# The "mapbase_build-sp" set of workflows can build specific projects depending on what files are changed.
+# They are designed around a "develop" branch, but can be configured to target "master" and replace this
+# instead (or target a similar branch with a different name)
+#
+# See mapbase_build-base.yml for more information on how this works.
+
+name: Build All Projects #(SP Release)
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  everything:
+    strategy:
+      matrix:
+        configuration: [Release, Debug]
+    uses: ./.github/workflows/mapbase_build-base.yml
+    with:
+      configuration: ${{ matrix.configuration }}
+      branch: 'sp'
+      project-group: 'all'
+      solution-name: 'everything'
+      build-on-linux: true # Disable this if you don't want to compile for Linux

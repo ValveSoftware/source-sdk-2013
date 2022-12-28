@@ -740,7 +740,11 @@ void CScriptGameEventListener::StopListeningForEvent()
 #ifdef _DEBUG
 	// Event listeners are iterated forwards in the game event manager,
 	// removing while iterating will cause it to skip one listener.
-	// This could be prevented by writing a custom game event manager.
+	//
+	// Fix this in engine without altering any behaviour by
+	// changing event exeuction order to tail->head,
+	// changing listener removal to tail->head,
+	// changing listener addition to head
 	if ( m_nEventTick == gpGlobals->tickcount )
 	{
 		Warning("CScriptGameEventListener stopped in the same frame it was fired. This will break other event listeners!\n");
@@ -1273,9 +1277,11 @@ CNetMsgScriptHelper *g_ScriptNetMsg = &scriptnetmsg;
 
 #ifdef _DEBUG
 #ifdef GAME_DLL
-#define DebugNetMsg( l, ... ) do { extern ConVar developer; if (developer.GetInt() >= l) ConColorMsg( Color(100, 225, 255, 255), __VA_ARGS__ ); } while (0);
+ConVar script_net_debug("script_net_debug", "0");
+#define DebugNetMsg( l, ... ) do { if (script_net_debug.GetInt() >= l) ConColorMsg( Color(100, 225, 255, 255), __VA_ARGS__ ); } while (0);
 #else
-#define DebugNetMsg( l, ... ) do { extern ConVar developer; if (developer.GetInt() >= l) ConColorMsg( Color(100, 225, 175, 255), __VA_ARGS__ ); } while (0);
+ConVar script_net_debug("script_net_debug_client", "0");
+#define DebugNetMsg( l, ... ) do { if (script_net_debug.GetInt() >= l) ConColorMsg( Color(100, 225, 175, 255), __VA_ARGS__ ); } while (0);
 #endif
 #define DebugWarning(...) Warning( __VA_ARGS__ )
 #else
@@ -1424,7 +1430,7 @@ void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 	m_MsgIn.StartReading( msg.m_pData, msg.m_nDataBytes );
 #endif
 
-	DebugNetMsg( 2, DLL_LOC_STR " " __FUNCTION__ "()\n" );
+	DebugNetMsg( 2, DLL_LOC_STR " %s()\n", __FUNCTION__ );
 
 	// Don't do anything if there's no VM here. This can happen if a message from the server goes to a VM-less client, or vice versa.
 	if ( !g_pScriptVM )
@@ -1483,7 +1489,7 @@ void CNetMsgScriptHelper::Start( const char *msg )
 		return;
 	}
 
-	DebugNetMsg( 1, DLL_LOC_STR " " __FUNCTION__ "() [%d]%s\n", Hash( msg ), msg );
+	DebugNetMsg( 1, DLL_LOC_STR " %s() [%d]%s\n", __FUNCTION__, Hash( msg ), msg );
 
 #ifdef CLIENT_DLL
 	// Client can write multiple messages in a frame before the usercmd is sent,
@@ -1519,7 +1525,7 @@ void CNetMsgScriptHelper::Start( const char *msg )
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::Send( HSCRIPT player, bool bReliable )
 {
-	DebugNetMsg( 1, DLL_LOC_STR " " __FUNCTION__ "() size(%d)\n", GetNumBitsWritten() );
+	DebugNetMsg( 1, DLL_LOC_STR " %s() size(%d)\n", __FUNCTION__, GetNumBitsWritten() );
 
 	CBaseEntity *pPlayer = ToEnt(player);
 	if ( pPlayer )
@@ -1544,7 +1550,7 @@ void CNetMsgScriptHelper::Send( HSCRIPT player, bool bReliable )
 //-----------------------------------------------------------------------------
 void CNetMsgScriptHelper::Send()
 {
-	DebugNetMsg( 1, DLL_LOC_STR " " __FUNCTION__ "() size(%d)\n", m_bWriteIgnore ? 0 : GetNumBitsWritten() );
+	DebugNetMsg( 1, DLL_LOC_STR " %s() size(%d)\n", __FUNCTION__, m_bWriteIgnore ? 0 : GetNumBitsWritten() );
 
 	m_bWriteReady = true;
 }
@@ -1749,8 +1755,8 @@ void CNetMsgScriptHelper::WriteEntity( HSCRIPT hEnt )
 {
 	SCRIPT_NETMSG_WRITE_FUNC
 	CBaseEntity *p = ToEnt(hEnt);
-	int i = p ? p->entindex() : -1;
-	m_MsgOut.WriteSBitLong( i, MAX_EDICT_BITS );
+	int i = p ? p->entindex() : 0;
+	m_MsgOut.WriteUBitLong( i, MAX_EDICT_BITS );
 }
 
 void CNetMsgScriptHelper::WriteEHandle( HSCRIPT hEnt )
@@ -1861,7 +1867,11 @@ bool CNetMsgScriptHelper::ReadBool()
 
 HSCRIPT CNetMsgScriptHelper::ReadEntity()
 {
-	int index = m_MsgIn_()ReadSBitLong( MAX_EDICT_BITS );
+	int index = m_MsgIn_()ReadUBitLong( MAX_EDICT_BITS );
+
+	if ( !index )
+		return NULL;
+
 #ifdef GAME_DLL
 	edict_t *e = INDEXENT(index);
 	if ( e && !e->IsFree() )
@@ -3232,6 +3242,31 @@ public:
 
 		return ret;
 	}
+	const char *GetCurrentBetaName()
+	{
+		if ( !steamapicontext || !steamapicontext->SteamApps() )
+			return NULL;
+
+		static char ret[16];
+		steamapicontext->SteamApps()->GetCurrentBetaName( ret, sizeof( ret ) );
+		return ret;
+	}
+#if 0
+	bool IsSubscribedApp( int nAppID )
+	{
+		if ( !steamapicontext || !steamapicontext->SteamApps() )
+			return false;
+
+		return steamapicontext->SteamApps()->BIsSubscribedApp( nAppID );
+	}
+#endif
+	bool IsAppInstalled( int nAppID )
+	{
+		if ( !steamapicontext || !steamapicontext->SteamApps() )
+			return false;
+
+		return steamapicontext->SteamApps()->BIsAppInstalled( nAppID );
+	}
 
 } g_ScriptSteamAPI;
 
@@ -3242,6 +3277,9 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CScriptSteamAPI, "CSteamAPI", SCRIPT_SINGLETON "" )
 	DEFINE_SCRIPTFUNC( GetCurrentBatteryPower, "Return the amount of battery power left in the current system in % [0..100], 255 for being on AC power" )
 	//DEFINE_SCRIPTFUNC( GetIPCountry, "Returns the 2 digit ISO 3166-1-alpha-2 format country code this client is running in (as looked up via an IP-to-location database)" )
 	DEFINE_SCRIPTFUNC( GetCurrentGameLanguage, "Gets the current language that the user has set as API language code. This falls back to the Steam UI language if the user hasn't explicitly picked a language for the title." )
+	DEFINE_SCRIPTFUNC( GetCurrentBetaName, "Gets the name of the user's current beta branch. In Source SDK Base 2013 Singleplayer, this will usually return 'upcoming'." )
+	//DEFINE_SCRIPTFUNC( IsSubscribedApp, "Returns true if the user is subscribed to the specified app ID." )
+	DEFINE_SCRIPTFUNC( IsAppInstalled, "Returns true if the user has the specified app ID installed on their computer." )
 END_SCRIPTDESC();
 #endif // !NO_STEAM
 

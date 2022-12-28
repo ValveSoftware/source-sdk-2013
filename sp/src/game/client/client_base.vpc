@@ -71,7 +71,6 @@ $Configuration
 		$SystemFrameworks				"Carbon" [$OSXALL]
 		$SystemLibraries				"rt" [$LINUXALL]
 		$IgnoreImportLibrary			"TRUE"
-		$AdditionalOptions				"$BASE /force:multiple" [($VS2015||$VS2017||$VS2019||$VS2022)] // Required to fix _hypot in particles.lib (this may be a temporary solution)
 		$AdditionalDependencies			"$BASE winmm.lib"	[$WIN32]
 		$AdditionalDependencies			"$BASE wsock32.lib Ws2_32.lib" [$BUILD_REPLAY]
 	}
@@ -1260,6 +1259,9 @@ $Project
 		$Lib		vgui_controls
 		$Lib		vtf
 		$ImpLib		steam_api
+		
+		// Discord integration
+		$Lib	"$LIBPUBLIC\discord-rpc" [$MAPBASE_RPC&&!$LINUXALL]
 		
 		$Lib $LIBCOMMON/libcrypto [$POSIX]
 
