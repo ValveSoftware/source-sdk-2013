@@ -206,19 +206,28 @@ void CScriptKeyValues::ScriptReleaseKeyValues( )
 	m_pKeyValues = NULL;
 }
 
-void CScriptKeyValues::TableToSubKeys( HSCRIPT hTable )
+void KeyValues_TableToSubKeys( HSCRIPT hTable, KeyValues *pKV )
 {
 	int nIterator = -1;
 	ScriptVariant_t varKey, varValue;
 	while ((nIterator = g_pScriptVM->GetKeyValue( hTable, nIterator, &varKey, &varValue )) != -1)
 	{
-		switch (varValue.m_type)
+		if ( varKey.m_type == FIELD_CSTRING )
 		{
-			case FIELD_CSTRING:		m_pKeyValues->SetString( varKey.m_pszString, varValue.m_pszString ); break;
-			case FIELD_INTEGER:		m_pKeyValues->SetInt( varKey.m_pszString, varValue.m_int ); break;
-			case FIELD_FLOAT:		m_pKeyValues->SetFloat( varKey.m_pszString, varValue.m_float ); break;
-			case FIELD_BOOLEAN:		m_pKeyValues->SetBool( varKey.m_pszString, varValue.m_bool ); break;
-			case FIELD_VECTOR:		m_pKeyValues->SetString( varKey.m_pszString, CFmtStr( "%f %f %f", varValue.m_pVector->x, varValue.m_pVector->y, varValue.m_pVector->z ) ); break;
+			switch ( varValue.m_type )
+			{
+				case FIELD_CSTRING:		pKV->SetString( varKey.m_pszString, varValue.m_pszString ); break;
+				case FIELD_INTEGER:		pKV->SetInt( varKey.m_pszString, varValue.m_int ); break;
+				case FIELD_FLOAT:		pKV->SetFloat( varKey.m_pszString, varValue.m_float ); break;
+				case FIELD_BOOLEAN:		pKV->SetBool( varKey.m_pszString, varValue.m_bool ); break;
+				case FIELD_VECTOR:		pKV->SetString( varKey.m_pszString, CFmtStr( "%f %f %f", varValue.m_pVector->x, varValue.m_pVector->y, varValue.m_pVector->z ) ); break;
+				case FIELD_HSCRIPT:
+				{
+					KeyValues *subKey = pKV->FindKey( varKey.m_pszString, true );
+					KeyValues_TableToSubKeys( varValue, subKey );
+					break;
+				}
+			}
 		}
 
 		g_pScriptVM->ReleaseValue( varKey );
@@ -226,17 +235,36 @@ void CScriptKeyValues::TableToSubKeys( HSCRIPT hTable )
 	}
 }
 
-void CScriptKeyValues::SubKeysToTable( HSCRIPT hTable )
+void KeyValues_SubKeysToTable( KeyValues *pKV, HSCRIPT hTable )
 {
-	FOR_EACH_SUBKEY( m_pKeyValues, key )
+	FOR_EACH_SUBKEY( pKV, key )
 	{
 		switch ( key->GetDataType() )
 		{
 			case KeyValues::TYPE_STRING: g_pScriptVM->SetValue( hTable, key->GetName(), key->GetString() ); break;
 			case KeyValues::TYPE_INT:    g_pScriptVM->SetValue( hTable, key->GetName(), key->GetInt()    ); break;
 			case KeyValues::TYPE_FLOAT:  g_pScriptVM->SetValue( hTable, key->GetName(), key->GetFloat()  ); break;
+			case KeyValues::TYPE_NONE:
+			{
+				ScriptVariant_t subTable;
+				g_pScriptVM->CreateTable( subTable );
+				g_pScriptVM->SetValue( hTable, key->GetName(), subTable );
+				KeyValues_SubKeysToTable( key, subTable );
+				g_pScriptVM->ReleaseValue( subTable );
+				break;
+			}
 		}
 	}
+}
+
+void CScriptKeyValues::TableToSubKeys( HSCRIPT hTable )
+{
+	KeyValues_TableToSubKeys( hTable, m_pKeyValues );
+}
+
+void CScriptKeyValues::SubKeysToTable( HSCRIPT hTable )
+{
+	KeyValues_SubKeysToTable( m_pKeyValues, hTable );
 }
 
 HSCRIPT CScriptKeyValues::ScriptFindOrCreateKey( const char *pszName )
