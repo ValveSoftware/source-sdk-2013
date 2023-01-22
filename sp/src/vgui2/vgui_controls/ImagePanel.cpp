@@ -73,6 +73,13 @@ void ImagePanel::OnSizeChanged(int newWide, int newTall)
 //-----------------------------------------------------------------------------
 void ImagePanel::SetImage(IImage *image)
 {
+#ifdef MAPBASE
+	if ( image )
+	{
+		image->SetRotation( m_iRotation );
+	}
+#endif
+
 	m_pImage = image;
 	Repaint();
 }
@@ -471,3 +478,15 @@ void ImagePanel::SetFrame( int nFrame )
 
 	return m_pImage->SetFrame( nFrame );
 }
+
+#ifdef MAPBASE
+void ImagePanel::SetRotation( int iRotation )
+{
+	m_iRotation = iRotation;
+
+	if ( m_pImage )
+	{
+		m_pImage->SetRotation( m_iRotation );
+	}
+}
+#endif
