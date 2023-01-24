@@ -841,6 +841,8 @@ public:
 	virtual void LevelShutdownPostEntity( void )
 	{
 #ifdef MAPBASE_VSCRIPT
+		g_ScriptEntityIterator.DisableEntityListening();
+
 		g_ScriptNetMsg->LevelShutdownPreVM();
 
 		GetScriptHookManager().OnShutdown();
