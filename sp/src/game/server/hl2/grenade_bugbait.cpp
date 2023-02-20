@@ -63,6 +63,9 @@ BEGIN_DATADESC( CBugBaitSensor )
 #ifdef MAPBASE
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnableRadius", InputEnableRadius ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableRadius", InputDisableRadius ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetRadius", InputSetRadius ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetMins", InputSetMins ),
+	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetMaxs", InputSetMaxs ),
 #endif
 
 	// Function Pointers

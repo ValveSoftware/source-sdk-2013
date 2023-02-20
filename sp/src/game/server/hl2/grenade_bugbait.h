@@ -71,6 +71,18 @@ public:
 	void InputDisableRadius( inputdata_t &data ){
 		m_bUseRadius = false;
 	}
+
+	void InputSetRadius( inputdata_t &data ){
+		m_flRadius = data.value.Int();
+	}
+
+	void InputSetMins( inputdata_t &data ){
+		data.value.Vector3D( m_vecMins );
+	}
+
+	void InputSetMaxs( inputdata_t &data ){
+		data.value.Vector3D( m_vecMaxs );
+	}
 #endif
 
 	bool SuppressCall( void )
