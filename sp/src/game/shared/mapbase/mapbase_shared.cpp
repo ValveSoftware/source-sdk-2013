@@ -70,7 +70,7 @@ ConVar mapbase_version_client( "mapbase_version_client", MAPBASE_VERSION, FCVAR_
 // This is from the vgui_controls library
 extern vgui::HScheme g_iCustomClientSchemeOverride;
 
-bool g_bUsingCustomHudAnimations = false;
+extern bool g_bUsingCustomHudAnimations;
 bool g_bUsingCustomHudLayout = false;
 #endif
 
