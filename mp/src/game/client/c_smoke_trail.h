@@ -249,7 +249,7 @@ private:
 	PMaterialHandle		m_hMaterial;
 	TimedEvent			m_teParticleSpawn;
 
-	SporeEffect			*m_pSporeEffect;
+	CSmartPtr<SporeEffect> m_pSporeEffect;
 	CParticleMgr		*m_pParticleMgr;
 };
 
