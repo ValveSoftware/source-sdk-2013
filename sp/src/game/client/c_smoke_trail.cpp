@@ -950,7 +950,10 @@ void C_SporeExplosion::OnDataChanged( DataUpdateType_t updateType )
 		m_teParticleSpawn.Init( m_flSpawnRate );
 	}
 
-	m_pSporeEffect->SetDontRemove( m_bDontRemove );
+	if( m_pSporeEffect.IsValid() )
+	{
+		m_pSporeEffect->SetDontRemove( m_bDontRemove );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -981,6 +984,11 @@ void C_SporeExplosion::Start( CParticleMgr *pParticleMgr, IPrototypeArgAccess *p
 //-----------------------------------------------------------------------------
 void C_SporeExplosion::AddParticles( void )
 {
+	if( !m_pSporeEffect )
+	{
+		return;
+	}
+
 	//Spores
 	Vector	offset;
 	Vector	dir;
