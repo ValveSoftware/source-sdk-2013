@@ -1,0 +1,18 @@
+<GRAMMAR LANGID="409">
+   <RULE NAME="firstrule" TOPLEVEL="ACTIVE">
+      <P>play the</P>
+      <RULEREF NAME="instrument"/>
+      <O>please</O>
+   </RULE>
+   <RULE NAME="secondrule" TOPLEVEL="ACTIVE">
+      <P>play the</P>
+      <RULEREF NAME="instrument"/>
+      <O>please</O>
+   </RULE>
+   <RULE NAME="instrument">
+      <L>
+		<P>oboe</P>
+		<P>trombone</P>
+      </L>
+   </RULE>
+</GRAMMAR>

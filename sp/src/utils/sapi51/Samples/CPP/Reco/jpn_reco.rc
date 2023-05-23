@@ -1,0 +1,8 @@
+LANGUAGE 0x11, SUBLANG_NEUTRAL
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SRGRAMMAR
+//
+
+IDR_SOL_CFG             SRGRAMMAR DISCARDABLE   "jpn_sol.cfg"

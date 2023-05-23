@@ -1,0 +1,101 @@
+HKCR
+{
+	SampleSREngine.SampleSREngine.1 = s 'Sample SR Engine Class'
+	{
+		CLSID = s '{41B89B79-9399-11D2-9623-00C04F8EE628}'
+	}
+	SampleSREngine.SampleSREngine = s 'Sample SR Engine Class'
+	{
+		CLSID = s '{41B89B79-9399-11D2-9623-00C04F8EE628}'
+		CurVer = s 'SampleSREngine.SampleSREngine.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {41B89B79-9399-11D2-9623-00C04F8EE628} = s 'Sample SR Engine Class'
+		{
+			ProgID = s 'SampleSREngine.SampleSREngine.1'
+			VersionIndependentProgID = s 'SampleSREngine.SampleSREngine'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{41B89B6C-9399-11D2-9623-00C04F8EE628}'
+		}
+	}
+}
+
+HKLM
+{
+    NoRemove SOFTWARE
+    {
+        NoRemove Microsoft
+        {
+            NoRemove Speech
+            {
+                NoRemove Recognizers
+                {
+                    NoRemove Tokens
+                    {
+            		    ForceRemove SAPI5SampleEngine = s 'SAPI Developer Sample Engine'
+                        {
+                            val CLSID = s '{41B89B79-9399-11D2-9623-00C04F8EE628}'
+                            val RecoExtension = s '{78771A48-CE55-46A5-B78C-B813E3403F82}'
+                            val AlternatesCLSID = s '{882CAE4A-99BA-490B-BF80-CF69A60454A7}'
+                            val 409 = s 'SAPI Developer Sample Engine'
+                            
+                            ForceRemove {41B89B79-9399-11D2-9623-00C04F8EE628}
+                            {
+	                            ForceRemove Files
+		                        {
+			                        val SampleEngDataFile = s 'C:\An_example_file_path'
+					            }
+                            }
+                            ForceRemove Attributes
+                            {
+                                val Vendor = s 'Microsoft'
+                                val Language = s '409;9'
+                                val CommandAndControl = s ''
+                                val Dictation = s ''
+                                val Desktop = s ''
+                                val Hypotheses = s ''
+                                val Alternates = s 'CC;Dictation'
+                                val DictationInCFG = s 'Anywhere;Trailing'
+                                val WildcardInCFG = s 'Anywhere;Trailing'
+                                val WordSequences = s ''
+                                val SpeakingStyle = s 'Discrete;Continuous'
+                            }
+                            ForceRemove UI = s ''
+                            {
+                                ForceRemove EngineProperties = s ''
+                                {
+                                    val CLSID = s '{B84714C0-3BFD-405D-83C5-E9C486826AD5}'
+                                }
+                               
+                                ForceRemove UserTraining = s ''
+                                {
+                                    val CLSID = s '{B84714C0-3BFD-405D-83C5-E9C486826AD5}'
+                                }
+                                
+                                ForceRemove MicTraining = s ''
+                                {
+                                    val CLSID = s '{B84714C0-3BFD-405D-83C5-E9C486826AD5}'
+                                }
+
+                                ForceRemove AddRemoveWord = s ''
+                                {
+                                    val CLSID = s '{B84714C0-3BFD-405D-83C5-E9C486826AD5}'
+                                }
+
+                                ForceRemove RecoProfileProperties = s ''
+                                {
+                                    val CLSID = s '{B84714C0-3BFD-405D-83C5-E9C486826AD5}'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

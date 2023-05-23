@@ -1,0 +1,15 @@
+<GRAMMAR LANGID="411">
+    <DEFINE>
+      <ID NAME="PID_DictMode" VAL="1"/>
+      <ID NAME="PID_DictCommand" VAL="901"/>
+
+    </DEFINE>
+
+    <RULE NAME="PID_DictMode" ID="PID_DictMode" TOPLEVEL="ACTIVE">
+      <L PROPNAME="PID_DictMode" PROPID="PID_DictMode">
+        <P VAL="PID_DictCommand">command</P>
+        <P VAL="PID_DictCommand">computer</P>
+      </L>
+    </RULE>
+
+</GRAMMAR>

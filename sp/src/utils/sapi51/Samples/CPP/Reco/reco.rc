@@ -1,0 +1,273 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) (unknown sub-lang: 0x0) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, 0x0
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SRGRAMMAR
+//
+
+IDR_SOL_CFG             SRGRAMMAR DISCARDABLE   "sol.cfg"
+#endif    // English (U.S.) (unknown sub-lang: 0x0) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_RECO                ICON    DISCARDABLE     "RECO.ICO"
+IDI_SMALL               ICON    DISCARDABLE     "SMALL.ICO"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""resource.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""jpn_reco.rc""\r\n"
+    "#include ""version.rc2""\r\n"
+    "\r\n"
+    "\0"
+END
+
+4 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""chs_reco.rc""\r\n"
+    "\r\n"
+    "\0"
+END
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_RECODLG DIALOG DISCARDABLE  0, 0, 274, 285
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Basic Speech Recognition"
+MENU IDR_RECOMENU
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "Create &Recognition Context",IDC_CHECK_CREATE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,10,104,12
+    CONTROL         "Retain Reco A&udio",IDC_CHECK_RETAIN_AUDIO,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,10,24,76,12
+    CONTROL         "Load &Dictation",IDC_CHECK_DICTATION,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,123,10,59,12
+    CONTROL         "&Activate Dictation",IDC_CHECK_DICTATION_ACTIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,187,10,70,12
+    CONTROL         "&Load C&&C",IDC_CHECK_CFG,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,123,24,58,12
+    CONTROL         "Acti&vate C&&C",IDC_CHECK_CFG_ACTIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,187,24,58,12
+    CONTROL         "Activate &Microphone",IDC_CHECK_MIC,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,10,38,104,12
+    CONTROL         "Load &Spelling",IDC_CHECK_SPELLING,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,123,39,59,12
+    CONTROL         "Activate S&pelling",IDC_CHECK_SPELLING_ACTIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,187,39,70,12
+    CONTROL         "Shar&ed recognizer",IDC_RADIO_SHARED,"Button",
+                    BS_AUTORADIOBUTTON,10,56,248,12
+    CONTROL         "I&nproc:",IDC_RADIO_INPROC,"Button",BS_AUTORADIOBUTTON,
+                    10,71,40,12
+    COMBOBOX        IDC_COMBO_ENGINES,52,71,207,60,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_LIST_PHRASES,7,92,251,70,LBS_OWNERDRAWFIXED | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL
+    EDITTEXT        IDC_STATUS,7,166,251,79,ES_MULTILINE | ES_AUTOHSCROLL | 
+                    ES_READONLY | WS_VSCROLL | NOT WS_TABSTOP
+    EDITTEXT        IDC_EDIT_PARSETEXT,8,264,191,16,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Su&bmit",IDC_BUTTON_SUBMIT,207,264,50,14,WS_DISABLED
+    GROUPBOX        "Grammars",IDC_STATIC,115,3,143,51
+    LTEXT           "Static",IDC_GRAMMAR_STATUS,7,250,193,9
+    PUSHBUTTON      "Al&ternates",IDC_BUTTON_ALTERNATES,207,248,49,14
+END
+
+IDD_DYNGRAMMARDLG DIALOG DISCARDABLE  0, 0, 217, 226
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dynamic Rules"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "",IDC_EDIT_NEWITEM,"RICHEDIT20A",WS_BORDER | WS_TABSTOP | 
+                    0x80,7,7,203,14
+    DEFPUSHBUTTON   "&Add Item",IDC_BUTTON_ADDITEM,7,204,55,15,WS_DISABLED
+    LISTBOX         IDC_LIST_ITEMS,5,25,205,170,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Clear all",IDC_BUTTON_CLEARALL,86,205,50,14
+    PUSHBUTTON      "OK",IDOK,160,205,50,14
+END
+
+IDD_DIALOG_BETAHELP DIALOG DISCARDABLE  0, 0, 427, 301
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Help for the Reco Tool"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,188,280,50,14
+    LTEXT           "",IDC_BETA_HELP,11,10,405,260
+END
+
+IDD_ALTS_DIALOG DIALOG DISCARDABLE  200, 150, 186, 109
+STYLE WS_POPUP | WS_CAPTION
+CAPTION "Alternates"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,38,88,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,93,88,50,14
+    LISTBOX         IDC_ALTS_LIST,7,7,172,79,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_RECODLG, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 281
+    END
+
+    IDD_DYNGRAMMARDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 210
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 219
+    END
+
+    IDD_DIALOG_BETAHELP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 420
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 294
+    END
+
+    IDD_ALTS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 102
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_RECOMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       IDM_FILE_EXIT
+    END
+    POPUP "&C&&C"
+    BEGIN
+        MENUITEM "&Load Grammar...",            IDM_CFG_LOAD_GRAMMAR
+        MENUITEM "&Add Dynamic Rule",           IDM_CFG_ADD_DYNAMIC_RULE
+        MENUITEM "Set Word &Sequence Data...",  IDM_CFG_SET_WORD_SEQUENCE_DATA
+
+    END
+    POPUP "D&ictation"
+    BEGIN
+        MENUITEM "&Train from File...",         IDM_SLM_TRAIN_FROM_FILE
+        MENUITEM "&Adapt LM From File...",      IDM_SLM_ADAPT_FROM_FILE
+        MENUITEM "A&dapt LM From Clipboard",    IDM_SLM_ADAPT_FROM_CLIPBOARD
+    END
+    MENUITEM "&Help!",                      IDM_HELP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_GRAMMAR_LOAD_FAIL   "An error occurred loading the requested grammar."
+    IDS_RECOCONTEXT_FAIL    "An error occurred creating or initializing the recognition context, so speech recognition will not work."
+    IDS_RULESTATE_FAIL      "An error occurred activating the requested grammar.  This may indicate an error with your default Speech audio device."
+    IDS_DEVICE_BUSY         "The grammar could not be activated, since your audio device is in already in use by another application.  Please shut down all other speech applications and try again.  "
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "jpn_reco.rc"
+#include "chs_reco.rc"
+#include "version.rc2"
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
