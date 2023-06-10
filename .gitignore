@@ -67,3 +67,5 @@ config.cfg
 # shader files
 *.tmp
 
+# Visual Studio Code files
+*.code-workspace
