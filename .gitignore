@@ -69,3 +69,4 @@ config.cfg
 
 # Visual Studio Code files
 *.code-workspace
+.vscode/
