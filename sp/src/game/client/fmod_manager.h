@@ -16,8 +16,6 @@ public:
 	int StartFMOD();
 	int StopFMOD();
 
-	//static ConCommand getFMODStatus;
-
 private:
 	const char* GetBankPath(const char* bankName);
 };
