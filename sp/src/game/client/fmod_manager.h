@@ -14,10 +14,9 @@ public:
 	~CFMODManager();
 
 	int StartFMOD();
-	void StopFMOD();
+	int StopFMOD();
 
-	void GetFMODStatus(const CCommand &args);
-	static ConCommand getFMODStatus;
+	//static ConCommand getFMODStatus;
 
 private:
 	const char* GetBankPath(const char* bankName);
