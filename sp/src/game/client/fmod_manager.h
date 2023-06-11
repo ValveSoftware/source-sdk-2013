@@ -14,6 +14,9 @@ public:
 
 	int StartFMOD();
 	void StopFMOD();
+
+private:
+	const char* GetBankPath(const char* bankName);
 };
 
 extern CFMODManager* FMODManager();

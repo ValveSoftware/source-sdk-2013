@@ -24,9 +24,9 @@ CFMODManager::~CFMODManager()
 // Starts FMOD
 int CFMODManager::StartFMOD(void)
 {
-	
+
 	Msg("Starting FMOD");
-	
+
 	FMOD_RESULT result;
 	FMOD::Studio::System* system = NULL;
 
@@ -53,4 +53,18 @@ int CFMODManager::StartFMOD(void)
 void CFMODManager::StopFMOD(void)
 {
 	Msg("Stopping FMOD");
+}
+
+// Get the path of a bank file in the /sound/fmod/banks folder
+const char* CFMODManager::GetBankPath(const char* bankName)
+{
+	char* bankPath = new char[512];
+	Q_snprintf(bankPath, 512, "%s/sound/fmod/banks/%s", engine->GetGameDirectory(), bankName);
+	// convert backwards slashes to forward slashes
+	for (int i = 0; i < 512; i++)
+	{
+		if (bankPath[i] == '\\')
+			bankPath[i] = '/';
+	}
+	return bankPath;
 }
