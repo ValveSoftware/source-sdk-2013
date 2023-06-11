@@ -5,6 +5,7 @@
 #endif
 
 #include "fmod.hpp"
+#include "convar.h"
 
 class CFMODManager
 {
@@ -14,6 +15,9 @@ public:
 
 	int StartFMOD();
 	void StopFMOD();
+
+	void GetFMODStatus(const CCommand &args);
+	static ConCommand getFMODStatus;
 
 private:
 	const char* GetBankPath(const char* bankName);
