@@ -147,6 +147,9 @@
 #include "fbxsystem/fbxsystem.h"
 #endif
 
+// FMOD Includes
+#include "fmod_manager.h"
+
 extern vgui::IInputInternal *g_InputInternal;
 
 //=============================================================================
@@ -1084,6 +1087,9 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 #ifndef _X360
 	HookHapticMessages(); // Always hook the messages
 #endif
+
+	// Start FMOD Manager
+	FMODManager()->StartFMOD();
 
 	return true;
 }
