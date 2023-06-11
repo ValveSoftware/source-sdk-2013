@@ -7,19 +7,22 @@
 #include "fmod.hpp"
 #include "convar.h"
 
-class CFMODManager
-{
+class CFMODManager {
 public:
-	CFMODManager();
-	~CFMODManager();
+    CFMODManager();
 
-	int StartFMOD();
-	int StopFMOD();
+    ~CFMODManager();
+
+    static int StartFMOD();
+
+    static int StopFMOD();
+
+    static const char *GetBankPath(const char *bankName);
 
 private:
-	const char* GetBankPath(const char* bankName);
+
 };
 
-extern CFMODManager* FMODManager();
+extern CFMODManager *FMODManager();
 
 #endif // FMOD_MANAGER_H
