@@ -1089,7 +1089,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 #endif
 
 	// Start FMOD Manager
-	FMODManager()->StartFMOD();
+    FMODManager()->StartEngine();
 
 	return true;
 }

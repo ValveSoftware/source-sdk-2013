@@ -13,9 +13,13 @@ public:
 
     ~CFMODManager();
 
-    static int StartFMOD();
+    static int StartEngine();
 
-    static int StopFMOD();
+    static int StopEngine();
+
+    static int LoadBank(const char *bankName);
+
+    static int StartEvent(const char *eventPath);
 
     static const char *GetBankPath(const char *bankName);
 

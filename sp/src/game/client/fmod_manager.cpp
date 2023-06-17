@@ -24,48 +24,92 @@ CFMODManager::CFMODManager()
 CFMODManager::~CFMODManager()
 = default;
 
-// Starts FMOD
-int CFMODManager::StartFMOD() {
+//// HELPER FUNCTIONS
+//-----------------------------------------------------------------------------
+// Purpose: Concatenate 2 strings together
+// Input:
+// - str1: The starting string
+// - str2: The ending string
+// Output: The joined 2 strings
+//-----------------------------------------------------------------------------
+const char *concatenate(const char *str1, const char *str2) {
+    size_t len1 = 0;
+    size_t len2 = 0;
+    while (str1[len1] != '\0')
+        ++len1;
+    while (str2[len2] != '\0')
+        ++len2;
+    char *result = new char[len1 + len2 + 1]; // +1 for the null terminator
+    for (size_t i = 0; i < len1; ++i)
+        result[i] = str1[i];
+    for (size_t i = 0; i < len2; ++i)
+        result[len1 + i] = str2[i];
+    result[len1 + len2] = '\0';
+    return result;
+}
+//// END HELPER FUNCTIONS
 
-    Msg("Starting FMOD");
-
+//-----------------------------------------------------------------------------
+// Purpose: Start the FMOD Studio System and initialize it
+// Output: The error code (or 0 if no error was encountered)
+//-----------------------------------------------------------------------------
+int CFMODManager::StartEngine() {
+    Msg("Starting FMOD Engine\n");
     FMOD_RESULT result;
-
-    result = FMOD::Studio::System::create(&fmodStudioSystem); // Create the Studio System object.
+    result = FMOD::Studio::System::create(&fmodStudioSystem);
     if (result != FMOD_OK) {
-        Msg("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+        Error("FMOD Engine error! (%d) %s\n", result, FMOD_ErrorString(result));
         return (-1);
     }
-
-    // Initialize FMOD Studio, which will also initialize FMOD Core
-    result = fmodStudioSystem->initialize(512, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0);
+    result = fmodStudioSystem->initialize(512, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, nullptr);
     if (result != FMOD_OK) {
-        Msg("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+        Error("FMOD Engine error! (%d) %s\n", result, FMOD_ErrorString(result));
         return (-1);
     }
-
-    Msg("FMOD successfully started");
+    Log("FMOD Engine successfully started\n");
     return (0);
-
 }
 
-// Stops FMOD
-int CFMODManager::StopFMOD() {
-    Msg("Stopping FMOD");
+//-----------------------------------------------------------------------------
+// Purpose: Stop the FMOD Studio System
+// Output: The error code (or 0 if no error was encountered)
+//-----------------------------------------------------------------------------
+int CFMODManager::StopEngine() {
+    Msg("Stopping FMOD Engine\n");
     FMOD_RESULT result;
     result = fmodStudioSystem->release();
     if (result != FMOD_OK) {
-        Msg("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+        Error("FMOD Engine error! (%d) %s\n", result, FMOD_ErrorString(result));
         return (-1);
     }
-    Msg("FMOD successfully stopped");
+    Log("FMOD Engine successfully stopped\n");
     return (0);
 }
 
-// Get the path of a bank file in the /sound/fmod/banks folder
+//-----------------------------------------------------------------------------
+// Purpose: Sanitize the name of an FMOD Bank, adding ".bank" if it's not already present
+// Input: The FMOD Bank name to sanitize
+// Output: The sanitized Bank name (same as the initial if it was already ending with ".bank")
+//-----------------------------------------------------------------------------
+const char *SanitizeBankName(const char *bankName) {
+    const char *bankExtension = ".bank";
+    size_t bankNameLength = strlen(bankName);
+    size_t bankExtensionLength = strlen(bankExtension);
+    if (bankNameLength >= bankExtensionLength && strcmp(bankName + bankNameLength - bankExtensionLength, bankExtension) == 0) {
+        return bankName;
+    }
+    return concatenate(bankName, bankExtension);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get the path of a Bank file in the /sound/fmod/banks folder
+// Input: The FMOD Bank name to locate
+// Output: The FMOD Bank's full path from the file system
+//-----------------------------------------------------------------------------
 const char *CFMODManager::GetBankPath(const char *bankName) {
+    const char *sanitizedBankName = SanitizeBankName(bankName);
     char *bankPath = new char[512];
-    Q_snprintf(bankPath, 512, "%s/sound/fmod/banks/%s", engine->GetGameDirectory(), bankName);
+    Q_snprintf(bankPath, 512, "%s/sound/fmod/banks/%s", engine->GetGameDirectory(), sanitizedBankName);
     // convert backwards slashes to forward slashes
     for (int i = 0; i < 512; i++) {
         if (bankPath[i] == '\\')
@@ -74,31 +118,86 @@ const char *CFMODManager::GetBankPath(const char *bankName) {
     return bankPath;
 }
 
-void PrintFMODStatus(const CCommand &args) {
+//-----------------------------------------------------------------------------
+// Purpose: Provide a console command to print the FMOD Engine Status
+//-----------------------------------------------------------------------------
+void CC_GetStatus() {
     bool isValid = fmodStudioSystem->isValid();
     if (isValid) {
-        Msg("FMOD Manager is currently running");
+        Msg("FMOD Manager is currently running\n");
     } else {
-        Msg("FMOD Manager is not running");
+        Msg("FMOD Manager is not running\n");
     }
 }
 
-static ConCommand getFMODStatus("fmod_getstatus", PrintFMODStatus, "FMOD: Get current status of the FMOD Manager");
+static ConCommand getStatus("fmod_getstatus", CC_GetStatus, "FMOD: Get current status of the FMOD Manager");
 
-void LoadSandboxBank() {
+//-----------------------------------------------------------------------------
+// Purpose: Load an FMOD Bank
+// Input: The name of the FMOD Bank to load
+// Output: The error code (or 0 if no error was encountered)
+//-----------------------------------------------------------------------------
+int CFMODManager::LoadBank(const char *bankName) {
     FMOD_RESULT result;
-    result = fmodStudioSystem->loadBankFile(CFMODManager::GetBankPath("Master.bank"), FMOD_STUDIO_LOAD_BANK_NORMAL, &fmodStudioBank);
-    result = fmodStudioSystem->loadBankFile(CFMODManager::GetBankPath("Master.strings.bank"), FMOD_STUDIO_LOAD_BANK_NORMAL, &fmodStudioStringsBank);
+    result = fmodStudioSystem->loadBankFile(CFMODManager::GetBankPath(bankName), FMOD_STUDIO_LOAD_BANK_NORMAL, &fmodStudioBank);
+    if (result != FMOD_OK) {
+        Warning("Could not load FMOD bank (%s). Error: (%d) %s\n", bankName, result, FMOD_ErrorString(result));
+        return (-1);
+    }
+    const char *bankStringsName = concatenate(bankName, ".strings");
+    result = fmodStudioSystem->loadBankFile(CFMODManager::GetBankPath(bankStringsName), FMOD_STUDIO_LOAD_BANK_NORMAL, &fmodStudioBank);
+    if (result != FMOD_OK) {
+        Warning("Could not load FMOD strings bank (%s). Error: (%d) %s\n", bankStringsName, result, FMOD_ErrorString(result));
+        return (-1);
+    }
+    Log("FMOD bank successfully loaded (%s)\n", bankName);
+    return (0);
 }
 
-static ConCommand loadSandboxBank("fmod_loadsandboxbank", LoadSandboxBank, "FMOD: Load the Sandbox bank");
+//-----------------------------------------------------------------------------
+// Purpose: Provide a console command to load a FMOD Bank
+// Input: The name of the FMOD Bank to load as ConCommand argument
+//-----------------------------------------------------------------------------
+void CC_LoadBank(const CCommand &args) {
+    if (args.ArgC() < 1 || strcmp(args.Arg(1), "") == 0) {
+        Msg("Usage: fmod_loadbank <bankname>\n");
+        return;
+    }
+    CFMODManager::LoadBank(args.Arg(1));
+}
 
-void StartSandboxMusicEvent() {
+static ConCommand loadBank("fmod_loadbank", CC_LoadBank, "FMOD: Load a bank");
+
+//-----------------------------------------------------------------------------
+// Purpose: Start an FMOD Event
+// Input: The name of the FMOD Event to start
+// Output: The error code (or 0 if no error was encountered)
+//-----------------------------------------------------------------------------
+int CFMODManager::StartEvent(const char *eventPath) {
+    const char *fullEventPath = concatenate("event:/", eventPath);
     FMOD_RESULT result;
-    result = fmodStudioSystem->getEvent("event:/Music", &fmodStudioEventDescription);
+    result = fmodStudioSystem->getEvent(fullEventPath, &fmodStudioEventDescription);
     result = fmodStudioEventDescription->createInstance(&fmodStudioEventInstance);
     result = fmodStudioEventInstance->start();
-	fmodStudioSystem->update();
+    fmodStudioSystem->update();
+    if (result != FMOD_OK) {
+        Warning("Could not start FMOD event (%s). Error: (%d) %s\n", eventPath, result, FMOD_ErrorString(result));
+        return (-1);
+    }
+    Log("FMOD event successfully started (%s)\n", eventPath);
+    return (0);
 }
 
-static ConCommand startSandboxMusicEvent("fmod_startsandboxmusicevent", StartSandboxMusicEvent, "FMOD: Start the Sandbox music event");
+//-----------------------------------------------------------------------------
+// Purpose: Provide a console command to start an FMOD Event
+// Input: The name of the FMOD Event to load as ConCommand argument
+//-----------------------------------------------------------------------------
+void CC_StartEvent(const CCommand &args) {
+    if (args.ArgC() < 1 || strcmp(args.Arg(1), "") == 0) {
+        Msg("Usage: fmod_startevent <eventpath>\n");
+        return;
+    }
+    CFMODManager::StartEvent(args.Arg(1));
+}
+
+static ConCommand startEvent("fmod_startevent", CC_StartEvent, "FMOD: Start an event");
