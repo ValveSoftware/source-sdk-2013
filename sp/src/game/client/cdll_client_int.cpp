@@ -1088,7 +1088,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	HookHapticMessages(); // Always hook the messages
 #endif
 
-	// Start FMOD Manager
+	// Start FMOD Engine
     FMODManager()->StartEngine();
 
 	return true;
@@ -1189,6 +1189,9 @@ void CHLClient::Shutdown( void )
 
 	g_pClientMode->Disable();
 	g_pClientMode->Shutdown();
+
+    // Stop FMOD Engine
+    FMODManager()->StopEngine();
 
 	input->Shutdown_All();
 	C_BaseTempEntity::ClearDynamicTempEnts();
