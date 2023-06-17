@@ -1090,6 +1090,8 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 	// Start FMOD Engine
     FMODManager()->StartEngine();
+    // Load the Master FMOD bank
+    FMODManager()->LoadBank("Master");
 
 	return true;
 }

@@ -145,7 +145,7 @@ int CFMODManager::LoadBank(const char *bankName) {
         return (-1);
     }
     const char *bankStringsName = concatenate(bankName, ".strings");
-    result = fmodStudioSystem->loadBankFile(CFMODManager::GetBankPath(bankStringsName), FMOD_STUDIO_LOAD_BANK_NORMAL, &fmodStudioBank);
+    result = fmodStudioSystem->loadBankFile(CFMODManager::GetBankPath(bankStringsName), FMOD_STUDIO_LOAD_BANK_NORMAL, &fmodStudioStringsBank);
     if (result != FMOD_OK) {
         Warning("Could not load FMOD strings bank (%s). Error: (%d) %s\n", bankStringsName, result, FMOD_ErrorString(result));
         return (-1);
