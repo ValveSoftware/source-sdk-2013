@@ -1088,7 +1088,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	HookHapticMessages(); // Always hook the messages
 #endif
 
-	// Start FMOD Engine
+    // Start FMOD Engine
     FMODManager()->StartEngine();
     // Load the Master FMOD bank
     FMODManager()->LoadBank("Master");
