@@ -201,3 +201,38 @@ void CC_StartEvent(const CCommand &args) {
 }
 
 static ConCommand startEvent("fmod_startevent", CC_StartEvent, "FMOD: Start an event");
+
+//-----------------------------------------------------------------------------
+// Purpose: Set the value for a global FMOD Parameter
+// Input:
+// - parameterName: The name of the FMOD Parameter to set
+// - value: The value to set the FMOD Parameter to
+// Output: The error code (or 0 if no error was encountered)
+//-----------------------------------------------------------------------------
+int CFMODManager::SetGlobalParameter(const char *parameterName, float value) {;
+    FMOD_RESULT result;
+    result = fmodStudioSystem->setParameterByName(parameterName, value);
+    fmodStudioSystem->update();
+    if (result != FMOD_OK) {
+        Warning("Could not set FMOD global parameter value (%s) (%f). Error: (%d) %s\n", parameterName, value, result, FMOD_ErrorString(result));
+        return (-1);
+    }
+    Log("FMOD parameter successfully set (%s) (%f)\n", parameterName, value);
+    return (0);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Provide a console command to the value for a global FMOD Parameter
+// Input:
+// - Arg(1): The name of the FMOD Parameter to set (to load as ConCommand argument)
+// - Arg(2): The value to set the FMOD Parameter to (to load as ConCommand argument)
+//-----------------------------------------------------------------------------
+void CC_SetGlobalParameter(const CCommand &args) {
+    if (args.ArgC() < 2 || strcmp(args.Arg(1), "") == 0 || strcmp(args.Arg(2), "") == 0) {
+        Msg("Usage: fmod_setglobalparameter <parametername> <value>\n");
+        return;
+    }
+    CFMODManager::SetGlobalParameter(args.Arg(1), atof(args.Arg(2)));
+}
+
+static ConCommand setGlobalParameter("fmod_setglobalparameter", CC_SetGlobalParameter, "FMOD: Set a global parameter");

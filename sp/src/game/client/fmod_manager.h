@@ -21,6 +21,8 @@ public:
 
     static int StartEvent(const char *eventPath);
 
+    static int SetGlobalParameter(const char *parameterName, float value);
+
     static const char *GetBankPath(const char *bankName);
 
 private:
