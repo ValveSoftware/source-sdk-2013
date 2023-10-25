@@ -208,7 +208,7 @@ void CWeaponAR2::DelayedAttack( void )
 
 //	pOwner->SnapEyeAngles( angles );
 	
-	pOwner->ViewPunch( QAngle( SharedRandomInt( "ar2pax", -8, -12 ), SharedRandomInt( "ar2pay", 1, 2 ), 0 ) );
+	pOwner->ViewPunch( QAngle( SharedRandomInt( "ar2pax", -12, -8 ), SharedRandomInt( "ar2pay", 1, 2 ), 0 ) );
 
 	// Decrease ammo
 	pOwner->RemoveAmmo( 1, m_iSecondaryAmmoType );
