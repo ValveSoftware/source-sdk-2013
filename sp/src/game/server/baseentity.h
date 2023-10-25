@@ -1575,7 +1575,7 @@ public:
 		float flVolume, soundlevel_t iSoundlevel, int iFlags = 0, int iPitch = PITCH_NORM,
 		const Vector *pOrigin = NULL, const Vector *pDirection = NULL, bool bUpdatePositions = true, float soundtime = 0.0f
 #ifdef MAPBASE
-		, int iSpecialDSP = 0, int iSpeakerIndex = 0 // Needed for env_microphone
+		, int iSpecialDSP = 0, int iSpeakerIndex = -1 // Needed for env_microphone
 #endif
 		);
 
