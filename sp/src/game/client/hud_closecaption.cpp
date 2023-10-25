@@ -1496,9 +1496,23 @@ void CHudCloseCaption::Process( const wchar_t *stream, float duration, const cha
 
 	if ( m_Items.Count() > 0 )
 	{
+#ifndef MAPBASE
 		// Get the remaining life span of the last item
-		CCloseCaptionItem *final = m_Items[ m_Items.Count() - 1 ];
+		CCloseCaptionItem* final = m_Items[m_Items.Count() - 1];
 		float prevlife = final->GetTimeToLive();
+#else
+		float prevlife = 0.f;
+		// Get the remaining life span of the last displayed item
+		for (int i = m_Items.Count() - 1; i >= 0; i--)
+		{
+			if (m_Items[i]->GetPreDisplayTime() > cc_predisplay_time.GetFloat())
+				continue;
+
+			prevlife = m_Items[i]->GetTimeToLive();
+			break;
+		}
+#endif // !MAPBASE
+
 
 		if ( prevlife > lifespan )
 		{
@@ -1532,7 +1546,31 @@ void CHudCloseCaption::Process( const wchar_t *stream, float duration, const cha
 				if ( wcslen( phrase ) > 0 )
 				{
 					CCloseCaptionItem *item = new CCloseCaptionItem( phrase, lifespan, addedlife, delay, valid, fromplayer );
-					m_Items.AddToTail( item );
+#ifdef MAPBASE
+					if (m_Items.Count())
+					{
+						// Add it where it will appear
+						for (int i = m_Items.Count() - 1; i >= 0; i--)
+						{
+							if (m_Items[i]->GetPreDisplayTime() > delay + cc_predisplay_time.GetFloat())
+							{
+								if (i == 0)
+								{
+									m_Items.AddToHead(item);
+									break;
+								}
+								else
+									continue;
+							}
+
+							m_Items.InsertAfter(i, item);
+							break;
+						}
+					}
+					else
+#endif // MAPBASE
+						m_Items.AddToTail(item);
+
 					if ( StreamHasCommand( phrase, L"sfx" ) )
 					{
 						// SFX show up instantly.
@@ -1541,6 +1579,9 @@ void CHudCloseCaption::Process( const wchar_t *stream, float duration, const cha
 					
 					if ( GetFloatCommandValue( phrase, L"len", override_duration ) )
 					{
+#ifdef MAPBASE
+						override_duration += cc_linger_time.GetFloat();
+#endif // MAPBASE
 						item->SetTimeToLive( override_duration );
 					}
 				}
@@ -1569,7 +1610,30 @@ void CHudCloseCaption::Process( const wchar_t *stream, float duration, const cha
 	if ( wcslen( phrase ) > 0 )
 	{
 		CCloseCaptionItem *item = new CCloseCaptionItem( phrase, lifespan, addedlife, delay, valid, fromplayer );
-		m_Items.AddToTail( item );
+#ifdef MAPBASE
+		if (m_Items.Count())
+		{
+			// Add it where it will appear
+			for (int i = m_Items.Count() - 1; i >= 0; i--)
+			{
+				if (m_Items[i]->GetPreDisplayTime() > delay + cc_predisplay_time.GetFloat())
+				{
+					if (i == 0)
+					{
+						m_Items.AddToHead(item);
+						break;
+					}
+					else
+						continue;
+				}
+
+				m_Items.InsertAfter(i, item);
+				break;
+			}
+		}
+		else
+#endif // MAPBASE
+		m_Items.AddToTail(item);
 
 		if ( StreamHasCommand( phrase, L"sfx" ) )
 		{
@@ -1579,6 +1643,10 @@ void CHudCloseCaption::Process( const wchar_t *stream, float duration, const cha
 
 		if ( GetFloatCommandValue( phrase, L"len", override_duration ) )
 		{
+#ifdef MAPBASE
+			override_duration += cc_linger_time.GetFloat();
+#endif // MAPBASE
+
 			item->SetTimeToLive( override_duration );
 			item->SetInitialLifeSpan( override_duration );
 		}
@@ -2614,8 +2682,14 @@ void CHudCloseCaption::InitCaptionDictionary( const char *dbfile )
 
 	g_AsyncCaptionResourceManager.Clear();
 
+#ifdef MAPBASE
+	int iBufferSize = filesystem->GetSearchPath("GAME", true, nullptr, 0);
+	char* searchPaths = (char*)stackalloc(iBufferSize);
+	filesystem->GetSearchPath("GAME", true, searchPaths, iBufferSize);
+#else
 	char searchPaths[4096];
 	filesystem->GetSearchPath( "GAME", true, searchPaths, sizeof( searchPaths ) );
+#endif
 
 	for ( char *path = strtok( searchPaths, ";" ); path; path = strtok( NULL, ";" ) )
 	{
@@ -2626,8 +2700,13 @@ void CHudCloseCaption::InitCaptionDictionary( const char *dbfile )
 		} 
 
 		char fullpath[MAX_PATH];
-		Q_snprintf( fullpath, sizeof( fullpath ), "%s%s", path, dbfile );
-		Q_FixSlashes( fullpath );
+#ifndef MAPBASE
+		Q_snprintf(fullpath, sizeof(fullpath), "%s%s", path, dbfile);
+		Q_FixSlashes(fullpath);
+#else
+		V_ComposeFileName(path, dbfile, fullpath, sizeof(fullpath));
+#endif // !MAPBASE
+
 
 		if ( IsX360() )
 		{
@@ -2692,8 +2771,7 @@ void CHudCloseCaption::AddAdditionalCaptionDictionary( const char *dbfile, CUtlV
 		} 
 
 		char fullpath[MAX_PATH];
-		Q_snprintf( fullpath, sizeof( fullpath ), "%s%s", path, dbfile );
-		Q_FixSlashes( fullpath );
+		V_ComposeFileName(path, dbfile, fullpath, sizeof(fullpath));
 
 		if ( IsX360() )
 		{
