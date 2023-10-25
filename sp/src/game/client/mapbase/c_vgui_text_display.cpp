@@ -215,6 +215,13 @@ void C_TextDisplayPanel::UpdateText()
 	if (pszFontName && pszFontName[0] != '\0')
 	{
 		HFont font = scheme()->GetIScheme( GetScheme() )->GetFont( pszFontName );
+
+		if ( !font )
+		{
+			extern HFont GetScriptFont( const char *, bool );
+			font = GetScriptFont( pszFontName, false );
+		}
+
 		m_pDisplayTextLabel->SetFont( font );
 	}
 

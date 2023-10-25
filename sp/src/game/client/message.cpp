@@ -447,6 +447,8 @@ void CHudMessage::MessageScanStart( void )
 		break;
 	}
 
+	// Font was just set in MessageDrawScan()
+#ifndef MAPBASE
 	m_parms.font = g_hFontTrebuchet24;
 
 	if ( m_parms.vguiFontName != NULL && 
@@ -455,6 +457,7 @@ void CHudMessage::MessageScanStart( void )
 
 		SetFont( vgui::scheme()->GetDefaultScheme(), m_parms.vguiFontName );
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -497,7 +500,30 @@ void CHudMessage::MessageDrawScan( client_textmessage_t *pMessage, float time )
 	m_parms.totalWidth = 0;
 	m_parms.vguiFontName = pMessage->pVGuiSchemeFontName;
 
+#ifdef MAPBASE
+	if ( m_parms.vguiFontName != NULL &&
+		m_parms.vguiFontName[ 0 ] )
+	{
+		SetFont( vgui::scheme()->GetDefaultScheme(), m_parms.vguiFontName );
+
+	#ifdef MAPBASE_VSCRIPT
+		if ( m_parms.font == vgui::INVALID_FONT )
+		{
+			extern vgui::HFont GetScriptFont( const char *, bool );
+
+			vgui::HFont font = GetScriptFont( m_parms.vguiFontName, IsProportional() );
+			textmessage->SetFont( font );
+			m_parms.font = font;
+		}
+	#endif
+	}
+	else
+	{
+		m_parms.font = g_hFontTrebuchet24;
+	}
+#else
 	m_parms.font = g_hFontTrebuchet24;
+#endif
 
 	while ( *pText )
 	{

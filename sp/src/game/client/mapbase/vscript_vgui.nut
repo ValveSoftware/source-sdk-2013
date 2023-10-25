@@ -1,6 +1,6 @@
 static const char* g_Script_vgui_init = R"script(
 local DoCreateFont = ISurface.CreateFont;
-ISurface.CreateFont <- function( name, props )
+function ISurface::CreateFont( name, props )
 {
 	if ( !("name" in props) || typeof props.name != "string" )
 		throw "invalid parameter 'name'";
@@ -86,12 +86,12 @@ ISurface.CreateFont <- function( name, props )
 	return DoCreateFont( name, props.name, props.tall, props.weight, blur, scanlines, flags, yres_min, yres_max, proportional );
 }
 
-local _Schemes = {}
 local _FontTall = {}
+local _Schemes = {}
 local DoGetFont = ISurface.DoGetFont <- ISurface.GetFont;
 local DoGetFontTall = ISurface.GetFontTall;
 
-ISurface.GetFont <- function( name, proportional, sch = "" )
+function ISurface::GetFont( name, proportional, sch = "" )
 {
 	if ( sch in _Schemes )
 	{
@@ -151,33 +151,28 @@ ISurface.GetTextureID <- function( name )
 }
 
 // Forward compatibility
-IVGui.GetRootPanel <- function() { return 1000 }
-//IVGui.GetGameUIRootPanel <- function() { return 1001 }
-IVGui.GetClientDLLRootPanel <- function() { return 1002 }
-//IVGui.GetHudViewportPanel <- function() { return 1010 }
+IVGui.GetRootPanel <- function() { return 0x8888 }
+//IVGui.GetGameUIRootPanel <- function() { return 0x8888+1 }
+IVGui.GetClientDLLRootPanel <- function() { return 0x8888+2 }
+IVGui.GetHudViewport <- function() { return 0x8888+10 }
 
 local CreatePanel = IVGui.CreatePanel;
-IVGui.CreatePanel <- function( type, parent, name )
+function IVGui::CreatePanel( type, parent, name )
 {
 	if ( !parent )
 		throw "invalid parent";
 
-	local root = 0;
-
+	local root = -1;
 	if ( typeof parent == "integer" )
 	{
-		switch ( parent )
+		root = parent-0x8888;
+		switch ( root )
 		{
-			case 1000:
-				root = 0;
+			case 0:
+			case 2:
+			case 10:
 				break;
-
-			case 1002:
-				root = 2;
-				break;
-
-			default:
-				throw "invalid parent";
+			default: throw "invalid parent";
 		}
 		parent = null;
 	}
@@ -390,5 +385,6 @@ if ( __Documentation.RegisterHelp != dummy )
 	__Documentation.RegisterHelp( "IVGui::CreatePanel", "handle IVGui::CreatePanel(string, handle, string)", "" );
 	__Documentation.RegisterHelp( "IVGui::GetRootPanel", "handle IVGui::GetRootPanel()", "" );
 	__Documentation.RegisterHelp( "IVGui::GetClientDLLRootPanel", "handle IVGui::GetClientDLLRootPanel()", "" );
+	__Documentation.RegisterHelp( "IVGui::GetHudViewport", "handle IVGui::GetHudViewport()", "" );
 }
 )script";
