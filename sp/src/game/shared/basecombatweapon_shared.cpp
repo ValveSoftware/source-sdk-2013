@@ -164,9 +164,7 @@ void CBaseCombatWeapon::GiveDefaultAmmo( void )
 //-----------------------------------------------------------------------------
 void CBaseCombatWeapon::Spawn( void )
 {
-#if !defined(CLIENT_DLL) || !defined(MAPBASE)
 	Precache();
-#endif // !defined(CLIENT_DLL) || !defined(MAPBASE)
 
 	BaseClass::Spawn();
 

@@ -151,13 +151,6 @@ int C_BaseCombatWeapon::GetWorldModelIndex( void )
 //-----------------------------------------------------------------------------
 void C_BaseCombatWeapon::OnDataChanged( DataUpdateType_t updateType )
 {
-#ifdef MAPBASE
-	if (updateType == DATA_UPDATE_CREATED)
-	{
-		Precache();
-	}
-#endif // MAPBASE
-
 	BaseClass::OnDataChanged(updateType);
 
 	CHandle< C_BaseCombatWeapon > handle = this;

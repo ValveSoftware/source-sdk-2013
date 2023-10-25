@@ -23,6 +23,8 @@ public:
 
 	C_HLCustomWeaponMelee();
 
+	void OnDataChanged( DataUpdateType_t updateType );
+
 	virtual const char* GetWeaponScriptName() { return m_iszWeaponScriptName; }
 private:
 	char m_iszWeaponScriptName[128];
@@ -39,6 +41,16 @@ C_HLCustomWeaponMelee::C_HLCustomWeaponMelee()
 	m_iszWeaponScriptName[0] = '\0';
 }
 
+void C_HLCustomWeaponMelee::OnDataChanged( DataUpdateType_t updateType )
+{
+	if (updateType == DATA_UPDATE_CREATED)
+	{
+		Precache();
+	}
+
+	BaseClass::OnDataChanged( updateType );
+}
+
 
 
 class C_HLCustomWeaponGun : public C_BaseHLCombatWeapon
@@ -49,6 +61,8 @@ public:
 	DECLARE_PREDICTABLE();
 
 	C_HLCustomWeaponGun();
+
+	void OnDataChanged( DataUpdateType_t updateType );
 
 	virtual const char* GetWeaponScriptName() { return m_iszWeaponScriptName; }
 private:
@@ -64,4 +78,14 @@ END_RECV_TABLE();
 C_HLCustomWeaponGun::C_HLCustomWeaponGun()
 {
 	m_iszWeaponScriptName[0] = '\0';
+}
+
+void C_HLCustomWeaponGun::OnDataChanged( DataUpdateType_t updateType )
+{
+	if (updateType == DATA_UPDATE_CREATED)
+	{
+		Precache();
+	}
+
+	BaseClass::OnDataChanged( updateType );
 }
