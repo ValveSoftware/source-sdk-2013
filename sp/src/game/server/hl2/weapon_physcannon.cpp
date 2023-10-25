@@ -69,8 +69,8 @@ ConVar physcannon_dmg_glass( "physcannon_dmg_glass", "15" );
 ConVar physcannon_right_turrets( "physcannon_right_turrets", "0" );
 
 #ifdef MAPBASE
-ConVar sv_player_enable_propsprint("sv_player_enable_propsprint", "0", FCVAR_REPLICATED, "If enabled, allows the player to sprint while holding a physics object" );
-ConVar sv_player_enable_gravgun_sprint("sv_player_enable_gravgun_sprint", "0", FCVAR_REPLICATED, "Enables the player to sprint while holding a phys. object with the gravity gun" );
+ConVar sv_player_enable_propsprint("sv_player_enable_propsprint", "0", FCVAR_NONE, "If enabled, allows the player to sprint while holding a physics object" );
+ConVar sv_player_enable_gravgun_sprint("sv_player_enable_gravgun_sprint", "0", FCVAR_NONE, "Enables the player to sprint while holding a phys. object with the gravity gun" );
 #endif
 extern ConVar hl2_normspeed;
 extern ConVar hl2_walkspeed;
@@ -1046,22 +1046,21 @@ void CPlayerPickupController::Init( CBasePlayer *pPlayer, CBaseEntity *pObject )
 	}
 
 	CHL2_Player *pOwner = (CHL2_Player *)ToBasePlayer( pPlayer );
-#ifndef MAPBASE
 	if ( pOwner )
 	{
+#ifndef MAPBASE
 		pOwner->EnableSprint( false );
-	}
-
 #else
-	if ( pOwner && sv_player_enable_propsprint.GetBool() == false )
-	{
-		pOwner->EnableSprint( false );
-	}
-	else
-	{
-		pOwner->EnableSprint( true );	
-	}
+		if ( sv_player_enable_propsprint.GetBool() == false )
+		{
+			pOwner->EnableSprint( false );
+		}
+		else
+		{
+			pOwner->EnableSprint( true );	
+		}
 #endif
+	}
 	// If the target is debris, convert it to non-debris
 	if ( pObject->GetCollisionGroup() == COLLISION_GROUP_DEBRIS )
 	{
