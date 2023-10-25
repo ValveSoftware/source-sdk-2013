@@ -92,7 +92,7 @@ template <class Entity, class Data>
 class CDefaultCustomWeaponEntityFactory : public CCustomWeaponEntityFactoryBase<Entity>
 {
 public:
-	CDefaultCustomWeaponEntityFactory(const char *pFactoryClass) : CCustomWeaponEntityFactoryBase(pFactoryClass)
+	CDefaultCustomWeaponEntityFactory(const char *pFactoryClass) : CCustomWeaponEntityFactoryBase<Entity>(pFactoryClass)
 	{}
 
 	virtual const void* ParseDataFromWeaponFile(KeyValues* pKV) const
