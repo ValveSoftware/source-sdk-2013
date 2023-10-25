@@ -453,8 +453,7 @@ void RunAddonScripts()
 
 		// mapspawn_addon
 		char fullpath[MAX_PATH];
-		Q_snprintf( fullpath, sizeof( fullpath ), "%sscripts/vscripts/mapspawn_addon", path );
-		Q_FixSlashes( fullpath );
+		Q_ComposeFileName( path, "scripts/vscripts/mapspawn_addon", fullpath, sizeof( fullpath ) );
 
 		VScriptRunScriptAbsolute( fullpath, NULL, false, folderName );
 	}
