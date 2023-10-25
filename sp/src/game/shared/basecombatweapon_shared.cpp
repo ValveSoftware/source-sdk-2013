@@ -164,7 +164,9 @@ void CBaseCombatWeapon::GiveDefaultAmmo( void )
 //-----------------------------------------------------------------------------
 void CBaseCombatWeapon::Spawn( void )
 {
+#if !defined(CLIENT_DLL) || !defined(MAPBASE)
 	Precache();
+#endif // !defined(CLIENT_DLL) || !defined(MAPBASE)
 
 	BaseClass::Spawn();
 
@@ -239,7 +241,7 @@ const unsigned char *CBaseCombatWeapon::GetEncryptionKey( void )
 void CBaseCombatWeapon::Precache( void )
 {
 #if defined( CLIENT_DLL )
-	Assert( Q_strlen( GetClassname() ) > 0 );
+	Assert( Q_strlen(GetWeaponScriptName() ) > 0 );
 	// Msg( "Client got %s\n", GetClassname() );
 #endif
 	m_iPrimaryAmmoType = m_iSecondaryAmmoType = -1;
@@ -321,7 +323,7 @@ void CBaseCombatWeapon::Precache( void )
 	else
 	{
 		// Couldn't read data file, remove myself
-		Warning( "Error reading weapon data file for: %s\n", GetClassname() );
+		Warning( "Error reading weapon data file for: %s\n", GetWeaponScriptName() );
 	//	Remove( );	//don't remove, this gets released soon!
 	}
 }
@@ -2884,6 +2886,15 @@ void CBaseCombatWeapon::Lock( float lockTime, CBaseEntity *pLocker )
 bool CBaseCombatWeapon::IsLocked( CBaseEntity *pAsker )
 {
 	return ( m_flUnlockTime > gpGlobals->curtime && m_hLocker != pAsker );
+}
+
+bool CBaseCombatWeapon::CanBePickedUpByNPCs(void)
+{
+#ifdef MAPBASE
+	return GetWpnData().m_nWeaponRestriction != WPNRESTRICT_PLAYER_ONLY;
+#else
+	return true;
+#endif // MAPBASE
 }
 
 //-----------------------------------------------------------------------------

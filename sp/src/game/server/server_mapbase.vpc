@@ -63,6 +63,8 @@ $Project
 			$File	"mapbase\ai_grenade.h"
 			$File	"mapbase\ai_monitor.cpp"
 			$File	"mapbase\ai_weaponmodifier.cpp"
+			$File	"mapbase\custom_weapon_factory.cpp"
+			$File	"mapbase\custom_weapon_factory.h"
 			$File	"mapbase\closecaption_entity.cpp"
 			$File	"mapbase\datadesc_mod.cpp"
 			$File	"mapbase\datadesc_mod.h"
@@ -86,6 +88,7 @@ $Project
 			$File	"mapbase\SystemConvarMod.h"
 			$File	"mapbase\variant_tools.h"
 			$File	"mapbase\vgui_text_display.cpp"
+			$File	"mapbase\weapon_custom_hl2.cpp"
 			
 			$File	"mapbase\logic_eventlistener.cpp"
 			$File	"mapbase\logic_register_activator.cpp"

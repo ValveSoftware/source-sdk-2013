@@ -390,7 +390,7 @@ public:
 	bool					IsLocked( CBaseEntity *pAsker );
 
 	//All weapons can be picked up by NPCs by default
-	virtual bool			CanBePickedUpByNPCs( void ) { return true;	}
+	virtual bool			CanBePickedUpByNPCs(void);
 
 	virtual int				GetSkinOverride() const { return -1; }
 

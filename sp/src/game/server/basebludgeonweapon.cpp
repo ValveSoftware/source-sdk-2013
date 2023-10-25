@@ -28,6 +28,15 @@
 IMPLEMENT_SERVERCLASS_ST( CBaseHLBludgeonWeapon, DT_BaseHLBludgeonWeapon )
 END_SEND_TABLE()
 
+#ifdef MAPBASE
+BEGIN_DATADESC(CBaseHLBludgeonWeapon)
+
+DEFINE_FIELD(m_flDelayedFire, FIELD_TIME),
+DEFINE_FIELD(m_bShotDelayed, FIELD_BOOLEAN),
+
+END_DATADESC()
+#endif // MAPBASE
+
 #define BLUDGEON_HULL_DIM		16
 
 static const Vector g_bludgeonMins(-BLUDGEON_HULL_DIM,-BLUDGEON_HULL_DIM,-BLUDGEON_HULL_DIM);
@@ -39,6 +48,9 @@ static const Vector g_bludgeonMaxs(BLUDGEON_HULL_DIM,BLUDGEON_HULL_DIM,BLUDGEON_
 CBaseHLBludgeonWeapon::CBaseHLBludgeonWeapon()
 {
 	m_bFiresUnderwater = true;
+#ifdef MAPBASE
+	m_bShotDelayed = false;
+#endif // MAPBASE
 }
 
 //-----------------------------------------------------------------------------
@@ -96,11 +108,19 @@ void CBaseHLBludgeonWeapon::ItemPostFrame( void )
 #ifdef MAPBASE
 	if (pOwner->HasSpawnFlags( SF_PLAYER_SUPPRESS_FIRING ))
 	{
+		m_bShotDelayed = false;
 		WeaponIdle();
 		return;
 	}
-#endif
 
+	// See if we need to fire off our secondary round
+	if (m_bShotDelayed)
+	{
+		if (gpGlobals->curtime > m_flDelayedFire)
+			DelayedAttack();
+	}
+	else
+#endif
 	if ( (pOwner->m_nButtons & IN_ATTACK) && (m_flNextPrimaryAttack <= gpGlobals->curtime) )
 	{
 		PrimaryAttack();
@@ -162,7 +182,12 @@ void CBaseHLBludgeonWeapon::Hit( trace_t &traceHit, Activity nHitActivity, bool 
 		pPlayer->EyeVectors( &hitDirection, NULL, NULL );
 		VectorNormalize( hitDirection );
 
-		CTakeDamageInfo info( GetOwner(), GetOwner(), GetDamageForActivity( nHitActivity ), DMG_CLUB );
+#ifdef MAPBASE
+		CTakeDamageInfo info(GetOwner(), GetOwner(), GetDamageForActivity(nHitActivity), GetDamageType());
+#else
+		CTakeDamageInfo info(GetOwner(), GetOwner(), GetDamageForActivity(nHitActivity), DMG_CLUB);
+#endif // MAPBASE
+
 
 		if( pPlayer && pHitEntity->IsNPC() )
 		{
@@ -234,7 +259,7 @@ Activity CBaseHLBludgeonWeapon::ChooseIntersectionPointAndActivity( trace_t &hit
 	}
 
 
-	return ACT_VM_HITCENTER;
+	return GetPrimaryAttackActivity();
 }
 
 //-----------------------------------------------------------------------------
@@ -292,7 +317,6 @@ void CBaseHLBludgeonWeapon::ImpactEffect( trace_t &traceHit )
 	UTIL_ImpactTrace( &traceHit, DMG_CLUB );
 }
 
-
 //------------------------------------------------------------------------------
 // Purpose : Starts the swing of the weapon and determines the animation
 // Input   : bIsSecondary - is this a secondary attack?
@@ -315,10 +339,14 @@ void CBaseHLBludgeonWeapon::Swing( int bIsSecondary )
 
 	Vector swingEnd = swingStart + forward * GetRange();
 	UTIL_TraceLine( swingStart, swingEnd, MASK_SHOT_HULL, pOwner, COLLISION_GROUP_NONE, &traceHit );
-	Activity nHitActivity = ACT_VM_HITCENTER;
+	Activity nHitActivity = GetPrimaryAttackActivity();
 
 	// Like bullets, bludgeon traces have to trace against triggers.
-	CTakeDamageInfo triggerInfo( GetOwner(), GetOwner(), GetDamageForActivity( nHitActivity ), DMG_CLUB );
+#ifdef MAPBASE
+	CTakeDamageInfo triggerInfo(GetOwner(), GetOwner(), GetDamageForActivity(nHitActivity), GetDamageType());
+#else
+	CTakeDamageInfo triggerInfo(GetOwner(), GetOwner(), GetDamageForActivity(nHitActivity), DMG_CLUB);
+#endif // MAPBASE
 	triggerInfo.SetDamagePosition( traceHit.startpos );
 	triggerInfo.SetDamageForce( forward );
 	TraceAttackToTriggers( triggerInfo, traceHit.startpos, traceHit.endpos, forward );
@@ -369,31 +397,20 @@ void CBaseHLBludgeonWeapon::Swing( int bIsSecondary )
 	{
 		nHitActivity = bIsSecondary ? ACT_VM_MISSCENTER2 : ACT_VM_MISSCENTER;
 
+#ifndef MAPBASE
 		// We want to test the first swing again
 		Vector testEnd = swingStart + forward * GetRange();
 
-#ifdef MAPBASE
-		// Sound has been moved here since we're using the other melee sounds now
-		WeaponSound( SINGLE );
-#endif
-		
 		// See if we happened to hit water
-		ImpactWater( swingStart, testEnd );
+		ImpactWater(swingStart, testEnd);
+#endif // !MAPBASE
 	}
+#ifndef MAPBASE
 	else
 	{
-#ifdef MAPBASE
-		// Other melee sounds
-		if (traceHit.m_pEnt && traceHit.m_pEnt->IsWorld())
-			WeaponSound(MELEE_HIT_WORLD);
-		else if (traceHit.m_pEnt && !traceHit.m_pEnt->PassesDamageFilter(triggerInfo))
-			WeaponSound(MELEE_MISS);
-		else
-			WeaponSound(MELEE_HIT);
-#endif
-
 		Hit( traceHit, nHitActivity, bIsSecondary ? true : false );
 	}
+#endif
 
 	// Send the anim
 	SendWeaponAnim( nHitActivity );
@@ -409,5 +426,125 @@ void CBaseHLBludgeonWeapon::Swing( int bIsSecondary )
 
 #ifdef MAPBASE
 	pOwner->SetAnimation( PLAYER_ATTACK1 );
+
+	if (GetHitDelay() > 0.f)
+	{
+		//Play swing sound
+		WeaponSound(SINGLE);
+
+		m_flDelayedFire = gpGlobals->curtime + GetHitDelay();
+		m_bShotDelayed = true;
+	}
+	else
+	{
+		if (traceHit.fraction == 1.0f)
+		{
+			// We want to test the first swing again
+			Vector testEnd = swingStart + forward * GetRange();
+
+			//Play swing sound
+			WeaponSound(SINGLE);
+
+			// See if we happened to hit water
+			ImpactWater(swingStart, testEnd);
+		}
+		else
+		{
+			// Other melee sounds
+			if (traceHit.m_pEnt && traceHit.m_pEnt->IsWorld())
+				WeaponSound(MELEE_HIT_WORLD);
+			else if (traceHit.m_pEnt && !traceHit.m_pEnt->PassesDamageFilter(triggerInfo))
+				WeaponSound(MELEE_MISS);
+			else
+				WeaponSound(MELEE_HIT);
+
+			Hit(traceHit, nHitActivity, bIsSecondary ? true : false);
+		}
+	}
 #endif
 }
+
+#ifdef MAPBASE
+void CBaseHLBludgeonWeapon::DelayedAttack(void)
+{
+	m_bShotDelayed = false;
+
+	trace_t traceHit;
+
+	// Try a ray
+	CBasePlayer* pOwner = ToBasePlayer(GetOwner());
+	if (!pOwner)
+		return;
+
+	pOwner->RumbleEffect(RUMBLE_CROWBAR_SWING, 0, RUMBLE_FLAG_RESTART);
+
+	Vector swingStart = pOwner->Weapon_ShootPosition();
+	Vector forward;
+
+	forward = pOwner->GetAutoaimVector(AUTOAIM_SCALE_DEFAULT, GetRange());
+
+	Vector swingEnd = swingStart + forward * GetRange();
+	UTIL_TraceLine(swingStart, swingEnd, MASK_SHOT_HULL, pOwner, COLLISION_GROUP_NONE, &traceHit);
+
+	if (traceHit.fraction == 1.0)
+	{
+		float bludgeonHullRadius = 1.732f * BLUDGEON_HULL_DIM;  // hull is +/- 16, so use cuberoot of 2 to determine how big the hull is from center to the corner point
+
+		// Back off by hull "radius"
+		swingEnd -= forward * bludgeonHullRadius;
+
+		UTIL_TraceHull(swingStart, swingEnd, g_bludgeonMins, g_bludgeonMaxs, MASK_SHOT_HULL, pOwner, COLLISION_GROUP_NONE, &traceHit);
+		if (traceHit.fraction < 1.0 && traceHit.m_pEnt)
+		{
+			Vector vecToTarget = traceHit.m_pEnt->GetAbsOrigin() - swingStart;
+			VectorNormalize(vecToTarget);
+
+			float dot = vecToTarget.Dot(forward);
+
+			// YWB:  Make sure they are sort of facing the guy at least...
+			if (dot < 0.70721f)
+			{
+				// Force amiss
+				traceHit.fraction = 1.0f;
+			}
+			else
+			{
+				ChooseIntersectionPointAndActivity(traceHit, g_bludgeonMins, g_bludgeonMaxs, pOwner);
+			}
+		}
+	}
+
+	if (traceHit.fraction == 1.0f)
+	{
+		// We want to test the first swing again
+		Vector testEnd = swingStart + forward * GetRange();
+
+		// See if we happened to hit water
+		ImpactWater(swingStart, testEnd);
+	}
+	else
+	{
+		CTakeDamageInfo triggerInfo(GetOwner(), GetOwner(), GetDamageForActivity(GetActivity()), GetDamageType());
+		triggerInfo.SetDamagePosition(traceHit.startpos);
+		triggerInfo.SetDamageForce(forward);
+
+		// Other melee sounds
+		if (traceHit.m_pEnt && traceHit.m_pEnt->IsWorld())
+			WeaponSound(MELEE_HIT_WORLD);
+		else if (traceHit.m_pEnt && !traceHit.m_pEnt->PassesDamageFilter(triggerInfo))
+			WeaponSound(MELEE_MISS);
+		else
+			WeaponSound(MELEE_HIT);
+
+		Hit(traceHit, GetActivity(), false);
+	}
+}
+
+bool CBaseHLBludgeonWeapon::CanHolster(void)
+{
+	if (m_bShotDelayed)
+		return false;
+
+	return BaseClass::CanHolster();
+}
+#endif // MAPBASE

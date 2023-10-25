@@ -14,6 +14,8 @@
 #include "basecombatweapon_shared.h"
 #ifdef CLIENT_DLL
 #include "vscript_client.h"
+#else
+#include "mapbase/custom_weapon_factory.h"
 #endif
 
 // The base class of the scripted weapon is game-specific.
@@ -32,6 +34,9 @@
 	HSCRIPT m_Func_##name;
 
 class CWeaponCustomScripted : public SCRIPTED_WEAPON_DERIVED_FROM
+#ifndef CLIENT_DLL
+	, public ICustomWeapon
+#endif // !CLIENT_DLL
 {
 public:
 	DECLARE_CLASS( CWeaponCustomScripted, SCRIPTED_WEAPON_DERIVED_FROM );
@@ -44,6 +49,8 @@ public:
 
 	bool	KeyValue( const char *szKeyName, const char *szValue );
 	bool	GetKeyValue( const char *szKeyName, char *szValue, int iMaxLen );
+
+	void	RunVScripts();
 
 	// Base script has a function for this
 	//void	Precache( void );
@@ -106,6 +113,11 @@ public:
 	int				WeaponRangeAttack2Condition( float flDot, float flDist );
 	int				WeaponMeleeAttack1Condition( float flDot, float flDist );
 	int				WeaponMeleeAttack2Condition( float flDot, float flDist );
+
+	// Inherited via ICustomWeapon
+	virtual void InitCustomWeaponFromData(const void* pData, const char* pszWeaponScript);
+#else
+	void OnDataChanged(DataUpdateType_t type);
 #endif
 
 	ALLOW_SCRIPT_ACCESS();
