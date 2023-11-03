@@ -1264,6 +1264,11 @@ bool CTraceFilterMelee::ShouldHitEntity( IHandleEntity *pHandleEntity, int conte
 		if ( pEntity->m_takedamage == DAMAGE_NO )
 			return false;
 
+#ifdef MAPBASE // Moved from CheckTraceHullAttack()
+		if( m_pPassEnt && !pEntity->CanBeHitByMeleeAttack( const_cast<CBaseEntity*>(EntityFromEntityHandle( m_pPassEnt ) ) ) )
+			return false;
+#endif
+
 		// FIXME: Do not translate this to the driver because the driver only accepts damage from the vehicle
 		// Translate the vehicle into its driver for damage
 		/*
@@ -1311,6 +1316,10 @@ bool CTraceFilterMelee::ShouldHitEntity( IHandleEntity *pHandleEntity, int conte
 		}
 		else
 		{
+#ifdef MAPBASE
+			// Do not override an existing hit entity
+			if (!m_pHit)
+#endif
 			m_pHit = pEntity;
 
 			// Make sure if the player is holding this, he drops it
@@ -1386,11 +1395,13 @@ CBaseEntity *CBaseCombatCharacter::CheckTraceHullAttack( const Vector &vStart, c
 		pEntity = traceFilter.m_pHit;
 	}
 
+#ifndef MAPBASE // Moved to CTraceFilterMelee
 	if( pEntity && !pEntity->CanBeHitByMeleeAttack(this) )
 	{
 		// If we touched something, but it shouldn't be hit, return nothing.
 		pEntity = NULL;
 	}
+#endif
 
 	return pEntity;
 
