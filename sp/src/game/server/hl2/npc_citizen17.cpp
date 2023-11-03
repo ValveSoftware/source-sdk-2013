@@ -412,7 +412,6 @@ ScriptHook_t	CNPC_Citizen::g_Hook_SelectModel;
 
 BEGIN_ENT_SCRIPTDESC( CNPC_Citizen, CAI_BaseActor, "npc_citizen from Half-Life 2" )
 
-	DEFINE_SCRIPTFUNC( IsMedic, "Returns true if this citizen is a medic." )
 	DEFINE_SCRIPTFUNC( IsAmmoResupplier, "Returns true if this citizen is an ammo resupplier." )
 	DEFINE_SCRIPTFUNC( CanHeal, "Returns true if this citizen is a medic or ammo resupplier currently able to heal/give ammo." )
 
