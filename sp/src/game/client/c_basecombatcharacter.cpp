@@ -181,7 +181,7 @@ END_PREDICTION_DATA()
 
 #ifdef MAPBASE_VSCRIPT
 
-BEGIN_ENT_SCRIPTDESC( C_BaseCombatCharacter, CBaseEntity, "" )
+BEGIN_ENT_SCRIPTDESC( C_BaseCombatCharacter, C_BaseAnimating, "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAmmoCount, "GetAmmoCount", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetActiveWeapon, "GetActiveWeapon", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetWeapon, "GetWeapon", "" )
