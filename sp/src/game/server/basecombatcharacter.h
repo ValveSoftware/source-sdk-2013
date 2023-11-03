@@ -462,6 +462,7 @@ public:
 	static void			AllocateDefaultRelationships( );
 	static void			SetDefaultRelationship( Class_T nClass, Class_T nClassTarget,  Disposition_t nDisposition, int nPriority );
 #ifdef MAPBASE
+	static bool			DefaultRelationshipsLoaded();
 	static Disposition_t	GetDefaultRelationshipDisposition( Class_T nClassSource, Class_T nClassTarget );
 	static int				GetDefaultRelationshipPriority( Class_T nClassSource, Class_T nClassTarget );
 	int						GetDefaultRelationshipPriority( Class_T nClassTarget );

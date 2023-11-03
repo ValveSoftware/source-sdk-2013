@@ -615,6 +615,9 @@ void CAI_ClassRelationship::ChangeRelationships( int disposition, int iReverting
 		return;
 	}
 
+	if ( !CBaseCombatCharacter::DefaultRelationshipsLoaded() )
+		return;
+
 	if ( m_iPreviousDisposition == -1 && iReverting == NOT_REVERTING )
 	{
 		// Set previous disposition.

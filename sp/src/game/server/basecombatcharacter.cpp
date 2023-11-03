@@ -3240,6 +3240,16 @@ void CBaseCombatCharacter::SetDefaultRelationship(Class_T nClass, Class_T nClass
 
 #ifdef MAPBASE
 //-----------------------------------------------------------------------------
+// Purpose: Determine whether or not default relationships are loaded
+// Input  :
+// Output :
+//-----------------------------------------------------------------------------
+bool CBaseCombatCharacter::DefaultRelationshipsLoaded()
+{
+	return m_DefaultRelationship != NULL;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Fetch the default (ignore ai_relationship changes) relationship
 // Input  :
 // Output :
