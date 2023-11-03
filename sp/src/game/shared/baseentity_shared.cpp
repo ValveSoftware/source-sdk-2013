@@ -2736,6 +2736,18 @@ void CBaseEntity::SetScriptOwnerEntity(HSCRIPT pOwner)
 	SetOwnerEntity(ToEnt(pOwner));
 }
 
+#ifdef MAPBASE_VSCRIPT
+HSCRIPT CBaseEntity::ScriptGetGroundEntity()
+{
+	return ToHScript( m_hGroundEntity.Get() );
+}
+
+void CBaseEntity::ScriptSetGroundEntity( HSCRIPT hGroundEnt )
+{
+	SetGroundEntity( ToEnt( hGroundEnt ) );
+}
+#endif
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 const Vector& CBaseEntity::ScriptGetColorVector()
