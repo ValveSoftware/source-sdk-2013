@@ -118,6 +118,7 @@ enum Hint_e
 	// (these start at a high number to avoid potential conflicts with mod hints)
 
 	HINT_TACTICAL_COVER_CUSTOM = 10000,	// Cover node with a custom hint activity (NPCs can take cover and reload here while playing said activity)
+	HINT_TACTICAL_GRENADE_THROW,		// Pre-determined position for NPCs to throw grenades at when their target in combat is near it
 #endif
 };
 const char *GetHintTypeDescription( Hint_e iHintType );

@@ -1325,7 +1325,7 @@ bool CAI_Hint::HintMatchesCriteria( CAI_BaseNPC *pNPC, const CHintCriteria &hint
 
 		if ( distance > nRadius * nRadius )
 		{
-			REPORTFAILURE( "NPC is not within the node's radius." );
+			REPORTFAILURE( "Not within the node's radius." );
 			return false;
 		}
 	}
@@ -1794,6 +1794,11 @@ hinttypedescs_t g_pszHintDescriptions[] =
 	{	HINT_HL1_WORLD_ALIEN_BLOOD, "HL1: World: Alien Blood"	},
 
 	{	HINT_CSTRIKE_HOSTAGE_ESCAPE, "CS Port: Hostage Escape"	},
+
+#ifdef MAPBASE
+	{	HINT_TACTICAL_COVER_CUSTOM, "Mapbase: Custom Cover"	},
+	{	HINT_TACTICAL_GRENADE_THROW, "Mapbase: Grenade Throw Hint"	},
+#endif
 };
 
 //-----------------------------------------------------------------------------
