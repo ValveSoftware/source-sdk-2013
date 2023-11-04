@@ -23,6 +23,7 @@
 #include "hl2_gamerules.h"
 #include "weapon_physcannon.h"
 #include "globalstate.h"
+#include "ai_hint.h"
 
 #define COMBINE_AE_GREN_TOSS		( 7 )
 
