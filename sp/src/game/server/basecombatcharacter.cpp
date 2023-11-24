@@ -175,6 +175,7 @@ BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "The base class shared by
 	DEFINE_SCRIPTFUNC_NAMED( ScriptRelationType, "GetRelationship", "Get a character's relationship to a specific entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptRelationPriority, "GetRelationPriority", "Get a character's relationship priority for a specific entity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetRelationship, "SetRelationship", "Set a character's relationship with a specific entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetClassRelationship, "SetClassRelationship", "Set a character's relationship with a specific Classify() class." )
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetVehicleEntity, "GetVehicleEntity", "Get the entity for a character's current vehicle if they're in one." )
 
@@ -4661,6 +4662,13 @@ int CBaseCombatCharacter::ScriptRelationPriority( HSCRIPT pTarget )
 void CBaseCombatCharacter::ScriptSetRelationship( HSCRIPT pTarget, int disposition, int priority )
 {
 	AddEntityRelationship( ToEnt( pTarget ), (Disposition_t)disposition, priority );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseCombatCharacter::ScriptSetClassRelationship( int classify, int disposition, int priority )
+{
+	AddClassRelationship( (Class_T)classify, (Disposition_t)disposition, priority);
 }
 
 //-----------------------------------------------------------------------------

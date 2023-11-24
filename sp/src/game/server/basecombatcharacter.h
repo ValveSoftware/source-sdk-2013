@@ -440,6 +440,7 @@ public:
 	int					ScriptRelationType( HSCRIPT pTarget );
 	int					ScriptRelationPriority( HSCRIPT pTarget );
 	void				ScriptSetRelationship( HSCRIPT pTarget, int disposition, int priority );
+	void				ScriptSetClassRelationship( int classify, int disposition, int priority );
 
 	HSCRIPT				ScriptGetVehicleEntity();
 
