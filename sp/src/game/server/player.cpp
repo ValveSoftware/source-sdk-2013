@@ -7021,7 +7021,7 @@ bool CBasePlayer::BumpWeapon( CBaseCombatWeapon *pWeapon )
 			{
 				//Weapon_EquipAmmoOnly( pWeapon );
 
-				// I'm too lazy to make my own version of Weapon_EquipAmmoOnly that doesn't check if we already have the weapon first 
+				// Weapon_EquipAmmoOnly checks the array again, which isn't necessary here
 				int	primaryGiven	= (pWeapon->UsesClipsForAmmo1()) ? pWeapon->m_iClip1 : pWeapon->GetPrimaryAmmoCount();
 				int secondaryGiven	= (pWeapon->UsesClipsForAmmo2()) ? pWeapon->m_iClip2 : pWeapon->GetSecondaryAmmoCount();
 

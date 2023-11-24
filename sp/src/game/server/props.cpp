@@ -6308,14 +6308,12 @@ void CPropDoorRotating::Break( CBaseEntity *pBreaker, const CTakeDamageInfo &inf
 }
 #endif
 
-#ifdef MAPBASE
 void CPropDoorRotating::InputSetSpeed(inputdata_t &inputdata)
 {
 	AssertMsg1(inputdata.value.Float() > 0.0f, "InputSetSpeed on %s called with negative parameter!", GetDebugName() );
 	m_flSpeed = inputdata.value.Float();
 	DoorResume();
 }
-#endif
 
 // Debug sphere
 class CPhysSphere : public CPhysicsProp
@@ -6360,15 +6358,6 @@ public:
 BEGIN_DATADESC( CPhysSphere )
 	DEFINE_KEYFIELD( m_fRadius, FIELD_FLOAT, "radius"),
 END_DATADESC()
-#endif
-
-#ifndef MAPBASE // Yes, all I'm doing is moving this up a few lines and I'm still using the preprocessor.
-void CPropDoorRotating::InputSetSpeed(inputdata_t &inputdata)
-{
-	AssertMsg1(inputdata.value.Float() > 0.0f, "InputSetSpeed on %s called with negative parameter!", GetDebugName() );
-	m_flSpeed = inputdata.value.Float();
-	DoorResume();
-}
 #endif
 
 LINK_ENTITY_TO_CLASS( prop_sphere, CPhysSphere );

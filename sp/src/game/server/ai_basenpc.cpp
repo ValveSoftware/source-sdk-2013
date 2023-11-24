@@ -13200,17 +13200,14 @@ void CAI_BaseNPC::InputSetEnemyFilter( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CAI_BaseNPC::InputSetHealthFraction( inputdata_t &inputdata )
 {
-	// npc_helicopter uses SetHealth() instead of the regular NPC practice of TakeHealth() and TakeDamage().
-	// It also also uses 50, 75, etc. and scales it by 0.01 for some reason.
-	// We're using the same model as InputSetHealth() and just letting npc_helicopter override it. No big deal.
-	// We're also adding support for its "whole number * 0.01" thing too.
+	// npc_helicopter uses an identically named input and scales down whole numbers instead of using fractions directly.
+	// This function is overridden by npc_helicopter for other reasons, but support for its differing behavior is also available through this input.
 	float flFactor = inputdata.value.Float();
 	if ( flFactor > 1.0f )
 	{
 		flFactor *= 0.01f;
 	}
 
-	// Excuse the complication...
 	float flNewHealth = (GetMaxHealth() * flFactor);
 	int iNewHealth = (int)flNewHealth;
 	if (flNewHealth < (GetMaxHealth() / 2))
