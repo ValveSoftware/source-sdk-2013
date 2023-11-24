@@ -532,6 +532,7 @@ public:
 
 	// Must override CAI_Relationship
 	void Spawn() { m_bIsActive = false; }
+	void Activate();
 
 	bool KeyValue( const char *szKeyName, const char *szValue );
 
@@ -556,6 +557,19 @@ BEGIN_DATADESC( CAI_ClassRelationship )
 	DEFINE_FIELD( m_iTargetClass, FIELD_INTEGER ),
 
 END_DATADESC()
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+void CAI_ClassRelationship::Activate()
+{
+	BaseClass::Activate();
+
+	// Must re-apply every time a save is loaded
+	if ( m_bIsActive )
+	{
+		ApplyRelationship();
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Caches entity key values until spawn is called.
