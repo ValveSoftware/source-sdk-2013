@@ -3615,7 +3615,7 @@ CBaseEntity *CBaseCombatCharacter::Weapon_FindUsable( const Vector &range )
 	else if (hl2_episodic.GetBool() && !GetActiveWeapon())
 	{
 		// Unarmed citizens are conservative in their weapon finding...in Episode One
-		if (Classify() != CLASS_PLAYER_ALLY_VITAL && Q_strncmp(STRING(gpGlobals->mapname), "ep1_", 4))
+		if (Classify() != CLASS_PLAYER_ALLY_VITAL && Q_strncmp(STRING(gpGlobals->mapname), "ep1_", 4) == 0)
 			bConservative = true;
 	}
 #endif
