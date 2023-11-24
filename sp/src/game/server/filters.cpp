@@ -162,10 +162,10 @@ void CBaseFilter::InputSetField( inputdata_t& inputdata )
 
 #ifdef MAPBASE_VSCRIPT
 bool CBaseFilter::ScriptPassesFilter( HSCRIPT pCaller, HSCRIPT pEntity ) { return PassesFilter( ToEnt(pCaller), ToEnt(pEntity) ); }
-bool CBaseFilter::ScriptPassesDamageFilter( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? PassesDamageFilter( ToEnt( pCaller ), *const_cast<const CTakeDamageInfo*>(HScriptToClass<CTakeDamageInfo>( pInfo )) ) : NULL; }
-bool CBaseFilter::ScriptPassesFinalDamageFilter( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? PassesFinalDamageFilter( ToEnt( pCaller ), *const_cast<const CTakeDamageInfo*>(HScriptToClass<CTakeDamageInfo>( pInfo )) ) : NULL; }
-bool CBaseFilter::ScriptBloodAllowed( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? BloodAllowed( ToEnt( pCaller ), *const_cast<const CTakeDamageInfo*>(HScriptToClass<CTakeDamageInfo>( pInfo )) ) : NULL; }
-bool CBaseFilter::ScriptDamageMod( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? DamageMod( ToEnt( pCaller ), *HScriptToClass<CTakeDamageInfo>( pInfo ) ) : NULL; }
+bool CBaseFilter::ScriptPassesDamageFilter( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? PassesDamageFilter( ToEnt( pCaller ), *const_cast<const CTakeDamageInfo*>(HScriptToClass<CTakeDamageInfo>( pInfo )) ) : false; }
+bool CBaseFilter::ScriptPassesFinalDamageFilter( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? PassesFinalDamageFilter( ToEnt( pCaller ), *const_cast<const CTakeDamageInfo*>(HScriptToClass<CTakeDamageInfo>( pInfo )) ) : false; }
+bool CBaseFilter::ScriptBloodAllowed( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? BloodAllowed( ToEnt( pCaller ), *const_cast<const CTakeDamageInfo*>(HScriptToClass<CTakeDamageInfo>( pInfo )) ) : false; }
+bool CBaseFilter::ScriptDamageMod( HSCRIPT pCaller, HSCRIPT pInfo ) { return (pInfo) ? DamageMod( ToEnt( pCaller ), *HScriptToClass<CTakeDamageInfo>( pInfo ) ) : false; }
 #endif
 
 

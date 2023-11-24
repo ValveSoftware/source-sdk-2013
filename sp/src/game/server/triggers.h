@@ -96,7 +96,7 @@ public:
 	bool PointIsWithin( const Vector &vecPoint );
 
 #ifdef MAPBASE_VSCRIPT
-	bool	ScriptPassesTriggerFilters( HSCRIPT hOther ) { return ToEnt(hOther) ? PassesTriggerFilters( ToEnt(hOther) ) : NULL; }
+	bool	ScriptPassesTriggerFilters( HSCRIPT hOther ) { return ToEnt(hOther) ? PassesTriggerFilters( ToEnt(hOther) ) : false; }
 	HSCRIPT	ScriptGetTouchedEntityOfType( const char *sClassName ) { return ToHScript( GetTouchedEntityOfType(sClassName) ); }
 
 	void	ScriptGetTouchingEntities( HSCRIPT hTable );
