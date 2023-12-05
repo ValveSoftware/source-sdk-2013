@@ -10297,8 +10297,9 @@ bool CBaseEntity::ScriptAddOutput( const char *pszOutputName, const char *pszTar
 const char *CBaseEntity::ScriptGetKeyValue( const char *pszKeyName )
 {
 	static char szValue[128];
-	GetKeyValue( pszKeyName, szValue, sizeof(szValue) );
-	return szValue;
+	if ( GetKeyValue( pszKeyName, szValue, sizeof(szValue) ) )
+		return szValue;
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
