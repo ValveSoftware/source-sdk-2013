@@ -15989,6 +15989,11 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 				{
 					Msg("   %s distsqr: %0.2f (%0.2f %0.2f %0.2f), desired: <%0.2f (%0.2f %0.2f %0.2f)\n", GetDebugName(), flDistSqr,
 						pOtherNPC->GetAbsOrigin().x, pOtherNPC->GetAbsOrigin().y, pOtherNPC->GetAbsOrigin().z, pInteraction->flDistSqr, vecOrigin.x, vecOrigin.y, vecOrigin.z );
+#ifdef MAPBASE
+					Vector vecForward, vecRight;
+					GetVectors( &vecForward, &vecRight, NULL );
+					NDebugOverlay::Circle( vecOrigin + Vector(0,0,2), vecForward, vecRight, FastSqrt(pInteraction->flDistSqr), 255, 0, 0, 255, true, 0.1f );
+#endif
 				}
 			}
 		}
@@ -16001,6 +16006,11 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 		Msg("   %s is at: %0.2f %0.2f %0.2f\n", GetDebugName(), GetAbsOrigin().x, GetAbsOrigin().y, GetAbsOrigin().z );
 		Msg("   %s distsqr: %0.2f (%0.2f %0.2f %0.2f), desired: (%0.2f %0.2f %0.2f)\n", GetDebugName(), flDistSqr,
 			pOtherNPC->GetAbsOrigin().x, pOtherNPC->GetAbsOrigin().y, pOtherNPC->GetAbsOrigin().z, vecOrigin.x, vecOrigin.y, vecOrigin.z );
+#ifdef MAPBASE
+		Vector vecForward, vecRight;
+		GetVectors( &vecForward, &vecRight, NULL );
+		NDebugOverlay::Circle( vecOrigin + Vector( 0, 0, 2 ), vecForward, vecRight, FastSqrt( pInteraction->flDistSqr ), 255, 0, 0, 255, true, 0.1f );
+#endif
 
 		if ( pOtherNPC )
 		{
