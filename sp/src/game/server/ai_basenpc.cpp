@@ -15303,7 +15303,8 @@ void CAI_BaseNPC::StartScriptedNPCInteraction( CAI_BaseNPC *pOtherNPC, ScriptedN
 
 				if ( Matcher_NamesMatch( pszInteraction, STRING( pOtherInteraction->iszInteractionName ) ) && pOtherInteraction != pInteraction )
 				{
-					pOtherInteraction->flNextAttemptTime = pInteraction->flNextAttemptTime;
+					if (pOtherInteraction->flNextAttemptTime < pInteraction->flNextAttemptTime)
+						pOtherInteraction->flNextAttemptTime = pInteraction->flNextAttemptTime;
 
 					// Not looking for multiple
 					if (!bWildCard)
