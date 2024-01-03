@@ -16227,6 +16227,21 @@ void CAI_BaseNPC::ModifyOrAppendEnemyCriteria( AI_CriteriaSet& set, CBaseEntity 
 		set.AppendCriteria( "enemyclass", g_pGameRules->AIClassText( pEnemy->Classify() ) ); // UTIL_VarArgs("%i", pEnemy->Classify())
 		set.AppendCriteria( "distancetoenemy", UTIL_VarArgs( "%f", EnemyDistance(pEnemy) ) );
 		set.AppendCriteria( "timesincecombat", "-1" );
+
+		CAI_BaseNPC *pNPC = pEnemy->MyNPCPointer();
+		if (pNPC)
+		{
+			set.AppendCriteria("enemy_is_npc", "1");
+
+			set.AppendCriteria( "enemy_activity", CAI_BaseNPC::GetActivityName( pNPC->GetActivity() ) );
+			set.AppendCriteria( "enemy_weapon", pNPC->GetActiveWeapon() ? pNPC->GetActiveWeapon()->GetClassname() : "0" );
+		}
+		else
+		{
+			set.AppendCriteria("enemy_is_npc", "0");
+		}
+
+		pEnemy->AppendContextToCriteria( set, "enemy_" );
 	}
 	else
 	{
