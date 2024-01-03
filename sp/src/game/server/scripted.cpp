@@ -1396,11 +1396,31 @@ void CAI_ScriptedSequence::ModifyScriptedAutoMovement( Vector *vecNewPos )
 			}
 		}
 
+		VMatrix matInteractionPosition = m_matInteractionPosition;
+
+#ifdef MAPBASE
+		// Account for our own sequence movement
+		pAnimating = m_hTargetEnt->GetBaseAnimating();
+		if (pAnimating)
+		{
+			Vector vecDeltaPos;
+			QAngle angDeltaAngles;
+
+			pAnimating->GetSequenceMovement( pAnimating->GetSequence(), 0.0f, pAnimating->GetCycle(), vecDeltaPos, angDeltaAngles );
+			if (!vecDeltaPos.IsZero())
+			{
+				VMatrix matLocalMovement;
+				matLocalMovement.SetupMatrixOrgAngles( vecDeltaPos, angDeltaAngles );
+				MatrixMultiply( m_matInteractionPosition, matLocalMovement, matInteractionPosition );
+			}
+		}
+#endif
+
 		// We've been asked to maintain a specific position relative to the other NPC
 		// we're interacting with. Lerp towards the relative position.
  		VMatrix matMeToWorld, matLocalToWorld;
 		matMeToWorld.SetupMatrixOrgAngles( vecRelativeOrigin, angRelativeAngles );
-		MatrixMultiply( matMeToWorld, m_matInteractionPosition, matLocalToWorld );
+		MatrixMultiply( matMeToWorld, matInteractionPosition, matLocalToWorld );
 
 		// Get the desired NPC position in worldspace
 		Vector vecOrigin;

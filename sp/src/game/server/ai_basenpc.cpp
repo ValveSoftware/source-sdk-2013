@@ -16142,6 +16142,7 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 			if ( bDebug )
 			{
 				NDebugOverlay::Box( vecPos, GetHullMins(), GetHullMaxs(), 255,0,0, 100, 1.0 );
+				NDebugOverlay::HorzArrow( GetAbsOrigin(), vecPos, 16.0f, 255, 0, 0, 255, true, 1.0f );
 			}
 			return false;
 		}
@@ -16149,7 +16150,39 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 		{
 			//NDebugOverlay::Box( vecPos, GetHullMins(), GetHullMaxs(), 0,255,0, 100, 1.0 );
 
-			NDebugOverlay::Axis( vecPos, angAngles, 20, true, 10.0 );
+			NDebugOverlay::Axis( vecPos, angAngles, 20, true, 1.0 );
+		}
+	}
+	else
+	{
+		// Instead, make sure we fit into where the sequence movement ends at
+		const char *pszSequence = GetScriptedNPCInteractionSequence( pInteraction, SNPCINT_SEQUENCE );
+		int nSeq = LookupSequence( pszSequence );
+		if ( pszSequence && nSeq != -1 )
+		{
+			Vector vecDeltaPos;
+			QAngle angDeltaAngles;
+			GetSequenceMovement( nSeq, 0.0f, 1.0f, vecDeltaPos, angDeltaAngles );
+			if (!vecDeltaPos.IsZero())
+			{
+				QAngle angInteraction = GetAbsAngles();
+				angInteraction[YAW] = m_flInteractionYaw;
+
+				Vector vecPos;
+				VectorRotate( vecDeltaPos, angInteraction, vecPos );
+				vecPos += GetAbsOrigin();
+
+				AI_TraceHull( vecPos, vecPos, GetHullMins(), GetHullMaxs(), MASK_SOLID, &traceFilter, &tr);
+				if ( tr.fraction != 1.0 )
+				{
+					if ( bDebug )
+					{
+						NDebugOverlay::Box( vecPos, GetHullMins(), GetHullMaxs(), 255,0,0, 100, 1.0 );
+						NDebugOverlay::HorzArrow( GetAbsOrigin(), vecPos, 16.0f, 255, 0, 0, 255, true, 1.0f );
+					}
+					return false;
+				}
+			}
 		}
 	}
 #endif
