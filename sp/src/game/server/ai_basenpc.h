@@ -849,6 +849,9 @@ protected: // pose parameters
 	int					m_poseAim_Pitch;
 	int					m_poseAim_Yaw;
 	int					m_poseMove_Yaw;
+#ifdef MAPBASE
+	int					m_poseInteractionRelativeYaw;
+#endif
 	virtual void		PopulatePoseParameters( void );
 
 public:
@@ -856,6 +859,10 @@ public:
 
 	// Return the stored pose parameter for "move_yaw"
 	inline int			LookupPoseMoveYaw()		{ return m_poseMove_Yaw; }
+
+#ifdef MAPBASE
+	inline int			LookupPoseInteractionRelativeYaw()	{ return m_poseInteractionRelativeYaw; }
+#endif
  
 
 	//-----------------------------------------------------

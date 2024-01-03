@@ -3026,6 +3026,10 @@ void	CAI_BaseNPC::PopulatePoseParameters( void )
 	m_poseAim_Yaw   = LookupPoseParameter( "aim_yaw"   );
 	m_poseMove_Yaw  = LookupPoseParameter( "move_yaw"  );
 
+#ifdef MAPBASE
+	m_poseInteractionRelativeYaw = LookupPoseParameter( "interaction_relative_yaw" );
+#endif
+
 	BaseClass::PopulatePoseParameters();
 }
 
@@ -15370,6 +15374,26 @@ void CAI_BaseNPC::StartScriptedNPCInteraction( CAI_BaseNPC *pOtherNPC, ScriptedN
 
 		// Tell their sequence to keep their position relative to me
 		pTheirSequence->SetupInteractionPosition( this, pInteraction->matDesiredLocalToWorld );
+
+#ifdef MAPBASE
+		if ( !(pInteraction->iFlags & SCNPC_FLAG_TEST_OTHER_ANGLES) )
+		{
+			// Set up interaction yaw pose if it exists
+			float flYaw = AngleDistance( angDesired.y, angOtherAngles.y );
+
+			int nInteractionPose = LookupPoseInteractionRelativeYaw();
+			if (nInteractionPose > -1)
+			{
+				SetPoseParameter( nInteractionPose, flYaw );
+			}
+
+			nInteractionPose = pOtherNPC->LookupPoseInteractionRelativeYaw();
+			if (nInteractionPose > -1)
+			{
+				pOtherNPC->SetPoseParameter( nInteractionPose, flYaw );
+			}
+		}
+#endif
 	}
 
 	// Spawn both sequences at once
@@ -16022,6 +16046,13 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 				anglemod(angEnemyAngles.x), anglemod(angEnemyAngles.y), anglemod(angEnemyAngles.z), anglemod(angAngles.x), anglemod(angAngles.y), anglemod(angAngles.z) );
 		}
 	}
+#ifdef MAPBASE
+	else
+	{
+		// If we're not using angles, then use the NPC's current angles
+		angAngles = pOtherNPC->GetAbsAngles();
+	}
+#endif
 
 	// TODO: Velocity check, if we're supposed to
 	if ( pInteraction->iFlags & SCNPC_FLAG_TEST_OTHER_VELOCITY )
