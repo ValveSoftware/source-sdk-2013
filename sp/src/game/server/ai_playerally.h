@@ -322,6 +322,10 @@ public:
 	//---------------------------------
 	void		OnKilledNPC( CBaseCombatCharacter *pKilled );
 
+#ifdef MAPBASE
+	void		OnEnemyRangeAttackedMe( CBaseEntity *pEnemy, const Vector &vecDir, const Vector &vecEnd );
+#endif
+
 	//---------------------------------
 	// Damage handling
 	//---------------------------------

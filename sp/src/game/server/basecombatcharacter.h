@@ -263,6 +263,10 @@ public:
 
 	virtual bool			CanBecomeServerRagdoll( void ) { return true; }
 
+#ifdef MAPBASE
+	virtual void			OnEnemyRangeAttackedMe( CBaseEntity *pEnemy, const Vector &vecDir, const Vector &vecEnd ) {}
+#endif
+
 	// -----------------------
 	// Damage
 	// -----------------------

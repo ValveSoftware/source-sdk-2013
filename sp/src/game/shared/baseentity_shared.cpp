@@ -83,6 +83,10 @@ ConVar	ai_shot_bias_min( "ai_shot_bias_min", "-1.0", FCVAR_REPLICATED );
 ConVar	ai_shot_bias_max( "ai_shot_bias_max", "1.0", FCVAR_REPLICATED );
 ConVar	ai_debug_shoot_positions( "ai_debug_shoot_positions", "0", FCVAR_REPLICATED | FCVAR_CHEAT );
 
+#if defined(MAPBASE) && defined(GAME_DLL)
+ConVar	ai_shot_notify_targets( "ai_shot_notify_targets", "0", FCVAR_NONE, "Allows fired bullets to notify the NPCs and players they are targeting, regardless of whether they hit them or not. Can be used for custom AI and speech." );
+#endif
+
 // Utility func to throttle rate at which the "reasonable position" spew goes out
 static double s_LastEntityReasonableEmitTime;
 bool CheckEmitReasonablePhysicsSpew()
@@ -2081,6 +2085,25 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 		CTakeDamageInfo dmgInfo( this, pAttacker, flCumulativeDamage, nDamageType );
 		gamestats->Event_WeaponHit( pPlayer, info.m_bPrimaryAttack, pPlayer->GetActiveWeapon()->GetClassname(), dmgInfo );
 	}
+
+#ifdef MAPBASE
+	if ( ai_shot_notify_targets.GetBool() )
+	{
+		if ( IsPlayer() )
+		{
+			// Look for probable target to notify of attack
+			CBaseEntity *pAimTarget = static_cast<CBasePlayer*>(this)->GetProbableAimTarget( info.m_vecSrc, info.m_vecDirShooting );
+			if ( pAimTarget && pAimTarget->IsCombatCharacter() )
+			{
+				pAimTarget->MyCombatCharacterPointer()->OnEnemyRangeAttackedMe( this, vecDir, vecEnd );
+			}
+		}
+		else if ( GetEnemy() && GetEnemy()->IsCombatCharacter() )
+		{
+			GetEnemy()->MyCombatCharacterPointer()->OnEnemyRangeAttackedMe( this, vecDir, vecEnd );
+		}
+	}
+#endif
 #endif
 }
 

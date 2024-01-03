@@ -608,6 +608,11 @@ public:
 	virtual bool			ShouldAutoaim( void );
 	void					SetTargetInfo( Vector &vecSrc, float flDist );
 
+#ifdef MAPBASE
+	// Tries to figure out what the player is trying to aim at
+	CBaseEntity				*GetProbableAimTarget( const Vector &vecSrc, const Vector &vecDir );
+#endif
+
 	void					SetViewEntity( CBaseEntity *pEntity );
 	CBaseEntity				*GetViewEntity( void ) { return m_hViewEntity; }
 
