@@ -9526,6 +9526,12 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 		{
 			m_hCine->FireScriptEvent( atoi( pEvent->options ) );
 		}
+#ifdef MAPBASE
+		else if ( GetHintNode() )
+		{
+			GetHintNode()->FireScriptEvent( atoi( pEvent->options ) );
+		}
+#endif
 		else
 		{
 			// FIXME: look so see if it's playing a vcd and fire those instead
