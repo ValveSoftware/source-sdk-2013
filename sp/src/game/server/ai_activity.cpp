@@ -76,6 +76,23 @@ int CAI_BaseNPC::GetActivityID(const char* actName)
 	return m_pActivitySR->GetStringID(actName);
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Gets an activity ID or registers a new private one if it doesn't exist
+//-----------------------------------------------------------------------------
+int CAI_BaseNPC::GetOrRegisterActivity( const char *actName )
+{
+	int actID = GetActivityID( actName );
+	if (actID == ACT_INVALID)
+	{
+		actID = ActivityList_RegisterPrivateActivity( actName );
+		AddActivityToSR( actName, actID );
+	}
+
+	return actID;
+}
+#endif
+
 #define ADD_ACTIVITY_TO_SR(activityname) AddActivityToSR(#activityname,activityname)
 
 //-----------------------------------------------------------------------------
