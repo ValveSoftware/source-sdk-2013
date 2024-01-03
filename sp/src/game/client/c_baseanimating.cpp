@@ -4042,6 +4042,92 @@ void C_BaseAnimating::FireEvent( const Vector& origin, const QAngle& angles, int
 		}
 		break;
 
+#ifdef MAPBASE // From Alien Swarm SDK
+	case AE_CL_STOP_PARTICLE_EFFECT:
+		{
+			char token[256];
+			char szParticleEffect[256];
+
+			// Get the particle effect name
+			const char *p = options;
+			p = nexttoken(token, p, ' ', sizeof(token));
+			if ( token ) 
+			{
+				Q_strncpy( szParticleEffect, token, sizeof(szParticleEffect) );
+			}
+
+			// Get the attachment point index
+			p = nexttoken(token, p, ' ', sizeof(token));
+			bool bStopInstantly = ( token && !Q_stricmp( token, "instantly" ) );
+
+			ParticleProp()->StopParticlesNamed( szParticleEffect, bStopInstantly );
+		}
+		break;
+	
+	case AE_CL_ADD_PARTICLE_EFFECT_CP:
+		{
+			int iControlPoint = 1;
+			int iAttachment = -1;
+			int iAttachType = PATTACH_ABSORIGIN_FOLLOW;
+			int iEffectIndex = -1;
+			char token[256];
+			char szParticleEffect[256];
+
+			// Get the particle effect name
+			const char *p = options;
+			p = nexttoken(token, p, ' ', sizeof(token));
+			if ( token ) 
+			{
+				Q_strncpy( szParticleEffect, token, sizeof(szParticleEffect) );
+			}
+
+			// Get the control point number
+			p = nexttoken(token, p, ' ', sizeof(token));
+			if ( token ) 
+			{
+				iControlPoint = atoi( token );
+			}
+
+			// Get the attachment type
+			p = nexttoken(token, p, ' ', sizeof(token));
+			if ( token ) 
+			{
+				iAttachType = GetAttachTypeFromString( token );
+				if ( iAttachType == -1 )
+				{
+					Warning("Invalid attach type specified for particle effect anim event. Trying to spawn effect '%s' with attach type of '%s'\n", szParticleEffect, token );
+					return;
+				}
+			}
+
+			// Get the attachment point index
+			p = nexttoken(token, p, ' ', sizeof(token));
+			if ( token )
+			{
+				iAttachment = atoi(token);
+
+				// See if we can find any attachment points matching the name
+				if ( token[0] != '0' && iAttachment == 0 )
+				{
+					iAttachment = LookupAttachment( token );
+					if ( iAttachment == -1 )
+					{
+						Warning("Failed to find attachment point specified for particle effect anim event. Trying to spawn effect '%s' on attachment named '%s'\n", szParticleEffect, token );
+						return;
+					}
+				}
+			}
+			iEffectIndex = ParticleProp()->FindEffect( szParticleEffect );
+			if ( iEffectIndex == -1 )
+			{
+				Warning("Failed to find specified particle effect. Trying to add CP to '%s' on attachment named '%s'\n", szParticleEffect, token );
+				return;
+			}
+			ParticleProp()->AddControlPoint( iEffectIndex, iControlPoint, this, (ParticleAttachment_t)iAttachType, iAttachment );	
+		}
+		break;
+#endif
+
 	case AE_CL_PLAYSOUND:
 		{
 			CLocalPlayerFilter filter;
@@ -4290,6 +4376,22 @@ void C_BaseAnimating::FireEvent( const Vector& origin, const QAngle& angles, int
 			}
 		}
 		break;
+
+#ifdef MAPBASE
+	case AE_VSCRIPT_RUN:
+		{
+			if (!RunScript( options ))
+				Warning( "%s failed to run AE_VSCRIPT_RUN on client with \"%s\"\n", GetDebugName(), options );
+		}
+		break;
+		
+	case AE_VSCRIPT_RUN_FILE:
+		{
+			if (!RunScriptFile( options ))
+				Warning( "%s failed to run AE_VSCRIPT_RUN_FILE on client with \"%s\"\n", GetDebugName(), options );
+		}
+		break;
+#endif
 
 	default:
 		break;
