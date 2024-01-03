@@ -128,6 +128,12 @@ ConceptInfo_t g_ConceptInfos[] =
 
 	// Passenger behaviour
 	{ TLK_PASSENGER_NEW_RADAR_CONTACT,		SPEECH_IMPORTANT,	-1,		-1,		-1,		-1,		-1,		-1,		AICF_DEFAULT,	},	
+	
+#ifdef MAPBASE
+	{ 	TLK_TAKING_FIRE,		SPEECH_IMPORTANT,-1,	-1,		-1,		-1,		 -1,	-1,		AICF_DEFAULT,	},
+	{ 	TLK_NEW_ENEMY,			SPEECH_IMPORTANT,-1,	-1,		-1,		-1,		 -1,	-1,		AICF_DEFAULT,	},
+	{ 	TLK_COMBAT_IDLE,		SPEECH_IMPORTANT,-1,	-1,		-1,		-1,		 -1,	-1,		AICF_DEFAULT,	},
+#endif
 };
 
 //-----------------------------------------------------------------------------

@@ -671,13 +671,27 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 {
 	BaseClass::Ignite( flFlameLifetime, bNPCOnly, flSize, bCalledByLevelDesigner );
 
+#ifdef MAPBASE
+	// Alyx's enemy ignited code from below can now be run on any NPC as long as
+	// it's our current enemy.
+	if ( GetEnemy() && GetEnemy()->IsNPC() )
+	{
+		GetEnemy()->MyNPCPointer()->EnemyIgnited( this );
+	}
+#endif
+
 #ifdef HL2_EPISODIC
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
 	if ( pPlayer && pPlayer->IRelationType( this ) != D_LI )
 	{
 		CNPC_Alyx *alyx = CNPC_Alyx::GetAlyx();
 
+#ifdef MAPBASE
+		// Alyx's code continues to run if Alyx was not this NPC's enemy.
+		if ( alyx && alyx != GetEnemy() )
+#else
 		if ( alyx )
+#endif
 		{
 			alyx->EnemyIgnited( this );
 		}

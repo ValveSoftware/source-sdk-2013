@@ -132,6 +132,13 @@
 #define TLK_TGCATCHUP 	"TLK_TGCATCHUP"
 #define TLK_TGENDTOUR 	"TLK_TGENDTOUR"
 
+#ifdef MAPBASE
+// Additional concepts for companions in mods
+#define TLK_TAKING_FIRE	"TLK_TAKING_FIRE"	// Someone fired at me (regardless of whether I was hit)
+#define TLK_NEW_ENEMY	"TLK_NEW_ENEMY"		// A new enemy appeared while combat was already in progress
+#define TLK_COMBAT_IDLE	"TLK_COMBAT_IDLE"	// Similar to TLK_ATTACKING, but specifically for when *not* currently attacking (e.g. when in cover or reloading)
+#endif
+
 //-----------------------------------------------------------------------------
 
 #define TALKRANGE_MIN 500.0				// don't talk to anyone farther away than this
