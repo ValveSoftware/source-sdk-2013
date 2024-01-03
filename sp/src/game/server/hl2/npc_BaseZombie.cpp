@@ -2435,6 +2435,20 @@ void CNPC_BaseZombie::RemoveHead( void )
 }
 
 
+//---------------------------------------------------------
+//---------------------------------------------------------
+void CNPC_BaseZombie::SetModel( const char *szModelName )
+{
+#ifdef MAPBASE
+	// Zombies setting the same model again is a problem when they should maintain their current sequence (e.g. during dynamic interactions)
+	if ( IsRunningDynamicInteraction() && GetModelIndex() != 0 && FStrEq( szModelName, STRING(GetModelName()) ) )
+		return;
+#endif
+
+	BaseClass::SetModel( szModelName );
+}
+
+
 bool CNPC_BaseZombie::ShouldPlayFootstepMoan( void )
 {
 	if( random->RandomInt( 1, zombie_stepfreq.GetInt() * s_iAngryZombies ) == 1 )

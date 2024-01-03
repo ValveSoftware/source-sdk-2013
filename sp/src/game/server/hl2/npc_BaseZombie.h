@@ -186,6 +186,7 @@ public:
 	// Headcrab releasing/breaking apart
 	void RemoveHead( void );
 	virtual void SetZombieModel( void ) { };
+	virtual void SetModel( const char *szModelName );
 	virtual void BecomeTorso( const Vector &vecTorsoForce, const Vector &vecLegsForce );
 	virtual bool CanBecomeLiveTorso() { return false; }
 	virtual bool HeadcrabFits( CBaseAnimating *pCrab );

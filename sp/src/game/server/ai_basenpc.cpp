@@ -13515,6 +13515,10 @@ bool CAI_BaseNPC::CineCleanup()
 		}
 
 		// Clear interaction partner, because we're not running a scripted sequence anymore
+#ifdef MAPBASE
+		// We need the interaction partner for server ragdoll death cleanup, so don't clear if we're not alive
+		if (IsAlive())
+#endif
 		m_hInteractionPartner = NULL;
 		CleanupForcedInteraction();
 	}
