@@ -1745,7 +1745,11 @@ void CNPC_BaseZombie::HandleAnimEvent( animevent_t *pEvent )
 
 		dmgInfo.SetDamagePosition( vecHeadCrabPosition );
 
+#ifdef MAPBASE
+		ReleaseHeadcrab( vecHeadCrabPosition, vVelocity *iSpeed, true, false, true );
+#else
 		ReleaseHeadcrab( EyePosition(), vVelocity * iSpeed, true, false, true );
+#endif
 
 		GuessDamageForce( &dmgInfo, vVelocity, vecHeadCrabPosition, 0.5f );
 		TakeDamage( dmgInfo );
