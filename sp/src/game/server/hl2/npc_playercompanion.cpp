@@ -680,7 +680,8 @@ void CNPC_PlayerCompanion::DoCustomSpeechAI( void )
 				SpeakIfAllowed( "TLK_SPOTTED_ZOMBIE_WAKEUP" );
 			}
 		}
-		else if ( gpGlobals->curtime - GetEnemies()->TimeAtFirstHand( GetEnemy() ) <= 1.0f && nClass != CLASS_BULLSEYE )
+		
+		if ( gpGlobals->curtime - GetEnemies()->TimeAtFirstHand( GetEnemy() ) <= 1.0f && nClass != CLASS_BULLSEYE )
 		{
 			// New concept which did not originate from Alyx, but is in the same category as the above concepts.
 			// This is meant to be used when a new enemy enters the arena while combat is already in progress.
