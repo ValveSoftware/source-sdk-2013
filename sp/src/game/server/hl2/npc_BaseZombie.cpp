@@ -2450,9 +2450,15 @@ bool CNPC_BaseZombie::ShouldPlayFootstepMoan( void )
 #define CRAB_HULL_EXPAND	1.1f
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-bool CNPC_BaseZombie::HeadcrabFits( CBaseAnimating *pCrab )
+bool CNPC_BaseZombie::HeadcrabFits( CBaseAnimating *pCrab, const Vector *vecOrigin )
 {
-	Vector vecSpawnLoc = pCrab->GetAbsOrigin();
+	Vector vecSpawnLoc;
+#ifdef MAPBASE
+	if (vecOrigin)
+		vecSpawnLoc = *vecOrigin;
+	else
+#endif
+	vecSpawnLoc = pCrab->GetAbsOrigin();
 
 	CTraceFilterSimpleList traceFilter( COLLISION_GROUP_NONE );
 	traceFilter.AddEntityToIgnore( pCrab );
@@ -2535,7 +2541,12 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 				SetHeadcrabSpawnLocation( iCrabAttachment, pAnimatingGib );
 			}
 
+#ifdef MAPBASE
+			// Server ragdolls don't have a valid origin on spawn, so we have to use the origin originally passed
+			if( !HeadcrabFits( pAnimatingGib, m_bForceServerRagdoll ? &vecOrigin : NULL ) )
+#else
 			if( !HeadcrabFits(pAnimatingGib) )
+#endif
 			{
 				UTIL_Remove(pGib);
 				return;
@@ -2552,11 +2563,20 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 			
 			if( UTIL_ShouldShowBlood(BLOOD_COLOR_YELLOW) )
 			{
-				UTIL_BloodImpact( pGib->WorldSpaceCenter(), Vector(0,0,1), BLOOD_COLOR_YELLOW, 1 );
+				Vector vecGibCenter;
+#ifdef MAPBASE
+				// Server ragdolls don't have a valid origin on spawn, so we have to use the origin originally passed
+				if (m_bForceServerRagdoll)
+					vecGibCenter = vecOrigin;
+				else
+#endif
+				vecGibCenter = pGib->WorldSpaceCenter();
+
+				UTIL_BloodImpact( vecGibCenter, Vector(0,0,1), BLOOD_COLOR_YELLOW, 1 );
 
 				for ( int i = 0 ; i < 3 ; i++ )
 				{
-					Vector vecSpot = pGib->WorldSpaceCenter();
+					Vector vecSpot = vecGibCenter;
 					
 					vecSpot.x += random->RandomFloat( -8, 8 ); 
 					vecSpot.y += random->RandomFloat( -8, 8 ); 
