@@ -151,6 +151,8 @@ public:
 	int OnTakeDamage_Alive( const CTakeDamageInfo &info );
 	virtual float	GetReactionDelay( CBaseEntity *pEnemy ) { return 0.0; }
 
+	bool CanFlinch( void );
+
 	virtual int SelectSchedule ( void );
 	virtual int	SelectFailSchedule( int failedSchedule, int failedTask, AI_TaskFailureCode_t taskFailCode );
 	virtual void BuildScheduleTestBits( void );
