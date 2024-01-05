@@ -659,10 +659,15 @@ void CNPC_PlayerCompanion::DoCustomSpeechAI( void )
 				{
 					SpeakIfAllowed( "TLK_SPOTTED_INCOMING_HEADCRAB" );
 				}
-				// If we see a headcrab leaving a zombie that just died, mention it
-				else if ( pHC->GetOwnerEntity() && ( pHC->GetOwnerEntity()->Classify() == CLASS_ZOMBIE ) && !pHC->GetOwnerEntity()->IsAlive() )
+				else
 				{
-					SpeakIfAllowed( "TLK_SPOTTED_HEADCRAB_LEAVING_ZOMBIE" );
+					// If we see a headcrab leaving a zombie that just died, mention it
+					// (Note that this is now a response context since some death types remove the zombie instantly)
+					int nContext = pHC->FindContextByName( "from_zombie" );
+					if ( nContext > -1 && !ContextExpired( nContext ) ) // pHC->GetOwnerEntity() && ( pHC->GetOwnerEntity()->Classify() == CLASS_ZOMBIE ) && !pHC->GetOwnerEntity()->IsAlive()
+					{
+						SpeakIfAllowed( "TLK_SPOTTED_HEADCRAB_LEAVING_ZOMBIE" );
+					}
 				}
 			}
 		}
