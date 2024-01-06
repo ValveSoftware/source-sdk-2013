@@ -1762,6 +1762,54 @@ bool CAI_PlayerAlly::IsAllowedToSpeak( AIConcept_t concept, bool bRespondingToPl
 	return true;
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Specifically for player allies handling followup responses.
+// Better-accounts for unknown concepts so that users are free in what they use.
+//-----------------------------------------------------------------------------
+bool CAI_PlayerAlly::IsAllowedToSpeakFollowup( AIConcept_t concept, CBaseEntity *pIssuer, bool bSpecific )
+{ 
+	CAI_AllySpeechManager *	pSpeechManager	= GetAllySpeechManager();
+	ConceptInfo_t *			pInfo			= pSpeechManager->GetConceptInfo( concept );
+	ConceptCategory_t		category		= SPEECH_PRIORITY; // Must be SPEECH_PRIORITY to get around semaphore
+
+	if ( !IsOkToSpeak( category, true ) )
+		return false;
+
+	// If this followup is specifically targeted towards us, speak if we're not already speaking
+	// If it's meant to be spoken by anyone, respect speech delay and semaphore
+	if ( bSpecific )
+	{
+		if ( !GetExpresser()->CanSpeakAfterMyself() )
+			return false;
+	}
+	else
+	{
+		if ( !GetExpresser()->CanSpeak() )
+			return false;
+
+		CAI_TimedSemaphore *pSemaphore = GetExpresser()->GetMySpeechSemaphore( this );
+		if ( pSemaphore && !pSemaphore->IsAvailable( this ) )
+		{
+			// Only if the semaphore holder isn't the one dispatching the followup
+			if ( pSemaphore->GetOwner() != pIssuer )
+				return false;
+		}
+	}
+
+	if ( !pSpeechManager->ConceptDelayExpired( concept ) )
+		return false;
+
+	if ( ( pInfo && pInfo->flags & AICF_SPEAK_ONCE ) && GetExpresser()->SpokeConcept( concept ) )
+		return false;
+
+	if ( !GetExpresser()->CanSpeakConcept( concept ) )
+		return false;
+	
+	return true;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 bool CAI_PlayerAlly::SpeakIfAllowed( AIConcept_t concept, const char *modifiers, bool bRespondingToPlayer, char *pszOutResponseChosen, size_t bufsize ) 

@@ -126,6 +126,13 @@ public:
 	virtual void OnSpokeConcept( AIConcept_t concept, AI_Response *response )	{};
 	virtual void OnStartSpeaking()						{}
 	virtual bool UseSemaphore()							{ return true; }
+
+#ifdef MAPBASE
+	// Works around issues with CAI_ExpresserHost<> class hierarchy
+	virtual CAI_Expresser *GetSinkExpresser() { return NULL; }
+	virtual bool IsAllowedToSpeakFollowup( AIConcept_t concept, CBaseEntity *pIssuer, bool bSpecific ) { return true; }
+	virtual bool Speak( AIConcept_t concept, AI_CriteriaSet *pCriteria, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL ) { return false; }
+#endif
 };
 
 struct ConceptHistory_t
@@ -244,8 +251,14 @@ public:
 	static bool RunScriptResponse( CBaseEntity *pTarget, const char *response, AI_CriteriaSet *criteria, bool file );
 #endif
 
+#ifdef MAPBASE
+public:
+#else
 protected:
+#endif
 	CAI_TimedSemaphore *GetMySpeechSemaphore( CBaseEntity *pNpc );
+
+protected:
 
 	bool SpeakRawScene( const char *pszScene, float delay, AI_Response *response, IRecipientFilter *filter = NULL );
 	// This will create a fake .vcd/CChoreoScene to wrap the sound to be played
@@ -311,11 +324,15 @@ private:
 //
 
 template <class BASE_NPC>
-class CAI_ExpresserHost : public BASE_NPC, protected CAI_ExpresserSink
+class CAI_ExpresserHost : public BASE_NPC, public CAI_ExpresserSink
 {
 	DECLARE_CLASS_NOFRIEND( CAI_ExpresserHost, BASE_NPC );
 
 public:
+#ifdef MAPBASE
+	CAI_Expresser *GetSinkExpresser() { return this->GetExpresser(); }
+#endif
+
 	virtual void	NoteSpeaking( float duration, float delay );
 
 	virtual bool 	Speak( AIConcept_t concept, const char *modifiers = NULL, char *pszOutResponseChosen = NULL, size_t bufsize = 0, IRecipientFilter *filter = NULL );

@@ -116,6 +116,11 @@ public:
 	inline int GetNumExpresserTargets() const;
 	inline CBaseEntity *GetExpresserHost(int which) const;
 
+#ifdef MAPBASE
+	void AppendFollowupCriteria( AIConcept_t concept, AI_CriteriaSet &set, CAI_Expresser *pEx,
+		CAI_ExpresserSink *pSink, CBaseEntity *pTarget, CBaseEntity *pIssuer, DeferredResponseTarget_t nTargetType );
+#endif
+
 protected:
 	/// Actually send off one response to a consumer
 	/// Return true if dispatch succeeded
