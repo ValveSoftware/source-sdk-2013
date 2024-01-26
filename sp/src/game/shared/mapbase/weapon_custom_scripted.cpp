@@ -334,7 +334,7 @@ void CWeaponCustomScripted::ItemPreFrame( void )
 {
 	SIMPLE_VOID_OVERRIDE( ItemPreFrame, NULL );
 
-	BaseClass::ItemPostFrame();
+	BaseClass::ItemPreFrame();
 }
 
 void CWeaponCustomScripted::ItemPostFrame( void )
