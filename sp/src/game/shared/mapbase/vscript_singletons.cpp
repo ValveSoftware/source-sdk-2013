@@ -22,6 +22,7 @@
 #include "filesystem.h"
 #include "igameevents.h"
 #include "engine/ivdebugoverlay.h"
+#include "icommandline.h"
 
 #ifdef CLIENT_DLL
 #include "IEffects.h"
@@ -1094,7 +1095,7 @@ const char *CScriptReadWriteFile::FileRead( const char *szFile )
 	char pszFullName[MAX_PATH];
 	V_snprintf( pszFullName, sizeof(pszFullName), SCRIPT_RW_FULL_PATH_FMT, szFile );
 
-	if ( !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
+	if ( !CommandLine()->FindParm( "-script_dotslash_read" ) && !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
 	{
 		DevWarning( 2, "Invalid file location : %s\n", szFile );
 		return NULL;
@@ -1143,7 +1144,7 @@ bool CScriptReadWriteFile::FileExists( const char *szFile )
 	char pszFullName[MAX_PATH];
 	V_snprintf( pszFullName, sizeof(pszFullName), SCRIPT_RW_FULL_PATH_FMT, szFile );
 
-	if ( !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
+	if ( !CommandLine()->FindParm( "-script_dotslash_read" ) && !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
 	{
 		DevWarning( 2, "Invalid file location : %s\n", szFile );
 		return NULL;
@@ -1224,7 +1225,7 @@ HSCRIPT CScriptReadWriteFile::KeyValuesRead( const char *szFile )
 	char pszFullName[MAX_PATH];
 	V_snprintf( pszFullName, sizeof(pszFullName), SCRIPT_RW_FULL_PATH_FMT, szFile );
 
-	if ( !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
+	if ( !CommandLine()->FindParm( "-script_dotslash_read" ) && !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
 	{
 		DevWarning( 2, "Invalid file location : %s\n", szFile );
 		return NULL;
