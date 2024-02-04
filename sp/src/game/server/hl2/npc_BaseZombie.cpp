@@ -159,6 +159,10 @@ ConVar zombie_decaymax( "zombie_decaymax", "0.4" );
 
 ConVar zombie_ambushdist( "zombie_ambushdist", "16000" );
 
+#ifdef MAPBASE
+ConVar	zombie_no_flinch_during_unique_anim( "zombie_no_flinch_during_unique_anim", "1", FCVAR_NONE, "Prevents zombies from flinching during actbusies and scripted sequences." );
+#endif
+
 //=========================================================
 // For a couple of reasons, we keep a running count of how
 // many zombies in the world are angry at any given time.
@@ -1928,6 +1932,31 @@ void CNPC_BaseZombie::OnScheduleChange( void )
 	} 
 
 	BaseClass::OnScheduleChange();
+}
+
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+
+bool CNPC_BaseZombie::CanFlinch( void )
+{
+	if (!BaseClass::CanFlinch())
+		return false;
+
+#ifdef MAPBASE
+	if (zombie_no_flinch_during_unique_anim.GetBool())
+	{
+		// Don't flinch if currently playing actbusy animation (navigating to or from one is fine)
+		if (m_ActBusyBehavior.IsInsideActBusy())
+			return false;
+
+		// Don't flinch if currently playing scripted sequence (navigating to or from one is fine)
+		if (m_NPCState == NPC_STATE_SCRIPT && (IsCurSchedule( SCHED_SCRIPTED_WAIT, false ) || IsCurSchedule( SCHED_SCRIPTED_FACE, false )))
+			return false;
+	}
+#endif
+
+	return true;
 }
 
 
