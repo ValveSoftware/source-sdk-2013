@@ -180,7 +180,7 @@ bool CWeaponCustomScripted::RunWeaponHook( ScriptHook_t &hook, HSCRIPT &cached, 
 {
 	if ( !cached )
 	{
-		if ( hook.CanRunInScope( m_ScriptScope ) )
+		if ( m_ScriptScope.IsInitialized() && hook.CanRunInScope( m_ScriptScope ) )
 		{
 			cached = hook.m_hFunc;
 		}
@@ -188,6 +188,7 @@ bool CWeaponCustomScripted::RunWeaponHook( ScriptHook_t &hook, HSCRIPT &cached, 
 
 	if (cached)
 	{
+		hook.m_hFunc = cached;
 		return hook.Call( m_ScriptScope, retVal, pArgs, false );
 	}
 
@@ -328,7 +329,7 @@ void CWeaponCustomScripted::ItemPreFrame( void )
 {
 	SIMPLE_VOID_OVERRIDE( ItemPreFrame, NULL );
 
-	BaseClass::ItemPostFrame();
+	BaseClass::ItemPreFrame();
 }
 
 void CWeaponCustomScripted::ItemPostFrame( void )
