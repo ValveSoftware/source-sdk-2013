@@ -2608,6 +2608,9 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 		// Inherit some misc. properties
 		pCrab->m_bForceServerRagdoll = m_bForceServerRagdoll;
 		pCrab->m_iViewHideFlags = m_iViewHideFlags;
+
+		// Add response context for companion response (more reliable than checking for post-death zombie entity)
+		pCrab->AddContext( "from_zombie", "1", 2.0f );
 #endif
 		
 		// make me the crab's owner to avoid collision issues

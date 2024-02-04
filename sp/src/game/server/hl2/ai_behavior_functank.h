@@ -55,6 +55,8 @@ public:
 	bool		CanManTank( CFuncTank *pTank, bool bForced );
 #endif
 
+	void		ModifyOrAppendCriteria( AI_CriteriaSet &set );
+
 	Activity	NPC_TranslateActivity( Activity activity );
 
 	// Conditions:

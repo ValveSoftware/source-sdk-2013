@@ -7734,6 +7734,93 @@ void CBasePlayer::ResetAutoaim( void )
 	m_fOnTarget = false;
 }
 
+#ifdef MAPBASE
+ConVar  player_debug_probable_aim_target( "player_debug_probable_aim_target", "0", FCVAR_CHEAT, "" );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CBaseEntity *CBasePlayer::GetProbableAimTarget( const Vector &vecSrc, const Vector &vecDir )
+{
+	trace_t tr;
+	CBaseEntity *pIgnore = NULL;
+	if (IsInAVehicle())
+		pIgnore = GetVehicleEntity();
+
+	CTraceFilterSkipTwoEntities traceFilter( this, pIgnore, COLLISION_GROUP_NONE );
+
+	// Based on dot product and distance
+	// If we aim directly at something, only return it if there's not a larger entity slightly off-center
+	// Should be weighted based on whether an entity is a NPC, etc.
+	CBaseEntity *pBestEnt = NULL;
+	float flBestWeight = 0.0f;
+	for (CBaseEntity *pEntity = UTIL_EntitiesInPVS( this, NULL ); pEntity; pEntity = UTIL_EntitiesInPVS( this, pEntity ))
+	{
+		// Combat characters can be unviewable if they just died
+		if (!pEntity->IsViewable() && !pEntity->IsCombatCharacter())
+			continue;
+
+		if (pEntity == this || pEntity->GetMoveParent() == this || pEntity == GetVehicleEntity())
+			continue;
+
+		Vector vecEntDir = (pEntity->EyePosition() - vecSrc);
+		float flDot = DotProduct( vecEntDir.Normalized(), vecDir);
+
+		if (flDot < m_flFieldOfView)
+			continue;
+
+		// Make sure we can see it
+		UTIL_TraceLine( vecSrc, pEntity->EyePosition(), MASK_SHOT, &traceFilter, &tr );
+		if (tr.m_pEnt != pEntity)
+		{
+			if (pEntity->IsCombatCharacter())
+			{
+				// Trace between centers as well just in case our eyes are blocked
+				UTIL_TraceLine( WorldSpaceCenter(), pEntity->WorldSpaceCenter(), MASK_SHOT, &traceFilter, &tr );
+				if (tr.m_pEnt != pEntity)
+					continue;
+			}
+			else
+				continue;
+		}
+
+		float flWeight = flDot - (vecEntDir.LengthSqr() / Square( 2048.0f ));
+
+		if (pEntity->IsCombatCharacter())
+		{
+			// Hostile NPCs are more likely targets
+			if (IRelationType( pEntity ) <= D_FR)
+				flWeight += 0.5f;
+		}
+		else if (pEntity->GetFlags() & FL_AIMTARGET)
+		{
+			// FL_AIMTARGET is often used for props like explosive barrels
+			flWeight += 0.25f;
+		}
+
+		if (player_debug_probable_aim_target.GetBool())
+		{
+			float flWeightClamped = 1.0f - RemapValClamped( flWeight, -2.0f, 2.0f, 0.0f, 1.0f );
+			pEntity->EntityText( 0, UTIL_VarArgs( "%f", flWeight ), 2.0f, flWeightClamped * 255.0f, 255.0f, flWeightClamped * 255.0f, 255 );
+		}
+
+		if (flWeight > flBestWeight)
+		{
+			pBestEnt = pEntity;
+			flBestWeight = flWeight;
+		}
+	}
+	
+	if (player_debug_probable_aim_target.GetBool())
+	{
+		Msg( "Best probable aim target is %s\n", pBestEnt->GetDebugName() );
+		NDebugOverlay::EntityBounds( pBestEnt, 255, 100, 0, 0, 2.0f );
+	}
+
+	return pBestEnt;
+}
+#endif
+
 // ==========================================================================
 //	> Weapon stuff
 // ==========================================================================

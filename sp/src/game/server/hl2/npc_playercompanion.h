@@ -242,6 +242,7 @@ public:
 
 	virtual void	Event_Killed( const CTakeDamageInfo &info );
 	virtual void	Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info );
+	virtual void	EnemyIgnited( CAI_BaseNPC *pVictim );
 	virtual void	DoCustomCombatAI( void );
 #endif
 

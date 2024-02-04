@@ -191,6 +191,24 @@ int	CAI_FuncTankBehavior::SelectSchedule()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CAI_FuncTankBehavior::ModifyOrAppendCriteria( AI_CriteriaSet &set )
+{
+	BaseClass::ModifyOrAppendCriteria( set );
+
+#ifdef MAPBASE
+	set.AppendCriteria( "ft_mounted", m_bMounted ? "1" : "0" );
+
+	if (m_hFuncTank)
+	{
+		set.AppendCriteria( "ft_classname", m_hFuncTank->GetClassname() );
+		m_hFuncTank->AppendContextToCriteria( set, "ft_" );
+	}
+#endif
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : activity - 
 // Output : Activity

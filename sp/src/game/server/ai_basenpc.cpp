@@ -671,13 +671,27 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 {
 	BaseClass::Ignite( flFlameLifetime, bNPCOnly, flSize, bCalledByLevelDesigner );
 
+#ifdef MAPBASE
+	// Alyx's enemy ignited code from below can now be run on any NPC as long as
+	// it's our current enemy.
+	if ( GetEnemy() && GetEnemy()->IsNPC() )
+	{
+		GetEnemy()->MyNPCPointer()->EnemyIgnited( this );
+	}
+#endif
+
 #ifdef HL2_EPISODIC
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
 	if ( pPlayer && pPlayer->IRelationType( this ) != D_LI )
 	{
 		CNPC_Alyx *alyx = CNPC_Alyx::GetAlyx();
 
+#ifdef MAPBASE
+		// Alyx's code continues to run if Alyx was not this NPC's enemy.
+		if ( alyx && alyx != GetEnemy() )
+#else
 		if ( alyx )
+#endif
 		{
 			alyx->EnemyIgnited( this );
 		}
@@ -16476,6 +16490,21 @@ void CAI_BaseNPC::ModifyOrAppendEnemyCriteria( AI_CriteriaSet& set, CBaseEntity 
 		set.AppendCriteria( "enemyclass", g_pGameRules->AIClassText( pEnemy->Classify() ) ); // UTIL_VarArgs("%i", pEnemy->Classify())
 		set.AppendCriteria( "distancetoenemy", UTIL_VarArgs( "%f", EnemyDistance(pEnemy) ) );
 		set.AppendCriteria( "timesincecombat", "-1" );
+
+		CAI_BaseNPC *pNPC = pEnemy->MyNPCPointer();
+		if (pNPC)
+		{
+			set.AppendCriteria("enemy_is_npc", "1");
+
+			set.AppendCriteria( "enemy_activity", CAI_BaseNPC::GetActivityName( pNPC->GetActivity() ) );
+			set.AppendCriteria( "enemy_weapon", pNPC->GetActiveWeapon() ? pNPC->GetActiveWeapon()->GetClassname() : "0" );
+		}
+		else
+		{
+			set.AppendCriteria("enemy_is_npc", "0");
+		}
+
+		pEnemy->AppendContextToCriteria( set, "enemy_" );
 	}
 	else
 	{

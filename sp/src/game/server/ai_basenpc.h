@@ -1995,6 +1995,9 @@ public:
 	//---------------------------------
 
 	virtual void		Ignite( float flFlameLifetime, bool bNPCOnly = true, float flSize = 0.0f, bool bCalledByLevelDesigner = false );
+#ifdef MAPBASE
+	virtual void		EnemyIgnited( CAI_BaseNPC *pVictim ) {}
+#endif
 	virtual bool		PassesDamageFilter( const CTakeDamageInfo &info );
 
 	//---------------------------------
