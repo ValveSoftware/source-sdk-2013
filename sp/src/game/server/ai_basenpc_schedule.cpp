@@ -1610,6 +1610,12 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 			// as this should only run with the NPC "receiving" the interaction
 			ScriptedNPCInteraction_t *pInteraction = m_hForcedInteractionPartner->GetRunningDynamicInteraction();
 
+			if ( !(pInteraction->iFlags & SCNPC_FLAG_TEST_OTHER_ANGLES) )
+			{
+				TaskComplete();
+				return;
+			}
+
 			// Get our target's origin
 			Vector vecTarget = m_hForcedInteractionPartner->GetAbsOrigin();
 
@@ -1617,7 +1623,7 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 			float angInteractionAngle = pInteraction->angRelativeAngles.y;
 			angInteractionAngle += 180.0f;
 
-			GetMotor()->SetIdealYaw( CalcIdealYaw( vecTarget ) + angInteractionAngle );
+			GetMotor()->SetIdealYaw( AngleNormalize( CalcIdealYaw( vecTarget ) + angInteractionAngle ) );
 
 			if (FacingIdeal())
 				TaskComplete();
@@ -4113,6 +4119,15 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 					m_hCine->SynchronizeSequence( this );
 				}
 			}
+
+#ifdef MAPBASE
+			if ( IsRunningDynamicInteraction() && m_poseInteractionRelativeYaw > -1 )
+			{
+				// Animations in progress require pose parameters to be set every frame, so keep setting the interaction relative yaw pose.
+				// The random value is added to help it pass server transmit checks.
+				SetPoseParameter( m_poseInteractionRelativeYaw, GetPoseParameter( m_poseInteractionRelativeYaw ) + RandomFloat( -0.1f, 0.1f ) );
+			}
+#endif
 			break;
 		}
 
