@@ -88,6 +88,15 @@ static void DispatchComeback( CAI_ExpresserWithFollowup *pExpress, CBaseEntity *
 	// add in any provided contexts from the parameters onto the ones stored in the followup
 	criteria.Merge( followup.followup_contexts );
 
+#ifdef MAPBASE
+	if (CAI_ExpresserSink *pSink = dynamic_cast<CAI_ExpresserSink *>(pRespondent))
+	{
+		criteria.AppendCriteria( "dist_from_issuer",  UTIL_VarArgs( "%f", (pRespondent->GetAbsOrigin() - pSpeaker->GetAbsOrigin()).Length() ) );
+		g_ResponseQueueManager.GetQueue()->AppendFollowupCriteria( followup.followup_concept, criteria, pSink->GetSinkExpresser(), pSink, pRespondent, pSpeaker, kDRT_SPECIFIC );
+
+		pSink->Speak( followup.followup_concept, &criteria );
+	}
+#else
 	// This is kludgy and needs to be fixed in class hierarchy, but for now, try to guess at the most likely
 	// kinds of targets and dispatch to them.
 	if (CBaseMultiplayerPlayer *pPlayer = dynamic_cast<CBaseMultiplayerPlayer *>(pRespondent))
@@ -99,6 +108,7 @@ static void DispatchComeback( CAI_ExpresserWithFollowup *pExpress, CBaseEntity *
 	{
 		pActor->Speak( followup.followup_concept, &criteria );
 	}
+#endif
 }
 
 #if 0
