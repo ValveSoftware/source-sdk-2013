@@ -1333,7 +1333,7 @@ void CBaseAnimating::HandleAnimEvent( animevent_t *pEvent )
 #ifdef MAPBASE
 		else if ( pEvent->event == AE_NPC_RESPONSE )
 		{
-			if (!MyNPCPointer()->GetExpresser()->IsSpeaking())
+			if (MyNPCPointer() && MyNPCPointer()->GetExpresser() && !MyNPCPointer()->GetExpresser()->IsSpeaking())
 			{
 				DispatchResponse( pEvent->options );
 			}
@@ -1342,6 +1342,18 @@ void CBaseAnimating::HandleAnimEvent( animevent_t *pEvent )
 		else if ( pEvent->event == AE_NPC_RESPONSE_FORCED )
 		{
 			DispatchResponse( pEvent->options );
+			return;
+		}
+		else if ( pEvent->event == AE_VSCRIPT_RUN )
+		{
+			if (!RunScript( pEvent->options ))
+				Warning( "%s failed to run AE_VSCRIPT_RUN on server with \"%s\"\n", GetDebugName(), pEvent->options );
+			return;
+		}
+		else if ( pEvent->event == AE_VSCRIPT_RUN_FILE )
+		{
+			if (!RunScriptFile( pEvent->options ))
+				Warning( "%s failed to run AE_VSCRIPT_RUN_FILE on server with \"%s\"\n", GetDebugName(), pEvent->options );
 			return;
 		}
 #endif

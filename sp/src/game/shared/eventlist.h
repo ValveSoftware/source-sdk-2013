@@ -69,6 +69,11 @@ typedef enum
 	AE_SV_DUSTTRAIL,
 
 	AE_CL_CREATE_PARTICLE_EFFECT,
+#ifdef MAPBASE // From Alien Swarm SDK
+	AE_CL_STOP_PARTICLE_EFFECT,
+	AE_CL_ADD_PARTICLE_EFFECT_CP,
+	//AE_CL_CREATE_PARTICLE_BRASS,
+#endif
 
 	AE_RAGDOLL,
 
@@ -88,6 +93,9 @@ typedef enum
 #ifdef MAPBASE
 	AE_NPC_RESPONSE,	// Play a response system concept if we're not speaking
 	AE_NPC_RESPONSE_FORCED,		// Always play a response system concept
+	
+	AE_VSCRIPT_RUN,			// Run vscript code (server + client)
+	AE_VSCRIPT_RUN_FILE,	// Run vscript file (server + client)
 #endif
 
 	LAST_SHARED_ANIMEVENT,

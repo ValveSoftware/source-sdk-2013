@@ -902,6 +902,17 @@ BEGIN_DATADESC( CAI_Hint )
 	DEFINE_OUTPUT( m_OnNPCStartedUsing,	"OnNPCStartedUsing" ),
 	DEFINE_OUTPUT( m_OnNPCStoppedUsing,	"OnNPCStoppedUsing" ),
 
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnScriptEvent[0], "OnScriptEvent01" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[1], "OnScriptEvent02" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[2], "OnScriptEvent03" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[3], "OnScriptEvent04" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[4], "OnScriptEvent05" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[5], "OnScriptEvent06" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[6], "OnScriptEvent07" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[7], "OnScriptEvent08" ),
+#endif
+
 END_DATADESC( );
 
 #ifdef MAPBASE_VSCRIPT
@@ -1704,6 +1715,19 @@ void CAI_Hint::NPCStoppedUsing( CAI_BaseNPC *pNPC )
 {
 	m_OnNPCStoppedUsing.Set( pNPC, pNPC, this );
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CAI_Hint::FireScriptEvent( int nEvent )
+{
+	if ( ( nEvent >= 1 ) && ( nEvent <= 8 ) )
+	{
+		m_OnScriptEvent[nEvent - 1].FireOutput( m_hHintOwner, this );
+	}
+}
+#endif
 
 
 CON_COMMAND(ai_dump_hints, "")
