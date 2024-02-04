@@ -12333,6 +12333,7 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 
 	DEFINE_SCRIPTFUNC( IsCommandable, "Check if the NPC is commandable." )
 	DEFINE_SCRIPTFUNC( IsInPlayerSquad, "Check if the NPC is in the player's squad." )
+	DEFINE_SCRIPTFUNC( IsMedic, "Returns true if this NPC is a medic." )
 
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetCine, "GetCine", "Get the NPC's currently running scripted sequence if it has one." )
 	DEFINE_SCRIPTFUNC( GetScriptState, "Get the NPC's current scripted sequence state." )

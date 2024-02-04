@@ -118,15 +118,14 @@ class CSimpleCallChainer
 
 	function PostScriptExecute()
 	{
-		local func;
-		try {
-			func = scope[prefix];
-		} catch(e) {
-			return;
+		if ( prefix in scope )
+		{
+			local func = scope[prefix];
+			if ( typeof func == "function" )
+			{
+				chain.push(func);
+			}
 		}
-		if (typeof(func) != "function")
-			return;
-		chain.push(func);
 	}
 
 	function Call()

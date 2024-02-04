@@ -1477,6 +1477,11 @@ public:
 	{
 		ivgui()->AddTickSignal( this->GetVPanel(), i );
 	}
+
+	void RemoveTickSignal()
+	{
+		ivgui()->RemoveTickSignal( this->GetVPanel() );
+	}
 #if SCRIPT_VGUI_SIGNAL_INTERFACE
 	void AddActionSignalTarget( HSCRIPT messageTarget )
 	{
@@ -1867,6 +1872,7 @@ public:
 	DEFINE_SCRIPTFUNC( MakeReadyForUse, "" )\
 	DEFINE_SCRIPTFUNC( GetName, "" )\
 	DEFINE_SCRIPTFUNC( AddTickSignal, "" )\
+	DEFINE_SCRIPTFUNC( RemoveTickSignal, "" )\
 \
 	DEFINE_SCRIPTFUNC( GetParent, "" )\
 	DEFINE_SCRIPTFUNC( SetParent, "" )\
