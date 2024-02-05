@@ -144,6 +144,8 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/206 (Fix CScriptNetMsgHelper::WriteEntity())
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/213 (VScript HUD visibility control, optimizations for 3D skybox angles/fake worldportals)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/229 (VScript VGUI HUD viewport parenting, game_text and vgui_text_display VScript font fallback)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/261 (Misc VScript additions)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/279 (weapon_custom_scripted fixes)
 
 == Contributions from z33ky:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux compilation fixes)
