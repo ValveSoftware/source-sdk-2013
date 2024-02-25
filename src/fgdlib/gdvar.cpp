@@ -591,7 +591,7 @@ void GDinputvariable::FromKeyValue(MDkeyvalue *pkv)
 
 	if (eStoreAs == STRING)
 	{
-		strcpy(m_szValue, pkv->szValue);
+		V_strcpy_safe(m_szValue, pkv->szValue);
 	}
 	else if (eStoreAs == INTEGER)
 	{
