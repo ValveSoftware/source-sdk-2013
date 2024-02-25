@@ -2190,7 +2190,10 @@ s_template_t *Load_Template(char *name )
 
 	// Open file
 	if (!OpenGlobalFile( name ))
+	{
+		free( pTemplate );
 		return 0;
+	}
 
 
 	//March through lines
