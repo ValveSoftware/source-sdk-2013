@@ -298,8 +298,10 @@ int Grab_Nodes( s_node_t *pnodes )
 	{
 		g_iLinecount++;
 		// get tokens
-		if (sscanf( g_szLine, "%d \"%[^\"]\" %d", &index, name, &parent ) == 3)
+		if (sscanf( g_szLine, "%d \"%1023[^\"]\" %d", &index, name, &parent ) == 3)
 		{
+			name[ ARRAYSIZE( name ) - 1 ] = '\0';
+
 			// check for duplicated bones
 			/*
 			if (strlen(pnodes[index].name) != 0)
@@ -1273,12 +1275,12 @@ void Grab_Triangles( s_source_t *psource )
 		{
 			if (sourcetexture[i][0] == '\0') 
 			{
-				strcpy( texturename, defaulttexture[i] );
+				V_strcpy_safe( texturename, defaulttexture[i] );
 				break;
 			}
 			if (stricmp( texturename, sourcetexture[i]) == 0) 
 			{
-				strcpy( texturename, defaulttexture[i] );
+				V_strcpy_safe( texturename, defaulttexture[i] );
 				break;
 			}
 		}
@@ -1341,7 +1343,8 @@ int Load_SMD ( s_source_t *psource )
 	while (fgets( g_szLine, sizeof( g_szLine ), g_fpInput ) != NULL) 
 	{
 		g_iLinecount++;
-		int numRead = sscanf( g_szLine, "%s %d", cmd, &option );
+		int numRead = sscanf( g_szLine, "%1023s %d", cmd, &option );
+		cmd[ ARRAYSIZE( cmd ) - 1 ] = '\0';
 
 		// Blank line
 		if ((numRead == EOF) || (numRead == 0))
@@ -3167,7 +3170,7 @@ int main (int argc, char **argv)
 			{
 				if(i + 1 < argc)
 				{
-					strcpy( templateFileName, argv[i+1]);
+					V_strcpy_safe( templateFileName, argv[i+1]);
 					useTemplate = 1;
 					printf("Note: %s passed as template file", templateFileName);
 				}
