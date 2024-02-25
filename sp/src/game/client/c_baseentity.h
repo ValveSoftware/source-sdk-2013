@@ -288,6 +288,11 @@ public:
 	HSCRIPT					GetScriptOwnerEntity();
 	virtual void			SetScriptOwnerEntity(HSCRIPT pOwner);
 
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT					ScriptGetGroundEntity();
+	void					ScriptSetGroundEntity( HSCRIPT hGroundEnt );
+#endif
+
 	HSCRIPT GetScriptInstance();
 
 	HSCRIPT			m_hScriptInstance;

@@ -902,6 +902,17 @@ BEGIN_DATADESC( CAI_Hint )
 	DEFINE_OUTPUT( m_OnNPCStartedUsing,	"OnNPCStartedUsing" ),
 	DEFINE_OUTPUT( m_OnNPCStoppedUsing,	"OnNPCStoppedUsing" ),
 
+#ifdef MAPBASE
+	DEFINE_OUTPUT( m_OnScriptEvent[0], "OnScriptEvent01" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[1], "OnScriptEvent02" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[2], "OnScriptEvent03" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[3], "OnScriptEvent04" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[4], "OnScriptEvent05" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[5], "OnScriptEvent06" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[6], "OnScriptEvent07" ),
+	DEFINE_OUTPUT( m_OnScriptEvent[7], "OnScriptEvent08" ),
+#endif
+
 END_DATADESC( );
 
 #ifdef MAPBASE_VSCRIPT
@@ -1325,7 +1336,7 @@ bool CAI_Hint::HintMatchesCriteria( CAI_BaseNPC *pNPC, const CHintCriteria &hint
 
 		if ( distance > nRadius * nRadius )
 		{
-			REPORTFAILURE( "NPC is not within the node's radius." );
+			REPORTFAILURE( "Not within the node's radius." );
 			return false;
 		}
 	}
@@ -1705,6 +1716,19 @@ void CAI_Hint::NPCStoppedUsing( CAI_BaseNPC *pNPC )
 	m_OnNPCStoppedUsing.Set( pNPC, pNPC, this );
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CAI_Hint::FireScriptEvent( int nEvent )
+{
+	if ( ( nEvent >= 1 ) && ( nEvent <= 8 ) )
+	{
+		m_OnScriptEvent[nEvent - 1].FireOutput( m_hHintOwner, this );
+	}
+}
+#endif
+
 
 CON_COMMAND(ai_dump_hints, "")
 {
@@ -1794,6 +1818,11 @@ hinttypedescs_t g_pszHintDescriptions[] =
 	{	HINT_HL1_WORLD_ALIEN_BLOOD, "HL1: World: Alien Blood"	},
 
 	{	HINT_CSTRIKE_HOSTAGE_ESCAPE, "CS Port: Hostage Escape"	},
+
+#ifdef MAPBASE
+	{	HINT_TACTICAL_COVER_CUSTOM, "Mapbase: Custom Cover"	},
+	{	HINT_TACTICAL_GRENADE_THROW, "Mapbase: Grenade Throw Hint"	},
+#endif
 };
 
 //-----------------------------------------------------------------------------

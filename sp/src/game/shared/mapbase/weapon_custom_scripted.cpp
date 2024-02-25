@@ -7,6 +7,7 @@
 
 #include "cbase.h"
 #include "tier1/fmtstr.h"
+#include "tier1/utlvector.h"
 #include "weapon_custom_scripted.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -179,7 +180,7 @@ bool CWeaponCustomScripted::RunWeaponHook( ScriptHook_t &hook, HSCRIPT &cached, 
 {
 	if ( !cached )
 	{
-		if ( hook.CanRunInScope( m_ScriptScope ) )
+		if ( m_ScriptScope.IsInitialized() && hook.CanRunInScope( m_ScriptScope ) )
 		{
 			cached = hook.m_hFunc;
 		}
@@ -187,6 +188,7 @@ bool CWeaponCustomScripted::RunWeaponHook( ScriptHook_t &hook, HSCRIPT &cached, 
 
 	if (cached)
 	{
+		hook.m_hFunc = cached;
 		return hook.Call( m_ScriptScope, retVal, pArgs, false );
 	}
 
@@ -198,13 +200,6 @@ bool CWeaponCustomScripted::RunWeaponHook( ScriptHook_t &hook, HSCRIPT &cached, 
 //-----------------------------------------------------------------------------
 void CWeaponCustomScripted::Spawn( void )
 {
-#ifdef CLIENT_DLL
-	if (m_iszClientScripts[0] != '\0' && ValidateScriptScope())
-	{
-		RunScriptFile( m_iszClientScripts );
-	}
-#endif
-
 	BaseClass::Spawn();
 }
 
@@ -334,7 +329,7 @@ void CWeaponCustomScripted::ItemPreFrame( void )
 {
 	SIMPLE_VOID_OVERRIDE( ItemPreFrame, NULL );
 
-	BaseClass::ItemPostFrame();
+	BaseClass::ItemPreFrame();
 }
 
 void CWeaponCustomScripted::ItemPostFrame( void )
@@ -432,7 +427,7 @@ void CWeaponCustomScripted::SecondaryAttack( void )
 // Purpose: 
 //-----------------------------------------------------------------------------
 #define ACTIVITY_FUNC_OVERRIDE( name ) ScriptVariant_t retVal; \
-	if (RunWeaponHook( g_Hook_##name, m_Func_##name, &retVal ) && retVal.m_bool == false) \
+	if (RunWeaponHook( g_Hook_##name, m_Func_##name, &retVal ) && !retVal.IsNull()) \
 	{ \
 		if (retVal.m_type == FIELD_INTEGER) \
 		{ \
@@ -586,6 +581,36 @@ int CWeaponCustomScripted::WeaponMeleeAttack2Condition( float flDot, float flDis
 
 	return BaseClass::WeaponMeleeAttack2Condition( flDot, flDist );
 }
+
+struct VScriptWeaponCustomData_s
+{
+	char cScripts[256];
+
+	bool Parse(KeyValues* pKVWeapon)
+	{
+		Q_strncpy(cScripts, pKVWeapon->GetString("vscript_file"), 256);
+		return true;
+	}
+};
+
+DEFINE_CUSTOM_WEAPON_FACTORY(vscript, CWeaponCustomScripted, VScriptWeaponCustomData_s);
+void CWeaponCustomScripted::InitCustomWeaponFromData(const void* pData, const char* pszWeaponScript)
+{
+	Q_FileBase(pszWeaponScript, m_iszWeaponScriptName.GetForModify(), 256);
+	Q_strncpy(m_iszClientScripts.GetForModify(), static_cast<const VScriptWeaponCustomData_s *> (pData)->cScripts, 256);
+}
+
+extern ConVar sv_script_think_interval;
+#else
+void CWeaponCustomScripted::OnDataChanged(DataUpdateType_t type)
+{
+	BaseClass::OnDataChanged(type);
+
+	if (!m_ScriptScope.IsInitialized())
+	{
+		RunVScripts();
+	}
+}
 #endif
 
 //-----------------------------------------------------------------------------
@@ -603,4 +628,97 @@ int CWeaponCustomScripted::ActivityListCount( void )
 	// TODO
 
 	return BaseClass::ActivityListCount();
+}
+
+void CWeaponCustomScripted::RunVScripts()
+{
+#ifdef CLIENT_DLL
+	if (m_iszClientScripts[0] != '\0' && ValidateScriptScope())
+	{
+		RunScriptFile(m_iszClientScripts);
+	}
+#else
+	if (m_iszVScripts == NULL_STRING && m_iszClientScripts[0] == '\0')
+	{
+		return;
+	}
+
+#ifdef MAPBASE_VSCRIPT
+	if (g_pScriptVM == NULL)
+	{
+		return;
+	}
+#endif
+
+	ValidateScriptScope();
+
+	// All functions we want to have call chained instead of overwritten
+	// by other scripts in this entities list.
+	static const char* sCallChainFunctions[] =
+	{
+		"OnPostSpawn",
+		"Precache"
+	};
+
+	ScriptLanguage_t language = g_pScriptVM->GetLanguage();
+
+	// Make a call chainer for each in this entities scope
+	for (int j = 0; j < ARRAYSIZE(sCallChainFunctions); ++j)
+	{
+
+		if (language == SL_PYTHON)
+		{
+			// UNDONE - handle call chaining in python
+			;
+		}
+		else if (language == SL_SQUIRREL)
+		{
+			//TODO: For perf, this should be precompiled and the %s should be passed as a parameter
+			HSCRIPT hCreateChainScript = g_pScriptVM->CompileScript(CFmtStr("%sCallChain <- CSimpleCallChainer(\"%s\", self.GetScriptScope(), true)", sCallChainFunctions[j], sCallChainFunctions[j]));
+			g_pScriptVM->Run(hCreateChainScript, (HSCRIPT)m_ScriptScope);
+		}
+	}
+
+	CUtlStringList szScripts;
+	if (m_iszVScripts != NULL_STRING)
+	{
+		V_SplitString(STRING(m_iszVScripts), " ", szScripts);
+	}
+
+	if (m_iszClientScripts[0] != '\0')
+	{
+		szScripts.AddToHead(strdup(m_iszClientScripts.Get()));
+	}
+
+	for (int i = 0; i < szScripts.Count(); i++)
+	{
+#ifdef MAPBASE
+		CGMsg(0, CON_GROUP_VSCRIPT, "%s executing script: %s\n", GetDebugName(), szScripts[i]);
+#else
+		Log("%s executing script: %s\n", GetDebugName(), szScripts[i]);
+#endif
+
+		RunScriptFile(szScripts[i], IsWorld());
+
+		for (int j = 0; j < ARRAYSIZE(sCallChainFunctions); ++j)
+		{
+			if (language == SL_PYTHON)
+			{
+				// UNDONE - handle call chaining in python
+				;
+			}
+			else if (language == SL_SQUIRREL)
+			{
+				//TODO: For perf, this should be precompiled and the %s should be passed as a parameter.
+				HSCRIPT hRunPostScriptExecute = g_pScriptVM->CompileScript(CFmtStr("%sCallChain.PostScriptExecute()", sCallChainFunctions[j]));
+				g_pScriptVM->Run(hRunPostScriptExecute, (HSCRIPT)m_ScriptScope);
+			}
+		}
+	}
+
+	if (m_iszScriptThinkFunction != NULL_STRING)
+	{
+		SetContextThink(&CBaseEntity::ScriptThink, gpGlobals->curtime + sv_script_think_interval.GetFloat(), "ScriptThink");
+	}
+#endif
 }

@@ -3112,7 +3112,7 @@ void CLogicBranch::UpdateOnRemove()
 		CBaseEntity *pEntity = m_Listeners.Element( i ).Get();
 		if ( pEntity )
 		{
-			g_EventQueue.AddEvent( this, "_OnLogicBranchRemoved", 0, this, this );
+			g_EventQueue.AddEvent( pEntity, "_OnLogicBranchRemoved", 0, this, this );
 		}
 	}
 	
@@ -4059,7 +4059,7 @@ void CLogicFormat::FormatString(const char *szStringToFormat, char *szOutput, in
 			curparam = atoi(szToken);
 			if (curparam < MAX_LOGIC_FORMAT_PARAMETERS /*&& szParameters[curparam] != NULL*/) //if (curparam < MAX_FORMAT_PARAMETERS)
 			{
-				Q_snprintf(szFormatted, sizeof(szFormatted), "%s%s", szFormatted, szParameters[curparam]);
+				Q_strncat(szFormatted, szParameters[curparam], sizeof(szFormatted));
 			}
 			else
 			{
@@ -4068,8 +4068,8 @@ void CLogicFormat::FormatString(const char *szStringToFormat, char *szOutput, in
 				// This might not be the best way to do this, but
 				// reaching it is supposed to be the result of a mistake anyway.
 				m_iszBackupParameter != NULL_STRING ?
-					Q_snprintf(szFormatted, sizeof(szFormatted), "%s%s", szFormatted, STRING(m_iszBackupParameter)) :
-					Q_snprintf(szFormatted, sizeof(szFormatted), "%s<null>", szFormatted);
+					Q_strncat( szFormatted, STRING(m_iszBackupParameter), sizeof( szFormatted ) ) :
+					Q_strncat( szFormatted, "<null>", sizeof( szFormatted ) );
 			}
 
 			inparam = false;
@@ -4077,7 +4077,7 @@ void CLogicFormat::FormatString(const char *szStringToFormat, char *szOutput, in
 		}
 		else
 		{
-			Q_snprintf(szFormatted, sizeof(szFormatted), "%s%s", szFormatted, szToken);
+			Q_strncat( szFormatted, szToken, sizeof( szFormatted ) );
 
 			inparam = true;
 			szToken = strtok(NULL, "}");

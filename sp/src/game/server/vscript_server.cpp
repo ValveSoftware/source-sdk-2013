@@ -606,10 +606,10 @@ bool VScriptServerInit()
 
 #ifdef MAPBASE_VSCRIPT
 				// MULTIPLAYER
+				// NOTE: 'PlayerInstanceFromIndex' and 'GetPlayerFromUserID' are used in L4D2 and Source 2,
+				// but the GetPlayerBy* names are more consistent.
 				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByIndex, "GetPlayerByIndex", "PlayerInstanceFromIndex" );
-				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByUserId, "GetPlayerByUserId", "GetPlayerFromUserID" );
-				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByName, "GetPlayerByName", "" );
-				// ScriptRegisterFunctionNamed( g_pScriptVM, ScriptGetPlayerByNetworkID, "GetPlayerByNetworkID", "" );
+				// ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_PlayerByUserId, "GetPlayerByUserID", "GetPlayerFromUserID" );
 
 				ScriptRegisterFunctionNamed( g_pScriptVM, UTIL_ShowMessageAll, "ShowMessage", "Print a hud message on all clients" );
 #else
@@ -841,6 +841,8 @@ public:
 	virtual void LevelShutdownPostEntity( void )
 	{
 #ifdef MAPBASE_VSCRIPT
+		g_ScriptEntityIterator.DisableEntityListening();
+
 		g_ScriptNetMsg->LevelShutdownPreVM();
 
 		GetScriptHookManager().OnShutdown();

@@ -58,6 +58,17 @@ int GetWeaponSoundFromString( const char *pszString );
 class CHudTexture;
 class KeyValues;
 
+#ifdef MAPBASE
+enum WeaponUsageRestricions_e
+{
+	WPNRESTRICT_NONE = 0,
+	WPNRESTRICT_PLAYER_ONLY,
+	WPNRESTRICT_NPCS_ONLY,
+
+	NUM_WEAPON_RESTRICTION_TYPES
+};
+#endif // MAPBASE
+
 //-----------------------------------------------------------------------------
 // Purpose: Contains the data read from the weapon's script file. 
 // It's cached so we only read each weapon's script file once.
@@ -125,6 +136,8 @@ public:
 	char					szDroppedModel[MAX_WEAPON_STRING];		// Model of this weapon when dropped on the ground
 
 	bool					m_bUsesHands;
+
+	int						m_nWeaponRestriction;
 #endif
 
 // CLIENT DLL

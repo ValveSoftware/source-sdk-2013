@@ -425,6 +425,9 @@ struct ScriptedNPCInteraction_t
 		iszTheirWeapon = NULL_STRING;
 #ifdef MAPBASE
 		vecRelativeEndPos = vec3_origin;
+		bHasSeparateSequenceNames = false;
+		flMaxAngleDiff = DSS_MAX_ANGLE_DIFF;
+		iszRelatedInteractions = NULL_STRING;
 		MiscCriteria = NULL_STRING;
 #endif
 
@@ -432,6 +435,10 @@ struct ScriptedNPCInteraction_t
 		{
 			sPhases[i].iszSequence = NULL_STRING;
 			sPhases[i].iActivity = ACT_INVALID;
+#ifdef MAPBASE
+			sTheirPhases[i].iszSequence = NULL_STRING;
+			sTheirPhases[i].iActivity = ACT_INVALID;
+#endif
 		}
 	}
 
@@ -459,10 +466,14 @@ struct ScriptedNPCInteraction_t
 	float		flNextAttemptTime;
 
 #ifdef MAPBASE
-	// Unrecognized keyvalues are tested against response criteria later.
-	// This was originally a CUtlVector that carries response contexts, but I couldn't get it working due to some CUtlVector-struct shenanigans.
-	// It works when we use a single string_t that's split and read each time the code runs, but feel free to improve on this.
-	string_t	MiscCriteria; // CUtlVector<ResponseContext_t>
+	ScriptedNPCInteraction_Phases_t sTheirPhases[SNPCINT_NUM_PHASES];	// The animations played by the target NPC, if they are different
+	bool		bHasSeparateSequenceNames;
+
+	float		flMaxAngleDiff;
+	string_t	iszRelatedInteractions;	// These interactions will be delayed as well when this interaction is used.
+
+	// Unrecognized keyvalues which are tested against response criteria later.
+	string_t	MiscCriteria;
 #endif
 
 	DECLARE_SIMPLE_DATADESC();
@@ -838,6 +849,9 @@ protected: // pose parameters
 	int					m_poseAim_Pitch;
 	int					m_poseAim_Yaw;
 	int					m_poseMove_Yaw;
+#ifdef MAPBASE
+	int					m_poseInteractionRelativeYaw;
+#endif
 	virtual void		PopulatePoseParameters( void );
 
 public:
@@ -845,6 +859,10 @@ public:
 
 	// Return the stored pose parameter for "move_yaw"
 	inline int			LookupPoseMoveYaw()		{ return m_poseMove_Yaw; }
+
+#ifdef MAPBASE
+	inline int			LookupPoseInteractionRelativeYaw()	{ return m_poseInteractionRelativeYaw; }
+#endif
  
 
 	//-----------------------------------------------------
@@ -1304,10 +1322,14 @@ private:
 public:
 	float GetInteractionYaw( void ) const { return m_flInteractionYaw; }
 
+	bool IsRunningDynamicInteraction( void ) { return (m_iInteractionState != NPCINT_NOT_RUNNING && (m_hCine != NULL)); }
+	bool IsActiveDynamicInteraction( void ) { return (m_iInteractionState == NPCINT_RUNNING_ACTIVE && (m_hCine != NULL)); }
+	CAI_BaseNPC *GetInteractionPartner( void );
+
 protected:
 	void ParseScriptedNPCInteractions( void );
 	void AddScriptedNPCInteraction( ScriptedNPCInteraction_t *pInteraction  );
-	const char *GetScriptedNPCInteractionSequence( ScriptedNPCInteraction_t *pInteraction, int iPhase );
+	const char *GetScriptedNPCInteractionSequence( ScriptedNPCInteraction_t *pInteraction, int iPhase, bool bOtherNPC = false );
 	void StartRunningInteraction( CAI_BaseNPC *pOtherNPC, bool bActive );
 	void StartScriptedNPCInteraction( CAI_BaseNPC *pOtherNPC, ScriptedNPCInteraction_t *pInteraction, Vector vecOtherOrigin, QAngle angOtherAngles );
 	void CheckForScriptedNPCInteractions( void );
@@ -1320,17 +1342,16 @@ protected:
 #endif
 	bool InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInteraction_t *pInteraction, Vector &vecOrigin, QAngle &angAngles );
 	virtual bool CanRunAScriptedNPCInteraction( bool bForced = false );
-	bool IsRunningDynamicInteraction( void ) { return (m_iInteractionState != NPCINT_NOT_RUNNING && (m_hCine != NULL)); }
-	bool IsActiveDynamicInteraction( void ) { return (m_iInteractionState == NPCINT_RUNNING_ACTIVE && (m_hCine != NULL)); }
 	ScriptedNPCInteraction_t *GetRunningDynamicInteraction( void ) { return &(m_ScriptedInteractions[m_iInteractionPlaying]); }
 	void SetInteractionCantDie( bool bCantDie ) { m_bCannotDieDuringInteraction = bCantDie; }
 	bool HasInteractionCantDie( void );
+	bool HasValidInteractionsOnCurrentEnemy( void );
+	virtual bool CanStartDynamicInteractionDuringMelee() { return false; }
 
 	void InputForceInteractionWithNPC( inputdata_t &inputdata );
 	void StartForcedInteraction( CAI_BaseNPC *pNPC, int iInteraction );
 	void CleanupForcedInteraction( void );
 	void CalculateForcedInteractionPosition( void );
-	CAI_BaseNPC *GetInteractionPartner( void );
 
 private:
 	// Forced interactions
@@ -1974,6 +1995,9 @@ public:
 	//---------------------------------
 
 	virtual void		Ignite( float flFlameLifetime, bool bNPCOnly = true, float flSize = 0.0f, bool bCalledByLevelDesigner = false );
+#ifdef MAPBASE
+	virtual void		EnemyIgnited( CAI_BaseNPC *pVictim ) {}
+#endif
 	virtual bool		PassesDamageFilter( const CTakeDamageInfo &info );
 
 	//---------------------------------
@@ -2228,6 +2252,9 @@ public:
 	static const char*	GetActivityName	(int actID);	
 
 	static void			AddActivityToSR(const char *actName, int conID);
+#ifdef MAPBASE
+	static int			GetOrRegisterActivity( const char *actName );
+#endif
 	
 	static void			AddEventToSR(const char *eventName, int conID);
 	static const char*	GetEventName	(int actID);

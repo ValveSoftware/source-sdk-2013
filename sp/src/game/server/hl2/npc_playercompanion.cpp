@@ -35,6 +35,8 @@
 #include "mapbase/GlobalStrings.h"
 #include "world.h"
 #include "vehicle_base.h"
+#include "npc_headcrab.h"
+#include "npc_BaseZombie.h"
 #endif
 
 ConVar ai_debug_readiness("ai_debug_readiness", "0" );
@@ -640,6 +642,55 @@ void CNPC_PlayerCompanion::DoCustomSpeechAI( void )
 	{
 		SpeakIfAllowed( TLK_PLDEAD );
 	}
+
+#ifdef MAPBASE
+	// Unique new enemy concepts ported from Alyx
+	// The casts have been changed to dynamic_cast due to the risk of non-CBaseHeadcrab/CNPC_BaseZombie enemies using those classes
+	if ( HasCondition(COND_NEW_ENEMY) && GetEnemy() )
+	{
+		int nClass = GetEnemy()->Classify();
+		if ( nClass == CLASS_HEADCRAB )
+		{
+			CBaseHeadcrab *pHC = dynamic_cast<CBaseHeadcrab*>(GetEnemy());
+			if ( pHC )
+			{
+				// If we see a headcrab for the first time as he's jumping at me, freak out!
+				if ( ( GetEnemy()->GetEnemy() == this ) && pHC->IsJumping() && gpGlobals->curtime - GetEnemies()->FirstTimeSeen(GetEnemy()) < 0.5 )
+				{
+					SpeakIfAllowed( "TLK_SPOTTED_INCOMING_HEADCRAB" );
+				}
+				else
+				{
+					// If we see a headcrab leaving a zombie that just died, mention it
+					// (Note that this is now a response context since some death types remove the zombie instantly)
+					int nContext = pHC->FindContextByName( "from_zombie" );
+					if ( nContext > -1 && !ContextExpired( nContext ) ) // pHC->GetOwnerEntity() && ( pHC->GetOwnerEntity()->Classify() == CLASS_ZOMBIE ) && !pHC->GetOwnerEntity()->IsAlive()
+					{
+						SpeakIfAllowed( "TLK_SPOTTED_HEADCRAB_LEAVING_ZOMBIE" );
+					}
+				}
+			}
+		}
+		else if ( nClass == CLASS_ZOMBIE ) 
+		{
+			CNPC_BaseZombie *pZombie = dynamic_cast<CNPC_BaseZombie*>(GetEnemy());
+			// If we see a zombie getting up, mention it
+			if ( pZombie && pZombie->IsGettingUp() )
+			{
+				SpeakIfAllowed( "TLK_SPOTTED_ZOMBIE_WAKEUP" );
+			}
+		}
+		
+		if ( gpGlobals->curtime - GetEnemies()->TimeAtFirstHand( GetEnemy() ) <= 1.0f && nClass != CLASS_BULLSEYE )
+		{
+			// New concept which did not originate from Alyx, but is in the same category as the above concepts.
+			// This is meant to be used when a new enemy enters the arena while combat is already in progress.
+			// (Note that this can still trigger when combat begins, but unlike TLK_STARTCOMBAT, it has no delay
+			// between combat engagements.)
+			SpeakIfAllowed( TLK_NEW_ENEMY );
+		}
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -910,8 +961,21 @@ int CNPC_PlayerCompanion::SelectScheduleDanger()
 
 		if ( pSound && (pSound->m_iType & SOUND_DANGER) )
 		{
+#ifdef MAPBASE
+			if ( pSound->SoundChannel() == SOUNDENT_CHANNEL_ZOMBINE_GRENADE )
+			{
+				SetSpeechTarget( pSound->m_hOwner );
+				SpeakIfAllowed( TLK_DANGER_ZOMBINE_GRENADE );
+			}
+			else if (!(pSound->SoundContext() & (SOUND_CONTEXT_MORTAR | SOUND_CONTEXT_FROM_SNIPER)) || IsOkToCombatSpeak())
+			{
+				SetSpeechTarget( pSound->m_hOwner );
+				SpeakIfAllowed( TLK_DANGER );
+			}
+#else
 			if ( !(pSound->SoundContext() & (SOUND_CONTEXT_MORTAR|SOUND_CONTEXT_FROM_SNIPER)) || IsOkToCombatSpeak() )
 				SpeakIfAllowed( TLK_DANGER );
+#endif
 
 			if ( HasCondition( COND_PC_SAFE_FROM_MORTAR ) )
 			{
@@ -4310,6 +4374,20 @@ void CNPC_PlayerCompanion::Event_KilledOther( CBaseEntity *pVictim, const CTakeD
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Called by enemy NPC's when they are ignited
+// Input  : pVictim - entity that was ignited
+//-----------------------------------------------------------------------------
+void CNPC_PlayerCompanion::EnemyIgnited( CAI_BaseNPC *pVictim )
+{
+	BaseClass::EnemyIgnited( pVictim );
+
+	if ( FVisible( pVictim ) )
+	{
+		SpeakIfAllowed( TLK_ENEMY_BURNING );
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Handles custom combat speech stuff ported from Alyx.
 //-----------------------------------------------------------------------------
 void CNPC_PlayerCompanion::DoCustomCombatAI( void )
@@ -4375,6 +4453,21 @@ void CNPC_PlayerCompanion::DoCustomCombatAI( void )
 	else if( visibleEnemiesScore > 4 )
 	{
 		SpeakIfAllowed( TLK_MANY_ENEMIES );
+	}
+	
+	// If we're not currently attacking or vulnerable, try speaking
+	else if ( gpGlobals->curtime - GetLastAttackTime() > 1.0f && (!HasCondition( COND_SEE_ENEMY ) || IsCurSchedule( SCHED_RELOAD ) || IsCurSchedule( SCHED_HIDE_AND_RELOAD )) )
+	{
+		int chance = ( IsMoving() ) ? 20 : 3;
+		if ( ShouldSpeakRandom( TLK_COMBAT_IDLE, chance ) )
+		{
+			AI_CriteriaSet modifiers;
+
+			modifiers.AppendCriteria( "in_cover", HasMemory( bits_MEMORY_INCOVER ) ? "1" : "0" );
+			modifiers.AppendCriteria( "lastseenenemy", UTIL_VarArgs( "%f", gpGlobals->curtime - GetEnemyLastTimeSeen() ) );
+
+			SpeakIfAllowed( TLK_COMBAT_IDLE, modifiers );
+		}
 	}
 }
 #endif

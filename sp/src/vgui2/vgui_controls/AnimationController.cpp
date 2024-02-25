@@ -33,7 +33,7 @@ static CUtlSymbolTable g_ScriptSymbols(0, 128, true);
 
 #ifdef MAPBASE
 // Allows animation sequences to be overridden by map-specific files
-extern bool g_bUsingCustomHudAnimations;
+bool g_bUsingCustomHudAnimations = false;
 #endif
 
 // singleton accessor for animation controller for use by the vgui controls

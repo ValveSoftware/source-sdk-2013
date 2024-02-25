@@ -671,13 +671,27 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 {
 	BaseClass::Ignite( flFlameLifetime, bNPCOnly, flSize, bCalledByLevelDesigner );
 
+#ifdef MAPBASE
+	// Alyx's enemy ignited code from below can now be run on any NPC as long as
+	// it's our current enemy.
+	if ( GetEnemy() && GetEnemy()->IsNPC() )
+	{
+		GetEnemy()->MyNPCPointer()->EnemyIgnited( this );
+	}
+#endif
+
 #ifdef HL2_EPISODIC
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
 	if ( pPlayer && pPlayer->IRelationType( this ) != D_LI )
 	{
 		CNPC_Alyx *alyx = CNPC_Alyx::GetAlyx();
 
+#ifdef MAPBASE
+		// Alyx's code continues to run if Alyx was not this NPC's enemy.
+		if ( alyx && alyx != GetEnemy() )
+#else
 		if ( alyx )
+#endif
 		{
 			alyx->EnemyIgnited( this );
 		}
@@ -3025,6 +3039,10 @@ void	CAI_BaseNPC::PopulatePoseParameters( void )
 	m_poseAim_Pitch = LookupPoseParameter( "aim_pitch" );
 	m_poseAim_Yaw   = LookupPoseParameter( "aim_yaw"   );
 	m_poseMove_Yaw  = LookupPoseParameter( "move_yaw"  );
+
+#ifdef MAPBASE
+	m_poseInteractionRelativeYaw = LookupPoseParameter( "interaction_relative_yaw" );
+#endif
 
 	BaseClass::PopulatePoseParameters();
 }
@@ -9526,6 +9544,12 @@ void CAI_BaseNPC::HandleAnimEvent( animevent_t *pEvent )
 		{
 			m_hCine->FireScriptEvent( atoi( pEvent->options ) );
 		}
+#ifdef MAPBASE
+		else if ( GetHintNode() )
+		{
+			GetHintNode()->FireScriptEvent( atoi( pEvent->options ) );
+		}
+#endif
 		else
 		{
 			// FIXME: look so see if it's playing a vcd and fire those instead
@@ -12333,6 +12357,7 @@ BEGIN_ENT_SCRIPTDESC( CAI_BaseNPC, CBaseCombatCharacter, "The base class all NPC
 
 	DEFINE_SCRIPTFUNC( IsCommandable, "Check if the NPC is commandable." )
 	DEFINE_SCRIPTFUNC( IsInPlayerSquad, "Check if the NPC is in the player's squad." )
+	DEFINE_SCRIPTFUNC( IsMedic, "Returns true if this NPC is a medic." )
 
 	DEFINE_SCRIPTFUNC_NAMED( VScriptGetCine, "GetCine", "Get the NPC's currently running scripted sequence if it has one." )
 	DEFINE_SCRIPTFUNC( GetScriptState, "Get the NPC's current scripted sequence state." )
@@ -12443,7 +12468,11 @@ BEGIN_SIMPLE_DATADESC( ScriptedNPCInteraction_t )
 	DEFINE_FIELD( bValidOnCurrentEnemy,			FIELD_BOOLEAN	),
 	DEFINE_FIELD( flNextAttemptTime,			FIELD_TIME		),
 #ifdef MAPBASE
-	DEFINE_FIELD( MiscCriteria,					FIELD_STRING	),//DEFINE_UTLVECTOR( MiscCriteria, FIELD_EMBEDDED ),
+	DEFINE_EMBEDDED_ARRAY( sTheirPhases, SNPCINT_NUM_PHASES ),
+	DEFINE_FIELD( bHasSeparateSequenceNames,	FIELD_BOOLEAN	),
+	DEFINE_FIELD( flMaxAngleDiff,				FIELD_FLOAT		),
+	DEFINE_FIELD( iszRelatedInteractions,		FIELD_STRING	),
+	DEFINE_FIELD( MiscCriteria,					FIELD_STRING	),
 #endif
 END_DATADESC()
 
@@ -13200,17 +13229,14 @@ void CAI_BaseNPC::InputSetEnemyFilter( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CAI_BaseNPC::InputSetHealthFraction( inputdata_t &inputdata )
 {
-	// npc_helicopter uses SetHealth() instead of the regular NPC practice of TakeHealth() and TakeDamage().
-	// It also also uses 50, 75, etc. and scales it by 0.01 for some reason.
-	// We're using the same model as InputSetHealth() and just letting npc_helicopter override it. No big deal.
-	// We're also adding support for its "whole number * 0.01" thing too.
+	// npc_helicopter uses an identically named input and scales down whole numbers instead of using fractions directly.
+	// This function is overridden by npc_helicopter for other reasons, but support for its differing behavior is also available through this input.
 	float flFactor = inputdata.value.Float();
 	if ( flFactor > 1.0f )
 	{
 		flFactor *= 0.01f;
 	}
 
-	// Excuse the complication...
 	float flNewHealth = (GetMaxHealth() * flFactor);
 	int iNewHealth = (int)flNewHealth;
 	if (flNewHealth < (GetMaxHealth() / 2))
@@ -13510,6 +13536,10 @@ bool CAI_BaseNPC::CineCleanup()
 		}
 
 		// Clear interaction partner, because we're not running a scripted sequence anymore
+#ifdef MAPBASE
+		// We need the interaction partner for server ragdoll death cleanup, so don't clear if we're not alive
+		if (IsAlive())
+#endif
 		m_hInteractionPartner = NULL;
 		CleanupForcedInteraction();
 	}
@@ -14850,32 +14880,66 @@ void CAI_BaseNPC::ParseScriptedNPCInteractions(void)
 						else if (!Q_strncmp(szName, "entry_sequence", 14))
 							sInteraction.sPhases[SNPCINT_ENTRY].iszSequence = AllocPooledString(szValue);
 						else if (!Q_strncmp(szName, "entry_activity", 14))
-							sInteraction.sPhases[SNPCINT_ENTRY].iActivity = GetActivityID(szValue);
+							sInteraction.sPhases[SNPCINT_ENTRY].iActivity = GetOrRegisterActivity(szValue);
 
 						else if (!Q_strncmp(szName, "sequence", 8))
 							sInteraction.sPhases[SNPCINT_SEQUENCE].iszSequence = AllocPooledString(szValue);
 						else if (!Q_strncmp(szName, "activity", 8))
-							sInteraction.sPhases[SNPCINT_SEQUENCE].iActivity = GetActivityID(szValue);
+							sInteraction.sPhases[SNPCINT_SEQUENCE].iActivity = GetOrRegisterActivity(szValue);
 
 						else if (!Q_strncmp(szName, "exit_sequence", 13))
 							sInteraction.sPhases[SNPCINT_EXIT].iszSequence = AllocPooledString(szValue);
 						else if (!Q_strncmp(szName, "exit_activity", 13))
-							sInteraction.sPhases[SNPCINT_EXIT].iActivity = GetActivityID(szValue);
+							sInteraction.sPhases[SNPCINT_EXIT].iActivity = GetOrRegisterActivity(szValue);
+
+						else if (!Q_strncmp(szName, "their_", 6))
+						{
+							const char *szTheirName = szName + 6;
+							sInteraction.bHasSeparateSequenceNames = true;
+
+							if (!Q_strncmp(szTheirName, "entry_sequence", 14))
+								sInteraction.sTheirPhases[SNPCINT_ENTRY].iszSequence = AllocPooledString(szValue);
+							else if (!Q_strncmp(szTheirName, "entry_activity", 14))
+								sInteraction.sTheirPhases[SNPCINT_ENTRY].iActivity = GetOrRegisterActivity(szValue);
+
+							else if (!Q_strncmp(szTheirName, "sequence", 8))
+								sInteraction.sTheirPhases[SNPCINT_SEQUENCE].iszSequence = AllocPooledString(szValue);
+							else if (!Q_strncmp(szTheirName, "activity", 8))
+								sInteraction.sTheirPhases[SNPCINT_SEQUENCE].iActivity = GetOrRegisterActivity(szValue);
+
+							else if (!Q_strncmp(szTheirName, "exit_sequence", 13))
+								sInteraction.sTheirPhases[SNPCINT_EXIT].iszSequence = AllocPooledString(szValue);
+							else if (!Q_strncmp(szTheirName, "exit_activity", 13))
+								sInteraction.sTheirPhases[SNPCINT_EXIT].iActivity = GetOrRegisterActivity(szValue);
+
+							// Add anything else to our miscellaneous criteria
+							else
+							{
+								szCriteria = UTIL_VarArgs("%s,%s:%s", szCriteria, szName, szValue);
+							}
+						}
 
 						else if (!Q_strncmp(szName, "delay", 5))
 							sInteraction.flDelay = atof(szValue);
 						else if (!Q_strncmp(szName, "origin_max_delta", 16))
 							sInteraction.flDistSqr = atof(szValue);
+						else if (!Q_strncmp(szName, "angles_max_diff", 15))
+							sInteraction.flMaxAngleDiff = atof(szValue);
 
 						else if (!Q_strncmp(szName, "loop_in_action", 14) && !FStrEq(szValue, "0"))
 							sInteraction.iFlags |= SCNPC_FLAG_LOOP_IN_ACTION;
 
 						else if (!Q_strncmp(szName, "dont_teleport_at_end", 20))
 						{
-							if (!Q_stricmp(szValue, "me") || !Q_stricmp(szValue, "both"))
+							if (!Q_stricmp(szValue, "me"))
 								sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_ME;
-							else if (!Q_stricmp(szValue, "them") || !Q_stricmp(szValue, "both"))
+							else if (!Q_stricmp(szValue, "them"))
 								sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_THEM;
+							else if (!Q_stricmp( szValue, "both" ))
+							{
+								sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_ME;
+								sInteraction.iFlags |= SCNPC_FLAG_DONT_TELEPORT_AT_END_THEM;
+							}
 						}
 
 						else if (!Q_strncmp(szName, "needs_weapon", 12))
@@ -14900,6 +14964,11 @@ void CAI_BaseNPC::ParseScriptedNPCInteractions(void)
 						{
 							sInteraction.iFlags |= SCNPC_FLAG_NEEDS_WEAPON_THEM;
 							sInteraction.iszTheirWeapon = AllocPooledString(szValue);
+						}
+
+						else if (!Q_strncmp(szName, "related_interactions", 20))
+						{
+							sInteraction.iszRelatedInteractions = AllocPooledString(szValue);
 						}
 
 						// Add anything else to our miscellaneous criteria
@@ -15133,8 +15202,23 @@ void CAI_BaseNPC::AddScriptedNPCInteraction( ScriptedNPCInteraction_t *pInteract
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-const char *CAI_BaseNPC::GetScriptedNPCInteractionSequence( ScriptedNPCInteraction_t *pInteraction, int iPhase )
+const char *CAI_BaseNPC::GetScriptedNPCInteractionSequence( ScriptedNPCInteraction_t *pInteraction, int iPhase, bool bOtherNPC )
 {
+#ifdef MAPBASE
+	if (bOtherNPC && pInteraction->bHasSeparateSequenceNames)
+	{
+		// Check unique phases
+		if ( pInteraction->sTheirPhases[iPhase].iActivity != ACT_INVALID )
+		{
+			int iSequence = SelectWeightedSequence( (Activity)pInteraction->sTheirPhases[iPhase].iActivity );
+			return GetSequenceName( iSequence );
+		}
+
+		if ( pInteraction->sTheirPhases[iPhase].iszSequence != NULL_STRING )
+			return STRING(pInteraction->sTheirPhases[iPhase].iszSequence);
+	}
+#endif
+
 	if ( pInteraction->sPhases[iPhase].iActivity != ACT_INVALID )
 	{
 		int iSequence = SelectWeightedSequence( (Activity)pInteraction->sPhases[iPhase].iActivity );
@@ -15228,6 +15312,37 @@ void CAI_BaseNPC::StartScriptedNPCInteraction( CAI_BaseNPC *pOtherNPC, ScriptedN
 
 	// Setup next attempt
 	pInteraction->flNextAttemptTime = gpGlobals->curtime + pInteraction->flDelay + RandomFloat(-2,2);
+#ifdef MAPBASE
+	if (pInteraction->iszRelatedInteractions != NULL_STRING)
+	{
+		// Delay related interactions as well
+		char szRelatedInteractions[256];
+		Q_strncpy( szRelatedInteractions, STRING( pInteraction->iszRelatedInteractions ), sizeof( szRelatedInteractions ) );
+
+		char *pszInteraction = strtok( szRelatedInteractions, "," );
+		while (pszInteraction)
+		{
+			bool bWildCard = Matcher_ContainsWildcard( pszInteraction );
+
+			for ( int i = 0; i < m_ScriptedInteractions.Count(); i++ )
+			{
+				ScriptedNPCInteraction_t *pOtherInteraction = &m_ScriptedInteractions[i];
+
+				if ( Matcher_NamesMatch( pszInteraction, STRING( pOtherInteraction->iszInteractionName ) ) && pOtherInteraction != pInteraction )
+				{
+					if (pOtherInteraction->flNextAttemptTime < pInteraction->flNextAttemptTime)
+						pOtherInteraction->flNextAttemptTime = pInteraction->flNextAttemptTime;
+
+					// Not looking for multiple
+					if (!bWildCard)
+						break;
+				}
+			}
+
+			pszInteraction = strtok( NULL, "," );
+		}
+	}
+#endif
 
 	// Spawn a scripted sequence for this NPC to play the interaction anim
    	CAI_ScriptedSequence *pMySequence = (CAI_ScriptedSequence*)CreateEntityByName( "scripted_sequence" );
@@ -15259,6 +15374,15 @@ void CAI_BaseNPC::StartScriptedNPCInteraction( CAI_BaseNPC *pOtherNPC, ScriptedN
 	CAI_ScriptedSequence *pTheirSequence = NULL;
 	if ( pOtherNPC )
 	{
+#ifdef MAPBASE
+		if (pInteraction->bHasSeparateSequenceNames)
+		{
+			pszEntrySequence = GetScriptedNPCInteractionSequence( pInteraction, SNPCINT_ENTRY, true );
+			pszSequence = GetScriptedNPCInteractionSequence( pInteraction, SNPCINT_SEQUENCE, true );
+			pszExitSequence = GetScriptedNPCInteractionSequence( pInteraction, SNPCINT_EXIT, true );
+		}
+#endif
+
 		pTheirSequence = (CAI_ScriptedSequence*)CreateEntityByName( "scripted_sequence" );
 		pTheirSequence->KeyValue( "m_iszEntry", pszEntrySequence );
 		pTheirSequence->KeyValue( "m_iszPlay", pszSequence );
@@ -15282,6 +15406,26 @@ void CAI_BaseNPC::StartScriptedNPCInteraction( CAI_BaseNPC *pOtherNPC, ScriptedN
 
 		// Tell their sequence to keep their position relative to me
 		pTheirSequence->SetupInteractionPosition( this, pInteraction->matDesiredLocalToWorld );
+
+#ifdef MAPBASE
+		if ( !(pInteraction->iFlags & SCNPC_FLAG_TEST_OTHER_ANGLES) )
+		{
+			// Set up interaction yaw pose if it exists
+			float flYaw = AngleDistance( angDesired.y, angOtherAngles.y );
+
+			int nInteractionPose = LookupPoseInteractionRelativeYaw();
+			if (nInteractionPose > -1)
+			{
+				SetPoseParameter( nInteractionPose, flYaw );
+			}
+
+			nInteractionPose = pOtherNPC->LookupPoseInteractionRelativeYaw();
+			if (nInteractionPose > -1)
+			{
+				pOtherNPC->SetPoseParameter( nInteractionPose, flYaw );
+			}
+		}
+#endif
 	}
 
 	// Spawn both sequences at once
@@ -15370,7 +15514,7 @@ bool CAI_BaseNPC::CanRunAScriptedNPCInteraction( bool bForced )
 			return false;
 
 		// Default AI prevents interactions while melee attacking, but not ranged attacking
-		if ( IsCurSchedule( SCHED_MELEE_ATTACK1 ) || IsCurSchedule( SCHED_MELEE_ATTACK2 ) )
+		if ( ( IsCurSchedule( SCHED_MELEE_ATTACK1 ) || IsCurSchedule( SCHED_MELEE_ATTACK2 ) ) && !CanStartDynamicInteractionDuringMelee() )
 			return false;
 	}
 
@@ -15559,8 +15703,14 @@ void CAI_BaseNPC::CalculateValidEnemyInteractions( void )
 
 		if (bSame)
 			continue;
-#endif
 
+		// Resolve the activity or sequence, and make sure our enemy has it
+		const char *pszSequence = GetScriptedNPCInteractionSequence( pInteraction, SNPCINT_SEQUENCE, true );
+		if ( !pszSequence )
+			continue;
+		if ( pNPC->LookupSequence( pszSequence ) == -1 )
+			continue;
+#else
 		// Use sequence? or activity?
 		if ( pInteraction->sPhases[SNPCINT_SEQUENCE].iActivity != ACT_INVALID )
 		{
@@ -15575,53 +15725,6 @@ void CAI_BaseNPC::CalculateValidEnemyInteractions( void )
 		{
 			if ( pNPC->LookupSequence( STRING(pInteraction->sPhases[SNPCINT_SEQUENCE].iszSequence) ) == -1 )
 				continue;
-		}
-
-#ifdef MAPBASE
-		if (pInteraction->MiscCriteria != NULL_STRING)
-		{
-			// Test against response system criteria
-			AI_CriteriaSet set;
-			ModifyOrAppendCriteria( set );
-			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-			if( pPlayer )
-				pPlayer->ModifyOrAppendPlayerCriteria( set );
-			ReAppendContextCriteria( set );
-
-			DevMsg("Testing %s misc criteria\n", STRING(pInteraction->MiscCriteria));
-
-			int index;
-			const char *criteriavalue;
-			char key[128];
-			char value[128];
-			const char *p = STRING(pInteraction->MiscCriteria);
-			while ( p )
-			{
-#ifdef NEW_RESPONSE_SYSTEM
-				p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL, STRING(pInteraction->MiscCriteria) );
-#else
-				p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL );
-#endif
-
-				index = set.FindCriterionIndex(key);
-				if (index != -1)
-				{
-					criteriavalue = set.GetValue(index);
-					if (!Matcher_Match(value, criteriavalue))
-					{
-						continue;
-					}
-				}
-				else
-				{
-					// Test with empty string in case our criteria is != or something
-					criteriavalue = "";
-					if (!Matcher_Match(value, criteriavalue))
-					{
-						continue;
-					}
-				}
-			}
 		}
 #endif
 
@@ -15792,7 +15895,95 @@ bool CAI_BaseNPC::InteractionIsAllowed( CAI_BaseNPC *pOtherNPC, ScriptedNPCInter
 		return true;
 
 	// m_iDynamicInteractionsAllowed == TRS_FALSE case is already handled in CanRunAScriptedNPCInteraction().
-	return !(pInteraction->iFlags & SCNPC_FLAG_MAPBASE_ADDITION && m_iDynamicInteractionsAllowed == TRS_NONE);
+	if (pInteraction->iFlags & SCNPC_FLAG_MAPBASE_ADDITION && m_iDynamicInteractionsAllowed == TRS_NONE)
+		return false;
+	
+	// Test misc. criteria here since some of it may not have been valid on initial calculation, but could be now
+	if (pInteraction->MiscCriteria != NULL_STRING)
+	{
+		// Test against response system criteria
+		AI_CriteriaSet set;
+		ModifyOrAppendCriteria( set );
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+		if (pPlayer)
+			pPlayer->ModifyOrAppendPlayerCriteria( set );
+
+		// Get criteria from target if we want it
+		if ( V_strstr( STRING( pInteraction->MiscCriteria ), "their_" ) )
+		{
+			// Currently, in order to get everything which might be desired, we call the other NPC's ModifyOrAppendCriteria.
+			// We put it in a separate criteria set, then assign a prefix and append it to the main set, similar to how contexts are appended.
+			// This includes a few global criterions which we might not need, so we throw them out before they're merged.
+			// This isn't a very efficient solution, but there are no better options available without rewriting parts of the response criteria system.
+			AI_CriteriaSet theirSet;
+			pOtherNPC->ModifyOrAppendCriteria( theirSet );
+
+			set.EnsureCapacity( (theirSet.GetCount()-2) + set.GetCount() ); // We know we'll be throwing out 2 global criterions
+
+			char sz[ 128 ];
+			for ( int i = 0; i < theirSet.GetCount(); i++ )
+			{
+				const char *name = theirSet.GetName( i );
+				const char *value = theirSet.GetValue( i );
+
+				if (FStrEq( name, "map" ) || FStrEq( name, "episodic" ) || FStrEq( name, "is_console" )
+					|| FStrEq( name, "month" ) || FStrEq( name, "day" )
+					|| FStrEq( name, "is_console" ) || FStrEq( name, "is_pc" )
+					|| V_strnicmp( name, "world", 5 ) == 0)
+				{
+					// Global criterion, ignore
+					continue;
+				}
+
+				Q_snprintf( sz, sizeof( sz ), "their_%s", name );
+
+				if (ai_debug_dyninteractions.GetInt() == 3)
+					Msg( "%i: %s -> %s:%s\n", i, name, sz, value );
+
+				set.AppendCriteria( sz, value );
+			}
+
+			// Append this afterwards because it has its own prefix system
+			pOtherNPC->AppendContextToCriteria( set, "their_" );
+		}
+
+		ReAppendContextCriteria( set );
+
+		int index;
+		const char *criteriavalue;
+		char key[128];
+		char value[128];
+		const char *p = STRING( pInteraction->MiscCriteria );
+		while ( p )
+		{
+#ifdef NEW_RESPONSE_SYSTEM
+			p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL, STRING( pInteraction->MiscCriteria ) );
+#else
+			p = SplitContext( p, key, sizeof( key ), value, sizeof( value ), NULL );
+#endif
+
+			index = set.FindCriterionIndex( key );
+			if (index != -1)
+			{
+				criteriavalue = set.GetValue( index );
+				if (!Matcher_Match( value, criteriavalue ))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				// Test with empty string in case our criteria is != or something
+				criteriavalue = "";
+				if (!Matcher_Match( value, criteriavalue ))
+				{
+					return false;
+				}
+			}
+		}
+	}
+	
+	return true;
 }
 #endif
 
@@ -15830,6 +16021,11 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 				{
 					Msg("   %s distsqr: %0.2f (%0.2f %0.2f %0.2f), desired: <%0.2f (%0.2f %0.2f %0.2f)\n", GetDebugName(), flDistSqr,
 						pOtherNPC->GetAbsOrigin().x, pOtherNPC->GetAbsOrigin().y, pOtherNPC->GetAbsOrigin().z, pInteraction->flDistSqr, vecOrigin.x, vecOrigin.y, vecOrigin.z );
+#ifdef MAPBASE
+					Vector vecForward, vecRight;
+					GetVectors( &vecForward, &vecRight, NULL );
+					NDebugOverlay::Circle( vecOrigin + Vector(0,0,2), vecForward, vecRight, FastSqrt(pInteraction->flDistSqr), 255, 0, 0, 255, true, 0.1f );
+#endif
 				}
 			}
 		}
@@ -15842,6 +16038,11 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 		Msg("   %s is at: %0.2f %0.2f %0.2f\n", GetDebugName(), GetAbsOrigin().x, GetAbsOrigin().y, GetAbsOrigin().z );
 		Msg("   %s distsqr: %0.2f (%0.2f %0.2f %0.2f), desired: (%0.2f %0.2f %0.2f)\n", GetDebugName(), flDistSqr,
 			pOtherNPC->GetAbsOrigin().x, pOtherNPC->GetAbsOrigin().y, pOtherNPC->GetAbsOrigin().z, vecOrigin.x, vecOrigin.y, vecOrigin.z );
+#ifdef MAPBASE
+		Vector vecForward, vecRight;
+		GetVectors( &vecForward, &vecRight, NULL );
+		NDebugOverlay::Circle( vecOrigin + Vector( 0, 0, 2 ), vecForward, vecRight, FastSqrt( pInteraction->flDistSqr ), 255, 0, 0, 255, true, 0.1f );
+#endif
 
 		if ( pOtherNPC )
 		{
@@ -15858,14 +16059,28 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 		for ( int ang = 0; ang < 3; ang++ )
 		{
 			float flAngDiff = AngleDiff( angEnemyAngles[ang], angAngles[ang] );
+#ifdef MAPBASE
+			if ( fabs(flAngDiff) > pInteraction->flMaxAngleDiff )
+#else
 			if ( fabs(flAngDiff) > DSS_MAX_ANGLE_DIFF )
+#endif
 			{
 				bMatches = false;
 				break;
 			}
 		}
 		if ( !bMatches )
+		{
+#ifdef MAPBASE
+			if ( bDebug )
+			{
+				Msg("   %s angle not matched: (%0.2f %0.2f %0.2f), desired (%0.2f, %0.2f, %0.2f)\n", GetDebugName(),
+					anglemod(angEnemyAngles.x), anglemod(angEnemyAngles.y), anglemod(angEnemyAngles.z), anglemod(angAngles.x), anglemod(angAngles.y), anglemod(angAngles.z) );
+				Msg("   diff: (%0.2f, %0.2f, %0.2f)\n", AngleDiff( angEnemyAngles.x, angAngles.x ), AngleDiff( angEnemyAngles.y, angAngles.y ), AngleDiff( angEnemyAngles.z, angAngles.z ) );
+			}
+#endif
 			return false;
+		}
 
 		if ( bDebug )
 		{
@@ -15873,6 +16088,13 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 				anglemod(angEnemyAngles.x), anglemod(angEnemyAngles.y), anglemod(angEnemyAngles.z), anglemod(angAngles.x), anglemod(angAngles.y), anglemod(angAngles.z) );
 		}
 	}
+#ifdef MAPBASE
+	else
+	{
+		// If we're not using angles, then use the NPC's current angles
+		angAngles = pOtherNPC->GetAbsAngles();
+	}
+#endif
 
 	// TODO: Velocity check, if we're supposed to
 	if ( pInteraction->iFlags & SCNPC_FLAG_TEST_OTHER_VELOCITY )
@@ -15952,6 +16174,7 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 			if ( bDebug )
 			{
 				NDebugOverlay::Box( vecPos, GetHullMins(), GetHullMaxs(), 255,0,0, 100, 1.0 );
+				NDebugOverlay::HorzArrow( GetAbsOrigin(), vecPos, 16.0f, 255, 0, 0, 255, true, 1.0f );
 			}
 			return false;
 		}
@@ -15959,7 +16182,39 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 		{
 			//NDebugOverlay::Box( vecPos, GetHullMins(), GetHullMaxs(), 0,255,0, 100, 1.0 );
 
-			NDebugOverlay::Axis( vecPos, angAngles, 20, true, 10.0 );
+			NDebugOverlay::Axis( vecPos, angAngles, 20, true, 1.0 );
+		}
+	}
+	else
+	{
+		// Instead, make sure we fit into where the sequence movement ends at
+		const char *pszSequence = GetScriptedNPCInteractionSequence( pInteraction, SNPCINT_SEQUENCE );
+		int nSeq = LookupSequence( pszSequence );
+		if ( pszSequence && nSeq != -1 )
+		{
+			Vector vecDeltaPos;
+			QAngle angDeltaAngles;
+			GetSequenceMovement( nSeq, 0.0f, 1.0f, vecDeltaPos, angDeltaAngles );
+			if (!vecDeltaPos.IsZero())
+			{
+				QAngle angInteraction = GetAbsAngles();
+				angInteraction[YAW] = m_flInteractionYaw;
+
+				Vector vecPos;
+				VectorRotate( vecDeltaPos, angInteraction, vecPos );
+				vecPos += GetAbsOrigin();
+
+				AI_TraceHull( vecPos, vecPos, GetHullMins(), GetHullMaxs(), MASK_SOLID, &traceFilter, &tr);
+				if ( tr.fraction != 1.0 )
+				{
+					if ( bDebug )
+					{
+						NDebugOverlay::Box( vecPos, GetHullMins(), GetHullMaxs(), 255,0,0, 100, 1.0 );
+						NDebugOverlay::HorzArrow( GetAbsOrigin(), vecPos, 16.0f, 255, 0, 0, 255, true, 1.0f );
+					}
+					return false;
+				}
+			}
 		}
 	}
 #endif
@@ -15981,6 +16236,25 @@ bool CAI_BaseNPC::InteractionCouldStart( CAI_BaseNPC *pOtherNPC, ScriptedNPCInte
 bool CAI_BaseNPC::HasInteractionCantDie( void )
 {
 	return ( m_bCannotDieDuringInteraction && IsRunningDynamicInteraction() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return true if this NPC has valid interactions on the current enemy.
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::HasValidInteractionsOnCurrentEnemy( void )
+{
+	if ( !GetEnemy() || !GetEnemy()->IsNPC() )
+		return false;
+
+	for ( int i = 0; i < m_ScriptedInteractions.Count(); i++ )
+	{
+		ScriptedNPCInteraction_t *pInteraction = &m_ScriptedInteractions[i];
+
+		if ( pInteraction->bValidOnCurrentEnemy )
+			return true;
+	}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -16216,6 +16490,21 @@ void CAI_BaseNPC::ModifyOrAppendEnemyCriteria( AI_CriteriaSet& set, CBaseEntity 
 		set.AppendCriteria( "enemyclass", g_pGameRules->AIClassText( pEnemy->Classify() ) ); // UTIL_VarArgs("%i", pEnemy->Classify())
 		set.AppendCriteria( "distancetoenemy", UTIL_VarArgs( "%f", EnemyDistance(pEnemy) ) );
 		set.AppendCriteria( "timesincecombat", "-1" );
+
+		CAI_BaseNPC *pNPC = pEnemy->MyNPCPointer();
+		if (pNPC)
+		{
+			set.AppendCriteria("enemy_is_npc", "1");
+
+			set.AppendCriteria( "enemy_activity", CAI_BaseNPC::GetActivityName( pNPC->GetActivity() ) );
+			set.AppendCriteria( "enemy_weapon", pNPC->GetActiveWeapon() ? pNPC->GetActiveWeapon()->GetClassname() : "0" );
+		}
+		else
+		{
+			set.AppendCriteria("enemy_is_npc", "0");
+		}
+
+		pEnemy->AppendContextToCriteria( set, "enemy_" );
 	}
 	else
 	{

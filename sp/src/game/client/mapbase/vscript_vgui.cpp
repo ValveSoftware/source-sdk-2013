@@ -51,7 +51,7 @@
 
 #include "view.h"
 #include "hudelement.h"
-//#include "iclientmode.h" // g_pClientMode->GetViewport()
+#include "iclientmode.h" // g_pClientMode->GetViewport()
 
 #include "vscript_vgui.h"
 #include "vscript_vgui.nut"
@@ -92,10 +92,18 @@
 // Changing this is not backwards compatible, as existing top level script panel depth would then change relative to non-script panels.
 #define SCRIPT_ENGINE_ROOT_PANELS 1
 
-// NOTE: causes rendering issues
-#define ALLOW_SCRIPT_HUD_VIEWPORT_ROOT_PANEL 0
+//
+// Options to restrict where script panels can be parented to.
+// The safest options any game can have are HUD viewport and clientdll.
+//
 
-#define ALLOW_SCRIPT_GAMEUI_ROOT_PANEL 0
+#define ALLOW_ROOT_PANEL_PARENT 1
+
+#define ALLOW_HUD_VIEWPORT_ROOT_PARENT 1
+
+#define ALLOW_CLIENTDLL_ROOT_PARENT 1
+
+#define ALLOW_GAMEUI_ROOT_PARENT 0
 
 // On level transitions Restore is called up to 4 times in a row (due to .hl? client state files), each time
 // trying to restore script panels from pre and post transitions, failing every time because script panels are
@@ -353,8 +361,10 @@ public:
 	}
 };
 
+#if ALLOW_CLIENTDLL_ROOT_PARENT
 CScriptRootDLLPanel *g_pScriptClientDLLPanel = NULL;
-#if ALLOW_SCRIPT_GAMEUI_ROOT_PANEL
+#endif
+#if ALLOW_GAMEUI_ROOT_PARENT
 CScriptRootDLLPanel *g_pScriptGameUIDLLPanel = NULL;
 #endif
 #endif
@@ -367,12 +377,14 @@ void VGUI_DestroyScriptRootPanels()
 		g_pScriptRootPanel = NULL;
 	}
 #if SCRIPT_ENGINE_ROOT_PANELS
+#if ALLOW_CLIENTDLL_ROOT_PARENT
 	if ( g_pScriptClientDLLPanel )
 	{
 		delete g_pScriptClientDLLPanel;
 		g_pScriptClientDLLPanel = NULL;
 	}
-#if ALLOW_SCRIPT_GAMEUI_ROOT_PANEL
+#endif
+#if ALLOW_GAMEUI_ROOT_PARENT
 	if ( g_pScriptGameUIDLLPanel )
 	{
 		delete g_pScriptGameUIDLLPanel;
@@ -384,30 +396,29 @@ void VGUI_DestroyScriptRootPanels()
 
 VPANEL VGUI_GetScriptRootPanel( VGuiPanel_t type )
 {
-#if !SCRIPT_ENGINE_ROOT_PANELS
-	if ( !g_pScriptRootPanel )
-		g_pScriptRootPanel = new CScriptRootPanel();
-
-	return enginevgui->GetPanel( type );
-#else
+#if SCRIPT_ENGINE_ROOT_PANELS
 	switch ( type )
 	{
 		case PANEL_ROOT:
+#if ALLOW_ROOT_PANEL_PARENT
 		{
 			if ( !g_pScriptRootPanel )
 				g_pScriptRootPanel = new CScriptRootPanel();
 
 			return g_pScriptRootPanel->GetVPanel();
 		}
+#endif
 		case PANEL_CLIENTDLL:
+#if ALLOW_CLIENTDLL_ROOT_PARENT
 		{
 			if ( !g_pScriptClientDLLPanel )
 				g_pScriptClientDLLPanel = new CScriptRootDLLPanel( PANEL_CLIENTDLL, "VScriptClient" );
 
 			return g_pScriptClientDLLPanel->GetVPanel();
 		}
-#if ALLOW_SCRIPT_GAMEUI_ROOT_PANEL
+#endif
 		case PANEL_GAMEUIDLL:
+#if ALLOW_GAMEUI_ROOT_PARENT
 		{
 			if ( !g_pScriptGameUIDLLPanel )
 				g_pScriptGameUIDLLPanel = new CScriptRootDLLPanel( PANEL_GAMEUIDLL, "VScriptGameUI" );
@@ -415,8 +426,10 @@ VPANEL VGUI_GetScriptRootPanel( VGuiPanel_t type )
 			return g_pScriptGameUIDLLPanel->GetVPanel();
 		}
 #endif
+		default: return NULL;
 	}
-	return NULL;
+#else
+	return enginevgui->GetPanel(type);
 #endif
 }
 
@@ -663,6 +676,11 @@ int CScriptSurface::GetCharacterWidth( int font, int ch )
 
 void CScriptSurface::CreateFont( const char *customName, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int yresMin, int yresMax, bool proportional )
 {
+	// Make sure font invalidation callback is established.
+	// Not necessary if script fonts are reloaded in engine.
+	if ( !g_pScriptRootPanel )
+		g_pScriptRootPanel = new CScriptRootPanel();
+
 	if ( flags & ISurface::FONTFLAG_BITMAP )
 	{
 		AssertMsg( 0, "Bitmap fonts are not supported!" );
@@ -681,16 +699,41 @@ void CScriptSurface::CreateFont( const char *customName, const char *windowsFont
 		return;
 	}
 
+#if 0
+	bool bProportionalFallbackFont = false;
+	if ( proportional )
+	{
+		// Find if this is a resolution filtered font alias
+		const char *fontAlias = GetFixedFontName( customName, false );
+		int idx = g_ScriptFonts.Find( fontAlias );
+		if ( idx != g_ScriptFonts.InvalidIndex() )
+		{
+			fontalias_t &alias = g_ScriptFonts[idx];
+			for ( int i = 0; i < alias.Count(); ++i )
+			{
+				FontData_t &data = alias.Element(i);
+				if ( data.yres_min && data.yres_max )
+				{
+					bProportionalFallbackFont = true;
+
+					// Save this proportional font in non-proportional alias
+					proportional = false;
+					break;
+				}
+			}
+		}
+	}
+#endif
+
 	const char *fontAlias = GetFixedFontName( customName, proportional );
 
 	int idx = g_ScriptFonts.Find( fontAlias );
 	if ( idx != g_ScriptFonts.InvalidIndex() )
 	{
 		fontalias_t &alias = g_ScriptFonts[idx];
-		// TODO: One proportional font to fall back to amongst resolution filtered fonts.
 
 #ifdef _DEBUG
-		if ( !yresMin && !yresMax )
+		if ( !yresMin && !yresMax /*&& !bProportionalFallbackFont*/ )
 		{
 			// There must be only one font registered.
 			Assert( alias.Count() == 1 );
@@ -703,7 +746,7 @@ void CScriptSurface::CreateFont( const char *customName, const char *windowsFont
 			// Font changes will not be applied.
 			Assert( oldTall == newTall );
 			if ( oldName ) // can be null
-				Assert( !V_stricmp( oldName, windowsFontName ) );
+				AssertMsg( !V_stricmp( oldName, windowsFontName ), "'%s' != '%s'", oldName, windowsFontName );
 		}
 #endif
 
@@ -716,7 +759,10 @@ void CScriptSurface::CreateFont( const char *customName, const char *windowsFont
 			if ( yresMin == data.yres_min && yresMax == data.yres_max )
 				return;
 		}
-
+#if 0
+		if ( bProportionalFallbackFont )
+			proportional = true;
+#endif
 		DebugMsg( "Create font add '%s' [%d %d]\n", fontAlias, yresMin, yresMax );
 
 		FontData_t &newFont = alias.Element( alias.AddToTail() );
@@ -730,6 +776,22 @@ void CScriptSurface::CreateFont( const char *customName, const char *windowsFont
 		newFont.yres_min = yresMin;
 		newFont.yres_max = yresMax;
 		newFont.proportional = proportional;
+
+#if 0
+		// Put the proportional font in the very end so that it is loaded only when no resolution is matched
+		struct L
+		{
+			static int __cdecl F( const FontData_t* a, const FontData_t* b )
+			{
+				if ( !a->proportional && b->proportional )
+					return -1;
+				if ( a->proportional && !b->proportional )
+					return 1;
+				return 0;
+			}
+		};
+		alias.Sort( L::F );
+#endif
 
 		LoadFont( newFont DBG_PARAM(, fontAlias) );
 	}
@@ -1067,7 +1129,7 @@ public:\
 	class CScript_##panelClass : public panelClass\
 	{\
 		DECLARE_SCRIPTVGUI_CLASS( panelClass )\
-		void Shutdown() {}\
+		void ScriptShutdown() {}\
 \
 	public:\
 		CScript_##panelClass( Panel *parent, const char *name )\
@@ -1085,7 +1147,7 @@ public:\
 	class CScript_##panelClass : public panelClass\
 	{\
 		DECLARE_SCRIPTVGUI_CLASS( panelClass )\
-		void Shutdown() {}\
+		void ScriptShutdown() {}\
 \
 	public:\
 		CScript_##panelClass( Panel *parent, const char *name, const char *text )\
@@ -1292,7 +1354,7 @@ public:
 		if ( GetVPanel() )
 		{
 			DebugMsg( "  Destroy panel '%s'   %s\n", _base->GetName(), GetDebugName() );
-			_base->Shutdown();
+			_base->ScriptShutdown();
 			ResolveChildren_r( _vpanel );
 			_base->MarkForDeletion();
 		}
@@ -1339,6 +1401,11 @@ public:
 			}
 
 			AssertMsg( 0, "invalid parent" );
+
+			g_ScriptPanels.AddToTail( this );
+
+			// leave me parentless
+			return;
 		}
 
 		g_ScriptPanels.AddToTail( this );
@@ -1348,27 +1415,37 @@ public:
 		//
 		// This parameter is hidden in script, and is defined by the return value of dummy functions.
 		VPANEL vparent = 0;
+
 		switch ( root )
 		{
+	#if ALLOW_ROOT_PANEL_PARENT
 			case 0:
 				vparent = VGUI_GetScriptRootPanel( PANEL_ROOT );
 				break;
-#if ALLOW_SCRIPT_GAMEUI_ROOT_PANEL
+	#endif
+	#if ALLOW_GAMEUI_ROOT_PARENT
 			case 1:
 				vparent = VGUI_GetScriptRootPanel( PANEL_GAMEUIDLL );
 				break;
-#endif
+	#endif
+	#if ALLOW_CLIENTDLL_ROOT_PARENT
 			case 2:
 				vparent = VGUI_GetScriptRootPanel( PANEL_CLIENTDLL );
 				break;
-#if ALLOW_SCRIPT_HUD_VIEWPORT_ROOT_PANEL
-			// Hud viewport
-			case 10:
+	#endif
+	#if ALLOW_HUD_VIEWPORT_ROOT_PARENT
+			case 10: // Hud viewport
 				Assert( g_pClientMode && g_pClientMode->GetViewport() );
 				vparent = g_pClientMode->GetViewport()->GetVPanel();
 				break;
-#endif
-			default: UNREACHABLE(); // Invalid parent panel
+	#endif
+			default:
+	#if SCRIPT_ENGINE_ROOT_PANELS
+				UNREACHABLE(); // Invalid parent panel
+	#else
+				// Allow everything defined in vscript_vgui.nut
+				vparent = VGUI_GetScriptRootPanel( (VGuiPanel_t)root );
+	#endif
 		}
 
 		_base->SetParent( vparent );
@@ -1399,6 +1476,11 @@ public:
 	void AddTickSignal( int i )
 	{
 		ivgui()->AddTickSignal( this->GetVPanel(), i );
+	}
+
+	void RemoveTickSignal()
+	{
+		ivgui()->RemoveTickSignal( this->GetVPanel() );
 	}
 #if SCRIPT_VGUI_SIGNAL_INTERFACE
 	void AddActionSignalTarget( HSCRIPT messageTarget )
@@ -1434,10 +1516,12 @@ public:
 		bool bRootParent = false;
 #if SCRIPT_ENGINE_ROOT_PANELS
 		if ( ( parent == g_pScriptRootPanel->GetVPanel() )
-	#if ALLOW_SCRIPT_GAMEUI_ROOT_PANEL
+	#if ALLOW_GAMEUI_ROOT_PARENT
 			|| ( g_pScriptGameUIDLLPanel && parent == g_pScriptGameUIDLLPanel->GetVPanel() )
 	#endif
+	#if ALLOW_CLIENTDLL_ROOT_PARENT
 			|| ( g_pScriptClientDLLPanel && parent == g_pScriptClientDLLPanel->GetVPanel() )
+	#endif
 		)
 		{
 			bRootParent = true;
@@ -1452,7 +1536,7 @@ public:
 				break;
 			}
 		}
-#if ALLOW_SCRIPT_HUD_VIEWPORT_ROOT_PANEL
+#if ALLOW_HUD_VIEWPORT_ROOT_PARENT
 		if ( g_pClientMode && g_pClientMode->GetViewport() && ( parent == g_pClientMode->GetViewport()->GetVPanel() ) )
 			bRootParent = true;
 #endif
@@ -1788,6 +1872,7 @@ public:
 	DEFINE_SCRIPTFUNC( MakeReadyForUse, "" )\
 	DEFINE_SCRIPTFUNC( GetName, "" )\
 	DEFINE_SCRIPTFUNC( AddTickSignal, "" )\
+	DEFINE_SCRIPTFUNC( RemoveTickSignal, "" )\
 \
 	DEFINE_SCRIPTFUNC( GetParent, "" )\
 	DEFINE_SCRIPTFUNC( SetParent, "" )\
@@ -1829,10 +1914,12 @@ public:
 \
 	DEFINE_SCRIPTFUNC( SetCursor, "" )\
 	DEFINE_SCRIPTFUNC( IsCursorOver, "" )\
+\
 	DEFINE_SCRIPTFUNC( HasFocus, "" )\
 	DEFINE_SCRIPTFUNC( RequestFocus, "" )\
 	DEFINE_SCRIPTFUNC( MakePopup, "" )\
 	DEFINE_SCRIPTFUNC( MoveToFront, "" )\
+\
 	DEFINE_SCRIPTFUNC( SetMouseInputEnabled, "" )\
 	DEFINE_SCRIPTFUNC( SetKeyBoardInputEnabled, "" )\
 \
@@ -1842,10 +1929,7 @@ public:
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 // These need more testing.
-// TODO: IScript_Panel::FindChildByName()
 // TODO: DECLARE_BUILD_FACTORY_SCRIPT() to create overridable script panels from controls file
-// TODO: CScript_EditablePanel::ApplySchemeSettings() callback
-// (IScheme parameter can be passed as null until schemes are also tested)
 #if BUILD_GROUPS_ENABLED
 CLASS_HELPER_INTERFACE( EditablePanel, Panel )
 {
@@ -1855,11 +1939,27 @@ public:
 	{
 		__base()->LoadControlSettings( resName );
 	}
+
+	HSCRIPT FindChildByName( const char *childName )
+	{
+		Panel *pPanel = __base()->FindChildByName( childName, false );
+		if ( pPanel )
+		{
+			int i;
+			IScriptVGUIObject* obj = FindInScriptPanels( child, i );
+			if ( obj )
+			{
+				return obj->GetScriptInstance();
+			}
+		}
+		return NULL;
+	}
 };
 
 #define DEFINE_VGUI_SCRIPTFUNC_EditablePanel()\
 	DEFINE_VGUI_SCRIPTFUNC_Panel()\
-	DEFINE_SCRIPTFUNC( LoadControlSettings, "" )
+	DEFINE_SCRIPTFUNC( LoadControlSettings, "" )\
+	DEFINE_SCRIPTFUNC( FindChildByName, "" )
 #endif
 //--------------------------------------------------------------
 //--------------------------------------------------------------
@@ -2106,6 +2206,16 @@ public:
 	{
 		__base()->SetShouldScaleImage( state );
 	}
+
+	void SetRotation( int rotation )
+	{
+		Assert( rotation == ROTATED_UNROTATED ||
+			rotation == ROTATED_CLOCKWISE_90 ||
+			rotation == ROTATED_ANTICLOCKWISE_90 ||
+			rotation == ROTATED_FLIPPED );
+
+		__base()->SetRotation( rotation );
+	}
 #if 0
 	void SetFrame( int nFrame )
 	{
@@ -2120,6 +2230,7 @@ public:
 	DEFINE_SCRIPTFUNC( SetDrawColor, "" )\
 	DEFINE_SCRIPTFUNC( SetTileImage, "" )\
 	DEFINE_SCRIPTFUNC( SetShouldScaleImage, "" )\
+	DEFINE_SCRIPTFUNC( SetRotation, "" )\
 
 //--------------------------------------------------------------
 //--------------------------------------------------------------
@@ -2435,10 +2546,10 @@ public:
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 #if VGUI_TGA_IMAGE_PANEL
-CLASS_HELPER_INTERFACE( TGAImagePanel, Panel )
+CLASS_HELPER_INTERFACE( TGAImage, Panel )
 {
 public:
-	void SetTGAImage( const char *p )
+	void SetImage( const char *p )
 	{
 		__base()->SetTGAImage( p );
 	}
@@ -2454,9 +2565,37 @@ public:
 	}
 };
 
-#define DEFINE_VGUI_SCRIPTFUNC_TGAImagePanel()\
+#define DEFINE_VGUI_SCRIPTFUNC_TGAImage()\
 	DEFINE_VGUI_SCRIPTFUNC_Panel()\
-	DEFINE_SCRIPTFUNC( SetTGAImage, "" )\
+	DEFINE_SCRIPTFUNC( SetImage, "" )\
+	DEFINE_SCRIPTFUNC( SetDrawColor, "" )\
+	DEFINE_SCRIPTFUNC( SetShouldScaleImage, "" )
+#endif
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+#if 0
+CLASS_HELPER_INTERFACE( PNGImage, Panel )
+{
+public:
+	void SetImage( const char *p )
+	{
+		__base()->SetPNGImage( p );
+	}
+
+	void SetDrawColor( int r, int g, int b, int a )
+	{
+		__base()->SetDrawColor( r, g, b, a );
+	}
+
+	void SetShouldScaleImage( bool i )
+	{
+		__base()->SetShouldScaleImage( i );
+	}
+};
+
+#define DEFINE_VGUI_SCRIPTFUNC_PNGImage()\
+	DEFINE_VGUI_SCRIPTFUNC_Panel()\
+	DEFINE_SCRIPTFUNC( SetImage, "" )\
 	DEFINE_SCRIPTFUNC( SetDrawColor, "" )\
 	DEFINE_SCRIPTFUNC( SetShouldScaleImage, "" )
 #endif
@@ -2479,7 +2618,7 @@ static inline void SetHScript( HSCRIPT &var, HSCRIPT val )
 }
 
 #define CheckCallback(s)\
-	if ( FStrEq( cb, #s ) )\
+	if ( !V_strcmp( cb, #s ) )\
 	{\
 		SetHScript( m_hfn##s, fn );\
 		return;\
@@ -2515,6 +2654,7 @@ private:
 	HSCRIPT m_hfnOnKeyCodePressed;
 	HSCRIPT m_hfnOnKeyCodeReleased;
 	HSCRIPT m_hfnOnKeyCodeTyped;
+
 #if SCRIPT_VGUI_SIGNAL_INTERFACE
 	HSCRIPT m_hfnOnCommand;
 #endif
@@ -2530,7 +2670,9 @@ public:
 		m_hfnPerformLayout(NULL),
 		m_hfnOnTick(NULL),
 		m_hfnOnScreenSizeChanged(NULL),
-
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+		m_hfnOnCommand(NULL),
+#endif
 		m_hfnOnCursorEntered(NULL),
 		m_hfnOnCursorExited(NULL),
 		m_hfnOnCursorMoved(NULL),
@@ -2543,13 +2685,9 @@ public:
 		m_hfnOnKeyCodePressed(NULL),
 		m_hfnOnKeyCodeReleased(NULL),
 		m_hfnOnKeyCodeTyped(NULL)
-#if SCRIPT_VGUI_SIGNAL_INTERFACE
-		,
-		m_hfnOnCommand(NULL)
-#endif
 	{}
 
-	void Shutdown()
+	void ScriptShutdown()
 	{
 		ivgui()->RemoveTickSignal( GetVPanel() );
 
@@ -2573,6 +2711,7 @@ public:
 		SetHScript( m_hfnOnKeyCodePressed, NULL );
 		SetHScript( m_hfnOnKeyCodeReleased, NULL );
 		SetHScript( m_hfnOnKeyCodeTyped, NULL );
+
 #if SCRIPT_VGUI_SIGNAL_INTERFACE
 		SetHScript( m_hfnOnCommand, NULL );
 #endif
@@ -2775,6 +2914,7 @@ public:
 		CheckCallback( OnKeyCodePressed );
 		CheckCallback( OnKeyCodeReleased );
 		CheckCallback( OnKeyCodeTyped );
+
 #if SCRIPT_VGUI_SIGNAL_INTERFACE
 		CheckCallback( OnCommand );
 #endif
@@ -2810,6 +2950,7 @@ private:
 	HSCRIPT m_hfnOnKeyCodePressed;
 	HSCRIPT m_hfnOnKeyCodeReleased;
 	HSCRIPT m_hfnOnKeyCodeTyped;
+
 #if SCRIPT_VGUI_SIGNAL_INTERFACE
 	HSCRIPT m_hfnOnCommand;
 #endif
@@ -2826,6 +2967,9 @@ public:
 		m_hfnPerformLayout(NULL),
 		m_hfnOnTick(NULL),
 		m_hfnOnScreenSizeChanged(NULL),
+#if SCRIPT_VGUI_SIGNAL_INTERFACE
+		m_hfnOnCommand(NULL),
+#endif
 
 		m_hfnOnCursorEntered(NULL),
 		m_hfnOnCursorExited(NULL),
@@ -2839,15 +2983,11 @@ public:
 		m_hfnOnKeyCodePressed(NULL),
 		m_hfnOnKeyCodeReleased(NULL),
 		m_hfnOnKeyCodeTyped(NULL)
-#if SCRIPT_VGUI_SIGNAL_INTERFACE
-		,
-		m_hfnOnCommand(NULL)
-#endif
 	{
 		SetFadeEffectDisableOverride( true );
 	}
 
-	void Shutdown()
+	void ScriptShutdown()
 	{
 		ivgui()->RemoveTickSignal( GetVPanel() );
 
@@ -2866,6 +3006,7 @@ public:
 		SetHScript( m_hfnOnKeyCodePressed, NULL );
 		SetHScript( m_hfnOnKeyCodeReleased, NULL );
 		SetHScript( m_hfnOnKeyCodeTyped, NULL );
+
 #if SCRIPT_VGUI_SIGNAL_INTERFACE
 		SetHScript( m_hfnOnCommand, NULL );
 #endif
@@ -2898,7 +3039,18 @@ public:
 			g_pScriptVM->ExecuteFunction( m_hfnPerformLayout, NULL, 0, NULL, NULL, true );
 		}
 	}
+#if 0
+	void ApplySchemeSettings( IScheme *pScheme )
+	{
+		BaseClass::ApplySchemeSettings( pScheme );
 
+		if ( m_hfnApplySchemeSettings )
+		{
+			ScriptVariant_t arg;
+			g_pScriptVM->ExecuteFunction( m_hfnApplySchemeSettings, &arg, 1, NULL, NULL, true );
+		}
+	}
+#endif
 	void OnTick()
 	{
 		g_pScriptVM->ExecuteFunction( m_hfnOnTick, NULL, 0, NULL, NULL, true );
@@ -3072,6 +3224,7 @@ public:
 		CheckCallback( OnKeyCodePressed );
 		CheckCallback( OnKeyCodeReleased );
 		CheckCallback( OnKeyCodeTyped );
+
 #if SCRIPT_VGUI_SIGNAL_INTERFACE
 		CheckCallback( OnCommand );
 #endif
@@ -3102,7 +3255,7 @@ public:
 		m_hfnDoClick(NULL)
 	{}
 
-	void Shutdown()
+	void ScriptShutdown()
 	{
 		SetHScript( m_hfnPaint, NULL );
 		SetHScript( m_hfnPaintBackground, NULL );
@@ -3173,7 +3326,7 @@ public:
 		m_hfnTextChanged(NULL)
 	{}
 
-	void Shutdown()
+	void ScriptShutdown()
 	{
 		SetHScript( m_hfnTextChanged, NULL );
 	}
@@ -3216,9 +3369,12 @@ public:
 		SetShouldDrawFriendIcon( false );
 	}
 
-	DEBUG_DESTRUCTOR( ~CScript_AvatarImage, CAvatarImagePanel )
+	~CScript_AvatarImage()
+	{
+		DebugDestructor( CAvatarImagePanel );
+	}
 
-	void Shutdown() {}
+	void ScriptShutdown() {}
 };
 #endif
 //--------------------------------------------------------------
@@ -3229,7 +3385,7 @@ class CTGAImagePanel : public Panel
 	DECLARE_SCRIPTVGUI_CLASS_EX( CTGAImagePanel, Panel );
 
 private:
-	int m_iTextureID;
+	int m_iTexture;
 	int m_nWidth;
 	int m_nHeight;
 	Color m_ImageColor;
@@ -3238,7 +3394,7 @@ private:
 public:
 	CTGAImagePanel( Panel *parent, const char *name ) :
 		BaseClass( parent, name ),
-		m_iTextureID(-1),
+		m_iTexture(-1),
 		m_bScaleImage(0),
 		m_ImageColor( 255, 255, 255, 255 )
 	{
@@ -3249,21 +3405,21 @@ public:
 	{
 		DebugDestructor( CTGAImagePanel );
 
-		if ( m_iTextureID != -1 )
+		if ( m_iTexture != -1 )
 		{
-			surface()->DestroyTextureID( m_iTextureID );
+			surface()->DestroyTextureID( m_iTexture );
 		}
 	}
 
-	void Shutdown() {}
+	void ScriptShutdown() {}
 
 public:
 	void Paint()
 	{
-		if ( m_iTextureID != -1 )
+		if ( m_iTexture != -1 )
 		{
 			surface()->DrawSetColor( m_ImageColor );
-			surface()->DrawSetTexture( m_iTextureID );
+			surface()->DrawSetTexture( m_iTexture );
 
 			if ( m_bScaleImage )
 			{
@@ -3288,19 +3444,21 @@ public:
 public:
 	void SetTGAImage( const char *fileName )
 	{
-		if ( V_stricmp( V_GetFileExtension( fileName ), "tga" ) != 0 )
+		const char *ext = V_GetFileExtension( fileName );
+
+		if ( ext && V_stricmp( ext, "tga" ) != 0 )
 			return;
 
 		CUtlMemory< unsigned char > tga;
 
 		if ( TGALoader::LoadRGBA8888( fileName, tga, m_nWidth, m_nHeight ) )
 		{
-			if ( m_iTextureID == -1 )
+			if ( m_iTexture == -1 )
 			{
-				m_iTextureID = surface()->CreateNewTextureID( true );
+				m_iTexture = surface()->CreateNewTextureID( true );
 			}
 
-			surface()->DrawSetTextureRGBA( m_iTextureID, tga.Base(), m_nWidth, m_nHeight, false, false );
+			surface()->DrawSetTextureRGBA( m_iTexture, tga.Base(), m_nWidth, m_nHeight, false, false );
 		}
 		else
 		{
@@ -3393,10 +3551,19 @@ END_SCRIPTDESC()
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 #if VGUI_TGA_IMAGE_PANEL
-BEGIN_VGUI_HELPER_EX( TGAImagePanel, CTGAImagePanel )
+BEGIN_VGUI_HELPER_EX( TGAImage, CTGAImagePanel )
 END_VGUI_HELPER()
 
-BEGIN_SCRIPTDESC_VGUI( TGAImagePanel )
+BEGIN_SCRIPTDESC_VGUI( TGAImage )
+END_SCRIPTDESC()
+#endif
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+#if 0
+BEGIN_VGUI_HELPER_EX( PNGImage, CPNGImagePanel )
+END_VGUI_HELPER()
+
+BEGIN_SCRIPTDESC_VGUI( PNGImage )
 END_SCRIPTDESC()
 #endif
 //--------------------------------------------------------------
@@ -3448,7 +3615,7 @@ HSCRIPT CScriptVGUI::CreatePanel( const char* panelClass, HSCRIPT parent, const 
 	}
 
 #define Check( _name )\
-	if ( FStrEq( panelClass, #_name ) )\
+	if ( !V_strcmp( panelClass, #_name ) )\
 	{\
 		CScript_##_name##_Helper *helper = AllocScriptPanel< CScript_##_name##_Helper >();\
 		helper->CreateFromScript< CScript_##_name##_Helper >( (HSCRIPT)parent, panelName, root );\
@@ -3467,7 +3634,7 @@ HSCRIPT CScriptVGUI::CreatePanel( const char* panelClass, HSCRIPT parent, const 
 	Check( AvatarImage );
 #endif
 #if VGUI_TGA_IMAGE_PANEL
-	Check( TGAImagePanel );
+	Check( TGAImage );
 #endif
 
 	g_pScriptVM->RaiseException("invalid vgui class");
@@ -3480,25 +3647,33 @@ void CScriptVGUI::LevelShutdownPostEntity()
 {
 	DebugMsg( "LevelShutdownPostEntity()\n" );
 
-	while ( g_ScriptPanels.Count() )
+	if ( g_ScriptPanels.Count() )
 	{
-		Assert( g_ScriptPanels.Head() != g_ScriptPanels.InvalidIndex() );
+		while ( g_ScriptPanels.Count() )
+		{
+			Assert( g_ScriptPanels.Head() != g_ScriptPanels.InvalidIndex() );
 
-		int head = g_ScriptPanels.Head();
-		g_ScriptPanels[ head ]->Destroy( head );
+			int head = g_ScriptPanels.Head();
+			g_ScriptPanels[ head ]->Destroy( head );
+		}
+
+		g_ScriptPanels.Purge();
 	}
-	g_ScriptPanels.Purge();
 
-	FOR_EACH_VEC( g_ScriptTextureIDs, i )
+	if ( int i = g_ScriptTextureIDs.Count() )
 	{
+		while ( i-- )
+		{
 #ifdef _DEBUG
-		char tex[MAX_PATH];
-		surface()->DrawGetTextureFile( g_ScriptTextureIDs[i], tex, sizeof(tex)-1 );
-		DebugMsg( "Destroy texture [%i]%s\n", g_ScriptTextureIDs[i], tex );
+			char tex[MAX_PATH];
+			surface()->DrawGetTextureFile( g_ScriptTextureIDs[i], tex, sizeof(tex)-1 );
+			DebugMsg( "Destroy texture [%i]%s\n", g_ScriptTextureIDs[i], tex );
 #endif
-		surface()->DestroyTextureID( g_ScriptTextureIDs[i] );
+			surface()->DestroyTextureID( g_ScriptTextureIDs[i] );
+		}
+
+		g_ScriptTextureIDs.Purge();
 	}
-	g_ScriptTextureIDs.Purge();
 
 	//
 	// Reset hud element visibility

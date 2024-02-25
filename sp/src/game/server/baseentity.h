@@ -1445,6 +1445,11 @@ public:
 	void					SetGroundEntity( CBaseEntity *ground );
 	CBaseEntity				*GetGroundEntity( void );
 	CBaseEntity				*GetGroundEntity( void ) const { return const_cast<CBaseEntity *>(this)->GetGroundEntity(); }
+	
+#ifdef MAPBASE_VSCRIPT
+	HSCRIPT ScriptGetGroundEntity();
+	void ScriptSetGroundEntity( HSCRIPT hGroundEnt );
+#endif
 
 	// Gets the velocity we impart to a player standing on us
 	virtual void			GetGroundVelocityToApply( Vector &vecGroundVel ) { vecGroundVel = vec3_origin; }
@@ -1575,7 +1580,7 @@ public:
 		float flVolume, soundlevel_t iSoundlevel, int iFlags = 0, int iPitch = PITCH_NORM,
 		const Vector *pOrigin = NULL, const Vector *pDirection = NULL, bool bUpdatePositions = true, float soundtime = 0.0f
 #ifdef MAPBASE
-		, int iSpecialDSP = 0, int iSpeakerIndex = 0 // Needed for env_microphone
+		, int iSpecialDSP = 0, int iSpeakerIndex = -1 // Needed for env_microphone
 #endif
 		);
 

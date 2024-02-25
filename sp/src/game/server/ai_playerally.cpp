@@ -128,6 +128,12 @@ ConceptInfo_t g_ConceptInfos[] =
 
 	// Passenger behaviour
 	{ TLK_PASSENGER_NEW_RADAR_CONTACT,		SPEECH_IMPORTANT,	-1,		-1,		-1,		-1,		-1,		-1,		AICF_DEFAULT,	},	
+	
+#ifdef MAPBASE
+	{ 	TLK_TAKING_FIRE,		SPEECH_IMPORTANT,-1,	-1,		-1,		-1,		 -1,	-1,		AICF_DEFAULT,	},
+	{ 	TLK_NEW_ENEMY,			SPEECH_IMPORTANT,-1,	-1,		-1,		-1,		 -1,	-1,		AICF_DEFAULT,	},
+	{ 	TLK_COMBAT_IDLE,		SPEECH_IMPORTANT,-1,	-1,		-1,		-1,		 -1,	-1,		AICF_DEFAULT,	},
+#endif
 };
 
 //-----------------------------------------------------------------------------
@@ -1259,6 +1265,38 @@ void CAI_PlayerAlly::OnKilledNPC( CBaseCombatCharacter *pKilled )
 	}
 }
 
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CAI_PlayerAlly::OnEnemyRangeAttackedMe( CBaseEntity *pEnemy, const Vector &vecDir, const Vector &vecEnd )
+{
+	BaseClass::OnEnemyRangeAttackedMe( pEnemy, vecDir, vecEnd );
+
+	if ( IRelationType( pEnemy ) <= D_FR )
+	{
+		AI_CriteriaSet modifiers;
+		ModifyOrAppendEnemyCriteria( modifiers, pEnemy );
+
+		Vector vecEntDir = (pEnemy->EyePosition() - EyePosition());
+		float flDot = DotProduct( vecEntDir.Normalized(), vecDir );
+		modifiers.AppendCriteria( "shot_dot", CNumStr( flDot ) );
+
+		if (GetLastDamageTime() == gpGlobals->curtime)
+			modifiers.AppendCriteria( "missed", "0" );
+		else
+			modifiers.AppendCriteria( "missed", "1" );
+
+		// Check if they're out of ammo
+		if ( pEnemy->IsCombatCharacter() && pEnemy->MyCombatCharacterPointer()->GetActiveWeapon() && pEnemy->MyCombatCharacterPointer()->GetActiveWeapon()->Clip1() <= 0 )
+			modifiers.AppendCriteria( "last_attack", "1" );
+		else
+			modifiers.AppendCriteria( "last_attack", "0" );
+
+		SpeakIfAllowed( TLK_TAKING_FIRE, modifiers );
+	}
+}
+#endif
+
 //-----------------------------------------------------------------------------
 void CAI_PlayerAlly::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
@@ -1761,6 +1799,54 @@ bool CAI_PlayerAlly::IsAllowedToSpeak( AIConcept_t concept, bool bRespondingToPl
 	
 	return true;
 }
+
+#ifdef MAPBASE
+//-----------------------------------------------------------------------------
+// Purpose: Specifically for player allies handling followup responses.
+// Better-accounts for unknown concepts so that users are free in what they use.
+//-----------------------------------------------------------------------------
+bool CAI_PlayerAlly::IsAllowedToSpeakFollowup( AIConcept_t concept, CBaseEntity *pIssuer, bool bSpecific )
+{ 
+	CAI_AllySpeechManager *	pSpeechManager	= GetAllySpeechManager();
+	ConceptInfo_t *			pInfo			= pSpeechManager->GetConceptInfo( concept );
+	ConceptCategory_t		category		= SPEECH_PRIORITY; // Must be SPEECH_PRIORITY to get around semaphore
+
+	if ( !IsOkToSpeak( category, true ) )
+		return false;
+
+	// If this followup is specifically targeted towards us, speak if we're not already speaking
+	// If it's meant to be spoken by anyone, respect speech delay and semaphore
+	if ( bSpecific )
+	{
+		if ( !GetExpresser()->CanSpeakAfterMyself() )
+			return false;
+	}
+	else
+	{
+		if ( !GetExpresser()->CanSpeak() )
+			return false;
+
+		CAI_TimedSemaphore *pSemaphore = GetExpresser()->GetMySpeechSemaphore( this );
+		if ( pSemaphore && !pSemaphore->IsAvailable( this ) )
+		{
+			// Only if the semaphore holder isn't the one dispatching the followup
+			if ( pSemaphore->GetOwner() != pIssuer )
+				return false;
+		}
+	}
+
+	if ( !pSpeechManager->ConceptDelayExpired( concept ) )
+		return false;
+
+	if ( ( pInfo && pInfo->flags & AICF_SPEAK_ONCE ) && GetExpresser()->SpokeConcept( concept ) )
+		return false;
+
+	if ( !GetExpresser()->CanSpeakConcept( concept ) )
+		return false;
+	
+	return true;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

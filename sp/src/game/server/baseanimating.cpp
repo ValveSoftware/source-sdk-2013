@@ -335,6 +335,8 @@ BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
 	DEFINE_SCRIPTFUNC( FindBodygroupByName, "Finds a bodygroup by name" )
 	DEFINE_SCRIPTFUNC( GetBodygroupCount, "Gets the number of models in a bodygroup" )
 	DEFINE_SCRIPTFUNC( GetNumBodyGroups, "Gets the number of bodygroups" )
+	DEFINE_SCRIPTFUNC( GetModelScale, "Gets the model's scale" )
+	DEFINE_SCRIPTFUNC( SetModelScale, "Sets the model's scale with the specified change duration" )
 
 	DEFINE_SCRIPTFUNC( Dissolve, "Use 'sprites/blueglow1.vmt' for the default material, Time() for the default start time, false for npcOnly if you don't want it to check if the entity is a NPC first, 0 for the default dissolve type, Vector(0,0,0) for the default dissolver origin, and 0 for the default magnitude." )
 	DEFINE_SCRIPTFUNC( Ignite, "'NPCOnly' only lets this fall through if the entity is a NPC and 'CalledByLevelDesigner' determines whether to treat this like the Ignite input or just an internal ignition call." )
@@ -1331,7 +1333,7 @@ void CBaseAnimating::HandleAnimEvent( animevent_t *pEvent )
 #ifdef MAPBASE
 		else if ( pEvent->event == AE_NPC_RESPONSE )
 		{
-			if (!MyNPCPointer()->GetExpresser()->IsSpeaking())
+			if (MyNPCPointer() && MyNPCPointer()->GetExpresser() && !MyNPCPointer()->GetExpresser()->IsSpeaking())
 			{
 				DispatchResponse( pEvent->options );
 			}
@@ -1340,6 +1342,18 @@ void CBaseAnimating::HandleAnimEvent( animevent_t *pEvent )
 		else if ( pEvent->event == AE_NPC_RESPONSE_FORCED )
 		{
 			DispatchResponse( pEvent->options );
+			return;
+		}
+		else if ( pEvent->event == AE_VSCRIPT_RUN )
+		{
+			if (!RunScript( pEvent->options ))
+				Warning( "%s failed to run AE_VSCRIPT_RUN on server with \"%s\"\n", GetDebugName(), pEvent->options );
+			return;
+		}
+		else if ( pEvent->event == AE_VSCRIPT_RUN_FILE )
+		{
+			if (!RunScriptFile( pEvent->options ))
+				Warning( "%s failed to run AE_VSCRIPT_RUN_FILE on server with \"%s\"\n", GetDebugName(), pEvent->options );
 			return;
 		}
 #endif

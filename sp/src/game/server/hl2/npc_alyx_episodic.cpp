@@ -1092,10 +1092,14 @@ void CNPC_Alyx::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::EnemyIgnited( CAI_BaseNPC *pVictim )
 {
+#ifdef MAPBASE
+	BaseClass::EnemyIgnited( pVictim );
+#else
 	if ( FVisible( pVictim ) )
 	{
 		SpeakIfAllowed( TLK_ENEMY_BURNING );
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1252,6 +1256,7 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
 
+#ifndef MAPBASE // Ported to CNPC_PlayerCompanion
 	if ( HasCondition(COND_NEW_ENEMY) && GetEnemy() )
 	{
 		if ( GetEnemy()->Classify() == CLASS_HEADCRAB )
@@ -1278,6 +1283,7 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 			}
 		}
 	}
+#endif
 
 	// Darkness mode speech
 	ClearCondition( COND_ALYX_IN_DARK );
@@ -1917,6 +1923,7 @@ int CNPC_Alyx::SelectSchedule( void )
 //-----------------------------------------------------------------------------
 int CNPC_Alyx::SelectScheduleDanger( void )
 {
+#ifndef MAPBASE
 	if( HasCondition( COND_HEAR_DANGER ) )
 	{
 		CSound *pSound;
@@ -1929,6 +1936,7 @@ int CNPC_Alyx::SelectScheduleDanger( void )
 			SpeakIfAllowed( TLK_DANGER_ZOMBINE_GRENADE );
 		}
 	}
+#endif
 	
 	return BaseClass::SelectScheduleDanger();
 }

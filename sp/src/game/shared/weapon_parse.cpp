@@ -408,12 +408,21 @@ FileWeaponInfo_t::FileWeaponInfo_t()
 	m_flSwaySpeedScale = 1.0f;
 	szDroppedModel[0] = 0;
 	m_bUsesHands = false;
+	m_nWeaponRestriction = WPNRESTRICT_NONE;
 #endif
 }
 
 #ifdef CLIENT_DLL
 extern ConVar hud_fastswitch;
 #endif
+
+#ifdef MAPBASE
+const char* pWeaponRestrictions[NUM_WEAPON_RESTRICTION_TYPES] = {
+	"none",
+	"player_only",
+	"npc_only",
+};
+#endif // MAPBASE
 
 void FileWeaponInfo_t::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 {
@@ -483,6 +492,19 @@ void FileWeaponInfo_t::Parse( KeyValues *pKeyValuesData, const char *szWeaponNam
 	Q_strncpy( szDroppedModel, pKeyValuesData->GetString( "droppedmodel" ), MAX_WEAPON_STRING );
 
 	m_bUsesHands = ( pKeyValuesData->GetInt( "uses_hands", 0 ) != 0 ) ? true : false;
+
+	const char* pszRestrictString = pKeyValuesData->GetString("usage_restriction", nullptr);
+	if (pszRestrictString)
+	{
+		for (int i = 0; i < NUM_WEAPON_RESTRICTION_TYPES; i++)
+		{
+			if (V_stricmp(pszRestrictString, pWeaponRestrictions[i]) == 0)
+			{
+				m_nWeaponRestriction = i;
+				break;
+			}
+		}
+	}
 #endif
 
 #ifndef MAPBASE // Mapbase makes weapons in the same slot & position swap each other out, which is a feature mods can intentionally use.

@@ -447,7 +447,8 @@ void CGameText::SetText( const char* pszStr )
 
 		for (int i = 1; i < vecLines.Count(); i++)
 		{
-			Q_snprintf( szMsg, sizeof( szMsg ), "%s\n%s", szMsg, vecLines[i] );
+			Q_strncat( szMsg, "\n", sizeof( szMsg ) );
+			Q_strncat( szMsg, vecLines[i], sizeof( szMsg ) );
 		}
 		m_iszMessage = AllocPooledString( szMsg );
 	}

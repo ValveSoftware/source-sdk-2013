@@ -61,7 +61,11 @@ public:
 	int GetNumFrames();
 	void SetFrame( int nFrame );
 
+#ifdef MAPBASE
+	void SetRotation( int iRotation );
+#else
 	void SetRotation( int iRotation ) { m_iRotation = iRotation; }
+#endif
 
 protected:
 	virtual void PaintBackground();

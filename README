@@ -1,6 +1,6 @@
 //=========================================================================================================================
 
-               Mapbase v7.1 - Source 2013
+               Mapbase v7.2 - Source 2013
 	https://github.com/mapbase-source/source-sdk-2013
 		https://www.moddb.com/mods/mapbase
 	
@@ -112,6 +112,12 @@ Direct contributions:
 - https://github.com/mapbase-source/source-sdk-2013/issues/201 (env_projectedtexture shadow filter keyvalue from celisej567)
 - https://github.com/mapbase-source/source-sdk-2013/pull/193 (RTB:R info_particle_system_coordinate by arbabf and Iridium77)
 - https://github.com/mapbase-source/source-sdk-2013/pull/193 (Infinite prop_interactable cooldown by arbabf)
+- https://github.com/mapbase-source/source-sdk-2013/pull/229 (Extended point_bugbait functionality by arbabf)
+- https://github.com/mapbase-source/source-sdk-2013/pull/236 (Toggleable prop sprinting by Crimson-X1)
+- https://github.com/mapbase-source/source-sdk-2013/pull/237 (Commander goal trace fix by Agrimar)
+- https://github.com/mapbase-source/source-sdk-2013/pull/245 (ViewPunch random fix by Mr0maks)
+- https://github.com/mapbase-source/source-sdk-2013/pull/248 (soundlevel_t conversation warning fix by Mechami)
+- https://github.com/mapbase-source/mapbase-game-src/pull/1 (Advanced video options duplicate field name fix by arbabf; This is asset-based and not reflected in the code)
 - Demo autorecord code provided by Klems
 - cc_emit crash fix provided by 1upD
 - Custom HL2 ammo crate models created by Rykah (Textures created by Blixibon; This is asset-based and, aside from the SLAM crate, not reflected in the code)
@@ -137,6 +143,9 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/192 (VScript hook manager and fixes)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/206 (Fix CScriptNetMsgHelper::WriteEntity())
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/213 (VScript HUD visibility control, optimizations for 3D skybox angles/fake worldportals)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/229 (VScript VGUI HUD viewport parenting, game_text and vgui_text_display VScript font fallback)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/261 (Misc VScript additions)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/279 (weapon_custom_scripted fixes)
 
 == Contributions from z33ky:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/21 (Various GCC/Linux compilation fixes)
@@ -156,6 +165,9 @@ Direct contributions:
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/184 (Projected texture horizontal FOV shadow fix)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/185 (Fix enemyfinders becoming visible when they wake)
 =-- https://github.com/mapbase-source/source-sdk-2013/pull/186 (Fix for brightly glowing teeth)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/183 (Enhanced custom weapons support)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/230 (Caption fixes)
+=-- https://github.com/mapbase-source/source-sdk-2013/pull/231 (Sentence source bug fix)
 
 //-------------------------------------------------------------------------------------------------------------------------
 

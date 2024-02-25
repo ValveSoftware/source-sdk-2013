@@ -346,7 +346,7 @@ void CWeaponAR2::DelayedAttack( void )
 
 	pOwner->SnapEyeAngles( angles );
 	
-	pOwner->ViewPunch( QAngle( random->RandomInt( -8, -12 ), random->RandomInt( 1, 2 ), 0 ) );
+	pOwner->ViewPunch( QAngle( random->RandomInt( -12, -8 ), random->RandomInt( 1, 2 ), 0 ) );
 
 	// Decrease ammo
 	pOwner->RemoveAmmo( 1, m_iSecondaryAmmoType );

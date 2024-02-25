@@ -11,6 +11,9 @@
 #include "ai_baseactor.h"
 #include "ai_speech.h"
 //#include "flex_expresser.h"
+#ifdef MAPBASE
+#include "sceneentity.h"
+#endif
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
@@ -170,15 +173,25 @@ void CResponseQueue::RemoveExpresserHost(CBaseEntity *host)
 	}
 }
 
+#ifdef MAPBASE
+/// Get the expresser for a base entity.
+static CAI_Expresser *InferExpresserFromBaseEntity(CBaseEntity * RESTRICT pEnt, CAI_ExpresserSink **ppSink = NULL)
+{
+	if ( CAI_ExpresserSink *pSink = dynamic_cast<CAI_ExpresserSink *>(pEnt) )
+	{
+		if (ppSink)
+			*ppSink = pSink;
+		return pSink->GetSinkExpresser();
+	}
+
+	return NULL;
+}
+#else
 /// Get the expresser for a base entity.
 /// TODO: Kind of an ugly hack until I get the class hierarchy straightened out.
 static CAI_Expresser *InferExpresserFromBaseEntity(CBaseEntity * RESTRICT pEnt)
 {
-#ifdef MAPBASE
-	if ( CBasePlayer *pPlayer = ToBasePlayer(pEnt) )
-#else
 	if ( CBaseMultiplayerPlayer *pPlayer = dynamic_cast<CBaseMultiplayerPlayer *>(pEnt) )
-#endif
 	{
 		return pPlayer->GetExpresser();
 	}
@@ -197,6 +210,7 @@ static CAI_Expresser *InferExpresserFromBaseEntity(CBaseEntity * RESTRICT pEnt)
 		return NULL;
 	}
 }
+#endif
 
 
 void CResponseQueue::CDeferredResponse::Quash()
@@ -204,6 +218,23 @@ void CResponseQueue::CDeferredResponse::Quash()
 	m_Target = CFollowupTargetSpec_t();
 	m_fDispatchTime = 0;
 }
+
+#ifdef MAPBASE
+void CResponseQueue::AppendFollowupCriteria( AIConcept_t concept, AI_CriteriaSet &set, CAI_Expresser *pEx,
+		CAI_ExpresserSink *pSink, CBaseEntity *pTarget, CBaseEntity *pIssuer, DeferredResponseTarget_t nTargetType )
+{
+	// Allows control over which followups interrupt speech routines
+	set.AppendCriteria( "followup_allowed_to_speak", (pSink->IsAllowedToSpeakFollowup( concept, pIssuer, nTargetType == kDRT_SPECIFIC )) ? "1" : "0" );
+
+	set.AppendCriteria( "followup_target_type", UTIL_VarArgs( "%i", (int)nTargetType ) );
+	
+	// NOTE: This assumes any expresser entity derived from CBaseFlex is also derived from CBaseCombatCharacter
+	if (pTarget->IsCombatCharacter())
+		set.AppendCriteria( "is_speaking", (pEx->IsSpeaking() || IsRunningScriptedSceneWithSpeechAndNotPaused( assert_cast<CBaseFlex*>(pTarget) )) ? "1" : "0" );
+	else
+		set.AppendCriteria( "is_speaking", "0" );
+}
+#endif
 
 bool CResponseQueue::DispatchOneResponse(CDeferredResponse &response)
 {
@@ -272,9 +303,15 @@ bool CResponseQueue::DispatchOneResponse(CDeferredResponse &response)
 						continue; // too far
 				}
 
+#ifdef MAPBASE
+				CAI_ExpresserSink *pSink = NULL;
+				pEx = InferExpresserFromBaseEntity( pTarget, &pSink );
+#else
 				pEx = InferExpresserFromBaseEntity(pTarget);
+#endif
 				if ( !pEx || pTarget == pIssuer ) 
 					continue;
+
 				AI_CriteriaSet characterCriteria;
 				pEx->GatherCriteria(&characterCriteria, response.m_concept, NULL);
 				characterCriteria.Merge(&deferredCriteria);
@@ -282,6 +319,11 @@ bool CResponseQueue::DispatchOneResponse(CDeferredResponse &response)
 				{
 					characterCriteria.AppendCriteria( "dist_from_issuer",  UTIL_VarArgs( "%f", sqrt(distIssuerToTargetSq) ) );
 				}
+
+#ifdef MAPBASE
+				AppendFollowupCriteria( response.m_concept, characterCriteria, pEx, pSink, pTarget, pIssuer, kDRT_ALL );
+#endif
+
 				AI_Response prospectiveResponse;
 				if ( pEx->FindResponse( prospectiveResponse, response.m_concept, &characterCriteria ) )
 				{
@@ -304,14 +346,26 @@ bool CResponseQueue::DispatchOneResponse(CDeferredResponse &response)
 		return false; // we're done right here.
 
 	// Get the expresser for the target. 
+#ifdef MAPBASE
+	CAI_ExpresserSink *pSink = NULL;
+	pEx = InferExpresserFromBaseEntity( pTarget, &pSink );
+#else
 	pEx = InferExpresserFromBaseEntity(pTarget);
+#endif
 	if (!pEx)
 		return false;
-	
 
 	AI_CriteriaSet characterCriteria;
 	pEx->GatherCriteria(&characterCriteria, response.m_concept, NULL);
 	characterCriteria.Merge(&deferredCriteria);
+#ifdef MAPBASE
+	if ( pIssuer )
+	{
+		characterCriteria.AppendCriteria( "dist_from_issuer",  UTIL_VarArgs( "%f", (pTarget->GetAbsOrigin() - pIssuer->GetAbsOrigin()).Length() ) );
+	}
+
+	AppendFollowupCriteria( response.m_concept, characterCriteria, pEx, pSink, pTarget, pIssuer, kDRT_SPECIFIC );
+#endif
 	pEx->Speak( response.m_concept, &characterCriteria );
 	
 	return true;
@@ -364,7 +418,12 @@ bool CResponseQueue::DispatchOneResponse_ThenANY( CDeferredResponse &response, A
 				continue; // too far
 		}
 
+#ifdef MAPBASE
+		CAI_ExpresserSink *pSink = NULL;
+		pEx = InferExpresserFromBaseEntity( pTarget, &pSink );
+#else
 		pEx = InferExpresserFromBaseEntity(pTarget);
+#endif
 		if ( !pEx  ) 
 			continue;
 
@@ -376,6 +435,11 @@ bool CResponseQueue::DispatchOneResponse_ThenANY( CDeferredResponse &response, A
 		{
 			characterCriteria.AppendCriteria( "dist_from_issuer",  UTIL_VarArgs( "%f", sqrt(distIssuerToTargetSq) ) );
 		}
+
+#ifdef MAPBASE
+		AppendFollowupCriteria( response.m_concept, characterCriteria, pEx, pSink, pTarget, pIssuer, kDRT_ANY );
+#endif
+
 		AI_Response prospectiveResponse;
 
 #ifdef MAPBASE

@@ -431,7 +431,6 @@ const Vector& CScriptMaterialProxy::GetVarVector( int i )
 	if (m_MaterialVars[i]->GetType() != MATERIAL_VAR_TYPE_VECTOR)
 		return vec3_origin;
 
-	// This is really bad. Too bad!
 	return *(reinterpret_cast<const Vector*>(m_MaterialVars[i]->GetVecValue()));
 }
 
@@ -761,6 +760,8 @@ public:
 	virtual void LevelShutdownPostEntity( void )
 	{
 #ifdef MAPBASE_VSCRIPT
+		g_ScriptEntityIterator.DisableEntityListening();
+
 		g_ScriptNetMsg->LevelShutdownPreVM();
 
 		GetScriptHookManager().OnShutdown();

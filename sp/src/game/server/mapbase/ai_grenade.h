@@ -23,6 +23,7 @@
 #include "hl2_gamerules.h"
 #include "weapon_physcannon.h"
 #include "globalstate.h"
+#include "ai_hint.h"
 
 #define COMBINE_AE_GREN_TOSS		( 7 )
 
@@ -137,6 +138,8 @@ public:
 	virtual const char*		GetGrenadeAttachment() { return "anim_attachment_LH"; }
 
 	void			ClearAttackConditions( void );
+
+	bool			FValidateHintType( CAI_Hint *pHint );
 
 	Vector			GetAltFireTarget() { return m_vecAltFireTarget; }
 	virtual bool	CanAltFireEnemy( bool bUseFreeKnowledge );
@@ -558,6 +561,29 @@ bool CAI_GrenadeUser<BASE_NPC>::CanThrowGrenade( const Vector &vecTarget )
 		}
 	}
 
+	CHintCriteria hintCriteria;
+	hintCriteria.SetHintType( HINT_TACTICAL_GRENADE_THROW );
+	hintCriteria.SetFlag( bits_HINT_NPC_IN_NODE_FOV );
+	hintCriteria.SetGroup( this->GetHintGroup() );
+	hintCriteria.AddIncludePosition( this->GetAbsOrigin(), 1024 );
+
+	if (this->m_debugOverlays & OVERLAY_NPC_SELECTED_BIT)
+		hintCriteria.SetFlag( bits_HINT_NODE_REPORT_FAILURES );
+	
+	// If there's a grenade throw hint nearby, try using it
+	CAI_Hint *pHint = CAI_HintManager::FindHint( this, vecTarget, hintCriteria );
+	if ( pHint )
+	{
+		if ( CheckCanThrowGrenade( pHint->GetAbsOrigin() ) )
+		{
+			return true;
+		}
+		else
+		{
+			DevMsg( this, "Unable to throw grenade at hint %s\n", pHint->GetDebugName() );
+		}
+	}
+
 	return CheckCanThrowGrenade( vecTarget );
 }
 
@@ -634,6 +660,18 @@ void CAI_GrenadeUser<BASE_NPC>::ClearAttackConditions()
 		// don't sense for it every frame.
 		this->SetCondition( COND_CAN_RANGE_ATTACK2 );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+template <class BASE_NPC>
+bool CAI_GrenadeUser<BASE_NPC>::FValidateHintType( CAI_Hint *pHint )
+{
+	if ( pHint->HintType() == HINT_TACTICAL_GRENADE_THROW )
+		return true;
+
+	return BaseClass::FValidateHintType( pHint );
 }
 
 //-----------------------------------------------------------------------------

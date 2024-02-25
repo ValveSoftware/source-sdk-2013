@@ -47,6 +47,8 @@ ConVar npc_combine_protected_run( "npc_combine_protected_run", "0", FCVAR_NONE, 
 ConVar npc_combine_altfire_not_allies_only( "npc_combine_altfire_not_allies_only", "1", FCVAR_NONE, "Mapbase: Elites are normally only allowed to fire their alt-fire attack at the player and the player's allies; This allows elites to alt-fire at other enemies too." );
 
 ConVar npc_combine_new_cover_behavior( "npc_combine_new_cover_behavior", "1", FCVAR_NONE, "Mapbase: Toggles small patches for parts of npc_combine AI related to soldiers failing to take cover. These patches are minimal and only change cases where npc_combine would otherwise look at an enemy without shooting or run up to the player to melee attack when they don't have to. Consult the Mapbase wiki for more information." );
+
+ConVar npc_combine_fixed_shootpos( "npc_combine_fixed_shootpos", "0", FCVAR_NONE, "Mapbase: Toggles fixed Combine soldier shoot position." );
 #endif
 
 #define COMBINE_SKIN_DEFAULT		0
@@ -2958,6 +2960,28 @@ Vector CNPC_Combine::Weapon_ShootPosition( )
 
 	// FIXME: rename this "estimated" since it's not based on animation
 	// FIXME: the orientation won't be correct when testing from arbitary positions for arbitary angles
+
+#ifdef MAPBASE
+	// HACKHACK: This weapon shoot position code does not work properly when in close range, causing the aim
+	// to drift to the left as the enemy gets closer to it.
+	// This problem is usually bearable for regular combat, but it causes dynamic interaction yaw to be offset
+	// as well, preventing most from ever being triggered.
+	// Ideally, this should be fixed from the root cause, but due to the sensitivity of such a change, this is
+	// currently being tied to a cvar which is off by default.
+	// 
+	// If the cvar is disabled but the soldier has valid interactions on its current enemy, then a separate hack
+	// will still attempt to correct the drift as the enemy gets closer.
+	if ( npc_combine_fixed_shootpos.GetBool() )
+	{
+		right *= 0.0f;
+	}
+	else if ( HasValidInteractionsOnCurrentEnemy() )
+	{
+		float flDistSqr = GetEnemy()->WorldSpaceCenter().DistToSqr( WorldSpaceCenter() );
+		if (flDistSqr < Square( 128.0f ))
+			right *= (flDistSqr / Square( 128.0f ));
+	}
+#endif
 
 	if  ( bStanding )
 	{

@@ -22,6 +22,7 @@
 #include "filesystem.h"
 #include "igameevents.h"
 #include "engine/ivdebugoverlay.h"
+#include "icommandline.h"
 
 #ifdef CLIENT_DLL
 #include "IEffects.h"
@@ -1094,7 +1095,7 @@ const char *CScriptReadWriteFile::FileRead( const char *szFile )
 	char pszFullName[MAX_PATH];
 	V_snprintf( pszFullName, sizeof(pszFullName), SCRIPT_RW_FULL_PATH_FMT, szFile );
 
-	if ( !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
+	if ( !CommandLine()->FindParm( "-script_dotslash_read" ) && !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
 	{
 		DevWarning( 2, "Invalid file location : %s\n", szFile );
 		return NULL;
@@ -1143,7 +1144,7 @@ bool CScriptReadWriteFile::FileExists( const char *szFile )
 	char pszFullName[MAX_PATH];
 	V_snprintf( pszFullName, sizeof(pszFullName), SCRIPT_RW_FULL_PATH_FMT, szFile );
 
-	if ( !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
+	if ( !CommandLine()->FindParm( "-script_dotslash_read" ) && !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
 	{
 		DevWarning( 2, "Invalid file location : %s\n", szFile );
 		return NULL;
@@ -1224,7 +1225,7 @@ HSCRIPT CScriptReadWriteFile::KeyValuesRead( const char *szFile )
 	char pszFullName[MAX_PATH];
 	V_snprintf( pszFullName, sizeof(pszFullName), SCRIPT_RW_FULL_PATH_FMT, szFile );
 
-	if ( !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
+	if ( !CommandLine()->FindParm( "-script_dotslash_read" ) && !V_RemoveDotSlashes( pszFullName, CORRECT_PATH_SEPARATOR, true ) )
 	{
 		DevWarning( 2, "Invalid file location : %s\n", szFile );
 		return NULL;
@@ -1338,8 +1339,7 @@ static const char *HasNetMsgCollision( int hash, const char *ignore )
 
 inline int CNetMsgScriptHelper::Hash( const char *key )
 {
-	int hash = HashStringCaseless( key );
-	Assert( hash < (1 << SCRIPT_NETMSG_HEADER_BITS) );
+	int hash = CaselessStringHashFunctor()( key );
 	return hash;
 }
 
@@ -1445,7 +1445,7 @@ void CNetMsgScriptHelper::ReceiveMessage( bf_read &msg )
 	while ( count-- )
 #endif
 	{
-		int hash = m_MsgIn_()ReadWord();
+		int hash = m_MsgIn_()ReadUBitLong( SCRIPT_NETMSG_HEADER_BITS );
 
 #ifdef _DEBUG
 		const char *msgName = GetNetMsgName( hash );
@@ -1514,7 +1514,7 @@ void CNetMsgScriptHelper::Start( const char *msg )
 	Reset();
 #endif
 
-	m_MsgOut.WriteWord( Hash( msg ) );
+	m_MsgOut.WriteUBitLong( Hash( msg ), SCRIPT_NETMSG_HEADER_BITS );
 }
 
 #ifdef GAME_DLL
@@ -1923,7 +1923,7 @@ BEGIN_SCRIPTDESC_ROOT_NAMED( CNetMsgScriptHelper, "CNetMsg", SCRIPT_SINGLETON "N
 	DEFINE_SCRIPTFUNC( Receive, "Set custom network message callback" )
 	DEFINE_SCRIPTFUNC_NAMED( Receive, "Recieve", SCRIPT_HIDE ) // This was a typo until v6.3
 #ifdef GAME_DLL
-	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the server to the client (max 252 bytes)" )
+	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the server to the client (max 251 bytes)" )
 #else
 	DEFINE_SCRIPTFUNC( Send, "Send a custom network message from the client to the server (max 2044 bytes)" )
 #endif
@@ -2742,6 +2742,11 @@ public:
 
 void CScriptConvarAccessor::RegisterCommand( const char *name, HSCRIPT fn, const char *helpString, int flags )
 {
+#if CLIENT_DLL
+	// FIXME: This crashes in engine when used as a hook (dispatched from CScriptConCommand::CommandCallback())
+	Assert( V_stricmp( name, "load" ) != 0 );
+#endif
+
 	unsigned int hash = Hash(name);
 	int idx = g_ScriptConCommands.Find(hash);
 	if ( idx == g_ScriptConCommands.InvalidIndex() )
