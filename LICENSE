@@ -1,13 +1,9 @@
-           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-                   Version 2, December 2004
- 
-Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+Vortex Engine Public License
 
-Everyone is permitted to copy and distribute verbatim or modified
-copies of this license document, and changing it is allowed as long
-as the name is changed.
- 
-           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+Copyright (c) 2024 vortex-engine
 
- 0. You just DO WHAT THE FUCK YOU WANT TO.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to modify and distribute copies of the Software, subject to the following conditions:
+
+1. Credit: Any distributions or substantial portions of the Software must include a credit to the original author(s).
+2. Donations: If the Software or any derivative work generates donations, 10% of the donations must be given to the original author(s) of the project you forked.
+3. Limitations: The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
