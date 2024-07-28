@@ -4,6 +4,9 @@ Copyright (c) 2024 vortex-engine
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to modify and distribute copies of the Software, subject to the following conditions:
 
-1. Credit: Any distributions or substantial portions of the Software must include a credit to the original author(s).
-2. Donations: If the Software or any derivative work generates donations, 10% of the donations must be given to the original author(s) of the project you forked.
-3. Limitations: The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
+1.Credit: Any distributions or substantial portions of the Software must include a credit to the original author(s).
+2. Donations: If the Software or any derivative work generates donations:
+- 10% of the donations must be given to the original author(s) of the project you forked.
+- If the project you forked is archived, 5% of the donations must be given to the original author(s).
+- If the Project you forked has been deleted, 0% of the donations must be given to the original author(s)
+3.Limitations: The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
