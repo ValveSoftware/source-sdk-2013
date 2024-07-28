@@ -1,0 +1,91 @@
+// Proto
+
+WeaponData
+{
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"			"#HL2_Egon"
+	"viewmodel"			"models/weapons/v_egon.mdl"
+	"playermodel"		"models/weapons/w_egon.mdl"
+	"anim_prefix"		"egon"
+	"bucket"		"5"
+	"bucket_position"	"2"
+
+	"clip_size"			"-1"
+        "default_clip"			"255"
+	"primary_ammo"		"EgonUranium"
+	"secondary_ammo"	"None"
+
+	"weight"		"15"
+	"item_flags"		"20"
+	"ITEM_FLAG_NOAUTOSWITCHEMPTY"	"1"
+//        "viewfov"                "85"
+//        "muzzleflashlight_texture" "effects/MuzzleLight_Egon"
+
+	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
+	SoundData
+	{
+		"empty"		"Weapon_Pistol.Empty"
+	}
+
+
+        IronSight
+	{
+		"forward"		"-5"
+		"right"		"-5.2"
+		"up"		"2"
+		"roll"		"0"
+		"pitch"		"-5"
+		"yaw"		"0"
+		"fov"		"-15"
+		"time"		"0.25"
+		"crosshair"	"1"
+		"chromatic"	"3.5"
+		"blur"		"3.0"
+                "trueironsights" "0" // if true - when ironsighted : stops walking animation, less weapon turning lag, no hitmarkers.
+	}
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"font"		"HL2MModWeaponIcons"
+				"character"	"B"
+		}
+		"weapon_s"
+		{	
+				"font"		"HL2MModWeaponIconsSelected"
+				"character"	"B"
+		}
+		"weapon_small"
+		{
+				"font"		"HL2MModWeaponIconsSmall"
+				"character"	"B"
+		}
+		"ammo"
+		{
+				"font"		"WeaponIconsSmall"
+				"character"	"z"
+		}
+		"crosshair"
+		{
+				"font"		"HL2MModCrosshairs"
+				"character"	"9"
+		}
+		"zoom"
+		{
+				"font"		"HL2MModCrosshairs"
+				"character"	"9"
+		}
+		"autoaim"
+		{
+				"font"		"HL2MModCrosshairs"
+				"character"	"9"
+		}
+		"zoom_autoaim"
+		{
+				"font"		"HL2MModCrosshairs"
+				"character"	"9"
+		}
+	}
+}
