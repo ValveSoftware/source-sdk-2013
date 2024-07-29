@@ -1,0 +1,39 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" "models\humans\hev_suit\longjump_diffuse"
+	"$bumpmap" "models\humans\hev_suit\longjump_normals"
+	"$surfaceprop" "metal"
+	"$model" 1
+
+	"$normalmapalphaenvmapmask" "1"
+	"$envmap" "env_cubemap"
+	"$envmaptint" "[0.09 0.09 0.09]"
+	"$envmapcontrast" "1.5"
+	"$envmapsaturation" "0.5"
+
+
+
+//	"$envmapcontrast" "1.5"
+//	"$envmapsaturation" "0.5"
+//        "$envmaptint" "[.6 .6 .6]"
+
+        $detail detail\bm_metal_detail_01 // e.g. for brickwork, concrete...
+        $detailscale 5
+        $detailblendfactor 0.4
+        $detailblendmode 0
+
+
+	$phong 1
+        $phongexponent 23
+        $phongboost 2.2
+        $phongtint "[1 1 1]"
+	$phongfresnelranges	"[0.5 2 5]"
+
+	// Rim lighting parameters
+
+//	"$rimlight" "1"
+	"$rimlightexponent" "25"
+	"$rimlightboost" "0.8"
+
+
+}

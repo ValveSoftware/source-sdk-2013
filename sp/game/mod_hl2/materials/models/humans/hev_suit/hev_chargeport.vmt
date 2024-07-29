@@ -1,0 +1,25 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models\humans\hev_suit\hev_chargeport_d"
+	"$bumpmap" "models\humans\hev_suit\hev_chargeport_n"
+
+	"$surfaceprop" "metal"
+
+	"$selfillum" "1"
+	"$selfillumtint" "[1 1 1]"
+
+	"$envmap" "env_cubemap"
+	"$normalmapalphaenvmapmask" "1"
+	"$envmaptint" "[0.10 0.10 0.10]"
+
+	"$phong" "1"
+	"$phongboost" "1.5"
+	"$phongexponent" "18"
+	"$phongalbedotint" "1"
+	"$phongfresnelranges"	"[0.3 1 2.5]"
+
+	// Rim lighting parameters
+	"$rimlight" "1"
+	"$rimlightexponent" "25"
+	"$rimlightboost" "0.05"
+}
