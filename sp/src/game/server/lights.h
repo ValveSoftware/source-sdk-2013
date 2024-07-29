@@ -45,4 +45,35 @@ private:
 	char	m_iTargetFade;
 };
 
+class CEnvLight : public CLight
+{
+public:
+	DECLARE_CLASS( CEnvLight, CLight );
+	DECLARE_DATADESC();
+
+
+
+	bool	KeyValue( const char *szKeyName, const char *szValue ); 
+	void	Spawn( void );
+
+	void	FadeThink(void);
+
+	void	TurnOn(void);
+	void	TurnOff(void);
+	void	Toggle(void);
+
+	void	InputToggle(inputdata_t& inputdata);
+	void	InputTurnOn(inputdata_t& inputdata);
+	void	InputTurnOff(inputdata_t& inputdata);
+
+	int		m_iPitch;
+
+private:
+	int		m_iStyle;
+	int		m_iDefaultStyle;
+	string_t m_iszPattern;
+	char	m_iCurrentFade;
+	char	m_iTargetFade;
+};
+
 #endif // LIGHTS_H
