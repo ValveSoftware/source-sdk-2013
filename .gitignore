@@ -54,3 +54,7 @@ config.cfg
 # shader files
 *.tmp
 
+# my linux file UwU
+*.tar.gz
+*.deb
+
