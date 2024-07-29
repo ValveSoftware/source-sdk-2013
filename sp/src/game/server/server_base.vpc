@@ -781,7 +781,6 @@ $Project
 			$File	"te_worlddecal.cpp"
 			$File	"$SRCDIR\game\shared\usermessages.cpp"
                         $Include "$SRCDIR\game\server\csm.vpc"
-                        $Include "$SRCDIR\game\server\server_mapbase.vpc"
 		}
 
 	}
