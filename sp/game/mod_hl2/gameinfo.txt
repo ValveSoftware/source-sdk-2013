@@ -1,8 +1,8 @@
 "GameInfo"
 {
-	game 		"My First HL2 Mod"
-	title 		"HALF-LIFE'"
-	title2		""
+	game 		"Vortex Mod"
+	title 		"Cool game made with Vortex"
+        title2          ""
 	supportsvr	1
 
 	type		singleplayer_only
