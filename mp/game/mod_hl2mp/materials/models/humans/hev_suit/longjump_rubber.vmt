@@ -1,0 +1,33 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" "models\humans\hev_suit\longjump_diffuse"
+	"$bumpmap" "models\humans\hev_suit\longjump_normals"
+	"$surfaceprop" "plastic"
+	"$model" 1
+        "$halflambert" "0"
+
+	"$envmap" "env_cubemap"
+	"$envmaptint" "[0.005 0.005 0.005]"
+//	"$envmapcontrast" "1.5"
+//	"$envmapsaturation" "0.5"
+
+        $detail detail\bm_concrete_detail_04 // e.g. for brickwork, concrete...
+        $detailscale 5
+        $detailblendfactor 0.6
+        $detailblendmode 0
+
+
+// -- From here down is new stuff which will only be applied if $phong is set to 1 --
+        $phong 1
+        $phongexponent 20
+        $phongboost "2.5"
+        $phongtint "[1 1 1]"
+        $phongfresnelranges "[.4 .8 5]"
+
+	// Rim lighting parameters
+
+	"$rimlight" "1"
+	"$rimlightexponent" "25"
+	"$rimlightboost" "0.5"
+
+}

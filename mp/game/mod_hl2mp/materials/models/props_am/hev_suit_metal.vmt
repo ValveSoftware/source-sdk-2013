@@ -1,0 +1,40 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" "models\props_am\hev_suit"
+	"$bumpmap" "models\props_am\hev_suit_normals"
+	"$surfaceprop" "metal"
+
+	"$nodecal" "1"
+//	"$halflambert" 1
+	"$multipass" 0
+
+        $detail detail\bm_metal_detail_01 // e.g. for brickwork, concrete...
+        $detailscale 8
+        $detailblendfactor 0.5
+        $detailblendmode 0
+
+
+	"$selfillum" "1"
+	"$selfillumtint" "[2 2 2]"
+	"$selfillummask"  "models\props_am\hev_suit_SI"
+
+	"$envmap" "env_cubemap"
+	"$basealphaenvmapmask" "0"
+//	"$normalmapalphaenvmapmask" 1
+
+	"$envmaptint" "[.23 .23 .23]"
+
+	"$phong" "1"
+	"$phongexponent" "15"
+	"$phongboost" "2.8"
+	"$phongfresnelranges"	"[0.4 0.9 2.6]"
+	"$phongalbedotint" "1"
+
+//	"$PhongWarpTexture" "models\props_am\iridescencehev"
+
+	// Rim lighting parameters
+
+	"$rimlight" "1"
+	"$rimlightexponent" "25"
+	"$rimlightboost" "0.5"
+}

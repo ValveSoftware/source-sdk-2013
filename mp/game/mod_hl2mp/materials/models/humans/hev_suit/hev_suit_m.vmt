@@ -1,0 +1,24 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" "models\humans\hev_suit\hev_suit_d"
+	"$bumpmap" "models\humans\hev_suit\hev_suit_n"
+
+	"$surfaceprop" "metal"
+
+	"$envmap" "env_cubemap"
+	"$normalmapalphaenvmapmask" "1"
+
+	"$envmaptint" "[0.10 0.10 0.10]"
+//	"$envmaptint" "[0.15 0.15 0.15]"
+
+	"$phong" "1"
+	"$phongboost" "4.0"
+	"$phongexponent" "18"
+	"$phongalbedotint" "1"
+	"$phongfresnelranges"	"[0.4 0.9 2.8]"
+
+	// Rim lighting parameters
+	"$rimlight" "1"
+	"$rimlightexponent" "25"
+	"$rimlightboost" "0.05"
+}

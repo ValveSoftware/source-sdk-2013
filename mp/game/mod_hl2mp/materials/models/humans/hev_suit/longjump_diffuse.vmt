@@ -1,0 +1,20 @@
+"VertexLitGeneric"
+{
+	"$basetexture"  "models\humans\hev_suit/longjump_diffuse"
+	"$bumpmap" "models\humans\hev_suit/longjump_normals"
+	"$envmap" "env_cubemap"
+	"$normalmapalphaenvmapmask" "1"
+   	"$envmaptint" "[1 1 1]"
+	"$envmapsaturation" "1"
+	
+	"$nodecal" "1"
+	"$multipass" 0
+
+	"$phong" "1"
+	"$phongexponent" "15"
+	"$phongboost" "2.5"
+	"$phongfresnelranges"	"[0.4 0.9 2.6]"
+	"$phongalbedotint" "1"
+	
+}
+
