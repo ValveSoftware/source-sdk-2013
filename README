@@ -30,3 +30,6 @@ Make sure you have VSCODE 2013-2015 ONLY later versions will not work
 run the `makegameprojects.bat` after that you will find a games.sln file run it inside vscode 2013-2015 (2013 Reccomended),
 In right side you probably can find Client[HL2] Client[Episodic] Server[HL2] Server[Episodic].
 Hold `CTRL` button on your keyboard and click on Client[Which game your mod based on] then right-click on build
+
+## Games made with Vortex
+* Vortex Tactical
