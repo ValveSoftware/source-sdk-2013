@@ -9,7 +9,7 @@
                                                |___/              
 ```
 
-## What is Vortex (also known as Vengence Engine)
+## What is Vortex (also known as Vengine)
 Vortex Engine is a community-made engine based off Source SDK 2013. It's main purpose is to make modding easier.
 ## Features
 * Restored Physgun 
