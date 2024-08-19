@@ -35,6 +35,7 @@ vpc_osx binary
 *.vmt text
 *.inl text
 *.asm text
+*.fgd text
 
 .gitignore text
 sourcesdk_def.mak text
@@ -42,6 +43,8 @@ smdlexp.mak text
 README text
 CONTRIBUTING text
 LICENSE text
+COPYING text
+CREDITS text
 
 *.exe binary
 protoc binary
