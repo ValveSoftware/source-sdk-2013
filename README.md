@@ -1,4 +1,4 @@
-
+```
  __      __        _              ______             _            
  \ \    / /       | |            |  ____|           (_)           
   \ \  / /__  _ __| |_ _____  __ | |__   _ __   __ _ _ _ __   ___ 
@@ -7,6 +7,7 @@
      \/ \___/|_|   \__\___/_/\_\ |______|_| |_|\__, |_|_| |_|\___|
                                                 __/ |             
                                                |___/              
+```
 
 ## What is Vortex (also known as Vengence Engine)
 the Vortex game engine is a stunning,amazing and a powerful game engine capable of making 8K Realistic Graphics, The Engine is written in `C++
@@ -19,12 +20,6 @@ the Vortex game engine is a stunning,amazing and a powerful game engine capable 
 *  Native Linux Support
 *  Native QuantamOS Support
 * Native Android Support
-
-## Official Links and Sources and Sponsors
-* vortex.miraheze.org (Official Developer wiki)
-* mirahaze.org (Hosting our wiki 😊)
-* mediawiki.org (Helping us make our wiki 😊)
-* @celisej567 (Helping us Port CSM to Vortex 😊)
 
 ## How To Build
 Make sure you have VSCODE 2013-2015 ONLY later versions will not work
