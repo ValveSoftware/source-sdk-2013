@@ -18,7 +18,7 @@ Vortex Engine is a community-made engine based off Source SDK 2013. It's main pu
 
 ## How To Build
 - [Tutorial](https://vortex.miraheze.org/wiki/How_to_build_games_in_Vortex)
-- [Tutorial (Detailed)](https://vortex.miraheze.org/wiki/Main_Page)
+- [Tutorial (Detailed) (Recommended)](https://developer.valvesoftware.com/wiki/Source_SDK_2013)
 
 ## Games made with Vortex
 * Vortex Tactical
