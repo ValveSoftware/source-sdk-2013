@@ -1,7 +1,7 @@
 ```
  __      __        _              ______             _            
  \ \    / /       | |            |  ____|           (_)           
-  \ \  / /__  _ __| |_ _____  __ | |__   _ __   __ _ _ _ __   ___ 
+  \ \  / /__  _ __| |_ _____  __ | |__   _ __   __ _ _ _ __   ___ ™
    \ \/ / _ \| '__| __/ _ \ \/ / |  __| | '_ \ / _` | | '_ \ / _ \
     \  / (_) | |  | ||  __/>  <  | |____| | | | (_| | | | | |  __/
      \/ \___/|_|   \__\___/_/\_\ |______|_| |_|\__, |_|_| |_|\___|
@@ -10,23 +10,20 @@
 ```
 
 ## What is Vortex (also known as Vengence Engine)
-the Vortex game engine is a stunning,amazing and a powerful game engine capable of making 8K Realistic Graphics, The Engine is written in `C++
-`,`C`,`GLSL`,`Perl`,`ReScript` and `Makefile`
+Vortex Engine is a community-made engine based off Source SDK 2013. It's main purpose is to make modding easier.
 ## Features
-
-* Physgun (SP and MP)
-* Updated weapon models (SP and MP)
-*  Updated weapon sounds (SP)
-*  Native Linux Support
-*  Native QuantamOS Support
-* Native Android Support
+* Restored Physgun 
+* Cascaded Shadow Mapping
+* Android Support
 
 ## How To Build
-Make sure you have VSCODE 2013-2015 ONLY later versions will not work
-run the `makegameprojects.bat` after that you will find a games.sln file run it inside vscode 2013-2015 (2013 Reccomended),
-In right side you probably can find Client[HL2] Client[Episodic] Server[HL2] Server[Episodic].
-Hold `CTRL` button on your keyboard and click on Client[Which game your mod based on] then right-click on build
+- [Tutorial](https://vortex.miraheze.org/wiki/How_to_build_games_in_Vortex)
+- [Tutorial (Detailed)](https://vortex.miraheze.org/wiki/Main_Page)
 
 ## Games made with Vortex
 * Vortex Tactical
+* Vortex (Tactical) : Sandbox
 
+## Projects used
+* [Miraheze](https://miraheze.org/)
+* [Fake-CSM-Source-2013](https://github.com/celisej567/Fake-CSM-Source-2013)
