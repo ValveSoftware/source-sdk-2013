@@ -1,0 +1,27 @@
+"engine_post"
+{
+	"$additive" 0
+	"$basetexture" "_rt_SmallFB0"
+	"%noToolTexture" 1
+	"$ignorez" 1
+	"$nocull" 1
+	"$bloomEnable" 1
+	"$fbtexture" "_rt_FullFrameFB"
+
+	"$colCorrectEnable" 1
+	"$colCorrect_NumLookups" 1
+	"$colCorrect_DefaultWeight" 1
+	"$colCorrect_LookupWeights" "[0 0 0 0]"
+
+	"$AAEnable" 1
+	"$AAInternal1" "[0 0 0 0]"
+	"$AAInternal2" "[0 0 0 0]"
+	"$AAInternal3" "[0 0 0 0]"
+
+	"Proxies"
+	{
+		"Engine_Post"
+		{
+		}
+	}
+}
