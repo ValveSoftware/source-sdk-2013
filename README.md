@@ -14,7 +14,7 @@ the Vortex game engine is a stunning,amazing and a powerful game engine capable 
 `,`C`,`GLSL`,`Perl`,`ReScript` and `Makefile`
 ## Features
 
-* Physgun (SP Only)
+* Physgun (SP and MP)
 * Updated weapon models (SP and MP)
 *  Updated weapon sounds (SP)
 *  Native Linux Support
@@ -29,3 +29,4 @@ Hold `CTRL` button on your keyboard and click on Client[Which game your mod base
 
 ## Games made with Vortex
 * Vortex Tactical
+
