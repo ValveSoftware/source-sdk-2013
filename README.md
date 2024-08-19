@@ -27,3 +27,4 @@ Vortex Engine is a community-made engine based off Source SDK 2013. It's main pu
 ## Projects used
 * [Miraheze](https://miraheze.org/)
 * [Fake-CSM-Source-2013](https://github.com/celisej567/Fake-CSM-Source-2013)
+* [Portal-base](https://github.com/SonicEraZoR/Portal-Base/tree/master)
