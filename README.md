@@ -14,7 +14,7 @@ Vortex Engine is a community-made engine based off Source SDK 2013. It's main pu
 ## Features
 * Restored Physgun 
 * Cascaded Shadow Mapping
-* Android Support
+* Added Portal gun
 
 ## How To Build
 - [Tutorial](https://vortex.miraheze.org/wiki/How_to_build_games_in_Vortex)
