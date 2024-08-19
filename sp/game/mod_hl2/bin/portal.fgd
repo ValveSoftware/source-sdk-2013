@@ -1,0 +1,390 @@
+///====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//
+// Purpose: Portal game definition file (.fgd) 
+//
+///=============================================================================
+
+@include "halflife2.fgd"
+
+///=============================================================================
+//
+// Logical Entities
+//
+///=============================================================================
+
+@PointClass base(CombineBallSpawners, Parentname, Targetname) = point_energy_ball_launcher :
+	"Launches energy balls."
+[
+	BallLifetime(float) 	: "Ball Lifetime" : 12 : "The time in seconds the ball will live before self-destructing. A negative value will give infinite life."
+	MinLifeAfterPortal(float) : "Min life after portal transition" : 6 : "When energy balls created by this launcher pass through a portal and their life is refreshed to be this number at minimum."
+	// Inputs
+	input LaunchBall(void) 	: "Launch a ball from the spawner."
+
+	// Outputs
+	output OnPostSpawnBall(void) : "Fired after the ball has spawned."
+]
+
+@PointClass base(Parentname, Targetname, Angles) studio( "models/props_bts/rocket_sentry.mdl" ) = npc_rocket_turret: "Aims a rocket at a target."
+[
+	spawnflags(Flags) =
+	[
+		1:  "Disabled" : 0
+	]
+
+	input Toggle(void) : "Toggles activity."
+	input Enable(void) : "Enables activity."
+	input Disable(void) : "Disables activity."
+	input SetTarget(string) : "Sets the target for this turret to attack."
+	input Destroy(void) : "Sets this turret to it's destroyed state."
+
+	output OnFoundTarget(void) 	: 	"Fired when the rocket turret finds an unobstructed target."
+	output OnLostTarget(void) 	: 	"Fired when turret's target is blocked."
+	output OnDeath(void)		:	"Fired after this turret finishes it's destroy think and begins it's death think."
+]
+
+@PointClass base(Targetname, Parentname, Angles) cylinder(255 255 255, targetname, target, radius, targetname, targetname, radius) color(255 192 0) size(16 16 16) = env_portal_path_track : 
+	"An entity used to build paths for other entities to follow. Each path_track is a node on the path, each holding the name of the next path_track in the path."
+[
+	spawnflags(Flags) =
+	[
+		1:  "Disabled" : 0
+		2:  "Fire once" : 0
+		4:  "Branch Reverse" : 0
+		8:  "Disable train" : 0
+		16: "Teleport to THIS path track" : 0
+	]
+	
+	Track_beam_scale(float):"Scale Track FX": 0 :"The amount to scale the track FX size"
+	End_point_scale(float) : "Scale Endpoint FX" : 0 : "The amount to scale the endpoint FX size."
+	End_point_fadeout(float):"Fade Out Endpoint": 0 :"Amount of time to fade out the endpoint FX"
+	End_point_fadein(float):"Fade In Endpoint": 0 :"Amount of time to fade in the endpoint FX"
+	target(target_destination) : "Next Stop Target" :  : "The next path_track in the path."
+	altpath(target_destination) : "Branch Path" : : "An alternative path_track to be the next node in the path. Useful for making branching paths. Use the ToggleAlternatePath / EnableAlternatePath inputs to make the alternative path active."
+	speed(float) : "New Train Speed" : 0 : "When the train reaches this path_track, it will set its speed to this speed. "+
+		"This speed must be a positive value that is less than the train's max speed. A value of 0 will cause no change in the train's speed."
+	radius(float) : "Path radius" : 0 : "Used by NPCs who follow track paths (attack chopper/gunship). This tells them the maximum distance they're allowed to be from the path at this node."
+
+	orientationtype(choices) : "Orientation Type" : 1 : "The way that the path follower faces as it moves through this path track." =
+	[
+		0 : "No change"
+		1 : "Face direction of motion"
+		2 : "Face this path_track's angles"
+	]
+
+	// Inputs
+	input ToggleAlternatePath(void) : "Cause the track to toggle to/from its alternate path."
+	input EnableAlternatePath(void) : "Enable the alternate path of the track."
+	input DisableAlternatePath(void) : "Disable the alternate path of the track."
+
+	input TogglePath(void) : "Cause the track to toggle on/off/"
+	input EnablePath(void) : "Enable the track."
+	input DisablePath(void) : "Disable the track."
+
+	input ActivateTrackFX(void) : "Turn on the track's fx beam"
+	input ActivateEndPointFX(void) : "Turn on the endpoint's fx"
+	input DeactivateTrackFX(void) : "Turn off the track's fx beam"
+	input DeactivateEndPointFX(void) : "Turn off the endpoint's fx"
+
+	// Outputs
+	output OnPass(void) : "Fired when any entity following this path passes this path_track node."
+]
+
+///=============================================================================
+//
+// Brush Entities
+//
+///=============================================================================
+
+@SolidClass base(Trigger, Targetname) = trigger_portal_cleanser : 
+	"A trigger volume that disolves any entities that touch it and fizzles active portals when the player touches it."
+[
+	// Outputs
+	output OnDissolve(void) : "Fired whenever an entity is dissolved."
+	output OnFizzle(void) : "Fired whenever an portals are fizzled."
+	output OnDissolveBox(void) : "This cleanser disolved an entity with targetname=Box."
+]
+
+@SolidClass base(Targetname, Parentname, EnableDisable ) = func_portal_orientation : 
+	"Adjusts a portal's rotation to match a specified angle. The 'Bottom' of the portal points in the specified diretion."
+[
+	AnglesToFace(angle) : "Angles to face" : "0 0 0" : "The 'floor' of the portal pair linkage will be in this direction."
+	MatchLinkedAngles(choices) : "Match linked angles." : 0 : "If set, portals placed in this volume will have their angles match their linked portals. This only works for floor or ceiling portals with a currently linked partner."=
+	[
+		0 : "False"
+		1 : "True"
+	]
+]
+
+@SolidClass base(Targetname) = func_weight_button : "A button which activates after a specified amount of weight is applied"
+[
+	WeightToActivate(float) 	: "Amount of weight required before this button activates."
+
+	//Outputs
+	output OnPressed(void)		: "Fired when the button is touching enough weight."
+	output OnReleased(void)		: "Fired when the button was pressed, but weight was removed."
+]
+
+@SolidClass base(Targetname, Parentname) = func_noportal_volume : "A region in which no portal can be placed"
+[	
+	//Inputs
+	input Deactivate(void)		: "Turn off blocking functionality"
+	input Activate(void)		: "Turn on blocking functionality"
+	input Toggle(void)		: "Toggle blocking functionality"
+
+	spawnflags(Flags) = 
+	[
+		1: "Start inactive" : 0
+	]
+]
+
+@SolidClass base(Targetname, Parentname) = func_portal_bumper : "A region that portals trace to fit outside of but can be place on"
+[	
+	//Inputs
+	input Deactivate(void)		: "Turn off bumping functionality"
+	input Activate(void)		: "Turn on bumping functionality"
+	input Toggle(void)		: "Toggle bumping functionality"
+
+	spawnflags(Flags) = 
+	[
+		1: "Start inactive" : 0
+	]
+]
+
+
+@SolidClass base(Targetname, Parentname) = func_portal_detector : "A region that fires an output if a portal is placed in it"
+[	
+	//Inputs
+	input Disable(void)		: "Turn off detecting functionality"
+	input Enable(void)		: "Turn on detecting functionality"
+	input Toggle(void)		: "Toggle detecting functionality"
+
+	output OnStartTouchPortal1(void)		: "Fired when portal 1 is placed intersecting the portal detector."
+	output OnStartTouchPortal2(void)		: "Fired when portal 2 is placed intersecting the portal detector."
+	output OnStartTouchLinkedPortal(void)		: "Fired when linked portal is placed intersecting the portal detector."
+	output OnStartTouchBothLinkedPortals(void)	: "Fired when both of a pair of portals is placed intersecting the portal detector."
+
+	spawnflags(Flags) = 
+	[
+		1: "Start inactive" : 0
+	]
+	LinkageGroupID(integer) : "Portal pair ID that it detects" : 0
+]
+
+
+@SolidClass base(Origin, Angles) = func_liquidportal : "A space that fills with portal liquid and teleports entities when done filling"
+[
+	InitialLinkedPortal(string)			: "Linked liquid portal."
+	FillTime(float)					: "Fill Time (sec)" : 10 : "How long the volume takes to fill in seconds."
+	
+	//Inputs
+	input SetLinkedLiquidPortal(string)		: "The liquid portal this should link to. Will update linked portal to point back."
+	input SetFillTime(float)			: "How long the area takes to fill."
+	input StartFilling(void)			: "Start filling NOW. Entities teleport when finished."
+
+	input AddActivatorToTeleportList(void)		: "Add the activator entity to the list of entities to teleport when filling is finished."
+	input RemoveActivatorFromTeleportList(void)	: "Remove the activator entity from the list of entities to teleport when filling is finished."
+]
+
+///=============================================================================
+//
+// Model Entities
+//
+///=============================================================================
+
+
+@PointClass base(Targetname, Angles) studio("models/portals/portal1.mdl") = prop_portal : "A portal"
+[
+	Activated(choices)			: "Start Activated" : 1 : "An inactive portal will not be drawn and will not teleport entites"	=
+	[
+		0 : "Inactive"
+		1 : "Active"
+	]
+	PortalTwo(choices)			: "Portal Number" : 0 : "A portal has to logically be either portal 1 or portal 2" =
+	[
+		0 : "Portal 1"
+		1 : "Portal 2"
+	]
+	LinkageGroupID(integer) : "Portal pair ID that it belongs to" : 0
+
+	input SetName(string)		: "Naming your portals is fun"
+	input SetActivatedState(bool)	: "An inactive portal will not be drawn and will not teleport entites"
+	input Fizzle(void)		: "Makes a cool visual fizzle and properly shuts down the portal"
+	input NewLocation(string) : "Sets this portals location and angles. This expects 6 floats with space delimiters, the format is 'x y z pitch yaw roll'"
+
+	output OnPlacedSuccessfully(void) : "When a portal is placed without failure, this output is fired."
+]
+
+@PointClass base(Weapon,Targetname, Parentname) studio("models/weapons/w_portalgun.mdl") = weapon_portalgun : "Portalgun"
+[
+	CanFirePortal1(choices)			: "Can Fire Portal 1" : 1 : "Can this portalgun create blue portals?"	=
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	CanFirePortal2(choices)			: "Can Fire Portal 2" : 1 : "Can this portalgun create red portals?"	=
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	input ChargePortal1(void)		: "Does charge up effect for mounted portalgun."
+	input ChargePortal2(void)		: "Does charge up effect for mounted portalgun."
+
+	input FirePortal1(void)			: "Projects portal 1 onto a wall in the facing direction of the gun."
+	input FirePortal2(void)			: "Projects portal 2 onto a wall in the facing direction of the gun."
+
+	input FirePortalDirection1(vector)	: "Fires portal 1 in the specified direction."
+	input FirePortalDirection2(vector)	: "Fires portal 1 in the specified direction."
+
+	output OnFiredPortal1(void)		: "Fires when the first (blue) portal is fired."
+	output OnFiredPortal2(void)		: "Fires when the second (red) portal is fired."
+]
+
+@PointClass base(npc_turret_ground) studio( "models/combine_turrets/ground_turret.mdl" ) = npc_portal_turret_ground : "Combine (Portal) ground turret"
+[
+	ConeOfFire(float) 	: "Cone of Fire" : 60 : "Cone of fire in degrees."
+]
+
+// Cores of GlaDOS computer. Resemble little eyeballs with handles. These play lines and look around when near the player.
+@PointClass base(BasePropPhysics) studioprop() studio( "models/props_bts/glados_ball_reference.mdl" ) = prop_glados_core : "Core of GlaDOS computer."
+[
+	CoreType(choices) : "Core Personality" : 1 : "Which personality VO set the core is set to." =
+	[
+		0 : "Curious"
+		1 : "Aggressive"
+		2 : "Crazy"
+		3 : "None"
+	]
+	
+	DelayBetweenLines(float) : "Pause (in secs) between VO Lines." : "0.4" : "When the core is talking, this is the number of seconds delay between it's spoken lines."
+
+	input Panic(void)	: "Core is near death, panic."
+	input StartTalking(void)	: "Start playing lines, play looking animations."
+	
+	output OnPlayerPickup(void)		: "Player picked up core."
+]
+
+@PointClass base(npc_turret_floor) studio( "models/props/turret_01.mdl" ) = npc_portal_turret_floor : "Combine (Portal) Floor Turret"
+[
+	DamageForce(choices) : "Damage pushes player" : 1 : "Being hit by this turret will push the player back."	=
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	input FireBullet(string)	: "Causes the turret to instantly fire at the specified entity."
+]
+
+@PointClass base(Targetname, Angles, Studiomodel) studio( "models/props/security_camera.mdl" ) = npc_security_camera : "Security Camera"
+[
+	spawnflags(Flags) = 
+	[
+		32 : "Autostart" : 1
+	]	
+
+	// Inputs
+	input Enable(void) : "If closed, open."
+	input Disable(void) : "If open, close."
+	input Toggle(void) : "Toggle - If open, close. If closed, open."
+	input Ragdoll(void) : "Disable and fall off the wall."
+
+	// Outputs
+	output OnDeploy(void) : "Camera is becoming active and dangerous."
+	output OnRetire(void) : "Camera is becoming inactive and harmless."
+]
+
+@PointClass base(Targetname, Angles, Studiomodel) studio( "models/props/telescopic_arm.mdl" ) = prop_telescopic_arm : "Telescopic Arm"
+[
+	input Enable(void) : "Enable Thumper"
+	input Disable(void) : "Disable Thumper"
+
+	input SetTarget(string) : "Set the entity to target."
+	input TargetPlayer(void) : "Set the player as the entity to target."
+
+	output OnFoundTarget(void)  : "Arm has direct LOS to target entity."
+	output OnLostTarget(void)   : "Arm has lost direct LOS to target entity."
+]
+
+@PointClass base(Targetname, Angles, Parentname, Global) studio( "models/props/Round_elevator_body.mdl" ) = prop_portal_stats_display : "Portal Stats Display"
+[
+	input Enable(void) : "Turn on and display the current stats"
+	input Disable(void) : "Turn off stats display"
+
+	input UpdateStats(void) : "Updates the stats to the player's current level stats"
+	input ResetPlayerStats(void) : "Resets the curret level stats of the player"
+
+	output OnMetPortalObjective(void)  : "Fired when enabled and player met the number of portal placements."
+	output OnMetStepsObjective(void)  : "Fired when enabled and player met the number of foot steps."
+	output OnMetSecondsObjective(void)  : "Fired when enabled and player met the number of seconds."
+	output OnFailedAllObjectives(void)  : "Fired when enabled and player met no objectives."
+]
+
+@PointClass base(Targetname, Angles, Parentname) studio("models/editor/axis_helper_thick.mdl") = vgui_neurotoxin_countdown : "Neurotoxin Countdown"
+[
+	width(integer) : "Panel width" : 256 : "Width of the panel in units."
+	height(integer) : "Panel height" : 128 : "Height of the panel in units."
+
+	input Enable(void) : "Make slideshow visible."
+	input Disable(void) : "Make slideshow invisible."
+]
+
+
+///=============================================================================
+//
+// Special Effects
+//
+///=============================================================================
+
+@PointClass base(Angles,Targetname,Parentname) = env_lightrail_endpoint : "Special effects for the endpoints of the lightrail."
+[
+	spawnflags(Flags) = 
+	[
+		1 : "Start On (w/ Small FX)" : 0
+		//2 : "Start With Large FX" : 0
+	]
+
+	small_fx_scale(float) : "Scale Small FX" : 1 : "Scale of the small effect.  1 is the default size, 2 is twice that, etc."
+
+	large_fx_scale(float) : "Scale Large FX" : 1 : "Scale of the large effect.  1 is the default size, 2 is twice that, etc."
+
+	// Inputs
+	input StartCharge(float) : "Start charging the endpoint from the small to large state over a specified amount of seconds."
+	input StartSmallFX(void) : "Start discharging particles at the small effects state over specified number of seconds."
+	input StartLargeFX(void) : "Start discharging particles at the large effects state over specified number of seconds."	
+	input Stop(float) : "Stops the effect at any point."
+]
+
+
+///=============================================================================
+//
+// Credits
+//
+///=============================================================================
+
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = env_portal_credits : 
+	"An entity to control the rolling credits for portal."
+[
+	// Inputs
+	input RollCredits(void) : "Start the intro credits rolling."
+	input RollOutroCredits(void) : "Start the outro credits rolling."
+	input ShowLogo(void) : "Show the HL2 logo."
+	input RollPortalOutroCredits(void) : "Start the Portal greenscreen outro credits."
+	
+	// Outputs
+	output OnCreditsDone(void)  : "Fired when the credits having finished rolling."
+]
+
+
+
+///=============================================================================
+//
+// Normally Obsolete..
+//
+///=============================================================================
+
+@PointClass base(Targetname, Parentname) iconsprite("editor/info_lighting.vmt") = info_lighting_relative
+[
+	LightingLandmark(target_destination) : "Lighting Landmark" :  : "Entity at which the reference origin is contained. " +
+									" If empty, the info_lighting_relative's origin will" +
+									" be used."
+]
