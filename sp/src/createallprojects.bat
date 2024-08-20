@@ -1,1 +1,1 @@
-devtools\bin\vpc.exe /hl2 /episodic +everything /mksln everything.sln
+devtools\bin\vpc.exe /hl2 /episodic +everything /mksln everything.sln /define:VS2022
