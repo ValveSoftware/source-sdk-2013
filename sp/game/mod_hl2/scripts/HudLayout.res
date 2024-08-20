@@ -423,7 +423,6 @@
 		"history_gap"	"64" [$OSX]
 		"icon_inset"	"38"
 		"text_inset"	"36"
-		"text_inset"	"26"
 		"NumberFont"	"HudNumbersSmall"
 	}
 	HudHistoryResource	[$X360]
