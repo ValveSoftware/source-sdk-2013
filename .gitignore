@@ -53,8 +53,10 @@ config.cfg
 
 # shader files
 *.tmp
-
-# my linux file UwU
-*.tar.gz
-*.deb
+*.vpc.sentinel
+*.vcxproj*
+[Dd]ebug*/
+[Rr]elease*/
+*.pdb
+.vs/
 
