@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/GuestSneezeOSDev/vortex-engine/branch/master?svg=true)](https://ci.appveyor.com/project/GuestSneezeOSDev/vortex-engine/branch/master)
+
 ```
  __      __        _              ______             _            
  \ \    / /       | |            |  ____|           (_)           
