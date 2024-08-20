@@ -15,8 +15,8 @@
 Vortex Engine is a community-made engine based off Source SDK 2013. It's main purpose is to make modding easier.
 ## Features
 * Restored Physgun 
-* Cascaded Shadow Mapping
-* Added Portal gun
+* Cascaded Shadow Mapping (Beta)
+* Added Portal gun (Testing)
 
 ## How To Build
 - [Tutorial](https://vortex.miraheze.org/wiki/How_to_build_games_in_Vortex)
