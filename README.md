@@ -24,7 +24,7 @@ Vortex Engine is a community-made engine based off Source SDK 2013. It's main pu
 - [Tutorial (Detailed) (Recommended)](https://developer.valvesoftware.com/wiki/Source_SDK_2013)
 
 ## Games made with Vortex
-* Vortex Tactical
+* [Vortex Tactical](https://www.moddb.com/mods/vortex-tactical)
 * Vortex (Tactical) : Sandbox
 
 ## Projects used
