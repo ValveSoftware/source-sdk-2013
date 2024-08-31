@@ -6,5 +6,6 @@
 * [Black Mesa Hands](https://gamebanana.com/mods/181585)
 * [Physics Gun](https://half-life.fandom.com/wiki/Physgun)
 * [HLA Gman](https://gamebanana.com/mods/337616)
+* SMOD_STDL_LAUNCHER
 
 The Rest were created by us
