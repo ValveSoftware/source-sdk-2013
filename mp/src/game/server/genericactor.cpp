@@ -321,7 +321,7 @@ void CFlextalkActor::ProcessSceneEvents( void )
 				m_flextarget[m_flexnum] = 0;
 			}
 
-			for (i = 0; i < 35 && predef_flexcontroller_names[i]; i++)
+			for (i = 0; i < 31 && predef_flexcontroller_names[i]; i++)
 			{
 				m_flexnum = LookupFlex( predef_flexcontroller_names[i] );
 				m_flextarget[m_flexnum] = predef_flexcontroller_values[j][i];
