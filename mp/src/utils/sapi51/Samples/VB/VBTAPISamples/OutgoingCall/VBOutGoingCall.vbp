@@ -1,0 +1,37 @@
+Type=Exe
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#..\..\..\..\..\..\..\..\WINNT\System32\stdole2.tlb#OLE Automation
+Reference=*\G{21D6D480-A88B-11D0-83DD-00AA003CCABD}#1.0#0#..\..\..\..\..\..\..\..\WINNT\System32\tapi3.dll#Microsoft TAPI 3.0 Type Library
+Reference=*\G{C866CA3A-32F7-11D2-9602-00C04F8EE628}#5.0#0#..\..\..\..\..\sapi\sapi\objd\i386\sapi.dll#Microsoft Speech Object Library
+Reference=*\G{EDAEECD8-0D75-499E-9B69-187ACACF2C05}#1.0#0#..\..\..\cpp\tapicustomstream\objd\i386\STCustomStream.dll#STCustomStream 1.0 Type Library
+Form=VBOutgoingcall.frm
+ResFile32="VBOutGoingCall.RES"
+Startup="Form1"
+ExeName32="VBOutGoingCall.exe"
+Command32=""
+Name="VBOutGoingCall"
+HelpContextID="0"
+CompatibleMode="0"
+MajorVer=1
+MinorVer=0
+RevisionVer=0
+AutoIncrementVer=0
+ServerSupportFiles=0
+VersionCompanyName="Microsoft Corp."
+CompilationType=0
+OptimizationType=0
+FavorPentiumPro(tm)=0
+CodeViewDebugInfo=0
+NoAliasing=0
+BoundsCheck=0
+OverflowCheck=0
+FlPointCheck=0
+FDIVCheck=0
+UnroundedFP=0
+StartMode=0
+Unattended=0
+Retained=0
+ThreadPerObject=0
+MaxNumberOfThreads=1
+
+[MS Transaction Server]
+AutoRefresh=1
