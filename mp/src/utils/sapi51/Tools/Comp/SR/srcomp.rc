@@ -1,0 +1,562 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Japanese resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SRGRAMMAR
+//
+
+IDR_RULE_GRAMMAR        SRGRAMMAR DISCARDABLE   "..\\resources\\tag_rule_j.cfg"
+IDR_L_GRAMMAR           SRGRAMMAR DISCARDABLE   "..\\resources\\tag_l_j.cfg"
+IDR_O_GRAMMAR           SRGRAMMAR DISCARDABLE   "..\\resources\\tag_o_j.cfg"
+IDR_P1_GRAMMAR          SRGRAMMAR DISCARDABLE   "..\\resources\\tag_p1_j.cfg"
+IDR_P2_GRAMMAR          SRGRAMMAR DISCARDABLE   "..\\resources\\tag_p2_j.cfg"
+IDR_EXPRULE_GRAMMAR     SRGRAMMAR DISCARDABLE   "..\\resources\\tag_exprule_j.cfg"
+IDR_SNORK_GRAMMAR       SRGRAMMAR DISCARDABLE   "..\\resources\\snork_j.cfg"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Microsoft\0"
+            VALUE "FileDescription", "SRCOMP\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "SRCOMP\0"
+            VALUE "LegalCopyright", "Copyright (c) Microsoft Corporation. All rights reserved.\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "SRCOMP.dll\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "Microsoft SRCOMP\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_RECO_SYNCH_BEFORE_LOAD L"\x3059\x304f\x3046\x304d"
+    IDS_RECO_SYNCH_AFTER_DICT L"\x3059\x304f\x3046\x304d"
+    IDS_RECO_SYNCH_AFTER_GRAM L"\x3059\x304f\x3046\x304d"
+    IDS_RECO_L_TAG          L"\x7f6e\x304f"
+    IDS_RECO_P_TAG          L"\x767d"
+    IDS_RECO_O_TAG_1        L"\x4e0b\x3055\x3044"
+    IDS_RECO_O_TAG_2        L"\x6b69\x3044\x3066"
+    IDS_RECO_O_TAG_3        L"\x3086\x3063\x304f\x308a"
+    IDS_RECO_RULE_TAG       L"\x4e03\x3092\x52d5\x304b\x3057\x3066"
+    IDS_RESOURCE_LOCATION1  "..\\resources\\"
+    IDS_RESOURCE_LOCATION2  "..\\..\\..\\resources\\"
+    IDS_UNEXPECTED_ERR      "recieved an unexpected error"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNEXPECTED_EVENT    "recieved an unexpected event"
+    IDS_ERR_AUDIOFORMAT_TOMANY "Too many audio formats"
+    IDS_ERR_AUDIOFORMAT_UNSUPPORTED "unsupported audio format returned"
+    IDS_ERR_AUDIOFORMAT_NOTENOUGH "no formats returned"
+    IDS_ERR_SOUNDSTART_NOEVENT "failed to recieve sound_start event"
+    IDS_ERR_STREAMEND_NOEVENT "failed to recieve stream_end event"
+    IDS_ERR_SOUNDEND_NOEVENT "failed to recieve sound_end event"
+    IDS_ERR_SOUNDSTART_BADPOSITION1 "sound_start postion after sound_end"
+    IDS_ERR_SOUNDSTART_BADPOSITION2 "sound_start not in last third of audio"
+    IDS_ERR_SOUNDEND_BADPOSITION1 "sound_end postion after stream_end"
+    IDS_ERR_SOUNDEND_BADPOSITION2 "sound_end not in first third of audio"
+    IDS_ERR_SOUNDSTARTEND_NOEVENT 
+                            "failed to recieve both sound_start and sound_end events"
+    IDS_ERR_SOUNDSTARTEND_WRONGORDER 
+                            "sound_start and sound_end events recieved in wrong order"
+    IDS_ERR_PHRASESTART_NOEVENT "failed to recieve phrase_start event"
+    IDS_ERR_RECOGNITION_NOEVENT "failed to recieve recognition event"
+    IDS_ERR_RECOGNITION_EVENTONSILENCE 
+                            "received a Recognition event for silence"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_RECOGNITION_WRONGORDER 
+                            "recoginition event recieved in wrong order"
+    IDS_ERR_HYPOTHESIS_NOEVENT "failed to recieve hypothesis event"
+    IDS_ERR_HYPOTHESIS_WRONGORDER "hypothesis event recieved in wrong order"
+    IDS_ERR_RESULT_WRONGWORD "failed to recieve expected result"
+    IDS_ERR_LEX_REMOVEUSER  "failed to remove user"
+    IDS_ERR_LEX_EXPECTNOWORD "should not get word from empty user lexicon"
+    IDS_RECO_NEWWORD_PRON   L"\x30b9\x30ce\x30fc\x30af"
+    IDS_ERR_FALSERECOGNITION_NOEVENT 
+                            "failed to recieve false recognition event"
+    IDS_AUTOPAUSE_DYNAMICWORD1 L"\x3057\x308d"
+    IDS_AUTOPAUSE_DYNAMICWORD2 L"\x304f\x308d"
+    IDS_AUTOPAUSE_DYNAMICRULE1 "action"
+    IDS_AUTOPAUSE_DYNAMICRULE2 "color"
+    IDS_WAV_AUTOPAUSE       "multireco_j.wav"
+    IDS_INVALIDATETOPLEVEL_DYNAMICWORDS L"\x30aa\x30fc\x30dc\x30a8\x3092\x6f14\x594f\x3057\x3066\x304f\x3060\x3055\x3044"
+    IDS_INVALIDATETOPLEVEL_DYNAMICRULE "play"
+    IDS_WAV_INVALIDATETOPLEVEL_OLD "tag_exprule_j.wav"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WAV_SOUNDSTART      "tag_l_j.wav"
+    IDS_WAV_SOUNDEND        "tag_l_j.wav"
+    IDS_WAV_SOUNDSTARTEND   "tag_l_j.wav"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WAV_PHRASESTART     "tag_l_j.wav"
+    IDS_WAV_RECOGNITION_1   "tag_l_j.wav"
+    IDS_WAV_HYPOTHESIS      "tag_exprule_j.wav"
+    IDS_WAV_SYNCH_BEFORE_LOAD "lexicon_j.wav"
+    IDS_WAV_SYNCH_AFTER_DICT "lexicon_j.wav"
+    IDS_WAV_SYNCH_AFTER_GRAM "lexicon_j.wav"
+    IDS_WAV_L_TAG           "tag_l_j.wav"
+    IDS_WAV_MULT_RECO       "multireco_j.wav"
+    IDS_WAV_EXPRULE_TAG     "tag_exprule_j.wav"
+    IDS_WAV_P_TAG           "multireco_j.wav"
+    IDS_WAV_O_TAG_1         "tag_o1_j.wav"
+    IDS_WAV_O_TAG_2         "tag_o2_j.wav"
+    IDS_WAV_O_TAG_3         "tag_o3_j.wav"
+    IDS_WAV_RULE_TAG        "tag_rule_j.wav"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_INVALIDATETOPLEVEL_DYNAMICNEWWORDS L"\x4e03\x3092\x52d5\x304b\x3057\x3066\x304f\x3060\x3055\x3044"
+    IDS_ERR_INVALIDATETOPLEVEL 
+                            "Engine failed to invalidate the toplevel rule."
+    IDS_WAV_INVALIDATETOPLEVEL_NEW "tag_rule_j.wav"
+    IDS_INVALIDATENONTOPLEVEL_RULE1 "option"
+    IDS_INVALIDATENONTOPLEVEL_RULE2 "thing"
+    IDS_INVALIDATENONTOPLEVEL_TOPLEVELRULE "play"
+    IDS_INVALIDATENONTOPLEVEL_OLDWORD1 L"\x30aa\x30fc\x30dc\x30a8"
+    IDS_INVALIDATENONTOPLEVEL_OLDWORD2 L"\x3057\x3066\x304f\x3060\x3055\x3044"
+    IDS_INVALIDATENONTOPLEVEL_NEWWORD2 " "
+    IDS_INVALIDATENONTOPLEVEL_TOPLEVELWORDS L"\x3092\x6f14\x594f"
+    IDS_WAV_INVALIDATENONTOPLEVEL_OLD "tag_exprule_j.wav"
+    IDS_WAV_INVALIDATENONTOPLEVEL_NEW "invalidaterule_j.wav"
+    IDS_WAV_CFGTEXTBUFFER   "tag_exprule_j.wav"
+    IDS_CFGTEXTBUFFER_WORDS L"\x30aa\x30fc\x30dc\x30a8"
+    IDS_CFGTEXTBUFFER_BUFFERWORD L"\x3092\x6f14\x594f\x3057\x3066\x304f\x3060\x3055\x3044"
+    IDS_CFGTEXTBUFFER_RULE  "play"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DICTATIONTAG_RULE   "play"
+    IDS_WAV_DICTATIONTAG    "tag_exprule_j.wav"
+    IDS_WILDCARD_WORDS      L"\x30aa\x30fc\x30dc\x30a8"
+    IDS_WILDCARD_RULE       "play"
+    IDS_WAV_WILDCARD        "tag_exprule_j.wav"
+    IDS_APPLEX_WORD         L"\x3059\x304f\x3046\x304d"
+    IDS_APPLEX_PROP         L"\x30b9\x30ce\x30fc\x30af"
+    IDS_USERLEXBEFOREAPPLEX_WORD L"\x3059\x304f\x3046\x304d"
+    IDS_USERLEXBEFOREAPPLEX_USERPROP L"\x30b9\x30ce\x30fc\x30af"
+    IDS_USERLEXBEFOREAPPLEX_APPPROP L"\x30c6\x30ec\x30d3"
+    IDS_WAV_APPLEX          "lexicon_j.wav"
+    IDS_WAV_USERLEXBEFOREAPPLEX "lexicon_j.wav"
+    IDS_INVALIDATENONTOPLEVEL_NEWWORD1 L"\x30d4\x30a2\x30ce"
+    IDS_RESOURCE_LOCATION3  "..\\..\\resources\\"
+    IDS_RECO_EXPRULE_FIRSTRULE "firstrule"
+    IDS_RECO_EXPRULE_SECONDRULE "secondrule"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WAV_ALTERMATESCFG   "tag_rule_j.wav"
+    IDS_ALTERNATESCFG_BESTWORD L"\x4e03"
+    IDS_ALTERNATESCFG_ALTERNATE1 L"\x751f"
+    IDS_ALTERNATESCFG_ALTERNATE2 L"\x5948\x826f"
+    IDS_ALTERNATESCFG_WORDS L"\x3092\x52d5\x304b\x3057\x3066\x304f\x3060\x3055\x3044"
+    IDS_ALTERNATESCFG_RULE  "play"
+    IDS_ERR_INTERFERENCE_NOEVENT "failed to receive the interference event"
+    IDS_WAV_INTERFERENCE    "tag_l_j.wav"
+    IDS_WAV_GETITNRESULT    "tag_rule_j.wav"
+    IDS_RECO_GETITNRESULT   L"7\x3092\x52d5\x304b\x3057\x3066\x304f\x3060\x3055\x3044"
+    IDS_CUSTOMPROP_NEWWORD_PRON L"\x30b9\x30ce\x30fc\x30af"
+    IDS_CUSTOMPROP_RULE     "play"
+    IDS_WAV_CUSTOMPROP      "lexicon_j.wav"
+    IDS_CUSTOMPROP_NEWWORD_DISP L"\x6f14\x594f"
+    IDS_CUSTOMPROP_NEWWORD_LEX L"\x3048\x3093\x305d\x3046"
+    IDS_DICTATIONTAG_WORDS  L"\x30aa\x30fc\x30dc\x30a8\x3092\x6f14\x594f"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CASESENSITIVEGRAMMAR_RULENAME " "
+    IDS_CASESENSITIVEGRAMMAR_LEX1 " "
+    IDS_CASESENSITIVEGRAMMAR_PRON1 " "
+    IDS_CASESENSITIVEGRAMMAR_LEX2 " "
+    IDS_CASESENSITIVEGRAMMAR_PRON2 " "
+    IDS_CASESENSITIVEGRAMMAR_WAVE " "
+    IDS_CASESENSITIVEGRAMMAR_DISP1 " "
+    IDS_CASESENSITIVEGRAMMAR_DISP2 " "
+    IDS_CASESENSITIVELEXICON_WORD1 " "
+    IDS_CASESENSITIVELEXICON_SYMBOL1 " "
+    IDS_CASESENSITIVELEXICON_WORD2 " "
+    IDS_CASESENSITIVELEXICON_SYMBOL2 " "
+    IDS_CASESENSITIVELEXICON_WAVE " "
+    IDS_CASESENSITIVELEXICON_RULENAME " "
+    IDS_CFGTEXTBUFFER_NOTINTERESTEDWORDS L"\x304a\x9858\x3044\x3057\x307e\x3059"
+END
+
+#endif    // Japanese resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SRGRAMMAR
+//
+
+IDR_RULE_GRAMMAR        SRGRAMMAR DISCARDABLE   "..\\resources\\tag_rule.cfg"
+IDR_L_GRAMMAR           SRGRAMMAR DISCARDABLE   "..\\resources\\tag_l.cfg"
+IDR_O_GRAMMAR           SRGRAMMAR DISCARDABLE   "..\\resources\\tag_o.cfg"
+IDR_P1_GRAMMAR          SRGRAMMAR DISCARDABLE   "..\\resources\\tag_p1.cfg"
+IDR_P2_GRAMMAR          SRGRAMMAR DISCARDABLE   "..\\resources\\tag_p2.cfg"
+IDR_EXPRULE_GRAMMAR     SRGRAMMAR DISCARDABLE   "..\\resources\\tag_exprule.cfg"
+IDR_SNORK_GRAMMAR       SRGRAMMAR DISCARDABLE   "..\\resources\\snork.cfg"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Microsoft\0"
+            VALUE "FileDescription", "SRCOMP\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "SRCOMP\0"
+            VALUE "LegalCopyright", "Copyright (c) Microsoft Corporation. All rights reserved.\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "SRCOMP.dll\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "Microsoft SRCOMP\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_RECO_SYNCH_BEFORE_LOAD "skooky"
+    IDS_RECO_SYNCH_AFTER_DICT "skooky"
+    IDS_RECO_SYNCH_AFTER_GRAM "skooky"
+    IDS_RECO_L_TAG          "put"
+    IDS_RECO_P_TAG          "white"
+    IDS_RECO_O_TAG_1        "please"
+    IDS_RECO_O_TAG_2        "walk"
+    IDS_RECO_O_TAG_3        "slowly"
+    IDS_RECO_RULE_TAG       "seven"
+    IDS_RESOURCE_LOCATION1  "..\\resources\\"
+    IDS_RESOURCE_LOCATION2  "..\\..\\..\\resources\\"
+    IDS_UNEXPECTED_ERR      "recieved an unexpected error"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNEXPECTED_EVENT    "recieved an unexpected event"
+    IDS_ERR_AUDIOFORMAT_TOMANY "Too many audio formats"
+    IDS_ERR_AUDIOFORMAT_UNSUPPORTED "unsupported audio format returned"
+    IDS_ERR_AUDIOFORMAT_NOTENOUGH "no formats returned"
+    IDS_ERR_SOUNDSTART_NOEVENT "failed to recieve sound_start event"
+    IDS_ERR_STREAMEND_NOEVENT "failed to recieve stream_end event"
+    IDS_ERR_SOUNDEND_NOEVENT "failed to recieve sound_end event"
+    IDS_ERR_SOUNDSTART_BADPOSITION1 "sound_start postion after sound_end"
+    IDS_ERR_SOUNDSTART_BADPOSITION2 "sound_start not in last third of audio"
+    IDS_ERR_SOUNDEND_BADPOSITION1 "sound_end postion after stream_end"
+    IDS_ERR_SOUNDEND_BADPOSITION2 "sound_end not in first third of audio"
+    IDS_ERR_SOUNDSTARTEND_NOEVENT 
+                            "failed to recieve both sound_start and sound_end events"
+    IDS_ERR_SOUNDSTARTEND_WRONGORDER 
+                            "sound_start and sound_end events recieved in wrong order"
+    IDS_ERR_PHRASESTART_NOEVENT "failed to recieve phrase_start event"
+    IDS_ERR_RECOGNITION_NOEVENT "failed to recieve recognition event"
+    IDS_ERR_RECOGNITION_EVENTONSILENCE 
+                            "received a Recognition event for silence"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_RECOGNITION_WRONGORDER 
+                            "recoginition event recieved in wrong order"
+    IDS_ERR_HYPOTHESIS_NOEVENT "failed to recieve hypothesis event"
+    IDS_ERR_HYPOTHESIS_WRONGORDER "hypothesis event recieved in wrong order"
+    IDS_ERR_RESULT_WRONGWORD "failed to recieve expected result"
+    IDS_ERR_LEX_REMOVEUSER  "failed to remove user"
+    IDS_ERR_LEX_EXPECTNOWORD "should not get word from empty user lexicon"
+    IDS_RECO_NEWWORD_PRON   "s n ao 1 r k"
+    IDS_ERR_FALSERECOGNITION_NOEVENT 
+                            "failed to recieve false recognition event"
+    IDS_AUTOPAUSE_DYNAMICWORD1 "put"
+    IDS_AUTOPAUSE_DYNAMICWORD2 "red"
+    IDS_AUTOPAUSE_DYNAMICRULE1 "action"
+    IDS_AUTOPAUSE_DYNAMICRULE2 "color"
+    IDS_WAV_AUTOPAUSE       "autopause.wav"
+    IDS_INVALIDATETOPLEVEL_DYNAMICWORDS "play the oboe"
+    IDS_INVALIDATETOPLEVEL_DYNAMICRULE "play"
+    IDS_WAV_INVALIDATETOPLEVEL_OLD "tag_exprule.wav"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WAV_SOUNDSTART      "tag_l.wav"
+    IDS_WAV_SOUNDEND        "tag_l.wav"
+    IDS_WAV_SOUNDSTARTEND   "tag_l.wav"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WAV_PHRASESTART     "tag_l.wav"
+    IDS_WAV_RECOGNITION_1   "tag_l.wav"
+    IDS_WAV_HYPOTHESIS      "tag_exprule.wav"
+    IDS_WAV_SYNCH_BEFORE_LOAD "lexicon.wav"
+    IDS_WAV_SYNCH_AFTER_DICT "lexicon.wav"
+    IDS_WAV_SYNCH_AFTER_GRAM "lexicon.wav"
+    IDS_WAV_L_TAG           "tag_l.wav"
+    IDS_WAV_MULT_RECO       "multireco.wav"
+    IDS_WAV_EXPRULE_TAG     "tag_exprule.wav"
+    IDS_WAV_P_TAG           "tag_p.wav"
+    IDS_WAV_O_TAG_1         "tag_o1.wav"
+    IDS_WAV_O_TAG_2         "tag_o2.wav"
+    IDS_WAV_O_TAG_3         "tag_o3.wav"
+    IDS_WAV_RULE_TAG        "tag_rule.wav"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_INVALIDATETOPLEVEL_DYNAMICNEWWORDS "please play the seven"
+    IDS_ERR_INVALIDATETOPLEVEL 
+                            "Engine failed to invalidate the toplevel rule."
+    IDS_WAV_INVALIDATETOPLEVEL_NEW "tag_rule.wav"
+    IDS_INVALIDATENONTOPLEVEL_RULE1 "option"
+    IDS_INVALIDATENONTOPLEVEL_RULE2 "thing"
+    IDS_INVALIDATENONTOPLEVEL_TOPLEVELRULE "play"
+    IDS_INVALIDATENONTOPLEVEL_OLDWORD1 " "
+    IDS_INVALIDATENONTOPLEVEL_OLDWORD2 "oboe"
+    IDS_INVALIDATENONTOPLEVEL_NEWWORD2 "seven"
+    IDS_INVALIDATENONTOPLEVEL_TOPLEVELWORDS "play the "
+    IDS_WAV_INVALIDATENONTOPLEVEL_OLD "tag_exprule.wav"
+    IDS_WAV_INVALIDATENONTOPLEVEL_NEW "tag_rule.wav"
+    IDS_WAV_CFGTEXTBUFFER   "tag_exprule.wav"
+    IDS_CFGTEXTBUFFER_WORDS "play the "
+    IDS_CFGTEXTBUFFER_BUFFERWORD "oboe"
+    IDS_CFGTEXTBUFFER_RULE  "play"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WAV_ALTERMATESCFG   "tag_exprule.wav"
+    IDS_ALTERNATESCFG_BESTWORD "play"
+    IDS_ALTERNATESCFG_ALTERNATE1 "played"
+    IDS_ALTERNATESCFG_ALTERNATE2 "pay"
+    IDS_ALTERNATESCFG_WORDS "the oboe"
+    IDS_ALTERNATESCFG_RULE  "play"
+    IDS_ERR_INTERFERENCE_NOEVENT "failed to receive the interference event"
+    IDS_WAV_INTERFERENCE    "tag_l.wav"
+    IDS_WAV_GETITNRESULT    "tag_rule.wav"
+    IDS_RECO_GETITNRESULT   "please play the 7"
+    IDS_CUSTOMPROP_NEWWORD_PRON "s n ao 1 r k"
+    IDS_CUSTOMPROP_RULE     "play"
+    IDS_WAV_CUSTOMPROP      "lexicon.wav"
+    IDS_CUSTOMPROP_NEWWORD_DISP "abc"
+    IDS_CUSTOMPROP_NEWWORD_LEX "play"
+    IDS_DICTATIONTAG_WORDS  "play the"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DICTATIONTAG_RULE   "play"
+    IDS_WAV_DICTATIONTAG    "tag_exprule.wav"
+    IDS_WILDCARD_WORDS      "please play"
+    IDS_WILDCARD_RULE       "play"
+    IDS_WAV_WILDCARD        "tag_rule.wav"
+    IDS_APPLEX_WORD         "skooky"
+    IDS_APPLEX_PROP         "s n ao 1 r k"
+    IDS_USERLEXBEFOREAPPLEX_WORD "skooky"
+    IDS_USERLEXBEFOREAPPLEX_USERPROP "s n ao 1 r k"
+    IDS_USERLEXBEFOREAPPLEX_APPPROP "p l ey"
+    IDS_WAV_APPLEX          "lexicon.wav"
+    IDS_WAV_USERLEXBEFOREAPPLEX "lexicon.wav"
+    IDS_INVALIDATENONTOPLEVEL_NEWWORD1 "please "
+    IDS_RESOURCE_LOCATION3  "..\\..\\resources\\"
+    IDS_RECO_EXPRULE_FIRSTRULE "firstrule"
+    IDS_RECO_EXPRULE_SECONDRULE "secondrule"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CASESENSITIVEGRAMMAR_RULENAME "rule"
+    IDS_CASESENSITIVEGRAMMAR_LEX1 "skooky"
+    IDS_CASESENSITIVEGRAMMAR_PRON1 "p uh t"
+    IDS_CASESENSITIVEGRAMMAR_LEX2 "SKOOKY"
+    IDS_CASESENSITIVEGRAMMAR_PRON2 "w ay t"
+    IDS_CASESENSITIVEGRAMMAR_WAVE "tag_p.wav"
+    IDS_CASESENSITIVEGRAMMAR_DISP1 "skooky"
+    IDS_CASESENSITIVEGRAMMAR_DISP2 "SKOOKY"
+    IDS_CASESENSITIVELEXICON_WORD1 "skooky"
+    IDS_CASESENSITIVELEXICON_SYMBOL1 "p uh t"
+    IDS_CASESENSITIVELEXICON_WORD2 "SKOOKY"
+    IDS_CASESENSITIVELEXICON_SYMBOL2 "w ay t"
+    IDS_CASESENSITIVELEXICON_WAVE "tag_p.wav"
+    IDS_CASESENSITIVELEXICON_RULENAME "rule"
+    IDS_CFGTEXTBUFFER_NOTINTERESTEDWORDS "please "
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

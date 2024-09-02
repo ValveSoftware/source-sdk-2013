@@ -60,3 +60,5 @@ config.cfg
 *.pdb
 .vs/
 
+/mp/game/bin
+/mp/game/mod_hl2mp/bin

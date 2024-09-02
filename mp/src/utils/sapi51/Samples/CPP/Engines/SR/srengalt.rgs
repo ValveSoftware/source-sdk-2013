@@ -1,0 +1,26 @@
+HKCR
+{
+	SampleSREngineAlternates.SampleSREngineAlternates.1 = s 'Sample SR Engine Alternates Class'
+	{
+		CLSID = s '{882CAE4A-99BA-490b-BF80-CF69A60454A7}'
+	}
+	SampleSREngineAlternates.SampleSREngineAlternates = s 'Sample SR Engine Alternates Class'
+	{
+		CLSID = s '{882CAE4A-99BA-490B-BF80-CF69A60454A7}'
+		CurVer = s 'SampleSREngineAlternates.SampleSREngineAlternates.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {882CAE4A-99BA-490B-BF80-CF69A60454A7} = s 'SampleSrEngineAlternates Class'
+		{
+			ProgID = s 'SampleSREngineAlternates.SampleSREngineAlternates.1'
+			VersionIndependentProgID = s 'SampleSREngineAlternates.SampleSREngineAlternates'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{41B89B6C-9399-11D2-9623-00C04F8EE628}'
+		}
+	}
+}

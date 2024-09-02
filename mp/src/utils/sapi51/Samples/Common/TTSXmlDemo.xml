@@ -1,0 +1,30 @@
+<xml version="1.0">
+
+This is a basic functionality test for SAPI5 XML markup within the TTS Engine.  If you haven't done so already, please choose Microsoft Mary for your voice and check the box labeled "IsXML" before clicking on "Speak" in order to begin the tutorial.
+
+<SAPI>
+
+<VOICE REQUIRED="NAME=Microsoft mike">Hello, my name is Microsoft Mike. </VOICE><VOICE REQUIRED="NAME=Microsoft Mary">Hello, my name is Microsoft Mary. </VOICE><VOICE REQUIRED="NAME=Microsoft Sam">Hello, my name is Microsoft Sam. </VOICE>Together we make up Microsoft's SAPI5 Text-to-Speech engine.  With the use of XML tags, we can avoid the normal, default way that we read words and speak in general.  
+
+First of all, <VOICE REQUIRED="NAME=Microsoft Sam">you can</VOICE><VOICE REQUIRED="NAME=Microsoft mike">choose</VOICE><VOICE REQUIRED="NAME=Microsoft Mary">which voice</VOICE><VOICE REQUIRED="NAME=Microsoft Sam">you wish to hear</VOICE> through the use of a voice tag.<VOICE REQUIRED="NAME=Microsoft mike">Either Sam, Mary or myself can spell out words for you too.</VOICE>For example, the company "Microsoft" is spelled<SPELL>Microsoft</SPELL><VOICE REQUIRED="NAME=Microsoft Sam">and the word "Windows" is spelled <SPELL>windows</SPELL></VOICE>.
+
+<VOICE REQUIRED="NAME=Microsoft mike">We can also change the rate at which we speak.</VOICE><RATE SPEED="10">I am currently speaking at three times my normal rate.</RATE><VOICE REQUIRED="NAME=Microsoft Sam"><RATE SPEED="-10">and I am currently speaking at one third my normal rate.</RATE></VOICE>Our pitch can be easily manipulated as well.<VOICE REQUIRED="NAME=Microsoft mike"><PITCH MIDDLE="10">This is an example of a high pitch</PITCH></VOICE><PITCH middle="-10">and this is an example of a low pitch</PITCH>
+
+<VOICE REQUIRED="NAME=Microsoft Sam">Another way to adjust the prosody of our speech is through the use of a silence tag.</VOICE><VOICE REQUIRED="NAME=Microsoft mike">With a silence tag, an end user can make one of us pause for up to 65,536 milliseconds.</VOICE>For example, I<SILENCE MSEC="500"/>am<SILENCE MSEC="500"/>pausing<SILENCE MSEC="500"/>500<SILENCE MSEC="500"/>milliseconds<SILENCE MSEC ="500"/>between<SILENCE MSEC ="500"/>each<SILENCE MSEC ="500"/>word<SILENCE MSEC ="500"/>of<SILENCE MSEC ="500"/>this<SILENCE MSEC ="500"/>sentence.
+
+<VOICE REQUIRED="NAME=Microsoft Sam">The volume of our individual voices can also be raised and lowered through the use of XML tags.  <VOLUME LEVEL="101">This is the loudest I can speak</VOLUME><VOLUME LEVEL="-101">and this is the softest I can speak.</VOLUME></VOICE>
+
+In order to make our voices sound more natural, an emphasis tag can be used to allow us to place emphasis on certain words in a sentence.  <VOICE REQUIRED="NAME=Microsoft mike">Compare the following two phrases:  The movie will be this friday. <SILENCE MSEC="750"/>  The <EMPH>movie</EMPH> will be <EMPH>this friday.</EMPH>  Pretty neat, don't you think?</VOICE>
+
+Don't worry, that isn't all that we can do through the proper use of XML tags.  <VOICE REQUIRED="NAME=Microsoft Sam">An end user can also decide which part of speech to use for each word in a sentence.  Using the part of speech tag, we can force a certain pronunciation of a word without relying on the context around it</VOICE>.   <VOICE REQUIRED="NAME=Microsoft mike">For example, the nominal pronunciation of the word "compact" is <SILENCE MSEC="250"/><PARTOFSP PART="noun">compact</PARTOFSP> and the verbal pronunciation of the word "compact" is <SILENCE MSEC="250"/> <PARTOFSP PART="verb">compact.</PARTOFSP>  We can also force certain pronunciations for modifiers, functions , interjections and abbreviations.
+
+Another great use of XML tags within the TTS Engine is the creation of your own words.</VOICE>  Perhaps you want the computer to say a word that is not in the lexicon, such as "extracalifragilisticexpiallidocious."  As you just heard, we do not recognize this word and have to use letter to sound rules in order to try and guess at a proper pronunciation.  The pronunciation tag may be used to force the correct pronunciation of the word, <PRON SYM="eh 1 k s - t r ax 2 - k ae 1 l - ih 2 - f r ae 1 - jh ax 2 - l ih 1 - s t ih 2 k - eh 1 k s - p iy 2 - ae 1 l - ih 2 - d ow 1 - sh ax 2 s"/>.  Wow, now tell me, doesn't that sound better?
+
+Now let's insert a bookmark here<BOOKMARK MARK="8"/>. Your application should have received a bookmark event with a bookmark id of 8 when speech synthesis has passed this element in the input stream. Bookmark event is an easy way for an application to take action at a given point in the stream.
+
+</SAPI>
+
+
+Thanks for participating in this tutorial.  I hope you have a better understanding of the basic functionality of XML tag usage within the TTS Engine.  Enjoy!
+
+</xml>

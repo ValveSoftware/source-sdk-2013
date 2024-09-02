@@ -1,0 +1,17 @@
+/****************************************************************************
+*   SapiSDKCommon.rc2
+*       This file contains the resource compiler directives for the dialogs
+*       exposed from the SAPI SDK common directory
+*
+*   Copyright (c) 1999 Microsoft Corporation All Rights Reserved.
+*****************************************************************************/
+#include "SapiSDKCommonResources.h"
+
+IDD_COMPONENT_VERSION_DLG DIALOG DISCARDABLE  0, 0, 354, 228
+STYLE WS_POPUP | WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Component Versions"
+FONT 9, "Courier New"
+BEGIN
+    EDITTEXT        IDC_VERSION_EDIT,7,7,340,214,ES_MULTILINE | ES_READONLY | WS_VSCROLL | 
+                    WS_HSCROLL
+END
