@@ -1,0 +1,66 @@
+// Physics Gun
+WeaponData
+{
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"		"PHYSICS GUN"
+	"viewmodel"		"models/weapons/v_superphyscannon.mdl"
+	"playermodel"		"models/weapons/w_Physics.mdl"
+	"anim_prefix"		"physgun"
+	"bucket"		"0"
+	"bucket_position"	"3"
+
+	"clip_size"		"-1"
+	"primary_ammo"		"None"
+	"secondary_ammo"	"Gravity"
+
+	"weight"			"2"
+	"item_flags"			"0"
+	"damage"			"99999999999999999999999999999999999999999999999999999999999999999999"
+
+	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
+	SoundData
+	{
+				"single_shot"		"Weapon_Physgun.On"
+		"reload"			"Weapon_Physgun.Off"
+		"special1"			"Weapon_Physgun.Special1"
+	}
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"file"		"sprites/w_icons4b"
+				"x"			"0"
+				"y"			"64"
+				"width"		"128"
+				"height"	"64"
+		}
+		"weapon_s"
+		{
+				"file"		"sprites/w_icons4b"
+				"x"			"0"
+				"y"			"64"
+				"width"		"128"
+				"height"	"64"
+		}
+		"ammo2"
+		{
+				"font"		"WeaponIcons"
+				"character"	"z"
+		}
+		"crosshair"
+		{
+				"font"		"Crosshairs"
+				"character"	"Q"
+		}
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"48"
+				"y"			"72"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+}
