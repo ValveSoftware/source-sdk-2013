@@ -3,9 +3,9 @@ Cascade is an open-source project where we create better/enhanced versions of th
 
 ## What do we offer?
 - [X] RTT Lighting
-- [ ] Lua (VScript)
+- [X] Lua (VScript)
 - [X] Physgun
-- [X] Mounting support
+- [ ] Mounting support
 - [X] Singleplayer support... in the multiplayer branch
 - [X] Projected texture fixes
 - [X] Neofetch `exec neofetch`
