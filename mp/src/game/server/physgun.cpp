@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -19,7 +19,7 @@
 #include "ndebugoverlay.h"
 #include "physics_saverestore.h"
 #include "player_pickup.h"
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -33,7 +33,7 @@ ConVar phys_gunglueradius("phys_gunglueradius", "128" );
 static int g_physgunBeam;
 #define PHYSGUN_BEAM_SPRITE		"sprites/physbeam.vmt"
 
-#define MAX_PELLETS	16
+#define MAX_PELLETS	50
 
 class CWeaponGravityGun;
 
@@ -369,7 +369,7 @@ IMotionEvent::simresult_e CGravControllerPoint::Simulate( IPhysicsMotionControll
 				float angleDiff = angleDest - angleSrc;
 				angleDiff = RAD2DEG(angleDiff);
 				axis += m_targetAlignNormal * angleDiff;
-				//world = m_targetPosition;// + rotDest * (1-ratio);
+				world = m_targetPosition;// + rotDest * (1-ratio);
 //				NDebugOverlay::Line( worldRotCenter, worldRotCenter-m_targetAlignNormal*50, 255, 0, 0, false, 0.1 );
 //				NDebugOverlay::Line( worldRotCenter, worldRotCenter+tangent*50, 0, 255, 0, false, 0.1 );
 //				NDebugOverlay::Line( worldRotCenter, worldRotCenter+binormal*50, 0, 0, 255, false, 0.1 );
@@ -640,7 +640,7 @@ CWeaponGravityGun::CWeaponGravityGun()
 void CWeaponGravityGun::Spawn( )
 {
 	BaseClass::Spawn();
-//	SetModel( GetWorldModel() );
+	SetModel( GetWorldModel() );
 
 	FallInit();
 }
@@ -735,32 +735,27 @@ void CWeaponGravityGun::EffectUpdate( void )
 	CBaseEntity *pObject = m_hObject;
 	if ( pObject )
 	{
-		if ( m_useDown )
+		if ( m_useDown ) // if already been pressed 
 		{
-			if ( pOwner->m_afButtonPressed & IN_USE )
-			{
+			if ( pOwner->m_afButtonPressed & IN_USE ) // then if use pressed
+	        {
 				m_useDown = false;
-			}
-		}
-		else 
-		{
-			if ( pOwner->m_afButtonPressed & IN_USE )
-			{
-				m_useDown = true;
-			}
-		}
+				IPhysicsObject *pPhys = pObject->VPhysicsGetObject();
+				pPhys->EnableMotion(true);
 
-		if ( m_useDown )
-		{
-			pOwner->SetPhysicsFlag( PFLAG_DIROVERRIDE, true );
-			if ( pOwner->m_nButtons & IN_FORWARD )
-			{
-				m_distance = UTIL_Approach( 1024, m_distance, gpGlobals->frametime * 100 );
-			}
-			if ( pOwner->m_nButtons & IN_BACK )
-			{
-				m_distance = UTIL_Approach( 40, m_distance, gpGlobals->frametime * 100 );
-			}
+				//Reattach
+				DetachObject();
+				AttachObject( pObject, start, tr.endpos, distance );
+            }
+		}
+        else
+	    {
+			if ( pOwner->m_afButtonPressed & IN_USE )
+	        {
+				m_useDown = true;
+				IPhysicsObject *pPhys = pObject->VPhysicsGetObject();
+				pPhys->EnableMotion(false);
+	        }
 		}
 
 		if ( pOwner->m_nButtons & IN_WEAPON1 )
@@ -841,6 +836,8 @@ void CWeaponGravityGun::EffectUpdate( void )
 	{
 		m_gravCallback.ClearAutoAlign();
 	}
+
+	NetworkStateChanged();
 }
 
 void CWeaponGravityGun::SoundCreate( void )
@@ -1213,7 +1210,6 @@ void CWeaponGravityGun::DetachObject( void )
 void CWeaponGravityGun::AttachObject( CBaseEntity *pObject, const Vector& start, const Vector &end, float distance )
 {
 	m_hObject = pObject;
-	m_useDown = false;
 	IPhysicsObject *pPhysics = pObject ? (pObject->VPhysicsGetObject()) : NULL;
 	if ( pPhysics && pObject->GetMoveType() == MOVETYPE_VPHYSICS )
 	{
@@ -1423,7 +1419,7 @@ bool CWeaponGravityGun::Reload( void )
 }
 
 #define NUM_COLLISION_TESTS 2500
-void CC_CollisionTest( const CCommand &args )
+void CC_CollisionTest1( const CCommand &args )
 {
 	if ( !physenv )
 		return;
@@ -1520,4 +1516,4 @@ void CC_CollisionTest( const CCommand &args )
 	}
 #endif
 }
-static ConCommand collision_test("collision_test", CC_CollisionTest, "Tests collision system", FCVAR_CHEAT );
+static ConCommand collision_test1("collision_test1", CC_CollisionTest1, "Tests collision system", FCVAR_CHEAT );
