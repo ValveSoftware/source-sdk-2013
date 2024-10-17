@@ -3385,20 +3385,32 @@ void C_BaseAnimating::ProcessMuzzleFlashEvent()
 		//FIXME: We should really use a named attachment for this
 		if ( m_Attachments.Count() > 0 )
 		{
-			Vector vAttachment;
-			QAngle dummyAngles;
-			GetAttachment( 1, vAttachment, dummyAngles );
+			Vector vAttachment, vAng;
+			QAngle angles;
+			GetAttachment(1, vAttachment, angles); // set 1 instead of "attachment"
+			AngleVectors(angles, &vAng);
+			vAttachment += vAng * 2;
 
-			// Make an elight
-			dlight_t *el = effects->CL_AllocElight( LIGHT_INDEX_MUZZLEFLASH + index );
-			el->origin = vAttachment;
-			el->radius = random->RandomInt( 32, 64 ); 
-			el->decay = el->radius / 0.05f;
-			el->die = gpGlobals->curtime + 0.05f;
-			el->color.r = 255;
-			el->color.g = 192;
-			el->color.b = 64;
-			el->color.exponent = 5;
+			dlight_t* dl = effects->CL_AllocDlight(index);
+			dl->origin = vAttachment;
+
+			// Original color values
+			int originalR = 231;
+			int originalG = 219;
+			int originalB = 14;
+
+			// Randomize color components within the range of +/- 20
+			dl->color.r = originalR + random->RandomInt(-20, 20);
+			dl->color.g = originalG + random->RandomInt(-20, 20);
+			dl->color.b = originalB + random->RandomInt(0, 0);
+
+			// Randomize the die value by +/- 0.01
+			dl->die = gpGlobals->curtime + 0.05f + random->RandomFloat(-0.01f, 0.01f);
+			dl->radius = random->RandomFloat(245.0f, 256.0f);
+
+			// Randomize the decay value
+			dl->decay = random->RandomFloat(400.0f, 600.0f);
+		
 		}
 	}
 }
