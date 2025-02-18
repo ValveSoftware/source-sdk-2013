@@ -1,6 +1,0 @@
-ps.1.1
-
-tex t1
-
-mov r0.rgba, t1
-

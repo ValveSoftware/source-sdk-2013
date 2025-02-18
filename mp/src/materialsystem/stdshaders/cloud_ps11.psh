@@ -1,6 +1,0 @@
-ps.1.1
-
-tex t0
-tex t1
-
-mul r0, t0, t1

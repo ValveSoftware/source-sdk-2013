@@ -1,2 +1,0 @@
-// Game specific definitions
-"$game"	"HL2MP"
