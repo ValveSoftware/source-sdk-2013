@@ -271,6 +271,8 @@ void CTFBat_Wood::SecondaryAttack( void )
 		SecondaryAttackAnim( pPlayer );
 		SendWeaponAnim( ACT_VM_PRIMARYATTACK );
 
+		CalcIsAttackCritical();
+
 		SetContextThink( &CTFBat_Wood::LaunchBallThink, gpGlobals->curtime + tf_scout_bat_launch_delay.GetFloat(), "LAUNCH_BALL_THINK" );
 
 		m_flNextPrimaryAttack = gpGlobals->curtime + 0.25;
@@ -508,8 +510,6 @@ CBaseEntity* CTFBat_Wood::CreateBall( void )
 	Assert( pBall );
 	if ( !pBall )
 		return NULL;
-
-	CalcIsAttackCritical();
 
 	pBall->m_iOriginalOwnerID = m_iEnemyBallID;
 	m_iEnemyBallID = 0;
@@ -1085,8 +1085,6 @@ CBaseEntity *CTFBat_Giftwrap::CreateBall( void )
 	Assert( pBall );
 	if ( !pBall )
 		return NULL;
-
-	CalcIsAttackCritical();
 
 	pBall->m_iOriginalOwnerID = m_iEnemyBallID;
 	m_iEnemyBallID = 0;
